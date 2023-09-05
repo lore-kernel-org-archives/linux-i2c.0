@@ -2,125 +2,159 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 50484C83F2C
-	for <linux-i2c@archiver.kernel.org>; Tue,  5 Sep 2023 16:20:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 401D1CA0FFB
+	for <linux-i2c@archiver.kernel.org>; Tue,  5 Sep 2023 16:20:20 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240471AbjIEQUD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 5 Sep 2023 12:20:03 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38954 "EHLO
+        id S231376AbjIEQUF (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 5 Sep 2023 12:20:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354171AbjIEKEU (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Sep 2023 06:04:20 -0400
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67F1E198;
-        Tue,  5 Sep 2023 03:04:16 -0700 (PDT)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6B0FB81104;
-        Tue,  5 Sep 2023 10:04:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 134C4C433C8;
-        Tue,  5 Sep 2023 10:04:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1693908253;
-        bh=cQTnkMhDRy5JwEJ7hQwW45cTKaEjXmpkptxk9UnTN9c=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=gX2uxS5VVjeEKiCCpQxqG55A1d6tr08FU879bG5+NXYZLFyFaMPppX3z5yy4yLqod
-         dNwYiKnW4TFGr/ImkTHkmpe/bve7rwiugwIiFQfqwrKvi/9HkBUuW6mmPCH3GfZ6Tf
-         q5pVNKTsBUkwS9aQg+3O3Ii2W/CsulKJysn/CMDM=
-Date:   Tue, 5 Sep 2023 11:04:10 +0100
-From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-To:     "Wu, Wentong" <wentong.wu@intel.com>
-Cc:     Oliver Neukum <oneukum@suse.com>, "arnd@arndb.de" <arnd@arndb.de>,
-        "mka@chromium.org" <mka@chromium.org>,
-        "lee@kernel.org" <lee@kernel.org>,
-        "wsa@kernel.org" <wsa@kernel.org>,
-        "kfting@nuvoton.com" <kfting@nuvoton.com>,
-        "broonie@kernel.org" <broonie@kernel.org>,
-        "linus.walleij@linaro.org" <linus.walleij@linaro.org>,
-        "hdegoede@redhat.com" <hdegoede@redhat.com>,
-        "maz@kernel.org" <maz@kernel.org>, "brgl@bgdev.pl" <brgl@bgdev.pl>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        "linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>,
-        "linux-gpio@vger.kernel.org" <linux-gpio@vger.kernel.org>,
-        "andriy.shevchenko@linux.intel.com" 
-        <andriy.shevchenko@linux.intel.com>,
-        "heikki.krogerus@linux.intel.com" <heikki.krogerus@linux.intel.com>,
-        "andi.shyti@linux.intel.com" <andi.shyti@linux.intel.com>,
-        "sakari.ailus@linux.intel.com" <sakari.ailus@linux.intel.com>,
-        "bartosz.golaszewski@linaro.org" <bartosz.golaszewski@linaro.org>,
-        "Pandruvada, Srinivas" <srinivas.pandruvada@intel.com>,
-        "Wang, Zhifeng" <zhifeng.wang@intel.com>
-Subject: Re: [PATCH v14 1/4] usb: Add support for Intel LJCA device
-Message-ID: <2023090530-cleft-chivalry-b59f@gregkh>
-References: <1693806261-12958-1-git-send-email-wentong.wu@intel.com>
- <1693806261-12958-2-git-send-email-wentong.wu@intel.com>
- <a8c8af1b-9399-6ca9-ea3d-b71e6ee68cad@suse.com>
- <DM6PR11MB43166D27FB15905CB02DBC5B8DE9A@DM6PR11MB4316.namprd11.prod.outlook.com>
- <7755c3ee-9d7e-8ae5-1cf7-a5247cc4e6e5@suse.com>
- <DM6PR11MB4316C70D7C14B56ED349F01F8DE8A@DM6PR11MB4316.namprd11.prod.outlook.com>
- <f6f8a9c4-faf1-f9da-e688-a29eb267fabc@suse.com>
- <DM6PR11MB4316F903C524668BA35707398DE8A@DM6PR11MB4316.namprd11.prod.outlook.com>
+        with ESMTP id S1353754AbjIEHxG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Sep 2023 03:53:06 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3024CC;
+        Tue,  5 Sep 2023 00:53:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1693900383; x=1725436383;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=AnzlJ/ONUPwEn3gpEL9v0QBU/P1wozxQo+07ttxfhWs=;
+  b=jXaHKSheANoC8zPU0270NONqmymc9jG0o0J53S9ehMVt9bkF56zbh8Gl
+   m6JlDW353k/9oHOzN5FLQyPIv+SOOQyfqc9nlZ8j9Vh3UK2PISVtcp2i+
+   O9XSe/saWGyChhkVs1wAgB0hvbf173MkGE1rfodBYKuVHeVBp2Bmzl3cX
+   l14u3424+YbhsFAgY4vtr4gRowsnEKHCIh/7n3oBj6ghtOUyY3cCQzb8A
+   tPUlZ4OQQXNedX0TzdjOExjnSTb8CAQ9ZAHmY/U7ETEi5srIpsbCUDAjY
+   g5is02aLcSPa/CMhtlh/8aEaExvJLMvbDad5iwZMxXdHC1/7KIBVbzbdX
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10823"; a="356224965"
+X-IronPort-AV: E=Sophos;i="6.02,228,1688454000"; 
+   d="scan'208";a="356224965"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Sep 2023 00:52:56 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10823"; a="690841279"
+X-IronPort-AV: E=Sophos;i="6.02,228,1688454000"; 
+   d="scan'208";a="690841279"
+Received: from lkp-server02.sh.intel.com (HELO e0b2ea88afd5) ([10.239.97.151])
+  by orsmga003.jf.intel.com with ESMTP; 05 Sep 2023 00:52:53 -0700
+Received: from kbuild by e0b2ea88afd5 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1qdQri-0001Oz-32;
+        Tue, 05 Sep 2023 07:52:50 +0000
+Date:   Tue, 5 Sep 2023 15:52:47 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Aryan Srivastava <aryan.srivastava@alliedtelesis.co.nz>,
+        andi.shyti@kernel.org
+Cc:     llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+        aryan.srivastava@alliedtelesis.co.nz, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c:octeon:Add block-mode r/w
+Message-ID: <202309051505.K5sogLFe-lkp@intel.com>
+References: <20230904231439.485925-1-aryan.srivastava@alliedtelesis.co.nz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <DM6PR11MB4316F903C524668BA35707398DE8A@DM6PR11MB4316.namprd11.prod.outlook.com>
+In-Reply-To: <20230904231439.485925-1-aryan.srivastava@alliedtelesis.co.nz>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, Sep 05, 2023 at 08:53:43AM +0000, Wu, Wentong wrote:
-> > From: Oliver Neukum <oneukum@suse.com>
-> > 
-> > On 05.09.23 04:20, Wu, Wentong wrote:
-> > 
-> > Hi,
-> > 
-> > >> That is that you will hang arbitrarily long in disconnect?
-> > > This routine isn't called in an interrupt context, and it allows sleep
-> > > or wait something before the real shutdown like many drivers' remove()
-> > > or
-> > > disconnect() do.
-> > 
-> > It is, however, in the context of a kernel thread. We can wait, but not for
-> > arbitrary periods.
-> 
-> AFAIK, this is very common.
-> 
-> > 
-> > > If we want to speed up the disconnect(), below changes is to complete
-> > > the cmd_completion if usb_kill_urb() has been called, but there is
-> > > still possibility ljca client init one more transfer before
-> > > auxiliary_device_delete()
-> > >
-> > > @@ -206,7 +206,11 @@ static void ljca_recv(struct urb *urb)
-> > >
-> > >          if (urb->status) {
-> > >                  /* sync/async unlink faults aren't errors */
-> > > -               if (urb->status == -ENOENT || urb->status == -ECONNRESET ||
-> > > +               if (urb->status == -ENOENT) {
-> > > +                       complete(&adap->cmd_completion);
-> > > +                       return;
-> > 
-> > I'd say you'd break suspend() by such a change.
-> > You cannot complete in the interrupt handler, unless you can determine why the
-> > URB is killed.
-> 
-> With below status field in ljca_adapter to determine if it's killed by disconnect().
-> 
-> If this is preferred, I could cook the patch for review.
-> 
-> If this is fixed, could you please help merge this usb-ljca driver so that it won't
-> block others which depends on this driver?
+Hi Aryan,
 
-Please relax, we can't do anything until after -rc1 is out, and for me,
-that includes reviewing the code.
+kernel test robot noticed the following build errors:
 
-There is no rush, or deadline, here at all.  It will be merged when it
-is acceptable.
+[auto build test ERROR on wsa/i2c/for-next]
+[also build test ERROR on linus/master v6.5 next-20230905]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-thanks,
+url:    https://github.com/intel-lab-lkp/linux/commits/Aryan-Srivastava/i2c-octeon-Add-block-mode-r-w/20230905-071739
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
+patch link:    https://lore.kernel.org/r/20230904231439.485925-1-aryan.srivastava%40alliedtelesis.co.nz
+patch subject: [PATCH] i2c:octeon:Add block-mode r/w
+config: riscv-randconfig-001-20230905 (https://download.01.org/0day-ci/archive/20230905/202309051505.K5sogLFe-lkp@intel.com/config)
+compiler: clang version 17.0.0 (https://github.com/llvm/llvm-project.git 4a5ac14ee968ff0ad5d2cc1ffa0299048db4c88a)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20230905/202309051505.K5sogLFe-lkp@intel.com/reproduce)
 
-greg k-h
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202309051505.K5sogLFe-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+>> drivers/i2c/busses/i2c-octeon-core.c:725:8: error: use of undeclared label 'ret'
+     725 |                 goto ret;
+         |                      ^
+   1 error generated.
+
+
+vim +/ret +725 drivers/i2c/busses/i2c-octeon-core.c
+
+   674	
+   675	/* high-level-controller composite block write+write, m[0]len<=2, m[1]len<=1024 */
+   676	static int octeon_i2c_hlc_block_comp_write(struct octeon_i2c *i2c, struct i2c_msg *msgs)
+   677	{
+   678		bool set_ext = false;
+   679		int i, j, len, ret = 0;
+   680		u64 cmd, buf = 0, ext = 0;
+   681	
+   682		octeon_i2c_hlc_enable(i2c);
+   683		octeon_i2c_block_enable(i2c);
+   684	
+   685		/* Write (size - 1) into block control register */
+   686		len = msgs[1].len - 1;
+   687		octeon_i2c_writeq_flush((u64)(len), i2c->twsi_base + TWSI_BLOCK_CTL(i2c));
+   688	
+   689		/* Prepare core command */
+   690		cmd = SW_TWSI_V | SW_TWSI_SOVR;
+   691		cmd |= (u64)(msgs[0].addr & 0x7full) << SW_TWSI_ADDR_SHIFT;
+   692	
+   693		if (msgs[0].flags & I2C_M_TEN)
+   694			cmd |= SW_TWSI_OP_10_IA;
+   695		else
+   696			cmd |= SW_TWSI_OP_7_IA;
+   697	
+   698		if (msgs[0].len == 2) {
+   699			cmd |= SW_TWSI_EIA;
+   700			ext |= (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
+   701			set_ext = true;
+   702			cmd |= (u64)msgs[0].buf[1] << SW_TWSI_IA_SHIFT;
+   703		} else {
+   704			cmd |= (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
+   705		}
+   706	
+   707		/* Write msg into FIFO buffer */
+   708		octeon_i2c_writeq_flush(TWSI_BLOCK_STS_RESET_PTR, i2c->twsi_base + TWSI_BLOCK_STS(i2c));
+   709		for (i = 0; i < len; i += 8) {
+   710			buf = 0;
+   711			for (j = 7; j >= 0; j--)
+   712				buf |= (msgs[1].buf[i + (7 - j)] << (8 * j));
+   713			octeon_i2c_writeq_flush(buf, i2c->twsi_base + TWSI_BLOCK_FIFO(i2c));
+   714		}
+   715		if (set_ext)
+   716			octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT(i2c));
+   717	
+   718		/* Send command to core (send data in FIFO) */
+   719		octeon_i2c_hlc_int_clear(i2c);
+   720		octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI(i2c));
+   721	
+   722		/* Wait for transaction to complete */
+   723		ret = octeon_i2c_hlc_wait(i2c);
+   724		if (ret)
+ > 725			goto ret;
+   726	
+   727		cmd = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
+   728		if ((cmd & SW_TWSI_R) == 0)
+   729			return octeon_i2c_check_status(i2c, false);
+   730	
+   731		octeon_i2c_block_disable(i2c);
+   732		return ret;
+   733	}
+   734	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
