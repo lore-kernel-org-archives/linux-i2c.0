@@ -2,238 +2,159 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A5C5CA0FFD
-	for <linux-i2c@archiver.kernel.org>; Tue,  5 Sep 2023 16:19:46 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 272C6C83F2C
+	for <linux-i2c@archiver.kernel.org>; Tue,  5 Sep 2023 16:19:48 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238253AbjIEQTW (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Tue, 5 Sep 2023 12:19:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40070 "EHLO
+        id S229506AbjIEQTZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 5 Sep 2023 12:19:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354473AbjIELzh (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Sep 2023 07:55:37 -0400
+        with ESMTP id S1353516AbjIEG2O (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 5 Sep 2023 02:28:14 -0400
 Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D1921AD;
-        Tue,  5 Sep 2023 04:55:33 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE517CC4;
+        Mon,  4 Sep 2023 23:28:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1693914933; x=1725450933;
+  t=1693895287; x=1725431287;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=/cTDMMGwDXqGrvj5wts+NYLjOYzxjei9B4vYLZWvOR0=;
-  b=m4MIBKoiPBgQTE54zvHPp8kcyxzD3ladLowAL+2VMTSqwzXvyzCZiZE+
-   4wMKNY7aow/77tDEkZiL6cz0IgfSOwDrPNf24AJBUiaH521UuBLjIEkAf
-   RBPUxbOcVXa+83u/cnbjU8WOawh+AkzUAXhVBeXcBcVYf1QGbcqK+QoQX
-   qc2hwaE4DcQcr3SvFqKCGgLn5s97FfZVUFMtB/yspQhtx461pGa8uNL4+
-   2FtmOL+JxtjxGHqKmo4Xtpt7nlLJoOLrfm6yiCUfD4iBs0HJ08bYTrEsL
-   iwbl07w7f1RKIYB/a6Hq/97ZW2zPU7oBcCNzNKEnrP5hwBYzc5RqqBPUA
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10823"; a="440751289"
-X-IronPort-AV: E=Sophos;i="6.02,229,1688454000"; 
-   d="scan'208";a="440751289"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Sep 2023 04:55:32 -0700
+  bh=zcu4Y/TSeClvgGKpcsFH4BqAVZ4/YXsS4cM2ndhYS/I=;
+  b=XIRiU3fK7kzubSgimM29yYmPsEl/Z70xKkDc5Jm05Qt2nOqEV09yiYfD
+   mBx57EoMHYrTdrUIZZYCawkjzfAudjrwWfMljWD/UTFrJUEVkvGn3Q2wh
+   xzOVDLhkAhG9WOsfCpSKRE47Od4UEFJLy7s0PcZcT7DjN1ppPOaL9w81G
+   QW19t6xPI/v+1sN36mrb1XvlYDgdC4UjFdOyhQeH0CVG+SBlNEluUV354
+   I+yRSiRaC067HSuexBO2jcucJq0CADw7/ECehRMYMVc1tJuhMWJu2tL/v
+   TRHoJh9DTGg7rocxyueK/BfhMM7t8cjpHBPD1ZTimwTbtj7kZ6skqOufM
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10823"; a="440697261"
+X-IronPort-AV: E=Sophos;i="6.02,228,1688454000"; 
+   d="scan'208";a="440697261"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Sep 2023 23:28:07 -0700
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10823"; a="884290537"
-X-IronPort-AV: E=Sophos;i="6.02,229,1688454000"; 
-   d="scan'208";a="884290537"
-Received: from unknown (HELO smile.fi.intel.com) ([10.237.72.54])
-  by fmsmga001.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Sep 2023 04:55:17 -0700
-Received: from andy by smile.fi.intel.com with local (Exim 4.96)
-        (envelope-from <andriy.shevchenko@linux.intel.com>)
-        id 1qdUeN-006fwq-2t;
-        Tue, 05 Sep 2023 14:55:19 +0300
-Date:   Tue, 5 Sep 2023 14:55:19 +0300
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Ryan Chen <ryan_chen@aspeedtech.com>
-Cc:     "jk@codeconstruct.com.au" <jk@codeconstruct.com.au>,
-        Brendan Higgins <brendan.higgins@linux.dev>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Joel Stanley <joel@jms.id.au>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Andrew Jeffery <andrew@aj.id.au>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Wolfram Sang <wsa@kernel.org>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jean Delvare <jdelvare@suse.de>,
-        William Zhang <william.zhang@broadcom.com>,
-        Tyrone Ting <kfting@nuvoton.com>,
-        Tharun Kumar P <tharunkumar.pasumarthi@microchip.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Phil Edworthy <phil.edworthy@renesas.com>,
-        "openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>,
-        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>,
-        "=linux-kernel@vger.kernel.org" <=linux-kernel@vger.kernel.org>,
-        Andi Shyti <andi.shyti@kernel.org>
-Subject: Re: [PATCH v12 2/2] i2c: aspeed: support ast2600 i2c new register
- mode driver
-Message-ID: <ZPcXJ4adUNMv4LDr@smile.fi.intel.com>
-References: <20230714074522.23827-1-ryan_chen@aspeedtech.com>
- <20230714074522.23827-3-ryan_chen@aspeedtech.com>
- <ZLENe5B3gi/oNTQp@smile.fi.intel.com>
- <SEZPR06MB5269831E049E2267661F181FF2E8A@SEZPR06MB5269.apcprd06.prod.outlook.com>
+X-IronPort-AV: E=McAfee;i="6600,9927,10823"; a="987715115"
+X-IronPort-AV: E=Sophos;i="6.02,228,1688454000"; 
+   d="scan'208";a="987715115"
+Received: from lkp-server02.sh.intel.com (HELO e0b2ea88afd5) ([10.239.97.151])
+  by fmsmga006.fm.intel.com with ESMTP; 04 Sep 2023 23:28:05 -0700
+Received: from kbuild by e0b2ea88afd5 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1qdPXe-0001Kp-2G;
+        Tue, 05 Sep 2023 06:28:02 +0000
+Date:   Tue, 5 Sep 2023 14:27:43 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Aryan Srivastava <aryan.srivastava@alliedtelesis.co.nz>,
+        andi.shyti@kernel.org
+Cc:     oe-kbuild-all@lists.linux.dev,
+        aryan.srivastava@alliedtelesis.co.nz, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c:octeon:Add block-mode r/w
+Message-ID: <202309051413.SkL3myiV-lkp@intel.com>
+References: <20230904231439.485925-1-aryan.srivastava@alliedtelesis.co.nz>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <SEZPR06MB5269831E049E2267661F181FF2E8A@SEZPR06MB5269.apcprd06.prod.outlook.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+In-Reply-To: <20230904231439.485925-1-aryan.srivastava@alliedtelesis.co.nz>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Tue, Sep 05, 2023 at 06:52:37AM +0000, Ryan Chen wrote:
-> > From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > Sent: Friday, July 14, 2023 4:55 PM
-> > On Fri, Jul 14, 2023 at 03:45:22PM +0800, Ryan Chen wrote:
+Hi Aryan,
 
-...
+kernel test robot noticed the following build errors:
 
-> > > +#define AST2600_I2CC_GET_RX_BUFF(x)			(((x) >> 8) &
-> > GENMASK(7, 0))
-> > 
-> > > +#define AST2600_I2CC_GET_RX_BUF_LEN(x)		(((x) >> 24) &
-> > GENMASK(5, 0))
-> > 
-> > > +#define AST2600_I2CC_GET_TX_BUF_LEN(x)		((((x) >> 8) &
-> > GENMASK(4, 0)) + 1)
-> > 
-> > With right shifts it's better to have GENMASK to be applied first, it will show
-> > exact MSB of the bitfield.
-> > 
-> > (Ditto for other cases similar to these)
+[auto build test ERROR on wsa/i2c/for-next]
+[also build test ERROR on linus/master v6.5 next-20230831]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-> It will update next version.
-> #define AST2600_I2CC_GET_RX_BUF_LEN(x)      (((x) & GENMASK(29, 24)) >> 24)
-> #define AST2600_I2CC_GET_TX_BUF_LEN(x)      ((((x) & GENMASK(12, 8)) >> 8) + 1)
+url:    https://github.com/intel-lab-lkp/linux/commits/Aryan-Srivastava/i2c-octeon-Add-block-mode-r-w/20230905-071739
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
+patch link:    https://lore.kernel.org/r/20230904231439.485925-1-aryan.srivastava%40alliedtelesis.co.nz
+patch subject: [PATCH] i2c:octeon:Add block-mode r/w
+config: x86_64-allyesconfig (https://download.01.org/0day-ci/archive/20230905/202309051413.SkL3myiV-lkp@intel.com/config)
+compiler: gcc-12 (Debian 12.2.0-14) 12.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20230905/202309051413.SkL3myiV-lkp@intel.com/reproduce)
 
-Note, these were just an example, check _all_ of the similar cases.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202309051413.SkL3myiV-lkp@intel.com/
 
-In general any reviewer's comment should be considered for the entire code where
-it makes sense.
+All errors (new ones prefixed by >>):
 
-...
-
-> 			divisor = DIV_ROUND_UP(base_clk[3], i2c_bus->timing_info.bus_freq_hz);
-> 			for_each_set_bit(divisor, &divisor, 32) {
-
-This is wrong.
-
-> 				if ((divisor + 1) <= 32)
-> 					break;
-
-> 				divisor >>= 1;
-
-And this.
-
-> 				baseclk_idx++;
-
-> 			}
-
-for_each_set_bit() should use two different variables.
-
-> 		} else {
-> 			baseclk_idx = i + 1;
-> 			divisor = DIV_ROUND_UP(base_clk[i], i2c_bus->timing_info.bus_freq_hz);
-> 		}
-> 	}
-
-...
-
-> 	divisor = min_t(unsigned long, divisor, 32);
-
-Can't you use min()? min_t is a beast with some subtle corner cases.
-
-...
-
-> Sorry I don't catch this split slave out to separate change?
-> Do you mean go for another file name example ast2600_i2c_slave.c ?
-
-No, I mean
-
- patch 1: Introduce the driver with only master support
- patch 2: Add slave capability (all what is under ifdeffery for I2C_SLAVE)
-
-...
-
-> static int ast2600_i2c_do_start(struct ast2600_i2c_bus *i2c_bus)
-> {
-> 	struct i2c_msg *msg = &i2c_bus->msgs[i2c_bus->msgs_index];
-
-> 	int ret;
-
-This is not needed, you may return directly.
-
-> 	/* send start */
-> 	dev_dbg(i2c_bus->dev, "[%d] %sing %d byte%s %s 0x%02x\n",
-> 		i2c_bus->msgs_index, str_read_write(msg->flags & I2C_M_RD),
-> 		msg->len, msg->len > 1 ? "s" : "",
-> 		msg->flags & I2C_M_RD ? "from" : "to", msg->addr);
-> 
-> 	i2c_bus->master_xfer_cnt = 0;
-> 	i2c_bus->buf_index = 0;
-
-> 	if (msg->flags & I2C_M_RD) {
-> 		if (i2c_bus->mode == DMA_MODE)
-> 			ret = ast2600_i2c_setup_dma_rx(i2c_bus);
-
-			return ...;
-		if ...
+   drivers/i2c/busses/i2c-octeon-core.c: In function 'octeon_i2c_hlc_block_comp_write':
+>> drivers/i2c/busses/i2c-octeon-core.c:725:17: error: label 'ret' used but not defined
+     725 |                 goto ret;
+         |                 ^~~~
 
 
-> 		else if (i2c_bus->mode == BUFF_MODE)
-> 			ret = ast2600_i2c_setup_buff_rx(i2c_bus);
-> 		else
-> 			ret = ast2600_i2c_setup_byte_rx(i2c_bus);
+vim +/ret +725 drivers/i2c/busses/i2c-octeon-core.c
 
-> 	} else {
-> 		if (i2c_bus->mode == DMA_MODE)
-> 			ret = ast2600_i2c_setup_dma_tx(AST2600_I2CM_START_CMD, i2c_bus);
-> 		else if (i2c_bus->mode == BUFF_MODE)
-> 			ret = ast2600_i2c_setup_buff_tx(AST2600_I2CM_START_CMD, i2c_bus);
-> 		else
-> 			ret = ast2600_i2c_setup_byte_tx(AST2600_I2CM_START_CMD, i2c_bus);
-
-Same way.
-
-> 	}
-> 
-> 	return ret;
-> }
-
-...
-
-> > Wrong memory accessors. You should use something from asm/byteorder.h
-> > which includes linux/byteorder/generic.h.
-> 
-> Sorry, about these parts. I quit no idea.
-> This is chip register limited, it only support dword write, not support byte write.
-> So the only way I have is use get_unaligned_le32 function get the byte buffer to align dword write.
-> Or I may need your help point me a good way.
-
->  	for (i = 0; i < xfer_len; i++) {
->  		wbuf[i % 4] = msg->buf[i2c_bus->master_xfer_cnt + i];
->  		if (i % 4 == 3) {
->  			wbuf_dword = get_unaligned_le32(wbuf);
->  			writel(wbuf_dword, i2c_bus->buf_base + i - 3);
->  		}
->  	}
->  
->  	if (--i % 4 != 3) {
->  		wbuf_dword = get_unaligned_le32(wbuf);
->  		writel(wbuf_dword, i2c_bus->buf_base + i - (i % 4));
->  	} 
-
-Something like that. The most problematic part in your original code is
-dereferencing byte memory as 32-bit memory with all possible problems behind.
-With this code it's gone. The code itself might be improved even more,
-you can think about it, you still have time (we are now in v6.7 cycle).
+   674	
+   675	/* high-level-controller composite block write+write, m[0]len<=2, m[1]len<=1024 */
+   676	static int octeon_i2c_hlc_block_comp_write(struct octeon_i2c *i2c, struct i2c_msg *msgs)
+   677	{
+   678		bool set_ext = false;
+   679		int i, j, len, ret = 0;
+   680		u64 cmd, buf = 0, ext = 0;
+   681	
+   682		octeon_i2c_hlc_enable(i2c);
+   683		octeon_i2c_block_enable(i2c);
+   684	
+   685		/* Write (size - 1) into block control register */
+   686		len = msgs[1].len - 1;
+   687		octeon_i2c_writeq_flush((u64)(len), i2c->twsi_base + TWSI_BLOCK_CTL(i2c));
+   688	
+   689		/* Prepare core command */
+   690		cmd = SW_TWSI_V | SW_TWSI_SOVR;
+   691		cmd |= (u64)(msgs[0].addr & 0x7full) << SW_TWSI_ADDR_SHIFT;
+   692	
+   693		if (msgs[0].flags & I2C_M_TEN)
+   694			cmd |= SW_TWSI_OP_10_IA;
+   695		else
+   696			cmd |= SW_TWSI_OP_7_IA;
+   697	
+   698		if (msgs[0].len == 2) {
+   699			cmd |= SW_TWSI_EIA;
+   700			ext |= (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
+   701			set_ext = true;
+   702			cmd |= (u64)msgs[0].buf[1] << SW_TWSI_IA_SHIFT;
+   703		} else {
+   704			cmd |= (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
+   705		}
+   706	
+   707		/* Write msg into FIFO buffer */
+   708		octeon_i2c_writeq_flush(TWSI_BLOCK_STS_RESET_PTR, i2c->twsi_base + TWSI_BLOCK_STS(i2c));
+   709		for (i = 0; i < len; i += 8) {
+   710			buf = 0;
+   711			for (j = 7; j >= 0; j--)
+   712				buf |= (msgs[1].buf[i + (7 - j)] << (8 * j));
+   713			octeon_i2c_writeq_flush(buf, i2c->twsi_base + TWSI_BLOCK_FIFO(i2c));
+   714		}
+   715		if (set_ext)
+   716			octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT(i2c));
+   717	
+   718		/* Send command to core (send data in FIFO) */
+   719		octeon_i2c_hlc_int_clear(i2c);
+   720		octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI(i2c));
+   721	
+   722		/* Wait for transaction to complete */
+   723		ret = octeon_i2c_hlc_wait(i2c);
+   724		if (ret)
+ > 725			goto ret;
+   726	
+   727		cmd = __raw_readq(i2c->twsi_base + SW_TWSI(i2c));
+   728		if ((cmd & SW_TWSI_R) == 0)
+   729			return octeon_i2c_check_status(i2c, false);
+   730	
+   731		octeon_i2c_block_disable(i2c);
+   732		return ret;
+   733	}
+   734	
 
 -- 
-With Best Regards,
-Andy Shevchenko
-
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
