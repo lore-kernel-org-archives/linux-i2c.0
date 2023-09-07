@@ -2,104 +2,129 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DB638EC873E
-	for <linux-i2c@archiver.kernel.org>; Thu,  7 Sep 2023 16:01:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8D388EC873E
+	for <linux-i2c@archiver.kernel.org>; Thu,  7 Sep 2023 16:24:10 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236891AbjIGQBL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 7 Sep 2023 12:01:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55880 "EHLO
+        id S241338AbjIGQYK (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 7 Sep 2023 12:24:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241844AbjIGP7U (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Sep 2023 11:59:20 -0400
-Received: from pandora.armlinux.org.uk (unknown [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42F4A1FFC;
-        Thu,  7 Sep 2023 08:48:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=v3uvxlhpyVywOeCKfN58HL4kywyDPvCRWTa4uTmYA0Q=; b=cMBALboLcZQB/DNbVCwH0r0KjF
-        FKs6pkrAoiU6XIpNGn6ZT3ykUCQ+Ce5ru2X0LJN/wi1zO4BFrFy21XM5xRndzViVJHmSjNc23KM3N
-        3tHi+R6HNKVPol+fFZa4SUU5JmE19W1F8uRQb4sBvD8S6qVOGhJkdmL6rX/MYhPu1mT0Zt525MV9j
-        eQSsMWb9eZ/3yo6lAKWimBG3nTiy46dA0Vtoz8gVCUe0LTXe+6kaVdpkOeMBO8TclVjgR+WTH2Za/
-        2mE5feR0C2jb11Owc26U78mi0p48ztIJuDaE635wnsqQdt0kRDvrdA7s0FDVSpDB14sWBKXvW2n9w
-        vEI7gVwQ==;
-Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:57708)
-        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.96)
-        (envelope-from <linux@armlinux.org.uk>)
-        id 1qeFUF-0003KZ-1Y;
-        Thu, 07 Sep 2023 14:55:59 +0100
-Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
-        (envelope-from <linux@shell.armlinux.org.uk>)
-        id 1qeFUF-0005tY-7p; Thu, 07 Sep 2023 14:55:59 +0100
-Date:   Thu, 7 Sep 2023 14:55:59 +0100
-From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
-To:     Bagas Sanjaya <bagasdotme@gmail.com>
-Cc:     Raul Piper <raulpblooper@gmail.com>,
-        kernelnewbies@kernelnewbies.org,
+        with ESMTP id S244055AbjIGQXW (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 7 Sep 2023 12:23:22 -0400
+Received: from mail-ua1-x92b.google.com (mail-ua1-x92b.google.com [IPv6:2607:f8b0:4864:20::92b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ECEB1FCA;
+        Thu,  7 Sep 2023 09:13:01 -0700 (PDT)
+Received: by mail-ua1-x92b.google.com with SMTP id a1e0cc1a2514c-791b8525b59so455780241.1;
+        Thu, 07 Sep 2023 09:13:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20221208; t=1694103096; x=1694707896; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=yBbG/89WwsARwO9cDG6ZrnKutfGNLaFwpYJJxWQTWZs=;
+        b=b0vQ4D1mQ3kgqLuEJrXWtcFCHI5Fab6K8w6MX+iTwP4/6dpOYnIbghxpErxgGXmfdm
+         xdMABYv6ezxLVSLwGR1+/5cipYCr1fYqGF0zmM5OjfdVHFC9Q//fb+01Pw2gcN6ocuS3
+         EzgkLCBjWluobmjdFWYxy4slQYM7FmACRBhETD1QCEvW/wq4sn04c/lDOIYvkLvmKjlT
+         u4iv2it/HImD+miwGl9oaRpUUv9SH7ZKJ5lU+lMk5ouu5B3Xm+uMV0NQeJ+kHZUQkK6f
+         tyWIFzBqDcrJpZyBeRohhnIvPTSIeQeQoIuMkfrDfn9wqpiiGixCIel74rXxbX+QAEBG
+         gDOQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20221208; t=1694103096; x=1694707896;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yBbG/89WwsARwO9cDG6ZrnKutfGNLaFwpYJJxWQTWZs=;
+        b=OeGUGyat+QwIj46Hul/zlsY02WX3jUfBUyFhphz3EOY2w6gSKeoMCcb4ApzDJkUIZT
+         Ew1lXhzdJJXXIk/I0bujhluRnM3vwxot0ur7f1HNDOl3WMhMTJUIA4fgTlcaKok+wqs6
+         sW6E+tM2G+Gcj36CaZN3chWTLhKbYs4f0RZXf7bxal41FNSdfqYuQpFw8vwkTqkuRRbi
+         +NLkp8DfWZhq3Q5fgvMO9DxbBCbMW1WYvxtmAyvi/pXieiYLqLiATfAMjVqkLqCmAh14
+         yQzJhqq7YAxjZZfTznJpXGhGTIAZIZCJ0J1WX0vm2ivB1xShw8VNYo2n82RGgfiRUy2l
+         YZAA==
+X-Gm-Message-State: AOJu0Yw7KDHEENFthOi39/fz4YBzaYfQxYbYghhjUK355onyA06cacvk
+        YSqc9+LDOkDUqmc4lesX4joYnh0i8QM=
+X-Google-Smtp-Source: AGHT+IEsTDjlEJFvmqN1jWfGRQV26ABBTlqdZtz+qVwfZnqDHmSJNz8WWRbKq21PTU6/3PBfwQkKYQ==
+X-Received: by 2002:a17:90a:49cd:b0:268:5431:f2a7 with SMTP id l13-20020a17090a49cd00b002685431f2a7mr16515868pjm.28.1694093797142;
+        Thu, 07 Sep 2023 06:36:37 -0700 (PDT)
+Received: from debian.me ([103.124.138.83])
+        by smtp.gmail.com with ESMTPSA id 10-20020a17090a01ca00b00263dfe9b972sm1623144pjd.0.2023.09.07.06.36.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 Sep 2023 06:36:36 -0700 (PDT)
+Received: by debian.me (Postfix, from userid 1000)
+        id C775B8F4C13A; Thu,  7 Sep 2023 20:36:32 +0700 (WIB)
+Date:   Thu, 7 Sep 2023 20:36:32 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Raul Piper <raulpblooper@gmail.com>,
+        <kernelnewbies@kernelnewbies.org>,
         LKML <linux-kernel@vger.kernel.org>,
         Linux ARM <linux-arm-kernel@lists.infradead.org>,
         Linux I2C <linux-i2c@vger.kernel.org>,
-        Linux Devicetree <devicetree@vger.kernel.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        Linux Devicetree <devicetree@vger.kernel.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>,
         Andi Shyti <andi.shyti@kernel.org>,
         Rob Herring <robh+dt@kernel.org>,
         Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
         Conor Dooley <conor+dt@kernel.org>
 Subject: Re: Debugging i2c : i2cdetect cant detect a device on i2c line
-Message-ID: <ZPnWb15ucCotffav@shell.armlinux.org.uk>
+Message-ID: <ZPnR4Cx6_Hh3weEl@debian.me>
 References: <CAEwN+MCorDCS7EhN40Qgja_nY+SFc3G61Zd6yntqAS+w26YO9Q@mail.gmail.com>
- <ZPnR4Cx6_Hh3weEl@debian.me>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="H1/cJnQLbHBLXKRp"
 Content-Disposition: inline
-In-Reply-To: <ZPnR4Cx6_Hh3weEl@debian.me>
-Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+In-Reply-To: <CAEwN+MCorDCS7EhN40Qgja_nY+SFc3G61Zd6yntqAS+w26YO9Q@mail.gmail.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Thu, Sep 07, 2023 at 08:36:32PM +0700, Bagas Sanjaya wrote:
-> [also Cc: devicetree and ARM folks]
-> 
-> On Thu, Sep 07, 2023 at 08:21:44AM +0530, Raul Piper wrote:
-> > Hello ,
-> > I am trying to detect an i2c device A on i2c1 line on  one of the Arm
-> > Cortex A7 platform but not able to see any device on a given address (
-> > 0x3d) .
-> > 
-> > Is there any parameters of i2c which i can change like rise/fall time
-> > , timeout etc in a device tree or kernel source and re test it?
-> > I have tried changing the i2c speed from 100KHz to 400 KHz  but no success.
-> > I have even tried removing the 1.5K pull ups on the i2c lines but no result.
 
-Honestly, from this description, I'm wondering if this posting is a joke.
+--H1/cJnQLbHBLXKRp
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I2C is entirely _reliant_ on pull-ups. It's a wire-or bus, and the
-logic 1 state is created by no device pulling the signal low, thereby
-allowing the pull-up resistor to pull the line to the logic 1 state.
+[also Cc: devicetree and ARM folks]
 
-The pull-up must be the correct strength for the devices on the bus.
-If it is too strong, then a driver may not be able to pull the signal
-sufficiently low for other devices to register it as a logic 0.
+On Thu, Sep 07, 2023 at 08:21:44AM +0530, Raul Piper wrote:
+> Hello ,
+> I am trying to detect an i2c device A on i2c1 line on  one of the Arm
+> Cortex A7 platform but not able to see any device on a given address (
+> 0x3d) .
+>=20
+> Is there any parameters of i2c which i can change like rise/fall time
+> , timeout etc in a device tree or kernel source and re test it?
+> I have tried changing the i2c speed from 100KHz to 400 KHz  but no succes=
+s.
+> I have even tried removing the 1.5K pull ups on the i2c lines but no resu=
+lt.
+>=20
+> So I wanted to know on what factors i2cdetect may not probe the device
+> or show it on the hex dump.
+> What parameters of i2c driver i can tinker and where? Is Platform dts
+> is the only file i can modify and test with?
+> Kernel is 5.51 .
 
-Conversely, the pull-up must be strong enough so that the rise-time
-of the signal is sufficient to register as a logic 1.
+Do you mean v5.15.y stable series?
 
-If it's a problem with the rise time, then increasing the clock rate
-will just make the situation worse.
+> There are other 2-3 devices on the same lines which responds to
+> i2cdetect with correct address but not this device (0x3D) .
+> Its i2c address is also different from the current devices.
+>=20
 
-So, if other devices work on the bus, it could be that the Vil
-threshold of this device is not being achieved, whereas the other
-devices are happy. Therefore, I would suggest you study the data
-sheets of the device that isn't being detected.
+Specifically, what device do you have this issue with?
 
-Lastly, if the undetectable device has a reset line, it's possible
-that the device isn't responding because it's being held in reset.
+Confused...
 
--- 
-RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
-FTTP is here! 80Mbps down 10Mbps up. Decent connectivity at last!
+--=20
+An old man doll... just what I always wanted! - Clara
+
+--H1/cJnQLbHBLXKRp
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCZPnR3AAKCRD2uYlJVVFO
+oyWCAP9+/SOZwrNMjfRhCDMh3l0obDG00/bTTq/q77PhjjA7rgD+NsH4fEEZCONi
+2HKCHPJtDXAGeViGmvQbTqhp/EFcsAw=
+=irVf
+-----END PGP SIGNATURE-----
+
+--H1/cJnQLbHBLXKRp--
