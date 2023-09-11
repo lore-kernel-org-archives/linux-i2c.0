@@ -2,138 +2,131 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5E38CEE57DF
-	for <linux-i2c@archiver.kernel.org>; Mon, 11 Sep 2023 06:54:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8F908CA0ED5
+	for <linux-i2c@archiver.kernel.org>; Mon, 11 Sep 2023 21:27:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231913AbjIKGyz (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 11 Sep 2023 02:54:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60928 "EHLO
+        id S236765AbjIKVSU (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 11 Sep 2023 17:18:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231450AbjIKGyy (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 11 Sep 2023 02:54:54 -0400
-Received: from mail-vk1-xa29.google.com (mail-vk1-xa29.google.com [IPv6:2607:f8b0:4864:20::a29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA90D12D
-        for <linux-i2c@vger.kernel.org>; Sun, 10 Sep 2023 23:54:49 -0700 (PDT)
-Received: by mail-vk1-xa29.google.com with SMTP id 71dfb90a1353d-495e3d1edb4so553022e0c.0
-        for <linux-i2c@vger.kernel.org>; Sun, 10 Sep 2023 23:54:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20230601.gappssmtp.com; s=20230601; t=1694415289; x=1695020089; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WXyOh/69L+jj7btllxiqwEkB6oTOH+/vnWCCjG27dFA=;
-        b=EfUZRQoXMnqf5+GCzhjWkcbmYPD7oYTMpyMhfwHWiIOMg1RuQqTS8pvIgxj8kfE6bg
-         3Kn+FNx2Tk2vYjitAwQR0qJ/enRvTj0MFZI94tR1RV2iJtkEQxtDEHW6+QUejmBL6xfR
-         SG+gLKdsHZtjTJmTuWwHmlEK/H+nIrl5+gJ/uWs40gq986cvaeuVMwgp0SDnwGGbVERw
-         jbcsoV/djpVS+qeSQJ28ITnRozoq1MbZ0eRr0Brx7Be/4LkV2XPwhxLQDv14p263CaKd
-         91C2jKDTM3eXV+ggumhfnrSqLncdALkGcOLDZa3BUT82G8vjjTFQwyAW68j5ww260Qpi
-         QuHA==
+        with ESMTP id S236787AbjIKL0J (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 11 Sep 2023 07:26:09 -0400
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 6390FCE5
+        for <linux-i2c@vger.kernel.org>; Mon, 11 Sep 2023 04:25:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1694431518;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=2Iim/K20vnt05KkdZYOYBtAD92BDdr0wfxtmdMEpivQ=;
+        b=hLkSFKhN4B4cyQ926IewAvN3TcP62j+E86JtKxJvC86/5j7YSK9qxXzD9QIWBLLR6O52WS
+        H3bZc2hQg6Lpcv8Hw80rrZ74noVzvvCEKF8LgbS9Joal9MdtHduaNo9uUFB5HR+fqkIY8u
+        VE2+0VIyQR1Q4tqREbsUaXicUjiQf8c=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-154-RS5Gn6H0Np-qTIrozEZaIA-1; Mon, 11 Sep 2023 07:25:17 -0400
+X-MC-Unique: RS5Gn6H0Np-qTIrozEZaIA-1
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-98e40d91fdfso299246166b.3
+        for <linux-i2c@vger.kernel.org>; Mon, 11 Sep 2023 04:25:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1694415289; x=1695020089;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=WXyOh/69L+jj7btllxiqwEkB6oTOH+/vnWCCjG27dFA=;
-        b=EfQAYZzXDidRt40VeuJfhp6fFR7u1T+bOP6ohm2WPTMDxyi1iW78vOc76MrA7mviUW
-         45QNfWHg/0E5J5So9EcPu7lJJmThpUtKirefUD6FJcZO5v1h6SrYGyPyYzCaRVXkkf1z
-         ND7S7ITeOAoBjZRKo9/gKtranX4IzDnJJVDQBy1+sDtUZNOKGhMIu9zjReShBPs0f3ty
-         kWyZZ4g6VnnM3Q59/mkLNWRtfHUPmzbqYco99YvoLEVuUNQEQL/288BWq8Ud5iqBrRhm
-         nsU4PTLSpvZEfBJqFcSfeKxGx4/4ZX5TYa2UM6OKAw2t7jwHTzMBlxTr0pz/up/H9nqN
-         xkUQ==
-X-Gm-Message-State: AOJu0YxP04hNDc5QweSnJhTEbKyooCoL6lOVCZhrrCTQGj+n5O//FU4v
-        VShpKk5P/H66DXdVpzNdD6SfssWZc91CtZgTRbrvqg==
-X-Google-Smtp-Source: AGHT+IHMaBeRWzx5kAez/oDd4wxSARcUvFTxaLdrWRenoyGrKpOx/Yvan6s1lQB6Ld6Y9huwGl7YpPxR8EaYgMz5dSs=
-X-Received: by 2002:a05:6122:12eb:b0:493:fbe7:e71d with SMTP id
- k11-20020a05612212eb00b00493fbe7e71dmr4048706vkp.6.1694415288993; Sun, 10 Sep
- 2023 23:54:48 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1694431516; x=1695036316;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=2Iim/K20vnt05KkdZYOYBtAD92BDdr0wfxtmdMEpivQ=;
+        b=ClCubaTDuf3jAdiZJGLrn12PMUmoU0/i+hV+jhx77n1ApXRZrg2IIPulH0RVby/1zm
+         FmBEzAFlw9tTX2I8qu/6sXahDbj3NtlyJUTlG6z5+grT7R9fhQV6f/4QpKqOEbJ8Lm5z
+         fXiQzAJophcgQ5eS2d0gxTfcGb3AVzS2sYxD74+duR1dVjDBTaHEV60s2qvPxjxlxjme
+         HI+CFcasVY1QVw+A5oMeoRlyASxObOQTE95ZKmRTte6F5NcxBwfArPRh+8m2GdIcskLB
+         EpPv8OQTEM+YRHd2asGUk1XZBmBG/3Iak1x6avIXlJSuRvVa9zHGjZXC/lhk/sZoJ7nn
+         YxfA==
+X-Gm-Message-State: AOJu0YwiLhAPDq5IfQINyPWaAsiPJFKi2tgowKLvX5QhNHixqqgtcXdT
+        EIV1KCjCWdMVZTNjDWtObGvFQ4zG6w4AjeVJTjW+ewlx8RdLbUk4tY8kTb6EXZUhv/IZxlVykdL
+        HStvr6jINcOSOOf2zs5ZL
+X-Received: by 2002:a17:907:a073:b0:9a1:d400:39e5 with SMTP id ia19-20020a170907a07300b009a1d40039e5mr7153723ejc.4.1694431515985;
+        Mon, 11 Sep 2023 04:25:15 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IGRmzBlFjuupO/WhzEW9QA8x/A7Crw88ZDujh/u8xJM8zhdS52wjhVtQr5s2VmPio2T37TxEA==
+X-Received: by 2002:a17:907:a073:b0:9a1:d400:39e5 with SMTP id ia19-20020a170907a07300b009a1d40039e5mr7153710ejc.4.1694431515670;
+        Mon, 11 Sep 2023 04:25:15 -0700 (PDT)
+Received: from [10.40.98.142] ([78.108.130.194])
+        by smtp.gmail.com with ESMTPSA id z20-20020a170906241400b009829d2e892csm5243509eja.15.2023.09.11.04.25.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 11 Sep 2023 04:25:14 -0700 (PDT)
+Message-ID: <f1ac222b-00ce-70cd-2d26-d66bc0b0ef70@redhat.com>
+Date:   Mon, 11 Sep 2023 13:25:14 +0200
 MIME-Version: 1.0
-References: <20230902174547.71316-1-biju.das.jz@bp.renesas.com>
-In-Reply-To: <20230902174547.71316-1-biju.das.jz@bp.renesas.com>
-From:   Bartosz Golaszewski <brgl@bgdev.pl>
-Date:   Mon, 11 Sep 2023 08:54:37 +0200
-Message-ID: <CAMRc=MctvBdH91mfSr-1ODy3sEKtPtvcWR03NiHr6rFbrA82Lw@mail.gmail.com>
-Subject: Re: [PATCH] eeprom: at24: Drop at24_get_chip_data()
-To:     Biju Das <biju.das.jz@bp.renesas.com>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Biju Das <biju.das.au@gmail.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.13.0
+Subject: Re: [PATCH 1/2] platform/mellanox: NVSW_SN2201 should depend on ACPI
+Content-Language: en-US
+To:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Mark Gross <markgross@kernel.org>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Michael Shych <michaelsh@nvidia.com>,
+        Wolfram Sang <wsa@kernel.org>
+Cc:     linux-i2c@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <cover.1693828363.git.geert+renesas@glider.be>
+ <ec5a4071691ab08d58771b7732a9988e89779268.1693828363.git.geert+renesas@glider.be>
+From:   Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <ec5a4071691ab08d58771b7732a9988e89779268.1693828363.git.geert+renesas@glider.be>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On Sat, Sep 2, 2023 at 7:45=E2=80=AFPM Biju Das <biju.das.jz@bp.renesas.com=
-> wrote:
->
-> Replace at24_get_chip_data()->i2c_get_match_data() as it is
-> redundant.
->
-> Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
+Hi,
+
+On 9/4/23 14:00, Geert Uytterhoeven wrote:
+> The only probing method supported by the Nvidia SN2201 platform driver
+> is probing through an ACPI match table.  Hence add a dependency on
+> ACPI, to prevent asking the user about this driver when configuring a
+> kernel without ACPI support.
+> 
+> Fixes: 662f24826f954d49 ("platform/mellanox: Add support for new SN2201 system")
+> Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+Thank you for your patch, I've applied this patch to my fixes
+branch:
+https://git.kernel.org/pub/scm/linux/kernel/git/pdx86/platform-drivers-x86.git/log/?h=fixes
+
+Note it will show up in my fixes branch once I've pushed my
+local branch there, which might take a while.
+
+I will include this patch in my next fixes pull-req to Linus
+for the current kernel development cycle.
+
+Note I'm only picking up PATCH 1/2. I expect 2/2 to be merged
+through the i2c tree.
+
+Regards,
+
+Hans
+
+
+
 > ---
->  drivers/misc/eeprom/at24.c | 32 +++-----------------------------
->  1 file changed, 3 insertions(+), 29 deletions(-)
->
-> diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-> index dbbf7db4ff2f..af83aca452b7 100644
-> --- a/drivers/misc/eeprom/at24.c
-> +++ b/drivers/misc/eeprom/at24.c
-> @@ -509,32 +509,6 @@ static int at24_write(void *priv, unsigned int off, =
-void *val, size_t count)
->         return 0;
->  }
->
-> -static const struct at24_chip_data *at24_get_chip_data(struct device *de=
-v)
-> -{
-> -       struct device_node *of_node =3D dev->of_node;
-> -       const struct at24_chip_data *cdata;
-> -       const struct i2c_device_id *id;
-> -
-> -       id =3D i2c_match_id(at24_ids, to_i2c_client(dev));
-> -
-> -       /*
-> -        * The I2C core allows OF nodes compatibles to match against the
-> -        * I2C device ID table as a fallback, so check not only if an OF
-> -        * node is present but also if it matches an OF device ID entry.
-> -        */
-> -       if (of_node && of_match_device(at24_of_match, dev))
-> -               cdata =3D of_device_get_match_data(dev);
-> -       else if (id)
-> -               cdata =3D (void *)id->driver_data;
-> -       else
-> -               cdata =3D acpi_device_get_match_data(dev);
-> -
-> -       if (!cdata)
-> -               return ERR_PTR(-ENODEV);
-> -
-> -       return cdata;
-> -}
-> -
->  static int at24_make_dummy_client(struct at24_data *at24, unsigned int i=
-ndex,
->                                   struct i2c_client *base_client,
->                                   struct regmap_config *regmap_config)
-> @@ -601,9 +575,9 @@ static int at24_probe(struct i2c_client *client)
->         i2c_fn_block =3D i2c_check_functionality(client->adapter,
->                                                I2C_FUNC_SMBUS_WRITE_I2C_B=
-LOCK);
->
-> -       cdata =3D at24_get_chip_data(dev);
-> -       if (IS_ERR(cdata))
-> -               return PTR_ERR(cdata);
-> +       cdata =3D i2c_get_match_data(client);
-> +       if (!cdata)
-> +               return -ENODEV;
->
->         err =3D device_property_read_u32(dev, "pagesize", &page_size);
->         if (err)
-> --
-> 2.25.1
->
+>  drivers/platform/mellanox/Kconfig | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/platform/mellanox/Kconfig b/drivers/platform/mellanox/Kconfig
+> index 382793e73a60a8b3..30b50920b278c94b 100644
+> --- a/drivers/platform/mellanox/Kconfig
+> +++ b/drivers/platform/mellanox/Kconfig
+> @@ -80,8 +80,8 @@ config MLXBF_PMC
+>  
+>  config NVSW_SN2201
+>  	tristate "Nvidia SN2201 platform driver support"
+> -	depends on HWMON
+> -	depends on I2C
+> +	depends on HWMON && I2C
+> +	depends on ACPI || COMPILE_TEST
+>  	select REGMAP_I2C
+>  	help
+>  	  This driver provides support for the Nvidia SN2201 platform.
 
-Applied, thanks!
-
-Bart
