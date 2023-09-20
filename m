@@ -2,55 +2,55 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AED93CE79AC
-	for <linux-i2c@archiver.kernel.org>; Wed, 20 Sep 2023 07:33:13 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B6FA1CE79AD
+	for <linux-i2c@archiver.kernel.org>; Wed, 20 Sep 2023 07:33:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233770AbjITHdR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 20 Sep 2023 03:33:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58450 "EHLO
+        id S233776AbjITHdS (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 20 Sep 2023 03:33:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233778AbjITHdQ (ORCPT
+        with ESMTP id S233782AbjITHdQ (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Wed, 20 Sep 2023 03:33:16 -0400
-Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03F5CCE
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D2702CA
         for <linux-i2c@vger.kernel.org>; Wed, 20 Sep 2023 00:33:07 -0700 (PDT)
-Received: by mail-lf1-x12c.google.com with SMTP id 2adb3069b0e04-502e6d632b6so10217327e87.0
-        for <linux-i2c@vger.kernel.org>; Wed, 20 Sep 2023 00:33:06 -0700 (PDT)
+Received: by mail-wm1-x32b.google.com with SMTP id 5b1f17b1804b1-40479f8325fso57890555e9.1
+        for <linux-i2c@vger.kernel.org>; Wed, 20 Sep 2023 00:33:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1695195185; x=1695799985; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1695195186; x=1695799986; darn=vger.kernel.org;
         h=content-transfer-encoding:autocrypt:subject:from:cc:to
          :content-language:user-agent:mime-version:date:message-id:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=OWY3p0THOFbQkt8ODgO07Jw3SDyyxEjIdkaS8n99u0g=;
-        b=WXTQVK2OYq2gEhqX2XGonXLstfx5O9jvVunH37vUYcKeP0x7A9Y3DIJ4E8VcwKNngi
-         gGPiyrRz8k+xFKe+ufvUSP+JaJt0Gf74CX8eQyAjuYzoBJBSbOstzDp+8zwgr6PiQ9T+
-         ayE7BlqNoY+qN+L4AToUJXONQsfvdlw5HReBjTvpdnZqbqVmzP60wKULVNL8c9pskLst
-         NsntipHO1glpQ7HIQtwlERO+oXny7XoVsGfiqUBuyhd7YJuAisqgur43tDV2UW1sFhAF
-         hQbZNKu4rMJlqFcRCHAOHzBwX6H4VLEr4QtiEM0sN9B9abLgM4IjAiF50cMtqRUuPlyc
-         F7tA==
+        bh=GO5VjgyTURZTJ+S1ya2T4cL5spck5ShsqZulAyAgHcI=;
+        b=EqREqdDEt6BblHZ6k/WU8jbN5V8wMRNvgoCqA6xMqyoMJdOM1cLWz072kad1Iz7cSe
+         VfXXIGxJSxfaMU51Z0ZO9s5vZsJsbaeft7iBzi+g8mapRTsun34ozDKOyHeh4du47YQV
+         MvvYssMdtwz/ctlfcresl85sZbPLqtlBwJ+sMRn8PyV4atZT0GxKllQu8tOyUPMto8tY
+         pBYOpF3eGV/pbSIJ3zmJs4mB5PA8uw/NnPqW9gKX8+6N9nEg0JaI/AfTlSpGk+Hgsrw8
+         /lm23LARI496s6DCE8STWhLeAkaEeRwOFjEU48F4VVHYtsG+xqLGaz/pR5+yTQxH2Ae5
+         KARw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695195185; x=1695799985;
+        d=1e100.net; s=20230601; t=1695195186; x=1695799986;
         h=content-transfer-encoding:autocrypt:subject:from:cc:to
          :content-language:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=OWY3p0THOFbQkt8ODgO07Jw3SDyyxEjIdkaS8n99u0g=;
-        b=DJMNG6FRp5jomkMGZXaq4qGhuzYpMm6PHH8BGaHhO/3oSBZTRgV2r6HblTrtlTYvRl
-         ufVScVHkLN1/2sgYg4Ka5MscRw+AjS8sEcXCDhEsLKnOZ2BjGgvJmgLju5FfWYIcOY7F
-         0AdAY1WBUkTW/MhOKqotmBFdXDCFe7b16fwWfm498lr0KbXJv57WN+raAW0hNLn+iBGn
-         us/Uye6/YWt93M1qdOe9ayHoa8XwThEoUWdxt/mJe8uxiup1OhsTu/dCLKTI0g91g5+J
-         sgbZVuVBED80YR2kHJdBbYrat0rOTQbWQUlGpTmQL6XGnyRbkpSP0RLhgpZ4pU37fihU
-         LGYg==
-X-Gm-Message-State: AOJu0YyR8nKIzr5Ze9hjDBKa78TzDAoPBNC4TRGfXE8a/iGQvdD0XH+j
-        gGrlNySDZNBNxB0zH0O2H+A=
-X-Google-Smtp-Source: AGHT+IGHbRLgUcL0XsvNnXBA2/mcfyc0Ewp6HQ6dv9VhDghFoGFWpeGXbC+aZhZAWnIJR8o5yBZnig==
-X-Received: by 2002:a19:2d47:0:b0:4fb:8f79:631 with SMTP id t7-20020a192d47000000b004fb8f790631mr1444418lft.46.1695195184545;
-        Wed, 20 Sep 2023 00:33:04 -0700 (PDT)
+        bh=GO5VjgyTURZTJ+S1ya2T4cL5spck5ShsqZulAyAgHcI=;
+        b=nxkPVYrmbCFb/5QxGXoLlZ7gJ7hZB6LjYNKnixKlNZXZh5VhxwUojjv2rdjGD5zfUJ
+         l8lcS4io9Z702h6QNa9NOeQO3/7u5X+eOE9UzOSanKX6icHOctVliZDbZeQScavKLhrN
+         moRf0JLPqzPaYNSvrkKvAd9QluEv0ty4r8j+SdcqjnQuQIEGfBmeTJxW3uW36jYH4sS7
+         FCk48CJd3lsqX61aX3JO9LOgfWsSLXKu4olrJ6ByZAqwSqtl8ga/FZUGZLCszyWZLMwW
+         whvePXfsT6oAMJExWkvDCD2REDuWSY5e4vZIJ7nO5t35pss+tnxD3Mq/IAQWh+esZAIk
+         plaw==
+X-Gm-Message-State: AOJu0Yxk8NK5pfB4f6bxr6yTfdovmEG8fzytO8Wkq9RpUGL8frzl3dph
+        7xZ2K0arnUvfx7y7XGYeM/cMhibk5gg=
+X-Google-Smtp-Source: AGHT+IHqTXs/KfC24XExz1Q7YntWxwgw1JhZhNAunXLHce8akQ7pR6GfJzNba3C5ocTJvcK+VB7o3Q==
+X-Received: by 2002:a1c:7c1a:0:b0:401:d947:c8a9 with SMTP id x26-20020a1c7c1a000000b00401d947c8a9mr1996135wmc.19.1695195185796;
+        Wed, 20 Sep 2023 00:33:05 -0700 (PDT)
 Received: from ?IPV6:2a01:c22:6f42:8500:f444:99ee:9f3d:44d5? (dynamic-2a01-0c22-6f42-8500-f444-99ee-9f3d-44d5.c22.pool.telefonica.de. [2a01:c22:6f42:8500:f444:99ee:9f3d:44d5])
-        by smtp.googlemail.com with ESMTPSA id h4-20020a05600c350400b00402f713c56esm1166780wmq.2.2023.09.20.00.33.03
+        by smtp.googlemail.com with ESMTPSA id h4-20020a05600c350400b00402f713c56esm1166780wmq.2.2023.09.20.00.33.04
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 20 Sep 2023 00:33:03 -0700 (PDT)
-Message-ID: <0d13ed54-af1d-4c21-a90c-ba8c6b03f67e@gmail.com>
-Date:   Wed, 20 Sep 2023 09:29:28 +0200
+        Wed, 20 Sep 2023 00:33:05 -0700 (PDT)
+Message-ID: <3ef0a090-13ef-4fa9-9b91-1b03abfd01f4@gmail.com>
+Date:   Wed, 20 Sep 2023 09:33:01 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Content-Language: en-US
@@ -58,7 +58,7 @@ To:     Jean Delvare <jdelvare@suse.com>,
         Andi Shyti <andi.shyti@kernel.org>
 Cc:     "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
 From:   Heiner Kallweit <hkallweit1@gmail.com>
-Subject: [PATCH] i2c: i801: use i2c_mark_adapter_suspended/resumed
+Subject: [PATCH RESUBMIT] i2c: i801: replace acpi_lock with I2C bus lock
 Autocrypt: addr=hkallweit1@gmail.com; keydata=
  xsFNBF/0ZFUBEAC0eZyktSE7ZNO1SFXL6cQ4i4g6Ah3mOUIXSB4pCY5kQ6OLKHh0FlOD5/5/
  sY7IoIouzOjyFdFPnz4Bl3927ClT567hUJJ+SNaFEiJ9vadI6vZm2gcY4ExdIevYHWe1msJF
@@ -108,39 +108,82 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-When entering the suspend callback, at first we should ensure that
-transfers are finished and I2C core can't start further transfers.
-Use i2c_mark_adapter_suspended() for this purpose, and complement it
-with a call to i2c_mark_adapter_resumed() in the resume path.
+I2C core ensures in i2c_smbus_xfer() that the I2C bus lock is held when
+calling the smbus_xfer callback. That's i801_access() in our case.
+I think it's safe in general to assume that the I2C bus lock is held
+when the smbus_xfer callback is called.
+Therefore I see no need to define an own mutex.
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
-Rebased version of a previously discussed patch, now w/o touching
-the remove and shutdown path.
+Patch was part of a broken-up previous series.
 ---
- drivers/i2c/busses/i2c-i801.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/busses/i2c-i801.c | 14 ++++----------
+ 1 file changed, 4 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 6d02a8b88..26f132277 100644
+index 26f132277..a485dc84d 100644
 --- a/drivers/i2c/busses/i2c-i801.c
 +++ b/drivers/i2c/busses/i2c-i801.c
-@@ -1818,6 +1818,7 @@ static int i801_suspend(struct device *dev)
- {
- 	struct i801_priv *priv = dev_get_drvdata(dev);
+@@ -293,10 +293,9 @@ struct i801_priv {
  
-+	i2c_mark_adapter_suspended(&priv->adapter);
- 	i801_restore_regs(priv);
+ 	/*
+ 	 * If set to true the host controller registers are reserved for
+-	 * ACPI AML use. Protected by acpi_lock.
++	 * ACPI AML use.
+ 	 */
+ 	bool acpi_reserved;
+-	struct mutex acpi_lock;
+ };
  
- 	return 0;
-@@ -1829,6 +1830,7 @@ static int i801_resume(struct device *dev)
+ #define FEATURE_SMBUS_PEC	BIT(0)
+@@ -874,11 +873,8 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+ 	int hwpec, ret;
+ 	struct i801_priv *priv = i2c_get_adapdata(adap);
  
- 	i801_setup_hstcfg(priv);
- 	i801_enable_host_notify(&priv->adapter);
-+	i2c_mark_adapter_resumed(&priv->adapter);
+-	mutex_lock(&priv->acpi_lock);
+-	if (priv->acpi_reserved) {
+-		mutex_unlock(&priv->acpi_lock);
++	if (priv->acpi_reserved)
+ 		return -EBUSY;
+-	}
  
- 	return 0;
+ 	pm_runtime_get_sync(&priv->pci_dev->dev);
+ 
+@@ -919,7 +915,6 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+ 
+ 	pm_runtime_mark_last_busy(&priv->pci_dev->dev);
+ 	pm_runtime_put_autosuspend(&priv->pci_dev->dev);
+-	mutex_unlock(&priv->acpi_lock);
+ 	return ret;
  }
+ 
+@@ -1571,7 +1566,7 @@ i801_acpi_io_handler(u32 function, acpi_physical_address address, u32 bits,
+ 	 * further access from the driver itself. This device is now owned
+ 	 * by the system firmware.
+ 	 */
+-	mutex_lock(&priv->acpi_lock);
++	i2c_lock_bus(&priv->adapter, I2C_LOCK_SEGMENT);
+ 
+ 	if (!priv->acpi_reserved && i801_acpi_is_smbus_ioport(priv, address)) {
+ 		priv->acpi_reserved = true;
+@@ -1591,7 +1586,7 @@ i801_acpi_io_handler(u32 function, acpi_physical_address address, u32 bits,
+ 	else
+ 		status = acpi_os_write_port(address, (u32)*value, bits);
+ 
+-	mutex_unlock(&priv->acpi_lock);
++	i2c_unlock_bus(&priv->adapter, I2C_LOCK_SEGMENT);
+ 
+ 	return status;
+ }
+@@ -1651,7 +1646,6 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+ 	priv->adapter.dev.parent = &dev->dev;
+ 	ACPI_COMPANION_SET(&priv->adapter.dev, ACPI_COMPANION(&dev->dev));
+ 	priv->adapter.retries = 3;
+-	mutex_init(&priv->acpi_lock);
+ 
+ 	priv->pci_dev = dev;
+ 	priv->features = id->driver_data;
 -- 
 2.42.0
 
