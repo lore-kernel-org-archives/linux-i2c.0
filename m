@@ -2,60 +2,86 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 638E9E7D0A2
-	for <linux-i2c@archiver.kernel.org>; Thu, 21 Sep 2023 20:43:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0AF60E7D0AF
+	for <linux-i2c@archiver.kernel.org>; Thu, 21 Sep 2023 21:45:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232178AbjIUUoB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 21 Sep 2023 16:44:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40306 "EHLO
+        id S232680AbjIUVpM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 21 Sep 2023 17:45:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232370AbjIUUnv (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Sep 2023 16:43:51 -0400
-Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7F7ECF4DB
-        for <linux-i2c@vger.kernel.org>; Thu, 21 Sep 2023 11:20:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        sang-engineering.com; h=from:to:cc:subject:date:message-id
-        :mime-version:content-transfer-encoding; s=k1; bh=/hGi7nKY0ZCz5n
-        gHoRP4Dnsm6cwPVYQ6ullUHHK9G/U=; b=FSgnuyf9iJJY3eix3OUaTTB7WoR3RL
-        Qw8D9JBqrJTfaObsLpr9iGr1zfjqIhAZlD2EJTcRtKzxQ/oL9qlFvwQySdR6OCxV
-        xvJNPdXpBpQux5aaw76J+BP+q3y+rr2zxCCVSMMavi5M97ivNoxC3vbHB0B/slzk
-        rJhwE1jCsPiYD+edKd8vjVSXFlUTop0ilWvMRKF8aFkp6qG6gk2PrgTyKx1Cp2mO
-        oHKwBIy3gkrIWNMx7xWJuTBw8R2eJmk/liFow5/UqoBLzhBzt8gVo1/NEQ0bAq7e
-        5jAFI/qyL8IhuHynvzEs/FcotWalL7w9Cc4fxPU18Mib2Ed46PTjAC1g==
-Received: (qmail 953722 invoked from network); 21 Sep 2023 14:54:02 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 21 Sep 2023 14:54:02 +0200
-X-UD-Smtp-Session: l3s3148p1@yGh7/N0FzUQuciJ+
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     linux-renesas-soc@vger.kernel.org
-Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        with ESMTP id S229730AbjIUVo6 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Sep 2023 17:44:58 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 103BC49F7;
+        Thu, 21 Sep 2023 14:22:29 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE9DFC433C7;
+        Thu, 21 Sep 2023 21:22:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1695331348;
+        bh=2sDazNEv47m0wG4jFCM6EJLQTQHyU4bEeUi/sRFwWPQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SAwdWtZWznxlHJ/7maelWwB9vj13QV19V09kv85Nr8jASUGsojjFrnhL7ouGg0/kD
+         UBQCADoEi0EoBanE2wK1tXRDPYXdq3GCKsJJ2+eM+c6yi0KxlvF6c48e2QPuwS9FhU
+         eP4yEXi5jPxO4AVFYgk5l4AX8lvceyMNjZNaJA/Wi70HZl4Q6/WpsctkUmhUumpOgp
+         T3xNAACnvcLBb8VcCX8fpCud9KX7Ni+2tRMSuzZpZ6G1fB9ZjwhSLCcLTBKi849jvn
+         5KxHqGHRHgBfzUVGHuYjfTFGQNPun5w/R5LcypjZS12Pr5TL0hjbkR1jjd5OK2bSHz
+         bTMl++Nv9EmcA==
+Date:   Thu, 21 Sep 2023 23:22:23 +0200
+From:   Andi Shyti <andi.shyti@kernel.org>
+To:     Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc:     linux-renesas-soc@vger.kernel.org,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v3 0/2] i2c: rcar: improve Gen3 support
-Date:   Thu, 21 Sep 2023 14:53:48 +0200
-Message-Id: <20230921125351.3954-1-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.35.1
+Subject: Re: [PATCH v3 1/2] i2c: rcar: reset controller is mandatory for Gen3+
+Message-ID: <20230921212223.f5vwltckcbi27hh6@zenone.zhora.eu>
+References: <20230921125351.3954-1-wsa+renesas@sang-engineering.com>
+ <20230921125351.3954-2-wsa+renesas@sang-engineering.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230921125351.3954-2-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Here is a series paving the way for Gen4 support. This time we properly
-apply the Gen3 specific features. See the patch comments for further
-information and changelogs. This has been tested on a Renesas Falcon
-board with a R-Car V3U SoC at various bus speeds. Because the
-calculation formulas are crucial, testing on board farms would be much
-appreciated!
+Hi Wolfram,
 
-Thanks and happy hacking!
+[...]
 
-Wolfram Sang (2):
-  i2c: rcar: reset controller is mandatory for Gen3+
-  i2c: rcar: improve accuracy for R-Car Gen3+
+>  		irqhandler = rcar_i2c_gen2_irq;
+>  	}
+>  
+> -	if (priv->devtype == I2C_RCAR_GEN3) {
+> -		priv->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
+> -		if (!IS_ERR(priv->rstc)) {
+> -			ret = reset_control_status(priv->rstc);
+> -			if (ret < 0)
+> -				priv->rstc = ERR_PTR(-ENOTSUPP);
+> -		}
+> -	}
+> -
+>  	/* Stay always active when multi-master to keep arbitration working */
+>  	if (of_property_read_bool(dev->of_node, "multi-master"))
+>  		priv->flags |= ID_P_PM_BLOCKED;
+> @@ -1112,6 +1101,16 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+>  	if (of_property_read_bool(dev->of_node, "smbus"))
+>  		priv->flags |= ID_P_HOST_NOTIFY;
+>  
+> +	if (priv->devtype == I2C_RCAR_GEN3) {
+> +		priv->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
+> +		if (IS_ERR(priv->rstc))
+> +			goto out_pm_put;
+> +
+> +		ret = reset_control_status(priv->rstc);
+> +		if (ret < 0)
+> +			goto out_pm_put;
+> +	}
+> +
 
- drivers/i2c/busses/i2c-rcar.c | 157 ++++++++++++++++++++++------------
- 1 file changed, 103 insertions(+), 54 deletions(-)
+you moved this block to avoid the pm_runtime_put(dev);
 
--- 
-2.35.1
+Looks good!
 
+Reviewed-by: Andi Shyti <andi.shyti@kernel.org> 
+
+Andi
