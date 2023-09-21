@@ -2,89 +2,150 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A9C00E7D0A7
-	for <linux-i2c@archiver.kernel.org>; Thu, 21 Sep 2023 17:50:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F077BE7D0A3
+	for <linux-i2c@archiver.kernel.org>; Thu, 21 Sep 2023 17:50:38 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229843AbjIURu2 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 21 Sep 2023 13:50:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38002 "EHLO
+        id S229988AbjIURum (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 21 Sep 2023 13:50:42 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229779AbjIURuD (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Sep 2023 13:50:03 -0400
-Received: from SHSQR01.spreadtrum.com (mx1.unisoc.com [222.66.158.135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FCD156D24;
-        Thu, 21 Sep 2023 10:18:21 -0700 (PDT)
-Received: from SHSQR01.spreadtrum.com (localhost [127.0.0.2] (may be forged))
-        by SHSQR01.spreadtrum.com with ESMTP id 38L8vCrj047522;
-        Thu, 21 Sep 2023 16:57:12 +0800 (+08)
-        (envelope-from Huangzheng.Lai@unisoc.com)
-Received: from dlp.unisoc.com ([10.29.3.86])
-        by SHSQR01.spreadtrum.com with ESMTP id 38L8tSbb040500;
-        Thu, 21 Sep 2023 16:55:28 +0800 (+08)
-        (envelope-from Huangzheng.Lai@unisoc.com)
-Received: from SHDLP.spreadtrum.com (shmbx04.spreadtrum.com [10.0.1.214])
-        by dlp.unisoc.com (SkyGuard) with ESMTPS id 4Rrq0850kHz2SZykd;
-        Thu, 21 Sep 2023 16:52:08 +0800 (CST)
-Received: from xm9614pcu.spreadtrum.com (10.13.2.29) by shmbx04.spreadtrum.com
- (10.0.1.214) with Microsoft SMTP Server (TLS) id 15.0.1497.23; Thu, 21 Sep
- 2023 16:55:27 +0800
-From:   Huangzheng Lai <Huangzheng.Lai@unisoc.com>
-To:     Andi Shyti <andi.shyti@kernel.org>
-CC:     Orson Zhai <orsonzhai@gmail.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        huangzheng lai <laihuangzheng@gmail.com>,
-        Huangzheng Lai <Huangzheng.Lai@unisoc.com>,
-        Xiongpeng Wu <xiongpeng.wu@unisoc.com>
-Subject: [PATCH V2 0/7] i2c: sprd: Modification of UNISOC Platform I2C Driver
-Date:   Thu, 21 Sep 2023 16:54:50 +0800
-Message-ID: <20230921085457.32446-1-Huangzheng.Lai@unisoc.com>
-X-Mailer: git-send-email 2.17.1
+        with ESMTP id S229997AbjIURuI (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Sep 2023 13:50:08 -0400
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12F6A5367E
+        for <linux-i2c@vger.kernel.org>; Thu, 21 Sep 2023 10:16:55 -0700 (PDT)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 123A3338A8;
+        Thu, 21 Sep 2023 14:12:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1695305553; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=i/+Xy0Z4c1I/QnQdR1kbavvxRcXeU3eI+I+BD174Wig=;
+        b=gAYcc7elR66dNhTelBnHyndUGM5YZ6KHTBNn0X6bV6gjXGdxOuR5vhhnbEQAmx1ZLigAHc
+        2HKg0JFZobp+fnL2a0+56HJTACddk3s6jPaLTQ0mbb/4cixyTS2Fs/I3cH1kBCg/VCsmk0
+        /SkxQjW13bx4nbXwG4miQx0UkP9s32A=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1695305553;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=i/+Xy0Z4c1I/QnQdR1kbavvxRcXeU3eI+I+BD174Wig=;
+        b=Yn1CZUf7rw+g/aPNuN9nPVLXY7glkaCarZjPsBeje+bbdGu27jr0CtD96m8JnabkWFpQPk
+        owb4Yj1zeO/ommDA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id E5111139DB;
+        Thu, 21 Sep 2023 14:12:32 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id svYuNlBPDGWKTwAAMHmgww
+        (envelope-from <jdelvare@suse.de>); Thu, 21 Sep 2023 14:12:32 +0000
+Date:   Thu, 21 Sep 2023 16:12:31 +0200
+From:   Jean Delvare <jdelvare@suse.de>
+To:     Heiner Kallweit <hkallweit1@gmail.com>
+Cc:     Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org
+Subject: Re: [PATCH RESUBMIT] i2c: i801: replace acpi_lock with I2C bus lock
+Message-ID: <20230921161231.74244564@endymion.delvare>
+In-Reply-To: <3ef0a090-13ef-4fa9-9b91-1b03abfd01f4@gmail.com>
+References: <3ef0a090-13ef-4fa9-9b91-1b03abfd01f4@gmail.com>
+Organization: SUSE Linux
+X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.34; x86_64-suse-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.13.2.29]
-X-ClientProxiedBy: SHCAS03.spreadtrum.com (10.0.1.207) To
- shmbx04.spreadtrum.com (10.0.1.214)
-X-MAIL: SHSQR01.spreadtrum.com 38L8tSbb040500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Recently, some bugs have been discovered during use, and patch3
-and patch5-7 are bug fixes. Also, this patchset add new features:
-patch1 allows I2C to use more frequencies for communication,
-patch2 allows I2C to use 'reset framework' for reset, and patch4 allows
-I2C controller to dynamically switch frequencies during use.
+On Wed, 20 Sep 2023 09:33:01 +0200, Heiner Kallweit wrote:
+> I2C core ensures in i2c_smbus_xfer() that the I2C bus lock is held when
+> calling the smbus_xfer callback. That's i801_access() in our case.
+> I think it's safe in general to assume that the I2C bus lock is held
+> when the smbus_xfer callback is called.
+> Therefore I see no need to define an own mutex.
+> 
+> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+> ---
+> Patch was part of a broken-up previous series.
+> ---
+>  drivers/i2c/busses/i2c-i801.c | 14 ++++----------
+>  1 file changed, 4 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+> index 26f132277..a485dc84d 100644
+> --- a/drivers/i2c/busses/i2c-i801.c
+> +++ b/drivers/i2c/busses/i2c-i801.c
+> @@ -293,10 +293,9 @@ struct i801_priv {
+>  
+>  	/*
+>  	 * If set to true the host controller registers are reserved for
+> -	 * ACPI AML use. Protected by acpi_lock.
+> +	 * ACPI AML use.
+>  	 */
+>  	bool acpi_reserved;
+> -	struct mutex acpi_lock;
+>  };
+>  
+>  #define FEATURE_SMBUS_PEC	BIT(0)
+> @@ -874,11 +873,8 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+>  	int hwpec, ret;
+>  	struct i801_priv *priv = i2c_get_adapdata(adap);
+>  
+> -	mutex_lock(&priv->acpi_lock);
+> -	if (priv->acpi_reserved) {
+> -		mutex_unlock(&priv->acpi_lock);
+> +	if (priv->acpi_reserved)
+>  		return -EBUSY;
+> -	}
+>  
+>  	pm_runtime_get_sync(&priv->pci_dev->dev);
+>  
+> @@ -919,7 +915,6 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+>  
+>  	pm_runtime_mark_last_busy(&priv->pci_dev->dev);
+>  	pm_runtime_put_autosuspend(&priv->pci_dev->dev);
+> -	mutex_unlock(&priv->acpi_lock);
+>  	return ret;
+>  }
+>  
+> @@ -1571,7 +1566,7 @@ i801_acpi_io_handler(u32 function, acpi_physical_address address, u32 bits,
+>  	 * further access from the driver itself. This device is now owned
+>  	 * by the system firmware.
+>  	 */
+> -	mutex_lock(&priv->acpi_lock);
+> +	i2c_lock_bus(&priv->adapter, I2C_LOCK_SEGMENT);
+>  
+>  	if (!priv->acpi_reserved && i801_acpi_is_smbus_ioport(priv, address)) {
+>  		priv->acpi_reserved = true;
+> @@ -1591,7 +1586,7 @@ i801_acpi_io_handler(u32 function, acpi_physical_address address, u32 bits,
+>  	else
+>  		status = acpi_os_write_port(address, (u32)*value, bits);
+>  
+> -	mutex_unlock(&priv->acpi_lock);
+> +	i2c_unlock_bus(&priv->adapter, I2C_LOCK_SEGMENT);
+>  
+>  	return status;
+>  }
+> @@ -1651,7 +1646,6 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
+>  	priv->adapter.dev.parent = &dev->dev;
+>  	ACPI_COMPANION_SET(&priv->adapter.dev, ACPI_COMPANION(&dev->dev));
+>  	priv->adapter.retries = 3;
+> -	mutex_init(&priv->acpi_lock);
+>  
+>  	priv->pci_dev = dev;
+>  	priv->features = id->driver_data;
 
-change in V2
--Using 'I2C' instead of 'IIC' in the patch set.
--Using imperative form in patch subject.
--Use 'switch case' instead of 'else if' in PATCH 1/7.
--Modify if (i2c_dev->rst != NULL) to if (i2c_dev->rst) in PATCH 2/7.
--Modify some dev_err() to dev_warn() or dev_dbg().
--Clear i2c_dev->ack_flag in sprd_i2c_clear_ack() in PATCH 3/7.
--Modify the indentation format of the code in PATCH 4/7.
--Move sprd_i2c_enable() above its caller in PATCH 5/7.
--Remove 'Set I2C_RX_ACK when clear irq' commit.
--Add Fixes tags. 
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
 
-Huangzheng Lai (7):
-  i2c: sprd: Add configurations that support 1Mhz and 3.4Mhz frequencies
-  i2c: sprd: Add I2C driver to use 'reset framework' function
-  i2c: sprd: Use global variables to record I2C ack/nack status instead
-    of local variables
-  i2c: sprd: Add I2C controller driver to support dynamic switching of
-    400K/1M/3.4M frequency
-  i2c: sprd: Configure the enable bit of the I2C controller before each
-    transmission initiation
-  i2c: sprd: Increase the waiting time for I2C transmission to avoid
-    system crash issues
-  i2c: sprd: Add I2C_NACK_EN and I2C_TRANS_EN control bits
-
- drivers/i2c/busses/i2c-sprd.c | 166 ++++++++++++++++++++++------------
- 1 file changed, 106 insertions(+), 60 deletions(-)
-
+Thanks,
 -- 
-2.17.1
-
+Jean Delvare
+SUSE L3 Support
