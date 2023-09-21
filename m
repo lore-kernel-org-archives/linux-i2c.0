@@ -2,136 +2,92 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 579ADE7D0A4
-	for <linux-i2c@archiver.kernel.org>; Thu, 21 Sep 2023 18:11:45 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EAFBFE7D0A2
+	for <linux-i2c@archiver.kernel.org>; Thu, 21 Sep 2023 18:35:29 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230241AbjIUSLs (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 21 Sep 2023 14:11:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47954 "EHLO
+        id S229897AbjIUSfd (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 21 Sep 2023 14:35:33 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229947AbjIUSLP (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Sep 2023 14:11:15 -0400
-Received: from SHSQR01.spreadtrum.com (mx1.unisoc.com [222.66.158.135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7713573D5;
-        Thu, 21 Sep 2023 10:18:34 -0700 (PDT)
-Received: from SHSQR01.spreadtrum.com (localhost [127.0.0.2] (may be forged))
-        by SHSQR01.spreadtrum.com with ESMTP id 38L8vFBT047648;
-        Thu, 21 Sep 2023 16:57:15 +0800 (+08)
-        (envelope-from Huangzheng.Lai@unisoc.com)
-Received: from dlp.unisoc.com ([10.29.3.86])
-        by SHSQR01.spreadtrum.com with ESMTP id 38L8tVw8040607;
-        Thu, 21 Sep 2023 16:55:31 +0800 (+08)
-        (envelope-from Huangzheng.Lai@unisoc.com)
-Received: from SHDLP.spreadtrum.com (shmbx04.spreadtrum.com [10.0.1.214])
-        by dlp.unisoc.com (SkyGuard) with ESMTPS id 4Rrq0B6YBSz2SZtbS;
-        Thu, 21 Sep 2023 16:52:10 +0800 (CST)
-Received: from xm9614pcu.spreadtrum.com (10.13.2.29) by shmbx04.spreadtrum.com
- (10.0.1.214) with Microsoft SMTP Server (TLS) id 15.0.1497.23; Thu, 21 Sep
- 2023 16:55:29 +0800
-From:   Huangzheng Lai <Huangzheng.Lai@unisoc.com>
-To:     Andi Shyti <andi.shyti@kernel.org>
-CC:     Orson Zhai <orsonzhai@gmail.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        huangzheng lai <laihuangzheng@gmail.com>,
-        Huangzheng Lai <Huangzheng.Lai@unisoc.com>,
-        Xiongpeng Wu <xiongpeng.wu@unisoc.com>
-Subject: [PATCH V2 3/7] i2c: sprd: Use global variables to record I2C ack/nack status instead of local variables
-Date:   Thu, 21 Sep 2023 16:54:53 +0800
-Message-ID: <20230921085457.32446-4-Huangzheng.Lai@unisoc.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20230921085457.32446-1-Huangzheng.Lai@unisoc.com>
-References: <20230921085457.32446-1-Huangzheng.Lai@unisoc.com>
+        with ESMTP id S229495AbjIUSfV (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Sep 2023 14:35:21 -0400
+Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F61BA3ADC
+        for <linux-i2c@vger.kernel.org>; Thu, 21 Sep 2023 10:58:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        sang-engineering.com; h=from:to:cc:subject:date:message-id
+        :mime-version:content-transfer-encoding; s=k1; bh=w8oKEs2sMKyJB/
+        9xLttOMoyayz94+7PAY5WtKf8fZZA=; b=P2jnk/j0vzH6uY8ib2yN+veCzZL5QQ
+        bJZwMLVhK79/66lIPDr+MPDa/g31ktVrPH5GHpwPox3/Tbo6Osc1ozMRmJiBupbF
+        I/HZXYMpmX7sINy/UzxniShAlEjcPbQl9Szn0JaFQe06LKw11nQbT3U2Y4GNvSlY
+        9FfUWUMnjteGR8aQIs0xwhUQIUHfzVEcR7kQtxgWs8lCLiyHSUSNr0FV5zegHsXp
+        6TFb2h0PM9vbuhIIFiWyvq+RvvhgseCuQbWPzA4qYYzeXmWYiLEoN364QGI2GN3O
+        l1+nQRoZ4IWm2dY3rtsshWhKqzvqriUg/kc/U4Db1jghrlukv1z7FfOA==
+Received: (qmail 886921 invoked from network); 21 Sep 2023 10:57:58 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 21 Sep 2023 10:57:58 +0200
+X-UD-Smtp-Session: l3s3148p1@Kug6sNoFKmkuciSu
+From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
+To:     linux-renesas-soc@vger.kernel.org
+Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Peter Korsgaard <peter.korsgaard@barco.com>,
+        Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH] i2c: mux: gpio: adhere to coding style
+Date:   Thu, 21 Sep 2023 10:57:51 +0200
+Message-Id: <20230921085752.8686-1-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.13.2.29]
-X-ClientProxiedBy: SHCAS03.spreadtrum.com (10.0.1.207) To
- shmbx04.spreadtrum.com (10.0.1.214)
-X-MAIL: SHSQR01.spreadtrum.com 38L8tVw8040607
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-We found that when the interrupt bit of the I2C controller is cleared,
-the ack/nack bit is also cleared at the same time. After clearing the
-interrupt bit in sprd_i2c_isr(), incorrect ack/nack information will be
-obtained in sprd_i2c_isr_thread(), resulting in incorrect communication
-when nack cannot be recognized. To solve this problem, we used a global
-variable to record ack/nack information before clearing the interrupt
-bit instead of a local variable.
+Advertise our coding style by following it :)
 
-Fixes: 8b9ec0719834 ("i2c: Add Spreadtrum I2C controller driver")
-Cc: <stable@vger.kernel.org> # v4.14+
-Signed-off-by: Huangzheng Lai <Huangzheng.Lai@unisoc.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-sprd.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/i2c/muxes/i2c-mux-gpio.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-sprd.c b/drivers/i2c/busses/i2c-sprd.c
-index aa602958d4fd..dec627ef408c 100644
---- a/drivers/i2c/busses/i2c-sprd.c
-+++ b/drivers/i2c/busses/i2c-sprd.c
-@@ -85,6 +85,7 @@ struct sprd_i2c {
- 	struct clk *clk;
- 	u32 src_clk;
- 	u32 bus_freq;
-+	bool ack_flag;
- 	struct completion complete;
- 	struct reset_control *rst;
- 	u8 *buf;
-@@ -119,6 +120,7 @@ static void sprd_i2c_clear_ack(struct sprd_i2c *i2c_dev)
+diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
+index 5ca03bd34c8d..0419c7453281 100644
+--- a/drivers/i2c/muxes/i2c-mux-gpio.c
++++ b/drivers/i2c/muxes/i2c-mux-gpio.c
+@@ -23,7 +23,7 @@ struct gpiomux {
+ 	struct gpio_desc **gpios;
+ };
+ 
+-static void i2c_mux_gpio_set(const struct gpiomux *mux, unsigned val)
++static void i2c_mux_gpio_set(const struct gpiomux *mux, unsigned int val)
  {
- 	u32 tmp = readl(i2c_dev->base + I2C_STATUS);
+ 	DECLARE_BITMAP(values, BITS_PER_TYPE(val));
  
-+	i2c_dev->ack_flag = 0;
- 	writel(tmp & ~I2C_RX_ACK, i2c_dev->base + I2C_STATUS);
- }
+@@ -59,7 +59,7 @@ static int i2c_mux_gpio_probe_fw(struct gpiomux *mux,
+ 	struct device_node *adapter_np;
+ 	struct i2c_adapter *adapter = NULL;
+ 	struct fwnode_handle *child;
+-	unsigned *values;
++	unsigned int *values;
+ 	int rc, i = 0;
  
-@@ -393,7 +395,6 @@ static irqreturn_t sprd_i2c_isr_thread(int irq, void *dev_id)
- {
- 	struct sprd_i2c *i2c_dev = dev_id;
- 	struct i2c_msg *msg = i2c_dev->msg;
--	bool ack = !(readl(i2c_dev->base + I2C_STATUS) & I2C_RX_ACK);
- 	u32 i2c_tran;
+ 	if (is_of_node(fwnode)) {
+@@ -102,7 +102,6 @@ static int i2c_mux_gpio_probe_fw(struct gpiomux *mux,
+ 	device_for_each_child_node(dev, child) {
+ 		if (is_of_node(child)) {
+ 			fwnode_property_read_u32(child, "reg", values + i);
+-
+ 		} else if (is_acpi_node(child)) {
+ 			rc = acpi_get_local_address(ACPI_HANDLE_FWNODE(child), values + i);
+ 			if (rc) {
+@@ -127,7 +126,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
+ 	struct gpiomux *mux;
+ 	struct i2c_adapter *parent;
+ 	struct i2c_adapter *root;
+-	unsigned initial_state;
++	unsigned int initial_state;
+ 	int i, ngpios, ret;
  
- 	if (msg->flags & I2C_M_RD)
-@@ -409,7 +410,7 @@ static irqreturn_t sprd_i2c_isr_thread(int irq, void *dev_id)
- 	 * For reading data, ack is always true, if i2c_tran is not 0 which
- 	 * means we still need to contine to read data from slave.
- 	 */
--	if (i2c_tran && ack) {
-+	if (i2c_tran && i2c_dev->ack_flag) {
- 		sprd_i2c_data_transfer(i2c_dev);
- 		return IRQ_HANDLED;
- 	}
-@@ -420,7 +421,7 @@ static irqreturn_t sprd_i2c_isr_thread(int irq, void *dev_id)
- 	 * If we did not get one ACK from slave when writing data, we should
- 	 * return -EIO to notify users.
- 	 */
--	if (!ack)
-+	if (!i2c_dev->ack_flag)
- 		i2c_dev->err = -EIO;
- 	else if (msg->flags & I2C_M_RD && i2c_dev->count)
- 		sprd_i2c_read_bytes(i2c_dev, i2c_dev->buf, i2c_dev->count);
-@@ -437,7 +438,6 @@ static irqreturn_t sprd_i2c_isr(int irq, void *dev_id)
- {
- 	struct sprd_i2c *i2c_dev = dev_id;
- 	struct i2c_msg *msg = i2c_dev->msg;
--	bool ack = !(readl(i2c_dev->base + I2C_STATUS) & I2C_RX_ACK);
- 	u32 i2c_tran;
- 
- 	if (msg->flags & I2C_M_RD)
-@@ -456,7 +456,8 @@ static irqreturn_t sprd_i2c_isr(int irq, void *dev_id)
- 	 * means we can read all data in one time, then we can finish this
- 	 * transmission too.
- 	 */
--	if (!i2c_tran || !ack) {
-+	i2c_dev->ack_flag = !(readl(i2c_dev->base + I2C_STATUS) & I2C_RX_ACK);
-+	if (!i2c_tran || !i2c_dev->ack_flag) {
- 		sprd_i2c_clear_start(i2c_dev);
- 		sprd_i2c_clear_irq(i2c_dev);
- 	}
+ 	mux = devm_kzalloc(&pdev->dev, sizeof(*mux), GFP_KERNEL);
 -- 
-2.17.1
+2.35.1
 
