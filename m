@@ -2,39 +2,39 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EAFBFE7D0A2
-	for <linux-i2c@archiver.kernel.org>; Thu, 21 Sep 2023 18:35:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 406A9E7D0A5
+	for <linux-i2c@archiver.kernel.org>; Thu, 21 Sep 2023 18:50:58 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229897AbjIUSfd (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 21 Sep 2023 14:35:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35154 "EHLO
+        id S230257AbjIUSvB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 21 Sep 2023 14:51:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229495AbjIUSfV (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Sep 2023 14:35:21 -0400
+        with ESMTP id S230013AbjIUSur (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Sep 2023 14:50:47 -0400
 Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F61BA3ADC
-        for <linux-i2c@vger.kernel.org>; Thu, 21 Sep 2023 10:58:01 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1644F8A20D
+        for <linux-i2c@vger.kernel.org>; Thu, 21 Sep 2023 10:40:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         sang-engineering.com; h=from:to:cc:subject:date:message-id
-        :mime-version:content-transfer-encoding; s=k1; bh=w8oKEs2sMKyJB/
-        9xLttOMoyayz94+7PAY5WtKf8fZZA=; b=P2jnk/j0vzH6uY8ib2yN+veCzZL5QQ
-        bJZwMLVhK79/66lIPDr+MPDa/g31ktVrPH5GHpwPox3/Tbo6Osc1ozMRmJiBupbF
-        I/HZXYMpmX7sINy/UzxniShAlEjcPbQl9Szn0JaFQe06LKw11nQbT3U2Y4GNvSlY
-        9FfUWUMnjteGR8aQIs0xwhUQIUHfzVEcR7kQtxgWs8lCLiyHSUSNr0FV5zegHsXp
-        6TFb2h0PM9vbuhIIFiWyvq+RvvhgseCuQbWPzA4qYYzeXmWYiLEoN364QGI2GN3O
-        l1+nQRoZ4IWm2dY3rtsshWhKqzvqriUg/kc/U4Db1jghrlukv1z7FfOA==
-Received: (qmail 886921 invoked from network); 21 Sep 2023 10:57:58 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 21 Sep 2023 10:57:58 +0200
-X-UD-Smtp-Session: l3s3148p1@Kug6sNoFKmkuciSu
+        :mime-version:content-transfer-encoding; s=k1; bh=BWoG3Cv+9NwMSj
+        Oxgnt6dDveNegqs9pWvhh6JaU1+sY=; b=mYqT33MOiLshEtmkWv7E5tZ4gsTQaw
+        Z49u0NRmMm7GEcTGxlUoayfUctiKXbquROc53D9gXlY0InY8Su3uIlmtDRC2jTW4
+        vKQFJgzOFiT2juQoCzjcBkNNlp6PcTNT637JoA5ZbEGEwCUALC6LoOhMN3V842P3
+        +vrbuSU683OydILnh5UaJrY1a7rKMDJNOA2xKbLAIa2E20EcUs2OaEPSjV/AofvV
+        XUtOu9yw+S9aqV+Gxu8HEq75iNFOgWglql3nCB56Dmd2QNMVEE3COtGYNphnXxWt
+        YyWjwpgVh8120C/ZEPKDolV0UBRAbp/VnXp6Rc0kiS4iOUiHSmDNBCWw==
+Received: (qmail 881727 invoked from network); 21 Sep 2023 10:40:29 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 21 Sep 2023 10:40:29 +0200
+X-UD-Smtp-Session: l3s3148p1@xoK6cdoFk1YuciSu
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
 To:     linux-renesas-soc@vger.kernel.org
 Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Peter Korsgaard <peter.korsgaard@barco.com>,
-        Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org,
+        Minjie Du <duminjie@vivo.com>,
+        Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
         linux-kernel@vger.kernel.org
-Subject: [PATCH] i2c: mux: gpio: adhere to coding style
-Date:   Thu, 21 Sep 2023 10:57:51 +0200
-Message-Id: <20230921085752.8686-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH] i2c: gpio: remove error checks with debugfs
+Date:   Thu, 21 Sep 2023 10:40:15 +0200
+Message-Id: <20230921084016.3434-1-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.35.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -42,52 +42,36 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Advertise our coding style by following it :)
+debugfs can handle error pointers in subsequent calls. So, remove the
+error checks as suggested by kerneldoc of this function.
 
+Reported-by: Minjie Du <duminjie@vivo.com>
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/muxes/i2c-mux-gpio.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-gpio.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/muxes/i2c-mux-gpio.c b/drivers/i2c/muxes/i2c-mux-gpio.c
-index 5ca03bd34c8d..0419c7453281 100644
---- a/drivers/i2c/muxes/i2c-mux-gpio.c
-+++ b/drivers/i2c/muxes/i2c-mux-gpio.c
-@@ -23,7 +23,7 @@ struct gpiomux {
- 	struct gpio_desc **gpios;
- };
+diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+index e5a5b9e8bf2c..fb35a75fe0e3 100644
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -263,15 +263,10 @@ static void i2c_gpio_fault_injector_init(struct platform_device *pdev)
+ 	 * 'fault-injector' dir there. Until then, we have a global dir with
+ 	 * all adapters as subdirs.
+ 	 */
+-	if (!i2c_gpio_debug_dir) {
++	if (!i2c_gpio_debug_dir)
+ 		i2c_gpio_debug_dir = debugfs_create_dir("i2c-fault-injector", NULL);
+-		if (!i2c_gpio_debug_dir)
+-			return;
+-	}
  
--static void i2c_mux_gpio_set(const struct gpiomux *mux, unsigned val)
-+static void i2c_mux_gpio_set(const struct gpiomux *mux, unsigned int val)
- {
- 	DECLARE_BITMAP(values, BITS_PER_TYPE(val));
+ 	priv->debug_dir = debugfs_create_dir(pdev->name, i2c_gpio_debug_dir);
+-	if (!priv->debug_dir)
+-		return;
  
-@@ -59,7 +59,7 @@ static int i2c_mux_gpio_probe_fw(struct gpiomux *mux,
- 	struct device_node *adapter_np;
- 	struct i2c_adapter *adapter = NULL;
- 	struct fwnode_handle *child;
--	unsigned *values;
-+	unsigned int *values;
- 	int rc, i = 0;
+ 	init_completion(&priv->scl_irq_completion);
  
- 	if (is_of_node(fwnode)) {
-@@ -102,7 +102,6 @@ static int i2c_mux_gpio_probe_fw(struct gpiomux *mux,
- 	device_for_each_child_node(dev, child) {
- 		if (is_of_node(child)) {
- 			fwnode_property_read_u32(child, "reg", values + i);
--
- 		} else if (is_acpi_node(child)) {
- 			rc = acpi_get_local_address(ACPI_HANDLE_FWNODE(child), values + i);
- 			if (rc) {
-@@ -127,7 +126,7 @@ static int i2c_mux_gpio_probe(struct platform_device *pdev)
- 	struct gpiomux *mux;
- 	struct i2c_adapter *parent;
- 	struct i2c_adapter *root;
--	unsigned initial_state;
-+	unsigned int initial_state;
- 	int i, ngpios, ret;
- 
- 	mux = devm_kzalloc(&pdev->dev, sizeof(*mux), GFP_KERNEL);
 -- 
 2.35.1
 
