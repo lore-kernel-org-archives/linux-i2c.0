@@ -2,86 +2,85 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43D37E7D0A6
-	for <linux-i2c@archiver.kernel.org>; Thu, 21 Sep 2023 19:31:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6622EE7D0A9
+	for <linux-i2c@archiver.kernel.org>; Thu, 21 Sep 2023 20:03:05 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231124AbjIUTbP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 21 Sep 2023 15:31:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43604 "EHLO
+        id S231485AbjIUUDI (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 21 Sep 2023 16:03:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230273AbjIUTaR (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Sep 2023 15:30:17 -0400
-Received: from SHSQR01.spreadtrum.com (mx1.unisoc.com [222.66.158.135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DACE257B02;
-        Thu, 21 Sep 2023 10:18:47 -0700 (PDT)
-Received: from SHSQR01.spreadtrum.com (localhost [127.0.0.2] (may be forged))
-        by SHSQR01.spreadtrum.com with ESMTP id 38L8vR5h048606;
-        Thu, 21 Sep 2023 16:57:27 +0800 (+08)
-        (envelope-from Huangzheng.Lai@unisoc.com)
-Received: from dlp.unisoc.com ([10.29.3.86])
-        by SHSQR01.spreadtrum.com with ESMTP id 38L8tXmD040792;
-        Thu, 21 Sep 2023 16:55:33 +0800 (+08)
-        (envelope-from Huangzheng.Lai@unisoc.com)
-Received: from SHDLP.spreadtrum.com (shmbx04.spreadtrum.com [10.0.1.214])
-        by dlp.unisoc.com (SkyGuard) with ESMTPS id 4Rrq0F2frGz2SZykd;
-        Thu, 21 Sep 2023 16:52:13 +0800 (CST)
-Received: from xm9614pcu.spreadtrum.com (10.13.2.29) by shmbx04.spreadtrum.com
- (10.0.1.214) with Microsoft SMTP Server (TLS) id 15.0.1497.23; Thu, 21 Sep
- 2023 16:55:32 +0800
-From:   Huangzheng Lai <Huangzheng.Lai@unisoc.com>
-To:     Andi Shyti <andi.shyti@kernel.org>
-CC:     Orson Zhai <orsonzhai@gmail.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Chunyan Zhang <zhang.lyra@gmail.com>,
-        <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        huangzheng lai <laihuangzheng@gmail.com>,
-        Huangzheng Lai <Huangzheng.Lai@unisoc.com>,
-        Xiongpeng Wu <xiongpeng.wu@unisoc.com>
-Subject: [PATCH V2 6/7] i2c: sprd: Increase the waiting time for I2C transmission to avoid system crash issues
-Date:   Thu, 21 Sep 2023 16:54:56 +0800
-Message-ID: <20230921085457.32446-7-Huangzheng.Lai@unisoc.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20230921085457.32446-1-Huangzheng.Lai@unisoc.com>
-References: <20230921085457.32446-1-Huangzheng.Lai@unisoc.com>
+        with ESMTP id S231521AbjIUUCg (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Sep 2023 16:02:36 -0400
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 560E946A3
+        for <linux-i2c@vger.kernel.org>; Thu, 21 Sep 2023 10:22:28 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 367EAC4936D;
+        Thu, 21 Sep 2023 09:04:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1695287091;
+        bh=7LjO4Oger0AIPke+jbBFoJx+i4p3im7EqI2ESrJrdK8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=TRQy5TvKoCL+kwOK3jCcTOyC4YgEHNTL5MwsUxGWnkxcnCO8yG1ryfzJlBT932wRL
+         42xDgEvxqhLxgtk/bnBfJAiytxjrkU0xVxc2d+8unoHhTuAeIse3u6kE3S0ILRgUzI
+         rHa1TUY8heF5Ij19nUCm4Wvwn6/i2BHyI5n2o4z2G+IWswK2ZTiHb1HESTh3F+LDNE
+         S06AlBUEa1AOSO1IEUV6+zmUm8ktF2bpkKr5mT3s6FrUTb3uB85pGG2pdsH9wmbVBm
+         ci74kDVacF8iMao0ReHHKD40cQvA5iOKJ2znkO6nAw/hb+ch5IirYg8E1cmoJbWq/I
+         5jQzIUmaP6/1A==
+Date:   Thu, 21 Sep 2023 11:04:48 +0200
+From:   Wolfram Sang <wsa@kernel.org>
+To:     Liang He <windhl@126.com>
+Cc:     peter.korsgaard@barco.com, peda@axentia.se,
+        linux-i2c@vger.kernel.org, evgreen@chromium.org
+Subject: Re: [PATCH] i2c: mux: gpio: Add missing fwnode_handle_put()
+Message-ID: <ZQwHMJKbG3xQl/FH@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>, Liang He <windhl@126.com>,
+        peter.korsgaard@barco.com, peda@axentia.se,
+        linux-i2c@vger.kernel.org, evgreen@chromium.org
+References: <20230322042951.1857247-1-windhl@126.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.13.2.29]
-X-ClientProxiedBy: SHCAS03.spreadtrum.com (10.0.1.207) To
- shmbx04.spreadtrum.com (10.0.1.214)
-X-MAIL: SHSQR01.spreadtrum.com 38L8tXmD040792
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="OKYPqkLiQ/XlQSf/"
+Content-Disposition: inline
+In-Reply-To: <20230322042951.1857247-1-windhl@126.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Due to the relatively low priority of the isr_thread, when the CPU
-load is high, the execution of sprd_i2c_isr_thread will be delayed.
-After the waiting time is exceeded, the I2C driver will perform
-operations such as disabling the I2C controller. Later, when
-sprd_i2c_isr_thread is called by the CPU, there will be kernel panic
-caused by illegal access to the IIC register. After pressure testing,
-we found that increasing the IIC waiting time to 10 seconds can
-avoid this problem.
 
-Fixes: 0b884fe71f9e ("i2c: sprd: use a specific timeout to avoid system hang up issue")
-Cc: <stable@vger.kernel.org> # v5.11+
-Signed-off-by: Huangzheng Lai <Huangzheng.Lai@unisoc.com>
----
- drivers/i2c/busses/i2c-sprd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+--OKYPqkLiQ/XlQSf/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-sprd.c b/drivers/i2c/busses/i2c-sprd.c
-index b65729ba7d5a..dbdac89ad482 100644
---- a/drivers/i2c/busses/i2c-sprd.c
-+++ b/drivers/i2c/busses/i2c-sprd.c
-@@ -74,7 +74,7 @@
- /* timeout (ms) for pm runtime autosuspend */
- #define SPRD_I2C_PM_TIMEOUT	1000
- /* timeout (ms) for transfer message */
--#define I2C_XFER_TIMEOUT	1000
-+#define I2C_XFER_TIMEOUT	10000
- /* dynamic modify clk_freq flag  */
- #define I2C_3M4_FLAG		0x0100
- #define I2C_1M_FLAG		0x0080
--- 
-2.17.1
+On Wed, Mar 22, 2023 at 12:29:51PM +0800, Liang He wrote:
+> In i2c_mux_gpio_probe_fw(), we should add fwnode_handle_put()
+> when break out of the iteration device_for_each_child_node()
+> as it will automatically increase and decrease the refcounter.
+>=20
+> Fixes: 98b2b712bc85 ("i2c: i2c-mux-gpio: Enable this driver in ACPI land")
+> Signed-off-by: Liang He <windhl@126.com>
 
+Applied to for-current, thanks!
+
+
+--OKYPqkLiQ/XlQSf/
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmUMBywACgkQFA3kzBSg
+Kba8dA/9HwUQKNhfn4n+wF6ZU4Wgnzcyc6jXJ9+zbYmFhRpEhqR1CtSyIok9PeU9
+fhnKw3cpwiNCJgcbjiiCeIHCGjAFzMhIkM0WELd/yvFL0dF3GILGOodJ8ifub+5G
+2XcFFyykNC7gupIAzhyZO3sMEy43ln60AYRUqZPGI/vs9FsiYeEdeRrnfauyPCZW
+nh2kFIxMb9UYbreNLWWEjIwFxUINpnsawqQ3n+Yq8vHtK1uo/yRoWN0CLmmVJ7LA
+QdJnUwbtvYcnUAJODbviJ7ZmkXDgUJ0oAhIj6DNb7/0ekD9CLuspV+Fq5N6qwB8O
+KV+XLsRPUaOIG9EeoCgFCZEmMc/Y//KKNUAkQHcxplEeOaZOZBauRUlMXr1jnP+s
+4cLlrrO2XP08e6sEs8cg00oP0yy0FAELE5ex2yN5pflNnOY2araeMkkxODHo5cn1
+u/u8LVcD7WWkmIc3sqTLyyFcTgQCIs5snK2Stf63p05UHL86pXStglp+byg1HBdb
+1ZSHamMUaWFy7Ei3tWttRt42l8BLdFzg6z5Zpah5hi2qL5+YEsAOy5Xm/3oauDdx
+OFu/Y/d6hpD073GLcSszJtiuaz6Ba836sDDbCgmg5WDzIE7gEvEBwBJ5BZmxPjOU
+4io/pW/gIF9isGPUHiFv7Zs/AYC9K9tOJFg5LHQTdGnPTHUk2lk=
+=tG5y
+-----END PGP SIGNATURE-----
+
+--OKYPqkLiQ/XlQSf/--
