@@ -2,83 +2,139 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CF85E7D0AB
-	for <linux-i2c@archiver.kernel.org>; Thu, 21 Sep 2023 22:07:31 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 615C3E7D0D4
+	for <linux-i2c@archiver.kernel.org>; Fri, 22 Sep 2023 06:48:00 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231428AbjIUWHe (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 21 Sep 2023 18:07:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43702 "EHLO
+        id S229648AbjIVGsE (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 22 Sep 2023 02:48:04 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231795AbjIUWHO (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 21 Sep 2023 18:07:14 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64701C85C8
-        for <linux-i2c@vger.kernel.org>; Thu, 21 Sep 2023 14:14:27 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 686A6C433C7;
-        Thu, 21 Sep 2023 21:14:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1695330866;
-        bh=3ISIXPSYynm8nPwODdS4GfSYhDZNyO3F8ZKPeuidRmY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=U5+JcMajn4MgTDeQoDLLw80MISA3dpE2T0yFFzc56YFxKnOkCfdBxjLIeRDyDXpQE
-         oFgiad11Mn1lK8jJim173ABmYa67Vh+Sf6NbC2wpL0PcuHHptQjS4W9zYLFyJ15V/I
-         /RB0rhzCtw2fShr++CAk8vmb0jVqk25MIZS7wYi8wEQsCSXdCkQCI/1KsrzsYZcNjE
-         0jkBGzfcoqo+YQRxIym3tZZvEV+1uHgxNd1BsKrvOo21h0QWqZQSV3Hjl3CloiFMHC
-         bq7fQ012HKPEQAJzMUA907jWSkn4jfouO2Us+va3+0i/fLHZKUN6aGbLuf5yMExcmq
-         gT7cgS3u13JSg==
-Date:   Thu, 21 Sep 2023 23:14:23 +0200
-From:   Andi Shyti <andi.shyti@kernel.org>
-To:     Heiner Kallweit <hkallweit1@gmail.com>
-Cc:     Jean Delvare <jdelvare@suse.com>,
-        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Subject: Re: [PATCH] i2c: i801: use i2c_mark_adapter_suspended/resumed
-Message-ID: <20230921211423.e55vvjmckfwhusxj@zenone.zhora.eu>
-References: <0d13ed54-af1d-4c21-a90c-ba8c6b03f67e@gmail.com>
+        with ESMTP id S229476AbjIVGsD (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 22 Sep 2023 02:48:03 -0400
+Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10FB4CE;
+        Thu, 21 Sep 2023 23:47:57 -0700 (PDT)
+Received: by mail-ej1-x62d.google.com with SMTP id a640c23a62f3a-99bdeae1d0aso216136166b.1;
+        Thu, 21 Sep 2023 23:47:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=jms.id.au; s=google; t=1695365275; x=1695970075; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=4+CrpOA3BbVW7YcDdIAr2SSQwmfCSbThy/86zuEQlAE=;
+        b=cOPh1qAz7ooo2dQZbRpT7Dt4YUmCOmQdVAciUYbLrTKuE8beRijSV9WIRm4CoZwXxD
+         qWhRiletBkjXTDR1y8a7ryQZsJtjr+4PBb85MRqkX/u+J70nocT/BRb11NrKbguJ1F7R
+         9cDTumDzxpWwdYB9zkPvVLiYLz97/GybvajBU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1695365275; x=1695970075;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=4+CrpOA3BbVW7YcDdIAr2SSQwmfCSbThy/86zuEQlAE=;
+        b=WrfBCjgTyY+6/x6UqMPeFcKVzMvC5eS16vce81xNTGSU9oN6inJDXEFDZRKlzuEbHb
+         d5VMDudbjs/fKWfnweOKRUjSBjDarm6Q8QwIAmgWuOY7KO3ELa7FQiztZE5VKvxVPTYc
+         8oBxsF69eP0aJWIo3/HTPTWd1ivi34tasqvv/+ruQ8jygbCh+w78FanyJjmqNx+LbvZb
+         Z0AzcUfw6WldxpsnhU2vI/h19LnBe7z/K9Gkn6f8B5lifSoNx4RYlp885+9DqjEdUdo4
+         fadt1JJz4azmYm5mjiX95yo2N3gQgcOeJLQ7563D8H0yJ5mnSflV62FhhDjB2ANwcqu7
+         hOzQ==
+X-Gm-Message-State: AOJu0Yzc7cEfIBNUG0iKQRy4Ot5/6MbuzFwGmcgidAdET/6TX/Cxb34p
+        3lrKLZspKEoSNdIaydXNQIOeScwMdoPKANRbVkAeSoVBJYM=
+X-Google-Smtp-Source: AGHT+IFPI2FY8X4q00f7f4Mb2FQ7AJt0Qto84RYqQGnxZEpGoEFadMazeAbjtK9yxAqqptZrOQefbddxMjsmJTR6WV8=
+X-Received: by 2002:a17:907:75fc:b0:9ae:50e3:7e40 with SMTP id
+ jz28-20020a17090775fc00b009ae50e37e40mr5278297ejc.52.1695365275252; Thu, 21
+ Sep 2023 23:47:55 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0d13ed54-af1d-4c21-a90c-ba8c6b03f67e@gmail.com>
+References: <20230810072155.3726352-1-zhangjian.3032@bytedance.com>
+In-Reply-To: <20230810072155.3726352-1-zhangjian.3032@bytedance.com>
+From:   Joel Stanley <joel@jms.id.au>
+Date:   Fri, 22 Sep 2023 06:47:43 +0000
+Message-ID: <CACPK8XfWKLS_4nBC+NCSw=21iQeaHzBXOROmz9T+S0qZHCBKeg@mail.gmail.com>
+Subject: Re: [PATCH] i2c: aspeed: Fix i2c bus hang in slave read
+To:     Jian Zhang <zhangjian.3032@bytedance.com>,
+        Tommy Huang <tommy_huang@aspeedtech.com>
+Cc:     brendan.higgins@linux.dev, benh@kernel.crashing.org,
+        andrew@aj.id.au, zhangjian3032@gmail.com, yulei.sh@bytedance.com,
+        xiexinnan@bytedance.com,
+        "open list:ARM/ASPEED I2C DRIVER" <linux-i2c@vger.kernel.org>,
+        "moderated list:ARM/ASPEED I2C DRIVER" <openbmc@lists.ozlabs.org>,
+        "moderated list:ARM/ASPEED MACHINE SUPPORT" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "moderated list:ARM/ASPEED MACHINE SUPPORT" 
+        <linux-aspeed@lists.ozlabs.org>,
+        open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Heiner,
+On Thu, 10 Aug 2023 at 07:22, Jian Zhang <zhangjian.3032@bytedance.com> wrote:
+>
+> When the `CONFIG_I2C_SLAVE` option is enabled and the device operates
+> as a slave, a situation arises where the master sends a START signal
+> without the accompanying STOP signal. This action results in a
+> persistent I2C bus timeout. The core issue stems from the fact that
+> the i2c controller remains in a slave read state without a timeout
+> mechanism. As a consequence, the bus perpetually experiences timeouts.
+>
+> This proposed patch addresses this problem by introducing a status
+> check during i2c transmit timeouts. In the event that the controller
+> is in a slave read state, the i2c controller will be reset to restore
+> proper functionality and allow the I2C bus to resume normal operation.
+>
+> Signed-off-by: Jian Zhang <zhangjian.3032@bytedance.com>
 
-On Wed, Sep 20, 2023 at 09:29:28AM +0200, Heiner Kallweit wrote:
-> When entering the suspend callback, at first we should ensure that
-> transfers are finished and I2C core can't start further transfers.
-> Use i2c_mark_adapter_suspended() for this purpose, and complement it
-> with a call to i2c_mark_adapter_resumed() in the resume path.
-> 
-> Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Tommy has submitted a similar fix:
+
+ https://lore.kernel.org/linux-i2c/20230906004910.4157305-1-tommy_huang@aspeedtech.com/
+
+His change is very heavy handed; it reinitialises the bus including
+re-parsing the device tree (!).
+
+Should we have merged this fix instead? If not, are you able to
+confirm that his change fixes your issue?
+
+Cheers,
+
+Joel
+
 > ---
-> Rebased version of a previously discussed patch, now w/o touching
-> the remove and shutdown path.
-> ---
->  drivers/i2c/busses/i2c-i801.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index 6d02a8b88..26f132277 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -1818,6 +1818,7 @@ static int i801_suspend(struct device *dev)
->  {
->  	struct i801_priv *priv = dev_get_drvdata(dev);
->  
-> +	i2c_mark_adapter_suspended(&priv->adapter);
->  	i801_restore_regs(priv);
->  
->  	return 0;
-> @@ -1829,6 +1830,7 @@ static int i801_resume(struct device *dev)
->  
->  	i801_setup_hstcfg(priv);
->  	i801_enable_host_notify(&priv->adapter);
-> +	i2c_mark_adapter_resumed(&priv->adapter);
-
-I think I already reviewed this patch previously and I had same
-concerns as Jean, anyway,
-
-Reviewed-by: Andi Shyti <andi.shyti@kernel.org> 
-
-Andi
+>  drivers/i2c/busses/i2c-aspeed.c | 17 +++++++++++++++++
+>  1 file changed, 17 insertions(+)
+>
+> diff --git a/drivers/i2c/busses/i2c-aspeed.c b/drivers/i2c/busses/i2c-aspeed.c
+> index e76befe3f60f..1a95205fc946 100644
+> --- a/drivers/i2c/busses/i2c-aspeed.c
+> +++ b/drivers/i2c/busses/i2c-aspeed.c
+> @@ -113,6 +113,7 @@
+>                  ASPEED_I2CD_M_RX_CMD |                                        \
+>                  ASPEED_I2CD_M_TX_CMD |                                        \
+>                  ASPEED_I2CD_M_START_CMD)
+> +#define ASPEED_I2CD_SLAVE_CMDS_MASK                    GENMASK(31, 29)
+>
+>  /* 0x18 : I2CD Slave Device Address Register   */
+>  #define ASPEED_I2CD_DEV_ADDR_MASK                      GENMASK(6, 0)
+> @@ -706,6 +707,22 @@ static int aspeed_i2c_master_xfer(struct i2c_adapter *adap,
+>                      ASPEED_I2CD_BUS_BUSY_STS))
+>                         aspeed_i2c_recover_bus(bus);
+>
+> +#if IS_ENABLED(CONFIG_I2C_SLAVE)
+> +               /*
+> +                * If master timed out and bus is in slave mode.
+> +                * reset the slave mode.
+> +                */
+> +               if (readl(bus->base + ASPEED_I2C_CMD_REG) & ASPEED_I2CD_SLAVE_CMDS_MASK) {
+> +                       spin_lock_irqsave(&bus->lock, flags);
+> +                       u32 func_ctrl_reg_val = readl(bus->base + ASPEED_I2C_FUN_CTRL_REG);
+> +
+> +                       writel(0, bus->base + ASPEED_I2C_FUN_CTRL_REG);
+> +                       writel(func_ctrl_reg_val, bus->base + ASPEED_I2C_FUN_CTRL_REG);
+> +                       bus->slave_state = ASPEED_I2C_SLAVE_INACTIVE;
+> +                       spin_unlock_irqrestore(&bus->lock, flags);
+> +               }
+> +#endif
+> +
+>                 /*
+>                  * If timed out and the state is still pending, drop the pending
+>                  * master command.
+> --
+> 2.30.2
+>
