@@ -2,59 +2,59 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D53ECE7AB8
-	for <linux-i2c@archiver.kernel.org>; Fri, 22 Sep 2023 19:42:44 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BF520CE7AB9
+	for <linux-i2c@archiver.kernel.org>; Fri, 22 Sep 2023 19:42:45 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230403AbjIVTms (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 22 Sep 2023 15:42:48 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47866 "EHLO
+        id S229762AbjIVTmu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 22 Sep 2023 15:42:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231267AbjIVTmr (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 22 Sep 2023 15:42:47 -0400
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16F86AF
-        for <linux-i2c@vger.kernel.org>; Fri, 22 Sep 2023 12:42:41 -0700 (PDT)
-Received: by mail-wm1-x335.google.com with SMTP id 5b1f17b1804b1-405361bb94eso24393245e9.0
-        for <linux-i2c@vger.kernel.org>; Fri, 22 Sep 2023 12:42:41 -0700 (PDT)
+        with ESMTP id S231295AbjIVTmt (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 22 Sep 2023 15:42:49 -0400
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF1B5AF
+        for <linux-i2c@vger.kernel.org>; Fri, 22 Sep 2023 12:42:42 -0700 (PDT)
+Received: by mail-wr1-x430.google.com with SMTP id ffacd0b85a97d-317c3ac7339so2607431f8f.0
+        for <linux-i2c@vger.kernel.org>; Fri, 22 Sep 2023 12:42:42 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1695411759; x=1696016559; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1695411761; x=1696016561; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:autocrypt:references:cc:to
          :from:content-language:subject:user-agent:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=lWafzEIfMrQEGeQs2J6Vt2FOFxo0Tc0vzGxskDyqNtg=;
-        b=QD3CV51Uka80sX/U9dQpHsLVIJ0IXDQKGyRJcQrXaCgtOief+/ATxA6AXbgvT5Avw9
-         xccDTAvunP0mCyUv01jd6HnRs5FethOH6o2dzn9SBmmvYUKpAgmZCP7LgKmlpLgUUrcF
-         kd1CagPag7LxC/z7+9sOOOK/+TYRnqyVBC98Ol/NBfOzGAIYjgo53vkIwcw3k29pRxKk
-         yqNXSKpAs+r1ZIrgEcmvyQWq3fTtzFzP3xf2DPb2a7O3MJME9nsVSC84uGRxzEHHNQLi
-         /aXFzCFDHXut9THnmvDW8mFSk0BZYscEslVFXMTj09bEtIHhYgHrOMDOZXB4drktjJWG
-         DiIQ==
+        bh=yNfg+2j8nmBgO5Py3EXSUz4Ywg9livIThgjtUIdH8Gs=;
+        b=mCBkeJgSQfN531hLrA/1WhnMOBg1kxQRQZiec9YCFmcT3QOJzJI8aqUzOboWh/QzTr
+         gfgTQNqu41oAuorwf5YKB5ge8pR7zfJh1FIEd26bIN5yBsrkuPHomnyh28t1uXbKJPFk
+         HEgIW5hGSDMFdDgQLa7Ps99NU5VolZJ4aJMStlEpWSqIxs2xlqkrnRPJo8A8Hp8s0iB1
+         nJdLuyyozqZWXWJ9c5Hot/vWEOyCo1hRS86v+WgV3C2kgIBFBuW98FW8go1ZjEx67zZp
+         6VJIF1Wd0puasuZvzZPWVZJXY+LXlVQo/u9lPdKEvJW2pkV25UdDJZbrcM48ikbOuoyb
+         UknQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695411759; x=1696016559;
+        d=1e100.net; s=20230601; t=1695411761; x=1696016561;
         h=content-transfer-encoding:in-reply-to:autocrypt:references:cc:to
          :from:content-language:subject:user-agent:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=lWafzEIfMrQEGeQs2J6Vt2FOFxo0Tc0vzGxskDyqNtg=;
-        b=Nvgv5PIKtcA4frbAOuHI9uJn8byHfjPXwMCZSMZwSKT39Epoi9iJvtaDQnQPoL1BLf
-         Yitx9yEOzu6gWhnat95OCxYcrbQijuR7e0zn8O6+WCfn4upM7XW4LYBEtbo9szBRMGit
-         7yQyXucKAHaUjL+Secli5e8LjtumiE08a8TwTcPMNDady3V9qJbWf+pY8nvPjiHrKNNw
-         A7vyomPBK0tkPCcnYB2jlRsNV7p8FCOzj8zTcTeMOym1VIdZ7ySLcZzNRZxTawc841tw
-         avDo/o16EE1HHZ3I7REyaM8zsF1I4wTApq+odw/c+Rmae5ULjEB5io9lkLBVrkiy9QHw
-         yH8Q==
-X-Gm-Message-State: AOJu0YwWxETQmvNRc+kRIcoLe21tnpbcnwaBNRPZ39rd1kr8u2eUoqFi
-        2KC9HXALvP6LZIZ9hVaBXQQCWmZ3iTQ=
-X-Google-Smtp-Source: AGHT+IFg86TAzaTuY+md0PkChoQno+hdXagBXXB0xGfP3MEg7vkVRIM6v3akZNzYpw206vvYW2Gaiw==
-X-Received: by 2002:a05:600c:216:b0:3f7:f2d0:b904 with SMTP id 22-20020a05600c021600b003f7f2d0b904mr278957wmi.8.1695411759381;
-        Fri, 22 Sep 2023 12:42:39 -0700 (PDT)
+        bh=yNfg+2j8nmBgO5Py3EXSUz4Ywg9livIThgjtUIdH8Gs=;
+        b=nBFpwMV0utIbkRKJf8fXp+GNwd5yb0Tc7HadSwt28gs2ZyIFLIfV9MxH/1Nc3LFkP+
+         XB+Gx1adIzeiUtz4SDOj0uR2/644OH1OD+FHERcjHBH3cpfZGCEnJEmX2Xmb9FIogJaH
+         heEhA+krFWQ7z5FDdJqyP55JiNuz63FErVyNyJ6Dc0RpIn7OvY4xmukjYpyUcaHdIni5
+         5ZghGaQPqnzOpJFOD+5TJHlflBIaiuT7V/uhRyOP3ChX6TJNZi6oqH3ygx1KAMLqQxfF
+         nT+P+3xOqj3imyC4eCbomimjVKFPVtY40ojjDH+GQaW5+mn99llPGYMWzTiWAdJGX7n8
+         52aw==
+X-Gm-Message-State: AOJu0YxuHE6kFwNuBZsXYaB1+xaKPzJjVWoavkXqIsIEW0RmuVjd0Y3y
+        BjdVnQTZRZwrswg6pRszlErIzA70LtA=
+X-Google-Smtp-Source: AGHT+IHzN25N31fGz/vGvhI9ttiTuciPXek2io3h7Nt/8sJuarlu0Y9fSqX07kQT65oeN+Y49wLeKg==
+X-Received: by 2002:adf:decb:0:b0:321:5f0e:26a4 with SMTP id i11-20020adfdecb000000b003215f0e26a4mr562891wrn.38.1695411761332;
+        Fri, 22 Sep 2023 12:42:41 -0700 (PDT)
 Received: from ?IPV6:2a02:3100:9589:7c00:3475:142c:c3cb:ba32? (dynamic-2a02-3100-9589-7c00-3475-142c-c3cb-ba32.310.pool.telefonica.de. [2a02:3100:9589:7c00:3475:142c:c3cb:ba32])
-        by smtp.googlemail.com with ESMTPSA id t16-20020a5d49d0000000b0031c5b380291sm5174077wrs.110.2023.09.22.12.42.38
+        by smtp.googlemail.com with ESMTPSA id t16-20020a5d49d0000000b0031c5b380291sm5174077wrs.110.2023.09.22.12.42.40
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 22 Sep 2023 12:42:38 -0700 (PDT)
-Message-ID: <a5920bf7-91ef-4cf3-b6c5-0979e9325d7a@gmail.com>
-Date:   Fri, 22 Sep 2023 21:38:38 +0200
+        Fri, 22 Sep 2023 12:42:40 -0700 (PDT)
+Message-ID: <0d347ae8-b4e0-4937-a6dd-55bd72748d04@gmail.com>
+Date:   Fri, 22 Sep 2023 21:41:41 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: [PATCH 6/8] i2c: i801: Split i801_block_transaction
+Subject: [PATCH 8/8] i2c: i801: Add helper i801_get_block_len
 Content-Language: en-US
 From:   Heiner Kallweit <hkallweit1@gmail.com>
 To:     Jean Delvare <jdelvare@suse.com>,
@@ -111,157 +111,84 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-i2c and smbus block transaction handling have little in common,
-therefore split this function to improve code readability.
+Avoid code duplication and factor out retrieving and checking the
+block length value to new helper i801_get_block_len().
 
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 ---
- drivers/i2c/busses/i2c-i801.c | 112 +++++++++++++++-------------------
- 1 file changed, 50 insertions(+), 62 deletions(-)
+ drivers/i2c/busses/i2c-i801.c | 36 +++++++++++++++++++----------------
+ 1 file changed, 20 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 915dd07e1..a9d3dfd9e 100644
+index 30a2f9268..55bfb4d18 100644
 --- a/drivers/i2c/busses/i2c-i801.c
 +++ b/drivers/i2c/busses/i2c-i801.c
-@@ -801,77 +801,65 @@ static int i801_simple_transaction(struct i801_priv *priv, union i2c_smbus_data
- 	return 0;
- }
+@@ -329,6 +329,18 @@ MODULE_PARM_DESC(disable_features, "Disable selected driver features:\n"
+ 	"\t\t  0x10  don't use interrupts\n"
+ 	"\t\t  0x20  disable SMBus Host Notify ");
  
--/* Block transaction function */
--static int i801_block_transaction(struct i801_priv *priv, union i2c_smbus_data *data,
--				  u8 addr, u8 hstcmd, char read_write, int command)
-+static int i801_smbus_block_transaction(struct i801_priv *priv, union i2c_smbus_data *data,
-+					u8 addr, u8 hstcmd, char read_write, int command)
- {
--	int result = 0;
--	unsigned char hostc;
--
- 	if (read_write == I2C_SMBUS_READ && command == I2C_SMBUS_BLOCK_DATA)
- 		data->block[0] = I2C_SMBUS_BLOCK_MAX;
- 	else if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
- 		return -EPROTO;
- 
--	switch (command) {
--	case I2C_SMBUS_BLOCK_DATA:
--		i801_set_hstadd(priv, addr, read_write);
--		outb_p(hstcmd, SMBHSTCMD(priv));
--		break;
--	case I2C_SMBUS_I2C_BLOCK_DATA:
--		/*
--		 * NB: page 240 of ICH5 datasheet shows that the R/#W
--		 * bit should be cleared here, even when reading.
--		 * However if SPD Write Disable is set (Lynx Point and later),
--		 * the read will fail if we don't set the R/#W bit.
--		 */
--		i801_set_hstadd(priv, addr,
--				priv->original_hstcfg & SMBHSTCFG_SPD_WD ?
--				read_write : I2C_SMBUS_WRITE);
--		if (read_write == I2C_SMBUS_READ) {
--			/* NB: page 240 of ICH5 datasheet also shows
--			 * that DATA1 is the cmd field when reading
--			 */
--			outb_p(hstcmd, SMBHSTDAT1(priv));
--		} else
--			outb_p(hstcmd, SMBHSTCMD(priv));
--
--		if (read_write == I2C_SMBUS_WRITE) {
--			/* set I2C_EN bit in configuration register */
--			pci_read_config_byte(priv->pci_dev, SMBHSTCFG, &hostc);
--			pci_write_config_byte(priv->pci_dev, SMBHSTCFG,
--					      hostc | SMBHSTCFG_I2C_EN);
--		} else if (!(priv->features & FEATURE_I2C_BLOCK_READ)) {
--			dev_err(&priv->pci_dev->dev,
--				"I2C block read is unsupported!\n");
--			return -EOPNOTSUPP;
--		}
--		break;
--	case I2C_SMBUS_BLOCK_PROC_CALL:
-+	if (command == I2C_SMBUS_BLOCK_PROC_CALL)
- 		/* Needs to be flagged as write transaction */
- 		i801_set_hstadd(priv, addr, I2C_SMBUS_WRITE);
-+	else
-+		i801_set_hstadd(priv, addr, read_write);
-+	outb_p(hstcmd, SMBHSTCMD(priv));
++static int i801_get_block_len(struct i801_priv *priv)
++{
++	u8 len = inb_p(SMBHSTDAT0(priv));
 +
-+	if (priv->features & FEATURE_BLOCK_BUFFER)
-+		return i801_block_transaction_by_block(priv, data, read_write, command);
-+	else
-+		return i801_block_transaction_byte_by_byte(priv, data, read_write, command);
++	if (len < 1 || len > I2C_SMBUS_BLOCK_MAX) {
++		pci_err(priv->pci_dev, "Illegal SMBus block read size %u\n", len);
++		return -EPROTO;
++	}
++
++	return len;
 +}
 +
-+static int i801_i2c_block_transaction(struct i801_priv *priv, union i2c_smbus_data *data,
-+				      u8 addr, u8 hstcmd, char read_write, int command)
-+{
-+	int result;
-+	u8 hostc;
+ static int i801_check_and_clear_pec_error(struct i801_priv *priv)
+ {
+ 	u8 status;
+@@ -524,11 +536,9 @@ static int i801_block_transaction_by_block(struct i801_priv *priv,
+ 
+ 	if (read_write == I2C_SMBUS_READ ||
+ 	    command == I2C_SMBUS_BLOCK_PROC_CALL) {
+-		len = inb_p(SMBHSTDAT0(priv));
+-		if (len < 1 || len > I2C_SMBUS_BLOCK_MAX) {
+-			status = -EPROTO;
+-			goto out;
+-		}
++		len = i801_get_block_len(priv);
++		if (len < 0)
++			return len;
+ 
+ 		data->block[0] = len;
+ 		for (i = 0; i < len; i++)
+@@ -544,14 +554,11 @@ static void i801_isr_byte_done(struct i801_priv *priv)
+ 	if (priv->is_read) {
+ 		/* For SMBus block reads, length is received with first byte */
+ 		if (priv->len == SMBUS_LEN_SENTINEL) {
+-			priv->len = inb_p(SMBHSTDAT0(priv));
+-			if (priv->len < 1 || priv->len > I2C_SMBUS_BLOCK_MAX) {
+-				dev_err(&priv->pci_dev->dev,
+-					"Illegal SMBus block read size %d\n",
+-					priv->len);
++			priv->len = i801_get_block_len(priv);
++			if (priv->len < 0)
+ 				/* FIXME: Recover */
+ 				priv->len = I2C_SMBUS_BLOCK_MAX;
+-			}
 +
-+	if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
-+		return -EPROTO;
-+	/*
-+	 * NB: page 240 of ICH5 datasheet shows that the R/#W bit should be cleared here,
-+	 * even when reading. However if SPD Write Disable is set (Lynx Point and later),
-+	 * the read will fail if we don't set the R/#W bit.
-+	 */
-+	i801_set_hstadd(priv, addr,
-+			priv->original_hstcfg & SMBHSTCFG_SPD_WD ? read_write : I2C_SMBUS_WRITE);
-+
-+	/* NB: page 240 of ICH5 datasheet shows that DATA1 is the cmd field when reading */
-+	if (read_write == I2C_SMBUS_READ)
-+		outb_p(hstcmd, SMBHSTDAT1(priv));
-+	else
- 		outb_p(hstcmd, SMBHSTCMD(priv));
--		break;
-+
-+	if (read_write == I2C_SMBUS_WRITE) {
-+		/* set I2C_EN bit in configuration register */
-+		pci_read_config_byte(priv->pci_dev, SMBHSTCFG, &hostc);
-+		pci_write_config_byte(priv->pci_dev, SMBHSTCFG, hostc | SMBHSTCFG_I2C_EN);
-+	} else if (!(priv->features & FEATURE_I2C_BLOCK_READ)) {
-+		pci_err(priv->pci_dev, "I2C block read is unsupported!\n");
-+		return -EOPNOTSUPP;
- 	}
+ 			priv->data[-1] = priv->len;
+ 		}
  
--	/* Experience has shown that the block buffer can only be used for
--	   SMBus (not I2C) block transactions, even though the datasheet
--	   doesn't mention this limitation. */
--	if ((priv->features & FEATURE_BLOCK_BUFFER) &&
--	    command != I2C_SMBUS_I2C_BLOCK_DATA)
--		result = i801_block_transaction_by_block(priv, data,
--							 read_write,
--							 command);
--	else
--		result = i801_block_transaction_byte_by_byte(priv, data,
--							     read_write,
--							     command);
-+	/* Block buffer isn't supported for I2C block transactions */
-+	result = i801_block_transaction_byte_by_byte(priv, data, read_write, command);
+@@ -699,11 +706,8 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
+ 			return status;
  
--	if (command == I2C_SMBUS_I2C_BLOCK_DATA
--	 && read_write == I2C_SMBUS_WRITE) {
--		/* restore saved configuration register value */
-+	/* restore saved configuration register value */
-+	if (read_write == I2C_SMBUS_WRITE)
- 		pci_write_config_byte(priv->pci_dev, SMBHSTCFG, hostc);
--	}
-+
- 	return result;
- }
- 
-@@ -902,10 +890,10 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 		outb_p(inb_p(SMBAUXCTL(priv)) & (~SMBAUXCTL_CRC),
- 		       SMBAUXCTL(priv));
- 
--	if (size == I2C_SMBUS_BLOCK_DATA ||
--	    size == I2C_SMBUS_I2C_BLOCK_DATA ||
--	    size == I2C_SMBUS_BLOCK_PROC_CALL)
--		ret = i801_block_transaction(priv, data, addr, command, read_write, size);
-+	if (size == I2C_SMBUS_BLOCK_DATA || size == I2C_SMBUS_BLOCK_PROC_CALL)
-+		ret = i801_smbus_block_transaction(priv, data, addr, command, read_write, size);
-+	else if (size == I2C_SMBUS_I2C_BLOCK_DATA)
-+		ret = i801_i2c_block_transaction(priv, data, addr, command, read_write, size);
- 	else
- 		ret = i801_simple_transaction(priv, data, addr, command, read_write, size);
- 
+ 		if (len == SMBUS_LEN_SENTINEL) {
+-			len = inb_p(SMBHSTDAT0(priv));
+-			if (len < 1 || len > I2C_SMBUS_BLOCK_MAX) {
+-				dev_err(&priv->pci_dev->dev,
+-					"Illegal SMBus block read size %d\n",
+-					len);
++			len = i801_get_block_len(priv);
++			if (len < 0) {
+ 				/* Recover */
+ 				while (inb_p(SMBHSTSTS(priv)) &
+ 				       SMBHSTSTS_HOST_BUSY)
 -- 
 2.42.0
 
