@@ -2,39 +2,45 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 761BECE7A95
-	for <linux-i2c@archiver.kernel.org>; Mon, 25 Sep 2023 10:10:29 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 28790CE7A9A
+	for <linux-i2c@archiver.kernel.org>; Mon, 25 Sep 2023 10:10:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229582AbjIYKKd (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 25 Sep 2023 06:10:33 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52140 "EHLO
+        id S230145AbjIYKKg (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 25 Sep 2023 06:10:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231351AbjIYKKY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Sep 2023 06:10:24 -0400
+        with ESMTP id S231376AbjIYKK1 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Sep 2023 06:10:27 -0400
 Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95BAECD1
-        for <linux-i2c@vger.kernel.org>; Mon, 25 Sep 2023 03:10:11 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1BA410D5
+        for <linux-i2c@vger.kernel.org>; Mon, 25 Sep 2023 03:10:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         sang-engineering.com; h=from:to:cc:subject:date:message-id
         :in-reply-to:references:mime-version:content-transfer-encoding;
-         s=k1; bh=H2wyU2rmP9lqduXbPLrNIXYzZXO+lL7+kolCQ5oMH2g=; b=Fs3XLu
-        AWp7kVj+DJCd8vZzjieyE+WQ9bS3x3/c7EJT16Hvf9jtIom/cIepOL1/3zi7YLWQ
-        m04IY6QYEeXNVAMXqmmBgYETCzH722ihXCwIIM4IYuB5LCYnzPBFRSHM5PqG3qNh
-        1NhFITDZ+YgRebWW628veVjntAhtlRQM5XWff+Ux7jGwVdyDoJfvmp8xjJH0SXL+
-        r5/QfimR24Y7dnpBvLyg4UYAPQzuAX3BXZE/wU8TJwUyIGAStGsE+jZPphyTI9gT
-        HRJxJuT08E7yASoOItlMVxMn2REBh+ObqT8MiDspIU9Pw3SVV9GR9ha9sf7KTM3u
-        aNGd/1UU3lfhzBPQ==
-Received: (qmail 2356866 invoked from network); 25 Sep 2023 12:10:09 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 25 Sep 2023 12:10:09 +0200
-X-UD-Smtp-Session: l3s3148p1@Rc6+KSwG8zwucs9T
+         s=k1; bh=hWHpByxbxk7AQm4ckeZ/BJr0ENeshN7bukPmrgSsylY=; b=khcSAU
+        NCK/odx7kxWOUUj/iyveRtOxxoZrF/ZvPXSLDmRMgaXFmKTqf4J0//ejFw3mBj17
+        XQFYl0fJe/V9hiq1KzL9bY4dGG/LDPJrJdGhHKrtSzMIUI/I+9GHZkzkD4WaFD5P
+        YUEHQTVU7ehyovvQthq2STbtw9cl/bKCBKxUzcBSa+7RpYLo3OwjUsJXE0A66SYt
+        uR8vxrl3MpXgnbiRpsAF308gdHVJl9MP7p1JqiQOl356bBAzcoEC56zWECKRmY8n
+        gUMEaEtAdgPe41z04k9Zb+s9rI55Brat3zZENXKb3C5vAaOVt4Zj+3THBfbNNw4z
+        LfHbCb/GPyHpov6Q==
+Received: (qmail 2356943 invoked from network); 25 Sep 2023 12:10:11 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 25 Sep 2023 12:10:11 +0200
+X-UD-Smtp-Session: l3s3148p1@kWviKSwGxWoucs9T
 From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
 To:     linux-renesas-soc@vger.kernel.org
 Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 1/3] i2c: create debugfs entry per adapter
-Date:   Mon, 25 Sep 2023 12:09:53 +0200
-Message-Id: <20230925100956.117939-2-wsa+renesas@sang-engineering.com>
+        Avi Fishman <avifishman70@gmail.com>,
+        Tomer Maimon <tmaimon77@gmail.com>,
+        Tali Perry <tali.perry1@gmail.com>,
+        Patrick Venture <venture@google.com>,
+        Nancy Yuen <yuenn@google.com>,
+        Benjamin Fair <benjaminfair@google.com>,
+        Andi Shyti <andi.shyti@kernel.org>, openbmc@lists.ozlabs.org,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH RFT 3/3] i2c: npcm7xx: move to per-adapter debugfs directory
+Date:   Mon, 25 Sep 2023 12:09:55 +0200
+Message-Id: <20230925100956.117939-4-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230925100956.117939-1-wsa+renesas@sang-engineering.com>
 References: <20230925100956.117939-1-wsa+renesas@sang-engineering.com>
@@ -44,93 +50,103 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Two drivers already implement custom debugfs handling for their
-i2c_adapter and more will come. So, let the core create a debugfs
-directory per adapter and pass that to drivers for their debugfs files.
+The I2C core now provides a per-adapter debugfs directory. Use it
+instead of creating a custom one.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/i2c-core-base.c | 11 +++++++++++
- include/linux/i2c.h         |  2 ++
- 2 files changed, 13 insertions(+)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 60746652fd52..7ecc7b0527d3 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -16,6 +16,7 @@
- #include <linux/acpi.h>
- #include <linux/clk/clk-conf.h>
- #include <linux/completion.h>
-+#include <linux/debugfs.h>
- #include <linux/delay.h>
- #include <linux/err.h>
- #include <linux/errno.h>
-@@ -67,6 +68,8 @@ static int i2c_detect(struct i2c_adapter *adapter, struct i2c_driver *driver);
- static DEFINE_STATIC_KEY_FALSE(i2c_trace_msg_key);
- static bool is_registered;
- 
-+static struct dentry *i2c_debugfs_root;
-+
- int i2c_transfer_trace_reg(void)
- {
- 	static_branch_inc(&i2c_trace_msg_key);
-@@ -1517,6 +1520,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
- 		goto out_list;
- 	}
- 
-+	adap->debugfs = debugfs_create_dir(dev_name(&adap->dev), i2c_debugfs_root);
-+
- 	res = i2c_setup_smbus_alert(adap);
- 	if (res)
- 		goto out_reg;
-@@ -1556,6 +1561,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
- 	return 0;
- 
- out_reg:
-+	debugfs_remove_recursive(adap->debugfs);
- 	init_completion(&adap->dev_released);
- 	device_unregister(&adap->dev);
- 	wait_for_completion(&adap->dev_released);
-@@ -1757,6 +1763,8 @@ void i2c_del_adapter(struct i2c_adapter *adap)
- 
- 	i2c_host_notify_irq_teardown(adap);
- 
-+	debugfs_remove_recursive(adap->debugfs);
-+
- 	/* wait until all references to the device are gone
- 	 *
- 	 * FIXME: This is old code and should ideally be replaced by an
-@@ -2054,6 +2062,8 @@ static int __init i2c_init(void)
- 
- 	is_registered = true;
- 
-+	i2c_debugfs_root = debugfs_create_dir("i2c", NULL);
-+
- #ifdef CONFIG_I2C_COMPAT
- 	i2c_adapter_compat_class = class_compat_register("i2c-adapter");
- 	if (!i2c_adapter_compat_class) {
-@@ -2092,6 +2102,7 @@ static void __exit i2c_exit(void)
- #ifdef CONFIG_I2C_COMPAT
- 	class_compat_unregister(i2c_adapter_compat_class);
+I could only build test this, so I would appreciate it very much if this
+could be tested on actual HW. Thanks in advance!
+
+
+ drivers/i2c/busses/i2c-npcm7xx.c | 49 +++++---------------------------
+ 1 file changed, 7 insertions(+), 42 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
+index 495a8b5f6a2b..2326e7de9cf0 100644
+--- a/drivers/i2c/busses/i2c-npcm7xx.c
++++ b/drivers/i2c/busses/i2c-npcm7xx.c
+@@ -326,7 +326,6 @@ struct npcm_i2c {
+ 	u8 slv_rd_buf[MAX_I2C_HW_FIFO_SIZE];
+ 	u8 slv_wr_buf[MAX_I2C_HW_FIFO_SIZE];
  #endif
-+	debugfs_remove_recursive(i2c_debugfs_root);
- 	bus_unregister(&i2c_bus_type);
- 	tracepoint_synchronize_unregister();
- }
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 0dae9db27538..cb93a054cdec 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -746,6 +746,8 @@ struct i2c_adapter {
- 
- 	struct irq_domain *host_notify_domain;
- 	struct regulator *bus_regulator;
-+
-+	struct dentry *debugfs;
+-	struct dentry *debugfs; /* debugfs device directory */
+ 	u64 ber_cnt;
+ 	u64 rec_succ_cnt;
+ 	u64 rec_fail_cnt;
+@@ -2253,27 +2252,15 @@ static const struct i2c_algorithm npcm_i2c_algo = {
+ #endif
  };
- #define to_i2c_adapter(d) container_of(d, struct i2c_adapter, dev)
  
+-/* i2c debugfs directory: used to keep health monitor of i2c devices */
+-static struct dentry *npcm_i2c_debugfs_dir;
+-
+ static void npcm_i2c_init_debugfs(struct platform_device *pdev,
+ 				  struct npcm_i2c *bus)
+ {
+-	struct dentry *d;
+-
+-	if (!npcm_i2c_debugfs_dir)
+-		return;
+-	d = debugfs_create_dir(dev_name(&pdev->dev), npcm_i2c_debugfs_dir);
+-	if (IS_ERR_OR_NULL(d))
+-		return;
+-	debugfs_create_u64("ber_cnt", 0444, d, &bus->ber_cnt);
+-	debugfs_create_u64("nack_cnt", 0444, d, &bus->nack_cnt);
+-	debugfs_create_u64("rec_succ_cnt", 0444, d, &bus->rec_succ_cnt);
+-	debugfs_create_u64("rec_fail_cnt", 0444, d, &bus->rec_fail_cnt);
+-	debugfs_create_u64("timeout_cnt", 0444, d, &bus->timeout_cnt);
+-	debugfs_create_u64("tx_complete_cnt", 0444, d, &bus->tx_complete_cnt);
+-
+-	bus->debugfs = d;
++	debugfs_create_u64("ber_cnt", 0444, bus->adap.debugfs, &bus->ber_cnt);
++	debugfs_create_u64("nack_cnt", 0444, bus->adap.debugfs, &bus->nack_cnt);
++	debugfs_create_u64("rec_succ_cnt", 0444, bus->adap.debugfs, &bus->rec_succ_cnt);
++	debugfs_create_u64("rec_fail_cnt", 0444, bus->adap.debugfs, &bus->rec_fail_cnt);
++	debugfs_create_u64("timeout_cnt", 0444, bus->adap.debugfs, &bus->timeout_cnt);
++	debugfs_create_u64("tx_complete_cnt", 0444, bus->adap.debugfs, &bus->tx_complete_cnt);
+ }
+ 
+ static int npcm_i2c_probe_bus(struct platform_device *pdev)
+@@ -2365,7 +2352,6 @@ static void npcm_i2c_remove_bus(struct platform_device *pdev)
+ 	unsigned long lock_flags;
+ 	struct npcm_i2c *bus = platform_get_drvdata(pdev);
+ 
+-	debugfs_remove_recursive(bus->debugfs);
+ 	spin_lock_irqsave(&bus->lock, lock_flags);
+ 	npcm_i2c_disable(bus);
+ 	spin_unlock_irqrestore(&bus->lock, lock_flags);
+@@ -2388,28 +2374,7 @@ static struct platform_driver npcm_i2c_bus_driver = {
+ 	}
+ };
+ 
+-static int __init npcm_i2c_init(void)
+-{
+-	int ret;
+-
+-	npcm_i2c_debugfs_dir = debugfs_create_dir("npcm_i2c", NULL);
+-
+-	ret = platform_driver_register(&npcm_i2c_bus_driver);
+-	if (ret) {
+-		debugfs_remove_recursive(npcm_i2c_debugfs_dir);
+-		return ret;
+-	}
+-
+-	return 0;
+-}
+-module_init(npcm_i2c_init);
+-
+-static void __exit npcm_i2c_exit(void)
+-{
+-	platform_driver_unregister(&npcm_i2c_bus_driver);
+-	debugfs_remove_recursive(npcm_i2c_debugfs_dir);
+-}
+-module_exit(npcm_i2c_exit);
++module_platform_driver(npcm_i2c_bus_driver);
+ 
+ MODULE_AUTHOR("Avi Fishman <avi.fishman@gmail.com>");
+ MODULE_AUTHOR("Tali Perry <tali.perry@nuvoton.com>");
 -- 
 2.35.1
 
