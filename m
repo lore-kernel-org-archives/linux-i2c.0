@@ -2,138 +2,178 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7654BCE7A98
-	for <linux-i2c@archiver.kernel.org>; Mon, 25 Sep 2023 10:10:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id EA750CE7A81
+	for <linux-i2c@archiver.kernel.org>; Mon, 25 Sep 2023 12:54:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231348AbjIYKKe (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 25 Sep 2023 06:10:34 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54346 "EHLO
+        id S229777AbjIYMyy (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 25 Sep 2023 08:54:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231359AbjIYKKY (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Sep 2023 06:10:24 -0400
-Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAAFEE6D
-        for <linux-i2c@vger.kernel.org>; Mon, 25 Sep 2023 03:10:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        sang-engineering.com; h=from:to:cc:subject:date:message-id
-        :in-reply-to:references:mime-version:content-transfer-encoding;
-         s=k1; bh=vbUqwmZYLQSophio2MK/mGVclCdXcimyfQ0TcCK1Z74=; b=MwL59L
-        4SEBqafAEDRhJsUAwfhC88Sfwi31l/hjm6uLYl4hNkum9kHL0s2HRavpQqvwg/t8
-        nPN3TKzsnkCZ+w/89pLlJwl3j/pmcTCAoAajCruBUVZOAXXTy20laCd32JYn5W0n
-        +sJpCHXUIHmpRCmsRLdkSe5PrIVqtMnWo2tS7bzo0trSL2PSfJ4poy6vwUqd2ruZ
-        gs8e6qWzUopi0AcSyPUXw+Z+yDS+o7QcdQSmTViSaV4JzboqJQ/3AxWZ46CSUUGL
-        jOQqKqkMT0t3pSzeTpGgjO53iWAfqEZMf28iC5VOzuBeD89kEo5/INHUJe3O3gSv
-        819N+MIpJ/MqR4HA==
-Received: (qmail 2356904 invoked from network); 25 Sep 2023 12:10:10 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 25 Sep 2023 12:10:10 +0200
-X-UD-Smtp-Session: l3s3148p1@12zQKSwGk2Mucs9T
-From:   Wolfram Sang <wsa+renesas@sang-engineering.com>
-To:     linux-renesas-soc@vger.kernel.org
-Cc:     Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH 2/3] i2c: gpio: move to per-adapter debugfs directory
-Date:   Mon, 25 Sep 2023 12:09:54 +0200
-Message-Id: <20230925100956.117939-3-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.35.1
-In-Reply-To: <20230925100956.117939-1-wsa+renesas@sang-engineering.com>
-References: <20230925100956.117939-1-wsa+renesas@sang-engineering.com>
+        with ESMTP id S229450AbjIYMyx (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 25 Sep 2023 08:54:53 -0400
+Received: from mail-lj1-x230.google.com (mail-lj1-x230.google.com [IPv6:2a00:1450:4864:20::230])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B059AC6;
+        Mon, 25 Sep 2023 05:54:46 -0700 (PDT)
+Received: by mail-lj1-x230.google.com with SMTP id 38308e7fff4ca-2c00c0f11b2so103192731fa.1;
+        Mon, 25 Sep 2023 05:54:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1695646485; x=1696251285; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=rpqm6X708WjaZWB+8U/MeoR2u910Jmkbm9EGE0ytBjc=;
+        b=CjtMx3RMTNgXg5pdXyD/zyAWS64HJdWWdm2jvLiljBCBgk5nfFCkxGLErNdMHvw88u
+         LIMPX4Sk2qf7HtB44LjywCxa9EOnBsaB1O8rZzeznQB8sbiU28FZxLS1u9jVrQv3RX+e
+         gaTs+2BFv+gBwzi7YptinenVNQOZeF4oTa6VRGH5jB2L/bjLznxcJy914mkCV79O4k8O
+         eH/W3/zH8LvVRFOfTAdDel4Jcxfbpp3dlGSz+LYUL824n4B2bZK9c718hUi21s1TK6lh
+         mZxojXQhpfyB6g6o3flCwMOo317h7e+O21hHOEZVgYN1/sDuetcj3LZsFJoZnF0OUAdC
+         MCHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1695646485; x=1696251285;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=rpqm6X708WjaZWB+8U/MeoR2u910Jmkbm9EGE0ytBjc=;
+        b=AyFMgZFzNBDKdgMd33Jk2EeIg2dcO1mfRza1kRjp8CrWJnFwMvuWTRxvaUeTGUSqD0
+         xg6GdJBbae1dAoQPgKpEjfMBBETH791fCwibwpuGUvTgN2AHMuXGSrkN9827S0leztYp
+         heKffFjFjLgZ2s53PBncM/fIxPzGQ3n+zNzhR/UwnA6ExFXCS/VWIDJ5Doe5WNMoIFQL
+         y/foVlvsQqR+C2FAkZV4plYDSN+j29T3LEgXf6Lim4q2nwoiMa+u6I4HgdeHbLXAhVoo
+         YspZPhOA92UCgBBiH9VgLXXc8dJo2wgk665QmohVFpdt4lYM4N7yRD0WlmH4r0WVgiLw
+         Kl3Q==
+X-Gm-Message-State: AOJu0YxnnI5shrAu+/U2dBoq3CF8I5LGkDw6dvUEO0R1CEbdUyehrxMw
+        0NiU1rnTJOtKhxXx8hjug9Dvhna2Ybc=
+X-Google-Smtp-Source: AGHT+IHLC1KBibf0l8J+b8c0+qs59pNruJ6Khq4gjgkxuqhWLzvrQ7vh22M9zQHvWNV/gia3/bC7rw==
+X-Received: by 2002:a05:651c:231:b0:2be:541c:d06b with SMTP id z17-20020a05651c023100b002be541cd06bmr4805435ljn.53.1695646484632;
+        Mon, 25 Sep 2023 05:54:44 -0700 (PDT)
+Received: from mobilestation ([178.176.56.174])
+        by smtp.gmail.com with ESMTPSA id d17-20020a2e3311000000b002c021b6e82bsm2175121ljc.80.2023.09.25.05.54.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 Sep 2023 05:54:43 -0700 (PDT)
+Date:   Mon, 25 Sep 2023 15:54:40 +0300
+From:   Serge Semin <fancer.lancer@gmail.com>
+To:     Jan Bottorff <janb@os.amperecomputing.com>
+Cc:     Yann Sionneau <ysionneau@kalrayinc.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Yann Sionneau <yann@sionneau.net>,
+        Will Deacon <will@kernel.org>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Jan Dabros <jsd@semihalf.com>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] i2c: designware: Fix corrupted memory seen in the ISR
+Message-ID: <d65lwrkji3rvw6r4jdcumo4zu3hbu6zpv6xq73hw6hcshvhtkw@jvuohb3f3loo>
+References: <9de89e14-35bd-415d-97f1-4b6db1258997@os.amperecomputing.com>
+ <ZQlwC9TCSwWJpuxy@arm.com>
+ <ZQl1zwVkx9n2MPvr@shikoro>
+ <da400d3e-a357-1ae8-cb92-728cc4974b67@kalrayinc.com>
+ <ZQm1UyZ0g7KxRW3a@arm.com>
+ <cde7e2fc-2e13-4b82-98b3-3d3a52c4c185@os.amperecomputing.com>
+ <p7wl7fk4cdyhvw2mfsa6sfc7dhfls3foplmzwj6pzstargt2oh@33zuuznup2gq>
+ <ZQq2cT+/QCenR5gx@shikoro>
+ <ba6d4378-b646-4514-3a45-4b6c951fbb9c@kalrayinc.com>
+ <9219ad29-b9a3-4f07-81b5-43b4b6d9d178@os.amperecomputing.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <9219ad29-b9a3-4f07-81b5-43b4b6d9d178@os.amperecomputing.com>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The I2C core now provides a per-adapter debugfs directory. Use it
-instead of creating a custom one.
+On Wed, Sep 20, 2023 at 12:14:17PM -0700, Jan Bottorff wrote:
+> On 9/20/2023 6:27 AM, Yann Sionneau wrote:
+> > Hi,
+> > 
+> > On 20/09/2023 11:08, Wolfram Sang wrote:
+> > > > same thread." [1] Thus I'd suggest the next fix for the problem:
+> > > > 
+> > > > --- a/drivers/i2c/busses/i2c-designware-common.c
+> > > > +++ b/drivers/i2c/busses/i2c-designware-common.c
+> > > > @@ -72,7 +72,10 @@ static int dw_reg_write(void *context,
+> > > > unsigned int reg, unsigned int val)
+> > > >   {
+> > > >       struct dw_i2c_dev *dev = context;
+> > > > -    writel_relaxed(val, dev->base + reg);
+> > > > +    if (reg == DW_IC_INTR_MASK)
+> > > > +        writel(val, dev->base + reg);
+> > > > +    else
+> > > > +        writel_relaxed(val, dev->base + reg);
+> > > >       return 0;
+> > > >   }
+> > > > 
+> > > > (and similar changes for dw_reg_write_swab() and dw_reg_write_word().)
+> > > > 
+> > > > What do you think?
+> > > To me, this looks reasonable and much more what I would have expected as
+> > > a result (from a high level point of view). Let's hope it works. I am
+> > > optimistic, though...
+> > > 
+> > It works if we make sure all the other register accesses to the
+> > designware i2c IP can't generate IRQ.
+> > 
+> > Meaning that all register accesses that can trigger an IRQ are enclosed
+> > in between a call to i2c_dw_disable_int() and a call to
+> > regmap_write(dev->map, DW_IC_INTR_MASK, DW_IC_INTR_MASTER_MASK); or
+> > equivalent.
+> > 
+> > It seems to be the case, I'm not sure what's the best way to make sure
+> > it will stay that way.
+> > 
+> > Moreover, maybe writes to IC_ENABLE register should also use the
+> > non-relaxed writel() version?
+> > 
+> > Since one could do something like:
+> > 
+> > [ IP is currently disabled ]
+> > 
+> > 1/ enable interrupts in DW_IC_INTR_MASK
+> > 
+> > 2/ update some variable in dev-> structure in DDR
+> > 
+> > 3/ enable the device by writing to IC_ENABLE, thus triggering for
+> > instance the TX_FIFO_EMPTY irq.
+> > 
+> 
+> It does seem like there are a variety of register write combinations that
+> could immediately cause an interrupt, so would need a barrier.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-gpio.c | 39 ++++++-----------------------------
- 1 file changed, 6 insertions(+), 33 deletions(-)
+My suggestion was based on your fix. If it won't work or if it won't
+completely solve the problem, then perhaps one of the next option
+shall do it:
+1. Add the non-relaxed IO call for the IC_ENABLE CSR too.
+2. Completely convert the IO accessors to using the non-relaxed
+methods especially seeing Wolfram already noted: "Again, I am all with
+Catalin here. Safety first, optimizations a la *_relaxed should be
+opt-in."
+https://lore.kernel.org/linux-i2c/ZQm2Ydt%2F0jRW4crK@shikoro/
+3. Find all the places where the memory writes need to be fully
+visible after a subsequent IO-write causing an IRQ raise and just
+place dma_wmb() there (though just wmb() would look a bit more
+relevant).
 
-diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-index e5a5b9e8bf2c..9c8531137354 100644
---- a/drivers/i2c/busses/i2c-gpio.c
-+++ b/drivers/i2c/busses/i2c-gpio.c
-@@ -25,7 +25,6 @@ struct i2c_gpio_private_data {
- 	struct i2c_algo_bit_data bit_data;
- 	struct i2c_gpio_platform_data pdata;
- #ifdef CONFIG_I2C_GPIO_FAULT_INJECTOR
--	struct dentry *debug_dir;
- 	/* these must be protected by bus lock */
- 	struct completion scl_irq_completion;
- 	u64 scl_irq_data;
-@@ -72,7 +71,6 @@ static int i2c_gpio_getscl(void *data)
- }
- 
- #ifdef CONFIG_I2C_GPIO_FAULT_INJECTOR
--static struct dentry *i2c_gpio_debug_dir;
- 
- #define setsda(bd, val)	((bd)->setsda((bd)->data, val))
- #define setscl(bd, val)	((bd)->setscl((bd)->data, val))
-@@ -258,46 +256,23 @@ static void i2c_gpio_fault_injector_init(struct platform_device *pdev)
- {
- 	struct i2c_gpio_private_data *priv = platform_get_drvdata(pdev);
- 
--	/*
--	 * If there will be a debugfs-dir per i2c adapter somewhen, put the
--	 * 'fault-injector' dir there. Until then, we have a global dir with
--	 * all adapters as subdirs.
--	 */
--	if (!i2c_gpio_debug_dir) {
--		i2c_gpio_debug_dir = debugfs_create_dir("i2c-fault-injector", NULL);
--		if (!i2c_gpio_debug_dir)
--			return;
--	}
--
--	priv->debug_dir = debugfs_create_dir(pdev->name, i2c_gpio_debug_dir);
--	if (!priv->debug_dir)
--		return;
--
- 	init_completion(&priv->scl_irq_completion);
- 
--	debugfs_create_file_unsafe("incomplete_address_phase", 0200, priv->debug_dir,
-+	debugfs_create_file_unsafe("incomplete_address_phase", 0200, priv->adap.debugfs,
- 				   priv, &fops_incomplete_addr_phase);
--	debugfs_create_file_unsafe("incomplete_write_byte", 0200, priv->debug_dir,
-+	debugfs_create_file_unsafe("incomplete_write_byte", 0200, priv->adap.debugfs,
- 				   priv, &fops_incomplete_write_byte);
- 	if (priv->bit_data.getscl) {
--		debugfs_create_file_unsafe("inject_panic", 0200, priv->debug_dir,
-+		debugfs_create_file_unsafe("inject_panic", 0200, priv->adap.debugfs,
- 					   priv, &fops_inject_panic);
--		debugfs_create_file_unsafe("lose_arbitration", 0200, priv->debug_dir,
-+		debugfs_create_file_unsafe("lose_arbitration", 0200, priv->adap.debugfs,
- 					   priv, &fops_lose_arbitration);
- 	}
--	debugfs_create_file_unsafe("scl", 0600, priv->debug_dir, priv, &fops_scl);
--	debugfs_create_file_unsafe("sda", 0600, priv->debug_dir, priv, &fops_sda);
--}
--
--static void i2c_gpio_fault_injector_exit(struct platform_device *pdev)
--{
--	struct i2c_gpio_private_data *priv = platform_get_drvdata(pdev);
--
--	debugfs_remove_recursive(priv->debug_dir);
-+	debugfs_create_file_unsafe("scl", 0600, priv->adap.debugfs, priv, &fops_scl);
-+	debugfs_create_file_unsafe("sda", 0600, priv->adap.debugfs, priv, &fops_sda);
- }
- #else
- static inline void i2c_gpio_fault_injector_init(struct platform_device *pdev) {}
--static inline void i2c_gpio_fault_injector_exit(struct platform_device *pdev) {}
- #endif /* CONFIG_I2C_GPIO_FAULT_INJECTOR*/
- 
- /* Get i2c-gpio properties from DT or ACPI table */
-@@ -480,8 +455,6 @@ static void i2c_gpio_remove(struct platform_device *pdev)
- 	struct i2c_gpio_private_data *priv;
- 	struct i2c_adapter *adap;
- 
--	i2c_gpio_fault_injector_exit(pdev);
--
- 	priv = platform_get_drvdata(pdev);
- 	adap = &priv->adap;
- 
--- 
-2.35.1
+IMO in the worst case solution 2. must be enough at least in the
+master mode seeing the ISR uses the completion variable to indicate
+the cmd execution completion, which also implies the complete memory
+barrier. Moreover i2c bus isn't that performant for us to be that much
+concerned about the optimizations like the pipeline stalls in between
+the MMIO accesses.
 
+-Serge(y)
+
+> 
+> I understand barriers a bit better now, although still wonder about some
+> cases. Like say you write to some driver memory and then write the DW
+> command fifo register, and it does not immediately cause an interrupt, but
+> will in the future. Even without the barrier the memory write would
+> typically become visible to other cores after some small amount of time, but
+> don't see that's it's architecturally guaranteed to be visible. This implies
+> the barrier is perhaps needed on many/all of the registers.
+> 
+> Jan
+> 
+> 
