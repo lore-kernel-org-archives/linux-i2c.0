@@ -2,192 +2,217 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2DF4BE71D3D
-	for <linux-i2c@archiver.kernel.org>; Fri, 29 Sep 2023 14:19:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 108F6E71D41
+	for <linux-i2c@archiver.kernel.org>; Fri, 29 Sep 2023 14:31:15 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233272AbjI2OTG (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 29 Sep 2023 10:19:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57262 "EHLO
+        id S233442AbjI2ObO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 29 Sep 2023 10:31:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233179AbjI2OTF (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Fri, 29 Sep 2023 10:19:05 -0400
-Received: from mail-vk1-xa2a.google.com (mail-vk1-xa2a.google.com [IPv6:2607:f8b0:4864:20::a2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E806DDB
-        for <linux-i2c@vger.kernel.org>; Fri, 29 Sep 2023 07:19:02 -0700 (PDT)
-Received: by mail-vk1-xa2a.google.com with SMTP id 71dfb90a1353d-49d0f24a815so440771e0c.2
-        for <linux-i2c@vger.kernel.org>; Fri, 29 Sep 2023 07:19:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1695997142; x=1696601942; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=aeAmu5zRzHvoDH022+dw4lZnAM1RJWZc8yHpGYazk38=;
-        b=IAR2otZA0wOBAfulY51fm5VEDd7sQpNpQRLsH19GJyrgN0A6mKpe5s2Qg3Qa3eLTTs
-         4xHFLBHn8YT5dPvBfBWVGzsFvHhjZTrVerNAiPu1W0NIhjP75wJAIY/hA3Msh1AxNY+S
-         leUzg5FEf3NT/oUfXEYpIzM2GmA+zKF8DILIK17CKUOv0bov21+mugtYqNRhvCmGv+2s
-         K0olfdhSyI+W669SG5uPpfvA0/dGSdYXYXSXCTU/g5oPrG7Hmjm/KB1WkvbO6eSM/8AV
-         G8TnWG0Crek5TjyPZktdkuVciDMYx888Ii8hH8anI7JlDNU2SxNp0setm1a506+Upfjw
-         SCqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695997142; x=1696601942;
-        h=content-transfer-encoding:in-reply-to:autocrypt:from:references:cc
-         :to:content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=aeAmu5zRzHvoDH022+dw4lZnAM1RJWZc8yHpGYazk38=;
-        b=JF0mu7huunBqldWq9vqOfwl99CfqbKKSs10ojYm83Ug/X1GCugcZIB9M4KD7KfVo6f
-         P0fFOQrik+Q5C4kjx7Fr2uDiHW/C50sJAB7XFfU4JQ0m+ziEj40K1kEesj1kLc+8RsVS
-         6Bm1KteFzgrqSQEy5y/VMsChUiES+j9dWUTizpS4ap96nCDuNXg6d9xMRZC8WbTpi4EZ
-         Qu5I3J9UgLqz7A/p95N1CMJXUIXdg6aYBk8AyL2zakweSfqNhZhxNO5IlCKeEiN+eE53
-         qlBtw3l3m2YNc6IGq9v36lajmfkyLsQYyWQZzVGiykZJn5iVhjVLmP1ZCZIdEVYxOkDX
-         26dA==
-X-Gm-Message-State: AOJu0YzbfJlGKnwwDPERSBixH687h44aVteifc96mmpkrVOciyI+ePMb
-        6CpIlbhuKzxjt4+ofPDP7naexw==
-X-Google-Smtp-Source: AGHT+IG8PNXy1FiVTC84HeixjWp13xFTszyacFLiA9jqmSZuIb0y0MLVqqRjAZo1hAHWMru/kiHa3A==
-X-Received: by 2002:a1f:e641:0:b0:49a:850b:107b with SMTP id d62-20020a1fe641000000b0049a850b107bmr3260039vkh.5.1695997141781;
-        Fri, 29 Sep 2023 07:19:01 -0700 (PDT)
-Received: from [192.168.33.189] (178235177217.dynamic-4-waw-k-1-1-0.vectranet.pl. [178.235.177.217])
-        by smtp.gmail.com with ESMTPSA id g27-20020ac5c5db000000b0049d1de0fa44sm102807vkl.28.2023.09.29.07.18.57
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 29 Sep 2023 07:19:01 -0700 (PDT)
-Message-ID: <acc606a6-c46c-43f5-86e0-84bf876001dd@linaro.org>
-Date:   Fri, 29 Sep 2023 16:18:56 +0200
+        with ESMTP id S232630AbjI2ObN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Fri, 29 Sep 2023 10:31:13 -0400
+Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com [185.132.182.106])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A69851A4;
+        Fri, 29 Sep 2023 07:31:10 -0700 (PDT)
+Received: from pps.filterd (m0288072.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.17.1.22/8.17.1.22) with ESMTP id 38T9Uo5C014981;
+        Fri, 29 Sep 2023 16:30:36 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=
+        from:to:cc:subject:date:message-id:in-reply-to:references
+        :mime-version:content-transfer-encoding:content-type; s=
+        selector1; bh=wMdvbc/s3rnb/ovKUDIU9tRdReiTt7f+2PAGC4pEICU=; b=pn
+        YRuhCzRKv0NQRRTONfBRC98bI0ys0nYTYj8GU6LUYPV7q+tYnWbxRdCTxYO1m3nQ
+        Mu5zN2x0MtxeMlDpEqF71qjkjjSoLd/4Fc+UxTNQSBGYv73baAajknEgq9B4VrrZ
+        Ltb318nm0FUiJdBspTEvA98ahxtFMjn0X9fRb2W1ggmEKkUgtySHfzDr5NaaU0eq
+        mKbeH5qTnba0AryD+uvC1qOJIOXrbJc6v1wVOJUt0EmhFDaxFLWxXjGabuxy9g6D
+        3+7QVhqVus889rvJWE1LOrO6IPM68fps6Yff/GzzRiK7ifOAvSLCtAY1I73AE4AI
+        4v2EG29vyYOCg42mPLaw==
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3t9neg3sme-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 29 Sep 2023 16:30:36 +0200 (MEST)
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id A76A2100058;
+        Fri, 29 Sep 2023 16:30:35 +0200 (CEST)
+Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 9CAB326A9A2;
+        Fri, 29 Sep 2023 16:30:35 +0200 (CEST)
+Received: from localhost (10.201.20.32) by SHFDAG1NODE1.st.com (10.75.129.69)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Fri, 29 Sep
+ 2023 16:30:35 +0200
+From:   Gatien Chevallier <gatien.chevallier@foss.st.com>
+To:     <Oleksii_Moisieiev@epam.com>, <gregkh@linuxfoundation.org>,
+        <herbert@gondor.apana.org.au>, <davem@davemloft.net>,
+        <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
+        <conor+dt@kernel.org>, <alexandre.torgue@foss.st.com>,
+        <vkoul@kernel.org>, <jic23@kernel.org>,
+        <olivier.moysan@foss.st.com>, <arnaud.pouliquen@foss.st.com>,
+        <mchehab@kernel.org>, <fabrice.gasnier@foss.st.com>,
+        <andi.shyti@kernel.org>, <ulf.hansson@linaro.org>,
+        <edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
+        <hugues.fruchet@foss.st.com>, <lee@kernel.org>, <will@kernel.org>,
+        <catalin.marinas@arm.com>, <arnd@kernel.org>,
+        <richardcochran@gmail.com>, Frank Rowand <frowand.list@gmail.com>,
+        <peng.fan@oss.nxp.com>
+CC:     <linux-crypto@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <dmaengine@vger.kernel.org>,
+        <linux-i2c@vger.kernel.org>, <linux-iio@vger.kernel.org>,
+        <alsa-devel@alsa-project.org>, <linux-media@vger.kernel.org>,
+        <linux-mmc@vger.kernel.org>, <netdev@vger.kernel.org>,
+        <linux-phy@lists.infradead.org>, <linux-serial@vger.kernel.org>,
+        <linux-spi@vger.kernel.org>, <linux-usb@vger.kernel.org>,
+        Oleksii Moisieiev <oleksii_moisieiev@epam.com>,
+        Gatien Chevallier <gatien.chevallier@foss.st.com>
+Subject: [PATCH v5 01/11] dt-bindings: document generic access controller
+Date:   Fri, 29 Sep 2023 16:28:42 +0200
+Message-ID: <20230929142852.578394-2-gatien.chevallier@foss.st.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230929142852.578394-1-gatien.chevallier@foss.st.com>
+References: <20230929142852.578394-1-gatien.chevallier@foss.st.com>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/3] arm64: dts: qcom: sc7280: Add Camera Control
- Interface busses
-Content-Language: en-US
-To:     Bryan O'Donoghue <pure.logic@nexus-software.ie>,
-        Luca Weiss <luca.weiss@fairphone.com>,
-        Andy Gross <agross@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Robert Foss <rfoss@kernel.org>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        cros-qcom-dts-watchers@chromium.org,
-        Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Cc:     ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20230929-sc7280-cci-v1-0-16c7d386f062@fairphone.com>
- <20230929-sc7280-cci-v1-2-16c7d386f062@fairphone.com>
- <8dd470e5-ce33-3d33-98f1-e66935ca7b56@linaro.org>
- <1b5bd391-4bb0-44ac-88d1-e326bec4dd7d@nexus-software.ie>
-From:   Konrad Dybcio <konrad.dybcio@linaro.org>
-Autocrypt: addr=konrad.dybcio@linaro.org; keydata=
- xsFNBF9ALYUBEADWAhxdTBWrwAgDQQzc1O/bJ5O7b6cXYxwbBd9xKP7MICh5YA0DcCjJSOum
- BB/OmIWU6X+LZW6P88ZmHe+KeyABLMP5s1tJNK1j4ntT7mECcWZDzafPWF4F6m4WJOG27kTJ
- HGWdmtO+RvadOVi6CoUDqALsmfS3MUG5Pj2Ne9+0jRg4hEnB92AyF9rW2G3qisFcwPgvatt7
- TXD5E38mLyOPOUyXNj9XpDbt1hNwKQfiidmPh5e7VNAWRnW1iCMMoKqzM1Anzq7e5Afyeifz
- zRcQPLaqrPjnKqZGL2BKQSZDh6NkI5ZLRhhHQf61fkWcUpTp1oDC6jWVfT7hwRVIQLrrNj9G
- MpPzrlN4YuAqKeIer1FMt8cq64ifgTzxHzXsMcUdclzq2LTk2RXaPl6Jg/IXWqUClJHbamSk
- t1bfif3SnmhA6TiNvEpDKPiT3IDs42THU6ygslrBxyROQPWLI9IL1y8S6RtEh8H+NZQWZNzm
- UQ3imZirlPjxZtvz1BtnnBWS06e7x/UEAguj7VHCuymVgpl2Za17d1jj81YN5Rp5L9GXxkV1
- aUEwONM3eCI3qcYm5JNc5X+JthZOWsbIPSC1Rhxz3JmWIwP1udr5E3oNRe9u2LIEq+wH/toH
- kpPDhTeMkvt4KfE5m5ercid9+ZXAqoaYLUL4HCEw+HW0DXcKDwARAQABzShLb25yYWQgRHli
- Y2lvIDxrb25yYWQuZHliY2lvQGxpbmFyby5vcmc+wsGOBBMBCAA4FiEEU24if9oCL2zdAAQV
- R4cBcg5dfFgFAmQ5bqwCGwMFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AACgkQR4cBcg5dfFjO
- BQ//YQV6fkbqQCceYebGg6TiisWCy8LG77zV7DB0VMIWJv7Km7Sz0QQrHQVzhEr3trNenZrf
- yy+o2tQOF2biICzbLM8oyQPY8B///KJTWI2khoB8IJSJq3kNG68NjPg2vkP6CMltC/X3ohAo
- xL2UgwN5vj74QnlNneOjc0vGbtA7zURNhTz5P/YuTudCqcAbxJkbqZM4WymjQhe0XgwHLkiH
- 5LHSZ31MRKp/+4Kqs4DTXMctc7vFhtUdmatAExDKw8oEz5NbskKbW+qHjW1XUcUIrxRr667V
- GWH6MkVceT9ZBrtLoSzMLYaQXvi3sSAup0qiJiBYszc/VOu3RbIpNLRcXN3KYuxdQAptacTE
- mA+5+4Y4DfC3rUSun+hWLDeac9z9jjHm5rE998OqZnOU9aztbd6zQG5VL6EKgsVXAZD4D3RP
- x1NaAjdA3MD06eyvbOWiA5NSzIcC8UIQvgx09xm7dThCuQYJR4Yxjd+9JPJHI6apzNZpDGvQ
- BBZzvwxV6L1CojUEpnilmMG1ZOTstktWpNzw3G2Gis0XihDUef0MWVsQYJAl0wfiv/0By+XK
- mm2zRR+l/dnzxnlbgJ5pO0imC2w0TVxLkAp0eo0LHw619finad2u6UPQAkZ4oj++iIGrJkt5
- Lkn2XgB+IW8ESflz6nDY3b5KQRF8Z6XLP0+IEdLOOARkOW7yEgorBgEEAZdVAQUBAQdAwmUx
- xrbSCx2ksDxz7rFFGX1KmTkdRtcgC6F3NfuNYkYDAQgHwsF2BBgBCAAgFiEEU24if9oCL2zd
- AAQVR4cBcg5dfFgFAmQ5bvICGwwACgkQR4cBcg5dfFju1Q//Xta1ShwL0MLSC1KL1lXGXeRM
- 8arzfyiB5wJ9tb9U/nZvhhdfilEDLe0jKJY0RJErbdRHsalwQCrtq/1ewQpMpsRxXzAjgfRN
- jc4tgxRWmI+aVTzSRpywNahzZBT695hMz81cVZJoZzaV0KaMTlSnBkrviPz1nIGHYCHJxF9r
- cIu0GSIyUjZ/7xslxdvjpLth16H27JCWDzDqIQMtg61063gNyEyWgt1qRSaK14JIH/DoYRfn
- jfFQSC8bffFjat7BQGFz4ZpRavkMUFuDirn5Tf28oc5ebe2cIHp4/kajTx/7JOxWZ80U70mA
- cBgEeYSrYYnX+UJsSxpzLc/0sT1eRJDEhI4XIQM4ClIzpsCIN5HnVF76UQXh3a9zpwh3dk8i
- bhN/URmCOTH+LHNJYN/MxY8wuukq877DWB7k86pBs5IDLAXmW8v3gIDWyIcgYqb2v8QO2Mqx
- YMqL7UZxVLul4/JbllsQB8F/fNI8AfttmAQL9cwo6C8yDTXKdho920W4WUR9k8NT/OBqWSyk
- bGqMHex48FVZhexNPYOd58EY9/7mL5u0sJmo+jTeb4JBgIbFPJCFyng4HwbniWgQJZ1WqaUC
- nas9J77uICis2WH7N8Bs9jy0wQYezNzqS+FxoNXmDQg2jetX8en4bO2Di7Pmx0jXA4TOb9TM
- izWDgYvmBE8=
-In-Reply-To: <1b5bd391-4bb0-44ac-88d1-e326bec4dd7d@nexus-software.ie>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.201.20.32]
+X-ClientProxiedBy: SHFCAS1NODE2.st.com (10.75.129.73) To SHFDAG1NODE1.st.com
+ (10.75.129.69)
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-09-29_13,2023-09-28_03,2023-05-22_02
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 29.09.2023 16:15, Bryan O'Donoghue wrote:
-> On 29/09/2023 14:35, Konrad Dybcio wrote:
->>
->>
->> On 9/29/23 10:01, Luca Weiss wrote:
->>> Add the CCI busses found on sc7280 and their pinctrl states.
->>>
->>> Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
->>> ---
->>>   arch/arm64/boot/dts/qcom/sc7280.dtsi | 136 +++++++++++++++++++++++++++++++++++
->>>   1 file changed, 136 insertions(+)
->>>
->>> diff --git a/arch/arm64/boot/dts/qcom/sc7280.dtsi b/arch/arm64/boot/dts/qcom/sc7280.dtsi
->>> index 66f1eb83cca7..65550de2e4ff 100644
->>> --- a/arch/arm64/boot/dts/qcom/sc7280.dtsi
->>> +++ b/arch/arm64/boot/dts/qcom/sc7280.dtsi
->>> @@ -3793,6 +3793,86 @@ videocc: clock-controller@aaf0000 {
->>>               #power-domain-cells = <1>;
->>>           };
->>> +        cci0: cci@ac4a000 {
->>> +            compatible = "qcom,sc7280-cci", "qcom,msm8996-cci";
->>> +            reg = <0 0x0ac4a000 0 0x1000>;
->>> +            interrupts = <GIC_SPI 460 IRQ_TYPE_EDGE_RISING>;
->>> +            power-domains = <&camcc CAM_CC_TITAN_TOP_GDSC>;
->>> +
->>> +            clocks = <&camcc CAM_CC_CAMNOC_AXI_CLK>,
->>> +                 <&camcc CAM_CC_SLOW_AHB_CLK_SRC>,
->>> +                 <&camcc CAM_CC_CPAS_AHB_CLK>,
->>> +                 <&camcc CAM_CC_CCI_0_CLK>,
->>> +                 <&camcc CAM_CC_CCI_0_CLK_SRC>;
->>> +            clock-names = "camnoc_axi",
->>> +                      "slow_ahb_src",
->>> +                      "cpas_ahb",
->>> +                      "cci",
->>> +                      "cci_src";
->> I guess this is more of a question to e.g. Bryan, but are all of these clocks actually necessary?
->>
->> Konrad
-> Hmm its a good question, we generally take the approach of adopting all of the downstream clocks for these camera interfaces verbatim.
-> 
-> The clock plan for this part only calls out cci_X_clk and cci_x_clk_src for the CCI however we know that to be incomplete since we *absolutely* need to have the AXI for the block clocked to access those registers, same deal with the AHB bus.
-> 
-> AXI: registers
-> AHB: data
-> 
-> In the above list the only clock you might conceivably not need is CPAS_AHB_CLK.
-> 
-> Let me zap that clock from sdm845 since I have an rb3 right in front of me and see what happens.
-> 
-> Crash and reset
-> 
-> --- a/arch/arm64/boot/dts/qcom/sdm845.dtsi
-> +++ b/arch/arm64/boot/dts/qcom/sdm845.dtsi
-> @@ -4402,13 +4402,11 @@ cci: cci@ac4a000 {
->                         clocks = <&clock_camcc CAM_CC_CAMNOC_AXI_CLK>,
->                                 <&clock_camcc CAM_CC_SOC_AHB_CLK>,
->                                 <&clock_camcc CAM_CC_SLOW_AHB_CLK_SRC>,
-> -                               <&clock_camcc CAM_CC_CPAS_AHB_CLK>,
->                                 <&clock_camcc CAM_CC_CCI_CLK>,
->                                 <&clock_camcc CAM_CC_CCI_CLK_SRC>;
->                         clock-names = "camnoc_axi",
->                                 "soc_ahb",
->                                 "slow_ahb_src",
-> -                               "cpas_ahb",
->                                 "cci",
->                                 "cci_src";
-> 
-> 
-> I think the list is good tbh
-WDYT about camcc consuming ahb, like dispcc does?
-AXI, hmm.. not quite sure what to do with it
+From: Oleksii Moisieiev <Oleksii_Moisieiev@epam.com>
 
-Konrad
+Introducing of the generic access controller bindings for the
+access controller provider and consumer devices. Those bindings are
+intended to allow a better handling of accesses to resources in a
+hardware architecture supporting several compartments.
+
+This patch is based on [1]. It is integrated in this patchset as it
+provides a use-case for it.
+
+Diffs with [1]:
+	- Rename feature-domain* properties to access-control* to narrow
+	  down the scope of the binding
+	- YAML errors and typos corrected.
+	- Example updated
+	- Some rephrasing in the binding description
+
+[1]: https://lore.kernel.org/lkml/0c0a82bb-18ae-d057-562b
+
+Signed-off-by: Oleksii Moisieiev <oleksii_moisieiev@epam.com>
+Signed-off-by: Gatien Chevallier <gatien.chevallier@foss.st.com>
+
+---
+Changes in V5:
+	- Diffs with [1]
+	- Discarded the [IGNORE] tag as the patch is now part of the
+	  patchset
+
+ .../access-controllers/access-controller.yaml | 90 +++++++++++++++++++
+ 1 file changed, 90 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/access-controllers/access-controller.yaml
+
+diff --git a/Documentation/devicetree/bindings/access-controllers/access-controller.yaml b/Documentation/devicetree/bindings/access-controllers/access-controller.yaml
+new file mode 100644
+index 000000000000..9d305fccc333
+--- /dev/null
++++ b/Documentation/devicetree/bindings/access-controllers/access-controller.yaml
+@@ -0,0 +1,90 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/access-controllers/access-controller.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Generic Domain Access Controller
++
++maintainers:
++  - Oleksii Moisieiev <oleksii_moisieiev@epam.com>
++
++description: |+
++  Common access controllers properties
++
++  Access controllers are in charge of stating which of the hardware blocks under
++  their responsibility (their domain) can be accesssed by which compartment. A
++  compartment can be a cluster of CPUs (or coprocessors), a range of addresses
++  or a group of hardware blocks. An access controller's domain is the set of
++  resources covered by the access controller.
++
++  This device tree bindings can be used to bind devices to their access
++  controller provided by access-controller property. In this case, the device is
++  a consumer and the access controller is the provider.
++
++  An access controller can be represented by any node in the device tree and
++  can provide one or more configuration parameters, needed to control parameters
++  of the consumer device. A consumer node can refer to the provider by phandle
++  and a set of phandle arguments, specified by '#access-controller-cells'
++  property in the access controller node.
++
++  Access controllers are typically used to set/read the permissions of a
++  hardware block and grant access to it. Any of which depends on the access
++  controller. The capabilities of each access controller are defined by the
++  binding of the access controller device.
++
++  Each node can be a consumer for the several access controllers.
++
++# always select the core schema
++select: true
++
++properties:
++  "#access-controller-cells":
++    $ref: /schemas/types.yaml#/definitions/uint32
++    description:
++      Number of cells in a access-controller specifier;
++      Can be any value as specified by device tree binding documentation
++      of a particular provider.
++
++  access-control-provider:
++    description:
++      Indicates that the node is an access controller.
++
++  access-controller-names:
++    $ref: /schemas/types.yaml#/definitions/string-array
++    description:
++      A list of access-controller names, sorted in the same order as
++      access-controller entries. Consumer drivers will use
++      access-controller-names to match with existing access-controller entries.
++
++  access-controller:
++    $ref: /schemas/types.yaml#/definitions/phandle-array
++    description:
++      A list of access controller specifiers, as defined by the
++      bindings of the access-controller provider.
++
++additionalProperties: true
++
++examples:
++  - |
++    uart_controller: access-controller@50000 {
++        reg = <0x50000 0x10>;
++        access-control-provider;
++        #access-controller-cells = <2>;
++    };
++
++    bus_controller: bus@60000 {
++        reg = <0x60000 0x10000>;
++        #address-cells = <1>;
++        #size-cells = <1>;
++        ranges;
++        access-control-provider;
++        #access-controller-cells = <3>;
++
++        uart4: serial@60100 {
++            reg = <0x60100 0x400>;
++            access-controller = <&uart_controller 1 2>,
++                                <&bus_controller 1 3 5>;
++            access-controller-names = "controller", "bus-controller";
++        };
++    };
+-- 
+2.25.1
+
