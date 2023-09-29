@@ -2,62 +2,63 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8A13BE743F2
-	for <linux-i2c@archiver.kernel.org>; Fri, 29 Sep 2023 08:01:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9448E743FB
+	for <linux-i2c@archiver.kernel.org>; Fri, 29 Sep 2023 08:01:17 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232621AbjI2IBP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Fri, 29 Sep 2023 04:01:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50656 "EHLO
+        id S232813AbjI2IBQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Fri, 29 Sep 2023 04:01:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232813AbjI2IBN (ORCPT
+        with ESMTP id S232822AbjI2IBN (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Fri, 29 Sep 2023 04:01:13 -0400
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C7831AC
-        for <linux-i2c@vger.kernel.org>; Fri, 29 Sep 2023 01:01:09 -0700 (PDT)
-Received: by mail-ed1-x52f.google.com with SMTP id 4fb4d7f45d1cf-533f193fc8dso12936385a12.2
-        for <linux-i2c@vger.kernel.org>; Fri, 29 Sep 2023 01:01:08 -0700 (PDT)
+Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 605371BD
+        for <linux-i2c@vger.kernel.org>; Fri, 29 Sep 2023 01:01:11 -0700 (PDT)
+Received: by mail-ed1-x532.google.com with SMTP id 4fb4d7f45d1cf-5345a3dfe3bso9141053a12.3
+        for <linux-i2c@vger.kernel.org>; Fri, 29 Sep 2023 01:01:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=fairphone.com; s=fair; t=1695974467; x=1696579267; darn=vger.kernel.org;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=3LpdYfllnzk+eL7xy8/BzP6mgFCymyy/bqU+HI0uTEs=;
-        b=DYibaKNTuzhI3DaWppNe87iHmzawQbHMDzwPSB8yMWo/HJyzuizLS5/u9txgC2X0qf
-         d2YDLd/mGKeCjpo9j8A4bhw6T0eYu8XjvSQMNHuY5+heLiFRxtiuiKafO/UoaQdixNnB
-         ++IIwTCFL5K5L0cJ+zN8wDLfko91B8qlwGctymyqM+4HaqVv0xDb1TE7kEM/3miQYPrw
-         HmRNtLEHaIrgrq7Ag+BPvJwgL6J7Kux4gLPYoH5RvE9Srt3JjjKNVx4CHbQK2TPQ0m1P
-         uzCGZ1V5S1Dk3YSRLkD5WSu5l5ZXhe+vpQpOQqdOtdnYtAQg2LmeQfk2EhV1kvQIHBcY
-         hemw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1695974467; x=1696579267;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=fairphone.com; s=fair; t=1695974470; x=1696579270; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=3LpdYfllnzk+eL7xy8/BzP6mgFCymyy/bqU+HI0uTEs=;
-        b=SjL1DY3PlDzdyuJ+DK9fF96vQwKCKn3i7tkg7BKQh92G40k9arqLNoRqPFgfYtjAkZ
-         hFm7Jds8Xqg4QbbZrflhKM6umPDpqAeHnKPgM0H65RnmFfdbBaI0eO+t8frlkN77xPqv
-         k4O43dvgFQikkf5mibeP2KQDby3T4ogtaXtmL4xkmnC+0Hv/jj2lIP0ljnE30lSTgEPi
-         ckSTB7P0oV5vOrPg4YbqEohnMahR5Tf6lGowS3nntU9oF4gRfALruToqhXwUeJXoXjph
-         q8cz6b43fpWRGbwUinH5SzFKX3ex0S2ilEplvj9uhbSUUCg9V9flvqEFhos6LyXpPv8w
-         qFMQ==
-X-Gm-Message-State: AOJu0YxHsoqELzeApqGmYI51EjsNMfqBjJy3Bev0+UnWWJ6EUZA6xQkM
-        npEudKA4Yv1hy+19eCaRFSp96Q==
-X-Google-Smtp-Source: AGHT+IGFZ/5xxIudkRrtkvptEGoNA89AtAFlEqkjdKJowNCAVNzpC6iHSsAYaP3o5stnPODfbs2fPA==
-X-Received: by 2002:aa7:d58d:0:b0:522:2d1b:5a38 with SMTP id r13-20020aa7d58d000000b005222d1b5a38mr3304809edq.10.1695974467458;
-        Fri, 29 Sep 2023 01:01:07 -0700 (PDT)
+        bh=K4AXanlYkF1UctT0i4z2SSgLVfpVBN6YLneat8LfHMI=;
+        b=clRznoFA1sY2osFvY6SDGuCgw1iQ6CK9eZIp7dhSezFQ3hmQ8wJLVXT1QNRsY+DEH7
+         ygNCbw7cRgl6Jx/qWYAamNcpt5WZp2C1vATWLMYZGNL7AqnrucBnErXFDZgdW2HmQJDv
+         Xg9waeCO16E85Q0AdD9t/wH1IPHdscbTBaoSZXr8N/BGuQZN8bl9/4HAq8aOQfvO1Pjf
+         +vDp1/GlGocuRYUKqwaVyfeJ+Ycu/nXxyUo4aJmzRKLIcggQGIFOjdc6U/55vfHcTpX6
+         s9014kPx+L0HZwbN67mVCMko6m1LYX1yffqD0XPGgVn0B3ztmB5p7I6XuWpV4g7HGPe7
+         G4mQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1695974470; x=1696579270;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=K4AXanlYkF1UctT0i4z2SSgLVfpVBN6YLneat8LfHMI=;
+        b=wwRWfvoJgSgiFtSWHCRmYr6vpysAMQzgiLv8yokbBI13WcO0dc/kwXoqovQjwwnTHv
+         NddwBdbqtSPhiGuzLPROWdDD9LkF1Ja1Hb4XJvJNXbHCV8Eaa9FQX5wIdceI1G05HYVI
+         MMgobL2+SaBWN0VSC6sMJR5fIVXsY7EdBroRiu8bkRHeOIajw7S2Dk0yGAwJE2sz8CFP
+         FpXkNBqBgDEUOuPuMunieusxAmKpwnmzJhpL7dGFaabWCdVdbyBMsQNBx9tT4vA0L5FG
+         pBOp9VLIu9MD6z4YdbRVztzFEgjPsCda8NNxqKhHUeVpcgUR3cEiMF9Ba2FKuxTP5KuZ
+         PJ0w==
+X-Gm-Message-State: AOJu0YyQ9VymyJ8Ke09UOHZq9oYh9wAlBOjnkbIln9JbR4HcjtT8iByg
+        O1tfxQWEUTPMzzOHPsio7C08Kw==
+X-Google-Smtp-Source: AGHT+IG+juZVGk+drK2JRLPswl8hxtyEq3YJ8XGPJn2oMYNzLrEwcoHY46wVzk0EZrzIatxtdRwhnw==
+X-Received: by 2002:a05:6402:751:b0:531:9c1:8276 with SMTP id p17-20020a056402075100b0053109c18276mr3035733edy.4.1695974469876;
+        Fri, 29 Sep 2023 01:01:09 -0700 (PDT)
 Received: from otso.luca.vpn.lucaweiss.eu (144-178-202-138.static.ef-service.nl. [144.178.202.138])
-        by smtp.gmail.com with ESMTPSA id j6-20020aa7ca46000000b0052889d090bfsm10825040edt.79.2023.09.29.01.01.06
+        by smtp.gmail.com with ESMTPSA id j6-20020aa7ca46000000b0052889d090bfsm10825040edt.79.2023.09.29.01.01.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 Sep 2023 01:01:07 -0700 (PDT)
+        Fri, 29 Sep 2023 01:01:09 -0700 (PDT)
 From:   Luca Weiss <luca.weiss@fairphone.com>
-Subject: [PATCH 0/3] Add CCI support for SC7280
-Date:   Fri, 29 Sep 2023 10:01:04 +0200
-Message-Id: <20230929-sc7280-cci-v1-0-16c7d386f062@fairphone.com>
+Date:   Fri, 29 Sep 2023 10:01:07 +0200
+Subject: [PATCH 3/3] arm64: dts: qcom: qcm6490-fairphone-fp5: Enable CCI
+ busses
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAECEFmUC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
- vPSU3UzU4B8JSMDI2MDSyNL3eJkcyMLA93k5ExdEzNLg9Q0i5REQwNzJaCGgqLUtMwKsGHRsbW
- 1AEZyCoNcAAAA
+Message-Id: <20230929-sc7280-cci-v1-3-16c7d386f062@fairphone.com>
+References: <20230929-sc7280-cci-v1-0-16c7d386f062@fairphone.com>
+In-Reply-To: <20230929-sc7280-cci-v1-0-16c7d386f062@fairphone.com>
 To:     Andy Gross <agross@kernel.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Konrad Dybcio <konrad.dybcio@linaro.org>,
@@ -77,25 +78,48 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Add the dts nodes for the camera control interface found on the SC7280
-SoC. And then enable the CCI nodes in the Fairphone 5 dts.
+Enable the CCI busses where sensors are connected to.
+
+Not covered here is the regulator used for pull-up on the I2C busses.
+This would be pm8008_l6 (L6P).
 
 Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
 ---
-Luca Weiss (3):
-      dt-bindings: i2c: qcom-cci: Document SC7280 compatible
-      arm64: dts: qcom: sc7280: Add Camera Control Interface busses
-      arm64: dts: qcom: qcm6490-fairphone-fp5: Enable CCI busses
+ arch/arm64/boot/dts/qcom/qcm6490-fairphone-fp5.dts | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
- .../devicetree/bindings/i2c/qcom,i2c-cci.yaml      |   1 +
- arch/arm64/boot/dts/qcom/qcm6490-fairphone-fp5.dts |  20 +++
- arch/arm64/boot/dts/qcom/sc7280.dtsi               | 136 +++++++++++++++++++++
- 3 files changed, 157 insertions(+)
----
-base-commit: c858197a69efe69e1607f4854af42ec338e54e96
-change-id: 20230929-sc7280-cci-4690ef8da107
+diff --git a/arch/arm64/boot/dts/qcom/qcm6490-fairphone-fp5.dts b/arch/arm64/boot/dts/qcom/qcm6490-fairphone-fp5.dts
+index c8e7e6689b20..3fc0b3f7dc31 100644
+--- a/arch/arm64/boot/dts/qcom/qcm6490-fairphone-fp5.dts
++++ b/arch/arm64/boot/dts/qcom/qcm6490-fairphone-fp5.dts
+@@ -388,6 +388,26 @@ vreg_bob: bob {
+ 	};
+ };
+ 
++&cci0 {
++	status = "okay";
++};
++
++&cci0_i2c0 {
++	/* IMX800 @ 1a */
++};
++
++&cci0_i2c1 {
++	/* IMX858 @ 29 */
++};
++
++&cci1 {
++	status = "okay";
++};
++
++&cci1_i2c1 {
++	/* S5KJN1SQ03 @ 10 */
++};
++
+ &dispcc {
+ 	/* Disable for now so simple-framebuffer continues working */
+ 	status = "disabled";
 
-Best regards,
 -- 
-Luca Weiss <luca.weiss@fairphone.com>
+2.42.0
 
