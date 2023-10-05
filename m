@@ -2,172 +2,428 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A907EE92706
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E136EE92726
 	for <linux-i2c@archiver.kernel.org>; Thu,  5 Oct 2023 14:43:14 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236270AbjJEOnB (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 5 Oct 2023 10:43:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46260 "EHLO
+        id S238071AbjJEOnD (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 5 Oct 2023 10:43:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237132AbjJEOik (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Oct 2023 10:38:40 -0400
-Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com [185.132.182.106])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78EBB4785E;
-        Thu,  5 Oct 2023 07:02:55 -0700 (PDT)
-Received: from pps.filterd (m0288072.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.17.1.22/8.17.1.22) with ESMTP id 3955F1Eb014545;
-        Thu, 5 Oct 2023 09:19:39 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=selector1; bh=UELHM3+btlr1tLsVkeUaq
-        pciYdarLBdmCA0OkNzAXRs=; b=jUlsFwuSfJMzmlsawbWienb/4c0cCH3wUY4C7
-        sZwnGNaJLzGc+3HlE1GJFHKr1wFHxIRttM4DeJQbZM0Yk+sDFk377PUdSGMdzVZ6
-        PVN3Lzw7bRgilrcVH1WQ62KiEIJGGmkjJ7kKQpHduHX0NDw+X2ncUv0y9uxcQODB
-        MfVkVf9QSoicH7epvhwTJCV5j8K7i+gTDP6eHJvZV7pvRL2xaJyE1aHW7bUYJrf8
-        QH2JAx7svAxmaoNSD6S4zzCMCrJc50hioroFRa6P1jL5jpo7cWtXnNnFugoFwnig
-        qdPOcv69K0TUBejk7Kyio3+lt5jQeBo71HH5f05umnp+YArAA==
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3thpu0rfdv-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 05 Oct 2023 09:19:39 +0200 (MEST)
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 4202E10005D;
-        Thu,  5 Oct 2023 09:19:38 +0200 (CEST)
-Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 39FEA21C2FC;
-        Thu,  5 Oct 2023 09:19:38 +0200 (CEST)
-Received: from gnbcxd0016.gnb.st.com (10.129.178.213) by SHFDAG1NODE1.st.com
- (10.75.129.69) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Thu, 5 Oct
- 2023 09:19:37 +0200
-Date:   Thu, 5 Oct 2023 09:19:22 +0200
-From:   Alain Volmat <alain.volmat@foss.st.com>
-To:     Andi Shyti <andi.shyti@kernel.org>
-CC:     Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        M'boumba Cedric Madianga <cedric.madianga@gmail.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Pierre-Yves MORDRET <pierre-yves.mordret@st.com>,
-        <linux-i2c@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i2c: stm32f7: Fix PEC handling in case of SMBUS transfers
-Message-ID: <20231005071922.GA1372701@gnbcxd0016.gnb.st.com>
-Mail-Followup-To: Andi Shyti <andi.shyti@kernel.org>,
-        Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        M'boumba Cedric Madianga <cedric.madianga@gmail.com>,
-        Wolfram Sang <wsa@kernel.org>,
-        Pierre-Yves MORDRET <pierre-yves.mordret@st.com>,
-        linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-References: <20231002084211.1108940-1-alain.volmat@foss.st.com>
- <20231003174246.vdazyls3c7kykd63@zenone.zhora.eu>
+        with ESMTP id S236845AbjJEOhK (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 5 Oct 2023 10:37:10 -0400
+Received: from list.virtualsheetmusic.com (list.virtualsheetmusic.com [170.249.201.71])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C001947C8B
+        for <linux-i2c@vger.kernel.org>; Thu,  5 Oct 2023 07:01:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=list.virtualsheetmusic.com; s=y; h=Date:Message-Id:
+        Content-Transfer-Encoding:Content-Type:Reply-To:From:MIME-Version:Subject:To:
+        Sender:Cc:Content-ID:Content-Description:Resent-Date:Resent-From:
+        Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:
+        List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
+        List-Archive; bh=mss2And8b2ZDeyGoGfgJeDLyJT2w73ly5m32yOR5/ys=; b=If9F+54NScEb
+        vogyifmtSovRHkIgyPCLm24++I7jpRTN7z/bUZSEySX99nT8c83EQB1qbHu42YggqmZwjA3FXzdDj
+        Kfhsqszsq8rAjPQzqk1/9/tDkul32on/SpyYenQu7KkWsrj8kF+ZJBKQm5FQlASpLNlyqqbH7Ui3w
+        zWUXQ=;
+Received: from root by list.virtualsheetmusic.com with local (Exim 4.92)
+        (envelope-from <no-reply@musicianspage.com>)
+        id 1qoM2S-0007kk-9r
+        for linux-i2c@vger.kernel.org; Thu, 05 Oct 2023 03:57:04 -0700
+To:     linux-i2c@vger.kernel.org
+Subject: Music News and Site Updates (October 5, 2023)
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20231003174246.vdazyls3c7kykd63@zenone.zhora.eu>
-X-Disclaimer: ce message est personnel / this message is private
-X-Originating-IP: [10.129.178.213]
-X-ClientProxiedBy: SHFCAS1NODE2.st.com (10.75.129.73) To SHFDAG1NODE1.st.com
- (10.75.129.69)
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2023-10-05_04,2023-10-02_01,2023-05-22_02
+From:   Musicians Page <newsletter@musicianspage.com>
+Reply-To: Musicians Page <newsletter@musicianspage.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <E1qoM2S-0007kk-9r@list.virtualsheetmusic.com>
+Date:   Thu, 05 Oct 2023 03:57:04 -0700
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi Andi,
+Dear &eth;=9F=92=99 All The Girls From Next Door Are Here With Their Ca,
 
-Thanks for the review.
+Here is the Newsletter from Musicians Page website:
 
-On Tue, Oct 03, 2023 at 07:42:46PM +0200, Andi Shyti wrote:
-> Hi Alain,
-> 
-> On Mon, Oct 02, 2023 at 10:42:10AM +0200, Alain Volmat wrote:
-> > The PECBYTE bit allows to generate (in case of write) or
-> > compute/compare the PEC byte (in case of read).  In case
-> > of reading a value (performed by first sending a write
-> > command, then followed by a read command) the PECBYTE should
-> > only be set before starting the read command and not before
-> > the first write command.
-> 
-> What is this patch fixing?
-> 
-> Can you please point this detail in the documentation, I haven't
-> found it[*]
+http://www.musicianspage.com
 
-This is about the handling of the PECBYTE bit of the I2C_CR2 register
-(cf page 1010 of the spec you pointed).  There were no issue in case
-of performing SMBUS write (with PEC), however read was not working.
-PECBYTE was set from the very beginning of the transaction, but since
-SMBUS read is first made of a write transfer, followed by a read transfer,
-the PECBYTE was appended to the end of the write transfer (instead of the read
-transfer), leading to lose of the last byte of the write transfer.
-(in addition to the fact that the PEC byte should NOT be placed at the
-end of the write transfer).
-(cf Figure 30 of SMBUS specification [1]).
+As you have requested. Read on...
 
-I could add more information within the commit log if you prefer.
+(If you are no longer interested in subscribing to this newsletter, you can=
+ unsubscribe by clicking the link at the bottom of this newsletter. Thanks!=
+)
 
-[1] http://www.smbus.org/specs/SMBus_3_2_20220112.pdf
 
-> 
-> > Fixes: 9e48155f6bfe ("i2c: i2c-stm32f7: Add initial SMBus protocols support")
-> > 
-> > Signed-off-by: Alain Volmat <alain.volmat@foss.st.com>
-> 
-> please, don't leave blank lines between tags.
 
-Ok,  will remove this blank line within a v2.
 
-Thanks,
-Alain
+---------------------------------------------------------------------------=
+-
 
-> 
-> Thanks,
-> Andi
-> 
-> [*] Hope this is the correct one:
-> https://www.st.com/resource/en/reference_manual/rm0385-stm32f75xxx-and-stm32f74xxx-advanced-armbased-32bit-mcus-stmicroelectronics.pdf
-> 
-> > ---
-> >  drivers/i2c/busses/i2c-stm32f7.c | 9 ++++++---
-> >  1 file changed, 6 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-> > index 579b30581725..0d3c9a041b56 100644
-> > --- a/drivers/i2c/busses/i2c-stm32f7.c
-> > +++ b/drivers/i2c/busses/i2c-stm32f7.c
-> > @@ -1059,9 +1059,10 @@ static int stm32f7_i2c_smbus_xfer_msg(struct stm32f7_i2c_dev *i2c_dev,
-> >  	/* Configure PEC */
-> >  	if ((flags & I2C_CLIENT_PEC) && f7_msg->size != I2C_SMBUS_QUICK) {
-> >  		cr1 |= STM32F7_I2C_CR1_PECEN;
-> > -		cr2 |= STM32F7_I2C_CR2_PECBYTE;
-> > -		if (!f7_msg->read_write)
-> > +		if (!f7_msg->read_write) {
-> > +			cr2 |= STM32F7_I2C_CR2_PECBYTE;
-> >  			f7_msg->count++;
-> > +		}
-> >  	} else {
-> >  		cr1 &= ~STM32F7_I2C_CR1_PECEN;
-> >  		cr2 &= ~STM32F7_I2C_CR2_PECBYTE;
-> > @@ -1149,8 +1150,10 @@ static void stm32f7_i2c_smbus_rep_start(struct stm32f7_i2c_dev *i2c_dev)
-> >  	f7_msg->stop = true;
-> >  
-> >  	/* Add one byte for PEC if needed */
-> > -	if (cr1 & STM32F7_I2C_CR1_PECEN)
-> > +	if (cr1 & STM32F7_I2C_CR1_PECEN) {
-> > +		cr2 |= STM32F7_I2C_CR2_PECBYTE;
-> >  		f7_msg->count++;
-> > +	}
-> >  
-> >  	/* Set number of bytes to be transferred */
-> >  	cr2 &= ~(STM32F7_I2C_CR2_NBYTES_MASK);
-> > -- 
-> > 2.25.1
-> > 
+If you are not yet registered as a Musician or Band/Ensemble, be sure to si=
+gn-up from the following page (it's free!):
+
+https://www.musicianspage.com/signup.php?email=3Dlinux-i2c@vger.kernel.org
+
+---------------------------------------------------------------------------=
+-
+
+
+
+
+Consider to join with a Standard or Pro Membership
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Either if you are a Musician or a Music Employer, have a look at our Member=
+ship Plans and sign up for the one that best fits your needs:
+
+
+http://www.musicianspage.com/membership.html
+
+
+A Standard or Pro Membership gives you the ability to upload unlimited audi=
+o, video, and sheet music files to your profile; as well as a more complete=
+ resume (or service/company info if you are an employer) and a creative pag=
+e with media content. If you are a musician, you will also have the chance =
+to get featured on the new Musicians Page radio:
+
+http://www.musicianspage.com/music/radio/
+
+
+Musicians Page gives you a professional space on the web to showcase your t=
+alent to potential employers or, for employers, to have a professional and =
+targeted space on the web where to showcase your products or services to po=
+tential prospects. Musicians Page gives you the chance to differentiate you=
+rself from other musicians or the competition who only use amateur channels=
+ such as MySpace, FaceBook, YouTube, or other free sites.
+
+Also, do you know that your profile on Musicians Page is Google optimized?
+
+This means that employers, other musicians or prospects can easily find you=
+ via Google. Our system automatically optimizes every Musician's profile to=
+ appear at the top of Google results for relevant keywords. Just another re=
+ason to take full advantage of all that the Standard and Pro Memberships ha=
+ve to offer, and not rely solely on free social networks that won't optimiz=
+e your profile for others to see at the top of the list!
+
+With a Standard or Pro Membership, you'll also be able to find and apply fo=
+r external jobs Musicians Page finds for you on the web (if you are a music=
+ian) and, with a Pro Membership, be notified via email as soon as a new ext=
+ernal jobs, matching your profile, are found. Or, if you are an employer, b=
+e featured prominently on any webpage of our site to over 2,000 unique user=
+s daily.
+
+Musicians Page is a network for professional musicians and music employers,=
+ built and planned to grow based on professional musicians' and music emplo=
+yers' needs. Don't miss the opportunity to jump on the band wagon from the =
+beginning.
+
+Membership fees are likely to be increased in the coming weeks, so join Mus=
+icians Page today and start networking the right way!
+
+https://www.musicianspage.com/signup.php
+
+
+
+
+Are you looking for musicians, a song writer, a lyricist, a composer?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If so, please post your music job or project on Musicians Page.
+To post a job/project is completely free and takes 5 minutes:
+
+http://www.musicianspage.com/login/panel.php?yourjobs=3D1&postnew=3D1
+
+
+REMEMBER: you can post a job even for a FREE project you need musicians for=
+!
+
+
+
+
+Latest Posted Jobs on Musicians Page
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Power rock/pop trio for cruises
+http://www.musicianspage.com/jobs/7713/
+
+Country Musicians for Cruises
+http://www.musicianspage.com/jobs/7712/
+
+Guitar Violin Duos for Cruises
+http://www.musicianspage.com/jobs/7710/
+
+Keys Player for Cruises
+http://www.musicianspage.com/jobs/7709/
+
+Jazz Trio for Cruises
+http://www.musicianspage.com/jobs/7711/
+
+Male for Cruises
+http://www.musicianspage.com/jobs/7707/
+
+&acirc;=80=8BPiano Vocalist for River Cruises (Season 2024)
+http://www.musicianspage.com/jobs/7706/
+
+Music Teacher (Piano/Guitar/Drums/Violin/Vocals/Sax)
+http://www.musicianspage.com/jobs/7705/
+
+KEYBOARD PLAYER
+http://www.musicianspage.com/jobs/7698/
+
+Duo Musician
+http://www.musicianspage.com/jobs/7694/
+
+
+More jobs:
+http://www.musicianspage.com/jobs/
+
+
+
+
+Latest External Jobs or Opportunities (found on the web)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Guitarist Wanted for Acoustic Cover Songs
+http://www.musicianspage.com/extjobs/1248956/
+
+Female vocalist needed for label release, composing and original live/
+http://www.musicianspage.com/extjobs/1248955/
+
+SEEKING CHRISTIAN SYNTH/KEYBOARD PLAYER FOR ACCOMPANIMENT TRACKS
+http://www.musicianspage.com/extjobs/1248954/
+
+Classic Rock band looking for bassist
+http://www.musicianspage.com/extjobs/1248953/
+
+Bass needed
+http://www.musicianspage.com/extjobs/1248952/
+
+Drummer needed for new pro band
+http://www.musicianspage.com/extjobs/1248951/
+
+Seeking piano STUDENTs Tuesdays!!
+http://www.musicianspage.com/extjobs/1248950/
+
+Awesome Band (ON HOLD) looking for a Good Keyboardist
+http://www.musicianspage.com/extjobs/1248949/
+
+Looking for J-Rock Guitarists
+http://www.musicianspage.com/extjobs/1248948/
+
+Established Island Reggae band looking for drummer
+http://www.musicianspage.com/extjobs/1248947/
+
+
+More jobs:
+http://www.musicianspage.com/jobs/
+
+
+
+
+Latest Forum Topics
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The History and Evolution of the Violin - by Caitronia Flores
+posted on the  Violin forum
+http://www.musicianspage.com/forums/instrument/violin/9028/
+
+
+Looking for a song - by Jo Pik Lp
+posted on the Latin Music forum
+http://www.musicianspage.com/forums/music/latinmusic/9027/
+
+
+Yamaha Drum Kit - by Mike Stroud
+posted on the Equipment for Sale forum
+http://www.musicianspage.com/forums/classifieds/equipmentsale/9026/
+
+
+More forum topics:
+http://www.musicianspage.com/forums/
+
+
+
+
+Latest Uploaded Audio Files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+I Burned HEaven Down by Square Cubed Entertainment (added by Entertainment)
+Genre: Hip-Hop/Rap
+http://www.musicianspage.com/musicians/53782/audiofile/22898/
+
+
+Zion Tiger by Square Cubed Entertainment (added by Entertainment)
+Genre: Hip-Hop/Rap
+http://www.musicianspage.com/musicians/53782/audiofile/22897/
+
+
+Craven by Square Cubed Entertainment (added by Entertainment)
+Genre: Hip-Hop/Rap
+http://www.musicianspage.com/musicians/53782/audiofile/22896/
+
+
+More audio files:
+http://www.musicianspage.com/audio/
+
+
+We are waiting for your comments and if you have any, please upload your
+own audio files from the page below (you must register first):
+
+https://www.musicianspage.com/login/panel.php?addaudiofiles=3D1
+
+
+
+
+Latest Uploaded Video Files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Organo Latino (latin organ) by Orgazzly Organ (added by Orgazzly Organ)
+Genre: World
+http://www.musicianspage.com/musicians/7983/videofile/21116/
+
+
+Preludio Triston,  Composer: M&Atilde;=83&Acirc;&iexcl;ximo Diego Pujol   G=
+uitar: Seyedrasool Sadrieh by SeyedRasool Sadrieh (added by Seyedrasool Sad=
+rieh)
+Genre: Classical
+http://www.musicianspage.com/musicians/3975/videofile/21111/
+
+
+Rain drops by SeyedRasool Sadrieh (added by Seyedrasool Sadrieh)
+Genre: Classical
+http://www.musicianspage.com/musicians/3975/videofile/21110/
+
+
+More video files:
+http://www.musicianspage.com/video/
+
+
+We are waiting for your comments and if you have any, please upload your
+own video files from the page below (you must register first):
+
+https://www.musicianspage.com/login/panel.php?addvideofiles=3D1
+
+
+
+
+Latest Uploaded Sheet Music Files
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Old Zaporizhian Cossack March. Score&amp;parts. by arr. Serhii Naum (added =
+by Grechanivsky)
+Genre: Folk
+http://www.musicianspage.com/musicians/9640/sheetmusic/3270/
+
+
+Orff. Carmina Burana. Orchestral parts only by Carl Orff (added by Grechani=
+vsky)
+Genre: Classical
+http://www.musicianspage.com/musicians/9640/sheetmusic/3268/
+
+
+I&#039;ve Found a New Baby by William Malcolm Jones (added by William Jones=
+)
+Genre: Jazz
+http://www.musicianspage.com/musicians/10888/sheetmusic/3261/
+
+
+More sheet music files:
+http://www.musicianspage.com/sheetmusic/
+
+
+We are waiting for your comments and if you have any, please upload your
+own sheet music files from the page below (you must register first):
+
+https://www.musicianspage.com/login/panel.php?addsheetmusic=3D1
+
+
+
+
+Earn money with your website, FaceBook, YouTube or MySpace
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you own a website or simply an account on FaceBook, YouTube, MySpace or =
+Twitter, be sure to check out the Virtual Sheet Music's Affiliate Program w=
+hich entitles you to earn 30% commission on any referred sale.
+
+It is completely free to join:
+
+https://affiliates.virtualsheetmusic.com/
+
+
+and once you have an account, start referring users using a special code to=
+ put on your website or social account (FaceBook, Twitter, etc).
+
+For any further questions, please reply to this email, we will be glad to h=
+elp you step by step.
+
+
+
+
+Join us on the major Social Networks
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Stay updated with our latest news on:
+
+1. on FaceBook:
+http://www.facebook.com/MusiciansPage
+
+2. on Twitter:
+http://twitter.com/MusiciansPage
+
+
+
+
+---------------------------------------------------------------------------=
+-----
+
+FEATURE YOURSELF ON MUSICIANS PAGE:
+=20
+If you have an upcoming concert, CD release, special Event, or just want to=
+ promote yourself and your activity, remember you can feature yourself in f=
+ront of thousands of musicians, music lovers, and music employers (includin=
+g music agents, artist management companies, etc.) by exclusively putting y=
+our picture and name on every page of Musicians Page, starting at just $10 =
+(that's right, just 10 bucks!):
+=20
+https://www.musicianspage.com/login/panel.php?featureyourself=3D1
+=20
+Your ad will be displayed exclusively for the duration of your campaign, gi=
+ving you maximum exposure to the Musicians Page community. Musicians Page i=
+s visited by thousands of musicians and people working in the music busines=
+s every day, so consider putting yourself in front of this specialized audi=
+ence.
+
+This is your chance to make new contacts and seize exciting opportunities i=
+n minutes! Don't miss this opportunity now!
+
+---------------------------------------------------------------------------=
+-----
+
+
+
+
+Please feel free to pass this Newsletter along to friends and other musicia=
+ns who might find this content valuable in the same way you do, and be sure=
+ to send us your ideas and thoughts by either replying to this email or by =
+posting your comments and feedback on the dedicated forum below:
+
+http://www.musicianspage.com/forums/general/feedback/
+
+Thank you!
+
+All the best,
+Fabrizio Ferrari, CEO
+Musicians Page
+http://www.musicianspage.com
+Virtual Sheet Music Inc.
+http://www.virtualsheetmusic.com
+29911 Niguel Road, #6992
+Laguna Niguel, CA 92677 (USA)
+Fax: +1 800 717 1876 or +1 973 273 2171
+----------------------------------------------
+This message was sent from Musicians Page
+http://www.musicianspage.com
+To unsubscribe, please go to:
+http://www.musicianspage.com/unsubscribe.php?email=3Dlinux-i2c@vger.kernel=
+=2Eorg
