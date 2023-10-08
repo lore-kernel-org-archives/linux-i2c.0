@@ -2,45 +2,45 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74008E95A67
-	for <linux-i2c@archiver.kernel.org>; Sun,  8 Oct 2023 00:53:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5B5C6E95A67
+	for <linux-i2c@archiver.kernel.org>; Sun,  8 Oct 2023 00:54:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234311AbjJHAxu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 7 Oct 2023 20:53:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58052 "EHLO
+        id S1344288AbjJHAyp (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sat, 7 Oct 2023 20:54:45 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234474AbjJHAxZ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 7 Oct 2023 20:53:25 -0400
+        with ESMTP id S1344290AbjJHAym (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sat, 7 Oct 2023 20:54:42 -0400
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD7A330D2;
-        Sat,  7 Oct 2023 17:51:52 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C91DBC43215;
-        Sun,  8 Oct 2023 00:50:45 +0000 (UTC)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C783710C0;
+        Sat,  7 Oct 2023 17:50:21 -0700 (PDT)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B000C43391;
+        Sun,  8 Oct 2023 00:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1696726246;
-        bh=pFXi+Khxzj9U516zTbG3gItYbGtioUkBqrakjfixPy0=;
+        s=k20201202; t=1696726217;
+        bh=b7SnnV4jMEcjmKzD7qD5D/YT1PbL3lTXsAzSPOL0H/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qix950EQpzzm3lRuFrDSi5rdawlZ2LYKcZlkRdDex5t8HlO7s47bArpEffXA+1FCA
-         aKg7MB1Qt+miLNG5L7IQ7XnsTYmTh22SiQuVQONYM0n6O3x3AFKqyYigNHhZgPyscu
-         BtW+iLFrUC/wz30GtFDdz56qbh4QfXfp5rBvNbYCOmOdlFDD4l+WEUcKH3y3yXu/DV
-         slqJqHfC2gPjeK12rT+NZNwMGIefgHKTUbI5dEugn/r6cehRSTVVMloLOGjeDeBoX0
-         tz89gsZhQF2fdFtZ4ZXy8GrMYatE1ombAQqk2PjR7Kk3N0hsIkoQENZMEM0Xb6P94P
-         PQkwNKTfFB0xQ==
+        b=TksqsFAjbdpa4YVIMLxz5ijrXeHH2iQKicO8+y4T2DXlP9yIOdjHc6f9CE6TUyIZj
+         mS/cZeB3HrjfE9miUn4A7w73KPb+OpGwi+5i6XdtJb/wR2lVVwkSRUZZA9qwAzD3Q8
+         fcIHTiKf8Tm0CMKt+ZAPotN8CNqjqtD4kpNveRdSFy8+peUs/nHoNzih95v/DtYkpO
+         VPjnkDic7W48itAg+Kt0xpMeyR3HK72P8Q7iyCyMyq4kAD5vA0DCi2gxH/rs/IpMJw
+         XxSSauYHNZbEgAClwHwp959sY2OFmcEL83XemN6HHV9WyvxMR6uXFqYoZAOddQD88I
+         2qVc9zcTfFZBw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
         Peter Rosin <peda@axentia.se>, Wolfram Sang <wsa@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 4/8] i2c: mux: Avoid potential false error message in i2c_mux_add_adapter
-Date:   Sat,  7 Oct 2023 20:50:34 -0400
-Message-Id: <20231008005039.3768522-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 4/8] i2c: mux: Avoid potential false error message in i2c_mux_add_adapter
+Date:   Sat,  7 Oct 2023 20:50:05 -0400
+Message-Id: <20231008005009.3768314-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.40.1
-In-Reply-To: <20231008005039.3768522-1-sashal@kernel.org>
-References: <20231008005039.3768522-1-sashal@kernel.org>
+In-Reply-To: <20231008005009.3768314-1-sashal@kernel.org>
+References: <20231008005009.3768314-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 4.19.295
+X-stable-base: Linux 5.10.197
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
@@ -63,10 +63,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-index f330690b41253..83a79bcb71ea5 100644
+index 774507b54b57b..c90cec8d9656d 100644
 --- a/drivers/i2c/i2c-mux.c
 +++ b/drivers/i2c/i2c-mux.c
-@@ -334,7 +334,7 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+@@ -340,7 +340,7 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
  		priv->adap.lock_ops = &i2c_parent_lock_ops;
  
  	/* Sanity check on class */
