@@ -2,56 +2,55 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A85DCD6137
-	for <linux-i2c@archiver.kernel.org>; Mon,  9 Oct 2023 21:16:47 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 13040CD613D
+	for <linux-i2c@archiver.kernel.org>; Mon,  9 Oct 2023 21:16:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234709AbjJIVQq (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 9 Oct 2023 17:16:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53860 "EHLO
+        id S1378298AbjJIVQr (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Mon, 9 Oct 2023 17:16:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378256AbjJIVQb (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 9 Oct 2023 17:16:31 -0400
+        with ESMTP id S234628AbjJIVQc (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Mon, 9 Oct 2023 17:16:32 -0400
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72C5D1FDD;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 772601FE3;
         Mon,  9 Oct 2023 14:15:20 -0700 (PDT)
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 399L5tKb016139;
-        Mon, 9 Oct 2023 21:14:55 GMT
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 399KvgKm027830;
+        Mon, 9 Oct 2023 21:14:52 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=EYKuGGems9T+6zGXgi2t9NNdEBVNAcjgmaOdTsCRw4Q=;
- b=QknR9rGKY0F+WzEDax92xSB5iS9q90JKwkLYtTxJPihstKdK0hbTRyYzpx7l6KqsFNnj
- ulzH/J0+GKpUfWN60v5Fwjp9Yaqfcxwry2NnMe0DgHkt4p5wODROKXw/tQKqsKFOcP1h
- 2R41U9N7rSixjw/44jjw7yXG8ryw/LpycvVDF+liJCZ2usicDkr4+5qCcGxodG+vqc4q
- G7Vm7VNMbFkCXk+z/L+UCSXrq8y2zNh9Fef+WUR0aHxY1Jf6DohwFrNLmP85XHUci9II
- qWWMvRBfF03hcg0w8+27H7c/VNfs1tw6YscgNfIzqhSrSKh56cUjENm/ZxzVvJOLq1kR TA== 
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tms4kr82s-1
+ : date : message-id : content-transfer-encoding : mime-version; s=pp1;
+ bh=5+pEpy1esTDnBoJJaotd858xWP0rcc3/1x8ExWl1X/w=;
+ b=aAkjifx18vMBFOfqGka7ZkkT/38XyxJambLZsm+jb8GFCKRNUmImRcv9175E3O4Y+BkW
+ R4B1W1CvX2isPslj7R5TQCPA0cEcnr4TFj+TgEaVVvtawF2oPbXV5Vt3nouu4Wg7v3SG
+ Vp2GN1CR2gvH5nbNJwxja3tSH7UlEebGFb65UJqiL0FkhIzsTQzst9KzK1XrQD4mZ9oh
+ HE7vYXsDcC5XNI5SZ+d5Qtkh0mPt3pMTE1KTssHyIYYnTJdXCKpbYFHLNGkooKD2MyT5
+ +oyzCDAOcU5LsJAoNSoVPjLWiBCK4xlKzW18p4488ft6DB30hBC7T8QEkQNrCzBkqnJE +w== 
+Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3tms0srum4-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Oct 2023 21:14:55 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-        by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 399JtgoH025863;
-        Mon, 9 Oct 2023 21:14:54 GMT
+        Mon, 09 Oct 2023 21:14:52 +0000
+Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
+        by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 399IrmXU023094;
+        Mon, 9 Oct 2023 21:14:51 GMT
 Received: from smtprelay01.wdc07v.mail.ibm.com ([172.16.1.68])
-        by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3tkjnn3su5-1
+        by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3tkmc1b963-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 09 Oct 2023 21:14:54 +0000
-Received: from smtpav03.wdc07v.mail.ibm.com (smtpav03.wdc07v.mail.ibm.com [10.39.53.230])
-        by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 399LErGI28967334
+        Mon, 09 Oct 2023 21:14:51 +0000
+Received: from smtpav01.dal12v.mail.ibm.com (smtpav01.dal12v.mail.ibm.com [10.241.53.100])
+        by smtprelay01.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 399LEndU17564408
         (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 9 Oct 2023 21:14:53 GMT
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 7DC775805A;
-        Mon,  9 Oct 2023 21:14:53 +0000 (GMT)
-Received: from smtpav03.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 63F0C58054;
-        Mon,  9 Oct 2023 21:14:53 +0000 (GMT)
+        Mon, 9 Oct 2023 21:14:50 GMT
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id D1B0458058;
+        Mon,  9 Oct 2023 21:14:49 +0000 (GMT)
+Received: from smtpav01.dal12v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BF5C958057;
+        Mon,  9 Oct 2023 21:14:49 +0000 (GMT)
 Received: from gfwa600.aus.stglabs.ibm.com (unknown [9.3.84.101])
-        by smtpav03.wdc07v.mail.ibm.com (Postfix) with ESMTPS;
-        Mon,  9 Oct 2023 21:14:53 +0000 (GMT)
+        by smtpav01.dal12v.mail.ibm.com (Postfix) with ESMTPS;
+        Mon,  9 Oct 2023 21:14:49 +0000 (GMT)
 Received: by gfwa600.aus.stglabs.ibm.com (Postfix, from userid 181152)
-        id D377B740052; Mon,  9 Oct 2023 16:14:52 -0500 (CDT)
+        id 6707B740051; Mon,  9 Oct 2023 16:14:49 -0500 (CDT)
 From:   Lakshmi Yadlapati <lakshmiy@us.ibm.com>
 To:     linux@roeck-us.net, wsa@kernel.org, sumit.semwal@linaro.org,
         christian.koenig@amd.com, jdelvare@suse.com, joel@jms.id.au,
@@ -59,72 +58,46 @@ To:     linux@roeck-us.net, wsa@kernel.org, sumit.semwal@linaro.org,
 Cc:     Lakshmi Yadlapati <lakshmiy@us.ibm.com>, linux-i2c@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
         linux-hwmon@vger.kernel.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH v1 2/2] hwmon: (pmbus/max31785) Add minimum delay between bus accesses
-Date:   Mon,  9 Oct 2023 16:14:20 -0500
-Message-Id: <20231009211420.3454026-3-lakshmiy@us.ibm.com>
+Subject: [PATCH v1 0/2] [PATCH] hwmon: (pmbus/max31785) Add minimum delay between bus accesses
+Date:   Mon,  9 Oct 2023 16:14:18 -0500
+Message-Id: <20231009211420.3454026-1-lakshmiy@us.ibm.com>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20231009211420.3454026-1-lakshmiy@us.ibm.com>
-References: <20231009211420.3454026-1-lakshmiy@us.ibm.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: cSuJDHQgLZ_TeooGShUucacu0_peuDDX
-X-Proofpoint-ORIG-GUID: cSuJDHQgLZ_TeooGShUucacu0_peuDDX
+X-Proofpoint-ORIG-GUID: Y8ap5htUORrYlfEhm753yyHqf-pZGJfr
+X-Proofpoint-GUID: Y8ap5htUORrYlfEhm753yyHqf-pZGJfr
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+MIME-Version: 1.0
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.267,Aquarius:18.0.980,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2023-10-09_19,2023-10-09_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1015
- spamscore=0 impostorscore=0 mlxscore=0 bulkscore=0 phishscore=0
- malwarescore=0 mlxlogscore=999 adultscore=0 priorityscore=1501
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2309180000 definitions=main-2310090169
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011
+ priorityscore=1501 lowpriorityscore=0 adultscore=0 malwarescore=0
+ mlxlogscore=709 mlxscore=0 suspectscore=0 bulkscore=0 phishscore=0
+ impostorscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.12.0-2309180000 definitions=main-2310090169
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The MAX31785 has shown erratic behaviour across multiple system
-designs, unexpectedly clock stretching and NAKing transactions.
-Inserting a small delay (250us) after register writes makes the
-issue go away.
+Reintroduce per-client throttling of transfers for improved compatibility.
 
-Signed-off-by: Lakshmi Yadlapati <lakshmiy@us.ibm.com>
----
- drivers/hwmon/pmbus/max31785.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Some devices have experienced issues with small command turn-around times when using in-kernel device drivers. While a previous proposal was rejected due to concerns about error-prone open-coding of delays, recent upstream changes for similar problems in I2C devices (e.g., max15301 and ucd90320) and now max31785 make it sensible to reintroduce Andrew's generic solution. This change aims to improve compatibility for affected devices and may help avoid duplicating implementations of handlers for I2C and PMBus calls in driver code.
 
-diff --git a/drivers/hwmon/pmbus/max31785.c b/drivers/hwmon/pmbus/max31785.c
-index f9aa576495a5..532e1c8f632c 100644
---- a/drivers/hwmon/pmbus/max31785.c
-+++ b/drivers/hwmon/pmbus/max31785.c
-@@ -5,6 +5,7 @@
- 
- #include <linux/kernel.h>
- #include <linux/module.h>
-+#include <linux/moduleparam.h>
- #include <linux/init.h>
- #include <linux/err.h>
- #include <linux/i2c.h>
-@@ -24,6 +25,9 @@ enum max31785_regs {
- #define MAX31785_NR_PAGES		23
- #define MAX31785_NR_FAN_PAGES		6
- 
-+static unsigned long throttle_delay_us = 250;
-+module_param(throttle_delay_us, ulong, 0664);
-+
- static int max31785_read_byte_data(struct i2c_client *client, int page,
- 				   int reg)
- {
-@@ -337,6 +341,10 @@ static int max31785_probe(struct i2c_client *client)
- 				     I2C_FUNC_SMBUS_WORD_DATA))
- 		return -ENODEV;
- 
-+	ret = i2c_smbus_throttle_client(client, throttle_delay_us);
-+	if (ret)
-+		return ret;
-+
- 	info = devm_kzalloc(dev, sizeof(struct pmbus_driver_info), GFP_KERNEL);
- 	if (!info)
- 		return -ENOMEM;
+Reference to Andrew's previous proposal:
+https://lore.kernel.org/all/20200914122811.3295678-1-andrew@aj.id.au/
+
+Lakshmi Yadlapati (2):
+  i2c: smbus: Allow throttling of transfers to client devices
+  hwmon: (pmbus/max31785) Add minimum delay between bus accesses
+
+ drivers/hwmon/pmbus/max31785.c |   8 ++
+ drivers/i2c/i2c-core-base.c    |   8 +-
+ drivers/i2c/i2c-core-smbus.c   | 143 ++++++++++++++++++++++++++-------
+ drivers/i2c/i2c-core.h         |  23 ++++++
+ include/linux/i2c.h            |   2 +
+ 5 files changed, 153 insertions(+), 31 deletions(-)
+
 -- 
 2.39.2
 
