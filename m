@@ -2,235 +2,155 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86A6DCD6E54
-	for <linux-i2c@archiver.kernel.org>; Wed, 11 Oct 2023 10:38:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2182BCD6E59
+	for <linux-i2c@archiver.kernel.org>; Wed, 11 Oct 2023 10:43:49 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234794AbjJKKih (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 11 Oct 2023 06:38:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45876 "EHLO
+        id S1346014AbjJKKns (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 11 Oct 2023 06:43:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231847AbjJKKig (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 11 Oct 2023 06:38:36 -0400
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3FEE94
-        for <linux-i2c@vger.kernel.org>; Wed, 11 Oct 2023 03:37:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1697020675;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=B9T69CSeczQTNAGc3fH4cJghTMdZtaq9dJk8j6ttMDE=;
-        b=jIE5ENlAEmsyRXF95FFe5og93HzPhN4nL3oxKosf1GhzFtNWFhGgWuL11HkKz8E7WY+0Nb
-        EzWnLqpuzLdz10AOW78duZuysvCtP7tDWZHZYhdBdlh3YbWC7eJb7K9KTAJdr1ymXnuIPD
-        bO8DRJNWU+GRr2GbJFZLsQsNKmeY9pE=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-402-2QobqTb6NkeaNZiYt5vxCg-1; Wed, 11 Oct 2023 06:37:54 -0400
-X-MC-Unique: 2QobqTb6NkeaNZiYt5vxCg-1
-Received: by mail-ed1-f71.google.com with SMTP id 4fb4d7f45d1cf-52f274df255so909104a12.1
-        for <linux-i2c@vger.kernel.org>; Wed, 11 Oct 2023 03:37:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1697020673; x=1697625473;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=B9T69CSeczQTNAGc3fH4cJghTMdZtaq9dJk8j6ttMDE=;
-        b=F3UQf1Z/lCEWfR7FnNmLCZiIf1ZlEiIuaA7pvaCtoyaV3NrxI1nUQ1kZncmKEp0YD2
-         5xTvtVeG3/CQb63JxjtEi6P10IJ+IBlL3xK7+qwg6OsTm2oD/XVsh1IzWQYyb/pxvSB7
-         PfmfUX7RVBl/UbRw/My1ujeZQxQ0hngpfEPIxF1OJWeIPDUuODs/Y3hzAiwoJzD3u1wo
-         JOERuZOQHTxdmogByHxjBlZ4LNFTbqkWqKhGK8406lsZMBXN/68+UroNIOKAkDxYXt0C
-         ZR8FronEJkVwPrPLTS+auWHOI5idY+I7mtywe67POxISzd259qNPyMJEuliUNpTEK/fi
-         MnAw==
-X-Gm-Message-State: AOJu0YzhuVvsf4UC2nwJpqeAJYvd0Cytt+mF8bwmMXQ9rS62IAnKum5N
-        +JJhtJlno92FbCy18ypEb418IjTd7b0+TQ7vGTVlh4eOT05Em1diZvhA3H3KxJRN1XX4eqSUqBZ
-        6RxaHs/AxiHGiCm9+AREG
-X-Received: by 2002:a05:6402:2547:b0:531:14c4:ae30 with SMTP id l7-20020a056402254700b0053114c4ae30mr16765432edb.0.1697020673665;
-        Wed, 11 Oct 2023 03:37:53 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IGpqK//D1TgfDznC+Wtwpoxq0pK4T0TpAW3VYUjkeuymqvaSZAJeCmcSYMMkbgvTRmAH89JYQ==
-X-Received: by 2002:a05:6402:2547:b0:531:14c4:ae30 with SMTP id l7-20020a056402254700b0053114c4ae30mr16765416edb.0.1697020673313;
-        Wed, 11 Oct 2023 03:37:53 -0700 (PDT)
-Received: from ?IPV6:2001:1c00:c32:7800:5bfa:a036:83f0:f9ec? (2001-1c00-0c32-7800-5bfa-a036-83f0-f9ec.cable.dynamic.v6.ziggo.nl. [2001:1c00:c32:7800:5bfa:a036:83f0:f9ec])
-        by smtp.gmail.com with ESMTPSA id s14-20020a056402014e00b005309eb7544fsm8660244edu.45.2023.10.11.03.37.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 11 Oct 2023 03:37:52 -0700 (PDT)
-Message-ID: <6a87b43a-0648-28d4-6c69-e0f684e44eb6@redhat.com>
-Date:   Wed, 11 Oct 2023 12:37:51 +0200
+        with ESMTP id S1345992AbjJKKnr (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 11 Oct 2023 06:43:47 -0400
+X-Greylist: delayed 1660 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 11 Oct 2023 03:43:43 PDT
+Received: from stcim.de (stcim.de [IPv6:2a01:4f8:151:40c4::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6E5792;
+        Wed, 11 Oct 2023 03:43:43 -0700 (PDT)
+Received: from [2a0a:a548:37e1:0:a288:b4ff:fee5:f5cc] (helo=porty)
+        by stcim with esmtpsa (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <contact@stefanchrist.eu>)
+        id 1qqWFt-0001zQ-ME; Wed, 11 Oct 2023 12:15:53 +0200
+Date:   Wed, 11 Oct 2023 12:15:53 +0200
+From:   Stefan Lengfeld <contact@stefanchrist.eu>
+To:     Krzysztof =?utf-8?Q?Ha=C5=82asa?= <khalasa@piap.pl>
+Cc:     linux-media <linux-media@vger.kernel.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Oleksij Rempel <linux@rempel-privat.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>, linux-i2c@vger.kernel.org
+Subject: Re: Sony IMX290/462 image sensors I2C xfer peculiarity
+Message-ID: <20231011101553.we3r73xejvqdql5j@porty>
+References: <m3y1gpw8ri.fsf@t19.piap.pl>
+ <CAPY8ntASwh3AcRqE+2zF4Df=u+=wJ5K9icAeOrXTMJGDd1+caw@mail.gmail.com>
+ <m3o7hfx3ob.fsf@t19.piap.pl>
+ <m37cnuvmhn.fsf@t19.piap.pl>
+ <m3o7h5tthf.fsf@t19.piap.pl>
+ <m3jzrttrmz.fsf@t19.piap.pl>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.13.0
-Subject: Re: [PATCH v20 1/4] usb: Add support for Intel LJCA device
-Content-Language: en-US, nl
-To:     Andy Shevchenko <andriy.shevchenko@intel.com>,
-        Wentong Wu <wentong.wu@intel.com>
-Cc:     gregkh@linuxfoundation.org, oneukum@suse.com, wsa@kernel.org,
-        andi.shyti@linux.intel.com, broonie@kernel.org,
-        bartosz.golaszewski@linaro.org, linus.walleij@linaro.org,
-        linux-usb@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-spi@vger.kernel.org, sakari.ailus@linux.intel.com,
-        zhifeng.wang@intel.com, linux-gpio@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1696833205-16716-1-git-send-email-wentong.wu@intel.com>
- <1696833205-16716-2-git-send-email-wentong.wu@intel.com>
- <ZSZ3IPgLk7uC5UGI@smile.fi.intel.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <ZSZ3IPgLk7uC5UGI@smile.fi.intel.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <m3jzrttrmz.fsf@t19.piap.pl>
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Hi,
+Hi Krzysztof,
 
-On 10/11/23 12:21, Andy Shevchenko wrote:
-> On Mon, Oct 09, 2023 at 02:33:22PM +0800, Wentong Wu wrote:
->> Implements the USB part of Intel USB-I2C/GPIO/SPI adapter device
->> named "La Jolla Cove Adapter" (LJCA).
->>
->> The communication between the various LJCA module drivers and the
->> hardware will be muxed/demuxed by this driver. Three modules (
->> I2C, GPIO, and SPI) are supported currently.
->>
->> Each sub-module of LJCA device is identified by type field within
->> the LJCA message header.
->>
->> The sub-modules of LJCA can use ljca_transfer() to issue a transfer
->> between host and hardware. And ljca_register_event_cb is exported
->> to LJCA sub-module drivers for hardware event subscription.
->>
->> The minimum code in ASL that covers this board is
->> Scope (\_SB.PCI0.DWC3.RHUB.HS01)
->>     {
->>         Device (GPIO)
->>         {
->>             Name (_ADR, Zero)
->>             Name (_STA, 0x0F)
->>         }
->>
->>         Device (I2C)
->>         {
->>             Name (_ADR, One)
->>             Name (_STA, 0x0F)
->>         }
->>
->>         Device (SPI)
->>         {
->>             Name (_ADR, 0x02)
->>             Name (_STA, 0x0F)
->>         }
->>     }
-> 
-> This commit message is not true anymore, or misleading at bare minimum.
-> The ACPI specification is crystal clear about usage _ADR and _HID, i.e.
-> they must NOT be used together for the same device node. So, can you
-> clarify how the DSDT is organized and update the commit message and
-> it may require (quite likely) to redesign the architecture of this
-> driver. Sorry I missed this from previous rounds as I was busy by
-> something else.
+> Currently, every i.MX8MP atomic I2C transfer starts with 100 us delay
+> (just after the START condition). At 400 kHz bus (384 kHz or whatever),
+> this is equivalent to several tens of bits. Is this delay needed?
 
-This part of the commit message unfortunately is not accurate.
-_ADR is not used in either DSDTs of shipping hw; nor in the code.
+I cannot answer whether the delay is needed for atomic transfer or not.
+But I can give a bit of context for I2C atomic transfers in general.
 
-The code in question parsing the relevant part of the DSDT looks
-like this:
+These where only introduced for a very narrow and special uses shutting
+down the device/power with external PMICs in the kernel's shutdown
+handlers.
 
-static int ljca_match_device_ids(struct acpi_device *adev, void *data)
-{
-        struct ljca_match_ids_walk_data *wd = data;
-        const char *uid = acpi_device_uid(adev);
+E.g. the see code in the file 'drivers/i2c/i2c-core.h':
 
-        if (acpi_match_device_ids(adev, wd->ids))
-                return 0;
-
-        if (!wd->uid)
-                goto match;
-
-        if (!uid)
-                /*
-                 * Some DSDTs have only one ACPI companion for the two I2C
-                 * controllers and they don't set a UID at all (e.g. Dell
-                 * Latitude 9420). On these platforms only the first I2C
-                 * controller is used, so if a HID match has no UID we use
-                 * "0" as the UID and assign ACPI companion to the first
-                 * I2C controller.
-                 */
-                uid = "0";
-        else
-                uid = strchr(uid, wd->uid[0]);
-
-        if (!uid || strcmp(uid, wd->uid))
-                return 0;
-
-match:
-        wd->adev = adev;
-
-        return 1;
-}
-
-Notice that it check _UID (for some child devices, only those of
-which there may be more then 1 have a UID set in the DSDT) and
-that in case of requested but missing UID it assumes UID = "0"
-for compatibility with older DSDTs which lack the UID.
-
-And relevant DSDT bits from early hw (TigerLake Dell Latitude 9420)
-Note no UID for the I2C node even though the LJCA USB IO expander
-has 2 I2C controllers :
-
-    Scope (_SB.PC00.XHCI.RHUB.HS06)
+    /*
+     * We only allow atomic transfers for very late communication, e.g. to access a
+     * PMIC when powering down. Atomic transfers are a corner case and not for
+     * generic use!
+     */
+    static inline bool i2c_in_atomic_xfer_mode(void)
     {
-            Device (VGPO)
-            {
-                Name (_HID, "INTC1074")  // _HID: Hardware ID
-                Name (_DDN, "Intel UsbGpio Device")  // _DDN: DOS Device Name
-            }
-
-            Device (VI2C)
-            {
-                Name (_HID, "INTC1075")  // _HID: Hardware ID
-                Name (_DDN, "Intel UsbI2C Device")  // _DDN: DOS Device Name
-            }
+            return system_state > SYSTEM_RUNNING && irqs_disabled();
     }
 
-And for newer hw (Lenovo Thinkpad X1 yoga gen7, alder lake):
+So I wonder why this delay is a problem for your described you case.
+The e-mail title talks about an image sensor. Why and in which use case
+this sensor needs an atomic transfer? 
 
-        Scope (_SB.PC00.XHCI.RHUB.HS08)
-        {
-            Device (VGPO)
-            {
-                Name (_HID, "INTC1096")  // _HID: Hardware ID
-                Name (_DDN, "Intel UsbGpio Device")  // _DDN: DOS Device Name
-            }
+My understand is that an ordinary I2C device would just use normal (and
+sleepable) I2C transfers while the device is in use.
 
-            Device (VIC0)
-            {
-                Name (_HID, "INTC1097")  // _HID: Hardware ID
-                Name (_DDN, "Intel UsbI2C Device")  // _DDN: DOS Device Name
-                Name (_UID, Zero)  // _UID: Unique ID
-            }
+Kind regards,
+Stefan
 
-            Device (VIC1)
-            {
-                Name (_HID, "INTC1097")  // _HID: Hardware ID
-                Name (_DDN, "Intel UsbI2C Device")  // _DDN: DOS Device Name
-                Name (_UID, One)  // _UID: Unique ID
-            }
-
-            Device (VSPI)
-            {
-                Name (_HID, "INTC1098")  // _HID: Hardware ID
-                Name (_DDN, "Intel UsbSPI Device")  // _DDN: DOS Device Name
-            }
-        }
-
-Note UIDs are used for the I2C controllers but not for the singleton
-SPI and GPIO controllers.
-
-TL;DR: there is nothing to worry about here, but the commit message
-should be updated to reflect reality.
-
-Regards,
-
-Hans
-
+On Wed, Oct 11, 2023 at 11:50:12AM +0200, Krzysztof Hałasa wrote:
+> Hi,
+> 
+> adding more people to Cc: as this is more general stuff than my specific
+> image sensor setup.
+> 
+> Is there any reason for the following (meta) patch to not be applied?
+> 
+> Currently, every i.MX8MP atomic I2C transfer starts with 100 us delay
+> (just after the START condition). At 400 kHz bus (384 kHz or whatever),
+> this is equivalent to several tens of bits. Is this delay needed?
+> 
+> This is on NXP 5.15 branch, but it seems the mainline is identical here.
+> 
+> With this patch, the 1-byte (quasi) atomic image sensor register reads
+> (16-bit address + 8-bit value) are down to ca. 160 us, and writes take
+> 120 us.
+> 
+> It seems one bit on the bus takes ca. 2.66 us (hardware), and the delay
+> between consecutive bytes is ca. 4.82 us (I guess CPU takes a fair share
+> of this). This is i.MX8MP @ apparently 1200 MHz (1600 MHz with freq
+> scaler).
+> 
+> Fire away.
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -534,xx +534,xx @@
+>  static int i2c_imx_bus_busy(struct imx_i2c_struct *i2c_imx, int for_busy, bool atomic)
+>  {
+>      unsigned long orig_jiffies = jiffies;
+>      unsigned int temp;
+>  
+>      while (1) {
+>          temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2SR);
+>  
+>          /* check for arbitration lost */
+>          if (temp & I2SR_IAL) {
+>              i2c_imx_clear_irq(i2c_imx, I2SR_IAL);
+>              return -EAGAIN;
+>          }
+>  
+>          if (for_busy && (temp & I2SR_IBB)) {
+>              i2c_imx->stopped = 0;
+>              break;
+>          }
+>          if (!for_busy && !(temp & I2SR_IBB)) {
+>              i2c_imx->stopped = 1;
+>              break;
+>          }
+>          if (time_after(jiffies, orig_jiffies + msecs_to_jiffies(500))) {
+>              dev_dbg(&i2c_imx->adapter.dev,
+>                  "<%s> I2C bus is busy\n", __func__);
+>              return -ETIMEDOUT;
+>          }
+>          if (atomic)
+> -            udelay(100);
+> +            udelay(1);
+>          else
+>              schedule();
+>      }
+>  
+>      return 0;
+>  }
+> -- 
+> Krzysztof "Chris" Hałasa
+> 
+> Sieć Badawcza Łukasiewicz
+> Przemysłowy Instytut Automatyki i Pomiarów PIAP
+> Al. Jerozolimskie 202, 02-486 Warszawa
+> 
