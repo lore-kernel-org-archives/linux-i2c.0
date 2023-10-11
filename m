@@ -2,133 +2,120 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D013CD6E56
-	for <linux-i2c@archiver.kernel.org>; Wed, 11 Oct 2023 09:57:08 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78F0BCD6E54
+	for <linux-i2c@archiver.kernel.org>; Wed, 11 Oct 2023 10:21:33 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231292AbjJKJ5H (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 11 Oct 2023 05:57:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58834 "EHLO
+        id S231590AbjJKKVb (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 11 Oct 2023 06:21:31 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231215AbjJKJ5G (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 11 Oct 2023 05:57:06 -0400
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C10FD94
-        for <linux-i2c@vger.kernel.org>; Wed, 11 Oct 2023 02:57:04 -0700 (PDT)
-Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-        by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20231011095702euoutp019852a50590da447ed09d1947f19c3341~NBRUf1mNZ1531815318euoutp01c
-        for <linux-i2c@vger.kernel.org>; Wed, 11 Oct 2023 09:57:02 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20231011095702euoutp019852a50590da447ed09d1947f19c3341~NBRUf1mNZ1531815318euoutp01c
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-        s=mail20170921; t=1697018222;
-        bh=zb0dZYf/rhp1Apb/JKJ2R2CtIKSkKDPwQbFwS+fJQ/w=;
-        h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-        b=mup5MOpWAVL4JQehk/97RkSq1RDdpsZGdN13+XFla3X/A7W9mi22K+b0Xu6AKYN2I
-         RiovNGvSkpk3nRrbIiUrEQTm3cdfzJkazvMlonYIesJhzqg9fimxoh92dfdm1WHtUG
-         wbrUEoraf2kCFpwEutHBKzmEe/+aKOv67zJOav20=
-Received: from eusmges2new.samsung.com (unknown [203.254.199.244]) by
-        eucas1p1.samsung.com (KnoxPortal) with ESMTP id
-        20231011095702eucas1p1fbfa61e7264aea4d67bccd93ec1e08d6~NBRUB3dpv1401914019eucas1p1s;
-        Wed, 11 Oct 2023 09:57:02 +0000 (GMT)
-Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
-        eusmges2new.samsung.com (EUCPMTA) with SMTP id 1A.2B.11320.E6176256; Wed, 11
-        Oct 2023 10:57:02 +0100 (BST)
-Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
-        eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-        20231011095701eucas1p1afb457ed499787c127ee798adc87a0fd~NBRTgUQJ41404114041eucas1p14;
-        Wed, 11 Oct 2023 09:57:01 +0000 (GMT)
-Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
-        eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
-        20231011095701eusmtrp1a7c094b037c3638eab3937b77e2717bd~NBRTfZp9f0433404334eusmtrp1Y;
-        Wed, 11 Oct 2023 09:57:01 +0000 (GMT)
-X-AuditID: cbfec7f4-97dff70000022c38-ba-6526716e4532
-Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
-        eusmgms2.samsung.com (EUCPMTA) with SMTP id 41.74.25043.D6176256; Wed, 11
-        Oct 2023 10:57:01 +0100 (BST)
-Received: from [106.210.134.192] (unknown [106.210.134.192]) by
-        eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-        20231011095701eusmtip2b1aa6f9da8170841b9ef2d07cbd2c2ea~NBRS1uSTK1735217352eusmtip2K;
-        Wed, 11 Oct 2023 09:57:01 +0000 (GMT)
-Message-ID: <c7d8b05a-f5cb-49aa-95c0-48754fab1b7f@samsung.com>
-Date:   Wed, 11 Oct 2023 11:57:00 +0200
+        with ESMTP id S231207AbjJKKV3 (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 11 Oct 2023 06:21:29 -0400
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D616794;
+        Wed, 11 Oct 2023 03:21:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1697019688; x=1728555688;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=/cYWT/4fm7jXsKnDZ4BU0yY6cJwahfXPWVnGMGjbcsM=;
+  b=VIeWU83bLvIUuBBVheASpygqGR67OfO2po2QRufat1UAd7c771nPnieN
+   qke+mncSsVYK2FsIruJRW+jU6K+XLX6bd7Zndjjg15/5+YWvJyJL/axyv
+   TDovcmIDnajM4mJC3s8Yq+C8kOaNr4eChcBEGbrh38srpMuVamyvn8wrQ
+   5+SUKrUW7toVZHTzGzIAucFQT3Id9Y+y3SsHVJHaK/h/2Y2t1t950ISAP
+   ltHUsxBHyZhDNvTR8+lpJD6XUUoZDorRVxGf5QAhqGUL5zzlXwvKlzKjM
+   osi32NGu6DUWogmTLWZ4uAjnXvCKBdxUE0sn0Sk3SRm/5hgGiab5I5AMJ
+   g==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10859"; a="415673273"
+X-IronPort-AV: E=Sophos;i="6.03,214,1694761200"; 
+   d="scan'208";a="415673273"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Oct 2023 03:21:28 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10859"; a="897579128"
+X-IronPort-AV: E=Sophos;i="6.03,214,1694761200"; 
+   d="scan'208";a="897579128"
+Received: from unknown (HELO smile.fi.intel.com) ([10.237.72.54])
+  by fmsmga001.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 Oct 2023 03:19:39 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.97-RC1)
+        (envelope-from <andriy.shevchenko@intel.com>)
+        id 1qqWLB-00000004an8-1jYb;
+        Wed, 11 Oct 2023 13:21:21 +0300
+Date:   Wed, 11 Oct 2023 13:21:20 +0300
+From:   Andy Shevchenko <andriy.shevchenko@intel.com>
+To:     Wentong Wu <wentong.wu@intel.com>
+Cc:     gregkh@linuxfoundation.org, oneukum@suse.com, wsa@kernel.org,
+        andi.shyti@linux.intel.com, broonie@kernel.org,
+        bartosz.golaszewski@linaro.org, linus.walleij@linaro.org,
+        hdegoede@redhat.com, linux-usb@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org,
+        sakari.ailus@linux.intel.com, zhifeng.wang@intel.com,
+        linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v20 1/4] usb: Add support for Intel LJCA device
+Message-ID: <ZSZ3IPgLk7uC5UGI@smile.fi.intel.com>
+References: <1696833205-16716-1-git-send-email-wentong.wu@intel.com>
+ <1696833205-16716-2-git-send-email-wentong.wu@intel.com>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] i2c: brcmstb: Add support for atomic transfers
-Content-Language: en-US
-To:     Florian Fainelli <florian.fainelli@broadcom.com>,
-        linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-kernel@vger.kernel.org
-Cc:     Kamal Dasu <kamal.dasu@broadcom.com>,
-        Broadcom internal kernel review list 
-        <bcm-kernel-feedback-list@broadcom.com>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Wolfram Sang <wsa@kernel.org>
-From:   Marek Szyprowski <m.szyprowski@samsung.com>
-In-Reply-To: <bec3b967-f287-4a99-9c79-3b949a31c296@broadcom.com>
-Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFprNKsWRmVeSWpSXmKPExsWy7djP87p5hWqpBm9f81nc/9rBaLG29yiL
-        xbpt95gtdm84zGSx6fE1VouOv18YLS7vmsNmcXf/XEYHDo9Z98+yeWxa1cnmsXlJvcfnTXIB
-        LFFcNimpOZllqUX6dglcGeseeBbcYqu4u+8vSwPjdtYuRg4OCQETiY6HqV2MXBxCAisYJfY+
-        3sUC4XxhlHh5awNTFyMnkPOZUeLIKiEQG6Rh7vGFbBBFyxkl7v24A9XxkVHi3+kL7CBVvAJ2
-        EkuezQBbwSKgKnFhpgJEWFDi5MwnLCC2qIC8xP1bM8DKhQWcJT43X2AEsZkFxCVuPZnPBDJT
-        RGA6o8T395fYQRxmgb2MEnOurmYFqWITMJToetvFBrKAU8BB4t16D4hmeYntb+cwg9RLCDzg
-        kJjce4MR4mwXiUfHzrJD2MISr45vgbJlJE5P7mGBaGhnlFjw+z4ThDOBUaLh+S2obmuJO+d+
-        gW1jFtCUWL9LHyLsKPHn/iU2SEDySdx4KwhxBJ/EpG3TmSHCvBIdbdCQU5OYdXwd3NqDFy4x
-        T2BUmoUULrOQ/D8LyTuzEPYuYGRZxSieWlqcm55abJSXWq5XnJhbXJqXrpecn7uJEZh+Tv87
-        /mUH4/JXH/UOMTJxMB5ilOBgVhLhfZSpkirEm5JYWZValB9fVJqTWnyIUZqDRUmcVzVFPlVI
-        ID2xJDU7NbUgtQgmy8TBKdXANPPFRWObQD7WU/0ShWV9zNL+SSHLDct6ZzDklVlWHIiqLCot
-        s1Pnfn1Qgm/habFN19Sm5PmmWuzIY29vjnXtuT9RQ/ZC0NOq6QzsUTfOWm6TzCy4b/qmSfx8
-        2n63hyy2NgY134vPC/HIfl+pHnbxlbm/oB3zzqBQVrtL67brTrd4uCb/559j8x0+HLvh5hUe
-        7lfk/HfNVoYQq1Paq25yLd/Gn/b+8aSOKf+/zVPlXSwQ0tEfkZz48vyLusW+/amMLMKHYqIt
-        bxrV7PbgnnLwRYA1Q9uU47/4xZpNJJXmHI3TWdTdJyG0b6K1wwHv8JeRk/e4C1tY9wdyzQ9Q
-        Ppht25Ge//3AoxV2t9anr1FiKc5INNRiLipOBAB6guIWrgMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrPIsWRmVeSWpSXmKPExsVy+t/xe7q5hWqpBi+O6Vrc/9rBaLG29yiL
-        xbpt95gtdm84zGSx6fE1VouOv18YLS7vmsNmcXf/XEYHDo9Z98+yeWxa1cnmsXlJvcfnTXIB
-        LFF6NkX5pSWpChn5xSW2StGGFkZ6hpYWekYmlnqGxuaxVkamSvp2NimpOZllqUX6dgl6Gese
-        eBbcYqu4u+8vSwPjdtYuRk4OCQETibnHF7J1MXJxCAksZZT4uO0MO0RCRuLktAaoImGJP9e6
-        oIreM0o8bOpkAknwCthJLHk2A6iIg4NFQFXiwkwFiLCgxMmZT1hAbFEBeYn7t2aAzRQWcJb4
-        3HyBEcRmFhCXuPVkPhPITBGB6YwSTx/vZQFxmAX2M0q8eXyKCWLbSUaJz4degJ3BJmAo0fUW
-        5AwODk4BB4l36z0gJplJdG3tgpoqL7H97RzmCYxCs5AcMgvJwllIWmYhaVnAyLKKUSS1tDg3
-        PbfYSK84Mbe4NC9dLzk/dxMjMOa2Hfu5ZQfjylcf9Q4xMnEwHmKU4GBWEuF9lKmSKsSbklhZ
-        lVqUH19UmpNafIjRFBgYE5mlRJPzgVGfVxJvaGZgamhiZmlgamlmrCTO61nQkSgkkJ5Ykpqd
-        mlqQWgTTx8TBKdXAVKuf/arybPIV+YPF09SvP/GS79BNXhY3l1k5Wloj6Gzkm8m+HRGXt9Zv
-        +hTno2U8+4HY4/tb+b+xrLi1WyLQ5VTrg99mqdMqP524keL7VkX87ExpW/t59mXnbp9atPba
-        l/TZbyyOxrwP/7bKeeVn39NKD+N+NykcercgZmnWlP2iU5ucZWqZvv7RvfeJt4Vv2YvP08Kn
-        7Hw47X/ghbWcUsWt9Uc1nWbssjuS/y1BQcq3Vv77bznfFTGts1mdL1oGb5s46ZsaX3hg8sKc
-        Y5N3yHiEXFjbIdH/zeH6NKdrXGpLudgjvDZlz3eZLN/Lfbsy+svLhcfXHhLwPzBVvG5h3dew
-        V5+VCpWj7k0TZJwtaabEUpyRaKjFXFScCAAH9hf5QgMAAA==
-X-CMS-MailID: 20231011095701eucas1p1afb457ed499787c127ee798adc87a0fd
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20231006144123eucas1p111cbbdbd70927ffbd697f7edf6b7ae1c
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20231006144123eucas1p111cbbdbd70927ffbd697f7edf6b7ae1c
-References: <CGME20231006144123eucas1p111cbbdbd70927ffbd697f7edf6b7ae1c@eucas1p1.samsung.com>
-        <20231006144117.4079796-1-m.szyprowski@samsung.com>
-        <bec3b967-f287-4a99-9c79-3b949a31c296@broadcom.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1696833205-16716-2-git-send-email-wentong.wu@intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 09.10.2023 22:41, Florian Fainelli wrote:
-> On 10/6/23 07:41, Marek Szyprowski wrote:
->> Add support for atomic transfers using polling mode with interrupts
->> intentionally disabled to get rid of the warning introduced by commit
->> 63b96983a5dd ("i2c: core: introduce callbacks for atomic transfers")
->> during system reboot and power-off.
->
-> Is there an existing system that you have access to which needs atomic 
-> transfer support, or is this a forward looking change?
+On Mon, Oct 09, 2023 at 02:33:22PM +0800, Wentong Wu wrote:
+> Implements the USB part of Intel USB-I2C/GPIO/SPI adapter device
+> named "La Jolla Cove Adapter" (LJCA).
+> 
+> The communication between the various LJCA module drivers and the
+> hardware will be muxed/demuxed by this driver. Three modules (
+> I2C, GPIO, and SPI) are supported currently.
+> 
+> Each sub-module of LJCA device is identified by type field within
+> the LJCA message header.
+> 
+> The sub-modules of LJCA can use ljca_transfer() to issue a transfer
+> between host and hardware. And ljca_register_event_cb is exported
+> to LJCA sub-module drivers for hardware event subscription.
+> 
+> The minimum code in ASL that covers this board is
+> Scope (\_SB.PCI0.DWC3.RHUB.HS01)
+>     {
+>         Device (GPIO)
+>         {
+>             Name (_ADR, Zero)
+>             Name (_STA, 0x0F)
+>         }
+> 
+>         Device (I2C)
+>         {
+>             Name (_ADR, One)
+>             Name (_STA, 0x0F)
+>         }
+> 
+>         Device (SPI)
+>         {
+>             Name (_ADR, 0x02)
+>             Name (_STA, 0x0F)
+>         }
+>     }
 
-Frankly speaking I've observed the mentioned warning during system 
-reboot on RaspberryPi4 with linux-next kernel compiled from 
-multi_v7_defconfig. It looks that this driver is used by VC4 DRM for 
-DDC. This issue doesn't look critical, but the fix seems to be trivial, 
-thus my patch.
+This commit message is not true anymore, or misleading at bare minimum.
+The ACPI specification is crystal clear about usage _ADR and _HID, i.e.
+they must NOT be used together for the same device node. So, can you
+clarify how the DSDT is organized and update the commit message and
+it may require (quite likely) to redesign the architecture of this
+driver. Sorry I missed this from previous rounds as I was busy by
+something else.
 
+Greg, please do not promote this to the next before above will be clarified.
 
-Best regards
+P.S> Using _ADR and _HID together is an immediate NAK from me.
+
 -- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+With Best Regards,
+Andy Shevchenko
+
 
