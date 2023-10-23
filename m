@@ -2,28 +2,28 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2107ACDB474
-	for <linux-i2c@archiver.kernel.org>; Mon, 23 Oct 2023 08:13:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BBE17C001E0
+	for <linux-i2c@archiver.kernel.org>; Mon, 23 Oct 2023 08:13:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230045AbjJWINP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S232161AbjJWINP (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Mon, 23 Oct 2023 04:13:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41024 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232178AbjJWINK (ORCPT
+        with ESMTP id S229670AbjJWINK (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Oct 2023 04:13:10 -0400
-Received: from SHSQR01.spreadtrum.com (unknown [222.66.158.135])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDB9510C2;
+Received: from SHSQR01.spreadtrum.com (mx1.unisoc.com [222.66.158.135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A3210C3;
         Mon, 23 Oct 2023 01:13:07 -0700 (PDT)
 Received: from dlp.unisoc.com ([10.29.3.86])
-        by SHSQR01.spreadtrum.com with ESMTP id 39N8CXFC060218;
-        Mon, 23 Oct 2023 16:12:33 +0800 (+08)
+        by SHSQR01.spreadtrum.com with ESMTP id 39N8CWdJ060171;
+        Mon, 23 Oct 2023 16:12:32 +0800 (+08)
         (envelope-from Huangzheng.Lai@unisoc.com)
 Received: from SHDLP.spreadtrum.com (shmbx04.spreadtrum.com [10.0.1.214])
-        by dlp.unisoc.com (SkyGuard) with ESMTPS id 4SDSVg0CXSz2KkWG6;
-        Mon, 23 Oct 2023 16:08:11 +0800 (CST)
+        by dlp.unisoc.com (SkyGuard) with ESMTPS id 4SDSVd1qp2z2KkWG6;
+        Mon, 23 Oct 2023 16:08:09 +0800 (CST)
 Received: from xm9614pcu.spreadtrum.com (10.13.2.29) by shmbx04.spreadtrum.com
  (10.0.1.214) with Microsoft SMTP Server (TLS) id 15.0.1497.23; Mon, 23 Oct
- 2023 16:12:31 +0800
+ 2023 16:12:29 +0800
 From:   Huangzheng Lai <Huangzheng.Lai@unisoc.com>
 To:     Andi Shyti <andi.shyti@kernel.org>
 CC:     Orson Zhai <orsonzhai@gmail.com>,
@@ -33,9 +33,9 @@ CC:     Orson Zhai <orsonzhai@gmail.com>,
         huangzheng lai <laihuangzheng@gmail.com>,
         Huangzheng Lai <Huangzheng.Lai@unisoc.com>,
         Xiongpeng Wu <xiongpeng.wu@unisoc.com>
-Subject: [PATCH V2 6/7] i2c: sprd: Increase the waiting time for I2C transmission to avoid system crash issues
-Date:   Mon, 23 Oct 2023 16:11:57 +0800
-Message-ID: <20231023081158.10654-7-Huangzheng.Lai@unisoc.com>
+Subject: [PATCH V2 4/7] i2c: sprd: Add I2C controller driver to support dynamic switching of 400K/1M/3.4M frequency
+Date:   Mon, 23 Oct 2023 16:11:55 +0800
+Message-ID: <20231023081158.10654-5-Huangzheng.Lai@unisoc.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20231023081158.10654-1-Huangzheng.Lai@unisoc.com>
 References: <20231023081158.10654-1-Huangzheng.Lai@unisoc.com>
@@ -44,40 +44,155 @@ Content-Type: text/plain
 X-Originating-IP: [10.13.2.29]
 X-ClientProxiedBy: SHCAS01.spreadtrum.com (10.0.1.201) To
  shmbx04.spreadtrum.com (10.0.1.214)
-X-MAIL: SHSQR01.spreadtrum.com 39N8CXFC060218
+X-MAIL: SHSQR01.spreadtrum.com 39N8CWdJ060171
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Due to the relatively low priority of the isr_thread, when the CPU
-load is high, the execution of sprd_i2c_isr_thread will be delayed.
-After the waiting time is exceeded, the I2C driver will perform
-operations such as disabling the I2C controller. Later, when
-sprd_i2c_isr_thread is called by the CPU, there will be kernel panic
-caused by illegal access to the IIC register. After pressure testing,
-we found that increasing the IIC waiting time to 10 seconds can
-avoid this problem.
+When I2C-slaves supporting different frequencies use the same I2C
+controller, the I2C controller usually only operates at lower frequencies.
+In order to improve the performance of I2C-slaves transmission supporting
+faster frequencies, we dynamically configure the I2C operating frequency
+based on the value of the input parameter msg ->flag.
 
-Fixes: 0b884fe71f9e ("i2c: sprd: use a specific timeout to avoid system hang up issue")
-Cc: <stable@vger.kernel.org> # v5.11+
 Signed-off-by: Huangzheng Lai <Huangzheng.Lai@unisoc.com>
 ---
- drivers/i2c/busses/i2c-sprd.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-sprd.c | 101 +++++++++++++++++++---------------
+ 1 file changed, 57 insertions(+), 44 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-sprd.c b/drivers/i2c/busses/i2c-sprd.c
-index b65729ba7d5a..dbdac89ad482 100644
+index dec627ef408c..f1f7fad42ecd 100644
 --- a/drivers/i2c/busses/i2c-sprd.c
 +++ b/drivers/i2c/busses/i2c-sprd.c
-@@ -74,7 +74,7 @@
- /* timeout (ms) for pm runtime autosuspend */
+@@ -75,7 +75,14 @@
  #define SPRD_I2C_PM_TIMEOUT	1000
  /* timeout (ms) for transfer message */
--#define I2C_XFER_TIMEOUT	1000
-+#define I2C_XFER_TIMEOUT	10000
- /* dynamic modify clk_freq flag  */
- #define I2C_3M4_FLAG		0x0100
- #define I2C_1M_FLAG		0x0080
+ #define I2C_XFER_TIMEOUT	1000
+-
++/* dynamic modify clk_freq flag  */
++#define I2C_3M4_FLAG		0x0100
++#define I2C_1M_FLAG		0x0080
++#define I2C_400K_FLAG		0x0040
++
++#define I2C_FREQ_400K		400000
++#define I2C_FREQ_1M		1000000
++#define I2C_FREQ_3_4M		3400000
+ /* SPRD i2c data structure */
+ struct sprd_i2c {
+ 	struct i2c_adapter adap;
+@@ -94,6 +101,49 @@ struct sprd_i2c {
+ 	int err;
+ };
+ 
++static void sprd_i2c_set_clk(struct sprd_i2c *i2c_dev, u32 freq)
++{
++	u32 apb_clk = i2c_dev->src_clk;
++	/*
++	 * From I2C databook, the prescale calculation formula:
++	 * prescale = freq_i2c / (4 * freq_scl) - 1;
++	 */
++	u32 i2c_dvd = apb_clk / (4 * freq) - 1;
++	/*
++	 * From I2C databook, the high period of SCL clock is recommended as
++	 * 40% (2/5), and the low period of SCL clock is recommended as 60%
++	 * (3/5), then the formula should be:
++	 * high = (prescale * 2 * 2) / 5
++	 * low = (prescale * 2 * 3) / 5
++	 */
++	u32 high = ((i2c_dvd << 1) * 2) / 5;
++	u32 low = ((i2c_dvd << 1) * 3) / 5;
++	u32 div0 = I2C_ADDR_DVD0_CALC(high, low);
++	u32 div1 = I2C_ADDR_DVD1_CALC(high, low);
++
++	writel(div0, i2c_dev->base + ADDR_DVD0);
++	writel(div1, i2c_dev->base + ADDR_DVD1);
++
++	/* Start hold timing = hold time(us) * source clock */
++	switch (freq) {
++	case I2C_MAX_STANDARD_MODE_FREQ:
++		writel((4 * apb_clk) / 1000000, i2c_dev->base + ADDR_STA0_DVD);
++		break;
++	case I2C_MAX_FAST_MODE_FREQ:
++		writel((6 * apb_clk) / 10000000, i2c_dev->base + ADDR_STA0_DVD);
++		break;
++	case I2C_MAX_FAST_MODE_PLUS_FREQ:
++		writel((8 * apb_clk) / 10000000, i2c_dev->base + ADDR_STA0_DVD);
++		break;
++	case I2C_MAX_HIGH_SPEED_MODE_FREQ:
++		writel((8 * apb_clk) / 10000000, i2c_dev->base + ADDR_STA0_DVD);
++		break;
++	default:
++		dev_err(i2c_dev->dev, "Unsupported frequency: %d\n", freq);
++		break;
++	}
++}
++
+ static void sprd_i2c_set_count(struct sprd_i2c *i2c_dev, u32 count)
+ {
+ 	writel(count, i2c_dev->base + I2C_COUNT);
+@@ -269,6 +319,12 @@ static int sprd_i2c_handle_msg(struct i2c_adapter *i2c_adap,
+ 		sprd_i2c_send_stop(i2c_dev, !!is_last_msg);
+ 	}
+ 
++	if (msg->flags & I2C_400K_FLAG)
++		sprd_i2c_set_clk(i2c_dev, I2C_FREQ_400K);
++	else if (msg->flags & I2C_1M_FLAG)
++		sprd_i2c_set_clk(i2c_dev, I2C_FREQ_1M);
++	else if (msg->flags & I2C_3M4_FLAG)
++		sprd_i2c_set_clk(i2c_dev, I2C_FREQ_3_4M);
+ 	/*
+ 	 * We should enable rx fifo full interrupt to get data when receiving
+ 	 * full data.
+@@ -331,49 +387,6 @@ static const struct i2c_algorithm sprd_i2c_algo = {
+ 	.functionality = sprd_i2c_func,
+ };
+ 
+-static void sprd_i2c_set_clk(struct sprd_i2c *i2c_dev, u32 freq)
+-{
+-	u32 apb_clk = i2c_dev->src_clk;
+-	/*
+-	 * From I2C databook, the prescale calculation formula:
+-	 * prescale = freq_i2c / (4 * freq_scl) - 1;
+-	 */
+-	u32 i2c_dvd = apb_clk / (4 * freq) - 1;
+-	/*
+-	 * From I2C databook, the high period of SCL clock is recommended as
+-	 * 40% (2/5), and the low period of SCL clock is recommended as 60%
+-	 * (3/5), then the formula should be:
+-	 * high = (prescale * 2 * 2) / 5
+-	 * low = (prescale * 2 * 3) / 5
+-	 */
+-	u32 high = ((i2c_dvd << 1) * 2) / 5;
+-	u32 low = ((i2c_dvd << 1) * 3) / 5;
+-	u32 div0 = I2C_ADDR_DVD0_CALC(high, low);
+-	u32 div1 = I2C_ADDR_DVD1_CALC(high, low);
+-
+-	writel(div0, i2c_dev->base + ADDR_DVD0);
+-	writel(div1, i2c_dev->base + ADDR_DVD1);
+-
+-	/* Start hold timing = hold time(us) * source clock */
+-	switch (freq) {
+-	case I2C_MAX_STANDARD_MODE_FREQ:
+-		writel((4 * apb_clk) / 1000000, i2c_dev->base + ADDR_STA0_DVD);
+-		break;
+-	case I2C_MAX_FAST_MODE_FREQ:
+-		writel((6 * apb_clk) / 10000000, i2c_dev->base + ADDR_STA0_DVD);
+-		break;
+-	case I2C_MAX_FAST_MODE_PLUS_FREQ:
+-		writel((8 * apb_clk) / 10000000, i2c_dev->base + ADDR_STA0_DVD);
+-		break;
+-	case I2C_MAX_HIGH_SPEED_MODE_FREQ:
+-		writel((8 * apb_clk) / 10000000, i2c_dev->base + ADDR_STA0_DVD);
+-		break;
+-	default:
+-		dev_err(i2c_dev->dev, "Unsupported frequency: %d\n", freq);
+-		break;
+-	}
+-}
+-
+ static void sprd_i2c_enable(struct sprd_i2c *i2c_dev)
+ {
+ 	u32 tmp = I2C_DVD_OPT;
 -- 
 2.17.1
 
