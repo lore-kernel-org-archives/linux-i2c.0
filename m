@@ -2,120 +2,61 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CB72FC25B41
-	for <linux-i2c@archiver.kernel.org>; Mon, 23 Oct 2023 15:36:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3269FC07545
+	for <linux-i2c@archiver.kernel.org>; Tue, 24 Oct 2023 07:32:47 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229989AbjJWPgZ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 23 Oct 2023 11:36:25 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59414 "EHLO
+        id S232561AbjJXHcr (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 24 Oct 2023 03:32:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229569AbjJWPgZ (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 23 Oct 2023 11:36:25 -0400
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B28ADB;
-        Mon, 23 Oct 2023 08:36:23 -0700 (PDT)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 440D7C433C8;
-        Mon, 23 Oct 2023 15:36:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1698075382;
-        bh=GjXvcSO/i6FF/OlNaJfRF+sQGbecxltiNDipUhA7AB4=;
-        h=Date:From:To:Subject:References:In-Reply-To:From;
-        b=sgfRDy2e5QPF/UqBmV4/zbV2K5RPcCyGcHK4oaRv5OtJ1hyrcX/STTBuIIrs4wLPG
-         2pFD7871CcQJXtWvBh/hyGF0Ut9Fys9tqaiO1X9MYnC5IDDW/ynbGIqc/7mOxm68ns
-         McCpTf+5t0S1464Mj14zcecHl7VAn5No+ABYNI5nRiui94ClbGAe+UQ2bjnzXBFzgX
-         1QI0D8VMV6FExZjhbe1Qhp87xnX90bN2v2Q5ROuhaTMTWNswVARfPwm40QcjXOkHwd
-         mNxyJQlO4jtENF79RzQAJFgJzy2852R5ARDwBCAv4AL66ax+/9PqFfwSdYDmU1Ftc1
-         thPMt39SBYdGA==
-Date:   Mon, 23 Oct 2023 17:36:19 +0200
-From:   Wolfram Sang <wsa@kernel.org>
-To:     Niklas Schnelle <schnelle@linux.ibm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-        linux-pci@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>,
-        linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v5 13/44] i2c: add HAS_IOPORT dependencies
-Message-ID: <ZTaS8/Z4p8bLoHF1@ninjato>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-        Niklas Schnelle <schnelle@linux.ibm.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>, linux-kernel@vger.kernel.org,
-        linux-arch@vger.kernel.org, linux-pci@vger.kernel.org,
-        Arnd Bergmann <arnd@kernel.org>, linux-i2c@vger.kernel.org
-References: <20230522105049.1467313-1-schnelle@linux.ibm.com>
- <20230522105049.1467313-14-schnelle@linux.ibm.com>
- <ZRCju+Ctuu2Mf+1c@shikoro>
+        with ESMTP id S232420AbjJXHcq (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 24 Oct 2023 03:32:46 -0400
+Received: from mail.bizcodes.pl (mail.bizcodes.pl [151.80.57.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 541EAE8
+        for <linux-i2c@vger.kernel.org>; Tue, 24 Oct 2023 00:32:44 -0700 (PDT)
+Received: by mail.bizcodes.pl (Postfix, from userid 1002)
+        id 2FF74A3667; Tue, 24 Oct 2023 07:31:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=bizcodes.pl; s=mail;
+        t=1698132727; bh=5QPMt7jNntM5ZbstM20BWsHIeLbmRE8lVU4Iu89IleQ=;
+        h=Date:From:To:Subject:From;
+        b=RuUYHquo2z/DDO4pd2yR5LIGQP11C/teXtGdOjVbmmvNN9ILRjA4V1p+trgJskOjc
+         0LliQkYebOxSvuLnkLRIbZJPrI/jc0samM0CHmE4XFJcQxMA42oQIqmousewoV/FXO
+         JLPCwtt5UHD2e5SM1ifD2+0iI2KGAocqcoq9c6cDJYDWheVc8s86ymVFnPexkLdOQH
+         S5C1y4KttNXR8Ka/3kiYbvc4zWJRp4fqrLXLzctRc8O9ZbBcBa6krBg1a9V11TaC/5
+         Roi0Dq6/yWwX4gIyC0yH1DDJssl7QofMNGJBG8sdC2Y3RFvCq5rpx6+UXSdVd8Chxu
+         TKe25Vv42/g3A==
+Received: by mail.bizcodes.pl for <linux-i2c@vger.kernel.org>; Tue, 24 Oct 2023 07:31:08 GMT
+Message-ID: <20231024064500-0.1.ch.1kogi.0.cc612or67c@bizcodes.pl>
+Date:   Tue, 24 Oct 2023 07:31:08 GMT
+From:   "Marcin Chruszcz" <marcin.chruszcz@bizcodes.pl>
+To:     <linux-i2c@vger.kernel.org>
+Subject: Prezentacja
+X-Mailer: mail.bizcodes.pl
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="IKJd4WrwHJvKoZ2A"
-Content-Disposition: inline
-In-Reply-To: <ZRCju+Ctuu2Mf+1c@shikoro>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
+Dzie=C5=84 dobry!
 
---IKJd4WrwHJvKoZ2A
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Czy m=C3=B3g=C5=82bym przedstawi=C4=87 rozwi=C4=85zanie, kt=C3=B3re umo=C5=
+=BCliwia monitoring ka=C5=BCdego auta w czasie rzeczywistym w tym jego po=
+zycj=C4=99, zu=C5=BCycie paliwa i przebieg?
 
-On Sun, Sep 24, 2023 at 11:01:47PM +0200, Wolfram Sang wrote:
-> On Mon, May 22, 2023 at 12:50:18PM +0200, Niklas Schnelle wrote:
-> > In a future patch HAS_IOPORT=3Dn will result in inb()/outb() and friends
-> > not being declared. We thus need to add HAS_IOPORT as dependency for
-> > those drivers using them.
-> >=20
-> > Co-developed-by: Arnd Bergmann <arnd@kernel.org>
-> > Signed-off-by: Arnd Bergmann <arnd@kernel.org>
-> > Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
->=20
-> In RFC v1, you agreed to drop PARPORT [1]. Is there a reason you haven't
-> done this so far?
->=20
-> [1] https://patchwork.ozlabs.org/project/linux-i2c/patch/20211227164317.4=
-146918-11-schnelle@linux.ibm.com/
+Dodatkowo nasze narz=C4=99dzie minimalizuje koszty utrzymania samochod=C3=
+=B3w, skraca czas przejazd=C3=B3w, a tak=C5=BCe tworzenie planu tras czy =
+dostaw.
 
-Shall I apply this with or without PARPORT?
+Z naszej wiedzy i do=C5=9Bwiadczenia korzysta ju=C5=BC ponad 49 tys. Klie=
+nt=C3=B3w. Monitorujemy 809 000 pojazd=C3=B3w na ca=C5=82ym =C5=9Bwiecie,=
+ co jest nasz=C4=85 najlepsz=C4=85 wizyt=C3=B3wk=C4=85.
+
+Bardzo prosz=C4=99 o e-maila zwrotnego, je=C5=9Bli mogliby=C5=9Bmy wsp=C3=
+=B3lnie om=C3=B3wi=C4=87 potencja=C5=82 wykorzystania takiego rozwi=C4=85=
+zania w Pa=C5=84stwa firmie.
 
 
---IKJd4WrwHJvKoZ2A
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmU2kvMACgkQFA3kzBSg
-Kbatiw//U8VXBAC3aPMTbD6m0NSoMa1PF0OiVlizyXToMW0qVjXRKbhDGpWMV9rq
-ML2nNXfCNCwnsI/NdYX5KD8NtBaKIu7ecIGZ1xaF8eqWaSPbVxCuK/zKwrBgFcjb
-eakTvDuWnNWVzgXDd1J2/oaIfTvYUfXI4rbm7SBlPFysGNjzgixUf3XtJ+9Ou97z
-ydKK886E0sKpzpwKl2c3CIqUMZYTDAFu+EVWimk8/u6fSRp+0peEBRDv6hgTbO4Y
-5KHwdh6WddCZ8KODGx9f0ZW1vxO530SRGoqiK6p/8b4YIMQ7gfhD4rb2r/seSpGJ
-0BhLY//IE2+Pj2QLXrELinaJGFyk5PXLsdlDCkstcLjyvB2l2xkvgJZTbDfM+gM5
-OiXThEmz4RUxaL3npTBrC6U7z8hWqS+XfkKQ8OYXXY8IPiuwXwuJIUPDUCFqhKec
-srmuu0bd4F9JYPOzJCERwbDVYI7mFq9lReuAJSE+GfSLeV16kpL3woGRZLKdzbav
-lhGSOliYGqEINY2xATuYc85IGrAkN7PeRcK5643A8obdnH8mNKlzezm92dzCdqfb
-WB2Rx2khFBqZiA1+fx9PLhS9EMF7yneQ83pqDUgvzeRm6zKiWzDViX1vy/tDj0vv
-ob4loEiEXp70Wb8uif1uYYLdmc3IBdWBLNfYeBJEFAf97PyaopQ=
-=U36p
------END PGP SIGNATURE-----
-
---IKJd4WrwHJvKoZ2A--
+Pozdrawiam
+Marcin Chruszcz
