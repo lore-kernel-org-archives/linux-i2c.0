@@ -2,162 +2,209 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4A78EC4332F
-	for <linux-i2c@archiver.kernel.org>; Tue, 31 Oct 2023 00:12:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0F3D1C4167B
+	for <linux-i2c@archiver.kernel.org>; Tue, 31 Oct 2023 05:56:36 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235776AbjJaAMO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Mon, 30 Oct 2023 20:12:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39710 "EHLO
+        id S233004AbjJaFzQ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Tue, 31 Oct 2023 01:55:16 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235772AbjJaAMN (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Mon, 30 Oct 2023 20:12:13 -0400
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2117.outbound.protection.outlook.com [40.107.244.117])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B6CBB3;
-        Mon, 30 Oct 2023 17:12:10 -0700 (PDT)
+        with ESMTP id S230458AbjJaFzO (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Tue, 31 Oct 2023 01:55:14 -0400
+Received: from APC01-SG2-obe.outbound.protection.outlook.com (mail-sgaapc01on2079.outbound.protection.outlook.com [40.107.215.79])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E99D5E4;
+        Mon, 30 Oct 2023 22:55:00 -0700 (PDT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=V1RFuSawjZc2SWXjYkzSWi5ArCzoAyISeTgCd0XIipKxOkiTXVauMzI0GDQ5bqL44c7PE17rg0EmPJfHpMuI4woW4/LAxgxjTXjQfR55KiobS3y1SBmD0ddaG312WYKmqD9tPCas1rY/J2hOSayWLDQKamrnDQLFx4CBA6mK+7mP5h0be8TOJdDWGVvpVWqum7XQ2rD/EITYbWWHdyNCisosH3/HQof9r5pOV3Dh3/u/jWXgeDjqcdDqblR1IVlp4xYF7r5Xbd3yREu0DDTkjpCHjOvZuuefWefYX7igCYhN430I2tq6LyX+JxfH7yfzhosDnyo82iVcUTQkQQrACw==
+ b=NzrKwcedBHNw3n8lWfoSTQozOX1qQNJCB1rrvRWNo/tHMLd6eThcK69+hX1WAAvlrPXhBIZStl0YE7dO8bxYlct25anq3rZboiLcUn9lCc1cOaHSWtvMIrOq71CaGG9UJxXDdxbA3olXbvGWiRM6tKRc6Z3mOHxH5MQ77rtA1BC94JYVbs+4cbb42Dq6tUWAPaAgP2+fzrpn9Y1PoCdmoZPmu7stWLD1t/PnIKhqwy0hrGECkFnHs/uPTC3bCNf9P86YXFTy3N2DeI8Ualk7SY3oijXydduQVHsXk3bkWRMpjY6n7VY5XRbAtOuPToDqT1oaeSDZFnh5f6ZdR3IexQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=79XTSpNPh8yggWvN33t26vl+zUZMcPti2pvLzCMs1IY=;
- b=PjiKDr7VUEV1CWaqB+k+33yl6Koz3tXcT1WSlovPWB+sylzj1emHHMKaRkj4E+lQ+Z0NJff1+O/+0qRTe9gLDwwzc0zeZGkcir8YKejBH5EHQVQokV9gyczXBmfRt2RtgSd291ezFoucwAIOLmlAAGvfeDVxv9AyR7+iFljwhqj51XvPk7kuys7ZFLU8lChvbV7ACxLjPdWA36xG+aIvkT2JeIHw3EBwKsLHjciUsL/2HXStDVQZfXiH7EMWXl2SZq9am5ngSb6B4ansq4bcwKbyf0GtLotJMqncCUi9p+mtiAZYXiTPJn5Q+2uQW2ks1KIpLNMabMVXwYAkFvmScw==
+ bh=cdS/D3Mrb2CPVq6zigSk4ftJNswxvogD02RwYaImJ3Y=;
+ b=Su8cfvla7ZA997vHTpkDF+TkRzWIE/4nNCUTo4djVjR39URAqCcnOlpdQ/6/kD7GX2YXkFx+fmNLbKUFnCdzMGSQZH6Pd6bXRcvGvjk8fd+PRYwGq6iDArX7IglQZQLEsx70OCvScAAdCc3CsS0CuGO9IlN4ZSYiBxCnpvNxqrDGc8IF2VySMVX/o5lb29035PhyhzEG6jBMjhMSQBlo0BTiHFrjDHwLc8euDh1xSkteMxxDqS6zl59u4dadaIYw8/9fshOKNjidA6GvKJ56qhL9ncBNvBXzGhJUPJnSYlYXLREJ3MTuwDhs0S2U0d7hcRXZkCtG65RMReANr9+k9Q==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=os.amperecomputing.com; dmarc=pass action=none
- header.from=os.amperecomputing.com; dkim=pass
- header.d=os.amperecomputing.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=os.amperecomputing.com; s=selector2;
+ smtp.mailfrom=wiwynn.com; dmarc=pass action=none header.from=wiwynn.com;
+ dkim=pass header.d=wiwynn.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wiwynn.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=79XTSpNPh8yggWvN33t26vl+zUZMcPti2pvLzCMs1IY=;
- b=qLPIcYRA9kgtBnM8K4r3ze7W3jpZG8Rgs6ztbEuz1jU5YT/+017gPmXprah2q3H96/+vQyeD0mrVzzhgqR33TDHseIEgFiKqtT/WloFOLaHYEJywCKLGd0qUOo8ulAQwnIl4/+QJMVoT0xInAy+jhoKO8yGJ317la6UptkPSe8U=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=os.amperecomputing.com;
-Received: from PH0PR01MB7475.prod.exchangelabs.com (2603:10b6:510:f2::9) by
- LV2PR01MB7744.prod.exchangelabs.com (2603:10b6:408:172::7) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.6933.29; Tue, 31 Oct 2023 00:12:06 +0000
-Received: from PH0PR01MB7475.prod.exchangelabs.com ([fe80::b84:304e:acf:afcb])
- by PH0PR01MB7475.prod.exchangelabs.com ([fe80::b84:304e:acf:afcb%6]) with
- mapi id 15.20.6907.032; Tue, 31 Oct 2023 00:12:05 +0000
-Message-ID: <ab57ba73-ce62-43fc-9cb1-d2db1bd13cd9@os.amperecomputing.com>
-Date:   Mon, 30 Oct 2023 17:12:01 -0700
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] i2c: designware: Fix corrupted memory seen in the ISR
-To:     Wolfram Sang <wsa@kernel.org>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Serge Semin <fancer.lancer@gmail.com>,
-        Yann Sionneau <ysionneau@kalrayinc.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Yann Sionneau <yann@sionneau.net>,
-        Will Deacon <will@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Jan Dabros <jsd@semihalf.com>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <ZQm1UyZ0g7KxRW3a@arm.com>
- <cde7e2fc-2e13-4b82-98b3-3d3a52c4c185@os.amperecomputing.com>
- <p7wl7fk4cdyhvw2mfsa6sfc7dhfls3foplmzwj6pzstargt2oh@33zuuznup2gq>
- <ZQq2cT+/QCenR5gx@shikoro>
- <ba6d4378-b646-4514-3a45-4b6c951fbb9c@kalrayinc.com>
- <9219ad29-b9a3-4f07-81b5-43b4b6d9d178@os.amperecomputing.com>
- <d65lwrkji3rvw6r4jdcumo4zu3hbu6zpv6xq73hw6hcshvhtkw@jvuohb3f3loo>
- <3a305e74-2235-47ab-8564-0c594f24dc0a@os.amperecomputing.com>
- <ZRSEntqne/1y1ozq@shikoro>
- <1d56ceef-6573-43b9-a050-124c341a0698@linux.intel.com>
- <ZTpLHZZYtd1WgBu6@ninjato>
-Content-Language: en-US
-From:   Jan Bottorff <janb@os.amperecomputing.com>
-In-Reply-To: <ZTpLHZZYtd1WgBu6@ninjato>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: BYAPR01CA0020.prod.exchangelabs.com (2603:10b6:a02:80::33)
- To PH0PR01MB7475.prod.exchangelabs.com (2603:10b6:510:f2::9)
+ bh=cdS/D3Mrb2CPVq6zigSk4ftJNswxvogD02RwYaImJ3Y=;
+ b=JNArltX1cOZJDsHjlIjAHamNhxaaGc9F8E69fJHdVqM+7oQtKWrZOBN9KDDaUbdE34tWxZ41MMe3ewKcJVT5l3TgQz7/e30fB0l3EpQopun1d7gw2r2rUe/DNOsNHMA451hcyfSDFdfmMmuiEX/ZhLkC7Vn6WeChgRCwIae3bAePJO6TA3lwKbqa/sZ7nwMC64VrU9SczMMm47Ensodbl9wQhdflsKGz8gNL6b7AzlwBpbbcRuhumE+Ekb5H4Qfpe1rE1nHQUle7By6g/c0UzdNqNICHruAwU00YWOtBf4JCjlVy0bXix0OIznJQmDQrcueWi5UKliAmc6rsqgh5HQ==
+Received: from SG2PR04MB5543.apcprd04.prod.outlook.com (2603:1096:4:172::14)
+ by SEYPR04MB7691.apcprd04.prod.outlook.com (2603:1096:101:1d4::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6933.26; Tue, 31 Oct
+ 2023 05:54:48 +0000
+Received: from SG2PR04MB5543.apcprd04.prod.outlook.com
+ ([fe80::4c7a:8fd8:1527:9287]) by SG2PR04MB5543.apcprd04.prod.outlook.com
+ ([fe80::4c7a:8fd8:1527:9287%4]) with mapi id 15.20.6933.029; Tue, 31 Oct 2023
+ 05:54:48 +0000
+From:   Delphine_CC_Chiu/WYHQ/Wiwynn <Delphine_CC_Chiu@wiwynn.com>
+To:     Conor Dooley <conor@kernel.org>,
+        Delphine_CC_Chiu/WYHQ/Wiwynn <Delphine_CC_Chiu@wiwynn.com>
+CC:     "patrick@stwcx.xyz" <patrick@stwcx.xyz>,
+        Jean Delvare <jdelvare@suse.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+        "linux-hwmon@vger.kernel.org" <linux-hwmon@vger.kernel.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>
+Subject: RE: [PATCH v2 1/2] dt-bindings: hwmon: Add lltc ltc4286 driver
+ bindings
+Thread-Topic: [PATCH v2 1/2] dt-bindings: hwmon: Add lltc ltc4286 driver
+ bindings
+Thread-Index: AQHaB+SV8Z0lWuQfqk2pb+fPvv8kdLBcIN+AgAdM2rA=
+Date:   Tue, 31 Oct 2023 05:54:48 +0000
+Message-ID: <SG2PR04MB5543E22311867ABCD84C1129A1A0A@SG2PR04MB5543.apcprd04.prod.outlook.com>
+References: <20231026081514.3610343-1-Delphine_CC_Chiu@Wiwynn.com>
+ <20231026081514.3610343-2-Delphine_CC_Chiu@Wiwynn.com>
+ <20231026-dicing-crispy-a10af575d3e5@spud>
+In-Reply-To: <20231026-dicing-crispy-a10af575d3e5@spud>
+Accept-Language: zh-TW, en-US
+Content-Language: zh-TW
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=wiwynn.com;
+x-ms-exchange-messagesentrepresentingtype: 1
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SG2PR04MB5543:EE_|SEYPR04MB7691:EE_
+x-ms-office365-filtering-correlation-id: 592a0b79-530a-4cbc-ebb1-08dbd9d5e47d
+x-ms-exchange-atpmessageproperties: SA
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: IzcpLN1y4mWuyDYeZ8IL9H6VuyvQS/jU8602imXu+FuIWFS7hCsjsJ42dfStuc1pipkjLFQ/f7rbkxGbHlPf1wi5Vz3NQrtNbAU5vgbHUlMfwxB5nfZaliz7NRWsKdXLXaa5zC03HIn21U+R/nr89tvQg5In340n74fHp4XOZpKLThvjeAsxBL9QhsOGUUzvTwrW+EF/+pTpgqgErUXnkHfVn2PjEhe997EvnENgcQC9xLwoit0pb6PZvg1MI360Gg0ErH6B/le7fLbo0Gy7g7emQla3B2Pi1tN7kCRYQzuj3yzNeWpUOHvpxOAb9d42atvaEHEqKYzpzsIUoJqZXVXUuNiSVaMfAwSDjMiOMSCC7zGsz+mT+0I8q2sPyEmb5euiMgOLkpwp7ZNkwZ6yRb8TzycQTRVXNcejZZ1PI0URZ6JvPf7WoYsegT1LKnIyJNgFIsQhRw1r70u5CaSLCZuluEOBBCBvxQrHbokOKwNLc3n6tBT9ma8+fOUJeP1D1YAXDTBfLlCtVex9ZZr93ONKuHyBBF49Hx46U/51aB6M2CB/Unjw19vBZpRKa4NCG/cCAb97pXsVs4O0bV/b4+vv2Nwgi16xbCpO/34chj0=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SG2PR04MB5543.apcprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(136003)(376002)(396003)(366004)(39860400002)(346002)(64100799003)(1800799009)(186009)(451199024)(316002)(55016003)(2906002)(7416002)(41300700001)(38070700009)(52536014)(8936002)(4326008)(86362001)(8676002)(33656002)(71200400001)(38100700002)(76116006)(66476007)(66446008)(122000001)(54906003)(66556008)(64756008)(66946007)(5660300002)(83380400001)(110136005)(9686003)(26005)(478600001)(53546011)(7696005)(966005)(6506007);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?zb8XyZTYbKNwTNFvEPLILmckTx4j7DBUMRePDFF1gYBJAVu3KcI6ftyKwd/g?=
+ =?us-ascii?Q?qlHnNCpbau1qPjOG6sjfia56jCnz+/HlnxzVBg0zgEyxQ6RkMQGi8a7mH5oM?=
+ =?us-ascii?Q?wJVwp7PdB0PvY1wDQlUSlGz9DUXgvBhUDW548u9oauQLKoJy9fRP/KEjBXOO?=
+ =?us-ascii?Q?uldt3cFXm+J/UjWXncgPYq+TiNfWwM6N0ALRnpyi0RZl7pyrCdxyMZAvx0Rd?=
+ =?us-ascii?Q?CK1DyKVsZhM09b3xkdsqRU7SLI7RfEE+ITAAj+KYYSDU9MLlpdZZxwPjBCC6?=
+ =?us-ascii?Q?M7HnV/ioV7gpwIMEC3Z4FwkezvpQorYseqBFskiRdAu3+thLU0dQkLkP9e0v?=
+ =?us-ascii?Q?ap3CYu+jyyg29zcOX8rUILvl6HFIJx8jy5PV9TntHilelicXgy1K5bK+tdaJ?=
+ =?us-ascii?Q?Doa06o4krS1YoBwCIndxEs0kOHGju+NbzFPBJ/JuOX0lE9MYn9CsqLY9V9Cr?=
+ =?us-ascii?Q?UJMUIQTzlBSKHBF3ORRlUU364jVbsQgHqM1cJhESdDNeRO55ZJm40ten8Q/q?=
+ =?us-ascii?Q?Nkip0jHTafdoxsMBNssDym2SsIrk5XlWM0OvA12xsaTB3La8ws8S3o5CvcQG?=
+ =?us-ascii?Q?VpTqQXFOfozg3WD+8oUHVbD2Oubiacr8r1FhjJD1j9DwlWvS13fCOdn0PKvu?=
+ =?us-ascii?Q?7QPKe/v8LbHQCzqe86xxQRREzXdCiATkjOaRKEyzBnTZAfR4HIUH3J/4yPXv?=
+ =?us-ascii?Q?kNLwm0khyCe9fnpm6mJx+LqJnGt+qf4gH/JIqWxjuY5L9aGEjkGayn62lxI4?=
+ =?us-ascii?Q?DP27atPvPEcjMh4//tjAj2i4TMJUWqjNu68CjNtRMHYp/Ayq8tnjiuCIyfhh?=
+ =?us-ascii?Q?XeEI4TgwG90R2RhZZc6NwMz+uVH7cP29vQTcGRMH5FC6xv+oMSKXy4alEkkW?=
+ =?us-ascii?Q?MmGixuYI3pu6CbfEbK8rXk+NBbd0rPDtl46cEtBWVlGkz+ZVz8xXBT7jWfAF?=
+ =?us-ascii?Q?gB8EN1Y7x54ixGH/cpt7IyCTe+yI0X53I7oy6O/lLNV4XUDeNskpqNKA54KA?=
+ =?us-ascii?Q?yUiBwIlQw/vNXQ2uORUjUVocunUtXPIOvNr9yaMsRBdVNPm0voGnR8XcXM7f?=
+ =?us-ascii?Q?aM1/iIX9tyfVfMIPxfQ7stzJSlH+8eWbDSGKUH+rp6cC9wOK9drtWgxF5rRn?=
+ =?us-ascii?Q?l/UcC1/rrU16oiKAQeWvmwuUAj1GSF+1sCXdMR/ZJrThsg6hdb7DI1izAB4/?=
+ =?us-ascii?Q?eK+RNNR/ktIhqeWVxU3qCDWb/VmT2PFuM4IZqNdmrxDnMVVSn/AYMDBT6Ef4?=
+ =?us-ascii?Q?gTmDdAHY/6PHIgpaPZCJBYS8meypYJ558NjMRMz4fPNP+d/mkiKhDngcjWa9?=
+ =?us-ascii?Q?dv34L4XU9xTPdOSfFwmSYeoXy7gCtno69ZZO/sgFWuvtBwQbGtSAmcZCXKOE?=
+ =?us-ascii?Q?UVNUSPSSNplVOFlGF5BS7r2NX5BtXNdaDDcB8Jrot1ETI5FijeiyIACQiqHi?=
+ =?us-ascii?Q?JbquooYEnTqEPxmarXfWOsqMgIhbszNn3zla2T4ApJyQnXR9alS8WT4go3t1?=
+ =?us-ascii?Q?UjB/w2Ogn79KICPjcb+2662Llo5qNLfqSoqSMNYYETTw2nEwfW/7tAAtA96d?=
+ =?us-ascii?Q?NYjlkU29dxl99S9u/dLV5GFZY8CyoUTAs9yC2yJr?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR01MB7475:EE_|LV2PR01MB7744:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6577d21b-1bd0-492a-e5e7-08dbd9a603fa
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: d8//oEo8AxgjmnKhwJIESXSr+pxCVHjQYip1wSeZpNZJjaygxxutWy1WsZM22Xprxmsu7AAe/xFLcGOpmnupkou9BDw7+uzh8WayL7Krgibfas7WtycARC2inrKnzFLwQdD+d2/Nwrm639jZM/LuhinL56keSWI5/enlR1Ljaz15HFjDBFs4/xjbqihKapvkzJ6CqbWDc8BZ4Li0/HjRbJZu+TMJG/9hSHkoSBylY75QbpQHuyNYKdWwsNp9r9J0Arl30mbclX2L9DzVlvZlP344iMWr8or4N6RcAfQCe8RkUzS3NxmzSooLFzpU1/hmQWbmIKi5CfMUICglfhz6h9p5tHVt2bnUZ17WrgUR0N7ENGuyuPAj5jbboiXjqxigDxVRqG5Bx4VCuJj+A5hkWzRPI6dI67o6zw/bvrWPSeDe3Yw1HugYV7pJMgU3ievmwj9+omH8Se8DnkT0vQAVisvO3MODfmp7RX37COuOY1SVFDFUYGnjWJcxJmNl+E+zlUSfg/wqSIl7UlsgR/8NRvwM6L0mo6HFrwIdY/gd/RXXatA6P8B6FvWFQOVuX+YaaeDdWK8eT5QfDZmBVS5cX8PRK5dF4OwOAvoQp9CwSKPSdXIl1JMvZj0S6QbMwJFdVUtr9OkJjsnHnvPziMEBhw==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR01MB7475.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230031)(376002)(396003)(366004)(39850400004)(136003)(346002)(230922051799003)(451199024)(186009)(64100799003)(1800799009)(66946007)(66556008)(66476007)(110136005)(316002)(26005)(8936002)(8676002)(83380400001)(5660300002)(41300700001)(38100700002)(53546011)(6486002)(478600001)(6506007)(2906002)(6512007)(6666004)(31696002)(86362001)(921008)(31686004)(2616005)(7416002)(43740500002);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?aGp1MDE1aUo5dCtwekNJNWRkUDlZMzhFcm5XS0I1ZU9QQXE2em1TdjNnbXRa?=
- =?utf-8?B?QkZZaGJnSUZET2ZYMCtmMVJwMUNjT2hZaUZ0V1V3VktVeUxNYURMVkZ0bWlr?=
- =?utf-8?B?UmRXajJaYzE4dExndVI0K252cXNpbHlKcFo2TjRiVFVkNFFrdzVpdVZsS1BD?=
- =?utf-8?B?M2tNZkN4amVPYVc2YVk5dm9yY3JQSzY5SnkwMkNjZU5kb2laVWJESXNDSzBJ?=
- =?utf-8?B?MUtSTWZkNHBuT1l2c3A3M0pIdGNkVEFudGVRTWZkaVdvVEY3RDZzS2RFUGhB?=
- =?utf-8?B?bGRGQnBUZkJ4ckZ6UVRVcnZ4QUNzTHlyZGtUV21JajkyUWFEVkNvTEJPZWRC?=
- =?utf-8?B?RnNmL2ZCVEI4VXdCajBCbXUxaGdlQk9yaEdicFZxcDUzT0N0bFBCd0F1M29j?=
- =?utf-8?B?V1JFMlRJMVlWK0UzWXRDT1diL1hUQXR2Rm01My82cGtMZk1oSHZlRlVCcEll?=
- =?utf-8?B?cEhycXplM0tYUjU4Sk96OGNlamxwejh0RXJ5QkdnM0w4VlRhYUoyZ3RNRHc4?=
- =?utf-8?B?OEJuTWdKYkx0OGRzNFd3c1dnUzdaR0ZjS3B4Z1NPVlFWelZvVHowSDdaV3dr?=
- =?utf-8?B?cEtYcXpJUjhxcmxEcTNkZHdsVGJ6eXNoZUN5L2FxUkVlWTIybVhmQW1aakhG?=
- =?utf-8?B?Z0xZc3Avc1daSnhCTUlESlVpWG8xamtnR05mWDNhejVvUlozT0ViRlN2WHY4?=
- =?utf-8?B?QldHTE1oaC95b1J6OXQ2VTFma1VXbFlYSEJMU3NjcDU0WVdRak4wVzhlVWlw?=
- =?utf-8?B?cTNxVWYvZVhVVjRoenI3SlUzRGNhSWVpcGhSVEdFTXcvQVBvbEl6d1RFWTNl?=
- =?utf-8?B?U0xBTTV4VkRIWGIrMHFiRGRsR0NRZjBLY3NVeGkvZWQvSDk3dXFsWmFyZXAy?=
- =?utf-8?B?WmVzSWpGdmxsNmc3aTFDaGw2SVF2U0IydHYzLy9HMDVSUHZzZmc0R3ZrdVZK?=
- =?utf-8?B?aWZwT1lPRUZpZDRzTGh3dnpyUFZHcWxKYU1CR1ovRHh5U3Y2eDFjOG1qbVFE?=
- =?utf-8?B?TFJ3S1N0eGNGSCt6U09QQjhzd21hSzV4NDhySEVxajMvMHFwZ1kxcWFXTWxh?=
- =?utf-8?B?Myt6UUk5QTBUSGNLU1ZjdEpNVmE1Kzl6YmhCbk1DdHF2WDhGUGZnaitzYTFK?=
- =?utf-8?B?UjB2a3hNWFdCN1BpME5KUFE4ZGZROXAyMlNQSkpSV0FLNnpYcHcyWU1Oaitk?=
- =?utf-8?B?bE9VQjdkcTQwSVpOV255RkZiQ0l5Tng1aFRNQlN5SnRZRlZKMjk1Z0JMM0Rm?=
- =?utf-8?B?bklPcFNMSThlOGdtZjNkR2MwaFlBMThNVU41T2l3eU9CcHlETndpMlA3VVMx?=
- =?utf-8?B?UFp6OTJnYm1ZN3lZdExJTlJzWkIwK21tWWU2Y1hCV0poVDVrMmpkNjFYbXFD?=
- =?utf-8?B?bjZETWJnYzgxMXh0ZDQwNlFDVzdwY0U1alJVMElDZUIwYW1ESzRwc1pjRVBt?=
- =?utf-8?B?R1BqdXRTdHBJVTMxUlNJYmFBcnp4WFQxeXRzcno5QjA2UUVma0NVZHRkVWdq?=
- =?utf-8?B?ekMzYWdMWTNyUFE4VEJadnNjYlltRTZ5SFgwT0NDaTVWZk96MmhQMVBsYkdP?=
- =?utf-8?B?SjZoajVkcUhkNit2aXJob1lNZ3ZoczJ2RjIwNmFPb3dBcmttVE44ZXJjcWJU?=
- =?utf-8?B?ZGdzdVUzcTNjOEpBZ3YxRjFKWkEwR0NKaHJwNjFmU0sxMUhGNlBmaWlORlhZ?=
- =?utf-8?B?ZEtvNjAwN29yQ2l4alM0RHhLNXBjY2M5cXFKN3NDcGxFajFpdXc2STNwRGxy?=
- =?utf-8?B?UUZIZjZUckNNY1ozMnQ4ZTM2V3RuRjJIUVJPMTZXekJndkpLeFBCaUNIaFpq?=
- =?utf-8?B?cEd4NCtyT05ZT3dsLzAvRzZLOEZNdkhZeVBFbXNOc1kwK2hXbG1Zc3RFS2FX?=
- =?utf-8?B?eUlHNzdta3lRbzl1YjhXRnU4SWVhMHpxbW1ycmZwcm40ay9QUnNiWlpMYWtG?=
- =?utf-8?B?L3dUc3czVWZ3Q2s3ZlhaNUpPTTQvSUtuU2RueHBYWG1hOHRuU1VuYW1mVXpY?=
- =?utf-8?B?RzkzVTJwR2liM0kwR0hhU0RFeDMxYUlSN1hrUFJPQUhvcU5FbzRJTnNrRVhV?=
- =?utf-8?B?eG5BbW5aRVlYK0ZqNTd3QWVvcFgvZlFKUUZrTmhsOEFuNi9rcnF5K3oxMUhy?=
- =?utf-8?B?Wlg4bU9VZ2pBOFZwZU4zTmZsQStjYk55eWJuOEZmV09QbkZxT0NycGlCVmtw?=
- =?utf-8?Q?g/KQnMTvkKs0xqf4fB+9zkw=3D?=
-X-OriginatorOrg: os.amperecomputing.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6577d21b-1bd0-492a-e5e7-08dbd9a603fa
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR01MB7475.prod.exchangelabs.com
+X-OriginatorOrg: wiwynn.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 31 Oct 2023 00:12:05.8830
+X-MS-Exchange-CrossTenant-AuthSource: SG2PR04MB5543.apcprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 592a0b79-530a-4cbc-ebb1-08dbd9d5e47d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 31 Oct 2023 05:54:48.7414
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: l4RIn5Ip/6ZGixUWRwFqVmnoVq4wbRaYqgefQnevAZipn379Wgh6omsj6sQ7Q2WEt9ukmiQsk2e9/17YbH6kudS0hZ6fX+82sN3gi+2gqLw=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR01MB7744
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: da6e0628-fc83-4caf-9dd2-73061cbab167
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: HbtnCemS5lVpj4bhDGQypZATDtwzq0cRvH4zQidelX49jMrw9kxCxzqaD2SVscAmpeAhjG9X7rIyTSA2ZosWLg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SEYPR04MB7691
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-On 10/26/2023 4:18 AM, Wolfram Sang wrote:
-> So, someone wants to come up with a patch to move to non-relaxed io
-> accessors?
-> 
-Is the current thinking to just make writes to DW_IC_INTR_MASK use the 
-non-relaxed variant or something more broad?
+> -----Original Message-----
+> From: Conor Dooley <conor@kernel.org>
+> Sent: Thursday, October 26, 2023 10:26 PM
+> To: Delphine_CC_Chiu/WYHQ/Wiwynn <Delphine_CC_Chiu@wiwynn.com>
+> Cc: patrick@stwcx.xyz; Jean Delvare <jdelvare@suse.com>; Guenter Roeck
+> <linux@roeck-us.net>; Rob Herring <robh+dt@kernel.org>; Krzysztof Kozlows=
+ki
+> <krzysztof.kozlowski+dt@linaro.org>; Conor Dooley <conor+dt@kernel.org>;
+> Jonathan Corbet <corbet@lwn.net>; linux-i2c@vger.kernel.org;
+> linux-hwmon@vger.kernel.org; devicetree@vger.kernel.org;
+> linux-kernel@vger.kernel.org; linux-doc@vger.kernel.org
+> Subject: Re: [PATCH v2 1/2] dt-bindings: hwmon: Add lltc ltc4286 driver
+> bindings
+>=20
+> Hey,
+>=20
+> On Thu, Oct 26, 2023 at 04:15:11PM +0800, Delphine CC Chiu wrote:
+> > Add a device tree bindings for ltc4286 driver.
+>=20
+> Bindings are for devices, not for drivers.
+>=20
+> >
+> > Signed-off-by: Delphine CC Chiu <Delphine_CC_Chiu@Wiwynn.com>
+> >
+> > Changelog:
+> >   v2 - Revise vrange_select_25p6 to adi,vrange-select-25p6
+> >      - Add type for adi,vrange-select-25p6
+> >      - Revise rsense-micro-ohms to shunt-resistor-micro-ohms
+> > ---
+> >  .../bindings/hwmon/lltc,ltc4286.yaml          | 50
+> +++++++++++++++++++
+> >  MAINTAINERS                                   | 10 ++++
+> >  2 files changed, 60 insertions(+)
+> >  create mode 100644
+> > Documentation/devicetree/bindings/hwmon/lltc,ltc4286.yaml
+> >
+> > diff --git a/Documentation/devicetree/bindings/hwmon/lltc,ltc4286.yaml
+> > b/Documentation/devicetree/bindings/hwmon/lltc,ltc4286.yaml
+> > new file mode 100644
+> > index 000000000000..17022de657bb
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/hwmon/lltc,ltc4286.yaml
+> > @@ -0,0 +1,50 @@
+> > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause) %YAML 1.2
+> > +---
+> > +$id: http://devicetree.org/schemas/hwmon/lltc,ltc4286.yaml#
+> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> > +
+> > +title: LTC4286 power monitors
+> > +
+> > +maintainers:
+> > +  - Delphine CC Chiu <Delphine_CC_Chiu@Wiwynn.com>
+> > +
+> > +properties:
+> > +  compatible:
+> > +    enum:
+> > +      - lltc,ltc4286
+> > +      - lltc,ltc4287
+>=20
+> I don't recall seeing an answer to Guenter about this ltc4287 device:
+> https://lore.kernel.org/all/22f6364c-611c-ffb6-451c-9ddc20418d0a@roeck-us=
+.
+> net/
+>=20
+> > +
+> > +  reg:
+> > +    maxItems: 1
+> > +
+> > +  adi,vrange-select-25p6:
+> > +    description:
+> > +      This property is a bool parameter to represent the
+> > +      voltage range is 25.6 or not for this chip.
+>=20
+> 25.6 what? Volts? microvolts?
+25.6 volts
 
- From a safest functioning viewpoint, we talked about making all 
-accessors default to non-relaxed variants. A couple of pretty good 
-arguments from knowledgeable people favored this. I know there also was 
-some concerns about potential performance impact this might have 
-although the counter argument was this is a pretty low speed device so 
-some extra cpu cycles on register accesses were not likely to degrade 
-overall performance.
-
-I could make the patch if we have consensus (or maintainers decision) on 
-which way to go: 1) only writes to DW_IC_INTR_MASK are non-relaxed, 2) 
-make all read/write accessors use the non-relaxed version.
-
-I'm personally in camp #2, safety first, performance fine tuning later 
-if needed. Latent missing barrier bugs are difficult and time consuming 
-to find.
-
-- Jan
-
+> What about Guenter's suggestion to name this so that it better matches th=
+e
+> other, similar properties?
+>=20
+> Cheers,
+> Conor.
