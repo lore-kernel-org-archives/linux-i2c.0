@@ -2,20 +2,20 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C60C1C4167B
-	for <linux-i2c@archiver.kernel.org>; Thu,  2 Nov 2023 02:54:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 882EEC0018A
+	for <linux-i2c@archiver.kernel.org>; Thu,  2 Nov 2023 02:54:12 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347177AbjKBCyM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        id S1348182AbjKBCyM (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
         Wed, 1 Nov 2023 22:54:12 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33940 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344988AbjKBCyK (ORCPT
+        with ESMTP id S1347897AbjKBCyK (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Wed, 1 Nov 2023 22:54:10 -0400
 Received: from mx2.zhaoxin.com (mx2.zhaoxin.com [203.110.167.99])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 119DA8E
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E21E83
         for <linux-i2c@vger.kernel.org>; Wed,  1 Nov 2023 19:54:07 -0700 (PDT)
-X-ASG-Debug-ID: 1698893644-1eb14e538e03af0001-PT6Irj
-Received: from ZXSHMBX2.zhaoxin.com (ZXSHMBX2.zhaoxin.com [10.28.252.164]) by mx2.zhaoxin.com with ESMTP id zIZWUBaNEHZEgsD9 (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO); Thu, 02 Nov 2023 10:54:04 +0800 (CST)
+X-ASG-Debug-ID: 1698893644-1eb14e538e03af0003-PT6Irj
+Received: from ZXSHMBX2.zhaoxin.com (ZXSHMBX2.zhaoxin.com [10.28.252.164]) by mx2.zhaoxin.com with ESMTP id a4NVjYMoRkg8vkpq (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO); Thu, 02 Nov 2023 10:54:05 +0800 (CST)
 X-Barracuda-Envelope-From: HansHu-oc@zhaoxin.com
 X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.164
 Received: from ZXBJMBX03.zhaoxin.com (10.29.252.7) by ZXSHMBX2.zhaoxin.com
@@ -32,10 +32,10 @@ X-Barracuda-RBL-Trusted-Forwarder: 10.29.252.7
 To:     <andi.shyti@kernel.org>, <wsa@kernel.org>,
         <linux-i2c@vger.kernel.org>
 CC:     <cobechen@zhaoxin.com>
-Subject: [PATCH v3 02/12] i2c: wmt: Reduce redundant: wait event complete
-Date:   Thu, 2 Nov 2023 10:53:52 +0800
-X-ASG-Orig-Subj: [PATCH v3 02/12] i2c: wmt: Reduce redundant: wait event complete
-Message-ID: <5931f8affc8992a229a4bae5bf9a8ad04a564107.1698889581.git.hanshu-oc@zhaoxin.com>
+Subject: [PATCH v3 04/12] i2c: wmt: Reduce redundant: REG_CR setting
+Date:   Thu, 2 Nov 2023 10:53:54 +0800
+X-ASG-Orig-Subj: [PATCH v3 04/12] i2c: wmt: Reduce redundant: REG_CR setting
+Message-ID: <0fce410bbf7c3d5e01cf679fd435fa0065e55e53.1698889581.git.hanshu-oc@zhaoxin.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <cover.1698889581.git.hanshu-oc@zhaoxin.com>
 References: <cover.1698889581.git.hanshu-oc@zhaoxin.com>
@@ -50,8 +50,8 @@ X-Barracuda-Start-Time: 1698893644
 X-Barracuda-Encrypted: ECDHE-RSA-AES128-GCM-SHA256
 X-Barracuda-URL: https://10.28.252.36:4443/cgi-mod/mark.cgi
 X-Virus-Scanned: by bsmtpd at zhaoxin.com
-X-Barracuda-Scan-Msg-Size: 2110
-X-Barracuda-BRTS-Status: 0
+X-Barracuda-Scan-Msg-Size: 2314
+X-Barracuda-BRTS-Status: 1
 X-Barracuda-Bayes: INNOCENT GLOBAL 0.0000 1.0000 -2.0210
 X-Barracuda-Spam-Score: -2.02
 X-Barracuda-Spam-Status: No, SCORE=-2.02 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=9.0 tests=
@@ -63,73 +63,78 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Put the handling of interrupt events in a function class
-to reduce code redundancy.
+These Settings for the same register, REG_CR, 
+can be put together to reduce code redundancy.
 
 Signed-off-by: Hans Hu <hanshu-oc@zhaoxin.com>
 ---
- drivers/i2c/busses/i2c-wmt.c | 20 ++++++--------------
- 1 file changed, 6 insertions(+), 14 deletions(-)
+ drivers/i2c/busses/i2c-wmt.c | 35 +++++++++--------------------------
+ 1 file changed, 9 insertions(+), 26 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-wmt.c b/drivers/i2c/busses/i2c-wmt.c
-index d554c6377533..1b31330ba4eb 100644
+index a44ce5fdde8a..d503e85752ea 100644
 --- a/drivers/i2c/busses/i2c-wmt.c
 +++ b/drivers/i2c/busses/i2c-wmt.c
-@@ -109,6 +109,12 @@ static int wmt_i2c_wait_bus_not_busy(struct wmt_i2c_dev *i2c_dev)
- static int wmt_check_status(struct wmt_i2c_dev *i2c_dev)
- {
- 	int ret = 0;
-+	unsigned long wait_result;
-+
-+	wait_result = wait_for_completion_timeout(&i2c_dev->complete,
-+						msecs_to_jiffies(500));
-+	if (!wait_result)
-+		return -ETIMEDOUT;
- 
- 	if (i2c_dev->cmd_status & ISR_NACK_ADDR)
- 		ret = -EIO;
-@@ -125,7 +131,6 @@ static int wmt_i2c_write(struct i2c_adapter *adap, struct i2c_msg *pmsg,
- 	struct wmt_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
- 	u16 val, tcr_val;
- 	int ret;
--	unsigned long wait_result;
- 	int xfer_len = 0;
- 
- 	if (pmsg->len == 0) {
-@@ -167,12 +172,6 @@ static int wmt_i2c_write(struct i2c_adapter *adap, struct i2c_msg *pmsg,
+@@ -144,9 +144,6 @@ static int wmt_i2c_write(struct i2c_adapter *adap, struct i2c_msg *pmsg,
+ 	if (!(pmsg->flags & I2C_M_NOSTART)) {
+ 		val = readw(i2c_dev->base + REG_CR);
+ 		val &= ~CR_TX_END;
+-		writew(val, i2c_dev->base + REG_CR);
+-
+-		val = readw(i2c_dev->base + REG_CR);
+ 		val |= CR_CPU_RDY;
+ 		writew(val, i2c_dev->base + REG_CR);
  	}
- 
- 	while (xfer_len < pmsg->len) {
--		wait_result = wait_for_completion_timeout(&i2c_dev->complete,
--							msecs_to_jiffies(500));
--
--		if (wait_result == 0)
--			return -ETIMEDOUT;
--
- 		ret = wmt_check_status(i2c_dev);
- 		if (ret)
- 			return ret;
-@@ -210,7 +209,6 @@ static int wmt_i2c_read(struct i2c_adapter *adap, struct i2c_msg *pmsg,
- 	struct wmt_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
- 	u16 val, tcr_val;
- 	int ret;
--	unsigned long wait_result;
+@@ -204,24 +201,15 @@ static int wmt_i2c_read(struct i2c_adapter *adap, struct i2c_msg *pmsg,
  	u32 xfer_len = 0;
  
  	val = readw(i2c_dev->base + REG_CR);
-@@ -251,12 +249,6 @@ static int wmt_i2c_read(struct i2c_adapter *adap, struct i2c_msg *pmsg,
+-	val &= ~CR_TX_END;
+-	writew(val, i2c_dev->base + REG_CR);
++	val &= ~(CR_TX_END | CR_TX_NEXT_NO_ACK);
+ 
+-	val = readw(i2c_dev->base + REG_CR);
+-	val &= ~CR_TX_NEXT_NO_ACK;
+-	writew(val, i2c_dev->base + REG_CR);
+-
+-	if (!(pmsg->flags & I2C_M_NOSTART)) {
+-		val = readw(i2c_dev->base + REG_CR);
++	if (!(pmsg->flags & I2C_M_NOSTART))
+ 		val |= CR_CPU_RDY;
+-		writew(val, i2c_dev->base + REG_CR);
+-	}
+ 
+-	if (pmsg->len == 1) {
+-		val = readw(i2c_dev->base + REG_CR);
++	if (pmsg->len == 1)
+ 		val |= CR_TX_NEXT_NO_ACK;
+-		writew(val, i2c_dev->base + REG_CR);
+-	}
++
++	writew(val, i2c_dev->base + REG_CR);
+ 
+ 	reinit_completion(&i2c_dev->complete);
+ 
+@@ -243,15 +231,10 @@ static int wmt_i2c_read(struct i2c_adapter *adap, struct i2c_msg *pmsg,
+ 		pmsg->buf[xfer_len] = readw(i2c_dev->base + REG_CDR) >> 8;
+ 		xfer_len++;
+ 
+-		if (xfer_len == pmsg->len - 1) {
+-			val = readw(i2c_dev->base + REG_CR);
+-			val |= (CR_TX_NEXT_NO_ACK | CR_CPU_RDY);
+-			writew(val, i2c_dev->base + REG_CR);
+-		} else {
+-			val = readw(i2c_dev->base + REG_CR);
+-			val |= CR_CPU_RDY;
+-			writew(val, i2c_dev->base + REG_CR);
+-		}
++		val = readw(i2c_dev->base + REG_CR) | CR_CPU_RDY;
++		if (xfer_len == pmsg->len - 1)
++			val |= CR_TX_NEXT_NO_ACK;
++		writew(val, i2c_dev->base + REG_CR);
  	}
  
- 	while (xfer_len < pmsg->len) {
--		wait_result = wait_for_completion_timeout(&i2c_dev->complete,
--							msecs_to_jiffies(500));
--
--		if (!wait_result)
--			return -ETIMEDOUT;
--
- 		ret = wmt_check_status(i2c_dev);
- 		if (ret)
- 			return ret;
+ 	return 0;
 -- 
 2.34.1
 
