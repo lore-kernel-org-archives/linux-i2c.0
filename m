@@ -2,997 +2,181 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93C43C4167B
-	for <linux-i2c@archiver.kernel.org>; Thu,  2 Nov 2023 03:10:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ABBA5C4332F
+	for <linux-i2c@archiver.kernel.org>; Thu,  2 Nov 2023 03:30:51 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346646AbjKBDKu (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 1 Nov 2023 23:10:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44246 "EHLO
+        id S1348424AbjKBDaw (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 1 Nov 2023 23:30:52 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232949AbjKBDKs (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 1 Nov 2023 23:10:48 -0400
-X-Greylist: delayed 990 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 01 Nov 2023 20:10:42 PDT
-Received: from mx1.zhaoxin.com (MX1.ZHAOXIN.COM [210.0.225.12])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A549110
-        for <linux-i2c@vger.kernel.org>; Wed,  1 Nov 2023 20:10:42 -0700 (PDT)
-X-ASG-Debug-ID: 1698893646-086e236fed038f0001-PT6Irj
-Received: from ZXSHMBX3.zhaoxin.com (ZXSHMBX3.zhaoxin.com [10.28.252.165]) by mx1.zhaoxin.com with ESMTP id ZfaOfCkwuLEFd2Bk (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO); Thu, 02 Nov 2023 10:54:07 +0800 (CST)
-X-Barracuda-Envelope-From: HansHu-oc@zhaoxin.com
-X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.165
-Received: from ZXBJMBX03.zhaoxin.com (10.29.252.7) by ZXSHMBX3.zhaoxin.com
- (10.28.252.165) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Thu, 2 Nov
- 2023 10:54:06 +0800
-Received: from ml-HP-ProDesk-680-G4-MT.zhaoxin.com (10.28.66.68) by
- ZXBJMBX03.zhaoxin.com (10.29.252.7) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Thu, 2 Nov 2023 10:54:06 +0800
-X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.165
-From:   Hans Hu <hanshu-oc@zhaoxin.com>
-X-Barracuda-RBL-Trusted-Forwarder: 10.29.252.7
-To:     <andi.shyti@kernel.org>, <wsa@kernel.org>,
-        <linux-i2c@vger.kernel.org>
-CC:     <cobechen@zhaoxin.com>
-Subject: [PATCH v3 10/12] i2c: wmt: split out common files
-Date:   Thu, 2 Nov 2023 10:54:00 +0800
-X-ASG-Orig-Subj: [PATCH v3 10/12] i2c: wmt: split out common files
-Message-ID: <4828df34481090f188e4d311c92b970e91b43d45.1698889581.git.hanshu-oc@zhaoxin.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <cover.1698889581.git.hanshu-oc@zhaoxin.com>
-References: <cover.1698889581.git.hanshu-oc@zhaoxin.com>
+        with ESMTP id S1348397AbjKBDar (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 1 Nov 2023 23:30:47 -0400
+Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2100.outbound.protection.outlook.com [40.107.236.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 615B6127;
+        Wed,  1 Nov 2023 20:30:40 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=niVWRkwbkCjOy74kUOujyO0LtTMeSvKQDEQS7XVcs4xNdjPLuOd/DKjunK558nG5D6iw29JQ+CFLwhfwdnUvNPh4wbjAVBjHVRerppFhdGn28WqNtFdFez/7kJYVreM5oB+/En8SLa3mRh8wg/NzG+LT0ZJgsq5Faz7iQVlGc0qp3uNIlDKtywdnkYynhfTQw2Pgjx3NvzoOWoVDoxnDa5rbhVH/0fUMKGvDPWVqvcNv74hps8QbEWYtFUX41HOOg04hn9m5BPw/0XeXyUBk23QqTEKrkusRjBW4RFiI5PQgOyiJw1CwBwlUWD1AVuKOzD6kAC9YZZQSGyzJwohrxw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=67T2bNTr6OqNAORRS+HdUqCRVLjtgF+4F7i6hyhuihM=;
+ b=Z0Cg082HbKmLv0isGBms35+Loh2GEDM2cjqGMvEkn3cjoZsRcY5YHklpjvayu7QeNpmZ5lpAORukURidd+Kly3ssK0Hn3mfni5k8waVQ/ljdm+UhBmZ79b12t0OZaRjqXJoFKt/Lmk+ZOsA7KML7AgNbOVu/9dW58T4l+bfS9QabDpmRtCwpy6os2CS9UFTt0R0PuPeTxIUuVE68pPEAUNT2IB4732X/yXzIjVHgkKk5NMrsm0e/lPSwlF/NyOFAp+35sGd0+56C6dtxwLquwnKeoF1sN2VF45Gq8LnBbGjqxK+jysRIIVrWZLb7S0VwOb35fXgrICgy8CJa+iV6Ww==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=os.amperecomputing.com; dmarc=pass action=none
+ header.from=os.amperecomputing.com; dkim=pass
+ header.d=os.amperecomputing.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=os.amperecomputing.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=67T2bNTr6OqNAORRS+HdUqCRVLjtgF+4F7i6hyhuihM=;
+ b=PGDu3ONGvAnxSXuWrFjW7XvkuJG4oYFbvlmKd7O6yB+FywOhlf7C5UtAbp3GGXtQ3LjMsqvC7y7EWOAfzJZH987T8YgCi6EYqn4Q0lx+tw+csWST1h26sAkixnD23TgpvDfAYfd0q0uBK+9zeRoPps21+NNYeccJb7iJuCnOrxE=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=os.amperecomputing.com;
+Received: from SA1PR01MB8131.prod.exchangelabs.com (2603:10b6:806:325::8) by
+ SA3PR01MB7967.prod.exchangelabs.com (2603:10b6:806:31e::15) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6907.26; Thu, 2 Nov 2023 03:30:36 +0000
+Received: from SA1PR01MB8131.prod.exchangelabs.com
+ ([fe80::428d:f5bf:7ca0:b59f]) by SA1PR01MB8131.prod.exchangelabs.com
+ ([fe80::428d:f5bf:7ca0:b59f%5]) with mapi id 15.20.6954.019; Thu, 2 Nov 2023
+ 03:30:36 +0000
+From:   Tam Nguyen <tamnguyenchi@os.amperecomputing.com>
+To:     linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Cc:     patches@amperecomputing.com, jarkko.nikula@linux.intel.com,
+        andriy.shevchenko@linux.intel.com, mika.westerberg@linux.intel.com,
+        jsd@semihalf.com, tamnguyenchi@os.amperecomputing.com,
+        chuong@os.amperecomputing.com, darren@os.amperecomputing.com,
+        stable@vger.kernel.org
+Subject: [PATCH v2] i2c: designware: Disable TX_EMPTY irq while waiting for block length byte
+Date:   Thu,  2 Nov 2023 10:30:08 +0700
+Message-Id: <20231102033009.4555-1-tamnguyenchi@os.amperecomputing.com>
+X-Mailer: git-send-email 2.25.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SI2P153CA0009.APCP153.PROD.OUTLOOK.COM
+ (2603:1096:4:140::18) To SA1PR01MB8131.prod.exchangelabs.com
+ (2603:10b6:806:325::8)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.28.66.68]
-X-ClientProxiedBy: zxbjmbx1.zhaoxin.com (10.29.252.163) To
- ZXBJMBX03.zhaoxin.com (10.29.252.7)
-X-Barracuda-Connect: ZXSHMBX3.zhaoxin.com[10.28.252.165]
-X-Barracuda-Start-Time: 1698893647
-X-Barracuda-Encrypted: ECDHE-RSA-AES128-GCM-SHA256
-X-Barracuda-URL: https://10.28.252.35:4443/cgi-mod/mark.cgi
-X-Virus-Scanned: by bsmtpd at zhaoxin.com
-X-Barracuda-Scan-Msg-Size: 24402
-X-Barracuda-BRTS-Status: 0
-X-Barracuda-Bayes: INNOCENT GLOBAL 0.0000 1.0000 -2.0210
-X-Barracuda-Spam-Score: -2.02
-X-Barracuda-Spam-Status: No, SCORE=-2.02 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=9.0 tests=
-X-Barracuda-Spam-Report: Code version 3.2, rules version 3.2.3.116190
-        Rule breakdown below
-         pts rule name              description
-        ---- ---------------------- --------------------------------------------------
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SA1PR01MB8131:EE_|SA3PR01MB7967:EE_
+X-MS-Office365-Filtering-Correlation-Id: f1e2459c-f22f-4b33-a80b-08dbdb5413b5
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: vrKqSybqyEHXz4dl49ddjLs6R0PdHkQewe9oLccD0dRexVd294gk6e5pVL3MQQSK10SdtESfzV5AjBSHFY7dR+qRqb/3apXphammCqUDUFI6Ii7P1cq902aM1nFoubZa6VpTWDU+xJA4r/01DnWC4D0ioKf+hwh4EytiRXbDgI+ClE6sjCcsBj+CTsNmDVGsl//9dT3Ck/u1til8vQgyJ6qHcp1Z7BhU+uJCDwfQOJ1olM1iPHqUu2QIDHq7lKXc5hkOQ4RRyKBGpJH0TPojbdiXjQebDQRIRscEGzO8xwxz0iSLvxXJVh6qixRg1xFT72186DI3hh84fy6YSoT35vpoCqzUVp2VAK9OgGvdaN8HaTeNrTLrh9RsHZ7VJ1AKktXaXTmFr803lXeryEp8UKESbWJgdvD7dPLe+82D1ZLUbqhfpsuQ3s6a6iY7XdvS03oknhvzs8n7XDdEjiT5odRoLNVNr2cD9MmpvpWLnqHtMz84fiqNirS8WzmSad5b8fTEUNUHfk4BMtOjIXJ4r963n9HLKz5CqYsFCQ0yaa79AmX74LoFjKKNtN2p3kq/2K+7G/CoNOKQyhLWVK520Rynkvny6sehvX4JR3D1LdQ=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR01MB8131.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(13230031)(376002)(136003)(39850400004)(366004)(396003)(346002)(230922051799003)(1800799009)(64100799003)(186009)(451199024)(38350700005)(478600001)(5660300002)(52116002)(2906002)(66476007)(316002)(26005)(38100700002)(86362001)(83380400001)(1076003)(966005)(6506007)(66556008)(2616005)(6666004)(41300700001)(8936002)(66946007)(4326008)(8676002)(6512007)(6486002);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?rrsDFFgkqSS2jIRJZ7CKLNNAAUBfqkKNUHqU+GHRURuPuN63PmymmHr3enY/?=
+ =?us-ascii?Q?yh5WDfUJBqe2UOhBCaa3IFIc0uyraEpzXjj2JRxmyW7QjSvzHlmBpbIZ3YSy?=
+ =?us-ascii?Q?1utbWJQ1IpqWUGc8il4uooYN6K/gopuI8C5roSt5zNoAFcfas1cI0unFpyBh?=
+ =?us-ascii?Q?Mqi7DuPSX6uhqhfrXLb5ROWZU4o5uyivYCtf7CKM6Z88peDDnUiUA8o91hP+?=
+ =?us-ascii?Q?i93DffYhtnHsB91jHOQN16LEZU0Z2Zsoi4mCHVuySaQoxwIZ0z6DHvD0JBbo?=
+ =?us-ascii?Q?4uP7KxqzwLvAfpco/3icDtD9KHY2ssOHhtA3UlqlYwR2U7N11iW2HJBfgmPL?=
+ =?us-ascii?Q?RvaGpqyWj4ZTSOnUx8XZMor24C3fVEgI+Nmz2bizYRhuk8hacFWHZCDmdEyl?=
+ =?us-ascii?Q?q9Pu6bfm4dEA50lvp6kVS6jwpAdy132un9vYq9I8XzG6LdQo2tzCcRiehUjo?=
+ =?us-ascii?Q?qF3YqzPgIMu1vyXfXkIrfvjnaRoOi5N7iwdETuzDLd/8o+UIBUt/yKpZGCMd?=
+ =?us-ascii?Q?T6fBJeqgqs7VZy/mxz8F08ZYUvDog6d+6GNJX8PmxJymXk4Xn2ufGmYfg9CB?=
+ =?us-ascii?Q?4KSGhrfGwb0eeJUVBkHUjf6h8Ud4MTA/eouq++GzkugnPZCrM0HjywJAetHr?=
+ =?us-ascii?Q?DXU6y/5ytYD8jioUMzeljEYo2EXCVoHzfOdMva/m3S7pmB1+hc2+O0L5bOCW?=
+ =?us-ascii?Q?QgMYs67+SOXMALL8IablT1D5KvPORSWDtcA7EJT2hEERTaC3rALkYvpZIRkL?=
+ =?us-ascii?Q?Sgcwcmlm6dgX9c6Qiwx2aQys7UkTS3S0rPK3GSNvRaPci8Mpo1x9V43DkDYS?=
+ =?us-ascii?Q?XGg+qS5ccaAEyq2KaWA4PuyAbaS6ytunhkVE0IFMkyYEW6koTss/88w6O5HV?=
+ =?us-ascii?Q?MIXlp5Lmtr/9xMHQ92tdG2u4RB+L4fCxHwxna0s6tLFcaifnbtNuZ2/uQKBx?=
+ =?us-ascii?Q?PnJLDdBgNL8HcZEBu3ZVYTQaudOj3/x3LDmAwraTl35gjEFoGRwTO/Af+wbr?=
+ =?us-ascii?Q?CpEPXSh3uWQVm2Z0ZelSw39YqbI3a5bG3OY/w0jB11wslLXNpEnUcszOrRH3?=
+ =?us-ascii?Q?HhH8/nT4Wbtoj+W0vCXPAPycSgM/9Bzu+eBepacFnSPbNzjY4nHjWRVM3Lsr?=
+ =?us-ascii?Q?B9wUxDAokajdtUxAaoOVruqJLyOCV3I20A9FoRv5hVofq9AwQ2akptB1UM0q?=
+ =?us-ascii?Q?BcwVVXJzo/MepvHydeSebD83rvUOlWV6diPuPLPtblalfW+QdSKvc1TU9Jhq?=
+ =?us-ascii?Q?Dy91+VoMjbv62UBpSGkPgCG1MJFtdDnLj79g3IWa9yYVSW8c/O9HScbEEMOx?=
+ =?us-ascii?Q?7L12cKMxzrqNMIDDapUy3QxV6XGj9tAZMhVG3n/QlDoAhPAfhkn502ZNhIKE?=
+ =?us-ascii?Q?lFt7MQnO5MhpCv4l2Ml2OJAjPWaw7/Mku6BsBH55cypQBxirY/rS19Nc5Y58?=
+ =?us-ascii?Q?cY2rBop+phLbdYo9+2nOYsgWV2f2qfqpY/MWTG2KuYBOORerxp3o4xVDsc7N?=
+ =?us-ascii?Q?4VKeWnFvwjNOp5Sgpj2bXiSofVmDxgfr/hP5uTqjMmBKGWAdM3WzN+7+kMIg?=
+ =?us-ascii?Q?/M9k/y6Ug6iDkDqgai746rTeLuPHtCmyTcmQJgkf6YqdvUk4yGkeveVSNGJ3?=
+ =?us-ascii?Q?FV64Zl7QTULW2WOb+5OoY8Q=3D?=
+X-OriginatorOrg: os.amperecomputing.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f1e2459c-f22f-4b33-a80b-08dbdb5413b5
+X-MS-Exchange-CrossTenant-AuthSource: SA1PR01MB8131.prod.exchangelabs.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Nov 2023 03:30:36.2212
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3bc2b170-fd94-476d-b0ce-4229bdc904a7
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: GYpcjw/AQCeAQyaLKKc7cRY4lk79InuKRXNCDQIDoknJkJrx4+ag2jGvphuztop+yEMCxPQxOQNtQQDuBwpi512sU6cd+MXB1eAtejWpgELXe7cdng9z5shikpH3KM+/
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR01MB7967
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Since the I2C IP of both wmt and zhaoxin come from VIA,
-the common driver is named as i2c-viai2c-common.c.
-Old i2c-wmt.c renamed to i2c-wmt-plt.c.
+During SMBus block data read process, we have seen high interrupt rate
+because of TX_EMPTY irq status while waiting for block length byte (the
+first data byte after the address phase). The interrupt handler does not
+do anything because the internal state is kept as STATUS_WRITE_IN_PROGRESS.
+Hence, we should disable TX_EMPTY IRQ until I2C DesignWare receives
+first data byte from I2C device, then re-enable it to resume SMBus
+transaction.
 
-Signed-off-by: Hans Hu <hanshu-oc@zhaoxin.com>
+It takes 0.789 ms for host to receive data length from slave.
+Without the patch, i2c_dw_isr() is called 99 times by TX_EMPTY interrupt.
+And it is none after applying the patch.
+
+Cc: stable@vger.kernel.org
+Co-developed-by: Chuong Tran <chuong@os.amperecomputing.com>
+Signed-off-by: Chuong Tran <chuong@os.amperecomputing.com>
+Signed-off-by: Tam Nguyen <tamnguyenchi@os.amperecomputing.com>
 ---
- drivers/i2c/busses/Makefile            |   2 +
- drivers/i2c/busses/i2c-viai2c-common.c | 232 +++++++++++++
- drivers/i2c/busses/i2c-viai2c-common.h |  72 +++++
- drivers/i2c/busses/i2c-wmt-plt.c       | 139 ++++++++
- drivers/i2c/busses/i2c-wmt.c           | 431 -------------------------
- 5 files changed, 445 insertions(+), 431 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-viai2c-common.c
- create mode 100644 drivers/i2c/busses/i2c-viai2c-common.h
- create mode 100644 drivers/i2c/busses/i2c-wmt-plt.c
- delete mode 100644 drivers/i2c/busses/i2c-wmt.c
+v2:
+	+ Reduce the indentations level
+	+ Use regmap_update_bits for bitfield update
+	+ Rewrite comment statement                     [Serge]
+	+ Update commit message
+	+ Add Co-developed-by tag for co-authors        [Andy]
 
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index af56fe2c75c0..19262f4d30fe 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -120,7 +120,9 @@ obj-$(CONFIG_I2C_TEGRA_BPMP)	+= i2c-tegra-bpmp.o
- obj-$(CONFIG_I2C_UNIPHIER)	+= i2c-uniphier.o
- obj-$(CONFIG_I2C_UNIPHIER_F)	+= i2c-uniphier-f.o
- obj-$(CONFIG_I2C_VERSATILE)	+= i2c-versatile.o
-+i2c-wmt-objs := i2c-wmt-plt.o i2c-viai2c-common.o
- obj-$(CONFIG_I2C_WMT)		+= i2c-wmt.o
-+
- i2c-octeon-objs := i2c-octeon-core.o i2c-octeon-platdrv.o
- obj-$(CONFIG_I2C_OCTEON)	+= i2c-octeon.o
- i2c-thunderx-objs := i2c-octeon-core.o i2c-thunderx-pcidrv.o
-diff --git a/drivers/i2c/busses/i2c-viai2c-common.c b/drivers/i2c/busses/i2c-viai2c-common.c
-new file mode 100644
-index 000000000000..45ac56941bee
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-viai2c-common.c
-@@ -0,0 +1,232 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+#include <linux/of_irq.h>
-+#include "i2c-viai2c-common.h"
-+
-+#define WMT_I2C_TIMEOUT		(msecs_to_jiffies(1000))
-+
-+int viai2c_wait_bus_ready(struct viai2c *i2c)
-+{
-+	unsigned long timeout;
-+	void __iomem *base = i2c->base;
-+
-+	timeout = jiffies + WMT_I2C_TIMEOUT;
-+	while (!(readw(base + VIAI2C_REG_CSR) & VIAI2C_CSR_READY_MASK)) {
-+		if (time_after(jiffies, timeout)) {
-+			dev_warn(i2c->dev, "timeout waiting for bus ready\n");
-+			return -EBUSY;
-+		}
-+		msleep(20);
-+	}
-+
-+	return 0;
-+}
-+
-+int viai2c_wait_status(struct viai2c *i2c, u8 status)
-+{
-+	unsigned long wait_result;
-+
-+	wait_result = wait_for_completion_timeout(&i2c->complete,
-+						msecs_to_jiffies(500));
-+	if (!wait_result)
-+		return -ETIMEDOUT;
-+
-+	if (i2c->cmd_status & status)
-+		return 0;
-+
-+	return -EIO;
-+}
-+
-+static int viai2c_write(struct viai2c *i2c, struct i2c_msg *pmsg, bool last)
-+{
-+	u16 val, tcr_val = i2c->tcr;
-+	int xfer_len = 0;
-+	void __iomem *base = i2c->base;
-+
-+	if (pmsg->len == 0) {
-+		/*
-+		 * We still need to run through the while (..) once, so
-+		 * start at -1 and break out early from the loop
-+		 */
-+		xfer_len = -1;
-+		writew(0, base + VIAI2C_REG_CDR);
-+	} else {
-+		writew(pmsg->buf[0] & 0xFF, base + VIAI2C_REG_CDR);
-+	}
-+
-+	if (!(pmsg->flags & I2C_M_NOSTART)) {
-+		val = readw(base + VIAI2C_REG_CR);
-+		val &= ~VIAI2C_CR_TX_END;
-+		val |= VIAI2C_CR_CPU_RDY;
-+		writew(val, base + VIAI2C_REG_CR);
-+	}
-+
-+	reinit_completion(&i2c->complete);
-+	writew(tcr_val | pmsg->addr, base + VIAI2C_REG_TCR);
-+
-+	if (pmsg->flags & I2C_M_NOSTART) {
-+		val = readw(base + VIAI2C_REG_CR);
-+		val |= VIAI2C_CR_CPU_RDY;
-+		writew(val, base + VIAI2C_REG_CR);
-+	}
-+
-+	while (xfer_len < pmsg->len) {
-+		int err;
-+
-+		err = viai2c_wait_status(i2c, VIAI2C_ISR_BYTE_END);
-+		if (err)
-+			return err;
-+
-+		xfer_len++;
-+
-+		val = readw(base + VIAI2C_REG_CSR);
-+		if (val & VIAI2C_CSR_RCV_NOT_ACK) {
-+			dev_dbg(i2c->dev, "write RCV NACK error\n");
-+			return -EIO;
-+		}
-+
-+		if (pmsg->len == 0) {
-+			val = VIAI2C_CR_TX_END | VIAI2C_CR_CPU_RDY
-+				| VIAI2C_CR_ENABLE;
-+			writew(val, base + VIAI2C_REG_CR);
+v1:
+  https://lore.kernel.org/lkml/avd7jhwexehgbvi6euzdwvf5zvqqgjx4ozo6uxu2qpmlarvva3@sgkce3rvovwk/T/
+---
+ drivers/i2c/busses/i2c-designware-master.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index 55ea91a63382..ae76620ef35e 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -456,10 +456,16 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+ 
+ 		/*
+ 		 * Because we don't know the buffer length in the
+-		 * I2C_FUNC_SMBUS_BLOCK_DATA case, we can't stop
+-		 * the transaction here.
++		 * I2C_FUNC_SMBUS_BLOCK_DATA case, we can't stop the
++		 * transaction here. Also disable the TX_EMPTY IRQ
++		 * while waiting for the data length byte to avoid the
++		 * bogus interrupts flood.
+ 		 */
+-		if (buf_len > 0 || flags & I2C_M_RECV_LEN) {
++		if (flags & I2C_M_RECV_LEN) {
++			dev->status |= STATUS_WRITE_IN_PROGRESS;
++			intr_mask &= ~DW_IC_INTR_TX_EMPTY;
 +			break;
-+		}
-+
-+		if (xfer_len == pmsg->len) {
-+			if (!last)
-+				writew(VIAI2C_CR_ENABLE, base + VIAI2C_REG_CR);
-+		} else {
-+			writew(pmsg->buf[xfer_len] & 0xFF,
-+					base + VIAI2C_REG_CDR);
-+			writew(VIAI2C_CR_CPU_RDY | VIAI2C_CR_ENABLE,
-+					base + VIAI2C_REG_CR);
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int viai2c_read(struct viai2c *i2c, struct i2c_msg *pmsg)
-+{
-+	u16 val, tcr_val = i2c->tcr;
-+	u32 xfer_len = 0;
-+	void __iomem *base = i2c->base;
-+
-+	val = readw(base + VIAI2C_REG_CR);
-+	val &= ~(VIAI2C_CR_TX_END | VIAI2C_CR_RX_END);
-+
-+	if (!(pmsg->flags & I2C_M_NOSTART))
-+		val |= VIAI2C_CR_CPU_RDY;
-+
-+	if (pmsg->len == 1)
-+		val |= VIAI2C_CR_RX_END;
-+
-+	writew(val, base + VIAI2C_REG_CR);
-+
-+	reinit_completion(&i2c->complete);
-+
-+	tcr_val |= VIAI2C_TCR_MASTER_READ | pmsg->addr;
-+
-+	writew(tcr_val, base + VIAI2C_REG_TCR);
-+
-+	if (pmsg->flags & I2C_M_NOSTART) {
-+		val = readw(base + VIAI2C_REG_CR);
-+		val |= VIAI2C_CR_CPU_RDY;
-+		writew(val, base + VIAI2C_REG_CR);
-+	}
-+
-+	while (xfer_len < pmsg->len) {
-+		int err;
-+
-+		err = viai2c_wait_status(i2c, VIAI2C_ISR_BYTE_END);
-+		if (err)
-+			return err;
-+
-+		pmsg->buf[xfer_len] = readw(base + VIAI2C_REG_CDR) >> 8;
-+		xfer_len++;
-+
-+		val = readw(base + VIAI2C_REG_CR) | VIAI2C_CR_CPU_RDY;
-+		if (xfer_len == pmsg->len - 1)
-+			val |= VIAI2C_CR_RX_END;
-+		writew(val, base + VIAI2C_REG_CR);
-+	}
-+
-+	return 0;
-+}
-+
-+int viai2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
-+{
-+	struct i2c_msg *pmsg;
-+	int i;
-+	int ret = 0;
-+	struct viai2c *i2c = i2c_get_adapdata(adap);
-+
-+	for (i = 0; ret >= 0 && i < num; i++) {
-+		pmsg = &msgs[i];
-+		if (!(pmsg->flags & I2C_M_NOSTART)) {
-+			ret = viai2c_wait_bus_ready(i2c);
-+			if (ret < 0)
-+				return ret;
-+		}
-+
-+		if (pmsg->flags & I2C_M_RD)
-+			ret = viai2c_read(i2c, pmsg);
-+		else
-+			ret = viai2c_write(i2c, pmsg, i == (num - 1));
-+	}
-+
-+	return (ret < 0) ? ret : i;
-+}
-+
-+static irqreturn_t viai2c_isr(int irq, void *data)
-+{
-+	struct viai2c *i2c = data;
-+
-+	/* save the status and write-clear it */
-+	i2c->cmd_status = readw(i2c->base + VIAI2C_REG_ISR);
-+	writew(i2c->cmd_status, i2c->base + VIAI2C_REG_ISR);
-+
-+	complete(&i2c->complete);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+int viai2c_init(struct platform_device *pdev, struct viai2c **pi2c)
-+{
-+	int err;
-+	int irq_flags;
-+	struct viai2c *i2c;
-+	struct device_node *np = pdev->dev.of_node;
-+
-+	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
-+	if (!i2c)
-+		return -ENOMEM;
-+
-+	i2c->base = devm_platform_ioremap_resource(pdev, 0);
-+	if (IS_ERR(i2c->base))
-+		return PTR_ERR(i2c->base);
-+
-+	if (np) {
-+		irq_flags = 0;
-+		i2c->irq = irq_of_parse_and_map(np, 0);
-+		if (!i2c->irq)
-+			return -EINVAL;
-+	} else {
-+		irq_flags = IRQF_SHARED;
-+		i2c->irq = platform_get_irq(pdev, 0);
-+		if (i2c->irq < 0)
-+			return i2c->irq;
-+	}
-+
-+	err = devm_request_irq(&pdev->dev, i2c->irq, viai2c_isr,
-+					irq_flags, pdev->name, i2c);
-+	if (err)
-+		return dev_err_probe(&pdev->dev, err,
-+				"failed to request irq %i\n", i2c->irq);
-+
-+	i2c->dev = &pdev->dev;
-+	init_completion(&i2c->complete);
-+	platform_set_drvdata(pdev, i2c);
-+
-+	*pi2c = i2c;
-+	return 0;
-+}
-diff --git a/drivers/i2c/busses/i2c-viai2c-common.h b/drivers/i2c/busses/i2c-viai2c-common.h
-new file mode 100644
-index 000000000000..f3dcc609679e
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-viai2c-common.h
-@@ -0,0 +1,72 @@
-+/* SPDX-License-Identifier: GPL-2.0-or-later */
-+#ifndef __I2C_VIAI2C_COMMON_H_
-+#define __I2C_VIAI2C_COMMON_H_
-+
-+#include <linux/delay.h>
-+#include <linux/err.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/module.h>
-+#include <linux/of_irq.h>
-+#include <linux/platform_device.h>
-+
-+/* REG_CR Bit fields */
-+#define VIAI2C_REG_CR		0x00
-+#define VIAI2C_CR_ENABLE		BIT(0)
-+#define VIAI2C_CR_RX_END		BIT(1)
-+#define VIAI2C_CR_TX_END		BIT(2)
-+#define VIAI2C_CR_END_MASK		GENMASK(2, 1)
-+#define VIAI2C_CR_CPU_RDY		BIT(3)
-+
-+/* REG_TCR Bit fields */
-+#define VIAI2C_REG_TCR		0x02
-+#define VIAI2C_TCR_HS_MODE		BIT(13)
-+#define VIAI2C_TCR_MASTER_READ		BIT(14)
-+#define VIAI2C_TCR_FAST			BIT(15)
-+
-+/* REG_CSR Bit fields */
-+#define VIAI2C_REG_CSR		0x04
-+#define VIAI2C_CSR_RCV_NOT_ACK		BIT(0)
-+#define VIAI2C_CSR_READY_MASK		BIT(1)
-+
-+/* REG_ISR Bit fields */
-+#define VIAI2C_REG_ISR		0x06
-+#define VIAI2C_ISR_NACK_ADDR		BIT(0)
-+#define VIAI2C_ISR_BYTE_END		BIT(1)
-+#define VIAI2C_ISR_SCL_TIMEOUT		BIT(2)
-+#define VIAI2C_ISR_MASK_ALL		GENMASK(2, 0)
-+
-+/* REG_IMR Bit fields */
-+#define VIAI2C_REG_IMR		0x08
-+#define VIAI2C_IMR_ADDRNACK		BIT(0)
-+#define VIAI2C_IMR_BYTE			BIT(1)
-+#define VIAI2C_IMR_SCL_TIMEOUT		BIT(2)
-+#define VIAI2C_IMR_ENABLE_ALL		GENMASK(2, 0)
-+
-+#define VIAI2C_REG_CDR		0x0A
-+#define VIAI2C_REG_TR		0x0C
-+#define VIAI2C_REG_MCR		0x0E
-+
-+enum {
-+	VIAI2C_PLAT_WMT = 1,
-+};
-+
-+struct viai2c {
-+	struct i2c_adapter	adapter;
-+	struct completion	complete;
-+	struct device		*dev;
-+	void __iomem		*base;
-+	struct clk		*clk;
-+	u16			tcr;
-+	int			irq;
-+	u16			cmd_status;
-+	u8			platform;
-+};
-+
-+int viai2c_wait_bus_ready(struct viai2c *i2c);
-+int viai2c_wait_status(struct viai2c *i2c, u8 status);
-+int viai2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num);
-+int viai2c_init(struct platform_device *pdev, struct viai2c **pi2c);
-+
-+#endif
-diff --git a/drivers/i2c/busses/i2c-wmt-plt.c b/drivers/i2c/busses/i2c-wmt-plt.c
-new file mode 100644
-index 000000000000..1789156a656e
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-wmt-plt.c
-@@ -0,0 +1,139 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ *  Wondermedia I2C Master Mode Driver
-+ *
-+ *  Copyright (C) 2012 Tony Prisk <linux@prisktech.co.nz>
-+ *
-+ *  Derived from GPLv2+ licensed source:
-+ *  - Copyright (C) 2008 WonderMedia Technologies, Inc.
-+ */
-+
-+#include <linux/clk.h>
-+#include <linux/of.h>
-+#include <linux/of_address.h>
-+#include "i2c-viai2c-common.h"
-+
-+#define WMTI2C_REG_SLAVE_CR	0x10
-+#define WMTI2C_REG_SLAVE_SR	0x12
-+#define WMTI2C_REG_SLAVE_ISR	0x14
-+#define WMTI2C_REG_SLAVE_IMR	0x16
-+#define WMTI2C_REG_SLAVE_DR	0x18
-+#define WMTI2C_REG_SLAVE_TR	0x1A
-+
-+/* REG_TR */
-+#define WMTI2C_SCL_TIMEOUT(x)		(((x) & 0xFF) << 8)
-+#define WMTI2C_TR_STD			0x0064
-+#define WMTI2C_TR_HS			0x0019
-+
-+/* REG_MCR */
-+#define WMTI2C_MCR_APB_96M		7
-+#define WMTI2C_MCR_APB_166M		12
-+
-+#define wmt_i2c viai2c
-+
-+static u32 wmt_i2c_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_NOSTART;
-+}
-+
-+static const struct i2c_algorithm wmt_i2c_algo = {
-+	.master_xfer	= viai2c_xfer,
-+	.functionality	= wmt_i2c_func,
-+};
-+
-+static int wmt_i2c_reset_hardware(struct wmt_i2c *i2c)
-+{
-+	int err;
-+	void __iomem *base = i2c->base;
-+
-+	err = clk_prepare_enable(i2c->clk);
-+	if (err) {
-+		dev_err(i2c->dev, "failed to enable clock\n");
-+		return err;
-+	}
-+
-+	err = clk_set_rate(i2c->clk, 20000000);
-+	if (err) {
-+		dev_err(i2c->dev, "failed to set clock = 20Mhz\n");
-+		clk_disable_unprepare(i2c->clk);
-+		return err;
-+	}
-+
-+	writew(0, base + VIAI2C_REG_CR);
-+	writew(WMTI2C_MCR_APB_166M, base + VIAI2C_REG_MCR);
-+	writew(VIAI2C_ISR_MASK_ALL, base + VIAI2C_REG_ISR);
-+	writew(VIAI2C_IMR_ENABLE_ALL, base + VIAI2C_REG_IMR);
-+	writew(VIAI2C_CR_ENABLE, base + VIAI2C_REG_CR);
-+	readw(base + VIAI2C_REG_CSR);		/* read clear */
-+	writew(VIAI2C_ISR_MASK_ALL, base + VIAI2C_REG_ISR);
-+
-+	if (i2c->tcr == VIAI2C_TCR_FAST)
-+		writew(WMTI2C_SCL_TIMEOUT(128) | WMTI2C_TR_HS,
-+				base + VIAI2C_REG_TR);
-+	else
-+		writew(WMTI2C_SCL_TIMEOUT(128) | WMTI2C_TR_STD,
-+				base + VIAI2C_REG_TR);
-+
-+	return 0;
-+}
-+
-+static int wmt_i2c_probe(struct platform_device *pdev)
-+{
-+	struct device_node *np = pdev->dev.of_node;
-+	struct wmt_i2c *i2c;
-+	struct i2c_adapter *adap;
-+	int err;
-+	u32 clk_rate;
-+
-+	err = viai2c_init(pdev, &i2c);
-+	if (err)
-+		return err;
-+
-+	i2c->platform = VIAI2C_PLAT_WMT;
-+
-+	i2c->clk = of_clk_get(np, 0);
-+	if (IS_ERR(i2c->clk)) {
-+		dev_err(&pdev->dev, "unable to request clock\n");
-+		return PTR_ERR(i2c->clk);
-+	}
-+
-+	err = of_property_read_u32(np, "clock-frequency", &clk_rate);
-+	if (!err && (clk_rate == I2C_MAX_FAST_MODE_FREQ))
-+		i2c->tcr = VIAI2C_TCR_FAST;
-+
-+	adap = &i2c->adapter;
-+	i2c_set_adapdata(adap, i2c);
-+	strscpy(adap->name, "WMT I2C adapter", sizeof(adap->name));
-+	adap->owner = THIS_MODULE;
-+	adap->algo = &wmt_i2c_algo;
-+	adap->dev.parent = &pdev->dev;
-+	adap->dev.of_node = pdev->dev.of_node;
-+
-+	err = wmt_i2c_reset_hardware(i2c);
-+	if (err) {
-+		dev_err(&pdev->dev, "error initializing hardware\n");
-+		return err;
-+	}
-+
-+	return devm_i2c_add_adapter(&pdev->dev, &i2c->adapter);
-+}
-+
-+static const struct of_device_id wmt_i2c_dt_ids[] = {
-+	{ .compatible = "wm,wm8505-i2c" },
-+	{ /* Sentinel */ },
-+};
-+
-+static struct platform_driver wmt_i2c_driver = {
-+	.probe		= wmt_i2c_probe,
-+	.driver		= {
-+		.name	= "wmt-i2c",
-+		.of_match_table = wmt_i2c_dt_ids,
-+	},
-+};
-+
-+module_platform_driver(wmt_i2c_driver);
-+
-+MODULE_DESCRIPTION("Wondermedia I2C master-mode bus adapter");
-+MODULE_AUTHOR("Tony Prisk <linux@prisktech.co.nz>");
-+MODULE_LICENSE("GPL");
-+MODULE_DEVICE_TABLE(of, wmt_i2c_dt_ids);
-diff --git a/drivers/i2c/busses/i2c-wmt.c b/drivers/i2c/busses/i2c-wmt.c
-deleted file mode 100644
-index 3dea153c62aa..000000000000
---- a/drivers/i2c/busses/i2c-wmt.c
-+++ /dev/null
-@@ -1,431 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0-or-later
--/*
-- *  Wondermedia I2C Master Mode Driver
-- *
-- *  Copyright (C) 2012 Tony Prisk <linux@prisktech.co.nz>
-- *
-- *  Derived from GPLv2+ licensed source:
-- *  - Copyright (C) 2008 WonderMedia Technologies, Inc.
-- */
--
--#include <linux/clk.h>
--#include <linux/delay.h>
--#include <linux/err.h>
--#include <linux/i2c.h>
--#include <linux/interrupt.h>
--#include <linux/io.h>
--#include <linux/module.h>
--#include <linux/of.h>
--#include <linux/of_address.h>
--#include <linux/of_irq.h>
--#include <linux/platform_device.h>
--
--#define WMTI2C_REG_CR		0x00
--#define WMTI2C_REG_TCR		0x02
--#define WMTI2C_REG_CSR		0x04
--#define WMTI2C_REG_ISR		0x06
--#define WMTI2C_REG_IMR		0x08
--#define WMTI2C_REG_CDR		0x0A
--#define WMTI2C_REG_TR		0x0C
--#define WMTI2C_REG_MCR		0x0E
--#define WMTI2C_REG_SLAVE_CR	0x10
--#define WMTI2C_REG_SLAVE_SR	0x12
--#define WMTI2C_REG_SLAVE_ISR	0x14
--#define WMTI2C_REG_SLAVE_IMR	0x16
--#define WMTI2C_REG_SLAVE_DR	0x18
--#define WMTI2C_REG_SLAVE_TR	0x1A
--
--/* REG_CR Bit fields */
--#define WMTI2C_CR_TX_NEXT_ACK		0x0000
--#define WMTI2C_CR_ENABLE		0x0001
--#define WMTI2C_CR_TX_NEXT_NO_ACK	0x0002
--#define WMTI2C_CR_TX_END		0x0004
--#define WMTI2C_CR_CPU_RDY		0x0008
--#define WMTI2C_SLAV_MODE_SEL		0x8000
--
--/* REG_TCR Bit fields */
--#define WMTI2C_TCR_STANDARD_MODE	0x0000
--#define WMTI2C_TCR_MASTER_WRITE		0x0000
--#define WMTI2C_TCR_HS_MODE		0x2000
--#define WMTI2C_TCR_MASTER_READ		0x4000
--#define WMTI2C_TCR_FAST_MODE		0x8000
--#define WMTI2C_TCR_SLAVE_ADDR_MASK	0x007F
--
--/* REG_ISR Bit fields */
--#define WMTI2C_ISR_NACK_ADDR		0x0001
--#define WMTI2C_ISR_BYTE_END		0x0002
--#define WMTI2C_ISR_SCL_TIMEOUT		0x0004
--#define WMTI2C_ISR_WRITE_ALL		0x0007
--
--/* REG_IMR Bit fields */
--#define WMTI2C_IMR_ENABLE_ALL		0x0007
--
--/* REG_CSR Bit fields */
--#define WMTI2C_CSR_RCV_NOT_ACK		0x0001
--#define WMTI2C_CSR_RCV_ACK_MASK		0x0001
--#define WMTI2C_CSR_READY_MASK		0x0002
--
--/* REG_TR */
--#define WMTI2C_SCL_TIMEOUT(x)		(((x) & 0xFF) << 8)
--#define WMTI2C_TR_STD			0x0064
--#define WMTI2C_TR_HS			0x0019
--
--/* REG_MCR */
--#define WMTI2C_MCR_APB_96M		7
--#define WMTI2C_MCR_APB_166M		12
--
--#define WMT_I2C_TIMEOUT		(msecs_to_jiffies(1000))
--
--struct wmt_i2c {
--	struct i2c_adapter	adapter;
--	struct completion	complete;
--	struct device		*dev;
--	void __iomem		*base;
--	struct clk		*clk;
--	u16			tcr;
--	int			irq;
--	u16			cmd_status;
--};
--
--static int wmt_i2c_wait_bus_not_busy(struct wmt_i2c *i2c)
--{
--	unsigned long timeout;
--	void __iomem *base = i2c->base;
--
--	timeout = jiffies + WMT_I2C_TIMEOUT;
--	while (!(readw(base + WMTI2C_REG_CSR) & WMTI2C_CSR_READY_MASK)) {
--		if (time_after(jiffies, timeout)) {
--			dev_warn(i2c->dev,
--					"timeout waiting for bus ready\n");
--			return -EBUSY;
--		}
--		msleep(20);
--	}
--
--	return 0;
--}
--
--static int wmt_check_status(struct wmt_i2c *i2c)
--{
--	int ret = 0;
--	unsigned long wait_result;
--
--	wait_result = wait_for_completion_timeout(&i2c->complete,
--						msecs_to_jiffies(500));
--	if (!wait_result)
--		return -ETIMEDOUT;
--
--	if (i2c->cmd_status & WMTI2C_ISR_NACK_ADDR)
--		ret = -EIO;
--
--	if (i2c->cmd_status & WMTI2C_ISR_SCL_TIMEOUT)
--		ret = -ETIMEDOUT;
--
--	return ret;
--}
--
--static int wmt_i2c_write(struct wmt_i2c *i2c, struct i2c_msg *pmsg,
--			 int last)
--{
--	u16 val, tcr_val = i2c->tcr;
--	int ret;
--	int xfer_len = 0;
--	void __iomem *base = i2c->base;
--
--	if (pmsg->len == 0) {
--		/*
--		 * We still need to run through the while (..) once, so
--		 * start at -1 and break out early from the loop
--		 */
--		xfer_len = -1;
--		writew(0, base + WMTI2C_REG_CDR);
--	} else {
--		writew(pmsg->buf[0] & 0xFF, base + WMTI2C_REG_CDR);
--	}
--
--	if (!(pmsg->flags & I2C_M_NOSTART)) {
--		val = readw(base + WMTI2C_REG_CR);
--		val &= ~WMTI2C_CR_TX_END;
--		val |= WMTI2C_CR_CPU_RDY;
--		writew(val, base + WMTI2C_REG_CR);
--	}
--
--	reinit_completion(&i2c->complete);
--
--	tcr_val |= (WMTI2C_TCR_MASTER_WRITE
--		| (pmsg->addr & WMTI2C_TCR_SLAVE_ADDR_MASK));
--
--	writew(tcr_val, base + WMTI2C_REG_TCR);
--
--	if (pmsg->flags & I2C_M_NOSTART) {
--		val = readw(base + WMTI2C_REG_CR);
--		val |= WMTI2C_CR_CPU_RDY;
--		writew(val, base + WMTI2C_REG_CR);
--	}
--
--	while (xfer_len < pmsg->len) {
--		ret = wmt_check_status(i2c);
--		if (ret)
--			return ret;
--
--		xfer_len++;
--
--		val = readw(base + WMTI2C_REG_CSR);
--		if (val & WMTI2C_CSR_RCV_NOT_ACK) {
--			dev_dbg(i2c->dev, "write RCV NACK error\n");
--			return -EIO;
--		}
--
--		if (pmsg->len == 0) {
--			val = WMTI2C_CR_TX_END | WMTI2C_CR_CPU_RDY
--				| WMTI2C_CR_ENABLE;
--			writew(val, base + WMTI2C_REG_CR);
--			break;
--		}
--
--		if (xfer_len == pmsg->len) {
--			if (last != 1)
--				writew(WMTI2C_CR_ENABLE, base + WMTI2C_REG_CR);
--		} else {
--			writew(pmsg->buf[xfer_len] & 0xFF,
--					base + WMTI2C_REG_CDR);
--			writew(WMTI2C_CR_CPU_RDY | WMTI2C_CR_ENABLE,
--					base + WMTI2C_REG_CR);
--		}
--	}
--
--	return 0;
--}
--
--static int wmt_i2c_read(struct wmt_i2c *i2c, struct i2c_msg *pmsg)
--{
--	u16 val, tcr_val = i2c->tcr;
--	int ret;
--	u32 xfer_len = 0;
--	void __iomem *base = i2c->base;
--
--	val = readw(base + WMTI2C_REG_CR);
--	val &= ~(WMTI2C_CR_TX_END | WMTI2C_CR_TX_NEXT_NO_ACK);
--
--	if (!(pmsg->flags & I2C_M_NOSTART))
--		val |= WMTI2C_CR_CPU_RDY;
--
--	if (pmsg->len == 1)
--		val |= WMTI2C_CR_TX_NEXT_NO_ACK;
--
--	writew(val, base + WMTI2C_REG_CR);
--
--	reinit_completion(&i2c->complete);
--
--	tcr_val |= WMTI2C_TCR_MASTER_READ
--		| (pmsg->addr & WMTI2C_TCR_SLAVE_ADDR_MASK);
--
--	writew(tcr_val, base + WMTI2C_REG_TCR);
--
--	if (pmsg->flags & I2C_M_NOSTART) {
--		val = readw(base + WMTI2C_REG_CR);
--		val |= WMTI2C_CR_CPU_RDY;
--		writew(val, base + WMTI2C_REG_CR);
--	}
--
--	while (xfer_len < pmsg->len) {
--		ret = wmt_check_status(i2c);
--		if (ret)
--			return ret;
--
--		pmsg->buf[xfer_len] = readw(base + WMTI2C_REG_CDR) >> 8;
--		xfer_len++;
--
--		val = readw(base + WMTI2C_REG_CR) | WMTI2C_CR_CPU_RDY;
--		if (xfer_len == pmsg->len - 1)
--			val |= WMTI2C_CR_TX_NEXT_NO_ACK;
--		writew(val, base + WMTI2C_REG_CR);
--	}
--
--	return 0;
--}
--
--static int wmt_i2c_xfer(struct i2c_adapter *adap,
--			struct i2c_msg msgs[],
--			int num)
--{
--	struct i2c_msg *pmsg;
--	int i;
--	int ret = 0;
--	struct wmt_i2c *i2c = i2c_get_adapdata(adap);
--
--	for (i = 0; ret >= 0 && i < num; i++) {
--		pmsg = &msgs[i];
--		if (!(pmsg->flags & I2C_M_NOSTART)) {
--			ret = wmt_i2c_wait_bus_not_busy(i2c);
--			if (ret < 0)
--				return ret;
--		}
--
--		if (pmsg->flags & I2C_M_RD)
--			ret = wmt_i2c_read(i2c, pmsg);
--		else
--			ret = wmt_i2c_write(i2c, pmsg, (i + 1) == num);
--	}
--
--	return (ret < 0) ? ret : i;
--}
--
--static u32 wmt_i2c_func(struct i2c_adapter *adap)
--{
--	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_NOSTART;
--}
--
--static const struct i2c_algorithm wmt_i2c_algo = {
--	.master_xfer	= wmt_i2c_xfer,
--	.functionality	= wmt_i2c_func,
--};
--
--static irqreturn_t wmt_i2c_isr(int irq, void *data)
--{
--	struct wmt_i2c *i2c = data;
--
--	/* save the status and write-clear it */
--	i2c->cmd_status = readw(i2c->base + WMTI2C_REG_ISR);
--	writew(i2c->cmd_status, i2c->base + WMTI2C_REG_ISR);
--
--	complete(&i2c->complete);
--
--	return IRQ_HANDLED;
--}
--
--int wmt_i2c_init(struct platform_device *pdev, struct wmt_i2c **pi2c)
--{
--	int err;
--	int irq_flags;
--	struct wmt_i2c *i2c;
--	struct device_node *np = pdev->dev.of_node;
--
--	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
--	if (!i2c)
--		return -ENOMEM;
--
--	i2c->base = devm_platform_get_and_ioremap_resource(pdev, 0, NULL);
--	if (IS_ERR(i2c->base))
--		return PTR_ERR(i2c->base);
--
--	if (np) {
--		irq_flags = 0;
--		i2c->irq = irq_of_parse_and_map(np, 0);
--		if (!i2c->irq)
--			return -EINVAL;
--	} else {
--		irq_flags = IRQF_SHARED;
--		i2c->irq = platform_get_irq(pdev, 0);
--		if (i2c->irq < 0)
--			return i2c->irq;
--	}
--
--	err = devm_request_irq(&pdev->dev, i2c->irq, wmt_i2c_isr,
--					irq_flags, pdev->name, i2c);
--	if (err)
--		return dev_err_probe(&pdev->dev, err,
--				"failed to request irq %i\n", i2c->irq);
--
--	i2c->dev = &pdev->dev;
--	init_completion(&i2c->complete);
--	platform_set_drvdata(pdev, i2c);
--
--	*pi2c = i2c;
--	return 0;
--}
--
--static int wmt_i2c_reset_hardware(struct wmt_i2c *i2c)
--{
--	int err;
--	void __iomem *base = i2c->base;
--
--	err = clk_prepare_enable(i2c->clk);
--	if (err) {
--		dev_err(i2c->dev, "failed to enable clock\n");
--		return err;
--	}
--
--	err = clk_set_rate(i2c->clk, 20000000);
--	if (err) {
--		dev_err(i2c->dev, "failed to set clock = 20Mhz\n");
--		clk_disable_unprepare(i2c->clk);
--		return err;
--	}
--
--	writew(0, base + WMTI2C_REG_CR);
--	writew(WMTI2C_MCR_APB_166M, base + WMTI2C_REG_MCR);
--	writew(WMTI2C_ISR_WRITE_ALL, base + WMTI2C_REG_ISR);
--	writew(WMTI2C_IMR_ENABLE_ALL, base + WMTI2C_REG_IMR);
--	writew(WMTI2C_CR_ENABLE, base + WMTI2C_REG_CR);
--	readw(base + WMTI2C_REG_CSR);		/* read clear */
--	writew(WMTI2C_ISR_WRITE_ALL, base + WMTI2C_REG_ISR);
--
--	if (i2c->tcr == WMTI2C_TCR_FAST_MODE)
--		writew(WMTI2C_SCL_TIMEOUT(128) | WMTI2C_TR_HS,
--				base + WMTI2C_REG_TR);
--	else
--		writew(WMTI2C_SCL_TIMEOUT(128) | WMTI2C_TR_STD,
--				base + WMTI2C_REG_TR);
--
--	return 0;
--}
--
--static int wmt_i2c_probe(struct platform_device *pdev)
--{
--	struct device_node *np = pdev->dev.of_node;
--	struct wmt_i2c *i2c;
--	struct i2c_adapter *adap;
--	int err;
--	u32 clk_rate;
--
--	err = wmt_i2c_init(pdev, &i2c);
--	if (err)
--		return err;
--
--	i2c->clk = of_clk_get(np, 0);
--	if (IS_ERR(i2c->clk)) {
--		dev_err(&pdev->dev, "unable to request clock\n");
--		return PTR_ERR(i2c->clk);
--	}
--
--	err = of_property_read_u32(np, "clock-frequency", &clk_rate);
--	if (!err && (clk_rate == I2C_MAX_FAST_MODE_FREQ))
--		i2c->tcr = WMTI2C_TCR_FAST_MODE;
--
--	adap = &i2c->adapter;
--	i2c_set_adapdata(adap, i2c);
--	strscpy(adap->name, "WMT I2C adapter", sizeof(adap->name));
--	adap->owner = THIS_MODULE;
--	adap->algo = &wmt_i2c_algo;
--	adap->dev.parent = &pdev->dev;
--	adap->dev.of_node = pdev->dev.of_node;
--
--	err = wmt_i2c_reset_hardware(i2c);
--	if (err) {
--		dev_err(&pdev->dev, "error initializing hardware\n");
--		return err;
--	}
--
--	return devm_i2c_add_adapter(&pdev->dev, &i2c->adapter);
--}
--
--static const struct of_device_id wmt_i2c_dt_ids[] = {
--	{ .compatible = "wm,wm8505-i2c" },
--	{ /* Sentinel */ },
--};
--
--static struct platform_driver wmt_i2c_driver = {
--	.probe		= wmt_i2c_probe,
--	.driver		= {
--		.name	= "wmt-i2c",
--		.of_match_table = wmt_i2c_dt_ids,
--	},
--};
--
--module_platform_driver(wmt_i2c_driver);
--
--MODULE_DESCRIPTION("Wondermedia I2C master-mode bus adapter");
--MODULE_AUTHOR("Tony Prisk <linux@prisktech.co.nz>");
--MODULE_LICENSE("GPL");
--MODULE_DEVICE_TABLE(of, wmt_i2c_dt_ids);
++		} else if (buf_len > 0) {
+ 			/* more bytes to be written */
+ 			dev->status |= STATUS_WRITE_IN_PROGRESS;
+ 			break;
+@@ -495,6 +501,13 @@ i2c_dw_recv_len(struct dw_i2c_dev *dev, u8 len)
+ 	msgs[dev->msg_read_idx].len = len;
+ 	msgs[dev->msg_read_idx].flags &= ~I2C_M_RECV_LEN;
+ 
++	/*
++	 * Received buffer length, re-enable TX_EMPTY interrupt
++	 * to resume the SMBUS transaction.
++	 */
++	regmap_update_bits(dev->map, DW_IC_INTR_MASK, DW_IC_INTR_TX_EMPTY,
++			   DW_IC_INTR_TX_EMPTY);
++
+ 	return len;
+ }
+ 
 -- 
-2.34.1
+2.25.1
 
