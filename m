@@ -2,40 +2,40 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 418D1C41535
-	for <linux-i2c@archiver.kernel.org>; Thu,  2 Nov 2023 02:54:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D391AC001B2
+	for <linux-i2c@archiver.kernel.org>; Thu,  2 Nov 2023 02:54:13 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348179AbjKBCyL (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Wed, 1 Nov 2023 22:54:11 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33952 "EHLO
+        id S1348186AbjKBCyO (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Wed, 1 Nov 2023 22:54:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347257AbjKBCyK (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Wed, 1 Nov 2023 22:54:10 -0400
+        with ESMTP id S1348183AbjKBCyN (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Wed, 1 Nov 2023 22:54:13 -0400
 Received: from mx2.zhaoxin.com (mx2.zhaoxin.com [203.110.167.99])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11C76B9
-        for <linux-i2c@vger.kernel.org>; Wed,  1 Nov 2023 19:54:07 -0700 (PDT)
-X-ASG-Debug-ID: 1698893644-1eb14e538e03af0002-PT6Irj
-Received: from ZXSHMBX2.zhaoxin.com (ZXSHMBX2.zhaoxin.com [10.28.252.164]) by mx2.zhaoxin.com with ESMTP id X40x139H80wrFMTX (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO); Thu, 02 Nov 2023 10:54:04 +0800 (CST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 745C1110
+        for <linux-i2c@vger.kernel.org>; Wed,  1 Nov 2023 19:54:09 -0700 (PDT)
+X-ASG-Debug-ID: 1698893644-1eb14e538e03af0004-PT6Irj
+Received: from ZXSHMBX2.zhaoxin.com (ZXSHMBX2.zhaoxin.com [10.28.252.164]) by mx2.zhaoxin.com with ESMTP id H5BB3rbabDyTXfVr (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO); Thu, 02 Nov 2023 10:54:05 +0800 (CST)
 X-Barracuda-Envelope-From: HansHu-oc@zhaoxin.com
 X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.164
 Received: from ZXBJMBX03.zhaoxin.com (10.29.252.7) by ZXSHMBX2.zhaoxin.com
  (10.28.252.164) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Thu, 2 Nov
- 2023 10:54:04 +0800
+ 2023 10:54:05 +0800
 Received: from ml-HP-ProDesk-680-G4-MT.zhaoxin.com (10.28.66.68) by
  ZXBJMBX03.zhaoxin.com (10.29.252.7) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Thu, 2 Nov 2023 10:54:03 +0800
+ 15.1.2507.27; Thu, 2 Nov 2023 10:54:04 +0800
 X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.164
 From:   Hans Hu <hanshu-oc@zhaoxin.com>
 X-Barracuda-RBL-Trusted-Forwarder: 10.29.252.7
 To:     <andi.shyti@kernel.org>, <wsa@kernel.org>,
         <linux-i2c@vger.kernel.org>
 CC:     <cobechen@zhaoxin.com>
-Subject: [PATCH v3 03/12] i2c: wmt: Reduce redundant: clock mode setting
-Date:   Thu, 2 Nov 2023 10:53:53 +0800
-X-ASG-Orig-Subj: [PATCH v3 03/12] i2c: wmt: Reduce redundant: clock mode setting
-Message-ID: <b9b9336a2d24ceb23fb773932e7836b0cb04f372.1698889581.git.hanshu-oc@zhaoxin.com>
+Subject: [PATCH v3 05/12] i2c: wmt: Reduce redundant: function parameter
+Date:   Thu, 2 Nov 2023 10:53:55 +0800
+X-ASG-Orig-Subj: [PATCH v3 05/12] i2c: wmt: Reduce redundant: function parameter
+Message-ID: <a37db0cdf8d5a43cd90430361aac24cb4362847b.1698889581.git.hanshu-oc@zhaoxin.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <cover.1698889581.git.hanshu-oc@zhaoxin.com>
 References: <cover.1698889581.git.hanshu-oc@zhaoxin.com>
@@ -46,11 +46,11 @@ X-Originating-IP: [10.28.66.68]
 X-ClientProxiedBy: zxbjmbx1.zhaoxin.com (10.29.252.163) To
  ZXBJMBX03.zhaoxin.com (10.29.252.7)
 X-Barracuda-Connect: ZXSHMBX2.zhaoxin.com[10.28.252.164]
-X-Barracuda-Start-Time: 1698893644
+X-Barracuda-Start-Time: 1698893645
 X-Barracuda-Encrypted: ECDHE-RSA-AES128-GCM-SHA256
 X-Barracuda-URL: https://10.28.252.36:4443/cgi-mod/mark.cgi
 X-Virus-Scanned: by bsmtpd at zhaoxin.com
-X-Barracuda-Scan-Msg-Size: 3041
+X-Barracuda-Scan-Msg-Size: 2001
 X-Barracuda-BRTS-Status: 0
 X-Barracuda-Bayes: INNOCENT GLOBAL 0.0000 1.0000 -2.0210
 X-Barracuda-Spam-Score: -2.02
@@ -63,105 +63,68 @@ Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-The frequency setting mode is adjusted to reduce the code redundancy,
-and it is also convenient to share with zhaoxin
+Use more appropriate parameter passing to reduce the amount of code
 
 Signed-off-by: Hans Hu <hanshu-oc@zhaoxin.com>
 ---
- drivers/i2c/busses/i2c-wmt.c | 28 +++++++---------------------
- 1 file changed, 7 insertions(+), 21 deletions(-)
+ drivers/i2c/busses/i2c-wmt.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-wmt.c b/drivers/i2c/busses/i2c-wmt.c
-index 1b31330ba4eb..a44ce5fdde8a 100644
+index d503e85752ea..ec2a8da134e5 100644
 --- a/drivers/i2c/busses/i2c-wmt.c
 +++ b/drivers/i2c/busses/i2c-wmt.c
-@@ -74,9 +74,6 @@
- #define MCR_APB_96M		7
- #define MCR_APB_166M		12
+@@ -122,10 +122,9 @@ static int wmt_check_status(struct wmt_i2c_dev *i2c_dev)
+ 	return ret;
+ }
  
--#define I2C_MODE_STANDARD	0
--#define I2C_MODE_FAST		1
--
- #define WMT_I2C_TIMEOUT		(msecs_to_jiffies(1000))
- 
- struct wmt_i2c_dev {
-@@ -85,7 +82,7 @@ struct wmt_i2c_dev {
- 	struct device		*dev;
- 	void __iomem		*base;
- 	struct clk		*clk;
--	int			mode;
-+	u16			tcr;
- 	int			irq;
- 	u16			cmd_status;
- };
-@@ -129,7 +126,7 @@ static int wmt_i2c_write(struct i2c_adapter *adap, struct i2c_msg *pmsg,
+-static int wmt_i2c_write(struct i2c_adapter *adap, struct i2c_msg *pmsg,
++static int wmt_i2c_write(struct wmt_i2c_dev *i2c_dev, struct i2c_msg *pmsg,
  			 int last)
  {
- 	struct wmt_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
--	u16 val, tcr_val;
-+	u16 val, tcr_val = i2c_dev->tcr;
+-	struct wmt_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
+ 	u16 val, tcr_val = i2c_dev->tcr;
  	int ret;
  	int xfer_len = 0;
- 
-@@ -156,11 +153,6 @@ static int wmt_i2c_write(struct i2c_adapter *adap, struct i2c_msg *pmsg,
- 
- 	reinit_completion(&i2c_dev->complete);
- 
--	if (i2c_dev->mode == I2C_MODE_STANDARD)
--		tcr_val = TCR_STANDARD_MODE;
--	else
--		tcr_val = TCR_FAST_MODE;
--
- 	tcr_val |= (TCR_MASTER_WRITE | (pmsg->addr & TCR_SLAVE_ADDR_MASK));
- 
- 	writew(tcr_val, i2c_dev->base + REG_TCR);
-@@ -207,7 +199,7 @@ static int wmt_i2c_read(struct i2c_adapter *adap, struct i2c_msg *pmsg,
- 			int last)
- {
- 	struct wmt_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
--	u16 val, tcr_val;
-+	u16 val, tcr_val = i2c_dev->tcr;
- 	int ret;
- 	u32 xfer_len = 0;
- 
-@@ -233,11 +225,6 @@ static int wmt_i2c_read(struct i2c_adapter *adap, struct i2c_msg *pmsg,
- 
- 	reinit_completion(&i2c_dev->complete);
- 
--	if (i2c_dev->mode == I2C_MODE_STANDARD)
--		tcr_val = TCR_STANDARD_MODE;
--	else
--		tcr_val = TCR_FAST_MODE;
--
- 	tcr_val |= TCR_MASTER_READ | (pmsg->addr & TCR_SLAVE_ADDR_MASK);
- 
- 	writew(tcr_val, i2c_dev->base + REG_TCR);
-@@ -346,10 +333,10 @@ static int wmt_i2c_reset_hardware(struct wmt_i2c_dev *i2c_dev)
- 	readw(i2c_dev->base + REG_CSR);		/* read clear */
- 	writew(ISR_WRITE_ALL, i2c_dev->base + REG_ISR);
- 
--	if (i2c_dev->mode == I2C_MODE_STANDARD)
--		writew(SCL_TIMEOUT(128) | TR_STD, i2c_dev->base + REG_TR);
--	else
-+	if (i2c_dev->tcr == TCR_FAST_MODE)
- 		writew(SCL_TIMEOUT(128) | TR_HS, i2c_dev->base + REG_TR);
-+	else
-+		writew(SCL_TIMEOUT(128) | TR_STD, i2c_dev->base + REG_TR);
- 
+@@ -192,10 +191,8 @@ static int wmt_i2c_write(struct i2c_adapter *adap, struct i2c_msg *pmsg,
  	return 0;
  }
-@@ -382,10 +369,9 @@ static int wmt_i2c_probe(struct platform_device *pdev)
- 		return PTR_ERR(i2c_dev->clk);
+ 
+-static int wmt_i2c_read(struct i2c_adapter *adap, struct i2c_msg *pmsg,
+-			int last)
++static int wmt_i2c_read(struct wmt_i2c_dev *i2c_dev, struct i2c_msg *pmsg)
+ {
+-	struct wmt_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
+ 	u16 val, tcr_val = i2c_dev->tcr;
+ 	int ret;
+ 	u32 xfer_len = 0;
+@@ -245,13 +242,11 @@ static int wmt_i2c_xfer(struct i2c_adapter *adap,
+ 			int num)
+ {
+ 	struct i2c_msg *pmsg;
+-	int i, is_last;
++	int i;
+ 	int ret = 0;
+ 	struct wmt_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
+ 
+ 	for (i = 0; ret >= 0 && i < num; i++) {
+-		is_last = ((i + 1) == num);
+-
+ 		pmsg = &msgs[i];
+ 		if (!(pmsg->flags & I2C_M_NOSTART)) {
+ 			ret = wmt_i2c_wait_bus_not_busy(i2c_dev);
+@@ -260,9 +255,9 @@ static int wmt_i2c_xfer(struct i2c_adapter *adap,
+ 		}
+ 
+ 		if (pmsg->flags & I2C_M_RD)
+-			ret = wmt_i2c_read(adap, pmsg, is_last);
++			ret = wmt_i2c_read(i2c_dev, pmsg);
+ 		else
+-			ret = wmt_i2c_write(adap, pmsg, is_last);
++			ret = wmt_i2c_write(i2c_dev, pmsg, (i + 1) == num);
  	}
  
--	i2c_dev->mode = I2C_MODE_STANDARD;
- 	err = of_property_read_u32(np, "clock-frequency", &clk_rate);
- 	if (!err && (clk_rate == I2C_MAX_FAST_MODE_FREQ))
--		i2c_dev->mode = I2C_MODE_FAST;
-+		i2c_dev->tcr = TCR_FAST_MODE;
- 
- 	i2c_dev->dev = &pdev->dev;
- 
+ 	return (ret < 0) ? ret : i;
 -- 
 2.34.1
 
