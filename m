@@ -2,58 +2,70 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 19478C4332F
-	for <linux-i2c@archiver.kernel.org>; Sat,  4 Nov 2023 04:57:57 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C4B74C4332F
+	for <linux-i2c@archiver.kernel.org>; Sun,  5 Nov 2023 13:18:16 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230465AbjKDE56 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Sat, 4 Nov 2023 00:57:58 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40622 "EHLO
+        id S229779AbjKENSR (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Sun, 5 Nov 2023 08:18:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229509AbjKDE55 (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Sat, 4 Nov 2023 00:57:57 -0400
-X-Greylist: delayed 4258 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 03 Nov 2023 21:57:55 PDT
-Received: from mail.profitpathwaygo.com (mail.profitpathwaygo.com [141.94.21.238])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36B7B112
-        for <linux-i2c@vger.kernel.org>; Fri,  3 Nov 2023 21:57:55 -0700 (PDT)
-Received: by mail.profitpathwaygo.com (Postfix, from userid 1002)
-        id CCB824DC64; Mon, 30 Oct 2023 08:31:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=profitpathwaygo.com;
-        s=mail; t=1698654919;
-        bh=qp3Ofokho6Ql+WtI8ZPVilyHYhskXL7fod7u9CWs8W4=;
-        h=Date:From:To:Subject:From;
-        b=RYJXC/pwGO3s0Gt5S8DMCx/VxDWz9ph82AHFaUmJDuuOenBDXsJ0qd87slcoBL2e/
-         Lwng/Kn2FRMHIVmjgB6nXxMVBzEJchc10Qeqf8kx0aIshRkBfXRV8wy7ux/otoy2sh
-         2cVA75tBDdTczrAdwEN8gzb6gAbPHonVvEzibBriI96OzA3+fLC/3gAqQttP0WbLju
-         W1TYjkMFIoWcMFBQyH+pix8PdbWpmNbw9c5WhxvecRlckzJh8DcDYVlUm8WL1crxZE
-         rMXaL5pQQsdENdf70QLm6xtV4G6CPlGsIW+AYoQBCtTqIZ8X7QNcotWiyzSLuL+DDj
-         3A/0Imup9vUjQ==
-Received: by mail.profitpathwaygo.com for <linux-i2c@vger.kernel.org>; Mon, 30 Oct 2023 08:30:28 GMT
-Message-ID: <20231030074500-0.1.2s.155dq.0.5hgw1dqmu5@profitpathwaygo.com>
-Date:   Mon, 30 Oct 2023 08:30:28 GMT
-From:   "Adam Charachuta" <adam.charachuta@profitpathwaygo.com>
-To:     <linux-i2c@vger.kernel.org>
-Subject: =?UTF-8?Q?S=C5=82owa_kluczowe_do_wypozycjonowania_?=
-X-Mailer: mail.profitpathwaygo.com
+        with ESMTP id S229707AbjKENSR (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Sun, 5 Nov 2023 08:18:17 -0500
+X-Greylist: delayed 1240 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Sun, 05 Nov 2023 05:18:12 PST
+Received: from mx1.mythic-beasts.com (mx1.mythic-beasts.com [IPv6:2a00:1098:0:86:1000:0:2:1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6341BB
+        for <linux-i2c@vger.kernel.org>; Sun,  5 Nov 2023 05:18:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=isbd.co.uk;
+        s=mythic-beasts-k1; h=Subject:To:From:Date;
+        bh=Oi1p78ZkHYyXYvn7ApQPRJ6hOpRX0qKHi7vKVezkmew=; b=gsjvswbb1CK5njjwB9Gzokxs0R
+        RooR4xodWRMGLlHITb7WpWZi1OWRq2RESZ16YFsHFr6C8TtxpIN7Nki0jypxZZ35rF3JlhrK5ca2X
+        aHXQlqhszF5Of3Z/oITnRbUs6c6O5bARIpkUJbe/vWQMZEz6cBEiWiln0c7Ndg9KpPUBkPe1dCEND
+        K1rG8rIVBC2082frYP0oJGFPiN79OtUicAmuzjmoCXMuW/6V+CRFzgchuIbGXQT8BLvi4QWQLmC40
+        veRXIPh6/HTyHnD3IHKLfnBywrRUFSkzOefDOElvN/zqLEEGhzuV0nLklwSXdp4/CVEtMVnC/Et47
+        IKJ/l3HA==;
+Received: by mailhub-cam-d.mythic-beasts.com with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <chris@zbmc.eu>)
+        id 1qzch3-00FC9g-Sb
+        for linux-i2c@vger.kernel.org; Sun, 05 Nov 2023 12:57:33 +0000
+Received: by esprimo.zbmc.eu (Postfix, from userid 1000)
+        id 247742C0746; Sun,  5 Nov 2023 12:57:31 +0000 (GMT)
+Date:   Sun, 5 Nov 2023 12:57:31 +0000
+From:   Chris Green <chris@isbd.co.uk>
+To:     linux-i2c@vger.kernel.org
+Subject: A question about the mutex (or not) in the kernel's I2C handling
+Message-ID: <ZUeRO9txnxdImAJG@esprimo>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-BlackCat-Spam-Score: 7
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Dzie=C5=84 dobry,
+I have spent quite a while searching in places such as stackoverflow
+and in the docmentation at linux.kernel.org but I haven't found a very
+conclusive answer (no to me anyway).
 
-zapozna=C5=82em si=C4=99 z Pa=C5=84stwa ofert=C4=85 i z przyjemno=C5=9Bci=
-=C4=85 przyznaj=C4=99, =C5=BCe przyci=C4=85ga uwag=C4=99 i zach=C4=99ca d=
-o dalszych rozm=C3=B3w.=20
+I have a single I2C bus connected to a single board computer
+(Beaglebone Black) running Debian 11, Kernel: 5.10.168.
 
-Pomy=C5=9Bla=C5=82em, =C5=BCe mo=C5=BCe m=C3=B3g=C5=82bym mie=C4=87 sw=C3=
-=B3j wk=C5=82ad w Pa=C5=84stwa rozw=C3=B3j i pom=C3=B3c dotrze=C4=87 z t=C4=
-=85 ofert=C4=85 do wi=C4=99kszego grona odbiorc=C3=B3w. Pozycjonuj=C4=99 =
-strony www, dzi=C4=99ki czemu generuj=C4=85 =C5=9Bwietny ruch w sieci.
+Is it safe to allow multiple processes to read and write various
+devices on the I2C bus?  This may be either different processes
+accessing the same device or different processes accessing different
+devices on the I2C bus.
 
-Mo=C5=BCemy porozmawia=C4=87 w najbli=C5=BCszym czasie?
+I.e. is there a mutex (or equivalent code) in the Linux Kernel I2C
+drivers that guarantees completion of one process's I2C transaction
+before another one starts?
 
+The information I have managed to find suggests that there is such a
+mutex and that I don't need to make sure my processes don't try to
+read/write the I2C bus simultaneously but I can't find a definitive
+statement to this effect.
 
-Pozdrawiam serdecznie
-Adam Charachuta
+So, I'm sorry to ask such a 'user' question here but I would really
+like a definite answer please.
+
+-- 
+Chris Green
