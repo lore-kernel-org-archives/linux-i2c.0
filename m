@@ -2,44 +2,44 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6DAB3C4167B
-	for <linux-i2c@archiver.kernel.org>; Thu,  9 Nov 2023 18:28:39 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4DCE9C001B2
+	for <linux-i2c@archiver.kernel.org>; Thu,  9 Nov 2023 18:28:41 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345000AbjKIS2k (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 9 Nov 2023 13:28:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33338 "EHLO
+        id S1344938AbjKIS2l (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 9 Nov 2023 13:28:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344978AbjKIS2j (ORCPT
+        with ESMTP id S1344994AbjKIS2j (ORCPT
         <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Nov 2023 13:28:39 -0500
 Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF6F93C05;
-        Thu,  9 Nov 2023 10:28:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85DCA3C03;
+        Thu,  9 Nov 2023 10:28:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1699554516; x=1731090516;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=nsu6XeaiAM+ewQpg64HUre5R+9unzyXbgg5xDRI4JQ0=;
-  b=PHPWAC/5sCmwZPCR7rCnQwpoIp514Ww0k91EDALNpNg/0P+rJtpKhzaL
-   ak32pBUMzE6RnHk9qOLXJSfQc3qyJO3LHJPx8ffFzBKCWq7fz0u0Ebl7q
-   STouDRR1zf7Bx1V6CUFvPud4tPhyoirEo3a7wMUPLYpb1Pd2JnDL+NbPJ
-   WYJj4VLPpErKdgSDtqH+0Ui+pe8VJpZxA2MElgYh5y1wiJNjX5h6Gfqrx
-   +4yRhgaXnIP2Fuff3u9gU5uBi0NfUJZJd//KL5VKxx+d4LV4CB7x0A5jB
-   rjHwTC8ItfmevzhAiBZi9m2JYkIQKbqMN8ZQ9bl02G/6qsvz0gDB320Lu
+  t=1699554517; x=1731090517;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=VybPoNP5md15sgQ1g0rtbYZ5wBZmF9p9FbvqUQhY8So=;
+  b=RZiNyVzikUZ/8421TgRadYOXQlioHwesRSS8BiAQgmQbAizYsij4XJS+
+   ChToDPE4DOJr2D3zMDr+gt/rfxM59u+wgh9kjOh5BnERDSaCNyagZHy19
+   7pC7zGgvkgT2e4udxULajRuKlshULFfho+6hWoyT//t01YjNfMIYJ+Ybe
+   th8GZmrlaiBF1vJD42SZiZx/zUB6o7U8vH4kEBk/eCXTRxrN+G+rD/8pg
+   YD12K3k3SqeuldP2YG071EwZoMecv+8DX8IzHGCM58fTTdo6F8g8cWbez
+   ld88ySpRHrOTY8CNtoxoaDYQquqzaKwa+DJHAx5hFVRyEJUJ7xQLNVlJe
    Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10889"; a="389853901"
+X-IronPort-AV: E=McAfee;i="6600,9927,10889"; a="389853909"
 X-IronPort-AV: E=Sophos;i="6.03,290,1694761200"; 
-   d="scan'208";a="389853901"
+   d="scan'208";a="389853909"
 Received: from orsmga005.jf.intel.com ([10.7.209.41])
   by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2023 10:28:36 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10889"; a="936938973"
+X-IronPort-AV: E=McAfee;i="6600,9927,10889"; a="936938974"
 X-IronPort-AV: E=Sophos;i="6.03,290,1694761200"; 
-   d="scan'208";a="936938973"
+   d="scan'208";a="936938974"
 Received: from black.fi.intel.com ([10.237.72.28])
   by orsmga005.jf.intel.com with ESMTP; 09 Nov 2023 10:28:33 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id 5CE3972F; Thu,  9 Nov 2023 20:28:32 +0200 (EET)
+        id 3F370706; Thu,  9 Nov 2023 20:28:32 +0200 (EET)
 From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
@@ -51,124 +51,57 @@ Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
         Jan Dabros <jsd@semihalf.com>,
         Andi Shyti <andi.shyti@kernel.org>,
         Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 02/12] i2c: designware: Always provide device ID tables
-Date:   Thu,  9 Nov 2023 20:19:12 +0200
-Message-ID: <20231109182823.3531846-3-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 00/12] i2c: designware: code consolidation & cleanups
+Date:   Thu,  9 Nov 2023 20:19:10 +0200
+Message-ID: <20231109182823.3531846-1-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.40.0.1996.gbec44491f096
-In-Reply-To: <20231109182823.3531846-1-andriy.shevchenko@linux.intel.com>
-References: <20231109182823.3531846-1-andriy.shevchenko@linux.intel.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-There is no need to have ugly ifdeffery and additional macros
-for the device ID tables. Always provide them. Since we touch
-the ACPI table, make it sorted by ID. Unify termination as well.
+The series now consists the following subseries of patches:
+- refactoring module alias and device ID tables (patches 1-2)
+- unifying firmware parsing and configuring code (patches 3-7)
+- miscellaneous cleanups (patches 8-11)
+- consolidating PM ops (patch 12)
 
-Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/busses/i2c-designware-platdrv.c | 62 ++++++++++-----------
- 1 file changed, 30 insertions(+), 32 deletions(-)
+The last one might be considered as rft, however I don't think we
+have any hardware where the behaviour will be changed, anyways, good
+to test.
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index cb7796b57085..7d960d3161c0 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -40,28 +40,6 @@ static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
- 	return clk_get_rate(dev->clk) / KILO;
- }
- 
--#ifdef CONFIG_ACPI
--static const struct acpi_device_id dw_i2c_acpi_match[] = {
--	{ "INT33C2", 0 },
--	{ "INT33C3", 0 },
--	{ "INT3432", 0 },
--	{ "INT3433", 0 },
--	{ "80860F41", ACCESS_NO_IRQ_SUSPEND },
--	{ "808622C1", ACCESS_NO_IRQ_SUSPEND },
--	{ "AMD0010", ACCESS_INTR_MASK },
--	{ "AMDI0010", ACCESS_INTR_MASK },
--	{ "AMDI0019", ACCESS_INTR_MASK | ARBITRATION_SEMAPHORE },
--	{ "AMDI0510", 0 },
--	{ "APMC0D0F", 0 },
--	{ "HISI02A1", 0 },
--	{ "HISI02A2", 0 },
--	{ "HISI02A3", 0 },
--	{ "HYGO0010", ACCESS_INTR_MASK },
--	{ }
--};
--MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
--#endif
--
- #ifdef CONFIG_OF
- #define BT1_I2C_CTL			0x100
- #define BT1_I2C_CTL_ADDR_MASK		GENMASK(7, 0)
-@@ -148,14 +126,6 @@ static int dw_i2c_of_configure(struct platform_device *pdev)
- 
- 	return 0;
- }
--
--static const struct of_device_id dw_i2c_of_match[] = {
--	{ .compatible = "snps,designware-i2c", },
--	{ .compatible = "mscc,ocelot-i2c", .data = (void *)MODEL_MSCC_OCELOT },
--	{ .compatible = "baikal,bt1-sys-i2c", .data = (void *)MODEL_BAIKAL_BT1 },
--	{},
--};
--MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
- #else
- static int bt1_i2c_request_regs(struct dw_i2c_dev *dev)
- {
-@@ -479,6 +449,34 @@ static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
- 	RUNTIME_PM_OPS(dw_i2c_plat_runtime_suspend, dw_i2c_plat_runtime_resume, NULL)
- };
- 
-+static const struct of_device_id dw_i2c_of_match[] = {
-+	{ .compatible = "snps,designware-i2c", },
-+	{ .compatible = "mscc,ocelot-i2c", .data = (void *)MODEL_MSCC_OCELOT },
-+	{ .compatible = "baikal,bt1-sys-i2c", .data = (void *)MODEL_BAIKAL_BT1 },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
-+
-+static const struct acpi_device_id dw_i2c_acpi_match[] = {
-+	{ "INT33C2", 0 },
-+	{ "INT33C3", 0 },
-+	{ "INT3432", 0 },
-+	{ "INT3433", 0 },
-+	{ "80860F41", ACCESS_NO_IRQ_SUSPEND },
-+	{ "808622C1", ACCESS_NO_IRQ_SUSPEND },
-+	{ "AMD0010", ACCESS_INTR_MASK },
-+	{ "AMDI0010", ACCESS_INTR_MASK },
-+	{ "AMDI0019", ACCESS_INTR_MASK | ARBITRATION_SEMAPHORE },
-+	{ "AMDI0510", 0 },
-+	{ "APMC0D0F", 0 },
-+	{ "HISI02A1", 0 },
-+	{ "HISI02A2", 0 },
-+	{ "HISI02A3", 0 },
-+	{ "HYGO0010", ACCESS_INTR_MASK },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
-+
- static const struct platform_device_id dw_i2c_platform_ids[] = {
- 	{ "i2c_designware" },
- 	{}
-@@ -490,8 +488,8 @@ static struct platform_driver dw_i2c_driver = {
- 	.remove_new = dw_i2c_plat_remove,
- 	.driver		= {
- 		.name	= "i2c_designware",
--		.of_match_table = of_match_ptr(dw_i2c_of_match),
--		.acpi_match_table = ACPI_PTR(dw_i2c_acpi_match),
-+		.of_match_table = dw_i2c_of_match,
-+		.acpi_match_table = dw_i2c_acpi_match,
- 		.pm	= pm_ptr(&dw_i2c_dev_pm_ops),
- 	},
- 	.id_table = dw_i2c_platform_ids,
+v1: https://lore.kernel.org/r/20230725143023.86325-1-andriy.shevchenko@linux.intel.com
+
+Changelog v2:
+- reworked the series to make it less twisted (Jarkko, Andi)
+- added tags to the patches that have been rebased (Andi, Mario, Jarkko)
+- introduced a few new changes (PM ops, export namespace)
+
+Andy Shevchenko (12):
+  i2c: designware: Replace MODULE_ALIAS() with MODULE_DEVICE_TABLE()
+  i2c: designware: Always provide device ID tables
+  i2c: designware: Drop return value from i2c_dw_acpi_configure()
+  i2c: designware: Drop return value from dw_i2c_of_configure()
+  i2c: designware: Rename dw_i2c_of_configure() -> i2c_dw_of_configure()
+  i2c: designware: Consolidate firmware parsing and configuring code
+  i2c: desingware: Unify the firmware type checks
+  i2c: designware: Move exports to I2C_DW namespaces
+  i2c: designware: Get rid of redundant 'else'
+  i2c: designware: Fix spelling and other issues in the comments
+  i2c: designware: Remove ->disable() callback
+  i2c: designware: Consolidate PM ops
+
+ drivers/i2c/busses/i2c-designware-amdpsp.c  |  10 +-
+ drivers/i2c/busses/i2c-designware-common.c  | 150 ++++++++++++++--
+ drivers/i2c/busses/i2c-designware-core.h    |  25 +--
+ drivers/i2c/busses/i2c-designware-master.c  |  19 +-
+ drivers/i2c/busses/i2c-designware-pcidrv.c  |  62 +------
+ drivers/i2c/busses/i2c-designware-platdrv.c | 183 +++++---------------
+ drivers/i2c/busses/i2c-designware-slave.c   |  10 +-
+ 7 files changed, 216 insertions(+), 243 deletions(-)
+
 -- 
 2.40.0.1996.gbec44491f096
 
