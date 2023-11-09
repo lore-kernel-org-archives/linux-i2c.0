@@ -2,290 +2,215 @@ Return-Path: <linux-i2c-owner@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9820EC04FDE
-	for <linux-i2c@archiver.kernel.org>; Thu,  9 Nov 2023 18:28:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 142D8C4167B
+	for <linux-i2c@archiver.kernel.org>; Thu,  9 Nov 2023 19:10:09 +0000 (UTC)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345059AbjKIS27 (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 9 Nov 2023 13:28:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33468 "EHLO
+        id S231845AbjKITKJ (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
+        Thu, 9 Nov 2023 14:10:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345022AbjKIS2o (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Nov 2023 13:28:44 -0500
-Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67BF43C11;
-        Thu,  9 Nov 2023 10:28:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1699554521; x=1731090521;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=J/3rNKPhtPGSbMQv1qpIa/vW5WBgEmTeFjTETFKBSGQ=;
-  b=lSOL3Ne7pxeJa4NLTmbgqlXUbWwtssrtt00yXOSdmg0TFwm1Awi1NTyR
-   wxZP4lHkRrq+A7+1AMtSoN/0TF3XNjd1FDOgcT8yIr9Bed/A7BGFE4eID
-   28jmUPHLdn+STYsS7mRcBSqshjomqY/L7OnN5Jj1pgUDJ2DyNNnpk/awY
-   e6BB8UtW2Ij+n4/iPOq8Rpqn3dtxosoSCyi2EnJ73laT7+DzLkoZKuK13
-   rsWOMTL2rHFXjWAihW+Q/H426fmOgnWBBFhM7yZG7nn+V9NDfQ9Ur9DtX
-   nYFRrPtfri6B0+nhAvFvg37RHYh8ktsqM/JX1cbyjbIYVZtkJFNiLq6U9
-   w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10889"; a="389853942"
-X-IronPort-AV: E=Sophos;i="6.03,290,1694761200"; 
-   d="scan'208";a="389853942"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2023 10:28:41 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10889"; a="936938990"
-X-IronPort-AV: E=Sophos;i="6.03,290,1694761200"; 
-   d="scan'208";a="936938990"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga005.jf.intel.com with ESMTP; 09 Nov 2023 10:28:37 -0800
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-        id D0A25812; Thu,  9 Nov 2023 20:28:32 +0200 (EET)
-From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To:     Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Jan Dabros <jsd@semihalf.com>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v2 10/12] i2c: designware: Fix spelling and other issues in the comments
-Date:   Thu,  9 Nov 2023 20:19:20 +0200
-Message-ID: <20231109182823.3531846-11-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.40.0.1996.gbec44491f096
-In-Reply-To: <20231109182823.3531846-1-andriy.shevchenko@linux.intel.com>
-References: <20231109182823.3531846-1-andriy.shevchenko@linux.intel.com>
+        with ESMTP id S1345112AbjKITKG (ORCPT
+        <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Nov 2023 14:10:06 -0500
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 009B83C21
+        for <linux-i2c@vger.kernel.org>; Thu,  9 Nov 2023 11:10:03 -0800 (PST)
+Received: by mail-pj1-x1031.google.com with SMTP id 98e67ed59e1d1-2802d218242so1133335a91.1
+        for <linux-i2c@vger.kernel.org>; Thu, 09 Nov 2023 11:10:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=sartura.hr; s=sartura; t=1699557003; x=1700161803; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qGIHHIyIj/eQKklLFt+o4EC73VgMtqD7AwmKgpBlOOs=;
+        b=ZrXeMrLMk/DpvkWwQft0y1/i2cj2Mz133uHSnJ/xQwN35n4nBoSiEmdRR7x4QNaSVm
+         j+sMy9gsPFJxmis6QeVdwIr0ugj9fztOzehA0mTKC9a1SGFo5JZb3hWfB8lyC1DV5SGS
+         /V/IerznE1hdrkKmIGWHV58wmT8H71RbG+Sggv2sKGO/gxtYgMLa1d76Wahk9v1RZdO/
+         idShgEQnTi6z/Vp0PWzy+RS7dzplKIs21KPc2U0YNnumC1cvRDsOlD0DRGM3AjjzxIpq
+         gZEQ/g1P0cMvqahRQjHTZ7j4yVdDkXNticT1evChhVBp6/VVXA9Im8i4II3WNGjvNTdc
+         wY+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1699557003; x=1700161803;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=qGIHHIyIj/eQKklLFt+o4EC73VgMtqD7AwmKgpBlOOs=;
+        b=qvxKANMwHcrWlNnldQO2Eu4SPEXeAI5t9Oqb6j7yeBvsEptzDDxk+yUXlp7MY5IhpU
+         yCs0lRfkGSfq7Jh5fs7r+hqdm6CkR+5wdXRQva5QwOp73EgvAw1CmfrOxSCI9SL45g9c
+         ms93PoH57eos8rfLpQd4100eC3qnLjepxLqUvuLBltgVtHkL6epDjHSAEsgLvAW7/PYt
+         sof2zhiXy5Gde20lHxmyRksIX/Y1RD0eqSv5DV+IsT+6LCm1j+iums55//9dujj2FQHW
+         Pcr/QS8hycnhuQVfDfVNyOMRQyczhb1EOk+JBWAxJzB4S1QGIlVVkGuE15uhJXguMq5E
+         vXZA==
+X-Gm-Message-State: AOJu0Yx5cxT/DHpkM+BFqAbdJquYOWof6XCWpwwPGdD5U/w4H0SC5WUx
+        rWIEvKORFOdI1BPQfFeHgsc2zGTIDVtLdAhv7c86kQ==
+X-Google-Smtp-Source: AGHT+IF9rha3ZSgE/rr2Azs/075zCXghyG37VPOmh3714TVhwE0iJCVtFlVvOvJABF3bbGC33AZ04bGX6NegZNkuZGk=
+X-Received: by 2002:a17:90b:3b8b:b0:280:3772:5c2e with SMTP id
+ pc11-20020a17090b3b8b00b0028037725c2emr2345785pjb.25.1699557003421; Thu, 09
+ Nov 2023 11:10:03 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20230926160255.330417-1-robert.marko@sartura.hr> <CACRpkdZem9Gtd==gQM4EQ9R8MN2ZQ0JCyMCoTjg0kqCNDjuFMA@mail.gmail.com>
+In-Reply-To: <CACRpkdZem9Gtd==gQM4EQ9R8MN2ZQ0JCyMCoTjg0kqCNDjuFMA@mail.gmail.com>
+From:   Robert Marko <robert.marko@sartura.hr>
+Date:   Thu, 9 Nov 2023 20:09:52 +0100
+Message-ID: <CA+HBbNFeVmc2CJeo+u9jbZrzsrDTOttW_4+aeLJFcOjDJ8DwyQ@mail.gmail.com>
+Subject: Re: [PATCH] i2c: core: dont change pinmux state to GPIO during
+ recovery setup
+To:     Linus Walleij <linus.walleij@linaro.org>
+Cc:     wsa@kernel.org, codrin.ciubotariu@microchip.com,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux@armlinux.org.uk, linux-gpio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <linux-i2c.vger.kernel.org>
 X-Mailing-List: linux-i2c@vger.kernel.org
 
-Fix spelling and other issues, such as kernel-doc reported about,
-in the comments.
+On Thu, Sep 28, 2023 at 11:11=E2=80=AFPM Linus Walleij <linus.walleij@linar=
+o.org> wrote:
+>
+> On Tue, Sep 26, 2023 at 6:03=E2=80=AFPM Robert Marko <robert.marko@sartur=
+a.hr> wrote:
+>
+> > @@ -359,13 +359,6 @@ static int i2c_gpio_init_generic_recovery(struct i=
+2c_adapter *adap)
+> >         if (bri->recover_bus && bri->recover_bus !=3D i2c_generic_scl_r=
+ecovery)
+> >                 return 0;
+> >
+> > -       /*
+> > -        * pins might be taken as GPIO, so we should inform pinctrl abo=
+ut
+> > -        * this and move the state to GPIO
+> > -        */
+> > -       if (bri->pinctrl)
+> > -               pinctrl_select_state(bri->pinctrl, bri->pins_gpio);
+> > -
+>
+> But this might be absolutely necessary for other i2c drivers and this is
+> set in generic code.
+>
+> My first question is: why is this platform even defining the "gpio" pin
+> control state for this i2c device if it is so dangerous to use?
+> If it can't be used, you just give it too much rope, delete the "gpio"
+> state for this group from the device tree: problem solved.
+>
+> (This can be done with the specific /delete-node/ directive if
+> necessary, e.g. if you want to use the "gpio" state on other boards.)
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/busses/i2c-designware-amdpsp.c | 10 +++++-----
- drivers/i2c/busses/i2c-designware-common.c |  8 +++++---
- drivers/i2c/busses/i2c-designware-core.h   | 10 +++++-----
- drivers/i2c/busses/i2c-designware-master.c | 15 +++++++++------
- drivers/i2c/busses/i2c-designware-slave.c  |  6 ++++--
- 5 files changed, 28 insertions(+), 21 deletions(-)
+Hi,
+Sorry for the late reply.
 
-diff --git a/drivers/i2c/busses/i2c-designware-amdpsp.c b/drivers/i2c/busses/i2c-designware-amdpsp.c
-index 63454b06e5da..8fbd2a10c31a 100644
---- a/drivers/i2c/busses/i2c-designware-amdpsp.c
-+++ b/drivers/i2c/busses/i2c-designware-amdpsp.c
-@@ -155,7 +155,7 @@ static void psp_release_i2c_bus_deferred(struct work_struct *work)
- 
- 	/*
- 	 * If there is any pending transaction, cannot release the bus here.
--	 * psp_release_i2c_bus will take care of this later.
-+	 * psp_release_i2c_bus() will take care of this later.
- 	 */
- 	if (psp_i2c_access_count)
- 		goto cleanup;
-@@ -210,12 +210,12 @@ static void psp_release_i2c_bus(void)
- {
- 	mutex_lock(&psp_i2c_access_mutex);
- 
--	/* Return early if mailbox was malfunctional */
-+	/* Return early if mailbox was malfunctioned */
- 	if (psp_i2c_mbox_fail)
- 		goto cleanup;
- 
- 	/*
--	 * If we are last owner of PSP semaphore, need to release aribtration
-+	 * If we are last owner of PSP semaphore, need to release arbitration
- 	 * via mailbox.
- 	 */
- 	psp_i2c_access_count--;
-@@ -235,9 +235,9 @@ static void psp_release_i2c_bus(void)
- 
- /*
-  * Locking methods are based on the default implementation from
-- * drivers/i2c/i2c-core-base.c, but with psp acquire and release operations
-+ * drivers/i2c/i2c-core-base.c, but with PSP acquire and release operations
-  * added. With this in place we can ensure that i2c clients on the bus shared
-- * with psp are able to lock HW access to the bus for arbitrary number of
-+ * with PSP are able to lock HW access to the bus for arbitrary number of
-  * operations - that is e.g. write-wait-read.
-  */
- static void i2c_adapter_dw_psp_lock_bus(struct i2c_adapter *adapter,
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 4d7dc346e619..5d4e39663438 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -126,6 +126,8 @@ static int dw_reg_write_word(void *context, unsigned int reg, unsigned int val)
-  * Autodetects needed register access mode and creates the regmap with
-  * corresponding read/write callbacks. This must be called before doing any
-  * other register access.
-+ *
-+ * Return: 0 on success, or negative errno otherwise.
-  */
- int i2c_dw_init_regmap(struct dw_i2c_dev *dev)
- {
-@@ -173,7 +175,7 @@ int i2c_dw_init_regmap(struct dw_i2c_dev *dev)
- 	/*
- 	 * Note we'll check the return value of the regmap IO accessors only
- 	 * at the probe stage. The rest of the code won't do this because
--	 * basically we have MMIO-based regmap so non of the read/write methods
-+	 * basically we have MMIO-based regmap, so none of the read/write methods
- 	 * can fail.
- 	 */
- 	dev->map = devm_regmap_init(dev->dev, NULL, dev, &map_cfg);
-@@ -335,7 +337,7 @@ static u32 i2c_dw_acpi_round_bus_speed(struct device *device)
- 
- 	acpi_speed = i2c_acpi_find_bus_speed(device);
- 	/*
--	 * Some DSTDs use a non standard speed, round down to the lowest
-+	 * Some DSDTs use a non standard speed, round down to the lowest
- 	 * standard speed.
- 	 */
- 	for (i = 0; i < ARRAY_SIZE(supported_speeds); i++) {
-@@ -531,7 +533,7 @@ void __i2c_dw_disable(struct dw_i2c_dev *dev)
- 
- 		/*
- 		 * Wait 10 times the signaling period of the highest I2C
--		 * transfer supported by the driver (for 400KHz this is
-+		 * transfer supported by the driver (for 400kHz this is
- 		 * 25us) as described in the DesignWare I2C databook.
- 		 */
- 		usleep_range(25, 250);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index a2731179a42b..9f8e5bf61ec0 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -142,10 +142,10 @@
- #define DW_IC_SLAVE				1
- 
- /*
-- * Hardware abort codes from the DW_IC_TX_ABRT_SOURCE register
-+ * Hardware abort codes from the DW_IC_TX_ABRT_SOURCE register.
-  *
-- * Only expected abort codes are listed here
-- * refer to the datasheet for the full list
-+ * Only expected abort codes are listed here,
-+ * refer to the datasheet for the full list.
-  */
- #define ABRT_7B_ADDR_NOACK			0
- #define ABRT_10ADDR1_NOACK			1
-@@ -200,7 +200,7 @@ struct reset_control;
-  * @rst: optional reset for the controller
-  * @slave: represent an I2C slave device
-  * @get_clk_rate_khz: callback to retrieve IP specific bus speed
-- * @cmd_err: run time hadware error code
-+ * @cmd_err: run time hardware error code
-  * @msgs: points to an array of messages currently being transferred
-  * @msgs_num: the number of elements in msgs
-  * @msg_write_idx: the element index of the current tx message in the msgs array
-@@ -235,7 +235,7 @@ struct reset_control;
-  * @release_lock: function to release a hardware lock on the bus
-  * @semaphore_idx: Index of table with semaphore type attached to the bus. It's
-  *	-1 if there is no semaphore.
-- * @shared_with_punit: true if this bus is shared with the SoCs PUNIT
-+ * @shared_with_punit: true if this bus is shared with the SoC's PUNIT
-  * @disable: function to disable the controller
-  * @init: function to initialize the I2C hardware
-  * @set_sda_hold_time: callback to retrieve IP specific SDA hold timing
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 0b6576d7f811..9d06dd7ffe37 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -168,12 +168,14 @@ static int i2c_dw_set_timings_master(struct dw_i2c_dev *dev)
- }
- 
- /**
-- * i2c_dw_init_master() - Initialize the designware I2C master hardware
-+ * i2c_dw_init_master() - Initialize the DesignWare I2C master hardware
-  * @dev: device private data
-  *
-  * This functions configures and enables the I2C master.
-  * This function is called during I2C init function, and in case of timeout at
-  * run time.
-+ *
-+ * Return: 0 on success, or negative errno otherwise.
-  */
- static int i2c_dw_init_master(struct dw_i2c_dev *dev)
- {
-@@ -314,7 +316,7 @@ static int amd_i2c_dw_xfer_quirk(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 		/*
- 		 * Initiate the i2c read/write transaction of buffer length,
- 		 * and poll for bus busy status. For the last message transfer,
--		 * update the command with stopbit enable.
-+		 * update the command with stop bit enable.
- 		 */
- 		for (msg_itr_lmt = buf_len; msg_itr_lmt > 0; msg_itr_lmt--) {
- 			if (msg_wrt_idx == num_msgs - 1 && msg_itr_lmt == 1)
-@@ -421,7 +423,7 @@ static int txgbe_i2c_dw_xfer_quirk(struct i2c_adapter *adap, struct i2c_msg *msg
- 
- /*
-  * Initiate (and continue) low level master read/write transaction.
-- * This function is only called from i2c_dw_isr, and pumping i2c_msg
-+ * This function is only called from i2c_dw_isr(), and pumping i2c_msg
-  * messages into the tx buffer.  Even if the size of i2c_msg data is
-  * longer than the size of the tx buffer, it handles everything.
-  */
-@@ -459,7 +461,8 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
- 			buf = msgs[dev->msg_write_idx].buf;
- 			buf_len = msgs[dev->msg_write_idx].len;
- 
--			/* If both IC_EMPTYFIFO_HOLD_MASTER_EN and
-+			/*
-+			 * If both IC_EMPTYFIFO_HOLD_MASTER_EN and
- 			 * IC_RESTART_EN are set, we must manually
- 			 * set restart bit between messages.
- 			 */
-@@ -949,7 +952,7 @@ static int i2c_dw_init_recovery_info(struct dw_i2c_dev *dev)
- 	rinfo->unprepare_recovery = i2c_dw_unprepare_recovery;
- 	adap->bus_recovery_info = rinfo;
- 
--	dev_info(dev->dev, "running with gpio recovery mode! scl%s",
-+	dev_info(dev->dev, "running with GPIO recovery mode! scl%s",
- 		 rinfo->sda_gpiod ? ",sda" : "");
- 
- 	return 0;
-@@ -1054,7 +1057,7 @@ int i2c_dw_probe_master(struct dw_i2c_dev *dev)
- 	ret = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr, irq_flags,
- 			       dev_name(dev->dev), dev);
- 	if (ret) {
--		dev_err(dev->dev, "failure requesting irq %i: %d\n",
-+		dev_err(dev->dev, "failure requesting IRQ %i: %d\n",
- 			dev->irq, ret);
- 		return ret;
- 	}
-diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
-index 70d183fa3bff..0fa3a3d7a724 100644
---- a/drivers/i2c/busses/i2c-designware-slave.c
-+++ b/drivers/i2c/busses/i2c-designware-slave.c
-@@ -32,12 +32,14 @@ static void i2c_dw_configure_fifo_slave(struct dw_i2c_dev *dev)
- }
- 
- /**
-- * i2c_dw_init_slave() - Initialize the designware i2c slave hardware
-+ * i2c_dw_init_slave() - Initialize the DesignWare i2c slave hardware
-  * @dev: device private data
-  *
-  * This function configures and enables the I2C in slave mode.
-  * This function is called during I2C init function, and in case of timeout at
-  * run time.
-+ *
-+ * Return: 0 on success, or negative errno otherwise.
-  */
- static int i2c_dw_init_slave(struct dw_i2c_dev *dev)
- {
-@@ -265,7 +267,7 @@ int i2c_dw_probe_slave(struct dw_i2c_dev *dev)
- 	ret = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr_slave,
- 			       IRQF_SHARED, dev_name(dev->dev), dev);
- 	if (ret) {
--		dev_err(dev->dev, "failure requesting irq %i: %d\n",
-+		dev_err(dev->dev, "failure requesting IRQ %i: %d\n",
- 			dev->irq, ret);
- 		return ret;
- 	}
--- 
-2.40.0.1996.gbec44491f096
+GPIO function is being defined as I2C recovery itself requires it, it
+will switch
+the pins to GPIO mode and then pulse SCL for a predefined number of pulses
+in order to try and recover the bus.
+So we cannot remove it from DTS and have I2C recovery working.
 
+Also, GPIO is a fully valid option for this pin group according to the
+datasheet,
+it is even the default until you switch them to I2C.
+
+>
+> Second: do you even want to do recovery on this platform then?
+> Is it necessary? What happens electronically in this case, if we don't
+> switch the pins to GPIO mode? Is it something akin to the "strict"
+> property in struct pinmux: that the GPIO block and the device can
+> affect the same pins at the same time? That warrants an explanation
+> and a comment.
+
+Yes, I2C recovery is required on this board as otherwise the I2C bus will
+get stuck after a certain number of SFP module plug/unplug events or
+sometimes even just randomly, I2C recovery allows the bus to recover
+and continue working.
+
+Maybe my commit message was confusing, so I will try and explain further.
+I2C recovery did work on Armada 3720 just fine until the driver was convert=
+ed
+to use the generic I2C recovery which is now part of the I2C core.
+
+After it was converted to it, the I2C bus completely stopped working
+on Armada 3720
+if I2C recovery is enabled by making the recovery pinctrl available in DTS.
+
+I then spent quite a while trying to bisect the exact change that
+causes this issue
+in the conversion as code is almost identical to what the driver was
+doing previously,
+and have bisected it down to pinctrl_select_state(bri->pinctrl,
+bri->pins_gpio) being
+called before SDA and SCL pins are obtained via devm_gpiod_get().
+
+Then I thought that maybe there was a HW bug in the Armada 3720 as the
+pin function
+was being set to GPIO twice via register write so I made sure the
+register was being
+written to only if the desired value is different than the current one
+but that did not help
+at all.
+For whatever reason calling pinctrl_select_state(bri->pinctrl,
+bri->pins_gpio) causes
+the pins to basically lock up, but the weird thing is that calling
+devm_gpiod_get() will
+also end up with the kernel changing the pin function to GPIO and this
+works, hence
+this patch.
+
+This is basically the only change in the old driver behavior which would do=
+:
+
+pinctrl_select_state(i2c->pinctrl, i2c->pinctrl_recovery);
+return pinctrl_select_state(i2c->pinctrl, i2c->pinctrl_default);
+
+After obtaining the SDA and SCL pins via devm_gpiod_get() and this somehow
+works while the generic I2C code will first call:
+pinctrl_select_state(bri->pinctrl, bri->pins_gpio)
+Then it obtains the SDA and SCL pins via devm_gpiod_get() and
+eventually at the end of i2c_gpio_init_generic_recovery() call
+pinctrl_select_state(bri->pinctrl, bri->pins_default);
+to return the pins back to I2C state.
+
+Hopefully, this all makes more sense.
+
+>
+> If you can't delete the "gpio" pin control state, I would add a
+> bool pinctrl_stay_in_device_mode;
+> to
+> struct i2c_bus_recovery_info
+> in include/linux/i2c.h
+>
+> And just:
+>
+> if (bri->pinctrl && !bri->pinctrl_stay_in_device_mode)
+>     pinctrl_select_state(bri->pinctrl, bri->pins_gpio);
+>
+> (Also the switch to the "default" state further down could be
+> contitional !bri->pinctrl_stay_in_device_mode)
+>
+> But mostly I wonder why the "gpio" pin control state is defined, if it's
+> not to be used.
+
+Well, that is the thing, it is being used, it just somehow got broken with
+the move to generic I2C recovery.
+
+I hope to have explained the issue and symptoms more clearly now
+as I have ran out of ideas why a call to pinctrl_select_state() to
+change to GPIO
+state breaks things, but then devm_gpio_get() also eventually makes a call =
+to
+the pinctrl driver to change the pin function to GPIO but that works.
+
+Regards,
+Robert
+>
+> Yours,
+> Linus Walleij
+
+
+
+--=20
+Robert Marko
+Staff Embedded Linux Engineer
+Sartura Ltd.
+Lendavska ulica 16a
+10000 Zagreb, Croatia
+Email: robert.marko@sartura.hr
+Web: www.sartura.hr
