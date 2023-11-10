@@ -1,130 +1,126 @@
-Return-Path: <linux-i2c+bounces-2-linux-i2c=archiver.kernel.org@vger.kernel.org>
+Return-Path: <linux-i2c+bounces-3-linux-i2c=archiver.kernel.org@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from sv.mirrors.kernel.org (sv.mirrors.kernel.org [139.178.88.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id E87DCC4167B
-	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 17:47:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8B429C4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 17:48:26 +0000 (UTC)
 Received: from smtp.subspace.kernel.org (wormhole.subspace.kernel.org [52.25.139.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by sv.mirrors.kernel.org (Postfix) with ESMTPS id AC95C2815F8
-	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 17:47:02 +0000 (UTC)
+	by sv.mirrors.kernel.org (Postfix) with ESMTPS id 40BBA2819C1
+	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 17:48:26 +0000 (UTC)
 Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 25CD739877;
-	Fri, 10 Nov 2023 17:46:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0FD3B3B7B7;
+	Fri, 10 Nov 2023 17:46:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="U7P/f08W";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="yuE9CeiB"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="IaM+N0Ik"
 Received: from lindbergh.monkeyblade.net (lindbergh.monkeyblade.net [23.128.96.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9200D38DE0
-	for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 17:46:32 +0000 (UTC)
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BDB72B7A9
-	for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 03:08:26 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 8666A219A4;
-	Fri, 10 Nov 2023 11:08:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1699614503; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+fB/CoD0K/hb8YoT5PRdBX4VZfuV5MZaL/xil7s4aGY=;
-	b=U7P/f08WW7QWf/WP1n6wzntmqdFI9Oie8beiH9aHnAq/eTL9wBh7RYuq2Akn97NXwFBkOp
-	S3Se+ZSybVlhah/gMp7cauIBrGFkI+pobxGeacZaI57A/uBIhmB5cMcaIQPYlAbBI8C5mA
-	6oVNBLmcuMkI8drQgBb8GpODJQ3HDsU=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1699614503;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=+fB/CoD0K/hb8YoT5PRdBX4VZfuV5MZaL/xil7s4aGY=;
-	b=yuE9CeiBouEECU5+qlVVihPR/m1qfITgz1Wbx8tkLwn12K1kmdYKLYIu5QjnSylvXwT7kF
-	fpA/1vaGwo4aOTAQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-	(No client certificate requested)
-	by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 5558613398;
-	Fri, 10 Nov 2023 11:08:23 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-	by imap2.suse-dmz.suse.de with ESMTPSA
-	id zLs+EycPTmU1dgAAMHmgww
-	(envelope-from <jdelvare@suse.de>); Fri, 10 Nov 2023 11:08:23 +0000
-Date: Fri, 10 Nov 2023 12:08:22 +0100
-From: Jean Delvare <jdelvare@suse.de>
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org, Peter
- Korsgaard <peter.korsgaard@barco.com>, Peter Rosin <peda@axentia.se>
-Subject: Re: [PATCH] i2c: i801: Use I2C_CLASS_HWMON for i2c mux children
-Message-ID: <20231110120822.7a81421e@endymion.delvare>
-In-Reply-To: <4fdf5873-b366-4601-a9cd-58814eed321d@gmail.com>
-References: <45c5366f-cbee-4c7d-bb62-a446935b2729@gmail.com>
-	<20231106155036.366fb752@endymion.delvare>
-	<a22978a4-88e4-46f4-b71c-032b22321599@gmail.com>
-	<20231109145212.01f7b597@endymion.delvare>
-	<4fdf5873-b366-4601-a9cd-58814eed321d@gmail.com>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.34; x86_64-suse-linux-gnu)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B1AA3B2A9
+	for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 17:46:45 +0000 (UTC)
+Received: from mgamail.intel.com (mgamail.intel.com [192.55.52.43])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AEB831E6D;
+	Fri, 10 Nov 2023 04:02:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1699617744; x=1731153744;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=D68uaaStYrSJHvcN7STtPBEb1wH/meEZbd+gmIVtvt0=;
+  b=IaM+N0IkcQm5n87ZEdys9oDGluZb3TVT7gohXyJ/m81L2Yy4s8cMNLac
+   otgEzjsH8hiD7hhH22Y11igDlp5rp/qXLVp582TTXqXfDf2/K39T+q6ea
+   c0JNmZyWdhHbVgaQQOeC97GQdKlZsKX+GBD4L9YKV7OdNreTz+FRWYlr4
+   S6BlYQXZ5HkM0/j6vVjjYG6uSlslDM1qBCYMNPtgRWsE6+ZpKBSAuRl21
+   bDFnMTaPWJbHNvrSpy9Aum3+Wvp3K8g5E/osMur1EjofIncS4x7uDFjPK
+   Vnt6O9JD2iq8lEJsjmPCcHQgTQqqclEDnJwQV3xN1erVcW56nX3+U8PIs
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10889"; a="476400714"
+X-IronPort-AV: E=Sophos;i="6.03,291,1694761200"; 
+   d="scan'208";a="476400714"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2023 04:02:23 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6600,9927,10889"; a="887342622"
+X-IronPort-AV: E=Sophos;i="6.03,291,1694761200"; 
+   d="scan'208";a="887342622"
+Received: from mylly.fi.intel.com (HELO [10.237.72.161]) ([10.237.72.161])
+  by orsmga004.jf.intel.com with ESMTP; 10 Nov 2023 04:02:21 -0800
+Message-ID: <de798632-9977-45be-82f2-912081bdfad2@linux.intel.com>
+Date: Fri, 10 Nov 2023 14:02:20 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4] i2c: designware: Fix corrupted memory seen in the ISR
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ Jan Bottorff <janb@os.amperecomputing.com>
+Cc: Wolfram Sang <wsa@kernel.org>,
+ Mika Westerberg <mika.westerberg@linux.intel.com>,
+ Jan Dabros <jsd@semihalf.com>, Andi Shyti <andi.shyti@kernel.org>,
+ linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20231109031927.1990570-1-janb@os.amperecomputing.com>
+ <ZU0eJdwHXEoQ7mj2@smile.fi.intel.com>
+Content-Language: en-US
+From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+In-Reply-To: <ZU0eJdwHXEoQ7mj2@smile.fi.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-Hi Heiner,
+On 11/9/23 20:00, Andy Shevchenko wrote:
+> On Thu, Nov 09, 2023 at 03:19:27AM +0000, Jan Bottorff wrote:
+>> When running on a many core ARM64 server, errors were
+>> happening in the ISR that looked like corrupted memory. These
+>> corruptions would fix themselves if small delays were inserted
+>> in the ISR. Errors reported by the driver included "i2c_designware
+>> APMC0D0F:00: i2c_dw_xfer_msg: invalid target address" and
+>> "i2c_designware APMC0D0F:00:controller timed out" during
+>> in-band IPMI SSIF stress tests.
+>>
+>> The problem was determined to be memory writes in the driver were not
+>> becoming visible to all cores when execution rapidly shifted between
+>> cores, like when a register write immediately triggers an ISR.
+>> Processors with weak memory ordering, like ARM64, make no
+>> guarantees about the order normal memory writes become globally
+>> visible, unless barrier instructions are used to control ordering.
+>>
+>> To solve this, regmap accessor functions configured by this driver
+>> were changed to use non-relaxed forms of the low-level register
+>> access functions, which include a barrier on platforms that require
+>> it. This assures memory writes before a controller register access are
+>> visible to all cores. The community concluded defaulting to correct
+>> operation outweighed defaulting to the small performance gains from
+>> using relaxed access functions. Being a low speed device added weight to
+>> this choice of default register access behavior.
+> 
+> ...
+> 
+>> v3->v4: add missing changelog
+> 
+> Side note: Usually it's enough to just reply to the patch with the changelog.
+> 
+> ...
+> 
+>> -	*val = swab32(readl_relaxed(dev->base + reg));
+>> +	*val = swab32(readl(dev->base + reg));
+> 
+>> -	writel_relaxed(swab32(val), dev->base + reg);
+>> +	writel(swab32(val), dev->base + reg);
+> 
+> I'm wondering why ioread32be() / iowrite32be() can't be used here...
+> 
+> Probably it would require to switch entire IO to use ioreadXX() /
+> iowriteXX() APIs and since we touch all of them (?) may be it makes
+> sense convert to use them at the same time. Dunno.
+> 
+I would say cosmetic conversions are better to go to another patch.
 
-On Thu, 9 Nov 2023 17:34:15 +0100, Heiner Kallweit wrote:
-> On 09.11.2023 14:52, Jean Delvare wrote:
-> > For example, if DMI data says the system is using DDR4 and we were able
-> > to detect and instantiate an ee1004 SPD device at I2C address 0x50 then
-> > we should probe for a JC42.4-compliant temperature sensor device at I2C
-> > address 0x18. An SPD EEPROM at 0x51 would correspond to a possible
-> > JC42.4-compliant device at 0x19, and so on.
->
-> Nice idea. How about our ASUS use case in i801? i2c_register_spd() isn't
-> called in case of muxing, neither for the parent nor for the mux children.
+For this patch:
 
-When I introduced i2c_register_spd(), I wanted to go one step at a
-time, as I didn't know what to expect due to the wide variety of
-systems affected. For this reason, systems where the SMBus is
-multiplexed were originally excluded. There's also a limitation in the
-function itself, on the number of memory slots, which is 4 for now, but
-could be lifted to 8 (maximum number of memory slots connected to a
-single SMBus segment).
-
-The Asus boards we are talking about may have more than 8 memory slots,
-so they would fail the test. If we want to be able to use
-i2c_register_spd() on these boards, some adjustments will be needed.
-For example, we could add a parameter to bypass the memory slot
-counting, so that the function could be called on children segments
-(only a subset of the memory slots will be connected to that segment,
-so the total slot count it irrelevant). We would ignore the DMI data
-and hard-code dimm_count to 8 in that case, to probe all possible
-addresses.
-
-Another approach would be to add a parameter (probably a bit field)
-describing which addresses should be probed, instead of guessing that
-from the dimm_count collected from DMI data. For the Asus boards in
-question, the information is known, and this would speed things up a
-bit by not probing addresses which can't possibly correspond to a
-memory module on a given board. That's only a minor optimization
-though, so not necessarily worth it. OTOH having that possibility would
-give more control on the probing, which may be useful for specific
-boards.
-
--- 
-Jean Delvare
-SUSE L3 Support
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 
