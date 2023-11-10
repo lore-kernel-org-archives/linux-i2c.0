@@ -1,55 +1,55 @@
-Return-Path: <linux-i2c+bounces-26-linux-i2c=archiver.kernel.org@vger.kernel.org>
+Return-Path: <linux-i2c+bounces-27-linux-i2c=archiver.kernel.org@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 Received: from sy.mirrors.kernel.org (sy.mirrors.kernel.org [147.75.48.161])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 8AD65C4167B
-	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 18:32:01 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 48379C4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 18:32:03 +0000 (UTC)
 Received: from smtp.subspace.kernel.org (wormhole.subspace.kernel.org [52.25.139.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by sy.mirrors.kernel.org (Postfix) with ESMTPS id 0746EB20C55
-	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 18:32:00 +0000 (UTC)
+	by sy.mirrors.kernel.org (Postfix) with ESMTPS id C19D4B20D6A
+	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 18:32:01 +0000 (UTC)
 Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 601283A29A;
-	Fri, 10 Nov 2023 18:31:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 14D6A3A296;
+	Fri, 10 Nov 2023 18:32:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HoLZ3TZG"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="dZOkCWKj"
 Received: from lindbergh.monkeyblade.net (lindbergh.monkeyblade.net [23.128.96.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5044C3A298
-	for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 18:31:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CAF43A28C
+	for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 18:31:58 +0000 (UTC)
 Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.20])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B0C3129207;
-	Fri, 10 Nov 2023 10:31:05 -0800 (PST)
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DAE6762CF3;
+	Fri, 10 Nov 2023 10:31:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1699641065; x=1731177065;
+  t=1699641088; x=1731177088;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=rMCJyp3s0CVWHHyikBnsf5d5zvaMttv+rzq/RNKsO7w=;
-  b=HoLZ3TZGh3JEzWijA0dxenmQhVTfmmtC/32fRYBsJ/DCyNJeCsvT1IXR
-   CgFQcQ43wkqgbLADvJoNgVpTnHINNmiuxTxzQbRMQJvRWhKUI8x5CMKul
-   obelbVd9//o2q59dCWYDF3x7hb0QlUqVye4L8FbhICGCaEaBqtT7mMbeo
-   oNjSOO9Jf/PqkX8QMlyl3jix6S2mWm4lSvJ2RSYzswS/LAEL91xfKdGnE
-   WWqAAlWV3LFU7m5BrBQ7Nryr0DPrESZGaj7bT5UTuSAr5vcLsZus/SLFZ
-   uoNLhW/ilGWXh87m/FEFYc/tBMh9v4v092pLomStzZW3+u0wTpt8wiBEr
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10890"; a="380606862"
+  bh=eidm3WGoLQyIQ+F+/YdqjYipuzRZroeIzP7JrslkPvk=;
+  b=dZOkCWKj9EfH1fpf1Oxy9eBeRTI+J7xjftl/+lwESXuCYZ8M9MwRXV+T
+   r8TL1juBC5/8gowZdj06AqE8RAfGan/OzDMDXxqxl9+zM02d4MWqg32yj
+   uwrbrmEsYxW8+aMtiSeaTZE5pGEYDUCyHXLYlVID753OAnyK6bgo2y1ui
+   g1PEyv8dYa+t7AMQhGnmGvStc0qx5Qg1Wyt2h/cFIe+szjgQmVIsuwJ/9
+   9OtnJ9aeCqdscyIvgyHZPHoUWhDjpSeZ/SAMcdBYBSUqoO+VF+a1YkWe5
+   j8eljmR0ILRCXtyz2sHRDzUur7p1V5P8hBdJGGO8lx/d2UkFI8XGEVona
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10890"; a="380606864"
 X-IronPort-AV: E=Sophos;i="6.03,291,1694761200"; 
-   d="scan'208";a="380606862"
+   d="scan'208";a="380606864"
 Received: from orsmga008.jf.intel.com ([10.7.209.65])
   by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2023 10:29:43 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10890"; a="792912168"
+X-IronPort-AV: E=McAfee;i="6600,9927,10890"; a="792912169"
 X-IronPort-AV: E=Sophos;i="6.03,291,1694761200"; 
-   d="scan'208";a="792912168"
+   d="scan'208";a="792912169"
 Received: from black.fi.intel.com ([10.237.72.28])
   by orsmga008.jf.intel.com with ESMTP; 10 Nov 2023 10:29:40 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id 1318A8C1; Fri, 10 Nov 2023 20:23:08 +0200 (EET)
+	id B742781E; Fri, 10 Nov 2023 20:23:07 +0200 (EET)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Jarkko Nikula <jarkko.nikula@linux.intel.com>,
 	Mario Limonciello <mario.limonciello@amd.com>,
@@ -63,9 +63,9 @@ Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
 	Philipp Zabel <p.zabel@pengutronix.de>,
 	Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v3 16/25] i2c: designware: Unify the firmware type checks
-Date: Fri, 10 Nov 2023 20:11:36 +0200
-Message-ID: <20231110182304.3894319-17-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v3 08/25] i2c: designware: Add missing 'c' into PCI IDs variable name
+Date: Fri, 10 Nov 2023 20:11:28 +0200
+Message-ID: <20231110182304.3894319-9-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.43.0.rc1.1.gbec44491f096
 In-Reply-To: <20231110182304.3894319-1-andriy.shevchenko@linux.intel.com>
 References: <20231110182304.3894319-1-andriy.shevchenko@linux.intel.com>
@@ -77,46 +77,45 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Instead of asymmetrical checks for the firmware type use
-the is_*_node() calls.
+Add missing 'c' into i2c_designware_pci_ids variable name.
 
-Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-common.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index a5cae814a9c2..49d9d5f83071 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -22,6 +22,7 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/pm_runtime.h>
-+#include <linux/property.h>
- #include <linux/regmap.h>
- #include <linux/swab.h>
- #include <linux/types.h>
-@@ -372,14 +373,15 @@ int i2c_dw_fw_parse_and_configure(struct dw_i2c_dev *dev)
- {
- 	struct i2c_timings *t = &dev->timings;
- 	struct device *device = dev->dev;
-+	struct fwnode_handle *fwnode = dev_fwnode(device);
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 175aa18f1a04..d2ed4e77afb3 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -356,7 +356,7 @@ static void i2c_dw_pci_remove(struct pci_dev *pdev)
+ 	pm_runtime_get_noresume(&pdev->dev);
+ }
  
- 	i2c_parse_fw_timings(device, t, false);
+-static const struct pci_device_id i2_designware_pci_ids[] = {
++static const struct pci_device_id i2c_designware_pci_ids[] = {
+ 	/* Medfield */
+ 	{ PCI_VDEVICE(INTEL, 0x0817), medfield },
+ 	{ PCI_VDEVICE(INTEL, 0x0818), medfield },
+@@ -404,16 +404,16 @@ static const struct pci_device_id i2_designware_pci_ids[] = {
+ 	{ PCI_VDEVICE(ATI,  0x7464), navi_amd },
+ 	{ 0,}
+ };
+-MODULE_DEVICE_TABLE(pci, i2_designware_pci_ids);
++MODULE_DEVICE_TABLE(pci, i2c_designware_pci_ids);
  
- 	i2c_dw_adjust_bus_speed(dev);
+ static struct pci_driver dw_i2c_driver = {
+ 	.name		= DRIVER_NAME,
+-	.id_table	= i2_designware_pci_ids,
+ 	.probe		= i2c_dw_pci_probe,
+ 	.remove		= i2c_dw_pci_remove,
+ 	.driver         = {
+ 		.pm     = &i2c_dw_pm_ops,
+ 	},
++	.id_table	= i2c_designware_pci_ids,
+ };
+ module_pci_driver(dw_i2c_driver);
  
--	if (device->of_node)
-+	if (is_of_node(fwnode))
- 		i2c_dw_of_configure(device);
--	if (has_acpi_companion(device))
-+	else if (is_acpi_node(fwnode))
- 		i2c_dw_acpi_configure(device);
- 
- 	return i2c_dw_validate_speed(dev);
 -- 
 2.43.0.rc1.1.gbec44491f096
 
