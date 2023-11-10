@@ -1,97 +1,93 @@
-Return-Path: <linux-i2c+bounces-4-linux-i2c=archiver.kernel.org@vger.kernel.org>
+Return-Path: <linux-i2c+bounces-5-linux-i2c=archiver.kernel.org@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from sy.mirrors.kernel.org (sy.mirrors.kernel.org [147.75.48.161])
+Received: from sv.mirrors.kernel.org (sv.mirrors.kernel.org [139.178.88.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9B687C4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 17:48:35 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 98FDFC4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 17:48:41 +0000 (UTC)
 Received: from smtp.subspace.kernel.org (wormhole.subspace.kernel.org [52.25.139.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by sy.mirrors.kernel.org (Postfix) with ESMTPS id 061CCB21BE0
-	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 17:48:34 +0000 (UTC)
+	by sv.mirrors.kernel.org (Postfix) with ESMTPS id 5EA93281980
+	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 17:48:41 +0000 (UTC)
 Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id C2ABA3C068;
-	Fri, 10 Nov 2023 17:46:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1FF7B3B2A1;
+	Fri, 10 Nov 2023 17:46:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="y9V1NKpK"
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=armlinux.org.uk header.i=@armlinux.org.uk header.b="02EITr0O"
 Received: from lindbergh.monkeyblade.net (lindbergh.monkeyblade.net [23.128.96.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECFE1374E5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B463F3B2AB
 	for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 17:46:45 +0000 (UTC)
-Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F2653A21A
-	for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 07:03:28 -0800 (PST)
-Received: by mail-yb1-xb2d.google.com with SMTP id 3f1490d57ef6-da2b9234a9fso2264925276.3
-        for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 07:03:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1699628607; x=1700233407; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LI+FAc5jUx2iUB/tuWRLdQMnq28TFVaG5me1J01BIf8=;
-        b=y9V1NKpKF4d5L3P/DBn4TVIqL66A+IEcNHDf/ocQ9H7cZY8zPVSmvoe8tvcgcNI9iR
-         V4mzFKc7bCNSAiFuMPJGTUH3vz0OUfuJTWqL6WDtjrDUBqo0Ysg6EOQw0TCFhQc1AJSx
-         9SXmEEP8+wXWAxODqQOTD0L6lSMW+5YkNkCGGz5mxX6YgGV66N72Y61Z/hfBQmOTVsBH
-         1SWt95Sr2aSYvszKNB6Vn0MrSmtN/WvBAY2yr/vUHPMVdvht5qU3jK2GM6X9Sr7B1DCq
-         cG7cLDVNHb0iWNtXWhRHSI5FAkCK1LrneCA8rW1Sps4SeXtwhGH56uoV/KRy3BQtfBjl
-         yEjA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699628607; x=1700233407;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=LI+FAc5jUx2iUB/tuWRLdQMnq28TFVaG5me1J01BIf8=;
-        b=S+64hvDOFAmY7QKQ/+h6TeSteyZjW2J9WdWqSJENhE5DsDyJQ7Ha4Sc09hlBcs1Hm+
-         jVTsswzVh0KQ/AuiKPDtxXY+impyiLcKXudqWdPNsI0XOQ4FmLcvyof2vUsVVf0tCEUg
-         PIqQO4k77ffbBHbUiSs9/bDEeL6RujKngFvTS8qbWTos1WHPOvMttjafX5v4tqDr0LHD
-         M4PRqhsuJIWtf/UgwkpA9guUm8ZEgeWqUtSKWST0vrOALwofeEYSg1v1KzxuAjCdAenn
-         fH7eJdHaQnh40WeqCNY8LyJ6jk+A+bCS6JRVhuAXpnkyoo86f9/IujW5cvyznb3CvMNf
-         +LrA==
-X-Gm-Message-State: AOJu0YwypMwP4q/d3IHm9pMiGWKuRJWa9oLNnd+599xKvKkS0znaghyC
-	ZjxdmCOSaGEljzfVFcN0dmEjk91aGX9wKdcaZBQMdA==
-X-Google-Smtp-Source: AGHT+IEQr+nD2hM97g1wEMewiNYcV+P/h9wqI2rtiaJOKCE6z3RIk8Z4M5U5zFWunLk3FdUgIGa/re/G/hYUqKHqlxQ=
-X-Received: by 2002:a25:dccf:0:b0:d81:6151:2031 with SMTP id
- y198-20020a25dccf000000b00d8161512031mr7684797ybe.61.1699628607664; Fri, 10
- Nov 2023 07:03:27 -0800 (PST)
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D5BF2BE36;
+	Fri, 10 Nov 2023 01:44:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+	MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=RCqQsSVyM3DoXJTLUpazgJs9NwUukmIgdnC+ahMaGSU=; b=02EITr0OdLqv0CrU0Iuf65HdLz
+	ihjguQJZ+aOheh6x0VJm3tU0/AFj4I38usxj+5SaOy9N8HN7heoNCjgyMqGiHY1Re84aQXs8nphcd
+	5TbtBdAs0pvmsojcyhTBr5aNOyXzLQnBxLvyYfU8IYx2BdP8R1LV/RprefPa/62N9JtCRtzYY4/YL
+	v2XyvJAL9V9P9O72c751zb339ii1SWayLwtEzjihLEe8p+LBwplBoHOdRthPnfe64+JAVlEbVx/EH
+	k2GprCYgShO0DpAWg4g9Tui/vZICK5po39lpOZyrKUw78uqmtkg6RSYheoRBBKE1t2QYac+8KZqJr
+	iz5C2eLA==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:43810)
+	by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <linux@armlinux.org.uk>)
+	id 1r1O3b-0003QY-0D;
+	Fri, 10 Nov 2023 09:44:07 +0000
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
+	(envelope-from <linux@shell.armlinux.org.uk>)
+	id 1r1O3c-0001SO-J6; Fri, 10 Nov 2023 09:44:08 +0000
+Date: Fri, 10 Nov 2023 09:44:08 +0000
+From: "Russell King (Oracle)" <linux@armlinux.org.uk>
+To: Robert Marko <robert.marko@sartura.hr>
+Cc: andi.shyti@kernel.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linus.walleij@linaro.org,
+	wsa@kernel.org, codrin.ciubotariu@microchip.com,
+	stable@vger.kernel.org
+Subject: Re: [PATCH] Revert "i2c: pxa: move to generic GPIO recovery"
+Message-ID: <ZU37aJfDpcixU2OZ@shell.armlinux.org.uk>
+References: <20231110093039.190076-1-robert.marko@sartura.hr>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20231110093039.190076-1-robert.marko@sartura.hr>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20231110093039.190076-1-robert.marko@sartura.hr>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Fri, 10 Nov 2023 16:03:15 +0100
-Message-ID: <CACRpkdZ3UU=Zo7aqaYqZENHmEmy+hYMDNCFMw5hikMDKG1Skfg@mail.gmail.com>
-Subject: Re: [PATCH] Revert "i2c: pxa: move to generic GPIO recovery"
-To: Robert Marko <robert.marko@sartura.hr>
-Cc: andi.shyti@kernel.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux@armlinux.org.uk, wsa@kernel.org, 
-	codrin.ciubotariu@microchip.com, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 
-On Fri, Nov 10, 2023 at 10:30=E2=80=AFAM Robert Marko <robert.marko@sartura=
-.hr> wrote:
-
+On Fri, Nov 10, 2023 at 10:30:11AM +0100, Robert Marko wrote:
 > This reverts commit 0b01392c18b9993a584f36ace1d61118772ad0ca.
->
+> 
 > Conversion of PXA to generic I2C recovery, makes the I2C bus completely
 > lock up if recovery pinctrl is present in the DT and I2C recovery is
 > enabled.
->
+> 
 > So, until the generic I2C recovery can also work with PXA lets revert
 > to have working I2C and I2C recovery again.
->
+> 
 > Signed-off-by: Robert Marko <robert.marko@sartura.hr>
 > Cc: stable@vger.kernel.org # 5.11+
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+My feels were that this should not have been converted to the generic
+recovery as pointed out at the time, so thanks for confirming that it
+broke as a result of that conversion, it did indeed break.
 
-Yours,
-Linus Walleij
+Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+
+Thanks!
+
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 80Mbps down 10Mbps up. Decent connectivity at last!
 
