@@ -1,55 +1,55 @@
-Return-Path: <linux-i2c+bounces-30-linux-i2c=archiver.kernel.org@vger.kernel.org>
+Return-Path: <linux-i2c+bounces-31-linux-i2c=archiver.kernel.org@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from sy.mirrors.kernel.org (sy.mirrors.kernel.org [147.75.48.161])
+Received: from sv.mirrors.kernel.org (sv.mirrors.kernel.org [139.178.88.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id 9A9B9C4332F
-	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 18:32:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id E2742C4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 18:33:20 +0000 (UTC)
 Received: from smtp.subspace.kernel.org (wormhole.subspace.kernel.org [52.25.139.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by sy.mirrors.kernel.org (Postfix) with ESMTPS id 19840B20CD5
-	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 18:32:29 +0000 (UTC)
+	by sv.mirrors.kernel.org (Postfix) with ESMTPS id 979892810C7
+	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 18:33:20 +0000 (UTC)
 Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 7439B3A28F;
-	Fri, 10 Nov 2023 18:32:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9D4701DDFA;
+	Fri, 10 Nov 2023 18:33:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XRpPg6QR"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="aCJIZkso"
 Received: from lindbergh.monkeyblade.net (lindbergh.monkeyblade.net [23.128.96.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6F323A290
-	for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 18:32:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73E1E3219E
+	for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 18:33:14 +0000 (UTC)
 Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.100])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0D8B43F24;
-	Fri, 10 Nov 2023 10:30:05 -0800 (PST)
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C7B87693;
+	Fri, 10 Nov 2023 10:32:24 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1699641006; x=1731177006;
+  t=1699641144; x=1731177144;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=8Ch616RIiwMbi+7TM0+OouYVFx4BrkmdvHXetfyjPF8=;
-  b=XRpPg6QR9JSZWAJzqQFr/TPEOV1dwyAbwUUIYBxG4nN9c1dOBpCEJY5g
-   gEz1YiL3kg4xPOF4wVLBQA16Zts4INzneWCKp+wrCaQVw1GcjrXGL7GtU
-   bmXwpirMXg5O+BkUFuCZC+7aqoWTpSSa3DrSkWFQVoanhLngcUbtho+ff
-   o+O4LiG+8T1H3yubegzT6SQpxlOfIbIY7bOSF9zBNBuvWlYhireDpEv9V
-   IKFbtfQwd7vH1l6Za54rSj33XkDIL4aX94ygdsdbEVPUUBwgBxol6DYvM
-   pvuJ/G6hUuPSaY1cQVk9Cuv9wfZV/PgdU1EOffYOqvX8ThmlCEx+S7l/F
+  bh=bEJAV9zxfyI2elm8JN4vfIfB/68Bb0SGglHF3L4Fy+Y=;
+  b=aCJIZksonkYiMiWdefRMRkeGVig9iU8p98Cg3KYv0yyKgye3yzTvrtev
+   XmpwRrWS/tUVDtFMlHgrE6gR4uCvXssgrHsDFdcAK6whAOoUsXjQjIwjG
+   wSRwhjQxF98frtUFcjr0olnoxuJ7G84SXd4+a7ZKm+lM9N1CI+pr7a1rf
+   pagsbr+MrseWLs1OQLPsia4LXdRuYZDXsYtmtXIT/JpWje4029VEw4iVX
+   0R/DBp76W/MkyZ268q7hyIoZl0O5t37Mvpg7/A+z1oS+219pfbWY2dOmC
+   JT+Jx5SMPzbsXmIErOl8cLtg/SOBOM1ZBR5oUduAiK+nQerhive0LQlE9
    w==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10890"; a="456715043"
+X-IronPort-AV: E=McAfee;i="6600,9927,10890"; a="456715067"
 X-IronPort-AV: E=Sophos;i="6.03,291,1694761200"; 
-   d="scan'208";a="456715043"
+   d="scan'208";a="456715067"
 Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2023 10:29:39 -0800
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Nov 2023 10:29:43 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10890"; a="763808230"
+X-IronPort-AV: E=McAfee;i="6600,9927,10890"; a="763808264"
 X-IronPort-AV: E=Sophos;i="6.03,291,1694761200"; 
-   d="scan'208";a="763808230"
+   d="scan'208";a="763808264"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga002.jf.intel.com with ESMTP; 10 Nov 2023 10:29:36 -0800
+  by orsmga002.jf.intel.com with ESMTP; 10 Nov 2023 10:29:40 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id AD3C1812; Fri, 10 Nov 2023 20:23:07 +0200 (EET)
+	id 571888E8; Fri, 10 Nov 2023 20:23:08 +0200 (EET)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Jarkko Nikula <jarkko.nikula@linux.intel.com>,
 	Mario Limonciello <mario.limonciello@amd.com>,
@@ -63,9 +63,9 @@ Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
 	Philipp Zabel <p.zabel@pengutronix.de>,
 	Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH v3 07/25] i2c: designware: Save pointer to semaphore callbacks instead of index
-Date: Fri, 10 Nov 2023 20:11:27 +0200
-Message-ID: <20231110182304.3894319-8-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v3 22/25] i2c: designware: Use pci_get_drvdata()
+Date: Fri, 10 Nov 2023 20:11:42 +0200
+Message-ID: <20231110182304.3894319-23-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.43.0.rc1.1.gbec44491f096
 In-Reply-To: <20231110182304.3894319-1-andriy.shevchenko@linux.intel.com>
 References: <20231110182304.3894319-1-andriy.shevchenko@linux.intel.com>
@@ -77,80 +77,37 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Instead of saving index and do an additional level of referencing,
-save just a pointer to the semaphore callbacks directly. It makes
-code cleaner.
+Use the wrapper function for getting the driver data using pci_dev
+instead of using dev_get_drvdata() with &pdev->dev, so we can directly
+pass a struct pci_dev. This is a purely cosmetic change.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-core.h    |  4 +++-
- drivers/i2c/busses/i2c-designware-platdrv.c | 12 ++++--------
- 2 files changed, 7 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index a7f6f3eafad7..f8dd87cb0ae9 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -187,6 +187,8 @@ struct clk;
- struct device;
- struct reset_control;
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index f9fbd41c188d..826c0c0a7c8d 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -102,7 +102,7 @@ static u32 mfld_get_clk_rate_khz(struct dw_i2c_dev *dev)
  
-+struct i2c_dw_semaphore_callbacks;
-+
- /**
-  * struct dw_i2c_dev - private i2c-designware data
-  * @dev: driver model device node
-@@ -291,7 +293,7 @@ struct dw_i2c_dev {
- 	u16			hs_lcnt;
- 	int			(*acquire_lock)(void);
- 	void			(*release_lock)(void);
--	int			semaphore_idx;
-+	const struct i2c_dw_semaphore_callbacks *semaphore_cb;
- 	bool			shared_with_punit;
- 	void			(*disable)(struct dw_i2c_dev *dev);
- 	int			(*init)(struct dw_i2c_dev *dev);
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index cb954f11540e..4b5e58e1ce5b 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -247,21 +247,18 @@ static void i2c_dw_remove_lock_support(void *data)
+ static int mfld_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
  {
- 	struct dw_i2c_dev *dev = data;
+-	struct dw_i2c_dev *dev = dev_get_drvdata(&pdev->dev);
++	struct dw_i2c_dev *dev = pci_get_drvdata(pdev);
  
--	if (dev->semaphore_idx < 0)
-+	if (!dev->semaphore_cb)
- 		return;
+ 	switch (pdev->device) {
+ 	case 0x0817:
+@@ -152,7 +152,7 @@ static u32 navi_amd_get_clk_rate_khz(struct dw_i2c_dev *dev)
  
--	if (i2c_dw_semaphore_cb_table[dev->semaphore_idx].remove)
--		i2c_dw_semaphore_cb_table[dev->semaphore_idx].remove(dev);
-+	if (dev->semaphore_cb->remove)
-+		dev->semaphore_cb->remove(dev);
- }
- 
- static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
+ static int navi_amd_setup(struct pci_dev *pdev, struct dw_pci_controller *c)
  {
- 	const struct i2c_dw_semaphore_callbacks *ptr;
--	int i = 0;
- 	int ret;
+-	struct dw_i2c_dev *dev = dev_get_drvdata(&pdev->dev);
++	struct dw_i2c_dev *dev = pci_get_drvdata(pdev);
  
--	dev->semaphore_idx = -1;
--
- 	for (ptr = i2c_dw_semaphore_cb_table; ptr->probe; ptr++) {
- 		ret = ptr->probe(dev);
- 		if (ret) {
-@@ -273,11 +270,10 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
- 			if (ret != -ENODEV)
- 				return ret;
- 
--			i++;
- 			continue;
- 		}
- 
--		dev->semaphore_idx = i;
-+		dev->semaphore_cb = ptr;
- 		break;
- 	}
- 
+ 	dev->flags |= MODEL_AMD_NAVI_GPU;
+ 	dev->timings.bus_freq_hz = I2C_MAX_STANDARD_MODE_FREQ;
 -- 
 2.43.0.rc1.1.gbec44491f096
 
