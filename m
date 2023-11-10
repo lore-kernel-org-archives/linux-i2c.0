@@ -1,222 +1,139 @@
-Return-Path: <linux-i2c+bounces-6-linux-i2c=archiver.kernel.org@vger.kernel.org>
+Return-Path: <linux-i2c+bounces-7-linux-i2c=archiver.kernel.org@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from ny.mirrors.kernel.org (ny.mirrors.kernel.org [147.75.199.223])
+Received: from sv.mirrors.kernel.org (sv.mirrors.kernel.org [139.178.88.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.lore.kernel.org (Postfix) with ESMTPS id D64B6C4167D
-	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 17:48:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id 259D5C4332F
+	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 17:48:57 +0000 (UTC)
 Received: from smtp.subspace.kernel.org (wormhole.subspace.kernel.org [52.25.139.140])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by ny.mirrors.kernel.org (Postfix) with ESMTPS id 3B14A1C20E9B
-	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 17:48:53 +0000 (UTC)
+	by sv.mirrors.kernel.org (Postfix) with ESMTPS id D54E7281A14
+	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 17:48:56 +0000 (UTC)
 Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id A70433C09A;
-	Fri, 10 Nov 2023 17:46:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 0BC073C684;
+	Fri, 10 Nov 2023 17:46:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sartura.hr header.i=@sartura.hr header.b="rbBog5py"
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="J2BgNnjo"
 Received: from lindbergh.monkeyblade.net (lindbergh.monkeyblade.net [23.128.96.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B5AD3B798
-	for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 17:46:49 +0000 (UTC)
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E53824483
-	for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 01:30:44 -0800 (PST)
-Received: by mail-ed1-x52f.google.com with SMTP id 4fb4d7f45d1cf-543456dbd7bso5937759a12.1
-        for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 01:30:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sartura.hr; s=sartura; t=1699608643; x=1700213443; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=rkNN8+PjnJ5Ef46R2X9sE8qx4x4isQxNOv4iGhlDVRw=;
-        b=rbBog5pyOhfxKqUSCaXySxYXppt/708RL5o04jGpslRlgL29BffDpBY9NdUKaUwWQa
-         6/UIaHyqTANUBIrPS2941NyPSR9yGSjpG5gTGkXrCQc1PyXZvGbEkMu1taNzFKjvGstD
-         7dLjbDkIPJlngs7QngDgpoCdqv8G/1jwgOePijeRlIHSlmVRUSpvJJMIUAqcW6VO7Cf0
-         CJASVo+FgiYO+FMEPotP8ETAdyNNg0cNE+HC23bT94lkS+8Ayr6lxCG7ACoHueXNIocM
-         xPAE3aTFIgudUEmg3gxdf+fThe0Zt1UOSenCgEmu84hlltecjdbCVdXOt2bBmvoU+MmM
-         j7rA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1699608643; x=1700213443;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=rkNN8+PjnJ5Ef46R2X9sE8qx4x4isQxNOv4iGhlDVRw=;
-        b=fiXuLvQgAEF7Fo5pxwxOREiSRd1HsRnGdDHVmq6y/+F4XIzY2TEwn1IfTUnaUmJWFv
-         wAYJPRDewUfI+OfzYZPDAV/nk89l/Rcr5RpPUc4VUh4/buvB5M3ip/pVdxILtsB/JKDf
-         P5HAUp3ZJZYlqmNTpRiSIIH4sBfdZmRi6lfeFF4b2RvRfkn2wA+E3S8mA1UFWocGvIDX
-         qw3sPKmwz/zWNtmFBGfvSMysQOgY7Tlfw30zRp6mj1J5N6szkHjmCLYrlRkAYvjbgHB+
-         1vjyVAuIVSD8n4REX9Crh+v1APXcChzSij1AtsLesMIjzCXerxOGjzggB5QJytjEfXAH
-         MadA==
-X-Gm-Message-State: AOJu0Yy+rEJd/4CqYVtDbclkcjv5kvB0uBuZFHauR87ZoJTM62Vr24sw
-	11npimpJnb/zHuU8KLF35L1QGg==
-X-Google-Smtp-Source: AGHT+IGrq9EMu2rzFwR4CptNlJT8qkAN1l9yBCm3T0SUuvlgbNK0GYonHNm+aPvGsjAH9Vh9pfdabg==
-X-Received: by 2002:a17:906:3bcb:b0:9ae:5513:e475 with SMTP id v11-20020a1709063bcb00b009ae5513e475mr1885957ejf.9.1699608642876;
-        Fri, 10 Nov 2023 01:30:42 -0800 (PST)
-Received: from fedora.. (cpezg-94-253-128-32-cbl.xnet.hr. [94.253.128.32])
-        by smtp.googlemail.com with ESMTPSA id dt14-20020a170907728e00b009e5d30422ebsm917829ejc.101.2023.11.10.01.30.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Nov 2023 01:30:42 -0800 (PST)
-From: Robert Marko <robert.marko@sartura.hr>
-To: andi.shyti@kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux@armlinux.org.uk,
-	linus.walleij@linaro.org,
-	wsa@kernel.org,
-	codrin.ciubotariu@microchip.com
-Cc: Robert Marko <robert.marko@sartura.hr>,
-	stable@vger.kernel.org
-Subject: [PATCH] Revert "i2c: pxa: move to generic GPIO recovery"
-Date: Fri, 10 Nov 2023 10:30:11 +0100
-Message-ID: <20231110093039.190076-1-robert.marko@sartura.hr>
-X-Mailer: git-send-email 2.41.0
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B68F3B79D
+	for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 17:46:50 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CA8733F95
+	for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 04:27:25 -0800 (PST)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B846C433C7;
+	Fri, 10 Nov 2023 12:27:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1699619245;
+	bh=TBjfM+0v5vP4+EpCJ/0NcmUBT8x+HTYiMxO2dAn7jRw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=J2BgNnjo/5n48ON5Pvkk/wZ5ZQrSDKLJVregVOrVHq5fyZLC0j3ryb4xD22MXJnu3
+	 2tqPSUMsFOXPvEXd8v4kDY/IoaqCwGr5RhwgyQu1b+821KKOYpMPI/zRWsKIqe0iOR
+	 JUHJCar5vwEx4TzlOLLijSHlSzkrJku3+maQffT1Ys1zsKQas6VzdYAT/92AOw/kzH
+	 loz1KtkkPcbf+E4lDHwxO58JLDj70cb9eK5nYXlrlqWjnS8GN6mM3vCrsBGEpyUjCD
+	 PKke8V9gmd+h1NYeik0Td4qIXLsEBFkjrwQTkd8BIKdSHaiDqx5FsbV84oMAhbQ1mE
+	 xF839Qk0U41Ow==
+Date: Fri, 10 Nov 2023 13:27:20 +0100
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Alexander Stein <alexander.stein@ew.tq-group.com>
+Cc: Dong Aisheng <aisheng.dong@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>, Wolfram Sang <wsa@kernel.org>,
+	Alexander Sverdlin <alexander.sverdlin@siemens.com>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	NXP Linux Team <linux-imx@nxp.com>, linux-i2c@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v7 1/1] i2c: lpi2c: use clk notifier for rate changes
+Message-ID: <20231110122720.cyxtnpj5k6bip3ok@zenone.zhora.eu>
+References: <20231107141201.623482-1-alexander.stein@ew.tq-group.com>
+ <20231108233809.u3nvxlttmts6tj2m@zenone.zhora.eu>
+ <3597042.R56niFO833@steina-w>
+ <20231109091046.4hrvxr7g5imfrykq@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20231109091046.4hrvxr7g5imfrykq@zenone.zhora.eu>
 
-This reverts commit 0b01392c18b9993a584f36ace1d61118772ad0ca.
+Alexander,
 
-Conversion of PXA to generic I2C recovery, makes the I2C bus completely
-lock up if recovery pinctrl is present in the DT and I2C recovery is
-enabled.
+if you...
 
-So, until the generic I2C recovery can also work with PXA lets revert
-to have working I2C and I2C recovery again.
+On Thu, Nov 09, 2023 at 10:10:46AM +0100, Andi Shyti wrote:
+> On Thu, Nov 09, 2023 at 08:54:51AM +0100, Alexander Stein wrote:
+> > Am Donnerstag, 9. November 2023, 00:38:09 CET schrieb Andi Shyti:
+> > > On Tue, Nov 07, 2023 at 03:12:01PM +0100, Alexander Stein wrote:
+> > > > Instead of repeatedly calling clk_get_rate for each transfer, register
+> > > > a clock notifier to update the cached divider value each time the clock
+> > > > rate actually changes.
+> > > > There is also a lockdep splat if a I2C based clock provider needs to
+> > > > access the i2c bus while in recalc_rate(). "prepare_lock" is about to
+> > > > be locked recursively.
+> > > > 
+> > > > Fixes: a55fa9d0e42e ("i2c: imx-lpi2c: add low power i2c bus driver")
+> > > 
+> > > What's the exact fix here? Is it the lockdep warning? Is it
+> > > actually causing a real deadlock?
+> > 
+> > We've seen actual deadlocks on our imx8qxp based hardware using a downstream 
+> > kernel, so we have implemented as similar fix [1]. This happened using 
+> > tlv320aic32x4 audio codec.
+> > The backtrace is similar, a i2c based clock provider is trying t issue an i2c 
+> > transfer while adding the clock, thus 'prepare_lock' is already locked.
+> > Lockdep raises an error both for downstream kernel as well as mainline, both 
+> > for tlv320aic32x4 or pcf85063.
+> 
+> yes, if the clock is using the same controller then it's likely
+> that you might end up in a deadlock. This is why I like this
+> patch and I believe this shouild go in the library at some point.
+> 
+> But the deadlock is not mentioned in the commit log and lockdep
+> doesn't always mean deadlock.
 
-Signed-off-by: Robert Marko <robert.marko@sartura.hr>
-Cc: stable@vger.kernel.org # 5.11+
----
- drivers/i2c/busses/i2c-pxa.c | 76 ++++++++++++++++++++++++++++++++----
- 1 file changed, 68 insertions(+), 8 deletions(-)
+... improve the commit message, reporting the real deadlock case
+instead of a lockdep warning and...
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index 1d7648242749..76f79b68cef8 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -265,6 +265,9 @@ struct pxa_i2c {
- 	u32			hs_mask;
- 
- 	struct i2c_bus_recovery_info recovery;
-+	struct pinctrl		*pinctrl;
-+	struct pinctrl_state	*pinctrl_default;
-+	struct pinctrl_state	*pinctrl_recovery;
- };
- 
- #define _IBMR(i2c)	((i2c)->reg_ibmr)
-@@ -1299,12 +1302,13 @@ static void i2c_pxa_prepare_recovery(struct i2c_adapter *adap)
- 	 */
- 	gpiod_set_value(i2c->recovery.scl_gpiod, ibmr & IBMR_SCLS);
- 	gpiod_set_value(i2c->recovery.sda_gpiod, ibmr & IBMR_SDAS);
-+
-+	WARN_ON(pinctrl_select_state(i2c->pinctrl, i2c->pinctrl_recovery));
- }
- 
- static void i2c_pxa_unprepare_recovery(struct i2c_adapter *adap)
- {
- 	struct pxa_i2c *i2c = adap->algo_data;
--	struct i2c_bus_recovery_info *bri = adap->bus_recovery_info;
- 	u32 isr;
- 
- 	/*
-@@ -1318,7 +1322,7 @@ static void i2c_pxa_unprepare_recovery(struct i2c_adapter *adap)
- 		i2c_pxa_do_reset(i2c);
- 	}
- 
--	WARN_ON(pinctrl_select_state(bri->pinctrl, bri->pins_default));
-+	WARN_ON(pinctrl_select_state(i2c->pinctrl, i2c->pinctrl_default));
- 
- 	dev_dbg(&i2c->adap.dev, "recovery: IBMR 0x%08x ISR 0x%08x\n",
- 	        readl(_IBMR(i2c)), readl(_ISR(i2c)));
-@@ -1340,20 +1344,76 @@ static int i2c_pxa_init_recovery(struct pxa_i2c *i2c)
- 	if (IS_ENABLED(CONFIG_I2C_PXA_SLAVE))
- 		return 0;
- 
--	bri->pinctrl = devm_pinctrl_get(dev);
--	if (PTR_ERR(bri->pinctrl) == -ENODEV) {
--		bri->pinctrl = NULL;
-+	i2c->pinctrl = devm_pinctrl_get(dev);
-+	if (PTR_ERR(i2c->pinctrl) == -ENODEV)
-+		i2c->pinctrl = NULL;
-+	if (IS_ERR(i2c->pinctrl))
-+		return PTR_ERR(i2c->pinctrl);
-+
-+	if (!i2c->pinctrl)
-+		return 0;
-+
-+	i2c->pinctrl_default = pinctrl_lookup_state(i2c->pinctrl,
-+						    PINCTRL_STATE_DEFAULT);
-+	i2c->pinctrl_recovery = pinctrl_lookup_state(i2c->pinctrl, "recovery");
-+
-+	if (IS_ERR(i2c->pinctrl_default) || IS_ERR(i2c->pinctrl_recovery)) {
-+		dev_info(dev, "missing pinmux recovery information: %ld %ld\n",
-+			 PTR_ERR(i2c->pinctrl_default),
-+			 PTR_ERR(i2c->pinctrl_recovery));
-+		return 0;
-+	}
-+
-+	/*
-+	 * Claiming GPIOs can influence the pinmux state, and may glitch the
-+	 * I2C bus. Do this carefully.
-+	 */
-+	bri->scl_gpiod = devm_gpiod_get(dev, "scl", GPIOD_OUT_HIGH_OPEN_DRAIN);
-+	if (bri->scl_gpiod == ERR_PTR(-EPROBE_DEFER))
-+		return -EPROBE_DEFER;
-+	if (IS_ERR(bri->scl_gpiod)) {
-+		dev_info(dev, "missing scl gpio recovery information: %pe\n",
-+			 bri->scl_gpiod);
-+		return 0;
-+	}
-+
-+	/*
-+	 * We have SCL. Pull SCL low and wait a bit so that SDA glitches
-+	 * have no effect.
-+	 */
-+	gpiod_direction_output(bri->scl_gpiod, 0);
-+	udelay(10);
-+	bri->sda_gpiod = devm_gpiod_get(dev, "sda", GPIOD_OUT_HIGH_OPEN_DRAIN);
-+
-+	/* Wait a bit in case of a SDA glitch, and then release SCL. */
-+	udelay(10);
-+	gpiod_direction_output(bri->scl_gpiod, 1);
-+
-+	if (bri->sda_gpiod == ERR_PTR(-EPROBE_DEFER))
-+		return -EPROBE_DEFER;
-+
-+	if (IS_ERR(bri->sda_gpiod)) {
-+		dev_info(dev, "missing sda gpio recovery information: %pe\n",
-+			 bri->sda_gpiod);
- 		return 0;
- 	}
--	if (IS_ERR(bri->pinctrl))
--		return PTR_ERR(bri->pinctrl);
- 
- 	bri->prepare_recovery = i2c_pxa_prepare_recovery;
- 	bri->unprepare_recovery = i2c_pxa_unprepare_recovery;
-+	bri->recover_bus = i2c_generic_scl_recovery;
- 
- 	i2c->adap.bus_recovery_info = bri;
- 
--	return 0;
-+	/*
-+	 * Claiming GPIOs can change the pinmux state, which confuses the
-+	 * pinctrl since pinctrl's idea of the current setting is unaffected
-+	 * by the pinmux change caused by claiming the GPIO. Work around that
-+	 * by switching pinctrl to the GPIO state here. We do it this way to
-+	 * avoid glitching the I2C bus.
-+	 */
-+	pinctrl_select_state(i2c->pinctrl, i2c->pinctrl_recovery);
-+
-+	return pinctrl_select_state(i2c->pinctrl, i2c->pinctrl_default);
- }
- 
- static int i2c_pxa_probe(struct platform_device *dev)
--- 
-2.41.0
+[...]
 
+> > > > @@ -207,7 +224,7 @@ static int lpi2c_imx_config(struct lpi2c_imx_struct
+> > > > *lpi2c_imx)> 
+> > > >  	lpi2c_imx_set_mode(lpi2c_imx);
+> > > > 
+> > > > -	clk_rate = clk_get_rate(lpi2c_imx->clks[0].clk);
+> > > > +	clk_rate = atomic_read(&lpi2c_imx->rate_per);
+> > > > 
+> > > >  	if (!clk_rate)
+> > > >  	
+> > > >  		return -EINVAL;
+> > > 
+> > > Doesn't seem like EINVAL, defined as "Invalid argument", is the
+> > > correct number here. As we are failing to read the clock rate, do
+> > > you think EIO is better?
+> > 
+> > Well, this is already the current error code. In both the old and new code I 
+> > would consider this error case as 'no clock rate provided' rather than failing 
+> > to read. I would reject EIO as there is no IO transfer for retrieving the 
+> > clock rate.
+> 
+> It's definitely not EINVAL as we are failing not because of
+> invalid arguments. I thought of EIO because at some point the
+> clock rate has been retrieved (or set, thus i/o) and "rate_per"
+> updated accordingly. But I agree that's not the perfect value
+> either.
+> 
+> I couldn't think of a better error value, though.
+
+... find a more appropriate error number, I will ack this patch.
+
+If the deadlock you mentioned is a warning from the lockdep, then
+please remove the "Fixes:" tag.
+
+Andi
 
