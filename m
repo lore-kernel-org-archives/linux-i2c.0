@@ -1,118 +1,94 @@
-Return-Path: <linux-i2c-owner@vger.kernel.org>
+Return-Path: <linux-i2c+bounces-1-linux-i2c=archiver.kernel.org@vger.kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
-Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14FA2C4167B
-	for <linux-i2c@archiver.kernel.org>; Thu,  9 Nov 2023 22:38:48 +0000 (UTC)
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231403AbjKIWit (ORCPT <rfc822;linux-i2c@archiver.kernel.org>);
-        Thu, 9 Nov 2023 17:38:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39168 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345311AbjKIWis (ORCPT
-        <rfc822;linux-i2c@vger.kernel.org>); Thu, 9 Nov 2023 17:38:48 -0500
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69F034211;
-        Thu,  9 Nov 2023 14:38:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1699569526; x=1731105526;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=xUc3cOfVR8OgRqywfzWs66ac3FySUq37Xd+hFx2TDKA=;
-  b=hwCtCXuy2KHM68jGblTnuV3htVfJTmr1UxKqKi43qY6TRlxjKiOs9hI1
-   ImtqELf1CHVnvV43mtoiwrxYlhs1EoQ8aJzQFH1JZT/sS+ItEyFZN1ZyR
-   PztjNvXSPQhczRIyxa8OEWEBsgJMW8QUlQsHCT6NwdZSLs+CMRRuVrWM/
-   ZIIy0IJPXUEx6MJCVa5QrpSfprdDKFuD5WmVLk9db4PVBTZW0Riix4x3e
-   QoF+LwtCK+zvSkRBgbmcFc5xSfbRDV2qh1KNOxlXqEB+qK0niLNunSjsu
-   SBSmTCaqsb/JLMmaMaO4VTowSx4FNnIylHOhFMgUNYWVRBoBmyXkatkXs
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10889"; a="3068535"
-X-IronPort-AV: E=Sophos;i="6.03,290,1694761200"; 
-   d="scan'208";a="3068535"
-Received: from orviesa002.jf.intel.com ([10.64.159.142])
-  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Nov 2023 14:38:46 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.03,290,1694761200"; 
-   d="scan'208";a="4678255"
-Received: from lkp-server01.sh.intel.com (HELO 17d9e85e5079) ([10.239.97.150])
-  by orviesa002.jf.intel.com with ESMTP; 09 Nov 2023 14:38:42 -0800
-Received: from kbuild by 17d9e85e5079 with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1r1Dfc-0009DW-0V;
-        Thu, 09 Nov 2023 22:38:40 +0000
-Date:   Fri, 10 Nov 2023 06:38:11 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Wolfram Sang <wsa-dev@sang-engineering.com>,
-        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     oe-kbuild-all@lists.linux.dev,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Jan Dabros <jsd@semihalf.com>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: Re: [PATCH v2 11/12] i2c: designware: Remove ->disable() callback
-Message-ID: <202311100640.B5B7MhDJ-lkp@intel.com>
-References: <20231109182823.3531846-12-andriy.shevchenko@linux.intel.com>
+Received: from ny.mirrors.kernel.org (ny.mirrors.kernel.org [147.75.199.223])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.lore.kernel.org (Postfix) with ESMTPS id C2C9CC4167B
+	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 17:46:55 +0000 (UTC)
+Received: from smtp.subspace.kernel.org (wormhole.subspace.kernel.org [52.25.139.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by ny.mirrors.kernel.org (Postfix) with ESMTPS id 2C9F51C20B44
+	for <linux-i2c@archiver.kernel.org>; Fri, 10 Nov 2023 17:46:55 +0000 (UTC)
+Received: from localhost.localdomain (localhost.localdomain [127.0.0.1])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9EB6238F9D;
+	Fri, 10 Nov 2023 17:46:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IGtrMwsp"
+Received: from lindbergh.monkeyblade.net (lindbergh.monkeyblade.net [23.128.96.19])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F208732C6C
+	for <linux-i2c@vger.kernel.org>; Fri, 10 Nov 2023 17:46:29 +0000 (UTC)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 188422FED2;
+	Fri, 10 Nov 2023 03:30:45 -0800 (PST)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DFC0C433C8;
+	Fri, 10 Nov 2023 11:30:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1699615844;
+	bh=njSaKFsGWjCldhNW7Y7iD3HrJm8EnbqsgMz5zjrw6Ho=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=IGtrMwspaNcfUWQFWD9Mn9esgOUZwlXqIYnHRt/ONA36Vi0xFevDcjIDyNdxHdstb
+	 CMUsgVaJeowXqHuk4o3yZ/OJwRjBd6kDUYdkN0cB39smLWfaiRYieBSYr+WYQX6H/7
+	 j4/VU9AQsEUXMp6ptXOg2j7V+isEosVSRIJ5sj/1y80v1FoXVd8SYPReSoJsejT+cH
+	 lJjCz3bwOvWULf6teJ8fwB55ql6PqDZpM0agIjRpfjktSyxIXSocVMxeUY7WrCQPOR
+	 q52ZdkeQUqPrs4ZLOmgRNvAvKzhfM1bCOdZj+brnECWTTKQeKjmSwxrs/nGD65tUJR
+	 riBTtu03lvvug==
+Date: Fri, 10 Nov 2023 12:30:39 +0100
+From: Andi Shyti <andi.shyti@kernel.org>
+To: "Russell King (Oracle)" <linux@armlinux.org.uk>
+Cc: Robert Marko <robert.marko@sartura.hr>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linus.walleij@linaro.org,
+	wsa@kernel.org, codrin.ciubotariu@microchip.com,
+	stable@vger.kernel.org
+Subject: Re: [PATCH] Revert "i2c: pxa: move to generic GPIO recovery"
+Message-ID: <20231110113039.esdkjkpzj7p2aqc3@zenone.zhora.eu>
+References: <20231110093039.190076-1-robert.marko@sartura.hr>
+ <ZU37aJfDpcixU2OZ@shell.armlinux.org.uk>
+Precedence: bulk
+X-Mailing-List: linux-i2c@vger.kernel.org
+List-Id: <linux-i2c.vger.kernel.org>
+List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231109182823.3531846-12-andriy.shevchenko@linux.intel.com>
-Precedence: bulk
-List-ID: <linux-i2c.vger.kernel.org>
-X-Mailing-List: linux-i2c@vger.kernel.org
+In-Reply-To: <ZU37aJfDpcixU2OZ@shell.armlinux.org.uk>
 
-Hi Andy,
+Hi Marko,
 
-kernel test robot noticed the following build errors:
+On Fri, Nov 10, 2023 at 09:44:08AM +0000, Russell King (Oracle) wrote:
+> On Fri, Nov 10, 2023 at 10:30:11AM +0100, Robert Marko wrote:
+> > This reverts commit 0b01392c18b9993a584f36ace1d61118772ad0ca.
+> > 
+> > Conversion of PXA to generic I2C recovery, makes the I2C bus completely
+> > lock up if recovery pinctrl is present in the DT and I2C recovery is
+> > enabled.
+> > 
+> > So, until the generic I2C recovery can also work with PXA lets revert
+> > to have working I2C and I2C recovery again.
 
-[auto build test ERROR on wsa/i2c/for-next]
-[also build test ERROR on linus/master v6.6 next-20231109]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Reverts are never nice, but if you are confirming this doesn't
+work I can't do anything else than acking and bringing the driver
+back to a working status.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Andy-Shevchenko/i2c-designware-Replace-MODULE_ALIAS-with-MODULE_DEVICE_TABLE/20231110-040556
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
-patch link:    https://lore.kernel.org/r/20231109182823.3531846-12-andriy.shevchenko%40linux.intel.com
-patch subject: [PATCH v2 11/12] i2c: designware: Remove ->disable() callback
-config: arc-randconfig-002-20231110 (https://download.01.org/0day-ci/archive/20231110/202311100640.B5B7MhDJ-lkp@intel.com/config)
-compiler: arc-elf-gcc (GCC) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20231110/202311100640.B5B7MhDJ-lkp@intel.com/reproduce)
+Acked-by: Andi Shyti <andi.shyti@kernel.org>
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202311100640.B5B7MhDJ-lkp@intel.com/
+I would have preferred a different fix, directly in the generic
+i2c recovery, but this goes beyond the scope of the patch.
 
-All errors (new ones prefixed by >>):
+> > Signed-off-by: Robert Marko <robert.marko@sartura.hr>
+> > Cc: stable@vger.kernel.org # 5.11+
+> 
+> My feels were that this should not have been converted to the generic
+> recovery as pointed out at the time, so thanks for confirming that it
+> broke as a result of that conversion, it did indeed break.
+> 
+> Acked-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-   drivers/i2c/busses/i2c-designware-slave.c: In function 'i2c_dw_unreg_slave':
->> drivers/i2c/busses/i2c-designware-slave.c:95:12: error: 'struct dw_i2c_dev' has no member named 'disable'
-      95 |         dev->disable(dev);
-         |            ^~
+Thanks Russel!
 
+Andi
 
-vim +95 drivers/i2c/busses/i2c-designware-slave.c
-
-9f3e065c54b05b Luis Oliveira 2017-06-22   89  
-9f3e065c54b05b Luis Oliveira 2017-06-22   90  static int i2c_dw_unreg_slave(struct i2c_client *slave)
-9f3e065c54b05b Luis Oliveira 2017-06-22   91  {
-9f3e065c54b05b Luis Oliveira 2017-06-22   92  	struct dw_i2c_dev *dev = i2c_get_adapdata(slave->adapter);
-9f3e065c54b05b Luis Oliveira 2017-06-22   93  
-fee61247b7f67a Jarkko Nikula 2022-11-07   94  	regmap_write(dev->map, DW_IC_INTR_MASK, 0);
-9f3e065c54b05b Luis Oliveira 2017-06-22  @95  	dev->disable(dev);
-c486dcd2f1bbdd Jarkko Nikula 2019-08-15   96  	synchronize_irq(dev->irq);
-9f3e065c54b05b Luis Oliveira 2017-06-22   97  	dev->slave = NULL;
-2a86cdd2e7d3c7 Jarkko Nikula 2017-08-15   98  	pm_runtime_put(dev->dev);
-9f3e065c54b05b Luis Oliveira 2017-06-22   99  
-9f3e065c54b05b Luis Oliveira 2017-06-22  100  	return 0;
-9f3e065c54b05b Luis Oliveira 2017-06-22  101  }
-9f3e065c54b05b Luis Oliveira 2017-06-22  102  
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
