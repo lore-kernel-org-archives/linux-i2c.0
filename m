@@ -1,22 +1,22 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEDE7385
-	for <linux-i2c@vger.kernel.org>; Sun, 12 Nov 2023 15:48:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC36414F63
+	for <linux-i2c@vger.kernel.org>; Sun, 12 Nov 2023 15:48:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DcIn3VqS"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED107C433C7;
-	Sun, 12 Nov 2023 15:48:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oVeuQpYN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58C83C433C7;
+	Sun, 12 Nov 2023 15:48:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1699804112;
+	s=k20201202; t=1699804116;
 	bh=JN7wJA9CtpvoZfbvM/IzDnWhbSnNlqcLwOqpyrdrisQ=;
 	h=From:To:Cc:Subject:Date:From;
-	b=DcIn3VqSuUj/9nXbjTpRR/KMgDeQ2rsT4fwk2ri4CPyQ8GbKQ5fs1poCoqb2jeCpN
-	 5/ZqoYT6PtrHQ8djNBxSD7JJWtHL2Cs88vG9vx20Ed3E2/tYv+CLcUwJGrreZI3v9A
-	 PnITYAzFGLibdNke8oWC85mItRx9PYYOol6hUg2j3/wtJyJRF85pf59SJw+14CtHuG
-	 SmJo2VNrflvcIb32xXja3MLepZmoXKVtlRP9+2Hl+zNTNpI9zVpmPoKUFgjG3bum3k
-	 mQluWko27Sv8UBIorqu4tsL8k4pR+YfiNn7Nifp72KozufH+HbT05tTE0SXcuyXEl5
-	 rFj+XSRZ3d+Pg==
+	b=oVeuQpYNGd0AWhMoyMBrhpNi/V8PnylQGqHRJ1z//j0ZINrVm5BDECZRLCPVPFTuB
+	 idHjFb/VWGDz8uOAE37aNE6F5l99fT2LMgiMzxEt6rwP1SNWgWH4vw+jKkBlIaQbfM
+	 rXcquChsZSXNxWR4SCtfCwm/4xWjSyNcDq21/PTOEPJVZcqYT2VLNrXzb+TGl3qdNP
+	 SBQ15roj+2+FtG6pBFk2+9l2HE2qOK/8uM82ORh974TzU5BuT0IlzA5Us4fHZC2IAN
+	 qExpWfHhW4XiWsFi0INyLIH67TSgEqghnaJA2jUjkXjYGtqiS4QR4pHuf4J+08uifg
+	 k2R/Uqbk7AbpA==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -25,9 +25,9 @@ Cc: Philipp Stanner <pstanner@redhat.com>,
 	Wolfram Sang <wsa@kernel.org>,
 	Sasha Levin <sashal@kernel.org>,
 	linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.6] i2c: dev: copy userspace array safely
-Date: Sun, 12 Nov 2023 10:48:28 -0500
-Message-ID: <20231112154829.229142-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.5] i2c: dev: copy userspace array safely
+Date: Sun, 12 Nov 2023 10:48:33 -0500
+Message-ID: <20231112154833.229198-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.42.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -37,7 +37,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.6.1
+X-stable-base: Linux 6.5.11
 Content-Transfer-Encoding: 8bit
 
 From: Philipp Stanner <pstanner@redhat.com>
