@@ -1,22 +1,22 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC36414F63
-	for <linux-i2c@vger.kernel.org>; Sun, 12 Nov 2023 15:48:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A50714F63
+	for <linux-i2c@vger.kernel.org>; Sun, 12 Nov 2023 15:48:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oVeuQpYN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58C83C433C7;
-	Sun, 12 Nov 2023 15:48:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TOwGVBpR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4742FC433C8;
+	Sun, 12 Nov 2023 15:48:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1699804116;
-	bh=JN7wJA9CtpvoZfbvM/IzDnWhbSnNlqcLwOqpyrdrisQ=;
+	s=k20201202; t=1699804121;
+	bh=Fq4DNVxRFX5KFS8TdcnOw7rG9zQ2vaJ/xNu5x6DYaEo=;
 	h=From:To:Cc:Subject:Date:From;
-	b=oVeuQpYNGd0AWhMoyMBrhpNi/V8PnylQGqHRJ1z//j0ZINrVm5BDECZRLCPVPFTuB
-	 idHjFb/VWGDz8uOAE37aNE6F5l99fT2LMgiMzxEt6rwP1SNWgWH4vw+jKkBlIaQbfM
-	 rXcquChsZSXNxWR4SCtfCwm/4xWjSyNcDq21/PTOEPJVZcqYT2VLNrXzb+TGl3qdNP
-	 SBQ15roj+2+FtG6pBFk2+9l2HE2qOK/8uM82ORh974TzU5BuT0IlzA5Us4fHZC2IAN
-	 qExpWfHhW4XiWsFi0INyLIH67TSgEqghnaJA2jUjkXjYGtqiS4QR4pHuf4J+08uifg
-	 k2R/Uqbk7AbpA==
+	b=TOwGVBpRb0VSOAFvrbPAn0hdIsBBmmzjcbjXxc/o/DJrHX93bQIu5vrH7iqMSr+RK
+	 aqUJ1vZIhYl0a6aNVFL7t+fnqWVU3e9EOJZaEJoGe8UDwwcgocjTIUo263yhoK075K
+	 K653w02AYK9BGNfph7CUtg8jNDed5GnPeycPjk636lDaFdKq94bkNxGVbJIZIxO1W1
+	 Zn7e0ho72GUDfQZu2KnmD9seU+NyNPFK4v3gCnRPABTrdKGEp+3IHJ3ugRyfVMiAYP
+	 usILdv4FblnyulTqxvYfTvIvdw6WfuVPw/pGjF7bcFGAoiRoAMEzDtc0tLmofxoVwj
+	 /fsqOfQG57viQ==
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
@@ -25,9 +25,9 @@ Cc: Philipp Stanner <pstanner@redhat.com>,
 	Wolfram Sang <wsa@kernel.org>,
 	Sasha Levin <sashal@kernel.org>,
 	linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.5] i2c: dev: copy userspace array safely
-Date: Sun, 12 Nov 2023 10:48:33 -0500
-Message-ID: <20231112154833.229198-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1] i2c: dev: copy userspace array safely
+Date: Sun, 12 Nov 2023 10:48:36 -0500
+Message-ID: <20231112154836.229233-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.42.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -37,7 +37,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.5.11
+X-stable-base: Linux 6.1.62
 Content-Transfer-Encoding: 8bit
 
 From: Philipp Stanner <pstanner@redhat.com>
@@ -58,7 +58,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index a01b59e3599b5..7d337380a05d9 100644
+index ab0adaa130dae..dd35f341b16fd 100644
 --- a/drivers/i2c/i2c-dev.c
 +++ b/drivers/i2c/i2c-dev.c
 @@ -450,8 +450,8 @@ static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
