@@ -1,57 +1,60 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UnP9jCsU"
-Received: from mail-lj1-x22d.google.com (mail-lj1-x22d.google.com [IPv6:2a00:1450:4864:20::22d])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3D32AA;
-	Sat, 18 Nov 2023 10:05:10 -0800 (PST)
-Received: by mail-lj1-x22d.google.com with SMTP id 38308e7fff4ca-2c87acba73bso1553431fa.1;
-        Sat, 18 Nov 2023 10:05:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KZa2Xia/"
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96ABAE6;
+	Sat, 18 Nov 2023 10:05:12 -0800 (PST)
+Received: by mail-ej1-x62a.google.com with SMTP id a640c23a62f3a-9df8d0c2505so579278566b.0;
+        Sat, 18 Nov 2023 10:05:12 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700330709; x=1700935509; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=mu6uKqetedFX6br/8gaH2MKtwUbnJweRqllZD/aw3RQ=;
-        b=UnP9jCsUWC29/s+NC+cz1N6kqRrEKoCIbfW2YrVFq4910JkmHcTTOOBnxSpwHAgKdQ
-         UFF6c9yTh81IOFqjWKjbi1YJfVJrITvHyU+KgVmJT7od5Nxv2hbosw/xmuodtju8oT7p
-         ktS4hnOaG1UfvcAfjGGv76GY4Ll8SV7Cl82OjoQSgUAB72kmsjwSeJ/R4sa9ncOWMfHs
-         4+do9HZwRudipRKWzT+0f1VVQSkzR0NqFlqbornppcB6tKG3g6rLxLvOee2JivucQa0x
-         wgUgGip/NvDz6cUB2VCE5cSX2VgfIpYogcS91p9NcgtXSkvwTAblKZoOqmDypMlOJXMa
-         bKxA==
+        d=gmail.com; s=20230601; t=1700330711; x=1700935511; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ZEQQ4sBftaBxEQfqkfYlxYDOwzoa8t3+UXmC0vdAGio=;
+        b=KZa2Xia/iQXFdBV84GKBJ2jo5iqcLvUFFXEP2+pd4EEBveWryZYrHM4CBEjwkdwW+q
+         9IAI9vSeX/T7mm5bQnEsBesvn11mGLqFmb6a7dHJDPkm6JZc5G7BxvnFfwh+Iqb0ZMmD
+         h6rUs/GKeVbG42MXgY6bTomST658EpzoJn0LS3s7ValvMiXir+2DcjuCyX8ioRv+Ef7F
+         JQGwFZ1Yf9gF/Anu1ga3QGK7s1Syqy6KIRUtnRM0We/OBFlFLz4Hf0xW3VKiVrfRREyi
+         WtwCUBCnX+o0s05YFRsq9qXyABOapKO2SIDpIs863vxP6Zc2+rbMz3aNt4AOsQZPAhK7
+         7yew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700330709; x=1700935509;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=mu6uKqetedFX6br/8gaH2MKtwUbnJweRqllZD/aw3RQ=;
-        b=lldtx2DrQfWRDCE3PRO+QHz3bs8xkItkXOtykQPwnH2RWjFZCCIhcFDnlAlQKMgMAW
-         ZpkZjDO/FWS2YAivNewrE3sEsrn3RGKHJFAFC1ohHAxZKevBKp3LxAKRabDYAt/3rrqO
-         d4uVDAsJPr4LXgfBGzlEVWlPlq7L5ogew6eswkf6cAmSGpEdAxa+sJVmQs/VHtMm4Tnw
-         Sk/xtKa5tlIbZ0UqYLb3FuRFPK3hZXipvNGIaXgF0gEsOwk+HTlfdsENsftp4ceWxirD
-         N/HjBrQGIlSP135bAr0HWHMab/Qy22ae8T5bvWsPbMCVwsoOzTPorIGeidkgUKuOwl3E
-         taOg==
-X-Gm-Message-State: AOJu0Ywl8YGOsZ1YGRQTs0YIRaoVP3TkkYCQRRr/Rdl59zg7vjnaoIVQ
-	SSCaIsetJoAg3cy5vcwd+m0ZlvNin2rNng==
-X-Google-Smtp-Source: AGHT+IHyeiAuLwBQ6RhMnfmUjm6ZpWN6lhi+Qcl6w/VI4MWj6Kf1RrN8easfjONwVJiPd/NUafO3dQ==
-X-Received: by 2002:a2e:9c84:0:b0:2c5:1ea4:4e99 with SMTP id x4-20020a2e9c84000000b002c51ea44e99mr2049253lji.48.1700330708944;
-        Sat, 18 Nov 2023 10:05:08 -0800 (PST)
+        d=1e100.net; s=20230601; t=1700330711; x=1700935511;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ZEQQ4sBftaBxEQfqkfYlxYDOwzoa8t3+UXmC0vdAGio=;
+        b=WGCwlXpO/I2MM3ngdq/uLuBeraXp+E4AJp5WTITjFb5RPLUbchFFKCcy4Q5tSJiDjS
+         VPkJtgLU1CwkDg3Ehlu62wVUPax2oolAJUympqUb1mdAHuqTs5COi/Xmg57F5mBF6GKL
+         I8HZLdHC58FyQB8QHRPk3iCMLYJn6gGAoku4CoQf/GWIwnjN4+G8fHZL0+F0da0O4bD6
+         Mj1o7fKzKwlJiZv9wGRJS7FG6Pjsy96yIqX2iA8Bqz2NjP5LopBTZvqTM1Vcz0Hb8ZtJ
+         Zu5Gj3v7ELfemwXWrCjS0MxKsDUKXc9YvE92vbHaJqukZDwgGK5lLH64JHeibv5TAMEU
+         Ts+A==
+X-Gm-Message-State: AOJu0YzBZxbjB3cWsIL+StsBgKj09hQNppUfBfgXheCUJzp2VOfV2pYB
+	tdxNPtPCA94TMNx79KfcJ5qzKsPzUhux1w==
+X-Google-Smtp-Source: AGHT+IGYLilIkdrNACXRJAHaolL+uXijwWBEXjtZAesjgsYT4+SMXgcWH+uTG6gF4MPghLKCC6/PYA==
+X-Received: by 2002:a17:907:d21:b0:9f4:1bd6:2d26 with SMTP id gn33-20020a1709070d2100b009f41bd62d26mr10976580ejc.0.1700330710912;
+        Sat, 18 Nov 2023 10:05:10 -0800 (PST)
 Received: from zotac.lan. (dynamic-2a01-0c22-77bf-8300-2223-08ff-fe18-0310.c22.pool.telefonica.de. [2a01:c22:77bf:8300:2223:8ff:fe18:310])
-        by smtp.gmail.com with ESMTPSA id m20-20020a1709062b9400b009f2c769b4ebsm2079456ejg.151.2023.11.18.10.05.08
+        by smtp.gmail.com with ESMTPSA id m20-20020a1709062b9400b009f2c769b4ebsm2079456ejg.151.2023.11.18.10.05.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Nov 2023 10:05:08 -0800 (PST)
+        Sat, 18 Nov 2023 10:05:10 -0800 (PST)
 From: Heiner Kallweit <hkallweit1@gmail.com>
 To: Wolfram Sang <wsa@kernel.org>,
-	linuxppc-dev@lists.ozlabs.org
+	Viresh Kumar <vireshk@kernel.org>
 Cc: linux-i2c@vger.kernel.org,
 	Heiner Kallweit <hkallweit1@gmail.com>,
-	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	linux-kernel@vger.kernel.org,
+	Johan Hovold <johan@kernel.org>,
+	Alex Elder <elder@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	greybus-dev@lists.linaro.org,
 	linux-staging@lists.linux.dev,
-	linux-media@vger.kernel.org
-Subject: [PATCH 00/10] Don't let i2c adapters declare I2C_CLASS_SPD support if they support I2C_CLASS_HWMON
-Date: Sat, 18 Nov 2023 19:04:54 +0100
-Message-ID: <20231118180504.1785-1-hkallweit1@gmail.com>
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 02/10] drivers/staging/greybus/i2c.c: Don't let i2c adapters declare I2C_CLASS_SPD support if they support I2C_CLASS_HWMON
+Date: Sat, 18 Nov 2023 19:04:56 +0100
+Message-ID: <20231118180504.1785-3-hkallweit1@gmail.com>
 X-Mailer: git-send-email 2.42.1
+In-Reply-To: <20231118180504.1785-1-hkallweit1@gmail.com>
+References: <20231118180504.1785-1-hkallweit1@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -71,32 +74,20 @@ Series was created supported by Coccinelle and its splitpatch.
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 
 ---
+ drivers/staging/greybus/i2c.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
- drivers/i2c/busses/i2c-ali1535.c                  |    2 +-
- drivers/i2c/busses/i2c-ali1563.c                  |    2 +-
- drivers/i2c/busses/i2c-ali15x3.c                  |    2 +-
- drivers/i2c/busses/i2c-amd756.c                   |    2 +-
- drivers/i2c/busses/i2c-amd8111.c                  |    2 +-
- drivers/i2c/busses/i2c-elektor.c                  |    2 +-
- drivers/i2c/busses/i2c-gpio.c                     |    2 +-
- drivers/i2c/busses/i2c-ibm_iic.c                  |    2 +-
- drivers/i2c/busses/i2c-iop3xx.c                   |    2 +-
- drivers/i2c/busses/i2c-isch.c                     |    2 +-
- drivers/i2c/busses/i2c-kempld.c                   |    4 ++--
- drivers/i2c/busses/i2c-mlxcpld.c                  |    2 +-
- drivers/i2c/busses/i2c-nforce2.c                  |    2 +-
- drivers/i2c/busses/i2c-pasemi-pci.c               |    2 +-
- drivers/i2c/busses/i2c-piix4.c                    |    2 +-
- drivers/i2c/busses/i2c-scmi.c                     |    2 +-
- drivers/i2c/busses/i2c-sh7760.c                   |    2 +-
- drivers/i2c/busses/i2c-sibyte.c                   |    4 ++--
- drivers/i2c/busses/i2c-sis5595.c                  |    2 +-
- drivers/i2c/busses/i2c-sis630.c                   |    2 +-
- drivers/i2c/busses/i2c-sis96x.c                   |    2 +-
- drivers/i2c/busses/i2c-via.c                      |    2 +-
- drivers/i2c/busses/i2c-viapro.c                   |    2 +-
- drivers/i2c/busses/scx200_acb.c                   |    2 +-
- drivers/i2c/i2c-stub.c                            |    2 +-
- drivers/media/pci/netup_unidvb/netup_unidvb_i2c.c |    2 +-
- drivers/staging/greybus/i2c.c                     |    2 +-
- 27 files changed, 29 insertions(+), 29 deletions(-)
+diff --git a/drivers/staging/greybus/i2c.c b/drivers/staging/greybus/i2c.c
+index de2f6516d..22325ab9d 100644
+--- a/drivers/staging/greybus/i2c.c
++++ b/drivers/staging/greybus/i2c.c
+@@ -264,7 +264,7 @@ static int gb_i2c_probe(struct gbphy_device *gbphy_dev,
+ 	/* Looks good; up our i2c adapter */
+ 	adapter = &gb_i2c_dev->adapter;
+ 	adapter->owner = THIS_MODULE;
+-	adapter->class = I2C_CLASS_HWMON | I2C_CLASS_SPD;
++	adapter->class = I2C_CLASS_HWMON;
+ 	adapter->algo = &gb_i2c_algorithm;
+ 
+ 	adapter->dev.parent = &gbphy_dev->dev;
+
