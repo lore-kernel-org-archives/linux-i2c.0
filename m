@@ -1,58 +1,56 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aPLU3XHt"
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71F8FD4D;
-	Sat, 18 Nov 2023 09:42:35 -0800 (PST)
-Received: by mail-wm1-x333.google.com with SMTP id 5b1f17b1804b1-4083ac51d8aso4671135e9.2;
-        Sat, 18 Nov 2023 09:42:35 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XB/a1LQ0"
+Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 676F0D62;
+	Sat, 18 Nov 2023 09:42:37 -0800 (PST)
+Received: by mail-wm1-x32a.google.com with SMTP id 5b1f17b1804b1-4084de32db5so5558845e9.0;
+        Sat, 18 Nov 2023 09:42:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700329354; x=1700934154; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1700329356; x=1700934156; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=suS4LCfsusePiDPKTqW40E2H77s8OXx5HVyNs+o+yDE=;
-        b=aPLU3XHtplIReVL/oaZ3Hk6wuEQOsJcN/3LxE4qv0mZeDWdSGZ08fgBamyuKjfSRqi
-         TdMAnXvuxjs07caaIgudbtgVcBc1CqrstTzrbJHMrU+BOXAFpusYa4IEHeqSjzFFRgJn
-         p5LHhU8BdjuW6rWpW20ncEgtfvSWT0fm+4ifNCTW6cM6mWxTCfpHNfC/H7X+1GBbfl52
-         o8oLQ2Z9/OV86Xj97BCe1/qT+E0AiTaVyzcXfMZQvi9c0mP0D6fuWGuhZYVwncwkaita
-         8lAhpZ4fs0137PnKs/9m6DJig8uZO4yG1jpEaih0qm688ZuG9bN9YZBIHQtGkeXGH8na
-         J+Jg==
+        bh=lj6lXffwhPaiA+tttg2gWfCsavHU7fIAFEm3bWLvYqY=;
+        b=XB/a1LQ0+iWYpch2WEH4ohtCzIEuJPNRtbR2z7aUuaEeH+AU1KzpkIyVy1b5833GBk
+         BD+utb5aOn1/A/5yl39ka2oKBjbk0XeN5JW24ZMEf6OTStpx19TsthZWE5G0Q2kMOEgE
+         7SWKUHb8dvcQvdaNmbrDB1fBDsMXNYXZhPJUHhX7dIXXbGH5Y/edlul1iMCA9w2tB3+T
+         KiJx8ZSxOcgmos4cWJyo4M37We8s4Z6OJEeC1ONgvWAOndsheGHJO98XXP2VKi2gORw8
+         zcMd8FqUNYXj0meU34O4csLufQqkJuVH0S0iBwEb9saswaL+SLcyVf/6/SHRYFhwSUAN
+         vaCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700329354; x=1700934154;
+        d=1e100.net; s=20230601; t=1700329356; x=1700934156;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=suS4LCfsusePiDPKTqW40E2H77s8OXx5HVyNs+o+yDE=;
-        b=cbkLCld9eOi6sGHb92pqr18geOzOBrf8Za2rfHHA97GvBOZ/S6/o6Gq9OfaZ1iTcXI
-         ST6zFatLglDiztJCm5Z5/yt3Ug4M9bAvilLQLJgEVv/rnjpHq21B5WxBCbTwgkrZV0vL
-         3dxa17G1Gxb4XQbDJn7OX+kdV8cxGDPWjB4kKPDOMi4hTZQc2AzAdzO26DqUFmC/rxcC
-         F9aIHDjvw0u8r6II1kRtep/7LRCvdiPbYmVgOEhi9HRFdUk/wZJD0mmYZV59pvG86Fp4
-         fxr/rqSeaJSWANaXlT2Peqz2RX9SEx+brA0Vb8M12c6x9UyWsrp2F4wUAJwqbmOG/rOB
-         NpTw==
-X-Gm-Message-State: AOJu0YzrAxLg4Dhxb5wSn8YTF0h0pgbCeuFepZSUkI0dy2cUgRQQ0zAW
-	lGF4VgPBPAn0zaQxTdiiQlA=
-X-Google-Smtp-Source: AGHT+IHFeQem3GC7lyXfhuux3W0nXFchU62Mp5yU1I3tjQqqacuqysAcTGeFS+2WghbyMr4dvj9rxw==
-X-Received: by 2002:a05:600c:4712:b0:405:348e:aa43 with SMTP id v18-20020a05600c471200b00405348eaa43mr2139830wmo.12.1700329353750;
-        Sat, 18 Nov 2023 09:42:33 -0800 (PST)
+        bh=lj6lXffwhPaiA+tttg2gWfCsavHU7fIAFEm3bWLvYqY=;
+        b=ACTSVzlmPb1RvzyBdmn0NV7kKbAQ6guZmrN4SwEBYLXXDeKRi3xK+H7Y3ifnegFtxW
+         1MSKVhHgCDS3HVj1Pp/dEqY3owSl1As8o7uNH8y2T+2XKPuaatYiWzNZQ7mRcjtfJo6K
+         hOdOuOBq1CEUhOgXg5q05eECZlZc81FOCs5Wh3zDUofQLFc7C425A7QTFQdPnUIOi3oc
+         Pm5QRMl135a/EgVm8VcfqBbtiAFpAED94al0+sZ/Lg9Rn9U0ZoPiWuPtQs6p0KUr073+
+         YE6L4mKkY+1Pa6C8CrEpdm8TlWKK2p+nPYEa+30LOYMiErwANA3ofmbuZLNQ4Mi7Q3Zu
+         b1qA==
+X-Gm-Message-State: AOJu0YxQ9v3qX3SVKmH+qj1AmMBD3J0lM3ibm+gr+wIllMTQntOwwcX/
+	AbzrVmqXdSgvjiEKJLmGRF8=
+X-Google-Smtp-Source: AGHT+IH/UONni9JBi2RCMivHlBv+H1UGwnLkk3yuImh+ir7/RnEejhHlDGLGWXdlNBwBR0HTwihAzg==
+X-Received: by 2002:a05:600c:4ec6:b0:409:3f53:c9c7 with SMTP id g6-20020a05600c4ec600b004093f53c9c7mr2232492wmq.35.1700329355808;
+        Sat, 18 Nov 2023 09:42:35 -0800 (PST)
 Received: from zotac.lan. (dynamic-2a01-0c22-77bf-8300-2223-08ff-fe18-0310.c22.pool.telefonica.de. [2a01:c22:77bf:8300:2223:8ff:fe18:310])
-        by smtp.gmail.com with ESMTPSA id y10-20020a05600c340a00b004068de50c64sm6964211wmp.46.2023.11.18.09.42.32
+        by smtp.gmail.com with ESMTPSA id y10-20020a05600c340a00b004068de50c64sm6964211wmp.46.2023.11.18.09.42.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Nov 2023 09:42:33 -0800 (PST)
+        Sat, 18 Nov 2023 09:42:35 -0800 (PST)
 From: Heiner Kallweit <hkallweit1@gmail.com>
 To: Wolfram Sang <wsa@kernel.org>,
-	Sui Jingfeng <suijingfeng@loongson.cn>
+	Russell King <linux@armlinux.org.uk>
 Cc: linux-i2c@vger.kernel.org,
 	Heiner Kallweit <hkallweit1@gmail.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>,
-	Daniel Vetter <daniel@ffwll.ch>,
+	Helge Deller <deller@gmx.de>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-fbdev@vger.kernel.org,
 	dri-devel@lists.freedesktop.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 08/20] drivers/gpu/drm/loongson/lsdc_i2c.c: remove I2C_CLASS_DDC support
-Date: Sat, 18 Nov 2023 18:42:08 +0100
-Message-ID: <20231118174221.851-9-hkallweit1@gmail.com>
+Subject: [PATCH v2 10/20] drivers/video/fbdev/cyber2000fb.c: remove I2C_CLASS_DDC support
+Date: Sat, 18 Nov 2023 18:42:10 +0100
+Message-ID: <20231118174221.851-11-hkallweit1@gmail.com>
 X-Mailer: git-send-email 2.42.1
 In-Reply-To: <20231118174221.851-1-hkallweit1@gmail.com>
 References: <20231118174221.851-1-hkallweit1@gmail.com>
@@ -74,19 +72,19 @@ Preferably this series should be applied via the i2c tree.
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 
 ---
- drivers/gpu/drm/loongson/lsdc_i2c.c |    1 -
+ drivers/video/fbdev/cyber2000fb.c |    1 -
  1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/loongson/lsdc_i2c.c b/drivers/gpu/drm/loongson/lsdc_i2c.c
-index 9625d0b1d..ce90c2553 100644
---- a/drivers/gpu/drm/loongson/lsdc_i2c.c
-+++ b/drivers/gpu/drm/loongson/lsdc_i2c.c
-@@ -154,7 +154,6 @@ int lsdc_create_i2c_chan(struct drm_device *ddev,
- 	adapter = &li2c->adapter;
- 	adapter->algo_data = &li2c->bit;
- 	adapter->owner = THIS_MODULE;
--	adapter->class = I2C_CLASS_DDC;
- 	adapter->dev.parent = ddev->dev;
- 	adapter->nr = -1;
- 
+diff --git a/drivers/video/fbdev/cyber2000fb.c b/drivers/video/fbdev/cyber2000fb.c
+index 52105dc1a..79775deda 100644
+--- a/drivers/video/fbdev/cyber2000fb.c
++++ b/drivers/video/fbdev/cyber2000fb.c
+@@ -1234,7 +1234,6 @@ static int cyber2000fb_setup_ddc_bus(struct cfb_info *cfb)
+ 	strscpy(cfb->ddc_adapter.name, cfb->fb.fix.id,
+ 		sizeof(cfb->ddc_adapter.name));
+ 	cfb->ddc_adapter.owner		= THIS_MODULE;
+-	cfb->ddc_adapter.class		= I2C_CLASS_DDC;
+ 	cfb->ddc_adapter.algo_data	= &cfb->ddc_algo;
+ 	cfb->ddc_adapter.dev.parent	= cfb->fb.device;
+ 	cfb->ddc_algo.setsda		= cyber2000fb_ddc_setsda;
 
