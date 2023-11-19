@@ -1,51 +1,58 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DaKm0WFp"
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6355C10FE;
-	Sun, 19 Nov 2023 03:28:49 -0800 (PST)
-Received: by mail-ed1-x532.google.com with SMTP id 4fb4d7f45d1cf-5484ef5e3d2so2689429a12.3;
-        Sun, 19 Nov 2023 03:28:49 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k6lcmgeR"
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D2D610FB;
+	Sun, 19 Nov 2023 03:28:48 -0800 (PST)
+Received: by mail-ej1-x631.google.com with SMTP id a640c23a62f3a-9e623356e59so468896466b.0;
+        Sun, 19 Nov 2023 03:28:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700393327; x=1700998127; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1700393325; x=1700998125; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xoOuxVfYX3lHdi36PKjYbl3tsLm17OpynR1y+9rBRUM=;
-        b=DaKm0WFpw4PtuyW50BcNwa8kUrDaTwYYr1CQlZAj9eJdibdWWJ67dKTENpbRoVTQpQ
-         GYHo1dQY5j6Qihfxkbd/YzlEvMWeJVMomZUXC1qOhVp0mf9jEle6VMA6ZsbVToBKe3+1
-         mvoFxtOgHOJEkmL23D0aypRezsZRBsQoVX7CRn6xpJzJbSbgxRXLDDVfB2mPC/KNzeC2
-         imqbD66+H1e2N5DNuYTs2jTrujMQ9ChfzqVilgIp3vTjBU7pIHwjEappI42aJWeRuuJd
-         KfBkPzF+Qdvt2b/XG0RbiBa8EjY30dJXH0OCHphd+pMxPh6DrGy3KCF+fQqbBz9/ibcQ
-         Syzw==
+        bh=mvYv7yv0Rz2qXj3RF4iM+eVeFbHCrgQ2kQmEmocPEPY=;
+        b=k6lcmgeREr5EjnCoxPGiWBPAcj/PIINnUtes0R5MvERFHzNfUiHG1By0ncxUzcENpt
+         IX3/tjBRlbWzrNE/Oi3J7Tvsz4lBlCgJLwLXzKgxYsBuj1hx394Ky+mNT9z6CUVOEcvp
+         VsNqtuYxvi9m+DpbzqSZoW0jnI9qdDNoGXXEGUJxLu6/z99KJ9XM8lxb4ls5RbwOa1lr
+         cqBJ9S+xIGnOw4oO+A7gtL6uMAFUFxl4bMocdi1JCJmQM/wf9FEopMF1M93cO3lTpVSB
+         xLQ4/uK/k1fjToyZsDHRqfhslhcvzCf7cMgtXjhc3vi9PyiBR1wnW1/XVLtWNqxHxbqj
+         ZxZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700393327; x=1700998127;
+        d=1e100.net; s=20230601; t=1700393325; x=1700998125;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=xoOuxVfYX3lHdi36PKjYbl3tsLm17OpynR1y+9rBRUM=;
-        b=n4lPx4I3PnHPESx0UpnHmTgjrr1AOFFxyCMJATwaDIhMzoHJq9VZKS5YRRIZze8VvT
-         SESZOaO10G3g9P9erl/LwJEpAOdXQDUGFI+dlcok7z/AbRZWyRFfxa95Y8mx6jbtyazU
-         GDYfQE28Z8laPkNnA3+1aeY80HPE1iVUy2BcEXLNYea8a9OCb/dwd7yY95gZ22PWtrx+
-         mteuZW7f1WatSDnZH/WPV6F3Ee1WgwfbFEfji5F7jouLrZztNAIHJiRxY4p7z/G9nket
-         QDtp+efIvMj7yBKOY98v6CMoNeTMqpzGTk4XhedspCHi+P/IxrAUtPWEHTl+Cqs8O5XA
-         6QPA==
-X-Gm-Message-State: AOJu0YyfOpvnu6Xu0F7xk5okZNiqm5lcweHqqyHio4UXC1jQfjwiRAzl
-	gFLgA26w7mlGThivUTpdAJ4=
-X-Google-Smtp-Source: AGHT+IHfngVXlSW4LUIjnlkKJhW6cPwJdp2SIROIb9ruMWWShNHesG1OZE+QGCvwGdrnD4kqvy0Bvg==
-X-Received: by 2002:a17:907:2da7:b0:9c6:1143:b52 with SMTP id gt39-20020a1709072da700b009c611430b52mr4489746ejc.55.1700393327195;
-        Sun, 19 Nov 2023 03:28:47 -0800 (PST)
+        bh=mvYv7yv0Rz2qXj3RF4iM+eVeFbHCrgQ2kQmEmocPEPY=;
+        b=VzfVlL5c/0mdIoL7LDTuMKDcaz9HNZr/KuiY7HpzOWHp2QBiNIsinnkGCcR/uFv55b
+         VZdjmvSHTFOr5BHV+iaIWoLKkElc1mgWonvRuseqMEAA5Q8s3QDhOxYOK6c1MItoaOZz
+         gF7rsypBjIHwW95OM0y1fIw9ODIqrvKmt2RC6WKKWJYMDnhDJUQezPLmgX0oUKWjmmHt
+         e+0LL0bV64UC/tiqYZkiDE6lz+Bqeg732l8W4f9lVW/UPwPPNrFwGZNWU9sCy2f9Dz6S
+         pOTXaTjX2yoI0W0ipGTzCHiZnsif6FHzG5DTswSErAA0T5irzySOO07sSxfr2Enl52D8
+         +u6Q==
+X-Gm-Message-State: AOJu0YyYye3OPeH/VIAMKJpPY6edDALJJs/wTrCmg7Wils0CgaJZ1HZS
+	ot/YxuJMA/4aXlAkSzG7wgU=
+X-Google-Smtp-Source: AGHT+IEpB5ZnqGJppm4SyfFOjTFFzlNbJ5j1oKwnqCNhlB7TTiFFtmEVrL1Fkxgp4PWg2oSUQjk53Q==
+X-Received: by 2002:a17:907:9394:b0:9d0:2e6b:f47f with SMTP id cm20-20020a170907939400b009d02e6bf47fmr3500186ejc.36.1700393325493;
+        Sun, 19 Nov 2023 03:28:45 -0800 (PST)
 Received: from zotac.lan. (dynamic-2a01-0c23-bde4-3e00-2223-08ff-fe18-0310.c23.pool.telefonica.de. [2a01:c23:bde4:3e00:2223:8ff:fe18:310])
-        by smtp.gmail.com with ESMTPSA id k22-20020a1709063fd600b009f8af454d0dsm2420378ejj.112.2023.11.19.03.28.46
+        by smtp.gmail.com with ESMTPSA id k22-20020a1709063fd600b009f8af454d0dsm2420378ejj.112.2023.11.19.03.28.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 19 Nov 2023 03:28:46 -0800 (PST)
+        Sun, 19 Nov 2023 03:28:45 -0800 (PST)
 From: Heiner Kallweit <hkallweit1@gmail.com>
-To: Wolfram Sang <wsa@kernel.org>
+To: Wolfram Sang <wsa@kernel.org>,
+	Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
 Cc: linux-i2c@vger.kernel.org,
 	Heiner Kallweit <hkallweit1@gmail.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>,
+	Daniel Vetter <daniel@ffwll.ch>,
+	dri-devel@lists.freedesktop.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 20/20] include/linux/i2c.h: remove I2C_CLASS_DDC support
-Date: Sun, 19 Nov 2023 12:28:25 +0100
-Message-ID: <20231119112826.5115-21-hkallweit1@gmail.com>
+Subject: [PATCH v3 18/20] drivers/gpu/drm/gma500: remove I2C_CLASS_DDC support
+Date: Sun, 19 Nov 2023 12:28:23 +0100
+Message-ID: <20231119112826.5115-19-hkallweit1@gmail.com>
 X-Mailer: git-send-email 2.42.1
 In-Reply-To: <20231119112826.5115-1-hkallweit1@gmail.com>
 References: <20231119112826.5115-1-hkallweit1@gmail.com>
@@ -67,19 +74,58 @@ Preferably this series should be applied via the i2c tree.
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 
 ---
- include/linux/i2c.h |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/gpu/drm/gma500/cdv_intel_dp.c      |    1 -
+ drivers/gpu/drm/gma500/intel_gmbus.c       |    1 -
+ drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c |    1 -
+ drivers/gpu/drm/gma500/psb_intel_sdvo.c    |    1 -
+ 4 files changed, 4 deletions(-)
 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 0dae9db27..d029aade3 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -850,7 +850,6 @@ static inline void i2c_mark_adapter_resumed(struct i2c_adapter *adap)
+diff --git a/drivers/gpu/drm/gma500/cdv_intel_dp.c b/drivers/gpu/drm/gma500/cdv_intel_dp.c
+index 8992a9507..dd1eb7e98 100644
+--- a/drivers/gpu/drm/gma500/cdv_intel_dp.c
++++ b/drivers/gpu/drm/gma500/cdv_intel_dp.c
+@@ -855,7 +855,6 @@ cdv_intel_dp_i2c_init(struct gma_connector *connector,
  
- /* i2c adapter classes (bitmask) */
- #define I2C_CLASS_HWMON		(1<<0)	/* lm_sensors, ... */
--#define I2C_CLASS_DDC		(1<<3)	/* DDC bus on graphics adapters */
- #define I2C_CLASS_SPD		(1<<7)	/* Memory modules */
- /* Warn users that the adapter doesn't support classes anymore */
- #define I2C_CLASS_DEPRECATED	(1<<8)
+ 	memset(&intel_dp->adapter, '\0', sizeof (intel_dp->adapter));
+ 	intel_dp->adapter.owner = THIS_MODULE;
+-	intel_dp->adapter.class = I2C_CLASS_DDC;
+ 	strncpy (intel_dp->adapter.name, name, sizeof(intel_dp->adapter.name) - 1);
+ 	intel_dp->adapter.name[sizeof(intel_dp->adapter.name) - 1] = '\0';
+ 	intel_dp->adapter.algo_data = &intel_dp->algo;
+diff --git a/drivers/gpu/drm/gma500/intel_gmbus.c b/drivers/gpu/drm/gma500/intel_gmbus.c
+index 09cedabf4..aa4550985 100644
+--- a/drivers/gpu/drm/gma500/intel_gmbus.c
++++ b/drivers/gpu/drm/gma500/intel_gmbus.c
+@@ -411,7 +411,6 @@ int gma_intel_setup_gmbus(struct drm_device *dev)
+ 		struct intel_gmbus *bus = &dev_priv->gmbus[i];
+ 
+ 		bus->adapter.owner = THIS_MODULE;
+-		bus->adapter.class = I2C_CLASS_DDC;
+ 		snprintf(bus->adapter.name,
+ 			 sizeof(bus->adapter.name),
+ 			 "gma500 gmbus %s",
+diff --git a/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c b/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c
+index fc9a34ed5..6daa6669e 100644
+--- a/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c
++++ b/drivers/gpu/drm/gma500/oaktrail_hdmi_i2c.c
+@@ -168,7 +168,6 @@ static struct i2c_adapter oaktrail_hdmi_i2c_adapter = {
+ 	.name		= "oaktrail_hdmi_i2c",
+ 	.nr		= 3,
+ 	.owner		= THIS_MODULE,
+-	.class		= I2C_CLASS_DDC,
+ 	.algo		= &oaktrail_hdmi_i2c_algorithm,
+ };
+ 
+diff --git a/drivers/gpu/drm/gma500/psb_intel_sdvo.c b/drivers/gpu/drm/gma500/psb_intel_sdvo.c
+index d6fd5d726..e4f914dec 100644
+--- a/drivers/gpu/drm/gma500/psb_intel_sdvo.c
++++ b/drivers/gpu/drm/gma500/psb_intel_sdvo.c
+@@ -2426,7 +2426,6 @@ psb_intel_sdvo_init_ddc_proxy(struct psb_intel_sdvo *sdvo,
+ 			  struct drm_device *dev)
+ {
+ 	sdvo->ddc.owner = THIS_MODULE;
+-	sdvo->ddc.class = I2C_CLASS_DDC;
+ 	snprintf(sdvo->ddc.name, I2C_NAME_SIZE, "SDVO DDC proxy");
+ 	sdvo->ddc.dev.parent = dev->dev;
+ 	sdvo->ddc.algo_data = sdvo;
 
