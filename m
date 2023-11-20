@@ -1,34 +1,34 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jrSMHWWC"
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.31])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F11F136;
-	Mon, 20 Nov 2023 06:46:54 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KJvxcYos"
+Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.20])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EABD6ED;
+	Mon, 20 Nov 2023 06:46:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1700491614; x=1732027614;
+  t=1700491613; x=1732027613;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=gjsS9WB6rIKOIRRhpkjunbSf5RtqeGG3wArFecHMPbQ=;
-  b=jrSMHWWC5az1SqvN8ELBkYFjA8Se3tV5UTHwxMat9X4FxAKrWte5VN3G
-   kU5ESsoPfv43lLb1Tk9FnDx/myZJZuej13KMzySGPlGW5X5ApATgFl8yU
-   2NnCuMg5lvzvaIe3rAchnHxO6P+Uc2d2ls/zLSINYRaY1SnktW7IUqeAl
-   AtWD5Wo6G3Wj4zwpNmyDmDiLKVejS/PKymRkaHS3zg1lZQaG6tYZVc0D5
-   4TANYGqc77ossmOD5u9njZpcLbo0zDHUqt98LD5K8m7ICgYhFQ6B8DhEf
-   CELmi3/7cUgGpF/+NcPS3PMzafuhWYqDvs+so+3Mnz/QY2grP4cyXMd7X
+  bh=So8kYJoKij+VCNKaGUL34AujAf1NZ1x9lxbojhvLPXI=;
+  b=KJvxcYosvcV8FirGX7laC4VNukh0DlH5hibJTGr/BMory8ozfahioifu
+   JV1tc7x1sgJ8CxTzn29uiZO3rIgWMV0tn29i5KG1ZJ91QHMi/Itr6/dCN
+   aJRFEtTjG/epLLxpo83rN+RbBv8bJIlbVLAajc8BjnqURoYZAapwhSwUv
+   EuvOizkgbmMPwPHZPkpoPv0d8BWI0qeF6sWeHpHH6T4hF97u7cOCQ748i
+   ImavZW26cfkKWM7LNHFBDd6CTT7W5deAuPg3Xrku/dSjN8lBiLcuxkgDq
+   xbOKobXtmVs2BCP6lP+aH1ApzSXKSr2U6gOH6RBIdT4Rahjp3L++eI282
    A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="455956458"
+X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="382017009"
 X-IronPort-AV: E=Sophos;i="6.04,214,1695711600"; 
-   d="scan'208";a="455956458"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2023 06:46:52 -0800
+   d="scan'208";a="382017009"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2023 06:46:53 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="801193153"
+X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="832291634"
 X-IronPort-AV: E=Sophos;i="6.04,214,1695711600"; 
-   d="scan'208";a="801193153"
+   d="scan'208";a="832291634"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga001.jf.intel.com with ESMTP; 20 Nov 2023 06:46:49 -0800
+  by fmsmga008.fm.intel.com with ESMTP; 20 Nov 2023 06:46:48 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id 721E99F; Mon, 20 Nov 2023 16:46:44 +0200 (EET)
+	id 508C912C; Mon, 20 Nov 2023 16:46:44 +0200 (EET)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Mario Limonciello <mario.limonciello@amd.com>,
 	Jarkko Nikula <jarkko.nikula@linux.intel.com>,
@@ -41,9 +41,9 @@ Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Jan Dabros <jsd@semihalf.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
 	Philipp Zabel <p.zabel@pengutronix.de>
-Subject: [PATCH v4 07/24] i2c: designware: Add missing 'c' into PCI IDs variable name
-Date: Mon, 20 Nov 2023 16:41:49 +0200
-Message-ID: <20231120144641.1660574-8-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v4 04/24] i2c: designware: Fix lock probe call order in dw_i2c_plat_probe()
+Date: Mon, 20 Nov 2023 16:41:46 +0200
+Message-ID: <20231120144641.1660574-5-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.43.0.rc1.1.gbec44491f096
 In-Reply-To: <20231120144641.1660574-1-andriy.shevchenko@linux.intel.com>
 References: <20231120144641.1660574-1-andriy.shevchenko@linux.intel.com>
@@ -55,46 +55,65 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add missing 'c' into i2c_designware_pci_ids variable name.
+We should not mix managed calls with non-managed. This will break
+the calls order at the error path and ->remove() stages. Fix this
+by wrapping lock probe to become managed one.
 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Fixes: 78d5e9e299e3 ("i2c: designware: Add AMD PSP I2C bus support")
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-pcidrv.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-designware-platdrv.c | 24 ++++++++++-----------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index e67956845c19..ed2f9e7ba5d3 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -355,7 +355,7 @@ static void i2c_dw_pci_remove(struct pci_dev *pdev)
- 	i2c_del_adapter(&dev->adapter);
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 648fb84e574d..63cc3cdca2c7 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -243,6 +243,17 @@ static const struct i2c_dw_semaphore_callbacks i2c_dw_semaphore_cb_table[] = {
+ 	{}
+ };
+ 
++static void i2c_dw_remove_lock_support(void *data)
++{
++	struct dw_i2c_dev *dev = data;
++
++	if (dev->semaphore_idx < 0)
++		return;
++
++	if (i2c_dw_semaphore_cb_table[dev->semaphore_idx].remove)
++		i2c_dw_semaphore_cb_table[dev->semaphore_idx].remove(dev);
++}
++
+ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
+ {
+ 	const struct i2c_dw_semaphore_callbacks *ptr;
+@@ -273,16 +284,7 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
+ 		break;
+ 	}
+ 
+-	return 0;
+-}
+-
+-static void i2c_dw_remove_lock_support(struct dw_i2c_dev *dev)
+-{
+-	if (dev->semaphore_idx < 0)
+-		return;
+-
+-	if (i2c_dw_semaphore_cb_table[dev->semaphore_idx].remove)
+-		i2c_dw_semaphore_cb_table[dev->semaphore_idx].remove(dev);
++	return devm_add_action_or_reset(dev->dev, i2c_dw_remove_lock_support, dev);
  }
  
--static const struct pci_device_id i2_designware_pci_ids[] = {
-+static const struct pci_device_id i2c_designware_pci_ids[] = {
- 	/* Medfield */
- 	{ PCI_VDEVICE(INTEL, 0x0817), medfield },
- 	{ PCI_VDEVICE(INTEL, 0x0818), medfield },
-@@ -403,16 +403,16 @@ static const struct pci_device_id i2_designware_pci_ids[] = {
- 	{ PCI_VDEVICE(ATI,  0x7464), navi_amd },
- 	{ 0,}
- };
--MODULE_DEVICE_TABLE(pci, i2_designware_pci_ids);
-+MODULE_DEVICE_TABLE(pci, i2c_designware_pci_ids);
+ static void dw_i2c_plat_assert_reset(void *data)
+@@ -428,8 +430,6 @@ static void dw_i2c_plat_remove(struct platform_device *pdev)
  
- static struct pci_driver dw_i2c_driver = {
- 	.name		= DRIVER_NAME,
--	.id_table	= i2_designware_pci_ids,
- 	.probe		= i2c_dw_pci_probe,
- 	.remove		= i2c_dw_pci_remove,
- 	.driver         = {
- 		.pm     = &i2c_dw_pm_ops,
- 	},
-+	.id_table	= i2c_designware_pci_ids,
- };
- module_pci_driver(dw_i2c_driver);
+ 	pm_runtime_dont_use_autosuspend(&pdev->dev);
+ 	pm_runtime_put_sync(&pdev->dev);
+-
+-	i2c_dw_remove_lock_support(dev);
+ }
  
+ static int dw_i2c_plat_prepare(struct device *dev)
 -- 
 2.43.0.rc1.1.gbec44491f096
 
