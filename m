@@ -1,34 +1,34 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lksr6iwW"
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.31])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E2F4139;
-	Mon, 20 Nov 2023 06:46:55 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Ma6yvUUF"
+Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.20])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D100D4D;
+	Mon, 20 Nov 2023 06:46:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1700491615; x=1732027615;
+  t=1700491617; x=1732027617;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=0SVHCxyMs+vlVsjGpSiBU8bWb2RA8tmqrElqqof/mfI=;
-  b=lksr6iwWosrD7HCgwkAm2VIWWKjSB+Xbru0NQrssUI0kfMwQL5rm6y/i
-   DDrkDlw8SXtv1cCc8KOp2g2AVjXGcNkuGDFjdrcWk7NP7gPo3X1ujMUd+
-   1OLM9iSqEv8H5H6Y3eybUN0EjxURL6kqLEj3DFNMpvvM/fC511wiz+fxF
-   TN5R9lwxCvMSx+VQgNh9o2xilpQWFIR3cl+nng06JlwCUKL18Mc+kO5cP
-   O/eP7NWMNNLb613EjQ6v4zhX4uwfBx4QpdBHcYPCaZGDIglxOKXoLZp73
-   e+xY/0F80pZQiZervMhVCsksES7t/XO1B/EAify21V76XmmplT0SA5Qjo
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="455956474"
+  bh=mWnrCbe952qZv1cdRW5+nJoDJDChwK0VNgu5M+CVVe8=;
+  b=Ma6yvUUFxOc5hswOn0EoW04i+KwE30SfweummFWecKd++fxSDo1rnE2p
+   ZwGLo8M9gH0f2ksQPNDmw2YLhG8Mff90vMG6hg0chdrA4sgeeKTYf9LNw
+   6JPKN7a0vAc8OnoqqBaaqTroi82aVtZjEToD4chbND7T6RBgvKvvshEAv
+   JykvI7pTssUcyGQdTvjuGelnF09hfZ8jKEXrLEOf6923y4qKopnsvdu+w
+   uBEwFmSWBS+qXszenmSjrXp73lD0/bZsEX+rDzcBEQinKZEgu2LPsvTjD
+   J49RSs3Z8fgJOlgWNr0cxeY68cGs60XJ8z0vJfsWLQiK8aMa2EjXtBpTt
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="382017054"
 X-IronPort-AV: E=Sophos;i="6.04,214,1695711600"; 
-   d="scan'208";a="455956474"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2023 06:46:52 -0800
+   d="scan'208";a="382017054"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2023 06:46:56 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="801193156"
+X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="832291652"
 X-IronPort-AV: E=Sophos;i="6.04,214,1695711600"; 
-   d="scan'208";a="801193156"
+   d="scan'208";a="832291652"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga001.jf.intel.com with ESMTP; 20 Nov 2023 06:46:49 -0800
+  by fmsmga008.fm.intel.com with ESMTP; 20 Nov 2023 06:46:53 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id A940242D; Mon, 20 Nov 2023 16:46:44 +0200 (EET)
+	id D47AA516; Mon, 20 Nov 2023 16:46:44 +0200 (EET)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Mario Limonciello <mario.limonciello@amd.com>,
 	Jarkko Nikula <jarkko.nikula@linux.intel.com>,
@@ -41,9 +41,9 @@ Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Jan Dabros <jsd@semihalf.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
 	Philipp Zabel <p.zabel@pengutronix.de>
-Subject: [PATCH v4 11/24] i2c: designware: Drop return value from i2c_dw_acpi_configure()
-Date: Mon, 20 Nov 2023 16:41:53 +0200
-Message-ID: <20231120144641.1660574-12-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v4 15/24] i2c: designware: Unify the firmware type checks
+Date: Mon, 20 Nov 2023 16:41:57 +0200
+Message-ID: <20231120144641.1660574-16-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.43.0.rc1.1.gbec44491f096
 In-Reply-To: <20231120144641.1660574-1-andriy.shevchenko@linux.intel.com>
 References: <20231120144641.1660574-1-andriy.shevchenko@linux.intel.com>
@@ -55,53 +55,46 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-i2c_dw_acpi_configure() is called without checking of the returned
-value, hence just drop it by converting to void.
+Instead of asymmetrical checks for the firmware type use
+the is_*_node() calls.
 
 Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-common.c | 4 +---
- drivers/i2c/busses/i2c-designware-core.h   | 4 ++--
- 2 files changed, 3 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-designware-common.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 35f762872b8a..7a53a732981b 100644
+index d3ddfec46200..fb75e9b3d4fc 100644
 --- a/drivers/i2c/busses/i2c-designware-common.c
 +++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -255,7 +255,7 @@ static void i2c_dw_acpi_params(struct device *device, char method[],
- 	kfree(buf.pointer);
- }
- 
--int i2c_dw_acpi_configure(struct device *device)
-+void i2c_dw_acpi_configure(struct device *device)
+@@ -22,6 +22,7 @@
+ #include <linux/module.h>
+ #include <linux/of.h>
+ #include <linux/pm_runtime.h>
++#include <linux/property.h>
+ #include <linux/regmap.h>
+ #include <linux/swab.h>
+ #include <linux/types.h>
+@@ -372,14 +373,15 @@ int i2c_dw_fw_parse_and_configure(struct dw_i2c_dev *dev)
  {
- 	struct dw_i2c_dev *dev = dev_get_drvdata(device);
  	struct i2c_timings *t = &dev->timings;
-@@ -285,8 +285,6 @@ int i2c_dw_acpi_configure(struct device *device)
- 		dev->sda_hold_time = fs_ht;
- 		break;
- 	}
--
--	return 0;
- }
- EXPORT_SYMBOL_GPL(i2c_dw_acpi_configure);
+ 	struct device *device = dev->dev;
++	struct fwnode_handle *fwnode = dev_fwnode(device);
  
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index f8dd87cb0ae9..b7884f15e0e9 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -399,7 +399,7 @@ int i2c_dw_validate_speed(struct dw_i2c_dev *dev);
- void i2c_dw_adjust_bus_speed(struct dw_i2c_dev *dev);
+ 	i2c_parse_fw_timings(device, t, false);
  
- #if IS_ENABLED(CONFIG_ACPI)
--int i2c_dw_acpi_configure(struct device *device);
-+void i2c_dw_acpi_configure(struct device *device);
- #else
--static inline int i2c_dw_acpi_configure(struct device *device) { return -ENODEV; }
-+static inline void i2c_dw_acpi_configure(struct device *device) { }
- #endif
+ 	i2c_dw_adjust_bus_speed(dev);
+ 
+-	if (device->of_node)
++	if (is_of_node(fwnode))
+ 		i2c_dw_of_configure(device);
+-	if (has_acpi_companion(device))
++	else if (is_acpi_node(fwnode))
+ 		i2c_dw_acpi_configure(device);
+ 
+ 	return i2c_dw_validate_speed(dev);
 -- 
 2.43.0.rc1.1.gbec44491f096
 
