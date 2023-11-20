@@ -1,123 +1,110 @@
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E45AC15E9D
+	for <linux-i2c@vger.kernel.org>; Mon, 20 Nov 2023 15:05:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="LL5SZbvc"
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.31])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17CCCD7E;
-	Mon, 20 Nov 2023 06:47:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1700491621; x=1732027621;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=fAFi2/PzE4gq91xVpinNlCCxpt7Mitg7VdWONEcc7AY=;
-  b=LL5SZbvc0A0iQCzwPFsrfh9OlN0fZpmx92b1ZzFJmlZDcFTswCJnijOd
-   FKzPGBnGbWVHJ76mo6CS0inJsSQdjokwWMOx/IQg+hncdERbbRhzSPNkD
-   +yREB29jn2Nx8O8c/iXjTRb33ifShLGxKgvx4WMS3EYhZml44j8fkdUih
-   LUeKDNKkOzMJ1yIVf/RBxSHz+90CIsEu2U9lINQg6mZEYcibl3FhPypsx
-   Vmbu/fd+uVnT3Ft+lAyOODROOXw12U70a4PhGUHmJx8M2fYkx/BNjeLkB
-   qAMcfmH/g7dGaAIp0T+Es+ZBrRHRZXXivJ+pCpl+mRYBHHeXgHwdBvmvY
-   Q==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="455956531"
-X-IronPort-AV: E=Sophos;i="6.04,214,1695711600"; 
-   d="scan'208";a="455956531"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2023 06:46:57 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="801193215"
-X-IronPort-AV: E=Sophos;i="6.04,214,1695711600"; 
-   d="scan'208";a="801193215"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga001.jf.intel.com with ESMTP; 20 Nov 2023 06:46:54 -0800
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id 266236B9; Mon, 20 Nov 2023 16:46:45 +0200 (EET)
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Mario Limonciello <mario.limonciello@amd.com>,
-	Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Wolfram Sang <wsa@kernel.org>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jan Dabros <jsd@semihalf.com>,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nf37+MGo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA398C433C8;
+	Mon, 20 Nov 2023 15:05:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1700492721;
+	bh=wkDFkqWY1q+7TNnh5FBjMJrCHmKUB6aLYQbdLpZqwSE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=nf37+MGouG1zQ31cVpFoLYz4Q3JdOGJ2KdrauMtMigOEAKXQY9aNLsyOo+rGpUjsf
+	 aLsPbrR8LlQv6etrojYjeLvn+nkaDC4vNLCxVbwc5nU9tumi4+cqHnujmWpoRGkziE
+	 7YgUZnmGWKlnSHTuar2CA44JXgd88+kqru1oHVOcUudm4Y5S1k/P2XxKJbEMqJOXWu
+	 KQ/LWrQrsZdXOEF/DyqUIxGBNgJxA1H9fkI3ZPFGdZNwhSLrCb7AcFefSTzAzd9HBC
+	 06Me0sJT+1oVQYAjL08izkU7iQ2QKtcGqrMNjLL/uvq9zybglyCWiF1rLJ0vhotWc1
+	 Kr14ETS5/dloQ==
+Date: Mon, 20 Nov 2023 15:05:16 +0000
+From: Will Deacon <will@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
 	Andi Shyti <andi.shyti@kernel.org>,
-	Philipp Zabel <p.zabel@pengutronix.de>
-Subject: [PATCH v4 20/24] i2c: designware: Propagate firmware node
-Date: Mon, 20 Nov 2023 16:42:02 +0200
-Message-ID: <20231120144641.1660574-21-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.43.0.rc1.1.gbec44491f096
-In-Reply-To: <20231120144641.1660574-1-andriy.shevchenko@linux.intel.com>
-References: <20231120144641.1660574-1-andriy.shevchenko@linux.intel.com>
+	Catalin Marinas <catalin.marinas@arm.com>
+Subject: Re: [PULL REQUEST] i2c-for-6.7-rc2
+Message-ID: <20231120150515.GA32570@willie-the-truck>
+References: <ZVf/pqw5YcF7sldg@shikoro>
+ <CAHk-=wi9a9u+1cAxxHw7KxXsfPvdWCbhatK7enFSjgwjrovCZA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wi9a9u+1cAxxHw7KxXsfPvdWCbhatK7enFSjgwjrovCZA@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 
-Propagate firmware node by using a specific API call, i.e. device_set_node().
+On Sat, Nov 18, 2023 at 09:56:59AM -0800, Linus Torvalds wrote:
+> On Fri, 17 Nov 2023 at 16:05, Wolfram Sang <wsa@kernel.org> wrote:
+> >
+> > Jan Bottorff (1):
+> >       i2c: designware: Fix corrupted memory seen in the ISR
+> 
+> I have pulled this, but honestly, looking at the patch, I really get
+> the feeling that there's some deeper problem going on.
+> 
+> Either the designware driver doesn't do the right locking, or the
+> relaxed IO accesses improperly are escaping the locks that do exist.
+> 
+> Either way, just changing "writel_relaxed()" to "writel()" seems to be wrong.
+> 
+> Of course, it is entirely possible that those accesses should never
+> have been relaxed in the first place, and that the actual access
+> ordering between two accesses in the same thread matters. For example,
+> the code did
+> 
+>         *val = readw_relaxed(dev->base + reg) |
+>                 (readw_relaxed(dev->base + reg + 2) << 16);
+> 
+> and if the order of those two readw's mattered, then the "relaxed" was
+> always entirely wrong.
+> 
+> But the commit message seems to very much imply a multi-thread issue,
+> and for *that* issue, doing "writel_relaxed" -> "writel" is very much
+> wrong. The only thing fixing threading issues is proper locks (or
+> _working_ locks).
+> 
+> Removing the "relaxed" may *hide* the issue, but doesn't really fix it.
+> 
+> For the arm64 people I brought in: this is now commit f726eaa787e9
+> ("i2c: designware: Fix corrupted memory seen in the ISR") upstream.
+> I've done the pull, because even if this is purely a "hide the
+> problem" fix, it's better than what the code did. I'm just asking that
+> people look at this a bit more.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/busses/i2c-designware-common.c  | 2 ++
- drivers/i2c/busses/i2c-designware-pcidrv.c  | 2 --
- drivers/i2c/busses/i2c-designware-platdrv.c | 3 ---
- 3 files changed, 2 insertions(+), 5 deletions(-)
+Thanks for putting me on CC. The original issue was discussed quite a bit
+over at:
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 1d213bc0bbfa..45ced3354eef 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -716,6 +716,8 @@ EXPORT_SYMBOL_GPL(i2c_dw_disable);
- 
- int i2c_dw_probe(struct dw_i2c_dev *dev)
- {
-+	device_set_node(&dev->adapter.dev, dev_fwnode(dev->dev));
-+
- 	switch (dev->mode) {
- 	case DW_IC_SLAVE:
- 		return i2c_dw_probe_slave(dev);
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index df47ba04c9ee..2c7bc7dc8e44 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -9,7 +9,6 @@
-  * Copyright (C) 2009 Provigent Ltd.
-  * Copyright (C) 2011, 2015, 2016 Intel Corporation.
-  */
--#include <linux/acpi.h>
- #include <linux/delay.h>
- #include <linux/err.h>
- #include <linux/errno.h>
-@@ -273,7 +272,6 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 	adap = &dev->adapter;
- 	adap->owner = THIS_MODULE;
- 	adap->class = 0;
--	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
- 	adap->nr = controller->bus_num;
- 
- 	r = i2c_dw_probe(dev);
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index d9a64006a3d6..1b76f721bf81 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -8,7 +8,6 @@
-  * Copyright (C) 2007 MontaVista Software Inc.
-  * Copyright (C) 2009 Provigent Ltd.
-  */
--#include <linux/acpi.h>
- #include <linux/clk-provider.h>
- #include <linux/clk.h>
- #include <linux/delay.h>
-@@ -305,8 +304,6 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	adap->owner = THIS_MODULE;
- 	adap->class = dmi_check_system(dw_i2c_hwmon_class_dmi) ?
- 					I2C_CLASS_HWMON : I2C_CLASS_DEPRECATED;
--	ACPI_COMPANION_SET(&adap->dev, ACPI_COMPANION(&pdev->dev));
--	adap->dev.of_node = pdev->dev.of_node;
- 	adap->nr = -1;
- 
- 	if (dev->flags & ACCESS_NO_IRQ_SUSPEND) {
--- 
-2.43.0.rc1.1.gbec44491f096
+https://lore.kernel.org/all/20230913232938.420423-1-janb@os.amperecomputing.com/
 
+and I think the high-level problem was something like:
+
+1. CPU x writes some stuff to memory (I think one example was i2c_dw_xfer()
+   setting 'dev->msg_read_idx' to 0)
+2. CPU x writes to an I/O register on this I2C controller which generates
+   an IRQ (end of i2c_dw_xfer_init())
+3. CPU y takes the IRQ
+4. CPU y reads 'dev->msg_read_idx' and doesn't see the write from (1)
+
+(i2c folks: please chime in if I got this wrong)
+
+the issue being that the writes in (1) are not ordered before the I/O
+access in (2) if the relaxed accessor is used. Rather than upgrade only
+the register writes which can trigger an interrupt, the more conservative
+approach of upgrading everything to non-relaxed I/O accesses was taken
+(which is probably necessary to deal with spurious IRQs properly anyway
+because otherwise 'dev->msg_read_idx' could be read early in step (4)).
+
+Your point about locking is interesting. I don't see any obvious locks
+being taken in i2c_dw_isr(), so I don't think the issue is because relaxed
+accesses are escaping existing locks. An alternative would be putting
+steps (1) and (2) in a critical section and then taking the lock again
+in the interrupt handler. Or did you have something else in mind?
+
+Will
