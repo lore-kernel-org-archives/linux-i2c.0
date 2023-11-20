@@ -1,34 +1,34 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="CZAya96H"
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.31])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E66BC137;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Uod9xnTl"
+Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.20])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F12C0138;
 	Mon, 20 Nov 2023 06:46:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1700491614; x=1732027614;
+  t=1700491615; x=1732027615;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=JQUe43qQ5/h7AycERmmdqXzJY/9l7uxeRbLUgwcQF04=;
-  b=CZAya96Hg+vjn40ytSC6AyM1/MrkhQHJw4oL9G6JvpZrxin4Mwj+6+ew
-   q/PcZKkcW7cnKaTYCjhAPE5Q6NzOpJJEuP42zAGDsmq0Hym5OAY3Te8+w
-   njN57Y+Amb0PaCgn5r4DCkTH0+Fri9zJbbe/ZD1v9kYOyV5ykV/+nBNQb
-   l1hQtZ0gs13wSZgGix1RjrBQo3QlFfjGJDXap1ZOdqIh3ssEzD6fRwxgR
-   r2uXSBtdAyIrMsaTBMvfWX79U+DsJL/ag75uIpTEPBEt3kETJQf3Xgv57
-   d0v0abyOveyYAika5GXIJW2dDjcNzvbiJGtSku+z+FyNDn/i2QHWVL+3t
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="455956468"
+  bh=ra1fDXxXZDiL0Wl6vqb23lOjaK/9+v5dMqICn+uCCZQ=;
+  b=Uod9xnTlQ6Td9COtd51owX8oYBs0HHE39hpKFJlnwf+hstBizr2Cgh7d
+   BovDJIq1ObfrFfLtSklEzlPfEf0Rzg+TdZVPEFGyr9ajBP+fYdYiJUlUr
+   5EeO3Qg+8Tx+wxUU2HvDbcquAM25K5LyFdd7n/X1rA7rCdzVFZq6/4I+q
+   6CZavTKqfOAkRPzIw3RazfFv4IgT/w7eC1N50WmuOiGaIk056TQ6Y+sWr
+   bFFTa6nowwNg1/0bXrTpJyhjcGdacksmGV1R1q2rBGfbw1X6zI7sJjkAn
+   yZgcyo5AW5E3Pd7RqWj0wyjpGEusiUTeYRsa9h9lV46dU88J7D0E4frer
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="382017024"
 X-IronPort-AV: E=Sophos;i="6.04,214,1695711600"; 
-   d="scan'208";a="455956468"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2023 06:46:52 -0800
+   d="scan'208";a="382017024"
+Received: from fmsmga008.fm.intel.com ([10.253.24.58])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2023 06:46:53 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="801193155"
+X-IronPort-AV: E=McAfee;i="6600,9927,10900"; a="832291642"
 X-IronPort-AV: E=Sophos;i="6.04,214,1695711600"; 
-   d="scan'208";a="801193155"
+   d="scan'208";a="832291642"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orsmga001.jf.intel.com with ESMTP; 20 Nov 2023 06:46:49 -0800
+  by fmsmga008.fm.intel.com with ESMTP; 20 Nov 2023 06:46:50 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id 926AC3E3; Mon, 20 Nov 2023 16:46:44 +0200 (EET)
+	id 5EA8F1D9; Mon, 20 Nov 2023 16:46:44 +0200 (EET)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Mario Limonciello <mario.limonciello@amd.com>,
 	Jarkko Nikula <jarkko.nikula@linux.intel.com>,
@@ -41,9 +41,9 @@ Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Jan Dabros <jsd@semihalf.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
 	Philipp Zabel <p.zabel@pengutronix.de>
-Subject: [PATCH v4 09/24] i2c: designware: Unify terminator in device ID tables
-Date: Mon, 20 Nov 2023 16:41:51 +0200
-Message-ID: <20231120144641.1660574-10-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v4 05/24] i2c: designware: Replace a while-loop by for-loop
+Date: Mon, 20 Nov 2023 16:41:47 +0200
+Message-ID: <20231120144641.1660574-6-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.43.0.rc1.1.gbec44491f096
 In-Reply-To: <20231120144641.1660574-1-andriy.shevchenko@linux.intel.com>
 References: <20231120144641.1660574-1-andriy.shevchenko@linux.intel.com>
@@ -55,51 +55,41 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Make the terminator entry look the same in all device ID tables.
+Replace a while-loop by for-loop in i2c_dw_probe_lock_support() to
+save a few lines of code.
 
 Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
 Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-pcidrv.c  | 2 +-
- drivers/i2c/busses/i2c-designware-platdrv.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-designware-platdrv.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 35eba432bd08..cf736a8b9023 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -401,7 +401,7 @@ static const struct pci_device_id i2c_designware_pci_ids[] = {
- 	{ PCI_VDEVICE(ATI,  0x73c4), navi_amd },
- 	{ PCI_VDEVICE(ATI,  0x7444), navi_amd },
- 	{ PCI_VDEVICE(ATI,  0x7464), navi_amd },
--	{ 0,}
-+	{}
- };
- MODULE_DEVICE_TABLE(pci, i2c_designware_pci_ids);
- 
 diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 5d8427ccc9b4..018c353a456a 100644
+index 63cc3cdca2c7..cb954f11540e 100644
 --- a/drivers/i2c/busses/i2c-designware-platdrv.c
 +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -57,7 +57,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
- 	{ "HISI02A2", 0 },
- 	{ "HISI02A3", 0 },
- 	{ "HYGO0010", ACCESS_INTR_MASK },
--	{ }
-+	{}
- };
- MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
- #endif
-@@ -153,7 +153,7 @@ static const struct of_device_id dw_i2c_of_match[] = {
- 	{ .compatible = "snps,designware-i2c", },
- 	{ .compatible = "mscc,ocelot-i2c", .data = (void *)MODEL_MSCC_OCELOT },
- 	{ .compatible = "baikal,bt1-sys-i2c", .data = (void *)MODEL_BAIKAL_BT1 },
--	{},
-+	{}
- };
- MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
- #else
+@@ -260,11 +260,9 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
+ 	int i = 0;
+ 	int ret;
+ 
+-	ptr = i2c_dw_semaphore_cb_table;
+-
+ 	dev->semaphore_idx = -1;
+ 
+-	while (ptr->probe) {
++	for (ptr = i2c_dw_semaphore_cb_table; ptr->probe; ptr++) {
+ 		ret = ptr->probe(dev);
+ 		if (ret) {
+ 			/*
+@@ -276,7 +274,6 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
+ 				return ret;
+ 
+ 			i++;
+-			ptr++;
+ 			continue;
+ 		}
+ 
 -- 
 2.43.0.rc1.1.gbec44491f096
 
