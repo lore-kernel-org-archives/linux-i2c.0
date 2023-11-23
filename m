@@ -1,59 +1,62 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P6jsYGK+"
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42C10D44;
-	Thu, 23 Nov 2023 01:40:48 -0800 (PST)
-Received: by mail-ed1-x535.google.com with SMTP id 4fb4d7f45d1cf-548f74348f7so935828a12.2;
-        Thu, 23 Nov 2023 01:40:48 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KRT6B5vN"
+Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17C05BA;
+	Thu, 23 Nov 2023 01:40:50 -0800 (PST)
+Received: by mail-ej1-x634.google.com with SMTP id a640c23a62f3a-9fd0059a967so341008766b.1;
+        Thu, 23 Nov 2023 01:40:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1700732447; x=1701337247; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1700732448; x=1701337248; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=H76sh9TJa21kiF09BweriFrW/UpEK7sOhe75l5gn76g=;
-        b=P6jsYGK+PkGCtqcrsOkv/NvaKGPptDbS0hmIdsWyEigfD4B0YQu1ulFB67U0jTIg3E
-         +wCorITWSXEIlvEjli0drGFFc3i2JRndKy+1xufl+KV1XmCmDVXo72HwbC5S7EYgEaNS
-         dTXV7lsTdDI8pi+G8DnEHtwpN1Lp9kNf7IIo3RPpLlUfz3zbQzlwTURSdXHrCYb9Qn0v
-         8HGTAf4kHdxSKmx/BXP7XD9x0BVXMuZuAbkBhuQG1mQT9RE3cpQBxvRkKciwy0nt3/wJ
-         Ef/oDRXm0OFSln5dholtwdIOG6HwMc3TGEnZbangYYurg89UgeaZy4a4hnywRPGXXRkR
-         I1jw==
+        bh=SLxIO8jymMsGgax9WMIUOf53Q8UCr/7PCCK8+C8vDXQ=;
+        b=KRT6B5vNb9OZULnQ00nQuAakY609BlZAiS4YXcROouyRv/7TkV0a5KpDTN++L+vZZs
+         e4u2Rt2l0OKLrtQgtsGyIsaPQzuWR6eeAqSm71gEzU0FxQWX+Fqb+FE3hSXuZ4uzndrC
+         T6gUay806gaoyKUNcmH9uit8KUNTJtyu+HfHgGjhsUhXcn6pu3SRFZ7dNh29IU2hj0qD
+         9lW9L8m9QnY4l1UjWLcf1K1JmlxqG7e5u5SyAZ1oj/3n80YgF6T+wcy3Qe3uRJNLHkLE
+         YWzp/NsZvWOE9tVAewFjEtKBk+yaA+FzL1Fv9DLUjL+PeH4n9nTPqTzJGuQ+tZ9gmqd1
+         vbKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1700732447; x=1701337247;
+        d=1e100.net; s=20230601; t=1700732448; x=1701337248;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=H76sh9TJa21kiF09BweriFrW/UpEK7sOhe75l5gn76g=;
-        b=Ow+2n3H8KANk94UmPTvDl+0zXB1G+cUSoNOQ9OkN7Lk5lRrQpiKI3PIZ5/Bk3OBDcT
-         BFClPNxxdH9CM86aXqNMwvzUuNCM14Ih5/jlpxCE3svshx9tSGgXVddDWOe3PUIuR7he
-         j8gJVIo2dddsl6nmSda+3Q85jXZ4Tw8uy3yuuMZ+0CJ6WKh5Kg6LUXHKNLbFcVQ2Wqlk
-         VdQLRg/fiWfUNKZc9p6DBlzTYAvmB+YOppTqJeG25B/O5Iaf5TiokiqbkEaqV5kEE25r
-         YtHq5WX4HVd+VVUkmnCpWbDSBrDDXmAp4qZF6OQcEtVVkQB/P5aNkreYjh56Mhmoqrds
-         1n+w==
-X-Gm-Message-State: AOJu0Yy8gP5vSnCP7GjBY4ZUb+aI1f/Yw86LTSvqa2kUitrNYcSSp9MG
-	xevqe2beYKViCuq0FW/uvFQ=
-X-Google-Smtp-Source: AGHT+IEn690wfubKb/UyQpCV8u5r9s/J7YoDjXMPpmRF+BSrF8lwfJHZHGsK4X3ZCynniFHKeVNcKA==
-X-Received: by 2002:a17:906:14d:b0:9e0:5d5c:aa6d with SMTP id 13-20020a170906014d00b009e05d5caa6dmr3302730ejh.20.1700732446363;
-        Thu, 23 Nov 2023 01:40:46 -0800 (PST)
+        bh=SLxIO8jymMsGgax9WMIUOf53Q8UCr/7PCCK8+C8vDXQ=;
+        b=xUBP9mgihqxaNMYDqTMxdMDsxSZi+RK92M6VqyKz3/MLsQaSsTUC3lRgTqqpgDTOfx
+         KFHkB5EtorjmPFGZlWCTQDNE1tJcrtiGJt2+q0TuA0rETi9KHR2Kh+91yNzyUx7hawae
+         dwhK1nJGPDT5JHEgsifdj7xmgoUOAXnw5bmvznR0mWBrFEoC2Y5SKzC9L4lAvipI8H5h
+         caKMu/S0eOsIUDO5FdJb3nYwIF5Os8IWqZYRIbvxrPmfgoLw2fjmlyS7vBKSOpABaDOa
+         dyidd1YdLl6j3T4x18QIMKOOWR5TnePvon/1BepffwY++VH4aklRStG+7ZcMEoHuITHO
+         tKUQ==
+X-Gm-Message-State: AOJu0YySMAEW5Yq8YeFMMf6CthenJA8+FOJoVmprvjMeb0jvNuqeIGxu
+	GtvVVq0K1c89H74HAJ/PVVs=
+X-Google-Smtp-Source: AGHT+IHAAgtMNPgGG8plHKbnTsqENUj/FChwDuBx+Jt1UJ0zF6uKp2U1sG6bXy9dBnLTJPdZkoeP/A==
+X-Received: by 2002:a17:906:78c:b0:a04:e1e7:d14c with SMTP id l12-20020a170906078c00b00a04e1e7d14cmr1773863ejc.32.1700732448312;
+        Thu, 23 Nov 2023 01:40:48 -0800 (PST)
 Received: from zotac.lan. (dynamic-2a01-0c23-c0f2-3200-2223-08ff-fe18-0310.c23.pool.telefonica.de. [2a01:c23:c0f2:3200:2223:8ff:fe18:310])
-        by smtp.gmail.com with ESMTPSA id s9-20020a1709066c8900b009e5ce1acb01sm546199ejr.103.2023.11.23.01.40.45
+        by smtp.gmail.com with ESMTPSA id s9-20020a1709066c8900b009e5ce1acb01sm546199ejr.103.2023.11.23.01.40.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Nov 2023 01:40:46 -0800 (PST)
+        Thu, 23 Nov 2023 01:40:47 -0800 (PST)
 From: Heiner Kallweit <hkallweit1@gmail.com>
 To: Wolfram Sang <wsa@kernel.org>,
-	Dave Airlie <airlied@redhat.com>
+	Maxime Ripard <mripard@kernel.org>
 Cc: linux-i2c@vger.kernel.org,
 	Heiner Kallweit <hkallweit1@gmail.com>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	Jocelyn Falempe <jfalempe@redhat.com>,
+	Chen-Yu Tsai <wens@csie.org>,
 	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
 	David Airlie <airlied@gmail.com>,
 	Daniel Vetter <daniel@ffwll.ch>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Samuel Holland <samuel@sholland.org>,
 	dri-devel@lists.freedesktop.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-sunxi@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v5 02/20] drivers/gpu/drm/mgag200/mgag200_i2c.c: remove I2C_CLASS_DDC support
-Date: Thu, 23 Nov 2023 10:40:22 +0100
-Message-ID: <20231123094040.592-3-hkallweit1@gmail.com>
+Subject: [PATCH v5 04/20] drivers/gpu/drm/sun4i/sun4i_hdmi_i2c.c: remove I2C_CLASS_DDC support
+Date: Thu, 23 Nov 2023 10:40:24 +0100
+Message-ID: <20231123094040.592-5-hkallweit1@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20231123094040.592-1-hkallweit1@gmail.com>
 References: <20231123094040.592-1-hkallweit1@gmail.com>
@@ -72,23 +75,24 @@ be used in new code. So we can remove this class completely now.
 
 Preferably this series should be applied via the i2c tree.
 
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
 Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
 
 ---
- drivers/gpu/drm/mgag200/mgag200_i2c.c |    1 -
+ drivers/gpu/drm/sun4i/sun4i_hdmi_i2c.c |    1 -
  1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/mgag200/mgag200_i2c.c b/drivers/gpu/drm/mgag200/mgag200_i2c.c
-index 0c48bdf3e..423eb302b 100644
---- a/drivers/gpu/drm/mgag200/mgag200_i2c.c
-+++ b/drivers/gpu/drm/mgag200/mgag200_i2c.c
-@@ -106,7 +106,6 @@ int mgag200_i2c_init(struct mga_device *mdev, struct mga_i2c_chan *i2c)
- 	i2c->data = BIT(info->i2c.data_bit);
- 	i2c->clock = BIT(info->i2c.clock_bit);
- 	i2c->adapter.owner = THIS_MODULE;
--	i2c->adapter.class = I2C_CLASS_DDC;
- 	i2c->adapter.dev.parent = dev->dev;
- 	i2c->dev = dev;
- 	i2c_set_adapdata(&i2c->adapter, i2c);
+diff --git a/drivers/gpu/drm/sun4i/sun4i_hdmi_i2c.c b/drivers/gpu/drm/sun4i/sun4i_hdmi_i2c.c
+index d1a65a921..f5f62eb0e 100644
+--- a/drivers/gpu/drm/sun4i/sun4i_hdmi_i2c.c
++++ b/drivers/gpu/drm/sun4i/sun4i_hdmi_i2c.c
+@@ -302,7 +302,6 @@ int sun4i_hdmi_i2c_create(struct device *dev, struct sun4i_hdmi *hdmi)
+ 		return -ENOMEM;
+ 
+ 	adap->owner = THIS_MODULE;
+-	adap->class = I2C_CLASS_DDC;
+ 	adap->algo = &sun4i_hdmi_i2c_algorithm;
+ 	strscpy(adap->name, "sun4i_hdmi_i2c adapter", sizeof(adap->name));
+ 	i2c_set_adapdata(adap, hdmi);
 
