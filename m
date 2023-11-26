@@ -1,23 +1,23 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DDF412E58
-	for <linux-i2c@vger.kernel.org>; Sun, 26 Nov 2023 22:23:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4D5E12E58
+	for <linux-i2c@vger.kernel.org>; Sun, 26 Nov 2023 22:27:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NKP9/xaD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4FC3C433C7;
-	Sun, 26 Nov 2023 22:23:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Yzyx3XhU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB71CC433C8;
+	Sun, 26 Nov 2023 22:27:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1701037429;
-	bh=pfTsofaa4QprR278/y3czVdAOGvgumfdtsYbR8l/K4Q=;
+	s=k20201202; t=1701037672;
+	bh=vWbSX32odQjp/d/idEt8zwF9Zy5oAJlF1CorJpW4uw4=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=NKP9/xaDc0JuMidlR6fhMtSVuPfGpU7ZVDTrtrBkQBAyte6w9mgVeoaltT+HEJzMH
-	 lo0zBYUHiZGtcbWdm570JDHkx31KgxRNQtChwSV5WFnuqqcZgP+Pyi/tzc7C2ezZzo
-	 DdWdW9Bj7Mrii+O+UX3svEpa0soPDrSVN4UzZIy07iLAhNrVHJIZG6sQxFgauy5CCx
-	 anyd3GIaMpSmAIKmkxcup4+uehDaPZEU+oHjq4azAP5G8n8P1p5QdZy4n/ONi3UHQp
-	 3Fmfm2DxKl71okkrw74vCRbVfwzHJ0M2R6GvpuafDBdWC5S3Gp/t4LAGcr+ZGqOKKC
-	 Yw96ezWa+GfjQ==
-Date: Sun, 26 Nov 2023 23:23:44 +0100
+	b=Yzyx3XhUv8CVZShbuwX4R+uFDMebpWtbA94ZcWfBD4yEFTN4phpSkK0sX7Oyfqv4O
+	 c1WmBAHWeBjsWIWe3gOYZxGLvMrIhJ0X9qxistHqe+dBZVDbO3XJXNq1czLuMUAxze
+	 La6V3A32DpHmN22yUwK/wqWw3aTmTcE6QRNIvfV3VDHCH4voAmtwiLj/cgu3/siw9k
+	 W6+7C1YLZpRgMH5KKYDbWjkbGU5ogmQrNMtgcQCNPin6XOqolFu8+01qH4dqZ/EXUf
+	 e/6cRR/3D5hjpgIf1povezK4I1moToQFTpK2XThGejp1NvIWv4AqIoeJp+g5ebxy10
+	 mYHwYoIQH4QMA==
+Date: Sun, 26 Nov 2023 23:27:49 +0100
 From: Andi Shyti <andi.shyti@kernel.org>
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: Mario Limonciello <mario.limonciello@amd.com>,
@@ -28,11 +28,11 @@ Cc: Mario Limonciello <mario.limonciello@amd.com>,
 	Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Jan Dabros <jsd@semihalf.com>,
 	Philipp Zabel <p.zabel@pengutronix.de>
-Subject: Re: [PATCH v4 04/24] i2c: designware: Fix lock probe call order in
- dw_i2c_plat_probe()
-Message-ID: <20231126222344.xaci244buhwbn2v7@zenone.zhora.eu>
+Subject: Re: [PATCH v4 05/24] i2c: designware: Replace a while-loop by
+ for-loop
+Message-ID: <20231126222749.bruquaub2rrtbr7d@zenone.zhora.eu>
 References: <20231120144641.1660574-1-andriy.shevchenko@linux.intel.com>
- <20231120144641.1660574-5-andriy.shevchenko@linux.intel.com>
+ <20231120144641.1660574-6-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -41,16 +41,16 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20231120144641.1660574-5-andriy.shevchenko@linux.intel.com>
+In-Reply-To: <20231120144641.1660574-6-andriy.shevchenko@linux.intel.com>
 
 Hi Andy,
 
-On Mon, Nov 20, 2023 at 04:41:46PM +0200, Andy Shevchenko wrote:
-> We should not mix managed calls with non-managed. This will break
-> the calls order at the error path and ->remove() stages. Fix this
-> by wrapping lock probe to become managed one.
+On Mon, Nov 20, 2023 at 04:41:47PM +0200, Andy Shevchenko wrote:
+> Replace a while-loop by for-loop in i2c_dw_probe_lock_support() to
+> save a few lines of code.
 > 
-> Fixes: 78d5e9e299e3 ("i2c: designware: Add AMD PSP I2C bus support")
+> Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+> Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
 > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
 Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
