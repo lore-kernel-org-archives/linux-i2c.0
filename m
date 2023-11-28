@@ -1,157 +1,72 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=9elements.com header.i=@9elements.com header.b="DPmy9lQD"
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D29AE6
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Nov 2023 02:00:18 -0800 (PST)
-Received: by mail-wr1-x42f.google.com with SMTP id ffacd0b85a97d-332ca7f95e1so3660210f8f.0
-        for <linux-i2c@vger.kernel.org>; Tue, 28 Nov 2023 02:00:18 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=9elements.com; s=google; t=1701165615; x=1701770415; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=KM+51/Ab8q9Ob1ygxdet2j1y8TyHO4eFE3VACdVz/qw=;
-        b=DPmy9lQD8Oa8gozxHMssDF4akvL8spS8WhcoTdR1cXi/IbG1+0ra0JGQCzaN8hCmUA
-         ypV7h25+dNieVZxrWHck5nMFM0Mce2BZ4hkUbp42MsT1FPagR01/z+5gEioByxw7NYFW
-         YnP9tvr89pVV+gSQblrhEO3ckPk2mwgv8SojmHjXmTaGuoGWr4ncgXej2A1JmfO//a2Z
-         acO4dBWGazMn6FfltV86MRAiaxcbzHM6OASRwGrYmV95UrK0xghrg7bbFAfFcwSh8Nkf
-         aEJY8/9trkS3ErMakqIHhjR46415jiHPS502cgc/buo/aVzpNaKX44mDrhg421eIviue
-         wRNw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701165615; x=1701770415;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=KM+51/Ab8q9Ob1ygxdet2j1y8TyHO4eFE3VACdVz/qw=;
-        b=WXEy5BfPHm/cipmb/fIWPg3gCLAHPjY/2TABNp4UmHe4wFmzSuecgXAxQz7jm0Mpkg
-         WCQUPMXv0f6pAKpcpUs35btgFej7647l+Nh8is2hDGxGIXzSKhDMtosAGyKol98HHrKv
-         py/oOBtmjqKWTRyUf5NssyB6pyi3PAkmEf4wWg0JkyfjF85GkhXlrffdYhOo36kKoNeH
-         vASNX71ps2ST/vv9NzUhj02CIyMlEc8IJctoYzOnwjLqjODSfT29FzBtlHDrplO/Lpqj
-         EKpdWi/eu23Q44D89hPHRPlhOPR7TZ+cO0RFpeu7vMSBY1wsDmFItNqS9CVD+NwL7C/A
-         UoCw==
-X-Gm-Message-State: AOJu0Yy6oxofAsCI2D5pRJ901wRCrgJdV+N7R0/El+uLfBFVS4FOmG+S
-	BfbBJaXoJRfJpPN16OmKY8sGnA==
-X-Google-Smtp-Source: AGHT+IGCxctw2ZM4M4swOO43u0BADO9IEzug1carEuaCnXRjujpSdATC0LQNJ2aDdBBmxFQivkVGZA==
-X-Received: by 2002:a5d:4a4e:0:b0:332:e715:f0c3 with SMTP id v14-20020a5d4a4e000000b00332e715f0c3mr9596437wrs.60.1701165615169;
-        Tue, 28 Nov 2023 02:00:15 -0800 (PST)
-Received: from stroh80.sec.9e.network (ip-078-094-000-051.um19.pools.vodafone-ip.de. [78.94.0.51])
-        by smtp.gmail.com with ESMTPSA id m5-20020a5d56c5000000b00332cbd59f8bsm14437444wrw.25.2023.11.28.02.00.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Nov 2023 02:00:14 -0800 (PST)
-From: Naresh Solanki <naresh.solanki@9elements.com>
-To: Peter Rosin <peda@axentia.se>
-Cc: andi.shyti@kernel.org,
-	robh@kernel.org,
-	Patrick Rudolph <patrick.rudolph@9elements.com>,
-	Naresh Solanki <naresh.solanki@9elements.com>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [RESEND PATCH v5 2/2] i2c: muxes: pca954x: Enable features on MAX7357
-Date: Tue, 28 Nov 2023 10:00:08 +0000
-Message-ID: <20231128100009.3727407-2-naresh.solanki@9elements.com>
-X-Mailer: git-send-email 2.41.0
+	dkim=pass (2048-bit key) header.d=kernkonzept.com header.i=@kernkonzept.com header.b="bLCJbpS1"
+X-Greylist: delayed 1660 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 28 Nov 2023 02:16:22 PST
+Received: from mx.kernkonzept.com (serv1.kernkonzept.com [IPv6:2a01:4f8:1c1c:b490::2])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C27A5135
+	for <linux-i2c@vger.kernel.org>; Tue, 28 Nov 2023 02:16:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kernkonzept.com; s=mx1; h=Cc:To:Content-Transfer-Encoding:Content-Type:
+	MIME-Version:Message-Id:Date:Subject:From:References:In-Reply-To:Reply-To:
+	Content-ID:Content-Description;
+	bh=qqD5FhYjTlrMhvo9H9Ud7tOWyJdz/L1HRDU0aJZunQs=; b=bLCJbpS15T6e6UbeFBQuRcwcAy
+	WRIkpCQVF1x0WSK/YCENnhXMk5gd31wDctSwhTOMPwgWm8wdgga2k2Cz2k5PbOLJ4HM7Y62kzWK1I
+	XZ+NPKRxMQx1F1F3Ph2aAo4nfADdjz8BY1w+GXO31WTcxzz4nBa5IffczTRTskGkO+Y39E87yC0dv
+	qtJ6OrL0biub8GhYcwg28WfQK+N5GXoOml6Bpfoa0ZyRFnJSlhwIGSpjV/NdIxwFhrxfV5+gji3Ld
+	xegF/08FluSg6sK9HoB82ua2/1qigPzLJUfsmXS9FPvhf0RuKCWf03TNfQCoZE3x2xuEuW2lyu2t6
+	iM75m4UQ==;
+Received: from [10.22.3.24] (helo=serv1.dd1.int.kernkonzept.com)
+	by mx.kernkonzept.com with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256) (Exim 4.96)
+	id 1r7uhr-008Pi6-2D;
+	Tue, 28 Nov 2023 10:48:39 +0100
+From: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+Subject: [PATCH 0/3] i2c: qup: Allow scaling power domains and interconnect
+Date: Tue, 28 Nov 2023 10:48:34 +0100
+Message-Id: <20231128-i2c-qup-dvfs-v1-0-59a0e3039111@kernkonzept.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAHK3ZWUC/x3MQQqAIBBA0avErBtQA9GuEi1Kx5qNmVIE0t2Tl
+ m/xf4VCmanA2FXIdHPhIzbIvgO3L3EjZN8MSqhBSqGRlcPzSujvUHB1WpCy1nhvoCUpU+Dn303
+ z+35PDgNQXgAAAA==
+To: Wolfram Sang <wsa@kernel.org>
+Cc: Andy Gross <agross@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konrad.dybcio@linaro.org>, 
+ Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh+dt@kernel.org>, 
+ Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>, 
+ Conor Dooley <conor+dt@kernel.org>, linux-arm-msm@vger.kernel.org, 
+ linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, 
+ Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+X-Mailer: b4 0.12.4
 
-From: Patrick Rudolph <patrick.rudolph@9elements.com>
+Make it possible to scale performance states of the power domain and
+interconnect of the I2C QUP controller.
 
-Enable additional features based on DT settings and unconditionally
-release the shared interrupt pin after 1.6 seconds and allow to use
-it as reset.
+This is necessary to guarantee performance with power management
+enabled. Otherwise these resources might run at minimal performance
+state which is not sufficient for certain workloads.
 
-These features aren't enabled by default and it's up to board designer
-to validate for proper functioning and detection of devices in secondary
-bus as sometimes it can cause secondary bus being disabled.
-
-Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
-Signed-off-by: Naresh Solanki <naresh.solanki@9elements.com>
-
+Signed-off-by: Stephan Gerhold <stephan.gerhold@kernkonzept.com>
 ---
-Changes in V5:
-- Fix typos
-- Update comment
-- Add newline in dev_warn
-Changes in V4:
-- Drop max7358
-- Update #define
-- Move conf variable
-- Print warning when I2C_FUNC_SMBUS_WRITE_BYTE_DATA isn't supported
-Changes in V3:
-- Delete unused #define
-- Update pca954x_init
-- Update commit message
-Changes in V2:
-- Update comments
-- Update check for DT properties
----
- drivers/i2c/muxes/i2c-mux-pca954x.c | 43 ++++++++++++++++++++++++++++-
- 1 file changed, 42 insertions(+), 1 deletion(-)
+Stephan Gerhold (3):
+      dt-bindings: i2c: qcom,i2c-qup: Document power-domains
+      dt-bindings: i2c: qup: Document interconnects
+      i2c: qup: Vote for interconnect bandwidth to DRAM
 
-diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
-index 2219062104fb..f5dfc33b97c0 100644
---- a/drivers/i2c/muxes/i2c-mux-pca954x.c
-+++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
-@@ -57,6 +57,20 @@
- 
- #define PCA954X_IRQ_OFFSET 4
- 
-+/*
-+ * MAX7357's configuration register is writeable after POR, but
-+ * can be locked by setting the basic mode bit. MAX7358 configuration
-+ * register is locked by default and needs to be unlocked first.
-+ * The configuration register holds the following settings:
-+ */
-+#define MAX7357_CONF_INT_ENABLE			BIT(0)
-+#define MAX7357_CONF_FLUSH_OUT			BIT(1)
-+#define MAX7357_CONF_RELEASE_INT		BIT(2)
-+#define MAX7357_CONF_DISCON_SINGLE_CHAN		BIT(4)
-+#define MAX7357_CONF_PRECONNECT_TEST		BIT(7)
-+
-+#define MAX7357_POR_DEFAULT_CONF		MAX7357_CONF_INT_ENABLE
-+
- enum pca_type {
- 	max_7356,
- 	max_7357,
-@@ -470,7 +484,34 @@ static int pca954x_init(struct i2c_client *client, struct pca954x *data)
- 	else
- 		data->last_chan = 0; /* Disconnect multiplexer */
- 
--	ret = i2c_smbus_write_byte(client, data->last_chan);
-+	if (device_is_compatible(&client->dev, "maxim,max7357")) {
-+		if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
-+			u8 conf = MAX7357_POR_DEFAULT_CONF;
-+			/*
-+			 * The interrupt signal is shared with the reset pin. Release the
-+			 * interrupt after 1.6 seconds to allow using the pin as reset.
-+			 */
-+			conf |= MAX7357_CONF_RELEASE_INT;
-+
-+			if (device_property_read_bool(&client->dev, "maxim,isolate-stuck-channel"))
-+				conf |= MAX7357_CONF_DISCON_SINGLE_CHAN;
-+			if (device_property_read_bool(&client->dev,
-+						      "maxim,send-flush-out-sequence"))
-+				conf |= MAX7357_CONF_FLUSH_OUT;
-+			if (device_property_read_bool(&client->dev,
-+						      "maxim,preconnection-wiggle-test-enable"))
-+				conf |= MAX7357_CONF_PRECONNECT_TEST;
-+
-+			ret = i2c_smbus_write_byte_data(client, data->last_chan, conf);
-+		} else {
-+			dev_warn(&client->dev, "Write byte data not supported."
-+				 "Cannot enable enhanced mode features\n");
-+			ret = i2c_smbus_write_byte(client, data->last_chan);
-+		}
-+	} else {
-+		ret = i2c_smbus_write_byte(client, data->last_chan);
-+	}
-+
- 	if (ret < 0)
- 		data->last_chan = 0;
- 
+ .../devicetree/bindings/i2c/qcom,i2c-qup.yaml      | 14 +++++++++
+ drivers/i2c/busses/i2c-qup.c                       | 36 ++++++++++++++++++++++
+ 2 files changed, 50 insertions(+)
+---
+base-commit: b85ea95d086471afb4ad062012a4d73cd328fa86
+change-id: 20231106-i2c-qup-dvfs-bc60e2998dd8
+
+Best regards,
 -- 
-2.41.0
+Stephan Gerhold <stephan.gerhold@kernkonzept.com>
+Kernkonzept GmbH at Dresden, Germany, HRB 31129, CEO Dr.-Ing. Michael Hohmuth
 
