@@ -1,80 +1,54 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="M7OCSlHr"
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A96B919A7
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Nov 2023 00:45:27 -0800 (PST)
-Received: by mail-pl1-x630.google.com with SMTP id d9443c01a7336-1cf856663a4so36006265ad.3
-        for <linux-i2c@vger.kernel.org>; Tue, 28 Nov 2023 00:45:27 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=9elements.com header.i=@9elements.com header.b="DPmy9lQD"
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D29AE6
+	for <linux-i2c@vger.kernel.org>; Tue, 28 Nov 2023 02:00:18 -0800 (PST)
+Received: by mail-wr1-x42f.google.com with SMTP id ffacd0b85a97d-332ca7f95e1so3660210f8f.0
+        for <linux-i2c@vger.kernel.org>; Tue, 28 Nov 2023 02:00:18 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1701161126; x=1701765926; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=dxKs9xH99OQyNQM5ja7w5sBqIVdDZ2l2tkwooD9gc1c=;
-        b=M7OCSlHrgPke0dbRqhyKdV1U2j9DpXjb4BCazCV3m+84qXU2FL1ddycrfXCIqHph/f
-         ho6kJGxPgWAnRHqRtJAJRY2tqfLbYFoAVS5FClxouPLTXDerBCtgJN1NI8jPG81stcAm
-         tovPvDMh9jBVtmUBDucEX24Dj789D8LC366RQ=
+        d=9elements.com; s=google; t=1701165615; x=1701770415; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=KM+51/Ab8q9Ob1ygxdet2j1y8TyHO4eFE3VACdVz/qw=;
+        b=DPmy9lQD8Oa8gozxHMssDF4akvL8spS8WhcoTdR1cXi/IbG1+0ra0JGQCzaN8hCmUA
+         ypV7h25+dNieVZxrWHck5nMFM0Mce2BZ4hkUbp42MsT1FPagR01/z+5gEioByxw7NYFW
+         YnP9tvr89pVV+gSQblrhEO3ckPk2mwgv8SojmHjXmTaGuoGWr4ncgXej2A1JmfO//a2Z
+         acO4dBWGazMn6FfltV86MRAiaxcbzHM6OASRwGrYmV95UrK0xghrg7bbFAfFcwSh8Nkf
+         aEJY8/9trkS3ErMakqIHhjR46415jiHPS502cgc/buo/aVzpNaKX44mDrhg421eIviue
+         wRNw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1701161126; x=1701765926;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=dxKs9xH99OQyNQM5ja7w5sBqIVdDZ2l2tkwooD9gc1c=;
-        b=tnOMjdl6BOsIU2TUDphW9C1BBZ/LxQVW0gzk6Zc0AT2Dg1va1mB9eeO7OAsF/G8ksY
-         qXEQylaU6Flsieiu5FGXpLPXlWmH67eGyMbzEOY6t60N+EeTF2F5Ux/wGLDqfXmxgd0a
-         hF+eW/lvEbnDsuO0F44FkVb5yBEfCqa++wVGIEnPiyRrXXA7ognl/v8JN0T2Rwd24fim
-         U9zLfcJ29o5GURsG4nMCA35cTwZn+Zf0VDTqFB1gjiLPfs5ir0w68m0X2voxWmcOTwNY
-         QWOAaTBROtnAH7vxZEPaLCQ8zzTx2OBS9GDTB5ZNlg9Uqw9p56dzNfZajUb0bOu7MArw
-         et/w==
-X-Gm-Message-State: AOJu0YyjRuJxhu3vLW7rRVFL/XMgAv5MIW809pRpdiWDyTG4+BdzPh17
-	iyf/MCtBA1Ggs7UeRCsENHQP3w==
-X-Google-Smtp-Source: AGHT+IEHq/8o8TRy8LBy9PDIxcsp3BaVE1rQDjyRLP/di+1I1g3a9pBwAwe3ppG7Mgw8ZIdwK6eHKA==
-X-Received: by 2002:a17:902:988b:b0:1cf:b130:e9af with SMTP id s11-20020a170902988b00b001cfb130e9afmr10074896plp.20.1701161126645;
-        Tue, 28 Nov 2023 00:45:26 -0800 (PST)
-Received: from wenstp920.tpe.corp.google.com ([2401:fa00:1:10:a990:1e95:a915:9c70])
-        by smtp.gmail.com with ESMTPSA id j1-20020a170902c08100b001ab39cd875csm8358074pld.133.2023.11.28.00.45.21
+        d=1e100.net; s=20230601; t=1701165615; x=1701770415;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=KM+51/Ab8q9Ob1ygxdet2j1y8TyHO4eFE3VACdVz/qw=;
+        b=WXEy5BfPHm/cipmb/fIWPg3gCLAHPjY/2TABNp4UmHe4wFmzSuecgXAxQz7jm0Mpkg
+         WCQUPMXv0f6pAKpcpUs35btgFej7647l+Nh8is2hDGxGIXzSKhDMtosAGyKol98HHrKv
+         py/oOBtmjqKWTRyUf5NssyB6pyi3PAkmEf4wWg0JkyfjF85GkhXlrffdYhOo36kKoNeH
+         vASNX71ps2ST/vv9NzUhj02CIyMlEc8IJctoYzOnwjLqjODSfT29FzBtlHDrplO/Lpqj
+         EKpdWi/eu23Q44D89hPHRPlhOPR7TZ+cO0RFpeu7vMSBY1wsDmFItNqS9CVD+NwL7C/A
+         UoCw==
+X-Gm-Message-State: AOJu0Yy6oxofAsCI2D5pRJ901wRCrgJdV+N7R0/El+uLfBFVS4FOmG+S
+	BfbBJaXoJRfJpPN16OmKY8sGnA==
+X-Google-Smtp-Source: AGHT+IGCxctw2ZM4M4swOO43u0BADO9IEzug1carEuaCnXRjujpSdATC0LQNJ2aDdBBmxFQivkVGZA==
+X-Received: by 2002:a5d:4a4e:0:b0:332:e715:f0c3 with SMTP id v14-20020a5d4a4e000000b00332e715f0c3mr9596437wrs.60.1701165615169;
+        Tue, 28 Nov 2023 02:00:15 -0800 (PST)
+Received: from stroh80.sec.9e.network (ip-078-094-000-051.um19.pools.vodafone-ip.de. [78.94.0.51])
+        by smtp.gmail.com with ESMTPSA id m5-20020a5d56c5000000b00332cbd59f8bsm14437444wrw.25.2023.11.28.02.00.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Nov 2023 00:45:26 -0800 (PST)
-From: Chen-Yu Tsai <wenst@chromium.org>
-To: Rob Herring <robh+dt@kernel.org>,
-	Frank Rowand <frowand.list@gmail.com>,
-	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Wolfram Sang <wsa@kernel.org>,
-	Benson Leung <bleung@chromium.org>,
-	Tzung-Bi Shih <tzungbi@kernel.org>
-Cc: Chen-Yu Tsai <wenst@chromium.org>,
-	chrome-platform@lists.linux.dev,
-	devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Douglas Anderson <dianders@chromium.org>,
-	Johan Hovold <johan@kernel.org>,
-	Hsin-Yi Wang <hsinyi@chromium.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	andriy.shevchenko@linux.intel.com,
-	Jiri Kosina <jikos@kernel.org>,
-	linus.walleij@linaro.org,
-	broonie@kernel.org,
-	gregkh@linuxfoundation.org,
-	hdegoede@redhat.com,
-	james.clark@arm.com,
-	james@equiv.tech,
-	keescook@chromium.org,
-	rafael@kernel.org,
-	tglx@linutronix.de,
-	Jeff LaBundy <jeff@labundy.com>,
-	linux-input@vger.kernel.org,
-	linux-i2c@vger.kernel.org
-Subject: [RFC PATCH v3 5/5] arm64: dts: mediatek: mt8173-elm-hana: Add G2touch G7500 touchscreen
-Date: Tue, 28 Nov 2023 16:42:34 +0800
-Message-ID: <20231128084236.157152-6-wenst@chromium.org>
-X-Mailer: git-send-email 2.43.0.rc1.413.gea7ed67945-goog
-In-Reply-To: <20231128084236.157152-1-wenst@chromium.org>
-References: <20231128084236.157152-1-wenst@chromium.org>
+        Tue, 28 Nov 2023 02:00:14 -0800 (PST)
+From: Naresh Solanki <naresh.solanki@9elements.com>
+To: Peter Rosin <peda@axentia.se>
+Cc: andi.shyti@kernel.org,
+	robh@kernel.org,
+	Patrick Rudolph <patrick.rudolph@9elements.com>,
+	Naresh Solanki <naresh.solanki@9elements.com>,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [RESEND PATCH v5 2/2] i2c: muxes: pca954x: Enable features on MAX7357
+Date: Tue, 28 Nov 2023 10:00:08 +0000
+Message-ID: <20231128100009.3727407-2-naresh.solanki@9elements.com>
+X-Mailer: git-send-email 2.41.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -83,41 +57,101 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This introduces yet another second-source touchscreen found on Hana.
-This is a G2touch G7500 touchscreen, which is compatible with HID over
-I2C.
+From: Patrick Rudolph <patrick.rudolph@9elements.com>
 
-Add a device node for it. In keeping with the new scheme for second
-source components, mark it as "failed-needs-probe".
+Enable additional features based on DT settings and unconditionally
+release the shared interrupt pin after 1.6 seconds and allow to use
+it as reset.
 
-Signed-off-by: Chen-Yu Tsai <wenst@chromium.org>
+These features aren't enabled by default and it's up to board designer
+to validate for proper functioning and detection of devices in secondary
+bus as sometimes it can cause secondary bus being disabled.
+
+Signed-off-by: Patrick Rudolph <patrick.rudolph@9elements.com>
+Signed-off-by: Naresh Solanki <naresh.solanki@9elements.com>
+
 ---
-Changes since v2:
-- Drop class from status
+Changes in V5:
+- Fix typos
+- Update comment
+- Add newline in dev_warn
+Changes in V4:
+- Drop max7358
+- Update #define
+- Move conf variable
+- Print warning when I2C_FUNC_SMBUS_WRITE_BYTE_DATA isn't supported
+Changes in V3:
+- Delete unused #define
+- Update pca954x_init
+- Update commit message
+Changes in V2:
+- Update comments
+- Update check for DT properties
 ---
- arch/arm64/boot/dts/mediatek/mt8173-elm-hana.dtsi | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 43 ++++++++++++++++++++++++++++-
+ 1 file changed, 42 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/mediatek/mt8173-elm-hana.dtsi b/arch/arm64/boot/dts/mediatek/mt8173-elm-hana.dtsi
-index 1d68bc6834e4..216d8b43be05 100644
---- a/arch/arm64/boot/dts/mediatek/mt8173-elm-hana.dtsi
-+++ b/arch/arm64/boot/dts/mediatek/mt8173-elm-hana.dtsi
-@@ -31,6 +31,15 @@ touchscreen3: touchscreen@20 {
- 		interrupts = <88 IRQ_TYPE_LEVEL_LOW>;
- 		status = "fail-needs-probe";
- 	};
-+
-+	touchscreen4: touchscreen@40 {
-+		compatible = "hid-over-i2c";
-+		reg = <0x40>;
-+		hid-descr-addr = <0x0001>;
-+		interrupt-parent = <&pio>;
-+		interrupts = <88 IRQ_TYPE_LEVEL_LOW>;
-+		status = "fail-needs-probe";
-+	};
- };
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index 2219062104fb..f5dfc33b97c0 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -57,6 +57,20 @@
  
- &i2c4 {
+ #define PCA954X_IRQ_OFFSET 4
+ 
++/*
++ * MAX7357's configuration register is writeable after POR, but
++ * can be locked by setting the basic mode bit. MAX7358 configuration
++ * register is locked by default and needs to be unlocked first.
++ * The configuration register holds the following settings:
++ */
++#define MAX7357_CONF_INT_ENABLE			BIT(0)
++#define MAX7357_CONF_FLUSH_OUT			BIT(1)
++#define MAX7357_CONF_RELEASE_INT		BIT(2)
++#define MAX7357_CONF_DISCON_SINGLE_CHAN		BIT(4)
++#define MAX7357_CONF_PRECONNECT_TEST		BIT(7)
++
++#define MAX7357_POR_DEFAULT_CONF		MAX7357_CONF_INT_ENABLE
++
+ enum pca_type {
+ 	max_7356,
+ 	max_7357,
+@@ -470,7 +484,34 @@ static int pca954x_init(struct i2c_client *client, struct pca954x *data)
+ 	else
+ 		data->last_chan = 0; /* Disconnect multiplexer */
+ 
+-	ret = i2c_smbus_write_byte(client, data->last_chan);
++	if (device_is_compatible(&client->dev, "maxim,max7357")) {
++		if (i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WRITE_BYTE_DATA)) {
++			u8 conf = MAX7357_POR_DEFAULT_CONF;
++			/*
++			 * The interrupt signal is shared with the reset pin. Release the
++			 * interrupt after 1.6 seconds to allow using the pin as reset.
++			 */
++			conf |= MAX7357_CONF_RELEASE_INT;
++
++			if (device_property_read_bool(&client->dev, "maxim,isolate-stuck-channel"))
++				conf |= MAX7357_CONF_DISCON_SINGLE_CHAN;
++			if (device_property_read_bool(&client->dev,
++						      "maxim,send-flush-out-sequence"))
++				conf |= MAX7357_CONF_FLUSH_OUT;
++			if (device_property_read_bool(&client->dev,
++						      "maxim,preconnection-wiggle-test-enable"))
++				conf |= MAX7357_CONF_PRECONNECT_TEST;
++
++			ret = i2c_smbus_write_byte_data(client, data->last_chan, conf);
++		} else {
++			dev_warn(&client->dev, "Write byte data not supported."
++				 "Cannot enable enhanced mode features\n");
++			ret = i2c_smbus_write_byte(client, data->last_chan);
++		}
++	} else {
++		ret = i2c_smbus_write_byte(client, data->last_chan);
++	}
++
+ 	if (ret < 0)
+ 		data->last_chan = 0;
+ 
 -- 
-2.43.0.rc1.413.gea7ed67945-goog
+2.41.0
 
