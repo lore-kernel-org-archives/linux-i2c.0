@@ -1,49 +1,66 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="ZDSk+bND"
-Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E00A5CD;
-	Tue, 12 Dec 2023 03:47:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1702381670; x=1733917670;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=aNHcDG0YpWmhT5FeMio5/gxqfpDpnSRI/Kot2bROa+Q=;
-  b=ZDSk+bNDMzrHOrIiCROT2zmrDU9eA1DLEPZF3ozanSs/kHft0teyvD6a
-   xhx4Be2oNskarnlNiULHYkH56zuu79793y8vHV99A86Z87xoghIpKdMI7
-   Bobfp/lHnBoEvkKli2rApiz7v1/kNAoGQFSbJkFZsVvRnLnejAdzhMknW
-   sRWaFFvxHe1cUv+Ts0k6KMcQ7rXv3GdaEt372W5pzbX/KMGm0mlUrlKLL
-   XTB8kIFHHxGgci/UtzuacbyoeTyXoWRAlQ9wRRpVs7aBX+sTOebOiA/dl
-   UIx43NFvk+5oW/IbsLFo51nKH0cc3r2gpd13RtCuhOXR+AdRQ1nMIBvWD
-   w==;
-X-CSE-ConnectionGUID: 3PzWqpXASoubBApu01ia4A==
-X-CSE-MsgGUID: iB5sgC3+RemWw7GqQMcbjg==
-X-IronPort-AV: E=Sophos;i="6.04,270,1695657600"; 
-   d="scan'208";a="4484471"
-Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 12 Dec 2023 19:47:48 +0800
-IronPort-SDR: 4bfs2FyEn8LhOj8bzyt0xc/CW45M481dUWOyHWU5xC+pgCI6HZBMw6PpB4BjVhrYno51iS2Z4z
- idQhFvqkitAw==
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 12 Dec 2023 02:53:01 -0800
-IronPort-SDR: ncE9H2qRTgk4J+LBKUP6UqlqVp74MjhdyHO1gBh4d85a2THHJ9nIJCcWaoB+BJ92fqZIzDrUGU
- MH/knaUvNl3A==
-WDCIronportException: Internal
-Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.66.30])
-  by uls-op-cesaip02.wdc.com with ESMTP; 12 Dec 2023 03:47:47 -0800
-From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-To: platform-driver-x86@vger.kernel.org,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>,
-	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Lukas Wunner <lukas@wunner.de>,
-	linux-pci@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH RFC v2] platform/x86: p2sb: Allow p2sb_bar() calls during PCI device probe
-Date: Tue, 12 Dec 2023 20:47:46 +0900
-Message-ID: <20231212114746.183639-1-shinichiro.kawasaki@wdc.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b="P5a0uB+d"
+Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com [91.207.212.93])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B74EB100;
+	Tue, 12 Dec 2023 07:25:03 -0800 (PST)
+Received: from pps.filterd (m0046661.ppops.net [127.0.0.1])
+	by mx07-00178001.pphosted.com (8.17.1.22/8.17.1.22) with ESMTP id 3BCCqu7T030022;
+	Tue, 12 Dec 2023 16:24:06 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=
+	from:to:cc:subject:date:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding:content-type; s=
+	selector1; bh=JpXp2EJHxY+VtUUSPxkkTyJMNNq/ux4P17gSFHI+E8k=; b=P5
+	a0uB+dKMINb+zPuc568irPju8xw51gybAQYBQqrkUxMu3M/daUwzLeBEMD67Z2pW
+	ZH7PDLmlDrfr/B4lVLS62uSacZ8JiKYyAenA/x5fmTYwYB15heyGh8kTJgJvsuQD
+	nOz17WrlMaFrPtHehUiLXYUtOzkQH+B35JMddfZeBL7C1Y/9mRxvGId44wPvcQkH
+	ZdFozR/5Tbj7PdKW+F1yDiqRLPzvxFskqZmlwOKJrkldl/c9NYieo3Ea4A7LIhBO
+	Lb/s9OGh50jT5E2CVdlCnKbHlomgpaRMh5BHVyNnOTf9otZuPl/Nr+TMg4G/wCum
+	7XNZu/4Q52TZ8AlCCM3g==
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+	by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3uvg0gusvb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 12 Dec 2023 16:24:06 +0100 (CET)
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+	by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 7F638100060;
+	Tue, 12 Dec 2023 16:24:05 +0100 (CET)
+Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
+	by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 7435A22F7B3;
+	Tue, 12 Dec 2023 16:24:05 +0100 (CET)
+Received: from localhost (10.252.7.20) by SHFDAG1NODE1.st.com (10.75.129.69)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Tue, 12 Dec
+ 2023 16:24:04 +0100
+From: Gatien Chevallier <gatien.chevallier@foss.st.com>
+To: <Oleksii_Moisieiev@epam.com>, <gregkh@linuxfoundation.org>,
+        <herbert@gondor.apana.org.au>, <davem@davemloft.net>,
+        <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
+        <conor+dt@kernel.org>, <alexandre.torgue@foss.st.com>,
+        <vkoul@kernel.org>, <jic23@kernel.org>, <olivier.moysan@foss.st.com>,
+        <arnaud.pouliquen@foss.st.com>, <mchehab@kernel.org>,
+        <fabrice.gasnier@foss.st.com>, <andi.shyti@kernel.org>,
+        <ulf.hansson@linaro.org>, <edumazet@google.com>, <kuba@kernel.org>,
+        <pabeni@redhat.com>, <hugues.fruchet@foss.st.com>, <lee@kernel.org>,
+        <will@kernel.org>, <catalin.marinas@arm.com>, <arnd@kernel.org>,
+        <richardcochran@gmail.com>, Frank Rowand <frowand.list@gmail.com>,
+        <peng.fan@oss.nxp.com>, <lars@metafoo.de>, <rcsekar@samsung.com>,
+        <wg@grandegger.com>, <mkl@pengutronix.de>
+CC: <linux-crypto@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        <dmaengine@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
+        <linux-iio@vger.kernel.org>, <alsa-devel@alsa-project.org>,
+        <linux-media@vger.kernel.org>, <linux-mmc@vger.kernel.org>,
+        <netdev@vger.kernel.org>, <linux-phy@lists.infradead.org>,
+        <linux-serial@vger.kernel.org>, <linux-spi@vger.kernel.org>,
+        <linux-usb@vger.kernel.org>,
+        Oleksii Moisieiev <oleksii_moisieiev@epam.com>,
+        Gatien Chevallier <gatien.chevallier@foss.st.com>
+Subject: [PATCH v8 01/13] dt-bindings: document generic access controllers
+Date: Tue, 12 Dec 2023 16:23:44 +0100
+Message-ID: <20231212152356.345703-2-gatien.chevallier@foss.st.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20231212152356.345703-1-gatien.chevallier@foss.st.com>
+References: <20231212152356.345703-1-gatien.chevallier@foss.st.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -51,229 +68,140 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: EQNCAS1NODE3.st.com (10.75.129.80) To SHFDAG1NODE1.st.com
+ (10.75.129.69)
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.997,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2023-12-12_09,2023-12-12_01,2023-05-22_02
 
-p2sb_bar() unhides P2SB device to get resources from the device. It
-guards the operation by locking pci_rescan_remove_lock so that parallel
-rescans do not find the P2SB device. However, this lock causes deadlock
-when PCI bus rescan is triggered by /sys/bus/pci/rescan. The rescan
-locks pci_rescan_remove_lock and probes PCI devices. When PCI devices
-call p2sb_bar() during probe, it locks pci_rescan_remove_lock again.
-Hence the deadlock.
+From: Oleksii Moisieiev <Oleksii_Moisieiev@epam.com>
 
-To avoid the deadlock, do not lock pci_rescan_remove_lock in p2sb_bar().
-Instead, do the lock at fs_initcall. Introduce p2sb_cache_resources()
-for fs_initcall which gets and caches the P2SB resources. At p2sb_bar(),
-refer the cache and return to the caller.
+Introducing of the generic access controllers bindings for the
+access controller provider and consumer devices. Those bindings are
+intended to allow a better handling of accesses to resources in a
+hardware architecture supporting several compartments.
 
-Link: https://lore.kernel.org/linux-pci/6xb24fjmptxxn5js2fjrrddjae6twex5bjaftwqsuawuqqqydx@7cl3uik5ef6j/
-Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+This patch is based on [1]. It is integrated in this patchset as it
+provides a use-case for it.
+
+Diffs with [1]:
+	- Rename feature-domain* properties to access-control* to narrow
+	  down the scope of the binding
+	- YAML errors and typos corrected.
+	- Example updated
+	- Some rephrasing in the binding description
+
+[1]: https://lore.kernel.org/lkml/0c0a82bb-18ae-d057-562b
+
+Signed-off-by: Oleksii Moisieiev <oleksii_moisieiev@epam.com>
+Signed-off-by: Gatien Chevallier <gatien.chevallier@foss.st.com>
 ---
-This patch reflects discussions held at the Link tag. I confirmed this patch
-fixes the problem using a system with i2c_i801 device, building i2c_i801
-module as both built-in and loadable. Reviews will be appreicated.
 
-Change from RFC v1:
-* Fixed a build warning poitned out in llvm list by kernel test robot
+Changes in V6:
+	- Renamed access-controller to access-controllers
+	- Example updated
+	- Removal of access-control-provider property
 
- drivers/platform/x86/p2sb.c | 128 +++++++++++++++++++++++++-----------
- 1 file changed, 88 insertions(+), 40 deletions(-)
+Changes in V5:
+	- Diffs with [1]
+	- Discarded the [IGNORE] tag as the patch is now part of the
+	  patchset
 
-diff --git a/drivers/platform/x86/p2sb.c b/drivers/platform/x86/p2sb.c
-index 1cf2471d54dd..5037d0387941 100644
---- a/drivers/platform/x86/p2sb.c
-+++ b/drivers/platform/x86/p2sb.c
-@@ -26,6 +26,16 @@ static const struct x86_cpu_id p2sb_cpu_ids[] = {
- 	{}
- };
- 
-+/* Cache BAR0 of P2SB device from function 0 ot 7 */
-+#define NR_P2SB_RES_CACHE 8
+ .../access-controllers.yaml                   | 84 +++++++++++++++++++
+ 1 file changed, 84 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/access-controllers/access-controllers.yaml
+
+diff --git a/Documentation/devicetree/bindings/access-controllers/access-controllers.yaml b/Documentation/devicetree/bindings/access-controllers/access-controllers.yaml
+new file mode 100644
+index 000000000000..99e2865f0e46
+--- /dev/null
++++ b/Documentation/devicetree/bindings/access-controllers/access-controllers.yaml
+@@ -0,0 +1,84 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/access-controllers/access-controllers.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
-+struct p2sb_res_cache {
-+	u32 bus_dev_id;
-+	struct resource res;
-+};
++title: Generic Domain Access Controllers
 +
-+static struct p2sb_res_cache p2sb_resources[NR_P2SB_RES_CACHE];
++maintainers:
++  - Oleksii Moisieiev <oleksii_moisieiev@epam.com>
 +
- static int p2sb_get_devfn(unsigned int *devfn)
- {
- 	unsigned int fn = P2SB_DEVFN_DEFAULT;
-@@ -39,8 +49,13 @@ static int p2sb_get_devfn(unsigned int *devfn)
- 	return 0;
- }
- 
-+static bool p2sb_invalid_resource(struct resource *res)
-+{
-+	return res->flags == 0;
-+}
++description: |+
++  Common access controllers properties
 +
- /* Copy resource from the first BAR of the device in question */
--static int p2sb_read_bar0(struct pci_dev *pdev, struct resource *mem)
-+static void p2sb_read_bar0(struct pci_dev *pdev, struct resource *mem)
- {
- 	struct resource *bar0 = &pdev->resource[0];
- 
-@@ -56,48 +71,28 @@ static int p2sb_read_bar0(struct pci_dev *pdev, struct resource *mem)
- 	mem->end = bar0->end;
- 	mem->flags = bar0->flags;
- 	mem->desc = bar0->desc;
--
--	return 0;
- }
- 
--static int p2sb_scan_and_read(struct pci_bus *bus, unsigned int devfn, struct resource *mem)
-+static int p2sb_scan_and_cache(struct pci_bus *bus, unsigned int devfn)
- {
- 	struct pci_dev *pdev;
--	int ret;
-+	struct p2sb_res_cache *cache = &p2sb_resources[PCI_FUNC(devfn)];
- 
- 	pdev = pci_scan_single_device(bus, devfn);
--	if (!pdev)
-+	if (!pdev || p2sb_invalid_resource(&pdev->resource[0]))
- 		return -ENODEV;
- 
--	ret = p2sb_read_bar0(pdev, mem);
-+	p2sb_read_bar0(pdev, &cache->res);
-+	cache->bus_dev_id = bus->dev.id;
- 
- 	pci_stop_and_remove_bus_device(pdev);
--	return ret;
-+	return 0;
- }
- 
--/**
-- * p2sb_bar - Get Primary to Sideband (P2SB) bridge device BAR
-- * @bus: PCI bus to communicate with
-- * @devfn: PCI slot and function to communicate with
-- * @mem: memory resource to be filled in
-- *
-- * The BIOS prevents the P2SB device from being enumerated by the PCI
-- * subsystem, so we need to unhide and hide it back to lookup the BAR.
-- *
-- * if @bus is NULL, the bus 0 in domain 0 will be used.
-- * If @devfn is 0, it will be replaced by devfn of the P2SB device.
-- *
-- * Caller must provide a valid pointer to @mem.
-- *
-- * Locking is handled by pci_rescan_remove_lock mutex.
-- *
-- * Return:
-- * 0 on success or appropriate errno value on error.
-- */
--int p2sb_bar(struct pci_bus *bus, unsigned int devfn, struct resource *mem)
-+static int p2sb_cache_resources(void)
- {
--	struct pci_dev *pdev_p2sb;
--	unsigned int devfn_p2sb;
-+	struct pci_bus *bus;
-+	unsigned int devfn_p2sb, slot_p2sb, fn;
- 	u32 value = P2SBC_HIDE;
- 	int ret;
- 
-@@ -106,8 +101,8 @@ int p2sb_bar(struct pci_bus *bus, unsigned int devfn, struct resource *mem)
- 	if (ret)
- 		return ret;
- 
--	/* if @bus is NULL, use bus 0 in domain 0 */
--	bus = bus ?: pci_find_bus(0, 0);
-+	/* Assume P2SB is on the bus 0 in domain 0 */
-+	bus = pci_find_bus(0, 0);
- 
- 	/*
- 	 * Prevent concurrent PCI bus scan from seeing the P2SB device and
-@@ -115,18 +110,31 @@ int p2sb_bar(struct pci_bus *bus, unsigned int devfn, struct resource *mem)
- 	 */
- 	pci_lock_rescan_remove();
- 
--	/* Unhide the P2SB device, if needed */
-+	/*
-+	 * The BIOS prevents the P2SB device from being enumerated by the PCI
-+	 * subsystem, so we need to unhide and hide it back to lookup the BAR.
-+	 * Unhide the P2SB device here, if needed.
-+	 */
- 	pci_bus_read_config_dword(bus, devfn_p2sb, P2SBC, &value);
- 	if (value & P2SBC_HIDE)
- 		pci_bus_write_config_dword(bus, devfn_p2sb, P2SBC, 0);
- 
--	pdev_p2sb = pci_scan_single_device(bus, devfn_p2sb);
--	if (devfn)
--		ret = p2sb_scan_and_read(bus, devfn, mem);
--	else
--		ret = p2sb_read_bar0(pdev_p2sb, mem);
--	pci_stop_and_remove_bus_device(pdev_p2sb);
-+	/* Scan the P2SB device and cache its BAR0 */
-+	ret = p2sb_scan_and_cache(bus, devfn_p2sb);
-+	if (ret)
-+		goto out;
- 
-+	/*
-+	 * When function number of the P2SB device is zero, scan other function
-+	 * numbers. If devices are available, cache their BAR0.
-+	 */
-+	if (!PCI_FUNC(devfn_p2sb)) {
-+		slot_p2sb = PCI_SLOT(devfn_p2sb);
-+		for (fn = 1; fn < 8; fn++)
-+			p2sb_scan_and_cache(bus, PCI_DEVFN(slot_p2sb, fn));
-+	}
++  Access controllers are in charge of stating which of the hardware blocks under
++  their responsibility (their domain) can be accesssed by which compartment. A
++  compartment can be a cluster of CPUs (or coprocessors), a range of addresses
++  or a group of hardware blocks. An access controller's domain is the set of
++  resources covered by the access controller.
 +
-+out:
- 	/* Hide the P2SB device, if it was hidden */
- 	if (value & P2SBC_HIDE)
- 		pci_bus_write_config_dword(bus, devfn_p2sb, P2SBC, P2SBC_HIDE);
-@@ -136,9 +144,49 @@ int p2sb_bar(struct pci_bus *bus, unsigned int devfn, struct resource *mem)
- 	if (ret)
- 		return ret;
- 
--	if (mem->flags == 0)
-+	return 0;
-+}
++  This device tree binding can be used to bind devices to their access
++  controller provided by access-controllers property. In this case, the device
++  is a consumer and the access controller is the provider.
 +
-+/**
-+ * p2sb_bar - Get Primary to Sideband (P2SB) bridge device BAR
-+ * @bus: PCI bus to communicate with
-+ * @devfn: PCI slot and function to communicate with
-+ * @mem: memory resource to be filled in
-+ *
-+ * if @bus is NULL, the bus 0 in domain 0 will be used.
-+ * If @devfn is 0, it will be replaced by devfn of the P2SB device.
-+ *
-+ * Caller must provide a valid pointer to @mem.
-+ *
-+ * Return:
-+ * 0 on success or appropriate errno value on error.
-+ */
-+int p2sb_bar(struct pci_bus *bus, unsigned int devfn, struct resource *mem)
-+{
-+	int ret;
-+	struct p2sb_res_cache *cache;
++  An access controller can be represented by any node in the device tree and
++  can provide one or more configuration parameters, needed to control parameters
++  of the consumer device. A consumer node can refer to the provider by phandle
++  and a set of phandle arguments, specified by '#access-controller-cells'
++  property in the access controller node.
 +
-+	bus = bus ? bus : pci_find_bus(0, 0);
++  Access controllers are typically used to set/read the permissions of a
++  hardware block and grant access to it. Any of which depends on the access
++  controller. The capabilities of each access controller are defined by the
++  binding of the access controller device.
 +
-+	if (!devfn) {
-+		ret = p2sb_get_devfn(&devfn);
-+		if (ret)
-+			return ret;
-+	}
++  Each node can be a consumer for the several access controllers.
 +
-+	cache = &p2sb_resources[PCI_FUNC(devfn)];
-+	if (p2sb_invalid_resource(&cache->res) ||
-+	    cache->bus_dev_id != bus->dev.id)
- 		return -ENODEV;
- 
-+	memcpy(mem, &cache->res, sizeof(*mem));
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(p2sb_bar);
++# always select the core schema
++select: true
 +
-+static int __init p2sb_fs_init(void)
-+{
-+	p2sb_cache_resources();
-+	return 0;
-+}
-+fs_initcall(p2sb_fs_init);
++properties:
++  "#access-controller-cells":
++    description:
++      Number of cells in an access-controllers specifier;
++      Can be any value as specified by device tree binding documentation
++      of a particular provider. The node is an access controller.
++
++  access-controller-names:
++    $ref: /schemas/types.yaml#/definitions/string-array
++    description:
++      A list of access-controllers names, sorted in the same order as
++      access-controllers entries. Consumer drivers will use
++      access-controller-names to match with existing access-controllers entries.
++
++  access-controllers:
++    $ref: /schemas/types.yaml#/definitions/phandle-array
++    description:
++      A list of access controller specifiers, as defined by the
++      bindings of the access-controllers provider.
++
++additionalProperties: true
++
++examples:
++  - |
++    clock_controller: access-controllers@50000 {
++        reg = <0x50000 0x400>;
++        #access-controller-cells = <2>;
++    };
++
++    bus_controller: bus@60000 {
++        reg = <0x60000 0x10000>;
++        #address-cells = <1>;
++        #size-cells = <1>;
++        ranges;
++        #access-controller-cells = <3>;
++
++        uart4: serial@60100 {
++            reg = <0x60100 0x400>;
++            clocks = <&clk_serial>;
++            access-controllers = <&clock_controller 1 2>,
++                                 <&bus_controller 1 3 5>;
++            access-controller-names = "clock", "bus";
++        };
++    };
 -- 
-2.43.0
+2.25.1
 
