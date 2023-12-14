@@ -1,43 +1,43 @@
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="l0hcZotC"
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40B9213A
-	for <linux-i2c@vger.kernel.org>; Thu, 14 Dec 2023 02:52:56 -0800 (PST)
-Received: by mail-wm1-x333.google.com with SMTP id 5b1f17b1804b1-40c3ceded81so51298225e9.1
-        for <linux-i2c@vger.kernel.org>; Thu, 14 Dec 2023 02:52:56 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="aZRo+UjP"
+Received: from mail-wm1-x331.google.com (mail-wm1-x331.google.com [IPv6:2a00:1450:4864:20::331])
+	by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7A6611A
+	for <linux-i2c@vger.kernel.org>; Thu, 14 Dec 2023 02:52:59 -0800 (PST)
+Received: by mail-wm1-x331.google.com with SMTP id 5b1f17b1804b1-40c60dfa5bfso7643615e9.0
+        for <linux-i2c@vger.kernel.org>; Thu, 14 Dec 2023 02:52:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1702551174; x=1703155974; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1702551178; x=1703155978; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Tz2Xvyg4JP2yoDb158eSoW+wfoMNINh6+jbVwRbhMzg=;
-        b=l0hcZotCiUZF3GUAyXnrHKpziDKODeoJ2rFz4MeIFdYQRnOcxag8BJIwPPMn/t5DoS
-         G2G1f4MMOHaNPjvHDBmer/O/zCTM1jJ6s5SLMKSV5UceeYSS+N7P7RMLlnF3SEkDK0Oo
-         gIKx2JBs+8wh75o5i5MJVrAaSNToyf9h1Q3HfCxfbcAJ5NWBkDTBhcRsTlAdpAWN9YvY
-         y4UoMCvdeDXAcBCJR/vshB0QjOYhGnIzP6AViUowsiNpKn5/7Bl+UpfR01VeQHYj/h1R
-         u7Avswn4RgkewHE6uIUfaPE1u56gxPNVtCzsUit/K29Vp8nizjaJF4553cI/Q5HV4N7A
-         5wOg==
+        bh=yuS+45h2ga3aQkPKsayipRVsQ8w0E+s5uDXU4i8VrWg=;
+        b=aZRo+UjPXLgFt4whs/qPqciVYMVoliRW4Ld94w6FwAIl5U/zh+prH9DxSNaOFSObpT
+         6FgjPxNweVjcZGfdu+ZIkTlwIy2Z4vny/Ql26kDImvpbZ+KRbmPeQxiCegb47jiwhgBN
+         GIM9CJ3fQQJxExHDhQ3J0l/jhHL42At48M8NcS4ecRLSmOz+V0eQPEbnIs4QLg/EDZh3
+         4kv3L73CdLiVst6TdY3T2cy900PYSiJrfQsRvKcoqcyGlaA8L2bXo4Ksmd3vGvnQLH4h
+         W8diypSWW0UUSZrfaCQKOoACVJpPNP+To1KYsms5iTW3kzfcxnJ+IsTFNspsV5fSrD/9
+         6VFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1702551174; x=1703155974;
+        d=1e100.net; s=20230601; t=1702551178; x=1703155978;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Tz2Xvyg4JP2yoDb158eSoW+wfoMNINh6+jbVwRbhMzg=;
-        b=bwETnzSK9d+XlwhtAVq+QSwmXUgzWcHz2JH6bU7IMewyQ+tba4v6cNiUchypLxrtCP
-         AwMJzuRepB2gBq1PlO//Er869EYUBU4M5aKZPG46pd7nixoP7ESjo0/Y3smFFnoYrTtU
-         0GnasnMxqpV4vqfIyxZMQzrnkpbBg4fouxOOr6sC5RKkqhQ1XoOQYtNMMusHww8CF0gB
-         iRlB0ASASst4YgA/eUgilI/OAP9HSC5uiQuXlvWNrTQnRSRG8tsJyAdKNPwi/AC0hvtx
-         5ytcIjdEVJ32syJEY5+vWvRS+GOKTiAjC6cE5weG0u08ZmI2gGgsdm2aeL9CXfj42V+9
-         hKPQ==
-X-Gm-Message-State: AOJu0YyYFhAp1t03VVB+qxp4P+mY4JKEYlNv0jov2/d0dzN1Fv9wMow7
-	p9XKHfOgitX0V5Mrk096LlUHYg==
-X-Google-Smtp-Source: AGHT+IH4J/oPnKQvv4O5ZLerNCsWrBSRNQ4wX2oCYLqm28AWAUlwAelLEDUbwmWNrJTRLX2wmLtGdQ==
-X-Received: by 2002:a1c:6a0e:0:b0:40c:2617:69c4 with SMTP id f14-20020a1c6a0e000000b0040c261769c4mr4879922wmc.78.1702551174764;
-        Thu, 14 Dec 2023 02:52:54 -0800 (PST)
+        bh=yuS+45h2ga3aQkPKsayipRVsQ8w0E+s5uDXU4i8VrWg=;
+        b=n93NrdbKtvuoNhAdS/cA3fm8xE9szh22IJioQGoh497yzMkDLhKTMMgf67E1IVVCWJ
+         FbpVn42SSpdOISf8Fxs1siEAAp+R+1paj3cy34VQeRRrep0gif9F+hUsmGrMhSKsEHjA
+         749OnhcgC4kobRjPbddvUKpoxx5Q0rAevnbbqrxKncLbJEgpMlMLbSYyqd1LymCRTQ7W
+         G4rIwL1/FhuHxIaGByX7AHnejZF0gQxfsrspbeQHk0XTBRoIq18LQEy2buzBoM+ebdTG
+         WXjPdZfEAJGwhgehmcOwki0MIWgKOYbYVODXFDls7Q4nmZcq5ebEoGajxhsU8pJWQKVI
+         dDcA==
+X-Gm-Message-State: AOJu0YybJoXGmvrv+pn8AhCNvAbbR3bXboJZgAIFfAL3S4pCp20pjBax
+	fFRhyV3/9f0SwlTcGrhsCkWenQ==
+X-Google-Smtp-Source: AGHT+IHAGC45+JA4KfBfVBo5MvsdcmfG4HWD//LZLINpHkMirvEDnQf0FMXjRjvFzd5QesYIFv2g5g==
+X-Received: by 2002:a05:600c:2113:b0:40b:4520:45a6 with SMTP id u19-20020a05600c211300b0040b452045a6mr4416373wml.8.1702551178174;
+        Thu, 14 Dec 2023 02:52:58 -0800 (PST)
 Received: from ta2.c.googlers.com.com (216.131.76.34.bc.googleusercontent.com. [34.76.131.216])
-        by smtp.gmail.com with ESMTPSA id p7-20020a05600c468700b0040c420eda48sm17614854wmo.22.2023.12.14.02.52.54
+        by smtp.gmail.com with ESMTPSA id p7-20020a05600c468700b0040c420eda48sm17614854wmo.22.2023.12.14.02.52.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 Dec 2023 02:52:54 -0800 (PST)
+        Thu, 14 Dec 2023 02:52:57 -0800 (PST)
 From: Tudor Ambarus <tudor.ambarus@linaro.org>
 To: peter.griffin@linaro.org,
 	robh+dt@kernel.org,
@@ -67,9 +67,9 @@ Cc: andre.draszik@linaro.org,
 	linux-i2c@vger.kernel.org,
 	linux-serial@vger.kernel.org,
 	Tudor Ambarus <tudor.ambarus@linaro.org>
-Subject: [PATCH 03/13] dt-bindings: i2c: exynos5: add google,gs101-hsi2c compatible
-Date: Thu, 14 Dec 2023 10:52:33 +0000
-Message-ID: <20231214105243.3707730-4-tudor.ambarus@linaro.org>
+Subject: [PATCH 07/13] clk: samsung: gs101: mark PERIC0 IP TOP gate clock as critical
+Date: Thu, 14 Dec 2023 10:52:37 +0000
+Message-ID: <20231214105243.3707730-8-tudor.ambarus@linaro.org>
 X-Mailer: git-send-email 2.43.0.472.g3155946c3a-goog
 In-Reply-To: <20231214105243.3707730-1-tudor.ambarus@linaro.org>
 References: <20231214105243.3707730-1-tudor.ambarus@linaro.org>
@@ -81,26 +81,30 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add google,gs101-hsi2c dedicated compatible for representing
-I2C of Google GS101 SoC.
+Testing USI8 I2C with an eeprom revealed that when the USI8 leaf clock
+is disabled it leads to the CMU_TOP PERIC0 IP gate clock disablement,
+which then makes the system hang. To prevent this, mark
+CLK_GOUT_CMU_PERIC0_IP as critical. Other clocks will be marked
+accordingly when tested.
 
 Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
 ---
- Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/samsung/clk-gs101.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml b/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
-index df9c57bca2a8..cc8bba5537b9 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
-+++ b/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
-@@ -33,6 +33,7 @@ properties:
-           - const: samsung,exynos7-hsi2c
-       - items:
-           - enum:
-+              - google,gs101-hsi2c
-               - samsung,exynos850-hsi2c
-           - const: samsung,exynosautov9-hsi2c
-       - const: samsung,exynos5-hsi2c    # Exynos5250 and Exynos5420
+diff --git a/drivers/clk/samsung/clk-gs101.c b/drivers/clk/samsung/clk-gs101.c
+index 3d194520b05e..08d80fca9cd6 100644
+--- a/drivers/clk/samsung/clk-gs101.c
++++ b/drivers/clk/samsung/clk-gs101.c
+@@ -1402,7 +1402,7 @@ static const struct samsung_gate_clock cmu_top_gate_clks[] __initconst = {
+ 	     "mout_cmu_peric0_bus", CLK_CON_GAT_GATE_CLKCMU_PERIC0_BUS,
+ 	     21, 0, 0),
+ 	GATE(CLK_GOUT_CMU_PERIC0_IP, "gout_cmu_peric0_ip", "mout_cmu_peric0_ip",
+-	     CLK_CON_GAT_GATE_CLKCMU_PERIC0_IP, 21, 0, 0),
++	     CLK_CON_GAT_GATE_CLKCMU_PERIC0_IP, 21, CLK_IS_CRITICAL, 0),
+ 	GATE(CLK_GOUT_CMU_PERIC1_BUS, "gout_cmu_peric1_bus",
+ 	     "mout_cmu_peric1_bus", CLK_CON_GAT_GATE_CLKCMU_PERIC1_BUS,
+ 	     21, 0, 0),
 -- 
 2.43.0.472.g3155946c3a-goog
 
