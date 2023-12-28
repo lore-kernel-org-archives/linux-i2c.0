@@ -1,31 +1,31 @@
 Received: from mx2.zhaoxin.com (mx2.zhaoxin.com [203.110.167.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 313663C07
-	for <linux-i2c@vger.kernel.org>; Thu, 28 Dec 2023 03:17:50 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAF423C15
+	for <linux-i2c@vger.kernel.org>; Thu, 28 Dec 2023 03:17:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zhaoxin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zhaoxin.com
-X-ASG-Debug-ID: 1703733467-1eb14e0c7f06b70002-PT6Irj
-Received: from ZXSHMBX1.zhaoxin.com (ZXSHMBX1.zhaoxin.com [10.28.252.163]) by mx2.zhaoxin.com with ESMTP id ulGYRMDMUDxyOsav (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO); Thu, 28 Dec 2023 11:17:47 +0800 (CST)
+X-ASG-Debug-ID: 1703733469-1eb14e0c7e06b50003-PT6Irj
+Received: from ZXSHMBX2.zhaoxin.com (ZXSHMBX2.zhaoxin.com [10.28.252.164]) by mx2.zhaoxin.com with ESMTP id 2H4QgrbZIjkPKyB5 (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO); Thu, 28 Dec 2023 11:17:50 +0800 (CST)
 X-Barracuda-Envelope-From: HansHu-oc@zhaoxin.com
-X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.163
-Received: from ZXBJMBX03.zhaoxin.com (10.29.252.7) by ZXSHMBX1.zhaoxin.com
- (10.28.252.163) with Microsoft SMTP Server (version=TLS1_2,
+X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.164
+Received: from ZXBJMBX03.zhaoxin.com (10.29.252.7) by ZXSHMBX2.zhaoxin.com
+ (10.28.252.164) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Thu, 28 Dec
- 2023 11:17:47 +0800
+ 2023 11:17:49 +0800
 Received: from ml-HP-ProDesk-680-G4-MT.zhaoxin.com (10.28.66.68) by
  ZXBJMBX03.zhaoxin.com (10.29.252.7) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Thu, 28 Dec 2023 11:17:46 +0800
-X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.163
+ 15.1.2507.27; Thu, 28 Dec 2023 11:17:48 +0800
+X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.164
 From: Hans Hu <hanshu-oc@zhaoxin.com>
 X-Barracuda-RBL-Trusted-Forwarder: 10.29.252.7
 To: <wsa@kernel.org>, <linux-i2c@vger.kernel.org>
 CC: <andi.shyti@kernel.org>, <cobechen@zhaoxin.com>, <hanshu-oc@zhaoxin.com>
-Subject: [PATCH v5 1/8] i2c: wmt: create wmt_i2c_init for general init
-Date: Thu, 28 Dec 2023 11:17:39 +0800
-X-ASG-Orig-Subj: [PATCH v5 1/8] i2c: wmt: create wmt_i2c_init for general init
-Message-ID: <98561c2550e96a44a514d661950f4ae89007b73d.1703733126.git.hanshu-oc@zhaoxin.com>
+Subject: [PATCH v5 6/8] i2c: wmt: fix a bug when thread blocked
+Date: Thu, 28 Dec 2023 11:17:44 +0800
+X-ASG-Orig-Subj: [PATCH v5 6/8] i2c: wmt: fix a bug when thread blocked
+Message-ID: <3cc1129b018d2a0a27d299a2eaea65a6b60d6504.1703733126.git.hanshu-oc@zhaoxin.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <cover.1703733126.git.hanshu-oc@zhaoxin.com>
 References: <cover.1703733126.git.hanshu-oc@zhaoxin.com>
@@ -39,12 +39,12 @@ Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
 X-ClientProxiedBy: zxbjmbx1.zhaoxin.com (10.29.252.163) To
  ZXBJMBX03.zhaoxin.com (10.29.252.7)
-X-Barracuda-Connect: ZXSHMBX1.zhaoxin.com[10.28.252.163]
-X-Barracuda-Start-Time: 1703733467
+X-Barracuda-Connect: ZXSHMBX2.zhaoxin.com[10.28.252.164]
+X-Barracuda-Start-Time: 1703733469
 X-Barracuda-Encrypted: ECDHE-RSA-AES128-GCM-SHA256
 X-Barracuda-URL: https://10.28.252.36:4443/cgi-mod/mark.cgi
 X-Virus-Scanned: by bsmtpd at zhaoxin.com
-X-Barracuda-Scan-Msg-Size: 3376
+X-Barracuda-Scan-Msg-Size: 3075
 X-Barracuda-BRTS-Status: 0
 X-Barracuda-Bayes: INNOCENT GLOBAL 0.0000 1.0000 -2.0210
 X-Barracuda-Spam-Score: -2.02
@@ -54,122 +54,96 @@ X-Barracuda-Spam-Report: Code version 3.2, rules version 3.2.3.118654
 	 pts rule name              description
 	---- ---------------------- --------------------------------------------------
 
-v4->v5:
-	add previous prototype 'static' for wmt_i2c_init().
+During each byte access, the host performs clock stretching.
+In this case, the thread may be interrupted by preemption,
+resulting in a long stretching time.
 
-Some common initialization actions are put in the function
-wmt_i2c_init(), which is convenient to share with zhaoxin.
+However, some touchpad can only tolerate host clock stretching
+of no more than 200 ms. We reduce the impact of this through
+a retransmission mechanism.
 
 Signed-off-by: Hans Hu <hanshu-oc@zhaoxin.com>
 ---
- drivers/i2c/busses/i2c-wmt.c | 67 +++++++++++++++++++-----------------
- 1 file changed, 36 insertions(+), 31 deletions(-)
+ drivers/i2c/busses/i2c-viai2c-common.c | 37 +++++++++++++++++++++-----
+ drivers/i2c/busses/i2c-viai2c-common.h |  2 ++
+ 2 files changed, 33 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-wmt.c b/drivers/i2c/busses/i2c-wmt.c
-index ec2a8da134e5..f1888f100d83 100644
---- a/drivers/i2c/busses/i2c-wmt.c
-+++ b/drivers/i2c/busses/i2c-wmt.c
-@@ -286,6 +286,38 @@ static irqreturn_t wmt_i2c_isr(int irq, void *data)
- 	return IRQ_HANDLED;
- }
+diff --git a/drivers/i2c/busses/i2c-viai2c-common.c b/drivers/i2c/busses/i2c-viai2c-common.c
+index 60a4d4ccaf12..e5eca10efedc 100644
+--- a/drivers/i2c/busses/i2c-viai2c-common.c
++++ b/drivers/i2c/busses/i2c-viai2c-common.c
+@@ -2,7 +2,8 @@
+ #include <linux/of_irq.h>
+ #include "i2c-viai2c-common.h"
  
-+static int wmt_i2c_init(struct platform_device *pdev, struct wmt_i2c_dev **pi2c_dev)
-+{
-+	int err;
-+	struct wmt_i2c_dev *i2c_dev;
-+	struct device_node *np = pdev->dev.of_node;
-+
-+	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
-+	if (!i2c_dev)
-+		return -ENOMEM;
-+
-+	i2c_dev->base = devm_platform_get_and_ioremap_resource(pdev, 0, NULL);
-+	if (IS_ERR(i2c_dev->base))
-+		return PTR_ERR(i2c_dev->base);
-+
-+	i2c_dev->irq = irq_of_parse_and_map(np, 0);
-+	if (!i2c_dev->irq)
-+		return -EINVAL;
-+
-+	err = devm_request_irq(&pdev->dev, i2c_dev->irq, wmt_i2c_isr,
-+					0, pdev->name, i2c_dev);
-+	if (err)
-+		return dev_err_probe(&pdev->dev, err,
-+				"failed to request irq %i\n", i2c_dev->irq);
-+
-+	i2c_dev->dev = &pdev->dev;
-+	init_completion(&i2c_dev->complete);
-+	platform_set_drvdata(pdev, i2c_dev);
-+
-+	*pi2c_dev = i2c_dev;
-+	return 0;
-+}
-+
- static int wmt_i2c_reset_hardware(struct wmt_i2c_dev *i2c_dev)
+-#define VIAI2C_TIMEOUT		(msecs_to_jiffies(1000))
++#define VIAI2C_TIMEOUT			(msecs_to_jiffies(1000))
++#define VIAI2C_STRETCHING_TIMEOUT	200
+ 
+ static int viai2c_wait_bus_ready(struct viai2c *i2c)
  {
- 	int err;
-@@ -327,19 +359,9 @@ static int wmt_i2c_probe(struct platform_device *pdev)
- 	int err;
- 	u32 clk_rate;
+@@ -25,12 +26,35 @@ static int viai2c_wait_bus_ready(struct viai2c *i2c)
+ static int viai2c_wait_status(struct viai2c *i2c)
+ {
+ 	int ret = 0;
+-	unsigned long wait_result;
++	unsigned long time_left;
++	unsigned long delta_ms;
++
++	time_left = wait_for_completion_timeout(&i2c->complete,
++						VIAI2C_TIMEOUT);
++	if (!time_left) {
++		dev_err(i2c->dev, "bus transfer timeout\n");
++		return -EIO;
++	}
  
--	i2c_dev = devm_kzalloc(&pdev->dev, sizeof(*i2c_dev), GFP_KERNEL);
--	if (!i2c_dev)
--		return -ENOMEM;
--
--	i2c_dev->base = devm_platform_get_and_ioremap_resource(pdev, 0, NULL);
--	if (IS_ERR(i2c_dev->base))
--		return PTR_ERR(i2c_dev->base);
--
--	i2c_dev->irq = irq_of_parse_and_map(np, 0);
--	if (!i2c_dev->irq) {
--		dev_err(&pdev->dev, "irq missing or invalid\n");
--		return -EINVAL;
--	}
-+	err = wmt_i2c_init(pdev, &i2c_dev);
-+	if (err)
-+		return err;
+-	wait_result = wait_for_completion_timeout(&i2c->complete,
+-						msecs_to_jiffies(500));
+-	if (!wait_result)
+-		return -ETIMEDOUT;
++	/*
++	 * During each byte access, the host performs clock stretching.
++	 * In this case, the thread may be interrupted by preemption,
++	 * resulting in a long stretching time.
++	 * However, some touchpad can only tolerate host clock stretching
++	 * of no more than 200 ms. We reduce the impact of this through
++	 * a retransmission mechanism.
++	 */
++	local_irq_disable();
++	i2c->to = ktime_get();
++	delta_ms = ktime_to_ms(ktime_sub(i2c->to, i2c->ti));
++	if (delta_ms > VIAI2C_STRETCHING_TIMEOUT) {
++		local_irq_enable();
++		dev_warn(i2c->dev, "thread blocked more than %ldms\n",
++				delta_ms);
++		return -EAGAIN;
++	}
++	i2c->ti = i2c->to;
++	local_irq_enable();
  
- 	i2c_dev->clk = of_clk_get(np, 0);
- 	if (IS_ERR(i2c_dev->clk)) {
-@@ -351,15 +373,6 @@ static int wmt_i2c_probe(struct platform_device *pdev)
- 	if (!err && (clk_rate == I2C_MAX_FAST_MODE_FREQ))
- 		i2c_dev->tcr = TCR_FAST_MODE;
+ 	if (i2c->cmd_status & VIAI2C_ISR_NACK_ADDR)
+ 		ret = -EIO;
+@@ -184,6 +208,7 @@ int viai2c_xfer(struct i2c_adapter *adap,
+ 	int ret = 0;
+ 	struct viai2c *i2c = i2c_get_adapdata(adap);
  
--	i2c_dev->dev = &pdev->dev;
--
--	err = devm_request_irq(&pdev->dev, i2c_dev->irq, wmt_i2c_isr, 0,
--							"i2c", i2c_dev);
--	if (err) {
--		dev_err(&pdev->dev, "failed to request irq %i\n", i2c_dev->irq);
--		return err;
--	}
--
- 	adap = &i2c_dev->adapter;
- 	i2c_set_adapdata(adap, i2c_dev);
- 	strscpy(adap->name, "WMT I2C adapter", sizeof(adap->name));
-@@ -368,21 +381,13 @@ static int wmt_i2c_probe(struct platform_device *pdev)
- 	adap->dev.parent = &pdev->dev;
- 	adap->dev.of_node = pdev->dev.of_node;
++	i2c->to = i2c->ti = ktime_get();
+ 	for (i = 0; ret >= 0 && i < num; i++) {
+ 		pmsg = &msgs[i];
+ 		if (!(pmsg->flags & I2C_M_NOSTART)) {
+diff --git a/drivers/i2c/busses/i2c-viai2c-common.h b/drivers/i2c/busses/i2c-viai2c-common.h
+index f171f81e4d0f..73a88398d763 100644
+--- a/drivers/i2c/busses/i2c-viai2c-common.h
++++ b/drivers/i2c/busses/i2c-viai2c-common.h
+@@ -58,6 +58,8 @@ struct viai2c {
+ 	u16			tcr;
+ 	int			irq;
+ 	u16			cmd_status;
++	ktime_t			ti;
++	ktime_t			to;
+ };
  
--	init_completion(&i2c_dev->complete);
--
- 	err = wmt_i2c_reset_hardware(i2c_dev);
- 	if (err) {
- 		dev_err(&pdev->dev, "error initializing hardware\n");
- 		return err;
- 	}
- 
--	err = i2c_add_adapter(adap);
--	if (err)
--		return err;
--
--	platform_set_drvdata(pdev, i2c_dev);
--
--	return 0;
-+	return i2c_add_adapter(adap);
- }
- 
- static void wmt_i2c_remove(struct platform_device *pdev)
+ int viai2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num);
 -- 
 2.34.1
 
