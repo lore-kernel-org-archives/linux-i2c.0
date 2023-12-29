@@ -1,34 +1,53 @@
-Received: from mx1.zhaoxin.com (MX1.ZHAOXIN.COM [210.0.225.12])
+Received: from esa5.hgst.iphmx.com (esa5.hgst.iphmx.com [216.71.153.144])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F104F7488
-	for <linux-i2c@vger.kernel.org>; Fri, 29 Dec 2023 06:30:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zhaoxin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zhaoxin.com
-X-ASG-Debug-ID: 1703831441-086e230f290a520003-PT6Irj
-Received: from ZXSHMBX1.zhaoxin.com (ZXSHMBX1.zhaoxin.com [10.28.252.163]) by mx1.zhaoxin.com with ESMTP id CpusbdcACEjEB3hU (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO); Fri, 29 Dec 2023 14:30:47 +0800 (CST)
-X-Barracuda-Envelope-From: HansHu-oc@zhaoxin.com
-X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.163
-Received: from ZXBJMBX03.zhaoxin.com (10.29.252.7) by ZXSHMBX1.zhaoxin.com
- (10.28.252.163) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Fri, 29 Dec
- 2023 14:30:43 +0800
-Received: from ml-HP-ProDesk-680-G4-MT.zhaoxin.com (10.28.66.68) by
- ZXBJMBX03.zhaoxin.com (10.29.252.7) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.27; Fri, 29 Dec 2023 14:30:42 +0800
-X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.163
-From: Hans Hu <hanshu-oc@zhaoxin.com>
-X-Barracuda-RBL-Trusted-Forwarder: 10.29.252.7
-To: <wsa@kernel.org>, <linux-i2c@vger.kernel.org>
-CC: <andi.shyti@kernel.org>, <cobechen@zhaoxin.com>, <hanshu-oc@zhaoxin.com>
-Subject: [PATCH v6 6/8] i2c: wmt: fix a bug when thread blocked
-Date: Fri, 29 Dec 2023 14:30:37 +0800
-X-ASG-Orig-Subj: [PATCH v6 6/8] i2c: wmt: fix a bug when thread blocked
-Message-ID: <b0f284621b6763c32133d39be83f05f1184b3635.1703830854.git.hanshu-oc@zhaoxin.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <cover.1703830854.git.hanshu-oc@zhaoxin.com>
-References: <cover.1703830854.git.hanshu-oc@zhaoxin.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1981746A;
+	Fri, 29 Dec 2023 06:39:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wdc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wdc.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=wdc.com header.i=@wdc.com header.b="ULcM+bXC"
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1703831960; x=1735367960;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=SR4MkYifRuHdXsTyYORK+g1dgQ/k72RLd2YmwbA7kPc=;
+  b=ULcM+bXCHx8Bvxr0sS4dUPnxclw+yJ1EVL7uRo6e7UB2p2d0N786ecuD
+   NaWFi17YJ5pU7hMM23BgrH6nzm/qFM1vgIl2393jK0Ydaft4Yd6T45yC8
+   8jSDTK7boj6w45xfk+4k6nB08+uyJLAynqu1VduaUnGGW4KwtefBDvboj
+   8bcWWdqMCWiku1H9fnEHhigQn1NYGRYQCsxbJtegkbHcHkW7eol7J8daJ
+   Dvao7Cib6AExllSfQW0TRqhsznIPIzEEiPsEUd0HkR/H7AT3uAvc90fm4
+   dfVfziOSgyHYXCmphnivDOy+qSLY5D2QFoh5PKyrlJGCi+oULyAXiSTJ5
+   g==;
+X-CSE-ConnectionGUID: /p5Vw6zqT1Cxelc+o0fuVA==
+X-CSE-MsgGUID: rb2CWur0QpaDrJZKPOhslw==
+X-IronPort-AV: E=Sophos;i="6.04,314,1695657600"; 
+   d="scan'208";a="6253586"
+Received: from h199-255-45-14.hgst.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 29 Dec 2023 14:39:14 +0800
+IronPort-SDR: XGKdP/79cnUjeVieN7o4Pd54wq0L5TSEoWRqDqIBcP4bqd0vri8pcwzvESX4a2sVi/NVdqlArg
+ 5l4oUIg4opHg==
+Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 28 Dec 2023 21:49:47 -0800
+IronPort-SDR: htoqEh9NGbUHEK9duSKalM8F78356T2o4ceGs1KFjfSbJjqE7hKQd2NPC9XW9SXTadBki3PLpN
+ zUJH6WRW2QqQ==
+WDCIronportException: Internal
+Received: from unknown (HELO shindev.ssa.fujisawa.hgst.com) ([10.149.66.30])
+  by uls-op-cesaip01.wdc.com with ESMTP; 28 Dec 2023 22:39:13 -0800
+From: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+To: platform-driver-x86@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Lukas Wunner <lukas@wunner.de>,
+	linux-pci@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH v5 0/2] platform/x86: p2sb: Fix deadlock at sysfs PCI bus rescan
+Date: Fri, 29 Dec 2023 15:39:10 +0900
+Message-ID: <20231229063912.2517922-1-shinichiro.kawasaki@wdc.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -36,114 +55,45 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: zxbjmbx1.zhaoxin.com (10.29.252.163) To
- ZXBJMBX03.zhaoxin.com (10.29.252.7)
-X-Barracuda-Connect: ZXSHMBX1.zhaoxin.com[10.28.252.163]
-X-Barracuda-Start-Time: 1703831446
-X-Barracuda-Encrypted: ECDHE-RSA-AES128-GCM-SHA256
-X-Barracuda-URL: https://10.28.252.35:4443/cgi-mod/mark.cgi
-X-Virus-Scanned: by bsmtpd at zhaoxin.com
-X-Barracuda-Scan-Msg-Size: 3075
-X-Barracuda-BRTS-Status: 0
-X-Barracuda-Bayes: INNOCENT GLOBAL 0.0000 1.0000 -2.0210
-X-Barracuda-Spam-Score: -2.02
-X-Barracuda-Spam-Status: No, SCORE=-2.02 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=9.0 tests=
-X-Barracuda-Spam-Report: Code version 3.2, rules version 3.2.3.118704
-	Rule breakdown below
-	 pts rule name              description
-	---- ---------------------- --------------------------------------------------
 
-During each byte access, the host performs clock stretching.
-In this case, the thread may be interrupted by preemption,
-resulting in a long stretching time.
+When PCI devices call p2sb_bar() during probe for sysfs PCI bus rescan, deadlock
+happens due to double lock of pci_rescan_remove_lock [1]. The first patch in
+this series addresses the deadlock. The second patch is a code improvement which
+was pointed out during review for the first patch.
 
-However, some touchpad can only tolerate host clock stretching
-of no more than 200 ms. We reduce the impact of this through
-a retransmission mechanism.
+I confirmed the patches fix the problem using a system with i2c_i801 device,
+building i2c_i801 module as both built-in and loadable.
 
-Signed-off-by: Hans Hu <hanshu-oc@zhaoxin.com>
----
- drivers/i2c/busses/i2c-viai2c-common.c | 37 +++++++++++++++++++++-----
- drivers/i2c/busses/i2c-viai2c-common.h |  2 ++
- 2 files changed, 33 insertions(+), 6 deletions(-)
+[1] https://lore.kernel.org/linux-pci/6xb24fjmptxxn5js2fjrrddjae6twex5bjaftwqsuawuqqqydx@7cl3uik5ef6j/
 
-diff --git a/drivers/i2c/busses/i2c-viai2c-common.c b/drivers/i2c/busses/i2c-viai2c-common.c
-index 60a4d4ccaf12..e5eca10efedc 100644
---- a/drivers/i2c/busses/i2c-viai2c-common.c
-+++ b/drivers/i2c/busses/i2c-viai2c-common.c
-@@ -2,7 +2,8 @@
- #include <linux/of_irq.h>
- #include "i2c-viai2c-common.h"
- 
--#define VIAI2C_TIMEOUT		(msecs_to_jiffies(1000))
-+#define VIAI2C_TIMEOUT			(msecs_to_jiffies(1000))
-+#define VIAI2C_STRETCHING_TIMEOUT	200
- 
- static int viai2c_wait_bus_ready(struct viai2c *i2c)
- {
-@@ -25,12 +26,35 @@ static int viai2c_wait_bus_ready(struct viai2c *i2c)
- static int viai2c_wait_status(struct viai2c *i2c)
- {
- 	int ret = 0;
--	unsigned long wait_result;
-+	unsigned long time_left;
-+	unsigned long delta_ms;
-+
-+	time_left = wait_for_completion_timeout(&i2c->complete,
-+						VIAI2C_TIMEOUT);
-+	if (!time_left) {
-+		dev_err(i2c->dev, "bus transfer timeout\n");
-+		return -EIO;
-+	}
- 
--	wait_result = wait_for_completion_timeout(&i2c->complete,
--						msecs_to_jiffies(500));
--	if (!wait_result)
--		return -ETIMEDOUT;
-+	/*
-+	 * During each byte access, the host performs clock stretching.
-+	 * In this case, the thread may be interrupted by preemption,
-+	 * resulting in a long stretching time.
-+	 * However, some touchpad can only tolerate host clock stretching
-+	 * of no more than 200 ms. We reduce the impact of this through
-+	 * a retransmission mechanism.
-+	 */
-+	local_irq_disable();
-+	i2c->to = ktime_get();
-+	delta_ms = ktime_to_ms(ktime_sub(i2c->to, i2c->ti));
-+	if (delta_ms > VIAI2C_STRETCHING_TIMEOUT) {
-+		local_irq_enable();
-+		dev_warn(i2c->dev, "thread blocked more than %ldms\n",
-+				delta_ms);
-+		return -EAGAIN;
-+	}
-+	i2c->ti = i2c->to;
-+	local_irq_enable();
- 
- 	if (i2c->cmd_status & VIAI2C_ISR_NACK_ADDR)
- 		ret = -EIO;
-@@ -184,6 +208,7 @@ int viai2c_xfer(struct i2c_adapter *adap,
- 	int ret = 0;
- 	struct viai2c *i2c = i2c_get_adapdata(adap);
- 
-+	i2c->to = i2c->ti = ktime_get();
- 	for (i = 0; ret >= 0 && i < num; i++) {
- 		pmsg = &msgs[i];
- 		if (!(pmsg->flags & I2C_M_NOSTART)) {
-diff --git a/drivers/i2c/busses/i2c-viai2c-common.h b/drivers/i2c/busses/i2c-viai2c-common.h
-index f171f81e4d0f..73a88398d763 100644
---- a/drivers/i2c/busses/i2c-viai2c-common.h
-+++ b/drivers/i2c/busses/i2c-viai2c-common.h
-@@ -58,6 +58,8 @@ struct viai2c {
- 	u16			tcr;
- 	int			irq;
- 	u16			cmd_status;
-+	ktime_t			ti;
-+	ktime_t			to;
- };
- 
- int viai2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num);
+Changes from v4:
+* Separated a hunk for pci_resource_n() as the second patch
+* Reflected other review comments by Ilpo
+
+Changes from v3:
+* Modified p2sb_valid_resource() to return boolean
+
+Changes from v2:
+* Improved p2sb_scan_and_cache() and p2sb_scan_and_cache_devfn()
+* Reflected other review comments by Andy
+
+Changes from v1:
+* Reflected review comments by Andy
+* Removed RFC prefix
+
+Changes from RFC v2:
+* Reflected review comments on the list
+
+Changes from RFC v1:
+* Fixed a build warning poitned out in llvm list by kernel test robot
+
+Shin'ichiro Kawasaki (2):
+  platform/x86: p2sb: Allow p2sb_bar() calls during PCI device probe
+  platform/x86: p2sb: Use pci_resource_n() in p2sb_read_bar0()
+
+ drivers/platform/x86/p2sb.c | 174 +++++++++++++++++++++++++++---------
+ 1 file changed, 132 insertions(+), 42 deletions(-)
+
 -- 
-2.34.1
+2.43.0
 
