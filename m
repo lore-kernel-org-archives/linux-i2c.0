@@ -1,62 +1,57 @@
-Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.100])
+Received: from mgamail.intel.com (mgamail.intel.com [134.134.136.126])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 855BD8830;
-	Sat,  6 Jan 2024 14:49:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCB4E8474;
+	Sat,  6 Jan 2024 15:57:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="W36lyC2I"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Q+A+bCSH"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1704552549; x=1736088549;
+  t=1704556646; x=1736092646;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=HJZn9Bd9/mDRcam41rK8W3n5XGqyC9dgm7NvSJ76+b4=;
-  b=W36lyC2ITrVGz6L88dJ12pIfOXh8YQaJUeup4YVvpolrCIslgfx0mBTA
-   7EvoRFidmn9vOW9YmJ84nD4oQh5lvYFbTuLkKmwFiJ+/FoDso8bRFSEjN
-   kPnKitLS5XIgvGePeDucwgFzucJ+pC5s49/8e3J9Z+N213HknS+D6CEQs
-   4NLter4LGbo5b1qUpKkxVIMlF1cLnkIU2nKKpxmZ6SwFkCMrZgcJ7jh+j
-   dvcCI11BB4VHDbLp10uzZn1zTLlT0WYPSlJyhN5ht4smpN4CeeURgW/AI
-   yFKTntXtiSmtkqKWDB+6hXW15TXxRWlc663sHY3AmmGK8eCOgv4UmepCE
-   A==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10945"; a="464062410"
+  bh=hOBe3c0HmqeXt2j5zXD/zxPaDoDUX5jSUVLlIGhnTWU=;
+  b=Q+A+bCSHrIW9/BjfN3qPVJUVR+f6JPSvO7XfFBH9SHHaBe0Rj+Hl+lOY
+   IBLifbVaXHgk2WThBLWj/3ImpcrpC4qVizMq0tQUwgB2OKPiDgpSyJASU
+   qUSega7z66jOR1+I1cTiu9Cxy7zCHesiIhVcs3DtHaJ2ilZkBT0y1xERT
+   oPLM+rwtBXkp1KeEffoDQCoKBSPmhZF5zeW4IvK/MTCEszlJZ8+veX9TC
+   3gYA+gjl8kQugHP0ywIz4OTDevcYrPltC/yQ/4Hv/jjj2qO9115mBhlhW
+   Gm1bDVSNSnaZZ9g5MJHNpMlT/zMTCjPyLefeLq6jg+vga2deRr/BM9hCm
+   Q==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10945"; a="382633024"
 X-IronPort-AV: E=Sophos;i="6.04,337,1695711600"; 
-   d="scan'208";a="464062410"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jan 2024 06:49:08 -0800
+   d="scan'208";a="382633024"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jan 2024 07:57:25 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10945"; a="851384333"
+X-IronPort-AV: E=McAfee;i="6600,9927,10945"; a="809819035"
 X-IronPort-AV: E=Sophos;i="6.04,337,1695711600"; 
-   d="scan'208";a="851384333"
+   d="scan'208";a="809819035"
 Received: from smile.fi.intel.com ([10.237.72.54])
-  by fmsmga004.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jan 2024 06:49:04 -0800
+  by orsmga008.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jan 2024 07:57:23 -0800
 Received: from andy by smile.fi.intel.com with local (Exim 4.97)
-	(envelope-from <andriy.shevchenko@intel.com>)
-	id 1rM7uA-0000000Bvpg-0Juu;
-	Sat, 06 Jan 2024 16:44:06 +0200
-Date: Sat, 6 Jan 2024 16:44:05 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Mark Hasemeyer <markhas@chromium.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	Sudeep Holla <sudeep.holla@arm.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-	Konrad Dybcio <konrad.dybcio@linaro.org>,
-	Raul Rangel <rrangel@chromium.org>,
-	Tzung-Bi Shih <tzungbi@kernel.org>,
-	Bartosz Golaszewski <brgl@bgdev.pl>, Len Brown <lenb@kernel.org>,
-	Linus Walleij <linus.walleij@linaro.org>,
+	(envelope-from <andriy.shevchenko@linux.intel.com>)
+	id 1rM931-0000000BwiW-42I6;
+	Sat, 06 Jan 2024 17:57:19 +0200
+Date: Sat, 6 Jan 2024 17:57:19 +0200
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Wolfram Sang <wsa@kernel.org>,
+	Mario Limonciello <mario.limonciello@amd.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
 	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Wolfram Sang <wsa@kernel.org>, linux-acpi@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v4 02/24] gpiolib: acpi: Modify
- acpi_dev_irq_wake_get_by() to use resource
-Message-ID: <ZZlnNR1-yKLSIWeF@smile.fi.intel.com>
-References: <20240102210820.2604667-1-markhas@chromium.org>
- <20240102140734.v4.2.Ifd0903f1c351e84376d71dbdadbd43931197f5ea@changeid>
+	Jan Dabros <jsd@semihalf.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>
+Subject: Re: [PATCH v5 00/24] i2c: designware: code consolidation & cleanups
+Message-ID: <ZZl4X0743xNXgetz@smile.fi.intel.com>
+References: <20231207141653.2785124-1-andriy.shevchenko@linux.intel.com>
+ <ZYBgB3J51hfGQSVX@smile.fi.intel.com>
+ <ZYFvEn0/xxIhGnlT@shikoro>
+ <10f00229-4cc0-4511-a39e-14e2c58ba98a@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -65,51 +60,29 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240102140734.v4.2.Ifd0903f1c351e84376d71dbdadbd43931197f5ea@changeid>
+In-Reply-To: <10f00229-4cc0-4511-a39e-14e2c58ba98a@linux.intel.com>
 Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 
-On Tue, Jan 02, 2024 at 02:07:26PM -0700, Mark Hasemeyer wrote:
-> Other information besides wake capability can be provided about GPIO
-> IRQs such as triggering, polarity, and sharability. Use resource flags
-> to provide this information to the caller if they want it.
+On Fri, Jan 05, 2024 at 11:54:52AM +0200, Jarkko Nikula wrote:
+> On 12/19/23 12:23, Wolfram Sang wrote:
+> > 
+> > > Wolfram, is there any chance to get this into this (v6.8) cycle?
+> > 
+> > Sure, due to lots of travels and other issues I am in general very late
+> > with preparing the merge window.
+> > 
+> > Applied to for-next, thanks!
+> > 
+> Can we put this on hold from not being queued into v6.8 or better drop the
+> whole patchset?
 > 
-> This should keep the API more robust over time as flags are added,
-> modified, or removed. It also more closely matches acpi_irq_get() which
-> take a resource as an argument.
+> Andy is right now out of office and there is a serious i2c-designware
+> regression in linux-next on AMD machine and I'm not able to figure out
+> quickly reason for it:
 > 
-> Rename the function to acpi_dev_get_gpio_irq_resource() to better
-> describe the function's new behavior.
+> https://lore.kernel.org/linux-i2c/20231229120820.GCZY62tM7z4v2XmOAZ@fat_crate.local/
 
-Missing blank line.
-We put a commit message as
-
-$SUMARY
-...blank line...
-$DESCRIPTION (can contain blank lines)
-...blank line...
-$TAG block (may not contain blank lines)
-
-> Signed-off-by: Mark Hasemeyer <markhas@chromium.org>
-
-...
-
-> +			unsigned long res_flags;
-
-Why not calling it irq_flags?
-
-...
-
-> +struct resource;
-
-This...
-
-> +	struct resource r = {};
-
-> +	return ret ?: r.start;
-
-...does _not_ cover these cases.
-
-Hence ioport.h must be included. Did I miss it?
+We have time to nail down it after rc1 is out, don't we?
 
 -- 
 With Best Regards,
