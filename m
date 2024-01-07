@@ -1,11 +1,11 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FAE313AC0;
-	Sun,  7 Jan 2024 16:08:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 499D6C433C7;
-	Sun,  7 Jan 2024 16:08:05 +0000 (UTC)
-Date: Sun, 7 Jan 2024 11:09:17 -0500
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BABCD13ADD;
+	Sun,  7 Jan 2024 16:19:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15A20C433C8;
+	Sun,  7 Jan 2024 16:19:31 +0000 (UTC)
+Date: Sun, 7 Jan 2024 11:20:44 -0500
 From: Steven Rostedt <rostedt@goodmis.org>
 To: Andy Shevchenko <andy@kernel.org>
 Cc: Hans de Goede <hdegoede@redhat.com>, Linus Torvalds
@@ -17,14 +17,17 @@ Cc: Hans de Goede <hdegoede@redhat.com>, Linus Torvalds
  eric.piel@tremplin-utc.net, Marius Hoch <mail@mariushoch.de>,
  Dell.Client.Kernel@dell.com, Kai Heng Feng <kai.heng.feng@canonical.com>,
  platform-driver-x86@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
- linux-i2c@vger.kernel.org
+ linux-i2c@vger.kernel.org, Tom Zanussi <zanussi@kernel.org>, Masami
+ Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>
 Subject: Re: [PATCH v2 2/6] platform/x86: dell-smo8800: Move instantiation
  of lis3lv02d i2c_client from i2c-i801 to dell-smo8800
-Message-ID: <20240107110917.3d6075de@gandalf.local.home>
-In-Reply-To: <ZZl-wrHfidYJwpOk@smile.fi.intel.com>
+Message-ID: <20240107112044.6702cb66@gandalf.local.home>
+In-Reply-To: <20240107110917.3d6075de@gandalf.local.home>
 References: <20240106160935.45487-1-hdegoede@redhat.com>
 	<20240106160935.45487-3-hdegoede@redhat.com>
 	<ZZl-wrHfidYJwpOk@smile.fi.intel.com>
+	<20240107110917.3d6075de@gandalf.local.home>
 X-Mailer: Claws Mail 3.19.1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -35,58 +38,77 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Sat, 6 Jan 2024 18:24:34 +0200
-Andy Shevchenko <andy@kernel.org> wrote:
+On Sun, 7 Jan 2024 11:09:17 -0500
+Steven Rostedt <rostedt@goodmis.org> wrote:
 
-> > +	if (!strstarts(adap->name, "SMBus I801 adapter"))
-> > +		return 0;  
+> 	for (i = 0; i < hist_data->attrs->n_actions; i++) {
+> 		str = hist_data->attrs->action_str[i];
 > 
-> Bah, we have str_has_prefix() and this, much older one...
-> Steven? Others? I mean we can do something about this duplication, right?
+> 		if ((len = str_has_prefix(str, "onmatch("))) {
+> 			char *action_str = str + len;
+> 
+> 			data = onmatch_parse(tr, action_str);
+> 			if (IS_ERR(data)) {
+> 				ret = PTR_ERR(data);
+> 				break;
+> 			}
+> 		} else if ((len = str_has_prefix(str, "onmax("))) {
+> 			char *action_str = str + len;
+> 
+> 			data = track_data_parse(hist_data, action_str,
+> 						HANDLER_ONMAX);
+> 			if (IS_ERR(data)) {
+> 				ret = PTR_ERR(data);
+> 				break;
+> 			}
+> 		} else if ((len = str_has_prefix(str, "onchange("))) {
+> 			char *action_str = str + len;
+> 
+> 			data = track_data_parse(hist_data, action_str,
+> 						HANDLER_ONCHANGE);
+> 			if (IS_ERR(data)) {
+> 				ret = PTR_ERR(data);
+> 				break;
+> 			}
 
-They are not really duplicate functions.
-
-Note that strstarts() is just a boolean (does this start with something)
-where as str_has_prefix() returns the length of the prefix.
-
-Yes, strstarts() can be swapped to str_has_prefix() but it can't go the
-other way around. One use case of the str_has_prefix() feature is in the
-histogram parsing:
+And this could possibly be consolidated to:
 
 	for (i = 0; i < hist_data->attrs->n_actions; i++) {
+		char *action_str;
+		enum handler_id hid;
+
+		ret = -EINVAL;
+
 		str = hist_data->attrs->action_str[i];
 
-		if ((len = str_has_prefix(str, "onmatch("))) {
-			char *action_str = str + len;
+		if ((len = str_has_prefix(str, "onmatch(")))
+			hid = HANDLER_ONMATCH;
+		else if ((len = str_has_prefix(str, "onmax(")))
+			hid = HANDLER_ONMAX;
+		else if ((len = str_has_prefix(str, "onchange(")))
+			hid = HANDLER_ONCHANGE;
+		else
+			break;
 
+		action_str = str + len;
+
+		switch (hid) {
+		case HANDLER_ONMATCH:
 			data = onmatch_parse(tr, action_str);
-			if (IS_ERR(data)) {
-				ret = PTR_ERR(data);
-				break;
-			}
-		} else if ((len = str_has_prefix(str, "onmax("))) {
-			char *action_str = str + len;
+			break;
+		default:
+			data = track_data_parse(hist_data, action_str, hid);
+		}
+			
+		if (IS_ERR(data)) {
+			ret = PTR_ERR(data);
+			break;
+		}
 
-			data = track_data_parse(hist_data, action_str,
-						HANDLER_ONMAX);
-			if (IS_ERR(data)) {
-				ret = PTR_ERR(data);
-				break;
-			}
-		} else if ((len = str_has_prefix(str, "onchange("))) {
-			char *action_str = str + len;
+		hist_data->actions[hist_data->n_actions++] = data;
+		ret = 0;
+	}
 
-			data = track_data_parse(hist_data, action_str,
-						HANDLER_ONCHANGE);
-			if (IS_ERR(data)) {
-				ret = PTR_ERR(data);
-				break;
-			}
-
-Where we get the length of the prefix if there's a match, and use that to
-skip over the prefix.
-
-If you just need to know if something starts with a string, then
-"strstarts()" is perfectly fine to use.
+I think I'll go make that change!
 
 -- Steve
