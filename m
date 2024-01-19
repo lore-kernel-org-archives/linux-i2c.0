@@ -1,56 +1,56 @@
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A2D14C61F
-	for <linux-i2c@vger.kernel.org>; Fri, 19 Jan 2024 11:11:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 652CF4CE08
+	for <linux-i2c@vger.kernel.org>; Fri, 19 Jan 2024 11:11:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1705662712; cv=none; b=DzZQuuHv91l0zGZLiIYJ8phybLdYGMXnJFfLwYGASaWpSQdFK7YV/Vog+C99MJqo6BFpIuLtO9D1Qzy7txIFtdbCq9bTGCrLHi+0NPufuc1lMrkofnJJntrVXANFPmC8gwRkMQmEw+AJTIyT8VkacgrascdHgy2o1r6IBF0fOxI=
+	t=1705662715; cv=none; b=sVzqNwuAL6W64EHtRkqbEeYTkNmfUhr1Aa98fBdnfZDCP0CNQR7FIoJDjjUVlBGIaYhqtwaLwB4P85jIgDWSYWmRQjuE1nLCPJclMHheKhYre6wIoQsS88dmnylehK2Bz6VZii6ClTVp+kLuYtEufbjhrz6BSn/Xbi0vAfS99Ks=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1705662712; c=relaxed/simple;
-	bh=Q1QOlBpvgW2lI3s9WzUF/2MwY4ank0KkttexA0jdNsg=;
+	s=arc-20240116; t=1705662715; c=relaxed/simple;
+	bh=ll3DEYGeH8ZhZJgGGkbdKZTUz6Fb1jCFDA13FeOkVVU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=to+fPt5CH+g72LNvQbREmlbxn4SL6ptizNfS+JQsBgXMvq0/ma38KLPSLq5hWopxbTziz+Z+53PyNMsbMjdushaIEQihRIwpW3XUcc7lzgSQSepQkjdP1I7ZdAoIbgOKgwjNOvgZUj8vhHpCsx056Mm062ifOZUEqvQ0ruJfC/A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=p+mWiE6Q; arc=none smtp.client-ip=209.85.221.53
+	 MIME-Version; b=thcbNtGG5RsPYKxAOSPhl1P0J+BrLrxZb5XzMtYflbndgCq1iYQ9v+A70KufWjrB30mA0+KwNyGN94/eWFC6A36AoJkXiWyY8trc6Wm3OnY/X+Z5ewcqFJOmHgsdOxjwaxdSGPMo39/eQtCP0KMAJ/zKqKof8Fi14THt1+j423g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=T6m69d+e; arc=none smtp.client-ip=209.85.221.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="p+mWiE6Q"
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-337c5eb1bddso543103f8f.3
-        for <linux-i2c@vger.kernel.org>; Fri, 19 Jan 2024 03:11:50 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="T6m69d+e"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-3368abe1093so487143f8f.2
+        for <linux-i2c@vger.kernel.org>; Fri, 19 Jan 2024 03:11:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1705662709; x=1706267509; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1705662712; x=1706267512; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ZrfLoymuWUhsr76oTazWVDUYhWCX3sd9OJ85HADWWNI=;
-        b=p+mWiE6Q2Ezb8fir6WhV3WFBpmpDTALVEks1BGz8jqx+Myqu4KD0Eb3HQbddpUc9X6
-         l6LkuAv4r1TjMO2tP1xJmTL5gqPSY4LeKRCkAiXpGUUjeeDD4GsWvl5ah97/zHzd+H5q
-         pStGCTJ0YihkYmHbch56ik1XyFe09VPASKPTUkIotQk6n0oPryhRlLAUdPmYdarijjoK
-         aHQ4mh2u3QXIj/RfawvqR4MgmemzOhE234eWgyGaqgExabU1gh/AH8LGLcJan/Ray/5L
-         eDoH4w8LqXCYA2eG9+KWuAOIxIYd84nKqCraiyqkU7jC6tJZYc8z/JehagnVFUe4qvUx
-         td2Q==
+        bh=Kmoj2ktoPsbPmlsDcpfD/T2RAgfFkzb1A8UxvOaNUC0=;
+        b=T6m69d+eAxB7sySw3xnTUqt6BuzF9RBfXaGWKtSmDUQQ79QhvPzHwAq3bF97mH/dTW
+         MkGj969nxOCzXCQ7KNj/9ldHY8C7rqzMEU5Rt9z1pGaHUTtVqqaTvF7veAaUtym4IcuL
+         dN5E2S+ZB89JDJLI7JlTJNJXsIFqH/Nna0QG4iFo47BFJjmh5K36jE+HbXC89kZ2DCPj
+         D5PakHtasmhwnfxzkUs+epggs6DS0UniYkaDIRgeE5QdsALNvXKQzNH5wp/3fK7xwWrL
+         MuPrY+6Cix9xPmmvQYE3oZqCCUYVwpNXZHdhs//iF4Pc8Ux5eqquoC6O/4QJsPCyggig
+         6maQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1705662709; x=1706267509;
+        d=1e100.net; s=20230601; t=1705662712; x=1706267512;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ZrfLoymuWUhsr76oTazWVDUYhWCX3sd9OJ85HADWWNI=;
-        b=nP2V2BW89m5ayXuOPqdhOWhBXrNcsiPWvjhCiVo5eMy1Pb662fR2oIVEjiF3zcrYm5
-         pHBkh+UOsQmJGOf3dVRyJjPggd17ZyVpJvuBtCT1fNGqO+3Sl/SWjX//LYTRKU+D2qvB
-         JRHGIu475vfbFW1QbaZ2lGdXKbf6/IvTAIEFyuEVcJ0IF/OBnE147V/Xzq07Rr9PeVVv
-         o946fvwe+JdwW7sfTNeR8q9/3aLLK+nBsb8/d3zzoaWKR63SKWmy5iDObx2BdAPdc3MX
-         /Pba+7G5Vs4Hrs1/6XbjhZcgV2NlrIbimYe4PaWsgMF3y5NciXlyc4OA6jO0JHXrdqOS
-         I6dg==
-X-Gm-Message-State: AOJu0YwUzgeObjr41kIC/zlWX9c0pBnI9yU98dQC7aTr1J8tVYjI/ztP
-	4/rmsFZF3Y1GNMjJ0pUox2/fiO7sTrZTKZb5vStRdBpidf6NBS3rVTHRm6I0ggM=
-X-Google-Smtp-Source: AGHT+IF8b3Ntvez/7FhtUFVXpwKWJ5oukJOvrp5B/i9t3tP0V/2tMqFw13SH7EBSfEwPVE+l+w369Q==
-X-Received: by 2002:adf:e303:0:b0:337:c0b9:f6f5 with SMTP id b3-20020adfe303000000b00337c0b9f6f5mr1301770wrj.102.1705662709072;
-        Fri, 19 Jan 2024 03:11:49 -0800 (PST)
+        bh=Kmoj2ktoPsbPmlsDcpfD/T2RAgfFkzb1A8UxvOaNUC0=;
+        b=lkknG64eh7hLM303oIQFP3AFGv6KsZCtlRfh0zhy/64574tgskwpk0n3ub2yK+zJRl
+         ABhhVBwjm6QE9hMOTyxfySF3RUb3e4aLSUj/KAa2Ycf+tn0E3FPuiVK/t/A/LM/EZAVL
+         XPhtbkoe4VEvXpqbC8vZgXOUa89r98JOAV1FZEPQNRKjkNvsDY63/4zIExSMTS78Na7O
+         x3qsKJmVmKsgzaitdBm9Ov98t7XVxVJABcOQOgIi/dHTms3luOkFbcYeV8nA+VQI8D6X
+         UngYALiP8GW5oFw7febVeWGA9auw2ryYAFOPJSGS0belyh2JEwb7dY9G2SHwY/tDzpEu
+         DSfQ==
+X-Gm-Message-State: AOJu0Yxa5Fy43y2uE+L13Ce+ZaLRgXkz74Wp7gz1InAggtTqbA0tD1xG
+	tM94zO0qC7uhW2ZQ7LmI1pyq0XBebTPbb5/XDf1Qey6vzotQGgLjAdgIDEJwd/I=
+X-Google-Smtp-Source: AGHT+IE6UGIuaWhe9PeL0tRLx7x2fZr6EP8zmEAW/WSGxSmRD4govtvG9uJd/VWwLIAEKLQLWvKK2w==
+X-Received: by 2002:a5d:468c:0:b0:336:4b14:bed9 with SMTP id u12-20020a5d468c000000b003364b14bed9mr1605282wrq.6.1705662711797;
+        Fri, 19 Jan 2024 03:11:51 -0800 (PST)
 Received: from ta2.c.googlers.com.com (88.140.78.34.bc.googleusercontent.com. [34.78.140.88])
-        by smtp.gmail.com with ESMTPSA id o10-20020a5d62ca000000b00337d4ce6ab4sm3341868wrv.20.2024.01.19.03.11.47
+        by smtp.gmail.com with ESMTPSA id o10-20020a5d62ca000000b00337d4ce6ab4sm3341868wrv.20.2024.01.19.03.11.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 19 Jan 2024 03:11:48 -0800 (PST)
+        Fri, 19 Jan 2024 03:11:50 -0800 (PST)
 From: Tudor Ambarus <tudor.ambarus@linaro.org>
 To: peter.griffin@linaro.org,
 	mturquette@baylibre.com,
@@ -73,12 +73,10 @@ Cc: andi.shyti@kernel.org,
 	semen.protsenko@linaro.org,
 	willmcvicker@google.com,
 	kernel-team@android.com,
-	Tudor Ambarus <tudor.ambarus@linaro.org>,
-	Wolfram Sang <wsa@kernel.org>,
-	Rob Herring <robh@kernel.org>
-Subject: [PATCH v4 2/8] dt-bindings: i2c: exynos5: add google,gs101-hsi2c compatible
-Date: Fri, 19 Jan 2024 11:11:26 +0000
-Message-ID: <20240119111132.1290455-3-tudor.ambarus@linaro.org>
+	Tudor Ambarus <tudor.ambarus@linaro.org>
+Subject: [PATCH v4 4/8] arm64: dts: exynos: gs101: remove reg-io-width from serial
+Date: Fri, 19 Jan 2024 11:11:28 +0000
+Message-ID: <20240119111132.1290455-5-tudor.ambarus@linaro.org>
 X-Mailer: git-send-email 2.43.0.429.g432eaa2c6b-goog
 In-Reply-To: <20240119111132.1290455-1-tudor.ambarus@linaro.org>
 References: <20240119111132.1290455-1-tudor.ambarus@linaro.org>
@@ -90,30 +88,32 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add google,gs101-hsi2c dedicated compatible for representing
-I2C of Google GS101 SoC.
+Remove the reg-io-width property in order to comply with the bindings.
 
-Acked-by: Wolfram Sang <wsa@kernel.org>
-Acked-by: Rob Herring <robh@kernel.org>
-Reviewed-by: Sam Protsenko <semen.protsenko@linaro.org>
+The entire bus (PERIC) on which the GS101 serial resides only allows
+32-bit register accesses. The reg-io-width dt property is disallowed
+for the "google,gs101-uart" compatible and instead the iotype is
+inferred from the compatible.
+
 Reviewed-by: Peter Griffin <peter.griffin@linaro.org>
+Reviewed-by: Sam Protsenko <semen.protsenko@linaro.org>
 Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
 ---
- Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/exynos/google/gs101.dtsi | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml b/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
-index df9c57bca2a8..cc8bba5537b9 100644
---- a/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
-+++ b/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
-@@ -33,6 +33,7 @@ properties:
-           - const: samsung,exynos7-hsi2c
-       - items:
-           - enum:
-+              - google,gs101-hsi2c
-               - samsung,exynos850-hsi2c
-           - const: samsung,exynosautov9-hsi2c
-       - const: samsung,exynos5-hsi2c    # Exynos5250 and Exynos5420
+diff --git a/arch/arm64/boot/dts/exynos/google/gs101.dtsi b/arch/arm64/boot/dts/exynos/google/gs101.dtsi
+index d838e3a7af6e..4e5f4c748906 100644
+--- a/arch/arm64/boot/dts/exynos/google/gs101.dtsi
++++ b/arch/arm64/boot/dts/exynos/google/gs101.dtsi
+@@ -366,7 +366,6 @@ usi_uart: usi@10a000c0 {
+ 			serial_0: serial@10a00000 {
+ 				compatible = "google,gs101-uart";
+ 				reg = <0x10a00000 0xc0>;
+-				reg-io-width = <4>;
+ 				interrupts = <GIC_SPI 634
+ 					      IRQ_TYPE_LEVEL_HIGH 0>;
+ 				clocks = <&dummy_clk 0>, <&dummy_clk 0>;
 -- 
 2.43.0.429.g432eaa2c6b-goog
 
