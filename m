@@ -1,139 +1,85 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from 16.mo550.mail-out.ovh.net (16.mo550.mail-out.ovh.net [178.33.104.224])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8635A7D41C
-	for <linux-i2c@vger.kernel.org>; Tue, 30 Jan 2024 22:07:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 44E63366
+	for <linux-i2c@vger.kernel.org>; Wed, 31 Jan 2024 00:24:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.33.104.224
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706652452; cv=none; b=RKTIKO5EUJaigrjhrnEkUtp8mZUmp+nAKS51LVY/Mr3MuJAt/dHeNcdtsmymdnyvR1Sjz55ma9q/jCjOrB+xyk5tHjESP84w7RK6kZPMt6odtekjJtRjUUM36yDT42/P4R9TJiOl95kk+wDzhtbp1iJ7gpFuP7v2/CUsLYC6kuY=
+	t=1706660664; cv=none; b=qQ7Kz0lWvfld3HQ64svDwyUvJTSTSvH30zeZwFiQAcTXGwDJ1q3n+1INhYBEjlBzRlfYcrHW9xD85FcJDqUT2RjLnswS0MS1xMDC7vBwQlMb7rCBoljdrU/HDkyht9/0lZ1t9nzyVkgfmi7n9LBDjhTicnX2EyY8EIct8gqoDkM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706652452; c=relaxed/simple;
-	bh=zC+D8g4nwZwMlxmUHqbL86IY6v1tQX4YbnWLkCHR/6w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jrt/p3fKoQf3khV+EUUsSuiRahqqmQtM96wYtsseTvFnBRxijmIIRbi2fffW+bIOhqgZnN7DbNZKUcjq6pV45zk6O070gxUrGtVSbl/Mj2+5pPhFvrVk8NeYxlS8k4P/V0nBjL9N46fEKXjWpir8iXNNgNUaqdsy3ZVfvZK4wXA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=csINU53l; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="csINU53l"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D351FC433C7;
-	Tue, 30 Jan 2024 22:07:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1706652452;
-	bh=zC+D8g4nwZwMlxmUHqbL86IY6v1tQX4YbnWLkCHR/6w=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=csINU53lTH7hIh3WjL3LEeITiTdzA9vxzvimK0vu6xcjXIYzAa2lCYE3WiSy3G7/m
-	 okK41ypVGs+t+4Hpocj2ZBVxNYDhdSr6wjeePqaHpWxIyRxvsXaEC4RicBe2fsIbi4
-	 7iHbOKmKOS1Gumzb3TF3CnLWKfhxPr/yRhgI9MyNUR9BjI/LU0ebPYFjXoeH7F4sLH
-	 kox5zYapXBJYpfEoNwCskBO+lVegTS0qf7avL0ZGkusOwGbYfcKymQWDwrDKq4cobK
-	 7wCgYjVHIgXEDOkVyafw9gAHbIqShYu5H+okmIFFlC+J0nrlnwutQMMpJzR4U65dL2
-	 ESrcnqLZXVa1A==
-Date: Tue, 30 Jan 2024 23:07:26 +0100
+	s=arc-20240116; t=1706660664; c=relaxed/simple;
+	bh=i8BIsOT8W4WGisGfZie/bbA4EqATNtceo5TqR/xHMJY=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=NXihtrrTCDYru5Gev2Y6i8NlAVYjDGcF4FkxUEt2IRSyZnAg9m7uufCOKdFGtUMMYeFq8OB/7veaN4h80Xv1YAyu865+5lbxmRRRp31PkPtLfbDYWc0SiJ9T4/mnaMYnnlIW5SWgA3IpKkRSscHQp14sobfJgOZLvoOx++D0eLw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=178.33.104.224
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
+Received: from director11.ghost.mail-out.ovh.net (unknown [10.109.148.7])
+	by mo550.mail-out.ovh.net (Postfix) with ESMTP id 7EA4B28199
+	for <linux-i2c@vger.kernel.org>; Wed, 31 Jan 2024 00:18:48 +0000 (UTC)
+Received: from ghost-submission-6684bf9d7b-xxf4f (unknown [10.110.96.146])
+	by director11.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 3CB261FE08;
+	Wed, 31 Jan 2024 00:18:46 +0000 (UTC)
+Received: from etezian.org ([37.59.142.110])
+	by ghost-submission-6684bf9d7b-xxf4f with ESMTPSA
+	id oo4kCeaRuWUyKAUAXj/8UA
+	(envelope-from <andi@etezian.org>); Wed, 31 Jan 2024 00:18:46 +0000
+Authentication-Results:garm.ovh; auth=pass (GARM-110S00402f30d86-61d5-4f29-8f2e-26c26e74ee30,
+                    F33A5955C440BB32736DBBB85AFDD5E0974CF895) smtp.auth=andi@etezian.org
+X-OVh-ClientIp:194.230.145.85
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Jean Delvare <jdelvare@suse.com>, 
-	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
-Subject: Re: [PATCH 6/8] i2c: i801: Split i801_block_transaction
-Message-ID: <bjxphy2qlvvv4zp3dnucehkoeh7rayany3v5lc5gx747zptr6h@fmg4tikg2jpy>
-References: <0d6a1cdb-39a1-4fad-a6e4-48953619f33b@gmail.com>
- <a5920bf7-91ef-4cf3-b6c5-0979e9325d7a@gmail.com>
- <pnzgygb7zlm5x2xkn6i7etzrmcf5rrfyaxh2s5zvbmuoqmqh63@m5wravpyp32r>
- <ed800c55-fffe-4080-9e0c-ae13bcc76353@gmail.com>
+To: linux-i2c@vger.kernel.org, 
+ Gregor Herburger <gregor.herburger@ew.tq-group.com>, 
+ Oleksij Rempel <o.rempel@pengutronix.de>, 
+ Pengutronix Kernel Team <kernel@pengutronix.de>, 
+ Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, 
+ Fabio Estevam <festevam@gmail.com>, NXP Linux Team <linux-imx@nxp.com>, 
+ Esben Haabendal <esben@geanix.com>
+Cc: linux-kernel@vger.kernel.org, Jinjie Ruan <ruanjinjie@huawei.com>, 
+ Alexander Stein <alexander.stein@ew.tq-group.com>, 
+ linux-arm-kernel@lists.infradead.org
+In-Reply-To: <01abf8ccc0af74b4fb0124977ed6bdfb9d7107b6.1706190706.git.esben@geanix.com>
+References: <01abf8ccc0af74b4fb0124977ed6bdfb9d7107b6.1706190706.git.esben@geanix.com>
+Subject: Re: [PATCH] i2c: imx: move to generic GPIO recovery
+Message-Id: <170666032453.3913934.17156311653699191147.b4-ty@kernel.org>
+Date: Wed, 31 Jan 2024 01:18:44 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ed800c55-fffe-4080-9e0c-ae13bcc76353@gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.12.4
+X-Ovh-Tracer-Id: 10513653330233395856
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvkedrfedtkedgvddtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvegjfhfukfffgggtgffosehtjeertdertdejnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpeffteehudffvdfhudfgffdugfejjeduheehgeefgeeuhfeiuefghffgueffvdfgfeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeduvdejrddtrddtrddupdduleegrddvfedtrddugeehrdekhedpfeejrdehledrudegvddruddutdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomhepoegrnhguihesvghtvgiiihgrnhdrohhrgheqpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheehtddpmhhouggvpehsmhhtphhouhht
 
-Hi Heiner,
+Hi
 
-On Tue, Jan 30, 2024 at 12:20:26PM +0100, Heiner Kallweit wrote:
-> On 30.01.2024 01:09, Andi Shyti wrote:
-> >> +static int i801_i2c_block_transaction(struct i801_priv *priv, union i2c_smbus_data *data,
-> >> +				      u8 addr, u8 hstcmd, char read_write, int command)
-> >> +{
-> >> +	int result;
-> >> +	u8 hostc;
-> >> +
-> >> +	if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
-> >> +		return -EPROTO;
-> >> +	/*
-> >> +	 * NB: page 240 of ICH5 datasheet shows that the R/#W bit should be cleared here,
-> >> +	 * even when reading. However if SPD Write Disable is set (Lynx Point and later),
-> >> +	 * the read will fail if we don't set the R/#W bit.
-> >> +	 */
-> >> +	i801_set_hstadd(priv, addr,
-> >> +			priv->original_hstcfg & SMBHSTCFG_SPD_WD ? read_write : I2C_SMBUS_WRITE);
-> >> +
-> >> +	/* NB: page 240 of ICH5 datasheet shows that DATA1 is the cmd field when reading */
-> >> +	if (read_write == I2C_SMBUS_READ)
-> >> +		outb_p(hstcmd, SMBHSTDAT1(priv));
-> >> +	else
-> >>  		outb_p(hstcmd, SMBHSTCMD(priv));
-> >> -		break;
-> >> +
-> >> +	if (read_write == I2C_SMBUS_WRITE) {
-> >> +		/* set I2C_EN bit in configuration register */
-> >> +		pci_read_config_byte(priv->pci_dev, SMBHSTCFG, &hostc);
-> >> +		pci_write_config_byte(priv->pci_dev, SMBHSTCFG, hostc | SMBHSTCFG_I2C_EN);
-> >> +	} else if (!(priv->features & FEATURE_I2C_BLOCK_READ)) {
-> >> +		pci_err(priv->pci_dev, "I2C block read is unsupported!\n");
-> >> +		return -EOPNOTSUPP;
-> >>  	}
-> > 
-> > These two if...else blocks can be merged.
-> > 
-> Yes, but I didn't do it because they cover different functionality.
-> IMO it's better readable this way.
-
-it's OK, this is a matter of taste.
-
-> > But here the case of "command == I2C_SMBUS_BLOCK_DATA" is doing
-> > something different from the original code. E.g. if command =
-> > I2C_SMBUS_BLOCK_DATA and read_write = READ, then there is a
-> > functional change. Or am I getting confused?
-> > 
+On Thu, 25 Jan 2024 14:56:36 +0100, Esben Haabendal wrote:
+> Starting with
+> commit 75820314de26 ("i2c: core: add generic I2C GPIO recovery")
+> GPIO bus recovery is supported by the I2C core, so we can remove the
+> driver implementation and use that one instead.
 > 
-> At least there's no intentional functional change.
-> Can you describe the functional change you see?
-> Then it's easier to comment.
+> As a nice side-effect, pinctrl becomes optional, allowing bus recovery on
+> LS1021A, which does not have such luxury, but can be wired up to use extra
+> fixed GPIO pins.
+> 
+> [...]
 
-I wrote it :-)
+Applied to i2c/i2c-host on
 
-when command is I2C_SMBUS_BLOCK_DATA, before it was simply doing:
+git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git
 
-	i801_set_hstadd(priv, addr, read_write);
-	outb_p(hstcmd, SMBHSTCMD(priv));
-
-while now it does:
-
-	i801_set_hstadd(priv, addr,
-			priv->original_hstcfg & SMBHSTCFG_SPD_WD ? read_write : I2C_SMBUS_WRITE);
-	if (read_write == I2C_SMBUS_READ)
-		outb_p(hstcmd, SMBHSTDAT1(priv));
-	else
-		outb_p(hstcmd, SMBHSTCMD(priv));
-
-> And yes: All the strange and misleading function argument naming
-> makes it quite confusing. This starts in I2C core:
-
-you could try to play around with different diff algorithms when
-generating the patch. Some of them perform better when renaming
-functions.
-
+Thank you,
 Andi
 
-PS. I'm not sure, though, this patch is improving readability,
-    but I will check it again.
+Patches applied
+===============
+[1/1] i2c: imx: move to generic GPIO recovery
+      commit: 11f1357336cde9924da0b455e528f11fbd5011f4
 
-
-> smbus_xfer() has an argument "command", which is typically
-> a data value. See i2c_smbus_write_byte()
-> Argument "size" however is actually the command.
-> 
-> > Thanks,
-> > Andi
-> 
-> Heiner
