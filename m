@@ -1,47 +1,47 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37F475B69B
-	for <linux-i2c@vger.kernel.org>; Thu,  1 Feb 2024 13:20:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AB6E1EEE8
+	for <linux-i2c@vger.kernel.org>; Thu,  1 Feb 2024 13:22:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1706793634; cv=none; b=aQ0LhflBbr4zhppJ3Appj/0rXW0E1Wv6zvNZ3h4+r3uBuBLGlbnozSuj4L3B4AEA8Rulbou/nkrTHEzOPMNx+wUczC3zan8VkyzypzXlrwk4ahHLAAXUklhlhFpI9XR2GSlA9zn9ACxsyP8reyHWoQUPRKcC3O5LRMU6RLEEAro=
+	t=1706793722; cv=none; b=EQssFTLXJUuKprj9KGVhJnEK/bUtZNGRxf43TDGYWHx6x4/KRGDzB7vCHbNMHDwu0hCOFt7qaTS0YgzmlXVgDh6SKK3FrrTTelxe1rBBq/ltielKya8p7IjGLcsG4CIgZvJSmY2XDhfdU+b6KR/uQeIuEuV+cP8vL2nmGiSMgTk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1706793634; c=relaxed/simple;
-	bh=aHOwpmWGFTRc1TgF/UQNBvX4kKAG6PnEhbP4URPZdqE=;
+	s=arc-20240116; t=1706793722; c=relaxed/simple;
+	bh=pExjiBYTNeENk5SfsLU3qRFBY0hjydejGfO49o5wAys=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=aJbJFqXmpD/K5RZTov+3lE4Ky/CvmanKG4eakcM6Zxz5DJZc9QkgZzAK82iDgQ2Gr+8uPZQdX0eDOvLW/bsGvyDEqAUL21AU+R7l/qhZAOJ5N+IJuUtMAiZEb6fIW86qc4riilrcWrMm2K9PfTqaJnzxxq8K7ggF3xan/A6lOM4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=UphsFgW2; arc=none smtp.client-ip=192.198.163.10
+	 In-Reply-To:Content-Type; b=Qhg4ciSt0WQecGkyw8GQAS9fnKtG7Ld+ofq0nIcALPMKIiqp4m1SIwduERdVWBTPIDLd9zWSl++y38E0ZgKDuw33ylqp6QaDlaSkWyqHg7EAyshQX2zopGq+lFNAmKxADcMr1CkjT9y+aSa18UoevvBQiF1qRI9gqFb+FaoTYTk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nME8et1U; arc=none smtp.client-ip=192.198.163.10
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="UphsFgW2"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nME8et1U"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1706793633; x=1738329633;
+  t=1706793721; x=1738329721;
   h=message-id:date:mime-version:subject:to:cc:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=aHOwpmWGFTRc1TgF/UQNBvX4kKAG6PnEhbP4URPZdqE=;
-  b=UphsFgW2xvwRdada9GTIieYuHD+AE/Au+Cdwq+OjUL/UoTw919fy70TD
-   sGdns/Spr4asiiphWXNHBQL1XLlrYOBIi9H7g8zBWR3U/35LQapRbgmxq
-   awE1X3KZMjpdnK78EvO2iB9BBqTDUmGP2c94NiLAK4mwMBXYh9nmsU3xj
-   r6UNQTfzeZUUYnV9iYAiU2XgM70PB51GInyC1UyneYAapfeD8EmZhONjS
-   nGD9V9m2pxbFLwAgIywkaU662/pEhP9vXAgn9PXURAGwq7TUSHTcHj4N/
-   N5fw17UNYtLh/UokcyqeE5+Yerd9vpe3R87Lx5gNCUyuHCOjZerEGueCG
-   g==;
-X-IronPort-AV: E=McAfee;i="6600,9927,10969"; a="11268470"
+  bh=pExjiBYTNeENk5SfsLU3qRFBY0hjydejGfO49o5wAys=;
+  b=nME8et1U3leyBrCdFE0Ouv5Cpiq7OykilD94JpuGZypIJ78vce0VKyQT
+   54XzF95bgfrK0In7z3q20TArW6Tgc9mAOx35xz3hGvlgcdKdCNw36p3h9
+   N1wMTNnD+3GGL4A079KeOQKpJLvsxwJ/w+5V+tLzoK7u4K/t0E+ENbEGa
+   mw7f2JBbJ6M0Rl/1q6VmPhuaxB/AnNR1L0npagC5Rj07LmqBToXfRPAdz
+   sZjCxPCnHG38GXVHSyqNxr2vdjfB2HiSjccA/girAmi0ONi4TxsYuuZQ3
+   d02yVl3XrRcfJciSfm0MKKG9x8SzRlwgWECjmat+UqIYgx4GxsuO38iF4
+   w==;
+X-IronPort-AV: E=McAfee;i="6600,9927,10969"; a="11268633"
 X-IronPort-AV: E=Sophos;i="6.05,234,1701158400"; 
-   d="scan'208";a="11268470"
+   d="scan'208";a="11268633"
 Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Feb 2024 05:20:32 -0800
+  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Feb 2024 05:21:59 -0800
 X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6600,9927,10969"; a="738426714"
+X-IronPort-AV: E=McAfee;i="6600,9927,10969"; a="738427017"
 X-IronPort-AV: E=Sophos;i="6.05,234,1701158400"; 
-   d="scan'208";a="738426714"
+   d="scan'208";a="738427017"
 Received: from unknown (HELO [10.237.72.79]) ([10.237.72.79])
-  by orsmga003.jf.intel.com with ESMTP; 01 Feb 2024 05:20:29 -0800
-Message-ID: <66468788-5117-4f5d-bc1c-39180c16821c@linux.intel.com>
-Date: Thu, 1 Feb 2024 15:18:14 +0200
+  by orsmga003.jf.intel.com with ESMTP; 01 Feb 2024 05:21:55 -0800
+Message-ID: <e5ed3eeb-8301-4498-9ec5-e1eb624f176a@linux.intel.com>
+Date: Thu, 1 Feb 2024 15:21:55 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -49,49 +49,55 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/6] i2c: designware: Generic polling mode code
+Subject: Re: [PATCH 5/5] i2c: designware: Implement generic polling mode code
+ for Wangxun 10Gb NIC
 Content-Language: en-US
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, Andi Shyti <andi.shyti@kernel.org>,
+To: linux-i2c@vger.kernel.org
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
  Mika Westerberg <mika.westerberg@linux.intel.com>,
  Jan Dabros <jsd@semihalf.com>, Jiawen Wu <jiawenwu@trustnetic.com>,
  Sanket Goswami <Sanket.Goswami@amd.com>,
  Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
  Michael J <michael.j.ruhl@intel.com>
 References: <20240131141653.2689260-1-jarkko.nikula@linux.intel.com>
- <ZbuJqcmSBzxaAONm@smile.fi.intel.com>
+ <20240131141653.2689260-7-jarkko.nikula@linux.intel.com>
 From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-In-Reply-To: <ZbuJqcmSBzxaAONm@smile.fi.intel.com>
+In-Reply-To: <20240131141653.2689260-7-jarkko.nikula@linux.intel.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
-On 2/1/24 14:08, Andy Shevchenko wrote:
-> On Wed, Jan 31, 2024 at 04:16:46PM +0200, Jarkko Nikula wrote:
->> Hi Jiawen, Sanket and Basavaraj
->>
->> Could you test on your Wangxun 10Gb NIC and AMD NAVI GPU harware this
->> patchset since it's touching both.
->>
->> For the AMD NAVI GPU and changes are less but for the Wangxun 10Gb NIC
->> patchset replaces the txgbe_i2c_dw_xfer_quirk() with generic polling mode
->> code.
->>
->> I've been testing this on our HW which all have interrupt connected and
->> tried to cover also FIFO depth defines for Wangxun 10Gb NIC. Obviously I
->> would like to know how this set works on your real HW.
+On 1/31/24 16:16, Jarkko Nikula wrote:
+> I got an idea the i2c-designware should not need duplicated state
+> machines for the interrupt and polling modes. The IP is practically the
+> same and state transitions happens in response to the events that can be
+> observed from the DW_IC_RAW_INTR_STAT register. Either by interrupts or
+> by polling.
 > 
-> ...
+> Another reasons are the interrupt mode is the most tested, has handling
+> for many exceptions as well as transmit abort handling and those are
+> missing from two polling mode quirks.
 > 
->> Jarkko Nikula (6):
->>    i2c: designware: Uniform initialization flow for polling mode
->>    i2c: designware: Do not enable interrupts shortly in polling mode
->>    i2c: designware: Use accessors to DW_IC_INTR_MASK register
->>    i2c: designware: Move interrupt handling functions before
->>      i2c_dw_xfer()
->>    i2c: designware: Fix RX FIFO depth define on Wangxun 10Gb NIC
->>    i2c: designware: Implement generic polling mode code for Wangxun 10Gb
->>      NIC
+> Patch implements generic polling mode code which shares the same code
+> with interrupt mode code. This is done by moving event handling from the
+> i2c_dw_isr() into a new i2c_dw_process_transfer() that will be called
+> both from the i2c_dw_isr() and polling loop.
 > 
-> Last two patches named the same, Something is screwed up.
+> Polling loop is implemented in a new i2c_dw_wait_transfer() that is
+> shared between both modes. In interrupt mode it waits for the completion
+> object as before. In polling mode both completion object and
+> DW_IC_RAW_INTR_STAT are polled.
 > 
-Indeed, thanks Andy. 5/5 was accidental left over file.
+> I decided to convert the txgbe_i2c_dw_xfer_quirk() straight to generic
+> polling mode code in this patch. It doesn't have HW dependent quirks
+> like the amd_i2c_dw_xfer_quirk() does have and without users this patch
+> is needless.
+> 
+> Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+> ---
+>   drivers/i2c/busses/i2c-designware-core.h   |   5 +
+>   drivers/i2c/busses/i2c-designware-master.c | 169 +++++++++------------
+>   2 files changed, 77 insertions(+), 97 deletions(-)
+> 
+Please discard this 5/5 which was accidental left over file in the same 
+directory with the patches 0-6/6.
