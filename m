@@ -1,101 +1,79 @@
-Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [217.70.183.196])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D18DA13A88D;
-	Thu, 15 Feb 2024 16:52:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.196
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24BE912DD9A;
+	Thu, 15 Feb 2024 17:06:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708015968; cv=none; b=jEBEkaUbUNNu5zLp07WOj6yslSF/CfbD6wxEOEDJaFdjlKMERwsCNttyDl6PKWQLISkXAMId1+k2Ho+uEhiPvk1JyGxupDKMXvw4Hw3/GQ/ZTPvMQK+O78ex4G1zDxZTGsDNPJElS0WYJkDljucc/bQR+/N4qFqO4+ZJrHTCF8Q=
+	t=1708016768; cv=none; b=sMdwbwRRrkLiCwdc2V03yNNxaw7ULy0pKaE6wUutmuDsSXufX5k762saOG1WP5J57W7hvZDCYn3gicEbbkFmspml5uMO73JJVPCJ9END1hEpBlIaOdxHtFALjA7tCUKuuz8y1vwc7GB3uFTQ+LBf6GuwMJczfHj11kf0UZJBVRM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708015968; c=relaxed/simple;
-	bh=5i1uaFrLcLf+bPBJaKLNupRCnV7d8Nq2qANsFmWqLIY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=tnYbG6C4H6lan7lchSKQXjLk2+jEYJEdwJJkA4d/s7xl8a1m5MSJSIIAUUE36TlrCcso100BUmP4CrF2KvCPa0bOta8xH59FEos0/acET1+I+OTbDM0QK7EIkkx7dLw+rM6cJ7ElvISwnll9DPid5lnREJn1jEmL+QO0WU7swqA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=dIxHuc+q; arc=none smtp.client-ip=217.70.183.196
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1708016768; c=relaxed/simple;
+	bh=nq34IP6sfpD54hsEtrN2j/P+4DNp6g4tkl0Jwz9sTNw=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=BeFUc+99OUCTTP/0rnar5a65dcjfEEf4LHMFRHzrr7HfAF0Htf0gLGbsd7zqZDyjX50pq8SfA45elWnwq/CXlqKO8g6Wi401EXElm0HcJsreFe8ZxICpRR0Mya0f3u5xhOgpSMP4EzkExCvcPenpYlOhKziy6QdNDszqd87P6UA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uuL2/XHj; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="dIxHuc+q"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 5E7D8E001B;
-	Thu, 15 Feb 2024 16:52:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1708015959;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=5W2sSL7KXTa75TLd1u49SS6u6N4gKtVqD7M4RKYa2bU=;
-	b=dIxHuc+q76e9Fo3tmpFDzwS3cGp4P0feO83Vi9KUPUUJCSaPlNMCIY0cNUIxKQr0bIc1Sn
-	bXtUYDJs4Y+ZW9cILDmc4atXws9VkQ82t2IxUVlbTKGbdUXLmqZ9M96uzRZk753owpssG6
-	kAqWRvnh7b9Atpw6YwozbTkGZ3T5i9QZ3QriHJ19lIElgeJwdsey20ZbOp3q4FTsXwpXUB
-	YiJ1gUavaooMS4VFu7kVZAfrPyAB5PDK+pcKQmVsFrUoYeyPlZpcfH+/aWhOUwJOn3eLwW
-	ZeZVhbkdNQr2PLYoWVTJjMIVw0A5yDRWukutqJHs+QbSWnSRZBmlsOT7eVQICw==
-From: =?utf-8?q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>
-Date: Thu, 15 Feb 2024 17:52:15 +0100
-Subject: [PATCH 08/13] i2c: nomadik: replace jiffies by ktime for FIFO
- flushing timeout
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uuL2/XHj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B88AC433C7;
+	Thu, 15 Feb 2024 17:06:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1708016767;
+	bh=nq34IP6sfpD54hsEtrN2j/P+4DNp6g4tkl0Jwz9sTNw=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:From;
+	b=uuL2/XHjxDow0CBItd3NuPU14AW2Kvom1K9Wr9j5a43WNbnXKxS6qLs96rgU+lH1b
+	 vYmgKOnPyo1KlOXrOx2rf3woeVDCKAsWKmnttNrVV1Jo5T14L2WXDu0TYPazgiMNVX
+	 cIiQLkeo7lUq7u6QEcgmVUUWkN5Q6F98aLQbtxVr+xFE8r53AynGns+s0Rvq/VRrCm
+	 lw1l5c5W3akEl8k39a6ztwOy3nsGhR9j0EGi6CvA2qt07+VBbt037uX3kPZl3GvY6b
+	 DgKqCyFiw7gPCIV1YPCq3qdxrZsWswZb4+cXHIXesWd2nQ6lOD/p1N93dMixc3IBUq
+	 WGDLgvYo1uQWA==
+Date: Thu, 15 Feb 2024 11:06:05 -0600
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Thomas Richard <thomas.richard@bootlin.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andy Shevchenko <andy@kernel.org>, Tony Lindgren <tony@atomide.com>,
+	Haojian Zhuang <haojian.zhuang@linaro.org>,
+	Vignesh R <vigneshr@ti.com>, Aaro Koskinen <aaro.koskinen@iki.fi>,
+	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+	Andi Shyti <andi.shyti@kernel.org>, Peter Rosin <peda@axentia.se>,
+	Vinod Koul <vkoul@kernel.org>,
+	Kishon Vijay Abraham I <kishon@kernel.org>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	Lorenzo Pieralisi <lpieralisi@kernel.org>,
+	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
+	Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
+	linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-omap@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-phy@lists.infradead.org,
+	linux-pci@vger.kernel.org, gregory.clement@bootlin.com,
+	theo.lebrun@bootlin.com, thomas.petazzoni@bootlin.com,
+	u-kumar1@ti.com,
+	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+	Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: Re: [PATCH v3 00/18] Add suspend to ram support for PCIe on J7200
+Message-ID: <20240215170605.GA1294576@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20240215-mbly-i2c-v1-8-19a336e91dca@bootlin.com>
-References: <20240215-mbly-i2c-v1-0-19a336e91dca@bootlin.com>
-In-Reply-To: <20240215-mbly-i2c-v1-0-19a336e91dca@bootlin.com>
-To: Linus Walleij <linus.walleij@linaro.org>, 
- Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh+dt@kernel.org>, 
- Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-mips@vger.kernel.org, Gregory Clement <gregory.clement@bootlin.com>, 
- Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>, 
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
- Tawfik Bayouk <tawfik.bayouk@mobileye.com>, 
- =?utf-8?q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>
-X-Mailer: b4 0.12.4
-X-GND-Sasl: theo.lebrun@bootlin.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240102-j7200-pcie-s2r-v3-0-5c2e4a3fac1f@bootlin.com>
 
-The FIFO flush function uses a jiffies amount to detect timeouts as the
-flushing is async. Replace with ktime to get more accurate precision
-and support short timeouts.
+On Thu, Feb 15, 2024 at 04:17:45PM +0100, Thomas Richard wrote:
+> This add suspend to ram support for the PCIe (RC mode) on J7200 platform.
 
-Signed-off-by: Théo Lebrun <theo.lebrun@bootlin.com>
----
- drivers/i2c/busses/i2c-nomadik.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+>       PCI: cadence: extract link setup sequence from cdns_pcie_host_setup()
+>       PCI: cadence: set cdns_pcie_host_init() global
+>       PCI: j721e: add reset GPIO to struct j721e_pcie
+>       PCI: j721e: add suspend and resume support
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index e68b8e0d7919..afd54999bbbb 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -219,8 +219,8 @@ static inline void i2c_clr_bit(void __iomem *reg, u32 mask)
- static int flush_i2c_fifo(struct nmk_i2c_dev *priv)
- {
- #define LOOP_ATTEMPTS 10
-+	ktime_t timeout;
- 	int i;
--	unsigned long timeout;
- 
- 	/*
- 	 * flush the transmit and receive FIFO. The flushing
-@@ -232,9 +232,9 @@ static int flush_i2c_fifo(struct nmk_i2c_dev *priv)
- 	writel((I2C_CR_FTX | I2C_CR_FRX), priv->virtbase + I2C_CR);
- 
- 	for (i = 0; i < LOOP_ATTEMPTS; i++) {
--		timeout = jiffies + priv->adap.timeout;
-+		timeout = ktime_add_us(ktime_get(), priv->timeout_usecs);
- 
--		while (!time_after(jiffies, timeout)) {
-+		while (ktime_after(timeout, ktime_get())) {
- 			if ((readl(priv->virtbase + I2C_CR) &
- 				(I2C_CR_FTX | I2C_CR_FRX)) == 0)
- 				return 0;
+The drivers/pci/ subject line pattern is:
 
--- 
-2.43.1
+  PCI: <driver>: <Capitalized verb>
 
+e.g.,
+
+  PCI: cadence: Extract link setup sequence from cdns_pcie_host_setup()
