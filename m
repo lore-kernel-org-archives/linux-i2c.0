@@ -1,87 +1,153 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7562E13A249;
-	Thu, 15 Feb 2024 19:34:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE24D1419B5;
+	Thu, 15 Feb 2024 22:08:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708025672; cv=none; b=aZsJ/079jAjk1UOnBjat8Z0RXZkDfat4NjujjUy85z9HuGrFjxByosWCywiWHSPaPQ6hymzoTenY/4pnRi8rTPD/0egCKw8FoQcqpUWBWHzSjeleSJrCITQrJVewWBUhN+HqMVN1pmV14WXwe2dpriY1fO5W7v4kxbscFTdMRaU=
+	t=1708034903; cv=none; b=rmvO6xsO0SvAPWVS6sj9dUDacEioE9+VpSXnvc1mWTJpoLdlO4rLbsxx9UErHMFpq0Af3dBsvOdJE+2JEblHCYidNrech6mGnbhwAA1Eco541+NfPDRGq6m6HLlPWUIMb7ZOerKahRmr7doZevAu7zqfVR1f4cpPjWMjX0OrUQQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708025672; c=relaxed/simple;
-	bh=0xDmjRzOIFe1GDF6uU0h8F9gRo4dQvRi6OpVT2WbXoc=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=B1JA68yFOaRm57Lzum42/gT4aV3uccznYMpx1+ZQDdalq5PrVUrBZl22oUaIIAQO2hHeo+xPfVfM9ffhJrxDIwkUvBhszk2PKwTUuuvX8auumKQeed6/BUKecILep88OWrJkuTjF4jpvIdVzp+nIUNNUFJftEMuduRy6NsTxZWw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ifH4v4Cu; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1708034903; c=relaxed/simple;
+	bh=t+fL4dbYLUcdsIq4ZMykfifG2UxgfeRtAt3E1EOP/A8=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=QrSkSIfrduQLmKjiretHIOtL2P+UYcxkHCtLqGSp8dWvPPJDARelq7Xo3kJXYmUeBDeOj+GjFCzxE1Z5zLhfbNb5d2tF3InH+ehptj3B3JDQOFrtHAgylJ1d7In/ttUKyUA2yBfxSl4dLBj2VAv6hjYUeBCcxyu4ghibHiohfs4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oO/hgcS1; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ifH4v4Cu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56592C433C7;
-	Thu, 15 Feb 2024 19:34:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1708025672;
-	bh=0xDmjRzOIFe1GDF6uU0h8F9gRo4dQvRi6OpVT2WbXoc=;
-	h=Date:From:To:Cc:Subject:From;
-	b=ifH4v4CuOKoHeSu/KbrmZyJJSKHAp0/ypLuYrTQ+s8V5B6NVQVLvvWxUVhT6xqNBH
-	 5ETEDqAFSrjnQHN4872ksk1llIV7eJW+v0GFPvZpn/vGLzqzES2UdzN8HzsgzGRD8e
-	 r1moDpqIxtzllc0aruFZhGFDnLYUi+E7hqhEuoytzf0t0/Ipr0PFktEfbwurq04cJ3
-	 lmidBin+tzBTqhjzuK34M1EH+qDaph3XZJ7DT0tlsnBtjFsjg3XuuXJagZnLrDvsGA
-	 pSo5zNZjV4pLSZTtOX+T9KeiKJ4ow/8QlEp67JFYKOf42kSKOl/XFaHBLJLLI8zyDl
-	 e4iTc4+1wpBhg==
-Date: Thu, 15 Feb 2024 20:34:28 +0100
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Wolfram Sang <wsa@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Peter Rosin <peda@axentia.se>, Andi Shyti <andi.shyti@kernel.org>
-Subject: [GIT PULL] i2c-host fixes for v6.8-rc5
-Message-ID: <6utwghfmlmpaasdtoel5faalrrnfhyg3iupeditg4w7bgd7g35@cxplq2kipgfb>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oO/hgcS1"
+Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41FM6OdU026556;
+	Thu, 15 Feb 2024 22:08:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=42KZToJ6L2oi/2I8rKEPazeyIcIc7KzaadnBTEbvxS8=;
+ b=oO/hgcS1eeYjUHFgTk9WVp2tStqGPRi4XIqneHPUwzqTvfxHHR2Zk4Th99GKmzJy9Wbm
+ 6CVmfe7dATE65y3YFc/P+6szw2KFNnt5wcRicDj8OdGVQ0oXdL8yxG5YReImWNS1VurC
+ DjmPggmChW6N2IPPMY96CKuoXKNN2B2suTTA9/VfC2cZj1FlOaXrlsCFjx3ehE4GtbAh
+ tkg/fxnGn0c8SrkuxXU7eBi1bXO/wnx6+tzkfaHkfK45Neb+3kPZTUq/ssOsrBVF0U8u
+ 1aV2hSZEhq05rlj75po+Fv2vpNrpoIo7RnoHqSp/Ceb+W6LKcPyzzW89L2zxI+UrVIgX dg== 
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w9u46r133-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 15 Feb 2024 22:08:06 +0000
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41FJHAZ4024888;
+	Thu, 15 Feb 2024 22:08:06 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3w6mfpqkfs-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 15 Feb 2024 22:08:06 +0000
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41FM83MJ27656862
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 15 Feb 2024 22:08:05 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 6833B58056;
+	Thu, 15 Feb 2024 22:08:03 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1EC8558061;
+	Thu, 15 Feb 2024 22:08:03 +0000 (GMT)
+Received: from slate16.aus.stglabs.ibm.com (unknown [9.61.14.18])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 15 Feb 2024 22:08:03 +0000 (GMT)
+From: Eddie James <eajames@linux.ibm.com>
+To: linux-fsi@lists.ozlabs.org
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
+        andi.shyti@kernel.org, eajames@linux.ibm.com, alistair@popple.id.au,
+        joel@jms.id.au, jk@ozlabs.org, sboyd@kernel.org,
+        mturquette@baylibre.com, robh@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org
+Subject: [PATCH 04/33] fsi: Improve master indexing
+Date: Thu, 15 Feb 2024 16:07:30 -0600
+Message-Id: <20240215220759.976998-5-eajames@linux.ibm.com>
+X-Mailer: git-send-email 2.39.3
+In-Reply-To: <20240215220759.976998-1-eajames@linux.ibm.com>
+References: <20240215220759.976998-1-eajames@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: yacOQgyGxb1ACjOHEFL6Lk0Fd8klTmzp
+X-Proofpoint-GUID: yacOQgyGxb1ACjOHEFL6Lk0Fd8klTmzp
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-02-15_20,2024-02-14_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 priorityscore=1501
+ clxscore=1015 lowpriorityscore=0 mlxlogscore=999 bulkscore=0
+ malwarescore=0 adultscore=0 phishscore=0 suspectscore=0 impostorscore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402150171
 
-Hi Wolfram,
+Master indexing is problematic if a hub is rescanned while the
+root master is being rescanned. Move the IDA free below the device
+unregistration, lock the scan mutex in the probe function, and
+request a specific idx in the hub driver.
 
-This week, I'm submitting three fixes: two address hardware
-issues with the i801 and qcom-gen devices, and the third resolves
-a compilation error that occurs when including both pasemi and
-apple i2c in compile tests on PowerPC.
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+---
+ drivers/fsi/fsi-core.c       | 12 +++++-------
+ drivers/fsi/fsi-master-hub.c |  2 ++
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-Thanks,
-Andi
+diff --git a/drivers/fsi/fsi-core.c b/drivers/fsi/fsi-core.c
+index 7bf0c96fc017..1c687eb021a0 100644
+--- a/drivers/fsi/fsi-core.c
++++ b/drivers/fsi/fsi-core.c
+@@ -1271,7 +1271,6 @@ static struct class fsi_master_class = {
+ int fsi_master_register(struct fsi_master *master)
+ {
+ 	int rc;
+-	struct device_node *np;
+ 
+ 	mutex_init(&master->scan_lock);
+ 
+@@ -1295,14 +1294,13 @@ int fsi_master_register(struct fsi_master *master)
+ 	rc = device_register(&master->dev);
+ 	if (rc) {
+ 		ida_free(&master_ida, master->idx);
+-		goto out;
+-	}
++	} else {
++		struct device_node *np = dev_of_node(&master->dev);
+ 
+-	np = dev_of_node(&master->dev);
+-	if (!of_property_read_bool(np, "no-scan-on-init")) {
+-		fsi_master_scan(master);
++		if (!of_property_read_bool(np, "no-scan-on-init"))
++			fsi_master_scan(master);
+ 	}
+-out:
++
+ 	mutex_unlock(&master->scan_lock);
+ 	return rc;
+ }
+diff --git a/drivers/fsi/fsi-master-hub.c b/drivers/fsi/fsi-master-hub.c
+index 6d8b6e8854e5..36da643b3201 100644
+--- a/drivers/fsi/fsi-master-hub.c
++++ b/drivers/fsi/fsi-master-hub.c
+@@ -12,6 +12,7 @@
+ #include <linux/slab.h>
+ 
+ #include "fsi-master.h"
++#include "fsi-slave.h"
+ 
+ #define FSI_ENGID_HUB_MASTER		0x1c
+ 
+@@ -229,6 +230,7 @@ static int hub_master_probe(struct device *dev)
+ 	hub->master.dev.release = hub_master_release;
+ 	hub->master.dev.of_node = of_node_get(dev_of_node(dev));
+ 
++	hub->master.idx = fsi_dev->slave->link + 1;
+ 	hub->master.n_links = links;
+ 	hub->master.read = hub_master_read;
+ 	hub->master.write = hub_master_write;
+-- 
+2.39.3
 
-The following changes since commit 54be6c6c5ae8e0d93a6c4641cb7528eb0b6ba478:
-
-  Linux 6.8-rc3 (2024-02-04 12:20:36 +0000)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-host-fixes-6.8-rc5
-
-for you to fetch changes up to eb9f7f654f251b57db310eab90bbae5876898ae3:
-
-  i2c: i801: Fix block process call transactions (2024-02-14 22:15:38 +0100)
-
-----------------------------------------------------------------
-Three fixes are included here. Two are strictly hardware-related
-for the i801 and qcom-geni devices. Meanwhile, a fix from Arnd
-addresses a compilation error encountered during compile test on
-powerpc.
-
-----------------------------------------------------------------
-Arnd Bergmann (1):
-      i2c: pasemi: split driver into two separate modules
-
-Jean Delvare (1):
-      i2c: i801: Fix block process call transactions
-
-Viken Dadhaniya (1):
-      i2c: i2c-qcom-geni: Correct I2C TRE sequence
-
- drivers/i2c/busses/Makefile          |  6 ++----
- drivers/i2c/busses/i2c-i801.c        |  4 ++--
- drivers/i2c/busses/i2c-pasemi-core.c |  6 ++++++
- drivers/i2c/busses/i2c-qcom-geni.c   | 14 +++++++-------
- 4 files changed, 17 insertions(+), 13 deletions(-)
