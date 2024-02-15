@@ -1,57 +1,57 @@
 Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D40171487FB;
-	Thu, 15 Feb 2024 22:08:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABB4514AD09;
+	Thu, 15 Feb 2024 22:08:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708034914; cv=none; b=Uqm30ak2h3n9kjrYOWJ4BYi0+kar7OlYohkgkkFzVbIGaGq0vIQYjiwvdNKhEwfYVxuTbRv5j64nlKBak0cTOAjlqlbsNcIp97hED2ui/GilJ72rEZWugsX8R2hS+u/9kF3OJ51je613BJftZwOaC39PW95kdWPjTPZJf0Lzgsc=
+	t=1708034915; cv=none; b=UpSLGWd6jmuETuFAPDyFJlaYl82CkajzGPj1H4rHbMJ8wqIu7G0zFaaxvgEg+JUpvht4S6JsfjB4GE48JUuD+M9funKTdvwuiYPZpzb0XkoK5+ukgQqZRkDcoCGT9XWbFIo6wKqaqTWTRs/xoByNfUCwjuY04idbjHeAasFWur8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708034914; c=relaxed/simple;
-	bh=y7Ir3NHVxuCw/j7v8sOGwdCGBziRK95layLM4Yi7WNM=;
+	s=arc-20240116; t=1708034915; c=relaxed/simple;
+	bh=06noxcBj+0w/9K5t6WqaO8FUweWGJp65GITzL1ijo5s=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=n1QqG+YU/SmSS03+pkgPnvraQOCYidcUQTM+VxGWdwx5yxiMFf16otWqyDPdfzB00kH8RixJ+d4Q6EmIXsi/6/OMiIg34gh18I/FE3A97dzwELUsajryL6LO05EQi7uyRastGi41M0MhpNEOhVg3RoygSLAAL5YjYqYzxuaOxC0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=HE7M2XOi; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=C7JRisTjMgM8V2lfzlT4mV0WLwyro8Z4tFejei160HTq0boXLflMHPTcl6zdt9Ac9RudXCJno8iNtXzBrODC18CSkJ0lp8eYzMLhPqQo5oe5dftup2gm2WhHwHuSNSi4qtTkaai4Odt6m850nb5/CmziNawnZMO3Hz7xDbs1GKk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=oC0g9rws; arc=none smtp.client-ip=148.163.158.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="HE7M2XOi"
-Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41FLPhFL030019;
-	Thu, 15 Feb 2024 22:08:16 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="oC0g9rws"
+Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41FKOjUR002615;
+	Thu, 15 Feb 2024 22:08:11 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=psAc7NhzV/4UUrvAwzBQj4m9xdKePW/86HpHbKqjtW0=;
- b=HE7M2XOi6xYI4jg+HQ6cCWjai5WYAeV+qt0h+vuyaCWrJDzlWhCPCGypdZgwYGH8oqkA
- PsnKQt4aptQ+6WzogvgvEoQmX0kxICnOxSunou6hFMfDO3mC+kDkXZv70AOdl+96HHmw
- /DZY4OLJrkmyvDcPNnkEJg14LVoO2qivsTcYuaAziC8SyTL8M03QT0qqpjBU8Fw8UdTn
- Mx892LggVTooPXwyi0nmSlRTPHPKmJ5hROgDXJ+WOQAXnn4hu4zIJREB4BvlokkNmHx3
- ez6dqHWIVrbHFEwN+xOJ9XTqcwJvyH7jXY9amrxu+V7Ilv2PNvfmhmiq8OoQxAh07K0P +g== 
+ bh=Wt8UWHHJz1+fM4oAB+F4OGgkDBnjm6htdEah2gI4GTI=;
+ b=oC0g9rwsdqskmLoHwJx+0YT9SgwiUPsVDzhidXY8JRRBRP8zp9I67nnr1vzjVetyeO0L
+ rcDhtyRDqXhQJyRq/WMrncm5hTXxqbOmjlcTtMrGvqPfEk92sl8AVjbZ73YVEHLpXZ0D
+ W0cVghZUP4lYpA4O9okmgP+LPhkExcxmpQWG5cb/jzlBiwThw8ToJKw96txWK1iIjgMn
+ kFUaP76npTnpHN28Cge/VjP5wtDxTNZ9MSft504KJBqr/uNerb6xemP0juNgzDcFvkC1
+ PMFhgcNV4lToDOcYiH+Jv6HBNpZ1+6pXq/mq+DywaCtFB0apLaVqGtSrL3xUTZzbmXx+ vQ== 
 Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w9s0tjy7y-1
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w9q8n597q-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 Feb 2024 22:08:16 +0000
+	Thu, 15 Feb 2024 22:08:10 +0000
 Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41FLklQM032600;
-	Thu, 15 Feb 2024 22:08:15 GMT
-Received: from smtprelay04.dal12v.mail.ibm.com ([172.16.1.6])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w6kftyueu-1
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41FJAQbI032596;
+	Thu, 15 Feb 2024 22:08:09 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w6kftyudx-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 Feb 2024 22:08:15 +0000
+	Thu, 15 Feb 2024 22:08:09 +0000
 Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay04.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41FM8DK419399238
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41FM87v914025408
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 Feb 2024 22:08:15 GMT
+	Thu, 15 Feb 2024 22:08:09 GMT
 Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DA7B458068;
-	Thu, 15 Feb 2024 22:08:11 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 5114058071;
+	Thu, 15 Feb 2024 22:08:07 +0000 (GMT)
 Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8841458073;
-	Thu, 15 Feb 2024 22:08:11 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id F165E58089;
+	Thu, 15 Feb 2024 22:08:06 +0000 (GMT)
 Received: from slate16.aus.stglabs.ibm.com (unknown [9.61.14.18])
 	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 15 Feb 2024 22:08:11 +0000 (GMT)
+	Thu, 15 Feb 2024 22:08:06 +0000 (GMT)
 From: Eddie James <eajames@linux.ibm.com>
 To: linux-fsi@lists.ozlabs.org
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
@@ -60,9 +60,9 @@ Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
         joel@jms.id.au, jk@ozlabs.org, sboyd@kernel.org,
         mturquette@baylibre.com, robh@kernel.org,
         krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org
-Subject: [PATCH 28/33] i2c: fsi: Improve formatting
-Date: Thu, 15 Feb 2024 16:07:54 -0600
-Message-Id: <20240215220759.976998-29-eajames@linux.ibm.com>
+Subject: [PATCH 15/33] fsi: aspeed: Use common initialization and link enable
+Date: Thu, 15 Feb 2024 16:07:41 -0600
+Message-Id: <20240215220759.976998-16-eajames@linux.ibm.com>
 X-Mailer: git-send-email 2.39.3
 In-Reply-To: <20240215220759.976998-1-eajames@linux.ibm.com>
 References: <20240215220759.976998-1-eajames@linux.ibm.com>
@@ -74,395 +74,257 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: XXPKvt99dsSEBLevTKf238__FqRSX-8N
-X-Proofpoint-ORIG-GUID: XXPKvt99dsSEBLevTKf238__FqRSX-8N
+X-Proofpoint-GUID: PpaRy4Hms_6nZR2-KaVSngRSZgIV4Kzk
+X-Proofpoint-ORIG-GUID: PpaRy4Hms_6nZR2-KaVSngRSZgIV4Kzk
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-02-15_20,2024-02-14_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=934 clxscore=1015
- suspectscore=0 phishscore=0 lowpriorityscore=0 spamscore=0 malwarescore=0
- bulkscore=0 impostorscore=0 priorityscore=1501 mlxscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2311290000
- definitions=main-2402150171
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=999
+ impostorscore=0 adultscore=0 suspectscore=0 bulkscore=0 spamscore=0
+ lowpriorityscore=0 malwarescore=0 priorityscore=1501 mlxscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2311290000 definitions=main-2402150171
 
-No functional change.
+Create a regmap for accessing the master registers over OPB
+to use the new common master initialization and link enable procedures.
 
 Signed-off-by: Eddie James <eajames@linux.ibm.com>
 ---
- drivers/i2c/busses/i2c-fsi.c | 125 +++++++++++++++++------------------
- 1 file changed, 60 insertions(+), 65 deletions(-)
+ drivers/fsi/fsi-master-aspeed.c | 146 ++++++++------------------------
+ 1 file changed, 37 insertions(+), 109 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
-index eaecf156ac31..bc44cad49ef2 100644
---- a/drivers/i2c/busses/i2c-fsi.c
-+++ b/drivers/i2c/busses/i2c-fsi.c
-@@ -148,10 +148,10 @@
+diff --git a/drivers/fsi/fsi-master-aspeed.c b/drivers/fsi/fsi-master-aspeed.c
+index d6e923b8f501..2258980e4c47 100644
+--- a/drivers/fsi/fsi-master-aspeed.c
++++ b/drivers/fsi/fsi-master-aspeed.c
+@@ -90,14 +90,6 @@ static const u32 fsi_base = 0xa0000000;
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/fsi_master_aspeed.h>
  
- struct fsi_i2c_master {
- 	struct fsi_device	*fsi;
--	u8			fifo_size;
- 	struct list_head	ports;
- 	struct mutex		lock;
- 	u32			clock_div;
-+	u8			fifo_size;
- };
- 
- struct fsi_i2c_port {
-@@ -165,15 +165,14 @@ struct fsi_i2c_port {
- static int fsi_i2c_read_reg(struct fsi_device *fsi, unsigned int reg,
- 			    u32 *data)
- {
--	int rc;
- 	__be32 data_be;
-+	int rc;
- 
- 	rc = fsi_device_read(fsi, reg, &data_be, sizeof(data_be));
- 	if (rc)
- 		return rc;
- 
- 	*data = be32_to_cpu(data_be);
+-#define FSI_LINK_ENABLE_SETUP_TIME	10	/* in mS */
 -
- 	return 0;
- }
- 
-@@ -187,9 +186,11 @@ static int fsi_i2c_write_reg(struct fsi_device *fsi, unsigned int reg,
- 
- static int fsi_i2c_dev_init(struct fsi_i2c_master *i2c)
- {
--	int rc;
--	u32 mode = I2C_MODE_ENHANCED, extended_status, watermark;
-+	u32 mode = I2C_MODE_ENHANCED;
-+	u32 extended_status;
- 	u32 interrupt = 0;
-+	u32 watermark;
-+	int rc;
- 
- 	/* since we use polling, disable interrupts */
- 	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_INT_MASK, &interrupt);
-@@ -215,9 +216,10 @@ static int fsi_i2c_dev_init(struct fsi_i2c_master *i2c)
- 
- static int fsi_i2c_set_port(struct fsi_i2c_port *port)
- {
--	int rc;
- 	struct fsi_device *fsi = port->master->fsi;
--	u32 mode, dummy = 0;
-+	u32 dummy = 0;
-+	u32 mode;
-+	int rc;
- 
- 	rc = fsi_i2c_read_reg(fsi, I2C_FSI_MODE, &mode);
- 	if (rc)
-@@ -238,7 +240,6 @@ static int fsi_i2c_set_port(struct fsi_i2c_port *port)
- static int fsi_i2c_start(struct fsi_i2c_port *port, struct i2c_msg *msg,
- 			 bool stop)
- {
--	struct fsi_i2c_master *i2c = port->master;
- 	u32 cmd = I2C_CMD_WITH_START | I2C_CMD_WITH_ADDR;
- 
- 	port->xfrd = 0;
-@@ -252,7 +253,7 @@ static int fsi_i2c_start(struct fsi_i2c_port *port, struct i2c_msg *msg,
- 	cmd |= FIELD_PREP(I2C_CMD_ADDR, msg->addr);
- 	cmd |= FIELD_PREP(I2C_CMD_LEN, msg->len);
- 
--	return fsi_i2c_write_reg(i2c->fsi, I2C_FSI_CMD, &cmd);
-+	return fsi_i2c_write_reg(port->master->fsi, I2C_FSI_CMD, &cmd);
- }
- 
- static int fsi_i2c_get_op_bytes(int op_bytes)
-@@ -268,18 +269,17 @@ static int fsi_i2c_get_op_bytes(int op_bytes)
- static int fsi_i2c_write_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
- 			      u8 fifo_count)
- {
-+	int bytes_to_write = port->master->fifo_size - fifo_count;
-+	int bytes_remaining = msg->len - port->xfrd;
- 	int write;
- 	int rc;
--	struct fsi_i2c_master *i2c = port->master;
--	int bytes_to_write = i2c->fifo_size - fifo_count;
--	int bytes_remaining = msg->len - port->xfrd;
- 
- 	bytes_to_write = min(bytes_to_write, bytes_remaining);
- 
- 	while (bytes_to_write) {
- 		write = fsi_i2c_get_op_bytes(bytes_to_write);
- 
--		rc = fsi_device_write(i2c->fsi, I2C_FSI_FIFO,
-+		rc = fsi_device_write(port->master->fsi, I2C_FSI_FIFO,
- 				      &msg->buf[port->xfrd], write);
- 		if (rc)
- 			return rc;
-@@ -294,12 +294,11 @@ static int fsi_i2c_write_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
- static int fsi_i2c_read_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
- 			     u8 fifo_count)
- {
--	int read;
--	int rc;
--	struct fsi_i2c_master *i2c = port->master;
--	int bytes_to_read;
- 	int xfr_remaining = msg->len - port->xfrd;
-+	int bytes_to_read;
- 	u32 dummy;
-+	int read;
-+	int rc;
- 
- 	bytes_to_read = min_t(int, fifo_count, xfr_remaining);
- 
-@@ -307,7 +306,7 @@ static int fsi_i2c_read_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
- 		read = fsi_i2c_get_op_bytes(bytes_to_read);
- 
- 		if (xfr_remaining) {
--			rc = fsi_device_read(i2c->fsi, I2C_FSI_FIFO,
-+			rc = fsi_device_read(port->master->fsi, I2C_FSI_FIFO,
- 					     &msg->buf[port->xfrd], read);
- 			if (rc)
- 				return rc;
-@@ -316,8 +315,8 @@ static int fsi_i2c_read_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
- 			xfr_remaining -= read;
- 		} else {
- 			/* no more buffer but data in fifo, need to clear it */
--			rc = fsi_device_read(i2c->fsi, I2C_FSI_FIFO, &dummy,
--					     read);
-+			rc = fsi_device_read(port->master->fsi, I2C_FSI_FIFO,
-+					     &dummy, read);
- 			if (rc)
- 				return rc;
- 		}
-@@ -330,85 +329,80 @@ static int fsi_i2c_read_fifo(struct fsi_i2c_port *port, struct i2c_msg *msg,
- 
- static int fsi_i2c_get_scl(struct i2c_adapter *adap)
- {
--	u32 stat = 0;
- 	struct fsi_i2c_port *port = adap->algo_data;
--	struct fsi_i2c_master *i2c = port->master;
-+	u32 stat;
- 
--	fsi_i2c_read_reg(i2c->fsi, I2C_FSI_STAT, &stat);
-+	fsi_i2c_read_reg(port->master->fsi, I2C_FSI_STAT, &stat);
- 
- 	return !!(stat & I2C_STAT_SCL_IN);
- }
- 
- static void fsi_i2c_set_scl(struct i2c_adapter *adap, int val)
- {
--	u32 dummy = 0;
- 	struct fsi_i2c_port *port = adap->algo_data;
--	struct fsi_i2c_master *i2c = port->master;
-+	u32 dummy = 0;
- 
- 	if (val)
--		fsi_i2c_write_reg(i2c->fsi, I2C_FSI_SET_SCL, &dummy);
-+		fsi_i2c_write_reg(port->master->fsi, I2C_FSI_SET_SCL, &dummy);
- 	else
--		fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_SCL, &dummy);
-+		fsi_i2c_write_reg(port->master->fsi, I2C_FSI_RESET_SCL, &dummy);
- }
- 
- static int fsi_i2c_get_sda(struct i2c_adapter *adap)
- {
--	u32 stat = 0;
- 	struct fsi_i2c_port *port = adap->algo_data;
--	struct fsi_i2c_master *i2c = port->master;
-+	u32 stat;
- 
--	fsi_i2c_read_reg(i2c->fsi, I2C_FSI_STAT, &stat);
-+	fsi_i2c_read_reg(port->master->fsi, I2C_FSI_STAT, &stat);
- 
- 	return !!(stat & I2C_STAT_SDA_IN);
- }
- 
- static void fsi_i2c_set_sda(struct i2c_adapter *adap, int val)
- {
--	u32 dummy = 0;
- 	struct fsi_i2c_port *port = adap->algo_data;
--	struct fsi_i2c_master *i2c = port->master;
-+	u32 dummy = 0;
- 
- 	if (val)
--		fsi_i2c_write_reg(i2c->fsi, I2C_FSI_SET_SDA, &dummy);
-+		fsi_i2c_write_reg(port->master->fsi, I2C_FSI_SET_SDA, &dummy);
- 	else
--		fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_SDA, &dummy);
-+		fsi_i2c_write_reg(port->master->fsi, I2C_FSI_RESET_SDA, &dummy);
- }
- 
- static void fsi_i2c_prepare_recovery(struct i2c_adapter *adap)
- {
--	int rc;
--	u32 mode;
- 	struct fsi_i2c_port *port = adap->algo_data;
--	struct fsi_i2c_master *i2c = port->master;
-+	u32 mode;
-+	int rc;
- 
--	rc = fsi_i2c_read_reg(i2c->fsi, I2C_FSI_MODE, &mode);
-+	rc = fsi_i2c_read_reg(port->master->fsi, I2C_FSI_MODE, &mode);
- 	if (rc)
- 		return;
- 
- 	mode |= I2C_MODE_DIAG;
--	fsi_i2c_write_reg(i2c->fsi, I2C_FSI_MODE, &mode);
-+	fsi_i2c_write_reg(port->master->fsi, I2C_FSI_MODE, &mode);
- }
- 
- static void fsi_i2c_unprepare_recovery(struct i2c_adapter *adap)
- {
--	int rc;
--	u32 mode;
- 	struct fsi_i2c_port *port = adap->algo_data;
--	struct fsi_i2c_master *i2c = port->master;
-+	u32 mode;
-+	int rc;
- 
--	rc = fsi_i2c_read_reg(i2c->fsi, I2C_FSI_MODE, &mode);
-+	rc = fsi_i2c_read_reg(port->master->fsi, I2C_FSI_MODE, &mode);
- 	if (rc)
- 		return;
- 
- 	mode &= ~I2C_MODE_DIAG;
--	fsi_i2c_write_reg(i2c->fsi, I2C_FSI_MODE, &mode);
-+	fsi_i2c_write_reg(port->master->fsi, I2C_FSI_MODE, &mode);
- }
- 
- static int fsi_i2c_reset_bus(struct fsi_i2c_master *i2c,
- 			     struct fsi_i2c_port *port)
- {
-+	u32 dummy = 0;
-+	u32 stat;
- 	int rc;
--	u32 stat, dummy = 0;
- 
- 	/* force bus reset, ignore errors */
- 	i2c_recover_bus(&port->adapter);
-@@ -439,8 +433,9 @@ static int fsi_i2c_reset_bus(struct fsi_i2c_master *i2c,
- 
- static int fsi_i2c_reset_engine(struct fsi_i2c_master *i2c, u16 port)
- {
-+	u32 dummy = 0;
-+	u32 mode;
- 	int rc;
--	u32 mode, dummy = 0;
- 
- 	/* reset engine */
- 	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_RESET_I2C, &dummy);
-@@ -476,18 +471,17 @@ static int fsi_i2c_reset_engine(struct fsi_i2c_master *i2c, u16 port)
- 
- static int fsi_i2c_abort(struct fsi_i2c_port *port, u32 status)
- {
--	int rc;
--	unsigned long start;
-+	struct fsi_i2c_master *i2c = port->master;
- 	u32 cmd = I2C_CMD_WITH_STOP;
-+	unsigned long start;
- 	u32 stat;
--	struct fsi_i2c_master *i2c = port->master;
--	struct fsi_device *fsi = i2c->fsi;
-+	int rc;
- 
- 	rc = fsi_i2c_reset_engine(i2c, port->port);
- 	if (rc)
- 		return rc;
- 
--	rc = fsi_i2c_read_reg(fsi, I2C_FSI_STAT, &stat);
-+	rc = fsi_i2c_read_reg(i2c->fsi, I2C_FSI_STAT, &stat);
- 	if (rc)
- 		return rc;
- 
-@@ -503,15 +497,14 @@ static int fsi_i2c_abort(struct fsi_i2c_port *port, u32 status)
- 		return 0;
- 
- 	/* write stop command */
--	rc = fsi_i2c_write_reg(fsi, I2C_FSI_CMD, &cmd);
-+	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_CMD, &cmd);
- 	if (rc)
- 		return rc;
- 
- 	/* wait until we see command complete in the master */
- 	start = jiffies;
+-/* Run the bus at maximum speed by default */
+-#define FSI_DIVISOR_DEFAULT            1
+-#define FSI_DIVISOR_CABLED             2
+-static u16 aspeed_fsi_divisor = FSI_DIVISOR_DEFAULT;
+-module_param_named(bus_div,aspeed_fsi_divisor, ushort, 0);
 -
- 	do {
--		rc = fsi_i2c_read_reg(fsi, I2C_FSI_STAT, &status);
-+		rc = fsi_i2c_read_reg(i2c->fsi, I2C_FSI_STAT, &status);
- 		if (rc)
- 			return rc;
+ #define OPB_POLL_TIMEOUT		500
  
-@@ -527,8 +520,8 @@ static int fsi_i2c_abort(struct fsi_i2c_port *port, u32 status)
- static int fsi_i2c_handle_status(struct fsi_i2c_port *port,
- 				 struct i2c_msg *msg, u32 status)
+ static int __opb_write(struct fsi_master_aspeed *aspeed, u32 addr,
+@@ -328,35 +320,6 @@ static int aspeed_master_write(struct fsi_master *master, int link,
+ 	return ret;
+ }
+ 
+-static int aspeed_master_link_enable(struct fsi_master *master, int link,
+-				     bool enable)
+-{
+-	struct fsi_master_aspeed *aspeed = to_fsi_master_aspeed(master);
+-	int idx, bit, ret;
+-	__be32 reg;
+-
+-	idx = link / 32;
+-	bit = link % 32;
+-
+-	reg = cpu_to_be32(0x80000000 >> bit);
+-
+-	mutex_lock(&aspeed->lock);
+-
+-	if (!enable) {
+-		ret = opb_writel(aspeed, ctrl_base + FSI_MCENP0 + (4 * idx), reg);
+-		goto done;
+-	}
+-
+-	ret = opb_writel(aspeed, ctrl_base + FSI_MSENP0 + (4 * idx), reg);
+-	if (ret)
+-		goto done;
+-
+-	mdelay(FSI_LINK_ENABLE_SETUP_TIME);
+-done:
+-	mutex_unlock(&aspeed->lock);
+-	return ret;
+-}
+-
+ static int aspeed_master_term(struct fsi_master *master, int link, uint8_t id)
  {
--	int rc;
- 	u8 fifo_count;
-+	int rc;
+ 	uint32_t addr;
+@@ -384,72 +347,33 @@ static void aspeed_master_release(struct device *dev)
+ 	struct fsi_master_aspeed *aspeed =
+ 		to_fsi_master_aspeed(to_fsi_master(dev));
  
- 	if (status & I2C_STAT_ERR) {
- 		rc = fsi_i2c_abort(port, status);
-@@ -576,9 +569,9 @@ static int fsi_i2c_handle_status(struct fsi_i2c_port *port,
- static int fsi_i2c_wait(struct fsi_i2c_port *port, struct i2c_msg *msg,
- 			unsigned long timeout)
++	regmap_exit(aspeed->master.map);
+ 	kfree(aspeed);
+ }
+ 
+-/* mmode encoders */
+-static inline u32 fsi_mmode_crs0(u32 x)
++static int regmap_aspeed_opb_read(void *context, unsigned int reg, unsigned int *val)
  {
--	u32 status = 0;
--	int rc;
- 	unsigned long start = jiffies;
-+	u32 status;
-+	int rc;
+-	return (x & FSI_MMODE_CRS0MASK) << FSI_MMODE_CRS0SHFT;
+-}
++	__be32 v;
++	int ret;
  
- 	do {
- 		rc = fsi_i2c_read_reg(port->master->fsi, I2C_FSI_STAT,
-@@ -608,13 +601,13 @@ static int fsi_i2c_wait(struct fsi_i2c_port *port, struct i2c_msg *msg,
- static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			int num)
+-static inline u32 fsi_mmode_crs1(u32 x)
+-{
+-	return (x & FSI_MMODE_CRS1MASK) << FSI_MMODE_CRS1SHFT;
++	ret = opb_readl(context, ctrl_base + reg, &v);
++	if (ret)
++		return ret;
++
++	*val = be32_to_cpu(v);
++	return 0;
+ }
+ 
+-static int aspeed_master_init(struct fsi_master_aspeed *aspeed)
++static int regmap_aspeed_opb_write(void *context, unsigned int reg, unsigned int val)
  {
--	int i, rc;
--	unsigned long start_time;
- 	struct fsi_i2c_port *port = adap->algo_data;
--	struct fsi_i2c_master *master = port->master;
-+	unsigned long start_time;
- 	struct i2c_msg *msg;
-+	int rc;
-+	int i;
+-	__be32 reg;
+-
+-	reg = cpu_to_be32(FSI_MRESP_RST_ALL_MASTER | FSI_MRESP_RST_ALL_LINK
+-			| FSI_MRESP_RST_MCR | FSI_MRESP_RST_PYE);
+-	opb_writel(aspeed, ctrl_base + FSI_MRESP0, reg);
+-
+-	/* Initialize the MFSI (hub master) engine */
+-	reg = cpu_to_be32(FSI_MRESP_RST_ALL_MASTER | FSI_MRESP_RST_ALL_LINK
+-			| FSI_MRESP_RST_MCR | FSI_MRESP_RST_PYE);
+-	opb_writel(aspeed, ctrl_base + FSI_MRESP0, reg);
+-
+-	reg = cpu_to_be32(FSI_MECTRL_EOAE | FSI_MECTRL_P8_AUTO_TERM);
+-	opb_writel(aspeed, ctrl_base + FSI_MECTRL, reg);
+-
+-	reg = cpu_to_be32(FSI_MMODE_ECRC | FSI_MMODE_EPC | FSI_MMODE_RELA
+-			| fsi_mmode_crs0(aspeed_fsi_divisor)
+-			| fsi_mmode_crs1(aspeed_fsi_divisor)
+-			| FSI_MMODE_P8_TO_LSB);
+-	dev_info(aspeed->dev, "mmode set to %08x (divisor %d)\n",
+-			be32_to_cpu(reg), aspeed_fsi_divisor);
+-	opb_writel(aspeed, ctrl_base + FSI_MMODE, reg);
+-
+-	reg = cpu_to_be32(0xffff0000);
+-	opb_writel(aspeed, ctrl_base + FSI_MDLYR, reg);
+-
+-	reg = cpu_to_be32(~0);
+-	opb_writel(aspeed, ctrl_base + FSI_MSENP0, reg);
+-
+-	/* Leave enabled long enough for master logic to set up */
+-	mdelay(FSI_LINK_ENABLE_SETUP_TIME);
+-
+-	opb_writel(aspeed, ctrl_base + FSI_MCENP0, reg);
+-
+-	opb_readl(aspeed, ctrl_base + FSI_MAEB, NULL);
+-
+-	reg = cpu_to_be32(FSI_MRESP_RST_ALL_MASTER | FSI_MRESP_RST_ALL_LINK);
+-	opb_writel(aspeed, ctrl_base + FSI_MRESP0, reg);
+-
+-	opb_readl(aspeed, ctrl_base + FSI_MLEVP0, NULL);
+-
+-	/* Reset the master bridge */
+-	reg = cpu_to_be32(FSI_MRESB_RST_GEN);
+-	opb_writel(aspeed, ctrl_base + FSI_MRESB0, reg);
+-
+-	reg = cpu_to_be32(FSI_MRESB_RST_ERR);
+-	opb_writel(aspeed, ctrl_base + FSI_MRESB0, reg);
+-
+-	return 0;
++	return opb_writel(context, ctrl_base + reg, cpu_to_be32(val));
+ }
  
--	mutex_lock(&master->lock);
-+	mutex_lock(&port->master->lock);
++static const struct regmap_bus regmap_aspeed_opb = {
++	.reg_write = regmap_aspeed_opb_write,
++	.reg_read = regmap_aspeed_opb_read,
++};
++
+ static ssize_t cfam_reset_store(struct device *dev, struct device_attribute *attr,
+ 				const char *buf, size_t count)
+ {
+@@ -521,14 +445,6 @@ static int tacoma_cabled_fsi_fixup(struct device *dev)
  
- 	rc = fsi_i2c_set_port(port);
- 	if (rc)
-@@ -635,7 +628,7 @@ static int fsi_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	/* If the routing GPIO is high we should set the mux to low. */
+ 	if (gpio) {
+-		/*
+-		 * Cable signal integrity means we should run the bus
+-		 * slightly slower. Do not override if a kernel param
+-		 * has already overridden.
+-		 */
+-		if (aspeed_fsi_divisor == FSI_DIVISOR_DEFAULT)
+-			aspeed_fsi_divisor = FSI_DIVISOR_CABLED;
+-
+ 		gpiod_direction_output(mux_gpio, 0);
+ 		dev_info(dev, "FSI configured for external cable\n");
+ 	} else {
+@@ -544,9 +460,10 @@ static int fsi_master_aspeed_probe(struct platform_device *pdev)
+ {
+ 	const struct fsi_master_aspeed_data *md = of_device_get_match_data(&pdev->dev);
+ 	u32 opb_retry_counter = md ? md->opb_retry_counter : OPB_RETRY_COUNTER_AST2600;
++	struct regmap_config aspeed_master_regmap_config;
+ 	struct fsi_master_aspeed *aspeed;
+-	int rc, links, reg;
+-	__be32 raw;
++	unsigned int reg;
++	int rc, links;
+ 
+ 	rc = tacoma_cabled_fsi_fixup(&pdev->dev);
+ 	if (rc) {
+@@ -606,13 +523,20 @@ static int fsi_master_aspeed_probe(struct platform_device *pdev)
+ 	 */
+ 	writel(0x1, aspeed->base + OPB0_SELECT);
+ 
+-	rc = opb_readl(aspeed, ctrl_base + FSI_MVER, &raw);
++	fsi_master_regmap_config(&aspeed_master_regmap_config);
++	aspeed->master.map = regmap_init(&pdev->dev, &regmap_aspeed_opb, aspeed,
++					 &aspeed_master_regmap_config);
++	if (IS_ERR(aspeed->master.map)) {
++		rc = PTR_ERR(aspeed->master.map);
++		goto err_release;
++	}
++
++	rc = regmap_read(aspeed->master.map, FSI_MVER, &reg);
+ 	if (rc) {
+ 		dev_err(&pdev->dev, "failed to read hub version\n");
+-		goto err_release;
++		goto err_regmap;
  	}
  
- unlock:
--	mutex_unlock(&master->lock);
-+	mutex_unlock(&port->master->lock);
- 	return rc ? : num;
- }
+-	reg = be32_to_cpu(raw);
+ 	links = (reg >> 8) & 0xff;
+ 	dev_info(&pdev->dev, "hub version %08x (%d links)\n", reg, links);
  
-@@ -681,8 +674,10 @@ static int fsi_i2c_probe(struct device *dev)
- 	struct fsi_i2c_master *i2c;
- 	struct fsi_i2c_port *port;
- 	struct device_node *np;
--	u32 port_no, ports, stat;
-+	u32 port_no;
-+	u32 ports;
- 	u32 lbus;
-+	u32 stat;
- 	int rc;
+@@ -621,20 +545,22 @@ static int fsi_master_aspeed_probe(struct platform_device *pdev)
+ 	aspeed->master.dev.of_node = of_node_get(dev_of_node(&pdev->dev));
  
- 	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
-@@ -753,14 +748,14 @@ static int fsi_i2c_probe(struct device *dev)
- 	}
+ 	aspeed->master.n_links = links;
++	aspeed->master.flags = FSI_MASTER_FLAG_RELA;
+ 	aspeed->master.read = aspeed_master_read;
+ 	aspeed->master.write = aspeed_master_write;
+ 	aspeed->master.send_break = aspeed_master_break;
+ 	aspeed->master.term = aspeed_master_term;
+-	aspeed->master.link_enable = aspeed_master_link_enable;
  
- 	dev_set_drvdata(dev, i2c);
--
+ 	dev_set_drvdata(&pdev->dev, aspeed);
+ 
+ 	mutex_init(&aspeed->lock);
+-	aspeed_master_init(aspeed);
++	rc = fsi_master_init(&aspeed->master, clk_get_rate(aspeed->clk));
++	if (rc)
++		goto err_regmap;
+ 
+ 	rc = fsi_master_register(&aspeed->master);
+ 	if (rc)
+-		goto err_release;
++		goto err_regmap;
+ 
+ 	/* At this point, fsi_master_register performs the device_initialize(),
+ 	 * and holds the sole reference on master.dev. This means the device
+@@ -646,6 +572,8 @@ static int fsi_master_aspeed_probe(struct platform_device *pdev)
+ 	get_device(&aspeed->master.dev);
  	return 0;
- }
  
- static int fsi_i2c_remove(struct device *dev)
- {
- 	struct fsi_i2c_master *i2c = dev_get_drvdata(dev);
--	struct fsi_i2c_port *port, *tmp;
-+	struct fsi_i2c_port *port;
-+	struct fsi_i2c_port *tmp;
- 
- 	list_for_each_entry_safe(port, tmp, &i2c->ports, list) {
- 		list_del(&port->list);
++err_regmap:
++	regmap_exit(aspeed->master.map);
+ err_release:
+ 	clk_disable_unprepare(aspeed->clk);
+ err_free_aspeed:
 -- 
 2.39.3
 
