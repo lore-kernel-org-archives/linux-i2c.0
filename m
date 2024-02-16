@@ -1,123 +1,141 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D319153BEA;
-	Thu, 15 Feb 2024 22:08:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80313EADD;
+	Fri, 16 Feb 2024 02:22:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708034924; cv=none; b=TxZZUrJJVEKH5myKmW/Ryz4SI48SnbGlyFFAYVeaRtZK/vYH2j6JyYf8iZdRqyUIsbHw+QUxVaFov+ckttMXwuEpmyEOHAYLyMmVQ9uTffNpN+oeWi4ja5lm2O2GeoKQjOdZ1avcsi/axSAedD+TAXINlNSQqd8SKonIwJppvP4=
+	t=1708050150; cv=none; b=AJt4l4FkzIRe2bqaBrPwP85j47Bk1rCUufNz2SKkBLgQRy2wcH5dt8KsOxiI8kU4Ae93+NNAo0Y8juA1IUvSnqcRUHz9PY0bUEbbqHjJVnIhN7neGRNP+K/ikQN23BzlfusLvwUlTp8BBQ4oeyzvVo3UxvAhcQTntFj86OdWd7o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708034924; c=relaxed/simple;
-	bh=dAwPkU5VJJMi4CHR0KERMlNXkq1qgmEceK78GEleApI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Y24w2J3wUVKfzisNJ8AAH3xHyCVPR915/sHaiTqr3ijRQXE3H3zuOaBrUNOliRyOn7uQIZgw2yn3Q8o0rXK7Dh3PXfm8aOIv8/Prq21bycbXq/yp7LLBMLFhNNzfuR8rsfJnWSLr5JbfS3D8K44Wzzac1N3VU2NrNnQWP6oAD10=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=MYzKRCpb; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1708050150; c=relaxed/simple;
+	bh=zg+Z3Wah5eTVPItwO6FJ2RVvEQEJ1NRiUkZF3MelZyk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CRXLvnamIvCjInnqoMRTLxgqAtyaOtW0xSj1p4OLssp/mX0Im7WjrjqDdjLN4PECPszYBC4vkVMT19VLGYJqwlId4luECkS6FGMIfdpzrjh6EAdHfKV5p2bhYHYzjnvwBTI/K7C2aIFjCw3ijqfFJItRebVeEzYXdgadigHwAVI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uiTloFP9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="MYzKRCpb"
-Received: from pps.filterd (m0353723.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41FKOUKR002266;
-	Thu, 15 Feb 2024 22:08:11 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=ODxH4flBsSxTPu7P+G7uqK/TVCCy2iNAP3r6LUGYLcU=;
- b=MYzKRCpbzj5vM0n9SuLEz6KxkpSWKxx4DHhsI27InPJzj9hjojjwCngGD5zMCR1cIXIi
- u/FMM1TrXM6QWv1qsDMOmwa+7/cNIpmhngTy2LO6V4GnAcrn6yFQ1f8g+vgVuyJwOrmE
- IxMeRsyKaab9yldzmw092Kmf+vXnP8BazcQ2axF+Vo8ot2C+3Z1G+w6AXnXrSSl/8Oq+
- bGIQmcnLuVicYubAtFG+ir8lMwcQ5c7J4vMHZCn2rVxmsHgUE4bBoV32atWUQ7qH8ibo
- gk1xtEZwrcNsbvWFl4yUtGUBKHnmwMErbx08zXRP1X6b4dJai0gUg6maTkoYsofAuifG AQ== 
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3w9q8n597m-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 Feb 2024 22:08:10 +0000
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41FJ6raS032589;
-	Thu, 15 Feb 2024 22:08:09 GMT
-Received: from smtprelay07.wdc07v.mail.ibm.com ([172.16.1.74])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3w6kftyudr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 15 Feb 2024 22:08:09 +0000
-Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
-	by smtprelay07.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41FM86Vs28246772
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 Feb 2024 22:08:08 GMT
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 6C4B658068;
-	Thu, 15 Feb 2024 22:08:04 +0000 (GMT)
-Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 221995807C;
-	Thu, 15 Feb 2024 22:08:04 +0000 (GMT)
-Received: from slate16.aus.stglabs.ibm.com (unknown [9.61.14.18])
-	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 15 Feb 2024 22:08:04 +0000 (GMT)
-From: Eddie James <eajames@linux.ibm.com>
-To: linux-fsi@lists.ozlabs.org
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-clk@vger.kernel.org, devicetree@vger.kernel.org,
-        andi.shyti@kernel.org, eajames@linux.ibm.com, alistair@popple.id.au,
-        joel@jms.id.au, jk@ozlabs.org, sboyd@kernel.org,
-        mturquette@baylibre.com, robh@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org
-Subject: [PATCH 07/33] ARM: dts: aspeed: p10 and tacoma: Set FSI clock frequency
-Date: Thu, 15 Feb 2024 16:07:33 -0600
-Message-Id: <20240215220759.976998-8-eajames@linux.ibm.com>
-X-Mailer: git-send-email 2.39.3
-In-Reply-To: <20240215220759.976998-1-eajames@linux.ibm.com>
-References: <20240215220759.976998-1-eajames@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uiTloFP9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1DA0C433C7;
+	Fri, 16 Feb 2024 02:22:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1708050150;
+	bh=zg+Z3Wah5eTVPItwO6FJ2RVvEQEJ1NRiUkZF3MelZyk=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=uiTloFP9XrJcN+hTsBncpqBBToqTcyRkpfQGYFEb7jX0T6QhJLr7dhhforheQ1OnY
+	 hOKsoQYD15EtK1JanYTgt3QHZ66GXGMFVjaodGoA+hVZTDB8i3cDm50tn4rDrRDbuq
+	 bsbTV5XbS0NnZDxIeXvN8ozdK2TvKfgaVor2pNNmJ9ccHVKtkxKhdz5D0/3mgLs3cA
+	 +wWfH/4Vhm6XSxA6YKT5gqvXUsDBc1JsWvAZOA7PxsYYUZrvPIe908+NGC8JCQ3dDj
+	 H2dBs4ws3mEIEtEN4VLkciePiNEhwKKHP7zmoADBNVWac1UEnNZjWtCwfyzP7O7D3q
+	 tx3uV9IaevnjA==
+Date: Thu, 15 Feb 2024 20:22:27 -0600
+From: Rob Herring <robh@kernel.org>
+To: =?iso-8859-1?Q?Th=E9o?= Lebrun <theo.lebrun@bootlin.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-mips@vger.kernel.org,
+	Gregory Clement <gregory.clement@bootlin.com>,
+	Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+	Tawfik Bayouk <tawfik.bayouk@mobileye.com>
+Subject: Re: [PATCH 02/13] dt-bindings: i2c: nomadik: add mobileye,eyeq5-i2c
+ bindings and example
+Message-ID: <20240216022227.GA850600-robh@kernel.org>
+References: <20240215-mbly-i2c-v1-0-19a336e91dca@bootlin.com>
+ <20240215-mbly-i2c-v1-2-19a336e91dca@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Ik0cGHrb8l2VvYEzn685OGUWkJ05c1C8
-X-Proofpoint-ORIG-GUID: Ik0cGHrb8l2VvYEzn685OGUWkJ05c1C8
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
- definitions=2024-02-15_20,2024-02-14_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 mlxlogscore=783
- impostorscore=0 adultscore=0 suspectscore=0 bulkscore=0 spamscore=0
- lowpriorityscore=0 malwarescore=0 priorityscore=1501 mlxscore=0
- phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2311290000 definitions=main-2402150171
+In-Reply-To: <20240215-mbly-i2c-v1-2-19a336e91dca@bootlin.com>
 
-Now that the driver doesn't hardcode the clock divider, set it
-in the device tree.
+On Thu, Feb 15, 2024 at 05:52:09PM +0100, Théo Lebrun wrote:
+> Add EyeQ5 bindings to the existing Nomadik I2C dt-bindings. Add the two
+> EyeQ5-specific properties behind a conditional. Add an example for this
+> compatible.
+> 
+> Signed-off-by: Théo Lebrun <theo.lebrun@bootlin.com>
+> ---
+>  .../devicetree/bindings/i2c/st,nomadik-i2c.yaml    | 44 ++++++++++++++++++++--
+>  1 file changed, 40 insertions(+), 4 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml b/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
+> index e6b95e3765ac..eaade14b6d4c 100644
+> --- a/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
+> +++ b/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
+> @@ -14,9 +14,6 @@ description: The Nomadik I2C host controller began its life in the ST
+>  maintainers:
+>    - Linus Walleij <linus.walleij@linaro.org>
+>  
+> -allOf:
+> -  - $ref: /schemas/i2c/i2c-controller.yaml#
+> -
+>  # Need a custom select here or 'arm,primecell' will match on lots of nodes
+>  select:
+>    properties:
+> @@ -24,6 +21,7 @@ select:
+>        contains:
+>          enum:
+>            - st,nomadik-i2c
+> +          - mobileye,eyeq5-i2c
+>    required:
+>      - compatible
+>  
+> @@ -39,6 +37,10 @@ properties:
+>            - const: stericsson,db8500-i2c
+>            - const: st,nomadik-i2c
+>            - const: arm,primecell
+> +      # The variant found on Mobileye EyeQ5
+> +      - items:
+> +          - const: mobileye,eyeq5-i2c
+> +          - const: arm,primecell
+>  
+>    reg:
+>      maxItems: 1
+> @@ -55,7 +57,7 @@ properties:
+>        - items:
+>            - const: mclk
+>            - const: apb_pclk
+> -      # Clock name in DB8500
+> +      # Clock name in DB8500 or EyeQ5
+>        - items:
+>            - const: i2cclk
+>            - const: apb_pclk
+> @@ -83,6 +85,25 @@ required:
+>  
+>  unevaluatedProperties: false
+>  
+> +allOf:
+> +  - $ref: /schemas/i2c/i2c-controller.yaml#
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          contains:
+> +            const: mobileye,eyeq5-i2c
+> +    then:
+> +      properties:
+> +        mobileye,olb:
+> +          $ref: /schemas/types.yaml#/definitions/phandle
+> +          description: A phandle to the OLB syscon.
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
----
- arch/arm/boot/dts/aspeed/aspeed-bmc-opp-tacoma.dts | 1 +
- arch/arm/boot/dts/aspeed/ibm-power10-dual.dtsi     | 1 +
- 2 files changed, 2 insertions(+)
+Define properties at the top-level and then restrict them in if/then 
+schemas.
 
-diff --git a/arch/arm/boot/dts/aspeed/aspeed-bmc-opp-tacoma.dts b/arch/arm/boot/dts/aspeed/aspeed-bmc-opp-tacoma.dts
-index 213023bc5aec..96a8f727bc38 100644
---- a/arch/arm/boot/dts/aspeed/aspeed-bmc-opp-tacoma.dts
-+++ b/arch/arm/boot/dts/aspeed/aspeed-bmc-opp-tacoma.dts
-@@ -193,6 +193,7 @@ &fsim0 {
- 	#address-cells = <2>;
- 	#size-cells = <0>;
- 
-+	clock-frequency = <100000000>;
- 	fsi-routing-gpios = <&gpio0 ASPEED_GPIO(Q, 7) GPIO_ACTIVE_HIGH>;
- 	fsi-mux-gpios = <&gpio0 ASPEED_GPIO(B, 0) GPIO_ACTIVE_HIGH>;
- 
-diff --git a/arch/arm/boot/dts/aspeed/ibm-power10-dual.dtsi b/arch/arm/boot/dts/aspeed/ibm-power10-dual.dtsi
-index cc466910bb52..a93a241d005a 100644
---- a/arch/arm/boot/dts/aspeed/ibm-power10-dual.dtsi
-+++ b/arch/arm/boot/dts/aspeed/ibm-power10-dual.dtsi
-@@ -8,6 +8,7 @@ &fsim0 {
- 	#size-cells = <0>;
- 
- 	cfam-reset-gpios = <&gpio0 ASPEED_GPIO(Q, 0) GPIO_ACTIVE_HIGH>;
-+	clock-frequency = <100000000>;
- 
- 	cfam@0,0 {
- 		reg = <0 0>;
--- 
-2.39.3
+> +        mobileye,id:
+> +          $ref: /schemas/types.yaml#/definitions/uint32
+> +          description: Platform-wide controller ID (integer starting from zero).
 
+instance indexes are a NAK. You can use i2cN aliases if you must.
+
+Why do you need it? To access OLB? If so, add cell args to the OLB 
+phandle instead.
+
+Rob
