@@ -1,57 +1,57 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 378E51353E8;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED15F135A43;
 	Mon, 26 Feb 2024 16:54:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708966442; cv=none; b=U9QyCcGsG78eJqUskvlCs7daadkMqwqRhXSwAMu8ODMKvxlyaDtGxMYiMeZiTU3BGzhupft+Ss0RHRMtxeOci2foqLzovEA2wdOp5kwuFFoCMJSw7vofO0Hn/KdkyQBNf12jWzjidnu1/mPO2ChRhRDL9FHTJf5I7DoZfY6Evm4=
+	t=1708966442; cv=none; b=RpPsoo1lpPJKgoJ9RsAOxfDeY0nKzi6MzMnu4uQhYyM3mEanDN1yFrYIAZuNgoO+Q4nvvh3ftyQy1OMKPX2pQlYpOb24kXcQa95bxcduXbBzOxBfL2UfvxPBip2afqd2KXmEty8mdf65m5xqpQYypSABuXB0L7BirMEYL/axl+8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1708966442; c=relaxed/simple;
-	bh=T+M2Nn1CbVzGiWWZ25GQh8RxyvzQFAsyFI0vKdVAGuc=;
+	bh=6ORCo3+k9OdhTzhZOX/OvaI7dLnhbXmu+cXgKL7siCc=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=kc4OIru2uCSzOMkS3qV4XL8pVID6wLT/cSYSSejCG2gmLzteggIGReYUIUYKv2rEZqCN+l/RVtgVDhUjdqp9Y8/46cFHaCyXyU2g+F/ap6Zbvp3wbG73frKth8FV3TiWir0BGYZJjuxbtmvjmsqHLg1xHw17oBRCgLX4yw5Wd5Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OGL/k54Z; arc=none smtp.client-ip=148.163.158.5
+	 MIME-Version; b=rH8rSJr4QezWnrffgaKaJ9xD7KGs59WnnW2iCNMv6d/fEBp/pW89WvSTXJaCHy8K0M15K232LvBd4bhxifCYVWxqlC6D+BJ98ltUrGsFwQGDeqB5jzTNAQ53uMOJIrFI+iFfkVtmVgt4oe3lUCBMkMpBgrhuPYRqGdMUP4usISo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=bNogvbta; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OGL/k54Z"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41QGSDtg014784;
-	Mon, 26 Feb 2024 16:53:46 GMT
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="bNogvbta"
+Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 41QG12KX018630;
+	Mon, 26 Feb 2024 16:53:51 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
  : date : message-id : in-reply-to : references : mime-version :
  content-transfer-encoding; s=pp1;
- bh=0qbOHG7gDL7BluVHG6aIFuWkCkqtnciMO6tHFzvcS9c=;
- b=OGL/k54Za+Oi+Ik9UMAZN1dYIHrAG7YQzCySyQaf5UnXUZCWg6LF40yFVtQm1hZ1JfR3
- IuxVtXlXADkOVq2JgkLNnoRf9yg18DKi5x1vuoTWSDOcT0b3qZUxlPAbqxkD4OZU2pE8
- GESoxCq5XaCI9PuJj2asZVsYwfwSBttiEh0K+LTbI4YlD8K7cjoEDd3jIuI2JgoV8+f3
- fGMp1UZWnn4AnE7cPOnI+F4kbbGG8vvK+JD6gz2YIH8cxuS0yNkuZ+xh/n0REgNEnkLg
- 4yXL1Vt/eMezBraH0xiqrf88LLaU/hNOcBIVsDeir80fDiDqSfaTB2UUKkL3Pg0RRhrm Lg== 
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wgx6g8nv7-1
+ bh=jHq/vBDBbZBSuhSZdVDjxpYwsAaHsSkR8YTxz+PKabo=;
+ b=bNogvbtaSA5C+ilSm/CEZHEW6K4gJdQQcdVBLJuP1jYpYCU6gsh17yWs7cXC8vw8Rkk1
+ pRv8EW0IwA8VWfYC/zQgshUNkwUx2sX43OUiDv+mnm5qDwawY7DBjPu1AYfSKlvK+TIO
+ 5TxqtP6gWrlNHpRc4pvQLZxFoqmKnIfs5yVk9HsHU5i7M5Dc88dtDhfkm55tOU/DJ6eq
+ MUOfbC1rAWqfUB0na+0DmolXPxp7dHZ00HljXjEKR17ijRyXv/K7FvP33USJA6yT7vlG
+ YTsPNA3zGfLQ5JfpNbbkASN7XdQAR2iT9+85HnKk8pLHOPLRHCpugp0SLoUaRuum8hJN wQ== 
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3wgw0k35dk-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 Feb 2024 16:53:46 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41QFvbid012371;
-	Mon, 26 Feb 2024 16:53:45 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3wfwg21xx9-1
+	Mon, 26 Feb 2024 16:53:50 +0000
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 41QGgnTt021728;
+	Mon, 26 Feb 2024 16:53:49 GMT
+Received: from smtprelay06.wdc07v.mail.ibm.com ([172.16.1.73])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3wfu5ytksd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 26 Feb 2024 16:53:45 +0000
+	Mon, 26 Feb 2024 16:53:49 +0000
 Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41QGrgQt18481720
+	by smtprelay06.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 41QGrkUl21103192
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 26 Feb 2024 16:53:45 GMT
+	Mon, 26 Feb 2024 16:53:49 GMT
 Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DFE8B58061;
-	Mon, 26 Feb 2024 16:53:42 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id DA5BE58059;
+	Mon, 26 Feb 2024 16:53:46 +0000 (GMT)
 Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 336E558053;
-	Mon, 26 Feb 2024 16:53:42 +0000 (GMT)
+	by IMSVA (Postfix) with ESMTP id 2E2025805D;
+	Mon, 26 Feb 2024 16:53:46 +0000 (GMT)
 Received: from slate16.aus.stglabs.ibm.com (unknown [9.61.57.130])
 	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 26 Feb 2024 16:53:42 +0000 (GMT)
+	Mon, 26 Feb 2024 16:53:46 +0000 (GMT)
 From: Eddie James <eajames@linux.ibm.com>
 To: linux-fsi@lists.ozlabs.org
 Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
@@ -59,9 +59,9 @@ Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
         eajames@linux.ibm.com, alistair@popple.id.au, joel@jms.id.au,
         jk@ozlabs.org, robh@kernel.org, krzysztof.kozlowski+dt@linaro.org,
         conor+dt@kernel.org, lakshmiy@us.ibmcom
-Subject: [PATCH v2 25/31] i2c: fsi: Calculate clock divider from local bus frequency
-Date: Mon, 26 Feb 2024 10:53:15 -0600
-Message-Id: <20240226165321.91976-26-eajames@linux.ibm.com>
+Subject: [PATCH v2 30/31] i2c: fsi: Add boolean for skip stop command on abort
+Date: Mon, 26 Feb 2024 10:53:20 -0600
+Message-Id: <20240226165321.91976-31-eajames@linux.ibm.com>
 X-Mailer: git-send-email 2.39.3
 In-Reply-To: <20240226165321.91976-1-eajames@linux.ibm.com>
 References: <20240226165321.91976-1-eajames@linux.ibm.com>
@@ -73,87 +73,95 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Qx9NO90-TIrXxkEaxq-0tWytwCPDqHVy
-X-Proofpoint-ORIG-GUID: Qx9NO90-TIrXxkEaxq-0tWytwCPDqHVy
+X-Proofpoint-GUID: XYAcP_qZUe-CGT6_iSEUR-llXo9h3YtH
+X-Proofpoint-ORIG-GUID: XYAcP_qZUe-CGT6_iSEUR-llXo9h3YtH
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
  definitions=2024-02-26_11,2024-02-26_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- suspectscore=0 clxscore=1015 bulkscore=0 spamscore=0 mlxlogscore=987
- priorityscore=1501 adultscore=0 phishscore=0 impostorscore=0 mlxscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 malwarescore=0
+ clxscore=1015 impostorscore=0 lowpriorityscore=0 priorityscore=1501
+ spamscore=0 suspectscore=0 phishscore=0 bulkscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2311290000 definitions=main-2402260128
 
-Use the new FSI device local bus clock to calculate the proper
-i2c clock divder and look up an optional clock-frequency property
-from device tree. Change the default clock divider to 7 now that
-the default local bus clock divider has been reduced as well.
+In preparation for interrupt support, store whether to skip the
+final stop command during the abort procedure instead of checking
+the previously read status register in the abort function.
 
 Signed-off-by: Eddie James <eajames@linux.ibm.com>
 ---
- drivers/i2c/busses/i2c-fsi.c | 21 +++++++++++++++++++--
- 1 file changed, 19 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-fsi.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
-index 10332693edf0..eaecf156ac31 100644
+index 5f524fb6f0f8..33f4e64cb60b 100644
 --- a/drivers/i2c/busses/i2c-fsi.c
 +++ b/drivers/i2c/busses/i2c-fsi.c
-@@ -27,7 +27,8 @@
+@@ -116,6 +116,9 @@
+ #define I2C_STAT_ANY_RESP	(I2C_STAT_ERR |				\
+ 				 I2C_STAT_DAT_REQ |			\
+ 				 I2C_STAT_CMD_COMP)
++#define I2C_STAT_SKIP_STOP	(I2C_STAT_PARITY |			\
++				 I2C_STAT_LOST_ARB |			\
++				 I2C_STAT_STOP_ERR)
  
- #define FSI_ENGID_I2C		0x7
- 
--#define I2C_DEFAULT_CLK_DIV	6
-+#define I2C_DEFAULT_CLK_DIV	7
-+#define I2C_DEFAULT_CLK_RATE	400000
- 
- /* i2c registers */
- #define I2C_FSI_FIFO		0x00
-@@ -150,6 +151,7 @@ struct fsi_i2c_master {
- 	u8			fifo_size;
- 	struct list_head	ports;
+ /* extended status register */
+ #define I2C_ESTAT_FIFO_SZ	GENMASK(31, 24)
+@@ -150,6 +153,7 @@ struct fsi_i2c_master {
  	struct mutex		lock;
-+	u32			clock_div;
+ 	u32			clock_div;
+ 	u8			fifo_size;
++	bool			skip_stop;
  };
  
  struct fsi_i2c_port {
-@@ -194,7 +196,7 @@ static int fsi_i2c_dev_init(struct fsi_i2c_master *i2c)
- 	if (rc)
- 		return rc;
+@@ -459,31 +463,30 @@ static int fsi_i2c_reset_engine(struct fsi_i2c_master *i2c, u16 port)
+ 	return 0;
+ }
  
--	mode |= FIELD_PREP(I2C_MODE_CLKDIV, I2C_DEFAULT_CLK_DIV);
-+	mode |= FIELD_PREP(I2C_MODE_CLKDIV, i2c->clock_div);
- 	rc = fsi_i2c_write_reg(i2c->fsi, I2C_FSI_MODE, &mode);
- 	if (rc)
- 		return rc;
-@@ -680,6 +682,7 @@ static int fsi_i2c_probe(struct device *dev)
- 	struct fsi_i2c_port *port;
- 	struct device_node *np;
- 	u32 port_no, ports, stat;
-+	u32 lbus;
+-static int fsi_i2c_abort(struct fsi_i2c_port *port, u32 status)
++static int fsi_i2c_abort(struct fsi_i2c_port *port)
+ {
+ 	struct fsi_i2c_master *i2c = port->master;
+ 	u32 cmd = I2C_CMD_WITH_STOP;
+ 	unsigned long start;
+-	u32 stat;
++	u32 status;
  	int rc;
  
- 	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
-@@ -689,6 +692,20 @@ static int fsi_i2c_probe(struct device *dev)
- 	mutex_init(&i2c->lock);
- 	i2c->fsi = to_fsi_dev(dev);
- 	INIT_LIST_HEAD(&i2c->ports);
-+	i2c->clock_div = I2C_DEFAULT_CLK_DIV;
-+
-+	lbus = fsi_device_local_bus_frequency(i2c->fsi);
-+	if (lbus) {
-+		u32 clock = I2C_DEFAULT_CLK_RATE;
-+
-+		if (!device_property_read_u32(dev, "clock-frequency", &clock)) {
-+			if (!clock)
-+				clock = I2C_DEFAULT_CLK_RATE;
-+		}
-+
-+		// i2c clock rate = local bus clock / (4 * (i2c clock div + 1))
-+		i2c->clock_div = (((lbus + (clock - 1)) / clock) / 4) - 1;
-+	}
- 
- 	rc = fsi_i2c_dev_init(i2c);
+ 	rc = fsi_i2c_reset_engine(i2c, port->port);
  	if (rc)
+ 		return rc;
+ 
+-	rc = fsi_i2c_read_reg(i2c->fsi, I2C_FSI_STAT, &stat);
++	rc = fsi_i2c_read_reg(i2c->fsi, I2C_FSI_STAT, &status);
+ 	if (rc)
+ 		return rc;
+ 
+ 	/* if sda is low, peform full bus reset */
+-	if (!(stat & I2C_STAT_SDA_IN)) {
++	if (!(status & I2C_STAT_SDA_IN)) {
+ 		rc = fsi_i2c_reset_bus(i2c, port);
+ 		if (rc)
+ 			return rc;
+ 	}
+ 
+-	/* skip final stop command for these errors */
+-	if (status & (I2C_STAT_PARITY | I2C_STAT_LOST_ARB | I2C_STAT_STOP_ERR))
++	if (i2c->skip_stop)
+ 		return 0;
+ 
+ 	/* write stop command */
+@@ -534,7 +537,8 @@ static int fsi_i2c_handle_status(struct fsi_i2c_port *port,
+ 	int rc;
+ 
+ 	if (status & I2C_STAT_ERR) {
+-		rc = fsi_i2c_abort(port, status);
++		port->master->skip_stop = status & I2C_STAT_SKIP_STOP;
++		rc = fsi_i2c_abort(port);
+ 		if (rc)
+ 			return rc;
+ 
 -- 
 2.39.3
 
