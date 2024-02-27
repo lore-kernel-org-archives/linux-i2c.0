@@ -1,46 +1,45 @@
-Received: from 17.mo583.mail-out.ovh.net (17.mo583.mail-out.ovh.net [46.105.56.132])
+Received: from 7.mo575.mail-out.ovh.net (7.mo575.mail-out.ovh.net [46.105.63.230])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1BCC4C6F
-	for <linux-i2c@vger.kernel.org>; Tue, 27 Feb 2024 01:27:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.105.56.132
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0190A4C7C
+	for <linux-i2c@vger.kernel.org>; Tue, 27 Feb 2024 01:28:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.105.63.230
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1708997279; cv=none; b=guOLGAWS2j6wr4/dhxwmyHss6dhzbfK007Pua4DCCnWP/mxLTAd6hTxqAvfS7WqfCx9j8NXtJThkFI6KlP6EsbYcC5sJRV6aI4Y96JTM1B2aqHLshg6kNL3D8nps7QdwBGqDJdeicXaLyMVJUsSKt1jW3U8ASK0ne1f0LcuuTrI=
+	t=1708997330; cv=none; b=SZ1r79sDZQOJOvebahyOqGtPkhHsxOL5xWkZf3WbW/MS7C3k7TwwiDi/i9HpQQW0k4GpCqJ4FO/+53Qeg5X3IO4GD2l7oLEIKwtREl+nZE2PXotPpKZDPZ+HFqW05NJUk4HYGmovtkHpUEiXVJQvxDyPrCU5q9yjLmn0qW4LQPI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1708997279; c=relaxed/simple;
-	bh=b0rYrIvZ2PxxtMVqAv6cvqq7svsw2UjpEiw6r+xa4/E=;
+	s=arc-20240116; t=1708997330; c=relaxed/simple;
+	bh=9maIj3scRE3rvmOZnTWx6mL+LNJKZlpMtlaikbatFF0=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=KEAW4LTGIpEmT9hazsZp4mcGhIGDUVovxdn6ZZNEND1QAlpFUpgDTx8pmlNUkD4/O8USPXe6ywPMUycNB8xMsvETXBH8FaqoI3E1ieBR1sKwU4nE4XT6nw4hQ9Fms2jJGn+UoxSuLreiUgG8fJR1/A+y1pm/Ifv5VMeeZOPZRhI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=46.105.56.132
+	 MIME-Version:Content-Type; b=GEVBr5Vc4AH2+7gYQqUVgK9E8ahtiTNcX7qz3Ud/tHyBi1vljfBy7JHOqm246N9eYKDN/iJ+aiQNij9LxAy+T7mnaoRyaDpR9m4heKP71Xsn0+NWgvml1BVHnGMvWovl0zKeU+RKbFSUopfaBZ0m3HnTrjv/0ywLdiBafdqspHs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=46.105.63.230
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director2.ghost.mail-out.ovh.net (unknown [10.108.2.205])
-	by mo583.mail-out.ovh.net (Postfix) with ESMTP id 4TkKSy6v2wz1FHN
-	for <linux-i2c@vger.kernel.org>; Tue, 27 Feb 2024 01:21:38 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-ktckq (unknown [10.110.113.175])
-	by director2.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 445E91FD7C;
-	Tue, 27 Feb 2024 01:21:35 +0000 (UTC)
-Received: from etezian.org ([37.59.142.105])
-	by ghost-submission-6684bf9d7b-ktckq with ESMTPSA
-	id 3bEUDh853WW1TAkA7T8CUA
-	(envelope-from <andi@etezian.org>); Tue, 27 Feb 2024 01:21:35 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-105G0061aec5354-f92c-4587-a66e-e47a930129e2,
+Received: from director3.ghost.mail-out.ovh.net (unknown [10.108.2.115])
+	by mo575.mail-out.ovh.net (Postfix) with ESMTP id 4TkKTH1BRqz1S7j
+	for <linux-i2c@vger.kernel.org>; Tue, 27 Feb 2024 01:21:55 +0000 (UTC)
+Received: from ghost-submission-6684bf9d7b-lwnjp (unknown [10.110.96.65])
+	by director3.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 90F361FD2D;
+	Tue, 27 Feb 2024 01:21:53 +0000 (UTC)
+Received: from etezian.org ([37.59.142.96])
+	by ghost-submission-6684bf9d7b-lwnjp with ESMTPSA
+	id iD0THTE53WUzjAAAMhl46g
+	(envelope-from <andi@etezian.org>); Tue, 27 Feb 2024 01:21:53 +0000
+Authentication-Results:garm.ovh; auth=pass (GARM-96R001a1306533-5422-4a00-a40e-cbb557c37a92,
                     9285090D84508773EC2C25A4099646E261C64314) smtp.auth=andi@etezian.org
 X-OVh-ClientIp:89.217.109.169
 From: Andi Shyti <andi.shyti@kernel.org>
-To: wsa+renesas@sang-engineering.com, aisheng.dong@nxp.com, 
- robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org, conor+dt@kernel.org, 
- shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, 
- festevam@gmail.com, "Peng Fan (OSS)" <peng.fan@oss.nxp.com>
-Cc: linux-imx@nxp.com, linux-i2c@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- linux-kernel@vger.kernel.org, Peng Fan <peng.fan@nxp.com>, 
- Conor Dooley <conor.dooley@microchip.com>
-In-Reply-To: <20240226070910.3379108-1-peng.fan@oss.nxp.com>
-References: <20240226070910.3379108-1-peng.fan@oss.nxp.com>
-Subject: Re: [PATCH V2] dt-bindings: i2c: imx-lpi2c: add i.MX95 LPI2C
-Message-Id: <170899689466.412407.9784756949191982375.b4-ty@kernel.org>
-Date: Tue, 27 Feb 2024 02:21:34 +0100
+To: linux-i2c@vger.kernel.org, 
+ Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
+ Mika Westerberg <mika.westerberg@linux.intel.com>, 
+ Jan Dabros <jsd@semihalf.com>, Jiawen Wu <jiawenwu@trustnetic.com>, 
+ Sanket Goswami <Sanket.Goswami@amd.com>, 
+ Basavaraj Natikar <Basavaraj.Natikar@amd.com>, michael.j.ruhl@intel.com
+In-Reply-To: <20240213124847.672084-1-jarkko.nikula@linux.intel.com>
+References: <20240213124847.672084-1-jarkko.nikula@linux.intel.com>
+Subject: Re: [PATCH v3 0/6] i2c: designware: Generic polling mode code
+Message-Id: <170899691236.412407.7251512012317912593.b4-ty@kernel.org>
+Date: Tue, 27 Feb 2024 02:21:52 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -50,18 +49,26 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 X-Mailer: b4 0.13.0
-X-Ovh-Tracer-Id: 4116853009816291852
+X-Ovh-Tracer-Id: 4121638084982999631
 X-VR-SPAMSTATE: OK
 X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvledrgeefgdeffecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevjghfuffkffggtgfgofesthejredtredtjeenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepffetheduffdvhfdugfffudfgjeejudehheegfeeguefhieeugffhgfeuffdvgfefnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepuddvjedrtddrtddruddpkeelrddvudejrddutdelrdduieelpdefjedrheelrddugedvrddutdehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehkeefpdhmohguvgepshhmthhpohhuth
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvledrgeefgdeffecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevjghfuffkffggtgfgofesthejredtredtjeenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepffetheduffdvhfdugfffudfgjeejudehheegfeeguefhieeugffhgfeuffdvgfefnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepuddvjedrtddrtddruddpkeelrddvudejrddutdelrdduieelpdefjedrheelrddugedvrdelieenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomheprghnughisegvthgviihirghnrdhorhhgpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheejhedpmhhouggvpehsmhhtphhouhht
 
 Hi
 
-On Mon, 26 Feb 2024 15:09:10 +0800, Peng Fan (OSS) wrote:
-> Add i.MX95 LPI2C compatible entry, same as i.MX93 compatible
-> with i.MX7ULP.
+On Tue, 13 Feb 2024 14:48:41 +0200, Jarkko Nikula wrote:
+> I hope you could give a quick test to this patchset to see it won't cause
+> regression on your HW. This is mostly the same than the first version what
+> Jiawen tested earlier but in this 3rd version I decided to drop semphore
+> touching code patches from v2 due they being out of scope and fix a few
+> things noted by Andy.
 > 
+> Changes are in the patch 3/6 with two minor fixes to comments while moving
+> them and the patch 6/6 where i2c_dw_wait_transfer() is slightly modified
+> by Andy's suggestion plus I decided to remove one comment which became
+> unclear after this patch.
 > 
+> [...]
 
 Applied to i2c/i2c-host on
 
@@ -72,6 +79,16 @@ Andi
 
 Patches applied
 ===============
-[1/1] dt-bindings: i2c: imx-lpi2c: add i.MX95 LPI2C
-      commit: 2a8d18cd63dc5175c67a42fe8cb7cd3cd465d845
+[1/6] i2c: designware: Uniform initialization flow for polling mode
+      commit: 535677e44d57a31e1363529b5ecddb92653d7136
+[2/6] i2c: designware: Do not enable interrupts shortly in polling mode
+      commit: 64b6426a6e97a95c044fd2fff3f0adf7c1edb60c
+[3/6] i2c: designware: Use accessors to DW_IC_INTR_MASK register
+      commit: 04c71da4a9f4eef94bec153ed667d105dacffda3
+[4/6] i2c: designware: Move interrupt handling functions before i2c_dw_xfer()
+      commit: bd002efaa16e4cfffc25db2d9c4669aaa2b43646
+[5/6] i2c: designware: Fix RX FIFO depth define on Wangxun 10Gb NIC
+      commit: c94612a72ac87b0337a0d85b9263266776ed4190
+[6/6] i2c: designware: Implement generic polling mode code for Wangxun 10Gb NIC
+      commit: 197ecadad842855437a36ffc161648418ae02a97
 
