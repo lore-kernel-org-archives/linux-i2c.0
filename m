@@ -1,96 +1,74 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from 11.mo582.mail-out.ovh.net (11.mo582.mail-out.ovh.net [188.165.38.119])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4867A136995
-	for <linux-i2c@vger.kernel.org>; Wed,  6 Mar 2024 16:54:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BE9F5D48F
+	for <linux-i2c@vger.kernel.org>; Wed,  6 Mar 2024 17:50:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.165.38.119
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709744075; cv=none; b=iw1mjLyCozhCBZZJlmMmgKFGlNe4XkrkD0L0Fm805FVZxIkOs7peK+IOQa4duKRqiHn6K2FJQxvFYIvkR6lee0OpPfH+3kG6sXgElwplqsKPd1bOXEUDu22lzfhzdVu10AD71u2Fw/mATkl/qe1Ct2uGm2Eu3lGPHnUqZmy6I+U=
+	t=1709747440; cv=none; b=tZR1RTV5R6NKSzJ/2dWKfkRb+V/z3aElq6cEnsJPBmi8HIS71DBPEWJ4UoYnTe7Nl3HfVnaEZ6o/RF6vbmimD3/8k/iTW1iZOthBk0/iUD3Jq0gSU7On4h/rjxhWPKHDSjmTeyhhvJyWTKC+Sxillx2K+CGoVNhFwrcvHaP9uyM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709744075; c=relaxed/simple;
-	bh=BoA4clyJGdpKOSXO4fvBLqbIDSPr9DFImpz+/s60Eno=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=A9AwaEaYrJIA1xBFS/wTMw6mv1cej0UHuXSWRKyZcvjV4kdyTUgkPXHhQSd4wgInom7FXT+jPP256fsjJvROhVz9zA3R6EzzNmtou1DpdOZSFShMvUQHZrsY/c17VSgt4IAw5a68xN4OkyjG0V23lhbtxcCD5TrcxaboCnFUIHk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q2AJ3Oj+; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q2AJ3Oj+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6559EC433C7;
-	Wed,  6 Mar 2024 16:54:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1709744074;
-	bh=BoA4clyJGdpKOSXO4fvBLqbIDSPr9DFImpz+/s60Eno=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Q2AJ3Oj+jf2uT81tS54rIaH4ux8Uo3ZYpQrcyY+ZMo8K3lDAqOwgmhtsik2OEE35Q
-	 IJSvLwmeEwZjwzsX+1K1bA4p+nxHsuEu/dDo14a3h2QqAxgSVK04EC/GgywSg7yen8
-	 wIZu5mEptWg2NNhF0HZFsAL8ror94AdKZfsMOeY1o5bKWWak0eqXrWHUrvozwiThAZ
-	 O/oddYWS2oJnYVh1Ukj+xI2jdbLINJB7vj15eDbfGly59j9vigTWap2tql1FWoxTqD
-	 qxZcJEcEakz6fY5rvvj8jgSr6n54GNvEOzh8BxLcrylU7ejDWXU3KwGO+fCWRFh71a
-	 1n1vExq+SSVNQ==
-Date: Wed, 6 Mar 2024 17:54:31 +0100
-From: Wolfram Sang <wsa@kernel.org>
-To: Hans Hu <HansHu-oc@zhaoxin.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
-	cobechen@zhaoxin.com, hanshu@zhaoxin.com
-Subject: Re: [SPAM] Re: [PATCH v8 6/6] i2c: add zhaoxin i2c controller driver
-Message-ID: <Zeifxys1OxWQrste@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
-	Hans Hu <HansHu-oc@zhaoxin.com>, Andi Shyti <andi.shyti@kernel.org>,
-	linux-i2c@vger.kernel.org, cobechen@zhaoxin.com, hanshu@zhaoxin.com
-References: <cover.1709014237.git.hanshu-oc@zhaoxin.com>
- <4e9c2c3a3940a00da67564c6e19f4771ab6dc67f.1709014237.git.hanshu-oc@zhaoxin.com>
- <ZeWZHSt-qm5wH3wn@ninjato>
- <7jopk32t6ygaxgo27ln2bsqhgsces5d2hxxri6g3la6datrlxd@llfdg36ldr4b>
- <c0eb2886-6250-4f67-8b17-c6ba953a42d3@zhaoxin.com>
+	s=arc-20240116; t=1709747440; c=relaxed/simple;
+	bh=PlA5ZMnDMC0I/fxBmY9wVIQDdbI6TlS0da/JsCD4Z4Y=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=uLhe1dDgJrae6q/ssUCL5pORdBpZcuxmUFazc9jjyjxUTfjDXTKrAYp0l5KUQ4Wdglyv31K2uas6W5HZxGPV7SnN/2QzE9Z6dwnjma09My6VR0mp3e5oWjF8fBDHm4D/+jSnh+s+HdGH5n1NbgJBnsLud1DuDV36+tSEOrf23t0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=188.165.38.119
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
+Received: from director9.ghost.mail-out.ovh.net (unknown [10.108.25.169])
+	by mo582.mail-out.ovh.net (Postfix) with ESMTP id 4TqW8Z5RBBz1G5W
+	for <linux-i2c@vger.kernel.org>; Wed,  6 Mar 2024 11:55:26 +0000 (UTC)
+Received: from ghost-submission-6684bf9d7b-bj2cn (unknown [10.111.182.153])
+	by director9.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 1658A1FF06;
+	Wed,  6 Mar 2024 11:55:24 +0000 (UTC)
+Received: from etezian.org ([37.59.142.102])
+	by ghost-submission-6684bf9d7b-bj2cn with ESMTPSA
+	id 3+nBK6xZ6GU0lAAApcOaZw
+	(envelope-from <andi@etezian.org>); Wed, 06 Mar 2024 11:55:24 +0000
+Authentication-Results:garm.ovh; auth=pass (GARM-102R00463a7049f-92c1-4388-a197-efead1bef8cb,
+                    62DEF991EB217AB86F953B10C2782167B22AFEEB) smtp.auth=andi@etezian.org
+X-OVh-ClientIp:89.217.109.169
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Jean Delvare <jdelvare@suse.com>, Wolfram Sang <wsa@kernel.org>, 
+ Heiner Kallweit <hkallweit1@gmail.com>
+Cc: linux-i2c@vger.kernel.org
+In-Reply-To: <6db1e4ad-14b5-4d0e-ac06-46541970ce0e@gmail.com>
+References: <6db1e4ad-14b5-4d0e-ac06-46541970ce0e@gmail.com>
+Subject: Re: [PATCH v2] i2c: i801: Fix using mux_pdev before it's set
+Message-Id: <170972612320.1712532.13474994711820566145.b4-ty@kernel.org>
+Date: Wed, 06 Mar 2024 12:55:23 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="iFb6S1sCTNbTVjsu"
-Content-Disposition: inline
-In-Reply-To: <c0eb2886-6250-4f67-8b17-c6ba953a42d3@zhaoxin.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.13.0
+X-Ovh-Tracer-Id: 6462102518814411369
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvledriedugdefudcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevjghfuffkffggtgfgofesthejredtredtjeenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepffetheduffdvhfdugfffudfgjeejudehheegfeeguefhieeugffhgfeuffdvgfefnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepuddvjedrtddrtddruddpkeelrddvudejrddutdelrdduieelpdefjedrheelrddugedvrddutddvnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehkedvpdhmohguvgepshhmthhpohhuth
 
+Hi
 
---iFb6S1sCTNbTVjsu
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+On Sun, 03 Mar 2024 11:45:22 +0100, Heiner Kallweit wrote:
+> i801_probe_optional_slaves() is called before i801_add_mux().
+> This results in mux_pdev being checked before it's set by
+> i801_add_mux(). Fix this by changing the order of the calls.
+> I consider this safe as I see no dependencies.
+> 
+> 
 
-Hi,
+Applied to i2c/i2c-host-fixes on
 
-> OK, the issues you mentioned will be fixed with a new series.
+git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git
 
-If you do this new series, please make sure you rebase it on top of
-Andi's for-next tree. He just applied a fix for wmt, namely:
+Thank you,
+Andi
 
-"[PATCH] i2c: wmt: Fix an error handling path in wmt_i2c_probe()"
+Patches applied
+===============
+[1/1] i2c: i801: Fix using mux_pdev before it's set
+      commit: b60b86b55400413e5f2f1c076f5a2f535341c9ce
 
-Your new series should be on top of this patch to avoid merge conflicts.
-
-Happy hacking,
-
-   Wolfram
-
-
---iFb6S1sCTNbTVjsu
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmXon8AACgkQFA3kzBSg
-KbZFmA/+I2cNXuBq5GjumuIByAK/jpP43+e5JiI03HlmRXt30wMUdhzUTrtenfP4
-7vbmQ+8s3GQe80zyYmeymzK9JSHeCt/l9VlIBHC6qUOsNXYUHown6WuTRNDT4BKS
-AtLwTB1KpMCKszXLrp9iCHJidCtr6R/yWh69lF/LPQ7eH2Equs7U2fP8BgSMe/CH
-DqzgzmKuvMJuGYUBr9dUgbFqFvZHXfN1rUTjKlS22vsQMOylNsaSIAN4SMwkgh6x
-RiOTOPANk1NPCjt9fCm5BK2kjfOninPiHGi8wYsQFqN9hNPqq1/yETk/Oj2E8mxi
-A1x4UK0JHXqnlgVhytLwfSqPOcQZm3KftHxvp1rj7b87Pql+mjq6JxUJy0aaqMtZ
-7KKVpMLVXJE6OuFX0YHEx8gVJldyJXfCbjfckDKgwJkqTlW77TIswVcaUbVG+FKm
-AB4hgcuLrQJkU0WPZzRWL4yv1uA8OaNnlzFg8/p2ZFiN4zU4cl4H1429XWUyHS6V
-4txKQLwKUnT2kz4gwLf4bEMaOKWiD10j61Tt42BFQOzJpwo2Y+ZJhuQQQUJAitmu
-g02ZnC7sbvQDKehKgSja6kJUudnbZAKmwSbFn9YVQ0nQ2U0v5S5iz1cIs2CHKxhP
-9qcAZYPRJHhswAwdmgL8tIp33v+O1EuzI8XDvOSW0oHcyDi5HQA=
-=Q75/
------END PGP SIGNATURE-----
-
---iFb6S1sCTNbTVjsu--
