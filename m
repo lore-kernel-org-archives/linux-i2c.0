@@ -1,39 +1,39 @@
 Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 769B713E7D6;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54FF313E7CD;
 	Wed,  6 Mar 2024 17:59:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709747976; cv=none; b=Wwjwa5+6mch/rZ7XlYyNP0ZeP4ecFv2Jbdm6i8w4yzOieXm/J12oxYVMPinx/S18AmpihDEa5PepRAYyJr9Y9IADTPxebUY+0gtct4wt5emiANZw5PRbE2AcaQP3Y4rJ1bnVRdTz7jRVTeSfM5eWUb01x0MMVPUWRvPCxoTWCQ4=
+	t=1709747977; cv=none; b=dhTK4/BisGF2urY8vWidV15U4dQoEXUfJ2dy3nMvkBS6d0rf6kwxsSObSriaufQD4iCP7PYM1eFgie+CvMUl2AU/KFWkC4Prxroqs0rKeBT+w/vVbe8Q2dlBsHwSPIZ3dqWlKo8oJN/aiE7L9YadlwbOabde8lmp1IpOalbzLBI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709747976; c=relaxed/simple;
-	bh=JPU8ZqhLIMygFGqnyux6VMGW8Z+jhzIZZf+y7SYnbpI=;
+	s=arc-20240116; t=1709747977; c=relaxed/simple;
+	bh=/e84P/owXhlh++tw7rvGRQ64kKz8dN+PoJFWEp8EyIE=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=RWIcl320l0nT3JqVTcQqa4ks/4veutQ5NECOeSyJEL9qjye4mcrYMkkNy6Y+x1wnYAEpPlsyTVWfwh+k7Blar5WLXbRw3wAM6cjqfygSV5KD3w8HAcySGqdbw19soaJdOeLFfAszojtXKwje8Io7B4sMFEkx9w6GPhPZm8FgOfw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=EejnwEd+; arc=none smtp.client-ip=217.70.183.194
+	 In-Reply-To:To:Cc; b=InQgbsAsm7opm+H+1mgpGA+MkbEFmy5eNb7PYjdq3cbA6YDYJZdOkotysXYpTECoyGrMRRjWQFQ3tW6y5rnoGc4tVcJ9EhNfO9DZ7PdlBLxiGZe37NpORUx4ME7B+4WwWI5UipVrZ7fTESsEUOQ3BN9gTn/A9srsVxO0mtVCyqc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Ji3OMBF9; arc=none smtp.client-ip=217.70.183.194
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="EejnwEd+"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 15ED54000B;
-	Wed,  6 Mar 2024 17:59:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Ji3OMBF9"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id CC2C040004;
+	Wed,  6 Mar 2024 17:59:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1709747970;
+	t=1709747967;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=srUFtx6yOhpJjE++KGlLiKzSDt78pohnW3Pif7vfVCg=;
-	b=EejnwEd+Hqra3vQDx5L53ConTD3AhuGJJwsYYjnw3estXXLVQy7gxKU/tJrxGA9SX/o9S7
-	X5sQUW6Y9Wk5a6TnH/BBuX40YN2WTGLHI8SoXQ3+1A+/QUC7JiR/awZUn1UqnlNgxKAOvt
-	yr5HzHgziUQIo8biU3IXYAyzWTLOXRvEx7av77hJutaqXJf9TaYZhGUMOF9MqqqQXSQMMJ
-	tDyENWS/O4XKNkbh7kd/E7aIFmjO8OrpfzRG0wE4uU48zudFE2B4O3PA+dtv6baibdT/Ho
-	s015aBzTvx/UYK3fxbf56Yc+kB4fbNnGpvMyiCgIJ2MhOaLhrsUEmHVTisFJSg==
+	bh=QRiNeZgV6eBZpUWar1JZGPdnG7GRdzz01xQrVaFgykE=;
+	b=Ji3OMBF9sh5AUUIrSf+SHwWCBVQbHN2yjqFDrGf6bsfe4EZlx1MqJwUDbZDoEoXUvMVcrs
+	O4RXeBdjOeBcahOsp+5dYJo97Wqpk3SPjmJFwICXVdZf/vPETQHe7Ah8LD+ztGN7lc8aIt
+	5eVmemBd8Je7K4rKPG85K5oBjf0MlcLmxvNbX3FYTP1bvqEKsDZS6DC6KbTcTWdUk4UY3H
+	+IAbuJuf8UZcEc4IkpXEzcyZIhP0PRf7c/Ex8O64/fSXv1qkziKtmBVk5VkCP90fX5K9B9
+	Hrugjol1r02k+29Emtr9BnQluYeemmvX2hIACSB3eLHogye9H5/I210WTsB6jQ==
 From: =?utf-8?q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>
-Date: Wed, 06 Mar 2024 18:59:31 +0100
-Subject: [PATCH v3 11/11] MIPS: mobileye: eyeq5: add evaluation board I2C
- temp sensor
+Date: Wed, 06 Mar 2024 18:59:26 +0100
+Subject: [PATCH v3 06/11] i2c: nomadik: replace jiffies by ktime for FIFO
+ flushing timeout
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -42,7 +42,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20240306-mbly-i2c-v3-11-605f866aa4ec@bootlin.com>
+Message-Id: <20240306-mbly-i2c-v3-6-605f866aa4ec@bootlin.com>
 References: <20240306-mbly-i2c-v3-0-605f866aa4ec@bootlin.com>
 In-Reply-To: <20240306-mbly-i2c-v3-0-605f866aa4ec@bootlin.com>
 To: Linus Walleij <linus.walleij@linaro.org>, 
@@ -56,35 +56,49 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
  Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>, 
  Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
  Tawfik Bayouk <tawfik.bayouk@mobileye.com>, 
- =?utf-8?q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>
+ =?utf-8?q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>, 
+ Wolfram Sang <wsa+renesas@sang-engineering.com>
 X-Mailer: b4 0.13.0
 X-GND-Sasl: theo.lebrun@bootlin.com
 
-Declare the temperature sensor on I2C bus 2. Its label is the schematics
-identifier.
+The FIFO flush function uses a jiffies amount to detect timeouts as the
+flushing is async. Replace with ktime to get more accurate precision
+and support short timeouts.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
 Signed-off-by: Théo Lebrun <theo.lebrun@bootlin.com>
 ---
- arch/mips/boot/dts/mobileye/eyeq5-epm5.dts | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/i2c/busses/i2c-nomadik.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/boot/dts/mobileye/eyeq5-epm5.dts b/arch/mips/boot/dts/mobileye/eyeq5-epm5.dts
-index 6898b2d8267d..9fc1a1b0a81b 100644
---- a/arch/mips/boot/dts/mobileye/eyeq5-epm5.dts
-+++ b/arch/mips/boot/dts/mobileye/eyeq5-epm5.dts
-@@ -21,3 +21,11 @@ memory@0 {
- 		      <0x8 0x02000000 0x0 0x7E000000>;
- 	};
- };
-+
-+&i2c2 {
-+	temperature-sensor@48 {
-+		compatible = "ti,tmp112";
-+		reg = <0x48>;
-+		label = "U60";
-+	};
-+};
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 2ba7d082e205..020beb8ffa17 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -225,8 +225,8 @@ static inline void i2c_clr_bit(void __iomem *reg, u32 mask)
+ static int flush_i2c_fifo(struct nmk_i2c_dev *priv)
+ {
+ #define LOOP_ATTEMPTS 10
++	ktime_t timeout;
+ 	int i;
+-	unsigned long timeout;
+ 
+ 	/*
+ 	 * flush the transmit and receive FIFO. The flushing
+@@ -238,9 +238,9 @@ static int flush_i2c_fifo(struct nmk_i2c_dev *priv)
+ 	writel((I2C_CR_FTX | I2C_CR_FRX), priv->virtbase + I2C_CR);
+ 
+ 	for (i = 0; i < LOOP_ATTEMPTS; i++) {
+-		timeout = jiffies + priv->adap.timeout;
++		timeout = ktime_add_us(ktime_get(), priv->timeout_usecs);
+ 
+-		while (!time_after(jiffies, timeout)) {
++		while (ktime_after(timeout, ktime_get())) {
+ 			if ((readl(priv->virtbase + I2C_CR) &
+ 				(I2C_CR_FTX | I2C_CR_FRX)) == 0)
+ 				return 0;
 
 -- 
 2.44.0
