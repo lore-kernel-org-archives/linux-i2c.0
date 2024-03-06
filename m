@@ -1,83 +1,74 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from 11.mo550.mail-out.ovh.net (11.mo550.mail-out.ovh.net [188.165.48.29])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DAEE7F7E9;
-	Wed,  6 Mar 2024 11:51:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 342317F7D3
+	for <linux-i2c@vger.kernel.org>; Wed,  6 Mar 2024 12:04:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.165.48.29
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709725905; cv=none; b=PTe3B9HA7OISowGB69C6FWfsifgxYZWspTMn1JMDrffIeac3YBNKTJJr8bUyTad4nF69ebADushSniJnz4qBJ8Wr/I4dKBgDwTMbx69zymvTuHq4xKIYSE83Nf8r9VVzbiCtbnAgfca9GjFe62cXrjDPrOhfqppHLfiaNBhc2F0=
+	t=1709726690; cv=none; b=QZavG6dqI2IMRqIsr9ib0eeSMSFpsMvHkyIQEw5j4BqGpsAYdIWChlK/R8ptvAXXMfldt1FyTeUL7+HBbZGuJAJDfvTLtjbsq90yTmfgiUans9d5Qqf0deWxjzO4hKRI+7jZo+9ku+VBddK5zaOuMIS4pK54ZLQUBq/WfiTwInQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709725905; c=relaxed/simple;
-	bh=lpueoge2MGAnsC13LIqztC2dO40ObKOXlwl1I4HGqsE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HSOzAYz47W/9MXp+OuULkqLQomll2xDTx+QUbOdy/iS+sSj6uS9tergs/DSAuIMY6dIIMIigCg81puVEvNmUTAGoip5pxu06lTdY4wicIHyEfJ2+NwKaRRyImuSroKx0WWyKuNH/ahdR3EVvx27Z8x6h5m1PNNz2OXYUGGiwrsk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L2tNNlvQ; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L2tNNlvQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 544B5C433F1;
-	Wed,  6 Mar 2024 11:51:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1709725904;
-	bh=lpueoge2MGAnsC13LIqztC2dO40ObKOXlwl1I4HGqsE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=L2tNNlvQKert2nDDeuON7DuVrb7EpLgFfG6VxSF94TSNWGQAB9V2ppj56bxzjofpC
-	 8KN/cuRWe0DjExokTZC8A7jp6oqSElr9Vy9bZ46yf9y+F8Hks9Holae5T5CFIVhId4
-	 GR4J7fxn2fc+pbGZ6TjFFwrtol2L+lo1LaJU4jJbYwcRXUZAqaXdkXdIt4P27UbpBl
-	 BL5FznIylZGkzefRINHSuEnKTflF15Bf3FQ9x8LWYSxrOuUyRL6uX4RVhnxMuT79tA
-	 XRvUZYqc3FtPk66TbCQWWb0medN/a21j2YUiC26FN+euXBtyqpmZQbuQbbkxzGTv5k
-	 4+mBZfLxjRuQg==
-Date: Wed, 6 Mar 2024 12:51:40 +0100
+	s=arc-20240116; t=1709726690; c=relaxed/simple;
+	bh=T/ZFalMvsTIqIXH9CCmS4Q6/QVqPFJOqTdkBRjqsCZ0=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=hhKnGLZMEQPq/gRMBPTisOxmgr2aiw/+OtxCm7xw8EdZ8ZzAgDzo5PNHGshc8tjDqDdIlaUNvAxBE12PX2SzNxoJKQ+2UcusXIjcUx9dcfW9PBvYBlFQXMYCQyRIag4fl2KPCYlg5cWj9yEfnAeQJtoi8kiThle07aJtmivsc4Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=188.165.48.29
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
+Received: from director7.ghost.mail-out.ovh.net (unknown [10.109.176.170])
+	by mo550.mail-out.ovh.net (Postfix) with ESMTP id 4TqW8s3CGRz1L2m
+	for <linux-i2c@vger.kernel.org>; Wed,  6 Mar 2024 11:55:41 +0000 (UTC)
+Received: from ghost-submission-6684bf9d7b-6n4p5 (unknown [10.111.182.10])
+	by director7.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 4DE6D1FF02;
+	Wed,  6 Mar 2024 11:55:40 +0000 (UTC)
+Received: from etezian.org ([37.59.142.102])
+	by ghost-submission-6684bf9d7b-6n4p5 with ESMTPSA
+	id ebVeDrxZ6GUteAAALhss6w
+	(envelope-from <andi@etezian.org>); Wed, 06 Mar 2024 11:55:40 +0000
+Authentication-Results:garm.ovh; auth=pass (GARM-102R0040eb92394-62a9-4541-aed7-3e0ed99d4b9a,
+                    62DEF991EB217AB86F953B10C2782167B22AFEEB) smtp.auth=andi@etezian.org
+X-OVh-ClientIp:89.217.109.169
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Rob Herring <robh@kernel.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>, Conor Dooley <conor+dt@kernel.org>, linux-i2c@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/2] dt-bindings: i2c: mux: i2c-demux-pinctrl: Drop
- i2c-mux.yaml reference
-Message-ID: <u54h4yntxdolfhyqfhxs3h7htlih3zzndt343ktznlcbrevya2@aeumthqcyuki>
-References: <20240124190552.1551929-1-robh@kernel.org>
- <Zb6nBYTkZmXZ0G2X@shikoro>
- <Zdxq4GnRyjC07EH8@shikoro>
- <CAL_JsqLnCzXMsyeAHZUx2_oF5dqvLOWBvoj2Bb_Go6VimCxCoA@mail.gmail.com>
- <e6cuggewnewxp2tf4g45jkazu46pgiffooo6gdwi2ge44itsps@njsz64u5vjyr>
+To: wsa@kernel.org, Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
+In-Reply-To: <6ed30ecf43a4c8574aa6b9f93be50f3203a42850.1704465414.git.christophe.jaillet@wanadoo.fr>
+References: <6ed30ecf43a4c8574aa6b9f93be50f3203a42850.1704465414.git.christophe.jaillet@wanadoo.fr>
+Subject: Re: [PATCH] i2c: wmt: Fix an error handling path in
+ wmt_i2c_probe()
+Message-Id: <170972613724.1712532.15551713382249380033.b4-ty@kernel.org>
+Date: Wed, 06 Mar 2024 12:55:37 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <e6cuggewnewxp2tf4g45jkazu46pgiffooo6gdwi2ge44itsps@njsz64u5vjyr>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.13.0
+X-Ovh-Tracer-Id: 6466324643755526875
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvledriedugdefudcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevjghfuffkffggtgfgofesthejredtredtjeenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepffetheduffdvhfdugfffudfgjeejudehheegfeeguefhieeugffhgfeuffdvgfefnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepuddvjedrtddrtddruddpkeelrddvudejrddutdelrdduieelpdefjedrheelrddugedvrddutddvnecuvehluhhsthgvrhfuihiivgepheenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehhedtpdhmohguvgepshhmthhpohhuth
 
-Hi Rob,
+Hi
 
-On Wed, Mar 06, 2024 at 08:20:27AM +0100, Andi Shyti wrote:
-> On Tue, Mar 05, 2024 at 12:06:05PM -0600, Rob Herring wrote:
-> > On Mon, Feb 26, 2024 at 4:48 AM Wolfram Sang
-> > > On Sat, Feb 03, 2024 at 09:50:13PM +0100, Wolfram Sang wrote:
-> > > > On Wed, Jan 24, 2024 at 01:05:50PM -0600, Rob Herring wrote:
-> > > > > The I2C de-mux is different than an I2C mux, so i2c-mux.yaml is not
-> > > > > relevant and shouldn't be referenced.
-> > > > >
-> > > > > Signed-off-by: Rob Herring <robh@kernel.org>
-> > > >
-> > > > Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> > >
-> > > Andi, can you pick these up?
-> > 
-> > I already did since you gave your reviewed-by and they hadn't
-> > otherwise been picked up.
+On Fri, 05 Jan 2024 15:39:35 +0100, Christophe JAILLET wrote:
+> wmt_i2c_reset_hardware() calls clk_prepare_enable(). So, should an error
+> occurs after it, it should be undone by a corresponding
+> clk_disable_unprepare() call, as already done in the remove function.
 > 
-> Oh... I had them in my test branch and was waiting for some more
-> tests before sending the notification.
 > 
-> Shall I remove them from my list?
 
-Because I need to update my branches, I am going to take these
-two patches out. Please, let me know if you want me to take them
-back in.
+Applied to i2c/i2c-host-fixes on
 
-Thanks,
+git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git
+
+Thank you,
 Andi
+
+Patches applied
+===============
+[1/1] i2c: wmt: Fix an error handling path in wmt_i2c_probe()
+      commit: 78c1dbed365217ee751531e24c18da77795074d9
+
