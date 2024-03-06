@@ -1,38 +1,39 @@
 Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E1B413BAFF;
-	Wed,  6 Mar 2024 17:59:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C2DE1361C1;
+	Wed,  6 Mar 2024 17:59:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709747975; cv=none; b=l2gbGBFIXDO/OcZrn3O5jVCOlgD4Zqz4tp4RjZ/4/WuDhagMz/i/kjIFS439gHpvA9KZ1vCYGwCdJQAmpRfeQEtKPvYvoSC1HnL5rH5D20OlPCLSG3fv3eSIMLPhTbTUzW+YqHx3S4Gjt/8sTN4rZ96lS08tfNkYJuuT3KKPaa8=
+	t=1709747975; cv=none; b=fRsW4Ft+ym+UrYri6+CufcyGzqt6epASpyOuspWHqd8y6rGGqp259jw8M03TH4J4Wzqn1gd1zAS7q186UpeiCEiQ+WNz0Yfj2bNuCOzBMtuLV6xjOPe4gQFHU/jbMpalOsQjuf1awb2MgOKSMpFavIOk1d5ysCvA93KWC2Ukj/Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1709747975; c=relaxed/simple;
-	bh=Qej72pu6fdEoExRl4XZge95DmomLyzVUsKj6WDVS3LM=;
+	bh=db/EhOo99keFp7glvvPrWzruTiq2FzpZdxxWEEzc3Xw=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ZDUR0hkJnY35lhfp7rvZLlW5OSI0Oo0td3PS5GoekrOdfqHqs3zFVjRJVK7Vd3SHgTiYqsL4lPeOoNmQY/H0Q5XwImzZHtb7XoKRQF8HIUTeCmo/BV88cJvxGXCFbI+TvpEyji9+GJRwbxdN6AEM1Dh6qovlxIvrVjpCN6nipgQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=EeMcSO/Y; arc=none smtp.client-ip=217.70.183.194
+	 In-Reply-To:To:Cc; b=e/JJDiEhnkuvI7J8OgpWs3pQlAEmFMZl4jm3rFKheHfSLBA6qod2x1U1vprpyWyDPK7PkTAk8QQ3LpBHcxbnuzjQY/drwYWYk8NtaoSjMi5ubRmyysXaZRBvwpWuAOYh1yZzXUOgJ/lSe3YmOH2Z67puy0AaCmYVIp70TJrLjfM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=mqPB3YpA; arc=none smtp.client-ip=217.70.183.194
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="EeMcSO/Y"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id B346540008;
-	Wed,  6 Mar 2024 17:59:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="mqPB3YpA"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 3BB4F40007;
+	Wed,  6 Mar 2024 17:59:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1709747965;
+	t=1709747963;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=E0ffeOdFEjtETEHTnybwbTHjIFfmL7GLD1gS8KdoDac=;
-	b=EeMcSO/Yy06+qf/DHw76+ToS+Zz1hhGnAfcaMj4XGf7lzeat/0syaGtwRCZNKvSUQmNK+M
-	Nf0kopX9N0P2k0wMEbr6q5dxOC0BKJn+JOeZipYZzXD247HJUzfnh/9AIEZ3BRw0q1ftNb
-	phtQL1j4kh/MKYnSs4EzR65VFY83uZDw3p5S+i/g0nk4dkbrvjMJAXuhiG33qP4k261Ga2
-	AgjS3CumKTyu7xt1e3ufc1aX4OCtVqKnBEk+rtYin1MNP7cdqnOh+X37++mj0Hg/Za0KxV
-	sC/RCtQmrAb7RtBIk3j4j0xwtidrBJEW9dGNEEkWYba9zJWnc3lTD73F9DmhUg==
+	bh=40IK1rIa0NCsanKJIItd4Iag1sxSHlN8ItGNUBkuB1c=;
+	b=mqPB3YpAemlMQxiVfvmr6lvD+gYCHUvoXOf5+p/AhmQ9K+wtnWE8gGYsspwKVyl2+r/2Yf
+	/COgKEpiKlIAqykj1/ErDrv57lEfxsDWovDOcEPxzwYgrAwtrjaj7M3SreO9CellKj0/WA
+	Qxdw8OhTdZjNT31QvjAjhqpoD4JwwIopES8iLTu3jRgUioaXYYGBRd1kP1b3H67HOq4tLU
+	bfb5F6JHrDNAqmPcBkqISq4K6aDHJnzAiBwZtA9w5GFNCicQBuduqhFUE4uJGYRm6euRPE
+	ls+Dx0NDunKhop8pmMtXUy5SrMK5Bzh6wmYxIapTGwyMKFd37MRWhJ1SttL2Lw==
 From: =?utf-8?q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>
-Date: Wed, 06 Mar 2024 18:59:23 +0100
-Subject: [PATCH v3 03/11] i2c: nomadik: simplify IRQ masking logic
+Date: Wed, 06 Mar 2024 18:59:21 +0100
+Subject: [PATCH v3 01/11] dt-bindings: i2c: nomadik: add mobileye,eyeq5-i2c
+ bindings and example
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -41,7 +42,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20240306-mbly-i2c-v3-3-605f866aa4ec@bootlin.com>
+Message-Id: <20240306-mbly-i2c-v3-1-605f866aa4ec@bootlin.com>
 References: <20240306-mbly-i2c-v3-0-605f866aa4ec@bootlin.com>
 In-Reply-To: <20240306-mbly-i2c-v3-0-605f866aa4ec@bootlin.com>
 To: Linus Walleij <linus.walleij@linaro.org>, 
@@ -59,91 +60,122 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
 X-Mailer: b4 0.13.0
 X-GND-Sasl: theo.lebrun@bootlin.com
 
-IRQ_MASK and I2C_CLEAR_ALL_INTS both mask available interrupts. IRQ_MASK
-removes top options (bits 29-31). I2C_CLEAR_ALL_INTS removes reserved
-options including top bits. Keep the latter.
+Add EyeQ5 bindings to the existing Nomadik I2C dt-bindings. Add the
+EyeQ5-specific property behind a conditional. Add an example for this
+compatible.
 
-31  29  27  25  23  21  19  17  15  13  11  09  07  05  03  01
-  30  28  26  24  22  20  18  16  14  12  10  08  06  04  02  00
---- IRQ_MASK: --------------------------------------------------
-      1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
-0 0 0
---- I2C_CLEAR_ALL_INTS: ----------------------------------------
-      1     1 1       1 1 1 1 1                   1 1 1 1 1 1 1
-0 0 0   0 0     0 0 0           0 0 0 0 0 0 0 0 0
-
-Notice I2C_CLEAR_ALL_INTS is more restrictive than IRQ_MASK.
-
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Théo Lebrun <theo.lebrun@bootlin.com>
 ---
- drivers/i2c/busses/i2c-nomadik.c | 18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
+ .../devicetree/bindings/i2c/st,nomadik-i2c.yaml    | 49 +++++++++++++++++++---
+ 1 file changed, 43 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index cd511c884f99..80bdf7e42613 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -94,9 +94,6 @@
- /* some bits in ICR are reserved */
- #define I2C_CLEAR_ALL_INTS	0x131f007f
+diff --git a/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml b/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
+index 16024415a4a7..44c54b162bb1 100644
+--- a/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
+@@ -14,9 +14,6 @@ description: The Nomadik I2C host controller began its life in the ST
+ maintainers:
+   - Linus Walleij <linus.walleij@linaro.org>
  
--/* first three msb bits are reserved */
--#define IRQ_MASK(mask)		(mask & 0x1fffffff)
+-allOf:
+-  - $ref: /schemas/i2c/i2c-controller.yaml#
 -
- /* maximum threshold value */
- #define MAX_I2C_FIFO_THRESHOLD	15
+ # Need a custom select here or 'arm,primecell' will match on lots of nodes
+ select:
+   properties:
+@@ -24,21 +21,23 @@ select:
+       contains:
+         enum:
+           - st,nomadik-i2c
++          - mobileye,eyeq5-i2c
+   required:
+     - compatible
  
-@@ -249,8 +246,7 @@ static int flush_i2c_fifo(struct nmk_i2c_dev *priv)
-  */
- static void disable_all_interrupts(struct nmk_i2c_dev *priv)
- {
--	u32 mask = IRQ_MASK(0);
--	writel(mask, priv->virtbase + I2C_IMSCR);
-+	writel(0, priv->virtbase + I2C_IMSCR);
- }
+ properties:
+   compatible:
+     oneOf:
+-      # The variant found in STn8815
+       - items:
+           - const: st,nomadik-i2c
+           - const: arm,primecell
+-      # The variant found in DB8500
+       - items:
+           - const: stericsson,db8500-i2c
+           - const: st,nomadik-i2c
+           - const: arm,primecell
++      - items:
++          - const: mobileye,eyeq5-i2c
++          - const: arm,primecell
  
- /**
-@@ -259,9 +255,7 @@ static void disable_all_interrupts(struct nmk_i2c_dev *priv)
-  */
- static void clear_all_interrupts(struct nmk_i2c_dev *priv)
- {
--	u32 mask;
--	mask = IRQ_MASK(I2C_CLEAR_ALL_INTS);
--	writel(mask, priv->virtbase + I2C_ICR);
-+	writel(I2C_CLEAR_ALL_INTS, priv->virtbase + I2C_ICR);
- }
+   reg:
+     maxItems: 1
+@@ -55,7 +54,7 @@ properties:
+       - items:
+           - const: mclk
+           - const: apb_pclk
+-      # Clock name in DB8500
++      # Clock name in DB8500 or EyeQ5
+       - items:
+           - const: i2cclk
+           - const: apb_pclk
+@@ -70,6 +69,16 @@ properties:
+     minimum: 1
+     maximum: 400000
  
- /**
-@@ -468,7 +462,7 @@ static int read_i2c(struct nmk_i2c_dev *priv, u16 flags)
- 	else
- 		irq_mask |= I2C_IT_MTDWS;
++  mobileye,olb:
++    $ref: /schemas/types.yaml#/definitions/phandle-array
++    items:
++      - items:
++          - description: Phandle to OLB system controller node.
++          - description: Platform-wide controller ID (integer starting from zero).
++    description:
++      The phandle pointing to OLB system controller node, with the I2C
++      controller index.
++
+ required:
+   - compatible
+   - reg
+@@ -79,6 +88,20 @@ required:
  
--	irq_mask = I2C_CLEAR_ALL_INTS & IRQ_MASK(irq_mask);
-+	irq_mask &= I2C_CLEAR_ALL_INTS;
+ unevaluatedProperties: false
  
- 	writel(readl(priv->virtbase + I2C_IMSCR) | irq_mask,
- 	       priv->virtbase + I2C_IMSCR);
-@@ -547,7 +541,7 @@ static int write_i2c(struct nmk_i2c_dev *priv, u16 flags)
- 	else
- 		irq_mask |= I2C_IT_MTDWS;
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: mobileye,eyeq5-i2c
++    then:
++      required:
++        - mobileye,olb
++    else:
++      properties:
++        mobileye,olb: false
++
+ examples:
+   - |
+     #include <dt-bindings/interrupt-controller/irq.h>
+@@ -111,5 +134,19 @@ examples:
+       clocks = <&i2c0clk>, <&pclki2c0>;
+       clock-names = "mclk", "apb_pclk";
+     };
++  - |
++    #include <dt-bindings/interrupt-controller/mips-gic.h>
++    i2c@300000 {
++      compatible = "mobileye,eyeq5-i2c", "arm,primecell";
++      reg = <0x300000 0x1000>;
++      interrupt-parent = <&gic>;
++      interrupts = <GIC_SHARED 1 IRQ_TYPE_LEVEL_HIGH>;
++      clock-frequency = <400000>;
++      #address-cells = <1>;
++      #size-cells = <0>;
++      clocks = <&i2c_ser_clk>, <&i2c_clk>;
++      clock-names = "i2cclk", "apb_pclk";
++      mobileye,olb = <&olb 0>;
++    };
  
--	irq_mask = I2C_CLEAR_ALL_INTS & IRQ_MASK(irq_mask);
-+	irq_mask &= I2C_CLEAR_ALL_INTS;
- 
- 	writel(readl(priv->virtbase + I2C_IMSCR) | irq_mask,
- 	       priv->virtbase + I2C_IMSCR);
-@@ -703,8 +697,8 @@ static int nmk_i2c_xfer(struct i2c_adapter *i2c_adap,
-  */
- static int disable_interrupts(struct nmk_i2c_dev *priv, u32 irq)
- {
--	irq = IRQ_MASK(irq);
--	writel(readl(priv->virtbase + I2C_IMSCR) & ~(I2C_CLEAR_ALL_INTS & irq),
-+	irq &= I2C_CLEAR_ALL_INTS;
-+	writel(readl(priv->virtbase + I2C_IMSCR) & ~irq,
- 	       priv->virtbase + I2C_IMSCR);
- 	return 0;
- }
+ ...
 
 -- 
 2.44.0
