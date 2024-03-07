@@ -1,161 +1,103 @@
-Received: from 7.mo584.mail-out.ovh.net (7.mo584.mail-out.ovh.net [178.33.253.54])
+Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46BBF63C8
-	for <linux-i2c@vger.kernel.org>; Wed,  6 Mar 2024 23:53:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.33.253.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EC376306D
+	for <linux-i2c@vger.kernel.org>; Thu,  7 Mar 2024 08:21:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709769223; cv=none; b=CAfBUZ3pO3bnZj/2EMuJG1sWMHaVpvHqmryUBK+Y3YUJrln1lyVhxqLaznP0uih/unH629b3SsFoeQFgoSMCUwdFW7Zkb08IhYhyhFVa++FvzXyMr+aAxuTgfmR8z+YoLhBxSGnLT7wF0Vp74XSoRP6/2+M3pFeFfdQFEsffo8c=
+	t=1709799701; cv=none; b=DOagkMzimyYShQbCyvxSRQjzhcuH6yNT5mNQb6JRC37rZT8SJGpFrjHB3C1XE/I+H0H1MPLhvzKufKQQ87AZHyhVAyeIuqDk73eAE5OdqmBt+ii5QXR5C4K9wUCadYB75LfNb4jgJxzjCVroMQKYhb5nI4WJiVEN2nVGLP5An7Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709769223; c=relaxed/simple;
-	bh=/OOGLVj0rta8U70jX8WUAv7de9IT8d7h+YisIF6Dy8E=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cslV1Y3Sdg8CGX3cQicLj29uhkvo+20iwiZ/GtjmPSCtZyD6GrmRKn7b5g5RbmB5fWWlywzIZDlbJ1U++DjkhuQiIe+4Ka1xLwqR82jehmwMQetWQtipWP5FJVCp4U7fZXQ0bC9r6GA+V95XDNzz+UhdXcRi46D8jq73TUbO7dY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=178.33.253.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director1.ghost.mail-out.ovh.net (unknown [10.109.176.118])
-	by mo584.mail-out.ovh.net (Postfix) with ESMTP id 4TqlpK2xW6z1CyX
-	for <linux-i2c@vger.kernel.org>; Wed,  6 Mar 2024 21:25:29 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-t4hpc (unknown [10.110.96.237])
-	by director1.ghost.mail-out.ovh.net (Postfix) with ESMTPS id E2EC01FDD1;
-	Wed,  6 Mar 2024 21:25:27 +0000 (UTC)
-Received: from etezian.org ([37.59.142.99])
-	by ghost-submission-6684bf9d7b-t4hpc with ESMTPSA
-	id S0i7H0ff6GUdUBIA8rjriQ
-	(envelope-from <andi@etezian.org>); Wed, 06 Mar 2024 21:25:27 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-99G003d40e8caf-d1d5-467a-a753-94bbc2f911f9,
-                    62DEF991EB217AB86F953B10C2782167B22AFEEB) smtp.auth=andi@etezian.org
-X-OVh-ClientIp:89.217.109.169
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Hans Hu <hanshu-oc@zhaoxin.com>,
+	s=arc-20240116; t=1709799701; c=relaxed/simple;
+	bh=cGrQCcSMkymYB5IZHpWOTvUUbwNUQssV/LLj9ZrMhWY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rI7GOIkyzuiK8XhkbFAvW7JfSRkcRSKA6lyn5GRDDJnJNd27OELLFINpNd+o+04iGaj2s17LEeHlbSuwpbXtDKQcgg4j10nUmp1DKjwbYMNPH9tbeGDLhQOkAIvnqgNE9WgM6w4S1sL+6L3VUFTnt53pe59yXa+4iCick7iivcQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=F3l77BMV; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="F3l77BMV"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=cGrQ
+	CcSMkymYB5IZHpWOTvUUbwNUQssV/LLj9ZrMhWY=; b=F3l77BMVaU6W2W2/uBza
+	ULPf86P5AdnKm6XSAsTGzlarD7XBpxYMIyMj05Y4lU+qcn17VsAYyDtrBdmzaAC9
+	uxzEmCfcqzyAyJKrn7rsBaPbDb7QuY5OLtsFQmuT2ikcJbYzCY+NtrFvMIouWuAT
+	xGF2lGjhXcotsKRsgbXONML0J8cuMf6+2lvj2OuOpQtYFwQs9yMKi1UWhrxrpM8g
+	yczcZUVq4CZiTajK69pCq0fJTqqZxs9joUYLJNs/1AJ8J/dkTC/ZI6al5q5azPWB
+	D7FsejeqbYI9BgT0C/4cKXxmcF56TqncPAXq9NP8tkkfj/IKsVBtoDI+uS//ZC45
+	Ig==
+Received: (qmail 280653 invoked from network); 7 Mar 2024 09:21:30 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Mar 2024 09:21:30 +0100
+X-UD-Smtp-Session: l3s3148p1@OAYqww0TjM0gAwDPXwugANQqZcJxr0oT
+Date: Thu, 7 Mar 2024 09:21:29 +0100
+From: "wsa-dev@sang-engineering.com" <wsa-dev@sang-engineering.com>
+To: Hamish Martin <Hamish.Martin@alliedtelesis.co.nz>
+Cc: "mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>,
+	"andi.shyti@kernel.org" <andi.shyti@kernel.org>,
+	"naresh.kamboju@linaro.org" <naresh.kamboju@linaro.org>,
+	"linux-mm@kvack.org" <linux-mm@kvack.org>,
+	"llvm@lists.linux.dev" <llvm@lists.linux.dev>,
+	"oe-kbuild-all@lists.linux.dev" <oe-kbuild-all@lists.linux.dev>,
+	"lkp@intel.com" <lkp@intel.com>, "arnd@arndb.de" <arnd@arndb.de>,
 	linux-i2c@vger.kernel.org
-Cc: wsa@kernel.org,
-	cobechen@zhaoxin.com,
-	hanshu@zhaoxin.com,
-	Andi Shyti <andi.shyti@kernel.org>
-Subject: [PATCH v9 0/6] i2c: add zhaoxin i2c controller driver
-Date: Wed,  6 Mar 2024 22:24:07 +0100
-Message-ID: <20240306212413.1850236-1-andi.shyti@kernel.org>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <cover.1709014237.git.hanshu-oc@zhaoxin.com>
-References: <cover.1709014237.git.hanshu-oc@zhaoxin.com>
+Subject: Re: [linux-next:master 11602/11963] ERROR: modpost:
+ "acpi_device_notify_remove" [drivers/i2c/i2c-core.ko] undefined!
+Message-ID: <Zel5CYKpg82mErNQ@shikoro>
+Mail-Followup-To: "wsa-dev@sang-engineering.com" <wsa-dev@sang-engineering.com>,
+	Hamish Martin <Hamish.Martin@alliedtelesis.co.nz>,
+	"mika.westerberg@linux.intel.com" <mika.westerberg@linux.intel.com>,
+	"andi.shyti@kernel.org" <andi.shyti@kernel.org>,
+	"naresh.kamboju@linaro.org" <naresh.kamboju@linaro.org>,
+	"linux-mm@kvack.org" <linux-mm@kvack.org>,
+	"llvm@lists.linux.dev" <llvm@lists.linux.dev>,
+	"oe-kbuild-all@lists.linux.dev" <oe-kbuild-all@lists.linux.dev>,
+	"lkp@intel.com" <lkp@intel.com>, "arnd@arndb.de" <arnd@arndb.de>,
+	linux-i2c@vger.kernel.org
+References: <202403052102.hlG8I44z-lkp@intel.com>
+ <6da20a8cf84d358841068e7eff3323b6d61e014b.camel@alliedtelesis.co.nz>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 16089391144787839559
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: 0
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvledriedugddugeehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucenucfjughrpefhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpeejleekkedugfeuuddvhffhgeekgeeivddtieefveejvedtgfdvhfeukedtgfeufeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeduvdejrddtrddtrddupdekledrvddujedruddtledrudeiledpfeejrdehledrudegvddrleelnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehkeegpdhmohguvgepshhmthhpohhuth
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="kvx6EuOu55DTdTQp"
+Content-Disposition: inline
+In-Reply-To: <6da20a8cf84d358841068e7eff3323b6d61e014b.camel@alliedtelesis.co.nz>
 
-Hi Hans,
 
-no functional change here, just fixed a rebase conflict. Patch
-78c1dbed3652 ("i2c: wmt: Fix an error handling path in
-wmt_i2c_probe()") from Christophe Jaillet is a fix that has
-created some conflict with your series.
+--kvx6EuOu55DTdTQp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-My work here is just to adapt your series to this change.
 
-Check the changelog for more details. The little adaptation are
-limited to patch 1, 2 and 3. The other patches don't have any
-change.
+> My recent change introduced a build failure when building as a module.
 
-The series has been applied in i2c/i2c-host-next[*].
+I will revert this change to remove problems in linux-next. It does not
+make sense to push a fix together with an incremental fix that late in
+the cycle anyhow. Please resend the updated patch as a whole. I'll try
+to get it into 6.8.
 
-Thanks,
-Andi
 
-PS I was almost tempted to fix the checkpatch notes, but we have
-a deal on that ;-)
+--kvx6EuOu55DTdTQp
+Content-Type: application/pgp-signature; name="signature.asc"
 
-PPS I'm keeping your e-mail structure and sending the series as
-reply to your PATCH 0 of v8.
+-----BEGIN PGP SIGNATURE-----
 
-[*] git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmXpeQYACgkQFA3kzBSg
+KbZQ6A//f/YZHPQeFcSnwDqCMZ60p4rgYtyPSod5ClfwVmteGVKyajFEB/SobRXK
+E/qU4V0j4UGmYsrqJxM8B9DJVJFXMorYGPDN+B7h8x4YFLCzYGBj7L0tRZGF7589
+9ZUnS7qk6PK8XKZMQev/FBJahLzycXqf5jkEkza3Xjbwm9M4ZvbXE6NiiuWMV7xa
+AxE6yV2iDkgurSL9b5wtJIOR50yLh9moDaHWExYGRshtLMZcLDDAuHHO3bKgEu2W
+w85vNEymbDMiEpChZjgDjUhxGtm5b1212Gi6/DHDr9FIDq4hU7Eww16yxdDXwXoS
+n4kocAq9lmgPaASmHS9TWPUbMvjJrM6bUh+ZAYKVuH1agWz5DIWX/k+OgAEr8MlM
+zpFI0t2QyWEM+RqDWSqlA09xFWvwaQ0L57c6EmnYIK2NXnv4s7MX97JEzcyoah0F
++n9/gTgkvjK4psO9gZwc9amnM1RCtcOzr5IkWye0HMDVei+m/GTRDxsbdtghDBBw
+TTWjB7QxXlVLhHHfTIJvjSXS2G4cQ66T9x4+Pn/TGK8Y1om574ZThqFKRwoAWVkz
+jFeqlXWiYdsh00k4aRk4bqZ+l1+M8PvjG5WR8xsAQEEByVcDaa1YRVy9v0co/bhp
+/kklX2OBJg/T6nD1mC/NvkzxL+1JR92KgY5lDR68pci8wzBZj9U=
+=O/cA
+-----END PGP SIGNATURE-----
 
-v8->v9:
-	* In Patch 1 in probe() do not return at the
-	  i2c_add_adapter(), but call clk_disable_unprepare()
-	  in case of failure.
-	* In Patch 2 fix the conflict when i2c-wmt.c is removed.
-	* In Patch 2 in wmt_i2c_probe() function, call
-	  clk_disable_unprepare() in case of failure. While at
-	  it, add a comment to explain the reason.
-	* When renaming i2c_dev to i2c, change also the reference
-	  in clk_disable_unprepare().
-v7->v8:
-        * move per-msg handling to interrupt context
-        * add private struct viai2c_zhaoxin to handle zhaoxin specific things
-        * fixed some other formatting issues
-        Link: https://lore.kernel.org/all/cover.1704440251.git.hanshu-oc@zhaoxin.com/
-
-v6->v7:
-        * adjust the patch sequence
-        * put those renaming related patches in 1 patch file
-        * rename i2c-*-plt.c to i2c-viai2c-*.c
-        * Some other adjustments suggested by Andi
-        For more details, see the comment in each patch please.
-        Link: https://lore.kernel.org/all/cover.1703830854.git.hanshu-oc@zhaoxin.com/
-
-v5->v6:
-        * fix build warnning reported by kernel test robot.
-          Link: https://lore.kernel.org/all/202312291225.cWVt6YF9-lkp@intel.com/
-        Link: https://lore.kernel.org/all/cover.1703733126.git.hanshu-oc@zhaoxin.com/
-
-v4->v5:
-        * fix 1 build error.
-          Link: https://lore.kernel.org/all/ZYx0VPVmyQhtG+B9@shikoro/1-a.txt
-        Link: https://lore.kernel.org/all/cover.1703647471.git.hanshu-oc@zhaoxin.com/
-
-v3->v4:
-        * Some adjustments as suggested by Wolfram.
-        * rebase patch on top of for-next branch.
-        Link: https://lore.kernel.org/all/cover.1698889581.git.hanshu-oc@zhaoxin.com/
-
-v2->v3:
-        * Split the number of patches from 2 to 12. Make it easier to review.
-        Link: https://lore.kernel.org/all/cover.1691999569.git.hanshu-oc@zhaoxin.com/
-
-v1->v2:
-        * Fixed some bugs I found myself.
-        Link: https://lore.kernel.org/all/cover.1691030850.git.hanshu-oc@zhaoxin.com/
-
-Old version:
-        This patch has already gone through a round of reviews.
-        Compared with the first round, the main difference of this
-        round of patch is the use of i2c-wmt driver.
-        Link: https://lore.kernel.org/all/20230614094858.317652-1-hanshu-oc@zhaoxin.com/
-
-Signed-off-by: Hans Hu <hanshu-oc@zhaoxin.com>
-
-Hans Hu (6):
-  i2c: wmt: create wmt_i2c_init for general init
-  i2c: wmt: split out common files
-  i2c: wmt: rename something
-  i2c: wmt: fix a bug when thread blocked
-  i2c: wmt: add platform type VIAI2C_PLAT_WMT
-  i2c: add zhaoxin i2c controller driver
-
- MAINTAINERS                             |  10 +-
- drivers/i2c/busses/Kconfig              |  10 +
- drivers/i2c/busses/Makefile             |   3 +
- drivers/i2c/busses/i2c-viai2c-common.c  | 250 ++++++++++++++
- drivers/i2c/busses/i2c-viai2c-common.h  |  85 +++++
- drivers/i2c/busses/i2c-viai2c-wmt.c     | 148 +++++++++
- drivers/i2c/busses/i2c-viai2c-zhaoxin.c | 299 +++++++++++++++++
- drivers/i2c/busses/i2c-wmt.c            | 421 ------------------------
- 8 files changed, 804 insertions(+), 422 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-viai2c-common.c
- create mode 100644 drivers/i2c/busses/i2c-viai2c-common.h
- create mode 100644 drivers/i2c/busses/i2c-viai2c-wmt.c
- create mode 100644 drivers/i2c/busses/i2c-viai2c-zhaoxin.c
- delete mode 100644 drivers/i2c/busses/i2c-wmt.c
-
--- 
-2.43.0
-
+--kvx6EuOu55DTdTQp--
