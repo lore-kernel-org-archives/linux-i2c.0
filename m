@@ -1,57 +1,48 @@
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EC688833
-	for <linux-i2c@vger.kernel.org>; Thu,  7 Mar 2024 11:49:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DED012D1E6;
+	Thu,  7 Mar 2024 13:46:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709812160; cv=none; b=PGDfFyzStEltCSk/pBVi4NzMjYVtOn0NsF0Xg08ij+f+yDjEbWqig620v6ewuqPACjNRhNgRPLmdbq8WmtwMJZRjNkYfGwXQINP4FzBO4jBY0SB/3AsUE5XApsU9ozTNT9ZbdaE3l7q2gU3s23sSjtuhdN7JpgZZ07zIF7OB6Xk=
+	t=1709819215; cv=none; b=A1rdE2H6uqRMo8wgOL474F/nsqAz6sT4aDBlNHFH0wVZHRVI74mG2XFQKw1iPJtAIg0kY4EfYFCuED3FkBEzUF9zJsz8eFALg130/lypGfYH1+/XhxOY7QvIkjberEFoWcCceTF9jxif3h2EEkzaA5hTsH627zUBN66peUUT4kc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709812160; c=relaxed/simple;
-	bh=tClZTSyEdvqyZlIqZj5UHmzzjNSZt47PKXfFHZjRqwA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
-	 Content-Type:References; b=A0PS1mgw8H7kvLcs1noWVPUZWPw0wugimgv8rUFNdnLaK5IDWTR6nABi3yLcd/iZn68PSzK+e5wJDw/RszNTVLGo7QNcvrVpVjshfLlWE6I8qSAZcsnVzAsKYgRsO6sbfoi3GRq9V5KLZmrmECl2jhqW/9uS81z7Wxl26YxsAaY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=fT3BTVS3; arc=none smtp.client-ip=210.118.77.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1709819215; c=relaxed/simple;
+	bh=LvDDUJcuh9lOI51Hm9zXPRHi6wPpMpPSRU9uKm/7ezo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=L/QUVtX91MdSA6L9IsUbqa2s/5j+uLW9Wyd3VfuYLwqKvMWOHCEdJQgKVvSTKsmLoG2js0OfjH6ByGzuhiZgkPBFD4oTHo00Co7TN8HnFn73Ww/j6ww6Sb53Gr3bR7ZDpLTZ5lfo06evv8kyZffji0JosmDc82qkQ7t0f305YkU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=FC00/Pio; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="fT3BTVS3"
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20240307114108euoutp02b9bb0908f63b1adf0f756e922bd6c304~6eKc2XwFb0525505255euoutp02_
-	for <linux-i2c@vger.kernel.org>; Thu,  7 Mar 2024 11:41:08 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20240307114108euoutp02b9bb0908f63b1adf0f756e922bd6c304~6eKc2XwFb0525505255euoutp02_
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1709811668;
-	bh=ZX7XgwAbXzFGogvGS3yajGzBilU38GeCPw+l5z4vKwQ=;
-	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-	b=fT3BTVS3zHa6QBFF/OtSLceFKCp58U3IYfeY/SVGog1BKJ4dO9gBWV6+XBcA/CXtp
-	 W4IPV3GdUy9MkNjV9B1+5ghOAKV0ki9Fo5T0VegZoZ6uyoBYPUGDZXF3sjHAzdHnNg
-	 aRznxvFQxjFaMRZovEOva4sAB6Bfb+Evz/CFRc3w=
-Received: from eusmges1new.samsung.com (unknown [203.254.199.242]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTP id
-	20240307114107eucas1p20c922e1fb6f12e62ad8079c4177b199b~6eKco74tO1220312203eucas1p2F;
-	Thu,  7 Mar 2024 11:41:07 +0000 (GMT)
-Received: from eucas1p2.samsung.com ( [182.198.249.207]) by
-	eusmges1new.samsung.com (EUCPMTA) with SMTP id D0.6A.09539.3D7A9E56; Thu,  7
-	Mar 2024 11:41:07 +0000 (GMT)
-Received: from eusmtrp1.samsung.com (unknown [182.198.249.138]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-	20240307114107eucas1p2d18f8261c44f0978c37100b1188bf8f3~6eKcQ-4RO0073300733eucas1p2y;
-	Thu,  7 Mar 2024 11:41:07 +0000 (GMT)
-Received: from eusmgms2.samsung.com (unknown [182.198.249.180]) by
-	eusmtrp1.samsung.com (KnoxPortal) with ESMTP id
-	20240307114107eusmtrp17eb6cdf0c6eeb490be742fb52bae0d9c~6eKcQPfdj0724507245eusmtrp1V;
-	Thu,  7 Mar 2024 11:41:07 +0000 (GMT)
-X-AuditID: cbfec7f2-515ff70000002543-8e-65e9a7d3a0ba
-Received: from eusmtip2.samsung.com ( [203.254.199.222]) by
-	eusmgms2.samsung.com (EUCPMTA) with SMTP id DB.CB.10702.3D7A9E56; Thu,  7
-	Mar 2024 11:41:07 +0000 (GMT)
-Received: from [106.210.134.192] (unknown [106.210.134.192]) by
-	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20240307114106eusmtip2ce33a3f1f3bc135c0d39263534718f4f~6eKbyA8k80809308093eusmtip2h;
-	Thu,  7 Mar 2024 11:41:06 +0000 (GMT)
-Message-ID: <949c82da-f0dc-4824-ac57-bc86ae42d871@samsung.com>
-Date: Thu, 7 Mar 2024 12:41:06 +0100
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="FC00/Pio"
+Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 427AMNSG014242;
+	Thu, 7 Mar 2024 13:46:47 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	message-id:date:mime-version:subject:to:cc:references:from
+	:in-reply-to:content-type:content-transfer-encoding; s=
+	qcppdkim1; bh=O6BItZKsvkNfUMe75xwZHuQfuHT5/c4cjIiBka/InFg=; b=FC
+	00/PiojC65hOoL66BFGTkujXfPidxDL0a6PplpcT1obt5qLLIExmkCLpMlY0IX+A
+	eg3YgY7HQu/76p96uMrjHgMXWJ5IN9IJQj6d+A9sx2SZ+fzmF1IniR7q9rAZeJXM
+	Br0VcNBZMNqGdXMStKWLL9SSBD85qC3jh0kqfWyRPXuPj1dTwDBudohYfIvA3dG2
+	8TEIfE15TU1kyFIL4TsCZJV3aIqsnEQ0b/iSPjL72eB58z/qnFr0/fcosidP+2X/
+	XpsWVxEk7R1BIOUqidRlsCbnyrc9LBsRUJTvUZ63O4XcebrDPplMBUDHHWcXpfSq
+	ZYfyMCwpM2epSiaEzXKg==
+Received: from nasanppmta05.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3wqbrhrv5f-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 07 Mar 2024 13:46:47 +0000 (GMT)
+Received: from nasanex01c.na.qualcomm.com (nasanex01c.na.qualcomm.com [10.45.79.139])
+	by NASANPPMTA05.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 427DkkT0013346
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 7 Mar 2024 13:46:46 GMT
+Received: from [10.216.46.193] (10.80.80.8) by nasanex01c.na.qualcomm.com
+ (10.45.79.139) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1118.40; Thu, 7 Mar
+ 2024 05:46:42 -0800
+Message-ID: <25ec87af-c911-46b7-87c9-b21065d70f9f@quicinc.com>
+Date: Thu, 7 Mar 2024 19:16:39 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -59,158 +50,222 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] i2c: exynos5: Init data before registering interrupt
- handler
+Subject: Re: [PATCH v2] i2c: i2c-qcom-geni: Parse Error correctly in i2c GSI
+ mode
 Content-Language: en-US
-To: Jesper Nilsson <jesper.nilsson@axis.com>, Andi Shyti
-	<andi.shyti@kernel.org>, Krzysztof Kozlowski
-	<krzysztof.kozlowski@linaro.org>, Alim Akhtar <alim.akhtar@samsung.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
-	kernel@axis.com
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-In-Reply-To: <20240305-i2c_exynos5-v3-1-17a749688806@axis.com>
+To: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+CC: <konrad.dybcio@linaro.org>, <bjorn.andersson@linaro.org>,
+        <vkoul@kernel.org>, <andi.shyti@kernel.org>, <wsa@kernel.org>,
+        <linux-arm-msm@vger.kernel.org>, <dmaengine@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
+        <quic_vdadhani@quicinc.com>
+References: <20240307093605.4142639-1-quic_msavaliy@quicinc.com>
+ <CAA8EJprndszVSjAVs_UzAjhb+x1B1Of4JCkygZ=8kgzuY2RwCQ@mail.gmail.com>
+From: Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>
+In-Reply-To: <CAA8EJprndszVSjAVs_UzAjhb+x1B1Of4JCkygZ=8kgzuY2RwCQ@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrFKsWRmVeSWpSXmKPExsWy7djP87qXl79MNVi8WM/iwbxtbBb3v3Yw
-	Wjw/NIvZ4lOLqsXe11vZLTY9vsZq0fH3C6PF5V1z2CxmnN/H5MDpcX1dgMemVZ1sHneu7WHz
-	2Lyk3qNvyypGj8+b5ALYorhsUlJzMstSi/TtErgyPlx+ylxwXqZiw+y8BsY+8S5GTg4JAROJ
-	XVemsXYxcnEICaxglLg7t5sJwvnCKPHs7n1WkCohgc+MErdf6cF0PD7/khmiaDmjxIl9m6A6
-	PjJKzHizCKyDV8BO4tvpNYxdjBwcLAIqEvdmGkKEBSVOznzCAmKLCshL3L81gx3EFhYIk9i0
-	Yw8ziM0sIC5x68l8sJkiAhsZJc6/+ArmMAvMBHImnWMCqWITMJToetvFBmJzAi3bd/4rE0S3
-	vMT2t3PAzpMQ+MAhMWvfRlaIu10kDv18xgZhC0u8Or6FHcKWkTg9uYcFoqGdUWLB7/tMEM4E
-	RomG57cYIaqsJe6c+8UG8g+zgKbE+l36EGFHif0zGsDCEgJ8EjfeCkIcwScxadt0Zogwr0RH
-	mxBEtZrErOPr4NYevHCJeQKj0iykgJmFFACzkLwzC2HvAkaWVYziqaXFuempxYZ5qeV6xYm5
-	xaV56XrJ+bmbGIHJ6fS/4592MM599VHvECMTB+MhRgkOZiURXhaLl6lCvCmJlVWpRfnxRaU5
-	qcWHGKU5WJTEeVVT5FOFBNITS1KzU1MLUotgskwcnFINTAm+8WdXpm/X7WqQPRb2WcVHo6xf
-	hnnD7esZSyTenTOZd75N6nrQQbb+1XrmP1hWtHzfcPpHwJ1r/ksYn648ftRgwa/fVd/8Vsw8
-	zv59L/vfr9e7E3menXBRqmadOam34YZVTaPgM8myy2/905pWPfmWHv/x2Edz2fRrrzQz3hz3
-	DvoVH8Fv8Dl6+ifTiTX/6gOVO/bLvTB8fuCR1ia3ues/Ti3rOXXJ439iXfFSifmXE8N26+RF
-	zJJb8d9CaNcNg1ers9Y/DpltsF9FOFNxw7W/21W0Fin0SB9l03Up25A9YVqJ6aZb26d88S3+
-	K8y2q9Ipwna50AdvzqfRIcummy20E46UeH7zTVfTx8ojcxyVWIozEg21mIuKEwHns48tvQMA
-	AA==
-X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFtrDIsWRmVeSWpSXmKPExsVy+t/xe7qXl79MNTi7UtLiwbxtbBb3v3Yw
-	Wjw/NIvZ4lOLqsXe11vZLTY9vsZq0fH3C6PF5V1z2CxmnN/H5MDpcX1dgMemVZ1sHneu7WHz
-	2Lyk3qNvyypGj8+b5ALYovRsivJLS1IVMvKLS2yVog0tjPQMLS30jEws9QyNzWOtjEyV9O1s
-	UlJzMstSi/TtEvQyPlx+ylxwXqZiw+y8BsY+8S5GTg4JAROJx+dfMoPYQgJLGSWWr9GGiMtI
-	nJzWwAphC0v8udbF1sXIBVTznlFi4e4FYAleATuJb6fXMHYxcnCwCKhI3JtpCBEWlDg58wkL
-	iC0qIC9x/9YMdhBbWCBMYtOOPWC7mAXEJW49mc8EMlNEYDOjxJ7Nv8AWMAvMZJToXLCdHWLb
-	REaJtlfnwUaxCRhKdL0FOYOTgxNo877zX5kgRplJdG3tYoSw5SW2v53DPIFRaBaSS2Yh2TgL
-	ScssJC0LGFlWMYqklhbnpucWG+kVJ+YWl+al6yXn525iBEbjtmM/t+xgXPnqo94hRiYOxkOM
-	EhzMSiK8LBYvU4V4UxIrq1KL8uOLSnNSiw8xmgJDYyKzlGhyPjAd5JXEG5oZmBqamFkamFqa
-	GSuJ83oWdCQKCaQnlqRmp6YWpBbB9DFxcEo1MNnln8suSwuYt2pKTIVUc+ixa2l3ZqVGCshP
-	dHdd1/S5ZPtdczPDq04eAiUZJq4BtwUWtpUrM/Wu/8Uhaa0t/jA9LOe/cp7+iic7Z8+NrDuX
-	8md7wbJZj4pN9NVmyWz/KR8mvOr+nlol53P2ZjyTJ815VbTu9oueuIdR0y7/vf3t4aHyYwv1
-	YrgUXO/GSq8yVbxpJK9v+zM8eLNNutv6ytSMJp3vD8P4BJUsdoXO5mhlfyTxWv2m3In0JXvk
-	Ost93i11UAqx+aTq5KAYeiYozHfm7RjBYNtJxXLxPW+4JP5O1367sMVnqoy+7s99dZ8j4hQf
-	NukvqfD49Dunov7V+XOJuq0PrS5U1yjL7wtXYinOSDTUYi4qTgQART5uK08DAAA=
-X-CMS-MailID: 20240307114107eucas1p2d18f8261c44f0978c37100b1188bf8f3
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20240305105548eucas1p110f1ecf1570ff69a618ca86297eeba89
-X-EPHeader: CA
-CMS-TYPE: 201P
-X-CMS-RootMailID: 20240305105548eucas1p110f1ecf1570ff69a618ca86297eeba89
-References: <CGME20240305105548eucas1p110f1ecf1570ff69a618ca86297eeba89@eucas1p1.samsung.com>
-	<20240305-i2c_exynos5-v3-1-17a749688806@axis.com>
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nasanex01c.na.qualcomm.com (10.45.79.139)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: zi_FN4ymsGKQWjFTYVYkX6aX0z4HK0w_
+X-Proofpoint-ORIG-GUID: zi_FN4ymsGKQWjFTYVYkX6aX0z4HK0w_
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-03-07_07,2024-03-06_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 clxscore=1011
+ priorityscore=1501 spamscore=0 mlxscore=0 impostorscore=0 malwarescore=0
+ bulkscore=0 phishscore=0 lowpriorityscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.19.0-2402120000
+ definitions=main-2403070084
 
-On 05.03.2024 11:50, Jesper Nilsson wrote:
-> devm_request_irq() is called before we initialize the "variant"
-> member variable from of_device_get_match_data(), so if an interrupt
-> is triggered inbetween, we can end up following a NULL pointer
-> in the interrupt handler.
->
-> This problem was exposed when the I2C controller in question was
-> (mis)configured to be used in both secure world and Linux.
->
-> That this can happen is also reflected by the existing code that
-> clears any pending interrupts from "u-boot or misc causes".
->
-> Move the clearing of pending interrupts and the call to
-> devm_request_irq() to the end of probe.
->
-> Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
-> Fixes: 218e1496135e ("i2c: exynos5: add support for HSI2C on Exynos5260 SoC")
-> Signed-off-by: Jesper Nilsson <jesper.nilsson@axis.com>
-> ---
-> Changes in v3:
-> - Avoid multiple assignment
-> - Link to v2: https://lore.kernel.org/r/20240304-i2c_exynos5-v2-1-7b9c312be719@axis.com
->
-> Changes in v2:
-> - Use dev_err_probe() instead of open coding it
-> - Dropped the return failure if we can't find a match in devicetree
-> - Link to v1: https://lore.kernel.org/r/20240304-i2c_exynos5-v1-1-e91c889d2025@axis.com
-> ---
->   drivers/i2c/busses/i2c-exynos5.c | 29 +++++++++++++++--------------
->   1 file changed, 15 insertions(+), 14 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-exynos5.c b/drivers/i2c/busses/i2c-exynos5.c
-> index 385ef9d9e4d4..8458e22313a7 100644
-> --- a/drivers/i2c/busses/i2c-exynos5.c
-> +++ b/drivers/i2c/busses/i2c-exynos5.c
-> @@ -906,23 +906,9 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
->   	i2c->adap.algo_data = i2c;
->   	i2c->adap.dev.parent = &pdev->dev;
->   
-> -	/* Clear pending interrupts from u-boot or misc causes */
-> -	exynos5_i2c_clr_pend_irq(i2c);
-> -
->   	spin_lock_init(&i2c->lock);
->   	init_completion(&i2c->msg_complete);
->   
-> -	i2c->irq = ret = platform_get_irq(pdev, 0);
-> -	if (ret < 0)
-> -		goto err_clk;
-> -
-> -	ret = devm_request_irq(&pdev->dev, i2c->irq, exynos5_i2c_irq,
-> -			       IRQF_NO_SUSPEND, dev_name(&pdev->dev), i2c);
-> -	if (ret != 0) {
-> -		dev_err(&pdev->dev, "cannot request HS-I2C IRQ %d\n", i2c->irq);
-> -		goto err_clk;
-> -	}
-> -
->   	i2c->variant = of_device_get_match_data(&pdev->dev);
->   
->   	ret = exynos5_hsi2c_clock_setup(i2c);
-> @@ -940,6 +926,21 @@ static int exynos5_i2c_probe(struct platform_device *pdev)
->   	clk_disable(i2c->clk);
->   	clk_disable(i2c->pclk);
->   
-> +	/* Clear pending interrupts from u-boot or misc causes */
-> +	exynos5_i2c_clr_pend_irq(i2c);
 
-Just above this call the clocks have been disabled, so any access to the 
-i2c host registers will result in freeze or external abort (depending on 
-the soc/cpu).
 
-To make things worse, this patch moved registering the interrupt handler 
-after the i2c_add_adapter() call. This means that all i2c devices that 
-will be probbed directly from i2c_add_adapter() won't be able to access 
-the i2c bus, as the host controller is still not fully functional that 
-time yet.
 
-This breaks today's linux-next on all Exynos5+ platforms. Has anyone 
-tested this change?
+On 3/7/2024 3:23 PM, Dmitry Baryshkov wrote:
+> On Thu, 7 Mar 2024 at 11:36, Mukesh Kumar Savaliya
+> <quic_msavaliy@quicinc.com> wrote:
+>>
+>> We are seeing transfer failure instead of NACK error for simple
+>> device scan test.Ideally it should report exact error like NACK
+>> if device is not present.
+>>
+>> We may also expect errors like BUS_PROTO or ARB_LOST, hence we are
+>> adding such error support in GSI mode and reporting it accordingly
+>> by adding respective error logs.
+> 
+> Please take a look at the
+> Documentation/process/submitting-patches.rst. This is not the expected
+> style of commit messages.
+> 
 
-> +
-> +	ret = platform_get_irq(pdev, 0);
-> +	if (ret < 0)
-> +		goto err_clk;
-> +	i2c->irq = ret;
-> +
-> +	ret = devm_request_irq(&pdev->dev, i2c->irq, exynos5_i2c_irq,
-> +			       IRQF_NO_SUSPEND, dev_name(&pdev->dev), i2c);
-> +	if (ret != 0) {
-> +		dev_err(&pdev->dev, "cannot request HS-I2C IRQ %d\n", i2c->irq);
-> +		goto err_clk;
-> +	}
-> +
->   	return 0;
->   
->    err_clk:
->
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+Thanks Dmitry ! Gone through the link and tried to align to the 
+guidance. I will be adding into the actual upload in V3.
 
+When we run scan test for i2c devices, we see transfer failures instead
+of NACK. This is wrong because there is no data transfer failure but 
+it's a slave response to the i2c master controller.
+
+This change correctly identifies NACK error. Also adds support for other
+protocol errors like BUS_PROTO and ARB_LOST. This helps to exactly know
+the response on the bus.
+
+Function geni_i2c_gpi_xfer() gets called for any i2c GSI mode transfer
+and waits for the response as success OR failure. If slave is not 
+present OR NACKing, GSI generates an error interrupt which calls ISR and 
+it further calls gpi_process_xfer_compl_event(). Now 
+dmaengine_desc_callback_invoke() will call i2c_gpi_cb_result() where we 
+have added parsing status parameters to identify respective errors.
+
+>>
+>> During geni_i2c_gpi_xfer(), we should expect callback param as a
+>> transfer result. For that we have added a new structure named
+>> gpi_i2c_result, which will store xfer result.
+>>
+>> Upon receiving an interrupt, gpi_process_xfer_compl_event() will
+>> store transfer result into status variable and then call the
+>> dmaengine_desc_callback_invoke(). Hence i2c_gpi_cb_result() can
+>> parse the respective errors.
+>>
+>> while parsing error from the status param, use FIELD_GET with the
+> 
+> Sentences start with the uppercase letter.
+
+Sure, will do while/While change. Will take care in next patch.
+
+> 
+>> mask instead of multiple shifting operations for each error.
+> 
+> 
+>>
+>> Fixes: d8703554f4de ("i2c: qcom-geni: Add support for GPI DMA")
+>> Co-developed-by: Viken Dadhaniya <quic_vdadhani@quicinc.com>
+>> Signed-off-by: Viken Dadhaniya <quic_vdadhani@quicinc.com>
+>> Signed-off-by: Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>
+>> ---
+>> ---
+Sorry, i Missed to add V1 -> V2 : will add into next patch upload.
+>> - Commit log changed we->We.
+>> - Explained the problem that we are not detecing NACK error.
+>> - Removed Heap based memory allocation and hence memory leakage issue.
+>> - Used FIELD_GET and removed shiting and masking every time as suggested by Bjorn.
+>> - Changed commit log to reflect the code changes done.
+>> - Removed adding anything into struct gpi_i2c_config and created new structure
+>>    for error status as suggested by Bjorn.
+>> ---
+>>   drivers/dma/qcom/gpi.c             | 12 +++++++++++-
+>>   drivers/i2c/busses/i2c-qcom-geni.c | 19 +++++++++++++++----
+>>   include/linux/dma/qcom-gpi-dma.h   | 10 ++++++++++
+>>   3 files changed, 36 insertions(+), 5 deletions(-)
+>>
+>> diff --git a/drivers/dma/qcom/gpi.c b/drivers/dma/qcom/gpi.c
+>> index 1c93864e0e4d..e3508d51fdc9 100644
+>> --- a/drivers/dma/qcom/gpi.c
+>> +++ b/drivers/dma/qcom/gpi.c
+>> @@ -1076,7 +1076,17 @@ static void gpi_process_xfer_compl_event(struct gchan *gchan,
+>>          dev_dbg(gpii->gpi_dev->dev, "Residue %d\n", result.residue);
+>>
+>>          dma_cookie_complete(&vd->tx);
+>> -       dmaengine_desc_get_callback_invoke(&vd->tx, &result);
+>> +       if (gchan->protocol == QCOM_GPI_I2C) {
+>> +               struct dmaengine_desc_callback cb;
+>> +               struct gpi_i2c_result *i2c;
+>> +
+>> +               dmaengine_desc_get_callback(&vd->tx, &cb);
+>> +               i2c = cb.callback_param;
+>> +               i2c->status = compl_event->status;
+>> +               dmaengine_desc_callback_invoke(&cb, &result);
+>> +       } else {
+>> +               dmaengine_desc_get_callback_invoke(&vd->tx, &result);
+> 
+> Is there such error reporting for SPI or UART protocols?
+> 
+
+Such errors are not there for SPI or UART because 
+NACK/BUS_PROTO/ARB_LOST errors are protocol specific errors. These error 
+comes in
+middle of the transfers. As these are like expected protocol errors 
+depending on the slave device/s response.
+
+>> +       }
+>>
+>>   gpi_free_desc:
+>>          spin_lock_irqsave(&gchan->vc.lock, flags);
+>> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+>> index da94df466e83..36a7c0c0ff54 100644
+>> --- a/drivers/i2c/busses/i2c-qcom-geni.c
+>> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+>> @@ -66,6 +66,7 @@ enum geni_i2c_err_code {
+>>          GENI_TIMEOUT,
+>>   };
+>>
+>> +#define I2C_DMA_TX_IRQ_MASK    GENMASK(12, 5)
+>>   #define DM_I2C_CB_ERR          ((BIT(NACK) | BIT(BUS_PROTO) | BIT(ARB_LOST)) \
+>>                                                                          << 5)
+>>
+>> @@ -99,6 +100,7 @@ struct geni_i2c_dev {
+>>          struct dma_chan *rx_c;
+>>          bool gpi_mode;
+>>          bool abort_done;
+>> +       struct gpi_i2c_result i2c_result;
+>>   };
+>>
+>>   struct geni_i2c_desc {
+>> @@ -484,9 +486,18 @@ static int geni_i2c_tx_one_msg(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+>>
+>>   static void i2c_gpi_cb_result(void *cb, const struct dmaengine_result *result)
+>>   {
+>> -       struct geni_i2c_dev *gi2c = cb;
+>> -
+>> -       if (result->result != DMA_TRANS_NOERROR) {
+>> +       struct gpi_i2c_result *i2c_res = cb;
+>> +       struct geni_i2c_dev *gi2c = container_of(i2c_res, struct geni_i2c_dev, i2c_result);
+>> +       u32 status;
+>> +
+>> +       status = FIELD_GET(I2C_DMA_TX_IRQ_MASK, i2c_res->status);
+>> +       if (status == BIT(NACK)) {
+>> +               geni_i2c_err(gi2c, NACK);
+>> +       } else if (status == BIT(BUS_PROTO)) {
+>> +               geni_i2c_err(gi2c, BUS_PROTO);
+>> +       } else if (status == BIT(ARB_LOST)) {
+>> +               geni_i2c_err(gi2c, ARB_LOST);
+>> +       } else if (result->result != DMA_TRANS_NOERROR) {
+>>                  dev_err(gi2c->se.dev, "DMA txn failed:%d\n", result->result);
+>>                  gi2c->err = -EIO;
+>>          } else if (result->residue) {
+>> @@ -568,7 +579,7 @@ static int geni_i2c_gpi(struct geni_i2c_dev *gi2c, struct i2c_msg *msg,
+>>          }
+>>
+>>          desc->callback_result = i2c_gpi_cb_result;
+>> -       desc->callback_param = gi2c;
+>> +       desc->callback_param = &gi2c->i2c_result;
+>>
+>>          dmaengine_submit(desc);
+>>          *buf = dma_buf;
+>> diff --git a/include/linux/dma/qcom-gpi-dma.h b/include/linux/dma/qcom-gpi-dma.h
+>> index 6680dd1a43c6..f585c6a35e51 100644
+>> --- a/include/linux/dma/qcom-gpi-dma.h
+>> +++ b/include/linux/dma/qcom-gpi-dma.h
+>> @@ -80,4 +80,14 @@ struct gpi_i2c_config {
+>>          bool multi_msg;
+>>   };
+>>
+>> +/**
+>> + * struct gpi_i2c_result - i2c transfer status result in GSI mode
+>> + *
+>> + * @status: store txfer status value as part of callback
+>> + *
+>> + */
+>> +struct gpi_i2c_result {
+>> +       u32 status;
+>> +};
+>> +
+>>   #endif /* QCOM_GPI_DMA_H */
+>> --
+>> The Qualcomm Innovation Center, Inc. is a member of the Code Aurora Forum,
+>> a Linux Foundation Collaborative Project
+>>
+>>
+> 
+> 
