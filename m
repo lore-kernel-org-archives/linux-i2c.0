@@ -1,83 +1,96 @@
-Received: from 7.mo560.mail-out.ovh.net (7.mo560.mail-out.ovh.net [188.165.48.182])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A52D92E3E4
-	for <linux-i2c@vger.kernel.org>; Fri,  8 Mar 2024 07:05:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.165.48.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE5074F20D;
+	Fri,  8 Mar 2024 08:08:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1709881543; cv=none; b=Rs9LrCv5fGyLkWn6Gd3kXnxxPO1zgepY/kS+ttY2cYOGuvgca8iAVE5ko8cGHflcxD81hYzaGS7seHkQ3/Xvi8Qf/uA09q2QpGDYBQgXUCB2l5Vum3RDQTL5RBAEXywBIMEHRskL4stLuqqzFPb7zigvoXp4Fpl1HaCWprykU8I=
+	t=1709885287; cv=none; b=Z8MQCxwMWD9WFhTJmM58bFTuafnxx9KuzzR3nXg7gq9VIAXmKHVKihZ1M3Jo3j9frOEjPESPlm6hz3RABTaC+bkUY1rVeDLsV+KMLSlX7USj9Tv6bLFXt4TINDO2Zhv6iHISlcYZHzV3QhFS0L0V4rSz1eGJikTEt5NSXQdePmU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1709881543; c=relaxed/simple;
-	bh=+WtNAUAUWq/BfAulUapucUzAISe2nXBsKcRWtXwicsk=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=W18T/qHebNX7UTb8Oq23LYo3LZzo0RUYBTUEYOlLmg79AYC7QHdnlkMTB9OOYnT102uqPUziNI0QnZOw8mwN2odcgr/eDswrPlzCvhKb5wtimHa8aAZhtYky+7GvteK0M/NthBoY7vhEC+fL7myI2InOcJS3hVlDU83oHfSbZ5s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=188.165.48.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director9.ghost.mail-out.ovh.net (unknown [10.108.17.43])
-	by mo560.mail-out.ovh.net (Postfix) with ESMTP id 4TrcQf37Fxz1L1X
-	for <linux-i2c@vger.kernel.org>; Fri,  8 Mar 2024 06:56:26 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-67h7n (unknown [10.110.178.59])
-	by director9.ghost.mail-out.ovh.net (Postfix) with ESMTPS id AB1081FE42;
-	Fri,  8 Mar 2024 06:56:24 +0000 (UTC)
-Received: from etezian.org ([37.59.142.109])
-	by ghost-submission-6684bf9d7b-67h7n with ESMTPSA
-	id MlWHKpi26mUsBgAAeUv1+w
-	(envelope-from <andi@etezian.org>); Fri, 08 Mar 2024 06:56:24 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-109S00328a07135-36d5-4a1a-85ea-111edb4fd173,
-                    2D11F706EFA52336831762ECFB2C8F5C1953C755) smtp.auth=andi@etezian.org
-X-OVh-ClientIp:89.217.109.169
+	s=arc-20240116; t=1709885287; c=relaxed/simple;
+	bh=E0HX97nLy0bKdRS8NFjdP6aVUlBEd9Q/8WOyCVN9eoo=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=NUYlTE8TCIaoZa4xoLVHjMA3j1DET4FZDeKMTAauC3y3+X11oOo0ZTU5U4+nqPVF7FImEc5aaTH1jzCQFyv8SF5wtyQM5WkUkgZbiV1i3QRQ7dLPtU0GV4VGhK9FRlD71XYmWUMUWQKtl/AtuxR3GVP9oHtnnHcLxP14QuC/xUY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RN++YXGr; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RN++YXGr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9AE4C433F1;
+	Fri,  8 Mar 2024 08:08:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1709885287;
+	bh=E0HX97nLy0bKdRS8NFjdP6aVUlBEd9Q/8WOyCVN9eoo=;
+	h=Date:From:To:Cc:Subject:From;
+	b=RN++YXGrqCpzXpuWxLP1CY27wAUhBWB6ZcDxsz64PXOdbmL9gmWw4ha0d8QkqURCr
+	 CF+t+j04OataYwdGH0YC1Rh1P9RrFoFgVEdHH81MvOHWG60kDUu98WFkaeWohsXXgf
+	 UclzP81h70tUXx49mIYkjR2Auo8TmaBTl5f11qbkxCelbAPHMmket7O1sd5/Jag6PS
+	 dT4C3ttxsNZvKkWYUGWPISDV+TWO210oV2vKkJlfCWOCBGypvvLnbzlRE6st/naC/g
+	 w2Q+WI5TLrEMY/JUwqMx2JkZm9bI1sQK/8y98h3+V4O0Lx7yulpFqdeclde4SuKDhX
+	 6TxEdTVWFMahw==
+Date: Fri, 8 Mar 2024 09:08:03 +0100
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
- =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-Cc: Orson Zhai <orsonzhai@gmail.com>, 
- Baolin Wang <baolin.wang@linux.alibaba.com>, 
- Chunyan Zhang <zhang.lyra@gmail.com>, linux-i2c@vger.kernel.org, 
- kernel@pengutronix.de
-In-Reply-To: <20240306180241.83327-2-u.kleine-koenig@pengutronix.de>
-References: <20240306180241.83327-2-u.kleine-koenig@pengutronix.de>
-Subject: Re: [PATCH] i2c: sprd: Convert to platform remove callback
- returning void
-Message-Id: <170988098388.2379036.4026488697020218182.b4-ty@kernel.org>
-Date: Fri, 08 Mar 2024 07:56:23 +0100
+To: Wolfram Sang <wsa@kernel.org>
+Cc: Andi Shyti <andi.shyti@kernel.org>, 
+	linux-i2c <linux-i2c@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>, 
+	Marek Szyprowski <m.szyprowski@samsung.com>
+Subject: [GIT PULL] i2c-host fixes for v6.8
+Message-ID: <iofmooj4qz7j2rphzx3ahvpdur7pwoaj4jjduraffyto4yd7si@amqj4p4ldgef>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Mailer: b4 0.13.0
-X-Ovh-Tracer-Id: 13157829262787807769
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvledrieeggddutddtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvegjfhfukfffgggtgffosehtkeertdertdejnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpefhudekhefggeeuueelheevjeeugeeviedujefggeetffdvteejkedtledtieeukeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeduvdejrddtrddtrddupdekledrvddujedruddtledrudeiledpfeejrdehledrudegvddruddtleenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomheprghnughisegvthgviihirghnrdhorhhgpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheeitddpmhhouggvpehsmhhtphhouhht
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi
+Hi Wolfram,
 
-On Wed, 06 Mar 2024 19:02:41 +0100, Uwe Kleine-König wrote:
-> The .remove() callback for a platform driver returns an int which makes
-> many driver authors wrongly assume it's possible to do error handling by
-> returning an error code. However the value returned is ignored (apart
-> from emitting a warning) and this typically results in resource leaks.
-> 
-> To improve here there is a quest to make the remove callback return
-> void. In the first step of this quest all drivers are converted to
-> .remove_new(), which already returns void. Eventually after all drivers
-> are converted, .remove_new() will be renamed to .remove().
-> 
-> [...]
+at this stage, four fixes make up a fat pull request, but there
+has been some turmoil in the last week. The rush to get things
+sent by the merge window might have generated the need for some
+fixes.
 
-Applied to i2c/i2c-host on
+One patch was removed from the pull request because it broke the
+Exynos5 I2C on all platforms. For this, I really need to thank
+Marek for the prompt report.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git
-
-Thank you,
+Thanks,
 Andi
 
-Patches applied
-===============
-[1/1] i2c: sprd: Convert to platform remove callback returning void
-      commit: 3fe30b74207a4da40064f16a02655d170978547c
+The following changes since commit cf8281b1aeab93a03c87033a741075c39ace80d4:
 
+  i2c: imx: when being a target, mark the last read as processed (2024-02-22 09:02:16 +0100)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-host-fixes-6.8
+
+for you to fetch changes up to 1f78f0901011c56801ff957f59152f390e8574b9:
+
+  i2c: aspeed: Fix the dummy irq expected print (2024-03-07 20:54:00 +0100)
+
+----------------------------------------------------------------
+Two patches from Heiner for the i801 are targeting muxes
+discovered while working on some other features. Essentially,
+there is a reordering when adding optional slaves and proper
+cleanup upon registering a mux device.
+
+Christophe fixes the exit path in the wmt driver that was leaving
+the clocks hanging, and the last fix from Tommy avoids false
+error reports in IRQ.
+
+----------------------------------------------------------------
+Christophe JAILLET (1):
+      i2c: wmt: Fix an error handling path in wmt_i2c_probe()
+
+Heiner Kallweit (2):
+      i2c: i801: Fix using mux_pdev before it's set
+      i2c: i801: Avoid potential double call to gpiod_remove_lookup_table
+
+Tommy Huang (1):
+      i2c: aspeed: Fix the dummy irq expected print
+
+ drivers/i2c/busses/i2c-aspeed.c | 1 +
+ drivers/i2c/busses/i2c-i801.c   | 6 ++++--
+ drivers/i2c/busses/i2c-wmt.c    | 6 +++++-
+ 3 files changed, 10 insertions(+), 3 deletions(-)
