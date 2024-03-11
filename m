@@ -1,102 +1,89 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx2.zhaoxin.com (mx2.zhaoxin.com [203.110.167.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00A37200AE;
-	Sun, 10 Mar 2024 11:32:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11E21138C
+	for <linux-i2c@vger.kernel.org>; Mon, 11 Mar 2024 03:26:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.110.167.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710070370; cv=none; b=i08RUcfRYIxB/1jDSVBgV9PcK2qPxskwKUV4gyOydqgsa/x2PuUjsABMX1u2CVsnqub92kHB23BZA3PfD+SComDTqPv+5ZCbKuJrguadqBgbC5mDJptz/MkEXDeyctQ2OQGDa70CuEkJrs2oUROkDMmQhck/ix8h7kppc1V3hHM=
+	t=1710127573; cv=none; b=n0e9TTVw4zQZSL9uHd5W4VbCAKZj7mLKUEQveaeGrq9lft9jNZCl+NrFZeyY3Eyh3jQ7Y/3WdizsEchh+yM2MIhLjRz94xZdWFDnwD03vwcf4wNDOR/Sa1tvVZ80L8oJQhXADFYQI/ZqacBx4r9ZVRu1YZZ7VWC9vfew9Ioh5lU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710070370; c=relaxed/simple;
-	bh=tgvuG2vFL41wYnIq+Hysp9HaTicCmN3CgwRQbDF1W1I=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=mTrz9fTQzzF2CKfv+HWk6aHpdik1sZi7Ly2r/56zFPLAr/h+2QpWPO5hxwdB+FBFwaq9kX+QgrVafBR9G30eBBJy/P8rTFSaIRLnkIpcBEhgbGW1lYkcLYW2Vn/5AqwfrCIkX15Vsiuh8RhrEOi9S+tm4xRhqvJvoddzI9ahKrY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=r1Wmo6g7; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="r1Wmo6g7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9684AC433F1;
-	Sun, 10 Mar 2024 11:32:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1710070369;
-	bh=tgvuG2vFL41wYnIq+Hysp9HaTicCmN3CgwRQbDF1W1I=;
-	h=Date:From:To:Cc:Subject:From;
-	b=r1Wmo6g74jTMj8YtQSlcrjPi1/ii1yikyWyExipheYGhh87cth7r5qMrJvV2mf10y
-	 MH5ziPN5+6iXPT7WDRcrYaBzf2D2pTKnrKAI5AxzakP7ERMQnn8LSFVgIiQZTO5Av9
-	 yqYrsf9TcPtMOzROANHJQklvkddHsGTq4It996wiNUwFMdCaiGphrgntIzKE3oDibk
-	 DMyqyQu9IZhryBPQ0S9T3g4X7ord731jlAmxJw7ssVIgqPraD5SrY24OxsIPxgux25
-	 DaYdPiCnS1fWryznXTBIfQNgGvAYKORmnbOdE5g1NTCFhCMw+bZNeB3+JMAjQ8TSAh
-	 TP6KygFCDvEsw==
-Date: Sun, 10 Mar 2024 12:32:45 +0100
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Wolfram Sang <wsa@kernel.org>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>, 
-	lkml <linux-kernel@vger.kernel.org>, Hans Hu <HansHu-oc@zhaoxin.com>
-Subject: [GIT PULL] i2c-host changes for v6.9 - part 2 (i2c zhaoxin)
-Message-ID: <sxe4w2iwfkaoowaqssz2lbig7tlnoasseod5atval23saqigee@tzz7qwy4fhaq>
+	s=arc-20240116; t=1710127573; c=relaxed/simple;
+	bh=N825wv/c+j9DKaGTzG7LQr6F8nKQztchJt+AGAtpAP0=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=EZgLXaxfIcPZGE2NE/5/NFSaMYPU2HiK/2WQc039l6VITntFVNiW+jnVOGsIzY3UCXH9yUFKcl/lOLmUH1MuCN2cd6kqYxuQV7+nZltEYl2Ays2nND6LNBUUuvZc0t1VpfE3UewYh/Ko2Up0e0/2NJvANSv/eiZ4HwpntoZAL0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zhaoxin.com; spf=pass smtp.mailfrom=zhaoxin.com; arc=none smtp.client-ip=203.110.167.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zhaoxin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zhaoxin.com
+X-ASG-Debug-ID: 1710127561-1eb14e2b8406fc0002-PT6Irj
+Received: from ZXSHMBX2.zhaoxin.com (ZXSHMBX2.zhaoxin.com [10.28.252.164]) by mx2.zhaoxin.com with ESMTP id uHZH2IIoWB2AVrQp (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO); Mon, 11 Mar 2024 11:26:02 +0800 (CST)
+X-Barracuda-Envelope-From: HansHu-oc@zhaoxin.com
+X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.164
+Received: from ZXBJMBX03.zhaoxin.com (10.29.252.7) by ZXSHMBX2.zhaoxin.com
+ (10.28.252.164) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Mon, 11 Mar
+ 2024 11:26:01 +0800
+Received: from ml-HP-ProDesk-680-G4-MT.zhaoxin.com (10.28.66.68) by
+ ZXBJMBX03.zhaoxin.com (10.29.252.7) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.27; Mon, 11 Mar 2024 11:26:01 +0800
+X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.164
+From: Hans Hu <hanshu-oc@zhaoxin.com>
+X-Barracuda-RBL-Trusted-Forwarder: 10.29.252.7
+To: <andi.shyti@kernel.org>, <linux-i2c@vger.kernel.org>, <wsa@kernel.org>
+CC: <hanshu@zhaoxin.com>
+Subject: [PATCH 2/2] i2c: viai2c: Fix bug for msg->len is 0
+Date: Mon, 11 Mar 2024 11:26:00 +0800
+X-ASG-Orig-Subj: [PATCH 2/2] i2c: viai2c: Fix bug for msg->len is 0
+Message-ID: <20240311032600.56244-2-hanshu-oc@zhaoxin.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240311032600.56244-1-hanshu-oc@zhaoxin.com>
+References: <20240311032600.56244-1-hanshu-oc@zhaoxin.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: zxbjmbx1.zhaoxin.com (10.29.252.163) To
+ ZXBJMBX03.zhaoxin.com (10.29.252.7)
+X-Barracuda-Connect: ZXSHMBX2.zhaoxin.com[10.28.252.164]
+X-Barracuda-Start-Time: 1710127561
+X-Barracuda-Encrypted: ECDHE-RSA-AES128-GCM-SHA256
+X-Barracuda-URL: https://10.28.252.36:4443/cgi-mod/mark.cgi
+X-Virus-Scanned: by bsmtpd at zhaoxin.com
+X-Barracuda-Scan-Msg-Size: 771
+X-Barracuda-BRTS-Status: 0
+X-Barracuda-Bayes: INNOCENT GLOBAL 0.0000 1.0000 -2.0210
+X-Barracuda-Spam-Score: -2.02
+X-Barracuda-Spam-Status: No, SCORE=-2.02 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=9.0 tests=
+X-Barracuda-Spam-Report: Code version 3.2, rules version 3.2.3.121952
+	Rule breakdown below
+	 pts rule name              description
+	---- ---------------------- --------------------------------------------------
 
-Hi Wolfram,
+This is a bug that was accidentally introduced when
+adjusting the wmt driver. Now fix it
 
-after Linus pulled the commit from Christophe, which was causing
-conflicts with the I2C Zhaoxin controller, I'm sending you the
-second part of pull request for v6.9, which includes only the six
-patches from Hans that add support.
+Signed-off-by: Hans Hu <hanshu-oc@zhaoxin.com>
+---
+ drivers/i2c/busses/i2c-viai2c-common.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-This series is in i2c/i2c-host-next. I haven't created a new
-branch since it has already been tested here for several days
-here.
+diff --git a/drivers/i2c/busses/i2c-viai2c-common.c b/drivers/i2c/busses/i2c-viai2c-common.c
+index 4c208b3a509e..894d24c6b4d3 100644
+--- a/drivers/i2c/busses/i2c-viai2c-common.c
++++ b/drivers/i2c/busses/i2c-viai2c-common.c
+@@ -145,7 +145,7 @@ static int viai2c_irq_xfer(struct viai2c *i2c)
+ 		if (msg->len == 0) {
+ 			val = VIAI2C_CR_TX_END | VIAI2C_CR_CPU_RDY | VIAI2C_CR_ENABLE;
+ 			writew(val, base + VIAI2C_REG_CR);
+-			return 0;
++			return 1;
+ 		}
+ 
+ 		if ((i2c->xfered_len + 1) == msg->len) {
+-- 
+2.34.1
 
-If time permits, there are two series from Theo and Mukesh queued
-in i2c/i2c-host.
-
-Thanks,
-Andi
-
-The following changes since commit b3b00cea6378475f972eb49c068062627ff3a14d:
-
-  Merge branch 'i2c/i2c-host' into i2c/i2c-host-next (2024-03-08 23:30:28 +0100)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-host-6.9-pt.2-zhaoxin
-
-for you to fetch changes up to 391ead8dc4e49b6de96ffdd1f6b1d89fa2282e40:
-
-  i2c: add zhaoxin i2c controller driver (2024-03-08 23:30:50 +0100)
-
-----------------------------------------------------------------
-Added support for the Zhaoxin I2C controller. This required
-extensive code refactoring in the wmt driver, mainly targeting
-the extraction of the common IP from the viai2c, which will be
-used by both wmt and Zhaoxin.
-
-----------------------------------------------------------------
-Hans Hu (6):
-      i2c: wmt: create wmt_i2c_init for general init
-      i2c: wmt: split out common files
-      i2c: wmt: rename something
-      i2c: wmt: fix a bug when thread blocked
-      i2c: wmt: add platform type VIAI2C_PLAT_WMT
-      i2c: add zhaoxin i2c controller driver
-
- MAINTAINERS                             |  10 +++-
- drivers/i2c/busses/Kconfig              |  10 ++++
- drivers/i2c/busses/Makefile             |   3 ++
- drivers/i2c/busses/i2c-viai2c-common.c  | 250 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-viai2c-common.h  |  85 +++++++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-viai2c-wmt.c     | 148 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-viai2c-zhaoxin.c | 299 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-wmt.c            | 421 -------------------------------------------------------------------------------------------------------------------------------------------------------------------
- 8 files changed, 804 insertions(+), 422 deletions(-)
- create mode 100644 drivers/i2c/busses/i2c-viai2c-common.c
- create mode 100644 drivers/i2c/busses/i2c-viai2c-common.h
- create mode 100644 drivers/i2c/busses/i2c-viai2c-wmt.c
- create mode 100644 drivers/i2c/busses/i2c-viai2c-zhaoxin.c
- delete mode 100644 drivers/i2c/busses/i2c-wmt.c
