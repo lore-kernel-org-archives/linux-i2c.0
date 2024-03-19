@@ -1,116 +1,117 @@
-Received: from mail-io1-f50.google.com (mail-io1-f50.google.com [209.85.166.50])
+Received: from mail-io1-f53.google.com (mail-io1-f53.google.com [209.85.166.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1248711CA0;
-	Wed, 20 Mar 2024 05:35:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80D781428E;
+	Wed, 20 Mar 2024 05:35:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1710912924; cv=none; b=ewjMcXJPgB5d/1tqw6Jks6Tvwz8f0WKkwf7zdzLizV34K6yra5UVpgM/VIknATCT8TU4MhVOkYOJqQ1+GED6jf1V+7/bVJyTSm/ykQrbko6KkILlT2hvj/ZUPR7F7TxRaQLQETVJYiL1FOtNXi9slcj7FZnIK6xU6MT/VAJsOPo=
+	t=1710912925; cv=none; b=S79FeBfjLRkvwuUK+0Cep55D7mQVA5jZtX49hIy0XzB9fVgC+Xv6Xh6EfCZYNQfwVIDgU1jHHJ04m3Jk+piPIWHBooXF0FghC2QZH+ogqsmIbcEs3ltG+HjReN01JmDkXJcdNIJ03348JiEQ2R9KAmvHs3U/EZT+8TSmkrDqwSE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1710912924; c=relaxed/simple;
-	bh=lDj3f+rosht0VqTqt50FoOoChvKBoWe9AFsZ3Vs1g9E=;
-	h=Message-ID:From:To:Cc:Date:Subject; b=kh8e2TMNIQ/SmcQuwyk01i7VoNMk6NomYOhAFsIb58RSfXShPh8Y5wdq3uuQvI+rHz3+Cqa0uYNQ4zXXtNeQPcVN98ApsjOW8g0Yxi7n0FjYOnWK810/TrvXZsHEjHTK6arHPJ8sNOFsduHNlXHEf65nYvnbhXnNVDAXUu/l1v8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OrJfgeez; arc=none smtp.client-ip=209.85.166.50
+	s=arc-20240116; t=1710912925; c=relaxed/simple;
+	bh=ldkBIpP1iQ2aO/IzaLnzxa3HL6kC7m3EDYC2KyM3Mps=;
+	h=Message-ID:From:To:Cc:Date:Subject; b=OcqHHE0svn57CoXtvWTmGsZNJQVUNm0v8dP+d8PlK3x/ulfyKUDP9i0FN9M4U7yfYHDFQDYkdjrSECKq+DCHnrFYFxzJWsqR51RhYtgR9VaSyHdhRnpLRwWMVwW+lduHhKA3ORyMj9ZatQ4f08OS4AUhAU36LFJgrRXhThJIwDg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eYly9WZP; arc=none smtp.client-ip=209.85.166.53
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OrJfgeez"
-Received: by mail-io1-f50.google.com with SMTP id ca18e2360f4ac-7cc133f431fso140582939f.1;
-        Tue, 19 Mar 2024 22:35:22 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eYly9WZP"
+Received: by mail-io1-f53.google.com with SMTP id ca18e2360f4ac-7cc01644f51so178715039f.2;
+        Tue, 19 Mar 2024 22:35:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1710912922; x=1711517722; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1710912924; x=1711517724; darn=vger.kernel.org;
         h=subject:date:cc:to:from:message-id:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=iqLWmso6Y8KzrUoHr+D43ypcjGVE/fKJMDs7/9zFkg8=;
-        b=OrJfgeezcCqks0c5Bez1juvIWePEB4WYhaF5aDtgjC/VlMFAqOn7hqKj5J5IDs18yq
-         Rr9u71uSwGt5u1ovPFv/2YjYbL6VE1OywzffOx8e7N9ytOVe3ksmLY5RphpZ6dpxiztr
-         AOMDY8OKcS5CQMYcz4TxvEzU1ZiZBnbXPvv9SvXPfNqNNHrJEiiaCCKWnq6cHvjlGi+X
-         T7UZHV761Z3q07r2phFTrKn9evaO0W1EC2UoP/amHbYEgNCiv2/O8ha9Wu9GNJtkkWGi
-         bFTnxHTKuzjdFVhSwZ5+T3Ahs5nYQjGB2Jqi+BrFnkj7wWt2ZEUU/0F4VqVmpLAOeKJF
-         TpSg==
+        bh=cdzaMW1y8chZwthZH4ERyUEDxEvHFRT3urSQfaKxNec=;
+        b=eYly9WZP+FeSBhqspLuJ/REtpPmOc4LWlVOq7Iko7pqHvgCbLC3IQQ5JNCilVh3PCz
+         AeerY5qlgqs79KxV7m+UhTqphy+IncdDiaLd+/PuK0djLjWKpoUKEFizznLe2oJFSWW6
+         j2CbF3nR7EkP9jZ9Gctf+chwZgTRxZrhvSnCt9B1al4icuCGlP7EUWY9NRYo6Br4G5+4
+         UbXEcor30vphyLlMpaCjK8JDAFcxMigDPz5yj8I6GfqzMV7ACjqNGXSI0wRcDTBT0Owb
+         uhjeycpld6R6uNdGrdvvkFgrT2499kBHdLUf7o2TbBDXxlZXBuSRrxlSwCNQBXdAwSUS
+         M5yA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1710912922; x=1711517722;
+        d=1e100.net; s=20230601; t=1710912924; x=1711517724;
         h=subject:date:cc:to:from:message-id:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=iqLWmso6Y8KzrUoHr+D43ypcjGVE/fKJMDs7/9zFkg8=;
-        b=EEXFbS5xGK6GfRV5RUl1B0v1c7JJ1hDJsczJ+zYah+bzEipSp0T+oz3nEkMUN60k43
-         DtYYZ/KJDfsxGlDH/sfkUdJ7AEUGLTBOTXqjAfJ0ZRKYp3W4iD3zz2IdbJguNRUc7kQe
-         nYlmgVapDY/MBJBw/cKqcLwGiH+ef1jnk4g93lvpCYcBOmNFvAzMqr7eaLKV85co1Q78
-         HOcvghXTcnXAltiE6lQW06ctiB7qvRfSzoEGToT/W9GTOKK0TS5/dY0EztemDyLJMwc6
-         5BLxcfN/g/615d4VRZzUvXS+KeWUgggMEhmpJzmgfzNfH2yfBdDIxFyVvARRzQGBvjNg
-         Qx5g==
-X-Forwarded-Encrypted: i=1; AJvYcCWFtrgYD1Y4Mto8a/akWmD+1q8Fi+cJANoAWrxEf0XYKXK40xLkXhnVQcuFgMRHVcKDSCFa6NVcMpo1rUA9/F8Og3Y13CfbFLdUVV9L
-X-Gm-Message-State: AOJu0YydqeoJR1QYMqEKKs8ZdAtyFn6Azxtg1UyoUtfwJwUjQyDnOQWK
-	ElSX3Pcmhi1Fbmfr4HyG5NDP95nkAZNIbKIjnINCBwDUfqSpzaAf
-X-Google-Smtp-Source: AGHT+IFu6nIGdKYxiSoz2hiJbrNhzoghyVc6FtBMJ/NcPQ7yAZlTdzvzq99+SJFVMCXcQ/ks5jpcdQ==
-X-Received: by 2002:a6b:4f17:0:b0:7cb:f1d0:a1cc with SMTP id d23-20020a6b4f17000000b007cbf1d0a1ccmr15941653iob.4.1710912922150;
-        Tue, 19 Mar 2024 22:35:22 -0700 (PDT)
+        bh=cdzaMW1y8chZwthZH4ERyUEDxEvHFRT3urSQfaKxNec=;
+        b=eAcFTyFMN3iScvoh5T4ncDt6e/xv0nIrDd4emeomUDb7aFwqiAUoaUnhnp2G9VtSvC
+         exi96HMl5bhD+RCkVYVY4w9bEGHIzRHneNgqoXTaA+/sPw6omZHTG+wjNF09YHZDyadA
+         Z4eZqD3z4N9nLd+d4JTbZAFM2G+IuKpTz//kRlq8JUe8rIWpo/Nqb5VNF9yc0xt2GiVz
+         0AhEgiE8NK7PwMwuzNTvd5/v58X8YfK04BFyUoR5tcneCr/dyiuUcfzy9bJaZN0gRX+z
+         XEW2oU2ZWWQgIcH94nudggJfyzWy0UJRk9fV+mTErhPqghbsdh4eD3OF8ynBDdVQBXY4
+         5pAQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUgYpo+iPYHL1Hst50sXAmLRpXT1k/0tUTig4gKdUnCq4GvQ+R5ld6CSDdceMWDG+uNfaWjcPmuWmbVjuEuZTNSzaFV0fo3pfI8Poa/
+X-Gm-Message-State: AOJu0YzrBmUPf6rOaG19fTwCe4WlJeJtVK/UvlPYdC0ojjM4lVVcUr7/
+	IMJJsuwwAXlez468MiIP7qij87f8v1mv1iwZNmA1GKqZfHk3aZoS
+X-Google-Smtp-Source: AGHT+IG9TmyAa6Gnq24FoX6mBn6doGEL9SzpbRHMACexCR5sHZfMAO83l9bHXVdDLtPIjeBOMZYnQQ==
+X-Received: by 2002:a5d:984e:0:b0:7cf:15be:6834 with SMTP id p14-20020a5d984e000000b007cf15be6834mr1105012ios.4.1710912923728;
+        Tue, 19 Mar 2024 22:35:23 -0700 (PDT)
 Received: from ?IPV6:2001:470:42c4:101:9af9:b18f:3f69:51be? ([2001:470:42c4:101:9af9:b18f:3f69:51be])
-        by smtp.gmail.com with ESMTPSA id q6-20020a5d9f06000000b007cc6af6686esm1679597iot.30.2024.03.19.22.35.21
+        by smtp.gmail.com with ESMTPSA id q6-20020a5d9f06000000b007cc6af6686esm1679597iot.30.2024.03.19.22.35.23
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 Mar 2024 22:35:21 -0700 (PDT)
-Message-ID: <65fa7599.5d0a0220.fe5f7.1f9f@mx.google.com>
+        Tue, 19 Mar 2024 22:35:23 -0700 (PDT)
+Message-ID: <65fa759b.5d0a0220.fe5f7.1fa0@mx.google.com>
 From: Sam Edwards <cfsworks@gmail.com>
 X-Google-Original-From: Sam Edwards <sam@turingpi.com>
 To: Gregory CLEMENT <gregory.clement@bootlin.com>, Andi Shyti <andi.shyti@kernel.org>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Date: Tue, 19 Mar 2024 18:44:56 -0600
-Subject: [RESEND v2 RFC 0/5] Enhancements for mv64xxx I2C driver
+Date: Tue, 19 Mar 2024 16:51:51 -0600
+Subject: [RESEND v2 RFC 1/5] i2c: mv64xxx: Clear bus errors before transfer
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 
-Salutations, Linux I2C team!
+The MV64XXX hardware can act as either a bus controller or target
+device. In order to protect target devices from a glitching bus
+(apparently), the core listens on the lines even when idle and moves the
+hardware FSM to the "BUS_ERR" state if an invalid transition is
+detected. The hardware then does not exit this state until reset.
 
-Apologies again for another resend; I'm just as surprised as you all that
-modern email clients are so hostile to sending the exact byte-for-byte .mbox
-given to them. Really wishing I could use git-send-email and be done with it.
-But, third time's the charm!
+This feature is actually counterproductive when using the hardware as a
+controller (as this driver does): we do not actually *care* what
+happened on the bus previously, as long as it's ready for use when the
+new transfer starts. However, the controller will remember a previous
+glitch and trip up the driver after it attempts to send the start
+command. The driver logs and error and resets the controller, recovering
+from the BUS_ERR state, but not without erroring back the transfer with
+errno EAGAIN. Clients generally do not handle this gracefully.
 
-I am working with an Allwinner T113-s3 based board; the internal I2C bus of
-which has a Realtek RTL8370MB-CG Ethernet switch coexisting with other I2C
-devices. The RTL8370MB-CG deviates from "conventional" I2C read operations
-in that it expects the hardware register after the addr+read byte before it
-turns around the bus to send the value. For this reason, the `realtek-smi`
-driver currently implements the protocol via bit-banging. However, I am in the
-process of developing a separate patch series to promote this driver to a
-"full" I2C driver, leveraging I2C_M_NOSTART to support this odd read operation.
+This is easily fixed by checking for the BUS_ERR condition upfront and
+issuing the hardware reset before beginning the transfer. This patch
+does NOT also call i2c_recover_bus(): the assumption is that the bus is
+fine, just the hardware is upset; if the bus is also in a bad state,
+this should not pass silently.
 
-In anticipation of that, I am preparing this series comprising five patches to
-improve the functionality and reliability of the I2C adapter enough to support
-this kind of device. I have heavily tested these changes on the Allwinner-style
-mv64xxx core, but not the Marvell-style, and have not been able to test 10-bit
-addressing. I would greatly appreciate if anyone here could test this series,
-especially on non-Allwinner boards and/or boards with 10-bit devices.
+Signed-off-by: Sam Edwards <sam@turingpi.com>
+---
+ drivers/i2c/busses/i2c-mv64xxx.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-I'm a bit skeptical of using I2C_M_NOSTART for this purpose. The driver does
-not (and cannot) support "just any" use of I2C_M_NOSTART, so it may be
-inappropriate to claim the I2C_FUNC_NOSTART capability. On the other hand, I
-searched high and low and couldn't find any use of I2C_M_NOSTART that
-*wouldn't* be supported by this change, so this could very well be exactly what
-clients understand I2C_FUNC_NOSTART to mean. Given that the alternative would
-be inventing a new flag ("I2C_M_READEXTRA"?) and figuring out how to supply
-input bytes and output bytes in the same i2c_msg, I opted for the NOSTART
-route instead.
-
-I look forward to any feedback, bug reports, test results, questions, concerns,
-commentary, or discussion that you can offer!
-
-Best regards,
-Sam
-
-Sam Edwards (5):
-  i2c: mv64xxx: Clear bus errors before transfer
-  i2c: mv64xxx: Clean up the private data struct
-  i2c: mv64xxx: Refactor FSM
-  i2c: mv64xxx: Allow continuing after read
-  i2c: mv64xxx: Implement I2C_FUNC_NOSTART
-
- drivers/i2c/busses/i2c-mv64xxx.c | 430 ++++++++++++++++++++++---------
- 1 file changed, 302 insertions(+), 128 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-mv64xxx.c b/drivers/i2c/busses/i2c-mv64xxx.c
+index fd8403b07fa6..cfc16909fba3 100644
+--- a/drivers/i2c/busses/i2c-mv64xxx.c
++++ b/drivers/i2c/busses/i2c-mv64xxx.c
+@@ -753,6 +753,7 @@ mv64xxx_i2c_xfer_core(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ {
+ 	struct mv64xxx_i2c_data *drv_data = i2c_get_adapdata(adap);
+ 	int rc, ret = num;
++	u32 status;
+ 
+ 	rc = pm_runtime_resume_and_get(&adap->dev);
+ 	if (rc)
+@@ -762,6 +763,11 @@ mv64xxx_i2c_xfer_core(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 	drv_data->msgs = msgs;
+ 	drv_data->num_msgs = num;
+ 
++	/* Calm down the hardware if it was upset by a bus glitch while idle */
++	status = readl(drv_data->reg_base + drv_data->reg_offsets.status);
++	if (status == MV64XXX_I2C_STATUS_BUS_ERR)
++		mv64xxx_i2c_hw_init(drv_data);
++
+ 	if (mv64xxx_i2c_can_offload(drv_data) && !drv_data->atomic)
+ 		rc = mv64xxx_i2c_offload_xfer(drv_data);
+ 	else
 -- 
 2.43.2
 
