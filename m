@@ -1,42 +1,43 @@
 Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C9ED47F64
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D70863121
 	for <linux-i2c@vger.kernel.org>; Fri, 22 Mar 2024 13:27:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711114043; cv=none; b=lmWKGfMYru/yNcPBS8S8GogX6xJTeS08dqjVEBavjr723ypiBD7FL6ecWTshZgsU3nVeW7w1iyIXQ1dZ3M8FqaWXHbpUsIr70A4s8PEnI2bW0KTgzsKxxkjwQQUX3IUdTJVm0AljAojvtsPw5EBZEiWH3oDH1qp2OY2ySs2e1TE=
+	t=1711114044; cv=none; b=ejy79bYc+rp3FM1LP2IwUo+R4ca9/I5XbaISaRdQAu9PPildZXzbZOI9YnAz3btxk7GDHkF9zAv5iwrAjh+yZfQ4NTE6ZpbAwoePveHigzVdACMMJ9PNqdJRdk/xA5a7I+QVHk00grM0ZRQKcjAgRnPcdkumeHChsSnVAmtKBW8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711114043; c=relaxed/simple;
-	bh=IyxDQg3Eeu2VTbNzfWVfCI3dAf1Hdea1OkK2fa+bIDA=;
+	s=arc-20240116; t=1711114044; c=relaxed/simple;
+	bh=gSJCKAfsXYEX11Ce8qfxfrsskafXE1oEiD5eqfxB7XU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=kSyaN3azHktcntetkZlSDO+5NA7NHe23FKWB3bWFIHJpD54TOy9aPbwbXZZOgPQnxf16HIMlLXdRVdTqT2UC4LM1i98L6YHqIEezrcRoRhRxDTRYwfFodTvsd04Yy3jiQiAQkhkLoyrsxBM4dGbpeGxCjBhH1mEP0vGX9z5Z4nw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=apZjvTY7; arc=none smtp.client-ip=194.117.254.33
+	 MIME-Version; b=rqxU3pe/gRsNLPuKuzHPEvPL0bWWH7DpTkL36JdORrO0v1SWfEiqLtnAtdmWofxYpIdyk8f5JFeQHWMlw5L+fGFryyspLmLKkMTcgISI3uTgKReFp9NHb5O4InCahPEv9wqvCyKqHcvsLrgBozvLPX3wZi09Pp42sVATWtDKiJY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=CqkWjw9V; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="apZjvTY7"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="CqkWjw9V"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=from:to:cc:subject:date:message-id
 	:in-reply-to:references:mime-version:content-transfer-encoding;
-	 s=k1; bh=k7I/P2iBDaF4EwyJ0IZtGeh8AwgbSdfw3r/JA/5EzLM=; b=apZjvT
-	Y7pq6/gOGSSsqKRLFQTCMDskrdvPc+xYxN9q6UvrhEAos7v1dVWG96qbcqyXkBkg
-	9XKnvgMW2HUHLMUd8boOWv01jpptuBNemhPxYs0H4Odwtx6EG4rvBD7MH2xuuoZU
-	ZOHL7w5dim79P3/vZKJHqdwxGkXUulLSwpw6S3vNmKL8vJreTrBZIOPOQeAvBcbP
-	WEx8mm27Ew/PFPjyvNSBJgnNDkO1Ubg4J3908GCkfYb22SeciQlwZKrb4AAZ72bE
-	j5ZjX9yqbzsu7+qCdGBPe7iviVpT5uWz84eMlS2YEO2+l3lKfXcaol5osg8/hlI3
-	Bglwy3sg7DTlQ6TQ==
-Received: (qmail 3871771 invoked from network); 22 Mar 2024 14:27:01 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 22 Mar 2024 14:27:01 +0100
-X-UD-Smtp-Session: l3s3148p1@SMBhxz8UDJRehhtF
+	 s=k1; bh=ZOkUyh2PPBfs/TtcNX0aDE3PwaWXSyikNW3QoCUR2Z4=; b=CqkWjw
+	9VgMuR9+QAuQGKhGWBPrNS4twp5dh801okqJ4FsWHkJO0ID01OQifoo23+kYXSXi
+	BtRtTf2YCDxqhsX74M1OsbX853qlr8m1lHJHRzd+SXE5O0caEX9Wtw5NTjFNa3jA
+	QsO+mzvVFNHSg+8LTyZIyH8SNyMtl4xpXHkKiYKz/B0WehSFiMNg6sQyRUh/JL1I
+	4EMpFiRrlS2kq9TsR8jLsolth6KCrs80cbsjGucYx33gzig2wF8Sit5X/pmy1QqF
+	yjfH/azHRK1dUhfy4nNTem9u3sDIW9s6nqCkZx58wB6Nj+QMch8biRMHTFJwkYb4
+	nD7mhMkDykfwDhxw==
+Received: (qmail 3871838 invoked from network); 22 Mar 2024 14:27:02 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 22 Mar 2024 14:27:02 +0100
+X-UD-Smtp-Session: l3s3148p1@s0R6xz8UIpRehhtF
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-i2c@vger.kernel.org
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Jean Delvare <jdelvare@suse.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 48/64] i2c: sh7760: reword according to newest specification
-Date: Fri, 22 Mar 2024 14:25:41 +0100
-Message-ID: <20240322132619.6389-49-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 50/64] i2c: sis5595: reword according to newest specification
+Date: Fri, 22 Mar 2024 14:25:43 +0100
+Message-ID: <20240322132619.6389-51-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240322132619.6389-1-wsa+renesas@sang-engineering.com>
 References: <20240322132619.6389-1-wsa+renesas@sang-engineering.com>
@@ -55,91 +56,21 @@ entity ("client") and a local one ("target").
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-sh7760.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-sis5595.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-sh7760.c b/drivers/i2c/busses/i2c-sh7760.c
-index 8a043f5fca1e..49e83ca89101 100644
---- a/drivers/i2c/busses/i2c-sh7760.c
-+++ b/drivers/i2c/busses/i2c-sh7760.c
-@@ -55,7 +55,7 @@
- #define MSR_MDE		0x08
- #define MSR_MDT		0x04
- #define MSR_MDR		0x02
--#define MSR_MAT		0x01		/* slave addr xfer done	*/
-+#define MSR_MAT		0x01		/* addr xfer done	*/
- 
- #define MIE_MNRE	0x40		/* nack irq en		*/
- #define MIE_MALE	0x20		/* arblos irq en	*/
-@@ -154,7 +154,7 @@ static irqreturn_t sh7760_i2c_irq(int irq, void *ptr)
- 		goto out;
+diff --git a/drivers/i2c/busses/i2c-sis5595.c b/drivers/i2c/busses/i2c-sis5595.c
+index 32476dc10ad6..198ba39a2651 100644
+--- a/drivers/i2c/busses/i2c-sis5595.c
++++ b/drivers/i2c/busses/i2c-sis5595.c
+@@ -257,7 +257,7 @@ static int sis5595_transaction(struct i2c_adapter *adap)
+ 	if (temp & 0x20) {
+ 		dev_err(&adap->dev, "Bus collision! SMBus may be locked until "
+ 			"next hard reset (or not...)\n");
+-		/* Clock stops and slave is stuck in mid-transmission */
++		/* Clock stops and client is stuck in mid-transmission */
+ 		result = -EIO;
  	}
- 
--	/* i2c slave addr was sent; set to "normal" operation */
-+	/* i2c client addr was sent; set to "normal" operation */
- 	if (msr & MSR_MAT)
- 		OUT32(id, I2CMCR, MCR_MIE);
- 
-@@ -236,14 +236,14 @@ static irqreturn_t sh7760_i2c_irq(int irq, void *ptr)
- }
- 
- 
--/* prepare and start a master receive operation */
-+/* prepare and start a host receive operation */
- static void sh7760_i2c_mrecv(struct cami2c *id)
- {
- 	int len;
- 
- 	id->flags |= IDF_RECV;
- 
--	/* set the slave addr reg; otherwise rcv wont work! */
-+	/* set the target addr reg; otherwise rcv won't work! */
- 	OUT32(id, I2CSAR, 0xfe);
- 	OUT32(id, I2CMAR, (id->msg->addr << 1) | 1);
- 
-@@ -262,14 +262,14 @@ static void sh7760_i2c_mrecv(struct cami2c *id)
- 	OUT32(id, I2CFIER, FIER_RXIE);
- }
- 
--/* prepare and start a master send operation */
-+/* prepare and start a host send operation */
- static void sh7760_i2c_msend(struct cami2c *id)
- {
- 	int len;
- 
- 	id->flags |= IDF_SEND;
- 
--	/* set the slave addr reg; otherwise xmit wont work! */
-+	/* set the target addr reg; otherwise xmit won't work! */
- 	OUT32(id, I2CSAR, 0xfe);
- 	OUT32(id, I2CMAR, (id->msg->addr << 1) | 0);
- 
-@@ -300,7 +300,7 @@ static inline int sh7760_i2c_busy_check(struct cami2c *id)
- 	return (IN32(id, I2CMCR) & MCR_FSDA);
- }
- 
--static int sh7760_i2c_master_xfer(struct i2c_adapter *adap,
-+static int sh7760_i2c_xfer(struct i2c_adapter *adap,
- 				  struct i2c_msg *msgs,
- 				  int num)
- {
-@@ -362,7 +362,7 @@ static int sh7760_i2c_master_xfer(struct i2c_adapter *adap,
- 	OUT32(id, I2CMIER, 0);
- 	OUT32(id, I2CFIER, 0);
- 
--	/* reset slave module registers too: master mode enables slave
-+	/* reset target module registers too: host mode enables target
- 	 * module for receive ops (ack, data). Without this reset,
- 	 * eternal bus activity might be reported after NACK / ARBLOST.
- 	 */
-@@ -379,7 +379,7 @@ static u32 sh7760_i2c_func(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm sh7760_i2c_algo = {
--	.master_xfer	= sh7760_i2c_master_xfer,
-+	.xfer	= sh7760_i2c_xfer,
- 	.functionality	= sh7760_i2c_func,
- };
  
 -- 
 2.43.0
