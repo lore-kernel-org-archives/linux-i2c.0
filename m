@@ -1,71 +1,104 @@
-Received: from 11.mo561.mail-out.ovh.net (11.mo561.mail-out.ovh.net [87.98.184.158])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 264654F8AB
-	for <linux-i2c@vger.kernel.org>; Thu, 28 Mar 2024 08:32:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=87.98.184.158
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 405BF3C0B;
+	Thu, 28 Mar 2024 09:10:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1711614733; cv=none; b=meYoDksFJY7AQFENm9BUkHBe+gd53qQz3/AWLIfpiMp0vNtHQwrsX3jGNxM2JL5G9IeC2PcGuZINfcNFZr/YPdtkRFErh6jxHR09hA8mP4qO8VQGElp0AWV7poxU5EE0fjYG0OrnQqu1A0SyfpxxfZnpOiYoGoHEz7Wm/wG65Ig=
+	t=1711617001; cv=none; b=lbtHWiyLLQa+F4ct5N0vjDYAYFDUsEi0qArHcVoy6YrRKDzIWbId3BF37ZOIz4mUsYfEHue9VLXraYep4Rt5eGVb5TDQOnz6zJuHphr8zFrR5SwPZ5NF4LTKwgLjHhzaaABA1WgRbOJ4DP8rei/Z1HA2NDHCK3oFSFEUP0ct8Xc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1711614733; c=relaxed/simple;
-	bh=5jdL0NZakDKqF9gplUSDQhdeYmYZL6yIF2/zBxh1+kM=;
-	h=From:To:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=KUMx4hjckKY2TK2dkC53Ma6sU+Tgvh3AXfVLAI4hE48sCed60IpcFv9cZeht6S9wd2s0XcjTy+OexUrDgTEjICdRyNAce3sX1fnrM6yUm7WUyHoq/Jt07erCn+KigPLvlMT1GiDmkbw+AsVItbGznhq6hCwwv4YHKYqAfRG0I6s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=87.98.184.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director5.ghost.mail-out.ovh.net (unknown [10.108.25.131])
-	by mo561.mail-out.ovh.net (Postfix) with ESMTP id 4V4wMs13Twz1D7V
-	for <linux-i2c@vger.kernel.org>; Thu, 28 Mar 2024 07:36:41 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-t7l5r (unknown [10.108.42.33])
-	by director5.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 665B41FEC4;
-	Thu, 28 Mar 2024 07:36:40 +0000 (UTC)
-Received: from etezian.org ([37.59.142.98])
-	by ghost-submission-6684bf9d7b-t7l5r with ESMTPSA
-	id 5CxFEAgeBWYTJAAAWKMMFQ
-	(envelope-from <andi@etezian.org>); Thu, 28 Mar 2024 07:36:40 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-98R002260416bf-d1f0-4904-9a61-cd2b2c3983f5,
-                    6D693167F0AB1D8A9C15294DA3267AC24BED3ACC) smtp.auth=andi@etezian.org
-X-OVh-ClientIp:89.217.109.169
+	s=arc-20240116; t=1711617001; c=relaxed/simple;
+	bh=buN5Ppu9AGNZtC/if8g17RcZZEQzgqGlib2VdnuWvYg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=llnRjhtlzYMgw9mR22yVZWJIz/eVD+RxtsnbndqRTfr3ths1g80V92Jk4Q8QoNii8e04StK1eEeITfG9bqzhHNWT0IuIOuEcQkyiO9DAVl0CsPwTshgg2Jt2KQpz13Qofgek37N2gpByTQ4i8U2jZCDoUlAISgbzeGst2QfCGj0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OFLlSdaF; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OFLlSdaF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DAA8C433F1;
+	Thu, 28 Mar 2024 09:10:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1711617000;
+	bh=buN5Ppu9AGNZtC/if8g17RcZZEQzgqGlib2VdnuWvYg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=OFLlSdaFgLJfwlccYTUQ07QIz60FOyuC8o6pcVV92LZbtE4gq7IAodXVpi6MWqQKD
+	 /P4Fl8Qvp5yVtqoZgDTztgedrMv69WkJQHT0+Txctf1PpT/Xt7GN34m4JFuIr7B2Ob
+	 ZenIk9jv0ixo23yCmoRslgOW7owKOyIYOaTT9eixAfQmT/MLYqxgdsDEciF2ow33fx
+	 8Bp/LnCK2rxFLnCW0HllcXCOe0nR3LyIMLLjxk5pVqhide4zeg+ntfoRA3RYM/BQBD
+	 2/XHLh2NMuIq7tdO8199Pn4n+qV0Z9Lu1bznDyMzbl74t5Y9igoKy2SgIRxUTfCqJ8
+	 VO6OdnuV01Mcg==
+Date: Thu, 28 Mar 2024 10:09:57 +0100
 From: Andi Shyti <andi.shyti@kernel.org>
-To: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-In-Reply-To: <20240327174705.519535-1-krzysztof.kozlowski@linaro.org>
-References: <20240327174705.519535-1-krzysztof.kozlowski@linaro.org>
-Subject: Re: [PATCH] i2c: viperboard: drop driver owner assignment
-Message-Id: <171161139848.2698925.1593259780081719609.b4-ty@kernel.org>
-Date: Thu, 28 Mar 2024 08:36:38 +0100
+To: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Cc: Russell King <linux@armlinux.org.uk>, 
+	Suzuki K Poulose <suzuki.poulose@arm.com>, Mike Leach <mike.leach@linaro.org>, 
+	James Clark <james.clark@arm.com>, Alexander Shishkin <alexander.shishkin@linux.intel.com>, 
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
+	Linus Walleij <linus.walleij@linaro.org>, Olivia Mackall <olivia@selenic.com>, 
+	Herbert Xu <herbert@gondor.apana.org.au>, Vinod Koul <vkoul@kernel.org>, 
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>, Miquel Raynal <miquel.raynal@bootlin.com>, 
+	Michal Simek <michal.simek@amd.com>, Eric Auger <eric.auger@redhat.com>, 
+	Alex Williamson <alex.williamson@redhat.com>, linux-kernel@vger.kernel.org, coresight@lists.linaro.org, 
+	linux-arm-kernel@lists.infradead.org, linux-stm32@st-md-mailman.stormreply.com, 
+	linux-i2c@vger.kernel.org, linux-crypto@vger.kernel.org, dmaengine@vger.kernel.org, 
+	linux-input@vger.kernel.org, kvm@vger.kernel.org
+Subject: Re: [PATCH 01/19] amba: store owner from modules with
+ amba_driver_register()
+Message-ID: <bm7xoej6ihtzw63mhocvkkb7j5no2wnhztwrvvlogmuxjycviv@7frc2s3dsi5h>
+References: <20240326-module-owner-amba-v1-0-4517b091385b@linaro.org>
+ <20240326-module-owner-amba-v1-1-4517b091385b@linaro.org>
+ <6p4cdmbhrezm7fqbe3kgrkblqgrhaq4fgiw5x4n5dnptii7kjp@vmbj2pkjglp7>
+ <c33833ad-9102-40e6-97bf-9a4e1bf0a3d9@linaro.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.13.0
-X-Ovh-Tracer-Id: 2164261096738392600
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvledruddukedguddtlecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfgjfhfukfffgggtgffosehtjeertdertdejnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpeelkefhieeljeejffdtvddthfffleffueekkefgieelveejjedtudettdeghfdutdenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeduvdejrddtrddtrddupdekledrvddujedruddtledrudeiledpfeejrdehledrudegvddrleeknecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehiedupdhmohguvgepshhmthhpohhuth
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c33833ad-9102-40e6-97bf-9a4e1bf0a3d9@linaro.org>
 
-Hi
+Hi Krzysztof,
 
-On Wed, 27 Mar 2024 18:47:05 +0100, Krzysztof Kozlowski wrote:
-> Core in platform_driver_register() already sets the .owner, so driver
-> does not need to.
+> >>  /**
+> >> - *	amba_driver_register - register an AMBA device driver
+> >> + *	__amba_driver_register - register an AMBA device driver
+> >>   *	@drv: amba device driver structure
+> >> + *	@owner: owning module/driver
+> >>   *
+> >>   *	Register an AMBA device driver with the Linux device model
+> >>   *	core.  If devices pre-exist, the drivers probe function will
+> >>   *	be called.
+> >>   */
+> >> -int amba_driver_register(struct amba_driver *drv)
+> >> +int __amba_driver_register(struct amba_driver *drv,
+> > 
+> > ...
+> > 
+> >> +/*
+> >> + * use a macro to avoid include chaining to get THIS_MODULE
+> >> + */
+> > 
+> > Should the documentation be moved here? Well... I don't see any
+> > documentation linking this file yet, but in case it comes we want
+> > documented amba_driver_register() rather than
+> > __amba_driver_register().
+> > 
 > 
-> 
+> That's just a wrapper, not API... why would we care to have kerneldoc
+> for it?
 
-Applied to i2c/i2c-host-next on
+Because everyone should use the wrapper while the real function
+will be used only once or twice.
 
-git://git.kernel.org/pub/scm/linux/kernel/git/local tree
+I see also that this is a common practice which I don't surely
+like.
 
-Thank you,
+In any case there is no documentation exported for AMBA so that
+this discussion does not bring any tangible benefit.
+
+So that, considering that it's a good improvement,
+
+Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
+
 Andi
-
-Patches applied
-===============
-[1/1] i2c: viperboard: drop driver owner assignment
-      commit: bfced8e642d8e221a765b4d97ce7705cfa63b9a6
-
