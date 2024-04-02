@@ -1,131 +1,234 @@
-Received: from mail-yb1-f173.google.com (mail-yb1-f173.google.com [209.85.219.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C821178676
-	for <linux-i2c@vger.kernel.org>; Tue,  2 Apr 2024 12:35:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E4309463;
+	Tue,  2 Apr 2024 13:40:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.156.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712061332; cv=none; b=rqCwW/47pTBkiDSp+xtTXaAlZDVPW9NrUeQqnzCWMNwvGxO4P/k7XXrQRa3PhTD1nu8EQa8LpJ3L14ULGUp2+T66o1MpdZUO8/UHRm9/QT1IBzsp9R2i+9PFB9gNAhbT9Bgyt5xJN1dVEKrPwlIA4mjtCDfDLAge2SNNPMGb5dc=
+	t=1712065237; cv=none; b=VtEsGC/fWTTilubsY0kGSHJY0hlNodRr6lkcu5zrOYVbx1vg1Ra/xhXe7URic9O0O1c1blmroSjzRERPntiRNXtmgtLyEYBAfBskZvN09VXggn83MttM5p82jGolY6Arih29PgtDodzpaGMaDUveb4sJJwiR6Yu5ma7ODGuhKDQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712061332; c=relaxed/simple;
-	bh=ZhodAsfbqQph/6Oss9KdocUA4jNT8v1VGBe4Vmslbbg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=KJtwfRmV2XPwxHIz50QbIN5lK/896VNjQH8aJWCEpYRYcfYG1Ca9ArJEGNYhTJXJmDf4UiykOaaZXh3cQhpzHVOPOwjVSFoIoLLECqR4NIxFqtCwzxFHaY/LNhaxIZxUrssU1gyKAbjnruWu2Cb4XqeayeWHQc5vJ8swhThkHFM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=uqLL0PKI; arc=none smtp.client-ip=209.85.219.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1712065237; c=relaxed/simple;
+	bh=O4I7PnUrQ4yKzKJJoqB42JrYaglC3t0N7VGuEuP7EvM=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=EqN5wCwNHoBtHrXDFseTaRm8rpfzx/JUeUDcEmCcX12AJKReCS+AYrs0dqYWBDIlpBZE69I9idniDDFjhRhxstgoHj2gefsGo1PyP2rVh0WC0zY1opy4HZYT4uJfswnMvyOafT6lNCH9dyFa6dsfBY3UcyRqpp/QoDFr2USn1Dg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=V4PohgOI; arc=none smtp.client-ip=67.231.156.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="uqLL0PKI"
-Received: by mail-yb1-f173.google.com with SMTP id 3f1490d57ef6-dc6d8bd612dso5102268276.1
-        for <linux-i2c@vger.kernel.org>; Tue, 02 Apr 2024 05:35:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1712061329; x=1712666129; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ZhodAsfbqQph/6Oss9KdocUA4jNT8v1VGBe4Vmslbbg=;
-        b=uqLL0PKItSDctSUqxZsS/uT7vhnfgQzNItY7LTWQwGtERIAfDHkmi9vTKM/KWSOnZG
-         5cWY4VnZ/zB0EU9JaX8HcKrzWY6Bfiyn9ZjC8emWdaKirfIk5c6cfhLRmfgpLLUReKr9
-         yRjumjg65uKbF7b/xAwkcwPx7RQ3tjsiJ3eg7KVDrDx5qEpqbRUaH0ee2bQTWeK8yRDw
-         IZeIcTsL4ZN8lmj5lCAuHZlu//3WUHVTZLeAUR178ssgzwE8qeahHVjiEj3sK9F9hh1f
-         udU2TW8C/q7xEaGt7K/yviWJwTmaKvKoOb960rlGVp9GAq3tJB90z8axILGKqiHa0Kpd
-         L6yQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1712061329; x=1712666129;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZhodAsfbqQph/6Oss9KdocUA4jNT8v1VGBe4Vmslbbg=;
-        b=kWZC01tmbC27oZiUGeUE5JO5BIE7cG+z4aGfoa0XmGD+APtYBKEq/ZLIIif6j+Wu0H
-         LzDUoJJ3qSbdrWbdPp1SLQblMFe7V1QHMzjP6gHfvxcm1TbqWeYEMlmxF1qX8K/kz/ac
-         IbvU0/kl242/vpbIADFSN1jL5b4lmwaTAmQFzluQBc0T1sfK7GFsgrPZdt0nXhtPS/Sb
-         4PITRwAiig0mxfzDUS95bqtG3hNtwXYzgVPVs4SGJdCNBGV4TfqO5jFDpSM3eJsjoJ5g
-         RxCsduSh9aOwyVxOOZFve0rY8DpsmfjUB/4TTuwZkEWV8X/yztesRfFrf4IJcDIwz3O7
-         6oLg==
-X-Gm-Message-State: AOJu0Yzb93rVwyim+Gbz4oJeTDLPxFZpxdmtpNU+1lGIrYvq2i5oIT36
-	peJ3N7u7/5DikNzymIUCs4hwROjkakrOjtliAwjidWyOsAH0b+Zb++lLg+9e1YBib7f98KbHdTH
-	Pz9m75TRCzvDL3FoCX2MnRmJs5JgF7PBY/yB6Kg==
-X-Google-Smtp-Source: AGHT+IG5hxT/EMYnHoU6u7S6MkbvLw5l9U/Ss0P2rks8Fb0m+zQTGqjqkjSlSz0lY1KsLwpjx1moujtIXAN3uBffPV8=
-X-Received: by 2002:a25:6d86:0:b0:dc2:2d75:5fde with SMTP id
- i128-20020a256d86000000b00dc22d755fdemr10687728ybc.29.1712061328813; Tue, 02
- Apr 2024 05:35:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="V4PohgOI"
+Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
+	by mx0b-0016f401.pphosted.com (8.17.1.24/8.17.1.24) with ESMTP id 43240qcL016915;
+	Tue, 2 Apr 2024 06:40:30 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
+	from:to:cc:subject:date:message-id:in-reply-to:references
+	:mime-version:content-transfer-encoding:content-type; s=
+	pfpt0220; bh=tg85wy9gKnkj+wZNeONRKHtdHs+hZhP285GqdLuMH7Y=; b=V4P
+	ohgOI4kuBt2KprI7IUVKPQHZ8ySTSFqCl3M/vhfr+Llrw8XU/1rEXNnPJyd8Q8j7
+	FkLNKZ2RA69t/ZowRFv2104B0q2hExjMt4MYvJk65AbBalqsz68O/0YHgFL/bmgP
+	idzf3npQrTyR9Ncs8jw/OqxtQQiVuQILWsfcACQpkKo01wkZXmlOkVNZeNzP9fNX
+	kBnnG/sZNhXJ6flS3iuqx0P3R8eUy3yOon7RFNngYf81o9ZbS0PTnhPZuGlYpxxw
+	/n4VJ/xaIfvNGSVmUEXAqQHtj4b8r1AJnERTl5t9wM4YRLAwKJnQ5/RuCjBoIRfM
+	2Xt2FKS0mIbUTOgRR/g==
+Received: from dc6wp-exch02.marvell.com ([4.21.29.225])
+	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 3x809fun57-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 02 Apr 2024 06:40:30 -0700 (PDT)
+Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
+ DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.4; Tue, 2 Apr 2024 06:40:29 -0700
+Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
+ (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.4 via Frontend
+ Transport; Tue, 2 Apr 2024 06:40:29 -0700
+Received: from Dell2s-9.sclab.marvell.com (unknown [10.110.150.250])
+	by maili.marvell.com (Postfix) with ESMTP id 256683F706D;
+	Tue,  2 Apr 2024 06:40:29 -0700 (PDT)
+From: Piyush Malgujar <pmalgujar@marvell.com>
+To: <andi.shyti@kernel.org>, <linux-i2c@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+CC: <sgarapati@marvell.com>, <cchavva@marvell.com>, <jannadurai@marvell.com>,
+        Piyush Malgujar <pmalgujar@marvell.com>
+Subject: [PATCH v6 1/4] i2c: thunderx: Clock divisor logic changes
+Date: Tue, 2 Apr 2024 06:40:11 -0700
+Message-ID: <20240402134018.2686919-2-pmalgujar@marvell.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240402134018.2686919-1-pmalgujar@marvell.com>
+References: <20240402134018.2686919-1-pmalgujar@marvell.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240322132619.6389-1-wsa+renesas@sang-engineering.com> <20240322132619.6389-65-wsa+renesas@sang-engineering.com>
-In-Reply-To: <20240322132619.6389-65-wsa+renesas@sang-engineering.com>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Tue, 2 Apr 2024 14:35:17 +0200
-Message-ID: <CACRpkdbtRoDtWN4mnyZY_yEfWQFPCQaVudjBki8N1sOXxXWupQ@mail.gmail.com>
-Subject: Re: [PATCH 64/64] i2c: reword i2c_algorithm in drivers according to
- newest specification
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, Elie Morisse <syniurge@gmail.com>, 
-	Shyam Sundar S K <shyam-sundar.s-k@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
-	Codrin Ciubotariu <codrin.ciubotariu@microchip.com>, 
-	Nicolas Ferre <nicolas.ferre@microchip.com>, 
-	Alexandre Belloni <alexandre.belloni@bootlin.com>, Claudiu Beznea <claudiu.beznea@tuxon.dev>, 
-	Krzysztof Adamski <krzysztof.adamski@nokia.com>, Benson Leung <bleung@chromium.org>, 
-	Guenter Roeck <groeck@chromium.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
-	Mika Westerberg <mika.westerberg@linux.intel.com>, Jan Dabros <jsd@semihalf.com>, 
-	Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>, Alim Akhtar <alim.akhtar@samsung.com>, 
-	Jean-Marie Verdun <verdun@hpe.com>, Nick Hawkins <nick.hawkins@hpe.com>, 
-	Yicong Yang <yangyicong@hisilicon.com>, Oleksij Rempel <o.rempel@pengutronix.de>, 
-	Pengutronix Kernel Team <kernel@pengutronix.de>, Shawn Guo <shawnguo@kernel.org>, 
-	Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
-	Paul Cercueil <paul@crapouillou.net>, Neil Armstrong <neil.armstrong@linaro.org>, 
-	Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, 
-	Martin Blumenstingl <martin.blumenstingl@googlemail.com>, Khalil Blaiech <kblaiech@nvidia.com>, 
-	Asmaa Mnebhi <asmaa@nvidia.com>, Qii Wang <qii.wang@mediatek.com>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	Avi Fishman <avifishman70@gmail.com>, Tomer Maimon <tmaimon77@gmail.com>, 
-	Tali Perry <tali.perry1@gmail.com>, Patrick Venture <venture@google.com>, 
-	Nancy Yuen <yuenn@google.com>, Benjamin Fair <benjaminfair@google.com>, 
-	Ajay Gupta <ajayg@nvidia.com>, Peter Korsgaard <peter@korsgaard.com>, Andrew Lunn <andrew@lunn.ch>, 
-	Robert Richter <rric@kernel.org>, Aaro Koskinen <aaro.koskinen@iki.fi>, 
-	Janusz Krzysztofik <jmkrzyszt@gmail.com>, Tony Lindgren <tony@atomide.com>, Vignesh R <vigneshr@ti.com>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	Christophe Leroy <christophe.leroy@csgroup.eu>, "Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, 
-	"Naveen N. Rao" <naveen.n.rao@linux.ibm.com>, Hector Martin <marcan@marcan.st>, 
-	Sven Peter <sven@svenpeter.dev>, Alyssa Rosenzweig <alyssa@rosenzweig.io>, 
-	Vladimir Zapolskiy <vz@mleia.com>, Loic Poulain <loic.poulain@linaro.org>, Robert Foss <rfoss@kernel.org>, 
-	Bjorn Andersson <andersson@kernel.org>, Konrad Dybcio <konrad.dybcio@linaro.org>, 
-	Fabrizio Castro <fabrizio.castro.jz@renesas.com>, 
-	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>, Alain Volmat <alain.volmat@foss.st.com>, 
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
-	Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, 
-	Laxman Dewangan <ldewangan@nvidia.com>, Dmitry Osipenko <digetx@gmail.com>, 
-	Conghui Chen <conghui.chen@intel.com>, Viresh Kumar <viresh.kumar@linaro.org>, 
-	Michal Simek <michal.simek@amd.com>, linux-kernel@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, chrome-platform@lists.linux.dev, 
-	linux-samsung-soc@vger.kernel.org, imx@lists.linux.dev, 
-	linux-mips@vger.kernel.org, linux-amlogic@lists.infradead.org, 
-	linux-mediatek@lists.infradead.org, openbmc@lists.ozlabs.org, 
-	linux-omap@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, 
-	asahi@lists.linux.dev, linux-arm-msm@vger.kernel.org, 
-	linux-renesas-soc@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
-	linux-tegra@vger.kernel.org, virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-GUID: nVQJG2NqbAsFgURhvlucfQcjRIwwNJ3m
+X-Proofpoint-ORIG-GUID: nVQJG2NqbAsFgURhvlucfQcjRIwwNJ3m
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.272,Aquarius:18.0.1011,Hydra:6.0.619,FMLib:17.11.176.26
+ definitions=2024-04-02_06,2024-04-01_01,2023-05-22_02
 
-On Fri, Mar 22, 2024 at 2:27=E2=80=AFPM Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
+From: Suneel Garapati <sgarapati@marvell.com>
 
-> Match the wording in i2c_algorithm in I2C drivers wrt. the newest I2C
-> v7, SMBus 3.2, I3C specifications and replace "master/slave" with more
-> appropriate terms. For some drivers, this means no more conversions are
-> needed. For the others more work needs to be done but this will be
-> performed incrementally along with API changes/improvements. All these
-> changes here are simple search/replace results.
->
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Handle changes to clock divisor logic for OcteonTX2 SoC family using
+subsystem ID and using default reference clock source as 100MHz.
 
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Suneel Garapati <sgarapati@marvell.com>
+Signed-off-by: Piyush Malgujar <pmalgujar@marvell.com>
+Acked-by: Andi Shyti <andi.shyti@kernel.org>
+---
+ drivers/i2c/busses/i2c-octeon-core.c     | 39 +++++++++++++++++++++---
+ drivers/i2c/busses/i2c-octeon-core.h     | 17 +++++++++++
+ drivers/i2c/busses/i2c-thunderx-pcidrv.c |  7 +++++
+ 3 files changed, 59 insertions(+), 4 deletions(-)
 
-Yours,
-Linus Walleij
+diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2c-octeon-core.c
+index 845eda70b8cab52a0453c9f4cb545010fba4305d..75efb375d8e49479267e214772d4df48352be358 100644
+--- a/drivers/i2c/busses/i2c-octeon-core.c
++++ b/drivers/i2c/busses/i2c-octeon-core.c
+@@ -17,9 +17,14 @@
+ #include <linux/interrupt.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/pci.h>
+ 
+ #include "i2c-octeon-core.h"
+ 
++#define INITIAL_DELTA_HZ		1000000
++#define TWSI_MASTER_CLK_REG_DEF_VAL	0x18
++#define TWSI_MASTER_CLK_REG_OTX2_VAL	0x3
++
+ /* interrupt service routine */
+ irqreturn_t octeon_i2c_isr(int irq, void *dev_id)
+ {
+@@ -658,31 +663,57 @@ int octeon_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ void octeon_i2c_set_clock(struct octeon_i2c *i2c)
+ {
+ 	int tclk, thp_base, inc, thp_idx, mdiv_idx, ndiv_idx, foscl, diff;
+-	int thp = 0x18, mdiv = 2, ndiv = 0, delta_hz = 1000000;
++	bool is_plat_otx2;
++	unsigned int mdiv_min = 2;
++	/*
++	 * Find divisors to produce target frequency, start with large delta
++	 * to cover wider range of divisors, note thp = TCLK half period.
++	 */
++	unsigned int thp = TWSI_MASTER_CLK_REG_DEF_VAL, mdiv = 2, ndiv = 0;
++	unsigned int delta_hz = INITIAL_DELTA_HZ;
++
++	is_plat_otx2 = octeon_i2c_is_otx2(to_pci_dev(i2c->dev));
++
++	if (is_plat_otx2) {
++		thp = TWSI_MASTER_CLK_REG_OTX2_VAL;
++		mdiv_min = 0;
++	}
+ 
+ 	for (ndiv_idx = 0; ndiv_idx < 8 && delta_hz != 0; ndiv_idx++) {
+ 		/*
+ 		 * An mdiv value of less than 2 seems to not work well
+ 		 * with ds1337 RTCs, so we constrain it to larger values.
+ 		 */
+-		for (mdiv_idx = 15; mdiv_idx >= 2 && delta_hz != 0; mdiv_idx--) {
++		for (mdiv_idx = 15; mdiv_idx >= mdiv_min && delta_hz != 0; mdiv_idx--) {
+ 			/*
+ 			 * For given ndiv and mdiv values check the
+ 			 * two closest thp values.
+ 			 */
+ 			tclk = i2c->twsi_freq * (mdiv_idx + 1) * 10;
+ 			tclk *= (1 << ndiv_idx);
+-			thp_base = (i2c->sys_freq / (tclk * 2)) - 1;
++			if (is_plat_otx2)
++				thp_base = (i2c->sys_freq / tclk) - 2;
++			else
++				thp_base = (i2c->sys_freq / (tclk * 2)) - 1;
+ 
+ 			for (inc = 0; inc <= 1; inc++) {
+ 				thp_idx = thp_base + inc;
+ 				if (thp_idx < 5 || thp_idx > 0xff)
+ 					continue;
+ 
+-				foscl = i2c->sys_freq / (2 * (thp_idx + 1));
++				if (is_plat_otx2)
++					foscl = i2c->sys_freq / (thp_idx + 2);
++				else
++					foscl = i2c->sys_freq /
++						(2 * (thp_idx + 1));
+ 				foscl = foscl / (1 << ndiv_idx);
+ 				foscl = foscl / (mdiv_idx + 1) / 10;
+ 				diff = abs(foscl - i2c->twsi_freq);
++				/*
++				 * Diff holds difference between calculated frequency
++				 * value vs desired frequency.
++				 * Delta_hz is updated with last minimum diff.
++				 */
+ 				if (diff < delta_hz) {
+ 					delta_hz = diff;
+ 					thp = thp_idx;
+diff --git a/drivers/i2c/busses/i2c-octeon-core.h b/drivers/i2c/busses/i2c-octeon-core.h
+index 9bb9f64fdda0392364638ecbaafe3fab5612baf6..69bd62940f99eb786877026380cd1d02a4eaadb9 100644
+--- a/drivers/i2c/busses/i2c-octeon-core.h
++++ b/drivers/i2c/busses/i2c-octeon-core.h
+@@ -1,5 +1,6 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ #include <linux/atomic.h>
++#include <linux/bitfield.h>
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+ #include <linux/device.h>
+@@ -7,6 +8,7 @@
+ #include <linux/i2c-smbus.h>
+ #include <linux/io.h>
+ #include <linux/kernel.h>
++#include <linux/pci.h>
+ 
+ /* Controller command patterns */
+ #define SW_TWSI_V		BIT_ULL(63)	/* Valid bit */
+@@ -211,6 +213,21 @@ static inline void octeon_i2c_write_int(struct octeon_i2c *i2c, u64 data)
+ 	octeon_i2c_writeq_flush(data, i2c->twsi_base + TWSI_INT(i2c));
+ }
+ 
++#define PCI_SUBSYS_DEVID_9XXX	0xB
++#define PCI_SUBSYS_MASK		GENMASK(15, 12)
++/**
++ * octeon_i2c_is_otx2 - check for chip ID
++ * @pdev: PCI dev structure
++ *
++ * Returns true if the device is an OcteonTX2, false otherwise.
++ */
++static inline bool octeon_i2c_is_otx2(struct pci_dev *pdev)
++{
++	u32 chip_id = FIELD_GET(PCI_SUBSYS_MASK, pdev->subsystem_device);
++
++	return (chip_id == PCI_SUBSYS_DEVID_9XXX);
++}
++
+ /* Prototypes */
+ irqreturn_t octeon_i2c_isr(int irq, void *dev_id);
+ int octeon_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num);
+diff --git a/drivers/i2c/busses/i2c-thunderx-pcidrv.c b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+index a77cd86fe75ed7401bc041b27c651b9fedf67285..75569774003857dc984e8540ef8f4d1bb084cfb0 100644
+--- a/drivers/i2c/busses/i2c-thunderx-pcidrv.c
++++ b/drivers/i2c/busses/i2c-thunderx-pcidrv.c
+@@ -28,6 +28,7 @@
+ #define PCI_DEVICE_ID_THUNDER_TWSI	0xa012
+ 
+ #define SYS_FREQ_DEFAULT		700000000
++#define OTX2_REF_FREQ_DEFAULT		100000000
+ 
+ #define TWSI_INT_ENA_W1C		0x1028
+ #define TWSI_INT_ENA_W1S		0x1030
+@@ -205,6 +206,12 @@ static int thunder_i2c_probe_pci(struct pci_dev *pdev,
+ 	if (ret)
+ 		goto error;
+ 
++	/*
++	 * For OcteonTX2 chips, set reference frequency to 100MHz
++	 * as refclk_src in TWSI_MODE register defaults to 100MHz.
++	 */
++	if (octeon_i2c_is_otx2(pdev))
++		i2c->sys_freq = OTX2_REF_FREQ_DEFAULT;
+ 	octeon_i2c_set_clock(i2c);
+ 
+ 	i2c->adap = thunderx_i2c_ops;
+-- 
+2.43.0
+
