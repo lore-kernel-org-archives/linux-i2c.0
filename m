@@ -1,79 +1,98 @@
-Received: from 3.mo550.mail-out.ovh.net (3.mo550.mail-out.ovh.net [46.105.60.232])
+Received: from mx2.zhaoxin.com (mx2.zhaoxin.com [203.110.167.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F3454E1BC
-	for <linux-i2c@vger.kernel.org>; Sat,  6 Apr 2024 23:25:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.105.60.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96B39A3D
+	for <linux-i2c@vger.kernel.org>; Sun,  7 Apr 2024 01:37:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.110.167.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712445905; cv=none; b=Wa4hivGEzEHVtv42jFTtnx2FH9BfWgJgfQfRSNvXjXJxekFv+jMisIYhJCils6yVKB/lfCGdfReTy+khfb97mYk6m0UsWBuwN9NNpeFoXa/VbiVwdWH6slcb4Kq4NSrn7E+uBk0UKF/g9oV3kk98dU6okFDey9ixRsAPz4PRFLw=
+	t=1712453833; cv=none; b=ai4sWscAJV2NDwArirdXvz8lM6Yo+jM20rnCOO7Wy/p93421rf5vzX1Oc3TiRhAydJ3TUk6EMte5jttEce2N/XhvJoT7H+nHNqINGb/znV5hFTvSinFntW+3G5PBNAmINJdVNmB555fzOh61X36PdirrYjJGrl+nkyZKw8cqFug=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712445905; c=relaxed/simple;
-	bh=y7rjYAJFlIDV2+5E+3xKk0Wop34dA9aGa9K7aHF7l64=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=Me5xhzwWGsQURZ8uox2SsXa1RQZFHK5h40oujR9927q5aLU91T7iNG200bnGTTlnHA5yuouK09r804bQOH6Yz7Fa3BCvDsnIm4Qtn5ZXPVn+dWab9KsrVEePDqZBdIrJC0vwcQvYn1Rz3+8slFMH/nJJDJMr0N27yOlovNVMkwE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=46.105.60.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director1.ghost.mail-out.ovh.net (unknown [10.108.17.59])
-	by mo550.mail-out.ovh.net (Postfix) with ESMTP id 4VBmC25k0Dz1Dn7
-	for <linux-i2c@vger.kernel.org>; Sat,  6 Apr 2024 19:49:18 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-wcc7n (unknown [10.111.174.42])
-	by director1.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 63BC61FE47;
-	Sat,  6 Apr 2024 19:49:14 +0000 (UTC)
-Received: from etezian.org ([37.59.142.107])
-	by ghost-submission-6684bf9d7b-wcc7n with ESMTPSA
-	id qQRmNDqnEWZW6QUA7OFEhA
-	(envelope-from <andi@etezian.org>); Sat, 06 Apr 2024 19:49:14 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-107S00125f72fca-bae7-4125-a8c4-596bb9fcfba6,
-                    474D68B9A30E89157E7E9069718C3EC714C936DF) smtp.auth=andi@etezian.org
-X-OVh-ClientIp:194.230.160.95
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
- Niklas Schnelle <schnelle@linux.ibm.com>
-Cc: linux-i2c@vger.kernel.org, Arnd Bergmann <arnd@kernel.org>, 
- Heiko Carstens <hca@linux.ibm.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20240405101009.2807447-1-schnelle@linux.ibm.com>
-References: <20240405101009.2807447-1-schnelle@linux.ibm.com>
-Subject: Re: [PATCH v2 0/1] i2c: Handle HAS_IOPORT dependencies
-Message-Id: <171243294822.75370.15549035576290413403.b4-ty@kernel.org>
-Date: Sat, 06 Apr 2024 21:49:08 +0200
+	s=arc-20240116; t=1712453833; c=relaxed/simple;
+	bh=SqSB9jHHY2aEOkM++ycaZsGGhiyPRUq3ipJbmMYJxE4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=Ds0sNwFF95QwhT7qsgwVZ7DSgkxeXET/fvBZxScxibmuutRsTHOgzCBKMKhBuSEdVtUM/s7/rB7yMNAPwW35xRC/szBcEbSL6dXjVs04Qj3X5rO87yRldbcGvpEtSkWJMYdOdOHOuPn1MCa9lntgO7G6S39zC7Yb1lOGmtyZyFI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zhaoxin.com; spf=pass smtp.mailfrom=zhaoxin.com; arc=none smtp.client-ip=203.110.167.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=zhaoxin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=zhaoxin.com
+X-ASG-Debug-ID: 1712453822-1eb14e2b83266b0001-PT6Irj
+Received: from ZXSHMBX3.zhaoxin.com (ZXSHMBX3.zhaoxin.com [10.28.252.165]) by mx2.zhaoxin.com with ESMTP id SjC3WIO0gzfvxMAI (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO); Sun, 07 Apr 2024 09:37:02 +0800 (CST)
+X-Barracuda-Envelope-From: HansHu-oc@zhaoxin.com
+X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.165
+Received: from ZXBJMBX03.zhaoxin.com (10.29.252.7) by ZXSHMBX3.zhaoxin.com
+ (10.28.252.165) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Sun, 7 Apr
+ 2024 09:37:02 +0800
+Received: from [10.28.66.68] (10.28.66.68) by ZXBJMBX03.zhaoxin.com
+ (10.29.252.7) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.27; Sun, 7 Apr
+ 2024 09:37:01 +0800
+X-Barracuda-RBL-Trusted-Forwarder: 10.28.252.165
+Message-ID: <cbbfc9f6-c5d9-43f7-8d83-56ab28858384@zhaoxin.com>
+X-Barracuda-RBL-Trusted-Forwarder: 10.28.66.68
+Date: Sun, 7 Apr 2024 09:36:59 +0800
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v9 0/6] i2c: add zhaoxin i2c controller driver
+To: Andi Shyti <andi.shyti@kernel.org>
+X-ASG-Orig-Subj: Re: [PATCH v9 0/6] i2c: add zhaoxin i2c controller driver
+CC: <linux-i2c@vger.kernel.org>, <wsa@kernel.org>, <cobechen@zhaoxin.com>,
+	<hanshu@zhaoxin.com>
+References: <cover.1709014237.git.hanshu-oc@zhaoxin.com>
+ <20240306212413.1850236-1-andi.shyti@kernel.org>
+ <8b2a2e56-439a-414d-a592-6f58015c4fb8@zhaoxin.com>
+ <i5jeghpblde4bzwuxidd2rxaqyvbb5npvl7ra4swc2tysonb2k@ms42yijtkakw>
+Content-Language: en-US
+From: Hans Hu <HansHu-oc@zhaoxin.com>
+In-Reply-To: <i5jeghpblde4bzwuxidd2rxaqyvbb5npvl7ra4swc2tysonb2k@ms42yijtkakw>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.13.0
-X-Ovh-Tracer-Id: 12051069656881302036
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvledrudegvddgudegvdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevjghfuffkffggtgfgofesthejredtredtjeenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepffetheduffdvhfdugfffudfgjeejudehheegfeeguefhieeugffhgfeuffdvgfefnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepuddvjedrtddrtddruddpudelgedrvdeftddrudeitddrleehpdefjedrheelrddugedvrddutdejnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehhedtpdhmohguvgepshhmthhpohhuth
+X-ClientProxiedBy: ZXSHCAS1.zhaoxin.com (10.28.252.161) To
+ ZXBJMBX03.zhaoxin.com (10.29.252.7)
+X-Barracuda-Connect: ZXSHMBX3.zhaoxin.com[10.28.252.165]
+X-Barracuda-Start-Time: 1712453822
+X-Barracuda-Encrypted: ECDHE-RSA-AES128-GCM-SHA256
+X-Barracuda-URL: https://10.28.252.36:4443/cgi-mod/mark.cgi
+X-Virus-Scanned: by bsmtpd at zhaoxin.com
+X-Barracuda-Scan-Msg-Size: 813
+X-Barracuda-BRTS-Status: 0
+X-Barracuda-Bayes: INNOCENT GLOBAL 0.0000 1.0000 -2.0210
+X-Barracuda-Spam-Score: -2.02
+X-Barracuda-Spam-Status: No, SCORE=-2.02 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=9.0 tests=
+X-Barracuda-Spam-Report: Code version 3.2, rules version 3.2.3.123168
+	Rule breakdown below
+	 pts rule name              description
+	---- ---------------------- --------------------------------------------------
 
-Hi
+Hi Andi,
 
-On Fri, 05 Apr 2024 12:10:08 +0200, Niklas Schnelle wrote:
-> This is a follow up in my ongoing effort of making inb()/outb() and
-> similar I/O port accessors compile-time optional. Previously I sent this
-> as a treewide series titled "treewide: Remove I/O port accessors for
-> HAS_IOPORT=n" with the latest being its 5th version[0]. With a significant
-> subset of patches merged I've changed over to per-subsystem series. These
-> series are stand alone and should be merged via the relevant tree such
-> that with all subsystems complete we can follow this up with the final
-> patch that will make the I/O port accessors compile-time optional.
-> 
-> [...]
 
-Applied to i2c/i2c-host on
+> Hi Hans,
+>
+> On Fri, Mar 08, 2024 at 09:22:16AM +0800, Hans Hu wrote:
+>>> Check the changelog for more details. The little adaptation are
+>>> limited to patch 1, 2 and 3. The other patches don't have any
+>>> change.
+>>>
+>>> The series has been applied in i2c/i2c-host-next[*].
+>> V9 does not appear to have been applied in i2c/i2c-host-next[*]. So, should
+>> I submit a v10 version? which its structure is: * patch 0-6 is consistent
+>> with v9. * patch 7 is new to fix issues as you mentioned before Thanks, Hans
+> I just want to make sure that we have an understanding on this
+> series.
+>
+> Now that the 6.9 merge window is well over, are you planning to
+> resend this series?
 
-git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git
 
-Thank you,
-Andi
+Yes, I will submit the v10 patch based on the latest i2c/i2c-host-next[*].
 
-Patches applied
-===============
-[1/1] i2c: add HAS_IOPORT dependencies
-      commit: 53f44c1005ba64215ab6c3c5bbbcaef0870ae7d6
+
+Thanks,
+
+Hans
 
