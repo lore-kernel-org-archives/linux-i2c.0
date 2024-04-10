@@ -1,47 +1,51 @@
 Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53F561598EF
-	for <linux-i2c@vger.kernel.org>; Wed, 10 Apr 2024 11:25:05 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F37A71598E1
+	for <linux-i2c@vger.kernel.org>; Wed, 10 Apr 2024 11:25:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712748311; cv=none; b=rxacTyb/W3kAFZJwRm+pmFdJFeB1yrqnxO8CyqGi866b8W7M9ASX+G+pFDeksY9XB/YPnVrFxDH8Bo9hc4d53nTA2u2c/YKlKas5IRqru2omviJCR2Of9tvKjJwUMxWxB37ZUF9zwucNQQJFfCNImgLc98+njAXOVLXJovQKQHU=
+	t=1712748311; cv=none; b=EEADPKvWhXWntwoyiddfDDM32RlhpabfMiNDVX2zrW4XWnWpCNqk3leywgl6sNauykZshumBl+8yAXCcLm54yx46KTzpYgfuc7GNf//ZziEtB5tVCtYUoZQkwpuQhyuE5sveipRarMmaMx4KybGR7H8rIJDMOSlh+8Sq3XnaXOg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1712748311; c=relaxed/simple;
-	bh=/oCMXaEKV0wQv6hyJYOzYspxu2mEEpt92nD4lJq5TVo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=lH4kG/ZtRj0UpV/Pa+ausKWxSvb8YHoeLmH7ZjCzED0F7qLRwZJ37kOcw2n3wyt9k+vmFdNrhvyFz4P3O1kREHI4WcOKiEJJvRuOUpMpuO9yDBMMOsK4CfDC40czs7gEfPdM0/JlgcaL/O89qbyXxQHP9PIYgCZQTOQBnQc/B9E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=jT0Gk8bA; arc=none smtp.client-ip=194.117.254.33
+	bh=dVv3yCapRGHqaKbd/raKqVqecjajjR0ihwDqpWezJvg=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=MS0hO1DVUFbiypeWjhuF3+UqlA5UIYxOVkwmE/eVq/DaJeQ1RdB7aogJoS+uvkBiR5ddRQ5TBxHQXtVrQmA6CuZH2ltTeD7s63dEV0gY76D/KGpljdyUYRVOMRluu8S6MOvs0XlSKIG2Y0Ts01/Tz2jU7yRt56uBjyGXjZcQrc8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=QphoD0Ic; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="jT0Gk8bA"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="QphoD0Ic"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:mime-version:content-transfer-encoding; s=k1; bh=RNanGQGWfzY8Ld
-	dZN9BtmYbNVKTZHZwObn8fItBAqK8=; b=jT0Gk8bAMORCC3fi5dKtBczdT+SWtS
-	Ur90S3Q1uouDlicdfEpBcNSLJfpzszbswwlEqlBkKEo/gJqZgyTYwNnT/l42kg1u
-	jCKNParrdoy5IN5KtrND/ODxJjODWMBThyQKunrC8uL76dtK8cijYPbbgs6iM+X9
-	oFSOW30Rsp/9ZLXlttGMTaO3E08kWFL0hNIfEIBjQBW2sZJeRUSQge0X2s3omTnq
-	n5piJX/YYxgLyxigGcxQANsKl+wdagoI2ckzGc5M+DvPUuA1l9Tehh4xQfo48iZJ
-	eKCIINO7NvQHjCrr8EVgyW1i2doKHn0NqksAVd/TzyZNURLygSmZfMGA==
-Received: (qmail 521287 invoked from network); 10 Apr 2024 13:24:57 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 10 Apr 2024 13:24:57 +0200
-X-UD-Smtp-Session: l3s3148p1@pzTdSbwVgwhtKPEL
+	:in-reply-to:references:mime-version:content-transfer-encoding;
+	 s=k1; bh=4EUSyGzomATeNIcG8P0cZgKgvqo4WHF+lzVzVLKSadU=; b=QphoD0
+	IcmvSEdfsDJaszWGUfYISArnr7pFEh3iVuEliuWPXsaTgp99s+8UAb1PeiQ2J4Gu
+	YVzkQFx3QKuRWskt4wncxwHVmjHKjJzyR7pgQVM3JZumJ3aMUasyuyrdbjPI09MX
+	orqntkK7cBII9SSeznWLuksgjiYzPM25iII9cciqsLVPmcQPgblgN2v6WFy+xDAR
+	GYaOcP6HHNAsj3qUD8mkxKXUqEpyl8BtH28WnzKa1Tn7BnuTR3JmA+ZZr0FdXKwq
+	nFtZzB+Yb9qVvDlZJkJ2v7nmQEJW9ryYrinepeH7aZSYWbDr2HyBE0CLJiGG1swO
+	lMVX3FG5Sbd7o0jw==
+Received: (qmail 521447 invoked from network); 10 Apr 2024 13:25:01 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 10 Apr 2024 13:25:01 +0200
+X-UD-Smtp-Session: l3s3148p1@AQUNSrwVyC5tKPEL
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-i2c@vger.kernel.org
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-arm-msm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-omap@vger.kernel.org,
-	linux-renesas-soc@vger.kernel.org,
-	linux-rockchip@lists.infradead.org,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Ray Jui <rjui@broadcom.com>,
+	Scott Branden <sbranden@broadcom.com>,
 	linux-rpi-kernel@lists.infradead.org,
-	linux-tegra@vger.kernel.org
-Subject: [PATCH 00/18] i2c: remove printout on handled timeouts
-Date: Wed, 10 Apr 2024 13:24:14 +0200
-Message-ID: <20240410112418.6400-20-wsa+renesas@sang-engineering.com>
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 03/18] i2c: bcm2835: remove printout on handled timeouts
+Date: Wed, 10 Apr 2024 13:24:17 +0200
+Message-ID: <20240410112418.6400-23-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240410112418.6400-20-wsa+renesas@sang-engineering.com>
+References: <20240410112418.6400-20-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -50,57 +54,28 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-While working on another cleanup series, I stumbled over the fact that
-some drivers print an error on I2C or SMBus related timeouts. This is
-wrong because it may be an expected state. The client driver on top
-knows this, so let's keep error handling on this level and remove the
-prinouts from controller drivers.
+I2C and SMBus timeouts are not something the user needs to be informed
+about on controller level. The client driver may know if that really is
+a problem and give more detailed information to the user. The controller
+should just pass this information upwards. Remove the printout.
 
-Looking forward to comments,
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-bcm2835.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-   Wolfram
-
-
-Wolfram Sang (18):
-  i2c: at91-master: remove printout on handled timeouts
-  i2c: bcm-iproc: remove printout on handled timeouts
-  i2c: bcm2835: remove printout on handled timeouts
-  i2c: cadence: remove printout on handled timeouts
-  i2c: davinci: remove printout on handled timeouts
-  i2c: i801: remove printout on handled timeouts
-  i2c: img-scb: remove printout on handled timeouts
-  i2c: ismt: remove printout on handled timeouts
-  i2c: nomadik: remove printout on handled timeouts
-  i2c: omap: remove printout on handled timeouts
-  i2c: qcom-geni: remove printout on handled timeouts
-  i2c: qup: remove printout on handled timeouts
-  i2c: rk3x: remove printout on handled timeouts
-  i2c: sh_mobile: remove printout on handled timeouts
-  i2c: st: remove printout on handled timeouts
-  i2c: tegra: remove printout on handled timeouts
-  i2c: uniphier-f: remove printout on handled timeouts
-  i2c: uniphier: remove printout on handled timeouts
-
- drivers/i2c/busses/i2c-at91-master.c | 1 -
- drivers/i2c/busses/i2c-bcm-iproc.c   | 2 --
- drivers/i2c/busses/i2c-bcm2835.c     | 1 -
- drivers/i2c/busses/i2c-cadence.c     | 2 --
- drivers/i2c/busses/i2c-davinci.c     | 1 -
- drivers/i2c/busses/i2c-i801.c        | 4 ++--
- drivers/i2c/busses/i2c-img-scb.c     | 5 +----
- drivers/i2c/busses/i2c-ismt.c        | 1 -
- drivers/i2c/busses/i2c-nomadik.c     | 7 ++-----
- drivers/i2c/busses/i2c-omap.c        | 1 -
- drivers/i2c/busses/i2c-qcom-geni.c   | 5 +----
- drivers/i2c/busses/i2c-qup.c         | 4 +---
- drivers/i2c/busses/i2c-rk3x.c        | 3 ---
- drivers/i2c/busses/i2c-sh_mobile.c   | 1 -
- drivers/i2c/busses/i2c-st.c          | 5 +----
- drivers/i2c/busses/i2c-tegra.c       | 2 --
- drivers/i2c/busses/i2c-uniphier-f.c  | 1 -
- drivers/i2c/busses/i2c-uniphier.c    | 4 +---
- 18 files changed, 9 insertions(+), 41 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-bcm2835.c b/drivers/i2c/busses/i2c-bcm2835.c
+index b92de1944221..3045ba82380d 100644
+--- a/drivers/i2c/busses/i2c-bcm2835.c
++++ b/drivers/i2c/busses/i2c-bcm2835.c
+@@ -370,7 +370,6 @@ static int bcm2835_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+ 	if (!time_left) {
+ 		bcm2835_i2c_writel(i2c_dev, BCM2835_I2C_C,
+ 				   BCM2835_I2C_C_CLEAR);
+-		dev_err(i2c_dev->dev, "i2c transfer timed out\n");
+ 		return -ETIMEDOUT;
+ 	}
+ 
 -- 
 2.43.0
 
