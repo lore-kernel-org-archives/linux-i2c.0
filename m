@@ -1,85 +1,102 @@
-Received: from esg.nwe.de (esg.nwe.de [195.226.126.84])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2934344369
-	for <linux-i2c@vger.kernel.org>; Fri, 12 Apr 2024 06:47:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.226.126.84
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49165C2FD
+	for <linux-i2c@vger.kernel.org>; Fri, 12 Apr 2024 07:11:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1712904446; cv=none; b=or7z95cAFkNvi9CvVHTJClVa6SlFxO408/QAIR0huCPoRIFau30S0BBvSTVrzDcqFhCTkoRRKnFiRwNOb2fkx2gigKVSNkZylSTu1AsDQXSD2BxKkdSA/VZlV5a4yB23iWN0fw+faDQQ2KuX4cEOKd7A4kdRWWZwH9oZrWem/gU=
+	t=1712905895; cv=none; b=MoUQt1OXbZYBH722oI4FU5BC0hvgrQUJhLbwLYd1atTMoDGIoE3u8gFkNDjBnnHHOBLfhgoko2PkhpKVeczSDSXKUxk9TWAftMHpKI/+7snZvIVFCXOIls3GFHaTu5QWByM5CvZNqgsZj+l5zF8TEsqW6vEHhgzhkc64c7OwjsQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1712904446; c=relaxed/simple;
-	bh=rUn7NaZAS5hnRq6kHRzju/FnH7ibYcmkgTvUbuxKoxg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=uI2isXwFf8LXNuy89VGiZ67iJPZXMHaC3fMqOL2vafA0FGfTINqucTEEpcdR1J5pCirSaUzRnTQVoOCSMwVy7BhG36M+IbY6NUgDvjRnxluqp1+vLeTxgyjjryHazTAqQ1AFxpBNP17PgPW7xmZ7lx09F1BPt5qPsrSdrFdCo5g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=scram.de; spf=pass smtp.mailfrom=scram.de; dkim=pass (1024-bit key) header.d=scram.de header.i=@scram.de header.b=QU0RfYY8; arc=none smtp.client-ip=195.226.126.84
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=scram.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=scram.de
+	s=arc-20240116; t=1712905895; c=relaxed/simple;
+	bh=V9ySPHFHra331Yt/URq8+X+I4ysMrTRGrhBFu5T7R4g=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Content-Type; b=lhz2BxwkYPtoiSvrNNIdcdyi//4eeGeBXI19l0ygVPxEXyyk4E4o5LhxcESwT7eVec70dmfcCNjZpoJuP2EQpj/9YqgTJgP0XjOOE8PQivd6/ugfkN/tlrk43D168D5SfpXspVcoDxuRCNc5gJrJJ+BR3Vsmmbz8JutzSfZ62/s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NtfY6v6C; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=scram.de header.i=@scram.de header.b="QU0RfYY8"
-X-ASG-Debug-ID: 1712903570-1ed71d5dc82363b80001-PT6Irj
-Received: from mail.scram.de ([213.206.175.31]) by esg.nwe.de with ESMTP id 2CinZMVeoB7m5L6B (version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NO); Fri, 12 Apr 2024 08:32:50 +0200 (CEST)
-X-Barracuda-Envelope-From: jochen@scram.de
-X-Barracuda-Effective-Source-IP: UNKNOWN[213.206.175.31]
-X-Barracuda-Apparent-Source-IP: 213.206.175.31
-Received: (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(Client did not present a certificate)
-	(Authenticated sender)
-	by mail.scram.de (Postfix) with ESMTPSA id F29EF8A7031;
-	Fri, 12 Apr 2024 08:32:49 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.scram.de F29EF8A7031
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=scram.de;
-	s=mail2021; t=1712903570;
-	bh=Gh1QR2+zPfWSt6AeuaYH86pSHzi1XIf0LhYJrlsTzsg=;
-	h=Date:Subject:To:References:From:In-Reply-To:From;
-	b=QU0RfYY8DbePZ5cSqGjXgEv7Vqq8xXXIJdVQk1JyOqck38FEgC4x4H3/iUqgARSmp
-	 w/FjXl7ccBDgbfreaX/myLtF/cvSFBvQddT0I9Vr126eXMNC1gHQ5Fe2HBPVZf382k
-	 oaWYoJzQMfqct/IRNrqiFhe7B7263vktH3B2taw8=
-Message-ID: <2271dcf2-83c3-4570-87f5-c483faa2f9cd@scram.de>
-Date: Fri, 12 Apr 2024 08:32:48 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NtfY6v6C"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1712905893;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=V9ySPHFHra331Yt/URq8+X+I4ysMrTRGrhBFu5T7R4g=;
+	b=NtfY6v6CSr779YYmjUMVkz1h47Bds4bL2MEksRAlvZhncEtGhPOvKOrkhvxC92qvuzAykD
+	B3PyFLQYlOqjldkxpeD6rre2NfhIxW6/00T6+DvwQ6SNmDv6J/dqxxOcEXwHJKJg+wfjYS
+	PhW78tutTntU89SdWv9ynkdl5ew1iwA=
+Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
+ [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-682-eT69EwHuMxqbKe5-jsHZmg-1; Fri, 12 Apr 2024 03:11:31 -0400
+X-MC-Unique: eT69EwHuMxqbKe5-jsHZmg-1
+Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-2a48f935627so572902a91.2
+        for <linux-i2c@vger.kernel.org>; Fri, 12 Apr 2024 00:11:31 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1712905891; x=1713510691;
+        h=content-transfer-encoding:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=V9ySPHFHra331Yt/URq8+X+I4ysMrTRGrhBFu5T7R4g=;
+        b=R0xV1TqHIUPXe1eF2e1guQ5PFyjSQu9tJnYyf1+GwhzYLf6A4XVCGKz+W+dyMbI35e
+         GaFTJ6D7tzySyUNG1hVbMgVnIwFbcIK4OTXGNBT5DbdMKhnNhzWoRv4nlY9LBTzhGIvJ
+         7HyOsGTJ9gjtLUMRaJhhQvkCmEMrBk+wJhbaanwn2FkIs2enpar2puGpStaGUJ0X4KbZ
+         z3WY5Hta2QzypSAn2lGfJ2KoEBP2MuGcMXK+FhbMVHtcFjkxxMoClupXRDUNI29S626b
+         gJXwLVLZg4YzepmmCU1sIw74HVwxFNPdJ2U7M5mJB8KMFQPXlrsWtPQRIif2xaP75RWj
+         OKaA==
+X-Forwarded-Encrypted: i=1; AJvYcCV9GGUTW69nTceDkoKRab7Ygty9BilFoTC0NhFVpGBAlXtoP/2S2Ji4I7aUcK+b4Hm1zmZs3fAl/+/5sPvXWwN82GJCClZALcP1
+X-Gm-Message-State: AOJu0YzAdXp3Em+ujRy2c2ghDbCEN1IqahXLLdCPYmL+6NNpbVbr5anY
+	ZQcOambvGaVnQiyziULuQeJcKzQg0UMjHgj5QMjS1D0ctSdnIeV9iG5502NqNDOopCJ/N3K+u3/
+	6rn3qzhZLd8eh8AQ7UvAaojEA1dF6dxPtmDuoa/xMTyibWOTbl1dMsImWXFQ2l9eXbRFGB+LuBC
+	mYVTEqdBAwrz3RG5EofvRVqNvlBqRf8/gH
+X-Received: by 2002:a17:90b:19d0:b0:2a2:2b53:892e with SMTP id nm16-20020a17090b19d000b002a22b53892emr1531769pjb.32.1712905890784;
+        Fri, 12 Apr 2024 00:11:30 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IFhB8Fe6/Taq6ZeJsX79391aj4U5l0Wu4b9n+gMtxFfFf7avWd+jelzxqFd1vgXfo/L+4G6ZPyVKQslNCiOcoU=
+X-Received: by 2002:a17:90b:19d0:b0:2a2:2b53:892e with SMTP id
+ nm16-20020a17090b19d000b002a22b53892emr1531760pjb.32.1712905890476; Fri, 12
+ Apr 2024 00:11:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 14/64] i2c: cpm: reword according to newest specification
-To: Andi Shyti <andi.shyti@kernel.org>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
-X-ASG-Orig-Subj: Re: [PATCH 14/64] i2c: cpm: reword according to newest specification
-References: <20240322132619.6389-1-wsa+renesas@sang-engineering.com>
- <20240322132619.6389-15-wsa+renesas@sang-engineering.com>
- <jpp67ejeropvsc6gwompwc5t2nbl6cde2o33vtf42e2on2ycal@42ovfdhp6oh4>
- <maxjcriuq6qfoeoing5ic7l5pnxdyylovjdoh4w3bzhnmco6ax@mslv35p4k35k>
- <26y3smrxv3q56peuqatospr3q6annxvdmleyhykyrjrovne6mu@yg44mmr7aaqp>
-From: Jochen Friedrich <jochen@scram.de>
-In-Reply-To: <26y3smrxv3q56peuqatospr3q6annxvdmleyhykyrjrovne6mu@yg44mmr7aaqp>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Barracuda-Connect: UNKNOWN[213.206.175.31]
-X-Barracuda-Start-Time: 1712903570
-X-Barracuda-Encrypted: ECDHE-RSA-AES128-GCM-SHA256
-X-Barracuda-URL: https://195.226.126.84:443/cgi-mod/mark.cgi
-X-Virus-Scanned: by bsmtpd at nwe.de
-X-Barracuda-Scan-Msg-Size: 423
-X-Barracuda-BRTS-Status: 0
-X-Barracuda-Spam-Score: 0.00
-X-Barracuda-Spam-Status: No, SCORE=0.00 using global scores of TAG_LEVEL=1000.0 QUARANTINE_LEVEL=1000.0 KILL_LEVEL=5.0 tests=
-X-Barracuda-Spam-Report: Code version 3.2, rules version 3.2.3.123398
-	Rule breakdown below
-	 pts rule name              description
-	---- ---------------------- --------------------------------------------------
+References: <20240411050257.42943-1-lukas.bulwahn@redhat.com>
+ <whpjtk2nmbft4dqndhealztzxh5du4uemqmmizguwvhmfa2htm@qcklwqf7j4d4> <xn4dyzwe4quhrpiqrvdikx4f46eucw25kmwfevcyt3s2mvggjl@enzbluravbt6>
+In-Reply-To: <xn4dyzwe4quhrpiqrvdikx4f46eucw25kmwfevcyt3s2mvggjl@enzbluravbt6>
+From: Lukas Bulwahn <lbulwahn@redhat.com>
+Date: Fri, 12 Apr 2024 09:11:19 +0200
+Message-ID: <CAOc5a3Mi1_oAOrA9t-2=0TVbs9Xr_HPBr_O+L7FgyAiRdf8sPg@mail.gmail.com>
+Subject: Re: [PATCH] MAINTAINERS: adjust file entry in ARM/LPC32XX SOC SUPPORT
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, Andi Shyti <andi.shyti@kernel.org>, 
+	Lukas Bulwahn <lbulwahn@redhat.com>, Animesh Agarwal <animeshagarwal28@gmail.com>, 
+	linux-i2c@vger.kernel.org, kernel-janitors@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
->>>>   	out_8(&cpm->i2c_reg->i2mod, 0x00);
->>>> -	out_8(&cpm->i2c_reg->i2com, I2COM_MASTER);	/* Master mode */
->>>> +	out_8(&cpm->i2c_reg->i2com, I2COM_MASTER);	/* Host mode */
->>> I2COM_MASTER might be coming from the datasheet.
->> Maybe we can just drop the comment? The value we write is pretty
->> self-explaining.
-> indeed.
+On Fri, Apr 12, 2024 at 8:45=E2=80=AFAM Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
 >
-> Andi
+>
+> > > -F: Documentation/devicetree/bindings/i2c/i2c-pnx.txt
+> > > +F: Documentation/devicetree/bindings/i2c/nxp,pnx-i2c.yaml
+> >
+> > Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
+> >
+> > I guess this should go through the arm folks?
+>
+> Could be argued, but I guess it is easier if you take it (because the
+> conversion patch also went through your tree). Just 2 cents...
+>
 
-I also agree. You might add my Acked-By: <jochen@scram.de> here. Jochen
+... and I am creating my patches against some recent linux-next tag.
+So, the commit could really only be in your tree and the arm folks
+would not apply it because the referred commit is not in their tree
+yet (until the next merge window closes and they reopen a new branch).
+So, as Wolfram suggested: please take my patch in your tree on top of
+the referred commit.
+
+Lukas
 
