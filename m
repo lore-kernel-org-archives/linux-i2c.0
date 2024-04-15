@@ -1,41 +1,39 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFE361DFEB;
-	Mon, 15 Apr 2024 20:54:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D197155A58
+	for <linux-i2c@vger.kernel.org>; Mon, 15 Apr 2024 21:05:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713214456; cv=none; b=a+5RD1NM2Y44flBUTLm8CmnlSdAMBKxM+SOfIk6yV05RnhbFTL3M2wRNqQssM7b8Cm2RxZqvRh69Ms3abmCbfE80zAYCQqtDq7ksJy6noyOZXtmL8oQjmatu8o2l22lLyIeGSGRTlTSutM1qw5P5n3XPbxQQsikVRfMlLumbpqk=
+	t=1713215140; cv=none; b=TsKxCZym1YevSjZZD5faLnufC5tEIcVpIrA/GEuelnlwlVtQ7H+CJgdBbbypMQ+M6yJ/RCefwKXsDhMq/IWvTJAhmgh7Tj4QnVMnCYaZIfyo9vrANV+ssDaEK0jD2S0vYMhefAyUtUIJvIlX68lmsXPdhSQ2mtiZJetBEPDwnKo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713214456; c=relaxed/simple;
-	bh=VbQJ+rdQSN7sFgw0qz8nrxe7EDMb6/hAklXEgP8FwKs=;
+	s=arc-20240116; t=1713215140; c=relaxed/simple;
+	bh=r3xBfF35X6n3/4JWAg9Q0UpqL8AzB9qfh7N2aLD74Qk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Trjt4hWBE0oLTqHCNtwITw2icS96dqpF2VZf0e4lnQzxBB4uVUwdCnF7K9giftq47ztQq/Z09xodmtJCTm8ww4N+leyooDKC+RCO+UDWOhfIcbukTW3HgngaWWSlRTzjqs/YqIXIxpekyz39z3Yt6nx26tG/bW1w7YQZL7Ty8ro=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GJ9BTXPZ; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=NpTVFY0T16vuIpLh0nrAw1Qp7m4LruzkFOIHpg6lawE2ELe+P/YI6LPUlKRqG9BIFhLtVpczkzfXVSfYHhzSVJ1//EFQPGd/Mx0xsGo3fTQMEnjKijw+SaaGzj9i6+tihQnx/UMifkygg/MIXfDpeoSjtSbA5nxUBo2ClJ/1pvI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ivmO1hKd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GJ9BTXPZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC5D5C113CC;
-	Mon, 15 Apr 2024 20:54:15 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ivmO1hKd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 829F0C113CC;
+	Mon, 15 Apr 2024 21:05:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1713214456;
-	bh=VbQJ+rdQSN7sFgw0qz8nrxe7EDMb6/hAklXEgP8FwKs=;
+	s=k20201202; t=1713215140;
+	bh=r3xBfF35X6n3/4JWAg9Q0UpqL8AzB9qfh7N2aLD74Qk=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=GJ9BTXPZ/JccPVsrJoBsadqpbwEUIspktXepgpPesgnBZm2m6DMBkp0NpDpQF6vso
-	 T8B2cOU4nWbZBZRwDZRpCrl1/DSVNtJIyqbSy6/meyRW9htR5LTOH1JgBLWzBdJ3nQ
-	 KM9oZM42Gi5/JpUalipYNU7O/LH5zzNfQTZ25A1JoIO2G13lP+joRIYW+XZXpFSgxx
-	 9tffy3O+c6YqLIbR7Pa5GPn/Z7kw7t9SeGEjXJ41bVdirreC1yi67u1bx5Kkuh4ZZg
-	 FVyar8GPZG432l97qjKLAGuLaqZPwPsIiFUlBSXCH8175uUgOWyZ9orEtZKWLmBQTA
-	 7Q76FpVZhpDiA==
-Date: Mon, 15 Apr 2024 22:54:12 +0200
+	b=ivmO1hKdTBIEs+pW+WN/HXWed/V19fplktnMuL/uR8GBYtGwleUq+Vs5d8leS2Upw
+	 iglspWZj1G6UjNYZmwtfGe/u+rqmpwMF8YKEmgfU7CfjslswwjmjBJNUl/g2M/mTM9
+	 aIcP4BXD6Juy9vYGQdWuJFTvlRQwo5t2wJWuR8V+Vuq20bSV4E+HqqVSl7qmBbt0HJ
+	 QkOkB0J8/UlhwRL0BfNdl5u4ItlOI3fUI0g+P3/DTKxgGw+oS2YIW5Gbmw6MevkzZ0
+	 O3N3jruY9thZwc3mzrgmCi9NEO5U8jN8C6n1bllBjtaDY211bhdzK5b0ab3FX0Ig5A
+	 JV7XB4mBIHTrw==
+Date: Mon, 15 Apr 2024 23:05:36 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Abhinav Jain <jain.abhinav177@gmail.com>
-Cc: chris.packham@alliedtelesis.co.nz, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, skhan@linuxfoundation.org, javier.carrasco.cruz@gmail.com, 
-	Julia Lawall <julia.lawall@inria.fr>
-Subject: Re: [PATCH] i2c: mpc: Removal of of_node_put with __free for auto
- cleanup
-Message-ID: <vegjt4pcl2x2wmwso6ajbihqc6rpbup5knycnz76jz3zfbfpp4@opxek6apu3w4>
-References: <20240415161220.8347-1-jain.abhinav177@gmail.com>
+To: Heiner Kallweit <hkallweit1@gmail.com>
+Cc: Jean Delvare <jdelvare@suse.com>, 
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+Subject: Re: [PATCH] i2c: i801: Annotate apanel_addr as __ro_after_init
+Message-ID: <hezbbhcsjewtn7xbpfsbp34qczx5xw7swk4pthic4bguj6cumo@umb5mkckaxj6>
+References: <41efcfe2-7e05-4a11-bd02-40d9e525c415@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -44,15 +42,15 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240415161220.8347-1-jain.abhinav177@gmail.com>
+In-Reply-To: <41efcfe2-7e05-4a11-bd02-40d9e525c415@gmail.com>
 
-Hi Abhinav,
+Hi Heiner,
 
->  	/* Enable I2C interrupts for mpc5121 */
-> -	node_ctrl = of_find_compatible_node(NULL, NULL,
-> -					    "fsl,mpc5121-i2c-ctrl");
-> +	struct device_node *node_ctrl __free(device_node) =
+On Fri, Apr 12, 2024 at 12:21:58PM +0200, Heiner Kallweit wrote:
+> Annotate this variable as __ro_after_init to protect it from being
+> overwritten later.
 
-How have you tested this?
+What is the reason behind this patch? Where is the risk of
+overwriting this variable?
 
 Andi
