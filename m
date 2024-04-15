@@ -1,77 +1,90 @@
-Received: from phobos.denx.de (phobos.denx.de [85.214.62.61])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A033D33080;
-	Mon, 15 Apr 2024 13:59:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.62.61
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBF8378C82;
+	Mon, 15 Apr 2024 15:34:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713189579; cv=none; b=en7i98GhW5g0NHgUpIIlR/qL8EZTW9MbQaqijT8hNK+kx8FHEhKTUKMNgdw1Nx7QsQPUECkDj2V6Rzmmu4PZ5iS0iaKqcI+KOEcoI7yv4yLzMXtZvpWWeMqajEHlETrx/7tOU/W3VxZQdBeKmJdqSJ/8KUcWMVLgmKFnEB2nGcs=
+	t=1713195271; cv=none; b=q0FRQ1gKYT9oQ/uFckSC6cF4s84fxU85iJ/amUTRwSXQS4ECTes1YvrZO2e5mViD8g4OjaSRCKrGaqGf6hR/Seijkc3VuVpMn4wGUD46WRdSBPOZvGiIgnJ+WbSVrXI159P4rMDfwPbuXTyexvMKjyk4/qf7PfeVGrtn2xX2pNg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713189579; c=relaxed/simple;
-	bh=Tq5QuPKNZYFTN293/j6KeFKcIq45oy1FskvMM4kUq8o=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CuoM7/Jz6EEUt2vOwLAdQ44Ff6OiAHO8lxW2UnYRbhcblPA8KNinb+oqfQsych1pH/qBvCiOMzUkSotuuZQoXSzR4EjH7ig+tKaBFNCxGLm29ocsfIgGgF2If0nG8o8JZFtM1SK43eckxeIXc/dCWuaL0e82wkMRPtmsa0u70Q4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de; spf=pass smtp.mailfrom=denx.de; dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b=H9u2sNuJ; arc=none smtp.client-ip=85.214.62.61
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=denx.de
+	s=arc-20240116; t=1713195271; c=relaxed/simple;
+	bh=lt3EqHtUbz9qchyHitXc3Sc+ljn9HGqN4eVLmg6FtSg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Y8xjutUl2T+Ae1nhY05JlE2aTOzeh538uID6jgMaSMtdGHSv+1z9JTAKBHo4jghyxPwgq6OUSbKouaLXHv7oE6UOnSR+XGh7Tj8hjlLBlb66I86OJODfcldsn6u5k9zMz9r0TUOUKPrvwCsqwAwLzhoIqM3IH5TZ/KYbjo3KjWk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HBgSgn1o; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b="H9u2sNuJ"
-Received: from [127.0.0.1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
-	(No client certificate requested)
-	(Authenticated sender: marex@denx.de)
-	by phobos.denx.de (Postfix) with ESMTPSA id 4E294881EF;
-	Mon, 15 Apr 2024 15:59:35 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-	s=phobos-20191101; t=1713189575;
-	bh=Cj3mFW1RPC+XTHLspPi7w+Q+NY6KDZvpqLKAR5dglRg=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=H9u2sNuJjz6Ek0bTU51pap3mtWmT8tl7Y5MVVwT940pK5pchDyCVyKTnUOLF7Dgi+
-	 30ol21PCeqEd/NDwmAkPyzqYH5xjOK/O4sV8esz8Vo1tmc60y0cvyAlsK0vC7yxGP7
-	 2bB08hLdLquNXrdeKshYDrIH+If7E/YP2DsBgJF5BoidPuVRBF1i/pbKDwHyl+tCiv
-	 lkvJXc5aK0AW4Jlp5D5rE7kRv4x67xps0Z7q+ZsIj1YQ6qu1zUVsygMfS7p5f0us+E
-	 hPmPHfxuUyYg+W/rxPX6NGcmWI1s1IbAzi7YjRF2RNkjxhTFvhgXFTO3Gec9DqZw3R
-	 3ZvvJYyFp29Ow==
-Message-ID: <cb857412-add7-4f06-8fbd-7eef57331f8b@denx.de>
-Date: Mon, 15 Apr 2024 15:26:39 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HBgSgn1o"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75FC4C113CC;
+	Mon, 15 Apr 2024 15:34:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1713195270;
+	bh=lt3EqHtUbz9qchyHitXc3Sc+ljn9HGqN4eVLmg6FtSg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=HBgSgn1o2HGiJb4m1axjl/pD+9VyP89viUPwunxWu4TaDdwU532LXIRqlpQJTrWfz
+	 e/H4DQgm6oFOD3HVXK2NdcS+VFtHbByfgRjGGjGbR87SsOhghNbJCoewKmYywfDPAi
+	 cIAdfr7n0OZ0Xe5ZirzXALUzlR/i+F+bYzmXaKtaW4WYSQuMTWnY4epADe1Uook69O
+	 GViZe6mNG5IfWlRXNJdVHtAYCU86ZCdrzMd6GRtTUuzI2PcdaYd0Jf9+hbqexeXfL6
+	 kMqPDc89mAuZdfV/vnUSaWA26huFgCqoNkDz7VNBxk2TeU+ng/G7lJrSfb8WVHZpCM
+	 t/DSG86pbsSRg==
+Date: Mon, 15 Apr 2024 16:34:26 +0100
+From: Conor Dooley <conor@kernel.org>
+To: Rob Herring <robh@kernel.org>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>,
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Alexander Stein <alexander.stein@ew.tq-group.com>,
+	Marek Vasut <marex@denx.de>,
+	Conor Dooley <conor.dooley@microchip.com>,
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: eeprom: at24: Fix ST M24C64-D compatible
+ schema
+Message-ID: <20240415-mandate-sanded-41cd7d180e22@spud>
+References: <20240415131104.2807041-1-robh@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] dt-bindings: eeprom: at24: Fix ST M24C64-D compatible
- schema
-To: Rob Herring <robh@kernel.org>, Bartosz Golaszewski <brgl@bgdev.pl>,
- Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
- Conor Dooley <conor+dt@kernel.org>,
- Alexander Stein <alexander.stein@ew.tq-group.com>
-Cc: Conor Dooley <conor.dooley@microchip.com>, linux-i2c@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20240415131104.2807041-1-robh@kernel.org>
-Content-Language: en-US
-From: Marek Vasut <marex@denx.de>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="FniYWCs6OrcrsZmX"
+Content-Disposition: inline
 In-Reply-To: <20240415131104.2807041-1-robh@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Virus-Scanned: clamav-milter 0.103.8 at phobos.denx.de
-X-Virus-Status: Clean
 
-On 4/15/24 3:11 PM, Rob Herring wrote:
+
+--FniYWCs6OrcrsZmX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Apr 15, 2024 at 08:11:03AM -0500, Rob Herring wrote:
 > The schema for the ST M24C64-D compatible string doesn't work.
 > Validation fails as the 'd-wl' suffix is not added to the preceeding
 > schema which defines the entries and vendors. The actual users are
 > incorrect as well because the vendor is listed as Atmel whereas the
 > part is made by ST.
-> 
+>=20
 > As this part doesn't appear to have multiple vendors, move it to its own
 > entry.
-> 
-> Fixes: 0997ff1fc143 ("dt-bindings: at24: add ST M24C64-D Additional Write lockable page")
-> Fixes: c761068f484c ("dt-bindings: at24: add ST M24C32-D Additional Write lockable page")
+>=20
+> Fixes: 0997ff1fc143 ("dt-bindings: at24: add ST M24C64-D Additional Write=
+ lockable page")
+> Fixes: c761068f484c ("dt-bindings: at24: add ST M24C32-D Additional Write=
+ lockable page")
 > Signed-off-by: Rob Herring <robh@kernel.org>
 
-For what it is worth:
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
 
-Reviewed-by: Marek Vasut <marex@denx.de>
+--FniYWCs6OrcrsZmX
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZh1JAgAKCRB4tDGHoIJi
+0gclAQCWccrJ4dPLhkH99N4CTLpBd/8QjhYnM+wgs98ToyWIcwD9G6ZxF1VGSJ3Z
+YOlT+SchgWFpUFBJltE4A3gYHb3XAgY=
+=7dSY
+-----END PGP SIGNATURE-----
+
+--FniYWCs6OrcrsZmX--
