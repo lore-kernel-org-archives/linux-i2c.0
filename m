@@ -1,41 +1,43 @@
 Received: from 4.mo575.mail-out.ovh.net (4.mo575.mail-out.ovh.net [46.105.59.63])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16E1913AD2F
-	for <linux-i2c@vger.kernel.org>; Tue, 16 Apr 2024 22:46:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 57BBE6EB4C
+	for <linux-i2c@vger.kernel.org>; Tue, 16 Apr 2024 22:53:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.105.59.63
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713307587; cv=none; b=QOk/sT45Gj907r5FFFAqHX5P8mxvrTNmJnwrH3g7oaHaD8mAfkgANvn/D+MyVvQR3cdDdpDmBb/qHsRLUTFhE7UPbSp2uJW924cc8+kjYQb1lkMFnKtGV6qBgFaSKOKtYlRMWwh1IveVfGZ8S+dlAyTk/CCdojPxfj1jmdJma5s=
+	t=1713307992; cv=none; b=h33mQIWHk3NvUfYAM63RgGjHZZpG2YvbY2xvHgB+mqxJak8Qotg5gUyT19G6zd4I2aMceGRN8x06rDKO8e7huxG6Y6MWcd7G4EW75g7A/CW0oeoUklSfD8lddGRcSdFa7urliOdVZ3DUsQ7MJ/zKfhlJMJi4R3bcMsa+QXU0bKM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713307587; c=relaxed/simple;
-	bh=h3uo6l1//7OEjWkIE1XUEjdaQjX+wASqlaqJMt7R78A=;
+	s=arc-20240116; t=1713307992; c=relaxed/simple;
+	bh=EW8jp+SOURsYTPLl+PnV7ZSN+FjJCWndNz+gCCwD2Iw=;
 	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=OaWFx8Y3iGdh9w46qgpiEZqQrXkTUEOyzS9J0QwMFO0osH2UsHUAW3L47b3jr4dKw7bgZTtIMEXt/8QGo7BaKrzieqvp1iSZMkut47rE0QGEhPvippA1vnszU8pZKCVXXXX64L9aGrzuDYsYZAEktvN30jsli5NRrSjwmTNFaQo=
+	 MIME-Version:Content-Type; b=K8qpa3OOq9ClxxaYU3Dxnms0+Z1hrNo+1s2H8zEFH5atJF33YdCfg4dcf4z4D383BVK/2Xv2iFyP6eYjyjAx7Hz+s44EV55+1u93KBkS2k4UusvyEtDLBDKFBy5wOuaYhaEQkentYIEjMKvI7hiPPXiq0JZfTacUrVeRcAHQ23s=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=46.105.59.63
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director4.ghost.mail-out.ovh.net (unknown [10.108.17.234])
-	by mo575.mail-out.ovh.net (Postfix) with ESMTP id 4VJzfk24DWz1WCP
-	for <linux-i2c@vger.kernel.org>; Tue, 16 Apr 2024 22:46:22 +0000 (UTC)
-Received: from ghost-submission-6684bf9d7b-cwzjm (unknown [10.110.168.204])
-	by director4.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 44BE01FDFF;
-	Tue, 16 Apr 2024 22:46:20 +0000 (UTC)
-Received: from etezian.org ([37.59.142.109])
-	by ghost-submission-6684bf9d7b-cwzjm with ESMTPSA
-	id oV4ZOrz/HmZqMQAAXNgG0A
-	(envelope-from <andi@etezian.org>); Tue, 16 Apr 2024 22:46:20 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-109S003f5198866-139b-45c7-b3bb-350fab71a196,
+Received: from director9.ghost.mail-out.ovh.net (unknown [10.108.2.23])
+	by mo575.mail-out.ovh.net (Postfix) with ESMTP id 4VJzfX5BKCz1W46
+	for <linux-i2c@vger.kernel.org>; Tue, 16 Apr 2024 22:46:12 +0000 (UTC)
+Received: from ghost-submission-6684bf9d7b-tl4st (unknown [10.110.96.50])
+	by director9.ghost.mail-out.ovh.net (Postfix) with ESMTPS id B04DC1FD1E;
+	Tue, 16 Apr 2024 22:46:10 +0000 (UTC)
+Received: from etezian.org ([37.59.142.95])
+	by ghost-submission-6684bf9d7b-tl4st with ESMTPSA
+	id NUZPKbL/HmYJMQAAgyXpiA
+	(envelope-from <andi@etezian.org>); Tue, 16 Apr 2024 22:46:10 +0000
+Authentication-Results:garm.ovh; auth=pass (GARM-95G001a22ffe43-1d0d-41f9-8b5e-b6b47462b279,
                     38C292890E232DD6F9946AE994780F0893807590) smtp.auth=andi@etezian.org
 X-OVh-ClientIp:89.217.109.169
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Jean Delvare <jdelvare@suse.com>, 
- Heiner Kallweit <hkallweit1@gmail.com>
-Cc: linux-i2c@vger.kernel.org
-In-Reply-To: <41efcfe2-7e05-4a11-bd02-40d9e525c415@gmail.com>
-References: <41efcfe2-7e05-4a11-bd02-40d9e525c415@gmail.com>
-Subject: Re: [PATCH] i2c: i801: Annotate apanel_addr as __ro_after_init
-Message-Id: <171330757984.1978363.14103159711969518419.b4-ty@kernel.org>
-Date: Wed, 17 Apr 2024 00:46:19 +0200
+To: chris.packham@alliedtelesis.co.nz, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Abhinav Jain <jain.abhinav177@gmail.com>
+Cc: skhan@linuxfoundation.org, javier.carrasco.cruz@gmail.com, 
+ Julia Lawall <julia.lawall@inria.fr>
+In-Reply-To: <20240415161220.8347-1-jain.abhinav177@gmail.com>
+References: <20240415161220.8347-1-jain.abhinav177@gmail.com>
+Subject: Re: [PATCH] i2c: mpc: Removal of of_node_put with __free for auto
+ cleanup
+Message-Id: <171330756789.1978363.15038881964177013027.b4-ty@kernel.org>
+Date: Wed, 17 Apr 2024 00:46:07 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -45,16 +47,16 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 X-Mailer: b4 0.13.0
-X-Ovh-Tracer-Id: 18428166729492466320
+X-Ovh-Tracer-Id: 18425351976007961206
 X-VR-SPAMSTATE: OK
 X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvledrudejjedgudduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvegjfhfukfffgggtgffosehtjeertdertdejnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpeffteehudffvdfhudfgffdugfejjeduheehgeefgeeuhfeiuefghffgueffvdfgfeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeduvdejrddtrddtrddupdekledrvddujedruddtledrudeiledpfeejrdehledrudegvddruddtleenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomheprghnughisegvthgviihirghnrdhorhhgpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheejhedpmhhouggvpehsmhhtphhouhht
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvledrudejjedgudduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvegjfhfukfffgggtgffosehtjeertdertdejnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpeffteehudffvdfhudfgffdugfejjeduheehgeefgeeuhfeiuefghffgueffvdfgfeenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeduvdejrddtrddtrddupdekledrvddujedruddtledrudeiledpfeejrdehledrudegvddrleehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehjeehpdhmohguvgepshhmthhpohhuth
 
 Hi
 
-On Fri, 12 Apr 2024 12:21:58 +0200, Heiner Kallweit wrote:
-> Annotate this variable as __ro_after_init to protect it from being
-> overwritten later.
+On Mon, 15 Apr 2024 16:12:20 +0000, Abhinav Jain wrote:
+> Remove of_node_put from node_ctrl and node struct device_nodes.
+> Move the declaration to initialization for ensuring scope sanity.
 > 
 > 
 
@@ -67,6 +69,6 @@ Andi
 
 Patches applied
 ===============
-[1/1] i2c: i801: Annotate apanel_addr as __ro_after_init
-      commit: 08944c074592041873f1cb3e5be5fc3fd4cdc3ad
+[1/1] i2c: mpc: Removal of of_node_put with __free for auto cleanup
+      commit: 24e4a0d7c6b7a6491cc44781f3900129f56f447f
 
