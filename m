@@ -1,100 +1,167 @@
-Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx08-00178001.pphosted.com (mx08-00178001.pphosted.com [91.207.212.93])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BA9541A87;
-	Wed, 24 Apr 2024 12:46:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D52D15821F;
+	Wed, 24 Apr 2024 13:21:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.207.212.93
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1713962781; cv=none; b=bXbte9fzTXICACUwT+4CJFN56roWeebvaLJjrNFR6ep0GoE0ftU5GtMmYy1Xv1R+sDLYKGM10KZWpYNiiuLNjEcfXyqEVrwSUQLzn5SnO/5jkjoexyInodyvb5PysW/R1U71UQCXqE3eyqA6qDG7Lq6aXh8a5ce+lWrHyzM1DBA=
+	t=1713964883; cv=none; b=eWx/va08RijE0fPY1x0ILTO1MwyyblCirvl51fbm5DuyW6BcSHb/7NpUi5/MTOxYRcee7vJPMoTXUNarlMqg7H0YCX3mCHU7Wt4SOPTmEEcYzCjFWXIWspq3atFmwPka1geqTe3dfqzR/6lc56cSnfVDVEDEimbOsOyHjM9xiX0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1713962781; c=relaxed/simple;
-	bh=93+T8xJd3cXLT+8AE8EB6mYgzWWVXtgtKLQaSc/xBMI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=o5EJKByz1S+wq7ri5+d6X0EYh0gKe+sRWE+/7xaxB7KtYBj1Nei/I+AQcdBzeQW8LDWnMfW1vCx3tmFUMXg6wo1VSb6UqSMCkMGiUetvPl1Xfk7bdZDTsO6flB0mDwYfY1QXTBlIf2VKA/4q0mMPn4wnxX/2cwmh49fl82ezYyY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=c8csSnqW; arc=none smtp.client-ip=209.85.167.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1713964883; c=relaxed/simple;
+	bh=bABuUtxtwMiaDJEDth6yYKqkY4fMD7xJ78zqRkijgc0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=d+f4eerOeh8o2zWpWiktseCsT9DvruN4cxFpblOXYXB9DCsdEaaAdx/kWcBep+qEnEvYTfc2fbtVTooam0Jelh8mtpOIYlaWvck60V6+LsabgCQ4dcLASXLNsT3CzG0N0MqC5XXf7PDA1MyMyQGMaJAlfbyUygRyQg+qrJDvMw4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com; spf=pass smtp.mailfrom=foss.st.com; dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b=oPBxCIqj; arc=none smtp.client-ip=91.207.212.93
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foss.st.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="c8csSnqW"
-Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-516ef30b16eso8381007e87.3;
-        Wed, 24 Apr 2024 05:46:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1713962778; x=1714567578; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+6TyatYgquEoqN9hGCWnWbVOlkZrg/qYutSLoXl0UTk=;
-        b=c8csSnqWkuOKSm2ryHvHEdB16KGx7xMB033UyC6ykMIecZMZVtWmDsXsrAqQi2DVnl
-         4SIofNU79+qsZqlBh4R1Fw+6peesyBNNxTfzL9WMnRZKzPPdrCRFQ0z9Cn/DrbZrLruD
-         PCLfCxIZpk6I7BsZ3LNrhP+KTT6zZf4vfdFkOMkiuwOwU6ccdsKCAmMIe/CsZLUWV0eB
-         EZOWMJPbzG7hpLoY/irQFuLfXjrjOD1F2NByp60eDy4JrZhZ9FwGjSSQhDfHFjV2L8NJ
-         TvmS9yNQBXD6B+6Defm/cEEBP3NvDp0EfE/KeyOZ+QUe2/PcqWp+dmbbEnPmfGjSqSnZ
-         Ht8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1713962778; x=1714567578;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+6TyatYgquEoqN9hGCWnWbVOlkZrg/qYutSLoXl0UTk=;
-        b=khvlS8JsnPudBJvSFPW/aOZPuoI7s9/6rVeMT/jYf5erZIjPCHf+/umKmwRaNCGcpL
-         oLIroao+mJO4ltssKDJdR3nRn9V49FQZk3SCP7eeH54itzV9viGUKim8OZnJMEn8A/fS
-         Gz7SwhB1CxoLOYOe58cDvsn6nqqr/PPvMeQfEBLArVCluuAMFneg8FD5Vk/YLs3ubY4H
-         EA0fOuby4+nnrk8iUphqqQsxX80WzPKlTa6BNqQk1KBAvFrb80mY1XnVtLabSjwLI8lO
-         UW3VFX0tsD1Q+JsPDr3e97xUbhcejLn/XJDQ6bXYuLoNbPqIEeeXKQMPipD5IqJ4bLvi
-         KcPA==
-X-Forwarded-Encrypted: i=1; AJvYcCXaIKwMfvg3scMWreuFWUHyB6i/XPv5sm7ai1tVCj7q7CJXiCZ9CuStoeFCAmt1Ix/mGfdHLtRj0qJKhZcjqtxF5zwYUEowAu09yX/s30+2XV39EjMBvVrf0n4d8T04vPHX0fMVEqmhYkzXO1F835VXC7mRYe36cK4iwSQWZaTy
-X-Gm-Message-State: AOJu0YxwhLcViy746m0tEL5ip6htgu9mrY9RH9L8dUyPXobykhtgjeBr
-	y+5RydgHm3Yz4nBmocF4KiB3pkqu38H1LqKKcUVEr/H3Qbx9iduzowCy9Kraek+dMul3A9cuGS4
-	tUqiqmvK+goSfjmRNp4eqCmdjgJc=
-X-Google-Smtp-Source: AGHT+IEjbCu8zM2o9faAOyVL2dwkhogAJAXqFNtV2Wm2BJdBui8upObgqrxp6TVRNEGGaQGBWfOudgvaGBNm310z0n0=
-X-Received: by 2002:a05:6512:b12:b0:51b:de39:3826 with SMTP id
- w18-20020a0565120b1200b0051bde393826mr1910497lfu.65.1713962778231; Wed, 24
- Apr 2024 05:46:18 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b="oPBxCIqj"
+Received: from pps.filterd (m0369457.ppops.net [127.0.0.1])
+	by mx07-00178001.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 43OC4omW029734;
+	Wed, 24 Apr 2024 14:20:40 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=
+	message-id:date:mime-version:subject:to:cc:references:from
+	:in-reply-to:content-type:content-transfer-encoding; s=
+	selector1; bh=hkSUB26Hij3YoH4d4gONssMZiD9lhMIi9MYuoDahbc0=; b=oP
+	BxCIqjZqjU5yIPdolezp3gucfYE43BpO2moF0boJpv1s74317nNrf8tTbYX5usOd
+	rlKx/FhS1Qy6Jkjea82P6nnIhij2k6RtqQ72RGkfOKHZzW/rYU1jige7eN6glRBm
+	Gr/fYnvQ0nI1FFIhwyV+FpQcOob58VqnssUOpcpR/bfBeTjXY5MTu8NY0VN5oLNt
+	baPC6vo+Z6OwTORIZk9BIz6pJZyBiWpxinx+vs127hpTMIh3Q7+NTYQB11bqSkWu
+	wTRZ/tTR1dd1WWC/yQviBRPlU7NtgpxHp9kyOZz9PzdXYOFqZatkp9e4ugAKrRJ2
+	ZAcLVNQAQ/E+lH5KwgDw==
+Received: from beta.dmz-ap.st.com (beta.dmz-ap.st.com [138.198.100.35])
+	by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3xmrnj5npa-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 24 Apr 2024 14:20:39 +0200 (MEST)
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+	by beta.dmz-ap.st.com (STMicroelectronics) with ESMTP id 16FD54002D;
+	Wed, 24 Apr 2024 14:20:30 +0200 (CEST)
+Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
+	by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 0C4C621A91F;
+	Wed, 24 Apr 2024 14:19:21 +0200 (CEST)
+Received: from [10.48.86.79] (10.48.86.79) by SHFDAG1NODE1.st.com
+ (10.75.129.69) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.35; Wed, 24 Apr
+ 2024 14:19:18 +0200
+Message-ID: <a0bd94ce-3ddb-4448-ada9-7070323cc98f@foss.st.com>
+Date: Wed, 24 Apr 2024 14:19:18 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240423233622.1494708-1-florian.fainelli@broadcom.com>
- <20240423233622.1494708-2-florian.fainelli@broadcom.com> <ZihLSKe_BHxasBql@surfacebook.localdomain>
- <0aac2975-42d0-4abe-9405-bf8a38a94104@broadcom.com> <b3cdfeb7-6eb0-4522-96ae-d3155d677002@lunn.ch>
-In-Reply-To: <b3cdfeb7-6eb0-4522-96ae-d3155d677002@lunn.ch>
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Wed, 24 Apr 2024 15:45:42 +0300
-Message-ID: <CAHp75VfBnYdzs+rD2QLq=tavr=Aw2PsKbxXOseUJNWWwXsAwPw@mail.gmail.com>
-Subject: Re: [PATCH 1/4] i2c: designware: Create shared header hosting driver name
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Florian Fainelli <florian.fainelli@broadcom.com>, linux-kernel@vger.kernel.org, 
-	Jarkko Nikula <jarkko.nikula@linux.intel.com>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
-	Mika Westerberg <mika.westerberg@linux.intel.com>, Jan Dabros <jsd@semihalf.com>, 
-	Andi Shyti <andi.shyti@kernel.org>, Lee Jones <lee@kernel.org>, 
-	Jiawen Wu <jiawenwu@trustnetic.com>, Mengyuan Lou <mengyuanlou@net-swift.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Maciej Fijalkowski <maciej.fijalkowski@intel.com>, Duanqiang Wen <duanqiangwen@net-swift.com>, 
-	"open list:SYNOPSYS DESIGNWARE I2C DRIVER" <linux-i2c@vger.kernel.org>, 
-	"open list:WANGXUN ETHERNET DRIVER" <netdev@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v9 06/13] of: property: fw_devlink: Add support for
+ "access-controller"
+To: Saravana Kannan <saravanak@google.com>,
+        Gatien Chevallier
+	<gatien.chevallier@foss.st.com>
+CC: <Oleksii_Moisieiev@epam.com>, <gregkh@linuxfoundation.org>,
+        <herbert@gondor.apana.org.au>, <davem@davemloft.net>,
+        <robh+dt@kernel.org>, <krzysztof.kozlowski+dt@linaro.org>,
+        <conor+dt@kernel.org>, <vkoul@kernel.org>, <jic23@kernel.org>,
+        <olivier.moysan@foss.st.com>, <arnaud.pouliquen@foss.st.com>,
+        <mchehab@kernel.org>, <fabrice.gasnier@foss.st.com>,
+        <andi.shyti@kernel.org>, <ulf.hansson@linaro.org>,
+        <edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
+        <hugues.fruchet@foss.st.com>, <lee@kernel.org>, <will@kernel.org>,
+        <catalin.marinas@arm.com>, <arnd@kernel.org>,
+        <richardcochran@gmail.com>, Frank Rowand <frowand.list@gmail.com>,
+        <peng.fan@oss.nxp.com>, <lars@metafoo.de>, <rcsekar@samsung.com>,
+        <wg@grandegger.com>, <mkl@pengutronix.de>,
+        <linux-crypto@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        <dmaengine@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
+        <linux-iio@vger.kernel.org>, <alsa-devel@alsa-project.org>,
+        <linux-media@vger.kernel.org>, <linux-mmc@vger.kernel.org>,
+        <netdev@vger.kernel.org>, <linux-phy@lists.infradead.org>,
+        <linux-serial@vger.kernel.org>, <linux-spi@vger.kernel.org>,
+        <linux-usb@vger.kernel.org>, Rob Herring <robh@kernel.org>
+References: <20240105130404.301172-1-gatien.chevallier@foss.st.com>
+ <20240105130404.301172-7-gatien.chevallier@foss.st.com>
+ <CAGETcx8HdnspNfDEJP+cqShJPsDryzGkOVq6B99cFQzkZi3dMg@mail.gmail.com>
+Content-Language: en-US
+From: Alexandre TORGUE <alexandre.torgue@foss.st.com>
+In-Reply-To: <CAGETcx8HdnspNfDEJP+cqShJPsDryzGkOVq6B99cFQzkZi3dMg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: SHFCAS1NODE1.st.com (10.75.129.72) To SHFDAG1NODE1.st.com
+ (10.75.129.69)
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-04-24_10,2024-04-23_02,2023-05-22_02
 
-On Wed, Apr 24, 2024 at 3:18=E2=80=AFPM Andrew Lunn <andrew@lunn.ch> wrote:
-> > > >   #include <linux/i2c.h>
-> > > > +#include <linux/i2c-designware.h>
-> > >
-> > > Can it be hidden in the subfolder?
-> >
-> > That would require the MFD and ethernet drivers to include relative to =
-where
-> > they are in the source tree, do we really want that?
->
-> Maybe linux/platform_data/i2c-designware.h ? There are a few NAME
-> macros in there.
+Hi Saravana
 
-Yes, under subfolder I meant something like
-include/linux/$SOMETHING/_this_header_.h or even deeper.
+On 4/24/24 07:57, Saravana Kannan wrote:
+> On Fri, Jan 5, 2024 at 5:03 AM Gatien Chevallier
+> <gatien.chevallier@foss.st.com> wrote:
+>>
+>> Allows tracking dependencies between devices and their access
+>> controller.
+>>
+>> Signed-off-by: Gatien Chevallier <gatien.chevallier@foss.st.com>
+>> Acked-by: Rob Herring <robh@kernel.org>
+> 
+> Please cc me on fw_devlink patches. Also, this patch is breaking the
+> norm below. Please send a fix up patch.
+> 
+>> ---
+>> Changes in V9:
+>>          - Added Rob's review tag
+>>
+>> Changes in V6:
+>>          - Renamed access-controller to access-controllers
+>>
+>> Changes in V5:
+>>          - Rename feature-domain* to access-control*
+>>
+>> Patch not present in V1
+>>
+>>   drivers/of/property.c | 2 ++
+>>   1 file changed, 2 insertions(+)
+>>
+>> diff --git a/drivers/of/property.c b/drivers/of/property.c
+>> index afdaefbd03f6..7f737eac91b2 100644
+>> --- a/drivers/of/property.c
+>> +++ b/drivers/of/property.c
+>> @@ -1268,6 +1268,7 @@ DEFINE_SIMPLE_PROP(leds, "leds", NULL)
+>>   DEFINE_SIMPLE_PROP(backlight, "backlight", NULL)
+>>   DEFINE_SIMPLE_PROP(panel, "panel", NULL)
+>>   DEFINE_SIMPLE_PROP(msi_parent, "msi-parent", "#msi-cells")
+>> +DEFINE_SIMPLE_PROP(access_controllers, "access-controllers", "#access-controller-cells")
+>>   DEFINE_SUFFIX_PROP(regulators, "-supply", NULL)
+>>   DEFINE_SUFFIX_PROP(gpio, "-gpio", "#gpio-cells")
+>>
+>> @@ -1363,6 +1364,7 @@ static const struct supplier_bindings of_supplier_bindings[] = {
+>>          { .parse_prop = parse_regulators, },
+>>          { .parse_prop = parse_gpio, },
+>>          { .parse_prop = parse_gpios, },
+>> +       { .parse_prop = parse_access_controllers, },
+> 
+> All the simple properties are listed before the suffix ones as the
+> suffix checks are more expensive. So, you should have inserted this
+> right before the suffix properties. Also, there's a merge conflict in
+> linux-next. So make sure you take that into account when sending the
+> fix up and picking the order.
 
---=20
-With Best Regards,
-Andy Shevchenko
+I'm fixing the stm32-next branch by inserting
+
+         { .parse_prop = parse_access_controllers, },
+just before
+
+	{ .parse_prop = parse_regulators, },
+
+
+> 
+> -Saravana
+> 
+>>          {}
+>>   };
+> 
+>>
+>> --
+>> 2.35.3
+>>
