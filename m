@@ -1,184 +1,221 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from EUR04-DB3-obe.outbound.protection.outlook.com (mail-db3eur04on2111.outbound.protection.outlook.com [40.107.6.111])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 274011494A7;
-	Fri, 26 Apr 2024 15:23:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714145027; cv=none; b=djUyXKiK6IBLC9RrwattSiLd4oS7JhDgecB4miRBI6mTXRfrrfvoAeDJ9iCPy0dAxwh75JlUGduxr9wYohdfMc2+m5TWyDa7nDobjvqlIc99Am4t8FKJfw+/ZR+3ICkN3jHCYGYvL6SjTdQbMb+ySwRwJQqWhgfaYKgIbq0GAIM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714145027; c=relaxed/simple;
-	bh=cQokOok50FvSBH5f38xOh7Sn6Oft1X7gWWsl8fdB21Y=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=kR0AJIt21RPfAO0GuZKHNsNDBsQc3ZslVta7oeg36JEaPE3Al3Y89oB6tBiKJFt1QcRETcv92xZp6mIVGjGRGAs7EhISKE2DRaTmEdSg4ny4op7S7FldHKQPysYK6Qr23FnTAfYOWzx0Pc3fRqDyCT7cIEPzUpPiWoX6REvBYf4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=iOoM7OFA; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 781431514CC;
+	Fri, 26 Apr 2024 16:50:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.6.111
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1714150230; cv=fail; b=efYjpZHt/npjbQJKQXz5k1zIRJc2MNB92fEAjsEn10/3EaZgjY6jDA2+1SdmEjHRfpJhqygda4azzfvoX/CdfK/wwXmG7Ra/D/4dW4bvDtz88pFFe+VuLqOMDSJYUsOV/f2b12IslgCv1P3M0KJAzMlPApnzjSLLo5JE9XSo3Vo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1714150230; c=relaxed/simple;
+	bh=37bibsntXePyd0Onk5xc7YKBS7gyuV2opUWpMfc0FPw=;
+	h=From:Date:Subject:Content-Type:Message-Id:References:In-Reply-To:
+	 To:Cc:MIME-Version; b=BjDULjwbJgnK6Fy6/+Py1VTzlymMGFobTyKmT3tArqIqa8WZ+bkB8bcSiwy+R05vbHjbo/mTnsT5eLaUcz+ysDtzHjlixm4/eu2G167e1dgtJlpPTV6MG+o5Xw4yxZeJEWAJrRK2JEmN/zvs42Xdmi/2gW2oAjdNqnWyOWjZNzI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=theobroma-systems.com; spf=pass smtp.mailfrom=theobroma-systems.com; dkim=pass (2048-bit key) header.d=theobroma-systems.com header.i=@theobroma-systems.com header.b=jLIE7goz; arc=fail smtp.client-ip=40.107.6.111
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=theobroma-systems.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=theobroma-systems.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="iOoM7OFA"
-Received: from pps.filterd (m0353727.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43QFMHT8016235;
-	Fri, 26 Apr 2024 15:23:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=CViDKwrvpIv+cpI7v9ixPLgnbdWhkWZcrv5mb1eXGAg=;
- b=iOoM7OFA7Sckze2DMu6kLFQI/KSC236JyAMdQRD/jxA7fBFSMiEs6sokjWJuDIHp3Q+C
- hbYHvNnqOuzDWswN2T+i9hXI/tqP6sHp3g6in9Z8LRMSqK9fBqno5yVddiRTc4PMKTV5
- 2gImlAcvTVZvo9I5s9G6kiyWROO4j4tZa4KF0kpNU7BT2TOIMyIiOwY6Ms3EnbiPVYrC
- P4Wazhs7XsVMVgKMYC6CbUc38bVe/MQERKHZRPK277rBRlhgiN8u/lOmNgnD7CHCNeYr
- o76nVriHSuB+NZ6HTzovKWM+iMm/B29EK1438FdtcnsTjpYvHdfQYf5zVhnxvhY56XzD Tg== 
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xreuj003j-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 26 Apr 2024 15:23:34 +0000
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43QCCfr9023065;
-	Fri, 26 Apr 2024 15:23:33 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3xms1pgemr-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 26 Apr 2024 15:23:33 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43QFNUgm34668922
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 26 Apr 2024 15:23:32 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 93CAF58060;
-	Fri, 26 Apr 2024 15:23:30 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4A11558059;
-	Fri, 26 Apr 2024 15:23:30 +0000 (GMT)
-Received: from [9.61.156.17] (unknown [9.61.156.17])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Fri, 26 Apr 2024 15:23:30 +0000 (GMT)
-Message-ID: <bc58a063-9eaf-4bcb-b538-a95d8d03ea24@linux.ibm.com>
-Date: Fri, 26 Apr 2024 10:23:30 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 10/14] dt-bindings: i2c: i2c-fsi: Switch to yaml format
-To: Krzysztof Kozlowski <krzk@kernel.org>, linux-aspeed@lists.ozlabs.org
-Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-fsi@lists.ozlabs.org, linux-spi@vger.kernel.org,
-        linux-i2c@vger.kernel.org, lakshmiy@us.ibm.com, robh@kernel.org,
-        krzk+dt@kernel.org, conor+dt@kernel.org, joel@jms.id.au,
-        andrew@codeconstruct.com.au
-References: <20240425213701.655540-1-eajames@linux.ibm.com>
- <20240425213701.655540-11-eajames@linux.ibm.com>
- <f84ddcdb-8f8a-4cf6-a851-243baa1745ac@kernel.org>
-Content-Language: en-US
-From: Eddie James <eajames@linux.ibm.com>
-In-Reply-To: <f84ddcdb-8f8a-4cf6-a851-243baa1745ac@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: QQf-aFXFgQZ_OsX9OStiFZp3OJntPtn8
-X-Proofpoint-ORIG-GUID: QQf-aFXFgQZ_OsX9OStiFZp3OJntPtn8
+	dkim=pass (2048-bit key) header.d=theobroma-systems.com header.i=@theobroma-systems.com header.b="jLIE7goz"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=VWCcHj8Z22PM5c5O1CjJFcHSrwPqaCgR48MwnFENNSHYu88G3OkrFr2Nr00AYGUxLS6XcdDxQgUBiFgt57rd3n3bMXTRTSHMQySBCH2Zn7SA7Ea8F90AJm+PLVibNKnOKepNMkVV1Z33aGJ4PCur/FnFk+iG6KBT0rUTQVdROPB6KOu/BMrDu4f0xpbNsz+lXsHZZfiCThwIk1D9G03VmfX+GIxyO2SzHdSDVHFAv45HBfBdPJAbQsKEUkGQJFVGBfVFqURD8aYefVVpchSUIOpnxpKVyUA50Ub8eDPcixX39IzK0R/4hhFWraMr+NLM/2fm4uD5H0GiIm8f+jItGg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=BOZ4y9LpmO3SIsxBmkTLzn2Xo1D8twp3LSzmvFtE+a0=;
+ b=nrk0RqR7KD0syFtm48tRnOnPluZVC84PE2cdjwetFIZ+vq2CK0c1yvy6G5Xl+/riEP0tnrqeT95NWl42F4gCqLd0QDPSRvMVKY1vQzTZhgPctpesO+2JPW8swp5TXxiI0RCNYDkGBSxvcbbHIbEO4dGrJidRo2N3h15lGX3WFc9jMf0eVQBAwdreDWaMCCrk7tRU712NTFrWGCTvV9cRu/n8CeX2STH1KFarDUzJAGxPcSHM48QM7Ur9+BTf4lEGq8ppkeyKmHQUWr5VT2kM1wCWDYL+BnjJ9ygysgYNp4Y/jAQdSxGck1nfVwUAj9O0aV55fV39sUfKV1yyc09ZHg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=theobroma-systems.com; dmarc=pass action=none
+ header.from=theobroma-systems.com; dkim=pass header.d=theobroma-systems.com;
+ arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=theobroma-systems.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=BOZ4y9LpmO3SIsxBmkTLzn2Xo1D8twp3LSzmvFtE+a0=;
+ b=jLIE7gozIYwukbmwqUCzdK6/FIjGr+M0zoQWm+DN7Quvnj6DeZeOrBzxLJtD0P2SKd2zNRR1PwZ3Nve2i7Pz7yKpZReHwS6SlZ5LWkN+0YC4VjhuLiG7oM9876jLabVJacOnp5FViSBuNPjJprDJ1xOWrsT+p4sCeEACXLnXmXP5CvQgLvrtqteJioQ/aUGtca3p/UgzR4wO8szDMYcBI9mmNw+vAI+t6/eBtEUbIYtCqxn5YO++pIGyU75Rflo4u/vpeSIDJYRHOpO+FT87VW5pwHmZ37vnJE8fq6drhLAItAg7v4YV/Jm2ZtkxA0ikxxkPJjlBtRLGZcsCbKAihA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=theobroma-systems.com;
+Received: from VE1PR04MB6382.eurprd04.prod.outlook.com (2603:10a6:803:122::31)
+ by VI0PR04MB10230.eurprd04.prod.outlook.com (2603:10a6:800:240::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7472.44; Fri, 26 Apr
+ 2024 16:50:25 +0000
+Received: from VE1PR04MB6382.eurprd04.prod.outlook.com
+ ([fe80::59d9:878d:65f0:3936]) by VE1PR04MB6382.eurprd04.prod.outlook.com
+ ([fe80::59d9:878d:65f0:3936%4]) with mapi id 15.20.7472.044; Fri, 26 Apr 2024
+ 16:50:25 +0000
+From: Farouk Bouabid <farouk.bouabid@theobroma-systems.com>
+Date: Fri, 26 Apr 2024 18:49:32 +0200
+Subject: [PATCH 1/7] i2c: mux: add the ability to share mux-address with
+ child nodes
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+Message-Id: <20240426-dev-mule-i2c-mux-v1-1-045a482f6ffb@theobroma-systems.com>
+References: <20240426-dev-mule-i2c-mux-v1-0-045a482f6ffb@theobroma-systems.com>
+In-Reply-To: <20240426-dev-mule-i2c-mux-v1-0-045a482f6ffb@theobroma-systems.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
+ Peter Rosin <peda@axentia.se>, Andi Shyti <andi.shyti@kernel.org>, 
+ Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Quentin Schulz <quentin.schulz@theobroma-systems.com>, 
+ Heiko Stuebner <heiko@sntech.de>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+ linux-rockchip@lists.infradead.org, 
+ Farouk Bouabid <farouk.bouabid@theobroma-systems.com>
+X-Mailer: b4 0.13.0
+X-ClientProxiedBy: VI1PR08CA0261.eurprd08.prod.outlook.com
+ (2603:10a6:803:dc::34) To VE1PR04MB6382.eurprd04.prod.outlook.com
+ (2603:10a6:803:122::31)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
- definitions=2024-04-26_12,2024-04-26_02,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1015 phishscore=0
- spamscore=0 priorityscore=1501 impostorscore=0 mlxscore=0 adultscore=0
- malwarescore=0 bulkscore=0 mlxlogscore=999 suspectscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2404260103
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: VE1PR04MB6382:EE_|VI0PR04MB10230:EE_
+X-MS-Office365-Filtering-Correlation-Id: 01dcd41a-a324-4c5a-b457-08dc6610f831
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?aE1tc0hDcm85bkI2RUNUdnVlNyt4MDZUaWJRT0pYY0FCU3U2dXJ4aUE0VlF4?=
+ =?utf-8?B?azIxYjdzd2EzNUFWa0R3NDVIZlA1aXVIb0greWxsK1RtdWVuR2JRNGdSbGdS?=
+ =?utf-8?B?Qm1UcUtNV3ZSc1pRa2VsR3o3VTZFaC9wenZuR3JYa1VGc0ZpdVBuRWdXTXZl?=
+ =?utf-8?B?R3dEQjI2enRJUHFWdDlka0xVTU9zSktxaUNPb0pNd0xabVd4R0svTnJsT3h1?=
+ =?utf-8?B?SDJuNWdSMlNEeFlHam10eE54SVk0UmdGcENMZkdPSDFORysreHEvVDVRYTF0?=
+ =?utf-8?B?L0xBay9zMWRHak9ES25GTWZhRW11RU8yRjNWK2lReHhwU1RENjJlU1crUUoy?=
+ =?utf-8?B?TmErQUpudVF4M0hLbUgxWkYrYlloRVlsOStwM3FSa1didk1JcHJJNk5DVTJu?=
+ =?utf-8?B?ZHNBRWxRUkFPVUtoVzJaaVdzSWNoTmlxQ2hnT1dDQ0VFSGpidlVGanpaeGJH?=
+ =?utf-8?B?MEhYWThLeHVpdEFxZHhLdHRTbVNpQm5PR1hFaWVMZG9kcWFRdHBlWUl3ZEJT?=
+ =?utf-8?B?Mk9HbFpTcit0QWtUMExxa3ppbGpBMkV5NTBtdkJKNGtwOTdzb2Q1emJrKy9x?=
+ =?utf-8?B?OU9YTjNUdDF3N2lRTnRpR2J6R1EyNkwyOHU4a0xaeFZDQTd2cHVuUDFQZ0Iz?=
+ =?utf-8?B?OU9DRFRVNnFDNGNiR1dTaHNoMUljQkt0aDhCU1FFVTJhVUlrNkJ2dzhpMnl5?=
+ =?utf-8?B?R0xjWFNJeXQ2MFd4RmlDa2JwQ0VNUW5yam1jeUd1Y1BlbGtjZkFjL3RKSkRm?=
+ =?utf-8?B?SThJeTE2UVJEYXdQTHFMMWs5cFBjbUFJZmdpV0Y1RUIveGYrbGJ2MmFtNHNQ?=
+ =?utf-8?B?dFZZQWhnanlDSFB6SmQrSGJzYTdYdyswU09qcUtwMU43NWFwUTNWU1BOM1dZ?=
+ =?utf-8?B?U01wSWZwU0UySDA5TWNQQ0JkSlZFcWdhK0RWZGpleFRLV3A2Y0J6U1R5WEZx?=
+ =?utf-8?B?emthWld4Yno0My95STNZU3pqaFN3V1pYK3F0VlZFbVU3RnVkVGZ6TENrUXBy?=
+ =?utf-8?B?ODZ0M2UzbTVIVGR1V0x2SVJJcHZDUUl1SkUvZTVyS05HYjVlT0ZNdjBwNGpw?=
+ =?utf-8?B?RWJiVVZENDhENFBWQUFFNWxkOURMVlg1Y0wvQVo1SldTVzlXZWpVdEpRTTUz?=
+ =?utf-8?B?STQvUkdjazFESzBiZGg3WGVOV0RQYXpmVUNIRXpjVWNqeEVtd0xieEJzenNT?=
+ =?utf-8?B?SUNGZFgvUUdnd1NEaXRrUkErZ2JXRW10S0ZCSHduWGg5TFo5ZFZFNDd6UXhD?=
+ =?utf-8?B?Q0JxTHRHeFNKdk9RbmM1ekdhUURFS3VMK2Z0M3huRjFiUmh6SVFxcytIVzdt?=
+ =?utf-8?B?U0NDckF6c05DeFRvaTh3cTE2QUpjeis4cWo5ZXRsSVlkc2Z5Zy9rOGVkT2px?=
+ =?utf-8?B?MkJCZ3BKWWt1YjI3V2V6c0d1d1FVUkdTdXZYYWhnMVZmbDFaSkZ0M3owNnJB?=
+ =?utf-8?B?V29COGxmdjJ4OENKcERZV25WeE9SODVuazY1VWpQWVZpTEJGdWZ4Wjh6VlBB?=
+ =?utf-8?B?YWtFSEI5STl4QXdXUFdKOTJxbEg2RHhSVkxnYXhYSEQ5NS8wbjdsUHV3bkZB?=
+ =?utf-8?B?NndqcHBONi9zR3RhU2V0Z2ZRU0dmb0Y2MzcxQXl1d3JsQ1E3ejd3dy9SUmFW?=
+ =?utf-8?B?ZTNpclNETlNGd04vakRpSkVVYjR1S054RXdqM1BVZGp2TURnVmU1d3hyVGJs?=
+ =?utf-8?B?eW9oaHlhV0ZiNjV3RVJRZCtKTFFGWnRNM3JlN3FVU0JKbkxnc2FodU5ucjhH?=
+ =?utf-8?B?SDA4VkNPTnFuN29OUERmellEazVnc1J0UWp1cVZaaG1PYWdHcFdjTHhoL000?=
+ =?utf-8?B?Si9qSmYvSlE1U3gxZVdMZz09?=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VE1PR04MB6382.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230031)(376005)(52116005)(7416005)(1800799015)(366007)(38350700005);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?ejBFUTlBWEY0MHBhcG5ZZkdaMVk3YmxIZ3BGdUFaZEhna2hoaDg4QVRETUJz?=
+ =?utf-8?B?WTk2Vm0yQXBRMGt3WUE2VU45Qy9ZZUFvSTdRbkkzcHo1eDE3QTkzQWNHRDBn?=
+ =?utf-8?B?amRicDVxZFpDcFNlTzcvSGM2dG0veStROFVoZElrZUovTmo0c3Q2Y2RtcFdn?=
+ =?utf-8?B?cms4KzhDV3NLSzN0NHlQNCtBV3VCcnAwVU1iYWFKZFpwcXdVdGU4NlJ6Y0VO?=
+ =?utf-8?B?R1k5cXgrS1NBYzFJbi92UzRKR2V5NjV6S1BRbUpZNVpJV3dRM3Bod2k3VUVi?=
+ =?utf-8?B?UkVrekRQQ2JKUVVsTmQzVEM4c05FcVZUdlUwQmtLY0hoQzFVcVJqVTAyZmpK?=
+ =?utf-8?B?SVRPSkNZZTdPVk5EOVNyVk01OWlJMnhDVFVEQ3FQWVJiS05vVng1SEpVVDJL?=
+ =?utf-8?B?dDdHaXRrbGY3eXhoZmRVTDZHdXNoNXExSjNpN2pNK0hPNWFBaGNRNFFDTjFZ?=
+ =?utf-8?B?SkI2YTZPdngwbFhwRC90VzRQQkIzMVJUMGoxWkIzL3RYcUVad0xkUFZSSUZo?=
+ =?utf-8?B?YmF6YkVOdC9nSGZMUHg4cUFKclpZaDhvM0NYL1ZxRjlJQXUrMUVJcVNDUWt6?=
+ =?utf-8?B?NFVaRXFyRFVSdTdNMG1WRnBzZ3p3R01hSldkS054bkNxVG9Oc25paWJNY3Q4?=
+ =?utf-8?B?am82N3hTNGN5akw1NlhyNTMzSWtwUGlYa2pkem83QVhyam43K04wZ253R1FH?=
+ =?utf-8?B?SFRnZzlGRGlNM2hjcERoWGw3K3ZnVVJmRkhpZjYzT1FZa0JNNDZhL213NzIz?=
+ =?utf-8?B?R1NRR2JYRGJuOHNpUmV3aWRFZ0ZCeWpkYVpuRE9DaHdPb0tDaWx4aVM0T2Jp?=
+ =?utf-8?B?MG5Rb1dqSUZuWFFoeXJQV0xLTk14RHhNdTZEREc1VzcxcEwvb05DWTN4TkdB?=
+ =?utf-8?B?ZUNBTDFFR2Y5cy8ycmRKclNNT2ovNHpCMlM3L2w1KzJzR2VYenBZNElsOTA0?=
+ =?utf-8?B?eFJiMlpzODB1YUxqRzBtYVNPQ3VOM0xqYmFxYXhXV3pDckFKVHc2T0RxZjJi?=
+ =?utf-8?B?VzBGYVNKYmRTbW4xYVhCVCtsR3lhQmNJdmRXVERQKzBCTXBlYnhQb2toOTZt?=
+ =?utf-8?B?ekxiSE1NRm1heW1HZTZBTm9Za1VNUEMrSC8rWXJSRFQ0R2pqSHhWaDc3d0Ju?=
+ =?utf-8?B?UmIzZTd6NitjNzJudjJMZmZPWmJSdmczcW0wcjhZeER3VnFvd2dvR09FQTFp?=
+ =?utf-8?B?RkQ5aDhVL2ttalMxU1ZIeUpxQmVtdVRGc29ITDJoVWxZQU1uTndkTjRpY3RP?=
+ =?utf-8?B?UXdIWTEwR1NpZkhWSXkrT0RXRmtKNVpnZ205Y3BPVlFpSXpUdCtrdjRuZmhz?=
+ =?utf-8?B?LzQ1bWxWMk9HVHpaWlZFYXU2a2RNVy9EdUNETldOY0ZlS3g4YUtsakJJWk1a?=
+ =?utf-8?B?eHZmd284ejQxQTVCazlxL1Bjc0tlQ0dkTVJncktIaEZ1ZnhJNHROTGkrV2J0?=
+ =?utf-8?B?amdhVlJGbStXdXJMb1pwRWh4d2lXWGpnRGo4S1I3RWhKY0k3SStXS1VZMkxQ?=
+ =?utf-8?B?VkVaK2VyQkxOZmJEcGxVZmpteVNibUVuMlRucDVwTEJBWXcydjh2QlJWeWVm?=
+ =?utf-8?B?cURmaFprcm9yRnF3YkVPVDlQN20rME1WV1B3WSt0QTErdVpJN2JZZnpxUytp?=
+ =?utf-8?B?ZUZZaUg3V1hUY1IvK3lPVUh4c0p4YmsrZHVUR2RIWGNrTGpDdHFEUHJiMkFl?=
+ =?utf-8?B?NnowUG8vbk1lVEI5YmVvVnJiTzRWQ0ZtQ245SThVb1VtVWQ5V3FnY2cza0hP?=
+ =?utf-8?B?cU5yVW1ONkJyL0FLWjdJSWRFSDN0WEw3Y2h6elFHKzA1dHpxOVcveHIvWnlG?=
+ =?utf-8?B?L01HeGUrTzBzOWZxZ1V1MEhqWEk4U2RHNWRKM0RoendkOXVoNTMwR01WN3g0?=
+ =?utf-8?B?Q1NnSFNIZFVVSFpBcUVZNnZpR2M1bElGQXdhbHlxRjZvR0JWUS9jSjZHank5?=
+ =?utf-8?B?eC9UQXFiZnlZOEhTYnlUVnB4SHVPMzdRRzRHVzg5Um8zRFIraEdib0NYWVBk?=
+ =?utf-8?B?cm1lRnI4VWRLdURkSnBmaFpxMzVlVG9rTFdvc2hFRHFUWnRJT2N3djJxVWJk?=
+ =?utf-8?B?WHU2NDlNOXBFQVJUbU9aajBySXBEZzgzcktGQjl4TEZ2OXY4UHJGY1o5Rlk3?=
+ =?utf-8?B?QVd6VW5hSk5ncWxBRnpiaURTMEc4Z1FWOHFKUUVJQlFqb3pZMUMyS0pZQ0Vs?=
+ =?utf-8?Q?HzCIaR8PoTwse4NQTTuyqQI=3D?=
+X-OriginatorOrg: theobroma-systems.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 01dcd41a-a324-4c5a-b457-08dc6610f831
+X-MS-Exchange-CrossTenant-AuthSource: VE1PR04MB6382.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Apr 2024 16:50:25.1088
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 5e0e1b52-21b5-4e7b-83bb-514ec460677e
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: s31FsMxDOfV7owdLmFX60Fksqy+dhoPm+0I5FmeNv1h6Y2P1UPM2FD25PXg6OSI0A7K/V1PCMCy4vq76ABHWvnKu/W2074f4SMgPtC69b2XZaoJdip3iFUUIx/py5FS9
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI0PR04MB10230
 
+Allow the mux to have the same address as a child device. This is useful
+when the mux can only use an i2c-address that is used by a child device
+because no other addresses are free to use. eg. the mux can only use
+address 0x18 which is used by amc6821 connected to the mux.
 
-On 4/26/24 01:29, Krzysztof Kozlowski wrote:
-> On 25/04/2024 23:36, Eddie James wrote:
->> Switch to yaml for the FSI-attached I2C controller.
->>
->> Signed-off-by: Eddie James <eajames@linux.ibm.com>
-> Please use scripts/get_maintainers.pl to get a list of necessary people
-> and lists to CC (and consider --no-git-fallback argument). It might
-> happen, that command when run on an older kernel, gives you outdated
-> entries. Therefore please be sure you base your patches on recent Linux
-> kernel.
->
-> Tools like b4 or scripts/get_maintainer.pl provide you proper list of
-> people, so fix your workflow. Tools might also fail if you work on some
-> ancient tree (don't, instead use mainline), work on fork of kernel
-> (don't, instead use mainline) or you ignore some maintainers (really
-> don't). Just use b4 and everything should be fine, although remember
-> about `b4 prep --auto-to-cc` if you added new patches to the patchset.
->
->> ---
->>   .../devicetree/bindings/i2c/i2c-fsi.txt       | 40 -------------
->>   .../devicetree/bindings/i2c/ibm,i2c-fsi.yaml  | 59 +++++++++++++++++++
->>   2 files changed, 59 insertions(+), 40 deletions(-)
->>   delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-fsi.txt
->>   create mode 100644 Documentation/devicetree/bindings/i2c/ibm,i2c-fsi.yaml
->>
->
->> -    };
->> diff --git a/Documentation/devicetree/bindings/i2c/ibm,i2c-fsi.yaml b/Documentation/devicetree/bindings/i2c/ibm,i2c-fsi.yaml
->> new file mode 100644
->> index 000000000000..473a45de1b6c
->> --- /dev/null
->> +++ b/Documentation/devicetree/bindings/i2c/ibm,i2c-fsi.yaml
->> @@ -0,0 +1,59 @@
->> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
->> +%YAML 1.2
->> +---
->> +$id: http://devicetree.org/schemas/i2c/ibm,i2c-fsi.yaml#
->> +$schema: http://devicetree.org/meta-schemas/core.yaml#
->> +
->> +title: IBM FSI-attached I2C controller
->> +
->> +maintainers:
->> +  - Eddie James <eajames@linux.ibm.com>
->> +
->> +description:
->> +  This I2C controller is an FSI CFAM engine, providing access to a number of
->> +  I2C busses. Therefore this node will always be a child of an FSI CFAM node;
->> +  see fsi.txt for details on FSI slave and CFAM nodes.
-> Here and in all other schemas - remove reference to fsi.txt. You are
-> going to drop this file once you convert everything, right?
+Signed-off-by: Farouk Bouabid <farouk.bouabid@theobroma-systems.com>
+---
+ drivers/i2c/i2c-mux.c   | 10 +++++++++-
+ include/linux/i2c-mux.h |  1 +
+ 2 files changed, 10 insertions(+), 1 deletion(-)
 
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index 57ff09f18c37..f5357dff8cc5 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -331,7 +331,6 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+ 	priv->adap.owner = THIS_MODULE;
+ 	priv->adap.algo = &priv->algo;
+ 	priv->adap.algo_data = priv;
+-	priv->adap.dev.parent = &parent->dev;
+ 	priv->adap.retries = parent->retries;
+ 	priv->adap.timeout = parent->timeout;
+ 	priv->adap.quirks = parent->quirks;
+@@ -348,6 +347,15 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+ 	else
+ 		priv->adap.class = class;
+ 
++	/*
++	 * When creating the adapter, the node devices are checked for i2c address
++	 * match with other devices on the parent adapter, among which is the mux itself.
++	 * If a match is found the node device is not probed successfully.
++	 * Allow the mux to have the same address as a child device by skipping this check.
++	 */
++	if (!(muxc->share_addr_with_children))
++		priv->adap.dev.parent = &parent->dev;
++
+ 	/*
+ 	 * Try to populate the mux adapter's of_node, expands to
+ 	 * nothing if !CONFIG_OF.
+diff --git a/include/linux/i2c-mux.h b/include/linux/i2c-mux.h
+index 98ef73b7c8fd..17ac68bf1703 100644
+--- a/include/linux/i2c-mux.h
++++ b/include/linux/i2c-mux.h
+@@ -21,6 +21,7 @@ struct i2c_mux_core {
+ 	unsigned int mux_locked:1;
+ 	unsigned int arbitrator:1;
+ 	unsigned int gate:1;
++	unsigned int share_addr_with_children:1;
+ 
+ 	void *priv;
+ 
 
-Good point, yes.
+-- 
+2.34.1
 
-
->
->> +
->> +properties:
->> +  compatible:
->> +    enum:
->> +      - ibm,i2c-fsi
->> +
->> +  reg:
->> +    items:
->> +      - description: FSI slave address
->> +
->> +required:
->> +  - compatible
->> +  - reg
->> +
->> +allOf:
->> +  - $ref: /schemas/i2c/i2c-controller.yaml#
->> +
->> +unevaluatedProperties: false
->> +
->> +examples:
->> +  - |
->> +    i2c@1800 {
-> So no wrapper node is needed. Drop the wrapper node in previous patchset
-> where you introduced one with warning.
-
-
-The other one is actually a child node of the equivalent spi controller, 
-so it does need some sort of wrapper (address-cells and size-cells don't 
-match).
-
-
->
->
-> Best regards,
-> Krzysztof
->
