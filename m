@@ -1,125 +1,92 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7A0B13C912;
-	Fri, 26 Apr 2024 08:21:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86C3B7EF
+	for <linux-i2c@vger.kernel.org>; Fri, 26 Apr 2024 08:39:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714119667; cv=none; b=a1IBb6RKFRrDJEdwtdCsZhZ7A8Zm1jVA2RiVoDjs6Vgz124Qfk67DI0BljrjzdIwPkpAWiUsBgfH/i6/dm50AZF11OnlCmFzB4uqxeUY/xbHIEYVLBdOYPvrD2XL9wRxYbQLhZtEw1A9n6g0G4nsGblsQK/Yt3o72XnmyGAnYg4=
+	t=1714120771; cv=none; b=gTQRlb6JQLIARiwXrcNQny1Iu7YCuMtdVLCpmBlkv+xX0wjtNBoBfLzxhwx02lvlO45Bh+EmIGy2lHk5+fFjdVLFtiIN66RSuwTixl0/ughQIxGFLFDMV5mXxWBTqPf2ChkrwKP517CHTtXg1Uht5qTxEl1Z/xJOG+UMoWU85og=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714119667; c=relaxed/simple;
-	bh=da+XBsT3HsI42ooeRyvS7kzGLhnYoAOLHQlDAp+t1AA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=t1NyjdMmYZpnmHL39DSWQVBiX89Z/MZtZ9zZlOCdCx8p9zORxtY0GaQNXDesdmhIDxAzK8r250OhlwRDeAbKySk+ouAkXQFuxYNUaYdh68SlQFiZMDTPK3QP/31eMMSMkO+Vxe3qS3RUElsbT9aNmOOSbEBuYyyGNGXKjL+pLVs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kDOh/Hqc; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1714120771; c=relaxed/simple;
+	bh=rWecvkZ9/zt+KtrKeDRwrHO9gDCfO16CTVC2GKggIH4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=fIQpOnseUJmBJmFa3evn6bM0ZY12Kw5WsgGoUFR47QK6fJ8yYKS2wY62md0+9gz0J7WZ69A84Ba9S9q5NgJMwfDQ1prDsWPn3I9+X6Lupibc89flYBKqchuGnt71l+6mvfZ1BrX8zhBY+sba+MEj2vWGroJsUxDSVLnTSZWYVLw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=FQEkpl4V; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kDOh/Hqc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EB59C113CD;
-	Fri, 26 Apr 2024 08:21:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1714119666;
-	bh=da+XBsT3HsI42ooeRyvS7kzGLhnYoAOLHQlDAp+t1AA=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=kDOh/Hqccaa5nzG2xi0zroGXU2rDlkx5dsSaq3+yrHMpvVBDbkkcXhuT/QyCLy19V
-	 d2Gec6xiO+kvRr7Ab6PkTH7hMxGmDoq66gKFEk8FLowwEPP51wBeUw6wpmHGC6PiqF
-	 Pu6cnffPr+4KHKO3mdVSWt5cWMMalg8+yeBbToVN3arJDihHUprxsgEtrofIPSaUN6
-	 RdUihC3gmiSnbveRPdAbmvgWP3E4sxG5z4YkeICEhaI/U7sUf8K6Uvg//C2Yv2X6Vz
-	 o7dsonyK7pb6qMMb1uKDJgG5X5Qm4rQ5ZgzouHSCh1OFg2nvHC2d8vOYBHwobkmeib
-	 evSphbxiKtdrw==
-Message-ID: <d1cc7b23-32e9-4326-851d-88708ba28052@kernel.org>
-Date: Fri, 26 Apr 2024 10:20:58 +0200
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="FQEkpl4V"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=IPvi
+	QZGnK2XGRAgrK0XMHMbciA/V3OI9bhZU/FzH/p4=; b=FQEkpl4VkMDl3IRnwqrV
+	1Y6qOXjQR4ZI/pZeY09J8zhKu7xIYyEZD4MhYikM4KH/7MY+b0/HdqglCQSmNo2z
+	JqDjtgqFDIw4sTvUwJKDFAnhznic9kEM+GjOVQ8lu++2VOD4Ih5ij3Sf51S63jyi
+	GTtJVql+1TVPXn8Ynj1IVDySrXJidPOI71VlEPKG3aKMrNHWBQb8cmhKMghJTQ7e
+	4pQb5GW8+l6SqYnclYrBo/3TNlMVmc4PRlmX1I3Kn5c3duQI/hwLJEM773HikNXv
+	fanI2QR+6D5Xnlx+Esx7UDs8/Z/8A3Pji3ctBcu+7arfzAClaxQ7CZIcU9cgatz0
+	ig==
+Received: (qmail 1244286 invoked from network); 26 Apr 2024 10:39:24 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 26 Apr 2024 10:39:24 +0200
+X-UD-Smtp-Session: l3s3148p1@b8RC1/sWfuYujnvp
+Date: Fri, 26 Apr 2024 10:39:24 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Sergei Shtylyov <sergei.shtylyov@gmail.com>
+Cc: linux-renesas-soc@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: smbus: fix NULL function pointer dereference
+Message-ID: <20240426083924.m4zmy54vnqm23edt@ninjato>
+Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Sergei Shtylyov <sergei.shtylyov@gmail.com>,
+	linux-renesas-soc@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20240426064408.7372-1-wsa+renesas@sang-engineering.com>
+ <e46f56f4-f28f-4fb6-4249-554059f9fc2f@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/2] dt-bindings: hwmon: Add infineon xdp710 driver
- bindings
-To: Chia Hsing Yin <peteryin.openbmc@gmail.com>
-Cc: patrick@stwcx.xyz, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Jean Delvare <jdelvare@suse.com>,
- Guenter Roeck <linux@roeck-us.net>, Jonathan Corbet <corbet@lwn.net>,
- Delphine CC Chiu <Delphine_CC_Chiu@wiwynn.com>,
- Patrick Rudolph <patrick.rudolph@9elements.com>,
- Luca Ceresoli <luca.ceresoli@bootlin.com>, Charles Hsu
- <ythsu0511@gmail.com>, Bjorn Helgaas <bhelgaas@google.com>,
- Lukas Wunner <lukas@wunner.de>, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
- linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org
-References: <20240425153608.4003782-1-peteryin.openbmc@gmail.com>
- <20240425153608.4003782-3-peteryin.openbmc@gmail.com>
- <4e329d1b-fad5-416f-b0ca-55e8c6c3394c@kernel.org>
- <CAPSyxFQcKvpvO2-U7QPjrVTqam_bQ6OP8VoomnSbmEj4g7uDVw@mail.gmail.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 fv0=
-In-Reply-To: <CAPSyxFQcKvpvO2-U7QPjrVTqam_bQ6OP8VoomnSbmEj4g7uDVw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-On 26/04/2024 09:12, Chia Hsing Yin wrote:
-> I use b4 download and apply it, I think it is a tool issue, I can fix
-> in the next version.
-
-Just did it now:
-
-b4 trailers -C -u -F '20240424095604.3425857-1-peteryin.openbmc@gmail.com>'
-Calculating patch-ids from commits, this may take a moment...
-Grabbing thread from
-lore.kernel.org/all/20240424095604.3425857-1-peteryin.openbmc@gmail.com/t.mbox.gz
-Looking for additional code-review trailers on lore.kernel.org
----
-  dt-bindings: hwmon: Add infineon xdp710 driver bindings
-    + Acked-by: Rob Herring (Arm) <robh@kernel.org> (✓ DKIM/kernel.org)
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="bthm7jazybv2gi4w"
+Content-Disposition: inline
+In-Reply-To: <e46f56f4-f28f-4fb6-4249-554059f9fc2f@gmail.com>
 
 
-And no quotes...
+--bthm7jazybv2gi4w
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Best regards,
-Krzysztof
+On Fri, Apr 26, 2024 at 10:28:40AM +0300, Sergei Shtylyov wrote:
+> On 4/26/24 9:44 AM, Wolfram Sang wrote:
+>=20
+> > Brauch reported an OOPS when using the designware controller as target
+>=20
+>    He's Baruch... :-)
 
+Oh, I am very sorry Baruch!
+
+
+--bthm7jazybv2gi4w
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmYraDgACgkQFA3kzBSg
+Kba58w/+LXO7uPPuqfePPROJ8YIbYuQP7vRqso/WQ9fZOOaZBOouYJ87wLUj+ESV
+w+m3PzVGi6bVg2VNYn3HACK47CDKCD0+q1r7vqdqVo1b8zL4glqdiCTonyJnGYx5
+Uyz9xpegrz9A+12yKSOHx/7wjXgUm2qbFw9zNzplwhk7O2PtgfClXQtSKnatYNRw
+qe+ivrVfxskHlOHNAT/ST3AVBC73tE7Li2ZDErR7x42fpkC0/0FjbDSuUKdlpEk5
+apl1OeKDe8p1Qedd3gfGPF/8b1BzjEOYl+0/yf5pCNyFAE+ZTCuPKdvgOCRK+MMZ
+xWGaSFgoVVLM5CGQncAu6KbxweTD8MqzxJqK6VCi8k1IP3ShmDnWZsR3ZLRE2o2p
+XpOZTk8SULFfeBPVowRoTAkxawxqGR6w5sOrNEiSdkkPLuv+2PPU5+suCamD3FTw
+iTGUqpphrRDGajoXKwNr4xrClNWB4i51O4+au/b51fTPvPklxKahqGTbfHi7n7DA
+WIKNs/VgcucQMt+yTFsbEk6/NignMjwDdHGTk7/+eyDUWi/zQ9mWyTuKF0/4pixd
+5InmosZIFIUWKVnHPWmoyTlaCNM3O2PW9B0tf/JUb7b42lct0dYtTgzIKcoBcndb
+Le0N4K2wi1J/bX5pcHK3e+SmBRjmIicaxpkcMhGjg8VIhPZvJi8=
+=v/0R
+-----END PGP SIGNATURE-----
+
+--bthm7jazybv2gi4w--
