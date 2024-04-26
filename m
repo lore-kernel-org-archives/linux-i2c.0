@@ -1,127 +1,95 @@
-Received: from mail.tkos.co.il (golan.tkos.co.il [84.110.109.230])
+Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D85813A879;
-	Fri, 26 Apr 2024 08:44:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=84.110.109.230
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 099C213F01A
+	for <linux-i2c@vger.kernel.org>; Fri, 26 Apr 2024 09:52:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714121088; cv=none; b=WzO2MfpcqOQY4i6WJ/b9pYNLbKqZVeeB9CoLNRY8bgDOUFOt/rBSnLBsKg8JxnN5JDF0SVSYEgSIJWUM7Qzn2neoHjlbkFrb2tfz4x5xAYAoA/LX1mEjRMgk9gbREMP+701Hjufd5welv3GAaafx/PWKmLjXqhJQeVaLciPR+40=
+	t=1714125141; cv=none; b=M9JUucJgJSWJy95jZpAG0jvdN9EmoA7Pn969dWifuU/deDXRxPc1qYXc3vw1aI4OzpEZUP+jILQFnYGmu4HINaUsvtYg/FK641KDrpISuCneIZHfWLJw7R0nHbjXgomc6msfURO3QjcY5OhY3LYR6fG+sNoC17yAAEVt2zzK+MM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714121088; c=relaxed/simple;
-	bh=OAVtZtBf7B9h6ZnYh5M/C/oO9W5Yg0/byzN4wLUDgb0=;
-	h=References:From:To:Cc:Subject:Date:In-reply-to:Message-ID:
-	 MIME-Version:Content-Type; b=kUcDUkGwz35kJXFhrW8qmhHpj9rH0SXAwpiyhgotsMBpH6teo15J1leboRVtjMAQLV3tutdWP74dVvyyg9wBY7s3hviglwXuorAYWMwVV4VV+hzgH5W3IQQ0nOZFtFwBsubhVmsL9b7RmY6DcJBjfJOVe2qpu/2zGyYTKw6QrGo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tkos.co.il; spf=pass smtp.mailfrom=tkos.co.il; dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b=aX8CtGSq; arc=none smtp.client-ip=84.110.109.230
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=tkos.co.il
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tkos.co.il
+	s=arc-20240116; t=1714125141; c=relaxed/simple;
+	bh=Jm6PL9Z2zz8L7yBYNxpGkwSDbMydJQIDEId4e0qQv3w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KbiOjuIHGVwpEHV0TyrgaC8s8dBkJG6nKA0epQLD5F6XnDoSbD2EtfCRPxEpqgaIWKBngqujE9BhPU/qE3r+ZJWmh2uw9W4khNs7IEmHD9nHWUpQkDkqlB2544UJPu+fqQKZnSAtDg1+2kxS5rj2EkqWjDM/yushfBPkDHII+DI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=N7lILEOP; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=tkos.co.il header.i=@tkos.co.il header.b="aX8CtGSq"
-Received: from localhost (unknown [10.0.8.2])
-	by mail.tkos.co.il (Postfix) with ESMTP id E3074440534;
-	Fri, 26 Apr 2024 11:38:22 +0300 (IDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tkos.co.il;
-	s=default; t=1714120702;
-	bh=OAVtZtBf7B9h6ZnYh5M/C/oO9W5Yg0/byzN4wLUDgb0=;
-	h=References:From:To:Cc:Subject:Date:In-reply-to:From;
-	b=aX8CtGSqsKGv/OzL6CPpi+dX9N6dhOwBlp/IsUivA9Dv/EfbCCXY59PhlTStpHu3g
-	 xphb3xLfNLhY6iEdHbuvdeF74l53KNsX3KYqFzbhFxFtOy5f2Jimab2ckNojsXsiBs
-	 QY17hX6o1kQo5kYhyXezD9NQEpwZZQSz+90XZvOtqlxlARqAYo9EVMy8CMGNO+Ffbt
-	 oKpMhK9RBEsbUl7ualBGHsBIciAlqopeEKlpn+XkK5BxZRZ1piUP81Iyc18Q9lmXoh
-	 TYaWzLRuKd28qpFAXHPaqkv+GNdvWNyyW7foSpAHVRYWV8/p0DG0gJUT4uiQln7te/
-	 23+JT9YmxPieQ==
-References: <20240426064408.7372-1-wsa+renesas@sang-engineering.com>
-User-agent: mu4e 1.10.8; emacs 29.2
-From: Baruch Siach <baruch@tkos.co.il>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="N7lILEOP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=Jm6P
+	L9Z2zz8L7yBYNxpGkwSDbMydJQIDEId4e0qQv3w=; b=N7lILEOP/oDCwlt+wFOW
+	9pDqq5xnixKVLXlkcSc7ZDaNqPhl+zR+BSTQKc4QPScaZRox2JLvuHYCg3R8/cv2
+	lSRsL78sPcmWR4ScwzDypIGssjqrIqOR5SQVEcCoxy8SUNBD3s7dJjPth8m6cKCl
+	4s0CFwHL0yNXgal7ZyZBjDbQ+cCHqbPUfTi5+aMOWmAq6nEEDLIoOAE4uHhRISVX
+	9oj342cK6Yliuzq+90brygoXvrrSCeKjT2DJk3gEabRvds8c/VxZnY2K1KW+RMHI
+	bhoBfoNqEcWaPt9FahN8U6637fDGEXOOH+P6w+2GcW3dHLsHQXQ70m4rzGAeyuOM
+	BQ==
+Received: (qmail 1267830 invoked from network); 26 Apr 2024 11:52:13 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 26 Apr 2024 11:52:13 +0200
+X-UD-Smtp-Session: l3s3148p1@LdSp2/wWgpQujnvp
+Date: Fri, 26 Apr 2024 11:52:13 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-renesas-soc@vger.kernel.org
+Cc: Baruch Siach <baruch@tkos.co.il>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] i2c: smbus: fix NULL function pointer dereference
-Date: Fri, 26 Apr 2024 11:32:49 +0300
-In-reply-to: <20240426064408.7372-1-wsa+renesas@sang-engineering.com>
-Message-ID: <87edas5xip.fsf@tarshish>
+Message-ID: <20240426095213.pgk5tfe35kv6ppwp@ninjato>
+Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	linux-renesas-soc@vger.kernel.org, Baruch Siach <baruch@tkos.co.il>,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20240426064408.7372-1-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="xht6wkuqmbe24lqy"
+Content-Disposition: inline
+In-Reply-To: <20240426064408.7372-1-wsa+renesas@sang-engineering.com>
 
-Hi Wolfram,
 
-On Fri, Apr 26 2024, Wolfram Sang wrote:
+--xht6wkuqmbe24lqy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri, Apr 26, 2024 at 08:44:08AM +0200, Wolfram Sang wrote:
 > Brauch reported an OOPS when using the designware controller as target
 > only. Target-only modes break the assumption of one transfer function
 > always being available. Fix this by always checking the pointer in
 > __i2c_transfer.
->
+>=20
 > Reported-by: Baruch Siach <baruch@tkos.co.il>
-> Closes: https://lore.kernel.org/r/4269631780e5ba789cf1ae391eec1b959def7d99.1712761976.git.baruch@tkos.co.il
+> Closes: https://lore.kernel.org/r/4269631780e5ba789cf1ae391eec1b959def7d9=
+9.1712761976.git.baruch@tkos.co.il
 > Fixes: 4b1acc43331d ("i2c: core changes for slave support")
 > Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Tested-by: Baruch Siach <baruch@tkos.co.il>
-
-Thanks,
-baruch
-
-> ---
->  drivers/i2c/i2c-core-base.c  | 12 ++++++------
->  drivers/i2c/i2c-core-smbus.c |  2 +-
->  2 files changed, 7 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index ff5c486a1dbb..db0d1ac82910 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -2200,13 +2200,18 @@ static int i2c_check_for_quirks(struct i2c_adapter *adap, struct i2c_msg *msgs,
->   * Returns negative errno, else the number of messages executed.
->   *
->   * Adapter lock must be held when calling this function. No debug logging
-> - * takes place. adap->algo->master_xfer existence isn't checked.
-> + * takes place.
->   */
->  int __i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
->  {
->  	unsigned long orig_jiffies;
->  	int ret, try;
->  
-> +	if (!adap->algo->master_xfer) {
-> +		dev_dbg(&adap->dev, "I2C level transfers not supported\n");
-> +		return -EOPNOTSUPP;
-> +	}
-> +
->  	if (WARN_ON(!msgs || num < 1))
->  		return -EINVAL;
->  
-> @@ -2273,11 +2278,6 @@ int i2c_transfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
->  {
->  	int ret;
->  
-> -	if (!adap->algo->master_xfer) {
-> -		dev_dbg(&adap->dev, "I2C level transfers not supported\n");
-> -		return -EOPNOTSUPP;
-> -	}
-> -
->  	/* REVISIT the fault reporting model here is weak:
->  	 *
->  	 *  - When we get an error after receiving N bytes from a slave,
-> diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
-> index e3b96fc53b5c..a942c5306a4e 100644
-> --- a/drivers/i2c/i2c-core-smbus.c
-> +++ b/drivers/i2c/i2c-core-smbus.c
-> @@ -596,7 +596,7 @@ s32 __i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
->  				break;
->  		}
->  
-> -		if (res != -EOPNOTSUPP || !adapter->algo->master_xfer)
-> +		if (res != -EOPNOTSUPP)
->  			goto trace;
->  		/*
->  		 * Fall back to i2c_smbus_xfer_emulated if the adapter doesn't
+Fixed the name typo and applied to for-current, thanks!
 
 
--- 
-                                                     ~. .~   Tk Open Systems
-=}------------------------------------------------ooO--U--Ooo------------{=
-   - baruch@tkos.co.il - tel: +972.52.368.4656, http://www.tkos.co.il -
+--xht6wkuqmbe24lqy
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmYreUgACgkQFA3kzBSg
+KbZaLA/+JjcWZKSCI4lls86Wf67FtVWK7t1bbC/I11yecqS/bs9ypx1kiwOJo7O1
+0JVybH4tSOku8x3CP6M0WaIxGWbHfEBPAAX2g9lx9+izvun4xGaLGeRkViesjKnG
+nGOx6LyvTmZh1j6rrGis9gmbh4CWBYszryn39VCrVslmlhqaLVYW8O7NluVEakFE
+ylNdZ+BPPwaePCU3ptUsSdubajzqgLjWpTWxoAhloUWkU08b5Aj8bfA3fXRybEsg
+hAVVg/5Y7sBgljqps5F+7xFf1oBDWVWcKvvidA7Ifj1dBTmRv9HomDhxbQ/2G7RV
+eQeb+v0UlPXfvaJI6EY3JdQaCpbJNTzsGKk5GFbetXpmwt/7T4mmlH5fvXdGMdn9
+hpmB5Ottzfi/LfUgWfdLb3tHJKUAfKb+u2rdcOKtFVp4xMyWKZL49gpTYLYosJw4
+zEkOBCQ4ANfqsZ+ZBgIlfx18NV5vdDLt2EKqjKM1hVtrzqd8TGKbgfJHpo1Ihsrp
+C55LUsZYRIImeJSzaMPwMhU0Mk5mtBLlX9JzCd6nSUO/DKJ48W6Zz+PRsbY3l//U
+9Ol6c3+doo0NiMJwyRXmu6mMYx8vQj2OIKcTqyIdozwEWqVEwJjolT8y+xweXDus
+X4VszIpdA+uejbKUnWOvJ1gLLh+Xoi5WkpjKvXvTkpPoLhsyPpg=
+=HZIj
+-----END PGP SIGNATURE-----
+
+--xht6wkuqmbe24lqy--
