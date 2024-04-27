@@ -1,63 +1,95 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F14821442E3;
-	Sat, 27 Apr 2024 18:28:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE8A57829C
+	for <linux-i2c@vger.kernel.org>; Sat, 27 Apr 2024 20:36:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714242491; cv=none; b=jow1AvbaT4PFKoTSKIKqPV+DsXWPSti41Uyxi3NE7RICr1RSqXsGxuW0jGQwMmQ6VY+qf67EtYFZwiVvh7bbedvNXj91682BcTcWXF7LMtv68KOxsLQ6wHFFXC+CjEtQnACfBn+eAtBoq4U0YZQavGbpsmdnUujYCGET0yG7y/M=
+	t=1714250180; cv=none; b=STt4+7mhPL64yx/dAATPimJEw4Z2s3MO5saEBklBi8e4MFNO3F/8cJGFWSYJpuH8u4hTseZ/Gu9wmP8Wsko63sjTDAjH/oB7yc8n9X4E8L3vxsfu273sBEEG0a12e3YcF1JyMxYdWzNpBa/IDw4E7WqN4OUdMwTpUv6nPFNVqKI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714242491; c=relaxed/simple;
-	bh=auEZawbxgUMdh56hGjSFbOIhfXBvS6PkZBEzxWBHIfE=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=NsNRYd23EJ2o/opCURcymOjjppTAl7xf1x+R1KGcjlVH7QMgDreLj1U8AGy9so47ZzLWBxEzAk00PPEe6zU/bdrSZPSSU1hhG9Qal1lURGlIlS6rFtBz24AixTm5Jmt7U27X2O8XkD/4Li+7lzEZn9sBSZLnuSdsciOYn/c8qdw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C6IcTWi3; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1714250180; c=relaxed/simple;
+	bh=WrCXJ1CR/Fi/XZH8dRI39xCZyW9nwXbeXRXPF7QQjI0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=oZDoPd/xPA10VWOFeL/Ocr7BZxjsbkJMREGVqYUSaJMNC/AFw49SC5TujkOC2l1/EbkWkcN8hRMz3zY/LyYs3/9nDuOTf/mZGDpianSQxySa5lej9dEEzQAQ25zQO89hn1i3ynsZjdEhi1borD4H3Vy1oU0hSUoDO1sqPj3//Zk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=lY3a4uzf; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C6IcTWi3"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id C8AABC32786;
-	Sat, 27 Apr 2024 18:28:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1714242490;
-	bh=auEZawbxgUMdh56hGjSFbOIhfXBvS6PkZBEzxWBHIfE=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=C6IcTWi3lRanSLo4fhf4f2oKHBMrtMELyrj5pg+JyU2ANIRL5/M5HQGOlWXplS6mi
-	 JCWN6NgyDhEimaEJqhkkP9ahm0FHCTHLRXaqpoMdCT3UAEQR69nj1T17D7uG6kuhj2
-	 TEo32QxFRCY6Ouk9hNqDaK8IsMu3+F+Jq+s0LI5xwG4C9osHjyBdtWfaZ8oCYDe6bU
-	 vGF0bBA75gITbKX2IMaYGz0NqpOcGNqAQKHPNCl2ptDrV1UsGTP3aNR6Bd3ZU4luGp
-	 FyhUoUf4PHTlVJxu1hIqKWieH9eQz4ApPfCfuDBG3xLPXM08UtHuYvMVkUQDqNDNd7
-	 fGmqs86qd+uHQ==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id BAE37DF3C9F;
-	Sat, 27 Apr 2024 18:28:10 +0000 (UTC)
-Subject: Re: [PULL REQUEST] i2c-for-6.9-rc6
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <ZizdzEvh4juwfQCb@ninjato>
-References: <ZizdzEvh4juwfQCb@ninjato>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <ZizdzEvh4juwfQCb@ninjato>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-6.9-rc6
-X-PR-Tracked-Commit-Id: 91811a31b68d3765b3065f4bb6d7d6d84a7cfc9f
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: 5d12ed4bea4343ca3adbe3c23c8d149485de5010
-Message-Id: <171424249076.21148.729077537287796049.pr-tracker-bot@kernel.org>
-Date: Sat, 27 Apr 2024 18:28:10 +0000
-To: Wolfram Sang <wsa@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Peter Rosin <peda@axentia.se>, Bartosz Golaszewski <brgl@bgdev.pl>, Andi Shyti <andi.shyti@kernel.org>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="lY3a4uzf"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=from:to:cc:subject:date:message-id
+	:in-reply-to:references:mime-version:content-transfer-encoding;
+	 s=k1; bh=5CaGINr/VQqkg0HtDZ9KeFK/+9trW1V6dMyw4Bgc270=; b=lY3a4u
+	zfld32wfH4WUL8Fm84yFopCDkgAwUrowvJJrQNd5QaqfufIDme8DSb1wMhKQcBtb
+	KzzyDsm3FGV/G74PQox/1wqS8Hzl74zYDADALvgzSC5cFjos/By4eJu5b5sW90i/
+	vlxQmRI986OUKIjZelr6xYkJY97E+lFH8nClZRlHCgkZvacWvRBkZp3ZTR2uQE+t
+	LAgq89wrnzqT7Z4M301GBI4QHVEQN8nkructC2lMlwcdmKVpelFjlLqvZASfau9K
+	5jkn0EsKI8jcPEiqvRSaPGPqwqORgEmZ1bSyPGggq79AGk0tknqdxFu1xM7YBujx
+	3ud/TAFNGhfIRi8g==
+Received: (qmail 1781809 invoked from network); 27 Apr 2024 22:36:14 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 27 Apr 2024 22:36:14 +0200
+X-UD-Smtp-Session: l3s3148p1@YMW1+BkXtI9ehh9l
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Elie Morisse <syniurge@gmail.com>,
+	Shyam Sundar S K <shyam-sundar.s-k@amd.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 01/15] i2c: amd-mp2-plat: use 'time_left' variable with wait_for_completion_timeout()
+Date: Sat, 27 Apr 2024 22:35:53 +0200
+Message-ID: <20240427203611.3750-2-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240427203611.3750-1-wsa+renesas@sang-engineering.com>
+References: <20240427203611.3750-1-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-The pull request you sent on Sat, 27 Apr 2024 13:13:16 +0200:
+There is a confusing pattern in the kernel to use a variable named 'timeout' to
+store the result of wait_for_completion_timeout() causing patterns like:
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-6.9-rc6
+	timeout = wait_for_completion_timeout(...)
+	if (!timeout) return -ETIMEDOUT;
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/5d12ed4bea4343ca3adbe3c23c8d149485de5010
+with all kinds of permutations. Use 'time_left' as a variable to make the code
+self explaining.
 
-Thank you!
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-amd-mp2-plat.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-amd-mp2-plat.c b/drivers/i2c/busses/i2c-amd-mp2-plat.c
+index 112fe2bc5662..d3ac1c77a509 100644
+--- a/drivers/i2c/busses/i2c-amd-mp2-plat.c
++++ b/drivers/i2c/busses/i2c-amd-mp2-plat.c
+@@ -97,17 +97,17 @@ static void i2c_amd_cmd_completion(struct amd_i2c_common *i2c_common)
+ static int i2c_amd_check_cmd_completion(struct amd_i2c_dev *i2c_dev)
+ {
+ 	struct amd_i2c_common *i2c_common = &i2c_dev->common;
+-	unsigned long timeout;
++	unsigned long time_left;
+ 
+-	timeout = wait_for_completion_timeout(&i2c_dev->cmd_complete,
+-					      i2c_dev->adap.timeout);
++	time_left = wait_for_completion_timeout(&i2c_dev->cmd_complete,
++						i2c_dev->adap.timeout);
+ 
+ 	if ((i2c_common->reqcmd == i2c_read ||
+ 	     i2c_common->reqcmd == i2c_write) &&
+ 	    i2c_common->msg->len > 32)
+ 		i2c_amd_dma_unmap(i2c_common);
+ 
+-	if (timeout == 0) {
++	if (time_left == 0) {
+ 		amd_mp2_rw_timeout(i2c_common);
+ 		return -ETIMEDOUT;
+ 	}
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+2.43.0
+
