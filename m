@@ -1,112 +1,77 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24B3F181CF3;
-	Mon, 29 Apr 2024 21:18:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61507170;
+	Tue, 30 Apr 2024 00:07:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1714425522; cv=none; b=Wmec7BXn+431ZtFFKW481pgFpLFCQ4M1V+LATF1+PuyFnU/YpbGue+3rgdsgNoxGQyjHyBzpUGaMEra3xGmXF0TrqARi5P7/DfGHfYb3+nOLfeWtiVWNVIcnsuRXCy3j0dvrFH+hHHo9AcSB3g1v5bcMyRlWpOmaHF5CKMKERUg=
+	t=1714435669; cv=none; b=DP9y8cVFo3340WSCu8pxSCdkpyqY3f/Q0SLOqyvyOJOfkPmmIYoLT2yGZS/DbJbSFzeAUnyDbPggkZT0Tm5b0mNGVNDP7D7I/Xe6oZFlASG9WjJ2qwWJRrvqOev0LYwRu1kKFFypwrJxu+LGOEGLkkIjFUvC7IURI+H+4zE3wP8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1714425522; c=relaxed/simple;
-	bh=ESIhUM0Me2la+2/P2WPSmXeUM6PKTqZO50yn8kA+1E4=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=FU8TE1FV5ZkJySLvrsWMp4K3kNQ1i5ymGWiB3osyEg+RhEm7A7XGUkmQx6Grf8zt5AiV7f3Wm6ZvkW3q6BM+TA9g/JF+BTsgpJCyTj4y0+vf+vsBrkvWyGM4KCn8BqIy+01vR7YdReY4CglWyWeXl8iwvyk5aZuSuk1tAG8+UK4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OL9HWZki; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1714435669; c=relaxed/simple;
+	bh=vhMJowDwRuHTlntrjfGcVCQMNqbpSZQLuzucFeDjBg8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EiRdzf4VOzPiJor1k+axXrzinfSLZwXBaYwEjd165VFv5V8nOeDiLLvL7X/kAIMIBewx4OXodYIPAZ8f7DoAm5D1oQONiy1ZU9oRvvy5lTw9CKdzREii2wghyW4d1T1K40Q6yVHsd0SenCIZyHb2zils0JZeZ9WfcWd2Bxhx1KA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YCQ7Y/lG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OL9HWZki"
-Received: from pps.filterd (m0353728.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 43TLHuae018385;
-	Mon, 29 Apr 2024 21:18:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : in-reply-to : references : mime-version :
- content-transfer-encoding; s=pp1;
- bh=nC+cB5yrNkvDyUeFXe6XTNRDlerLmGEW/AtczBfuvmw=;
- b=OL9HWZkiNAqZ+qi79TLo6fpKJq/bEZt07Zkgya/CQWP1xUGZRr7n2R+qAAx80dO4ZGCA
- ayr5Olx/4aAOOkEv5J/Y7ZgSIo0fh5x2OJqlSkACF2Af27U8IwTYvmD6SkcLdzHN6UgC
- udnZ/uv0KBvL5pznPWTMR6x8gCDYhP0PHnJlU853uctZtygBLpVCj2XJbkHAr9Qfrrea
- mYmRylpAathSaoGGFLXgRjCF+tmpoOfV8OW8r4l2ywj9MegkXr9B8csL1tJPI30TNGHU
- 5t0FAuhfguy94nz+m9tn/7HrFqVnkZFOqjtyeodcgl2GBkCnpCjCxRmOt52jmkZHrDQe iA== 
-Received: from ppma11.dal12v.mail.ibm.com (db.9e.1632.ip4.static.sl-reverse.com [50.22.158.219])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3xtkb3g01q-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 29 Apr 2024 21:18:31 +0000
-Received: from pps.filterd (ppma11.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma11.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 43TJZqEm015548;
-	Mon, 29 Apr 2024 21:01:50 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma11.dal12v.mail.ibm.com (PPS) with ESMTPS id 3xsed2s47v-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 29 Apr 2024 21:01:50 +0000
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 43TL1lXe34013472
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 29 Apr 2024 21:01:49 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0A4A458068;
-	Mon, 29 Apr 2024 21:01:47 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 3D0655804B;
-	Mon, 29 Apr 2024 21:01:46 +0000 (GMT)
-Received: from slate16.aus.stglabs.ibm.com (unknown [9.61.151.254])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 29 Apr 2024 21:01:46 +0000 (GMT)
-From: Eddie James <eajames@linux.ibm.com>
-To: linux-aspeed@lists.ozlabs.org
-Cc: eajames@linux.ibm.com, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-fsi@lists.ozlabs.org,
-        linux-spi@vger.kernel.org, linux-i2c@vger.kernel.org,
-        lakshmiy@us.ibm.com, robh@kernel.org, krzk+dt@kernel.org,
-        conor+dt@kernel.org, joel@jms.id.au, andrew@codeconstruct.com.au,
-        andi.shyti@kernel.org
-Subject: [PATCH v4 16/17] fsi: occ: Find next available child rather than node name match
-Date: Mon, 29 Apr 2024 16:01:30 -0500
-Message-Id: <20240429210131.373487-17-eajames@linux.ibm.com>
-X-Mailer: git-send-email 2.39.3
-In-Reply-To: <20240429210131.373487-1-eajames@linux.ibm.com>
-References: <20240429210131.373487-1-eajames@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YCQ7Y/lG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79B9BC113CD;
+	Tue, 30 Apr 2024 00:07:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1714435668;
+	bh=vhMJowDwRuHTlntrjfGcVCQMNqbpSZQLuzucFeDjBg8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=YCQ7Y/lGUacL2IZijCKBlGObESxVjjzsNASBP6BpxH7vYi0yR/wJ2unwlXZKOgThD
+	 Bq45bgnTPaVF7espT+Nhd5rEHV2F1W1XQ9W3pUqNK7HsrhdCigz5URD9um1NcrO07A
+	 9Rru4vTA2LWW2s0BlH+12gPtJCa4vWrNjg//+P5CooPJo1vEZWZRaw561F6OuM5n9B
+	 HptYENweRlTg8pMcX2pRffTkhIH4rQCk7KUu4bLw5KlYtCMK4LKva2NYtjvccX2h9y
+	 bCa2bYiIjdF3covsdemMsir4FU94t25zzA82/eE7zzn5O+wmQGg1yi3ETGyQAfGXFt
+	 MPE8NlBvInCdA==
+Date: Tue, 30 Apr 2024 02:07:45 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, imx@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-mips@vger.kernel.org, linux-omap@vger.kernel.org, linux-rockchip@lists.infradead.org, 
+	linux-samsung-soc@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com
+Subject: Re: [PATCH 00/15] i2c: use 'time_left' with wait_for_*
+Message-ID: <cscisecgo547dngzcpmcvertywekxtctyxv6hwhnmi5dq4azh2@4lpq6a4qga3s>
+References: <20240427203611.3750-1-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: Dj8vAuAgfvZSc5GQV3sy0Rps-QY0LOYm
-X-Proofpoint-ORIG-GUID: Dj8vAuAgfvZSc5GQV3sy0Rps-QY0LOYm
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1011,Hydra:6.0.650,FMLib:17.11.176.26
- definitions=2024-04-29_18,2024-04-29_01,2023-05-22_02
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 phishscore=0
- priorityscore=1501 suspectscore=0 spamscore=0 impostorscore=0
- malwarescore=0 bulkscore=0 mlxlogscore=885 lowpriorityscore=0
- clxscore=1015 adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2404010000 definitions=main-2404290140
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240427203611.3750-1-wsa+renesas@sang-engineering.com>
 
-There's no reason to restrict the creation of the hwmon device to
-a matching child node name. Just get the first available one. There
-should only be one child node anyway.
+Hi Wolfram,
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
----
- drivers/fsi/fsi-occ.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Sat, Apr 27, 2024 at 10:35:52PM +0200, Wolfram Sang wrote:
+> There is a confusing pattern in the kernel to use a variable named 'timeout' to
+> store the result of wait_for_*() causing patterns like:
+> 
+>         timeout = wait_for_completion_timeout(...)
+>         if (!timeout) return -ETIMEDOUT;
+> 
+> with all kinds of permutations. Use 'time_left' as a variable to make the code
+> self explaining.
+> 
+> This is the I2C part of a tree-wide series. The rest of the patches can
+> be found here (slightly WIP):
+> 
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/time_left
+> 
+> Because these patches are generated, they need manual audit. So, I will
+> send them step by step. This is part 1 and also a call for opinions if
+> this is a desirable change. But at least in the I2C realm, I really want
+> to have it proper.
+> 
+> Build bot is happy with these patches and I also compile tested them
+> (except two). No functional changes intended.
 
-diff --git a/drivers/fsi/fsi-occ.c b/drivers/fsi/fsi-occ.c
-index 2023355b3980..9a3658d86379 100644
---- a/drivers/fsi/fsi-occ.c
-+++ b/drivers/fsi/fsi-occ.c
-@@ -669,7 +669,7 @@ static int occ_probe(struct platform_device *pdev)
- 		return rc;
- 	}
- 
--	hwmon_node = of_get_child_by_name(dev->of_node, hwmon_dev_info.name);
-+	hwmon_node = of_get_next_available_child(dev->of_node, NULL);
- 	if (hwmon_node) {
- 		snprintf(child_name, sizeof(child_name), "%s.%d", hwmon_dev_info.name, occ->idx);
- 		hwmon_dev = of_platform_device_create(hwmon_node, child_name, dev);
--- 
-2.39.3
+It all looks good, I will give people a few days more for reviews
+and comments and then I'll take it in.
 
+Andi
