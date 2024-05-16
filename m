@@ -1,219 +1,171 @@
-Received: from relay8-d.mail.gandi.net (relay8-d.mail.gandi.net [217.70.183.201])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BD848121B;
-	Wed, 15 May 2024 10:01:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E9B1156C79;
+	Thu, 16 May 2024 18:19:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1715767311; cv=none; b=UJLiVvAh/WgfoHwtAHb+dYcpH3z5KGO4zbu5sTHw3ioPDXUl3/BN1Jc4sGpsxdJfhh6FAvRCAABZ8/r9nkZhFbN6MDRUgMIPjuPr90ikTMsjPTprHIIWeSu1YryBmgoHYLOHtq0hu+HLZIfFQrZZP5YfxJZJ7VipoVFGoaodFlc=
+	t=1715883570; cv=none; b=Mv62FWANAuMebp8D2bhhQ7ANQHFwlsZqISI3QVr49AxZy9GESpLzutWSMRj8lFUAODVBs01V65dbewrWr+JYP442LjzjgRGJRH17t/taWm8fMsB0P2iL4KYpK+y1NCFgqo1Rmj4+wBl0/8LEMQCmL7U9f404OcwhUbd1828Hre0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1715767311; c=relaxed/simple;
-	bh=lpcRI6pbJ32meL/VjTzpGOcoWSJTYnk21moIdV1Kpxk=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=VpODlNmn2CVcNI/gvtxP5qPE46X3z/w8/qUUPsxUZGLSawFiLX/vDPJvcHMi73yjCCaETRvxQsF7ChuneQ4PaNsL8NAubtq/u/aj9crRn1guEMq3uuJ68ZK0rACW1cCKTmA/Dk1MtnldMo0TfWzE8x6KS6n/s6pODDPvFaerafQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=ExyH4UuP; arc=none smtp.client-ip=217.70.183.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1715883570; c=relaxed/simple;
+	bh=etJOxAM38wpvm42idu/GhLs1AJz+49tbiRt1itlzSAA=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=gfQP5kFIUNXdHTon2WMbrpwpRc1IX+uH7Wuok+w06er+NZwC1GbliNbkqwin7Gs+QILeKDhBu+Z6Noi5AOm0Lyb4S19nkNhFHZ5O4AsjFy3M4t6sUJc1vcx31nPgzUv92U7jg24En3mFJKf3CcIIH1IScI4j0T0RfyXHrwdbtfw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=UbNlb/0C; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="ExyH4UuP"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 996BB1BF20B;
-	Wed, 15 May 2024 10:01:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1715767307;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=M72jZYyV65DqxQX89BNQFEE+r0wyDWzohfJY2wWVXuo=;
-	b=ExyH4UuPFAgSmMV9C4UNjzQmZuuNJKVcVAg7O2v3KjsFLD0vKpUfL11zUL3OxxqZ6Mw1Qx
-	979f3niomtNL8rm7PHDTpV6uBwScnOmsdtXV1MjJSOEffWWAwbWuT5zEyQTrIR6YTXZCW6
-	FDEK0cdRpuLu3y1GBMo0m+tajN7qGx0x/1PYS+nXgvRV9HJnObncVdiTw04frKlzceI4Ra
-	Skdr2LszbcQBMYkf3KXnDb2+2/C0dZMIsiF31TmZCKd3TqWBmXTuChiaVatgS2lBSGPF8q
-	PHpB6jupV/gfnKdMJVQ6smH2hFlHBOIC2LWKoqNPHUdR4tXqQLGZitcIFkMFkA==
-From: Thomas Richard <thomas.richard@bootlin.com>
-Date: Wed, 15 May 2024 12:01:13 +0200
-Subject: [PATCH v6 12/12] PCI: j721e: Add suspend and resume support
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="UbNlb/0C"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 44GIAVoV020127;
+	Thu, 16 May 2024 18:19:14 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=XynCFTEpJ9c9tpkSKwQRnpEBPBH5oxaR1GiqTnQE1Qk=;
+ b=UbNlb/0C3OIngSdOgNttHTnkcViPueARTXtk9ZJEI48mkOeAM3X2FH5cBsxN01CVo6qr
+ KLE+44uIqoYWVSdNU5vw6qO4BhuWaRlNsHSdhVbCyCDZSSxMY/ym0zykY0XL5mz2tSb6
+ XEQtuF/A0tdrPog7kHYq6pyEdQul5lu/AZNibjBjcsWoeNBYG5GjLUcgQc8G+8R9j6Nb
+ 5hM1/HoNM3WQMg5+D7e44KdxlOXpT1GniwrZHE7KHZHhlF61CYatevaGK8n0khQDcz7l
+ 71RItvHOjArY/dvUMi7TfjT4YlTyu5EhRLUFSQOAG+UkpPD4f0GvSCdJaXARAF4sMZxH ZA== 
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3y5p6gg5n0-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 May 2024 18:19:14 +0000
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 44GHJBoU018844;
+	Thu, 16 May 2024 18:19:13 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 3y2k0tuqe5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 16 May 2024 18:19:13 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 44GIJAFP3146424
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Thu, 16 May 2024 18:19:12 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4A92858082;
+	Thu, 16 May 2024 18:19:10 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 0A0DA58056;
+	Thu, 16 May 2024 18:19:10 +0000 (GMT)
+Received: from slate16.aus.stglabs.ibm.com (unknown [9.61.107.19])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Thu, 16 May 2024 18:19:09 +0000 (GMT)
+From: Eddie James <eajames@linux.ibm.com>
+To: linux-fsi@lists.ozlabs.org
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-spi@vger.kernel.org, broonie@kernel.org, andi.shyti@kernel.org,
+        joel@jms.id.au, alistair@popple.id.au, jk@ozlabs.org,
+        andrew@codeconstruct.com.au, linux-aspeed@lists.ozlabs.org,
+        eajames@linux.ibm.com
+Subject: [PATCH v3 09/40] fsi: aspeed: Add AST2700 support
+Date: Thu, 16 May 2024 13:18:36 -0500
+Message-Id: <20240516181907.3468796-10-eajames@linux.ibm.com>
+X-Mailer: git-send-email 2.39.3
+In-Reply-To: <20240516181907.3468796-1-eajames@linux.ibm.com>
+References: <20240516181907.3468796-1-eajames@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20240102-j7200-pcie-s2r-v6-12-4656ef6e6d66@bootlin.com>
-References: <20240102-j7200-pcie-s2r-v6-0-4656ef6e6d66@bootlin.com>
-In-Reply-To: <20240102-j7200-pcie-s2r-v6-0-4656ef6e6d66@bootlin.com>
-To: Linus Walleij <linus.walleij@linaro.org>, 
- Bartosz Golaszewski <brgl@bgdev.pl>, Tony Lindgren <tony@atomide.com>, 
- Aaro Koskinen <aaro.koskinen@iki.fi>, 
- Janusz Krzysztofik <jmkrzyszt@gmail.com>, Vignesh R <vigneshr@ti.com>, 
- Andi Shyti <andi.shyti@kernel.org>, Peter Rosin <peda@axentia.se>, 
- Lorenzo Pieralisi <lpieralisi@kernel.org>, 
- =?utf-8?q?Krzysztof_Wilczy=C5=84ski?= <kw@linux.com>, 
- Rob Herring <robh@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>, 
- Siddharth Vadapalli <s-vadapalli@ti.com>
-Cc: linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, 
- linux-pci@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- gregory.clement@bootlin.com, theo.lebrun@bootlin.com, 
- thomas.petazzoni@bootlin.com, u-kumar1@ti.com, 
- Thomas Richard <thomas.richard@bootlin.com>
-X-Mailer: b4 0.12.0
-X-GND-Sasl: thomas.richard@bootlin.com
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: 6Q7YHWP0iAQWxCg7DKi3Mwv2jhNjmb1f
+X-Proofpoint-ORIG-GUID: 6Q7YHWP0iAQWxCg7DKi3Mwv2jhNjmb1f
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.650,FMLib:17.11.176.26
+ definitions=2024-05-16_07,2024-05-15_01,2023-05-22_02
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 clxscore=1015 impostorscore=0 mlxscore=0 malwarescore=0
+ mlxlogscore=999 spamscore=0 bulkscore=0 priorityscore=1501 suspectscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2405010000 definitions=main-2405160132
 
-From: Théo Lebrun <theo.lebrun@bootlin.com>
+AST2700 requires a few bits set differently in the OPB retry
+counter register, so add some match data and set the register
+accordingly.
 
-Add suspend and resume support. Only the rc mode is supported.
-
-During the suspend stage PERST# is asserted, then deasserted during the
-resume stage.
-
-Signed-off-by: Théo Lebrun <theo.lebrun@bootlin.com>
-Reviewed-by: Siddharth Vadapalli <s-vadapalli@ti.com>
-Signed-off-by: Thomas Richard <thomas.richard@bootlin.com>
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
 ---
- drivers/pci/controller/cadence/pci-j721e.c | 98 ++++++++++++++++++++++++++++--
- 1 file changed, 92 insertions(+), 6 deletions(-)
+ drivers/fsi/fsi-master-aspeed.c | 33 ++++++++++++++++++++++++++++++---
+ 1 file changed, 30 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/controller/cadence/pci-j721e.c b/drivers/pci/controller/cadence/pci-j721e.c
-index 967a5bf38e26..96316a79ab8a 100644
---- a/drivers/pci/controller/cadence/pci-j721e.c
-+++ b/drivers/pci/controller/cadence/pci-j721e.c
-@@ -7,6 +7,8 @@
-  */
+diff --git a/drivers/fsi/fsi-master-aspeed.c b/drivers/fsi/fsi-master-aspeed.c
+index f0a19cd451a07..3d15e867237df 100644
+--- a/drivers/fsi/fsi-master-aspeed.c
++++ b/drivers/fsi/fsi-master-aspeed.c
+@@ -18,6 +18,10 @@
  
- #include <linux/clk.h>
-+#include <linux/clk-provider.h>
-+#include <linux/container_of.h>
- #include <linux/delay.h>
- #include <linux/gpio/consumer.h>
- #include <linux/io.h>
-@@ -22,6 +24,8 @@
- #include "../../pci.h"
- #include "pcie-cadence.h"
+ #include "fsi-master.h"
  
-+#define cdns_pcie_to_rc(p) container_of(p, struct cdns_pcie_rc, pcie)
++struct fsi_master_aspeed_data {
++	u32 opb_retry_counter;
++};
 +
- #define ENABLE_REG_SYS_2	0x108
- #define STATUS_REG_SYS_2	0x508
- #define STATUS_CLR_REG_SYS_2	0x708
-@@ -531,12 +535,12 @@ static int j721e_pcie_probe(struct platform_device *pdev)
- 		pcie->refclk = clk;
+ struct fsi_master_aspeed {
+ 	struct fsi_master	master;
+ 	struct mutex		lock;	/* protect HW access */
+@@ -81,6 +85,13 @@ static const u32 fsi_base = 0xa0000000;
+ #define XFER_HALFWORD	(BIT(0))
+ #define XFER_BYTE	(0)
  
- 		/*
--		 * "Power Sequencing and Reset Signal Timings" table in
--		 * PCI EXPRESS CARD ELECTROMECHANICAL SPECIFICATION, REV. 3.0
--		 * indicates PERST# should be deasserted after minimum of 100us
--		 * once REFCLK is stable. The REFCLK to the connector in RC
--		 * mode is selected while enabling the PHY. So deassert PERST#
--		 * after 100 us.
-+		 * "Power Sequencing and Reset Signal Timings" table (section
-+		 * 2.9.2) in PCI EXPRESS CARD ELECTROMECHANICAL SPECIFICATION,
-+		 * REV. 5.1 indicates PERST# should be deasserted after minimum
-+		 * of 100us once REFCLK is stable (symbol T_PERST-CLK).
-+		 * The REFCLK to the connector in RC mode is selected while
-+		 * enabling the PHY. So deassert PERST# after 100 us.
- 		 */
- 		if (gpiod) {
- 			fsleep(PCIE_T_PERST_CLK_US);
-@@ -588,6 +592,87 @@ static void j721e_pcie_remove(struct platform_device *pdev)
- 	pm_runtime_disable(dev);
++/* OPB_RETRY_COUNTER */
++#define OPB_RC_FSI_OPB		BIT(19)	/* Access FSI space over OPB, not AHB (AST27xx+) */
++#define OPB_RC_CTRL_OPB		BIT(18)	/* Access controller over OPB, not AHB (AST27xx+) */
++#define OPB_RC_XFER_ACK_EN	BIT(16)	/* Enable OPBx xfer ack bit without mask */
++#define OPB_RC_COUNT		GENMASK(15, 0)	/* Number of retries */
++#define OPB_RC_DEFAULT		0x10
++
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/fsi_master_aspeed.h>
+ 
+@@ -536,6 +547,8 @@ static int tacoma_cabled_fsi_fixup(struct device *dev)
+ 
+ static int fsi_master_aspeed_probe(struct platform_device *pdev)
+ {
++	const struct fsi_master_aspeed_data *md = of_device_get_match_data(&pdev->dev);
++	u32 opb_retry_counter = md ? md->opb_retry_counter : OPB_RC_DEFAULT;
+ 	struct fsi_master_aspeed *aspeed;
+ 	int rc, links, reg;
+ 	__be32 raw;
+@@ -579,8 +592,7 @@ static int fsi_master_aspeed_probe(struct platform_device *pdev)
+ 	writel(OPB1_XFER_ACK_EN | OPB0_XFER_ACK_EN,
+ 			aspeed->base + OPB_IRQ_MASK);
+ 
+-	/* TODO: determine an appropriate value */
+-	writel(0x10, aspeed->base + OPB_RETRY_COUNTER);
++	writel(opb_retry_counter, aspeed->base + OPB_RETRY_COUNTER);
+ 
+ 	writel(ctrl_base, aspeed->base + OPB_CTRL_BASE);
+ 	writel(fsi_base, aspeed->base + OPB_FSI_BASE);
+@@ -656,8 +668,23 @@ static int fsi_master_aspeed_remove(struct platform_device *pdev)
+ 	return 0;
  }
  
-+static int j721e_pcie_suspend_noirq(struct device *dev)
-+{
-+	struct j721e_pcie *pcie = dev_get_drvdata(dev);
++static const struct fsi_master_aspeed_data fsi_master_ast2600_data = {
++	.opb_retry_counter = OPB_RC_DEFAULT,
++};
 +
-+	if (pcie->mode == PCI_MODE_RC) {
-+		gpiod_set_value_cansleep(pcie->reset_gpio, 0);
-+		clk_disable_unprepare(pcie->refclk);
-+	}
++static const struct fsi_master_aspeed_data fsi_master_ast2700_data = {
++	.opb_retry_counter = OPB_RC_FSI_OPB | OPB_RC_CTRL_OPB | OPB_RC_DEFAULT,
++};
 +
-+	cdns_pcie_disable_phy(pcie->cdns_pcie);
-+
-+	return 0;
-+}
-+
-+static int j721e_pcie_resume_noirq(struct device *dev)
-+{
-+	struct j721e_pcie *pcie = dev_get_drvdata(dev);
-+	struct cdns_pcie *cdns_pcie = pcie->cdns_pcie;
-+	int ret;
-+
-+	ret = j721e_pcie_ctrl_init(pcie);
-+	if (ret < 0)
-+		return ret;
-+
-+	j721e_pcie_config_link_irq(pcie);
-+
-+	/*
-+	 * This is not called explicitly in the probe, it is called by
-+	 * cdns_pcie_init_phy().
-+	 */
-+	ret = cdns_pcie_enable_phy(pcie->cdns_pcie);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (pcie->mode == PCI_MODE_RC) {
-+		struct cdns_pcie_rc *rc = cdns_pcie_to_rc(cdns_pcie);
-+
-+		ret = clk_prepare_enable(pcie->refclk);
-+		if (ret < 0)
-+			return ret;
-+
-+		/*
-+		 * "Power Sequencing and Reset Signal Timings" table (section
-+		 * 2.9.2) in PCI EXPRESS CARD ELECTROMECHANICAL SPECIFICATION,
-+		 * REV. 5.1 indicates PERST# should be deasserted after minimum
-+		 * of 100us once REFCLK is stable (symbol T_PERST-CLK).
-+		 * The REFCLK to the connector in RC mode is selected while
-+		 * enabling the PHY. So deassert PERST# after 100 us.
-+		 */
-+		if (pcie->reset_gpio) {
-+			fsleep(PCIE_T_PERST_CLK_US);
-+			gpiod_set_value_cansleep(pcie->reset_gpio, 1);
-+		}
-+
-+		ret = cdns_pcie_host_link_setup(rc);
-+		if (ret < 0) {
-+			clk_disable_unprepare(pcie->refclk);
-+			return ret;
-+		}
-+
-+		/*
-+		 * Reset internal status of BARs to force reinitialization in
-+		 * cdns_pcie_host_init().
-+		 */
-+		for (enum cdns_pcie_rp_bar bar = RP_BAR0; bar <= RP_NO_BAR; bar++)
-+			rc->avail_ib_bar[bar] = true;
-+
-+		ret = cdns_pcie_host_init(rc);
-+		if (ret) {
-+			clk_disable_unprepare(pcie->refclk);
-+			return ret;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static DEFINE_NOIRQ_DEV_PM_OPS(j721e_pcie_pm_ops,
-+			       j721e_pcie_suspend_noirq,
-+			       j721e_pcie_resume_noirq);
-+
- static struct platform_driver j721e_pcie_driver = {
- 	.probe  = j721e_pcie_probe,
- 	.remove_new = j721e_pcie_remove,
-@@ -595,6 +680,7 @@ static struct platform_driver j721e_pcie_driver = {
- 		.name	= "j721e-pcie",
- 		.of_match_table = of_j721e_pcie_match,
- 		.suppress_bind_attrs = true,
-+		.pm	= pm_sleep_ptr(&j721e_pcie_pm_ops),
- 	},
+ static const struct of_device_id fsi_master_aspeed_match[] = {
+-	{ .compatible = "aspeed,ast2600-fsi-master" },
++	{
++		.compatible = "aspeed,ast2600-fsi-master",
++		.data = &fsi_master_ast2600_data,
++	},
++	{
++		.compatible = "aspeed,ast2700-fsi-master",
++		.data = &fsi_master_ast2700_data,
++	},
+ 	{ },
  };
- builtin_platform_driver(j721e_pcie_driver);
-
+ MODULE_DEVICE_TABLE(of, fsi_master_aspeed_match);
 -- 
-2.39.2
+2.39.3
 
