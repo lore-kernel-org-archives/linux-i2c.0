@@ -1,140 +1,178 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C17415FA6B;
-	Wed,  5 Jun 2024 21:23:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A55F161305;
+	Wed,  5 Jun 2024 21:29:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717622628; cv=none; b=kOIA1cTY26/RpL53QYhyb24NCYvGTBtKsZAgPbpVOaePyQLehlgKUoQjdDp6GaJC1eysSjJnsAWn7qpTiUJFdoFkqiLALmBtzgeyLYlpsThpRzQGelY4Vsrs/4uCEAcCBk8DwcJtYrJKHu61tKgNICmVtUfwwMB4/8FkHrvx/F0=
+	t=1717622982; cv=none; b=Qje2b3Zszlo7awxNExnn7BnmJO9FRrD300Z4ox7L/9rrz/zNsj6pIOyGutzHWVktMGokAwxhACv32C1xVpRzfVlnBEk2EeaI5Sx+FdpZbVir+dMxYcjhSvhnua/QmWsa/dg5PtRRCnf9jpq7B0dgSy9ZxCPpo0Q6FjlSMnmFM9g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717622628; c=relaxed/simple;
-	bh=vOYsMk7mrSYUToVE3TW3d0+j9nsQ/udu6UXMoY2sLm8=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=PSUlgm7ybzZRYG4cDkMBtTJg4aiDFl2lBV39hTNXqzpKo23emsAH7mDeRz39T7/ApAZe5TqY06znxd2UoO2/+Z4CZ81l64Rz0zexkVPpvD8jtVQvg7Y23Vgg12KTQfAiSxh0IHV4u74o6rBvnkHa3gTQ/h6sOKIADXid9/9G/YY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=RQNwCSNv; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1717622982; c=relaxed/simple;
+	bh=EcFyrnIhN2EcyznTTZWa8lDK7SEr6wP+JFqqI+WhmA8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=CndSNwrwwsY/O2dm0SYapuQoofBd/ocwAeciFDNyB38XcYksDAs1O5PGVFeyORZd7JlAqIzT494T9XRjUCJJYjCpyiNvYMG7dQeclQZ8jFbgtwrwEIPlYEEGQAktqEU5MG8939FUCnX8DwROVd0AhPJIzZJ9Fe+XQJik061GgnQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gCH5bEc4; arc=none smtp.client-ip=209.85.214.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="RQNwCSNv"
-Received: from pps.filterd (m0353722.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 455KuTr9001313;
-	Wed, 5 Jun 2024 21:23:28 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc :
- content-transfer-encoding : date : from : in-reply-to : message-id :
- mime-version : references : subject : to; s=pp1;
- bh=OPNP/V+K9oIptQxupTBJOpz2/GhP+4OrRNDg7xLMAPk=;
- b=RQNwCSNvxB1CqwmLDmmNBtg4mUmfnsmENO88KKc62qKBBpKc/7/OwfOEWug0GCC/Ycvg
- x0UmaVrqstg8cbcHQmubMqFeJyC6XRMETPSk5gOKgIb7xkem0fYsqgAMRC/myH5kx0mO
- PePN6Tfb/fXWLWmswGB6XO/XYVjHk1I8LbOXBh+wHw8NUFTY2dXjoKJc57xtC+xXNNQY
- H9pszB0R+L75L7wNUbalVaYxLXNwRfombWPxHpZPOPlTVdFdYHvkNnePXqZc2b7n+aX3
- xZw0AqDwPHA9Fbx2r3Pv+Ld4gRdLLWisgP8igDklOyc3oEW7FN7fLdYnRCNlzWln2MtO 0Q== 
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3yjwppgcga-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Jun 2024 21:23:27 +0000
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 455J6qWw008517;
-	Wed, 5 Jun 2024 21:23:26 GMT
-Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 3ygec0xv6t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 05 Jun 2024 21:23:26 +0000
-Received: from smtpav06.dal12v.mail.ibm.com (smtpav06.dal12v.mail.ibm.com [10.241.53.105])
-	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 455LNNI85833456
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 5 Jun 2024 21:23:25 GMT
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4AD805805F;
-	Wed,  5 Jun 2024 21:23:23 +0000 (GMT)
-Received: from smtpav06.dal12v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 0D41858063;
-	Wed,  5 Jun 2024 21:23:23 +0000 (GMT)
-Received: from slate16.aus.stglabs.ibm.com (unknown [9.61.121.242])
-	by smtpav06.dal12v.mail.ibm.com (Postfix) with ESMTP;
-	Wed,  5 Jun 2024 21:23:23 +0000 (GMT)
-From: Eddie James <eajames@linux.ibm.com>
-To: linux-fsi@lists.ozlabs.org
-Cc: eajames@linux.ibm.com, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org,
-        broonie@kernel.org, andi.shyti@kernel.org, joel@jms.id.au,
-        alistair@popple.id.au, jk@ozlabs.org, andrew@codeconstruct.com.au,
-        linux-aspeed@lists.ozlabs.org, ninad@linux.ibm.com,
-        lakshmiy@us.ibm.com
-Subject: [PATCH v4 33/40] fsi: hub master: Reset hub master after errors
-Date: Wed,  5 Jun 2024 16:23:05 -0500
-Message-Id: <20240605212312.349188-34-eajames@linux.ibm.com>
-X-Mailer: git-send-email 2.39.3
-In-Reply-To: <20240605212312.349188-1-eajames@linux.ibm.com>
-References: <20240605212312.349188-1-eajames@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gCH5bEc4"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-1f480624d10so3107395ad.1;
+        Wed, 05 Jun 2024 14:29:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1717622980; x=1718227780; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=1ykgR3L/UstpN4SIwm20+ZcpzOT7fdir+umJychdO/w=;
+        b=gCH5bEc4OhVNH4oP3sCDDwuJDBIjkBB/KFXld2cjn04O7Y9fFeZqmQtSI8a79PMk1P
+         6ZxXeLjiLf/zNmWQIwnM5AdN9ebXaezrxnciL/oYIMRpT6epBz8L8kRECnKgC395RB+M
+         SHzK4grl3scsNi2g4lSYL6vAIL/hD/rOyAcAFqFf2gZOuDGVDoA4GfV7KG6wHa2AF8yF
+         b0dDQKLXbrTJT6Pm+KwyFG23lx/mI2jXh7Czgk7F0dXMHaRwoMEIvsW+8C3ot1lcGSN7
+         VMqVaVhqMpL+OXmpntwmR7BVzB53XT5+EpNo3OECLXQpm+lnvLk735Qv2D46Cb+LQ54w
+         gxAw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1717622980; x=1718227780;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1ykgR3L/UstpN4SIwm20+ZcpzOT7fdir+umJychdO/w=;
+        b=RMpZYNhE70oCJG4ddVQVvtMggjULyQHV4+cvS9arX4z9vnZFBNnJ2XN4oFn7hSx7Vi
+         94+wCmHflxdwGCLzOo8s/N+yV3F6981SshF2yIDXG+km8JN8rdh+XTuuxsGTwM0YCgTK
+         z4FZ6ppuLiKw8ezLtKXTiILXnSSalKD8nRWNCiEX6bIGS30BsC/LyVTbDIgyjO8ug/K5
+         gK00NNTi7ZlWL0LQ1Epuv+aHlckH7r1bBS9R6iRQmicPGrZ8A6IBcD4WJKPHXRZf2XK/
+         P+xXpN1iJqsjhR/3QUBLi+VZsa3iNEXI9dNSpaibU7WeDecfV5kIYHLXZ1h9fiP4DMsR
+         9ywA==
+X-Forwarded-Encrypted: i=1; AJvYcCUnYddKund70Wkbyvz8uk25ZB7iCW8Vh/lUDUG2BPl8PryJ1fsz4L4iv64RdRTxlE5qCWge3jCToQdeLgizOE7xI7qxdwLP8pOqWx/UuUcUiMvIrQmkZ/NTLvnV/3TX3i0g6QoRCu2yUPeUGZwRo2tuKs0f9qEopp8J1HeexTXAssevJgFtTBzPIuG6Y+iUhfnI0Q8zcstN0AQQKz0BrHbpqfIMwZ8dQU/iCm3O6L/6DHuKvG/6AB68RZmibTb7QQUrBfUZ5eq0A+f/GzYlJ6eqd10zQKaANgfWgddsE84nLNBYdcHRaTOKkkGxnOQ/JWqVLF7TuuUGh0mB+hsD7M31Hn5qOlJtUumT9/FT+Rg=
+X-Gm-Message-State: AOJu0YzRO9jZQfCIV3waB7KJzn0g3c0qflaMn7r/zWvpmI1jOwESfvl/
+	2/l8bLvr7M3bp4lzj+bDQd1UiBFaemRW3gskz4pKJK7XldNXI0fs
+X-Google-Smtp-Source: AGHT+IHJa9EhK/bGsffLpO9ENpa1wXgSIlyIBiv/iO54z9u+sDw1SpV9Ivh8m1HnM6EboA4MQCQMlQ==
+X-Received: by 2002:a17:902:d4c7:b0:1f6:3b03:6fa1 with SMTP id d9443c01a7336-1f6a5a9b049mr43648595ad.56.1717622979790;
+        Wed, 05 Jun 2024 14:29:39 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1f6bd7e30a9sm21005ad.198.2024.06.05.14.29.38
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 05 Jun 2024 14:29:39 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <b2ccaf40-fe04-490f-a625-4c502c038627@roeck-us.net>
+Date: Wed, 5 Jun 2024 14:29:37 -0700
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: yoh__hnd5WgQ9Cne_kRz1iAF7PKEl-m4
-X-Proofpoint-GUID: yoh__hnd5WgQ9Cne_kRz1iAF7PKEl-m4
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.28.16
- definitions=2024-06-05_02,2024-06-05_02,2024-05-17_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
- impostorscore=0 suspectscore=0 priorityscore=1501 clxscore=1015
- adultscore=0 mlxlogscore=999 malwarescore=0 mlxscore=0 spamscore=0
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2405010000 definitions=main-2406050160
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 01/17] hwmon: pmbus: adm1266: Change nvmem
+ reg_read/write return type
+To: Joy Chakraborty <joychakr@google.com>,
+ Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Lars-Peter Clausen <lars@metafoo.de>,
+ Sakari Ailus <sakari.ailus@linux.intel.com>,
+ Bingbu Cao <bingbu.cao@intel.com>, Zhihao Cheng <chengzhihao1@huawei.com>,
+ Jerome Brunet <jbrunet@baylibre.com>,
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Cc: linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-iio@vger.kernel.org, linux-media@vger.kernel.org,
+ linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
+ linux-mtd@lists.infradead.org, linux-rtc@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-amlogic@lists.infradead.org,
+ linux-sunxi@lists.linux.dev, linux-tegra@vger.kernel.org,
+ linux-usb@vger.kernel.org, manugautam@google.com
+References: <20240605175953.2613260-1-joychakr@google.com>
+ <20240605175953.2613260-2-joychakr@google.com>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+In-Reply-To: <20240605175953.2613260-2-joychakr@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The hub master driver wasn't clearing errors after accessing remote
-slaves. Perform the standard master reset procedure to clear errors
-to fully recover.
+On 6/5/24 10:59, Joy Chakraborty wrote:
+> Change nvmem read/write function definition return type to ssize_t.
+> 
+> Signed-off-by: Joy Chakraborty <joychakr@google.com>
+> ---
+>   drivers/hwmon/pmbus/adm1266.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/hwmon/pmbus/adm1266.c b/drivers/hwmon/pmbus/adm1266.c
+> index 2c4d94cc8729..7eaab5a7b04c 100644
+> --- a/drivers/hwmon/pmbus/adm1266.c
+> +++ b/drivers/hwmon/pmbus/adm1266.c
+> @@ -375,7 +375,7 @@ static int adm1266_nvmem_read_blackbox(struct adm1266_data *data, u8 *read_buff)
+>   	return 0;
+>   }
+>   
+> -static int adm1266_nvmem_read(void *priv, unsigned int offset, void *val, size_t bytes)
+> +static ssize_t adm1266_nvmem_read(void *priv, unsigned int offset, void *val, size_t bytes)
+>   {
+>   	struct adm1266_data *data = priv;
+>   	int ret;
+> @@ -395,7 +395,7 @@ static int adm1266_nvmem_read(void *priv, unsigned int offset, void *val, size_t
+>   
+>   	memcpy(val, data->dev_mem + offset, bytes);
+>   
+> -	return 0;
+> +	return bytes;
+>   }
+>   
+>   static int adm1266_config_nvmem(struct adm1266_data *data)
 
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
----
- drivers/fsi/fsi-master-hub.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+The series doesn't explain what a driver is supposed to do if it
+only transfers part of the data but not all of it due to an error,
+or because the request exceeded the size of the media.
 
-diff --git a/drivers/fsi/fsi-master-hub.c b/drivers/fsi/fsi-master-hub.c
-index 4dbc542500bbd..1bd53b1e52a91 100644
---- a/drivers/fsi/fsi-master-hub.c
-+++ b/drivers/fsi/fsi-master-hub.c
-@@ -49,24 +49,34 @@ static int hub_master_read(struct fsi_master *master, int link,
- 			uint8_t id, uint32_t addr, void *val, size_t size)
- {
- 	struct fsi_master_hub *hub = to_fsi_master_hub(master);
-+	int rc;
- 
- 	if (id != 0)
- 		return -EINVAL;
- 
- 	addr += hub->addr + (link * FSI_HUB_LINK_SIZE);
--	return fsi_slave_read(hub->upstream->slave, addr, val, size);
-+	rc = fsi_slave_read(hub->upstream->slave, addr, val, size);
-+	if (rc)
-+		fsi_master_error(master, link);
-+
-+	return rc;
- }
- 
- static int hub_master_write(struct fsi_master *master, int link,
- 			uint8_t id, uint32_t addr, const void *val, size_t size)
- {
- 	struct fsi_master_hub *hub = to_fsi_master_hub(master);
-+	int rc;
- 
- 	if (id != 0)
- 		return -EINVAL;
- 
- 	addr += hub->addr + (link * FSI_HUB_LINK_SIZE);
--	return fsi_slave_write(hub->upstream->slave, addr, val, size);
-+	rc = fsi_slave_write(hub->upstream->slave, addr, val, size);
-+	if (rc)
-+		fsi_master_error(master, link);
-+
-+	return rc;
- }
- 
- static int hub_master_break(struct fsi_master *master, int link)
--- 
-2.39.3
+For example, this driver still returns an error code if it successfully
+transferred some data but not all of it, or if more data was requested
+than is available.
+
+I didn't check other drivers, but I would assume that many of them
+have the same or a similar problem.
+
+Guenter
 
