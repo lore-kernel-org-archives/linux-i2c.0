@@ -1,33 +1,34 @@
 Received: from mail.zeus03.de (www.zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14924196C65
-	for <linux-i2c@vger.kernel.org>; Fri,  7 Jun 2024 11:17:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7F9B198A0E
+	for <linux-i2c@vger.kernel.org>; Fri,  7 Jun 2024 11:17:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1717759061; cv=none; b=Y80/flxoid8jRbGT85iDHAFz2is+GjuNqRz/tXYoEIsAXIjIM6EwQCxro4ejuKXOSiMOYAhiKIoeNQwfBeiZ/lhzUI19Xsa+XvZgia/9HG0YRP1fNPVcWVyDtX2OnKR0WLG0joOO4lSGhlAKsRDsBsB00bvWm2kPdBbUeP2Wuxw=
+	t=1717759063; cv=none; b=cihxMLd/n6UKspYzr9MCEYQlmVlN6FuZtGpd5cecUDqxCyTr8wmIJHJkSBf/OQYfYnPTdcmG+uzYGb8K9bL9Ta0UQabn4Q5Kmd4AffWsdC3jUbxEwaCdWlbeRsmkIZSXY9oaio5rBvqWA14VZOB883wgXE6Zm5XwjNqPxX3xhqc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1717759061; c=relaxed/simple;
-	bh=OX1iv+64DiE2nSrw6WF/G7zGJLeBH5NejPmMm3YR04w=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=eouJjY1NfS4hIZ6y+5NAlkh+yepLdEBhkzL72heWIo+mdXSQ2+uWQuZo+B4BcaLrMaNpkMbPfEut/B7E/60GPrYh2xhm8aSmloS+zqD7zyPbXfAPTgtsgkCpoCZwAisWknhBQ3QrHmXYgWrMjo+S8euDVl3d20q07xXS0/7GHM4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=Du7CJyl3; arc=none smtp.client-ip=194.117.254.33
+	s=arc-20240116; t=1717759063; c=relaxed/simple;
+	bh=odnZcUxgDH8iNZUY4fM5Fn33ZzBiYho+JebXezitud8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Fs01hfH5evqnNoL60nxdUQ6jMwWZFhQbM5dlehdSAKbRi9kne85YC71L5KUmGfzHVaCmHKfUid+BP0e5eCQhJMhU2oyP1a9JSvo4GRnaTr6gOqw19C4gBma0ZcQTlyZ+gEDPRyizbCUvp9SnPaj47czniWszTjuCTxJAqfMrP0c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=DKKQptKF; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Du7CJyl3"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="DKKQptKF"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:mime-version:content-type:content-transfer-encoding; s=k1; bh=t
-	thfMhzBIcyniI/MfPn1HMJ6gg2hCjtIFW+yt0boddo=; b=Du7CJyl350g54fD5L
-	9/2AyhsP8/Z3Y2XPJujbOzyy0UmpNcEC3HJ5BvUmKNw5lk3sg+dc1MmDtXcFg+0v
-	WtWicASxLqWn+aECbwW++PBmNUVv/HaweA/5KFuWlfgyKYEucY6PtDwDZOOnesQR
-	6YUUajRhhiR511E7P9MnxfvuzeHG16IKw2R+pY4Qblr5+KLBvfRKj51uMS+uTd/J
-	eRmtW6IRuGBEq6qU8z07mCFqL7wHRsprvpghQTDttOQSf5eM6h/g517+wlRTZQoG
-	iSXRO35TLSrIj0VcYHPA15rtmwMsqAYMs1pgGvARgIoLfbjp83soZXRjR9AFuxdd
-	MS5IQ==
-Received: (qmail 3292124 invoked from network); 7 Jun 2024 13:17:32 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Jun 2024 13:17:32 +0200
-X-UD-Smtp-Session: l3s3148p1@KNkc8koaBrAgAwDPXzLGAH1eNELjOc3g
+	:in-reply-to:references:mime-version:content-transfer-encoding;
+	 s=k1; bh=i/9DhNw/Sqych1Hue4MHcp9y0tLeOrdKyRgfTtEuZPI=; b=DKKQpt
+	KFyxX+Ipae+BHV1d98v+lVHf+shQ8zWgFxOdaiXzVFu0HNft3a1sdGgsW3bSuuoU
+	PSCaZV3G90qTFddBDTLp2yynxrg1UQX/Vi5Hw/CQVAuGhg8jXaRLPE8QrPjic+zu
+	5K0Z/3W+YCQx0ALqk0nGdba9Z39Q5+Hc0ds7HmouAh0adC2jjor/DF8YTR7/ddc4
+	zPEhlXYToVBoIWqsKn6PkJQHm9ze4gg5xn1oDqEDQR/27EZsa5TU1cv+zzBRcRpW
+	WzolN/5cmpOQKAK6QYLbKglvrU4ZgkJgeVqxYrPpyjOvPkxBRQIFfHm7gvRbq0t6
+	FOywwCCTxYRxLIeg==
+Received: (qmail 3292291 invoked from network); 7 Jun 2024 13:17:36 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Jun 2024 13:17:36 +0200
+X-UD-Smtp-Session: l3s3148p1@FxJZ8koaMLAgAwDPXzLGAH1eNELjOc3g
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-i2c@vger.kernel.org
 Cc: Easwar Hariharan <eahariha@linux.microsoft.com>,
@@ -35,35 +36,44 @@ Cc: Easwar Hariharan <eahariha@linux.microsoft.com>,
 	linux-doc@vger.kernel.org,
 	Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH 0/5] docs: i2c: summary: update and use inclusive wording
-Date: Fri,  7 Jun 2024 13:17:19 +0200
-Message-ID: <20240607111726.12678-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH 5/5] docs: i2c: summary: rephrase paragraph explaining the figure
+Date: Fri,  7 Jun 2024 13:17:24 +0200
+Message-ID: <20240607111726.12678-6-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240607111726.12678-1-wsa+renesas@sang-engineering.com>
+References: <20240607111726.12678-1-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-The main motivation for this series is patch 4: switching to
-"controller/master" when defining the I2C terminology. This sets the
-base for further improvements to inclusive language within the Linux
-Kernel. The other patches are improvements found on the way.
+Use 'controller/target' and 'adapter/client' pairs consistently.
 
-Wolfram Sang (5):
-  docs: i2c: summary: start sentences consistently.
-  docs: i2c: summary: update I2C specification link
-  docs: i2c: summary: update speed mode description
-  docs: i2c: summary: document use of inclusive language
-  docs: i2c: summary: rephrase paragraph explaining the figure
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ Documentation/i2c/summary.rst | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
- Documentation/i2c/i2c_bus.svg | 15 ++++++-----
- Documentation/i2c/summary.rst | 51 ++++++++++++++++++++---------------
- 2 files changed, 38 insertions(+), 28 deletions(-)
-
+diff --git a/Documentation/i2c/summary.rst b/Documentation/i2c/summary.rst
+index b10b6aaafcec..1b5bc7ed46aa 100644
+--- a/Documentation/i2c/summary.rst
++++ b/Documentation/i2c/summary.rst
+@@ -55,9 +55,9 @@ in a directory specific to the feature they provide, for example
+ ``drivers/media/gpio/`` for GPIO expanders and ``drivers/media/i2c/`` for
+ video-related chips.
+ 
+-For the example configuration in figure, you will need a driver for your
+-I2C adapter, and drivers for your I2C devices (usually one driver for each
+-device).
++For the example configuration in the figure above, you will need one adapter
++driver for the I2C controller, and client drivers for your I2C targets. Usually
++one driver for each client.
+ 
+ Outdated terminology
+ --------------------
 -- 
 2.43.0
 
