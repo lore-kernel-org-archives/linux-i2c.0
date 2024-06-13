@@ -1,407 +1,222 @@
-Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [202.36.163.20])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7BBA12C54D
-	for <linux-i2c@vger.kernel.org>; Wed, 12 Jun 2024 21:58:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 291DD126F1D
+	for <linux-i2c@vger.kernel.org>; Thu, 13 Jun 2024 02:54:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.36.163.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718229526; cv=none; b=P84Lt4PMpDnqRTdlYfnsDmTz5xhpMRbDJ4kPzuKn+kBqPm1+EpYIA5bchRXWPzUFbpebbe4nHmj+mjdDFV1TrEsJoiakqZlapO9ZmPDgbbuciC3yCk1acE3GpG6pFbF1WZ02Yr8c8/TFUjLZYTznvxlHCYsjA2an76R1O6ZBLTo=
+	t=1718247259; cv=none; b=ZNLdN64IAVvMREoohK0xOtGk5Wryrl+ycu2x90gk9L6Jy7QWPYJlrIIbxLvTEdhinJIo4eKTM02Tw44OEW6WJvNQXfu8/iGWr+LCz6ET5mCh7XnPWIZna2O2q2ib90fD/iFGwG17hRBjZkK0GXbstz7gL3nHojA6ZcsQq4MLlf0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718229526; c=relaxed/simple;
-	bh=J5TrrAiIiw+L692d7YWj84TILk8TqDiBXvd4PexD3hw=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=sR+Pl4eFANykIkVxZHzvwOmeAl1QbjdhXEINyP863TArGfp6g5KYL6n1+qONxfxXVqXXgjGjNgDzuwP1Z7KFTXMANfikFZgSY1ARFdlkyEZkBeyeSc6useXqjB9AExX8KD8Ws5iEf+AMl/K9rmrSnhVE9WwODcE6qaVxfUz21G0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=r9D5mvDu; arc=none smtp.client-ip=209.85.167.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1718247259; c=relaxed/simple;
+	bh=hh1dptDgafzw7sDQeq3QkOAuKG4MFZcQiKoWQYOWYqk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=UUtStYu5GGsnUaID93uzCP/Dav5zZajYQxT/YzP71meaMf1dAgMYVmXK03/vanviwq7HzmD9r31uQt7viuvNegT3lfzkdPzqmX4MH4LtIPJljGkkFKwlO8I2tzdhREDrrx0caaNazLIJ3+Jwy0iBQKbOWd2fzuP0mgjOZQjdXlA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz; spf=pass smtp.mailfrom=alliedtelesis.co.nz; dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b=JHwAPIsB; arc=none smtp.client-ip=202.36.163.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alliedtelesis.co.nz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="r9D5mvDu"
-Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-52c1cb35ea3so58575e87.2
-        for <linux-i2c@vger.kernel.org>; Wed, 12 Jun 2024 14:58:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1718229523; x=1718834323; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=rvU+tWkmldOQwo69r/XmSrf1ZL6Fqdk1sAT/5KLbIyc=;
-        b=r9D5mvDupzTl42KFze7E6kUFzP6fpgs3nkrHtNO2RSavHWqFYgX0MmK1pdtlVeOLTC
-         FAxPuottE0MmuQDtN4OnVgcL4mqEMtH8Yuowa6Fl/RVBGBjetFcRoVK7aaDKJ6o80Y1F
-         QWEIDRCA3xRUDWoCstxH7j2EK6EwDXZ43jeK08gIh6fWA923mv5ZKLAazLL083NwHT/U
-         +fVSp/lVrGJGB+HchKkTLAKdpa/PA5uZgXsQDsjhXmBveKpSaEgNvTkVVDojeeN+C9Oh
-         2luN8oD4gfy6dholOehXlAVvIudasz8aeZRsJLXtY0RGxBN1ifue/+s4LahtTUZG4o4r
-         kfIQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1718229523; x=1718834323;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=rvU+tWkmldOQwo69r/XmSrf1ZL6Fqdk1sAT/5KLbIyc=;
-        b=jC2zTD6a1AkiXr62KO5oojtf/46gWh2/RXkJc+l0ZZhcdN/AmcpW+0qKo7unlZpDOS
-         JROpGKurkEWggPYlxzncW/W6YEtNWE6qXi3YUHWLOh26Wd9E8j0PEUqrJgb7nKxCKyTg
-         3vKuxbi8/hpZ+YyHMRCUYH8LJJ2OfKLXuMgjq8Y9vAD4SEkvVoPLa3nJ7IjJRZ+IbklL
-         fdRLdF5IGhRquTjq8D3MItQf27Lfy5zRmQTU6GDapLcDzl2BNDPdJDHetzr2oFi0e2Dc
-         lxeFyhEQ/siJBThRuU4DG2MjYu/8EVZH1ndwnSrh706E2LT4n/pjJDdiv7xcnH0VQOdL
-         3ihg==
-X-Forwarded-Encrypted: i=1; AJvYcCVs1ggwS0tYs+RsXqcGgvtoKIz5kH688IXE6YyXU9MvRm6jIAzbFzNynkDetkebh40fD2jxjxehos8=@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywbi7R3x5zu81J+4vI5SA8/Z8ghBYf2Qf1u+4WPhvmJCdQ21Ut4
-	Kijg8gWClirPvkd1pnwY5NsvLvTfd3ZqRSjNj411S1EpAgcPbkIAoBSC5RKI3DU=
-X-Google-Smtp-Source: AGHT+IFHwxdbZdlOmXvEAIUk7iG7C+LeUgc/XWwaM4qlWHWxP/6lw564EqnJjSBzADYRXgZSR5kIWg==
-X-Received: by 2002:a2e:2ac3:0:b0:2eb:da20:7b3f with SMTP id 38308e7fff4ca-2ebfc8e5aa2mr18922441fa.1.1718229523016;
-        Wed, 12 Jun 2024 14:58:43 -0700 (PDT)
-Received: from localhost.localdomain (88-112-131-206.elisa-laajakaista.fi. [88.112.131.206])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-2ec05c179c5sm57011fa.67.2024.06.12.14.58.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Jun 2024 14:58:42 -0700 (PDT)
-From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-To: Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konrad.dybcio@linaro.org>,
-	Neil Armstrong <neil.armstrong@linaro.org>,
-	Jagadeesh Kona <quic_jkona@quicinc.com>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>
-Cc: Loic Poulain <loic.poulain@linaro.org>,
-	Robert Foss <rfoss@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	linux-arm-msm@vger.kernel.org,
-	devicetree@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="JHwAPIsB"
+Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 5929A2C04C9;
+	Thu, 13 Jun 2024 14:54:15 +1200 (NZST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+	s=mail181024; t=1718247255;
+	bh=KQSpoL/gBZiTOqoKkh+T2V82Nqs0vKqOwXVJZ858dR0=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=JHwAPIsBEYrNxes4zbjOWym0Exh3H+ZjWXVIb8dcvHAAnN6HA0uws5mL3dn7gUerh
+	 nudGftVf6UPawqc+/Lul94mHJUdP++X5L2Z3igANd+AdzTPFJis3m+zOneElvPmjee
+	 ywH2o1GLgEs8dSrM7m0xAaeuKnzMQL/tcNC9lLm/uXvTqHldETe7Ehad/CreHntPxi
+	 sEuqpwMgbwsEqFhwMH2yXCUpXO6E+wwKB9GAEU5HBojxSPyE/bI69UkXTKauUelHbr
+	 O9gKykqwfUjUfyqdpkAfvKF+rzI7IUd2aDzyPNXZ1HvBv69/s1H5AgGYAH/Z0afKgT
+	 ff0IbxziVau1A==
+Received: from pat.atlnz.lc (Not Verified[10.32.16.33]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
+	id <B666a5f570000>; Thu, 13 Jun 2024 14:54:15 +1200
+Received: from aryans-dl.ws.atlnz.lc (aryans-dl.ws.atlnz.lc [10.33.22.38])
+	by pat.atlnz.lc (Postfix) with ESMTP id 2FCE913EDE9;
+	Thu, 13 Jun 2024 14:54:15 +1200 (NZST)
+Received: by aryans-dl.ws.atlnz.lc (Postfix, from userid 1844)
+	id 2D3B72A2270; Thu, 13 Jun 2024 14:54:15 +1200 (NZST)
+From: Aryan Srivastava <aryan.srivastava@alliedtelesis.co.nz>
+To: Markus Elfring <Markus.Elfring@web.de>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Aryan Srivastava <aryan.srivastava@alliedtelesis.co.nz>,
+	Robert Richter <rric@kernel.org>,
 	linux-i2c@vger.kernel.org,
-	Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Subject: [PATCH v2 4/4] arm64: dts: qcom: sm8650: add description of CCI controllers
-Date: Thu, 13 Jun 2024 00:58:35 +0300
-Message-Id: <20240612215835.1149199-5-vladimir.zapolskiy@linaro.org>
-X-Mailer: git-send-email 2.33.0
-In-Reply-To: <20240612215835.1149199-1-vladimir.zapolskiy@linaro.org>
-References: <20240612215835.1149199-1-vladimir.zapolskiy@linaro.org>
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v6 1/2] i2c: octeon: refactor hlc r/w operations
+Date: Thu, 13 Jun 2024 14:54:10 +1200
+Message-ID: <20240613025412.3848629-2-aryan.srivastava@alliedtelesis.co.nz>
+X-Mailer: git-send-email 2.43.2
+In-Reply-To: <20240613025412.3848629-1-aryan.srivastava@alliedtelesis.co.nz>
+References: <20240613025412.3848629-1-aryan.srivastava@alliedtelesis.co.nz>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-SEG-SpamProfiler-Analysis: v=2.4 cv=CvQccW4D c=1 sm=1 tr=0 ts=666a5f57 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=T1WGqf2p2xoA:10 a=a7gkLlzbLAVbDXTTgMMA:9 a=3ZKOabzyN94A:10
+X-SEG-SpamProfiler-Score: 0
+x-atlnz-ls: pat
 
-Qualcomm SM8650 SoC has three CCI controllers with two I2C busses
-connected to each of them.
+Refactor the current implementation of the high-level composite read and
+write operations in preparation of the addition of block-mode read/write
+operations.
 
-The CCI controllers on SM8650 are compatible with the ones found on
-many other older generations of Qualcomm SoCs.
+The sending of the i2c command is generic and will apply for both the
+block-mode and non-block-mode R/W. Extract this from the current hlc
+ops, and place into a generic function, octeon_i2c_hlc_cmd_send.
 
-Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+The considerations made for extended addresses in the command
+construction are common for all r/w cases, extract these into
+octeon_i2c_hlc_ext.
+
+There are parts of the commands construction which are common (only in
+the read case), extract this and place into generic function
+octeon_i2c_hlc_read_cmd.
+
+The write commands cannot be made entirely into common code as there are
+distinct differences in the block mode and non-block-mode process.
+Particularly the writing of data into the buffer.
+
+Signed-off-by: Aryan Srivastava <aryan.srivastava@alliedtelesis.co.nz>
 ---
- arch/arm64/boot/dts/qcom/sm8650.dtsi | 291 +++++++++++++++++++++++++++
- 1 file changed, 291 insertions(+)
+ drivers/i2c/busses/i2c-octeon-core.c | 86 ++++++++++++++++------------
+ 1 file changed, 49 insertions(+), 37 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sm8650.dtsi b/arch/arm64/boot/dts/qcom/sm8650.dtsi
-index dcbb28850cbc..71fc45e9b9be 100644
---- a/arch/arm64/boot/dts/qcom/sm8650.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sm8650.dtsi
-@@ -3329,6 +3329,105 @@ videocc: clock-controller@aaf0000 {
- 			#power-domain-cells = <1>;
- 		};
- 
-+		cci0: cci@ac15000 {
-+			compatible = "qcom,sm8650-cci", "qcom,msm8996-cci";
-+			reg = <0 0x0ac15000 0 0x1000>;
-+			interrupts = <GIC_SPI 426 IRQ_TYPE_EDGE_RISING>;
-+			power-domains = <&camcc CAM_CC_TITAN_TOP_GDSC>;
-+			clocks = <&camcc CAM_CC_CAMNOC_AXI_NRT_CLK>,
-+				 <&camcc CAM_CC_CPAS_AHB_CLK>,
-+				 <&camcc CAM_CC_CCI_0_CLK>;
-+			clock-names = "camnoc_axi",
-+				      "cpas_ahb",
-+				      "cci";
-+			pinctrl-0 = <&cci0_0_default &cci0_1_default>;
-+			pinctrl-1 = <&cci0_0_sleep &cci0_1_sleep>;
-+			pinctrl-names = "default", "sleep";
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
+diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2=
+c-octeon-core.c
+index 845eda70b8ca..6772359ca6c8 100644
+--- a/drivers/i2c/busses/i2c-octeon-core.c
++++ b/drivers/i2c/busses/i2c-octeon-core.c
+@@ -485,6 +485,50 @@ static int octeon_i2c_hlc_write(struct octeon_i2c *i=
+2c, struct i2c_msg *msgs)
+ 	return ret;
+ }
+=20
++/* Process hlc transaction */
++static int octeon_i2c_hlc_cmd_send(struct octeon_i2c *i2c, u64 cmd)
++{
++	octeon_i2c_hlc_int_clear(i2c);
++	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI(i2c));
 +
-+			cci0_i2c0: i2c-bus@0 {
-+				reg = <0>;
-+				clock-frequency = <1000000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+			};
++	return octeon_i2c_hlc_wait(i2c);
++}
 +
-+			cci0_i2c1: i2c-bus@1 {
-+				reg = <1>;
-+				clock-frequency = <1000000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+			};
-+		};
++/* Generic consideration for extended internal addresses in i2c hlc r/w =
+ops */
++static bool octeon_i2c_hlc_ext(struct octeon_i2c *i2c, struct i2c_msg ms=
+g, u64 *cmd_in, u64 *ext)
++{
++	bool set_ext =3D false;
++	u64 cmd;
 +
-+		cci1: cci@ac16000 {
-+			compatible = "qcom,sm8650-cci", "qcom,msm8996-cci";
-+			reg = <0 0x0ac16000 0 0x1000>;
-+			interrupts = <GIC_SPI 427 IRQ_TYPE_EDGE_RISING>;
-+			power-domains = <&camcc CAM_CC_TITAN_TOP_GDSC>;
-+			clocks = <&camcc CAM_CC_CAMNOC_AXI_NRT_CLK>,
-+				 <&camcc CAM_CC_CPAS_AHB_CLK>,
-+				 <&camcc CAM_CC_CCI_1_CLK>;
-+			clock-names = "camnoc_axi",
-+				      "cpas_ahb",
-+				      "cci";
-+			pinctrl-0 = <&cci1_0_default &cci1_1_default>;
-+			pinctrl-1 = <&cci1_0_sleep &cci1_1_sleep>;
-+			pinctrl-names = "default", "sleep";
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
++	if (msg.flags & I2C_M_TEN)
++		cmd |=3D SW_TWSI_OP_10_IA;
++	else
++		cmd |=3D SW_TWSI_OP_7_IA;
 +
-+			cci1_i2c0: i2c-bus@0 {
-+				reg = <0>;
-+				clock-frequency = <1000000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+			};
++	if (msg.len =3D=3D 2) {
++		cmd |=3D SW_TWSI_EIA;
++		*ext =3D (u64)msg.buf[0] << SW_TWSI_IA_SHIFT;
++		cmd |=3D (u64)msg.buf[1] << SW_TWSI_IA_SHIFT;
++		set_ext =3D true;
++	} else {
++		cmd |=3D (u64)msg.buf[0] << SW_TWSI_IA_SHIFT;
++	}
 +
-+			cci1_i2c1: i2c-bus@1 {
-+				reg = <1>;
-+				clock-frequency = <1000000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+			};
-+		};
++	*cmd_in |=3D cmd;
++	return set_ext;
++}
 +
-+		cci2: cci@ac17000 {
-+			compatible = "qcom,sm8650-cci", "qcom,msm8996-cci";
-+			reg = <0 0x0ac17000 0 0x1000>;
-+			interrupts = <GIC_SPI 428 IRQ_TYPE_EDGE_RISING>;
-+			power-domains = <&camcc CAM_CC_TITAN_TOP_GDSC>;
-+			clocks = <&camcc CAM_CC_CAMNOC_AXI_NRT_CLK>,
-+				 <&camcc CAM_CC_CPAS_AHB_CLK>,
-+				 <&camcc CAM_CC_CCI_2_CLK>;
-+			clock-names = "camnoc_axi",
-+				      "cpas_ahb",
-+				      "cci";
-+			pinctrl-0 = <&cci2_0_default &cci2_1_default>;
-+			pinctrl-1 = <&cci2_0_sleep &cci2_1_sleep>;
-+			pinctrl-names = "default", "sleep";
-+			status = "disabled";
-+			#address-cells = <1>;
-+			#size-cells = <0>;
++/* Construct and send i2c transaction core cmd for read ops */
++static int octeon_i2c_hlc_read_cmd(struct octeon_i2c *i2c, struct i2c_ms=
+g msg, u64 cmd)
++{
++	u64 ext =3D 0;
 +
-+			cci2_i2c0: i2c-bus@0 {
-+				reg = <0>;
-+				clock-frequency = <1000000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+			};
++	if (octeon_i2c_hlc_ext(i2c, msg, &cmd, &ext))
++		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT(i2c));
 +
-+			cci2_i2c1: i2c-bus@1 {
-+				reg = <1>;
-+				clock-frequency = <1000000>;
-+				#address-cells = <1>;
-+				#size-cells = <0>;
-+			};
-+		};
++	return octeon_i2c_hlc_cmd_send(i2c, cmd);
++}
 +
- 		camcc: clock-controller@ade0000 {
- 			compatible = "qcom,sm8650-camcc";
- 			reg = <0 0x0ade0000 0 0x20000>;
-@@ -4029,6 +4128,198 @@ tlmm: pinctrl@f100000 {
- 
- 			wakeup-parent = <&pdc>;
- 
-+			cci0_0_default: cci0-0-default-state {
-+				sda-pins {
-+					pins = "gpio113";
-+					function = "cci_i2c_sda";
-+					drive-strength = <2>;
-+					bias-pull-up = <2200>;
-+				};
-+
-+				scl-pins {
-+					pins = "gpio114";
-+					function = "cci_i2c_scl";
-+					drive-strength = <2>;
-+					bias-pull-up = <2200>;
-+				};
-+			};
-+
-+			cci0_0_sleep: cci0-0-sleep-state {
-+				sda-pins {
-+					pins = "gpio113";
-+					function = "cci_i2c_sda";
-+					drive-strength = <2>;
-+					bias-pull-down;
-+				};
-+
-+				scl-pins {
-+					pins = "gpio114";
-+					function = "cci_i2c_scl";
-+					drive-strength = <2>;
-+					bias-pull-down;
-+				};
-+			};
-+
-+			cci0_1_default: cci0-1-default-state {
-+				sda-pins {
-+					pins = "gpio115";
-+					function = "cci_i2c_sda";
-+					drive-strength = <2>;
-+					bias-pull-up = <2200>;
-+				};
-+
-+				scl-pins {
-+					pins = "gpio116";
-+					function = "cci_i2c_scl";
-+					drive-strength = <2>;
-+					bias-pull-up = <2200>;
-+				};
-+			};
-+
-+			cci0_1_sleep: cci0-1-sleep-state {
-+				sda-pins {
-+					pins = "gpio115";
-+					function = "cci_i2c_sda";
-+					drive-strength = <2>;
-+					bias-pull-down;
-+				};
-+
-+				scl-pins {
-+					pins = "gpio116";
-+					function = "cci_i2c_scl";
-+					drive-strength = <2>;
-+					bias-pull-down;
-+				};
-+			};
-+
-+			cci1_0_default: cci1-0-default-state {
-+				sda-pins {
-+					pins = "gpio117";
-+					function = "cci_i2c_sda";
-+					drive-strength = <2>;
-+					bias-pull-up = <2200>;
-+				};
-+
-+				scl-pins {
-+					pins = "gpio118";
-+					function = "cci_i2c_scl";
-+					drive-strength = <2>;
-+					bias-pull-up = <2200>;
-+				};
-+			};
-+
-+			cci1_0_sleep: cci1-0-sleep-state {
-+				sda-pins {
-+					pins = "gpio117";
-+					function = "cci_i2c_sda";
-+					drive-strength = <2>;
-+					bias-pull-down;
-+				};
-+
-+				scl-pins {
-+					pins = "gpio118";
-+					function = "cci_i2c_scl";
-+					drive-strength = <2>;
-+					bias-pull-down;
-+				};
-+			};
-+
-+			cci1_1_default: cci1-1-default-state {
-+				sda-pins {
-+					pins = "gpio12";
-+					function = "cci_i2c_sda";
-+					drive-strength = <2>;
-+					bias-pull-up = <2200>;
-+				};
-+
-+				scl-pins {
-+					pins = "gpio13";
-+					function = "cci_i2c_scl";
-+					drive-strength = <2>;
-+					bias-pull-up = <2200>;
-+				};
-+			};
-+
-+			cci1_1_sleep: cci1-1-sleep-state {
-+				sda-pins {
-+					pins = "gpio12";
-+					function = "cci_i2c_sda";
-+					drive-strength = <2>;
-+					bias-pull-down;
-+				};
-+
-+				scl-pins {
-+					pins = "gpio13";
-+					function = "cci_i2c_scl";
-+					drive-strength = <2>;
-+					bias-pull-down;
-+				};
-+			};
-+
-+			cci2_0_default: cci2-0-default-state {
-+				sda-pins {
-+					pins = "gpio112";
-+					function = "cci_i2c_sda";
-+					drive-strength = <2>;
-+					bias-pull-up = <2200>;
-+				};
-+
-+				scl-pins {
-+					pins = "gpio153";
-+					function = "cci_i2c_scl";
-+					drive-strength = <2>;
-+					bias-pull-up = <2200>;
-+				};
-+			};
-+
-+			cci2_0_sleep: cci2-0-sleep-state {
-+				sda-pins {
-+					pins = "gpio112";
-+					function = "cci_i2c_sda";
-+					drive-strength = <2>;
-+					bias-pull-down;
-+				};
-+
-+				scl-pins {
-+					pins = "gpio153";
-+					function = "cci_i2c_scl";
-+					drive-strength = <2>;
-+					bias-pull-down;
-+				};
-+			};
-+
-+			cci2_1_default: cci2-1-default-state {
-+				sda-pins {
-+					pins = "gpio119";
-+					function = "cci_i2c_sda";
-+					drive-strength = <2>;
-+					bias-pull-up = <2200>;
-+				};
-+
-+				scl-pins {
-+					pins = "gpio120";
-+					function = "cci_i2c_scl";
-+					drive-strength = <2>;
-+					bias-pull-up = <2200>;
-+				};
-+			};
-+
-+			cci2_1_sleep: cci2-1-sleep-state {
-+				sda-pins {
-+					pins = "gpio119";
-+					function = "cci_i2c_sda";
-+					drive-strength = <2>;
-+					bias-pull-down;
-+				};
-+
-+				scl-pins {
-+					pins = "gpio120";
-+					function = "cci_i2c_scl";
-+					drive-strength = <2>;
-+					bias-pull-down;
-+				};
-+			};
-+
- 			hub_i2c0_data_clk: hub-i2c0-data-clk-state {
- 				/* SDA, SCL */
- 				pins = "gpio64", "gpio65";
--- 
-2.33.0
+ /* high-level-controller composite write+read, msg0=3Daddr, msg1=3Ddata =
+*/
+ static int octeon_i2c_hlc_comp_read(struct octeon_i2c *i2c, struct i2c_m=
+sg *msgs)
+ {
+@@ -499,26 +543,8 @@ static int octeon_i2c_hlc_comp_read(struct octeon_i2=
+c *i2c, struct i2c_msg *msgs
+ 	/* A */
+ 	cmd |=3D (u64)(msgs[0].addr & 0x7full) << SW_TWSI_ADDR_SHIFT;
+=20
+-	if (msgs[0].flags & I2C_M_TEN)
+-		cmd |=3D SW_TWSI_OP_10_IA;
+-	else
+-		cmd |=3D SW_TWSI_OP_7_IA;
+-
+-	if (msgs[0].len =3D=3D 2) {
+-		u64 ext =3D 0;
+-
+-		cmd |=3D SW_TWSI_EIA;
+-		ext =3D (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
+-		cmd |=3D (u64)msgs[0].buf[1] << SW_TWSI_IA_SHIFT;
+-		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT(i2c));
+-	} else {
+-		cmd |=3D (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
+-	}
+-
+-	octeon_i2c_hlc_int_clear(i2c);
+-	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI(i2c));
+-
+-	ret =3D octeon_i2c_hlc_wait(i2c);
++	/* Send core command */
++	ret =3D octeon_i2c_hlc_cmd(i2c, msgs[0], cmd);
+ 	if (ret)
+ 		goto err;
+=20
+@@ -554,19 +580,8 @@ static int octeon_i2c_hlc_comp_write(struct octeon_i=
+2c *i2c, struct i2c_msg *msg
+ 	/* A */
+ 	cmd |=3D (u64)(msgs[0].addr & 0x7full) << SW_TWSI_ADDR_SHIFT;
+=20
+-	if (msgs[0].flags & I2C_M_TEN)
+-		cmd |=3D SW_TWSI_OP_10_IA;
+-	else
+-		cmd |=3D SW_TWSI_OP_7_IA;
+-
+-	if (msgs[0].len =3D=3D 2) {
+-		cmd |=3D SW_TWSI_EIA;
+-		ext |=3D (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
+-		set_ext =3D true;
+-		cmd |=3D (u64)msgs[0].buf[1] << SW_TWSI_IA_SHIFT;
+-	} else {
+-		cmd |=3D (u64)msgs[0].buf[0] << SW_TWSI_IA_SHIFT;
+-	}
++	/* Set parameters for extended message (if required) */
++	set_ext =3D octeon_i2c_hlc_ext(i2c, msgs[0], &cmd, &ext);
+=20
+ 	for (i =3D 0, j =3D msgs[1].len - 1; i  < msgs[1].len && i < 4; i++, j-=
+-)
+ 		cmd |=3D (u64)msgs[1].buf[j] << (8 * i);
+@@ -579,10 +594,7 @@ static int octeon_i2c_hlc_comp_write(struct octeon_i=
+2c *i2c, struct i2c_msg *msg
+ 	if (set_ext)
+ 		octeon_i2c_writeq_flush(ext, i2c->twsi_base + SW_TWSI_EXT(i2c));
+=20
+-	octeon_i2c_hlc_int_clear(i2c);
+-	octeon_i2c_writeq_flush(cmd, i2c->twsi_base + SW_TWSI(i2c));
+-
+-	ret =3D octeon_i2c_hlc_wait(i2c);
++	ret =3D octeon_i2c_hlc_cmd_send(i2c, cmd);
+ 	if (ret)
+ 		goto err;
+=20
+--=20
+2.43.2
 
