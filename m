@@ -1,139 +1,152 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E073A757E3
-	for <linux-i2c@vger.kernel.org>; Wed, 19 Jun 2024 07:10:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE6918249B;
+	Wed, 19 Jun 2024 07:23:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.153.233
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718781035; cv=none; b=ePXctp3NCweCwa5We9zxg77PTu7dnMIut9YwsntW73wflGvoTFvzZbHsaYD//054mLBLEESmco/dGRluBCoQX23plgMJxSyg5jnrsqtQaaERCm/LPek6FTLCYx5AqIhMb93iPDFpWfpRWFJdlKBJshuYZS4m0PlQP7D+RQknyMY=
+	t=1718781813; cv=none; b=NF4brKMm1RFQCCyhxDpV9oNJl9Fulpjzs3drQoA8T79lghCIiuTMjIDtAd/jRz3Q12C+vxfQFERIZAWvSqIa5yUWxzBu3A5TpSDbOR8D89d7jeqtr/n4UiQewIZSLAXlIdWocBjMKAgWhmYupu7fR9Mr/CmPumV/4XtrGXf8Idw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718781035; c=relaxed/simple;
-	bh=+Y5juYbiYVPfmxaci7kMM+Wf55nqEx35suEP4/DlODo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ng0XS04gtjR+e+63UEjEvLzJuDBBytyH6IXPW+dhIbbNULt/NG6+ZYsSneHjl1hYTJwAUJa455ALcTYRGx1qxtcpg/pp2EffwqoU6k9aFXgWG1HCHN2/9PFMM8bLd+cnvS7m4N4TQ3EuVqNgPE5zNFixWyv2XAPHuOtSJS2Vd9Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=bym2FTkW; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1718781813; c=relaxed/simple;
+	bh=5MpWaJAI0rtIb4sA3J2QYApRt6QQBb2cDKxrZCU19SQ=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=VTDk4o9yzz8W7EQAPlDuWcb4i3yOAYSgzYA3l9CmWeIJ7SkHQMf2oQCkkTaOXFPMk+3tIHr2upK0l7RfQpU86TbiUPSRmbyVc0so/L6BheVE1F7fa3GJEhNjMRi25PIeGR+kuexX4gcl01v1j9FHAO8yIv20gcc3gQilwrq7Odg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com; spf=pass smtp.mailfrom=microchip.com; dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b=aWPwRhzo; arc=none smtp.client-ip=68.232.153.233
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microchip.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="bym2FTkW"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=h40K
-	XelLRYCvulzSdUHa0NxctZhV6+tpDl8kEhBwYG0=; b=bym2FTkWXtuwwTmNq2g+
-	XZCmuMKKJ3YsiyTLOX7rr75f7pbQkZUGuojs5wq5LkngRL63BA8oJD03PnhJb9uV
-	UNY1sQG1OaPtR7cr7axqMeGI5HrUzMAnFHf7stTCRwuK/eGiSr4WRCv7BSluoOrP
-	tGfOnN65u5GB0fQsVR28jjmPNgyTSv3okxFjJjCu4UQnTO+ldW/qYilwXI/JXHEM
-	0X9zIB5fXsIrxuSaUw/rwn3fF0Hr6xQQk1QNOUw6O8rQcyFzYO1zURLAIMGIgTMw
-	7YlK0vttqHX/4rWvpwo/Uh4LSE7KjHFuy0sWbJ116/wvwlvhgZB0Huar8yKDJahQ
-	3w==
-Received: (qmail 537824 invoked from network); 19 Jun 2024 09:10:26 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 19 Jun 2024 09:10:26 +0200
-X-UD-Smtp-Session: l3s3148p1@WFWK5DgbCOtehh9j
-Date: Wed, 19 Jun 2024 09:10:26 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Easwar Hariharan <eahariha@linux.microsoft.com>, 
-	linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 5/6] docs: i2c: summary: document 'local' and 'remote'
- targets
-Message-ID: <cu2mkl42byhce6eytcnw7yseogbnypgtrkoirlezakwg35egdg@vjjye4ca7yey>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Andi Shyti <andi.shyti@kernel.org>, Easwar Hariharan <eahariha@linux.microsoft.com>, 
-	linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20240614081239.7128-8-wsa+renesas@sang-engineering.com>
- <20240614081239.7128-13-wsa+renesas@sang-engineering.com>
- <4zxr4rlqnjqbqh3oxmd2ufqi6uk4pxa3tniuya5pgjtqi6tswc@utq4r2zt6z6b>
- <ed75fyc2xcsnwubq42eposf6ayt5aj2jmqz6mthugk6vm2zpi4@qqwlmuwayoo5>
- <y34k2k25xdr5z4v7oejp4da237s4o5qym5npihyydwlbsdh75c@vhmfl7sw3pbm>
- <7d5f800f-fc65-4fbf-adad-616d51501c62@linux.microsoft.com>
- <boehtgry7j7ulhrw7tenkmzxujahmxfn25imvb7zw2ibtmebbk@u3jryw4v2y7h>
+	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="aWPwRhzo"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1718781810; x=1750317810;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=5MpWaJAI0rtIb4sA3J2QYApRt6QQBb2cDKxrZCU19SQ=;
+  b=aWPwRhzoGbVg0Rak57u0S8omIusTQHDtWjnrFExTotLyinwR8dqCrSxK
+   PXFCfZb5Q8WGojrR5kTDb12JSdh+T68n0q0yPVAprmAUcX93m8IeIFofb
+   OfTAiJG5eiECDLKJ4CbBtu6kZ16H7X1KqFg3B1amrhzEZOtftcIeprUen
+   JrGsppHTmzexRRJ0QLGEQiwwL3GaQD6a1Szhu2eBVRERr94ySZtf+Tb66
+   ZNFkWV2zFdTV4ISivK76YGBmcP02rqq74YrQDyra1JmerBwhn6qOk+gKN
+   VFMKzMBm7BTPyPb57VfZpYg0yuysUkAZPnIXKXlcZKadbGqzuu6r0O7VX
+   w==;
+X-CSE-ConnectionGUID: HPQiKEpwSfeQRjMG7YWokQ==
+X-CSE-MsgGUID: csf1+pZ1Q8i6yOGT+zZgew==
+X-IronPort-AV: E=Sophos;i="6.08,249,1712646000"; 
+   d="scan'208";a="30691772"
+X-Amp-Result: SKIPPED(no attachment in message)
+Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
+  by esa1.microchip.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 19 Jun 2024 00:23:25 -0700
+Received: from chn-vm-ex02.mchp-main.com (10.10.85.144) by
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.35; Wed, 19 Jun 2024 00:23:05 -0700
+Received: from ROB-ULT-M76677.microchip.com (10.10.85.11) by
+ chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server id
+ 15.1.2507.35 via Frontend Transport; Wed, 19 Jun 2024 00:23:02 -0700
+From: Andrei Simion <andrei.simion@microchip.com>
+To: <brgl@bgdev.pl>, <robh@kernel.org>, <krzk+dt@kernel.org>,
+	<conor+dt@kernel.org>, <nicolas.ferre@microchip.com>,
+	<alexandre.belloni@bootlin.com>, <claudiu.beznea@tuxon.dev>, <arnd@arndb.de>,
+	<gregkh@linuxfoundation.org>
+CC: <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+	Claudiu Beznea <claudiu.beznea@microchip.com>, Andrei Simion
+	<andrei.simion@microchip.com>
+Subject: [PATCH 2/3] ARM: dts: at91: at91-sama7g5ek: add EEPROMs
+Date: Wed, 19 Jun 2024 10:22:30 +0300
+Message-ID: <20240619072231.6876-3-andrei.simion@microchip.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20240619072231.6876-1-andrei.simion@microchip.com>
+References: <20240619072231.6876-1-andrei.simion@microchip.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="6e46fmxazdb334kp"
-Content-Disposition: inline
-In-Reply-To: <boehtgry7j7ulhrw7tenkmzxujahmxfn25imvb7zw2ibtmebbk@u3jryw4v2y7h>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
---6e46fmxazdb334kp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Add EEPROMs and nvmem-layout to describe eui48 mac address region.
 
-Hi,
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Co-developed-by: Andrei Simion <andrei.simion@microchip.com>
+Signed-off-by: Andrei Simion <andrei.simion@microchip.com>
+---
+ .../arm/boot/dts/microchip/at91-sama7g5ek.dts | 44 +++++++++++++++++++
+ 1 file changed, 44 insertions(+)
 
-> > "Synonyms" from patch 6 does say that controller/target is preferred but
-> > couched it in the caveat "If speaking about I2C in general" and
-> > adapter/client when "discuss[ing] implementation details." I was trying
-> > to give space for an unambiguous recommendation.
->=20
-> Exactly, this is what I referred to in my previous e-mails.
-> These two statements sound a bit ambiguous to me, as well.
+diff --git a/arch/arm/boot/dts/microchip/at91-sama7g5ek.dts b/arch/arm/boot/dts/microchip/at91-sama7g5ek.dts
+index 20b2497657ae..66e8c8258684 100644
+--- a/arch/arm/boot/dts/microchip/at91-sama7g5ek.dts
++++ b/arch/arm/boot/dts/microchip/at91-sama7g5ek.dts
+@@ -403,6 +403,46 @@ i2c8: i2c@600 {
+ 		i2c-digital-filter;
+ 		i2c-digital-filter-width-ns = <35>;
+ 		status = "okay";
++
++		eeprom0: eeprom@52 {
++			compatible = "atmel,24mac02e4";
++			reg = <0x52>;
++			#address-cells = <1>;
++			#size-cells = <1>;
++			size = <256>;
++			pagesize = <16>;
++			vcc-supply = <&vdd_3v3>;
++
++			nvmem-layout {
++				compatible = "fixed-layout";
++				#address-cells = <1>;
++				#size-cells = <1>;
++
++				eeprom0_eui48: eui48@fa {
++					reg = <0xfa 0x6>;
++				};
++			};
++		};
++
++		eeprom1: eeprom@53 {
++			compatible = "atmel,24mac02e4";
++			reg = <0x53>;
++			#address-cells = <1>;
++			#size-cells = <1>;
++			size = <256>;
++			pagesize = <16>;
++			vcc-supply = <&vdd_3v3>;
++
++			nvmem-layout {
++				compatible = "fixed-layout";
++				#address-cells = <1>;
++				#size-cells = <1>;
++
++				eeprom1_eui48: eui48@fa {
++					reg = <0xfa 0x6>;
++				};
++			};
++		};
+ 	};
+ };
+ 
+@@ -440,6 +480,8 @@ &pinctrl_gmac0_mdio_default
+ 		     &pinctrl_gmac0_txck_default
+ 		     &pinctrl_gmac0_phy_irq>;
+ 	phy-mode = "rgmii-id";
++	nvmem-cells = <&eeprom0_eui48>;
++	nvmem-cell-names = "mac-address";
+ 	status = "okay";
+ 
+ 	ethernet-phy@7 {
+@@ -457,6 +499,8 @@ &gmac1 {
+ 		     &pinctrl_gmac1_mdio_default
+ 		     &pinctrl_gmac1_phy_irq>;
+ 	phy-mode = "rmii";
++	nvmem-cells = <&eeprom1_eui48>;
++	nvmem-cell-names = "mac-address";
+ 	status = "okay"; /* Conflict with pdmc0. */
+ 
+ 	ethernet-phy@0 {
+-- 
+2.34.1
 
-Okay, here is my proposed update:
-
-=3D=3D=3D
-
-diff --git a/Documentation/i2c/summary.rst b/Documentation/i2c/summary.rst
-index 90f46f1504fe..579a1c7df200 100644
---- a/Documentation/i2c/summary.rst
-+++ b/Documentation/i2c/summary.rst
-@@ -67,9 +67,9 @@ Synonyms
-=20
- As mentioned above, the Linux I2C implementation historically uses the ter=
-ms
- "adapter" for controller and "client" for target. A number of data structu=
-res
--have these synonyms in their name. So, to discuss implementation details, =
-it
--might be easier to use these terms. If speaking about I2C in general, the
--official terminology is preferred.
-+have these synonyms in their name. So, when discussing implementation deta=
-ils,
-+you should be aware of these terms as well. The official wording is prefer=
-red,
-+though.
-
-=3D=3D=3D
-
-I don't want to be stricter than "preferred". If someone still wants to
-use 'struct i2c_client *client' this is fine with me.
-
-> Maybe we are wasting time at discussing minor details, but I
-> consider this part important in order to give way to the major
-> refactoring that Wolfram started at the beginning.
-
-The refactoring only affects "master/slave" not "adapter/client". We are
-
-aligned here, aren't we?
-
-All the best,
-
-   Wolfram
-
-
---6e46fmxazdb334kp
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmZyhGIACgkQFA3kzBSg
-Kbay2Q//Q1yK77UKCLXDK3rIDeNYUcLVaQou3ZvpZlqe5aBdZ1hAYSOSG2hjad5/
-m6GmUQYGwJpKbCRXPCNl6I533vOhUTkkqDYWNJyuX/sWT0+CUjQyOmRUDsx2Dnnu
-yAzTftJqkq5nVp326T2uLC2TG2zkEVwUnxZGpaYCZfWuLohiqkxaYGiPN+kDsOTU
-NKAkIofHa1v7gFZBEpWIQkUoAiOPqwIRpTmBw94VyfocItMA7cL+u3mO4Kaxmsyu
-ZjJOZlv7uyGbeMQIwqR0cWyPeMlmNOxjf6rP3MglghRGqLKfrOSy/RotfRtvgMGF
-3zGUYAqMKt08RVshN0rY1zlxWwMfqG7pKbykT7HtIf/b/uq2gbGoVuIqXFGU9h1H
-LSpMWWYkgxOz+e03H2Oqs0YYjqGLY7Ur0ntKMsV/F55RavJO8Sy01SdEOctgb7gp
-KJhEHKx4xNqlIR1oWv1m5mQEjldMI5Nj0NF1tZ6exAqRqdEWNVy5jM+LzMkfGkip
-B/4MPYBtyNg1w/ZYo1up3fBwVcU90Q+HcEolyv+R9LnRC8+lAlN6j45T0EADx/gS
-aFaGPMkuG4GpAanNP8PV1OYKfiWwLyBo59RRpDPAcEV/SshmkVdgYpxn8LFwKMYC
-hWSdJHhJ4a4eHWPIS50dN/IzKzX9gQ4Cd0RVPN5On0nQY3m5oqI=
-=Aen3
------END PGP SIGNATURE-----
-
---6e46fmxazdb334kp--
