@@ -1,232 +1,89 @@
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
+Received: from sender4-op-o12.zoho.com (sender4-op-o12.zoho.com [136.143.188.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D52FD13D525;
-	Wed, 19 Jun 2024 07:23:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.153.233
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718781815; cv=none; b=YWCf3aR10i1K3yvHphoETNylaR82PLoLJbHFtGbnvi9qZ6C83fL5hA/vAZlW9bLnokEibXeoirDa1Wb0PdfDQAOpvY+xSvHYlgibtkFCsOJPnHgOOJr4O34tVGb801qrEcwMmgDzDWPA+XPwXIoG1Tody3iQGJqQ1jPhh0mR76Q=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718781815; c=relaxed/simple;
-	bh=fqaivpLVUYPqyhOF2jg3SFodzPDaRZd2i2dgt24Ws6w=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Yw50PNm/5bHAMdhoV42rnTwTuvsbadKcimhGaujxafOgiar9JkVbDlNZp7kXhuM/tvUaynAF3erZmX0TKagprMSL7gmestCntK8bhgJZX/lfNDKCHY7pG1Y15kLTN+eX1bp84eQuePqCRBrsh3uG49FpCbXl7U5Pnzn4CTBPaOY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com; spf=pass smtp.mailfrom=microchip.com; dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b=ixHy4W/e; arc=none smtp.client-ip=68.232.153.233
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microchip.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1143D7603A;
+	Wed, 19 Jun 2024 07:38:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.12
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1718782688; cv=pass; b=OQvjfiH5EUAl4xZUj3QBdrAvKGwREHs4A+kAafyPfnt1TY3cfvxTcd5zw3DY7a5PlJSgP3uiEn7aVYo+fqzd7Vvj0V00nYETKkn2gDZ5+Tsz7gdxdSkDgTE4CvOWpONTQoBb4iGVhD18vTNQsHcsSFxDM+8mmIMOwVQeXdI3jVI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1718782688; c=relaxed/simple;
+	bh=dILstQIUai3DtXRp/q1RJsBjK8QEmdTG5Y18JKqP2W8=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=cmHv4u5nbkz7fCGw+5XC8fLzbrkZicmgz5wkoUTKSga6mtM29KAMvHF0T6ONN+FJSYpPt4m/iC5WLN3VkXSMil2OfnPYFN7Q1GaBY/6C90C7ojf3AUFZzNiPiJ04ChH6+Z+KCaW2ymcYwx5RjnUboELyaGto3iNzh4xGFdU/CCA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=icenowy.me; spf=pass smtp.mailfrom=icenowy.me; dkim=pass (2048-bit key) header.d=icenowy.me header.i=uwu@icenowy.me header.b=TjVzyDQH; arc=pass smtp.client-ip=136.143.188.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=icenowy.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=icenowy.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="ixHy4W/e"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1718781813; x=1750317813;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=fqaivpLVUYPqyhOF2jg3SFodzPDaRZd2i2dgt24Ws6w=;
-  b=ixHy4W/eIqc4LvV5alTfRHUt4uPNhto/i7eUTnq1bnpTOnmiNsaogaWu
-   HVZBKNAajPfk13ev8iQOw4VmvT8qRkHTxyFf27EtcnK+YLMpGJZAwLZHP
-   9pF+Vn5+QjBArR+93RkwEzTyDTj4/HQOkA48lfAI0sTvYU68gMdqZM/4y
-   KaPDvXFE7CYtvlkSPV951mjoFvxVUizcMT7aV3enT/AWQGfItxNzl6lZc
-   4OkAn6hVp6kAaoSoKenGdcSxT9fVqWdYVaM/xTHJrNj07h0qa7mF9VLQZ
-   m+Tn++R5Zyy2juVz8nYguUsOk3k1+/RKdAvgrsQhuF1RrARVEwthPo4ki
-   g==;
-X-CSE-ConnectionGUID: Nru8q+MHQyC2PaLNcFE7ig==
-X-CSE-MsgGUID: GcSQHuCsR36LLSwyAY1N8g==
-X-IronPort-AV: E=Sophos;i="6.08,249,1712646000"; 
-   d="scan'208";a="30691795"
-X-Amp-Result: SKIPPED(no attachment in message)
-Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa1.microchip.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 19 Jun 2024 00:23:31 -0700
-Received: from chn-vm-ex02.mchp-main.com (10.10.87.72) by
- chn-vm-ex02.mchp-main.com (10.10.87.72) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Wed, 19 Jun 2024 00:23:02 -0700
-Received: from ROB-ULT-M76677.microchip.com (10.10.85.11) by
- chn-vm-ex02.mchp-main.com (10.10.85.144) with Microsoft SMTP Server id
- 15.1.2507.35 via Frontend Transport; Wed, 19 Jun 2024 00:22:58 -0700
-From: Andrei Simion <andrei.simion@microchip.com>
-To: <brgl@bgdev.pl>, <robh@kernel.org>, <krzk+dt@kernel.org>,
-	<conor+dt@kernel.org>, <nicolas.ferre@microchip.com>,
-	<alexandre.belloni@bootlin.com>, <claudiu.beznea@tuxon.dev>, <arnd@arndb.de>,
-	<gregkh@linuxfoundation.org>
-CC: <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
-	Claudiu Beznea <claudiu.beznea@microchip.com>, Andrei Simion
-	<andrei.simion@microchip.com>
-Subject: [PATCH 1/3] eeprom: at24: avoid adjusting offset for 24AA025E{48, 64}
-Date: Wed, 19 Jun 2024 10:22:29 +0300
-Message-ID: <20240619072231.6876-2-andrei.simion@microchip.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20240619072231.6876-1-andrei.simion@microchip.com>
-References: <20240619072231.6876-1-andrei.simion@microchip.com>
+	dkim=pass (2048-bit key) header.d=icenowy.me header.i=uwu@icenowy.me header.b="TjVzyDQH"
+ARC-Seal: i=1; a=rsa-sha256; t=1718782667; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=F+jzLTyut4HRZWWwAgeDjA64/l80zDaCJxNwJicBERv3K4ZhePzZRL/ecXwTuAMsGU88cITkwR1ZNCGR3BUQbsq6oP9yyMz6ZecxuqIOofMi6dnQ+4rDTJ3sVtHcJbsV20ex5d94ZwenJ9zQCUqN+8po8f+fNZy8KHXU6kQwQMg=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1718782667; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=dILstQIUai3DtXRp/q1RJsBjK8QEmdTG5Y18JKqP2W8=; 
+	b=PWTJXsoFWh6Sn5jhrZaehWp0R9DIPlnMpNK/NK3fCsQ4AOYZq+JjhfklfEYnhdCGbIiRq1lzf9NJpvrtF9lgjkVf8nl2IBr+BkCvw6a+yPdnQg3iUQnC5w27O5jEf6l0J/lOwS04m5PBHCYUPfr2CA/b1XMBBTxO9h010IQ3j6U=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=icenowy.me;
+	spf=pass  smtp.mailfrom=uwu@icenowy.me;
+	dmarc=pass header.from=<uwu@icenowy.me>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1718782667;
+	s=zmail2; d=icenowy.me; i=uwu@icenowy.me;
+	h=Message-ID:Subject:Subject:From:From:To:To:Cc:Cc:Date:Date:In-Reply-To:References:Content-Type:Content-Transfer-Encoding:MIME-Version:Message-Id:Reply-To;
+	bh=dILstQIUai3DtXRp/q1RJsBjK8QEmdTG5Y18JKqP2W8=;
+	b=TjVzyDQHnxTueOSE1UJ6XmDsaK59/K6M9HDxC35xMfbXxaGSbFhEx3/+kkAoRYVw
+	bB7G308woo+fsOPN8fhGDDvCtieUWoxTRSupa8XebcOwsTi3ImQx3WWEZyq00MtgCKv
+	A0oDYJBD3X+5BZVVWTI0zoB+e4qQtBHVoLmleWoJcbOYc1ARXWFAdH9WOvgR96fFPdK
+	XqN5WMcW52xIpq1WyAGulEebLxW2aX+DU/ZkJPvwo/+8sYwFMm5WkdDbnznI+5I7rnA
+	p7j7glCkDMDnIRdQsyCrvx0VtrBMRcUWT7IJTzsWexJSK+TdP2O0km8xbt1CMp7cprO
+	dduYLcqzTA==
+Received: by mx.zohomail.com with SMTPS id 1718782666075684.338458172934;
+	Wed, 19 Jun 2024 00:37:46 -0700 (PDT)
+Message-ID: <95c4d5e165992e8b775ec41a6948bda400b4c82f.camel@icenowy.me>
+Subject: Re: [PATCH v3 1/3] dt-bindings: i2c: dw: Document compatible
+ thead,th1520-i2c
+From: Icenowy Zheng <uwu@icenowy.me>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, Thomas Bonnefille
+ <thomas.bonnefille@bootlin.com>, Andi Shyti <andi.shyti@kernel.org>, Rob
+ Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor
+ Dooley <conor+dt@kernel.org>, Jisheng Zhang <jszhang@kernel.org>, Guo Ren
+ <guoren@kernel.org>, Fu Wei <wefu@redhat.com>, Drew Fustini
+ <dfustini@tenstorrent.com>, Emil Renner Berthing
+ <emil.renner.berthing@canonical.com>, Conor Dooley <conor@kernel.org>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+ Paul Walmsley <paul.walmsley@sifive.com>, Thomas Petazzoni
+ <thomas.petazzoni@bootlin.com>,  =?ISO-8859-1?Q?Miqu=E8l?= Raynal
+ <miquel.raynal@bootlin.com>, linux-i2c@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-riscv@lists.infradead.org, Conor Dooley <conor.dooley@microchip.com>
+Date: Wed, 19 Jun 2024 15:37:36 +0800
+In-Reply-To: <f427b28c-420b-4174-a670-70f626f8061e@linux.intel.com>
+References: <20240618-i2c-th1520-v3-0-3042590a16b1@bootlin.com>
+	 <20240618-i2c-th1520-v3-1-3042590a16b1@bootlin.com>
+	 <f427b28c-420b-4174-a670-70f626f8061e@linux.intel.com>
+Organization: Anthon Open-Source Community
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.44.4 
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
+X-ZohoMailClient: External
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+=E5=9C=A8 2024-06-19=E6=98=9F=E6=9C=9F=E4=B8=89=E7=9A=84 09:40 +0300=EF=BC=
+=8CJarkko Nikula=E5=86=99=E9=81=93=EF=BC=9A
+>=20
+> Your comment below makes me thinking is this change needed? So is it=20
+> enough to specify "snps,designware-i2c" for the compatible string in=20
+> patch 2/3?
 
-The EEPROMs could be used only for MAC storage. In this case the
-EEPROM areas where MACs resides could be modeled as NVMEM cells
-(directly via DT bindings) such that the already available networking
-infrastructure to read properly the MAC addresses (via
-of_get_mac_address()). The previously available compatibles needs the
-offset adjustment probably for compatibility w/ old DT bindings.
-Added "atmel,24mac02e4", "atmel,24mac02e6" compatible for the usage w/
-24AA025E{48, 64} type of EEPROMs.
+I think it's a common practice to have a SoC-specific compatible along
+with the specific compatible, in case any silicon quirk is found.
 
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Co-developed-by: Andrei Simion <andrei.simion@microchip.com>
-Signed-off-by: Andrei Simion <andrei.simion@microchip.com>
----
- drivers/misc/eeprom/at24.c | 73 ++++++++++++++++++++++----------------
- 1 file changed, 42 insertions(+), 31 deletions(-)
-
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 4bd4f32bcdab..8699a6c585c4 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -121,17 +121,19 @@ struct at24_chip_data {
- 	u32 byte_len;
- 	u8 flags;
- 	u8 bank_addr_shift;
-+	u8 adjoff;
- 	void (*read_post)(unsigned int off, char *buf, size_t count);
- };
- 
--#define AT24_CHIP_DATA(_name, _len, _flags)				\
-+#define AT24_CHIP_DATA(_name, _len, _flags, _adjoff)			\
- 	static const struct at24_chip_data _name = {			\
--		.byte_len = _len, .flags = _flags,			\
-+		.byte_len = _len, .flags = _flags, .adjoff = _adjoff, \
- 	}
- 
--#define AT24_CHIP_DATA_CB(_name, _len, _flags, _read_post)		\
-+#define AT24_CHIP_DATA_CB(_name, _len, _flags, _adjoff, _read_post)	\
- 	static const struct at24_chip_data _name = {			\
- 		.byte_len = _len, .flags = _flags,			\
-+		.adjoff = _adjoff,					\
- 		.read_post = _read_post,				\
- 	}
- 
-@@ -162,53 +164,57 @@ static void at24_read_post_vaio(unsigned int off, char *buf, size_t count)
- }
- 
- /* needs 8 addresses as A0-A2 are ignored */
--AT24_CHIP_DATA(at24_data_24c00, 128 / 8, AT24_FLAG_TAKE8ADDR);
-+AT24_CHIP_DATA(at24_data_24c00, 128 / 8, AT24_FLAG_TAKE8ADDR, 0);
- /* old variants can't be handled with this generic entry! */
--AT24_CHIP_DATA(at24_data_24c01, 1024 / 8, 0);
-+AT24_CHIP_DATA(at24_data_24c01, 1024 / 8, 0, 0);
- AT24_CHIP_DATA(at24_data_24cs01, 16,
--	AT24_FLAG_SERIAL | AT24_FLAG_READONLY);
--AT24_CHIP_DATA(at24_data_24c02, 2048 / 8, 0);
-+	AT24_FLAG_SERIAL | AT24_FLAG_READONLY, 0);
-+AT24_CHIP_DATA(at24_data_24c02, 2048 / 8, 0, 0);
- AT24_CHIP_DATA(at24_data_24cs02, 16,
--	AT24_FLAG_SERIAL | AT24_FLAG_READONLY);
-+	AT24_FLAG_SERIAL | AT24_FLAG_READONLY, 0);
- AT24_CHIP_DATA(at24_data_24mac402, 48 / 8,
--	AT24_FLAG_MAC | AT24_FLAG_READONLY);
-+	AT24_FLAG_MAC | AT24_FLAG_READONLY, 1);
- AT24_CHIP_DATA(at24_data_24mac602, 64 / 8,
--	AT24_FLAG_MAC | AT24_FLAG_READONLY);
-+	AT24_FLAG_MAC | AT24_FLAG_READONLY, 1);
-+AT24_CHIP_DATA(at24_data_24mac02e4, 48 / 8,
-+	AT24_FLAG_MAC | AT24_FLAG_READONLY, 0);
-+AT24_CHIP_DATA(at24_data_24mac02e6, 64 / 8,
-+	AT24_FLAG_MAC | AT24_FLAG_READONLY, 0);
- /* spd is a 24c02 in memory DIMMs */
- AT24_CHIP_DATA(at24_data_spd, 2048 / 8,
--	AT24_FLAG_READONLY | AT24_FLAG_IRUGO);
-+	AT24_FLAG_READONLY | AT24_FLAG_IRUGO, 0);
- /* 24c02_vaio is a 24c02 on some Sony laptops */
- AT24_CHIP_DATA_CB(at24_data_24c02_vaio, 2048 / 8,
--	AT24_FLAG_READONLY | AT24_FLAG_IRUGO,
-+	AT24_FLAG_READONLY | AT24_FLAG_IRUGO, 0,
- 	at24_read_post_vaio);
--AT24_CHIP_DATA(at24_data_24c04, 4096 / 8, 0);
-+AT24_CHIP_DATA(at24_data_24c04, 4096 / 8, 0, 0);
- AT24_CHIP_DATA(at24_data_24cs04, 16,
--	AT24_FLAG_SERIAL | AT24_FLAG_READONLY);
-+	AT24_FLAG_SERIAL | AT24_FLAG_READONLY, 0);
- /* 24rf08 quirk is handled at i2c-core */
--AT24_CHIP_DATA(at24_data_24c08, 8192 / 8, 0);
-+AT24_CHIP_DATA(at24_data_24c08, 8192 / 8, 0, 0);
- AT24_CHIP_DATA(at24_data_24cs08, 16,
--	AT24_FLAG_SERIAL | AT24_FLAG_READONLY);
--AT24_CHIP_DATA(at24_data_24c16, 16384 / 8, 0);
-+	AT24_FLAG_SERIAL | AT24_FLAG_READONLY, 0);
-+AT24_CHIP_DATA(at24_data_24c16, 16384 / 8, 0, 0);
- AT24_CHIP_DATA(at24_data_24cs16, 16,
--	AT24_FLAG_SERIAL | AT24_FLAG_READONLY);
--AT24_CHIP_DATA(at24_data_24c32, 32768 / 8, AT24_FLAG_ADDR16);
-+	AT24_FLAG_SERIAL | AT24_FLAG_READONLY, 0);
-+AT24_CHIP_DATA(at24_data_24c32, 32768 / 8, AT24_FLAG_ADDR16, 0);
- /* M24C32-D Additional Write lockable page (M24C32-D order codes) */
--AT24_CHIP_DATA(at24_data_24c32d_wlp, 32, AT24_FLAG_ADDR16);
-+AT24_CHIP_DATA(at24_data_24c32d_wlp, 32, AT24_FLAG_ADDR16, 0);
- AT24_CHIP_DATA(at24_data_24cs32, 16,
--	AT24_FLAG_ADDR16 | AT24_FLAG_SERIAL | AT24_FLAG_READONLY);
--AT24_CHIP_DATA(at24_data_24c64, 65536 / 8, AT24_FLAG_ADDR16);
-+	AT24_FLAG_ADDR16 | AT24_FLAG_SERIAL | AT24_FLAG_READONLY, 0);
-+AT24_CHIP_DATA(at24_data_24c64, 65536 / 8, AT24_FLAG_ADDR16, 0);
- /* M24C64-D Additional Write lockable page (M24C64-D order codes) */
--AT24_CHIP_DATA(at24_data_24c64d_wlp, 32, AT24_FLAG_ADDR16);
-+AT24_CHIP_DATA(at24_data_24c64d_wlp, 32, AT24_FLAG_ADDR16, 0);
- AT24_CHIP_DATA(at24_data_24cs64, 16,
--	AT24_FLAG_ADDR16 | AT24_FLAG_SERIAL | AT24_FLAG_READONLY);
--AT24_CHIP_DATA(at24_data_24c128, 131072 / 8, AT24_FLAG_ADDR16);
--AT24_CHIP_DATA(at24_data_24c256, 262144 / 8, AT24_FLAG_ADDR16);
--AT24_CHIP_DATA(at24_data_24c512, 524288 / 8, AT24_FLAG_ADDR16);
--AT24_CHIP_DATA(at24_data_24c1024, 1048576 / 8, AT24_FLAG_ADDR16);
-+	AT24_FLAG_ADDR16 | AT24_FLAG_SERIAL | AT24_FLAG_READONLY, 0);
-+AT24_CHIP_DATA(at24_data_24c128, 131072 / 8, AT24_FLAG_ADDR16, 0);
-+AT24_CHIP_DATA(at24_data_24c256, 262144 / 8, AT24_FLAG_ADDR16, 0);
-+AT24_CHIP_DATA(at24_data_24c512, 524288 / 8, AT24_FLAG_ADDR16, 0);
-+AT24_CHIP_DATA(at24_data_24c1024, 1048576 / 8, AT24_FLAG_ADDR16, 0);
-+AT24_CHIP_DATA(at24_data_24c2048, 2097152 / 8, AT24_FLAG_ADDR16, 0);
- AT24_CHIP_DATA_BS(at24_data_24c1025, 1048576 / 8, AT24_FLAG_ADDR16, 2);
--AT24_CHIP_DATA(at24_data_24c2048, 2097152 / 8, AT24_FLAG_ADDR16);
- /* identical to 24c08 ? */
--AT24_CHIP_DATA(at24_data_INT3499, 8192 / 8, 0);
-+AT24_CHIP_DATA(at24_data_INT3499, 8192 / 8, 0, 0);
- 
- static const struct i2c_device_id at24_ids[] = {
- 	{ "24c00",	(kernel_ulong_t)&at24_data_24c00 },
-@@ -217,7 +223,9 @@ static const struct i2c_device_id at24_ids[] = {
- 	{ "24c02",	(kernel_ulong_t)&at24_data_24c02 },
- 	{ "24cs02",	(kernel_ulong_t)&at24_data_24cs02 },
- 	{ "24mac402",	(kernel_ulong_t)&at24_data_24mac402 },
-+	{ "24mac02e4",	(kernel_ulong_t)&at24_data_24mac02e4 },
- 	{ "24mac602",	(kernel_ulong_t)&at24_data_24mac602 },
-+	{ "24mac02e6",	(kernel_ulong_t)&at24_data_24mac02e6 },
- 	{ "spd",	(kernel_ulong_t)&at24_data_spd },
- 	{ "24c02-vaio",	(kernel_ulong_t)&at24_data_24c02_vaio },
- 	{ "24c04",	(kernel_ulong_t)&at24_data_24c04 },
-@@ -250,7 +258,9 @@ static const struct of_device_id __maybe_unused at24_of_match[] = {
- 	{ .compatible = "atmel,24c02",		.data = &at24_data_24c02 },
- 	{ .compatible = "atmel,24cs02",		.data = &at24_data_24cs02 },
- 	{ .compatible = "atmel,24mac402",	.data = &at24_data_24mac402 },
-+	{ .compatible = "atmel,24mac02e4",	.data = &at24_data_24mac02e4 },
- 	{ .compatible = "atmel,24mac602",	.data = &at24_data_24mac602 },
-+	{ .compatible = "atmel,24mac02e6",	.data = &at24_data_24mac02e6 },
- 	{ .compatible = "atmel,spd",		.data = &at24_data_spd },
- 	{ .compatible = "atmel,24c04",		.data = &at24_data_24c04 },
- 	{ .compatible = "atmel,24cs04",		.data = &at24_data_24cs04 },
-@@ -690,7 +700,8 @@ static int at24_probe(struct i2c_client *client)
- 	at24->read_post = cdata->read_post;
- 	at24->bank_addr_shift = cdata->bank_addr_shift;
- 	at24->num_addresses = num_addresses;
--	at24->offset_adj = at24_get_offset_adj(flags, byte_len);
-+	at24->offset_adj = cdata->adjoff ?
-+				at24_get_offset_adj(flags, byte_len) : 0;
- 	at24->client_regmaps[0] = regmap;
- 
- 	at24->vcc_reg = devm_regulator_get(dev, "vcc");
--- 
-2.34.1
+>=20
+> "It appears that the TH1520 I2C is already supported in the upstream=20
+> kernel through the Synopsis Designware I2C adapter driver."
 
