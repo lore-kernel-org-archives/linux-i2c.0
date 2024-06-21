@@ -1,105 +1,100 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AC5014038F
-	for <linux-i2c@vger.kernel.org>; Fri, 21 Jun 2024 07:03:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7773282D68
+	for <linux-i2c@vger.kernel.org>; Fri, 21 Jun 2024 07:30:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718953412; cv=none; b=eDCY5a6Dg1ejoH0T3cHeqDgIFAFgbxMuIpwka/7X1JU3fch0Sjp4zZjWPVBjXkKfLlwgqxo2kd2eNJX0zZh0K2Hs5HKCUqSdi0EH/xYrIrJFGw9bxF97//std0gz1p9H0mVFaQbLEH7yEPExJP/gF5qAzlBsfPGj485V0NTcZrs=
+	t=1718955027; cv=none; b=fSJjzU/YDhRh9dA1ARJBNTh2TEh/6yGA3uZPzAjwOVXAA36N2kT7nA8r4b/h0XWgr5ORzypHm75B3sAUkwSjtbMVON6oaCpyAKcMOgTu3RojZye2xXMer8yEJOg+mv8UV/cXclc/IH+XRuTdc9TuLxc3BouwHk6WZVb/SfSqPvQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718953412; c=relaxed/simple;
-	bh=9YpIG0vywBEXYfiYSjXWZS4SaYwJoaD6O61rlDfXZsM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fWK7RnPTBfyIPQB+NRGaiCECfpwlRJQCvWyF7DFtntu3JakpGHpHiYs297QFijMfDUuVAdHrl2gRgEXemU3IjgmTP2r6BxxuxkHHo/x9j6bs1ebfSEdv0wk9wJt84YijWDm54m/GEepjUXPb8I0S/+JIuRC7AfjaF4SKYuTZMeU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=UYmWNYpL; arc=none smtp.client-ip=194.117.254.33
+	s=arc-20240116; t=1718955027; c=relaxed/simple;
+	bh=AaeKWFy6+MhJUSVDuiArePmxqwjpDms46lje4lfg78Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=WSoclfBRY5lXUho/d0r8PMOEN64yxtscthTPX/nRrzxtFf8ZX0SEQV/vs5qYYtfoD1p1J7iS7g3qmzxzqcYAcc3IWvqHyGMa9TUZ7Tq6Wvh89evGEvr5bLANybG4Hh/zOUY1CFpkdwa9+FoZYEcEXwJz5prmRRVu0X5a9ss6jys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=Wg0mtBT9; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="UYmWNYpL"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Wg0mtBT9"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=9YpI
-	G0vywBEXYfiYSjXWZS4SaYwJoaD6O61rlDfXZsM=; b=UYmWNYpLsZ/h0ty/oCAx
-	o/NDwZnqSRD58/nLMBxymgT9cutC7ytVfIb5EqWhTaTO6IxkclIIvuz3PscTm9yN
-	modIlTDV0sTggUrKuzFI1tdYWBFQX6zR8IswIYzVt9iPHlXwdE7SE/soJbgsZs/5
-	1gIDQ+zny8w2/kMRguBwikKsv1VPgj2Yy8C7wJEasGr/qP0RpUVQdcWsZFqT0qjv
-	tturjHksnliHbJXdqtObeSEcKo1PvNf23mQwKlSJFp0+c/f9r0qt+YDrTmGKO8W4
-	qhFxkHkqe1oKUQaV80rlpUQTXH4zw6bhpO+ef8ktxrI5u8ynJ74Da7D2e5Q8taAv
-	pg==
-Received: (qmail 1271058 invoked from network); 21 Jun 2024 09:03:27 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 21 Jun 2024 09:03:27 +0200
-X-UD-Smtp-Session: l3s3148p1@Uvc6B2Eb7tUgAwDPXzjQABqqX1QYyOSW
-Date: Fri, 21 Jun 2024 09:03:27 +0200
+	sang-engineering.com; h=from:to:cc:subject:date:message-id
+	:in-reply-to:references:mime-version:content-type
+	:content-transfer-encoding; s=k1; bh=QxN9/peWzKBlFqRmDXEKD0iHTiZ
+	lunJFWOblMthWaXk=; b=Wg0mtBT9TyelcTDA6riZbZ61STrKMj128jtojXWdlDy
+	cZGsCS4/HE6r3C5To2WPq1n3j9GVdKufVNIGHfPoxwwpkYmt++KVWSqrIClwPjIB
+	hklChVsz1gt/PhbDBpPZKA1Plk8hU90bCHWCdcKg4xQpBu+rbnrZ8K2rKVpfMz4Q
+	BIXiBXw/P0MU72PPsXGVLhACU7DcoUurSYGi3KvV9L25DjOXjdd6Iad0nQulC65M
+	SMD6wXxoTyEU1H7C+rTSdKtExeBpVMWBybKZstz9ZWXv9iYglaJvDnT6t0yyZxCF
+	3KAZPL6lefdo2qGu9np8lkfUE4xwLZ+Tav8WrGdBOIg==
+Received: (qmail 1279036 invoked from network); 21 Jun 2024 09:30:23 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 21 Jun 2024 09:30:23 +0200
+X-UD-Smtp-Session: l3s3148p1@G1uLZ2Eb0MMgAwDPXzjQABqqX1QYyOSW
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Easwar Hariharan <eahariha@linux.microsoft.com>, 
-	linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 5/6] docs: i2c: summary: document 'local' and 'remote'
- targets
-Message-ID: <o5sbb2yqwzm3p2elxgoq6atgbw62e7jwzim6trjswbbozkptc2@4yzoaqanmrfn>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Andi Shyti <andi.shyti@kernel.org>, Easwar Hariharan <eahariha@linux.microsoft.com>, 
-	linux-i2c@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20240614081239.7128-8-wsa+renesas@sang-engineering.com>
- <20240614081239.7128-13-wsa+renesas@sang-engineering.com>
- <4zxr4rlqnjqbqh3oxmd2ufqi6uk4pxa3tniuya5pgjtqi6tswc@utq4r2zt6z6b>
- <ed75fyc2xcsnwubq42eposf6ayt5aj2jmqz6mthugk6vm2zpi4@qqwlmuwayoo5>
- <y34k2k25xdr5z4v7oejp4da237s4o5qym5npihyydwlbsdh75c@vhmfl7sw3pbm>
- <7d5f800f-fc65-4fbf-adad-616d51501c62@linux.microsoft.com>
- <boehtgry7j7ulhrw7tenkmzxujahmxfn25imvb7zw2ibtmebbk@u3jryw4v2y7h>
- <cu2mkl42byhce6eytcnw7yseogbnypgtrkoirlezakwg35egdg@vjjye4ca7yey>
- <cbwamjer2rupkmyze6atgpkrszajcbhw2udb23ldl73ne3m6qr@jjs7q3codtx5>
+To: linux-kernel@vger.kernel.org
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Easwar Hariharan <eahariha@linux.microsoft.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	linux-i2c@vger.kernel.org
+Subject: [PATCH v4 1/6] docs: i2c: summary: start sentences consistently.
+Date: Fri, 21 Jun 2024 09:30:08 +0200
+Message-ID: <20240621073015.5443-2-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240621073015.5443-1-wsa+renesas@sang-engineering.com>
+References: <20240621073015.5443-1-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="5mhnob3uxzg2llob"
-Content-Disposition: inline
-In-Reply-To: <cbwamjer2rupkmyze6atgpkrszajcbhw2udb23ldl73ne3m6qr@jjs7q3codtx5>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
+Change the first paragraphs to contain only one space after the end of
+the previous sentence like in the rest of the document.
 
---5mhnob3uxzg2llob
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Easwar Hariharan <eahariha@linux.microsoft.com>
+---
+ Documentation/i2c/summary.rst | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
+diff --git a/Documentation/i2c/summary.rst b/Documentation/i2c/summary.rst
+index 786c618ba3be..28ff80a2302b 100644
+--- a/Documentation/i2c/summary.rst
++++ b/Documentation/i2c/summary.rst
+@@ -4,10 +4,10 @@ Introduction to I2C and SMBus
+ 
+ I²C (pronounce: I squared C and written I2C in the kernel documentation) is
+ a protocol developed by Philips. It is a slow two-wire protocol (variable
+-speed, up to 400 kHz), with a high speed extension (3.4 MHz).  It provides
++speed, up to 400 kHz), with a high speed extension (3.4 MHz). It provides
+ an inexpensive bus for connecting many types of devices with infrequent or
+-low bandwidth communications needs.  I2C is widely used with embedded
+-systems.  Some systems use variants that don't meet branding requirements,
++low bandwidth communications needs. I2C is widely used with embedded
++systems. Some systems use variants that don't meet branding requirements,
+ and so are not advertised as being I2C but come under different names,
+ e.g. TWI (Two Wire Interface), IIC.
+ 
+@@ -18,14 +18,14 @@ access the PDF. An older version of the specification (revision 6) is archived
+ `here <https://web.archive.org/web/20210813122132/https://www.nxp.com/docs/en/user-guide/UM10204.pdf>`_.
+ 
+ SMBus (System Management Bus) is based on the I2C protocol, and is mostly
+-a subset of I2C protocols and signaling.  Many I2C devices will work on an
++a subset of I2C protocols and signaling. Many I2C devices will work on an
+ SMBus, but some SMBus protocols add semantics beyond what is required to
+-achieve I2C branding.  Modern PC mainboards rely on SMBus.  The most common
++achieve I2C branding. Modern PC mainboards rely on SMBus. The most common
+ devices connected through SMBus are RAM modules configured using I2C EEPROMs,
+ and hardware monitoring chips.
+ 
+ Because the SMBus is mostly a subset of the generalized I2C bus, we can
+-use its protocols on many I2C systems.  However, there are systems that don't
++use its protocols on many I2C systems. However, there are systems that don't
+ meet both SMBus and I2C electrical constraints; and others which can't
+ implement all the common SMBus protocol semantics or messages.
+ 
+-- 
+2.43.0
 
-> > The refactoring only affects "master/slave" not "adapter/client". We are
-> >=20
-> > aligned here, aren't we?
->=20
-> Yes, of course. And I'm not really asking for the totality of the
-> "client"'s to be replaced, rather than, when replacing slave, to
-> choose "target" over "client" whenever possible(*).
-
-Okay, phew, seems we got it now :) I'll send out v4 today and probably
-send it to Linus this week. I want this base work to be upstream ASAP,
-so we can base further work on it.
-
-Thanks for your input and cooperation, Easwar and Andi!
-
-
---5mhnob3uxzg2llob
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmZ1Jb8ACgkQFA3kzBSg
-KbaPXg//QldHT5fYSnWzc0KZgm0U6+CGlWXYHzQgIvHzGmo4NjKL0OnEsD2hTNly
-j9eainm2OTjb1+3YrKclLIlx+paQJxVpU6TVBRa9b/CJX+j1Ub/JZu+AcO2lW6xg
-dx1Iq9LQlKxFzfyzyqRy7r2UorQwvnDWWdw0DaKdhUDufJxK5jIiR0s/BMlrgsyr
-K6EoIxHgJDESmRd3xzKo5rgC0vcD83Iwts1RAihuUrh6c8Wjz+xPgyhECtbH09rZ
-kkvRuzwYuWas+0CX/WQNpK2S49HZTmpI5PcTmn3WAIrStfW0jmFfofkpVBvOj0Wz
-T+ZKTZegE/GrUP5UBEHHkim8fjeLYj4lT8JCR8R1fOp6GVrvVlzj5VBmuAMOcPmG
-OOV9gUpfOmZpSbVdr8amMcbwpZ+epwZiRZnernj9klT0EgUfFZt5tb6oLWZSb0LF
-rAGL3V7txa+396EzIiLLseBJv6AxVBVqHj/yCpy+D7vRCe00QcPi2bkzEe/wLEvE
-jaoZuGhNrXTGKVifwMNY8/JG2Fwrq+OYzy2f+WBNzGE5qCC0a6K3/U0vqQ2tUB7i
-hg50MqNQ3ha7+F5TCA2aSHsIsVDb/mzliLw+4WBv8+1CPue92jep0FXlw05gOGDx
-EEgb3Rl7Gf4ywPwvsDnnUVmvG/q12F3kqHn/nYjD21ePaN5n0Ag=
-=x9EZ
------END PGP SIGNATURE-----
-
---5mhnob3uxzg2llob--
