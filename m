@@ -1,43 +1,46 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC20B39ACC
-	for <linux-i2c@vger.kernel.org>; Fri, 21 Jun 2024 07:30:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4048F14D449
+	for <linux-i2c@vger.kernel.org>; Fri, 21 Jun 2024 07:30:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1718955028; cv=none; b=NNJEMdp5qKHzTR4q/QLyX8Hq4b2PT+6VimLyBUPpiecwbqP6Z9iaP7V7eFMgEqiEJcpqq/B41uFSivta4tItUb0plAV5SqXKHiYIBS7oCexB1FjkLGm7BMyZZapYwtfMs8eYEnXCJbBOqVdsQd5N/mCZYTjU60oput+U2Myxmqk=
+	t=1718955029; cv=none; b=jsLsorayjZ0Hjn8bVTZoZbJg7a2YnwqU7sw0LFyhaqb0aL5YS+hFF4CaE8vtRGF8d2kV9lw/gZNsr05XnSWTnPInaaWfnXFGNZ4XsanjXjExIroeMmuUUW4D5QE2UQxtI/Oa0NqFS4Pv6B7BjhooQOuZCwffU66fh3T2VI1I1p0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1718955028; c=relaxed/simple;
-	bh=LB4QOi9LK6GONrdmJpUg3ByUIohmjdLTvvzGHevTlik=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Z+u8Vvz2HJRhK/SSH03P034AaMgvC9jHAAnrWrPsKFL/5TMQ4RSrd5+blNEG3xRyKYyAHnunRdKGUWBPQXgPBLzGcoIAPvHfGW0lN71eWKfHyK4bmKFlXnbqM1iA/v9biYbt1tGOB0zk42Rbip2k6iJvgNqfS9Qa/CvLfQIZ44E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=QolgJBCA; arc=none smtp.client-ip=194.117.254.33
+	s=arc-20240116; t=1718955029; c=relaxed/simple;
+	bh=tLa3YjKzTjbALrEqcR62zhXe0F7RUglCnTOQTHelM9A=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=r8xQk3TCxbhgFB42+gqolxB8d3KKWIDKN5waLMXBa8b8F60nLOJX6GgxTRJIRp9PcO37W9zQAj+sdiZ0uhR99+LQO24IfAf9rO5Mr7qMsNXVGTWn+CmiN8Om3+hygor1aNaD7uea/HzG+RJqDd9K5hXRYJW/bKjyfx4NTmOXGbM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=e5da2N5a; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="QolgJBCA"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="e5da2N5a"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:mime-version:content-type:content-transfer-encoding; s=k1; bh=K
-	+6Hqt9y3xI51edpmWC25ugnY/P75Ez8oab3G5r0Nb8=; b=QolgJBCAT3OS+BhsH
-	kgwbZA09RAfAlPUc7b9EhF01hUthI2Gq0ZHrAf9wmc80fN8P//EwrdWqb9xcmKVY
-	h4Emv4OfP3HmUH7b36r3lb9bSdyrV1HMEYLnYTukRqmI8sH2oM8Mlxf7dsyidHJU
-	n78RKcCjoDEQ89hX+AIwLz7kAGY2QKBCpJ/pFbLSGac/a5pK7R2KEjHyZCavQGZm
-	Y8qcA3fsuFkag4OvW9Yn0bf3KAsrvoEqz8j8oKBUF698MhuMgQuhT3r2A4LfJUTL
-	/fkZmhmHiyrW/ruo9itK2d9ZSO7+wzwb9mrjKGP8Z/GM4krVWw+RmwghwAuhtL4Z
-	fk6yQ==
-Received: (qmail 1279008 invoked from network); 21 Jun 2024 09:30:22 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 21 Jun 2024 09:30:22 +0200
-X-UD-Smtp-Session: l3s3148p1@X8l/Z2EbzMMgAwDPXzjQABqqX1QYyOSW
+	:in-reply-to:references:mime-version:content-type
+	:content-transfer-encoding; s=k1; bh=ns0TUqgMIMc2G1ba8motoRRT6bt
+	z+ty/Oyg8gP8SWmY=; b=e5da2N5atOPx9sU3HnbguoDU4x5iKVRPkVDDDEpkwqK
+	HiHr5/qo1NyhMdC7ZFGP1l4nyBrQ4Bl8zceH3ze4/zsaZLtJVZExLd0OcKPeZLY7
+	ABAEm0iSVfhE88OP5WB1ZwBuRf+oG70iJXj0zGbcnJi3TarvrlKV6NA6K3U50yK9
+	4zvR7Pkeidg7aGuAVEjMBakop8ISfFjQvXEaiT74LRrS1H98474Nha97hU09ZR2x
+	uVR0zx1iKUWMbcwIB3vkFs0MtW7+aIyEgW8AVnYujhaCAie9kkos9Ok7U8stIymt
+	4Gf0KWZqSXZZObSm/cYDI4KdqqgREOOsCnMuPzMv1xQ==
+Received: (qmail 1279065 invoked from network); 21 Jun 2024 09:30:24 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 21 Jun 2024 09:30:24 +0200
+X-UD-Smtp-Session: l3s3148p1@ZFyXZ2Eb0sMgAwDPXzjQABqqX1QYyOSW
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-kernel@vger.kernel.org
 Cc: Andi Shyti <andi.shyti@kernel.org>,
 	Easwar Hariharan <eahariha@linux.microsoft.com>,
 	Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	linux-i2c@vger.kernel.org
-Subject: [PATCH v4 0/6] docs: i2c: summary: update and use inclusive wording
-Date: Fri, 21 Jun 2024 09:30:07 +0200
-Message-ID: <20240621073015.5443-1-wsa+renesas@sang-engineering.com>
+Subject: [PATCH v4 2/6] docs: i2c: summary: update I2C specification link
+Date: Fri, 21 Jun 2024 09:30:09 +0200
+Message-ID: <20240621073015.5443-3-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240621073015.5443-1-wsa+renesas@sang-engineering.com>
+References: <20240621073015.5443-1-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -47,28 +50,34 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-The main motivation for this series is patch 4: switching to
-"controller/master" when defining the I2C terminology. This sets the
-base for further improvements to inclusive language within the Linux
-Kernel. The other patches are improvements found on the way.
+Luckily, the specs are directly downloadable again, so update the link.
+Also update its title to the original name "I²C".
 
-Changes since v3:
-* reword "Synonyms" paragraph in patch 6 to be more clear
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Easwar Hariharan <eahariha@linux.microsoft.com>
+---
+ Documentation/i2c/summary.rst | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-
-Wolfram Sang (6):
-  docs: i2c: summary: start sentences consistently.
-  docs: i2c: summary: update I2C specification link
-  docs: i2c: summary: update speed mode description
-  docs: i2c: summary: document use of inclusive language
-  docs: i2c: summary: document 'local' and 'remote' targets
-  docs: i2c: summary: be clearer with 'controller/target' and
-    'adapter/client' pairs
-
- Documentation/i2c/i2c_bus.svg | 15 +++----
- Documentation/i2c/summary.rst | 79 ++++++++++++++++++++++-------------
- 2 files changed, 58 insertions(+), 36 deletions(-)
-
+diff --git a/Documentation/i2c/summary.rst b/Documentation/i2c/summary.rst
+index 28ff80a2302b..e3ab1d414014 100644
+--- a/Documentation/i2c/summary.rst
++++ b/Documentation/i2c/summary.rst
+@@ -11,11 +11,9 @@ systems. Some systems use variants that don't meet branding requirements,
+ and so are not advertised as being I2C but come under different names,
+ e.g. TWI (Two Wire Interface), IIC.
+ 
+-The latest official I2C specification is the `"I2C-bus specification and user
+-manual" (UM10204) <https://www.nxp.com/webapp/Download?colCode=UM10204>`_
+-published by NXP Semiconductors. However, you need to log-in to the site to
+-access the PDF. An older version of the specification (revision 6) is archived
+-`here <https://web.archive.org/web/20210813122132/https://www.nxp.com/docs/en/user-guide/UM10204.pdf>`_.
++The latest official I2C specification is the `"I²C-bus specification and user
++manual" (UM10204) <https://www.nxp.com/docs/en/user-guide/UM10204.pdf>`_
++published by NXP Semiconductors, version 7 as of this writing.
+ 
+ SMBus (System Management Bus) is based on the I2C protocol, and is mostly
+ a subset of I2C protocols and signaling. Many I2C devices will work on an
 -- 
 2.43.0
 
