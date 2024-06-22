@@ -1,70 +1,71 @@
-Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com [209.85.167.50])
+Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com [209.85.218.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6414D524;
-	Sat, 22 Jun 2024 22:50:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F155D524;
+	Sat, 22 Jun 2024 22:53:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719096647; cv=none; b=uzZjshx5QYUQHAT9Z0v5Xv+5CroBgY8MYGc6Tib1mmhaJ5jGPAvxzItlsV8sHT2mT8u3pKQdyjU29DplA1jMk+z+/eo7BfiKNm/MGQDOqUecbZsm7ty2aLkpCroV2GbEZVV3n5t8kYbKV4OHQdEOr+ICyDQwVyC0Cmd9VRi6SOE=
+	t=1719096832; cv=none; b=UwokrtcjB4+6xwVGi6GtbaUheLG+MZVTCZboXZ/deMkaRbi7KtuuT6UGZdb89uXkB27OrlhAO/d9nwob2bu2dxF+bAB6koaMc0aFn9uj6lq2QyU+SvXTrkWj1HgEwTDpvFIxU3nhsncMUytmpGS5WzWCAeirkSzmThWnRoOVUXc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719096647; c=relaxed/simple;
-	bh=B2m3LP+Y+ePM15jnmHfY7MEsmC/Z4ycQS/bp52qHAG4=;
+	s=arc-20240116; t=1719096832; c=relaxed/simple;
+	bh=cOq8mO7E+QuGJAAGeHnapZie7NJGIDwH6RxdzUsOVEU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HvgKeqa8ziG8Evc7g6JDtVujNhxw+OQRaIVC9Qhf4ufsppGGqTMwTYZ+I0ocYzsfDRlBOWE7kcWCHP3c72EpxYC3NNI3UBRlUto6L69BqVlRwPjG2ouORHiJChzmryNeLZsX2vD6wbye58NaOfr52/2UbMQCZBcyL0F8KyFqANU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DeE2p2vK; arc=none smtp.client-ip=209.85.167.50
+	 To:Cc:Content-Type; b=R556ywA8s4ZvuT38e4e/TZabzycFHIYQ9Gdu0WwHaijfZaWxQlBi9lqz5LSB781Ezdn1Ti/Vw9VSF+Z0PhEfIA7ClpEQjAPqQff+3pQENV1HM9fpMyv4w5uIQmZlnyD6h7NZBHMhTlZBwqcZ7yHI5MsJc777E18jHQuQdQPfyE8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AEFER2rZ; arc=none smtp.client-ip=209.85.218.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DeE2p2vK"
-Received: by mail-lf1-f50.google.com with SMTP id 2adb3069b0e04-52cdea1387eso782791e87.0;
-        Sat, 22 Jun 2024 15:50:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AEFER2rZ"
+Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-a724598cfe3so33065166b.1;
+        Sat, 22 Jun 2024 15:53:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1719096644; x=1719701444; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1719096829; x=1719701629; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=B2m3LP+Y+ePM15jnmHfY7MEsmC/Z4ycQS/bp52qHAG4=;
-        b=DeE2p2vKCnKGWrY9DXTLXZRo5scCgpP34sSDc3f5DJDJ3xPRRQyj16A8ehWnyRqES4
-         3qSGBSIyTVXEfwzl/gLbEnGiG2jnDqZjjq5kFhx75UbpNooQGomiUc2D6Rc8kaY0SDrL
-         5Ldf8K1Z6bD4SH1zVvuw3A/4z4ZTNn9Cf9w9iK5ZzRG9AjafhvbnSLFaLnE6vXiIvTab
-         irI4/oldb3sSsRGs9GCATUsidATRTpmN8pi6GsgoQ4gNP9ZmwpF/89UQBsOQw5dwtxwV
-         KtY8lOXIEDvr34a2hnSG2lVoacM4Z+S00MsCOB37WpXJaDMJHtQiCYKyTN7EgVkUuCEg
-         YS4A==
+        bh=L9ZounZ//goHyVCVfJ7WUDEuTLEJUqUCtI3ROtjC7TQ=;
+        b=AEFER2rZOQ43TVnl3dPd/a5hfJPu3mXzFG3D1XArFxs0XOC7tQZD6BpFzGYXHZ9jQV
+         KygT6bbBga51+d7rykE/JtCVY2TD5NyWUj3gSt6AiV8m8y9GvXVH/YJHFENqVipZYYxF
+         BW8Y5YssflJJrXyoYrarImxZt1Oey6TCAP677goaJZdyuib1TmLlT/Ny4d7kjyaiX7SG
+         GsOUquoRBJKeS9h/Fo78q2iYAT2Wyb9WdupyNznJ/dIyAcWLDKJmPPwxmQfI3nBNLMN9
+         rLpZPgirfcowp8KM5x1Xq0k4PQfTqPpJTK0ZmOV22KwGhMwWA1Q1cZSVpfW7m4/Vocgi
+         Mj1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1719096644; x=1719701444;
+        d=1e100.net; s=20230601; t=1719096829; x=1719701629;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=B2m3LP+Y+ePM15jnmHfY7MEsmC/Z4ycQS/bp52qHAG4=;
-        b=Tx7JsFDeE0o70ZMU4OlF7/pVe2jnCGXR1YPc8vTD9t0+fExCJcLWd7VcAtQFWl9kQL
-         ONwT+CNOmCSqAJy6dKz9U3RLeq7wIQ/Ly5e9x0KYlZALQ6h4cDZMn3TETmcj0J2cAF0h
-         oGrk+Ccezj+feAXcP6Xdtf3B8hEEP12TE8jmq5GgdRCAfXgI25OOMJKvnmzausySq5MI
-         7FnvHOGry6kekhZ2qg8cWs8NHmNkP9TCv3nV0HLy1KXDuChxEFpu0Orn0Sqwvip1OY+K
-         InxsAQQroQs3dn2KMaIx7um1hZV6NBAxx4PqvkQMf5fAmijLls8PfURLO4l1xHliAMNf
-         K4nw==
-X-Forwarded-Encrypted: i=1; AJvYcCV1IeP3aH0zbuxyrmcpMxEDMZeVxWvB5Sq7z1qe4DmyN35xnDlBsq+CK5lkXkSSpjjxHGOI/ElXHpVyIqPvQEtQyLG6hS4gwP303pwVwK1EWQEj+h9uOJBF2miswTwdPfBZ5PewJNBzjhzqW7RreA==
-X-Gm-Message-State: AOJu0Yzq9D3ffRhXvi18+B9LlR5cOVj2hUnLzqZt+a4dD5MfQCiG/2tS
-	8GSm5zXOsokgb8PROIK69DUVOwB5mLiVUDb1UkzJq+xkBZXurf50vFuD9mlx55VwaeB7SOxwEVH
-	j2IKwkDNdVf5QHdr0kszGln5bTn8=
-X-Google-Smtp-Source: AGHT+IH8JHrvcLY3Aouxs1PuAFreUd25xWPj1iI/ODsj8DEOm7EG4m3q3nJRV+fxIKnQ6iYJYtYJt0wJWqzAilOn+2s=
-X-Received: by 2002:a19:435b:0:b0:52c:df8a:df4 with SMTP id
- 2adb3069b0e04-52ce1865a2emr341072e87.69.1719096643719; Sat, 22 Jun 2024
- 15:50:43 -0700 (PDT)
+        bh=L9ZounZ//goHyVCVfJ7WUDEuTLEJUqUCtI3ROtjC7TQ=;
+        b=KzeZdMJo5fDybx795G/mABAWAQ8Akioqlg87u4blch3YM3xT4jaRHA4f7rUurYpWSg
+         63XChyQABoZ0YxHv6XxpqbDXqpcAeo4w8Zm/Uii7119/iDUDxFh7vUjP1OvXYXUc25Ta
+         BxkGt9hwGVsnONZBUlrT2VSrDkOhkyyya2UAotakEjD1rBz6zQAMQgk6PooX0YLUUZYq
+         RfFEC5Ntt7nvC1hCCwygnjAJzG+s78tqshjfhM5MFJmbW4Sap5dLK05HODkxeRH5qIyc
+         Qtbn0E+o8nPVrjfVaS9d7AJnPlsIbcdkNaNuTb1lWBwx8rG5saN44kebtS9C3MVRULf2
+         GkUQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVcLSyNPxKSpOtZ0pLzyOx0BDsaEaR2fWl2q7HWJS9VCMhzOIjE/vPNRqh9b7GNERl8IYtPkK9FGMSCe7yuIiLJCJrTfT9QQPoRP/DiRMnDtg8qQ0tq8UVaUlfQfZMM2PJ4wW2uTMt7CBeL/lCh7Q==
+X-Gm-Message-State: AOJu0YzcQ03udIHuTv/WUS4g5DswMgTkc2D9Fk8K813N5OvQmzRogZHh
+	VeGHTMOa10OA+DdMVI+U5fl/9/aFUNeCGIALEHRxdM68ThlKLjVN257kNvRdsHpMBb0UaH7MUPg
+	C33mDdfOUoHOfCAoNgFn7gF851ZM=
+X-Google-Smtp-Source: AGHT+IGo0CjDpzUpQHhJ6AUNkJILHXMrwcFbgSilt+fDLv4bsDzK/UsPJTAEdKQ2OOJ0xYn4VibjOgPhc25KZ9HTWcU=
+X-Received: by 2002:a17:906:299b:b0:a6f:4e1f:e613 with SMTP id
+ a640c23a62f3a-a7245be799dmr56694266b.37.1719096829141; Sat, 22 Jun 2024
+ 15:53:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240621122503.10034-1-hdegoede@redhat.com> <20240621122503.10034-7-hdegoede@redhat.com>
- <20240622133237.b5xsetcxnfu4vu6u@pali> <fbc82ede-f23d-422e-ac76-7363e84764ee@redhat.com>
- <20240622145057.ab7lsp3dtkjge6vd@pali>
-In-Reply-To: <20240622145057.ab7lsp3dtkjge6vd@pali>
+References: <20240621122503.10034-1-hdegoede@redhat.com> <20240621122503.10034-4-hdegoede@redhat.com>
+ <20240622131650.qxoxtp6aaitpar6a@pali> <ffbb42d9-f6c6-456e-8427-0c75c2a2e90d@redhat.com>
+ <20240622142015.7cfl2onabpr6kl6r@pali> <20240622164349.fycelzxcd45j4g22@pali>
+ <CAHp75VdVhiMN7TN-OwF=9ahv9W-2Yk+k=V5DvQGhTpUuR-b-xg@mail.gmail.com> <20240622225025.s7tbfb66pnhavqw2@pali>
+In-Reply-To: <20240622225025.s7tbfb66pnhavqw2@pali>
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Sun, 23 Jun 2024 00:50:07 +0200
-Message-ID: <CAHp75VeRpkgoGEoeK+vskDcsyZ6jSMsnDhU6bwS66TH9-MHy7g@mail.gmail.com>
-Subject: Re: [PATCH v3 6/6] platform/x86: dell-smo8800: Add support for
- probing for the accelerometer i2c address
+Date: Sun, 23 Jun 2024 00:53:12 +0200
+Message-ID: <CAHp75Vc=7VtTLUEMoty6kjQxarH_b2mQ8KZk1ova40ZiiHOWKA@mail.gmail.com>
+Subject: Re: [PATCH v3 3/6] platform/x86: dell-smo8800: Move instantiation of
+ lis3lv02d i2c_client from i2c-i801 to dell-smo8800
 To: =?UTF-8?Q?Pali_Roh=C3=A1r?= <pali@kernel.org>
 Cc: Hans de Goede <hdegoede@redhat.com>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
 	Andy Shevchenko <andy@kernel.org>, Paul Menzel <pmenzel@molgen.mpg.de>, Wolfram Sang <wsa@kernel.org>, 
@@ -75,50 +76,55 @@ Cc: Hans de Goede <hdegoede@redhat.com>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.ja
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, Jun 22, 2024 at 4:51=E2=80=AFPM Pali Roh=C3=A1r <pali@kernel.org> w=
-rote:
-> On Saturday 22 June 2024 16:21:28 Hans de Goede wrote:
-> > On 6/22/24 3:32 PM, Pali Roh=C3=A1r wrote:
-> > > On Friday 21 June 2024 14:25:01 Hans de Goede wrote:
+On Sun, Jun 23, 2024 at 12:50=E2=80=AFAM Pali Roh=C3=A1r <pali@kernel.org> =
+wrote:
+> On Sunday 23 June 2024 00:43:17 Andy Shevchenko wrote:
+> > On Sat, Jun 22, 2024 at 6:43=E2=80=AFPM Pali Roh=C3=A1r <pali@kernel.or=
+g> wrote:
+> > > On Saturday 22 June 2024 16:20:15 Pali Roh=C3=A1r wrote:
 
 ...
 
-> > > Have you communicated
-> > > with Dell about this problem?
+> > > Definition of the table can be simplified by defining a macro which
+> > > expand to those verbose parts which are being repeating, without need=
+ to
+> > > introduce something "new". E.g.:
+> > >
+> > > #define DELL_LIS3LV02D_DMI_ENTRY(product_name, i2c_addr) \
+> > >         { \
+> > >                 .matches =3D {
+> > >                         DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."), \
+> > >                         DMI_MATCH(DMI_PRODUCT_NAME, product_name), \
+> > >                 }, \
+> > >                 .driver_data =3D (void *)(i2c_addr), \
 > >
-> > Dell is on the Cc of this thread, as well as the previous v2 posting:
-> >
-> > Cc: Dell.Client.Kernel@dell.com
+> > I'm not against this as we have a lot of different examples similar to
+> > this (with maybe other types of ID tables). But what makes me worry is
+> > the use of (void *) here. Shouldn't it be (const void *) so we exclude
+> > the (potential) cases of dropping const qualifier?
 >
-> And what do you think, that if you send tons of long emails with C code
-> to lot of recipients and add a carbon copy of all those your emails to
-> some corporate group address, that somebody on that group address will
-> read every one paragraph of every your email and tries to detect in if
-> there is not hidden some question to which you want to know answer?
-> No, with this behavior you are going to be put on the corporate
-> spam list by automated systems.
->
-> This looks like you just wanted to mark your personal checkbox
-> "I sent email to some dell address" and let it as is.
->
-> In past when I sent private email to dell I normally received responses.
-> Also they said to me that group address is (or at that time was)
-> monitored.
->
-> So it would be nice to start communication with dell and figure out what
-> is the current state of smbus address detection via ACPI/WMI/DMI/whatever=
-,
-> instead of adding this hacks via poking of smbus addresses.
->
-> And in case the mentioned group address does not work anymore there are
-> still other linux developers from dell who could be able to figure
-> something out.
+> I do not know what is the best way here for casting short int to void*.
+> For me it looks strange if such casting is needed. Anyway I think that
+> in any case casting 16-bit short integer to const void* does not produce
+> different result as casting to plain (non-const) void*. It is not about
+> const qualifier but about integer-to-pointer cast, where is dropped
+> everything to that integer type.
 
-I would put it as "does Dell care about Linux?". If they do, they
-should react to the messages in the Cc list. I was trying, for
-example, to communicate with Relatek on some ACPI ID matters and
-despite having tons of active developers it was no help. They
-evidently don't care, so why would I?
+You missed the long-term issue with macros like this. If we ever go
+away from an integer to a real pointer, it will be easier to make such
+a mistake. using proper casting will prevent you from doing that.
+
+>
+> > >         }
+> > >
+> > > static const struct dmi_system_id smo8800_lis3lv02d_devices[] =3D {
+> > >         DELL_LIS3LV02D_DMI_ENTRY("Latitude E5250", 0x29),
+> > >         DELL_LIS3LV02D_DMI_ENTRY("Latitude E5450", 0x29),
+> > >         ...
+> > >         { }
+> > > };
+> > >
+> > > Any opinion about this?
 
 --=20
 With Best Regards,
