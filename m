@@ -1,36 +1,37 @@
 Received: from phobos.denx.de (phobos.denx.de [85.214.62.61])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2ECDFD268
-	for <linux-i2c@vger.kernel.org>; Sun, 23 Jun 2024 03:18:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27926D518
+	for <linux-i2c@vger.kernel.org>; Sun, 23 Jun 2024 03:18:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.62.61
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719112719; cv=none; b=ixiCuRtBtY2lsx/gVAHaZWSVKypEhqA7WPaslGUvP26KTdZSFVs9RCLRODIbcyOpG4oEJR+VzVHmC8/r5A6P86gNq7xzmNv2KURd6V7PC0+bRFhZQMOkx+3yoiJOSlpoPz7QkPh41rBInrSSBFe7dRVAJkNyceioSxL5UJdYswc=
+	t=1719112719; cv=none; b=Fiy13nbR5sGAQvtOiKt6DuS6nlMa0zkVtwTDChx7t0sI6Lldfznaqv5Ksw3aaFouWdf+KQnrLi7ntXtkLlg8K/Fn7o4PYIofX3zl0mp/uDyyTuEVOaoQZ4NxPmmhPw3lT9ZNIj1ecAMvQ3WaIkeGS5lpGRf/yTuO4bmvvQDzbhc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1719112719; c=relaxed/simple;
-	bh=gADv2+Pyee86Nh3L0QY5TGM8W96BrhLANeNaDNj6ULY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dMzMZ0L/JzZ8yFLiEoWHPPKiqOCF8uLjwfPdE6hYTueiXHdwQQ7g4rDloT5gmqV0pczL4zgZ4Ya2MtE7DuNFe/a57u+Gx61VF17vPQUsy99bJSlwVO41l3GSCGQCW55lulDrT1QSd7cEnq/10IFLCv28hOfvKwUqQDUpX3D0jxc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de; spf=pass smtp.mailfrom=denx.de; dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b=g50AiUx2; arc=none smtp.client-ip=85.214.62.61
+	bh=tSlD8kIR9c+Gypj5k24Lz8NnNyHGq7biHSldyLbJ9bI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Qbjkv+e2vkTOy9si6ozYZrtwE97jD7YWXeBaGqIx/rosriWT/GO0cWLbBhPvOSe31oCeJJ2XU7F+K6P+70RRr5JLVL/PLOsrdgk87hz7ory/H/PP3O7r3ileUJDbmCcctE0Bn7N1zWcgT0uu0tbJb+pnOOpNFaO8E2Q9Hrc9M4M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de; spf=pass smtp.mailfrom=denx.de; dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b=NNjB4JII; arc=none smtp.client-ip=85.214.62.61
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=denx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b="g50AiUx2"
+	dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b="NNjB4JII"
 Received: from tr.lan (ip-86-49-120-218.bb.vodafone.cz [86.49.120.218])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
 	(No client certificate requested)
 	(Authenticated sender: marex@denx.de)
-	by phobos.denx.de (Postfix) with ESMTPSA id 88E1187572;
-	Sun, 23 Jun 2024 05:18:28 +0200 (CEST)
+	by phobos.denx.de (Postfix) with ESMTPSA id 9C56188231;
+	Sun, 23 Jun 2024 05:18:29 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
 	s=phobos-20191101; t=1719112709;
-	bh=NAb9lbBPTrKgT+x8KnblGvszN5C3f+goUvG/SFIzZjk=;
-	h=From:To:Cc:Subject:Date:From;
-	b=g50AiUx2kfjf7FjgnNqWSER1Joa2WUZx72KbfiRuxnFMzVU/AuCewF8fKFkOVQ3Bo
-	 TcOEoIOSvV1tIX3O8c6LUfvfmTOWzNOojecWCuhiPby6ooMB9b9eB4X6Az06P/1uIT
-	 6TFyZGGwCf5GgcTIGvmd5WykOJRgfG15xycoWf4Wprknx6sTE2Gai50MtMjOCfl4cM
-	 /7jy6BubjOiHQ46hRGPJJNRveUOGQDdy46XnHI4LLYFzzgXPWoVZahSj/gSAnjRJgI
-	 kqQheA6gLnm5dilDjkQoI8U3gfHaEzx+dXBpjY3bAg56aelJNeXJFWTeqbyIXd4uS9
-	 Pg2QybEosokBQ==
+	bh=Z/1i1s1v006Ysash4YexMENshfCgULNMSzbzpHn3xpA=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=NNjB4JIIS+HJww4FAzXElmVghBsTYhRaMY8bd4I/J48xelbRQ9GrSmjIcJeuErePi
+	 kuvdgpwPD8qRyKoRhgko/9Yv+ThNJ6DbU5RqmGc29vqdxpOzAt7FL+SgcbQY4IkJgb
+	 XGFzFGEB7JLPRKL9zCLXjBtMtaoM4LwWnudzwT4KTS7LXB6g3G5+W7qvqppZhoeUrQ
+	 F4DxVv8VdNe045sy+PCmDW2Wmc1+Zz6/QhG54wFTLZfeK+/gotKw/Gyg8GVPYqRQoo
+	 Y9h128fgwz83e5ge8OKuFcyI9jhwtE9nt4k8hUcEbXxNBlN3HbH8AOS5/0WZkGylnH
+	 PrvoJB8ClSsow==
 From: Marek Vasut <marex@denx.de>
 To: linux-i2c@vger.kernel.org
 Cc: Marek Vasut <marex@denx.de>,
@@ -39,10 +40,12 @@ Cc: Marek Vasut <marex@denx.de>,
 	Bartosz Golaszewski <brgl@bgdev.pl>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH v2 1/4] nvmem: Replace spaces with tab in documentation
-Date: Sun, 23 Jun 2024 05:15:44 +0200
-Message-ID: <20240623031752.353818-1-marex@denx.de>
+Subject: [PATCH v2 3/4] nvmem: Use sysfs_emit() for type attribute
+Date: Sun, 23 Jun 2024 05:15:46 +0200
+Message-ID: <20240623031752.353818-3-marex@denx.de>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240623031752.353818-1-marex@denx.de>
+References: <20240623031752.353818-1-marex@denx.de>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -53,8 +56,11 @@ Content-Transfer-Encoding: 8bit
 X-Virus-Scanned: clamav-milter 0.103.8 at phobos.denx.de
 X-Virus-Status: Clean
 
-Replace two spaces with tab in the sysfs attribute documentation.
-No functional change.
+Use sysfs_emit() instead of sprintf() to follow best practice per
+Documentation/filesystems/sysfs.rst
+"
+show() should only use sysfs_emit()...
+"
 
 Signed-off-by: Marek Vasut <marex@denx.de>
 ---
@@ -67,21 +73,22 @@ Cc: linux-i2c@vger.kernel.org
 ---
 V2: - New patch
 ---
- Documentation/ABI/stable/sysfs-bus-nvmem | 2 +-
+ drivers/nvmem/core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/ABI/stable/sysfs-bus-nvmem b/Documentation/ABI/stable/sysfs-bus-nvmem
-index c399323f37de3..854bd11d72ac4 100644
---- a/Documentation/ABI/stable/sysfs-bus-nvmem
-+++ b/Documentation/ABI/stable/sysfs-bus-nvmem
-@@ -1,6 +1,6 @@
- What:		/sys/bus/nvmem/devices/.../nvmem
- Date:		July 2015
--KernelVersion:  4.2
-+KernelVersion:	4.2
- Contact:	Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
- Description:
- 		This file allows user to read/write the raw NVMEM contents.
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index e1ec3b7200d7b..b31abffcdfc00 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -179,7 +179,7 @@ static ssize_t type_show(struct device *dev,
+ {
+ 	struct nvmem_device *nvmem = to_nvmem_device(dev);
+ 
+-	return sprintf(buf, "%s\n", nvmem_type_str[nvmem->type]);
++	return sysfs_emit(buf, "%s\n", nvmem_type_str[nvmem->type]);
+ }
+ 
+ static DEVICE_ATTR_RO(type);
 -- 
 2.43.0
 
