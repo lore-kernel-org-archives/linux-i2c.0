@@ -1,234 +1,102 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from phobos.denx.de (phobos.denx.de [85.214.62.61])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3154619E827;
-	Thu, 27 Jun 2024 20:52:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EFDF199E93
+	for <linux-i2c@vger.kernel.org>; Thu, 27 Jun 2024 23:38:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.62.61
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719521530; cv=none; b=MnHxM2XCNwAG6BVGfiaDBZVMsN4OkkhETfBeufnjsKYi2cJoQpkiKNZLkm6F+hYdnirAqps2+Foz7QgyqFUKvleyZQOuCHt0rF2KueDGZd2b+KwYSBbZo3spw/exPwHksI4nMn1i28gguTKK1LKySlES7vEhqZdxFFHVOPKJkFE=
+	t=1719531488; cv=none; b=GQDm1KIfyaPnhvttSdQdweIASAwkFFCh95W55KVHFxZTHuOM9v4u0+xXOOSJbSqs4wQy9EmouuEbN//Z5+6qpnTmGI/gnqi1M7nQkWNV+Z37QJ92A8Kb4Dx9LOyqfV/ZAZZGrZfuvX6+YZFICG+Tt8tjvKJQIWGFM72Psp0Cok0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719521530; c=relaxed/simple;
-	bh=5Vyce4zAfgV6w1pp20rVTEDgRdD2Xvdyh3QIPHWLvM8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ugRYauJai9asLveAJxXvOVu884NfrNZ06s3ULc6B3MFXXRlcLOj3PRqFquyKZFBBDV/GJ7Rej/xPWk4yH77ts9l8YsEfgilBjBY0ESmZQXQqtztq/H49grA83t0DP62a3ujn9nSFlJWUp9OCWSeUjfC85kvDihGeyV9bHl5A0pQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YB9+zb4f; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1719531488; c=relaxed/simple;
+	bh=9K90ZzJ/N4giFuPOWS6D+T2pwBx80OAaZvgQ9BWojYI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=dec3gviCPagLfB85oPaIOPt4B4PAuw5VxTfZ2lNEICHLdhJ2JVYlJ+3Yn7ycPUFszgCYBGhLwJwJvGVF8S70jLV0iuM/KJRKB6jtHAxwKZBJrmSWGnBam0RX5h8oZkYpB8koFB+u6OjDFgNN/w+UcyZrC9X2ha5zNWUyzX7CJl8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de; spf=pass smtp.mailfrom=denx.de; dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b=MpCylN/L; arc=none smtp.client-ip=85.214.62.61
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=denx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YB9+zb4f"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B40C0C2BBFC;
-	Thu, 27 Jun 2024 20:52:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1719521529;
-	bh=5Vyce4zAfgV6w1pp20rVTEDgRdD2Xvdyh3QIPHWLvM8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=YB9+zb4fy/LqQzIgsBPmOperiqxnf1JPNL3XS8J+X33MBU2A3KTvIceo6iHMpM6R2
-	 S1xhgzD60JQ4+KL8CuXH+nBXMtBcpeMEo9MKFKXQqUN2v5vDgujfsySo8uXLYR5yJ9
-	 uiURiNm/+5u8zb3pnVzJ0kzVnIFNInqQSxwHJ4lsPso0+apkYmHLPnO7v5iDFHJxNY
-	 PAz5dvifK4510KQIJiAMw6Gpq34U2kYIUYbWowg8z4OMxOAusAmaWqen370jtEkFGo
-	 9eAIMPo+VbzAtozXMmee0Q52GoHV8WVb5jtUKwZeP+KuBEBZdSElZ3aSPesZwByGX8
-	 bcWBaqY7Oy8Qg==
-Date: Thu, 27 Jun 2024 14:52:07 -0600
-From: Rob Herring <robh@kernel.org>
-To: Farouk Bouabid <farouk.bouabid@cherry.de>
-Cc: Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
-	Quentin Schulz <quentin.schulz@cherry.de>,
-	Peter Rosin <peda@axentia.se>, Heiko Stuebner <heiko@sntech.de>,
-	linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-rockchip@lists.infradead.org
-Subject: Re: [PATCH v4 3/9] dt-bindings: mfd: add support for mule
-Message-ID: <20240627205207.GA492473-robh@kernel.org>
-References: <20240618-dev-mule-i2c-mux-v4-0-5462d28354c8@cherry.de>
- <20240618-dev-mule-i2c-mux-v4-3-5462d28354c8@cherry.de>
+	dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b="MpCylN/L"
+Received: from tr.lan (ip-86-49-120-218.bb.vodafone.cz [86.49.120.218])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+	(No client certificate requested)
+	(Authenticated sender: marex@denx.de)
+	by phobos.denx.de (Postfix) with ESMTPSA id C5FE78852A;
+	Fri, 28 Jun 2024 01:38:04 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
+	s=phobos-20191101; t=1719531485;
+	bh=Lv6J3oXBcYwk3Ox2MW9pBVAGdddaz2nr8GFbIwGmPmc=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=MpCylN/LI+4RnxSJU8kFbLIE0ve/tYT7dBRylG275y1LOwyJtACfTvG9qHDIg31dF
+	 Nol1Uv26N7Xg8r8kR517BRNVeg9TLUZ5Hak8gTmBcV9NexEjT/EVdtFc3jQVZ6syuw
+	 ZpPzdkK+MquUx+T3cM0RAAapp4QEziHExM3Ar0GJNeyVA0ZN5YnKRa5Hqu7o8rg+Z9
+	 5sXmPQOvQSiAuY5Iqy9thpb2nhhEVGFGujwufoL1tvvwt7jBLe42qC/ggIdpzD6cT7
+	 Ys2bH7bRq8DL3oMVZA2WY4oCKgUnRi7ySADceFhUsKafrZnfX3DfZGFNETwzxFm1IZ
+	 xhLbcmrjbBJbw==
+From: Marek Vasut <marex@denx.de>
+To: linux-i2c@vger.kernel.org
+Cc: Marek Vasut <marex@denx.de>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH v4 2/4] nvmem: Document type attribute
+Date: Fri, 28 Jun 2024 01:37:28 +0200
+Message-ID: <20240627233747.82341-2-marex@denx.de>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240627233747.82341-1-marex@denx.de>
+References: <20240627233747.82341-1-marex@denx.de>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240618-dev-mule-i2c-mux-v4-3-5462d28354c8@cherry.de>
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: clamav-milter 0.103.8 at phobos.denx.de
+X-Virus-Status: Clean
 
-On Tue, Jun 18, 2024 at 06:06:45PM +0200, Farouk Bouabid wrote:
-> Mule is an MCU that emulates a set of I2C devices, among which an amc6821
-> device and an I2C mux that exposes more emulated devices. These two devices
-> share the same I2C address. Only the I2C mux uses register (0xff) as a
-> config register.
+Document a type attribute used by userspace to discern different types of
+NVMEM devices. The implementation is already present, the ABI document is
+missing, add it.
 
-Everywhere (or the first place in any section (subject, commit msg, 
-title, description, etc.) you say 'mule' I think should be preceeded 
-with the vendor because 'mule' has no meaning on its own unless we are 
-talking animals.
+Reviewed-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Marek Vasut <marex@denx.de>
+---
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Cc: linux-i2c@vger.kernel.org
+---
+V2: - New patch
+V3: - Add RB from Alexandre
+    - Add trailing full stop to the paragraph
+V4: - No change
+---
+ Documentation/ABI/stable/sysfs-bus-nvmem | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-> 
-> Add dt-binding support for the Mule I2C multi-function device.
-> 
-> Signed-off-by: Farouk Bouabid <farouk.bouabid@cherry.de>
-> ---
->  .../devicetree/bindings/i2c/tsd,mule-i2c-mux.yaml  | 48 +++++++++++++
->  .../devicetree/bindings/mfd/tsd,mule.yaml          | 82 ++++++++++++++++++++++
->  2 files changed, 130 insertions(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/tsd,mule-i2c-mux.yaml b/Documentation/devicetree/bindings/i2c/tsd,mule-i2c-mux.yaml
-> new file mode 100644
-> index 000000000000..ac9dfc936272
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/tsd,mule-i2c-mux.yaml
-> @@ -0,0 +1,48 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/i2c/tsd,mule-i2c-mux.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Mule I2C multiplexer
-> +
-> +maintainers:
-> +  - Farouk Bouabid <farouk.bouabid@cherry.de>
-> +  - Quentin Schulz <quentin.schulz@cherry.de>
-> +
-> +description: |
-> +  This module is part of the Mule I2C multi-function device. For more
-> +  details see ../mfd/tsd,mule.yaml.
-> +
-> +  Mule I2C-mux configures the active device that can be accessed on address
-> +  0x6f through the config register.
-> +
-> +      +--------------------------------------------------+
-> +      | Mule                                             |
-> +  0x18|    +---------------+                             |
-> +  -------->|Config register|----+                        |
-> +      |    +---------------+    |                        |
-> +      |                         V_                       |
-> +      |                        |  \          +--------+  |
-> +      |                        |   \-------->| dev #0 |  |
-> +      |                        |   |         +--------+  |
-> +  0x6f|                        | M |-------->| dev #1 |  |
-> +  ---------------------------->| U |         +--------+  |
-> +      |                        | X |-------->| dev #2 |  |
-> +      |                        |   |         +--------+  |
-> +      |                        |   /-------->| dev #3 |  |
-> +      |                        |__/          +--------+  |
-> +      +--------------------------------------------------+
-> +
-> +
-> +allOf:
-> +  - $ref: /schemas/i2c/i2c-mux.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    const: tsd,mule-i2c-mux
-> +
-> +required:
-> +  - compatible
-> +
-> +unevaluatedProperties: false
-> diff --git a/Documentation/devicetree/bindings/mfd/tsd,mule.yaml b/Documentation/devicetree/bindings/mfd/tsd,mule.yaml
-> new file mode 100644
-> index 000000000000..ab532340a17c
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/mfd/tsd,mule.yaml
-> @@ -0,0 +1,82 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/mfd/tsd,mule.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: Mule I2C multi function device
-> +
-> +maintainers:
-> +  - Farouk Bouabid <farouk.bouabid@cherry.de>
-> +  - Quentin Schulz <quentin.schulz@cherry.de>
-> +
-> +description:
-> +  Mule is an MCU that emulates a set of I2C devices, among which an amc6821
-> +  device and an I2C mux that exposes more emulated devices. These two devices
-> +  share the same I2C address. Only the I2C mux uses register (0xff) as a config
-> +  register.
-> +
-> +properties:
-> +  compatible:
-> +    const: tsd,mule
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  "#address-cells":
-> +    const: 1
-> +
-> +  "#size-cells":
-> +    const: 0
-> +
-> +patternProperties:
-> +  "^fan(@[0-9a-f]+)?$":
-> +    $ref: /schemas/trivial-devices.yaml
+diff --git a/Documentation/ABI/stable/sysfs-bus-nvmem b/Documentation/ABI/stable/sysfs-bus-nvmem
+index 854bd11d72ac4..3f0a95250aa84 100644
+--- a/Documentation/ABI/stable/sysfs-bus-nvmem
++++ b/Documentation/ABI/stable/sysfs-bus-nvmem
+@@ -20,3 +20,14 @@ Description:
+ 		  ...
+ 		  *
+ 		  0001000
++
++What:		/sys/bus/nvmem/devices/.../type
++Date:		November 2018
++KernelVersion:	5.0
++Contact:	Alexandre Belloni <alexandre.belloni@bootlin.com>
++Description:
++		This read-only attribute allows user to read the NVMEM
++		device type. Supported types are "Unknown", "EEPROM",
++		"OTP", "Battery backed", "FRAM".
++		Note: This file is only present if CONFIG_NVMEM_SYSFS
++		is enabled.
+-- 
+2.43.0
 
-That doesn't really define which device. You should do something like 
-this:
-
-additionalProperties: true
-properties:
-  compatible:
-    contains:
-      const: ti,amc6821
-
-If the compatible is correct, then the schema for it will be applied 
-separately.
-
-> +
-> +  "^i2c-mux(@[0-9a-f]+)?$":
-> +    $ref: /schemas/i2c/tsd,mule-i2c-mux.yaml
-> +
-> +required:
-> +  - "#address-cells"
-> +  - "#size-cells"
-> +  - compatible
-> +  - reg
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  - |
-> +    i2c {
-> +        #address-cells = <1>;
-> +        #size-cells = <0>;
-> +
-> +        mule@18 {
-> +            compatible = "tsd,mule";
-> +            reg = <0x18>;
-> +            #address-cells = <1>;
-> +            #size-cells = <0>;
-> +
-> +            fan@18 {
-> +                compatible = "ti,amc6821";
-> +                reg = <0x18>;
-> +            };
-> +
-> +            i2c-mux {
-> +                compatible = "tsd,mule-i2c-mux";
-> +                #address-cells = <1>;
-> +                #size-cells = <0>;
-> +
-> +                i2c@0 {
-> +                    reg = <0x0>;
-> +                    #address-cells = <1>;
-> +                    #size-cells = <0>;
-> +
-> +                    rtc@6f {
-> +                        compatible = "isil,isl1208";
-> +                        reg = <0x6f>;
-> +                    };
-> +                };
-> +            };
-> +        };
-> +    };
-> +...
-> 
-> -- 
-> 2.34.1
-> 
