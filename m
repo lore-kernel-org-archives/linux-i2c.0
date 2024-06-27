@@ -1,37 +1,36 @@
 Received: from phobos.denx.de (phobos.denx.de [85.214.62.61])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9EFDF199E93
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6E281A2C37
 	for <linux-i2c@vger.kernel.org>; Thu, 27 Jun 2024 23:38:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.62.61
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719531488; cv=none; b=GQDm1KIfyaPnhvttSdQdweIASAwkFFCh95W55KVHFxZTHuOM9v4u0+xXOOSJbSqs4wQy9EmouuEbN//Z5+6qpnTmGI/gnqi1M7nQkWNV+Z37QJ92A8Kb4Dx9LOyqfV/ZAZZGrZfuvX6+YZFICG+Tt8tjvKJQIWGFM72Psp0Cok0=
+	t=1719531488; cv=none; b=I3hpIsDVa/f4Trtikq0GDLc79Bc7GRS9h9tJy3IUHbgVfyVmiwkYpcmyqpKaO7BhVKi82kBGWWJzBcD38uZiphmu52QnA8Hde6PLT2Cvys9jS+Ua5PhsFqTYjRY2G9mVYumP0B/RnhBvh5PMxwkpwWh8eSKenEWA+2ic5tQK1bw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1719531488; c=relaxed/simple;
-	bh=9K90ZzJ/N4giFuPOWS6D+T2pwBx80OAaZvgQ9BWojYI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dec3gviCPagLfB85oPaIOPt4B4PAuw5VxTfZ2lNEICHLdhJ2JVYlJ+3Yn7ycPUFszgCYBGhLwJwJvGVF8S70jLV0iuM/KJRKB6jtHAxwKZBJrmSWGnBam0RX5h8oZkYpB8koFB+u6OjDFgNN/w+UcyZrC9X2ha5zNWUyzX7CJl8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de; spf=pass smtp.mailfrom=denx.de; dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b=MpCylN/L; arc=none smtp.client-ip=85.214.62.61
+	bh=sPPwy3OgS712MWOelTtBU0u/uD3t5IE0yF+6lI+vVds=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=l8MjzSidZHGta8FGluR5P8VOGHoZnxO7LAjBn8HVGbCXXvS7Wb8Z6Zy3wR/dhPcivlAQ7nPnY4MErsDj3PKXelzRYiL4F+uQ/qBizMB4e6fcW6Toncqy668oKknqO3YKdavYeImrdo7FLR+N4jom1Mcl2FiiJYGSVtZWHtZs6Xg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de; spf=pass smtp.mailfrom=denx.de; dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b=HMtzoUpa; arc=none smtp.client-ip=85.214.62.61
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=denx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b="MpCylN/L"
+	dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b="HMtzoUpa"
 Received: from tr.lan (ip-86-49-120-218.bb.vodafone.cz [86.49.120.218])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
 	(No client certificate requested)
 	(Authenticated sender: marex@denx.de)
-	by phobos.denx.de (Postfix) with ESMTPSA id C5FE78852A;
+	by phobos.denx.de (Postfix) with ESMTPSA id 6648187E13;
 	Fri, 28 Jun 2024 01:38:04 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-	s=phobos-20191101; t=1719531485;
-	bh=Lv6J3oXBcYwk3Ox2MW9pBVAGdddaz2nr8GFbIwGmPmc=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=MpCylN/LI+4RnxSJU8kFbLIE0ve/tYT7dBRylG275y1LOwyJtACfTvG9qHDIg31dF
-	 Nol1Uv26N7Xg8r8kR517BRNVeg9TLUZ5Hak8gTmBcV9NexEjT/EVdtFc3jQVZ6syuw
-	 ZpPzdkK+MquUx+T3cM0RAAapp4QEziHExM3Ar0GJNeyVA0ZN5YnKRa5Hqu7o8rg+Z9
-	 5sXmPQOvQSiAuY5Iqy9thpb2nhhEVGFGujwufoL1tvvwt7jBLe42qC/ggIdpzD6cT7
-	 Ys2bH7bRq8DL3oMVZA2WY4oCKgUnRi7ySADceFhUsKafrZnfX3DfZGFNETwzxFm1IZ
-	 xhLbcmrjbBJbw==
+	s=phobos-20191101; t=1719531484;
+	bh=Jr1/Dj09BEovlWD7SzHWkk8M/JwtroHdbzcKrK0kBCc=;
+	h=From:To:Cc:Subject:Date:From;
+	b=HMtzoUpa4d1ev9hD7O2bYR+LIGTDwzRLujdG3mkJWrVZnQ0lhOPfEqukKHwdlObju
+	 mFBuZ2f5o65axeBk1HKbLrjf6DLayvltduKxO0AfDRbvFB8TICYe9cn5VKjWQbt6XP
+	 V4LnqfSq6uF/tMug7/DCHGE8/SmAla7R60D+bbPCJGlz648HewDu1s+8ueaLcdK/2J
+	 WgmUtMU6VoFje8vZqbmuWHAN7QDDZoAzPJsOFG7x9zOadxKkhxwiemdDkXw3OxEtoP
+	 70sIxcZyQcmO4/HzdureeWJ+N92pkViwR5J4z0Rg+Jhbnp2DmQAJIlaAACJctHvtU3
+	 HVH/sTiG1qX2A==
 From: Marek Vasut <marex@denx.de>
 To: linux-i2c@vger.kernel.org
 Cc: Marek Vasut <marex@denx.de>,
@@ -40,12 +39,10 @@ Cc: Marek Vasut <marex@denx.de>,
 	Bartosz Golaszewski <brgl@bgdev.pl>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH v4 2/4] nvmem: Document type attribute
-Date: Fri, 28 Jun 2024 01:37:28 +0200
-Message-ID: <20240627233747.82341-2-marex@denx.de>
+Subject: [PATCH v4 1/4] nvmem: Replace spaces with tab in documentation
+Date: Fri, 28 Jun 2024 01:37:27 +0200
+Message-ID: <20240627233747.82341-1-marex@denx.de>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240627233747.82341-1-marex@denx.de>
-References: <20240627233747.82341-1-marex@denx.de>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -56,11 +53,9 @@ Content-Transfer-Encoding: 8bit
 X-Virus-Scanned: clamav-milter 0.103.8 at phobos.denx.de
 X-Virus-Status: Clean
 
-Document a type attribute used by userspace to discern different types of
-NVMEM devices. The implementation is already present, the ABI document is
-missing, add it.
+Replace two spaces with tab in the sysfs attribute documentation.
+No functional change.
 
-Reviewed-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Marek Vasut <marex@denx.de>
 ---
 Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
@@ -71,32 +66,24 @@ Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 Cc: linux-i2c@vger.kernel.org
 ---
 V2: - New patch
-V3: - Add RB from Alexandre
-    - Add trailing full stop to the paragraph
+V3: - No change
 V4: - No change
 ---
- Documentation/ABI/stable/sysfs-bus-nvmem | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ Documentation/ABI/stable/sysfs-bus-nvmem | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/Documentation/ABI/stable/sysfs-bus-nvmem b/Documentation/ABI/stable/sysfs-bus-nvmem
-index 854bd11d72ac4..3f0a95250aa84 100644
+index c399323f37de3..854bd11d72ac4 100644
 --- a/Documentation/ABI/stable/sysfs-bus-nvmem
 +++ b/Documentation/ABI/stable/sysfs-bus-nvmem
-@@ -20,3 +20,14 @@ Description:
- 		  ...
- 		  *
- 		  0001000
-+
-+What:		/sys/bus/nvmem/devices/.../type
-+Date:		November 2018
-+KernelVersion:	5.0
-+Contact:	Alexandre Belloni <alexandre.belloni@bootlin.com>
-+Description:
-+		This read-only attribute allows user to read the NVMEM
-+		device type. Supported types are "Unknown", "EEPROM",
-+		"OTP", "Battery backed", "FRAM".
-+		Note: This file is only present if CONFIG_NVMEM_SYSFS
-+		is enabled.
+@@ -1,6 +1,6 @@
+ What:		/sys/bus/nvmem/devices/.../nvmem
+ Date:		July 2015
+-KernelVersion:  4.2
++KernelVersion:	4.2
+ Contact:	Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+ Description:
+ 		This file allows user to read/write the raw NVMEM contents.
 -- 
 2.43.0
 
