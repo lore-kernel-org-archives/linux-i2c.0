@@ -1,266 +1,226 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1BF617BAA;
-	Fri, 28 Jun 2024 00:02:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F726191;
+	Fri, 28 Jun 2024 00:05:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719532974; cv=none; b=RAxYY0d8UXxpAsGL8OcLqhYpmpJaGru1sRu/Fh7AlhwsKC02ffCx3OxXnV65kFrjPqG2NR3N10NeRcTU0SZUTaq7LqXe/uAM1h4des3P/kGTTF+x6rfbYrjRcuDwqIhg7uj/HRop5e2O9BWwbXZq+h6fVTbJownw5te/95IjeSE=
+	t=1719533161; cv=none; b=U05hKR2kfIYsiLFkc5DbdCoVG7X3PJyfSw+xRTTBH46cdS5KQ8QwHVLCJiYrN3mWPAV4vPovGIXtPZKt7Iu0cWh4NcJwmpnQr0Fp1Mq0Py95C6lOB9wgG2GI5FoDirP+wTl0+9SZfJDZdk+SsxsIyH+4LmjmepfjKn7pBMMscg0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719532974; c=relaxed/simple;
-	bh=E1YAMTWZQHJa0g1CplgYKEt95kLRiyCZDqokpEPY8bU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Mm5ZFgBmL/lg48q8ouWSBZ5XYr2YUjqzH8wtOg5mV9Y5AZW76668kcgR5NEGTylhvKDT6mzPMZQnKbvONxWjfvWby+vN50B9aSwA+cHIrE24uhYaIkpd0RIqWl978e7dBCunvwseaxLm0qrRqeN5x2tMUKNCh8y2YyVKcyjZEHc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=DOgFB1hg; arc=none smtp.client-ip=198.175.65.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1719533161; c=relaxed/simple;
+	bh=dokR8Fm2CKhCvAzDfAdyB4SxWiGcs4M3DQR4tXuRD/M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=SgK0w7MtAHqLRx+bitgv5kli5jH/ietkfJWcLjCMkpr8d2ZX5xGwlRKv3C6c6io3MJHnqn7YD+nAsGtKEcdZeghwTNlQCABzO2WA4oHprHYiaZgfbBdo3Crki1LR7q3zVISzuBv51DbsK+orvFliaGSF41d+lYdPkaifFzZKIOo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=it2hPG6r; arc=none smtp.client-ip=209.85.214.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="DOgFB1hg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1719532973; x=1751068973;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=E1YAMTWZQHJa0g1CplgYKEt95kLRiyCZDqokpEPY8bU=;
-  b=DOgFB1hgS9kBDgEs9yC4jYT8dlLfe6aaD+BBT7M/jqXCutA0uVPbwyxN
-   yzIZws+2XVFwJKT+onX+FDW14gSQZg+01TOs4t3hj8mKZ8kXry/oPS79D
-   jJDQkieLww6gFigjis265ozT7Tahu503N3MM55t31B/GDmtv7P1sK8g5T
-   z5vpI8apcz/s9LPxaAT+jGGb4yTOrDkJe99uDXhU6oVizoTRAwPVCLYRS
-   bEgDj14MUEJ//4zX/NUzKt4aghJimggJ8mtwnrqCHGXdTopcNKuZ2dO/6
-   cezXE+Ev9ohvLBN5uWKfORKj3Azxb5J4QeQreP3TvdUNDeyy/dhpMjIo9
-   w==;
-X-CSE-ConnectionGUID: XiidRTHkS2OUvZM+jWmiqQ==
-X-CSE-MsgGUID: 51Y2CulCTMq+MDdWDTB/aQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11116"; a="39216938"
-X-IronPort-AV: E=Sophos;i="6.09,167,1716274800"; 
-   d="scan'208";a="39216938"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jun 2024 17:02:52 -0700
-X-CSE-ConnectionGUID: uXnR8qFXQaa0j4b4U4I/sw==
-X-CSE-MsgGUID: KU2C2W66THiFb79QcDcghA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.09,167,1716274800"; 
-   d="scan'208";a="49470939"
-Received: from lkp-server01.sh.intel.com (HELO 68891e0c336b) ([10.239.97.150])
-  by orviesa003.jf.intel.com with ESMTP; 27 Jun 2024 17:02:49 -0700
-Received: from kbuild by 68891e0c336b with local (Exim 4.96)
-	(envelope-from <lkp@intel.com>)
-	id 1sMz4g-000Gdw-1E;
-	Fri, 28 Jun 2024 00:02:46 +0000
-Date: Fri, 28 Jun 2024 08:01:54 +0800
-From: kernel test robot <lkp@intel.com>
-To: Hans de Goede <hdegoede@redhat.com>,
-	Pali =?iso-8859-1?Q?Roh=E1r?= <pali@kernel.org>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	Paul Menzel <pmenzel@molgen.mpg.de>,
-	Wolfram Sang <wsa-dev@sang-engineering.com>
-Cc: oe-kbuild-all@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
-	eric.piel@tremplin-utc.net, Marius Hoch <mail@mariushoch.de>,
-	Dell.Client.Kernel@dell.com,
-	Kai Heng Feng <kai.heng.feng@canonical.com>,
-	platform-driver-x86@vger.kernel.org,
-	Jean Delvare <jdelvare@suse.com>,
-	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v4 4/6] platform/x86: dell-smo8800: Move instantiation of
- lis3lv02d i2c_client from i2c-i801 to dell-lis3lv02d
-Message-ID: <202406280739.e0s764jH-lkp@intel.com>
-References: <20240624111519.15652-5-hdegoede@redhat.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="it2hPG6r"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-1f6fabe9da3so113855ad.0;
+        Thu, 27 Jun 2024 17:05:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1719533159; x=1720137959; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=q0ZSvkaYPL0aMiPJTdyZjWw4rhkAuBmNQ840zqqrBqw=;
+        b=it2hPG6r0Z9y6FvqpBNOD72X/o+/N8qTxPk895VSpt/a9dFr+tTPISWFH6XSdowtYr
+         fwKoRou+XizbYLNZWxX6KP00m2uoenaYO4aHiJkohou2sOM3J/qyNMAiNKvAN6fg0egx
+         boOwO1xaCU4j80k9KCZ9Kdw4im6Eom9GBBDMBkrLeoFfaQ9etBfSyuaBONB78P+gWvW9
+         sjoC6FKcjoO3UNGhMUnRQ6HZeL60ecqjQDtiCmdHCHVe/l6xqhSc44oE8vjCu8XG56hv
+         tCQKGNPVZ/SYSnIDGbkaDzv2MXckh5Hn0GVmMPh0h9naGNewbQdHkIYLpNx8cKoO3vWM
+         PIPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1719533159; x=1720137959;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=q0ZSvkaYPL0aMiPJTdyZjWw4rhkAuBmNQ840zqqrBqw=;
+        b=hDa7391n9H0yK6yd+CNpGs4Q9nNH3f2WFp3dMp0621RO6xppTZlh1UbZiv9HneSGKz
+         IE7Y6gXbnC9/v63VAtqoM+040mh5C+dCkrup5Nms9glpKqviI/9s3BSrvIhfAdZK5rYg
+         QmhH7wckEyX+/lxCpaXX02XgKprgJ3GjPZbaVROQ+yasMAtL/wG281PPXRrK2nFM8qWU
+         n8nY0UJ91BpF9yhDtZi+EM5nW2sEGo5eX9fBXjjG9gT5nxNOlLxoAXlSLpbkr2zm2XU/
+         5V7gTcXPKZ6jJg3Oq4zMKP2WaELIyhXq1xnLNRgoBkAFFPpS69+dtpZXwNm681ntiiSJ
+         KKVw==
+X-Forwarded-Encrypted: i=1; AJvYcCXmUoXjvBFENBvWyszH9B7qobnmDy3RdvPQSFtk4o4RxM7FXc2IM7wlgGlrCQdR+myYxQNTG9xkA8IzzhaCqvSHg7cPCGyrmFpQQnPn5+8byeeyEbvevMy1KW3k/OVIxS9/KXPpH7aKm8fPKlTmBCVS91uc/k9/0r8xxTMLHy9rxgRjuA==
+X-Gm-Message-State: AOJu0YxOE8+ATL/ux+UL4oq7VaVM94AU6pUpGTouaZ7foah9+NoiwXq3
+	/pdYi3rKUUmGJ0Q6dz3tA9yJr6txRBFnu9DK+FKZrBpdqX+b64RW
+X-Google-Smtp-Source: AGHT+IH/QWpADj9D7MciL00kSwES1GkfECaQH7fjfH0/mq7eWSZ/ccaxiPO/zqqPT6IKLCNy18Co4w==
+X-Received: by 2002:a17:902:a501:b0:1fa:d77:21f8 with SMTP id d9443c01a7336-1fa23f158c6mr108575135ad.42.1719533158537;
+        Thu, 27 Jun 2024 17:05:58 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-1fac1596675sm3333215ad.249.2024.06.27.17.05.55
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 27 Jun 2024 17:05:57 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <dbfa52ab-c6fa-4c11-89bd-87445941bac3@roeck-us.net>
+Date: Thu, 27 Jun 2024 17:05:55 -0700
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20240624111519.15652-5-hdegoede@redhat.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 0/9] Add Mule MFD support
+To: Farouk Bouabid <farouk.bouabid@cherry.de>,
+ Quentin Schulz <quentin.schulz@cherry.de>, Jean Delvare <jdelvare@suse.com>,
+ Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Lee Jones <lee@kernel.org>,
+ Peter Rosin <peda@axentia.se>, Heiko Stuebner <heiko@sntech.de>
+Cc: linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org
+References: <20240618-dev-mule-i2c-mux-v4-0-5462d28354c8@cherry.de>
+ <fdeea79f-4568-4e70-9b49-0c02abc91170@roeck-us.net>
+ <4f92528b-8311-4c0b-998b-f0221d7bd474@cherry.de>
+ <c2803eed-b4f4-44cf-a7f7-9557d05e798e@roeck-us.net>
+ <19ee521d-298d-4718-bdc6-f282666de371@cherry.de>
+ <2a1ae708-3718-4f70-9837-bcc50b7c8f66@roeck-us.net>
+ <85b2061a-9f5b-4998-b9cb-21308ee1965f@cherry.de>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ xsFNBE6H1WcBEACu6jIcw5kZ5dGeJ7E7B2uweQR/4FGxH10/H1O1+ApmcQ9i87XdZQiB9cpN
+ RYHA7RCEK2dh6dDccykQk3bC90xXMPg+O3R+C/SkwcnUak1UZaeK/SwQbq/t0tkMzYDRxfJ7
+ nyFiKxUehbNF3r9qlJgPqONwX5vJy4/GvDHdddSCxV41P/ejsZ8PykxyJs98UWhF54tGRWFl
+ 7i1xvaDB9lN5WTLRKSO7wICuLiSz5WZHXMkyF4d+/O5ll7yz/o/JxK5vO/sduYDIlFTvBZDh
+ gzaEtNf5tQjsjG4io8E0Yq0ViobLkS2RTNZT8ICq/Jmvl0SpbHRvYwa2DhNsK0YjHFQBB0FX
+ IdhdUEzNefcNcYvqigJpdICoP2e4yJSyflHFO4dr0OrdnGLe1Zi/8Xo/2+M1dSSEt196rXaC
+ kwu2KgIgmkRBb3cp2vIBBIIowU8W3qC1+w+RdMUrZxKGWJ3juwcgveJlzMpMZNyM1jobSXZ0
+ VHGMNJ3MwXlrEFPXaYJgibcg6brM6wGfX/LBvc/haWw4yO24lT5eitm4UBdIy9pKkKmHHh7s
+ jfZJkB5fWKVdoCv/omy6UyH6ykLOPFugl+hVL2Prf8xrXuZe1CMS7ID9Lc8FaL1ROIN/W8Vk
+ BIsJMaWOhks//7d92Uf3EArDlDShwR2+D+AMon8NULuLBHiEUQARAQABzTJHdWVudGVyIFJv
+ ZWNrIChMaW51eCBhY2NvdW50KSA8bGludXhAcm9lY2stdXMubmV0PsLBgQQTAQIAKwIbAwYL
+ CQgHAwIGFQgCCQoLBBYCAwECHgECF4ACGQEFAlVcphcFCRmg06EACgkQyx8mb86fmYFg0RAA
+ nzXJzuPkLJaOmSIzPAqqnutACchT/meCOgMEpS5oLf6xn5ySZkl23OxuhpMZTVX+49c9pvBx
+ hpvl5bCWFu5qC1jC2eWRYU+aZZE4sxMaAGeWenQJsiG9lP8wkfCJP3ockNu0ZXXAXwIbY1O1
+ c+l11zQkZw89zNgWgKobKzrDMBFOYtAh0pAInZ9TSn7oA4Ctejouo5wUugmk8MrDtUVXmEA9
+ 7f9fgKYSwl/H7dfKKsS1bDOpyJlqhEAH94BHJdK/b1tzwJCFAXFhMlmlbYEk8kWjcxQgDWMu
+ GAthQzSuAyhqyZwFcOlMCNbAcTSQawSo3B9yM9mHJne5RrAbVz4TWLnEaX8gA5xK3uCNCeyI
+ sqYuzA4OzcMwnnTASvzsGZoYHTFP3DQwf2nzxD6yBGCfwNGIYfS0i8YN8XcBgEcDFMWpOQhT
+ Pu3HeztMnF3HXrc0t7e5rDW9zCh3k2PA6D2NV4fews9KDFhLlTfCVzf0PS1dRVVWM+4jVl6l
+ HRIAgWp+2/f8dx5vPc4Ycp4IsZN0l1h9uT7qm1KTwz+sSl1zOqKD/BpfGNZfLRRxrXthvvY8
+ BltcuZ4+PGFTcRkMytUbMDFMF9Cjd2W9dXD35PEtvj8wnEyzIos8bbgtLrGTv/SYhmPpahJA
+ l8hPhYvmAvpOmusUUyB30StsHIU2LLccUPPOwU0ETofVZwEQALlLbQeBDTDbwQYrj0gbx3bq
+ 7kpKABxN2MqeuqGr02DpS9883d/t7ontxasXoEz2GTioevvRmllJlPQERVxM8gQoNg22twF7
+ pB/zsrIjxkE9heE4wYfN1AyzT+AxgYN6f8hVQ7Nrc9XgZZe+8IkuW/Nf64KzNJXnSH4u6nJM
+ J2+Dt274YoFcXR1nG76Q259mKwzbCukKbd6piL+VsT/qBrLhZe9Ivbjq5WMdkQKnP7gYKCAi
+ pNVJC4enWfivZsYupMd9qn7Uv/oCZDYoBTdMSBUblaLMwlcjnPpOYK5rfHvC4opxl+P/Vzyz
+ 6WC2TLkPtKvYvXmdsI6rnEI4Uucg0Au/Ulg7aqqKhzGPIbVaL+U0Wk82nz6hz+WP2ggTrY1w
+ ZlPlRt8WM9w6WfLf2j+PuGklj37m+KvaOEfLsF1v464dSpy1tQVHhhp8LFTxh/6RWkRIR2uF
+ I4v3Xu/k5D0LhaZHpQ4C+xKsQxpTGuYh2tnRaRL14YMW1dlI3HfeB2gj7Yc8XdHh9vkpPyuT
+ nY/ZsFbnvBtiw7GchKKri2gDhRb2QNNDyBnQn5mRFw7CyuFclAksOdV/sdpQnYlYcRQWOUGY
+ HhQ5eqTRZjm9z+qQe/T0HQpmiPTqQcIaG/edgKVTUjITfA7AJMKLQHgp04Vylb+G6jocnQQX
+ JqvvP09whbqrABEBAAHCwWUEGAECAA8CGwwFAlVcpi8FCRmg08MACgkQyx8mb86fmYHNRQ/+
+ J0OZsBYP4leJvQF8lx9zif+v4ZY/6C9tTcUv/KNAE5leyrD4IKbnV4PnbrVhjq861it/zRQW
+ cFpWQszZyWRwNPWUUz7ejmm9lAwPbr8xWT4qMSA43VKQ7ZCeTQJ4TC8kjqtcbw41SjkjrcTG
+ wF52zFO4bOWyovVAPncvV9eGA/vtnd3xEZXQiSt91kBSqK28yjxAqK/c3G6i7IX2rg6pzgqh
+ hiH3/1qM2M/LSuqAv0Rwrt/k+pZXE+B4Ud42hwmMr0TfhNxG+X7YKvjKC+SjPjqp0CaztQ0H
+ nsDLSLElVROxCd9m8CAUuHplgmR3seYCOrT4jriMFBtKNPtj2EE4DNV4s7k0Zy+6iRQ8G8ng
+ QjsSqYJx8iAR8JRB7Gm2rQOMv8lSRdjva++GT0VLXtHULdlzg8VjDnFZ3lfz5PWEOeIMk7Rj
+ trjv82EZtrhLuLjHRCaG50OOm0hwPSk1J64R8O3HjSLdertmw7eyAYOo4RuWJguYMg5DRnBk
+ WkRwrSuCn7UG+qVWZeKEsFKFOkynOs3pVbcbq1pxbhk3TRWCGRU5JolI4ohy/7JV1TVbjiDI
+ HP/aVnm6NC8of26P40Pg8EdAhajZnHHjA7FrJXsy3cyIGqvg9os4rNkUWmrCfLLsZDHD8FnU
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+In-Reply-To: <85b2061a-9f5b-4998-b9cb-21308ee1965f@cherry.de>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Hi Hans,
+On 6/24/24 09:13, Farouk Bouabid wrote:
+> Hi Guenter,
+> 
+> On 19.06.24 15:31, Guenter Roeck wrote:
+>> On 6/19/24 00:45, Farouk Bouabid wrote:
+>>
+>>>>
+>>>> If it is properly defined in devicetree, the emulated AMC6821 should be
+>>>> an i2c device, possibly sitting behind an i2c multiplexer, not a
+>>>> platform device.
+>>>
+>>>
+>>> The emulated AMC6821 and the Mule I2C mux are both reachable using I2C address (0x18), and hence the use of MFD as the mux only uses one I2C register that is not used by AMC6821.
+>>>
+>>
+>> Whatever you do, the amc chip is still an i2c driver and needs to remain one.
+>> Modeling it as platform driver is simply wrong, and I won't accept those patches.
+>>
+> 
+> The issue that we have cannot be handled by an I2C mux because in that case both the mux and its child would have the same address which is not supported in the I2C subsystem:
+> 
+> 
+> i2c-mux@18 {
+> 
+>          compatible = "tsd,mule-i2c-mux";
+> 
+>          reg = <0x18>;
+> 
+>          #address-cells = <1>;
+> 
+>          #size-cells = <0>;
+> 
+> 
+>          i2c10: i2c@0 {
+> 
+>                  reg = <0x0>;
+> 
+>                  #address-cells = <1>;
+> 
+>                  #size-cells = <0>;
+> 
+> 
+>                  fan: fan@18 {
+> 
+>                          compatible = "ti, amc6821";
+> 
+>                          reg = <0x18>;
+> 
+>                  };
+> 
+>          };
+> 
+> };
+> 
+> 
+> The I2C maintainer rejected supporting this use case and suggested that an MFD could probably be more suitable.
+> 
+> 
+> On one hand, the MFD looks indeed more appropriate and a lot of I2C devices are modeled through platform sub devices. On the other hand we are emulating the amc6821 in our device which requires us to have it modeled as platform:
+> 
 
-kernel test robot noticed the following build errors:
+The difference is that those other i2c devices are real multi-function
+devices.
 
-[auto build test ERROR on andi-shyti/i2c/i2c-host]
-[also build test ERROR on wsa/i2c/for-next linus/master v6.10-rc5 next-20240627]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+> 
+>        +--------+----------------+------------------------------+
+>        |  Mule         (MFD)                                    |
+>   0x18 |        +----------------+                              |
+> --------+----->|    amc6821     |                              |
+>        | |      +----------------+                              |
+>        | +----->|      Mux       |-----+                        |
+>        |        +----------------+     |                        |
+>        |                               V__          +---------+ |
+>        |                              |   \-------->| isl1208 | |
+>        |                              |   |         +---------+ |
+>   0x6f |                              | M |-------->| dev #1  | |
+> ------------------------------------>| U |         +---------+ |
+>        |                              | X |-------->| dev #2  | |
+>        |                              |   |         +---------+ |
+>        |                              |   /-------->| dev #3  | |
+>        |                              |__/          +---------+ |
+>        +--------------------------------------------------------+
+> 
+> 
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Hans-de-Goede/i2c-core-Setup-i2c_adapter-runtime-pm-before-calling-device_add/20240626-053449
-base:   git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git i2c/i2c-host
-patch link:    https://lore.kernel.org/r/20240624111519.15652-5-hdegoede%40redhat.com
-patch subject: [PATCH v4 4/6] platform/x86: dell-smo8800: Move instantiation of lis3lv02d i2c_client from i2c-i801 to dell-lis3lv02d
-config: i386-randconfig-002-20240628 (https://download.01.org/0day-ci/archive/20240628/202406280739.e0s764jH-lkp@intel.com/config)
-compiler: gcc-13 (Ubuntu 13.2.0-4ubuntu3) 13.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240628/202406280739.e0s764jH-lkp@intel.com/reproduce)
+It would have been much more appropriate to use a different I2C address for the mux.
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202406280739.e0s764jH-lkp@intel.com/
+> If we cannot proceed with that then we could add a compatible to the amc6821 driver to add the mux device (Basically the "tsd,mule" compatible in amc6821 compatible list would be a combo driver with mux logic + amc6821). Do you think that is more appropriate ?
+> 
 
-All error/warnings (new ones prefixed by >>):
+Implement the mux as part of the amc6821 driver ? No. We could discuss
+instantiating the i2c mux driver from the amc6821 driver.
 
-   drivers/platform/x86/dell/dell-lis3lv02d.c: In function 'find_i801':
->> drivers/platform/x86/dell/dell-lis3lv02d.c:77:21: error: implicit declaration of function 'i2c_get_adapter'; did you mean 'i2c_get_adapdata'? [-Werror=implicit-function-declaration]
-      77 |         *adap_ret = i2c_get_adapter(adap->nr);
-         |                     ^~~~~~~~~~~~~~~
-         |                     i2c_get_adapdata
->> drivers/platform/x86/dell/dell-lis3lv02d.c:77:19: warning: assignment to 'struct i2c_adapter *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
-      77 |         *adap_ret = i2c_get_adapter(adap->nr);
-         |                   ^
-   drivers/platform/x86/dell/dell-lis3lv02d.c: In function 'instantiate_i2c_client':
->> drivers/platform/x86/dell/dell-lis3lv02d.c:96:19: error: implicit declaration of function 'i2c_new_client_device' [-Werror=implicit-function-declaration]
-      96 |         i2c_dev = i2c_new_client_device(adap, &info);
-         |                   ^~~~~~~~~~~~~~~~~~~~~
->> drivers/platform/x86/dell/dell-lis3lv02d.c:96:17: warning: assignment to 'struct i2c_client *' from 'int' makes pointer from integer without a cast [-Wint-conversion]
-      96 |         i2c_dev = i2c_new_client_device(adap, &info);
-         |                 ^
->> drivers/platform/x86/dell/dell-lis3lv02d.c:104:9: error: implicit declaration of function 'i2c_put_adapter' [-Werror=implicit-function-declaration]
-     104 |         i2c_put_adapter(adap);
-         |         ^~~~~~~~~~~~~~~
-   drivers/platform/x86/dell/dell-lis3lv02d.c: In function 'dell_lis3lv02d_module_exit':
->> drivers/platform/x86/dell/dell-lis3lv02d.c:193:9: error: implicit declaration of function 'i2c_unregister_device' [-Werror=implicit-function-declaration]
-     193 |         i2c_unregister_device(i2c_dev);
-         |         ^~~~~~~~~~~~~~~~~~~~~
-   cc1: some warnings being treated as errors
+Guenter
 
-
-vim +77 drivers/platform/x86/dell/dell-lis3lv02d.c
-
-    65	
-    66	static int find_i801(struct device *dev, void *data)
-    67	{
-    68		struct i2c_adapter *adap, **adap_ret = data;
-    69	
-    70		adap = i2c_verify_adapter(dev);
-    71		if (!adap)
-    72			return 0;
-    73	
-    74		if (!i2c_adapter_is_main_i801(adap))
-    75			return 0;
-    76	
-  > 77		*adap_ret = i2c_get_adapter(adap->nr);
-    78		return 1;
-    79	}
-    80	
-    81	static void instantiate_i2c_client(struct work_struct *work)
-    82	{
-    83		struct i2c_board_info info = { };
-    84		struct i2c_adapter *adap = NULL;
-    85	
-    86		if (i2c_dev)
-    87			return;
-    88	
-    89		bus_for_each_dev(&i2c_bus_type, NULL, &adap, find_i801);
-    90		if (!adap)
-    91			return;
-    92	
-    93		info.addr = (long)lis3lv02d_dmi_id->driver_data;
-    94		strscpy(info.type, "lis3lv02d", I2C_NAME_SIZE);
-    95	
-  > 96		i2c_dev = i2c_new_client_device(adap, &info);
-    97		if (IS_ERR(i2c_dev)) {
-    98			pr_err("error %ld registering i2c_client\n", PTR_ERR(i2c_dev));
-    99			i2c_dev = NULL;
-   100		} else {
-   101			pr_debug("registered lis3lv02d on address 0x%02x\n", info.addr);
-   102		}
-   103	
- > 104		i2c_put_adapter(adap);
-   105	}
-   106	static DECLARE_WORK(i2c_work, instantiate_i2c_client);
-   107	
-   108	static int i2c_bus_notify(struct notifier_block *nb, unsigned long action, void *data)
-   109	{
-   110		struct device *dev = data;
-   111		struct i2c_client *client;
-   112		struct i2c_adapter *adap;
-   113	
-   114		switch (action) {
-   115		case BUS_NOTIFY_ADD_DEVICE:
-   116			adap = i2c_verify_adapter(dev);
-   117			if (!adap)
-   118				break;
-   119	
-   120			if (i2c_adapter_is_main_i801(adap))
-   121				queue_work(system_long_wq, &i2c_work);
-   122			break;
-   123		case BUS_NOTIFY_REMOVED_DEVICE:
-   124			client = i2c_verify_client(dev);
-   125			if (!client)
-   126				break;
-   127	
-   128			if (i2c_dev == client) {
-   129				pr_debug("lis3lv02d i2c_client removed\n");
-   130				i2c_dev = NULL;
-   131			}
-   132			break;
-   133		default:
-   134			break;
-   135		}
-   136	
-   137		return 0;
-   138	}
-   139	static struct notifier_block i2c_nb = { .notifier_call = i2c_bus_notify };
-   140	
-   141	static int match_acpi_device_ids(struct device *dev, const void *data)
-   142	{
-   143		const struct acpi_device_id *ids = data;
-   144	
-   145		return acpi_match_device(ids, dev) ? 1 : 0;
-   146	}
-   147	
-   148	static int __init dell_lis3lv02d_init(void)
-   149	{
-   150		struct device *dev;
-   151		int err;
-   152	
-   153		/*
-   154		 * First check for a matching platform_device. This protects against
-   155		 * SMO88xx ACPI fwnodes which actually do have an I2C resource, which
-   156		 * will already have an i2c_client instantiated (not a platform_device).
-   157		 */
-   158		dev = bus_find_device(&platform_bus_type, NULL, smo8800_ids, match_acpi_device_ids);
-   159		if (!dev) {
-   160			pr_debug("No SMO88xx platform-device found\n");
-   161			return 0;
-   162		}
-   163		put_device(dev);
-   164	
-   165		lis3lv02d_dmi_id = dmi_first_match(lis3lv02d_devices);
-   166		if (!lis3lv02d_dmi_id) {
-   167			pr_warn("accelerometer is present on SMBus but its address is unknown, skipping registration\n");
-   168			return 0;
-   169		}
-   170	
-   171		/*
-   172		 * Register i2c-bus notifier + queue initial scan for lis3lv02d
-   173		 * i2c_client instantiation.
-   174		 */
-   175		err = bus_register_notifier(&i2c_bus_type, &i2c_nb);
-   176		if (err)
-   177			return err;
-   178	
-   179		notifier_registered = true;
-   180	
-   181		queue_work(system_long_wq, &i2c_work);
-   182		return 0;
-   183	}
-   184	module_init(dell_lis3lv02d_init);
-   185	
-   186	static void __exit dell_lis3lv02d_module_exit(void)
-   187	{
-   188		if (!notifier_registered)
-   189			return;
-   190	
-   191		bus_unregister_notifier(&i2c_bus_type, &i2c_nb);
-   192		cancel_work_sync(&i2c_work);
- > 193		i2c_unregister_device(i2c_dev);
-   194	}
-   195	module_exit(dell_lis3lv02d_module_exit);
-   196	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
