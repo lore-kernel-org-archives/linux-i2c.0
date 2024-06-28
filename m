@@ -1,116 +1,172 @@
-Received: from phobos.denx.de (phobos.denx.de [85.214.62.61])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23CD51755C
-	for <linux-i2c@vger.kernel.org>; Fri, 28 Jun 2024 01:49:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.62.61
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE2BD2D05E;
+	Fri, 28 Jun 2024 05:29:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1719539370; cv=none; b=I87nqnyw41V7YCE0fRgkcZ4tdl0wLXom3zCwM6M9vGFhFj4ZLpVTXLuc3HeBfX1MdsA/+Ebks5ywSR+fsuwQyupiRZ4L7mSUisq+i9dnfwmBT98FuwAMs/e/XFXlg8YyZ+7Gldcoa0r+M3Hv9PFnQw3L9GOWlpXTJfTc3NorfEk=
+	t=1719552588; cv=none; b=baN39cJhxNUy0V1SYKCQGiRHaOY9wx1nrb6ri+D9Snszon4KOsUcW1+yF3cDdmkSs6Z93Ze2n4Bwz0BACAQigCNB2qTvz3YgR223TgXLERIQeGIDA0bLPUM1OjfqV4M0wXaPfKJAH00jTqHIROGovWP4VI3qQwi2RuABlLcdv0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1719539370; c=relaxed/simple;
-	bh=mMuz5ee6byG2fxXPSCdE3I3qG6GBngAFug68Busa1to=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=OSksd5/Zttvcnv32gQrQoQWfZ6mjBHqvx7kPthXUBeCf59+Y5JsOv0G0vravNcDjye4XfFx0chMhQlP3sBqTd5Bu1XcDfNIn7bruGvaStU10kjUwIz+v6XWarGvUrYsbDSN/j+9Qw34NEfEmsB2CpqlLZuwve8Y6ul10JniTEaM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de; spf=pass smtp.mailfrom=denx.de; dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b=fg5NjlgK; arc=none smtp.client-ip=85.214.62.61
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=denx.de
+	s=arc-20240116; t=1719552588; c=relaxed/simple;
+	bh=MuOWgcJQOSUBmO2Vy37Xg7xftpXiU+ZC8r+Ven/mpw4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=l1ZLqlbbLF+/AlohTkaUWS3IpnlNfQonzd7N2wEYVxy56PhDPs9UodM3HH2y53YxSUTBReq9Huj/P3nTHbm+JN1BaKzvtijjXnBqe8Qn1yLjFUhtN8cFFX6PeWKfQg308uMAWq0atbbaRrWxIRwV8X0gKjk9Zj0c1+VIRO+qKeY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=URWNnbeE; arc=none smtp.client-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b="fg5NjlgK"
-Received: from [127.0.0.1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
-	(No client certificate requested)
-	(Authenticated sender: marex@denx.de)
-	by phobos.denx.de (Postfix) with ESMTPSA id D266487B77;
-	Fri, 28 Jun 2024 03:49:18 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-	s=phobos-20191101; t=1719539359;
-	bh=hGdz+UC1G/HPh6TLtsMvnIjEZXP9PQWW6H/+36xQ+nY=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=fg5NjlgKbELTr/sMmSAjenBySIEdWGk2cB3bWELwUfr3RqY85xrvxAriOvQw9skGM
-	 aE5L58jqVnu08TJWV+FvWfqddy4eYy5VgzLxR4oRilLaE88dppPVQDFFX4EK22l44q
-	 0k5jryBx721E1/lMDErjmDAHLixI8QoTyHtX1VTjX4TxUiYn5AuAhdh//m5NWRH807
-	 e4bMLGQSHfwK0wuwYd52aCjbP7ClbNPUuyPzJy1+8TFCPU/iVEe70Hy7YMlW25AOlA
-	 cxE6iD4Q4iB/KDLE8XLRcNBw19ulVjX7O6+dK8DpxHhVARJNB5KCntl7C83Hh96Ses
-	 +M2hJnWkrnX+A==
-Message-ID: <21a0fec1-c133-4acc-a447-0632a232e45f@denx.de>
-Date: Fri, 28 Jun 2024 01:39:07 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="URWNnbeE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1719552587; x=1751088587;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=MuOWgcJQOSUBmO2Vy37Xg7xftpXiU+ZC8r+Ven/mpw4=;
+  b=URWNnbeES5n+B6OWdZfGcITG4kkZGUcGMnMbyQN5SWruZk4yUiSDgqN0
+   YNT2NdXA2AYXCyr5qCi5aoj0sZo3ceXgSarl2PQEM/n3JWubfi3uNUinx
+   iIVIw4GG+YFe+HMs8obzdfgtK/xWKCY3LBg+J0qol4lEVfMvW8i7Lih8h
+   oAWAYjV2e8vC1uZSmzwBC+rtQZmePybw6rnmRMlEbD5dqBMXdkMM6txgk
+   aVs+OIYGSuT6tjqQbNa4KX9x63cjKJlr70IRghpP+qNVUrlfx7LrGKX3T
+   pFgUWlDfPK/Rw7PG3N0XX5ZUOu563Wd7amnJVt0NEVtE8E1xn5kgUf/sl
+   A==;
+X-CSE-ConnectionGUID: z9SLJq7CQdGYRBlHqGg69A==
+X-CSE-MsgGUID: meu3jU/jTUy7ylbJ7x4yPg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11116"; a="19621229"
+X-IronPort-AV: E=Sophos;i="6.09,168,1716274800"; 
+   d="scan'208";a="19621229"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jun 2024 22:29:46 -0700
+X-CSE-ConnectionGUID: gIPGBZVMRcK+8kzmzM3kyw==
+X-CSE-MsgGUID: 1rkE5azqT8KLfF+K4mIHQQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.09,168,1716274800"; 
+   d="scan'208";a="49802219"
+Received: from lkp-server01.sh.intel.com (HELO 68891e0c336b) ([10.239.97.150])
+  by orviesa004.jf.intel.com with ESMTP; 27 Jun 2024 22:29:43 -0700
+Received: from kbuild by 68891e0c336b with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1sN4B2-000Gpm-0Y;
+	Fri, 28 Jun 2024 05:29:40 +0000
+Date: Fri, 28 Jun 2024 13:29:38 +0800
+From: kernel test robot <lkp@intel.com>
+To: Alex Vdovydchenko <keromvp@gmail.com>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Sean Anderson <sean.anderson@linux.dev>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Jean Delvare <jdelvare@suse.com>, Jonathan Corbet <corbet@lwn.net>,
+	Delphine CC Chiu <Delphine_CC_Chiu@wiwynn.com>
+Cc: oe-kbuild-all@lists.linux.dev, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
+	linux-doc@vger.kernel.org, linux-i2c@vger.kernel.org,
+	Alex Vdovydchenko <xzeol@yahoo.com>
+Subject: Re: [PATCH v2 2/2] hwmon: add MP5920 driver
+Message-ID: <202406281339.YzOThRyw-lkp@intel.com>
+References: <20240627090113.391730-3-xzeol@yahoo.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 4/4] nvmem: core: Implement force_ro sysfs attribute
-To: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
- linux-i2c@vger.kernel.org
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>,
- Arnd Bergmann <arnd@arndb.de>, Bartosz Golaszewski <brgl@bgdev.pl>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-References: <20240626041214.513242-1-marex@denx.de>
- <20240626041214.513242-4-marex@denx.de>
- <3e2f38a3-e151-42f1-97ca-b8327ade4acc@linaro.org>
- <ab0cdad7-43e3-4acd-a4cb-b15c1cd26b38@denx.de>
- <55e6f035-fc43-4a56-9bf6-3a1a0e63b85c@linaro.org>
- <5ee8b82e-72cb-4644-889c-1959a2318d1a@denx.de>
- <92f0bec8-283b-4619-9b0b-d5a678fa200c@linaro.org>
-Content-Language: en-US
-From: Marek Vasut <marex@denx.de>
-In-Reply-To: <92f0bec8-283b-4619-9b0b-d5a678fa200c@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Virus-Scanned: clamav-milter 0.103.8 at phobos.denx.de
-X-Virus-Status: Clean
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240627090113.391730-3-xzeol@yahoo.com>
 
-On 6/27/24 6:21 PM, Srinivas Kandagatla wrote:
-> 
-> 
-> On 27/06/2024 16:55, Marek Vasut wrote:
->> On 6/27/24 4:58 PM, Srinivas Kandagatla wrote:
->>>
->>>
->>> On 26/06/2024 17:07, Marek Vasut wrote:
->>>> On 6/26/24 3:07 PM, Srinivas Kandagatla wrote:
->>>>>
->>>>>
->>>>> On 26/06/2024 05:11, Marek Vasut wrote:
->>>>>>   static const struct attribute_group *nvmem_dev_groups[] = {
->>>>>> @@ -945,6 +988,7 @@ struct nvmem_device *nvmem_register(const 
->>>>>> struct nvmem_config *config)
->>>>>>       nvmem->read_only = device_property_present(config->dev, 
->>>>>> "read-only") ||
->>>>>>                  config->read_only || !nvmem->reg_write;
->>>>>> +    nvmem->default_read_only = nvmem->read_only;
->>>>>>   #ifdef CONFIG_NVMEM_SYSFS
->>>>>>       nvmem->dev.groups = nvmem_dev_groups;
->>>>>> diff --git a/drivers/nvmem/internals.h b/drivers/nvmem/internals.h
->>>>>> index 18fed57270e5e..0667937ebb86b 100644
->>>>>> --- a/drivers/nvmem/internals.h
->>>>>> +++ b/drivers/nvmem/internals.h
->>>>>> @@ -16,6 +16,7 @@ struct nvmem_device {
->>>>>>       int            id;
->>>>>>       struct kref        refcnt;
->>>>>>       size_t            size;
->>>>>> +    bool            default_read_only;
->>>>>
->>>>>
->>>>> Its not very clear what is the need for this?
->>>>
->>>> This field is used to discern devices which are by default read-write 
->>> provider drivers or any drivers should not be accessing this struct 
->>> directly.
->>>
->>>> from ones which are by default read-only. Only the former can be 
->>> Why should the drivers care about this?
->>> If the read_only flag is set in the core, nvmem core should prohibit 
->>> any writes for this provider.
->>
->> I think this is a nvmem core patch , isn't it ?
-> All that I see in this patch is setting default_read_only and no user 
-> for it. unless am looking at wrong patch.
+Hi Alex,
 
-Oh, now I understand, doh ... this is a remnant which should be removed. 
-The force_ro attribute is now hidden for read-only devices outright in 
-nvmem_attr_is_visible, so they cannot be switched to read-write mode.
+kernel test robot noticed the following build errors:
 
-Fixed in V4, thanks.
+[auto build test ERROR on groeck-staging/hwmon-next]
+[also build test ERROR on next-20240627]
+[cannot apply to robh/for-next krzk-dt/for-next linus/master v6.10-rc5]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Alex-Vdovydchenko/dt-bindings-hwmon-Add-MPS-mp5920/20240628-021125
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/groeck/linux-staging.git hwmon-next
+patch link:    https://lore.kernel.org/r/20240627090113.391730-3-xzeol%40yahoo.com
+patch subject: [PATCH v2 2/2] hwmon: add MP5920 driver
+config: loongarch-allmodconfig (https://download.01.org/0day-ci/archive/20240628/202406281339.YzOThRyw-lkp@intel.com/config)
+compiler: loongarch64-linux-gcc (GCC) 13.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240628/202406281339.YzOThRyw-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202406281339.YzOThRyw-lkp@intel.com/
+
+All error/warnings (new ones prefixed by >>):
+
+>> drivers/hwmon/pmbus/mp5920.c:26:9: error: 'pages' undeclared here (not in a function); did you mean 'page'?
+      26 |         pages = 1,
+         |         ^~~~~
+         |         page
+>> drivers/hwmon/pmbus/mp5920.c:27:9: error: 'format' undeclared here (not in a function)
+      27 |         format[PSC_VOLTAGE_IN] = direct,
+         |         ^~~~~~
+>> drivers/hwmon/pmbus/mp5920.c:32:9: error: 'm' undeclared here (not in a function); did you mean 'tm'?
+      32 |         m[PSC_VOLTAGE_IN] = 2266,
+         |         ^
+         |         tm
+>> drivers/hwmon/pmbus/mp5920.c:33:9: error: 'b' undeclared here (not in a function); did you mean 'mb'?
+      33 |         b[PSC_VOLTAGE_IN] = 0,
+         |         ^
+         |         mb
+>> drivers/hwmon/pmbus/mp5920.c:34:9: error: 'R' undeclared here (not in a function)
+      34 |         R[PSC_VOLTAGE_IN] = -1,
+         |         ^
+>> drivers/hwmon/pmbus/mp5920.c:44:9: warning: excess elements in struct initializer
+      44 |         m[PSC_TEMPERATURE] = 1067,
+         |         ^
+   drivers/hwmon/pmbus/mp5920.c:44:9: note: (near initialization for 'mp5920_info')
+   drivers/hwmon/pmbus/mp5920.c:45:9: warning: excess elements in struct initializer
+      45 |         b[PSC_TEMPERATURE] = 20500,
+         |         ^
+   drivers/hwmon/pmbus/mp5920.c:45:9: note: (near initialization for 'mp5920_info')
+   drivers/hwmon/pmbus/mp5920.c:46:9: warning: excess elements in struct initializer
+      46 |         R[PSC_TEMPERATURE] = -2,
+         |         ^
+   drivers/hwmon/pmbus/mp5920.c:46:9: note: (near initialization for 'mp5920_info')
+>> drivers/hwmon/pmbus/mp5920.c:47:9: error: 'func' undeclared here (not in a function)
+      47 |         func[0] = PMBUS_HAVE_VIN  | PMBUS_HAVE_VOUT |
+         |         ^~~~
+   drivers/hwmon/pmbus/mp5920.c:47:9: warning: excess elements in struct initializer
+   drivers/hwmon/pmbus/mp5920.c:47:9: note: (near initialization for 'mp5920_info')
+
+
+vim +26 drivers/hwmon/pmbus/mp5920.c
+
+    24	
+    25	static struct pmbus_driver_info mp5920_info = {
+  > 26		pages = 1,
+  > 27		format[PSC_VOLTAGE_IN] = direct,
+    28		format[PSC_VOLTAGE_OUT] = direct,
+    29		format[PSC_CURRENT_OUT] = direct,
+    30		format[PSC_POWER] = direct,
+    31		format[PSC_TEMPERATURE] = direct,
+  > 32		m[PSC_VOLTAGE_IN] = 2266,
+  > 33		b[PSC_VOLTAGE_IN] = 0,
+  > 34		R[PSC_VOLTAGE_IN] = -1,
+    35		m[PSC_VOLTAGE_OUT] = 2266,
+    36		b[PSC_VOLTAGE_OUT] = 0,
+    37		R[PSC_VOLTAGE_OUT] = -1,
+    38		m[PSC_CURRENT_OUT] = 546,
+    39		b[PSC_CURRENT_OUT] = 0,
+    40		R[PSC_CURRENT_OUT] = -2,
+    41		m[PSC_POWER] = 5840,
+    42		b[PSC_POWER] = 0,
+    43		R[PSC_POWER] = -3,
+  > 44		m[PSC_TEMPERATURE] = 1067,
+    45		b[PSC_TEMPERATURE] = 20500,
+    46		R[PSC_TEMPERATURE] = -2,
+  > 47		func[0] = PMBUS_HAVE_VIN  | PMBUS_HAVE_VOUT |
+    48			PMBUS_HAVE_IOUT | PMBUS_HAVE_POUT |
+    49			PMBUS_HAVE_TEMP,
+    50	};
+    51	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
