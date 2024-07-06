@@ -1,43 +1,45 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6D1F155749
-	for <linux-i2c@vger.kernel.org>; Sat,  6 Jul 2024 11:22:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F21B156862
+	for <linux-i2c@vger.kernel.org>; Sat,  6 Jul 2024 11:22:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720264923; cv=none; b=mZAqUJgfNh7jhY0+wxY06sJDgJx/wZK+1ymUGhNXOHbjCvxf8N5pCjHF/VWib2KDLuB4nEeO02FkosOfQcNbvNgEF2eBWgwJkMIkVLSJSS7LrFUw8upOAptZWz4Xl0yNueHKOrohvRQn3TvNoljRS/AZLomK+CaGdpFL/zKZEyE=
+	t=1720264924; cv=none; b=UdHD79cSa1spj7Vq6RLhVj8+0zEIy6wBc8iBiu/zlYQAAs55ejbuEjq7N/CVP/ZHmwOjz9N+/QpQ2Y3r/6dZe9X45Igu8dusXPcHA3B2oNO10j4qTvJ0Zav/iV50WUr6E7WailUQUj8C/VFS6WGsU+x0+X9aS8SQU9uojkWyG0w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720264923; c=relaxed/simple;
-	bh=FZluNKjq2UTA1D7/cQ+l7ws3ClAxigdEED5x/EbY778=;
+	s=arc-20240116; t=1720264924; c=relaxed/simple;
+	bh=AVr8OD19xzmckBYHnS9TvD6yvY4gB56cNiw6JOoCwIw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Ikoa+NLl4IqP5dIKzTVtgJV2U5m61e0trjZDOsOFR2TOVlJsn39MkbN4HxLbJ4HOkkdkOI6enR9Ra52QjRT4T+6ElQldm4XkRtOutPsDQIbBWE72WLuIE1UZ9qnZfRnPGlGNCKNCGMnffSMJ6obIf3vFk/mYGv120H7HgCOg/hQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=R2Hfadrr; arc=none smtp.client-ip=194.117.254.33
+	 MIME-Version; b=P4RzjySmqhlSYxPlgs8e8rKFmGuqXb6yibEKWsGP5KEe/9mxMxeg198Bj/N2IpgZ0Wk7zTDJN8odCuhIEpw4jJg/cKsg1kFxEp1iXRm1pm+42JdTeiQiJw8ifRUbHXq32uBzoqlXs4CSEV5ElDjiyTt4BL5teQOKHu9TKXRxhMY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=fZ3aorz2; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="R2Hfadrr"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="fZ3aorz2"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=from:to:cc:subject:date:message-id
 	:in-reply-to:references:mime-version:content-transfer-encoding;
-	 s=k1; bh=N1PwxPL8CNJDYeVjR4HvcrKu3KtQLbZ1YXWFnBOhDwg=; b=R2Hfad
-	rrwV2VX2Umk6bQIuY75BclpPhx39JqCqWHxa4ZAbZtgkhcfQfBNLtOhomt+zQqqf
-	SgipuchQtXWPJWWLRkIq0hG8OOLKh+y1qvjn25UYpRDE1ixSKfuVtgSQbG/5SJOz
-	wQmEQdIcnbxkV7VXmeYFXy6b2WzCwKzBL0FPKuetLWIZuUuzaa+lAJHSzhkTYpFM
-	Kn9oujkJ8oSwxYwPgrhRH8iQ7Lmhkbtw0xNu3v8rhMxgtSx+tS/ed2zt7aqeCiwX
-	XxGMCtgMKna4Rd8bappvQxQdot4cC66sUQcnNixfC+yL1RyI/54G2HdG78vh5hcq
-	wu9l67GQSlqpsZHw==
-Received: (qmail 3810488 invoked from network); 6 Jul 2024 13:21:46 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 6 Jul 2024 13:21:46 +0200
-X-UD-Smtp-Session: l3s3148p1@7AOoYpIcAsJQT+F6
+	 s=k1; bh=4SfqK3a3ab1W0iaWE9SHADzKqKu/0soHbCUAPyHoA7w=; b=fZ3aor
+	z2AYi9bXR2+KD6x7oNaHAtybWU+78rTcYpFozktkP+fiTs7m9llAcALPM5+Sw0x6
+	ImdgDAdO3womljU1sZTz43E8PlaVxCUVKctG2iAIUVMGGvUiKx3JBE7PoaxsS5M4
+	CxbT5G9kKJlNIDUKSydyPuKCm8aB88qCJ0bj4/fmDbyGFxqvHrjxAZMCOLe9MmkT
+	yK8g4Bi+IxJVEAm18oPzj8bjLSPUro4ONVP3AtMj5w0uaeLo/BtoK1htU3/gc1DK
+	Djig+mldT3PPO2CtShpkIf1bB2zveaInE3imrWFCkyfIZgr/CJwoYMhb/sFj8qrP
+	Io76D8V015HwKBMQ==
+Received: (qmail 3810543 invoked from network); 6 Jul 2024 13:21:47 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 6 Jul 2024 13:21:47 +0200
+X-UD-Smtp-Session: l3s3148p1@vZm8YpIcFsJQT+F6
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-i2c@vger.kernel.org
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Robert Richter <rric@kernel.org>,
 	Andi Shyti <andi.shyti@kernel.org>,
+	=?UTF-8?q?Andreas=20F=C3=A4rber?= <afaerber@suse.de>,
+	Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+	linux-actions@lists.infradead.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 34/60] i2c: octeon: reword according to newest specification
-Date: Sat,  6 Jul 2024 13:20:34 +0200
-Message-ID: <20240706112116.24543-35-wsa+renesas@sang-engineering.com>
+Subject: [PATCH v2 36/60] i2c: owl: reword according to newest specification
+Date: Sat,  6 Jul 2024 13:20:36 +0200
+Message-ID: <20240706112116.24543-37-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240706112116.24543-1-wsa+renesas@sang-engineering.com>
 References: <20240706112116.24543-1-wsa+renesas@sang-engineering.com>
@@ -54,69 +56,53 @@ specifications and replace "master/slave" with more appropriate terms.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-octeon-core.c    | 6 +++---
- drivers/i2c/busses/i2c-octeon-core.h    | 4 ++--
- drivers/i2c/busses/i2c-octeon-platdrv.c | 2 +-
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-owl.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-octeon-core.c b/drivers/i2c/busses/i2c-octeon-core.c
-index 5b7b942141e7..16cc34a0526e 100644
---- a/drivers/i2c/busses/i2c-octeon-core.c
-+++ b/drivers/i2c/busses/i2c-octeon-core.c
-@@ -221,14 +221,14 @@ static int octeon_i2c_check_status(struct octeon_i2c *i2c, int final_read)
- 	case STAT_LOST_ARB_B0:
- 		return -EAGAIN;
+diff --git a/drivers/i2c/busses/i2c-owl.c b/drivers/i2c/busses/i2c-owl.c
+index 777f1a0278c7..84a195e35886 100644
+--- a/drivers/i2c/busses/i2c-owl.c
++++ b/drivers/i2c/busses/i2c-owl.c
+@@ -172,7 +172,7 @@ static void owl_i2c_xfer_data(struct owl_i2c_dev *i2c_dev)
  
--	/* Being addressed as slave, should back off & listen */
-+	/* Being addressed as local target, should back off & listen */
- 	case STAT_SLAVE_60:
- 	case STAT_SLAVE_70:
- 	case STAT_GENDATA_ACK:
- 	case STAT_GENDATA_NAK:
- 		return -EOPNOTSUPP;
+ 	i2c_dev->err = 0;
  
--	/* Core busy as slave */
-+	/* Core busy as local target */
- 	case STAT_SLAVE_80:
- 	case STAT_SLAVE_88:
- 	case STAT_SLAVE_A0:
-@@ -608,7 +608,7 @@ static int octeon_i2c_hlc_comp_write(struct octeon_i2c *i2c, struct i2c_msg *msg
+-	/* Handle NACK from slave */
++	/* Handle NACK from target */
+ 	fifostat = readl(i2c_dev->base + OWL_I2C_REG_FIFOSTAT);
+ 	if (fifostat & OWL_I2C_FIFOSTAT_RNB) {
+ 		i2c_dev->err = -ENXIO;
+@@ -302,7 +302,7 @@ static int owl_i2c_xfer_common(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 			   OWL_I2C_CTL_IRQE, !atomic);
+ 
+ 	/*
+-	 * Select: FIFO enable, Master mode, Stop enable, Data count enable,
++	 * Select: FIFO enable, controller mode, Stop enable, Data count enable,
+ 	 * Send start bit
+ 	 */
+ 	i2c_cmd = OWL_I2C_CMD_SECL | OWL_I2C_CMD_MSS | OWL_I2C_CMD_SE |
+@@ -314,7 +314,7 @@ static int owl_i2c_xfer_common(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 		i2c_cmd |= OWL_I2C_CMD_AS(msgs[0].len + 1) |
+ 			   OWL_I2C_CMD_SAS(1) | OWL_I2C_CMD_RBE;
+ 
+-		/* Write slave address */
++		/* Write target address */
+ 		addr = i2c_8bit_addr_from_msg(&msgs[0]);
+ 		writel(addr, i2c_dev->base + OWL_I2C_REG_TXDAT);
+ 
+@@ -420,9 +420,9 @@ static int owl_i2c_xfer_atomic(struct i2c_adapter *adap,
  }
  
- /**
-- * octeon_i2c_xfer - The driver's master_xfer function
-+ * octeon_i2c_xfer - The driver's xfer function
-  * @adap: Pointer to the i2c_adapter structure
-  * @msgs: Pointer to the messages to be processed
-  * @num: Length of the MSGS array
-diff --git a/drivers/i2c/busses/i2c-octeon-core.h b/drivers/i2c/busses/i2c-octeon-core.h
-index 7af01864da75..b265e21189a1 100644
---- a/drivers/i2c/busses/i2c-octeon-core.h
-+++ b/drivers/i2c/busses/i2c-octeon-core.h
-@@ -39,8 +39,8 @@
- /* Controller command and status bits */
- #define TWSI_CTL_CE		0x80	/* High level controller enable */
- #define TWSI_CTL_ENAB		0x40	/* Bus enable */
--#define TWSI_CTL_STA		0x20	/* Master-mode start, HW clears when done */
--#define TWSI_CTL_STP		0x10	/* Master-mode stop, HW clears when done */
-+#define TWSI_CTL_STA		0x20	/* Controller-mode start, HW clears when done */
-+#define TWSI_CTL_STP		0x10	/* Controller-mode stop, HW clears when done */
- #define TWSI_CTL_IFLG		0x08	/* HW event, SW writes 0 to ACK */
- #define TWSI_CTL_AAK		0x04	/* Assert ACK */
- 
-diff --git a/drivers/i2c/busses/i2c-octeon-platdrv.c b/drivers/i2c/busses/i2c-octeon-platdrv.c
-index 7d54b3203f71..dc6dff95c68c 100644
---- a/drivers/i2c/busses/i2c-octeon-platdrv.c
-+++ b/drivers/i2c/busses/i2c-octeon-platdrv.c
-@@ -122,7 +122,7 @@ static u32 octeon_i2c_functionality(struct i2c_adapter *adap)
- }
- 
- static const struct i2c_algorithm octeon_i2c_algo = {
--	.master_xfer = octeon_i2c_xfer,
-+	.xfer = octeon_i2c_xfer,
- 	.functionality = octeon_i2c_functionality,
+ static const struct i2c_algorithm owl_i2c_algorithm = {
+-	.master_xfer	     = owl_i2c_xfer,
+-	.master_xfer_atomic  = owl_i2c_xfer_atomic,
+-	.functionality	     = owl_i2c_func,
++	.xfer = owl_i2c_xfer,
++	.xfer_atomic = owl_i2c_xfer_atomic,
++	.functionality = owl_i2c_func,
  };
  
+ static const struct i2c_adapter_quirks owl_i2c_quirks = {
 -- 
 2.43.0
 
