@@ -1,42 +1,43 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7F16146013
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 932B0145B06
 	for <linux-i2c@vger.kernel.org>; Sat,  6 Jul 2024 11:21:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720264914; cv=none; b=LUhMYTXD3Ed3HUjxHzwco4Y0aEw5r4LKxGUWg4MKNMNuZ5c69dwON/wRykCqz072FdUoy2gorUl0M+fW7s6K+4hacf8jGBZ/NM6sl7JdD0Yt5y03oR5EK0AwC3JwEqhhFJXtf+AS9yjCRgTEQZHEDneTaQF88/oI1NxtpC3Lyak=
+	t=1720264915; cv=none; b=Bd0vPYHGbjVMDL93KU1wBR9mkNC0VzlGV2ngJy02FhLnRS1yiZmieXLWMdMrn3aM5cZ0ATP/70Mwo5emCfiw4fJ+iA9p+sBzLfwTQ5emh3LSftazpd/Lk4bTAfr5SZ/bh0W0W0JFmDQVW+WW87yxYsVDDa9/gqRdRqE28lZSo8c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720264914; c=relaxed/simple;
-	bh=w4p5x6E9AF/XtTtu6q+8032MrinkSKAp8+QYHIUVFlY=;
+	s=arc-20240116; t=1720264915; c=relaxed/simple;
+	bh=dMnyEjp7+uX7hB8OvommDFSS9gTLs56lQaOKFfeWV80=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DLYjFlO2hO7qODrMAEF3agE5HBub8ofnPPg4b4w6u8z+ahqOutkVeeLznbnNqrumLSoqBmHJA923WV2ZhRGN46gFPPZxkxFaUQPSs9ogY5FHw8OTrsbsegtmS28v+YqbonvXvcu2P9dGYVsQXnwMRQ8+6RsgLwIf6oYtO67onCU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=amUatpvt; arc=none smtp.client-ip=194.117.254.33
+	 MIME-Version; b=Q6L2GMxJZuvF0mI7DjtNrQEnJxQi52UDIrqYUhZQOMG07+X+8JmQnrQgFRXxD32D9taeEeGipNEIDRL5lKE1pEXR4neMmRgWA+x5FSEaC/dCgRF+JvX0rVRA/9lf3yvDfFOp6i4je7LpHGIKfHfHFoDdRzcn1E2yLEs2f4YIab0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=OJ88jTM3; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="amUatpvt"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="OJ88jTM3"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=from:to:cc:subject:date:message-id
 	:in-reply-to:references:mime-version:content-transfer-encoding;
-	 s=k1; bh=CeHb9vjrMt9jgzTKk4gewrP64EVImhpH0TXk2i/YvJg=; b=amUatp
-	vtX+JVTnJKBqKk4AaWb+7jUjoeeq/bj7qlrw53vstcgKXyRWQhxWPAVRQNfdoudf
-	JfOZZpAz3BcAJ/aHuqGc5pGSyOOUtIgMlD+anz170ac9Fxk3GLI33mH8f7TyKGiw
-	+X05oaD1Ax+lNSYGeBLthALrybelTHyNpqaO2lgE+NFRwBxwmadPydhOFnvsoM0V
-	8y+Ox2r/ADb6fYSEqxNBzxRC8tdwLxFGqpezEC8U2ukT+8LFlMKszUHpi0Az66Zx
-	oz0CqMt0IPctKz45ujwFtgFoMQnT9xNeFXzPNjj3XeGcWC2WCA00tngQ7r70Uyqi
-	pA+FWzskUnTx5HdQ==
-Received: (qmail 3810015 invoked from network); 6 Jul 2024 13:21:37 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 6 Jul 2024 13:21:37 +0200
-X-UD-Smtp-Session: l3s3148p1@QCMlYpIcPoZQT+F6
+	 s=k1; bh=WeKdycd1+D6KyJrGKsaIPUssvwvGfHywxfTsuw+6QZA=; b=OJ88jT
+	M3XTQ+jEDbbGJ+iHvaV6rI1gd9OR5nHDY/sC35sFoXvTsi+Du6W7ZBnzGvcNcjqL
+	cGYmmjv8mKx4OCaz7OcV0od1JJqHHTVzm6OMpPdiBAdva7pyxkQq9b859Bo4mjw5
+	swkDZPZkwHG8D0pwyb3ulsY4c9o875gWvHzsgCd40NPkZRBFPj/sG0g4pUVS+miF
+	X0A8qtxQ0Qsc9LprrJXw63EbNRE0WCYmg9XJfj1eim3OsZEETa/j+9ckvKNCPpRh
+	w/Ysy/EPHf/hv010ES6BeEUjIJqA9uPOVv6NDucLYGZxRj5gnj3oG43JFnbol5Ru
+	As1HX91l6Y6kSPuw==
+Received: (qmail 3809969 invoked from network); 6 Jul 2024 13:21:36 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 6 Jul 2024 13:21:36 +0200
+X-UD-Smtp-Session: l3s3148p1@OS4QYpIcOIZQT+F6
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-i2c@vger.kernel.org
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Jean Delvare <jdelvare@suse.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 22/60] i2c: iop3xx: reword according to newest specification
-Date: Sat,  6 Jul 2024 13:20:22 +0200
-Message-ID: <20240706112116.24543-23-wsa+renesas@sang-engineering.com>
+Subject: [PATCH v2 20/60] i2c: i801: reword according to newest specification
+Date: Sat,  6 Jul 2024 13:20:20 +0200
+Message-ID: <20240706112116.24543-21-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240706112116.24543-1-wsa+renesas@sang-engineering.com>
 References: <20240706112116.24543-1-wsa+renesas@sang-engineering.com>
@@ -50,61 +51,57 @@ Content-Transfer-Encoding: 8bit
 
 Change the wording of this driver wrt. the newest I2C v7 and SMBus 3.2
 specifications and replace "master/slave" with more appropriate terms.
-Remove a useless comment while here.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- drivers/i2c/busses/i2c-iop3xx.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+ drivers/i2c/busses/i2c-i801.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-iop3xx.c b/drivers/i2c/busses/i2c-iop3xx.c
-index 2e5f0165c3d3..859c14e340e7 100644
---- a/drivers/i2c/busses/i2c-iop3xx.c
-+++ b/drivers/i2c/busses/i2c-iop3xx.c
-@@ -22,7 +22,7 @@
-  * - Make it work with IXP46x chips
-  * - Cleanup function names, coding style, etc
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 44e3e9bae5f1..328c0dab6b14 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -88,7 +88,7 @@
+  * Block buffer				yes
+  * Block process call transaction	yes
+  * I2C block read transaction		yes (doesn't use the block buffer)
+- * Slave mode				no
++ * Target mode				no
+  * SMBus Host Notify			yes
+  * Interrupt processing			yes
   *
-- * - writing to slave address causes latchup on iop331.
-+ * - writing to local target address causes latchup on iop331.
-  *	fix: driver refuses to address self.
-  */
- 
-@@ -234,7 +234,7 @@ iop3xx_i2c_send_target_addr(struct i2c_algo_iop3xx_data *iop3xx_adap,
- 	int status;
- 	int rc;
- 
--	/* avoid writing to my slave address (hangs on 80331),
-+	/* avoid writing to local target address (hangs on 80331),
- 	 * forbidden in Intel developer manual
- 	 */
- 	if (msg->addr == MYSAR) {
-@@ -349,12 +349,9 @@ iop3xx_i2c_handle_msg(struct i2c_adapter *i2c_adap, struct i2c_msg *pmsg)
- 	}
+@@ -1277,10 +1277,10 @@ static void register_dell_lis3lv02d_i2c_device(struct i801_priv *priv)
+ 	i2c_new_client_device(&priv->adapter, &info);
  }
  
--/*
-- * master_xfer() - main read/write entry
-- */
- static int
--iop3xx_i2c_master_xfer(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
--				int num)
-+iop3xx_i2c_xfer(struct i2c_adapter *i2c_adap, struct i2c_msg *msgs,
-+		int num)
+-/* Register optional slaves */
+-static void i801_probe_optional_slaves(struct i801_priv *priv)
++/* Register optional targets */
++static void i801_probe_optional_targets(struct i801_priv *priv)
  {
- 	struct i2c_algo_iop3xx_data *iop3xx_adap = i2c_adap->algo_data;
- 	int im = 0;
-@@ -384,8 +381,8 @@ iop3xx_i2c_func(struct i2c_adapter *adap)
+-	/* Only register slaves on main SMBus channel */
++	/* Only register targets on main SMBus channel */
+ 	if (priv->features & FEATURE_IDF)
+ 		return;
+ 
+@@ -1307,7 +1307,7 @@ static void i801_probe_optional_slaves(struct i801_priv *priv)
  }
+ #else
+ static void __init input_apanel_init(void) {}
+-static void i801_probe_optional_slaves(struct i801_priv *priv) {}
++static void i801_probe_optional_targets(struct i801_priv *priv) {}
+ #endif	/* CONFIG_X86 && CONFIG_DMI */
  
- static const struct i2c_algorithm iop3xx_i2c_algo = {
--	.master_xfer	= iop3xx_i2c_master_xfer,
--	.functionality	= iop3xx_i2c_func,
-+	.xfer = iop3xx_i2c_xfer,
-+	.functionality = iop3xx_i2c_func,
- };
+ #ifdef CONFIG_I2C_I801_MUX
+@@ -1777,7 +1777,7 @@ static int i801_probe(struct pci_dev *dev, const struct pci_device_id *id)
  
- static void
+ 	/* We ignore errors - multiplexing is optional */
+ 	i801_add_mux(priv);
+-	i801_probe_optional_slaves(priv);
++	i801_probe_optional_targets(priv);
+ 
+ 	pci_set_drvdata(dev, priv);
+ 
 -- 
 2.43.0
 
