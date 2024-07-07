@@ -1,43 +1,46 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A12D18C22
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 692A2182B9
 	for <linux-i2c@vger.kernel.org>; Sun,  7 Jul 2024 08:28:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720340944; cv=none; b=s5O4UcQTrLy2VD8FZpfn2/qUXmP0Uq21r/vAs6Ra2xQC+YPe79lwHz0p4Z722uMtWV3c3veQKCsXLP1bp9Daf9egp698nJywDtsUu1Fo6G8HJktTlrgyWPIO+Md6V3wZjA9p07OKOeTXzlJJfKlxRoaKTJ9TuWvP0KquiJxLIcc=
+	t=1720340944; cv=none; b=El/h4vBZXtbFIIkcEcbVW8L0m48+XroIYBu5P9d0sDoDB/mHsInJJq3+eybDUQ2Tf7+qxeiGLNjepp4Wog8dNyv75ax+qtstrPytq0//U7MF6ZSF8s8cUZ7tqz97XgYPZ5JhJ8+yhJ/zAXy9rZezNUrg5nhgYhuQpu7klCfAuEI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1720340944; c=relaxed/simple;
-	bh=cvanKG/Cf5mV7ly86t9o5qxcCv9C81kPQNxeBxtL6KE=;
+	bh=OzHvO6rVAWLMwGOBglvI6ki+1drfBQjh5lYtrpaYyX0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=DYmIru8xTeWhghBBxe66D83/rPYU0E7gxCCK5avzHiDiuZirpmTD787kuJh8hAFbGLohxFrZv+qTY1mBh/7r2bG/0sfa/e6224dXRVRMMqWLvOBSrw7ibdIofiGPfauD1i4sVfejDUUsUVo3jYwbdBmOMOssxzC34GrmOk4rWk8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=Q9O4jZVM; arc=none smtp.client-ip=194.117.254.33
+	 MIME-Version; b=VN7J0bR8H77xZA9KDwePd0uuqIihotS7yHAigzGPH4I0roMBQXrrtzSYRzMHtpVWkJVtAXD/kqkUbqbQYqYZuCo2gtJcyfnkWDe7ghLseZcuhIv+nH0e0qDXZydiDEqPMr9rVCMeCFvfmHy9eIzNmZwLdm+MWooDYXN2fBt2nw4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=arzLq/Nt; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Q9O4jZVM"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="arzLq/Nt"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=from:to:cc:subject:date:message-id
 	:in-reply-to:references:mime-version:content-transfer-encoding;
-	 s=k1; bh=dWULRCNFLS2MhlSInBBfsCGfT7ld7iNcRBI8KUxYBSk=; b=Q9O4jZ
-	VMwgJo1OA/zdVwuf1QYlFTCOg5UYrmZ8R4O6VgnmU2x74Ml1HMO7QMH9RQjshYl/
-	P+/wvAf2qUgVq/RF17wCpCUjMMLAKAIUX9lRj41Y208O6vrN4hRV6vlkrdgBstTK
-	pxTbwFyOYpnI2z5JNDikt5023xRt7RphyhzCjTPuoMmmHLDEOyfNm6niQmFaqJ21
-	Vs+CCUa4nBvK327ayRwSb7gpPMFJFOrFAgQ0dx5CVqFllmeY1/20zfoTmVpESrvw
-	rTpcdZmrzyfzG1XpUI+IpW96PqK1SsrI3+q/DrjzIQ/JMZz14j+quJAyyWIVaL64
-	y2SaUyVfLo8lPVSw==
-Received: (qmail 4044229 invoked from network); 7 Jul 2024 10:28:58 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Jul 2024 10:28:58 +0200
-X-UD-Smtp-Session: l3s3148p1@lu1/FqQcVJRQT+F6
+	 s=k1; bh=nc77Nyudax4dUYLrDvKpXrdOETKQVPpzHynxuO9OHTM=; b=arzLq/
+	Nt8S9/n3TfoP5EIKzzC3wBgZKnGNfmkbosqRFGu58ZslWTP7n9F/iYadhoC4wTK2
+	v9Ctt+/9uQCoc8+hzooVNyvf31AXpmTlG2R+z+kcJfS72UF47gYm9GqJ96jHteHu
+	pxa0m75AQjd+CwGwIcAAfKBqr6wp4wHFDvEXGDXS2WolV0lDHBlG81tG/KTmPNr5
+	R78cfkhPXGRPNYlBclBtfM3mILrMdcNVd631MlO94Avk55GuIszRy9ezFeqMsZmH
+	ABht3fXjFuRqrJPswLcFxf1rwl55CnkZQ3J0gSdtBb7FOnrTn01oIXDi/oi1r3J4
+	2f4iNuDhj7qYTpzw==
+Received: (qmail 4044189 invoked from network); 7 Jul 2024 10:28:57 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Jul 2024 10:28:57 +0200
+X-UD-Smtp-Session: l3s3148p1@okB2FqQcRpRQT+F6
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-renesas-soc@vger.kernel.org
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Dirk Behme <dirk.behme@de.bosch.com>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
 	Andi Shyti <andi.shyti@kernel.org>,
+	Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 2/3] i2c: rcar: WARN about spurious irqs
-Date: Sun,  7 Jul 2024 10:28:47 +0200
-Message-ID: <20240707082848.5424-3-wsa+renesas@sang-engineering.com>
+Subject: [PATCH v2 1/3] i2c: rcar: bring hardware to known state when probing
+Date: Sun,  7 Jul 2024 10:28:46 +0200
+Message-ID: <20240707082848.5424-2-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240707082848.5424-1-wsa+renesas@sang-engineering.com>
 References: <20240707082848.5424-1-wsa+renesas@sang-engineering.com>
@@ -49,35 +52,72 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The FIXME is very old and probably needed because of some driver bug
-like insufficient initialization. It may well be that it was fixed
-meanwhile but we never know because the spurious irq is silently
-ignored. Add now a call trace when this happens so we have more
-information in case the issue still exists.
+When probing, the hardware is not brought into a known state. This may
+be a problem when a hypervisor restarts Linux without resetting the
+hardware, leaving an old state running. Make sure the hardware gets
+initialized, especially interrupts should be cleared and disabled.
 
+Reported-by: Dirk Behme <dirk.behme@de.bosch.com>
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Closes: https://lore.kernel.org/r/20240702045535.2000393-1-dirk.behme@de.bosch.com
+Fixes: 6ccbe607132b ("i2c: add Renesas R-Car I2C driver")
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
-Should go to for-next.
+
+Should go to for-current.
 
 Changes since v1:
-* new patch
+* renamed new function to *_reset_slave() instead of *_init_slave()
+  which is more appropriate
+* do not mention refactorization in commit message
+* added Fixes tag
 
- drivers/i2c/busses/i2c-rcar.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-rcar.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index ec73463ea9b5..d7688d702b65 100644
+index 828aa2ea0fe4..ec73463ea9b5 100644
 --- a/drivers/i2c/busses/i2c-rcar.c
 +++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -553,7 +553,7 @@ static void rcar_i2c_irq_send(struct rcar_i2c_priv *priv, u32 msr)
- 	u32 irqs_to_clear = MDE;
+@@ -257,6 +257,14 @@ static void rcar_i2c_init(struct rcar_i2c_priv *priv)
+ 	}
+ }
  
- 	/* FIXME: sometimes, unknown interrupt happened. Do nothing */
--	if (!(msr & MDE))
-+	if (WARN(!(msr & MDE), "spurious irq"))
- 		return;
++static void rcar_i2c_reset_slave(struct rcar_i2c_priv *priv)
++{
++	rcar_i2c_write(priv, ICSIER, 0);
++	rcar_i2c_write(priv, ICSSR, 0);
++	rcar_i2c_write(priv, ICSCR, SDBS);
++	rcar_i2c_write(priv, ICSAR, 0); /* Gen2: must be 0 if not using slave */
++}
++
+ static int rcar_i2c_bus_barrier(struct rcar_i2c_priv *priv)
+ {
+ 	int ret;
+@@ -1033,11 +1041,8 @@ static int rcar_unreg_slave(struct i2c_client *slave)
  
- 	if (msr & MAT)
+ 	/* ensure no irq is running before clearing ptr */
+ 	disable_irq(priv->irq);
+-	rcar_i2c_write(priv, ICSIER, 0);
+-	rcar_i2c_write(priv, ICSSR, 0);
++	rcar_i2c_reset_slave(priv);
+ 	enable_irq(priv->irq);
+-	rcar_i2c_write(priv, ICSCR, SDBS);
+-	rcar_i2c_write(priv, ICSAR, 0); /* Gen2: must be 0 if not using slave */
+ 
+ 	priv->slave = NULL;
+ 
+@@ -1152,7 +1157,9 @@ static int rcar_i2c_probe(struct platform_device *pdev)
+ 		goto out_pm_disable;
+ 	}
+ 
+-	rcar_i2c_write(priv, ICSAR, 0); /* Gen2: must be 0 if not using slave */
++	/* Bring hardware to known state */
++	rcar_i2c_init(priv);
++	rcar_i2c_reset_slave(priv);
+ 
+ 	if (priv->devtype < I2C_RCAR_GEN3) {
+ 		irqflags |= IRQF_NO_THREAD;
 -- 
 2.43.0
 
