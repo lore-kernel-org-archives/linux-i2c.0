@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 809681B86D4;
-	Tue,  9 Jul 2024 21:42:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 851EE187843;
+	Tue,  9 Jul 2024 21:42:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720561354; cv=none; b=gvCgR69rub8or8F1r2323qcfR01yxJib6d1ywmp8vG0OlJVX+GboQjuPLYF6cdMhKxMEcYywer5X8KMKncZaeZeus8w0cRoGFFZimcXbBURxoPxLHQrEzDiAZZ6zvQwjo5uOvmg5vqUYYcvhouVRv2zjXRTr8GyoRxJqDpjJt3o=
+	t=1720561374; cv=none; b=hymAAu/1GWv73TEGHLF9xsGQwymY/sFPx8wppr0vBg3+g+vXh77PEAU4VXDtTdhriZlbiNx2K71S5SuglNSO/ofGpfDJIctjedRe1clk7hkATRDuY4RfyztoNGxja3OK1Tjl9SR+QqKCpsgaJDgN1t3wcqiHwN7eAFjiLgDLtAs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720561354; c=relaxed/simple;
-	bh=4y+u8QCjLbyxrdA7dU4qxf6989325Mqo3KAHngjVpX8=;
+	s=arc-20240116; t=1720561374; c=relaxed/simple;
+	bh=DB4aizep3JoJB6Lb+bHiTjG4XaBZOilWq6JLMlz/qG0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QDJkjFjoOT2f5H7XJQIP2eQwlNXDcwMJTmqtvOAyrUdtm/LuWL+ugBfFGuT4R7pWEK7KKyP3cCr732KBZJEM64eiT8zMzidfpRhJALYSwZWlFIIOpgncXAU1iOfZ7yaot7bHSaeXmsuZEeJixxnDr8Wcd5toWw5RLrk6mJ4ysB4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CYTWrZ/i; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=E9lfuUwOV4Aq1c6G/HmY97TgRVH6CjwNZsjfV7VY/9sAQnS0aT+3Dn/ymesKnhFQGQJuVWvS/Qgwme1k3XpYJznI3bezz3Xo58KAEis3jaWUv5u5vksqVZg20eqPCIw/+v8PPlMB92ACm5I9qF7v4nydF4Amagz7ie0NzaYuueU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lKOwmoQI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CYTWrZ/i"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BDE7C3277B;
-	Tue,  9 Jul 2024 21:42:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lKOwmoQI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F5C8C3277B;
+	Tue,  9 Jul 2024 21:42:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1720561354;
-	bh=4y+u8QCjLbyxrdA7dU4qxf6989325Mqo3KAHngjVpX8=;
+	s=k20201202; t=1720561374;
+	bh=DB4aizep3JoJB6Lb+bHiTjG4XaBZOilWq6JLMlz/qG0=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=CYTWrZ/i/1yKjJzl7IyJOu9AVf5GPrN0eXjBBmCFVEOhGFXeKjb6OByML8fNzhUAe
-	 a8fye4Z4AemXFXUzmUsfTPb8RAgq1q5SrB3W6Nn4qiCtiaeoD7L4kMUwvPfMrLowJQ
-	 CmwNTR1KgTxXndy8wXj8uxtecE4ZftERGiDuZdJUAYq6YBEanC/FINzG7/fs0VGpI9
-	 gLjQdOqxnZUCdnBmq3Bv9Saw4WvhU2YpEugJTWF3BZoBBSwqNkHkXJDcE7mfZm2w0W
-	 Ut892CrT4LO9fhTBrM/OMZiXobxbdvlWsLp3mpCqIhKxaTnsx+hhhJv+NdJf+NQVXu
-	 w3wI9ipVK1zcg==
-Date: Tue, 9 Jul 2024 23:42:29 +0200
+	b=lKOwmoQIAWUkecWcrwhLF6uNK+woegn9M6/y/lJ3hy/KkIyOHioMv6gp43DfoCqgL
+	 i06sYFSQYNfY24FNrbzMj6V8OwSBwC3nK7xqbDIodsUZEitfhl2eYLj9vtVolRp/6G
+	 Gts04t/n0fvibg56kXheviVUbKpPgPBTB23n1c0cSkg4KPYy+/9mMakVk538IK9cyJ
+	 bfvL53xaH0s57fOJLHQaLgEPZKAUHbPcH202V8HWM78rnPqIMNR2leMt8mF6EDTDPx
+	 OMzUjHY3sgOSapDlNy+fFBEddDNOGJlIFd+dkYqahMK9tG5gPrNnKUXNfLdbe/I+/d
+	 q9y/DUmtis7kQ==
+Date: Tue, 9 Jul 2024 23:42:50 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
 To: Bastien Curutchet <bastien.curutchet@bootlin.com>
 Cc: Peter Rosin <peda@axentia.se>, Rob Herring <robh@kernel.org>, 
@@ -35,11 +35,11 @@ Cc: Peter Rosin <peda@axentia.se>, Rob Herring <robh@kernel.org>,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
 	Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Herve Codina <herve.codina@bootlin.com>, 
 	Christopher Cordahi <christophercordahi@nanometrics.ca>
-Subject: Re: [PATCH v3 1/3] dt-bindings: i2c: gpio: Add 'settle-time-us'
- property
-Message-ID: <6knnhpymug6qshunynoqg3ljwaamt6bbnak5k6vvblfmzs6csl@2vo4q6t2kxjc>
+Subject: Re: [PATCH v3 2/3] i2c: mux: gpio: Re-order #include to match
+ alphabetic order
+Message-ID: <4u7ucwosa5snvobzcmyvoukmljudlqotgwh76a4llussb5227k@dxjbagicsh2o>
 References: <20240617120818.81237-1-bastien.curutchet@bootlin.com>
- <20240617120818.81237-2-bastien.curutchet@bootlin.com>
+ <20240617120818.81237-3-bastien.curutchet@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -48,22 +48,19 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20240617120818.81237-2-bastien.curutchet@bootlin.com>
+In-Reply-To: <20240617120818.81237-3-bastien.curutchet@bootlin.com>
 
 Hi,
 
-On Mon, Jun 17, 2024 at 02:08:16PM GMT, Bastien Curutchet wrote:
-> I2C MUXes described by the i2c-gpio-mux sometimes need a significant
-> amount of time to switch from a bus to another. When a new bus is
-> selected, the first I2C transfer can fail if it occurs too early. There
-> is no way to describe this transition delay that has to be waited before
-> starting the first I2C transfer.
+On Mon, Jun 17, 2024 at 02:08:17PM GMT, Bastien Curutchet wrote:
+> The #includes don't match alphabetic order.
 > 
-> Add a 'settle-time-us' property that indicates the delay to be
-> respected before doing the first i2c transfer.
+> Re-order #includes to match the alphabetic order before adding a new
+> one.
 > 
 > Signed-off-by: Bastien Curutchet <bastien.curutchet@bootlin.com>
 
-Reviewed-by: Andi Shyti <andi.shyti@kernel.org> 
+Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
 
+Thanks,
 Andi
