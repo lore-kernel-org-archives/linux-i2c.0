@@ -1,664 +1,194 @@
-Received: from mx08lb.world4you.com (mx08lb.world4you.com [81.19.149.118])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DBB81953BE
-	for <linux-i2c@vger.kernel.org>; Wed, 10 Jul 2024 17:57:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=81.19.149.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18F20194C73;
+	Wed, 10 Jul 2024 19:16:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720634255; cv=none; b=YUx6+EDdNTxMDQvTu55YBqAXRlab2wwkhIvwCiju5qJAwt3pScWuAJJ4tuO19q7Yl0FhUJCuxZY9H+gsCD0HhXVAygxex7CMl5MITXY+CzqTRlTk37DLZEGIUEhaEqHk/YW7tg76q9+fkbZRbqsHTbCvX4M/CgvWFTREKrUkX9U=
+	t=1720639020; cv=none; b=pD858YkY2Vmy9j464yNZpoq2Enolttz28C16mgMgdWYrTh7lmyjhttxBe530/ffbsK8EUPi+fmdxFIsNAzDjw3f+rbhBBjYe4ULcxb/cBr7jAxBWelATsjRr8GjUfLbU6CtVMHpYq9k4xUOpJvpgXQnyypYAb8RQeCKzpobCgSw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720634255; c=relaxed/simple;
-	bh=42jng3RuSmD0D8JGf7YMMAOCW6YIP5iy+knh7hoSxTY=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=k9R0dUfJBAMnCJ06HptAhyrbH7EDdySG6zQrIEuOJ6zCIHcSZZfoo0JVWWr7TGwLi6beC4jvEkviTFLirK4IYbgeIhSze6ezehiJz+5bS2AfeuExQm+c8UMYhp/O3pWI8wT2qj+wvq0mIGAZy95YE3R9eJruz+WUliAdWo3M9oo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=engleder-embedded.com; spf=pass smtp.mailfrom=engleder-embedded.com; dkim=pass (1024-bit key) header.d=engleder-embedded.com header.i=@engleder-embedded.com header.b=appuXSQ8; arc=none smtp.client-ip=81.19.149.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=engleder-embedded.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=engleder-embedded.com
+	s=arc-20240116; t=1720639020; c=relaxed/simple;
+	bh=q0/2Al4mJgaZPBCzGQz4fSEpj64qqLpkAQJY2B90HEY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=J7DKar6QyzCNdD8bhPvLWaM6/OmQW6OiZs0oV8uUMan7fyhiaO9RzfSRbNd6EFQ7zOjZglziD0uMnu1JYJl2gbvpyrehkntQrDz/Qxx9ItTPCr6HJ95rTkQVNNMUDeZAla1ELm2xfE/O8d3iG5MwdxmhTR/oF6VcMHO/gzNnqhc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=VaXLcqL9; arc=none smtp.client-ip=209.85.215.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=engleder-embedded.com header.i=@engleder-embedded.com header.b="appuXSQ8"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=engleder-embedded.com; s=dkim11; h=Content-Transfer-Encoding:MIME-Version:
-	References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-	Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=GP8bgRvtVXL7sZ2Xg4he0VT5zFrPQIlIa7/rROvBzFU=; b=appuXSQ84tjIRNRmuXyA37BQjB
-	WSMTODxL4wGI/4Clav1AZqoEBFaSNmPLmDoIosO/2ulHiLtQla45HnXhHvr8S1OWM24P7P9NJQ326
-	DRJVWbW/3Rs3cwQgxFdsmPNvjtmLQOfZ0k7n/X3XGpb3Q9B965Yz+KV0MYUrrbRy/OzM=;
-Received: from 88-117-61-57.adsl.highway.telekom.at ([88.117.61.57] helo=hornet.engleder.at)
-	by mx08lb.world4you.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96.2)
-	(envelope-from <gerhard@engleder-embedded.com>)
-	id 1sRbYx-0003m8-2I;
-	Wed, 10 Jul 2024 19:57:07 +0200
-From: Gerhard Engleder <gerhard@engleder-embedded.com>
-To: linux-i2c@vger.kernel.org
-Cc: andi.shyti@kernel.org,
-	arnd@arndb.de,
-	gregkh@linuxfoundation.org,
-	Gerhard Engleder <gerhard@engleder-embedded.com>,
-	Gerhard Engleder <eg@keba.com>
-Subject: [PATCH v3 1/2] misc: keba: Add basic KEBA CP500 system FPGA support
-Date: Wed, 10 Jul 2024 19:57:01 +0200
-Message-Id: <20240710175702.22344-2-gerhard@engleder-embedded.com>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20240710175702.22344-1-gerhard@engleder-embedded.com>
-References: <20240710175702.22344-1-gerhard@engleder-embedded.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="VaXLcqL9"
+Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-710437d0affso39001a12.3;
+        Wed, 10 Jul 2024 12:16:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1720639018; x=1721243818; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=rFSrAVkn/a7mPoj30LB+T4FnVW3db2UjOHGrRFwKl3Y=;
+        b=VaXLcqL9J7TcOD+Nev4IAFIa1+NxGfdt+aePI3kSfb/bF/uBxcZ2t42ch4qO4tJamx
+         buFApxAoeqHeQLNUl0DFEdWv84P+iOJRIDaOzjK2HkSd8VBbqJsyQObjRcuWoOooXH1Y
+         POXzimcbDmEsOo9F8noFYpBoOeULKrXGK37d1ar/yAvofn1WEOB9S3pETDHixQQKEPk4
+         EY5i+amAq/dZ/CFpwG8qP3Nz2dGTFLOpKOQJq4Eh/iGUoknbSPBBMmPr7NhpOLGVC5rT
+         l3lj7NNnekzfgoXJsHb5HaUheHXXEmXJf9UTimyu5kHmz5WidO2wvySvNI75myxOvAJ1
+         kgMQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1720639018; x=1721243818;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rFSrAVkn/a7mPoj30LB+T4FnVW3db2UjOHGrRFwKl3Y=;
+        b=m9LgHu+BbMb0+vPwrqT77sW/fLbWAdL78iWMyMl0Eg+xVtCuBV0B6W5vng6Mp5kghE
+         l8xQEan4eM3rK0rO7ly+PNDjWV5jWmYtPwHlmQj7sBPwYw/KIv1tn/7PkLG9h5Ch1oT1
+         yRigBo3zmmpnNf4tic+AM1oxYcp0bprLm4ZRMBr68G4NfNWzzj58A+Ye3quLw9N+3qlp
+         u1JGfYqGfSab9xhzaT2cRUrMaGmZJYhe4LTuPM0vZAxVjuxHqCuQSz9thEyYfb+rPJxt
+         t9sUuK7ta46o7Pi6as9tGlsHbPnKQM5rPb/3bhnmvhVxBZTzRv5yTZxChJvG3vts5uLl
+         +Gfg==
+X-Forwarded-Encrypted: i=1; AJvYcCXr93qkZlX8+a0c3YTTv/fs3vcjGQ8HDqHRxQsTOxqCBpoB3/CqUOPTYDJrgiQYK/B3bEIh+4xmthVq9jUPrKqQOD9JLIzZcxwizcRmI+wijEH6U3AzL8vszgX6Sq6pR7UKNwDZWmU=
+X-Gm-Message-State: AOJu0Yy79Rq73oQYvYtIfFg7CLQsn+nwiGEV8xEkwedPsrSuy4LAqaM6
+	5eakxXAdxlet0tJrxUEe/LB1Btrq6b26QzK3W7lYVLrxMMByG+3L
+X-Google-Smtp-Source: AGHT+IGuepe0LlZuH7k9BifxCdXTDAiyz3I//ZLrO5gZGm0XUMQnOJdkn8MCVDEBki1OiwrI+BcGYw==
+X-Received: by 2002:a05:6a20:7f81:b0:1c2:905c:dba with SMTP id adf61e73a8af0-1c2984e4218mr7790063637.54.1720639018243;
+        Wed, 10 Jul 2024 12:16:58 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-70b439ed0f6sm4122463b3a.218.2024.07.10.12.16.56
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 10 Jul 2024 12:16:57 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <201dec9d-bba0-477b-bbb2-c17aa37b944a@roeck-us.net>
+Date: Wed, 10 Jul 2024 12:16:55 -0700
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] hwmon: (pmbus/ltc4286) Improve device matching
+To: =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+Cc: Delphine CC Chiu <Delphine_CC_Chiu@wiwynn.com>,
+ Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org,
+ linux-hwmon@vger.kernel.org
+References: <cover.1720600141.git.u.kleine-koenig@baylibre.com>
+ <cf49bf8b0ba4e50e71e0b31471748b50d7b1a055.1720600141.git.u.kleine-koenig@baylibre.com>
+ <c98be2fa-bc08-45cb-bed6-3efeeefa8754@roeck-us.net>
+ <3jyzvldeh32cwjmvcuhazmz2jzuqjcbnza4yajnn2ky7mcby37@aswnxwoe6whu>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ mDW4+i+XlNFUPUYMrIKi9joBhu18ssf5i5Q=
+In-Reply-To: <3jyzvldeh32cwjmvcuhazmz2jzuqjcbnza4yajnn2ky7mcby37@aswnxwoe6whu>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-AV-Do-Run: Yes
-X-ACL-Warn: X-W4Y-Internal
 
-From: Gerhard Engleder <eg@keba.com>
+On 7/10/24 08:48, Uwe Kleine-König wrote:
+> Hello Guenter,
+> 
+> On Wed, Jul 10, 2024 at 07:09:28AM -0700, Guenter Roeck wrote:
+>> On 7/10/24 01:35, Uwe Kleine-König wrote:
+>>> The devices supported by this driver report the model name in their
+>>> register space. The way this is evaluated allows longer strings than the
+>>> driver's model list. Document this behaviour in a code comment to lessen
+>>> the surprise for the next reader.
+>>>
+>>> Additionally emit the reported model name in case of a mismatch.
+>>>
+>>> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@baylibre.com>
+>>> ---
+>>>    drivers/hwmon/pmbus/ltc4286.c | 12 +++++++++---
+>>>    1 file changed, 9 insertions(+), 3 deletions(-)
+>>>
+>>> diff --git a/drivers/hwmon/pmbus/ltc4286.c b/drivers/hwmon/pmbus/ltc4286.c
+>>> index 9e7ceeb7e789..2e5532300eff 100644
+>>> --- a/drivers/hwmon/pmbus/ltc4286.c
+>>> +++ b/drivers/hwmon/pmbus/ltc4286.c
+>>> @@ -95,13 +95,19 @@ static int ltc4286_probe(struct i2c_client *client)
+>>>    				     "Failed to read manufacturer model\n");
+>>>    	}
+>>> -	for (mid = ltc4286_id; mid->name[0]; mid++) {
+>>> +	for (mid = ltc4286_id; mid->name[0]; mid++)
+>>> +		/*
+>>> +		 * Note that by limiting the comparison to strlen(mid->name)
+>>> +		 * chars, the device reporting "lTc4286chocolade" is accepted,
+>>> +		 * too.
+>>> +		 */
+>>
+>> This is misleading; the desired match is LTC4286 and all its variants (LTC4286[A-Z] and
+>> whatever else the vendor can come up with), i.e., it is supposed to include all device
+>> variants, and ignoring case since it is irrelevant. Referring to the odd string just
+>> makes that look unnecessarily bad. I am not going to apply this patch, sorry.
+> 
+> You're quite an optimist, expecting "whatever the vendor can come up
+> with" but nothing bad :-)
+> 
 
-The KEBA CP500 system FPGA is a PCIe device, which consists of multiple
-IP cores. Every IP core has its own auxiliary driver. The cp500 driver
-registers an auxiliary device for each device and the corresponding
-drivers are loaded by the Linux driver infrastructure.
+"optimist" is relative. A perfectly valid alternative would be to _not_ do any
+testing at all. After all, this is not a detect function, this is the probe
+function, which should only be called _after_ the chip has been identified.
 
-Currently 3 variants of this device exists. Every variant has its own
-PCI device ID, which is used to determine the list of available IP
-cores. In this first version only the auxiliary device for the I2C
-controller is registered.
+Since the model number is not used for anything but extra validation, one might
+as well argue that the validation is unnecessary and can or should be dropped
+to reduce boot time. Of course, given the vagueness of the PMBus specification,
+that might result in fatal consequences if the wrong chip is instantiated,
+so I think that validation does make sense, and I suggest to add it for all
+PMBus drivers. However, one can overdo it (and not all drivers do it).
 
-Besides the auxiliary device registration some other basic functions of
-the FPGA are implemented; e.g, FPGA version sysfs file, keep FPGA
-configuration on reset sysfs file, error message for errors on the
-internal AXI bus of the FPGA.
+> Anyhow, what about updating the comment to read:
+> 
+> 	Note that by limiting the comparison to strlen(mid->name) chars,
+> 	matching for devices that report their model with a variant
+> 	suffix is supported.
+> 
+> While looking at the code again, I spotted a (theoretic) bug: Given that
+> block_buffer isn't initialized at function entry, it might well contain
+> "LTC4286something" (which might even be realistic if the driver just
+> probed on a different bus?). Now if i2c_smbus_read_block_data(...
+> PMBUS_MFR_MODEL, ...) returned something between 0 and 6, we're looking
+> at bytes that didn't come from the block read.
+> 
 
-Signed-off-by: Gerhard Engleder <eg@keba.com>
----
- .../ABI/stable/sysfs-driver-misc-cp500        |  25 +
- drivers/misc/Kconfig                          |   1 +
- drivers/misc/Makefile                         |   1 +
- drivers/misc/keba/Kconfig                     |  12 +
- drivers/misc/keba/Makefile                    |   3 +
- drivers/misc/keba/cp500.c                     | 458 ++++++++++++++++++
- include/linux/misc/keba.h                     |  25 +
- 7 files changed, 525 insertions(+)
- create mode 100644 Documentation/ABI/stable/sysfs-driver-misc-cp500
- create mode 100644 drivers/misc/keba/Kconfig
- create mode 100644 drivers/misc/keba/Makefile
- create mode 100644 drivers/misc/keba/cp500.c
- create mode 100644 include/linux/misc/keba.h
+Yes, I would agree that a check ensuring that ret >= 7 would make sense.
 
-diff --git a/Documentation/ABI/stable/sysfs-driver-misc-cp500 b/Documentation/ABI/stable/sysfs-driver-misc-cp500
-new file mode 100644
-index 000000000000..525bd18a2db4
---- /dev/null
-+++ b/Documentation/ABI/stable/sysfs-driver-misc-cp500
-@@ -0,0 +1,25 @@
-+What:		/sys/devices/pciXXXX:XX/0000:XX:XX.X/0000:XX:XX.X/version
-+Date:		June 2024
-+KernelVersion:	6.11
-+Contact:	Gerhard Engleder <eg@keba.com>
-+Description:	Version of the FPGA configuration bitstream as printable string.
-+		This file is read only.
-+Users:		KEBA
-+
-+What:		/sys/devices/pciXXXX:XX/0000:XX:XX.X/0000:XX:XX.X/keep_cfg
-+Date:		June 2024
-+KernelVersion:	6.11
-+Contact:	Gerhard Engleder <eg@keba.com>
-+Description:	Flag which signals if FPGA shall keep or reload configuration
-+		bitstream on reset. Normal FPGA behavior and default is to keep
-+		configuration bitstream and to only reset the configured logic.
-+
-+		Reloading configuration on reset enables an update of the
-+		configuration bitstream with a simple reboot. Otherwise it is
-+		necessary to power cycle the device to reload the new
-+		configuration bitstream.
-+
-+		This file is read/write. The values are as follows:
-+		1 = keep configuration bitstream on reset, default
-+		0 = reload configuration bitstream on reset
-+Users:		KEBA
-diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index faf983680040..ca0c6a728a00 100644
---- a/drivers/misc/Kconfig
-+++ b/drivers/misc/Kconfig
-@@ -602,4 +602,5 @@ source "drivers/misc/cardreader/Kconfig"
- source "drivers/misc/uacce/Kconfig"
- source "drivers/misc/pvpanic/Kconfig"
- source "drivers/misc/mchp_pci1xxxx/Kconfig"
-+source "drivers/misc/keba/Kconfig"
- endmenu
-diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 153a3f4837e8..af125aa25a50 100644
---- a/drivers/misc/Makefile
-+++ b/drivers/misc/Makefile
-@@ -69,3 +69,4 @@ obj-$(CONFIG_TMR_INJECT)	+= xilinx_tmr_inject.o
- obj-$(CONFIG_TPS6594_ESM)	+= tps6594-esm.o
- obj-$(CONFIG_TPS6594_PFSM)	+= tps6594-pfsm.o
- obj-$(CONFIG_NSM)		+= nsm.o
-+obj-y				+= keba/
-diff --git a/drivers/misc/keba/Kconfig b/drivers/misc/keba/Kconfig
-new file mode 100644
-index 000000000000..0ebca1d07ef4
---- /dev/null
-+++ b/drivers/misc/keba/Kconfig
-@@ -0,0 +1,12 @@
-+# SPDX-License-Identifier: GPL-2.0
-+config KEBA_CP500
-+	tristate "KEBA CP500 system FPGA support"
-+	depends on PCI
-+	help
-+	  This driver supports the KEBA CP500 system FPGA, which is used in
-+	  KEBA CP500 devices. It registers all sub devices present on the CP500
-+	  system FPGA as separate devices. A driver is needed for each sub
-+	  device.
-+
-+	  This driver can also be built as a module. If so, the module will be
-+	  called cp500.
-diff --git a/drivers/misc/keba/Makefile b/drivers/misc/keba/Makefile
-new file mode 100644
-index 000000000000..0a8b846cda7d
---- /dev/null
-+++ b/drivers/misc/keba/Makefile
-@@ -0,0 +1,3 @@
-+# SPDX-License-Identifier: GPL-2.0
-+
-+obj-$(CONFIG_KEBA_CP500)	+= cp500.o
-diff --git a/drivers/misc/keba/cp500.c b/drivers/misc/keba/cp500.c
-new file mode 100644
-index 000000000000..9ba46f0f9392
---- /dev/null
-+++ b/drivers/misc/keba/cp500.c
-@@ -0,0 +1,458 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * Copyright (C) KEBA Industrial Automation Gmbh 2024
-+ *
-+ * Driver for KEBA system FPGA
-+ *
-+ * The KEBA system FPGA implements various devices. This driver registers
-+ * auxiliary devices for every device within the FPGA.
-+ */
-+
-+#include <linux/device.h>
-+#include <linux/i2c.h>
-+#include <linux/misc/keba.h>
-+#include <linux/module.h>
-+#include <linux/pci.h>
-+
-+#define CP500 "cp500"
-+
-+#define PCI_VENDOR_ID_KEBA		0xCEBA
-+#define PCI_DEVICE_ID_KEBA_CP035	0x2706
-+#define PCI_DEVICE_ID_KEBA_CP505	0x2703
-+#define PCI_DEVICE_ID_KEBA_CP520	0x2696
-+
-+#define CP500_SYS_BAR		0
-+#define CP500_ECM_BAR		1
-+
-+/* BAR 0 registers */
-+#define CP500_VERSION_REG	0x00
-+#define CP500_RECONFIG_REG	0x11	/* upper 8-bits of STARTUP register */
-+#define CP500_AXI_REG		0x40
-+
-+/* Bits in BUILD_REG */
-+#define CP500_BUILD_TEST        0x8000	/* FPGA test version */
-+
-+/* Bits in RECONFIG_REG */
-+#define CP500_RECFG_REQ		0x01	/* reconfigure FPGA on next reset */
-+
-+/* MSIX */
-+#define CP500_AXI_MSIX		3
-+#define CP500_NUM_MSIX		8
-+#define CP500_NUM_MSIX_NO_MMI	2
-+#define CP500_NUM_MSIX_NO_AXI	3
-+
-+/* EEPROM */
-+#define CP500_HW_CPU_EEPROM_NAME	"cp500_cpu_eeprom"
-+
-+#define CP500_IS_CP035(dev)	((dev)->pci_dev->device == PCI_DEVICE_ID_KEBA_CP035)
-+#define CP500_IS_CP505(dev)	((dev)->pci_dev->device == PCI_DEVICE_ID_KEBA_CP505)
-+#define CP500_IS_CP520(dev)	((dev)->pci_dev->device == PCI_DEVICE_ID_KEBA_CP520)
-+
-+struct cp500_dev_info {
-+	off_t offset;
-+	size_t size;
-+};
-+
-+struct cp500_devs {
-+	struct cp500_dev_info startup;
-+	struct cp500_dev_info i2c;
-+};
-+
-+/* list of devices within FPGA of CP035 family (CP035, CP056, CP057) */
-+static struct cp500_devs cp035_devices = {
-+	.startup   = { 0x0000, SZ_4K },
-+	.i2c       = { 0x4000, SZ_4K },
-+};
-+
-+/* list of devices within FPGA of CP505 family (CP503, CP505, CP507) */
-+static struct cp500_devs cp505_devices = {
-+	.startup   = { 0x0000, SZ_4K },
-+	.i2c       = { 0x5000, SZ_4K },
-+};
-+
-+/* list of devices within FPGA of CP520 family (CP520, CP530) */
-+static struct cp500_devs cp520_devices = {
-+	.startup     = { 0x0000, SZ_4K },
-+	.i2c         = { 0x5000, SZ_4K },
-+};
-+
-+struct cp500 {
-+	struct pci_dev *pci_dev;
-+	struct cp500_devs *devs;
-+	int msix_num;
-+	struct {
-+		int major;
-+		int minor;
-+		int build;
-+	} version;
-+
-+	/* system FPGA BAR */
-+	resource_size_t sys_hwbase;
-+	struct keba_i2c_auxdev *i2c;
-+
-+	/* ECM EtherCAT BAR */
-+	resource_size_t ecm_hwbase;
-+
-+	void __iomem *system_startup_addr;
-+};
-+
-+/* I2C devices */
-+static struct i2c_board_info cp500_i2c_info[] = {
-+	{	/* temperature sensor */
-+		I2C_BOARD_INFO("emc1403", 0x4c),
-+	},
-+	{	/*
-+		 * CPU EEPROM
-+		 * CP035 family: CPU board
-+		 * CP505 family: bridge board
-+		 * CP520 family: carrier board
-+		 */
-+		I2C_BOARD_INFO("24c32", 0x50),
-+		.dev_name = CP500_HW_CPU_EEPROM_NAME,
-+	},
-+	{	/* interface board EEPROM */
-+		I2C_BOARD_INFO("24c32", 0x51),
-+	},
-+	{	/*
-+		 * EEPROM (optional)
-+		 * CP505 family: CPU board
-+		 * CP520 family: MMI board
-+		 */
-+		I2C_BOARD_INFO("24c32", 0x52),
-+	},
-+	{	/* extension module 0 EEPROM (optional) */
-+		I2C_BOARD_INFO("24c32", 0x53),
-+	},
-+	{	/* extension module 1 EEPROM (optional) */
-+		I2C_BOARD_INFO("24c32", 0x54),
-+	},
-+	{	/* extension module 2 EEPROM (optional) */
-+		I2C_BOARD_INFO("24c32", 0x55),
-+	},
-+	{	/* extension module 3 EEPROM (optional) */
-+		I2C_BOARD_INFO("24c32", 0x56),
-+	}
-+};
-+
-+static ssize_t cp500_get_fpga_version(struct cp500 *cp500, char *buf,
-+				      size_t max_len)
-+{
-+	int n;
-+
-+	if (CP500_IS_CP035(cp500))
-+		n = scnprintf(buf, max_len, "CP035");
-+	else if (CP500_IS_CP505(cp500))
-+		n = scnprintf(buf, max_len, "CP505");
-+	else
-+		n = scnprintf(buf, max_len, "CP500");
-+
-+	n += scnprintf(buf + n, max_len - n, "_FPGA_%d.%02d",
-+		       cp500->version.major, cp500->version.minor);
-+
-+	/* test versions have test bit set */
-+	if (cp500->version.build & CP500_BUILD_TEST)
-+		n += scnprintf(buf + n, max_len - n, "Test%d",
-+			       cp500->version.build & ~CP500_BUILD_TEST);
-+
-+	n += scnprintf(buf + n, max_len - n, "\n");
-+
-+	return n;
-+}
-+
-+static ssize_t version_show(struct device *dev, struct device_attribute *attr,
-+			    char *buf)
-+{
-+	struct cp500 *cp500 = dev_get_drvdata(dev);
-+
-+	return cp500_get_fpga_version(cp500, buf, PAGE_SIZE);
-+}
-+static DEVICE_ATTR_RO(version);
-+
-+static ssize_t keep_cfg_show(struct device *dev, struct device_attribute *attr,
-+			     char *buf)
-+{
-+	struct cp500 *cp500 = dev_get_drvdata(dev);
-+	unsigned long keep_cfg = 1;
-+
-+	/*
-+	 * FPGA configuration stream is kept during reset when RECONFIG bit is
-+	 * zero
-+	 */
-+	if (ioread8(cp500->system_startup_addr + CP500_RECONFIG_REG) &
-+		CP500_RECFG_REQ)
-+		keep_cfg = 0;
-+
-+	return sysfs_emit(buf, "%lu\n", keep_cfg);
-+}
-+
-+static ssize_t keep_cfg_store(struct device *dev, struct device_attribute *attr,
-+			      const char *buf, size_t count)
-+{
-+	struct cp500 *cp500 = dev_get_drvdata(dev);
-+	unsigned long keep_cfg;
-+
-+	if (kstrtoul(buf, 10, &keep_cfg) < 0)
-+		return -EINVAL;
-+
-+	/*
-+	 * In normal operation "keep_cfg" is "1". This means that the FPGA keeps
-+	 * its configuration stream during a reset.
-+	 * In case of a firmware update of the FPGA, the configuration stream
-+	 * needs to be reloaded. This can be done without a powercycle by
-+	 * writing a "0" into the "keep_cfg" attribute. After a reset/reboot th
-+	 * new configuration stream will be loaded.
-+	 */
-+	if (keep_cfg)
-+		iowrite8(0, cp500->system_startup_addr + CP500_RECONFIG_REG);
-+	else
-+		iowrite8(CP500_RECFG_REQ,
-+			 cp500->system_startup_addr + CP500_RECONFIG_REG);
-+
-+	return count;
-+}
-+static DEVICE_ATTR_RW(keep_cfg);
-+
-+static struct attribute *attrs[] = {
-+	&dev_attr_version.attr,
-+	&dev_attr_keep_cfg.attr,
-+	NULL
-+};
-+static const struct attribute_group attrs_group = { .attrs = attrs };
-+
-+static void cp500_i2c_release(struct device *dev)
-+{
-+	struct keba_i2c_auxdev *i2c =
-+		container_of(dev, struct keba_i2c_auxdev, auxdev.dev);
-+
-+	kfree(i2c);
-+}
-+
-+static int cp500_register_i2c(struct cp500 *cp500)
-+{
-+	int retval;
-+
-+	cp500->i2c = kzalloc(sizeof(*cp500->i2c), GFP_KERNEL);
-+	if (!cp500->i2c)
-+		return -ENOMEM;
-+
-+	cp500->i2c->auxdev.name = "i2c";
-+	cp500->i2c->auxdev.id = 0;
-+	cp500->i2c->auxdev.dev.release = cp500_i2c_release;
-+	cp500->i2c->auxdev.dev.parent = &cp500->pci_dev->dev;
-+	cp500->i2c->io = (struct resource) {
-+		 /* I2C register area */
-+		 .start = (resource_size_t) cp500->sys_hwbase +
-+			  cp500->devs->i2c.offset,
-+		 .end   = (resource_size_t) cp500->sys_hwbase +
-+			  cp500->devs->i2c.offset +
-+			  cp500->devs->i2c.size - 1,
-+		 .flags = IORESOURCE_MEM,
-+	};
-+	cp500->i2c->info_size = ARRAY_SIZE(cp500_i2c_info);
-+	cp500->i2c->info = cp500_i2c_info;
-+
-+	retval = auxiliary_device_init(&cp500->i2c->auxdev);
-+	if (retval) {
-+		kfree(cp500->i2c);
-+		cp500->i2c = NULL;
-+
-+		return retval;
-+	}
-+	retval = __auxiliary_device_add(&cp500->i2c->auxdev, "keba");
-+	if (retval) {
-+		auxiliary_device_uninit(&cp500->i2c->auxdev);
-+		cp500->i2c = NULL;
-+
-+		return retval;
-+	}
-+
-+	return 0;
-+}
-+
-+static void cp500_register_auxiliary_devs(struct cp500 *cp500)
-+{
-+	struct device *dev = &cp500->pci_dev->dev;
-+
-+	if (cp500_register_i2c(cp500))
-+		dev_warn(dev, "Failed to register i2c!\n");
-+}
-+
-+static void cp500_unregister_dev(struct auxiliary_device *auxdev)
-+{
-+	auxiliary_device_delete(auxdev);
-+	auxiliary_device_uninit(auxdev);
-+}
-+
-+static void cp500_unregister_auxiliary_devs(struct cp500 *cp500)
-+{
-+
-+	if (cp500->i2c) {
-+		cp500_unregister_dev(&cp500->i2c->auxdev);
-+		cp500->i2c = NULL;
-+	}
-+}
-+
-+static irqreturn_t cp500_axi_handler(int irq, void *dev)
-+{
-+	struct cp500 *cp500 = dev;
-+	u32 axi_address = ioread32(cp500->system_startup_addr + CP500_AXI_REG);
-+
-+	/*
-+	 * FPGA signals AXI response error, print AXI address to indicate which
-+	 * IP core was affected
-+	 */
-+	dev_err(&cp500->pci_dev->dev, "AXI response error at 0x%08x\n",
-+		axi_address);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static int cp500_enable(struct cp500 *cp500)
-+{
-+	int axi_irq = -1;
-+	int ret;
-+
-+	if (cp500->msix_num > CP500_NUM_MSIX_NO_AXI) {
-+		axi_irq = pci_irq_vector(cp500->pci_dev, CP500_AXI_MSIX);
-+		ret = request_irq(axi_irq, cp500_axi_handler, 0,
-+				  CP500, cp500);
-+		if (ret != 0) {
-+			dev_err(&cp500->pci_dev->dev,
-+				"Failed to register AXI response error!\n");
-+			return ret;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static void cp500_disable(struct cp500 *cp500)
-+{
-+	int axi_irq;
-+
-+	if (cp500->msix_num > CP500_NUM_MSIX_NO_AXI) {
-+		axi_irq = pci_irq_vector(cp500->pci_dev, CP500_AXI_MSIX);
-+		free_irq(axi_irq, cp500);
-+	}
-+}
-+
-+static int cp500_probe(struct pci_dev *pci_dev, const struct pci_device_id *id)
-+{
-+	struct device *dev = &pci_dev->dev;
-+	struct resource startup;
-+	struct cp500 *cp500;
-+	u32 cp500_vers;
-+	char buf[64];
-+	int ret;
-+
-+	cp500 = devm_kzalloc(dev, sizeof(*cp500), GFP_KERNEL);
-+	if (!cp500)
-+		return -ENOMEM;
-+	cp500->pci_dev = pci_dev;
-+	cp500->sys_hwbase = pci_resource_start(pci_dev, CP500_SYS_BAR);
-+	cp500->ecm_hwbase = pci_resource_start(pci_dev, CP500_ECM_BAR);
-+	if (!cp500->sys_hwbase || !cp500->ecm_hwbase)
-+		return -ENODEV;
-+
-+	if (CP500_IS_CP035(cp500))
-+		cp500->devs = &cp035_devices;
-+	else if (CP500_IS_CP505(cp500))
-+		cp500->devs = &cp505_devices;
-+	else if (CP500_IS_CP520(cp500))
-+		cp500->devs = &cp520_devices;
-+	else
-+		return -ENODEV;
-+
-+	ret = pci_enable_device(pci_dev);
-+	if (ret)
-+		return ret;
-+	pci_set_master(pci_dev);
-+
-+	startup = *pci_resource_n(pci_dev, CP500_SYS_BAR);
-+	startup.end = startup.start + cp500->devs->startup.size - 1;
-+	cp500->system_startup_addr = devm_ioremap_resource(&pci_dev->dev,
-+							   &startup);
-+	if (IS_ERR(cp500->system_startup_addr)) {
-+		ret = PTR_ERR(cp500->system_startup_addr);
-+		goto out_disable;
-+	}
-+
-+	cp500->msix_num = pci_alloc_irq_vectors(pci_dev, CP500_NUM_MSIX_NO_MMI,
-+						CP500_NUM_MSIX, PCI_IRQ_MSIX);
-+	if (cp500->msix_num < CP500_NUM_MSIX_NO_MMI) {
-+		dev_err(&pci_dev->dev,
-+			"Hardware does not support enough MSI-X interrupts\n");
-+		ret = -ENODEV;
-+		goto out_disable;
-+	}
-+
-+	cp500_vers = ioread32(cp500->system_startup_addr + CP500_VERSION_REG);
-+	cp500->version.major = (cp500_vers & 0xff);
-+	cp500->version.minor = (cp500_vers >> 8) & 0xff;
-+	cp500->version.build = (cp500_vers >> 16) & 0xffff;
-+	cp500_get_fpga_version(cp500, buf, sizeof(buf));
-+
-+	dev_info(&pci_dev->dev, "FPGA version %s", buf);
-+
-+	pci_set_drvdata(pci_dev, cp500);
-+
-+	ret = sysfs_create_group(&pci_dev->dev.kobj, &attrs_group);
-+	if (ret != 0)
-+		goto out_free_irq;
-+
-+	ret = cp500_enable(cp500);
-+	if (ret != 0)
-+		goto out_remove_group;
-+
-+	cp500_register_auxiliary_devs(cp500);
-+
-+	return 0;
-+
-+out_remove_group:
-+	sysfs_remove_group(&pci_dev->dev.kobj, &attrs_group);
-+out_free_irq:
-+	pci_free_irq_vectors(pci_dev);
-+out_disable:
-+	pci_clear_master(pci_dev);
-+	pci_disable_device(pci_dev);
-+
-+	return ret;
-+}
-+
-+static void cp500_remove(struct pci_dev *pci_dev)
-+{
-+	struct cp500 *cp500 = pci_get_drvdata(pci_dev);
-+
-+	cp500_unregister_auxiliary_devs(cp500);
-+
-+	cp500_disable(cp500);
-+
-+	sysfs_remove_group(&pci_dev->dev.kobj, &attrs_group);
-+
-+	pci_set_drvdata(pci_dev, 0);
-+
-+	pci_free_irq_vectors(pci_dev);
-+
-+	pci_clear_master(pci_dev);
-+	pci_disable_device(pci_dev);
-+}
-+
-+static struct pci_device_id cp500_ids[] = {
-+	{ PCI_DEVICE(PCI_VENDOR_ID_KEBA, PCI_DEVICE_ID_KEBA_CP035) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_KEBA, PCI_DEVICE_ID_KEBA_CP505) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_KEBA, PCI_DEVICE_ID_KEBA_CP520) },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(pci, cp500_ids);
-+
-+static struct pci_driver cp500_driver = {
-+	.name = CP500,
-+	.id_table = cp500_ids,
-+	.probe = cp500_probe,
-+	.remove = cp500_remove,
-+};
-+module_pci_driver(cp500_driver);
-+
-+MODULE_AUTHOR("Gerhard Engleder <eg@keba.com>");
-+MODULE_DESCRIPTION("KEBA CP500 system FPGA driver");
-+MODULE_LICENSE("GPL");
-diff --git a/include/linux/misc/keba.h b/include/linux/misc/keba.h
-new file mode 100644
-index 000000000000..323b31a847c5
---- /dev/null
-+++ b/include/linux/misc/keba.h
-@@ -0,0 +1,25 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/* Copyright (C) 2024, KEBA Industrial Automation Gmbh */
-+
-+#ifndef _LINUX_MISC_KEBA_H
-+#define _LINUX_MISC_KEBA_H
-+
-+#include <linux/auxiliary_bus.h>
-+
-+struct i2c_board_info;
-+
-+/**
-+ * struct keba_i2c_auxdev - KEBA I2C auxiliary device
-+ * @auxdev: auxiliary device object
-+ * @io: address range of I2C controller IO memory
-+ * @info_size: number of I2C devices to be probed
-+ * @info: I2C devices to be probed
-+ */
-+struct keba_i2c_auxdev {
-+	struct auxiliary_device auxdev;
-+	struct resource io;
-+	int info_size;
-+	struct i2c_board_info *info;
-+};
-+
-+#endif /* _LINUX_MISC_KEBA_H */
--- 
-2.39.2
+Thanks,
+Guenter
 
