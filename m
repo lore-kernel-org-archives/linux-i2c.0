@@ -1,176 +1,710 @@
-Received: from AM0PR83CU005.outbound.protection.outlook.com (mail-westeuropeazon11020106.outbound.protection.outlook.com [52.101.69.106])
+Received: from mx08lb.world4you.com (mx08lb.world4you.com [81.19.149.118])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DABB2194A42;
-	Wed, 10 Jul 2024 17:51:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.69.106
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720633883; cv=fail; b=ZD+zSHRz8sMWdN50jLj51eYGlTkCgvS8FcePiRuN2/5Iz33H0hb/qrqBW7MNywb+66+0OE8Dww526cYMUDXhiL32T/sHC+loOMPXPDXTZn39UKDyf5e1iq+n22vAtbgh/Ie/QJ6l+xgu4vKJ3uOnWWlXaesEgn4gIG10nXIHcGc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720633883; c=relaxed/simple;
-	bh=6l5CG6Tc1JV7d92cP5dhnqDy4o13LPiISRXT9FbqZvI=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=e19D/9g5wrd0SMlms0zuOFhlbTWfpqp7NwOHTUblPfNRfxSt9YJ5tyGKWnJrGi6N+71GlyngubofhNAZsZlFeEW/kRnrKpzfLbXgU+tuSWh9CT9i4MWH+STSP3J9NCemhThgQuZbssO8PshC0lDTrWQ3JThObjBhaUtEP8EG21Q=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sch.bme.hu; spf=pass smtp.mailfrom=sch.bme.hu; dkim=pass (1024-bit key) header.d=sch.bme.hu header.i=@sch.bme.hu header.b=P/RP36J8; arc=fail smtp.client-ip=52.101.69.106
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sch.bme.hu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sch.bme.hu
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 373BF848E
+	for <linux-i2c@vger.kernel.org>; Wed, 10 Jul 2024 17:57:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=81.19.149.118
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1720634240; cv=none; b=m1v3UFwlGVhcuwgH9A7bJ6105b1hZ6khutY4vgDDqcQbu+ddfml3+J2azAntqy7cvQhwdYD4tNznB2kTqrjk42Q5mKT7uUPmpUrjUdROrpAMGmTC8qck6Me6xpJw5mTXA0hbZceyawD2Go0LZwwcEegK9H4zCqEoMVjQ+lkZOqY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1720634240; c=relaxed/simple;
+	bh=W/nbjm9iAL+ImwTOpBs3Am7UsiR8gUuQuFkNvMGvNOg=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=KFs7/YtbrKAoRwPNWdQH3Od4YNzbd78CXZaDh4OACmgP2KEg909MACGO6Wsjdjj0Z98ZseE3V0pAkZjwgWGSHMTkdD9ELbosWnircq+lxXFzAHId2z1SfgIXqXVZBvdm6jGYaiJY9QK4OrVliDocSQ7W7qlBdyFeEbGuEsBkbMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=engleder-embedded.com; spf=pass smtp.mailfrom=engleder-embedded.com; dkim=pass (1024-bit key) header.d=engleder-embedded.com header.i=@engleder-embedded.com header.b=FuOnzvjM; arc=none smtp.client-ip=81.19.149.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=engleder-embedded.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=engleder-embedded.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=sch.bme.hu header.i=@sch.bme.hu header.b="P/RP36J8"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=TQetZPJ6eERyxzqYRsdLxYT71zguARHcbbyZ31rqG3HURLbWVtUZX6i2GLKvmfyUY0l5vupqDFnH8UPRZDSN7sGJwiwv9W5Ik1otEGWY+l66DjPwW7+pQF9a7dwE1KzG2xKYbByORa9asJgMCAVRLWkFjyV4IE7RLWJ3v3RC7tablebLABHrVoLHHApbof/9+IrlSPN0bJnE7d33uEC2n5lIURAZEi1FEvC16uSVbQ5F0/BTEjN3GCn2PLLVi8C2sg+AnkPwwrXymslVBtcRSyhsYci9AZ4ebblImrV40hCCZL6Wxs6DE/7sIJAK9+ycjgOmWIwSYqpw8v7vVCzT3Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=JNo1/WyO3ughCjjl8wyCZSFIfoxAkoqodJ3HrwQgCl8=;
- b=CRlmLgC7hmcpuD7kog7HiVjAD6jbFXeFrLNwbzwzGF7bRgWQKtNTeFx+0NYxJ9CuGDPUKcFGDXKH4395hTwOJN1u9dW+0/wTizWMeRd/zPxNatgdUtbrrz+U4taZyVzyMmiSeq9oeSAH1/e6yR2mHbyNh+ybwkoJ6Ct1Rm8RWaXB4oQ+tX2wvkOJjq2zvIDro0l82ty5VlSS2wGtyHxOckY4I8XXONlpqJrvZ4ej1GrrXcV9+OWLm4T8EE9R3E/K/hHoxaa3pi5Y9hbKV1WfmtLyZwWekMM6lNXpyYtXJnhtOEzHEI7/Onaj9zfZmPfyhTOqgXqTplvEwOPGINbWSg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=sch.bme.hu; dmarc=pass action=none header.from=sch.bme.hu;
- dkim=pass header.d=sch.bme.hu; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sch.bme.hu;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=JNo1/WyO3ughCjjl8wyCZSFIfoxAkoqodJ3HrwQgCl8=;
- b=P/RP36J8/V7t1Ebv5mM+eNE5IpyoBeqV2/wwiXY2YWCJ8lmMzUIFRiHWlVYvz9m3tGGmG58jUaEThIDsiIm+sQGLuyfcsvKoQew+o5FUf2JhICaiVHyAUPx5cB53OUxAw16VTcjyjmKe8I1La8LvEHN1D8hLcnFoVJ6Ncmnoukw=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=sch.bme.hu;
-Received: from AM6PR0402MB3416.eurprd04.prod.outlook.com (2603:10a6:209:6::21)
- by PAXPR04MB9471.eurprd04.prod.outlook.com (2603:10a6:102:2b2::16) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7741.35; Wed, 10 Jul
- 2024 17:51:14 +0000
-Received: from AM6PR0402MB3416.eurprd04.prod.outlook.com
- ([fe80::4fe0:b908:2878:6d88]) by AM6PR0402MB3416.eurprd04.prod.outlook.com
- ([fe80::4fe0:b908:2878:6d88%2]) with mapi id 15.20.7762.016; Wed, 10 Jul 2024
- 17:51:14 +0000
-Message-ID: <facc6719-fbbe-4e30-8f4f-f90851e73715@sch.bme.hu>
-Date: Wed, 10 Jul 2024 19:51:12 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re:
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Cc: =?UTF-8?B?QmVuY2UgQ3PDs2vDoXM=?= <bence98@sch.bme.hu>,
- Andi Shyti <andi.shyti@kernel.org>, linux-kernel@vger.kernel.org
-References: <20240706112116.24543-10-wsa+renesas@sang-engineering.com>
- <20240710064219.6800-2-wsa+renesas@sang-engineering.com>
-Content-Language: en-US
-From: =?UTF-8?B?QmVuY2UgQ3PDs2vDoXM=?= <bence98@sch.bme.hu>
-In-Reply-To: <20240710064219.6800-2-wsa+renesas@sang-engineering.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: WA1P291CA0023.POLP291.PROD.OUTLOOK.COM
- (2603:10a6:1d0:19::7) To AM6PR0402MB3416.eurprd04.prod.outlook.com
- (2603:10a6:209:6::21)
+	dkim=pass (1024-bit key) header.d=engleder-embedded.com header.i=@engleder-embedded.com header.b="FuOnzvjM"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=engleder-embedded.com; s=dkim11; h=Content-Transfer-Encoding:MIME-Version:
+	References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
+	Content-Type:Content-ID:Content-Description:Resent-Date:Resent-From:
+	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
+	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+	bh=qymhjEiuQoIn5493YcvkyjeSIIc2b/Zo1N7qMdsAtiw=; b=FuOnzvjMmj4hxbAVzr7pY+5ITX
+	532QtvTCZ0LU8LMVBKQpALClLQf2g0uEt1A58igg9pE6m3PkAWZa3oBSspe40S3+UX68GrULK5KtJ
+	0aEAHTKFXZKRdjEicPitwpsBLevdb35i5xoJUJKZuk/e5XgYq8qkJYWwy0fz0KqY7gCw=;
+Received: from 88-117-61-57.adsl.highway.telekom.at ([88.117.61.57] helo=hornet.engleder.at)
+	by mx08lb.world4you.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96.2)
+	(envelope-from <gerhard@engleder-embedded.com>)
+	id 1sRbYz-0003m8-0x;
+	Wed, 10 Jul 2024 19:57:09 +0200
+From: Gerhard Engleder <gerhard@engleder-embedded.com>
+To: linux-i2c@vger.kernel.org
+Cc: andi.shyti@kernel.org,
+	arnd@arndb.de,
+	gregkh@linuxfoundation.org,
+	Gerhard Engleder <gerhard@engleder-embedded.com>,
+	Gerhard Engleder <eg@keba.com>
+Subject: [PATCH v3 2/2] i2c: keba: Add KEBA I2C controller support
+Date: Wed, 10 Jul 2024 19:57:02 +0200
+Message-Id: <20240710175702.22344-3-gerhard@engleder-embedded.com>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20240710175702.22344-1-gerhard@engleder-embedded.com>
+References: <20240710175702.22344-1-gerhard@engleder-embedded.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM6PR0402MB3416:EE_|PAXPR04MB9471:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2be79990-4128-41ae-923e-08dca108e45d
-X-LD-Processed: 79f0ae63-ef51-49f5-9f51-78a3346e1507,ExtFwd
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|41320700013|1800799024|376014|366016;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?VklHc2hNemthMUVBSnIrOUtmU3ZsNjU1ZjA5NkNBdEhFSzZFRlJWQndqK3R2?=
- =?utf-8?B?S0U1RjlTTHVtUmRpcy84cGdJUWEva0U2cnR5dTRrVDlXSWQ0ZGZ3d0tsQlBk?=
- =?utf-8?B?clFSbEppWEVNWEZvTmdCSG1TNmRjajVkZmxDT2tTYS8wUEYxSDFGd0xZZjMy?=
- =?utf-8?B?RldKZXQwYmZTNjhjOTF6a3lIcmpQejJnUnN3RU1RQ2IxWEI3czlXS081eS9m?=
- =?utf-8?B?Y293VUpsbmY5bXNuVG9VdUx3S1hUNEZSQ09pS3dRc3VlWFc0TnhaSDVKd0hi?=
- =?utf-8?B?eWhudElheE1XM0JkVDZBOWE1N0czcHRQb2ZCNFNuQjN2dkZuV2tNRkNrRmpl?=
- =?utf-8?B?eGowOWk1aU5GbjVQTk9IV1U5VGRIOVNvVEJ5TVpiMXc0Ti9WN3dNTytCbGov?=
- =?utf-8?B?ZUpxTGdKdEZ0U2piSzFBMDlvNDY3Y1RXc21HazFtUFd0YTJuQ3BUV2MzTXhp?=
- =?utf-8?B?MlB0b3k2cUxSOXNaK1hHUC95dlpyUVZyTHBJc3BDbEdDdzRmNzBvWlhoR0tq?=
- =?utf-8?B?SlR6V1M4R0lEcDdGZzZGczVJZHVsd3RGS25TR0JobmtpaE01dTNhS1pPTDR3?=
- =?utf-8?B?a3hIQ1BTVFFZVlVrZFhOeFlrQ2F2RU5GeUM4Wk9WTFlNUVpDOEpvU2dpKzBi?=
- =?utf-8?B?R2J6WkJiL1ZrVkZpcFFlMTdVRWRpWmlsS3YzWDV2aGhwWm1rcjk5OEYwdWdp?=
- =?utf-8?B?cEhtdnlzTEJibWVNQUJtdTNMZHFSRU9YS2ZaNFJTTDZLNGVLcHFzQ25LV1B1?=
- =?utf-8?B?dStIbER0WTJxUnFpQVo4Nk5DelhCbFh6aGJNRGt6b3hiVEJabGJtbFBvSjds?=
- =?utf-8?B?cVRhM1pacDRudnlrT1dzQm9XV1pQekVNUitMcEFvWnRDSWxrdlZwTll3VU11?=
- =?utf-8?B?cW9nbFU1dm54MWIwVUxzUGFWMURaQ2ZQays2U0lKWmY0NkluSVk4OUloYVMy?=
- =?utf-8?B?WmRKTVdNc1VWU1hSalcwSndDTHFmUnFLMmpnRFR0YytTaHpVd1lGaXl3NVNU?=
- =?utf-8?B?QnBRbXZuRXJ1dTNnRkxheWNLcWg2b1lYYlRRVkd6N0hZeXBHRTFqVDYvYXU2?=
- =?utf-8?B?ODQ1cmRERjhBYVduQVltRDhFKzZDOHFocGpUOVpLQkI3KzRraEFEMGh4TTVu?=
- =?utf-8?B?dDMxZmJTUDBGRkNkODNLODFZamhPRkJRK2hvRHJSTy9Jd3RnQ0JySjB2MTcx?=
- =?utf-8?B?aXNlQ3drQ3oxdnBHRGpaNENOcnFBTGpwOG96U1UydkNRb25Wc2xPWmNJNCtP?=
- =?utf-8?B?UmhEQWJwcG5zMnJTNlErQ3k4THAxeHJxVWNZeHFsOW8zTDc2bEQ0Qng3dHF2?=
- =?utf-8?B?QXNVR0RtK084SFlCMU51Yk1yWVlkeloybUxvNDU2ZHBWbEtIRHpkR3c2WUVt?=
- =?utf-8?B?L05WaUg5SHM1WndqdmVkU1RiNDF6aTdWQ0EwRTRuMjgyY1padjVkWUlGOHY0?=
- =?utf-8?B?dnY4MFE2YlBiYytCRi9sR1k1T000bnJZU2VIb0FBY2VXZWFwQkZaOVAzZ3R6?=
- =?utf-8?B?STJsK2JCUVVqSlQ5bDMrcXV3Tlo1UDJsVTVHOUV5dGNhVjEzUnp6Zy80SkFV?=
- =?utf-8?B?ZERidW1Oa1gvcnFJT3VucVNMMERjQXd1ZWducjU5c0pMNWZ5d0paL0d1c0Jl?=
- =?utf-8?B?UFdDSGpNSDhTanFoRkxtUWFtUkRFeFQ1b1psSmNUbXE0ckJwd25VcnZjSWo3?=
- =?utf-8?B?TkpqclJNWG53WXNWZEpLaTRzQmJxU1BYTEZMc040UTlHbDZiQUx4QlhLY3VL?=
- =?utf-8?B?ZXpsOG1iZStsdythRjR3ckJyUmRrdFlqZDA1V2dqZUtLbGJEUngyc0NWVkI1?=
- =?utf-8?B?RUJ6TExodHhscUNrcjI0QT09?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM6PR0402MB3416.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(41320700013)(1800799024)(376014)(366016);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?MEFrRjlSVFBMaWkrZ2lxOGNLZzRCNW1HMUpoTmdVOFZjU3prT0E2a2FTc1hw?=
- =?utf-8?B?a1ZKSHZzUUR1T091TzdOSXdpSWdhSExuQ2RLSjF3ZU9OTVZHRk96NWJSYnMx?=
- =?utf-8?B?N0ltQ3kwdVFvTUJJQUNMQ1NmSkx2Q1RMNFFaK3lLZ0tMNDJiWTF4WFNXZHc0?=
- =?utf-8?B?WWlybnowMTBXQUhEQVVIT3l0TEFpczBNckI5dFpxVXlFZ0RaRXErMzJOQkl3?=
- =?utf-8?B?WGhGajFRZmdyTWQ4THB0U0lsZjIyZHJtaWMyUmdVS0V5T3VjU296SWh1Uzg4?=
- =?utf-8?B?K3N5MGUzL1hSS25PZUVmU1RrczFsMWF5SDNQUVFRUkdza2FnVklJL0JNWDRU?=
- =?utf-8?B?S3RJbElwRkFXRmIwQ0piQUNzZTdpZStldFl4SVkxTmxyK3ZGbWFRUS9MbHJi?=
- =?utf-8?B?QVo3QW4xOW9lemRhcG4xL01HOXVGSUQzc3h0OWd2eHlvU3pQUUNzcHp1Q2ZV?=
- =?utf-8?B?OVFiZEorKzB3ZzRsQnc5UHJ2SFcyZ3JxQ1NEWlZZTElMNWo1NDdJWXM0MTRO?=
- =?utf-8?B?NVJpcUhNdVZ2NHRGcW1OZGQ2ellXUG9abVRLOEgydjJ6KzhJWDA2dHZiejUw?=
- =?utf-8?B?endOdTVmMmNjczdIVFdEanVDQThOUlN4blpHRjh4V2xvNmVSVFpXOG5YaHhK?=
- =?utf-8?B?RXJvUVhRNmtIQWl4ck9kck1aNTQ4dlZsQjE5bmttT0JvZ1ZkZVJtL0FBditU?=
- =?utf-8?B?SGQ1MnhKbFJvSWptZGwveGFiU2tsTFBQbG5VZGhYTUI0Tm5YRitKUnR2bzl6?=
- =?utf-8?B?ZStmNFdXclNvd3o2c2NGVHZSejVSYWdRQUlXZlRmeXRFY2h2RjY3M2NWWW8x?=
- =?utf-8?B?a28xWGVKcUp2b1RMVE5CaWVZdUg5djFrV25VWlNXekV0aDdKb24yR0JoaFFu?=
- =?utf-8?B?WkxVOTBqand5dnRmL1dSTHNYUmRZUEZ4OUdxRVpydnRJWTVta2dxRVpoeG15?=
- =?utf-8?B?anEwY3ZmN1NaS0ZLZEE4N0FySTdlSHdUY2ZCeVVxZmpCVnFxdVRKRjBocHFj?=
- =?utf-8?B?bktMSjZrMUVwREEzeHhQRDNBQmwxTHI0N0NEcFJ1bG9jcHdLTnZacXNEd2dp?=
- =?utf-8?B?ODJqYlhqcDhiQzJhL214clU2YllETFo5anpadkRxKzNrMUlDK1NjTE9YdkRT?=
- =?utf-8?B?TmtxcTNqVWZoNzhMYTBIM2VCTTltR1M4OG5EQnFwamZQNXdCeituS2VUcW5E?=
- =?utf-8?B?by9zSENWbS9RNFVsMXBwQzVERHVlUWFISmJnR1h5MWRoS3B3ZEhSdjBsSTRC?=
- =?utf-8?B?bEtWMnF1WFZqQU43aTd3b1FxNlFBeUYvZHpnNG9GeWdFRXVFVkltS3Z1N2xj?=
- =?utf-8?B?WFA1MXBjZy9EZWpvZmZOdmxuN1R5Q1F1dm5IaXBxNDVCMFZtYk9xVndWcXc4?=
- =?utf-8?B?NVA4S0xhVUpISmJId29UY3kzY0swYW44SmFBNm80bkZCazdTZDJIaFZ2TDV5?=
- =?utf-8?B?WDh3L0VybThCaVJETGRBVHFQVkpLZk5iZ2Z0dnhxUmVvQW5QTnFZVWNhNjhz?=
- =?utf-8?B?eUtQOCt3OFF3VzhZYWlLdllhOFJjU1VXNmFocGMramRKU0VKcy81TzliL3ly?=
- =?utf-8?B?T0RPejdOcnBpQWRPeE9uaDlBMmdNN0ZvNXVmTFdSYVRVMVVBall6TjRyYmt5?=
- =?utf-8?B?MzM4L1Y5LzFObHpsaEhuZi9yMjFhY0F0dzduVHUzcFBOd3NieUNEZGo3WGdi?=
- =?utf-8?B?Sk5INjVVc2xpQ1dBbUtUTE5wU1JQWnJCTENTWmtIbGdXdzRmRTZuYUNvaW90?=
- =?utf-8?B?LzRTeS9JUzlGMnNzZGpRWFBqRHp2Zno2cDY4SFZaOG93cUU3aDd2SnFyb1RZ?=
- =?utf-8?B?M0pVbnltam82YzV2VHVwUVZpblBYMkRwdHllUW4xaFNsdlhtTnZ3YzkyRDRB?=
- =?utf-8?B?a1dxaDdSYkVodkMzVnRLTzYrd1lkU0F5TTd1T1JQN2xsM1M4TVd6ZDhmdS9w?=
- =?utf-8?B?dWpIcmdFU2tZWGg3dDduRzlZd0I1K2RKTUttTjN1bDZKZ0h4bm53S1d6ZzFE?=
- =?utf-8?B?Zmx2elQzRDBVZnpBcVljK001eW9LcTRRZ29DcmMrdS9SZjNzOURxQkF3aCtT?=
- =?utf-8?B?YXpBK3J1c3NJODJkcVh4ZEdrK2QxUmFmY3FlRURsVUVuVGN4QWZVNEt0Qlgz?=
- =?utf-8?Q?Q4bCBxdza2hZ79yWp29exRuKM?=
-X-OriginatorOrg: sch.bme.hu
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2be79990-4128-41ae-923e-08dca108e45d
-X-MS-Exchange-CrossTenant-AuthSource: AM6PR0402MB3416.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jul 2024 17:51:14.7100
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 79f0ae63-ef51-49f5-9f51-78a3346e1507
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: oNPv615Xww/SJDWBjNJGOKC4RhlOKobigPeCzyrnXeHS7gKN2tqFESX6ZCNZ7GK//Pah9Y+2WCQlxeMmQVCCsw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAXPR04MB9471
+Content-Transfer-Encoding: 8bit
+X-AV-Do-Run: Yes
+X-ACL-Warn: X-W4Y-Internal
 
-Hi!
+From: Gerhard Engleder <eg@keba.com>
 
-On 1970. 01. 01. 1:00, Wolfram Sang wrote:
-> Change the wording of this driver wrt. the newest I2C v7 and SMBus 3.2
-> specifications and replace "master/slave" with more appropriate terms.
-> 
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
-> 
-> Change since v2:
-> * reworded comment about NAK for consistency as well (Thanks, Bence!)
-> 
->   drivers/i2c/busses/i2c-cp2615.c | 10 +++++-----
->   1 file changed, 5 insertions(+), 5 deletions(-)
+The KEBA I2C controller is found in the system FPGA of KEBA PLC devices.
+It is used to connect EEPROMs and hardware monitoring chips. The
 
-Acked-by: Bence Csókás <bence98@sch.bme.hu>
+It is a simple I2C controller with a fixed bus speed of 100 kbit/s. The
+whole message transmission is executed by the driver. The driver
+triggers all steps over control, status and data register. There are no
+FIFOs or interrupts.
 
-Bence
+Signed-off-by: Gerhard Engleder <eg@keba.com>
+---
+ drivers/i2c/busses/Kconfig    |  11 +
+ drivers/i2c/busses/Makefile   |   1 +
+ drivers/i2c/busses/i2c-keba.c | 593 ++++++++++++++++++++++++++++++++++
+ 3 files changed, 605 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-keba.c
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 3e32fb882101..41162130c6f2 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -771,6 +771,17 @@ config I2C_JZ4780
+ 
+ 	 If you don't know what to do here, say N.
+ 
++config I2C_KEBA
++	tristate "KEBA I2C controller support"
++	depends on HAS_IOMEM
++	select AUXILIARY_BUS
++	help
++	  This driver supports the I2C controller found in KEBA system FPGA
++	  devices.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called i2c-keba.
++
+ config I2C_KEMPLD
+ 	tristate "Kontron COM I2C Controller"
+ 	depends on MFD_KEMPLD
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 78d0561339e5..ecc07c50f2a0 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -76,6 +76,7 @@ obj-$(CONFIG_I2C_IMX)		+= i2c-imx.o
+ obj-$(CONFIG_I2C_IMX_LPI2C)	+= i2c-imx-lpi2c.o
+ obj-$(CONFIG_I2C_IOP3XX)	+= i2c-iop3xx.o
+ obj-$(CONFIG_I2C_JZ4780)	+= i2c-jz4780.o
++obj-$(CONFIG_I2C_KEBA)		+= i2c-keba.o
+ obj-$(CONFIG_I2C_KEMPLD)	+= i2c-kempld.o
+ obj-$(CONFIG_I2C_LPC2K)		+= i2c-lpc2k.o
+ obj-$(CONFIG_I2C_LS2X)		+= i2c-ls2x.o
+diff --git a/drivers/i2c/busses/i2c-keba.c b/drivers/i2c/busses/i2c-keba.c
+new file mode 100644
+index 000000000000..400015e4ac77
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-keba.c
+@@ -0,0 +1,593 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Copyright (C) KEBA Industrial Automation Gmbh 2024
++ *
++ * Driver for KEBA I2C controller FPGA IP core
++ */
++
++#include <linux/i2c.h>
++#include <linux/io.h>
++#include <linux/iopoll.h>
++#include <linux/module.h>
++#include <linux/misc/keba.h>
++
++#define KI2C "i2c-keba"
++
++#define KI2C_CAPABILITY_REG		0x02
++#define   KI2C_CAPABILITY_CRYPTO	0x01
++#define   KI2C_CAPABILITY_DC		0x02
++
++#define KI2C_CONTROL_REG	0x04
++#define   KI2C_CONTROL_MEN	0x01
++#define   KI2C_CONTROL_MSTA	0x02
++#define   KI2C_CONTROL_RSTA	0x04
++#define   KI2C_CONTROL_MTX	0x08
++#define   KI2C_CONTROL_TXAK	0x10
++#define   KI2C_CONTROL_DISABLE	0x00
++
++#define KI2C_CONTROL_DC_REG	0x05
++#define   KI2C_CONTROL_DC_SDA	0x01
++#define   KI2C_CONTROL_DC_SCL	0x02
++
++#define KI2C_STATUS_REG		0x08
++#define   KI2C_STATUS_IN_USE	0x01
++#define   KI2C_STATUS_ACK_CYC	0x02
++#define   KI2C_STATUS_RXAK	0x04
++#define   KI2C_STATUS_MCF	0x08
++
++#define KI2C_STATUS_DC_REG	0x09
++#define   KI2C_STATUS_DC_SDA	0x01
++#define   KI2C_STATUS_DC_SCL	0x02
++
++#define KI2C_DATA_REG		0x0c
++
++#define KI2C_INUSE_SLEEP_US	(2 * USEC_PER_MSEC)
++#define KI2C_INUSE_TIMEOUT_US	(10 * USEC_PER_SEC)
++
++#define KI2C_POLL_DELAY_US	5
++
++struct ki2c {
++	struct keba_i2c_auxdev *auxdev;
++	void __iomem *base;
++	struct i2c_adapter adapter;
++
++	struct i2c_client **client;
++	int client_size;
++};
++
++static int ki2c_inuse_lock(struct ki2c *ki2c)
++{
++	u8 sts;
++	int ret;
++
++	/*
++	 * The I2C controller has an IN_USE bit for locking access to the
++	 * controller. This enables the use of I2C controller by other none
++	 * Linux processors.
++	 *
++	 * If the I2C controller is free, then the first read returns
++	 * IN_USE == 0. After that the I2C controller is locked and further
++	 * reads of IN_USE return 1.
++	 *
++	 * The I2C controller is unlocked by writing 1 into IN_USE.
++	 *
++	 * The IN_USE bit acts as a hardware semaphore for the I2C controller.
++	 * Poll for semaphore, but sleep while polling to free the CPU.
++	 */
++	ret = readb_poll_timeout(ki2c->base + KI2C_STATUS_REG,
++				 sts, (sts & KI2C_STATUS_IN_USE) == 0,
++				 KI2C_INUSE_SLEEP_US, KI2C_INUSE_TIMEOUT_US);
++	if (ret != 0)
++		dev_warn(&ki2c->auxdev->auxdev.dev, "%s err!\n", __func__);
++
++	return ret;
++}
++
++static void ki2c_inuse_unlock(struct ki2c *ki2c)
++{
++	/* unlock the controller by writing 1 into IN_USE */
++	iowrite8(KI2C_STATUS_IN_USE, ki2c->base + KI2C_STATUS_REG);
++}
++
++static int ki2c_wait_for_bit(void __iomem *addr, u8 mask, unsigned long timeout)
++{
++	u8 val;
++
++	return readb_poll_timeout(addr, val, (val & mask), KI2C_POLL_DELAY_US,
++				  jiffies_to_usecs(timeout));
++}
++
++static int ki2c_wait_for_mcf(struct ki2c *ki2c)
++{
++	return ki2c_wait_for_bit(ki2c->base + KI2C_STATUS_REG, KI2C_STATUS_MCF,
++				 ki2c->adapter.timeout);
++}
++
++static int ki2c_wait_for_data(struct ki2c *ki2c)
++{
++	int ret;
++
++	ret = ki2c_wait_for_mcf(ki2c);
++	if (ret < 0)
++		return ret;
++
++	return ki2c_wait_for_bit(ki2c->base + KI2C_STATUS_REG,
++				 KI2C_STATUS_ACK_CYC,
++				 ki2c->adapter.timeout);
++}
++
++static int ki2c_wait_for_data_ack(struct ki2c *ki2c)
++{
++	unsigned int reg;
++	int ret;
++
++	ret = ki2c_wait_for_data(ki2c);
++	if (ret < 0)
++		return ret;
++
++	/* RXAK == 0 means ACK reveived */
++	reg = ioread8(ki2c->base + KI2C_STATUS_REG);
++	if (reg & KI2C_STATUS_RXAK)
++		return -EIO;
++
++	return 0;
++}
++
++static int ki2c_has_capability(struct ki2c *ki2c, unsigned int cap)
++{
++	unsigned int reg = ioread8(ki2c->base + KI2C_CAPABILITY_REG);
++
++	return (reg & cap) != 0;
++}
++
++static int ki2c_get_scl(struct ki2c *ki2c)
++{
++	unsigned int reg = ioread8(ki2c->base + KI2C_STATUS_DC_REG);
++
++	/* capability KI2C_CAPABILITY_DC required */
++	return (reg & KI2C_STATUS_DC_SCL) != 0;
++}
++
++static int ki2c_get_sda(struct ki2c *ki2c)
++{
++	unsigned int reg = ioread8(ki2c->base + KI2C_STATUS_DC_REG);
++
++	/* capability KI2C_CAPABILITY_DC required */
++	return (reg & KI2C_STATUS_DC_SDA) != 0;
++}
++
++static void ki2c_set_scl(struct ki2c *ki2c, int val)
++{
++	u8 control_dc;
++
++	/* capability KI2C_CAPABILITY_DC and KI2C_CONTROL_MEN = 0 reqired */
++	control_dc = ioread8(ki2c->base + KI2C_CONTROL_DC_REG);
++	if (val)
++		control_dc |= KI2C_CONTROL_DC_SCL;
++	else
++		control_dc &= ~KI2C_CONTROL_DC_SCL;
++	iowrite8(control_dc, ki2c->base + KI2C_CONTROL_DC_REG);
++}
++
++/*
++ * Resetting bus bitwise is done by checking SDA and applying clock cycles as
++ * long as SDA is low. 9 clock cycles are applied at most.
++ *
++ * Clock cycles are generated and ndelay() determines the duration of clock
++ * cycles. Generated clock rate is 100 KHz and so duration of both clock levels
++ * is: delay in ns = (10^6 / 100) / 2
++ */
++#define KI2C_RECOVERY_CLK_CNT	9
++#define KI2C_RECOVERY_NDELAY	5000
++static int ki2c_reset_bus_bitwise(struct ki2c *ki2c)
++{
++	int count = 0;
++	int val = 1;
++	int ret = 0;
++
++	/* disable I2C controller (MEN = 0) to get direct access to SCL/SDA */
++	iowrite8(0, ki2c->base + KI2C_CONTROL_REG);
++
++	/* generate clock cycles */
++	ki2c_set_scl(ki2c, val);
++	ndelay(KI2C_RECOVERY_NDELAY);
++	while (count++ < KI2C_RECOVERY_CLK_CNT * 2) {
++		if (val) {
++			/* SCL shouldn't be low here */
++			if (!ki2c_get_scl(ki2c)) {
++				dev_err(&ki2c->auxdev->auxdev.dev,
++					"SCL is stuck low!\n");
++				ret = -EBUSY;
++				break;
++			}
++
++			/* break if SDA is high */
++			if (ki2c_get_sda(ki2c))
++				break;
++		}
++
++		val = !val;
++		ki2c_set_scl(ki2c, val);
++		ndelay(KI2C_RECOVERY_NDELAY);
++	}
++
++	if (!ki2c_get_sda(ki2c)) {
++		dev_err(&ki2c->auxdev->auxdev.dev, "SDA is still low!\n");
++		ret = -EBUSY;
++	}
++
++	/* reenable controller */
++	iowrite8(KI2C_CONTROL_MEN, ki2c->base + KI2C_CONTROL_REG);
++
++	return ret;
++}
++
++/*
++ * Resetting bus bytewise is done by writing start bit, 9 data bits and stop
++ * bit.
++ *
++ * This is not 100% safe. If slave is an EEPROM and a write access was
++ * interrupted during the ACK cycle, this approach might not be able to recover
++ * the bus. The reason is, that after the 9 clock cycles the EEPROM will be in
++ * ACK cycle again and will hold SDA low like it did before the start of the
++ * routine. Furthermore the EEPROM might get written one additional byte with
++ * 0xff into it. Thus, use bitwise approach whenever possible, especially when
++ * EEPROMs are on the bus.
++ */
++static int ki2c_reset_bus_bytewise(struct ki2c *ki2c)
++{
++	int ret;
++
++	/* hold data line high for 9 clock cycles */
++	iowrite8(0xFF, ki2c->base + KI2C_DATA_REG);
++
++	/* create start condition */
++	iowrite8(KI2C_CONTROL_MEN | KI2C_CONTROL_MTX | KI2C_CONTROL_MSTA | KI2C_CONTROL_TXAK,
++		 ki2c->base + KI2C_CONTROL_REG);
++	ret = ki2c_wait_for_mcf(ki2c);
++	if (ret < 0) {
++		dev_err(&ki2c->auxdev->auxdev.dev, "Start condition failed\n");
++
++		return ret;
++	}
++
++	/* create stop condition */
++	iowrite8(KI2C_CONTROL_MEN | KI2C_CONTROL_MTX | KI2C_CONTROL_TXAK,
++		 ki2c->base + KI2C_CONTROL_REG);
++	ret = ki2c_wait_for_mcf(ki2c);
++	if (ret < 0)
++		dev_err(&ki2c->auxdev->auxdev.dev, "Stop condition failed\n");
++
++	return ret;
++}
++
++static int ki2c_reset_bus(struct ki2c *ki2c)
++{
++	int ret;
++
++	ret = ki2c_inuse_lock(ki2c);
++	if (ret < 0)
++		return ret;
++
++	/*
++	 * If the I2C controller is capable of direct control of SCL/SDA, then a
++	 * bitwise reset is used. Otherwise fall back to bytewise reset.
++	 */
++	if (ki2c_has_capability(ki2c, KI2C_CAPABILITY_DC))
++		ret = ki2c_reset_bus_bitwise(ki2c);
++	else
++		ret = ki2c_reset_bus_bytewise(ki2c);
++
++	ki2c_inuse_unlock(ki2c);
++
++	return ret;
++}
++
++static void ki2c_write_target_addr(struct ki2c *ki2c, struct i2c_msg *m)
++{
++	u8 addr;
++
++	addr = m->addr << 1;
++	/* Bit 0 signals RD/WR */
++	if (m->flags & I2C_M_RD)
++		addr |= 0x01;
++
++	iowrite8(addr, ki2c->base + KI2C_DATA_REG);
++}
++
++static int ki2c_start_addr(struct ki2c *ki2c, struct i2c_msg *m)
++{
++	int ret;
++
++	/*
++	 * Store target address byte in the controller. This has to be done
++	 * before sending START condition.
++	 */
++	ki2c_write_target_addr(ki2c, m);
++
++	/* enable controller for TX */
++	iowrite8(KI2C_CONTROL_MEN | KI2C_CONTROL_MTX,
++		 ki2c->base + KI2C_CONTROL_REG);
++
++	/* send START condition and target address byte */
++	iowrite8(KI2C_CONTROL_MEN | KI2C_CONTROL_MTX | KI2C_CONTROL_MSTA,
++		 ki2c->base + KI2C_CONTROL_REG);
++
++	ret = ki2c_wait_for_data_ack(ki2c);
++	if (ret < 0)
++		/*
++		 * For EEPROMs this is normal behavior during internal write
++		 * operation.
++		 */
++		dev_dbg(&ki2c->auxdev->auxdev.dev,
++			"%s wait for ACK err at 0x%02x!\n", __func__, m->addr);
++
++	return ret;
++}
++
++static int ki2c_repstart_addr(struct ki2c *ki2c, struct i2c_msg *m)
++{
++	int ret;
++
++	/* repeated start and write is not supported */
++	if ((m->flags & I2C_M_RD) == 0) {
++		dev_warn(&ki2c->auxdev->auxdev.dev,
++			 "Repeated start not supported for writes\n");
++		return -EINVAL;
++	}
++
++	/* send repeated start */
++	iowrite8(KI2C_CONTROL_MEN | KI2C_CONTROL_MSTA | KI2C_CONTROL_RSTA,
++		 ki2c->base + KI2C_CONTROL_REG);
++
++	ret = ki2c_wait_for_mcf(ki2c);
++	if (ret < 0) {
++		dev_warn(&ki2c->auxdev->auxdev.dev,
++			 "%s wait for MCF err at 0x%02x!\n", __func__, m->addr);
++		return ret;
++	}
++
++	/* write target-address byte */
++	ki2c_write_target_addr(ki2c, m);
++
++	ret = ki2c_wait_for_data_ack(ki2c);
++	if (ret < 0)
++		dev_warn(&ki2c->auxdev->auxdev.dev,
++			 "%s wait for ACK err at 0x%02x!\n", __func__, m->addr);
++
++	return ret;
++}
++
++static void ki2c_stop(struct ki2c *ki2c)
++{
++	iowrite8(KI2C_CONTROL_MEN, ki2c->base + KI2C_CONTROL_REG);
++	ki2c_wait_for_mcf(ki2c);
++}
++
++static int ki2c_write(struct ki2c *ki2c, const u8 *data, int len)
++{
++	int ret;
++
++	for (int i = 0; i < len; i++) {
++		/* write data byte */
++		iowrite8(data[i], ki2c->base + KI2C_DATA_REG);
++
++		ret = ki2c_wait_for_data_ack(ki2c);
++		if (ret < 0)
++			return ret;
++	}
++
++	return 0;
++}
++
++static int ki2c_read(struct ki2c *ki2c, u8 *data, int len)
++{
++	u8 control;
++	int ret;
++
++	if (len == 0)
++		return 0;	/* nothing to do */
++
++	control = KI2C_CONTROL_MEN | KI2C_CONTROL_MSTA;
++
++	/* if just one byte => send tx-nack after transfer */
++	if (len == 1)
++		control |= KI2C_CONTROL_TXAK;
++
++	iowrite8(control, ki2c->base + KI2C_CONTROL_REG);
++
++	/* dummy read to start transfer on bus */
++	ioread8(ki2c->base + KI2C_DATA_REG);
++
++	for (int i = 0; i < len; i++) {
++		ret = ki2c_wait_for_data(ki2c);
++		if (ret < 0)
++			return ret;
++
++		/* send tx-nack after transfer of last byte */
++		if (i == len - 2)
++			iowrite8(KI2C_CONTROL_MEN | KI2C_CONTROL_MSTA | KI2C_CONTROL_TXAK,
++				 ki2c->base + KI2C_CONTROL_REG);
++
++		/*
++		 * switch to TX on last byte, so that reading DATA-register
++		 * does not trigger another read transfer.
++		 */
++		if (i == len - 1)
++			iowrite8(KI2C_CONTROL_MEN | KI2C_CONTROL_MSTA | KI2C_CONTROL_MTX,
++				 ki2c->base + KI2C_CONTROL_REG);
++
++		/* read byte and start next transfer (if not last byte) */
++		data[i] = ioread8(ki2c->base + KI2C_DATA_REG);
++	}
++
++	return len;
++}
++
++static int ki2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
++{
++	struct ki2c *ki2c = i2c_get_adapdata(adap);
++	int ret;
++
++	ret = ki2c_inuse_lock(ki2c);
++	if (ret < 0)
++		return ret;
++
++	for (int i = 0; i < num; i++) {
++		struct i2c_msg *m = &msgs[i];
++
++		if (i == 0)
++			ret = ki2c_start_addr(ki2c, m);
++		else
++			ret = ki2c_repstart_addr(ki2c, m);
++		if (ret < 0)
++			break;
++
++		if (m->flags & I2C_M_RD)
++			ret = ki2c_read(ki2c, m->buf, m->len);
++		else
++			ret = ki2c_write(ki2c, m->buf, m->len);
++		if (ret < 0)
++			break;
++	}
++
++	ki2c_stop(ki2c);
++
++	ki2c_inuse_unlock(ki2c);
++
++	return (ret < 0) ? ret : num;
++}
++
++static void ki2c_unregister_devices(struct ki2c *ki2c)
++{
++	for (int i = 0; i < ki2c->client_size; i++) {
++		struct i2c_client *client = ki2c->client[i];
++
++		if (client)
++			i2c_unregister_device(client);
++	}
++}
++
++static int ki2c_register_devices(struct ki2c *ki2c)
++{
++	struct i2c_board_info *info = ki2c->auxdev->info;
++	int i;
++
++	/* register all I2C devices from platform_data array */
++	for (i = 0; i < ki2c->client_size; i++) {
++		struct i2c_client *client;
++		unsigned short const addr_list[2] = { info[i].addr,
++						      I2C_CLIENT_END };
++
++		client = i2c_new_scanned_device(&ki2c->adapter, &info[i],
++						addr_list, NULL);
++		if (!IS_ERR(client)) {
++			ki2c->client[i] = client;
++		} else if (PTR_ERR(client) != -ENODEV) {
++			ki2c_unregister_devices(ki2c);
++
++			return PTR_ERR(client);
++		}
++	}
++
++	return 0;
++}
++
++static u32 ki2c_func(struct i2c_adapter *adap)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++}
++
++static const struct i2c_algorithm ki2c_algo = {
++	.master_xfer   = ki2c_xfer,
++	.functionality = ki2c_func,
++};
++
++static int ki2c_probe(struct auxiliary_device *auxdev,
++		      const struct auxiliary_device_id *id)
++{
++	struct device *dev = &auxdev->dev;
++	struct i2c_adapter *adap;
++	struct ki2c *ki2c;
++	int ret;
++
++	ki2c = devm_kzalloc(dev, sizeof(*ki2c), GFP_KERNEL);
++	if (!ki2c)
++		return -ENOMEM;
++	ki2c->auxdev = container_of(auxdev, struct keba_i2c_auxdev, auxdev);
++	ki2c->client = devm_kcalloc(dev, ki2c->auxdev->info_size,
++				    sizeof(*ki2c->client), GFP_KERNEL);
++	if (!ki2c->client)
++		return -ENOMEM;
++	ki2c->client_size = ki2c->auxdev->info_size;
++	auxiliary_set_drvdata(auxdev, ki2c);
++
++	ki2c->base = devm_ioremap_resource(dev, &ki2c->auxdev->io);
++	if (IS_ERR(ki2c->base))
++		return PTR_ERR(ki2c->base);
++
++	adap = &ki2c->adapter;
++	strscpy(adap->name, "KEBA I2C adapter", sizeof(adap->name));
++	adap->owner = THIS_MODULE;
++	adap->class = I2C_CLASS_HWMON;
++	adap->algo = &ki2c_algo;
++	adap->dev.parent = dev;
++
++	i2c_set_adapdata(adap, ki2c);
++
++	/* enable controller */
++	iowrite8(KI2C_CONTROL_MEN, ki2c->base + KI2C_CONTROL_REG);
++
++	/* reset bus before probing I2C devices */
++	ret = ki2c_reset_bus(ki2c);
++	if (ret)
++		goto out;
++
++	ret = devm_i2c_add_adapter(dev, adap);
++	if (ret) {
++		dev_err(dev, "Failed to add adapter (%d)!\n", ret);
++		goto out;
++	}
++
++	ret = ki2c_register_devices(ki2c);
++	if (ret) {
++		dev_err(dev, "Failed to register devices (%d)!\n", ret);
++		goto out;
++	}
++
++	return 0;
++
++out:
++	iowrite8(KI2C_CONTROL_DISABLE, ki2c->base + KI2C_CONTROL_REG);
++	return ret;
++}
++
++static void ki2c_remove(struct auxiliary_device *auxdev)
++{
++	struct ki2c *ki2c = auxiliary_get_drvdata(auxdev);
++
++	ki2c_unregister_devices(ki2c);
++
++	/* disable controller */
++	iowrite8(KI2C_CONTROL_DISABLE, ki2c->base + KI2C_CONTROL_REG);
++
++	auxiliary_set_drvdata(auxdev, NULL);
++}
++
++static const struct auxiliary_device_id ki2c_devtype_aux[] = {
++	{ .name = "keba.i2c" },
++	{ },
++};
++MODULE_DEVICE_TABLE(auxiliary, ki2c_devtype_aux);
++
++static struct auxiliary_driver ki2c_driver_aux = {
++	.name = KI2C,
++	.id_table = ki2c_devtype_aux,
++	.probe = ki2c_probe,
++	.remove = ki2c_remove,
++};
++module_auxiliary_driver(ki2c_driver_aux);
++
++MODULE_AUTHOR("Gerhard Engleder <eg@keba.com>");
++MODULE_DESCRIPTION("KEBA I2C bus controller driver");
++MODULE_LICENSE("GPL");
+-- 
+2.39.2
+
