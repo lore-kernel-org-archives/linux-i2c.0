@@ -1,99 +1,110 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from mx1.sberdevices.ru (mx2.sberdevices.ru [45.89.224.132])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B37812F365
-	for <linux-i2c@vger.kernel.org>; Wed, 10 Jul 2024 22:21:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB4ED848E;
+	Wed, 10 Jul 2024 22:32:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.89.224.132
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1720650072; cv=none; b=ImksxGQKqvsjgXUpGZip1Fpv03mYmLM0ulYwgbMuyLv4f2VTdT6uOvUy8Xn22uP3EUFuLJfPxZRxX/iTaWCTvyulPjRBwdPTB3634LNkXyOwwAndmIIaSo1LEqfl2dnzGuy/XOiX3g4rDpfz/RAXFG3vFTHkgTRKMD/nB7ojvgM=
+	t=1720650748; cv=none; b=dAy8r59uyPrF/WWtNuRMleoTqmjRsTJVP/u7LvNFG3IRrXNsAS3YQ/tGo+lF8KdAgYzNPCt25py+RMJsyFq9mW4Phyn8p1t+QS0ZUuNjnpNNbPcP+6G47TxYoZ9j3tQxXEXPkQUyNQ0oMCkC+AdriROygQrUs9G/Vr7gi2QZeqg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1720650072; c=relaxed/simple;
-	bh=UR9u1b1LERdObB5H9teSx8y9oN2qUYckeEFv+IKQgpA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YmFWwaXh/ONZMUdmAn/sWOVCDd7aKoHd+EdZV3/WZVJS+dvQndLREQmvbVGRtrUstc9J+F94BQRfR/kvqbmuhSiN5lYMNjXCKu/w8YWitDMQGt1MnKh58GvmKlEI2jx2Wo+CVH3rTbvQ+mj6xjE2lbMsnUqnm9M0K83aGf4Po6M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=fQkH2e9H; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1720650748; c=relaxed/simple;
+	bh=cZUl+GtvEWTuWqjppQU7RkrzP/oZOCjWu25mrDrFpvg=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=HNXs3lJ4yx8UZ4RIb0kOhXot5mEN2IirZwuwEJeVeCAxRDfQ26tJlLKJuhp+B8OMlL7WTexOn+1cBuRF+cmbjfHWOni1LNPF7g0t5MN1zgUcbB3Zz78zGGzIjPFeRBfXxztJxvtXmkSJAVheQXUjGCrl0e2k+8cDlNTpnpYzrLY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com; spf=pass smtp.mailfrom=salutedevices.com; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=UyHX3DyA; arc=none smtp.client-ip=45.89.224.132
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=salutedevices.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="fQkH2e9H"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=5Gfc
-	wj1h/9hwmssK1LHK7dJ8iHOpSHErohYtvx8U/Jg=; b=fQkH2e9HIcKdIvYY5oON
-	IKDJqF8DV06ALI+M7NVl+EUJ7ByYLtZEtjpFjUe7RSfepjl4z1YcMY5t7JdpcowN
-	ZPh6pf1a8s9JzHe3H2a/xfi2SIshs5Ww0LcUHtwYwYxQZ2X8NccO0+8bAO9+CxJm
-	Jmv9KiQzTfuF08mXTm5Y9BB0erDowCFY+KdwSVV/DUbd3jaUW/JGgY1T/0AHRHhh
-	3i196nYBA1OYsEdXjNIW2IlP8LJwkbmTybA39QeQ+7ky+yH5eYmmR4nXKJH16Kvv
-	O2LqjAbHfOAfTJvROgWQfB5DBepKAlZdxhtiLgy7+JrL2xikA6Cx7L6YiROfV0y1
-	/A==
-Received: (qmail 653563 invoked from network); 11 Jul 2024 00:21:05 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 11 Jul 2024 00:21:05 +0200
-X-UD-Smtp-Session: l3s3148p1@NZTrD+wctoUujnsa
-Date: Thu, 11 Jul 2024 00:21:05 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org,
-	Gregory CLEMENT <gregory.clement@bootlin.com>,
-	linux-kernel@vger.kernel.org, Jean Delvare <jdelvare@suse.com>
-Subject: Re: [PATCH v2 32/60] i2c: mv64xxx: reword according to newest
- specification
-Message-ID: <Zo8JUWIfmHhKs4jd@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
-	Gregory CLEMENT <gregory.clement@bootlin.com>,
-	linux-kernel@vger.kernel.org, Jean Delvare <jdelvare@suse.com>
-References: <20240706112116.24543-1-wsa+renesas@sang-engineering.com>
- <20240706112116.24543-33-wsa+renesas@sang-engineering.com>
- <7szxutsq35uaydvbo6bzrpsvnx765de7ps3kpvzs3b4ubczq6x@weaxji5u2p7c>
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="UyHX3DyA"
+Received: from p-infra-ksmg-sc-msk02.sberdevices.ru (localhost [127.0.0.1])
+	by mx1.sberdevices.ru (Postfix) with ESMTP id 918F912000C;
+	Thu, 11 Jul 2024 01:32:22 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx1.sberdevices.ru 918F912000C
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
+	s=mail; t=1720650742;
+	bh=EZPnynPyf1zfhY1MLF9NL+wcInfJ/C1ansM7QDzzuyI=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:From;
+	b=UyHX3DyAswn2Mqcywl07RPt684WapKbCtU9oTs7mGkRKMcDBmAbsz/J3JrYsIb57x
+	 eu9OSJAZhdQBnL2IyVGSP31Jt3AbAj3hoU/jsbnGSeTjb+rqnZGxPo/yvUatr0Mj0n
+	 RLR+Cx+2sJ1sqjsZ6D5ftvug4yJvkD6mt/+3V6O4Aq+oPfaa139cnXQ/DfvqgpGT77
+	 wG+k5SAJpBdfXA1RIcrNR/42TTyr+W0s8Hs+mrrxPQzdcT0knChxrirmLRsZhM3Vru
+	 auu9a/fN1QTBaJKi5FeaEnF9shHguViu5rGwiO/znZzv2x3TZkFkK9ZdqTfGlozbJC
+	 5tC9QoIOLN5og==
+Received: from smtp.sberdevices.ru (p-i-exch-sc-m02.sberdevices.ru [172.16.192.103])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by mx1.sberdevices.ru (Postfix) with ESMTPS;
+	Thu, 11 Jul 2024 01:32:22 +0300 (MSK)
+Received: from work.sberdevices.ru (100.64.160.123) by
+ p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.40; Thu, 11 Jul 2024 01:32:22 +0300
+From: George Stark <gnstark@salutedevices.com>
+To: <andi.shyti@kernel.org>, <robh@kernel.org>, <krzk+dt@kernel.org>,
+	<conor+dt@kernel.org>, <neil.armstrong@linaro.org>, <khilman@baylibre.com>,
+	<jbrunet@baylibre.com>, <martin.blumenstingl@googlemail.com>,
+	<glaroque@baylibre.com>, <rafael@kernel.org>, <daniel.lezcano@linaro.org>,
+	<rui.zhang@intel.com>, <lukasz.luba@arm.com>, <b.galvani@gmail.com>,
+	<mmkurbanov@sberdevices.ru>
+CC: <linux-i2c@vger.kernel.org>, <linux-pm@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, <linux-amlogic@lists.infradead.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+	<kernel@salutedevices.com>, George Stark <gnstark@salutedevices.com>
+Subject: [PATCH v2 2/3] dt-bindings: thermal: amlogic,thermal: add optional power-domains
+Date: Thu, 11 Jul 2024 01:32:13 +0300
+Message-ID: <20240710223214.2348418-3-gnstark@salutedevices.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20240710223214.2348418-1-gnstark@salutedevices.com>
+References: <20240710223214.2348418-1-gnstark@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="nxE7TigkqQEf5t7E"
-Content-Disposition: inline
-In-Reply-To: <7szxutsq35uaydvbo6bzrpsvnx765de7ps3kpvzs3b4ubczq6x@weaxji5u2p7c>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: p-i-exch-sc-m02.sberdevices.ru (172.16.192.103) To
+ p-i-exch-sc-m02.sberdevices.ru (172.16.192.103)
+X-KSMG-Rule-ID: 10
+X-KSMG-Message-Action: clean
+X-KSMG-AntiSpam-Lua-Profiles: 186446 [Jul 10 2024]
+X-KSMG-AntiSpam-Version: 6.1.0.4
+X-KSMG-AntiSpam-Envelope-From: gnstark@salutedevices.com
+X-KSMG-AntiSpam-Rate: 0
+X-KSMG-AntiSpam-Status: not_detected
+X-KSMG-AntiSpam-Method: none
+X-KSMG-AntiSpam-Auth: dkim=none
+X-KSMG-AntiSpam-Info: LuaCore: 24 0.3.24 186c4d603b899ccfd4883d230c53f273b80e467f, {Tracking_from_domain_doesnt_match_to}, d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;smtp.sberdevices.ru:5.0.1,7.1.1;salutedevices.com:7.1.1;100.64.160.123:7.1.2;127.0.0.199:7.1.2, FromAlignment: s, ApMailHostAddress: 100.64.160.123
+X-MS-Exchange-Organization-SCL: -1
+X-KSMG-AntiSpam-Interceptor-Info: scan successful
+X-KSMG-AntiPhishing: Clean
+X-KSMG-LinksScanning: Clean
+X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.0.1.6960, bases: 2024/07/10 21:42:00 #25942395
+X-KSMG-AntiVirus-Status: Clean, skipped
 
+On newer SoCs, the thermal hardware can require a power domain to
+operate so add corresponding optional property.
 
---nxE7TigkqQEf5t7E
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: George Stark <gnstark@salutedevices.com>
+---
+ Documentation/devicetree/bindings/thermal/amlogic,thermal.yaml | 3 +++
+ 1 file changed, 3 insertions(+)
 
+diff --git a/Documentation/devicetree/bindings/thermal/amlogic,thermal.yaml b/Documentation/devicetree/bindings/thermal/amlogic,thermal.yaml
+index 01fccdfc4178..462bd7237bb7 100644
+--- a/Documentation/devicetree/bindings/thermal/amlogic,thermal.yaml
++++ b/Documentation/devicetree/bindings/thermal/amlogic,thermal.yaml
+@@ -30,6 +30,9 @@ properties:
+   clocks:
+     maxItems: 1
+ 
++  power-domains:
++    maxItems: 1
++
+   amlogic,ao-secure:
+     description: phandle to the ao-secure syscon
+     $ref: /schemas/types.yaml#/definitions/phandle
+-- 
+2.25.1
 
-> > -	MV64XXX_I2C_STATE_WAITING_FOR_SLAVE_ACK,
-> > -	MV64XXX_I2C_STATE_WAITING_FOR_SLAVE_DATA,
-> > +	MV64XXX_I2C_STATE_WAITING_FOR_TARGET_ACK,
-> > +	MV64XXX_I2C_STATE_WAITING_FOR_TARGET_DATA,
->=20
-> I searched online for the datasheet but couldn't find it. It
-> would be helpful to know if the SLAVE naming comes from the
-> datasheet or if it is arbitrary.
-
-I was considering datasheet names, but obviously I concluded that these
-are custom names.
-
-
---nxE7TigkqQEf5t7E
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmaPCU0ACgkQFA3kzBSg
-Kbb/mhAArl6U/dAyn1dNsFQSmYcw7GLbDJWa3SOf5W39+JRUBruxGzNXub7Qq+uD
-V2j1V9t+yzD4O2+vyuzUHjQ3ru5Ky/Rc7INwiGGK+vwWmqvR9EG5lLQOZttAVfWf
-kkn1lw8oTCd4jVqUV+gKjsqJyOLGn6b3+Ysm+7ezSbPLCyMc9uaxFEecrBSjxIqi
-eMX2/DrGJ01XerhTAVbcP9dSXgtbwOZ2Qqg0L9Lw4LVHUUyYJ7Kkvi5aCt89KflN
-V7nSgl5vz1T7aS9BEXF0Apo+pBuiyMg8zzl+dsq/Y+8wuWz7jGjMF9mgYwfSDQ2X
-68IornfEriGfTsh3ylbdZzq0PZjRe/spqTFjs/j78DeFw6xuF7AjqZy/yPygJ/YN
-jqNTnt9HjE9n9UCiXe7wqgddeNm0uSXrZ8HDykDF6d+dLWWucXyVFkxPs4Hpp4op
-kse/w/I7WpXGhPeSvCSOPyeoZmGb5ueq1O7iEBrm26A1uJ+9mXetfZgWjf9nMIS0
-kbMjNFyJDKwsP8/25BsSQ04nhds7rrjnYi02k9g2RBwYwPNlMJWf6G5vtjshT6C1
-2oNewIuFTiYnnWMKdCnZraXMraTDqRD0WAAw0KxS9zY7aZU+NIDG/ZvdPiayf3VJ
-9LEgLY1wE2gyU/7H6JzNRO/NM7/LCSa5L33FrbMTQHPkTabAljw=
-=pPql
------END PGP SIGNATURE-----
-
---nxE7TigkqQEf5t7E--
