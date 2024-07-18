@@ -1,104 +1,62 @@
-Received: from greygoose-centos7.csh.rit.edu (greygoose-centos7.csh.rit.edu [129.21.49.170])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B33F2620;
-	Thu, 18 Jul 2024 01:25:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.21.49.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FE8027713;
+	Thu, 18 Jul 2024 02:53:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1721265924; cv=none; b=lP4eWh6EopfSwac0xAUlK3E19Hvk84gG3enCBfkyhdefvZjEqpxy+JJj1wbLt0nNdcAQzGP5Lz4U1Jty7EGdCsIrFWn0opLypf6VfOzqbyhZpw1fN+3tV35yL2Pwy+fVT2NJ+7BpiEdWvpFna3Yc3twEqxBD3SwjD9sn5A8Mto0=
+	t=1721271205; cv=none; b=Dt9O84tG142o6g/ZWLucw8E0JeLCsotH2M+PpWYxQsiLRjsvS8KXrt2cMYrwfEv43V4zcV+nEj5JMFkAKuOAVCOBOReGoK6BeDAd+Oysy7e0OxFge3ix2IT5maD7KqNTdaWd5BMmHgBCXntltMHDOel63jy3N9GS0HxNl0/SpPY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1721265924; c=relaxed/simple;
-	bh=v8HKLxZhttVWIKwfX3YLMwdxEeFHIhN6tGV6+ffqnkA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hM2hySIN9SoQNkFBowLdHBPbFtnlaSuICsFdY4VCLxWm/MysEblTmcQ15fa2+g1bBhfOWcEMGsXsCuT0yj6teJBs6QPID2XbT9s5x/+gQ2w/9u5CtoFiWa2wNfKkA37c4pfeY5jAbQsp4aTxey616xt6P3VVfVCL/4g9bFBdbCM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=csh.rit.edu; spf=pass smtp.mailfrom=csh.rit.edu; dkim=pass (1024-bit key) header.d=csh.rit.edu header.i=@csh.rit.edu header.b=GeRia4gf; arc=none smtp.client-ip=129.21.49.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=csh.rit.edu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csh.rit.edu
+	s=arc-20240116; t=1721271205; c=relaxed/simple;
+	bh=DkX4qpFWIc4gHvzenkio0kFDrFxOx5kMbHNjMatt/1g=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=d8svcmdRcFOPt9iKThE7s3VCeFxt1kJnZPc0IxN71jwk1L7VvouzxPtFGrkO+Ej1KoNyN4BCW/FaSyJV0pMCV8cjZopnVAZ8YDwO2dffkiczr75bv7dttHqZQGFD3xk6/LfUs6hwgO2/9zoboJQX0/Unr5AWmKXWT1TIKQOnQbU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=unGqN80n; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=csh.rit.edu header.i=@csh.rit.edu header.b="GeRia4gf"
-Received: from localhost (localhost [127.0.0.1])
-	by greygoose-centos7.csh.rit.edu (Postfix) with ESMTP id 8766D40D7C73;
-	Wed, 17 Jul 2024 21:16:15 -0400 (EDT)
-Authentication-Results: mail.csh.rit.edu (amavisd-new);
- dkim=pass (1024-bit key) reason="pass (just generated, assumed good)"
- header.d=csh.rit.edu
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=csh.rit.edu; h=
-	content-transfer-encoding:mime-version:x-mailer:message-id:date
-	:date:subject:subject:from:from:received:received; s=mail; t=
-	1721265375; x=1723079776; bh=v8HKLxZhttVWIKwfX3YLMwdxEeFHIhN6tGV
-	6+ffqnkA=; b=GeRia4gf2FpaBGScjBzdklKWjeJ65+Rkp+8usRfxovneRdsy991
-	hKyTuXRYT8coMSEzWJQDdsSRw0lh81GfeCFY54GlzEWnN6NuXchrftWfQJpXKEkf
-	GrfmgatIWCvPwkfFqg+BTXOOWvnIHLGKdCBPB4m/hKUmvjIKV7S4oYj0=
-X-Virus-Scanned: amavisd-new at csh.rit.edu
-Received: from greygoose-centos7.csh.rit.edu ([127.0.0.1])
- by localhost (mail.csh.rit.edu [127.0.0.1]) (amavisd-new, port 10026)
- with ESMTP id 3CWXBX-cJRGP; Wed, 17 Jul 2024 21:16:15 -0400 (EDT)
-Received: from freedom.csh.rit.edu (freedom.csh.rit.edu [129.21.49.182])
-	by greygoose-centos7.csh.rit.edu (Postfix) with ESMTP id 0890145735E9;
-	Wed, 17 Jul 2024 21:16:15 -0400 (EDT)
-From: Mary Strodl <mstrodl@csh.rit.edu>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@linux-foundation.org,
-	urezki@gmail.com,
-	hch@infradead.org,
-	linux-mm@kvack.org,
-	lee@kernel.org,
-	andi.shyti@kernel.org,
-	linux-i2c@vger.kernel.org,
-	s.hauer@pengutronix.de,
-	christian.gmeiner@gmail.com,
-	Mary Strodl <mstrodl@csh.rit.edu>
-Subject: [PATCH 0/3] Add support for Congatec CGEB BIOS interface
-Date: Wed, 17 Jul 2024 21:15:01 -0400
-Message-ID: <20240718011504.4106163-1-mstrodl@csh.rit.edu>
-X-Mailer: git-send-email 2.45.2
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="unGqN80n"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 419E4C2BD10;
+	Thu, 18 Jul 2024 02:53:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1721271204;
+	bh=DkX4qpFWIc4gHvzenkio0kFDrFxOx5kMbHNjMatt/1g=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=unGqN80nDx3J9QE4qIA2RmEMZ5v7FpTdKIRZNJddZuBo8Na7WlcyFfvWidfZnwT+G
+	 OntEyx5oAi/sjqEy7MNs3iDWOe5dEGCuMGQBf6aYsDHhCD+Q+lpUiBhMZEywxTLVm6
+	 lzLJxSnGlbVPobPwduIYP5B+FufUuTX+iwEiM3xI=
+Date: Wed, 17 Jul 2024 19:53:23 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Mary Strodl <mstrodl@csh.rit.edu>
+Cc: linux-kernel@vger.kernel.org, urezki@gmail.com, hch@infradead.org,
+ linux-mm@kvack.org, lee@kernel.org, andi.shyti@kernel.org,
+ linux-i2c@vger.kernel.org, s.hauer@pengutronix.de,
+ christian.gmeiner@gmail.com
+Subject: Re: [PATCH 1/3] mm: vmalloc: export __vmalloc_node_range
+Message-Id: <20240717195323.d2dbfed9835ba7e2d769921e@linux-foundation.org>
+In-Reply-To: <20240718011504.4106163-2-mstrodl@csh.rit.edu>
+References: <20240718011504.4106163-1-mstrodl@csh.rit.edu>
+	<20240718011504.4106163-2-mstrodl@csh.rit.edu>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-The following series adds support for the Congatec CGEB interface
-found on some Congatec x86 boards. The CGEB interface is a BIOS
-interface which provides access to onboard peripherals like I2C
-busses and watchdogs. It works by mapping BIOS code and searching
-for magic values which specify the entry points to the CGEB call.
-The CGEB call is an API provided by the BIOS which provides access
-to the functions in an ioctl like fashion.
+On Wed, 17 Jul 2024 21:15:02 -0400 Mary Strodl <mstrodl@csh.rit.edu> wrote:
 
-This series is based on the excellent work of Sascha Hauer and
-Christian Gmeiner. You can find their original work here:
+> After the ability to allocate PAGE_KERNEL_EXEC memory was removed
+> from __vmalloc
 
-http://patchwork.ozlabs.org/patch/219756/
-http://patchwork.ozlabs.org/patch/219755/
-http://patchwork.ozlabs.org/patch/219757/
+Removed by which commit?
 
-http://patchwork.ozlabs.org/patch/483262/
-http://patchwork.ozlabs.org/patch/483264/
-http://patchwork.ozlabs.org/patch/483261/
-http://patchwork.ozlabs.org/patch/483263/
+> this seems like the least invasive way to expose
+> the capability to drivers that need it.
+> 
+> Exports __vmalloc_node_range so that drivers can use it.
 
-Mary Strodl (1):
-  mm: vmalloc: export __vmalloc_node_range
+Why does this driver need a thing which no other driver does?
 
-Sascha Hauer (2):
-  x86: Add basic support for the Congatec CGEB BIOS interface
-  i2c: Add Congatec CGEB I2C driver
-
- drivers/i2c/busses/Kconfig             |   7 +
- drivers/i2c/busses/Makefile            |   1 +
- drivers/i2c/busses/i2c-congatec-cgeb.c | 187 ++++++++
- drivers/mfd/Kconfig                    |  10 +
- drivers/mfd/Makefile                   |   1 +
- drivers/mfd/congatec-cgeb.c            | 620 +++++++++++++++++++++++++
- include/linux/mfd/congatec-cgeb.h      | 105 +++++
- mm/vmalloc.c                           |   1 +
- 8 files changed, 932 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-congatec-cgeb.c
- create mode 100644 drivers/mfd/congatec-cgeb.c
- create mode 100644 include/linux/mfd/congatec-cgeb.h
-
---=20
-2.45.2
 
