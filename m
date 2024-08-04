@@ -1,124 +1,113 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f170.google.com (mail-lj1-f170.google.com [209.85.208.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77B68200AE
-	for <linux-i2c@vger.kernel.org>; Sun,  4 Aug 2024 14:35:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 458FE768EC
+	for <linux-i2c@vger.kernel.org>; Sun,  4 Aug 2024 21:22:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722782113; cv=none; b=MfDQsdRHRwDZtr3Rigiql32kaQwn4nQsaw/0+CZJXq+UTLXVEFPsyYL+D55gvWBsLEZ57MG0tSqtTUB3hWqrvn4jDizFgMpQDYZcT3m0RfktdOx0vkzU4fWKTjrILd/yPCRy8T33liWE6IGCnqK6oKmj5+t7vhOwJJcJzMIgL1c=
+	t=1722806524; cv=none; b=GeOciIgR4yzepSDb8fUwXnJNCGqzrmWY6t2coGiSgMmM//EUNSyGBMLyBzK6fDodj9Zn5wIEA+6mEOGTg2YXw0fmuNTPyNtVZo1Pw6oIoJVjFxapJAX9r5V5wCMCoXQpRbJz45b6XSU06cgmgNiVAmiw0xBwx0ar01RjIHznrbc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722782113; c=relaxed/simple;
-	bh=hlvMZsWV17kzBWXwb2c9hd4i8thidyFkCEQJhYO2E/E=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DTANvqMI4TuMPzdvI28Va85ecdIEH6rwYVETgozB0NCOeELbPkjc6ZGpnSwnGe8rSs/Ve+aS5gI0vGaK0r7hlJLG/e1H8pZqzibI7/PP8EgVAWw830S/FjT1P7Wjg0nKWpeVINoQ8Z48SmoOf2PfJdZ/GiNrEoYqe72OCTb1DkU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=b69pP5fh; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1722806524; c=relaxed/simple;
+	bh=8T0BYdA9Kxi+oVjS9OAReH15eAFcU+2zMrtmp+uLA5U=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=lRkTBOPm6jOp+Sgh2IgoIuZD+7sigvIVss9ad1jYjVHZ0YFpk1zBL7SDMDiaSt71ABkhcnaNHd3ZFjKR++lD/CwbIQ8hqJNhJFiN4AniX15f1dkE4FjuTtU8zPNv4pkGD1vpbPVtxB83KHZMJia4INtHQmAZpw+5A97x85BD/JE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=qAhuHv13; arc=none smtp.client-ip=209.85.208.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="b69pP5fh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=6SNJ
-	SJvr7NqL7MpFM+fpnwgb/mSlFGoOetrtdmHHnlw=; b=b69pP5fh8TkqctCG1P2j
-	MyX/n4DKSKrYmz9gdyV+RNjWEde3Tg4FJVrgDXb2jGVtdDbcwDsz1kjrM/H8UVmu
-	wmb3+u73protKSoWn42F0ObWRRD2Ng0gzBSYTTZBCnpdELXZ1dgy+1Xn6JH3wxIj
-	PQ/hY2DUHe/GfFQy8pzZv3BmKy2qj2eCwhGGDKunJKfpGcaxNsRP1L4jfuScKvJf
-	Ihq1UQLnMzpaQnjH56jZ8aakWsQS7KrjxOOgDK3tdOXAj1n3+J8FyPcNfLtR2bVx
-	xHmgMJ8l3Tpz3IMZpQ3YxtmDau91285nCmA+kmq2y6UNqXl5jREZ+8TK1m+tMGy0
-	Yg==
-Received: (qmail 1703051 invoked from network); 4 Aug 2024 16:28:27 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 Aug 2024 16:28:27 +0200
-X-UD-Smtp-Session: l3s3148p1@Ige2X9weds1ehhtX
-Date: Sun, 4 Aug 2024 16:28:26 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: smbus: Send alert notifications to all devices
- if source not found
-Message-ID: <Zq-QCvhEhk_Bd3xG@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20240730141941.2402435-1-linux@roeck-us.net>
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="qAhuHv13"
+Received: by mail-lj1-f170.google.com with SMTP id 38308e7fff4ca-2ef243cc250so18705741fa.0
+        for <linux-i2c@vger.kernel.org>; Sun, 04 Aug 2024 14:22:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1722806520; x=1723411320; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Mqnu+yNGhehLSrkuhy5GkzzL6TnfVoi9+bUerYPLnpU=;
+        b=qAhuHv13A1xGhNkRwoNZ2VVcAQtz8ckrjrzy5xSIqCLDUN34jHEYfNeejWZ5me84jq
+         y+intyNFIUbXX5hNJ1dlcnz4QlHAijoIflerWtwyZEJS3bMWPqUXssV3ynWuox6Jl4J+
+         2yZ6BOg2ZZHyplAJgZV0TgsVJAKMeLYBb8nqg49K6yq3/8P/ia6iktCHcd9OAGtJhXdb
+         1W1zEJ0QQtGMUflc+EhyH3+wE4K5CWIcNq4CHmiQbh83ADSVhz/nETxfaSTUSyA7BJ/l
+         8VyRdgXsQ+yo/bj8sH2h2Fn3A/dYXlPYNEVrrdinyULPnTscu2WQ0eRl0iuGoVJlnmu6
+         q0PA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1722806520; x=1723411320;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Mqnu+yNGhehLSrkuhy5GkzzL6TnfVoi9+bUerYPLnpU=;
+        b=df5oE8BJYAf6c6eTZvZlBvFnsfoXpSL5avqTrEc7en/9mMSFwY7VdFMSm8Vh4xatWR
+         MTJHfMoIvEkD/0PeNo0uueBNwbWO+/1A4F+b0dfmXV7pd/3TFMRWzDSsp94vEBdvp+Bi
+         AhJ/STkIBsID10/mxodNEZAXSCFtp69LVPGoaN14b17een+vUvq67RLzt2obYZYz5UaG
+         b+gQnnqauXxCpR39NXvXb0WRf4fXwm/uWqBazvKvJFiAMeDIVUCeU1UjUTUQyEUO7PR1
+         7ODw+hsrMtq3FTioGhgYuHvL9rALs626P3zrlwdL++sPMoECTyrcMrUeDKpFsNYPQNgv
+         IgyA==
+X-Forwarded-Encrypted: i=1; AJvYcCUxr5b0gA6kaPbZtqcPvcCX8qDslR8j98/3Exn5K88Hrls8hSkTQ7kYBytlzLTOSY0mafozYVD0K5pyu2E68nCauEHHwLsn5VX8
+X-Gm-Message-State: AOJu0YxJfkScQ0+ap5+IuCOoZPlZBoW3i6CJJGcxQvc0dc7cP1juxZAT
+	WVya9GHwQeL4GohaF9Rp0/lBs4keJj/adtH2EYeM7Q+n586dUmEzRNbrPm7MJhU=
+X-Google-Smtp-Source: AGHT+IFmcMxMi0C7iCoG5ilO8+VdI9K5JR+E9gBGMc1h7WBJ6E8D38KzACtDsWOqM/stVtF8l3U3Fw==
+X-Received: by 2002:a05:6512:3ca4:b0:52f:c22f:32a4 with SMTP id 2adb3069b0e04-530bb3b52f4mr3588082e87.6.1722806520253;
+        Sun, 04 Aug 2024 14:22:00 -0700 (PDT)
+Received: from [192.168.1.4] (88-112-131-206.elisa-laajakaista.fi. [88.112.131.206])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-530bba2a027sm896204e87.131.2024.08.04.14.21.59
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 04 Aug 2024 14:21:59 -0700 (PDT)
+Message-ID: <a12d2ec6-07b1-4577-8bed-981024c5cc9c@linaro.org>
+Date: Mon, 5 Aug 2024 00:21:53 +0300
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="1esLGUbMCDPdwLQF"
-Content-Disposition: inline
-In-Reply-To: <20240730141941.2402435-1-linux@roeck-us.net>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH -next] i2c: qcom-geni: Add missing clk_disable_unprepare
+ in geni_i2c_runti
+To: Gaosheng Cui <cuigaosheng1@huawei.com>, andi.shyti@kernel.org
+Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org
+References: <20240803061041.283940-1-cuigaosheng1@huawei.com>
+Content-Language: en-US
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+In-Reply-To: <20240803061041.283940-1-cuigaosheng1@huawei.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
+On 8/3/24 09:10, Gaosheng Cui wrote:
+> Add the missing clk_disable_unprepare() before return in
+> geni_i2c_runti().
 
---1esLGUbMCDPdwLQF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The function name above is scrambled, it should be geni_i2c_runtime_resume().
 
-On Tue, Jul 30, 2024 at 07:19:41AM -0700, Guenter Roeck wrote:
-> If a SMBUs alert is received and the originating device is not found,
+> 
+> Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+> ---
+>   drivers/i2c/busses/i2c-qcom-geni.c | 4 +++-
+>   1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+> index 0a8b95ce35f7..78f43648e9f3 100644
+> --- a/drivers/i2c/busses/i2c-qcom-geni.c
+> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+> @@ -990,8 +990,10 @@ static int __maybe_unused geni_i2c_runtime_resume(struct device *dev)
+>   		return ret;
+>   
+>   	ret = geni_se_resources_on(&gi2c->se);
+> -	if (ret)
+> +	if (ret) {
+> +		clk_disable_unprepare(gi2c->core_clk);
+>   		return ret;
+> +	}
+>   
+>   	enable_irq(gi2c->irq);
+>   	gi2c->suspended = 0;
 
-Fixed this capital 'U' while applying.
+The fix is correct, thank you.
 
-> the reason may be that the address reported on the SMBus alert address
-> is corrupted, for example because multiple devices asserted alert and
-> do not correctly implement SMBus arbitration.
->=20
-> If this happens, call alert handlers on all devices connected to the
-> given I2C bus, in the hope that this cleans up the situation.
->=20
-> This change reliably fixed the problem on a system with multiple devices
-> on a single bus. Example log where the device on address 0x18 (ADM1021)
-> and on address 0x4c (ADT7461A) both had the alert line asserted:
->=20
-> smbus_alert 3-000c: SMBALERT# from dev 0x0c, flag 0
-> smbus_alert 3-000c: no driver alert()!
-> smbus_alert 3-000c: SMBALERT# from dev 0x0c, flag 0
-> smbus_alert 3-000c: no driver alert()!
-> lm90 3-0018: temp1 out of range, please check!
-> lm90 3-0018: Disabling ALERT#
-> lm90 3-0029: Everything OK
-> lm90 3-002a: Everything OK
-> lm90 3-004c: temp1 out of range, please check!
-> lm90 3-004c: temp2 out of range, please check!
-> lm90 3-004c: Disabling ALERT#
->=20
-> Fixes: b5527a7766f0 ("i2c: Add SMBus alert support")
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+FWIW there is another missed call of geni_icc_disable(&gi2c->se) on the error paths.
 
-Applied to for-current, thanks!
+Fixes: 14d02fbadb5d ("i2c: qcom-geni: add desc struct to prepare support for I2C Master Hub variant")
+Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 
-> -		 * the loop because it will never terminate.
-> -		 * Bail out in this case.
-> +		 * the loop because it will never terminate. Try again, this
-> +		 * time calling the alert handlers of all devices connected to
-> +		 * the bus, and abort the loop afterwards. If this helps, we
-> +		 * are all set. If it doesn't, there is nothing else we can do,
-> +		 * so we might as well abort the loop.
-
-I really like this updated comment. Kudos!
-
-
---1esLGUbMCDPdwLQF
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmavkAYACgkQFA3kzBSg
-KbYoEA/+J8mqBaoaeJPSi6cnvuWdt1mMc1qbmfakfdj8hVE3Vv3+CnfGyp9hqSjX
-M5X5gFEdC9ABXfY4tf0YHqnsXHiBQI/UnNeSERiwd6HC3s81zl4tri9HpfxDJr1U
-gwqCI2IQH69TCyJYWiIbW+8hKZQmOq+7i5CjXfJJtDnWmEISNuqpDQnTbWgTATgo
-o18WfoNxuomtNKT6FcbMl/FefqvY9k+22td7karzQqAplU3dFAaxilap77zX1/0O
-L+4td9uExU59Dc+YOqbtQHI+2An0Asv1c8trCuoKZ+EG81umX6GV7RGMF5xDzI8T
-vr7RpMRjE+7ANUysfAnCwEcaa39KNGzvKdPZls1LESIlIeye2L5M4+xFhx2xoOWy
-KTf6knZ+n/x7tYh3aTck01xZfW1ADuUJ+P1b/EP/QcVqalUCcfWJb7HKrTpyXOQ1
-Npf+IcmrWbUvsZklWXSXdPgH39f64B8b5+uEpDseC08LJ1ZrpS+vaMyDDZqrk4By
-clqgC0OTFysqDdbJjW823pC8lRfDo0YkLwKZE22A6ok6m2qCg9WffU24bpzhz/8n
-p5kgnYrqO6j6M1mekyQHysYXvUrcQMcNs8snh/O1/5Dal3C13qMNwLlTB2A9Mkcp
-r4Nz3iu1pfQWW3xh4jeE+C/tEPGhmtfkd3IDo35BmqssXpzq/xg=
-=uwFQ
------END PGP SIGNATURE-----
-
---1esLGUbMCDPdwLQF--
+--
+Best wishes,
+Vladimir
