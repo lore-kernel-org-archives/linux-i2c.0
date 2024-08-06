@@ -1,104 +1,200 @@
-Received: from mail-lj1-f169.google.com (mail-lj1-f169.google.com [209.85.208.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADDA71C9EB0
-	for <linux-i2c@vger.kernel.org>; Tue,  6 Aug 2024 13:05:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C093218D648
+	for <linux-i2c@vger.kernel.org>; Tue,  6 Aug 2024 14:20:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1722949544; cv=none; b=GhGRbWTsNw/gbyT2UP/2bLJBkwbZnqD6cWPvVs52ov/YSKRjtDJ37lzn+igWmhjcHsuaZQ2pqWOAuuCTjlGk1EIV8JX7GDIxN4sgADhbvb9lfEP5Vs8q+EZNGMZNcTKiLDWwJhZvK3OFbwygMgjxbuIkQPczPgpZWjDJj1g9FoI=
+	t=1722954044; cv=none; b=gAgQkbrrhFhEzL9Q5N3hp1hkQ6GU59aVd8TTl0BuS+h57qgyx9EphS9+qJynkFpLpnXXS72K5toYRu5T9lqUx46UJDoVTvlHR4F9jrzRWTA7WS1BuXdli9Kn1oUgMgQS+JvDi2aTW3mPoUabdMxa/pqV0ETVWmYDJeKnbvtQi7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1722949544; c=relaxed/simple;
-	bh=5xHO28RgwE+3Wyj1hop53WiOCG5gh1OY3ob1B5NF6UI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BNgO4oRn6xTY4GuQvNnqidTkKKLsqcj9/++qN8K9kslCB0t3o2a6o/VDBWXopyysIM8/Wkyuooetz2NfgiXxRbN4h0oaCK98J16yHdfFCM9mG80zjA/DuYQi41AFCEyEeWuNI0RjpBMRfz98XnCGJUWmUqs5B3j/fFlprTfNcFM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=p+sxBmg6; arc=none smtp.client-ip=209.85.208.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1722954044; c=relaxed/simple;
+	bh=T2TDmKcsy0NZqbKXkp8K4XvKFmQzpb5Gg9vM/KhYUzU=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=O6jAidivD2+e+YSsBvOZ/1PCx77SkMVJg4UwNccnCJR/iCtcO6gTwECnGuvSDUk7ik79g46gOtxoqigLh13jq3zdVLbDKJcuGEmZgpZEKZ2Sj3/jkFO1p/awcIrUrzyumxdR59ovKNQt98/aPm/pt1t/gJ0Jk4SeOkba46ReKk4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=F72KxuI6; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="p+sxBmg6"
-Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-2ef2c0f35f2so1168501fa.1
-        for <linux-i2c@vger.kernel.org>; Tue, 06 Aug 2024 06:05:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1722949541; x=1723554341; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=U3tjEHzI6vFcFefvKAUB9C3zJO79T9ISYwRwdzZDMPo=;
-        b=p+sxBmg6T3L0uP+Pmaof31vxW80U8ymeFQ3qOop61Q717dCx4oZuRA3iNpA/jQ6FfI
-         icq28X1Z1672M1vgu3T92iU68q1DRnjX4/qYNuQEOqbgZ1ZGAs8PjIqm4tvHixftpcRT
-         uTh5AUnX5oe7DYyJ5jiI9J7c5PuqlM5+DR3ssC4nyDkdpQWbvxyxMscU+6H91I1GBGyb
-         StmhyprDYARK2C0P+pNaMS7TGe5jNbcOOmUbVDuVTZrJKMWenmHaY7F3vlKBMCWBZcLa
-         cqfMDxU9PtjOjZ7S62yy3HyZXVAdujY4gspF/HBZIMxs7ysBCJs97P28xOaycVQ0Yd+/
-         ysiw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1722949541; x=1723554341;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=U3tjEHzI6vFcFefvKAUB9C3zJO79T9ISYwRwdzZDMPo=;
-        b=Tno2WodrEVFwH+aNVGMsWaaFe/UIo39CrsROIqr7G1UoD5sYz+w2/ZWdtBET/hz8/6
-         AzwATGcEtWuxnW4g/alxnxoibZnDu4ZwOFfP9w/WtxCYjmBBPf0tY6vpvqQFBBCE4YJa
-         b5IXY7NmYT9LeXT7qASJKtWnc8ZTZsVEYbmrHUPbCc59c8fG7tt3jAiEipPgTxDHfENF
-         t1A4V0Po8Mi/5xuDp/v4EDUuQkpv5/o0eP5U3xI8POdopQEJOb70IuRTqDBxle7kr4rc
-         Pe00omBdM6+0RUDK0BHV18lbF5vX9uy2SZeO2r1BvxE1IKl8pnEg+oOhofOCLbG+trlk
-         WqFg==
-X-Forwarded-Encrypted: i=1; AJvYcCUQkxoq+3G7PAMytNrpsGbCMfJDnWI7IxMH5uonwMEDj5HsI9xR5LSG/Mf8/MLMF0NUdsfkOqeVTHG6mfd7Wpm7AHeal4mHx+Rp
-X-Gm-Message-State: AOJu0Yzu38uIHALr+Aty+WVuqpEEeed9Xzc28hlkswIF0I/AQpe8epeG
-	rOpzey8lP6bkSfz8VmV3FkRoNupCCQAgwpUOf9mt6mxmwou2Fl16nY2l1EF1NLY=
-X-Google-Smtp-Source: AGHT+IFUa5J/+kOkIYUURoo4FxbRJUyi+/bxaQpFZTdwfiTt7ERcDbaJXATBQnJIb5Wd7curx3Bd0g==
-X-Received: by 2002:a05:6512:b2a:b0:52f:e5:3765 with SMTP id 2adb3069b0e04-530bb39dc4fmr5973599e87.6.1722949540729;
-        Tue, 06 Aug 2024 06:05:40 -0700 (PDT)
-Received: from [192.168.1.4] (88-112-131-206.elisa-laajakaista.fi. [88.112.131.206])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-530bba29f6asm1480694e87.120.2024.08.06.06.05.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 06 Aug 2024 06:05:40 -0700 (PDT)
-Message-ID: <95681260-2d61-4d76-951a-720e94c76c79@linaro.org>
-Date: Tue, 6 Aug 2024 16:05:39 +0300
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="F72KxuI6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=from:to:cc:subject:date:message-id
+	:in-reply-to:references:mime-version:content-transfer-encoding;
+	 s=k1; bh=A24nU/0tYo75ass/vBmrHPYsBXF3wJuThSVuV3BE8Ms=; b=F72Kxu
+	I6IaEmBmlxn1vH031dEv/1OsMkfgwU+FV+AqLD+yrPwhS49MnsCj+NECoReb1zVN
+	XUUZ1kkH/dTPElhEk6X4HdfY8P6yfxFP/KubX/9IKjNnS3iSxrsDAdeYUIiKrwYU
+	vAoHWEXLq1wmZQUvaHC0S7fThMK5zYSYTC9UitZXA56P142aukvvcR9CeJ+mv+SW
+	VCQHO2EEbKbQrrgCnevTpxCF1bSNRgfbJ2bkJoQibYJDFL6i7mUxa+aUiPxyZQjN
+	B2fQsrAxUhdGZDRVpExoeO3oI55RiPbvdlz/8hliq5ZHQBESIZz6NEl0VW4N8Ap7
+	rMWi19JHaNdWPVHg==
+Received: (qmail 249188 invoked from network); 6 Aug 2024 16:20:38 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 6 Aug 2024 16:20:38 +0200
+X-UD-Smtp-Session: l3s3148p1@FdltfwQfHIYgAwDPXxLGAIH3oZkcU6AS
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-renesas-soc@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	linux-i2c@vger.kernel.org
+Subject: [PATCH 2/3] i2c: testunit: add command to support versioning and test rep_start
+Date: Tue,  6 Aug 2024 16:20:31 +0200
+Message-ID: <20240806142033.2697-3-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20240806142033.2697-1-wsa+renesas@sang-engineering.com>
+References: <20240806142033.2697-1-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH -next] i2c: qcom-geni: Add missing geni_icc_disable in
- geni_i2c_runtime_resume
-Content-Language: en-US
-To: Gaosheng Cui <cuigaosheng1@huawei.com>, andi.shyti@kernel.org,
- mka@chromium.org, akashast@codeaurora.org, andersson@kernel.org,
- wsa@kernel.org
-Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org
-References: <20240806125331.3170546-1-cuigaosheng1@huawei.com>
-From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-In-Reply-To: <20240806125331.3170546-1-cuigaosheng1@huawei.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 8/6/24 15:53, Gaosheng Cui wrote:
-> Add the missing geni_icc_disable() before return in
-> geni_i2c_runtime_resume().
-> 
-> Fixes: bf225ed357c6 ("i2c: i2c-qcom-geni: Add interconnect support")
-> Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-> ---
->   drivers/i2c/busses/i2c-qcom-geni.c | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-> index 8bc4040ba8be..2deaf502e6ff 100644
-> --- a/drivers/i2c/busses/i2c-qcom-geni.c
-> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
-> @@ -992,6 +992,7 @@ static int __maybe_unused geni_i2c_runtime_resume(struct device *dev)
->   	ret = geni_se_resources_on(&gi2c->se);
->   	if (ret) {
->   		clk_disable_unprepare(gi2c->core_clk);
-> +		geni_icc_disable(&gi2c->se);
->   		return ret;
->   	}
->   
+For some devices, it is essential that controllers handle repeated start
+correctly and do not replace it with a stop/start combination. This
+addition helps to test that because it will only return a version string
+if repeated start is done properly.
 
-Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ Documentation/i2c/slave-testunit-backend.rst | 38 ++++++++++++++++++++
+ drivers/i2c/i2c-slave-testunit.c             | 25 +++++++++++--
+ 2 files changed, 61 insertions(+), 2 deletions(-)
 
---
-Best wishes,
-Vladimir
+diff --git a/Documentation/i2c/slave-testunit-backend.rst b/Documentation/i2c/slave-testunit-backend.rst
+index 37142a48ab35..a0335782d109 100644
+--- a/Documentation/i2c/slave-testunit-backend.rst
++++ b/Documentation/i2c/slave-testunit-backend.rst
+@@ -133,3 +133,41 @@ later)::
+ 
+   # i2ctransfer -y 0 w3@0x30 0x03 0x01 0x10 r?
+   0x10 0x0f 0x0e 0x0d 0x0c 0x0b 0x0a 0x09 0x08 0x07 0x06 0x05 0x04 0x03 0x02 0x01 0x00
++
++0x04 GET_VERSION_WITH_REP_START
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++
++.. list-table::
++  :header-rows: 1
++
++  * - CMD
++    - DATAL
++    - DATAH
++    - DELAY
++
++  * - 0x04
++    - currently unused
++    - currently unused
++    - leave out, partial command!
++
++Partial command. After sending this command, the testunit will reply to a read
++message with a NUL terminated version string based on UTS_RELEASE. The first
++character is always a 'v' and the length of the version string is at maximum
++128 bytes. However, it will only respond if the read message is connected to
++the write message via repeated start. If your controller driver handles
++repeated start correctly, this will work::
++
++  # i2ctransfer -y 0 w3@0x30 4 0 0 r128
++  0x76 0x36 0x2e 0x31 0x31 0x2e 0x30 0x2d 0x72 0x63 0x31 0x2d 0x30 0x30 0x30 0x30 ...
++
++If you want to decode to ASCII right away::
++
++  # echo -e "$(i2ctransfer -y 0 w3@0x30 4 0 0 r128 | sed 's/0x\(..\) \?/\\x\1/g')"
++  v6.11.0-rc1-00009-gd37a1b4d3fd0
++
++STOP/START combinations between the two messages will *not* work because they
++are not equivalent to a REPEATED START. As an example, this returns just the
++default response::
++
++  # i2cset -y 0 0x30 4 0 0 i; i2cget -y 0 0x30
++  0x01
+diff --git a/drivers/i2c/i2c-slave-testunit.c b/drivers/i2c/i2c-slave-testunit.c
+index be1d2e900aef..19296ff09930 100644
+--- a/drivers/i2c/i2c-slave-testunit.c
++++ b/drivers/i2c/i2c-slave-testunit.c
+@@ -6,6 +6,7 @@
+  * Copyright (C) 2020 by Renesas Electronics Corporation
+  */
+ 
++#include <generated/utsrelease.h>
+ #include <linux/bitops.h>
+ #include <linux/i2c.h>
+ #include <linux/init.h>
+@@ -15,11 +16,13 @@
+ #include <linux/workqueue.h> /* FIXME: is system_long_wq the best choice? */
+ 
+ #define TU_CUR_VERSION 0x01
++#define TU_VERSION_MAX_LENGTH 128
+ 
+ enum testunit_cmds {
+ 	TU_CMD_READ_BYTES = 1,	/* save 0 for ABORT, RESET or similar */
+ 	TU_CMD_SMBUS_HOST_NOTIFY,
+ 	TU_CMD_SMBUS_BLOCK_PROC_CALL,
++	TU_CMD_GET_VERSION_WITH_REP_START,
+ 	TU_NUM_CMDS
+ };
+ 
+@@ -39,10 +42,13 @@ struct testunit_data {
+ 	unsigned long flags;
+ 	u8 regs[TU_NUM_REGS];
+ 	u8 reg_idx;
++	u8 read_idx;
+ 	struct i2c_client *client;
+ 	struct delayed_work worker;
+ };
+ 
++static char tu_version_info[] = "v" UTS_RELEASE "\0";
++
+ static void i2c_slave_testunit_work(struct work_struct *work)
+ {
+ 	struct testunit_data *tu = container_of(work, struct testunit_data, worker.work);
+@@ -91,6 +97,8 @@ static int i2c_slave_testunit_slave_cb(struct i2c_client *client,
+ 	struct testunit_data *tu = i2c_get_clientdata(client);
+ 	bool is_proc_call = tu->reg_idx == 3 && tu->regs[TU_REG_DATAL] == 1 &&
+ 			    tu->regs[TU_REG_CMD] == TU_CMD_SMBUS_BLOCK_PROC_CALL;
++	bool is_get_version = tu->reg_idx == 3 &&
++			      tu->regs[TU_REG_CMD] == TU_CMD_GET_VERSION_WITH_REP_START;
+ 	int ret = 0;
+ 
+ 	switch (event) {
+@@ -100,6 +108,7 @@ static int i2c_slave_testunit_slave_cb(struct i2c_client *client,
+ 
+ 		memset(tu->regs, 0, TU_NUM_REGS);
+ 		tu->reg_idx = 0;
++		tu->read_idx = 0;
+ 		break;
+ 
+ 	case I2C_SLAVE_WRITE_RECEIVED:
+@@ -136,12 +145,21 @@ static int i2c_slave_testunit_slave_cb(struct i2c_client *client,
+ 		break;
+ 
+ 	case I2C_SLAVE_READ_PROCESSED:
+-		if (is_proc_call && tu->regs[TU_REG_DATAH])
++		/* Advance until we reach the NUL character */
++		if (is_get_version && tu_version_info[tu->read_idx] != 0)
++			tu->read_idx++;
++		else if (is_proc_call && tu->regs[TU_REG_DATAH])
+ 			tu->regs[TU_REG_DATAH]--;
++
+ 		fallthrough;
+ 
+ 	case I2C_SLAVE_READ_REQUESTED:
+-		*val = is_proc_call ? tu->regs[TU_REG_DATAH] : TU_CUR_VERSION;
++		if (is_get_version)
++			*val = tu_version_info[tu->read_idx];
++		else if (is_proc_call)
++			*val = tu->regs[TU_REG_DATAH];
++		else
++			*val = TU_CUR_VERSION;
+ 		break;
+ 	}
+ 
+@@ -160,6 +178,9 @@ static int i2c_slave_testunit_probe(struct i2c_client *client)
+ 	i2c_set_clientdata(client, tu);
+ 	INIT_DELAYED_WORK(&tu->worker, i2c_slave_testunit_work);
+ 
++	if (sizeof(tu_version_info) > TU_VERSION_MAX_LENGTH)
++		tu_version_info[TU_VERSION_MAX_LENGTH - 1] = 0;
++
+ 	return i2c_slave_register(client, i2c_slave_testunit_slave_cb);
+ };
+ 
+-- 
+2.43.0
+
