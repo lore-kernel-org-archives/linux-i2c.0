@@ -1,41 +1,41 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98C5D1E487B
-	for <linux-i2c@vger.kernel.org>; Wed,  7 Aug 2024 11:22:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA4AB1E4879
+	for <linux-i2c@vger.kernel.org>; Wed,  7 Aug 2024 11:22:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723029734; cv=none; b=TYomgl8Vdai3yRjnNIUzDffdVSVzU6FDc4p3ZyLh3CD8MrYbGjPwThhQrHMkJJOifOWpaEm99BBBzP4j70e9SLbUonJ+l9VDUdPbKtEKVLCxX9NU2Y7yAnKipz0JSJDT1Y3e/14rc/w443/wsF2XOxRADYOD2OIslFlTJ/6P42w=
+	t=1723029735; cv=none; b=IoUTXU6SG3pMSpBs/UISEhwSoT5ywGXokHJivU2cU+0b7HAUJb/PHEG6LacLQ2FvXfbJqHg4nMmjQ5sMq3XzJ6K3WdP+z/U/qJGYVD80gTy0rO+EkaL/nwslRudWCp9PSCDoshBK1kA3ZLVBufnm+ydhqz4+mXUyRlJvUa0WbEc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723029734; c=relaxed/simple;
-	bh=8e+pcsSgfgWifMQ/0sz6sL8iNOv0ZE0Jv2P3vOt2LP8=;
+	s=arc-20240116; t=1723029735; c=relaxed/simple;
+	bh=TXUpAnOUjJqwoQnKw43vFt+zJY3mO5kwUL85GZBscCg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=GKZHkxyre5u7efTJgTLIoHuNAyhv0oNQ8gcGLXeJHeiUhtuTKtmXep7PeokdEnbXUuMycg3/vC7QYmmeWbZfepazY9mA584XPF5iwhloQtXcnwKscs8KwvTkYKuKMtWIiK6f0m1l3m9TNJPAVWVvtN+Co+mqO32CNNQXrrJ4TsI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=Zm/iFYse; arc=none smtp.client-ip=194.117.254.33
+	 MIME-Version; b=SeTvW1x2vHUgEGAB2Jqbg7xD5dF1XSS3v4Cj/e2X1HgXQ6DH3+8bFJjGVA7dY1jeE66U4lpzF7+VtXwtvCczJhaA+aGQlDdVMsy47I6qTHXP6n88dFQIEL3W4RMJGm2GYo6dBue9Go87VNZxWvT1j/CXrHwneOhIWwngKJSf6h0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=SdzsUKqv; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Zm/iFYse"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="SdzsUKqv"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=from:to:cc:subject:date:message-id
 	:in-reply-to:references:mime-version:content-transfer-encoding;
-	 s=k1; bh=3w40K+hpoJ5Sqdlb/k7ILXsFKaZoegkfAL5K/38G9V0=; b=Zm/iFY
-	seyVQ2FkpPhwJa/2kME2nOzY3Kk8p8ZeyY1Z0pwX0nXbyHSDPKscmnAJKCpW8+8n
-	cCnnh+ZWpse7AR4i6GgenQbEhvtUUvZbnk4sIRpFd8fhstfAnnBTWwNCACH7xjHJ
-	Q1P7deMlYKlLErXwFA2q7wIZHu24BkT9eh50cpXRjMhRyMhzsiIM6G3GAg22CDZW
-	QZ4qsZhKIi3x//NAYicDQ20snwTgcXNYGfkVJLHivwpEkn2Sh39AYCKatU7yy6bH
-	8rK2zni7rYrICrvKKhsIcIBUVZisREw93TWBsXznlRY+kXWzN4+WjD2iTHFOKx9g
-	fm16BCzoii8E6n0g==
-Received: (qmail 534556 invoked from network); 7 Aug 2024 13:22:02 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Aug 2024 13:22:02 +0200
-X-UD-Smtp-Session: l3s3148p1@3xyKHhYfuswgAwDPXxLGAIH3oZkcU6AS
+	 s=k1; bh=0RPzulUTc2mAMZlPz7mATiAg2I0fTQbWjUgdu6QFAJM=; b=SdzsUK
+	qvilUGuAXnXUBBv6qsZdzGbwvsgD0SjUvza4zh8jO/pp+Cfx5+bQraSbJojzzkLe
+	UK9UnnH1+it/k0aMiAoTLKtwmElF0dpf1q+rvJWiL+LLeu3wtxsvcw6Gs09x5jWI
+	0i+ZY4LnW2gJBnVG7Efiax6DSguFHeHg1ji7sGCo3meSG5rj+CqW+0tTi7Z7ESyN
+	vX9VWY+HKMzyQEamkQ4f05xjIdgfEQ4knP3BYjPkqevYhMbO12KkU8VWoStcowyF
+	EB8QE6rnF05R9aqhRbe1GvR3RXmw6ebZKm6xgWavg0EmG+CdWB1yy91ukXNcDkaG
+	L0zDT8MrixcS1k0Q==
+Received: (qmail 534516 invoked from network); 7 Aug 2024 13:22:01 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Aug 2024 13:22:01 +0200
+X-UD-Smtp-Session: l3s3148p1@Q7J6HhYfqswgAwDPXxLGAIH3oZkcU6AS
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-i2c@vger.kernel.org
 Cc: linux-renesas-soc@vger.kernel.org,
 	Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH i2c-tools 3/3] i2ctransfer: don't use plain 'unsigned'
-Date: Wed,  7 Aug 2024 13:21:59 +0200
-Message-ID: <20240807112159.14220-4-wsa+renesas@sang-engineering.com>
+Subject: [PATCH i2c-tools 1/3] i2ctransfer: sort command line options and add to help text
+Date: Wed,  7 Aug 2024 13:21:57 +0200
+Message-ID: <20240807112159.14220-2-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20240807112159.14220-1-wsa+renesas@sang-engineering.com>
 References: <20240807112159.14220-1-wsa+renesas@sang-engineering.com>
@@ -47,49 +47,129 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Make those explicit 'unsigned int'. I got used to the explicit Kernel
-coding style and prefer it meanwhile.
+Sort the options in docs and code. Describe them in the help text.
 
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
- tools/i2ctransfer.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ tools/i2ctransfer.8 | 32 ++++++++++++++++----------------
+ tools/i2ctransfer.c | 18 ++++++++++++------
+ 2 files changed, 28 insertions(+), 22 deletions(-)
 
+diff --git a/tools/i2ctransfer.8 b/tools/i2ctransfer.8
+index c88ef64..88d5eb3 100644
+--- a/tools/i2ctransfer.8
++++ b/tools/i2ctransfer.8
+@@ -4,10 +4,10 @@ i2ctransfer \- send user-defined I2C messages in one transfer
+ 
+ .SH SYNOPSIS
+ .B i2ctransfer
++.RB [ -a ]
+ .RB [ -f ]
+-.RB [ -y ]
+ .RB [ -v ]
+-.RB [ -a ]
++.RB [ -y ]
+ .I i2cbus desc
+ .RI [ data ]
+ .RI [ desc
+@@ -15,10 +15,10 @@ i2ctransfer \- send user-defined I2C messages in one transfer
+ .RI ...
+ .br
+ .B i2ctransfer
+-.B -V
++.B -h
+ .br
+ .B i2ctransfer
+-.B -h
++.B -V
+ 
+ .SH DESCRIPTION
+ .B i2ctransfer
+@@ -40,6 +40,9 @@ This program helps you to create proper transfers for your needs.
+ 
+ .SH OPTIONS
+ .TP
++.B -a
++Allow using addresses between 0x00 - 0x07 and 0x78 - 0x7f. Not recommended.
++.TP
+ .B -f
+ Force access to the device even if it is already busy.
+ By default,
+@@ -51,13 +54,8 @@ It can also cause
+ to silently write to the wrong register.
+ So use at your own risk and only if you know what you're doing.
+ .TP
+-.B -y
+-Disable interactive mode.
+-By default,
+-.B i2ctransfer
+-will wait for a confirmation from the user before messing with the I2C bus.
+-When this flag is used, it will perform the operation directly.
+-This is mainly meant to be used in scripts.
++.B -h
++Display the help and exit.
+ .TP
+ .B -v
+ Enable verbose output.
+@@ -66,11 +64,13 @@ It will print infos about all messages sent, i.e. not only for read messages but
+ .B -V
+ Display the version and exit.
+ .TP
+-.B -h
+-Display the help and exit.
+-.TP
+-.B -a
+-Allow using addresses between 0x00 - 0x07 and 0x78 - 0x7f. Not recommended.
++.B -y
++Disable interactive mode.
++By default,
++.B i2ctransfer
++will wait for a confirmation from the user before messing with the I2C bus.
++When this flag is used, it will perform the operation directly.
++This is mainly meant to be used in scripts.
+ 
+ .SH ARGUMENTS
+ .PP
 diff --git a/tools/i2ctransfer.c b/tools/i2ctransfer.c
-index a7bbbaa..c9a30cf 100644
+index 85b70c3..15e774b 100644
 --- a/tools/i2ctransfer.c
 +++ b/tools/i2ctransfer.c
-@@ -85,10 +85,10 @@ static int check_funcs(int file)
- 	return 0;
- }
- 
--static void print_msgs(struct i2c_msg *msgs, __u32 nmsgs, unsigned flags)
-+static void print_msgs(struct i2c_msg *msgs, __u32 nmsgs, unsigned int flags)
+@@ -42,7 +42,13 @@ enum parse_state {
+ static void help(void)
  {
- 	FILE *output = flags & PRINT_STDERR ? stderr : stdout;
--	unsigned i;
-+	unsigned int i;
- 	__u16 j;
- 
- 	for (i = 0; i < nmsgs; i++) {
-@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
- 	int force = 0, yes = 0, version = 0, verbose = 0, all_addrs = 0, binary = 0;
- 	struct i2c_msg msgs[I2C_RDRW_IOCTL_MAX_MSGS];
- 	enum parse_state state = PARSE_GET_DESC;
--	unsigned buf_idx = 0;
-+	unsigned int buf_idx = 0;
- 
- 	for (i = 0; i < I2C_RDRW_IOCTL_MAX_MSGS; i++)
+ 	fprintf(stderr,
+-		"Usage: i2ctransfer [-f] [-y] [-v] [-V] [-a] I2CBUS DESC [DATA] [DESC [DATA]]...\n"
++		"Usage: i2ctransfer [OPTIONS] I2CBUS DESC [DATA] [DESC [DATA]]...\n"
++		"  OPTIONS: -a allow even reserved addresses\n"
++		"           -f force access even if address is marked used\n"
++		"           -h this help text\n"
++		"           -v verbose mode\n"
++		"           -V version info\n"
++		"           -y yes to all confirmations\n"
+ 		"  I2CBUS is an integer or an I2C bus name\n"
+ 		"  DESC describes the transfer in the form: {r|w}LENGTH[@address]\n"
+ 		"    1) read/write-flag 2) LENGTH (range 0-65535, or '?')\n"
+@@ -141,15 +147,15 @@ int main(int argc, char *argv[])
  		msgs[i].buf = NULL;
-@@ -333,7 +333,7 @@ int main(int argc, char *argv[])
  
- 	if (yes || confirm(filename, msgs, nmsgs)) {
- 		struct i2c_rdwr_ioctl_data rdwr;
--		unsigned print_flags = PRINT_READ_BUF;
-+		unsigned int print_flags = PRINT_READ_BUF;
- 
- 		rdwr.msgs = msgs;
- 		rdwr.nmsgs = nmsgs;
+ 	/* handle (optional) flags first */
+-	while ((opt = getopt(argc, argv, "Vafhvy")) != -1) {
++	while ((opt = getopt(argc, argv, "afhvVy")) != -1) {
+ 		switch (opt) {
+-		case 'V': version = 1; break;
+-		case 'v': verbose = 1; break;
++		case 'a': all_addrs = 1; break;
+ 		case 'f': force = 1; break;
++		case 'v': verbose = 1; break;
++		case 'V': version = 1; break;
+ 		case 'y': yes = 1; break;
+-		case 'a': all_addrs = 1; break;
+-		case 'h':
+ 		case '?':
++		case 'h':
+ 			help();
+ 			exit(opt == '?');
+ 		}
 -- 
 2.43.0
 
