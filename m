@@ -1,120 +1,105 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C6F618732C
-	for <linux-i2c@vger.kernel.org>; Mon, 12 Aug 2024 17:37:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D0C915C143;
+	Mon, 12 Aug 2024 20:16:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723484229; cv=none; b=QI9WPre6dFKZF+zMb6yk4Y8Mzq5hrx6oWa0yfu4lWfMwAHA8n4GeG7LAHx3WWPd7094HeVkBTv0cxebvTy+c62G9aYXBRNEqzpJe+GulpSgC/JKc10puV/O8LvQop2ihOzbhcEhrreEt7qecqPSPQWjS7bZ16OgTivbcI0W3Jxc=
+	t=1723493812; cv=none; b=Zl2EZrBlPIjPG210xa3mIn1PhYUUUCoeZxapXADrOc/rhCVcyKH/jHiEH7/QX21oOFSo/SrBQUKZySYAlk4sdgzCrRGd/D2DkkWxpXN+m9WuZBfLyDqZs3NhmwgHzhOqm4Oo+iJHGTJHhP6uX/9UZMj6dTEZnXDyVZ+8amXmn5w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723484229; c=relaxed/simple;
-	bh=X+tCnDWQvroKBLhT2+NKJ34gv0lM9SYFG/oysxvfa68=;
+	s=arc-20240116; t=1723493812; c=relaxed/simple;
+	bh=LIjLr0XWh6AeIzZ0yZULxR8mFjgXuYMZLKGdmyAkiow=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=oX9BDiGZ/WaZ36G8/wdy65TUbL75Q2WuY8/HTdwkm50wRgZ86vLga0CdQX5ERVYopBWxwGHd2huFJUb0wPxXz2BRJzP+sbzbgtrzQL8yW2sTPr/mWgmYtolJy5KGmNrgCHgwZtmmV8oinv3BfgaN048OqM4Vw1VsyA8ivOYSvo4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=ZI4PNX5Q; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=RN+2Nwxk698ZbnZh6LkS+6QWQtuFVRnsWffJTAP50keFo4Rqe7g8f5RQ3dIDbzSM630RR0mkNtDQ2bDF/ZAv0w7gK3G1y9RfLV5c7W3dFVhDmvIuzksfY3ZNG4R7B+LQ7Y//IVzCvusfNsBo+ZSkdZfhMkuI91M72dQS6tX7o5M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W5QZMKWa; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="ZI4PNX5Q"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=X+tC
-	nDWQvroKBLhT2+NKJ34gv0lM9SYFG/oysxvfa68=; b=ZI4PNX5QAJ2kYGaRJ78/
-	jrL1WU84XbC/GvCvgCLQIpkRFAjMJ75pvqVVGjHD0AfbPhNyQzSb04fi/rSjeBSq
-	kH3A0WVSe/GvDA5htlN99bIIcZRYdLGeT1g/xhV61wzsx0LyPGvQvOyPNlFyGzxy
-	DLUIreB96yAuBFzYKUYJPL55dRD5Z+Lsx5o7cjYokQnTnSLUfPBYem/g5e8DaLxv
-	30y9ana3kYoFvNWHHpfu0H2aH5H4K30ETFQSPuBxS8HGza08rqT6jplBq5rpmTdJ
-	wZR0dwLqbiIIbN5QmAt5aOchLz8AvSUtCt30GV+zy6+uoEX9kgZpmJHcYqNU1hWc
-	ug==
-Received: (qmail 1432277 invoked from network); 12 Aug 2024 19:37:02 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 12 Aug 2024 19:37:02 +0200
-X-UD-Smtp-Session: l3s3148p1@Rmfc8H8ftusujnvj
-Date: Mon, 12 Aug 2024 19:37:01 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Quentin Schulz <quentin.schulz@cherry.de>,
-	Farouk Bouabid <farouk.bouabid@cherry.de>,
-	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Peter Rosin <peda@axentia.se>,
-	Jean Delvare <jdelvare@suse.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Heiko Stuebner <heiko@sntech.de>, linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-hwmon@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-rockchip@lists.infradead.org
-Subject: Re: [PATCH v6 2/8] i2c: muxes: add support for tsd,mule-i2c
- multiplexer
-Message-ID: <ZrpIPTOTN20GoWqR@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Quentin Schulz <quentin.schulz@cherry.de>,
-	Farouk Bouabid <farouk.bouabid@cherry.de>,
-	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Peter Rosin <peda@axentia.se>,
-	Jean Delvare <jdelvare@suse.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Heiko Stuebner <heiko@sntech.de>, linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-hwmon@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-rockchip@lists.infradead.org
-References: <20240725-dev-mule-i2c-mux-v6-0-f9f6d7b60fb2@cherry.de>
- <20240725-dev-mule-i2c-mux-v6-2-f9f6d7b60fb2@cherry.de>
- <728a8e06-81f1-4771-8031-ea043b9baf20@cherry.de>
- <3a36e89b-b4e2-4eb8-9197-a7a1d04a7fb6@kernel.org>
- <ZrnekeUKciV4eAKC@shikoro>
- <f6dfc6cc-365d-4f0a-9a4c-dc34cf4c5b7d@kernel.org>
- <Zrn-ZkgYKVquarDX@ninjato>
- <426eb8b6-9b2f-4594-9cc3-320ef0cee835@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W5QZMKWa"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30DBAC32782;
+	Mon, 12 Aug 2024 20:16:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1723493812;
+	bh=LIjLr0XWh6AeIzZ0yZULxR8mFjgXuYMZLKGdmyAkiow=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=W5QZMKWa43vbq77u9uCD03JinbZbWZV1Jo7M9DItTsyB4CC2/w6NcPq8OuMaSdtPc
+	 QeRkroMmtuvzL1NuKaFvcUNkIt6tKVQyGSVHTAICnSn26q4PsyL4jrfTuXhT8uYxr6
+	 E3aXunhJ7PeZ0lMnqee3MxSUytur78RH1Eylm/1Ndh0KHr/eIm7nF7VuxJ9p3ga95P
+	 4Ck1iQRkw9N+1NLYpY0ksnGn5Qq3WAB9fYXomvvFiesTxoOzpW7T2bzNSssqTA5aL2
+	 O5+5MKENjT4XhaXrZ9lb3JutSLd3oByTwQBd30pXzYSv/nMcJ3nfv8jzjTU8YM1e+R
+	 x/Ht6Hrnm1MJw==
+Date: Mon, 12 Aug 2024 21:16:47 +0100
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Mary Strodl <mstrodl@freedom.csh.rit.edu>
+Cc: Mary Strodl <mstrodl@csh.rit.edu>, linux-kernel@vger.kernel.org, 
+	akpm@linux-foundation.org, urezki@gmail.com, hch@infradead.org, linux-mm@kvack.org, 
+	lee@kernel.org, linux-i2c@vger.kernel.org, s.hauer@pengutronix.de, 
+	christian.gmeiner@gmail.com
+Subject: Re: [PATCH v3 1/2] x86: Add basic support for the Congatec CGEB BIOS
+ interface
+Message-ID: <lek2i4jpc7x257ycxeuto2op742x555a25wxdgh5lzcgtqg3lp@t7opf5nlgspt>
+References: <20240808183527.3950120-1-mstrodl@csh.rit.edu>
+ <20240808183527.3950120-2-mstrodl@csh.rit.edu>
+ <ft2lkhphs25xmvmpbf5ssuafdnmkdnq5j7uqb6jjy6ewnwzn2l@6uoad3ii3h4m>
+ <Zrn1vNgn7q5npxU7@freedom.csh.rit.edu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="/t9BApsAyYarLt7K"
-Content-Disposition: inline
-In-Reply-To: <426eb8b6-9b2f-4594-9cc3-320ef0cee835@kernel.org>
-
-
---/t9BApsAyYarLt7K
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <Zrn1vNgn7q5npxU7@freedom.csh.rit.edu>
 
+Hi Mary,
 
-> No, it's not. It was just a ping. The issue is here not describing
-> dependency, allowing Guenter to take the patch and not even telling him
-> that now next has warning. :/ It's like entire weight is on maintainers
-> and contributors care only about getting their patch inside. Once it is
-> inside, not my problem anymore... :(
+> > I'm counting too many global variables here and too many global
+> > structure definitions. It might get a bit hard to follow.
+> > 
+> > I'd suggest to simplify this part as much as possible and keep
+> > everything in as less structures as possible (ideally just one). 
+> > 
+> > Please make local as many variables as you can.
+> 
+> I don't disagree with you here. Unfortunately everything between
+> the pack(push, 4) and pack(pop) needs to stay, since those are
+> the BIOS's ABI. I'd be open to putting them in a header file or
+> something though, but I wasn't sure what convention was on stuff like that.
+> 
+> What do you think? I think moving the BIOS ABI and maybe the over-the-wire
+> types (struct cgeb_request and friends) out would probably make it much
+> easier to follow.
 
-I totally get the "weight on maintainers" thing. I just also see that
-for new contributors, it can be hard to see soft dependencies in
-advance. I mean, even we missed it. I guess Guenter is right, we all
-make mistakes, so we fix them. Commits got reverted and we will re-apply
-better.
+mine was a guess, actually... if you see that my comment doesn't
+fit, feel free to ignore it.
 
+As I said I didn't look in details all the structures and their
+dependencies.
 
---/t9BApsAyYarLt7K
-Content-Type: application/pgp-signature; name="signature.asc"
+> > > +
+> > > +	/* Wait for a response to the request */
+> > > +	err = wait_for_completion_interruptible_timeout(
+> > > +		&req->done, msecs_to_jiffies(20000));
+> > > +	if (err == 0) {
+> > > +		pr_err("CGEB: Timed out running request of type %d!\n",
+> > > +		       msg.type);
+> > > +		err = -ETIMEDOUT;
+> > 
+> > just "return -ETIMEDOUT;" and you can cleanup the code below
+> Here's where I landed on that:
+> 
+> /* Wait for a response to the request */
+> err = wait_for_completion_interruptible_timeout(
+> 	&req->done, msecs_to_jiffies(20000));
+> if (err == 0) {
+> 	pr_err("CGEB: Timed out running request of type %d!\n",
+> 	       msg.type);
+> 	return -ETIMEDOUT;
+> } else if (err < 0) {
+> 	return err;
+> } else {
 
------BEGIN PGP SIGNATURE-----
+you don't ened anymore for this else, at the end, but this looks
+correct.
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAma6SDkACgkQFA3kzBSg
-KbazHg//UBrJXW8DM60tpZPlTELL7+7g6fwFoo/w9eTO2Nus8TPYisMeCP3wFfFj
-otbLP0QqgloZv27D4gogTFE0HoWhLdXxZ/hJAZddOyBsm4qDOzBad9GCVI+a60Ge
-woF4s7L26m8JwUZ6tzEbCf4dUwhI322bbqFgv2c5G94p+jzgm8T+iwyyv0qAMsi+
-nQdB3ElNgt88XAfBoFttsPKoE9+RrUZlHSJhLokEvDatAO+iXmYzbUhLfXDM6pEy
-mJRcWWcs45bxC3mEmQpZ9dvh2ZY8Q8C7o6E0lCubIKEh6LazNNAZnfWt1FQFhiy8
-IntMUuK2zITNsFo6HV5ISNy8IkQxKeOMO+QuCZfQKGeErZP/yV/Uuamdku7A/S1j
-Mk3e1oiHSi4g57gsSKqeC/j1N/rHFoDCgVrh7l1kaQjuwGY9QpZPgYedfzxQ5oMb
-347qEM7Yd905SdXNOoFCYshaEVhDvRNrUHVlZDseKn2XWf3/26/dvevuH3AuLipi
-5ykyvXxUw3/GvAGQEcrx0d6qotT/Ow6hYiCE2fPQ+AqfLsn4F1384q4xXgGwprfT
-ZO6RVwVXkE9V1yaN+8zVs085bNbs97VLy9YPncGroK4kvvuNq4EWKWBEMA+78ucf
-CZ6tcKwph09bY6bcYHQ2RfaSH+19joL6xzWbr2NtHYXaSWSjk6Y=
-=nV8m
------END PGP SIGNATURE-----
-
---/t9BApsAyYarLt7K--
+Thanks,
+Andi
