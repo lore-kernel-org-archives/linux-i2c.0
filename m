@@ -1,39 +1,41 @@
 Received: from greygoose-centos7.csh.rit.edu (greygoose-centos7.csh.rit.edu [129.21.49.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2768B224FA;
-	Wed, 14 Aug 2024 18:47:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 578D3374FA;
+	Wed, 14 Aug 2024 18:47:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.21.49.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723661272; cv=none; b=fjou2bBFqf40AFDNnFGyl/kq1YTZZNFxqpsLCPuDe/O56p5ZCEfXsLrd85cCXw26NWc2vRHky3pSJd8k78Z6vzCgadJ8zzgiwNMmugZoInO0aSzY6m+1Louq1FtPcOR5Y3z2x+IaKvUXRugcTbesToeIcovVyH//jZt7hmD5a00=
+	t=1723661273; cv=none; b=OPjVz11Dz9DtMOScAGC3JQXjs3BEy/sjrSQXn+xW+2bIo7HkDjtrArkpnlfrGhx4OhkLybWcf8IbMPhne3qTBfK/R1u0snvbiqF3HPFV/5/YIX7YW+sdHAXRfEv306aedtc+bN1lrr8XY+qoi4fvGjRABcPaE3MAa9X49BD99MA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1723661272; c=relaxed/simple;
-	bh=FixFz6aYCSZJ12RhiPdmM+LsZ5Fd39C07sGtiL0fEfo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cCOSI8KDbGOfG7s1qSRxuFN4/uSftSdZ3xvLSEoRI7pkSemCjKdBcjofKbfvcAjYi9aZRxZd+br0zXM8aiFFUNVhhuhRB9DaeMu+x1gxnoIO9Dpi48wNUsHVYQ2u1juucEPo/g3UWIqBqwDUt2XjB8ppEwGHf4DqJloMkqeGvJE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=csh.rit.edu; spf=pass smtp.mailfrom=csh.rit.edu; dkim=pass (1024-bit key) header.d=csh.rit.edu header.i=@csh.rit.edu header.b=a3SmYcbG; arc=none smtp.client-ip=129.21.49.170
+	s=arc-20240116; t=1723661273; c=relaxed/simple;
+	bh=mCBxdka291k0ThxNZp/dZ4uorDpdfjJsGKKtbiX+TI8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=lb+SN+fzCXLvHfsY1ExBgHRb+4+xNfS+9sf0jbDqMeYY3Y4ifd1HSUHO4gXfCKyXP7BzFcSIH1hadQg/aTCLTZDD4D/SMCOguKVV9rZio2unEo3lYY9+h2M0X3duXcwT7kEmhDdb+/Vr1QhH2C7xUbtjP1w58VTWYaVRT08xpKw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=csh.rit.edu; spf=pass smtp.mailfrom=csh.rit.edu; dkim=pass (1024-bit key) header.d=csh.rit.edu header.i=@csh.rit.edu header.b=q2jUGwrT; arc=none smtp.client-ip=129.21.49.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=csh.rit.edu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=csh.rit.edu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=csh.rit.edu header.i=@csh.rit.edu header.b="a3SmYcbG"
+	dkim=pass (1024-bit key) header.d=csh.rit.edu header.i=@csh.rit.edu header.b="q2jUGwrT"
 Received: from localhost (localhost [127.0.0.1])
-	by greygoose-centos7.csh.rit.edu (Postfix) with ESMTP id 0C76C413F741;
+	by greygoose-centos7.csh.rit.edu (Postfix) with ESMTP id D8CDD414609E;
 	Wed, 14 Aug 2024 14:47:43 -0400 (EDT)
 Authentication-Results: mail.csh.rit.edu (amavisd-new);
  dkim=pass (1024-bit key) reason="pass (just generated, assumed good)"
  header.d=csh.rit.edu
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=csh.rit.edu; h=
-	content-transfer-encoding:mime-version:x-mailer:message-id:date
-	:date:subject:subject:from:from:received:received; s=mail; t=
-	1723661262; x=1725475663; bh=FixFz6aYCSZJ12RhiPdmM+LsZ5Fd39C07sG
-	tiL0fEfo=; b=a3SmYcbGl4Gn0/aOjtd7RGw7EBYAHjdHcWBusUSO04RYGBndFcf
-	g7nrAOQhl67PwJD6q84XHaDIWkJxg80+PbVpv4KIQUl2wTWifSo8isejRAwMz6fi
-	LMjw9vg/y39eGDC3O2y/6Z9rH6bkKHU53aRMroX8LX6G++QfFmG+Q7kE=
+	content-transfer-encoding:mime-version:references:in-reply-to
+	:x-mailer:message-id:date:date:subject:subject:from:from
+	:received:received; s=mail; t=1723661263; x=1725475664; bh=mCBxd
+	ka291k0ThxNZp/dZ4uorDpdfjJsGKKtbiX+TI8=; b=q2jUGwrTVtrTRnCasfTBd
+	VTryCyRl25NkomL6RmKCZPYIlMQ/4ZXEAfGnqu79FA4DiLNho+zFFN6Z7EPzaukN
+	iFAyRkfw03f2qeLPedGfE+IPizI/8DQmKsrUaRL7XWOWC4zJBarACkwfW8FIELou
+	PqWgktRFhmyLqNNRCeL6aU=
 X-Virus-Scanned: amavisd-new at csh.rit.edu
 Received: from greygoose-centos7.csh.rit.edu ([127.0.0.1])
  by localhost (mail.csh.rit.edu [127.0.0.1]) (amavisd-new, port 10026)
- with ESMTP id 3nIemSHc2WPf; Wed, 14 Aug 2024 14:47:42 -0400 (EDT)
+ with ESMTP id PL3JFN303fnb; Wed, 14 Aug 2024 14:47:43 -0400 (EDT)
 Received: from freedom.csh.rit.edu (freedom.csh.rit.edu [129.21.49.182])
-	by greygoose-centos7.csh.rit.edu (Postfix) with ESMTP id 4824A457383A;
+	by greygoose-centos7.csh.rit.edu (Postfix) with ESMTP id C920F45735E9;
 	Wed, 14 Aug 2024 14:47:42 -0400 (EDT)
 From: Mary Strodl <mstrodl@csh.rit.edu>
 To: linux-kernel@vger.kernel.org
@@ -47,10 +49,12 @@ Cc: akpm@linux-foundation.org,
 	s.hauer@pengutronix.de,
 	christian.gmeiner@gmail.com,
 	Mary Strodl <mstrodl@csh.rit.edu>
-Subject: [PATCH v4 0/2] Add support for Congatec CGEB BIOS interface
-Date: Wed, 14 Aug 2024 14:47:29 -0400
-Message-ID: <20240814184731.1310988-1-mstrodl@csh.rit.edu>
+Subject: [PATCH v4 2/2] i2c: Add Congatec CGEB I2C driver
+Date: Wed, 14 Aug 2024 14:47:31 -0400
+Message-ID: <20240814184731.1310988-3-mstrodl@csh.rit.edu>
 X-Mailer: git-send-email 2.45.2
+In-Reply-To: <20240814184731.1310988-1-mstrodl@csh.rit.edu>
+References: <20240814184731.1310988-1-mstrodl@csh.rit.edu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -59,79 +63,253 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 
-The following series adds support for the Congatec CGEB interface
-found on some Congatec x86 boards. The CGEB interface is a BIOS
-interface which provides access to onboard peripherals like I2C
-busses and watchdogs. It works by mapping BIOS code and searching
-for magic values which specify the entry points to the CGEB call.
-The CGEB call is an API provided by the BIOS which provides access
-to the functions in an ioctl like fashion.
+From: Sascha Hauer <s.hauer@pengutronix.de>
 
-At the request of some folks the first time I sent this series out,
-CGEB has a userspace component which runs the x86 blob (rather than
-running it directly in the kernel), which sends requests back and
-forth using the cn_netlink API.
+This driver provides a I2C bus driver for the CGEB interface
+found on some Congatec x86 modules. No devices are registered
+on the bus, the user has to do this via the i2c device /sys
+interface.
 
-You can find a reference implementation of the userspace helper here:
-https://github.com/Mstrodl/cgeb-helper
-
-I didn't get an answer when I asked where the userspace component
-should live, so I didn't put a ton of work into getting the helper
-up to snuff since similar userspace helpers (like v86d) are not
-in-tree. If folks would like the helper in-tree, that's fine too.
-
-Changelog:
-v2:
-  * Moved CGEB code snippet execution into userspace
-v3:
-* `checkpatch` pass
-  * Should I add the driver files to MAINTAINERS? I'm not sure what
-    the norm is there...
-* `sparse` pass
-  * I'm not sure there's a good way to keep the __iomem marker
-    around while not making the struct fields really inconvenient
-    to access, so I just cast them away which causes a sparse
-    warning. I figure it's probably okay since this driver
-    is x86-specific anyways? Let me know if this is an issue and
-    what the preferred approach is.=20
-v4:
-  * Sort includes
-  * Remove GPL blurb from top of file
-  * Use memremap instead of ioremap_cache, avoids sparse warning
-  * Minor styling stuff
-  * Relocated some static declarations into function bodies
-
-This series is based on the excellent work of Sascha Hauer and
-Christian Gmeiner. You can find their original work here:
-
-http://patchwork.ozlabs.org/patch/219756/
-http://patchwork.ozlabs.org/patch/219755/
-http://patchwork.ozlabs.org/patch/219757/
-
-http://patchwork.ozlabs.org/patch/483262/
-http://patchwork.ozlabs.org/patch/483264/
-http://patchwork.ozlabs.org/patch/483261/
-http://patchwork.ozlabs.org/patch/483263/
-
-Mary Strodl (1):
-  x86: Add basic support for the Congatec CGEB BIOS interface
-
-Sascha Hauer (1):
-  i2c: Add Congatec CGEB I2C driver
-
- drivers/i2c/busses/Kconfig             |   10 +
- drivers/i2c/busses/Makefile            |    1 +
- drivers/i2c/busses/i2c-congatec-cgeb.c |  190 ++++
- drivers/mfd/Kconfig                    |   10 +
- drivers/mfd/Makefile                   |    1 +
- drivers/mfd/congatec-cgeb.c            | 1125 ++++++++++++++++++++++++
- include/linux/mfd/congatec-cgeb.h      |  112 +++
- include/uapi/linux/connector.h         |    4 +-
- 8 files changed, 1452 insertions(+), 1 deletion(-)
+Signed-off-by: Sascha Hauer <s.hauer@pengutronix.de>
+Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Mary Strodl <mstrodl@csh.rit.edu>
+---
+ drivers/i2c/busses/Kconfig             |  10 ++
+ drivers/i2c/busses/Makefile            |   1 +
+ drivers/i2c/busses/i2c-congatec-cgeb.c | 190 +++++++++++++++++++++++++
+ 3 files changed, 201 insertions(+)
  create mode 100644 drivers/i2c/busses/i2c-congatec-cgeb.c
- create mode 100644 drivers/mfd/congatec-cgeb.c
- create mode 100644 include/linux/mfd/congatec-cgeb.h
 
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index fe6e8a1bb607..0a5d348c4664 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -1261,6 +1261,16 @@ config I2C_RCAR
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-rcar.
+=20
++config I2C_CONGATEC_CGEB
++	tristate "Congatec CGEB I2C driver"
++	depends on MFD_CONGATEC_CGEB
++	help
++	  If you say yes to this option, support will be included for the
++	  Congatec CGEB I2C controller.
++
++	  This driver can also be built as a module.  If so, the module
++	  will be called i2c-congatec-cgeb.
++
+ comment "External I2C/SMBus adapter drivers"
+=20
+ config I2C_DIOLAN_U2C
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index 78d0561339e5..f4e9fa7542be 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -128,6 +128,7 @@ obj-$(CONFIG_I2C_XILINX)	+=3D i2c-xiic.o
+ obj-$(CONFIG_I2C_XLP9XX)	+=3D i2c-xlp9xx.o
+ obj-$(CONFIG_I2C_RCAR)		+=3D i2c-rcar.o
+ obj-$(CONFIG_I2C_GXP)		+=3D i2c-gxp.o
++obj-$(CONFIG_I2C_CONGATEC_CGEB)	+=3D i2c-congatec-cgeb.o
+=20
+ # External I2C/SMBus adapter drivers
+ obj-$(CONFIG_I2C_DIOLAN_U2C)	+=3D i2c-diolan-u2c.o
+diff --git a/drivers/i2c/busses/i2c-congatec-cgeb.c b/drivers/i2c/busses/=
+i2c-congatec-cgeb.c
+new file mode 100644
+index 000000000000..3adeb7bf3534
+--- /dev/null
++++ b/drivers/i2c/busses/i2c-congatec-cgeb.c
+@@ -0,0 +1,190 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * CGEB i2c driver
++ *
++ * (c) 2011 Sascha Hauer, Pengutronix
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; version 2 of the License.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ */
++#include <linux/i2c.h>
++#include <linux/mfd/congatec-cgeb.h>
++#include <linux/module.h>
++#include <linux/platform_device.h>
++#include <linux/slab.h>
++
++#define CG_I2C_FLAG_START   0x00080    /* send START condition */
++#define CG_I2C_FLAG_STOP    0x00040    /* send STOP condition */
++#define CG_I2C_FLAG_ALL_ACK 0x08000    /* send ACK on all read bytes */
++#define CG_I2C_FLAG_ALL_NAK 0x04000    /* send NAK on all read bytes */
++
++struct cgeb_i2c_priv {
++	struct cgeb_board_data *board;
++	struct i2c_adapter adapter;
++	int unit;
++};
++
++static u32 cgeb_i2c_func(struct i2c_adapter *adapter)
++{
++	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
++}
++
++static int cgeb_i2c_set_speed(struct cgeb_i2c_priv *priv, int speed)
++{
++	struct cgeb_function_parameters fps;
++
++	memset(&fps, 0, sizeof(fps));
++
++	fps.unit =3D priv->unit;
++	fps.pars[0] =3D speed;
++
++	return cgeb_call(priv->board, &fps, CgebI2CSetFrequency);
++}
++
++static int cgeb_i2c_xfer(struct i2c_adapter *adapter,
++		struct i2c_msg *msgs, int num)
++{
++	struct cgeb_function_parameters fps;
++	int i, ret;
++	unsigned long flags =3D CG_I2C_FLAG_START;
++	struct cgeb_i2c_priv *priv =3D i2c_get_adapdata(adapter);
++	unsigned long rdlen, wrlen;
++	unsigned char *rdbuf, *wrbuf, *raw_wrbuf;
++	unsigned short lmax =3D 0;
++
++	/*
++	 * With cgeb the I2C address is part of the write data
++	 * buffer, so allocate a buffer with the length of the
++	 * longest write buffer + 1
++	 */
++	for (i =3D 0; i < num; i++)
++		if (!(msgs[i].flags & I2C_M_RD))
++			lmax =3D max(lmax, msgs[i].len);
++
++	raw_wrbuf =3D kmalloc(lmax + 1, GFP_KERNEL);
++	if (!raw_wrbuf)
++		return -ENOMEM;
++
++	for (i =3D 0; i < num; i++) {
++		if (msgs[i].flags & I2C_M_RD) {
++			rdbuf =3D msgs[i].buf;
++			rdlen =3D msgs[i].len;
++			wrbuf =3D NULL;
++			wrlen =3D 0;
++		} else {
++			rdbuf =3D NULL;
++			rdlen =3D 0;
++			wrbuf =3D msgs[i].buf;
++			wrlen =3D msgs[i].len;
++		}
++
++		raw_wrbuf[0] =3D msgs[i].addr << 1;
++		if (wrlen)
++			memcpy(&raw_wrbuf[1], wrbuf, wrlen);
++
++		if (msgs[i].flags & I2C_M_RD)
++			raw_wrbuf[0] |=3D 1;
++
++		if (i =3D=3D num - 1)
++			flags |=3D CG_I2C_FLAG_STOP;
++
++		dev_dbg(&adapter->dev,
++			"%s: rd: %p/%ld wr: %p/%ld flags: 0x%08lx %s\n",
++			__func__, rdbuf, rdlen, raw_wrbuf, wrlen + 1,
++			flags,
++			msgs[i].flags & I2C_M_RD ? "READ" : "WRITE");
++
++		memset(&fps, 0, sizeof(fps));
++
++		fps.unit =3D priv->unit;
++		fps.pars[0] =3D wrlen + 1;
++		fps.pars[1] =3D rdlen;
++		fps.pars[2] =3D flags;
++		fps.iptr =3D raw_wrbuf;
++		fps.optr =3D rdbuf;
++		fps.optr_size =3D sizeof(*rdbuf) * rdlen;
++		fps.iptr_size =3D (wrlen + 1) * sizeof(*raw_wrbuf);
++
++		ret =3D cgeb_call(priv->board, &fps, CgebI2CTransfer);
++		if (ret) {
++			ret =3D -EREMOTEIO;
++			goto out;
++		}
++	}
++
++	ret =3D num;
++
++out:
++	kfree(raw_wrbuf);
++
++	return ret;
++}
++
++static struct i2c_algorithm cgeb_i2c_algo =3D {
++	.master_xfer    =3D cgeb_i2c_xfer,
++	.functionality  =3D cgeb_i2c_func,
++};
++
++static int cgeb_i2c_probe(struct platform_device *pdev)
++{
++	struct cgeb_i2c_priv *priv;
++	struct cgeb_pdata *pdata =3D pdev->dev.platform_data;
++	int ret;
++
++	priv =3D devm_kzalloc(&pdev->dev, sizeof(*priv), GFP_KERNEL);
++	if (!priv)
++		return -ENOMEM;
++
++	strscpy(priv->adapter.name, pdev->name);
++	priv->adapter.owner             =3D THIS_MODULE;
++	priv->adapter.algo              =3D &cgeb_i2c_algo;
++	priv->adapter.dev.parent        =3D &pdev->dev;
++	priv->unit =3D pdata->unit;
++	priv->board =3D pdata->board;
++	i2c_set_adapdata(&priv->adapter, priv);
++
++	platform_set_drvdata(pdev, priv);
++
++	ret =3D cgeb_i2c_set_speed(priv, 400000);
++	if (ret)
++		/* not a critical error, we can continue with the default speed. */
++		dev_warn(&pdev->dev, "Could not set speed to 400KHz\n");
++
++	ret =3D i2c_add_adapter(&priv->adapter);
++	if (ret < 0) {
++		dev_err_probe(&pdev->dev, ret, "registration failed\n");
++		return ret;
++	}
++
++	dev_info(&pdev->dev, "registered\n");
++
++	return 0;
++};
++
++static int cgeb_i2c_remove(struct platform_device *pdev)
++{
++	struct cgeb_i2c_priv *priv =3D platform_get_drvdata(pdev);
++
++	i2c_del_adapter(&priv->adapter);
++
++	return 0;
++}
++
++static struct platform_driver cgeb_i2c_driver =3D {
++	.probe          =3D cgeb_i2c_probe,
++	.remove         =3D cgeb_i2c_remove,
++	.driver =3D {
++		.name   =3D "cgeb-i2c",
++	},
++};
++module_platform_driver(cgeb_i2c_driver);
++
++MODULE_AUTHOR("Sascha Hauer <s.hauer@pengutronix.de>");
++MODULE_DESCRIPTION("cgeb i2c driver");
++MODULE_LICENSE("GPL");
 --=20
 2.45.2
 
