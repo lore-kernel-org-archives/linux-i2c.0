@@ -1,50 +1,50 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 500B61C378B;
-	Fri, 16 Aug 2024 17:12:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1A8A1C2302;
+	Fri, 16 Aug 2024 17:12:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.8
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1723828362; cv=none; b=N0O8dqbanQFi5/Dqd6WfQ9+k0VBdoGEUny1FvIMC4EpGi7nujni/Ijt/mKfO6BF9mxt0yqmNfJU8uKsh08cmnWrybkKnx9j3Wm7Poi98C2ZC9kbJk6s1NJvhHF3Tt/NFzCSYdFFlgYNCqdjtX0Tut/IwEGjYFDdPpR5PkFXVInk=
+	t=1723828362; cv=none; b=QZm9+eyssZcAMbZ1pg0RZVVqbiXA0Avo16/USrZcTsEQyolmUe4UW9TAHPxXn6QYsc40cWFbXfjsBC8Xqv1jKAeegKOsP7eOK6PYAs/CkSs90GYF8brektvPTwmDV4HfN6x5SFEI5KDGjFGEp5ty5HiGPIbRPYu5bOC0+PXMcFk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1723828362; c=relaxed/simple;
-	bh=JeD6dx8LkKLsb4f1jGNEIeW+t/ve0YFKAf5hq/Jb5G8=;
+	bh=fM3QyOcACxbz3EgkNWA6wIeK6Z0/rqQoD5M/3kN7fKI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=WM+JNm2nmD3kUK4Syc0C55442+cH9aQFzV9nHJARJPFpdfY9AcX717za8nH3z3YaOnfJ4t3EAOhW++gRa1V2EPv5Yc4NIVVQq+/+i9XZSFC59gStIx4OgvccytJZx+Od2+znDH9qJnhMFrOFAbZ7OaxCdKPnGfK4hE4jZaITUdc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=N3FgcbO4; arc=none smtp.client-ip=198.175.65.15
+	 MIME-Version; b=CVVRazZYvoy42N7WsLapYiLDpMKIs4AD7CNvrURQCLC9hf06vPMSxafbAH3SZHbYRf59n/DpF8cvJAK6rlCCjHMXzxYMZOqDRpBUe3MSaz+Ow6aJ5ALt2r/I9nlRR7uX917HSAqDsb6hblP/7R3uRXZvw7OTDTjUDmcTjVgOz1M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=BZJ0MBO/; arc=none smtp.client-ip=192.198.163.8
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="N3FgcbO4"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="BZJ0MBO/"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1723828361; x=1755364361;
+  t=1723828360; x=1755364360;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=JeD6dx8LkKLsb4f1jGNEIeW+t/ve0YFKAf5hq/Jb5G8=;
-  b=N3FgcbO4zdMk1I0jdAR5HVIAKLclNULxLeVITUuYRuCO+B2MdXu/mOqx
-   5UqYZ9HL3q8tIVD3lh9isxJDnhb7Uj7tHfgaxq2Oe+/rzqjI0aCvbCGVB
-   HYBPtPcU41xGXehBbkU/ge3e4Kpi5L08RZcF8gZN5tNIvVZHlY+wq6Sat
-   LuATrvlK3t5jj/bOeWkuUTCtd6j4BLLtDBIxOMhTwXjt7vTey+kEGTPkP
-   XQr87C9pdNxls7yLVgxCOM93/JvEg9awPTKk5gvxU1I1CJzjis6SDUT5H
-   CH6dFyK1DiXuE97TstaR9MAsS7hR+0d3CcgI6HM3y+UjjOY4LnPhTbMC0
-   A==;
-X-CSE-ConnectionGUID: zbb93Rh8Rg6aQbfACFH5vA==
-X-CSE-MsgGUID: tB/SGKnTSLmhUwyDQX2WPw==
-X-IronPort-AV: E=McAfee;i="6700,10204,11166"; a="25888880"
+  bh=fM3QyOcACxbz3EgkNWA6wIeK6Z0/rqQoD5M/3kN7fKI=;
+  b=BZJ0MBO/v4zKEPjt94pRPaZLTL8Lpwd0cdXVP4y2wkyPygajnQlJIdEI
+   4UySX4vHWgE/hT8J3GmCZSDuM50CUWcfuZuG6CdM9D/h+2FSKTWXsCd8b
+   DiJpLDoojQOhPNlRvbfP7jW0iX60pRdjprR4AWyAZ/msD8/E1dh+R0vpL
+   Tg/YNMvbmi6WcB7uhdEmao7BOFhuj43xeMf2C4vIPXAIXnQoRZiS+3mr4
+   99l54ArP/nRUHry4u08rEWS4JcILZTFeVeEJ6K5QE1cWvWdFY/UmUzbvb
+   KXtUbK4f0zmqR8aOpgyjvmuoLGSBvyl9tSRWedM3ZDVpxk0AVvlm1WF4c
+   w==;
+X-CSE-ConnectionGUID: Zyhp9pu/QrGNEbeNrd06jg==
+X-CSE-MsgGUID: oqSwECVTSMWgEniHyDeneg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11166"; a="39644617"
 X-IronPort-AV: E=Sophos;i="6.10,152,1719903600"; 
-   d="scan'208";a="25888880"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2024 10:12:36 -0700
-X-CSE-ConnectionGUID: xgJPT7dTT5qLlCLXfk6sBQ==
-X-CSE-MsgGUID: pvYuNcbgTsaq0f1Dc/UYog==
+   d="scan'208";a="39644617"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Aug 2024 10:12:39 -0700
+X-CSE-ConnectionGUID: mlOdonHbTkWhPOP9WOIE8A==
+X-CSE-MsgGUID: kK8mqIeQQvuxqO2UaaQsQg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.10,152,1719903600"; 
-   d="scan'208";a="59360357"
+   d="scan'208";a="64394902"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmviesa006.fm.intel.com with ESMTP; 16 Aug 2024 10:12:33 -0700
+  by fmviesa004.fm.intel.com with ESMTP; 16 Aug 2024 10:12:37 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id 71E32213; Fri, 16 Aug 2024 20:12:32 +0300 (EEST)
+	id AA70C35D; Fri, 16 Aug 2024 20:12:32 +0300 (EEST)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Andi Shyti <andi.shyti@kernel.org>,
 	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -57,9 +57,9 @@ Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>,
 	Borislav Petkov <bp@alien8.de>,
 	Kim Phillips <kim.phillips@amd.com>,
 	Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH v1 1/7] i2c: designware: Replace a while-loop by for-loop
-Date: Fri, 16 Aug 2024 20:01:59 +0300
-Message-ID: <20240816171225.3506844-2-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 5/7] i2c: designware: Always provide device ID tables
+Date: Fri, 16 Aug 2024 20:02:03 +0300
+Message-ID: <20240816171225.3506844-6-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.43.0.rc1.1336.g36b5255a03ac
 In-Reply-To: <20240816171225.3506844-1-andriy.shevchenko@linux.intel.com>
 References: <20240816171225.3506844-1-andriy.shevchenko@linux.intel.com>
@@ -71,42 +71,72 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Replace a while-loop by for-loop in i2c_dw_probe_lock_support() to
-save a few lines of code.
+There is no need to have ugly ifdeffery and additional macros
+for the device ID tables. Always provide them. Since we touch
+the ACPI table, make it sorted by ID.
 
+Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
 Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
 Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-platdrv.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-designware-platdrv.c | 36 ++++++++++++++++-----
+ 1 file changed, 28 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index df3dc1e8093e..d092532375b8 100644
+index 9ce74a8be43a..905557c7dfa4 100644
 --- a/drivers/i2c/busses/i2c-designware-platdrv.c
 +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -238,11 +238,9 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
- 	int i = 0;
- 	int ret;
+@@ -149,14 +149,6 @@ static int dw_i2c_of_configure(struct platform_device *pdev)
  
--	ptr = i2c_dw_semaphore_cb_table;
+ 	return 0;
+ }
 -
- 	dev->semaphore_idx = -1;
+-static const struct of_device_id dw_i2c_of_match[] = {
+-	{ .compatible = "snps,designware-i2c", },
+-	{ .compatible = "mscc,ocelot-i2c", .data = (void *)MODEL_MSCC_OCELOT },
+-	{ .compatible = "baikal,bt1-sys-i2c", .data = (void *)MODEL_BAIKAL_BT1 },
+-	{}
+-};
+-MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
+ #else
+ static int bt1_i2c_request_regs(struct dw_i2c_dev *dev)
+ {
+@@ -477,6 +469,34 @@ static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
+ 	RUNTIME_PM_OPS(dw_i2c_plat_runtime_suspend, dw_i2c_plat_runtime_resume, NULL)
+ };
  
--	while (ptr->probe) {
-+	for (ptr = i2c_dw_semaphore_cb_table; ptr->probe; ptr++) {
- 		ret = ptr->probe(dev);
- 		if (ret) {
- 			/*
-@@ -254,7 +252,6 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
- 				return ret;
- 
- 			i++;
--			ptr++;
- 			continue;
- 		}
- 
++static const struct of_device_id dw_i2c_of_match[] = {
++	{ .compatible = "snps,designware-i2c", },
++	{ .compatible = "mscc,ocelot-i2c", .data = (void *)MODEL_MSCC_OCELOT },
++	{ .compatible = "baikal,bt1-sys-i2c", .data = (void *)MODEL_BAIKAL_BT1 },
++	{}
++};
++MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
++
++static const struct acpi_device_id dw_i2c_acpi_match[] = {
++	{ "80860F41", ACCESS_NO_IRQ_SUSPEND },
++	{ "808622C1", ACCESS_NO_IRQ_SUSPEND },
++	{ "AMD0010", ACCESS_INTR_MASK },
++	{ "AMDI0010", ACCESS_INTR_MASK },
++	{ "AMDI0019", ACCESS_INTR_MASK | ARBITRATION_SEMAPHORE },
++	{ "AMDI0510", 0 },
++	{ "APMC0D0F", 0 },
++	{ "HISI02A1", 0 },
++	{ "HISI02A2", 0 },
++	{ "HISI02A3", 0 },
++	{ "HYGO0010", ACCESS_INTR_MASK },
++	{ "INT33C2", 0 },
++	{ "INT33C3", 0 },
++	{ "INT3432", 0 },
++	{ "INT3433", 0 },
++	{}
++};
++MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
++
+ static const struct platform_device_id dw_i2c_platform_ids[] = {
+ 	{ "i2c_designware" },
+ 	{}
 -- 
 2.43.0.rc1.1336.g36b5255a03ac
 
