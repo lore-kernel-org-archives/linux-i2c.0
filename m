@@ -1,123 +1,134 @@
-Received: from sender4-op-o12.zoho.com (sender4-op-o12.zoho.com [136.143.188.12])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D8E7D531;
-	Mon, 19 Aug 2024 17:59:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.12
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724090376; cv=pass; b=XaHsoJYriE1sjcmSYUnjrN6f2q0dpuMlOFdXsLnVcYqaPDCRnrdHasDgo5S402w+f9uPx2584ZPqgHGBQybSXL2VGoiv6Qm06haks/8Adix/GRyseNJjSSadkUI4XLlDtqkBaq5Cw79XXJ5zX7eQW1rIFTvNhRwAXboO1bH8+ko=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724090376; c=relaxed/simple;
-	bh=o6P0nZ14SojOcYFxiCK7txSvI4RmGN+OJHmCKCGY1S8=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81719189916;
+	Mon, 19 Aug 2024 18:46:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1724093167; cv=none; b=LQ0sWBxPNFLZqUT3gPoTfYutB+IjfaoX7aGnSOx05FyZwmDnG1/Vi2XAbCaY2khI0s353LlHv6qHHXwniAszBXiz3zlIFCxbwy2I254F0DjLvhKjOQVjz4HxbInYcLyb/V5nBu974siAH7eWUvZyKB3Kz6/bxm9G0lWppn00jfU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1724093167; c=relaxed/simple;
+	bh=lmpJVHEI45bCw92NS0r5bbHGa1U4pmqHhD3BTF+AWZ0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=pw79p/KElsgZ/zJcb7AyDvakGU7Vqx3dVl9sQMJfep2/3YbJkXb8xDNI6Z6QhTB7xxJYAJ4mwLrfq1hqr3cX3PohjNOTcTcV2miwg58LqL3jYZAsryPGLzV4EcGpvXJ0Ghjx0LD4amuOSVzDTTMn7nSuSu8QLzdBqvQGp6An1Yw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=detlev.casanova@collabora.com header.b=MM8rOpdc; arc=pass smtp.client-ip=136.143.188.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	 MIME-Version; b=OK4lRv11mOxK0jiOz4V7JYPd8upuwu3bT3gbwk8LHXkWDDi+Asrjf949uwJEeHAiW7W2ZlkdobV6+FYpf7b5RNmoAZu5f6A7mENy6ioYBq5Sax/XRViWgqDVZxsMNqKc1zXDKoswmHSpe8K/IV0Csc4SSTZ4mv19Qhptx9j4hEM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=bC/om4c4; arc=none smtp.client-ip=192.198.163.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=detlev.casanova@collabora.com header.b="MM8rOpdc"
-ARC-Seal: i=1; a=rsa-sha256; t=1724090294; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=J6r5s7/Z8JeFN/26tvSLxRD9tuH13mCXG//biHkwArz4lxH9bEabeMCfhvwX1Jz6HI+dw6snHomGANxT1hNZ4gmBIBpe1s52pgQDfjLJDsrus4+aGyRLSHZwiI1OK2/btb4jej9p9puqNR4b+OuBMRSzaUI9Cizfk+2ugLtMiTM=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1724090294; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=pNG01ooGieLYITjXohGoGYVq/b4PMFucDskno7kh9Yo=; 
-	b=Booe36Q8WD2x0h5CZNUq1hzMG6xAMF+j7zKV9UZBzEgUZVpK2heJBENHFKJBiZ5VchEQOO9xOMfac2H4zjNZ29O+Ta1PtcMbgpD9GzE0e8GO3yc06cHXQorKxx8AcbAjkuNOop7F20t0Y3nLwoNJomZM+it9Ecc2Y4ZP1JOhqJ0=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=detlev.casanova@collabora.com;
-	dmarc=pass header.from=<detlev.casanova@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1724090294;
-	s=zohomail; d=collabora.com; i=detlev.casanova@collabora.com;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Content-Type:Message-Id:Reply-To;
-	bh=pNG01ooGieLYITjXohGoGYVq/b4PMFucDskno7kh9Yo=;
-	b=MM8rOpdcrt7xe+eScEzW5zHxUcQjxiueHE/FDnRu8/Pe0U3Af0w1LI2u+gCz+/G/
-	975sA/Tg6i+P+y1npppA4SDz/yTTZtVhb8uieAVLaVB2m/QZkDJVs3FboGR/vh1tRmR
-	2i9Gfc92wHxxstL1Gg65syWLiCQzCrdWZmGFAAi8=
-Received: by mx.zohomail.com with SMTPS id 17240902923861007.2839847459757;
-	Mon, 19 Aug 2024 10:58:12 -0700 (PDT)
-From: Detlev Casanova <detlev.casanova@collabora.com>
-To: linux-kernel@vger.kernel.org,
- Heiko =?ISO-8859-1?Q?St=FCbner?= <heiko@sntech.de>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
- Jonathan Cameron <jic23@kernel.org>, Lars-Peter Clausen <lars@metafoo.de>,
- Lee Jones <lee@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jiri Slaby <jirislaby@kernel.org>,
- Daniel Lezcano <daniel.lezcano@linaro.org>,
- Thomas Gleixner <tglx@linutronix.de>, Chris Morgan <macromorgan@hotmail.com>,
- Jonas Karlman <jonas@kwiboo.se>, Tim Lunn <tim@feathertop.org>,
- Muhammed Efe Cetin <efectn@protonmail.com>, Andy Yan <andyshrk@163.com>,
- Jagan Teki <jagan@edgeble.ai>, Dragan Simic <dsimic@manjaro.org>,
- Sebastian Reichel <sebastian.reichel@collabora.com>,
- Shresth Prasad <shresthprasad7@gmail.com>, Ondrej Jirman <megi@xff.cz>,
- Weizhao Ouyang <weizhao.ouyang@arm.com>, Alexey Charkov <alchark@gmail.com>,
- Jimmy Hon <honyuenkwun@gmail.com>, Finley Xiao <finley.xiao@rock-chips.com>,
- Yifeng Zhao <yifeng.zhao@rock-chips.com>,
- Elaine Zhang <zhangqing@rock-chips.com>, Liang Chen <cl@rock-chips.com>,
- devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-serial@vger.kernel.org, kernel@collabora.com
-Subject: Re: [PATCH 09/10] arm64: dts: rockchip: Add rk3576 SoC base DT
-Date: Mon, 19 Aug 2024 13:59:45 -0400
-Message-ID: <23696360.6Emhk5qWAg@trenzalore>
-In-Reply-To: <21547916.mFnZMskM5D@diego>
-References:
- <20240802214612.434179-1-detlev.casanova@collabora.com>
- <20240802214612.434179-10-detlev.casanova@collabora.com>
- <21547916.mFnZMskM5D@diego>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="bC/om4c4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1724093166; x=1755629166;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=lmpJVHEI45bCw92NS0r5bbHGa1U4pmqHhD3BTF+AWZ0=;
+  b=bC/om4c4SS5vdqDvQ01gsl7woW8+WlDdwN1Gjq/SBjxQhURHeIhVIsPq
+   h8CHFzsJTOy4pA5SC1Uh3L1yKMn4FeETsvwUWND5kNbRaxMXGQIaElU1n
+   rLYFj+82ZWE0emUQNm4rSgfYjMrkYYC2akliV1wWwBE7c1+SSK+vLCt8+
+   HblHiHALOsILsbw2raJrE8rIDGG/VldoztSYyrnU9X7yOlGK6lowLRmjw
+   BW0HQjSm1pl2qXuE44b5y9bzwv2wV/o63iGqlMDVrzvegv9uDuQ+5Z+Yq
+   bWEVktllCr1q8LtlPGcOIq/iBgG7BgmiDJ9g17SM7cKU/tLw8kB68kTSk
+   g==;
+X-CSE-ConnectionGUID: ca3jwcA4TnK4jzHEXloLtw==
+X-CSE-MsgGUID: ts+9HLZjRzSzaF9mZ48UzQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11169"; a="22537636"
+X-IronPort-AV: E=Sophos;i="6.10,159,1719903600"; 
+   d="scan'208";a="22537636"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2024 11:46:05 -0700
+X-CSE-ConnectionGUID: P943Wh3bRESwcQbF/Osa5Q==
+X-CSE-MsgGUID: Sf2ivcdmSpuaMRMjVxSE5Q==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,159,1719903600"; 
+   d="scan'208";a="60433944"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by orviesa009.jf.intel.com with ESMTP; 19 Aug 2024 11:46:02 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+	id 293245CF; Mon, 19 Aug 2024 21:46:01 +0300 (EEST)
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Andi Shyti <andi.shyti@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jan Dabros <jsd@semihalf.com>,
+	Narasimhan.V@amd.com,
+	Borislav Petkov <bp@alien8.de>,
+	Kim Phillips <kim.phillips@amd.com>
+Subject: [PATCH v3 2/7] i2c: designware: Let PCI core to take care about interrupt vectors
+Date: Mon, 19 Aug 2024 21:45:08 +0300
+Message-ID: <20240819184600.2256658-3-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.43.0.rc1.1336.g36b5255a03ac
+In-Reply-To: <20240819184600.2256658-1-andriy.shevchenko@linux.intel.com>
+References: <20240819184600.2256658-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="utf-8"
-X-ZohoMailClient: External
+Content-Transfer-Encoding: 8bit
 
-On Wednesday, 14 August 2024 11:31:04 EDT Heiko St=C3=BCbner wrote:
-> Hi Detlev,
->=20
-> Am Freitag, 2. August 2024, 23:45:36 CEST schrieb Detlev Casanova:
-> > This device tree contains all devices necessary for booting from network
-> > or SD Card.
-> >=20
-> > It supports CPU, CRU, PM domains, dma, interrupts, timers, UART and
-> > SDHCI (everything necessary to boot Linux on this system on chip) as
-> > well as Ethernet, I2C, SPI and OTP.
-> >=20
-> > Also add the necessary DT bindings for the SoC.
-> >=20
-> > Signed-off-by: Liang Chen <cl@rock-chips.com>
-> > Signed-off-by: Finley Xiao <finley.xiao@rock-chips.com>
-> > Signed-off-by: Yifeng Zhao <yifeng.zhao@rock-chips.com>
-> > Signed-off-by: Elaine Zhang <zhangqing@rock-chips.com>
-> > [rebase, squash and reword commit message]
-> > Signed-off-by: Detlev Casanova <detlev.casanova@collabora.com>
->=20
-> looks like (since 2019) there is a strong suggestion for having a soc nod=
-e.
->=20
-> See Krzysztof's mail in
->   =20
-> https://lore.kernel.org/all/6320e4f3-e737-4787-8a72-7bd314ba883c@kernel.o=
-rg
-> / that references
->     Documentation/devicetree/bindings/writing-bindings.rst [0]
->=20
-> So I guess we should probably follow that - at least for new socs for now.
+PCI core, after pcim_enable_device(), takes care about the allocated
+IRQ vectors, no need to do it explicitly and break the cleaning up
+order.
 
-That make sense, but what is exactly covered by MMIO devices ? everything=20
-except cpus, firmware, psci and timer ?
+Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
-> Heiko
->=20
-> [0]
-> https://elixir.bootlin.com/linux/v6.11-rc1/source/Documentation/devicetre=
-e/
-> bindings/writing-bindings.rst#L90
-
-
-
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index a1b379a1e904..507e114332cd 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -295,10 +295,8 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 
+ 	if (controller->setup) {
+ 		r = controller->setup(pdev, controller);
+-		if (r) {
+-			pci_free_irq_vectors(pdev);
++		if (r)
+ 			return r;
+-		}
+ 	}
+ 
+ 	i2c_dw_adjust_bus_speed(dev);
+@@ -307,10 +305,8 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 		i2c_dw_acpi_configure(&pdev->dev);
+ 
+ 	r = i2c_dw_validate_speed(dev);
+-	if (r) {
+-		pci_free_irq_vectors(pdev);
++	if (r)
+ 		return r;
+-	}
+ 
+ 	i2c_dw_configure(dev);
+ 
+@@ -330,10 +326,8 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
+ 	adap->nr = controller->bus_num;
+ 
+ 	r = i2c_dw_probe(dev);
+-	if (r) {
+-		pci_free_irq_vectors(pdev);
++	if (r)
+ 		return r;
+-	}
+ 
+ 	if ((dev->flags & MODEL_MASK) == MODEL_AMD_NAVI_GPU) {
+ 		dev->slave = i2c_new_ccgx_ucsi(&dev->adapter, dev->irq, &dgpu_node);
+@@ -359,8 +353,6 @@ static void i2c_dw_pci_remove(struct pci_dev *pdev)
+ 	pm_runtime_get_noresume(&pdev->dev);
+ 
+ 	i2c_del_adapter(&dev->adapter);
+-	devm_free_irq(&pdev->dev, dev->irq, dev);
+-	pci_free_irq_vectors(pdev);
+ }
+ 
+ static const struct pci_device_id i2_designware_pci_ids[] = {
+-- 
+2.43.0.rc1.1336.g36b5255a03ac
 
