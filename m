@@ -1,106 +1,122 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D62115ADA4
-	for <linux-i2c@vger.kernel.org>; Mon, 19 Aug 2024 08:23:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AC6157880;
+	Mon, 19 Aug 2024 08:40:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724055820; cv=none; b=s32UxU3vLrslRcwBxtAUoTjFbj+Y47FRxTAUeJgjA92gm8Ybv2MW9XxFTvkf1bIcNzkSBk0Go0kMr3zXq9QjBVn+kKGZ2N3c0wGri3QWG2WcW+RJepXLID+X1NbMxOEq93fuvHicSjq9helWB4THbkvMbBn+UapJFhLdTsRq+uo=
+	t=1724056814; cv=none; b=pLrVIYtnUvW2f+IoZNLHkB9p3dck/2FGkMSttG25rQHLF5FUl9iarFGqnb4VtwmR5x/j3QIDWzLW2WnPUkTy29ru3rfZpEAFS65XQtIUyPpbSAOJkQ+SUu4torWJGx7KIM3tSKcbZmQi56O9n1pX2AUDcqX+NEZ5x0yHb0dNoD8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724055820; c=relaxed/simple;
-	bh=kbDNaYfeN638CZB1xcia9reCdJjFXpCYzXtt0dZYcsU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TxdHOL0A5sBSrOybUNYCUyQcr0Ltd5GZpRTKOZ92iMOPKwubewNGEwLuMSAVzsjDvCp+sHeSIRHyBh+zLXXl2490yzW5hRn7IDI8IO98t8Eek7K06g/dXarJc6wu4C2bF8NyETtNdY4sx4tcL4wiKLxBgOGtby0uuENDsDOH1Ng=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=ChrBTBVZ; arc=none smtp.client-ip=209.85.128.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1724056814; c=relaxed/simple;
+	bh=ecRXmoWtr+H4FTDexcrxBLjv16chf+goailR2t/Is70=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=jZxU1fy7b5LVzjWZmqDyhoHwwAGn4VrK2chB+qJgbFNFx3tgDLrFWmY2Az5ryobyIDRcz7ZmXypYEj6E0Wxvbvn4//Rk7Up364xuSZmq0kGYqZDgiYoz+7R5g8VhZ2icr3PWbME70IRX7eN6K/lMdcHaGn/p84cAKwVdoGdq/gY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=er1pcw/M; arc=none smtp.client-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="ChrBTBVZ"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-428243f928cso32030815e9.3
-        for <linux-i2c@vger.kernel.org>; Mon, 19 Aug 2024 01:23:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1724055817; x=1724660617; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=rFFRqaLMAKXLToOtJy9WdY/znvYXwwMfNOAODqDhSMo=;
-        b=ChrBTBVZTdTZXyv1XmRRePFmIGEQYUFDPSsCJVQGLtpSMWndh2ROnqumtaMqt1MwDF
-         oohzdEE9+DTxa/tT/L4pt3eNm3iHIjcdkPdO2G+5p1xaSF/VGij1gdPTCRW5lfFodteH
-         0/4ZDTRPGF7rmITf1lun3t/NFUwhnb06z53iDDKj2GgHEuS3pQ8Vp9vFIuA4NIfc8E42
-         cpaxmSVwSj0eqmyZRhLHkcJr8AiYPOybDh8ipdutEsu8Hi/DSaxo1Ba5mkmXWVovCSM+
-         exG6zcybPD4Jnfo4Ji3dR6ngDfkMFYkFQdEIUqy457a866Nj07u5qFqnqmCGcvUNRgcU
-         EzYg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1724055817; x=1724660617;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=rFFRqaLMAKXLToOtJy9WdY/znvYXwwMfNOAODqDhSMo=;
-        b=hP5SxOgn3KWUJdNoC064l7GrYyEPXaBwWr8gBu3gjPPuhZ5v+RPoaMTxdRhrrztqB4
-         rtNfMgeEjhXjNwpNUnMZwlk72uqgusmW2s1qO+iQJLWj4g9qkv3CJPSDlyFMAUydRQRA
-         JIHrm7hX4e1cMhAkCOrnRfXr0S0Wys65Xr2EmvVRJbpad1ArZ9yPtUikHTPgAhWR0Gka
-         5DXNpzj8MlbM4v4ujCCss5OKqkQyN9vd/gjAEtsXB59oBb21YifWLXAb0e1c7K2gEWl+
-         BDc406IUvFu8/9+8jwBQ+Z4wwtgUXbKTcs3p5pc1M3vhpNaFvi3jOjVwDU1Hc0RWqtnL
-         6sUg==
-X-Forwarded-Encrypted: i=1; AJvYcCVDU58B62DjO3MpouBOyJgaWXPIjmm+/w1dtnS7Lh4UsZZUpEKs2CcjCfYGcIEXFtDpp8vET3DBsJlGVhxNPVxFhwLYnb+FW4RM
-X-Gm-Message-State: AOJu0Yx+wej0dsBVR/P2ExFWCDJ3sUXvvsWGkbw3h8J/0YSU1+r2nC9m
-	TZkGSvp+ug+50HjZC5ueaHhQjU/YIW0ZYV9+Ve+3/XbEH/ochj79mgLpVPGGvdc=
-X-Google-Smtp-Source: AGHT+IGoPJX5KFTVTFHk/jojp0D2SHIUTsj+jz5BCHm6YGSsPInqjdE4c5SgCunL7XSQeKL6rhKr8w==
-X-Received: by 2002:a5d:5442:0:b0:371:8c79:73c1 with SMTP id ffacd0b85a97d-37194317aa2mr6963984f8f.2.1724055816248;
-        Mon, 19 Aug 2024 01:23:36 -0700 (PDT)
-Received: from [192.168.10.46] (146725694.box.freepro.com. [130.180.211.218])
-        by smtp.googlemail.com with ESMTPSA id ffacd0b85a97d-3719485e2b2sm7908066f8f.33.2024.08.19.01.23.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 19 Aug 2024 01:23:35 -0700 (PDT)
-Message-ID: <918bb9e4-02d9-4dca-bed2-28bb123bdc10@linaro.org>
-Date: Mon, 19 Aug 2024 10:23:33 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="er1pcw/M"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1724056813; x=1755592813;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=ecRXmoWtr+H4FTDexcrxBLjv16chf+goailR2t/Is70=;
+  b=er1pcw/MLP1g+MXTcGMzEuRuLQsNK2JEKw+foO1byc6g4X1DVZgFlFuf
+   5LSdApTRhEwjIBondFgkrAKb9Seban3P3s48Vetp1JW74hE5EKoJ9O/yc
+   8NETAppaTuMqYQSNi/uTORNvRbu4AYr6HpSJ2U/HP12IG0s1FtNm1ax0C
+   suspfgmsiC8lM3GwDXz5RMVniBPSq9/TKiydaTLc6UCxU7Nkne+qiEFcT
+   fsF9yweyeXUi77/eYBmMsz9TiLAjHuOA/T8YKgEef8mnXWwBAcfQGr5y+
+   9jal0zTbDhNBZrhFqhML2fDseLHTSKJG6siFkv2C1zLD3p22kxtSWGM6/
+   g==;
+X-CSE-ConnectionGUID: ZjN+y7BWRD2RH7JM/6QKdA==
+X-CSE-MsgGUID: Uo7/eSVKTKa1mZyfYurhzg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11168"; a="22170979"
+X-IronPort-AV: E=Sophos;i="6.10,158,1719903600"; 
+   d="scan'208";a="22170979"
+Received: from fmviesa007.fm.intel.com ([10.60.135.147])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2024 01:40:12 -0700
+X-CSE-ConnectionGUID: n7W1zypzSbCymD/je+DhQg==
+X-CSE-MsgGUID: XaRQHOJmQ+2vKLgdEW97MQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,158,1719903600"; 
+   d="scan'208";a="60007796"
+Received: from black.fi.intel.com ([10.237.72.28])
+  by fmviesa007.fm.intel.com with ESMTP; 19 Aug 2024 01:40:10 -0700
+Received: by black.fi.intel.com (Postfix, from userid 1003)
+	id 02B97352; Mon, 19 Aug 2024 11:40:08 +0300 (EEST)
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jan Dabros <jsd@semihalf.com>,
+	Narasimhan.V@amd.com,
+	Borislav Petkov <bp@alien8.de>,
+	Kim Phillips <kim.phillips@amd.com>,
+	Mario Limonciello <mario.limonciello@amd.com>
+Subject: [PATCH v2 4/7] i2c: designware: Unify terminator in device ID tables
+Date: Mon, 19 Aug 2024 11:39:08 +0300
+Message-ID: <20240819084007.3700433-5-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.43.0.rc1.1336.g36b5255a03ac
+In-Reply-To: <20240819084007.3700433-1-andriy.shevchenko@linux.intel.com>
+References: <20240819084007.3700433-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 08/10] dt-bindings: timer: rockchip: Add rk3576 compatible
-To: Detlev Casanova <detlev.casanova@collabora.com>,
- linux-kernel@vger.kernel.org
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Heiko Stuebner <heiko@sntech.de>,
- Andi Shyti <andi.shyti@kernel.org>, Jonathan Cameron <jic23@kernel.org>,
- Lars-Peter Clausen <lars@metafoo.de>, Lee Jones <lee@kernel.org>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Jiri Slaby <jirislaby@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
- Chris Morgan <macromorgan@hotmail.com>, Jonas Karlman <jonas@kwiboo.se>,
- Tim Lunn <tim@feathertop.org>, Muhammed Efe Cetin <efectn@protonmail.com>,
- Andy Yan <andyshrk@163.com>, Jagan Teki <jagan@edgeble.ai>,
- Dragan Simic <dsimic@manjaro.org>,
- Sebastian Reichel <sebastian.reichel@collabora.com>,
- Shresth Prasad <shresthprasad7@gmail.com>, Ondrej Jirman <megi@xff.cz>,
- Weizhao Ouyang <weizhao.ouyang@arm.com>, Alexey Charkov <alchark@gmail.com>,
- Jimmy Hon <honyuenkwun@gmail.com>, Finley Xiao <finley.xiao@rock-chips.com>,
- Yifeng Zhao <yifeng.zhao@rock-chips.com>,
- Elaine Zhang <zhangqing@rock-chips.com>, Liang Chen <cl@rock-chips.com>,
- devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-rockchip@lists.infradead.org, linux-i2c@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-serial@vger.kernel.org, kernel@collabora.com
-References: <20240802214612.434179-1-detlev.casanova@collabora.com>
- <20240802214612.434179-9-detlev.casanova@collabora.com>
-Content-Language: en-US
-From: Daniel Lezcano <daniel.lezcano@linaro.org>
-In-Reply-To: <20240802214612.434179-9-detlev.casanova@collabora.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 02/08/2024 23:45, Detlev Casanova wrote:
-> Add compatible string for Rockchip RK3576 timer.
-> 
-> Signed-off-by: Detlev Casanova <detlev.casanova@collabora.com>
+Make the terminator entry look the same in all device ID tables.
 
-Applied, thanks
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-designware-pcidrv.c  | 2 +-
+ drivers/i2c/busses/i2c-designware-platdrv.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 4cbcdae8cd90..cbbcbcc265c9 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -401,7 +401,7 @@ static const struct pci_device_id i2c_designware_pci_ids[] = {
+ 	{ PCI_VDEVICE(ATI,  0x73c4), navi_amd },
+ 	{ PCI_VDEVICE(ATI,  0x7444), navi_amd },
+ 	{ PCI_VDEVICE(ATI,  0x7464), navi_amd },
+-	{ 0,}
++	{}
+ };
+ MODULE_DEVICE_TABLE(pci, i2c_designware_pci_ids);
+ 
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index d092532375b8..9ce74a8be43a 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -58,7 +58,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+ 	{ "HISI02A2", 0 },
+ 	{ "HISI02A3", 0 },
+ 	{ "HYGO0010", ACCESS_INTR_MASK },
+-	{ }
++	{}
+ };
+ MODULE_DEVICE_TABLE(acpi, dw_i2c_acpi_match);
+ #endif
+@@ -154,7 +154,7 @@ static const struct of_device_id dw_i2c_of_match[] = {
+ 	{ .compatible = "snps,designware-i2c", },
+ 	{ .compatible = "mscc,ocelot-i2c", .data = (void *)MODEL_MSCC_OCELOT },
+ 	{ .compatible = "baikal,bt1-sys-i2c", .data = (void *)MODEL_BAIKAL_BT1 },
+-	{},
++	{}
+ };
+ MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
+ #else
 -- 
-<http://www.linaro.org/> Linaro.org │ Open source software for ARM SoCs
+2.43.0.rc1.1336.g36b5255a03ac
 
-Follow Linaro:  <http://www.facebook.com/pages/Linaro> Facebook |
-<http://twitter.com/#!/linaroorg> Twitter |
-<http://www.linaro.org/linaro-blog/> Blog
