@@ -1,50 +1,49 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7FBA15821D;
-	Mon, 19 Aug 2024 08:40:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39F5915B118;
+	Mon, 19 Aug 2024 08:40:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724056816; cv=none; b=hSYMK4eWaSIEisSD79ZnIxG2w6PxNk0wFFc0I52bRGCIZy99Kfjl0FAPj6p4DOmXpusv0CjDgqCAzig8QXx7/I7spTvYbe5VgQpOcY47pDcDAU+U4lD62oKU4VfZ+9H83yyKhmcqpxssroMw+XC3BUzF/K/vgwxOPupo8ORQeNY=
+	t=1724056816; cv=none; b=TLifape+sYUeBVUoIP7zu+bvrFPV6pNnXU22radHKIlyIVnEPxOxCfPN4lLPisye/FGomz7Dsu/raElyzr+Li1xpk5eZT97g7IDcOuaqfh3SMBQPwfY4kWORAF3oxgb9o54gV9I/1n3QF7572GlaHa69+qs1590k9/TLTdM/6c8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1724056816; c=relaxed/simple;
-	bh=wiNygSn0xYtYYKaHveS3CXKC0AKbBoJK3KI2wsMtOKk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Zh/K2G8vCy4AZR8o4Z1e6SaHNf0hZ+XRQazTYMW456cYwa1d+7ttPWLky4nDZhf6mgMPzEkH61GSETSlDN8QDmBiVmZ/jLyCHuriE4dgNYsFZ0r7JTnj3/euTMHkYPNDmuz3nubqbvnc/T5KFkAJIQiXDc2YvByfii9hgO3KTiA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=M9LCR+OT; arc=none smtp.client-ip=192.198.163.17
+	bh=t9j8GBOOx3Xbysu3h86E+HknzwPW5lDD4H2USyl6NIE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KJelAQDrCoL0ZLUf+iEG0yHJ21Ak3S5gnNhenopNCTS6rs2biTNAD0iF/wraY6sj8TFe7mxIQA6WaVdARgWHx8KUt9FTB4FjAGeFlO185dXsSuPyvrKHUsg06WR1he/EFUiVa8aijEi6xSXQMMcrR7LKBYh6S1Bduaw8pjHYo/Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=VvLAk5id; arc=none smtp.client-ip=192.198.163.17
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="M9LCR+OT"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="VvLAk5id"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
   t=1724056815; x=1755592815;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=wiNygSn0xYtYYKaHveS3CXKC0AKbBoJK3KI2wsMtOKk=;
-  b=M9LCR+OT5DsvTP7vs7obgsHzgVyoMCjt18j1wY7PCwA1TIXKfsF7t3Vk
-   sUdf0BlSWDHmfBEd0L6n0i8ZBPJd/VwihJsCahP1z+tmm+tYEzmB8wIiO
-   bIIbgamDC1ykTjbPwzBQvav6i7/36mLMNmqNiW2btqZKaOJHor2QsUrKI
-   X2wMGtHyUyLroY4NyVvRhzdLlBo0OPy/qbFxCIcbIBkkg/FRlZfWAhsaN
-   Zmd76EjFXv2HqO3sw3rrRq6Cy6d6/quRuxIAQpQ/u8FUj0TqbBkFKriAz
-   ida6BWEGBIFKUrnwEvuFSIWKGIG2okXKyC7FsbeJPJluJpKbxz3iXX6jB
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=t9j8GBOOx3Xbysu3h86E+HknzwPW5lDD4H2USyl6NIE=;
+  b=VvLAk5idhyP0gTSs98uxlE6HzcTA1s1VVWzt49kfkO1hho0aJAlP0BVH
+   /0XYqtdlA/dfaZLiR9O6RlSHwwJ7QBhGKGZxxIy9ueT7zBi1oxVaL3zIS
+   Mi4nsoIgO1Io7xSwt7XxJ5luu/biwr8i+yqqWfLYyCvFs9yZx2G7uHF6Q
+   ygp4GXRhv4a/0c4PoMdZY01yhYhd38E1Du0Mti/Q0XJhjVltr4i5fyYRb
+   okeXYZMZvRwCKOKhX9UirnyS84iaLt470cb+IGsjOZnvI+LLnGNSByUgm
+   ouOJS/N3A4TW2SAze1jfGSEWEux/N7DtmJ7wgVHYFEI7Z/fFJPs0Kdt+G
    g==;
-X-CSE-ConnectionGUID: gtWD+7ZjQKeWer63mUDw7A==
-X-CSE-MsgGUID: Byf2p9gwRdeO9fpJh9Xlow==
-X-IronPort-AV: E=McAfee;i="6700,10204,11168"; a="22170966"
+X-CSE-ConnectionGUID: 9sBcx5PrS9G2bXGRri8UeQ==
+X-CSE-MsgGUID: IijytFKKQOuOM8e/STxLpA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11168"; a="22170971"
 X-IronPort-AV: E=Sophos;i="6.10,158,1719903600"; 
-   d="scan'208";a="22170966"
+   d="scan'208";a="22170971"
 Received: from fmviesa007.fm.intel.com ([10.60.135.147])
   by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Aug 2024 01:40:12 -0700
-X-CSE-ConnectionGUID: SNM3NK3jTaq8r3sYiYrqcw==
-X-CSE-MsgGUID: lrJDITHiRrycMZnQNDhvGQ==
+X-CSE-ConnectionGUID: ZzfbuZX4SVWajn/dhk3M4w==
+X-CSE-MsgGUID: nPh0KLeWSJ6P/9BK32uycA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.10,158,1719903600"; 
-   d="scan'208";a="60007797"
+   d="scan'208";a="60007798"
 Received: from black.fi.intel.com ([10.237.72.28])
   by fmviesa007.fm.intel.com with ESMTP; 19 Aug 2024 01:40:10 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id EE6BA34A; Mon, 19 Aug 2024 11:40:08 +0300 (EEST)
+	id CE4EF16D; Mon, 19 Aug 2024 11:40:08 +0300 (EEST)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Jarkko Nikula <jarkko.nikula@linux.intel.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
@@ -56,12 +55,10 @@ Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Narasimhan.V@amd.com,
 	Borislav Petkov <bp@alien8.de>,
 	Kim Phillips <kim.phillips@amd.com>
-Subject: [PATCH v2 3/7] i2c: designware: Add missing 'c' into PCI IDs variable name
-Date: Mon, 19 Aug 2024 11:39:07 +0300
-Message-ID: <20240819084007.3700433-4-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 0/7] i2c: designware: Cleanups (part 1)
+Date: Mon, 19 Aug 2024 11:39:04 +0300
+Message-ID: <20240819084007.3700433-1-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.43.0.rc1.1336.g36b5255a03ac
-In-Reply-To: <20240819084007.3700433-1-andriy.shevchenko@linux.intel.com>
-References: <20240819084007.3700433-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -70,46 +67,33 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add missing 'c' into i2c_designware_pci_ids variable name.
+This is the subset of the patches [1] that should not affect any
+functionality. Here is the unification of ID tables, a couple of
+function prototypes, and other small cleanups.
 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/busses/i2c-designware-pcidrv.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+In any case this is Cc'ed to AMD who reported a problem in [1]
+presumably in the patch that is *not* included here.
 
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 507e114332cd..4cbcdae8cd90 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -355,7 +355,7 @@ static void i2c_dw_pci_remove(struct pci_dev *pdev)
- 	i2c_del_adapter(&dev->adapter);
- }
- 
--static const struct pci_device_id i2_designware_pci_ids[] = {
-+static const struct pci_device_id i2c_designware_pci_ids[] = {
- 	/* Medfield */
- 	{ PCI_VDEVICE(INTEL, 0x0817), medfield },
- 	{ PCI_VDEVICE(INTEL, 0x0818), medfield },
-@@ -403,16 +403,16 @@ static const struct pci_device_id i2_designware_pci_ids[] = {
- 	{ PCI_VDEVICE(ATI,  0x7464), navi_amd },
- 	{ 0,}
- };
--MODULE_DEVICE_TABLE(pci, i2_designware_pci_ids);
-+MODULE_DEVICE_TABLE(pci, i2c_designware_pci_ids);
- 
- static struct pci_driver dw_i2c_driver = {
- 	.name		= DRIVER_NAME,
--	.id_table	= i2_designware_pci_ids,
- 	.probe		= i2c_dw_pci_probe,
- 	.remove		= i2c_dw_pci_remove,
- 	.driver         = {
- 		.pm     = &i2c_dw_pm_ops,
- 	},
-+	.id_table	= i2c_designware_pci_ids,
- };
- module_pci_driver(dw_i2c_driver);
- 
+Link: https://lore.kernel.org/linux-i2c/20231207141653.2785124-1-andriy.shevchenko@linux.intel.com/ [1]
+
+v2:
+- fixed rebase issue in patch 5 (LKP)
+
+Andy Shevchenko (7):
+  i2c: designware: Replace a while-loop by for-loop
+  i2c: designware: Let PCI core to take care about interrupt vectors
+  i2c: designware: Add missing 'c' into PCI IDs variable name
+  i2c: designware: Unify terminator in device ID tables
+  i2c: designware: Always provide device ID tables
+  i2c: designware: Drop return value from i2c_dw_acpi_configure()
+  i2c: designware: Drop return value from dw_i2c_of_configure()
+
+ drivers/i2c/busses/i2c-designware-common.c  |  4 +-
+ drivers/i2c/busses/i2c-designware-core.h    |  4 +-
+ drivers/i2c/busses/i2c-designware-pcidrv.c  | 22 ++-----
+ drivers/i2c/busses/i2c-designware-platdrv.c | 72 +++++++++------------
+ 4 files changed, 42 insertions(+), 60 deletions(-)
+
 -- 
 2.43.0.rc1.1336.g36b5255a03ac
 
