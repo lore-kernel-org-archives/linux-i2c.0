@@ -1,45 +1,47 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB6641946C2
-	for <linux-i2c@vger.kernel.org>; Mon, 26 Aug 2024 15:08:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 521FB194138
+	for <linux-i2c@vger.kernel.org>; Mon, 26 Aug 2024 15:08:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724684932; cv=none; b=IZRwlw1l76zVY5SjiCegzn7EMjtkQcYjyjPnqbplDxN9Yfh8RvS3SXcEflFx9YXFFye8Iz190CS7Oy9Y59yB5myDhmwQQ/xvOZvh3+XRQGaxSstc4xP8VZI0Yrx+o8fXo0tcRBX3fjDzGhefAo1lQZ25cAWo9UrJfzlpxD57Qw4=
+	t=1724684932; cv=none; b=F86kmC1bjpIIirehsBPXmFVrDw5LynR74nd1POWhxfg59jq5VfYIyO59hnbEzu77qzopJLVtPLIDYDiA1OGUqKHClNNue+3+ZZcygmc+U3iGxWckP/1IATfMko5kovs/GC8phQYKv3EdE0LrxzB0Ctq+RS/j1hDhPgD9yxH5o74=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1724684932; c=relaxed/simple;
-	bh=tLrQkOTVMyigkp+9FM6i1ow/+j5HpmACL+GziLUezs0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QXI2J0/u8y60DwD1YEwKRlqOSV4Rj4mRcFaM3Jd5qMerVfK0ydTp09OhcUsgpbnRSabH7BLZWbxqb8ML8TnAu2SaA3DMoy6/f4GqUurpOqVn5SzQNDC+51CMVYqJQkPoh9WA1Ql2kpJdXQy1TOObcG6kmEdKg7RBoDJqlUKVRN4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=P2muHxu4; arc=none smtp.client-ip=194.117.254.33
+	bh=c/N0QqxBEE1f5Fsv6SEaZObzV2DU/DBb6JIsJs4vdf4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ejidPS6yjCQr8iwKRu32iVegzOowR/xJ7ggXXEhBnuTx55LLTaOH+aIJIFQWrFnAJX0/UQCBwzXPPuFLRsFCEgxmm8qi4hbjGH+u04Z1u1U9L0L5wuAavW+/ftODTJahbJZ2FkvjN7NzyiitpJaJGgbJzn2leNtsRMjRdEuRG5A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=NyU7ZOld; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="P2muHxu4"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="NyU7ZOld"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:in-reply-to:references:mime-version:content-transfer-encoding;
-	 s=k1; bh=XQ3eV9eUNljQ6D/g5Ix4xKZhArY144Fzzyo1pRqyUeA=; b=P2muHx
-	u4TKzt0dIvxUqlW96y5vb/yDLmZAw7Ut1JsqZkiUXlf2BX/wjSyVvTtwWmqNiiP4
-	JfyjHtKH7Nq7yyq7np+fbtG/QuJC4LbPJ2FwlzfjUwBDxtwwgUXyHXBVMCkm2KJs
-	HzXZSn3ZHm5NdfK1ArDL1S/fM3Do1FO913AYXBF64RWZAHf1gMppMW52jchM3vqC
-	muftG8xVCVQp5cbcuPJfqeDCCeFyg24LyvtvQRZ1aJxL95Lkod7V7FToI5kF9bO4
-	nWj8CTkQ3zv4I/VF/w75QYPt65JUw43StHQGBY+BoCWnwEGxilo27p35s4wuT+ny
-	xQufnczdcADCb/Hw==
-Received: (qmail 2032517 invoked from network); 26 Aug 2024 17:08:47 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 26 Aug 2024 17:08:47 +0200
-X-UD-Smtp-Session: l3s3148p1@Ig5ogJcggI0gAwDPXwdRANgvu6DX4+2c
+	:mime-version:content-transfer-encoding; s=k1; bh=zVunHA97CMyoQk
+	WVVVmlORBSF8QpaAwYjt3Zl5V3hjg=; b=NyU7ZOldWEuy0m/nqVW2ZoKxDEPanm
+	okZzRRqctGVCjIQ1qbByevjQPqQeV57VXL43GKjU21CUhkDhRVzMUDqlpfy1zn1x
+	ppCtRMN18+4fvEDE1j6uPLfdswv+odf9WlF0K4NbugRdU5FfiFFSlk//Fd/P2XHL
+	B5Ws/oZer8jbwOCZ1sg3QMX44rYrT8RDXRCagylgSWWWq9ftyN1W2l5t6UCgbKeN
+	OO3mv87nXVdeFbzYpam/LPJ3Xr1bl+cibmU8CFwaR+9tZS+bd4tlGB1GiPy+cshg
+	QyVG0RM425IQsqTz6+fwfx1fW+hlARxpDGoNNRFpitDQ1o4hn6cmxIvQ==
+Received: (qmail 2032408 invoked from network); 26 Aug 2024 17:08:45 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 26 Aug 2024 17:08:45 +0200
+X-UD-Smtp-Session: l3s3148p1@HGdPgJcgRoQgAwDPXwdRANgvu6DX4+2c
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: linux-renesas-soc@vger.kernel.org
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
-	linux-i2c@vger.kernel.org
-Subject: [RFC PATCH 2/2] i2c: rcar: support named interrupts
-Date: Mon, 26 Aug 2024 17:08:43 +0200
-Message-ID: <20240826150840.25497-6-wsa+renesas@sang-engineering.com>
+	Conor Dooley <conor+dt@kernel.org>,
+	devicetree@vger.kernel.org,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	linux-i2c@vger.kernel.org,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Rob Herring <robh@kernel.org>
+Subject: [RFC PATCH 0/2] i2c: rcar: add SMBAlert support
+Date: Mon, 26 Aug 2024 17:08:41 +0200
+Message-ID: <20240826150840.25497-4-wsa+renesas@sang-engineering.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20240826150840.25497-4-wsa+renesas@sang-engineering.com>
-References: <20240826150840.25497-4-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -48,33 +50,27 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-rcar.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+This series allows an R-Car I2C IP core to handle SMBAlerts using a
+GPIO. It was tested on a Renesas Lager board (R-Car H2) and the bindings
+were checked with 'dtbs_check' and the latest dtschema which also
+include SMBAlert additions[1].
 
-diff --git a/drivers/i2c/busses/i2c-rcar.c b/drivers/i2c/busses/i2c-rcar.c
-index 1104aafe4433..1a232bc88bed 100644
---- a/drivers/i2c/busses/i2c-rcar.c
-+++ b/drivers/i2c/busses/i2c-rcar.c
-@@ -1192,10 +1192,13 @@ static int rcar_i2c_probe(struct platform_device *pdev)
- 			goto out_pm_put;
- 	}
- 
--	ret = platform_get_irq(pdev, 0);
--	if (ret < 0)
--		goto out_pm_put;
--	priv->irq = ret;
-+	priv->irq = platform_get_irq_byname_optional(pdev, "main");
-+	if (priv->irq < 0) {
-+		priv->irq = platform_get_irq(pdev, 0);
-+		if (priv->irq < 0)
-+			goto out_pm_put;
-+	}
-+
- 	ret = devm_request_irq(dev, priv->irq, irqhandler, irqflags, dev_name(dev), priv);
- 	if (ret < 0) {
- 		dev_err(dev, "cannot get irq %d\n", priv->irq);
+The series is still marked RFC because I have one question left, see the
+annotations of patch 1.
+
+Looking forward to comments! Happy hacking...
+
+[1] https://github.com/devicetree-org/dt-schema/commit/c51125d571cac9596048e888a856d70650e400e0
+
+
+Wolfram Sang (2):
+  dt-bindings: i2c: renesas,rcar-i2c: document SMBusAlert usage
+  i2c: rcar: support named interrupts
+
+ .../bindings/i2c/renesas,rcar-i2c.yaml         | 18 ++++++++++++++++--
+ drivers/i2c/busses/i2c-rcar.c                  | 11 +++++++----
+ 2 files changed, 23 insertions(+), 6 deletions(-)
+
 -- 
 2.43.0
 
