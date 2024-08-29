@@ -1,116 +1,117 @@
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
+Received: from mx1.tq-group.com (mx1.tq-group.com [93.104.207.81])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4B6315C14D;
-	Thu, 29 Aug 2024 10:52:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7A62189B95;
+	Thu, 29 Aug 2024 10:55:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.104.207.81
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1724928769; cv=none; b=jxV0S+2VfbCO3YoxPRfCalGyoeeUS33UHZKNlCq9Teq00Dt71imlBk59RxjJQpy0f2YISy73CUafiA5R/OgfW3n9UKUuZzR762eDXgkvYbiDYJALsXKWbVbYLTpCOLkL/LlwMnixoqK/zcz11QWgoayx2UVrJCOE1ij6OaxnVZE=
+	t=1724928934; cv=none; b=HeQCroaAV8gTZI9igUWCQ2FUqk+IJnw2DUWrMhM0lZeCrTn8iJQ0Z0NRgeTXGVqy/r8VF532w+BlMqTK7wLDjKd+7ov96+8r/LSsIa+jtQ2WhGB//1swgNiVnd8LC+WWy4djjvLsEdRA6KoElq8LzKmwcoHN9qJjjCO5lo4T1pM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1724928769; c=relaxed/simple;
-	bh=xAzqLxI6n/neokgAKtZlAm5+BHpR/kvIzF4uIImqQ50=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NzZdomIjnQHo86qFOgh3IxMuN7Xy2jl2Ye/1FuICzhgX9QeHxB7WDADzv9mu7vZXOHp6qiXZAFhtSHLhv4ImWotMTljD6iszNgYckgRAu5MIBtibAZbJprOvsZzpNgiKEyuMs0vL16lhK27kc+CPYdBG8+1ViVDYcJZpI47Tzus=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.net; spf=pass smtp.mailfrom=gmx.net; dkim=pass (2048-bit key) header.d=gmx.net header.i=wahrenst@gmx.net header.b=BVq34KqR; arc=none smtp.client-ip=212.227.17.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.net
+	s=arc-20240116; t=1724928934; c=relaxed/simple;
+	bh=ejYdjNgSbAx5OYv2qyLkgoU1l5jP4SBPh/grlWEaEW0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=mp8SAb3Pnu2ZyNXdKg+Bw4U/KE2a0sVy/KMBca1JldGYvRJ/wEFV1Suj7HVMnUe5u3wK+PKX6oCswm0pqPo2jnXPynC/2GvK+AThPan2H0I+bMYQKFWRejPp1kS9wHNMAUpjDsVRBd2xmc+Ms+gN8LIDKG9oMvDCVxRa8fWsyjU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ew.tq-group.com; spf=pass smtp.mailfrom=ew.tq-group.com; dkim=pass (2048-bit key) header.d=tq-group.com header.i=@tq-group.com header.b=b4mqiO05; dkim=fail (0-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b=o5cjZqEF reason="key not found in DNS"; arc=none smtp.client-ip=93.104.207.81
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ew.tq-group.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ew.tq-group.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.net header.i=wahrenst@gmx.net header.b="BVq34KqR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.net;
-	s=s31663417; t=1724928754; x=1725533554; i=wahrenst@gmx.net;
-	bh=eWqW6seTZyYAYsQq0Fh/3f/9N2mYgSw5y1XLcuEmmhQ=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:Subject:To:Cc:
-	 References:From:In-Reply-To:Content-Type:
-	 Content-Transfer-Encoding:cc:content-transfer-encoding:
-	 content-type:date:from:message-id:mime-version:reply-to:subject:
-	 to;
-	b=BVq34KqRLO8lxwDlyQtUtUvplgx8XBVkFbeT68q2h3B3H3TS7ybORafQJ/ddZ7Vh
-	 Qzzb58JAUH2Pr3HZleI6iBDLHdIcUVGUBDH2BuUtq697TN/ed5EY/MMPZbpDpH4Hs
-	 HdsocHXQY9J7MSFyCxDZLj97zu3fhOaOVxwcA1CBaXcCnxwi1PMbJLEJP/74FFcoo
-	 eAFnjgyG0J6S3TXKeLc9c3abUbfki6nJglL3N09Q00PslPVpS7W8QNJUEsLevhU1Z
-	 X6C4FUcNDa427XE97UtjGgYhlRaOPpByw62/GoLV2+/pDmvQaKNhno7iIKIc3kWht
-	 jEKtYW+4dtE5qOaF6g==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from [192.168.1.127] ([37.4.248.43]) by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1MfYLQ-1s8M4P3F1s-00eKEn; Thu, 29
- Aug 2024 12:52:33 +0200
-Message-ID: <6bc3f830-13dc-4df1-ad41-6228976c0dcd@gmx.net>
-Date: Thu, 29 Aug 2024 12:52:32 +0200
+	dkim=pass (2048-bit key) header.d=tq-group.com header.i=@tq-group.com header.b="b4mqiO05";
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b="o5cjZqEF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=tq-group.com; i=@tq-group.com; q=dns/txt; s=key1;
+  t=1724928932; x=1756464932;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=oWzcDmjgkJcSg2wpZdI3SiGft3f6OnhQjayTMf0HJ38=;
+  b=b4mqiO05RjG5zzvaLPatwU4zy/lOW2/03POvr5eT7RwbsIO6Tdg1UUG4
+   S9q4fysDEbzp7biugiA2JSCH1x2SyEE5cE/YzTMhyMz0N1whu7r/F60kG
+   9xZC3Umf0GfMmZIdvnGMWQI+0AjQv8o7DuntbpUoRQuGdru4ZJ1LVF4NS
+   hL8/dHToU0cQuttVNA2xSx5zZM8tGTZgvmGOzEBS1UkSGXzdOWfqKcLgi
+   BT0+1pVr4xm0bfgqvBjtCB+mz5KHQq94VgeHAbJPMQNgvd5pfijaNPqT7
+   6QEd0spirzSGVZGJBZZQdzeMFubH+kff26zmunWXPqSlXwbumCTU4mIHa
+   A==;
+X-CSE-ConnectionGUID: IxpUcI0TR6CUshZtug8O9w==
+X-CSE-MsgGUID: 1JdaoTtdS2Geeh9lZqbFog==
+X-IronPort-AV: E=Sophos;i="6.10,185,1719871200"; 
+   d="scan'208";a="38657106"
+Received: from vmailcow01.tq-net.de ([10.150.86.48])
+  by mx1.tq-group.com with ESMTP; 29 Aug 2024 12:55:23 +0200
+X-CheckPoint: {66D0539A-E-22BB8E18-F5F6D0B4}
+X-MAIL-CPID: 0FF3B4A887F5D6DA561B29681486B5BB_5
+X-Control-Analysis: str=0001.0A782F1D.66D0539A.00DA,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 02E45165A3E;
+	Thu, 29 Aug 2024 12:55:16 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ew.tq-group.com;
+	s=dkim; t=1724928918;
+	h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=oWzcDmjgkJcSg2wpZdI3SiGft3f6OnhQjayTMf0HJ38=;
+	b=o5cjZqEFPmxCCUoClAnK46MIX62MOzhLPNdveJPyKyS6+3pAUL4sTVLt09QJKZZcTw5qjb
+	Qc0Ol2HPwKTFgnwvAF6D2sSEgmba7IF9QS4QmHV7dDIuDJuUZ0BWHsva35bTD4tTnQoZuq
+	MFWtDUNhEVWXBkZYqHAHSVMxTtw7yLlgm0m9Ew5+1rQ89nZ5pnWpxngesbtN5Ezm9oUNEM
+	hCQmVTYiliiI+Z5z77dn1Jdkcv8K+Yh2aTvBOG1TKZQoBYaBC6PzplDaDnvr81XfbMiv62
+	ZdpNRDGYTNwo9PTnA1WnHMv/H5PXpoeXys5jmWsUyzkJRvCawXrZICRruKIYrw==
+From: Alexander Stein <alexander.stein@ew.tq-group.com>
+To: aisheng.dong@nxp.com, andi.shyti@kernel.org, shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com, linux-arm-kernel@lists.infradead.org
+Cc: linux-i2c@vger.kernel.org, imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, carlos.song@nxp.com
+Subject: Re: [PATCH 5/5] i2c: imx-lpi2c: increase PM timeout to avoid operate clk frequently
+Date: Thu, 29 Aug 2024 12:55:16 +0200
+Message-ID: <4375906.ejJDZkT8p0@steina-w>
+Organization: TQ-Systems GmbH
+In-Reply-To: <20240829093722.2714921-5-carlos.song@nxp.com>
+References: <20240829093722.2714921-1-carlos.song@nxp.com> <20240829093722.2714921-5-carlos.song@nxp.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/5] i2c: imx-lpi2c: add IRQF_NO_SUSPEND IRQ flag
-To: carlos.song@nxp.com, aisheng.dong@nxp.com, andi.shyti@kernel.org,
- shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de,
- festevam@gmail.com
-Cc: linux-i2c@vger.kernel.org, imx@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
-References: <20240829093722.2714921-1-carlos.song@nxp.com>
- <20240829093722.2714921-2-carlos.song@nxp.com>
-Content-Language: en-US
-From: Stefan Wahren <wahrenst@gmx.net>
-In-Reply-To: <20240829093722.2714921-2-carlos.song@nxp.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:IZF4z6LFDGWBDTHQmU1hyulDnSwdCxDIpXwFGk+40pRSrd3vRqc
- X0Qi6w/NOf+ij/skXAg0ZPK3IVfNSLxwIfy5ZWBDifBH4HBLBgeq3/bjsIaSTdQgRfiPuDY
- /+w8Hl4pOmA1cPvDZ+L2RTBrJpynuRpaxlj6fC2u9MHGRUG0xwTpAL0dVB5yHHHewaj7TQ3
- qsXnDv2fqD5SX5VKIgN3A==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:1a903cghFHM=;KssrqL7utNOx45/jKKQCup5EE2l
- SbWB1W/15VQhe6couMaXIXZmtO5mAf0H7zi09yIqHnU7GAOIejXLFL8r2ayWfHdsACBACk3Z+
- 9KqVFN2qVhfzjPWkb9AMPL8y2wNQMh/nSe4KecXMUqDZyeFldXEE7G10XzcNI++2XX0alRa/B
- lkMz+82+RhWvVjuRYGlKBDmqXo5/QsGlxd0n3JP7YvcOtWggON+zm/mAFgLDycFssfrNRSJUH
- coIAb/Qu3BWrDcQjKL21eR6WjjOkmI+krFizDYy/zEGGab5x2bp42AU4gE+ve9Shm4jRWVDbu
- Sl8BZUldcN+GhBqDvkdh9FTldQ2I2zuntt3kvpLiDFAVHMotJwigfW472MoAHumBUaoeXEHzV
- hBU94dzFtk06OgXh7DO8Doii86k1LasDIa+LErMudK7W34TPNhkhZlHBTzaowpfImTbrjITKo
- lxRcQ+kz+H9j8+9ywmWnG0X0lwZwiaSXApS0HE0jFCkkBW1zLofPd0XpTk9443xmAQasWvfGI
- de9e5fscWs6x7wqRsQw0FGLMiECNvoUcaaL783ChoFV+/yENspoBne9KAkI5DaETCGeMaNA8c
- ycniuvRw+9UkwOIqfTC2mjnP5amGQmx6zWwJBofn64mFcXWgu2CvBJ5mGMuqhG2ZahUwGnCNe
- N2KVTBfxzwMJ/mIbwRDsWRKhCYDwiAdIrHvlcmte6O3hpMHCoZLbZ+EEJ38tQx/d5pJUSQfb3
- xu+jgx0AkHlHrOh0oFsQe5HvvcYwb7T0tsFHuHek44Mt/f0psfFXLeQX/idtbvEQcjoICEaX3
- 3pbKL+vkUZlsMpCL9A9k69oA==
+Content-Type: text/plain; charset="iso-8859-1"
+X-Last-TLS-Session-Version: TLSv1.3
 
-Hi Carlos,
+Hi,
 
-Am 29.08.24 um 11:37 schrieb carlos.song@nxp.com:
-> From: Carlos Song <carlos.song@nxp.com>
->
-> Set IRQF_NO_SUSPEND flag when request_irq(). Some devices such
-> as extend GPIO will need i2c transfer during the entire system
-> suspend and resume period so keep it enabled.
-do you mean GPIO expander which are connected to I2C?
+Am Donnerstag, 29. August 2024, 11:37:22 CEST schrieb carlos.song@nxp.com:
+> From: Clark Wang <xiaoning.wang@nxp.com>
+>=20
+> Switching the clock frequently will affect the data transmission
+> efficiency, and prolong the timeout to reduce autosuspend times for
+> lpi2c.
 
-Do the mentioned expander have a dedicated IRQ line or does the host
-needs to poll I2C?
+Efficiency as in throughput or total time per transfer? Do you have any
+numbers?
 
-Best regards
+Best regards,
+Alexander
 
->
+> Signed-off-by: Clark Wang <xiaoning.wang@nxp.com>
 > Signed-off-by: Carlos Song <carlos.song@nxp.com>
-> Signed-off-by: Frank Li <Frank.Li@nxp.com>
 > ---
->   drivers/i2c/busses/i2c-imx-lpi2c.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c=
--imx-lpi2c.c
-> index c8f3dadfb36e..23f83f10d5f6 100644
+>  drivers/i2c/busses/i2c-imx-lpi2c.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-=
+imx-lpi2c.c
+> index 210d505db76d..cc5e5d96aacd 100644
 > --- a/drivers/i2c/busses/i2c-imx-lpi2c.c
 > +++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-> @@ -1309,7 +1309,7 @@ static int lpi2c_imx_probe(struct platform_device =
-*pdev)
->   	if (ret)
->   		lpi2c_imx->bitrate =3D I2C_MAX_STANDARD_MODE_FREQ;
->
-> -	ret =3D devm_request_irq(&pdev->dev, irq, lpi2c_imx_isr, 0,
-> +	ret =3D devm_request_irq(&pdev->dev, irq, lpi2c_imx_isr, IRQF_NO_SUSPE=
-ND,
->   			       pdev->name, lpi2c_imx);
->   	if (ret)
->   		return dev_err_probe(&pdev->dev, ret, "can't claim irq %d\n", irq);
+> @@ -129,7 +129,7 @@
+>  #define I2C_CLK_RATIO	2
+>  #define CHUNK_DATA	256
+> =20
+> -#define I2C_PM_TIMEOUT		10 /* ms */
+> +#define I2C_PM_TIMEOUT		1000 /* ms */
+>  #define I2C_DMA_THRESHOLD	8 /* bytes */
+> =20
+>  enum lpi2c_imx_mode {
+>=20
+
+
+=2D-=20
+TQ-Systems GmbH | M=FChlstra=DFe 2, Gut Delling | 82229 Seefeld, Germany
+Amtsgericht M=FCnchen, HRB 105018
+Gesch=E4ftsf=FChrer: Detlef Schneider, R=FCdiger Stahl, Stefan Schneider
+http://www.tq-group.com/
+
 
