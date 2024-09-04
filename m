@@ -1,114 +1,178 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15AF71D9337;
-	Wed,  4 Sep 2024 12:52:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E3271DA0E5;
+	Wed,  4 Sep 2024 12:55:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725454356; cv=none; b=ppT2mymD125xQg8CtCVAKN0xEkty9tiabkcnlA3znIAjVv6xLBUJgi/Yzy4oLgjrcG3iSu6N9WKEZIjswYaFcsm2mJ9ttTRkwtynXYmWCIbwG7bocvjzxjUFqM/wjnsGiaYDRgS61q9bRummN7pQMkNWTkC5wX3J/7gy4bu89K0=
+	t=1725454536; cv=none; b=tOMOryyfAD2Ct3KcY8CmiUSPtq7JmO8opVtagA2jHYDjaF3lwV+PIY6wixOp+ccPqNRBE61LSp129dbi70tvDnQhbEzDaNRt+qi7Q62Oa/N90GQ/XiVRrABevFo4QAA4glRqDDAYWeCIFt88LQ17ducNVkC+WUlqb5fFEsbT9jY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725454356; c=relaxed/simple;
-	bh=2FI7kUugQ8AZNyDv48uoku3rUnL9chur7kuEfnt2whs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=kGU7+VBqHOpzdcvjBhtRMYO0hvjtI118/zBAydiJ0J8DSPh8igXl7jaS5+XXsxsstObFynMsoCcqVclwYR/xTSj6jRfCTEWSnccFrw3/ydvGYN4mg9ug/pI05RP6KUxbBvMS6wByopRJHw21DL9AGdxpI0hcNsBqG5+FQoAHdWw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=pVerrnM/; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	s=arc-20240116; t=1725454536; c=relaxed/simple;
+	bh=YM1p2wAwDQn4XY/AvOaGNjciJYOkqpckq7xEmlNJajA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HdQf4Am3Np5lhSKiE/sDmdb2GLWKWBBpg6kGWNpbPzELoS1QWxBIA+lzs3gmogg0dTV6MptcANCRa65NN3BZv4FRI3BdTdRxzmk6p1ZQT76LeFaYYl/1IKZnoCvSIiwo3mPBpyPRq+BfSNbyFs9eGPrUy+TyyEzGyc/9IlGlhG4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=DJIu32n/; arc=none smtp.client-ip=192.198.163.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="pVerrnM/"
-Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4849hvk9031157;
-	Wed, 4 Sep 2024 12:45:10 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	2FI7kUugQ8AZNyDv48uoku3rUnL9chur7kuEfnt2whs=; b=pVerrnM/J4KZjcOE
-	/hnl/13e5yz0GENRYaQ/u2vhLTLsMLqlEhq6CeHU7KYupbYeO3csiuFcSXQZhvvs
-	hSj8JHX7d6OPemM1nwFnWy6ww1vxL56TOVKNxxCgr4aAutdr21eKEmkDLB+IS+OQ
-	1M2NtoSf4ZHgu2sqH+vuLlfyXulXDI4Ae0bQ5IFkfOlUJ5wIGI8GkD0vnwhcmBDG
-	9s4fMeweWXqwlDly96iTh/AAhbPEBnmTV0mgHKhvFDNI1nyLDK4ojV7dNo0cO120
-	rzrC9eA9zHXe7ooiOh7/IdSinlBK50h7cgPjPT/lx016nCtQK8pQB2U/xI/MIkoG
-	tHxrng==
-Received: from nasanppmta05.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 41bvbkjkq2-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 04 Sep 2024 12:45:10 +0000 (GMT)
-Received: from nasanex01b.na.qualcomm.com (nasanex01b.na.qualcomm.com [10.46.141.250])
-	by NASANPPMTA05.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 484Cj9hC013102
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 4 Sep 2024 12:45:09 GMT
-Received: from [10.110.120.207] (10.80.80.8) by nasanex01b.na.qualcomm.com
- (10.46.141.250) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Wed, 4 Sep 2024
- 05:45:05 -0700
-Message-ID: <24d4676f-4385-406d-9728-54afc3144e17@quicinc.com>
-Date: Wed, 4 Sep 2024 05:45:05 -0700
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="DJIu32n/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1725454535; x=1756990535;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=YM1p2wAwDQn4XY/AvOaGNjciJYOkqpckq7xEmlNJajA=;
+  b=DJIu32n/4ZZv0lD4hVKhWFhJyfcPH4k6SMxJIPtP6zbaCOYJWsmNDJG2
+   QgKCIYvn/LSeyxqncLLm6pHxDZb3T4omXXpfhXxjMD9vRKdUhuRpDzmYB
+   QOttQSAKUkmoJas8Ga4O9RSNcKQFMBGjJQLEaGLnSFp/4eUQnV91fRTME
+   7YSFfmvpb0TVjUVW4TsKaj6H3AImWpxzzZqVbv7mHcnM+MIi+VMuizx6m
+   CTe+318eZ/Db42VSnrc2Ea7x2JoeSmYTliQFz2gXyXhm4Yk2yOLp6sZuk
+   4RL3zDsGNYdOzOeodueE46f+1VDQBX22RFQtydZODRmrv0MHReGrYENPk
+   g==;
+X-CSE-ConnectionGUID: 249NBb+IR1uvjiIBr1xnuA==
+X-CSE-MsgGUID: r4YDOpJcSt28IfF2EPWchQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11184"; a="23675144"
+X-IronPort-AV: E=Sophos;i="6.10,201,1719903600"; 
+   d="scan'208";a="23675144"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Sep 2024 05:55:34 -0700
+X-CSE-ConnectionGUID: 0o1/MsxiRnO1J7hnxnpHOQ==
+X-CSE-MsgGUID: HcM9ft6WSFGTu/kKS2gFAQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,201,1719903600"; 
+   d="scan'208";a="95994397"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by orviesa002.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Sep 2024 05:55:32 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.98)
+	(envelope-from <andriy.shevchenko@linux.intel.com>)
+	id 1slpXl-0000000547O-2U2G;
+	Wed, 04 Sep 2024 15:55:29 +0300
+Date: Wed, 4 Sep 2024 15:55:29 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: kimriver liu <kimriver.liu@siengine.com>
+Cc: jarkko.nikula@linux.intel.com, mika.westerberg@linux.intel.com,
+	jsd@semihalf.com, andi.shyti@kernel.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: designware: fix master is holding SCL low while
+ ENABLE bit is disabled
+Message-ID: <ZthYwQfj3Vy6dU-S@smile.fi.intel.com>
+References: <20240904064224.2394-1-kimriver.liu@siengine.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 15/21] dt-bindings: i2c: document support for SA8255p
-Content-Language: en-US
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Krzysztof Kozlowski
-	<krzk@kernel.org>, <andersson@kernel.org>,
-        <konradybcio@kernel.org>, <robh@kernel.org>, <krzk+dt@kernel.org>,
-        <conor+dt@kernel.org>, <rafael@kernel.org>, <viresh.kumar@linaro.org>,
-        <herbert@gondor.apana.org.au>, <davem@davemloft.net>,
-        <sudeep.holla@arm.com>, <andi.shyti@kernel.org>, <tglx@linutronix.de>,
-        <will@kernel.org>, <robin.murphy@arm.com>, <joro@8bytes.org>,
-        <jassisinghbrar@gmail.com>, <lee@kernel.org>,
-        <linus.walleij@linaro.org>, <amitk@kernel.org>,
-        <thara.gopinath@gmail.com>, <broonie@kernel.org>,
-        <cristian.marussi@arm.com>, <rui.zhang@intel.com>,
-        <lukasz.luba@arm.com>, <wim@linux-watchdog.org>, <linux@roeck-us.net>,
-        <linux-arm-msm@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-pm@vger.kernel.org>,
-        <linux-crypto@vger.kernel.org>, <arm-scmi@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>, <linux-i2c@vger.kernel.org>,
-        <iommu@lists.linux.dev>, <linux-gpio@vger.kernel.org>,
-        <linux-serial@vger.kernel.org>, <linux-spi@vger.kernel.org>,
-        <linux-watchdog@vger.kernel.org>, <kernel@quicinc.com>,
-        <quic_psodagud@quicinc.com>,
-        Praveen Talari
-	<quic_ptalari@quicinc.com>
-References: <20240828203721.2751904-1-quic_nkela@quicinc.com>
- <20240903220240.2594102-1-quic_nkela@quicinc.com>
- <20240903220240.2594102-16-quic_nkela@quicinc.com>
- <7fc1e4c3-ca09-4a0a-b072-0c4f1d21e44f@kernel.org> <ZtgSd_SLndvLLVYF@shikoro>
-From: Nikunj Kela <quic_nkela@quicinc.com>
-In-Reply-To: <ZtgSd_SLndvLLVYF@shikoro>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
- nasanex01b.na.qualcomm.com (10.46.141.250)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: GfWhUZz5Jq0_pwPHu9T0QF37Le3YywI6
-X-Proofpoint-GUID: GfWhUZz5Jq0_pwPHu9T0QF37Le3YywI6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
- definitions=2024-09-04_10,2024-09-04_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- adultscore=0 suspectscore=0 phishscore=0 lowpriorityscore=0 mlxscore=0
- impostorscore=0 malwarescore=0 bulkscore=0 spamscore=0 clxscore=1011
- mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.19.0-2407110000 definitions=main-2409040096
+In-Reply-To: <20240904064224.2394-1-kimriver.liu@siengine.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 
+On Wed, Sep 04, 2024 at 02:42:24PM +0800, kimriver liu wrote:
+> From: "kimriver.liu" <kimriver.liu@siengine.com>
+> 
+> Failure in normal Stop operational path
+> 
+> This failure happens rarely and is hard to reproduce. Debug
+> trace showed that IC_STATUS had value of 0x23 when STOP_DET
+> occurred, immediately disable ENABLE bit that can result in
+> IC_RAW_INTR_STAT.MASTER_ON_HOLD holding SCL low.
+> 
+> Failure in ENABLE bit is disabled path
+> 
+> It was observed that master is holding SCL low and the
+> IC_ENABLE is already disabled, Enable ABORT bit and
+> ENABLE bit simultaneously cannot take effect.
+> 
+> Check if the master is holding SCL low after ENABLE bit is
+> already disabled. If SCL is held low, The software can set
+> this ABORT bit only when ENABLE is already set，otherwise,
+> the controller ignores any write to ABORT bit. When the
+> abort is done, then proceed with disabling the controller.
+> 
+> These kernel logs show up whenever an I2C transaction is
+> attempted after this failure.
+> i2c_designware e95e0000.i2c: timeout in disabling adapter
+> i2c_designware e95e0000.i2c: timeout waiting for bus ready
+> 
+> The patch can be fix the controller cannot be disabled while
+> SCL is held low in ENABLE bit is already disabled.
 
-On 9/4/2024 12:55 AM, Wolfram Sang wrote:
->> Just to clarify to I2C maintainers:
->> This is incomplete. Missing driver changes.
-> Thanks, Krzysztof!
+...
 
-Driver changes are going through internal review and will soon be
-posted. For your reference, we have pushed driver changes in CodeLinaro
-git branch(nkela/sa8255p_v6_11_rc2)  in kernel-qcom repo [1]. You can
-take a look at the changes that are in pipeline and will follow soon.
+>  	abort_needed = raw_intr_stats & DW_IC_INTR_MST_ON_HOLD;
+>  	if (abort_needed) {
+> +		if (!enable) {
+> +			regmap_write(dev->map, DW_IC_ENABLE, DW_IC_ENABLE_ENABLE);
+> +			enable |= DW_IC_ENABLE_ENABLE;
 
-[1]:
-https://git.codelinaro.org/clo/linux-kernel/kernel-qcom/-/tree/nkela/sa8255p_v6_11_rc2?ref_type=heads
+> +			usleep_range(25, 100);
+
+fsleep()
+
+And add a short comment to explain the chosen value.
+
+> +		}
+
+...
+
+> +static int i2c_dw_check_mst_activity(struct dw_i2c_dev *dev)
+> +{
+> +	u32 status = 0;
+> +	int ret = 0;
+> +
+> +	regmap_read(dev->map, DW_IC_STATUS, &status);
+> +	if (status & DW_IC_STATUS_MASTER_ACTIVITY) {
+> +		ret = regmap_read_poll_timeout(dev->map, DW_IC_STATUS, status,
+> +				!(status & DW_IC_STATUS_MASTER_ACTIVITY),
+> +				1100, 20000);
+> +		if (ret)
+> +			dev_err(dev->dev, "i2c mst activity not idle %d\n", ret);
+> +	}
+> +
+> +	return ret;
+
+This can be rewritten as
+
+	u32 status = 0;
+	int ret;
+
+	regmap_read(dev->map, DW_IC_STATUS, &status);
+	if (!status & DW_IC_STATUS_MASTER_ACTIVITY))
+		return 0;
+
+	ret = regmap_read_poll_timeout(dev->map, DW_IC_STATUS, status,
+			!(status & DW_IC_STATUS_MASTER_ACTIVITY),
+			1100, 20000);
+	if (ret)
+		dev_err(dev->dev, "i2c mst activity not idle %d\n", ret);
+
+	return ret;
+
+> +}
+
+...
+
+> +	ret = i2c_dw_check_mst_activity(dev);
+> +	if (!ret)
+> +		__i2c_dw_disable_nowait(dev);
+
+...but looking at the usage, I think the proper is to have the above to return
+boolean. And also update the name to follow the usual pattern for boolean helpers.
+
+static bool i2c_dw_is_mst_idling(struct dw_i2c_dev *dev)
+...
+	if (i2c_dw_is_mst_idling(dev))
+		__i2c_dw_disable_nowait(dev);
+
+...
+
+Also what does the heck "mst" stand for? Please, use decrypted words in
+function names and error messages..
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
 
