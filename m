@@ -1,144 +1,95 @@
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E145C1B81DD;
-	Mon,  9 Sep 2024 13:05:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.153.233
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3AC521B3B19;
+	Mon,  9 Sep 2024 13:07:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725887103; cv=none; b=ODqXkfhpM52eJ3pJLT+c+C5OyWdb8lpnGOBMGGKbP0brJCq4VWWkNXJZnmJM9WWeY5FmIg2I+WvhA4X6IKRBKvLClGRLEXxOqrM0uNb9pZPnt2nrXBhPdnxx/AcVHHNauvSb2sjlAuO4GhvJyiEbkI/UKxdDo7yItWejRO0ATbg=
+	t=1725887247; cv=none; b=dI+6rFmdlvqnjyzUNknsDrwj51JQ117D4tuXpRKdxrUFlPrJfqSB50KuaGhurlCkVTwPDyQHvjjm3KWCA849NzX6Xn79h5+Y8ogeXuXXgdE848pbhlyQX88dI26X96CEjetjg1THwwONflcS3bfImvLgDj9neEE6y/W2mU7QtOY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725887103; c=relaxed/simple;
-	bh=Y4vbui6vUEaFQJTah1XC7EIdYR+XbRCpzt0LslpcyA8=;
-	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WhiMAO7KPIqc5F3vNxmTh/fjyUITibm23h3iWaXJMEt7zvtRwxFK+wnow9NVIyDzxuB74aA4HqBYXFW4y5Z3btn+HmjB960SvAAmZc6Bxv3BXg7qpeYbeGKcmvSfw7UVXzO9NEvbuEwfL5mSZtpRzbt3sjRs4xFHKENhrBJATvY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com; spf=pass smtp.mailfrom=microchip.com; dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b=U3VJrk+m; arc=none smtp.client-ip=68.232.153.233
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microchip.com
+	s=arc-20240116; t=1725887247; c=relaxed/simple;
+	bh=ocUGvsi8EaoQ/mQuLJ7GHiw64nOgwqAG+6IpcIsd0KQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fK46In95YsTlWcndPMBkCaSoLWAJgwtslg3ykiHbxToNZYQOVdHmcLaSjzA1huj4b/hJZhvg1hHsMnID+/L263wYhNWGwkwDcCVjPep0lUbYa1ZzDTilrWPGgQd351oHGldv6dclY/0BmbBD4PumPzvuFKg82ttcS05r8DrCaK8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N8ND7XjX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="U3VJrk+m"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1725887101; x=1757423101;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Y4vbui6vUEaFQJTah1XC7EIdYR+XbRCpzt0LslpcyA8=;
-  b=U3VJrk+mif3osptOYoJY+5m+5SLBY0M+AQyZ2jyrv1OC56DMjowuGBoN
-   0z6B/Iny/DALL8fFMF/fC3Av+V4frEAR6SvDtE+/+wDzlP1pPqVPp3zCu
-   kHRuG1p+3TcQZpTDKWH6JpcPQzutx+fhZ82PLrrEjjQGEM2TYXEshpm37
-   WmbSbHY0sUdmeHhg7b56oCLjCfNpk3+CzLJTij+5hhcshGRNy7Fhc3aaR
-   CCla6Jn5KI1aDzuMCjP5F54Ic6L/pQoiZ54fGAxl+fenlGHWTEbV1CP6b
-   uE7a9UcO5nZuHFABk1mtfdrCAqeAvmGFkCyRRr2Q7onn3uIeOdo7S/KYl
-   g==;
-X-CSE-ConnectionGUID: lpkNmxu6TAiBZiRkO477XQ==
-X-CSE-MsgGUID: /6PLgnzTSmCqRK6aCJ8PLQ==
-X-IronPort-AV: E=Sophos;i="6.10,214,1719903600"; 
-   d="asc'?scan'208";a="262480614"
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa5.microchip.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 09 Sep 2024 06:05:00 -0700
-Received: from chn-vm-ex02.mchp-main.com (10.10.85.144) by
- chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.35; Mon, 9 Sep 2024 06:04:39 -0700
-Received: from wendy (10.10.85.11) by chn-vm-ex02.mchp-main.com (10.10.85.144)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.35 via Frontend
- Transport; Mon, 9 Sep 2024 06:04:38 -0700
-Date: Mon, 9 Sep 2024 14:04:05 +0100
-From: Conor Dooley <conor.dooley@microchip.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-CC: Heikki Krogerus <heikki.krogerus@linux.intel.com>, Jarkko Nikula
-	<jarkko.nikula@linux.intel.com>, Andy Shevchenko
-	<andriy.shevchenko@linux.intel.com>, Mika Westerberg
-	<mika.westerberg@linux.intel.com>, Jan Dabros <jsd@semihalf.com>,
-	<linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 7/7] i2c: designware: Group all DesignWare drivers
- under a single option
-Message-ID: <20240909-sandpit-prideful-1d903230ac16@wendy>
-References: <20240903142506.3444628-1-heikki.krogerus@linux.intel.com>
- <20240903142506.3444628-8-heikki.krogerus@linux.intel.com>
- <o4bks5pxn5olnvobln3z2axi6jx57vz5pq2kazyzxemptbp6fb@p7qsppr7ks55>
- <20240909-jugular-cucumber-b7d9bc614f74@wendy>
- <ushhe5isjiafpiovwfj3pnsnt7th6y2a6utblhb2gsspj5rj64@rahzahx447aj>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N8ND7XjX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6A6DC4CEC7;
+	Mon,  9 Sep 2024 13:07:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1725887246;
+	bh=ocUGvsi8EaoQ/mQuLJ7GHiw64nOgwqAG+6IpcIsd0KQ=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=N8ND7XjXAV8sZXRus3Y1jVlLTP7UpROW2sWOsGcIoaMJ2qFN/LW4XHAOsZcPMVEc6
+	 2NcGdUXvX3PRPDZEREVr2tlEwKVkm1i0tmxyl8yAyVbkZzAnkQKB1GLMYjGBRvxiGi
+	 Z9bBPi6UfLWr+QSmjMsX1nSC3skT7DK7hQ2V3vGUYN6WenflW9i56GpEnAMNhI71Ny
+	 /ig6MjQjiZoFk9AZXPnXuRPrMbRxeUxexUuSKPQvpwKFRdqC3UiZJDbcFiSiuItvc2
+	 +NUhXXnbl8hyRJ5Ez+WKuAxfH119jKw39VDL9EDsdd4/LlAc5YcGi/CQSx6/pU/AdA
+	 sOjzVzoV1cgnw==
+Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-53653ff0251so5125148e87.0;
+        Mon, 09 Sep 2024 06:07:26 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCXHX8Cvkr/cQm/mrppGYViZu/wRFckJLukRLAbwSvyVIBwVWIjjtwruhwKmJBVxc4rHI1kf4jQzP7qFA3zXgN0=@vger.kernel.org, AJvYcCXu0dLFEVpnxL0lNbcqy+rVN7bACoZBir80+KmzVcj9uPLPklQbVGhED/kxrdoNjRi+11Q/PvqW+B29@vger.kernel.org
+X-Gm-Message-State: AOJu0YwADU00mG3oB9lqRMDHLY2k9bWf9aLgaKCYRgh/d682RbfZlVOv
+	u0j6TE2NveJgrxfL9iQL2ngDaP2ys/MT2Si8/Yd7U98dPG7n0Ji2kjaCPlGxLNtrC1UZx909aEG
+	sOhGvoffPMq4utJ+NtfZR7MCVbg==
+X-Google-Smtp-Source: AGHT+IEc6jfss0Xs7RGRmd+2uE00bQhxJjnT7Pw+/hsEOJy1y7fCKpKb0MCZQUld9qRyWALoDZNxzWfaikgj2A75tMk=
+X-Received: by 2002:a05:6512:a92:b0:535:6cde:5c4d with SMTP id
+ 2adb3069b0e04-536587a79efmr7707595e87.3.1725887245131; Mon, 09 Sep 2024
+ 06:07:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="z+wvNHNLkpGrdKKQ"
-Content-Disposition: inline
-In-Reply-To: <ushhe5isjiafpiovwfj3pnsnt7th6y2a6utblhb2gsspj5rj64@rahzahx447aj>
-
---z+wvNHNLkpGrdKKQ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20240909105835.28531-1-wsa+renesas@sang-engineering.com>
+In-Reply-To: <20240909105835.28531-1-wsa+renesas@sang-engineering.com>
+From: Rob Herring <robh@kernel.org>
+Date: Mon, 9 Sep 2024 08:07:12 -0500
+X-Gmail-Original-Message-ID: <CAL_JsqLui9=K_LdAoEAibxRo30_2ahdGXhCW50ow8rcqCp6jZA@mail.gmail.com>
+Message-ID: <CAL_JsqLui9=K_LdAoEAibxRo30_2ahdGXhCW50ow8rcqCp6jZA@mail.gmail.com>
+Subject: Re: [PATCH dt-schema] schemas: i2c: add optional GPIO binding for
+ SMBALERT# line
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	devicetree-spec@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 09, 2024 at 02:21:32PM +0200, Andi Shyti wrote:
-> Hi Conor,
->=20
-> On Mon, Sep 09, 2024 at 12:22:22PM GMT, Conor Dooley wrote:
-> > On Thu, Sep 05, 2024 at 10:46:02PM +0200, Andi Shyti wrote:
-> > > Hi Heikki,
-> > >=20
-> > > On Tue, Sep 03, 2024 at 05:25:06PM GMT, Heikki Krogerus wrote:
-> > > > There are quite a few drivers and options for the DesignWare
-> > > > I2C adapter in the Kconfig. Grouping all of them under the
-> > > > I2C_DESIGNWARE_CORE. That makes the menuconfig a bit more
-> > > > easier to understand.
-> > > >=20
-> > > > Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-> > >=20
-> > > Thanks for your patch, I can take this only after the other
-> > > patches have been taken in.
-> >=20
-> > I assume then that you're expecting the prereqs to go through the
-> > various arch trees? Is this not trivial enough that you could chuck it
-> > on a dedicated branch in your tree and if, for some reason, there's a
-> > non-trivial conflict the affected could pull it in?
->=20
-> Thanks for your advice: considering that cross-domain patches are
-> difficult to handle, I appreciate any suggestion on how to deal
-> with them :-)
+On Mon, Sep 9, 2024 at 5:58=E2=80=AFAM Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+>
+> Most I2C controllers do not have a dedicated pin for SMBus Alerts. Allow
+> them to define a GPIO as a side-channel.
 
-It's also helpful if the submitter of a series proposes what path
-patches should take upstream. I find that people all look at something
-like this and see "someone else's problem" written all over it, and
-would be perfectly happy to accept a proposal from a submitter that it
-all goes via I2C.
+Most GPIOs are also interrupts, so shouldn't the existing binding be
+sufficient? The exception is if the GPIO needs to be polled.
 
-> Are you suggesting to set these up in a different branch and send
-> a pull request out of that branch?
-
-What I meant was put them in a dedicated branch (so probably on top of
--rc1 or similar) and merge that branch into your for-next branch. If
-someone then was to run into a non-trivial conflict you could tag the
-dedicated branch and they could pull it into their tree.
-
-> I don't want here to step into other people branches if they
-> don't ack or express any thought.
-
-Sure, I wouldn't either, but it far from abnormal for driver subsystem
-maintainer to take these sort of rename/dependency addition patches and
-the normal path for 3 of the 5 architectures affected here is via Arnd
-and I figure there's a low probability of the maintainers of those
-architectures having their feels hurt.
-
-Cheers,
-Conor.
-
---z+wvNHNLkpGrdKKQ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCZt7yRQAKCRB4tDGHoIJi
-0l7mAP4j6RD0sa22II4b6qc4fqRAbkYt7W4zcByX+NqqAB25XgEA66sQQ0X5mH+y
-ubXc193YpVlipeTttTISbLKeipx7SQs=
-=rN36
------END PGP SIGNATURE-----
-
---z+wvNHNLkpGrdKKQ--
+>
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>  dtschema/schemas/i2c/i2c-controller.yaml | 5 +++++
+>  1 file changed, 5 insertions(+)
+>
+> diff --git a/dtschema/schemas/i2c/i2c-controller.yaml b/dtschema/schemas/=
+i2c/i2c-controller.yaml
+> index 97d0aaa..487e669 100644
+> --- a/dtschema/schemas/i2c/i2c-controller.yaml
+> +++ b/dtschema/schemas/i2c/i2c-controller.yaml
+> @@ -135,6 +135,11 @@ properties:
+>        use this information to detect a stalled bus more reliably, for ex=
+ample.
+>        Can not be combined with 'multi-master'.
+>
+> +  smbalert-gpios:
+> +    maxItems: 1
+> +    description:
+> +      Specifies the GPIO used for the SMBALERT# line. Optional.
+> +
+>    smbus:
+>      type: boolean
+>      description:
+> --
+> 2.43.0
+>
+>
