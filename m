@@ -1,29 +1,29 @@
-Received: from szxga04-in.huawei.com (szxga04-in.huawei.com [45.249.212.190])
+Received: from szxga05-in.huawei.com (szxga05-in.huawei.com [45.249.212.191])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B849BBA42;
-	Mon,  9 Sep 2024 01:14:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.190
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E5D1A932;
+	Mon,  9 Sep 2024 01:14:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.249.212.191
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1725844467; cv=none; b=uYpVj4CUJJ4l7UC3+QD9Z4BmYwJaQwrRo366LAQt57Kr343ZbgCAdiNHiaP/vPY/+vIj97SeHPBpEGUAvePiLxbJV4KmPBer4WUqgmxwpOjH3absdueZz8sLTw0DGg6m3csoxtZayzd0umWNZWuwPAfSWVml54hyG8KiFzQFyv4=
+	t=1725844468; cv=none; b=S38/QkhOgMegZSXZM3i5g1psVIdktZJ8FC0xpENd17SrzBHCdb9ONUI5zLalB1pVyXkTtqa0HVCAbCpz4trDVZH/5jK146mIrvUH5dqGmfhBVY8O78HiSFfeIgb0+gGv2zBSqwnK0tfRZKLR/O3D0e46OiBYlRulE8yMV1LZLWM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1725844467; c=relaxed/simple;
-	bh=wK0YNdrtg68ij9JLDEKdfQf95eHGfo+KduP/pbWdKlk=;
+	s=arc-20240116; t=1725844468; c=relaxed/simple;
+	bh=VRfZBD5j6lzrYFnlOvgAE7SYrKCRfdZmUY09ETxQKkc=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=L0hagKugiTtIH/zX3Wir+d5Z7m1AnLrjHCvp3lsSEm5GvBrMDWnNoOuUII4BZodqcu4HhAOi3AujJ2aQEYcLaRGmkazQOgYdsjhE9+BJbWbHlgs2FpIHlZJk92mlodOV4wxpA1SXJ6vDyLvhW1nw5zFUjXX4WYHGk6TlOyOFpfs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.190
+	 MIME-Version:Content-Type; b=bmmkFzsyikIGUz0aznxCZd1Nfn7pr/rc2zE83J+5v58m4yOGDln28V+upBMcbMBixJrI+VdOvKvjO74tayLrMwZuBN1udnAkumofwF+LC2P6He4svCXM2DBgyrGoEK5/l9Iso+TYxYEg5boLwZMWdfH5HR5OAaLURr3B+IHQr7Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=45.249.212.191
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.19.88.214])
-	by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4X283x3LYyz2DbxK;
-	Mon,  9 Sep 2024 09:13:49 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.19.163.44])
+	by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4X28455KY1z1j836;
+	Mon,  9 Sep 2024 09:13:57 +0800 (CST)
 Received: from kwepemd500012.china.huawei.com (unknown [7.221.188.25])
-	by mail.maildlp.com (Postfix) with ESMTPS id B12F01A016C;
-	Mon,  9 Sep 2024 09:14:15 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id C87D21400DC;
+	Mon,  9 Sep 2024 09:14:23 +0800 (CST)
 Received: from huawei.com (10.90.53.73) by kwepemd500012.china.huawei.com
  (7.221.188.25) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1258.34; Mon, 9 Sep
- 2024 09:14:14 +0800
+ 2024 09:14:23 +0800
 From: Li Zetao <lizetao1@huawei.com>
 To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<gupt21@gmail.com>, <djogorchock@gmail.com>,
@@ -33,9 +33,9 @@ To: <jikos@kernel.org>, <bentiss@kernel.org>, <michael.zaidman@gmail.com>,
 	<mezin.alexander@gmail.com>
 CC: <lizetao1@huawei.com>, <linux-input@vger.kernel.org>,
 	<linux-i2c@vger.kernel.org>, <linux-hwmon@vger.kernel.org>
-Subject: [PATCH -next v2 01/15] HID: core: Use devm_add_action_or_reset helper to manage hid resources
-Date: Mon, 9 Sep 2024 09:22:59 +0800
-Message-ID: <20240909012313.500341-2-lizetao1@huawei.com>
+Subject: [PATCH -next v2 14/15] hwmon: (nzxt-kraken3) Use devm_hid_hw_start_and_open in kraken3_probe()
+Date: Mon, 9 Sep 2024 09:23:12 +0800
+Message-ID: <20240909012313.500341-15-lizetao1@huawei.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20240909012313.500341-1-lizetao1@huawei.com>
 References: <20240909012313.500341-1-lizetao1@huawei.com>
@@ -50,89 +50,104 @@ Content-Type: text/plain
 X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
  kwepemd500012.china.huawei.com (7.221.188.25)
 
-By adding a custom action to the device, it can bind the hid resource
-to the hid_device life cycle. The framework automatically close and stop
-the hid resources before hid_device is released, and the users do not
-need to pay attention to the timing of hid resource release.
+Currently, the nzxt-kraken2 module needs to maintain hid resources
+by itself. Use devm_hid_hw_start_and_open helper to ensure that hid
+resources are consistent with the device life cycle, and release
+hid resources before device is released. At the same time, it can avoid
+the goto-release encoding, drop the fail_and_close and fail_and_stop
+lables, and directly return the error code when an error occurs.
 
 Signed-off-by: Li Zetao <lizetao1@huawei.com>
 ---
-v1 -> v2: Add function usage constraints in comments
+v1 -> v2: Adjust commit information
 v1:
-https://lore.kernel.org/all/cyils23bh4xaiw7bydlpapz4ngqpya3c4kesifrdpnme2t4bib@6elk7u3wvhh2/
+https://lore.kernel.org/all/20240904123607.3407364-19-lizetao1@huawei.com/
 
- drivers/hid/hid-core.c | 44 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/hid.h    |  2 ++
- 2 files changed, 46 insertions(+)
+ drivers/hwmon/nzxt-kraken3.c | 34 +++++++---------------------------
+ 1 file changed, 7 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 30de92d0bf0f..132c81639753 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -2416,6 +2416,50 @@ void hid_hw_close(struct hid_device *hdev)
- }
- EXPORT_SYMBOL_GPL(hid_hw_close);
+diff --git a/drivers/hwmon/nzxt-kraken3.c b/drivers/hwmon/nzxt-kraken3.c
+index 00f3ac90a290..71b8c21cfe1b 100644
+--- a/drivers/hwmon/nzxt-kraken3.c
++++ b/drivers/hwmon/nzxt-kraken3.c
+@@ -897,17 +897,9 @@ static int kraken3_probe(struct hid_device *hdev, const struct hid_device_id *id
+ 	}
  
-+static void hid_hw_close_and_stop(void *data)
-+{
-+	struct hid_device *hdev = data;
-+
-+	hid_hw_close(hdev);
-+	hid_hw_stop(hdev);
-+}
-+
-+/**
-+ * devm_hid_hw_start_and_open - manage hid resources through custom action
-+ *
-+ * @hdev: hid device
-+ * @connect_mask: which outputs to connect, see HID_CONNECT_*
-+ *
-+ * Bind the hid resource to the hid_device life cycle and register
-+ * an action to release the hid resource. The users do not need to
-+ * pay attention to the release of hid.
-+ *
-+ * Some usage constraints of this function: hid_device also needs to be
-+ * allocated through the Devres API, such as devm_kzalloc; hid_hw_stop should
-+ * be followed immediately by hid_hw_close in the remove operation.
-+ */
-+
-+int devm_hid_hw_start_and_open(struct hid_device *hdev, unsigned int connect_mask)
-+{
-+	int ret;
-+
-+	ret = hid_hw_start(hdev, connect_mask);
-+	if (ret) {
-+		hid_err(hdev, "hw start failed with %d\n", ret);
+ 	/* Enable hidraw so existing user-space tools can continue to work */
+-	ret = hid_hw_start(hdev, HID_CONNECT_HIDRAW);
+-	if (ret) {
+-		hid_err(hdev, "hid hw start failed with %d\n", ret);
++	ret = devm_hid_hw_start_and_open(hdev, HID_CONNECT_HIDRAW);
++	if (ret)
+ 		return ret;
+-	}
+-
+-	ret = hid_hw_open(hdev);
+-	if (ret) {
+-		hid_err(hdev, "hid hw open failed with %d\n", ret);
+-		goto fail_and_stop;
+-	}
+ 
+ 	switch (hdev->product) {
+ 	case USB_PRODUCT_ID_X53:
+@@ -928,15 +920,12 @@ static int kraken3_probe(struct hid_device *hdev, const struct hid_device_id *id
+ 		device_name = "kraken2023elite";
+ 		break;
+ 	default:
+-		ret = -ENODEV;
+-		goto fail_and_close;
++		return -ENODEV;
+ 	}
+ 
+ 	priv->buffer = devm_kzalloc(&hdev->dev, MAX_REPORT_LENGTH, GFP_KERNEL);
+-	if (!priv->buffer) {
+-		ret = -ENOMEM;
+-		goto fail_and_close;
+-	}
++	if (!priv->buffer)
++		return -ENOMEM;
+ 
+ 	mutex_init(&priv->buffer_lock);
+ 	mutex_init(&priv->z53_status_request_lock);
+@@ -948,7 +937,7 @@ static int kraken3_probe(struct hid_device *hdev, const struct hid_device_id *id
+ 	ret = kraken3_init_device(hdev);
+ 	if (ret < 0) {
+ 		hid_err(hdev, "device init failed with %d\n", ret);
+-		goto fail_and_close;
 +		return ret;
-+	}
-+
-+	ret = hid_hw_open(hdev);
-+	if (ret) {
-+		hid_err(hdev, "hw open failed with %d\n", ret);
-+		hid_hw_stop(hdev);
+ 	}
+ 
+ 	ret = kraken3_get_fw_ver(hdev);
+@@ -960,18 +949,12 @@ static int kraken3_probe(struct hid_device *hdev, const struct hid_device_id *id
+ 	if (IS_ERR(priv->hwmon_dev)) {
+ 		ret = PTR_ERR(priv->hwmon_dev);
+ 		hid_err(hdev, "hwmon registration failed with %d\n", ret);
+-		goto fail_and_close;
 +		return ret;
-+	}
-+
-+	return devm_add_action_or_reset(&hdev->dev, hid_hw_close_and_stop, hdev);
-+}
-+EXPORT_SYMBOL_GPL(devm_hid_hw_start_and_open);
-+
- /**
-  * hid_hw_request - send report request to device
-  *
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 121d5b8bc867..0ce217aa5f62 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -1125,6 +1125,8 @@ int __must_check hid_hw_start(struct hid_device *hdev,
- void hid_hw_stop(struct hid_device *hdev);
- int __must_check hid_hw_open(struct hid_device *hdev);
- void hid_hw_close(struct hid_device *hdev);
-+int __must_check devm_hid_hw_start_and_open(struct hid_device *hdev,
-+					    unsigned int connect_mask);
- void hid_hw_request(struct hid_device *hdev,
- 		    struct hid_report *report, enum hid_class_request reqtype);
- int __hid_hw_raw_request(struct hid_device *hdev,
+ 	}
+ 
+ 	kraken3_debugfs_init(priv, device_name);
+ 
+ 	return 0;
+-
+-fail_and_close:
+-	hid_hw_close(hdev);
+-fail_and_stop:
+-	hid_hw_stop(hdev);
+-	return ret;
+ }
+ 
+ static void kraken3_remove(struct hid_device *hdev)
+@@ -980,9 +963,6 @@ static void kraken3_remove(struct hid_device *hdev)
+ 
+ 	debugfs_remove_recursive(priv->debugfs);
+ 	hwmon_device_unregister(priv->hwmon_dev);
+-
+-	hid_hw_close(hdev);
+-	hid_hw_stop(hdev);
+ }
+ 
+ static const struct hid_device_id kraken3_table[] = {
 -- 
 2.34.1
 
