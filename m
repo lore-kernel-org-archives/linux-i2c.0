@@ -1,153 +1,163 @@
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2073.outbound.protection.outlook.com [40.107.94.73])
+Received: from mo4-p00-ob.smtp.rzone.de (mo4-p00-ob.smtp.rzone.de [85.215.255.24])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A1561D932F
-	for <linux-i2c@vger.kernel.org>; Fri, 13 Sep 2024 12:12:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.94.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 730251DA11B;
+	Fri, 13 Sep 2024 12:35:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=85.215.255.24
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726229534; cv=fail; b=Pg4Nc3DXCd2g8NI1tOtVoF/oI56Z0JL7k1dnPajUDD7BXwPRWOW6zkKME0xPM+RJoFZTqOQgV220LSqAujS99PPv7xNjDJxH+o+1Hq2pTS6Kc4PmdpAhcAQ4u6zt085RvlYz1iHCTQ7OMym3Bj9657ngrd0yYQve1WUVDo4wJJU=
+	t=1726230920; cv=pass; b=SB3y40Znn5ytePMZL1+2qQOZ+B+YnwxpDcGU8WeiHEPzmOu4Wc2bv4iF5cSTC59fQAolNgNRMLYbcyRmxl5fWfrFDD0iAtF1V36JX3TQZMQi6MdKOhsC3cmFEz2NO6vPsiM64w3PQyI1ZcjtoHcn6RVKu7PJjBGnT187p6cl8xw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726229534; c=relaxed/simple;
-	bh=0jASz4pDDI+7tLG85wbL6aIEUOlrpaUqP8MHVRtVURo=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=MqrVPYjSpKvmW+S7nHUI7Div1srjBWivC9kummTKOY/56lL40YTWAUMoOc2AXLlMK12YEfV7pAK+rmsTmk57ZsX9Cqw2R6kfvY2IlfL1+IHTy811BVbOu2+Toa668Oxpq9QcK8ekJnk0PWhPB2CBX5K1YZ+s4pE88TjjDld/eoE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=YraOblDh; arc=fail smtp.client-ip=40.107.94.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	s=arc-20240116; t=1726230920; c=relaxed/simple;
+	bh=K5tHopPEnvWTtLvSEJXNwldJF8FZ/4EFw9xR7f6BvhA=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=iNAPTFf4Bzddv8pGZqBbx8eXS/OzgxmxrRWT++5HkXA+GhoXqdVCwDUuzcG8UF0Gphw9X9hrVgbdW8nAUqmrSH8CAWDtA/I48VrIMCmT65cg4f74Ip/d2FcHOGGlQgxw/fe1bZ1egFm+PbSTUGmrtOc+1pvjXyashSv+Vo9FhSQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=goldelico.com; spf=pass smtp.mailfrom=goldelico.com; dkim=pass (2048-bit key) header.d=goldelico.com header.i=@goldelico.com header.b=qROEtxLq; dkim=permerror (0-bit key) header.d=goldelico.com header.i=@goldelico.com header.b=wtIxstYr; arc=pass smtp.client-ip=85.215.255.24
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=goldelico.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goldelico.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="YraOblDh"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=B39XbB+++mCFyrTjDQepzhbuZMaJ05W6HrUhajHWt4txiVurrlrsoVKeHxI1Jy0HPPBR1gho54fvbvgifvmh85yundGtrCIY8CMq7KtMriGpXu2NAxMsk5LbfKYuI79tA3M00M8+WEerVys6CeieN3J6oMfC7hJ2E8HJKM64ys6qcd2m2YNwZSwKwYTSklz7HrRC4JAKiMb3NPZPhj214faRYrxcGbymmGsW0CIyQXjsJYuYnHDIIXF3pP8wRsJMjg2osCjx8RPcLKHi1zwCeSkEr/E7eK6jTc14/0YIAYXrR22S/yHsGMyxMEmDDtLIKSQ4SXjzNEd4WdMxxNV+ew==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=70uaL74fdj4TD6eP1KHBoDkBUeLL0nXwecX6kkmx1ac=;
- b=Uhc/bpI/t1vp0zDVl07q5VzusvajTKkmexsqL1cTxDwh0GxuKlwSLvuXtSm003A/Ss473CX16hBlP8DKLu9BEqpUbbTUQUfZCT8p5Ntw9ah94fZy0sa8YaL9nYWeJkwy/N46mBvCo16E9qm/BrdpItRmsYeyqu9+v63981c7aCBGxOgXGeyn/eao5tbm2qDavN30xN9S3WIod3aW6wB0VVNrlWrOyFTIbC9P/lEI1KXy4kIDRBVeNYUepd3jn+7SMzahspBCNWypLeozk7o6nlgx/1UDYLfNavi0PCc6fXH4A4wYdM6hllUbrSgiOONeFx0KQJRWhUJSMQDmmJ3i7Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=suse.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=70uaL74fdj4TD6eP1KHBoDkBUeLL0nXwecX6kkmx1ac=;
- b=YraOblDhns/JnVczj7mPiXdAK3KE5gndyJ8grLMA52qjuxcNCbz/gIC0/OsZewm1BpEbgmcFTittMdysJbTtb9rIjzVHykZHevldaABuLei/NXsLFDnWEJ5BimFs2sAh/hNFem02Q3rN5ft2VAcBn2z8zqwqvthIxVW51jMzhUw=
-Received: from CH2PR17CA0026.namprd17.prod.outlook.com (2603:10b6:610:53::36)
- by BL1PR12MB5873.namprd12.prod.outlook.com (2603:10b6:208:395::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7939.26; Fri, 13 Sep
- 2024 12:12:06 +0000
-Received: from CH1PEPF0000A34B.namprd04.prod.outlook.com
- (2603:10b6:610:53:cafe::bc) by CH2PR17CA0026.outlook.office365.com
- (2603:10b6:610:53::36) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7939.27 via Frontend
- Transport; Fri, 13 Sep 2024 12:12:06 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- CH1PEPF0000A34B.mail.protection.outlook.com (10.167.244.10) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.7918.13 via Frontend Transport; Fri, 13 Sep 2024 12:12:06 +0000
-Received: from jatayu.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Fri, 13 Sep
- 2024 07:12:03 -0500
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-To: Jean Delvare <jdelvare@suse.com>, Andi Shyti <andi.shyti@kernel.org>
-CC: <linux-i2c@vger.kernel.org>, <Sanket.Goswami@amd.com>, Andy Shevchenko
-	<andriy.shevchenko@linux.intel.com>, <Patil.Reddy@amd.com>, Shyam Sundar S K
-	<Shyam-sundar.S-k@amd.com>
-Subject: [PATCH v5 8/8] MAINTAINERS: Add AMD ASF driver entry
-Date: Fri, 13 Sep 2024 17:41:10 +0530
-Message-ID: <20240913121110.1611340-9-Shyam-sundar.S-k@amd.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20240913121110.1611340-1-Shyam-sundar.S-k@amd.com>
-References: <20240913121110.1611340-1-Shyam-sundar.S-k@amd.com>
+	dkim=pass (2048-bit key) header.d=goldelico.com header.i=@goldelico.com header.b="qROEtxLq";
+	dkim=permerror (0-bit key) header.d=goldelico.com header.i=@goldelico.com header.b="wtIxstYr"
+ARC-Seal: i=1; a=rsa-sha256; t=1726230550; cv=none;
+    d=strato.com; s=strato-dkim-0002;
+    b=frtfbA3TeDZrjV+1iKtlARh5m0LS5iFb7kx8dI2sYb5741in8C8Y4xrKOTqTH2K28N
+    KcHzoyWUekzxJQH4K609p/Mms7XcGCvqFejurgtX/BT4PKicjV9vwQolNU9lspiU9YRn
+    9r4qc6l8/Ss3BgAO0Uh5uRPAOpzeul84fGJoEVQfObTP8d96uZqo8E+3weiRHqfLPhH7
+    6AIL9+tXMP9pgR94cCqvvttX5h85YMTf9Hque9LQFXZuhHZefgtJ76ZfoPeVN6xUk21X
+    wPpyh0ZFYYTcaRX3t8mQZ5lpj/jDhwRVTcnnAb2H4tOVuIfZLMO3+q15yTvUbT8yi8vu
+    mo1Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1726230550;
+    s=strato-dkim-0002; d=strato.com;
+    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
+    From:Subject:Sender;
+    bh=7Eo6x2aHQQjJ5Gij8iyMaSMyOkSoHvbaiv8ybxaTLT0=;
+    b=FviP4clJiu2RKRrwc/j6DyXPNI9+C1cKVBoZtNDUp01vlT1cmi24x/hSqbQ/72CEHo
+    79iiZ4sH7Gwnj8I8VBUCS7lFlgKculMYdqgosBIZexmApVp3xfTTAQ7p98XiJusLtooU
+    LWMw91Q2XOD4tKUPQFpW2ElbPujUJ1f6o+jYADtXBY6GGYmuhgoDnoj7Y1Zp/eKJpyo/
+    GoLQ0i1HmWV4/eb4O2XL2ywAukReP5R4Kwq2t8YKA4ZbljdVc5Mc6gTxWLcqb85EhNwA
+    d9YvjEDMBBN1W4Fb02VvxJAeqAq1Xa7ecYymtrF5xHaGjIaxDEWKxYp2sZw2oaAtpArO
+    5DNA==
+ARC-Authentication-Results: i=1; strato.com;
+    arc=none;
+    dkim=none
+X-RZG-CLASS-ID: mo00
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1726230550;
+    s=strato-dkim-0002; d=goldelico.com;
+    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
+    From:Subject:Sender;
+    bh=7Eo6x2aHQQjJ5Gij8iyMaSMyOkSoHvbaiv8ybxaTLT0=;
+    b=qROEtxLqKZBRreaxLJvZAwJOM98OGXM7BA/x9x6J3HIaxDM+8we/XWgLVTrTOphlWu
+    uL4GTdyd+U7TLcTWnumh5oDDnfQn4afWEv+6n3EmM4XgrvkBt13sHS3xZ5iOVrPl2Qi6
+    5cwquFH9LUOJh4TE0eQ59ijJfKwswVtedFOEwgM5/t9tCyhGrKOdvt3O8Rx6T6Mn0jot
+    qwp5djZz0Dy77mVTv8UntCTB+C3NKG9MAulCGm8q19aumGnyrQIA5BxptKpsLpCUwE1i
+    bZvAiCMgj9897YZiJpScOuwV4y6nzx5XVRLsDj++EhqrBlfjacxuY5oID1YGpS4Xfatw
+    +CLA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1726230550;
+    s=strato-dkim-0003; d=goldelico.com;
+    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
+    From:Subject:Sender;
+    bh=7Eo6x2aHQQjJ5Gij8iyMaSMyOkSoHvbaiv8ybxaTLT0=;
+    b=wtIxstYr6G5nJVfDjr+8+mMfFfH9KbwQ9UL/1/Stexq5Z/YcdGX9B72XtLoObIl2j0
+    L41scKMCI5VtpEelEICA==
+X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMhflhwDubTJ9o12DNOsPj0lFzL1yfjAZ"
+Received: from smtpclient.apple
+    by smtp.strato.de (RZmta 51.2.3 DYNA|AUTH)
+    with ESMTPSA id Q984c208DCTA9P6
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
+	(Client did not present a certificate);
+    Fri, 13 Sep 2024 14:29:10 +0200 (CEST)
+Content-Type: text/plain;
+	charset=us-ascii
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH1PEPF0000A34B:EE_|BL1PR12MB5873:EE_
-X-MS-Office365-Filtering-Correlation-Id: 818c3663-6dbe-4fc5-20a3-08dcd3ed4901
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|376014|36860700013|1800799024;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?4a/+6h2xZ7tCGfZmTm5s4HVzR/jOTM3gorcPiUgS8JFzFmdwgVj/PExvmuih?=
- =?us-ascii?Q?4vaFF5eEgF/qaFTfobL2rjdZum4HCGjHsPSgsF3FMGL8dd4B2d6Xa0HwZ53i?=
- =?us-ascii?Q?FIMjIGuHLucmYq8Rmrw0DgUCT+w31UjaXWA5+xaIbI+zxIw3nr/GDENChbbV?=
- =?us-ascii?Q?5pKMIrMRT8n5RHmRmZq8E+jI3Btwb5IYustFS+s8xA2xXTd2dJ/N7JIEtvlp?=
- =?us-ascii?Q?9MMFVVFJ7e2PAPjLTzErdmr2IN4onqZ8BsoiJj7PBtuYCnfwpLQzWO/90bOr?=
- =?us-ascii?Q?qywu25hsdhYpVbXhlISrPCsqdQmj6zhyIqSJcHBJUyserczZ5voeB0lSmEQ7?=
- =?us-ascii?Q?9yFCs8FlnwxovqZvxko+sOGp1uCAaBYUrSVZfPoWzVwpKh/niEV1+DhZAeBf?=
- =?us-ascii?Q?Q8yVoL95eDqd5PnvHFfAUC/i6YFJpGx2xFdC2n0Ji8piZ4EC4qGsHIUCqxav?=
- =?us-ascii?Q?Vu6jJwDhUkmh/CIk0JdXGb5dJmm0KGPIsFsSKYp8vDQj/ShCEx5TamIq31Ur?=
- =?us-ascii?Q?tfKHf38tK2TyTtSi0PCzZPamtDw9Gw7cT9+YfSbcAI1UzgWVXbmFNknw5KT7?=
- =?us-ascii?Q?4jP7I/jst1dCqQ07dT+HfK+k6xaZUH+RHoaEZv6UbW+7IIMAS3kcRaEa2yOY?=
- =?us-ascii?Q?rgCyC3Wki2ckzXVe0qabx+x/S2qwNB71kQOkrZGUKBDD0M5KW7pkeeaI803n?=
- =?us-ascii?Q?Df19Sh5Pal+J27QzUhKrCNxvAl4s/rHtZ4/RkZK0V6jEqGIBooz5PSb7W8CY?=
- =?us-ascii?Q?CUe3ZKpuKSarG8UwmGUdlSNS6o8ciu0S1PqwF/BI11xzjjPoWinBtjfCm3yN?=
- =?us-ascii?Q?ruV4TKaD72yzYbCUzcblgbu2LQHfrIuWvXdu6iuE2WC0RmLNjsrWeAZk0fHt?=
- =?us-ascii?Q?WFRFcMGD66uj/w98CDJWsi4iYdl3g+QG0OCZLsQFx4Lfd+JBkf9DJP9/c+Qk?=
- =?us-ascii?Q?Mn8/+/G7XwlzkkwTtCZCDvTGJZ6B/8T/SCZvVgWFZ0u1mCVQg3t9Do03ZA39?=
- =?us-ascii?Q?j0GB/wf8CW7TlpqGC2sqduIwjOx5fmepVeqQzk9i1U2vuboLG4FinlmgZH5b?=
- =?us-ascii?Q?IS0qp9RG97WpP/MMrYKzoWZ7i8+/i/2nFkpZj/WInHIIE9CsKHBUy8E03E27?=
- =?us-ascii?Q?GO3uYMvZtdnMO5Ese0HA35jVBwNigcSFQOUmyKi7bQDRQOwNF1djSFji191B?=
- =?us-ascii?Q?WgKTUQaWgHAqCeA5UycVIyrNFiqe07i8guRgSBt0XNBSfMbWM10oF3cmTxvn?=
- =?us-ascii?Q?Y7ZxznnV/yc1+k3qjmb3NRgfqm3iZ9u2jkLRE4w1i5Z1xeGa5n5JHydMYjIz?=
- =?us-ascii?Q?tmbvfHOWs0Gegz33TV11dkTpcxdY0Kh9F2fqUf8t9VAePxn7zkVSLSxtS0C+?=
- =?us-ascii?Q?2yBTeB/1zneJuoLYEiEa6EJS1HpfA+Upk6lasw0X6uBkEwhAhLo3QqXl/elF?=
- =?us-ascii?Q?kaZ9vZ6KgCGg7797bjaeJ8ntd1PohoFf?=
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(376014)(36860700013)(1800799024);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 Sep 2024 12:12:06.4507
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 818c3663-6dbe-4fc5-20a3-08dcd3ed4901
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CH1PEPF0000A34B.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR12MB5873
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3776.700.51\))
+Subject: Re: [PATCH v2] i2c: omap: Fix standard mode false ACK readings
+From: "H. Nikolaus Schaller" <hns@goldelico.com>
+In-Reply-To: <20240913140934.29bb542b@akair>
+Date: Fri, 13 Sep 2024 14:28:59 +0200
+Cc: Reid Tonking <reidt@ti.com>,
+ Tony Lindgren <tony@atomide.com>,
+ "Raghavendra, Vignesh" <vigneshr@ti.com>,
+ Aaro Koskinen <aaro.koskinen@iki.fi>,
+ Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+ Linux-OMAP <linux-omap@vger.kernel.org>,
+ linux-i2c@vger.kernel.org,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+Message-Id: <0903DB3E-1A44-44BB-87DC-01C65B97AE4E@goldelico.com>
+References: <20230426194956.689756-1-reidt@ti.com>
+ <445b3cbf-ffbc-6f77-47db-c30fc599e88f@ti.com>
+ <20230428074330.GJ14287@atomide.com>
+ <20230428183037.wbhds54dz5l4v5xa@reidt-t5600.dhcp.ti.com>
+ <664241E0-8D6B-4783-997B-2D8510ADAEA3@goldelico.com>
+ <20240913140934.29bb542b@akair>
+To: Andreas Kemnade <andreas@kemnade.info>
+X-Mailer: Apple Mail (2.3776.700.51)
 
-Update the MAINTAINERS file with AMD ASF driver details.
+Hi,
 
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
----
- MAINTAINERS | 6 ++++++
- 1 file changed, 6 insertions(+)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 3f348b71b9c9..18b8975dd058 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -1082,6 +1082,12 @@ L:	linux-i2c@vger.kernel.org
- S:	Maintained
- F:	drivers/i2c/busses/i2c-amd-mp2*
- 
-+AMD ASF I2C DRIVER
-+M:	Shyam Sundar S K <shyam-sundar.s-k@amd.com>
-+L:	linux-i2c@vger.kernel.org
-+S:	Maintained
-+F:	drivers/i2c/busses/i2c-amd-asf-plat.c
-+
- AMD PDS CORE DRIVER
- M:	Shannon Nelson <shannon.nelson@amd.com>
- M:	Brett Creeley <brett.creeley@amd.com>
--- 
-2.25.1
+> Am 13.09.2024 um 14:09 schrieb Andreas Kemnade <andreas@kemnade.info>:
+> 
+> Am Wed, 11 Sep 2024 11:40:04 +0200
+> schrieb "H. Nikolaus Schaller" <hns@goldelico.com>:
+> 
+>> Hi,
+>> 
+>>> Am 28.04.2023 um 20:30 schrieb Reid Tonking <reidt@ti.com>:
+>>> 
+>>> On 10:43-20230428, Tony Lindgren wrote:  
+>>>> * Raghavendra, Vignesh <vigneshr@ti.com> [230427 13:18]:  
+>>>>> On 4/27/2023 1:19 AM, Reid Tonking wrote:  
+>>>>>> Using standard mode, rare false ACK responses were appearing with
+>>>>>> i2cdetect tool. This was happening due to NACK interrupt
+>>>>>> triggering ISR thread before register access interrupt was
+>>>>>> ready. Removing the NACK interrupt's ability to trigger ISR
+>>>>>> thread lets register access ready interrupt do this instead.  
+>>>> 
+>>>> So is it safe to leave NACK interrupt unhandled until we get the
+>>>> next interrupt, does the ARDY always trigger after hitting this?
+>>>> 
+>>>> Regards,
+>>>> 
+>>>> Tony  
+>>> 
+>>> Yep, the ARDY always gets set after a new command when register
+>>> access is ready so there's no need for NACK interrupt to control
+>>> this.  
+>> 
+>> I have tested one GTA04A5 board where this patch breaks boot on
+>> v4.19.283 or v6.11-rc7 (where it was inherited from some earlier -rc
+>> series).
+>> 
+>> The device is either stuck with no signs of activity or reports RCU
+>> stalls after a 20 second pause.
+>> 
+> cannot reproduce it here.
+
+That is good for you :)
+
+> I had a patch to disable 1Ghz on that
+> device in my tree. Do you have anything strange in your
+> tree?
+
+No, and the omap3 is running with 800 MHz only.
+
+I haven't tested on another board but the bug is very reproducible
+and I was able to bisect it to this patch, which makes the difference.
+
+So there may be boards which happily run with the patch and some
+don't. Maybe a race condition with hardware.
+
+But I think the assumption that "ARDY always gets set after a new
+command when register access is ready so there's no need for NACK
+interrupt to control this" may not hold in all situations. Potentially
+if a new command is never ready.
+
+BR,
+Nikolaus
+
+
 
