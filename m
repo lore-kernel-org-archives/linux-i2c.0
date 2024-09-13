@@ -1,84 +1,134 @@
-Received: from mx11lb.world4you.com (mx11lb.world4you.com [81.19.149.121])
+Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A26F91D86DC
-	for <linux-i2c@vger.kernel.org>; Fri, 13 Sep 2024 12:55:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=81.19.149.121
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6BAB43144;
+	Fri, 13 Sep 2024 13:33:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.238.236.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726232158; cv=none; b=U2oFcsAp6lrsQBSCJnUBs6waYWwwbXEZgZtX5+wL1mL0BFFh2zm9jwhLi7yWPUo/FrSW40286eP1TsCZHaE8Ye8iwCei1KziaodUAeGUHlnJSKsakxNgK4PUvLC3SbxDa74+utiWPxtHk39TeNZs60hMyC5x6+M4lWsk8jFccIM=
+	t=1726234382; cv=none; b=OvbYxEIgW8j8kjJWWK/G5gFGA1OEI75tcpWTkWCXack9o7XcUOBONk06Daeyz6YZjRorNqSusSz21ep9HMrwmgG50JUi7cflSunRo6J7T3frj1DAyMA3vL+trF6ezoZdk/vAz7+jKcDX3TAfSMiiGXIhcxbkrW+ui+W+wKjoTLw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726232158; c=relaxed/simple;
-	bh=mKedwJ5oP7yFDuKWpKi1YPa1JvtHWGhR1CPpaNpORiw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kDJ4JWWHD6ZCSOd8+o3aIJ2HdN29VpRXkTZt6YRezcqtiSSM9QVSBq9HvNiHFPiHC8kPrgB+llX6YynVfq5e62DRYmLe4t2Me2+oAx2YY1B1eGxMk6GshFAr6kvW6r5Phu2mnCwTiMFbx87vvsSnhDM5X/Fr6J6fYvB3vBOmrnU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=engleder-embedded.com; spf=pass smtp.mailfrom=engleder-embedded.com; dkim=pass (1024-bit key) header.d=engleder-embedded.com header.i=@engleder-embedded.com header.b=WcRju9fg; arc=none smtp.client-ip=81.19.149.121
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=engleder-embedded.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=engleder-embedded.com
+	s=arc-20240116; t=1726234382; c=relaxed/simple;
+	bh=uUQd/1Da/Xxm1kE6OdzdbNAjdOJfQIBxpUioYDTwULQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=oi7nZgzYlzkjUftx0wf4yVjwi/f6MbrK3YjNwYjnGn+ey9LqRTQ1aJTl6u7RAjbTk04AsTdznY2i67VmSVcCfkhqpOtlv29MjyVJF5i5zeFjDmMQFE3YYZ9x68EB1EEGWfax1DKCR4/GxuLep+oV+9LW2poIGLFujvcB5w5bAVQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info; spf=pass smtp.mailfrom=kemnade.info; dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b=FoXKLmkj; arc=none smtp.client-ip=178.238.236.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=engleder-embedded.com header.i=@engleder-embedded.com header.b="WcRju9fg"
+	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="FoXKLmkj"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=engleder-embedded.com; s=dkim11; h=Content-Transfer-Encoding:Content-Type:
-	In-Reply-To:From:References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender
-	:Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:
-	Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:
-	List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-	bh=sIA0NeSP2GywsDGn1N9lvoJ8ApToYyWp8L5D5dBYlCs=; b=WcRju9fgH+detn4RWVU7Od5FgF
-	YVCQmhisFdix7HAe6iO38IDFtGJbKP4SO/2gTvLfbapZfXheXbbIAU9XjxUnPNHA+4FiRD6dPeutR
-	8hLGoogBjekQi1Z9eGzxyop/GEK+k5HfkomLah3UAWzodEZY+vHE2KwKpBnaH+4nNuP4=;
-Received: from [88.117.52.244] (helo=[10.0.0.160])
-	by mx11lb.world4you.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96.2)
-	(envelope-from <gerhard@engleder-embedded.com>)
-	id 1sp5AX-0004of-1V;
-	Fri, 13 Sep 2024 14:12:57 +0200
-Message-ID: <2541cf3b-8831-41b7-8030-1dcca6ebeb76@engleder-embedded.com>
-Date: Fri, 13 Sep 2024 14:12:56 +0200
+	d=kemnade.info; s=20220719; h=References:In-Reply-To:Cc:From:Sender:Reply-To:
+	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID;
+	bh=RDJJpk2SIh0MQg/4338KK0HiVTDWE+lSNgBRvW7MeCY=; b=FoXKLmkjUo5AsulAlYgBYqf8OX
+	IIUfakLskE93sj5H+0RlwjZd/uGx8m+e3c78IWkb0yTok0ByEVDbFc7r5M2XQ3wpwZuIexYwPymhx
+	q8N7QDGF/5NxXsaxVh0wrzAXprWx+zmTne64hxtgVG1kfX50GJi9WvUkxKp2B9sKNQbjgTkzBHTLk
+	Uq02qR/wfeAjLiw1UV8Sh7VXY1APgM7UXKJX97bQu7brrfV2+iozwYYic1QUnX5FrUOc11Y9CIJzV
+	QTi3SaBSUQlbm6KLSVgVuNW+YVh1Tvz/hYqJbbvgX+WluX6jjb/GFQGYcoes8uIJj00MpsLdqYDwc
+	nF1I0HOQ==;
+Date: Fri, 13 Sep 2024 15:32:51 +0200
+From: Andreas Kemnade <andreas@kemnade.info>
+To: "H. Nikolaus Schaller" <hns@goldelico.com>
+Cc: Reid Tonking <reidt@ti.com>, Tony Lindgren <tony@atomide.com>,
+ "Raghavendra, Vignesh" <vigneshr@ti.com>, Aaro Koskinen
+ <aaro.koskinen@iki.fi>, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+ Linux-OMAP <linux-omap@vger.kernel.org>, linux-i2c@vger.kernel.org, Linux
+ Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v2] i2c: omap: Fix standard mode false ACK readings
+Message-ID: <20240913153251.48ffafbd@akair>
+In-Reply-To: <0903DB3E-1A44-44BB-87DC-01C65B97AE4E@goldelico.com>
+References: <20230426194956.689756-1-reidt@ti.com>
+	<445b3cbf-ffbc-6f77-47db-c30fc599e88f@ti.com>
+	<20230428074330.GJ14287@atomide.com>
+	<20230428183037.wbhds54dz5l4v5xa@reidt-t5600.dhcp.ti.com>
+	<664241E0-8D6B-4783-997B-2D8510ADAEA3@goldelico.com>
+	<20240913140934.29bb542b@akair>
+	<0903DB3E-1A44-44BB-87DC-01C65B97AE4E@goldelico.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 0/1] I2C controller support for KEBA PLCs
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org
-References: <20240809052303.4933-1-gerhard@engleder-embedded.com>
- <d2fa7404-1269-4281-9e78-f8b780f0129f@engleder-embedded.com>
- <grxj3pxc7wgi2ar5ot6c24wwyskad7pt6l4wt7y5kwrqfirwo3@bc2mag5ju4eu>
-Content-Language: en-US
-From: Gerhard Engleder <gerhard@engleder-embedded.com>
-In-Reply-To: <grxj3pxc7wgi2ar5ot6c24wwyskad7pt6l4wt7y5kwrqfirwo3@bc2mag5ju4eu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-AV-Do-Run: Yes
 
-On 10.09.24 11:05, Andi Shyti wrote:
-> Hi Gerhard,
-> 
-> On Tue, Aug 27, 2024 at 08:15:04PM GMT, Gerhard Engleder wrote:
->> On 09.08.24 07:23, Gerhard Engleder wrote:
-> 
-> ...
-> 
->>> Gerhard Engleder (1):
->>>     i2c: keba: Add KEBA I2C controller support
->>>
->>>    drivers/i2c/busses/Kconfig    |  11 +
->>>    drivers/i2c/busses/Makefile   |   1 +
->>>    drivers/i2c/busses/i2c-keba.c | 598 ++++++++++++++++++++++++++++++++++
->>>    3 files changed, 610 insertions(+)
->>>    create mode 100644 drivers/i2c/busses/i2c-keba.c
->>>
->>
->> Hello Andi,
->>
->> are there any reasons why this patch does not make any progress?
->> Did I miss something? Or is it hanging just because of holiday season?
-> 
-> Sorry for having taken so long, now it's merged to i2c/i2c-host.
-> 
-> I took the liberty of changing only 'slave' to 'target' in one
-> comment to align with the new inclusive I2C naming convention.
+Am Fri, 13 Sep 2024 14:28:59 +0200
+schrieb "H. Nikolaus Schaller" <hns@goldelico.com>:
 
-Thank you!
+> Hi,
+> 
+> 
+> > Am 13.09.2024 um 14:09 schrieb Andreas Kemnade
+> > <andreas@kemnade.info>:
+> > 
+> > Am Wed, 11 Sep 2024 11:40:04 +0200
+> > schrieb "H. Nikolaus Schaller" <hns@goldelico.com>:
+> >   
+> >> Hi,
+> >>   
+> >>> Am 28.04.2023 um 20:30 schrieb Reid Tonking <reidt@ti.com>:
+> >>> 
+> >>> On 10:43-20230428, Tony Lindgren wrote:    
+> >>>> * Raghavendra, Vignesh <vigneshr@ti.com> [230427 13:18]:    
+> >>>>> On 4/27/2023 1:19 AM, Reid Tonking wrote:    
+> >>>>>> Using standard mode, rare false ACK responses were appearing
+> >>>>>> with i2cdetect tool. This was happening due to NACK interrupt
+> >>>>>> triggering ISR thread before register access interrupt was
+> >>>>>> ready. Removing the NACK interrupt's ability to trigger ISR
+> >>>>>> thread lets register access ready interrupt do this instead.
+> >>>>>>  
+> >>>> 
+> >>>> So is it safe to leave NACK interrupt unhandled until we get the
+> >>>> next interrupt, does the ARDY always trigger after hitting this?
+> >>>> 
+> >>>> Regards,
+> >>>> 
+> >>>> Tony    
+> >>> 
+> >>> Yep, the ARDY always gets set after a new command when register
+> >>> access is ready so there's no need for NACK interrupt to control
+> >>> this.    
+> >> 
+> >> I have tested one GTA04A5 board where this patch breaks boot on
+> >> v4.19.283 or v6.11-rc7 (where it was inherited from some earlier
+> >> -rc series).
+> >> 
+> >> The device is either stuck with no signs of activity or reports RCU
+> >> stalls after a 20 second pause.
+> >>   
+> > cannot reproduce it here.  
+> 
+> That is good for you :)
+> 
+which does not mean that there is no problem...
+
+> > I had a patch to disable 1Ghz on that
+> > device in my tree. Do you have anything strange in your
+> > tree?  
+> 
+> No, and the omap3 is running with 800 MHz only.
+> 
+So you have a patch disabling 1Ghz OPP in there? The error messages
+look like things I got when 1Ghz was enabled, so better double check.
+
+if it is letux, then there is e.g. the interrupt reversal in there.
+Maybe it unveils some problem which should be fixed, maybe it is
+harmful, it was never well reviewed...
+
+> I haven't tested on another board but the bug is very reproducible
+> and I was able to bisect it to this patch, which makes the difference.
+> 
+the error messages, esp. regarding rcu do not look so related to this.
+Maybe having this patch or not triggers some other bug. Maybe we trigger
+some race conditions. Or i2c error checking regarding OPP setting...
+
+> So there may be boards which happily run with the patch and some
+> don't. Maybe a race condition with hardware.
+> 
+I am not ruling out that this patch has nasty side effects but I think
+there is more in the game.
+
+Regards,
+Andreas
