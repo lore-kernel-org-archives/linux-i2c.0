@@ -1,166 +1,137 @@
-Received: from mail-qv1-f49.google.com (mail-qv1-f49.google.com [209.85.219.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85AC526289
-	for <linux-i2c@vger.kernel.org>; Fri, 13 Sep 2024 23:50:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8600802;
+	Sat, 14 Sep 2024 00:10:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726271444; cv=none; b=CaDrZXOY78bMuuoTegAubYx4UJIX2ZSaBTdLKL3vqd7LvvB1NSLTOz+FXuQA2Hqs14cPNcdDt/eZhVG4yrPIQIxPNq04QTTLreNWeg4dfkIEC1A7J8ZBWfXcqnFh6PC6P1lLQuKtly6Al9OPwGPy4Cp+sAzD4mk0GePmHPLl99o=
+	t=1726272645; cv=none; b=XU5OkNeB7J7+3noykLHT8f946QX7jjDAWb7lbt3//XqHU+RVgYfcH3FOxD5GRvKxSgbRs8P57lHwLMwaYktZEquGItoJT1C9gp2kaPHaUI/Bf4ybxoxzPqCEqje+aZq5xhf+Qe9ig7+xUQ/22zUmwr5hjlUPgDllOX7RnlTJyL0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726271444; c=relaxed/simple;
-	bh=iShfGa2K9v84syG+aLK78YPAr6h3bqgDt5AT1QZtHo4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=SxjvwOZZkbgBEmOacp8YiOJ4bVdkdQX+MqzPL5UBg0CrH1zcszd10YMZiPKnZQcQ+RKcNosefnKefTgGJoLT6i8qpumkmiNa7xexRbamx7j2QxbDQatFTaPhT18/RC48Pb5E+2nnkRKX6VgajJNX37BW6kx9eYwcknjrWAvFH2g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=TCUl1th4; arc=none smtp.client-ip=209.85.219.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	s=arc-20240116; t=1726272645; c=relaxed/simple;
+	bh=pBlXE22qTfUfu7R4b/GcgpMEmYdx7gX5i4yw66loTlg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uemOLbKniYB1fmxpgCsBbsE77Xy8exr0LRwSYkRepaKMcmaZ0p7+FzdksBZvHcPUenNyB6rONzeZBsPclcqKoq/0DExxke3h0vgUBEbQW4XIe5kNCwCDfHPp7U24zmitzUNu1C1ArDKptRp7jm0/5Hv+AL+AFA1KRj68yHUKqGs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=JEZ9Jvna; arc=none smtp.client-ip=198.175.65.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="TCUl1th4"
-Received: by mail-qv1-f49.google.com with SMTP id 6a1803df08f44-6c354091616so20735116d6.0
-        for <linux-i2c@vger.kernel.org>; Fri, 13 Sep 2024 16:50:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1726271441; x=1726876241; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TI7TITmGzIQHc7WsNOaVJ244cb5V1Nwa651mKiB3q/E=;
-        b=TCUl1th4N2AcuMhj/yjAzmcQ+yEmXsExdtGRwKPLrCYaqPfMWR9nKHvNWwDiLJHV6Q
-         KirJ6EqP10Ofh7ZdiLtkSUU/WIJ/ykoRtWydcDb2aXHcmhLQwzebM6ko+K1W/rv+3nyp
-         Suq1UQmhZrm0VVr4BqPWtMynm88WuX5zJ/4Ds=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1726271441; x=1726876241;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TI7TITmGzIQHc7WsNOaVJ244cb5V1Nwa651mKiB3q/E=;
-        b=SOI0G7lkPZ5HnjGyOpCBQ6BdXn5jy0Mh0AVdfWGq8CM9C7E/mbKZZ/SeZo8ZdyWwku
-         Bw+DUcUJ+tgzkAw2kwSsgTbyEGn7ebSnDf0+tj2Q9BLaWjxiWGfVVwgek1uCNwynJGmN
-         mDnf4dtOsIwLiQ6qH0KBymPMGryFSY8YRhtoQQnJtsX+EzaEpztcUqT3XyoEYiZtq3cU
-         XqworpLcuxDO9hw6B72xJ7CNr8VcjkTmtzFMaSyiAqLDtIdzlkAIHvVbo78gC+BTVr1j
-         g77kkqXzs0XX7jjvWM/p2lgfk2cTo+OgAUCKtyJzvtpZKi7u3Mzeu61prPhS0NTT8r0Z
-         FWeQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVBxogOgt9aa9cuYXIUedFd0pYpyvb6p/ff29hilCjokD4FUqSXZO3Zb4/d6R/UzL5nTIe4u5TXzwU=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyo1ySKn/T2kd672KfsD6F6oGiUhFJw59FjlfZHrb0mqeltfLMv
-	VQWvY5FptO+j1yko0UQQAF1F7wOzxFG8GNDyHunMvYrNXySKMSny2NgfoF+qIom/6lHXcD+zayA
-	=
-X-Google-Smtp-Source: AGHT+IHf5OVzdK+DsXGfTYO5p9KwLOiwOTs2PX2ydatSz9rKp2FAws1rr9EqYblMtPhwEkaNb4BhOg==
-X-Received: by 2002:a05:6214:4991:b0:6bf:6dc2:e002 with SMTP id 6a1803df08f44-6c57351719bmr133939676d6.12.1726271441023;
-        Fri, 13 Sep 2024 16:50:41 -0700 (PDT)
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com. [209.85.222.172])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6c58c6354c8sm1415516d6.46.2024.09.13.16.50.40
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 13 Sep 2024 16:50:40 -0700 (PDT)
-Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-7a99d23e036so258355785a.1
-        for <linux-i2c@vger.kernel.org>; Fri, 13 Sep 2024 16:50:40 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCU7wKD1zfzBuw8mIxMXrS1/tv9LRq6TiN3ncwFjJM3h7Yo4uNFvFyaEbU5GcSeD2pOCOEWj5UPcpGM=@vger.kernel.org
-X-Received: by 2002:a05:6214:448c:b0:6c3:5599:93a0 with SMTP id
- 6a1803df08f44-6c57347d602mr144060086d6.0.1726271006617; Fri, 13 Sep 2024
- 16:43:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="JEZ9Jvna"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1726272643; x=1757808643;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=pBlXE22qTfUfu7R4b/GcgpMEmYdx7gX5i4yw66loTlg=;
+  b=JEZ9JvnaQG5i2f+tlh5T8WbtJQLGDMgtdKWb6DEV/zU0I84r6HkcudfQ
+   LB2JQqIeXkirKzoe7A58J6B6uK+5dQ5qyOf/aW/deJ3EIkRGdliyKFyY/
+   hZvj+EFHovLsekuRhNlDqN2hPy+kLe/ane/1Bnq3Bdryz1XW/eLtZYp7y
+   vWJtx8SpSY7Uf0aAYqvtlVVTXLCSvC4esIs3KF+KOaP69mII6HX3SEMwX
+   segn/gzNWvKQRc2I7ix6ALw9EV81XPfRzQdc16+randWBlrVYArkYvQwk
+   IdOKx1JgCuNQ3xK+rxVMDNGALZ1wx4m9TI5dq9LqOhu7Lyj5sxjxF/SPC
+   g==;
+X-CSE-ConnectionGUID: sd54NgDMSt2mnzEq7rVqrg==
+X-CSE-MsgGUID: /6kXExrMS6OeSPlVznqj1w==
+X-IronPort-AV: E=McAfee;i="6700,10204,11194"; a="25061966"
+X-IronPort-AV: E=Sophos;i="6.10,227,1719903600"; 
+   d="scan'208";a="25061966"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Sep 2024 17:10:36 -0700
+X-CSE-ConnectionGUID: ZQDgBaKzScWKseKdZctE8Q==
+X-CSE-MsgGUID: BUzx7VxoTSuGCSExL6LSKw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.10,227,1719903600"; 
+   d="scan'208";a="72616669"
+Received: from lkp-server01.sh.intel.com (HELO 53e96f405c61) ([10.239.97.150])
+  by fmviesa005.fm.intel.com with ESMTP; 13 Sep 2024 17:10:32 -0700
+Received: from kbuild by 53e96f405c61 with local (Exim 4.96)
+	(envelope-from <lkp@intel.com>)
+	id 1spGMw-0007AY-0j;
+	Sat, 14 Sep 2024 00:10:30 +0000
+Date: Sat, 14 Sep 2024 08:10:29 +0800
+From: kernel test robot <lkp@intel.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Jean Delvare <jdelvare@suse.com>,
+	Andi Shyti <andi.shyti@kernel.org>
+Subject: Re: [PATCH v1 04/12] i2c: isch: Switch to memory mapped IO accessors
+Message-ID: <202409140743.kKVc8T3C-lkp@intel.com>
+References: <20240911154820.2846187-5-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240911072751.365361-1-wenst@chromium.org> <20240911072751.365361-9-wenst@chromium.org>
-In-Reply-To: <20240911072751.365361-9-wenst@chromium.org>
-From: Doug Anderson <dianders@chromium.org>
-Date: Fri, 13 Sep 2024 16:43:15 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=XvPA0UC87fQ+RvFzPv9qRSEP6eQhT79JOx9Arj87i9Mg@mail.gmail.com>
-Message-ID: <CAD=FV=XvPA0UC87fQ+RvFzPv9qRSEP6eQhT79JOx9Arj87i9Mg@mail.gmail.com>
-Subject: Re: [PATCH v7 08/10] i2c: of-prober: Add GPIO support to simple helpers
-To: Chen-Yu Tsai <wenst@chromium.org>
-Cc: Rob Herring <robh@kernel.org>, Saravana Kannan <saravanak@google.com>, 
-	Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Wolfram Sang <wsa@kernel.org>, 
-	Benson Leung <bleung@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>, 
-	Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
-	chrome-platform@lists.linux.dev, devicetree@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>, 
-	Jiri Kosina <jikos@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
-	linux-i2c@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20240911154820.2846187-5-andriy.shevchenko@linux.intel.com>
 
-Hi,
+Hi Andy,
 
-On Wed, Sep 11, 2024 at 12:29=E2=80=AFAM Chen-Yu Tsai <wenst@chromium.org> =
-wrote:
->
-> +static int i2c_of_probe_simple_set_gpio(struct device *dev, struct i2c_o=
-f_probe_simple_ctx *ctx)
-> +{
-> +       int ret;
-> +
-> +       if (!ctx->gpiod)
-> +               return 0;
-> +
-> +       dev_dbg(dev, "Setting GPIO\n");
-> +
-> +       ret =3D gpiod_direction_output_raw(ctx->gpiod, ctx->opts->gpio_hi=
-gh_to_enable ? 1 : 0);
-> +       if (ret)
-> +               return ret;
-> +
-> +       msleep(ctx->opts->post_reset_deassert_delay_ms);
+kernel test robot noticed the following build warnings:
 
-Like in the previous patch, you need an "if
-(ctx->opts->post_reset_deassert_delay_ms)" before the msleep().
+[auto build test WARNING on andi-shyti/i2c/i2c-host]
+[also build test WARNING on linus/master v6.11-rc7]
+[cannot apply to next-20240913]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Andy-Shevchenko/i2c-isch-Add-missed-else/20240912-002224
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git i2c/i2c-host
+patch link:    https://lore.kernel.org/r/20240911154820.2846187-5-andriy.shevchenko%40linux.intel.com
+patch subject: [PATCH v1 04/12] i2c: isch: Switch to memory mapped IO accessors
+config: i386-buildonly-randconfig-001-20240913 (https://download.01.org/0day-ci/archive/20240914/202409140743.kKVc8T3C-lkp@intel.com/config)
+compiler: clang version 18.1.8 (https://github.com/llvm/llvm-project 3b5b5c1ec4a3095ab096dd780e84d7ab81f3d7ff)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20240914/202409140743.kKVc8T3C-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202409140743.kKVc8T3C-lkp@intel.com/
+
+All warnings (new ones prefixed by >>):
+
+>> drivers/i2c/busses/i2c-isch.c:296:32: warning: format specifies type 'unsigned int' but the argument has type 'resource_size_t' (aka 'unsigned long long') [-Wformat]
+     296 |                 "SMBus SCH adapter at %04x", res->start);
+         |                                       ~~~~   ^~~~~~~~~~
+         |                                       %04llx
+   1 warning generated.
 
 
-> +static void i2c_of_probe_simple_disable_gpio(struct device *dev, struct =
-i2c_of_probe_simple_ctx *ctx)
-> +{
-> +       if (!ctx->gpiod)
-> +               return;
-> +
-> +       dev_dbg(dev, "Setting GPIO to input\n");
-> +
-> +       gpiod_direction_input(ctx->gpiod);
+vim +296 drivers/i2c/busses/i2c-isch.c
 
-This is weird. Why set it to input?
+   276	
+   277	static int smbus_sch_probe(struct platform_device *dev)
+   278	{
+   279		struct resource *res;
+   280		int retval;
+   281	
+   282		res = platform_get_resource(dev, IORESOURCE_IO, 0);
+   283		if (!res)
+   284			return -EBUSY;
+   285	
+   286		sch_smba = devm_ioport_map(&dev->dev, res->start, resource_size(res));
+   287		if (!sch_smba) {
+   288			dev_err(&dev->dev, "SMBus region %pR already in use!\n", res);
+   289			return -EBUSY;
+   290		}
+   291	
+   292		/* set up the sysfs linkage to our parent device */
+   293		sch_adapter.dev.parent = &dev->dev;
+   294	
+   295		snprintf(sch_adapter.name, sizeof(sch_adapter.name),
+ > 296			"SMBus SCH adapter at %04x", res->start);
+   297	
+   298		retval = i2c_add_adapter(&sch_adapter);
+   299		if (retval)
+   300			sch_smba = NULL;
+   301	
+   302		return retval;
+   303	}
+   304	
 
-
-> @@ -347,6 +438,7 @@ int i2c_of_probe_simple_cleanup(struct device *dev, v=
-oid *data)
->  {
->         struct i2c_of_probe_simple_ctx *ctx =3D data;
->
-> +       i2c_of_probe_simple_disable_gpio(dev, ctx);
-
-Maybe add a comment before the GPIO call that it's a noop if we found
-something and i2c_of_probe_simple_free_res_early() was already called?
-Otherwise you need to read into the function to understand why this
-doesn't crash if the early call was made. To me, that makes the
-abstraction add confusion instead of simplifying things.
-
-
-> @@ -92,24 +93,33 @@ int i2c_of_probe_component(struct device *dev, const =
-struct i2c_of_probe_cfg *cf
->   * struct i2c_of_probe_simple_opts - Options for simple I2C component pr=
-ober callbacks
->   * @res_node_compatible: Compatible string of device node to retrieve re=
-sources from.
->   * @supply_name: Name of regulator supply.
-> + * @gpio_name: Name of GPIO.
-
-Talk about the fact that gpio_name can be NULL or an empty string and
-that they mean different things.
-
-
->   * @post_power_on_delay_ms: Delay in ms after regulators are powered on.=
- Passed to msleep().
-> + * @post_reset_deassert_delay_ms: Delay in ms after GPIOs are set. Passe=
-d to msleep().
-> + * @gpio_high_to_enable: %true if GPIO should be set to electrical high =
-to enable component.
-
-Now that you've added the GPIOs and more delays, the description of
-this structure needs to list exactly what the power sequence your
-simple functions assume.
-
-I would also say: given that you're providing a parameter anyway and
-you're giving the GPIO name, can you please move away from the "raw"
-values and move to "logical" values?
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
