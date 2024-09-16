@@ -1,50 +1,50 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E628F158DA0;
-	Mon, 16 Sep 2024 12:02:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB25E15957E;
+	Mon, 16 Sep 2024 12:02:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726488173; cv=none; b=hQPJY3rvRtmhCDpcjuV3LAQUeyBGLUiR8tpurTMQ1w1fBWN/nGkqNVfYuZlUGWDIp/eChRRkvlFnTvZH/K4GosM7VQCy+5eFvBrc3y4OBhtSL/Ztx7jeqlYMECpCtZiNEjG1StuMwzAJFcOuf04eo5CYKqHXLLVeb33fzwYCmxo=
+	t=1726488175; cv=none; b=mfnbluAu+I1hjTTdUx9mR3hhR2vVxMq1zIZFHalXDSbAz+sppXON+cGKrLLvGhIIiMJTzh2b34GyI0nsIbddhBpMkiAvZ8qlGkX9m4fyd1flV9PprGkZozCdkVquei6XD0ybS/GpnPzkVPVSLxzpxqhHBoMnzFHwOPXGTdJm3KE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726488173; c=relaxed/simple;
-	bh=WxtYlBGVCCxL+Las691qhrqx8d/+iyr6qXtIQAGc/Ic=;
+	s=arc-20240116; t=1726488175; c=relaxed/simple;
+	bh=MhAXVGI/Kzt0oL8qizf5tKDuT6I9gfAbGpp8ziDudqU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FgvJrpLe1A1uxgcuA//4nCEg4ONPFv4mq0g32cdkVrzu4W7JZol917Z3xM0wKpWVcj4N+B9y1wLT1LE7Ze2WaiTSAFNSj3Gh2QvFnBbHxSL/r6DKI+GIDk0miKZIhJpZmMuU+iEhaUR8Yc9b4XRaLThPLDSKtuvJLj1cWz5HpJk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HaVvNJGB; arc=none smtp.client-ip=192.198.163.7
+	 MIME-Version; b=MUtIB0M3yhN2XeiYGlx4BZ2w+XUrUlkMweFGHBP7Li8ckCcX1yPz5+0Ac7E1x0lV9Aon370d9T2iaGraUfD895VYsotiLcSVCKarSOV3JVSxov6hvpoeV1B1eobe14HXFt2DlaEPAQZY0nUgWaYXq0EoW22GiR0Uag/G7diOTnM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=UmWCXMuB; arc=none smtp.client-ip=192.198.163.7
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HaVvNJGB"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="UmWCXMuB"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1726488172; x=1758024172;
+  t=1726488174; x=1758024174;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=WxtYlBGVCCxL+Las691qhrqx8d/+iyr6qXtIQAGc/Ic=;
-  b=HaVvNJGBN50oi2JAlGSlegXmDBwcq6Zw0J2eackhXO/3dYgs2xaCIiQP
-   8Eq5lKfSEz0WYoyin6Lt7r6O4Hnn7huLF3+qbtahIvsBG6D0azSzVEDTb
-   s2nF2+j5XVHK0GiPecVjzmLq5IWwf1oRDI6+wKM79bUunR+DQ3w1ESLYv
-   vW9VcvulJwHMVbc2nqFteehZuu6D60YchxGtXOoup5lLV8XoqRClGqI5m
-   R+Y5nPMDZJUrn5SAmmZysD1lAVpk/laWKz6BlnnxT2iuzPCHsaTWMlL1J
-   Z0i/J5/M/o4nbxhX4Do7zUKIyrPd9XZt3oBQprU2Bn93C1nvjJZoiVKGL
+  bh=MhAXVGI/Kzt0oL8qizf5tKDuT6I9gfAbGpp8ziDudqU=;
+  b=UmWCXMuBxRVogJsXJCxfmryzBcfyfj2//7HNOuc3vZWfXbBTr6RcXhTi
+   If42wOjDuNFyKx7TwP6N7DB4uMVvzQGW0s4f/Q+DE5Kk76MO8ZufH+z+/
+   ZicejrCl3TO/+mac092pQz7GOvoJ9CcFbF2fEVW/PQUR1iFQfFt3TLRnH
+   o/5DLGjowXVPrva+08diWA2gETj/HoGwGiwPrKKyVkZ7MCuUfr+jK8E71
+   J/LnUdM/+Y+DecIlvr8DGUR6qObj0oySxRSRGlrb+b1VsWtDeRvjazjzV
+   pnE7Xp8SpOqHOcOyqsf7gClmbGxAbTTlbIe+qMkIO6MeBRXWPMKeaqFjI
    g==;
-X-CSE-ConnectionGUID: fyF7t7kzR+a6dTuU2kE8cA==
-X-CSE-MsgGUID: rNCrHRzORAWk1n6nuyhIiA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11196"; a="50725465"
+X-CSE-ConnectionGUID: KeGQESnSSyWV/5+ksNtgqA==
+X-CSE-MsgGUID: d664qhjXSNWwV7/mIHUpWw==
+X-IronPort-AV: E=McAfee;i="6700,10204,11196"; a="50725479"
 X-IronPort-AV: E=Sophos;i="6.10,233,1719903600"; 
-   d="scan'208";a="50725465"
+   d="scan'208";a="50725479"
 Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Sep 2024 05:02:41 -0700
-X-CSE-ConnectionGUID: oIHKOEOwRnO4a2ffpVE3BQ==
-X-CSE-MsgGUID: 1uBf27j1SnGh25yb0UNc1w==
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Sep 2024 05:02:44 -0700
+X-CSE-ConnectionGUID: EFF8sJwbQNyeKVH/6oEr/A==
+X-CSE-MsgGUID: hKnn7488QvC5IFtOeJKyqQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.10,233,1719903600"; 
-   d="scan'208";a="72939876"
+   d="scan'208";a="72939893"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmviesa003.fm.intel.com with ESMTP; 16 Sep 2024 05:02:40 -0700
+  by fmviesa003.fm.intel.com with ESMTP; 16 Sep 2024 05:02:42 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id AB6F03CB; Mon, 16 Sep 2024 15:02:38 +0300 (EEST)
+	id D94CD66C; Mon, 16 Sep 2024 15:02:38 +0300 (EEST)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Andi Shyti <andi.shyti@kernel.org>,
 	Wolfram Sang <wsa+renesas@sang-engineering.com>,
@@ -52,9 +52,9 @@ To: Andi Shyti <andi.shyti@kernel.org>,
 	linux-kernel@vger.kernel.org
 Cc: Jean Delvare <jdelvare@suse.com>,
 	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 01/11] i2c: isch: Pass pointer to struct i2c_adapter down
-Date: Mon, 16 Sep 2024 15:01:28 +0300
-Message-ID: <20240916120237.1385982-2-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 06/11] i2c: isch: Utilize temporary variable to hold device pointer
+Date: Mon, 16 Sep 2024 15:01:33 +0300
+Message-ID: <20240916120237.1385982-7-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.43.0.rc1.1336.g36b5255a03ac
 In-Reply-To: <20240916120237.1385982-1-andriy.shevchenko@linux.intel.com>
 References: <20240916120237.1385982-1-andriy.shevchenko@linux.intel.com>
@@ -66,143 +66,66 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-There are a lot of messaging calls that use global variable of
-struct i2c_adapter. Instead, to make code better and flexible
-for further improvements, pass the pointer to the actual adapter
-used for transfers.
+Introduce a temporary variable to hold a device pointer.
+It can be utilized in the ->probe() and save a bit of LoCs.
+To make it consistent, rename currently used dev to pdev.
+
+While at it, convert the only error message to dev_err_probe().
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-isch.c | 53 +++++++++++++++--------------------
- 1 file changed, 23 insertions(+), 30 deletions(-)
+ drivers/i2c/busses/i2c-isch.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-isch.c b/drivers/i2c/busses/i2c-isch.c
-index f59158489ad9..96ee73fe6e81 100644
+index d752f822b52e..d0098b7139a0 100644
 --- a/drivers/i2c/busses/i2c-isch.c
 +++ b/drivers/i2c/busses/i2c-isch.c
-@@ -55,14 +55,15 @@ MODULE_PARM_DESC(backbone_speed, "Backbone speed in kHz, (default = 33000)");
-  * and this function will execute it.
-  * return 0 for success and others for failure.
-  */
--static int sch_transaction(void)
-+static int sch_transaction(struct i2c_adapter *adap)
+@@ -270,27 +270,26 @@ static const struct i2c_algorithm smbus_algorithm = {
+ 	.functionality	= sch_func,
+ };
+ 
+-static int smbus_sch_probe(struct platform_device *dev)
++static int smbus_sch_probe(struct platform_device *pdev)
  {
- 	int temp;
- 	int result = 0;
- 	int retries = 0;
++	struct device *dev = &pdev->dev;
+ 	struct sch_i2c *priv;
+ 	struct resource *res;
  
--	dev_dbg(&sch_adapter.dev, "Transaction (pre): CNT=%02x, CMD=%02x, "
--		"ADD=%02x, DAT0=%02x, DAT1=%02x\n", inb(SMBHSTCNT),
-+	dev_dbg(&adap->dev,
-+		"Transaction (pre): CNT=%02x, CMD=%02x, ADD=%02x, DAT0=%02x, DAT1=%02x\n",
-+		inb(SMBHSTCNT),
- 		inb(SMBHSTCMD), inb(SMBHSTADD), inb(SMBHSTDAT0),
- 		inb(SMBHSTDAT1));
+-	priv = devm_kzalloc(&dev->dev, sizeof(*priv), GFP_KERNEL);
++	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
+ 	if (!priv)
+ 		return -ENOMEM;
  
-@@ -70,19 +71,14 @@ static int sch_transaction(void)
- 	temp = inb(SMBHSTSTS) & 0x0f;
- 	if (temp) {
- 		/* Can not be busy since we checked it in sch_access */
--		if (temp & 0x01) {
--			dev_dbg(&sch_adapter.dev, "Completion (%02x). "
--				"Clear...\n", temp);
--		}
--		if (temp & 0x06) {
--			dev_dbg(&sch_adapter.dev, "SMBus error (%02x). "
--				"Resetting...\n", temp);
--		}
-+		if (temp & 0x01)
-+			dev_dbg(&adap->dev, "Completion (%02x). Clear...\n", temp);
-+		if (temp & 0x06)
-+			dev_dbg(&adap->dev, "SMBus error (%02x). Resetting...\n", temp);
- 		outb(temp, SMBHSTSTS);
- 		temp = inb(SMBHSTSTS) & 0x0f;
- 		if (temp) {
--			dev_err(&sch_adapter.dev,
--				"SMBus is not ready: (%02x)\n", temp);
-+			dev_err(&adap->dev, "SMBus is not ready: (%02x)\n", temp);
- 			return -EAGAIN;
- 		}
- 	}
-@@ -97,31 +93,30 @@ static int sch_transaction(void)
+-	res = platform_get_resource(dev, IORESOURCE_IO, 0);
++	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
+ 	if (!res)
+ 		return -EBUSY;
  
- 	/* If the SMBus is still busy, we give up */
- 	if (retries > MAX_RETRIES) {
--		dev_err(&sch_adapter.dev, "SMBus Timeout!\n");
-+		dev_err(&adap->dev, "SMBus Timeout!\n");
- 		result = -ETIMEDOUT;
- 	} else if (temp & 0x04) {
- 		result = -EIO;
--		dev_dbg(&sch_adapter.dev, "Bus collision! SMBus may be "
--			"locked until next hard reset. (sorry!)\n");
-+		dev_dbg(&adap->dev, "Bus collision! SMBus may be locked until next hard reset. (sorry!)\n");
- 		/* Clock stops and target is stuck in mid-transmission */
- 	} else if (temp & 0x02) {
- 		result = -EIO;
--		dev_err(&sch_adapter.dev, "Error: no response!\n");
-+		dev_err(&adap->dev, "Error: no response!\n");
- 	} else if (temp & 0x01) {
--		dev_dbg(&sch_adapter.dev, "Post complete!\n");
-+		dev_dbg(&adap->dev, "Post complete!\n");
- 		outb(temp, SMBHSTSTS);
- 		temp = inb(SMBHSTSTS) & 0x07;
- 		if (temp & 0x06) {
- 			/* Completion clear failed */
--			dev_dbg(&sch_adapter.dev, "Failed reset at end of "
--				"transaction (%02x), Bus error!\n", temp);
-+			dev_dbg(&adap->dev,
-+				"Failed reset at end of transaction (%02x), Bus error!\n", temp);
- 		}
- 	} else {
- 		result = -ENXIO;
--		dev_dbg(&sch_adapter.dev, "No such address.\n");
-+		dev_dbg(&adap->dev, "No such address.\n");
- 	}
--	dev_dbg(&sch_adapter.dev, "Transaction (post): CNT=%02x, CMD=%02x, "
--		"ADD=%02x, DAT0=%02x, DAT1=%02x\n", inb(SMBHSTCNT),
-+	dev_dbg(&adap->dev, "Transaction (post): CNT=%02x, CMD=%02x, ADD=%02x, DAT0=%02x, DAT1=%02x\n",
-+		inb(SMBHSTCNT),
- 		inb(SMBHSTCMD), inb(SMBHSTADD), inb(SMBHSTDAT0),
- 		inb(SMBHSTDAT1));
- 	return result;
-@@ -143,7 +138,7 @@ static s32 sch_access(struct i2c_adapter *adap, u16 addr,
- 	/* Make sure the SMBus host is not busy */
- 	temp = inb(SMBHSTSTS) & 0x0f;
- 	if (temp & 0x08) {
--		dev_dbg(&sch_adapter.dev, "SMBus busy (%02x)\n", temp);
-+		dev_dbg(&adap->dev, "SMBus busy (%02x)\n", temp);
- 		return -EAGAIN;
- 	}
- 	temp = inw(SMBHSTCLK);
-@@ -154,13 +149,11 @@ static s32 sch_access(struct i2c_adapter *adap, u16 addr,
- 		 * 100 kHz. If we actually run at 25 MHz the bus will be
- 		 * run ~75 kHz instead which should do no harm.
- 		 */
--		dev_notice(&sch_adapter.dev,
--			"Clock divider uninitialized. Setting defaults\n");
-+		dev_notice(&adap->dev, "Clock divider uninitialized. Setting defaults\n");
- 		outw(backbone_speed / (4 * 100), SMBHSTCLK);
- 	}
+-	priv->smba = devm_ioport_map(&dev->dev, res->start, resource_size(res));
+-	if (!priv->smba) {
+-		dev_err(&dev->dev, "SMBus region %pR already in use!\n", res);
+-		return -EBUSY;
+-	}
++	priv->smba = devm_ioport_map(dev, res->start, resource_size(res));
++	if (!priv->smba)
++		return dev_err_probe(dev, -EBUSY, "SMBus region %pR already in use!\n", res);
  
--	dev_dbg(&sch_adapter.dev, "access size: %d %s\n", size,
--		(read_write)?"READ":"WRITE");
-+	dev_dbg(&adap->dev, "access size: %d %s\n", size, (read_write)?"READ":"WRITE");
- 	switch (size) {
- 	case I2C_SMBUS_QUICK:
- 		outb((addr << 1) | read_write, SMBHSTADD);
-@@ -205,10 +198,10 @@ static s32 sch_access(struct i2c_adapter *adap, u16 addr,
- 		dev_warn(&adap->dev, "Unsupported transaction %d\n", size);
- 		return -EOPNOTSUPP;
- 	}
--	dev_dbg(&sch_adapter.dev, "write size %d to 0x%04x\n", size, SMBHSTCNT);
-+	dev_dbg(&adap->dev, "write size %d to 0x%04x\n", size, SMBHSTCNT);
- 	outb((inb(SMBHSTCNT) & 0xb0) | (size & 0x7), SMBHSTCNT);
+ 	/* set up the sysfs linkage to our parent device */
+-	priv->adapter.dev.parent = &dev->dev;
++	priv->adapter.dev.parent = dev;
+ 	priv->adapter.owner = THIS_MODULE,
+ 	priv->adapter.class = I2C_CLASS_HWMON,
+ 	priv->adapter.algo = &smbus_algorithm,
+@@ -298,7 +297,7 @@ static int smbus_sch_probe(struct platform_device *dev)
+ 	snprintf(priv->adapter.name, sizeof(priv->adapter.name),
+ 		 "SMBus SCH adapter at %04x", (unsigned short)res->start);
  
--	rc = sch_transaction();
-+	rc = sch_transaction(adap);
- 	if (rc)	/* Error in transaction */
- 		return rc;
+-	return devm_i2c_add_adapter(&dev->dev, &priv->adapter);
++	return devm_i2c_add_adapter(dev, &priv->adapter);
+ }
  
+ static struct platform_driver smbus_sch_driver = {
 -- 
 2.43.0.rc1.1336.g36b5255a03ac
 
