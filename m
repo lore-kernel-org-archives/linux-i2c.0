@@ -1,92 +1,99 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95AAE1598EE;
-	Mon, 16 Sep 2024 12:02:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ABDD156F4C;
+	Mon, 16 Sep 2024 12:03:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1726488177; cv=none; b=SSxlwL8nudqc3Rau8Bwr/eXoeUcp3/gPMzXEUTJeRVVIxQeIDYaqgtYodnoaOaIfMyzvQRUeQcrvSLidlHMMZgeqgLafVVSgX4uB25AirUG70sanOsBgeCa+G50WO2Wx2MlmOEpOE+LmsP/bHg/eySjVnbO8M1r9lp/HqlODKJc=
+	t=1726488206; cv=none; b=P0Ru/vK1I5WFAzWfPS3WTrE2tArXpx6DmGAacDNo/tK/O45Ucio0PMEe7Ct0V+lGSKEBNWVBHYGBVz5fWvxSv1O3NxFXedBq+wt6RcbTn2auMtTTTQeeVHpsKRLneZ5QUaarLDFxpY+GQY5nLbEIQu7kZX16pAAS1RfesfCmnk8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1726488177; c=relaxed/simple;
-	bh=tYYLqHDhvAMug+JLroLRFL/8xmd21D9xE2RL7OIZZnE=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=nWgPwaoZVAWQ+ZcShNd7w6MwVeRPIHZpcR5sk91ogQTQ1iVEnSiaQON+/YDvI4ayFYQeJl8k1bIT4XADP3aoGP+7strlUB+00l7fZZzBZtEcl//3k6sLxOAvM9Z7zHMeE93NUDOAUow1XCwG9G8ydHXQ9up+q2Xi4svyP+O+Afw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=UCt4DuEM; arc=none smtp.client-ip=192.198.163.7
+	s=arc-20240116; t=1726488206; c=relaxed/simple;
+	bh=0sePlQ6v8SDrzxFHDtEPRg3gT5Tv1CqKdfBCdG5rw/s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=sNilYVhMcqBV8rik1vQgVlM60YtlPmTsgUAbkEhm7qCbzhgpodud43SC7zQ4ouWkyLNr7Uykn4QsVTdKUyMKDIOwbxJB2NfQlO80b+VLFNPkNFTuuwtcKzEtdGxeJ35v0c8V7/dmroTUKxuxL4GnBAUPpWwun99ejZTF6q/VBwc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ZO14zwsA; arc=none smtp.client-ip=192.198.163.18
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="UCt4DuEM"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ZO14zwsA"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1726488175; x=1758024175;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=tYYLqHDhvAMug+JLroLRFL/8xmd21D9xE2RL7OIZZnE=;
-  b=UCt4DuEMMHwbT/K5L865gApLZCZ2xnpaSivJYiXXf3iRmSLwHi+nk8TJ
-   sSiwa2sI0NSWT75YlhiQHySFXFfGul0jmE7hMEitXgqGsL1UUH+zzc60o
-   3PoUFLygFaCh88p6j6bDRnIScOAj+bpKm9Ql4QpWDSHk9QM+PT4I8Cliv
-   g+e7RYlDLx8+Kl2CyVnVpdNwNTRSU12y8HLVNg0mThQgCkPPw9JlAJlnY
-   AdTNFupYLtebZ3j7B1vTFCgmPry+jUmROhKhLuMSZ2XoDQwS30nsikNzu
-   kQEWQmOc1Uktb2tLMxmn+EDSXr6D45oPWawdbKN2tT9HZISe62IxLFDv9
-   Q==;
-X-CSE-ConnectionGUID: 5LcR1WvYQB+wska45n4Zog==
-X-CSE-MsgGUID: M6M9SKWeTui1vYSR7iTW8w==
-X-IronPort-AV: E=McAfee;i="6700,10204,11196"; a="50725488"
+  t=1726488206; x=1758024206;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=0sePlQ6v8SDrzxFHDtEPRg3gT5Tv1CqKdfBCdG5rw/s=;
+  b=ZO14zwsAlbnI+Lq7STlq+fcDNDebZfWLtJOvMoRqDu3DcnUPcd/zla17
+   NWoHFHqhcjPd5vxUysgBeQ01THs6+F9VAeOadqeH1TFvgm+HX1svuYMf3
+   sNAiGtv6eTgEUvTHq82/6EDuQtbOWHniUK1kxhJKFh2zvOGN8Sg0pEvFI
+   ZCeDpGXVD1AHpp05XUqFdddK8JdczxeJvsDQ1ALBLf58quMdV+asV0nlo
+   7s6L9TdzU1MWFfgabaJPqXH3bLY7yu/QDRU4p7NC2GHQTTep+4G7N1upX
+   CQzPKNXMj0xSHPYHp60z9Q1CoKl8O9QXA+/c007dCeSN7JloIZJlIk9DZ
+   g==;
+X-CSE-ConnectionGUID: 75yP99IQS263ZdACdkup5A==
+X-CSE-MsgGUID: CsapTDD+T66RyhfeupyypA==
+X-IronPort-AV: E=McAfee;i="6700,10204,11196"; a="24794233"
 X-IronPort-AV: E=Sophos;i="6.10,233,1719903600"; 
-   d="scan'208";a="50725488"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Sep 2024 05:02:44 -0700
-X-CSE-ConnectionGUID: hUFkAKh2S4Ga7KZ32PoM7A==
-X-CSE-MsgGUID: HUEW9ShXSAOy3NIN7Xjw2g==
+   d="scan'208";a="24794233"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Sep 2024 05:03:25 -0700
+X-CSE-ConnectionGUID: 2NPTtz0FRT+IiDPT9K5Qvg==
+X-CSE-MsgGUID: UR0g2S9DS6OTn5/rndSTXA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.10,233,1719903600"; 
-   d="scan'208";a="72939897"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by fmviesa003.fm.intel.com with ESMTP; 16 Sep 2024 05:02:42 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id 1335E708; Mon, 16 Sep 2024 15:02:39 +0300 (EEST)
+   d="scan'208";a="73221867"
+Received: from smile.fi.intel.com ([10.237.72.54])
+  by fmviesa005.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Sep 2024 05:03:23 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.98)
+	(envelope-from <andriy.shevchenko@linux.intel.com>)
+	id 1sqARs-00000009RtK-3CxY;
+	Mon, 16 Sep 2024 15:03:20 +0300
+Date: Mon, 16 Sep 2024 15:03:20 +0300
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Andi Shyti <andi.shyti@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Jean Delvare <jdelvare@suse.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v2 10/11] i2c: isch: Prefer to use octal permission
-Date: Mon, 16 Sep 2024 15:01:37 +0300
-Message-ID: <20240916120237.1385982-11-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.43.0.rc1.1336.g36b5255a03ac
-In-Reply-To: <20240916120237.1385982-1-andriy.shevchenko@linux.intel.com>
-References: <20240916120237.1385982-1-andriy.shevchenko@linux.intel.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: kernel test robot <lkp@intel.com>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, oe-kbuild-all@lists.linux.dev,
+	Jean Delvare <jdelvare@suse.com>
+Subject: Re: [PATCH v1 04/12] i2c: isch: Switch to memory mapped IO accessors
+Message-ID: <ZugeiJ96VHwg-pl0@smile.fi.intel.com>
+References: <20240911154820.2846187-5-andriy.shevchenko@linux.intel.com>
+ <202409141436.QFCDQrRF-lkp@intel.com>
+ <Zuf1UJ6K_8hL5x5U@smile.fi.intel.com>
+ <leoyop42s4qmaytvwhwhpgfwfrkpm2xxabskz645r337jdjfml@zg5ql73tqidk>
+ <ZugI2NCtaWKgcgh5@smile.fi.intel.com>
+ <uikfb52qduifmhnlkc43tgvmw2ok67eclqpokyrkp7sftetz3v@bs64p6aga6s3>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <uikfb52qduifmhnlkc43tgvmw2ok67eclqpokyrkp7sftetz3v@bs64p6aga6s3>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 
-Octal permissions are preferred over the symbolics ones
-for readbility. This ceases warning message pointed by checkpatch.
+On Mon, Sep 16, 2024 at 01:58:06PM +0200, Andi Shyti wrote:
+> On Mon, Sep 16, 2024 at 01:30:48PM GMT, Andy Shevchenko wrote:
+> > On Mon, Sep 16, 2024 at 12:10:32PM +0200, Andi Shyti wrote:
+> > > On Mon, Sep 16, 2024 at 12:07:28PM GMT, Andy Shevchenko wrote:
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/busses/i2c-isch.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+...
 
-diff --git a/drivers/i2c/busses/i2c-isch.c b/drivers/i2c/busses/i2c-isch.c
-index 1a18a276a857..b2857e8e1c58 100644
---- a/drivers/i2c/busses/i2c-isch.c
-+++ b/drivers/i2c/busses/i2c-isch.c
-@@ -49,7 +49,7 @@ struct sch_i2c {
- };
- 
- static int backbone_speed = 33000; /* backbone speed in kHz */
--module_param(backbone_speed, int, S_IRUSR | S_IWUSR);
-+module_param(backbone_speed, int, 0600);
- MODULE_PARM_DESC(backbone_speed, "Backbone speed in kHz, (default = 33000)");
- 
- static inline u8 sch_io_rd8(struct sch_i2c *priv, unsigned int offset)
+> > > Feel free to send it, I will apply it in i2c/i2c-host-for-6.12,
+> > > that's where I'm collecting the next patches.
+> > 
+> > But I believe it's a material for v6.13, no?
+> 
+> yes, I gave it the wrong name :-)
+> I renamed it now to i2c/i2c-host-for-6.13(*).
+> 
+> But it doesn't matter. It will become the next i2c/i2c-host after
+> Linus has taken the actual for-6.12 patches into mainline.
+
+v2 has just been sent out.
+
 -- 
-2.43.0.rc1.1336.g36b5255a03ac
+With Best Regards,
+Andy Shevchenko
+
 
