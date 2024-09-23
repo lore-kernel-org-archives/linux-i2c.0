@@ -1,80 +1,134 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C761219C571;
-	Mon, 23 Sep 2024 15:10:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89A4B1A28D
+	for <linux-i2c@vger.kernel.org>; Mon, 23 Sep 2024 19:12:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727104213; cv=none; b=oX/Z4U9wIBKHKrkZcKk9QwjHT6KQ3lJwLwd9RGi9HeP4QSXoZnkJgy7tC++C9vOh1flqOaMICvP+7BWwZm79ssNR63+hyJyrJWsrKa00pgrLT28XIHOjIH10W77Wp7PFoRZ2zwIfO3lODKkCWbarr0a+P7nEnH5PqX2HMBIbwOM=
+	t=1727118746; cv=none; b=fGHqtpaxYlLyfSFXe3vVMP2szN4rM3yfmsanmstyRMkGwRZIswn1CLDNzTdU1fZr8q9xc6cJUVubmd2odpPQhZdYB+lx6nL44bgPxak2S6aMJYdLQdw8rQL14d6T+sLjAcASOnUZ9U0s/W5NFglEQgrtLbLCeFq+gbrtKFoM2+Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727104213; c=relaxed/simple;
-	bh=7IbJ9X8jlsiu83Vo3Odh/vec0KfgUjxs76ByJvX40F0=;
+	s=arc-20240116; t=1727118746; c=relaxed/simple;
+	bh=xf364lZIbnjp5yXv/kYTrKS69WYtJ5dXPHV7dU2ANQM=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uJ5GF3IP9d2SEmg1MQ20y4BA45IaGozvilPN82AE4t1l4G2tptirkOeSde/ojZu0Yvq8LArjhGPvYXLmJlvz14LjYAgmdFyatjWXEV9UUQscznMINr7BAx/EQjWsdMlmsYPpoZe2ljlCkRie56oyH3pcMiq31oRjDkXO7TbkJuI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qVXxiMb4; arc=none smtp.client-ip=10.30.226.201
+	 To:Cc:Content-Type; b=b8yGUzI1Zz8+fIZQ8iH44UZ8+lrW+ITX1yPgW45uE/2+AAjMLBZSX9L9I5/J/DnkCa1xshkfZlNufE0kEupLSxQivZHohBD7cQRpGB5KLLCOziHYYdIcPF0uqzZo8Bv1mnm1U1kxwT3MBqR6o9qMOKftrg/RcDD+yWcaNIJ05Zs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=Ud/wCCEk; arc=none smtp.client-ip=209.85.221.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qVXxiMb4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 477F6C4CEC4;
-	Mon, 23 Sep 2024 15:10:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1727104213;
-	bh=7IbJ9X8jlsiu83Vo3Odh/vec0KfgUjxs76ByJvX40F0=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=qVXxiMb4PaRjS1l3/arjX2jOfUWEN2yIU5IiQouFhj0pjgCFbCBRiG9CfSbb4IDjr
-	 GFmMxv8c/gV9aC9cppDOvOL+OGJUC8G/pqABMdFsvRL14Z2Fqn6ucUxzn1q9wNEVL+
-	 ccZs0OTG7vh3Cg/X2H3aGq+qF+5OAi4q2rmSVQgyOmeq28f1tONPI9NFHvRVx/jSCJ
-	 XHapbysHMqF1BKhPeeAXxcyuVWFThQAXhsOpnZNF52sq9tRIIP/y7FElZJFAT5+aeo
-	 FE/nZ1gdCtv3Mw1BhkbyC/vuV2tHMIOPSOOHYL1SINJnddpijqvv82dFaKQxxbeccp
-	 Z/zJHjMxi7L6g==
-Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-5366fd6fdf1so368225e87.0;
-        Mon, 23 Sep 2024 08:10:13 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCVX1+t7wFcUubNN8jGDVLR4Hr0aFzMZ5ixL8cVPEg7GKtEjvfm6QDTMsMunVpO0iTStQv+vWM3uvXo=@vger.kernel.org, AJvYcCXnbpxgCGmX3TZQafWyJ/Ycpt0uqnA3IyCVi3ER4lQDO4CGlemkgGjj64KlnPo1OcKuJridnVvB@vger.kernel.org
-X-Gm-Message-State: AOJu0YzMgOrzJeJ5ZBMUGL0ARXTjeYB/s+5EO8+ovdJTAHYDXpepm1QS
-	ofs745rJPsiLD078VjS4DFEHs7BSjFLVp8GKR3d3jc+79/vWygFsdzsKQFuabSANnCnNWbsJ65h
-	G320cDZNmXihtKk3dZ0pXXPcC7Fw=
-X-Google-Smtp-Source: AGHT+IE5neW3typpBkpgHcLxCN0BxMOXymMuWGOe6oO7KDaWQjK5Q5O+mCotgtKvyqMfcG0mUBs4dVla8CkNi9nEcuc=
-X-Received: by 2002:a05:6512:b29:b0:530:ab86:3 with SMTP id
- 2adb3069b0e04-536acf6b6b0mr5581347e87.1.1727104211668; Mon, 23 Sep 2024
- 08:10:11 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="Ud/wCCEk"
+Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-374c4c6cb29so4696556f8f.3
+        for <linux-i2c@vger.kernel.org>; Mon, 23 Sep 2024 12:12:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1727118741; x=1727723541; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=FTdpdNtDHKc5MwXK6gfkOgHrOXbWdY15It+qZL/P+lM=;
+        b=Ud/wCCEkHuYwvqa0kKHbjJyhFJyGDLKiyKG/6OP9/SjHvoR6p34t/lG4xdJb136ZJD
+         rrEUMEkf9y3KDU4GKxGV+vvbvZ+1sXSsMyGhYNkJURi9dHVR4CeisukpMHGPv5NE8iYU
+         530AwrSWpKftMFbPfBOVLa3KYO202Vd8tgSGE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727118741; x=1727723541;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=FTdpdNtDHKc5MwXK6gfkOgHrOXbWdY15It+qZL/P+lM=;
+        b=I7GsP0eEUfp7IK8VWCeFrsTHQ2w483/VBxRXvCbyrdyxdjC5KtvgBO1dVotO6OeV4d
+         KUGnjvUyUAMBFmR5ZD1rgjl7G0JZ40QO8/sBO5idSZprZVyJ0ka2dAg+5MVBGR21lT8R
+         emZipEeUdxprmUdDUOrvAN9XSJqERx1rn9Tr5Oy/fXBr6bSULnqVsPT2LcTHyR3+Nwhy
+         jwueGRW4e5RBXSWiESm/PVszs35uKfrrd0XstDLtoHO7nd4qxIRZznEYd5UJM5SSQ4Ih
+         WnmdjxpASp3I3XdtVZNBWfRB42fc0AvdVh9g+PSjHFGXDSPwNBtRxkXKwyBFQ/P9MQ5J
+         ZdDg==
+X-Forwarded-Encrypted: i=1; AJvYcCUYwXeUvtrnhuz1gYOpnSDJIL1bTRPwOCJMYESr+17cI8p1ON/0VsVLN8jx2jppI2E0skUplWs9+Z4=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzgRxNlVuHhSZNFm2bZ/rrtOCbGemiYdPyk0yk+rGgEuUu6W3+u
+	o9nth3a9qt5iDCpWxIfexfLLLtfR++a2Njgah+rkhgqH3HDoxEcllU6gxPPk/oMdb04cVNnNwQQ
+	9oQ==
+X-Google-Smtp-Source: AGHT+IHjc5ZLZhZO4yqODQfWgu8dTczDRkwNxYxeF24WjbzoHSIrJ2b6845temH7KCaPhLrQvd3TNA==
+X-Received: by 2002:adf:f64e:0:b0:371:8dd3:27c8 with SMTP id ffacd0b85a97d-37a42279eb8mr11620314f8f.23.1727118740939;
+        Mon, 23 Sep 2024 12:12:20 -0700 (PDT)
+Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com. [209.85.221.42])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a90612df5cfsm1285136766b.146.2024.09.23.12.12.19
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 23 Sep 2024 12:12:19 -0700 (PDT)
+Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-378c16a4d3eso5126082f8f.1
+        for <linux-i2c@vger.kernel.org>; Mon, 23 Sep 2024 12:12:19 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCXExTWxJSRO6Hg6wEcmt8rfLryviFXjJYz61ocuLbXxl5Raaio0DxoZ58WPGjhxbnQFu6SxjAcQSSU=@vger.kernel.org
+X-Received: by 2002:a5d:4741:0:b0:374:c6b8:50b5 with SMTP id
+ ffacd0b85a97d-37a422783aamr9933862f8f.17.1727118739230; Mon, 23 Sep 2024
+ 12:12:19 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20240912104630.1868285-2-ardb+git@google.com> <dmwsrw6mwt3zsksxxb35qokhtf3setobeybhd34w52typxx4ld@zbjvamsqwfxt>
-In-Reply-To: <dmwsrw6mwt3zsksxxb35qokhtf3setobeybhd34w52typxx4ld@zbjvamsqwfxt>
-From: Ard Biesheuvel <ardb@kernel.org>
-Date: Mon, 23 Sep 2024 17:10:00 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXFiYC_h_qmnOf0Vp76-hvfKcG8Z62tx-bhTKB2mj2ULaA@mail.gmail.com>
-Message-ID: <CAMj1kXFiYC_h_qmnOf0Vp76-hvfKcG8Z62tx-bhTKB2mj2ULaA@mail.gmail.com>
-Subject: Re: [PATCH] i2c/synquacer: Deal with optional PCLK correctly
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Ard Biesheuvel <ardb+git@google.com>, linux-i2c@vger.kernel.org, stable@vger.kernel.org, 
-	Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+References: <20240911072751.365361-1-wenst@chromium.org> <20240911072751.365361-9-wenst@chromium.org>
+ <CAD=FV=XvPA0UC87fQ+RvFzPv9qRSEP6eQhT79JOx9Arj87i9Mg@mail.gmail.com> <CAGXv+5EcxGfdzvarg8hmk1zR9X0s8KUzayQdxfWTrasEGpj=1g@mail.gmail.com>
+In-Reply-To: <CAGXv+5EcxGfdzvarg8hmk1zR9X0s8KUzayQdxfWTrasEGpj=1g@mail.gmail.com>
+From: Doug Anderson <dianders@chromium.org>
+Date: Mon, 23 Sep 2024 12:11:49 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=Wv1uFmxFsaxT9tY=-fwnPsXDjnabNxQ-cK3hm2a9Wo7A@mail.gmail.com>
+Message-ID: <CAD=FV=Wv1uFmxFsaxT9tY=-fwnPsXDjnabNxQ-cK3hm2a9Wo7A@mail.gmail.com>
+Subject: Re: [PATCH v7 08/10] i2c: of-prober: Add GPIO support to simple helpers
+To: Chen-Yu Tsai <wenst@chromium.org>
+Cc: Rob Herring <robh@kernel.org>, Saravana Kannan <saravanak@google.com>, 
+	Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Wolfram Sang <wsa@kernel.org>, 
+	Benson Leung <bleung@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>, 
+	Mark Brown <broonie@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
+	chrome-platform@lists.linux.dev, devicetree@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>, 
+	Jiri Kosina <jikos@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
+	linux-i2c@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 20 Sept 2024 at 11:03, Andi Shyti <andi.shyti@kernel.org> wrote:
->
-> Hi Ard,
->
-> On Thu, Sep 12, 2024 at 12:46:31PM GMT, Ard Biesheuvel wrote:
-> > From: Ard Biesheuvel <ardb@kernel.org>
-> >
-> > ACPI boot does not provide clocks and regulators, but instead, provides
-> > the PCLK rate directly, and enables the clock in firmware. So deal
-> > gracefully with this.
-> >
-> > Fixes: 55750148e559 ("i2c: synquacer: Fix an error handling path in synquacer_i2c_probe()")
-> > Cc: <stable@vger.kernel.org>
-> > Cc: Andi Shyti <andi.shyti@kernel.org>
-> > Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-> > Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
->
-> I'm sorry for the delay, but I needed to wait for the previous
-> batch of fixes to be merged.
->
-> Merged to i2c/i2c-host-next.
->
+Hi,
 
-Thanks. No need to treat it with urgency on my behalf.
+On Tue, Sep 17, 2024 at 5:41=E2=80=AFAM Chen-Yu Tsai <wenst@chromium.org> w=
+rote:
+>
+> > > +static void i2c_of_probe_simple_disable_gpio(struct device *dev, str=
+uct i2c_of_probe_simple_ctx *ctx)
+> > > +{
+> > > +       if (!ctx->gpiod)
+> > > +               return;
+> > > +
+> > > +       dev_dbg(dev, "Setting GPIO to input\n");
+> > > +
+> > > +       gpiod_direction_input(ctx->gpiod);
+> >
+> > This is weird. Why set it to input?
+>
+> It seemed to me this would be more like the initial state, without knowin=
+g
+> the actual initial state.
+
+In this case, though, you're trying to turn off the resource, not
+trying to get back to the initial state. IMO deasserting the GPIO is
+the way to do this. If the output needs to make it an input in this
+case then it can use some type of open drain mode.
+
+
+> > I would also say: given that you're providing a parameter anyway and
+> > you're giving the GPIO name, can you please move away from the "raw"
+> > values and move to "logical" values?
+>
+> I disagree. When hardware engineers design for swappable components, they
+> likely look at the electrical compatibility of them. In this case, an
+> active-high "enable" pin is electrically compatible with an active-low
+> "reset" pin. If we use the logical value here, then we would need more
+> logic to know when the logical polarity has to be reversed.
+>
+> Note that this doesn't work for components that are electrically
+> incompatible. But in that case a lot more board dependent code would be
+> needed anyway.
+
+As we talked about in person, that made sense in the previous version
+of the patch where you were looking for all GPIOs willy-nilly. Now
+you'll be specifically asking for a GPIO by name and we should honor
+the "active high" or "active low" nature of it.
+
+-Doug
