@@ -1,46 +1,46 @@
-Received: from NAM11-BN8-obe.outbound.protection.outlook.com (mail-bn8nam11on2085.outbound.protection.outlook.com [40.107.236.85])
+Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam02on2041.outbound.protection.outlook.com [40.107.95.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 445AB2AE96
-	for <linux-i2c@vger.kernel.org>; Mon, 23 Sep 2024 08:05:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.236.85
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3D083C485
+	for <linux-i2c@vger.kernel.org>; Mon, 23 Sep 2024 08:05:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.95.41
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727078743; cv=fail; b=qBm6yoorJTxONql9JcawOwbq5bYtKUIhfEG3+HFHfCfKHRrEsfVNr9IRI1/h4BwRmZcT4euEhM0skIm9pUrruXN/P+Ey0Ov6h92O/XY+YhlpvV2SKd0mr4kbFXnBb/1t8P87Y5VLS0czxDtcgmnc/6wP8lB4CzMQSIcU58+m3Aw=
+	t=1727078743; cv=fail; b=Q62ci8+bhrewV9/Sh3PBHMl9rsF8/ZMyQ/f4lVjyiBvqj4ItKb+VyJGEg7DLVDbZmx//C2UYWWB2xnOOaujpAEuSAbXQSpj5fVKGfWJXJlhVYE6rFeYIemol03VK+FgDG4JS+Bz/10mjITC2vvUuSAwdSm0tS0rCAMunzPhYoLA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1727078743; c=relaxed/simple;
-	bh=FdXQ8xGtNzez4PNr/veR1I48iinOgzYmSShUYNSz9j0=;
+	bh=pSx2mcnBADHmOElkL8YFEg3dmmDMiDqdwyTH8qFgopM=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=jb+rQja74abRftbGscuxrmV99BXgSpXHIvJMCN8iVeQMQyXLvupdi4FfhVOvOCc4H5jTKV4IUd2N5ATspAUK00gi/L2m24lFh4m5vmm6zYczSr1URKjurgNslLOywas31Dj5MheFYIFfaZpMxVJb2oLxTCAQgIY8a06nTeoea6w=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=tjrMogpJ; arc=fail smtp.client-ip=40.107.236.85
+	 MIME-Version:Content-Type; b=DONo8vlhEZDYtHZ1lrXCNwN8tfeht761HTSfdSVkp3QNSaJgccaIsreP8/1GcrAvQwPdPdgiiu58Z2muDhD2FFTVve9EF2A376AQ9rXA/p21FwBjsQ8Dd1eEXt9fLn4zM7K/s8UteT9IxOsRitZ1wy/GpN2ArEt7xSvSATciy+4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=I1uSyEEj; arc=fail smtp.client-ip=40.107.95.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="tjrMogpJ"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="I1uSyEEj"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=tDIGXXKKRFJAJeApNT/+eBvjWIbyF86hRrKJFPpmb+VaJobZr01My4Cl/VV5/rqtN3eQ16/EU7Ozr0e8wLqoeNg9YXchL1Il5n53xxZqmeow5UOyywMLJwoBvuZGUchFAd6OSbcpxoy0cbAzeiCNeLBKjRa+WfuR+QvxeHfS0lI5QzrdNE5Dam3pD7iyacEgvs2lS6eirsAFpTE7PxDlgyqRBQfcnYd1G8yodnsflR0OoyOE7WoW6EIkQTGGjxCVD7AEfij+zsYw4Y8pJKVenzgjr77HfMIG+eZ9KnrJG6IOUoRvc6J5C+4wpuXzqAeAcNPawFgYAjvDWinOufeuBw==
+ b=xoj91gAbUAjyJSOWccP39iJvWKzfY2HEhjCp+tN4zdZXf3nOrSukQROaz/dnh1y9UW03kqytTgziyRzWGej9zwNMyLXjm0Bjof/Xaq/RFJR6y5hJDWSdMI2hO6Lh84/oxDbjqQpxyUyq+kXsDD3gqIU/N190B9hILVLwX8kavmFkzwQQCy3HV4zDUHTwdcKKO6hSWHZSU7S3+gZTFPREIXUlEZtzBHJY3nclqQESRtfjENFWpbnR6sEaDBsT0SuFjLX1fuPAeWKKF/OBsFsP0naeNd2akJqXqL8BKUbvBsU7ViWux/Jb1zOMHIXp60TeO/5RLsXLOTM5PwiBdHafrQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=eajFIDukOwiWMX21f4IkTRQC4c2eGYsVVIevBvTMBZQ=;
- b=MKL5z1P1q1P5D9SP1+VI8awBRgf4mCz6tyyXtWfwCk6+v5PCoXl9wCfxFxVeGJo0UJIp+bbCWdrzkGar9tJzFF75CRydaPT/xG3wW8mnMnA0Ihe6iok6D2uYcDH7Ty29+U/dlIkxDSdnVGYY9Y0a/yF++VSplygxXRWw0vHfW6mIv1GPJuSxnElzYlMMxedlxfAPxwL43G/C5NWV0VHDcn0O23BbKxrApjP1EPWNd4WvfOmCanjseNGTXnm2mfYAE/7S5WGkYIKr07M1nlbuUNCrgJYx7PwytdslxTJXSaLNlMZhfUB1Gqz5T1Yx3QF+u42cN/uYjKWecIxFBwz0RA==
+ bh=WN9v5KIfIIBpwZbyFCB/2EIg7x+vcV5P4609Y+O8vps=;
+ b=xLsyQi61Pyvi9cYf7PFUUjQr8pUzxnAqnlYzTr8gHFZ1QLRVrnkoB8sDfdatSWYuNeOVsGVoM09OxPTrVfPM7xjjDpGQZzz+Bj8xC/fpzT/YIocYVn9nE4wCjpmKQ+2bv95eqfp7OlRbCXf0i3nE7dNazGEll5ktCDvAoiBtrrAgKYFo0LpEWLLyNHIl4BjNk+q1WucSvk4mi7o1UyHXb0MaDRjayHW95utmXD8EaOvkySQ807bKnN9yN4xeoS7nr/xBhpdmkhefvAaCUu/HiN7i4fFujobsKVF3dUSM20ObS9qjmU0bcSWwhJrDr2IdpYDpDEwu0EbTS5vHL3MX0w==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=suse.com smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=eajFIDukOwiWMX21f4IkTRQC4c2eGYsVVIevBvTMBZQ=;
- b=tjrMogpJlJLsnrurlmDsM4KxN59UaDz+EzNwH9BcYbkM7Is8GoU1ofqhpwAyjIAm4Rx6PyesifUiYe1wKgIO4g3JBts0qJialfD1cteX0I3q1fLY9CEycDLJ7seJ215F060jM8bJhtIlQeIzhpXhD1OaZ9eqXLGdtJh59hGjJV8=
-Received: from SJ0PR03CA0374.namprd03.prod.outlook.com (2603:10b6:a03:3a1::19)
- by MW3PR12MB4377.namprd12.prod.outlook.com (2603:10b6:303:55::11) with
+ bh=WN9v5KIfIIBpwZbyFCB/2EIg7x+vcV5P4609Y+O8vps=;
+ b=I1uSyEEj7zNrlUDbJaDBozbrbwlk5AXIvlKXwIeeLHvKdz6Qq4I/wrcYTYQNN8VhfmUH/CvyRia0g80Y7uU8kn5tmHvyZgGDGmqAVTNwxmBb/oAfO/RiVKVJ9cigAkUFtneyky+irzqBrch+ngn+sHyWymJG9x7cBswFLOlzQyo=
+Received: from SJ0PR03CA0363.namprd03.prod.outlook.com (2603:10b6:a03:3a1::8)
+ by SA3PR12MB7858.namprd12.prod.outlook.com (2603:10b6:806:306::17) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7982.25; Mon, 23 Sep
- 2024 08:05:37 +0000
+ 2024 08:05:34 +0000
 Received: from SJ5PEPF000001F0.namprd05.prod.outlook.com
- (2603:10b6:a03:3a1:cafe::83) by SJ0PR03CA0374.outlook.office365.com
- (2603:10b6:a03:3a1::19) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7939.30 via Frontend
- Transport; Mon, 23 Sep 2024 08:05:37 +0000
+ (2603:10b6:a03:3a1:cafe::de) by SJ0PR03CA0363.outlook.office365.com
+ (2603:10b6:a03:3a1::8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.7939.31 via Frontend
+ Transport; Mon, 23 Sep 2024 08:05:34 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -50,19 +50,19 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
 Received: from SATLEXMB04.amd.com (165.204.84.17) by
  SJ5PEPF000001F0.mail.protection.outlook.com (10.167.242.68) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.7918.13 via Frontend Transport; Mon, 23 Sep 2024 08:05:36 +0000
+ 15.20.7918.13 via Frontend Transport; Mon, 23 Sep 2024 08:05:34 +0000
 Received: from jatayu.amd.com (10.180.168.240) by SATLEXMB04.amd.com
  (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Mon, 23 Sep
- 2024 03:05:32 -0500
+ 2024 03:05:25 -0500
 From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 To: Jean Delvare <jdelvare@suse.com>, Andi Shyti <andi.shyti@kernel.org>
 CC: <linux-i2c@vger.kernel.org>, <Sanket.Goswami@amd.com>, Andy Shevchenko
 	<andriy.shevchenko@linux.intel.com>, <Patil.Reddy@amd.com>, Shyam Sundar S K
 	<Shyam-sundar.S-k@amd.com>
-Subject: [PATCH v7 6/8] i2c: amd-asf: Add routine to handle the ASF slave process
-Date: Mon, 23 Sep 2024 13:33:59 +0530
-Message-ID: <20240923080401.2167310-7-Shyam-sundar.S-k@amd.com>
+Subject: [PATCH v7 3/8] i2c: piix4: Export i2c_piix4 driver functions as library
+Date: Mon, 23 Sep 2024 13:33:56 +0530
+Message-ID: <20240923080401.2167310-4-Shyam-sundar.S-k@amd.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20240923080401.2167310-1-Shyam-sundar.S-k@amd.com>
 References: <20240923080401.2167310-1-Shyam-sundar.S-k@amd.com>
@@ -78,216 +78,163 @@ X-ClientProxiedBy: SATLEXMB04.amd.com (10.181.40.145) To SATLEXMB04.amd.com
  (10.181.40.145)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ5PEPF000001F0:EE_|MW3PR12MB4377:EE_
-X-MS-Office365-Filtering-Correlation-Id: e1a138a2-e6c1-4aba-7694-08dcdba681e4
+X-MS-TrafficTypeDiagnostic: SJ5PEPF000001F0:EE_|SA3PR12MB7858:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6640fd4a-fae4-43d6-b12f-08dcdba68039
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|1800799024|36860700013|82310400026;
+	BCL:0;ARA:13230040|36860700013|1800799024|376014|82310400026;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?WSYnJYDAH1iB4XZoMvjIDJ2YXDih5kXfV9AQfpjbw0QpsiX51+wxMMvkU9Gq?=
- =?us-ascii?Q?nrXDf0UFiN+iEJlz/wBdwWGe5X2BnHDDi5Q91lnhxlu/ZBOdPQgX2G8/rjOO?=
- =?us-ascii?Q?Lk4ob+/jzAoCJ2IUel5R++MDBiGujP7IF3UbsDk/5tpHDaXPpNT0JEcbMD9V?=
- =?us-ascii?Q?yImZpsQTe0vHZbP4aNpsZyHcOR+4DURgYjh42LPvBf+y0jo9sFQlMPuEuWu3?=
- =?us-ascii?Q?PXN4AYpkCDBzftyBQr3fa0piMzwe0vBWWxkK8hdHUMpYCunDt3eEe3OmzKNo?=
- =?us-ascii?Q?vp6+sIOFMKwi8m93SpxHoYfWkfq05kvz7FNoTPLyQauouBCLUVGNZZQ41cma?=
- =?us-ascii?Q?GyjPzZaVQ43YTBx9HEPwvzVT+ux/4Yx8RjbjZeVd2sKHftqSvutVGP4OD6xM?=
- =?us-ascii?Q?+9ngG1fIGeET0VRUtDwJ1xHt41SeVHfF0X7xohMq4MQPoLc/b6aF0D8BqKDc?=
- =?us-ascii?Q?Qnk2ed5bWnMKu47ZT4RX2RzO2E1k4cFjwEvOFk43KhHebgQYECAk85fNQYWv?=
- =?us-ascii?Q?dlqDF4dg11EEBmV0mDf959Fh98i0fBbNwgGns7EAZQ/Ga6XDmJzZDl6NDRiG?=
- =?us-ascii?Q?97Vsc1i16DWFPeGZfJncG7Ve78lC5afDvVkwoIWk6O41GkKeSpCc7KhnkHkS?=
- =?us-ascii?Q?X4z8ePJMPn4GPlF2HUU3DrV+hbQpniVfCCz/TW9B4tkDcZIGWzrtS5phiANV?=
- =?us-ascii?Q?e49u5rnGGhBLVsoYFNyn+J3RqtxmdDL9ZXN6BH0DYkI80LU9gLbNg9G1U1Dz?=
- =?us-ascii?Q?phfpqvYN/qXocuATS7qQG8lD+4qDG9XuxiClfbwivZnij1S2NdPFYtoxBG+f?=
- =?us-ascii?Q?nyatWGBS3vcIGM0aLWLoRoTpLf1fzwwezyJ2YsKqlptKrxL/jmFLNu76qCzJ?=
- =?us-ascii?Q?xW6VcGP8lGJhHHRuznaWgJ7+ZBwQVdLceAk8JscrhK7hr5l68T6LYkrYetKe?=
- =?us-ascii?Q?7AEQ+b8UnLamexHn7rQ15HruV6PgWkkV/J2sCK0PP0uVvGFiYjgE9mNdiFND?=
- =?us-ascii?Q?voRlOL2Sh2fqXKZBoh51rIXdGNLyTEBb24SArtElccf2jGhBmmuNz+bhGgnp?=
- =?us-ascii?Q?NOwIGAHS7L6SCE7qa1iKa+5FycmYpympO366hLDU97gnoWbjNTuezxjR71ll?=
- =?us-ascii?Q?GH/wat28kX9hVN3aGt+7N1EAU5EqgaQ9bzB9+evSAoDCSLzwVyJy9kfwAJ8/?=
- =?us-ascii?Q?SO2+WFNquFEAn8jFt8XmRat+0ImQWeIYjocRY9minKzpXRtNODLEHy/8Oex/?=
- =?us-ascii?Q?q/uqtJ288X1cvK9SndDA+YpChR43b64M1S1PgNockksvQu/yjyTKssNMbEIf?=
- =?us-ascii?Q?bow+OdegaBc5NIJjYvxkqMLV6aSVG+Xd7ui8r33iYywMRRE3YWqC5bFuhK83?=
- =?us-ascii?Q?RBz5km9D0vz4h7tmh6S19onDV8NN4x419O+0uM2VFty1I2VgSyNJt7Uf1P5F?=
- =?us-ascii?Q?Q6jssO9/zwpI8WdznF4EUVqzwJRfgJRS?=
+	=?us-ascii?Q?6ySROatIk9jAFBZb+J1ieiE+mGs8G7G5uH0Yl40uGbkXPeULoWb/Ta+ySfcb?=
+ =?us-ascii?Q?UozavisoB6RWeEap47ZAegLIqxlLd44sF7o6Amt4pvhOjYDYVtkHzMsNgL6C?=
+ =?us-ascii?Q?+XYBX3vCPe0z8SRnpBI2qA23Bv+GhX1QSiPmYC2SRZbLOisKVNJ+AKXADcpr?=
+ =?us-ascii?Q?4wDNs6Tg1GWPv683AbObTRjYsBD8vEcfp0qkIrN+Swi37qlrhTnEo5DQT0YX?=
+ =?us-ascii?Q?IMmRciJ01S9Mmhic1j1ye10mU6NaD6J0zVxvKj5DcJHX7yIKkbjDt8/CHQ1e?=
+ =?us-ascii?Q?hFDUKQqJDkKShsMC4jqphcpQQKNNcrTf9dCaEEh3SvuSY8XJt61eHqCwNzmq?=
+ =?us-ascii?Q?L/k7lnHU7AdIvUt6wrIm4+nZ/sOt4K+aV0lGj+rShVaVFGwFJ53N7KkH7+f7?=
+ =?us-ascii?Q?mMKLIjmZdyBe3kHNAW16RAWK7Wv1Ubna6c48JjEz1gjECIyva61CWcO5Aa1u?=
+ =?us-ascii?Q?dkmlCAQXCQHs1p+HWZP0pyZdJX0rr2avDSTnug//Sovhkh85J1ksrMuFP2Un?=
+ =?us-ascii?Q?pE9aG6mPpxkG/hCHhoxYio29YVKqP9oZ7GLQBvrardoKdVpTEYmk8h6qnN7v?=
+ =?us-ascii?Q?RZVK7SXia6SOkjP4mf51pNm0oXMdAzP5D+mP4jgcapgGxKXoMDIYiPIJplqi?=
+ =?us-ascii?Q?gcbCelCSQjHBXNf9s5l7srGVLGsy9cRnADUjieeZktR3X7fsUBZ4U4et4zJ9?=
+ =?us-ascii?Q?oklfI0cc3phJIcEtdl+MrusWVTvXuysOJacEnSQEdDQULAt0pU27QGKGSNmj?=
+ =?us-ascii?Q?1MkjXt1xEu/3woj1VXGp+O5k3tMtgXrADe0M1VkmyVTkgQ/3yMcTdAgaQU3x?=
+ =?us-ascii?Q?QJq3mtTraAjFaQ3VvjQs1SBWKOrdBXIbT9TojfhIg/aI87qGaLRoI2RUcqPD?=
+ =?us-ascii?Q?YD2+CQ+ykfVzgxVWPl/PhGfjjYkQVwZ4w2hIS/yzUtlOwexLzJ5HceS7VjbG?=
+ =?us-ascii?Q?OrYfff31vIhAASsXt4WG8At0g0xJ+CKq6/hy2Cn39N9CPS3uv9Ex4NqtqpHT?=
+ =?us-ascii?Q?wxjg6At7PYJfJiL8zT1uN1gD7ER6k5CvQDunUzFVRRpICU/KppaH+899x8gH?=
+ =?us-ascii?Q?7PmImqdE+jQ+qJ5saWerevd1aHf/k2eKLvQLkgDCGQ5tWacQbnEJRDdNpSv7?=
+ =?us-ascii?Q?qQrfpU8egGoIFfRMLOwhyNVuYP6j0eEEyVDTx3UMIZtdXpW2badwfMaL/ILK?=
+ =?us-ascii?Q?MrBIdXKGmpUaVAuuopMq4MwnsYda0YMqh99mJ2W6DDgnEElQN8d9JhczUIQV?=
+ =?us-ascii?Q?ETodk6dn5TXVwk0O0P7aU48VPiKuSxWZtZS2dB8jhbIoNpBpv5TIXHutb+0J?=
+ =?us-ascii?Q?wUOI4qM/fVy6Fg7dAdYR69xQeQttBSbwUj9O4xKUpbWaEPPQCDXvcLV8KEqS?=
+ =?us-ascii?Q?i2V6dJHkww4ddPeADu2STTDK/2JQy56wHEcVDs5I4ohFOrAWP2zs6TSx6dWb?=
+ =?us-ascii?Q?XtcuQGEOlhoKL7rq2g0aDmwIKHfgQzuk?=
 X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(376014)(1800799024)(36860700013)(82310400026);DIR:OUT;SFP:1101;
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700013)(1800799024)(376014)(82310400026);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Sep 2024 08:05:36.8649
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Sep 2024 08:05:34.0680
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: e1a138a2-e6c1-4aba-7694-08dcdba681e4
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6640fd4a-fae4-43d6-b12f-08dcdba68039
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
 X-MS-Exchange-CrossTenant-AuthSource:
 	SJ5PEPF000001F0.namprd05.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW3PR12MB4377
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR12MB7858
 
-Add support for handling ASF slave process events as described in the AMD
-ASF databook. This involves implementing the correct programming sequence
-to manage each ASF packet appropriately.
+Export the following i2c_piix4 driver functions as a library so that the
+AMD ASF driver can utilize these core functionalities from the i2c_piix4
+driver:
+
+- piix4_sb800_region_request(): Request access to a specific SMBus region
+on the SB800 chipset.
+
+- piix4_sb800_region_release(): Release the previously requested SMBus
+region on the SB800 chipset.
+
+- piix4_transaction(): Handle SMBus transactions between the SMBus
+controller and connected devices.
+
+- piix4_sb800_port_sel(): Select the appropriate SMBus port on the SB800
+chipset.
+
+By making these functions available as a library, enable the AMD ASF
+driver to leverage the established mechanisms in the i2c_piix4 driver,
+promoting code reuse and consistency across different drivers.
 
 Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Co-developed-by: Sanket Goswami <Sanket.Goswami@amd.com>
 Signed-off-by: Sanket Goswami <Sanket.Goswami@amd.com>
 Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
 ---
- drivers/i2c/busses/i2c-amd-asf-plat.c | 101 ++++++++++++++++++++++++++
- 1 file changed, 101 insertions(+)
+ drivers/i2c/busses/i2c-piix4.c | 14 ++++++++------
+ drivers/i2c/busses/i2c-piix4.h |  5 +++++
+ 2 files changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-amd-asf-plat.c b/drivers/i2c/busses/i2c-amd-asf-plat.c
-index 216b194202ba..fa6db99a8fe5 100644
---- a/drivers/i2c/busses/i2c-amd-asf-plat.c
-+++ b/drivers/i2c/busses/i2c-amd-asf-plat.c
-@@ -11,6 +11,7 @@
- 
- #include <linux/bitops.h>
- #include <linux/device.h>
-+#include <linux/devm-helpers.h>
- #include <linux/errno.h>
- #include <linux/gfp_types.h>
- #include <linux/i2c.h>
-@@ -33,21 +34,90 @@
- #define ASF_CLK_EN	17
- 
- /* ASF address offsets */
-+#define ASFINDEX	(0x07 + piix4_smba)
- #define ASFLISADDR	(0x09 + piix4_smba)
- #define ASFSTA		(0x0A + piix4_smba)
- #define ASFSLVSTA	(0x0D + piix4_smba)
-+#define ASFDATARWPTR	(0x11 + piix4_smba)
-+#define ASFSETDATARDPTR	(0x12 + piix4_smba)
- #define ASFDATABNKSEL	(0x13 + piix4_smba)
- #define ASFSLVEN	(0x15 + piix4_smba)
- 
- #define ASF_BLOCK_MAX_BYTES	72
-+#define ASF_ERROR_STATUS	GENMASK(3, 1)
- 
- struct amd_asf_dev {
- 	struct i2c_adapter adap;
- 	struct i2c_client *target;
-+	struct delayed_work work_buf;
+diff --git a/drivers/i2c/busses/i2c-piix4.c b/drivers/i2c/busses/i2c-piix4.c
+index 4f070863a2cc..ee76ccc71697 100644
+--- a/drivers/i2c/busses/i2c-piix4.c
++++ b/drivers/i2c/busses/i2c-piix4.c
+@@ -156,8 +156,7 @@ struct i2c_piix4_adapdata {
  	struct sb800_mmio_cfg mmio_cfg;
- 	struct resource *port_addr;
  };
  
-+static void amd_asf_process_target(struct work_struct *work)
-+{
-+	struct amd_asf_dev *dev = container_of(work, struct amd_asf_dev, work_buf.work);
-+	unsigned short piix4_smba = dev->port_addr->start;
-+	u8 data[ASF_BLOCK_MAX_BYTES];
-+	u8 bank, reg, cmd;
-+	u8 len, idx, val;
-+
-+	/* Read target status register */
-+	reg = inb_p(ASFSLVSTA);
-+
-+	/* Check if no error bits are set in target status register */
-+	if (reg & ASF_ERROR_STATUS) {
-+		/* Set bank as full */
-+		cmd = 0;
-+		reg |= GENMASK(3, 2);
-+		outb_p(reg, ASFDATABNKSEL);
-+	} else {
-+		/* Read data bank */
-+		reg = inb_p(ASFDATABNKSEL);
-+		bank = (reg & BIT(3)) ? 1 : 0;
-+
-+		/* Set read data bank */
-+		if (bank) {
-+			reg |= BIT(4);
-+			reg &= ~BIT(3);
-+		} else {
-+			reg &= ~BIT(4);
-+			reg &= ~BIT(2);
-+		}
-+
-+		/* Read command register */
-+		outb_p(reg, ASFDATABNKSEL);
-+		cmd = inb_p(ASFINDEX);
-+		len = inb_p(ASFDATARWPTR);
-+		for (idx = 0; idx < len; idx++)
-+			data[idx] = inb_p(ASFINDEX);
-+
-+		/* Clear data bank status */
-+		if (bank) {
-+			reg |= BIT(3);
-+			outb_p(reg, ASFDATABNKSEL);
-+		} else {
-+			reg |= BIT(2);
-+			outb_p(reg, ASFDATABNKSEL);
-+		}
-+	}
-+
-+	outb_p(0, ASFSETDATARDPTR);
-+	if (cmd & BIT(0))
-+		return;
-+
-+	/*
-+	 * Although i2c_slave_event() returns an appropriate error code, we
-+	 * don't check it here because we're operating in the workqueue context.
-+	 */
-+	i2c_slave_event(dev->target, I2C_SLAVE_WRITE_REQUESTED, &val);
-+	for (idx = 0; idx < len; idx++) {
-+		val = data[idx];
-+		i2c_slave_event(dev->target, I2C_SLAVE_WRITE_RECEIVED, &val);
-+	}
-+	i2c_slave_event(dev->target, I2C_SLAVE_STOP, &val);
-+}
-+
- static void amd_asf_update_ioport_target(unsigned short piix4_smba, u8 bit,
- 					 unsigned long offset, bool set)
+-static int piix4_sb800_region_request(struct device *dev,
+-				      struct sb800_mmio_cfg *mmio_cfg)
++int piix4_sb800_region_request(struct device *dev, struct sb800_mmio_cfg *mmio_cfg)
  {
-@@ -207,10 +277,29 @@ static const struct i2c_algorithm amd_asf_smbus_algorithm = {
- 	.functionality = amd_asf_func,
+ 	if (mmio_cfg->use_mmio) {
+ 		void __iomem *addr;
+@@ -195,9 +194,9 @@ static int piix4_sb800_region_request(struct device *dev,
+ 
+ 	return 0;
+ }
++EXPORT_SYMBOL_NS_GPL(piix4_sb800_region_request, PIIX4_SMBUS);
+ 
+-static void piix4_sb800_region_release(struct device *dev,
+-				       struct sb800_mmio_cfg *mmio_cfg)
++void piix4_sb800_region_release(struct device *dev, struct sb800_mmio_cfg *mmio_cfg)
+ {
+ 	if (mmio_cfg->use_mmio) {
+ 		iounmap(mmio_cfg->addr);
+@@ -208,6 +207,7 @@ static void piix4_sb800_region_release(struct device *dev,
+ 
+ 	release_region(SB800_PIIX4_SMB_IDX, SB800_PIIX4_SMB_MAP_SIZE);
+ }
++EXPORT_SYMBOL_NS_GPL(piix4_sb800_region_release, PIIX4_SMBUS);
+ 
+ static bool piix4_sb800_use_mmio(struct pci_dev *PIIX4_dev)
+ {
+@@ -517,7 +517,7 @@ static int piix4_setup_aux(struct pci_dev *PIIX4_dev,
+ 	return piix4_smba;
+ }
+ 
+-static int piix4_transaction(struct i2c_adapter *piix4_adapter, unsigned short piix4_smba)
++int piix4_transaction(struct i2c_adapter *piix4_adapter, unsigned short piix4_smba)
+ {
+ 	int temp;
+ 	int result = 0;
+@@ -590,6 +590,7 @@ static int piix4_transaction(struct i2c_adapter *piix4_adapter, unsigned short p
+ 		inb_p(SMBHSTDAT1));
+ 	return result;
+ }
++EXPORT_SYMBOL_NS_GPL(piix4_transaction, PIIX4_SMBUS);
+ 
+ /* Return negative errno on error. */
+ static s32 piix4_access(struct i2c_adapter * adap, u16 addr,
+@@ -743,7 +744,7 @@ static void piix4_imc_wakeup(void)
+ 	release_region(KERNCZ_IMC_IDX, 2);
+ }
+ 
+-static int piix4_sb800_port_sel(u8 port, struct sb800_mmio_cfg *mmio_cfg)
++int piix4_sb800_port_sel(u8 port, struct sb800_mmio_cfg *mmio_cfg)
+ {
+ 	u8 smba_en_lo, val;
+ 
+@@ -765,6 +766,7 @@ static int piix4_sb800_port_sel(u8 port, struct sb800_mmio_cfg *mmio_cfg)
+ 
+ 	return (smba_en_lo & piix4_port_mask_sb800);
+ }
++EXPORT_SYMBOL_NS_GPL(piix4_sb800_port_sel, PIIX4_SMBUS);
+ 
+ /*
+  * Handles access to multiple SMBus ports on the SB800.
+diff --git a/drivers/i2c/busses/i2c-piix4.h b/drivers/i2c/busses/i2c-piix4.h
+index 32da914109ba..36bc6ce82a27 100644
+--- a/drivers/i2c/busses/i2c-piix4.h
++++ b/drivers/i2c/busses/i2c-piix4.h
+@@ -36,4 +36,9 @@ struct sb800_mmio_cfg {
+ 	bool use_mmio;
  };
  
-+static irqreturn_t amd_asf_irq_handler(int irq, void *ptr)
-+{
-+	struct amd_asf_dev *dev = ptr;
-+	unsigned short piix4_smba = dev->port_addr->start;
-+	u8 target_int = inb_p(ASFSTA);
++int piix4_sb800_port_sel(u8 port, struct sb800_mmio_cfg *mmio_cfg);
++int piix4_transaction(struct i2c_adapter *piix4_adapter, unsigned short piix4_smba);
++int piix4_sb800_region_request(struct device *dev, struct sb800_mmio_cfg *mmio_cfg);
++void piix4_sb800_region_release(struct device *dev, struct sb800_mmio_cfg *mmio_cfg);
 +
-+	if (target_int & BIT(6)) {
-+		/* Target Interrupt */
-+		outb_p(target_int | BIT(6), ASFSTA);
-+		schedule_delayed_work(&dev->work_buf, HZ);
-+	} else {
-+		/* Controller Interrupt */
-+		amd_asf_update_ioport_target(piix4_smba, ASF_SLV_INTR, SMBHSTSTS, true);
-+	}
-+
-+	return IRQ_HANDLED;
-+}
-+
- static int amd_asf_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
- 	struct amd_asf_dev *asf_dev;
-+	int ret, irq;
- 
- 	asf_dev = devm_kzalloc(dev, sizeof(*asf_dev), GFP_KERNEL);
- 	if (!asf_dev)
-@@ -221,6 +310,18 @@ static int amd_asf_probe(struct platform_device *pdev)
- 	if (!asf_dev->port_addr)
- 		return dev_err_probe(dev, -EINVAL, "missing IO resources\n");
- 
-+	ret = devm_delayed_work_autocancel(dev, &asf_dev->work_buf, amd_asf_process_target);
-+	if (ret)
-+		return dev_err_probe(dev, ret, "failed to create work queue\n");
-+
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return dev_err_probe(dev, irq, "missing IRQ resources\n");
-+
-+	ret = devm_request_irq(dev, irq, amd_asf_irq_handler, IRQF_SHARED, "amd_asf", asf_dev);
-+	if (ret)
-+		return dev_err_probe(dev, ret, "Unable to request irq: %d for use\n", irq);
-+
- 	asf_dev->adap.owner = THIS_MODULE;
- 	asf_dev->adap.algo = &amd_asf_smbus_algorithm;
- 	asf_dev->adap.dev.parent = &pdev->dev;
+ #endif /* I2C_PIIX4_H */
 -- 
 2.25.1
 
