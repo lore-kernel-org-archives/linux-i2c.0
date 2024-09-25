@@ -1,50 +1,50 @@
 Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4C6419F473;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DECB71A00D7;
 	Wed, 25 Sep 2024 12:49:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727268566; cv=none; b=r/450xEX25wDVmcrlz4qQ3trlAygQNwKrt4c9sm3UifdJZF6mQNVJ++ZkJ8U4FFDmM9yJChRwijjCYbOKhMxIa4Dqr+bulLS42DD0QOsvbft5e3GAzU6GeRFS1HMeFgHckAAsRY+F2QRjffdhIERZPC6cfPXKnT/oSp5vaBZOGA=
+	t=1727268566; cv=none; b=a4Uj+oxbtBW9z6VtZ4qSf1DvvWfqemM2cKxdtmG88aYuNAu3IWCBb9bK6LxfqCfQXUNaCdIwBv+is7aHRRi59Mrg+cAemsP2I3Sz/TlVef2VlzMmuQVn4OLtsWxshyIpSA+xico8ENMqBqBs4IDZ4dP+jDFPpVC3itIz4ejUyQE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1727268566; c=relaxed/simple;
-	bh=70t3hLSLDlpykDIVy85aCrxgzN++uWo5vy1Vhc0fPPo=;
+	bh=lGffxdgbxA4Ec1+1dFqnZHBgqwkMxcDxvgZGQYPLLXU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OgW+bR7bJ3RKx8TRViidb3/eCF9F2T5WoXq2aWQ59hrQKbcLsv1p9B3KhNRA9iOk0HH/eWVbq+n74tn3L7YFn5R4tufvhhWyZsAjyZM99yhWoKuK2OyXLN2zUVMDOWYu5Uorg+ZOdd+duASj1RIraQ6i+Skg0QW4zs6CptJklDE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=BdbbLujJ; arc=none smtp.client-ip=198.175.65.11
+	 MIME-Version; b=sIUIMfSU+Ad3c/GJJvlM3tNhtbYPMGGGXTV4WleHUXPRy4CoVC3g/aToLPAClG8brG+7CaYwBBJLfXeNqbCG2MSUcSGsbHRLDBYtGgu1+NTbNcoq3VNPmaUH4xjpSwIsHUPD41lVP2PJONf7Z5+wudWtXtEUdymnyEPAIZUPb9M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=e3LLQDOc; arc=none smtp.client-ip=198.175.65.11
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="BdbbLujJ"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="e3LLQDOc"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1727268564; x=1758804564;
+  t=1727268565; x=1758804565;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=70t3hLSLDlpykDIVy85aCrxgzN++uWo5vy1Vhc0fPPo=;
-  b=BdbbLujJlb6DrJ+bKIxkhexYiY4wVlTuPFib+ZOvjipTFmuQ9sPDqpO+
-   EQ/nnqn/hNJgoObR/IdKg9uN2yDGsAeBWcwXJGkpptmxzpEuSP8HyCvWl
-   Sdw7uk+pyzEQ03ZXU8+gZFO0CX5ISPpeJzKiy8c68gOWdS+dZ2YISzwHL
-   DGZjkjqarcMW7KfPZZxDebR0uOCEfbFYb+o66HrpqsrB2exo2oObmOu+b
-   QNr9GuL6BPiV+QabvvsH7hgnN8NKvkS55HucGWyHex2IHjp1x1/gThN7O
-   eAiVdMGhetatTXGznvj8H7el4vPEnZcLh2jh4hgcPjHAnv+/4dP6SP1ik
-   Q==;
-X-CSE-ConnectionGUID: bFKwU6pSR5+cHXtOSQ239w==
-X-CSE-MsgGUID: PJ5TXRIGRqymRbT97h3vzQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11206"; a="36878358"
+  bh=lGffxdgbxA4Ec1+1dFqnZHBgqwkMxcDxvgZGQYPLLXU=;
+  b=e3LLQDOchFud3hM49qy/+g7QbSFt87iqWX40ObFYgecamqvxnV4lH6x8
+   aeegyA6teVA2QK2dJ4jgQ5TuxLFYVELLIGRAItedQAVv0EVzPDUhikvHe
+   T/ca2+Gtp6wBaMGMXZlMe+t+q1YSaHraqo6d9K5VM2ipQeZmV62to1nWI
+   KlzIsm49LESKZPylRvkI72L7CeD8T/J1WVcPOHdoFnBfZHEzaUGbW/Egn
+   hA/ZHT6tG14yBoLtOYtTPntC7L7cQbrfpf5IjXHT/hWXfjG0sFMawFXz4
+   7of3evkPrPDEOg8232I0HxUXYQgfvkx1JEFXaAqm5J8lXqlsFtqRQ1H5e
+   A==;
+X-CSE-ConnectionGUID: 0MbAETJTQkGec2tdzKoJ4g==
+X-CSE-MsgGUID: +2vMJ4x5SDK/qyS8Qt+TcQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11206"; a="36878367"
 X-IronPort-AV: E=Sophos;i="6.10,257,1719903600"; 
-   d="scan'208";a="36878358"
+   d="scan'208";a="36878367"
 Received: from orviesa008.jf.intel.com ([10.64.159.148])
   by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Sep 2024 05:49:21 -0700
-X-CSE-ConnectionGUID: MgqSQzG7R0ObNZLcggW1YQ==
-X-CSE-MsgGUID: ORXjVviiTdmoZMTejZyO8w==
+X-CSE-ConnectionGUID: 4aol0lnySXmY0UyxzzPSyA==
+X-CSE-MsgGUID: A9X9JXooRuSWFvBNNwdrng==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.10,257,1719903600"; 
-   d="scan'208";a="72577339"
+   d="scan'208";a="72577338"
 Received: from black.fi.intel.com ([10.237.72.28])
   by orviesa008.jf.intel.com with ESMTP; 25 Sep 2024 05:49:18 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id B9982613; Wed, 25 Sep 2024 15:49:17 +0300 (EEST)
+	id A2498595; Wed, 25 Sep 2024 15:49:17 +0300 (EEST)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Mario Limonciello <mario.limonciello@amd.com>,
 	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -58,9 +58,9 @@ Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Narasimhan.V@amd.com,
 	Borislav Petkov <bp@alien8.de>,
 	Kim Phillips <kim.phillips@amd.com>
-Subject: [PATCH v1 4/5] i2c: designware: Use sda_hold_time variable name everywhere
-Date: Wed, 25 Sep 2024 15:44:22 +0300
-Message-ID: <20240925124916.976173-5-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 2/5] i2c: designware: Get rid of redundant 'else'
+Date: Wed, 25 Sep 2024 15:44:20 +0300
+Message-ID: <20240925124916.976173-3-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.43.0.rc1.1336.g36b5255a03ac
 In-Reply-To: <20240925124916.976173-1-andriy.shevchenko@linux.intel.com>
 References: <20240925124916.976173-1-andriy.shevchenko@linux.intel.com>
@@ -72,63 +72,40 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Currently the PCI glue driver uses sda_hold variable name, while
-the rest of the driver use sda_hold_time. This makes things harder
-to grep. Use sda_hold_time variable name everywhere.
+In the snippets like the following
 
+	if (...)
+		return / goto / break / continue ...;
+	else
+		...
+
+the 'else' is redundant. Get rid of it.
+
+Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-pcidrv.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-designware-common.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 433cb285d3b2..38265c3dc454 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -51,7 +51,7 @@ struct dw_scl_sda_cfg {
- 	u16 fs_hcnt;
- 	u16 ss_lcnt;
- 	u16 fs_lcnt;
--	u32 sda_hold;
-+	u32 sda_hold_time;
- };
+diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+index f31d352d98b5..84ca53ee3317 100644
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -676,10 +676,10 @@ int i2c_dw_handle_tx_abort(struct dw_i2c_dev *dev)
  
- struct dw_pci_controller {
-@@ -76,7 +76,7 @@ static struct dw_scl_sda_cfg byt_config = {
- 	.fs_hcnt = 0x55,
- 	.ss_lcnt = 0x200,
- 	.fs_lcnt = 0x99,
--	.sda_hold = 0x6,
-+	.sda_hold_time = 0x6,
- };
+ 	if (abort_source & DW_IC_TX_ARB_LOST)
+ 		return -EAGAIN;
+-	else if (abort_source & DW_IC_TX_ABRT_GCALL_READ)
++	if (abort_source & DW_IC_TX_ABRT_GCALL_READ)
+ 		return -EINVAL; /* wrong msgs[] data */
+-	else
+-		return -EIO;
++
++	return -EIO;
+ }
  
- /* Haswell HCNT/LCNT/SDA hold time */
-@@ -85,14 +85,14 @@ static struct dw_scl_sda_cfg hsw_config = {
- 	.fs_hcnt = 0x48,
- 	.ss_lcnt = 0x01fb,
- 	.fs_lcnt = 0xa0,
--	.sda_hold = 0x9,
-+	.sda_hold_time = 0x9,
- };
- 
- /* NAVI-AMD HCNT/LCNT/SDA hold time */
- static struct dw_scl_sda_cfg navi_amd_config = {
- 	.ss_hcnt = 0x1ae,
- 	.ss_lcnt = 0x23a,
--	.sda_hold = 0x9,
-+	.sda_hold_time = 0x9,
- };
- 
- static u32 mfld_get_clk_rate_khz(struct dw_i2c_dev *dev)
-@@ -264,7 +264,7 @@ static int i2c_dw_pci_probe(struct pci_dev *pdev,
- 		dev->fs_hcnt = cfg->fs_hcnt;
- 		dev->ss_lcnt = cfg->ss_lcnt;
- 		dev->fs_lcnt = cfg->fs_lcnt;
--		dev->sda_hold_time = cfg->sda_hold;
-+		dev->sda_hold_time = cfg->sda_hold_time;
- 	}
- 
- 	adap = &dev->adapter;
+ int i2c_dw_set_fifo_size(struct dw_i2c_dev *dev)
 -- 
 2.43.0.rc1.1336.g36b5255a03ac
 
