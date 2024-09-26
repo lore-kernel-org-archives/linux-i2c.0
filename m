@@ -1,121 +1,141 @@
-Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [202.36.163.20])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3795170A12
-	for <linux-i2c@vger.kernel.org>; Thu, 26 Sep 2024 01:26:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.36.163.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACF0B158875;
+	Thu, 26 Sep 2024 03:43:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727314011; cv=none; b=u+L2MvfymvMn9C1/WVMDg8bSRnKnzzABoU5pO8l7bJiUdveY+N6zJf2Yd3Y97jzpjBr/qzKJ4L541ed03bIL8re8rS5oNvDnh539xdELfSpKEqfiH9OiTq/jdplWOmoBIfarP4MDztSJGvH29bnFoSR2S8fSAINtW6OKJdnxg0o=
+	t=1727322213; cv=none; b=ixuwnndeAtYLdOnyKn8eniw2tsReNkMK4ShxZJgQPLHeTwpD42LKGm+4djXHCyyOATjA6MltK4Zr3qMBUw/0Mocax4LNLi+4kA4FPMSrNRVxfaRIU0R13ggdxyld+JlrbA21+71MGNs59zY4RVQoFZMnfZJifXRp2JWDGJzy+tM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727314011; c=relaxed/simple;
-	bh=1795Hl5aHkEpsl1k0n4L0XLmlewyGe4isH62lTfVHCg=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=MzEXeYeKr/ce3I0Bp/Vp8iMUkXQqPgbpEuH989GOzoqKNcr3Op4bmJhSYS36OxaiQ1utkBd58t/rvA8HvfKiwMVujpBfzkNcP36elPWAv2vOixujx4UDL34xyJ1MeAEjj1hYwyD9fdzMyTR2XNfTFuHfAP7CM+pL9IZzI2CQaDw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz; spf=pass smtp.mailfrom=alliedtelesis.co.nz; dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b=c1zf/DUt; arc=none smtp.client-ip=202.36.163.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alliedtelesis.co.nz
+	s=arc-20240116; t=1727322213; c=relaxed/simple;
+	bh=ziaAltyUP6Uv8Cjn8kkY3y6IUbsSV9TI+PfBQwG5Jv8=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=lOy7S2jTKeIrtzxfoAIed/0LPJ2dYtcbTU/EOwq0nClCqKyPFIqx6SYO/e5ZIxfboNQWHeZkOumA+tfsGmvzXqWcylS8prsoalb3p4ObI6u4yBj6TFqDlZntohOhNvtNCxtscWfHl0HOHgR8JqDRnCMuUAIcQBuy8E9Nxjfe6j0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=c+5vaWig; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="c1zf/DUt"
-Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(Client did not present a certificate)
-	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 928472C012A;
-	Thu, 26 Sep 2024 13:26:45 +1200 (NZST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
-	s=mail181024; t=1727314005;
-	bh=1795Hl5aHkEpsl1k0n4L0XLmlewyGe4isH62lTfVHCg=;
-	h=From:To:CC:Subject:Date:References:In-Reply-To:From;
-	b=c1zf/DUtdkQrOvp5hH6YhxZPsA5d+Mw5+LLFnmIBmWo8ocnvz5N/v1yKq4HXeGniW
-	 52hvvg5laZ9t3+nbOq4WaOCoE6th8/f4NF7Q8cry11MewEiYX/yACNDkEFxPJV0o0e
-	 uvQ+hv4DSf0bvkAS44xfM7ZHpwq/xTYzQU2GWLrIZx3auR4VvQkLTJ3gyOI9S13wVr
-	 0YrnRaLnyZ4CQ8qeea1Whp8uIv8epfzlGNriXRLJ6OUQs72/rJf2QgZGaT9/KYbjo4
-	 y0Zu4vYnTpB0IPNqqfc6/R+nLofSiXNPwdsoIpwXppvXYKY1qBHe955cN6T5sWAfzq
-	 wRDqvR/GYRx9w==
-Received: from svr-chch-ex2.atlnz.lc (Not Verified[2001:df5:b000:bc8::76]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
-	id <B66f4b8550000>; Thu, 26 Sep 2024 13:26:45 +1200
-Received: from svr-chch-ex1.atlnz.lc (2001:df5:b000:bc8::77) by
- svr-chch-ex2.atlnz.lc (2001:df5:b000:bc8:f753:6de:11c0:a008) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.2.1544.11; Thu, 26 Sep 2024 13:26:45 +1200
-Received: from svr-chch-ex2.atlnz.lc (2001:df5:b000:bc8::76) by
- svr-chch-ex1.atlnz.lc (2001:df5:b000:bc8::77) with Microsoft SMTP Server
- (TLS) id 15.0.1497.48; Thu, 26 Sep 2024 13:26:45 +1200
-Received: from svr-chch-ex2.atlnz.lc ([fe80::a9eb:c9b7:8b52:9567]) by
- svr-chch-ex2.atlnz.lc ([fe80::a9eb:c9b7:8b52:9567%15]) with mapi id
- 15.02.1544.011; Thu, 26 Sep 2024 13:26:45 +1200
-From: Aryan Srivastava <Aryan.Srivastava@alliedtelesis.co.nz>
-To: "andi.shyti@kernel.org" <andi.shyti@kernel.org>
-CC: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v7 1/2] i2c: octeon: refactor common i2c operations
-Thread-Topic: [PATCH v7 1/2] i2c: octeon: refactor common i2c operations
-Thread-Index: AQHawsjTyTBvsusNCEie+wVscqbULLJSCMGAgBcOzQA=
-Date: Thu, 26 Sep 2024 01:26:45 +0000
-Message-ID: <2f34aa022014cb3dd762d33dc0e8f04b6549a7cb.camel@alliedtelesis.co.nz>
-References: <20240620041746.3315255-1-aryan.srivastava@alliedtelesis.co.nz>
-	 <20240620041746.3315255-2-aryan.srivastava@alliedtelesis.co.nz>
-	 <5qafqlqdcm5jsynyqumzfhzqpkaog55muytcdwqlhebcnt5rgg@oxdv6yfid42a>
-In-Reply-To: <5qafqlqdcm5jsynyqumzfhzqpkaog55muytcdwqlhebcnt5rgg@oxdv6yfid42a>
-Accept-Language: en-US, en-NZ
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <6BCC1CE68E5FB74E88141B216DB995FA@atlnz.lc>
-Content-Transfer-Encoding: base64
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="c+5vaWig"
+Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48PH5Il3024289;
+	Thu, 26 Sep 2024 03:43:28 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=qcppdkim1; bh=M8iyORpoieQKKkGuDSS3KK
+	Ka6ITUXPm6ogPg7SXR1Ug=; b=c+5vaWigq+8j69liBXS7KMkSp+DxgesTj5ySIl
+	QJilBcwgB6XE8XWewnNsNe0F2HjHGmb4ycpwqhd8EZFe9fF5BdkpDNLdoObaWsPT
+	Q74ea5vyIE8uQWeaI9jbAmry3V7c4fEKJhrn9h2rBgGZDqoBs8Lm8T+jTlcw3HjC
+	WPpbP0cFqG32w81TdEyhXHWBcXP4cHT6ZmE78OIOKg8TjqCOWybAxBQfrBklF1jZ
+	s0PrgP6VG/gS4ptzbYjUGaZflSKy0dIErNNXOhKnsWBlMZiiR3HZ/4oY5ONzQg1M
+	xFPWAqEsF8WUw+2tJ+XeuKWW/1VeGFDGeFxOwuPRFz87Rf1Q==
+Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 41spwewx6e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Sep 2024 03:43:27 +0000 (GMT)
+Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
+	by NALASPPMTA05.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 48Q3hRgk008776
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Sep 2024 03:43:27 GMT
+Received: from hu-mmanikan-blr.qualcomm.com (10.80.80.8) by
+ nalasex01a.na.qualcomm.com (10.47.209.196) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.9; Wed, 25 Sep 2024 20:43:24 -0700
+From: Manikanta Mylavarapu <quic_mmanikan@quicinc.com>
+To: <andi.shyti@kernel.org>, <quic_mmanikan@quicinc.com>,
+        <linux-arm-msm@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>
+CC: <quic_srichara@quicinc.com>, <quic_varada@quicinc.com>
+Subject: [PATCH v2 1/1] i2c: qcom-geni: Support systems with 32MHz serial engine clock
+Date: Thu, 26 Sep 2024 09:13:04 +0530
+Message-ID: <20240926034304.3565278-1-quic_mmanikan@quicinc.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-SEG-SpamProfiler-Analysis: v=2.4 cv=Id0kWnqa c=1 sm=1 tr=0 ts=66f4b855 a=Xf/6aR1Nyvzi7BryhOrcLQ==:117 a=xqWC_Br6kY4A:10 a=w1vUsAckAk8A:10 a=IkcTkHD0fZMA:10 a=EaEq8P2WXUwA:10 a=InLPWLBpFnOSA2FroUkA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-SEG-SpamProfiler-Score: 0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
+ nalasex01a.na.qualcomm.com (10.47.209.196)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: Lmy6Gsqk_xW23y_ojjDrtYsX0mox5qiL
+X-Proofpoint-ORIG-GUID: Lmy6Gsqk_xW23y_ojjDrtYsX0mox5qiL
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 adultscore=0 priorityscore=1501 clxscore=1015
+ malwarescore=0 mlxscore=0 mlxlogscore=999 impostorscore=0 phishscore=0
+ spamscore=0 bulkscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2408220000 definitions=main-2409260022
 
-SGkgQW5kaQpPbiBXZWQsIDIwMjQtMDktMTEgYXQgMTE6MTkgKzAyMDAsIEFuZGkgU2h5dGkgd3Jv
-dGU6Cj4gSGkgQXJ5YW4sCj4gCj4gLi4uCj4gCj4gPiArLyogQ29uc3RydWN0IGFuZCBzZW5kIGky
-YyB0cmFuc2FjdGlvbiBjb3JlIGNtZCBmb3IgcmVhZCBvcHMgKi8KPiA+ICtzdGF0aWMgaW50IG9j
-dGVvbl9pMmNfaGxjX3JlYWRfY21kKHN0cnVjdCBvY3Rlb25faTJjICppMmMsIHN0cnVjdAo+ID4g
-aTJjX21zZyBtc2csIHU2NCBjbWQpCj4gPiArewo+ID4gK8KgwqDCoMKgwqDCoMKgdTY0IGV4dCA9
-IDA7Cj4gPiArCj4gPiArwqDCoMKgwqDCoMKgwqBpZiAob2N0ZW9uX2kyY19obGNfZXh0KGkyYywg
-bXNnLCAmY21kLCAmZXh0KSkKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBvY3Rl
-b25faTJjX3dyaXRlcV9mbHVzaChleHQsIGkyYy0+dHdzaV9iYXNlICsKPiA+IFNXX1RXU0lfRVhU
-KGkyYykpOwo+ID4gKwo+IAo+IFdoYXQgSSBtZWFudCBsYXN0IHRpbWUgaXMgdGhhdCB0aGVyZSBp
-cyBzdGlsbCBhIGNoYW5nZSBoZXJlLiBJCj4gdW5kZXJzdGFuZCB0aGUgY29tbW9uIHBhcnRzIHlv
-dSBhZGRyZXNzZWQgaW4gbXkgcHJldmlvdXMgcmV2aWV3LAo+IGJ1dCB5b3UncmUgc3RpbGwgbWlz
-c2luZyB0aGlzLi4uCj4gCj4gPiArwqDCoMKgwqDCoMKgwqByZXR1cm4gb2N0ZW9uX2kyY19obGNf
-Y21kX3NlbmQoaTJjLCBjbWQpOwo+ID4gK30KPiA+ICsKPiA+IMKgLyogaGlnaC1sZXZlbC1jb250
-cm9sbGVyIGNvbXBvc2l0ZSB3cml0ZStyZWFkLCBtc2cwPWFkZHIsCj4gPiBtc2cxPWRhdGEgKi8K
-PiA+IMKgc3RhdGljIGludCBvY3Rlb25faTJjX2hsY19jb21wX3JlYWQoc3RydWN0IG9jdGVvbl9p
-MmMgKmkyYywgc3RydWN0Cj4gPiBpMmNfbXNnICptc2dzKQo+ID4gwqB7Cj4gPiBAQCAtNDk5LDI2
-ICs1NDMsOCBAQCBzdGF0aWMgaW50IG9jdGVvbl9pMmNfaGxjX2NvbXBfcmVhZChzdHJ1Y3QKPiA+
-IG9jdGVvbl9pMmMgKmkyYywgc3RydWN0IGkyY19tc2cgKm1zZ3MKPiA+IMKgwqDCoMKgwqDCoMKg
-wqAvKiBBICovCj4gPiDCoMKgwqDCoMKgwqDCoMKgY21kIHw9ICh1NjQpKG1zZ3NbMF0uYWRkciAm
-IDB4N2Z1bGwpIDw8IFNXX1RXU0lfQUREUl9TSElGVDsKPiA+IMKgCj4gPiAtwqDCoMKgwqDCoMKg
-wqBpZiAobXNnc1swXS5mbGFncyAmIEkyQ19NX1RFTikKPiA+IC3CoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqBjbWQgfD0gU1dfVFdTSV9PUF8xMF9JQTsKPiA+IC3CoMKgwqDCoMKgwqDCoGVs
-c2UKPiA+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBjbWQgfD0gU1dfVFdTSV9PUF83
-X0lBOwo+ID4gLQo+ID4gLcKgwqDCoMKgwqDCoMKgaWYgKG1zZ3NbMF0ubGVuID09IDIpIHsKPiA+
-IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqB1NjQgZXh0ID0gMDsKPiA+IC0KPiA+IC3C
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBjbWQgfD0gU1dfVFdTSV9FSUE7Cj4gPiAtwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgZXh0ID0gKHU2NCltc2dzWzBdLmJ1ZlswXSA8PCBT
-V19UV1NJX0lBX1NISUZUOwo+ID4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGNtZCB8
-PSAodTY0KW1zZ3NbMF0uYnVmWzFdIDw8IFNXX1RXU0lfSUFfU0hJRlQ7Cj4gPiAtwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgb2N0ZW9uX2kyY193cml0ZXFfZmx1c2goZXh0LCBpMmMtPnR3
-c2lfYmFzZSArCj4gPiBTV19UV1NJX0VYVChpMmMpKTsKPiA+IC3CoMKgwqDCoMKgwqDCoH0gZWxz
-ZSB7Cj4gPiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgY21kIHw9ICh1NjQpbXNnc1sw
-XS5idWZbMF0gPDwgU1dfVFdTSV9JQV9TSElGVDsKPiA+IC3CoMKgwqDCoMKgwqDCoH0KPiA+IC0K
-PiA+IC3CoMKgwqDCoMKgwqDCoG9jdGVvbl9pMmNfaGxjX2ludF9jbGVhcihpMmMpOwo+ID4gLcKg
-wqDCoMKgwqDCoMKgb2N0ZW9uX2kyY193cml0ZXFfZmx1c2goY21kLCBpMmMtPnR3c2lfYmFzZSAr
-Cj4gPiBTV19UV1NJKGkyYykpOwo+IAo+IC4uLiB0aGlzISBXaGlsZSBJIGRvbuKAmXQga25vdyB0
-aGUgaGFyZHdhcmUgaW50ZXJuYWxzLCB0aGlzIGlzIGEKPiBsb2dpY2FsIGNoYW5nZSB0aGF0IHJl
-cXVpcmVzIGp1c3RpZmljYXRpb24sIGVzcGVjaWFsbHkgd2hlbgo+IGNvbXBhcmVkIHRvIHdoYXQg
-eW914oCZdmUgZGVzY3JpYmVkIGluIHRoZSBjb21taXQgbWVzc2FnZS4KPiAKWWVzIHlvdSBhcmUg
-cmlnaHQsIEkndmUgYWRkIHNvbWUgaW5mbyB0byB0aGUgY29tbWl0IG1lc3NhZ2UgdG8gZGVzY3Jp
-YmUKZXhhY3RseSB3aGF0IEknbSB0cnlpbmcgdG8gYWNoaWV2ZSBoZXJlLgoKPiBBbmRpCj4gCj4g
-PiAtwqDCoMKgwqDCoMKgwqByZXQgPSBvY3Rlb25faTJjX2hsY193YWl0KGkyYyk7Cj4gPiArwqDC
-oMKgwqDCoMKgwqAvKiBTZW5kIGNvcmUgY29tbWFuZCAqLwo+ID4gK8KgwqDCoMKgwqDCoMKgcmV0
-ID0gb2N0ZW9uX2kyY19obGNfcmVhZF9jbWQoaTJjLCBtc2dzWzBdLCBjbWQpOwo+ID4gwqDCoMKg
-wqDCoMKgwqDCoGlmIChyZXQpCj4gPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGdv
-dG8gZXJyOwoKQXJ5YW4K
+In existing socs, I2C serial engine is sourced from XO (19.2MHz).
+Where as in IPQ5424, I2C serial engine is sourced from GPLL0 (32MHz).
+
+The existing map table is based on 19.2MHz. This patch incorporate
+the clock map table to derive the SCL clock from the 32MHz source
+clock frequency.
+
+Signed-off-by: Manikanta Mylavarapu <quic_mmanikan@quicinc.com>
+---
+Changes in v2:
+	- Dropped IPQ5424 from the commit title
+	- Added else part to assign geni_i2c_clk_map_19p2mhz to itr
+	- Dropped MHZ macro and used HZ_PER_MHZ macro
+	- Expanded SE to serial engine
+	- Added the reason for 32MHz clock in commit message
+
+ drivers/i2c/busses/i2c-qcom-geni.c | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index 212336f724a6..22f2a0d83641 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -16,6 +16,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/soc/qcom/geni-se.h>
+ #include <linux/spinlock.h>
++#include <linux/units.h>
+ 
+ #define SE_I2C_TX_TRANS_LEN		0x26c
+ #define SE_I2C_RX_TRANS_LEN		0x270
+@@ -146,18 +147,30 @@ struct geni_i2c_clk_fld {
+  * clk_freq_out = t / t_cycle
+  * source_clock = 19.2 MHz
+  */
+-static const struct geni_i2c_clk_fld geni_i2c_clk_map[] = {
++static const struct geni_i2c_clk_fld geni_i2c_clk_map_19p2mhz[] = {
+ 	{KHZ(100), 7, 10, 11, 26},
+ 	{KHZ(400), 2,  5, 12, 24},
+ 	{KHZ(1000), 1, 3,  9, 18},
+ };
+ 
++/* source_clock = 32 MHz */
++static const struct geni_i2c_clk_fld geni_i2c_clk_map_32mhz[] = {
++	{KHZ(100), 7, 14, 18, 40},
++	{KHZ(400), 4,  3, 11, 20},
++	{KHZ(1000), 4, 3,  6, 15},
++};
++
+ static int geni_i2c_clk_map_idx(struct geni_i2c_dev *gi2c)
+ {
+ 	int i;
+-	const struct geni_i2c_clk_fld *itr = geni_i2c_clk_map;
++	const struct geni_i2c_clk_fld *itr;
++
++	if (clk_get_rate(gi2c->se.clk) == 32 * HZ_PER_MHZ)
++		itr = geni_i2c_clk_map_32mhz;
++	else
++		itr = geni_i2c_clk_map_19p2mhz;
+ 
+-	for (i = 0; i < ARRAY_SIZE(geni_i2c_clk_map); i++, itr++) {
++	for (i = 0; i < ARRAY_SIZE(geni_i2c_clk_map_19p2mhz); i++, itr++) {
+ 		if (itr->clk_freq_out == gi2c->clk_freq_out) {
+ 			gi2c->clk_fld = itr;
+ 			return 0;
+-- 
+2.34.1
+
