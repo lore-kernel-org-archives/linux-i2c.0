@@ -1,52 +1,53 @@
 Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5A8AF9E4;
-	Fri, 27 Sep 2024 06:31:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F1C817A590;
+	Fri, 27 Sep 2024 06:31:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727418698; cv=none; b=nuhFG/VrnYH01WYgqS1bpmATBEgR9xmcBbmlcHp9Dvh/7uQ/Vk0h9w7E2FnpqwzVMHuOuurmn5RyiwHwqzFNyIE0b4LLYv8l6gsaZ1yqJecnSGm343bUAlWH0CIyz6Z5cHxxCYjyCHL/VNo0WGI9qxwtowq+3Nrb9uJx6tNTD1w=
+	t=1727418699; cv=none; b=Ng/7lzB7npyT1eE52c91Zb1DlYdW319mr1zVT/ZD+yXeJDYulg9OjYAcXxJh6IfXSHlNc8VBDVvkVhrYoqEQ7sjs1tFTU36D+8Ui4deeqV13/dpRscLp4YnTQBep29sRdsVFlI9rXCWVN/NBrKlkiSBPbJqngqo+gqbW9cvgG/E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727418698; c=relaxed/simple;
-	bh=E5l+KF3z9LuX0cSWiFxdVNZgCJHKrA4+XBIkYIUc6a4=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=uU6GUXNevxgUyIc/DsQE5Q+T5ayLqEC2AfGft558h38uRf2Ec+3GJbvlcGaCYVNiocn7ti78sIN6yPW0cqu6kQsDsnVp1go34fA7t+KZKVVvFCO2MHUWcDIJYlg1dhnY8UDMim0FNHemvhtqkM5lPomfLBsOEWxaCpDSjpbmhP0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=qualcomm.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=dACh1fMy; arc=none smtp.client-ip=205.220.180.131
+	s=arc-20240116; t=1727418699; c=relaxed/simple;
+	bh=YiBEyMGkuz5kpWjLn8/rzckTTdeNVTIwDDh+4HtJPgA=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=k0VFKSKzfVAWu60rGaC22IaczFFbMHDdukhj0vroirdmt9lKe9VSwSWXWsgVtiqUZTcrC/uMgvnEXbJ7XiIxBcwv1vTdR+6bIy5HpjyKeElawTVS0lYMjimmMV4dAKsKTP7PO7KsGr1LWFVWCL3dpQhJUe3K6OVWausHp6LT3rk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=qualcomm.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=N9Bu3ZZs; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="dACh1fMy"
-Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48QG9eei001881;
-	Fri, 27 Sep 2024 06:31:20 GMT
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="N9Bu3ZZs"
+Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 48R6FaoB026493;
+	Fri, 27 Sep 2024 06:31:30 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=qcppdkim1; bh=v8jhLGIcyIuoj1CO2ilW6C
-	o4k21cGdVKm0hOEnMA9oU=; b=dACh1fMywTAcN5ht4AD2tBf2S8ObqtvlKUb4gV
-	XhiPIT3F3QkXKjFlyxHtqe1rsdzSt7zThYYHT6TobjLV6mtxt1elLq2G/GeI60EE
-	RSqvxAXXvoHLnTSjbxrmpVjj1iaOKvtUJwc2bv8Jn0Z4dDn0bQkRu8iCoGcyheNC
-	SkpkF5PGvU8qm7eKZrsKGoWWUwsclNgjauqPrvK9iPzZcW6lkjyGu42L4H4xufju
-	UXte64gHPVlWDzB0SW5IDzO/eB7zvLM2SDA6JXserq0MloA+HXcZpz7xgsK/SEEP
-	r4+kzyIE8KvTIjXfTyw2Y1wf9hobwCb6W0yz1idnyRLZDNlw==
+	cc:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=qcppdkim1; bh=4zsVzf2BA5j
+	x/ttHUgcj2pHb1xIaBaZxzi+pRWBkB5U=; b=N9Bu3ZZs+3bvNpSYFoyhWUPsmxC
+	Ki4UuCchhodgTLxW4Fbtaed/VHyn8wNfb1KbW8s71MRjrStSA/3ihseehqn63Jp0
+	wK2OoTq5yH79+mcWvidfKzG6e5RlldTc1CeDGTgxY7MefmtaqBuE+ndy0maJKtu9
+	HBGqucwGSosGUYbjOlTgl2TFrjwz44vWQXO6u+VJGtXNnUzs8cd+QSL0InNWSIHS
+	HJlHo3E4vgbxm66ptuLtVZpUfO0XALWwwmq4E4ADxeDefAWOJyEqHyaQRql93CKe
+	FHcotODYMDyUpoFjm3nfWSMQO4a5nt3FBcLjuPHrPcHx/S19FwPRi72euIQ==
 Received: from apblrppmta02.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 41skgnjf6r-1
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 41sn5c23rg-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Sep 2024 06:31:19 +0000 (GMT)
+	Fri, 27 Sep 2024 06:31:29 +0000 (GMT)
 Received: from pps.filterd (APBLRPPMTA02.qualcomm.com [127.0.0.1])
-	by APBLRPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTP id 48R6VG3U001808;
-	Fri, 27 Sep 2024 06:31:16 GMT
+	by APBLRPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTP id 48R6VQAh001890;
+	Fri, 27 Sep 2024 06:31:26 GMT
 Received: from pps.reinject (localhost [127.0.0.1])
-	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 41sq7mnbms-1
+	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 41sq7mnbnd-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Sep 2024 06:31:16 +0000
+	Fri, 27 Sep 2024 06:31:26 +0000
 Received: from APBLRPPMTA02.qualcomm.com (APBLRPPMTA02.qualcomm.com [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 48R6VFI3001801;
-	Fri, 27 Sep 2024 06:31:15 GMT
+	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 48R6VQ6g001884;
+	Fri, 27 Sep 2024 06:31:26 GMT
 Received: from hu-maiyas-hyd.qualcomm.com (hu-msavaliy-hyd.qualcomm.com [10.213.110.207])
-	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 48R6VFDP001799
+	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 48R6VPhY001883
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Fri, 27 Sep 2024 06:31:15 +0000
+	Fri, 27 Sep 2024 06:31:26 +0000
 Received: by hu-maiyas-hyd.qualcomm.com (Postfix, from userid 429934)
-	id 9D1532408B; Fri, 27 Sep 2024 12:01:14 +0530 (+0530)
+	id B2C9B2408B; Fri, 27 Sep 2024 12:01:24 +0530 (+0530)
 From: Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>
 To: konrad.dybcio@linaro.org, andersson@kernel.org, andi.shyti@kernel.org,
         linux-arm-msm@vger.kernel.org, dmaengine@vger.kernel.org,
@@ -56,111 +57,156 @@ To: konrad.dybcio@linaro.org, andersson@kernel.org, andi.shyti@kernel.org,
         Frank.Li@nxp.com, konradybcio@kernel.org, bryan.odonoghue@linaro.org,
         krzk+dt@kernel.org, robh@kernel.org
 Cc: Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>
-Subject: [PATCH v3 0/4] Enable shared SE support over I2C
-Date: Fri, 27 Sep 2024 12:01:04 +0530
-Message-Id: <20240927063108.2773304-1-quic_msavaliy@quicinc.com>
+Subject: [PATCH v3 2/4] dma: gpi: Add Lock and Unlock TRE support to access SE exclusively
+Date: Fri, 27 Sep 2024 12:01:06 +0530
+Message-Id: <20240927063108.2773304-3-quic_msavaliy@quicinc.com>
 X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20240927063108.2773304-1-quic_msavaliy@quicinc.com>
+References: <20240927063108.2773304-1-quic_msavaliy@quicinc.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-QCInternal: smtphost
 X-QCInternal: smtphost
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: 5K6K7_MrA_cXfg1bPr5Jw7p9XTeAbp0i
-X-Proofpoint-GUID: 5K6K7_MrA_cXfg1bPr5Jw7p9XTeAbp0i
+X-Proofpoint-ORIG-GUID: aidnH4_FHISXJN-pOv3h8N7h_zjsVA_a
+X-Proofpoint-GUID: aidnH4_FHISXJN-pOv3h8N7h_zjsVA_a
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
  definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 bulkscore=0
- mlxlogscore=999 adultscore=0 suspectscore=0 phishscore=0 impostorscore=0
- spamscore=0 mlxscore=0 priorityscore=1501 lowpriorityscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ suspectscore=0 adultscore=0 impostorscore=0 malwarescore=0 mlxlogscore=999
+ spamscore=0 mlxscore=0 priorityscore=1501 bulkscore=0 phishscore=0
+ clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.19.0-2408220000 definitions=main-2409270043
 
-This Series adds support to share QUP (Qualcomm Unified peripheral)
-based I2C SE (Serial Engine) controller between two subsystems
-(Apps/ADSP/TZ etc). Each SS having it's own dedicated GPII(General
-Purpose Interface Instance) acting as pipe between SE and GSI(Generic SW-
-Interface) DMA HW engine. Hence the sharing of SE is possible only with
-I2C SE in GSI mode, not with FIFO/CPU DMA mode.
+GSI DMA provides specific TREs namely Lock and Unlock TRE, which
+provides mutual exclusive access to SE from any of the subsystem
+(E.g. Apps, TZ, ADSP etc). Lock prevents other subsystems from
+concurrently performing DMA transfers and avoids disturbance to
+data path. Basically for shared SE usecase, lock the SE for
+particular subsystem, complete the transfer, unlock the SE.
 
-Subsystem must acquire Lock over the SE so that it gets uninterrupted
-control till it unlocks the SE. It also makes sure the commonly shared
-TLMM GPIOs are not touched which can impact other subsystem or cause
-any interruption. Generally, GPIOs are being unconfigured during
-suspend time.
+Apply Lock TRE for the first transfer of shared SE and Apply Unlock
+TRE for the last transfer.
 
-GSI DMA engine is capable to perform requested transfer operations
-from any of the I2C client in a seamless way and its transparent to
-the subsystems. Make sure to enable “qcom,shared-se” flag only while
-enabling this feature. I2C client should add in its respective parent
-node. 
+Also change MAX_TRE macro to 5 from 3 because of the two additional TREs.
 
-Example : 
-Two clients from different SS can share an I2C SE for same slave device
-OR their owned slave devices.
-Assume I2C Slave EEPROM device connected with I2C controller.
-Each client from ADSP SS and APPS Linux SS can perform i2c transactions.
-This gets serialized by lock TRE + Transfers + Unlock TRE at HW level.
-
+TRE = Transfer Ring Element, refers to the queued descriptor.
+SE = Serial Engine
+SS = Subsystems (Apps processor, TZ, ADSP, Modem)
 
 Signed-off-by: Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>
 ---
+ drivers/dma/qcom/gpi.c           | 37 +++++++++++++++++++++++++++++++-
+ include/linux/dma/qcom-gpi-dma.h |  6 ++++++
+ 2 files changed, 42 insertions(+), 1 deletion(-)
 
-Link to V2: https://lore.kernel.org/lkml/a88a16ff-3537-4396-b2ea-4ba02b4850e9@quicinc.com/T/
-
-Changes in V3:
- - Added missing maintainers which i forgot to add.
- - Add cover letter with description of SS and EE for dt-bindings patch.
- - Added acronyms expansion to commit log.
- - [PATCH v2 3/4] : Removed exported symbol geni_se_clks_off(). 
-   Instead added changes to bypass pinctrl sleep configuration from
-   geni_se_resources_off() function.
- - Changed title name of [PATCH v2 3/4] to reflect the suggested changes.
- - [PATCH v2 4/4] kept geni_i2c_runtime_suspend() as is and removed 
-   explicit call to geni_se_clks_off().
- - Removed is_shared variable from i2c driver and instead used common 
-   shared_geni_se variable from qcom-geni-se.h so that other protocols
-   can also extend for similar feature.
- - I2C driver log changed from dev_err() to dev_dbg() for timeout.
- - set gpi_mode = true if shared_geni_se is set for this usecase. Enhanced
-   comments around code and commit log.
----
-
-Link to V1: https://lore.kernel.org/lkml/cb7613d0-586e-4089-a1b6-2405f4dc4883@quicinc.com/T/
-
-Changes in V2:
- - Enhanced commit log grammatically for PATCH v1 3/4 as suggested by Bryan.
- - Updated Cover letter along with acronyms expansion.
- - Added maintainers list from other subsystems for review, which was missing.
-   Thanks to Krzysztof for pointing out.
- - Added cover letter with an example of Serial Engine sharing.
- - Addressed review comments for all the patches.
-
----
-
-Mukesh Kumar Savaliya (4):
-  dt-bindindgs: i2c: qcom,i2c-geni: Document shared flag
-  dma: gpi: Add Lock and Unlock TRE support to access SE exclusively
-  soc: qcom: geni-se: Do not keep GPIOs to sleep state for shared SE
-    usecase
-  i2c: i2c-qcom-geni: Enable i2c controller sharing between two
-    subsystems
-
- .../bindings/i2c/qcom,i2c-geni-qcom.yaml      |  4 ++
- drivers/dma/qcom/gpi.c                        | 37 ++++++++++++++++++-
- drivers/i2c/busses/i2c-qcom-geni.c            | 24 ++++++++++--
- drivers/soc/qcom/qcom-geni-se.c               | 14 +++++--
- include/linux/dma/qcom-gpi-dma.h              |  6 +++
- include/linux/soc/qcom/geni-se.h              |  3 ++
- 6 files changed, 79 insertions(+), 9 deletions(-)
-
+diff --git a/drivers/dma/qcom/gpi.c b/drivers/dma/qcom/gpi.c
+index 52a7c8f2498f..120d91234442 100644
+--- a/drivers/dma/qcom/gpi.c
++++ b/drivers/dma/qcom/gpi.c
+@@ -2,6 +2,7 @@
+ /*
+  * Copyright (c) 2017-2020, The Linux Foundation. All rights reserved.
+  * Copyright (c) 2020, Linaro Limited
++ * Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
+  */
+ 
+ #include <dt-bindings/dma/qcom-gpi.h>
+@@ -65,6 +66,14 @@
+ /* DMA TRE */
+ #define TRE_DMA_LEN		GENMASK(23, 0)
+ 
++/* Lock TRE */
++#define TRE_I2C_LOCK		BIT(0)
++#define TRE_MINOR_TYPE		GENMASK(19, 16)
++#define TRE_MAJOR_TYPE		GENMASK(23, 20)
++
++/* Unlock TRE */
++#define TRE_I2C_UNLOCK		BIT(8)
++
+ /* Register offsets from gpi-top */
+ #define GPII_n_CH_k_CNTXT_0_OFFS(n, k)	(0x20000 + (0x4000 * (n)) + (0x80 * (k)))
+ #define GPII_n_CH_k_CNTXT_0_EL_SIZE	GENMASK(31, 24)
+@@ -516,7 +525,7 @@ struct gpii {
+ 	bool ieob_set;
+ };
+ 
+-#define MAX_TRE 3
++#define MAX_TRE 5
+ 
+ struct gpi_desc {
+ 	struct virt_dma_desc vd;
+@@ -1637,6 +1646,19 @@ static int gpi_create_i2c_tre(struct gchan *chan, struct gpi_desc *desc,
+ 	struct gpi_tre *tre;
+ 	unsigned int i;
+ 
++	/* create lock tre for first tranfser */
++	if (i2c->shared_se && i2c->first_msg) {
++		tre = &desc->tre[tre_idx];
++		tre_idx++;
++
++		tre->dword[0] = 0;
++		tre->dword[1] = 0;
++		tre->dword[2] = 0;
++		tre->dword[3] = u32_encode_bits(1, TRE_I2C_LOCK);
++		tre->dword[3] |= u32_encode_bits(0, TRE_MINOR_TYPE);
++		tre->dword[3] |= u32_encode_bits(3, TRE_MAJOR_TYPE);
++	}
++
+ 	/* first create config tre if applicable */
+ 	if (i2c->set_config) {
+ 		tre = &desc->tre[tre_idx];
+@@ -1695,6 +1717,19 @@ static int gpi_create_i2c_tre(struct gchan *chan, struct gpi_desc *desc,
+ 		tre->dword[3] |= u32_encode_bits(1, TRE_FLAGS_IEOT);
+ 	}
+ 
++	/* Unlock tre for last transfer */
++	if (i2c->shared_se && i2c->last_msg && i2c->op != I2C_READ) {
++		tre = &desc->tre[tre_idx];
++		tre_idx++;
++
++		tre->dword[0] = 0;
++		tre->dword[1] = 0;
++		tre->dword[2] = 0;
++		tre->dword[3] = u32_encode_bits(1, TRE_I2C_UNLOCK);
++		tre->dword[3] |= u32_encode_bits(1, TRE_MINOR_TYPE);
++		tre->dword[3] |= u32_encode_bits(3, TRE_MAJOR_TYPE);
++	}
++
+ 	for (i = 0; i < tre_idx; i++)
+ 		dev_dbg(dev, "TRE:%d %x:%x:%x:%x\n", i, desc->tre[i].dword[0],
+ 			desc->tre[i].dword[1], desc->tre[i].dword[2], desc->tre[i].dword[3]);
+diff --git a/include/linux/dma/qcom-gpi-dma.h b/include/linux/dma/qcom-gpi-dma.h
+index 6680dd1a43c6..8589c711afae 100644
+--- a/include/linux/dma/qcom-gpi-dma.h
++++ b/include/linux/dma/qcom-gpi-dma.h
+@@ -65,6 +65,9 @@ enum i2c_op {
+  * @rx_len: receive length for buffer
+  * @op: i2c cmd
+  * @muli-msg: is part of multi i2c r-w msgs
++ * @shared_se: bus is shared between subsystems
++ * @bool first_msg: use it for tracking multimessage xfer
++ * @bool last_msg: use it for tracking multimessage xfer
+  */
+ struct gpi_i2c_config {
+ 	u8 set_config;
+@@ -78,6 +81,9 @@ struct gpi_i2c_config {
+ 	u32 rx_len;
+ 	enum i2c_op op;
+ 	bool multi_msg;
++	bool shared_se;
++	bool first_msg;
++	bool last_msg;
+ };
+ 
+ #endif /* QCOM_GPI_DMA_H */
 -- 
 2.25.1
 
