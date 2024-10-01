@@ -1,131 +1,160 @@
-Received: from phobos.denx.de (phobos.denx.de [85.214.62.61])
+Received: from mail-qv1-f45.google.com (mail-qv1-f45.google.com [209.85.219.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 735E4198824
-	for <linux-i2c@vger.kernel.org>; Mon, 30 Sep 2024 19:28:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=85.214.62.61
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19A5EFC08;
+	Tue,  1 Oct 2024 02:36:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727724530; cv=none; b=FZGN0/QXwX4Ghf1K1H4rfdnlCEUeeXBp151BDtjUle+RYFIvcN+dUuCawUgjizDSnjcG3JzZI+4RH608gkItd5FrJ/YElH3r0Ovhf2rnqcGl6yTxIJelPw5TZrFEZ3UdsewXs2zEoSFYuOpuKxKpMJzWZJGAiFPpW/WVWGwyBgY=
+	t=1727750191; cv=none; b=tSd0+igOh9sUtb5a0MrXC6fJwnFT5wD0UqaIz1eZDqmxVLd8gPQhlsGnSyU2Vv3WVfqi5q8+AT6MyoDFqB+QUyHUNVWoQaDbp/573vzcH161UNslnAv4Nh+DFLb3xU4u1vCG4f9NFXFmgR1NTEZDDedqJ8c/6z7FXSsYQLZY+H0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727724530; c=relaxed/simple;
-	bh=iFxekvfoH9HTJT4KyQw1boUjBPd27tSrrrPzQfp7Oqg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LjcMul4daH23y6ZaXZBMfXxh3L0it+8pGmy+hI/QjtLW4tPW3gKChSleBofZJaPWkoryw74Zl5+MtaTZ/8dzpx+1Fah279Yq56ukprNpBe5bssOn2sqQEb2A5Lo6RRax2vYWA9MxPBBGWqkifcDrHVvJQ3icYdUDBLty6ee6vQs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de; spf=pass smtp.mailfrom=denx.de; dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b=Hb6dAy2p; arc=none smtp.client-ip=85.214.62.61
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=denx.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=denx.de
+	s=arc-20240116; t=1727750191; c=relaxed/simple;
+	bh=AXJC0H+UsRse+932wT8U4PWiSnezLCwlCGRsDaCdmso=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VCpcNhN99tMi1Et/Xto1XgVq1gqCbC+Xtrbxh+rrT+UYv/trspGHD1XiU2PX7bB9ptDh6PLssvLzKhnLUMH0wej5AdJSBPPA99UszH3msP8xlZXjsQObjdEEcUXm+Wj/duirR87oGvqqofvgLuVDcBJZ2OiOlzargQyY/XTQhS0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LG3ezPRq; arc=none smtp.client-ip=209.85.219.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=denx.de header.i=@denx.de header.b="Hb6dAy2p"
-Received: from [127.0.0.1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
-	(using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
-	(No client certificate requested)
-	(Authenticated sender: marex@denx.de)
-	by phobos.denx.de (Postfix) with ESMTPSA id 23ED788F6F;
-	Mon, 30 Sep 2024 21:28:46 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-	s=phobos-20191101; t=1727724526;
-	bh=t/qY0IMBlqjrsWUrE0QFIahgaCYX9DxAmnXrk/Bg8wo=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=Hb6dAy2pWsq/8MeI0tgU2VWJ2EMc6EF31OuTv0rBfAqGjKuOZksHhL/zabTbz3W0z
-	 cqjqyVi/hbnT/Sg4qKmZKPbbphmHQNd2zRn5D4Xf1kOEl/6JbjToH3kY2z8I3tOJcb
-	 fCPfYXsy1/ENFJtckqAa9ewj3HM8o4GW5XZ88qx2Gw+kadr+nHdOtAZzEu3SU+k/OY
-	 utxcvW31NA6E6vZDZbISpdpwyl2h8bDk39Eag/tfvCTvYyFhqjbl93rORmBpMHr3Qd
-	 mYCF8Xc+jKquDFGLHXZgTwXi9Wjayct1uwaMdFQmliHzgcS6KYKe6lUotJXIEJWbf0
-	 cPfE8z7Zp5pFw==
-Message-ID: <3af2014a-9c25-43f8-95d1-0594f273f4f5@denx.de>
-Date: Mon, 30 Sep 2024 21:26:49 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LG3ezPRq"
+Received: by mail-qv1-f45.google.com with SMTP id 6a1803df08f44-6cb4f1137a8so17455776d6.2;
+        Mon, 30 Sep 2024 19:36:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1727750189; x=1728354989; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=lPG9q5l19vwEBXwpbDlrZx88+QoCty36iyTE1Wr6eRQ=;
+        b=LG3ezPRqrvmpZEDFABuXvpUMQyqCtnWkkV9kU6b/SGfP3TP0lkdmhkX6z3+tRdXrEv
+         R/i+a2R1/5SEdcXEkEMrhpgqTp1LjR3mpcJH36yv0DVqZ9WKASugeLCJsx/WzWzMdle+
+         fWwA2W6gOuJGfVOnHn8jXU/8+Si4H/TE6b1PFV7lOEYh/NOX9AuN+idsn1BidpnTkdZW
+         GYl0S+q6AieHfgrYI05QxJ+ze1wqDrA1AQg/O6YAFhabOcyW36AwlRInzZo42Y+v031S
+         T7Vlic3pVbB5zyjkZhIkbOh1wJE8qeasBoLxoP639tC117kmTM1j0dg6VMSIWwwmldts
+         9YjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727750189; x=1728354989;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=lPG9q5l19vwEBXwpbDlrZx88+QoCty36iyTE1Wr6eRQ=;
+        b=DL7rDQji3NSBsNnDrRmh5AzKgaAloGURQGib7P1xRZswo/YDoB6I/tPBhTvPOqeQOB
+         cMCCUL9MUluh4As38nBUnYScccQ8b2BfBSg/PvGK+bTwQRzKEsq46X/f9I7opTPo/q0e
+         RXwJ3uLP4QzM77nsO5urjzj3CZWMkK4AKnhhg+SVIFz9jYolPCPkfKO9GRKJb8ayFKh4
+         D7KAXMxp+Fki0VOWUx+KaYvXo2wU/Jz4usfGZLiczA/HbR3RkWHxwM5D4FfYYXOVSDcI
+         l+l/sXIXoPKwZ03NCZFInE7FI0v7hZwmhmET0EvGwvUtArfv/m79HTordGITJ7+LLHb5
+         cXZw==
+X-Forwarded-Encrypted: i=1; AJvYcCULBjnF1/NUtHoqSbhcQrP9kYfaQEBHoey3Nwm+oLZr5MWv0Pe6zkI17zP8OhDAbiX/de8APT2/FEstFn+Ewg==@vger.kernel.org, AJvYcCUotURdxX7llm8wMrqjnQumTLNjWdSRRxitNlhyebo1Egd8zs6/vfL4+QIZXaUtkeKNPF8XuyrKkw/8@vger.kernel.org, AJvYcCV1S9OoY8fbX1ldYdm4BxV1e2mRHhEvZtSkyRhK1YHypPiHjQdbez46M/btH/p6s33Dhd4swOh8M/K7@vger.kernel.org, AJvYcCVfEyIZm0P24frJ6mmnk6yQCf2VDlg5L5fflLXjfrJnEH9VkyCI8IcOVpFg2kt2Nw2rChHCxToiLpNA@vger.kernel.org, AJvYcCWSmj2sSJGyIEmO6n1TZzqnaiIGbaHlKOZJ+9CscF7AXaeSNIyxoBL+tiRxE9mgGaOYAXnxedXpkZyi9kc=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwelI5NhIUfmE5CxxPbcgRR6d9OefAjxUkISQ/3nCL/7VsQwaaE
+	1QwSjRzb6UISf67qNetxgZRsqzwK2KHyurh64RF+eb1DOpI6pKlR
+X-Google-Smtp-Source: AGHT+IEMvPdRU/92CB4wfyoxRZxEPorM6DB81gE9iF2LUxzQ9WPXYkhPsOwaNzh1NdNhahEm5pTNMw==
+X-Received: by 2002:a05:6214:87:b0:6cb:386e:244a with SMTP id 6a1803df08f44-6cb3b644015mr206851346d6.39.1727750188762;
+        Mon, 30 Sep 2024 19:36:28 -0700 (PDT)
+Received: from localhost ([2607:fea8:52a3:d200::1a17])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-6cb3b5ff171sm45441186d6.1.2024.09.30.19.36.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Sep 2024 19:36:28 -0700 (PDT)
+From: Richard Acayan <mailingradian@gmail.com>
+To: Bjorn Andersson <andersson@kernel.org>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Loic Poulain <loic.poulain@linaro.org>,
+	Robert Foss <rfoss@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Todor Tomov <todor.too@gmail.com>,
+	"Bryan O'Donoghue" <bryan.odonoghue@linaro.org>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Konrad Dybcio <konradybcio@kernel.org>,
+	linux-arm-msm@vger.kernel.org,
+	linux-clk@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-media@vger.kernel.org
+Cc: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+	Richard Acayan <mailingradian@gmail.com>
+Subject: [PATCH v5 0/7] Add SDM670 camera subsystem
+Date: Mon, 30 Sep 2024 22:35:21 -0400
+Message-ID: <20241001023520.547271-9-mailingradian@gmail.com>
+X-Mailer: git-send-email 2.46.2
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] i2c: stm32f7: Do not prepare/unprepare clock during
- runtime suspend/resume
-To: Alain Volmat <alain.volmat@foss.st.com>
-Cc: linux-i2c@vger.kernel.org, Alexandre Torgue
- <alexandre.torgue@foss.st.com>, Andi Shyti <andi.shyti@kernel.org>,
- Christoph Niedermaier <cniedermaier@dh-electronics.com>,
- Maxime Coquelin <mcoquelin.stm32@gmail.com>,
- Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
- kernel@dh-electronics.com, linux-arm-kernel@lists.infradead.org,
- linux-stm32@st-md-mailman.stormreply.com
-References: <20240928014409.633542-1-marex@denx.de>
- <20240930183846.GA1601582@gnbcxd0016.gnb.st.com>
-Content-Language: en-US
-From: Marek Vasut <marex@denx.de>
-In-Reply-To: <20240930183846.GA1601582@gnbcxd0016.gnb.st.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Virus-Scanned: clamav-milter 0.103.8 at phobos.denx.de
-X-Virus-Status: Clean
+Content-Transfer-Encoding: 8bit
 
-On 9/30/24 8:38 PM, Alain Volmat wrote:
-> Hi Marek,
+This adds support for the camera subsystem on the Snapdragon 670.
 
-Hello Alain,
+As of next-20240930, the bugs with camss have been resolved. The
+dt-bindings were tested on v6.10 with:
 
-> thanks a lot for the patch.
-> 
-> On Sat, Sep 28, 2024 at 03:43:46AM +0200, Marek Vasut wrote:
->> In case there is any sort of clock controller attached to this I2C bus
->> controller, for example Versaclock or even an AIC32x4 I2C codec, then
->> an I2C transfer triggered from the clock controller clk_ops .prepare
->> callback may trigger a deadlock on drivers/clk/clk.c prepare_lock mutex.
->>
->> This is because the clock controller first grabs the prepare_lock mutex
->> and then performs the prepare operation, including its I2C access. The
->> I2C access resumes this I2C bus controller via .runtime_resume callback,
->> which calls clk_prepare_enable(), which attempts to grab the prepare_lock
->> mutex again and deadlocks.
->>
->> Since the clock are already prepared since probe() and unprepared in
->> remove(), use simple clk_enable()/clk_disable() calls to enable and
->> disable the clock on runtime suspend and resume, to avoid hitting the
->> prepare_lock mutex.
->>
->> Signed-off-by: Marek Vasut <marex@denx.de>
->> ---
->> Cc: Alain Volmat <alain.volmat@foss.st.com>
->> Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
->> Cc: Andi Shyti <andi.shyti@kernel.org>
->> Cc: Christoph Niedermaier <cniedermaier@dh-electronics.com>
->> Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
->> Cc: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
->> Cc: kernel@dh-electronics.com
->> Cc: linux-arm-kernel@lists.infradead.org
->> Cc: linux-i2c@vger.kernel.org
->> Cc: linux-stm32@st-md-mailman.stormreply.com
->> ---
->>   drivers/i2c/busses/i2c-stm32f7.c | 4 ++--
->>   1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
->> index cfee2d9c09de3..65c035728a4fa 100644
->> --- a/drivers/i2c/busses/i2c-stm32f7.c
->> +++ b/drivers/i2c/busses/i2c-stm32f7.c
->> @@ -2395,7 +2395,7 @@ static int __maybe_unused stm32f7_i2c_runtime_suspend(struct device *dev)
->>   	struct stm32f7_i2c_dev *i2c_dev = dev_get_drvdata(dev);
->>   
->>   	if (!stm32f7_i2c_is_slave_registered(i2c_dev))
->> -		clk_disable_unprepare(i2c_dev->clk);
->> +		clk_disable(i2c_dev->clk);
->>   
->>   	return 0;
->>   }
->> @@ -2406,7 +2406,7 @@ static int __maybe_unused stm32f7_i2c_runtime_resume(struct device *dev)
->>   	int ret;
->>   
->>   	if (!stm32f7_i2c_is_slave_registered(i2c_dev)) {
->> -		ret = clk_prepare_enable(i2c_dev->clk);
->> +		ret = clk_enable(i2c_dev->clk);
->>   		if (ret) {
->>   			dev_err(dev, "failed to prepare_enable clock\n");
-> 
-> The call now being clk_enable, could you also change the error message
-> from prepare_enable to enable ?
-> 
-> With that done,
-> Acked-by: Alain Volmat <alain.volmat@foss.st.com>
-Fixed in V2, thanks !
+    make O=.output ARCH=arm64 dt_binding_check DT_SCHEMA_FILES=clock/qcom,sdm845-camcc.yaml
+    make O=.output ARCH=arm64 dt_binding_check DT_SCHEMA_FILES=i2c/qcom,i2c-cci.yaml
+    make O=.output ARCH=arm64 dt_binding_check DT_SCHEMA_FILES=media/qcom,sdm670-camss.yaml
+
+Changes since v4 (20240904020448.52035-9-mailingradian@gmail.com):
+- change camss interrupts to rising edge in dts (7/7)
+- change IRQs to rising edge in camss dt-bindings example (4/7)
+- move gcc and ahb clocks in camss dt-bindings example (4/7)
+- add reviewed-by for camcc dt-bindings patch (1/7)
+
+Changes since v3 (20240819221051.31489-7-mailingradian@gmail.com):
+- add specific sdm670 compatible for camcc to dt schema and dts (1/7, 6/7)
+- pick up patch from Bryan for CCI driver (3/7)
+- stop assigning CCI frequency in dts (7/7)
+- add maxItems for sdm670 cci clocks (2/7)
+- remove empty line at top of camss dt schema (4/7)
+- move regs and reg-names up in camss dt schema (4/7)
+- move gcc and ahb clocks up in dts and dt schema (4/7, 7/7)
+- add reviewed-by from Vladimir for CCI dt-bindings patch (2/7)
+- add reviewed-by from Bryan for dts patch (7/7)
+- add reviewed-by from Krzysztof for camss dt-bindings patch (4/7)
+- add rewiew tags for camss driver patch (5/7)
+
+Changes since v2 (20240813230037.84004-8-mailingradian@gmail.com):
+- drop unnecessary assigned AXI clock frequency (5/5)
+- drop src clocks from cci (5/5)
+- add unit name, remove mmio properties from port in example dts (2/5)
+- correct the reg-names order (2/5)
+- add parent_dev_ops to csid (3/5)
+- remove CSID clocks from VFE (3/5)
+- remove AXI clock from CSIPHY (3/5)
+- change subsystem part of the commit message summary (3/5)
+- add reviewed-by (4/5)
+
+Changes since v1 (20240806224219.71623-7-mailingradian@gmail.com):
+- define dedicated resource structs/arrays for sdm670 (3/5)
+- separate camcc device tree node into its own patch (4/5)
+- specify correct dual license (2/5)
+- add include directives in dt-bindings camss example (2/5)
+- remove src clocks from dt-bindings (2/5)
+- remove src clocks from dtsi (5/5)
+- add power-domain-names to camss (5/5)
+- specify power domain names (3/5)
+- restrict cci-i2c clocks (1/5)
+- populate a commit message with hw info (2/5)
+- reword commit message (3/5)
+
+Bryan O'Donoghue (1):
+  i2c: qcom-cci: Stop complaining about DT set clock rate
+
+Richard Acayan (6):
+  dt-bindings: clock: qcom,sdm845-camcc: add sdm670 compatible
+  dt-bindings: i2c: qcom-cci: Document SDM670 compatible
+  dt-bindings: media: camss: Add qcom,sdm670-camss
+  media: qcom: camss: add support for SDM670 camss
+  arm64: dts: qcom: sdm670: add camcc
+  arm64: dts: qcom: sdm670: add camss and cci
+
+ .../bindings/clock/qcom,sdm845-camcc.yaml     |   6 +-
+ .../devicetree/bindings/i2c/qcom,i2c-cci.yaml |  19 ++
+ .../bindings/media/qcom,sdm670-camss.yaml     | 318 ++++++++++++++++++
+ arch/arm64/boot/dts/qcom/sdm670.dtsi          | 195 +++++++++++
+ drivers/i2c/busses/i2c-qcom-cci.c             |   8 -
+ drivers/media/platform/qcom/camss/camss.c     | 191 +++++++++++
+ 6 files changed, 728 insertions(+), 9 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/media/qcom,sdm670-camss.yaml
+
+-- 
+2.46.2
+
