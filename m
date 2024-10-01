@@ -1,93 +1,87 @@
-Received: from 19.mo583.mail-out.ovh.net (19.mo583.mail-out.ovh.net [46.105.35.78])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f52.google.com (mail-lf1-f52.google.com [209.85.167.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E988F1CB314
-	for <linux-i2c@vger.kernel.org>; Tue,  1 Oct 2024 16:04:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.105.35.78
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D6F31C6F7F
+	for <linux-i2c@vger.kernel.org>; Tue,  1 Oct 2024 18:52:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727798654; cv=none; b=B3VO2eZeNsZ7b1XoIukoQSAypDvytmnJCvU0ZCBDzB8zZsheER+czlIhUvfhrAzR9uXo9d/kgkdAJmF+7YfpJSX+sk+GZ8L/iHI2KA9qDL2u+upzxTqjNk3Tt99rREO2cdxEHjFKvdhK9S8uY5zmD2je1O0LHscd11Wst34evBI=
+	t=1727808759; cv=none; b=K3gP7/DWd1euxGVum5ueOYBcJr/Sbg1Kf03U8G0SjxuyxMNHmOrDoq/JnpIJ7lBfXJ4G7VKxy8lVjJ8sO1px852OCu9jv1RSBbOU5uVEaoAAWFF4+CnYMIHmr5MYdpZS8lVQIWsOQgwSF7sxK9oRStK86z3o584PghYvsSbinsc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727798654; c=relaxed/simple;
-	bh=5Ps6qaP3zQmDsMHKHbPv5tOEQw72uaJPiHCSZ93/QEY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZY2DUjYqAXnpvJDzudF4un5MdDjfCoZS5v8z0nL1TCz1hhBwaqgyJeAbTQVnxP6vazHAvfEYoXYh0gDHWC4rQThkMdVt7zdutoUEL5+YkSQHL/wP5XPjmrZtnsb/boQHoczS6LyIlTwcP07MaADroYwgjDqkz6A+9pilw7e1EHg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=46.105.35.78
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director9.ghost.mail-out.ovh.net (unknown [10.109.140.34])
-	by mo583.mail-out.ovh.net (Postfix) with ESMTP id 4XHzVj2TLxz1Ppr
-	for <linux-i2c@vger.kernel.org>; Tue,  1 Oct 2024 13:36:29 +0000 (UTC)
-Received: from ghost-submission-55b549bf7b-kpzdn (unknown [10.110.164.11])
-	by director9.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 1B7CF1FE5F;
-	Tue,  1 Oct 2024 13:36:27 +0000 (UTC)
-Received: from etezian.org ([37.59.142.110])
-	by ghost-submission-55b549bf7b-kpzdn with ESMTPSA
-	id ZIraKdv6+2YL7gAAvqo9vA
-	(envelope-from <andi@etezian.org>); Tue, 01 Oct 2024 13:36:27 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-110S00467e7d24f-62e5-415c-8458-368343432183,
-                    19B342EA1BF14464D5388E9C092C63149640B63F) smtp.auth=andi@etezian.org
-X-OVh-ClientIp:188.155.229.193
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Bjorn Andersson <andersson@kernel.org>
-Cc: linux-i2c@vger.kernel.org,
-	Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-	Jinjie Ruan <ruanjinjie@huawei.com>,
-	Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>,
-	linux-arm-msm@vger.kernel.org,
-	Andi Shyti <andi.shyti@kernel.org>
-Subject: [PATCH v2] i2c: qcom-geni: Keep comment why interrupts start disabled
-Date: Tue,  1 Oct 2024 15:36:20 +0200
-Message-ID: <20241001133620.2651795-1-andi.shyti@kernel.org>
-X-Mailer: git-send-email 2.45.2
+	s=arc-20240116; t=1727808759; c=relaxed/simple;
+	bh=sD8E4e+PPFfoPemdrxEApnMQulCxcLHme5ymLS77OkM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=oSWG3Ee1RPWEMbj3HkUwDmkIAm28VFDqT8/2zM9k1mgbNHZQVwZG95WiyVol5qGwW6SINewr4UTPr72wZK0WwGjEhnuzzKNpJu3L8+OoR87MNzBE15B2Hw1RXF3xfXodBlA/ujvtxLTSh9QEWX88oZcWdoEeS5UIl4qgLs/vgl4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bgdev.pl; spf=none smtp.mailfrom=bgdev.pl; dkim=pass (2048-bit key) header.d=bgdev-pl.20230601.gappssmtp.com header.i=@bgdev-pl.20230601.gappssmtp.com header.b=fbyh1WRY; arc=none smtp.client-ip=209.85.167.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bgdev.pl
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bgdev.pl
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=bgdev-pl.20230601.gappssmtp.com header.i=@bgdev-pl.20230601.gappssmtp.com header.b="fbyh1WRY"
+Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-5398ec2f3c3so59788e87.1
+        for <linux-i2c@vger.kernel.org>; Tue, 01 Oct 2024 11:52:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bgdev-pl.20230601.gappssmtp.com; s=20230601; t=1727808755; x=1728413555; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=sD8E4e+PPFfoPemdrxEApnMQulCxcLHme5ymLS77OkM=;
+        b=fbyh1WRYT5iKrurPqvG/zXCY4YTt4zA5d2I4oQrAgnycvOSuoNcALMcWNCyDkgRr9C
+         OJSrgyvUwHy7gH/3UzwHZ4dAEI1DbgdnTdR/gg1xmSIrCnsoAORTNRBh/JfJgctnQOQ0
+         5WFTSiTYJD3dgsAE9Z9xRRDNtWw7XL/iTR5fOZBNdEVIZNkf01duKbc77I+yclER8Wm8
+         s1k+MIYn39e45qrZImZzpnWd2nkYc1dcbACAW/PVCkPCv3vjuQCFsBtYtcGvW1Y5WfxA
+         XtVCBhXunuyBZh1I70LvzmwEFbszDFtjM2CJj5YRovdLtR5JQAx0DZ8rPCmnTn2iidMU
+         l0Lg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727808755; x=1728413555;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=sD8E4e+PPFfoPemdrxEApnMQulCxcLHme5ymLS77OkM=;
+        b=PFKflLSputmmgh97yvXy7RsvnuP1cTeptafdRq3hMRXOSuQz4xm6FwHYMceE6ALhKS
+         CcSXOL0mKNY8vSzJgtlb+CjMjBZFE7Lrjok6Tyk8Q/UL+wlBJEf3M/PVPV+GKWXWOaCN
+         FcQC/VQJWL/yovdy+hvd73IwTNgEJFaMJw1SvLYrlEJSODuFH6O03QppMkERUEVAhN/2
+         8+dRfHLr3e1Vv9vUh+9QqD/WMyN1yo27Fer/USC/1eK0O4WQ0Ml4ld422XezEqYK3qGz
+         v6E9D2PsE/Iz+VQ0zKa1SKNfitmv+TDHGTp53iMm0nKi9ghTTYoKX/lTvUQrob23uXI0
+         LeUg==
+X-Forwarded-Encrypted: i=1; AJvYcCXxLQhG9oLDmHa1kTGRLjtEnW2HJoHBItGBCaq8ppIYVDEtrQEfIpwE+/1Pz9wvR2kA89NTYTw9Qt8=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx/NfDjgRKaIZSTEfYqCdahMbA5DXWPX6Z6g6F+ps7j9prThof2
+	krr/cqcYcj/3J75dNrd6FWd8uMmXVc2d5b/tE1XY3e7T+KGqWKNsQiSUJMP03bS0gM3onzYDQEQ
+	iWSP+88OL38BYjLF0WvEZ+r9Ao/IXSL9mBvBTUw==
+X-Google-Smtp-Source: AGHT+IG41sCRZbM6//whDIpTonuwAIsnbWZRJaaYzsvm+L+r9ge26qwBfuwOHKSHxHakYmEWv1+JQdqE3PMHOMQu+pA=
+X-Received: by 2002:a05:6512:3a96:b0:52c:9468:c991 with SMTP id
+ 2adb3069b0e04-539a066336fmr236090e87.14.1727808755057; Tue, 01 Oct 2024
+ 11:52:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 18076604480472025671
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeeftddrvddujedgieehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnheptdevueeiheeftedujefhheelieejvdevteelfefhheeutdelkedtveejudejgfdvnecukfhppeduvdejrddtrddtrddupddukeekrdduheehrddvvdelrdduleefpdefjedrheelrddugedvrdduuddtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehkeefpdhmohguvgepshhmthhpohhuth
+References: <20241001-congatec-board-controller-v3-0-39ceceed5c47@bootlin.com> <20241001-congatec-board-controller-v3-2-39ceceed5c47@bootlin.com>
+In-Reply-To: <20241001-congatec-board-controller-v3-2-39ceceed5c47@bootlin.com>
+From: Bartosz Golaszewski <brgl@bgdev.pl>
+Date: Tue, 1 Oct 2024 20:52:23 +0200
+Message-ID: <CAMRc=MdGYUt25kE+rVHvKhgLw97aS7KDLHRXv9M+G5sz_qqYZw@mail.gmail.com>
+Subject: Re: [PATCH v3 2/5] gpio: Congatec Board Controller gpio driver
+To: Thomas Richard <thomas.richard@bootlin.com>
+Cc: Lee Jones <lee@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, 
+	Andi Shyti <andi.shyti@kernel.org>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
+	Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org, 
+	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-watchdog@vger.kernel.org, thomas.petazzoni@bootlin.com, 
+	blake.vermeer@keysight.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+On Tue, Oct 1, 2024 at 1:54=E2=80=AFPM Thomas Richard
+<thomas.richard@bootlin.com> wrote:
+>
+> Add gpio support for the Congatec Board Controller.
+> This Board Controller has 14 GPIO pins.
+>
+> The driver is probed by the Congatec Board Controller MFD driver.
+>
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> Signed-off-by: Thomas Richard <thomas.richard@bootlin.com>
+> ---
 
-The to-be-fixed commit rightfully reduced a race window, but also
-removed a comment which is still helpful after the fix. Bring the
-comment back.
-
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Bjorn Andersson <andersson@kernel.org>
-Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
----
-Hi,
-
-I'm resending this patch from Wolfram so that we don't lose it. All the changes
-in this v2 have been agreed during code review.
-
-Here's the difference:
-v1 -> v2:
- - Reword the comment.
- - Remove the Fixes tag.
- - Add Bjorn's r-b.
-
- drivers/i2c/busses/i2c-qcom-geni.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 212336f724a69..b48f25c58baa9 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -818,6 +818,8 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 	init_completion(&gi2c->done);
- 	spin_lock_init(&gi2c->lock);
- 	platform_set_drvdata(pdev, gi2c);
-+
-+	/* Keep interrupts disabled initially to allow for low-power modes */
- 	ret = devm_request_irq(dev, gi2c->irq, geni_i2c_irq, IRQF_NO_AUTOEN,
- 			       dev_name(dev), gi2c);
- 	if (ret) {
--- 
-2.45.2
-
+Acked-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
