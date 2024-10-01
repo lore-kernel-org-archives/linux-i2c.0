@@ -1,322 +1,229 @@
-Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C74AD1C1AC2;
-	Tue,  1 Oct 2024 11:54:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.194
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9B431C2DA4
+	for <linux-i2c@vger.kernel.org>; Tue,  1 Oct 2024 12:44:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1727783652; cv=none; b=bbCJEwo4ibA8KKeHzCGRc2cVNZVpJUSaHn5EcJTqsHRKXKhRkgSuo8ixHT85Se0+cOWAFkVM5f3CzBrMFM+y1S0tbIlzXWYDEMy28ivm6A680DyvZdxufZf81eNkLRvkd1/plkcxRmGBFEQAWT5DFgQu03/DK+vcY2w8k+SH6S8=
+	t=1727786693; cv=none; b=gtGjDCUOm43b7Dq/2Dc4PtJ6pSul8oEdBpIhSXjxlw2c4ggh7lvfd6zPYbiScOCSms3rnjgk0QRcIp1XCwrTuLIRxNEgaXYEDnphqxOhYwvM6MnVvmpeJNN3LFK2aeSELUNfvl3fFdvQ31jA+DJamXzY1cUFLoaZGUOXyYtfWGs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1727783652; c=relaxed/simple;
-	bh=l75P8wvWW76vAuHq66CKFYMo8Ry239dCB1UirylqHEY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Tnm787YDy6flkfa6777CiDz3/EwnLpaHeUVqdU85eYpxkMYgFxhwRzJInZ566k7FC49rHurj+di+8qcw0kd4JmsV+bG7fP1KTjhOZuqUqVbEmwVJS6mjpQWeT9MowVTaG1ga/G6MPHa/SPCkF/U+hFD2lQ/qHu78GNJ72Co/VL0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=SxR80kvB; arc=none smtp.client-ip=217.70.183.194
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1727786693; c=relaxed/simple;
+	bh=rMWaD774gg0hu/gWCIVWwnbAb1bXuoiTiGBgOQS7Zec=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ulwadmxx8N92NnpCEpqvBdxdBpuoVYR6pF5LNijNqo+2EFolcS7yDDmLEXY+R97yZe8P3qkYX8DQS561h3f63zySML/ZUA8p3pLl7Twp61mvETaPvgvxaU6Ri+lxSWcE7nW4hCIW1ybNux3kZTpaH+MN6nDlG46R9ccT578cjK4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=lLMCacNG; arc=none smtp.client-ip=209.85.167.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="SxR80kvB"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id D993540005;
-	Tue,  1 Oct 2024 11:54:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1727783647;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8S/WWR1XIvLtlIPuH5AVajm0Rnr/KV/MFO37sHhN0cU=;
-	b=SxR80kvByK9yqNfWdh30PYD/QBwt+gc4wN7zCVN2AJW5qM5b703r92VHEqTL/lcQEcONVC
-	yAisssFjggU81m4W2Fie8zA8AJkgUE6VZBUcxLhD4WNkghWrhVqJaBTnKqmMjRU285nujf
-	R4Un6HDbytzp6U9OmepWlh8Uy7BNMqWWqB5cudNWQSuf6dFtOgX0YXZ7pVtP+waVfj6cAU
-	hNoj3gwhMCxEfkV2nlS9zGQRI3KAcTl8/atp8/rUJGI7VV+5lO8jkN9ceTBtu5sSNmw1yL
-	lcoZB22TmGO3m7WziDufJ1xwYLaUmf774/ZHZtaA5DABjoqG5H57F1yXM9A0QA==
-From: Thomas Richard <thomas.richard@bootlin.com>
-Date: Tue, 01 Oct 2024 13:53:30 +0200
-Subject: [PATCH v3 4/5] watchdog: Congatec Board Controller watchdog timer
- driver
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="lLMCacNG"
+Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5398e58ceebso2561290e87.0
+        for <linux-i2c@vger.kernel.org>; Tue, 01 Oct 2024 05:44:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1727786690; x=1728391490; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qJdk49FPom1vhJW6KLrc9xb2N9g+9cOy2pAI61oaoAo=;
+        b=lLMCacNGmO60AITwTaB13ldfWdq+1sky6i7FU2wmf2qG/on1zDzzggLVvXjI/o0OQg
+         tRK5IapCTws78bIjG0KxOcJ/dGR0Mb4cE2Uo36ScJ2pX9+Vd/g9zu0pUAQwerRUASB0l
+         9bCo3p9+bwMDDh8K6GGhiaG9yo551TYkEdQyrWH5jFqXB7RSA2jFl3QR5ts3F/1viKWw
+         s2tALVPX436idsZewMhiez3Dh/F5Fg+6ZPJg9SE3Oreij6POLZOXyZYLb2xwDGBPpM4c
+         l9o2jYswicZm4yLXQyI46fVDcWoiGQrPEXhbw+ih3cg0sHroKYjDma2sGbSisePl1XNe
+         Nxbg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1727786690; x=1728391490;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=qJdk49FPom1vhJW6KLrc9xb2N9g+9cOy2pAI61oaoAo=;
+        b=OTV57O/WNpAlGbJT/j17axGUlLjXzSrzPjfJSmqKriVArhG6b7u7pz7Jjt1ukB3D/E
+         dR9utl7smTeLPMOB7BieF7xerQCmyQJKL0Wgyw4qEF0xKlZ/T3Hm6VJPRo1hEm5Ze6Ex
+         aI2qqnqCZaJjRdwCP6gOn8Xa0x54Zsq4qqzbUGU9sOn7Z6kcBHR79oX76+ja9MI4kKrV
+         DOgIcXPHziYWKeiSk2NdS0kq8eLQUPn9JE+4B5H6YqCH44BVx8C+R1oWVeVMx5QXQdF4
+         Q6NGwFBID00ZBZ3mT3R40feNjHldLtghiAt1g/gS8WkTWrwBo+hz78ew4Hd6vHEEAX3K
+         hJYA==
+X-Forwarded-Encrypted: i=1; AJvYcCXm/2FaA0e9B/kqk1a6REhy2YWvL8cTYf487QQ+u7Wmc9PjKle12POdGaJmIsn78FvhRmjufejNRvo=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwuPtBM9BAe8oFYDenWEvduHVvdt/2BWPT2rCzINCYIY1OjNas0
+	KxsGjZL6vds4xdR8Q7dsHhVJt/9Pej771MCWP7o7LK25qju4zFDssJvmwL/rT58aAVUKtLFL/si
+	DDG6LRgkLTw4P/f3mGAEqgbF7fBzuHo4F4YSfeg==
+X-Google-Smtp-Source: AGHT+IFpLEVSrtSEfceUFr1y/mkuGvz43bOehtQ1kSTprLlq+kFdHRQGWxpV7X7Wx0HYBHJpzMV+133mIhupsz3X9bs=
+X-Received: by 2002:a05:6512:6c6:b0:52f:30d:526c with SMTP id
+ 2adb3069b0e04-5399a23f44cmr1103973e87.5.1727786689856; Tue, 01 Oct 2024
+ 05:44:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20241001-congatec-board-controller-v3-4-39ceceed5c47@bootlin.com>
-References: <20241001-congatec-board-controller-v3-0-39ceceed5c47@bootlin.com>
-In-Reply-To: <20241001-congatec-board-controller-v3-0-39ceceed5c47@bootlin.com>
-To: Lee Jones <lee@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, 
- Bartosz Golaszewski <brgl@bgdev.pl>, Andi Shyti <andi.shyti@kernel.org>, 
- Wim Van Sebroeck <wim@linux-watchdog.org>, 
- Guenter Roeck <linux@roeck-us.net>
-Cc: linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, 
- linux-i2c@vger.kernel.org, linux-watchdog@vger.kernel.org, 
- thomas.petazzoni@bootlin.com, blake.vermeer@keysight.com, 
- Thomas Richard <thomas.richard@bootlin.com>
-X-Mailer: b4 0.14.1
-X-GND-Sasl: thomas.richard@bootlin.com
+References: <20240912-test-v1-0-458fa57c8ccf@analog.com> <20240912-test-v1-9-458fa57c8ccf@analog.com>
+In-Reply-To: <20240912-test-v1-9-458fa57c8ccf@analog.com>
+From: Linus Walleij <linus.walleij@linaro.org>
+Date: Tue, 1 Oct 2024 14:44:39 +0200
+Message-ID: <CACRpkdZb6AhxB7XEtOsxV5_oa=c1h2+ZApLFsTS_MQs-cjLmsg@mail.gmail.com>
+Subject: Re: [PATCH 09/21] gpio: add driver for ADI ADSP-SC5xx platform
+To: arturs.artamonovs@analog.com
+Cc: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, 
+	Greg Malysa <greg.malysa@timesys.com>, Philipp Zabel <p.zabel@pengutronix.de>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Utsav Agarwal <Utsav.Agarwal@analog.com>, Michael Turquette <mturquette@baylibre.com>, 
+	Stephen Boyd <sboyd@kernel.org>, Bartosz Golaszewski <brgl@bgdev.pl>, Thomas Gleixner <tglx@linutronix.de>, 
+	Andi Shyti <andi.shyti@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Jiri Slaby <jirislaby@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>, soc@kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-clk@vger.kernel.org, 
+	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-serial@vger.kernel.org, adsp-linux@analog.com, 
+	Nathan Barrett-Morrison <nathan.morrison@timesys.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Add watchdog timer support for the Congatec Board Controller.
+Hi Arturs,
 
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Thomas Richard <thomas.richard@bootlin.com>
----
- drivers/watchdog/Kconfig    |  10 +++
- drivers/watchdog/Makefile   |   1 +
- drivers/watchdog/cgbc_wdt.c | 211 ++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 222 insertions(+)
+thanks for your patch!
 
-diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
-index 684b9fe84fff..755cf3559540 100644
---- a/drivers/watchdog/Kconfig
-+++ b/drivers/watchdog/Kconfig
-@@ -1151,6 +1151,16 @@ config ALIM7101_WDT
- 
- 	  Most people will say N.
- 
-+config CGBC_WDT
-+	tristate "Congatec Board Controller Watchdog Timer"
-+	depends on MFD_CGBC
-+	select WATCHDOG_CORE
-+	help
-+	  Enables watchdog timer support for the Congatec Board Controller.
-+
-+	  This driver can also be built as a module. If so, the module will be
-+	  called cgbc_wdt.
-+
- config EBC_C384_WDT
- 	tristate "WinSystems EBC-C384 Watchdog Timer"
- 	depends on (X86 || COMPILE_TEST) && HAS_IOPORT
-diff --git a/drivers/watchdog/Makefile b/drivers/watchdog/Makefile
-index ab6f2b41e38e..386d88d89fe5 100644
---- a/drivers/watchdog/Makefile
-+++ b/drivers/watchdog/Makefile
-@@ -107,6 +107,7 @@ obj-$(CONFIG_ADVANTECH_WDT) += advantechwdt.o
- obj-$(CONFIG_ADVANTECH_EC_WDT) += advantech_ec_wdt.o
- obj-$(CONFIG_ALIM1535_WDT) += alim1535_wdt.o
- obj-$(CONFIG_ALIM7101_WDT) += alim7101_wdt.o
-+obj-$(CONFIG_CGBC_WDT) += cgbc_wdt.o
- obj-$(CONFIG_EBC_C384_WDT) += ebc-c384_wdt.o
- obj-$(CONFIG_EXAR_WDT) += exar_wdt.o
- obj-$(CONFIG_F71808E_WDT) += f71808e_wdt.o
-diff --git a/drivers/watchdog/cgbc_wdt.c b/drivers/watchdog/cgbc_wdt.c
-new file mode 100644
-index 000000000000..702b055ba6f4
---- /dev/null
-+++ b/drivers/watchdog/cgbc_wdt.c
-@@ -0,0 +1,211 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Congatec Board Controller watchdog driver
-+ *
-+ * Copyright (C) 2024 Bootlin
-+ * Author: Thomas Richard <thomas.richard@bootlin.com>
-+ */
-+
-+#include <linux/build_bug.h>
-+#include <linux/device.h>
-+#include <linux/limits.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/watchdog.h>
-+
-+#include <linux/mfd/cgbc.h>
-+
-+#define CGBC_WDT_CMD_TRIGGER	0x27
-+#define CGBC_WDT_CMD_INIT	0x28
-+#define CGBC_WDT_DISABLE	0x00
-+
-+#define CGBC_WDT_MODE_SINGLE_EVENT 0x02
-+
-+#define CGBC_WDT_MIN_TIMEOUT	1
-+#define CGBC_WDT_MAX_TIMEOUT	((U32_MAX >> 8) / 1000)
-+
-+#define CGBC_WDT_DEFAULT_TIMEOUT	30
-+#define CGBC_WDT_DEFAULT_PRETIMEOUT	0
-+
-+enum action {
-+	ACTION_INT = 0,
-+	ACTION_SMI,
-+	ACTION_RESET,
-+	ACTION_BUTTON,
-+};
-+
-+static unsigned int timeout;
-+module_param(timeout, uint, 0);
-+MODULE_PARM_DESC(timeout,
-+		 "Watchdog timeout in seconds. (>=0, default="
-+		 __MODULE_STRING(CGBC_WDT_DEFAULT_TIMEOUT) ")");
-+
-+static unsigned int pretimeout = CGBC_WDT_DEFAULT_PRETIMEOUT;
-+module_param(pretimeout, uint, 0);
-+MODULE_PARM_DESC(pretimeout,
-+		 "Watchdog pretimeout in seconds. (>=0, default="
-+		 __MODULE_STRING(CGBC_WDT_DEFAULT_PRETIMEOUT) ")");
-+
-+static bool nowayout = WATCHDOG_NOWAYOUT;
-+module_param(nowayout, bool, 0);
-+MODULE_PARM_DESC(nowayout,
-+		 "Watchdog cannot be stopped once started (default="
-+		 __MODULE_STRING(WATCHDOG_NOWAYOUT) ")");
-+
-+struct cgbc_wdt_data {
-+	struct cgbc_device_data	*cgbc;
-+	struct watchdog_device	wdd;
-+};
-+
-+struct cgbc_wdt_cmd_cfg {
-+	u8 cmd;
-+	u8 mode;
-+	u8 action;
-+	u8 timeout1[3];
-+	u8 timeout2[3];
-+	u8 reserved[3];
-+	u8 delay[3];
-+} __packed;
-+
-+static_assert(sizeof(struct cgbc_wdt_cmd_cfg) == 15);
-+
-+static int cgbc_wdt_start(struct watchdog_device *wdd)
-+{
-+	struct cgbc_wdt_data *wdt_data = watchdog_get_drvdata(wdd);
-+	struct cgbc_device_data *cgbc = wdt_data->cgbc;
-+	unsigned int timeout1 = (wdd->timeout - wdd->pretimeout) * 1000;
-+	unsigned int timeout2 = wdd->pretimeout * 1000;
-+	u8 action;
-+
-+	struct cgbc_wdt_cmd_cfg cmd_start = {
-+		.cmd = CGBC_WDT_CMD_INIT,
-+		.mode = CGBC_WDT_MODE_SINGLE_EVENT,
-+		.timeout1[0] = (u8)timeout1,
-+		.timeout1[1] = (u8)(timeout1 >> 8),
-+		.timeout1[2] = (u8)(timeout1 >> 16),
-+		.timeout2[0] = (u8)timeout2,
-+		.timeout2[1] = (u8)(timeout2 >> 8),
-+		.timeout2[2] = (u8)(timeout2 >> 16),
-+	};
-+
-+	if (wdd->pretimeout) {
-+		action = 2;
-+		action |= ACTION_SMI << 2;
-+		action |= ACTION_RESET << 4;
-+	} else {
-+		action = 1;
-+		action |= ACTION_RESET << 2;
-+	}
-+
-+	cmd_start.action = action;
-+
-+	return cgbc_command(cgbc, &cmd_start, sizeof(cmd_start), NULL, 0, NULL);
-+}
-+
-+static int cgbc_wdt_stop(struct watchdog_device *wdd)
-+{
-+	struct cgbc_wdt_data *wdt_data = watchdog_get_drvdata(wdd);
-+	struct cgbc_device_data *cgbc = wdt_data->cgbc;
-+	struct cgbc_wdt_cmd_cfg cmd_stop = {
-+		.cmd = CGBC_WDT_CMD_INIT,
-+		.mode = CGBC_WDT_DISABLE,
-+	};
-+
-+	return cgbc_command(cgbc, &cmd_stop, sizeof(cmd_stop), NULL, 0, NULL);
-+}
-+
-+static int cgbc_wdt_keepalive(struct watchdog_device *wdd)
-+{
-+	struct cgbc_wdt_data *wdt_data = watchdog_get_drvdata(wdd);
-+	struct cgbc_device_data *cgbc = wdt_data->cgbc;
-+	u8 cmd_ping = CGBC_WDT_CMD_TRIGGER;
-+
-+	return cgbc_command(cgbc, &cmd_ping, sizeof(cmd_ping), NULL, 0, NULL);
-+}
-+
-+static int cgbc_wdt_set_pretimeout(struct watchdog_device *wdd,
-+				   unsigned int pretimeout)
-+{
-+	wdd->pretimeout = pretimeout;
-+
-+	if (watchdog_active(wdd))
-+		return cgbc_wdt_start(wdd);
-+
-+	return 0;
-+}
-+
-+static int cgbc_wdt_set_timeout(struct watchdog_device *wdd,
-+				unsigned int timeout)
-+{
-+	if (timeout < wdd->pretimeout)
-+		wdd->pretimeout = 0;
-+
-+	wdd->timeout = timeout;
-+
-+	if (watchdog_active(wdd))
-+		return cgbc_wdt_start(wdd);
-+
-+	return 0;
-+}
-+
-+static const struct watchdog_info cgbc_wdt_info = {
-+	.identity	= "CGBC Watchdog",
-+	.options	= WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING |
-+		WDIOF_MAGICCLOSE | WDIOF_PRETIMEOUT
-+};
-+
-+static const struct watchdog_ops cgbc_wdt_ops = {
-+	.owner		= THIS_MODULE,
-+	.start		= cgbc_wdt_start,
-+	.stop		= cgbc_wdt_stop,
-+	.ping		= cgbc_wdt_keepalive,
-+	.set_timeout	= cgbc_wdt_set_timeout,
-+	.set_pretimeout = cgbc_wdt_set_pretimeout,
-+};
-+
-+static int cgbc_wdt_probe(struct platform_device *pdev)
-+{
-+	struct cgbc_device_data *cgbc = dev_get_drvdata(pdev->dev.parent);
-+	struct device *dev = &pdev->dev;
-+	struct cgbc_wdt_data *wdt_data;
-+	struct watchdog_device *wdd;
-+
-+	wdt_data = devm_kzalloc(dev, sizeof(*wdt_data), GFP_KERNEL);
-+	if (!wdt_data)
-+		return -ENOMEM;
-+
-+	wdt_data->cgbc = cgbc;
-+	wdd = &wdt_data->wdd;
-+	wdd->parent = dev;
-+
-+	wdd->info = &cgbc_wdt_info;
-+	wdd->ops = &cgbc_wdt_ops;
-+	wdd->max_timeout = CGBC_WDT_MAX_TIMEOUT;
-+	wdd->min_timeout = CGBC_WDT_MIN_TIMEOUT;
-+
-+	watchdog_set_drvdata(wdd, wdt_data);
-+	watchdog_set_nowayout(wdd, nowayout);
-+
-+	wdd->timeout = CGBC_WDT_DEFAULT_TIMEOUT;
-+	watchdog_init_timeout(wdd, timeout, dev);
-+	cgbc_wdt_set_pretimeout(wdd, pretimeout);
-+
-+	platform_set_drvdata(pdev, wdt_data);
-+	watchdog_stop_on_reboot(wdd);
-+	watchdog_stop_on_unregister(wdd);
-+
-+	return devm_watchdog_register_device(dev, wdd);
-+}
-+
-+static struct platform_driver cgbc_wdt_driver = {
-+	.driver		= {
-+		.name	= "cgbc-wdt",
-+	},
-+	.probe		= cgbc_wdt_probe,
-+};
-+
-+module_platform_driver(cgbc_wdt_driver);
-+
-+MODULE_DESCRIPTION("Congatec Board Controller Watchdog Driver");
-+MODULE_AUTHOR("Thomas Richard <thomas.richard@bootlin.com>");
-+MODULE_LICENSE("GPL");
+On Thu, Sep 12, 2024 at 8:20=E2=80=AFPM Arturs Artamonovs via B4 Relay
+<devnull+arturs.artamonovs.analog.com@kernel.org> wrote:
 
--- 
-2.39.5
+> From: Arturs Artamonovs <arturs.artamonovs@analog.com>
+>
+> Add ADSP-SC5xx GPIO driver.
+> - Support all GPIO ports
+> - Each gpio support seperate PINT interrupt controller
+>
+> Signed-off-by: Arturs Artamonovs <Arturs.Artamonovs@analog.com>
+> Co-developed-by: Nathan Barrett-Morrison <nathan.morrison@timesys.com>
+> Signed-off-by: Nathan Barrett-Morrison <nathan.morrison@timesys.com>
+> Co-developed-by: Greg Malysa <greg.malysa@timesys.com>
+> Signed-off-by: Greg Malysa <greg.malysa@timesys.com>
 
+(...)
+
+> +config GPIO_ADI_ADSP_PORT
+> +       bool "ADI ADSP PORT GPIO driver"
+> +       depends on OF_GPIO
+> +       select GPIO_GENERIC
+
+If you select this then you need to use it in the idiomatic way.
+
++#include <linux/soc/adi/adsp-gpio-port.h>
+
+Drop this, just bring the contents into this file all register defines
+etc.
+
++#include "gpiolib.h"
+
+No way, do this:
+#include <linux/gpio/driver.h>
+
+> +static int adsp_gpio_direction_input(struct gpio_chip *chip, unsigned in=
+t offset)
+> +{
+> +       struct adsp_gpio_port *port =3D to_adsp_gpio_port(chip);
+> +
+> +       __adsp_gpio_writew(port, BIT(offset), ADSP_PORT_REG_DIR_CLEAR);
+
+Ah these __adsp_gpio_writew/readw things are too idiomatic. Just
+use the base and common writew() please.
+
+> +       __adsp_gpio_writew(port, BIT(offset), ADSP_PORT_REG_INEN_SET);
+
+Interrupt enable in the direction function? No thanks, poke the
+interrupt registers in your irqchip if you make one (you currently
+do not) in this case I'd say just disable all interrupts in probe()
+using something like writew(base + ADSP_PORT_REG_INEN_SET, 0xffff)
+and be done with it.
+
+> +static int adsp_gpio_get_value(struct gpio_chip *chip, unsigned int offs=
+et)
+> +{
+> +       struct adsp_gpio_port *port =3D to_adsp_gpio_port(chip);
+> +
+> +       return !!(__adsp_gpio_readw(port, ADSP_PORT_REG_DATA) & BIT(offse=
+t));
+> +}
+
+This becomes a reimplemenation of generic GPIO.
+
+> +static int adsp_gpio_to_irq(struct gpio_chip *chip, unsigned int offset)
+> +{
+> +       struct adsp_gpio_port *port =3D to_adsp_gpio_port(chip);
+> +       irq_hw_number_t irq =3D offset + port->irq_offset;
+> +       int map =3D irq_find_mapping(port->irq_domain, irq);
+> +
+> +       if (map)
+> +               return map;
+> +
+> +       return irq_create_mapping(port->irq_domain, irq);
+> +}
+
+This irqdomain in the "port" looks weird.
+
+Implement the irqchip in the GPIO driver instead.
+
+If the domain *has* to be external to the GPIO driver then
+you need to use hierarchical irqdomains.
+
+> +static int adsp_gpio_probe(struct platform_device *pdev)
+> +{
+> +       struct device *dev =3D &pdev->dev;
+> +       struct adsp_gpio_port *gpio;
+> +       int ret;
+> +
+> +       gpio =3D devm_kzalloc(dev, sizeof(*gpio), GFP_KERNEL);
+> +       if (!gpio)
+> +               return -ENOMEM;
+> +
+> +       gpio->regs =3D devm_platform_ioremap_resource(pdev, 0);
+> +       if (IS_ERR(gpio->regs))
+> +               return PTR_ERR(gpio->regs);
+
+So you have gpio->regs which is the base.
+
+> +       gpio->dev =3D dev;
+> +
+> +       ret =3D adsp_attach_pint_to_gpio(gpio);
+> +       if  (ret)
+> +               dev_err_probe(gpio->dev, ret, "error attaching interupt t=
+o gpio pin\n");
+> +
+> +       spin_lock_init(&gpio->lock);
+> +
+> +       gpio->gpio.label =3D "adsp-gpio";
+> +       gpio->gpio.direction_input =3D adsp_gpio_direction_input;
+> +       gpio->gpio.direction_output =3D adsp_gpio_direction_output;
+> +       gpio->gpio.get =3D adsp_gpio_get_value;
+> +       gpio->gpio.set =3D adsp_gpio_set_value;
+> +       gpio->gpio.to_irq =3D adsp_gpio_to_irq;
+> +       gpio->gpio.request =3D gpiochip_generic_request;
+> +       gpio->gpio.free =3D gpiochip_generic_free;
+> +       gpio->gpio.ngpio =3D ADSP_PORT_NGPIO;
+> +       gpio->gpio.parent =3D dev;
+> +       gpio->gpio.base =3D -1;
+> +       return devm_gpiochip_add_data(dev, &gpio->gpio, gpio);
+
+Look in e.g. drivers/gpio/gpio-ftgpio010.c for an example of
+how to use generic GPIO (with an irqchip!). It will be something like:
+
+        ret =3D bgpio_init(&g->gc, dev, 2,
+                         gpio->regs + ADSP_PORT_REG_DATA,
+                         gpio->regs + ADSP_PORT_REG_DATA_SET,
+                         gpio->regs + ADSP_PORT_REG_DATA_CLEAR,
+                         gpio->regs + ADSP_PORT_REG_DIR_SET,
+                         gpio->regs + ADSP_PORT_REG_DIR_CLEAR,
+                         0);
+        if (ret) {
+                dev_err(dev, "unable to init generic GPIO\n");
+                goto dis_clk;
+        }
+        g->gc.label =3D dev_name(dev);
+        g->gc.base =3D -1;
+        g->gc.parent =3D dev;
+        g->gc.owner =3D THIS_MODULE;
+        /* ngpio is set by bgpio_init() */
+
+You can augment the generic driver instance with an extra config function
+to set the special open drain bits.
+
+Yours,
+Linus Walleij
