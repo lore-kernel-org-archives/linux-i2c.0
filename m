@@ -1,39 +1,38 @@
 Received: from relay6-d.mail.gandi.net (relay6-d.mail.gandi.net [217.70.183.198])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2669818E76E;
-	Wed,  9 Oct 2024 10:23:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CC5118EFF9;
+	Wed,  9 Oct 2024 10:23:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728469421; cv=none; b=KToHsWT1hOPCg2twzUU9xRJo0i81WWa+orWfZm9ZC+oEWZHGlUiz3IbGg6YmuTVIIKQSGpqjrm9Fsy3cgU8V6Jju6a76BZB7fFSLZAbwQ5OZvCAyr2D2buFWlG3jcEwgIVoJ8DfmPSvh3E+PfpJKl67uuDrG+qGx9d9lR15wDEQ=
+	t=1728469421; cv=none; b=pr/GCn12qFCSH8YIpaxgOLGSJIMStsmzRKQDj7lSPEk2KnDpNZuD9Wo6aLC7MjkDl9j7ecGpiP2bq1uNCga3gLDvJgM+E9ENhDEBkk7NrLfOi/Evier/fSwIUGEHIm1YMdBtDuBV6W251BMSsSJ8xFxQbrJH4b0LS9SzIhtEcfw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1728469421; c=relaxed/simple;
-	bh=BsPvupA8qNH3O5GjZQoZ0xKLNEBQPI09j/+PzdRqiWU=;
+	bh=tQRb8t9Bgm9pTxnllpvl7n/2CRPhE+WTxJ55NgaJtb4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=GY1x1LUYXMEXlzCNd+iFlan3JMBYxehjm2W6uiRP3xxm6l8lwABseOC4THPyvH17Bvv25cZPBivB+mN0KlMv6tCqlNrPmPT0wiigZ4FKSNtH9GnfXZ/FTBaj/cUjR1Enfdi2jOyI0R/NDSSPLYHM55i/gBnTBMzD2WVWEe1YFPE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=QJdb+oUp; arc=none smtp.client-ip=217.70.183.198
+	 In-Reply-To:To:Cc; b=ALACF8JMIkz6SRjtL74BvlKdkhEwceqpyFchyYkYMt5HSxHfQ1w8hIcsh8fU3hV1H1RzmH375zMDCyXFlVKkatVvIWqS4nxdc8BBjaAsgCp7Yl7hFrEF7sUzmKrXXiY0IaH09XByyijqEX10w0VprNaF7b0z6X2TM3vOec03G+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=T9vRPdRi; arc=none smtp.client-ip=217.70.183.198
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="QJdb+oUp"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 43984C000B;
-	Wed,  9 Oct 2024 10:23:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="T9vRPdRi"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 2D749C000D;
+	Wed,  9 Oct 2024 10:23:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1728469410;
+	t=1728469412;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ykpyCvhbG4GX53O/kYa1itG9c8NJMGXkUeCkiHCbXvk=;
-	b=QJdb+oUpgnOdxhkgszUGcd9LFYP1TkF00gHZb93gY0DTgQ5CJZsDkoefRa7k3RA5O/93zT
-	kqyJjtCuvSUx1/+GGq5j4Mkc4KwTdVbh6uFfR9kbUHNUFn97q4e6CJ0CiXRA1/hwcSJasy
-	0XjStrs0cZh7LGX3tq8pkBKIrOe/XOdV1i/l8XswnMG4dZ0QZb9vljtivLLZP6+m0yFjrw
-	jpG7TigaqMSVw+cc7vu7zlLrGHGFGvSg7Z888t2eL/uK/g347czAcqcraKau41niJCduWw
-	x0OWpOClaYIRV8kJ2DEcSyUjE1uRkHUoLQFS5BzdRs2a92OKfNfGlQE0W5Zitg==
+	bh=BV6jtGBlKFIHxumMjV1kYyi9dXX5jMmSnqUBcSCcyT4=;
+	b=T9vRPdRiFoyAgmJHbkPIWpP17ik6oZp5Jh8CbHNa3CLZxmANyGkn44dth9algKv03fh1XK
+	kvgTofQ+xvG1Ll9LZloX/bNUCxKbgVEyQf/SRFfB8iaqne9ol8Bt7ARp2BY3WkQwNCD6Co
+	2b3GL0sotik4uGPv+9U68OsbViQKJX6f7deTnN33to/aB1wx5MKLkg+fFDsV3agUBdvyPr
+	tPmIuuJDQWGicMLrXPsoavsQOjg/Hm2IaKJMJHPMsRZwKoe4ZTg/45eHRQDtp2o/UwDN0w
+	52XVKgSlnDVjXzukdvSPd1nGbuQZcRgdygvevvqD1hsvVY3970inXYJJ+qwHMQ==
 From: =?utf-8?q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>
-Date: Wed, 09 Oct 2024 12:23:28 +0200
-Subject: [PATCH v2 2/6] dt-bindings: i2c: nomadik: support 400kHz <
- clock-frequency <= 3.4MHz
+Date: Wed, 09 Oct 2024 12:23:31 +0200
+Subject: [PATCH v2 5/6] i2c: nomadik: fix BRCR computation
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -42,7 +41,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20241009-mbly-i2c-v2-2-ac9230a8dac5@bootlin.com>
+Message-Id: <20241009-mbly-i2c-v2-5-ac9230a8dac5@bootlin.com>
 References: <20241009-mbly-i2c-v2-0-ac9230a8dac5@bootlin.com>
 In-Reply-To: <20241009-mbly-i2c-v2-0-ac9230a8dac5@bootlin.com>
 To: Linus Walleij <linus.walleij@linaro.org>, 
@@ -59,28 +58,70 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
 X-Mailer: b4 0.14.2
 X-GND-Sasl: theo.lebrun@bootlin.com
 
-Hardware is not limited to 400kHz, its documentation does mention how to
-configure it for high-speed (a specific Speed-Mode enum value and
-a different bus rate clock divider register to be used).
+Current BRCR computation is:
+
+    brcr = floor(i2cclk / (clkfreq * div))
+
+With brcr: "baud rate counter", an internal clock divider,
+ and i2cclk: input clock rate (24MHz, 38.4MHz or 48MHz),
+ and clkfreq: desired bus rate,
+ and div: speed-mode dependent divider (2 for standard, 3 otherwise).
+
+Assume i2cclk=48MHz, clkfreq=3.4MHz, div=3,
+  then brcr = floor(48MHz / (3.4MHz * 3)) = 4
+   and resulting bus rate = 48MHz / (4 * 3) = 4MHz
+
+Assume i2cclk=38.4MHz, clkfreq=1.0MHz, div=3,
+  then brcr = floor(38.4MHz / (1.0MHz * 3)) = 12
+   and resulting bus rate = 38.4MHz / (12 * 3) = 1066kHz
+
+The current computation means we always pick the smallest divider that
+gives a bus rate above target. We should instead pick the largest
+divider that gives a bus rate below target, using:
+
+    brcr = floor(i2cclk / (clkfreq * div)) + 1
+
+If we redo the above examples:
+
+Assume i2cclk=48MHz, clkfreq=3.4MHz, div=3,
+  then brcr = floor(48MHz / (3.4MHz * 3)) + 1 = 5
+   and resulting bus rate = 48MHz / (5 * 3) = 3.2MHz
+
+Assume i2cclk=38.4MHz, clkfreq=1.0MHz, div=3,
+  then brcr = floor(38.4MHz / (1.0MHz * 3)) + 1 = 13
+   and resulting bus rate = 38.4MHz / (13 * 3) = 985kHz
+
+This is much less of an issue with slower bus rates (ie those currently
+supported), because the gap from one divider to the next is much
+smaller. It however keeps us from always using bus rates superior to
+the target.
+
+This fix is required for later on supporting faster bus rates:
+I2C_FREQ_MODE_FAST_PLUS (1MHz) and I2C_FREQ_MODE_HIGH_SPEED (3.4MHz).
 
 Signed-off-by: Théo Lebrun <theo.lebrun@bootlin.com>
 ---
- Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-nomadik.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml b/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
-index 7e84465c20094b799697a71a66c66d144d621f46..012402debfeb244b85dcecdc0411a77ada4494df 100644
---- a/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
-@@ -68,7 +68,7 @@ properties:
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 8f52ae4d6285af2dd2b3dc7070672757e831a019..b2b9da0b32ed903c080f4bdc427ea0dd7b031b49 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -454,9 +454,12 @@ static void setup_i2c_controller(struct nmk_i2c_dev *priv)
+ 	 * operation, and the other is for std, fast mode, fast mode
+ 	 * plus operation. Currently we do not supprt high speed mode
+ 	 * so set brcr1 to 0.
++	 *
++	 * BRCR is a clock divider amount. Pick highest value that
++	 * leads to rate strictly below target.
+ 	 */
+ 	brcr1 = FIELD_PREP(I2C_BRCR_BRCNT1, 0);
+-	brcr2 = FIELD_PREP(I2C_BRCR_BRCNT2, i2c_clk / (priv->clk_freq * div));
++	brcr2 = FIELD_PREP(I2C_BRCR_BRCNT2, i2c_clk / (priv->clk_freq * div) + 1);
  
-   clock-frequency:
-     minimum: 1
--    maximum: 400000
-+    maximum: 3400000
- 
-   mobileye,olb:
-     $ref: /schemas/types.yaml#/definitions/phandle-array
+ 	/* set the baud rate counter register */
+ 	writel((brcr1 | brcr2), priv->virtbase + I2C_BRCR);
 
 -- 
 2.46.2
