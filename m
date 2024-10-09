@@ -1,38 +1,39 @@
 Received: from relay6-d.mail.gandi.net (relay6-d.mail.gandi.net [217.70.183.198])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79293158DB1;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5570C15382F;
 	Wed,  9 Oct 2024 10:23:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.198
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728469419; cv=none; b=OHKI5HQzK3SYDbEpsMGR+v3OjEpIqDxZZELj/mciyHNdJLI7qR+FPCaK9wZR3TAQUw20fxJ90XdXNFZtfz4Q2IpeoXw4+LtmUK31LeFpoy8JySGnwK7Eir3TvE6iyAP0iRanwNdNimKlWthyDhFRAAZquIBmdrSLY8DWG+WToPQ=
+	t=1728469419; cv=none; b=BoMAYfVLg5NEH/yBMMzLT7I024Up+3MiCuBhjtyb3aLuOIzLwzqrmvjcMyaSCy9tAs9xsoGIIYHwXQGJFqS1dab6GMUz9PUvLBYE5o1k3FK11C4U7oBqHXk2ShWlvSph9zf+ARsGPAjnUpMkigI2qNXWngkTIhvx7yA6z9fGL5c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1728469419; c=relaxed/simple;
-	bh=kg8uGMxcJY0VGnMG4HflWm7gAZLcGN2UGbMOYHvT9Fo=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=nZAC8VdflDc6VaISD5YV6FHCCRC0uMVAY2kyVO3U1oPwGKK70z5OTjqjMSfZxkPrLIn+77xWGVYTRnCNXVouQnRUfhpaNhkjs46o7xvXzDcc4xOljWXu98BfPcOWV5PSKHMntrLF5spc6MuLdXVb39ReZ20Tdc7wQvFF9+eu3JE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Sroc8VNI; arc=none smtp.client-ip=217.70.183.198
+	bh=Gt3hGkoAzabIVH8zY4nDCI6BKaAN8fyT7T/ZIpE2M2A=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=H21x4b5llD+mpYbw9u/GnKXMAwA/mHMaQcf30g3PrQqTd/CcPrLB2YO/HvOEZiDbPtB9BiXB/PmA91QKe8dsJk8LHndASqtEd2AeVPQoK27Gi/D/E5kFCuTju7X2ucUC9Wa0qwU//CrBnFqOQN3Vlml9ZvnKVYZDOvxY74o61XQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=E/xAQ5Ml; arc=none smtp.client-ip=217.70.183.198
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Sroc8VNI"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 18AD5C0008;
-	Wed,  9 Oct 2024 10:23:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="E/xAQ5Ml"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 9C385C0009;
+	Wed,  9 Oct 2024 10:23:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1728469409;
+	t=1728469410;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=sciMm2xaCbtFbC/q7bparVgAbNpRaWLZ9FYaBQz2d4A=;
-	b=Sroc8VNIMhDIyF2UmZSK0zg1nxhr/xzKhwKnpIJLcoUInfvTqaj9WO8BOF+qwwlQ/i+/9w
-	clt8IdD/muxFjBr8BwlVa0hjLznJSaG4pttMHeMW6m8y7R9egunpWDo+v5FFvILsikaRMm
-	Vp6ZGURp3w1pdajzYVexMzjTEZssDhuLsww6M6KbdA4drwEQJVT4shy8f+uIBeWpoOMOzd
-	kezG1VI+Ce0VqdjwgbIaL6Jm2rUC/sWDpRkH2GYUZdUca0WOFVCZ1+V9XLFLfVGwye7PDG
-	wQ/ZMaFOiuHlUAtMLPZYtmA7GPMYpNQr0vGRRf+3THrJ1Pk+y5vW7KCLOuHMng==
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=9JzFndJasV9hTE/+nDW57u4YoWhXSvTvpEanaE8uI/o=;
+	b=E/xAQ5Ml1/q830mRWRzkPOZj5iMY+fVjN3OyBP7GZ4d6bao52g6idAuLIkYHbGFYpORGg0
+	KybJI/ImVnVtaYG+qGKw4dpPpggcOkZ6AR+DwUShaQt1yD+H9e9qW+nPmpbhhvFyvJlq75
+	xOUbgzePw/vQbCkPwgjWPAMk+VZTCJEsTBrXriO1p9eE6qMgfgYePZ9TnYo3miHoghT6bc
+	eGEsbgMRl+A0rbb1SAba95bHkYWYoOEPFCdj8kZYXQnP1rwQ/AGatxW7aHYtrLQqj6w6ve
+	TpBBDsSTc0iGVz8V7OsZZgwaeIGqD8X2YoFxkftI1sGyWfLGIEqqTZE2YcEsng==
 From: =?utf-8?q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>
-Subject: [PATCH v2 0/6] i2c: nomadik: support >=1MHz & Mobileye EyeQ6H
- platform
-Date: Wed, 09 Oct 2024 12:23:26 +0200
-Message-Id: <20241009-mbly-i2c-v2-0-ac9230a8dac5@bootlin.com>
+Date: Wed, 09 Oct 2024 12:23:27 +0200
+Subject: [PATCH v2 1/6] dt-bindings: i2c: nomadik: add mobileye,eyeq6h-i2c
+ bindings
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -41,10 +42,9 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-B4-Tracking: v=1; b=H4sIAJ5ZBmcC/0XM0QqDIBTG8VeJcz2HnkXWrvYeows1WwdKQ0MW4
- bvPBWOX/4+P3wHRBrIR7tUBwSaK5F0JvFRgJuVeltFQGpBjLTiXbNHzzggNw0aabqhb1B2Hcl+
- DHel9Us++9ERx82E/5SS+6w9p/0gSjDPFGyNuQioc5UN7v83krsYv0OecP9jFI+eiAAAA
-X-Change-ID: 20241007-mbly-i2c-267c9d482b90
+Message-Id: <20241009-mbly-i2c-v2-1-ac9230a8dac5@bootlin.com>
+References: <20241009-mbly-i2c-v2-0-ac9230a8dac5@bootlin.com>
+In-Reply-To: <20241009-mbly-i2c-v2-0-ac9230a8dac5@bootlin.com>
 To: Linus Walleij <linus.walleij@linaro.org>, 
  Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
  Krzysztof Kozlowski <krzk+dt@kernel.org>, 
@@ -59,73 +59,60 @@ Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
 X-Mailer: b4 0.14.2
 X-GND-Sasl: theo.lebrun@bootlin.com
 
-Hi,
+After EyeQ5, it is time for Mobileye EyeQ6H to reuse the Nomadik I2C
+controller. Add a specific compatible because its HW integration is
+slightly different from EyeQ5.
 
-Three patches are about adding Mobileye EyeQ6H support to the Nomadik
-I2C controller driver, in the same vein as was done a few months ago
-for EyeQ5.
- - dt-bindings:
-    - [PATCH 1/6]: add new compatible.
- - driver:
-    - [PATCH 3/6]: we switch from using a match table, before adding the
-      new EyeQ6H compatible.
-    - [PATCH 4/6]: adding EyeQ6H is only about creating a new match
-      table entry thanks to the previous patch; we reuse
-      the .has_32b_bus flag created for EyeQ5.
-
-Three patches are about supporting higher speeds (fast-plus and
-high-speed).
- - dt-bindings:
-    - [PATCH 2/6]: fix them, they indicated only a max of 400kHz.
- - driver:
-    - [PATCH 5/6]: fix computation of the bus rate clock divider (BRCR).
-      It picks the smallest divider that gives a bus rate above target.
-      Switch to picking the largest divider that gives a bus rate below
-      target.
-    - [PATCH 6/6]: then support high SM (speed-mode) values.
-      This is not much work.
-
-It works on EyeQ6H HW just fine. 1MHz has been tested but not 3.4MHz
-because HW doesn't support it. The theory is there, and BRCR
-computation has been checked to be valid with 3.4MHz clocks.
-
-DTS patches are not provided because they depend on the platform's clock
-series [0]. Lore being down at the moment, see Patchwork [1].
-
-Have a nice day,
-Théo
-
-[0]: https://lore.kernel.org/lkml/20241007-mbly-clk-v5-0-e9d8994269cb@bootlin.com/
-[1]: https://patchwork.kernel.org/project/linux-clk/cover/20241007-mbly-clk-v5-0-e9d8994269cb@bootlin.com/
+Do NOT add an example as it looks like EyeQ5 from a DT standpoint
+(without the mobileye,olb property).
 
 Signed-off-by: Théo Lebrun <theo.lebrun@bootlin.com>
 ---
-Changes in v2:
-- dt-bindings: change `clock-frequency: maximum` from 400kHz to 3.4MHz
-  in a separate patch.
-- dt-bindings: use enum to list compatibles.
-- Switch away from of_device_is_compatible() in probe. Use a match table
-  with flags inside .data, using of_match_device() from probe.
-  This is done as a separate commit before adding EyeQ6H support.
-- Link to v1: https://lore.kernel.org/r/20241008-mbly-i2c-v1-0-a06c1317a2f7@bootlin.com
+ Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
----
-Théo Lebrun (6):
-      dt-bindings: i2c: nomadik: add mobileye,eyeq6h-i2c bindings
-      dt-bindings: i2c: nomadik: support 400kHz < clock-frequency <= 3.4MHz
-      i2c: nomadik: switch from of_device_is_compatible() to of_match_device()
-      i2c: nomadik: support Mobileye EyeQ6H I2C controller
-      i2c: nomadik: fix BRCR computation
-      i2c: nomadik: support >=1MHz speed modes
+diff --git a/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml b/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
+index 44c54b162bb10741ec7aac70d165403c28176eba..7e84465c20094b799697a71a66c66d144d621f46 100644
+--- a/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/st,nomadik-i2c.yaml
+@@ -22,6 +22,7 @@ select:
+         enum:
+           - st,nomadik-i2c
+           - mobileye,eyeq5-i2c
++          - mobileye,eyeq6h-i2c
+   required:
+     - compatible
+ 
+@@ -29,15 +30,15 @@ properties:
+   compatible:
+     oneOf:
+       - items:
+-          - const: st,nomadik-i2c
++          - enum:
++              - st,nomadik-i2c
++              - mobileye,eyeq5-i2c
++              - mobileye,eyeq6h-i2c
+           - const: arm,primecell
+       - items:
+           - const: stericsson,db8500-i2c
+           - const: st,nomadik-i2c
+           - const: arm,primecell
+-      - items:
+-          - const: mobileye,eyeq5-i2c
+-          - const: arm,primecell
+ 
+   reg:
+     maxItems: 1
+@@ -54,7 +55,7 @@ properties:
+       - items:
+           - const: mclk
+           - const: apb_pclk
+-      # Clock name in DB8500 or EyeQ5
++      # Clock name in DB8500 or EyeQ
+       - items:
+           - const: i2cclk
+           - const: apb_pclk
 
- .../devicetree/bindings/i2c/st,nomadik-i2c.yaml    | 13 ++--
- drivers/i2c/busses/i2c-nomadik.c                   | 88 +++++++++++++---------
- 2 files changed, 60 insertions(+), 41 deletions(-)
----
-base-commit: 6f1cfa7816af8b3286140f1b0476200d5e914eb9
-change-id: 20241007-mbly-i2c-267c9d482b90
-
-Best regards,
 -- 
-Théo Lebrun <theo.lebrun@bootlin.com>
+2.46.2
 
