@@ -1,105 +1,106 @@
-Received: from relay6-d.mail.gandi.net (relay6-d.mail.gandi.net [217.70.183.198])
+Received: from relay9-d.mail.gandi.net (relay9-d.mail.gandi.net [217.70.183.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CCA618EFFB;
-	Wed,  9 Oct 2024 10:23:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.198
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29C0515382F;
+	Wed,  9 Oct 2024 10:27:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1728469425; cv=none; b=jAka0EucFB4tWqQJww2Ym0aILcwt9MU+pZawUvRuSBce0JkWripHc85Aga3j87ECZa/WwzVbHBQg+UA/bu58u3+fZ8Dcj9I/S8zBL1eyZTwROXFpOYx57cOHg/REhTWd7y758zan2KgSoiBrthX2EBg6yAR5BzbUCSowJ1h7f8s=
+	t=1728469631; cv=none; b=P0Cat8mvS6aUd4qvsevRwF+DjTaZNtPY80u47Dbbo0K25SN3fvVFjIr9+Vnhw6Xzh+GWnLJgPj2pbkAilm8N0UiW+VlIEirDmqWBIOuGh8FHWrG9kSwGpzdPZo4oqXX/P6xgv5eCK9W5uigudiajaDAOe9aN72X2fytYIZ1otjk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1728469425; c=relaxed/simple;
-	bh=dkTSaolvKShmPE1pq7mHXITqc04AwoI+FTjdp4fPjXg=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Bh8sJwvtv1vU/Aih9dyeR6YzLTMyEEqkT78QSgnmeWvl8tI2N+dHX4mjJ4GZTlL4u48GSYdoAmTz4s8JSI85guIEgUFFvZQUuL3RgP6hd9GHaeFNpIDQQgZljznON0rigVqqZT2XhQ9uW7XIb1vs5aC83AFa/us9/tFvaURqK3A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=BHzMpDl6; arc=none smtp.client-ip=217.70.183.198
+	s=arc-20240116; t=1728469631; c=relaxed/simple;
+	bh=5ZenLqU4VTWx8D4jCHpR0AkhS1gX0UMjyUhU2joZlLc=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:To:From:Subject:
+	 References:In-Reply-To; b=jctKml0nIroi1QtqL32CquKw13Kifga4W44mqgepx5vix+xZUUbiNs3j4Ky6GIJzwuhk4kwwFHdq2yzM3oQ75pRPUuK7MReUwbNT9OeT1y3k+H7rGbFO/so4EQZnEtFMY+lvBqtE2X1z4C2jYpXerpMRAXCvffuoMOKmqtITxCw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=IaSZNmMU; arc=none smtp.client-ip=217.70.183.199
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="BHzMpDl6"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 8753DC0006;
-	Wed,  9 Oct 2024 10:23:31 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="IaSZNmMU"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id BAF6BFF807;
+	Wed,  9 Oct 2024 10:27:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1728469412;
+	t=1728469627;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=MEnoUjAe0Fmg2cvSQx8nvgrabVcBeuNsNvfPdJB+sc0=;
-	b=BHzMpDl6D19l57ssAOfyE8oP5ucN0qm5K2BXloajfsl1aIuLU25uTEwm1XdaVG6PX6rj2K
-	by6xBW09IZmYJJRqTQCv9Mn7ogvFHhB1Yp3q7PvqhAOgfXAP6Wy/6V38D4vGSZpo1osgvQ
-	mcJ2NPfgzMcW1GKWENMY/XQP7qjvpNvxEDunp/jz6WJdhZ6r4bvyFzlJtrcXuu5BFq3/Zc
-	V3Eeafpfp+Svt4FGCawzMYcb9RpZusKZTn34c3ynE01oY8Cnwil1VolRbZQ+wNb76xy0t5
-	SeFVSXG1l8FbBXoe1mfNxGXC7IpQfMh9K8Pz17gNU/BB4elxm5d7dzyeuY2cgQ==
-From: =?utf-8?q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>
-Date: Wed, 09 Oct 2024 12:23:30 +0200
-Subject: [PATCH v2 4/6] i2c: nomadik: support Mobileye EyeQ6H I2C
- controller
+	bh=kYFf+MxvDup/RI+1Ncetwr45O3Q+xf0MstIDXJK3vW4=;
+	b=IaSZNmMUGBhEeWI3TA/wm7PqsHBAdZB9oovNm9/LaIHN8rK00jZ3mmYxWjduw5/5KYwqCl
+	zPlfOjzy4IVbyLlYrAICwciDTO+pMj/9p0rkQOo96+tHAusUG/cTpBTOdrxg/Yws4qxaTz
+	2mJBOErBo2LLiH/W2HzzGnr9djcO3WrdKOXvV88On7ah9U9P488xtJwanNllkdHB94gThC
+	eciqHtYW8k4Hy7Vm7/Uskx9GhXlkWS9zdJLaLDosJbyf0ZLxfmaYh13HxX9rcjQYy8C96Q
+	hIhx+2Z8qbiY1QS1VoVK5I72EvWt3QwEhLTW0aq2xjlWYD2hYE0t75KHw+/anA==
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20241009-mbly-i2c-v2-4-ac9230a8dac5@bootlin.com>
-References: <20241009-mbly-i2c-v2-0-ac9230a8dac5@bootlin.com>
-In-Reply-To: <20241009-mbly-i2c-v2-0-ac9230a8dac5@bootlin.com>
-To: Linus Walleij <linus.walleij@linaro.org>, 
- Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>, 
- =?utf-8?q?Gr=C3=A9gory_Clement?= <gregory.clement@bootlin.com>, 
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
- Tawfik Bayouk <tawfik.bayouk@mobileye.com>, 
- =?utf-8?q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>
-X-Mailer: b4 0.14.2
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 09 Oct 2024 12:27:06 +0200
+Message-Id: <D4R7CGGQAJ50.U5UY2B7PBGG@bootlin.com>
+Cc: "Linus Walleij" <linus.walleij@linaro.org>, "Andi Shyti"
+ <andi.shyti@kernel.org>, "Rob Herring" <robh@kernel.org>, "Krzysztof
+ Kozlowski" <krzk+dt@kernel.org>, "Conor Dooley" <conor+dt@kernel.org>,
+ <linux-arm-kernel@lists.infradead.org>, <linux-i2c@vger.kernel.org>,
+ <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>, "Vladimir
+ Kondratiev" <vladimir.kondratiev@mobileye.com>,
+ =?utf-8?q?Gr=C3=A9gory_Clement?= <gregory.clement@bootlin.com>, "Thomas
+ Petazzoni" <thomas.petazzoni@bootlin.com>, "Tawfik Bayouk"
+ <tawfik.bayouk@mobileye.com>
+To: "Krzysztof Kozlowski" <krzk@kernel.org>
+From: =?utf-8?q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>
+Subject: Re: [PATCH 2/4] i2c: nomadik: support Mobileye EyeQ6H I2C
+ controller
+X-Mailer: aerc 0.18.2-0-ge037c095a049
+References: <20241008-mbly-i2c-v1-0-a06c1317a2f7@bootlin.com>
+ <20241008-mbly-i2c-v1-2-a06c1317a2f7@bootlin.com>
+ <oxcxs6n7y4bw33yfgaacd2cayf7otfochvlaofva2kabzjim6h@d6pam3gciepl>
+ <D4QI63B6YQU5.3UPKA7G75J445@bootlin.com>
+ <fc17ef3d-7895-4ee8-bfa0-d31dd45f2f2c@kernel.org>
+In-Reply-To: <fc17ef3d-7895-4ee8-bfa0-d31dd45f2f2c@kernel.org>
 X-GND-Sasl: theo.lebrun@bootlin.com
 
-Add EyeQ6H support to the nmk-i2c AMBA driver. It shares the same quirk
-as EyeQ5: the memory bus only supports 32-bit accesses. Avoid writeb()
-and readb() by reusing the same `priv->has_32b_bus` flag.
+On Tue Oct 8, 2024 at 6:03 PM CEST, Krzysztof Kozlowski wrote:
+> On 08/10/2024 16:43, Th=C3=A9o Lebrun wrote:
+> > On Tue Oct 8, 2024 at 3:39 PM CEST, Krzysztof Kozlowski wrote:
+> >> On Tue, Oct 08, 2024 at 12:29:41PM +0200, Th=C3=A9o Lebrun wrote:
+> >>> +	bool is_eyeq6h =3D of_device_is_compatible(np, "mobileye,eyeq6h-i2c=
+");
+> >>> +	bool is_eyeq5 =3D of_device_is_compatible(np, "mobileye,eyeq5-i2c")=
+;
+> >>
+> >> You should use match data, not add compatibles in the middle of code.
+> >> That's preferred, scallable pattern. What you added here last time doe=
+s
+> >> not scale and above change is a proof for that.
+> >=20
+> > I would have used match data if the driver struct had a .of_match_table
+> > field. `struct amba_driver` does not. Are you recommending the approach
+> > below?
+> >=20
+> > I don't see how it brings much to the driver but I do get the scaling
+> > issue as the number of support compatibles increases. This is a fear
+> > based on what *could* happen in the future though.
+>
+> You still have adev->dev.of_node, which you can use for matching in
+> probe. See for example of_match_device() (and add a note so people will
+> not convert it to device_get_match_data() blindly).
 
-It does NOT need to write speed-mode specific value into a register;
-therefore it does not depend on the mobileye,olb DT property.
+Just sent the new revision [0]. It uses of_match_device() in the same
+way as was shown in my previous answer to this thread [1]. Followed
+your recommendation and added a comment to avoid conversions to
+device_get_match_data().
 
-Signed-off-by: Théo Lebrun <theo.lebrun@bootlin.com>
----
- drivers/i2c/busses/i2c-nomadik.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+Thanks!
 
-diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
-index c40328d1bca6cdefc61906cf9160f8411e37922a..8f52ae4d6285af2dd2b3dc7070672757e831a019 100644
---- a/drivers/i2c/busses/i2c-nomadik.c
-+++ b/drivers/i2c/busses/i2c-nomadik.c
-@@ -6,10 +6,10 @@
-  * I2C master mode controller driver, used in Nomadik 8815
-  * and Ux500 platforms.
-  *
-- * The Mobileye EyeQ5 platform is also supported; it uses
-+ * The Mobileye EyeQ5 and EyeQ6H platforms are also supported; they use
-  * the same Ux500/DB8500 IP block with two quirks:
-  *  - The memory bus only supports 32-bit accesses.
-- *  - A register must be configured for the I2C speed mode;
-+ *  - (only EyeQ5) A register must be configured for the I2C speed mode;
-  *    it is located in a shared register region called OLB.
-  *
-  * Author: Srinidhi Kasagar <srinidhi.kasagar@stericsson.com>
-@@ -1075,6 +1075,10 @@ static const struct of_device_id nmk_i2c_eyeq_match_table[] = {
- 		.compatible = "mobileye,eyeq5-i2c",
- 		.data = (void *)(NMK_I2C_EYEQ_FLAG_32B_BUS | NMK_I2C_EYEQ_FLAG_IS_EYEQ5),
- 	},
-+	{
-+		.compatible = "mobileye,eyeq6h-i2c",
-+		.data = (void *)NMK_I2C_EYEQ_FLAG_32B_BUS,
-+	},
- };
- 
- static int nmk_i2c_probe(struct amba_device *adev, const struct amba_id *id)
+[0]: https://lore.kernel.org/lkml/20241009-mbly-i2c-v2-0-ac9230a8dac5@bootl=
+in.com/
+[1]: https://lore.kernel.org/lkml/D4QI63B6YQU5.3UPKA7G75J445@bootlin.com/
 
--- 
-2.46.2
+--
+Th=C3=A9o Lebrun, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
 
