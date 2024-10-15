@@ -1,75 +1,75 @@
-Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
+Received: from mail-lf1-f43.google.com (mail-lf1-f43.google.com [209.85.167.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 948ED28691
-	for <linux-i2c@vger.kernel.org>; Tue, 15 Oct 2024 18:05:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9D0B28691
+	for <linux-i2c@vger.kernel.org>; Tue, 15 Oct 2024 18:05:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1729015525; cv=none; b=Afh7wupbxzU69mg0sOLvZP/o+B4J9MEiJEwktCdBz+jDFEkZ3odcSZr9L0O0p4KcVaymerZFhAuJODaRwJzyhDTqpSc3PtNr447U+XRxwXZCBa56286OMJ3WVSxC1/TyIr99XfITAnVMIyQw0fHG0vlp1Xg4hum1aGSVoIHdrV4=
+	t=1729015559; cv=none; b=Gw/YTw2qPXLvOJWMIfWEmWJSlsBHXwzZAqGrRibRO2iUuXJrdXtFR2JMZ/CVviNp7+KXJxiq69jkn3I05PMbKY/c91FYFXmJ9cP9Asa/EaKEYiAKiY8lgDkncI071T2GPMUXIN2r8ncuhe8DVLkfOpXsdRP8Jo9+ya5RSzMRtic=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1729015525; c=relaxed/simple;
-	bh=14O5MDyat6CX8O123WRU/kCYMtgocuRDZbVVnnkI2Yk=;
+	s=arc-20240116; t=1729015559; c=relaxed/simple;
+	bh=8xSHcy2PuAPSvZBu9Eml4zzV7wYxfR0IjepjU1wiaRw=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GW3eFPRFnqHq0D8KZAUwWxj5G/XWhQ4hhXenObWAPghvbiqVtxwvxxpkvqvsrktGx4OndM7q3rAJd6mvCwu56a4uuZyY5Im2fealnQZqzlo9sWA7fYJnXhDgf2bygf6zVxquoKNxB5H35uT+1K2Jw2QqgWI5kQnPufy+XQNAl24=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=NzFK8/Ud; arc=none smtp.client-ip=209.85.208.43
+	 To:Cc:Content-Type; b=t/KOMFKByJyrX6spQMkIA9wWTmFQCoxJOjtEzu9CKTcu/Uuh4maQNxw1p+WLccHFS72SKeaOmVkGVv6Tpqg35pgNyVNCtvUkOhBe5nGEf8gFbWLbp0hybTXE4Nasxzi/AYZwGjKtXCpDxfpc/dDmxpvUpsdalrGfwBJ3/e49VUA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=lTleCaPP; arc=none smtp.client-ip=209.85.167.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="NzFK8/Ud"
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-5c962c3e97dso3951751a12.0
-        for <linux-i2c@vger.kernel.org>; Tue, 15 Oct 2024 11:05:23 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="lTleCaPP"
+Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-539f1292a9bso3304308e87.2
+        for <linux-i2c@vger.kernel.org>; Tue, 15 Oct 2024 11:05:57 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1729015522; x=1729620322; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1729015556; x=1729620356; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=4Yio/gvv50Y6PZv0Xv308n7irKGS6U7Q/Fl4Lj32yaA=;
-        b=NzFK8/UdWR20Acf5gQKRELdbAF93JZS0m1B4Pv7EZwbkixB9ygX1xEryyuP08PgKmN
-         R9Q+xH4A5OKGR7eMOkbJx8UIZ6SRGBNkb13L9R0Lh9Ojr+eKP3T0iCSD4xSCWwvD6QBZ
-         xCl/nLnJ2OYyFeHo0PQhJ6j1g4/kK0Hf0sYpw=
+        bh=FQgdud0CKtJUsCxMGehxz9oQ+EPp7xHVsXi0/0jf+Z0=;
+        b=lTleCaPPX1XNfdhl0k9EH6KJ0/5nvj8ftfjfW4D7Jpyc2WgqRf3NgBE6pMPyed2bYE
+         sVNgECbbd/vVd5aSwyzInZB/Qqz/tn4HywVdYdMq8HOUrzDCDskOX6TuKa9eufr9M+51
+         2yUJX4P3+2XGfFStCGsS9oZj0XryghTDcQ7vo=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1729015522; x=1729620322;
+        d=1e100.net; s=20230601; t=1729015556; x=1729620356;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=4Yio/gvv50Y6PZv0Xv308n7irKGS6U7Q/Fl4Lj32yaA=;
-        b=OsW1aLbegva44Ys8Uak1t7TtnP6mA5f4qAxLUReuXmy+lqdf/Y/TiliK/1dbHb2bxB
-         qbjsGFeUTtFhcBRV+oCuxz+iWVLQfXiil7Dt5j90HlMUTyUzg0vau92C5xV6v243bm5j
-         Rin1DLEtfiJbGXqqbHF+QP1GA1pb3hwmbzYTuBQ+fbMUlDdSEB3Tz0GXojgGNvBRE4JM
-         5i5PsRMBwni0JkT4dq3eQZ4RkjSN78n3WnqYefxxcOHTvOhCfYmPOJomp9icQUKZGbo4
-         IKrIrYiAkD3i27pdOQYlaRUY+0g2Xact99Z4Onip+r7+sh/t725CFwIImhQUA7M5T8b1
-         qG3A==
-X-Forwarded-Encrypted: i=1; AJvYcCXCerAN7egxARQnu3E5CJ8TkhRGA++QP01c1nX66LNQyjyWSVeeBtwg1/TV72ID89fhhWpKQXjoW0g=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzzFEGR/n5gzWRjTtRHqxI1+6XM+OiW7D9Q8+9pRZvZzg6O+AKA
-	8s0/PJinVVRhe6nKiI2YgUuGoII6rpBoelkrbHE4+r5DWtxWm0/x6ksFQelBRyd3LtAp7KZUqFQ
-	GkqJa
-X-Google-Smtp-Source: AGHT+IH4Tny3Kkn1C1AMAfGCn7r2xESOXaw3QNw7LU45cJ7Ee73MikooWhNbRRpYSWFttyO+ZDsdag==
-X-Received: by 2002:a05:6402:2714:b0:5c9:7dd9:3eda with SMTP id 4fb4d7f45d1cf-5c97dd946f0mr6468449a12.5.1729015521672;
-        Tue, 15 Oct 2024 11:05:21 -0700 (PDT)
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com. [209.85.128.53])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-5c98d4f9dc2sm930434a12.38.2024.10.15.11.05.21
+        bh=FQgdud0CKtJUsCxMGehxz9oQ+EPp7xHVsXi0/0jf+Z0=;
+        b=nQWo1x76/UQ4icRIruWdJ26vk0SLXdXAwWgYUPOyPrdfCmfl9ipFnOfYybxxU1hm0x
+         gUTDlqftgPc5CJRW9Hl6ormXsilhrvONvs/ltCumj77PvUohYQpWrnSXy4rH5uk94NR3
+         QpWlxBtbl6focbbMGp7tTeaog9VA4MjC+u+/MVlFPH/eVkQFURiNN7WFfQNYZVOX4VFY
+         y/V83eZERTvmU6whGoN64OtcaXt3cVCDYQV2Hi64SM1lyH9PBKy79/xUx+L/+uZaZsU5
+         qN5kHSbfqZL/XMINodrmQuhBZcWjZ9tKcsy/iRsp/LHpRPvO8E/ebjOvIF5KsCJv14mR
+         8D/Q==
+X-Forwarded-Encrypted: i=1; AJvYcCUmpD+o2pZKNLb/foG3Vi9Wm8R+DOslDGfbqWvtU4CJJuYtT29C413UG1luDFHgAfdwuyQ65TDL2OE=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx0CHonjuAwKQ6cEXmYGdAdtslbsbHpea31UzefraFq+lrfWv+D
+	nXLRnV8LsRf/OUXHT50GUsghqQsLS0+YC+y3sNFC4ICz9Nb9H3QDBVm1cnWLwRNLBYEHzz3rBtF
+	9NpTT
+X-Google-Smtp-Source: AGHT+IFloEPGlma3RuxX0rbLhUMzVxeL2SGUE8HnQt4CBTNWjDnXNGT4H5jcIhrTrrnA0+nCKswk0w==
+X-Received: by 2002:a05:6512:3351:b0:53a:42d:fee6 with SMTP id 2adb3069b0e04-53a042e00abmr662430e87.11.1729015555607;
+        Tue, 15 Oct 2024 11:05:55 -0700 (PDT)
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com. [209.85.221.43])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-a9a29894cabsm96559966b.216.2024.10.15.11.05.55
         for <linux-i2c@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 15 Oct 2024 11:05:21 -0700 (PDT)
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-43144f656f0so7010735e9.0
-        for <linux-i2c@vger.kernel.org>; Tue, 15 Oct 2024 11:05:21 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCVZGFH9QxeCUTladSvKU8ZtuwElRl90DtSX+K0YDDFh0BOyfJmN2tbL/hkr6mMvVXIGd0ttd1gLMdk=@vger.kernel.org
-X-Received: by 2002:a05:6512:2c95:b0:539:e94d:2d3d with SMTP id
- 2adb3069b0e04-539e94d2ea1mr5104630e87.7.1729015125333; Tue, 15 Oct 2024
- 10:58:45 -0700 (PDT)
+        Tue, 15 Oct 2024 11:05:55 -0700 (PDT)
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-37d4b0943c7so3756666f8f.1
+        for <linux-i2c@vger.kernel.org>; Tue, 15 Oct 2024 11:05:55 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCXL8+JVWj5S7Eb3/4Jq1q8rvEJkN8RDCGj8/pemHFOiCZyRQNO0Lzm+m9tA5NLISnWUCMkPDKs94Cw=@vger.kernel.org
+X-Received: by 2002:a05:6512:1091:b0:539:f13c:e5ce with SMTP id
+ 2adb3069b0e04-53a03f77ea6mr882102e87.46.1729015152112; Tue, 15 Oct 2024
+ 10:59:12 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241008073430.3992087-1-wenst@chromium.org> <20241008073430.3992087-5-wenst@chromium.org>
-In-Reply-To: <20241008073430.3992087-5-wenst@chromium.org>
+References: <20241008073430.3992087-1-wenst@chromium.org> <20241008073430.3992087-7-wenst@chromium.org>
+In-Reply-To: <20241008073430.3992087-7-wenst@chromium.org>
 From: Doug Anderson <dianders@chromium.org>
-Date: Tue, 15 Oct 2024 10:58:31 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=WRSjk3U9Kau0wqkgv3KB=9jM6wCM9Gs-WxWai35sfxTg@mail.gmail.com>
-Message-ID: <CAD=FV=WRSjk3U9Kau0wqkgv3KB=9jM6wCM9Gs-WxWai35sfxTg@mail.gmail.com>
-Subject: Re: [PATCH v8 4/8] i2c: Introduce OF component probe function
+Date: Tue, 15 Oct 2024 10:58:55 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=X+_iYi0_RSakh6bzVYuNpiqUvjHTrL81n8h4dO+WZf9g@mail.gmail.com>
+Message-ID: <CAD=FV=X+_iYi0_RSakh6bzVYuNpiqUvjHTrL81n8h4dO+WZf9g@mail.gmail.com>
+Subject: Re: [PATCH v8 6/8] i2c: of-prober: Add GPIO support to simple helpers
 To: Chen-Yu Tsai <wenst@chromium.org>
 Cc: Rob Herring <robh@kernel.org>, Saravana Kannan <saravanak@google.com>, 
 	Matthias Brugger <matthias.bgg@gmail.com>, 
@@ -88,61 +88,33 @@ Hi,
 On Tue, Oct 8, 2024 at 12:35=E2=80=AFAM Chen-Yu Tsai <wenst@chromium.org> w=
 rote:
 >
-> +int i2c_of_probe_component(struct device *dev, const struct i2c_of_probe=
-_cfg *cfg, void *ctx)
+> +static void i2c_of_probe_simple_disable_gpio(struct device *dev, struct =
+i2c_of_probe_simple_ctx *ctx)
 > +{
-> +       const struct i2c_of_probe_ops *ops;
-> +       const char *type;
-> +       struct i2c_adapter *i2c;
-> +       int ret;
+> +       if (!ctx->gpiod)
+> +               return;
 > +
-> +       ops =3D cfg->ops ?: &i2c_of_probe_dummy_ops;
-> +       type =3D cfg->type;
-> +
-> +       struct device_node *i2c_node __free(device_node) =3D i2c_of_probe=
-_get_i2c_node(dev, type);
-> +       if (IS_ERR(i2c_node))
-> +               return PTR_ERR(i2c_node);
+> +       /* Ignore error if GPIO is not in output direction */
+> +       gpiod_set_value(ctx->gpiod, !ctx->opts->gpio_assert_to_enable);
 
-I'm still getting comfortable with the __free() syntax so sorry if I'm
-wrong, but I _think_ the above is buggy. I believe that the definition
-of the free function for "device_node" is from:
-
-DEFINE_FREE(device_node, struct device_node *, if (_T) of_node_put(_T))
-
-...which means it'll call of_node_put() to free "i2c_node" when it
-goes out of scope. of_node_put() handles NULL pointers but _not_ ERR
-pointers. So I think that if you get an error back and then return via
-the PTR_ERR(i2c_node) then it'll crash because it will try to free an
-ERR pointer. Did I get that right? Presumably you need to instead do:
-
-  return PTR_ERR(no_free_ptr(i2c_node));
-
-...or change of_node_put() to be a noop for error pointers?
+I'm not sure I understand the comment. Does disable() ever get called
+when set() wasn't called beforehand? How could it not be in output
+direction?
 
 
-> +struct i2c_of_probe_ops {
-> +       /**
-> +        * @enable: Retrieve and enable resources so that the components =
-respond to probes.
-> +        *
-> +        * Resources should be reverted to their initial state before ret=
-urning if this fails.
+>  void i2c_of_probe_simple_cleanup(struct device *dev, void *data)
+>  {
+>         struct i2c_of_probe_simple_ctx *ctx =3D data;
+>
+> +       /* GPIO operations here are no-ops if a component was found and e=
+nabled. */
 
-nit: might be worth explicitly noting that returning -EPROBE_DEFER is
-OK here because this both retrieves resources and enables.
+Instead of the above, maybe:
 
-
-> +        */
-> +       int (*enable)(struct device *dev, struct device_node *bus_node, v=
-oid *data);
-> +
-> +       /**
-> +        * @cleanup_early: Release exclusive resources prior to enabling =
-component.
-
-nit: change the word "enabling" to "calling probe() on a detected"
-since otherwise it could be confused with the "enable" function above.
+GPIO operations here are no-ops if i2c_of_probe_simple_cleanup_early()
+was called.
 
 
--Doug
+Just commenting nits, so:
+
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
