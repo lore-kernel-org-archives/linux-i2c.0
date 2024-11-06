@@ -1,44 +1,44 @@
 Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [202.36.163.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88F30B663
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A610BA2E
 	for <linux-i2c@vger.kernel.org>; Wed,  6 Nov 2024 00:18:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.36.163.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1730852326; cv=none; b=EYwgwZxhLMLkKWzeVD6V2higVMwEqhURecRsXG8CcxzTi1aYuGTm4oyGc0CDqPGLW5Sa1R1XSlWjOH8Sf7fOxJ5msqfonWaPCUhV/vfvcBDuHCdR4e5Pfyg7vVzrrEcpRD9UIpP9yGzeOV0zNfY6cS/xfMxQGzaJAOrXG1LUsw0=
+	t=1730852326; cv=none; b=V+cSO/YjuicAdYY0yGZmEA3OCA6C1Tv3NNeCuK6A2zHEX5sd8SQ9X1h74WSnIW5J7zAorOmw9l8APG1Zcr5kQUrng0A897J/Cp0Zna3knAs1dZiuQOoPIzR+JyQwPuxugFka3rvMspzb7iFmgAHsaCp8E1TpBjeyq94/pXmcRSE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1730852326; c=relaxed/simple;
-	bh=hnwreMOBYIiNtdHZSO+Y2dLKG+ZfXfAeuvIBkQg7SSY=;
+	bh=5hhQn0gCUlcplPfaXw5SwWAhdjqsP068tMF6ZfgO31g=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fUUjX6TTK/poOUmisleUUUUI4IvDs40ostyIsN6MH1hTDeuyF3W+0gM2z5NvGsMjEBdIASzgItnr1KsRDT4Qof3tLHaaT+EPWqgzVoZkfLKFZtgfm39XPP72SqGtoVUZ4sAZ7Uu372ugKuMDrczKZHKf5k3/8ETi1q703mXZ/jU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz; spf=pass smtp.mailfrom=alliedtelesis.co.nz; dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b=S+BptHP7; arc=none smtp.client-ip=202.36.163.20
+	 MIME-Version; b=eQEWcgmjzY3DEZkR1H21uG6aw2KTPN82kk288NrNneNH0D0/ctOyIcAhtCLCqAxRZBaGplKFigQsKLFWj8SaiZG0Se9YnwC7BX4+ewwu1Jb/UNpX/o/rOHEdnm4XW0RIt6+8wUC6cPwPrC77hNeOcfr1zcuU6schPH/BGijMi/M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz; spf=pass smtp.mailfrom=alliedtelesis.co.nz; dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b=WT64rO4a; arc=none smtp.client-ip=202.36.163.20
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alliedtelesis.co.nz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="S+BptHP7"
+	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="WT64rO4a"
 Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(Client did not present a certificate)
-	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 8184B2C0517;
+	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id B316E2C0613;
 	Wed,  6 Nov 2024 13:18:40 +1300 (NZDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
 	s=mail181024; t=1730852320;
-	bh=4Wng6mqUviBxiiBervr7wt9IS8eUnmDxUsXWt4weyM4=;
+	bh=yfSE3Gx844Euoez3kmuGnTX8wZ5nFZUV7VcVXmgpKzU=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=S+BptHP7TAJ4V5qjrZCmZ9k2BpV5hEuitGmedNmST/BqNdTrtjP3Tt+qX/gppScmY
-	 Wt6wcRS2WPavgNpXCGBudiLIq2QeYfKVVPXXLqfR8WQgl1Flxb0HiQBqPcSTtbEZSn
-	 Sw1AT+cc6H5G3+q6Hl445yaq51e3xXNj6GUgV7ktun4GIWKHGH5uQdNFLogjkJppdi
-	 a+scCv4CU1L3if4ApMMveZjEepfk0gu2OT5RLdzKaW6XJpGrcxGXOZ4+Y2XT3jJr8K
-	 bfm3d7IqgZaWgkrLsfSOU+tMW6b4jQmZrU/0BLR08UJeLQt/KsZH73ZSUPEYgr2+Zx
-	 qBxsKfKTlcbfw==
+	b=WT64rO4acDqxTp2qiPlyt2feyxzbGr+OmW7O7bRky7DqyjD1wiGCZme/43f28eu3u
+	 HbwJ6iEZp5KBZmXPERlq88+v/8e2md7vsJeQbQMnMDUbedYuNNZ78qQcGQkCtPnMbo
+	 fm6klMUHAg5iv3wqbuApCEfajX1YYTbdZ6lTjxLUr8TI6cGlW2KlhUVKKC4/P5sMfz
+	 f0DFKA5P17XJKqmgvgifFpl2qTIwUAfX+pgwQd5JxP2WQ3RqlAXERDavlB6V9qZNGo
+	 QvSTGnq6iROC+xqYG8+zdm/MML6Fm5dyvT6+83IeRAHQT/RU4o3WUs3dGWdd02cL5p
+	 jywVr2xDLX5LQ==
 Received: from pat.atlnz.lc (Not Verified[10.32.16.33]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
-	id <B672ab5e00001>; Wed, 06 Nov 2024 13:18:40 +1300
+	id <B672ab5e00004>; Wed, 06 Nov 2024 13:18:40 +1300
 Received: from chrisp-dl.ws.atlnz.lc (chrisp-dl.ws.atlnz.lc [10.33.22.30])
-	by pat.atlnz.lc (Postfix) with ESMTP id 385C113EE8E;
+	by pat.atlnz.lc (Postfix) with ESMTP id 4117C13EE94;
 	Wed,  6 Nov 2024 13:18:40 +1300 (NZDT)
 Received: by chrisp-dl.ws.atlnz.lc (Postfix, from userid 1030)
-	id 363272804D6; Wed,  6 Nov 2024 13:18:40 +1300 (NZDT)
+	id 3EC322804D6; Wed,  6 Nov 2024 13:18:40 +1300 (NZDT)
 From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 To: lee@kernel.org,
 	robh@kernel.org,
@@ -51,9 +51,9 @@ Cc: devicetree@vger.kernel.org,
 	linux-mips@vger.kernel.org,
 	linux-i2c@vger.kernel.org,
 	Chris Packham <chris.packham@alliedtelesis.co.nz>
-Subject: [PATCH v9 2/4] mips: dts: realtek: Add syscon-reboot node
-Date: Wed,  6 Nov 2024 13:18:33 +1300
-Message-ID: <20241106001835.2725522-3-chris.packham@alliedtelesis.co.nz>
+Subject: [PATCH v9 4/4] i2c: Add driver for the RTL9300 I2C controller
+Date: Wed,  6 Nov 2024 13:18:35 +1300
+Message-ID: <20241106001835.2725522-5-chris.packham@alliedtelesis.co.nz>
 X-Mailer: git-send-email 2.47.0
 In-Reply-To: <20241106001835.2725522-1-chris.packham@alliedtelesis.co.nz>
 References: <20241106001835.2725522-1-chris.packham@alliedtelesis.co.nz>
@@ -64,101 +64,571 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-SEG-SpamProfiler-Analysis: v=2.4 cv=ca1xrWDM c=1 sm=1 tr=0 ts=672ab5e0 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=VlfZXiiP6vEA:10 a=wvvtYBgb9FI6sUgW-XsA:9 a=3ZKOabzyN94A:10
+X-SEG-SpamProfiler-Analysis: v=2.4 cv=ca1xrWDM c=1 sm=1 tr=0 ts=672ab5e0 a=KLBiSEs5mFS1a/PbTCJxuA==:117 a=VlfZXiiP6vEA:10 a=jdP34snFAAAA:8 a=VwQbUJbxAAAA:8 a=NEAV23lmAAAA:8 a=UgJECxHJAAAA:8 a=aaOI7ajaZ5fHE1syFM0A:9 a=3ZKOabzyN94A:10 a=jlphF6vWLdwq7oh3TaWq:22 a=-El7cUbtino8hM1DCn8D:22
 X-SEG-SpamProfiler-Score: 0
 x-atlnz-ls: pat
 
-The board level reset on systems using the RTL9302 can be driven via the
-switch. Use a syscon-reboot node to represent this.
+Add support for the I2C controller on the RTL9300 SoC. There are two I2C
+controllers in the RTL9300 that are part of the Ethernet switch register
+block. Each of these controllers owns a SCL pin (GPIO8 for the fiorst
+I2C controller, GPIO17 for the second). There are 8 possible SDA pins
+(GPIO9-16) that can be assigned to either I2C controller. This
+relationship is represented in the device tree with a child node for
+each SDA line in use.
+
+This is based on the openwrt implementation[1] but has been
+significantly modified
+
+[1] - https://git.openwrt.org/?p=3Dopenwrt/openwrt.git;a=3Dblob;f=3Dtarge=
+t/linux/realtek/files-5.15/drivers/i2c/busses/i2c-rtl9300.c
 
 Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
 ---
 
 Notes:
     Changes in v9:
-    - None
+    - Fix alignment of register definitions and rtl9300_i2c_execute_xfer(=
+)
+    - Reduce scope of "chan" and "adap" variables in rtl9300_i2c_probe()
+    - Add r-by from Andi
     Changes in v8:
     - None
     Changes in v7:
     - None
     Changes in v6:
+    - Make rtl9300_i2c_quirks static
     - Drop wildcard compatible
+    - Add SoC specific compatibles
     Changes in v5:
-    - Krzysztof did technically give a r-by on v4 but given the changes t=
-o
-      the rest of the series I haven't included it.
-    - Use reg instead of offset
-    - Add a rtl9302c.dtsi for the specific chip which pulls in the generi=
-c
-      rtl930x.dtsi and updates a few of the compatibles on the way throug=
-h.
-    - Update Cameo board to use rtl9302c.dtsi
+    - Make lock part of struct rtl9300_i2c
+    - Fix alignment in rtl9300_i2c_smbus_xfer
     Changes in v4:
-    - None
+    - skipped due to combining patch series
     Changes in v3:
     - None
     Changes in v2:
-    - drop redundant status =3D "okay"
+    - Replace a number of return 0; with tail calls
+    - Add enum rtl9300_bus_freq
+    - Use RTL9300_ prefix on new defines
+    - Use reg property for register offset
+    - Hard code RTL9300_I2C_MST_GLB_CTRL address as this does not need to
+      come from DT binding
+    - Use GENMASK() where appropriate
+    - Propagate read/write errors through to rtl9300_i2c_smbus_xfer()
+    - Don't error out on bad clock-frequency
+    - Use devm_i2c_add_adapter()
+    - Put more information in the commit message
+    - Integrated multiplexing function, an adapter is created per SDA lin=
+e
 
- .../dts/realtek/cameo-rtl9302c-2x-rtl8224-2xge.dts  |  2 +-
- arch/mips/boot/dts/realtek/rtl9302c.dtsi            |  7 +++++++
- arch/mips/boot/dts/realtek/rtl930x.dtsi             | 13 +++++++++++++
- 3 files changed, 21 insertions(+), 1 deletion(-)
- create mode 100644 arch/mips/boot/dts/realtek/rtl9302c.dtsi
+ MAINTAINERS                      |   7 +
+ drivers/i2c/busses/Kconfig       |  10 +
+ drivers/i2c/busses/Makefile      |   1 +
+ drivers/i2c/busses/i2c-rtl9300.c | 423 +++++++++++++++++++++++++++++++
+ 4 files changed, 441 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-rtl9300.c
 
-diff --git a/arch/mips/boot/dts/realtek/cameo-rtl9302c-2x-rtl8224-2xge.dt=
-s b/arch/mips/boot/dts/realtek/cameo-rtl9302c-2x-rtl8224-2xge.dts
-index 77d2566545f2..6789bf374044 100644
---- a/arch/mips/boot/dts/realtek/cameo-rtl9302c-2x-rtl8224-2xge.dts
-+++ b/arch/mips/boot/dts/realtek/cameo-rtl9302c-2x-rtl8224-2xge.dts
-@@ -1,7 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0-or-later
- /dts-v1/;
+diff --git a/MAINTAINERS b/MAINTAINERS
+index a27407950242..49a5cb4dd2cd 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -20058,6 +20058,13 @@ S:	Maintained
+ T:	git https://github.com/pkshih/rtw.git
+ F:	drivers/net/wireless/realtek/rtl8xxxu/
 =20
--#include "rtl930x.dtsi"
-+#include "rtl9302c.dtsi"
++RTL9300 I2C DRIVER (rtl9300-i2c)
++M:	Chris Packham <chris.packham@alliedtelesis.co.nz>
++L:	linux-i2c@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/i2c/realtek,rtl9301-i2c.yaml
++F:	drivers/i2c/busses/i2c-rtl9300.c
++
+ RTRS TRANSPORT DRIVERS
+ M:	Md. Haris Iqbal <haris.iqbal@ionos.com>
+ M:	Jack Wang <jinpu.wang@ionos.com>
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 6b3ba7e5723a..e655c6ceb5db 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -1060,6 +1060,16 @@ config I2C_RK3X
+ 	  This driver can also be built as a module. If so, the module will
+ 	  be called i2c-rk3x.
 =20
- #include <dt-bindings/input/input.h>
- #include <dt-bindings/gpio/gpio.h>
-diff --git a/arch/mips/boot/dts/realtek/rtl9302c.dtsi b/arch/mips/boot/dt=
-s/realtek/rtl9302c.dtsi
++config I2C_RTL9300
++	tristate "Realtek RTL9300 I2C controller"
++	depends on MACH_REALTEK_RTL || COMPILE_TEST
++	help
++	  Say Y here to include support for the I2C controller in Realtek
++	  RTL9300 SoCs.
++
++	  This driver can also be built as a module. If so, the module will
++	  be called i2c-rtl9300.
++
+ config I2C_RZV2M
+ 	tristate "Renesas RZ/V2M adapter"
+ 	depends on ARCH_RENESAS || COMPILE_TEST
+diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+index ecc07c50f2a0..e99f4f327aa0 100644
+--- a/drivers/i2c/busses/Makefile
++++ b/drivers/i2c/busses/Makefile
+@@ -103,6 +103,7 @@ obj-$(CONFIG_I2C_QCOM_GENI)	+=3D i2c-qcom-geni.o
+ obj-$(CONFIG_I2C_QUP)		+=3D i2c-qup.o
+ obj-$(CONFIG_I2C_RIIC)		+=3D i2c-riic.o
+ obj-$(CONFIG_I2C_RK3X)		+=3D i2c-rk3x.o
++obj-$(CONFIG_I2C_RTL9300)	+=3D i2c-rtl9300.o
+ obj-$(CONFIG_I2C_RZV2M)		+=3D i2c-rzv2m.o
+ obj-$(CONFIG_I2C_S3C2410)	+=3D i2c-s3c2410.o
+ obj-$(CONFIG_I2C_SH7760)	+=3D i2c-sh7760.o
+diff --git a/drivers/i2c/busses/i2c-rtl9300.c b/drivers/i2c/busses/i2c-rt=
+l9300.c
 new file mode 100644
-index 000000000000..ca4d347af8d3
+index 000000000000..e064e8a4a1f0
 --- /dev/null
-+++ b/arch/mips/boot/dts/realtek/rtl9302c.dtsi
-@@ -0,0 +1,7 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later OR BSD-2-Clause
++++ b/drivers/i2c/busses/i2c-rtl9300.c
+@@ -0,0 +1,423 @@
++// SPDX-License-Identifier: GPL-2.0-only
 +
-+#include "rtl930x.dtsi"
++#include <linux/bits.h>
++#include <linux/i2c.h>
++#include <linux/i2c-mux.h>
++#include <linux/mod_devicetable.h>
++#include <linux/mfd/syscon.h>
++#include <linux/mutex.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
 +
-+&switch0 {
-+	compatible =3D "realtek,rtl9302c-switch", "syscon", "simple-mfd";
++enum rtl9300_bus_freq {
++	RTL9300_I2C_STD_FREQ,
++	RTL9300_I2C_FAST_FREQ,
 +};
-diff --git a/arch/mips/boot/dts/realtek/rtl930x.dtsi b/arch/mips/boot/dts=
-/realtek/rtl930x.dtsi
-index f271940f82be..7477fae34987 100644
---- a/arch/mips/boot/dts/realtek/rtl930x.dtsi
-+++ b/arch/mips/boot/dts/realtek/rtl930x.dtsi
-@@ -29,6 +29,19 @@ lx_clk: clock-175mhz {
- 		#clock-cells =3D <0>;
- 		clock-frequency  =3D <175000000>;
- 	};
 +
-+	switch0: switch@1b000000 {
-+		compatible =3D "realtek,rtl9301-switch", "syscon", "simple-mfd";
-+		reg =3D <0x1b000000 0x10000>;
-+		#address-cells =3D <1>;
-+		#size-cells =3D <1>;
++struct rtl9300_i2c;
 +
-+		reboot@c {
-+			compatible =3D "syscon-reboot";
-+			reg =3D <0x0c 0x4>;
-+			value =3D <0x01>;
-+		};
-+	};
- };
-=20
- &soc {
++struct rtl9300_i2c_chan {
++	struct i2c_adapter adap;
++	struct rtl9300_i2c *i2c;
++	enum rtl9300_bus_freq bus_freq;
++	u8 sda_pin;
++};
++
++#define RTL9300_I2C_MUX_NCHAN	8
++
++struct rtl9300_i2c {
++	struct regmap *regmap;
++	struct device *dev;
++	struct rtl9300_i2c_chan chans[RTL9300_I2C_MUX_NCHAN];
++	u32 reg_base;
++	u8 sda_pin;
++	struct mutex lock;
++};
++
++#define RTL9300_I2C_MST_CTRL1				0x0
++#define  RTL9300_I2C_MST_CTRL1_MEM_ADDR_OFS		8
++#define  RTL9300_I2C_MST_CTRL1_MEM_ADDR_MASK		GENMASK(31, 8)
++#define  RTL9300_I2C_MST_CTRL1_SDA_OUT_SEL_OFS		4
++#define  RTL9300_I2C_MST_CTRL1_SDA_OUT_SEL_MASK		GENMASK(6, 4)
++#define  RTL9300_I2C_MST_CTRL1_GPIO_SCL_SEL		BIT(3)
++#define  RTL9300_I2C_MST_CTRL1_RWOP			BIT(2)
++#define  RTL9300_I2C_MST_CTRL1_I2C_FAIL			BIT(1)
++#define  RTL9300_I2C_MST_CTRL1_I2C_TRIG			BIT(0)
++#define RTL9300_I2C_MST_CTRL2				0x4
++#define  RTL9300_I2C_MST_CTRL2_RD_MODE			BIT(15)
++#define  RTL9300_I2C_MST_CTRL2_DEV_ADDR_OFS		8
++#define  RTL9300_I2C_MST_CTRL2_DEV_ADDR_MASK		GENMASK(14, 8)
++#define  RTL9300_I2C_MST_CTRL2_DATA_WIDTH_OFS		4
++#define  RTL9300_I2C_MST_CTRL2_DATA_WIDTH_MASK		GENMASK(7, 4)
++#define  RTL9300_I2C_MST_CTRL2_MEM_ADDR_WIDTH_OFS	2
++#define  RTL9300_I2C_MST_CTRL2_MEM_ADDR_WIDTH_MASK	GENMASK(3, 2)
++#define  RTL9300_I2C_MST_CTRL2_SCL_FREQ_OFS		0
++#define  RTL9300_I2C_MST_CTRL2_SCL_FREQ_MASK		GENMASK(1, 0)
++#define RTL9300_I2C_MST_DATA_WORD0			0x8
++#define RTL9300_I2C_MST_DATA_WORD1			0xc
++#define RTL9300_I2C_MST_DATA_WORD2			0x10
++#define RTL9300_I2C_MST_DATA_WORD3			0x14
++
++#define RTL9300_I2C_MST_GLB_CTRL			0x384
++
++static int rtl9300_i2c_reg_addr_set(struct rtl9300_i2c *i2c, u32 reg, u1=
+6 len)
++{
++	u32 val, mask;
++	int ret;
++
++	val =3D len << RTL9300_I2C_MST_CTRL2_MEM_ADDR_WIDTH_OFS;
++	mask =3D RTL9300_I2C_MST_CTRL2_MEM_ADDR_WIDTH_MASK;
++
++	ret =3D regmap_update_bits(i2c->regmap, i2c->reg_base + RTL9300_I2C_MST=
+_CTRL2, mask, val);
++	if (ret)
++		return ret;
++
++	val =3D reg << RTL9300_I2C_MST_CTRL1_MEM_ADDR_OFS;
++	mask =3D RTL9300_I2C_MST_CTRL1_MEM_ADDR_MASK;
++
++	return regmap_update_bits(i2c->regmap, i2c->reg_base + RTL9300_I2C_MST_=
+CTRL1, mask, val);
++}
++
++static int rtl9300_i2c_config_io(struct rtl9300_i2c *i2c, u8 sda_pin)
++{
++	int ret;
++	u32 val, mask;
++
++	ret =3D regmap_update_bits(i2c->regmap, RTL9300_I2C_MST_GLB_CTRL, BIT(s=
+da_pin), BIT(sda_pin));
++	if (ret)
++		return ret;
++
++	val =3D (sda_pin << RTL9300_I2C_MST_CTRL1_SDA_OUT_SEL_OFS) |
++		RTL9300_I2C_MST_CTRL1_GPIO_SCL_SEL;
++	mask =3D RTL9300_I2C_MST_CTRL1_SDA_OUT_SEL_MASK | RTL9300_I2C_MST_CTRL1=
+_GPIO_SCL_SEL;
++
++	return regmap_update_bits(i2c->regmap, i2c->reg_base + RTL9300_I2C_MST_=
+CTRL1, mask, val);
++}
++
++static int rtl9300_i2c_config_xfer(struct rtl9300_i2c *i2c, struct rtl93=
+00_i2c_chan *chan,
++				   u16 addr, u16 len)
++{
++	u32 val, mask;
++
++	val =3D chan->bus_freq << RTL9300_I2C_MST_CTRL2_SCL_FREQ_OFS;
++	mask =3D RTL9300_I2C_MST_CTRL2_SCL_FREQ_MASK;
++
++	val |=3D addr << RTL9300_I2C_MST_CTRL2_DEV_ADDR_OFS;
++	mask |=3D RTL9300_I2C_MST_CTRL2_DEV_ADDR_MASK;
++
++	val |=3D ((len - 1) & 0xf) << RTL9300_I2C_MST_CTRL2_DATA_WIDTH_OFS;
++	mask |=3D RTL9300_I2C_MST_CTRL2_DATA_WIDTH_MASK;
++
++	mask |=3D RTL9300_I2C_MST_CTRL2_RD_MODE;
++
++	return regmap_update_bits(i2c->regmap, i2c->reg_base + RTL9300_I2C_MST_=
+CTRL2, mask, val);
++}
++
++static int rtl9300_i2c_read(struct rtl9300_i2c *i2c, u8 *buf, int len)
++{
++	u32 vals[4] =3D {};
++	int i, ret;
++
++	if (len > 16)
++		return -EIO;
++
++	ret =3D regmap_bulk_read(i2c->regmap, i2c->reg_base + RTL9300_I2C_MST_D=
+ATA_WORD0,
++			       vals, ARRAY_SIZE(vals));
++	if (ret)
++		return ret;
++
++	for (i =3D 0; i < len; i++) {
++		buf[i] =3D vals[i/4] & 0xff;
++		vals[i/4] >>=3D 8;
++	}
++
++	return 0;
++}
++
++static int rtl9300_i2c_write(struct rtl9300_i2c *i2c, u8 *buf, int len)
++{
++	u32 vals[4] =3D {};
++	int i;
++
++	if (len > 16)
++		return -EIO;
++
++	for (i =3D 0; i < len; i++) {
++		if (i % 4 =3D=3D 0)
++			vals[i/4] =3D 0;
++		vals[i/4] <<=3D 8;
++		vals[i/4] |=3D buf[i];
++	}
++
++	return regmap_bulk_write(i2c->regmap, i2c->reg_base + RTL9300_I2C_MST_D=
+ATA_WORD0,
++				vals, ARRAY_SIZE(vals));
++}
++
++static int rtl9300_i2c_writel(struct rtl9300_i2c *i2c, u32 data)
++{
++	return regmap_write(i2c->regmap, i2c->reg_base + RTL9300_I2C_MST_DATA_W=
+ORD0, data);
++}
++
++static int rtl9300_i2c_execute_xfer(struct rtl9300_i2c *i2c, char read_w=
+rite,
++				    int size, union i2c_smbus_data *data, int len)
++{
++	u32 val, mask;
++	int ret;
++
++	val =3D read_write =3D=3D I2C_SMBUS_WRITE ? RTL9300_I2C_MST_CTRL1_RWOP =
+: 0;
++	mask =3D RTL9300_I2C_MST_CTRL1_RWOP;
++
++	val |=3D RTL9300_I2C_MST_CTRL1_I2C_TRIG;
++	mask |=3D RTL9300_I2C_MST_CTRL1_I2C_TRIG;
++
++	ret =3D regmap_update_bits(i2c->regmap, i2c->reg_base + RTL9300_I2C_MST=
+_CTRL1, mask, val);
++	if (ret)
++		return ret;
++
++	ret =3D regmap_read_poll_timeout(i2c->regmap, i2c->reg_base + RTL9300_I=
+2C_MST_CTRL1,
++				       val, !(val & RTL9300_I2C_MST_CTRL1_I2C_TRIG), 100, 2000);
++	if (ret)
++		return ret;
++
++	if (val & RTL9300_I2C_MST_CTRL1_I2C_FAIL)
++		return -EIO;
++
++	if (read_write =3D=3D I2C_SMBUS_READ) {
++		if (size =3D=3D I2C_SMBUS_BYTE || size =3D=3D I2C_SMBUS_BYTE_DATA) {
++			ret =3D regmap_read(i2c->regmap,
++					  i2c->reg_base + RTL9300_I2C_MST_DATA_WORD0, &val);
++			if (ret)
++				return ret;
++			data->byte =3D val & 0xff;
++		} else if (size =3D=3D I2C_SMBUS_WORD_DATA) {
++			ret =3D regmap_read(i2c->regmap,
++					  i2c->reg_base + RTL9300_I2C_MST_DATA_WORD0, &val);
++			if (ret)
++				return ret;
++			data->word =3D val & 0xffff;
++		} else {
++			ret =3D rtl9300_i2c_read(i2c, &data->block[0], len);
++			if (ret)
++				return ret;
++		}
++	}
++
++	return 0;
++}
++
++static int rtl9300_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr, un=
+signed short flags,
++				  char read_write, u8 command, int size,
++				  union i2c_smbus_data *data)
++{
++	struct rtl9300_i2c_chan *chan =3D i2c_get_adapdata(adap);
++	struct rtl9300_i2c *i2c =3D chan->i2c;
++	int len =3D 0, ret;
++
++	mutex_lock(&i2c->lock);
++	if (chan->sda_pin !=3D i2c->sda_pin) {
++		ret =3D rtl9300_i2c_config_io(i2c, chan->sda_pin);
++		if (ret)
++			goto out_unlock;
++		i2c->sda_pin =3D chan->sda_pin;
++	}
++
++	switch (size) {
++	case I2C_SMBUS_QUICK:
++		ret =3D rtl9300_i2c_config_xfer(i2c, chan, addr, 0);
++		if (ret)
++			goto out_unlock;
++		ret =3D rtl9300_i2c_reg_addr_set(i2c, 0, 0);
++		if (ret)
++			goto out_unlock;
++		break;
++
++	case I2C_SMBUS_BYTE:
++		if (read_write =3D=3D I2C_SMBUS_WRITE) {
++			ret =3D rtl9300_i2c_config_xfer(i2c, chan, addr, 0);
++			if (ret)
++				goto out_unlock;
++			ret =3D rtl9300_i2c_reg_addr_set(i2c, command, 1);
++			if (ret)
++				goto out_unlock;
++		} else {
++			ret =3D rtl9300_i2c_config_xfer(i2c, chan, addr, 1);
++			if (ret)
++				goto out_unlock;
++			ret =3D rtl9300_i2c_reg_addr_set(i2c, 0, 0);
++			if (ret)
++				goto out_unlock;
++		}
++		break;
++
++	case I2C_SMBUS_BYTE_DATA:
++		ret =3D rtl9300_i2c_reg_addr_set(i2c, command, 1);
++		if (ret)
++			goto out_unlock;
++		ret =3D rtl9300_i2c_config_xfer(i2c, chan, addr, 1);
++		if (ret)
++			goto out_unlock;
++		if (read_write =3D=3D I2C_SMBUS_WRITE) {
++			ret =3D rtl9300_i2c_writel(i2c, data->byte);
++			if (ret)
++				goto out_unlock;
++		}
++		break;
++
++	case I2C_SMBUS_WORD_DATA:
++		ret =3D rtl9300_i2c_reg_addr_set(i2c, command, 1);
++		if (ret)
++			goto out_unlock;
++		ret =3D rtl9300_i2c_config_xfer(i2c, chan, addr, 2);
++		if (ret)
++			goto out_unlock;
++		if (read_write =3D=3D I2C_SMBUS_WRITE) {
++			ret =3D rtl9300_i2c_writel(i2c, data->word);
++			if (ret)
++				goto out_unlock;
++		}
++		break;
++
++	case I2C_SMBUS_BLOCK_DATA:
++		ret =3D rtl9300_i2c_reg_addr_set(i2c, command, 1);
++		if (ret)
++			goto out_unlock;
++		ret =3D rtl9300_i2c_config_xfer(i2c, chan, addr, data->block[0]);
++		if (ret)
++			goto out_unlock;
++		if (read_write =3D=3D I2C_SMBUS_WRITE) {
++			ret =3D rtl9300_i2c_write(i2c, &data->block[1], data->block[0]);
++			if (ret)
++				goto out_unlock;
++		}
++		len =3D data->block[0];
++		break;
++
++	default:
++		dev_err(&adap->dev, "Unsupported transaction %d\n", size);
++		ret =3D -EOPNOTSUPP;
++		goto out_unlock;
++	}
++
++	ret =3D rtl9300_i2c_execute_xfer(i2c, read_write, size, data, len);
++
++out_unlock:
++	mutex_unlock(&i2c->lock);
++
++	return ret;
++}
++
++static u32 rtl9300_i2c_func(struct i2c_adapter *a)
++{
++	return I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE |
++	       I2C_FUNC_SMBUS_BYTE_DATA | I2C_FUNC_SMBUS_WORD_DATA |
++	       I2C_FUNC_SMBUS_BLOCK_DATA;
++}
++
++static const struct i2c_algorithm rtl9300_i2c_algo =3D {
++	.smbus_xfer	=3D rtl9300_i2c_smbus_xfer,
++	.functionality	=3D rtl9300_i2c_func,
++};
++
++static struct i2c_adapter_quirks rtl9300_i2c_quirks =3D {
++	.flags		=3D I2C_AQ_NO_CLK_STRETCH,
++	.max_read_len	=3D 16,
++	.max_write_len	=3D 16,
++};
++
++static int rtl9300_i2c_probe(struct platform_device *pdev)
++{
++	struct device *dev =3D &pdev->dev;
++	struct rtl9300_i2c *i2c;
++	u32 clock_freq, sda_pin;
++	int ret, i =3D 0;
++	struct fwnode_handle *child;
++
++	i2c =3D devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
++	if (!i2c)
++		return -ENOMEM;
++
++	i2c->regmap =3D syscon_node_to_regmap(dev->parent->of_node);
++	if (IS_ERR(i2c->regmap))
++		return PTR_ERR(i2c->regmap);
++	i2c->dev =3D dev;
++
++	mutex_init(&i2c->lock);
++
++	ret =3D device_property_read_u32(dev, "reg", &i2c->reg_base);
++	if (ret)
++		return ret;
++
++	platform_set_drvdata(pdev, i2c);
++
++	if (device_get_child_node_count(dev) >=3D RTL9300_I2C_MUX_NCHAN)
++		return dev_err_probe(dev, -EINVAL, "Too many channels\n");
++
++	device_for_each_child_node(dev, child) {
++		struct rtl9300_i2c_chan *chan =3D &i2c->chans[i];
++		struct i2c_adapter *adap =3D &chan->adap;
++
++		ret =3D fwnode_property_read_u32(child, "reg", &sda_pin);
++		if (ret)
++			return ret;
++
++		ret =3D fwnode_property_read_u32(child, "clock-frequency", &clock_freq=
+);
++		if (ret)
++			clock_freq =3D I2C_MAX_STANDARD_MODE_FREQ;
++
++		switch (clock_freq) {
++		case I2C_MAX_STANDARD_MODE_FREQ:
++			chan->bus_freq =3D RTL9300_I2C_STD_FREQ;
++			break;
++
++		case I2C_MAX_FAST_MODE_FREQ:
++			chan->bus_freq =3D RTL9300_I2C_FAST_FREQ;
++			break;
++		default:
++			dev_warn(i2c->dev, "SDA%d clock-frequency %d not supported using defa=
+ult\n",
++				 sda_pin, clock_freq);
++			break;
++		}
++
++		chan->sda_pin =3D sda_pin;
++		chan->i2c =3D i2c;
++		adap =3D &i2c->chans[i].adap;
++		adap->owner =3D THIS_MODULE;
++		adap->algo =3D &rtl9300_i2c_algo;
++		adap->quirks =3D &rtl9300_i2c_quirks;
++		adap->retries =3D 3;
++		adap->dev.parent =3D dev;
++		i2c_set_adapdata(adap, chan);
++		adap->dev.of_node =3D to_of_node(child);
++		snprintf(adap->name, sizeof(adap->name), "%s SDA%d\n", dev_name(dev), =
+sda_pin);
++		i++;
++
++		ret =3D devm_i2c_add_adapter(dev, adap);
++		if (ret)
++			return ret;
++	}
++	i2c->sda_pin =3D 0xff;
++
++	return 0;
++}
++
++static const struct of_device_id i2c_rtl9300_dt_ids[] =3D {
++	{ .compatible =3D "realtek,rtl9301-i2c" },
++	{ .compatible =3D "realtek,rtl9302b-i2c" },
++	{ .compatible =3D "realtek,rtl9302c-i2c" },
++	{ .compatible =3D "realtek,rtl9303-i2c" },
++	{}
++};
++MODULE_DEVICE_TABLE(of, i2c_rtl9300_dt_ids);
++
++static struct platform_driver rtl9300_i2c_driver =3D {
++	.probe =3D rtl9300_i2c_probe,
++	.driver =3D {
++		.name =3D "i2c-rtl9300",
++		.of_match_table =3D i2c_rtl9300_dt_ids,
++	},
++};
++
++module_platform_driver(rtl9300_i2c_driver);
++
++MODULE_DESCRIPTION("RTL9300 I2C controller driver");
++MODULE_LICENSE("GPL");
 --=20
 2.47.0
 
