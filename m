@@ -1,38 +1,39 @@
 Received: from relay8-d.mail.gandi.net (relay8-d.mail.gandi.net [217.70.183.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0675B1925B3;
-	Mon, 18 Nov 2024 10:13:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FA2C19340E;
+	Mon, 18 Nov 2024 10:13:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1731924800; cv=none; b=H4/047nNWdnjZMtlLrO8fllEVRDEcy/H6RAqskX5EtBx52gJYXgl07OhidCK5ZRnLJmsFweE6qQclsRHI0MPd3H7Y3MZH+yKBTPbRniVv5QBLq13ykIh+B22nuKDy5u1cmDwWIQ9P2qGsFjm2agWlcrntubPLSnTBZrjJezZe98=
+	t=1731924800; cv=none; b=KY09xUH0ocSbP8Svnh/iMneEmvI8SyTPznOYRdWcCoQ7FVe0cxIVN+rZ0ic0T1BHrXZ7UcyNKioG2oGm/uoWvYioLBQVX2DFmnSZRXYknEKxKz9GflmVP2cqmPaeCy7KUcHQiwrZcSLD+gx5JeDOSU9MOhAL0Nlcf6hLHgSZ/zA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1731924800; c=relaxed/simple;
-	bh=ybftUMxFeXNrw4AE2s143r0M00oklLUIBb8THoHDFXs=;
+	bh=1ypPzc3wV+lBm0DYM/aNzTLOzfM+uS1LxxpyOA8V4G8=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=mGEcnjO5xlhekwSKokxJdTBqClsUxlSZCfHvvQD+wDigXOqNHdfLYC387PkAYNfodOlSR6Xrh+BK2uZRN/XYwA6llfrLDop4sjeeIhT+V6sA31saPTIQq2WQC0tbXdbrggD/IwsRfRkSxuIJUBy7lYbEl+WMgVmbNYLYwMKpN78=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=IGbC2Ke6; arc=none smtp.client-ip=217.70.183.201
+	 In-Reply-To:To:Cc; b=PjT694kROXDrVQS7BvXLlwEn7TkquOmZ6o/4hbSsrlYKbgvtBi/Tnvj0/E2xRX6gwYva+5GXDfcPz7cKEY0KHstkWBH1R670RRAvRhXPFfk+oU9S9smE6Zxr2aHCoZ0MY1QoZt/s59yCSNAwdvE8iWk9JxmRxQIbKvLBnzMN/Sc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=lKTVn7aN; arc=none smtp.client-ip=217.70.183.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="IGbC2Ke6"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id B9E371BF205;
-	Mon, 18 Nov 2024 10:13:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="lKTVn7aN"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 4643E1BF204;
+	Mon, 18 Nov 2024 10:13:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1731924795;
+	t=1731924791;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=eDMqNXN+UYqyQqUu1V62RNFnYP8XOvywWsZyr2uIKsA=;
-	b=IGbC2Ke61fDormaVlj8tLjXHqnzYKW/vImL71YAy4auK4nBizEgG/cnoVR8KtJeJOWoBRD
-	j0SIsqWt/MF4C6KcDo6tDgeX7CVLJHPSKfn1idje0YwkOikESlPenAq9bbbfBR1CmjzcFm
-	u8izYjzudo8NOU4R8uUpZDvTrK5D29jjUpU/7WZkkEKILHBBiEH2BKCkun9STBMQqhnGdF
-	jj/3CIe4T3yKPbhewXmANGPR7JGjNDnm5Mt848pVzDfydnYBEnwcek8628VHx1WMxfh9ju
-	6TU5B+qSuahyHT67Fw9daFQ8z67LwhV2ISURx2uI7NeZwtrL82MTNjlSbq5rww==
+	bh=sFZV/j2cdKSUUBE7wpD1K2bQ3OXCC6ZtMchgh75jPUI=;
+	b=lKTVn7aNyzeWJCGW8t4isl8EESGUzHey2EReJeO+jTglw3vv7SJ8gqN2d/GAbD+jJ047HQ
+	iNMEVAKENbzhiz7AeY3iGHEchbxsybOpNPEf6cjN3uvpQkS8TeZbdWZQyaDAW8OCuYavn3
+	dzdOw00Nyg8gp8pJkyxyphsxjJsoLX2nvj+YHAglx+feFxuKSl8XeeMxlJCmNUgazmLZl7
+	Lnn6Mt2DaIhR0HyqfWMs70plzitnedpgRsRF/iMF67QaaH3MEo3YStuEVafnfVPWf7ChnF
+	F7JUKNCRfi78nfw/pAeGjYzykXFWsvab1/rspi5Nc9fPCEp3MaVE5X8/8AcJJw==
 From: Romain Gantois <romain.gantois@bootlin.com>
-Date: Mon, 18 Nov 2024 11:13:03 +0100
-Subject: [PATCH v2 4/9] i2c: use client addresses directly in ATR interface
+Date: Mon, 18 Nov 2024 11:13:01 +0100
+Subject: [PATCH v2 2/9] media: i2c: ds90ub960: Replace aliased clients list
+ with bitmap
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -41,7 +42,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20241118-fpc202-v2-4-744e4f192a2d@bootlin.com>
+Message-Id: <20241118-fpc202-v2-2-744e4f192a2d@bootlin.com>
 References: <20241118-fpc202-v2-0-744e4f192a2d@bootlin.com>
 In-Reply-To: <20241118-fpc202-v2-0-744e4f192a2d@bootlin.com>
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
@@ -63,268 +64,87 @@ Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 X-Mailer: b4 0.14.2
 X-GND-Sasl: romain.gantois@bootlin.com
 
-The I2C Address Translator (ATR) module defines mappings from i2c_client
-structs to aliases. However, only the physical address of each i2c_client
-struct is actually relevant to the workings of the ATR module. Moreover,
-some drivers require address translation functionality but do not allocate
-i2c_client structs, accessing the adapter directly instead. The SFP
-subsystem is an example of this.
+The ds90ub960 driver currently uses a list of i2c_client structs to keep
+track of used I2C address translator (ATR) alias slots for each RX port.
 
-Replace the "i2c_client" field of the i2c_atr_alias_pair struct with a u16
-"addr" field. Rewrite helper functions and callbacks as needed.
+Keeping these i2c_client structs in the alias slot list isn't actually
+needed, the driver only needs to know if a specific alias slot is already
+in use or not.
+
+Convert the aliased_clients list to a bitmap named "alias_use_mask". This
+will allow removing the "client" parameter from the i2c-atr callbacks in a
+future patch.
 
 Signed-off-by: Romain Gantois <romain.gantois@bootlin.com>
 ---
- drivers/i2c/i2c-atr.c         | 52 ++++++++++++++++---------------------------
- drivers/media/i2c/ds90ub960.c | 20 ++++++++---------
- include/linux/i2c-atr.h       | 20 ++++++++---------
- 3 files changed, 39 insertions(+), 53 deletions(-)
+ drivers/media/i2c/ds90ub960.c | 23 +++++++++--------------
+ 1 file changed, 9 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/i2c/i2c-atr.c b/drivers/i2c/i2c-atr.c
-index f21475ae592183a45b5e46a20e7a0699fb88132c..894787246846b9965deb03a7ec7eb600b102ddad 100644
---- a/drivers/i2c/i2c-atr.c
-+++ b/drivers/i2c/i2c-atr.c
-@@ -21,16 +21,16 @@
- #define ATR_MAX_SYMLINK_LEN 11	/* Longest name is 10 chars: "channel-99" */
- 
- /**
-- * struct i2c_atr_alias_pair - Holds the alias assigned to a client.
-+ * struct i2c_atr_alias_pair - Holds the alias assigned to a client address.
-  * @node:   List node
-- * @client: Pointer to the client on the child bus
-+ * @addr:   Address of the client on the child bus.
-  * @alias:  I2C alias address assigned by the driver.
-  *          This is the address that will be used to issue I2C transactions
-  *          on the parent (physical) bus.
-  */
- struct i2c_atr_alias_pair {
- 	struct list_head node;
--	const struct i2c_client *client;
-+	u16 addr;
- 	u16 alias;
- };
- 
-@@ -97,27 +97,13 @@ struct i2c_atr {
- 	struct i2c_adapter *adapter[] __counted_by(max_adapters);
- };
- 
--static struct i2c_atr_alias_pair *
--i2c_atr_find_mapping_by_client(const struct list_head *list,
--			       const struct i2c_client *client)
--{
--	struct i2c_atr_alias_pair *c2a;
--
--	list_for_each_entry(c2a, list, node) {
--		if (c2a->client == client)
--			return c2a;
--	}
--
--	return NULL;
--}
--
- static struct i2c_atr_alias_pair *
- i2c_atr_find_mapping_by_addr(const struct list_head *list, u16 phys_addr)
- {
- 	struct i2c_atr_alias_pair *c2a;
- 
- 	list_for_each_entry(c2a, list, node) {
--		if (c2a->client->addr == phys_addr)
-+		if (c2a->addr == phys_addr)
- 			return c2a;
- 	}
- 
-@@ -313,8 +299,8 @@ static void i2c_atr_release_alias(struct i2c_atr *atr, u16 alias)
- 	dev_warn(atr->dev, "Unable to find mapped alias\n");
- }
- 
--static int i2c_atr_attach_client(struct i2c_adapter *adapter,
--				 const struct i2c_client *client)
-+static int i2c_atr_attach_addr(struct i2c_adapter *adapter,
-+			       u16 addr)
- {
- 	struct i2c_atr_chan *chan = adapter->algo_data;
- 	struct i2c_atr *atr = chan->atr;
-@@ -334,14 +320,14 @@ static int i2c_atr_attach_client(struct i2c_adapter *adapter,
- 		goto err_release_alias;
- 	}
- 
--	ret = atr->ops->attach_client(atr, chan->chan_id, client, alias);
-+	ret = atr->ops->attach_addr(atr, chan->chan_id, addr, alias);
- 	if (ret)
- 		goto err_free;
- 
--	dev_dbg(atr->dev, "chan%u: client 0x%02x mapped at alias 0x%02x (%s)\n",
--		chan->chan_id, client->addr, alias, client->name);
-+	dev_dbg(atr->dev, "chan%u: addr 0x%02x mapped at alias 0x%02x\n",
-+		chan->chan_id, addr, alias);
- 
--	c2a->client = client;
-+	c2a->addr = addr;
- 	c2a->alias = alias;
- 	list_add(&c2a->node, &chan->alias_list);
- 
-@@ -355,16 +341,16 @@ static int i2c_atr_attach_client(struct i2c_adapter *adapter,
- 	return ret;
- }
- 
--static void i2c_atr_detach_client(struct i2c_adapter *adapter,
--				  const struct i2c_client *client)
-+static void i2c_atr_detach_addr(struct i2c_adapter *adapter,
-+				u16 addr)
- {
- 	struct i2c_atr_chan *chan = adapter->algo_data;
- 	struct i2c_atr *atr = chan->atr;
- 	struct i2c_atr_alias_pair *c2a;
- 
--	atr->ops->detach_client(atr, chan->chan_id, client);
-+	atr->ops->detach_addr(atr, chan->chan_id, addr);
- 
--	c2a = i2c_atr_find_mapping_by_client(&chan->alias_list, client);
-+	c2a = i2c_atr_find_mapping_by_addr(&chan->alias_list, addr);
- 	if (!c2a) {
- 		 /* This should never happen */
- 		dev_warn(atr->dev, "Unable to find address mapping\n");
-@@ -374,8 +360,8 @@ static void i2c_atr_detach_client(struct i2c_adapter *adapter,
- 	i2c_atr_release_alias(atr, c2a->alias);
- 
- 	dev_dbg(atr->dev,
--		"chan%u: client 0x%02x unmapped from alias 0x%02x (%s)\n",
--		chan->chan_id, client->addr, c2a->alias, client->name);
-+		"chan%u: addr 0x%02x unmapped from alias 0x%02x\n",
-+		chan->chan_id, addr, c2a->alias);
- 
- 	list_del(&c2a->node);
- 	kfree(c2a);
-@@ -405,7 +391,7 @@ static int i2c_atr_bus_notifier_call(struct notifier_block *nb,
- 
- 	switch (event) {
- 	case BUS_NOTIFY_ADD_DEVICE:
--		ret = i2c_atr_attach_client(client->adapter, client);
-+		ret = i2c_atr_attach_addr(client->adapter, client->addr);
- 		if (ret)
- 			dev_err(atr->dev,
- 				"Failed to attach remote client '%s': %d\n",
-@@ -413,7 +399,7 @@ static int i2c_atr_bus_notifier_call(struct notifier_block *nb,
- 		break;
- 
- 	case BUS_NOTIFY_DEL_DEVICE:
--		i2c_atr_detach_client(client->adapter, client);
-+		i2c_atr_detach_addr(client->adapter, client->addr);
- 		break;
- 
- 	default:
-@@ -506,7 +492,7 @@ struct i2c_atr *i2c_atr_new(struct i2c_adapter *parent, struct device *dev,
- 	if (max_adapters > ATR_MAX_ADAPTERS)
- 		return ERR_PTR(-EINVAL);
- 
--	if (!ops || !ops->attach_client || !ops->detach_client)
-+	if (!ops || !ops->attach_addr || !ops->detach_addr)
- 		return ERR_PTR(-EINVAL);
- 
- 	atr = kzalloc(struct_size(atr, adapter, max_adapters), GFP_KERNEL);
 diff --git a/drivers/media/i2c/ds90ub960.c b/drivers/media/i2c/ds90ub960.c
-index 84aa976bed2d74f1d639684601f4c1c38d748188..5a836731af6c701ef4070eb2dbab36cbdd86e0a2 100644
+index ffe5f25f8647624be005da33a6412da2493413b4..f86028894c78187257efc8fd70812387000796f7 100644
 --- a/drivers/media/i2c/ds90ub960.c
 +++ b/drivers/media/i2c/ds90ub960.c
-@@ -1026,8 +1026,8 @@ static int ub960_ind_update_bits(struct ub960_data *priv, u8 block, u8 reg,
-  * I2C-ATR (address translator)
-  */
+@@ -468,7 +468,7 @@ struct ub960_rxport {
+ 		};
+ 	} eq;
  
--static int ub960_atr_attach_client(struct i2c_atr *atr, u32 chan_id,
--				   const struct i2c_client *client, u16 alias)
-+static int ub960_atr_attach_addr(struct i2c_atr *atr, u32 chan_id,
-+				 u16 addr, u16 alias)
- {
- 	struct ub960_data *priv = i2c_atr_get_driver_data(atr);
- 	struct ub960_rxport *rxport = priv->rxports[chan_id];
-@@ -1047,20 +1047,20 @@ static int ub960_atr_attach_client(struct i2c_atr *atr, u32 chan_id,
- 	set_bit(reg_idx, rxport->alias_use_mask);
+-	const struct i2c_client *aliased_clients[UB960_MAX_PORT_ALIASES];
++	DECLARE_BITMAP(alias_use_mask, UB960_MAX_PORT_ALIASES);
+ };
  
- 	ub960_rxport_write(priv, chan_id, UB960_RR_SLAVE_ID(reg_idx),
--			   client->addr << 1);
-+			   addr << 1);
- 	ub960_rxport_write(priv, chan_id, UB960_RR_SLAVE_ALIAS(reg_idx),
- 			   alias << 1);
+ struct ub960_asd {
+@@ -1032,17 +1032,13 @@ static int ub960_atr_attach_client(struct i2c_atr *atr, u32 chan_id,
+ 	struct device *dev = &priv->client->dev;
+ 	unsigned int reg_idx;
  
- 	dev_dbg(dev, "rx%u: client 0x%02x assigned alias 0x%02x at slot %u\n",
--		rxport->nport, client->addr, alias, reg_idx);
-+		rxport->nport, addr, alias, reg_idx);
- 
- out_unlock:
- 	mutex_unlock(&rxport->alias_mask_lock);
- 	return ret;
- }
- 
--static void ub960_atr_detach_client(struct i2c_atr *atr, u32 chan_id,
--				    const struct i2c_client *client)
-+static void ub960_atr_detach_addr(struct i2c_atr *atr, u32 chan_id,
-+				  u16 addr)
- {
- 	struct ub960_data *priv = i2c_atr_get_driver_data(atr);
- 	struct ub960_rxport *rxport = priv->rxports[chan_id];
-@@ -1073,7 +1073,7 @@ static void ub960_atr_detach_client(struct i2c_atr *atr, u32 chan_id,
- 
- 	if (reg_idx >= UB960_MAX_PORT_ALIASES) {
- 		dev_err(dev, "rx%u: client 0x%02x is not mapped!\n",
--			rxport->nport, client->addr);
-+			rxport->nport, addr);
- 		goto out_unlock;
+-	for (reg_idx = 0; reg_idx < ARRAY_SIZE(rxport->aliased_clients); reg_idx++) {
+-		if (!rxport->aliased_clients[reg_idx])
+-			break;
+-	}
+-
+-	if (reg_idx == ARRAY_SIZE(rxport->aliased_clients)) {
++	reg_idx = find_first_zero_bit(rxport->alias_use_mask, UB960_MAX_PORT_ALIASES);
++	if (reg_idx >= UB960_MAX_PORT_ALIASES) {
+ 		dev_err(dev, "rx%u: alias pool exhausted\n", rxport->nport);
+ 		return -EADDRNOTAVAIL;
  	}
  
-@@ -1082,15 +1082,15 @@ static void ub960_atr_detach_client(struct i2c_atr *atr, u32 chan_id,
+-	rxport->aliased_clients[reg_idx] = client;
++	set_bit(reg_idx, rxport->alias_use_mask);
+ 
+ 	ub960_rxport_write(priv, chan_id, UB960_RR_SLAVE_ID(reg_idx),
+ 			   client->addr << 1);
+@@ -1063,18 +1059,15 @@ static void ub960_atr_detach_client(struct i2c_atr *atr, u32 chan_id,
+ 	struct device *dev = &priv->client->dev;
+ 	unsigned int reg_idx;
+ 
+-	for (reg_idx = 0; reg_idx < ARRAY_SIZE(rxport->aliased_clients); reg_idx++) {
+-		if (rxport->aliased_clients[reg_idx] == client)
+-			break;
+-	}
++	reg_idx = find_first_zero_bit(rxport->alias_use_mask, UB960_MAX_PORT_ALIASES);
+ 
+-	if (reg_idx == ARRAY_SIZE(rxport->aliased_clients)) {
++	if (reg_idx >= UB960_MAX_PORT_ALIASES) {
+ 		dev_err(dev, "rx%u: client 0x%02x is not mapped!\n",
+ 			rxport->nport, client->addr);
+ 		return;
+ 	}
+ 
+-	rxport->aliased_clients[reg_idx] = NULL;
++	clear_bit(reg_idx, rxport->alias_use_mask);
+ 
  	ub960_rxport_write(priv, chan_id, UB960_RR_SLAVE_ALIAS(reg_idx), 0);
  
- 	dev_dbg(dev, "rx%u: client 0x%02x released at slot %u\n", rxport->nport,
--		client->addr, reg_idx);
-+		addr, reg_idx);
+@@ -3404,6 +3397,8 @@ static int ub960_parse_dt_rxport(struct ub960_data *priv, unsigned int nport,
+ 	if (ret)
+ 		goto err_put_remote_fwnode;
  
- out_unlock:
- 	mutex_unlock(&rxport->alias_mask_lock);
- }
++	bitmap_zero(rxport->alias_use_mask, UB960_MAX_PORT_ALIASES);
++
+ 	return 0;
  
- static const struct i2c_atr_ops ub960_atr_ops = {
--	.attach_client = ub960_atr_attach_client,
--	.detach_client = ub960_atr_detach_client,
-+	.attach_addr = ub960_atr_attach_addr,
-+	.detach_addr = ub960_atr_detach_addr,
- };
- 
- static int ub960_init_atr(struct ub960_data *priv)
-diff --git a/include/linux/i2c-atr.h b/include/linux/i2c-atr.h
-index 4d5da161c22516b3294e73702ace7a4546cdd588..14c1f9175c0db6a8a9c6ef5d771ae68361132a76 100644
---- a/include/linux/i2c-atr.h
-+++ b/include/linux/i2c-atr.h
-@@ -20,20 +20,20 @@ struct i2c_atr;
- 
- /**
-  * struct i2c_atr_ops - Callbacks from ATR to the device driver.
-- * @attach_client: Notify the driver of a new device connected on a child
-- *                 bus, with the alias assigned to it. The driver must
-- *                 configure the hardware to use the alias.
-- * @detach_client: Notify the driver of a device getting disconnected. The
-- *                 driver must configure the hardware to stop using the
-- *                 alias.
-+ * @attach_addr: Notify the driver of a new device connected on a child
-+ *               bus, with the alias assigned to it. The driver must
-+ *               configure the hardware to use the alias.
-+ * @detach_addr: Notify the driver of a device getting disconnected. The
-+ *               driver must configure the hardware to stop using the
-+ *               alias.
-  *
-  * All these functions return 0 on success, a negative error code otherwise.
-  */
- struct i2c_atr_ops {
--	int (*attach_client)(struct i2c_atr *atr, u32 chan_id,
--			     const struct i2c_client *client, u16 alias);
--	void (*detach_client)(struct i2c_atr *atr, u32 chan_id,
--			      const struct i2c_client *client);
-+	int (*attach_addr)(struct i2c_atr *atr, u32 chan_id,
-+			   u16 addr, u16 alias);
-+	void (*detach_addr)(struct i2c_atr *atr, u32 chan_id,
-+			    u16 addr);
- };
- 
- /**
+ err_put_remote_fwnode:
 
 -- 
 2.47.0
