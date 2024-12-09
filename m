@@ -1,47 +1,47 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FE9316CD1D
-	for <linux-i2c@vger.kernel.org>; Mon,  9 Dec 2024 18:36:17 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBF15165F16
+	for <linux-i2c@vger.kernel.org>; Mon,  9 Dec 2024 18:36:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733769379; cv=none; b=nqtysrPqqwrAfXCAiqvkNMVSmHm2+UIU1SqnPMMF2lOcISIcSythRUI5uhGw0sgWQpcjpDE2h0m9cSRAtTZk5wGQsuA28OU5G0D40WwslHVY3ShWdHupu5FuHlabZcjaoMihQVPrkj4LsI8x1ascdESgl8FrR3owx051YD1/Wwo=
+	t=1733769387; cv=none; b=IsUszrd72BYR//LqDerlv/8Xmut2V3jjNU0gjasK8YFqXLBUm+SlW+Bmn7SbO39dELJWzdP6QrVVeQ92fIuggd2BVXFFvw9HRXMS/rjCSqhlDDnAtzgDdGdyVj2HOsfI4tG9BMyyW/Kc5lEffZvklyGowyk0LqEwclJtbLr9NcQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733769379; c=relaxed/simple;
-	bh=gjnqAIyw7lYG69DWV9e4LUcYA396kaarLTXeu8N5ljM=;
+	s=arc-20240116; t=1733769387; c=relaxed/simple;
+	bh=MmeUg64gk4TPH1u585Vw1Lykg4H1gD6FpbCUDMQpS+U=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=CYuwu0GfNbCWQZgY2mbxliS6+CaUW1Ae7U09McxhHtKHrXNMAFf3mhwcHf3t1k4+bW3AnoYSrDfjQRqGIrNzyh6odbC4dkRIt9jnbeavNt4UGKwUcpphu4HUzFviMytw/kgYOzYvm4O7PEuslPxlusLsUL0As9EOZ7q4+Wk+NnM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TyclXe7X; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:Content-Type; b=Vgd/80+U04gLMK93bETZEeq/WoBGjhkXwTeuQKcOSilYhw2NSu83HVpebQHnb5zZyFsMAINUuwcZZhEPYOAudF4th/AjFtcIbt5/sfrcAsN2DCSboA8zktNdibsRYBG3ikqOtqp5C+eqwIGs7p9HLBkfLszlQBVxvqO+y2PpIQ4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QmYAFi7P; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TyclXe7X"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QmYAFi7P"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1733769376;
+	s=mimecast20190719; t=1733769384;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=whQanVYdGB5PT+pI3EC78eugYKRFPHTf8aVw7TloKuE=;
-	b=TyclXe7XOYUBZdVxJeoMxSzY/lo3GoVIuY922io0ly2i78Z78A6smL/zqj+R1IJ0ztyp3F
-	FlvM3mTuWs9KGIhKIFVvbzA8Y9nXXE7y6j10AtsONaxa/X0Qjmds9dGwOLzVf36xK0Z4sv
-	YP3IpRc29Lbv0toOhQt0NcEQlUgnABs=
-Received: from mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com
+	bh=TWO9FeXlZFNvkeCNrXXlscD81Cc74j0w+gifCrHRLeM=;
+	b=QmYAFi7PdzuZINOknP23MIL1r6MVmuoOja3NxGUnG68JkGTayCJO1l5V3TK/xjfNymdwTE
+	DJGWEGOzbhSCYoLJqRMkNWqL5nZC4w3ak4OwDZKsaa3yr6Ob9eianSqbWOP9l9GEFwxuni
+	Xuqlk3kTYwVe+gHtl32vqZLhZwzoTJY=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-296-A5BdAnElMJOQi3TnRup0gA-1; Mon,
- 09 Dec 2024 13:36:13 -0500
-X-MC-Unique: A5BdAnElMJOQi3TnRup0gA-1
-X-Mimecast-MFC-AGG-ID: A5BdAnElMJOQi3TnRup0gA
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-528-PMALzvd8OPq_V46h708wZw-1; Mon,
+ 09 Dec 2024 13:36:21 -0500
+X-MC-Unique: PMALzvd8OPq_V46h708wZw-1
+X-Mimecast-MFC-AGG-ID: PMALzvd8OPq_V46h708wZw
 Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-04.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id D617A1955E80;
-	Mon,  9 Dec 2024 18:36:08 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 3D17F1954AFC;
+	Mon,  9 Dec 2024 18:36:18 +0000 (UTC)
 Received: from shalem.redhat.com (unknown [10.39.192.52])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 494EF1956056;
-	Mon,  9 Dec 2024 18:36:04 +0000 (UTC)
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 7514A1956056;
+	Mon,  9 Dec 2024 18:36:14 +0000 (UTC)
 From: Hans de Goede <hdegoede@redhat.com>
 To: =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
 	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
@@ -57,9 +57,9 @@ Cc: Hans de Goede <hdegoede@redhat.com>,
 	Jean Delvare <jdelvare@suse.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
 	linux-i2c@vger.kernel.org
-Subject: [PATCH v9 1/4] platform/x86: dell-smo8800: Move SMO88xx acpi_device_ids to dell-smo8800-ids.h
-Date: Mon,  9 Dec 2024 19:35:54 +0100
-Message-ID: <20241209183557.7560-2-hdegoede@redhat.com>
+Subject: [PATCH v9 3/4] platform/x86: dell-smo8800: Add a couple more models to lis3lv02d_devices[]
+Date: Mon,  9 Dec 2024 19:35:56 +0100
+Message-ID: <20241209183557.7560-4-hdegoede@redhat.com>
 In-Reply-To: <20241209183557.7560-1-hdegoede@redhat.com>
 References: <20241209183557.7560-1-hdegoede@redhat.com>
 Precedence: bulk
@@ -72,93 +72,38 @@ Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
-Move the SMO88xx acpi_device_ids to a new dell-smo8800-ids.h header,
-so that these can be shared with the new dell-lis3lv02d code.
+Add the accelerometer address for the following laptop models
+to lis3lv02d_devices[]:
 
+Dell Latitude E6330
+Dell Latitude E6430
+Dell XPS 15 9550
+
+Tested-by: Hans de Goede <hdegoede@redhat.com>
 Reviewed-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
-Changes in v8:
-- Add #include <linux/module.h> for MODULE_DEVICE_TABLE()
+ drivers/platform/x86/dell/dell-lis3lv02d.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-Changes in v4:
-- This is a new patch in v3 of this patch-set
----
- drivers/platform/x86/dell/dell-smo8800-ids.h | 27 ++++++++++++++++++++
- drivers/platform/x86/dell/dell-smo8800.c     | 16 +-----------
- 2 files changed, 28 insertions(+), 15 deletions(-)
- create mode 100644 drivers/platform/x86/dell/dell-smo8800-ids.h
-
-diff --git a/drivers/platform/x86/dell/dell-smo8800-ids.h b/drivers/platform/x86/dell/dell-smo8800-ids.h
-new file mode 100644
-index 000000000000..ec58e229ba7a
---- /dev/null
-+++ b/drivers/platform/x86/dell/dell-smo8800-ids.h
-@@ -0,0 +1,27 @@
-+/* SPDX-License-Identifier: GPL-2.0-or-later */
-+/*
-+ *  ACPI SMO88XX lis3lv02d freefall / accelerometer device-ids.
-+ *
-+ *  Copyright (C) 2012 Sonal Santan <sonal.santan@gmail.com>
-+ *  Copyright (C) 2014 Pali Rohár <pali@kernel.org>
-+ */
-+#ifndef _DELL_SMO8800_IDS_H_
-+#define _DELL_SMO8800_IDS_H_
-+
-+#include <linux/mod_devicetable.h>
-+#include <linux/module.h>
-+
-+static const struct acpi_device_id smo8800_ids[] = {
-+	{ "SMO8800" },
-+	{ "SMO8801" },
-+	{ "SMO8810" },
-+	{ "SMO8811" },
-+	{ "SMO8820" },
-+	{ "SMO8821" },
-+	{ "SMO8830" },
-+	{ "SMO8831" },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(acpi, smo8800_ids);
-+
-+#endif
-diff --git a/drivers/platform/x86/dell/dell-smo8800.c b/drivers/platform/x86/dell/dell-smo8800.c
-index 87fe03f23f24..8872f9b57fce 100644
---- a/drivers/platform/x86/dell/dell-smo8800.c
-+++ b/drivers/platform/x86/dell/dell-smo8800.c
-@@ -14,10 +14,10 @@
- #include <linux/interrupt.h>
- #include <linux/kernel.h>
- #include <linux/miscdevice.h>
--#include <linux/mod_devicetable.h>
- #include <linux/module.h>
- #include <linux/platform_device.h>
- #include <linux/uaccess.h>
-+#include "dell-smo8800-ids.h"
+diff --git a/drivers/platform/x86/dell/dell-lis3lv02d.c b/drivers/platform/x86/dell/dell-lis3lv02d.c
+index 6dc04c89e6c9..d2b34e10c5eb 100644
+--- a/drivers/platform/x86/dell/dell-lis3lv02d.c
++++ b/drivers/platform/x86/dell/dell-lis3lv02d.c
+@@ -43,10 +43,13 @@ static const struct dmi_system_id lis3lv02d_devices[] __initconst = {
+ 	 * Additional individual entries were added after verification.
+ 	 */
+ 	DELL_LIS3LV02D_DMI_ENTRY("Latitude 5480",      0x29),
++	DELL_LIS3LV02D_DMI_ENTRY("Latitude E6330",     0x29),
++	DELL_LIS3LV02D_DMI_ENTRY("Latitude E6430",     0x29),
+ 	DELL_LIS3LV02D_DMI_ENTRY("Precision 3540",     0x29),
+ 	DELL_LIS3LV02D_DMI_ENTRY("Vostro V131",        0x1d),
+ 	DELL_LIS3LV02D_DMI_ENTRY("Vostro 5568",        0x29),
+ 	DELL_LIS3LV02D_DMI_ENTRY("XPS 15 7590",        0x29),
++	DELL_LIS3LV02D_DMI_ENTRY("XPS 15 9550",        0x29),
+ 	{ }
+ };
  
- struct smo8800_device {
- 	u32 irq;                     /* acpi device irq */
-@@ -163,20 +163,6 @@ static void smo8800_remove(struct platform_device *device)
- 	dev_dbg(&device->dev, "device /dev/freefall unregistered\n");
- }
- 
--/* NOTE: Keep this list in sync with drivers/i2c/busses/i2c-i801.c */
--static const struct acpi_device_id smo8800_ids[] = {
--	{ "SMO8800", 0 },
--	{ "SMO8801", 0 },
--	{ "SMO8810", 0 },
--	{ "SMO8811", 0 },
--	{ "SMO8820", 0 },
--	{ "SMO8821", 0 },
--	{ "SMO8830", 0 },
--	{ "SMO8831", 0 },
--	{ "", 0 },
--};
--MODULE_DEVICE_TABLE(acpi, smo8800_ids);
--
- static struct platform_driver smo8800_driver = {
- 	.probe = smo8800_probe,
- 	.remove = smo8800_remove,
 -- 
 2.47.1
 
