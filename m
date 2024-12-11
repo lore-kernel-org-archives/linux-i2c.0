@@ -1,137 +1,176 @@
-Received: from 14.mo550.mail-out.ovh.net (14.mo550.mail-out.ovh.net [178.32.97.215])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1A1D2451C0
-	for <linux-i2c@vger.kernel.org>; Wed, 11 Dec 2024 04:01:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.32.97.215
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 586531BEF73;
+	Wed, 11 Dec 2024 05:27:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733889672; cv=none; b=DvNAuRZFMXbhJHihJUHD8NTl4BmCUGbAqxFTAN5nzmRFYzwHUltcLE/ahiWjBRrf3hF596TPXW/HBq80AtKdxmTBqGh2hxIucJfKDjWMlb5RyWWbNEjUI8vUljT7y0I05gO8URGUmQuEDHO5oSlRRiM5BpV2Gm8+P3ZhxFUL1j0=
+	t=1733894866; cv=none; b=X6SkAzGkNUfkkHbxZsAFSiWvUAKAIwxz2ZA+lWQrA+YkBOSokUjCPf+/LU3Jcv+cMsS8SZpWmAkPRXLjTfuWV5OfH4uO5PRdG6e46L3RwK79daqVP2Z8zAsZODgEx8jatLFANFZEM4fO44Rtx8r/dO1uJHo3lcz161Q8Wj3orH0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733889672; c=relaxed/simple;
-	bh=V7WxhcSRo7Z13GyMhzZfosj0za7yYWqdR2pk3f+c/MI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KOKsuwxbSfnaqDEvfORHfh4dPf7Gfa5FA15k3QJ44wW+DjPDhdTnSjjkKOAPtGAk89aeNu6tblEU6kDEt9FClQ02fo1nSzu6Kic0nNbdrnMHZ4dxUe8k3fkZm6eWmil2XnFXRfSelQ+XLF/dScXAH1AYy29/nXgx1Yxw9fiol/4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=178.32.97.215
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director5.ghost.mail-out.ovh.net (unknown [10.109.176.180])
-	by mo550.mail-out.ovh.net (Postfix) with ESMTP id 4Y7Dy61p17z1TcW
-	for <linux-i2c@vger.kernel.org>; Tue, 10 Dec 2024 23:11:42 +0000 (UTC)
-Received: from ghost-submission-5b5ff79f4f-tq7hg (unknown [10.110.178.126])
-	by director5.ghost.mail-out.ovh.net (Postfix) with ESMTPS id C819A1FDF5;
-	Tue, 10 Dec 2024 23:11:41 +0000 (UTC)
-Received: from etezian.org ([37.59.142.104])
-	by ghost-submission-5b5ff79f4f-tq7hg with ESMTPSA
-	id pMM/J63KWGcQEgAAVrlVGw
-	(envelope-from <andi@etezian.org>); Tue, 10 Dec 2024 23:11:41 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-104R005defa95bb-64dc-45eb-9c1c-e10cdf0f34ce,
-                    FE3B76875E3B0A6FCB1003007887B313CBEB2737) smtp.auth=andi@etezian.org
-X-OVh-ClientIp:178.39.90.92
-From: Andi Shyti <andi.shyti@kernel.org>
-To: linux-arm-msm@vger.kernel.org,
-	linux-i2c@vger.kernel.org
-Cc: Andi Shyti <andi.shyti@kernel.org>
-Subject: [PATCH 2/2] i2c: qcom-geni: Simplify error handling in probe function
-Date: Wed, 11 Dec 2024 00:10:54 +0100
-Message-ID: <20241210231054.2844202-3-andi.shyti@kernel.org>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20241210231054.2844202-1-andi.shyti@kernel.org>
-References: <20241210231054.2844202-1-andi.shyti@kernel.org>
+	s=arc-20240116; t=1733894866; c=relaxed/simple;
+	bh=CR1sceDa6LPIOpOgAokwOE+7p00aID1oasLlVDEAPlQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=SQ4pEwjAjLz7TBbBHb4qW2GahcewyRPjzqbmdh/SRMA4RPNlnCvPOcWy/KffDCCErrdf655IOVEqZFfyoKJO+6Q35G2Z5Orv2brFsQYECFlVe0QYkKNQJJ2SCaC6cKeD7iTrGiTKjb+2oqFsOJCdYYjQyZpBl1iT2SA4FSHC61k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=jBewYOYH; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="jBewYOYH"
+Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BB2OtTC001578;
+	Wed, 11 Dec 2024 05:27:39 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	H6jGWQlPUhtP6l2Yl+TvyR7O656Mg63ihDLu0J4DEUU=; b=jBewYOYHd+46uger
+	Txfy+Dsf3Rub5Uif80TYiPD9Bh1X9H+QK5jUzQK9o7K0fjcaHTvlNixudc8MrHWN
+	prLEkdxMNkaV3rRr0ODpNKZs70UzNL1KQEy1pwSmyCfvLTWAPgcq30rBTrViedwv
+	9YNYoEaVZIwfAZSJLc+RV+tuZF8n11xU/rHgj2yXXjdW6/k9xxLeLum54mT+ebIP
+	D2T7FNuzXar7q2BdjP5w7qvjeG4TBF/n+HLwP7U2PXgjUBvEVDW+KSIKjfdb2jxO
+	UeLFec6NPOJqcziAbhVLUCwZ/epWGIxc6kFf/vm1d+kbr4LgZkIBdg2lYExRCIVT
+	Qg+Wyw==
+Received: from nalasppmta02.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 43f1xd0e86-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 11 Dec 2024 05:27:38 +0000 (GMT)
+Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
+	by NALASPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 4BB5RbLf030150
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 11 Dec 2024 05:27:37 GMT
+Received: from [10.216.2.81] (10.80.80.8) by nalasex01b.na.qualcomm.com
+ (10.47.209.197) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Tue, 10 Dec
+ 2024 21:27:31 -0800
+Message-ID: <65ded632-963a-4bfd-906c-1b09e916b5e0@quicinc.com>
+Date: Wed, 11 Dec 2024 10:57:28 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/7] dt-bindings: i2c: qcom,i2c-geni: Document DT
+ properties for QUP firmware loading
+To: Doug Anderson <dianders@chromium.org>
+CC: <andi.shyti@kernel.org>, <robh@kernel.org>, <krzk+dt@kernel.org>,
+        <conor+dt@kernel.org>, <gregkh@linuxfoundation.org>,
+        <jirislaby@kernel.org>, <broonie@kernel.or>, <andersson@kernel.org>,
+        <konradybcio@kernel.org>, <johan+linaro@kernel.org>,
+        <agross@kernel.org>, <linux-arm-msm@vger.kernel.org>,
+        <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-serial@vger.kernel.org>,
+        <linux-spi@vger.kernel.org>, <quic_anupkulk@quicinc.com>,
+        Mukesh Kumar Savaliya
+	<quic_msavaliy@quicinc.com>
+References: <20241204150326.1470749-1-quic_vdadhani@quicinc.com>
+ <20241204150326.1470749-2-quic_vdadhani@quicinc.com>
+ <CAD=FV=XF+9wxZ5xNtO3Uy8QW9UY4tb+KR46jkondvBeQuVLsrA@mail.gmail.com>
+ <6736db20-127b-45c3-ac90-3e3e359c343b@quicinc.com>
+ <CAD=FV=VReNQ3nw+wfZizL7JjxEX9z=GwDEJAFzheNkW7rSrB5Q@mail.gmail.com>
+Content-Language: en-US
+From: Viken Dadhaniya <quic_vdadhani@quicinc.com>
+In-Reply-To: <CAD=FV=VReNQ3nw+wfZizL7JjxEX9z=GwDEJAFzheNkW7rSrB5Q@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 14604610643883657799
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: 0
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeefuddrjeelgddtiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecunecujfgurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepgfduveejteegteelhfetueetheegfeehhfektddvleehtefhheevkeduleeuueevnecukfhppeduvdejrddtrddtrddupddujeekrdefledrledtrdelvddpfeejrdehledrudegvddruddtgeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomheprghnughisegvthgviihirghnrdhorhhgpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheehtdgmpdhmohguvgepshhmthhpohhuth
+X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
+ nalasex01b.na.qualcomm.com (10.47.209.197)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-ORIG-GUID: 3yR7epxOKHRHJXs3-QOTloAvUC6iMB4k
+X-Proofpoint-GUID: 3yR7epxOKHRHJXs3-QOTloAvUC6iMB4k
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 mlxlogscore=999
+ priorityscore=1501 mlxscore=0 clxscore=1015 bulkscore=0 adultscore=0
+ suspectscore=0 impostorscore=0 spamscore=0 lowpriorityscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412110039
 
-Avoid repeating the error handling pattern:
 
-        geni_se_resources_off(&gi2c->se);
-        clk_disable_unprepare(gi2c->core_clk);
-        return;
 
-Introduce a single 'goto' exit label for cleanup in case of
-errors. While there are currently two distinct exit points, there
-is no overlap in their handling, allowing both branches to
-coexist cleanly.
+On 12/10/2024 11:12 PM, Doug Anderson wrote:
+> Hi,
+> 
+> On Mon, Dec 9, 2024 at 9:28 PM Viken Dadhaniya
+> <quic_vdadhani@quicinc.com> wrote:
+>>
+>> On 12/4/2024 10:55 PM, Doug Anderson wrote:
+>>> Hi,
+>>>
+>>> On Wed, Dec 4, 2024 at 7:03 AM Viken Dadhaniya
+>>> <quic_vdadhani@quicinc.com> wrote:
+>>>>
+>>>> Document the 'qcom,load-firmware' and 'qcom,xfer-mode' properties to
+>>>> support SE(Serial Engine) firmware loading from the protocol driver and to
+>>>> select the data transfer mode, either GPI DMA (Generic Packet Interface)
+>>>> or non-GPI mode (PIO/CPU DMA).
+>>>>
+>>>> I2C controller can operate in one of two modes based on the
+>>>> 'qcom,xfer-mode' property, and the firmware is loaded accordingly.
+>>>>
+>>>> Co-developed-by: Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>
+>>>> Signed-off-by: Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>
+>>>> Signed-off-by: Viken Dadhaniya <quic_vdadhani@quicinc.com>
+>>>> ---
+>>>>    .../devicetree/bindings/i2c/qcom,i2c-geni-qcom.yaml   | 11 +++++++++++
+>>>>    1 file changed, 11 insertions(+)
+>>>>
+>>>> diff --git a/Documentation/devicetree/bindings/i2c/qcom,i2c-geni-qcom.yaml b/Documentation/devicetree/bindings/i2c/qcom,i2c-geni-qcom.yaml
+>>>> index 9f66a3bb1f80..a26f34fce1bb 100644
+>>>> --- a/Documentation/devicetree/bindings/i2c/qcom,i2c-geni-qcom.yaml
+>>>> +++ b/Documentation/devicetree/bindings/i2c/qcom,i2c-geni-qcom.yaml
+>>>> @@ -66,6 +66,15 @@ properties:
+>>>>      required-opps:
+>>>>        maxItems: 1
+>>>>
+>>>> +  qcom,load-firmware:
+>>>> +    type: boolean
+>>>> +    description: Optional property to load SE (serial engine) Firmware from protocol driver.
+>>>> +
+>>>> +  qcom,xfer-mode:
+>>>> +    description: Value 1,2 and 3 represents FIFO, CPU DMA and GSI DMA mode respectively.
+>>>> +    $ref: /schemas/types.yaml#/definitions/uint32
+>>>> +    enum: [1, 2, 3]
+>>>
+>>> I'm a little confused about this. I'll admit I haven't fully analyzed
+>>> your patch with actual code in it, but in the past "CPU DMA" mode and
+>>> "FIFO" mode were compatible with each other and then it was up to the
+>>> driver to decide which of the two modes made sense in any given
+>>> situation. For instance, last I looked at the i2c driver it tried to
+>>> use DMA for large transfers and FIFO for small transfers. The SPI
+>>> driver also has some cases where it will use DMA mode and then
+>>> fallback to FIFO mode.
+>>>
+>>> ...so what exactly is the point of differentiating between "FIFO" and
+>>> "CPU DMA" mode here?
+>>
+>> Yes, correct, Will update in V2.
+>> I plan to add 2 modes, GSI and non-GSI(PIO or DMA based on length).
+>>
+>>>
+>>> Then when it comes to "GSI DMA" mode, my understanding is that the
+>>> firmware for "GSI DMA" mode is always loaded by Trustzone because the
+>>> whole point is that the GSI mode arbitrates between multiple clients.
+>>> Presumably if the firmware already loaded the GSI firmware then the
+>>> code would just detect that case. ...so there shouldn't need to be any
+>>> reason to specify GSI mode here either, right?
+>>>
+>>> -Doug
+>>
+>> GSI firmware is loaded from TZ per QUP, but to use GSI mode,
+>> we need to configure the SE to use GSI mode by writing into SE register
+>> QUPV3_SE_GENI_DMA_MODE_EN and SE_GSI_EVENT_EN. This register is
+>> used to configure data transfer mode for Serial Engine.
+> 
+> Can't you detect it's in GSI mode without any device tree property
+> like the code does today?
+> 
+> -Doug
 
-Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
----
- drivers/i2c/busses/i2c-qcom-geni.c | 30 ++++++++++++++++--------------
- 1 file changed, 16 insertions(+), 14 deletions(-)
+No, we can't detect GSI mode in the current design. The GSI firmware is 
+loaded from the TZ side, while mode selection occurs on the APPS side 
+based on the Device Tree property.
 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 01db24188e29..3fc85595a4aa 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -867,14 +867,13 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 
- 	ret = geni_se_resources_on(&gi2c->se);
- 	if (ret) {
--		clk_disable_unprepare(gi2c->core_clk);
--		return dev_err_probe(dev, ret, "Error turning on resources\n");
-+		dev_err_probe(dev, ret, "Error turning on resources\n");
-+		goto err_clk;
- 	}
- 	proto = geni_se_read_proto(&gi2c->se);
- 	if (proto != GENI_SE_I2C) {
--		geni_se_resources_off(&gi2c->se);
--		clk_disable_unprepare(gi2c->core_clk);
--		return dev_err_probe(dev, -ENXIO, "Invalid proto %d\n", proto);
-+		dev_err_probe(dev, -ENXIO, "Invalid proto %d\n", proto);
-+		goto err_off;
- 	}
- 
- 	if (desc && desc->no_dma_support)
-@@ -886,11 +885,8 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 		/* FIFO is disabled, so we can only use GPI DMA */
- 		gi2c->gpi_mode = true;
- 		ret = setup_gpi_dma(gi2c);
--		if (ret) {
--			geni_se_resources_off(&gi2c->se);
--			clk_disable_unprepare(gi2c->core_clk);
--			return ret;
--		}
-+		if (ret)
-+			goto err_off;
- 
- 		dev_dbg(dev, "Using GPI DMA mode for I2C\n");
- 	} else {
-@@ -902,10 +898,8 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 			tx_depth = desc->tx_fifo_depth;
- 
- 		if (!tx_depth) {
--			geni_se_resources_off(&gi2c->se);
--			clk_disable_unprepare(gi2c->core_clk);
--			return dev_err_probe(dev, -EINVAL,
--					     "Invalid TX FIFO depth\n");
-+			dev_err_probe(dev, -EINVAL, "Invalid TX FIFO depth\n");
-+			goto err_off;
- 		}
- 
- 		gi2c->tx_wm = tx_depth - 1;
-@@ -944,8 +938,16 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 
- 	return 0;
- 
-+err_off:
-+	geni_se_resources_off(&gi2c->se);
-+err_clk:
-+	clk_disable_unprepare(gi2c->core_clk);
-+
-+	return ret;
-+
- err_dma:
- 	release_gpi_dma(gi2c);
-+
- 	return ret;
- }
- 
--- 
-2.45.2
 
