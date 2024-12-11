@@ -1,42 +1,68 @@
-Received: from 11.mo561.mail-out.ovh.net (11.mo561.mail-out.ovh.net [87.98.184.158])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E7D3137932
-	for <linux-i2c@vger.kernel.org>; Wed, 11 Dec 2024 02:47:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=87.98.184.158
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCD601FCFDC
+	for <linux-i2c@vger.kernel.org>; Wed, 11 Dec 2024 03:08:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733885238; cv=none; b=XvGNdBVzN6gbzmduOqkKb5ka1W29FdG3boWiLkYecyXT5lQEXsyZgMT7RRsWHZdxnesfH5YcgXEDO44dRCxScFbL9c0wulvEGm4vRYR7onhajq8XZ0eEwAT+Z553ehIPVPb4u83cDdAJAYm86UFe9+oJI9x0o42psnBT2jLCIIw=
+	t=1733886502; cv=none; b=gofVGx7ZELNO6avwYdNLHK+me1DTz5945L8Nw7ppjvWbrq4P08RQTPa3BtrN7iLopDcD+gjCRzkHDyX121gBxTyHwi43Goe/cgXZH+RKNteGu3YzXrr4OIqaSODi+osJ39esjN5TMI2diJjZW/Upp0506wCGTKamHhyOqmIhmZM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733885238; c=relaxed/simple;
-	bh=RSA5W+aUu9kn5TswI3lIVWqWj9MpCmpFEeVlLa671CA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QzdiOnJxDgD7PKRiP1CStLreMCFP9wBsH2FffZPaUXgCiCOgVoqR+1UFhPEoS1MY7M84RDQN6Xp7WCXe7qIkgx2qQnTRzpXgrLD13thG9OmLDfV1HXLnvjFrNwIuqAqdMXxPZKwXz9wnOsConSNlNP26qTa16qhntD5C1zc211w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=87.98.184.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director2.ghost.mail-out.ovh.net (unknown [10.108.25.233])
-	by mo561.mail-out.ovh.net (Postfix) with ESMTP id 4Y7Dy46p5Sz1KKw
-	for <linux-i2c@vger.kernel.org>; Tue, 10 Dec 2024 23:11:40 +0000 (UTC)
-Received: from ghost-submission-5b5ff79f4f-8xlsv (unknown [10.110.118.7])
-	by director2.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 99AC21FDBB;
-	Tue, 10 Dec 2024 23:11:40 +0000 (UTC)
-Received: from etezian.org ([37.59.142.96])
-	by ghost-submission-5b5ff79f4f-8xlsv with ESMTPSA
-	id f01aHazKWGcIfQAAjK+0gQ
-	(envelope-from <andi@etezian.org>); Tue, 10 Dec 2024 23:11:40 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-96R001849f1d52-3a18-4b54-8189-65a0acc23c5c,
-                    FE3B76875E3B0A6FCB1003007887B313CBEB2737) smtp.auth=andi@etezian.org
-X-OVh-ClientIp:178.39.90.92
-From: Andi Shyti <andi.shyti@kernel.org>
-To: linux-arm-msm@vger.kernel.org,
-	linux-i2c@vger.kernel.org
-Cc: Andi Shyti <andi.shyti@kernel.org>
-Subject: [PATCH 1/2] i2c: qcom-geni: Use dev_err_probe in the probe function
-Date: Wed, 11 Dec 2024 00:10:53 +0100
-Message-ID: <20241210231054.2844202-2-andi.shyti@kernel.org>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20241210231054.2844202-1-andi.shyti@kernel.org>
-References: <20241210231054.2844202-1-andi.shyti@kernel.org>
+	s=arc-20240116; t=1733886502; c=relaxed/simple;
+	bh=nDWof4pxM/ZlbW88hNKCqQiYHZe8+KrUnT3FXn+kSmY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=cNvdCtFE7lJcm4f4lJ1AC7Cuaa1h2a1IT8nlFvipqgalWTDERC/MIPuV+mn0Wd0gZMcfGdFgTyEwmtcMynHleLKTkIuJIY+3oMMMuIc4DkvFz2pOJ0XkdsLI152cqSPno5d8szq0WGezDC6uO+t6c7kGl9H9cNy6iqqcB7iAaCk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=pf.is.s.u-tokyo.ac.jp; spf=none smtp.mailfrom=pf.is.s.u-tokyo.ac.jp; dkim=pass (2048-bit key) header.d=pf-is-s-u-tokyo-ac-jp.20230601.gappssmtp.com header.i=@pf-is-s-u-tokyo-ac-jp.20230601.gappssmtp.com header.b=bCr98z0A; arc=none smtp.client-ip=209.85.214.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=pf.is.s.u-tokyo.ac.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=pf.is.s.u-tokyo.ac.jp
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=pf-is-s-u-tokyo-ac-jp.20230601.gappssmtp.com header.i=@pf-is-s-u-tokyo-ac-jp.20230601.gappssmtp.com header.b="bCr98z0A"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-21636268e43so40482165ad.2
+        for <linux-i2c@vger.kernel.org>; Tue, 10 Dec 2024 19:08:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=pf-is-s-u-tokyo-ac-jp.20230601.gappssmtp.com; s=20230601; t=1733886499; x=1734491299; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=HVevN24y3UZbP9+LNwpaUvSkD8owCWCQvSepKmgobsg=;
+        b=bCr98z0ATQGqssLhxF7T2WKUmLeNzzjSlHOrXella8v8knkzQ/ZYS0G36+M1+YnZgE
+         GJCzabYQgX6+daheiDd0bHBGGqZVQ/0dXGbAC2sUoxYrQunHN7mja/Lh2eLFMDy/ARkM
+         dxa4sfK/NpxtMb1LS6ZjVkFsdGAkuKP1cBG0EvuUWXWxmnNSr/jLZnD89bqU2cf2NOI3
+         RAA7i+HSejwLYFRZfUPJBw4V0VWkIBqbRmlE7QPJCOB9hwCluf1P0yR5626Zz2BSDgEk
+         FzVg6AngnaJT1Nd50i8QtSbUWN81FZnysIci23wKnuzDn3EGeH3GHiSvkrTpX6jc7XFl
+         erqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1733886499; x=1734491299;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=HVevN24y3UZbP9+LNwpaUvSkD8owCWCQvSepKmgobsg=;
+        b=U3u/5aEGJCR2BKDZo8jrG9HYTEnN5OBe5E3kUOe31+/M1f2TLjTG/YN4fXugTeCisy
+         6kJtO2/FVlEU+3zBrcVM+mGyDUCPI2OJKnN7BCKZMmQTyYAwV0tit1ei4pnIU9OjSFKv
+         yEKE+hbhHaqSghOs99OmJDMVFtFMdUhLzbpmPFf2OSrwQVNlhbbNUn0fRgjBP8pYOduL
+         DtMvYmXYrvcHwc+PdV+2VV5V/LTjUbb850zVeHVqhLO6MLd3bItoPVcEAtYRuS9vqwkL
+         wFHajVW1N8jOgAHXv1BkxfceiTcy+7Hoa4D/z4iB1euJrakXlsFgN1U/U8r7+ZZVbox5
+         zVWw==
+X-Gm-Message-State: AOJu0Ywzzy6diGuMb8yTEVxbnAVY0hSm1BL5HawcJXexPFayZ6G8zOrB
+	HDlmxmEPUHcxoSSV70H5K53JBJchW8EAYKaUIptOVaAqp3a9j0PdAr8kWFXoecRm9jTxK3/9yR0
+	x/68=
+X-Gm-Gg: ASbGncuU2l9r8t5U+idWZYXHPa8Gws8dSCnbfLtjxmCi9m+yVAo7KigBGnu6lEOTxCu
+	fdMJGwhKkJsgl5lnfH1bb/RsDZONOW6amkUX1WkKSDATshrO44kdBAwUtER7WTuXSlo76cEDzlY
+	ZBoNjsgse2Cjl24sGeAYlCPzmZMIfy2dm2giIsYgzXJ8gkH2PHy3b/bONMVnSvchSdh8fHGxIC9
+	Q2M/3QtcdXSYKfymyWPTeM2D9LMPzQJMByQOZaRWirERPeSPkXNsAJu9mRgnNfsZ8YWgSI482yr
+	d/HRzLuw4FNBJG3wkD2OjBydB2BueAyA+B3uhckd
+X-Google-Smtp-Source: AGHT+IEdNPAxkqRkTaUoRNWrxmiZA4Ccu/C+MlNVOILFg4MWiHK0UxIiGGJjfG3rQg8qVAFLb3lDEQ==
+X-Received: by 2002:a17:902:f688:b0:215:a80b:f6f9 with SMTP id d9443c01a7336-2177851f6abmr21562585ad.8.1733886498990;
+        Tue, 10 Dec 2024 19:08:18 -0800 (PST)
+Received: from localhost.localdomain (133-32-227-190.east.xps.vectant.ne.jp. [133.32.227.190])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-216356eed6bsm56677645ad.255.2024.12.10.19.08.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 10 Dec 2024 19:08:18 -0800 (PST)
+From: Joe Hattori <joe@pf.is.s.u-tokyo.ac.jp>
+To: wsa+renesas@sang-engineering.com
+Cc: linux-i2c@vger.kernel.org,
+	Joe Hattori <joe@pf.is.s.u-tokyo.ac.jp>
+Subject: [PATCH] i2c: core: fix reference leak in i2c_register_adapter()
+Date: Wed, 11 Dec 2024 12:08:03 +0900
+Message-Id: <20241211030803.191789-1-joe@pf.is.s.u-tokyo.ac.jp>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -44,117 +70,32 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 14604047695666940487
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: 0
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeefuddrjeelgddthecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecunecujfgurhephffvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepgfduveejteegteelhfetueetheegfeehhfektddvleehtefhheevkeduleeuueevnecukfhppeduvdejrddtrddtrddupddujeekrdefledrledtrdelvddpfeejrdehledrudegvddrleeinecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehiedumgdpmhhouggvpehsmhhtphhouhht
 
-Replace classical dev_err with dev_err_probe in the probe
-function for better error reporting. Also, use dev_err_probe in
-cases where the error number is clear (e.g., -EIO or -EINVAL) to
-maintain consistency.
+The reference count of the device incremented in device_initialize() is
+not decremented when device_add() fails. Add a put_device() call before
+returning from the function.
 
-Additionally, remove redundant logging to simplify the code.
+This bug was found by an experimental static analysis tool that I am
+developing.
 
-Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+Fixes: 60f68597024d ("i2c: core: Setup i2c_adapter runtime-pm before calling device_add()")
+Signed-off-by: Joe Hattori <joe@pf.is.s.u-tokyo.ac.jp>
 ---
- drivers/i2c/busses/i2c-qcom-geni.c | 33 +++++++++++++-----------------
- 1 file changed, 14 insertions(+), 19 deletions(-)
+ drivers/i2c/i2c-core-base.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 7a22e1f46e60..01db24188e29 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -823,11 +823,9 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 		return gi2c->irq;
- 
- 	ret = geni_i2c_clk_map_idx(gi2c);
--	if (ret) {
--		dev_err(dev, "Invalid clk frequency %d Hz: %d\n",
--			gi2c->clk_freq_out, ret);
--		return ret;
--	}
-+	if (ret)
-+		return dev_err_probe(dev, ret, "Invalid clk frequency %d Hz\n",
-+				     gi2c->clk_freq_out);
- 
- 	gi2c->adap.algo = &geni_i2c_algo;
- 	init_completion(&gi2c->done);
-@@ -837,11 +835,10 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 	/* Keep interrupts disabled initially to allow for low-power modes */
- 	ret = devm_request_irq(dev, gi2c->irq, geni_i2c_irq, IRQF_NO_AUTOEN,
- 			       dev_name(dev), gi2c);
--	if (ret) {
--		dev_err(dev, "Request_irq failed:%d: err:%d\n",
--			gi2c->irq, ret);
--		return ret;
--	}
-+	if (ret)
-+		return dev_err_probe(dev, ret,
-+				     "Request_irq failed: %d\n", gi2c->irq);
-+
- 	i2c_set_adapdata(&gi2c->adap, gi2c);
- 	gi2c->adap.dev.parent = dev;
- 	gi2c->adap.dev.of_node = dev->of_node;
-@@ -870,16 +867,14 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 
- 	ret = geni_se_resources_on(&gi2c->se);
- 	if (ret) {
--		dev_err(dev, "Error turning on resources %d\n", ret);
- 		clk_disable_unprepare(gi2c->core_clk);
--		return ret;
-+		return dev_err_probe(dev, ret, "Error turning on resources\n");
- 	}
- 	proto = geni_se_read_proto(&gi2c->se);
- 	if (proto != GENI_SE_I2C) {
--		dev_err(dev, "Invalid proto %d\n", proto);
- 		geni_se_resources_off(&gi2c->se);
- 		clk_disable_unprepare(gi2c->core_clk);
--		return -ENXIO;
-+		return dev_err_probe(dev, -ENXIO, "Invalid proto %d\n", proto);
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 7c810893bfa3..75d30861ffe2 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1562,6 +1562,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+ 	res = device_add(&adap->dev);
+ 	if (res) {
+ 		pr_err("adapter '%s': can't register device (%d)\n", adap->name, res);
++		put_device(&adap->dev);
+ 		goto out_list;
  	}
  
- 	if (desc && desc->no_dma_support)
-@@ -894,7 +889,7 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 		if (ret) {
- 			geni_se_resources_off(&gi2c->se);
- 			clk_disable_unprepare(gi2c->core_clk);
--			return dev_err_probe(dev, ret, "Failed to setup GPI DMA mode\n");
-+			return ret;
- 		}
- 
- 		dev_dbg(dev, "Using GPI DMA mode for I2C\n");
-@@ -907,10 +902,10 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 			tx_depth = desc->tx_fifo_depth;
- 
- 		if (!tx_depth) {
--			dev_err(dev, "Invalid TX FIFO depth\n");
- 			geni_se_resources_off(&gi2c->se);
- 			clk_disable_unprepare(gi2c->core_clk);
--			return -EINVAL;
-+			return dev_err_probe(dev, -EINVAL,
-+					     "Invalid TX FIFO depth\n");
- 		}
- 
- 		gi2c->tx_wm = tx_depth - 1;
-@@ -924,7 +919,7 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 	clk_disable_unprepare(gi2c->core_clk);
- 	ret = geni_se_resources_off(&gi2c->se);
- 	if (ret) {
--		dev_err(dev, "Error turning off resources %d\n", ret);
-+		dev_err_probe(dev, ret, "Error turning off resources\n");
- 		goto err_dma;
- 	}
- 
-@@ -940,7 +935,7 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 
- 	ret = i2c_add_adapter(&gi2c->adap);
- 	if (ret) {
--		dev_err(dev, "Error adding i2c adapter %d\n", ret);
-+		dev_err_probe(dev, ret, "Error adding i2c adapter\n");
- 		pm_runtime_disable(gi2c->se.dev);
- 		goto err_dma;
- 	}
 -- 
-2.45.2
+2.34.1
 
