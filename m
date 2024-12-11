@@ -1,101 +1,169 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCD601FCFDC
-	for <linux-i2c@vger.kernel.org>; Wed, 11 Dec 2024 03:08:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E0A72451CC;
+	Wed, 11 Dec 2024 03:57:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733886502; cv=none; b=gofVGx7ZELNO6avwYdNLHK+me1DTz5945L8Nw7ppjvWbrq4P08RQTPa3BtrN7iLopDcD+gjCRzkHDyX121gBxTyHwi43Goe/cgXZH+RKNteGu3YzXrr4OIqaSODi+osJ39esjN5TMI2diJjZW/Upp0506wCGTKamHhyOqmIhmZM=
+	t=1733889422; cv=none; b=RMB4VC1D4ERCnLNMcHdsznhjlM2PiCd93bo+o+9XrN/eimgzIV9jg0p7nOqqlxWSYgk7yge0F+vDmG/aCR1Q9UnkvwlsGn/suj8XJSCofDcnk+ncDa4gUSJPZdW3YCBY3WZDd+0qyaHcn1Cfwyz8mCIqAcFcO+IgRfqnA7cbC6A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733886502; c=relaxed/simple;
-	bh=nDWof4pxM/ZlbW88hNKCqQiYHZe8+KrUnT3FXn+kSmY=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=cNvdCtFE7lJcm4f4lJ1AC7Cuaa1h2a1IT8nlFvipqgalWTDERC/MIPuV+mn0Wd0gZMcfGdFgTyEwmtcMynHleLKTkIuJIY+3oMMMuIc4DkvFz2pOJ0XkdsLI152cqSPno5d8szq0WGezDC6uO+t6c7kGl9H9cNy6iqqcB7iAaCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=pf.is.s.u-tokyo.ac.jp; spf=none smtp.mailfrom=pf.is.s.u-tokyo.ac.jp; dkim=pass (2048-bit key) header.d=pf-is-s-u-tokyo-ac-jp.20230601.gappssmtp.com header.i=@pf-is-s-u-tokyo-ac-jp.20230601.gappssmtp.com header.b=bCr98z0A; arc=none smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=pf.is.s.u-tokyo.ac.jp
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=pf.is.s.u-tokyo.ac.jp
+	s=arc-20240116; t=1733889422; c=relaxed/simple;
+	bh=3AlhQZkRXKO/RCJl/pWPDYap996INco2i4JazZXp0h0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=PP8TbxeEwfevzmwtnbbCZr8FdAyBmN/+5EkVskA3+71FxrROvtXmp1gn0otwtFnUb6lL52JzNPsVDR6UW+Jh2UDJvadFWGELn1AsxNi/V4cZ8Msz4sQ6tqVQgzN4StgHoksy6pMSk80xmLvsIC/DIQpe4UTmwWPcYjlJJ9Al2VA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=gLqM+lqP; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=pf-is-s-u-tokyo-ac-jp.20230601.gappssmtp.com header.i=@pf-is-s-u-tokyo-ac-jp.20230601.gappssmtp.com header.b="bCr98z0A"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-21636268e43so40482165ad.2
-        for <linux-i2c@vger.kernel.org>; Tue, 10 Dec 2024 19:08:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=pf-is-s-u-tokyo-ac-jp.20230601.gappssmtp.com; s=20230601; t=1733886499; x=1734491299; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=HVevN24y3UZbP9+LNwpaUvSkD8owCWCQvSepKmgobsg=;
-        b=bCr98z0ATQGqssLhxF7T2WKUmLeNzzjSlHOrXella8v8knkzQ/ZYS0G36+M1+YnZgE
-         GJCzabYQgX6+daheiDd0bHBGGqZVQ/0dXGbAC2sUoxYrQunHN7mja/Lh2eLFMDy/ARkM
-         dxa4sfK/NpxtMb1LS6ZjVkFsdGAkuKP1cBG0EvuUWXWxmnNSr/jLZnD89bqU2cf2NOI3
-         RAA7i+HSejwLYFRZfUPJBw4V0VWkIBqbRmlE7QPJCOB9hwCluf1P0yR5626Zz2BSDgEk
-         FzVg6AngnaJT1Nd50i8QtSbUWN81FZnysIci23wKnuzDn3EGeH3GHiSvkrTpX6jc7XFl
-         erqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1733886499; x=1734491299;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=HVevN24y3UZbP9+LNwpaUvSkD8owCWCQvSepKmgobsg=;
-        b=U3u/5aEGJCR2BKDZo8jrG9HYTEnN5OBe5E3kUOe31+/M1f2TLjTG/YN4fXugTeCisy
-         6kJtO2/FVlEU+3zBrcVM+mGyDUCPI2OJKnN7BCKZMmQTyYAwV0tit1ei4pnIU9OjSFKv
-         yEKE+hbhHaqSghOs99OmJDMVFtFMdUhLzbpmPFf2OSrwQVNlhbbNUn0fRgjBP8pYOduL
-         DtMvYmXYrvcHwc+PdV+2VV5V/LTjUbb850zVeHVqhLO6MLd3bItoPVcEAtYRuS9vqwkL
-         wFHajVW1N8jOgAHXv1BkxfceiTcy+7Hoa4D/z4iB1euJrakXlsFgN1U/U8r7+ZZVbox5
-         zVWw==
-X-Gm-Message-State: AOJu0Ywzzy6diGuMb8yTEVxbnAVY0hSm1BL5HawcJXexPFayZ6G8zOrB
-	HDlmxmEPUHcxoSSV70H5K53JBJchW8EAYKaUIptOVaAqp3a9j0PdAr8kWFXoecRm9jTxK3/9yR0
-	x/68=
-X-Gm-Gg: ASbGncuU2l9r8t5U+idWZYXHPa8Gws8dSCnbfLtjxmCi9m+yVAo7KigBGnu6lEOTxCu
-	fdMJGwhKkJsgl5lnfH1bb/RsDZONOW6amkUX1WkKSDATshrO44kdBAwUtER7WTuXSlo76cEDzlY
-	ZBoNjsgse2Cjl24sGeAYlCPzmZMIfy2dm2giIsYgzXJ8gkH2PHy3b/bONMVnSvchSdh8fHGxIC9
-	Q2M/3QtcdXSYKfymyWPTeM2D9LMPzQJMByQOZaRWirERPeSPkXNsAJu9mRgnNfsZ8YWgSI482yr
-	d/HRzLuw4FNBJG3wkD2OjBydB2BueAyA+B3uhckd
-X-Google-Smtp-Source: AGHT+IEdNPAxkqRkTaUoRNWrxmiZA4Ccu/C+MlNVOILFg4MWiHK0UxIiGGJjfG3rQg8qVAFLb3lDEQ==
-X-Received: by 2002:a17:902:f688:b0:215:a80b:f6f9 with SMTP id d9443c01a7336-2177851f6abmr21562585ad.8.1733886498990;
-        Tue, 10 Dec 2024 19:08:18 -0800 (PST)
-Received: from localhost.localdomain (133-32-227-190.east.xps.vectant.ne.jp. [133.32.227.190])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-216356eed6bsm56677645ad.255.2024.12.10.19.08.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 10 Dec 2024 19:08:18 -0800 (PST)
-From: Joe Hattori <joe@pf.is.s.u-tokyo.ac.jp>
-To: wsa+renesas@sang-engineering.com
-Cc: linux-i2c@vger.kernel.org,
-	Joe Hattori <joe@pf.is.s.u-tokyo.ac.jp>
-Subject: [PATCH] i2c: core: fix reference leak in i2c_register_adapter()
-Date: Wed, 11 Dec 2024 12:08:03 +0900
-Message-Id: <20241211030803.191789-1-joe@pf.is.s.u-tokyo.ac.jp>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="gLqM+lqP"
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BALIw89018563;
+	Wed, 11 Dec 2024 03:56:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	bsonQYLjKLE9nrH7N4snGlC5yXO0RiS7svj5S7B7UJw=; b=gLqM+lqPKg+GrNl0
+	q/nDtSVkl8wgP/JxLDDdmlUMVdgG//P2XwOlwUg4DRST+GzYIEjAQIvlp/ft9X0c
+	mX/nboBmQdD2N4guinsKthPIIJR1m+AW5vC3Ci97MRbtmzLIh370MsjTECQ0JRag
+	2GT0Se7Ztpbj4ferhHvA/8Nja/M6gA/7F7MGnS3cYyZBkc1YTO4fqaBzI0y8JofK
+	E5GSL0nmPTLhKuHKlyKCz1sEe831Z5bKiLSMuk5fDaA5Y5Q0AI8JtnJBUcgG0NYz
+	6AGcgu4sLdI3Y4w59asv5aNHqKZfOoXF0rNYimWmJ94/cRXu81o4N142VeJS9T7y
+	ASvEVw==
+Received: from nasanppmta05.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 43eak3c5sv-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 11 Dec 2024 03:56:58 +0000 (GMT)
+Received: from nasanex01c.na.qualcomm.com (nasanex01c.na.qualcomm.com [10.45.79.139])
+	by NASANPPMTA05.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 4BB3uv8m030650
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 11 Dec 2024 03:56:57 GMT
+Received: from [10.50.34.16] (10.80.80.8) by nasanex01c.na.qualcomm.com
+ (10.45.79.139) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Tue, 10 Dec
+ 2024 19:56:56 -0800
+Message-ID: <50ebc5f1-967a-4aa7-a4c3-3304961d1f8b@quicinc.com>
+Date: Wed, 11 Dec 2024 09:26:53 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2] i2c: qcom-geni: Simplify error handling in probe
+ function
+To: Andi Shyti <andi.shyti@kernel.org>, <linux-arm-msm@vger.kernel.org>,
+        <linux-i2c@vger.kernel.org>
+References: <20241210231054.2844202-1-andi.shyti@kernel.org>
+ <20241210231054.2844202-3-andi.shyti@kernel.org>
+Content-Language: en-US
+From: Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>
+In-Reply-To: <20241210231054.2844202-3-andi.shyti@kernel.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nasanex01c.na.qualcomm.com (10.45.79.139)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-ORIG-GUID: 5riXyfls0kxv72Z7fliai4wCxpSHhOtt
+X-Proofpoint-GUID: 5riXyfls0kxv72Z7fliai4wCxpSHhOtt
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1039,Hydra:6.0.680,FMLib:17.12.60.29
+ definitions=2024-09-06_09,2024-09-06_01,2024-09-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0
+ mlxlogscore=999 clxscore=1015 spamscore=0 mlxscore=0 impostorscore=0
+ malwarescore=0 lowpriorityscore=0 priorityscore=1501 adultscore=0
+ bulkscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.19.0-2411120000 definitions=main-2412110027
 
-The reference count of the device incremented in device_initialize() is
-not decremented when device_add() fails. Add a put_device() call before
-returning from the function.
+Thanks Andi for this change !
 
-This bug was found by an experimental static analysis tool that I am
-developing.
-
-Fixes: 60f68597024d ("i2c: core: Setup i2c_adapter runtime-pm before calling device_add()")
-Signed-off-by: Joe Hattori <joe@pf.is.s.u-tokyo.ac.jp>
----
- drivers/i2c/i2c-core-base.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 7c810893bfa3..75d30861ffe2 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1562,6 +1562,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
- 	res = device_add(&adap->dev);
- 	if (res) {
- 		pr_err("adapter '%s': can't register device (%d)\n", adap->name, res);
-+		put_device(&adap->dev);
- 		goto out_list;
- 	}
- 
--- 
-2.34.1
+On 12/11/2024 4:40 AM, Andi Shyti wrote:
+> Avoid repeating the error handling pattern:
+> 
+>          geni_se_resources_off(&gi2c->se);
+>          clk_disable_unprepare(gi2c->core_clk);
+>          return;
+> 
+> Introduce a single 'goto' exit label for cleanup in case of
+> errors. While there are currently two distinct exit points, there
+> is no overlap in their handling, allowing both branches to
+> coexist cleanly.
+> 
+> Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+> ---
+>   drivers/i2c/busses/i2c-qcom-geni.c | 30 ++++++++++++++++--------------
+>   1 file changed, 16 insertions(+), 14 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+> index 01db24188e29..3fc85595a4aa 100644
+> --- a/drivers/i2c/busses/i2c-qcom-geni.c
+> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
+> @@ -867,14 +867,13 @@ static int geni_i2c_probe(struct platform_device *pdev)
+>   
+>   	ret = geni_se_resources_on(&gi2c->se);
+>   	if (ret) {
+> -		clk_disable_unprepare(gi2c->core_clk);
+> -		return dev_err_probe(dev, ret, "Error turning on resources\n");
+> +		dev_err_probe(dev, ret, "Error turning on resources\n");
+> +		goto err_clk;
+>   	}
+>   	proto = geni_se_read_proto(&gi2c->se);
+>   	if (proto != GENI_SE_I2C) {
+> -		geni_se_resources_off(&gi2c->se);
+> -		clk_disable_unprepare(gi2c->core_clk);
+> -		return dev_err_probe(dev, -ENXIO, "Invalid proto %d\n", proto);
+> +		dev_err_probe(dev, -ENXIO, "Invalid proto %d\n", proto);
+Suggestive comment, can we make this second patch as first patch ? So 
+that we can have both above lines reduced in this patch.
+> +		goto err_off;
+>   	}
+>   
+>   	if (desc && desc->no_dma_support)
+> @@ -886,11 +885,8 @@ static int geni_i2c_probe(struct platform_device *pdev)
+>   		/* FIFO is disabled, so we can only use GPI DMA */
+>   		gi2c->gpi_mode = true;
+>   		ret = setup_gpi_dma(gi2c);
+> -		if (ret) {
+> -			geni_se_resources_off(&gi2c->se);
+> -			clk_disable_unprepare(gi2c->core_clk);
+> -			return ret;
+> -		}
+> +		if (ret)
+> +			goto err_off;
+>   
+>   		dev_dbg(dev, "Using GPI DMA mode for I2C\n");
+>   	} else {
+> @@ -902,10 +898,8 @@ static int geni_i2c_probe(struct platform_device *pdev)
+>   			tx_depth = desc->tx_fifo_depth;
+>   
+>   		if (!tx_depth) {
+> -			geni_se_resources_off(&gi2c->se);
+> -			clk_disable_unprepare(gi2c->core_clk);
+> -			return dev_err_probe(dev, -EINVAL,
+> -					     "Invalid TX FIFO depth\n");
+> +			dev_err_probe(dev, -EINVAL, "Invalid TX FIFO depth\n");
+> +			goto err_off;
+>   		}
+>   
+>   		gi2c->tx_wm = tx_depth - 1;
+> @@ -944,8 +938,16 @@ static int geni_i2c_probe(struct platform_device *pdev)
+>   
+>   	return 0;
+return ret here ? yes, we need to initialize ret = 0.
+>   
+> +err_off:
+can we rename as err_resources ?
+> +	geni_se_resources_off(&gi2c->se);
+> +err_clk:
+> +	clk_disable_unprepare(gi2c->core_clk);
+> +
+> +	return ret;
+> +
+>   err_dma:
+>   	release_gpi_dma(gi2c);
+> +
+>   	return ret;
+>   }
+>   
 
