@@ -1,69 +1,69 @@
-Received: from 1.mo576.mail-out.ovh.net (1.mo576.mail-out.ovh.net [178.33.251.173])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8735522C352
-	for <linux-i2c@vger.kernel.org>; Tue, 10 Dec 2024 23:48:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.33.251.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A98D01422A8;
+	Wed, 11 Dec 2024 01:56:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733874522; cv=none; b=PZU/94VAEK04aBjAzhqROmBqASHNoHWL7MmvUOdzhoRupDYEOZRthzHluC+m9WkZFBzWR6Rg/nb+JxBQndt4y5mMtwfRncBLzUs6dkJveHbFM1MvDNeuH4UtgIcmav4uRgNW2dFI5THUweBLER+NbnKPjqn2X2ntdN8rJC4WEDc=
+	t=1733882185; cv=none; b=MgGLFIFw9/6NnyOoA+44Kc+5eL1pYlhGqMdlP+Yo9iR0CaJKqT7I4qLLX8hFYE5lMNHJdeiXNjtql863dJ02ERC1cW1gFarfRtXFx1GNlu24hlJIDmgOQWjXBb8MMtQFzNSJccY7lfkOgP9uIpYoiZcFrD6paS3m5SGk4CRPy8M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733874522; c=relaxed/simple;
-	bh=j5ER/U++K3NTN1bsXcSqkjj7oAx3VBI4ceUUXc1ubLs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Ovz+bTyhb2uEzEkK8vn1RtUBjYOGx8IAwHZeRZcUM1bcWi7fCDOA+CvmGT0r8QGCnwlfnrXRnWAsZU4KsXCBXXBe6wpAH6RlL4iQETphHeVdkVWNsc2GW8KR8YPT6V+LtFCFZyxNMgqOaoVgd5S0ycLFmySo/TNfeVlSQhRDQIo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=178.33.251.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director6.ghost.mail-out.ovh.net (unknown [10.108.17.147])
-	by mo576.mail-out.ovh.net (Postfix) with ESMTP id 4Y7Dy40fxJz1qLc
-	for <linux-i2c@vger.kernel.org>; Tue, 10 Dec 2024 23:11:40 +0000 (UTC)
-Received: from ghost-submission-5b5ff79f4f-4ztgx (unknown [10.110.96.141])
-	by director6.ghost.mail-out.ovh.net (Postfix) with ESMTPS id C28531FDDD;
-	Tue, 10 Dec 2024 23:11:39 +0000 (UTC)
-Received: from etezian.org ([37.59.142.113])
-	by ghost-submission-5b5ff79f4f-4ztgx with ESMTPSA
-	id xdhtJ6vKWGesBAAA0jbQjQ
-	(envelope-from <andi@etezian.org>); Tue, 10 Dec 2024 23:11:39 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-113S0073d1be6e0-ac99-4a32-abac-3ac2cd99c39c,
-                    FE3B76875E3B0A6FCB1003007887B313CBEB2737) smtp.auth=andi@etezian.org
-X-OVh-ClientIp:178.39.90.92
-From: Andi Shyti <andi.shyti@kernel.org>
-To: linux-arm-msm@vger.kernel.org,
-	linux-i2c@vger.kernel.org
-Cc: Andi Shyti <andi.shyti@kernel.org>
-Subject: [PATCH 0/2] Qcom Geni exit path cleanups
-Date: Wed, 11 Dec 2024 00:10:52 +0100
-Message-ID: <20241210231054.2844202-1-andi.shyti@kernel.org>
-X-Mailer: git-send-email 2.45.2
+	s=arc-20240116; t=1733882185; c=relaxed/simple;
+	bh=L9hpu8B4bEbv4BWzFDWIU58mS0NmeBwiwVL18jWxcmk=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Ym8DKZ14/g6ux4T4o3nMApf9CA+yG7xcWoYb01dGuDWM+XPP3kRFtUbbmHwuCDouAT5BR/FnfMom9NXdoVSuYtRqWqF13JkFUzC9CFtLkSsrnX3s+IJBLwsnnx9WpFN5xONkuJ1ruGpsOqcyJRgI/PsZgj0v/tdcapa7bBLyfdo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eRHcntU6; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eRHcntU6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21A8BC4CED6;
+	Wed, 11 Dec 2024 01:56:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1733882185;
+	bh=L9hpu8B4bEbv4BWzFDWIU58mS0NmeBwiwVL18jWxcmk=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=eRHcntU6PUTaQAoAcl1WW2JDRXgUKIXE7WBD7o897zJVjdXb+uAiSlKSMQNPpDzh/
+	 CBJkfx8GA0/BK7W2DxurNJNOHL0weszqvRbEy8rzexSz9ta3UBrxKwe2UcGKEtu/0I
+	 Vm0SIlF3cQ25hub1vkMJbn8v7uxSo1NusbEq1EBA8lIsJbnMPbSr+/OFukp161Alfv
+	 Mf9skIEs60bLDHpHFv5HQGSDlxF2cGKr2azC27J4VbIb8skxdprs/As1YbPvmXa3Qf
+	 s6APl4ww4KZXiib2CpXNuzIpWorqL83QDNashcBW2pkabbAF4S0zvLXVHk1hxvBwDW
+	 P/hlfzaglAtKA==
+Date: Tue, 10 Dec 2024 17:56:23 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Mateusz Polchlopek <mateusz.polchlopek@intel.com>
+Cc: Ming Yu <a0282524688@gmail.com>, <tmyu0@nuvoton.com>, <lee@kernel.org>,
+ <linus.walleij@linaro.org>, <brgl@bgdev.pl>, <andi.shyti@kernel.org>,
+ <mkl@pengutronix.de>, <mailhol.vincent@wanadoo.fr>,
+ <andrew+netdev@lunn.ch>, <davem@davemloft.net>, <edumazet@google.com>,
+ <pabeni@redhat.com>, <wim@linux-watchdog.org>, <linux@roeck-us.net>,
+ <jdelvare@suse.com>, <alexandre.belloni@bootlin.com>,
+ <linux-kernel@vger.kernel.org>, <linux-gpio@vger.kernel.org>,
+ <linux-i2c@vger.kernel.org>, <linux-can@vger.kernel.org>,
+ <netdev@vger.kernel.org>, <linux-watchdog@vger.kernel.org>,
+ <linux-hwmon@vger.kernel.org>, <linux-rtc@vger.kernel.org>
+Subject: Re: [PATCH v3 1/7] mfd: Add core driver for Nuvoton NCT6694
+Message-ID: <20241210175623.748da1b8@kernel.org>
+In-Reply-To: <2d6e82ff-9f68-427e-a8a6-8dd31b3c94e4@intel.com>
+References: <20241210104524.2466586-1-tmyu0@nuvoton.com>
+	<20241210104524.2466586-2-tmyu0@nuvoton.com>
+	<2d6e82ff-9f68-427e-a8a6-8dd31b3c94e4@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 14604047693996165703
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: 0
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeefuddrjeelgddtiecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecunecujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnheptdevueeiheeftedujefhheelieejvdevteelfefhheeutdelkedtveejudejgfdvnecukfhppeduvdejrddtrddtrddupddujeekrdefledrledtrdelvddpfeejrdehledrudegvddruddufeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomheprghnughisegvthgviihirghnrdhorhhgpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheejiegmpdhmohguvgepshhmthhpohhuth
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hi,
+On Tue, 10 Dec 2024 11:57:41 +0100 Mateusz Polchlopek wrote:
+> > +int nct6694_read_msg(struct nct6694 *nct6694, u8 mod, u16 offset,
+> > +		     u16 length, void *buf)
+> > +{
+> > +	struct nct6694_cmd_header *cmd_header = nct6694->cmd_header;
+> > +	struct nct6694_response_header *response_header = nct6694->response_header;  
+> 
+> RCT violation
 
-I am submitting two trivial cleanups in this series. The first 
-replaces all instances of dev_err with dev_err_probe throughout 
-the probe function for consistency. The second improves the error
-exit path by introducing a single 'goto' label for better 
-maintainability.
-
-Thank you,  
-Andi
-
-Andi Shyti (2):
-  i2c: qcom-geni: Use dev_err_probe in the probe function
-  i2c: qcom-geni: Simplify error handling in probe function
-
- drivers/i2c/busses/i2c-qcom-geni.c | 53 ++++++++++++++----------------
- 1 file changed, 25 insertions(+), 28 deletions(-)
-
--- 
-2.45.2
-
+This code is not under net not drivers/net
+As a general rule please focus on functional review, formatting and
+process issues are harder to judge unless you read all of the mailing
+list traffic.
