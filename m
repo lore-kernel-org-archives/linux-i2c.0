@@ -1,76 +1,85 @@
-Received: from 10.mo583.mail-out.ovh.net (10.mo583.mail-out.ovh.net [46.105.52.148])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9D381F942
-	for <linux-i2c@vger.kernel.org>; Wed, 11 Dec 2024 05:46:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.105.52.148
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4844F1C07C4;
+	Wed, 11 Dec 2024 06:56:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1733895996; cv=none; b=cAwzy0zpCfGLKo/78v5fOHRIbXwF5kpKAeahSKOXlb1B2UIZqn++JtPRAeTZfC0G6RdRCMnTQQUOWlONg/olzCXl7/GeHrCbYJuBBW+5W/lR2gf68Fe/9Lkug4od8cVbQtonvtE/UhajpNVZUSqpymtnu4DfWeK3azShFS9rB5A=
+	t=1733900218; cv=none; b=A24wc2KJ3PCnFbqTQg7RJkH8EGDhBpR/cY2qjK9bHpmQuRc65sA3j9z3lId2Et91gFla/xdRp34WKNEncgkNLXz0bNcXlEZk0QBwPhUfNrS+c59DzU41RsmFJoTJdx9j7jzISeBVXykRZoFmQlmbXPd1eFAXZFsFW3zIFtWCBPg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1733895996; c=relaxed/simple;
-	bh=73voq1+nS2AOlJ+wC0SqcovZv5fdtDSPoC5dfRhQmpg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FybZg/ZvxPUWePQsMfVFkb1PmXfh6J7ZEHHp9QBrOg6FWG+1S3008/4E3TqiD2ntf4s/lri5n4zEBJ7+eTZTKxLhlxsHe7xu3YgL1V3FV2rD5IVjsmhw1lUDOslQs0X+s9E/GvveTn9ZZ7gQJlxIkKpN5yPAN9bo1sL+zsTrwec=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=46.105.52.148
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director4.ghost.mail-out.ovh.net (unknown [10.108.17.76])
-	by mo583.mail-out.ovh.net (Postfix) with ESMTP id 4Y7Ckm3FTmz1T7p
-	for <linux-i2c@vger.kernel.org>; Tue, 10 Dec 2024 22:16:48 +0000 (UTC)
-Received: from ghost-submission-5b5ff79f4f-cqbzp (unknown [10.110.118.5])
-	by director4.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 1493C1FDB7;
-	Tue, 10 Dec 2024 22:16:48 +0000 (UTC)
-Received: from etezian.org ([37.59.142.104])
-	by ghost-submission-5b5ff79f4f-cqbzp with ESMTPSA
-	id R4zCOM+9WGcUOAgA/GfvJg
-	(envelope-from <andi@etezian.org>); Tue, 10 Dec 2024 22:16:48 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-104R0053cdd9557-f5ee-49d9-9e92-21227a38084a,
-                    5F80FEE13E57FB08D6B3077815429B018F997372) smtp.auth=andi@etezian.org
-X-OVh-ClientIp:178.39.90.92
+	s=arc-20240116; t=1733900218; c=relaxed/simple;
+	bh=kK2A1SfWXW/DorLebHTbi8kuvJVjRoKFWsmFNWo+lBY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dqY9uptP3A1w4AG2dO8MD78vUNfy/h+c/Arx94YFa7zs2b+G9ok9LP3hgm4TW5rdCNAQsrA2iofooYtNyrGgP5Ue5l9qgjaWubs+ZuQx+qSJC6gr90Hjl4zbXN3sQ3eTPza6QJ2O6pE0PR4AGOhFW3Q40LZjHEFVx6x27u8fQEw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g1cEVh6B; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g1cEVh6B"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45FBBC4CED2;
+	Wed, 11 Dec 2024 06:56:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1733900217;
+	bh=kK2A1SfWXW/DorLebHTbi8kuvJVjRoKFWsmFNWo+lBY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=g1cEVh6BP3bI4DRAgPWYRB9pe0tarspqpQu4nu81b0X4rmuu9s3eokJpfLYTvM24w
+	 p3la5/wzy0nAcUoOPcTv8k2BEvjN7O5CSlsDnw0jYbOuPfXmQtS4TS1ZTWkqftnwtx
+	 PNXt7jVa2yPAzIAFkQCGxwk5qTw+/9Vi93nNHTzo2e2+jO07+NJkO/cXazfrZEM0Bk
+	 JM1eSRz5nxY+LMCj+QdNao3i/VsAHC5TlZ0Ph842s+Wxnax4qDaWbtPClF4poUy+RO
+	 S9bjkdq3BJlZdCgr7fXT7dgjVwi81sJ2C90Vre1Z/qrJWjwrTso8kVgU3Sz/3Yf9wj
+	 FlHXsaKVIqUqQ==
+Date: Wed, 11 Dec 2024 07:56:53 +0100
 From: Andi Shyti <andi.shyti@kernel.org>
-To: linux-i2c <linux-i2c@vger.kernel.org>
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	Linus Walleij <linus.walleij@linaro.org>
-Subject: [PATCH] i2c: nomadik: Enable compile testing for the Nomadik driver
-Date: Tue, 10 Dec 2024 23:16:41 +0100
-Message-ID: <20241210221641.2661577-1-andi.shyti@kernel.org>
-X-Mailer: git-send-email 2.45.2
+To: Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>
+Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org
+Subject: Re: [PATCH 2/2] i2c: qcom-geni: Simplify error handling in probe
+ function
+Message-ID: <gwl6occrun32l4rmcdrjnzymadhlwixba5eyeznnx462gp7gym@rsvsdjr2zgmp>
+References: <20241210231054.2844202-1-andi.shyti@kernel.org>
+ <20241210231054.2844202-3-andi.shyti@kernel.org>
+ <50ebc5f1-967a-4aa7-a4c3-3304961d1f8b@quicinc.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 13677432069076683366
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeefuddrjeekgdduheekucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnheptdevueeiheeftedujefhheelieejvdevteelfefhheeutdelkedtveejudejgfdvnecukfhppeduvdejrddtrddtrddupddujeekrdefledrledtrdelvddpfeejrdehledrudegvddruddtgeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomheprghnughisegvthgviihirghnrdhorhhgpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheekfegmpdhmohguvgepshhmthhpohhuth
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <50ebc5f1-967a-4aa7-a4c3-3304961d1f8b@quicinc.com>
 
-The AMBA bus header files do not generate compilation errors even
-when the AMBA bus is not enabled in Kconfig via ARM_AMBA.
+Hi Mukesh,
 
-This allows the Nomadik driver to be compiled for testing
-purposes with the COMPILE_TEST option enabled.
+On Wed, Dec 11, 2024 at 09:26:53AM +0530, Mukesh Kumar Savaliya wrote:
+> Thanks Andi for this change !
 
-Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
-Cc: Linus Walleij <linus.walleij@linaro.org>
----
- drivers/i2c/busses/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks for looking into it.
 
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index ceb3ecdf884b..ae4772faa876 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -910,7 +910,7 @@ config I2C_MXS
- 
- config I2C_NOMADIK
- 	tristate "ST-Ericsson Nomadik/Ux500 I2C Controller"
--	depends on ARM_AMBA
-+	depends on ARM_AMBA || COMPILE_TEST
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  I2C interface from ST-Ericsson's Nomadik and Ux500 architectures,
--- 
-2.45.2
+...
 
+> > @@ -944,8 +938,16 @@ static int geni_i2c_probe(struct platform_device *pdev)
+> >   	return 0;
+> return ret here ? yes, we need to initialize ret = 0.
+
+here? It's returning '0', as it was before. I'm failing to see
+where 'ret' is used uninitialized. What am I missing?
+
+> > +err_off:
+> can we rename as err_resources ?
+
+yes, it's better, as meaning it's more aligned with the other
+labels.
+
+Thanks,
+Andi
+
+> > +	geni_se_resources_off(&gi2c->se);
+> > +err_clk:
+> > +	clk_disable_unprepare(gi2c->core_clk);
+> > +
+> > +	return ret;
+> > +
+> >   err_dma:
+> >   	release_gpi_dma(gi2c);
+> > +
+> >   	return ret;
+> >   }
+> 
