@@ -1,126 +1,172 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E97FD1F9F60;
-	Tue, 17 Dec 2024 17:36:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11A751F8684;
+	Tue, 17 Dec 2024 17:42:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1734456988; cv=none; b=pa7UxPEAkBqU+XPDb0UT9bKi+YX6x7YjU37iReJTmBAvesDsQAkq7L0a/8uusX6Fq3l5j3bdElygjQ9ggyN+spDDwuDCr9muUdFin2MRIsQVBrtB/T6/a6W6h8u7A0Yvk1FuJ8wPd4OfwYD9o1XjTddukf2B26SPkyHCrK1U9mc=
+	t=1734457358; cv=none; b=JXwxGQH+k8gE2ethZHaToE48U3MYcLgDnJWLzo3X3MZYU18tdP/qORB1yquunz3e1rq46SC1GjWdiNkcMVa8UkDr5OtILiNvzhChOZttZMHGcvUCK1ICeZ8Wfm5uNLdMngTqu5PzVA3wkFGXUGtTm/YPWDfW32MispiupgLyNGM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1734456988; c=relaxed/simple;
-	bh=r9x6HzKiROlWFqimZ4F/rBhPUURKkT2SXoCXdvUMPfQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=R1k1gliAoanQ0c2JAyeWWkdskYh2IQFDsy4qIPLIXg5DRCoXLexO2kl9dUTsqq4P1YKABvsElEdNe02L+ublk7lcePj/HhDr7mhOr7E1hzE8xeWonlbpcQ6YfSExW9Ex+KhSMC0eB8JwEBUy+VSf2QMP8vn/HdcQ3xyq5zVMf7A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=l2Mmo76g; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1734457358; c=relaxed/simple;
+	bh=GTNIQUJPRw7t7GatnKHSMlEYz/YyeJ+Ed/C875PamEs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=XE/dCYSALxC1NQEYyzn/RobfscRqmVMfoziPyzoEflK+LCTetbhE7jIwCW3q/YGBADjyflrxg0UoqHa0TZ0Qq5XhIaHwJTJt/Moz8u6HHvMwRRQcfRBIDZ7OdMy4voFv+KGC9xgkrgABUXJ4OSsxJLtLxvg8KjzQYCYh0fap9j4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=k7Uiu3M+; arc=none smtp.client-ip=209.85.218.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="l2Mmo76g"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 4BHD0OJp028091;
-	Tue, 17 Dec 2024 17:35:49 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=cK+l/BTqBMQlSMv3W
-	wmy81zGJ0D0dTlpVAditAsXNbI=; b=l2Mmo76gyDIF7FxMFcSPWHqrp74Js8rrc
-	zUnTTVgPQC+jAeRur83qU6kkVEj0B05uuTGWwtf1KRL4hWEzqaqf9XThyD2rZOdi
-	VVQnxdcvD4D9ds4fSoSMF/bKBXZUAXVleHjfQhGgQUXPihWDVlyqLVlEZ3Ofe7CS
-	GObDm+rzwpUdTzp54lDf80wriKq4AARgAwbN8GZKhShYMOa35xMQx5qat8tT2dNv
-	y5Is41Ghmf6ne2c6JFBTKnKynPpp0igI/WFJlor51deQYg9M7pwhmiboX9SVPRO+
-	wP4czuq/EnNVAvzW78jmUFx4/jv42QQp2XlrjTHLIBxNiRSz01Gww==
-Received: from pps.reinject (localhost [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43k9t6hef5-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Dec 2024 17:35:48 +0000 (GMT)
-Received: from m0360083.ppops.net (m0360083.ppops.net [127.0.0.1])
-	by pps.reinject (8.18.0.8/8.18.0.8) with ESMTP id 4BHHNtAr023671;
-	Tue, 17 Dec 2024 17:35:48 GMT
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 43k9t6hef1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Dec 2024 17:35:48 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 4BHH341h010923;
-	Tue, 17 Dec 2024 17:35:46 GMT
-Received: from smtprelay02.dal12v.mail.ibm.com ([172.16.1.4])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 43hpjk3mgx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 17 Dec 2024 17:35:46 +0000
-Received: from smtpav02.wdc07v.mail.ibm.com (smtpav02.wdc07v.mail.ibm.com [10.39.53.229])
-	by smtprelay02.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 4BHHZjUX18416144
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 17 Dec 2024 17:35:46 GMT
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9270558060;
-	Tue, 17 Dec 2024 17:35:45 +0000 (GMT)
-Received: from smtpav02.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 29F9A5805C;
-	Tue, 17 Dec 2024 17:35:44 +0000 (GMT)
-Received: from gfwa153.aus.stglabs.ibm.com (unknown [9.3.84.127])
-	by smtpav02.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 17 Dec 2024 17:35:44 +0000 (GMT)
-From: Ninad Palsule <ninad@linux.ibm.com>
-To: robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
-        eajames@linux.ibm.com, jdelvare@suse.com, linux@roeck-us.net,
-        corbet@lwn.net, joel@jms.id.au, andrew@codeconstruct.com.au,
-        Delphine_CC_Chiu@Wiwynn.com, broonie@kernel.org,
-        peteryin.openbmc@gmail.com, noahwang.wang@outlook.com,
-        naresh.solanki@9elements.com, lukas@wunner.de, jbrunet@baylibre.com,
-        patrick.rudolph@9elements.com, gregkh@linuxfoundation.org,
-        peterz@infradead.org, pbiel7@gmail.com, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-hwmon@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-aspeed@lists.ozlabs.org, linux-i2c@vger.kernel.org
-Cc: Ninad Palsule <ninad@linux.ibm.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Subject: [PATCH v4 3/4] dt-bindings: hwmon: intel,crps185: Add to trivial
-Date: Tue, 17 Dec 2024 11:35:34 -0600
-Message-ID: <20241217173537.192331-4-ninad@linux.ibm.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20241217173537.192331-1-ninad@linux.ibm.com>
-References: <20241217173537.192331-1-ninad@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="k7Uiu3M+"
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-aa5f1909d6fso935946666b.3;
+        Tue, 17 Dec 2024 09:42:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1734457355; x=1735062155; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=RX3Us/R+Ba73C0CkzYR3VNICfGaHFr1lgKKzTrGydJU=;
+        b=k7Uiu3M+JLpB4h8CQj1mYHskMvEpxruU5q2Zxe1XHJvAW24V4IXcEmjaNuVXvW5VZK
+         Eco0SEPMZY4V4W6s+/49hs1SPsIM70S1xxsHOwVKNOlcwFwh0S4AYrP7K8aoUmXJFQsT
+         Wfmk2MTWHdsEsPMqCXekRly+VjgDqushUIRL+wMkj7z4iGbkH1c8btyMJtTkUGM90C2K
+         JL4kiUtvYQS4S5MiQylUb0DDRXRupaYXM2or9is5uZR0U98SrZxM70oVj5vofqiTT7mE
+         iGJipUnz2mwMo9fiYgyxOUAdY4kxwD4oDdDgpy/m9A7KIhz1hx7yuyJ2q0wAwvJdVJyW
+         U9OQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1734457355; x=1735062155;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=RX3Us/R+Ba73C0CkzYR3VNICfGaHFr1lgKKzTrGydJU=;
+        b=sXdDcp09z1bQtX9HFJktlj+MidZDNkmmQRTZBHItadYB0tWVYE5bbHhlmcWlakoSHd
+         xTKzxe4pPpPG8YFlue07PFmA2rw8lMDbb3bO/bljXBQWgregDc+xj3IXh4Vzfa4KrMqf
+         dJlRFfZi8wByONNwvNDKuHKS9JkIGzYCRPfL8KIvnrXhDkW1rPu0PzFGPg4R/j1ykMq4
+         laNnKRK1N1nPNIesx/dU/fs9Vb2L97CjdjriFy7gdfGaTptOAjY5i/QaFfcueAi2/2fB
+         Uffn7gkqQlb8z/54HPl2h7XsRCMdjsE1lwmtUmhDOGuG8oE9tUSf+yrf9fojjehbCmOm
+         drhg==
+X-Forwarded-Encrypted: i=1; AJvYcCUG4absQp3wMzGttd8a7M7j83si+4V2q5M7st+fbyfV20DosAKCvlB6M/nwEfmZMCx783VEWqKGOhByb7VjBgXDD3Y=@vger.kernel.org, AJvYcCVUZzXWgjV34OTs8EfLVhhQaGi2/z38a03J46nLGF1auR4Qj7o4grjZENsl80J6eW1u9Qb0uRZmupjC@vger.kernel.org, AJvYcCWJKdYc8V1uuGYDcDxFpYWxmtByQvbw1n1UOfCJgX2KlpxOfugHeAU1quzU4DHQ+i7RSR3weMJN1cTTX3CP@vger.kernel.org
+X-Gm-Message-State: AOJu0YxZqJw6axv/QgL+i3/8jmyU16p2YfgtEJBMeSM2dKRH4Rbj2GT0
+	K4oLmB9r3bXPeK34qsa6AKZp/YT2yMPn0ICGOQX/dGlCeG1hC4oO
+X-Gm-Gg: ASbGncuYlsp6C06F+hjoNE09Y8uSi3Z5HaRuzPWtqCpdBb/zx4LdaXvvJUlMNyJyaFo
+	mclXFnAzY5pQFWCFWirUL2kVPMcckw/BkRYPa4KT2HXCthhDKGjpFzc1PuDuT6n87Ygpg5ZPwH8
+	q47Pxr8wx7LFRZJoE8nPZeUky+dBqsw7GhrpH9BPVV7EDhMbJgzSojR6KyBL752DiCgfEtiFnHV
+	C9pLsgrzWcx6Gd9h3n9sIud5v86gjgpR4cGnhJs860yCPUB2aam8pGfnEgATqLZYtw7
+X-Google-Smtp-Source: AGHT+IFjIUHzuO2MBnqXBKlI2P4aoVJoD6xBmuIZQ/ueNl9n5qqJbUqwItJ883MoEIIeh9jzL5p2ug==
+X-Received: by 2002:a17:906:4fc7:b0:aab:c78c:a7ed with SMTP id a640c23a62f3a-aabf1cf01e1mr22140966b.49.1734457355131;
+        Tue, 17 Dec 2024 09:42:35 -0800 (PST)
+Received: from [192.168.31.111] ([194.39.226.133])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-aab96005f73sm467420566b.4.2024.12.17.09.42.33
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 17 Dec 2024 09:42:34 -0800 (PST)
+Message-ID: <685eb8ab-2767-43da-80d0-ec77ff779d86@gmail.com>
+Date: Tue, 17 Dec 2024 19:42:32 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: YEJ5j0YNKWh7fOd3NS_AbeHVFFqlrnFh
-X-Proofpoint-ORIG-GUID: oHQORVIhY3FjKRcbtuEduCLBHI18EaRk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1051,Hydra:6.0.680,FMLib:17.12.62.30
- definitions=2024-10-15_01,2024-10-11_01,2024-09-30_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0
- lowpriorityscore=0 malwarescore=0 bulkscore=0 clxscore=1015
- priorityscore=1501 adultscore=0 impostorscore=0 suspectscore=0
- mlxlogscore=999 spamscore=0 mlxscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.19.0-2411120000 definitions=main-2412170134
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1 1/2] dt-bindings: i2c: exynos5: Add
+ samsung,exynos8895-hsi2c compatible
+To: Krzysztof Kozlowski <krzk@kernel.org>,
+ Ivaylo Ivanov <ivo.ivanov.ivanov1@gmail.com>,
+ Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Alim Akhtar <alim.akhtar@samsung.com>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20241214220419.723100-1-ivo.ivanov.ivanov1@gmail.com>
+ <20241214220419.723100-2-ivo.ivanov.ivanov1@gmail.com>
+ <0ebc12ed-fe91-4c8a-a626-b735b0eeecf1@kernel.org>
+ <007559c5-f566-4625-99b7-e761a916fba3@gmail.com>
+ <cccca881-dd59-43c0-9072-dcd91d01671d@kernel.org>
+ <6e93d59d-71e5-4c09-862f-55b5504121aa@gmail.com>
+ <69fd1dbc-a29f-488c-a30f-7e5ea8f01a23@kernel.org>
+ <17fbfcdd-8b79-4907-a4c8-798da0ef0526@gmail.com>
+ <56c5788a-2d49-4abb-af4b-65a11bdc4094@kernel.org>
+Content-Language: en-US
+From: Markuss Broks <markuss.broks@gmail.com>
+In-Reply-To: <56c5788a-2d49-4abb-af4b-65a11bdc4094@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Add INTEL Common Redundant Power Supply Versions crps185 bindings as
-trivial. The hardware does not have any resources like clocks which are
-required to be included in the device tree.
+Hi Krzysztof,
 
-Acked-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Ninad Palsule <ninad@linux.ibm.com>
----
- Documentation/devicetree/bindings/trivial-devices.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+On 12/17/24 11:43 AM, Krzysztof Kozlowski wrote:
+> On 17/12/2024 10:31, Ivaylo Ivanov wrote:
+>> On 12/17/24 11:26, Krzysztof Kozlowski wrote:
+>>> On 17/12/2024 10:08, Ivaylo Ivanov wrote:
+>>>>>>>>         - items:
+>>>>>>>>             - enum:
+>>>>>>>> @@ -94,9 +95,28 @@ allOf:
+>>>>>>>>           - clock-names
+>>>>>>>>   
+>>>>>>>>       else:
+>>>>>>>> -      properties:
+>>>>>>>> -        clocks:
+>>>>>>>> -          maxItems: 1
+>>>>>>>> +      if:
+>>>>>>>> +        properties:
+>>>>>>>> +          compatible:
+>>>>>>>> +            contains:
+>>>>>>>> +              enum:
+>>>>>>>> +                - samsung,exynos8895-hsi2c
+>>>>>>>> +
+>>>>>>>> +      then:
+>>>>>>>> +        properties:
+>>>>>>>> +          clocks:
+>>>>>>> Missing minItems
+>>>>>>>
+>>>>>>>> +            maxItems: 2
+>>>>>>>> +
+>>>>>>>> +          clock-names:
+>>>>>>> Ditto
+>>>>>>>
+>>>>>>>> +            maxItems: 2
+>>>>>>>> +
+>>>>>>>> +        required:
+>>>>>>>> +          - clock-names
+>>>>>>> I don't understand why do you need second, same branch in if, basically
+>>>>>> Because, as I stated in the commit message, we have HSI2C controllers
+>>>>>> both implemented in USIv1 blocks and outside. These that are a part of
+>>>>> On Exynos8895? Where? With the same compatible?
+>>>> hsi2c_0 which has a clock from BUSC and hsi2c_1 to hsi2c_4 which use clocks
+>>>> from PERIC1 (CLK_GOUT_PERIC1_HSI2C_CAM{0,1,2,3}_IPCLK). Why would
+>>>> they need a different compatible though? It's functionally the same i2c design
+>>>> as the one implemented in USIv1 blocks.
+>>> If one block is part of USI and other not, they might not be the same
+>>> I2C blocks, even if interface is similar. If they were the same or even
+>>> functionally the same, they would have the same clock inputs. However
+>> I see, so in such case I should make samsung,exynos8895-hsi2c-nonusi or
+>> something like that?
+>>
+>>> user manual also suggests that there is only one clock, not two (for
+>>> both cases), so they could be functionally equivalent but then number of
+>>> clocks looks incorrect.
+>> That'd be weird. Both according to downstream and upstream clk driver,
+>> for the USI-implemented i2cs we have a pclk and an sclk_usi.
+> Something is not precise here, as usually with Samsung clock topology.
+>
+> First, the non-USI instances have the IPCLK as well, e.g. things like
+> PERIC1_UID_HSI2C_CAM1_IPCLKPORT_iPCLK
+>
+> USI have BLK_PERIC0_UID_USI03_IPCLKPORT_i_SCLK_USI, but that's USI
+> clock, not HSI2C in USI. Datasheet mentions this is UART and SPI special
+> clock, but not I2C. The PCLK is used for HSI2C iPCLK.
 
-diff --git a/Documentation/devicetree/bindings/trivial-devices.yaml b/Documentation/devicetree/bindings/trivial-devices.yaml
-index 34e8ac1ddc24..fadbd3c041c8 100644
---- a/Documentation/devicetree/bindings/trivial-devices.yaml
-+++ b/Documentation/devicetree/bindings/trivial-devices.yaml
-@@ -149,6 +149,8 @@ properties:
-           - injoinic,ip5306
-             # Inspur Power System power supply unit version 1
-           - inspur,ipsps1
-+            # Intel common redudant power supply crps185
-+          - intel,crps185
-             # Intersil ISL29028 Ambient Light and Proximity Sensor
-           - isil,isl29028
-             # Intersil ISL29030 Ambient Light and Proximity Sensor
--- 
-2.43.0
+In USI, USI PCLK is used for the internal AMBA APB bus clock and the 
+IPCLK signal is used for the peripheral controller blocks (i2c/spi/uart).
+
+So perhaps we have it described incorrectly, and the hsi2c controllers 
+(at least on E8895) should take only one clock input (IPCLK), and USI 
+block should take the PCLK input.
+
+
+>
+>
+> Best regards,
+> Krzysztof
+>
+
+- Markuss
 
