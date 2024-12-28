@@ -1,25 +1,25 @@
-Received: from fgw20-7.mail.saunalahti.fi (fgw20-7.mail.saunalahti.fi [62.142.5.81])
+Received: from fgw23-7.mail.saunalahti.fi (fgw23-7.mail.saunalahti.fi [62.142.5.84])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 464002744B
-	for <linux-i2c@vger.kernel.org>; Sat, 28 Dec 2024 23:36:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.81
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22B512744B
+	for <linux-i2c@vger.kernel.org>; Sat, 28 Dec 2024 23:37:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.142.5.84
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735428982; cv=none; b=aRc5bK6fY2Ck7DRmNBNDmxegZPxuIiijW1BIQjqQ4mpc04UeaW9dh6VDHwxI3nNfokw8g3KSHWlhC23RIEhdVcwPeGXh8HSiZXQ88aDhp3DOJtIJjID+dyEQFInTE9v+mcVpo7dIVGyChDdy4iVS4TJW+Vf35wB2VbhKdiCJfSc=
+	t=1735429071; cv=none; b=j5L2GJd1Fop8O0hpal1D+R460LEJJ9QTnKN/njI00gYHERATIEXqHMnuUSHP9AVUL/tZUOVt5ctyPedHIGsMRUWTvvh2PhRnTbox+EN/I/Ln2dfJS3fv1z7DEnh889CBJ9s5gMLsO2rkBVEzxihI3Qh7e79MXflramOi/q5iQX8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735428982; c=relaxed/simple;
-	bh=2Q6s2b4H5T/TFfZxexsTDIaXQWsP0D2YL2gOlXxZcVo=;
+	s=arc-20240116; t=1735429071; c=relaxed/simple;
+	bh=4P/JxsvWIy9nEkDkkdDgK8A7i6ezBs5pomUCP0e7j/I=;
 	h=From:Date:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=a8P0kv6YGRzyzfRbD0diXJ4WI9UlQ8W4gssRQEn+F0NMUj5IHG0aNauQqys3ylTj3HESS991EAKk6LYmCE1hMKcp+7MYRunPm7mZow1Hv5eu08X35fHK1cYDEay84emCvyg/m35TKJQp8j25XwrDqH6JlfjBCkr+3jKjplt1HMk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.81
+	 Content-Type:Content-Disposition:In-Reply-To; b=XJWYyfjhgy+a0xhlPFjza3C37MeNrOgiurg5zQN7GOth9hYxEIdMam6Yct5R1+oIjej5/RNYTczrXy4+is1xRKvO/AzX+H2vxu3dtZlt1e3O5fpStvQymab4ANgIon4KaFUdYYXLAQJlNgmQAVPL/oBNNTtjEkHAytRp5LXwTts=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=fail smtp.mailfrom=gmail.com; arc=none smtp.client-ip=62.142.5.84
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=gmail.com
 Received: from localhost (88-113-25-143.elisa-laajakaista.fi [88.113.25.143])
 	by fgw20.mail.saunalahti.fi (Halon) with ESMTP
-	id 59c7d618-c574-11ef-9c75-005056bd6ce9;
-	Sun, 29 Dec 2024 01:34:59 +0200 (EET)
+	id be12f6aa-c574-11ef-9c75-005056bd6ce9;
+	Sun, 29 Dec 2024 01:37:46 +0200 (EET)
 From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Sun, 29 Dec 2024 01:34:58 +0200
+Date: Sun, 29 Dec 2024 01:37:46 +0200
 To: Prabhakar <prabhakar.csengg@gmail.com>
 Cc: Chris Brandt <chris.brandt@renesas.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
@@ -31,10 +31,11 @@ Cc: Chris Brandt <chris.brandt@renesas.com>,
 	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
 	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
 	Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
-Subject: Re: [PATCH v3 3/8] i2c: riic: Use BIT macro consistently
-Message-ID: <Z3CLInVi43HW2Gmj@surfacebook.localdomain>
+Subject: Re: [PATCH v3 7/8] i2c: riic: Use predefined macro and simplify
+ clock tick calculation
+Message-ID: <Z3CLypNNqqlSsabo@surfacebook.localdomain>
 References: <20241227115154.56154-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
- <20241227115154.56154-4-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20241227115154.56154-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -43,19 +44,25 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20241227115154.56154-4-prabhakar.mahadev-lad.rj@bp.renesas.com>
+In-Reply-To: <20241227115154.56154-8-prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-Fri, Dec 27, 2024 at 11:51:49AM +0000, Prabhakar kirjoitti:
+Fri, Dec 27, 2024 at 11:51:53AM +0000, Prabhakar kirjoitti:
 > From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 > 
-> Easier to read and ensures proper types.
+> Replace the hardcoded `1000000000` with the predefined `NANO` macro for
+> clarity. Simplify the code by introducing a `ns_per_tick` variable to
+> store `NANO / rate`, reducing redundancy and improving readability.
 
 ...
 
->  #include <linux/pm_runtime.h>
->  #include <linux/reset.h>
+> -	brl -= t->scl_fall_ns / (1000000000 / rate);
+> -	brh -= t->scl_rise_ns / (1000000000 / rate);
+> +	ns_per_tick = NANO / rate;
 
-Does it include bits.h or equivalent (bitops.h, bitmap.h)?
+So, why NANO and not NSEC_PER_SEC?
+
+> +	brl -= t->scl_fall_ns / ns_per_tick;
+> +	brh -= t->scl_rise_ns / ns_per_tick;
 
 -- 
 With Best Regards,
