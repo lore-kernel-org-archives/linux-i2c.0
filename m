@@ -1,342 +1,203 @@
-Received: from relay2-d.mail.gandi.net (relay2-d.mail.gandi.net [217.70.183.194])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89E411AA1D9;
-	Mon, 30 Dec 2024 13:22:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.194
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC3DB7FBA2;
+	Mon, 30 Dec 2024 13:42:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1735564953; cv=none; b=DkW3uwOt4fm/eF2ckNQaaahmwujQPl/jZWxDYrfvLrstexfEIRga3TfTmzYW7NKUVN1NTVMO62OADP9Hw93py8WQNXImfi99GlsK13NZTFeCFJGeFOpHLLNp13f6kVy3+KzWv2CX8HUy1hsWln9g5sWyL05NSKxCtvt3Lwkr/6k=
+	t=1735566137; cv=none; b=QjjeHlQWMD1q29et1oD14YnogAhgs/MlCoxJHmixVuDHuaCAOEatrihEm9gt5Ze69N/aYc1ldMUUGrW3+CiWLdRfRpMaubyN27DVbC9roiBUNY056YaAVkluMIEDQ5iJIgCGeYKe+rmloBijspTlpritEpgt8vWU378ZsKlJ8+Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1735564953; c=relaxed/simple;
-	bh=Zlwg82ihfxku4eX1AGIv7QBX7yJUlB4SpafhECHnKdo=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=LYZTlQ+a0LkzssXIqs+j7NPzVB3RnP6Fq2jHm31dQnA2cTt4G8Rr3qI5xEAXTi+VDn5HAGxwB5OBDkYZOOKm2iH4TQZ1yFvhv96kiNW82B10q/o4Kw/h4N7cJfZuR7FPaHlIZ9gLNfdjTOLfB5ncMhvTh4Htd3OmguNrg7TL5dc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Dw7EyHxA; arc=none smtp.client-ip=217.70.183.194
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1735566137; c=relaxed/simple;
+	bh=RRstVgqGjIGSlt3vNfSkWP23nEiFVKZ+4papRtDajBo=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=T0ASVXWmH+an/1sMxGWRGwoD4sjoIZBushLvRy6gw5LlyS6iGasmrRosH4Vgj1l2qFJkFdWtJ48oU852ZbWjVu+c2uZrcX/GoELQH3fU80Ng5HWIItTY4vQcL2sWve/g4KfxXmBSGm4MvfsFQLLI2MFZKjdqMBSMQreZ4n/YrsA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Dk9epxbP; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Dw7EyHxA"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id DC8284000E;
-	Mon, 30 Dec 2024 13:22:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1735564941;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ArJmBTdwxyXPc5pO+LU8aqRoYuD2cdEQ+qKssHyQIbw=;
-	b=Dw7EyHxAhwzDeW5KxAPqC+jmePStQvPeUvLic1k14PAITW0YgEivMpM0BJeVQ5+g/C4q4P
-	QyvKtp1xazg3YrmTaeIOVRZ8iO2WuNGqVygxyFqjcOSfFgx4vGgONGX2ATwBxYQFahR7S2
-	HbfvxF5Cze1tu0+F2uxRhBnctsm8z/FUjn84g0AXwvwNqc6UXTCKvDXXjanhGldotTdPLd
-	0Ir9giWzxs1QoucwI2uowqEfa3srMyFAENvhxq6KGUWC7A2QHEKBrXxE72ZOFbmIB3oxw9
-	YvjdHaFmjmM5pwB/WaQLxW5KGJY+qorfLrrckcZIqtLRjFhjOzxhWzI7Y8aGyg==
-From: Romain Gantois <romain.gantois@bootlin.com>
-Date: Mon, 30 Dec 2024 14:22:06 +0100
-Subject: [PATCH v4 4/9] i2c: use client addresses directly in ATR interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Dk9epxbP"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4361dc6322fso59860945e9.3;
+        Mon, 30 Dec 2024 05:42:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1735566134; x=1736170934; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Wh0/koVnZGBw11/xWnyoQEpirfrGnOzH29NTecWYvEc=;
+        b=Dk9epxbPo3aNwci5F3OS6f8WxNmmrlhzYctSSQSAVqzm4/T6/3FVWS7uTteNpNTkgT
+         HmeRvF42IbqhlHNhgo5m6WshRvk/PLv3lYCIdaBe3Da4fYkMzyEJ3765xfdO8dRMGq2n
+         ygdpx3WuJBnoIPp0Li07UJAPo8BJs5MmO1b6foGV823xFjvruln23L2FYWu/vV5VlJ47
+         SEjQ1A/fvoEZmQXBCXipzP/riZ6rTntcLGuq+w83hwt689b7jL2TpXNQgGVJTeUvpuda
+         NsLul8ZXMUsa60cZ2RJ2K1fOYsPLJ+hNLSoKuZg8A7+d3wn2SGLMVkt7KfNBgRb7CVAV
+         w1jg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1735566134; x=1736170934;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Wh0/koVnZGBw11/xWnyoQEpirfrGnOzH29NTecWYvEc=;
+        b=FtW6W0UkIvZ1+E2q8Yr5QIAXOZZVdUaVND9/vEv5iEAYO8eUSytzIU6NLWELT7j/Lg
+         49J/ungAL+zs4MzJKpoCWYhV942U+LW6789hF4NTZQwYhHH1XH2iw/6YUpSGYgHCwVTR
+         joMRgyTzTEIyzWJkLyK9MUaWX8N87v2vClnet3ym3CLc19tGaGadUjJcAh7r68uBTc6+
+         9L3rGcQZFVFyVSuGg1Y4vJxCEPR74p3of/UVUoBzJwYJtEr6dvUyx/hDppkEHKYiRHdu
+         puJY7WIdRPwVIu91Me/ElgyS31KboQm4MLbHu0UCiIFKhlvdJzFe8Tv5CRRAHoxqIl4U
+         ehWw==
+X-Forwarded-Encrypted: i=1; AJvYcCVJRHRcuOGiVewoo4mgYXEyLKu+uQPCe/XudUNj7pgb9b/+tXWAstiZwTjrL/GqGDJwZH6OVv5hnsILR+AO@vger.kernel.org, AJvYcCXtbY649K+nRnxSeu8TFfj5uoj64ObsNaqLj6WcQbc7/0de7AY8PNaqiUjgJMVcBveu1cyRYHNsjwE=@vger.kernel.org
+X-Gm-Message-State: AOJu0YywegoPh+GP+yRU9Z7g5xlJ9Rmf0gBWGbYdwoVKv/J64s+ezNlj
+	Hod6dqeoVYu+9F+1mumS6ZP4nYTGqw7Oqyq0nyYVJuTjBvPcVLfY
+X-Gm-Gg: ASbGncvy/Dz7bufp7QPp8qi0piJXIdM+okad4iwlded1+bRpMO/AIw7mcpg6CGB+qdj
+	2r7o+cahKCDb5mLDjlltrT8Fm7HOQGwP/zvnnElp5zZzfLMosxePxnEpQ2sOI8cMcUcFvHlPO/M
+	qEbDOZaqrboRfvu/0cUMf17crD9dIl45q0OmBgmahoXkZAIiNvHsLs7KAk79TcqxBjyePQtzPKH
+	TZaTaloIhK6pTIYQejssWoRMy+USYuaI54xwIaQT2+qhw+uGyA4inJKPhxupZVsc4B+XL/jp6IN
+	+ITVURQ2xMlw4q0ksDj26As=
+X-Google-Smtp-Source: AGHT+IH/W9ZyRP5w/ZkvscWMXlidFRHHE7Zogvnpnkb2AEkwNEYIIlNUsvh1RmOLYQGz8GeMwSskpw==
+X-Received: by 2002:a05:6000:4a03:b0:385:fcfb:8d4f with SMTP id ffacd0b85a97d-38a221fae8amr30030347f8f.21.1735566133929;
+        Mon, 30 Dec 2024 05:42:13 -0800 (PST)
+Received: from dsl-u17-10 (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a1c833899sm30097226f8f.42.2024.12.30.05.42.12
+        (version=TLS1_2 cipher=ECDHE-ECDSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 30 Dec 2024 05:42:13 -0800 (PST)
+Date: Mon, 30 Dec 2024 13:42:12 +0000
+From: David Laight <david.laight.linux@gmail.com>
+To: Uwe =?UTF-8?B?S2xlaW5lLUvDtm5pZw==?= <u.kleine-koenig@baylibre.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, andi.shyti@kernel.org,
+ andriy.shevchenko@linux.intel.com, masahiroy@kernel.org,
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Subject: Re: [PATCH] module: Allow DEFAULT_SYMBOL_NAMESPACE be set after
+ export.h included
+Message-ID: <20241230134212.18af06f8@dsl-u17-10>
+In-Reply-To: <k3zeri45onxbumirsdq3egiy6hdp4x4wcuqj3phv6uddjmmyrd@yr6v4lqxadxu>
+References: <20241228184328.5ced280b@dsl-u17-10>
+	<CAHk-=wi=7gHNhr0tOKQzSAhzR1TeAGQHYgh5+F1thaQkOZ094g@mail.gmail.com>
+	<20241229005936.4d54f2a6@dsl-u17-10>
+	<ytxbpm4zmausomklykqeqaw3nnkaurqwsi76uejgq655ylmxyd@ubbetotmrqo3>
+	<20241230120303.691e7a5c@dsl-u17-10>
+	<k3zeri45onxbumirsdq3egiy6hdp4x4wcuqj3phv6uddjmmyrd@yr6v4lqxadxu>
+X-Mailer: Claws Mail 3.16.0 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20241230-fpc202-v4-4-761b297dc697@bootlin.com>
-References: <20241230-fpc202-v4-0-761b297dc697@bootlin.com>
-In-Reply-To: <20241230-fpc202-v4-0-761b297dc697@bootlin.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
- Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, 
- Luca Ceresoli <luca.ceresoli@bootlin.com>, 
- Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Derek Kiernan <derek.kiernan@amd.com>, 
- Dragan Cvetic <dragan.cvetic@amd.com>, Arnd Bergmann <arnd@arndb.de>, 
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- Mauro Carvalho Chehab <mchehab@kernel.org>, 
- Linus Walleij <linus.walleij@linaro.org>, 
- Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
- Kory Maincent <kory.maincent@bootlin.com>, linux-i2c@vger.kernel.org, 
- linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-media@vger.kernel.org, linux-gpio@vger.kernel.org, 
- Romain Gantois <romain.gantois@bootlin.com>
-X-Mailer: b4 0.14.2
-X-GND-Sasl: romain.gantois@bootlin.com
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-The I2C Address Translator (ATR) module defines mappings from i2c_client
-structs to aliases. However, only the physical address of each i2c_client
-struct is actually relevant to the workings of the ATR module. Moreover,
-some drivers require address translation functionality but do not allocate
-i2c_client structs, accessing the adapter directly instead. The SFP
-subsystem is an example of this.
+On Mon, 30 Dec 2024 13:54:45 +0100
+Uwe Kleine-K=C3=B6nig <u.kleine-koenig@baylibre.com> wrote:
 
-Replace the "i2c_client" field of the i2c_atr_alias_pair struct with a u16
-"addr" field. Rewrite helper functions and callbacks as needed.
+> Hello David,
+>=20
+> On Mon, Dec 30, 2024 at 12:03:03PM +0000, David Laight wrote:
+> > On Mon, 30 Dec 2024 10:42:55 +0100
+> > Uwe Kleine-K=C3=B6nig <u.kleine-koenig@baylibre.com> wrote:
+> >  =20
+> > > On Sun, Dec 29, 2024 at 12:59:36AM +0000, David Laight wrote: =20
+> > > > On Sat, 28 Dec 2024 15:29:24 -0800
+> > > > Linus Torvalds <torvalds@linux-foundation.org> wrote:
+> > > >    =20
+> > > > > On Sat, 28 Dec 2024 at 10:43, David Laight <david.laight.linux@gm=
+ail.com> wrote:   =20
+> > > > > >
+> > > > > > Instead just default DEFAULT_SYMBOL_NAMESPACE to "" and remove =
+the
+> > > > > > extra _EXPORT_SYMBOL() wrapper.
+> > > > > >
+> > > > > > This lets DEFAULT_SYMBOL_NAMESPACE be defined after export.h is=
+ included.     =20
+> > > > >=20
+> > > > > Grr. This is horribly ugly.   =20
+> > > >=20
+> > > > I thought it was a neater 'ugly' than the current definitions in ex=
+port.h
+> > > >    =20
+> > > > > I think the i2c code should just be fixed to use the proper "defi=
+ne
+> > > > > namespace early".   =20
+> > > >=20
+> > > > The i2c changes were needed because I found the code wouldn't compi=
+le.
+> > > > It is pretty easy mistake to make and will happen again.   =20
+> > >=20
+> > > There is
+> > > https://lore.kernel.org/linux-i2c/20241203173640.1648939-2-u.kleine-k=
+oenig@baylibre.com
+> > > that moves the DEFAULT_SYMBOL_NAMESPACE above the #include block for =
+the
+> > > i2c driver. Though it seems I missed ...master.c. (I'll address that.)
+> > >  =20
+> > > > and does - I missed drivers/pwm/pwm-lpss.c drivers/hwmon/nct6775-co=
+re.c
+> > > > and drivers/pwm/pwm-lpss.c   =20
+> > >=20
+> > > drivers/pwm/pwm-lpss.c is addressed by
+> > > https://lore.kernel.org/linux-pwm/cover.1733245406.git.ukleinek@kerne=
+l.org
+> > >=20
+> > > the hwmon driver is addressed by
+> > > https://lore.kernel.org/linux-hwmon/20241203173149.1648456-2-u.kleine=
+-koenig@baylibre.com
+> > > (and applied in next)
+> > >=20
+> > > There is also drivers/gpio/gpio-idio-16.c (which I guess you intended=
+ to
+> > > list instead of the pwm driver twice), which I sent a patch for at
+> > > https://lore.kernel.org/linux-gpio/20241203172631.1647792-2-u.kleine-=
+koenig@baylibre.com
+> > > (also already applied in next). =20
+> >=20
+> >=20
+> > With all those applied it is probably worth applying my change to expor=
+t.h
+> > (which is all I really wanted to do - until the build failures.)
+> >=20
+> > diff --git a/include/linux/export.h b/include/linux/export.h
+> > index 2633df4d31e6..6cea1c3982cd 100644
+> > --- a/include/linux/export.h
+> > +++ b/include/linux/export.h
+> > @@ -59,14 +59,12 @@
+> >=20
+> >  #endif
+> >=20
+> > -#ifdef DEFAULT_SYMBOL_NAMESPACE
+> > -#define _EXPORT_SYMBOL(sym, license)   __EXPORT_SYMBOL(sym, license, D=
+EFAULT_SYMBOL_NAMESPACE) =20
+>=20
+> If you keep the above definition (without the #ifdef), you don't need to
+> touch the definitions of EXPORT_SYMBOL and EXPORT_SYMBOL_GPL below.
+> Probably a matter of taste.
 
-Signed-off-by: Romain Gantois <romain.gantois@bootlin.com>
----
- drivers/i2c/i2c-atr.c         | 52 ++++++++++++++++---------------------------
- drivers/media/i2c/ds90ub960.c | 24 ++++++++++----------
- include/linux/i2c-atr.h       | 20 ++++++++---------
- 3 files changed, 41 insertions(+), 55 deletions(-)
+The extra wrapper just makes it harder to read (and will be immeasurably sl=
+ower to
+compile).
 
-diff --git a/drivers/i2c/i2c-atr.c b/drivers/i2c/i2c-atr.c
-index f21475ae592183a45b5e46a20e7a0699fb88132c..894787246846b9965deb03a7ec7eb600b102ddad 100644
---- a/drivers/i2c/i2c-atr.c
-+++ b/drivers/i2c/i2c-atr.c
-@@ -21,16 +21,16 @@
- #define ATR_MAX_SYMLINK_LEN 11	/* Longest name is 10 chars: "channel-99" */
- 
- /**
-- * struct i2c_atr_alias_pair - Holds the alias assigned to a client.
-+ * struct i2c_atr_alias_pair - Holds the alias assigned to a client address.
-  * @node:   List node
-- * @client: Pointer to the client on the child bus
-+ * @addr:   Address of the client on the child bus.
-  * @alias:  I2C alias address assigned by the driver.
-  *          This is the address that will be used to issue I2C transactions
-  *          on the parent (physical) bus.
-  */
- struct i2c_atr_alias_pair {
- 	struct list_head node;
--	const struct i2c_client *client;
-+	u16 addr;
- 	u16 alias;
- };
- 
-@@ -97,27 +97,13 @@ struct i2c_atr {
- 	struct i2c_adapter *adapter[] __counted_by(max_adapters);
- };
- 
--static struct i2c_atr_alias_pair *
--i2c_atr_find_mapping_by_client(const struct list_head *list,
--			       const struct i2c_client *client)
--{
--	struct i2c_atr_alias_pair *c2a;
--
--	list_for_each_entry(c2a, list, node) {
--		if (c2a->client == client)
--			return c2a;
--	}
--
--	return NULL;
--}
--
- static struct i2c_atr_alias_pair *
- i2c_atr_find_mapping_by_addr(const struct list_head *list, u16 phys_addr)
- {
- 	struct i2c_atr_alias_pair *c2a;
- 
- 	list_for_each_entry(c2a, list, node) {
--		if (c2a->client->addr == phys_addr)
-+		if (c2a->addr == phys_addr)
- 			return c2a;
- 	}
- 
-@@ -313,8 +299,8 @@ static void i2c_atr_release_alias(struct i2c_atr *atr, u16 alias)
- 	dev_warn(atr->dev, "Unable to find mapped alias\n");
- }
- 
--static int i2c_atr_attach_client(struct i2c_adapter *adapter,
--				 const struct i2c_client *client)
-+static int i2c_atr_attach_addr(struct i2c_adapter *adapter,
-+			       u16 addr)
- {
- 	struct i2c_atr_chan *chan = adapter->algo_data;
- 	struct i2c_atr *atr = chan->atr;
-@@ -334,14 +320,14 @@ static int i2c_atr_attach_client(struct i2c_adapter *adapter,
- 		goto err_release_alias;
- 	}
- 
--	ret = atr->ops->attach_client(atr, chan->chan_id, client, alias);
-+	ret = atr->ops->attach_addr(atr, chan->chan_id, addr, alias);
- 	if (ret)
- 		goto err_free;
- 
--	dev_dbg(atr->dev, "chan%u: client 0x%02x mapped at alias 0x%02x (%s)\n",
--		chan->chan_id, client->addr, alias, client->name);
-+	dev_dbg(atr->dev, "chan%u: addr 0x%02x mapped at alias 0x%02x\n",
-+		chan->chan_id, addr, alias);
- 
--	c2a->client = client;
-+	c2a->addr = addr;
- 	c2a->alias = alias;
- 	list_add(&c2a->node, &chan->alias_list);
- 
-@@ -355,16 +341,16 @@ static int i2c_atr_attach_client(struct i2c_adapter *adapter,
- 	return ret;
- }
- 
--static void i2c_atr_detach_client(struct i2c_adapter *adapter,
--				  const struct i2c_client *client)
-+static void i2c_atr_detach_addr(struct i2c_adapter *adapter,
-+				u16 addr)
- {
- 	struct i2c_atr_chan *chan = adapter->algo_data;
- 	struct i2c_atr *atr = chan->atr;
- 	struct i2c_atr_alias_pair *c2a;
- 
--	atr->ops->detach_client(atr, chan->chan_id, client);
-+	atr->ops->detach_addr(atr, chan->chan_id, addr);
- 
--	c2a = i2c_atr_find_mapping_by_client(&chan->alias_list, client);
-+	c2a = i2c_atr_find_mapping_by_addr(&chan->alias_list, addr);
- 	if (!c2a) {
- 		 /* This should never happen */
- 		dev_warn(atr->dev, "Unable to find address mapping\n");
-@@ -374,8 +360,8 @@ static void i2c_atr_detach_client(struct i2c_adapter *adapter,
- 	i2c_atr_release_alias(atr, c2a->alias);
- 
- 	dev_dbg(atr->dev,
--		"chan%u: client 0x%02x unmapped from alias 0x%02x (%s)\n",
--		chan->chan_id, client->addr, c2a->alias, client->name);
-+		"chan%u: addr 0x%02x unmapped from alias 0x%02x\n",
-+		chan->chan_id, addr, c2a->alias);
- 
- 	list_del(&c2a->node);
- 	kfree(c2a);
-@@ -405,7 +391,7 @@ static int i2c_atr_bus_notifier_call(struct notifier_block *nb,
- 
- 	switch (event) {
- 	case BUS_NOTIFY_ADD_DEVICE:
--		ret = i2c_atr_attach_client(client->adapter, client);
-+		ret = i2c_atr_attach_addr(client->adapter, client->addr);
- 		if (ret)
- 			dev_err(atr->dev,
- 				"Failed to attach remote client '%s': %d\n",
-@@ -413,7 +399,7 @@ static int i2c_atr_bus_notifier_call(struct notifier_block *nb,
- 		break;
- 
- 	case BUS_NOTIFY_DEL_DEVICE:
--		i2c_atr_detach_client(client->adapter, client);
-+		i2c_atr_detach_addr(client->adapter, client->addr);
- 		break;
- 
- 	default:
-@@ -506,7 +492,7 @@ struct i2c_atr *i2c_atr_new(struct i2c_adapter *parent, struct device *dev,
- 	if (max_adapters > ATR_MAX_ADAPTERS)
- 		return ERR_PTR(-EINVAL);
- 
--	if (!ops || !ops->attach_client || !ops->detach_client)
-+	if (!ops || !ops->attach_addr || !ops->detach_addr)
- 		return ERR_PTR(-EINVAL);
- 
- 	atr = kzalloc(struct_size(atr, adapter, max_adapters), GFP_KERNEL);
-diff --git a/drivers/media/i2c/ds90ub960.c b/drivers/media/i2c/ds90ub960.c
-index 0510427ac4e9214132bcdf3fa18873ec78c48a5e..52d6879986ed4fcbe8ce3d75e04018b336beabf9 100644
---- a/drivers/media/i2c/ds90ub960.c
-+++ b/drivers/media/i2c/ds90ub960.c
-@@ -1025,8 +1025,8 @@ static int ub960_ind_update_bits(struct ub960_data *priv, u8 block, u8 reg,
-  * I2C-ATR (address translator)
-  */
- 
--static int ub960_atr_attach_client(struct i2c_atr *atr, u32 chan_id,
--				   const struct i2c_client *client, u16 alias)
-+static int ub960_atr_attach_addr(struct i2c_atr *atr, u32 chan_id,
-+				 u16 addr, u16 alias)
- {
- 	struct ub960_data *priv = i2c_atr_get_driver_data(atr);
- 	struct ub960_rxport *rxport = priv->rxports[chan_id];
-@@ -1047,23 +1047,23 @@ static int ub960_atr_attach_client(struct i2c_atr *atr, u32 chan_id,
- 		goto out_unlock;
- 	}
- 
--	rxport->aliased_addrs[reg_idx] = client->addr;
-+	rxport->aliased_addrs[reg_idx] = addr;
- 
- 	ub960_rxport_write(priv, chan_id, UB960_RR_SLAVE_ID(reg_idx),
--			   client->addr << 1);
-+			   addr << 1);
- 	ub960_rxport_write(priv, chan_id, UB960_RR_SLAVE_ALIAS(reg_idx),
- 			   alias << 1);
- 
- 	dev_dbg(dev, "rx%u: client 0x%02x assigned alias 0x%02x at slot %u\n",
--		rxport->nport, client->addr, alias, reg_idx);
-+		rxport->nport, addr, alias, reg_idx);
- 
- out_unlock:
- 	mutex_unlock(&rxport->aliased_addrs_lock);
- 	return ret;
- }
- 
--static void ub960_atr_detach_client(struct i2c_atr *atr, u32 chan_id,
--				    const struct i2c_client *client)
-+static void ub960_atr_detach_addr(struct i2c_atr *atr, u32 chan_id,
-+				  u16 addr)
- {
- 	struct ub960_data *priv = i2c_atr_get_driver_data(atr);
- 	struct ub960_rxport *rxport = priv->rxports[chan_id];
-@@ -1073,13 +1073,13 @@ static void ub960_atr_detach_client(struct i2c_atr *atr, u32 chan_id,
- 	mutex_lock(&rxport->aliased_addrs_lock);
- 
- 	for (reg_idx = 0; reg_idx < UB960_MAX_PORT_ALIASES; reg_idx++) {
--		if (rxport->aliased_addrs[reg_idx] == client->addr)
-+		if (rxport->aliased_addrs[reg_idx] == addr)
- 			break;
- 	}
- 
- 	if (reg_idx == UB960_MAX_PORT_ALIASES) {
- 		dev_err(dev, "rx%u: client 0x%02x is not mapped!\n",
--			rxport->nport, client->addr);
-+			rxport->nport, addr);
- 		goto out_unlock;
- 	}
- 
-@@ -1088,15 +1088,15 @@ static void ub960_atr_detach_client(struct i2c_atr *atr, u32 chan_id,
- 	ub960_rxport_write(priv, chan_id, UB960_RR_SLAVE_ALIAS(reg_idx), 0);
- 
- 	dev_dbg(dev, "rx%u: client 0x%02x released at slot %u\n", rxport->nport,
--		client->addr, reg_idx);
-+		addr, reg_idx);
- 
- out_unlock:
- 	mutex_unlock(&rxport->aliased_addrs_lock);
- }
- 
- static const struct i2c_atr_ops ub960_atr_ops = {
--	.attach_client = ub960_atr_attach_client,
--	.detach_client = ub960_atr_detach_client,
-+	.attach_addr = ub960_atr_attach_addr,
-+	.detach_addr = ub960_atr_detach_addr,
- };
- 
- static int ub960_init_atr(struct ub960_data *priv)
-diff --git a/include/linux/i2c-atr.h b/include/linux/i2c-atr.h
-index 4d5da161c22516b3294e73702ace7a4546cdd588..14c1f9175c0db6a8a9c6ef5d771ae68361132a76 100644
---- a/include/linux/i2c-atr.h
-+++ b/include/linux/i2c-atr.h
-@@ -20,20 +20,20 @@ struct i2c_atr;
- 
- /**
-  * struct i2c_atr_ops - Callbacks from ATR to the device driver.
-- * @attach_client: Notify the driver of a new device connected on a child
-- *                 bus, with the alias assigned to it. The driver must
-- *                 configure the hardware to use the alias.
-- * @detach_client: Notify the driver of a device getting disconnected. The
-- *                 driver must configure the hardware to stop using the
-- *                 alias.
-+ * @attach_addr: Notify the driver of a new device connected on a child
-+ *               bus, with the alias assigned to it. The driver must
-+ *               configure the hardware to use the alias.
-+ * @detach_addr: Notify the driver of a device getting disconnected. The
-+ *               driver must configure the hardware to stop using the
-+ *               alias.
-  *
-  * All these functions return 0 on success, a negative error code otherwise.
-  */
- struct i2c_atr_ops {
--	int (*attach_client)(struct i2c_atr *atr, u32 chan_id,
--			     const struct i2c_client *client, u16 alias);
--	void (*detach_client)(struct i2c_atr *atr, u32 chan_id,
--			      const struct i2c_client *client);
-+	int (*attach_addr)(struct i2c_atr *atr, u32 chan_id,
-+			   u16 addr, u16 alias);
-+	void (*detach_addr)(struct i2c_atr *atr, u32 chan_id,
-+			    u16 addr);
- };
- 
- /**
+> > -#else
+> > -#define _EXPORT_SYMBOL(sym, license)   __EXPORT_SYMBOL(sym, license, "=
+")
+> > +#ifndef DEFAULT_SYMBOL_NAMESPACE
+> > +#define DEFAULT_SYMBOL_NAMESPACE ""
+> >  #endif
+> >=20
+> > -#define EXPORT_SYMBOL(sym)             _EXPORT_SYMBOL(sym, "")
+> > -#define EXPORT_SYMBOL_GPL(sym)         _EXPORT_SYMBOL(sym, "GPL")
+> > +#define EXPORT_SYMBOL(sym)             __EXPORT_SYMBOL(sym, "", DEFAUL=
+T_SYMBOL_NAMESPACE)
+> > +#define EXPORT_SYMBOL_GPL(sym)         __EXPORT_SYMBOL(sym, "GPL", DEF=
+AULT_SYMBOL_NAMESPACE)
+> >  #define EXPORT_SYMBOL_NS(sym, ns)      __EXPORT_SYMBOL(sym, "", ns)
+> >  #define EXPORT_SYMBOL_NS_GPL(sym, ns)  __EXPORT_SYMBOL(sym, "GPL", ns)
+> >=20
+> > It would be 'nice' to get that into 6.13 (along with the other changes =
+that
+> > remove __stringify()) - but it is getting late in the rc cycle now. =20
+>=20
+> I'm pretty sure we won't get all my changes into v6.13.
 
--- 
-2.47.1
+Indeed: Linus would have to like them and 'just apply them' :-)
+
+	David
+
+>=20
+> Best regards
+> Uwe
 
