@@ -1,103 +1,209 @@
-Received: from mail-lj1-f171.google.com (mail-lj1-f171.google.com [209.85.208.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 909A01DB540
-	for <linux-i2c@vger.kernel.org>; Mon,  6 Jan 2025 10:31:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F06C1DE3AD;
+	Mon,  6 Jan 2025 13:51:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736159499; cv=none; b=FMdRDys0oNnYqGQSZIfUVu1CS9K/0vxA1c8YDXFqX+Up/pUWs1A49cXnnKijqQoRnMmDqU0LoIrAn1Ewp13ryfjqeVud3LA1FltnOtocfiw4IQD+I6jl/faw3GMPnWEfbZaLC6xZHmv11/XsEpv9P6NMlpVMRy5ZNtFjqs0NV0c=
+	t=1736171502; cv=none; b=uOZXOsZYC0PvR5Lyv1WVzAXnGvkooHBTWMlPxFBPXYygj902qvg5kfH9XiWywmzML1Bc72cTQeL06G/rYSZ5IOsNUQj9ZPCurS1UbLJk/ZEJaCFcb/r6Y5Lpm4j79CIKV3mUX190u1RSN7qHI+HrKBWfTUouyxltzujuwqw4BEE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736159499; c=relaxed/simple;
-	bh=hNHQY6hbUh82jZV4XF67JxgFkShGL8GqnQh2CtEYaBo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=AqZ94zHNwny2mlXSrG3Kn5+eexGrfYnodzt6UwCihuiyYBPsoQu55iFLA1FZW8t+/K4RU6uLZiUtAV8vvDqNB+N1FVU6fAemBczd632bVGY+a8j8PveVqdNMucd2Iqqr3tx/D4SI5GNSr08GkbilO2PwCYPxjJC6SfAUQDd1KEI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bgdev.pl; spf=none smtp.mailfrom=bgdev.pl; dkim=pass (2048-bit key) header.d=bgdev-pl.20230601.gappssmtp.com header.i=@bgdev-pl.20230601.gappssmtp.com header.b=XhTJ6zPa; arc=none smtp.client-ip=209.85.208.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bgdev.pl
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bgdev.pl
+	s=arc-20240116; t=1736171502; c=relaxed/simple;
+	bh=9cbt6uU2Bhth2rTU/9lUv7C/QAINveDuqpZQMALpw+o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VrRoM64VB5T8qkE/lD8MrfJLWEe66cJQVF97lHrBfU3UNZZnsgGy8FaeM2tD/6fkGRylsY322lMH+wXVnaoF6oJa//+n2Pcx5gM4c4FvZ/82kOtQWtZove49o7Rb+plWpyPUuduBvdrfP2vnI8P9VdRjPWcGeVSoJPuS/h7zhZg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HONbxsFL; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20230601.gappssmtp.com header.i=@bgdev-pl.20230601.gappssmtp.com header.b="XhTJ6zPa"
-Received: by mail-lj1-f171.google.com with SMTP id 38308e7fff4ca-3003d7ca01cso150616091fa.0
-        for <linux-i2c@vger.kernel.org>; Mon, 06 Jan 2025 02:31:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20230601.gappssmtp.com; s=20230601; t=1736159495; x=1736764295; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=XankIvDMHUqYhqUmdSBV0fOsVivenUwuoWrt76c4yck=;
-        b=XhTJ6zPatBgXX7jUvLxiaGG+jcFh2pHoyDOpnDINIyJUIj6oyBIAu0UMuaedtOrQUq
-         dWcYpjRjS/QEasu0c7POtGzrWLFa+wQK2Pk+wP0RbsOo0IiIZY9OUqeEmr3IaPKkEjqU
-         pVxLTzMwPLIw3/ZiZ7oEMOv7xKyZvcF0P3OWN8LkreAOxGFXNkqfafz5loUxrrBCH2iI
-         ZQJ0Zi/OraEb86NL2oT17bPMkZRJDxdS4dJ9QIQjdkSQtYgGgFnH7d0aF3H4/ttyEZ+i
-         m6FQNf95fNYl4IbQQcVcMglaXve8PJCB8KhSd2iHQuAbKa8YE8Bi4/QsoVAtUOfnAdE8
-         KhXw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736159495; x=1736764295;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=XankIvDMHUqYhqUmdSBV0fOsVivenUwuoWrt76c4yck=;
-        b=JhymW8a1XWd672lNiY3naE9hoOLIS3pDB86CLOEi3Qg3axo4cUorvC1Ys11EO0rhFx
-         risV6187wjpNDOKAu8X8H1/1vhFMGK8MphDio1Hx9ATXVAmhXI9HshdI6CqxS5HLPIYO
-         x52kadmpWM8GhyRZGub5sd1qP/9/xKx8OHBdPZZOSeE2veFfDKf9PY4hSnkxO8sg04Vq
-         s5bdctzCTRIPtptznVHVfhrowmrhK0ALFcPCmhctS2pNHhnxttoicKIkdgjJn+eUphzH
-         uSSKMMvzl3kuBCbql0rm+mdESdOyIMlNY3Vi5v/MlaNMBwF4ThnnWwPKeR8TtkrxeIMC
-         WxXQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUntPYPBe6VRzxQQWkAwbtaAHi37Y/ak1/SmRcES98HN5g2hE+lg9pUaNKMMXeV1LMfI1S+2YbbnR0=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx3Qyg6vqPK4DF5KQazGpg1MmdprlEv8Z97ZZp9Jlu3A6nhlshX
-	/sRtomNei+9fQyQ8p252FyHRlptqYgIrd8zOl2EFHd5vRC1YHlps/mey0ka2MD9i7+R+XKZuf+G
-	TRx8cfVSzO1I93OlBuZ2cxhg/BwuhjJ/PzzJPkzaAh44LK1tw
-X-Gm-Gg: ASbGncu3Dev+/oVOD3Vsp2aHHPPE5j9EIqRk7Ys352E5dnN1O8uFRr3CHNvUh+vO+ER
-	6FBAeVOv05w4cn9rz8OqpD969gqOliklsKLGa8fASXZnQM/8t8pFtikw/d+l1VN6pnLA=
-X-Google-Smtp-Source: AGHT+IEiDRVszLPNSWReELs+FvHEEQT4b591zdm5BwFAgIooM/r46g0uSJ600ZcQi8LjZ7XFbgcpfge5W6rypOCrkew=
-X-Received: by 2002:a05:6512:3d1f:b0:53e:3a94:c2bc with SMTP id
- 2adb3069b0e04-5422953305fmr17304530e87.18.1736159494514; Mon, 06 Jan 2025
- 02:31:34 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HONbxsFL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20A32C4CED2;
+	Mon,  6 Jan 2025 13:51:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1736171501;
+	bh=9cbt6uU2Bhth2rTU/9lUv7C/QAINveDuqpZQMALpw+o=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=HONbxsFLg/rhfQfPY2XNAUUtkgHHd6FQY39p9qrZSghgbXCDIHpTLJqkq5R0q5BAW
+	 m+Hxrhb9F537eMYWWN/4KpfS9KF8exdp1aWF+rChMnol8B7QoLJpbk7gNIEM1QYVXg
+	 RLFp9LQpHC+a8nmb53XBLs0B36Nf1L4LFRmUAOzKVMW3CT8WYz61Lx8bRG7BGYjn8P
+	 cdMsqtUbkCtnN7coiCzRvsWIBB5Blhm9PduSo92v2M7dzkY9ei999anlNp+wvMCn/y
+	 AoB1Kk6NkT4NBvfQTnRAshYW1dbfaWVPDEjkTC8EKi45VjIdU4TJUA02FulbQztRgl
+	 XdulCvFxpTNvA==
+Date: Mon, 6 Jan 2025 13:51:35 +0000
+From: Simon Horman <horms@kernel.org>
+To: Ming Yu <a0282524688@gmail.com>
+Cc: tmyu0@nuvoton.com, lee@kernel.org, linus.walleij@linaro.org,
+	brgl@bgdev.pl, andi.shyti@kernel.org, mkl@pengutronix.de,
+	mailhol.vincent@wanadoo.fr, andrew+netdev@lunn.ch,
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+	pabeni@redhat.com, wim@linux-watchdog.org, linux@roeck-us.net,
+	jdelvare@suse.com, alexandre.belloni@bootlin.com,
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-can@vger.kernel.org,
+	netdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
+	linux-hwmon@vger.kernel.org, linux-rtc@vger.kernel.org
+Subject: Re: [PATCH v4 6/7] hwmon: Add Nuvoton NCT6694 HWMON support
+Message-ID: <20250106135135.GN4068@kernel.org>
+References: <20241227095727.2401257-1-a0282524688@gmail.com>
+ <20241227095727.2401257-7-a0282524688@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20241211102337.37956-1-brgl@bgdev.pl> <awney7utrl5n63xsgzxnnlpqajuqtjnrjsbpzloic5iqt4pv2u@ktkhejuihbde>
- <CAMRc=Mci6bPCirruk90hnjBvJW0=HKhqCq+9p4t2k9B=Oy8Ocw@mail.gmail.com> <fxj2tqrjfr23cxqmtmpj74bombtfjn3qtpz5iiegvhbap7v5md@pkmrskwamatl>
-In-Reply-To: <fxj2tqrjfr23cxqmtmpj74bombtfjn3qtpz5iiegvhbap7v5md@pkmrskwamatl>
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Date: Mon, 6 Jan 2025 11:31:23 +0100
-Message-ID: <CAMRc=MfRq9xU7a64qCOrDCYgSbeWVKF=PnzS8Cabm5a3zzFekQ@mail.gmail.com>
-Subject: Re: [PATCH 1/3] i2c: davinci: kill platform data
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Wolfram Sang <wsa@the-dreams.de>, linux-arm-kernel@lists.infradead.org, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20241227095727.2401257-7-a0282524688@gmail.com>
 
-On Sat, Jan 4, 2025 at 1:02=E2=80=AFAM Andi Shyti <andi.shyti@kernel.org> w=
-rote:
->
-> > > > -
-> > > > -/* default platform data to use if not supplied in the platform_de=
-vice */
-> > > > -static struct davinci_i2c_platform_data davinci_i2c_platform_data_=
-default =3D {
-> > > > -     .bus_freq       =3D 100,
-> > > > -     .bus_delay      =3D 0,
-> > >
-> > > what happened to bus_delay?
-> > >
-> >
-> > bus_delay is not set by means other than platform data and it defaults
-> > to 0 so it's safe to just remove it.
->
-> yes, but how is it related to this patch? Can we put it on a
-> different patch?
->
+On Fri, Dec 27, 2024 at 05:57:26PM +0800, Ming Yu wrote:
+> This driver supports Hardware monitor functionality for NCT6694 MFD
+> device based on USB interface.
+> 
+> Signed-off-by: Ming Yu <a0282524688@gmail.com>
 
-No, why? This patch removes platform data and all bits and pieces
-associated with it. Splitting it into two just to first remove
-bus_delay and then the rest doesn't make much sense IMO. The argument
-that it's already not used would be incorrect as it IS used by
-platform data (even though it itself is no longer defined anywhere).
-I'd keep it as is.
+...
 
-Bart
+> diff --git a/drivers/hwmon/nct6694-hwmon.c b/drivers/hwmon/nct6694-hwmon.c
+
+...
+
+> +struct __packed nct6694_hwmon_alarm {
+> +	u8 smi_ctrl;
+> +	u8 reserved1[15];
+> +	struct {
+> +		u8 hl;
+> +		u8 ll;
+> +	} vin_limit[16];
+> +	struct {
+> +		u8 hyst;
+> +		s8 hl;
+> +	} tin_cfg[32];
+> +	__be16 fin_ll[10];
+> +	u8 reserved2[4];
+> +};
+
+...
+
+> +union nct6694_hwmon_rpt {
+> +	u8 vin;
+> +	struct {
+> +		u8 msb;
+> +		u8 lsb;
+> +	} tin;
+> +	__be16 fin;
+> +	u8 pwm;
+> +	u8 status;
+> +};
+> +
+> +union nct6694_hwmon_msg {
+> +	struct nct6694_hwmon_control hwmon_ctrl;
+> +	struct nct6694_hwmon_alarm hwmon_alarm;
+> +	struct nct6694_pwm_control pwm_ctrl;
+> +};
+> +
+> +struct nct6694_hwmon_data {
+> +	struct nct6694 *nct6694;
+> +	struct mutex lock;
+> +	struct nct6694_hwmon_control hwmon_en;
+> +	union nct6694_hwmon_rpt *rpt;
+> +	union nct6694_hwmon_msg *msg;
+> +};
+
+...
+
+> +static int nct6694_pwm_read(struct device *dev, u32 attr, int channel,
+> +			    long *val)
+> +{
+> +	struct nct6694_hwmon_data *data = dev_get_drvdata(dev);
+> +	unsigned char pwm_en;
+> +	int ret;
+> +
+> +	guard(mutex)(&data->lock);
+> +
+> +	switch (attr) {
+> +	case hwmon_pwm_enable:
+> +		pwm_en = data->hwmon_en.pwm_en[channel / 8];
+> +		*val = !!(pwm_en & BIT(channel % 8));
+> +
+> +		return 0;
+> +	case hwmon_pwm_input:
+> +		ret = nct6694_read_msg(data->nct6694, NCT6694_RPT_MOD,
+> +				       NCT6694_PWM_IDX(channel),
+> +				       sizeof(data->rpt->fin),
+> +				       &data->rpt->fin);
+> +		if (ret)
+> +			return ret;
+> +
+> +		*val = data->rpt->fin;
+
+Hi Ming Yu,
+
+*val is host byte order, but fin is big endian.
+Elsewhere in this patch this seems to be handled using,
+which looks correct to me:
+
+		*val = be16_to_cpu(data->rpt->fin);
+
+Flagged by Sparse.
+
+> +
+> +		return 0;
+> +	case hwmon_pwm_freq:
+> +		*val = NCT6694_FREQ_FROM_REG(data->hwmon_en.pwm_freq[channel]);
+> +
+> +		return 0;
+> +	default:
+> +		return -EOPNOTSUPP;
+> +	}
+> +}
+
+...
+
+> +static int nct6694_fan_write(struct device *dev, u32 attr, int channel,
+> +			     long val)
+> +{
+> +	struct nct6694_hwmon_data *data = dev_get_drvdata(dev);
+> +	int ret;
+> +
+> +	guard(mutex)(&data->lock);
+> +
+> +	switch (attr) {
+> +	case hwmon_fan_enable:
+> +		if (val == 0)
+> +			data->hwmon_en.fin_en[channel / 8] &= ~BIT(channel % 8);
+> +		else if (val == 1)
+> +			data->hwmon_en.fin_en[channel / 8] |= BIT(channel % 8);
+> +		else
+> +			return -EINVAL;
+> +
+> +		return nct6694_write_msg(data->nct6694, NCT6694_HWMON_MOD,
+> +					 NCT6694_HWMON_CONTROL,
+> +					 sizeof(data->msg->hwmon_ctrl),
+> +					 &data->hwmon_en);
+> +	case hwmon_fan_min:
+> +		ret = nct6694_read_msg(data->nct6694, NCT6694_HWMON_MOD,
+> +				       NCT6694_HWMON_ALARM,
+> +				       sizeof(data->msg->hwmon_alarm),
+> +				       &data->msg->hwmon_alarm);
+> +		if (ret)
+> +			return ret;
+> +
+> +		val = clamp_val(val, 1, 65535);
+> +		data->msg->hwmon_alarm.fin_ll[channel] = (u16)cpu_to_be16(val);
+
+cpu_to_be16() returns a 16bit big endian value.
+And, AFAIKT, the type of data->msg->hwmon_alarm.fin_ll[channel] is __be16.
+
+So the cast above seems both unnecessary and misleading.
+
+Also flagged by Sparse,
+
+> +
+> +		return nct6694_write_msg(data->nct6694, NCT6694_HWMON_MOD,
+> +					 NCT6694_HWMON_ALARM,
+> +					 sizeof(data->msg->hwmon_alarm),
+> +					 &data->msg->hwmon_alarm);
+> +	default:
+> +		return -EOPNOTSUPP;
+> +	}
+> +}
+
+...
