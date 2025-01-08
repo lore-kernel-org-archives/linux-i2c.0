@@ -1,38 +1,38 @@
 Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [217.70.183.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A14BF1FF1D9;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 428961FF601;
 	Wed,  8 Jan 2025 16:14:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.195
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736352865; cv=none; b=ArQWSSdzAZ645W/rusDPK2spIna3eiqX69poUoF93uq74XW5rGkYJtP9cgLvEDfbR13WpNQKcdr/hoATqDZg6AT8Qi2T2DJxFIe/ux0ssw2dSrk+PZJXpx/GtZMv8Afsa0DURI1jo/v4LxR0BSbF2BlfJPdfXOMCfwRgJei45VA=
+	t=1736352865; cv=none; b=nTdEMZhB6EckAUeXHkziE99Q2/oUHmcUNq5OvJx331GzuyXp5d1YDsHM2TQmik7MET3Vmx0Gn2fRzPk7QKXP7fRobEZL1AWrEg+P6TbAtB75/K46QV4VNAutVPSkzkM0s21V+WvjF/JvraKBo6O7txkqnj+0PF9feuwrA1IzmI4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1736352865; c=relaxed/simple;
-	bh=WNfXDPdSG6eniawazYH+PzGVkHaLuuiwwHqC0ol1kFE=;
+	bh=pvd3yVsWuxzB/MWQ28RqlB0uRFDeZSWHEk9HqWHkyno=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=VlfAeFK0atVFdwWEskUkYvBR+IxSDqJZv7WBZoTbtDVlBoNKxnSXTOvzOIm0/VC0VIpLkwBT4UpsvIN2Ui6J+GNgkoZllewDzVcy6odS0AlsRoD+0v/jv73skcV/EkugGk6iBWuiknlpjFvDdNc1NoL7r94BwIPeTY27n3HRP9Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=AQQPVv15; arc=none smtp.client-ip=217.70.183.195
+	 In-Reply-To:To:Cc; b=aUR6doyeB/NLfl/W6qtatfDbWZBlHCRArHTO6cwd55pNe8KPgH75D0wSmudzxY3+NU/E4/WmKgBfDw4geBREiTMYy88MvJKLSs0+xI9G5z84MczTBLCD0oSQE/GUAJSswRoawk2z2GsVZ9h4ATVzSzWkf++ELD7k+DSc0P+76q0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=DfLYqu9j; arc=none smtp.client-ip=217.70.183.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="AQQPVv15"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 148FD60011;
-	Wed,  8 Jan 2025 16:14:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="DfLYqu9j"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 8370560012;
+	Wed,  8 Jan 2025 16:14:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1736352860;
+	t=1736352855;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=AeFWjpwRRSFYTDdyfQNzPckQyxB6BcLqkMuH3YbTxvQ=;
-	b=AQQPVv15j/ZGyM8rnMRIHa3WW+jI6hewlz7jyDWmVeXJQwr+vJ5vCyEvrtORviRS3uxLiu
-	CRxd+qxUVwm3VnBpWpZRs3I4CEYTOYMUpgMpU2nGlsxBrSJ/3tx1mHMynyJsuatgMYqMRX
-	5+czA6863kyItJHy7iDblk4Vb19kxG9nR6VeNftOQrufyofPl6sVbA96vhkoEiORfBgdsW
-	NVILDSd2wqJXn71hw26NC66udmqRg0QJFvOdSDdJHeYCj6ivn5h9EuIpQ2DPCzh/fLpErq
-	927P+/ttxjfIneSZvqJ3mwNsUyMhmXnDIkMmTMtr6hIo17YH4Gy0Yt0DTTib4g==
+	bh=O5cVFCY+TsCDTrv9EgLty2YjRj1DRRk5ohtcB0F/zDg=;
+	b=DfLYqu9jligxY2iKU5C8j0VwsU1II7ZzIYYbjhLaZ7PEw2QbQlp3KdYoyU///pN9WhqDWj
+	iO6yt38DwtpT9akaT1pX7QHYpfrPd2EAzPEVZwAppYua9cj3p0Bg4YXaUx4HkeOeZBqQcP
+	ifqOYi+KT+3rrZlok4kTOa8HyCieV6EJeSA2mDjtBNR1ot/dRYPKd+DfB6+V+NHHaBigkc
+	7Xc9sN326yayQp9yofwxRL/52HpmSRBb+FsAkmcXCuUqz5eWxR7NgbfPt/ZmLpZ6jcSdO2
+	Hk5SFTSafyp5XWPETOA0jNVtqZjHeZInHL00/kCB+88ZoTgnqERuOqDpQ8SHyg==
 From: Romain Gantois <romain.gantois@bootlin.com>
-Date: Wed, 08 Jan 2025 17:14:10 +0100
-Subject: [PATCH v5 9/9] misc: add FPC202 dual port controller driver
+Date: Wed, 08 Jan 2025 17:14:06 +0100
+Subject: [PATCH v5 5/9] i2c: move ATR alias pool to a separate struct
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250108-fpc202-v5-9-a439ab999d5a@bootlin.com>
+Message-Id: <20250108-fpc202-v5-5-a439ab999d5a@bootlin.com>
 References: <20250108-fpc202-v5-0-a439ab999d5a@bootlin.com>
 In-Reply-To: <20250108-fpc202-v5-0-a439ab999d5a@bootlin.com>
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
@@ -63,513 +63,340 @@ Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 X-Mailer: b4 0.14.2
 X-GND-Sasl: romain.gantois@bootlin.com
 
-The TI FPC202 dual port controller serves as a low-speed signal aggregator
-for common port types such as SFP, QSFP, Mini-SAS HD, and others.
+Each I2C address translator (ATR) has a pool of client aliases which can be
+used as translation targets. Some ATRs have a single alias pool shared by
+all downstream channels, while others have a separate alias pool for each
+channel. Currently, this alias pool is represented by the "aliases",
+"num_aliases", and "use_mask" fields of struct i2c_atr.
 
-It aggregates GPIO and I2C signals across two downstream ports, acting as
-both a GPIO controller and an I2C address translator for up to two logical
-devices per port.
+In preparation for adding per-channel alias pool support, move the
+"aliases", "num_aliases", "use_mask" and associated lock to a new struct
+called "struct alias_pool".
 
 Signed-off-by: Romain Gantois <romain.gantois@bootlin.com>
 ---
- MAINTAINERS              |   1 +
- drivers/misc/Kconfig     |  11 ++
- drivers/misc/Makefile    |   1 +
- drivers/misc/ti_fpc202.c | 440 +++++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 453 insertions(+)
+ drivers/i2c/i2c-atr.c | 172 +++++++++++++++++++++++++++++++-------------------
+ 1 file changed, 107 insertions(+), 65 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2ef5c0d395b3668167dddbd27237a2177f85571e..865ef413b38c293e1c7b1405322fafe9df81ea96 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -23502,6 +23502,7 @@ M:	Romain Gantois <romain.gantois@bootlin.com>
- L:	linux-kernel@vger.kernel.org
- S:	Maintained
- F:	Documentation/devicetree/bindings/misc/ti,fpc202.yaml
-+F:	drivers/misc/ti_fpc202.c
+diff --git a/drivers/i2c/i2c-atr.c b/drivers/i2c/i2c-atr.c
+index f04bd4f9e3143837c035cd08d23d5dfc37f151cb..019089346ce4622e46a4802c990cdacd24d47734 100644
+--- a/drivers/i2c/i2c-atr.c
++++ b/drivers/i2c/i2c-atr.c
+@@ -34,6 +34,23 @@ struct i2c_atr_alias_pair {
+ 	u16 alias;
+ };
  
- TI FPD-LINK DRIVERS
- M:	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 09cbe3f0ab1e56f85852c0cb50cfc03cae659d2b..3c7e82e86e4ae83eff84999d123cd8c0f018323c 100644
---- a/drivers/misc/Kconfig
-+++ b/drivers/misc/Kconfig
-@@ -114,6 +114,17 @@ config RPMB
- 
- 	  If unsure, select N.
- 
-+config TI_FPC202
-+	tristate "TI FPC202 Dual Port Controller"
-+	select GPIOLIB
-+	depends on I2C_ATR
-+	help
-+	  If you say yes here you get support for the Texas Instruments FPC202
-+	  Dual Port Controller.
-+
-+	  This driver can also be built as a module. If so, the module will be
-+	  called fpc202.
-+
- config TIFM_CORE
- 	tristate "TI Flash Media interface support"
- 	depends on PCI
-diff --git a/drivers/misc/Makefile b/drivers/misc/Makefile
-index 40bf953185c773afa91f7784a286ae0752bb0b53..ba47db46a5ff2559de597447ce7e2d88e26efa61 100644
---- a/drivers/misc/Makefile
-+++ b/drivers/misc/Makefile
-@@ -12,6 +12,7 @@ obj-$(CONFIG_ATMEL_SSC)		+= atmel-ssc.o
- obj-$(CONFIG_DUMMY_IRQ)		+= dummy-irq.o
- obj-$(CONFIG_ICS932S401)	+= ics932s401.o
- obj-$(CONFIG_LKDTM)		+= lkdtm/
-+obj-$(CONFIG_TI_FPC202)         += ti_fpc202.o
- obj-$(CONFIG_TIFM_CORE)       	+= tifm_core.o
- obj-$(CONFIG_TIFM_7XX1)       	+= tifm_7xx1.o
- obj-$(CONFIG_PHANTOM)		+= phantom.o
-diff --git a/drivers/misc/ti_fpc202.c b/drivers/misc/ti_fpc202.c
-new file mode 100644
-index 0000000000000000000000000000000000000000..e251d8e0a640f05d59e5b20665d8a8237b8c2724
---- /dev/null
-+++ b/drivers/misc/ti_fpc202.c
-@@ -0,0 +1,440 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * ti_fpc202.c - FPC202 Dual Port Controller driver
++/**
++ * struct i2c_atr_alias_pool - Pool of client aliases available for an ATR.
++ * @size:     Total number of aliases
 + *
-+ * Copyright (C) 2024 Bootlin
-+ *
++ * @lock:     Lock protecting @aliases and @use_mask
++ * @aliases:  Array of aliases, must hold exactly @size elements
++ * @use_mask: Mask of used aliases
 + */
++struct i2c_atr_alias_pool {
++	size_t size;
 +
-+#include <linux/cleanup.h>
-+#include <linux/err.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-atr.h>
-+#include <linux/gpio/consumer.h>
-+#include <linux/gpio/driver.h>
-+#include <linux/module.h>
-+
-+#define FPC202_NUM_PORTS 2
-+#define FPC202_ALIASES_PER_PORT 2
-+
-+/*
-+ * GPIO: port mapping
-+ *
-+ * 0: P0_S0_IN_A
-+ * 1: P0_S1_IN_A
-+ * 2: P1_S0_IN_A
-+ * 3: P1_S1_IN_A
-+ * 4: P0_S0_IN_B
-+ * ...
-+ * 8: P0_S0_IN_C
-+ * ...
-+ * 12: P0_S0_OUT_A
-+ * ...
-+ * 16: P0_S0_OUT_B
-+ * ...
-+ * 19: P1_S1_OUT_B
-+ *
-+ */
-+
-+#define FPC202_GPIO_COUNT 20
-+#define FPC202_GPIO_P0_S0_IN_B  4
-+#define FPC202_GPIO_P0_S0_OUT_A 12
-+
-+#define FPC202_REG_IN_A_INT    0x6
-+#define FPC202_REG_IN_C_IN_B   0x7
-+#define FPC202_REG_OUT_A_OUT_B 0x8
-+
-+#define FPC202_REG_OUT_A_OUT_B_VAL 0xa
-+
-+#define FPC202_REG_MOD_DEV(port, dev) (0xb4 + ((port) * 4) + (dev))
-+#define FPC202_REG_AUX_DEV(port, dev) (0xb6 + ((port) * 4) + (dev))
-+
-+/*
-+ * The FPC202 doesn't support turning off address translation on a single port.
-+ * So just set an invalid I2C address as the translation target when no client
-+ * address is attached.
-+ */
-+#define FPC202_REG_DEV_INVALID 0
-+
-+/* Even aliases are assigned to device 0 and odd aliases to device 1 */
-+#define fpc202_dev_num_from_alias(alias) ((alias) % 2)
-+
-+struct fpc202_priv {
-+	struct i2c_client *client;
-+	struct i2c_atr *atr;
-+	struct gpio_desc *en_gpio;
-+	struct gpio_chip gpio;
-+
-+	/* Lock REG_MOD/AUX_DEV and addr_caches during attach/detach */
-+	struct mutex reg_dev_lock;
-+
-+	/* Cached device addresses for both ports and their devices */
-+	u8 addr_caches[2][2];
-+
-+	/* Keep track of which ports were probed */
-+	DECLARE_BITMAP(probed_ports, FPC202_NUM_PORTS);
++	/* Protects aliases and use_mask */
++	spinlock_t lock;
++	u16 *aliases;
++	unsigned long *use_mask;
 +};
 +
-+static void fpc202_fill_alias_table(struct i2c_client *client, u16 *aliases, int port_id)
+ /**
+  * struct i2c_atr_chan - Data for a channel.
+  * @adap:            The &struct i2c_adapter for the channel
+@@ -67,10 +84,7 @@ struct i2c_atr_chan {
+  * @algo:      The &struct i2c_algorithm for adapters
+  * @lock:      Lock for the I2C bus segment (see &struct i2c_lock_operations)
+  * @max_adapters: Maximum number of adapters this I2C ATR can have
+- * @num_aliases: Number of aliases in the aliases array
+- * @aliases:   The aliases array
+- * @alias_mask_lock: Lock protecting alias_use_mask
+- * @alias_use_mask: Bitmask for used aliases in aliases array
++ * @alias_pool: Pool of available client aliases
+  * @i2c_nb:    Notifier for remote client add & del events
+  * @adapter:   Array of adapters
+  */
+@@ -86,17 +100,54 @@ struct i2c_atr {
+ 	struct mutex lock;
+ 	int max_adapters;
+ 
+-	size_t num_aliases;
+-	const u16 *aliases;
+-	/* Protects alias_use_mask */
+-	spinlock_t alias_mask_lock;
+-	unsigned long *alias_use_mask;
++	struct i2c_atr_alias_pool *alias_pool;
+ 
+ 	struct notifier_block i2c_nb;
+ 
+ 	struct i2c_adapter *adapter[] __counted_by(max_adapters);
+ };
+ 
++static struct i2c_atr_alias_pool *i2c_atr_alloc_alias_pool(size_t num_aliases)
 +{
-+	u16 first_alias;
-+	int i;
-+
-+	/*
-+	 * There is a predefined list of aliases for each FPC202 I2C
-+	 * self-address.  This allows daisy-chained FPC202 units to
-+	 * automatically take on different sets of aliases.
-+	 * Each port of an FPC202 unit is assigned two aliases from this list.
-+	 */
-+	first_alias = 0x10 + 4 * port_id + 8 * ((u16)client->addr - 2);
-+
-+	for (i = 0; i < FPC202_ALIASES_PER_PORT; i++)
-+		aliases[i] = first_alias + i;
-+}
-+
-+static int fpc202_gpio_get_dir(int offset)
-+{
-+	return offset < FPC202_GPIO_P0_S0_OUT_A ? GPIO_LINE_DIRECTION_IN : GPIO_LINE_DIRECTION_OUT;
-+}
-+
-+static int fpc202_read(struct fpc202_priv *priv, u8 reg)
-+{
-+	int val;
-+
-+	val = i2c_smbus_read_byte_data(priv->client, reg);
-+	return val;
-+}
-+
-+static int fpc202_write(struct fpc202_priv *priv, u8 reg, u8 value)
-+{
-+	return i2c_smbus_write_byte_data(priv->client, reg, value);
-+}
-+
-+static void fpc202_set_enable(struct fpc202_priv *priv, int enable)
-+{
-+	if (!priv->en_gpio)
-+		return;
-+
-+	gpiod_set_value(priv->en_gpio, enable);
-+}
-+
-+static void fpc202_gpio_set(struct gpio_chip *chip, unsigned int offset,
-+			    int value)
-+{
-+	struct fpc202_priv *priv = gpiochip_get_data(chip);
++	struct i2c_atr_alias_pool *alias_pool;
 +	int ret;
-+	u8 val;
 +
-+	if (fpc202_gpio_get_dir(offset) == GPIO_LINE_DIRECTION_IN)
-+		return;
++	alias_pool = kzalloc(sizeof(*alias_pool), GFP_KERNEL);
++	if (!alias_pool)
++		return ERR_PTR(-ENOMEM);
 +
-+	ret = fpc202_read(priv, FPC202_REG_OUT_A_OUT_B_VAL);
++	alias_pool->size = num_aliases;
++
++	alias_pool->aliases = kcalloc(num_aliases, sizeof(*alias_pool->aliases), GFP_KERNEL);
++	if (!alias_pool->aliases) {
++		ret = -ENOMEM;
++		goto err_free_alias_pool;
++	}
++
++	alias_pool->use_mask = bitmap_zalloc(num_aliases, GFP_KERNEL);
++	if (!alias_pool->use_mask) {
++		ret = -ENOMEM;
++		goto err_free_aliases;
++	}
++
++	spin_lock_init(&alias_pool->lock);
++
++	return alias_pool;
++
++err_free_aliases:
++	kfree(alias_pool->aliases);
++err_free_alias_pool:
++	kfree(alias_pool);
++	return ERR_PTR(ret);
++}
++
++static void i2c_atr_free_alias_pool(struct i2c_atr_alias_pool *alias_pool)
++{
++	bitmap_free(alias_pool->use_mask);
++	kfree(alias_pool->aliases);
++	kfree(alias_pool);
++}
++
+ static struct i2c_atr_alias_pair *
+ i2c_atr_find_mapping_by_addr(const struct list_head *list, u16 phys_addr)
+ {
+@@ -259,44 +310,42 @@ static const struct i2c_lock_operations i2c_atr_lock_ops = {
+ 	.unlock_bus =  i2c_atr_unlock_bus,
+ };
+ 
+-static int i2c_atr_reserve_alias(struct i2c_atr *atr)
++static int i2c_atr_reserve_alias(struct i2c_atr_alias_pool *alias_pool)
+ {
+ 	unsigned long idx;
++	u16 alias;
+ 
+-	spin_lock(&atr->alias_mask_lock);
++	spin_lock(&alias_pool->lock);
+ 
+-	idx = find_first_zero_bit(atr->alias_use_mask, atr->num_aliases);
+-	if (idx >= atr->num_aliases) {
+-		spin_unlock(&atr->alias_mask_lock);
+-		dev_err(atr->dev, "failed to find a free alias\n");
++	idx = find_first_zero_bit(alias_pool->use_mask, alias_pool->size);
++	if (idx >= alias_pool->size) {
++		spin_unlock(&alias_pool->lock);
+ 		return -EBUSY;
+ 	}
+ 
+-	set_bit(idx, atr->alias_use_mask);
++	set_bit(idx, alias_pool->use_mask);
+ 
+-	spin_unlock(&atr->alias_mask_lock);
++	alias = alias_pool->aliases[idx];
+ 
+-	return atr->aliases[idx];
++	spin_unlock(&alias_pool->lock);
++	return alias;
+ }
+ 
+-static void i2c_atr_release_alias(struct i2c_atr *atr, u16 alias)
++static void i2c_atr_release_alias(struct i2c_atr_alias_pool *alias_pool, u16 alias)
+ {
+ 	unsigned int idx;
+ 
+-	spin_lock(&atr->alias_mask_lock);
++	spin_lock(&alias_pool->lock);
+ 
+-	for (idx = 0; idx < atr->num_aliases; ++idx) {
+-		if (atr->aliases[idx] == alias) {
+-			clear_bit(idx, atr->alias_use_mask);
+-			spin_unlock(&atr->alias_mask_lock);
++	for (idx = 0; idx < alias_pool->size; ++idx) {
++		if (alias_pool->aliases[idx] == alias) {
++			clear_bit(idx, alias_pool->use_mask);
++			spin_unlock(&alias_pool->lock);
+ 			return;
+ 		}
+ 	}
+ 
+-	spin_unlock(&atr->alias_mask_lock);
+-
+-	 /* This should never happen */
+-	dev_warn(atr->dev, "Unable to find mapped alias\n");
++	spin_unlock(&alias_pool->lock);
+ }
+ 
+ static int i2c_atr_attach_addr(struct i2c_adapter *adapter,
+@@ -308,9 +357,11 @@ static int i2c_atr_attach_addr(struct i2c_adapter *adapter,
+ 	u16 alias;
+ 	int ret;
+ 
+-	ret = i2c_atr_reserve_alias(atr);
+-	if (ret < 0)
++	ret = i2c_atr_reserve_alias(atr->alias_pool);
 +	if (ret < 0) {
-+		dev_err(&priv->client->dev, "Failed to set GPIO %d value! err %d\n", offset, ret);
-+		return;
++		dev_err(atr->dev, "failed to find a free alias\n");
+ 		return ret;
 +	}
-+
-+	val = (u8)ret;
-+
-+	if (value)
-+		val |= BIT(offset - FPC202_GPIO_P0_S0_OUT_A);
-+	else
-+		val &= ~BIT(offset - FPC202_GPIO_P0_S0_OUT_A);
-+
-+	fpc202_write(priv, FPC202_REG_OUT_A_OUT_B_VAL, val);
-+}
-+
-+static int fpc202_gpio_get(struct gpio_chip *chip, unsigned int offset)
-+{
-+	struct fpc202_priv *priv = gpiochip_get_data(chip);
-+	u8 reg, bit;
-+	int ret;
-+
-+	if (offset < FPC202_GPIO_P0_S0_IN_B) {
-+		reg = FPC202_REG_IN_A_INT;
-+		bit = BIT(4 + offset);
-+	} else if (offset < FPC202_GPIO_P0_S0_OUT_A) {
-+		reg = FPC202_REG_IN_C_IN_B;
-+		bit = BIT(offset - FPC202_GPIO_P0_S0_IN_B);
-+	} else {
-+		reg = FPC202_REG_OUT_A_OUT_B_VAL;
-+		bit = BIT(offset - FPC202_GPIO_P0_S0_OUT_A);
-+	}
-+
-+	ret = fpc202_read(priv, reg);
-+	if (ret < 0)
+ 
+ 	alias = ret;
+ 
+@@ -336,7 +387,7 @@ static int i2c_atr_attach_addr(struct i2c_adapter *adapter,
+ err_free:
+ 	kfree(c2a);
+ err_release_alias:
+-	i2c_atr_release_alias(atr, alias);
++	i2c_atr_release_alias(atr->alias_pool, alias);
+ 
+ 	return ret;
+ }
+@@ -357,7 +408,7 @@ static void i2c_atr_detach_addr(struct i2c_adapter *adapter,
+ 		return;
+ 	}
+ 
+-	i2c_atr_release_alias(atr, c2a->alias);
++	i2c_atr_release_alias(atr->alias_pool, c2a->alias);
+ 
+ 	dev_dbg(atr->dev,
+ 		"chan%u: detached alias 0x%02x from addr 0x%02x\n",
+@@ -411,12 +462,11 @@ static int i2c_atr_bus_notifier_call(struct notifier_block *nb,
+ 
+ static int i2c_atr_parse_alias_pool(struct i2c_atr *atr)
+ {
++	struct i2c_atr_alias_pool *alias_pool;
+ 	struct device *dev = atr->dev;
+-	unsigned long *alias_use_mask;
+ 	size_t num_aliases;
+ 	unsigned int i;
+ 	u32 *aliases32;
+-	u16 *aliases16;
+ 	int ret;
+ 
+ 	ret = fwnode_property_count_u32(dev_fwnode(dev), "i2c-alias-pool");
+@@ -428,12 +478,23 @@ static int i2c_atr_parse_alias_pool(struct i2c_atr *atr)
+ 
+ 	num_aliases = ret;
+ 
+-	if (!num_aliases)
++	alias_pool = i2c_atr_alloc_alias_pool(num_aliases);
++	if (IS_ERR(alias_pool)) {
++		ret = PTR_ERR(alias_pool);
++		dev_err(dev, "Failed to allocate alias pool, err %d\n", ret);
 +		return ret;
-+
-+	return !!(((u8)ret) & bit);
-+}
-+
-+static int fpc202_gpio_direction_input(struct gpio_chip *chip, unsigned int offset)
-+{
-+	if (fpc202_gpio_get_dir(offset) == GPIO_LINE_DIRECTION_OUT)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+static int fpc202_gpio_direction_output(struct gpio_chip *chip, unsigned int offset,
-+					int value)
-+{
-+	struct fpc202_priv *priv = gpiochip_get_data(chip);
-+	int ret;
-+	u8 val;
-+
-+	if (fpc202_gpio_get_dir(offset) == GPIO_LINE_DIRECTION_IN)
-+		return -EINVAL;
-+
-+	fpc202_gpio_set(chip, offset, value);
-+
-+	ret = fpc202_read(priv, FPC202_REG_OUT_A_OUT_B);
-+	if (ret < 0)
-+		return ret;
-+
-+	val = (u8)ret | BIT(offset - FPC202_GPIO_P0_S0_OUT_A);
-+
-+	return fpc202_write(priv, FPC202_REG_OUT_A_OUT_B, val);
-+}
-+
-+/*
-+ * Set the translation table entry associated with a port and device number.
-+ *
-+ * Each downstream port of the FPC202 has two fixed aliases corresponding to
-+ * device numbers 0 and 1. If one of these aliases is found in an incoming I2C
-+ * transfer, it will be translated to the address given by the corresponding
-+ * translation table entry.
-+ */
-+static int fpc202_write_dev_addr(struct fpc202_priv *priv, u32 port_id, int dev_num, u16 addr)
-+{
-+	int ret, reg_mod, reg_aux;
-+	u8 val;
-+
-+	guard(mutex)(&priv->reg_dev_lock);
-+
-+	reg_mod = FPC202_REG_MOD_DEV(port_id, dev_num);
-+	reg_aux = FPC202_REG_AUX_DEV(port_id, dev_num);
-+	val = addr & 0x7f;
-+
-+	ret = fpc202_write(priv, reg_mod, val);
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * The FPC202 datasheet is unclear about the role of the AUX registers.
-+	 * Empirically, writing to them as well seems to be necessary for
-+	 * address translation to function properly.
-+	 */
-+	ret = fpc202_write(priv, reg_aux, val);
-+
-+	priv->addr_caches[port_id][dev_num] = val;
-+
-+	return ret;
-+}
-+
-+static int fpc202_attach_addr(struct i2c_atr *atr, u32 chan_id,
-+			      u16 addr, u16 alias)
-+{
-+	struct fpc202_priv *priv = i2c_atr_get_driver_data(atr);
-+
-+	dev_dbg(&priv->client->dev, "attaching address 0x%02x to alias 0x%02x\n", addr, alias);
-+
-+	return fpc202_write_dev_addr(priv, chan_id, fpc202_dev_num_from_alias(alias), addr);
-+}
-+
-+static void fpc202_detach_addr(struct i2c_atr *atr, u32 chan_id,
-+			       u16 addr)
-+{
-+	struct fpc202_priv *priv = i2c_atr_get_driver_data(atr);
-+	int dev_num, reg_mod, val;
-+
-+	for (dev_num = 0; dev_num < 2; dev_num++) {
-+		reg_mod = FPC202_REG_MOD_DEV(chan_id, dev_num);
-+
-+		mutex_lock(&priv->reg_dev_lock);
-+
-+		val = priv->addr_caches[chan_id][dev_num];
-+
-+		mutex_unlock(&priv->reg_dev_lock);
-+
-+		if (val < 0) {
-+			dev_err(&priv->client->dev, "failed to read register 0x%x while detaching address 0x%02x\n",
-+				reg_mod, addr);
-+			return;
-+		}
-+
-+		if (val == (addr & 0x7f)) {
-+			fpc202_write_dev_addr(priv, chan_id, dev_num, FPC202_REG_DEV_INVALID);
-+			return;
-+		}
-+	}
-+}
-+
-+static const struct i2c_atr_ops fpc202_atr_ops = {
-+	.attach_addr = fpc202_attach_addr,
-+	.detach_addr = fpc202_detach_addr,
-+};
-+
-+static int fpc202_probe_port(struct fpc202_priv *priv, struct device_node *i2c_handle, int port_id)
-+{
-+	u16 aliases[FPC202_ALIASES_PER_PORT] = { };
-+	struct device *dev = &priv->client->dev;
-+	struct i2c_atr_adap_desc desc = { };
-+	int ret = 0;
-+
-+	desc.chan_id = port_id;
-+	desc.parent = dev;
-+	desc.bus_handle = of_node_to_fwnode(i2c_handle);
-+	desc.num_aliases = FPC202_ALIASES_PER_PORT;
-+
-+	fpc202_fill_alias_table(priv->client, aliases, port_id);
-+	desc.aliases = aliases;
-+
-+	ret = i2c_atr_add_adapter(priv->atr, &desc);
-+	if (ret)
-+		return ret;
-+
-+	set_bit(port_id, priv->probed_ports);
-+
-+	ret = fpc202_write_dev_addr(priv, port_id, 0, FPC202_REG_DEV_INVALID);
-+	if (ret)
-+		return ret;
-+
-+	return fpc202_write_dev_addr(priv, port_id, 1, FPC202_REG_DEV_INVALID);
-+}
-+
-+static void fpc202_remove_port(struct fpc202_priv *priv, int port_id)
-+{
-+	i2c_atr_del_adapter(priv->atr, port_id);
-+	clear_bit(port_id, priv->probed_ports);
-+}
-+
-+static int fpc202_probe(struct i2c_client *client)
-+{
-+	struct device *dev = &client->dev;
-+	struct device_node *i2c_handle;
-+	struct fpc202_priv *priv;
-+	int ret, port_id;
-+
-+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
-+
-+	mutex_init(&priv->reg_dev_lock);
-+
-+	priv->client = client;
-+	i2c_set_clientdata(client, priv);
-+
-+	priv->en_gpio = devm_gpiod_get_optional(dev, "enable", GPIOD_OUT_HIGH);
-+	if (IS_ERR(priv->en_gpio)) {
-+		ret = PTR_ERR(priv->en_gpio);
-+		dev_err(dev, "failed to fetch enable GPIO! err %d\n", ret);
-+		goto destroy_mutex;
 +	}
 +
-+	priv->gpio.label = "gpio-fpc202";
-+	priv->gpio.base = -1;
-+	priv->gpio.direction_input = fpc202_gpio_direction_input;
-+	priv->gpio.direction_output = fpc202_gpio_direction_output;
-+	priv->gpio.set = fpc202_gpio_set;
-+	priv->gpio.get = fpc202_gpio_get;
-+	priv->gpio.ngpio = FPC202_GPIO_COUNT;
-+	priv->gpio.parent = dev;
-+	priv->gpio.owner = THIS_MODULE;
++	atr->alias_pool = alias_pool;
 +
-+	ret = gpiochip_add_data(&priv->gpio, priv);
-+	if (ret) {
-+		priv->gpio.parent = NULL;
-+		dev_err(dev, "failed to add gpiochip err %d\n", ret);
-+		goto disable_gpio;
++	if (!alias_pool->size)
+ 		return 0;
+ 
+ 	aliases32 = kcalloc(num_aliases, sizeof(*aliases32), GFP_KERNEL);
+-	if (!aliases32)
+-		return -ENOMEM;
++	if (!aliases32) {
++		ret = -ENOMEM;
++		goto err_free_alias_pool;
 +	}
-+
-+	priv->atr = i2c_atr_new(client->adapter, dev, &fpc202_atr_ops, 2);
-+	if (IS_ERR(priv->atr)) {
-+		ret = PTR_ERR(priv->atr);
-+		dev_err(dev, "failed to create i2c atr err %d\n", ret);
-+		goto disable_gpio;
-+	}
-+
-+	i2c_atr_set_driver_data(priv->atr, priv);
-+
-+	bitmap_zero(priv->probed_ports, FPC202_NUM_PORTS);
-+
-+	for_each_child_of_node(dev->of_node, i2c_handle) {
-+		ret = of_property_read_u32(i2c_handle, "reg", &port_id);
-+		if (ret) {
-+			if (ret == -EINVAL)
-+				continue;
-+
-+			dev_err(dev, "failed to read 'reg' property of child node, err %d\n", ret);
-+			goto unregister_chans;
-+		}
-+
-+		if (port_id > FPC202_NUM_PORTS) {
-+			dev_err(dev, "port ID %d is out of range!\n", port_id);
-+			ret = -EINVAL;
-+			goto unregister_chans;
-+		}
-+
-+		ret = fpc202_probe_port(priv, i2c_handle, port_id);
-+		if (ret) {
-+			dev_err(dev, "Failed to probe port %d, err %d\n", port_id, ret);
-+			goto unregister_chans;
-+		}
-+	}
-+
-+	dev_info(&client->dev, "%s FPC202 Dual Port controller found\n", client->name);
-+
-+	goto out;
-+
-+unregister_chans:
-+	for_each_set_bit(port_id, priv->probed_ports, FPC202_NUM_PORTS)
-+		fpc202_remove_port(priv, port_id);
-+
-+	i2c_atr_delete(priv->atr);
-+disable_gpio:
-+	fpc202_set_enable(priv, 0);
-+	gpiochip_remove(&priv->gpio);
-+destroy_mutex:
-+	mutex_destroy(&priv->reg_dev_lock);
-+out:
-+	return ret;
-+}
-+
-+static void fpc202_remove(struct i2c_client *client)
-+{
-+	struct fpc202_priv *priv = i2c_get_clientdata(client);
-+	int port_id;
-+
-+	for_each_set_bit(port_id, priv->probed_ports, FPC202_NUM_PORTS)
-+		fpc202_remove_port(priv, port_id);
-+
-+	mutex_destroy(&priv->reg_dev_lock);
-+
-+	i2c_atr_delete(priv->atr);
-+
-+	fpc202_set_enable(priv, 0);
-+	gpiochip_remove(&priv->gpio);
-+}
-+
-+static const struct of_device_id fpc202_of_match[] = {
-+	{ .compatible = "ti,fpc202" },
-+	{}
-+};
-+MODULE_DEVICE_TABLE(of, fpc202_of_match);
-+
-+static struct i2c_driver fpc202_driver = {
-+	.driver = {
-+		.name = "fpc202",
-+		.of_match_table = fpc202_of_match,
-+	},
-+	.probe = fpc202_probe,
-+	.remove = fpc202_remove,
-+};
-+
-+module_i2c_driver(fpc202_driver);
-+
-+MODULE_AUTHOR("Romain Gantois <romain.gantois@bootlin.com>");
-+MODULE_DESCRIPTION("TI FPC202 Dual Port Controller driver");
-+MODULE_LICENSE("GPL");
-+MODULE_IMPORT_NS(I2C_ATR);
+ 
+ 	ret = fwnode_property_read_u32_array(dev_fwnode(dev), "i2c-alias-pool",
+ 					     aliases32, num_aliases);
+@@ -443,43 +504,27 @@ static int i2c_atr_parse_alias_pool(struct i2c_atr *atr)
+ 		goto err_free_aliases32;
+ 	}
+ 
+-	aliases16 = kcalloc(num_aliases, sizeof(*aliases16), GFP_KERNEL);
+-	if (!aliases16) {
+-		ret = -ENOMEM;
+-		goto err_free_aliases32;
+-	}
+-
+ 	for (i = 0; i < num_aliases; i++) {
+ 		if (!(aliases32[i] & 0xffff0000)) {
+-			aliases16[i] = aliases32[i];
++			alias_pool->aliases[i] = aliases32[i];
+ 			continue;
+ 		}
+ 
+ 		dev_err(dev, "Failed to parse 'i2c-alias-pool' property: I2C flags are not supported\n");
+ 		ret = -EINVAL;
+-		goto err_free_aliases16;
+-	}
+-
+-	alias_use_mask = bitmap_zalloc(num_aliases, GFP_KERNEL);
+-	if (!alias_use_mask) {
+-		ret = -ENOMEM;
+-		goto err_free_aliases16;
++		goto err_free_aliases32;
+ 	}
+ 
+ 	kfree(aliases32);
+ 
+-	atr->num_aliases = num_aliases;
+-	atr->aliases = aliases16;
+-	atr->alias_use_mask = alias_use_mask;
+-
+-	dev_dbg(dev, "i2c-alias-pool has %zu aliases", atr->num_aliases);
++	dev_dbg(dev, "i2c-alias-pool has %zu aliases\n", alias_pool->size);
+ 
+ 	return 0;
+ 
+-err_free_aliases16:
+-	kfree(aliases16);
+ err_free_aliases32:
+ 	kfree(aliases32);
++err_free_alias_pool:
++	i2c_atr_free_alias_pool(alias_pool);
+ 	return ret;
+ }
+ 
+@@ -500,7 +545,6 @@ struct i2c_atr *i2c_atr_new(struct i2c_adapter *parent, struct device *dev,
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	mutex_init(&atr->lock);
+-	spin_lock_init(&atr->alias_mask_lock);
+ 
+ 	atr->parent = parent;
+ 	atr->dev = dev;
+@@ -520,13 +564,12 @@ struct i2c_atr *i2c_atr_new(struct i2c_adapter *parent, struct device *dev,
+ 	atr->i2c_nb.notifier_call = i2c_atr_bus_notifier_call;
+ 	ret = bus_register_notifier(&i2c_bus_type, &atr->i2c_nb);
+ 	if (ret)
+-		goto err_free_aliases;
++		goto err_free_alias_pool;
+ 
+ 	return atr;
+ 
+-err_free_aliases:
+-	bitmap_free(atr->alias_use_mask);
+-	kfree(atr->aliases);
++err_free_alias_pool:
++	i2c_atr_free_alias_pool(atr->alias_pool);
+ err_destroy_mutex:
+ 	mutex_destroy(&atr->lock);
+ 	kfree(atr);
+@@ -543,8 +586,7 @@ void i2c_atr_delete(struct i2c_atr *atr)
+ 		WARN_ON(atr->adapter[i]);
+ 
+ 	bus_unregister_notifier(&i2c_bus_type, &atr->i2c_nb);
+-	bitmap_free(atr->alias_use_mask);
+-	kfree(atr->aliases);
++	i2c_atr_free_alias_pool(atr->alias_pool);
+ 	mutex_destroy(&atr->lock);
+ 	kfree(atr);
+ }
 
 -- 
 2.47.1
