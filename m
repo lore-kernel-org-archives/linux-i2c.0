@@ -1,62 +1,62 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 012AA235BFB;
-	Mon, 13 Jan 2025 12:27:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98A26239799;
+	Mon, 13 Jan 2025 12:27:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736771225; cv=none; b=Ri6VM7GaFqxP9md3qjqYz+o+WzntpN+0jPWMjZZqcXPTBug3SBrvXtsK/Uopax7e94nvT2oiRe4iQZtOTMhQhcyoJEHPUXibdFSwwvSwCjY1qBosJS50VvaS1AxPGqwOC9vaNvMSzfolOpPEtdJk7YChZc5T+PJkf3QZz+rmv5U=
+	t=1736771226; cv=none; b=gOq+XZ1aBcCpCBBhNAVbRKbAFSezO+ejFVMdWzoYDSvRK59qfFysPPrEyq8Wfrq6+MJEawXjiyLdQ5KpqMiGvrtdu1YvMybYEbevicFF4lB3jKlTzTTzV1yHdLlkRR77WfBL9drPxRISO2DEZnQjlcAEQG0oXTfim+cBhmhMa94=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736771225; c=relaxed/simple;
-	bh=R7pz0XBX0BgrtScwKhgYERxMm6Ina5M2/cQDoHU36z0=;
+	s=arc-20240116; t=1736771226; c=relaxed/simple;
+	bh=kxkVdWLNWABkMrhQXDHs8153xINcmHXb/kPLxxUgWhc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=KUM/Gjw0dRRF8tgNlZFuZc40BleMLdZK/q4dRH3sUTDr6AnRuYYDaFCcsbz1ircH0uv0VxaArtI23Qo8rbfEtf8QBSrtGCs7gfyaBTCUcOzxo7gfealvJfbGwS9vgk41tDOm+vQg+nie6JHFon84bOa9bdg4O3Y2+FFROMgqEnE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GCrWrwp9; arc=none smtp.client-ip=209.85.221.50
+	 MIME-Version; b=QOsTAyQP7OIZ5wk/pPzi1dEdM8VvR4iM9ymSMFrj+oEy2g9H9zO/jrr7+y9vI9N1NVxlixdA9JZvtcokxOnPNFpusIlzYj4L9z2fS3xsdUuV8u1ZQ2fk10vRh3/Bm7AwBXjgERrjQc2Pqme5I2eN8Ll0LsA2+PVoc1glDtQmX5g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=diG434a+; arc=none smtp.client-ip=209.85.128.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GCrWrwp9"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-3862b40a6e0so2279442f8f.0;
-        Mon, 13 Jan 2025 04:27:03 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="diG434a+"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-436202dd730so29766455e9.2;
+        Mon, 13 Jan 2025 04:27:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1736771222; x=1737376022; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1736771223; x=1737376023; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=tgZ23kaBTh2F/RZ2prBStTL5i4OYKF6YytVP7mVC+3s=;
-        b=GCrWrwp9YaV2LO7FpEiYymnUpom/6JWKQUNFq/7RwndkoMND+QkJCjMXhcOYc0Ul19
-         SY2Lr6r6q6rg49iSoVIR3BMS2Rn3/FyQRrY5e88AOjCETmbJ4nlB23zulv+0CkzTFnlG
-         VZtl8DOxJiu93xxfeqi+ivXV6knGyV7f6yz2To9jMndBQzXcnYwu9rJkZScX4o9qNQlv
-         i8X8KlfFfWj8pLUOhZG+mH0LuSNSL/jOgNMmKBU1cfWeIf3a5RCoKTlKor1f1dsbFrlh
-         6LvT8sUjb6+8kp+JtIHUrmSP8EEwXs2yo6EuQ9o81rBpjLOWF6+sd4cMxAKuKsAIED0U
-         O1ow==
+        bh=Ep0KfFAO2kailNpwGXc9iLyPxYa9AKLwF9zXOgKPL94=;
+        b=diG434a+9zVeYf4ZIwXWFqBIi2NptFA8Tnoa/zHPqVmmX51rTqFXGcQ+OOmnKWr7/N
+         bcBT8Oopj7abQ+vkoEYQ2g2IR8KLCDjbdf6fBvCvx+szTZs1Oz8QylbWuaGUwCtGQJ6f
+         YL8xur3QSTkCXK0dxqyJLwN1lH0eiWIYsv1NNe7V+yI9meP8WeTqTQflNRcDEl1810dA
+         aMhVlDOyciMHFnR2tbilw8R7/yOVo5SXQRgJcuDC5PFQeVEpBw0f2/1fY5ZYoTKQKheb
+         zHgbw31fUA05ioPScrWWHxB5GvCQSgbyx6KNdBgfLfx33w0lKe8yFZmVBQ+0zMvg8lNL
+         zcZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736771222; x=1737376022;
+        d=1e100.net; s=20230601; t=1736771223; x=1737376023;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=tgZ23kaBTh2F/RZ2prBStTL5i4OYKF6YytVP7mVC+3s=;
-        b=rde3XaVLV7iRr3uBgTqQCzcvcKNtmyh4QR08khSd78A4Nmethxxp+6ysWE1V36uyA0
-         MWcLaD3jBcrvdsPiogAdLSXu48dMK/QTJDfCUepAURiLtO77QPh1iQ8ni+Co4xan9ROz
-         4G1bfTH4hAUwmUUUqYDyE9KqtaxBJxEzPbh7jUoYsaMz3kZNUehbUTH3GCKgImVKwKJ4
-         rqNtDZ7A2ziDE9ytxy5nF/jahTFlSk2mmVGRr/yDHsdPn/DbMQK2bYwtm06wpyPWl1aC
-         Ga5/KKeXZ0BpWbMc99lZduZVr8JHWSfr9bluzF1V8APE3B4R4/KjFDYLZBMb+K3xdFvs
-         7IbA==
-X-Forwarded-Encrypted: i=1; AJvYcCUdoZTCfIH4dpu9kyy1B6mbHcilcsozJDip4wjhVttdeX7OVNvajGjecx+isFXwj38LuXjeTYBiRtwhXKTt@vger.kernel.org, AJvYcCX2BbhjiUkTMa7iheSKtcQxroOw6w745DNY8Aj6j/Q9XMInEC2nXDrdP7+6Jkf2inH/XMXjrtow3L0=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyiiUMF1nZnhp3xrrw0pVg2U71g1U3tVna4bUEGldxxt8jLxP8C
-	q887GRwrC8cM2ZFyEM1No6L925UayNysIG+FkCBtzolXe4fOYckn
-X-Gm-Gg: ASbGncsn11+hGopg2EYmHT+HauWPYrEUTyrcBctdYsvDpVsbZkUEVwZC+KiFa+NheUi
-	39Gj+PfH3cGvWiPt5uzBekr0ms8nAZgw/IV/YZEJA+VV6YuwFlv76vTLoAKI0gvCVKsJ5mT7xUr
-	ST9BRjevZYJ52y8UyEsFuTmEdXawZuzVCgqBwYVlrbCZIZSx0uaZdfuke3T8dG4jhrOEA6rEE9W
-	cJ3pKTGLgkYCukmS4mQ2SYYj+zhLVE5xFi/VF1uttpbwjxrvYdjDrVoSQJDiM9pdveGXqn0ZnJc
-	Eh5TjcNkfw==
-X-Google-Smtp-Source: AGHT+IFKUc067RWqKURCdqYEN45IevOqPBL4b1CXvL6+cWgOYnMj7SxoaS7PBYDlsmu+TgOR8p/6uA==
-X-Received: by 2002:a5d:6da8:0:b0:38a:5ce8:df51 with SMTP id ffacd0b85a97d-38a872f7ef2mr17709349f8f.2.1736771220579;
-        Mon, 13 Jan 2025 04:27:00 -0800 (PST)
+        bh=Ep0KfFAO2kailNpwGXc9iLyPxYa9AKLwF9zXOgKPL94=;
+        b=MnlEBc+GUdBP4F+pL0l9I3GONyM8v2RthqMwuvdSpFltToPH99rEnNqW2pjNilcrIh
+         6dniBGAIcTTJsAg+Ia44DqMuw7nwsdMRO5RukM1jd657JrcUUhrVGHxp03SoyhKAZdgh
+         Fjy4DU8phz7udyJrohKsQOLiccU53gyE0618zG4s9WWrqeDseBrUCFZ/58PQg2X61jEf
+         XxbRxuYBC/ahECPvvm9R81eYgiGoi8zfO1i/EoYMkra2AQ4+Nb+MKMYkFT42ZyzhqU9g
+         4i9nDL/H2hQ12I48OyPAceksGScrywaEpXbnfzmzcogDSYmBEgkL4NGfVRCl7wcRgoSY
+         lJJA==
+X-Forwarded-Encrypted: i=1; AJvYcCURzyYlztPZ83OdkYW9kdr7lnRFozKQmRJ2MUpSJ7p+Z9X6FCzUAqaFEKfTmNi4e2IluJIEvxQEKOeIDO3+@vger.kernel.org, AJvYcCUxGZ7TZtinU4RdZwPY9yaGPR+TtW8YzU/y+WqGirfyKC+aTtrx7X2r3aRVuh+8lqdND+q457ny+9c=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw/IDtG7O6iQrkfjLRI7kYVAVnPgjuzTepfHt+RXCw5ksQk8utO
+	orJXetdAhptJl5Cc0JMq9+x6+faQeQAzHbs8rMHCSRpS3ENhlnlLxc1ece3lDrM=
+X-Gm-Gg: ASbGncvETNYpeJpeB+cmrzzUR+no4qfrCAX9Y1z8+W2ecwbypJSoDpUHkDkCv8xS1sE
+	x/eQil4LvYvoSpQsNL/fursOVb/7XcUQx4TfP04SWzfg7WwvK6uqWKYeG60KcqvNyLugPsTbt1/
+	mMcsjaIxOdH+rIqoqbp7ufez74mPKj0Z8SfD/gn/UyAqZBg9+gy3cr2EeUumDOtDIX0npxbLZXU
+	XdYcALZSqUdSnnp1GTk0FUeyST72H+ZGR5vTqPVw5zSblMV4Z8+WjNEn/k4kvTagkvzoI61Ef7X
+	BGMGqF2jRQ==
+X-Google-Smtp-Source: AGHT+IFsgLgEBrMB7TTIJ/qjyTgtk19I+bBa9GftLkpjygWN6k7hLa5OVQFYWM3xH/JzRmnhoP+0xA==
+X-Received: by 2002:adf:9787:0:b0:386:3e48:f732 with SMTP id ffacd0b85a97d-38a87303f5dmr15132911f8f.16.1736771222734;
+        Mon, 13 Jan 2025 04:27:02 -0800 (PST)
 Received: from prasmi.Home ([2a06:5906:61b:2d00:acc9:404c:3a6c:d1aa])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a8e4c23dcsm11812720f8f.101.2025.01.13.04.26.59
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a8e4c23dcsm11812720f8f.101.2025.01.13.04.27.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jan 2025 04:27:00 -0800 (PST)
+        Mon, 13 Jan 2025 04:27:02 -0800 (PST)
 From: Prabhakar <prabhakar.csengg@gmail.com>
 X-Google-Original-From: Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 To: Chris Brandt <chris.brandt@renesas.com>,
@@ -71,11 +71,10 @@ Cc: linux-renesas-soc@vger.kernel.org,
 	Prabhakar <prabhakar.csengg@gmail.com>,
 	Biju Das <biju.das.jz@bp.renesas.com>,
 	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-	Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
-Subject: [PATCH v6 06/10] i2c: riic: Make use of devres helper to request deasserted reset line
-Date: Mon, 13 Jan 2025 12:26:39 +0000
-Message-ID: <20250113122643.819379-7-prabhakar.mahadev-lad.rj@bp.renesas.com>
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: [PATCH v6 08/10] i2c: riic: Use predefined macro and simplify clock tick calculation
+Date: Mon, 13 Jan 2025 12:26:41 +0000
+Message-ID: <20250113122643.819379-9-prabhakar.mahadev-lad.rj@bp.renesas.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20250113122643.819379-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20250113122643.819379-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
@@ -89,70 +88,75 @@ Content-Transfer-Encoding: 8bit
 
 From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-Simplify the `riic_i2c_probe()` function by using the
-`devm_reset_control_get_optional_exclusive_deasserted()` API to request a
-deasserted reset line. This eliminates the need to manually deassert the
-reset control and the additional cleanup.
+Replace the hardcoded `1000000000` with the predefined `NSEC_PER_SEC`
+macro for clarity. Simplify the code by introducing a `ns_per_tick`
+variable to store `NSEC_PER_SEC / rate`, reducing redundancy and
+improving readability.
 
 Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Tested-by: Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
-Reviewed-by: Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 ---
 v4->v6
-- No change
+- Included `linux/time.h`
+- Included RB/TB tested from Geert and Wolfram
 
 v3->v4
-- No change
+- Switched to use NSEC_PER_SEC instead of NANO
+- Updated the commit message
+- Dropped the RB/TB tags
 
 v2->v3
 - Collected RB and tested tags
 
 v1->v2
-- Updated error message
+- Collected RB tag from Geert
 ---
- drivers/i2c/busses/i2c-riic.c | 17 ++---------------
- 1 file changed, 2 insertions(+), 15 deletions(-)
+ drivers/i2c/busses/i2c-riic.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
-index cf0b45f9e3d5..577be1fb941e 100644
+index d1768b38b12d..aa3e4f430b11 100644
 --- a/drivers/i2c/busses/i2c-riic.c
 +++ b/drivers/i2c/busses/i2c-riic.c
-@@ -423,11 +423,6 @@ static struct riic_irq_desc riic_irqs[] = {
- 	{ .res_num = 5, .isr = riic_tend_isr, .name = "riic-nack" },
- };
+@@ -46,6 +46,7 @@
+ #include <linux/platform_device.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/reset.h>
++#include <linux/time.h>
  
--static void riic_reset_control_assert(void *data)
--{
--	reset_control_assert(data);
--}
--
- static int riic_i2c_probe(struct platform_device *pdev)
+ #define ICCR1_ICE	BIT(7)
+ #define ICCR1_IICRST	BIT(6)
+@@ -313,6 +314,7 @@ static int riic_init_hw(struct riic_dev *riic)
  {
- 	struct device *dev = &pdev->dev;
-@@ -448,18 +443,10 @@ static int riic_i2c_probe(struct platform_device *pdev)
- 		return dev_err_probe(dev, PTR_ERR(riic->clk),
- 				     "missing controller clock");
+ 	int ret;
+ 	unsigned long rate;
++	unsigned long ns_per_tick;
+ 	int total_ticks, cks, brl, brh;
+ 	struct i2c_timings *t = &riic->i2c_t;
+ 	struct device *dev = riic->adapter.dev.parent;
+@@ -376,8 +378,9 @@ static int riic_init_hw(struct riic_dev *riic)
+ 	 * Remove clock ticks for rise and fall times. Convert ns to clock
+ 	 * ticks.
+ 	 */
+-	brl -= t->scl_fall_ns / (1000000000 / rate);
+-	brh -= t->scl_rise_ns / (1000000000 / rate);
++	ns_per_tick = NSEC_PER_SEC / rate;
++	brl -= t->scl_fall_ns / ns_per_tick;
++	brh -= t->scl_rise_ns / ns_per_tick;
  
--	riic->rstc = devm_reset_control_get_optional_exclusive(dev, NULL);
-+	riic->rstc = devm_reset_control_get_optional_exclusive_deasserted(dev, NULL);
- 	if (IS_ERR(riic->rstc))
- 		return dev_err_probe(dev, PTR_ERR(riic->rstc),
--				     "Error: missing reset ctrl\n");
--
--	ret = reset_control_deassert(riic->rstc);
--	if (ret)
--		return ret;
--
--	ret = devm_add_action_or_reset(dev, riic_reset_control_assert, riic->rstc);
--	if (ret)
--		return ret;
-+				     "failed to acquire deasserted reset\n");
+ 	/* Adjust for min register values for when SCLE=1 and NFE=1 */
+ 	if (brl < 1)
+@@ -387,8 +390,7 @@ static int riic_init_hw(struct riic_dev *riic)
  
- 	for (i = 0; i < ARRAY_SIZE(riic_irqs); i++) {
- 		int irq;
+ 	pr_debug("i2c-riic: freq=%lu, duty=%d, fall=%lu, rise=%lu, cks=%d, brl=%d, brh=%d\n",
+ 		 rate / total_ticks, ((brl + 3) * 100) / (brl + brh + 6),
+-		 t->scl_fall_ns / (1000000000 / rate),
+-		 t->scl_rise_ns / (1000000000 / rate), cks, brl, brh);
++		 t->scl_fall_ns / ns_per_tick, t->scl_rise_ns / ns_per_tick, cks, brl, brh);
+ 
+ 	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret)
 -- 
 2.43.0
 
