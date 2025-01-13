@@ -1,62 +1,62 @@
-Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FEE922A4D8;
-	Mon, 13 Jan 2025 12:26:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6719122AE49;
+	Mon, 13 Jan 2025 12:26:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736771219; cv=none; b=VwqC62gFhBswfoofGmUsS9GQKA16W/zmm0jXY2rpgIaR9bWxF6y5LxjbUORYJqK5or71n6BqxGZI1t/GDiA02hxArkXPcBYcDvOIQxHVuPKgTtEEYTINfV7UiuWDIdOJ858Q7S2h/zZNC/FbN1kMrFF49I9ZwEeyU7A/kc6+avQ=
+	t=1736771221; cv=none; b=Z50e7DJWwIP9BfRIjBnRO+4dXYfH1E+bmWhYf7FfgGFrGgoKtdwhzaoX9Hc7taMqujAjxvVWoZ26Q5kI/a4i8T5fRd7ipXiGReS8ins+/E+br4stFROUiC3OQ3yDSRzZnuuxagIG7EO1Ke+oFtYa7zcCMMmvJ0zO9zM35P53T+g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736771219; c=relaxed/simple;
-	bh=xPxmZJPzgiB1EkmfuTmM3PZFUFf/FL1WQSgyJtf/1sM=;
+	s=arc-20240116; t=1736771221; c=relaxed/simple;
+	bh=4pAohm9PgiohpzQ+nzLusuwNomgnJTKczSn8upU0tFw=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=QbaSO9o11uWtnWeFEkLepRCOmIU1niDTjpGY0fUVIipMOVNebgl7hQEYicRp7LWj8NlqkWbLEcesbzI7D4/fmid3Fw+ZzuKnIYLFiQmxXmZosvq86ZBUL9CRwHG6/miDdrLNB8CR34wf3jhBH7yAyoZXBPU9raxXB/TGwmHJZVo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N3MXtZX/; arc=none smtp.client-ip=209.85.128.54
+	 MIME-Version; b=ROEhhiQNfrIDTT2bsb/5YR4GMjh0oj9OdyZa9uZWMjpaQtcKJKcVBMp5eDtgJqnVo/2vIjoBW0VFBXA6/JVtDXOFHy1YDmSf5s/rxd9GBX4vFdi7UNpQ/ZL9s/zQXnSSBY6AsI0qFvjTRIvNWzdy6CgV/NIwlkqT51bpaOznwFs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FBI9DACe; arc=none smtp.client-ip=209.85.221.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N3MXtZX/"
-Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4363ae65100so43700695e9.0;
-        Mon, 13 Jan 2025 04:26:57 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FBI9DACe"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-385de59c1a0so2015103f8f.2;
+        Mon, 13 Jan 2025 04:26:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1736771216; x=1737376016; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1736771218; x=1737376018; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/rNx74P1jADybHGnkrn/6e/0CTICNmCpKRaJWriNlBY=;
-        b=N3MXtZX/ACm0aS0a/Xb4msFjyaIGYA+9S3hlKQIepQe1JLH1LCpX5L0Da55RvJaSOd
-         lsE7EhlJDQokRVSjiev9FVxAD/yEWUhGh8iyH35FEioed0oz6aNpiN9uvzWECiC+zSNx
-         NW9tLjeasQwybAFBpI1GzmXVNVV5o7vo/XSH25wCTGThOJApmKzGxrcBfbJ8tJL5jcAJ
-         FQ+ejaZ91J96groyYDmgHWSz2XkKSc+ERbXhgowSskzIiF2ZAYXgiVA0xRC9YIazLIxZ
-         ul043wa+CNmXMGuC6k74aYMlgrHzwuDAIxJFsA4fWj/oUIaar7O8B0chRu/KJA4xidWC
-         mNxw==
+        bh=6CQU+DVYlAO+oIq3UJzRqfbMr0HitdK160Letc85i8Q=;
+        b=FBI9DACejVceFcC0ClTTVHujkvx+3bYJJzeDXW3KIKpiNYES4mwCbUlmL9GvcXIRsz
+         8mp4OQvDgtH3D1KsN4M47BxJijNAVUciCmlGHXLJ4ikl3GNqKwIc+J56D+in1K8yKDTa
+         fLXfUzMu7iWal+NcQAs5gLrrT8+o5exaGEa2/UaGbQFTwhGAwWocWR8rsJ7bnXQuV/FY
+         wf5U3EOUI8vajQrC5j3or1IftP989uRlg+CmyyTrlG1LThAG3g27AmwMmPKxAQG02Hh/
+         +ivrLg8O4BG0mfYdeX2AGkaPl1ukVa+mLb79voac3Y8Tk00SCZ7w+uzioE04BRTWvRjb
+         1fZg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1736771216; x=1737376016;
+        d=1e100.net; s=20230601; t=1736771218; x=1737376018;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/rNx74P1jADybHGnkrn/6e/0CTICNmCpKRaJWriNlBY=;
-        b=QnGnungwzGkEVcMyOEib66ZDXHCF5jVl1QHpLwUVxA9zRVScZI334f8AUs6hqwZtVi
-         bKOlIhHHB0l6mtt1pYjBLG32zgyaoYaNBHWcTzbBVIxxyOK99q1I4LACnTG+PVypeXX2
-         2RXd04Kqpo2x9ylw1qb/S8k2s1SGEAYZWqBf0vTvUN+nUxBAzuwernfrf4VyCVXMUxiY
-         LWF9C7pNvHY8L7/LUWiIFn1MWOaxWLdYV8uSCgYvt35J/+mjg/5N5AGwsZtnAUEWmi8v
-         /ZLbbR2U3GTLyvsk7ZqUSqTtlUea/KMB4E15AJ0cPP07Q9s3naD+MqScgqh4fD4aV+Mr
-         0A5w==
-X-Forwarded-Encrypted: i=1; AJvYcCVmXS4DnVwV/M3vf7NwZ3wlocD6eihQduMAistuIInkocjUXzW9J9pw9DoY3K74AQ0ii2CZpGHkooI=@vger.kernel.org, AJvYcCVxgVfH9vTRZeP77yZN+Nf44sX7gAGnwT03Ewdnh2m+rp8wHNi05eVLQBpcwYhINbOslUHqKtU0ntDhuq2V@vger.kernel.org
-X-Gm-Message-State: AOJu0YzNybTavB8UdW3Nn+pWiVjsMnrpYTRIvPk0iznfXgksw7fbnMCM
-	hw6nu4/TaGG42z7CdexRbYZlHnigxty+kGZmb6Cx+RFUfmOk+2UQ
-X-Gm-Gg: ASbGncs9o8lDGKDMYRmU26kM7ck3kyYK7YQYN/yLj+cGyI72KTY2+BuZ4t67elBprxQ
-	uGh4rqV2F2dK/vkdotmjX2CfSGad4gyD/TvV6WVuyiAb3WsugnVaEih/ZuorQBksNZf4vobZ6TC
-	81266tBa6hZFWOWSE63TwWyl59gE617RTKyIdpUzbz6yNKSkhB7CgXMyHau16WAhPLChw4ZCmQA
-	xxEhaLBFVbz+afrB8LvOVtDx0IwvYJENOAQcIr4P8nuxuSPvulQ0GU5mJArpIB+BjWeXW1/i5xZ
-	rLJ1awm2Tg==
-X-Google-Smtp-Source: AGHT+IEiYjukAIxRXXeGT+ERN00ZzABAxetvZIxM+7Ej1bgXJ1tTG2/IXdBox3XmCl9Yt+E/1UAVrg==
-X-Received: by 2002:a05:6000:2107:b0:38b:d7d2:131c with SMTP id ffacd0b85a97d-38bd7d215f8mr3819777f8f.32.1736771215660;
-        Mon, 13 Jan 2025 04:26:55 -0800 (PST)
+        bh=6CQU+DVYlAO+oIq3UJzRqfbMr0HitdK160Letc85i8Q=;
+        b=GNejgqWwnGPe0MncDuqpLX2XPqpAxEXoN2kX40No0HHKjttv0YJyov/VY8WoxYDUEV
+         vQj4TUwEq+09WMVLqYilFiHxjgwfIKIngY1lP49h6uI/YALjOr3bnmaeRJZXwwcv+YJE
+         JmL6aCSenX6qfrVQROhNwgXuIxlUX4cP/jEXh9zUemXQIfIQeSd1VPO0ZYnitSwDw6L7
+         gJZJCSzHjyx/5bINfllj93hVu2LN82gNUiBbV+ZPEkAWwHDRYlscJ1T7KK0b6DoYcUyg
+         9wmtH7ULBDJ1nEtuPjTzYuoBCzO8fPaz3q8cFHqeHAu/S98cyymh221wTIGafE5z8Whl
+         ISwg==
+X-Forwarded-Encrypted: i=1; AJvYcCU2+z+89Y0yzvHIKnWxGyRPgZ8WwVQnO6IHJZh2lN+VsEV7LS42yLvvT0hpXYnEbAbBuQ0DeCFMITM=@vger.kernel.org, AJvYcCWL5XgkdAaSQlfgssZTaDACqHIpKYAT1BMedgvwP2R6Fz0DsJ5B7+rGuSAIjW5XN3UQF6dDyMoFZfzEJh5i@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz7U3Y2nKddsXtP2bNfNlL//wPSeNsRpQTMuloQzJy8a0bNJY7d
+	3+ceRxg/ajnZEmTmBnFgWFG+juRl0Wio01kP5tPAH3uUDsqMfvP0
+X-Gm-Gg: ASbGncsIPigo8DuO4BMXIyIh9kHHGtBMCUGcADbGyCgQqUyaxKjuUH2YAVHueuy4iTW
+	qU3WzGDOKyxgj3u1rMT5QW12PMp3A9QlWqQr2KnjSR8F4t6kM7h5n+1NzYijKPrzNPblyWmGzXM
+	nyqBWvCG/HDvQo++tjQYFwndouWDMitDaJzQ1BkVhlghe/tk+EXnAWAr4WPRL9k7odhphcSLsaP
+	xEZQQmOCUe2kZyL/i+zaURUq12AgBybQLFxkFpH+5b35Fl3aKsL1iCAcHdoK2/qBpWEyMzTVcJB
+	k5DbogFdHQ==
+X-Google-Smtp-Source: AGHT+IGC9DFGOG62gGkAFLoAPAC0GixW8o1Xy5xI6YUgpzDHJiXwzZYTQrub0EvnDhbOYWrR9yNROQ==
+X-Received: by 2002:a05:6000:470d:b0:385:df2c:91b5 with SMTP id ffacd0b85a97d-38a87085becmr18908243f8f.0.1736771217635;
+        Mon, 13 Jan 2025 04:26:57 -0800 (PST)
 Received: from prasmi.Home ([2a06:5906:61b:2d00:acc9:404c:3a6c:d1aa])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a8e4c23dcsm11812720f8f.101.2025.01.13.04.26.54
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38a8e4c23dcsm11812720f8f.101.2025.01.13.04.26.56
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Jan 2025 04:26:55 -0800 (PST)
+        Mon, 13 Jan 2025 04:26:57 -0800 (PST)
 From: Prabhakar <prabhakar.csengg@gmail.com>
 X-Google-Original-From: Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 To: Chris Brandt <chris.brandt@renesas.com>,
@@ -71,10 +71,11 @@ Cc: linux-renesas-soc@vger.kernel.org,
 	Prabhakar <prabhakar.csengg@gmail.com>,
 	Biju Das <biju.das.jz@bp.renesas.com>,
 	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: [PATCH v6 01/10] i2c: riic: Introduce a separate variable for IRQ
-Date: Mon, 13 Jan 2025 12:26:34 +0000
-Message-ID: <20250113122643.819379-2-prabhakar.mahadev-lad.rj@bp.renesas.com>
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+	Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
+Subject: [PATCH v6 03/10] i2c: riic: Use local `dev` pointer in `dev_err_probe()`
+Date: Mon, 13 Jan 2025 12:26:36 +0000
+Message-ID: <20250113122643.819379-4-prabhakar.mahadev-lad.rj@bp.renesas.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20250113122643.819379-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
 References: <20250113122643.819379-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
@@ -88,44 +89,52 @@ Content-Transfer-Encoding: 8bit
 
 From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-Refactor the IRQ handling in riic_i2c_probe by introducing a local variable
-`irq` to store IRQ numbers instead of assigning them to `ret`. This change
-improves code readability and clarity.
+Update the `riic_init_hw()` function to use the local `dev` pointer in
+calls to `dev_err_probe()`. Previously, `riic_init_hw()` used
+`riic->adapter.dev` in error reporting. Since this function is invoked
+during the probe phase, the I2C adapter is not yet initialized, leading to
+`(null) ...` being printed in error messages. This patch fixes the issue
+by consistently using the local `dev` pointer, which points to
+`riic->adapter.dev.parent`.
 
-Suggested-by: Andy Shevchenko <andy.shevchenko@gmail.com>
 Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Tested-by: Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
 ---
-v5->v6
-- Included RB tags
+v4->v6
+- No change
+
+v3->v4
+- No change
+
+v2->v3
+- Moved replacing dev_err -> dev_err_probe into patch#1
+- Dropped fixes tags
+- Updated commit message
+- Collected RB and tested tags
+
+v1->v2
+- Collected RB tag from Geert
 ---
- drivers/i2c/busses/i2c-riic.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-riic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
-index 9264adc97ca9..9809ac095710 100644
+index 4e2add343c9e..c555b6220e66 100644
 --- a/drivers/i2c/busses/i2c-riic.c
 +++ b/drivers/i2c/busses/i2c-riic.c
-@@ -464,11 +464,13 @@ static int riic_i2c_probe(struct platform_device *pdev)
- 		return ret;
+@@ -320,7 +320,7 @@ static int riic_init_hw(struct riic_dev *riic)
+ 				      : I2C_MAX_FAST_MODE_FREQ;
  
- 	for (i = 0; i < ARRAY_SIZE(riic_irqs); i++) {
--		ret = platform_get_irq(pdev, riic_irqs[i].res_num);
--		if (ret < 0)
--			return ret;
-+		int irq;
-+
-+		irq = platform_get_irq(pdev, riic_irqs[i].res_num);
-+		if (irq < 0)
-+			return irq;
+ 	if (t->bus_freq_hz > max_freq)
+-		return dev_err_probe(&riic->adapter.dev, -EINVAL,
++		return dev_err_probe(dev, -EINVAL,
+ 				     "unsupported bus speed %uHz (%u max)\n",
+ 				     t->bus_freq_hz, max_freq);
  
--		ret = devm_request_irq(dev, ret, riic_irqs[i].isr,
-+		ret = devm_request_irq(dev, irq, riic_irqs[i].isr,
- 				       0, riic_irqs[i].name, riic);
- 		if (ret) {
- 			dev_err(dev, "failed to request irq %s\n", riic_irqs[i].name);
 -- 
 2.43.0
 
