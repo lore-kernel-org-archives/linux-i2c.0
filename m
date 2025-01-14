@@ -1,47 +1,62 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83C1A33998
-	for <linux-i2c@vger.kernel.org>; Tue, 14 Jan 2025 10:13:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF7CE1ADC70
+	for <linux-i2c@vger.kernel.org>; Tue, 14 Jan 2025 10:17:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736849604; cv=none; b=oD/Q/1WeqgyVXs3xuxQQk1xaKCggSVg5+MiLvKv2ao2ko6jwthLdfrJUtN/EmglRrX0ZCfLLTCwZQml3O6+VnlHnWb0qq7bVeog2aN3FHUxYCu8uyqV4Ws2JZpuHPn3u5DYArMgsa7EpPmypTJz0EMKxQnC/SKAR2fZTnBhk+88=
+	t=1736849856; cv=none; b=l1tamGoVx/77ijQ/244Yg7RWiJ7JA/2hDeZKwOqAPPJhW1olcWDMIi1LqO7wLy7pePvw/FsAnToAVYTnAhRWB5NBT6XorBoBojPXncsj7Y+tyf/vQxBqGKw4tjUP41csnBrTV+9JQGYTv6c50V7S35cKx9kelVFYmmNvdzBluJc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736849604; c=relaxed/simple;
-	bh=XyuwupjflOinh4JaFfF1V9PVJBcHyycumrn5HxGzx/Q=;
+	s=arc-20240116; t=1736849856; c=relaxed/simple;
+	bh=p9FhmEuak2AOj0G3x72jsb8qlhhoblSgTsHoDmwSh7U=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Bh89SrzvTsTmqENaPq4D1VavoLS3eYxUYJk0ThaJnB4e5Ons+uFQC+A4NEVQZJhw2OyxKs4KDykpF1V/Fz9VFEsDv00Q45jYIPzRtU4Ri0N76AtAlwls43jDuqC9M82TsEj+/vreo/TYx0psfL+WkJ1Et/M0vwW2B17EP2ySiy8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=ZHGJwV/B; arc=none smtp.client-ip=194.117.254.33
+	 Content-Type:Content-Disposition:In-Reply-To; b=tqjl4UrzBjzrgl513MrJBcXozUrgVicIehBkglqQ2q9eecmHXjf31XwjJzhCZMcId13ZraCtuMFMft7AU9ssEGN9q4Vs4QM0cAadHkJ1hDI19+/4lSJqE1M73SKr7OWcEyMHwnlBBg5PxVpLfsgyuetGgKs8cV642wPpMYm04/Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=JRwaQWRj; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="ZHGJwV/B"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="JRwaQWRj"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=Xyuw
-	upjflOinh4JaFfF1V9PVJBcHyycumrn5HxGzx/Q=; b=ZHGJwV/B0+A8FTCJvyyo
-	T6djywRWux4mXCrnDQHyoXh2nc6FjTaA7d3/5pn+bXd0ZPSw1D93J/o/YNWcscnw
-	f8yJqFkaNj41TDEI+vMEyRlGb1Qd53jPd8mNdm7tQW/ZPEYQ26s89JVNBY/SEust
-	2XRN3Dyi7iJ8AGOgIELsnVc9z1VwmDX8CvB1uM+vM0Tse3LPfUIWM428FoguuoSn
-	xWFWIQ8I7eE/Z40/aKDeXeOhLXHegtxqNuzUJOeNNcYKVUgBbf8IdALnydd8l2jD
-	959EIforia9Vhz+7VztyqJf5DyvsR9EgWAmt7jcZ+DCxtFSc0qsFrlmN/SrV3uSo
-	yA==
-Received: (qmail 161923 invoked from network); 14 Jan 2025 11:13:14 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 14 Jan 2025 11:13:14 +0100
-X-UD-Smtp-Session: l3s3148p1@G0YQz6crlU9tKPLS
-Date: Tue, 14 Jan 2025 11:13:13 +0100
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=p9Fh
+	mEuak2AOj0G3x72jsb8qlhhoblSgTsHoDmwSh7U=; b=JRwaQWRj51/d7JekyKNx
+	NnNX1JIeLK4D9ZBH05PGDqjj4WfMahb4N9IjjHcVtcYQ0UrmqcFMURXZCvnKuIMH
+	f8WAu8hjHxNlqwHMuI7SYP9CJAfdEodgLL5RZ5qAswfo5PP0PVWatT6Nx23QyB9u
+	A+bxRMbvbqVn2gVl0YkRoVxGtKAwxPSz81vVeOBbIirKqZwVnM06QW2gXXLy/Pji
+	1hw6a5GbtiBXdlzlS41XcuoYLj8ae3r3tNNhR/YpFygxghDKCQxoZoY1KY4TNK9S
+	U3jX1/GMvCrtUGetyShK+nIE3BYcOvQvWiBnF3maacYITOYUZ4dfPWZLR7WW/eka
+	Tg==
+Received: (qmail 163356 invoked from network); 14 Jan 2025 11:17:31 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 14 Jan 2025 11:17:31 +0100
+X-UD-Smtp-Session: l3s3148p1@z0Np3qcrTlltKPLS
+Date: Tue, 14 Jan 2025 11:17:31 +0100
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Atharva Tiwari <evepolonium@gmail.com>
-Cc: Jean Delvare <jdelvare@suse.com>, Andi Shyti <andi.shyti@kernel.org>,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: amd756: Remove TODO
-Message-ID: <Z4Y4uZMdfUpbFNY6@shikoro>
+To: Prabhakar <prabhakar.csengg@gmail.com>
+Cc: Chris Brandt <chris.brandt@renesas.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Andy Shevchenko <andy.shevchenko@gmail.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: Re: [PATCH v6 08/10] i2c: riic: Use predefined macro and simplify
+ clock tick calculation
+Message-ID: <Z4Y5u5ys-w_kD4yC@shikoro>
 Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Atharva Tiwari <evepolonium@gmail.com>,
-	Jean Delvare <jdelvare@suse.com>,
-	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <20250113125729.3014-1-evepolonium@gmail.com>
+	Prabhakar <prabhakar.csengg@gmail.com>,
+	Chris Brandt <chris.brandt@renesas.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Andy Shevchenko <andy.shevchenko@gmail.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Biju Das <biju.das.jz@bp.renesas.com>,
+	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+References: <20250113122643.819379-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+ <20250113122643.819379-9-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -49,48 +64,49 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="gQkTKseIAX0kDxDA"
+	protocol="application/pgp-signature"; boundary="QJfypmv03LFlQyvp"
 Content-Disposition: inline
-In-Reply-To: <20250113125729.3014-1-evepolonium@gmail.com>
+In-Reply-To: <20250113122643.819379-9-prabhakar.mahadev-lad.rj@bp.renesas.com>
 
 
---gQkTKseIAX0kDxDA
+--QJfypmv03LFlQyvp
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jan 13, 2025 at 06:27:28PM +0530, Atharva Tiwari wrote:
-> removing TODO in i2c-amd756.c because Andi Shyti said on
-> https://lore.kernel.org/all/ovddzx2zitp6lqjdasinn2zaaefp35y4mspol3v3x5rk3=
-tddgo@kgcwexuai2ir/
-> : "I think the real solution would be to just
-> remove the comments altogether" so yeah this patch
-> just removes TODO
+On Mon, Jan 13, 2025 at 12:26:41PM +0000, Prabhakar wrote:
+> From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 >=20
-> Signed-off-by: Atharva Tiwari <evepolonium@gmail.com>
+> Replace the hardcoded `1000000000` with the predefined `NSEC_PER_SEC`
+> macro for clarity. Simplify the code by introducing a `ns_per_tick`
+> variable to store `NSEC_PER_SEC / rate`, reducing redundancy and
+> improving readability.
+>=20
+> Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+> Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+> Tested-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Reverted your original commit, reworded the commit message (please check
-how once I pushed out) and applied to for-next, thanks!
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 
---gQkTKseIAX0kDxDA
+--QJfypmv03LFlQyvp
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmeGOLUACgkQFA3kzBSg
-KbaGeQ/9EIzetbGzOPwiY13XfNq5i/z6x3z9ENbY0ZyQkGIlhxfOdIGyr3u7Hfck
-9Q7v4Hbw8GS7U2aHFtScdD4BGs8aHukjY4Aiy8/gyp+/jd0ePl8m+OURMSqbmtoo
-5xmVlVCdhUcZKZpdOCX/fd6/GYnPxbhDoUn8OUJiw4jTajX3+tvLGiszLiMcc5n7
-hBjv+lbInZjh8MZf88aktg+AVYZtjiRcz426YaCcC6nOrtTpK9+UhnDSjf0q6ixL
-GPgIK+u+WtRZ9Lwqc6HHVvCknZZ/9aQ5UGeJDBFmSyZPuIf6+xTNNaj3+nFNtC4f
-21ndDsbMmO9lSQmhL6Yza1Z0Evpb7hUUbtYxHu5sGl00whgFJFOel6yXs4LO3h9i
-Wje1U03ShtS3SyTi8GtBHgLzfbdru7b4AUpCXhdrbYnyfLcQ4D63EJ36BzNHzLTG
-GC3TkjJiKMqlHdyj5FQK1WlAl+eJrbrtII9XPQpeDhoQrGWmno1vpUaSu2n/W4ug
-YGmmyoerffkPPFwDrnh4Qun2wVHhJAfCXOJWimzCzNhcYd1PwgdxFwWhefyhv8nS
-ueao27RCfdnS/oCdR2+KzAZcGmjGslYO/VFOn0x9ojZeL2bI0Ykjzl6O4wLtxCHo
-q/ZKfnyM9IGjh3AJD7IyhC5hyPkZMI4s9h8U87r1A71MhLD8z/s=
-=Ml8I
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmeGOboACgkQFA3kzBSg
+KbYVLg//Ze4fXJfQbPQuzhxzRHjRNkhjzNyR24DnN6opSPoMA9rDLQDV6YK4jpYi
+9RpiLKnzQhpVgyw26V164RanJfVz/3M9eoziUZGdS2CFfU3JlzIZ1yo1a6OBoXjX
+L1D6c5jUUGIAW5RqPegs6TvqZOn8Uif2aiIKe1SaCqzh9Waq2lZX7NcPkr4NVGZO
+TpE4mrZbIEinew/9qXvWv7JEZQpXMuSRrbzfaV2ENuDE1pTx0epjMlq4OKZAaRxJ
+UC1WMVgcHDAwow8tGTx27eY+mYYAhghU2p+POeXR6slaaSTA5SptMrlF/MZlqBQA
++n+MfQ7HgNopLAjSFskdJwzLyc+3mFJUuyvPSRSjfOZdu5SaXjorhigTiHyd2M2j
+L7INHT4Mxnw6GfXpruCMmQLCh1zNK1GO8/Zl7DuNLYIDjI1ZpCyvkeycvCAVT/Ni
+4j402qoCOX0d/GYs6zFuKmqo706NxDbJj5VnFCh+dUizWz11bEq//YSHI6E2lVHy
+2sNfyLl8UxkhkrvTNjWwG+Fo80HbllLjjiWWz2RD/ATHShlNwHNlv3QtZGPSJKVj
+qFveJUwzEL8hs5aJ3ogZBPbCmhv/fLWO/9I8r5UILQOIaLp0HGunJtXu7sOWxTAF
+dggLVLQsbYwaMTayIWNmD/2vj3ZN7hGPt4kbPeL3O1B8nwHPiHg=
+=LtyF
 -----END PGP SIGNATURE-----
 
---gQkTKseIAX0kDxDA--
+--QJfypmv03LFlQyvp--
