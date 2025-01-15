@@ -1,75 +1,206 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from relay9-d.mail.gandi.net (relay9-d.mail.gandi.net [217.70.183.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 337EE35944
-	for <linux-i2c@vger.kernel.org>; Wed, 15 Jan 2025 07:39:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B983E248192;
+	Wed, 15 Jan 2025 09:26:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1736926771; cv=none; b=swDhCGd0FaLowKcAI9tpZV+qHWPbpbSpgmZRu8hsOXQcOPEqg5yY4W92CG4BOw3aGsVa+/UqEZ1XRc0u2DU1wYiRYGYdfvqkMK6zpYul7w+70/eWWzX8b2OwpnXxi5QIK/bNDs0yVn2yUj+e7NC3dbanJsnBQ19bHMBEqHFKdBo=
+	t=1736933169; cv=none; b=O2bX46BXADZkfuN3yCoKDZwAnh2c5yDFWCefETg+hpPDU5pNV/P25QnlpnXE66f41j825npHEkbDoj0VvCWvCnzdm/2bzRLYMoYUViK7yKBlZXUFgV4fXAtSYXO6Go9q/FZ1uQ3HSIM5xWupDmBTnMzc1vyelRPo/ELiaI4ryF4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1736926771; c=relaxed/simple;
-	bh=QRj5cPJhSUmbJHMcfOppAEqnHeS5/vVrsdC4lNgd0IU=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=ZHMVIypIjQDQ4xtAGY1suf6OpkphyIKDJjbkkAUGmUkQZ1B3Q2EzTq2uX5DvVLgV9DwcWDW5nYYltVeNVRXGBVZPm+0pLYYL6is7I+PKDuD9KigLP1p6H7DReEXtfR3/OC81BGP2njgMfGmzNsCJdRbBM0jtAC8ReCO2FlFX/Vo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=end65Yei; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1736933169; c=relaxed/simple;
+	bh=xFP/+4SRBKGjb6aPu8oH1KuzF2unchTIsEVX/r+gJCI=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=ccKLJL/HF2+dtbtm+e/jZsY7SVDH32bcMkrPA4ad9kKSPgERPwu3pJ1XyWns4GEmdYgXMpqM3sAa233WdmSCbklbwg01IPEpxJMWb7WZSMymS4H9vPX805ffcI8rr5ocdpbMGp7y3HQH3ptIm+ub0TuVVQ2H1+vm6DPWCzLGsak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=d0jRktLp; arc=none smtp.client-ip=217.70.183.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="end65Yei"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:mime-version:content-transfer-encoding; s=k1; bh=wrIVOKAgyiYwTC
-	96mV9s9JGPQLTzwqLND59+4MkhVfo=; b=end65YeikGCNyVLKYlV14T/qJnvGnU
-	U6nN50WGsRq7egLVzl+uF4y76y9k5c0WfNfX2SlD9VzxvrGlw8DJc/Chj8czsOPB
-	2Z+910nuNMmCHwQ9M5vlTY0P7bQ25vBnZOHQcNeu2VAy6lT2c1n/xpU16CFvzBmo
-	gW1wL93hU4bo3Rfc48zIPWooEJ69oqBnUTdab0xYFn7ZOQzSDTthTDG+hqgBw2Na
-	/K9eIrZL8z+o8RRtwRfjFYT1XHuuG0Qp5/y7CBimytbcR5HCB5wGJIjWoCFlL1Q3
-	Iw1Tb4bC4V1j+1KjWdn363IsndofBs6kiVWCPj2DWcGs5Sj8kzE+nRtg==
-Received: (qmail 463799 invoked from network); 15 Jan 2025 08:39:25 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 15 Jan 2025 08:39:25 +0100
-X-UD-Smtp-Session: l3s3148p1@whjfxrkrXqAujnut
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-renesas-soc@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Stephen Rothwell <sfr@canb.auug.org.au>,
-	Guenter Roeck <linux@roeck-us.net>,
-	linux-i2c@vger.kernel.org
-Subject: [PATCH] i2c: add kdoc for the new debugfs entry of clients
-Date: Wed, 15 Jan 2025 08:39:18 +0100
-Message-Id: <20250115073918.8297-1-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.39.2
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="d0jRktLp"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id 06F56FF809;
+	Wed, 15 Jan 2025 09:26:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
+	t=1736933165;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=dZAZNWhpm8ToAVmITFQtJEb8rZQTtFaBaFXMR732Xr0=;
+	b=d0jRktLpxKAfsjOuo7QPDtqnjSiC8eqiJ5fTq9nSScI1P1kcpuNZPtEOqmF9DfqANlPPDP
+	gAj0Zroy26I8zBjeJlAMZ5COmKVeYA0G7WgWNL0XkkyAK6ySS0ZbDdxdAr4CN3oibsbRki
+	OjP7ymUjL0cZY9BQiswmPuDCCEN2GEBM9TQPVTs3hkSOGKKAO4Cn4BYRqfVF8D5PqFBS/v
+	EpijD8ka42P0jTHmrTcVLpBrwKQ6I37KrY9M87Y7bqradiKo0sjOYL9/iLUYLpv+TCAOBq
+	0dWjXMtHFRhJnm9QQoz0WrMdsdzQMDU+cfvLw5weFTA1jblbzUw/qskmqRIQEw==
+From: Romain Gantois <romain.gantois@bootlin.com>
+Date: Wed, 15 Jan 2025 10:25:38 +0100
+Subject: [PATCH v6 1/9] dt-bindings: misc: Describe TI FPC202 dual port
+ controller
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250115-fpc202-v6-1-d47a34820753@bootlin.com>
+References: <20250115-fpc202-v6-0-d47a34820753@bootlin.com>
+In-Reply-To: <20250115-fpc202-v6-0-d47a34820753@bootlin.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
+ Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, 
+ Luca Ceresoli <luca.ceresoli@bootlin.com>, 
+ Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Derek Kiernan <derek.kiernan@amd.com>, 
+ Dragan Cvetic <dragan.cvetic@amd.com>, Arnd Bergmann <arnd@arndb.de>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Mauro Carvalho Chehab <mchehab@kernel.org>, 
+ Linus Walleij <linus.walleij@linaro.org>, 
+ Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
+ Kory Maincent <kory.maincent@bootlin.com>, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-media@vger.kernel.org, linux-gpio@vger.kernel.org, 
+ Romain Gantois <romain.gantois@bootlin.com>, 
+ Conor Dooley <conor.dooley@microchip.com>
+X-Mailer: b4 0.14.2
+X-GND-Sasl: romain.gantois@bootlin.com
 
-When adding the new debugfs entry, its kdoc equivalent was forgotten.
-Add it now.
+The FPC202 dual port controller serves as a low speed signal aggregator for
+common port types, notably SFP. It provides access to I2C and low-speed
+GPIO signals of a downstream device through a single upstream control
+interface.
 
-Fixes: d06905d68610 ("i2c: add core-managed per-client directory in debugfs")
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Closes: https://lore.kernel.org/r/20250115163146.6c48f066@canb.auug.org.au
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Up to two logical I2C addresses can be accessed on each of the FPC202's
+ports. The port controller acts as an I2C translator (ATR). It converts
+addresses of incoming and outgoing I2C transactions. One use case of this
+is accessing two SFP modules at logical address 0x50 from the same upstream
+I2C controller, using two different client aliases.
+
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Romain Gantois <romain.gantois@bootlin.com>
 ---
- include/linux/i2c.h | 2 ++
- 1 file changed, 2 insertions(+)
+ .../devicetree/bindings/misc/ti,fpc202.yaml        | 94 ++++++++++++++++++++++
+ MAINTAINERS                                        |  6 ++
+ 2 files changed, 100 insertions(+)
 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 36de788dc7fe..c31fd1dba3bd 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -317,6 +317,8 @@ struct i2c_driver {
-  *	calls it to pass on slave events to the slave driver.
-  * @devres_group_id: id of the devres group that will be created for resources
-  *	acquired when probing this device.
-+ * @debugfs: pointer to the debugfs subdirectory which the I2C core created
-+ *	for this client.
-  *
-  * An i2c_client identifies a single device (i.e. chip) connected to an
-  * i2c bus. The behaviour exposed to Linux is defined by the driver
+diff --git a/Documentation/devicetree/bindings/misc/ti,fpc202.yaml b/Documentation/devicetree/bindings/misc/ti,fpc202.yaml
+new file mode 100644
+index 0000000000000000000000000000000000000000..a8cb10f2d0df3fa5224f95f6f87467a8bce253bc
+--- /dev/null
++++ b/Documentation/devicetree/bindings/misc/ti,fpc202.yaml
+@@ -0,0 +1,94 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/misc/ti,fpc202.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: TI FPC202 dual port controller with expanded IOs
++
++maintainers:
++  - Romain Gantois <romain.gantois@bootlin.com>
++
++allOf:
++  - $ref: /schemas/i2c/i2c-atr.yaml#
++
++properties:
++  compatible:
++    const: ti,fpc202
++
++  reg:
++    maxItems: 1
++
++  gpio-controller: true
++
++  "#gpio-cells":
++    const: 2
++
++  enable-gpios:
++    description:
++      Specifier for the GPIO connected to the EN pin.
++    maxItems: 1
++
++  '#address-cells':
++    const: 1
++
++  '#size-cells':
++    const: 0
++
++patternProperties:
++  "^i2c@[0-1]$":
++    $ref: /schemas/i2c/i2c-controller.yaml#
++    description: Downstream device ports 0 and 1
++
++    properties:
++      reg:
++        maxItems: 1
++        description:
++          Downstream port ID
++
++    required:
++      - "#address-cells"
++      - "#size-cells"
++      - reg
++
++    unevaluatedProperties: false
++
++required:
++  - compatible
++  - reg
++  - gpio-controller
++  - "#gpio-cells"
++  - "#address-cells"
++  - "#size-cells"
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        i2c-atr@f {
++            compatible = "ti,fpc202";
++            reg = <0xf>;
++            #address-cells = <1>;
++            #size-cells = <0>;
++
++            gpio-controller;
++            #gpio-cells = <2>;
++
++            i2c@0 {
++                #address-cells = <1>;
++                #size-cells = <0>;
++                reg = <0>;
++            };
++
++            i2c@1 {
++                #address-cells = <1>;
++                #size-cells = <0>;
++                reg = <1>;
++            };
++        };
++    };
++...
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 1e930c7a58b13d8bbe6bf133ba7b36aa24c2b5e0..2ef5c0d395b3668167dddbd27237a2177f85571e 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -23497,6 +23497,12 @@ F:	drivers/misc/tifm*
+ F:	drivers/mmc/host/tifm_sd.c
+ F:	include/linux/tifm.h
+ 
++TI FPC202 DUAL PORT CONTROLLER
++M:	Romain Gantois <romain.gantois@bootlin.com>
++L:	linux-kernel@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/misc/ti,fpc202.yaml
++
+ TI FPD-LINK DRIVERS
+ M:	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+ L:	linux-media@vger.kernel.org
+
 -- 
-2.39.2
+2.47.1
 
