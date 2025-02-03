@@ -1,167 +1,122 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fallback23.i.mail.ru (fallback23.i.mail.ru [79.137.243.77])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33C721E7C34;
-	Mon,  3 Feb 2025 07:57:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8B09202C3E;
+	Mon,  3 Feb 2025 11:15:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.137.243.77
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738569428; cv=none; b=aA0cZyGdFQLcnuc9/THy2sBkG5tXss6vFJSX6tRgMs6dOKvAC1lGkGuEJUksl3Vy2bp46D+u8hR5PkXnnYrrG3c/f8s6RWO1oIe80AYkTz60QzKLN6Pbm+78dRZuz7nPHulvyiLyPG3ghapaFjPWD7MavoSbE4VRv55vNBJ+YRM=
+	t=1738581315; cv=none; b=mcxL9P34lBrJcIEQP/KWkVtdPplktdG2y9sd+UVWfF7cS11GtGzdXXv42uqtFK//d2o896EuhomyUt6onLz4CwXjx4u4aPBU0IqGM2C5tZ34IHrQ98CwMmr9bgLcdoLGM6sbSppJkI7CWXv1QYkDDoL/RqBQh47VFTgMiRjvTNc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738569428; c=relaxed/simple;
-	bh=5kJGuiN/HJ5xJyJ8CV/kCat9j7iBCMcYyia9cYykokw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LPE32m7ZMXJepl7iClcl5bjIe7H3mj+BQvRF1jvlDDDwxfsdpeIzyxQAgaOVhBB05NeVjgQSjbF8C1fr6IqGt2v9lvtcaoMlGAe0i9q6MPfsgC98iNGTD0X+eTC/WQN4UJo4kWd2YPZ9E70Tm60aQ2f/nKjBwD2YQNvEUBvisPo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mH1VjjzF; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1738581315; c=relaxed/simple;
+	bh=LoKsJEG9+LIsuojkILxBONDu8FcFvAIgVRsSK6JEePQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Z2LvkGlUuc0M5w/avvutr0KyDzTqW4zsELo50FQTJa8I8SNx9PjnPDil/QVtFlkTNX5S8Rwd1SiMYI4yz6lZLcYUyJPaR7BFsPi6/70XmO0hmOH+RFZwgeZ83+rMfSnLqm19UtTsgv4ZhP2WBanHGgTGEx7xhVTtS4gqU3Ybcn0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jiaxyga.com; spf=pass smtp.mailfrom=jiaxyga.com; dkim=pass (1024-bit key) header.d=jiaxyga.com header.i=@jiaxyga.com header.b=FeNgWydy; dkim=pass (1024-bit key) header.d=jiaxyga.com header.i=@jiaxyga.com header.b=Jb3rjcO4; dkim=pass (1024-bit key) header.d=jiaxyga.com header.i=@jiaxyga.com header.b=dyY+cZif; arc=none smtp.client-ip=79.137.243.77
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=jiaxyga.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=jiaxyga.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mH1VjjzF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67AE8C4CEE2;
-	Mon,  3 Feb 2025 07:57:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1738569427;
-	bh=5kJGuiN/HJ5xJyJ8CV/kCat9j7iBCMcYyia9cYykokw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=mH1VjjzFMznyc23SuohffVCndcU3q/YdzYR/SqCthoRVEnF6c5vo/uyAJD4itxzmg
-	 AN8S1mOgDCwqjsS1IblK7xZE+IbZ4isReC2oRPp4S5ECn9tVDV+kuLpbVk+jDHR1q8
-	 PDXYM8hmJ6B9vMirBDkMETCUHP9yIYAeJoOFyX7yKNhKMaZL2zHqa7N0j1SnfP0TUo
-	 Ay1dvF6uilNs/NFgm8T705/fLAp51TEyS4Nay6Jxl6fvxUXl54ekqsNnmhaNbif2PH
-	 /fB60l1Zix7lnVrxmUUwFAJaFNVoMb6/foIbVFBeXGj7VlsV9cx8t4u4MVzmEhPcTk
-	 gV3AAAwX7rxZA==
-Date: Mon, 3 Feb 2025 08:57:04 +0100
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Kaustabh Chakraborty <kauschluss@disroot.org>
-Cc: Rob Herring <robh@kernel.org>, Conor Dooley <conor@kernel.org>, 
-	Alim Akhtar <alim.akhtar@samsung.com>, Sylwester Nawrocki <s.nawrocki@samsung.com>, 
-	Chanwoo Choi <cw00.choi@samsung.com>, Michael Turquette <mturquette@baylibre.com>, 
-	Stephen Boyd <sboyd@kernel.org>, Tomasz Figa <tomasz.figa@gmail.com>, 
-	Linus Walleij <linus.walleij@linaro.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Jiri Slaby <jirislaby@kernel.org>, Lee Jones <lee@kernel.org>, Liam Girdwood <lgirdwood@gmail.com>, 
-	Mark Brown <broonie@kernel.org>, Vinod Koul <vkoul@kernel.org>, 
-	Kishon Vijay Abraham I <kishon@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, 
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
-	Thomas Zimmermann <tzimmermann@suse.de>, Andi Shyti <andi.shyti@kernel.org>, 
-	Ulf Hansson <ulf.hansson@linaro.org>, Jaehoon Chung <jh80.chung@samsung.com>, 
-	Vivek Gautam <gautam.vivek@samsung.com>, Thinh Nguyen <Thinh.Nguyen@synopsys.com>, 
-	Kees Cook <kees@kernel.org>, Tony Luck <tony.luck@intel.com>, 
-	"Guilherme G . Piccoli" <gpiccoli@igalia.com>, Sergey Lisov <sleirsgoevy@gmail.com>, devicetree@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org, linux-serial@vger.kernel.org, 
-	linux-phy@lists.infradead.org, linux-usb@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	linux-i2c@vger.kernel.org, linux-mmc@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH 03/33] dt-bindings: clock: document exynos7870 clock
- driver CMU bindings
-Message-ID: <20250203-congenial-transparent-horse-cc5d4b@krzk-bin>
-References: <20250203-exynos7870-v1-0-2b6df476a3f0@disroot.org>
- <20250202190924.15036-1-kauschluss@disroot.org>
+	dkim=pass (1024-bit key) header.d=jiaxyga.com header.i=@jiaxyga.com header.b="FeNgWydy";
+	dkim=pass (1024-bit key) header.d=jiaxyga.com header.i=@jiaxyga.com header.b="Jb3rjcO4";
+	dkim=pass (1024-bit key) header.d=jiaxyga.com header.i=@jiaxyga.com header.b="dyY+cZif"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=jiaxyga.com; s=mailru;
+	h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:Cc:To:From:From:Subject:Content-Type:Content-Transfer-Encoding:To:Cc; bh=R6AUT5DmULiUOTgDDf4rOieqWxA3bPZAG8HGBV8maJ0=;
+	t=1738581313;x=1738671313; 
+	b=FeNgWydyiKJkeYXdZS8eEYhrtZzzScEFrKch+7uJ+kuXdqHFVsK6TLv+dSnDjYsnlUvPDEcSRPqRO+pFl2lQ3ruWTKbNU0cNNyD9rWtiFnYcV5BuqxX/knb5jFnmrmB1QfEHgPQWWmwLJlpmuerGm1d9lOzS4om3xPkMamK4IJk=;
+Received: from [10.113.199.71] (port=47492 helo=send55.i.mail.ru)
+	by fallback23.i.mail.ru with esmtp (envelope-from <danila@jiaxyga.com>)
+	id 1teuPx-004lBc-8R; Mon, 03 Feb 2025 14:15:05 +0300
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=jiaxyga.com
+	; s=mailru; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
+	Message-ID:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive:X-Cloud-Ids;
+	bh=R6AUT5DmULiUOTgDDf4rOieqWxA3bPZAG8HGBV8maJ0=; t=1738581305; x=1738671305; 
+	b=Jb3rjcO4ObH36FDD1E/qCMuuytw3Nhe+hZtNb/csGIi/osDruWOgPUYDiFvywHvRvvZjX2l9n5I
+	VKdl3FW4aBO5ys6dIE6Kqip7xtTPuztUm6FMx/PHW1tOeOtuSp0LT0Y0miioTecIHJDraUpmpNuXO
+	TVH9jBx7N21KTxIZSWY=;
+Received: from [10.113.159.79] (port=48586 helo=send277.i.mail.ru)
+	by exim-fallback-5fbdbdcb77-vspdv with esmtp (envelope-from <danila@jiaxyga.com>)
+	id 1teuPo-00000000ENG-0T6e; Mon, 03 Feb 2025 14:14:56 +0300
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=jiaxyga.com
+	; s=mailru; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:
+	Message-ID:Date:Subject:Cc:To:From:From:Sender:Reply-To:To:Cc:Content-Type:
+	Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+	Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+	List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive:
+	X-Cloud-Ids:Disposition-Notification-To;
+	bh=R6AUT5DmULiUOTgDDf4rOieqWxA3bPZAG8HGBV8maJ0=; t=1738581296; x=1738671296; 
+	b=dyY+cZifHxlDybxGXvAVV+j4TbWag48fnw54p9+gfxvy7lAdUXClhdj+h5ir1p6ou6dfCKH+gQF
+	YA7IwamI6Nm/D7WbNDqcPHdb1DhUgkrEtMhyXxeivbXa4DirMLiGf2LLw2pieWvs6JF16thiTCgvW
+	RU3zl0xHdwJ6wZdkHHw=;
+Received: by exim-smtp-6d97ff8cf4-hcpzs with esmtpa (envelope-from <danila@jiaxyga.com>)
+	id 1teuPZ-00000000A0H-33GF; Mon, 03 Feb 2025 14:14:42 +0300
+From: Danila Tikhonov <danila@jiaxyga.com>
+To: brgl@bgdev.pl,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	andersson@kernel.org,
+	konradybcio@kernel.org
+Cc: linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux@mainlining.org,
+	~postmarketos/upstreaming@lists.sr.ht,
+	Danila Tikhonov <danila@jiaxyga.com>
+Subject: [PATCH 3/4] dt-bindings: eeprom: at24: Add compatible for Giantec GT24P128E
+Date: Mon,  3 Feb 2025 14:14:28 +0300
+Message-ID: <20250203111429.22062-4-danila@jiaxyga.com>
+X-Mailer: git-send-email 2.48.1
+In-Reply-To: <20250203111429.22062-1-danila@jiaxyga.com>
+References: <20250203111429.22062-1-danila@jiaxyga.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20250202190924.15036-1-kauschluss@disroot.org>
+Content-Transfer-Encoding: 8bit
+X-Mailru-Src: smtp
+X-7564579A: EEAE043A70213CC8
+X-77F55803: 4F1203BC0FB41BD9279F651DE5037A5080B62BE5EE696263B6D179FE0FDCC17E1313CFAB8367EF908E2BE116634AD74DA5B7AF724C7419C6C591814E25D11F9FD7287A6664F0E8427FBD03C4286D0A2435AA1534FA60CA86
+X-7FA49CB5: FF5795518A3D127A4AD6D5ED66289B5278DA827A17800CE763D33D3AF3325E31EA1F7E6F0F101C67BD4B6F7A4D31EC0BCC500DACC3FED6E28638F802B75D45FF8AA50765F790063748D05F5E01EE6C998638F802B75D45FF36EB9D2243A4F8B5A6FCA7DBDB1FC311F39EFFDF887939037866D6147AF826D813E717E62EC20755EE9DB705B7A98D046F6C59B2A196D871CC7F00164DA146DAFE8445B8C89999728AA50765F7900637A6F6611B2784C7A4389733CBF5DBD5E9C8A9BA7A39EFB766F5D81C698A659EA7CC7F00164DA146DA9985D098DBDEAEC82A336C6518635091F6B57BC7E6449061A352F6E88A58FB86F5D81C698A659EA73AA81AA40904B5D9A18204E546F3947CB5C78E0E843E24DA2D242C3BD2E3F4C64AD6D5ED66289B523666184CF4C3C14F6136E347CC761E07725E5C173C3A84C3CC06CF5CFB199D65BA3038C0950A5D36B5C8C57E37DE458B330BD67F2E7D9AF16D1867E19FE14079C09775C1D3CA48CF3D321E7403792E342EB15956EA79C166A417C69337E82CC275ECD9A6C639B01B78DA827A17800CE7CD707F342D9BDC98731C566533BA786AA5CC5B56E945C8DA
+X-C1DE0DAB: 0D63561A33F958A5B68BD9866E00D91C5002B1117B3ED6963638FE6661D62CCAED71F038FC046993823CB91A9FED034534781492E4B8EEAD5B606B10FC07407CC79554A2A72441328621D336A7BC284946AD531847A6065A535571D14F44ED41
+X-C8649E89: 1C3962B70DF3F0ADE00A9FD3E00BEEDF77DD89D51EBB7742D3581295AF09D3DF87807E0823442EA2ED31085941D9CD0AF7F820E7B07EA4CF87B5BE431542B8831EE4D6DA1358D33DF141AA76F40DA2BAB23A593BAE79B5FB2D55A8303E10F658D5D9813428A63F6C24799DB0154828DB37F80B1A62BB60B5F4229DBAABF251F4E4FDFA4A036B0C3902C26D483E81D6BE72B480F99247062FEE42F474E8A1C6FD34D382445848F2F3
+X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu530nj6fImhcD4MUrOEAnl0W826KZ9Q+tr5ycPtXkTV4k65bRjmOUUP8cvGozZ33TWg5HZplvhhXbhDGzqmQDTd6OAevLeAnq3Ra9uf7zvY2zzsIhlcp/Y7m53TZgf2aB4JOg4gkr2biojODHyJtLJ2Qi0vc0TFBgyNA==
+X-Mailru-Sender: 9EB879F2C80682A0D0AE6A344B45275F3916920A183BFB2356704ABB56AC4A0FE648FCC96D7845A447F2D2A5A79AF8E32C62728BC403A049225EC17F3711B6CF1A6F2E8989E84EC137BFB0221605B344978139F6FA5A77F05FEEDEB644C299C0ED14614B50AE0675
+X-Mras: Ok
+X-Mailru-Src: fallback
+X-7564579A: B8F34718100C35BD
+X-77F55803: 6242723A09DB00B4A84B4964F946E17EB1A91FC540E416C1CB476F615DCA8D7C049FFFDB7839CE9E5FC588583EA33AA1358759EE64A96C92D07E42C1A60E8D0EE99FE56C3C39141A9B9B0C5A8C7E20F4
+X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu530nj6fImhcD4MUrOEAnl0W826KZ9Q+tr5+wYjsrrSY/u6NqYXWMR0/V85CnFjCYTu9APdQH0PvpnP5qz8aO2mjTJzjHGC4ogvVuzB3zfVUBtENeZ6b5av1fnCBE34JUDkWdM6QxE+Ga5d8voMtmXfSqgmQqKELHYk5f1Wbpd8t+6
+X-Mras: Ok
+X-7564579A: B8F34718100C35BD
+X-77F55803: 6242723A09DB00B4A84B4964F946E17EB1A91FC540E416C17F4F1A202AC583AF049FFFDB7839CE9E5FC588583EA33AA1D519D8DCAD74EA2A9955108491A19C2EFAB4CE3DD96392D0
+X-D57D3AED: 3ZO7eAau8CL7WIMRKs4sN3D3tLDjz0dLbV79QFUyzQ2Ujvy7cMT6pYYqY16iZVKkSc3dCLJ7zSJH7+u4VD18S7Vl4ZUrpaVfd2+vE6kuoey4m4VkSEu530nj6fImhcD4MUrOEAnl0W826KZ9Q+tr5+wYjsrrSY/u6NqYXWMR0/V85CnFjCYTu9APdQH0PvpnP5qz8aO2mjTJzjHGC4ogvVuzB3zfVUBtENeZ6b5av1fnCBE34JUDkWdM6QxE+Ga5d8voMtmXfSocPAboFA1B25uf5RTkiCWD
+X-Mailru-MI: 20000000000000800
+X-Mras: Ok
 
-On Mon, Feb 03, 2025 at 12:39:24AM +0530, Kaustabh Chakraborty wrote:
+Add the compatible for another 128Kb EEPROM from Giantec.
 
-Subject - drop driver. Bindings are about hardware. This applies to all
-your bindings patches
+Signed-off-by: Danila Tikhonov <danila@jiaxyga.com>
+---
+ Documentation/devicetree/bindings/eeprom/at24.yaml | 1 +
+ 1 file changed, 1 insertion(+)
 
-> +        clock-names:
-> +          items:
-> +            - const: oscclk
-> +            - const: gout_mif_cmu_mfcmscl_mfc
-> +            - const: gout_mif_cmu_mfcmscl_mscl
-> +
-> +  - if:
-> +      properties:
-> +        compatible:
-> +          contains:
-> +            const: samsung,exynos7870-cmu-peri
-> +
+diff --git a/Documentation/devicetree/bindings/eeprom/at24.yaml b/Documentation/devicetree/bindings/eeprom/at24.yaml
+index e7496ece8ae9..0ac68646c077 100644
+--- a/Documentation/devicetree/bindings/eeprom/at24.yaml
++++ b/Documentation/devicetree/bindings/eeprom/at24.yaml
+@@ -136,6 +136,7 @@ properties:
+           - const: atmel,24c64
+       - items:
+           - enum:
++              - giantec,gt24p128e
+               - giantec,gt24p128f
+               - renesas,r1ex24128
+               - samsung,s524ad0xd1
+-- 
+2.48.1
 
-Drop blank line
-
-> +    then:
-> +      properties:
-> +        clocks:
-> +          items:
-> +            - description: External reference clock (26 MHz)
-> +            - description: CMU_PERI bus clock (from CMU_MIF)
-> +            - description: SPI0 clock (from CMU_MIF)
-> +            - description: SPI1 clock (from CMU_MIF)
-> +            - description: SPI2 clock (from CMU_MIF)
-> +            - description: SPI3 clock (from CMU_MIF)
-> +            - description: SPI4 clock (from CMU_MIF)
-> +            - description: UART0 clock (from CMU_MIF)
-> +            - description: UART1 clock (from CMU_MIF)
-> +            - description: UART2 clock (from CMU_MIF)
-> +
-> +        clock-names:
-> +          items:
-> +            - const: oscclk
-> +            - const: gout_mif_cmu_peri_bus
-> +            - const: gout_mif_cmu_peri_spi0
-> +            - const: gout_mif_cmu_peri_spi1
-> +            - const: gout_mif_cmu_peri_spi2
-> +            - const: gout_mif_cmu_peri_spi3
-> +            - const: gout_mif_cmu_peri_spi4
-> +            - const: gout_mif_cmu_peri_uart0
-> +            - const: gout_mif_cmu_peri_uart1
-> +            - const: gout_mif_cmu_peri_uart2
-> +
-> +required:
-> +  - compatible
-> +  - "#clock-cells"
-> +  - clocks
-> +  - clock-names
-> +  - reg
-
-required block is just after properties.
-
-> +
-> +additionalProperties: false
-> +
-> +examples:
-> +  # Clock controller node for CMU_PERI
-
-Drop
-
-> +  - |
-> +    #include <dt-bindings/clock/exynos7870.h>
-> +
-> +    cmu_peri: clock-controller@101F0000 {
-
-Lowercase hex
-
-> +      compatible = "samsung,exynos7870-cmu-peri";
-> +      reg = <0x101f0000 0x1000>;
-> +      #clock-cells = <1>;
-> +
-> +      clock-names = "oscclk",
-> +                    "gout_mif_cmu_peri_bus",
-> +                    "gout_mif_cmu_peri_spi0",
-> +                    "gout_mif_cmu_peri_spi1",
-> +                    "gout_mif_cmu_peri_spi2",
-> +                    "gout_mif_cmu_peri_spi3",
-> +                    "gout_mif_cmu_peri_spi4",
-> +                    "gout_mif_cmu_peri_uart0",
-> +                    "gout_mif_cmu_peri_uart1",
-> +                    "gout_mif_cmu_peri_uart2";
-> +      clocks = <&oscclk>,
-> +               <&cmu_mif CLK_GOUT_MIF_CMU_PERI_BUS>,
-> +               <&cmu_mif CLK_GOUT_MIF_CMU_PERI_SPI0>,
-> +               <&cmu_mif CLK_GOUT_MIF_CMU_PERI_SPI1>,
-> +               <&cmu_mif CLK_GOUT_MIF_CMU_PERI_SPI2>,
-> +               <&cmu_mif CLK_GOUT_MIF_CMU_PERI_SPI3>,
-> +               <&cmu_mif CLK_GOUT_MIF_CMU_PERI_SPI4>,
-> +               <&cmu_mif CLK_GOUT_MIF_CMU_PERI_UART0>,
-> +               <&cmu_mif CLK_GOUT_MIF_CMU_PERI_UART1>,
-> +               <&cmu_mif CLK_GOUT_MIF_CMU_PERI_UART2>;
-> +    };
-> +
-> +...
-> -- 
-> 2.48.1
-> 
