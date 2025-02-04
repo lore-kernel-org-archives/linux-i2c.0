@@ -1,39 +1,39 @@
 Received: from relay4-d.mail.gandi.net (relay4-d.mail.gandi.net [217.70.183.196])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D701E20A5CA;
-	Tue,  4 Feb 2025 09:29:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E8CD207A19;
+	Tue,  4 Feb 2025 09:29:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.196
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738661370; cv=none; b=beM+JaSlCKNUpmKfACYmpGl9Varo9fWVkY5F+p+45LoyFfHpJVv9edgDm037274l7c19nm2434bQqi1OZOViz5ny54CBIBT3DX1s+9Tma8HMI40mpHPQAzinnZZSMa1NWVNG112yvAK3XpIyEfrC+wsKF07xELc3GE7cIZvCIyA=
+	t=1738661371; cv=none; b=m2m1uRY6GXCHW6ddzpvDHZQSdV62JI7kXr7yWMW5pgXeiLhR54gFZpJrbM3koVS4z8vIHFZxMKHzdjDTefYwYIbICfJKxxip2woNFcy2UHvZq4VSsh+LlqusZu1eqtlHT+pKYWKAeX+7b1gUi7+yRyVS3pT/wWf6XCQzknVr4dA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738661370; c=relaxed/simple;
-	bh=u6TT5tLgQSB2LcT8eyCO7h0Vll4qkdcUfOlP4+tYeZA=;
+	s=arc-20240116; t=1738661371; c=relaxed/simple;
+	bh=uwleHELCDxefzsTrKEyvJkFzG4zqH/uU5XUDcbB2FYk=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Z87vKxO9xpSI3pWomP1sPkX3zHpGDc0uQqDQEr87G7P6KRO+7YOjjEFsKie0P6KvNMh51WPPJOHtX5o0LtBvUWlv1k4kwSX0EstsCmtLb0+UPSBDfz9kkgpabP7lIWGLnnWOrCaOpSXiKg2Ys9c6hr2Lm9zxWxtST1aj0lkIzks=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=IugucDF9; arc=none smtp.client-ip=217.70.183.196
+	 In-Reply-To:To:Cc; b=YY0OgAsFNCYKgoQ0GW9EK6wtzh5ZpUIM9T+q9rfFMU5i5fTAnGJiIO6VsgDTH8AWlgjinz9N/y73LI+UAZUcAPss6/D/l/hSqPklgZvwfzJB0+3KgLDYhNEcAn4bx25wS43Shqfm7gXUQdD1WZJ4zxO3vkEg6n0bCMp6Kx7U6uQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Acp/vsSd; arc=none smtp.client-ip=217.70.183.196
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="IugucDF9"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 23556433EE;
-	Tue,  4 Feb 2025 09:29:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Acp/vsSd"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id A49884435C;
+	Tue,  4 Feb 2025 09:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1738661366;
+	t=1738661360;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=v40zWBlUzwQVJicfUqDAPQECoG5UIa9/l4Qp0jQwMv8=;
-	b=IugucDF90pFK4Cge1l2VjzUDk5srWoaXlYNDPfimUSNQVwwAqo8UHf3UnHAMBSrltq3t5m
-	lPbEKzqi0GuBhihrdwnUNDH0nGWLvwYYZzKnfd4wToFZAA0ql7OP4VHCkWhoRF6aTnNE5H
-	SmSCoku0b/RXKjLW7OYOV9LcmT9r64XGPDPKC4gWo8w10zxQFK7liyzm550zmJyY1zXdMc
-	jLwz0nfkTQ+8v7DdceICpteo9LphsN3CVjRRXUTk6eNfnvzw2ypFM7Gxy9AKIg1UV3uDVt
-	cJr36aeKMxms4pFMOBRl9oP8nWfqqo6mH28ZSQl2hJvwf6SjZAjjK23vSIznIg==
+	bh=FEupvcbyFP1FMX7h0RUYEpOlmfghhLcT2eYt5M/AdM8=;
+	b=Acp/vsSdyGQ5NyG1+C9q1SEEM9EIT/+2kQW5RjZflrgSQXdweWunvKZZZ/1TjPEhTc4d/x
+	8VQ/ZwWt5T1kNdTNtckIPcpUueYuLorVkAZFLZsoSzPVV95JTU1/wv8ZmPD4lxzTcur8rB
+	AjQFdRyPHe1FQVWN0TWO5rjkQLRF3oExurzhQo7eyEsd2OyOY8uHtJGvCheLve9mf5uN1D
+	+Kfrg5MQhlZgOUoYsfL0tKWoAv7/NduSZl+TQNEd8N/6dAaCb64xoVi1z1hMqYh2IM5Uq+
+	bTv0P7AyPQxGY7NE4w7euLGs1GHgB9rkTNYa14bq5lqRNApww//t82lLpYTE+Q==
 From: Romain Gantois <romain.gantois@bootlin.com>
-Date: Tue, 04 Feb 2025 10:29:17 +0100
-Subject: [PATCH v7 6/9] i2c: rename field 'alias_list' of struct
- i2c_atr_chan to 'alias_pairs'
+Date: Tue, 04 Feb 2025 10:29:12 +0100
+Subject: [PATCH v7 1/9] dt-bindings: misc: Describe TI FPC202 dual port
+ controller
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -42,7 +42,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250204-fpc202-v7-6-78b4b8a35cf1@bootlin.com>
+Message-Id: <20250204-fpc202-v7-1-78b4b8a35cf1@bootlin.com>
 References: <20250204-fpc202-v7-0-78b4b8a35cf1@bootlin.com>
 In-Reply-To: <20250204-fpc202-v7-0-78b4b8a35cf1@bootlin.com>
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
@@ -60,97 +60,150 @@ Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
  Kory Maincent <kory.maincent@bootlin.com>, linux-i2c@vger.kernel.org, 
  linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
  linux-media@vger.kernel.org, linux-gpio@vger.kernel.org, 
- Romain Gantois <romain.gantois@bootlin.com>
+ Romain Gantois <romain.gantois@bootlin.com>, 
+ Conor Dooley <conor.dooley@microchip.com>
 X-Mailer: b4 0.14.2
 X-GND-State: clean
 X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvtdduhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephfffufggtgfgkfhfjgfvvefosehtjeertdertdejnecuhfhrohhmpeftohhmrghinhcuifgrnhhtohhishcuoehrohhmrghinhdrghgrnhhtohhishessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnhepkeelieefteelffeuheevtdetkefhfffhteffkefgtefhkeevudeutdeugfffheegnecukfhppeeltddrkeelrdduieefrdduvdejnecuvehluhhsthgvrhfuihiivgepfeenucfrrghrrghmpehinhgvthepledtrdekledrudeifedruddvjedphhgvlhhopegludelvddrudeikedrtddrudefngdpmhgrihhlfhhrohhmpehrohhmrghinhdrghgrnhhtohhishessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepvddvpdhrtghpthhtoheprghrnhgusegrrhhnuggsrdguvgdprhgtphhtthhopehrohhmrghinhdrghgrnhhtohhishessghoohhtlhhinhdrtghomhdprhgtphhtthhopehthhhomhgrshdrphgvthgriiiiohhnihessghoohhtlhhinhdrtghomhdprhgtphhtthhopeguvghrvghkrdhkihgvrhhnrghnsegrmhgurdgtohhmpdhrtghpthhtohepthhomhhirdhvrghlkhgvihhnvghns
- ehiuggvrghsohhnsghorghrugdrtghomhdprhgtphhtthhopegurhgrghgrnhdrtghvvghtihgtsegrmhgurdgtohhmpdhrtghpthhtohepuggvvhhitggvthhrvggvsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprghnughirdhshhihthhisehkvghrnhgvlhdrohhrgh
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvtdduhecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephfffufggtgfgkfhfjgfvvefosehtjeertdertdejnecuhfhrohhmpeftohhmrghinhcuifgrnhhtohhishcuoehrohhmrghinhdrghgrnhhtohhishessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnhepieethfejleejueduleffveejleefkeeiheffffefkefgtedtiedvvddtfeetgefhnecuffhomhgrihhnpeguvghvihgtvghtrhgvvgdrohhrghenucfkphepledtrdekledrudeifedruddvjeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpeeltddrkeelrdduieefrdduvdejpdhhvghloheplgduledvrdduieekrddtrddufegnpdhmrghilhhfrhhomheprhhomhgrihhnrdhgrghnthhoihhssegsohhothhlihhnrdgtohhmpdhnsggprhgtphhtthhopedvfedprhgtphhtthhopegrrhhnugesrghrnhgusgdruggvpdhrtghpthhtoheprhhomhgrihhnrdhgrghnthhoihhssegsohhothhlihhnrdgtohhmpdhrtghpthhtohepthhhohhmrghsrdhpvghtrgiiiihonhhisegsohhothhlihhnrdgtohhmpdhrtghpthhtohepuggvrhgvkhdrkhhivghrnhgrnhesrghmugdrtghom
+ hdprhgtphhtthhopehtohhmihdrvhgrlhhkvghinhgvnhesihguvggrshhonhgsohgrrhgurdgtohhmpdhrtghpthhtohepughrrghgrghnrdgtvhgvthhitgesrghmugdrtghomhdprhgtphhtthhopeguvghvihgtvghtrhgvvgesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhg
 X-GND-Sasl: romain.gantois@bootlin.com
 
-The "alias_list" field of struct i2c_atr_chan describes translation table
-entries programmed in the ATR channel. This terminology will become more
-confusing when per-channel alias pool support is introduced, as struct
-i2c_atr_chan will gain a new field called "alias_pool", which will describe
-aliases which are available to the ATR channel.
+The FPC202 dual port controller serves as a low speed signal aggregator for
+common port types, notably SFP. It provides access to I2C and low-speed
+GPIO signals of a downstream device through a single upstream control
+interface.
 
-Rename the "alias_list" field to "alias_pairs" to clearly distinguish it
-from the future "alias_pool" field.
+Up to two logical I2C addresses can be accessed on each of the FPC202's
+ports. The port controller acts as an I2C translator (ATR). It converts
+addresses of incoming and outgoing I2C transactions. One use case of this
+is accessing two SFP modules at logical address 0x50 from the same upstream
+I2C controller, using two different client aliases.
 
-No functional change is intended.
-
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
 Signed-off-by: Romain Gantois <romain.gantois@bootlin.com>
 ---
- drivers/i2c/i2c-atr.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ .../devicetree/bindings/misc/ti,fpc202.yaml        | 94 ++++++++++++++++++++++
+ MAINTAINERS                                        |  6 ++
+ 2 files changed, 100 insertions(+)
 
-diff --git a/drivers/i2c/i2c-atr.c b/drivers/i2c/i2c-atr.c
-index e9c6b85e3e4a4ff84fdf9ad139f05fdceb441120..01f8c6f6e68a0a6012101a201c3fd8c7c0f25b47 100644
---- a/drivers/i2c/i2c-atr.c
-+++ b/drivers/i2c/i2c-atr.c
-@@ -56,7 +56,7 @@ struct i2c_atr_alias_pool {
-  * @adap:            The &struct i2c_adapter for the channel
-  * @atr:             The parent I2C ATR
-  * @chan_id:         The ID of this channel
-- * @alias_list:      List of @struct i2c_atr_alias_pair containing the
-+ * @alias_pairs:     List of @struct i2c_atr_alias_pair containing the
-  *                   assigned aliases
-  * @orig_addrs_lock: Mutex protecting @orig_addrs
-  * @orig_addrs:      Buffer used to store the original addresses during transmit
-@@ -67,7 +67,7 @@ struct i2c_atr_chan {
- 	struct i2c_atr *atr;
- 	u32 chan_id;
+diff --git a/Documentation/devicetree/bindings/misc/ti,fpc202.yaml b/Documentation/devicetree/bindings/misc/ti,fpc202.yaml
+new file mode 100644
+index 0000000000000000000000000000000000000000..a8cb10f2d0df3fa5224f95f6f87467a8bce253bc
+--- /dev/null
++++ b/Documentation/devicetree/bindings/misc/ti,fpc202.yaml
+@@ -0,0 +1,94 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/misc/ti,fpc202.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: TI FPC202 dual port controller with expanded IOs
++
++maintainers:
++  - Romain Gantois <romain.gantois@bootlin.com>
++
++allOf:
++  - $ref: /schemas/i2c/i2c-atr.yaml#
++
++properties:
++  compatible:
++    const: ti,fpc202
++
++  reg:
++    maxItems: 1
++
++  gpio-controller: true
++
++  "#gpio-cells":
++    const: 2
++
++  enable-gpios:
++    description:
++      Specifier for the GPIO connected to the EN pin.
++    maxItems: 1
++
++  '#address-cells':
++    const: 1
++
++  '#size-cells':
++    const: 0
++
++patternProperties:
++  "^i2c@[0-1]$":
++    $ref: /schemas/i2c/i2c-controller.yaml#
++    description: Downstream device ports 0 and 1
++
++    properties:
++      reg:
++        maxItems: 1
++        description:
++          Downstream port ID
++
++    required:
++      - "#address-cells"
++      - "#size-cells"
++      - reg
++
++    unevaluatedProperties: false
++
++required:
++  - compatible
++  - reg
++  - gpio-controller
++  - "#gpio-cells"
++  - "#address-cells"
++  - "#size-cells"
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    i2c {
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        i2c-atr@f {
++            compatible = "ti,fpc202";
++            reg = <0xf>;
++            #address-cells = <1>;
++            #size-cells = <0>;
++
++            gpio-controller;
++            #gpio-cells = <2>;
++
++            i2c@0 {
++                #address-cells = <1>;
++                #size-cells = <0>;
++                reg = <0>;
++            };
++
++            i2c@1 {
++                #address-cells = <1>;
++                #size-cells = <0>;
++                reg = <1>;
++            };
++        };
++    };
++...
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 896a307fa06545e2861abe46ea7029f9b4d3628e..4bb13de2b8ebad5180e2bde607dac40f35c51782 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -23709,6 +23709,12 @@ F:	drivers/misc/tifm*
+ F:	drivers/mmc/host/tifm_sd.c
+ F:	include/linux/tifm.h
  
--	struct list_head alias_list;
-+	struct list_head alias_pairs;
- 
- 	/* Lock orig_addrs during xfer */
- 	struct mutex orig_addrs_lock;
-@@ -192,7 +192,7 @@ static int i2c_atr_map_msgs(struct i2c_atr_chan *chan, struct i2c_msg *msgs,
- 	for (i = 0; i < num; i++) {
- 		chan->orig_addrs[i] = msgs[i].addr;
- 
--		c2a = i2c_atr_find_mapping_by_addr(&chan->alias_list,
-+		c2a = i2c_atr_find_mapping_by_addr(&chan->alias_pairs,
- 						   msgs[i].addr);
- 		if (!c2a) {
- 			dev_err(atr->dev, "client 0x%02x not mapped!\n",
-@@ -262,7 +262,7 @@ static int i2c_atr_smbus_xfer(struct i2c_adapter *adap, u16 addr,
- 	struct i2c_adapter *parent = atr->parent;
- 	struct i2c_atr_alias_pair *c2a;
- 
--	c2a = i2c_atr_find_mapping_by_addr(&chan->alias_list, addr);
-+	c2a = i2c_atr_find_mapping_by_addr(&chan->alias_pairs, addr);
- 	if (!c2a) {
- 		dev_err(atr->dev, "client 0x%02x not mapped!\n", addr);
- 		return -ENXIO;
-@@ -380,7 +380,7 @@ static int i2c_atr_attach_addr(struct i2c_adapter *adapter,
- 
- 	c2a->addr = addr;
- 	c2a->alias = alias;
--	list_add(&c2a->node, &chan->alias_list);
-+	list_add(&c2a->node, &chan->alias_pairs);
- 
- 	return 0;
- 
-@@ -401,7 +401,7 @@ static void i2c_atr_detach_addr(struct i2c_adapter *adapter,
- 
- 	atr->ops->detach_addr(atr, chan->chan_id, addr);
- 
--	c2a = i2c_atr_find_mapping_by_addr(&chan->alias_list, addr);
-+	c2a = i2c_atr_find_mapping_by_addr(&chan->alias_pairs, addr);
- 	if (!c2a) {
- 		 /* This should never happen */
- 		dev_warn(atr->dev, "Unable to find address mapping\n");
-@@ -621,7 +621,7 @@ int i2c_atr_add_adapter(struct i2c_atr *atr, u32 chan_id,
- 
- 	chan->atr = atr;
- 	chan->chan_id = chan_id;
--	INIT_LIST_HEAD(&chan->alias_list);
-+	INIT_LIST_HEAD(&chan->alias_pairs);
- 	mutex_init(&chan->orig_addrs_lock);
- 
- 	snprintf(chan->adap.name, sizeof(chan->adap.name), "i2c-%d-atr-%d",
++TI FPC202 DUAL PORT CONTROLLER
++M:	Romain Gantois <romain.gantois@bootlin.com>
++L:	linux-kernel@vger.kernel.org
++S:	Maintained
++F:	Documentation/devicetree/bindings/misc/ti,fpc202.yaml
++
+ TI FPD-LINK DRIVERS
+ M:	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+ L:	linux-media@vger.kernel.org
 
 -- 
 2.47.1
