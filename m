@@ -1,81 +1,212 @@
-Received: from relay3-d.mail.gandi.net (relay3-d.mail.gandi.net [217.70.183.195])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 906392063D8;
-	Wed,  5 Feb 2025 10:23:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54D4C14A088
+	for <linux-i2c@vger.kernel.org>; Wed,  5 Feb 2025 13:46:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1738751033; cv=none; b=uCQg2HzfL1TL+DtEpaXtf1vVpJzNWZEV3ExaefmVvMPepn/TBjUte5v/37D+ZtCwuQZOK+KidIZCpiScK9gpqoupcXg260JlTBBFLaU12O7gBA+0a1slG4j62mRi8Bj4HIK7l8U2RmvhV0WtO8gZbFj2tL/Zx/ssZjNoVr9yjks=
+	t=1738763194; cv=none; b=gnzFFq/bdvgUXu5o5PLSttzpUUxkiZnxdEZoAplsa6Dl9sgI+vbUi0Frj7q4Tnsegn0ZZd6h6+hEET2+oOpQpSQwHkcX7HAnXhOdtW4T3/8+jU1nsMpMRTS0rZBir0eLSxDD/Ok/G3YYN6M5CTmmoTe6075sVGRw4UW5jGR+xoM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1738751033; c=relaxed/simple;
-	bh=l8WUMCh4/bacxntxMeJpQkFivTbCQf82Fd87xLkpqaI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eyedkiCT/O4K+Zw9NGYvQ2ok744E19GFjC1dEr48Fmmbqdk9bwWwQfygu6BmXd/KFCCNIjDOWIxNQ/4ZxAldWhgWq+a3gEeDnUD99YlUCabM9foiWldjeytPV82Bglv3JnugraYsgbh1u7KZhDmP3Jkv1E5rBBX+TeJG4RhSMPE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=pXUBfIoL; arc=none smtp.client-ip=217.70.183.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1738763194; c=relaxed/simple;
+	bh=vnPp5lLHj8ZsK5IUwJHRCJtn3kh/vC+b+JXII13iIw0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=C4yiEK3zMccr0aj0z2x/XAFiH9NH8eY8lNyxBoEFdvIuzKVrQt+PasnjbkbvwaC9wkZiLRsamANsXCy+T2BbfwpymtuZqppi48AIhUvkZpyQ4amSbU/hepdXtP57wwn/iSrn3eBlz0G5CQw75DEj6VxVzOByrRBD2roexWqagJs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=KSWVXWtK; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="pXUBfIoL"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id B591520479;
-	Wed,  5 Feb 2025 10:23:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1738751027;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=OCgPDTwzHkVl8WwhlQzvIZcaXBEvz3BrPQEMI8PN0Po=;
-	b=pXUBfIoL9X29WYaV553bYN5PrfgONgLKE0knP7SlKPqVv8uGlYh9Bxe9QxV2k630fFi61g
-	8JRtqr1lglESNL4ldKtcPtWvovVbwaqyMR0Us/3eYh/dt/ecKtai3h5N+oQ8dALkZieMF8
-	NrQ3XW6n0EHwPolG4QhWEa3bXAy4FEXlyvt8LHrEMEFJiqeryImqpOCzfjOAb0QT1kXH+F
-	DVNnx+VR7FjW5+Y2NHaNxyO6fm+lRrj3Rg/HHOI5nfMjUf1aM4xPM0l6EYBbkGv9e/xKt4
-	mntXL3TnTl67ISClR5aS1I3sPi67Gh/ZwRD0iAkDtq2PmS/01ZNjbIl8GXJEMQ==
-Date: Wed, 5 Feb 2025 11:23:46 +0100
-From: Alexandre Belloni <alexandre.belloni@bootlin.com>
-To: Ming Yu <a0282524688@gmail.com>
-Cc: tmyu0@nuvoton.com, lee@kernel.org, linus.walleij@linaro.org,
-	brgl@bgdev.pl, andi.shyti@kernel.org, mkl@pengutronix.de,
-	mailhol.vincent@wanadoo.fr, andrew+netdev@lunn.ch,
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-	pabeni@redhat.com, wqlinux@roeck-us.net, jdelvare@suse.com,
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-can@vger.kernel.org,
-	netdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
-	linux-hwmon@vger.kernel.org, linux-rtc@vger.kernel.org,
-	linux-usb@vger.kernel.org
-Subject: Re: [PATCH v6 7/7] rtc: Add Nuvoton NCT6694 RTC support
-Message-ID: <20250205102214a6357365@mail.local>
-References: <20250123091115.2079802-1-a0282524688@gmail.com>
- <20250123091115.2079802-8-a0282524688@gmail.com>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="KSWVXWtK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=from:to:cc:subject:date:message-id
+	:in-reply-to:references:mime-version:content-transfer-encoding;
+	 s=k1; bh=oQv9sXf6+EsztDBva31BK2v1ZX49PiPczM/j+QJVeKs=; b=KSWVXW
+	tKpT/nGyjBgcdgaIUkhuCjxcoK39oA/HWwpOeiJMWmVSustRaZYWNudE9d6asQAJ
+	WrWmeS249bFPrutxoNMGkr6B35UJiM0+kL2hBoJMG+ggu+GH7j79jtcH+48MQ/Du
+	XtL4LMOVNwD4SyJ91tnN2IkRiU6/XMaUpuchioQLSzLEfHfxPKwJMaL0xwaZoiBd
+	AI57pB1kgLnKFnV5uYt53q5Qvl2fbpZHbB2tmcV7rnQnBWmatR2rK9aec4+rR/nA
+	yc+6kegHgnZf4V8bG9svWDlEI+mEb4KUkkifLYtEkG4K/vd8PS9i9XhRLezgROEg
+	+3neaWpbFg5MIOIw==
+Received: (qmail 3407812 invoked from network); 5 Feb 2025 14:46:29 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 5 Feb 2025 14:46:29 +0100
+X-UD-Smtp-Session: l3s3148p1@d4wzWmUt6IltK/OC
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-renesas-soc@vger.kernel.org
+Cc: Heiner Kallweit <hkallweit1@gmail.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	linux-i2c@vger.kernel.org
+Subject: [PATCH 2/2] Revert "i2c: Replace list-based mechanism for handling auto-detected clients"
+Date: Wed,  5 Feb 2025 14:42:27 +0100
+Message-ID: <20250205134623.6921-3-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.45.2
+In-Reply-To: <20250205134623.6921-1-wsa+renesas@sang-engineering.com>
+References: <20250205134623.6921-1-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250123091115.2079802-8-a0282524688@gmail.com>
-X-GND-State: clean
-X-GND-Score: 0
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvfedvtdcutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfitefpfffkpdcuggftfghnshhusghstghrihgsvgenuceurghilhhouhhtmecufedtudenucenucfjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpeetlhgvgigrnhgurhgvuceuvghllhhonhhiuceorghlvgigrghnughrvgdrsggvlhhlohhnihessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnhepgeeiudeuteehhfekgeejveefhfeiudejuefhgfeljefgjeegkeeujeeugfehgefgnecuffhomhgrihhnpegsohhothhlihhnrdgtohhmnecukfhppedvrgdtudemtggsudegmeehheeimeejrgdttdemrggutdefmeegfheltgemfeefjehfmehffeefugenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpedvrgdtudemtggsudegmeehheeimeejrgdttdemrggutdefmeegfheltgemfeefjehfmehffeefugdphhgvlhhopehlohgtrghlhhhoshhtpdhmrghilhhfrhhomheprghlvgigrghnughrvgdrsggvlhhlohhnihessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepvdegpdhrtghpthhtoheprgdtvdekvdehvdegieekkeesghhmrghilhdrtghomhdprhgtphhtthhopehtmhihuhdtsehnuhhvohhtohhnrdgtohhmpdhrtghpthhtoheplhgvvgeskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhus
- hdrfigrlhhlvghijheslhhinhgrrhhordhorhhgpdhrtghpthhtohepsghrghhlsegsghguvghvrdhplhdprhgtphhtthhopegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepmhhklhesphgvnhhguhhtrhhonhhigidruggvpdhrtghpthhtohepmhgrihhlhhholhdrvhhinhgtvghnthesfigrnhgrughoohdrfhhr
-X-GND-Sasl: alexandre.belloni@bootlin.com
+Content-Transfer-Encoding: 8bit
 
-On 23/01/2025 17:11:15+0800, Ming Yu wrote:
-> +	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
-> +					nct6694_irq, IRQF_ONESHOT,
-> +					"rtc-nct6694", data);
-> +	if (ret < 0)
-> +		return dev_err_probe(&pdev->dev, ret, "Failed to request irq\n");
-> +
-> +	ret = devm_rtc_register_device(data->rtc);
-> +	if (ret)
-> +		return dev_err_probe(&pdev->dev, ret, "Failed to register rtc\n");
+This reverts commit 56a50667cbcfaf95eea9128d5676af94e54b51a8. Mux
+handling is not sufficiently implemented. It needs more time.
 
-This message is not necessary, all the error paths of
-devm_rtc_register_device already print a message
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/i2c-core-base.c | 52 +++++++++++++++++++++++++------------
+ include/linux/i2c.h         |  3 ++-
+ 2 files changed, 38 insertions(+), 17 deletions(-)
 
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index ddac2f155718..35a221e2c11c 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1704,6 +1704,23 @@ int i2c_add_numbered_adapter(struct i2c_adapter *adap)
+ }
+ EXPORT_SYMBOL_GPL(i2c_add_numbered_adapter);
+ 
++static void i2c_do_del_adapter(struct i2c_driver *driver,
++			      struct i2c_adapter *adapter)
++{
++	struct i2c_client *client, *_n;
++
++	/* Remove the devices we created ourselves as the result of hardware
++	 * probing (using a driver's detect method) */
++	list_for_each_entry_safe(client, _n, &driver->clients, detected) {
++		if (client->adapter == adapter) {
++			dev_dbg(&adapter->dev, "Removing %s at 0x%x\n",
++				client->name, client->addr);
++			list_del(&client->detected);
++			i2c_unregister_device(client);
++		}
++	}
++}
++
+ static int __unregister_client(struct device *dev, void *dummy)
+ {
+ 	struct i2c_client *client = i2c_verify_client(dev);
+@@ -1719,6 +1736,12 @@ static int __unregister_dummy(struct device *dev, void *dummy)
+ 	return 0;
+ }
+ 
++static int __process_removed_adapter(struct device_driver *d, void *data)
++{
++	i2c_do_del_adapter(to_i2c_driver(d), data);
++	return 0;
++}
++
+ /**
+  * i2c_del_adapter - unregister I2C adapter
+  * @adap: the adapter being unregistered
+@@ -1742,6 +1765,11 @@ void i2c_del_adapter(struct i2c_adapter *adap)
+ 	}
+ 
+ 	i2c_acpi_remove_space_handler(adap);
++	/* Tell drivers about this removal */
++	mutex_lock(&core_lock);
++	bus_for_each_drv(&i2c_bus_type, NULL, adap,
++			       __process_removed_adapter);
++	mutex_unlock(&core_lock);
+ 
+ 	/* Remove devices instantiated from sysfs */
+ 	mutex_lock_nested(&adap->userspace_clients_lock,
+@@ -1760,10 +1788,8 @@ void i2c_del_adapter(struct i2c_adapter *adap)
+ 	 * we can't remove the dummy devices during the first pass: they
+ 	 * could have been instantiated by real devices wishing to clean
+ 	 * them up properly, so we give them a chance to do that first. */
+-	mutex_lock(&core_lock);
+ 	device_for_each_child(&adap->dev, NULL, __unregister_client);
+ 	device_for_each_child(&adap->dev, NULL, __unregister_dummy);
+-	mutex_unlock(&core_lock);
+ 
+ 	/* device name is gone after device_unregister */
+ 	dev_dbg(&adap->dev, "adapter [%s] unregistered\n", adap->name);
+@@ -1983,6 +2009,7 @@ int i2c_register_driver(struct module *owner, struct i2c_driver *driver)
+ 	/* add the driver to the list of i2c drivers in the driver core */
+ 	driver->driver.owner = owner;
+ 	driver->driver.bus = &i2c_bus_type;
++	INIT_LIST_HEAD(&driver->clients);
+ 
+ 	/* When registration returns, the driver core
+ 	 * will have called probe() for all matching-but-unbound devices.
+@@ -2000,13 +2027,10 @@ int i2c_register_driver(struct module *owner, struct i2c_driver *driver)
+ }
+ EXPORT_SYMBOL(i2c_register_driver);
+ 
+-static int __i2c_unregister_detected_client(struct device *dev, void *argp)
++static int __process_removed_driver(struct device *dev, void *data)
+ {
+-	struct i2c_client *client = i2c_verify_client(dev);
+-
+-	if (client && client->flags & I2C_CLIENT_AUTO)
+-		i2c_unregister_device(client);
+-
++	if (dev->type == &i2c_adapter_type)
++		i2c_do_del_adapter(data, to_i2c_adapter(dev));
+ 	return 0;
+ }
+ 
+@@ -2017,12 +2041,7 @@ static int __i2c_unregister_detected_client(struct device *dev, void *argp)
+  */
+ void i2c_del_driver(struct i2c_driver *driver)
+ {
+-	mutex_lock(&core_lock);
+-	/* Satisfy __must_check, function can't fail */
+-	if (driver_for_each_device(&driver->driver, NULL, NULL,
+-				   __i2c_unregister_detected_client)) {
+-	}
+-	mutex_unlock(&core_lock);
++	i2c_for_each_dev(driver, __process_removed_driver);
+ 
+ 	driver_unregister(&driver->driver);
+ 	pr_debug("driver [%s] unregistered\n", driver->driver.name);
+@@ -2449,7 +2468,6 @@ static int i2c_detect_address(struct i2c_client *temp_client,
+ 	/* Finally call the custom detection function */
+ 	memset(&info, 0, sizeof(struct i2c_board_info));
+ 	info.addr = addr;
+-	info.flags = I2C_CLIENT_AUTO;
+ 	err = driver->detect(temp_client, &info);
+ 	if (err) {
+ 		/* -ENODEV is returned if the detection fails. We catch it
+@@ -2476,7 +2494,9 @@ static int i2c_detect_address(struct i2c_client *temp_client,
+ 		dev_dbg(&adapter->dev, "Creating %s at 0x%02x\n",
+ 			info.type, info.addr);
+ 		client = i2c_new_client_device(adapter, &info);
+-		if (IS_ERR(client))
++		if (!IS_ERR(client))
++			list_add_tail(&client->detected, &driver->clients);
++		else
+ 			dev_err(&adapter->dev, "Failed creating %s at 0x%02x\n",
+ 				info.type, info.addr);
+ 	}
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 4955d9e76c5f..2b2af24d2a43 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -244,6 +244,7 @@ enum i2c_driver_flags {
+  * @id_table: List of I2C devices supported by this driver
+  * @detect: Callback for device detection
+  * @address_list: The I2C addresses to probe (for detect)
++ * @clients: List of detected clients we created (for i2c-core use only)
+  * @flags: A bitmask of flags defined in &enum i2c_driver_flags
+  *
+  * The driver.owner field should be set to the module owner of this driver.
+@@ -298,6 +299,7 @@ struct i2c_driver {
+ 	/* Device detection callback for automatic device creation */
+ 	int (*detect)(struct i2c_client *client, struct i2c_board_info *info);
+ 	const unsigned short *address_list;
++	struct list_head clients;
+ 
+ 	u32 flags;
+ };
+@@ -334,7 +336,6 @@ struct i2c_client {
+ #define I2C_CLIENT_SLAVE	0x20	/* we are the slave */
+ #define I2C_CLIENT_HOST_NOTIFY	0x40	/* We want to use I2C host notify */
+ #define I2C_CLIENT_WAKE		0x80	/* for board_info; true iff can wake */
+-#define I2C_CLIENT_AUTO		0x100	/* client was auto-detected */
+ #define I2C_CLIENT_SCCB		0x9000	/* Use Omnivision SCCB protocol */
+ 					/* Must match I2C_M_STOP|IGNORE_NAK */
+ 
 -- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+2.45.2
+
