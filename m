@@ -1,50 +1,50 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E8E062580CF;
-	Wed, 12 Feb 2025 16:34:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0957E2580D7;
+	Wed, 12 Feb 2025 16:34:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1739378054; cv=none; b=e3TGEocFHq7YsnmBAX11FX2+p12b4wotXjPVx1jjJsOWmXxrnoH6MHGVbPXoNAgm1FW7Mj6C6DBerDlejtzXqQeVk5A5OjU67JB37IneLf0SH1h5eNASuRmDVpNHiKExy+ILuZljlsql3NBsy+eQg++Jk/P0Os6Gli9FFVb/BzY=
+	t=1739378054; cv=none; b=G2HUGvddWOBHveY1KrNGiwpe8tJej2z7nJTfuaELtN2lHLltyQw3fP9Jow6r6Fge8RPr2Wp3bEojmvaR7RGDRkOD+KmQRXZRNNdVCmV29DWDSiFM5Oio48Odd7juPd6JXw7PzPsZ/sZn1nTWfNR2PANuwy3bRa+w+WlB1DaKO7c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1739378054; c=relaxed/simple;
-	bh=34yUH4FReh//Shi3Q14PxOJohJbKhtrPmtlmxuM90Cw=;
+	bh=6LcH/n/8RKz7Qn8xIS3YjC1iiVGNtYLVAm7DIZYYkeY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MQzQlbgAC6McEXuoJH39GzGSwRgpoRz0jzY4hklnyQoOe3SD+sjAaP88/i59salMTYKuV0zDXq38pPHyDyuox9y0tcVHisBPU5aIIRYJRun1rZqVGBjplKYDTKF4g5FFkO7u0pmGUj/6l/2qf66/v/QTxQv8rPokfpbyBEDRqUY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=PKrKXApI; arc=none smtp.client-ip=198.175.65.14
+	 MIME-Version; b=q6snL9YcqgMCYZwvSGNenVezKpe8uEqgAX+tyOT6utroDvk9OLZeeI6UeRWW7AYN0rL+fqHMWGJTtQ1oRoCBLYh02ws+qN971Yc0vLmxLOOZO+HFSl+CdDHrOjaoFaBrtXE+vPhTrrlLQj1N4ePM2Zlv72nt8Mpos6WXV97S95Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=SHpoqde6; arc=none smtp.client-ip=198.175.65.13
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="PKrKXApI"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="SHpoqde6"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
   t=1739378053; x=1770914053;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=34yUH4FReh//Shi3Q14PxOJohJbKhtrPmtlmxuM90Cw=;
-  b=PKrKXApIfURcRxczAdbn2gpl5u4kqBFaHD1QWbhaQ5raWU+neENjWBiz
-   B2ca++sF25532JVJtsClSL7IGvflW8GeJQOOZd7fKBMq3hSj2jZicggYj
-   Xqgp1FxrokPb1tF6JjseWn5mAnvyqM4k49pEqbJSGZPrqT0Ae7c1AWpNb
-   rjzcgBukKqYktY+kcT266PmXH8EzGWg1JYqOoXLDXQCi4Bu6DDEJjcqyT
-   BX447KgRKlwjps82h2+YVz8Se5tKhnYNNOZmz51VbL5vsFeVD0a/rpmGp
-   ULpdkLueY2YllTClHZkfES5wWkw7+OTAXNyM5Oz4dBBaaiqDwt3P0R1ED
-   Q==;
-X-CSE-ConnectionGUID: PCrDZbtrTumpo1aCvH/W6g==
-X-CSE-MsgGUID: uBLy22CxQMuQ0VEtTkTYNg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11343"; a="43811889"
+  bh=6LcH/n/8RKz7Qn8xIS3YjC1iiVGNtYLVAm7DIZYYkeY=;
+  b=SHpoqde6Nm+tECA6jCwZdx08DLm/BXl9wko974GOVBt18ej6zv0U4iyd
+   7jbRkbC32yv/1hBDRZ7f9tHm+zBK3ViVY6YSc6OLfSxJ1r4VE3Zm8qq39
+   PRI54Z+pqKE8K1e1jL7t6Rfgj1iQ1foheifnT03tGq7fcidbpj2z55un2
+   y7u8vAs15CAgayrAJdscEApZf89UFBl6boNOSSGD19lFv2Le9d/M3e1NY
+   vYbIzkNlHKDrIiJ+SZV9LQnz5dMLLLg79PS4B+WNAh9GQfQczgPS0p4Iy
+   LnF7kXmPo6pZKmXSf8QPfJCw+R5xB10nnsvkYtkr5wCeNlM0d+QkrSgWg
+   g==;
+X-CSE-ConnectionGUID: 19uXkYfwTDqzZdO2DHmq3A==
+X-CSE-MsgGUID: DrlbTWJrTTKmZqygaXNw8A==
+X-IronPort-AV: E=McAfee;i="6700,10204,11343"; a="51032405"
 X-IronPort-AV: E=Sophos;i="6.13,280,1732608000"; 
-   d="scan'208";a="43811889"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Feb 2025 08:34:13 -0800
-X-CSE-ConnectionGUID: +vdWh79iQG6OMwT6nXvM4w==
-X-CSE-MsgGUID: MwpZszTMTVaYHbh6HJ9xRg==
+   d="scan'208";a="51032405"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Feb 2025 08:34:13 -0800
+X-CSE-ConnectionGUID: ywYT84jHTgqIZemsslPwlQ==
+X-CSE-MsgGUID: 1fXgybwmTnmsx5GqXBiEuA==
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.12,224,1728975600"; 
-   d="scan'208";a="143815136"
+X-IronPort-AV: E=Sophos;i="6.13,280,1732608000"; 
+   d="scan'208";a="117879160"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmviesa001.fm.intel.com with ESMTP; 12 Feb 2025 08:34:08 -0800
+  by orviesa004.jf.intel.com with ESMTP; 12 Feb 2025 08:34:08 -0800
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id 0F81F4D1; Wed, 12 Feb 2025 18:34:02 +0200 (EET)
+	id E0A00322; Wed, 12 Feb 2025 18:34:01 +0200 (EET)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
@@ -64,9 +64,9 @@ Cc: Krzysztof Adamski <krzysztof.adamski@nokia.com>,
 	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
 	Gregory CLEMENT <gregory.clement@bootlin.com>,
 	Fabrizio Castro <fabrizio.castro.jz@renesas.com>
-Subject: [PATCH v1 8/8] i2c: rzv2m: Use i2c_10bit_addr_from_msg() helper
-Date: Wed, 12 Feb 2025 18:32:33 +0200
-Message-ID: <20250212163359.2407327-9-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 5/8] i2c: kempld: Use i2c_10bit_addr_from_msg() helper
+Date: Wed, 12 Feb 2025 18:32:30 +0200
+Message-ID: <20250212163359.2407327-6-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.45.1.3035.g276e886db78b
 In-Reply-To: <20250212163359.2407327-1-andriy.shevchenko@linux.intel.com>
 References: <20250212163359.2407327-1-andriy.shevchenko@linux.intel.com>
@@ -83,30 +83,24 @@ No functional change intended.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-rzv2m.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/i2c/busses/i2c-kempld.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-rzv2m.c b/drivers/i2c/busses/i2c-rzv2m.c
-index 02b76e24a476..55c5ce3b0f97 100644
---- a/drivers/i2c/busses/i2c-rzv2m.c
-+++ b/drivers/i2c/busses/i2c-rzv2m.c
-@@ -287,13 +287,9 @@ static int rzv2m_i2c_send_address(struct rzv2m_i2c_priv *priv,
- 	int ret;
- 
- 	if (msg->flags & I2C_M_TEN) {
--		/*
--		 * 10-bit address
--		 *   addr_1: 5'b11110 | addr[9:8] | (R/nW)
--		 *   addr_2: addr[7:0]
--		 */
--		addr = 0xf0 | ((msg->addr & GENMASK(9, 8)) >> 7);
--		addr |= !!(msg->flags & I2C_M_RD);
-+		/* 10-bit address */
-+		addr = i2c_10bit_addr_from_msg(msg);
-+
- 		/* Send 1st address(extend code) */
- 		ret = rzv2m_i2c_write_with_ack(priv, addr);
- 		if (ret)
+diff --git a/drivers/i2c/busses/i2c-kempld.c b/drivers/i2c/busses/i2c-kempld.c
+index 212196af68ba..7508cc7a33a6 100644
+--- a/drivers/i2c/busses/i2c-kempld.c
++++ b/drivers/i2c/busses/i2c-kempld.c
+@@ -115,9 +115,7 @@ static int kempld_i2c_process(struct kempld_i2c_data *i2c)
+ 	if (i2c->state == STATE_ADDR) {
+ 		/* 10 bit address? */
+ 		if (i2c->msg->flags & I2C_M_TEN) {
+-			addr = 0xf0 | ((i2c->msg->addr >> 7) & 0x6);
+-			/* Set read bit if necessary */
+-			addr |= (i2c->msg->flags & I2C_M_RD) ? 1 : 0;
++			addr = i2c_10bit_addr_from_msg(msg);
+ 			i2c->state = STATE_ADDR10;
+ 		} else {
+ 			addr = i2c_8bit_addr_from_msg(i2c->msg);
 -- 
 2.45.1.3035.g276e886db78b
 
