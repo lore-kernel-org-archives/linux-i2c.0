@@ -1,177 +1,146 @@
-Received: from mo4-p01-ob.smtp.rzone.de (mo4-p01-ob.smtp.rzone.de [81.169.146.165])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBC571E9B36;
-	Thu, 20 Feb 2025 08:43:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=81.169.146.165
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740041043; cv=pass; b=N3XRXiSDu3IIIgGHYaXofF68+JQeVKKjrOel7K4ByFP8Rn6ExpzWQnbjGVc2wOIj5AIKpreRwIEVDOFq13yZmY14hOB2X4Nr3aU/rdnYapb4A5c35q+OcOuWohVuITNyMs86DYc6V9A7oB+Qt6lT1LzyOqcgfQhuFNSkMaZb28I=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740041043; c=relaxed/simple;
-	bh=zieZ0fjy2Z/FwxLjt+yC+FHgdeOXQn5pllZY6zkxF6I=;
-	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
-	 Message-Id:References:To; b=brapnCB5Y9++p+ATqP/YpOM/dQFqa07V0pP8fyqNxftWRt07KooLZlpbuso/5svGqCWdt2UezBJRjmOibatRR2af7W7LCFhYoCqnHzGDM+LDhKBu6owb/N8dELdmuQe84yw/CKgFMF1WtNnHut4rn8n5l3CwwhQakHfv+ayOqOg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=goldelico.com; spf=pass smtp.mailfrom=goldelico.com; dkim=pass (2048-bit key) header.d=goldelico.com header.i=@goldelico.com header.b=JeZbldPB; dkim=permerror (0-bit key) header.d=goldelico.com header.i=@goldelico.com header.b=pKzWVbxx; arc=pass smtp.client-ip=81.169.146.165
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=goldelico.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goldelico.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D1C51F0E4E
+	for <linux-i2c@vger.kernel.org>; Thu, 20 Feb 2025 09:47:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1740044879; cv=none; b=oXYJOn2Wb1LfZG62xE11uoUOzl27JICqTSWEURDN7yoA91AMK7QksoLdX4ZHkui7HOuVG7R8p6kDopj/KI9w4l7Ol7pMvo5epM/0YI+aZ5Z4kzBD8vywrkSvCWW10aQLhK1gIQDtjQty/Plakqe5SnKK1wjNNSDaupLJxjaQehY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1740044879; c=relaxed/simple;
+	bh=IWsg9d6lbEashhnUPHSkRjmEXhpeKPSMS9vOhHCIlfY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mb4YFA6kx0CYshfc0qddU4qW+5SBSKniGuruVWzphkJqVDxwLBnOF2pdi911SKTOHiALLt9hYAD/lq2GgMX6LsRkik2FrLA+Ti2qHnHA0eODu1LE6JcIoT88dyyQGZawch31JJgCLrMI0OmDkBiVc9e7j3Ch5/0mn4yZJRE7dyw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=T3FUE++P; arc=none smtp.client-ip=209.85.221.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=goldelico.com header.i=@goldelico.com header.b="JeZbldPB";
-	dkim=permerror (0-bit key) header.d=goldelico.com header.i=@goldelico.com header.b="pKzWVbxx"
-ARC-Seal: i=1; a=rsa-sha256; t=1740041022; cv=none;
-    d=strato.com; s=strato-dkim-0002;
-    b=NX4gri5O599Gk5hovWOCAimvx5nDDfF37HEcbwOc554NFCRxtS55or3CJTLhmmK2ji
-    W2AB7beSFIFpO6sxXG1/ynOs5+e9I9eVtaQcpyVhrDsIGo/iRSsM9j/5hcRdNQ5FL3SO
-    bpinrELHaCPiOMEFCoBdEmBdPCarjWk6HPCFkjLVcd3z0v+hj2fctkU4OkADBMXaYGPY
-    ub1H8XLApEzuqq4SarG5BQo2AV+cDcjCWYEOxyevoyxR0H2kTIfLE+O8egpcF9kbZtW8
-    L2/85vTR8Bi/TFrDFXAve+VCWdQLpIyiC7mEgw0eO46CwPIS+dWLBE1sg4ANswVPvZn3
-    Gl9Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1740041022;
-    s=strato-dkim-0002; d=strato.com;
-    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
-    From:Subject:Sender;
-    bh=zieZ0fjy2Z/FwxLjt+yC+FHgdeOXQn5pllZY6zkxF6I=;
-    b=kH+FUFDgnO/WU9FFnvIur3zF0GXGBYkzT8kRAhO5n7KeRdh01TUq3YVmibNfCOSVuk
-    QJltTvJ44uIU03D0OJ6FS4AonSJXEnmd9/nqI0QqqHHDwCYPUQ0fyfrqzU+f+i1vmECf
-    KQGCu/kwv4GCfTyH/f1QrANgXM/+AUuopcxtmDJjUEtdLl3bkcnPmaUQ3WISEEhB0aOi
-    5diVkx1LMTSXMOXDShLp4umfHcBtT9PLJZGSSuPXCZwW/F5ACy6+ipVM8ozc6+L+ur7i
-    TUfYKOA0ZB0IZZNyYmui/HW+eu+IRJ2Tm2ht6p3vtrLQWqQJ4ZpqU0lDC+Q0lvF4OZee
-    nvPg==
-ARC-Authentication-Results: i=1; strato.com;
-    arc=none;
-    dkim=none
-X-RZG-CLASS-ID: mo01
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1740041022;
-    s=strato-dkim-0002; d=goldelico.com;
-    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
-    From:Subject:Sender;
-    bh=zieZ0fjy2Z/FwxLjt+yC+FHgdeOXQn5pllZY6zkxF6I=;
-    b=JeZbldPBQGvyw69RKgnqbD4c+ycP/WyEp4IfuFLDyO77ZvWXTKn60hz/0Qm3XpYG9w
-    w2pzdQfftUXURWlBEcpFbP+nMlugxVt2+/a6eWfxn4ByYWGq7eqjkRHZWKJph4OYUx0a
-    xEl1xb1hx6pogB35GNeiNOCqA3aFzv0s+nYA96KDlMoMI30WGZHFT2fQVKLDtEXrQ5HD
-    K3ZXHAziEcYLqvXKBzmyk471GX4LRdPcxXOoNWnJELtIYPZ+gj3qJJAAB/3fqIlqRjHq
-    QSYOtuouZrRT+iMCK5+tZXf3uLS9/K3ubT3EVRR+r3g6F9Xotc581noISZxrbCHNN1Y/
-    q5UA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1740041022;
-    s=strato-dkim-0003; d=goldelico.com;
-    h=To:References:Message-Id:Cc:Date:In-Reply-To:From:Subject:Cc:Date:
-    From:Subject:Sender;
-    bh=zieZ0fjy2Z/FwxLjt+yC+FHgdeOXQn5pllZY6zkxF6I=;
-    b=pKzWVbxxrmVw+NsDoQlNO72yFL1u3g7dcWn02GUONkoU2x4O6L5UjlLvfgfzNzOUzz
-    HMJCcBZnn2yl4bUogbCQ==
-X-RZG-AUTH: ":JGIXVUS7cutRB/49FwqZ7WcJeFKiMhflhwDubTJ9qVpwcQVkPW4I1HrSj5oLyciNUndkHxYx0Ti5SZ9cNhe0mfWn0QeU"
-Received: from smtpclient.apple
-    by smtp.strato.de (RZmta 51.2.23 AUTH)
-    with ESMTPSA id Qe5b2211K8hfSbq
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (curve X9_62_prime256v1 with 256 ECDH bits, eq. 3072 bits RSA))
-	(Client did not present a certificate);
-    Thu, 20 Feb 2025 09:43:41 +0100 (CET)
-Content-Type: text/plain;
-	charset=us-ascii
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="T3FUE++P"
+Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-38f378498c9so611928f8f.1
+        for <linux-i2c@vger.kernel.org>; Thu, 20 Feb 2025 01:47:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1740044875; x=1740649675; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=3C+kognpjmHLZgIVXwXKpXpKvfpiYLWcBqUjAjWp7Tc=;
+        b=T3FUE++PN0U3+a3SEBSaJHD8QqhO+UgkgQYM8dZRMXZTGqpAYZyJgQT0Q1+6jGr07H
+         H/iUU00igxlY5xiwrjsc19xEVFpDgGInfAqueY4x3/u4hGxRg3JATpGpYuMbtOAnuilk
+         MXfFw17oXJIEnn2s+1bTZOg920iciE+LRztDeurB7uIsV1j3UQQFZ3O4+0jWkcyvf1ca
+         82mvTdeOWU62CIiq8nCmKCtRc/Hsg/Q+wuS7wV2OIJiyuee0tC0WsLCdj1zUQgiTbC4u
+         qHmGahno5mqJsr+fY/iMRbFD/Vl1pJ8HWZfCVueAYZw1spkCPghqbvnjm3snlyEnP747
+         b1kg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740044875; x=1740649675;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=3C+kognpjmHLZgIVXwXKpXpKvfpiYLWcBqUjAjWp7Tc=;
+        b=cuqbyIbNGIeaQmdYdrGApxBN9tDfhxohFUwAvjQqB7hFL5H5iO8R6QhdtJmo10UjJU
+         2aXsmUhqaVB7O0xJZd/NXSdc1agvj70hFcEtjrutMV38hf/n8Pp8FQvRnLkGVPGdkQVq
+         wg8HUbuuWKa2JTYbQG0rP+lwsMwLAZLa4S20oxK6LU8IaR2vOrFKbIHE4pwxD28Jz+db
+         Wjm68sXND/+KbZdKs7hlMOZM0j61c8imQZPz2YOyxezxU9g1i8LwNvEWKr1+SXASxJrp
+         HynJ0J09VtDMxiNMfVnaOYAGPXpWeoJlwcg9TTID0cTPpNmBPH9AX3UZT1BLYB2x9ZiK
+         OeRQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXniOdZCorWWgzAK57z/sJebF0Qz0bNSfiedefw769Wm9uwDhhdagTQ/C9QiN2KsbpK2o65wBqP88U=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyawRZZJWcTm98msrnTMegJbbeX4N3n4g5hW4HL9KbzZdKnaqs9
+	+TRBcia3wQDOtP1x9sS/HxoqMQc0Jf6SDgVMY1ZWV5IOHh7nYwST1FpQfvy35Lo=
+X-Gm-Gg: ASbGncsGriskhRwzE+87Wgrlfo3qkmmHG+owltb65H008s0zdruO2/2sie/O+jEFZJr
+	/zmhAHIdTwg5DxwfTz86i4hm1AsW65//+w/Y0I9dNiWcA5izsM6dtVdVJLgwdEBGZ+9kUh9+G3I
+	fnokVnaDpvVna3TXsMzUIy+qW9g7xQHHeVotEYIVblmBDPbqim4UrVvs1Fl7QngLeG81XBvJgm7
+	Lc35Xx4+hWcf79CNyjNW9aQVOUjiTgeYjBzK45SgvI7mmhMCNJs52iyRqJWVOplztIcEb8HTAmR
+	bdypC7y9xnpbn8uf7bt+/6vw+eY=
+X-Google-Smtp-Source: AGHT+IEsCez3GPLSZunwwFDyUVqq7Wkm5lBgpW3JvRE36iu83J5JlqvN9UXFhpA6HMjqTat9XWSXuQ==
+X-Received: by 2002:adf:f08c:0:b0:38f:30c7:eae4 with SMTP id ffacd0b85a97d-38f33f56507mr18120522f8f.52.1740044875163;
+        Thu, 20 Feb 2025 01:47:55 -0800 (PST)
+Received: from linaro.org ([2a02:2454:ff21:ef30:b30c:3d94:4d4a:a6eb])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-38f561bee3esm5514525f8f.21.2025.02.20.01.47.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 Feb 2025 01:47:54 -0800 (PST)
+Date: Thu, 20 Feb 2025 10:47:49 +0100
+From: Stephan Gerhold <stephan.gerhold@linaro.org>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Wolfram Sang <wsa@kernel.org>, Andy Gross <agross@kernel.org>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Rob Herring <robh+dt@kernel.org>,
+	Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+	Conor Dooley <conor+dt@kernel.org>, linux-arm-msm@vger.kernel.org,
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Konrad Dybcio <konradybcio@kernel.org>
+Subject: Re: [PATCH 3/3] i2c: qup: Vote for interconnect bandwidth to DRAM
+Message-ID: <Z7b6ReQdDtAUn5GP@linaro.org>
+References: <20231128-i2c-qup-dvfs-v1-0-59a0e3039111@kernkonzept.com>
+ <20231128-i2c-qup-dvfs-v1-3-59a0e3039111@kernkonzept.com>
+ <5dr5ps4vb57xj2mfelgsxgoyrr3gg4ggwqggqchff6pda3ffsn@thxpg4h6kgel>
+ <Z7W1EJ7uGsaTZMRh@linaro.org>
+ <sc54ro4pwg5j2lqelsryx7cdw6ipcdp4gfk3ce5sxsvk3s7wzp@wup2pgdzmxtl>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3776.700.51.11.1\))
-Subject: Re: [PATCH] i2c: omap: fix IRQ storms
-From: "H. Nikolaus Schaller" <hns@goldelico.com>
-In-Reply-To: <c3bcusjbn23z5yd2a3xtm7swnfizkl7rb6ufhicdhn52epnjvb@5uqm3g6jcony>
-Date: Thu, 20 Feb 2025 09:43:30 +0100
-Cc: Andreas Kemnade <andreas@kemnade.info>,
- "Raghavendra, Vignesh" <vigneshr@ti.com>,
- Aaro Koskinen <aaro.koskinen@iki.fi>,
- Kevin Hilman <khilman@baylibre.com>,
- Roger Quadros <rogerq@kernel.org>,
- Tony Lindgren <tony@atomide.com>,
- Janusz Krzysztofik <jmkrzyszt@gmail.com>,
- Reid Tonking <reidt@ti.com>,
- wsa@kernel.org,
- Linux-OMAP <linux-omap@vger.kernel.org>,
- linux-i2c@vger.kernel.org,
- Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
- stable@kernel.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <115FEE67-85FB-4D79-B87E-8DEF08019958@goldelico.com>
-References: <20250207185435.751878-1-andreas@kemnade.info>
- <c3bcusjbn23z5yd2a3xtm7swnfizkl7rb6ufhicdhn52epnjvb@5uqm3g6jcony>
-To: Andi Shyti <andi.shyti@kernel.org>
-X-Mailer: Apple Mail (2.3776.700.51.11.1)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <sc54ro4pwg5j2lqelsryx7cdw6ipcdp4gfk3ce5sxsvk3s7wzp@wup2pgdzmxtl>
 
-Hi,
+On Wed, Feb 19, 2025 at 08:30:35PM +0100, Andi Shyti wrote:
+> On Wed, Feb 19, 2025 at 11:40:16AM +0100, Stephan Gerhold wrote:
+> > On Wed, Feb 19, 2025 at 12:02:06AM +0100, Andi Shyti wrote:
+> > > 
+> > > sorry for the very late reply here. Just one question.
+> > > 
+> > 
+> > Thanks for bringing the patch back up after such a long time. I've been
+> > meaning to resend it, but never found the time to do so... :-)
+> 
+> We have a long list of forgotten patches that belong to the far
+> past. I'm trying to revive them.
+> 
 
-> Am 19.02.2025 um 20:22 schrieb Andi Shyti <andi.shyti@kernel.org>:
->=20
-> Hi,
->=20
-> On Fri, Feb 07, 2025 at 07:54:35PM +0100, Andreas Kemnade wrote:
->> On the GTA04A5 writing a reset command to the gyroscope causes IRQ
->> storms because NACK IRQs are enabled and therefore triggered but not
->> acked.
->>=20
->> Sending a reset command to the gyroscope by
->> i2cset 1 0x69 0x14 0xb6
->> with an additional debug print in the ISR (not the thread) itself
->> causes
->>=20
->> [ 363.353515] i2c i2c-1: ioctl, cmd=3D0x720, arg=3D0xbe801b00
->> [ 363.359039] omap_i2c 48072000.i2c: addr: 0x0069, len: 2, flags: =
-0x0, stop: 1
->> [ 363.366180] omap_i2c 48072000.i2c: IRQ LL (ISR =3D 0x1110)
->> [ 363.371673] omap_i2c 48072000.i2c: IRQ (ISR =3D 0x0010)
->> [ 363.376892] omap_i2c 48072000.i2c: IRQ LL (ISR =3D 0x0102)
->> [ 363.382263] omap_i2c 48072000.i2c: IRQ LL (ISR =3D 0x0102)
->> [ 363.387664] omap_i2c 48072000.i2c: IRQ LL (ISR =3D 0x0102)
->> repeating till infinity
->> [...]
->> (0x2 =3D NACK, 0x100 =3D Bus free, which is not enabled)
->> Apparently no other IRQ bit gets set, so this stalls.
->>=20
->> Do not ignore enabled interrupts and make sure they are acked.
->> If the NACK IRQ is not needed, it should simply not enabled, but
->> according to the above log, caring about it is necessary unless
->> the Bus free IRQ is enabled and handled. The assumption that is
->> will always come with a ARDY IRQ, which was the idea behind
->> ignoring it, proves wrong.
->> It is true for simple reads from an unused address.
->>=20
->> So revert
->> commit c770657bd261 ("i2c: omap: Fix standard mode false ACK =
-readings").
->>=20
->> The offending commit was used to reduce the false detections in
->> i2cdetect. i2cdetect warns for confusing the I2C bus, so having some
->> rare false detections (I have never seen such on my systems) is the
->> lesser devil than having basically the system hanging completely.
->>=20
->> No more details came to light in the corresponding email thread since
->> several months:
->> =
-https://lore.kernel.org/linux-omap/20230426194956.689756-1-reidt@ti.com/
->> so no better fix to solve both problems can be developed right now.
->=20
-> I need someone from TI or someone who can test to ack here.
->=20
-> Can someone help?
+Thanks, this is much appreciated!
 
-Well, I think since this is simply a full revert of
+> [...]
+> > > > @@ -1745,6 +1775,11 @@ static int qup_i2c_probe(struct platform_device *pdev)
+> > > >  			goto fail_dma;
+> > > >  		}
+> > > >  		qup->is_dma = true;
+> > > > +
+> > > > +		qup->icc_path = devm_of_icc_get(&pdev->dev, NULL);
+> > > > +		if (IS_ERR(qup->icc_path))
+> > > > +			return dev_err_probe(&pdev->dev, PTR_ERR(qup->icc_path),
+> > > > +					     "failed to get interconnect path\n");
+> > > 
+> > > Can we live without it if it fails?
+> > > 
+> > 
+> > of_icc_get() returns NULL if the interconnect API is disabled, or if
+> > "interconnects" is not defined in the device tree, so this is already
+> > handled. If "interconnects" is enabled and defined, I think we shouldn't
+> > ignore errors. Therefore, this should work as intended.
+> 
+> yes, because qup_i2c_vote_bw() checks inside for NULL values.
+> 
+> My idea was that:
+> 
+> 	if (IS_ERR(...)) {
+> 		dev_warn(...)
+> 		qup->icc_path = NULL;
+> 	}
+> 
+> and let things work. Anyway, if you want to keep it this way,
+> fine with me, I don't have a strong opinion, rather than a
+> preference to keep going.
 
-commit c770657bd261 ("i2c: omap: Fix standard mode false ACK readings")
+I would prefer to keep it the way it is. It's okay to omit the
+"interconnects" in the DT (either for old device trees, or because you
+don't define the "dmas" either). But if they are defined, we should not
+be ignoring errors. -EPROBE_DEFER definitely needs to be handled, but
+even for -EINVAL or similar it would be better to make it obvious in my
+opinion.
 
-to the status before. Therefore the status after revert was tested for =
-many years
-until c770657bd261 arrived to try to solve one issue but it apparently =
-introduced
-another one which is more severe and difficult to work around.
+None of the existing users should be affected, since no one defines
+"interconnects" at the moment.
 
-For real world tests please see also:
-
-=
-https://lore.kernel.org/linux-omap/664241E0-8D6B-4783-997B-2D8510ADAEA3@go=
-ldelico.com/
-=
-https://lore.kernel.org/linux-omap/ad0fe7ca-fb6c-4c19-b4b3-0f29ddaa92c3@jm=
-0.eu/
-
-BR and thanks,
-Nikolaus
-
+Thanks,
+Stephan
