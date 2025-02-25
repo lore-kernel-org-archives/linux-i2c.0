@@ -1,140 +1,181 @@
-Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4A35268FDD;
-	Tue, 25 Feb 2025 11:40:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64B3320B7E8
+	for <linux-i2c@vger.kernel.org>; Tue, 25 Feb 2025 12:11:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.24
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740483603; cv=none; b=ikIE3T8yvlj2OXD4yZHbhRHupKHBugoOLoqzG4x33EfgXhPZc8H/w333OQ9PaV5HDQ95b3b1NgbQ6fg19KcWtBMlB72i4RD7vPr6wqkHOXQcfAhERXqo2ZNWm8txqPoBAiP15WlTUjMopGqhaqoAKlQ49c0Pctd7YPjNZIWjjlA=
+	t=1740485477; cv=none; b=M8zir5tu0A46eyLHpX4VenuweNvctN9fYJ2JKkrgK4HNYaZxhfuWVpKKJ+2Picoj3AVTVR89ob1wWWJ5lbGH4QcMwaDc8G9nO8Da2XfMLi9eGN15DuNd0BFCm0HbyHPrzF/Wq8pQAj36djGNC0JhwNzAFl0YKObBKm9OdSxzxlg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740483603; c=relaxed/simple;
-	bh=09Sp2mWLnAegYNwA8F2u352PpyBaXNXliN8Ag4OkvzI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Cx4IHrsoX+sGLT9KY3KRgy881q9w73RTZBXpS61oZ3+yjGs5qwxmpxMr5ymnagl8MQRPLvUL9X9BL89X6JIpVUPpPsf58xnCv97JotdDCPFxvW2XNqURMVsy5hYm+ChTorpVvubUEkOlstZDFC64eQegNpfTWZjYwZBSmYmbnpY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mByTob3X; arc=none smtp.client-ip=209.85.218.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1740485477; c=relaxed/simple;
+	bh=mupDgIFSB428VsZ0r0Qf+AsjIPxgiJGMc8QIwD0RPb0=;
+	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:References; b=TwbR3EpC8OcpYbZsKba254ttv4jQeMb3TQltZDSZxCNNrPr+hC3iBArS64PthoMs2iizgtNl6Vjd0xxSDGUXOZLxwiku4mlo/U1jXCkk2y1y9FJNItv0QQMGGCbxH0rjf3s9NwGHNLN2cV+4uydcaIEDAw3YG8GSOCVTU9k1Wp4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=sSysr4Xe; arc=none smtp.client-ip=203.254.224.24
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mByTob3X"
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-abb8045c3f3so676366266b.2;
-        Tue, 25 Feb 2025 03:40:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1740483600; x=1741088400; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=oLO2Wt1zOV1CJ5zuVwnVC3DTITBXMZP+UbGnpAaCAMY=;
-        b=mByTob3X/WbaMFhuGvkOMnJkFtHp9uTV+LcXzORSJUB+QEclUiBE11UPceme2sifYf
-         WVPG7/usYmDdKR+JS7QbRvEzFkY7dGz5bYKrXTZpqFA3sZtJlsFMbph9dXgbeDzwcc+d
-         cwPxnKLOq5LbR9aqCHGsANKD6e/D2NA7pk2UOPZRFR08V+2AdLEfijiepZqcBjdltfQ/
-         r3D1/7U4lNobvvdL2P5n9HdrGClc/ymdl6K/Kz5f/hC2BnEf/6zeBBBFeK3qNhqqDvG7
-         Cpd8aFL88HeF4OuGP7jDUH48sNF7GkFGRV7F6ahJM0jYP+dY4Y8LhkGDMF7jwnBplqbF
-         5Vuw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740483600; x=1741088400;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=oLO2Wt1zOV1CJ5zuVwnVC3DTITBXMZP+UbGnpAaCAMY=;
-        b=Y5gSl8uB/dUJc0LKZCJhIJo7wji8Al4FTNskIRxKZaWrFj40YidCKjVTrariInM23/
-         oPwZBnWchBIrKQ8hW7S2PkbbQpXSy6kpG1xrghe+23ZHbOKyWL7qjCuB1aXe0hP32oYy
-         O54fCGyA6zSCY+K9JfH2xgOVa1Yby06EI67809vr0iRw+7gbzS1/xGqKuaEf5y7T0PMT
-         XowsqarcbyPh+lOd/Vv42A6cy/j/pb+ml/ifqisQVoC8C1sn0IvdRUe11YcyD/86Y1Pf
-         Ayisu9j5vk1i8/ZeoIPhfPdRuwNiLNmyYUTw6NQPLiTi4Yz0pCsxIgYRY/dy43B2+/UC
-         exew==
-X-Forwarded-Encrypted: i=1; AJvYcCUhD0mNRBYUBebKFC3xX0bNVvVS16oi5nmbMIm7fQGIJXb+07PygX1z2dk4eQz7+6GGzB9k2dilEKhDTXRG@vger.kernel.org, AJvYcCWfBXgGw8Ql2wQk7lec0JaZXtlprL3ZvbJ+7so7x7bgEF5/FFUTvC3XN+sITClFizMGIidW1Lm81mE=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzDN/6lxyOsW9r61Ad5m5T/6RIuOz++pnjNqu91SkIxs+EV4vd9
-	QLhDXArsp3AFqQ22KWXQoJ0zZjiNvaYW+fiHD3VyMo4P1KVSmTi5
-X-Gm-Gg: ASbGncuoUCiWMcO5R6RmHeP0lEN86cRxNDrLqyLVEHW6k+nPb1i15ubHb5IxoRQ5eA6
-	l0Y+kVC9w3aB4YQj3hOVt8nQbqcGVEwMH2TnRorm3utrlDWeFN8iHHPqVHxUDPXmzmFK4EvVFTM
-	BRyV8ASaXdKcFQmJnGaNxRim9g/O/+m212XN4CHamWJD8R9X7Y7S1n6V3IiIABkvMUdgv50jEFq
-	OR2X3j0rS4SUAA0tNRkTfxEf1PKEL7HE2jWfRtrDPq+V/1VA2L+aGioZOXEsP//P+0GhM9Fqg4O
-	TFzoF4xE8p9n+3nd5ZDS70Krq5NoifQGUuBvdVM=
-X-Google-Smtp-Source: AGHT+IF8P+MAckBDQjFe1PQsS4Rk01Tzs/TC2jlZ9olXvr5z+Ya3lVc7Jp7BfoON9lcNDneOHnWEMQ==
-X-Received: by 2002:a17:907:6ea5:b0:abb:e6e1:22c1 with SMTP id a640c23a62f3a-abc09bf55bfmr1984381766b.35.1740483599961;
-        Tue, 25 Feb 2025 03:39:59 -0800 (PST)
-Received: from demon-pc.localdomain ([188.27.130.21])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-abed201231dsm125510166b.115.2025.02.25.03.39.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Feb 2025 03:39:59 -0800 (PST)
-From: Cosmin Tanislav <demonsingur@gmail.com>
-To: 
-Cc: Romain Gantois <romain.gantois@bootlin.com>,
-	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
-	Luca Ceresoli <luca.ceresoli@bootlin.com>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Cosmin Tanislav <demonsingur@gmail.com>
-Subject: [PATCH v2 9/9] i2c: atr: add passthrough flag
-Date: Tue, 25 Feb 2025 13:39:37 +0200
-Message-ID: <20250225113939.49811-10-demonsingur@gmail.com>
-X-Mailer: git-send-email 2.48.1
-In-Reply-To: <20250225113939.49811-1-demonsingur@gmail.com>
-References: <20250225113939.49811-1-demonsingur@gmail.com>
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="sSysr4Xe"
+Received: from epcas5p1.samsung.com (unknown [182.195.41.39])
+	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20250225121111epoutp0188f1d16eea1268f816d6b8c362b95bb8~nclCRZpnW0776007760epoutp01E
+	for <linux-i2c@vger.kernel.org>; Tue, 25 Feb 2025 12:11:11 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20250225121111epoutp0188f1d16eea1268f816d6b8c362b95bb8~nclCRZpnW0776007760epoutp01E
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1740485471;
+	bh=RcQbcIRPhgbrGNK3mt3Ax8w0cEnsBxoR5jzT9YjIjIY=;
+	h=From:To:Cc:Subject:Date:References:From;
+	b=sSysr4Xe6XXkvuCGVJ4RxOeIlK8e336x9x6MLX5/UmJf/7uL8rRJRBbxFhQOmxe+b
+	 5pepSservRPa42+zGa344Cti/LJFwKJDk3rgcx0h96as+W8rWThQ3Fed1EfmlHfhXb
+	 QhaSyg9gxcj83ksQr9PK1+JHzg/YOP4bx2xlOpWU=
+Received: from epsnrtp3.localdomain (unknown [182.195.42.164]) by
+	epcas5p4.samsung.com (KnoxPortal) with ESMTP id
+	20250225121111epcas5p47c4908e94c88acfb74dbcdcef5417044~nclCD_MUp1149311493epcas5p4y;
+	Tue, 25 Feb 2025 12:11:11 +0000 (GMT)
+Received: from epsmges5p2new.samsung.com (unknown [182.195.38.181]) by
+	epsnrtp3.localdomain (Postfix) with ESMTP id 4Z2GfP4m4jz4x9Pw; Tue, 25 Feb
+	2025 12:11:09 +0000 (GMT)
+Received: from epcas5p2.samsung.com ( [182.195.41.40]) by
+	epsmges5p2new.samsung.com (Symantec Messaging Gateway) with SMTP id
+	19.8E.19933.C53BDB76; Tue, 25 Feb 2025 21:11:08 +0900 (KST)
+Received: from epsmtrp2.samsung.com (unknown [182.195.40.14]) by
+	epcas5p2.samsung.com (KnoxPortal) with ESMTPA id
+	20250225121108epcas5p21761527ebd3ed503904ae7684af06344~nck-YdcUy1274912749epcas5p2w;
+	Tue, 25 Feb 2025 12:11:08 +0000 (GMT)
+Received: from epsmgmc1p1new.samsung.com (unknown [182.195.42.40]) by
+	epsmtrp2.samsung.com (KnoxPortal) with ESMTP id
+	20250225121108epsmtrp2e5c5da0b405c74d3dbd9aa3ccef555ab~nck-XioJJ0170301703epsmtrp2M;
+	Tue, 25 Feb 2025 12:11:08 +0000 (GMT)
+X-AuditID: b6c32a4a-b87c770000004ddd-9a-67bdb35c9228
+Received: from epsmtip1.samsung.com ( [182.195.34.30]) by
+	epsmgmc1p1new.samsung.com (Symantec Messaging Gateway) with SMTP id
+	44.0F.23488.C53BDB76; Tue, 25 Feb 2025 21:11:08 +0900 (KST)
+Received: from Jaguar.sa.corp.samsungelectronics.net (unknown
+	[107.109.115.6]) by epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20250225121106epsmtip1c2363ee1e5c923b84e0fc2dc8438dc03~nck_IkAmQ0342503425epsmtip1b;
+	Tue, 25 Feb 2025 12:11:06 +0000 (GMT)
+From: Anindya Sundar Gayen <anindya.sg@samsung.com>
+To: andi.shyti@kernel.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: aswani.reddy@samsung.com, pankaj.dubey@samsung.com
+Subject: [PATCH] i2c-algo-bit: Improve sendbytes() with bus recovery
+Date: Tue, 25 Feb 2025 16:58:50 +0530
+Message-Id: <20250225112850.10057-1-anindya.sg@samsung.com>
+X-Mailer: git-send-email 2.17.1
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFlrDKsWRmVeSWpSXmKPExsWy7bCmhm7M5r3pBtdu6Fjc/9rBaHFo81Z2
+	i46/XxgtLu+aw2axaOsXdgdWj02rOtk8+rasYvT4vEkugDkq2yYjNTEltUghNS85PyUzL91W
+	yTs43jne1MzAUNfQ0sJcSSEvMTfVVsnFJ0DXLTMHaKWSQlliTilQKCCxuFhJ386mKL+0JFUh
+	I7+4xFYptSAlp8CkQK84Mbe4NC9dLy+1xMrQwMDIFKgwITtjzQWRgo+CFWv7zzM2MK7m62Jk
+	55AQMJHos+5i5OIQEtjNKPHxzHE2COcTo8Ts/b2MEM43Rom79zazdzFygjUc2/WeBSKxl1Hi
+	2q/fUC3NTBJtK2exdjFycLAJGEu0PagEaRARCJH41rOfEcRmFjCTmHn3NAuILSzgInG74QQb
+	SDmLgKrEhTnJIGFeAWuJbXdvMUPskpdYveEAM8h4CYF+don5y2YxQiRcJG7tnQplC0u8Or4F
+	6jgpic/v9oLNlBDIl1hyNhsinCNxYPkDJgjbXuLAlTksICXMApoS63fpQ1zGJ9H7+wkTRCev
+	REebEISpIjGxgwVm9uwfO6AO85Bovd8PtlNIIFZi/c5lzBMYZWYhzFzAyLiKUTK1oDg3PbXY
+	tMAoL7UcHivJ+bmbGMHJRstrB+PDBx/0DjEycTAeYpTgYFYS4eXM3JMuxJuSWFmVWpQfX1Sa
+	k1p8iNEUGEYTmaVEk/OB6S6vJN7QxNLAxMzMzMTS2MxQSZy3eWdLupBAemJJanZqakFqEUwf
+	EwenVANTTdC9nyr3fnIqu6mW9i/8oXlSO8drBnN6/rqpETWzV046Kqt0zoGRT3dtRHhh3M9H
+	sns/nPN6tiyo/NOiH0HpV1nnax+fVcL/a0Gibfu6xQq86WaFHSpqK474Lp/6fo5/+fb6S89e
+	iTYcj/vidv3sZP4n5z5ZqbjzrnW7XNEqpbnccmXijmyXZqHoiIenF/xay//7ZyFXz8ys13Jl
+	8TOTg1+s3+3Ht0cu0un3b9Pn7xoMjW7bRZRoTKmKLaqW/5PyQVJ7s9+MSI3gTjOJT6x8lzpf
+	l1fecN2rpb4igLXuWlp77uZ5bUtUpXq175+I6WPaZJ1nLx1U1zs5R3HGorlKp9keCmRnONo8
+	T+LnuaDEUpyRaKjFXFScCABNpo3mvwMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAA+NgFnrOJMWRmVeSWpSXmKPExsWy7bCSnG7M5r3pBi3LuS3uf+1gtDi0eSu7
+	RcffL4wWl3fNYbNYtPULuwOrx6ZVnWwefVtWMXp83iQXwBzFZZOSmpNZllqkb5fAlbHmgkjB
+	R8GKtf3nGRsYV/N1MXJySAiYSBzb9Z6li5GLQ0hgN6PEulfbWCESUhK3/3cyQtjCEiv/PWeH
+	KGpkkri7eAGQw8HBJmAs0fagEsQUEQiT+LxJB6ScWcBCYuWWg8wgtrCAi8TthhNsICUsAqoS
+	F+Ykg4R5Bawltt29xQwxXV5i9YYDzBMYeRYwMqxilEwtKM5Nz002LDDMSy3XK07MLS7NS9dL
+	zs/dxAgOCy2NHYzvvjXpH2Jk4mA8xCjBwawkwsuZuSddiDclsbIqtSg/vqg0J7X4EKM0B4uS
+	OO9Kw4h0IYH0xJLU7NTUgtQimCwTB6dUA5NZLy9/S8K/459fX/mhnpuscs31+57L0mu08kz2
+	vpx8q+2Fm0e9+qRDC+Rs21jWf7t5/tDUmUqvLp72Zos6GNodfedy5eTL1bfmFYQ0hGZ8Tj3/
+	p64lsE5jaaJi0c+/H0L2dxyzLkn4u2Ovxf3pFY4HNvtfO31LP7aQ9+6L3zML3ZfypCXxLzud
+	OUcsufuhD29DAquLhO0iricu3y8skF7NXJ1ooCWzK5eZo/HutGL16Qm/Z+aY3f73O4xlitHr
+	I87ywiGS0rnLm8qSLScs17k8+dSEBWcfbGew6Xoqf2DBq6xlwUtKRZ07oj4sWMmy88n7eEOt
+	ibP0gi61bbty+PX1nKKyF3y8TVn3fZz6ZuQpsRRnJBpqMRcVJwIAPS9uJnoCAAA=
+X-CMS-MailID: 20250225121108epcas5p21761527ebd3ed503904ae7684af06344
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+CMS-TYPE: 105P
+DLP-Filter: Pass
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20250225121108epcas5p21761527ebd3ed503904ae7684af06344
+References: <CGME20250225121108epcas5p21761527ebd3ed503904ae7684af06344@epcas5p2.samsung.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Some I2C ATRs can have other I2C ATRs as children. The I2C messages of
-the child ATRs need to be forwarded as-is if the parent I2C ATR can
-only do static mapping.
+Earlier in i2c-algo-bit driver there was no bus recovery logic
+which will help to unlock the i2c bus hangs due to non-responsive
+slave.
 
-In the case of GMSL, the deserializer I2C ATR actually doesn't have I2C
-address remapping hardware capabilities, but it is able to select which
-GMSL link to talk to, allowing it to change the address of the
-serializer.
+In this patch we are adding recover_bus() logic to handle bus
+lockups by toggling SCL 9 times and send stop bit. This helps
+release a stuck slave device by forcing it to reset and ensures
+proper bus recovery after an arbitration loss.
 
-The child ATRs need to have their alias pools defined in such a way to
-prevent overlapping addresses between them, but there's no way around
-this without orchestration between multiple ATR instances.
-
-To allow for this use-case, add a flag that allows unmapped addresses
-to be passed through, since they are already remapped by the child ATRs.
-
-There's no case where an address that has not been remapped by the child
-ATR will hit the parent ATR.
-
-Signed-off-by: Cosmin Tanislav <demonsingur@gmail.com>
+Signed-off-by: Anindya Sundar Gayen <anindya.sg@samsung.com>
 ---
- drivers/i2c/i2c-atr.c   | 3 +++
- include/linux/i2c-atr.h | 2 ++
- 2 files changed, 5 insertions(+)
+ drivers/i2c/algos/i2c-algo-bit.c | 34 ++++++++++++++++++++++++++++++--
+ 1 file changed, 32 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/i2c-atr.c b/drivers/i2c/i2c-atr.c
-index f7b853f55630..1986fa055f20 100644
---- a/drivers/i2c/i2c-atr.c
-+++ b/drivers/i2c/i2c-atr.c
-@@ -394,6 +394,9 @@ static int i2c_atr_map_msgs(struct i2c_atr_chan *chan, struct i2c_msg *msgs,
- 		c2a = i2c_atr_get_mapping_by_addr(chan, msgs[i].addr);
+diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
+index eddf25b90ca8..4f74737e070b 100644
+--- a/drivers/i2c/algos/i2c-algo-bit.c
++++ b/drivers/i2c/algos/i2c-algo-bit.c
+@@ -29,7 +29,7 @@
+ #define bit_dbg(level, dev, format, args...) \
+ 	do {} while (0)
+ #endif /* DEBUG */
+-
++#define RETRY_PULSE_CNT 9
+ /* ----- global variables ---------------------------------------------	*/
  
- 		if (!c2a) {
-+			if (atr->flags & I2C_ATR_PASSTHROUGH)
-+				continue;
+ static int bit_test;	/* see if the line-setting functions work	*/
+@@ -223,6 +223,27 @@ static int i2c_inb(struct i2c_adapter *i2c_adap)
+ 	return indata;
+ }
+ 
++static void recover_bus(struct i2c_algo_bit_data *adap)
++{
++	int i;
 +
- 			dev_err(atr->dev, "client 0x%02x not mapped!\n",
- 				msgs[i].addr);
++	pr_warn("Attempting I2C bus recovery...\n");
++
++	/* Toggle SCL 9 times to attempt recovery */
++	for (i = 0; i < RETRY_PULSE_CNT; i++) {
++		sclhi(adap);
++		udelay(adap->udelay);
++		scllo(adap);
++		udelay(adap->udelay);
++	}
++
++	/* Generate a STOP condition */
++	i2c_stop(adap);
++	udelay(adap->udelay);
++
++	pr_warn("I2C bus recovery completed.\n");
++}
++
+ /*
+  * Sanity check for the adapter hardware - check the reaction of
+  * the bus lines only if it seems to be idle.
+@@ -248,7 +269,16 @@ static int test_bus(struct i2c_adapter *i2c_adap)
+ 	scl = adap->getscl ? getscl(adap) : 1;
+ 	if (!scl || !sda) {
+ 		pr_warn("%s: bus seems to be busy (scl=%d, sda=%d)\n", name, scl, sda);
+-		goto bailout;
++		recover_bus(adap);
++
++		/* Recheck bus status after recovery attempt */
++		sda =  adap->getsda ? getsda(adap) : 1;
++		scl =  adap->getscl ? getscl(adap) : 1;
++
++		if (!scl || !sda) {
++			pr_err("%s: bus recovery failed (scl=%d, sda=%d)\n", name, scl, sda);
++			goto bailout;
++		}
+ 	}
  
-diff --git a/include/linux/i2c-atr.h b/include/linux/i2c-atr.h
-index 2f79d0d9140f..b3797a930a7a 100644
---- a/include/linux/i2c-atr.h
-+++ b/include/linux/i2c-atr.h
-@@ -22,9 +22,11 @@ struct i2c_atr;
-  * enum i2c_atr_flags - Flags for an I2C ATR driver
-  *
-  * @I2C_ATR_STATIC: ATR does not support dynamic mapping, use static mapping
-+ * @I2C_ATR_PASSTHROUGH: Allow unmapped incoming addresses to pass through
-  */
- enum i2c_atr_flags {
- 	I2C_ATR_STATIC = BIT(0),
-+	I2C_ATR_PASSTHROUGH = BIT(1),
- };
- 
- /**
+ 	sdalo(adap);
 -- 
-2.48.1
+2.17.1
 
