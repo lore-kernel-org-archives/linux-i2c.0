@@ -1,68 +1,118 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2D3825D8ED;
-	Wed, 26 Feb 2025 22:29:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 228111482E7;
+	Thu, 27 Feb 2025 02:12:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740608998; cv=none; b=NqnHXihftkvYUzLv1W1sgkmmahjRfTwVt6Xzy5FyEv7L8Ehpctnb7BRtTgWHuMMLa8heDDPmrMY2LF2nVitOAnmT6OV1rkr36pWuqIdO6ucb/V8Rc9+EZwL8OK/BUtzoP0hst+LL1dmw4y6K2dKv0qC0ra1tAGO0rOcjxdf/4Dc=
+	t=1740622374; cv=none; b=klu9bHCWZ7Vqd9mm9ibzfJgSOuRwCMwPJ29j8vvbKSk2lq8C7CVAAabxmm0NkKU+5FXkmU8VX9APWl4cvVYFcemclwwtjZRR2nwXEu5AaAosTfngfTJedvWKlbkjfWhzwKuKTK7sLvFoqczbDY+R28IBb67yNyD4NuA4e1O+DJg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740608998; c=relaxed/simple;
-	bh=Ox7VW8uCR7EQGODyEOPtWbCm7BamPqalA/9ewaWgco8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=H/UdWk0FMgL5adnV9RxS5OmFqmjDwe7dLpkRes/61v4htdb4iUBZgoPm2yvY8kHXOfjwiqAs6ZFL1hyvYeP1KBO6erimQVnGqG6qWVQ5tZBcVqFrGhUCNDPTI+YNmEhaey6Lx2XtqdqCazqgTz/SyEhAJHsQgZ+xr+NIlIqzgOo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=S1vskQYJ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1740622374; c=relaxed/simple;
+	bh=Ji43QirnLWxUXnqatW9H8FRgicNepO9UGBb5s7EDnY0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=pxKoZkXVIDU6Metl42AmdBBuGEHpTUyFrOQhZ1NfSDIy0WzexMxxcX6EtPJBLMjPIP349LbsiI3rX8SnP9E3QeXdEg7YnkJydskP7G7iN3/dCRfCpN/nFXIlkDFx3jiCg8uF+Z5gW8qIDRog++gqn/szf516XjcQ5vm2qi6kBuY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RXazGrrx; arc=none smtp.client-ip=209.85.218.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="S1vskQYJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0EA8C4CED6;
-	Wed, 26 Feb 2025 22:29:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1740608998;
-	bh=Ox7VW8uCR7EQGODyEOPtWbCm7BamPqalA/9ewaWgco8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=S1vskQYJgo2lx5rAn15os0M8047EmPwCJbzmLjTsifKrh94od5lAeiTqtcj7q5+69
-	 OuHOukGgdWpRr5CWbPYVv0QGYPgB0WjLIXtO++HVEmrNB6N77efh+17kBhuVqlKi3h
-	 QqJcXUQrHOzqR3uNsDrzn7EmJa9Y7y0pA9wCfwmRP+gQ+nCxlyX958lU5BEnmAHtfm
-	 3raFgZok0OhH+XOr8jEsPgja2bpiRk+6fFABUXfK6JKF51O8GtdP5Kfg/X4YuD5dEy
-	 hc/KRYaDzonzB+wuYfP0nfGJUN3c8npudD/uoevHP+w+zuffXvPNsXRDJv6JVAS1ey
-	 9z3SU/9mgWllQ==
-Date: Wed, 26 Feb 2025 23:29:54 +0100
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Cc: Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, 
-	Sanket.Goswami@amd.com, stable@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: amd-asf: Fix EOI register write to enable
- successive interrupts
-Message-ID: <7jajf752oxkrfalmohtqjt3ys2un3arhfrlydaeetnmzsfb7gt@cldv4owsjrty>
-References: <20250219135747.3251182-1-Shyam-sundar.S-k@amd.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RXazGrrx"
+Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-abb79af88afso78095866b.1;
+        Wed, 26 Feb 2025 18:12:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1740622371; x=1741227171; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ji43QirnLWxUXnqatW9H8FRgicNepO9UGBb5s7EDnY0=;
+        b=RXazGrrxNPSrU8oPeq4jdL3hb8vAoUCQzJBgGCsscQF+b6od9DdNg97GgQgtDmhUXL
+         0/Fre9mLqieAD1h0lwDjJr84FPsPhn0zTrm3A3fDs8txlHQR/M7vGg6odEftMczHWpgb
+         Fhdx3z692ny2Gfl0YdfaQIVzk2RTdAohtj37Fm0W+UlBEv/F5p7eXIWrP/WWH65r2sDT
+         Oqku5nl0LV+FhH+Pz4bOfrd941r6WA8zRE4/zyUfb9Md7Ft8YlQ0/7kxZzpSmfr+y2yn
+         epTo4ZOihRywlHkwcTXlcCWG5GPYqqPGPnnnydtQxRTWyvArNyqNeprU+za7gQxXQmYt
+         eKOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1740622371; x=1741227171;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Ji43QirnLWxUXnqatW9H8FRgicNepO9UGBb5s7EDnY0=;
+        b=mliP/Treu7O8mZktEgloyIMVrjzIObnwEfjUJsCEkE+f+VfnDSZ9S+okJpX3kJJXqm
+         O0rfTypy2WKDOewHl7bJwS5ZM6vl2/qU+CEjbKmgsDS9L9m38XTciCxf9sRGmH8nHQjY
+         sekS6eEhC4quq6PvCPm3yYqHOybxzUCP3CeuTAbeZ2NyGcqcu55V1ZLBRjpZXTxDMY3l
+         sdjVBjXIktJwCt3CIE/2W1dkgBN7vvH1zyMi2mqevsNxqnZzfWtL68/YinJj4h/qdRtW
+         H9bsuoFVc1Uk23Qykqlz+XIvriFoRuBC/NXF/rPPwmcRqhQp6DckbpPCJyy56fKTkPLy
+         bqlQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXPwXP5OjRriJAVGBmxnFu2G55pGmyUGx4UfoRwkgYMav9DSNUQk9AYUKhWF5IygqxQoigtuYKpuAQ=@vger.kernel.org, AJvYcCXnUSBxZsaEtJYLflbUqwwtR864KNR1qCpPQWLUX1bh7IwRhyuoWmYa9faXUQPgMA92lQQieaZYXq3c+fpV@vger.kernel.org
+X-Gm-Message-State: AOJu0YyrOLNqzwr7vj5dlN4Iuo0PQnKqRPkVE7OJgulinGqTB76ACNWB
+	+J/ZMxJFa2rsOtHaR+0UNqcw3Z8VajAzIF25UB1zgwyxEW/U6SpzteC58OcP3ViCHxldYKpa/2j
+	e/NrGfT5Y+sP93SrTTYxZuYQIyA==
+X-Gm-Gg: ASbGncvtb5nXvb8NovDRyv7CGtUZFKPhAKgNqQRQ682qHGo18lBBnCQp03dy48Vy15t
+	m3GgfX1dbvspMxf2PemfwO/KmAkNWioxj51vjyncFlxXdJOb6fjUJaKxkfWGsie0i9GhrNitAF8
+	wuuAHocYKnDSO6rEzPBsBuBx1FMSbkSD/+m9ysHMr2
+X-Google-Smtp-Source: AGHT+IHT13vTR0kWj4ZrwhphGcwIOVy7CyAkUnvryXOEjJ/H2PVdPSrbH2xZfZk15WtnvnDCvp0Mkb5Lrcyb3LaVMd8=
+X-Received: by 2002:a17:907:728a:b0:aba:608d:4a22 with SMTP id
+ a640c23a62f3a-abc09a09707mr2626636966b.21.1740622371069; Wed, 26 Feb 2025
+ 18:12:51 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250219135747.3251182-1-Shyam-sundar.S-k@amd.com>
+References: <20250220040029.27596-1-kfting@nuvoton.com> <20250220040029.27596-2-kfting@nuvoton.com>
+ <nantj66w7l7bmk2sz6i2akyaw7cievmeuuvpl3622wj5xmdmtm@g4rcuwxghxdp>
+In-Reply-To: <nantj66w7l7bmk2sz6i2akyaw7cievmeuuvpl3622wj5xmdmtm@g4rcuwxghxdp>
+From: Tyrone Ting <warp5tw@gmail.com>
+Date: Thu, 27 Feb 2025 10:12:39 +0800
+X-Gm-Features: AQ5f1JrZiTk_IXo8TxlPqW73GZxuhoBbuhyIROT0bdFgIPbl2r9cCmk--GAg3es
+Message-ID: <CACD3sJYWC+=Q726rS+bVdyu2+1Oh7vXQfPn=8RWwJdT4G7VA3A@mail.gmail.com>
+Subject: Re: [PATCH v1 1/1] i2c: npcm: disable interrupt enable bit before devm_request_irq
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: avifishman70@gmail.com, tmaimon77@gmail.com, tali.perry1@gmail.com, 
+	venture@google.com, yuenn@google.com, benjaminfair@google.com, 
+	wsa+renesas@sang-engineering.com, tali.perry@nuvoton.com, 
+	Avi.Fishman@nuvoton.com, tomer.maimon@nuvoton.com, KWLIU@nuvoton.com, 
+	JJLIU0@nuvoton.com, kfting@nuvoton.com, openbmc@lists.ozlabs.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Shyam,
+Hi Andi:
 
-On Wed, Feb 19, 2025 at 07:27:47PM +0530, Shyam Sundar S K wrote:
-> The commit b1f8921dfbaa
-> ("i2c: amd-asf: Clear remote IRR bit to get successive interrupt")
-> introduced a method to enable successive interrupts but inadvertently
-> omitted the necessary write to the EOI register, resulting in a failure to
-> receive successive interrupts.
-> 
-> Fix this by adding the required write to the EOI register.
-> 
-> Fixes: b1f8921dfbaa ("i2c: amd-asf: Clear remote IRR bit to get successive interrupt")
-> Cc: <stable@vger.kernel.org> # v6.13+
-> Co-developed-by: Sanket Goswami <Sanket.Goswami@amd.com>
-> Signed-off-by: Sanket Goswami <Sanket.Goswami@amd.com>
-> Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Thank you for your comments.
 
-merged to i2c/i2c-host-fixes.
+Andi Shyti <andi.shyti@kernel.org> =E6=96=BC 2025=E5=B9=B42=E6=9C=8827=E6=
+=97=A5 =E9=80=B1=E5=9B=9B =E4=B8=8A=E5=8D=886:18=E5=AF=AB=E9=81=93=EF=BC=9A
+>
+> Hi Tyrone,
+>
+> On Thu, Feb 20, 2025 at 12:00:29PM +0800, Tyrone Ting wrote:
+> > The customer reports that there is a soft lockup issue related to
+> > the i2c driver. After checking, the i2c module was doing a tx transfer
+> > and the bmc machine reboots in the middle of the i2c transaction, the i=
+2c
+> > module keeps the status without being reset.
+>
+> ...
+>
+> > Signed-off-by: Tyrone Ting <kfting@nuvoton.com>
+>
+> I guess we also need:
+>
+> Fixes: 56a1485b102e ("i2c: npcm7xx: Add Nuvoton NPCM I2C controller drive=
+r")
+> Cc: <stable@vger.kernel.org> # v5.8+
+>
+> I'm now applying the patch to the i2c/i2c-host-fixes with these
+> tags
+>
+> Please, let me know if you think that's not the case.
+>
 
-Thanks,
-Andi
+Thank you for your help on including these tags into the patch.
+
+> Thanks,
+> Andi
+
+Regards,
+Tyrone
