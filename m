@@ -1,62 +1,62 @@
-Received: from mail-wr1-f50.google.com (mail-wr1-f50.google.com [209.85.221.50])
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D8621EF36F;
-	Fri, 28 Feb 2025 15:17:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0345F270EA4;
+	Fri, 28 Feb 2025 15:17:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740755861; cv=none; b=rnL7oUNDMNs9tymf7GhiUzgQYgVwiO9CGoiAslQaOMNQDKGpXK5d/fbVbjwE7yo7qaELBFEtKCH2VtCe5qDbwfyEfKjB0oYC1pEygWLBkrX+GKlKFOZYm2SiZFvhO7HhJLNcAa+CAFQdL7G7AaHAM6/9NtBDVnT8Ai7ftWi353U=
+	t=1740755864; cv=none; b=tn+Uha1J3hnjEfKQ9zcyNPMzCXwwENkWI7HwZ0P7xa+fr9XR/FxsrMKZQCT/uX2SzkhtoA8A6h7VvfnTuI/bLUdCa9UxunaukFv1MElinSGuK+pgcqa9ezLaZ8uVws8dMJvVWweI7QITup+CVAMJlaAD7MZeRKZidMHsGOolwM4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740755861; c=relaxed/simple;
-	bh=js0ULzWgxljakcpWyCSCNziXEbJUjtxNr4WUb1YkhYU=;
+	s=arc-20240116; t=1740755864; c=relaxed/simple;
+	bh=btY97WZkaRxfvJGaZV4/irpvLakBopADE7uOu87iIqI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BkbX0HLRuVGYJ4bkkw8cULY/eRJ12Ft0zuv7xNzeqvRTvMy748coyiWXiYvqsysDk7zUZNp0V9/wgvkJ52Rqiq01x4bnKJM1n/wiwkQ9lxEcCIgIK9Zd3wUACSxxm4bVnVgtOvKmBCmdF5ygQDoPPnm8uCyFVRdLA7xsu1RBRok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T5aNCX/c; arc=none smtp.client-ip=209.85.221.50
+	 MIME-Version; b=oAYsNtvcnFtbrYAfYEF7Ags9fuRSPUToE43nth3IajfLzvn0sVJlqoYrszL3XVZLBisvVjey3/rIxh6mTh9ycmwJek4akG4zmPuyFGA+pgi6Aha70Dct/r3exGvEAguLmJk7RyLkzTiQRlSS0kdjKbbf+W+umr+hgt2rox+UKNc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nATbu7EY; arc=none smtp.client-ip=209.85.128.45
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T5aNCX/c"
-Received: by mail-wr1-f50.google.com with SMTP id ffacd0b85a97d-38a8b17d7a7so1389619f8f.2;
-        Fri, 28 Feb 2025 07:17:38 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nATbu7EY"
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-43989226283so15044735e9.1;
+        Fri, 28 Feb 2025 07:17:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1740755857; x=1741360657; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1740755861; x=1741360661; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=2J7Ov3Q3zvbb4Wq/N681pfQJSfPu/xmR7tlaT0hDhM8=;
-        b=T5aNCX/cjwPQhyptdhhDzyHrbU7Myqlxn8Y1d5lquXkXncXZrBuApaf57uJw9fzjPk
-         yEEt1Who9iywvjwLDwzoDAVRzTKhw12ogXbyNwtH5PExKKd/nTSF6ff4cAsR6HM7x0KC
-         4YwQD7Nb6OC9nQu9D/DNRxNw0+3KCLIxFy05QMPXGbPxf/EyXtgdIRMAoFui7pICygpE
-         mfQjbepus4zUQIZY9DsrPKQbfIAUE3Lh6fsWbV6+V6aeRHd8Ec85cah0akrmFOMZYJOV
-         WH/c+vVWMaoI0MuY6fR4HofKyzBczriWSL3+57n+57MMPoBIv+PgIbLdIJUoCp60chQB
-         TPAg==
+        bh=S4qqqIezndnbu9odHIxE2+Bj8cVf+2ZH/Pr987aq8jU=;
+        b=nATbu7EYaLKu6/JI2/5lLWF8cgkU2vZHhLqi3IxZpCbiFUgNK8gNLKNfTCuu9vai0/
+         iVQ3utg9MKjCJRx+Rs8Ywu57JAuMhf9MRboGlHmuA+c0mMv8WX6gUJnlzGBhhPdxR33u
+         xOlRV/cAhR5pYiTmi++P3AOp4XNv3FD08ypfIChXHh9QK/ecsF1BsVhsaiGsaWrt85Jx
+         0IhCqnoTWduMQ0DY5Im0rV2iFbgxbbIOglypNnpPYGLZD/F7xQhJRY/+GuM5cdAMin2I
+         d3V5GT3ruTy1sJ2ZUOOrKRfHgEbZylrfY0e1+JqtVJX0CwCUUEvQVC3GzYzg4mN7RUh4
+         ym8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740755857; x=1741360657;
+        d=1e100.net; s=20230601; t=1740755861; x=1741360661;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=2J7Ov3Q3zvbb4Wq/N681pfQJSfPu/xmR7tlaT0hDhM8=;
-        b=jgnULtvVnAkmuBEqpFIIX3rvq6I04mnVU8L31n9NKvk8+KnvIBiGN691nOkf5KRC17
-         ajLc2IAFk7S1tXkb4BPvtT6cU9ICUY8oMijlEYn9xQMJXPLQ59LlGQWW6JYUfoYYHZUa
-         rLUTtJVcTHmf2OzLnON+pyMggrh3EdZdTX+RurtjAVFWruQC5nB9TdJkAUPhNjWGg7TF
-         161Z8zN7OdG98lLpaWITXln1WHgxFQzUzzgSDggu3+hbu8uBki7lshMbekM7C5mBvUtj
-         33A1+SIvg8zlbl3CgXvBQG7eaXOvNcKdA1Cj9ocToV7CYYtm5OfMti+nlU+MG0Bwko8m
-         l/9A==
-X-Forwarded-Encrypted: i=1; AJvYcCUWWmr0giaVEMO/A4BNFhzmP6ug/E9nX+UM5wCz30iRUnRhg6JvNxXuH5lRf9JJy1mv1MxLPOoaAfk=@vger.kernel.org, AJvYcCVESt2WO1GyBsDVfwVy9PicxBsBk7tadwCwIOEPhIxwxTclYFV5SPDd1ZXQxSqI/pLRW8UhxtmFHWsK2m0=@vger.kernel.org, AJvYcCVYKsEoIZCZjsdHcs7/CYK+KCT84VkxZjLDAn65OnWZ/myupT8DYT6/Bp+pHEgfOgoPR9c7/lvuCnKMyYWR@vger.kernel.org
-X-Gm-Message-State: AOJu0YxmVPDAq42CCN/SQsMRK8U97WB//Yi+ncUUYYdytMlPXRxm3ou3
-	lKMH3CJhyCZTDG6zq0YhtertX2/mGc+n3wGPb3s4jsSMpHufiHZV
-X-Gm-Gg: ASbGncuSe2zAeJUPqmeCM6iqmD1qGBY1Hz2iY7Ate6PznO39EHEm8BEdtYwjQb7mBoT
-	usXJitAO61bxxA/5DheZ0MYoDMYMI6zc2DIpcPypVbkZeAUTqfeDpxp3NfGUeqH+aweCB1vBwBw
-	znJGSglVxWx07xgG6YgmJxJUag1Z1/kkcE+KNHZ1Rv6OxMM2oPpL0U255QEyl3/Wmx+k2mC301h
-	LF7pGalMZFQSijvO5TCH5pwCoUYdJ6yn33wvueoOn5RXYkl9eaeqf6ZJxPiho2c8nNvTAGLO0zc
-	ccOuaPJ5MfICQqNxEGyn/mZVopwRYugBeqUkeeo=
-X-Google-Smtp-Source: AGHT+IH30I7c0CtI+edBTcurzoZbuGpVIRTDkszIvnJKH1Zuh+Q1uQQ70sGHOgxf0j2xkRawwp0SAA==
-X-Received: by 2002:a5d:5f91:0:b0:38f:503a:d93f with SMTP id ffacd0b85a97d-390eca480f2mr3759250f8f.40.1740755857224;
-        Fri, 28 Feb 2025 07:17:37 -0800 (PST)
+        bh=S4qqqIezndnbu9odHIxE2+Bj8cVf+2ZH/Pr987aq8jU=;
+        b=uhAMFeocLAj212s00wqmm2w5KvR5X88T0UtFNJtSuFrLTVBh6wVam88rUpYHe5ib+o
+         10yyAiieAowKvOPyXBdMY5jUTQzhnTF69cCp/l81y5/VOVOJhEdIH9XTrB/QXfnwZq0+
+         O4hByfViJr500fwUlibOV4na0Rap1n99TqG8JPSOzHB82vbciSfulIY6xy/mYOwVxr5K
+         bExoyDMATjvCq/PW3rVN9DewsB9DM+4wBI6UuBZctJFSCU53RS+C6cn07ieFHAZkJ1eK
+         Oj3i7auUBivXVvpcWBD1Kjcqw9Lc+8/zE4ySCGZE3EucAPZ1KpZrL+ZSSfHSMNNzJr/u
+         80rQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUjOGM4aPGVfThJ5gQxIeY/lj/OXNSMIntYOH+HAO2o1sZ3RM5YNeLkDGkM+htOTDz1S9iASJr6fOU=@vger.kernel.org, AJvYcCVVljFB+35+6ntdAWj77gU2HR2cO2eDgZzu5zVcBR2E65J3RJW1q2GPqPrrvkPQTnEIRjAO1bOaSNjVmG8=@vger.kernel.org, AJvYcCWCpGVHHKEKjVLiXd7Jl6DdB49dyjvEImxMcobm6X8VU43cFUHSiIu/AznEvAZPJRR6NAKA1mS3a8ZIWZi8@vger.kernel.org
+X-Gm-Message-State: AOJu0YzI/mgI7fvz5cKbA8hyDiLexO4SjggdueQ1a82cnVLflBzkG0eh
+	dg6Mz7wT1S6pfD5/NYc6jZAj7lOc23TNBV/siatwUcNK98U0vewR
+X-Gm-Gg: ASbGncsHaYPwL278/WInZI8cJ1EXwWl4mCGHE+h+c4f3KUV27PKp31F3rJ4K+XE8Gol
+	p5HDp+qnk38kB2Vu50kefOT84MkRHAr1rCppxikFRs0mWqz9X79NI6VQ23WYjOrCGHU9M175W2m
+	uZ4Y7e6Yo8eQPOIS2HW/SS025nrPZdvGvdQ3OsOkPJ0in+dNspq0TPJ/iX4oeUNub8sdfadqKHn
+	2t5NGzDYQ/u/h62TLZ3Hq4H5eStRv/kFZqS/FdAQYrrFg4Arm6fJRzMQpbkLPJL5eKa/2/gHUp+
+	gVlNlQwfkmMC4bvF2sUb9psOWNfWLS6GMDE9iig=
+X-Google-Smtp-Source: AGHT+IFj0DbA75z47DexBVK3a9hAgTjGol+BBEne4fOVKGatR0z7tCNeQN0gg2MRn9Z+nbrtgRypGw==
+X-Received: by 2002:a05:600c:4685:b0:439:9a5b:87d4 with SMTP id 5b1f17b1804b1-43ba67047bemr31688125e9.13.1740755861070;
+        Fri, 28 Feb 2025 07:17:41 -0800 (PST)
 Received: from demon-pc.localdomain ([188.27.130.21])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43b694524c6sm63096825e9.0.2025.02.28.07.17.36
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43b694524c6sm63096825e9.0.2025.02.28.07.17.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Feb 2025 07:17:36 -0800 (PST)
+        Fri, 28 Feb 2025 07:17:40 -0800 (PST)
 From: Cosmin Tanislav <demonsingur@gmail.com>
 To: 
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
@@ -69,10 +69,10 @@ Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux-media@vger.kernel.org,
-	Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>
-Subject: [PATCH v3 1/9] i2c: atr: Fix lockdep for nested ATRs
-Date: Fri, 28 Feb 2025 17:17:18 +0200
-Message-ID: <20250228151730.1874916-2-demonsingur@gmail.com>
+	Cosmin Tanislav <demonsingur@gmail.com>
+Subject: [PATCH v3 3/9] i2c: atr: split up i2c_atr_get_mapping_by_addr()
+Date: Fri, 28 Feb 2025 17:17:20 +0200
+Message-ID: <20250228151730.1874916-4-demonsingur@gmail.com>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250228151730.1874916-1-demonsingur@gmail.com>
 References: <20250228151730.1874916-1-demonsingur@gmail.com>
@@ -84,126 +84,154 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-From: Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>
+The i2c_atr_get_mapping_by_addr() function handles three separate
+usecases: finding an existing mapping, creating a new mapping, or
+replacing an existing mapping if a new mapping cannot be created
+because there aren't enough aliases available.
 
-When we have an ATR, and another ATR as a subdevice of the first ATR,
-we get lockdep warnings for the i2c_atr.lock and
-i2c_atr_chan.orig_addrs_lock. This is because lockdep uses a static key
-for the locks, and doesn't see the locks of the separate ATR instances
-as separate.
+Split up the function into three different functions handling its
+individual usecases to prepare for better usage of each one.
 
-Fix this by generating a dynamic lock key per lock instance.
-
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen+renesas@ideasonboard.com>
+Signed-off-by: Cosmin Tanislav <demonsingur@gmail.com>
 ---
- drivers/i2c/i2c-atr.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ drivers/i2c/i2c-atr.c | 104 ++++++++++++++++++++++++++++++------------
+ 1 file changed, 75 insertions(+), 29 deletions(-)
 
 diff --git a/drivers/i2c/i2c-atr.c b/drivers/i2c/i2c-atr.c
-index 8a5d9247fd29..f6033c99f474 100644
+index f2485d1670a2..fc92ed930877 100644
 --- a/drivers/i2c/i2c-atr.c
 +++ b/drivers/i2c/i2c-atr.c
-@@ -68,11 +68,13 @@ struct i2c_atr_alias_pool {
-  * @atr:             The parent I2C ATR
-  * @chan_id:         The ID of this channel
-  * @alias_pairs_lock: Mutex protecting @alias_pairs
-+ * @alias_pairs_lock_key: Lock key for @alias_pairs_lock
-  * @alias_pairs:     List of @struct i2c_atr_alias_pair containing the
-  *                   assigned aliases
-  * @alias_pool:      Pool of available client aliases
-  *
-  * @orig_addrs_lock: Mutex protecting @orig_addrs
-+ * @orig_addrs_lock_key: Lock key for @orig_addrs_lock
-  * @orig_addrs:      Buffer used to store the original addresses during transmit
-  * @orig_addrs_size: Size of @orig_addrs
-  */
-@@ -83,11 +85,13 @@ struct i2c_atr_chan {
- 
- 	/* Lock alias_pairs during attach/detach */
- 	struct mutex alias_pairs_lock;
-+	struct lock_class_key alias_pairs_lock_key;
- 	struct list_head alias_pairs;
- 	struct i2c_atr_alias_pool *alias_pool;
- 
- 	/* Lock orig_addrs during xfer */
- 	struct mutex orig_addrs_lock;
-+	struct lock_class_key orig_addrs_lock_key;
- 	u16 *orig_addrs;
- 	unsigned int orig_addrs_size;
- };
-@@ -100,6 +104,7 @@ struct i2c_atr_chan {
-  * @priv:      Private driver data, set with i2c_atr_set_driver_data()
-  * @algo:      The &struct i2c_algorithm for adapters
-  * @lock:      Lock for the I2C bus segment (see &struct i2c_lock_operations)
-+ * @lock_key:  Lock key for @lock
-  * @max_adapters: Maximum number of adapters this I2C ATR can have
-  * @alias_pool: Optional common pool of available client aliases
-  * @i2c_nb:    Notifier for remote client add & del events
-@@ -115,6 +120,7 @@ struct i2c_atr {
- 	struct i2c_algorithm algo;
- 	/* lock for the I2C bus segment (see struct i2c_lock_operations) */
- 	struct mutex lock;
-+	struct lock_class_key lock_key;
- 	int max_adapters;
- 
- 	struct i2c_atr_alias_pool *alias_pool;
-@@ -679,7 +685,8 @@ struct i2c_atr *i2c_atr_new(struct i2c_adapter *parent, struct device *dev,
- 	if (!atr)
- 		return ERR_PTR(-ENOMEM);
- 
--	mutex_init(&atr->lock);
-+	lockdep_register_key(&atr->lock_key);
-+	mutex_init_with_key(&atr->lock, &atr->lock_key);
- 
- 	atr->parent = parent;
- 	atr->dev = dev;
-@@ -707,6 +714,7 @@ struct i2c_atr *i2c_atr_new(struct i2c_adapter *parent, struct device *dev,
- 	i2c_atr_free_alias_pool(atr->alias_pool);
- err_destroy_mutex:
- 	mutex_destroy(&atr->lock);
-+	lockdep_unregister_key(&atr->lock_key);
- 	kfree(atr);
- 
- 	return ERR_PTR(ret);
-@@ -723,6 +731,7 @@ void i2c_atr_delete(struct i2c_atr *atr)
- 	bus_unregister_notifier(&i2c_bus_type, &atr->i2c_nb);
- 	i2c_atr_free_alias_pool(atr->alias_pool);
- 	mutex_destroy(&atr->lock);
-+	lockdep_unregister_key(&atr->lock_key);
- 	kfree(atr);
+@@ -239,9 +239,23 @@ static void i2c_atr_release_alias(struct i2c_atr_alias_pool *alias_pool, u16 ali
+ 	spin_unlock(&alias_pool->lock);
  }
- EXPORT_SYMBOL_NS_GPL(i2c_atr_delete, "I2C_ATR");
-@@ -757,8 +766,10 @@ int i2c_atr_add_adapter(struct i2c_atr *atr, struct i2c_atr_adap_desc *desc)
- 	chan->atr = atr;
- 	chan->chan_id = chan_id;
- 	INIT_LIST_HEAD(&chan->alias_pairs);
--	mutex_init(&chan->alias_pairs_lock);
--	mutex_init(&chan->orig_addrs_lock);
-+	lockdep_register_key(&chan->alias_pairs_lock_key);
-+	lockdep_register_key(&chan->orig_addrs_lock_key);
-+	mutex_init_with_key(&chan->alias_pairs_lock, &chan->alias_pairs_lock_key);
-+	mutex_init_with_key(&chan->orig_addrs_lock, &chan->orig_addrs_lock_key);
  
- 	snprintf(chan->adap.name, sizeof(chan->adap.name), "i2c-%d-atr-%d",
- 		 i2c_adapter_id(parent), chan_id);
-@@ -835,6 +846,8 @@ int i2c_atr_add_adapter(struct i2c_atr *atr, struct i2c_atr_adap_desc *desc)
- 	fwnode_handle_put(dev_fwnode(&chan->adap.dev));
- 	mutex_destroy(&chan->orig_addrs_lock);
- 	mutex_destroy(&chan->alias_pairs_lock);
-+	lockdep_unregister_key(&chan->orig_addrs_lock_key);
-+	lockdep_unregister_key(&chan->alias_pairs_lock_key);
- 	kfree(chan);
- 	return ret;
+-/* Must be called with alias_pairs_lock held */
+ static struct i2c_atr_alias_pair *
+-i2c_atr_get_mapping_by_addr(struct i2c_atr_chan *chan, u16 addr)
++i2c_atr_find_mapping_by_addr(struct i2c_atr_chan *chan, u16 addr)
++{
++	struct i2c_atr_alias_pair *c2a;
++
++	lockdep_assert_held(&chan->alias_pairs_lock);
++
++	list_for_each_entry(c2a, &chan->alias_pairs, node) {
++		if (c2a->addr == addr)
++			return c2a;
++	}
++
++	return NULL;
++}
++
++static struct i2c_atr_alias_pair *
++i2c_atr_replace_mapping_by_addr(struct i2c_atr_chan *chan, u16 addr)
+ {
+ 	struct i2c_atr *atr = chan->atr;
+ 	struct i2c_atr_alias_pair *c2a;
+@@ -253,38 +267,54 @@ i2c_atr_get_mapping_by_addr(struct i2c_atr_chan *chan, u16 addr)
+ 
+ 	alias_pairs = &chan->alias_pairs;
+ 
+-	list_for_each_entry(c2a, alias_pairs, node) {
+-		if (c2a->addr == addr)
+-			return c2a;
++	if (unlikely(list_empty(alias_pairs)))
++		return NULL;
++
++	list_for_each_entry_reverse(c2a, alias_pairs, node)
++		if (!c2a->fixed)
++			break;
++
++	if (c2a->fixed)
++		return NULL;
++
++	atr->ops->detach_addr(atr, chan->chan_id, c2a->addr);
++	c2a->addr = addr;
++
++	list_move(&c2a->node, alias_pairs);
++
++	alias = c2a->alias;
++
++	ret = atr->ops->attach_addr(atr, chan->chan_id, c2a->addr, c2a->alias);
++	if (ret) {
++		dev_err(atr->dev, "failed to attach 0x%02x on channel %d: err %d\n",
++			addr, chan->chan_id, ret);
++		i2c_atr_destroy_c2a(&c2a);
++		i2c_atr_release_alias(chan->alias_pool, alias);
++		return NULL;
+ 	}
+ 
++	return c2a;
++}
++
++static struct i2c_atr_alias_pair *
++i2c_atr_create_mapping_by_addr(struct i2c_atr_chan *chan, u16 addr)
++{
++	struct i2c_atr *atr = chan->atr;
++	struct i2c_atr_alias_pair *c2a;
++	u16 alias;
++	int ret;
++
++	lockdep_assert_held(&chan->alias_pairs_lock);
++
+ 	ret = i2c_atr_reserve_alias(chan->alias_pool);
+-	if (ret < 0) {
+-		// If no free aliases are left, replace an existing one
+-		if (unlikely(list_empty(alias_pairs)))
+-			return NULL;
++	if (ret < 0)
++		return NULL;
+ 
+-		list_for_each_entry_reverse(c2a, alias_pairs, node)
+-			if (!c2a->fixed)
+-				break;
++	alias = ret;
+ 
+-		if (c2a->fixed)
+-			return NULL;
+-
+-		atr->ops->detach_addr(atr, chan->chan_id, c2a->addr);
+-		c2a->addr = addr;
+-
+-		// Move updated entry to beginning of list
+-		list_move(&c2a->node, alias_pairs);
+-
+-		alias = c2a->alias;
+-	} else {
+-		alias = ret;
+-
+-		c2a = i2c_atr_create_c2a(chan, alias, addr);
+-		if (!c2a)
+-			goto err_release_alias;
+-	}
++	c2a = i2c_atr_create_c2a(chan, alias, addr);
++	if (!c2a)
++		goto err_release_alias;
+ 
+ 	ret = atr->ops->attach_addr(atr, chan->chan_id, c2a->addr, c2a->alias);
+ 	if (ret) {
+@@ -302,6 +332,22 @@ i2c_atr_get_mapping_by_addr(struct i2c_atr_chan *chan, u16 addr)
+ 	return NULL;
  }
-@@ -872,6 +885,8 @@ void i2c_atr_del_adapter(struct i2c_atr *atr, u32 chan_id)
- 	fwnode_handle_put(fwnode);
- 	mutex_destroy(&chan->orig_addrs_lock);
- 	mutex_destroy(&chan->alias_pairs_lock);
-+	lockdep_unregister_key(&chan->orig_addrs_lock_key);
-+	lockdep_unregister_key(&chan->alias_pairs_lock_key);
- 	kfree(chan->orig_addrs);
- 	kfree(chan);
- }
+ 
++static struct i2c_atr_alias_pair *
++i2c_atr_get_mapping_by_addr(struct i2c_atr_chan *chan, u16 addr)
++{
++	struct i2c_atr_alias_pair *c2a;
++
++	c2a = i2c_atr_find_mapping_by_addr(chan, addr);
++	if (c2a)
++		return c2a;
++
++	c2a = i2c_atr_create_mapping_by_addr(chan, addr);
++	if (c2a)
++		return c2a;
++
++	return i2c_atr_replace_mapping_by_addr(chan, addr);
++}
++
+ /*
+  * Replace all message addresses with their aliases, saving the original
+  * addresses.
 -- 
 2.48.1
 
