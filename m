@@ -1,62 +1,62 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B0B7270EB9;
-	Fri, 28 Feb 2025 15:17:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD135271269;
+	Fri, 28 Feb 2025 15:17:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740755864; cv=none; b=SrhS3SgTPDKDjAiyYCk3FRwD1looCz0RO+5KHCfJ6U5Z+vrR6TYjbiAczOR02KKkksWiRcxpKie2BkR3uRsa9j/SG2fo6dNEsnwTQJpqbcL7Ohj6M5A6eZ6M0BtgX7zr5m/QDzIpyyUyr03OsXmxb95OPjmjQhbHOmU1uXKW1+E=
+	t=1740755866; cv=none; b=oRhvUVAJJXuIMowUiAOT2wdZWxNrhuZoN3jmhoVIQAHXkJRxxIz8SjTJHceS4MTNRDIw9Q/oQ0C0q94Mf0c4FsoHgSj9moYHAuGdOQKDV5LQFf0WSaR5vrNOrNKHVSNaqz5LzFqKlpbNB6/lGQBvm1t0+5HcE7fk4L0zxj4TAqA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740755864; c=relaxed/simple;
-	bh=PISapsmI9qRM5gfeVkdF4JKCyiQMUadO3rWiMlD7RFg=;
+	s=arc-20240116; t=1740755866; c=relaxed/simple;
+	bh=xaw+9NRhj93i8+l2AzjUn7HMcyjC5D4eiOuWNB1OLiI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BAuhc82GS9yetCmOVnTwBDyaKkNZxYH3mZm58FxJKy7Y68Krvi3MV8jb+bYNPSUIvpbqRA+VMajpNUSdf0bL9Nyk6EKLPJfv/BnQ5V8NxzR5eGqFjyY1/9/BpkVFNKwQstXs8ur+Vxc7Mxqc5azQP4FFUklJgVO+4jsVKLlnnkc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Kfx+Y2uq; arc=none smtp.client-ip=209.85.128.42
+	 MIME-Version; b=ih96G/av1DS1aFdvbJsLe6cnwmyJ6HmVDAyLel5xG+yDqAWNxd2dnr+M7BOL5ETz1iReuXtB+uUJFdqo+2pF/2woZGkp34o3SXA9WISKKqt/qzYgFLYJjXl58AghHeAXAFaudD3A4jVC1gQDreIZEtU4gwwi5h70kwbzHrk48So=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IH1lo25b; arc=none smtp.client-ip=209.85.128.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kfx+Y2uq"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-43948021a45so20943745e9.1;
-        Fri, 28 Feb 2025 07:17:41 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IH1lo25b"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-439a4dec9d5so24112035e9.0;
+        Fri, 28 Feb 2025 07:17:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1740755860; x=1741360660; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1740755863; x=1741360663; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=02Nk7Tu7oSWRbXywdmWr43MleXDMMaL38pYc/cnl7sc=;
-        b=Kfx+Y2uqOeSYkCYg6i7Z7mz+wCagYaNAWzUQaDuMdUnFFQ5GThC2FfqDslSRy6xBpr
-         4uPzxk9ULoeFbS9zXfAxmafaUMOjzePKs1NxErmLYlcJoitGqU36K0N9wtW+yDb5zDy0
-         n5CaC4tXyf/c5MsFJaW8xmD7KRkNo7RTblewDrcELjQyM6I2f9eUywORjZAOceAi/Ctr
-         pPmTfk+yEvrql3TCPSwpvzEOFe5CBMRySvdzdfzx7gH4+pTQBLutJIkZEtyCbGmsMZP9
-         0aPUtBHjCcHR+MWXLBSql70h6HYKBaUPnleWAU8ljRIhF37H3kMKbjE2+HCbCkRCCptf
-         u2gg==
+        bh=R6M+HRPCEe7YtMaRAGBz1VKfF9YRyuQoo35/cd6V73U=;
+        b=IH1lo25bk/LwGKhNSVHsgMJtbcpXfW9PUVYNxa60V2EiuhD8f+xI4AQRQVNOaKdUeF
+         YXdpwlmM8mVcW04F9cVRk7CfuIE/Qec9iLtbr3qWQejnWdTcZr+IrtJLDa7abhtiWjYx
+         hHy2mpvn149EYTDxD46Ll1y6+G8RV113V6BXX6ImjGUVoumgVG5OgB3eKXwYu74ySj9j
+         BbN7DLZ9nuPCJiZwP24f9IBjoIBV6LKDqZj/AJcWjui/3gXxmBOndclTu2ZqMmzMYYIo
+         5Sybl/hz21f+r9AHBVU5LwIuqWlylzhbxpXNo+4shXdUABGqOgAkEQHmcapQAyVnwiEA
+         kWsg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1740755860; x=1741360660;
+        d=1e100.net; s=20230601; t=1740755863; x=1741360663;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=02Nk7Tu7oSWRbXywdmWr43MleXDMMaL38pYc/cnl7sc=;
-        b=mLpKMReayU0vS407AwogwNnShUn07q1oFlkYd01tVZw2J86Kjb0ZnqRNX2VHyx6u+L
-         3X18KeYLjyPen3I8hhKbW03XVg07tXmz0UXkhlkNLx2vxpXT75NiB09f9dSkllQQzf++
-         LYeZgMftxYYp3EpK2GcRDGsD4UDCxZsI1MAipyeVbyhDvYLeoQOpqpWG2E0/44SQaJo8
-         /tJ5QhoLtJnI3q3Mghdrq9H0dg20KFr5sPjLDDuP5HUMEYfpwfXPUv76uwguUQgQE1DM
-         sJewOkdXGd9gmgc2ZPwYRmW8ahVR9MQZmwc2RkbOGU4lrNwqwqVEKb2vWiwLZlqkiWOC
-         w7Kw==
-X-Forwarded-Encrypted: i=1; AJvYcCVb1Esf95XSv6eHOqEFh0gOCjqVJdEtc6BajbLG+E71o/XP5XgJlDRav9mFAjYfFy/d30utDZz4PTBaa3c=@vger.kernel.org, AJvYcCWEcGZylbDgj/hUWDb8cnvvM1ypG5QUwUfXOoUrGvchdPL4XyV2N/vUdlKYPkmw3Q2yy7nMYUKR/nw=@vger.kernel.org, AJvYcCXf2jVrgJJ+egj2NQ84HQNAMTStpPYIundu4iCw53AArXP/EuxmIpfXT9nmW6RSn3/T5AvmwT8NFAYsDE6t@vger.kernel.org
-X-Gm-Message-State: AOJu0YzZQ2lFyre4hwsylaWcppxQlm7eJiGAHv/fjS08iySNez+agHJR
-	D8Z9TTqpl2FWKhR+UMdMcdfqS0RiJIr6F2FGAYUX0SAxBdS0dfVI5FzOqg==
-X-Gm-Gg: ASbGncufXJ0XRp1/wID4THgEC8NfPAfXmS4F6JEPAUaq7WWqnAjIk32L/zc2tUeaXmr
-	2ZAIhxT6wSCb+gzIQPaLobVWi+dnjfi3CP4TSRArLsH4bAHc7eBRAenik4vZ1C/I9dizwqaoEFH
-	VPV2YwhNrjI2Z636b+EfScS3aQ3+c48DSYkPO6melUj4oDvQlcBzBwHtWhFvVzN2Ndvu857PRw1
-	TU8G4S42sB+Yu7bAM8Jb+vHGIP5iPpuuxVHr5NE9flhJNBEHpmpQcj1j6jO+AKzpJ+G0lMgLzCr
-	41ri8uHR/vblLNzEedlqGcrMp/yqiqx/EuoB1tU=
-X-Google-Smtp-Source: AGHT+IHcIB5ih5Ak8ppnNtMqhEvkT6Vs/Y4qVpmCkLaNLy1wDcK5il5rG5f5hboByH0/Kq+vw747Bg==
-X-Received: by 2002:a05:600c:5101:b0:439:44eb:2d81 with SMTP id 5b1f17b1804b1-43ba67107c4mr34481015e9.15.1740755859451;
-        Fri, 28 Feb 2025 07:17:39 -0800 (PST)
+        bh=R6M+HRPCEe7YtMaRAGBz1VKfF9YRyuQoo35/cd6V73U=;
+        b=TjOc59f67NVFXwcvqc2POJfyZfILo3y/IwIvFpHHeeWWeNgdBvoGsDHkDS0np3Rzqi
+         5auBvIfPFKfENJY6Xp0cGk+H+s+7kfFwWhURvVuVWENAt/bgoduyyXuNADGr8eIDcD2E
+         WGeFU5/YSZZE3Dig8yLgziw0+MLdl6WlemnD0EQRyA9uEoaDHLvoam0wxNMpwd4aohO0
+         JJwMD3A4wKVLg40+Q4CaXOGV8WSHBV6v3P15aRuGJr/lgHE2q1RoQiBkZ9gdYc2RLq46
+         bUiYLvutAuPgmey+ofFl0i8sjCwAZf4oopFZLkNMQ881OEnoEtds4DLT51kQX6ogaf3M
+         +dzA==
+X-Forwarded-Encrypted: i=1; AJvYcCUNfDGbVY67xSHt99omAfbJlY7AxQE3TSpjSYDQtfbnihw6LB8E3KcHSyhAyslCPfRNSgGL9FX286ThcGTn@vger.kernel.org, AJvYcCVVgD1MRRj+FbNspPRvxNbeYbu5j08opVBe/MioXjp0RCkiWAjspwua4b293y0G4Ox9HvFkKDzHMyDMcPs=@vger.kernel.org, AJvYcCXdiWmgPWzOihQfsKzSXOj5B3KMwC8aBqEZN5K7M0ITlE4R39k3sI9I2JArghTtOv15zO9tPbOkxv0=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzBqYFkhwPS5S4XBy6mF3aVO1+BSYNZlSzLRzcDHWpeh70nQ43A
+	OIzMjfpvtGtjZniKov7l3X6gOBtNO9uXlvOUOILU2dRwR27diYRm
+X-Gm-Gg: ASbGncuby/LY9LNrhvqu0mRN/sERMeJ1jbmXlSErkfCQQgs4si6qwId37HUBRBzIHsO
+	rgG1qDQzYQqIcRgcdZxmtFp+sauoATcExoG6C2jaYR2ZMNJuwR4SB171v/J17XffWt027Kb30kn
+	dRkuv5Lt86xW9YEd4DpYt77LrJrsgIVk1vlrBiFXYTfFJ2XLC7zAcqqJYbffTPh4ZX4Nc0RDoCS
+	kcpU/d0oBYhb4G9OpbvCDMi+Hg0Mhmr0npvVcRCEKqp7pHtc88gs1WnNDcZIVeisNnjLEpR0RSc
+	XvVL3K0ugM7wtBo+6UiUizR9HYKdqMPnlUpsCEU=
+X-Google-Smtp-Source: AGHT+IGjX1N9FuSMpvL6z7k6QiNoEMimLTVA9WqjWwuygtEnQasl6sngyDK/8LhugrBpn/WJmEWu7g==
+X-Received: by 2002:a05:600c:524f:b0:439:9106:c09 with SMTP id 5b1f17b1804b1-43ba675bafcmr30114585e9.26.1740755862623;
+        Fri, 28 Feb 2025 07:17:42 -0800 (PST)
 Received: from demon-pc.localdomain ([188.27.130.21])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43b694524c6sm63096825e9.0.2025.02.28.07.17.38
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-43b694524c6sm63096825e9.0.2025.02.28.07.17.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Feb 2025 07:17:39 -0800 (PST)
+        Fri, 28 Feb 2025 07:17:42 -0800 (PST)
 From: Cosmin Tanislav <demonsingur@gmail.com>
 To: 
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
@@ -70,9 +70,9 @@ Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	linux-kernel@vger.kernel.org,
 	linux-media@vger.kernel.org,
 	Cosmin Tanislav <demonsingur@gmail.com>
-Subject: [PATCH v3 2/9] i2c: atr: find_mapping() -> get_mapping()
-Date: Fri, 28 Feb 2025 17:17:19 +0200
-Message-ID: <20250228151730.1874916-3-demonsingur@gmail.com>
+Subject: [PATCH v3 4/9] i2c: atr: do not create mapping in detach_addr()
+Date: Fri, 28 Feb 2025 17:17:21 +0200
+Message-ID: <20250228151730.1874916-5-demonsingur@gmail.com>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250228151730.1874916-1-demonsingur@gmail.com>
 References: <20250228151730.1874916-1-demonsingur@gmail.com>
@@ -84,56 +84,32 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-A find operation implies that a null result is not an error.
+It is useless to create a new mapping just to detach it immediately.
 
-Use get naming to clarify things and to prepare for splitting up the
-logic inside this function.
+Use the newly added i2c_atr_find_mapping_by_addr() function to avoid it,
+and exit without logging an error if not found.
 
 Signed-off-by: Cosmin Tanislav <demonsingur@gmail.com>
 ---
- drivers/i2c/i2c-atr.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/i2c/i2c-atr.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/drivers/i2c/i2c-atr.c b/drivers/i2c/i2c-atr.c
-index f6033c99f474..f2485d1670a2 100644
+index fc92ed930877..148a7bb0508e 100644
 --- a/drivers/i2c/i2c-atr.c
 +++ b/drivers/i2c/i2c-atr.c
-@@ -241,7 +241,7 @@ static void i2c_atr_release_alias(struct i2c_atr_alias_pool *alias_pool, u16 ali
- 
- /* Must be called with alias_pairs_lock held */
- static struct i2c_atr_alias_pair *
--i2c_atr_find_mapping_by_addr(struct i2c_atr_chan *chan, u16 addr)
-+i2c_atr_get_mapping_by_addr(struct i2c_atr_chan *chan, u16 addr)
- {
- 	struct i2c_atr *atr = chan->atr;
- 	struct i2c_atr_alias_pair *c2a;
-@@ -335,7 +335,7 @@ static int i2c_atr_map_msgs(struct i2c_atr_chan *chan, struct i2c_msg *msgs,
- 	for (i = 0; i < num; i++) {
- 		chan->orig_addrs[i] = msgs[i].addr;
- 
--		c2a = i2c_atr_find_mapping_by_addr(chan, msgs[i].addr);
-+		c2a = i2c_atr_get_mapping_by_addr(chan, msgs[i].addr);
- 
- 		if (!c2a) {
- 			dev_err(atr->dev, "client 0x%02x not mapped!\n",
-@@ -428,7 +428,7 @@ static int i2c_atr_smbus_xfer(struct i2c_adapter *adap, u16 addr,
+@@ -582,10 +582,8 @@ static void i2c_atr_detach_addr(struct i2c_adapter *adapter,
  
  	mutex_lock(&chan->alias_pairs_lock);
  
--	c2a = i2c_atr_find_mapping_by_addr(chan, addr);
-+	c2a = i2c_atr_get_mapping_by_addr(chan, addr);
- 
+-	c2a = i2c_atr_get_mapping_by_addr(chan, addr);
++	c2a = i2c_atr_find_mapping_by_addr(chan, addr);
  	if (!c2a) {
- 		dev_err(atr->dev, "client 0x%02x not mapped!\n", addr);
-@@ -536,7 +536,7 @@ static void i2c_atr_detach_addr(struct i2c_adapter *adapter,
- 
- 	mutex_lock(&chan->alias_pairs_lock);
- 
--	c2a = i2c_atr_find_mapping_by_addr(chan, addr);
-+	c2a = i2c_atr_get_mapping_by_addr(chan, addr);
- 	if (!c2a) {
- 		 /* This should never happen */
- 		dev_warn(atr->dev, "Unable to find address mapping\n");
+-		 /* This should never happen */
+-		dev_warn(atr->dev, "Unable to find address mapping\n");
+ 		mutex_unlock(&chan->alias_pairs_lock);
+ 		return;
+ 	}
 -- 
 2.48.1
 
