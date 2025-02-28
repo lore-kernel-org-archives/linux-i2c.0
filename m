@@ -1,110 +1,160 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A371026BDA4;
-	Fri, 28 Feb 2025 12:38:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AF0B25F984;
+	Fri, 28 Feb 2025 14:04:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.238.236.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1740746307; cv=none; b=tw8WKOpfxhoKuB6Zvngx5iei3rIbD1sWWpc5jUeitid8Uhdjo9eECMG2O0hQ0AMmgcqc52eTgelFJnFtkV/O1ufEhWdvVMNKrHko3hkvIc4YSsauGtHyz6Gp9DACtUDdcNvI+0UYOjZNfKrN08LJduZ/Tn2XOYPwaMFxR1vcq58=
+	t=1740751482; cv=none; b=ZNmpy4IyFRqlugL5+y6Kq28aqDIxjWHx/Ag5MSeFCQu2OMMFJ3DHRy022P+VUVQF3QsY+nlmzf5I64RlwpAXhf8nmudKqkypoSdKsrD3yb/RwDTlaYm+bKppCyGzXCnCYdzIERqMFIi1ieMlBt5OGPpr1DJfwSWL202NmdpH6qQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1740746307; c=relaxed/simple;
-	bh=VYX7RMZyCDlc3/89q5oGVMuk0VSFqLZ9SexG0yL3SwM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gJauyvDNEB8MLGg07ZkodvnNR+fXqkus9D6oya34Rcv1x3ll2vO8Z+LBqDWugK9qLP8XFctNHV8eHm3bhrl61TICH8ieg4CSmBNoRlLWSCglz2P/YSMcMtYP2rgKpThoclxzurtpV3KtYg4EowBro3+NwjnWmQYcV87aSwIFCBk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Bjn6T8aD; arc=none smtp.client-ip=192.198.163.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1740751482; c=relaxed/simple;
+	bh=OyopVVtQjR6T1QykKvLbX64lhWAiOalFIIdWyRVwcKc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=RDi5B4p/Us3EHwoFDvgPU5Re3jJa52Vn4QAyRvDb72jrUAV4l8MLri60V0kzBJPi81WdNqGHdTSGItuAHEsSLpbdcEgdKdZhURuTVGlHc7B/7cQ8Yyq71xaFp6DNpuUM0OnWeDUp5D4Q4eCMdniYp6MjORC9OSJsbChDJ0b9g4U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info; spf=pass smtp.mailfrom=kemnade.info; dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b=ng2VadjU; arc=none smtp.client-ip=178.238.236.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Bjn6T8aD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1740746306; x=1772282306;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=VYX7RMZyCDlc3/89q5oGVMuk0VSFqLZ9SexG0yL3SwM=;
-  b=Bjn6T8aDR2iHyMZTvUyP3xhyyTfa9eLfgBcxQp1iqITfH7+MSEh3nTtK
-   +sDdMQhR//Djg2cgnpk0gwhY59gsibf8bchK/jtMB6vKoX1w+BHYbgbip
-   yqotmbenBRxSo6hKPy8nDCO+tQnzVVa+ShRAQ8ABiZORnfpDVwPsGKV2P
-   tZY5PeLU8JCQmgVW7qz6qEEStaLWbTcMx1mkwk75WmE2WRhHqorZExR0a
-   F6XiRmHAApf/TvwSjK0SbjPDnA6MQul3omqRI76Ahjxwk5tu4PvBtNOrk
-   MFzySRuZFWznq/fh1XRg5PCvxN8uPcTDQobMgBy5Gz/bllIyTLMOTPdPF
-   A==;
-X-CSE-ConnectionGUID: J6Qr1JJuTf+CaBO5pJd84Q==
-X-CSE-MsgGUID: FxGLw0INRliWRHV3vsI/nA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11358"; a="44487565"
-X-IronPort-AV: E=Sophos;i="6.13,322,1732608000"; 
-   d="scan'208";a="44487565"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2025 04:38:25 -0800
-X-CSE-ConnectionGUID: XFK1U7eRRnWQ4oGOGKwDHg==
-X-CSE-MsgGUID: 9fz0KIp6TWq3kGY8ZRIIpw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.13,322,1732608000"; 
-   d="scan'208";a="117312902"
-Received: from smile.fi.intel.com ([10.237.72.58])
-  by fmviesa007.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2025 04:38:21 -0800
-Received: from andy by smile.fi.intel.com with local (Exim 4.98)
-	(envelope-from <andriy.shevchenko@linux.intel.com>)
-	id 1tnzdB-0000000Fwgv-3Dnc;
-	Fri, 28 Feb 2025 14:38:17 +0200
-Date: Fri, 28 Feb 2025 14:38:17 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: kernel test robot <lkp@intel.com>
-Cc: Ryan Chen <ryan_chen@aspeedtech.com>, benh@kernel.crashing.org,
-	joel@jms.id.au, andi.shyti@kernel.org, robh@kernel.org,
-	krzk+dt@kernel.org, conor+dt@kernel.org,
-	andrew@codeconstruct.com.au, p.zabel@pengutronix.de,
-	linux-i2c@vger.kernel.org, openbmc@lists.ozlabs.org,
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org,
-	oe-kbuild-all@lists.linux.dev
-Subject: Re: [PATCH v16 2/3] i2c: aspeed: support AST2600 i2c new register
- mode driver
-Message-ID: <Z8GuOT5bJL7CdXX6@smile.fi.intel.com>
-References: <20250224055936.1804279-3-ryan_chen@aspeedtech.com>
- <202502280902.U0gLDhve-lkp@intel.com>
+	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="ng2VadjU"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kemnade.info; s=20220719; h=Cc:From:Sender:Reply-To:Content-ID:
+	Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
+	:Resent-Message-ID:In-Reply-To:References;
+	bh=rV1ER6hoCH82akCLHnGCnJdZysL/ZASqkcfWYifR8jA=; b=ng2VadjUOk6BzueMZZSr7vtVvL
+	1b1pEDWYVLriFa3lAfDtqIlhFE/pmN9ZD7NLH6QmWt4am7E6yFo9R6aN1urdP/xwGOpEio0ffF8Kf
+	G9recA2dNkvr57m4Ohfa7yTJzQ6Jl2T3HsIszvde9yvKt65erGBGStbw8Y0LOePfR+s6EF26ZjlYD
+	HZeSGhN3hvKEGwa7wVwGvUc6n7YCWgZQVThmk1u0FEgg0HD/IQUiQ2o5OcfnJXVcF/GYODcV8dAnF
+	mkjqXjDp3tNkQYho9TPTKiRijjCBKI3L4pYFw63TlM8FAIuHKjLibH51NCTMkMLBUXkKuOBIYMMHx
+	PQiLogFw==;
+From: Andreas Kemnade <andreas@kemnade.info>
+To: vigneshr@ti.com,
+	aaro.koskinen@iki.fi,
+	andreas@kemnade.info,
+	khilman@baylibre.com,
+	rogerq@kernel.org,
+	tony@atomide.com,
+	jmkrzyszt@gmail.com,
+	andi.shyti@kernel.org,
+	reidt@ti.com,
+	wsa@kernel.org,
+	linux-omap@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: stable@kernel.org
+Subject: [PATCH v2] i2c: omap: fix IRQ storms
+Date: Fri, 28 Feb 2025 15:04:20 +0100
+Message-Id: <20250228140420.379498-1-andreas@kemnade.info>
+X-Mailer: git-send-email 2.39.5
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <202502280902.U0gLDhve-lkp@intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: 8bit
 
-On Fri, Feb 28, 2025 at 09:28:59AM +0800, kernel test robot wrote:
-> Hi Ryan,
-> 
-> kernel test robot noticed the following build warnings:
-> 
-> [auto build test WARNING on andi-shyti/i2c/i2c-host]
-> [also build test WARNING on linus/master v6.14-rc4 next-20250227]
-> [If your patch is applied to the wrong git tree, kindly drop us a note.
-> And when submitting patch, we suggest to use '--base' as documented in
-> https://git-scm.com/docs/git-format-patch#_base_tree_information]
-> 
-> url:    https://github.com/intel-lab-lkp/linux/commits/Ryan-Chen/dt-bindings-i2c-aspeed-support-for-AST2600-i2cv2/20250224-140221
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git i2c/i2c-host
-> patch link:    https://lore.kernel.org/r/20250224055936.1804279-3-ryan_chen%40aspeedtech.com
-> patch subject: [PATCH v16 2/3] i2c: aspeed: support AST2600 i2c new register mode driver
-> config: mips-allyesconfig (https://download.01.org/0day-ci/archive/20250228/202502280902.U0gLDhve-lkp@intel.com/config)
-> compiler: mips-linux-gcc (GCC) 14.2.0
-> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250228/202502280902.U0gLDhve-lkp@intel.com/reproduce)
-> 
-> If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> the same patch/commit), kindly add following tags
-> | Reported-by: kernel test robot <lkp@intel.com>
-> | Closes: https://lore.kernel.org/oe-kbuild-all/202502280902.U0gLDhve-lkp@intel.com/
-> 
-> All warnings (new ones prefixed by >>):
+On the GTA04A5 writing a reset command to the gyroscope causes IRQ
+storms because NACK IRQs are enabled and therefore triggered but not
+acked.
 
-My gosh, this is valid report. But it looks like a preexisted issue.
-Can somebody fix this, please?
+Sending a reset command to the gyroscope by
+i2cset 1 0x69 0x14 0xb6
+with an additional debug print in the ISR (not the thread) itself
+causes
 
+[ 363.353515] i2c i2c-1: ioctl, cmd=0x720, arg=0xbe801b00
+[ 363.359039] omap_i2c 48072000.i2c: addr: 0x0069, len: 2, flags: 0x0, stop: 1
+[ 363.366180] omap_i2c 48072000.i2c: IRQ LL (ISR = 0x1110)
+[ 363.371673] omap_i2c 48072000.i2c: IRQ (ISR = 0x0010)
+[ 363.376892] omap_i2c 48072000.i2c: IRQ LL (ISR = 0x0102)
+[ 363.382263] omap_i2c 48072000.i2c: IRQ LL (ISR = 0x0102)
+[ 363.387664] omap_i2c 48072000.i2c: IRQ LL (ISR = 0x0102)
+repeating till infinity
+[...]
+(0x2 = NACK, 0x100 = Bus free, which is not enabled)
+Apparently no other IRQ bit gets set, so this stalls.
+
+Do not ignore enabled interrupts and make sure they are acked.
+If the NACK IRQ is not needed, it should simply not enabled, but
+according to the above log, caring about it is necessary unless
+the Bus free IRQ is enabled and handled. The assumption that is
+will always come with a ARDY IRQ, which was the idea behind
+ignoring it, proves wrong.
+It is true for simple reads from an unused address.
+
+To still avoid the i2cdetect trouble which is the reason for
+commit c770657bd261 ("i2c: omap: Fix standard mode false ACK readings"),
+avoid doing much about NACK in omap_i2c_xfer_data() which is used
+by both IRQ mode and polling mode, so also the false detection fix
+is extended to polling usage and IRQ storms are avoided.
+
+By changing this, the hardirq handler is not needed anymore to filter
+stuff.
+
+The mentioned gyro reset now just causes a -ETIMEDOUT instead of
+hanging the system.
+
+Fixes: c770657bd261 ("i2c: omap: Fix standard mode false ACK readings").
+CC: <stable@kernel.org>
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+---
+This needs at least to be tested on systems where false acks were
+detected.
+
+ drivers/i2c/busses/i2c-omap.c | 26 +++++++-------------------
+ 1 file changed, 7 insertions(+), 19 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-omap.c b/drivers/i2c/busses/i2c-omap.c
+index 92faf03d64cf..f18c3e74b076 100644
+--- a/drivers/i2c/busses/i2c-omap.c
++++ b/drivers/i2c/busses/i2c-omap.c
+@@ -1048,23 +1048,6 @@ static int omap_i2c_transmit_data(struct omap_i2c_dev *omap, u8 num_bytes,
+ 	return 0;
+ }
+ 
+-static irqreturn_t
+-omap_i2c_isr(int irq, void *dev_id)
+-{
+-	struct omap_i2c_dev *omap = dev_id;
+-	irqreturn_t ret = IRQ_HANDLED;
+-	u16 mask;
+-	u16 stat;
+-
+-	stat = omap_i2c_read_reg(omap, OMAP_I2C_STAT_REG);
+-	mask = omap_i2c_read_reg(omap, OMAP_I2C_IE_REG) & ~OMAP_I2C_STAT_NACK;
+-
+-	if (stat & mask)
+-		ret = IRQ_WAKE_THREAD;
+-
+-	return ret;
+-}
+-
+ static int omap_i2c_xfer_data(struct omap_i2c_dev *omap)
+ {
+ 	u16 bits;
+@@ -1095,8 +1078,13 @@ static int omap_i2c_xfer_data(struct omap_i2c_dev *omap)
+ 		}
+ 
+ 		if (stat & OMAP_I2C_STAT_NACK) {
+-			err |= OMAP_I2C_STAT_NACK;
++			omap->cmd_err |= OMAP_I2C_STAT_NACK;
+ 			omap_i2c_ack_stat(omap, OMAP_I2C_STAT_NACK);
++
++			if (!(stat & ~OMAP_I2C_STAT_NACK)) {
++				err = -EAGAIN;
++				break;
++			}
+ 		}
+ 
+ 		if (stat & OMAP_I2C_STAT_AL) {
+@@ -1472,7 +1460,7 @@ omap_i2c_probe(struct platform_device *pdev)
+ 				IRQF_NO_SUSPEND, pdev->name, omap);
+ 	else
+ 		r = devm_request_threaded_irq(&pdev->dev, omap->irq,
+-				omap_i2c_isr, omap_i2c_isr_thread,
++				NULL, omap_i2c_isr_thread,
+ 				IRQF_NO_SUSPEND | IRQF_ONESHOT,
+ 				pdev->name, omap);
+ 
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.39.5
 
