@@ -1,58 +1,58 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACAED258CD0;
-	Wed, 12 Mar 2025 18:51:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B2D8258CF2;
+	Wed, 12 Mar 2025 18:51:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741805511; cv=none; b=nXr04+yErsO28JkjgSqeftxVR1/Zdztkvt7mhZkLavXzX0wex52XHhveD2K3fd+WPqHbs2o8Ak+L9+/8KH5VgvGSWlKMtPrgxvTRDH4P6mbca1+nCT1zhn61UKTARESf1jKdt56l6TPTUT8Xq5Ne0wNWPyAFrKJUNnvBfbZZYQU=
+	t=1741805512; cv=none; b=nDdvNntAERTyBJXTqGuOy5A+W/HDjTJke4imxOzZKEtbGv5T/NW9o+0O//FfbjM7XJw0ARQDaADox+A3ChllLqUwcGM4BWbNUtwituR18TMMZnyH8rqczNi7H5ndw9q1aBvzNolP8YVJsjkTg4YlsZm73ffFPLG4Mqrnu5AZwdc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741805511; c=relaxed/simple;
-	bh=1sXys2aY5ZFW72nOUdu/mEFqc3tcXF3J8tzEyHNpwMk=;
+	s=arc-20240116; t=1741805512; c=relaxed/simple;
+	bh=VjmtEJxQyuUAeqbxtsbBB1tsOJr3EnKvfppmPlAeS9U=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gQvZ41Tbt71JbBH/CcBPIXbhqog7mU7ymlwfhklqN0osU6RDjNgW8DqcRP1YFBTKeuTGyyO/MC5qTOqaZXeRlSMlvMFLhcr4lsbt2lIJb+UQ1z54yZX4rCBAT1SjWOESxyEbebqtgLI9PN7razGrn9/w0DYtDe5uwCjp1NHvKs8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WrOnxxR4; arc=none smtp.client-ip=192.198.163.16
+	 MIME-Version; b=HPGBZrBvvKfY8FW+I50nk7QnnyQfHDbMUh8j5sRKSUiQIpP1n34H4QNbl+KzS2SRn+6kGIYjLusrbUUYOzxTfIMUvCieKBc6SFbq91d3vQeKSjX9TWy222UhEuPKjLSGR/lAWWOi+eY7+gAnYzZqwo2kNBKxtKV2AA4mvSGdXV8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FhQqgvur; arc=none smtp.client-ip=192.198.163.16
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WrOnxxR4"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FhQqgvur"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
   t=1741805510; x=1773341510;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=1sXys2aY5ZFW72nOUdu/mEFqc3tcXF3J8tzEyHNpwMk=;
-  b=WrOnxxR4EwUCmab5H8TW/zcQUE7aERSbsEfnTCyugTgNmT1RTv5Hu7mS
-   6gVF1yuvt4PN/Qwp+flUAGffAowFwEXQm0JltHV6OgCTfdWEwXIhNGGsu
-   Cu1rdqud7rX1DiYwbT+Ua+e26JDxsmakp5jZUTz+m0Rf1LvJ1ZQjku2sU
-   c0UDhbKZc2QYXSnQTKVM6XXrTWudYy2fTaYJtbS8DITJNK8JRrSIUL40s
-   NixzeChNNGe9qm1OjmRHTXzGHaOT+KiT1OIgKQ6Ee3Bix9g3FyAVCX0C2
-   +4hpKdGCRwf6mO6n5cJk3a/hmHrrLGUgxU3b/tTHbuTUF/MBvksQ4sDFa
-   w==;
-X-CSE-ConnectionGUID: TuPqK5nGSPCkzKkytjWwFg==
-X-CSE-MsgGUID: 0ulPcA+QQ+eMpBUE0/uJoQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11371"; a="30487215"
+  bh=VjmtEJxQyuUAeqbxtsbBB1tsOJr3EnKvfppmPlAeS9U=;
+  b=FhQqgvur1/e6dL0ZMZIPWQHAdoUp0ZgbAjgRK93rx8ncKjzocNpD8EAN
+   79k0OGoP3xMjp9O8fXoo20yCG7u2UMmzzsLUXgmG6hNZziHt+oomw1xfo
+   aPKLWlzhtjKekinU/2yVFdsmiKW0JHfK8YtXo8yDIjyOi6oS7P8ZFAwDq
+   Rat7gQnI7ab6WsyVPGSmu9O9VPhdJTucm8ERWdAJtc05GUbw3KlL0mckm
+   UvnIl7EWoBt2KINFManz3brAq6JVcz/mYp9u8IarvoJTEFudVYpaMeNEj
+   fba9YnEGoX8/y/N/8P2lBrBkr+FcIog8hz9Lt5LjztrtAQKEYhEuAF+/c
+   A==;
+X-CSE-ConnectionGUID: pSl04gNNRsKByn2mOA1gkQ==
+X-CSE-MsgGUID: xAqd3RiNRDmARVdW/64AQg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11371"; a="30487221"
 X-IronPort-AV: E=Sophos;i="6.14,242,1736841600"; 
-   d="scan'208";a="30487215"
+   d="scan'208";a="30487221"
 Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Mar 2025 11:51:45 -0700
-X-CSE-ConnectionGUID: M1jHYTVpQKqeRG7Kmc+veg==
-X-CSE-MsgGUID: VHGXyTN/T3SdiG4sUck3/A==
+  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Mar 2025 11:51:46 -0700
+X-CSE-ConnectionGUID: RHRG1bCQRqKWRbCnaw6Tig==
+X-CSE-MsgGUID: +IVzrFM+T16rW1kVNJPy+w==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.14,242,1736841600"; 
-   d="scan'208";a="157895064"
+   d="scan'208";a="157895067"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by orviesa001.jf.intel.com with ESMTP; 12 Mar 2025 11:51:43 -0700
+  by orviesa001.jf.intel.com with ESMTP; 12 Mar 2025 11:51:46 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id 44C7E214; Wed, 12 Mar 2025 20:51:42 +0200 (EET)
+	id 5D087271; Wed, 12 Mar 2025 20:51:42 +0200 (EET)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 4/6] i2c: core: Reuse fwnode variable where it makes sense
-Date: Wed, 12 Mar 2025 20:48:51 +0200
-Message-ID: <20250312185137.4154173-5-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 6/6] i2c: core: Deprecate of_node in struct i2c_board_info
+Date: Wed, 12 Mar 2025 20:48:53 +0200
+Message-ID: <20250312185137.4154173-7-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.47.2
 In-Reply-To: <20250312185137.4154173-1-andriy.shevchenko@linux.intel.com>
 References: <20250312185137.4154173-1-andriy.shevchenko@linux.intel.com>
@@ -64,41 +64,29 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Reuse fwnode variable where it makes sense. This avoids unneeded
-duplication hidden in some macros and unifies the code for different
-types of fwnode.
+Two members of the same or similar semantics is quite confusing to begin with.
+Moreover, the fwnode covers all possible firmware descriptions that Linux kernel
+supports. Deprecate of_node in struct i2c_board_info, so users will be warned
+and in the future remote it completely.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/i2c-core-base.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ include/linux/i2c.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index f0420cc0df26..1236061a78c3 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -568,7 +568,7 @@ static int i2c_device_probe(struct device *dev)
- 
- 	dev_dbg(dev, "probe\n");
- 
--	status = of_clk_set_defaults(dev->of_node, false);
-+	status = of_clk_set_defaults(to_of_node(fwnode), false);
- 	if (status < 0)
- 		goto err_clear_wakeup_irq;
- 
-@@ -1062,10 +1062,10 @@ void i2c_unregister_device(struct i2c_client *client)
- 
- 	fwnode = dev_fwnode(&client->dev);
- 	if (is_of_node(fwnode)) {
--		of_node_clear_flag(client->dev.of_node, OF_POPULATED);
-+		of_node_clear_flag(to_of_node(fwnode), OF_POPULATED);
- 		of_node_put(client->dev.of_node);
- 	} else if (is_acpi_device_node(fwnode))
--		acpi_device_clear_enumerated(ACPI_COMPANION(&client->dev));
-+		acpi_device_clear_enumerated(to_acpi_device_node(fwnode));
- 
- 	device_remove_software_node(&client->dev);
- 	device_unregister(&client->dev);
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 2e4903b7f7bc..cc1437f29823 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -405,7 +405,7 @@ static inline bool i2c_detect_slave_mode(struct device *dev) { return false; }
+  * @addr: stored in i2c_client.addr
+  * @dev_name: Overrides the default <busnr>-<addr> dev_name if set
+  * @platform_data: stored in i2c_client.dev.platform_data
+- * @of_node: pointer to OpenFirmware device node
++ * @of_node: **DEPRECATED** - use @fwnode for this
+  * @fwnode: device node supplied by the platform firmware
+  * @swnode: software node for the device
+  * @resources: resources associated with the device
 -- 
 2.47.2
 
