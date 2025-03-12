@@ -1,139 +1,138 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04C10259489;
-	Wed, 12 Mar 2025 18:51:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5742D258CEB
+	for <linux-i2c@vger.kernel.org>; Wed, 12 Mar 2025 19:06:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741805512; cv=none; b=AsoOOeW54MdD0TYQQ3kZ5iyfkdEBrbNzKNDKnVsSeqSh7h1rSt1y1vd8txKu70EkysHP+4nsEvuVQUFX8eRPkgplp2JnvgcrrKb9AJpuNA8HT8w+NPkbIQGZnnnCWodZKXhR/A2KMb7xnmo3AjOZLJBUuit0F3n3Zvj/WXbMyRY=
+	t=1741806389; cv=none; b=Kun1WPw4GmcWvY2wD2fpwEc5qiYl26e5bl2lCF9E5qvMVcYR8RY/xZjPdzxAd6pRwKWfmTACpT4waSGOSHG0nyomwLGUYXOqd2DePZrBpnqyYMJFyfl5k9sqR+EYkPdlybFE71ioYhi3iaGe8xrzxqCrNpHvsUz8XF21us3Xo+A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1741805512; c=relaxed/simple;
-	bh=V6+0IS7/fqFcASSZF65vr6gKqboR4LhF8+CjfKajdFo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=k+sVo5KPGoEZoidArI7NJZpr6aFqnkxvmx2BBL277MbAqAeadEg6Ua8Z+0ZVamN1Nf1+u6O6r2IUoIb4FwxSaNlqpfMQgqWdnB+DijdvN+t/0qWoPOFU2xmmO9ZPWesoqzaQNiPkTtIt/ooQl5e4IoGg14JZWdnDf5mPAR1mvfY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gKMzrJ0B; arc=none smtp.client-ip=192.198.163.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1741806389; c=relaxed/simple;
+	bh=i3vucoPseVcWW7c5dXt5ebAxqit03r8K46E121gZIsk=;
+	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=ccvKcIqBfbAk31oTHuGTcUBNvn/wvtjmBeVSpfWEAeP/rCDEoyiFd6kDo5+4jFgEG9J8x6iBppuYZcgz7LTY8XJ3gMVJv0LCMe72vVAWSt6Vmaly/Vubw+aoId2NdsUXNlhqbc6qx/GpoCJviELcE7nG3dg6D77mG2EBRHoGtYw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Mzyt8Nxy; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gKMzrJ0B"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1741805511; x=1773341511;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=V6+0IS7/fqFcASSZF65vr6gKqboR4LhF8+CjfKajdFo=;
-  b=gKMzrJ0BD4fSnddjXjBdRde36WfB5BXDFTLqdCrv/ovnEphLFlGIJd5e
-   50Zzc0l8APLeBtrHzkoK8hMNGEyzPxqLWs+AFZ9VHf5UUswwMq0z4qcOX
-   +O1yERTnqQ9kch26yIjUMDm4VgMAXkVvddQsyt4jVuRCRs8GTcidVyrWE
-   9IJpB80Cv2+0+N8vq1fm6xMYV3TH0W/XGIvKvh48R9u5s2LuVDQoMAQnP
-   iHzFZ1VlyiHRzEGagvFBtlThqkhZWpFFdX5JDFJAiBXAl2k2iy5LbvO1c
-   1tKwDhG0xjHyXVzqb8as8gXqLjWdRb4dZBufIAf9jdpFtgWHBBTdm514W
-   g==;
-X-CSE-ConnectionGUID: 5EexcDADRFuVUhcvYoxrWw==
-X-CSE-MsgGUID: vIsOLdE4TpaV50DJqypvzQ==
-X-IronPort-AV: E=McAfee;i="6700,10204,11371"; a="30487222"
-X-IronPort-AV: E=Sophos;i="6.14,242,1736841600"; 
-   d="scan'208";a="30487222"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Mar 2025 11:51:47 -0700
-X-CSE-ConnectionGUID: BWOY4Yn1RCusRoEyDrY+KQ==
-X-CSE-MsgGUID: Qgpdi5QDT3OYaLTrW6uPWw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.14,242,1736841600"; 
-   d="scan'208";a="157895068"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by orviesa001.jf.intel.com with ESMTP; 12 Mar 2025 11:51:46 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id 53DC727D; Wed, 12 Mar 2025 20:51:42 +0200 (EET)
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 5/6] i2c: core: Do not dereference fwnode in struct device
-Date: Wed, 12 Mar 2025 20:48:52 +0200
-Message-ID: <20250312185137.4154173-6-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.47.2
-In-Reply-To: <20250312185137.4154173-1-andriy.shevchenko@linux.intel.com>
-References: <20250312185137.4154173-1-andriy.shevchenko@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Mzyt8Nxy"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-43cfe574976so894515e9.1
+        for <linux-i2c@vger.kernel.org>; Wed, 12 Mar 2025 12:06:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1741806385; x=1742411185; darn=vger.kernel.org;
+        h=content-transfer-encoding:autocrypt:subject:from:cc:to
+         :content-language:user-agent:mime-version:date:message-id:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Ccyd4F5pPIVH21nsulrQLjIaNTjnwJxA5SDU2R/66rI=;
+        b=Mzyt8Nxyy2aeQPMylwR6B/HqlGnzo3Wdc4cbizum7z0a4b/tA4hYsg1XTr7vbMJ5SM
+         vyvzT/dMaf2znKE074suyw0H3NiscUOud+ZNvCfgcfZYYPmMPGRQIOKyZMMDANHEmW4X
+         I7KlZIA1UUeDgU4XpfwK9Mb7WqpVHyeP6uTA34GYSUSYrix8NPbf9Sxao4R5SStj5clU
+         Pp4msFnceowu6coZeIP+V+1EsnNgXNuN8QVtz7IncshH0KEnE4/KFE9Yv9FrEj51gXab
+         PVuIRtMkT2V1vFGCCUqehe3tqA3AwKGAVlf9Lng7xQcvPJ3x8tranBs/EBJCkOPCY954
+         MPeQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1741806385; x=1742411185;
+        h=content-transfer-encoding:autocrypt:subject:from:cc:to
+         :content-language:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ccyd4F5pPIVH21nsulrQLjIaNTjnwJxA5SDU2R/66rI=;
+        b=EE72n7j8LxYiNpz6nhjds7bXZdZpeh8tNn/fGgLUrazu9UNjd9z8PoVy7+6Sg8JlUg
+         tbmFeaEq8+zeI5soNe6vg6Gz99WNKmVrwOqBVZxMkIPd4VluhFQ68XM7WoG4pAIMm+/1
+         rlGtTKi3GUuJugq/DccXpDyRrdAYQ4wfgnaPaOS2TxSdqdTYvIbnGaBM2/ml4WBrK6Bv
+         24KTHvNSd9MHhHMGyepCgcit/cL+iy4wglqzjmq2330HBqMW8q7yxE/Lor4IUYXSos0n
+         dFZFC/onF96mfCR77iH3FNaN1iv6Nx90lPQZ5FOm633XgltF1h5mDzuRFvX6zzPW1v6a
+         Ev7w==
+X-Gm-Message-State: AOJu0YzOP6NPcxM0ScShOHddpJV7cPMj2qY/0hwra4ZPi/K8dJPIAgNL
+	oXQMUEnXjnuqqEA9cv1kOLPera+8HjYPqE7ITiQ0I97ynWdO3qKn
+X-Gm-Gg: ASbGncv6BkPzmEgoZaorWkAmm7LgV084jLotB8rZhvpxTXssc6Q/z3HcaHe03C2wAZa
+	46Q7rd5E6Zt8zYHPSW2PcYVA4mA1gcRUEccYRf3wzFqN5jrrR537zGnWgKbgS0ixvGHf9iOkGUb
+	nSVcIpYWWBhLPP6/21xGEh6ddfnTSxEfimEVj/1MM+O51Uw+Pj/ZZdP3IwrCLB7n3sTBJpHpYFX
+	E71Kl+cbN3vxx5pjrqoJ7sTVagh4l4rpZ2f7a4jE/jHIVf3BirEeyTS7O1sfMHqOlFbVLgIyWex
+	GVX4kP8Yiw8Cz+CbhCcO92O1edvgznVlmjNWgEk8cETHgc6NFvogxvE6yvFnEQPghCjaWekPlVr
+	zSmOPcQiPJCrzzW4PK4BuGKmBfw1OZa4pZuLFlVrLGrXTcZixP96CCs5Tb5XRbQWeg/j0a1zx8x
+	pvQzucodyej9nBXPVMDTmIZpMVbzzYPhVlJr4dAgWCvUU5tIM=
+X-Google-Smtp-Source: AGHT+IGSyFEJRw3gY4tGiM00Mv2q2pWJ9WhEcSa/7cwy4oHIOUMmbPoREpellOBmb/JL7YKRnYmIlw==
+X-Received: by 2002:a05:600c:4fce:b0:43b:c0fa:f9dd with SMTP id 5b1f17b1804b1-43d01c25c64mr75399515e9.25.1741806385331;
+        Wed, 12 Mar 2025 12:06:25 -0700 (PDT)
+Received: from ?IPV6:2a02:3100:a4d2:5c00:ad7a:ba59:161c:c724? (dynamic-2a02-3100-a4d2-5c00-ad7a-ba59-161c-c724.310.pool.telefonica.de. [2a02:3100:a4d2:5c00:ad7a:ba59:161c:c724])
+        by smtp.googlemail.com with ESMTPSA id 5b1f17b1804b1-43d0a8d0af7sm29314705e9.35.2025.03.12.12.06.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 12 Mar 2025 12:06:24 -0700 (PDT)
+Message-ID: <28ad9377-6d8a-4259-8cd4-7edaa00e26d7@gmail.com>
+Date: Wed, 12 Mar 2025 20:06:31 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Content-Language: en-US
+To: Andi Shyti <andi.shyti@kernel.org>, Jean Delvare <jdelvare@suse.com>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>
+From: Heiner Kallweit <hkallweit1@gmail.com>
+Subject: [PATCH 0/2] i2c: i801: Use MMIO if available
+Autocrypt: addr=hkallweit1@gmail.com; keydata=
+ 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
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-In order to make the underneath API easier to change in the future,
-prevent users from dereferencing fwnode from struct device.
-Instead, use the specific device_set_node() API for that.
+Newer versions of supported chips support MMIO in addition to legacy
+PMIO register access. Probe the MMIO PCI BAR and use faster MMIO
+register access if available.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/i2c-core-base.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+Tested on N100 (Alder Lake-N).
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 1236061a78c3..dba6c5ce9d42 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -962,6 +962,7 @@ static void i2c_unlock_addr(struct i2c_adapter *adap, unsigned short addr,
- struct i2c_client *
- i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
- {
-+	struct fwnode_handle *fwnode;
- 	struct i2c_client *client;
- 	bool need_put = false;
- 	int status;
-@@ -1002,18 +1003,19 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
- 	client->dev.parent = &client->adapter->dev;
- 	client->dev.bus = &i2c_bus_type;
- 	client->dev.type = &i2c_client_type;
--	client->dev.of_node = of_node_get(info->of_node);
--	client->dev.fwnode = info->fwnode;
- 
- 	device_enable_async_suspend(&client->dev);
- 
-+	fwnode = info->fwnode ?: of_fwnode_handle(info->of_node);
-+	device_set_node(&client->dev, fwnode_handle_get(fwnode));
-+
- 	if (info->swnode) {
- 		status = device_add_software_node(&client->dev, info->swnode);
- 		if (status) {
- 			dev_err(&adap->dev,
- 				"Failed to add software node to client %s: %d\n",
- 				client->name, status);
--			goto out_err_put_of_node;
-+			goto out_err_put_fwnode;
- 		}
- 	}
- 
-@@ -1032,8 +1034,8 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
- out_remove_swnode:
- 	device_remove_software_node(&client->dev);
- 	need_put = true;
--out_err_put_of_node:
--	of_node_put(info->of_node);
-+out_err_put_fwnode:
-+	fwnode_handle_put(fwnode);
- out_err:
- 	dev_err(&adap->dev,
- 		"Failed to register i2c client %s at 0x%02x (%d)\n",
-@@ -1061,11 +1063,11 @@ void i2c_unregister_device(struct i2c_client *client)
- 		return;
- 
- 	fwnode = dev_fwnode(&client->dev);
--	if (is_of_node(fwnode)) {
-+	if (is_of_node(fwnode))
- 		of_node_clear_flag(to_of_node(fwnode), OF_POPULATED);
--		of_node_put(client->dev.of_node);
--	} else if (is_acpi_device_node(fwnode))
-+	else if (is_acpi_device_node(fwnode))
- 		acpi_device_clear_enumerated(to_acpi_device_node(fwnode));
-+	fwnode_handle_put(fwnode);
- 
- 	device_remove_software_node(&client->dev);
- 	device_unregister(&client->dev);
+This series is a rebased re-spin of a series submitted last October.
+
+Heiner Kallweit (2):
+  i2c: i801: Switch to iomapped register access
+  i2c: i801: Use MMIO if available
+
+ drivers/i2c/busses/i2c-i801.c | 157 +++++++++++++++++-----------------
+ 1 file changed, 79 insertions(+), 78 deletions(-)
+
 -- 
-2.47.2
+2.48.1
+
 
