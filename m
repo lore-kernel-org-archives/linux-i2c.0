@@ -1,58 +1,58 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B2D8258CF2;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04C10259489;
 	Wed, 12 Mar 2025 18:51:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1741805512; cv=none; b=nDdvNntAERTyBJXTqGuOy5A+W/HDjTJke4imxOzZKEtbGv5T/NW9o+0O//FfbjM7XJw0ARQDaADox+A3ChllLqUwcGM4BWbNUtwituR18TMMZnyH8rqczNi7H5ndw9q1aBvzNolP8YVJsjkTg4YlsZm73ffFPLG4Mqrnu5AZwdc=
+	t=1741805512; cv=none; b=AsoOOeW54MdD0TYQQ3kZ5iyfkdEBrbNzKNDKnVsSeqSh7h1rSt1y1vd8txKu70EkysHP+4nsEvuVQUFX8eRPkgplp2JnvgcrrKb9AJpuNA8HT8w+NPkbIQGZnnnCWodZKXhR/A2KMb7xnmo3AjOZLJBUuit0F3n3Zvj/WXbMyRY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1741805512; c=relaxed/simple;
-	bh=VjmtEJxQyuUAeqbxtsbBB1tsOJr3EnKvfppmPlAeS9U=;
+	bh=V6+0IS7/fqFcASSZF65vr6gKqboR4LhF8+CjfKajdFo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HPGBZrBvvKfY8FW+I50nk7QnnyQfHDbMUh8j5sRKSUiQIpP1n34H4QNbl+KzS2SRn+6kGIYjLusrbUUYOzxTfIMUvCieKBc6SFbq91d3vQeKSjX9TWy222UhEuPKjLSGR/lAWWOi+eY7+gAnYzZqwo2kNBKxtKV2AA4mvSGdXV8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FhQqgvur; arc=none smtp.client-ip=192.198.163.16
+	 MIME-Version; b=k+sVo5KPGoEZoidArI7NJZpr6aFqnkxvmx2BBL277MbAqAeadEg6Ua8Z+0ZVamN1Nf1+u6O6r2IUoIb4FwxSaNlqpfMQgqWdnB+DijdvN+t/0qWoPOFU2xmmO9ZPWesoqzaQNiPkTtIt/ooQl5e4IoGg14JZWdnDf5mPAR1mvfY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gKMzrJ0B; arc=none smtp.client-ip=192.198.163.16
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FhQqgvur"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gKMzrJ0B"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1741805510; x=1773341510;
+  t=1741805511; x=1773341511;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=VjmtEJxQyuUAeqbxtsbBB1tsOJr3EnKvfppmPlAeS9U=;
-  b=FhQqgvur1/e6dL0ZMZIPWQHAdoUp0ZgbAjgRK93rx8ncKjzocNpD8EAN
-   79k0OGoP3xMjp9O8fXoo20yCG7u2UMmzzsLUXgmG6hNZziHt+oomw1xfo
-   aPKLWlzhtjKekinU/2yVFdsmiKW0JHfK8YtXo8yDIjyOi6oS7P8ZFAwDq
-   Rat7gQnI7ab6WsyVPGSmu9O9VPhdJTucm8ERWdAJtc05GUbw3KlL0mckm
-   UvnIl7EWoBt2KINFManz3brAq6JVcz/mYp9u8IarvoJTEFudVYpaMeNEj
-   fba9YnEGoX8/y/N/8P2lBrBkr+FcIog8hz9Lt5LjztrtAQKEYhEuAF+/c
-   A==;
-X-CSE-ConnectionGUID: pSl04gNNRsKByn2mOA1gkQ==
-X-CSE-MsgGUID: xAqd3RiNRDmARVdW/64AQg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11371"; a="30487221"
+  bh=V6+0IS7/fqFcASSZF65vr6gKqboR4LhF8+CjfKajdFo=;
+  b=gKMzrJ0BD4fSnddjXjBdRde36WfB5BXDFTLqdCrv/ovnEphLFlGIJd5e
+   50Zzc0l8APLeBtrHzkoK8hMNGEyzPxqLWs+AFZ9VHf5UUswwMq0z4qcOX
+   +O1yERTnqQ9kch26yIjUMDm4VgMAXkVvddQsyt4jVuRCRs8GTcidVyrWE
+   9IJpB80Cv2+0+N8vq1fm6xMYV3TH0W/XGIvKvh48R9u5s2LuVDQoMAQnP
+   iHzFZ1VlyiHRzEGagvFBtlThqkhZWpFFdX5JDFJAiBXAl2k2iy5LbvO1c
+   1tKwDhG0xjHyXVzqb8as8gXqLjWdRb4dZBufIAf9jdpFtgWHBBTdm514W
+   g==;
+X-CSE-ConnectionGUID: 5EexcDADRFuVUhcvYoxrWw==
+X-CSE-MsgGUID: vIsOLdE4TpaV50DJqypvzQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11371"; a="30487222"
 X-IronPort-AV: E=Sophos;i="6.14,242,1736841600"; 
-   d="scan'208";a="30487221"
+   d="scan'208";a="30487222"
 Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Mar 2025 11:51:46 -0700
-X-CSE-ConnectionGUID: RHRG1bCQRqKWRbCnaw6Tig==
-X-CSE-MsgGUID: +IVzrFM+T16rW1kVNJPy+w==
+  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Mar 2025 11:51:47 -0700
+X-CSE-ConnectionGUID: BWOY4Yn1RCusRoEyDrY+KQ==
+X-CSE-MsgGUID: Qgpdi5QDT3OYaLTrW6uPWw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.14,242,1736841600"; 
-   d="scan'208";a="157895067"
+   d="scan'208";a="157895068"
 Received: from black.fi.intel.com ([10.237.72.28])
   by orviesa001.jf.intel.com with ESMTP; 12 Mar 2025 11:51:46 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id 5D087271; Wed, 12 Mar 2025 20:51:42 +0200 (EET)
+	id 53DC727D; Wed, 12 Mar 2025 20:51:42 +0200 (EET)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 6/6] i2c: core: Deprecate of_node in struct i2c_board_info
-Date: Wed, 12 Mar 2025 20:48:53 +0200
-Message-ID: <20250312185137.4154173-7-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 5/6] i2c: core: Do not dereference fwnode in struct device
+Date: Wed, 12 Mar 2025 20:48:52 +0200
+Message-ID: <20250312185137.4154173-6-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.47.2
 In-Reply-To: <20250312185137.4154173-1-andriy.shevchenko@linux.intel.com>
 References: <20250312185137.4154173-1-andriy.shevchenko@linux.intel.com>
@@ -64,29 +64,76 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Two members of the same or similar semantics is quite confusing to begin with.
-Moreover, the fwnode covers all possible firmware descriptions that Linux kernel
-supports. Deprecate of_node in struct i2c_board_info, so users will be warned
-and in the future remote it completely.
+In order to make the underneath API easier to change in the future,
+prevent users from dereferencing fwnode from struct device.
+Instead, use the specific device_set_node() API for that.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- include/linux/i2c.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/i2c-core-base.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 2e4903b7f7bc..cc1437f29823 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -405,7 +405,7 @@ static inline bool i2c_detect_slave_mode(struct device *dev) { return false; }
-  * @addr: stored in i2c_client.addr
-  * @dev_name: Overrides the default <busnr>-<addr> dev_name if set
-  * @platform_data: stored in i2c_client.dev.platform_data
-- * @of_node: pointer to OpenFirmware device node
-+ * @of_node: **DEPRECATED** - use @fwnode for this
-  * @fwnode: device node supplied by the platform firmware
-  * @swnode: software node for the device
-  * @resources: resources associated with the device
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 1236061a78c3..dba6c5ce9d42 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -962,6 +962,7 @@ static void i2c_unlock_addr(struct i2c_adapter *adap, unsigned short addr,
+ struct i2c_client *
+ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+ {
++	struct fwnode_handle *fwnode;
+ 	struct i2c_client *client;
+ 	bool need_put = false;
+ 	int status;
+@@ -1002,18 +1003,19 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
+ 	client->dev.parent = &client->adapter->dev;
+ 	client->dev.bus = &i2c_bus_type;
+ 	client->dev.type = &i2c_client_type;
+-	client->dev.of_node = of_node_get(info->of_node);
+-	client->dev.fwnode = info->fwnode;
+ 
+ 	device_enable_async_suspend(&client->dev);
+ 
++	fwnode = info->fwnode ?: of_fwnode_handle(info->of_node);
++	device_set_node(&client->dev, fwnode_handle_get(fwnode));
++
+ 	if (info->swnode) {
+ 		status = device_add_software_node(&client->dev, info->swnode);
+ 		if (status) {
+ 			dev_err(&adap->dev,
+ 				"Failed to add software node to client %s: %d\n",
+ 				client->name, status);
+-			goto out_err_put_of_node;
++			goto out_err_put_fwnode;
+ 		}
+ 	}
+ 
+@@ -1032,8 +1034,8 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
+ out_remove_swnode:
+ 	device_remove_software_node(&client->dev);
+ 	need_put = true;
+-out_err_put_of_node:
+-	of_node_put(info->of_node);
++out_err_put_fwnode:
++	fwnode_handle_put(fwnode);
+ out_err:
+ 	dev_err(&adap->dev,
+ 		"Failed to register i2c client %s at 0x%02x (%d)\n",
+@@ -1061,11 +1063,11 @@ void i2c_unregister_device(struct i2c_client *client)
+ 		return;
+ 
+ 	fwnode = dev_fwnode(&client->dev);
+-	if (is_of_node(fwnode)) {
++	if (is_of_node(fwnode))
+ 		of_node_clear_flag(to_of_node(fwnode), OF_POPULATED);
+-		of_node_put(client->dev.of_node);
+-	} else if (is_acpi_device_node(fwnode))
++	else if (is_acpi_device_node(fwnode))
+ 		acpi_device_clear_enumerated(to_acpi_device_node(fwnode));
++	fwnode_handle_put(fwnode);
+ 
+ 	device_remove_software_node(&client->dev);
+ 	device_unregister(&client->dev);
 -- 
 2.47.2
 
