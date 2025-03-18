@@ -1,117 +1,89 @@
-Received: from fllvem-ot03.ext.ti.com (fllvem-ot03.ext.ti.com [198.47.19.245])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C623920764C;
-	Tue, 18 Mar 2025 10:36:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.47.19.245
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92F4D204F80;
+	Tue, 18 Mar 2025 11:46:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742294216; cv=none; b=I8vsslW+Ky5/rtFeFgijOxsE/FWFKJ+GATY4Nf+Dy9DlpcesMW4imNUgBQkMR0Shq2BNyfNQ5CFVu7b546tw0rCCGp8pGxCuoufYfqfyF/P6E6eTbKr8jucldz4V4+LAh5bZF1TYPI1Cm+vekjwYpOW/MI6pRqQ4crTSkzlgNmY=
+	t=1742298402; cv=none; b=o0zayZRSnU81Ggg2a+RhQ4Fq/4/8U5b8V07tWVGhRNVSVLScmrD8RcsnBh/kKp/4twW4pm78GAR6Cli62vz8LZPCQ8EhaeWoI45nqKv8FG2WBkt1sqXJSdkop+kFv+hOfWTuJzyX0HOtlXcjh01ir44dV2JELGDFO3WDa94+ywU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742294216; c=relaxed/simple;
-	bh=AqHje4qRGs/w5vfLuPRZK7NGvT/F6W9r++HnxYkpuEc=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=b1FfAvvEIQ+HRLlVxK6K+ac9duArQyZaO+6wjGU3T6apyDVxfRQjxPQOBnts3LpUVTiJNEjU8WJt1xf3NxXZWPzIXKPvhphe31/Ev+vgTcAd24jVBE2Brf2ELEGNBuuM8fjcqwdYzqjSL2M+Dm/8KerXfDCPOYbzyDUia0tEvv4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com; spf=pass smtp.mailfrom=ti.com; dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b=BnSnSiYg; arc=none smtp.client-ip=198.47.19.245
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=ti.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ti.com
+	s=arc-20240116; t=1742298402; c=relaxed/simple;
+	bh=KL8E0gCwzmRt1EMqDOC1510GTWQzlUEOunkYkhW2oDg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=VAJPoyI1gKaPemjY45dbUicfvnO0uLw5Rdsa4mbGb2oR6FsviDNGeTLvVwU5y3wFW/FvUb3hDG9V7NqCoO1KK/A42ZaWQbyj0zMtfzMwSespgMy28XiGfXVGqyIUd5LZBn4Tme99mvB7ymnmFTngIb+rAXPH34XkBM3fi2VXty0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MAs4ja6a; arc=none smtp.client-ip=209.85.218.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ti.com header.i=@ti.com header.b="BnSnSiYg"
-Received: from fllv0034.itg.ti.com ([10.64.40.246])
-	by fllvem-ot03.ext.ti.com (8.15.2/8.15.2) with ESMTPS id 52IAaOR22567230
-	(version=TLSv1.2 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 18 Mar 2025 05:36:24 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-	s=ti-com-17Q1; t=1742294184;
-	bh=Vp66K2kpByLgHwpxXhwISpg9i9+Q2Xci3v1ydQTFy8c=;
-	h=From:To:CC:Subject:Date;
-	b=BnSnSiYgGeCiKqen8f69slw6sp9OCVIkuCghPXVnJ0pMktDnlTQ/bVKJy4aaGUPN9
-	 SSiwBi7R4Z0QcjypykDVvGlsvcuxdmedGgq05Vmc78EPThQMSfWw7rxdy12hcmFA4x
-	 XlquzkiZtzNfFi/sh4S4hwQyCwZ0M2/NCTtH0TfI=
-Received: from DFLE115.ent.ti.com (dfle115.ent.ti.com [10.64.6.36])
-	by fllv0034.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 52IAaO30125968
-	(version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-	Tue, 18 Mar 2025 05:36:24 -0500
-Received: from DFLE105.ent.ti.com (10.64.6.26) by DFLE115.ent.ti.com
- (10.64.6.36) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.23; Tue, 18
- Mar 2025 05:36:23 -0500
-Received: from lelvsmtp6.itg.ti.com (10.180.75.249) by DFLE105.ent.ti.com
- (10.64.6.26) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.23 via
- Frontend Transport; Tue, 18 Mar 2025 05:36:23 -0500
-Received: from localhost (jayesh-hp-z2-tower-g5-workstation.dhcp.ti.com [10.24.68.98])
-	by lelvsmtp6.itg.ti.com (8.15.2/8.15.2) with ESMTP id 52IAaM8v042159;
-	Tue, 18 Mar 2025 05:36:23 -0500
-From: Jayesh Choudhary <j-choudhary@ti.com>
-To: <vigneshr@ti.com>, <andi.shyti@kernel.org>, <robh@kernel.org>,
-        <krzk+dt@kernel.org>, <conor+dt@kernel.org>,
-        <linux-kernel@vger.kernel.org>
-CC: <aaro.koskinen@iki.fi>, <andreas@kemnade.info>, <khilman@baylibre.com>,
-        <rogerq@kernel.org>, <tony@atomide.com>, <jmkrzyszt@gmail.com>,
-        <linux-omap@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <j-choudhary@ti.com>
-Subject: [PATCH 0/2] Add support for setting MUX for I2C lines
-Date: Tue, 18 Mar 2025 16:06:20 +0530
-Message-ID: <20250318103622.29979-1-j-choudhary@ti.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MAs4ja6a"
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-ac2a81e41e3so1233079266b.1;
+        Tue, 18 Mar 2025 04:46:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1742298399; x=1742903199; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KL8E0gCwzmRt1EMqDOC1510GTWQzlUEOunkYkhW2oDg=;
+        b=MAs4ja6a6s4CtMTYwxF8fI0JON5CEW+2CZSMtiXj2u0nhwh3fU3jbjzeeHlRFmAbg8
+         0RrbpVEd35kkxEHQoP0uDuZLhMKjqEQYAE5gP2f/IcsZNA/BPwxSvp487LtcdMPcXDa7
+         xB/u7uUzhxXxhkStpDHhpqfobZqYOU8MSdhJxCQJWHff5/RMcs98aQftzsQk4oqUaOso
+         /4OgSLDZu/X4yoZlamw1e8BgjoZqyNk48MQ0LwSG/kWgRSHMlt5K7T4YhHWdlZsYtEuC
+         5ktr7txukYj5f+3r56O0tkLdDvoJqJbicK7Fnfzt40uxSjc40jfSBwMQ9Kx2HpST22Yw
+         i6IA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1742298399; x=1742903199;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=KL8E0gCwzmRt1EMqDOC1510GTWQzlUEOunkYkhW2oDg=;
+        b=ZpoEWMRFiGHJGB2ZhctLn5d1TK8jwXJ5YatKaAR+I/V6C6q3BrP6TEsa3SbuO56uH8
+         U3iHI1zHek0x7iHqVkKYkphmlgy7DNS8tDnfI2Vjv/T9Sx8zX1JQogjaC0Kkz99OXHEr
+         0eXVVkjuay6bg3SiqEyEt8PezgzIJiCc9R9CHJzBQXgdSHernoFkhr8RUc2jIFxZf5ow
+         DncGsN1eS0RFN/WAzJyEAKh773Ytm5OSC/65+s7yqCaHk7JgJckUIcKqtcBkjdp5xlk3
+         rk2RfQBwhVidTSXxz2I0HDg8bhA1BeMXRmIIKTwMUg3Q67o1+sE+KyBtjoABm3oqLhne
+         g++w==
+X-Forwarded-Encrypted: i=1; AJvYcCU0xuPHbEe/c3tq+ms1zgSgqlFOhHGw8sFuBPwcRfKfoGAr29VOHNoYtNPpPJKLyQGFeC3GmKc8AhULjk1b@vger.kernel.org, AJvYcCWryrc3XYak3CBBetaftpH4NLJZBRc5oqryNoXb5PGUyt/n/ZqV9p9o5yAM2i8kaGidFvH3Bp1051E=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwRNEuASWxfGAzv/OhhKGaEaIBKl5LlL876U1LhSo4UXF5GArv0
+	SA+5au0B64ahfmLJO07US/47j7x7m9cZVlG8TlYfAZJHIik0OHR+HRpN/5PG3orO5nOniFtC4I0
+	YrfQjEi5tRuJrBf6bJx4udc/soQw=
+X-Gm-Gg: ASbGncuO/5PSSlZ8crASYoKNIq2pASMBlUUeyR0LpbDLO6T3COft0YKVfePFMl4+QKx
+	MtackOhyF+9PezkBAAbavCnSC+yXoHso65PfI4nxvjjzdSjwzdJARfC1gOUpRTks4SFe/AgQIv+
+	bugEBiHrvvBXaAzU6EDMSoXwr52U2j
+X-Google-Smtp-Source: AGHT+IHZVKieU2SHdGbuI3lDvrLFMVr2onCO6I6NWrfsdRduvwawWi0FI7ocrrZODI2sxNgOK6VJR4GOddr0MsTc2Mc=
+X-Received: by 2002:a17:907:d9f:b0:abf:749f:f719 with SMTP id
+ a640c23a62f3a-ac38d3894afmr301647066b.7.1742298398454; Tue, 18 Mar 2025
+ 04:46:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-C2ProcessedOrg: 333ef613-75bf-4e12-a4b1-8e3623f5dcea
+References: <20250318021632.2710792-1-aryan.srivastava@alliedtelesis.co.nz> <20250318021632.2710792-2-aryan.srivastava@alliedtelesis.co.nz>
+In-Reply-To: <20250318021632.2710792-2-aryan.srivastava@alliedtelesis.co.nz>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Tue, 18 Mar 2025 13:46:02 +0200
+X-Gm-Features: AQ5f1Jp1pwMTyen9jMEAQrIJywQNkvClXMRxJ_eQeF94oGzWxGi_MEHILfj9Hbw
+Message-ID: <CAHp75VfHgY1VUVkO6p8OJ=4=Omrxs5fih_DjWzB52KYCX8joDg@mail.gmail.com>
+Subject: Re: [PATCH v13 1/3] i2c: octeon: fix return commenting
+To: Aryan Srivastava <aryan.srivastava@alliedtelesis.co.nz>
+Cc: Andi Shyti <andi.shyti@kernel.org>, Markus Elfring <Markus.Elfring@web.de>, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Robert Richter <rric@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-These 2 patches add support for mux-controller for I2C lines as required
-in TI SoC J721S2 for main_i2c3 instance where the I2C lines after coming
-out of SoC are routed through a MUX which is controlled by WKUP_GPIO54:
+On Tue, Mar 18, 2025 at 4:16=E2=80=AFAM Aryan Srivastava
+<aryan.srivastava@alliedtelesis.co.nz> wrote:
+>
+> Kernel-docs require a ':' to signify the return behaviour of a function
+> with within the comment. Many functions in this file were missing ':'
+> after the "Returns" line, resulting in kernel-doc warnings.
+>
+> Add the ':' to satisfy kernel-doc requirements.
 
-______                     MUX FOR I2C
-      | SOM_I2C3_SCL    __ FOR DATA AND CLK LANES
- S    |----------------|  |--------------+-------------+-----I2C3_SCL
- O    |----------------|__|------------+-|-----------+-|-----I2C3_SDA
- M    | SOM_I2C3_SDA    |              | |           | |
-______|                 |              | |           | |
-                        |              | |           | |
-                   WKUP_GPIO0_54     __|_|__       __|_|__
-                                    |       |     |       |
-                                    |       |     |       |
-                                    |_______|     |_______|
-                                     TCA6408       PCM3168
+Reviewed-by: Andy Shevchenko <andy@kernel.org>
 
-Setting GPIO hog for WKUP_GPIO54 is not enough as I2C and TCA6408 drivers
-probe before the GPIO is hogged and since the I2C lines are not actually
-high, I2C transactions for PCA953X driver fail which in turns result in
-deferred probe for other peripherals like audio. I2C recovers after this
-failed transaction but PCA953X is not probed again.
-
-We get the following errors:
-
-[...]
-
-[    1.293131] pca953x 2-0020: supply vcc not found, using dummy regulator
-[    1.299971] pca953x 2-0020: using no AI
-[    1.318993] pca953x 2-0020: failed writing register: -121
-[    1.324599] pca953x 2-0020: probe with driver pca953x failed with error -121
-
-[...]
-
-[   21.191584] i2c 2-0044: deferred probe pending: i2c: supplier 2-0020 not ready
-[   21.198855] platform sound: deferred probe pending: j721e-audio: devm_snd_soc_register_card() failed: -517
-
-So add mux-control in I2C driver to defer the I2C probe till WKUP_GPIO54 is
-hogged to desired state and then continue with I2C probe.
-
-Jayesh Choudhary (2):
-  dt-bindings: i2c: omap: Add mux-states property
-  i2c: omap: Add support for setting mux
-
- .../devicetree/bindings/i2c/ti,omap4-i2c.yaml |  6 +++++
- drivers/i2c/busses/Kconfig                    |  1 +
- drivers/i2c/busses/i2c-omap.c                 | 22 +++++++++++++++++++
- 3 files changed, 29 insertions(+)
-
--- 
-2.34.1
-
+--=20
+With Best Regards,
+Andy Shevchenko
