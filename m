@@ -1,101 +1,122 @@
-Received: from 7.mo561.mail-out.ovh.net (7.mo561.mail-out.ovh.net [46.105.57.200])
+Received: from mx0a-00128a01.pphosted.com (mx0a-00128a01.pphosted.com [148.163.135.77])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E87951C3C07
-	for <linux-i2c@vger.kernel.org>; Thu, 20 Mar 2025 01:38:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.105.57.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A622E17BA6;
+	Thu, 20 Mar 2025 03:56:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.135.77
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742434722; cv=none; b=ty28jMjfsDNw3Cilq7hwCEplzItQ1HXeh3KmEESqij7H5ZSjoxPQDHvhmNO96ockQ+aF5xYHLRJYfbs6xWpLWf5xqUXike4k+CUMIh0Efv4/ILZ3Q942kiadZqk9XQKPPqKzOQV/deoE267ZrVlTuywdHvSDxn153pSYzBCimsU=
+	t=1742442997; cv=none; b=ofr0NLVqaJ/TVU8wjvSvm9huODZk0lhFi71EzVS5RcULOQMBTp8fn8o6z/E91Dag7EHUs39ozl1XROhZc0sv0g4HRz7x4EiIVm6O6eisHfpDQp5L4sgUATIMvIqmFc0gwl/rInBYRR1R+vqtBQB5NJtcLgH8fUd2qMwS9kPeQ7Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742434722; c=relaxed/simple;
-	bh=bCkV5BwAu8o/fgxHLWzERHt3VFsuf963BAcMBrPponE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=H2PBBFIDP5Ac7aGQAqxC784Ufk3IYAuJtJHx3uef22rNwjzTWqmHMZC5VBY72rODKwstDHX2yfH8gN6GdTatNpBucKJvzE7QNaLmUB3IXqOA2cEEA2ezIkdLHonVmHH2JeEY/UrK1Pl33Q9ayzv9nR7GVFCG54hbRBPn6gvayk0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=46.105.57.200
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director1.ghost.mail-out.ovh.net (unknown [10.109.140.73])
-	by mo561.mail-out.ovh.net (Postfix) with ESMTP id 4ZJ6JQ1qGsz17M6
-	for <linux-i2c@vger.kernel.org>; Thu, 20 Mar 2025 00:43:34 +0000 (UTC)
-Received: from ghost-submission-5b5ff79f4f-nlt9b (unknown [10.111.182.10])
-	by director1.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 97C891FD21;
-	Thu, 20 Mar 2025 00:43:32 +0000 (UTC)
-Received: from etezian.org ([37.59.142.114])
-	by ghost-submission-5b5ff79f4f-nlt9b with ESMTPSA
-	id Dit9FbRk22fm9wAAAOykqQ
-	(envelope-from <andi@etezian.org>); Thu, 20 Mar 2025 00:43:32 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-114S0083c68eb70-94d2-4425-a073-ce94d69c8a06,
-                    7E69928ED4D8A226BEDEC5E8D42620266DA13BA9) smtp.auth=andi@etezian.org
-X-OVh-ClientIp:178.39.90.92
-From: Andi Shyti <andi.shyti@kernel.org>
-To: linux-i2c <linux-i2c@vger.kernel.org>,
-	Zhang Songyi <zhang.songyi@zte.com.cn>
-Cc: Andi Shyti <andi.shyti@kernel.org>
-Subject: [PATCH v2] i2c: npcm7xx: Remove redundant ret variable
-Date: Thu, 20 Mar 2025 01:43:21 +0100
-Message-ID: <20250320004321.1914366-1-andi.shyti@kernel.org>
-X-Mailer: git-send-email 2.47.2
+	s=arc-20240116; t=1742442997; c=relaxed/simple;
+	bh=/h3zP33Mov53MvJ5F8oD97YZG7pYUTKqEZRskc9VT44=;
+	h=From:Subject:Date:Message-ID:MIME-Version:Content-Type:To:CC; b=BDrlf9woDTsPMqAiBh3SYwm4k0jIbvSicO82rC8ENJGG/0m1QGWQdP6nPxqOVRI8t6JnpZjjMgJf9v6tPc9TQ+6fSSWBMgEoLMlwOnNj2SyHg5ddZBOYWMPLKOV5ou1zBFmx0mWEkG+4mddqj1l+mzLXOD2IZ645aleb8ywvDLQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=analog.com; spf=pass smtp.mailfrom=analog.com; dkim=pass (2048-bit key) header.d=analog.com header.i=@analog.com header.b=jWIdNGAB; arc=none smtp.client-ip=148.163.135.77
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=analog.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=analog.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=analog.com header.i=@analog.com header.b="jWIdNGAB"
+Received: from pps.filterd (m0167088.ppops.net [127.0.0.1])
+	by mx0a-00128a01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 52K2oEuT030651;
+	Wed, 19 Mar 2025 23:56:16 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=analog.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=DKIM; bh=aILvfTq/rdHZeO+eIoU0Yi5qGiB
+	teuutlXkFQ4NtMOs=; b=jWIdNGABUQotCVg8zsgdbygJg0EWBiQYNIh0mLqyR+2
+	e+JjSXz3lxt18ZboyIsxeVjYOVon6R3HQNaTU5p5Z9oh9gTxFlkWx6hEAXYJ0bR7
+	0qpu/sOwuZLNasynrm1Ih2KNURk4Es0DJHfeq27GMzIS6MIVfEGvgxffZC5SfN+d
+	dPP12gxxdm55MDuralD0HDYMn5x5PjavX21SR5HxB20+MH14Fhtl4yGj1VvsZRNF
+	xuEOMSa5WGAM4MF9ZHSRiNBK3hH6Z2kbaG4cbu7XYLUMpNT3aPsyPEl5NiKiMANc
+	ZTJd+matJbi4OuZEgcf/2TRUZYQQfoKTISZJDTh6fHw==
+Received: from nwd2mta4.analog.com ([137.71.173.58])
+	by mx0a-00128a01.pphosted.com (PPS) with ESMTPS id 45fwvmm66e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 19 Mar 2025 23:56:16 -0400 (EDT)
+Received: from ASHBMBX8.ad.analog.com (ASHBMBX8.ad.analog.com [10.64.17.5])
+	by nwd2mta4.analog.com (8.14.7/8.14.7) with ESMTP id 52K3uF1u012604
+	(version=TLSv1/SSLv3 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+	Wed, 19 Mar 2025 23:56:15 -0400
+Received: from ASHBMBX9.ad.analog.com (10.64.17.10) by ASHBMBX8.ad.analog.com
+ (10.64.17.5) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.14; Wed, 19 Mar
+ 2025 23:56:15 -0400
+Received: from zeus.spd.analog.com (10.66.68.11) by ashbmbx9.ad.analog.com
+ (10.64.17.10) with Microsoft SMTP Server id 15.2.986.14 via Frontend
+ Transport; Wed, 19 Mar 2025 23:56:15 -0400
+Received: from ATORRENO-L02.ad.analog.com (ATORRENO-L02.ad.analog.com [10.117.223.3])
+	by zeus.spd.analog.com (8.15.1/8.15.1) with ESMTP id 52K3tvid030363;
+	Wed, 19 Mar 2025 23:55:59 -0400
+From: Alexis Czezar Torreno <alexisczezar.torreno@analog.com>
+Subject: [PATCH 0/2] Add support for ADPM12160 a DC/DC Power Module
+Date: Thu, 20 Mar 2025 11:55:46 +0800
+Message-ID: <20250320-dev_adpm12160-v1-0-8f7b975eac75@analog.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 7256987850828089927
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddugeeikedtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnhepgeevuddvfffhhfdthfekhfduffekueeukefhhfeigeetffekheeuleetffdvhffgnecuffhomhgrihhnpehoiihlrggsshdrohhrghenucfkphepuddvjedrtddrtddruddpudejkedrfeelrdeltddrledvpdefjedrheelrddugedvrdduudegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehiedumgdpmhhouggvpehsmhhtphhouhht
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAMOR22cC/x3MQQqAIBBA0avIrBNGQ6WuEhGWU82iEgUJorsnL
+ d/i/wcyJaYMvXggUeHM11mhGgHL7s+NJIdq0KgNthploDL5EA+llUVpOovknHfdTFCbmGjl+/8
+ N4/t+yCmwy18AAAA=
+X-Change-ID: 20250320-dev_adpm12160-5960e77a79be
+To: Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Delphine CC Chiu
+	<Delphine_CC_Chiu@Wiwynn.com>
+CC: <linux-hwmon@vger.kernel.org>, <linux-doc@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
+        Alexis Czezar
+ Torreno <alexisczezar.torreno@analog.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1742442957; l=1228;
+ i=alexisczezar.torreno@analog.com; s=20250213; h=from:subject:message-id;
+ bh=/h3zP33Mov53MvJ5F8oD97YZG7pYUTKqEZRskc9VT44=;
+ b=YxORlbo5aQfFwruurTsBTx3J9EfMjfb2ZODygrTKqtodas0wmnv3/c7Sa+i8cg7Wkfw6dxTx8
+ W0ERn7aymvzDnYwmpqy3XeH21aiUq/zjMBch2H1G7Ar/nl8qJoNo4Mh
+X-Developer-Key: i=alexisczezar.torreno@analog.com; a=ed25519;
+ pk=XpXmJnRjnsKdDil6YpOlj9+44S+XYXVFnxvkbmaZ+10=
+X-ADIRuleOP-NewSCL: Rule Triggered
+X-Proofpoint-GUID: u1aaZNwEV6JDabxyGvePtO3c9ZAIBysk
+X-Authority-Analysis: v=2.4 cv=J5+q7BnS c=1 sm=1 tr=0 ts=67db91e0 cx=c_pps a=3WNzaoukacrqR9RwcOSAdA==:117 a=3WNzaoukacrqR9RwcOSAdA==:17 a=IkcTkHD0fZMA:10 a=Vs1iUdzkB0EA:10 a=gAnH3GRIAAAA:8 a=pX8K7AMcFWmkIJv9s54A:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-ORIG-GUID: u1aaZNwEV6JDabxyGvePtO3c9ZAIBysk
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1093,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-03-20_01,2025-03-19_01,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 spamscore=0
+ adultscore=0 priorityscore=1501 malwarescore=0 mlxlogscore=794 mlxscore=0
+ clxscore=1011 phishscore=0 suspectscore=0 lowpriorityscore=0
+ impostorscore=0 classifier=spam authscore=0 authtc=n/a authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
+ definitions=main-2503200023
 
-From: Zhang Songyi <zhang.songyi@zte.com.cn>
+Before adding the support for ADPM12160, this series includes a commit
+to fix the issue with max34451. The family of max344** contains switched
+PMBUS addresses 0x46 and 0x4A. For max34451, the version MAX34451ETNA6+
+and later fixed this issue and this first commit supports this.
 
-Return value from npcm_i2c_get_slave_addr() directly instead of taking
-this in another redundant variable.
+The second commit adds the actual driver for adpm12160. ASPM12160 is a
+quarter brick DC/DC Power Module. It is a high power non-isolated
+converter capable of delivering a fully regulated 12V, with continuous
+power level of 1600W with peak power at 2400W for a limited time.
+Uses PMBus Configuration.
 
-This improvement has been suggested by Zeal Robot <zealci@zte.com.cn>
-
-Signed-off-by: Zhang Songyi <zhang.songyi@zte.com.cn>
-Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+Signed-off-by: Alexis Czezar Torreno <alexisczezar.torreno@analog.com>
 ---
-Hi,
+Alexis Czezar Torreno (2):
+      hwmon: (pmbus/max34440): Fix support for max34451
+      hwmon: (pmbus/max3440): add support adpm12160
 
-I'm just fishing this patch from the past[*]. I made some tiny
-changes in this v2.
+ Documentation/hwmon/max34440.rst |  37 ++++++++---
+ drivers/hwmon/pmbus/Kconfig      |   1 +
+ drivers/hwmon/pmbus/max34440.c   | 139 +++++++++++++++++++++++++++++----------
+ 3 files changed, 133 insertions(+), 44 deletions(-)
+---
+base-commit: c812cc42f92d3d0b17c01b5db9a1dee5793a1491
+change-id: 20250320-dev_adpm12160-5960e77a79be
 
-Andi
-
-Changelog:
-v1 -> v2:
- - Rebased on top of the latest kernel.
- - Removed Zeal Robot's credit as "Reported-by:" tag as this is
-   used mainly for bug reports.
- - Capitalized Zhang's name in the SoB.
- - Removed redundant cast to integer inside ioread8.
-
-[*] https://patchwork.ozlabs.org/project/linux-i2c/patch/202211031628039654230@zte.com.cn/
-
- drivers/i2c/busses/i2c-npcm7xx.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-npcm7xx.c b/drivers/i2c/busses/i2c-npcm7xx.c
-index de713b5747fe..a31d9a6677a8 100644
---- a/drivers/i2c/busses/i2c-npcm7xx.c
-+++ b/drivers/i2c/busses/i2c-npcm7xx.c
-@@ -1115,14 +1115,10 @@ static void npcm_i2c_master_abort(struct npcm_i2c *bus)
- #if IS_ENABLED(CONFIG_I2C_SLAVE)
- static u8 npcm_i2c_get_slave_addr(struct npcm_i2c *bus, enum i2c_addr addr_type)
- {
--	u8 slave_add;
--
- 	if (addr_type > I2C_SLAVE_ADDR2 && addr_type <= I2C_SLAVE_ADDR10)
- 		dev_err(bus->dev, "get slave: try to use more than 2 SA not supported\n");
- 
--	slave_add = ioread8(bus->reg + npcm_i2caddr[(int)addr_type]);
--
--	return slave_add;
-+	return ioread8(bus->reg + npcm_i2caddr[addr_type]);
- }
- 
- static int npcm_i2c_remove_slave_addr(struct npcm_i2c *bus, u8 slave_add)
+Best regards,
 -- 
-2.47.2
+Alexis Czezar Torreno <alexisczezar.torreno@analog.com>
 
