@@ -1,77 +1,131 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [202.36.163.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 900432F28;
-	Thu, 20 Mar 2025 00:27:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAB0C1B6D06
+	for <linux-i2c@vger.kernel.org>; Thu, 20 Mar 2025 01:36:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.36.163.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742430420; cv=none; b=je0ZAS/+Hprj0CyQ/m4lZjdRtAHZXLoB4SGic3+84K856nQnsAm0BEcU7AZMSR24ZucKOGSmOhx9HuXfLW2SFCZSxXvOKHMDu7O+XV2bt7asTc6c5x9hXjvGZ+hdI4l2MUbodTFCch0VxgKKy3ttKoBBTG2bf1gE6fd2Nsd6Qis=
+	t=1742434584; cv=none; b=VgJu52U0HBVP0+rF73QVdm30i9TBkqGFM21BlB0TJznnTb85uUVgOdsLnPPETCLGqHLhIPL2tNzn37VoRsM4hA5G39YyLPpfc2+svj9DPOkHgDfJ8bjw87Q2K60jLryVILqadyAVAyrvbUNkN/Vb5ig3yAl63AwYX0gVStuthI8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742430420; c=relaxed/simple;
-	bh=IzJC/y24HF2nc/AgwvbD+AJQstykALpjbfnse7+w71M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GLM+wpC+r1vmgoUkX3KYHIrmkSfzTp71q9OIiJlXHrpUNLxI0J0FW00tr/RpphbBmjbifnStEtlabeHhphpR8dcMDS5Xg3jcbUV+yYXbgISaenUn1IEz1yYKpCFHjUrBJRDiph4trJM9arpMvb+w2S72VV2huRf6LBf0uL5/UWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BqqwMNDO; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1742434584; c=relaxed/simple;
+	bh=JXjqiCJ7hZ9I+Z2yreo0KU3P0ph1vreLH67Y/dWkUkY=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=JUcEn5cuhTkQHXn+96RD3MRmtYsey3WzKo9u/pIXMf7BRnBKb/61EoM5+UMICBv8m0xbTQjV2GG5heP5Cay5FwOXVbk8n3Bqy248huE1wNBiRCTSMW+z0AeRxrkYzDCD1uh6MhK86+8qNuvsUMpNjxCDNtdHwD5dq7NIDDBgNWs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz; spf=pass smtp.mailfrom=alliedtelesis.co.nz; dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b=MIJCJ0cK; arc=none smtp.client-ip=202.36.163.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alliedtelesis.co.nz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BqqwMNDO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 756E0C4CEE4;
-	Thu, 20 Mar 2025 00:26:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1742430420;
-	bh=IzJC/y24HF2nc/AgwvbD+AJQstykALpjbfnse7+w71M=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=BqqwMNDOmTR/QbEME0HxaXTn4E2RWoLaUNqJ0W+IjXF1YNNBV1+eHKbROgOH9Emew
-	 pIEwi2ZKKUad8pDyBYIp0/KWrLK9Wc8GwxAU3BI4SF6BdvkfbxUU9EDVuHxAl1jEAR
-	 bcRgDbXQo2kS3Vr0YdybuovvHeKZqo320MjI2fAuXl1TmlLj2QZwKVSir+2J2btmEb
-	 j4ZgaETZILgdPowAIWff/KhFJ3fImx7sRFnECxFvu4hmpobVhSwLTubUz7GC0upOUx
-	 0eT2TP1ieLlk1kx6k2sKWubH/yJRXB84tlyEAoy/TBdSEcTLH++yF4aL+/X0mBs36Q
-	 WnCLNqrr9Oe/g==
-Date: Thu, 20 Mar 2025 01:26:57 +0100
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Jyothi Kumar Seerapu <quic_jseerapu@quicinc.com>
-Cc: Vinod Koul <vkoul@kernel.org>, Sumit Semwal <sumit.semwal@linaro.org>, 
-	Christian =?utf-8?B?S8O2bmln?= <christian.koenig@amd.com>, linux-arm-msm@vger.kernel.org, dmaengine@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, linux-media@vger.kernel.org, 
-	dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org, quic_msavaliy@quicinc.com, 
-	quic_vtanuku@quicinc.com
-Subject: Re: [PATCH v5 RESEND 1/2] dmaengine: qcom: gpi: Add GPI Block event
- interrupt support
-Message-ID: <sni4bawucwkeyy7lh45p364ngv6bjomv7wxq3qjek2mjd7ucal@tfoeom2qohj2>
-References: <20250212120536.28879-1-quic_jseerapu@quicinc.com>
- <20250212120536.28879-2-quic_jseerapu@quicinc.com>
+	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="MIJCJ0cK"
+Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id BDFCC2C052B;
+	Thu, 20 Mar 2025 14:36:12 +1300 (NZDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+	s=mail181024; t=1742434572;
+	bh=JXjqiCJ7hZ9I+Z2yreo0KU3P0ph1vreLH67Y/dWkUkY=;
+	h=From:To:CC:Subject:Date:References:In-Reply-To:From;
+	b=MIJCJ0cKy6yHS1y/8kLmaDvqWsYMCM400YwrJYWh+Mk04idNG5ZJo5CWuzBIv9WS+
+	 pLFkV+K4g1LjKA0ec7ZpesvFdtvmY/aONW5i9tXpl5Vziz35398+4oIrNN8LWyHNWN
+	 PUEAP8L3qTClP1hqqWVVf25ef5Rq17c2uOInw5SVFSIdt63AJYcGxTgENvbzJ2xgcp
+	 iJ5swxH6qSCRfVJuADdIVTCZqDG433mQkWSQBozz/nM7tKnFU4SCP6GcH+yrVdIWrd
+	 LnXf7H2j/jWKRKdaL0U/YaJ7PZcTkp1+9fR5tutv0lcCjs/LnuuyOYOawsjeOL2i0s
+	 o39Vst2rSXL7w==
+Received: from svr-chch-ex2.atlnz.lc (Not Verified[2001:df5:b000:bc8::76]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
+	id <B67db710c0001>; Thu, 20 Mar 2025 14:36:12 +1300
+Received: from svr-chch-ex2.atlnz.lc (2001:df5:b000:bc8:f753:6de:11c0:a008) by
+ svr-chch-ex2.atlnz.lc (2001:df5:b000:bc8:f753:6de:11c0:a008) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.14; Thu, 20 Mar 2025 14:36:12 +1300
+Received: from svr-chch-ex2.atlnz.lc ([fe80::a9eb:c9b7:8b52:9567]) by
+ svr-chch-ex2.atlnz.lc ([fe80::a9eb:c9b7:8b52:9567%15]) with mapi id
+ 15.02.1544.014; Thu, 20 Mar 2025 14:36:12 +1300
+From: Aryan Srivastava <Aryan.Srivastava@alliedtelesis.co.nz>
+To: "andi.shyti@kernel.org" <andi.shyti@kernel.org>
+CC: "andy.shevchenko@gmail.com" <andy.shevchenko@gmail.com>,
+	"Markus.Elfring@web.de" <Markus.Elfring@web.de>, "linux-i2c@vger.kernel.org"
+	<linux-i2c@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "rric@kernel.org" <rric@kernel.org>
+Subject: Re: [PATCH v13 3/3] i2c: octeon: add block-mode i2c operations
+Thread-Topic: [PATCH v13 3/3] i2c: octeon: add block-mode i2c operations
+Thread-Index: AQHbl6vJiHEHFgk1+0C1V3/aq92iNLN6MJoAgAA3DQA=
+Date: Thu, 20 Mar 2025 01:36:12 +0000
+Message-ID: <d542d00d25e37a922c0fe9d25bba7bbc7220f580.camel@alliedtelesis.co.nz>
+References: <20250318021632.2710792-1-aryan.srivastava@alliedtelesis.co.nz>
+	 <20250318021632.2710792-4-aryan.srivastava@alliedtelesis.co.nz>
+	 <thazi6n7jwqp6xoz4p6ce7ohxts7ubhgs5h6chqsnnexbkiy3j@q6xzdrze6a6f>
+In-Reply-To: <thazi6n7jwqp6xoz4p6ce7ohxts7ubhgs5h6chqsnnexbkiy3j@q6xzdrze6a6f>
+Accept-Language: en-US, en-NZ
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <09B03E16ADBDB645A4F8043F8E95CBD0@alliedtelesis.co.nz>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20250212120536.28879-2-quic_jseerapu@quicinc.com>
+X-SEG-SpamProfiler-Analysis: v=2.4 cv=Ko7u2nWN c=1 sm=1 tr=0 ts=67db710c a=Xf/6aR1Nyvzi7BryhOrcLQ==:117 a=xqWC_Br6kY4A:10 a=w1vUsAckAk8A:10 a=IkcTkHD0fZMA:10 a=Vs1iUdzkB0EA:10 a=knz6bhgZyDJ6hf-j8LYA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-SEG-SpamProfiler-Score: 0
 
-Hi,
-
-On Wed, Feb 12, 2025 at 05:35:35PM +0530, Jyothi Kumar Seerapu wrote:
-> GSI hardware generates an interrupt for each transfer completion.
-> For multiple messages within a single transfer, this results in
-> N interrupts for N messages, leading to significant software
-> interrupt latency.
-> 
-> To mitigate this latency, utilize Block Event Interrupt (BEI) mechanism.
-> Enabling BEI instructs the GSI hardware to prevent interrupt generation
-> and BEI is disabled when an interrupt is necessary.
-> 
-> When using BEI, consider splitting a single multi-message transfer into
-> chunks of 8 messages internally and so interrupts are not expected for
-> the first 7 message completions, only the last message triggers
-> an interrupt, indicating the completion of 8 messages.
-> 
-> This BEI mechanism enhances overall transfer efficiency.
-> 
-> Signed-off-by: Jyothi Kumar Seerapu <quic_jseerapu@quicinc.com>
-
-Acked-by: Andi Shyti <andi.shyti@kernel.org>
-
-Vinod any chance you can check this patch, please?
-
-Andi
+SGkgQW5kaSwKCk9uIFdlZCwgMjAyNS0wMy0xOSBhdCAyMzoxOSArMDEwMCwgQW5kaSBTaHl0aSB3
+cm90ZToKPiBIaSBBcnlhbiwKPiAKPiBmZXcgbml0cGlja3MgYmV0d2VlbiB0aGUgbGluZXMuIFBs
+ZWFzZSBzZW5kIG9ubHkgdGhpcyBwYXRjaCBhcyBJCj4gaGF2ZSBhcHBsaWVkIGFscmVhZHkgcGF0
+Y2ggMSBhbmQgMi4KPiAKPiAuLi4KPiAKPiA+ICtzdGF0aWMgaW50IG9jdGVvbl9pMmNfaGxjX2Js
+b2NrX2NvbXBfcmVhZChzdHJ1Y3Qgb2N0ZW9uX2kyYyAqaTJjLAo+ID4gc3RydWN0IGkyY19tc2cg
+Km1zZ3MpCj4gPiArewo+ID4gK8KgwqDCoMKgwqDCoMKgaW50IHJldDsKPiA+ICvCoMKgwqDCoMKg
+wqDCoHUxNiBsZW47Cj4gPiArwqDCoMKgwqDCoMKgwqB1NjQgY21kOwo+ID4gKwo+ID4gK8KgwqDC
+oMKgwqDCoMKgb2N0ZW9uX2kyY19obGNfZW5hYmxlKGkyYyk7Cj4gPiArwqDCoMKgwqDCoMKgwqBv
+Y3Rlb25faTJjX2Jsb2NrX2VuYWJsZShpMmMpOwo+ID4gKwo+ID4gK8KgwqDCoMKgwqDCoMKgLyog
+V3JpdGUgKHNpemUgLSAxKSBpbnRvIGJsb2NrIGNvbnRyb2wgcmVnaXN0ZXIgKi8KPiA+ICvCoMKg
+wqDCoMKgwqDCoGxlbiA9IG1zZ3NbMV0ubGVuIC0gMTsKPiA+ICvCoMKgwqDCoMKgwqDCoG9jdGVv
+bl9pMmNfd3JpdGVxX2ZsdXNoKCh1NjQpbGVuLCBpMmMtPnR3c2lfYmFzZSArCj4gPiBPQ1RFT05f
+UkVHX0JMT0NLX0NUTChpMmMpKTsKPiA+ICsKPiA+ICvCoMKgwqDCoMKgwqDCoC8qIFByZXBhcmUg
+Y29yZSBjb21tYW5kICovCj4gPiArwqDCoMKgwqDCoMKgwqBjbWQgPSBTV19UV1NJX1YgfCBTV19U
+V1NJX1IgfCBTV19UV1NJX1NPVlIgfAo+ID4gU1dfVFdTSV9PUF83X0lBOwo+ID4gK8KgwqDCoMKg
+wqDCoMKgY21kIHw9ICh1NjQpKG1zZ3NbMF0uYWRkciAmIDB4N2Z1bGwpIDw8IFNXX1RXU0lfQURE
+Ul9TSElGVDsKPiA+ICsKPiA+ICvCoMKgwqDCoMKgwqDCoC8qIFNlbmQgY29yZSBjb21tYW5kICov
+Cj4gPiArwqDCoMKgwqDCoMKgwqByZXQgPSBvY3Rlb25faTJjX2hsY19yZWFkX2NtZChpMmMsIG1z
+Z3NbMF0sIGNtZCk7Cj4gPiArwqDCoMKgwqDCoMKgwqBpZiAocmV0KQo+ID4gK8KgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoHJldHVybiByZXQ7Cj4gCj4gRG8gd2UgbmVlZCB0byBkaXNhYmxl
+IHRoZSBibG9jayBtb2RlPwo+IApEbyB5b3UgbWVhbiwgZG8gd2UgbmVlZCB0byBkaXNhYmxlIHRo
+ZSBibG9jayBtb2RlIGF0IGFsbD8gaS5lLiBoYXZlIGl0Cm9uIGFsbCB0aGUgdGltZT8gT3RoZXJ3
+aXNlLCBpdCBnZXRzIGRpc2FibGVkIGF0IHRoZSBib3R0b20gb2YgdGhpcwpmdW5jLgo+ID4gK8Kg
+wqDCoMKgwqDCoMKgY21kID0gX19yYXdfcmVhZHEoaTJjLT50d3NpX2Jhc2UgKwo+ID4gT0NURU9O
+X1JFR19TV19UV1NJKGkyYykpOwo+ID4gK8KgwqDCoMKgwqDCoMKgaWYgKChjbWQgJiBTV19UV1NJ
+X1IpID09IDApCj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcmV0dXJuIG9jdGVv
+bl9pMmNfY2hlY2tfc3RhdHVzKGkyYywgZmFsc2UpOwo+ID4gKwo+ID4gK8KgwqDCoMKgwqDCoMKg
+LyogcmVhZCBkYXRhIGluIEZJRk8gKi8KPiA+ICvCoMKgwqDCoMKgwqDCoG9jdGVvbl9pMmNfd3Jp
+dGVxX2ZsdXNoKFRXU1hfQkxPQ0tfU1RTX1JFU0VUX1BUUiwKPiA+ICvCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGkyYy0+dHdzaV9i
+YXNlICsKPiA+IE9DVEVPTl9SRUdfQkxPQ0tfU1RTKGkyYykpOwo+ID4gK8KgwqDCoMKgwqDCoMKg
+Zm9yICh1MTYgaSA9IDA7IGkgPD0gbGVuOyBpICs9IDgpIHsKPiAKPiBQbGVhc2UsIGRvIG5vdCBk
+ZWNsYXJlIHRoZSBpdGVyYXRvciBpbnNpZGUgdGhlIGZvciBsb29wLgo+IApEb25lLgo+ID4gK8Kg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoC8qIEJ5dGUtc3dhcCBGSUZPIGRhdGEgYW5kIGNv
+cHkgaW50byBtc2cgYnVmZmVyICovCj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+X19iZTY0IHJkID0gY3B1X3RvX2JlNjQoX19yYXdfcmVhZHEoaTJjLT50d3NpX2Jhc2UKPiA+ICsg
+T0NURU9OX1JFR19CTE9DS19GSUZPKGkyYykpKTsKPiA+ICsKPiA+ICvCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqBtZW1jcHkoJm1zZ3NbMV0uYnVmW2ldLCAmcmQsIG1pbig4LCBtc2dzWzFd
+LmxlbiAtCj4gPiBpKSk7Cj4gPiArwqDCoMKgwqDCoMKgwqB9Cj4gPiArCj4gPiArwqDCoMKgwqDC
+oMKgwqBvY3Rlb25faTJjX2Jsb2NrX2Rpc2FibGUoaTJjKTsKPiA+ICvCoMKgwqDCoMKgwqDCoHJl
+dHVybiByZXQ7Cj4gPiArfQo+IAo+IC4uLgo+IAo+ID4gwqAjZGVmaW5lIE9DVEVPTl9SRUdfU1df
+VFdTSSh4KcKgwqDCoMKgwqDCoMKgwqDCoMKgKCh4KS0+cm9mZi5zd190d3NpKQo+ID4gwqAjZGVm
+aW5lIE9DVEVPTl9SRUdfVFdTSV9JTlQoeCnCoMKgwqDCoMKgwqDCoMKgwqAoKHgpLT5yb2ZmLnR3
+c2lfaW50KQo+ID4gwqAjZGVmaW5lIE9DVEVPTl9SRUdfU1dfVFdTSV9FWFQoeCnCoMKgwqDCoMKg
+wqAoKHgpLT5yb2ZmLnN3X3R3c2lfZXh0KQo+ID4gwqAjZGVmaW5lIE9DVEVPTl9SRUdfTU9ERSh4
+KcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgKCh4KS0+cm9mZi5tb2RlKQo+ID4gKyNkZWZpbmUg
+T0NURU9OX1JFR19CTE9DS19DVEwoeCnCoMKgwqDCoMKgwqDCoMKgKHgtPnJvZmYuYmxvY2tfY3Rs
+KQo+ID4gKyNkZWZpbmUgT0NURU9OX1JFR19CTE9DS19TVFMoeCnCoMKgwqDCoMKgwqDCoMKgKHgt
+PnJvZmYuYmxvY2tfc3RzKQo+ID4gKyNkZWZpbmUgT0NURU9OX1JFR19CTE9DS19GSUZPKHgpwqDC
+oMKgwqDCoMKgwqAoeC0+cm9mZi5ibG9ja19maWZvKQo+IAo+IFBsZWFzZSB1c2UgdGhlICgoeCkt
+Pi4uLikgZm9ybS4KPiAKRG9uZS4KPiBBbmRpCj4gCj4gPiDCoAo+ID4gLS8qIFNldCBSRUZDTEtf
+U1JDIGFuZCBIU19NT0RFIGluIFRXU1hfTU9ERSByZWdpc3RlciAqLwo+ID4gKy8qIFRXU1hfTU9E
+RSByZWdpc3RlciAqLwo+ID4gwqAjZGVmaW5lIFRXU1hfTU9ERV9SRUZDTEtfU1JDwqDCoMKgQklU
+KDQpCj4gPiArI2RlZmluZSBUV1NYX01PREVfQkxPQ0tfTU9ERcKgwqDCoEJJVCgyKQo+ID4gwqAj
+ZGVmaW5lIFRXU1hfTU9ERV9IU19NT0RFwqDCoMKgwqDCoMKgQklUKDApCj4gPiDCoCNkZWZpbmUg
+VFdTWF9NT0RFX0hTX01BU0vCoMKgwqDCoMKgwqAoVFdTWF9NT0RFX1JFRkNMS19TUkMgfAo+ID4g
+VFdTWF9NT0RFX0hTX01PREUpCgo=
