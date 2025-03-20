@@ -1,85 +1,110 @@
-Received: from 5.mo575.mail-out.ovh.net (5.mo575.mail-out.ovh.net [46.105.62.179])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 826E8220683
-	for <linux-i2c@vger.kernel.org>; Thu, 20 Mar 2025 11:44:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.105.62.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C453EC5
+	for <linux-i2c@vger.kernel.org>; Thu, 20 Mar 2025 12:49:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1742471055; cv=none; b=kaQm3F+jJVV0ox5flVm6mxE/GMr0YlcIsowJDXGPuwsqTcwc2PpQASI4AG0I8CzNOp5rVrg78Tv24/QVSY6n4DUshwaiiLJ0C7c2q6s0kp+4tOZAkAUNK4HI4GV4/NIVpbQFfOmt4xsGv/zg9hL373yOaHqk6qpZNjOaN2yy3Rk=
+	t=1742474999; cv=none; b=gzS9HHsHqUCACvuidf+5kTUNPlBlodNiH1rPxqq/2+/4GUeiyt85BNcI4iLRGAwcZOc88xFeVDT82bKQf7MFSJ+Ks4yLpXiRVNhqSZtbrpgSXixlt6HDc+keMDxOYtt6Bo9wBiL2Yzb5URPRVTiPytU73MPXUYa1/7e8I9UTIV0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1742471055; c=relaxed/simple;
-	bh=q1JDobvctWfZvBFVRjNdCwbpGJZnUiXZyOJku4vtQz4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NbJLy8B5Gsthi2yAamQt03CBWnYaTmz/nHkid7ycOWXDFOMIfsazEhUB48BWTTXFmGGvXZqso711TGb+O/FgNMNTxAfZA9UdG5g08+sub3PrUltXNqmgUCFkjnqtPjOjYWLJ8h+faYj4bfiWr3rAnzsf1wJVtmhyMn1VDFgkk8E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=46.105.62.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director6.ghost.mail-out.ovh.net (unknown [10.109.139.47])
-	by mo575.mail-out.ovh.net (Postfix) with ESMTP id 4ZJNml1Km2z1rwh
-	for <linux-i2c@vger.kernel.org>; Thu, 20 Mar 2025 11:35:35 +0000 (UTC)
-Received: from ghost-submission-5b5ff79f4f-v6m65 (unknown [10.110.188.207])
-	by director6.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 6D3E21FEB8;
-	Thu, 20 Mar 2025 11:35:34 +0000 (UTC)
-Received: from etezian.org ([37.59.142.98])
-	by ghost-submission-5b5ff79f4f-v6m65 with ESMTPSA
-	id UB6VD4b922egZQAAPxPWZw
-	(envelope-from <andi@etezian.org>); Thu, 20 Mar 2025 11:35:34 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-98R002cbf36733-db7b-4af7-b6c7-8b4b7dacfd1b,
-                    7E69928ED4D8A226BEDEC5E8D42620266DA13BA9) smtp.auth=andi@etezian.org
-X-OVh-ClientIp:178.39.90.92
-From: Andi Shyti <andi.shyti@kernel.org>
-To: linux-i2c <linux-i2c@vger.kernel.org>
-Cc: Troy Mitchell <troymitchell988@gmail.com>,
-	Alex Elder <elder@riscstar.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	kernel test robot <lkp@intel.com>
-Subject: [PATCH] i2c: k1: Initialize variable before use
-Date: Thu, 20 Mar 2025 12:35:21 +0100
-Message-ID: <20250320113521.3966762-1-andi.shyti@kernel.org>
-X-Mailer: git-send-email 2.47.2
+	s=arc-20240116; t=1742474999; c=relaxed/simple;
+	bh=cMvE+JlI8RJDpCMGanqAmBzaChQf25piZf0jsfxHXp8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HVSibcOhcWfvlCUebw2RH/XbgbetnMoyvxNyypmkq1SUuuZKoQWVH9WtpVOP270vuURIVkZDUm7FicO0pZbYU7ziJ1mNBvccrg9PSCdeg2he0R3Qxmq2exQkslPzwTjlXHD1VpRXn/Q65thfcAYXwB1HJuSFJ/cploQyzSCoIU8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=ISblEG1Q; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="ISblEG1Q"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=txvx
+	9KCFrfF8aRLOeltDIvK2zbqOXhw2Zh4y2n5sWjs=; b=ISblEG1Q51XVDPnZGfh/
+	TXcWYVR+LzOyFcaOf76zGr4D1Oo0i0rIKABaYDF7Naa0HcqEG/ZP5YcFKBFxNCtw
+	tWOKXOWHlR8GnunYR0ma1192m9xjLZ1+e0LGpr2DTZqT19g1LadtO52tSw5MpsYe
+	cK2axQvhFQYLXWr4CO4fPJGY3/RqaiLaVqrnMPP+BEzHvU57gfXUxVzYr5ppfNnZ
+	MbUQTV1XMMRiesnIVCh5pB46J/6PqGjiByd4sNelnKHbef5efFbp/oeZVyjxxyFf
+	VEAKc+S148NnPGLEVt5TfwLp13YhuYNy38sWVehiUmz5lu78KNgA4fHXevuzELCQ
+	9A==
+Received: (qmail 668798 invoked from network); 20 Mar 2025 13:49:53 +0100
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 20 Mar 2025 13:49:53 +0100
+X-UD-Smtp-Session: l3s3148p1@tM8Dk8UwDNwgAwDPXyTHAJp038nK7dx+
+Date: Thu, 20 Mar 2025 13:49:53 +0100
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Herve Codina <herve.codina@bootlin.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Luca Ceresoli <luca.ceresoli@bootlin.com>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Subject: Re: [RFC PATCH 0/3] i2c: Introduce i2c bus extensions
+Message-ID: <Z9wO8SIy1CcfO0bZ@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Herve Codina <herve.codina@bootlin.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Luca Ceresoli <luca.ceresoli@bootlin.com>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+References: <20250205173918.600037-1-herve.codina@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 18268570414810598108
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddugeekuddtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnheptdfgvedujefhgfelkeffkeevudekheevieejhfelkedtieehleeuffdvueefjeffnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepuddvjedrtddrtddruddpudejkedrfeelrdeltddrledvpdefjedrheelrddugedvrdelkeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomheprghnughisegvthgviihirghnrdhorhhgpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheejhegmpdhmohguvgepshhmthhpohhuth
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="bNRjihevQH0RPQGp"
+Content-Disposition: inline
+In-Reply-To: <20250205173918.600037-1-herve.codina@bootlin.com>
 
-Commit 95a8ca229032 ("i2c: spacemit: add support for SpacemiT K1
-SoC") introduced a check in the probe function to warn the user
-if the DTS has incorrect frequency settings. In such cases, the
-driver falls back to default values.
 
-However, the return value of of_property_read_u32() was not
-stored, making the check ineffective. Fix this by storing the
-return value in 'ret' and evaluating it properly.
+--bNRjihevQH0RPQGp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Reported-by: kernel test robot <lkp@intel.com>
-Closes: https://lore.kernel.org/oe-kbuild-all/202503200928.eBWfwnHG-lkp@intel.com/
-Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
-Cc: Troy Mitchell <troymitchell988@gmail.com>
----
-Cc: Alex Elder <elder@riscstar.com>
+Hi Herve,
 
- drivers/i2c/busses/i2c-k1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> The related big picture has been already presented in
+>   - the 'Add support for GE SUNH hot-pluggable connector' series [0]
+>   - the 'Runtime hotplug on non-discoverable busses with device tree
+>     overlays' talk at Linux Plumbers Conference 2024 [1].
 
-diff --git a/drivers/i2c/busses/i2c-k1.c b/drivers/i2c/busses/i2c-k1.c
-index 0d8763b852db..5965b4cf6220 100644
---- a/drivers/i2c/busses/i2c-k1.c
-+++ b/drivers/i2c/busses/i2c-k1.c
-@@ -514,7 +514,7 @@ static int spacemit_i2c_probe(struct platform_device *pdev)
- 	if (!i2c)
- 		return -ENOMEM;
- 
--	of_property_read_u32(of_node, "clock-frequency", &i2c->clock_freq);
-+	ret = of_property_read_u32(of_node, "clock-frequency", &i2c->clock_freq);
- 	if (ret && ret != -EINVAL)
- 		dev_warn(dev, "failed to read clock-frequency property: %d\n", ret);
- 
--- 
-2.47.2
+Any outcome of the Plumbers meetup? Was this "double-link" solution
+agreed on or so? I mean the code is the easy part here, but I would like
+to have an agreed approach for handling all kinds of non-probable
+busses. I really don't want an island solution for I2C. So, the key
+question here is what do DT maintainers think?
 
+You sent code without bindings, but I'd think the other way around would
+be better for the discussion.
+
+Makes sense?
+
+Happy hacking,
+
+   Wolfram
+
+
+--bNRjihevQH0RPQGp
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmfcDvEACgkQFA3kzBSg
+KbZX9RAAh393rYZAyzqeRBdmTJau9tqSbizH8NtFkhnv0PxG3HlPyd+fQwHlZrID
+CTORu4/u9sx6NVj7e41DUhPBCIZZzqAVK6ZYGp7osj/qJB2AFumASzaNZaBaNIT8
+qi2QaP65FqU4ZhLEJWpWU1oYDDZT0HdN1W2YyeQJWC7CUN8cDbumqB8D7sIWYvFq
+9mHqjpKkS444f2aGYr2C8viXZwnUOaizc7SPbMdYlRu+BW6Qcn0/UCnjSrUiPVJ7
+22UP6rc8hxsdycUIH7u2yQW5zDFRP2Hl6mfnR88oODTA9Uc5KwRRF3frJcrmig1U
+V61vxcObarroCrfXY6W/c+b/0ui1K1lV/snpLh7VJWVMUUZy/f+AUTrNRoq6MjhQ
+ejwevyCjA7PdmFScaniHw1iuniO0+2Ta/5+hI/fps57TaKSiuUb53UMKE5sqJHJk
+iQBaVf+MajGg0ScYOgLm2ywvCywLqqXOqmv2lpvKY26uDmuUdEy6FFafUPvHZDMA
+K+4Xo3cz8UpvA1RnI18V6zrqCevO0OdPpHwd5R3GlO84Es1MjNYGQGJvZCn45pJU
+7WppwpMw1t7CphppoqTtRtUkn4rxpVLWsuc4orAqGJnNh/e1XF0svPc9PTSpYD28
+SvB66ys3t0hAI+9rOLb/VIvrYctX7YMCj27h0dQcy5WsXyj1ZSA=
+=I+6E
+-----END PGP SIGNATURE-----
+
+--bNRjihevQH0RPQGp--
