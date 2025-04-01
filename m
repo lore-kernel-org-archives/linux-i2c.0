@@ -1,54 +1,53 @@
-Received: from relay8-d.mail.gandi.net (relay8-d.mail.gandi.net [217.70.183.201])
+Received: from forward203a.mail.yandex.net (forward203a.mail.yandex.net [178.154.239.90])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EA411E9B3C;
-	Tue,  1 Apr 2025 08:11:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 107251EBA08;
+	Tue,  1 Apr 2025 09:51:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.90
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1743495065; cv=none; b=hvBVDGoLujO3LovpKg4rg5y4wcgKm7/oPXxGNAHPsActtWTqgeYudEBWvG/v8BTzPxWr8gKDcWytZUwSLUBAOZAYfhD5TqNNtcny/8UU98vrmRPfLgnfYlcfxLrW9JXfUUx3s8ocUz4hHlA4veSf8ZxOEEhV8lDZuTrApARLdFM=
+	t=1743501102; cv=none; b=jHig9i+7uXyxsj2NGqdOnaz39wDsehGVz9XXcxCG20shq73aqayMLBVW2V88r8dPSPbmB4NAJv0zelEPd8S1uy4sBICxQSpbwXQadfOi+YvaKZzMC3s5QmufgfyACE2xOiYUhgOFr+t+0QE/6VLh1oq1HtwVMlbUNzTdzF+cVlc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1743495065; c=relaxed/simple;
-	bh=0/XEeqL3S2KUXmALG2T2yy1ksxatgEi2IgV/5+0o/Lc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pEaOgIKlTaysH86QVfPNOTjbgFJXIAW0VIrNcUv80Klmuvub9CQSNbdB7ILwjHPyoMhQ1ZmKp+ik9Ped4UUkxZ7wJ8ah3x5xbBQPVtHGd0WZH8kH6veRCujfs7PQdM+EBPVlJ6/QxoBDP6Vg09qztQvvC8WkPxjtkmlsl6pC8AI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=RxNGMpSR; arc=none smtp.client-ip=217.70.183.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1743501102; c=relaxed/simple;
+	bh=9oElyV9diyT6UtDkNT9r9IuGjmpF0oRUKUrRx68NNnQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=linVVlHoNEvJm8A3szmVmHjTFkOjtoxXwcZ4MT8kHmSnzDmOhaIU+rMyRX2bMZB65MEpWJQnHhKwtloSXuqHhj1k6qcU3KdyQt+DshKSo75K4KyzALq8E6mxObDvjaaQNeU6v4fl8JtHGy/TVVFKzp94cfWbqfa+g3GwMylCVCw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rosa.ru; spf=pass smtp.mailfrom=rosa.ru; dkim=pass (1024-bit key) header.d=rosa.ru header.i=@rosa.ru header.b=DsAJ08YI; arc=none smtp.client-ip=178.154.239.90
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=rosa.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rosa.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="RxNGMpSR"
-Received: by mail.gandi.net (Postfix) with ESMTPA id 9A770433F6;
-	Tue,  1 Apr 2025 08:10:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1743495056;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=igMWkyz++SDitFI41TTlJl8kgNuFossuqgfrszue8Go=;
-	b=RxNGMpSRdhy5XE9XwtMvKTNgeio+ZJFCO+OvXvnKbLpf/9qA3Ibk/3YMMkrBB5ChiRDzMV
-	xTrNL0htswUUhdPqPQWYFhOVv0J6t1xGm70ec2ZbPosNG/nudgXKFEvAIYMHnSEmE1biaA
-	eWXqT1UMkxil909gFj7fmfAKDtesN8tKm0caPzg+1/+3gnnBAVPgdBg08OALo7eIuYebM9
-	fFjNmdb7I0hAPCxERBnT2ujzRwn++rv/SqWI5VZNhob5ZxvQwFt4QAG+dh8pirCiKuY5o1
-	yDFFHDirX4asHAzTkP3RLzKm0rblinjGWRFiUWxp3PKDHFfyJnIl1S8kC4rFQA==
-From: Herve Codina <herve.codina@bootlin.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>
-Cc: linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
+	dkim=pass (1024-bit key) header.d=rosa.ru header.i=@rosa.ru header.b="DsAJ08YI"
+Received: from forward101a.mail.yandex.net (forward101a.mail.yandex.net [IPv6:2a02:6b8:c0e:500:1:45:d181:d101])
+	by forward203a.mail.yandex.net (Yandex) with ESMTPS id 2029265AD9;
+	Tue,  1 Apr 2025 12:48:14 +0300 (MSK)
+Received: from mail-nwsmtp-smtp-production-main-68.vla.yp-c.yandex.net (mail-nwsmtp-smtp-production-main-68.vla.yp-c.yandex.net [IPv6:2a02:6b8:c1f:6100:0:640:f888:0])
+	by forward101a.mail.yandex.net (Yandex) with ESMTPS id 061EC60E26;
+	Tue,  1 Apr 2025 12:48:06 +0300 (MSK)
+Received: by mail-nwsmtp-smtp-production-main-68.vla.yp-c.yandex.net (smtp/Yandex) with ESMTPSA id 3mSPBN0LjiE0-OJ0SsBLL;
+	Tue, 01 Apr 2025 12:48:05 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rosa.ru; s=mail;
+	t=1743500885; bh=hQ+lFy4tyS21KRRYFD5T13q7+AM2thXzEE8iO94oHas=;
+	h=Message-ID:Date:Cc:Subject:To:From;
+	b=DsAJ08YIH5tLB6+KBUOqtUKTjkVJ75VI0ZRrTPAv81J12fSy9sH4z36T9vR2PeKvJ
+	 EmXw4iIsa2GyhxlB/OHnu71eeMOTIJq78hxPmkDsaMhXZSPkgOWyrd42VgySWjHyuP
+	 556qAK5Qjb/UvVqNkEfmjVQ004Lp4+XDRd5nFv3o=
+Authentication-Results: mail-nwsmtp-smtp-production-main-68.vla.yp-c.yandex.net; dkim=pass header.i=@rosa.ru
+From: Mikhail Lobanov <m.lobanov@rosa.ru>
+To: stable@vger.kernel.org,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Mikhail Lobanov <m.lobanov@rosa.ru>,
+	Rishi Gupta <gupt21@gmail.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+	linux-i2c@vger.kernel.org,
+	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	devicetree-spec@vger.kernel.org,
-	Luca Ceresoli <luca.ceresoli@bootlin.com>,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-	Herve Codina <herve.codina@bootlin.com>
-Subject: [PATCH 1/2] schemas: i2c: Avoid extra characters in i2c nodename pattern
-Date: Tue,  1 Apr 2025 10:10:39 +0200
-Message-ID: <20250401081041.114333-2-herve.codina@bootlin.com>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20250401081041.114333-1-herve.codina@bootlin.com>
-References: <20250401081041.114333-1-herve.codina@bootlin.com>
+	lvc-project@linuxtesting.org,
+	Hamish Martin <hamish.martin@alliedtelesis.co.nz>,
+	Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.10/5.15/6.1] HID: mcp2221: Set driver data before I2C adapter add
+Date: Tue,  1 Apr 2025 12:47:50 +0300
+Message-ID: <20250401094752.8324-1-m.lobanov@rosa.ru>
+X-Mailer: git-send-email 2.47.2
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -56,36 +55,51 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-GND-State: clean
-X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddukedvvdelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpefjvghrvhgvucevohguihhnrgcuoehhvghrvhgvrdgtohguihhnrgessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnhepheffiefgjeeuleeuueffleeufefglefhjefhheeigedukeetieeltddthfffkeffnecukfhppedvrgdtudemvgdtrgemvdegieemjeejledtmedviegtgeemvgdvvdemiedtfegumeehkegrnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepvdgrtddumegvtdgrmedvgeeimeejjeeltdemvdeitgegmegvvddvmeeitdefugemheekrgdphhgvlhhopehlohgtrghlhhhoshhtrdhlohgtrghlughomhgrihhnpdhmrghilhhfrhhomhephhgvrhhvvgdrtghoughinhgrsegsohhothhlihhnrdgtohhmpdhnsggprhgtphhtthhopeduvddprhgtphhtthhopeifshgrodhrvghnvghsrghssehsrghnghdqvghnghhinhgvvghrihhnghdrtghomhdprhgtphhtthhopegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprhhosghhsehkvghrnhgvlhdrohhrghdprhgtphhtt
- hhopehkrhiikhdoughtsehkvghrnhgvlhdrohhrghdprhgtphhtthhopegtohhnohhrodgutheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopeguvghvihgtvghtrhgvvgesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrgh
-X-GND-Sasl: herve.codina@bootlin.com
 
-Current nodename pattern doesn't limit the end of name for an i2c node.
-It can match 'i2c@10-foo'.
+From: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
 
-In order to avoid matching to an incorrect name, avoid any extra
-characters in nodename pattern.
+commit f2d4a5834638bbc967371b9168c0b481519f7c5e upstream.
 
-Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+The process of adding an I2C adapter can invoke I2C accesses on that new
+adapter (see i2c_detect()).
+
+Ensure we have set the adapter's driver data to avoid null pointer
+dereferences in the xfer functions during the adapter add.
+
+This has been noted in the past and the same fix proposed but not
+completed. See:
+https://lore.kernel.org/lkml/ef597e73-ed71-168e-52af-0d19b03734ac@vigem.de/
+
+Signed-off-by: Hamish Martin <hamish.martin@alliedtelesis.co.nz>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+[Mikhail Lobanov: older kernels use i2c_add_adapter() instead of
+devm_i2c_add_adapter().
+This problem manifests itself in stable kernel branches:
+https://syzkaller.appspot.com/bug?extid=40dc62a33c759a65ad44,
+https://syzkaller.appspot.com/bug?extid=24b122f8e84c3f9d9d1d]
+Signed-off-by: Mikhail Lobanov <m.lobanov@rosa.ru>
 ---
- dtschema/schemas/i2c/i2c-controller.yaml | 2 +-
+ drivers/hid/hid-mcp2221.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/dtschema/schemas/i2c/i2c-controller.yaml b/dtschema/schemas/i2c/i2c-controller.yaml
-index 487e669..018d266 100644
---- a/dtschema/schemas/i2c/i2c-controller.yaml
-+++ b/dtschema/schemas/i2c/i2c-controller.yaml
-@@ -14,7 +14,7 @@ maintainers:
+diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+index 560eeec4035a..b0dc0edc69c2 100644
+--- a/drivers/hid/hid-mcp2221.c
++++ b/drivers/hid/hid-mcp2221.c
+@@ -879,12 +879,12 @@ static int mcp2221_probe(struct hid_device *hdev,
+ 	snprintf(mcp->adapter.name, sizeof(mcp->adapter.name),
+ 			"MCP2221 usb-i2c bridge");
  
- properties:
-   $nodename:
--    pattern: "^i2c(@.*)?"
-+    pattern: "^i2c(@.*)?$"
++	i2c_set_adapdata(&mcp->adapter, mcp);
+ 	ret = i2c_add_adapter(&mcp->adapter);
+ 	if (ret) {
+ 		hid_err(hdev, "can't add usb-i2c adapter: %d\n", ret);
+ 		goto err_i2c;
+ 	}
+-	i2c_set_adapdata(&mcp->adapter, mcp);
  
-   i2c-bus:
-     type: object
+ 	/* Setup GPIO chip */
+ 	mcp->gc = devm_kzalloc(&hdev->dev, sizeof(*mcp->gc), GFP_KERNEL);
 -- 
-2.49.0
+2.47.2
 
