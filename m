@@ -1,59 +1,59 @@
 Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76E2D23370E;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBE02233717;
 	Mon,  7 Apr 2025 09:59:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744019943; cv=none; b=e4rQOERvxDOl6IBP4Fd/fr4/QV/PsGC10o8JV6TP4ZGm7I8OBLJnCf93r/ufGt3PcbTlut5wGPfIjt32F1xd3n1Iw1dyRPrDFb9vsphJ1tBat9Orzst+vu/NqwJ8Kq4qyyX5pP7B6kT/KkQjGlZQznAYcfoi6CjSXydm+2Uq4NQ=
+	t=1744019943; cv=none; b=ake2+rYgIgmiXqGSmEXDvP6i6B/uo3W/t8Zy0+FRw5fVgvni+whYyjFJ5tkTz4p2FMIWakWhUk+rqa4Yq3huDXRuQcDcP/zfRcK20fGbX0xBvPIEtEAyqfj3oEzRfxTE6Gp0x9u4txjmg0WldOE0aXNaF7E+3dcwm4AY2eQHnHU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1744019943; c=relaxed/simple;
-	bh=E1EKhvH/3/E+I7074KzqGnDYkH6JWY+UHDd5lGqMH2Q=;
+	bh=O8EfThU5MyAxi4xa2ZcUb7XQES2zhDiFxwmhDKkyTh0=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=WeS4WEDYRQmi07zSSawK0uXjXwEzNi29F5Lr5ktX5VF/WUPafUdxTJtMW90yLqSW5MKGkVDs90kzaRLHRsqSNH2IprkMjwlyCaFVlyWcbZmJflw4B3FyEnE10XIbkaU2k54JUJLH4GIRY+8C9bVT4R8Gnd+cdMV+uAP+Mno0B+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=dbNhh3Bv; arc=none smtp.client-ip=198.175.65.14
+	 MIME-Version; b=h9La92TLwE8xbwKS63ZhCPvwPwyJtCE0CkVNfeZfAVLpJ/uwKLAkv6pdzuQppVJI9VdHXhTup7puVRgZYUDvPDd+iSI7g4C9CLuptJD1irJrQ4YL2lyBEalhTA2RTzH4Hf01VpqcBysWM4eEpJfO68Jg09oGseAqC4CRanqwhgQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kehfOrj7; arc=none smtp.client-ip=198.175.65.14
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="dbNhh3Bv"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kehfOrj7"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
   t=1744019942; x=1775555942;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=E1EKhvH/3/E+I7074KzqGnDYkH6JWY+UHDd5lGqMH2Q=;
-  b=dbNhh3BvyjnRwaUOfqbfl/lXH+99HCP+D5xrbZpwdI2/OuxWEAD1bNDa
-   wavAF/7vl+MX7+nPDHsCH9C2W/a+eV4toRp7JvOPBuDS5o2JCiMj21hDk
-   Lp5d4aMy8Usxpzehr1uMFOs356nYs4u56Rt/jVlZK5JgN/7+KXPJszlGI
-   RVTHDQkBKuEJxcMO5aoQs7JZ/gPGuwoGRyzViRTh6ysx5xm5+b/T8jeBW
-   tZW13c1Nv/bne+y1WMsDgW7LSP7UYwToLruhy5caeo19NBO9KZrLduq7z
-   2Km+/ND2iglFOXYoFarLcjeQ6xC1lpELrvKRaKN0DCGxkyjkd5R0DgaDi
-   g==;
-X-CSE-ConnectionGUID: BINjPnWkTdK9eYFBVTjLfg==
-X-CSE-MsgGUID: zJv2ytM4RK6fwIgjRNr4lg==
-X-IronPort-AV: E=McAfee;i="6700,10204,11396"; a="49188882"
+  bh=O8EfThU5MyAxi4xa2ZcUb7XQES2zhDiFxwmhDKkyTh0=;
+  b=kehfOrj7McWwtlTVZFjesx55QA1lNYh2cWM/30E2STisCYYNwWRLuPNu
+   9lL0wNisxWmZ//xehLvPq/qXBTYOT/iAED3SJOh5XmJnrqJpiO7NVCmKO
+   8M/gO7mIsTKT6eRmUrX+GqrWGkG7kPVBcLMz3qMCYFqXxdevAulduo7Rw
+   qPOpGDo7JMOHK+yMmZ2yJGSe/5gy9cltos0LqXfecKdlH/Xe7QCDkoRn9
+   iT9Oz8HzdWd8HexXdQdKz9A6TfT8wyKluusjoXnMKhjc15/JPKS7u6Ya1
+   cLSXnxIHNidub62fbf7Kxs2A2ixEfSDA9aU3fQUtgS1yPqH28ApYD/DV8
+   w==;
+X-CSE-ConnectionGUID: yVij85MSRk+Zw9ImsZ7jVg==
+X-CSE-MsgGUID: YCT5z8iEQOKQm//P7/0pzQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11396"; a="49188885"
 X-IronPort-AV: E=Sophos;i="6.15,194,1739865600"; 
-   d="scan'208";a="49188882"
+   d="scan'208";a="49188885"
 Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Apr 2025 02:58:58 -0700
-X-CSE-ConnectionGUID: WNN06WvWRVaIFK5leiCG3A==
-X-CSE-MsgGUID: mCwYltZ1SZOd1VIeRbTouQ==
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Apr 2025 02:59:00 -0700
+X-CSE-ConnectionGUID: 0FOHzRE5RC67xtRtAqQjlg==
+X-CSE-MsgGUID: otZs+o0tRpqMynUm+QJXGg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.15,194,1739865600"; 
-   d="scan'208";a="128411723"
+   d="scan'208";a="128411736"
 Received: from black.fi.intel.com ([10.237.72.28])
-  by fmviesa010.fm.intel.com with ESMTP; 07 Apr 2025 02:58:55 -0700
+  by fmviesa010.fm.intel.com with ESMTP; 07 Apr 2025 02:58:58 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id 826E5F0; Mon, 07 Apr 2025 12:58:54 +0300 (EEST)
+	id BAC7426A; Mon, 07 Apr 2025 12:58:54 +0300 (EEST)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Cc: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Subject: [PATCH v2 1/6] i2c: core: Drop duplicate check before calling OF APIs
-Date: Mon,  7 Apr 2025 12:55:12 +0300
-Message-ID: <20250407095852.215809-2-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v2 5/6] i2c: core: Do not dereference fwnode in struct device
+Date: Mon,  7 Apr 2025 12:55:16 +0300
+Message-ID: <20250407095852.215809-6-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.47.2
 In-Reply-To: <20250407095852.215809-1-andriy.shevchenko@linux.intel.com>
 References: <20250407095852.215809-1-andriy.shevchenko@linux.intel.com>
@@ -65,51 +65,89 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-OF APIs are usually NULL-aware and returns an error in case when
-device node is not present or supported. We already have a check
-for the returned value, no need to check for the parameter.
+In order to make the underneath API easier to change in the future,
+prevent users from dereferencing fwnode from struct device.
+Instead, use the specific device_set_node() API for that.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/i2c-core-base.c | 18 +++++++-----------
- 1 file changed, 7 insertions(+), 11 deletions(-)
+ drivers/i2c/i2c-core-base.c | 18 ++++++++++--------
+ drivers/i2c/i2c-core-of.c   |  1 -
+ 2 files changed, 10 insertions(+), 9 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 7ad1ad5c8c3f..c14ffd6190d3 100644
+index a0d3aec6c00e..c0df67619364 100644
 --- a/drivers/i2c/i2c-core-base.c
 +++ b/drivers/i2c/i2c-core-base.c
-@@ -1209,11 +1209,9 @@ struct i2c_client *i2c_new_ancillary_device(struct i2c_client *client,
- 	u32 addr = default_addr;
- 	int i;
+@@ -961,6 +961,7 @@ static void i2c_unlock_addr(struct i2c_adapter *adap, unsigned short addr,
+ struct i2c_client *
+ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *info)
+ {
++	struct fwnode_handle *fwnode;
+ 	struct i2c_client *client;
+ 	bool need_put = false;
+ 	int status;
+@@ -1001,18 +1002,19 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
+ 	client->dev.parent = &client->adapter->dev;
+ 	client->dev.bus = &i2c_bus_type;
+ 	client->dev.type = &i2c_client_type;
+-	client->dev.of_node = of_node_get(info->of_node);
+-	client->dev.fwnode = info->fwnode;
  
--	if (np) {
--		i = of_property_match_string(np, "reg-names", name);
--		if (i >= 0)
--			of_property_read_u32_index(np, "reg", i, &addr);
--	}
-+	i = of_property_match_string(np, "reg-names", name);
-+	if (i >= 0)
-+		of_property_read_u32_index(np, "reg", i, &addr);
+ 	device_enable_async_suspend(&client->dev);
  
- 	dev_dbg(&client->adapter->dev, "Address for %s : 0x%x\n", name, addr);
- 	return i2c_new_dummy_device(client->adapter, addr);
-@@ -1651,12 +1649,10 @@ int i2c_add_adapter(struct i2c_adapter *adapter)
- 	struct device *dev = &adapter->dev;
- 	int id;
- 
--	if (dev->of_node) {
--		id = of_alias_get_id(dev->of_node, "i2c");
--		if (id >= 0) {
--			adapter->nr = id;
--			return __i2c_add_numbered_adapter(adapter);
--		}
-+	id = of_alias_get_id(dev->of_node, "i2c");
-+	if (id >= 0) {
-+		adapter->nr = id;
-+		return __i2c_add_numbered_adapter(adapter);
++	fwnode = info->fwnode ?: of_fwnode_handle(info->of_node);
++	device_set_node(&client->dev, fwnode_handle_get(fwnode));
++
+ 	if (info->swnode) {
+ 		status = device_add_software_node(&client->dev, info->swnode);
+ 		if (status) {
+ 			dev_err(&adap->dev,
+ 				"Failed to add software node to client %s: %d\n",
+ 				client->name, status);
+-			goto out_err_put_of_node;
++			goto out_err_put_fwnode;
+ 		}
  	}
  
- 	mutex_lock(&core_lock);
+@@ -1031,8 +1033,8 @@ i2c_new_client_device(struct i2c_adapter *adap, struct i2c_board_info const *inf
+ out_remove_swnode:
+ 	device_remove_software_node(&client->dev);
+ 	need_put = true;
+-out_err_put_of_node:
+-	of_node_put(info->of_node);
++out_err_put_fwnode:
++	fwnode_handle_put(fwnode);
+ out_err:
+ 	dev_err(&adap->dev,
+ 		"Failed to register i2c client %s at 0x%02x (%d)\n",
+@@ -1060,11 +1062,11 @@ void i2c_unregister_device(struct i2c_client *client)
+ 		return;
+ 
+ 	fwnode = dev_fwnode(&client->dev);
+-	if (is_of_node(fwnode)) {
++	if (is_of_node(fwnode))
+ 		of_node_clear_flag(to_of_node(fwnode), OF_POPULATED);
+-		of_node_put(client->dev.of_node);
+-	} else if (is_acpi_device_node(fwnode))
++	else if (is_acpi_device_node(fwnode))
+ 		acpi_device_clear_enumerated(to_acpi_device_node(fwnode));
++	fwnode_handle_put(fwnode);
+ 
+ 	device_remove_software_node(&client->dev);
+ 	device_unregister(&client->dev);
+diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
+index 02feee6c9ba9..eb7fb202355f 100644
+--- a/drivers/i2c/i2c-core-of.c
++++ b/drivers/i2c/i2c-core-of.c
+@@ -49,7 +49,6 @@ int of_i2c_get_board_info(struct device *dev, struct device_node *node,
+ 	}
+ 
+ 	info->addr = addr;
+-	info->of_node = node;
+ 	info->fwnode = of_fwnode_handle(node);
+ 
+ 	if (of_property_read_bool(node, "host-notify"))
 -- 
 2.47.2
 
