@@ -1,60 +1,62 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E4E7146593;
-	Mon,  7 Apr 2025 13:40:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4566A18DF93;
+	Mon,  7 Apr 2025 13:48:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744033204; cv=none; b=ntET27M5Xt2mTFs9UmmrTfZ7ERXDSeM9MibyK8GYqLvqIXRWjO0AhdazgJYWkcpsw8Fu7c71zpZnVXOdrJErBou9Y4jAW/pm0MLXF2fFQtv/d0Pdt3aQs+abnRpHC8DYMOg9inQyDbEy9s4Was0JZtcqN78e19tnW/qYhhdPeO4=
+	t=1744033724; cv=none; b=FG0cBMRLBoQ7PRFh8+kI6trNDW4F351UQkQHIfcbjR6ZgwQ38sRD1d2d2MWy3jXWAjXQx0uIxOKMkE03stjMRpqBeDEwzRYSN/IuQ2lkleDYJaAZHC0CYoh9xAp0RoUMlKw0GRJpg+Mruc4c8FPRoqdZlr+Z3j6yJ9TSZSHfMlE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744033204; c=relaxed/simple;
-	bh=3Jsy3U8ncbmDNsptsfF9HvnjrFQt4I1GMdj0SZq/fzs=;
+	s=arc-20240116; t=1744033724; c=relaxed/simple;
+	bh=UD/hCz5Aq78yv+U4/JzzUE92OQB20imcFEjtRY5f7hI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cUdGhBRDY6R9rlmmKEMkGjTiZWxOPYEnWcn8RxF12j3iMOKZjg6CbfCUpmmdhO/JDdR1zDBLSIU+3Ksy7YUHGj4y5AuAyrVRyxjdwuxRwAyGmRBTqmei5UAorUAaOtJBGYynWGv1HaeQ4kGY+myRximsvExnQ+HKiAI4TJVfKB4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jpOE4Xsi; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=s9c3G6YbhHBpbvfCuhXs0KrWARsYGHrl5jFewdfGmbUUPpTLLEXwtfyBLJ3ko/JcGzncAwYGszy4HCwQX4ok5dT4vFSZ+nSPJRmjjHR6/Hsk9pteC5RSU2bZUzQfr/MZD9Lv+F0JS8bOCJook78FqiRLMH14DUQKuVfm1BdHIRk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jYEsCBdc; arc=none smtp.client-ip=192.198.163.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jpOE4Xsi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 020E2C4CEDD;
-	Mon,  7 Apr 2025 13:40:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1744033203;
-	bh=3Jsy3U8ncbmDNsptsfF9HvnjrFQt4I1GMdj0SZq/fzs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=jpOE4XsiNPaNz5DJf0PaXDEDnphzgxL8k9uTxP0AKGzcklQGu3k6nKw5At/sHjQPU
-	 Nc/RE53PVfGHBx/bo2Vf4BGXZvw+ak/a/23PdGHvw8KarWw1loqMVgGPuJ/3I+NA2y
-	 U0+c9prQ+RnOJHvMy+aQ3KbglvYEdmWoUKnUhv4Km64VuFE6Yqic5sKz/VsUuVd4mA
-	 wG3nu0TNHb0lsdT2nIE6A3/IjeRBQ+glkfCN0M5VVzsB5NxiHl4G4+58kO0Edtwc7v
-	 1ujEUlavDc5/6ueEdJVqnhmgOUGenEcZhNtYTzlLuIhEPs7AVuC5Bd0DaSUF9Kxoyi
-	 YFPKeLz3gxmTA==
-Date: Mon, 7 Apr 2025 08:40:01 -0500
-From: Rob Herring <robh@kernel.org>
-To: Inochi Amaoto <inochiama@gmail.com>
-Cc: Jean Delvare <jdelvare@suse.com>, Guenter Roeck <linux@roeck-us.net>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Chen Wang <unicorn_wang@outlook.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Paul Walmsley <paul.walmsley@sifive.com>,
-	Samuel Holland <samuel.holland@sifive.com>,
-	Ulf Hansson <ulf.hansson@linaro.org>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Palmer Dabbelt <palmer@dabbelt.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>,
-	Daniel Lezcano <daniel.lezcano@linaro.org>,
-	Thomas Bonnefille <thomas.bonnefille@bootlin.com>,
-	ghost <2990955050@qq.com>,
-	Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-	Jisheng Zhang <jszhang@kernel.org>, Chao Wei <chao.wei@sophgo.com>,
-	linux-hwmon@vger.kernel.org, devicetree@vger.kernel.org,
-	sophgo@lists.linux.dev, linux-kernel@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-riscv@lists.infradead.org,
-	linux-mmc@vger.kernel.org, Yixun Lan <dlan@gentoo.org>,
-	Longbin Li <looong.bin@gmail.com>
-Subject: Re: [PATCH 4/9] dt-bindings: reset: sophgo: Add SG2044 bindings.
-Message-ID: <20250407134001.GA2088093-robh@kernel.org>
-References: <20250407010616.749833-1-inochiama@gmail.com>
- <20250407010616.749833-5-inochiama@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jYEsCBdc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1744033723; x=1775569723;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=UD/hCz5Aq78yv+U4/JzzUE92OQB20imcFEjtRY5f7hI=;
+  b=jYEsCBdcB4MDBshwC2YbOaw7i+H05l2tTZKOBddopDYsrOD9bgd/q9Lp
+   H4xSu6lnNYsJsBfasyUhfSZZ0sN3X3R2UkOuND8hNe18nNYSR4o/N+jyd
+   AmJhRt/WjLJm/KNGFYDNPlmHUiXx/oMSOG0CuWSZ6TneeoCsp/gLn8j2e
+   g2ZHbpwb4BV8dblHK8OcNqi7f1IDArfop8jGP26wAM+x3M7NAXe455qJ4
+   CyuHEBdNEqt5kE0TcWDx4AchoESMf66FP8c3emFwGc5U1TlesBbGHnm7K
+   JMRHDhUv1dWlTMP2svj2ULSjV3bh39BuXyPYnwXqfQhY1qmUfL+NQK6sS
+   A==;
+X-CSE-ConnectionGUID: dckJsO7ESHuByQGg7JRV0g==
+X-CSE-MsgGUID: zXCWXc92Qj2Nn6JZIcNsQg==
+X-IronPort-AV: E=McAfee;i="6700,10204,11397"; a="56083588"
+X-IronPort-AV: E=Sophos;i="6.15,194,1739865600"; 
+   d="scan'208";a="56083588"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Apr 2025 06:48:42 -0700
+X-CSE-ConnectionGUID: lXc2ks33Q6ex1UOCt0WGhw==
+X-CSE-MsgGUID: OhldmVnDQSKRICz6nzB5yA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,194,1739865600"; 
+   d="scan'208";a="127941572"
+Received: from smile.fi.intel.com ([10.237.72.58])
+  by orviesa006.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Apr 2025 06:48:41 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.98.2)
+	(envelope-from <andriy.shevchenko@linux.intel.com>)
+	id 1u1mq5-0000000A5Jr-3y1Z;
+	Mon, 07 Apr 2025 16:48:37 +0300
+Date: Mon, 7 Apr 2025 16:48:37 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: kernel test robot <lkp@intel.com>
+Cc: Wolfram Sang <wsa-dev@sang-engineering.com>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, oe-kbuild-all@lists.linux.dev,
+	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+Subject: Re: [PATCH v2 2/6] i2c: core: Unify the firmware node type check
+Message-ID: <Z_PXtXIUi4VRjICJ@smile.fi.intel.com>
+References: <20250407095852.215809-3-andriy.shevchenko@linux.intel.com>
+ <202504072041.Bv9mOk4o-lkp@intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -63,21 +65,42 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20250407010616.749833-5-inochiama@gmail.com>
+In-Reply-To: <202504072041.Bv9mOk4o-lkp@intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 
-On Mon, Apr 07, 2025 at 09:06:09AM +0800, Inochi Amaoto wrote:
-> The SG2044 shares the same reset controller as SG2042, so it
-> is just enough to use the compatible string of SG2042 as a
-> basis.
-
-You can drop 'binding.' from the subject.
-
+On Mon, Apr 07, 2025 at 08:45:14PM +0800, kernel test robot wrote:
+> Hi Andy,
 > 
-> Add compatible string for the reset controller of SG2044.
+> kernel test robot noticed the following build errors:
 > 
-> Signed-off-by: Inochi Amaoto <inochiama@gmail.com>
-> ---
->  .../devicetree/bindings/reset/sophgo,sg2042-reset.yaml     | 7 ++++++-
->  1 file changed, 6 insertions(+), 1 deletion(-)
+> [auto build test ERROR on wsa/i2c/for-next]
+> [also build test ERROR on linus/master v6.15-rc1 next-20250407]
+> [If your patch is applied to the wrong git tree, kindly drop us a note.
+> And when submitting patch, we suggest to use '--base' as documented in
+> https://git-scm.com/docs/git-format-patch#_base_tree_information]
+> 
+> url:    https://github.com/intel-lab-lkp/linux/commits/Andy-Shevchenko/i2c-core-Drop-duplicate-check-before-calling-OF-APIs/20250407-180528
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
+> patch link:    https://lore.kernel.org/r/20250407095852.215809-3-andriy.shevchenko%40linux.intel.com
+> patch subject: [PATCH v2 2/6] i2c: core: Unify the firmware node type check
+> config: arc-randconfig-002-20250407 (https://download.01.org/0day-ci/archive/20250407/202504072041.Bv9mOk4o-lkp@intel.com/config)
+> compiler: arc-linux-gcc (GCC) 14.2.0
+> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20250407/202504072041.Bv9mOk4o-lkp@intel.com/reproduce)
+> 
+> If you fix the issue in a separate patch/commit (i.e. not just a new version of
+> the same patch/commit), kindly add following tags
+> | Reported-by: kernel test robot <lkp@intel.com>
+> | Closes: https://lore.kernel.org/oe-kbuild-all/202504072041.Bv9mOk4o-lkp@intel.com/
+> 
 
-Acked-by: Rob Herring (Arm) <robh@kernel.org>
+> All error/warnings (new ones prefixed by >>):
+
+Ah, I should compile-test the slave part as well...
+Will be fixed in v3. Since v3 is required, Tomi, I'm going to add the media
+patch to its end.
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
