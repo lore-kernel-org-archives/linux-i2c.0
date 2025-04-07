@@ -1,102 +1,101 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 79F1733CA
-	for <linux-i2c@vger.kernel.org>; Mon,  7 Apr 2025 06:19:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6F08279F2;
+	Mon,  7 Apr 2025 06:59:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744006776; cv=none; b=Inh50c9uBjzlFA5nyVW9jhtXKWcC99yMWLfCocbOuFHnuJSKNLZAqc1e8cmqj3vBQD9rCwiEb/bKnnEjPZ2z/BgZHexzIhOtJH/Vx0e/rv39EmwdHxPgAd94cb93hxcmAUF8iRqI8hcFbyrD8M/oBllxD3QYS0f8pbmmLpVX6J8=
+	t=1744009170; cv=none; b=EmpV64jasBFSUVhrJrYITSuMisz6Bk/oyOSyOElYVxWxbSN60sXHikf6DQVLq0bwfyASCrNY4Kb1qnMV1zJ74wkwL/8xlBSmUO6a39V7ssQ10i5EDp/TDh8FM++nUkfpDcbhwm2pO/h4JTuTXBdSftn3vXblEjEudzOOrWqTREI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744006776; c=relaxed/simple;
-	bh=aZrxvGH4ccxNuXCfuuZ8z9Ks1viZpDEf7KPIHrND2os=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mhPbBxqprHuUAvExzAb/vOpjnTeVlKlPhLyCJymIebmNWy6Pw/UF1Vl9nIrSxNhedNj+rx+J14sI0wwzj6XigViPlTED4aGO1ugxjXrqBu4q3NLnqqz4K/LS4J9Ro1X7nOLKuP5T0CEZm+Nma3Hz0ecrTEitmYPp4tS6gE6yYv0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=cgkVlcvb; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1744009170; c=relaxed/simple;
+	bh=+Pcj/QHoeezI8O2sFeZwUsZoXKkCQ+WBiXMYxsuwpGw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=ORty5TFcQbZVztczDXYL3tEMM72yLFYJ2vKGt6SOQHdMexsdD8h529tSyFqPHKqhSgIuBGKMjKw3300CAdHT4SA2HtUSnkW+/U1KVlVOeo7VNTPCFcqKWMqo+ufGP7D3ilbUU7yb5iMJGLbtUArsFsqTbhRPqzozhAuaszbtVEc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=LiYC8j7v; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="cgkVlcvb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=aZrx
-	vGH4ccxNuXCfuuZ8z9Ks1viZpDEf7KPIHrND2os=; b=cgkVlcvbK5+BWNAzXC8X
-	C88yPBjZnF5roYFsHk9RixfNrZN6wFpNEGCmpeMwgppIzDP0+9k2ke5tdS4jt3HR
-	32jobx6sSdtK2wY5OFQYSVUv4qKoip/YQjBxEUIMqIPIE6XYpYUb6PswmCs23BCy
-	3G4ruTQBvrjbUlK0EPTgw8A2Ez1gSOjP+CEPep1/hXO9/Zy0rGyM++rmbJnz51qc
-	e+JKIzRHW+av9wuaG2dcORXKRFgGBIWAzHhetdW2KQ7/m3/wj+rHctFTAHvUCp7Y
-	R0xez5LJ6E3SOijnvw3HYCOoHkgQvzWDIAvr1ZD6XzVrenum/9cH1mPJoMtkrKI1
-	Pw==
-Received: (qmail 3678418 invoked from network); 7 Apr 2025 08:12:51 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Apr 2025 08:12:51 +0200
-X-UD-Smtp-Session: l3s3148p1@hoNBICoygJsgAQnoAGhPADT4hf5MsYxB
-Date: Mon, 7 Apr 2025 08:12:51 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>
-Cc: Shirley.Lin@infineon.com, robh@kernel.org, krzk+dt@kernel.org,
-	conor+dt@kernel.org, jdelvare@suse.com, linux@roeck-us.net,
-	corbet@lwn.net, patrick.rudolph@9elements.com, bhelgaas@google.com,
-	ninad@linux.ibm.com, festevam@denx.de, devicetree@vger.kernel.org,
-	linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
-	Mills.Liu@infineon.com, Ashish.Yadav@infineon.com,
-	Ian.Fang@infineon.com
-Subject: Re: Update driver xdpe152c4.c
-Message-ID: <Z_Ns419SpW_z2Xnr@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>,
-	Shirley.Lin@infineon.com, robh@kernel.org, krzk+dt@kernel.org,
-	conor+dt@kernel.org, jdelvare@suse.com, linux@roeck-us.net,
-	corbet@lwn.net, patrick.rudolph@9elements.com, bhelgaas@google.com,
-	ninad@linux.ibm.com, festevam@denx.de, devicetree@vger.kernel.org,
-	linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
-	Mills.Liu@infineon.com, Ashish.Yadav@infineon.com,
-	Ian.Fang@infineon.com
-References: <3f7d0644a1f844b8b3ee9b3139b85339@infineon.com>
- <eeef6c60-8de2-4a4d-8bc5-2c321d759672@quicinc.com>
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="LiYC8j7v"
+Received: from pps.filterd (m0279871.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 537695MG031302;
+	Mon, 7 Apr 2025 06:58:55 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	fllJ4DSPW2eHfNTsCAlDhAS+GcHDw8tJKYP25hUFxYI=; b=LiYC8j7vNHi9guI2
+	giBubtA5+CaZ7/Nmc2bRuisAI1ZmJrXvmCMZ+Fkg4kZFC1w/lbOD6qykhzwOUE7l
+	vtPKDO2dYbzLFwou4YC9qtN+nQrWO4utMxDK7cbciA7TehZO2yng86ZfZJHz2NR/
+	LsVN2h970nu7BVDcbU1rz/CvkBAIXg6cH5dI10fMMGGV1KQFEwMY9Wo6cKm/3zXc
+	ywR1cUpkss8t7j0KRPRweqf+lIOOUQmSTFUkkQKDvz5Sw5NNyeWul+D8vmmcUPQS
+	xXOzVeCOov/cMZIbPJmfTPskZWEiiBl13N1YEBcTDLI4MTTVG58hXpY15sE6Qx5y
+	7gTFMA==
+Received: from nasanppmta02.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 45twfkb6an-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Apr 2025 06:58:55 +0000 (GMT)
+Received: from nasanex01c.na.qualcomm.com (nasanex01c.na.qualcomm.com [10.45.79.139])
+	by NASANPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 5376wseB009671
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 7 Apr 2025 06:58:54 GMT
+Received: from [10.217.219.207] (10.80.80.8) by nasanex01c.na.qualcomm.com
+ (10.45.79.139) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Sun, 6 Apr 2025
+ 23:58:49 -0700
+Message-ID: <441ccdc7-bc0e-41ad-9878-d922ec1bfaa1@quicinc.com>
+Date: Mon, 7 Apr 2025 12:28:46 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="+LTwaBTz8BBfd5ng"
-Content-Disposition: inline
-In-Reply-To: <eeef6c60-8de2-4a4d-8bc5-2c321d759672@quicinc.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: Update driver xdpe152c4.c
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        <Shirley.Lin@infineon.com>, <robh@kernel.org>, <krzk+dt@kernel.org>,
+        <conor+dt@kernel.org>, <jdelvare@suse.com>, <linux@roeck-us.net>,
+        <corbet@lwn.net>, <patrick.rudolph@9elements.com>,
+        <bhelgaas@google.com>, <ninad@linux.ibm.com>, <festevam@denx.de>,
+        <devicetree@vger.kernel.org>, <linux-hwmon@vger.kernel.org>,
+        <linux-i2c@vger.kernel.org>, <Mills.Liu@infineon.com>,
+        <Ashish.Yadav@infineon.com>, <Ian.Fang@infineon.com>
+References: <3f7d0644a1f844b8b3ee9b3139b85339@infineon.com>
+ <eeef6c60-8de2-4a4d-8bc5-2c321d759672@quicinc.com> <Z_Ns419SpW_z2Xnr@shikoro>
+Content-Language: en-US
+From: Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>
+In-Reply-To: <Z_Ns419SpW_z2Xnr@shikoro>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nasanex01c.na.qualcomm.com (10.45.79.139)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: fas_lFKX4QvVnBHGAEQPdVDnDW9MA0dI
+X-Proofpoint-ORIG-GUID: fas_lFKX4QvVnBHGAEQPdVDnDW9MA0dI
+X-Authority-Analysis: v=2.4 cv=b7Oy4sGx c=1 sm=1 tr=0 ts=67f377af cx=c_pps a=JYp8KDb2vCoCEuGobkYCKw==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17 a=GEpy-HfZoHoA:10 a=IkcTkHD0fZMA:10 a=XR8D0OoHHMoA:10 a=VwQbUJbxAAAA:8 a=4DNFMcR_fBog36qUqesA:9 a=QEXdDO2ut3YA:10
+ a=cXjm9OtRhicA:10 a=Xo8hRRjfBGoA:10 a=D0TqAXdIGyEA:10 a=aisST3GM9SsA:10 a=CwQxHXgAaE4A:10 a=rccF8FsX4-AA:10 a=xa8LZTUigIcA:10 a=_YXZIJ6AcREA:10
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
+ definitions=2025-04-07_02,2025-04-03_03,2024-11-22_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 malwarescore=0
+ priorityscore=1501 suspectscore=0 mlxscore=0 impostorscore=0 phishscore=0
+ clxscore=1015 spamscore=0 mlxlogscore=603 bulkscore=0 lowpriorityscore=0
+ classifier=spam authscore=0 authtc=n/a authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2502280000
+ definitions=main-2504070048
 
 
---+LTwaBTz8BBfd5ng
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
+On 4/7/2025 11:42 AM, Wolfram Sang wrote:
+> 
+>> https://www.kernel.org/doc/html/v4.10/process/submitting-drivers.html
+>> https://www.kernel.org/doc/html/v4.10/process/howto.html
+> 
+> Basically correct, but v4.10 is quite old. May I recommend the latest
+> documentation?
+> 
+Thanks for sharing the latest.
+> https://www.kernel.org/doc/html/latest/process/submitting-patches.html
+> https://www.kernel.org/doc/html/latest/process/howto.html
+> 
 
-> https://www.kernel.org/doc/html/v4.10/process/submitting-drivers.html
-> https://www.kernel.org/doc/html/v4.10/process/howto.html
-
-Basically correct, but v4.10 is quite old. May I recommend the latest
-documentation?
-
-https://www.kernel.org/doc/html/latest/process/submitting-patches.html
-https://www.kernel.org/doc/html/latest/process/howto.html
-
-
---+LTwaBTz8BBfd5ng
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmfzbN8ACgkQFA3kzBSg
-KbadTRAAooo7Q6SqKhGR9GARjT5SFszwoCf9aMD6FeR68ATXKAulKrdnWtxp1Ckg
-a+61LjWjkkEYYvHO9z8RB+vPuJeN4HLaIvAUdTld6XotwHVXQx3KdXf2xSbgMvyp
-coVzwpXr8m8+PCo68ThG87IoTPqHvr4d+z83V2ZCgkVQHEsBBmRAJytdCEv7pg2T
-DOJcoNrKni1hDcGQGQMKwzF5oGoE8fjtfh86Ozikyo2yojcjvcOp5XnpeuhERp0j
-GfXvH8JSH+X22Y2WcsXuPWVfiOS6cJqUxVHIpSDRPg5ZtCzrVEwRaEroh6J4efwx
-TmtTVjWMRWbaVNhFVzy4fyngnJe/q19fOWfyi953LjtDUEWliylvE3dWgAivZg52
-UEUsBtAnxgK///3gNbOhaok/UTSAcs6Br2oCWM5Szh1HwN1ry5I3zuUU54GoMyTd
-Og63NChr1bF+B0k1aZHS4GOG9c+jH6XEORZT/M5HCVC2Nj+0XY4sohpuVClofJTo
-rs/AzyaTBAa7qWQCNc7/JztRJmedyoTNqEHiK8B3WS05FeyAYCteT58Jiuf27YHV
-ohh34JRDioCAYsB9jTd7vwTnvVFyE2FxFFylUBlp4TEmmO0eZ07eUBt5S7RBDXlR
-87aDOL6VgXz9qY8/p5miinzFKn1KAgoijPlGUgCRyDO2F93p3W0=
-=Qohw
------END PGP SIGNATURE-----
-
---+LTwaBTz8BBfd5ng--
