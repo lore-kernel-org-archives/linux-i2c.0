@@ -1,143 +1,97 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D76923C9;
-	Mon,  7 Apr 2025 04:59:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CB9533CA
+	for <linux-i2c@vger.kernel.org>; Mon,  7 Apr 2025 06:15:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744001996; cv=none; b=F3h1BOGSDCraWK96lMHscLtji5PSG65PQg4oBWFd9iOUgjReOntkzcV8y85pCpmWRl9hCMxnRxOwsN4t+2lxHxI4cu27hS8G6Qo2A2ypOwbpHe9HmWi3e9u53AoY3TA/7XtrmNEHun8XRaIJrdczZwhCBiqFF8Nag+kVPMlXtZg=
+	t=1744006526; cv=none; b=e0/MkxUdreUMxUuAURXycKM5pmLMEHGxvMRPdWnSTZjjJQgpBuzFOA17aCkpocMTe8k2HngNrfEIeAARpt/Zsz/LcKmS9kjnyyvR4dSbaDS+pCOlCSHQw6pmUzaPp5wpKbsnkPv8oeKYxayuWJVAi3XDoCM1ir+wJZUaImSTA8o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744001996; c=relaxed/simple;
-	bh=i5Az6s4Uz4Os3x1Z4HzhsdquTwzcqJRCywqd8ZT3CNs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=Yt8ofcAQ4f/eDo1zmvP9AKx88yzLxZWY0gCElfo/dXk4HQVhV7E9hErOE9c5esMzj870tvKEMTnf1ytxItXoelOUUaJbZrZNTNKDfJreXff/2o/4G4AcMUVeQul/74UN3ZMiTzNOtzFjiiQUHt7d82cb3dOsYhJB0qKh7rd2nVk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=Iw/IL21T; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	s=arc-20240116; t=1744006526; c=relaxed/simple;
+	bh=yP+x25/g1Zht4iZEgFA2Lh6XuxhZBfNgO2iyRpPLwxM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GPvaa3aiUAmAKYNfYBsH/aE4dxORqZJcUCyUob/Ereaojv2fJ+9IbrB2wm+e+Bp+E4cUyw2v8M72h2KNtHo/D593PbrH/K7F+eExgtggHI2YelRmtqZsYODO92N0SVBRE41W1P2pUgeJFsZ+6Y4Tlw6ACFqxFwEZmdp++aukjCQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=gmp8piJh; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="Iw/IL21T"
-Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 536N3ult005318;
-	Mon, 7 Apr 2025 04:59:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	ztQ5YSj80wUwaLRAIitp2dOkqdq8fO/OXPcocD9Xslo=; b=Iw/IL21TxN3D+Hz5
-	19urqSx+Qq+GP+B0RGM7zxSUNIujcSSSCvtDaPb7F2ZwnA1ZLC/vrprI4WjCr5tt
-	vWImAAUopA45xFcEYsdSIE9VNoizqIcRgLpIxx31qhE6VCylbA/vRxrORHleT/n4
-	UXJo4UOxb48bY6jIvcKyWCqZKZWW5A1GcdqyuXnIEVEtBwFW4id66hJHgOHrlb1b
-	A9x9gmBeW6n6xZlRnkNXvb6QPl0R5TY8DvAFrfzU6DJSBvyxjsYhfk7O6D3h5bJx
-	RzedeoLt4z41Lr+kgMvfD+nuZbFTKb5C/eaieppNjXhq0NpdLvZmHdbhME2i3gGm
-	ZBReIA==
-Received: from nasanppmta02.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 45twd2jyvp-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 07 Apr 2025 04:59:26 +0000 (GMT)
-Received: from nasanex01c.na.qualcomm.com (nasanex01c.na.qualcomm.com [10.45.79.139])
-	by NASANPPMTA02.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 5374xPaH032423
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 7 Apr 2025 04:59:25 GMT
-Received: from [10.217.219.207] (10.80.80.8) by nasanex01c.na.qualcomm.com
- (10.45.79.139) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.9; Sun, 6 Apr 2025
- 21:59:20 -0700
-Message-ID: <eeef6c60-8de2-4a4d-8bc5-2c321d759672@quicinc.com>
-Date: Mon, 7 Apr 2025 10:29:17 +0530
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="gmp8piJh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=yP+x
+	25/g1Zht4iZEgFA2Lh6XuxhZBfNgO2iyRpPLwxM=; b=gmp8piJhPZkHcV9LXBI9
+	HGiPJmPeF2w+cbsjwLwZVkzTFMsupGXKi7VREQPaFOixK68U+wR41wFoMZGn5Yaq
+	ywcOsrCAKt/AXKbFZQgey942NDE8LPy9PsoJFS4oYpyTwYO79pgLNMV1gb9P/L59
+	XUQDW4iiTt/UBAchp2qYJ05t5oodnYqLhLUzIwXi0cZlSYCdiX2wXUiwmiUJltKe
+	Xz6Lr+viu5Yo2cnvH86wl/KzDUzA86GCc0BcYrju0iky5W+WzSyKFzlnMFZcrM6S
+	VgmfEHU6dXEJ2THhPyLwwMSVQBLLB//M38N1KP+vhYWgcFjdfkPesZyByIin/7Wc
+	fw==
+Received: (qmail 3679138 invoked from network); 7 Apr 2025 08:15:21 +0200
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 Apr 2025 08:15:21 +0200
+X-UD-Smtp-Session: l3s3148p1@twIxKSoyLOogAQnoAGhPADT4hf5MsYxB
+Date: Mon, 7 Apr 2025 08:15:21 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Shirley.Lin@infineon.com
+Cc: robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
+	jdelvare@suse.com, linux@roeck-us.net, corbet@lwn.net,
+	patrick.rudolph@9elements.com, bhelgaas@google.com,
+	ninad@linux.ibm.com, festevam@denx.de, devicetree@vger.kernel.org,
+	linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
+	Mills.Liu@infineon.com, Ashish.Yadav@infineon.com,
+	Ian.Fang@infineon.com
+Subject: Re: Update driver xdpe152c4.c
+Message-ID: <Z_NteUAIeuDdDPls@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Shirley.Lin@infineon.com, robh@kernel.org, krzk+dt@kernel.org,
+	conor+dt@kernel.org, jdelvare@suse.com, linux@roeck-us.net,
+	corbet@lwn.net, patrick.rudolph@9elements.com, bhelgaas@google.com,
+	ninad@linux.ibm.com, festevam@denx.de, devicetree@vger.kernel.org,
+	linux-hwmon@vger.kernel.org, linux-i2c@vger.kernel.org,
+	Mills.Liu@infineon.com, Ashish.Yadav@infineon.com,
+	Ian.Fang@infineon.com
+References: <3f7d0644a1f844b8b3ee9b3139b85339@infineon.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: Update driver xdpe152c4.c
-To: <Shirley.Lin@infineon.com>, <robh@kernel.org>, <krzk+dt@kernel.org>,
-        <conor+dt@kernel.org>, <jdelvare@suse.com>, <linux@roeck-us.net>,
-        <corbet@lwn.net>, <patrick.rudolph@9elements.com>,
-        <bhelgaas@google.com>, <ninad@linux.ibm.com>, <festevam@denx.de>,
-        <devicetree@vger.kernel.org>, <linux-hwmon@vger.kernel.org>,
-        <linux-i2c@vger.kernel.org>
-CC: <Mills.Liu@infineon.com>, <Ashish.Yadav@infineon.com>,
-        <Ian.Fang@infineon.com>
-References: <3f7d0644a1f844b8b3ee9b3139b85339@infineon.com>
-Content-Language: en-US
-From: Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="08dv/lvaMeHPiplj"
+Content-Disposition: inline
 In-Reply-To: <3f7d0644a1f844b8b3ee9b3139b85339@infineon.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
- nasanex01c.na.qualcomm.com (10.45.79.139)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: n-lFTR5fMXP9Vu9JfrJZOrl24y7hDTqs
-X-Proofpoint-GUID: n-lFTR5fMXP9Vu9JfrJZOrl24y7hDTqs
-X-Authority-Analysis: v=2.4 cv=NaLm13D4 c=1 sm=1 tr=0 ts=67f35bae cx=c_pps a=JYp8KDb2vCoCEuGobkYCKw==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17 a=GEpy-HfZoHoA:10 a=IkcTkHD0fZMA:10 a=XR8D0OoHHMoA:10 a=NEAV23lmAAAA:8 a=VwQbUJbxAAAA:8 a=bUQKSiCPAAAA:8
- a=3j4BkbkPAAAA:8 a=6FPNYluCAAAA:8 a=jU4qhlNgAAAA:8 a=XCMJsyS4DNymqqp2DlcA:9 a=lqcHg5cX4UMA:10 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10 a=cXjm9OtRhicA:10 a=Xo8hRRjfBGoA:10 a=CwQxHXgAaE4A:10 a=rccF8FsX4-AA:10 a=ImwWUX5h3JJ3gRE9moBe:22 a=z2U-W3hJrleVIN9YIjzO:22
- a=-fHZXUhsFbuwFN3fwQAr:22 a=0TkXfT2pXjVnQC2iIllu:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1095,Hydra:6.0.680,FMLib:17.12.68.34
- definitions=2025-04-07_01,2025-04-03_03,2024-11-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxscore=0 impostorscore=0
- priorityscore=1501 adultscore=0 malwarescore=0 suspectscore=0
- lowpriorityscore=0 bulkscore=0 mlxlogscore=910 clxscore=1011 phishscore=0
- spamscore=0 classifier=spam authscore=0 authtc=n/a authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.19.0-2502280000
- definitions=main-2504070033
 
 
+--08dv/lvaMeHPiplj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 4/7/2025 9:22 AM, Shirley.Lin@infineon.com wrote:
-> Dear Linux Kernel administrators, Good Day.
-> 
-> We have urgent requirement to update driver link, https://github.com/ 
-> torvalds/linux/blob/master/drivers/hwmon/pmbus/xdpe152c4.c <https:// 
-> github.com/torvalds/linux/blob/master/drivers/hwmon/pmbus/xdpe152c4.c#L72>
-> 
-> Please help to reviewthe attached Linux Kernel patch for xdpe152xx driver.
-> 
-This is not the way to upstream from your side and get it reviewed by 
-others.
 
-please follow standard upstream process. Review others drivers the way 
-it's uploaded first time and then raise new patch.
+> Please help to review the attached Linux Kernel patch for xdpe152xx driver.
 
-https://www.kernel.org/doc/html/v4.10/process/submitting-drivers.html
-https://www.kernel.org/doc/html/v4.10/process/howto.html
-> PEC Retry Functionality added for both read_word_data() 
-> & read_byte_data() cases of PMBUS.
-> 
-> Updated by : Yadav Ashish (PSS PCS RD FW HD) Ashish.Yadav@infineon.com 
-> <mailto:Ashish.Yadav@infineon.com>
-> 
-> Kindly leave your comment or give us approval for upstream.
-> 
-> Thanks a lot.
-> 
-> Best Regards,
-> 
-> *Shirley Lin*
-> 
-> *Infineon Technologies Taiwan Co. Ltd.*
-> 
-> Field Application Engineer
-> 
-> IFTW PSS SMD GC TM DCO
-> 
-> Office: +886 2 2652 6866
-> 
-> Mobile: +886 9 7822 9671
-> 
-> Shirley.Lin@infineon.com <mailto:Shirley.Lin@infineon.com>
-> 
-> 17F, No. 335, Ruiguang Road
-> 
-> Neihu District, Taipei 114063
-> 
-> Taiwan
-> 
-> www.infineon.com <http://www.infineon.com/> Discoveries <http:// 
-> www.infineon.com/discoveries> Facebook <http://www.facebook.com/ 
-> infineon> X <https://x.com/Infineon> LinkedIn <http://www.linkedin.com/ 
-> company/infineon-technologies>
-> 
+To shorten things, you could return -EAGAIN as an error code, then the
+I2C core will retry the message for you. Within the configured limits
+for the controller.
 
+
+--08dv/lvaMeHPiplj
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmfzbXkACgkQFA3kzBSg
+Kba1zRAAn40S++gvFSuqXktSkp7Syc6yZRiDpThbL6GBEVCEnc4F8LChR6UXZveg
+PXhLG0kYlLxiSi8rpeUNkMxvroDaw520Zf+Z+KcvRM4kJuqQWDL+EwBYVrlVr/Zi
+gNMYwbncrP9BWRbyl1CdPXRk6KKeF6SKyhGdP4w9cUp3MiticdQSeST+9WdBF/ZJ
+SNCzeM1MT1s7KHiJ3AghFdCsuHDisKa7BQ9XhDyECZd60UdH72EcXk0SMesXKe0U
+oJGk8/di1vuNp8VGogZdiagAfyn3kATopQq5v3XbJBIPX1saMBsldITUKTYdEDxx
+6ql5eA/YNUvNkpH/+nJkbGlC5PPlgkEnzfNAyJzxgtD44t7n5McsEPiSv9AwvMtO
+dsRzhWcXx/DAqEK3RZyak3WGG7zAcCnuWQq4+tXr8cqQwzsrbh8OTRjNPbgMO2LQ
+X4E+rmIwj/vfW2jscFwwLGyBgjkNnjbJ48z3UMXuecYB82278/TVuJ1xcL4kegTP
+thJPuP/iTfDbp/5obcz3SOUoJ63ZNRhVfr2ecPNYTKR1SQaJpFP4Y5dwJhCgNclc
+VsfFptDnB3lQQso0yq4fXx25ON2XBtFyuHeG3OwNWbGjBYlm9i8vtNIXlKV1dTSw
+E9kt+G6uxxlk+xWvGf1R612u5Zv76ZrkjXBxyUg1Ey5VZEoi+3s=
+=ciG2
+-----END PGP SIGNATURE-----
+
+--08dv/lvaMeHPiplj--
