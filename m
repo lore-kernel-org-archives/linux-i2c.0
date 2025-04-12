@@ -1,217 +1,192 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from CHN02-BJS-obe.outbound.protection.partner.outlook.cn (mail-bjschn02on2133.outbound.protection.partner.outlook.cn [139.219.17.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDF032D7BF;
-	Sat, 12 Apr 2025 02:28:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744424930; cv=none; b=I5q1pZP9b9QGMDyeUSy5XBJ07d1jTPakHQhID0CBXBl7rS/tkXwDa75cuuVkOVnoygbJ16DPl0NUe/BMG4cmNuGOIJmaqmhBqKGo9LqBGKNrCcNDxxTOqEK73cOxqt+v46ksUTbTtXEQy+oDpXsvftQScpxsjf1b5McW8YL9Q8E=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744424930; c=relaxed/simple;
-	bh=+uB0/KeWoS+78o/K4+P1lOYb8Brc3GUB6FoOcaDAEb8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VQzlYTsR0arJD3lL07XTIOCMUVFFPuSKPtKUxAvjfnt0t4UBt7t9eYuDgQuKI8WhLq1FwB6rByi2rlDBXPFSXbghIYQcpRc4mpT8cCMTVL1LCnFrBqkD+3xGrNOeRJSA18gYxWBMPoYww9hyDOV4ZOh68Lvzw3aZa1zRiZYCQCU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HkJUwkkb; arc=none smtp.client-ip=209.85.214.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HkJUwkkb"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-223fb0f619dso28777515ad.1;
-        Fri, 11 Apr 2025 19:28:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1744424928; x=1745029728; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=uS59NBreB8JVw6WZXaddYSZve8l7pZ2vm6Mp80Lo0qg=;
-        b=HkJUwkkbRtJ3IbRpItdTFz0VO9n7Qbei6hhAASZp+jrbbvn8dqFSsoRc0X/ESg2AAa
-         qCCCRfCcM40C90RKK7ARvdix90ZuKv65/gIZPJRKIkcIWCFbqFxGH9ok8ycluNV0DdGC
-         N+EI8nqMRzNxLIjUQU8JEPIbG6I6JeN4l/8uk10EkMPslsxYasmlr+Da6LdvEUHM2qyg
-         QK2UAUbJ+INwknegS0dGKYPDF3Fs01D/lx+GbA2BJhCtHqnsKh9kBCJT9MYzz+9w76LE
-         gk7SA0cnma3LGEmWqVhV2Js6OR5r7G7v3zlerUvef4wvw0USTBBolEXvV0Yt3WYOTbNu
-         rFjA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1744424928; x=1745029728;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=uS59NBreB8JVw6WZXaddYSZve8l7pZ2vm6Mp80Lo0qg=;
-        b=Wsjtco6t8+26umMOq1qlmMJWo8h0OarHIqfA0JqlVLuTQffrN6paSu4ogivDVK9Uot
-         0RmCwZyiNYN2ixNK5dLQE2vSKhQFJoJvR41GS+rVrd8CUD4ByfmTTlWiKxlFmYxwQnC1
-         0pm9Whow0GgMMena9UBvcxBvCVMGDtuZ2l07lTRXxBcaXMyTbSvlnvA6gm+tvkVWYxt0
-         nOm09h7fO04aZQREV4tm08UPKgQKTNGbvfI+4nDjT+zGCA5zkG/qcFMyiaok7rVytZEi
-         ZgwdRM/l6mXU9HlYT/XvmS/d9TYA+n1jAVUvndqPu752nQDcQTtt6d5RCftR6R8gt45g
-         tYwA==
-X-Forwarded-Encrypted: i=1; AJvYcCU1GSpXbKeTI7k5LtJnxhEJtOFixKRM/ZsUhSioNVyfcBduq+vurMAxj6dY3eHxKDORqeyay/CoacLh@vger.kernel.org, AJvYcCUMaHN7TO/Q3NaI4edeFdRqXqKxecL8lTZ4utqjaWVoSCdSU6EjmD/IXmfinKaDUdLs/txDOGp2Qjc=@vger.kernel.org, AJvYcCVcUtl8umfRP01qBwoyeKR/HesCBz9HEOy2mE2aQgEXv7Y8eC2/uuy3t9mWpe0nCIZLI6TYxPNC06NEXmZHhYlKQT998w==@vger.kernel.org, AJvYcCWnDjHuAHEBh4wPBq+9UOCcjmdMKOQIe5cuAYbcvkW6UjewNneQtOVnzgV0wZfFBE7rBmvcq86P5jx7ny49@vger.kernel.org
-X-Gm-Message-State: AOJu0YwcaroZTSVoULrMjIGkEe0SENiYqK31Y5T1h+WjnX+5AzAWe6Pq
-	PV/jDzK0ypr5D529FKX2uLeio1MERvhlxcp8DbT6lRGYBnxjr8zn
-X-Gm-Gg: ASbGncsn1E+6zisUfDZHZCCWvqzpZ5m8y73PhmDG1p6BoI0LJwSgFhOcMek+LKxQb+x
-	hfcjVTx/qMwH05n4k/OLD1jbbzlEblNolvE3lA7Y/OFRVTTE4EFu1ZgqkhuPg3JzEGDPjSaIwb/
-	uJUfiS4AqoV50TPWUeik4Ltno1w0hXoz7/FyCQlnrQFcKrbeGAcCKJXawpegrifzI6yQm0wrs9O
-	iOklN+xCKSKEb+FE7w/+TKmk7p8KXZ6wEQts7ysnygSQQbn+/Po2SsjfHdTGxYgeN6BqX+NvYKV
-	x/C6XEaW16UQ08NftJh3tvMFdtg3ATbhUbd5iiLZ
-X-Google-Smtp-Source: AGHT+IF7yQgtxx+Pvoj+nBOJQAO+OSo9hSesRaYvYmdz+vl6sbpTrhSzTeHhEoT89B0HPOGTeKZpFQ==
-X-Received: by 2002:a17:903:2308:b0:221:331:1d46 with SMTP id d9443c01a7336-22bea495302mr66673465ad.2.1744424927728;
-        Fri, 11 Apr 2025 19:28:47 -0700 (PDT)
-Received: from archie.me ([103.124.138.155])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-22ac7badb24sm58027815ad.105.2025.04.11.19.28.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 11 Apr 2025 19:28:46 -0700 (PDT)
-Received: by archie.me (Postfix, from userid 1000)
-	id CFD86422656C; Sat, 12 Apr 2025 09:28:44 +0700 (WIB)
-Date: Sat, 12 Apr 2025 09:28:44 +0700
-From: Bagas Sanjaya <bagasdotme@gmail.com>
-To: Mario Limonciello <superm1@kernel.org>, Borislav Petkov <bp@alien8.de>,
-	Jean Delvare <jdelvare@suse.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>
-Cc: Jonathan Corbet <corbet@lwn.net>,
-	Mario Limonciello <mario.limonciello@amd.com>,
-	Yazen Ghannam <yazen.ghannam@amd.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Ingo Molnar <mingo@redhat.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"maintainer:X86 ARCHITECTURE (32-BIT AND 64-BIT)" <x86@kernel.org>,
-	"H . Peter Anvin" <hpa@zytor.com>,
-	Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-	Hans de Goede <hdegoede@redhat.com>,
-	"open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>,
-	"open list:I2C/SMBUS CONTROLLER DRIVERS FOR PC" <linux-i2c@vger.kernel.org>,
-	"open list:AMD PMC DRIVER" <platform-driver-x86@vger.kernel.org>,
-	"Gautham R . Shenoy" <gautham.shenoy@amd.com>
-Subject: Re: [PATCH v3 1/4] Documentation: Add AMD Zen debugging document
-Message-ID: <Z_nP3FGEZzvRf26g@archie.me>
-References: <20250410200202.2974062-1-superm1@kernel.org>
- <20250410200202.2974062-2-superm1@kernel.org>
- <Z_nMEwobMzGbG74L@archie.me>
- <8497954e-38de-43f5-b3e9-f354c308289e@kernel.org>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED1BD17D2;
+	Sat, 12 Apr 2025 02:53:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=139.219.17.133
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1744426404; cv=fail; b=X5DuaCy191TaxUlLNxy1zBIuNTlq89+Hk7k+ZQdCdPCW/jUiM0Cczi9Shd/ZTn8KWei4koNVm8XTIiNUpKCLNrfNhBcJvWQuAp+kEJgI1fMWx/u2ul/dwq65uIyZspmJgbRtpQzh3QBWAKe8+NKFjKVhloaQ1vkHC72G0PCgHTc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1744426404; c=relaxed/simple;
+	bh=p46b95iX8t4Kz7JQ97573JPNLu+zLosHaAXQT0s+u3M=;
+	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=APLPldxjpQptNyk+a0H/QcCDSRQBA+byJRCY6KZdOck982zVIIbTtW6llJ8wCjvZ8i4syEklc3sFjQ0vCOE03S9UsVDE01cQoogmZQwzh7XlFABb+JEiiKaNaE3hd783Sl7drNzDGkIEEH9Ll+sjHGvFGXR59Q+TtIKoy8z0jag=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=starfivetech.com; spf=pass smtp.mailfrom=starfivetech.com; arc=fail smtp.client-ip=139.219.17.133
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=starfivetech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=starfivetech.com
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=IngInPyQETzpfM0xgbjLPRPwE41RhfgehApO5pJQVw2LOJX8aNIKe9ewmvxq01MFCc1NcOZu41QIX3YG2OxBkXWeQmS0GcSQWQ0LXtbTCRWxIzV5mJ81G1oCrluv8HaGTRpFGDQDBr+gS3ImUVlYyEniP2somvd9YVtKf2i4OlvEDhIXot1OJFWdKEikJZnaBNhWpEV9CLL50CBnCGqZMX08JR9xltkPNam2HSpCc46SaGD660/HTx5JOR2h28Vz0Ugj3JuhN1Rj0rPMumKQaYsZdesWnW9ska4MBxkyDAVGcon2piQ0/ixMKJOu4O+zKGjazcw5OpTWiGWGE9nqZA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=r9P++HD6N4fFVl3oAi3DYLGuEEj7QGScnkBLPYjqRGs=;
+ b=nhoG4M7DI7zYrSUe/M+K/TsWNzIsvOcbcFrDVdB4y7hGkXjlTELa7cRsaLAVj8+SkbbaTk/aLr2pDclFGOf1wtf7UlJDDO9owginJ/X5qY4CtaRpfmbhixHzZN4lWAVbK54TuXFQ/dfgfc54dSdx9Txpse3eXkcWTLc0UioTPFlswsH+DViEGhvNIRbM+DhxlGoTBx96Vzsnd16mEu9EI7OoS02CFOn5pn7aYNFhPS6hFAB9KUpVF9ksHM3sIfg/4uQIuDTH4S1V9navQCFx5Obj74HMrULEZuaZOqJ908ecZ2s81BwZrPE+qU489MQPuncfKqrvTIpFOklRuO3b+Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=starfivetech.com; dmarc=pass action=none
+ header.from=starfivetech.com; dkim=pass header.d=starfivetech.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=starfivetech.com;
+Received: from NT0PR01MB1024.CHNPR01.prod.partner.outlook.cn
+ (2406:e500:c510:d::5) by NT0PR01MB1088.CHNPR01.prod.partner.outlook.cn
+ (2406:e500:c510:3::10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8632.29; Sat, 12 Apr
+ 2025 02:19:13 +0000
+Received: from NT0PR01MB1024.CHNPR01.prod.partner.outlook.cn
+ ([fe80::44d2:4d05:c7ca:8356]) by
+ NT0PR01MB1024.CHNPR01.prod.partner.outlook.cn ([fe80::44d2:4d05:c7ca:8356%5])
+ with mapi id 15.20.8632.025; Sat, 12 Apr 2025 02:19:13 +0000
+From: ende.tan@starfivetech.com
+To: linux-i2c@vger.kernel.org
+Cc: jarkko.nikula@linux.intel.com,
+	andriy.shevchenko@linux.intel.com,
+	mika.westerberg@linux.intel.com,
+	jsd@semihalf.com,
+	andi.shyti@kernel.org,
+	linux-kernel@vger.kernel.org,
+	leyfoon.tan@starfivetech.com,
+	endeneer@gmail.com,
+	Tan En De <ende.tan@starfivetech.com>
+Subject: [PATCH 1/1] i2c: designware: Add SMBus Quick Command support
+Date: Sat, 12 Apr 2025 10:18:22 +0800
+Message-Id: <20250412021822.372805-1-ende.tan@starfivetech.com>
+X-Mailer: git-send-email 2.34.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: SHXPR01CA0011.CHNPR01.prod.partner.outlook.cn
+ (10.43.110.212) To NT0PR01MB1024.CHNPR01.prod.partner.outlook.cn (10.2.10.69)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="ZEyrUDEPnAmvIh5K"
-Content-Disposition: inline
-In-Reply-To: <8497954e-38de-43f5-b3e9-f354c308289e@kernel.org>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: NT0PR01MB1024:EE_|NT0PR01MB1088:EE_
+X-MS-Office365-Filtering-Correlation-Id: 5ce87b4f-70f5-4de5-6984-08dd79686b02
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|1800799024|52116014|41320700013|38350700014;
+X-Microsoft-Antispam-Message-Info:
+	ZSifk1TUiwtQ3yFd/wqzLGKf1x3v6WKM95Qkv2bjq6CrEjDprh7+qOjyBNG4dAfK+Wg9/pVq40g79c2yPYHC+AN/JyAdkumA0B6y2NAOlZQc2OldOAPS1tR72KwpOOBwwegpemeu1E+nDMZ1XrJdJE99hgn7Prr7X6v7DzaxhC9XFdODrOJK/S5TaxcBOJiB84iIUamcMFWkXbId5tFMn685eDpOcD+DfhJlywoipqxY8rrZbXg1rEupHyLNy/5FrpkG6l+xtiu0HVjtFfJBbfjfrcsxgNVddYjmy941xIrbQ82Du0jOMBnSQQwHLEGik3Wn+NHiMeGLo+Dae/ZZQIAnReSR8ivI8NgVchLTSVNhYz8LbSVMRzezixpo7hKqgwrRYH4GhjbNTYUGRTK7k/A6+Lh+/gGk6DjH75l3XQ0c9i+XvLTmfZzIjE0mM9ohfWmxQBvX0icXxAJq/ldm+81GyyRZGWb2aP4nlx/N1NFxqFcwJLrQK+Pjn42YQcERevgn18IY0XBZce9LYWPQSoL7xZfRRu7+ZdJmS7im/ytO+ESVPZ9BCfWTgxk7Gp2Xln2/60Hd37ETVjJzalpsFg==
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:NT0PR01MB1024.CHNPR01.prod.partner.outlook.cn;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(52116014)(41320700013)(38350700014);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?QOzMSvRk3wO2wMd+AhwMG7MtQTnm3jTNrMc7oG86V6UxXuNAJufN/RK0mqCj?=
+ =?us-ascii?Q?cTNi22N1jpGYf64z3ycRwbDrA3lnGIj0Ta4TmLo0ZcEyS9OAdYoKm2spTdMQ?=
+ =?us-ascii?Q?HjPe8+mYAvMlOLSjZ+Qnu318rsj2UIiIbg+CxgvK9qUln0DoPmk33FboAld3?=
+ =?us-ascii?Q?mI86iHWKoXvWPt2x6ofSgzb5XSoyYhjwFgR4GlGB/TO1qcOtV5e9AszN3suI?=
+ =?us-ascii?Q?PYciQsgFbvZC+O9fXgJknEQ0RTgnVfQAKeEEbF9LkW8JrISMA1VyVDtwa0me?=
+ =?us-ascii?Q?Jnt6ZKTYotthMECDAWjmTM7j29NqcaHpnxEqgUuEzEc/fxbJURD1WPHI3xU7?=
+ =?us-ascii?Q?dYsaYoy10fniBLU0R4TZVZfvC3p7uiaPyzVvBsTy3z0C+zwamaAKTnmzxzyq?=
+ =?us-ascii?Q?f/awmO4Z/uAIzpVjeh1rt6TcgwMdjbyY8I5iBOCk8VYo3gJhbnGIlYnTaCh8?=
+ =?us-ascii?Q?2N3TjfWWiyfTzEmaMZzk/I4EobOi0AFdX/5FlCBMQwRA3pdN+IGmF7XPUP9e?=
+ =?us-ascii?Q?QiAlxtDgwi5tyaMc52UUYsgIOjPW6tsDLHdjWNOzJtfTzqXV3PqX/S+qGIye?=
+ =?us-ascii?Q?HuiPBZu/ypMJ1cp7tvJWgkBtdUHwlP/pPuNxe0FYLz9+FtgoCUDfB5aUf3Bo?=
+ =?us-ascii?Q?NekAu9LuaxSyhmkBT+cVzizaaN/3HM7juKTIGV5XGcGw3A53YiCERKDJ36Fd?=
+ =?us-ascii?Q?qY5FchFiP918zaw0i4OsaJpNyAzX1SNd1v7SsIifuFEwLapNHbTgqTU8yGJi?=
+ =?us-ascii?Q?6iOItA9UdLsiSpnQ4jMIRbNSteKsjhR+r44SfOF8w0TAXO+wTkb50tH6U/q3?=
+ =?us-ascii?Q?D1JKs4EN/FH7Oi4JUZ8wBdur8tgCwMJZagQCk4vobZAsuzc8bwUM2aj6gxJI?=
+ =?us-ascii?Q?FIVGMKLzjTEb1vodDauHChnMl1rK9rcSCmv072gtnCdk3IeA8bXD/RmXXD1j?=
+ =?us-ascii?Q?kiFKF2sDog6XW9qcmU7Z72Gpw3iF2100JwNh4xh7cM99pifonwsIQzgBxY/1?=
+ =?us-ascii?Q?e0M+dTvYr+A+fopEk3UF77c6rnKmXMtf8MFUH+/q4BFxEiah4LsPpRVBEJ//?=
+ =?us-ascii?Q?MCuHUUyP4bq9EfNc3QqyiH6nfHVQRweLzVf+Fx1ptecGDBWb5JOTxLLW+oAG?=
+ =?us-ascii?Q?vN5fafxLYIo3ngQi0zfRY+sC/eYHHEfL2CWwR+LmJxXzV/ZaCuOTLABxW9GR?=
+ =?us-ascii?Q?kBNxwOvzjx0fh/5RJmeFK4mARW632xkAAuaoHnY7I7pIpnMRDWXgrnLKSgVU?=
+ =?us-ascii?Q?FXNosc9dKNYtw8cRFb0dPiZqrwVRmWdk8LgKR7xDvaqmYdsGq9m2tXMFJvvE?=
+ =?us-ascii?Q?8eMw5pysDyW2rm7mQ+6gMKE05D6SOSw6U3Y8oEZ53pi/fuHCrtYfe1D2JjRu?=
+ =?us-ascii?Q?+FqCoNwtEFZBdJ2SF101ktsE9ZhBRj1B4xiX8HLdbOedv7OSEICRtcRyv9iO?=
+ =?us-ascii?Q?oxieZ7Ogds6jaQ6o/axBNxY6SNAa32P28ct+S5ZFmdr2jbBGcreDkrbYA1Nc?=
+ =?us-ascii?Q?i6MvlxAsT9ojl+gB6xZrpYZe8WWTtLvSFS674f0eZIbttbWmjLmfWhZvMKCO?=
+ =?us-ascii?Q?3PSvSw9j1g4ihfKQeqWych2MAJOzBCxuQWK2U0vx9kSiwcWOSQ0WacxHedDS?=
+ =?us-ascii?Q?/Q=3D=3D?=
+X-OriginatorOrg: starfivetech.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5ce87b4f-70f5-4de5-6984-08dd79686b02
+X-MS-Exchange-CrossTenant-AuthSource: NT0PR01MB1024.CHNPR01.prod.partner.outlook.cn
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Apr 2025 02:19:13.6318
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 06fe3fa3-1221-43d3-861b-5a4ee687a85c
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: b1dnfdAkaAvJyRa4fasTdDGTJMHPPSG5h8Jse/0jcy9+3WxQamM6WT8Ed8kOfrktXEM5BtCn8C6NQgvCYdJEIzs239KbHY77EncyyQHnNXs=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: NT0PR01MB1088
 
+From: Tan En De <ende.tan@starfivetech.com>
 
---ZEyrUDEPnAmvIh5K
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Add support for SMBus Quick Read and Quick Write commands.
 
-On Fri, Apr 11, 2025 at 09:19:09PM -0500, Mario Limonciello wrote:
->=20
->=20
-> On 4/11/25 21:12, Bagas Sanjaya wrote:
-> > On Thu, Apr 10, 2025 at 03:01:59PM -0500, Mario Limonciello wrote:
-> > > v3:
-> > >   * Move debugging.rst to index.rst
-> >=20
-> > Do you plan to add more AMD-specific admin docs in the future?
->=20
-> I don't have any others planned right now.  That move was because I notic=
-ed
-> a toc warning with how I had it structured before.
->=20
-> > (BTW, I don't
-> > follow v2 discussions.)
->=20
-> Don't worry; documentation hasn't been talked about in v2, it's all been
-> discussion on the S5_RESET_STATUS.
+Signed-off-by: Tan En De <ende.tan@starfivetech.com>
+---
+ drivers/i2c/busses/i2c-designware-core.h   |  4 ++++
+ drivers/i2c/busses/i2c-designware-master.c | 18 +++++++++++++++++-
+ 2 files changed, 21 insertions(+), 1 deletion(-)
 
-Understand.
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 347843b4f5dd..91f17181ece1 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -40,6 +40,8 @@
+ 
+ #define DW_IC_DATA_CMD_DAT			GENMASK(7, 0)
+ #define DW_IC_DATA_CMD_FIRST_DATA_BYTE		BIT(11)
++#define DW_IC_DATA_CMD_STOP			BIT(9)
++#define DW_IC_DATA_CMD_CMD			BIT(8)
+ 
+ /*
+  * Registers offset
+@@ -123,7 +125,9 @@
+ 
+ #define DW_IC_ERR_TX_ABRT			0x1
+ 
++#define DW_IC_TAR_SMBUS_QUICK_CMD		BIT(16)
+ #define DW_IC_TAR_10BITADDR_MASTER		BIT(12)
++#define DW_IC_TAR_SPECIAL			BIT(11)
+ 
+ #define DW_IC_COMP_PARAM_1_SPEED_MODE_HIGH	(BIT(2) | BIT(3))
+ #define DW_IC_COMP_PARAM_1_SPEED_MODE_MASK	GENMASK(3, 2)
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index c5394229b77f..bd5812f1168e 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -268,6 +268,10 @@ static void i2c_dw_xfer_init(struct dw_i2c_dev *dev)
+ 	regmap_update_bits(dev->map, DW_IC_CON, DW_IC_CON_10BITADDR_MASTER,
+ 			   ic_con);
+ 
++	/* i2c-core-smbus.c: Only I2C_SMBUS_QUICK has msg[0].len = 0 */
++	if (dev->msgs[0].len == 0)
++		ic_tar |= DW_IC_TAR_SMBUS_QUICK_CMD | DW_IC_TAR_SPECIAL;
++
+ 	/*
+ 	 * Set the slave (target) address and enable 10-bit addressing mode
+ 	 * if applicable.
+@@ -474,6 +478,16 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+ 		regmap_read(dev->map, DW_IC_RXFLR, &flr);
+ 		rx_limit = dev->rx_fifo_depth - flr;
+ 
++		/* i2c-core-smbus.c: Only I2C_SMBUS_QUICK has msg[0].len = 0 */
++		if (buf_len == 0 && tx_limit > 0 && rx_limit > 0) {
++			regmap_write(
++				dev->map, DW_IC_DATA_CMD,
++				*buf | DW_IC_DATA_CMD_STOP |
++				((msgs[dev->msg_write_idx].flags & I2C_M_RD) ?
++				DW_IC_DATA_CMD_CMD : 0)
++			);
++		}
++
+ 		while (buf_len > 0 && tx_limit > 0 && rx_limit > 0) {
+ 			u32 cmd = 0;
+ 
+@@ -919,7 +933,9 @@ void i2c_dw_configure_master(struct dw_i2c_dev *dev)
+ {
+ 	struct i2c_timings *t = &dev->timings;
+ 
+-	dev->functionality = I2C_FUNC_10BIT_ADDR | DW_IC_DEFAULT_FUNCTIONALITY;
++	dev->functionality = I2C_FUNC_10BIT_ADDR |
++			     I2C_FUNC_SMBUS_QUICK |
++			     DW_IC_DEFAULT_FUNCTIONALITY;
+ 
+ 	dev->master_cfg = DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+ 			  DW_IC_CON_RESTART_EN;
+-- 
+2.34.1
 
->=20
-> >=20
-> > > +As there are a lot of places that problems can occur, a debugging sc=
-ript has
-> > > +been created that can help test for common problems and offer sugges=
-tions.
-> > > +
-> > > +https://git.kernel.org/pub/scm/linux/kernel/git/superm1/amd-debug-to=
-ols.git/tree/amd_s2idle.py
-> > > +
-> > > +If you have an s2idle issue, it's best to start with this and follow=
- instructions
-> > > +from its findings.  If you continue to have an issue, raise a bug wi=
-th the
-> > > +report generated from this script.
-> >=20
-> > To mailing list following Documentation/admin-guide/reporting-issues.rs=
-t?
->=20
-> Actually I prefer them to drm/amd with the s2idle bug template.  I'll add
-> this detail.
->=20
-> >=20
-> > > +First convert the GPIO number into hex. ::
-> > > +
-> > > +  $ python3 -c "print(hex(59))"
-> > > +  0x3b
-> > > +
-> > > +Next determine which ACPI table has the ``_EVT`` entry. For example:=
- ::
-> > > +
-> > > +  $ sudo grep EVT /sys/firmware/acpi/tables/SSDT*
-> > > +  grep: /sys/firmware/acpi/tables/SSDT27: binary file matches
-> > > +
-> > > +Decode this table:::
-> > > +
-> > > +  $ sudo cp /sys/firmware/acpi/tables/SSDT27 .
-> > > +  $ sudo iasl -d SSDT27
-> >=20
-> > Nit: two colons are sufficient for literal code-block.
->=20
-> Thanks.
->=20
-> >=20
-> > > +To activate PM debugging, use the kernel command line option: ``pm_d=
-ebug_messages``.
-> > > +
-> > > +Or enable the feature using the sysfs file: ``/sys/power/pm_debug_me=
-ssages``
-> > > +Constraints that are not met will be displayed in the kernel log and=
- can be
-> > > +viewed using anything that processes the kernel ring buffer such as =
-``dmesg``` or
-> > > +``journalctl``.
-> >=20
-> > "To activate PM debugging, either specify ``pm_debug_messagess`` kernel
-> > command-line option at boot or write to ``/sys/power/pm_debug_messages`=
-`.
-> > Unmet constraints will be displayed in the kernel log and can be
-> > viewed by logging tools that process kernel ring buffer like dmesg or
-> > journalctl."
-> >=20
-> > > +`patch <https://lore.kernel.org/amd-gfx/20250305051402.1550046-3-chi=
-ahsuan.chung@amd.com/T/#u>`_
-> >=20
-> > What about that patchset status? It was not reviewed by upstream mainta=
-iners,
-> > right?
-> >=20
->=20
-> At the time I wrote this document it wasn't yet merged.  It's been since
-> merged, I will update to the commit details.
->=20
-
-OK, thanks!
-
---=20
-An old man doll... just what I always wanted! - Clara
-
---ZEyrUDEPnAmvIh5K
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCZ/nP3AAKCRD2uYlJVVFO
-o15qAQCHblhM69t0Xc0j/spdbJnAlpiGhGiV2ZAWomX+adiGKwEAuY6uI/j1royt
-FWMMMFRVStGfBo4HLqzUWcimkOK6dgM=
-=yv/A
------END PGP SIGNATURE-----
-
---ZEyrUDEPnAmvIh5K--
