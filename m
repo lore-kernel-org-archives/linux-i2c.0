@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA6522957A3;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF2CE2973A0;
 	Tue, 15 Apr 2025 15:37:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744731437; cv=none; b=lINCh6KtwcNF09ilbWYEQ92MZIq0tHaJP8fAo4zOeHtM2QMSzKpNY1TxITEtIvm9WmPlMjLrTJdkNo33eJ3ZliaGUULJPT2yvCDYMGsX2/rMOw/DlDO6MTRa65sckY/xvojdsV1+1Svd+SZVxFiWEluU1VQpysmkKAQUi6T6SG4=
+	t=1744731437; cv=none; b=TLGGEXE64Nu736UTXaK4s36f9aTeqbx6zZKODuntjR6s8632HLjmDyiSMulIaxMQSAnIR6OF99dAypApFDk0pEew0Pv4loCNDeu6hDCuCezSA3WGVEYqUVFbYM72eub5bn8qsAlE4MNBpy1HEEwa4UeFveuyyE+vhFfda5H81yU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1744731437; c=relaxed/simple;
-	bh=ymN+LyNWSLpbDsTvqi1RfS1hGNC4G0Ay2QtUtBcebSE=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=m8vuALhF0KqONStofi/tW97AHAW92WQrAC9l5QNpiTeJm3wEFwU1HR01zsQgdyqis3dsprDOcxBZCirLG2r9kNKnxqBccA+wYih6yMsJyki6jlhs0sJMQj/40q/0Y5aDWeo3KpZrdiWQuSFIIE3d0vjnyE492vHUBIspz6vXmv4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qxgcx+y8; arc=none smtp.client-ip=10.30.226.201
+	bh=F6ydi+3Kh9gLpG3MhIJVGmiYu4P4h2LRSPQzIzRGasg=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=HPv1xWERjuRNT/IDA7Nx6t8adW1xmFKg6zd77ueVXCUKpOlqE0tU/s0h5vfquVT80Uk1C7W/u9gE/NE2jsKRrUdVISsSsJzfU8DlOdMYcpmLN5REr4cwCJ6xHSAI+M7RQCvY6DbhkqlIB9kvPiNDDzD6HxjN6mmeqc+IpHbjNuo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nBdxMbZs; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qxgcx+y8"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 21F3EC4CEEB;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nBdxMbZs"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 541E0C4CEF1;
 	Tue, 15 Apr 2025 15:37:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1744731437;
-	bh=ymN+LyNWSLpbDsTvqi1RfS1hGNC4G0Ay2QtUtBcebSE=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=qxgcx+y8f/T0QqwUy4z4BMkQEGP5nKd1tpaCCc1jg1KFKOJGkzMKzu5Hvs6zUjBtO
-	 papZAgHQ9egtnGMZCNNILgO67XO7nKVDpnB5DvbV0knXpFGLv/x6ui2RoIS2U42H1H
-	 t/PilexvtBsfXdrjGfUHI+BdmkSRO8np4kHOjlMjylBhFd5noOwIRZ87XzPuBCTrfO
-	 ptrL7N18ofihn7iZdUW3zSZOsSOAeSHVxuDoY+frBagPdYWrEjGNL7akfYIRsOqN1d
-	 1P3kb3Bm9hKvDo/dcMvsOBeQudYo+gWBiB9btuxHyDeyoeBr7/jHjYT3dRYLacu1L4
-	 r3bs1VLwQ8/Pw==
+	bh=F6ydi+3Kh9gLpG3MhIJVGmiYu4P4h2LRSPQzIzRGasg=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=nBdxMbZseuEol55Y1Ny/cpNeEYq7uiD50JIs/gwKO1Foa2wPiCEWrc90lL1haY55m
+	 1U/Avo4ZIeTMGB3B0hc8RtHCP+fUz1bh2A2nXzqENOb+2WfvRXprDXBqeNLCoJuZLD
+	 zEBzma6f58T7jbVHsEsmRO/7k15L34RmCdGfwwtOcxHX2/PGwMxk0Rl2AUyFdDAssB
+	 m1CvNeYIsiA8Aek7Vq8uG2im5lz8Ku3au63TEM2C6vbDxZy5V1Zeq34gNfiIOXXi7b
+	 +Ckbnl3Dd3I78yvbAcdPdFDJ24wap6NTAymjMZa8wXc2v/uNtLmmcjAZd5/3bavVVv
+	 hOwn1ihr8SoqA==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04DDDC369AB;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 457E4C369BA;
 	Tue, 15 Apr 2025 15:37:17 +0000 (UTC)
 From: Sven Peter via B4 Relay <devnull+sven.svenpeter.dev@kernel.org>
-Subject: [PATCH v2 0/6] Apple/PASemi i2c error recovery fixes
-Date: Tue, 15 Apr 2025 15:36:54 +0000
-Message-Id: <20250415-pasemi-fixes-v2-0-c543bf53151a@svenpeter.dev>
+Date: Tue, 15 Apr 2025 15:36:57 +0000
+Subject: [PATCH v2 3/6] i2c: pasemi: Improve timeout handling
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -40,10 +40,9 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIABZ9/mcC/1WMQQ6CMBREr0L+2pq2gERX3sOwKHSUvxCaftJoS
- O9uJXHh8s3kvY0EkSF0qTaKSCy8zAXsoaJxcvMDin1hstq22lqtghM8Wd35BVFncxqHrmt0Mzg
- qSojYj2Lc+sITy7rE915P5rv+QvY/lIzSyndwde1bPba4SsIcsCIePRL1OecPBfj1sawAAAA=
-X-Change-ID: 20250220-pasemi-fixes-916cb77404ba
+Message-Id: <20250415-pasemi-fixes-v2-3-c543bf53151a@svenpeter.dev>
+References: <20250415-pasemi-fixes-v2-0-c543bf53151a@svenpeter.dev>
+In-Reply-To: <20250415-pasemi-fixes-v2-0-c543bf53151a@svenpeter.dev>
 To: Janne Grunau <j@jannau.net>, Alyssa Rosenzweig <alyssa@rosenzweig.io>, 
  Madhavan Srinivasan <maddy@linux.ibm.com>, 
  Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
@@ -52,16 +51,15 @@ To: Janne Grunau <j@jannau.net>, Alyssa Rosenzweig <alyssa@rosenzweig.io>,
  Neal Gompa <neal@gompa.dev>, Hector Martin <marcan@marcan.st>
 Cc: linuxppc-dev@lists.ozlabs.org, asahi@lists.linux.dev, 
  linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Sven Peter <sven@svenpeter.dev>, 
- Andy Shevchenko <andy.shevchenko@gmail.com>
+ linux-kernel@vger.kernel.org, Sven Peter <sven@svenpeter.dev>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1509; i=sven@svenpeter.dev;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2138; i=sven@svenpeter.dev;
  h=from:subject:message-id;
- bh=ymN+LyNWSLpbDsTvqi1RfS1hGNC4G0Ay2QtUtBcebSE=;
- b=owGbwMvMwCHmIlirolUq95LxtFoSQ/q/WqW39UeZ2Vs4Hu471P1vrbLFhq3/9kvNXFKdzyq+j
- 7MlkbWwo5SFQYyDQVZMkWX7fnvTJw/fCC7ddOk9zBxWJpAhDFycAjCRm0IM/0y7N11kSl4vsPBN
- e11CRPJmjTvNtzVf/ehWW7f33Wexj76MDEc5bobPYdU5tcPjyDnljo4tLnwHrzcd9mDs/BEcN79
- 4Ej8A
+ bh=pieYM48LE5ENsb4OlGmWM38fJJzel5K/67CDk0KItDE=;
+ b=owGbwMvMwCHmIlirolUq95LxtFoSQ/q/WvWKcJ/Ij8b3P05fYM58StKf7c2kj6UO6rKVr2u/R
+ bN/jY3vKGVhEONgkBVTZNm+3970ycM3gks3XXoPM4eVCWQIAxenAExk7yWG/w5Skwunb99z8fBu
+ o7eC/youx5b+YzCc+W/XoprbuSEdnPcZGU4/lzac0t5wuYzjwwGL5tcNvtVFW7/VPLu1Y0rwgYr
+ 9DAwA
 X-Developer-Key: i=sven@svenpeter.dev; a=openpgp;
  fpr=A1E3E34A2B3C820DBC4955E5993B08092F131F93
 X-Endpoint-Received: by B4 Relay for sven@svenpeter.dev/default with
@@ -69,49 +67,75 @@ X-Endpoint-Received: by B4 Relay for sven@svenpeter.dev/default with
 X-Original-From: Sven Peter <sven@svenpeter.dev>
 Reply-To: sven@svenpeter.dev
 
-Hi,
+From: Sven Peter <sven@svenpeter.dev>
 
-This series adds a few fixes/improvements to the error recovery for
-Apple/PASemi i2c controllers.
-The patches have been in our downstream tree and were originally used
-to debug a rare glitch caused by clock strechting but are useful in
-general. We haven't seen the controller misbehave since adding these.
-
-Best,
-
-Sven
+Add proper timeout handling for the interrupt path.
+Previously, this was only correctly done for the polling path.
+Note that we drop reg_write(smbus, REG_SMSTA, status) here which
+will be done anyway whenever the next transaction starts via
+pasemi_smb_clear.
 
 Signed-off-by: Sven Peter <sven@svenpeter.dev>
 ---
-Changes in v2:
-- Added commit to use the correct include (bits.h instead of bitfield.h)
-- Added commit to sort includes
-- Moved timeout explanations to code instead of just the commit log
-- Made timeout recovery also work correctly in the interrupt case when
-  waiting for the condition failed
-- Used readx_poll_timeout instead of open-coded alternative
-- Link to v1: https://lore.kernel.org/r/20250222-pasemi-fixes-v1-0-d7ea33d50c5e@svenpeter.dev
+ drivers/i2c/busses/i2c-pasemi-core.c | 24 +++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
 
----
-Hector Martin (3):
-      i2c: pasemi: Improve error recovery
-      i2c: pasemi: Enable the unjam machine
-      i2c: pasemi: Log bus reset causes
+diff --git a/drivers/i2c/busses/i2c-pasemi-core.c b/drivers/i2c/busses/i2c-pasemi-core.c
+index df1b0087dcacb0a3b94196368137d5e20b0e6d7e..9b611dbdfef23e78a4ea75ac0311938d52b6ba96 100644
+--- a/drivers/i2c/busses/i2c-pasemi-core.c
++++ b/drivers/i2c/busses/i2c-pasemi-core.c
+@@ -91,32 +91,42 @@ static void pasemi_smb_clear(struct pasemi_smbus *smbus)
+ static int pasemi_smb_waitready(struct pasemi_smbus *smbus)
+ {
+ 	int timeout = 100;
++	int ret;
+ 	unsigned int status;
+ 
+ 	if (smbus->use_irq) {
+ 		reinit_completion(&smbus->irq_completion);
+ 		reg_write(smbus, REG_IMASK, SMSTA_XEN | SMSTA_MTN);
+-		wait_for_completion_timeout(&smbus->irq_completion, msecs_to_jiffies(100));
++		ret = wait_for_completion_timeout(&smbus->irq_completion, msecs_to_jiffies(100));
+ 		reg_write(smbus, REG_IMASK, 0);
+ 		status = reg_read(smbus, REG_SMSTA);
++
++		if (ret < 0) {
++			dev_err(smbus->dev,
++				"Completion wait failed with %d, status 0x%08x\n",
++				ret, status);
++			return ret;
++		} else if (ret == 0) {
++			dev_warn(smbus->dev, "Timeout, status 0x%08x\n", status);
++			return -ETIME;
++		}
+ 	} else {
+ 		status = reg_read(smbus, REG_SMSTA);
+ 		while (!(status & SMSTA_XEN) && timeout--) {
+ 			msleep(1);
+ 			status = reg_read(smbus, REG_SMSTA);
+ 		}
++
++		if (timeout < 0) {
++			dev_warn(smbus->dev, "Timeout, status 0x%08x\n", status);
++			return -ETIME;
++		}
+ 	}
+ 
+ 	/* Got NACK? */
+ 	if (status & SMSTA_MTN)
+ 		return -ENXIO;
+ 
+-	if (timeout < 0) {
+-		dev_warn(smbus->dev, "Timeout, status 0x%08x\n", status);
+-		reg_write(smbus, REG_SMSTA, status);
+-		return -ETIME;
+-	}
+-
+ 	/* Clear XEN */
+ 	reg_write(smbus, REG_SMSTA, SMSTA_XEN);
+ 
 
-Sven Peter (3):
-      i2c: pasemi: Use correct bits.h include
-      i2c: pasemi: Sort includes alphabetically
-      i2c: pasemi: Improve timeout handling
-
- drivers/i2c/busses/i2c-pasemi-core.c | 114 ++++++++++++++++++++++++++++-------
- drivers/i2c/busses/i2c-pasemi-pci.c  |  10 +--
- 2 files changed, 96 insertions(+), 28 deletions(-)
----
-base-commit: 0af2f6be1b4281385b618cb86ad946eded089ac8
-change-id: 20250220-pasemi-fixes-916cb77404ba
-
-Best regards,
 -- 
-Sven Peter <sven@svenpeter.dev>
+2.34.1
 
 
