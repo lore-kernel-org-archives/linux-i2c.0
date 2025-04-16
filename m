@@ -1,50 +1,49 @@
 Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2DFF22D4D9;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4149822E406;
 	Wed, 16 Apr 2025 07:04:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744787060; cv=none; b=AXTJKnEx8sKz7asZaBAe1DagePFCfAksrabbg6aFSelKq4xW9ba2a2CokfYf7FRyvSD/uCwiFZ7q+53yTfP6xx3yjU6tZuVkcpubfKCwUdiq5Y7qy2oi4ZIRg/HVxJmfyXUmO33YPJ/kEQ8NhDPt9jmqAgNyTrslMImXj4ecDSo=
+	t=1744787062; cv=none; b=KwDU1fpiAzZ5snLJNrQ61DzxFeJWxuITPGFNNjSyvE3UGVtmxz4NxLOyP5jJetWDbNLWg7XMIUUTYKG5WYwv7M/NKLkqYV+/BqNFYQNBJY0XaE4wM7O4yqwgE/AOM8iHuHFyUG7EsU0h+9hokwYjuA8ftbcfNv9sLi9SV8JP2iU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744787060; c=relaxed/simple;
-	bh=2jpVZLcIGatM7QYsGa2u0dgdWMPJK8+JBwiqyHj7KFA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Nm+pMPAEHfKyYWPpAeXiki+JvgtXm5olFk6IWhHJ2TfCwEfiIXKJ74BFIuCLJRcZStIO5acRfZSZvxs4N08HDuTu3WEG/FbdbuDn/yBQ/VHCb3k9DYoaD3GFqnRZJ8X2cbrdqbZyhuilWzqxEYOGaTZ/+Hw/DSkW54YqsPUovTE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Qj3Uvwpq; arc=none smtp.client-ip=198.175.65.21
+	s=arc-20240116; t=1744787062; c=relaxed/simple;
+	bh=Qnusjt3KywGfg4n5heJMP9L6efJVKgC0CcxKPQkitR8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=JfiFCTJGF+gl2KFNYFS7csxCFHOWHFImdpoIEdfft4b4B2BOrsB66wHkRG9B6cpLuoH+tWtX3Tui0MQPTKnM+l0u8BXUdH8ApNRjs3yKT2UL0wtKNn1W8s+7PZt7+AponczG8p2SzMPK1oxbHHRMsqQwphKN8Cg8PydybdQbF1o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=aF6yHXLJ; arc=none smtp.client-ip=198.175.65.21
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Qj3Uvwpq"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="aF6yHXLJ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1744787059; x=1776323059;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=2jpVZLcIGatM7QYsGa2u0dgdWMPJK8+JBwiqyHj7KFA=;
-  b=Qj3UvwpqsQW0/1bgoQl6wGORr4fWZkiS24pZ5ltHRIO/Luw5H5E+N+aK
-   JI7cM788lMGAgrXK9vpoBFXEtl8A055ateTNpyWBt9lyhIzGX5zvSRRmV
-   pgjeW8w9lQqvY3eTJaQvdOGsRSSYhwEs05CkH1lxiSZMfyL30qsv34muV
-   ous+49raYmIiOw/djgXcbFRuuK0Ey5mmvDQ70LfoGThhFeEjfzMyUWjaT
-   07DYWZjnaDG1qUt9XsqrCn5LYkjf9QNHygxYbxtlSxsJa4zrMPuGiwWLN
-   JOVojIz2nq/0mHdrxThzDWmmcyfhkgFXakc8SuSD7vsmkjGDPU2LjS9/s
-   w==;
-X-CSE-ConnectionGUID: 4PrA/whNRNOxK5R3o3UQVQ==
-X-CSE-MsgGUID: aIstOPLoTJ6Q6UAnSQ/oKA==
-X-IronPort-AV: E=McAfee;i="6700,10204,11404"; a="46241849"
+  t=1744787061; x=1776323061;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=Qnusjt3KywGfg4n5heJMP9L6efJVKgC0CcxKPQkitR8=;
+  b=aF6yHXLJFxLf5PhYqfFEGuUpCTEpvWAIPv4QhWLNQsV9l6nBsl0aDb0o
+   q36e9KE8yqwjXLoj83uo18F5GL4d3ZnCTDewd23HIsVdSGQurlwVkMy90
+   Fn67BeT5UZziRRnXXNZ21SEqKVCvJXBDf24i88d/2D6GzYErRAzZ6dQU/
+   NMMWut7CgEqEI50IF8rW0VHkPY2WZu63aY4m1e0ZTHe+YAylMR+kAChn0
+   LkqR3/aLnmPp0x9QSm+KsM+YPhqZYf3fzgddSrwJl9vJQ1Z7nNypnMV8M
+   cKMvWO/wyuqqGE23Z2SCvcCANgTvUFFzzHq5H39hlQ+AfVOeTDNO8tWpt
+   Q==;
+X-CSE-ConnectionGUID: asxDlJ1uR52DWs22SMQdKQ==
+X-CSE-MsgGUID: Ox1wWFfoSkqNtI2AUIKi2w==
+X-IronPort-AV: E=McAfee;i="6700,10204,11404"; a="46241845"
 X-IronPort-AV: E=Sophos;i="6.15,215,1739865600"; 
-   d="scan'208";a="46241849"
+   d="scan'208";a="46241845"
 Received: from orviesa008.jf.intel.com ([10.64.159.148])
   by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Apr 2025 00:04:15 -0700
-X-CSE-ConnectionGUID: dms2+h3USQu87AuJqIkwVw==
-X-CSE-MsgGUID: bRw1tpL8SAWC84j8uT2mvg==
+X-CSE-ConnectionGUID: Ltf/ibX3SqKkQUFV+vV8lQ==
+X-CSE-MsgGUID: aCJr/N7XSkaMv7OrtTH+/g==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.15,215,1739865600"; 
-   d="scan'208";a="131315354"
+   d="scan'208";a="131315352"
 Received: from black.fi.intel.com ([10.237.72.28])
   by orviesa008.jf.intel.com with ESMTP; 16 Apr 2025 00:04:12 -0700
 Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id A21AB5D9; Wed, 16 Apr 2025 10:04:10 +0300 (EEST)
+	id 62FA9F4; Wed, 16 Apr 2025 10:04:10 +0300 (EEST)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	Sakari Ailus <sakari.ailus@linux.intel.com>,
@@ -56,58 +55,62 @@ To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	linux-kernel@vger.kernel.org,
 	linux-media@vger.kernel.org
 Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH v5 4/7] i2c: core: Reuse fwnode variable where it makes sense
-Date: Wed, 16 Apr 2025 10:01:34 +0300
-Message-ID: <20250416070409.1867862-5-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v5 0/7] i2c: core: Move client towards fwnode
+Date: Wed, 16 Apr 2025 10:01:30 +0300
+Message-ID: <20250416070409.1867862-1-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.47.2
-In-Reply-To: <20250416070409.1867862-1-andriy.shevchenko@linux.intel.com>
-References: <20250416070409.1867862-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Reuse fwnode variable where it makes sense. This avoids unneeded
-duplication hidden in some macros and unifies the code for different
-types of fwnode.
+The struct i2c_board_info has of_node and fwnode members. This is quite
+confusing as they are of the same semantics and it's tend to have an issue
+if user assigns both. Luckily there is only a single driver that does this
+and fix is provided in the last patch. Nevertheless the series moves
+the client handling code to use fwnode and deprecates the of_node member
+in the respective documentation.
 
-Tested-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/i2c-core-base.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+In v5:
+- reformatted conditionals to make media CI happy (media CI)
+- updated commit messages in patches 3 & 6 to make it more clear (Wolfram)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 08ff3f1eb28e..b186de31a9ee 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -567,7 +567,7 @@ static int i2c_device_probe(struct device *dev)
- 
- 	dev_dbg(dev, "probe\n");
- 
--	status = of_clk_set_defaults(dev->of_node, false);
-+	status = of_clk_set_defaults(to_of_node(fwnode), false);
- 	if (status < 0)
- 		goto err_clear_wakeup_irq;
- 
-@@ -1061,10 +1061,10 @@ void i2c_unregister_device(struct i2c_client *client)
- 
- 	fwnode = dev_fwnode(&client->dev);
- 	if (is_of_node(fwnode)) {
--		of_node_clear_flag(client->dev.of_node, OF_POPULATED);
-+		of_node_clear_flag(to_of_node(fwnode), OF_POPULATED);
- 		of_node_put(client->dev.of_node);
- 	} else if (is_acpi_device_node(fwnode)) {
--		acpi_device_clear_enumerated(ACPI_COMPANION(&client->dev));
-+		acpi_device_clear_enumerated(to_acpi_device_node(fwnode));
- 	}
- 
- 	device_remove_software_node(&client->dev);
+In v4:
+- fixed spelling in the first patch commit message (Sakari)
+- wrapped the commit message in the patch before the last (Sakari)
+- added tag to the last patch (Tomi)
+
+In v3:
+- fixed compile issues with i2c-core-slave.c (LKP)
+- fixed compile issues with IRQ APIs, i.e. missing header (LKP)
+- added patch for the only user which assigns two fields (Tomi)
+- added tags (Tomi)
+
+In v2:
+- covered i2c-core-slave.c where it makes sense
+- covered i2c-core-of.c where it makes sense
+- rebased on top of the latest code base
+
+Andy Shevchenko (7):
+  i2c: core: Drop duplicate check before calling OF APIs
+  i2c: core: Unify the firmware node type check
+  i2c: core: Switch to fwnode APIs to get IRQ
+  i2c: core: Reuse fwnode variable where it makes sense
+  i2c: core: Do not dereference fwnode in struct device
+  i2c: core: Deprecate of_node in struct i2c_board_info
+  media: i2c: ds90ub960: Remove of_node assignment
+
+ drivers/i2c/i2c-core-base.c   | 61 +++++++++++++++++------------------
+ drivers/i2c/i2c-core-of.c     |  1 -
+ drivers/i2c/i2c-core-slave.c  | 12 ++++---
+ drivers/media/i2c/ds90ub960.c |  1 -
+ include/linux/i2c.h           |  2 +-
+ 5 files changed, 39 insertions(+), 38 deletions(-)
+
 -- 
 2.47.2
 
