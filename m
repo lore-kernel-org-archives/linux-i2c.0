@@ -1,101 +1,99 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7613F2309B1;
-	Wed, 16 Apr 2025 07:04:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3606F22AE5D;
+	Wed, 16 Apr 2025 07:05:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1744787063; cv=none; b=Uy0VLgv26V8hHcfBoWY93L2fLgQUYnicSSzrRr/czwo8qsIssAkKW6JwlCxzGy4QX57+5KF/bdULdeDbsvFtID7siy1kba0wM2T5wVXwJjzBDvuKJ7mX9P2KIgy5GB/xm+5Un1ba7PhfLFu0yju8P4za2Rf5bS8682mxU+eS604=
+	t=1744787133; cv=none; b=jpLqS4QWkobdbPBq0qB1K19vsw5GupyvX6kkVlRwOqhXyD9gbvuB8hBGY9WHd5yHXgVQTU/dHtLUwLMMgr9hIp8pp0Vv+rZpR3eFTFfVTbk6sHWBe5MmMB20+9ApUbORRJ+uL/lJB3Zc0pf8uxNZo0ZAKsgeBsCoUID8Xkypi90=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1744787063; c=relaxed/simple;
-	bh=/z8O9SDZiaTEXhg4ysbJsJfwrcHDw53/UnAOR7/dwrs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=grjbsSe6DteO0W/r/ZmuGB7gDOgUNk91cD7OHZosXIxKb1kwVH1zH2zghwuqH3b8q8sYHXmKEJRw0PVIw04keC12yfFetWSK4p4bzHtTMVZc4sY5z9dzbSUcUu6k2SjAXIOYbv/YbwoLECnvqphmJBrfItkvmb9wPEs0rDSlIfg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=IkpVsuLX; arc=none smtp.client-ip=198.175.65.21
+	s=arc-20240116; t=1744787133; c=relaxed/simple;
+	bh=j8eWpTOg/shBeJKd5tKj0TWI9EVOGFzQqhxV9GqN8SY=;
+	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=XUi9S6D9q7sT12NzQvKBCkIe34r+acoHhXED1cOAcanmdSTf35QF4V/yETWXEq6IkZeoyYBb2U+jXHaj9AoNra+oslWjyPmsArVZZpkJWMOJtR/eSgZN/voVQ8CvxGKRhaI+RhMi8gJ0+130TU5Diif3R5eKWOPEhSFlmfm3qzo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=T35I1GxC; arc=none smtp.client-ip=192.198.163.17
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="IkpVsuLX"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="T35I1GxC"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1744787062; x=1776323062;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=/z8O9SDZiaTEXhg4ysbJsJfwrcHDw53/UnAOR7/dwrs=;
-  b=IkpVsuLXfzqhZUA4wycQcJ3s8yDWk7hJuBkrm9nTLy8qjzc8toVRiSaR
-   U51l42tRUve2tQDyOiN8HTZLqC47CcPH4VtejRryr63XK+qHFmmNriXNC
-   9TydHQ86qkRLWEKfTHu7YJLetpYEeuA2KUbRr3+DpnuH9qJIcxL3veZ75
-   MU80HyHd8pCwEONe36G3xEbiF0LmBnxcD4VNpjM4KbW7/z7nCmILY27iz
-   nuoEhrxDCqEKF7Y92eVr4CuoYSev2mN6Mt2CgJdQ849++kXdwNZAwywHf
-   WtHqvbEYtniKMe3FtUm4pk3u4j+2FRpmpIfjOO1cVx8+56AVIL9M6dMMC
-   A==;
-X-CSE-ConnectionGUID: kPCNy67vRKa83ysMhHfYuA==
-X-CSE-MsgGUID: 2IcchoUgSyu6KLU+5Rbovw==
-X-IronPort-AV: E=McAfee;i="6700,10204,11404"; a="46241862"
+  t=1744787132; x=1776323132;
+  h=date:from:to:subject:message-id:references:mime-version:
+   in-reply-to;
+  bh=j8eWpTOg/shBeJKd5tKj0TWI9EVOGFzQqhxV9GqN8SY=;
+  b=T35I1GxCb9LNra0M4mKUwUfBAjfgFEKOGnUN1xsKMHe1kMjy+ADdrgFl
+   x5QWMlXTfk4I/P9NHDGaWo7SejPTeumlPUC/gfNQMBbUgC2WPZMPJGCyw
+   ysacRz6P7BPSVQ2KXf2+DkANSyRD32Xtj/TvPhhLjYT5ipadf/5ZS300A
+   hVRXGPemSjiVh+2HEoakxLst6AwErjPwsGsXL5wjCB9tNub6+XVFoRIQY
+   SOkbnrb6DOg0Kc6U5ACVuEDF+HKOxzcj9kHf5GRt3oF8uIgUHW2eLp/Gs
+   kLzepuMrmxMES6D1WfAXOzynPkyjNQdum5f10eTRYpH/JpACVRcEkIQIQ
+   g==;
+X-CSE-ConnectionGUID: hEhIUKuATBiT/MGClEc6fA==
+X-CSE-MsgGUID: cfOgsSoMQGGRO7wEzqOFng==
+X-IronPort-AV: E=McAfee;i="6700,10204,11404"; a="46202402"
 X-IronPort-AV: E=Sophos;i="6.15,215,1739865600"; 
-   d="scan'208";a="46241862"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Apr 2025 00:04:18 -0700
-X-CSE-ConnectionGUID: A1VrY2KOTjmLpK6I8Y5sBw==
-X-CSE-MsgGUID: 7BYbbExuR1STIQxM3SHw9Q==
+   d="scan'208";a="46202402"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Apr 2025 00:05:31 -0700
+X-CSE-ConnectionGUID: 3mhFgh7uRFSSbq9SLGe7uw==
+X-CSE-MsgGUID: CXlj7u0eR9G1mDXFDhiOfg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.15,215,1739865600"; 
-   d="scan'208";a="131315374"
-Received: from black.fi.intel.com ([10.237.72.28])
-  by orviesa008.jf.intel.com with ESMTP; 16 Apr 2025 00:04:15 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
-	id C7B8476C; Wed, 16 Apr 2025 10:04:10 +0300 (EEST)
+   d="scan'208";a="161306083"
+Received: from smile.fi.intel.com ([10.237.72.58])
+  by orviesa002.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Apr 2025 00:05:29 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.98.2)
+	(envelope-from <andriy.shevchenko@linux.intel.com>)
+	id 1u4wpq-0000000Cm7P-0xYw;
+	Wed, 16 Apr 2025 10:05:26 +0300
+Date: Wed, 16 Apr 2025 10:05:25 +0300
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
 	Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-	Jai Luthra <jai.luthra@ideasonboard.com>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-media@vger.kernel.org
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Subject: [PATCH v5 7/7] media: i2c: ds90ub960: Remove of_node assignment
-Date: Wed, 16 Apr 2025 10:01:37 +0300
-Message-ID: <20250416070409.1867862-8-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.47.2
-In-Reply-To: <20250416070409.1867862-1-andriy.shevchenko@linux.intel.com>
-References: <20250416070409.1867862-1-andriy.shevchenko@linux.intel.com>
+	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+	Jai Luthra <jai.luthra@ideasonboard.com>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+	Mauro Carvalho Chehab <mchehab@kernel.org>
+Subject: Re: [PATCH v4 6/7] i2c: core: Deprecate of_node in struct
+ i2c_board_info
+Message-ID: <Z_9WtfVzSDuxmqLK@smile.fi.intel.com>
+References: <20250414100409.3910312-1-andriy.shevchenko@linux.intel.com>
+ <20250414100409.3910312-7-andriy.shevchenko@linux.intel.com>
+ <Z_69Jml3-CKi13wB@shikoro>
+ <Z_9NEK7BDrvAQ0Qo@smile.fi.intel.com>
+ <Z_9UHrgho0dGoUrG@shikoro>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Z_9UHrgho0dGoUrG@shikoro>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 
-Remove of_node assignment which duplicates fwnode in struct i2c_board_info.
-In general drivers must not set both, it's quite confusing. The I²C core
-will consider fwnode with a priority and of_node is subject to remove from
-above mentioned data structure.
+On Wed, Apr 16, 2025 at 08:54:22AM +0200, Wolfram Sang wrote:
+> 
+> > > > that Linux kernel supports. Deprecate of_node in struct i2c_board_info,
+> > > > so users will be warned and in the future remove it completely.
+> > > 
+> > > Is there a plan or volunteer to do the conversion?
+> > 
+> > Yes, long-term as I'm alone for many janitor works.
+> 
+> I could help here if you are not keen on doing it on your own.
 
-Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Acked-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
----
- drivers/media/i2c/ds90ub960.c | 1 -
- 1 file changed, 1 deletion(-)
+Thanks!
 
-diff --git a/drivers/media/i2c/ds90ub960.c b/drivers/media/i2c/ds90ub960.c
-index 5dde8452739b..5afdbbad9ff4 100644
---- a/drivers/media/i2c/ds90ub960.c
-+++ b/drivers/media/i2c/ds90ub960.c
-@@ -1682,7 +1682,6 @@ static int ub960_rxport_add_serializer(struct ub960_data *priv, u8 nport)
- 	struct device *dev = &priv->client->dev;
- 	struct ds90ub9xx_platform_data *ser_pdata = &rxport->ser.pdata;
- 	struct i2c_board_info ser_info = {
--		.of_node = to_of_node(rxport->ser.fwnode),
- 		.fwnode = rxport->ser.fwnode,
- 		.platform_data = ser_pdata,
- 	};
+At least the main objective is to avoid new code using of_node.
+The rest can slowly rotten on itself (esp. if there is any under
+arch/ for some old board files).
+
 -- 
-2.47.2
+With Best Regards,
+Andy Shevchenko
+
 
