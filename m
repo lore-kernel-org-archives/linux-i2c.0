@@ -1,90 +1,77 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from 2.mo561.mail-out.ovh.net (2.mo561.mail-out.ovh.net [46.105.75.36])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 915D62472A1
-	for <linux-i2c@vger.kernel.org>; Fri, 18 Apr 2025 21:45:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69C001B6CE0
+	for <linux-i2c@vger.kernel.org>; Fri, 18 Apr 2025 21:53:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.105.75.36
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745012722; cv=none; b=TLv4jFzAfvUXH2WllUnt3RzukINUAukTXdvB3GvxLyCyJ5yeKkL3lhWvp9ZMyp/auPiBML7ePOH7/A3nEfB8TwJK8rviAauhyZu32RFzGdmvlZuA/Adpd944jgVzHgkyG3fAA2LUjZCYRJDHGAMdSsLpzYK/1I+65SOGwVWDjyY=
+	t=1745013234; cv=none; b=Vru47/M0XbGEl8Rb6nFwEmDJQbwwKW5RVqmVGBRQoh8sEmkwdQRXgME1hwkgAgr4irjV/WG9wH7LDQkwGkhOOXCBAcbHvfInwx4mH6XTt6WJazAnqmR2CpEifjKD1pz2GEJ5gn35LQgC/4zzxoKocOl/Mg13pPMmqLkjMQ2Cdkw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745012722; c=relaxed/simple;
-	bh=RFett+rj2+GwUjiMuPa73WpuK2fBTfvQJBWMLXtCkzA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=s/S00weAej2a8He8wp+RMwZE6+FRYchQVoL3lBFlKAWNahA1z3IKDIVXHSqBF5qjIib2TXB+Uirtrb58vITFTy6ywzfO6l/wYO+HT9feifKvmi/BBDf/Q26vvofmkwNvY69OzVzo1IcjbbFWC2ZNiOW31eQK272kkQlYsiND5n8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=PolOudso; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="PolOudso"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=RFet
-	t+rj2+GwUjiMuPa73WpuK2fBTfvQJBWMLXtCkzA=; b=PolOudsoZdT0021b/j7A
-	ZxyppsAKutApOxjcLa317mdifY1xK+Uk1cr4+PpD9JebL3/ZFabtyFlp7W2dv4Th
-	HOBXoxmduvInAWs4y/0wTrTEs+ZGJbSLlDINyxUD2hyNijeF0AyOsyo95AZD2FgG
-	eqG1jql0sb+jkbaNVOnNiRgLLZmm3TCNLuqtHmexqjyUaoYLtqbXc232OnVfbZ7c
-	hcHl94P0UX9EwGYYguSQqjbGlVwVsjKeNihLhnzUjQ+Ci00INfz6T8A56rNCvQ0q
-	x2GbD3AYvOt7idwwHfCuAyTmpRHcd8Be+VjPb4DRhaMIrZVvELi5JLAi7fh5UTh2
-	2Q==
-Received: (qmail 1539840 invoked from network); 18 Apr 2025 23:45:12 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 18 Apr 2025 23:45:12 +0200
-X-UD-Smtp-Session: l3s3148p1@S0vVbhQz6MMujnsE
-Date: Fri, 18 Apr 2025 23:45:12 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>,
-	lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [GIT PULL] i2c-host-fixes for v6.15-rc3
-Message-ID: <aALH6J33cYfaBH4a@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	linux-i2c <linux-i2c@vger.kernel.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <mtqiyp7mtyuivs7snzfp3dcinr2u5jw63afxqto4s2rnqe6nyc@ozaxoxvtvdxt>
+	s=arc-20240116; t=1745013234; c=relaxed/simple;
+	bh=GElmE044h5cSHZYW7tOeuvVEqudlN30eQflvguUHTKE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=IksBqJELWNFI9fS1EuNOLvW/+6V2nnd5jOYSXilReZHa4eMPVvicbiXABvai7TcrjFd2/+9MMXq+rUV/5l9YPbpmoQSV5U8kVfxWunCOvKbYexDOc4ole88TbnYXQIvvbFZY24ebvBOrPC/hv15CT4ibvaYu7BFpYUq8bAB1iMo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=46.105.75.36
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
+Received: from director7.ghost.mail-out.ovh.net (unknown [10.108.9.127])
+	by mo561.mail-out.ovh.net (Postfix) with ESMTP id 4ZfSJB35JXz1LVj
+	for <linux-i2c@vger.kernel.org>; Fri, 18 Apr 2025 21:16:58 +0000 (UTC)
+Received: from ghost-submission-5b5ff79f4f-lm9kv (unknown [10.110.96.7])
+	by director7.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 2C6D81FD50;
+	Fri, 18 Apr 2025 21:16:58 +0000 (UTC)
+Received: from etezian.org ([37.59.142.111])
+	by ghost-submission-5b5ff79f4f-lm9kv with ESMTPSA
+	id D526AkrBAmjJPgkAYJzoiA
+	(envelope-from <andi@etezian.org>); Fri, 18 Apr 2025 21:16:58 +0000
+Authentication-Results:garm.ovh; auth=pass (GARM-111S005cce18062-f229-41d5-a2c3-6abe90f982d8,
+                    9BBFD0B8C49B6260DDB62D1D32C292C5393E7E6E) smtp.auth=andi@etezian.org
+X-OVh-ClientIp:178.39.90.92
+From: Andi Shyti <andi.shyti@kernel.org>
+To: linux-i2c <linux-i2c@vger.kernel.org>
+Cc: Andi Shyti <andi.shyti@kernel.org>
+Subject: [PATCH 07/10] i2c: iproc: Fix indentation of bcm_iproc_i2c_slave_init()
+Date: Fri, 18 Apr 2025 23:16:32 +0200
+Message-ID: <20250418211635.2666234-8-andi.shyti@kernel.org>
+X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20250418211635.2666234-1-andi.shyti@kernel.org>
+References: <20250418211635.2666234-1-andi.shyti@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="tr/5Wl1R3qWoWBxT"
-Content-Disposition: inline
-In-Reply-To: <mtqiyp7mtyuivs7snzfp3dcinr2u5jw63afxqto4s2rnqe6nyc@ozaxoxvtvdxt>
+Content-Transfer-Encoding: 8bit
+X-Ovh-Tracer-Id: 13927944798707780167
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: 0
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvfeefvddtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucenucfjughrpefhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpefgudevjeetgeetlefhteeuteehgeefhefhkedtvdelheethfehveekudelueeuveenucfkphepuddvjedrtddrtddruddpudejkedrfeelrdeltddrledvpdefjedrheelrddugedvrdduuddunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehiedumgdpmhhouggvpehsmhhtphhouhht
 
+Adjust the indentation of the bcm_iproc_i2c_slave_init() function
+definition to match standard kernel coding style. Don't end the
+line with an open parenthesis.
 
---tr/5Wl1R3qWoWBxT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+---
+ drivers/i2c/busses/i2c-bcm-iproc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-On Fri, Apr 18, 2025 at 02:18:43PM +0200, Andi Shyti wrote:
-> Hi Wolfram,
->=20
-> one fix for this week which prevents a potential NULL pointer
-> dereference by adding an extra check in probe.
+diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
+index 2e04ea157e8e..d25b393f456b 100644
+--- a/drivers/i2c/busses/i2c-bcm-iproc.c
++++ b/drivers/i2c/busses/i2c-bcm-iproc.c
+@@ -264,8 +264,8 @@ static inline void iproc_i2c_wr_reg(struct bcm_iproc_i2c_dev *iproc_i2c,
+ 	}
+ }
+ 
+-static void bcm_iproc_i2c_slave_init(
+-	struct bcm_iproc_i2c_dev *iproc_i2c, bool need_reset)
++static void bcm_iproc_i2c_slave_init(struct bcm_iproc_i2c_dev *iproc_i2c,
++				     bool need_reset)
+ {
+ 	u32 val;
+ 
+-- 
+2.49.0
 
-Thanks, pulled. Happy Easter!
-
-
---tr/5Wl1R3qWoWBxT
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmgCx+cACgkQFA3kzBSg
-KbbGvRAAr2ujssUc3RXlrhmW5x0nqESGavg39d6HhOhf9xxkkY9HTqvAE8eg1LtO
-n4ZjsEuIWRwALhYUfsdBvHnzRe/HhmCF1kubQCxOvaM1m7VJkZMuYXMtC+IjUpkE
-bSFW+IgphyBaozJp69njkg7SE5awRa7c0mX7mZetjcIyePj158neyIZGAXS6QaC0
-GRbTTR/edwHQj/NHre/q5NclengJvDPe3Gma7jDuF38+nJQKGnH4SNugx/lNHx0t
-oP/0IV6aFHw+Aq8mhWJwNOu9e9tOtNfKesLVGU40O1fosYEhkVbhPiaqmnHRVNsq
-aQj7c9gojjPtKYFcQJsQ/P0xPTopCzolqjT+G2TPhKFSJqkm2OVj3jHyF4lpbmk6
-qANaPW6jYEoaFSW+z3r4RUfc0Tmw0g4XzorJEyDoYCYHTk5HHy25v+Ijn0tfrgSs
-kfOdaVrN2yl3hahYjlWMgFp5g1HzKS9wH4+q1C69GgIE4ypmA0BFHp86pO1azPqz
-iX/rAMJD3PhLjwTpqriY/kumVPGyZe4eE+WygNSFBTBfwa2ypBcpBAnUjWklqQ5k
-TCGz0je9G0Ae2oukl/s+lzV3/NHsyXi7LZb4I7vj8UFG7DPex2GPP2tim0iAGa9j
-luvdrJBKjdkC8nLtVMa0fB0jzMJOg8yCg+7zVoICGxUUYC6tt/Q=
-=hlIN
------END PGP SIGNATURE-----
-
---tr/5Wl1R3qWoWBxT--
