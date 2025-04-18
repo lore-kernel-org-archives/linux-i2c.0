@@ -1,38 +1,38 @@
-Received: from 2.mo561.mail-out.ovh.net (2.mo561.mail-out.ovh.net [46.105.75.36])
+Received: from 4.mo575.mail-out.ovh.net (4.mo575.mail-out.ovh.net [46.105.59.63])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69C001B6CE0
-	for <linux-i2c@vger.kernel.org>; Fri, 18 Apr 2025 21:53:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.105.75.36
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47AC81B6CE0
+	for <linux-i2c@vger.kernel.org>; Fri, 18 Apr 2025 21:53:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=46.105.59.63
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745013234; cv=none; b=Vru47/M0XbGEl8Rb6nFwEmDJQbwwKW5RVqmVGBRQoh8sEmkwdQRXgME1hwkgAgr4irjV/WG9wH7LDQkwGkhOOXCBAcbHvfInwx4mH6XTt6WJazAnqmR2CpEifjKD1pz2GEJ5gn35LQgC/4zzxoKocOl/Mg13pPMmqLkjMQ2Cdkw=
+	t=1745013240; cv=none; b=rYJPBoPgO8FlR1SFzdmw1G7FDl4kLhItgGDD+vFMi9We6BpeoEoiRwhDyEKUBOQ+l2PnWciSEAwPF0ZeuUQMf26wjc09AwnGWetJhvMZp2S9UCGSQvJ7FW9irlxrBekdF/UIg+zFWVgdZlyQNbFN1HmcYztLnC9hrfUm13RvmXY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1745013234; c=relaxed/simple;
-	bh=GElmE044h5cSHZYW7tOeuvVEqudlN30eQflvguUHTKE=;
+	s=arc-20240116; t=1745013240; c=relaxed/simple;
+	bh=TLZPBrBmg9iyGe7OJXTmYOUOYGebh+kY+OAKXk68CDA=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IksBqJELWNFI9fS1EuNOLvW/+6V2nnd5jOYSXilReZHa4eMPVvicbiXABvai7TcrjFd2/+9MMXq+rUV/5l9YPbpmoQSV5U8kVfxWunCOvKbYexDOc4ole88TbnYXQIvvbFZY24ebvBOrPC/hv15CT4ibvaYu7BFpYUq8bAB1iMo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=46.105.75.36
+	 MIME-Version; b=AK0Xyn9W/+bmNXyzNk73zif1rRiMPy/b0yu9Dpfdh39FKnyCWyqgcGimijAU0vjK06CaiNNaDDh18/dUAog4CJx2i4FUXzKzUwaGjFJ2dz5BCh9JfISfE71vrkjtGhu+o6IXSuOCIP56wgKAuLn4OJJUkYq3Ga2tH1euFzNiUQU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=46.105.59.63
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director7.ghost.mail-out.ovh.net (unknown [10.108.9.127])
-	by mo561.mail-out.ovh.net (Postfix) with ESMTP id 4ZfSJB35JXz1LVj
-	for <linux-i2c@vger.kernel.org>; Fri, 18 Apr 2025 21:16:58 +0000 (UTC)
-Received: from ghost-submission-5b5ff79f4f-lm9kv (unknown [10.110.96.7])
-	by director7.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 2C6D81FD50;
-	Fri, 18 Apr 2025 21:16:58 +0000 (UTC)
-Received: from etezian.org ([37.59.142.111])
-	by ghost-submission-5b5ff79f4f-lm9kv with ESMTPSA
-	id D526AkrBAmjJPgkAYJzoiA
-	(envelope-from <andi@etezian.org>); Fri, 18 Apr 2025 21:16:58 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-111S005cce18062-f229-41d5-a2c3-6abe90f982d8,
+Received: from director2.ghost.mail-out.ovh.net (unknown [10.108.2.55])
+	by mo575.mail-out.ovh.net (Postfix) with ESMTP id 4ZfSJD4yp8z1nvf
+	for <linux-i2c@vger.kernel.org>; Fri, 18 Apr 2025 21:17:00 +0000 (UTC)
+Received: from ghost-submission-5b5ff79f4f-wtzwn (unknown [10.110.168.38])
+	by director2.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 6EDB31FDCE;
+	Fri, 18 Apr 2025 21:17:00 +0000 (UTC)
+Received: from etezian.org ([37.59.142.96])
+	by ghost-submission-5b5ff79f4f-wtzwn with ESMTPSA
+	id z3aTE0zBAmge9wMArzU8bQ
+	(envelope-from <andi@etezian.org>); Fri, 18 Apr 2025 21:17:00 +0000
+Authentication-Results:garm.ovh; auth=pass (GARM-96R001abac3a2a-a598-4fc0-aafe-661099c1a667,
                     9BBFD0B8C49B6260DDB62D1D32C292C5393E7E6E) smtp.auth=andi@etezian.org
 X-OVh-ClientIp:178.39.90.92
 From: Andi Shyti <andi.shyti@kernel.org>
 To: linux-i2c <linux-i2c@vger.kernel.org>
 Cc: Andi Shyti <andi.shyti@kernel.org>
-Subject: [PATCH 07/10] i2c: iproc: Fix indentation of bcm_iproc_i2c_slave_init()
-Date: Fri, 18 Apr 2025 23:16:32 +0200
-Message-ID: <20250418211635.2666234-8-andi.shyti@kernel.org>
+Subject: [PATCH 10/10] i2c: iproc: Remove unnecessary double negation
+Date: Fri, 18 Apr 2025 23:16:35 +0200
+Message-ID: <20250418211635.2666234-11-andi.shyti@kernel.org>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250418211635.2666234-1-andi.shyti@kernel.org>
 References: <20250418211635.2666234-1-andi.shyti@kernel.org>
@@ -43,14 +43,13 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 13927944798707780167
+X-Ovh-Tracer-Id: 13928507748792601159
 X-VR-SPAMSTATE: OK
 X-VR-SPAMSCORE: 0
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvfeefvddtucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucenucfjughrpefhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpefgudevjeetgeetlefhteeuteehgeefhefhkedtvdelheethfehveekudelueeuveenucfkphepuddvjedrtddrtddruddpudejkedrfeelrdeltddrledvpdefjedrheelrddugedvrdduuddunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehiedumgdpmhhouggvpehsmhhtphhouhht
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvfeefvdduucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucenucfjughrpefhvfevufffkffojghfggfgsedtkeertdertddtnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpefgudevjeetgeetlefhteeuteehgeefhefhkedtvdelheethfehveekudelueeuveenucfkphepuddvjedrtddrtddruddpudejkedrfeelrdeltddrledvpdefjedrheelrddugedvrdelieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomheprghnughisegvthgviihirghnrdhorhhgpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheejhegmpdhmohguvgepshhmthhpohhuth
 
-Adjust the indentation of the bcm_iproc_i2c_slave_init() function
-definition to match standard kernel coding style. Don't end the
-line with an open parenthesis.
+True is true when greater than '0', no need for double negation
+inside the if statement.
 
 Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
 ---
@@ -58,20 +57,20 @@ Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-bcm-iproc.c b/drivers/i2c/busses/i2c-bcm-iproc.c
-index 2e04ea157e8e..d25b393f456b 100644
+index 9356a16422a3..2d117f242875 100644
 --- a/drivers/i2c/busses/i2c-bcm-iproc.c
 +++ b/drivers/i2c/busses/i2c-bcm-iproc.c
-@@ -264,8 +264,8 @@ static inline void iproc_i2c_wr_reg(struct bcm_iproc_i2c_dev *iproc_i2c,
+@@ -836,8 +836,8 @@ static int bcm_iproc_i2c_xfer_internal(struct bcm_iproc_i2c_dev *iproc_i2c,
+ 	struct i2c_msg *msg = &msgs[0];
+ 
+ 	/* check if bus is busy */
+-	if (!!(iproc_i2c_rd_reg(iproc_i2c,
+-				M_CMD_OFFSET) & BIT(M_CMD_START_BUSY_SHIFT))) {
++	if (iproc_i2c_rd_reg(iproc_i2c,
++			     M_CMD_OFFSET) & BIT(M_CMD_START_BUSY_SHIFT)) {
+ 		dev_warn(iproc_i2c->device, "bus is busy\n");
+ 		return -EBUSY;
  	}
- }
- 
--static void bcm_iproc_i2c_slave_init(
--	struct bcm_iproc_i2c_dev *iproc_i2c, bool need_reset)
-+static void bcm_iproc_i2c_slave_init(struct bcm_iproc_i2c_dev *iproc_i2c,
-+				     bool need_reset)
- {
- 	u32 val;
- 
 -- 
 2.49.0
 
