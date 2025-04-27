@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1327F2C9D;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 132DF1F19A;
 	Sun, 27 Apr 2025 11:31:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1745753466; cv=none; b=fvO+bU/Slpjs+9bKuH6k87VuHPj+eV+VwqMRDRzuK4lppreqtbOwZMK1bSNVWlV5qaYe9uV9TLKnXG4wZoFsZ982z142i6tSHEpMcvEsVI82w5DWvBbvk5n/qdBfd0onAiDND6fQFyS5hZlc3M0SCSx+KbR5f++BBFqKsdZiaGg=
+	t=1745753466; cv=none; b=cS7MY1Q0XwamQ9wRRlszK3WKSfd9qXt0bQ/Qw+xQOtwhnyV4/XeMoxZEIBWsU85zlWvCqpIpcIu/IfE5j5YmSciqlvjTqj46j6EFaMWHIs2wSd/JGi8NhpGhpYpSwCKJIeyBcs5wJjMpQi0v/+muuqJfP76sqCxDojTy0FW/ODI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1745753466; c=relaxed/simple;
-	bh=S4z7nos27hI/7ufS5vv7byZtBgt3zdHjyqnqgydLOG4=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Qhai17Icmm39qki0iQTFzh1kUg6uhP54lAaNIYWf0DZMP5XI1+tAVEgqmqM8kDa7zupkZuOjLpO66FPqpQZ3vMhiMUk87DhS7TcWIAL7GKc7nhOZgFdMDKRfn13anEsR+HkNNNgurvOTmZPQpC7vwGXMJqjYsfJ7wAqaau6b5ss=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Vi2nZBoA; arc=none smtp.client-ip=10.30.226.201
+	bh=+BsL+X+30brRz3phNXt0JYIMKKNWV3x6jUYpT2ksFCo=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=EiHApFMBq5AKFJcMltBXy29Yx8bjpYmpQvlqLYFyHmYM6WDrIyamUk3rQn8givSAV+RfsM+XMY5ueLibVK18SoixnkjcxXooA/+2pQkdXcyzL9VDztGLJt9VXMKwKI5V29/UO5qKq+Cj6v4V2MbXIaH7dWqSj/zMbqns5vshDhE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m750C3Cb; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Vi2nZBoA"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id A38FFC4AF09;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m750C3Cb"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 842F9C4CEE3;
 	Sun, 27 Apr 2025 11:31:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1745753465;
-	bh=S4z7nos27hI/7ufS5vv7byZtBgt3zdHjyqnqgydLOG4=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=Vi2nZBoAXHz+LdW2JtLmRp9St4kEW0p4FCErubxlBkI3niI306TAyfRK1NiBzuqvh
-	 b1F485McK+a3DR1skKEoxB3RAK0yYfiSHo3HlLH1tfM2elkEHCiKF7pQd1TN6JP17k
-	 N6xJEdLDIouhCspG0b1TPNX3SpB3ZC49cyoDOprPxgU9sjEnW15Q/Hsicuv5hMKK7H
-	 P7qIqbSf24fiDUMhPmvg/OFrY+8TLVobzFGmIrZIa5dAp3vrqW5Unn9xC0kOAfhodN
-	 ce9WKbCsRNMYZQT/v5G3hEmvXdPQRL/2/kccayOMuIk0ntEhCyq9ShbGQkbDiUQFoq
-	 lnDKbriZUHFlg==
+	bh=+BsL+X+30brRz3phNXt0JYIMKKNWV3x6jUYpT2ksFCo=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=m750C3CbibW7p6DOy1lkSdAcpLZHEljbRTxawEmL1bpedKtHwE3ya3Nqqa44vHTAM
+	 pQ5UlToty0iVLL7EeD9TY81QeLy7W29IL8QAhErHW1bG3ZLSlybm8sKbsmJ6IIWE5D
+	 0OAZMF2gWDUmQZ3ICxUomYWh9/gHcMptYK8QBe8bvIpokV9FgZtoYZNDBVm/mEDpSZ
+	 q47y7QrBY4dWRTSF0v2N6e5SMrM0MhGHyiw0erB9m/7wocDwyDjkLoycvFZ8CMvy7t
+	 b/LyBVDrLz6ZTipOrGYYzT+91vU+P4WvO6sUxeg+bAVVOCbLWJ9XTQq/GM0aJ3h+MJ
+	 snH6jkRNg5DHw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 965B5C369DC;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 78249C369D1;
 	Sun, 27 Apr 2025 11:31:05 +0000 (UTC)
 From: Sven Peter via B4 Relay <devnull+sven.svenpeter.dev@kernel.org>
-Date: Sun, 27 Apr 2025 11:30:44 +0000
-Subject: [PATCH v3 2/4] i2c: pasemi: Improve timeout handling
+Subject: [PATCH v3 0/4] Apple/PASemi i2c error recovery fixes
+Date: Sun, 27 Apr 2025 11:30:42 +0000
+Message-Id: <20250427-pasemi-fixes-v3-0-af28568296c0@svenpeter.dev>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -40,9 +40,11 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250427-pasemi-fixes-v3-2-af28568296c0@svenpeter.dev>
-References: <20250427-pasemi-fixes-v3-0-af28568296c0@svenpeter.dev>
-In-Reply-To: <20250427-pasemi-fixes-v3-0-af28568296c0@svenpeter.dev>
+X-B4-Tracking: v=1; b=H4sIAGIVDmgC/13MTQ6CMBCG4auQrq3p30h05T2Mi9IOMguBdEijI
+ dzdQmKMLN+ZfM8sGBMhi0s1i4SZmIa+hD1UInS+f6CkWFoYZUAZo+ToGZ8kW3ohy7M+haaunXK
+ NF2UyJtweZXG7l+6IpyG9Nz3r9fqFzD+UtVQy1uitjaAC4JUz9iNOmI4Rs1ixbH6A07ADTAECO
+ Nu0YDVovweWZfkAk4U9Uu0AAAA=
+X-Change-ID: 20250220-pasemi-fixes-916cb77404ba
 To: Janne Grunau <j@jannau.net>, Alyssa Rosenzweig <alyssa@rosenzweig.io>, 
  Madhavan Srinivasan <maddy@linux.ibm.com>, 
  Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
@@ -53,13 +55,13 @@ Cc: linuxppc-dev@lists.ozlabs.org, asahi@lists.linux.dev,
  linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Sven Peter <sven@svenpeter.dev>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3201; i=sven@svenpeter.dev;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1791; i=sven@svenpeter.dev;
  h=from:subject:message-id;
- bh=Ymd7PRyxpRzDKy8qH3xCi40gQpZYxfTSb89hsdr26SY=;
- b=owGbwMvMwCHmIlirolUq95LxtFoSQwafaPG+qs01Hw2ePLjJX2BzQCNpflYco5LOcgN2DZczZ
- zJtrKQ7SlkYxDgYZMUUWbbvtzd98vCN4NJNl97DzGFlAhnCwMUpABN5K8XIsG/1rvhWyy0vUh/M
- jb89KW4Fh03/nk3WU1kWRIaYHnxy1ovhr+CLAw/XWKlEqOteFl6cpj+n7eCHmIete9hyXmx8oLD
- xGhcA
+ bh=+BsL+X+30brRz3phNXt0JYIMKKNWV3x6jUYpT2ksFCo=;
+ b=owGbwMvMwCHmIlirolUq95LxtFoSQwafaP6/aCa2dTduGNTKVm5dHLRFrWO33Iefu73uVP578
+ 9RVu+hWRykLgxgHg6yYIsv2/famTx6+EVy66dJ7mDmsTCBDGLg4BWAiR3UZ/juGl3/+t3Lz1z+s
+ 63ZvnfBj/22L5Wl7T3Osk5l+q9xubtAihl/Mswo+Tw7s/PzwzsJpKVP/dk3f+00uItXm6OWY8mW
+ rDV5xAgA=
 X-Developer-Key: i=sven@svenpeter.dev; a=openpgp;
  fpr=A1E3E34A2B3C820DBC4955E5993B08092F131F93
 X-Endpoint-Received: by B4 Relay for sven@svenpeter.dev/default with
@@ -67,104 +69,56 @@ X-Endpoint-Received: by B4 Relay for sven@svenpeter.dev/default with
 X-Original-From: Sven Peter <sven@svenpeter.dev>
 Reply-To: sven@svenpeter.dev
 
-From: Sven Peter <sven@svenpeter.dev>
+Hi,
 
-The hardware (supposedly) has a 25ms timeout for clock stretching
-and the driver uses 100ms which should be plenty.
-The interrupt path however misses handling for errors while waiting for
-the completion and the polling path uses an open-coded readx_poll_timeout.
-Note that we drop reg_write(smbus, REG_SMSTA, status) while fixing those
-issues here which will be done anyway whenever the next transaction starts
-via pasemi_smb_clear.
+This series adds a few fixes/improvements to the error recovery for
+Apple/PASemi i2c controllers.
+The patches have been in our downstream tree and were originally used
+to debug a rare glitch caused by clock strechting but are useful in
+general. We haven't seen the controller misbehave since adding these.
+
+Best,
+
+Sven
 
 Signed-off-by: Sven Peter <sven@svenpeter.dev>
 ---
- drivers/i2c/busses/i2c-pasemi-core.c | 41 +++++++++++++++++++++++++-----------
- 1 file changed, 29 insertions(+), 12 deletions(-)
+Changes in v3:
+- dev_err instead of dev_warn for errors
+- Added PASEMI_ prefix to the timeout define
+- Declared new variables in the innermost scope they're used
+- Re-added a dev_err that was dropped by mistake
+- Removed already applied commits
+- Removed open-coded readx_poll_timeout in the non-irq path
+- Reorder commits
+- Link to v2: https://lore.kernel.org/r/20250415-pasemi-fixes-v2-0-c543bf53151a@svenpeter.dev
 
-diff --git a/drivers/i2c/busses/i2c-pasemi-core.c b/drivers/i2c/busses/i2c-pasemi-core.c
-index 3f5571a90c1d268ea2a9d95285f1a5e47f0481ff..ee38e8a1e1f5d062384e85a2fd49d7da9257aacc 100644
---- a/drivers/i2c/busses/i2c-pasemi-core.c
-+++ b/drivers/i2c/busses/i2c-pasemi-core.c
-@@ -9,6 +9,7 @@
- #include <linux/delay.h>
- #include <linux/i2c.h>
- #include <linux/io.h>
-+#include <linux/iopoll.h>
- #include <linux/kernel.h>
- #include <linux/module.h>
- #include <linux/pci.h>
-@@ -52,6 +53,12 @@
- #define CTL_UJM		BIT(8)
- #define CTL_CLK_M	GENMASK(7, 0)
- 
-+/*
-+ * The hardware (supposedly) has a 25ms timeout for clock stretching, thus
-+ * use 100ms here which should be plenty.
-+ */
-+#define PASEMI_TRANSFER_TIMEOUT_MS	100
-+
- static inline void reg_write(struct pasemi_smbus *smbus, int reg, int val)
- {
- 	dev_dbg(smbus->dev, "smbus write reg %x val %08x\n", reg, val);
-@@ -90,20 +97,36 @@ static void pasemi_smb_clear(struct pasemi_smbus *smbus)
- 
- static int pasemi_smb_waitready(struct pasemi_smbus *smbus)
- {
--	int timeout = 100;
- 	unsigned int status;
- 
- 	if (smbus->use_irq) {
- 		reinit_completion(&smbus->irq_completion);
- 		reg_write(smbus, REG_IMASK, SMSTA_XEN | SMSTA_MTN);
--		wait_for_completion_timeout(&smbus->irq_completion, msecs_to_jiffies(100));
-+		int ret = wait_for_completion_timeout(
-+				&smbus->irq_completion,
-+				msecs_to_jiffies(PASEMI_TRANSFER_TIMEOUT_MS));
- 		reg_write(smbus, REG_IMASK, 0);
- 		status = reg_read(smbus, REG_SMSTA);
-+
-+		if (ret < 0) {
-+			dev_err(smbus->dev,
-+				"Completion wait failed with %d, status 0x%08x\n",
-+				ret, status);
-+			return ret;
-+		} else if (ret == 0) {
-+			dev_err(smbus->dev, "Timeout, status 0x%08x\n", status);
-+			return -ETIME;
-+		}
- 	} else {
--		status = reg_read(smbus, REG_SMSTA);
--		while (!(status & SMSTA_XEN) && timeout--) {
--			msleep(1);
--			status = reg_read(smbus, REG_SMSTA);
-+		int ret = readx_poll_timeout(
-+				ioread32, smbus->ioaddr + REG_SMSTA,
-+				status, status & SMSTA_XEN,
-+				USEC_PER_MSEC,
-+				USEC_PER_MSEC * PASEMI_TRANSFER_TIMEOUT_MS);
-+
-+		if (ret < 0) {
-+			dev_err(smbus->dev, "Timeout, status 0x%08x\n", status);
-+			return -ETIME;
- 		}
- 	}
- 
-@@ -111,12 +134,6 @@ static int pasemi_smb_waitready(struct pasemi_smbus *smbus)
- 	if (status & SMSTA_MTN)
- 		return -ENXIO;
- 
--	if (timeout < 0) {
--		dev_warn(smbus->dev, "Timeout, status 0x%08x\n", status);
--		reg_write(smbus, REG_SMSTA, status);
--		return -ETIME;
--	}
--
- 	/* Clear XEN */
- 	reg_write(smbus, REG_SMSTA, SMSTA_XEN);
- 
+Changes in v2:
+- Added commit to use the correct include (bits.h instead of bitfield.h)
+- Added commit to sort includes
+- Moved timeout explanations to code instead of just the commit log
+- Made timeout recovery also work correctly in the interrupt case when
+  waiting for the condition failed
+- Used readx_poll_timeout instead of open-coded alternative
+- Link to v1: https://lore.kernel.org/r/20250222-pasemi-fixes-v1-0-d7ea33d50c5e@svenpeter.dev
 
+---
+Hector Martin (3):
+      i2c: pasemi: Enable the unjam machine
+      i2c: pasemi: Improve error recovery
+      i2c: pasemi: Log bus reset causes
+
+Sven Peter (1):
+      i2c: pasemi: Improve timeout handling
+
+ drivers/i2c/busses/i2c-pasemi-core.c | 107 ++++++++++++++++++++++++++++-------
+ 1 file changed, 88 insertions(+), 19 deletions(-)
+---
+base-commit: 7cfa6946c58989507a52f38a1267faa74a65ab0e
+change-id: 20250220-pasemi-fixes-916cb77404ba
+
+Best regards,
 -- 
-2.34.1
+Sven Peter <sven@svenpeter.dev>
 
 
