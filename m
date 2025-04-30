@@ -1,36 +1,36 @@
 Received: from relay1-d.mail.gandi.net (relay1-d.mail.gandi.net [217.70.183.193])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9D5719E97A;
-	Wed, 30 Apr 2025 14:34:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5141125C708;
+	Wed, 30 Apr 2025 14:36:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.70.183.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746023658; cv=none; b=AC5kH7VBD8rTcUZ18vs1XgleA4ysCKYx2NSZWEgQARHLfd412qzTPomaP86QsN7tizm3e0n9W3qOG8pFudq5JcOpY+QV1LqW0JLRn+3A2QTovLeRxZM3ou68IhVxObgOvtoPvx+yWyRQT9kDM53p9H+D9kk2J3cEhuRFAlMVIoY=
+	t=1746023783; cv=none; b=C2jCJWkzR+XI5i1RPBSU2McPRCMYeQy4y6tw7l/oQJ5eAHPotv1V4uyPb4JYhGJM9NJJXxGz1fi6tAWReCr167HlxPHr4WGfrsCUW5qs9zkp08iQ6U5Kc2r+otrgYht6tKxLpOBHrLEXbUix+Sv+JkJmbKwXxRa9nSKGtvW8rRw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746023658; c=relaxed/simple;
-	bh=Byb7Tq1t7uSRaYyzYVdwgGFmtIgKsoVxg0NT9A2yePI=;
+	s=arc-20240116; t=1746023783; c=relaxed/simple;
+	bh=YLKEFV8rgH4V/+vebbcVO9OrrAnJRoWbqECIUtvAdbE=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=T9BSHd4ZUesjEL/L64pywPMeYyfThNJzERQuIu8IhPJrrkgeumulbY+lV3Q2+KUyEiQz8C/gY5dUqBDaV1DNqdNCfDqtLEPacoHgniyHAY7KZ24OjrDuKGtz36CBYzrMPinC8I919yICkIJRGoyh893cbtu2qRa23cuWtua+HMs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=ZdyV1a1q; arc=none smtp.client-ip=217.70.183.193
+	 MIME-Version:Content-Type; b=Xc/OXoLwr42SSBAJwJDycXUZPXg1KeuaE1lAXa2EBiz5zUTxOi/ATHcJk6Ghwpi+BBRD81DzZ7C3PuSPQ61I+DsAaZBedu3L9KsPmNqVr0ld8wjYvsGwW1FRTQ+7lJFGHhoQJie7XIDxId8aNdwULKoTox1/WzrfbzNuL8ak+EQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=TrjaQvgQ; arc=none smtp.client-ip=217.70.183.193
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="ZdyV1a1q"
-Received: by mail.gandi.net (Postfix) with ESMTPSA id 34D7B43A35;
-	Wed, 30 Apr 2025 14:34:13 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="TrjaQvgQ"
+Received: by mail.gandi.net (Postfix) with ESMTPSA id C7EF643A36;
+	Wed, 30 Apr 2025 14:36:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=gm1;
-	t=1746023654;
+	t=1746023779;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=18jQmBOTvtWK/iwndE/jhCuYkP0bLMf5lCUV8KWlJB8=;
-	b=ZdyV1a1qg/Nz+HtmoHMun5xO7pQI7mKmI1nxD2DPgH3RlTBFbNy+pac8dbgoafM1hXdesT
-	yLW57FGRfa/El+9byC96RXvpxH91iPaX6MIxXTQEkXEDDR5LvlYIYxr5QfBOEa7UvyenhG
-	c1MsKX7ik5F15FirRU9QMoUiGIqqyDHSzAdqwYK6ryaWmjjBv4hb1KNGXluMypVy4x5+eU
-	FDgGeqUFo2JvR/wHBNipuxDEUEc97Thx5HGe8t26YFK/rvisC4To05wjpR+Yw7yZez/hXW
-	BeyhHJNnxyN6R1buxaIj1h0PrzKLEx9rSsQkwwx/X7Vt4eeeOlPfODlkle+bfg==
-Date: Wed, 30 Apr 2025 16:34:12 +0200
+	bh=ZDg+YU+GItE0RyC93E1xIAYPfA47nge0Vs43IZMexRo=;
+	b=TrjaQvgQ+SAQJliqTxD0O3KJ1icfGkr5Yy27dY0DsBvz2PhB7Y7Wc7KMom4LX4IJ67ZBUO
+	EYGu5/yExsY0OPWWJ6BdoF3HLNMOcImsCMtwR6ibNSr0MjgFnpyDEQ20xtRZBGe6SfxcCk
+	hzY0DPirMZLI3HibFtHPTjxxcXbj+qI3hWFDOtuIE9S6QMgbhBjlEnBWnkWesSEnbPzBTY
+	9poI2A7TPHFDHsfcRwSCUGA3MGFdxbx8XjEqhXadQTRFnoFi89HH1JX7hfmXO2XuxWzDWH
+	/5GW2k0e78Xc3cEKAd/q23AdreHQN/oOj7QrXhULFndJLZ+y/NmkUM+qhXJLxg==
+Date: Wed, 30 Apr 2025 16:36:17 +0200
 From: Luca Ceresoli <luca.ceresoli@bootlin.com>
 To: Cosmin Tanislav <demonsingur@gmail.com>
 Cc: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, Wolfram Sang
@@ -39,11 +39,11 @@ Cc: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, Wolfram Sang
  Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
  linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-media@vger.kernel.org
-Subject: Re: [PATCH v4 7/9] i2c: atr: add flags parameter to i2c_atr_new()
-Message-ID: <20250430163412.2d5f179c@booty>
-In-Reply-To: <20250428102516.933571-8-demonsingur@gmail.com>
+Subject: Re: [PATCH v4 9/9] i2c: atr: add passthrough flag
+Message-ID: <20250430163617.3edeedf2@booty>
+In-Reply-To: <20250428102516.933571-10-demonsingur@gmail.com>
 References: <20250428102516.933571-1-demonsingur@gmail.com>
-	<20250428102516.933571-8-demonsingur@gmail.com>
+	<20250428102516.933571-10-demonsingur@gmail.com>
 Organization: Bootlin
 X-Mailer: Claws Mail 4.3.1 (GTK 3.24.43; x86_64-redhat-linux-gnu)
 Precedence: bulk
@@ -56,15 +56,31 @@ Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 X-GND-State: clean
 X-GND-Score: -100
-X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvieeileehucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpeffhffvvefukfgjfhhoofggtgfgsehtjeertdertddvnecuhfhrohhmpefnuhgtrgcuvegvrhgvshholhhiuceolhhutggrrdgtvghrvghsohhlihessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnhepgeelffefgfehhfdtvdefueefieevkefggfelkeeiudetkeektedvhedukefgvddvnecuffhomhgrihhnpegsohhothhlihhnrdgtohhmnecukfhppedvrgdtvdemieejtdemvddtvddtmegvrgdtudemsggvgedumeelhegvjeemfeegfeemledufegvnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepvdgrtddvmeeijedtmedvtddvtdemvggrtddumegsvgegudemleehvgejmeefgeefmeeludefvgdphhgvlhhopegsohhothihpdhmrghilhhfrhhomheplhhutggrrdgtvghrvghsohhlihessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepuddtpdhrtghpthhtohepuggvmhhonhhsihhnghhurhesghhmrghilhdrtghomhdprhgtphhtthhopehtohhmihdrvhgrlhhkvghinhgvnhesihguvggrshhonhgsohgrrhgurdgtohhmpdhrtghpthhtohepfihsrgdorhgvnhgvs
+X-GND-Cause: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvieeileeiucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuifetpfffkfdpucggtfgfnhhsuhgsshgtrhhisggvnecuuegrihhlohhuthemuceftddunecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpeffhffvvefukfgjfhhoofggtgfgsehtjeertdertddvnecuhfhrohhmpefnuhgtrgcuvegvrhgvshholhhiuceolhhutggrrdgtvghrvghsohhlihessghoohhtlhhinhdrtghomheqnecuggftrfgrthhtvghrnhepgeelffefgfehhfdtvdefueefieevkefggfelkeeiudetkeektedvhedukefgvddvnecuffhomhgrihhnpegsohhothhlihhnrdgtohhmnecukfhppedvrgdtvdemieejtdemvddtvddtmegvrgdtudemsggvgedumeelhegvjeemfeegfeemledufegvnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepvdgrtddvmeeijedtmedvtddvtdemvggrtddumegsvgegudemleehvgejmeefgeefmeeludefvgdphhgvlhhopegsohhothihpdhmrghilhhfrhhomheplhhutggrrdgtvghrvghsohhlihessghoohhtlhhinhdrtghomhdpnhgspghrtghpthhtohepuddtpdhrtghpthhtohepuggvmhhonhhsihhnghhurhesghhmrghilhdrtghomhdprhgtphhtthhopehtohhmihdrvhgrlhhkvghinhgvnhesihguvggrshhonhgsohgrrhgurdgtohhmpdhrtghpthhtohepfihsrgdorhgvnhgvs
  hgrshesshgrnhhgqdgvnhhgihhnvggvrhhinhhgrdgtohhmpdhrtghpthhtohepmhgthhgvhhgrsgeskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprhhomhgrihhnrdhgrghnthhoihhssegsohhothhlihhnrdgtohhmpdhrtghpthhtoheprghrnhgusegrrhhnuggsrdguvgdprhgtphhtthhopehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhrghdprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhg
 X-GND-Sasl: luca.ceresoli@bootlin.com
 
-On Mon, 28 Apr 2025 13:25:12 +0300
+On Mon, 28 Apr 2025 13:25:14 +0300
 Cosmin Tanislav <demonsingur@gmail.com> wrote:
 
-> In preparation for adding multiple flags that change the behavior,
-> add a flags parameter to i2c_atr_new() and an i2c_atr_flags enum.
+> Some I2C ATRs can have other I2C ATRs as children. The I2C messages of
+> the child ATRs need to be forwarded as-is if the parent I2C ATR can
+> only do static mapping.
+> 
+> In the case of GMSL, the deserializer I2C ATR actually doesn't have I2C
+> address remapping hardware capabilities, but it is able to select which
+> GMSL link to talk to, allowing it to change the address of the
+> serializer.
+> 
+> The child ATRs need to have their alias pools defined in such a way to
+> prevent overlapping addresses between them, but there's no way around
+> this without orchestration between multiple ATR instances.
+> 
+> To allow for this use-case, add a flag that allows unmapped addresses
+> to be passed through, since they are already remapped by the child ATRs.
+> 
+> There's no case where an address that has not been remapped by the child
+> ATR will hit the parent ATR.
 > 
 > Signed-off-by: Cosmin Tanislav <demonsingur@gmail.com>
 
