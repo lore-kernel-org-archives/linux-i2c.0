@@ -1,88 +1,76 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from 18.mo583.mail-out.ovh.net (18.mo583.mail-out.ovh.net [178.33.45.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADCDF294A14;
-	Mon,  5 May 2025 22:18:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7FA029ACC9
+	for <linux-i2c@vger.kernel.org>; Mon,  5 May 2025 22:36:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.33.45.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746483517; cv=none; b=lk0VSoxsuPsQXPRbWxFgwQpoeY8q7fIUShODXE8GRyBj+W86bwCvRRCuqXYukWv+nS/oioZH4wbX653zmfAXqCBM/yYjj9pFfVCb09DYv5g3iwTMOKwLEOPUHcS4KLzEwoF4MhPpDxbron2yvcbLCJv+Jp5NNVxHFvsQ3w2LNSo=
+	t=1746484571; cv=none; b=tu4V+SHnNMWLTV2cQjKKU73sDfR0abpKoOiW1/BoqYTJm/coBSFNRikT51Uqscbczn4cjt473+CHFZo/okV2wUxCz8E0mIkLf80S2Ml5DKNbpegGawRkYQ5aGCPsZ85r+mZzCo7IBPnhyxOh/U2XGjyGhVOprUTVm0+dBMS4i14=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746483517; c=relaxed/simple;
-	bh=JFmXk/rXJiiaZIElLGrGEt9UTRxBH46Otd+X+9+OKkY=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=k4HIz+GgG18AMltHHbEmDQT/v+YcBVW2yLU/sNBxs9wxqJWf+/sdMKEtz58KZ+0Wv3t4EkBLbiEAQdMuldxt8WIU2WsDXAKH2L3CfrgaFE+xKfO2ywqkAKGjh+SfSmp1w+5K8w+TvqzylrPvwT7nFHEVP7zCeQLZV4cdJMyjkiE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=u06bKsIN; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="u06bKsIN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66D13C4CEF1;
-	Mon,  5 May 2025 22:18:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1746483517;
-	bh=JFmXk/rXJiiaZIElLGrGEt9UTRxBH46Otd+X+9+OKkY=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=u06bKsIN78nkxx9fy9XdVF5y2Lj0jqr2IJthJfFUS/O4LDuAyiNy3jrdVxmsnaOZa
-	 8sbVI42M7aURPSSt4RedZRJx0F10Mj42EASuvZes3+I7YmFSAHdfWEuDue+PxFpp7O
-	 92qVHL/85zGkatiILRWRNO0o88j039NGsEa32+jkHal1W+b426FRH/d9Zuwc6iPJ0j
-	 7vCTZu9q86UUCdq97sIF+fGpF0PQ6pQBam3bzfyJHknBfWbqurPb5Qs1IlkkCnjAzS
-	 1dluZm4DTpWrcFeOi7Sn3h9DGqCocuxJsQXybH69+TDnIdZXr+8C0r6YtCcQPH2+tK
-	 Y1/WdZaTvzVJA==
-From: Sasha Levin <sashal@kernel.org>
-To: linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Cc: Vitalii Mordan <mordan@ispras.ru>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Sasha Levin <sashal@kernel.org>,
-	linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.14 092/642] i2c: pxa: fix call balance of i2c->clk handling routines
-Date: Mon,  5 May 2025 18:05:08 -0400
-Message-Id: <20250505221419.2672473-92-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.5
-In-Reply-To: <20250505221419.2672473-1-sashal@kernel.org>
-References: <20250505221419.2672473-1-sashal@kernel.org>
+	s=arc-20240116; t=1746484571; c=relaxed/simple;
+	bh=0n77nqDH2VOz7wEa9efLuLLSrXCuzKT3mFw1jNTKCGE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LCzwxwbrMKeI1zCXgDoYZekkOZHJD02crKHq+07BJL2Wcu2eVtcbBwx3hi6z/sLHjnOh8qfg9zXQ+oAWYk0+hTmXWK9mVPLVMIU6CopQReJXF68Mm3XXHsxtSiLd4fuMWymHJP7Z9gllkMs6A5LZQU7b5ykHscblcOyBtkMljDI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=178.33.45.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
+Received: from director7.ghost.mail-out.ovh.net (unknown [10.109.139.93])
+	by mo583.mail-out.ovh.net (Postfix) with ESMTP id 4ZrwQv3Y6xz1WZr
+	for <linux-i2c@vger.kernel.org>; Mon,  5 May 2025 21:59:03 +0000 (UTC)
+Received: from ghost-submission-5b5ff79f4f-79r2f (unknown [10.111.174.155])
+	by director7.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 1862B1FE0F;
+	Mon,  5 May 2025 21:59:03 +0000 (UTC)
+Received: from etezian.org ([37.59.142.102])
+	by ghost-submission-5b5ff79f4f-79r2f with ESMTPSA
+	id IXL9MaY0GWgTAAAAURc+rw
+	(envelope-from <andi@etezian.org>); Mon, 05 May 2025 21:59:03 +0000
+Authentication-Results:garm.ovh; auth=pass (GARM-102R00426fefde4-4c18-406c-9206-cad9652fb832,
+                    947DC8955DF830370B505A772261845D5CB3C479) smtp.auth=andi@etezian.org
+X-OVh-ClientIp:178.39.90.92
+From: Andi Shyti <andi.shyti@kernel.org>
+To: linux-i2c <linux-i2c@vger.kernel.org>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Khalil Blaiech <kblaiech@nvidia.com>,
+	Asmaa Mnebhi <asmaa@nvidia.com>
+Subject: [PATCH] i2c: mlxbf: Allow build with COMPILE_TEST
+Date: Mon,  5 May 2025 23:58:54 +0200
+Message-ID: <20250505215854.2896383-1-andi.shyti@kernel.org>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.14.5
 Content-Transfer-Encoding: 8bit
+X-Ovh-Tracer-Id: 3794001215257381585
+X-VR-SPAMSTATE: OK
+X-VR-SPAMSCORE: -100
+X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvkedvvdegucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujfgurhephffvvefufffkofgggfestdekredtredttdenucfhrhhomheptehnughiucfuhhihthhiuceorghnughirdhshhihthhisehkvghrnhgvlhdrohhrgheqnecuggftrfgrthhtvghrnheptdevueeiheeftedujefhheelieejvdevteelfefhheeutdelkedtveejudejgfdvnecukfhppeduvdejrddtrddtrddupddujeekrdefledrledtrdelvddpfeejrdehledrudegvddruddtvdenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepihhnvghtpeduvdejrddtrddtrddupdhmrghilhhfrhhomheprghnughisegvthgviihirghnrdhorhhgpdhnsggprhgtphhtthhopedupdhrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheekfegmpdhmohguvgepshhmthhpohhuth
 
-From: Vitalii Mordan <mordan@ispras.ru>
+Extend the Kconfig dependency to include COMPILE_TEST so the
+Mellanox BlueField I2C driver can be built on non-ARM64 platforms
+for compile testing purposes.
 
-[ Upstream commit be7113d2e2a6f20cbee99c98d261a1fd6fd7b549 ]
-
-If the clock i2c->clk was not enabled in i2c_pxa_probe(), it should not be
-disabled in any path.
-
-Found by Linux Verification Center (linuxtesting.org) with Klever.
-
-Signed-off-by: Vitalii Mordan <mordan@ispras.ru>
 Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
-Link: https://lore.kernel.org/r/20250212172803.1422136-1-mordan@ispras.ru
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Khalil Blaiech <kblaiech@nvidia.com>
+Cc: Asmaa Mnebhi <asmaa@nvidia.com>
 ---
- drivers/i2c/busses/i2c-pxa.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index cb69884826739..4415a29f749b9 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -1503,7 +1503,10 @@ static int i2c_pxa_probe(struct platform_device *dev)
- 				i2c->adap.name);
- 	}
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index adb2910525b1..9f216d5db91d 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -855,7 +855,7 @@ config I2C_LS2X
  
--	clk_prepare_enable(i2c->clk);
-+	ret = clk_prepare_enable(i2c->clk);
-+	if (ret)
-+		return dev_err_probe(&dev->dev, ret,
-+				     "failed to enable clock\n");
- 
- 	if (i2c->use_pio) {
- 		i2c->adap.algo = &i2c_pxa_pio_algorithm;
+ config I2C_MLXBF
+         tristate "Mellanox BlueField I2C controller"
+-        depends on MELLANOX_PLATFORM && ARM64
++        depends on (MELLANOX_PLATFORM && ARM64) || COMPILE_TEST
+ 	depends on ACPI
+ 	select I2C_SLAVE
+         help
 -- 
-2.39.5
+2.49.0
 
