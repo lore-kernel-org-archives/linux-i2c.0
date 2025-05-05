@@ -1,209 +1,122 @@
-Received: from smtp.forwardemail.net (smtp.forwardemail.net [149.28.215.223])
+Received: from mail-il1-f207.google.com (mail-il1-f207.google.com [209.85.166.207])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E239116F0FE
-	for <linux-i2c@vger.kernel.org>; Mon,  5 May 2025 07:16:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=149.28.215.223
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BF521ACEAC
+	for <linux-i2c@vger.kernel.org>; Mon,  5 May 2025 07:16:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.207
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746429373; cv=none; b=tNEVsjqcfQf8IftXCgK6V8+qGzMkYEcVZBnC9F09h2zVHbV9Dml7TUG6fF7+tPbMl47KUqI2NFR3mWO9UZ2NqI3UpTor1hBbTA9Jl28w3Anp+C7B92/P0yvBvsiu+I+qCxVtE8DW9HXS7WDDy5vMv8/Vr6Su7G/C/IiHiZVNpT8=
+	t=1746429395; cv=none; b=h+oTWC35cXQN4VEe1YOTQoCP1vAG1ArSOwOCa77CqsBZmRTNFbddmJ1iutMexbElKIS/wavjmJH2T+VYHxzhx8XTIyHeaS4hvbESf6c9E2Pu7J8aPFsLMZzK2Acbz2IkI27K0P14F//sEE9nM7Gjik91oa+m450LRDo50wy9wjM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746429373; c=relaxed/simple;
-	bh=dWsgs3StDp5NfrqEmNwBsxpG0yY5EeSOTheWPqbEBfE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=rxyMZOQF+ERBtEZdEY6RuDbh4zowcSXFXuDRA68c844JCJ5NUQaauhVYNj/clK29U6cEQlGcGr5KF3djtnynM555Vv0LT2KdANVcLv1irMNLtzUU3BzyuXJ1sTUU0Xfn4fYGjtfJ9BtEiTW2BcmRT4LS/XQO16BgXLsZmsEN0Jc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kwiboo.se; spf=pass smtp.mailfrom=fe-bounces.kwiboo.se; dkim=pass (2048-bit key) header.d=kwiboo.se header.i=@kwiboo.se header.b=Us9Q1sqH; arc=none smtp.client-ip=149.28.215.223
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kwiboo.se
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fe-bounces.kwiboo.se
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kwiboo.se header.i=@kwiboo.se header.b="Us9Q1sqH"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kwiboo.se;
- h=Content-Transfer-Encoding: Content-Type: In-Reply-To: From: References:
- Cc: To: Subject: MIME-Version: Date: Message-ID; q=dns/txt;
- s=fe-e1b5cab7be; t=1746429371;
- bh=uCAJ/1smKtAmYm+WKYPnozKlTBBJTpkCk5xD4ZLhIP8=;
- b=Us9Q1sqHAmZrYcY83ISen4PTXBhChQ6uQAfgQkqElm+O3GKRoWTygphpWVOYJQefh8d2MRhMZ
- Q6NzMHTVAZoe81h3fT+NZMSrSNtyIqmVvP1GYxVQ54axnX1OZbyCTHhrarmKDT2NnbBTUwENzsG
- aaWawX2w7NmwaTjL7qXUz55CLwY98fq/Jh0VjJXmJXHMnfyiZzgAdNYeEXFynOwRdHYUpsqWXOS
- aRVRx+99V2Tx/ZxcSeuJyQ8u/O36umGCGtpO/lxKL5tknXjtzNVRM/vNFgbRiMDtp9v1D2DueEK
- XNpEQc16LbXOr/oGm7AcE10dowMdinkTHIBnH9J3t4Tg==
-X-Forward-Email-ID: 6818635ebaed44ffca19f3f7
-X-Forward-Email-Sender: rfc822; jonas@kwiboo.se, smtp.forwardemail.net,
- 149.28.215.223
-X-Forward-Email-Version: 1.0.2
-X-Forward-Email-Website: https://forwardemail.net
-X-Complaints-To: abuse@forwardemail.net
-X-Report-Abuse: abuse@forwardemail.net
-X-Report-Abuse-To: abuse@forwardemail.net
-Message-ID: <727f7797-3a0c-426a-8f74-6adfb3215dc7@kwiboo.se>
-Date: Mon, 5 May 2025 09:06:01 +0200
+	s=arc-20240116; t=1746429395; c=relaxed/simple;
+	bh=EMSJKUDzSBAb77SoebBMNvAxBP/EkXe/jQiB+gH+Wts=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=uPtB7beebeufxftZmsd0jGJmPCHMxZxkX+xdTRT3giCb1atN/BhYjnwdxQpHyv2mx6WHS2gNo7f1gZce2D6ZSOcQ9jawFiioTUHILIKdDCX0dr/4DTYnNXnZRv1QGc8/H7HzNKMT88WZjwpKDre6aud4mplpbgIWDR8egNqnTRM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.166.207
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-il1-f207.google.com with SMTP id e9e14a558f8ab-3d922570570so52654195ab.3
+        for <linux-i2c@vger.kernel.org>; Mon, 05 May 2025 00:16:33 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1746429392; x=1747034192;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=MHfdXx64Ba+sX/D56yZyl1OIE6j4n+qi0pYdDMpu7z8=;
+        b=VwrNnuW8N+AZGkRqNJQaRnQjXtihN3vHs4QVvLo9t0ryvfNx2ED7BUt1iIOZawzRJ1
+         EOpGTg8xnT3hesM5RZENH6OErwSCKJwpUHzJx5cxDl2YZzRnotaVkPB/c45D06IM5FlD
+         NKi9/+lkjBI3METck6hlOsKjh3gz9nalNj86ITmlYX+B1HmgXfZZwQthAkIraTLaaKq6
+         65ZqT7hfMt2qvsdfvN5v3aNAWeuG8AvstRn3jJpB//xXAWZUwlWmArPHZhIo1k10+r/h
+         Onu8+AQHwH3L0IMpheNZOBFU4CDNzKrqWcvmkhScSfDoIXJi8lkuFiclSltepzlc1qzF
+         VHJw==
+X-Gm-Message-State: AOJu0Yx18iwFI+6Dtul0lrM2oOJeHKi9Y/k4hIz027+5i/+Mn13N6xgE
+	pRESmc1YFDEVAT4PPNnYhOHFFcri/RntPj67vywSR1ie4fF/bQ8Kurq6KZGRRkARMBM6m/FUNoJ
+	1uHnnc9xazHIr60ANn5DO4DucxnoHJrTLY1WfvIRSGlTs4nCtZvls+DKVIg==
+X-Google-Smtp-Source: AGHT+IEBTI4+qSrx+O/JX6tEl9JoXNB1Mfqno3SpHuC5+Syea8HBrLMkS77b4J+W3VCYhYrS0ENDfIYvhB1GOX3jphb1pXym/Xz5
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/3] arm64: dts: rockchip: Add I2C controllers for
- RK3528
-To: Yao Zi <ziyao@disroot.org>, Heiko Stuebner <heiko@sntech.de>
-Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Chukun Pan <amadeus@jmu.edu.cn>,
- linux-arm-kernel@lists.infradead.org, linux-rockchip@lists.infradead.org,
- linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20250417120118.17610-3-ziyao@disroot.org>
- <20250417120118.17610-5-ziyao@disroot.org>
-Content-Language: en-US
-From: Jonas Karlman <jonas@kwiboo.se>
-In-Reply-To: <20250417120118.17610-5-ziyao@disroot.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-Received: by 2002:a05:6e02:250e:b0:3d8:211c:9891 with SMTP id
+ e9e14a558f8ab-3da5b23b7e2mr57455755ab.2.1746429392744; Mon, 05 May 2025
+ 00:16:32 -0700 (PDT)
+Date: Mon, 05 May 2025 00:16:32 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <681865d0.a70a0220.254cdc.0048.GAE@google.com>
+Subject: [syzbot] [i2c?] KMSAN: uninit-value in __i2c_smbus_xfer
+From: syzbot <syzbot+0a36c1fec090c67a9885@syzkaller.appspotmail.com>
+To: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com, wsa+renesas@sang-engineering.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 2025-04-17 14:01, Yao Zi wrote:
-> Describe I2C controllers shipped by RK3528 in devicetree. For I2C-2,
-> I2C-4 and I2C-7 which come with only a set of possible pins, a default
-> pin configuration is included.
-> 
-> Signed-off-by: Yao Zi <ziyao@disroot.org>
+Hello,
 
-Reading from the i2c EEPROM on a E20C works with this, so this is:
+syzbot found the following issue on:
 
-Reviewed-by: Jonas Karlman <jonas@kwiboo.se>
+HEAD commit:    02ddfb981de8 Merge tag 'scsi-fixes' of git://git.kernel.or..
+git tree:       upstream
+console+strace: https://syzkaller.appspot.com/x/log.txt?x=1034139b980000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=9dc42c34a3f5c357
+dashboard link: https://syzkaller.appspot.com/bug?extid=0a36c1fec090c67a9885
+compiler:       Debian clang version 20.1.2 (++20250402124445+58df0ef89dd6-1~exp1~20250402004600.97), Debian LLD 20.1.2
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=10c9df74580000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1550f1b3980000
 
-Regards,
-Jonas
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/5ca57f5a3f77/disk-02ddfb98.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/3f23cbc11e68/vmlinux-02ddfb98.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/73e63afac354/bzImage-02ddfb98.xz
 
-> ---
->  arch/arm64/boot/dts/rockchip/rk3528.dtsi | 110 +++++++++++++++++++++++
->  1 file changed, 110 insertions(+)
-> 
-> diff --git a/arch/arm64/boot/dts/rockchip/rk3528.dtsi b/arch/arm64/boot/dts/rockchip/rk3528.dtsi
-> index 826f9be0be19..2c9780069af9 100644
-> --- a/arch/arm64/boot/dts/rockchip/rk3528.dtsi
-> +++ b/arch/arm64/boot/dts/rockchip/rk3528.dtsi
-> @@ -24,6 +24,14 @@ aliases {
->  		gpio2 = &gpio2;
->  		gpio3 = &gpio3;
->  		gpio4 = &gpio4;
-> +		i2c0 = &i2c0;
-> +		i2c1 = &i2c1;
-> +		i2c2 = &i2c2;
-> +		i2c3 = &i2c3;
-> +		i2c4 = &i2c4;
-> +		i2c5 = &i2c5;
-> +		i2c6 = &i2c6;
-> +		i2c7 = &i2c7;
->  		serial0 = &uart0;
->  		serial1 = &uart1;
->  		serial2 = &uart2;
-> @@ -465,6 +473,108 @@ uart7: serial@ffa28000 {
->  			status = "disabled";
->  		};
->  
-> +		i2c0: i2c@ffa50000 {
-> +			compatible = "rockchip,rk3528-i2c",
-> +				     "rockchip,rk3399-i2c";
-> +			reg = <0x0 0xffa50000 0x0 0x1000>;
-> +			clocks = <&cru CLK_I2C0>, <&cru PCLK_I2C0>;
-> +			clock-names = "i2c", "pclk";
-> +			interrupts = <GIC_SPI 61 IRQ_TYPE_LEVEL_HIGH>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +			status = "disabled";
-> +		};
-> +
-> +		i2c1: i2c@ffa58000 {
-> +			compatible = "rockchip,rk3528-i2c",
-> +				     "rockchip,rk3399-i2c";
-> +			reg = <0x0 0xffa58000 0x0 0x1000>;
-> +			clocks = <&cru CLK_I2C1>, <&cru PCLK_I2C1>;
-> +			clock-names = "i2c", "pclk";
-> +			interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +			status = "disabled";
-> +		};
-> +
-> +		i2c2: i2c@ffa60000 {
-> +			compatible = "rockchip,rk3528-i2c",
-> +				     "rockchip,rk3399-i2c";
-> +			reg = <0x0 0xffa60000 0x0 0x1000>;
-> +			clocks = <&cru CLK_I2C2>, <&cru PCLK_I2C2>;
-> +			clock-names = "i2c", "pclk";
-> +			interrupts = <GIC_SPI 63 IRQ_TYPE_LEVEL_HIGH>;
-> +			pinctrl-names = "default";
-> +			pinctrl-0 = <&i2c2m1_xfer>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +			status = "disabled";
-> +		};
-> +
-> +		i2c3: i2c@ffa68000 {
-> +			compatible = "rockchip,rk3528-i2c",
-> +				     "rockchip,rk3399-i2c";
-> +			reg = <0x0 0xffa68000 0x0 0x1000>;
-> +			clocks = <&cru CLK_I2C3>, <&cru PCLK_I2C3>;
-> +			clock-names = "i2c", "pclk";
-> +			interrupts = <GIC_SPI 64 IRQ_TYPE_LEVEL_HIGH>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +			status = "disabled";
-> +		};
-> +
-> +		i2c4: i2c@ffa70000 {
-> +			compatible = "rockchip,rk3528-i2c",
-> +				     "rockchip,rk3399-i2c";
-> +			reg = <0x0 0xffa70000 0x0 0x1000>;
-> +			clocks = <&cru CLK_I2C4>, <&cru PCLK_I2C4>;
-> +			clock-names = "i2c", "pclk";
-> +			interrupts = <GIC_SPI 65 IRQ_TYPE_LEVEL_HIGH>;
-> +			pinctrl-names = "default";
-> +			pinctrl-0 = <&i2c4_xfer>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +			status = "disabled";
-> +		};
-> +
-> +		i2c5: i2c@ffa78000 {
-> +			compatible = "rockchip,rk3528-i2c",
-> +				     "rockchip,rk3399-i2c";
-> +			reg = <0x0 0xffa78000 0x0 0x1000>;
-> +			clocks = <&cru CLK_I2C5>, <&cru PCLK_I2C5>;
-> +			clock-names = "i2c", "pclk";
-> +			interrupts = <GIC_SPI 66 IRQ_TYPE_LEVEL_HIGH>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +			status = "disabled";
-> +		};
-> +
-> +		i2c6: i2c@ffa80000 {
-> +			compatible = "rockchip,rk3528-i2c",
-> +				     "rockchip,rk3399-i2c";
-> +			reg = <0x0 0xffa80000 0x0 0x1000>;
-> +			clocks = <&cru CLK_I2C6>, <&cru PCLK_I2C6>;
-> +			clock-names = "i2c", "pclk";
-> +			interrupts = <GIC_SPI 67 IRQ_TYPE_LEVEL_HIGH>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +			status = "disabled";
-> +		};
-> +
-> +		i2c7: i2c@ffa88000 {
-> +			compatible = "rockchip,rk3528-i2c",
-> +				     "rockchip,rk3399-i2c";
-> +			reg = <0x0 0xffa88000 0x0 0x1000>;
-> +			clocks = <&cru CLK_I2C7>, <&cru PCLK_I2C7>;
-> +			clock-names = "i2c", "pclk";
-> +			interrupts = <GIC_SPI 68 IRQ_TYPE_LEVEL_HIGH>;
-> +			pinctrl-names = "default";
-> +			pinctrl-0 = <&i2c7_xfer>;
-> +			#address-cells = <1>;
-> +			#size-cells = <0>;
-> +			status = "disabled";
-> +		};
-> +
->  		saradc: adc@ffae0000 {
->  			compatible = "rockchip,rk3528-saradc";
->  			reg = <0x0 0xffae0000 0x0 0x10000>;
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+0a36c1fec090c67a9885@syzkaller.appspotmail.com
 
+=====================================================
+BUG: KMSAN: uninit-value in i2c_smbus_xfer_emulated drivers/i2c/i2c-core-smbus.c:481 [inline]
+BUG: KMSAN: uninit-value in __i2c_smbus_xfer+0x23e7/0x2f60 drivers/i2c/i2c-core-smbus.c:607
+ i2c_smbus_xfer_emulated drivers/i2c/i2c-core-smbus.c:481 [inline]
+ __i2c_smbus_xfer+0x23e7/0x2f60 drivers/i2c/i2c-core-smbus.c:607
+ i2c_smbus_xfer+0x31d/0x4d0 drivers/i2c/i2c-core-smbus.c:545
+ i2cdev_ioctl_smbus+0x4a1/0x660 drivers/i2c/i2c-dev.c:389
+ i2cdev_ioctl+0xa14/0xf40 drivers/i2c/i2c-dev.c:478
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:906 [inline]
+ __se_sys_ioctl+0x239/0x400 fs/ioctl.c:892
+ __x64_sys_ioctl+0x97/0xe0 fs/ioctl.c:892
+ x64_sys_call+0x1ebe/0x3db0 arch/x86/include/generated/asm/syscalls_64.h:17
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0xd9/0x1b0 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+
+Local variable page created at:
+ get_futex_key+0x6f/0x11d0 kernel/futex/core.c:227
+ futex_wake+0xfe/0x890 kernel/futex/waitwake.c:166
+
+CPU: 1 UID: 0 PID: 5795 Comm: syz-executor470 Not tainted 6.15.0-rc3-syzkaller-00094-g02ddfb981de8 #0 PREEMPT(undef) 
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 04/19/2025
+=====================================================
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
