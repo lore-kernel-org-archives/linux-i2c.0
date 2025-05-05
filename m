@@ -1,50 +1,50 @@
 Received: from mail.as397444.net (mail.as397444.net [69.59.18.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB6815680;
-	Mon,  5 May 2025 20:57:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16C5D202C31;
+	Mon,  5 May 2025 21:07:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=69.59.18.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746478672; cv=none; b=ejReQ1cNPx0G5igu8oQ3zK70BQ5jIdcjPrGy/sGpEw2/yuar10Lu6eQ/gDNiolZpwp8OScAQV/P3epvIs09/NM5EX6wIVQ2Cg8+Cjzf4URV1iioj/jiOrVz0BZOk6kSBI3AeXOwimkANZd0shGYYCgQoIE2/2NBwxUgRMvZQuwo=
+	t=1746479256; cv=none; b=bnBOvU3NvBDKLvtS53HAZYPl/cOe1cRgVAaFOOx6tpW+zmFNzOGSBsK5KrdHzbRiPOyFaYUN3Kjrno5deT143ieXuXBopSstx8wb8k/RkW8zeveVMUJoC94YydTOGUdDQqK1KDCINEo9ta1lsohhOOEbXiNUj0VlST0jbrSOqVw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746478672; c=relaxed/simple;
-	bh=stC0MOvWH9Ue8a2otPISJ5Vdj7ATBnDHk7dXr4Ai2JA=;
+	s=arc-20240116; t=1746479256; c=relaxed/simple;
+	bh=OeKSYQM0y4acgK9Dg3KckFONPyAn/+wg5t5V/RDgh3E=;
 	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=XTXbGLto5jtLgtkQOIA0eU4lVF4pJFsVYPWVvsMlWG2h9/ESJy6FrSuWW+p91KqxRMQVmZQtbJ0K/y6eDHhAWkpXVagUKvGNiz25AySSh76gPfL7KltuXeShRlTqZG3s1/OCSX13vjODaDY17GkC9fCbuRSwb3hvxBsLfHn0NZw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mattcorallo.com; spf=pass smtp.mailfrom=mattcorallo.com; dkim=pass (2048-bit key) header.d=mattcorallo.com header.i=@mattcorallo.com header.b=Iq4Yd+f+; dkim=pass (2048-bit key) header.d=clients.mail.as397444.net header.i=@clients.mail.as397444.net header.b=KGjBSdM5; arc=none smtp.client-ip=69.59.18.99
+	 In-Reply-To:Content-Type; b=b9rlcXuUL2ovQYdQi4Oz6sdCI3ATDzzwkdfYgsNGCTLceT3lBuarwZoVtiRE6MDfexhK8IhBWfymn3q7psxhQPNpEWVNiMhD8BmxbH5p5vU14qwdWoFMeaaOgubfH3fUCYwfwPRyP8IBHDafOYpKXOW8/fvkw5amTcmq+lfqq6U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mattcorallo.com; spf=pass smtp.mailfrom=mattcorallo.com; dkim=pass (2048-bit key) header.d=mattcorallo.com header.i=@mattcorallo.com header.b=jGY3MJlz; dkim=pass (2048-bit key) header.d=clients.mail.as397444.net header.i=@clients.mail.as397444.net header.b=IAoWBOUV; arc=none smtp.client-ip=69.59.18.99
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mattcorallo.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mattcorallo.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mattcorallo.com header.i=@mattcorallo.com header.b="Iq4Yd+f+";
-	dkim=pass (2048-bit key) header.d=clients.mail.as397444.net header.i=@clients.mail.as397444.net header.b="KGjBSdM5"
+	dkim=pass (2048-bit key) header.d=mattcorallo.com header.i=@mattcorallo.com header.b="jGY3MJlz";
+	dkim=pass (2048-bit key) header.d=clients.mail.as397444.net header.i=@clients.mail.as397444.net header.b="IAoWBOUV"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=mattcorallo.com; s=1746476462; h=In-Reply-To:From:References:To:Subject:
+	d=mattcorallo.com; s=1746477663; h=In-Reply-To:From:References:To:Subject:
 	From:Subject:To:Cc:Cc:Reply-To;
-	bh=BqXOjIBwe+J3YiXs5L21gzfuopeqO07iCQhZSE0tefQ=; b=Iq4Yd+f+brpa5nDC8Fv1t9ynIw
-	9YeEJCd7PnTgJwYuit47z4uz0dTGuuCYfM2E2+FrRFKJEfFjvJGgROV/Vfh6KNyb6d4I+nvKvQdhX
-	miCjgjAcqYXid6Oet9+SAned7vHyJlduJiwAelqchItVL+A4HIh8zPL7kE2obRuctNO5zafAy5D9X
-	Xw1BRH53SB6Nbp6QpqyZsI1UFSPOKK9N59Yn/kXwIL843TT2SlKdrJyNoUhVZSnq8+fl5RvXcMUZu
-	mykJ9ng79/Lt456I6cfhjrw47ySSyzr2rgdrOLS+QabKavJum0qkfZKcW+8R5aBduf9soLGJSpMsG
-	kdN89LwQ==;
+	bh=kvFNPuKhYHPYwuvjJeByf4oFzEWjO5/uCzgmJyvUC2s=; b=jGY3MJlzH1ZLOEC4J+8HeADl6N
+	NUCkE0kXqjhrOP9y+cvLdb41kYSfKm8Zw3SaBxZ7vzVcXUSbySd4eqV1pllSMmGcUBBR2fHc2U1mB
+	Ft6a8wGE+H5Bq5Q/p+kl8MbrWMNF2GaAzGOx9au4j09AayAvWbKXQwjvlSf2Lk63O5EvA9xPXqXeq
+	d3/YFriuwu6qEUKJQwPxRXek+tWBgbATiePxowW40yriZLMQ2PnST0gasXAMB+tJQvMzvhoHygAnI
+	DLEx9eEU2w2xxKnReR13/8N+TZ8PdBXAEx06MycE85zttMpHmYU8bWlTDsV4Uut8pd79kwnFBs+m6
+	B5mvzZAA==;
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=clients.mail.as397444.net; s=1746476465; h=In-Reply-To:From:References:To:
+	d=clients.mail.as397444.net; s=1746477665; h=In-Reply-To:From:References:To:
 	Subject:From:Subject:To:Cc:Cc:Reply-To;
-	bh=BqXOjIBwe+J3YiXs5L21gzfuopeqO07iCQhZSE0tefQ=; b=KGjBSdM5BaiN1c5nm6X3h71m3x
-	LvB6E6WV8wrhNDmYA7ZOsTm6YN8HmxEm+0j/ljAjWhXnNWIEHHea0eed20O1spqg+rdSnYf0qCSjg
-	FjXvMYlJwn6T+yB+9V2MOkOdsecR99AzWl2ZIiclsCAf4KA0jk3XNemWuQl+uyAhC33imd8ALtPMa
-	0C7PfSd44fFqYoYAiFC2KH/5fBfAUMO1IcjvFOAdq9siRmeO+7e2fvWRIVMn6zQtqM1f4I9G4cphh
-	kwE0Q1kqR6HmDk9WV2WPhg5wUHyg50QMTBrhbw0VeYMKMwlGXKWigBaJHbg0CiypjUG7mSuW87T+e
-	ey7xT58Q==;
+	bh=kvFNPuKhYHPYwuvjJeByf4oFzEWjO5/uCzgmJyvUC2s=; b=IAoWBOUVppqL6f/UhCJMh6z8if
+	WYXPaMBvjD/wQtSmeb7VarcMHuHjfNCVt188sjlIcId7GTO3dDu+rh1YQ3AKx2zEltIb2UGw6/x3/
+	ZUATrfy6XgZwHBxY7hlpUTc1aHbJ7nIuvvLXdr7y/ZLyHEZrYNTZYUVs40bvEWYF0el51T1lyxTFj
+	5x7ic25bPX6DXObYmWgxYp7nKNfQie8j+POjUXfWVVMV3MRa/640/7y1oKASk2gGNBoiQMrL3L0om
+	cYsG/PGUv8KEIjAdm7/mf0sCt5/Q75AoBUvHXN2S/R/l/F0QdGArvuQfEvGtxKW2fEg1+vW4/SaFt
+	FPaISjAw==;
 X-DKIM-Note: Keys used to sign are likely public at
 X-DKIM-Note: https://as397444.net/dkim/mattcorallo.com and
 X-DKIM-Note: https://as397444.net/dkim/clients.mail.as397444.net
 X-DKIM-Note: For more info, see https://as397444.net/dkim/
 Received: by mail.as397444.net with esmtpsa (TLS1.3) (Exim)
 	(envelope-from <yalbrymrb@mattcorallo.com>)
-	id 1uC2si-00CHpl-2G;
-	Mon, 05 May 2025 20:57:44 +0000
-Message-ID: <bc9a14b5-8b10-436f-a791-28df245465e6@mattcorallo.com>
-Date: Mon, 5 May 2025 16:57:43 -0400
+	id 1uC2ch-00CHmI-1D;
+	Mon, 05 May 2025 20:41:11 +0000
+Message-ID: <3a9ab7bf-6761-4a14-983e-e6bb288ce58a@mattcorallo.com>
+Date: Mon, 5 May 2025 16:41:09 -0400
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -52,9 +52,9 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Subject: Re: PMBus memory overflow
-To: Guenter Roeck <linux@roeck-us.net>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- linux-hwmon@vger.kernel.org, Linux I2C <linux-i2c@vger.kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+ Guenter Roeck <linux@roeck-us.net>, linux-hwmon@vger.kernel.org,
+ Linux I2C <linux-i2c@vger.kernel.org>
 References: <336f298f-497f-4dd9-97ee-50b81221be06@roeck-us.net>
  <1b1eccff-a306-4e17-a6bf-fd3203c61605@mattcorallo.com>
  <1edc8396-535d-4cdf-bbb7-11d559d4c257@roeck-us.net>
@@ -66,43 +66,28 @@ References: <336f298f-497f-4dd9-97ee-50b81221be06@roeck-us.net>
  <d5abeb59-8286-425c-9f78-cd60b0e26ada@mattcorallo.com>
  <00baca6f-8046-46ae-a68c-525472562be7@roeck-us.net>
  <aAtEydwUfVcE0XeA@shikoro>
- <3a9ab7bf-6761-4a14-983e-e6bb288ce58a@mattcorallo.com>
- <e0e789b3-24c2-4ea3-9c79-fa815d801d83@roeck-us.net>
 Content-Language: en-US
 From: Matt Corallo <yalbrymrb@mattcorallo.com>
-In-Reply-To: <e0e789b3-24c2-4ea3-9c79-fa815d801d83@roeck-us.net>
+In-Reply-To: <aAtEydwUfVcE0XeA@shikoro>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
 
-On 5/5/25 4:50 PM, Guenter Roeck wrote:
-> On 5/5/25 13:41, Matt Corallo wrote:
->>
->>
->> On 4/25/25 4:16 AM, Wolfram Sang wrote:
->>>
->>>> Wolfram, what do you suggest ? Fixing the cp2112 driver is obviously necessary, but
->>>> I do wonder if a check such as the one above would be appropriate as well, possibly
->>>> even combined with a WARN_ONCE().
->>>
->>> How annoying, there was still an unchecked case left? Sorry. Yes, the
->>> core can have a check for a short-term solution. The long-term solution
->>> is to support SMBUS3.x which allows for 255 byte transfers.
->>
->> Thanks!
->>
->> Any update here? I guess we already have a patch so no use in me trying to write one. Would be 
->> nice to get this in a pull so it can head through backports.
->>
+On 4/25/25 4:16 AM, Wolfram Sang wrote:
 > 
-> Not from my side, sorry. I am deeply buried in work and don't have time for anything
-> that isn't super-urgent :-(
+>> Wolfram, what do you suggest ? Fixing the cp2112 driver is obviously necessary, but
+>> I do wonder if a check such as the one above would be appropriate as well, possibly
+>> even combined with a WARN_ONCE().
+> 
+> How annoying, there was still an unchecked case left? Sorry. Yes, the
+> core can have a check for a short-term solution. The long-term solution
+> is to support SMBUS3.x which allows for 255 byte transfers.
 
-Mmm, shame, its kinda annoying to leave a buffer overflow reachable from a malicious USB device 
-sitting around (okay, with the default hardening configs it gets caught, but still). Can we just 
-land the above patch from Wolfram to check the length before writing the buffer? Happy to clean it 
-up as a formal patch submission if its easier for you.
+Thanks!
+
+Any update here? I guess we already have a patch so no use in me trying to write one. Would be nice 
+to get this in a pull so it can head through backports.
 
 Thanks,
 Matt
