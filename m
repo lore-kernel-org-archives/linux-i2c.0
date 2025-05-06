@@ -1,78 +1,100 @@
-Received: from 20.mo582.mail-out.ovh.net (20.mo582.mail-out.ovh.net [178.32.124.17])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B03D22DBB05
-	for <linux-i2c@vger.kernel.org>; Tue,  6 May 2025 02:53:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.32.124.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9ABCC2153E8;
+	Tue,  6 May 2025 07:01:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1746500026; cv=none; b=bkYYeH7ek2zRdlq/gG8nglMa5k8AFRO2cpuAqxSwJq+CRwGizZt/b3bqo2NYSpT6UNgQd0DCMdbwdMbw8T2eBYWdgMidcRQQ0ZTC1bp7QFlQnngfOEp/+61In+CsXHBmQPEjcIU4/YEVm4Yux1RAsS1R6SCW2WQvdwWdGejfAHk=
+	t=1746514911; cv=none; b=uK4o49KMGkj615RziDQdCYbLAX4pxvocZT3/b53ZHtmiMad0HJuTr0CcqHja5Qo31HYKlESpxEYZGACCzvhgzfKZFCI/GNr8fB+PRtfkhNfH0pzKsYAGyivu1E3q7szd32n6/eO1qpfsEzZc7hl7Blhnz6nfNlHnDGEw5FcHwd4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1746500026; c=relaxed/simple;
-	bh=cgSjeKSfHHYoUxmWYtpLOxGtmWkqUZ68W+4E1DITWpk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=qzd27yzxmsCJ06d/SpHOSD6Fqv3ZmXcjiz16M+K2m48aAY+ayU2igHv79rjKFFapRJmoppX3d0QPWr+ebBwH8MA+TWsQNmPV7UOW+JfuoI7/TDVS5KDkYzUVdxOJ7OkTRTvOi46nCCAKGMooXFpJjDOFiKvoL3J0xdzbQS3EXuk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=178.32.124.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director11.ghost.mail-out.ovh.net (unknown [10.108.2.206])
-	by mo582.mail-out.ovh.net (Postfix) with ESMTP id 4Zry6x6sLmz1RpH
-	for <linux-i2c@vger.kernel.org>; Mon,  5 May 2025 23:15:21 +0000 (UTC)
-Received: from ghost-submission-5b5ff79f4f-cbrd8 (unknown [10.110.113.153])
-	by director11.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 8E0FA1FE5C;
-	Mon,  5 May 2025 23:15:21 +0000 (UTC)
-Received: from etezian.org ([37.59.142.105])
-	by ghost-submission-5b5ff79f4f-cbrd8 with ESMTPSA
-	id bGMJGolGGWg53AAA8w/7vQ
-	(envelope-from <andi@etezian.org>); Mon, 05 May 2025 23:15:21 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-105G006cfc46cdc-f827-4b0f-b2a5-2e291018f2d6,
-                    747E7ACD920FD474922C684FCFDFE7BAD88F7365) smtp.auth=andi@etezian.org
-X-OVh-ClientIp:178.39.90.92
-From: Andi Shyti <andi.shyti@kernel.org>
-To: linux-i2c <linux-i2c@vger.kernel.org>
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>
-Subject: [PATCH] MAINTAINERS: Remove entry for Seth Heasley
-Date: Tue,  6 May 2025 01:15:11 +0200
-Message-ID: <20250505231511.3175151-1-andi.shyti@kernel.org>
-X-Mailer: git-send-email 2.49.0
+	s=arc-20240116; t=1746514911; c=relaxed/simple;
+	bh=3e+bXisIVgWVW5HiHUl8/1fadTRryB6P+vRz6FYW0m8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WUG888kXqGAD7uaQdPUSr087E7cs5vOJVKMWOd/R60KYxOShM8oIgwJr9GLkVfSZNYUQsklRti7/b7YaSLiwaHcql3vDG60//hnqZ1JLFwEI8930TuaMl73gKiwkKU/LdjLj3Ow01yYXIrENu1+jRI3mXU63y+oTz/tO1Dh1354=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lNnbg1RP; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lNnbg1RP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 188A8C4CEED;
+	Tue,  6 May 2025 07:01:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1746514911;
+	bh=3e+bXisIVgWVW5HiHUl8/1fadTRryB6P+vRz6FYW0m8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=lNnbg1RP+v6AaxdDJ0aFA4TWtGcGpc6wqQgXuji88MvtJv6q++0/k3JWsLEpSF0PB
+	 iG1xEe/z3hYd/iUYCbp2OTFyWT6UgI5Kqaox8j+MqSEVdg3MO8/U4UkeHYKlYXLA2A
+	 RhpFKe6BT8JW0mlKs7pBmZSrCYduS1YwnmNle8UYtI+Od1Cp9pdYEDjIg680+rCCCD
+	 0zgFU/a/Zo7P8Ij3B1yn1L66z2SVE7xlNRsdk08pSRflVjly59euY/5rVZbJygWjJX
+	 kQnqv92FUBVNJsOdRztnWkvsh09II9WxZZItN/CpwkyArno8WfrH7J355DykJmtkd0
+	 C3kPvHfnD0JAg==
+Received: from johan by xi.lan with local (Exim 4.97.1)
+	(envelope-from <johan@kernel.org>)
+	id 1uCCJG-000000006rV-2OBA;
+	Tue, 06 May 2025 09:01:46 +0200
+Date: Tue, 6 May 2025 09:01:46 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Johan Hovold <johan+linaro@kernel.org>, Vignesh R <vigneshr@ti.com>,
+	Aaro Koskinen <aaro.koskinen@iki.fi>,
+	Andreas Kemnade <andreas@kemnade.info>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
+	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+	linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Jayesh Choudhary <j-choudhary@ti.com>
+Subject: Re: [PATCH] i2c: omap: fix deprecated of_property_read_bool() use
+Message-ID: <aBmz2iDObAgendMc@hovoldconsulting.com>
+References: <20250415075230.16235-1-johan+linaro@kernel.org>
+ <vcwjwrjgzwoil5ydds4findhcgl2ujoxwia7eh7yrbdc45yx26@kmpmvataffzr>
+ <aAIiJQVAUdWJFVy7@hovoldconsulting.com>
+ <hn3gsrizar6xbr4seclnb6xot4fo4ztryks4w7exvztsdzj4f6@jhobhujf3ezi>
+ <aBiMJ0z5q4K2xTGT@hovoldconsulting.com>
+ <6nn2l75kkbkdu3wf3kta4mezno6cy4e3zzwzdc4cpmujjhr6lp@ct7w72zwbrhu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Ovh-Tracer-Id: 5082593658242599444
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: 0
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgeefvddrtddtgddvkedvfeelucetufdoteggodetrfdotffvucfrrhhofhhilhgvmecuqfggjfdpvefjgfevmfevgfenuceurghilhhouhhtmecuhedttdenucenucfjughrpefhvfevufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeetnhguihcuufhhhihtihcuoegrnhguihdrshhhhihtiheskhgvrhhnvghlrdhorhhgqeenucggtffrrghtthgvrhhnpedtveeuieehfeetudejhfehleeijedvveetleefhfehuedtleektdevjedujefgvdenucfkphepuddvjedrtddrtddruddpudejkedrfeelrdeltddrledvpdefjedrheelrddugedvrddutdehnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpegrnhguihesvghtvgiiihgrnhdrohhrghdpnhgspghrtghpthhtohepuddprhgtphhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdfovfetjfhoshhtpehmohehkedvmgdpmhhouggvpehsmhhtphhouhht
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6nn2l75kkbkdu3wf3kta4mezno6cy4e3zzwzdc4cpmujjhr6lp@ct7w72zwbrhu>
 
-Seth's mails bounce back, remove his maintainership.
+On Tue, May 06, 2025 at 12:13:00AM +0200, Andi Shyti wrote:
+> On Mon, May 05, 2025 at 12:00:07PM +0200, Johan Hovold wrote:
+> > On Tue, Apr 29, 2025 at 03:10:13PM +0200, Andi Shyti wrote:
 
-Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
----
-Hi,
+> > > I'm sorry, but as I understand it, the Fixes tag should be used
+> > > only when an actual bug is being fixed. I've seen stable
+> > > maintainers getting annoyed when it's used for non-bug issues.
+> > 
+> > You seem to confuse the Fixes tag with a CC stable tag. A Fixes tag is
+> > used to indicate which commit introduced an issue, while the CC stable
+> > tag is used to flag a commit for backporting (and the fact that autosel
+> > tends to pick up patches with just a Fixes doesn't change this).
+> 
+> (the Cc tag for fixes is not mandatory, it's more a courtesy)
 
-I had a chat with Seth before and he said that he had no
-intention in continuing on his role as maintainer of the ismt
-driver.
+You should still add it as described by the stable tree docs:
 
-Andi
+	To have a patch you submit for mainline inclusion later
+	automatically picked up for stable trees, add this tag in the
+	sign-off area::
 
- MAINTAINERS | 1 -
- 1 file changed, 1 deletion(-)
+	Cc: stable@vger.kernel.org
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 69511c3b2b76..70229ed0c55a 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -11235,7 +11235,6 @@ S:	Maintained
- F:	drivers/i2c/busses/i2c-cht-wc.c
- 
- I2C/SMBUS ISMT DRIVER
--M:	Seth Heasley <seth.heasley@intel.com>
- M:	Neil Horman <nhorman@tuxdriver.com>
- L:	linux-i2c@vger.kernel.org
- F:	Documentation/i2c/busses/i2c-ismt.rst
--- 
-2.49.0
+The stable team also scans through patches with just a Fixes tag because
+some people forget to add the tag, don't know that they should, or don't
+care about stable, but you should not rely on that (as I alluded to
+above).
 
+> > It's perfectly fine to fix an issue and use a Fixes tag when doing so
+> > even if the fix itself does not qualify for backporting (for whatever
+> > reason).
+> 
+> Oh yes, I forgot that patch was part of the 6.15 merge window. I
+> will then move it to the -fixes and send it for this week's merge
+> request.
+
+Perfect, thanks.
+
+Johan
