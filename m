@@ -1,46 +1,44 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BE921CCB4B
-	for <linux-i2c@vger.kernel.org>; Sat, 17 May 2025 08:24:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF74220330;
+	Sat, 17 May 2025 09:02:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747470248; cv=none; b=DHSsjmHf6JpmkzuW2l0DSZJMmhgWMLsImZ+ZWj2AZrjEPoJT6GLpTuigtwVYiENRp2Gaefi60G2HRueG3OxxIsF0H6a7z9GVzuVgdCNGPswJQvTJF2sNGaV3P4ZvsyEl/yJwA/53htrI9Q0LASNLg124l22sxrG2zhf6aIztSBk=
+	t=1747472570; cv=none; b=NtT/+2mDPWl5KXSWXUn7QuKv08F40DL2s+hb4UGMONVO/HEKwnXU/gkFGR1D9D+Up7nXjnXPsS07Dtyo57j801LVM2hbUO1oNJF8RX5MDWZ4B49ZHjAeAZP2TD/XFhjnVIOmBLFpHA1KMPvnxKiHmqRyAEt1ot2MdaGI+IfnSSE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747470248; c=relaxed/simple;
-	bh=s1nTQGBD31+KHbF5SOweT37umasqo4MTw7szvhBcfy8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PK8i9OgR52C9v8X9u2wqogNTAu5hsACAKHzolzJtlUPXO3h3N2gA/qKKNL91xDGbfX0UiaojAsSE/vbbq/Tt32xdMOBtpn58geo0Gb7ykmS1KKcYccAFDUaUUikqRWIePyYDHlkVTSWA3/KqcxvY3gAbfRjkMTRW0uZxewU6GOc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=l9H2P+vJ; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1747472570; c=relaxed/simple;
+	bh=oFRZs3vh1KIpraHwVfAmLwSR8tJ4ihC+6TTHYLWB6A0=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=DTB32ktFUsT3usLL21vOYa5L7FQDhkf3Ul8gN3wdHjMXqf1vt5LXFpyWluKnUHlerD3KlVWcw9R0i4mQcl8dOQCYDJ3G2ZIONR81+zwQwCYvG6Tv0Y2ZiQRAUimvxfstiidmro7B6X7SFtP1azoTZbv/f+hhQaFK3ZVwA9WAbRY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B7JqNIua; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="l9H2P+vJ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=+1XD
-	rmDz5vIlLyH8vVVp1fHDNWZ4Hdbcl0x7tpFLbVk=; b=l9H2P+vJWCmpdDdrDl99
-	Pkxoj3oviBiWX+9/4UymGTvRT0bQeca3GBf3RxqXRr10kO5Ye4KbnS/PO9Ip9ccH
-	JHBJCXtTuIYY+1djez4f8W3xjsqt1F/HN9k1avMw194vz5xkAz6pV5LiJiqQ8/N4
-	dqfli1qi+D5m4VO6BhLYqc6U0bJRCSVtLt/EgZSz4off0EEdp83tMkiNv9K2qlvG
-	XP4obv/TeOurDUCwgbE5IOD9hMmCFRObkalni9JgsXeAsMRlo7CMX0njUeseNM6H
-	A5PJ7MX83D0qaJ6Gq6yUTbuXu0DhgLG6Pu6D9ubdQhMNkhca1KuTaGQ4Z1sSeJcj
-	GQ==
-Received: (qmail 1685043 invoked from network); 17 May 2025 10:23:55 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 17 May 2025 10:23:55 +0200
-X-UD-Smtp-Session: l3s3148p1@koWVnlA1/LVbRaAl
-Date: Sat, 17 May 2025 10:23:54 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c <linux-i2c@vger.kernel.org>,
-	lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [GIT PULL] i2c-host-fixes for v6.15-rc7
-Message-ID: <aChHmtqCuYKF1yox@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	linux-i2c <linux-i2c@vger.kernel.org>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <v2tjgz5opkfbnlwsl4ptiauqq3bcahgxjfwx6edk6c6lhyhzm2@nlcpfl6lse6b>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B7JqNIua"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84C65C4CEE3;
+	Sat, 17 May 2025 09:02:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1747472570;
+	bh=oFRZs3vh1KIpraHwVfAmLwSR8tJ4ihC+6TTHYLWB6A0=;
+	h=Date:From:To:Cc:Subject:From;
+	b=B7JqNIuayfXnGNUTtM20u2uRBZpSx2SgXAVICc9NfwaDBOGaniO7KBAOEhRu6+Tf2
+	 quwyYcRrsOhAeZ7fVL8en8fWPs/GmkmS5NZXSpX1c0ETj77ccaqpypy4vIrRdbrbDk
+	 IZlc5jzkhVrVZQ/UylbCoPHi0NoDbIy+njhp+gWhO3ETENqjfq1C95AJcnZPFsC5lN
+	 hgX6m2Iye5rUkRJbKnAaJcjAFRKOA9LGKWmO7B1AMS80GDplXx1H/rvckmYdNWEnVy
+	 HHesy3rVjAzNsFumbPOQBBtNjDiOVGUwYjfJMK6ZqqVnqMd/05TRkJTpjupj2qz2sb
+	 +Ozy2ax9Ztmpw==
+Date: Sat, 17 May 2025 11:02:46 +0200
+From: Wolfram Sang <wsa@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>
+Subject: [PULL REQUEST] i2c-for-6.15-rc7
+Message-ID: <aChQtvRgPB1q4gKg@shikoro>
+Mail-Followup-To: Wolfram Sang <wsa@kernel.org>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -48,63 +46,59 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="72Lqpmoi9spjJbkk"
+	protocol="application/pgp-signature"; boundary="kJXrdRYYD1+/CqeD"
 Content-Disposition: inline
-In-Reply-To: <v2tjgz5opkfbnlwsl4ptiauqq3bcahgxjfwx6edk6c6lhyhzm2@nlcpfl6lse6b>
 
 
---72Lqpmoi9spjJbkk
+--kJXrdRYYD1+/CqeD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, May 16, 2025 at 10:59:14AM +0200, Andi Shyti wrote:
-> Hi Wolfram,
->=20
-> I could have delivered this pull request personally, printed on a
-> roll of paper and handed over with a big bow :-)
->=20
-> From sunny Nice, here's this week's pull request. Now, time for a
-> dip in the water.
->=20
-> Andi
->=20
-> The following changes since commit 82f2b0b97b36ee3fcddf0f0780a9a0825d52fe=
-c3:
->=20
->   Linux 6.15-rc6 (2025-05-11 14:54:11 -0700)
->=20
-> are available in the Git repository at:
->=20
->   git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags=
-/i2c-host-fixes-6.15-rc7
->=20
-> for you to fetch changes up to 1cfe51ef07ca3286581d612debfb0430eeccbb65:
->=20
->   i2c: designware: Fix an error handling path in i2c_dw_pci_probe() (2025=
--05-14 17:28:24 +0200)
+The following changes since commit 82f2b0b97b36ee3fcddf0f0780a9a0825d52fec3:
 
-Thanks, pulled!
+  Linux 6.15-rc6 (2025-05-11 14:54:11 -0700)
 
+are available in the Git repository at:
 
---72Lqpmoi9spjJbkk
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-6.15-rc7
+
+for you to fetch changes up to 6c72fc56ab2bb7e0c327a6d42d02164c0dee9696:
+
+  Merge tag 'i2c-host-fixes-6.15-rc7' of git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux into i2c/for-current (2025-05-17 10:22:34 +0200)
+
+----------------------------------------------------------------
+i2c-for-6.15-rc7
+
+- designware: cleanup properly on probe failure
+
+----------------------------------------------------------------
+Christophe JAILLET (1):
+      i2c: designware: Fix an error handling path in i2c_dw_pci_probe()
+
+Wolfram Sang (1):
+      Merge tag 'i2c-host-fixes-6.15-rc7' of git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux into i2c/for-current
+
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+--kJXrdRYYD1+/CqeD
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmgoR5YACgkQFA3kzBSg
-KbbBjg/9EBJjSwBYHhgj+p+IpfIOo0+j7w0v9/Wmn3NqePBcR4xf/M9NT7BVXVvl
-UFE6WX3uCvGYOYCKpolVYyobNGZAGceSUUPG42bTmq8idk5/caVATYCTwrB9eTPE
-Bez1zGXjw2z6xR2hsZWzNcp0n3J93Tz1d5sKIxjMyrA3kD3szoWLdogQ85C8LchH
-kwLmfk6uN4wDF99n4VbTJfeV0Zh9OwMK/eYgdQtJ2XA2aqrhjc/p7tl57ikL6eSD
-kpyZRmCFHZWmEXZPVINeSUlgN5xzXW/4zyWr2xooY1y524IzVZBDAezdCD8FkqK1
-lihJBr2Ac6ajp1En4FpXS5+76m/wktmaV7oTorVu4IFOGIIokElf5QuZbS5NWhKD
-fOApx5MItmBSVhbYDEVX+7/zci6LaQ6h50Mhv5BGTCRUgjM14S6yrRU1MHDmFhGG
-1aPmMzaMuRJTj862rYDDPoHzFfL7IElFq1GxZOrifBZV83kjawps6DAYuQrotecm
-o+m5M1jQcWYg3kpbtPkHIQGVxqnNmCFXKQCJe8yAJJTdLHJk9mibMxF6KTnTm/bm
-ez/S67mttp5fTeKAwMdLjado4sTyjgwxKM6SrFHTXcak9aG8jUczScmVace2zYtn
-Jzf0LVGqosutbBZv8eyZwJvyZ6CPv0Fkwt1wI+5kgw1/aG18LEM=
-=YrZN
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmgoULYACgkQFA3kzBSg
+KbZpaw//Rw4lFmJUF8W+KTU24tAqasRonUknkZ3A/7Si+q9Ly3BIhzNNI5CaDgzf
+SbSe3U8AXsY01IR+n8L7cB+ucWOrjImuELNb5WAut9upSSX/wTKw1TZr4jNBGOiQ
+CVvBM0k3mpFnJ4rk0r8b9es2ijMygp9f155g5qXIq8RT0uCCTurJus/J4h95NdL4
+LjsVPICSXooQmEmYZ8o+7ri7xx7Kg6OYWn1vj1qmBYLgTye4WPXwPzGXq1cArZBn
+/FxYkyBQ9nfoMeeGSSQXF55PQpaKjJ8gadk0eOhGNYPC+5LTYOAwZyzdJ5H6Mmm+
+6fyUHmIMmRHFi9s1IX7pQ8jwlV89lTuHMCkEMu/okv8Kb0+Y9G5aE1OppVc1OI7w
+EkVkKUTyk9l0JQGLuCNqiB5yISKIJWTluu1tb04lZwc9c52lTDhGideTf79V8NgC
+4Fez1pxHImFk7RZTN3JUYTpcOTJU25kbjmj0Ogj4XVl/7CX9eVXZ5HTAG9wsj16y
+gilv5jOyoBvP6kg7kqzXiuLQ/aK/pzMvAcWLTppISGjrUu92AYwLLsSXu9q5dXLI
+EyR+N2FXfrNephKMN7LGUjzYBLZqw+XOZBAckvphGkC/dAJnAE2CZDGRsfpCUJLN
+B2rxBpez6aGbOwr/TT/IEV1Pyz44VYEL45KtM9mQqvMEnxcFpfw=
+=Y+ZL
 -----END PGP SIGNATURE-----
 
---72Lqpmoi9spjJbkk--
+--kJXrdRYYD1+/CqeD--
