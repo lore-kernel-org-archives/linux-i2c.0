@@ -1,80 +1,94 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0B1D224895
-	for <linux-i2c@vger.kernel.org>; Mon, 19 May 2025 11:13:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B493268FC8
+	for <linux-i2c@vger.kernel.org>; Mon, 19 May 2025 11:18:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747653208; cv=none; b=V8Ml3gXvmguriUCnfHCm8PA0+zwBGwB2RxXZ/ZWV9FxMYmE2gFvxQ+SSCn1256wQNbWUQfAwOOosPf/13/o6brKwid5jkN99d9TrVwGMJVhbMR0GaUtrN0WLK2XDeQDvs3f1CbI84FX2+5nv6S5MEd1rmPxvQqmbqmWNhhIq+YI=
+	t=1747653523; cv=none; b=fJOnG7DZvMrris6GRHk62TcirpLXI5Kb+9GBfZIyz5flNmb8uRmQujya10uUGelw8OBFa2j24EIfHfITs6+cwcqb3mfjGx61DZcoSVYfOmzyFqyxLzqxJfwG2o7x/j9g2nuB3hP6anm4I2lMiTzzoJ4ZsxmVEnDUIt5i9VjF0HM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747653208; c=relaxed/simple;
-	bh=d0YH/RUQ2Y9+RUrzEbOSu6slh6dkfZWjG6vLO7QPACc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dVqUdwu942S/yH2tQAFxaRbMk3/ndEmOsTvMcZAvgWC67C4ZOn8YIAqtNizvB/fb6TmX7JZ+hCemJwff3UC+4lfprD/NkXcXgy4UKIUoA7dn5GamDdRwuc6wfjce+8SOLxZOQppQ5UlKYrZv5Vs1ofwQPzIN/xlyUCjmjFeTsyA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=FlgA5dG8; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1747653523; c=relaxed/simple;
+	bh=d8pTiPEkIXmvLphXftkV8OpNnpdeME9fd709mUB0N8o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gw5/2+XPAh5CLnEV0p4xWrVmN9jpPjS8JHhm2i7HvFQ9RSX+PLT3aWgumDz7KpFmMQuaQMf99pxFY2uPIIWS4/GX91CaJQS9WC9Q1X2iOEQ5NaDP6HqN44P3apessxmkEdwxtAtlciPf6ack7rVCtUGk5obiq8TK2Hhc8kyoMNs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=none smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=AkPDccuB; arc=none smtp.client-ip=198.175.65.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="FlgA5dG8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=from:to:cc:subject:date:message-id
-	:in-reply-to:references:mime-version:content-transfer-encoding;
-	 s=k1; bh=Pg/h+3AUuXh+Lp//vEQMpLvp/Pda67WjMagYQLQYIHw=; b=FlgA5d
-	G8GgeflPZkA3xueZMltVQcJhbp0y8nMWJgZ3oNs6jLij1j5LdEDjvj+BvITOrNa6
-	rNNdINIX0aIGFIkDrYKLy29isibdUvofLEdqu1Eucx9GawQFTpqZz+BFa8UDM1Hv
-	xCrX4SKz9V46cFD3s9IdtbPOG+D95OrHU+Rq7tMLertpU4PVjCJ/eRHwAgcP8cbm
-	m2YNGJLellYWSgvYk/9CwoAUImH/xPqpNS9kelaph2PsRvwtZSMpbzTG05W53skF
-	tNnO6rVSwliO6kkv8iF21N1+Lq+BoovqRY5zTmDM662HQV3JqtTQbo+udRBGLT3Q
-	8mBVy0hFBbFc1EAA==
-Received: (qmail 2453716 invoked from network); 19 May 2025 13:13:21 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 19 May 2025 13:13:21 +0200
-X-UD-Smtp-Session: l3s3148p1@q6k3OHs1estZz6+V
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="AkPDccuB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1747653523; x=1779189523;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=d8pTiPEkIXmvLphXftkV8OpNnpdeME9fd709mUB0N8o=;
+  b=AkPDccuBlDCiVfzR2QBnkN4PDe0IR5uWzxMCA4Gld/ohs0mR3KXr4tq0
+   Y5N2JIDCZoEUD0imOrb7kXzhOm05ieQxQnm9MYO46UglKnJcbBanCp99w
+   PsjuZih1p67pxE8UJa9YA8O1zLEpORZnS3k4Kb1jVK0lBBVfOI/Auv7ZB
+   J6IyyWn4m6EKmIEj1dOU6I9sEBhpk5JPBUWDDa3NALGu33yfZWrhX7yXv
+   nj7p/jeaYg3aUd+NHbvqhBa6afyTIuvCED/tL/PW8FR3AMfWdGAYJ6NFe
+   kgrsutRnYL2EFV8lpuYxlgURjgf9ogbtnoyJr34e8F9Dot8/eNhumatzF
+   Q==;
+X-CSE-ConnectionGUID: XUbyO/RuST2pwC6aqKXphA==
+X-CSE-MsgGUID: Njb9WbpOSk+JV2Hy2ZjFvQ==
+X-IronPort-AV: E=McAfee;i="6700,10204,11437"; a="49423990"
+X-IronPort-AV: E=Sophos;i="6.15,300,1739865600"; 
+   d="scan'208";a="49423990"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2025 04:18:42 -0700
+X-CSE-ConnectionGUID: vCl+YuohTSKOiYLvjJb4DQ==
+X-CSE-MsgGUID: VUPTVqwoRfeisr+nGACvww==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.15,300,1739865600"; 
+   d="scan'208";a="170251765"
+Received: from smile.fi.intel.com ([10.237.72.52])
+  by orviesa002.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2025 04:18:40 -0700
+Received: from andy by smile.fi.intel.com with local (Exim 4.98.2)
+	(envelope-from <andriy.shevchenko@linux.intel.com>)
+	id 1uGyVw-0000000310x-18lw;
+	Mon, 19 May 2025 14:18:36 +0300
+Date: Mon, 19 May 2025 14:18:36 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Andi Shyti <andi.shyti@kernel.org>,
 	Madhavan Srinivasan <maddy@linux.ibm.com>,
 	Michael Ellerman <mpe@ellerman.id.au>,
 	Nicholas Piggin <npiggin@gmail.com>,
 	Christophe Leroy <christophe.leroy@csgroup.eu>,
-	Naveen N Rao <naveen@kernel.org>,
-	linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH 1/3] i2c: powermac: convert of_node usage to fwnode
-Date: Mon, 19 May 2025 13:13:12 +0200
-Message-ID: <20250519111311.2390-6-wsa+renesas@sang-engineering.com>
-X-Mailer: git-send-email 2.47.2
-In-Reply-To: <20250519111311.2390-5-wsa+renesas@sang-engineering.com>
+	Naveen N Rao <naveen@kernel.org>, linuxppc-dev@lists.ozlabs.org
+Subject: Re: [PATCH 1/3] i2c: powermac: convert of_node usage to fwnode
+Message-ID: <aCsTjM49Ll2fcv4j@smile.fi.intel.com>
 References: <20250519111311.2390-5-wsa+renesas@sang-engineering.com>
+ <20250519111311.2390-6-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250519111311.2390-6-wsa+renesas@sang-engineering.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 
-'of_node' in i2c_boardinfo is deprecated in favor of 'fwnode'. The I2C
-core handles them equally, so simply convert this driver to fwnode.
+On Mon, May 19, 2025 at 01:13:12PM +0200, Wolfram Sang wrote:
+> 'of_node' in i2c_boardinfo is deprecated in favor of 'fwnode'. The I2C
+> core handles them equally, so simply convert this driver to fwnode.
 
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
----
- drivers/i2c/busses/i2c-powermac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+...
 
-diff --git a/drivers/i2c/busses/i2c-powermac.c b/drivers/i2c/busses/i2c-powermac.c
-index 9a867c817db0..f99a2cc721a8 100644
---- a/drivers/i2c/busses/i2c-powermac.c
-+++ b/drivers/i2c/busses/i2c-powermac.c
-@@ -349,7 +349,7 @@ static void i2c_powermac_register_devices(struct i2c_adapter *adap,
- 		/* Fill out the rest of the info structure */
- 		info.addr = addr;
- 		info.irq = irq_of_parse_and_map(node, 0);
--		info.of_node = of_node_get(node);
-+		info.fwnode = of_fwnode_handle(of_node_get(node));
- 
- 		newdev = i2c_new_client_device(adap, &info);
- 		if (IS_ERR(newdev)) {
+> -		info.of_node = of_node_get(node);
+> +		info.fwnode = of_fwnode_handle(of_node_get(node));
+
+What puzzles me here is that of_node_get(). We already do the same in the I²C
+core, does it really need the second bump of the reference counting?
+
+In any case, this patch doesn't change the status quo, I'm fine to leave the
+research for the later.
+
 -- 
-2.47.2
+With Best Regards,
+Andy Shevchenko
+
 
