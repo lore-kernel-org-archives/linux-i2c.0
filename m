@@ -1,105 +1,98 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B08FC288520
-	for <linux-i2c@vger.kernel.org>; Mon, 19 May 2025 17:03:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32DD71DE4E5
+	for <linux-i2c@vger.kernel.org>; Mon, 19 May 2025 18:27:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1747674197; cv=none; b=n8mdo385H3J+2QW7MqctHfqdsMViUO54WCFn7giXxH62ihlm5JpRFuadta4ZSnb0/SRQIR0RcsIlvKK4QfL/oknaospPz1Rogs6G7DuNWngWk/S7TVdzp4jisx41YbP2wKkEzRqAlzA/HCE82rphQrOX6R6OKjsm47lMWvSSgvA=
+	t=1747679239; cv=none; b=U0ZLdt0b/D/S8S/rk/U5qZ3NFrpBVsT1XaU1D+4KtquASuGdH5HkHBOWdmlazsE6MUyx5C4vGpRGbX7n0mbkk8F7q/6Xyuo8O++lQesRoUR1h1S9sVzLwDFeh/g2sJ0BwgawBUL2R5z7Tr0Ud7obCLTfdXn/liv+Geiv7RcOBI8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1747674197; c=relaxed/simple;
-	bh=JYOLy1V8LnTKP6Ii4/TJACY1NDLLiuoT+YsL1UYreTw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OqBy5lgPuU26MKmH7G1uoGT+jWl7DptzoamFQ7Ho93TExeRkkEQLRD9UrwgtzecTJnBRVkdYAztRRFMHF5xTEK1dFDtpwLO58JNrngSG8wTScVzwCxa1yvmKjomAco7pKSnhzFx+4/rgbCzW+icfVtSVvkM+HP+HDtN7GQe6hmA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=J3ct4x9S; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1747679239; c=relaxed/simple;
+	bh=Ui6m5E+ZmEoFyBbRKnq9Sska4taJPJfwm8Q7IJNMy6I=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JOsQ7q9+gFenYxlizx9LVHlkxgPcESNOm9mGQKWZDbMNOnIqbkJposRVlX7NHPMkC3jYHJS2kz9M/ggWXkDDkMaXZzcEymPb+hclSPQvTlSGNsw6cm3hYNhV/wOV6HRs2J4g0kGUPoHpW0fhEolMiEJSMfEjednXVZ1mHZ8+EfU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jkrp+0i5; arc=none smtp.client-ip=209.85.210.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="J3ct4x9S"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=tosP
-	yPyOgyvRyFhM+9E8VMFTT2SJO0IgrpkZvR345OM=; b=J3ct4x9SlIVLdaBucsJI
-	d1VMAnBxqggeYDVxkfa0hzoQ8NzTsSkr/7VPh9xXMF2+U5BN01fzS1lNirZYCUut
-	yUWwdsn2s7tR6EhsJHc2eFcDs9uCjk3Ca+jhNfd0H8TDRXVZV/8htMh5sBbRB4eu
-	3NJqEEyotDDImG1BfAadVGfm+ysfJLa4mcjlj20f3s2Ux52oQ2DhzjLtckIs8N0K
-	yrQlHdNPBnZrhqIv8YfsaPZSEIJMdLYEOdmHh/1b7cbM33rM8PualCdIl9H90Ulv
-	nXYXxBHerAZzEu9XgaEHeueqGbRjY6du+TCIWK1E2LR3lwx8j1GErf2swnzv+prL
-	zQ==
-Received: (qmail 2572961 invoked from network); 19 May 2025 19:03:12 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 19 May 2025 19:03:12 +0200
-X-UD-Smtp-Session: l3s3148p1@cM4CG4A1jpBZz6uL
-Date: Mon, 19 May 2025 19:03:04 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Jian Zhang <zhangjian.3032@bytedance.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: slave-eeprom: add latch mode
-Message-ID: <aCtkSBZfkc2k1jnb@shikoro>
-Mail-Followup-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Jian Zhang <zhangjian.3032@bytedance.com>,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20241209060422.1021512-1-zhangjian.3032@bytedance.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jkrp+0i5"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-7399a2dc13fso6102213b3a.2
+        for <linux-i2c@vger.kernel.org>; Mon, 19 May 2025 11:27:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1747679237; x=1748284037; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=94HwSgL1FSeTYJRRTW3aU6iPF/Xb8afa7uWaTem6x54=;
+        b=Jkrp+0i5rQk0hxlmvLxlcb+TFKCUpT1egg9/aLFBt+I0trjMEctNIs6dPwXdgKtLIj
+         rFeFGOtmyh8G7KBkGc2ynj406Wgq7pBGP2g2nKMTfTy31cvzMscKVEKcTEMqwMxCCsHM
+         ifintAqiog303k4Zdm8oj6TVZr75rEP+qONJQuhplqHYG3xO/D/mkMhOxQmXvV7UK+o5
+         CUn3MN1OK+jEtuvuiTkIO8yJqF21RYOZR0ZAJ0redPuIwxo4HY3G24zTD0htR2gU6irL
+         J0RdMt7RnRN4NJqUYVYd7bx1+JJbzC3YsF7BlyEMwN8pjfgUPyqP4yVVIKzhqgH5ivgZ
+         07QQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1747679237; x=1748284037;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=94HwSgL1FSeTYJRRTW3aU6iPF/Xb8afa7uWaTem6x54=;
+        b=Atf3iaFaPWrWaGrO+D+Q69z7blxg8u5VHQBsSv/rJuOT1rtPWYIJ9Oig9W3zGsuN+s
+         loIdNYGjPp9BT0wPygMG2XFZV+WqUsc12Vy9t2FropYsJRorfkEKndwh5RSbUfpiwZ0z
+         LM75XfrqswwOCkKvlaEgh4ryx3N0VV+/HuNN90PEddW9eVoFK1lcRArlK6a/15mh7C0m
+         UfavSOcXSO7iIV2D6amTxVsY0N/IoA1+bSasNJAJE0SX39j5H9iSz+ZRtvL53Uf12FMU
+         OZD/CMvAV4qk81sWWFbLb05bTvGZtmZkhp3zTvJRJjWD+yv1ZWQEtlEKLpu3C8GFF8BX
+         sLbw==
+X-Gm-Message-State: AOJu0YwGMXQdjCMQ89L1QiZdBZHxLSJFfQ9BO9BAsjHFVnR1+iX3wnbg
+	g6QVU6umjkSXh1IRptrusQIMpdrqM1SFg+sxEDqf0XDXtluOIs08NJq0zvM4h/QH
+X-Gm-Gg: ASbGncvgHQWPFx0ojAObFe3OaV4G8cT7DpIKsYnzUAg53XvdqH0mdlIKEDupGwHbuoX
+	jLtdmTD0QAU8gdD0WaMl9kn/6jPnfJycWxHq7lxDbElabVav4fxVMV7WkOD0fUoinizRpnYQm0s
+	3OwogCl+XgcPtsr84cwtuAKfJe6cmasL2XDd55G6H/OAM13d8XzjjKI8u9pZuMAGXi2o51spQo9
+	8acqFGDp+PpPiuvw9vFmvseLwyPbweHxe8vwlFxTqQznPTvW3HvHTSDojA/247meKu/WKf5rU/4
+	jIJyZNdlx7YpiDdYJSbECCFoV/IjshaQ1758iEYWd+Irz3aCjaHwCSBSVVY986s5vhG+K+dYiab
+	B
+X-Google-Smtp-Source: AGHT+IEuMZJQIFFobCSDEri4DjwyGJe/IMNyi+i9Etol3nzfKtvgkB8IwPurG+sO9lCnj2oD+nWJ/g==
+X-Received: by 2002:a05:6a00:c86:b0:740:9e87:9625 with SMTP id d2e1a72fcca58-742acc8ff71mr19130641b3a.4.1747679236955;
+        Mon, 19 May 2025 11:27:16 -0700 (PDT)
+Received: from localhost.localdomain ([223.181.108.253])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-742a96e20fbsm6525746b3a.35.2025.05.19.11.27.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 19 May 2025 11:27:16 -0700 (PDT)
+From: I Viswanath <viswanathiyyappan@gmail.com>
+To: linux-i2c@vger.kernel.org
+Cc: wsa+renesas@sang-engineering.com,
+	I Viswanath <viswanathiyyappan@gmail.com>
+Subject: [PATCH v2] i2c: Clarify behavior of I2C_M_RD flag
+Date: Tue, 20 May 2025 05:26:57 +0530
+Message-ID: <20250519235657.7404-1-viswanathiyyappan@gmail.com>
+X-Mailer: git-send-email 2.49.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="tyMNv7CWzo/9Mar1"
-Content-Disposition: inline
-In-Reply-To: <20241209060422.1021512-1-zhangjian.3032@bytedance.com>
+Content-Transfer-Encoding: 8bit
 
+Update the description of I2C_M_RD to clarify that not setting it
+signals a write transaction
 
---tyMNv7CWzo/9Mar1
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Signed-off-by: I Viswanath <viswanathiyyappan@gmail.com>
+---
+ include/uapi/linux/i2c.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-On Mon, Dec 09, 2024 at 02:04:21PM +0800, Jian Zhang wrote:
-> The read operation is locked by byte, while the write operation is
-> locked by block (or based on the amount of data written). If we need to
-> ensure the integrity of a "block" of data that the other end can read,
-> then we need a latch mode, lock the buffer when a read operation is
-> requested.
+diff --git a/include/uapi/linux/i2c.h b/include/uapi/linux/i2c.h
+index aa751389de07..29b149ca4b70 100644
+--- a/include/uapi/linux/i2c.h
++++ b/include/uapi/linux/i2c.h
+@@ -21,7 +21,8 @@
+  *
+  * @flags:
+  *   Supported by all adapters:
+- *   %I2C_M_RD: read data (from slave to master). Guaranteed to be 0x0001!
++ *   %I2C_M_RD: read data (from slave to master). Guaranteed to be 0x0001! If
++ *   not set, the transaction is interpreted as write.
+  *
+  *   Optional:
+  *   %I2C_M_DMA_SAFE: the buffer of this message is DMA safe. Makes sense only
+-- 
+2.49.0
 
-I don't really understand what you want to fix here. Does this patch
-really fix your issue because...
-
->  	switch (event) {
->  	case I2C_SLAVE_WRITE_RECEIVED:
-> +		if (eeprom->latch) {
-> +			spin_lock(&eeprom->buffer_lock);
-> +			memcpy(eeprom->buffer_latch, eeprom->buffer, eeprom->bin.size);
-> +			spin_unlock(&eeprom->buffer_lock);
-> +		}
-
-... what advantage brings you this memcpy of the buffer to a latch after
-every single byte is received?
-
-> +	if (of_property_read_bool(client->adapter->dev.of_node, "use-latch")) {
-
-If there really is a problem, we don't need a binding for it but should
-use the fix in all cases.
-
-
---tyMNv7CWzo/9Mar1
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmgrZEQACgkQFA3kzBSg
-KbapsA/7B0NXjBKo61utDIL4MDx8yXm2LrModlmuPjzmxkLcnLgpK8uSmUQNM2XC
-KJbxf5Klqy3PwwX0X6t+yqti997smRGALB5dFHAAZP4XjtJ4lnv+2X0CTHmNBrli
-r++c3Pc63x9ZMRPPnRsriT+wS4XRI8GUIkHDW/ViCXoprMxqS9YjvUXOauRj/8vF
-JWE1JvfaEQwC1tbKjhl8kyNiHzHWAy+rxT6YowbcNPup/DhUS+3BsV/yNH6hPfmk
-vm7Gkw61UU3U/kteNmNN8zh2mp2zVzGEFSmuZUv9+Gmp7jOKEI7p/A4QvKlFXjy7
-RwqPYnyXPNLcw4vEMI2apFHBPo9jNb5khkv4r3hiuvjXFsQwu/8r7/DhdNXICB35
-gTO8r1RIimAqdHBnVoCWnbDyQLWeK+WtKxYNYS3jiFayUnw5GhEZ+ASMgzd1prw7
-V9lKGV1hFsPr731vrOaqebf0lKPfy+vNF53Z347ZMMOhRVsQMPDiYEmwpz/9POB1
-soEdma9U+TjNjAEyWYLf/Hwo4jBfvs+iL9C1L9ZliBi++uomRQ4fwPpdXK4qyrig
-S+Y5iA8KWe35XCKFMPhC4C+cjoHkCDtxNl0E/QQgmEMBDShGmn3+cEpCeIuPtSW/
-HlQ16YrIVMxqYn/jWbqdbJtdOwopfQxlHf8wqFPakNcQFYsejzc=
-=CLRB
------END PGP SIGNATURE-----
-
---tyMNv7CWzo/9Mar1--
