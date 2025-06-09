@@ -1,45 +1,46 @@
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (mail-mw2nam12on2085.outbound.protection.outlook.com [40.107.244.85])
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com (mail-co1nam11on2061.outbound.protection.outlook.com [40.107.220.61])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CBC541C69;
-	Mon,  9 Jun 2025 15:56:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.244.85
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4C942165F3;
+	Mon,  9 Jun 2025 15:56:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.220.61
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749484591; cv=fail; b=XjQhY3on3g6lrRd2kizxJALPSYMnOX6eb260Mbu8bl8pweGXaTqFalqiRY8RPyhfkGchltRcjw1y+xA3/rU30OD5+hyCcqL6kuriP5wNA9dc4Pvnp2Dwp8ECMBJl4ZgjmJsUGLVJXHMEp1GwGNPQ3t/rY8ooq0nkX5WcysZFTxo=
+	t=1749484594; cv=fail; b=Gk/xc99lRl0+1TWLdf6/nbUEDUbSQsAgnLX9QK/v9WPatiIKw2HOKHPW7m3/9RhXGqE+g5iFDqs/wm7jVdSkOeuZgCfdcQ0js039YedUf/rvPHS0Elj52NJOZs2+kECtBjVySNNaba7EZ5QN6dQLo+LZD7MX67oUGRl4uSHek9k=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749484591; c=relaxed/simple;
-	bh=d0sKiADcnlAo14rTobngqe8/8Ak8hig0XhpQPa4hmWw=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=o9eOEmQ0dWuJw/gsXidbXV5xawbKvYdl4AiIINJmVMfbaPE7xoOs+eeTSeQVVEvQ0MJ1sgiwHYIffHgzCijC6G1pMdPkQiAvx5MSKxwb8KpYSBlyHznv8BiBJhQvsHCHLTnpGdWBkxRQ9yCrXov/1Fxh+ScpvnoYXRymBNCFVOY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=Pigw/33h; arc=fail smtp.client-ip=40.107.244.85
+	s=arc-20240116; t=1749484594; c=relaxed/simple;
+	bh=pJgDXKSI1bgyFNpRCuUrhGd5SX5Jud8jqDSaW7tHf2M=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=S+ADky92LBSHB+OMMhbKGGQ9Gpv3ku5y9oAfnhC/g05egnlpDFl9KvXTAbAXWMja7ylx2ye9z+bWnyf1FV9ow3JR0t9jWF4uO7r5eHCTw09fyn97a+EUYGRAH8pijq2AbtulJwrc6CqEmbDCqLg7KoFSm/A/EDBPR3RJOFIWEP8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=TBdZkUSb; arc=fail smtp.client-ip=40.107.220.61
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="Pigw/33h"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="TBdZkUSb"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=OzfbxhM7uMfAT58aknck5ow+Ncs4EXqb3nfhtJztzjRGGcqr5aJ4KluV0wM1tlE9QiGNxvwtUpF8B+rHFc9qEoqrze6PR9Mv4sFsawckUQ3QsQL3Cj1PunfuP1lve5MJ3m/q0H0YOHJ6bI39F+0/DSCWgW2oglqHrQKm7OreudAo+Fx5gZJ+Yf98rMFu+8BsJrXuS6Ts9WMvlY3U6IKEgVW6/31cAA2KOc2iuku/s58lyPZRYjJO5spfbY9akpYllVONWsmoKkjlC33FJWa/wpd3MsQiYsyWfPHs78cmQz309ILFldcDT3pmTCw/HMYHl2cMiHk8H2eiczYHDLufRQ==
+ b=AtvCGeZGh580OMtl+suegk01ms7ngIpD86CvJfIqxeJS7s0U0v3ALI3o3GPx/Ru89OrMGyl0p6vVB2xHrWpGZ4FDzSqB3z7HViu/KF7jwnx10RxlxDvAA4fOlmJlXgwgYwdxYhQFYaBldVjPL8SFySVjZHjvGpyduDGKwyRrGEyXH+pEEo4SUKbPhor3DJQat/CBSIzkpwCfzKIy7kAYvdYJH+OSZJvsKO+4uPkxsRiPCTgWloLxLoT7KRAGcOZ0ddxVM2fdqzMSYw+j0wfwI/wy6qUOMPt3kze1L4+eo0DS/1I8eFYuin2iSjviVrkTesMpPQwR8/YbgS1uBi/LvA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=GbW30tIl+bf5iuR5TOGQ4uIXPNH0d6FIGodWpWMqEEA=;
- b=hwr0BjzH1H83GXE+tDy9xXriibsm0eSCmVS5a3Z0k7/vwJtOMlzw+uAVFk5TG1gGCPMlLk2Aoc9yY9ThYAfkZ/DOrd10l+pu/XyAbZF8OSphJOkHISjZo9JZRqidpR4oQp2LAcTf7vQCVsbXfNgd3Wvn3b1APMBylz99lrvtSKMzenYsg5jMLzs2f3NItzYTM0Q0CKp0vdZUjE0gnpmuKuMfB7Y6f0rfKzThmIpO36Q78QLMRs64r+YFboO/n9vmTXyWy80DENXbwEvCXodmcI/U07rOH/LbPt+/PL6DPCFSuLO7qP9LbKETONqQdAnn/iYqVYVYRc5LCHp6CmxvZw==
+ bh=XMblxp/rB40vVvTDuqKTqRbc4SPfL2+L14vtA+b/BIc=;
+ b=O7xGoUtttq5z9FRNjp1+P+x92T0qGFTnQbbUy34/lkQBOJriYQ3Fh8t8OWDmokWgRtk0a0F2nlQZSzH/yeOowDtHzbD27OM1jnAtUk+i11flMoitnOdEXSYuzjChwjbxSIiIzjfFl2PHissG02r5Gk4CaWWhrQkqPzIHTKO8CS+FNvPHzY2nNpjx/2LSOjixDAG0A2IRZkiXpZ2g8iMfRjFRHrvCbbXRaHTYXlO0USjD1S5yDEf8S7cF2wF+WLgsSk+1BLFr1IWWiWUZ6QiYssTHmwj/OpRov7RM1pYUD1LuiTudDBNDKR0f/+84dunMUZ3zZVsoAF1wIyZl+xBcxA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
  (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
  dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=GbW30tIl+bf5iuR5TOGQ4uIXPNH0d6FIGodWpWMqEEA=;
- b=Pigw/33ho33T9nQbFg2Oca+ykTa+uKGl73t3unhUgt1gLsKyonTYPrzEL+rR1nQJuZNS3mKW24Q8HayH7NJeEXIqkPTYX7BuOZEy1vzSBVO6auVthV8B6DcxuxfzDnUoh38zrLY8n8t4eArvVwyRHwRZn1rp3ck8QBS7TjvlXFY=
-Received: from BN9P220CA0014.NAMP220.PROD.OUTLOOK.COM (2603:10b6:408:13e::19)
- by SA3PR12MB7860.namprd12.prod.outlook.com (2603:10b6:806:307::22) with
+ bh=XMblxp/rB40vVvTDuqKTqRbc4SPfL2+L14vtA+b/BIc=;
+ b=TBdZkUSbybSsWcVOLj1dEOPk+TjE1vQmjl1/nBQJXA/jsGhiYLxoOhyuSeZr4huKE/o+zn3CstL18ArNE4W6S0cr34QgzPC2J1l+MdKuY6vFzje/SeNjzjhgn9cnFaaqD6qd0JEC7s2s4DiXBRMoFrZ/Yz1XOP1yb2phBQhJKjs=
+Received: from BN9P220CA0016.NAMP220.PROD.OUTLOOK.COM (2603:10b6:408:13e::21)
+ by SA5PPFCB4F033D6.namprd12.prod.outlook.com (2603:10b6:80f:fc04::8e2) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8792.34; Mon, 9 Jun
- 2025 15:56:28 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8655.31; Mon, 9 Jun
+ 2025 15:56:29 +0000
 Received: from BL02EPF0001A102.namprd05.prod.outlook.com
- (2603:10b6:408:13e:cafe::e3) by BN9P220CA0014.outlook.office365.com
- (2603:10b6:408:13e::19) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.8792.29 via Frontend Transport; Mon,
- 9 Jun 2025 15:56:27 +0000
+ (2603:10b6:408:13e:cafe::c5) by BN9P220CA0016.outlook.office365.com
+ (2603:10b6:408:13e::21) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.8792.21 via Frontend Transport; Mon,
+ 9 Jun 2025 15:56:29 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
  smtp.mailfrom=amd.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=amd.com;
@@ -49,11 +50,11 @@ Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
 Received: from SATLEXMB04.amd.com (165.204.84.17) by
  BL02EPF0001A102.mail.protection.outlook.com (10.167.241.134) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.8835.15 via Frontend Transport; Mon, 9 Jun 2025 15:56:27 +0000
+ 15.20.8835.15 via Frontend Transport; Mon, 9 Jun 2025 15:56:29 +0000
 Received: from maple-stxh-linux-10.amd.com (10.180.168.240) by
  SATLEXMB04.amd.com (10.181.40.145) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Mon, 9 Jun 2025 10:56:15 -0500
+ 15.1.2507.39; Mon, 9 Jun 2025 10:56:21 -0500
 From: Pratap Nirujogi <pratap.nirujogi@amd.com>
 To: <andi.shyti@kernel.org>, <ilpo.jarvinen@linux.intel.com>,
 	<rdunlap@infradead.org>, <hdegoede@redhat.com>, <sfr@canb.auug.org.au>,
@@ -62,10 +63,12 @@ CC: <linux-i2c@vger.kernel.org>, <platform-driver-x86@vger.kernel.org>,
 	<linux-kernel@vger.kernel.org>, <benjamin.chan@amd.com>, <bin.du@amd.com>,
 	<gjorgji.rosikopulos@amd.com>, <king.li@amd.com>, <dantony@amd.com>, "Pratap
  Nirujogi" <pratap.nirujogi@amd.com>
-Subject: [PATCH v4 0/3] Fix build issue when CONFIG_MODULES is not set
-Date: Mon, 9 Jun 2025 11:53:54 -0400
-Message-ID: <20250609155601.1477055-1-pratap.nirujogi@amd.com>
+Subject: [PATCH v4 3/3] platform/x86: Use i2c adapter name to fix build errors
+Date: Mon, 9 Jun 2025 11:53:57 -0400
+Message-ID: <20250609155601.1477055-4-pratap.nirujogi@amd.com>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20250609155601.1477055-1-pratap.nirujogi@amd.com>
+References: <20250609155601.1477055-1-pratap.nirujogi@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -78,102 +81,87 @@ X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
  (10.181.40.145)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL02EPF0001A102:EE_|SA3PR12MB7860:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2280706d-40fe-402c-47aa-08dda76e31b4
+X-MS-TrafficTypeDiagnostic: BL02EPF0001A102:EE_|SA5PPFCB4F033D6:EE_
+X-MS-Office365-Filtering-Correlation-Id: 72250091-c9cf-4cab-7a2d-08dda76e32e0
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|376014|1800799024|36860700013;
+	BCL:0;ARA:13230040|36860700013|82310400026|1800799024|376014;
 X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?Ttq0KDSjnTboMFvJX6WcvGkNmtx22WFYLxBuRx2oKj1VY2xSYfwtJqsRTh9n?=
- =?us-ascii?Q?GTPipNi3ISzRL7hmC4TfmeaczRBT/fSe8YlS7K90V2p3LE/85D4gAFf2rJkO?=
- =?us-ascii?Q?YcjF8PeREWBmmZnHGp8LvtNsIwrufvG4ic/4yINEpSE0truuHc1gjh9MLCfY?=
- =?us-ascii?Q?qR4XuCmmipZlIReCpvSZXTgrFZDdfZN7rbyFQ0q381SoFTWUYGOk3uAJqeG/?=
- =?us-ascii?Q?i33AFbj1ECuVcS5/W1WvGA3ngakSmOa+notKLU6CVL8l+pnmFNePYntNP5j4?=
- =?us-ascii?Q?ZGmOZv8SNxbKSDKd4spYOEqHhKQRLLAKft+KI7iOQrV058dA5tbBw33sKfao?=
- =?us-ascii?Q?gzMbWCpjXnlhenTL+zFS+fWpDL4knGjqWqkO1CwqLQP4JJrCKqs/vNcVb2Oq?=
- =?us-ascii?Q?/O1ZwPoHk6tmUguxzYa5Lf0p2xwKRpl0nJWVCSMZNdeCWIiUT2yiSQt03BwM?=
- =?us-ascii?Q?bPngpQ98+ddHHPdm72v7mguKz3ucT1zxi9kKmkpIc7ZpZbq1mjrrjCG2naUe?=
- =?us-ascii?Q?o014EChhdIpVQ+a7AjBTu9fKO5d36gl2dNKCQmhG1RpCA3xizQy5HXN1qN76?=
- =?us-ascii?Q?7Kc5lTsH+8Jd3jrvjUVaZzgg1uPPH3oEzBoDerz97si0g525J7SzNOS9C0Ub?=
- =?us-ascii?Q?nwA4HzX2YHqa0aHnc5uXwGrMKpo3YUv1wwJl+ZC9Vxoa/QhZVDmXSMp1844K?=
- =?us-ascii?Q?fWNzEc4N0idaA+FFhp83E/qH7SFASPvMJnIUYyBTkOruRf3YKkf5ft8O19b5?=
- =?us-ascii?Q?dbBZyc+znIFL0IQklVsmIaESeU+SB9aGQ370ZXPRft7SSYvw+TeILHqk3cOs?=
- =?us-ascii?Q?+GuT5FfmO7uC/a98j7HSUYpUf5C+wExtI2Ekm+GGqQ2+tzW+HQyHRwkDdOJa?=
- =?us-ascii?Q?UQSgaXgjtRNkH/px68dwscxsIfeWUx/jK55bxj28yNFDBrhJWl7dBGyYQELf?=
- =?us-ascii?Q?4jxaM2JAaML64JWF3vMr1g6FMsgvAEPNr9AzHrYxz3+hpqMPHyI4auIY4HVK?=
- =?us-ascii?Q?xaRTPt+UCADTS5W/LSj12kBe7D0B+vqfaWy6uzX6a2WAEy428iEZxfgAOZpc?=
- =?us-ascii?Q?SJhxFQYIfS/0fTVYpxYAgNErZFyuUaHLkZMafCP6kPiyA5hdfbzR3g0bGgCc?=
- =?us-ascii?Q?Lm/2HXwwEjwbMtDdA7lK7fP2ByUoXC7LCMQixG/SoNdHAK5U06aYY+vvQ2XM?=
- =?us-ascii?Q?LpQobeU5nJecXP+w+ph1Nzy2lw6Q6NOnNYatCXZ4qSs4bo4OIxIa0M12AxWE?=
- =?us-ascii?Q?ZzlL0RJrgIEpMAv+KHNsZkWVNZcTp9z6C/V13sdHHYDsOme6yfbNp85FpTe6?=
- =?us-ascii?Q?B0eRXVtaLLMsPjlXVWj5mFsqIJQOIYDvA7V8VKfiRL8k8sCvwogvTK9QUojd?=
- =?us-ascii?Q?yyRNPJWNa1SPQNDb8+Z4AarWVg4q8Qe+ASj/DnEB9Z1kWcrmUbJQFglRf3/K?=
- =?us-ascii?Q?901fOZLoNV/NQwtwGCIwI9Q1V1JVtlUTrIV/4nKuek2eeuMgOZJeyX/tpdhe?=
- =?us-ascii?Q?pRv6sY84SP9V6V/Mb88UsTNiRKU7WN6K1FV1?=
+	=?us-ascii?Q?AeD0su/3WjR8Ik77Lwq7L2cs7PDjbRzry1gpB73nRgHn5H9YKRQcpWlLbjuU?=
+ =?us-ascii?Q?Xb1Lr1r+B1oOodZdUyo15S5W3Np3fcFWF9NIxY+SmqVBlVxSLrVdtqdvokbK?=
+ =?us-ascii?Q?cumTIwNax1fOeBB4MGU/15ieRr1Kmp86MSEj//XdydDVjcLrQDbb+R9TJsb+?=
+ =?us-ascii?Q?sk6fb2h4CHVfkh3s/GQNcpvvR+NSubSVE+IyuRvX6B0N1drMaHyak16D7lIf?=
+ =?us-ascii?Q?UQz0SC/aNlXSvOE1E6QiTbonhNTLkjRf1Y2t1HPq5d2pgWe+asm3XX+twLud?=
+ =?us-ascii?Q?+Rinyy8uHu99ZX2qvhnNPbwM4WRUiBxza6AjP6QBZroQN0bCUYJfrqiApuQh?=
+ =?us-ascii?Q?sES1ihIqTByhWaiUQ+Deer5KZ7WRgm7xy5kTNaQZmYgDV1zN3DOR4Gf+5Jvc?=
+ =?us-ascii?Q?U73Ixory1/XVG0yik9IUGquRb/WkqhT991RtG6Ib8ReROGCisF5OCMR+wrlI?=
+ =?us-ascii?Q?pykSf48523MiU25Ryd1gVyxkZnN69t2QEk9OjKoITjqAxgLmwL8EqMrhbRMN?=
+ =?us-ascii?Q?1F5ti9tSmdONmS0m5oxqWj2KplYMmiOjtDDN76LNUz4mWgQBf4xO5feNOtrc?=
+ =?us-ascii?Q?HzrJV5vEdoI7th35mkGruUl0aKbgx3evvg0VdeFu23LaLt9llHa2l2vs4V9a?=
+ =?us-ascii?Q?ig4dN0EoPA8dueXsEXn9Jgx56mICKmFsm+5ZgzRLuMQAf2bKJWQ6iyndVhQW?=
+ =?us-ascii?Q?vvjA4gYebv0ZBGgcPIhIdowFtU72WWAiKMsDFBhyPazYsNx8z4HqTG/MvJY9?=
+ =?us-ascii?Q?7eoffl5k9BcYKr+cpl+gAhKRqcN6HAN4gvQx/T6VMCthagRe9fwfyocxLZos?=
+ =?us-ascii?Q?RNPZo0CM6zzUMvSU++jo/wu2rT3RJeqK30uXcwyUVNIVAyRX6oDfRRyW3HeW?=
+ =?us-ascii?Q?W8WAJztuOTSff+P92G51ipizpQTCGc7wU80NmoVhqcgeNu6A11+KFO+AxRSG?=
+ =?us-ascii?Q?Brjt1rV/GkfmeL0t1I/dlBH0jPNtaxTw/NI/MCnxN//dvc/DD+X+B72myE+i?=
+ =?us-ascii?Q?HfJz63IDIzsd1/AC6dboi/0f9leNlBEIslMau3t3Y0ELHBPbgk81Jpm5vpcN?=
+ =?us-ascii?Q?EnADCtquVXVF241r5O35f0TCZkTJTNWJDkVKs4NtZB1VMYnZs1zBi3534W0H?=
+ =?us-ascii?Q?/0RQeaMrrn7+MvH/G85lQs5owIrWK7Hq55fU/MMmSB8/vd0a9oCcZ2f6xuzV?=
+ =?us-ascii?Q?M9uLFRsDZYseP0TuAyZ7EGiAe3T76bM5tnPL9t8zATVC9HcmbP+Gm9Bc9ak2?=
+ =?us-ascii?Q?n7Xu7d2qN5P5AN77srzk69LtVRnidJHLx4uChnwPIKwRU4EePVBLn7eGx3Fc?=
+ =?us-ascii?Q?Gkt2XOQp2X3U9kt6i7hMI+WKjyizXu/rvFSKMF2WxGmp7oYTVsz+7O7cnkqU?=
+ =?us-ascii?Q?MKU5M8lG1ivMZ8hOk2I2glAlcvu1gkIcBqkg+5YWstyyp77/B0ByxAG34iRI?=
+ =?us-ascii?Q?l3NWRYvWlBMUP7q2G4ACq1QTxDrVSNbKYpkU1X4MbLM3JrCZToXp0ue00bvG?=
+ =?us-ascii?Q?EusK6AWwG9u98GwXDoAoYSnCHegq3BRs5e2ZAp7TsgMmxQKEQQbaURQiTw?=
+ =?us-ascii?Q?=3D=3D?=
 X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(376014)(1800799024)(36860700013);DIR:OUT;SFP:1101;
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700013)(82310400026)(1800799024)(376014);DIR:OUT;SFP:1101;
 X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jun 2025 15:56:27.8168
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jun 2025 15:56:29.7856
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2280706d-40fe-402c-47aa-08dda76e31b4
+X-MS-Exchange-CrossTenant-Network-Message-Id: 72250091-c9cf-4cab-7a2d-08dda76e32e0
 X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
 X-MS-Exchange-CrossTenant-AuthSource:
 	BL02EPF0001A102.namprd05.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR12MB7860
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA5PPFCB4F033D6
 
-When CONFIG_MODULES is not defined, 'adap->owner->name' used in amd_isp4 platform
-driver will not be valid and is resulting in build failures.
+Use adapater->name inplace of adapter->owner->name to fix
+build issues when CONFIG_MODULES is not defined.
 
-../drivers/platform/x86/amd/amd_isp4.c: In function 'is_isp_i2c_adapter':
-../drivers/platform/x86/amd/amd_isp4.c:154:35: error: invalid use of undefined type 'struct module'
-  154 |         return !strcmp(adap->owner->name, "i2c_designware_amdisp");
-      |                                   ^~
-
-To fix this issue, need to make changes both in platform and i2c driver modules.
-
-* In the amd_isp4 x86/platform driver, replace 'adap->owner->name' with 'adap->name', this removes
-the hard dependency on 'struct module'.
-* In i2c amdisp driver, initialize unique name to i2c adapter and also make a change in
-i2c-designware-common to avoid overwriting with generic name when adap->name[] is already set.
-
+Fixes: 90b85567e457 ("platform/x86: Add AMD ISP platform config for OV05C10")
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lore.kernel.org/all/04577a46-9add-420c-b181-29bad582026d@infradead.org
+Tested-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Pratap Nirujogi <pratap.nirujogi@amd.com>
 ---
+ drivers/platform/x86/amd/amd_isp4.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Changes v3 -> v4:
-
-* Update MAINTAINERS file with the new isp4_misc.h added
-* Fix typo error
-
-Changes v2 -> v3:
-
-* Update commit text for patch 1/3
-
-
-Changes v1 -> v2:
-
-* Replace snprintf with scnprintf
-* Add new isp4 specific misc header file to include the adapter name
-* Remove 'Fixes' and 'Link' tags from i2c patches
-
----
-
-
-Pratap Nirujogi (3):
-  i2c: designware: Initialize adapter name only when not set
-  i2c: amd-isp: Initialize unique adapter name
-  platform/x86: Use i2c adapter name to fix build errors
-
- MAINTAINERS                                |  1 +
- drivers/i2c/busses/i2c-designware-amdisp.c |  2 ++
- drivers/i2c/busses/i2c-designware-master.c |  5 +++--
- drivers/platform/x86/amd/amd_isp4.c        |  3 ++-
- include/linux/soc/amd/isp4_misc.h          | 12 ++++++++++++
- 5 files changed, 20 insertions(+), 3 deletions(-)
- create mode 100644 include/linux/soc/amd/isp4_misc.h
-
+diff --git a/drivers/platform/x86/amd/amd_isp4.c b/drivers/platform/x86/amd/amd_isp4.c
+index 0cc01441bcbb..9f291aeb35f1 100644
+--- a/drivers/platform/x86/amd/amd_isp4.c
++++ b/drivers/platform/x86/amd/amd_isp4.c
+@@ -11,6 +11,7 @@
+ #include <linux/mutex.h>
+ #include <linux/platform_device.h>
+ #include <linux/property.h>
++#include <linux/soc/amd/isp4_misc.h>
+ #include <linux/string.h>
+ #include <linux/types.h>
+ #include <linux/units.h>
+@@ -151,7 +152,7 @@ MODULE_DEVICE_TABLE(acpi, amdisp_sensor_ids);
+ 
+ static inline bool is_isp_i2c_adapter(struct i2c_adapter *adap)
+ {
+-	return !strcmp(adap->owner->name, "i2c_designware_amdisp");
++	return !strcmp(adap->name, AMDISP_I2C_ADAP_NAME);
+ }
+ 
+ static void instantiate_isp_i2c_client(struct amdisp_platform *isp4_platform,
 -- 
 2.43.0
 
