@@ -1,161 +1,125 @@
-Received: from NAM10-BN7-obe.outbound.protection.outlook.com (mail-bn7nam10on2055.outbound.protection.outlook.com [40.107.92.55])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2232C21883E;
-	Mon,  9 Jun 2025 15:56:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.92.55
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749484596; cv=fail; b=dsidtPa9ifdQNhbc38zAmYEusVuz8G4b5XLHHk49a0/RVovdSd1p5ZkdPJTgRUB/ovntTP0t/6Dvh8Q+p3iMOE1cOTIHEkl4tXp5yzuinwjAbhmLaN7CxL7d1PdeC915FzWUGQDFmnpbEuJY4uzNlcVdcxiXoE6v6iZ29NwNYLw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749484596; c=relaxed/simple;
-	bh=vHJR3OR6dhTiWlyQOOOWvfWd3jHT9TFPtLbVanVItNU=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=EF4Wz8i7KSU6Sd0dKLiBGIYZ/TPzirESB4Q/FI7rZG6oIRd0YWFHOoVnnE+QrxZmenBXZBxqiknicXeaSL6GR4EPgqMpmzbpVN78ZLV4AsFEqLvmm/zylB1nV069LTVyAaaSh286Njh+Fk8sEqmpCSgsOZlgL+wk1GRzLe4/mx4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=MJF67aQ+; arc=fail smtp.client-ip=40.107.92.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE84021578D;
+	Mon,  9 Jun 2025 16:09:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1749485399; cv=none; b=ZdoLx5jErG976ke0KLIQltoCS8hPYW8MWNjFztxo4mbIthAs4+mOHHQ1CFxjRwbaPxtNGLhXgm+UtasHm3C2lakx/bgxhaDz/2WOgzoUGYwq7haxXj8StaZNErJT+qKHDmVr33KODEh330hox2ucoVKhlMRP+X0lDmOwF0eyQTs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1749485399; c=relaxed/simple;
+	bh=kmFmCzVsy/gyj97Pr6VaI8EqizWU2cS57ZLTXgVpEss=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qkXfKERzvVZciRrKFO4ma4SvlXVhMwZvaT+4/+gdb3L77ul76DZyYyrNM7NcmGH6wqz36LkWHVBSVg6HRJqpzlNN2Z9VYL5AgfUy2aBOlEpdg3s00DW90Z4C8H8GQrh0FQbgg3/NentuaiDX/DTNBwhzwVLLzW/SH1DP8NL7ZiM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oej+R9SF; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="MJF67aQ+"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=tuJksJAtEeEUaR8HhRK8osOLAleXfdCxVvdIRji09iZCVwzLoHwZu2s4CUGBDUheXgFil0JikTwoej6ZKCG6lLvuIeuEpp00uZ3mx2NdTco2beqO/J+Pws1jYNjZKmKb6yLNDb/+3FUwq2KspqsZ1xjzU8ptWONRf7fEaMn/1UsH6SNXxeHw2Ib1el7ry0d20WT/NObKNUlrrdMbbgXAUppCAHm8KdNiwkU5tO/poWdkbHdEllyyyu7z7ksb8LrbPxYD7Reyy+TEdFDyu/Fq/3SYZjANbZdPzobfIht17i58/mrlnG0LWCj/6CI/EqsV/APOUe/SYjUhq1YYMSGKyg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=PKiNkZWt5Dd66kYiauq8T9FX8HqaRoQyDX3KpEvpAKQ=;
- b=dj4OR51d1f7C7T+135DS1e6kfD7m7uFJWK70S/VLCuqrtQ7XK9bv0W/G1dQmV++1YjuKGFvN1I9278Js9bpX7v1OVKknjc8F8x4nuLys9ojHZY7JDW3bExQ8jowrYSAEzD8DHLFoAILc/esaRGiSc8jbuIc2mOr+Bc7FfaPISKjbwz7n3o7T+c0L5lVx4VNLe6mTFhGrWs3807ia9VEOINH+F4kLjvIwYVdel+1dNEYooEmF7H3/vClCqXNYvku7zqDcKwO3H1a1IQRyn2BAd/lNuyoWs1eR4MTwVwxTrd/7PDIV7d3y1yTRwBLxDw6APCWK/sB+ncWbz0RycRnkFQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PKiNkZWt5Dd66kYiauq8T9FX8HqaRoQyDX3KpEvpAKQ=;
- b=MJF67aQ+HgJ8xfqMF+XCBw163K1ZrdLkVyNAOCeQhxzRBbjdCib9KFB0u+HqyLPsmIhs2GEj1wrChdS31Upf1VixSnxypuPAWWUHSRdFStSdPPJg8t+PD3wLQnSk9ibpeQSj50VDdh4ZBpnlpLyuqbenPdPsQQ2s9sNedTtPbNg=
-Received: from BN9P220CA0026.NAMP220.PROD.OUTLOOK.COM (2603:10b6:408:13e::31)
- by IA1PR12MB6435.namprd12.prod.outlook.com (2603:10b6:208:3ad::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.8792.38; Mon, 9 Jun
- 2025 15:56:28 +0000
-Received: from BL02EPF0001A102.namprd05.prod.outlook.com
- (2603:10b6:408:13e:cafe::75) by BN9P220CA0026.outlook.office365.com
- (2603:10b6:408:13e::31) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.8769.25 via Frontend Transport; Mon,
- 9 Jun 2025 15:56:28 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com; pr=C
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- BL02EPF0001A102.mail.protection.outlook.com (10.167.241.134) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.8835.15 via Frontend Transport; Mon, 9 Jun 2025 15:56:28 +0000
-Received: from maple-stxh-linux-10.amd.com (10.180.168.240) by
- SATLEXMB04.amd.com (10.181.40.145) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.39; Mon, 9 Jun 2025 10:56:17 -0500
-From: Pratap Nirujogi <pratap.nirujogi@amd.com>
-To: <andi.shyti@kernel.org>, <ilpo.jarvinen@linux.intel.com>,
-	<rdunlap@infradead.org>, <hdegoede@redhat.com>, <sfr@canb.auug.org.au>,
-	<linux-next@vger.kernel.org>
-CC: <linux-i2c@vger.kernel.org>, <platform-driver-x86@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <benjamin.chan@amd.com>, <bin.du@amd.com>,
-	<gjorgji.rosikopulos@amd.com>, <king.li@amd.com>, <dantony@amd.com>, "Pratap
- Nirujogi" <pratap.nirujogi@amd.com>
-Subject: [PATCH v4 1/3] i2c: designware: Initialize adapter name only when not set
-Date: Mon, 9 Jun 2025 11:53:55 -0400
-Message-ID: <20250609155601.1477055-2-pratap.nirujogi@amd.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20250609155601.1477055-1-pratap.nirujogi@amd.com>
-References: <20250609155601.1477055-1-pratap.nirujogi@amd.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oej+R9SF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD1A6C4CEEB;
+	Mon,  9 Jun 2025 16:09:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1749485398;
+	bh=kmFmCzVsy/gyj97Pr6VaI8EqizWU2cS57ZLTXgVpEss=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=oej+R9SFWkXPJUvsFtD4/DgLhl32kMK6KHcSRy6d2eX3940/USEvuVl6jPIjTezS5
+	 oAES2mM/uK8dDB3Ebb5MxzMeGTzWKbhZgoHP1qRjpNx7wAa8PrmhzLi3KHbYU1gcYL
+	 ds73qkFepgvRzh4pEo0BR66RzcJQI2vjyuCUyDtBQeKn3s6A3apqCfSD10INhVYRns
+	 SuoYzPK7AJdFbYtEzAVTSydSx0mco46BX4MgD6ccn5L+J2ocSPPzeiXOS1CdRJrd1w
+	 nUbebwwDDlzyT9r/Fi0+6gEgdvuh210uVp4lKwtDvS0Cg1WGMINyHGNaYsRuRcqEUT
+	 EYatDTACot52g==
+Date: Mon, 9 Jun 2025 17:09:53 +0100
+From: Conor Dooley <conor@kernel.org>
+To: Kartik Rajput <kkartik@nvidia.com>
+Cc: akhilrajeev@nvidia.com, andi.shyti@kernel.org, robh@kernel.org,
+	krzk+dt@kernel.org, conor+dt@kernel.org, thierry.reding@gmail.com,
+	jonathanh@nvidia.com, ldewangan@nvidia.com, digetx@gmail.com,
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 1/5] dt-bindings: i2c: nvidia,tegra20-i2c: Document
+ Tegra264 I2C
+Message-ID: <20250609-sizzle-shush-b2eb1443b3f7@spud>
+References: <20250609093420.3050641-1-kkartik@nvidia.com>
+ <20250609093420.3050641-2-kkartik@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL02EPF0001A102:EE_|IA1PR12MB6435:EE_
-X-MS-Office365-Filtering-Correlation-Id: bde478e7-b664-4050-194d-08dda76e3229
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|36860700013|1800799024|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?us-ascii?Q?kOh9hTqku8BaS//E6s/Mf+QIRfVgfnPfuQJMvFQCrOe3mZ6D0g7p0DrPpvws?=
- =?us-ascii?Q?SR0Ij3sGtxGsDl8eEv6Z3+oOoxpbWUXhYixmnkpE6ExDxzx67r1f4tc9ZJX6?=
- =?us-ascii?Q?M7uR4qhXLrcBQVcp8gRZuhtowKmBM4msA6MQsTd/Krp7RkFyRu7DY4eWBGH1?=
- =?us-ascii?Q?rOxuX8ju7bphY9gEXo9R8CbB9TABkbt/pquzxRQSm3D2gkHla2qG0xeoufFB?=
- =?us-ascii?Q?/qMWjcbkI0StCYI0YPBvgod6Lh/Wkglr8Mvhu+/AoqEm3GE2q4zRQQYoh9Iv?=
- =?us-ascii?Q?g6c9VhCoHsXW+AXy9grYlH03AHwvr+xVmKrAyS8yEk4ZVCi+xBA37opMnHnc?=
- =?us-ascii?Q?OSk0bfMW6Qz1i7bOU1srE5rU7zmjX8omemuDXmp5DORiFkmWbqoOYnpQDyYI?=
- =?us-ascii?Q?5y42m1TEaxmJOQG4aolR/vEG0MJ0Z5pwQiF5C3b9VbAoQKkdWGqDp111jx/I?=
- =?us-ascii?Q?CjKccYi6WGYqI9KWgd9HSeSWNkAOZladm1G/4UB+QLpOpryFd33suTTFHZzk?=
- =?us-ascii?Q?zJ/DC6WbFEsF1fYMHrpuhpMsme0Ooy1/H+f6WmUV0DZJy1GIhNEcs0te/rW9?=
- =?us-ascii?Q?eOJiVY2DtzXPtKAnNql49LTYHTrvOt+QodzLigwZp0fSSFsFlSn5ZDnmTwsV?=
- =?us-ascii?Q?5eg/OKMe6UpPaG1oY0l5ePCwVyxCi74QlG2wVfLT8ujgWK4Uj1u2GUpvEEdf?=
- =?us-ascii?Q?UwK2DC3cZzB5oq3RrkLy+xyHkcgyLbYFYnOA9ap149RZjJgUc4aA+Rjz6QY5?=
- =?us-ascii?Q?5mN8+Tw/1rZR+v368SkRuIicwhTFPUZqUHYYmZX+NjCVonc/Y61NY4Fvk5jG?=
- =?us-ascii?Q?U3gfvJG7orA0b+6iW4jSQYgRf58rvRe1Ssh2bXODWuY0bhVVhY171ZiJLprw?=
- =?us-ascii?Q?3UR7N7op/aU9Ud3LqOQh5Rg1O2UEHu+huHJGarVw3zPO0VrIY/qGzTXck8DO?=
- =?us-ascii?Q?XVdT1PYGjxc5Q1Q+/Z8AWNlJhZ408AnfTcHJtBlSTWLr2ax4KOVs6Jm9gxAV?=
- =?us-ascii?Q?cQOpGsRiRJ+S2U/GcSYYSRD0fN7h0Ixbw1WxJ5kTDZZek4xEC7LfPXuzLGWq?=
- =?us-ascii?Q?kHGoaiIaNofyQ0X1rd6CIpxbx02afXQ8KFkoydKrt+rYMzYhWU9s7A+LFQc+?=
- =?us-ascii?Q?/74SXac9qc4FKRPYe/SgW9Yr6YmudnsX1HY8UN45ZvDdLPVg3rTqPGIgiCrq?=
- =?us-ascii?Q?t6E2zWSyUZdX6bh5rJQykeazyi+lEljO2DHe6kT/MRkJLvRzGU9ZatIUmkXe?=
- =?us-ascii?Q?qp+TXEClZXC8TZmjhGaEiA5m7+5c67VUBUYrSYf6hVq6Zw/ejkCvdZhrHVZj?=
- =?us-ascii?Q?x37BRSpixGq4q7f2BMfT2gqA0Kp/1K5+4y9czZEljTmWJLpz/cNSBnXDendB?=
- =?us-ascii?Q?a/TvAxPk1wXXlzRR93wlNzi7cJ2nQW0v4PCd1RPDjMgISnq5+wQu+RgD3QBT?=
- =?us-ascii?Q?1aeBUvDM2nYk1k1Eyk+IDFWztaM29U/qz9lGtaSAqXFTpRwAiK+H+6mPK7uG?=
- =?us-ascii?Q?GpvsYUAwDoVUDJAoA6FOY+BybKRhwJxyDqW/?=
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(36860700013)(1800799024)(376014);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jun 2025 15:56:28.5824
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: bde478e7-b664-4050-194d-08dda76e3229
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	BL02EPF0001A102.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6435
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="4x5fXavticha1vvc"
+Content-Disposition: inline
+In-Reply-To: <20250609093420.3050641-2-kkartik@nvidia.com>
 
-Check if the adapter name is already set in the driver prior to
-initializing with generic name in i2c_dw_probe_master(). This
-check allows to retain the unique adapter name driver has
-initialized, which platform driver can use to distinguish it
-from other i2c designware adapters.
 
-Tested-by: Randy Dunlap <rdunlap@infradead.org
-Signed-off-by: Pratap Nirujogi <pratap.nirujogi@amd.com>
----
- drivers/i2c/busses/i2c-designware-master.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+--4x5fXavticha1vvc
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index c5394229b77f..9d7d9e47564a 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -1042,8 +1042,9 @@ int i2c_dw_probe_master(struct dw_i2c_dev *dev)
- 	if (ret)
- 		return ret;
- 
--	snprintf(adap->name, sizeof(adap->name),
--		 "Synopsys DesignWare I2C adapter");
-+	if (!adap->name[0])
-+		scnprintf(adap->name, sizeof(adap->name),
-+			  "Synopsys DesignWare I2C adapter");
- 	adap->retries = 3;
- 	adap->algo = &i2c_dw_algo;
- 	adap->quirks = &i2c_dw_quirks;
--- 
-2.43.0
+On Mon, Jun 09, 2025 at 03:04:16PM +0530, Kartik Rajput wrote:
+> iTegra264 has 17 generic I2C controllers, two of which are in always-on
+> partition of the SoC. In addition to the features supported by Tegra194
+> it also supports a SW mutex register to allow sharing the same I2C
+> instance across multiple firmware.
+>=20
+> Document compatible string "nvidia,tegra264-i2c" for Tegra264 I2C.
+>=20
+> Signed-off-by: Kartik Rajput <kkartik@nvidia.com>
 
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+
+> ---
+> v2 -> v3:
+> 	* Add constraints for "nvidia,tegra264-i2c".
+> v1 -> v2:
+> 	* Fixed typos.
+> ---
+>  .../devicetree/bindings/i2c/nvidia,tegra20-i2c.yaml        | 7 +++++++
+>  1 file changed, 7 insertions(+)
+>=20
+> diff --git a/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.yam=
+l b/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.yaml
+> index 6b6f6762d122..f0693b872cb6 100644
+> --- a/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.yaml
+> +++ b/Documentation/devicetree/bindings/i2c/nvidia,tegra20-i2c.yaml
+> @@ -80,6 +80,12 @@ properties:
+>            support for 64 KiB transactions whereas earlier chips supporte=
+d no
+>            more than 4 KiB per transactions.
+>          const: nvidia,tegra194-i2c
+> +      - description:
+> +          Tegra264 has 17 generic I2C controllers, two of which are in t=
+he AON
+> +          (always-on) partition of the SoC. In addition to the features =
+=66rom
+> +          Tegra194, a SW mutex register is added to support use of the s=
+ame I2C
+> +          instance across multiple firmwares.
+> +        const: nvidia,tegra264-i2c
+> =20
+>    reg:
+>      maxItems: 1
+> @@ -186,6 +192,7 @@ allOf:
+>              contains:
+>                enum:
+>                  - nvidia,tegra194-i2c
+> +                - nvidia,tegra264-i2c
+>      then:
+>        required:
+>          - resets
+> --=20
+> 2.43.0
+>=20
+
+--4x5fXavticha1vvc
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaEcHUQAKCRB4tDGHoIJi
+0mdCAP4iLXTNnbOYBpoSgowvw8EqxS5ptJogfQWY80AoHT4X0QEA/nKxuUPaDW0O
+VU5NdknzzO4hkP54Ep+tJSTUt98rPgc=
+=Ba+U
+-----END PGP SIGNATURE-----
+
+--4x5fXavticha1vvc--
