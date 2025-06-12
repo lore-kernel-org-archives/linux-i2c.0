@@ -1,103 +1,124 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-il1-f173.google.com (mail-il1-f173.google.com [209.85.166.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A98432DFA29;
-	Thu, 12 Jun 2025 21:12:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3662231855
+	for <linux-i2c@vger.kernel.org>; Thu, 12 Jun 2025 22:56:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749762722; cv=none; b=aBbRfZx3VVz0njGRjggnN7ndi53NGvpYQif0UThQqGAc2GLwXeLLsySpjazQfqMA5o9Ghm8Wvac0Aa1h9BotRUmiw2U232oe55NJ3wsNFUeVWIw3Lhw4HQRdJDQqJIDTW3xMIYx2U+sRSadgg7nn0dN/34N88zrOsHy2tqqASV0=
+	t=1749768993; cv=none; b=Ch1VsGUpvWPbqN4PUauM1PJHFyQRQXrc1GBO0Yp2g91i9p4ryS9pinOVD5/ItZk7pcwYzSRTHSUJ4UrrESfXAmzvztth3gw66EU7HTFvgBXIqcQlSQkkhNVPQkzJ7kubo8zc3ZcfgqmpcyviYT6O3uJwDiOt5RQbigBDp85cEwE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749762722; c=relaxed/simple;
-	bh=B+ULNUySL/tycF45z4MninBMMkdPrQZ7s9hDSWM0yxs=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=pVqg5lgQZ/qb5UnhRIU18hn804ba7F8YdsOC5orkRBfeLY5VDZFv6N5ENgfmWooHiAD9F8o4pUx33j7FboKh4Uq7ZpbfnzM7ST7lMbflQoisZLDyRYZ6BW/T/OhoWby0/iMarPO3wCipQjaa5KY+YPakly98rhymftLfXVDUmGo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m35W7jBM; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1749768993; c=relaxed/simple;
+	bh=rzO2vUG3qFvZz9nVJkEDXegLFrtHvbT/BioXWBPlI5E=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oXfU3iZbNxAEE7HXsVMS5CZE+gpImDsHMA+lNu8K2BM7N+a1Efd7ZG8KwtU0ZqIsFYNFIkRlF35yCrb/GDU2xy4MVwJzPutC+Oj0hx3+imJT2x3OFqxaOosBTx8LSTPqdB/hnH1OokPdLk+/6K1wgr/ITu/wjbg2XzKKtm0/Ypg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=riscstar.com; spf=pass smtp.mailfrom=riscstar.com; dkim=pass (2048-bit key) header.d=riscstar-com.20230601.gappssmtp.com header.i=@riscstar-com.20230601.gappssmtp.com header.b=TidBy6iv; arc=none smtp.client-ip=209.85.166.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=riscstar.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=riscstar.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m35W7jBM"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 58A89C4CEF2;
-	Thu, 12 Jun 2025 21:12:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1749762722;
-	bh=B+ULNUySL/tycF45z4MninBMMkdPrQZ7s9hDSWM0yxs=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=m35W7jBMER4m6jU1aOYfYRGE65aZVPlqPralPHRh7vzQtkVF1PXTO0WdOCGKidAJt
-	 m5uPMOOPI8JI0PQpqqoCnpImSVurGu1WI48v7iSXPL8PbaCzDT71OmiqZXkiPUbMOp
-	 ukjvjXtK/P/1/krRa6H3DL1+ETLjQ4gsC1oCYqp07nkVbtbns1BGUGppQGenjAdJaI
-	 wBjizqsFaDz254MXAK0PfyOOmAlST0X4r2HmBsxqD7FC78TblUWuUXkAA9g/r2SDXf
-	 +zt/4oI6e0+XpFYxiV+Wy8cvW1be48RCNQ7vR5uPaX5rgbDFb7p2nlLR3ttuUhvfzX
-	 jIRUYvyhTXEjg==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D429C61CE8;
-	Thu, 12 Jun 2025 21:12:02 +0000 (UTC)
-From: Sven Peter <sven@kernel.org>
-Date: Thu, 12 Jun 2025 21:11:34 +0000
-Subject: [PATCH 10/11] ASoC: apple: mca: Drop default ARCH_APPLE in Kconfig
+	dkim=pass (2048-bit key) header.d=riscstar-com.20230601.gappssmtp.com header.i=@riscstar-com.20230601.gappssmtp.com header.b="TidBy6iv"
+Received: by mail-il1-f173.google.com with SMTP id e9e14a558f8ab-3ddd38ee5b8so12005065ab.1
+        for <linux-i2c@vger.kernel.org>; Thu, 12 Jun 2025 15:56:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=riscstar-com.20230601.gappssmtp.com; s=20230601; t=1749768991; x=1750373791; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=gIRR5bCoil2FaR591vuDwUpsGCoeLZpb18iQYK0axhg=;
+        b=TidBy6iveGvZoJ65T3YqYJ4/Ryr0IkwmVBLPo+0oBBwqPPYZk28JnmVBBWc4bnEiTU
+         tMS49PFVNh5Hjg3OABx70YCMx1gTypm1ETF3mw5dQkxPnc4NXfAvgqLz6mwTYjJqE47w
+         yMxZrPY626qnJFLudWQrna6LoZhmMEj93GJ0KA0wj5QFS7Iq7yUD+y1l8dUcyfYow/L6
+         11sRT5scTK6zb4/c0mqzNHP3tPJTO7MPSxOIjMgYQv810Z5HRHixSXB8OmHtTJ3+EsXe
+         f2W7+QnmPKQwTeO5qPRC7JOW1DoIvRm89VLI+9YwpgWIy7tjjn8v4iEVZDwJ+cnOYQQt
+         39wg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1749768991; x=1750373791;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=gIRR5bCoil2FaR591vuDwUpsGCoeLZpb18iQYK0axhg=;
+        b=hWB0FcsUwZ4a/blSnu2BERhp1NDppqo5uz9OVwiFvMC41HkWS0MQ1iizsoN8EkSOrA
+         mQeXQ5A9l1HduspN4jJel0VgHUZAL4f57jl2fqREzsf6xoI9LnemtfLdaE3CJhgIK8QO
+         RDdbyvwcdKNruq44t/KuSnz00Skp81gbtaIRBi06swv+SJfPTPt1Lg4FrVvmnZY6Oa6a
+         nj1nkprS+9YcDPWeENBAFetEFxZRpo3OVfsRw1mOyl6lGoifcVOcz9yAFi4r6WtbZ3bo
+         bqOyKj/HVeUsE/7AU94Xk0cBsX77juNkPZbRO7x1aZauXk+qGWpl3CgqoJ9vUxucoVc5
+         1Oxw==
+X-Forwarded-Encrypted: i=1; AJvYcCU+jbd32RhJrXiNAes6TfjnVMqfhR+eDWajX/c4B6vSwhb/MKKVQuchGHr7Ie3pmC6AvJoBF/ESMdA=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy6GpCAl8ZfrPVSNqRsKTKevWME/zbnBLJ4J3+FYFMGDnRSox4Q
+	rKr3V7i6YYYrnk3Afq1GemnKD22DVR3mLsn0cLebixSyt5AqQM931RT0Eh5bUni0SDc=
+X-Gm-Gg: ASbGncuk0CRW+tNK2u+zkx8eOFrSnEFWaIuDfrBjt9fl1F2SHIL0vUYVxn7vU87PZIL
+	4Cmj14NNKxyqpk23/O7JFM5T/dQw7qv7jfsX/pr/Hw9vYCu3214p8yNxhi63DTn1rnPu7HhKSgp
+	hv7ojld7kbht3z/BP6zunjs1uAqD0pBxpoJc5dljBlBBlN6v9Hbhs/bNNS4XE5euL/BpcmGCSkW
+	lue8n+qw0uzFSOGLR3ARYgrQkW42sLu5yu+lpNDPwMUdvRK0CiTOJviX/8evdpUDFQU8ixODIP1
+	W42R/j7IehayOeBfsdhhqV5lHN5DfyXzMiSXvzOW/FHMHxJ3sfsI2MMRaKB01yTbhDi9kkyAHgW
+	WsL8T6nSU85RauTQykJKUwZ47lBppIb7XDi005U74Ng==
+X-Google-Smtp-Source: AGHT+IFl/qtFDEOg7fq5AKLUPKjkJzQ1QBSvDDw3zCkODT+b5Ce6LNmP5J2eqcw2VDryqjSPHaqh3g==
+X-Received: by 2002:a05:6e02:184a:b0:3dd:d6c0:cccd with SMTP id e9e14a558f8ab-3de00bd309amr7524375ab.13.1749768990866;
+        Thu, 12 Jun 2025 15:56:30 -0700 (PDT)
+Received: from presto.localdomain (c-73-228-159-35.hsd1.mn.comcast.net. [73.228.159.35])
+        by smtp.gmail.com with ESMTPSA id e9e14a558f8ab-3de019d0c4bsm209125ab.28.2025.06.12.15.56.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Jun 2025 15:56:30 -0700 (PDT)
+From: Alex Elder <elder@riscstar.com>
+To: andi.shyti@kernel.org,
+	dlan@gentoo.org,
+	troymitchell988@gmail.com
+Cc: elder@riscstar.com,
+	linux-i2c@vger.kernel.org,
+	spacemit@lists.linux.dev,
+	linux-riscv@lists.infradead.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] i2c: k1: check for transfer error
+Date: Thu, 12 Jun 2025 17:56:25 -0500
+Message-ID: <20250612225627.1106735-1-elder@riscstar.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250612-apple-kconfig-defconfig-v1-10-0e6f9cb512c1@kernel.org>
-References: <20250612-apple-kconfig-defconfig-v1-0-0e6f9cb512c1@kernel.org>
-In-Reply-To: <20250612-apple-kconfig-defconfig-v1-0-0e6f9cb512c1@kernel.org>
-To: Janne Grunau <j@jannau.net>, Alyssa Rosenzweig <alyssa@rosenzweig.io>, 
- Neal Gompa <neal@gompa.dev>, Ulf Hansson <ulf.hansson@linaro.org>, 
- Michael Turquette <mturquette@baylibre.com>, 
- Stephen Boyd <sboyd@kernel.org>, Srinivas Kandagatla <srini@kernel.org>, 
- Andi Shyti <andi.shyti@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
- Viresh Kumar <viresh.kumar@linaro.org>, Joerg Roedel <joro@8bytes.org>, 
- Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, 
- Dmitry Torokhov <dmitry.torokhov@gmail.com>, Vinod Koul <vkoul@kernel.org>, 
- =?utf-8?q?Martin_Povi=C5=A1er?= <povik+lin@cutebit.org>, 
- Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
- Arnd Bergmann <arnd@arndb.de>
-Cc: asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
- linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org, iommu@lists.linux.dev, 
- linux-input@vger.kernel.org, dmaengine@vger.kernel.org, 
- linux-sound@vger.kernel.org, Sven Peter <sven@kernel.org>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=964; i=sven@kernel.org;
- h=from:subject:message-id;
- bh=B+ULNUySL/tycF45z4MninBMMkdPrQZ7s9hDSWM0yxs=;
- b=owGbwMvMwCHmIlirolUq95LxtFoSQ4a30xydBbpqq5VXvmSptO66k2MZp11785gtr2j91R8CB
- z+4Rst0lLIwiHEwyIopsmzfb2/65OEbwaWbLr2HmcPKBDKEgYtTACZy4A0jw98cpg0xd0T3ip64
- w7XKZO5Mrz1FD550BPhdlurgZ9hxqY+RYebbP+6/fRZ9VZJTvKSwN+B0xcNfM58VqXYtWZGu86s
- 9mhsA
-X-Developer-Key: i=sven@kernel.org; a=openpgp;
- fpr=A1E3E34A2B3C820DBC4955E5993B08092F131F93
-X-Endpoint-Received: by B4 Relay for sven@kernel.org/default with
- auth_id=407
+Content-Transfer-Encoding: 8bit
 
-When the first driver for Apple Silicon was upstreamed we accidentally
-included `default ARCH_APPLE` in its Kconfig which then spread to almost
-every subsequent driver. As soon as ARCH_APPLE is set to y this will
-pull in many drivers as built-ins which is not what we want.
-Thus, drop `default ARCH_APPLE` from Kconfig.
+If spacemit_i2c_xfer_msg() times out waiting for a message transfer to
+complete, or if the hardware reports an error, it returns a negative
+error code (-ETIMEDOUT, -EAGAIN, -ENXIO. or -EIO).
 
-Signed-off-by: Sven Peter <sven@kernel.org>
+The sole caller of spacemit_i2c_xfer_msg() is spacemit_i2c_xfer(),
+which is the i2c_algorithm->xfer callback function.  It currently
+does not save the value returned by spacemit_i2c_xfer_msg().
+
+The result is that transfer errors go unreported, and a caller
+has no indication anything is wrong.
+
+When this code was out for review, the return value *was* checked
+in early versions.  But for some reason, that assignment got dropped
+between versions 5 and 6 of the series, perhaps related to reworking
+the code to merge spacemit_i2c_xfer_core() into spacemit_i2c_xfer().
+
+Simply assigning the value returned to "ret" fixes the problem.
+
+Fixes: 5ea558473fa31 ("i2c: spacemit: add support for SpacemiT K1 SoC")
+Signed-off-by: Alex Elder <elder@riscstar.com>
+Reviewed-by: Troy Mitchell <troymitchell988@gmail.com>
 ---
- sound/soc/apple/Kconfig | 1 -
- 1 file changed, 1 deletion(-)
+v2: Added Troy's Reviewed-by
 
-diff --git a/sound/soc/apple/Kconfig b/sound/soc/apple/Kconfig
-index 793f7782e0d721a1778a82e3515665c3f9f14ede..e9c777cdb6e39c5446f00faea0e617e51b318000 100644
---- a/sound/soc/apple/Kconfig
-+++ b/sound/soc/apple/Kconfig
-@@ -2,7 +2,6 @@ config SND_SOC_APPLE_MCA
- 	tristate "Apple Silicon MCA driver"
- 	depends on ARCH_APPLE || COMPILE_TEST
- 	select SND_DMAENGINE_PCM
--	default ARCH_APPLE
- 	help
- 	  This option enables an ASoC platform driver for MCA peripherals found
- 	  on Apple Silicon SoCs.
+ drivers/i2c/busses/i2c-k1.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/i2c/busses/i2c-k1.c b/drivers/i2c/busses/i2c-k1.c
+index 5965b4cf6220e..b68a21fff0b56 100644
+--- a/drivers/i2c/busses/i2c-k1.c
++++ b/drivers/i2c/busses/i2c-k1.c
+@@ -477,7 +477,7 @@ static int spacemit_i2c_xfer(struct i2c_adapter *adapt, struct i2c_msg *msgs, in
+ 
+ 	ret = spacemit_i2c_wait_bus_idle(i2c);
+ 	if (!ret)
+-		spacemit_i2c_xfer_msg(i2c);
++		ret = spacemit_i2c_xfer_msg(i2c);
+ 	else if (ret < 0)
+ 		dev_dbg(i2c->dev, "i2c transfer error: %d\n", ret);
+ 	else
+
+base-commit: 19272b37aa4f83ca52bdf9c16d5d81bdd1354494
 -- 
-2.34.1
-
+2.45.2
 
