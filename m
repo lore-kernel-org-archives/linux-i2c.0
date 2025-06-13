@@ -1,63 +1,64 @@
-Received: from mail-qt1-f180.google.com (mail-qt1-f180.google.com [209.85.160.180])
+Received: from mail-ot1-f50.google.com (mail-ot1-f50.google.com [209.85.210.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CFE72E6138
-	for <linux-i2c@vger.kernel.org>; Fri, 13 Jun 2025 11:42:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCAD72DFA2F
+	for <linux-i2c@vger.kernel.org>; Fri, 13 Jun 2025 11:42:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1749814931; cv=none; b=WT0NS904vhZRebLV7bbGsA2rq2nKfA//x3LTmFOdVmKsf/gXbvUaHJVzZMdZMqQi9dW5NdpVlkJiB5/THpYqe8ntm4+Rimhtj7LRh7uRfya60EI3zhPIZI3vM7f/BEWJhhbkZaPCmuJnzQk76Y55Vqv8ofdmk+0z/bBHR/zQ0aw=
+	t=1749814935; cv=none; b=dVwkLysELTVNkCWrB5mZ5r82UQ5YtiZVzJI4bxh7Ij4NJHPBJ0jKpGiAqw3hb4fZ4oyEvyUTWJMnpHSMv8rtR3mCeshNbH7x4NK3xsF25NylrbdeIzvYmEaXey3nPfC6Ab5tlNgujbN1K6AW88YjmNI0rAbQbvtf6qbBVbv7Zyw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1749814931; c=relaxed/simple;
-	bh=UjOVwgtEo33Ysf1DyH6d5ldmTFzYDqKUhAyLQVB9wK8=;
+	s=arc-20240116; t=1749814935; c=relaxed/simple;
+	bh=Nl0M0mtMMwH3HQiDa6E6C3fv9pPm34SWpTCcbO9Pcds=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=tg999t277mOgG9CQjF5l0lGJ+sueBXvM3ik9lMEOb0u2ypjpByhZiVf3N/xF3D1Zzvi5NY2SxSGyf6ReOaPLKlUGIy7iANnNo0nkT+8qOtqxP132cnLxvIk17wE0h7Rwa6jmFNql2xZ9H+YHJZLU50tw1Gnyebux8Pr63LtKx08=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=sartura.hr; spf=pass smtp.mailfrom=sartura.hr; dkim=pass (2048-bit key) header.d=sartura.hr header.i=@sartura.hr header.b=plC9ULUn; arc=none smtp.client-ip=209.85.160.180
+	 MIME-Version; b=a3BDeCkWBEziVtHzt1eBIFBu7S9rDyLQqR9Ysnmv4Ho2Y8OSOk4FtwBNJImRNFCDqU+JvthzNuxgcgxzOgn3Ubl5DY1flfWiXQRvslUXVenCRxv+E5vROYvHmSgrmzuYzao2avKkBLm7ycWqk/p0jRRebAIMEBBvEY081ZCX5Ws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=sartura.hr; spf=pass smtp.mailfrom=sartura.hr; dkim=pass (2048-bit key) header.d=sartura.hr header.i=@sartura.hr header.b=Ofnb+lhI; arc=none smtp.client-ip=209.85.210.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=sartura.hr
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sartura.hr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sartura.hr header.i=@sartura.hr header.b="plC9ULUn"
-Received: by mail-qt1-f180.google.com with SMTP id d75a77b69052e-4a58d95ea53so21444161cf.0
-        for <linux-i2c@vger.kernel.org>; Fri, 13 Jun 2025 04:42:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=sartura.hr header.i=@sartura.hr header.b="Ofnb+lhI"
+Received: by mail-ot1-f50.google.com with SMTP id 46e09a7af769-735a6faec9eso1271780a34.3
+        for <linux-i2c@vger.kernel.org>; Fri, 13 Jun 2025 04:42:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sartura.hr; s=sartura; t=1749814928; x=1750419728; darn=vger.kernel.org;
+        d=sartura.hr; s=sartura; t=1749814933; x=1750419733; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6WlKCQdBK9LWxBVakFnX+t2/73xtUBtXu9i2PrxiazI=;
-        b=plC9ULUnylGNLltJ/YPUOz5o61tneqDQCbYUViWc8yRcJPbUutA6Wh91Nks0pGLaRf
-         U4qg6GhJ7CdVGxJ61wwfrMgPl+Uim6usuvApWZXRXE7eIDHJfsnoRUIStFDxnv3bLLyH
-         XE8XCoNTQ8G3ivf1V+3FwUh0Ru9V4giBSI2c/69kHiqgVwM2hNzL+8lEkRWWVEmZYKHr
-         BuJDBHycreZiGgXiTAQMuO9ZOAWIofniBOkiLCZPn6c0C8USAc75ectbFb0iyNEREENB
-         IZVZxKnNkiYbvyxMRcBnD0Igmgmkr4mjbCZia+NHjd381jTdr8OgVywYSAEvF7iD5hGD
-         MZqA==
+        bh=PE5/rsY41g/vAp/0hcg6OhOgOrChXE3RFe9mIYZZ5WM=;
+        b=Ofnb+lhIf2jsLbu4iZbv3MT92O7BrgUojfbvJnuy2ELPcjXEMVu8dZITvTOHyCnUHK
+         2i0IfkebismxHMAE8SlfxWeb8JhQ9zJnl5eH7/m+9q59gjI/6J7wOgIBK+7yO4+DYh4U
+         oMAMermLFqQ1q4OpVMc+3DOOWtwJLhq5Vn+9jQ5nKG/l4yapQKX4xmZ/+vXIZ7yTl17E
+         rskwXSlhdMonWX4ujTorUvH7sIZ/BSILk2yNsNDCbSEZwvN3o7oAWFjpYeaDRAr3VvuL
+         AclmRjRnK8kk42jq/CChVHXxmjR7IyxDg1LTR6i6l7c8RkaEE+j9ruANq2SNLx7VnbRV
+         jUgQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1749814928; x=1750419728;
+        d=1e100.net; s=20230601; t=1749814933; x=1750419733;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=6WlKCQdBK9LWxBVakFnX+t2/73xtUBtXu9i2PrxiazI=;
-        b=pWIzDIaHPtc1fttmwqZYbO+W9JFrxgGpsJqznLTrUFU2wOm6EzLlKCDNDMdXeZ1wDg
-         1iV0GqGztzT7BskwLpdcjxBQXzYqcmwUF5kFWtvAT80z7fMWRN3w3b2hAbBM4oKbC+u9
-         ADwEIBXo0IBl10bdXtQF808P4yh2ONBGqjnrfsyksJBpMI/eZKFoqPcHjYPdffB1d47E
-         8MkMo4aTVDuTp3AXCNexg6H7agrfUh1KhigFbaCW4e4RIeQDkeVHWIVYpEmU7sQahmEH
-         ao4vdElvVAX03PZ7hIkBU1epNR2p3hwbW88XX4UU8fAsEAgukqaUpvRARmMBEfNMtkb6
-         +LZQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXL1f8UaFMlUurieVRhU0lpTLaXvHUNl98oj1pmuaOwh5+LX0kNW/PSY4RVGoVaQu/Uy5y65xlsqwI=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzMUEkA9xsXA6cV/ezTwF3b6kp5+5v7rMWVSHz716PH4zkijoM9
-	dBEAUZuNSw9Bby/uH1lWj025qZE5advlXjIodTbOqECP3tflGIDulR8m5rkkKWrdqDg=
-X-Gm-Gg: ASbGncvg3v6guLB4aQ5DyOAPYGqTwQwdyzxEfKvgBbIpAPjf2ZCJ58urLyweyTH962g
-	N7wT1N0sc4qzgOKW8X8QM7enKgMhwu5DzyMR3BO3c6qyURcqK8Wu+eigT4cUqhcTv3Bay/9dlvr
-	6iqLnD99H6s9W3Tzx0wvR/3oWAyJ8VCw786F8D18go6LE/9Xucfs/6TrzciY4h0zMbi05wX9Wwj
-	4qgKBU4JIs9HGRg8+CTrGiFHQbfdsiB7r2NclV1EcLKt6zG2lVKwzmLDPKtbK8eCXmZfSa8sCcK
-	eN2xH7W3rM+6ZqjnfPYtqfcM9zvvbQ9oZpXbMQuGcOEtRppr5JQZROGjiYkjS5LuA766lcwSLaj
-	iUCNJPlj8Uq1V1O5fv5+0GA==
-X-Google-Smtp-Source: AGHT+IGoxDxx9zyPnLwBJu/HgiS6b9JD+b3qfzp8/xdsORghv63P60xiRPkYDDUy+K9jds0kDneIzQ==
-X-Received: by 2002:ac8:7dc2:0:b0:4a4:310b:7f0a with SMTP id d75a77b69052e-4a739328f1bmr4762501cf.10.1749814928381;
-        Fri, 13 Jun 2025 04:42:08 -0700 (PDT)
+        bh=PE5/rsY41g/vAp/0hcg6OhOgOrChXE3RFe9mIYZZ5WM=;
+        b=uy7t/9/UQVRetCaU2/zMJmDKJDOSRAQhw4lbskvksSMxKxXRpVDAocBk8fEpOjBcYO
+         EMsI2v3eTdqOf7vp1tmGVvcLE3X8xLTWIW1GJ2Td+KeqKmv5pOvFslgmGN2OpLhiAmFc
+         Y4VTNfgJj5GfOE1IKOmn9jxstdH1718qyvyrZfJbeH25OYV/TtvQ/Zc5wjUivOL2j+4F
+         wjw0xJsaSdExaJ9CgNP0XNS61ooFqw5BIijroEkAkr6K2Mz8bUqmKS5t7RFc09x4RItk
+         cpRNGWI+pMQ1Q8n28hOWmxNOWZdmY7S6Ua+N7QNUW7EhKrfmK/oGaCXV9u6PR/fJVpkg
+         Zx1A==
+X-Forwarded-Encrypted: i=1; AJvYcCVzoX7b5WeYoeeGIyY2LyskXuRR6vxxmKcsftU2jl5Tj0pxztIAcZLsDWaFfgtlweaCqO8ERDDjNKQ=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy9w0jQXDGSJ437wS/8Ejsuzr/9h4ZMF2ji7SukEIafoB4p3Xlo
+	ZgLp8TLSjJb/mkxDmet/m0I0DVJWbX6l9TDMlM/xRBBr/HNa0vbp2zTm8r7bGBMgJjlfJGgDdpv
+	vydxB
+X-Gm-Gg: ASbGncs1qb3A2TfdEGjDDBA5UYISOYJavFZX8QegMSD8aQudcMsuOZKvtIbi5VzHceO
+	L39RmZH/LSdUYjov8rVQpMz+QFcIgMx1m24Ya5fu8f6/AlIuCDUbP8bt7c8Q16PEB3GRJLQP+0a
+	Dpjm4nmcAaMl8UmAhLRpsOEmxSKCGdenQ4xTWPKuPZXhdfilD23s9fp5lIGvxRsrLwmMddweOZa
+	un87YtXQQ2gSbgLprsCe080o+lYKF0spMJ3TXu4vvlskbEEFdwy/c5rRKK5cryLusGSsbEvqELh
+	rv4qIlRoHpdUbh7GI6u1dkaU84qzIuSP7QZ8gGPGfYUyQLMcs2OlSlLkFrxt2jKoKFnGbygRsuV
+	Fb8FkWPC4kIreVHltFnb0sw==
+X-Google-Smtp-Source: AGHT+IF3wVYZI/s3wM1PNe5izmwye5C2dxIzh460VAl75DrcM6tXXLw5OFqnGApeHtjQqkaMBAsXNA==
+X-Received: by 2002:ad4:5ce1:0:b0:6fa:eaf9:89f1 with SMTP id 6a1803df08f44-6fb3e685f23mr33483696d6.44.1749814921454;
+        Fri, 13 Jun 2025 04:42:01 -0700 (PDT)
 Received: from fedora.. (cpe-109-60-82-18.zg3.cable.xnet.hr. [109.60.82.18])
-        by smtp.googlemail.com with ESMTPSA id 6a1803df08f44-6fb35b3058fsm20558206d6.37.2025.06.13.04.42.05
+        by smtp.googlemail.com with ESMTPSA id 6a1803df08f44-6fb35b3058fsm20558206d6.37.2025.06.13.04.41.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Jun 2025 04:42:08 -0700 (PDT)
+        Fri, 13 Jun 2025 04:42:01 -0700 (PDT)
 From: Robert Marko <robert.marko@sartura.hr>
 To: catalin.marinas@arm.com,
 	will@kernel.org,
@@ -79,9 +80,9 @@ To: catalin.marinas@arm.com,
 	arnd@arndb.de,
 	daniel.machon@microchip.com
 Cc: Robert Marko <robert.marko@sartura.hr>
-Subject: [PATCH v7 4/6] dma: xdmac: make it selectable for ARCH_LAN969X
-Date: Fri, 13 Jun 2025 13:39:39 +0200
-Message-ID: <20250613114148.1943267-5-robert.marko@sartura.hr>
+Subject: [PATCH v7 2/6] spi: atmel: make it selectable for ARCH_LAN969X
+Date: Fri, 13 Jun 2025 13:39:37 +0200
+Message-ID: <20250613114148.1943267-3-robert.marko@sartura.hr>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20250613114148.1943267-1-robert.marko@sartura.hr>
 References: <20250613114148.1943267-1-robert.marko@sartura.hr>
@@ -93,26 +94,26 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-LAN969x uses the Atmel XDMAC, so make it selectable for ARCH_LAN969X.
+LAN969x uses the Atmel SPI, so make it selectable for ARCH_LAN969X.
 
 Signed-off-by: Robert Marko <robert.marko@sartura.hr>
 ---
- drivers/dma/Kconfig | 2 +-
+ drivers/spi/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/dma/Kconfig b/drivers/dma/Kconfig
-index db87dd2a07f7..0c3f14ab569f 100644
---- a/drivers/dma/Kconfig
-+++ b/drivers/dma/Kconfig
-@@ -111,7 +111,7 @@ config AT_HDMAC
+diff --git a/drivers/spi/Kconfig b/drivers/spi/Kconfig
+index 60eb65c927b1..3b0ee0f6cb6a 100644
+--- a/drivers/spi/Kconfig
++++ b/drivers/spi/Kconfig
+@@ -145,7 +145,7 @@ config SPI_ASPEED_SMC
  
- config AT_XDMAC
- 	tristate "Atmel XDMA support"
--	depends on ARCH_AT91
-+	depends on ARCH_AT91 || ARCH_LAN969X
- 	select DMA_ENGINE
+ config SPI_ATMEL
+ 	tristate "Atmel SPI Controller"
+-	depends on ARCH_AT91 || COMPILE_TEST
++	depends on ARCH_AT91 || ARCH_LAN969X || COMPILE_TEST
+ 	depends on OF
  	help
- 	  Support the Atmel XDMA controller.
+ 	  This selects a driver for the Atmel SPI Controller, present on
 -- 
 2.49.0
 
