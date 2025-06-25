@@ -1,61 +1,63 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DEE22D8762;
-	Wed, 25 Jun 2025 10:45:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09A622D878E;
+	Wed, 25 Jun 2025 10:45:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1750848339; cv=none; b=SOxJymVuzxwXavql1U00gVvAKq/CUOnjncuiU0Bc8oBjp31TcxZXmCWsiIj0Gh54LSgCjUb1amn5ubqzJVnRnRfLrCSL9JUvUX3r/ITFSVOl6WabhKWZJhMV4R6xmiJ42Iw0llEewxN+KZekIIKlia4u5ozbHEETvkHmVr+TfsQ=
+	t=1750848339; cv=none; b=XzNTEFhJePI87N90JCuI2N2BN4gsdSux7pHQeXrHWtxDpxdasYa9CqCNN+MRDpffWuGtnspFMvTMHL5qhMxxz7QiCF7nDtCcY6Sf4ElGUjjXK9WrwQLWMnM9RwBjjOVi4IOB6sbwPJDP1tXVbiXp9y/lurVyZIiB9e7EpyUkhVQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1750848339; c=relaxed/simple;
-	bh=3CxHp1TGay9ZGXz33grGZBOt3lLRZaab+Cmaf5i7/0U=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YyovE4El3hWCOW1NPW+etnXpnzNpg5g9D3aCmJz9DoVFVx9Z2XEmhNdPNRCSdJu3Lbbm96ECjuJcfFkk+OvzpHSql6TA+8nJ7kA2+LgFjSabydzQ0XQpw8b8juHF6A0b+E3Y9lGt4HdW/ZahS5272FyK0zWb9vRCyKjm9WrgMDk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fETzP+Wx; arc=none smtp.client-ip=209.85.128.49
+	bh=AMQMqGRLVFc3MWaZ9o+vWalE72Y2E0gYeWtoU8X5MHA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Tjk3HOMmqK6Yvms23U0rlOFn3Nm+8pp1Hmyd4Rswy5bLo1ThQXTV6UXr5zz/6zC2KgqZEKue00wUxWFjPQAHxPwFPqocJIqhFxgMwLNmq080i2T+BB0Eiqt71bjy093obKmDOkHIrLcCMqkrVB9mk/PPdEHfMAY4ZUIXi63QEys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=O+uY0j6d; arc=none smtp.client-ip=209.85.128.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fETzP+Wx"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-450ccda1a6eso53709565e9.2;
-        Wed, 25 Jun 2025 03:45:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O+uY0j6d"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-450ce671a08so40819105e9.3;
+        Wed, 25 Jun 2025 03:45:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1750848334; x=1751453134; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=BTT8M9lvOnuNo47cLpUQJQekotV2eBvCU0pRSn/QWrY=;
-        b=fETzP+Wxg6whK3zik2T0AHimZBdJ2LOpNm+hBRe397QVFoHpcJyt8qbZ4pfic7F2Vn
-         Z3hA5mEkCJ4nPVks3xXmO2mXSMGA5DVx+2zU0bmFI0J9d1gwE/lf5jSDKkMH72275Mjs
-         LL0FvSiLstUOnYS1h2h+gvBikIzxg3cviJtiWEHGpyR2RkDnxr5YSHWWdWMoOd5KXUeW
-         J/zKMbFCc333IdMhaBW+nheuyIoG5Nmv+ojAbBlw65REN0BNrNHE2+X/owuNs0yctQY0
-         f1YN8C21/wth7pRRaDla9n0Aeuk1jLn/IDmwShdunLz34MX/zsqrHwjkfDkBtDDPlI9L
-         ZICg==
+        d=gmail.com; s=20230601; t=1750848336; x=1751453136; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6R8+bOTEWy5YxtYElYy2Zc7X/g0/YWMhUjq6/DyjCsc=;
+        b=O+uY0j6dLvgY5xFlAuu5zAOwa6a3ueQumEMy7R1hvr/61xD46t03x5c3YG62jTh77k
+         ao2+8dg46zk8KtmRahbuAWrRi1VxKH8WKmtaQEqz5Na7Uh0Z6u0i+IAA3ArhXs2lpWvn
+         iu9QPap/uJ0/Pcwpa5i2mU0cwaTgIGBtkr9ssm/b3BfQRX67u3/HomBkyzsC+aYXihip
+         YgBnUiIxtKCQ1ktN/X5uOMVeTD5S0Q2op/7nmt2mV4ZxtPyWJFltwlHvpD2nP0rWu5/5
+         +dqt0GQff4AVclEJplzChNnv4E9DH7H5mZX0GX01emqAlR9ASmlfAD40IHh3XKV1LLBa
+         w53w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1750848334; x=1751453134;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=BTT8M9lvOnuNo47cLpUQJQekotV2eBvCU0pRSn/QWrY=;
-        b=f+0YJY2o5qiRN6HhkwXxlrIgiqa83AiuUniVGZ1ESGmQ3yTgiklNnQ4PzMwQFg8ZMs
-         M0Iw68ddnaOtbC/k8KkhvcIKuGKc9OSbyx8c9biTGGEosXTmqMn739dyS8KbsIEVJwxq
-         vA1QF+NH5GoD5T53bXC0Qr7BM+BOFygZoQo16o7AswKEsqpSz29SaCtHJpdTHIY0iytY
-         bokUnMntvd/AKyGf7KpFVW6a9vNtVEX5MwiPuwDh5ucYotiQaUVkHW3hA3joVTuCwrHT
-         17E/EBksNsCWDNAg/yY9Qm+8I335sZ6nBsXx1idelffdWOGWLxXAMURftfwVCRj1MNfq
-         a/Iw==
-X-Forwarded-Encrypted: i=1; AJvYcCVFIcfSWBDnNgbGVxLCilLxTe5hR4IFCkARy/8IoMpURJ4EsQAXUxAgutXhgYj8/YO3XeL0xenicrYhhk5L@vger.kernel.org, AJvYcCW0Sbxh+F8WskZlnLA+WzZe4QPjlApxpQsDP1L21i3Qwd+O4dzLRnenq+e+R85iZJ71bXtzprG53OUM@vger.kernel.org, AJvYcCWYwZQFHnKmCr206c+NYL5+qbRaLHK0eYfTuJ+l2Koq4YZ6RHjRimxGguuOij8r6Z01W6Pr5EutfPJo@vger.kernel.org
-X-Gm-Message-State: AOJu0YwqgQkjQ+8RWoXFn3hPUwjmtLM6a3lxeuSs9a842fEQ4sLfgxil
-	sZdt+aAvWL/LGpFY2/aPQMRwRJq7T9IhD8J1LhtQJGyD1n3es3YEMLCb
-X-Gm-Gg: ASbGncsJAr/Bx1tAKN23OjhD4FFzsU5F31ry4eZErpkp3qKF0KFi7NkMPoBCXomiyGE
-	n2mNyoGct6/DkOzPktXDkS+FDm9LVaIPpfs1EAJg9TPbrZkpeKJQms1yUZgyOp4zkuDe6rGwm8s
-	SMYCamBS509L3LjVe4F3iukEA9hX3i+QwuY1n0EqOX7ldZgNzReqlmaOWhGT14hAaChLvx0fPi4
-	Miz7WU8cgy0vEh7gYt9XlGy4V7vVfgbP7NaWCgFmgOzbK/whvDgQC5A8Qp4mCNEu73zvvyQxSw2
-	EMrtdiwADdNMx0DY59YjjEyHtLm6kzCqOaJ9FNhX+OtA9Ew/fsojvEXKqSn1fD0nFi+43DcC7IV
-	7n4WG9Wpbk+CFqrwTpwnO
-X-Google-Smtp-Source: AGHT+IGKPYsJWUF5K8s7+an7VhPz/9OGomk5Q2CRXWrqQKmk402hv6nhjeXiw6R5slm5rTdfE9EjuA==
-X-Received: by 2002:a05:600c:5490:b0:444:34c7:3ed9 with SMTP id 5b1f17b1804b1-45381ae9142mr21753105e9.26.1750848333570;
-        Wed, 25 Jun 2025 03:45:33 -0700 (PDT)
+        d=1e100.net; s=20230601; t=1750848336; x=1751453136;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=6R8+bOTEWy5YxtYElYy2Zc7X/g0/YWMhUjq6/DyjCsc=;
+        b=paMVBcHO7CFdxsO7NYkdGa7/0JANrCUnPziNB/JwlboGvmxq3ebVI6zyukzREAmoev
+         AdWFqGkB/N8cP+b8PgTllsGBvbIfcD93xd8s5iLiXwKExl0Ff38fxjBoeabbTnq9+8wU
+         hT6BUO7SkiAEgGCwFz22UG9IJTyAbxybkQE8wrhLkWJx77XZfURAznqt7FYBRJqz6qKH
+         cMPXfYJiDsnx7X5GRzch88bYnVBSSfTTqg2zEBYfaW596LQnXknnOKPWC0X3SWaCWN97
+         W3XwESQyqb0kDvAnqhX9rRt3jUetPs2rRvCCcCSCi/hkKHgu6SkLJY/AXYcXlPVLfSLQ
+         VL3Q==
+X-Forwarded-Encrypted: i=1; AJvYcCVLao/+fn+JAW5+XwmImUBKsb2s7DFKQvOrxG3GAzRHHGQ8zgbhsjC/Ek8jr2izj8DvrQXGmqokR1vw@vger.kernel.org, AJvYcCW03eQWLobut6MLVwqpT2qu7Rb1ObFUFZnQCjf9U77V2eiaYEu6l30FyKo1ws9BJg+wdsLbXgGZIkOvC9y2@vger.kernel.org, AJvYcCWk57EJa5miW26fyUWDU8qip/SVdTTwWrq5EowIrKFt+bOhZL21iDJ3p6G/8xszGJF7L7CciAWCyzSt@vger.kernel.org
+X-Gm-Message-State: AOJu0YzqBv8gdKRyBA7RkgwS4lLyK05MIo/Woy21e168xYwbE7My2JCz
+	e5E+XImOJ+BKPm910Gdm8VAMJr/u/9Wi617Z6aw+jzbnHNMbr7i4kK0x
+X-Gm-Gg: ASbGncuHDgIrREjSw+0An4gasVygGHZTChOiapoCRAJBZgOLbaxSDYO0N7M+KAZV/1I
+	glqPwz3HvnhfkqnRikV4iovFCChj0YofK/5IDcxwqvP1H/JUq2faWX8un/x+ltFvcXz1rtSUKO8
+	KVE2gWcf+U5J2tarVRDyVFWB/fqHRNY9pjFmVFM+m2ofkS2icRSCggzPJwIbHRi/4xHYP7yL2MH
+	cjEUf1iejqSJ0si4iewNhu3ebM4Id7qP6z2+u1Nn2rGWp/AsjwwBgtmNZLa0tGe54BUTDyLNrmK
+	GRzwRjrYwtTP+n3YIHSaL3OMw8am61Xn7rVCosyc24v2UHoQnwKi5cM64nsWxN+QXOq2XVkOioD
+	gZjNGV3202qf6O8BQamy2sVvfRLMTO8M=
+X-Google-Smtp-Source: AGHT+IHnh11KMF1ACJUkSNAiP6Pqn7sEq+GdxqFBcNnEYMr1D9nO2CW3Od7c0/VYjjfFJA/dql60yA==
+X-Received: by 2002:a05:600c:a407:b0:43c:f8fc:f697 with SMTP id 5b1f17b1804b1-45382a1d307mr17640235e9.9.1750848336094;
+        Wed, 25 Jun 2025 03:45:36 -0700 (PDT)
 Received: from iku.example.org ([2a06:5906:61b:2d00:c47e:d783:f875:2c7c])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4538233c1easm16036175e9.3.2025.06.25.03.45.32
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4538233c1easm16036175e9.3.2025.06.25.03.45.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Jun 2025 03:45:33 -0700 (PDT)
+        Wed, 25 Jun 2025 03:45:35 -0700 (PDT)
 From: Prabhakar <prabhakar.csengg@gmail.com>
 X-Google-Original-From: Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 To: Chris Brandt <chris.brandt@renesas.com>,
@@ -74,11 +76,14 @@ Cc: linux-renesas-soc@vger.kernel.org,
 	Prabhakar <prabhakar.csengg@gmail.com>,
 	Biju Das <biju.das.jz@bp.renesas.com>,
 	Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Subject: [PATCH v4 0/5] Add RIIC support for RZ/T2H and RZ/N2H SoCs
-Date: Wed, 25 Jun 2025 11:45:21 +0100
-Message-ID: <20250625104526.101004-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+	Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+	Conor Dooley <conor.dooley@microchip.com>
+Subject: [PATCH v4 2/5] dt-bindings: i2c: renesas,riic: Document RZ/T2H and RZ/N2H support
+Date: Wed, 25 Jun 2025 11:45:23 +0100
+Message-ID: <20250625104526.101004-3-prabhakar.mahadev-lad.rj@bp.renesas.com>
 X-Mailer: git-send-email 2.49.0
+In-Reply-To: <20250625104526.101004-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
+References: <20250625104526.101004-1-prabhakar.mahadev-lad.rj@bp.renesas.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -89,45 +94,143 @@ Content-Transfer-Encoding: 8bit
 
 From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-Hi All,
+Document support for the I2C Bus Interface (RIIC) found on the Renesas
+RZ/T2H (R9A09G077) and RZ/N2H (R9A09G087) SoCs.
 
-This patch series adds support for I2C Bus Interface (RIIC) found on
-the Renesas RZ/T2H (R9A09G077) and RZ/N2H (R9A09G087) SoCs. The RIIC
-IP on these SoCs is similar to that on the RZ/V2H(P) SoC but has some
-differences in interrupt handling and does not require resets.
+The RIIC IP on these parts is similar to that on RZ/V2H(P) but supports
+only four interrupts (including a combined error/event), lacks FM+ mode,
+and does not require reset. Introduce a new compatible string
+`renesas,riic-r9a09g077` for RZ/T2H and use it as a fallback for RZ/N2H.
 
+Unlike earlier SoCs that use eight distinct interrupts, the RZ/T2H uses
+only four. Update the binding schema to reflect this interrupt layout
+and skip the `resets` property check, as it is not required on these SoCs.
+
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+---
 v3->v4:
-- Collected RB tag from Geert
-- Squshed patch 2/6 and 3/6 into single patch
+- Squashed documenting RZ/N2H into same patch
+- Updated commit messages
+- Collected Reviewed-by tag from Geert
+- Restored Ack and Reviews
 
 v2->v3:
-- Replaced `Transmit Error` -> `Transfer Error`
+- Replaced Transmit Error -> `Transfer Error`
 - Fixed the order of interrupts in the DT binding
   documentation to match the HW manual.
 
 v1-> v2:
-- Added Acked-by, Reviewed-by and Tested-by tags.
 - Listed the interrupts in the order as mentioned in the
   HW manual.
 - Renamed the interrupt names to match the HW manual.
-- Initialized the members of `riic_of_data` in the order they are
-  declared in the struct.
+- Added Acked-by and Reviewed-by tags.
+---
+ .../devicetree/bindings/i2c/renesas,riic.yaml | 75 ++++++++++++++-----
+ 1 file changed, 56 insertions(+), 19 deletions(-)
 
-Cheers,
-Prabhakar
-
-Lad Prabhakar (5):
-  dt-bindings: i2c: renesas,riic: Move ref for i2c-controller.yaml to
-    the end
-  dt-bindings: i2c: renesas,riic: Document RZ/T2H and RZ/N2H support
-  i2c: riic: Pass IRQ desc array as part of OF data
-  i2c: riic: Move generic compatible string to end of array
-  i2c: riic: Add support for RZ/T2H SoC
-
- .../devicetree/bindings/i2c/renesas,riic.yaml | 105 ++++++++++++------
- drivers/i2c/busses/i2c-riic.c                 |  54 +++++++--
- 2 files changed, 117 insertions(+), 42 deletions(-)
-
+diff --git a/Documentation/devicetree/bindings/i2c/renesas,riic.yaml b/Documentation/devicetree/bindings/i2c/renesas,riic.yaml
+index bfcc400655dc..6876eade431b 100644
+--- a/Documentation/devicetree/bindings/i2c/renesas,riic.yaml
++++ b/Documentation/devicetree/bindings/i2c/renesas,riic.yaml
+@@ -29,32 +29,50 @@ properties:
+               - renesas,riic-r9a09g056   # RZ/V2N
+           - const: renesas,riic-r9a09g057   # RZ/V2H(P)
+ 
+-      - const: renesas,riic-r9a09g057   # RZ/V2H(P)
++      - enum:
++          - renesas,riic-r9a09g057   # RZ/V2H(P)
++          - renesas,riic-r9a09g077   # RZ/T2H
++
++      - items:
++          - const: renesas,riic-r9a09g087  # RZ/N2H
++          - const: renesas,riic-r9a09g077  # RZ/T2H
+ 
+   reg:
+     maxItems: 1
+ 
+   interrupts:
+-    items:
+-      - description: Transmit End Interrupt
+-      - description: Receive Data Full Interrupt
+-      - description: Transmit Data Empty Interrupt
+-      - description: Stop Condition Detection Interrupt
+-      - description: Start Condition Detection Interrupt
+-      - description: NACK Reception Interrupt
+-      - description: Arbitration-Lost Interrupt
+-      - description: Timeout Interrupt
++    oneOf:
++      - items:
++          - description: Transmit End Interrupt
++          - description: Receive Data Full Interrupt
++          - description: Transmit Data Empty Interrupt
++          - description: Stop Condition Detection Interrupt
++          - description: Start Condition Detection Interrupt
++          - description: NACK Reception Interrupt
++          - description: Arbitration-Lost Interrupt
++          - description: Timeout Interrupt
++      - items:
++          - description: Transfer Error Or Event Generation
++          - description: Receive Data Full Interrupt
++          - description: Transmit Data Empty Interrupt
++          - description: Transmit End Interrupt
+ 
+   interrupt-names:
+-    items:
+-      - const: tei
+-      - const: ri
+-      - const: ti
+-      - const: spi
+-      - const: sti
+-      - const: naki
+-      - const: ali
+-      - const: tmoi
++    oneOf:
++      - items:
++          - const: tei
++          - const: ri
++          - const: ti
++          - const: spi
++          - const: sti
++          - const: naki
++          - const: ali
++          - const: tmoi
++      - items:
++          - const: eei
++          - const: rxi
++          - const: txi
++          - const: tei
+ 
+   clock-frequency:
+     description:
+@@ -84,6 +102,25 @@ required:
+ allOf:
+   - $ref: /schemas/i2c/i2c-controller.yaml#
+ 
++  - if:
++      properties:
++        compatible:
++          contains:
++            const: renesas,riic-r9a09g077
++    then:
++      properties:
++        interrupts:
++          maxItems: 4
++        interrupt-names:
++          maxItems: 4
++        resets: false
++    else:
++      properties:
++        interrupts:
++          minItems: 8
++        interrupt-names:
++          minItems: 8
++
+   - if:
+       properties:
+         compatible:
 -- 
 2.49.0
 
