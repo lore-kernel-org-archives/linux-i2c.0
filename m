@@ -1,50 +1,51 @@
 Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com [91.207.212.93])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0127027726;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 012E22868B4;
 	Mon, 30 Jun 2025 12:58:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.207.212.93
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751288296; cv=none; b=fSyOnm9hmTNI8rLaa9cmjYrpvT1sL2XmQKqZgRthtiUCrgbiyehk7lDttsgv51iqes8WtLZGhwy8oo01vgcvqrBlRGpnH/6ZK4NCXrtIE7Vn29eapzQNtHTlTkLmLOmGkh5WkSbgTgnSGKmiKGcs6e8f+4Xz+rCxN6ZwsUDWVhU=
+	t=1751288298; cv=none; b=BqmJMqZRjbY6p3HckJQZonGKXd/cMQzgZ6SU6fMHuMks21u9vd47v5ud/Uscu+9M5Do2Jh0AxYFLDZ6kbndFesNLePI4cfs/mQ4KeNhHypj8hDrHjzMLbq9Q4N/4Vif6gWSbC1BZzv4i15X7vbOo1h79L9k3hV92vOf6QKPgfOk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751288296; c=relaxed/simple;
-	bh=T7kfgnNMrQ5va5/Q6TdW3ICribflYFmyl+hiADpXtWo=;
-	h=From:Subject:Date:Message-ID:MIME-Version:Content-Type:To:CC; b=suV2znrTq8JlT8HQirLuBfE6xl07DCAIKUZCQIRf9sPgpQGgKQXw0JWg4ops1Du6YAuPRuU22C7JySd6EIAa2ZylBH7CkJ0i6DWFIB39GRNkOL60qZk89ZT/SS0foFtyV3vSVIrl9sJa+ioLLH1RVFuINuu109/07T5KyHEWvBU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com; spf=pass smtp.mailfrom=foss.st.com; dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b=Esr/VsQn; arc=none smtp.client-ip=91.207.212.93
+	s=arc-20240116; t=1751288298; c=relaxed/simple;
+	bh=3CRG5cL6WglhSwCH6DI4xdQaiWDa64Jtm8Xm4UcLtaw=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:References:
+	 In-Reply-To:To:CC; b=tTnRQp9nXSuOh72EaePgacsGnzIFxSNEACbXssukSvmWKsqZ96lr3GmxslfX+DBmsAXxITsDKzCeJA3cfiLlmyFF3YwCVPbWWMnN+HFFHJYM1WbsAMPnq20gTzCQTa6gCAYrwv8TD29jZOaKJcOszfGYpHazBe5oDQY96jFnIYY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com; spf=pass smtp.mailfrom=foss.st.com; dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b=4JnjG6lf; arc=none smtp.client-ip=91.207.212.93
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foss.st.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b="Esr/VsQn"
+	dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b="4JnjG6lf"
 Received: from pps.filterd (m0046661.ppops.net [127.0.0.1])
-	by mx07-00178001.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55UAX7hQ009897;
-	Mon, 30 Jun 2025 14:57:53 +0200
+	by mx07-00178001.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 55U8mfZl011728;
+	Mon, 30 Jun 2025 14:57:55 +0200
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=
-	cc:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=selector1; bh=uzwpacVr2LDq5kXvxCDUAt
-	NWqyaw9cIFdQ9xmj0ioPk=; b=Esr/VsQn/f4180soFFWYt9BFaYfONy5OyL4uY7
-	bWHr81wKH7xj8/aPYzLmpbHVWKiBZS6MKchZJWGmyolwKMvl+9Lu5jl4Qa8wiNz7
-	BxUwJ2/RTmqnktLySHmr3zDI8RVftAuqg1BZ18tZPJ9+zjj46CcAe6G9diP0l6lk
-	1cM9NXXntZHnb2gJg4tOdW7LWmMOwV8Aggc/Wo+lUFDz7VVATsqEs6F28eev9ecT
-	ujfuAjQK4w7oiP8XNJ7i61nxhHmhr868Ytoj8RBXxS/OJMAfP8PzJE113WZm+9Vo
-	8oSILwgrWBYmoG7K/AhxR+L16nU4B0pAvg8OCQtMwP2Drhxw==
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=selector1; bh=
+	OM4qEJBb0Q3JHjpYV6uTT5JxCF8eDkNfwEjYMoecZg8=; b=4JnjG6lf/RxF5fA6
+	QisoqspaK74+Z9UkDQlz8Lg2md3foRIsHNUFAYpmpnP7YzTRiVUtthx20xEuKNZW
+	PeIJglIDwj+hIwd5cHmOUqAHeyGB0KjixT0iyFKeZ/3Y3l+GGZxuHdUYFtwTl+Il
+	bDQhBvgBKrZD0CDWCwQscW0vFELd/rZf+JEUwfoREa9ffIx/WSYCY5sDLIXgNJrL
+	rjQwFUHuvwohgLVDSrOq0S3CGG/9h7zdeOFSj7sbUVHdpM3nCfT3QG3l0ub1ObAF
+	9Weq77j5VaW0EteajI1TfSQzhFeCXjbr6jYI/tKkElcxjiM9Mm5zEYYlUE7Y4N39
+	o6x6cQ==
 Received: from beta.dmz-ap.st.com (beta.dmz-ap.st.com [138.198.100.35])
-	by mx07-00178001.pphosted.com (PPS) with ESMTPS id 47j79h7b9q-1
+	by mx07-00178001.pphosted.com (PPS) with ESMTPS id 47j79h7b9v-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 30 Jun 2025 14:57:53 +0200 (MEST)
+	Mon, 30 Jun 2025 14:57:55 +0200 (MEST)
 Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-	by beta.dmz-ap.st.com (STMicroelectronics) with ESMTP id 962744004D;
-	Mon, 30 Jun 2025 14:56:23 +0200 (CEST)
+	by beta.dmz-ap.st.com (STMicroelectronics) with ESMTP id 172BB4004F;
+	Mon, 30 Jun 2025 14:56:27 +0200 (CEST)
 Received: from Webmail-eu.st.com (shfdag1node2.st.com [10.75.129.70])
-	by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 80204B42908;
-	Mon, 30 Jun 2025 14:55:23 +0200 (CEST)
+	by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 65C64B42910;
+	Mon, 30 Jun 2025 14:55:25 +0200 (CEST)
 Received: from localhost (10.252.20.7) by SHFDAG1NODE2.st.com (10.75.129.70)
  with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Mon, 30 Jun
- 2025 14:55:23 +0200
+ 2025 14:55:25 +0200
 From: =?utf-8?q?Cl=C3=A9ment_Le_Goffic?= <clement.legoffic@foss.st.com>
-Subject: [PATCH v3 0/3] Fix STM32 I2C dma operations
-Date: Mon, 30 Jun 2025 14:55:12 +0200
-Message-ID: <20250630-i2c-upstream-v3-0-7a23ab26683a@foss.st.com>
+Date: Mon, 30 Jun 2025 14:55:14 +0200
+Subject: [PATCH v3 2/3] i2c: stm32f7: unmap DMA mapped buffer
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -53,11 +54,9 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-B4-Tracking: v=1; b=H4sIADCJYmgC/12Oyw6CMBQFf4V0bUlft4Ar/8O4wLZIF1DSi42G8
- O8W3IjLOclMzkLQRe+QnIuFRJc8+jBmkKeCmL4dH456m5kIJoCBqKgXhj4nnKNrB+rgrhtgXEL
- TkqxM0XX+teeut8y9xznE915PfFu/Ic31MZQ4ZVQJKy3ISjkNly4gljiXJgxkSyXxo///SCLrt
- eEKhFQ1t+aor+v6AZ5tRpHpAAAA
-X-Change-ID: 20250527-i2c-upstream-e5b69501359a
+Message-ID: <20250630-i2c-upstream-v3-2-7a23ab26683a@foss.st.com>
+References: <20250630-i2c-upstream-v3-0-7a23ab26683a@foss.st.com>
+In-Reply-To: <20250630-i2c-upstream-v3-0-7a23ab26683a@foss.st.com>
 To: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
         Alain Volmat
 	<alain.volmat@foss.st.com>,
@@ -86,37 +85,47 @@ X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
  definitions=2025-06-30_03,2025-06-27_01,2025-03-28_01
 
-This patch series aims to fix some issues inside the driver's DMA
-handling.
-It also uses newer I2C DMA API.
+Fix an issue where the mapped DMA buffer was not unmapped.
 
+Fixes: 7ecc8cfde553 ("i2c: i2c-stm32f7: Add DMA support")
+Acked-by: Alain Volmat <alain.volmat@foss.st.com>
 Signed-off-by: Clément Le Goffic <clement.legoffic@foss.st.com>
 ---
-Changes in v3:
-- Add Alain Volmat's "Acked-by" on patch 1 and 2
-- Link to v2: https://lore.kernel.org/r/20250627-i2c-upstream-v2-0-8c14523481dc@foss.st.com
+ drivers/i2c/busses/i2c-stm32f7.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Changes in v2:
-- Fix the dev used in dma_unmap also in the error path of
-  `stm32_i2c_prep_dma_xfer`
-- Add a dma_unmap_single also in the ITs error handler
-- Add Alain Volmat's "Acked-by" on patch 3
-- Link to v1: https://lore.kernel.org/r/20250616-i2c-upstream-v1-0-42d3d5374e65@foss.st.com
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index e4aaeb2262d0..042386b4cabe 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -1554,6 +1554,8 @@ static irqreturn_t stm32f7_i2c_handle_isr_errs(struct stm32f7_i2c_dev *i2c_dev,
+ 	if (i2c_dev->use_dma) {
+ 		stm32f7_i2c_disable_dma_req(i2c_dev);
+ 		dmaengine_terminate_async(dma->chan_using);
++		dma_unmap_single(i2c_dev->dev, dma->dma_buf, dma->dma_len,
++				 dma->dma_data_dir);
+ 	}
+ 
+ 	i2c_dev->master_mode = false;
+@@ -1622,6 +1624,8 @@ static irqreturn_t stm32f7_i2c_isr_event_thread(int irq, void *data)
+ 		if (i2c_dev->use_dma) {
+ 			stm32f7_i2c_disable_dma_req(i2c_dev);
+ 			dmaengine_terminate_async(dma->chan_using);
++			dma_unmap_single(i2c_dev->dev, dma->dma_buf, dma->dma_len,
++					 dma->dma_data_dir);
+ 		}
+ 		f7_msg->result = -ENXIO;
+ 	}
+@@ -1642,6 +1646,8 @@ static irqreturn_t stm32f7_i2c_isr_event_thread(int irq, void *data)
+ 				dev_dbg(i2c_dev->dev, "<%s>: Timed out\n", __func__);
+ 				stm32f7_i2c_disable_dma_req(i2c_dev);
+ 				dmaengine_terminate_async(dma->chan_using);
++				dma_unmap_single(i2c_dev->dev, dma->dma_buf, dma->dma_len,
++						 dma->dma_data_dir);
+ 				f7_msg->result = -ETIMEDOUT;
+ 			}
+ 		}
 
----
-Clément Le Goffic (3):
-      i2c: stm32: fix the device used for the DMA map
-      i2c: stm32f7: unmap DMA mapped buffer
-      i2c: stm32f7: support i2c_*_dma_safe_msg_buf APIs
-
- drivers/i2c/busses/i2c-stm32.c   |  4 ++--
- drivers/i2c/busses/i2c-stm32f7.c | 42 +++++++++++++++++++++++++++++-----------
- 2 files changed, 33 insertions(+), 13 deletions(-)
----
-base-commit: d0b3b7b22dfa1f4b515fd3a295b3fd958f9e81af
-change-id: 20250527-i2c-upstream-e5b69501359a
-
-Best regards,
 -- 
-Clément Le Goffic <clement.legoffic@foss.st.com>
+2.43.0
 
