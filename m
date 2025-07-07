@@ -1,115 +1,140 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+Received: from mx07-00178001.pphosted.com (mx07-00178001.pphosted.com [185.132.182.106])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28F70291C28
-	for <linux-i2c@vger.kernel.org>; Mon,  7 Jul 2025 10:07:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 647D12951D5;
+	Mon,  7 Jul 2025 10:15:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.132.182.106
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1751882862; cv=none; b=cQaEM3SJYyHJp7TyQkx1NOqeEzOEGiYTvkOyD+cM8Jvv32MNb2ZqzO7S0ce3UdveYvT3DMiArRe4jsXM3y61wJGXi/nPEhfnia83UXh+Gig0Sx5S362fiCO6zlGUCP1S1VudjSf6l43YITQRC+4pB6wnehuxaO1Kk/I9Bac1He4=
+	t=1751883311; cv=none; b=cYPJZqLbP/pwYdIT+6Z24W/by6fWL6mfkpjPx6HR9SSM/AD/zWqMi2l+wZ9+9gSzZoqXB9NhpUgbt1zLsUXtGy6UOledKcUQbWl2fpWkoFw0fvv0BGyyigv0+BwnyTugWtnaZAEvx0nCWzIBCgFNoIvlnOMd6plt8JpzdiL5JQ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1751882862; c=relaxed/simple;
-	bh=FtQESEScKEGm4ZZCj0RN7mGsIyE/eoEObXJoSKFHpWQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gcZbDtjuDRRR4tLKX6tt54GkIMEHDdBxPPg2pBYTpHC6KkbGhtqHR6pSJG45GQlFpnX9v5GrL8as6/K5vWd0RR1QCXiZ8RjkXRqYQ58NtvPwO8O6xEpWE4XqkSVVmKb0WVR/UybkjwNhPE2+a5MzbJImsIBqIpx2IxVwIXuGBRY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <mkl@pengutronix.de>)
-	id 1uYikg-00055p-AG; Mon, 07 Jul 2025 12:07:10 +0200
-Received: from moin.white.stw.pengutronix.de ([2a0a:edc0:0:b01:1d::7b] helo=bjornoya.blackshift.org)
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <mkl@pengutronix.de>)
-	id 1uYikc-007EDt-2n;
-	Mon, 07 Jul 2025 12:07:06 +0200
-Received: from pengutronix.de (p5b1645f7.dip0.t-ipconnect.de [91.22.69.247])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(Client did not present a certificate)
-	(Authenticated sender: mkl-all@blackshift.org)
-	by smtp.blackshift.org (Postfix) with ESMTPSA id 6B531439509;
-	Mon, 07 Jul 2025 10:07:06 +0000 (UTC)
-Date: Mon, 7 Jul 2025 12:07:05 +0200
-From: Marc Kleine-Budde <mkl@pengutronix.de>
-To: Vincent Mailhol <mailhol.vincent@wanadoo.fr>
-Cc: Ming Yu <a0282524688@gmail.com>, Lee Jones <lee@kernel.org>, 
-	tmyu0@nuvoton.com, linus.walleij@linaro.org, brgl@bgdev.pl, andi.shyti@kernel.org, 
-	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
-	pabeni@redhat.com, wim@linux-watchdog.org, linux@roeck-us.net, jdelvare@suse.com, 
-	alexandre.belloni@bootlin.com, linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-can@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-watchdog@vger.kernel.org, linux-hwmon@vger.kernel.org, linux-rtc@vger.kernel.org, 
-	linux-usb@vger.kernel.org
-Subject: Re: [PATCH v13 1/7] mfd: Add core driver for Nuvoton NCT6694
-Message-ID: <20250707-new-psychedelic-termite-a309d3-mkl@pengutronix.de>
-References: <20250627102730.71222-1-a0282524688@gmail.com>
- <20250627102730.71222-2-a0282524688@gmail.com>
- <20250702161513.GX10134@google.com>
- <CAOoeyxXWbjWvOgsSvXb9u2y6yFExq347ceZe96bm9w+GQAp2Rg@mail.gmail.com>
- <0360d2e0-e071-4259-a7c7-23c31e52e563@wanadoo.fr>
+	s=arc-20240116; t=1751883311; c=relaxed/simple;
+	bh=TY+GufCIhj+ESoRt9HbVyO0sazKQmatr0VcMVgxJc48=;
+	h=Date:From:To:CC:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZEGIRx2C8/iYz0TZkO9JccHkoLbhbnulzyX/f5O9SInaFcaSx+F35Jwsf7+xGynfj5nGPIBhOe/p6VH2tj6k+JYOtRrWRVI1rNUyam+bGtu0JpDRudfSOFzD1Eka0ejODiA3s1aSFEq0XTWTXu3yByMsvsTWlQ6xYlZVnIZhJfA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com; spf=pass smtp.mailfrom=foss.st.com; dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b=qa/jqMjN; arc=none smtp.client-ip=185.132.182.106
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=foss.st.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=foss.st.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=foss.st.com header.i=@foss.st.com header.b="qa/jqMjN"
+Received: from pps.filterd (m0288072.ppops.net [127.0.0.1])
+	by mx07-00178001.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 5676FZb1022788;
+	Mon, 7 Jul 2025 12:14:36 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=selector1; bh=
+	M+uhJcJDTeJCAUeixIicqUqHNPuuMmXwRPR3UP1fAmM=; b=qa/jqMjNzLnoNdla
+	J8gS5RL+QKKO2XkLCjN1Dd1OFZalOvLdthzFGzbzKNCrkE5b+Ck8ShWM9wT3Hcgk
+	fyKnJggAL2QWHo/tQpb4DWqE+1O6KxhnJZJPllEqH/KtQ54t6G7qdb3HinT2xvYK
+	7cm/3L2Dhe84flz9gvspRWEVXDcz5AJLAVa4it5nqaU1zsjuk9FoC+WN47Pzt8H/
+	q76kIXGyHHPxiBYBSbCQvnl2aXetkDNUnMcp/K6iqGshBxLlfgAMIZxxEP1fWexI
+	rTOlSIEGxIUVt1DhjqJLUUbVPbjejAuyPa+egSUHsCKJVyHQGleIjiG5qTqBXGr9
+	4dKz0g==
+Received: from beta.dmz-ap.st.com (beta.dmz-ap.st.com [138.198.100.35])
+	by mx07-00178001.pphosted.com (PPS) with ESMTPS id 47psfm84re-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 07 Jul 2025 12:14:36 +0200 (MEST)
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+	by beta.dmz-ap.st.com (STMicroelectronics) with ESMTP id E636440056;
+	Mon,  7 Jul 2025 12:13:11 +0200 (CEST)
+Received: from Webmail-eu.st.com (shfdag1node1.st.com [10.75.129.69])
+	by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 6C7BEAC4AF2;
+	Mon,  7 Jul 2025 12:12:18 +0200 (CEST)
+Received: from gnbcxd0016.gnb.st.com (10.130.77.119) by SHFDAG1NODE1.st.com
+ (10.75.129.69) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Mon, 7 Jul
+ 2025 12:12:17 +0200
+Date: Mon, 7 Jul 2025 12:12:11 +0200
+From: Alain Volmat <alain.volmat@foss.st.com>
+To: =?iso-8859-1?Q?Cl=E9ment?= Le Goffic <clement.legoffic@foss.st.com>
+CC: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
+        Andi Shyti
+	<andi.shyti@kernel.org>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Sumit Semwal
+	<sumit.semwal@linaro.org>,
+        Christian =?iso-8859-1?Q?K=F6nig?=
+	<christian.koenig@amd.com>,
+        M'boumba Cedric Madianga
+	<cedric.madianga@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        "Pierre-Yves
+ MORDRET" <pierre-yves.mordret@st.com>,
+        <linux-i2c@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
+        <linux-media@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
+        <linaro-mm-sig@lists.linaro.org>
+Subject: Re: [PATCH v4 0/3] Fix STM32 I2C dma operations
+Message-ID: <20250707101211.GA984919@gnbcxd0016.gnb.st.com>
+References: <20250704-i2c-upstream-v4-0-84a095a2c728@foss.st.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="kr6nkexyn6izj5au"
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <0360d2e0-e071-4259-a7c7-23c31e52e563@wanadoo.fr>
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20250704-i2c-upstream-v4-0-84a095a2c728@foss.st.com>
+X-Disclaimer: ce message est personnel / this message is private
+X-ClientProxiedBy: SHFCAS1NODE2.st.com (10.75.129.73) To SHFDAG1NODE1.st.com
+ (10.75.129.69)
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.7,FMLib:17.12.80.40
+ definitions=2025-07-07_02,2025-07-07_01,2025-03-28_01
 
+Hi Clément,
 
---kr6nkexyn6izj5au
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v13 1/7] mfd: Add core driver for Nuvoton NCT6694
-MIME-Version: 1.0
+On Fri, Jul 04, 2025 at 10:39:13AM +0200, Clément Le Goffic wrote:
+> This patch series aims to fix some issues inside the driver's DMA
+> handling.
+> It also uses newer I2C DMA API.
+> 
+> Signed-off-by: Clément Le Goffic <clement.legoffic@foss.st.com>
+> ---
+> Changes in v4:
+> - Patch[1]: Remove all `chan_dev` variable occurrencies
+> - Patch[2]:
+>     - Refine commit message
+>     - Use the dma_callback to factorize the code
+> - Patch[3]: Refine commit message
+> - Link to v3: https://lore.kernel.org/r/20250630-i2c-upstream-v3-0-7a23ab26683a@foss.st.com
+> 
+> Changes in v3:
+> - Add Alain Volmat's "Acked-by" on patch 1 and 2
+> - Link to v2: https://lore.kernel.org/r/20250627-i2c-upstream-v2-0-8c14523481dc@foss.st.com
+> 
+> Changes in v2:
+> - Fix the dev used in dma_unmap also in the error path of
+>   `stm32_i2c_prep_dma_xfer`
+> - Add a dma_unmap_single also in the ITs error handler
+> - Add Alain Volmat's "Acked-by" on patch 3
+> - Link to v1: https://lore.kernel.org/r/20250616-i2c-upstream-v1-0-42d3d5374e65@foss.st.com
+> 
+> ---
+> Clément Le Goffic (3):
+>       i2c: stm32: fix the device used for the DMA map
+>       i2c: stm32f7: unmap DMA mapped buffer
+>       i2c: stm32f7: support i2c_*_dma_safe_msg_buf APIs
+> 
+>  drivers/i2c/busses/i2c-stm32.c   |  8 +++---
+>  drivers/i2c/busses/i2c-stm32f7.c | 56 +++++++++++++++++++++-------------------
+>  2 files changed, 33 insertions(+), 31 deletions(-)
+> ---
 
-On 03.07.2025 11:44:27, Vincent Mailhol wrote:
-> On 03/07/2025 =C3=A0 11:39, Ming Yu wrote:
-> > Dear Lee,
-> >=20
-> > Thanks for your feedback and review.
-> > Currently, the status of the sub-device drivers is as follows (A/R/T):
-> >     [v13,1/7] mfd: Add core driver for Nuvoton NCT6694 (- - -)
-> >     [v13,2/7] gpio: Add Nuvoton NCT6694 GPIO support (1 1 -)
-> >     [v13,3/7] i2c: Add Nuvoton NCT6694 I2C support (1 - -)
-> >     [v13,4/7] can: Add Nuvoton NCT6694 CANFD support (- 2 -)
->=20
-> For the CAN driver, my Reviewed-by can be interpreted as an Acked-by :)
+Thanks for this new version of the serie.
+This all looks good to me. My Acked-by are already set since v3 so
+nothing more from me.
 
-Feel free to interpret my my Reviewed-by as an Acked-by, too.
+Regards,
+Alain
 
-regards,
-Marc
-
---=20
-Pengutronix e.K.                 | Marc Kleine-Budde          |
-Embedded Linux                   | https://www.pengutronix.de |
-Vertretung N=C3=BCrnberg              | Phone: +49-5121-206917-129 |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-9   |
-
---kr6nkexyn6izj5au
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEn/sM2K9nqF/8FWzzDHRl3/mQkZwFAmhrnEYACgkQDHRl3/mQ
-kZz+HAgAo6jP3UtNysl6cnqkkovHfol1pDeGThMia/s6eTksN4DY0u5zqdBI03dN
-dXpm+0P8HVf83Alft8JysqSicG3HxMbdHs8En1RAlkkWYlr/kkL8zfEM06mFYVdL
-6EqNun8pwyIg9PrvRFwslkSTu6zKfqhafW8ouC9+65btTk0MG/AgbUgCLX2fe14v
-5jBv/B8OS97ARLf8pGTDQDqO6vXO2imOkP3Td+Ik61oUgLiQhUxLQVR8RvDKbuEA
-+iyqwWyWKsyoiF+0sU+mGLy0ejmuzh+PSvo19hzEE7ic08gZYvB4BA5pxljMiGAR
-1NJdMVxN2BILPjtt1d6e95y9ZqFOiA==
-=dD5C
------END PGP SIGNATURE-----
-
---kr6nkexyn6izj5au--
+> base-commit: d0b3b7b22dfa1f4b515fd3a295b3fd958f9e81af
+> change-id: 20250527-i2c-upstream-e5b69501359a
+> 
+> Best regards,
+> --  
+> Clément Le Goffic <clement.legoffic@foss.st.com>
+> 
