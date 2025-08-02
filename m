@@ -1,101 +1,137 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from dvalin.narfation.org (dvalin.narfation.org [213.160.73.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6E3E225779;
-	Sat,  2 Aug 2025 09:24:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0722E21D3F8;
+	Sat,  2 Aug 2025 10:42:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754126649; cv=none; b=rcTzWtuwBuklPd6kV5fi3KZAlehSrf4V+I229zuGAkdz5Hoddm0VYCGWp8cOXeJ9nT9SMCmS3Rjfep4GHfdDRFw1ojFxh/tWbRJzrAD33WvqsPOVBXbUxdXHJ68vf0FLWOYzbyXZvggJK51iWMvFPBUvEpXEkVkx4OnD70ICVDk=
+	t=1754131346; cv=none; b=EiYFhE/ooPmUZOrhrrTmPuVs6WKwpoX2Zvhi9VYLzvwPNnHT+ofajGPLsy37srut8kpVHBMojekeKZHGdYudDO4owF0b7V4M9DVYgDW22eRD5ypijQiD3rvRHHLd6YTs4YN9R222qsJviOrFsojEwOChrEg+A8UGe9hcCtEQkZo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754126649; c=relaxed/simple;
-	bh=q+3RdWiG0wEAxUWsm/7pnNd2Vk3OjWsGYVGoqzKzVOY=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=OZPQxGt427AnQxhIv4glR+jX6nerfJ5TPfEBgLaOmUiU6lDNCeBMtIOOUxRCptPHQtpR3y5d4LU/4rPj23vxADW4votF5ysyaDPH0DMpOvcW5yjo7vRGHdj2a9Hkfy98erucUBlRXFh+2SK0mQTXRQnB/raHB8ijEmA9+TRRzic=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RWE+sRhI; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1754131346; c=relaxed/simple;
+	bh=M0ExxDwTq+EgVN8lGTAmv4NykEunoEBCeVqoYoEzVV8=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=AAFyq5EUhzcUa19jqNyrgrSK9vBqCOq6SFrfFSXHFruaz0bPVCgh/RtXied0JusMQYg2gza4oYbcGCg+Z6jAcMLvV+ypSJbuOM3vTaVjJvD4GNJjhgtjULQ94btfegbT45IzB7TEgOe/3mogPCkri3whV7kPDOXXU4QaQ9x4dYI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=narfation.org; spf=pass smtp.mailfrom=narfation.org; dkim=pass (1024-bit key) header.d=narfation.org header.i=@narfation.org header.b=fB40SNN2; arc=none smtp.client-ip=213.160.73.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=narfation.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=narfation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RWE+sRhI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B2F2C4CEF6;
-	Sat,  2 Aug 2025 09:24:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1754126649;
-	bh=q+3RdWiG0wEAxUWsm/7pnNd2Vk3OjWsGYVGoqzKzVOY=;
-	h=Date:From:To:Cc:Subject:From;
-	b=RWE+sRhIIzlPGSDXRhtI5Pui/Xz0BAxfUWFwS0BkrY/o4klxPOzSGfZ1bn/ccNFHo
-	 GpDIThDz+LL9v3jt6AGtlZjtUfVlGCQp+pklQNjOx14P3K5Ozi3QwrzuMaO7xHkza1
-	 uKCqjFl7f3Dq6uw+Ll0cl4z7GS2TZ91o9STm5jV3KeGZLQCxigQTzYGsAm2dPh4qPA
-	 3+i5HjK01TemokGH1UVCSuZOpq0HO18DHHaET3zpccQkfZR1V2t8LZx5LTbSpqyode
-	 Dh/x5JrWWqq+/6dY8JXykWIeTI/0jXo1ewF3H08O1OfEs7kpwNZ1shhRZ3j0M44rXX
-	 hSUYuIzhAyEGQ==
-Date: Sat, 2 Aug 2025 11:24:04 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, 
-	linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>
-Subject: [GIT PULL] i2c-host for v6.17, part 2
-Message-ID: <et2mpmxohgqclvaa47qbx3bdowp4usovgz4fptlm6zfxogzuwb@t3touqocg2w7>
+	dkim=pass (1024-bit key) header.d=narfation.org header.i=@narfation.org header.b="fB40SNN2"
+Received: from sven-desktop.home.narfation.org (unknown [IPv6:2a00:1ca0:1d86:99fc::8c24])
+	by dvalin.narfation.org (Postfix) with UTF8SMTPSA id D22F721796;
+	Sat,  2 Aug 2025 10:32:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
+	s=20121; t=1754130741;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=EOSCWi+cF2PB35Nc47+WAwgactGXBAdhUs+k7UcT1bA=;
+	b=fB40SNN2iRDnG8l+IM3I2mcVINhp60BhxnhHfIjixbAA/rtuD/6LXGfLsWfxGideg4meAX
+	rQPV63+6+LislFRmCOS2Ui9SB8UmuJ9rgcC0d2LhbTvDjdHenwKosToBNU1aGmGF3tHiQy
+	SVbSxM61nHvqZ2m5ar4EtPdhvVId7ro=
+From: Sven Eckelmann <sven@narfation.org>
+Date: Sat, 02 Aug 2025 12:32:00 +0200
+Subject: [PATCH 1/4] i2c: rtl9300: Fix multi-byte I2C write
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250802-i2c-rtl9300-multi-byte-v1-1-5f687e0098e2@narfation.org>
+References: <20250802-i2c-rtl9300-multi-byte-v1-0-5f687e0098e2@narfation.org>
+In-Reply-To: <20250802-i2c-rtl9300-multi-byte-v1-0-5f687e0098e2@narfation.org>
+To: Chris Packham <chris.packham@alliedtelesis.co.nz>, 
+ Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Jonas Jelonek <jelonek.jonas@gmail.com>, 
+ Harshal Gohel <hg@simonwunderlich.de>, 
+ Simon Wunderlich <sw@simonwunderlich.de>, 
+ Sven Eckelmann <sven@narfation.org>, stable@vger.kernel.org
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2587; i=sven@narfation.org;
+ h=from:subject:message-id; bh=fvbdbX5YpMEdiI0iyuFqcxzjPuLZ5q8XQBDJiObeHFE=;
+ b=owGbwMvMwCXmy1+ufVnk62nG02pJDBm9L026bW4tvJNXs/i02w/G8hPThRab8Qnd+vy6yNlwc
+ 1Rq8uHTHaUsDGJcDLJiiix7ruSf38z+Vv7ztI9HYeawMoEMYeDiFICJhHoz/M++aXzb6K3FKsmS
+ 9z522dPtJ29TW7olU/Pu8nn7OiRWXtrJyHBnnY/X4k8RS6xOlehJSQSIXTWOmtT1MiOTM/oDRz3
+ rDgYA
+X-Developer-Key: i=sven@narfation.org; a=openpgp;
+ fpr=522D7163831C73A635D12FE5EC371482956781AF
 
-Hi Wolfram,
+From: Harshal Gohel <hg@simonwunderlich.de>
 
-Here is the second part of the pull request. It includes three
-follow-up patches (two from Akhil for Tegra and one from Clément
-for STM), the first patch from the Apple A7–A11 and T2 series,
-and a fix for the Qualcomm controller.
+The RTL93xx I2C controller has 4 32 bit registers to store the bytes for
+the upcoming I2C transmission. The first byte is stored in the
+least-significant byte of the first register. And the last byte in the most
+significant byte of the last register. A map of the transferred bytes to
+their order in the registers is:
 
-Everything is rebased on top of Linus' merge commit for your
-pull request, 0ae982df6776 ("Merge tag 'i2c-for-6.17-rc1' of
-git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux").
+reg 0: 04-03-02-01
+reg 1: 08-07-06-05
+reg 2: 0c-0b-0a-09
+reg 3: 10-0f-0e-0d
 
-I wish you a good weekend and a happy National Day to all the
-Swiss I2C developers (and non :-) ).
+The i2c_read() function basically demonstrates how the hardware would pick
+up bytes from this register set. But the i2c_write() function was just
+pushing bytes one after another to the least significant byte of a register
+AFTER shifting the last one to the next more significant byte position.
 
-Andi
+If you would then have tried to send a buffer with numbers 1-11 using
+i2c_write(), you would have ended up with following register content:
 
-The following changes since commit 0ae982df67760cd08affa935c0fe86c8a9311797:
+reg 0: 01-02-03-04
+reg 1: 05-06-07-08
+reg 2: 00-09-0a-0b
+reg 3: 00-00-00-00
 
-  Merge tag 'i2c-for-6.17-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux (2025-07-29 11:35:24 -0700)
+On the wire, you would then have seen:
 
-are available in the Git repository at:
+  Sr Addr Rd/Wr [A] 04 A 03 A 02 A 01 A 08 A 07 A 06 A 05 A 0b A 0a A 09 A/NA P
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-host-6.17-pt2
+But the correct data transmission was expected to be
 
-for you to fetch changes up to 85c34532849dae0fdcf880900ac9d7718a73fd1b:
+  Sr Addr Rd/Wr [A] 01 A 02 A 03 A 04 A 05 A 06 A 07 A 08 A 09 A 0a A 0b A/NA P
 
-  i2c: qcom-geni: fix I2C frequency table to achieve accurate bus rates (2025-07-30 00:39:54 +0200)
+Because of this multi-byte ordering problem, only single byte i2c_write()
+operations were executed correctly (on the wire).
 
-----------------------------------------------------------------
-i2c-host for v6.17, part 2
+By shifting the byte directly to the correct end position in the register,
+it is possible to avoid this incorrect byte ordering and fix multi-byte
+transmissions.
 
-- apple: add support for Apple A7–A11, T2 chips
-- qcom-geni: fix controller frequency mapping
-- stm32f7: add DMA-safe transfer support
-- tegra: use controller reset if device reset is missing
-- tegra: remove unnecessary dma_sync*() calls
+Cc: <stable@vger.kernel.org>
+Fixes: c366be720235 ("i2c: Add driver for the RTL9300 I2C controller")
+Signed-off-by: Harshal Gohel <hg@simonwunderlich.de>
+Co-developed-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+---
+ drivers/i2c/busses/i2c-rtl9300.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-----------------------------------------------------------------
-Akhil R (2):
-      i2c: tegra: Use internal reset when reset property is not available
-      i2c: tegra: Remove dma_sync_*() calls
+diff --git a/drivers/i2c/busses/i2c-rtl9300.c b/drivers/i2c/busses/i2c-rtl9300.c
+index e064e8a4a1f0824abc82fa677866b85f99fbe4a7..1b3cbe3ea84a4fa480c5c00438eecc551d047348 100644
+--- a/drivers/i2c/busses/i2c-rtl9300.c
++++ b/drivers/i2c/busses/i2c-rtl9300.c
+@@ -143,10 +143,13 @@ static int rtl9300_i2c_write(struct rtl9300_i2c *i2c, u8 *buf, int len)
+ 		return -EIO;
+ 
+ 	for (i = 0; i < len; i++) {
++		unsigned int shift = (i % 4) * 8;
++		unsigned int reg = i / 4;
++
+ 		if (i % 4 == 0)
+-			vals[i/4] = 0;
+-		vals[i/4] <<= 8;
+-		vals[i/4] |= buf[i];
++			vals[reg] = 0;
++
++		vals[reg] |= buf[i] << shift;
+ 	}
+ 
+ 	return regmap_bulk_write(i2c->regmap, i2c->reg_base + RTL9300_I2C_MST_DATA_WORD0,
 
-Clément Le Goffic (1):
-      i2c: stm32f7: support i2c_*_dma_safe_msg_buf APIs
+-- 
+2.47.2
 
-Kathiravan Thirumoorthy (1):
-      i2c: qcom-geni: fix I2C frequency table to achieve accurate bus rates
-
-Nick Chan (1):
-      dt-bindings: i2c: apple,i2c: Document Apple A7-A11, T2 compatibles
-
- Documentation/devicetree/bindings/i2c/apple,i2c.yaml |  5 +++++
- drivers/i2c/busses/i2c-qcom-geni.c                   |  6 +++---
- drivers/i2c/busses/i2c-stm32f7.c                     | 32 +++++++++++++++++++++-----------
- drivers/i2c/busses/i2c-tegra.c                       | 64 ++++++++++++++++++++++++++++++++++++++++++++--------------------
- 4 files changed, 73 insertions(+), 34 deletions(-)
