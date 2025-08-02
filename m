@@ -1,37 +1,38 @@
 Received: from dvalin.narfation.org (dvalin.narfation.org [213.160.73.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0722E21D3F8;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 071D221146C;
 	Sat,  2 Aug 2025 10:42:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754131346; cv=none; b=EiYFhE/ooPmUZOrhrrTmPuVs6WKwpoX2Zvhi9VYLzvwPNnHT+ofajGPLsy37srut8kpVHBMojekeKZHGdYudDO4owF0b7V4M9DVYgDW22eRD5ypijQiD3rvRHHLd6YTs4YN9R222qsJviOrFsojEwOChrEg+A8UGe9hcCtEQkZo=
+	t=1754131346; cv=none; b=Wg/g0Qwwnmaoa45Lf40TwG5EFwFEYdSqA9PygDzRYFBygdL7KbnoR7vqxBUAAWBDk6uDczBq8HQz6IRJm6kcuuwFl29AKo/Ca4TBfGnCTCW167m7J2+iYCbvwGzM7zpjIBgfePYRqiikHPmkKJkpqeApsLI5ZxMtwHBzPqjxe5o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1754131346; c=relaxed/simple;
-	bh=M0ExxDwTq+EgVN8lGTAmv4NykEunoEBCeVqoYoEzVV8=;
+	bh=D4SrjSCVF/QFFZGZ8db0byFl9K4OB6LkB7i7Fsk/Uh4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=AAFyq5EUhzcUa19jqNyrgrSK9vBqCOq6SFrfFSXHFruaz0bPVCgh/RtXied0JusMQYg2gza4oYbcGCg+Z6jAcMLvV+ypSJbuOM3vTaVjJvD4GNJjhgtjULQ94btfegbT45IzB7TEgOe/3mogPCkri3whV7kPDOXXU4QaQ9x4dYI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=narfation.org; spf=pass smtp.mailfrom=narfation.org; dkim=pass (1024-bit key) header.d=narfation.org header.i=@narfation.org header.b=fB40SNN2; arc=none smtp.client-ip=213.160.73.56
+	 In-Reply-To:To:Cc; b=fsljsVqoQcZs4LO4/WhNt0moA1gkaQAtPljm26+qaYbjBQ8GqkhLUadBupCxxN0+zcYlVZ0rmd2db4YMt9g307Ama8hSgTxmEWiM5S+O8FBrTAa2H2eocgI1uQOvnYboF9p6ekbsK068PnW/JUzf5AUqMlmpE2ol3VUbamatCNs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=narfation.org; spf=pass smtp.mailfrom=narfation.org; dkim=pass (1024-bit key) header.d=narfation.org header.i=@narfation.org header.b=0Amdm/9u; arc=none smtp.client-ip=213.160.73.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=narfation.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=narfation.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=narfation.org header.i=@narfation.org header.b="fB40SNN2"
+	dkim=pass (1024-bit key) header.d=narfation.org header.i=@narfation.org header.b="0Amdm/9u"
 Received: from sven-desktop.home.narfation.org (unknown [IPv6:2a00:1ca0:1d86:99fc::8c24])
-	by dvalin.narfation.org (Postfix) with UTF8SMTPSA id D22F721796;
-	Sat,  2 Aug 2025 10:32:21 +0000 (UTC)
+	by dvalin.narfation.org (Postfix) with UTF8SMTPSA id 274C421798;
+	Sat,  2 Aug 2025 10:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
-	s=20121; t=1754130741;
+	s=20121; t=1754130743;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=EOSCWi+cF2PB35Nc47+WAwgactGXBAdhUs+k7UcT1bA=;
-	b=fB40SNN2iRDnG8l+IM3I2mcVINhp60BhxnhHfIjixbAA/rtuD/6LXGfLsWfxGideg4meAX
-	rQPV63+6+LislFRmCOS2Ui9SB8UmuJ9rgcC0d2LhbTvDjdHenwKosToBNU1aGmGF3tHiQy
-	SVbSxM61nHvqZ2m5ar4EtPdhvVId7ro=
+	bh=vwQxvH0aQAdhk+KtdLO2G0fuUHwUbVgID2tMIZca1T4=;
+	b=0Amdm/9uQ7aI+HwC1GivSNN/uk5VKv33DBM4CkJNC8ztNC2v41suTaeUH5C5b7R7RIOanJ
+	wMrgq9KqDvtrNZ/ZuQD75EVlCRZSPsR7hJVk8p5jVV4iM27oXa+CrTZD2Y/t10zLCvYFdB
+	efANxJ6BpeHUvwTRKaTq8LMCl4JB8Nw=
 From: Sven Eckelmann <sven@narfation.org>
-Date: Sat, 02 Aug 2025 12:32:00 +0200
-Subject: [PATCH 1/4] i2c: rtl9300: Fix multi-byte I2C write
+Date: Sat, 02 Aug 2025 12:32:02 +0200
+Subject: [PATCH 3/4] i2c: rtl9300: Add missing count byte for SMBus Block
+ Write
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -40,7 +41,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250802-i2c-rtl9300-multi-byte-v1-1-5f687e0098e2@narfation.org>
+Message-Id: <20250802-i2c-rtl9300-multi-byte-v1-3-5f687e0098e2@narfation.org>
 References: <20250802-i2c-rtl9300-multi-byte-v1-0-5f687e0098e2@narfation.org>
 In-Reply-To: <20250802-i2c-rtl9300-multi-byte-v1-0-5f687e0098e2@narfation.org>
 To: Chris Packham <chris.packham@alliedtelesis.co.nz>, 
@@ -51,86 +52,51 @@ Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
  Simon Wunderlich <sw@simonwunderlich.de>, 
  Sven Eckelmann <sven@narfation.org>, stable@vger.kernel.org
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2587; i=sven@narfation.org;
- h=from:subject:message-id; bh=fvbdbX5YpMEdiI0iyuFqcxzjPuLZ5q8XQBDJiObeHFE=;
- b=owGbwMvMwCXmy1+ufVnk62nG02pJDBm9L026bW4tvJNXs/i02w/G8hPThRab8Qnd+vy6yNlwc
- 1Rq8uHTHaUsDGJcDLJiiix7ruSf38z+Vv7ztI9HYeawMoEMYeDiFICJhHoz/M++aXzb6K3FKsmS
- 9z522dPtJ29TW7olU/Pu8nn7OiRWXtrJyHBnnY/X4k8RS6xOlehJSQSIXTWOmtT1MiOTM/oDRz3
- rDgYA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1548; i=sven@narfation.org;
+ h=from:subject:message-id; bh=D4SrjSCVF/QFFZGZ8db0byFl9K4OB6LkB7i7Fsk/Uh4=;
+ b=owGbwMvMwCXmy1+ufVnk62nG02pJDBm9L01e1j2XSuU/fs9NISvN8NYfbfNCR2/rtd8026NLu
+ LWyfs3pKGVhEONikBVTZNlzJf/8Zva38p+nfTwKM4eVCWQIAxenAEwk8SPDP7OPL672f9xSeefo
+ OWvlpOnBlz4nsGgdvl3j2q3zU+5q8neGf8qZwu9EG71k13Uu63sl0nfZxt1n18TWzmf2GW2qKkX
+ tbAA=
 X-Developer-Key: i=sven@narfation.org; a=openpgp;
  fpr=522D7163831C73A635D12FE5EC371482956781AF
 
-From: Harshal Gohel <hg@simonwunderlich.de>
+The expected on-wire format of an SMBus Block Write is
 
-The RTL93xx I2C controller has 4 32 bit registers to store the bytes for
-the upcoming I2C transmission. The first byte is stored in the
-least-significant byte of the first register. And the last byte in the most
-significant byte of the last register. A map of the transferred bytes to
-their order in the registers is:
+  S Addr Wr [A] Comm [A] Count [A] Data [A] Data [A] ... [A] Data [A] P
 
-reg 0: 04-03-02-01
-reg 1: 08-07-06-05
-reg 2: 0c-0b-0a-09
-reg 3: 10-0f-0e-0d
+Everything starting from the Count byte is provided by the I2C subsystem in
+the array data->block. But the driver was skipping the Count byte
+(data->block[0]) when sending it to the RTL93xx I2C controller.
 
-The i2c_read() function basically demonstrates how the hardware would pick
-up bytes from this register set. But the i2c_write() function was just
-pushing bytes one after another to the least significant byte of a register
-AFTER shifting the last one to the next more significant byte position.
+Only the actual data could be seen on the wire:
 
-If you would then have tried to send a buffer with numbers 1-11 using
-i2c_write(), you would have ended up with following register content:
+  S Addr Wr [A] Comm [A] Data [A] Data [A] ... [A] Data [A] P
 
-reg 0: 01-02-03-04
-reg 1: 05-06-07-08
-reg 2: 00-09-0a-0b
-reg 3: 00-00-00-00
-
-On the wire, you would then have seen:
-
-  Sr Addr Rd/Wr [A] 04 A 03 A 02 A 01 A 08 A 07 A 06 A 05 A 0b A 0a A 09 A/NA P
-
-But the correct data transmission was expected to be
-
-  Sr Addr Rd/Wr [A] 01 A 02 A 03 A 04 A 05 A 06 A 07 A 08 A 09 A 0a A 0b A/NA P
-
-Because of this multi-byte ordering problem, only single byte i2c_write()
-operations were executed correctly (on the wire).
-
-By shifting the byte directly to the correct end position in the register,
-it is possible to avoid this incorrect byte ordering and fix multi-byte
-transmissions.
+This wire format is not SMBus Block Write compatible but matches the format
+of an I2C Block Write. Simply adding the count byte to the buffer for the
+I2C controller enough to fix the transmission.
 
 Cc: <stable@vger.kernel.org>
 Fixes: c366be720235 ("i2c: Add driver for the RTL9300 I2C controller")
-Signed-off-by: Harshal Gohel <hg@simonwunderlich.de>
-Co-developed-by: Sven Eckelmann <sven@narfation.org>
 Signed-off-by: Sven Eckelmann <sven@narfation.org>
 ---
- drivers/i2c/busses/i2c-rtl9300.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-rtl9300.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-rtl9300.c b/drivers/i2c/busses/i2c-rtl9300.c
-index e064e8a4a1f0824abc82fa677866b85f99fbe4a7..1b3cbe3ea84a4fa480c5c00438eecc551d047348 100644
+index a10e5e6e00075fabb8906d56f09f5b9141fbc06e..ed82e6c21aaf46000a263740123ffba833578cc2 100644
 --- a/drivers/i2c/busses/i2c-rtl9300.c
 +++ b/drivers/i2c/busses/i2c-rtl9300.c
-@@ -143,10 +143,13 @@ static int rtl9300_i2c_write(struct rtl9300_i2c *i2c, u8 *buf, int len)
- 		return -EIO;
- 
- 	for (i = 0; i < len; i++) {
-+		unsigned int shift = (i % 4) * 8;
-+		unsigned int reg = i / 4;
-+
- 		if (i % 4 == 0)
--			vals[i/4] = 0;
--		vals[i/4] <<= 8;
--		vals[i/4] |= buf[i];
-+			vals[reg] = 0;
-+
-+		vals[reg] |= buf[i] << shift;
- 	}
- 
- 	return regmap_bulk_write(i2c->regmap, i2c->reg_base + RTL9300_I2C_MST_DATA_WORD0,
+@@ -288,7 +288,7 @@ static int rtl9300_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr, unsigned s
+ 		if (ret)
+ 			goto out_unlock;
+ 		if (read_write == I2C_SMBUS_WRITE) {
+-			ret = rtl9300_i2c_write(i2c, &data->block[1], data->block[0]);
++			ret = rtl9300_i2c_write(i2c, &data->block[0], data->block[0] + 1);
+ 			if (ret)
+ 				goto out_unlock;
+ 		}
 
 -- 
 2.47.2
