@@ -1,101 +1,124 @@
-Received: from dvalin.narfation.org (dvalin.narfation.org [213.160.73.56])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from ahti.lucaweiss.eu (ahti.lucaweiss.eu [128.199.32.197])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 848591C4A13;
-	Sun, 10 Aug 2025 10:39:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.160.73.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1B661C6FE5;
+	Sun, 10 Aug 2025 15:38:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=128.199.32.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754822356; cv=none; b=FmARPolFx5uZS0DUDAQOPqeh1WToKDJSK9Sv4a0us89zwRQAoZMGip9qVMI7uMNbJrd8WfDYMGcDtutQTuG6eCrseBG7RBCFYL5rMyCZjheILij50O35g1xSgnCkTYL7nUkXL0NnwzUNd60NgyqF3507TeD2dHdqKHI2pMllnTU=
+	t=1754840317; cv=none; b=nnhpMYUQ2MRBGCRD3OyhZreGCTIuhrvPiTlerfxu4Kxw39HfkaecL0fMiOe1afr9r1BGWHw2UnEcJqSsIC/Wo8V9aCWrupbzs8ertdZDs4iv3PIzaZasu1RA6AWYZ7bXgVvPpjFHPOOYWQilEnAW4WjRcAhaUTn0XBxZXvH+0mc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754822356; c=relaxed/simple;
-	bh=Ur8ZN6WppBJ3rQO/fpOXDAk/Dsyij99LBvAPXolM2SA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=l1EO+vGgoThAXFsQmBL+w67bbOfNBWI/yyecmaz6zkRZJd+bzn8hyks8RwSt4UQbqo04CcT+hfWkrrjAyvWl5dT+irbqNzg7dXQ4MAx0POHye+uSSYi1TtwmPHl/b+nP9Fgb6SOSDnN0OMwM58hlC9cL4QTzjRGXE7e96vq1lwU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=narfation.org; spf=pass smtp.mailfrom=narfation.org; dkim=pass (1024-bit key) header.d=narfation.org header.i=@narfation.org header.b=c6O+3OdX; arc=none smtp.client-ip=213.160.73.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=narfation.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=narfation.org
+	s=arc-20240116; t=1754840317; c=relaxed/simple;
+	bh=zLFTjE8QnKZwWG/D1SAu/9ASzpx5Bt+Yj/0b2vUINAk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=bNc2gAfY9AN9eZbF8mdZByTz9fQibqtxvw7P71YKz49cPYwLbh9KwOe8lbxxYEZ4lomqQPLr/09tbZj+J8+oJTgUTdG7fEVW/x/gDuOUPk9vDc7X/EhmJQWAvmjHVJjzdc3KAWloZwYxmRKQJI456q96tllUOifY46bnmNWlZg4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=lucaweiss.eu; spf=pass smtp.mailfrom=lucaweiss.eu; dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b=WchrqbDX; arc=none smtp.client-ip=128.199.32.197
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=lucaweiss.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lucaweiss.eu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=narfation.org header.i=@narfation.org header.b="c6O+3OdX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=narfation.org;
-	s=20121; t=1754822351;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=DG3sN56rxqKOMFmRnaKRglG8cxswKXU4xjbArzpWD3Y=;
-	b=c6O+3OdXl8RKanSSM8cAM3jUKF7O5NGsSuH5+/skIi2RvWZSHrwQJr+/AqTkCPW2H+FZO8
-	hbs3CWUuPjxtAfyF+zPULBsG8vbRr2gUSRBP3Xdh5vwrlKxI0hxwSmFCsKkIdAYOVrtw/V
-	mWtrB7j85winhs8LjM7Sm0ZtgYHuBh0=
-From: Sven Eckelmann <sven@narfation.org>
-To: Chris Packham <chris.packham@alliedtelesis.co.nz>,
- Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Jonas Jelonek <jelonek.jonas@gmail.com>
-Cc: linux-i2c@vger.kernel.org, Conor Dooley <conor+dt@kernel.org>,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- Markus Stockhausen <markus.stockhausen@gmx.de>,
- Harshal Gohel <hg@simonwunderlich.de>,
- Jonas Jelonek <jelonek.jonas@gmail.com>
-Subject:
- Re: [PATCH v5 11/11] i2c: rtl9300: add support for RTL9310 I2C controller
-Date: Sun, 10 Aug 2025 12:39:08 +0200
-Message-ID: <13823964.uLZWGnKmhe@ripper>
-In-Reply-To: <20250809220713.1038947-12-jelonek.jonas@gmail.com>
-References:
- <20250809220713.1038947-1-jelonek.jonas@gmail.com>
- <20250809220713.1038947-12-jelonek.jonas@gmail.com>
+	dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b="WchrqbDX"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lucaweiss.eu; s=s1;
+	t=1754840307; bh=zLFTjE8QnKZwWG/D1SAu/9ASzpx5Bt+Yj/0b2vUINAk=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=WchrqbDXk4cupywSwIxDh2Oq8k3tHaEYWZR6EW3lZwlDhWLEJi6p8iwU1acFh4Q2h
+	 ZvPZphkTa5kiTvzHTnN1jxf/STwQEYHS4v8ta7InR7lTub2N+UcDDe9cTIAk/FbBGD
+	 qfoT3qULRl13SEenxKYlfef6j8+l4Gqrr732j/u4=
+From: Luca Weiss <luca@lucaweiss.eu>
+Date: Sun, 10 Aug 2025 17:37:57 +0200
+Subject: [PATCH 6/7] arm64: dts: qcom: sdm632-fairphone-fp3: Add camera
+ fixed regulators
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart3006162.e9J7NaK4W3";
- micalg="pgp-sha512"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250810-msm8953-cci-v1-6-e83f104cabfc@lucaweiss.eu>
+References: <20250810-msm8953-cci-v1-0-e83f104cabfc@lucaweiss.eu>
+In-Reply-To: <20250810-msm8953-cci-v1-0-e83f104cabfc@lucaweiss.eu>
+To: Loic Poulain <loic.poulain@oss.qualcomm.com>, 
+ Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konradybcio@kernel.org>, Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org, 
+ linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Luca Weiss <luca@lucaweiss.eu>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1700; i=luca@lucaweiss.eu;
+ h=from:subject:message-id; bh=zLFTjE8QnKZwWG/D1SAu/9ASzpx5Bt+Yj/0b2vUINAk=;
+ b=owEBbQKS/ZANAwAKAXLYQ7idTddWAcsmYgBomLzvLPHz7E03g+c7KQ1BFlZFMfkrWpPWaWwXO
+ 9FEZVty13qJAjMEAAEKAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCaJi87wAKCRBy2EO4nU3X
+ VnD8EACPNWNvvNbQXDAwWhbLYp5kxvW3WuUCc/MuWCUcYhJtSrXifD6bHG47PG3UJFoeNJXEC9X
+ JNUEIhgbwhNM2IFAT8084VmbVwalyibF93BjF2/VHZ6Nvnh4KhyHoRVB6r30WHYsF0ay5SwgGLx
+ m34SGfu6vVywzBQIeWwf71xlY2HKeF8eGrX/x8EHyrdbMGBOSSc5WemYKJljXxKcxhR8MUXSAkB
+ fmvgDeifr3jgwNzvVFTSR1MXfaAMbJveGj9hv8Z/rR+XOeTP0k6JCjivcXymXW5sh5RDgU6cU4i
+ e8u3yN8nfnUhgS29aoF4VjpI1wl2/NsLdZIIzK9BWYuK25miOaDvBw/MAygwU0yzL/Y7c421KNM
+ wSqc2KU6xqOVvlEdfQgta384FF7v33JfxUvpkJo8Nyj+zQQldxhjaWqKZBsTq7vxIWKlYVdV2bi
+ JptpMb3m/3T/1hVDVy1vxfiHTaJ4NYtvPRM/Ah8s8kUWXN6W7gJSj82mekTBLzjW2rIL0Ddcjvw
+ b8m2aBwsb/qejyNvbPoj6eb9WiHj933WcZEOjbkG49WOMFcjOp7CUl1B1D2XjK2BBcrOaVLdhIl
+ vM5Tm+noY3/zsrhWOVDAv9PsCfENimHApHioE3fKt3XBVlRu6vxqwk+Mctyiissa6VixBzCc5W5
+ +6Os9BU4gEHx/QA==
+X-Developer-Key: i=luca@lucaweiss.eu; a=openpgp;
+ fpr=BD04DA24C971B8D587B2B8D7FAF69CF6CD2D02CD
 
---nextPart3006162.e9J7NaK4W3
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"; protected-headers="v1"
-From: Sven Eckelmann <sven@narfation.org>
-Date: Sun, 10 Aug 2025 12:39:08 +0200
-Message-ID: <13823964.uLZWGnKmhe@ripper>
-In-Reply-To: <20250809220713.1038947-12-jelonek.jonas@gmail.com>
-MIME-Version: 1.0
+Add the definitions for a few fixed regulators found on the Fairphone 3.
 
-On Sunday, 10 August 2025 00:07:12 CEST Jonas Jelonek wrote:
-> Add support for the internal I2C controllers of RTL9310 series based
-> SoCs to the driver for RTL9300. Add register definitions, chip-specific
-> functions and compatible strings for known RTL9310-based SoCs RTL9311,
-> RTL9312 and RTL9313.
-> 
-> Make use of a new device tree property 'realtek,scl' which needs to be
-> specified in case both or only the second master is used. This is
-> required due how the register layout changed in contrast to RTL9300,
-> which has SCL selection in a global register instead of a
-> master-specific one.
-> 
-> Signed-off-by: Jonas Jelonek <jelonek.jonas@gmail.com>
+Signed-off-by: Luca Weiss <luca@lucaweiss.eu>
+---
+ arch/arm64/boot/dts/qcom/sdm632-fairphone-fp3.dts | 36 +++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
 
-Tested-by: Sven Eckelmann <sven@narfation.org>
+diff --git a/arch/arm64/boot/dts/qcom/sdm632-fairphone-fp3.dts b/arch/arm64/boot/dts/qcom/sdm632-fairphone-fp3.dts
+index 55a45b528bd3f1bf9b6fe7882753338b43c62271..557925a6627665614caefed65d86a42c1e55ab8d 100644
+--- a/arch/arm64/boot/dts/qcom/sdm632-fairphone-fp3.dts
++++ b/arch/arm64/boot/dts/qcom/sdm632-fairphone-fp3.dts
+@@ -36,6 +36,42 @@ key-volume-up {
+ 		};
+ 	};
+ 
++	vreg_cam_af_2p85: regulator-cam-af-2p85 {
++		compatible = "regulator-fixed";
++		regulator-name = "cam_af_2p85";
++		regulator-min-microvolt = <2850000>;
++		regulator-max-microvolt = <2850000>;
++
++		gpio = <&tlmm 128 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++
++		vin-supply = <&vph_pwr>;
++	};
++
++	vreg_cam_io_1p8: regulator-cam-io-1p8 {
++		compatible = "regulator-fixed";
++		regulator-name = "cam_io_1p8";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++
++		gpio = <&tlmm 130 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++
++		vin-supply = <&vph_pwr>;
++	};
++
++	vreg_cam2_dig_1p2: regulator-cam2-dig-1p2 {
++		compatible = "regulator-fixed";
++		regulator-name = "cam2_dig_1p2";
++		regulator-min-microvolt = <1200000>;
++		regulator-max-microvolt = <1200000>;
++
++		gpio = <&tlmm 46 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++
++		vin-supply = <&vph_pwr>;
++	};
++
+ 	/* Dummy regulator until PMI632 has LCDB VSP/VSN support */
+ 	lcdb_dummy: regulator-lcdb-dummy {
+ 		compatible = "regulator-fixed";
 
-Tested the patchset on an RTL9312 device with both SFP modules and an POE MCU 
-which requires I2C Block transfers (but not SMBus).
-
-Regards,
-	Sven
---nextPart3006162.e9J7NaK4W3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQS81G/PswftH/OW8cVND3cr0xT1ywUCaJh2zAAKCRBND3cr0xT1
-y6rPAQC/BU2mCIX9Aeu/U8eQoLTcIxd8awoI1PYPtLo78O1PjAD9Eqv7NMyGcL+d
-ltpkoAvmlxV3ahsYxhCuACEP/UQm8gk=
-=7TNJ
------END PGP SIGNATURE-----
-
---nextPart3006162.e9J7NaK4W3--
-
-
+-- 
+2.50.1
 
