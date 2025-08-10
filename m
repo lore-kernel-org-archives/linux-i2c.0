@@ -1,95 +1,101 @@
-Received: from ahti.lucaweiss.eu (ahti.lucaweiss.eu [128.199.32.197])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mo4-p00-ob.smtp.rzone.de (mo4-p00-ob.smtp.rzone.de [81.169.146.160])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE07210F2;
-	Sun, 10 Aug 2025 15:46:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=128.199.32.197
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1754840815; cv=none; b=gfwUiQ9vjBNed3N8HGjBtgwe0TAW8H1iJ6apR3Oy9UrUkqlfGQ9wSWaPvnxixbtmS1/3L8uEjWO3kJw7IYNrnwexBcwNcYPh5teXHGCCEKJVH7SS6Iwj4DWoZJ55i80z4KHW0tIBxhzLflBmBxYGnLzYBlp8ybG5ecjHiFiP9Xo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1754840815; c=relaxed/simple;
-	bh=SztCsm1msowR5xsvSwwPc7wLorBM3lMk1jkr9nMFfMY=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Spwmn9lYCXbzQupv/D9EJEyvw+nHAX25WMumEgiriw56ud5LlYPKjeOTLVs8l7Io+Q+HWnV5uCDWpnejfb942ZUh1+9+AjJuJ7LAt1g56KqovmSRjWQPt494iKkT74ZUun2U/Tf2gcQzoxVVQcY+6IGHi/whrq7YsjddrsOmF78=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=lucaweiss.eu; spf=pass smtp.mailfrom=lucaweiss.eu; dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b=D4O7k3pP; arc=none smtp.client-ip=128.199.32.197
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=lucaweiss.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lucaweiss.eu
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4BBC1BDCF
+	for <linux-i2c@vger.kernel.org>; Sun, 10 Aug 2025 17:17:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=81.169.146.160
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1754846253; cv=pass; b=Uj8pc4fxDXQMXWuIKTuTe6jV+vGSy1KOprF8G8Y8cPruwpueC/94xBSJDfkENYBa4G4eGKPHXxkcsG6wT1Io9cnjOA6SLmR7VuvoBsUAsLEB/tUWhtOyks6bKnij3kkW3SF6vQOSrqvqmuWEM7cCtErc695CLN8bZA+2IdkJDyo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1754846253; c=relaxed/simple;
+	bh=ZSbsbYiZBEJ0Ekg6BZS+86klpCRuOXqXmhTCqj1HrhQ=;
+	h=Content-Type:From:Mime-Version:Date:Subject:Message-Id:Cc:To; b=DQJ7G+P/MOXA/MkvsMJHnW1ODeodzjhe9egwmgl4bRwzFNdGb1G/DVm6MSqy8uiCM+kBPe6/MhyrV7Ez14kNL7DnNBJ2NzALPnhAmUvlaEYFmpkCxg2EXOQYFkxUEEao+d3ufN0rk+69tu8xvDlhE5Ny72oonmz9uOp9lgMNIps=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xenosoft.de; spf=none smtp.mailfrom=xenosoft.de; dkim=pass (2048-bit key) header.d=xenosoft.de header.i=@xenosoft.de header.b=i07nSyft; dkim=permerror (0-bit key) header.d=xenosoft.de header.i=@xenosoft.de header.b=ZdyWeubP; arc=pass smtp.client-ip=81.169.146.160
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=xenosoft.de
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=xenosoft.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b="D4O7k3pP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lucaweiss.eu; s=s1;
-	t=1754840305; bh=SztCsm1msowR5xsvSwwPc7wLorBM3lMk1jkr9nMFfMY=;
-	h=From:Subject:Date:To:Cc;
-	b=D4O7k3pPM/+kxfbe0DDagjodDCUQ+nOwspe5SWg0HXcMAPOd0ofg5xC3w/gqZkO0j
-	 4ngDrZzRwx8+sYlpSLGegSX9oGew0RRNKHgysHS196y/JkAeMy/DIlm/e4r+Yft7Gd
-	 kgvV1DFE9QHW/4tPGqbVXGQx/UYdbkKLZLI8poMw=
-From: Luca Weiss <luca@lucaweiss.eu>
-Subject: [PATCH 0/7] Camera I2C (CCI) enablement on MSM8953 and Fairphone 3
-Date: Sun, 10 Aug 2025 17:37:51 +0200
-Message-Id: <20250810-msm8953-cci-v1-0-e83f104cabfc@lucaweiss.eu>
+	dkim=pass (2048-bit key) header.d=xenosoft.de header.i=@xenosoft.de header.b="i07nSyft";
+	dkim=permerror (0-bit key) header.d=xenosoft.de header.i=@xenosoft.de header.b="ZdyWeubP"
+ARC-Seal: i=1; a=rsa-sha256; t=1754844446; cv=none;
+    d=strato.com; s=strato-dkim-0002;
+    b=VXz0zV/10okRV7NZRFQ3L4TxH1I4T+qVPDVojbrQwnzr6r+upDmrcl3f2ODdv71ryc
+    ICw2UBJ+pBeP40ld+62fatwwLcs64Sj2BbpsMDOvr65NOz3dJIlhyQ70LOPLuBcJMA8M
+    zCypae7pnuQYfI4G8x/EN2US6JI7lMSHlVRgXjxZjop5AaXsE9EA8hUoyraAj423AZzo
+    0z9WhhYyCZ/BJnWbSfBCuXwbgbec74UF/x1cElKGK70Aqlt0ut69dYehWBCDoJ4+y0A5
+    JXBmjJ7zVmLnv+R2Ku9YfsEP9wcyQkEoEdZ69jQlWmOKNjWtTvBG9qyVntfrLwW5yzse
+    wSsA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; t=1754844446;
+    s=strato-dkim-0002; d=strato.com;
+    h=To:Cc:Message-Id:Subject:Date:From:Cc:Date:From:Subject:Sender;
+    bh=K8pt8WbN3XbRW6chuXyhwg2rF9l+Wdgb+Ie3sXEsGx4=;
+    b=n1PUK/YvBdWNBq1OAHS/wOavNvEjhe9IvqXEBml7GnqnNEjGHHcsFnjhY4V1OgAfGm
+    LE+KW8Kl0LVIMsEY+lQNNGxj4zgKg/oxJeHLREwRz8GdtkjG5Z56xLMmUCg+HEssHnq+
+    T4wTDGSTYMSR0UKZA5KXwuyRyuYABThBByHGi3BK/AlN1uwJZCRgqAbkGoo2QInNbbF6
+    TqwM8xugXOEADbJ2U8mhJhUCh6Ra2UPROmgp6DSvQjb2ST8nhUi4G8XC+SPElSo+urqd
+    E8cB6Ygfs9hi9M9co8uHBryX/U8N4EXOp5NEpaw7AwfFCondJA1dDghsiqC0CzIwDPgx
+    6aug==
+ARC-Authentication-Results: i=1; strato.com;
+    arc=none;
+    dkim=none
+X-RZG-CLASS-ID: mo00
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1754844446;
+    s=strato-dkim-0002; d=xenosoft.de;
+    h=To:Cc:Message-Id:Subject:Date:From:Cc:Date:From:Subject:Sender;
+    bh=K8pt8WbN3XbRW6chuXyhwg2rF9l+Wdgb+Ie3sXEsGx4=;
+    b=i07nSyftgzRQ1n6gCY5Gumj2m/bT4oRp42V6WSgq12Y9n6yGxHlRwJrZM+sihHkmDS
+    xg5KwOaFv8O9xfsa6iJ2zB2xIJAbz1zXqm1zlrFyMB2pQKQGwjhEzSQZseX1YV89sR+K
+    2A8HKGtqDiDhPpvYUJqLWfRPFHNr2fXgGf+YoT5OMmfMOVCyT7FUY5HiDp/BMWk9gM+1
+    93Dpw6LaZH16xvnUZowKi+nos7V75f9zX/hMhv8G7ntjCBUjL2UB+gy1zZW+KDN+Oo3O
+    ef945ocJRCz5SkgQMG6Ifc2GBGT39cCjMVQqNAMdToRTlEk+VaQakn95p1w8ntLudYHr
+    F6uQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; t=1754844446;
+    s=strato-dkim-0003; d=xenosoft.de;
+    h=To:Cc:Message-Id:Subject:Date:From:Cc:Date:From:Subject:Sender;
+    bh=K8pt8WbN3XbRW6chuXyhwg2rF9l+Wdgb+Ie3sXEsGx4=;
+    b=ZdyWeubP9kqqk+4WLh2X+4LmDERZFexOO1gR6oF1N5gDBMezkWAsVPBPHg35tHWir9
+    3zHv2oKhXbwES5tTTQAA==
+X-RZG-AUTH: ":L2QefEenb+UdBJSdRCXu93KJ1bmSGnhMdmOod1DhGN0rBVhd9dFr6KxrfO5Oh7V7X5i0sy3CAXlxGfGpTL+7TUpaIT1L8AmWoezzKas="
+Received: from smtpclient.apple
+    by smtp.strato.de (RZmta 52.1.2 AUTH)
+    with ESMTPSA id e6066c17AGlQAhZ
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
+	(Client did not present a certificate);
+    Sun, 10 Aug 2025 18:47:26 +0200 (CEST)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+From: Christian Zigotzky <chzigotzky@xenosoft.de>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAM+8mGgC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
- vPSU3UzU4B8JSMDI1MDCwML3dziXAtLU2Pd5ORMXVMLc1NLs5Q0C+OURCWgjoKi1LTMCrBp0bG
- 1tQBl2NT3XQAAAA==
-X-Change-ID: 20250808-msm8953-cci-587596df83da
-To: Loic Poulain <loic.poulain@oss.qualcomm.com>, 
- Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>, Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org, 
- linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Luca Weiss <luca@lucaweiss.eu>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1212; i=luca@lucaweiss.eu;
- h=from:subject:message-id; bh=SztCsm1msowR5xsvSwwPc7wLorBM3lMk1jkr9nMFfMY=;
- b=owEBbQKS/ZANAwAKAXLYQ7idTddWAcsmYgBomLznu9T00T5IlS+RJ61zYbKq2yoDx5MZiu5DC
- 9zHL86Fg9CJAjMEAAEKAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCaJi85wAKCRBy2EO4nU3X
- Vn9RD/4w73tConoUTyK9RKN0rLFpAeWwDDb634IGH1X9IoDKO8webKYnCGQWyuMasbLboFctcJu
- INHjeSMoJDvvG+tw97DZ/SESrTgIyoPM+q/4ARE7Q7QAeFuM1wo+JI9Qbhgg3mn1f2BuGTLwSAq
- k6wIhAdRBS14NblkJZiPwYKcnBoNrLMSSD+LXVVJ6lDiwi1VLzjaWn1yIHV8SRQQFgABV80lw6V
- JWaYJBpm5Ans0XrrCyjZOxZW6tbfItkOd2vz+3BlvLBK4fUMj40OR1TPvCqWNFk3+nhAhTr7HMD
- ga19GOVzam2n0HW5HjQxlyRa7RlkRFEAdFLOBt+RC0datEb7qtLLlMClGYGHwKE2hdyXFIkVWtO
- kgLukHdJKMSK9MqmlH3UUNC2OKWtFOeN1NX19nYQq0VJIXIBT4JyFWTpX8URc1g5O/l5TQ0SeMj
- mUHdzT2rkE+ve485Bz7K+6WPRs7u/TywKddY5poF+gD6pnkDC/FlTUtnHDILfNd3fgnROaN+8V6
- hOV9lrh57F86VRPJLnGotaHEyfb46knvpcIjTKakug/dw/HvjgjVYGALwqy4lw+eWzwk93d3y86
- TwZsJw1swhnT2KzfVoZc6L572hIed/Rm73468Ua1VVw2th3rEtf2VIb+GoLfj3AiN+HmtNJd0eg
- r5HRM/4XmKie9Ww==
-X-Developer-Key: i=luca@lucaweiss.eu; a=openpgp;
- fpr=BD04DA24C971B8D587B2B8D7FAF69CF6CD2D02CD
+Mime-Version: 1.0 (1.0)
+Date: Sun, 10 Aug 2025 18:47:15 +0200
+Subject: i2c-pasemi messages since kernel 6.16
+Message-Id: <2810E95B-8DB4-48CB-80F6-DF01EB7BEEFC@xenosoft.de>
+Cc: linux-i2c@vger.kernel.org,
+ linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+ mad skateman <madskateman@gmail.com>, "R.T.Dickinson" <rtd2@xtra.co.nz>,
+ hypexed@yahoo.com.au, Christian Zigotzky <info@xenosoft.de>
+To: Sven Peter <sven@svenpeter.dev>
+X-Mailer: iPhone Mail (22G86)
 
-Add the compatibles and config for CCI on MSM8953, then enable these I2C
-busses on Fairphone 3 and configure the EEPROM found with one of the
-camera modules.
+Hello Sven,
 
-Signed-off-by: Luca Weiss <luca@lucaweiss.eu>
----
-Luca Weiss (7):
-      dt-bindings: i2c: qcom-cci: Document msm8953 compatible
-      i2c: qcom-cci: Add msm8953 compatible
-      dt-bindings: eeprom: at24: Add compatible for Belling BL24S64
-      arm64: dts: qcom: msm8953: Re-sort tlmm pinctrl states
-      arm64: dts: qcom: msm8953: Add CCI nodes
-      arm64: dts: qcom: sdm632-fairphone-fp3: Add camera fixed regulators
-      arm64: dts: qcom: sdm632-fairphone-fp3: Enable CCI and add EEPROM
+Since the kernel 6.16 we have the following messages during the boot.
 
- Documentation/devicetree/bindings/eeprom/at24.yaml |   1 +
- .../devicetree/bindings/i2c/qcom,i2c-cci.yaml      |   2 +
- arch/arm64/boot/dts/qcom/msm8953.dtsi              | 496 ++++++++++++---------
- arch/arm64/boot/dts/qcom/sdm632-fairphone-fp3.dts  |  57 +++
- drivers/i2c/busses/i2c-qcom-cci.c                  |  46 ++
- 5 files changed, 382 insertions(+), 220 deletions(-)
----
-base-commit: 1ad00588bc181aad8d76d86420d03042bc7e9acf
-change-id: 20250808-msm8953-cci-587596df83da
+[    9.459706] i2c-pasemi 0000:00:1c.0: NACK, status 0x08210100
+[    9.649736] i2c-pasemi 0000:00:1c.0: Issuing reset due to status 0x082101=
+00 (xfstatus 0x00000001)
+[    9.690696] i2c-pasemi 0000:00:1c.1: NACK, status 0x08210100
+[    9.708651] i2c-pasemi 0000:00:1c.1: Issuing reset due to status 0x082101=
+00 (xfstatus 0x00000001)
+[    9.892693] i2c-pasemi 0000:00:1c.2: NACK, status 0x08210100
+[    9.911535] i2c-pasemi 0000:00:1c.2: Issuing reset due to status 0x082101=
+00 (xfstatus 0x00000001)
 
-Best regards,
--- 
-Luca Weiss <luca@lucaweiss.eu>
+What exactly do these messages mean?
+
+Thanks,
+Christian=
 
