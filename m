@@ -1,63 +1,63 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3A802D7DED;
-	Sun, 24 Aug 2025 11:34:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CC942D8763;
+	Sun, 24 Aug 2025 11:34:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756035278; cv=none; b=SIrX9Kho0VMvVd+y1o+4YefSqiRriXZCYjBRTzmNMtA6e5V8F72d7dO+WCUyUuIY2KEtEL45CvwbKJoT5RfrlevAwn1YRimKMMjg1Yfn9ywF1qRrVh4208Qdj13HRattcwEqBu+izKjhKxlEBfiJS86qc+i4j3zv/Zwd0sp/oKA=
+	t=1756035278; cv=none; b=rIMymgysU2fdzmPfLtJcdzIwvL6tUu9RX4mA22zB62FqJsC/62bTRwni5ZulJKbL1ihMYdObQKJ44pc4AV2m5k+wJJmitphMO6sX/oC5iV1aauA/Hw0z54X4lmEWlbt97R7KGOEN2Mirfo+1tD9nvSvYpEGXlnRTHpipxQOKJ+Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1756035278; c=relaxed/simple;
-	bh=6iSaw1vxtbsqPx4P+khU61Cqtxm9jhLHfZYWON2oBlE=;
+	bh=mC0Hz8rKvpYmxinqi8UXJUT5q7HWthragLXxi/PIwvs=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=WpLB+Ki2a5r6qgAT+Qjfp8HDw/SZb/eUXsE0n7n8PJQvlHFK8StlrfN1Q5A61rHLgnav5HW+rk7BN+S2QPMOQLJtYJxzgfQtgdQ5vyqPot8T/Ta0pTk8DGUTa41Fz8M6cgSjQfZ7c7UntA0Wgsp3R2NmoOsdxrlSYuY9HGoFZFM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FfO4u1nW; arc=none smtp.client-ip=209.85.128.49
+	 MIME-Version; b=glE+d7MsAo8rNIY8DwMgO3ebbxXAxZhiIY3EgPvwd1wZaIlpZKFBzgvtc64lG3BlqZYV/8G/Q3l8kBdaRPE0T9X3dtGbryWDmPlNiPFiNkurLoP4sgcIjLXp3VeKANtNFiPvi7In2uSTx3S8LLrErRh/hZ7jQgAfHfM+YtEREtQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G2v71Kjr; arc=none smtp.client-ip=209.85.128.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FfO4u1nW"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-45b577eb4dbso9082445e9.2;
-        Sun, 24 Aug 2025 04:34:35 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G2v71Kjr"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-45a1b05ac1eso19113915e9.1;
+        Sun, 24 Aug 2025 04:34:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756035274; x=1756640074; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1756035275; x=1756640075; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=LGRpPfiF+QCSSlKfaNedQV7hPKGK7aNfXLZMjnYO71Q=;
-        b=FfO4u1nWdZ1VLiMe/+Dmbo2iqDn5tMpgbENnyU72LQnjr3vgE4hAsJXd2CMHZ5UdC3
-         UNObHR8KzOQFT/HhelMAxgCtKcaPV71+gMRsAqe2EnTgK37YQ7FcN5kdtaKYyPkhqWBG
-         tFGQ5iOYwxpMtHS/jd+dUgStoDHQg2K2aAd2j62bV4Md750bqccZLjEubwNl3VlqhMOS
-         vDnGarn144L/M9zBE//Ayw0S7LBGfcD9c/RXNrCNs7gqtUIARtlkc1p1Lltp/M1JKFyn
-         ov0XDe0Ermh+ZprZoxs413H3LpvGOY/VmLfJaYagkFpjud2uZnjclI7oxQhGk/cA5f3R
-         wC3Q==
+        bh=9qBKoTaVCO++BPStbErBm/tCDRfQKKXA8YQ+sxntbw8=;
+        b=G2v71Kjr9DpCTV+mWq7qlKteFu7u5/gOAcnVHbFU7J0b0d69bEDQPB1XiNCYv8YVAM
+         0+hJunFFB+ZpmubxTFR/KAiAaP3MCRjBZGZ9AN2v1mzixN4LRQnZbbmvNlEjoqxYRn+C
+         wR7T8y9fcbhD+ggnzCqpfYmYg5RjPMUiB7Bi5oIdzmILfFY4WDB6Il4MBp+9xpyFl/q0
+         65K8EXfnY/ZA+GjtgEynXau/vf1ZJmXY9NiQl3KZQyL/QNGlcXX4tyqcc/51n7pYNYEq
+         vBnyJ0mMyokLwmCzStZH3RkpnKn5AOFj5VFUlxGBF5wbZy4VdyCmbo2bf81O+Zl12+DC
+         EC2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756035274; x=1756640074;
+        d=1e100.net; s=20230601; t=1756035275; x=1756640075;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=LGRpPfiF+QCSSlKfaNedQV7hPKGK7aNfXLZMjnYO71Q=;
-        b=AsroRmSPB1nK8bGEw+iW05i0qjqGch0o6W8dm1BQkOvyIc+YGkzd/WaJt10AvaYk6A
-         hhgH47+7pywULBikWf0Z7lbTReTcbyCVXaWQ9ZwWoRcRBzeBbX9UwG+hfT0/ZMYlcRpS
-         O6AWNHc/SaNkBrdglRgq0nwNrUeA9lWEc22fFZpMiITqH9HwuANMkkpPaOoIm0SD1D6z
-         iQ7mh2h6DstkpYuCzWDSlHrG1eaML61laYIfmVfg/oS+FHJpy1FmTrmrWN0ZLWblNgnq
-         DD9f0BGVyw0257M5bZMgTSjQsSHRosix7BTYV32VXG9UQ++oyTq9U0nFW1nP+VfceE/p
-         Xlbg==
-X-Forwarded-Encrypted: i=1; AJvYcCVPbdG34aKSr1xJOBtZ7SAX/a18czdQ63d5knsA8FJGrrZZ9ffmRTLgj1Onyj8PdVpTILyDfO55+K7zGIVl@vger.kernel.org, AJvYcCXYYo+2h4kxAsq/10kphpYc0ihOkqiJtRJ+jG9F/4ENsL+H2ncmJHdewdz8++7BqmAR2aNxnWpTvEmF@vger.kernel.org
-X-Gm-Message-State: AOJu0YyIk4T+6RYRFwyN68oUrx7/6QIyB3RWN5IMYo3cpy5S+22/QoFM
-	nqrgrjN7r9NcciMSv6CeGM1KUnf00ldjK82U6qg8VqvV8vTT2CSpggtw
-X-Gm-Gg: ASbGnct1T0xObeWcidyYPxrbcx6zVO38jDk5678pKDvJnbmrXqZ1LJLPZO9sm5vX1Ys
-	RuoPaxc93ID72xqeUaFx/yXaG/GqEeMsZLgfsm/jGrL6oqsuBkhvo9UoLgu36ONWeJtzW4nqkOa
-	UavmuaUEVqUOoPhJwS7xa/aTw9AS3eLWrL1Tu+aGmNfQcVTxSyvi+J7EvLmjN+EnGbzmMi7T3Rh
-	BLA+k+ga7Zd6+dbtRITrWDyI24dNKRMh/OkBT/QWA9ajpGTXGDpiF0EyLMO2486SN1WlbknjHrZ
-	ZBEJazaFloGifLa9O3jXFfNV7OVgDEJErbpAPjFYS7AzBmWgCgrQlfx213LGCrXAbSOxW+CRFXK
-	WVD4kfS/ZJtTxRYaoJDOWMpbqw2yTkti0YzpgkBhyv3sqZO6Ylddk2ck=
-X-Google-Smtp-Source: AGHT+IHz8R5/qXaWr52x6eKVSUtfT+nYVdlDxRNLQUuUUK14n/OlU1Y2kEalBBPtgAQS2Yp+L4Dm9Q==
-X-Received: by 2002:a05:600c:19cb:b0:458:6733:fb5c with SMTP id 5b1f17b1804b1-45b517d2751mr71413665e9.28.1756035273881;
-        Sun, 24 Aug 2025 04:34:33 -0700 (PDT)
+        bh=9qBKoTaVCO++BPStbErBm/tCDRfQKKXA8YQ+sxntbw8=;
+        b=UUfXrljiDaGmb43NGAKYC5RSBIg60YoDLwC6KkjweLrH6Tm+Kd3bF2ZhZYSgIg1NAj
+         8qLCM0p4+qtwCnsXv8fUcw0uKQ2BETwjDdcMuqYPwod9klOdMhDavDfW4e6lr0LlxJnx
+         6+4owVzsWYIv8o0bfBJy8Saj8S0zbWUMWWkNKQUP326o0y2Y0sjhJONQZP3gCCtKvOq3
+         MYdlo5DF357F1Ti6/+AB6HMVHQoPwdepwYeCcH+ZhKneqs2+iV9wXM1KxwVxWGteRjlA
+         JITuq/Z4RB1M1c5PbP0Jrgnr1Fkhrkt3gRtr8Ub0c4+5ln7E0SCN+zlFbhiyhT30iEnJ
+         A9DQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW1IK11RmdLiNB3Xq/l6tJ5QiF2Ik2e7y0T0jg8zZBp1vQ8aZv4gMY6eNHqKGmIZAkoCCOhlSJ39c1CSlLm@vger.kernel.org, AJvYcCX1Kl6rnmdP08OAG16nCXhKjITIzFFLL+18ZN+Af68Jbp3YAv0bq8pMSVyC3SH7oC0NrQZHnBppgaU3@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzgn2QIZLGM2rTfaJ6CkfnAlbN7Xp0L9PdvBAZqZcXCnDrNjS8r
+	goWS1hwosMZTlFsQDt1DvAVcIvff+CfjUbyu8r5tfGhmGhgPuDgdB2Du
+X-Gm-Gg: ASbGncunzZCMFmTUPCYncsI5mS8RxtDCovcWPO186CEmldZb85BgOr9KJGE59a7S+el
+	SRMbZasSOlQtfjOCA75UdPRmrQ+gHbnmd+zy3M+E5Jwg0ySHZ1yCjL6UhZJ0Gchc49Ok6fwqO1f
+	soHLyCDvSxM3D0aKpsgGy/FxMVjxmLDLdERJddgghs/9aBYN2uyjG4MClJvtbqWa+EpeAY2k2d3
+	mHEhXHdJ80bQu63CESGRQFTb5NK+91JYUyYmPpM4uOxKphXT5jkovzeJrDwW9+k7VyAmX4LKfii
+	s0x4DU9FPfqDXUzQiuq47dkbfOMcNwF4gjYMpAoPgSuVtmK1MpzHOU2E2IPIVDtUk4XW2npZc4V
+	jQIgW2tiu7bCdiOvCNVOjfcvt8Zh9ENfi29HriBbKvHHGU88UFffhw3w=
+X-Google-Smtp-Source: AGHT+IGzJU1raJzm4fuF3QZJv3Ip9ef69juRGbQ4YYy3QaQlOSG18TNf7XWR639yjPYNOqYpAK7Teg==
+X-Received: by 2002:a05:600c:8b6e:b0:45b:47e1:ef6c with SMTP id 5b1f17b1804b1-45b5c086835mr21265585e9.35.1756035275338;
+        Sun, 24 Aug 2025 04:34:35 -0700 (PDT)
 Received: from builder.. (197-10-142-46.pool.kielnet.net. [46.142.10.197])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b5757453fsm66470895e9.14.2025.08.24.04.34.33
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b5757453fsm66470895e9.14.2025.08.24.04.34.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 24 Aug 2025 04:34:33 -0700 (PDT)
+        Sun, 24 Aug 2025 04:34:35 -0700 (PDT)
 From: Jonas Jelonek <jelonek.jonas@gmail.com>
 To: Chris Packham <chris.packham@alliedtelesis.co.nz>,
 	Andi Shyti <andi.shyti@kernel.org>,
@@ -72,9 +72,9 @@ Cc: linux-i2c@vger.kernel.org,
 	Harshal Gohel <hg@simonwunderlich.de>,
 	Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	Jonas Jelonek <jelonek.jonas@gmail.com>
-Subject: [PATCH v6 05/12] dt-bindings: i2c: realtek,rtl9301-i2c: fix wording and typos
-Date: Sun, 24 Aug 2025 11:33:41 +0000
-Message-ID: <20250824113348.263475-6-jelonek.jonas@gmail.com>
+Subject: [PATCH v6 07/12] i2c: rtl9300: move setting SCL frequency to config_io
+Date: Sun, 24 Aug 2025 11:33:43 +0000
+Message-ID: <20250824113348.263475-8-jelonek.jonas@gmail.com>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250824113348.263475-1-jelonek.jonas@gmail.com>
 References: <20250824113348.263475-1-jelonek.jonas@gmail.com>
@@ -86,52 +86,68 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Fix wording of binding description to use plural because there is not
-only a single RTL9300 SoC. RTL9300 describes a whole family of Realtek
-SoCs.
-
-Add missing word 'of' in description of reg property.
-
-Change 'SDA pin' to 'SDA line number' because the property must contain
-the SDA (channel) number ranging from 0-7 instead of a real pin number.
+Move the register operation to set the SCL frequency to the
+rtl9300_i2c_config_io function instead of the rtl9300_i2c_config_xfer
+function. This rather belongs there next to selecting the current SDA
+output line.
 
 Signed-off-by: Jonas Jelonek <jelonek.jonas@gmail.com>
-Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
+Tested-by: Sven Eckelmann <sven@narfation.org>
 ---
- .../devicetree/bindings/i2c/realtek,rtl9301-i2c.yaml        | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-rtl9300.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/realtek,rtl9301-i2c.yaml b/Documentation/devicetree/bindings/i2c/realtek,rtl9301-i2c.yaml
-index 69ac5db8b914..274e2ab8b612 100644
---- a/Documentation/devicetree/bindings/i2c/realtek,rtl9301-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/realtek,rtl9301-i2c.yaml
-@@ -10,7 +10,7 @@ maintainers:
-   - Chris Packham <chris.packham@alliedtelesis.co.nz>
+diff --git a/drivers/i2c/busses/i2c-rtl9300.c b/drivers/i2c/busses/i2c-rtl9300.c
+index f9b5ac7670c2..4177cfb77094 100644
+--- a/drivers/i2c/busses/i2c-rtl9300.c
++++ b/drivers/i2c/busses/i2c-rtl9300.c
+@@ -95,18 +95,23 @@ static int rtl9300_i2c_select_scl(struct rtl9300_i2c *i2c, u8 scl)
+ 	return regmap_field_write(i2c->fields[F_SCL_SEL], 1);
+ }
  
- description:
--  The RTL9300 SoC has two I2C controllers. Each of these has an SCL line (which
-+  RTL9300 SoCs have two I2C controllers. Each of these has an SCL line (which
-   if not-used for SCL can be a GPIO). There are 8 common SDA lines that can be
-   assigned to either I2C controller.
+-static int rtl9300_i2c_config_io(struct rtl9300_i2c *i2c, u8 sda_pin)
++static int rtl9300_i2c_config_io(struct rtl9300_i2c *i2c, struct rtl9300_i2c_chan *chan)
+ {
+ 	struct rtl9300_i2c_drv_data *drv_data;
+ 	int ret;
  
-@@ -27,7 +27,7 @@ properties:
+ 	drv_data = (struct rtl9300_i2c_drv_data *)device_get_match_data(i2c->dev);
  
-   reg:
-     items:
--      - description: Register offset and size this I2C controller.
-+      - description: Register offset and size of this I2C controller.
+-	ret = regmap_field_update_bits(i2c->fields[F_SDA_SEL], BIT(sda_num), BIT(sda_num));
++	ret = regmap_field_update_bits(i2c->fields[F_SDA_SEL], BIT(chan->sda_num),
++				       BIT(chan->sda_num));
+ 	if (ret)
+ 		return ret;
  
-   "#address-cells":
-     const: 1
-@@ -42,7 +42,7 @@ patternProperties:
+-	ret = regmap_field_write(i2c->fields[F_SDA_OUT_SEL], sda_num);
++	ret = regmap_field_write(i2c->fields[F_SDA_OUT_SEL], chan->sda_num);
++	if (ret)
++		return ret;
++
++	ret = regmap_field_write(i2c->fields[F_SCL_FREQ], chan->bus_freq);
+ 	if (ret)
+ 		return ret;
  
-     properties:
-       reg:
--        description: The SDA pin associated with the I2C bus.
-+        description: The SDA line number associated with the I2C bus.
-         maxItems: 1
+@@ -121,10 +126,6 @@ static int rtl9300_i2c_config_xfer(struct rtl9300_i2c *i2c, struct rtl9300_i2c_c
+ 	if (len < 1 || len > 16)
+ 		return -EINVAL;
  
-     required:
+-	ret = regmap_field_write(i2c->fields[F_SCL_FREQ], chan->bus_freq);
+-	if (ret)
+-		return ret;
+-
+ 	ret = regmap_field_write(i2c->fields[F_DEV_ADDR], addr);
+ 	if (ret)
+ 		return ret;
+@@ -244,7 +245,7 @@ static int rtl9300_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr, unsigned s
+ 
+ 	mutex_lock(&i2c->lock);
+ 	if (chan->sda_num != i2c->sda_num) {
+-		ret = rtl9300_i2c_config_io(i2c, chan->sda_pin);
++		ret = rtl9300_i2c_config_io(i2c, chan);
+ 		if (ret)
+ 			goto out_unlock;
+ 		i2c->sda_num = chan->sda_num;
 -- 
 2.48.1
 
