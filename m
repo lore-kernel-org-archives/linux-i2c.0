@@ -1,57 +1,78 @@
-Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (mail-mw2nam10on2087.outbound.protection.outlook.com [40.107.94.87])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2947257825;
-	Tue, 26 Aug 2025 03:44:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.153.233
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756179898; cv=none; b=tJ6hrbNXygCmsXWFzY858jWjFvY6AaW9UjPFgn8UHtQ73AsPZEZI+2vMsspAoOlwrJzmX55xpJBFfrhKDUpj4DcOLTsBLxwMdAmmc6bibZxsLykePwvCRa5lSKFnDGTkyO6x9rb2gxhlCi9kU6CxtgtLXh1vxOw+z4Vpvz5dpYQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756179898; c=relaxed/simple;
-	bh=8ukb//mvVuTkGejFGQ7BOo35mzSCQOdtmiHyfkQPWF4=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=NmUZLzPBhEtYpGE6/I32t4VbLYJ4z5sG0xWNa1jUQ/v0jdR88QS5Ba+tNlB4EwnlVuWdxg686zZa6XaxCzJLThWQ3Gy+35vSt+kymxWH0QgFuFplpBaObCrJzyzxJjNhjy2ymZpcUML1J+irawcmmRHt+kN1jaT9UVY/N3goTq4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com; spf=pass smtp.mailfrom=microchip.com; dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b=2BtS25GH; arc=none smtp.client-ip=68.232.153.233
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microchip.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2D0F2F99BD;
+	Tue, 26 Aug 2025 08:33:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.94.87
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1756197195; cv=fail; b=XwSf/y3FCnZqi1kVzKvyAnYSReLH15z6KRQcx9WUkCXBmi96TxDCV9eoGFL2DlBAteM9EgdR1lJNTGPX5cu/RDQV69fUVS9klb3w0cxL+um05un2Q86n22TPuMt98TdbPqR8tUFGMe1mhbULX8i8MMAc93oWNME8Er93m1yQIg8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1756197195; c=relaxed/simple;
+	bh=EQowz/92XFkIjS7oT19ju8pjhnGZVPLgX0a8MesJyJ4=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=gxBuCMi/9dqtnqPv6x7uVEHdUAL0JzsOf9MRDjAkt6LZ8cWlbNSsjw0NQuONuK4//elEiyE/bjLybNWOthBJbYQWH6khFGCvHk1INTBroSXdgCREntSxfiQf+LOTLBVfqG9tggAJWUg47hlx8+wiqhx5vZdj4O5ajpt3pCTzjoE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=TgrZaktl; arc=fail smtp.client-ip=40.107.94.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="2BtS25GH"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
-  t=1756179897; x=1787715897;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=8ukb//mvVuTkGejFGQ7BOo35mzSCQOdtmiHyfkQPWF4=;
-  b=2BtS25GHXNUg3SOA1aiF8mkG8gT42d2f2CSe1APCuOKL1FLSR3rERNi9
-   jNKzRmp4q+fV8327IXxR3R4Wqwc8jmyOAVp7JaRUcYJQNVuuvbfkkJetP
-   mEZ2LzMOyEdnNXahVXCBvI2IA/2HlVCfMwQp5KCLsHJjRJTuJGXbZdQGA
-   OMSSCpzTfGOZfk1d3yxv3gyNFQSEo1g0kENHElZV+PyNSOyHt/MbNVplQ
-   yapYAqMP+45/sP9R4SJPANtOKkS9rIege1zhHyM1k0FEmC5XgYziGdzex
-   7mIEIQ4HfNbdwbLvG05biHKDk/xjpeVj8EltBMTWfxzHLWCa1GbM8I511
-   w==;
-X-CSE-ConnectionGUID: ol3xAaW4TMCMWnKGSyp44Q==
-X-CSE-MsgGUID: QNYLLhVoSCqli9xDLdwXNA==
-X-IronPort-AV: E=Sophos;i="6.18,214,1751266800"; 
-   d="scan'208";a="45641330"
-X-Amp-Result: SKIPPED(no attachment in message)
-Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
-  by esa3.microchip.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 25 Aug 2025 20:44:56 -0700
-Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
- chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.44; Mon, 25 Aug 2025 20:44:15 -0700
-Received: from che-dk-ungapp03lx.microchip.com (10.10.85.11) by
- chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server id
- 15.1.2507.44 via Frontend Transport; Mon, 25 Aug 2025 20:44:13 -0700
-From: Rengarajan S <rengarajan.s@microchip.com>
-To: <tharunkumar.pasumarthi@microchip.com>,
-	<kumaravel.thiagarajan@microchip.com>, <UNGLinuxDriver@microchip.com>,
-	<andi.shyti@kernel.org>, <linux-i2c@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>
-CC: <rengarajan.s@microchip.com>
-Subject: [PATCH RESEND v1 i2c-master] i2c: mchp-pci1xxxx: PCIe Hot reset disable support for Rev C0+ devices
-Date: Tue, 26 Aug 2025 09:10:09 +0530
-Message-ID: <20250826034010.8084-1-rengarajan.s@microchip.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="TgrZaktl"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=u2w8lmFBuM8Cr++GtvfdBiDvz0UdrMXKZq5n7MFaNEOLZYjkNkERaIavNLarMtCOnNeBkMQQG0HoUL6AtXh4KF1Vn2vTg1MgELD0ex/uI3lRk6HsF7SVvuSUGcO734UJQ1xYWEqsCyS8WzaoRgO9pfKeObaM5u97+bJtOlIYSxLKnSue87CBLWiTBGTifglf+jCEBP3ihK3lLsEAt+TMakLuM6cS2MZ9JupAAQBHSm0dnDf4IKlPM5HFAeUutsyu3METfblZieVy/49KCLooumoS8pXfndivgIy7ZEJ3FDiuwn2OymbvI4fjErtGMLLHzPZ+73R8HLGahHiVmoj/AA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=hOUZch0q2p2PNpvNVhVZo8oAAg/0eczluADqgABezao=;
+ b=q2soXhuBrCT9hRmbUtAQZENSi3WC3K382DcECl4MLqMWwaOWDT/2+CmKWhju/GUoNTPhZNfm2CAON7tbC+NSnFJgsA6iSWMskszZIcvn9wKVpQIEBbcrcLfhjpZ3g30QnierCmZrTUCtwLiELw8J+PgFjqBQ8rzjgkECkjrs4KZv7EDsFaqq3V6AlX2MhnyCgf1aCYNtuTD48Doryj8ZcWI3Woq+nSpWUNNYURjnHz4rsY71c52H7BRdDv9O9FNGBt631xMTJc/sm95cxhyyddAMLp/NIfimSd2BzgE8zgFuNT5ArilVlrM6BK71Q00wGaPRVX1XMFVGvLz6Cw9ktg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.233) smtp.rcpttodomain=kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=hOUZch0q2p2PNpvNVhVZo8oAAg/0eczluADqgABezao=;
+ b=TgrZaktlEHoiVIv1YK1856SCdkpHXchsMdnsfDL8hCBVtKuy1omrH9cyBLxloJCU2FsuqyhLMzolzMJIJFulPdVxRA+RRZwZ77qdz8wI89VJK4zBImmYEkPSMs6MJnoMg/Lh+pGfYhdkIKvJ3u8fEt/rP1cXnBV0WJU/UFswS287GzoZhg2yhw8/XddT49YAmfgYkMHK7Nsa5kK+snWPyu5xJR4LFDiS4WR77GkLCo1QWtXA+50Lo5tOKDXvF3YKsagKD9wMydAL5vSxSNC4Pr79lcK+RfvSHPimuxLYh0pSiM1AOgaFkN0VyI7h+8giUWMxNlUH8ksa8GsNGBeFsw==
+Received: from SJ0PR13CA0148.namprd13.prod.outlook.com (2603:10b6:a03:2c6::33)
+ by DS0PR12MB8318.namprd12.prod.outlook.com (2603:10b6:8:f6::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9052.17; Tue, 26 Aug
+ 2025 08:33:06 +0000
+Received: from BY1PEPF0001AE1D.namprd04.prod.outlook.com
+ (2603:10b6:a03:2c6:cafe::7f) by SJ0PR13CA0148.outlook.office365.com
+ (2603:10b6:a03:2c6::33) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9073.12 via Frontend Transport; Tue,
+ 26 Aug 2025 08:33:05 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.233) by
+ BY1PEPF0001AE1D.mail.protection.outlook.com (10.167.242.106) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9073.11 via Frontend Transport; Tue, 26 Aug 2025 08:33:05 +0000
+Received: from drhqmail202.nvidia.com (10.126.190.181) by mail.nvidia.com
+ (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.14; Tue, 26 Aug
+ 2025 01:32:52 -0700
+Received: from drhqmail202.nvidia.com (10.126.190.181) by
+ drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.14; Tue, 26 Aug 2025 01:32:52 -0700
+Received: from kkartik-desktop.nvidia.com (10.127.8.13) by mail.nvidia.com
+ (10.126.190.181) with Microsoft SMTP Server id 15.2.1544.14 via Frontend
+ Transport; Tue, 26 Aug 2025 01:32:48 -0700
+From: Kartik Rajput <kkartik@nvidia.com>
+To: <akhilrajeev@nvidia.com>, <andi.shyti@kernel.org>, <robh@kernel.org>,
+	<krzk+dt@kernel.org>, <conor+dt@kernel.org>, <thierry.reding@gmail.com>,
+	<jonathanh@nvidia.com>, <ldewangan@nvidia.com>, <digetx@gmail.com>,
+	<linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+	<linux-tegra@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+CC: <kkartik@nvidia.com>
+Subject: [PATCH v5 0/5] Add I2C support for Tegra264
+Date: Tue, 26 Aug 2025 14:02:39 +0530
+Message-ID: <20250826083244.487610-1-kkartik@nvidia.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -60,120 +81,73 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BY1PEPF0001AE1D:EE_|DS0PR12MB8318:EE_
+X-MS-Office365-Filtering-Correlation-Id: 01fbad19-1fe4-408e-e107-08dde47b2ded
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|82310400026|36860700013|1800799024|376014|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?us-ascii?Q?oNWf1WZW+/NGCPTI+MNlTkCvkYyTFVXCHg+pQYWd2ODmyBEr2LlURPg0Wp1V?=
+ =?us-ascii?Q?wt1ZVsi7XN+J0tZfqNJfxzl1qFi5fXxFw6vDRRdEjANGNpK2A/L4U6dKLQOw?=
+ =?us-ascii?Q?TUrGpDizcHzR4sqYo1zNm6yVAQIfUqGYitroJjDp7NUIZkyAs5S9hJzERNF9?=
+ =?us-ascii?Q?+xWKW1jYM5N9uU14/zB1KusH9s8tzj9vKC+gsm82MjTocyzmtxRXujR0HNUv?=
+ =?us-ascii?Q?Z505GqSYWlJC4OyqGfjI6izAJyLOifhIKmiWY+5DjqxQL/zkJRQuOYU7Kwho?=
+ =?us-ascii?Q?ORo2czChVp74KnJsQcKnNN6MC7DwQvn+dI1jHBVdiY8v6mL3i3pnRJ+eKBhd?=
+ =?us-ascii?Q?DO6ailnk8LrlGeKeEAWkAZR0HO8cAfji3g8EvTtN3hwXLrWQVOVMghY04khe?=
+ =?us-ascii?Q?w328vFp+YLU/voZ6tuCpsWveLPJ0S6rPB7b13k2yfux7mobYBS8oYmgOaEoH?=
+ =?us-ascii?Q?gOnoEpOSsDO+pSZJ5v0zZHsrsfgBhX+Ow5d4n53ArL0dNimawF7Lob5yY3la?=
+ =?us-ascii?Q?XAWM1RAnYisK3TIyilBo1D9xdEhJ4ljCCxKBxxvfewXfor8CBi7dbrAw1cPm?=
+ =?us-ascii?Q?xPRHoOtie7mEf9F/Pqb7ahqeYCNwWNRZasUaPzQ3biSdjEy59ajFpG+Giz1x?=
+ =?us-ascii?Q?iKvtn0ZIQcun2cmFAYgbXleEc9ceB4fd8mg+IDaZCGiWt/oh9KDv09rAAX5P?=
+ =?us-ascii?Q?3hicKeImfG+ieqoesGWgHNYEeF0ubcbvjIqNdPr0BpYLbdRmReTWHo3ma6DM?=
+ =?us-ascii?Q?gufhxb9Gt+EMVwxoZboOBDlqxCltPsqNukrEdWmQlniawpiTNl+9a69AOF2X?=
+ =?us-ascii?Q?TfBTKL9zVouUjTGrFE6h//FajwtB/zo7/V/lx/Xl9HR5cwhfiZ3nkif75fIg?=
+ =?us-ascii?Q?GtG/Aoym9U9u8KPLlrYv0HpOdE0D7JsEPHm+HhkpVIaqrSZ8rhXlsdrX5Z7c?=
+ =?us-ascii?Q?mD8hrbYRz9y0GQX8BY1CWT/gDWIrKwvuej9E3m+C253mKEnLfDO+nJ4gyk1r?=
+ =?us-ascii?Q?08oNUwx7e6t1yag/sLxbOYdB88KmInGQcQI1eQRsB5sOmsFZYerrMDCLMej9?=
+ =?us-ascii?Q?5q69gxi50yWbPaQaid++xUOZVXQRl1W4w1+eaPwN8thTS+KDgQlGJlGA4cuY?=
+ =?us-ascii?Q?OyZTIp4RkgNb1SfDZyO6e/e/wzsZgPl79CFO5Xf5QdJbUe9ln13XcoyBGX7Q?=
+ =?us-ascii?Q?df3FjWtKuSYk8wu4VYcac/2BojgPlVXDLC8hNUFUN91NLT95xk/cMCzsgiEN?=
+ =?us-ascii?Q?z5rq6JY7qWSAJUdoGXE/aqHA6l/fpr0FSkOFh8MTSQTUxaQV08FQ0mxxbCJd?=
+ =?us-ascii?Q?dMZtjkQaOgqpqSUoOma2pY3oZ6wLkful+5hNZvTzXwiMyEVunMHOgG4orQl2?=
+ =?us-ascii?Q?wkcwHTLac7mbsdTu2uHOwJytlRvicGv96XH6fbceGvQmVvpTono12Aygy4Zf?=
+ =?us-ascii?Q?ZUjTTLslAAuJ6DVev39mbLCwlu7Pv95mTFHYsHd+tzY0c2mUHpc/9Yzgv5/H?=
+ =?us-ascii?Q?q/lZrD22yQhg6+9wOW24U776eHQn6CGTT62z6ctflabMuqwG/Eju52EHPA?=
+ =?us-ascii?Q?=3D=3D?=
+X-Forefront-Antispam-Report:
+	CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230040)(7416014)(82310400026)(36860700013)(1800799024)(376014)(921020);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 Aug 2025 08:33:05.8543
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 01fbad19-1fe4-408e-e107-08dde47b2ded
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BY1PEPF0001AE1D.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8318
 
-Systems that issue PCIe hot reset requests during a suspend/resume
-cycle cause PCI1XXXX device revisions prior to C0 to get its SMBUS
-controller registers reset to hardware default values. This results
-in device inaccessibility and I2C read/write failure. Starting with
-Revision C0, support was added in the device hardware (via the Hot
-Reset Disable Bit) to allow resetting only the PCIe interface and its
-associated logic, but preserving the SMBUS registers during a hot
-reset. This patch enables the hot reset disable feature during suspend/
-resume for C0 and later revisions of the device.
+Following series of patches add support for Tegra264 and High Speed (HS)
+Mode in i2c-tegra.c driver.
 
-Signed-off-by: Rengarajan S <rengarajan.s@microchip.com>
----
- drivers/i2c/busses/i2c-mchp-pci1xxxx.c | 38 ++++++++++++++++++++++++++
- 1 file changed, 38 insertions(+)
+Akhil R (2):
+  i2c: tegra: Add HS mode support
+  i2c: tegra: Add Tegra264 support
 
-diff --git a/drivers/i2c/busses/i2c-mchp-pci1xxxx.c b/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
-index cb9455b38c1d..797ccac8b339 100644
---- a/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
-+++ b/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
-@@ -21,6 +21,7 @@
- 
- #define SMBUS_MAST_CORE_ADDR_BASE		0x00000
- #define SMBUS_MAST_SYS_REG_ADDR_BASE		0x01000
-+#define CONFIG_REG_ADDR_BASE			0x00000
- 
- /* SMB register space. */
- #define SMB_CORE_CTRL_REG_OFF	(SMBUS_MAST_CORE_ADDR_BASE + 0x00)
-@@ -300,6 +301,7 @@
- #define SMBUS_RESET_REG		(SMBUS_MAST_CORE_ADDR_BASE + 0x248)
- 
- #define PERI_SMBUS_D3_RESET_DIS		BIT(16)
-+#define PERI_SMBUS_HOT_RESET_DIS	BIT(17)
- 
- #define SMBUS_MST_BUF		(SMBUS_MAST_CORE_ADDR_BASE + 0x280)
- 
-@@ -316,6 +318,14 @@
- #define SMB_GPR_REG		(SMBUS_MAST_CORE_ADDR_BASE + 0x1000 + 0x0c00 + \
- 				0x00)
- 
-+/* Device Revision Register. */
-+#define SMB_GPR_DEV_REV_REG	(SMBUS_MAST_CORE_ADDR_BASE + \
-+				 SMBUS_MAST_SYS_REG_ADDR_BASE + \
-+				 CONFIG_REG_ADDR_BASE + \
-+				 0x0000)
-+
-+#define SMB_GPR_DEV_REV_MASK	GENMASK(7, 0)
-+
- /* Lock Register. */
- #define SMB_GPR_LOCK_REG	(SMBUS_MAST_CORE_ADDR_BASE + 0x1000 + 0x0000 + \
- 				0x00A0)
-@@ -327,6 +337,7 @@ struct pci1xxxx_i2c {
- 	bool i2c_xfer_in_progress;
- 	struct i2c_adapter adap;
- 	void __iomem *i2c_base;
-+	u32 dev_rev;
- 	u32 freq;
- 	u32 flags;
- };
-@@ -1086,6 +1097,8 @@ static int pci1xxxx_i2c_suspend(struct device *dev)
- 	 * registers.
- 	 */
- 	regval = readl(p);
-+	if (i2c->dev_rev >= 0xC0)
-+		regval |= PERI_SMBUS_HOT_RESET_DIS;
- 	regval |= PERI_SMBUS_D3_RESET_DIS;
- 	writel(regval, p);
- 
-@@ -1108,6 +1121,8 @@ static int pci1xxxx_i2c_resume(struct device *dev)
- 	writew(regval, p1);
- 	pci1xxxx_i2c_config_high_level_intr(i2c, SMBALERT_WAKE_INTR_MASK, false);
- 	regval = readl(p2);
-+	if (i2c->dev_rev >= 0xC0)
-+		regval &= ~PERI_SMBUS_HOT_RESET_DIS;
- 	regval &= ~PERI_SMBUS_D3_RESET_DIS;
- 	writel(regval, p2);
- 	i2c_mark_adapter_resumed(&i2c->adap);
-@@ -1126,6 +1141,25 @@ static void pci1xxxx_i2c_shutdown(void *data)
- 	pci1xxxx_i2c_configure_core_reg(i2c, false);
- }
- 
-+static int pci1xxxx_i2c_get_device_revision(struct pci1xxxx_i2c *i2c)
-+{
-+	void __iomem *p = i2c->i2c_base + SMB_GPR_DEV_REV_REG;
-+	u32 regval;
-+	int ret;
-+
-+	ret = set_sys_lock(i2c);
-+
-+	if (ret)
-+		return ret;
-+
-+	regval = readl(p);
-+	i2c->dev_rev = regval & SMB_GPR_DEV_REV_MASK;
-+
-+	release_sys_lock(i2c);
-+
-+	return ret;
-+}
-+
- static int pci1xxxx_i2c_probe_pci(struct pci_dev *pdev,
- 				  const struct pci_device_id *ent)
- {
-@@ -1158,6 +1192,10 @@ static int pci1xxxx_i2c_probe_pci(struct pci_dev *pdev,
- 	init_completion(&i2c->i2c_xfer_done);
- 	pci1xxxx_i2c_init(i2c);
- 
-+	ret = pci1xxxx_i2c_get_device_revision(i2c);
-+	if (ret)
-+		return ret;
-+
- 	ret = devm_add_action(dev, pci1xxxx_i2c_shutdown, i2c);
- 	if (ret)
- 		return ret;
+Kartik Rajput (3):
+  dt-bindings: i2c: nvidia,tegra20-i2c: Document Tegra264 I2C
+  i2c: tegra: Do not configure DMA if not supported
+  i2c: tegra: Add support for SW mutex register
+
+ .../bindings/i2c/nvidia,tegra20-i2c.yaml      |   7 +
+ drivers/i2c/busses/i2c-tegra.c                | 159 ++++++++++++++++++
+ 2 files changed, 166 insertions(+)
+
 -- 
-2.25.1
+2.43.0
 
