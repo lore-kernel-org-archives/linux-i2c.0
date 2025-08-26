@@ -1,110 +1,99 @@
-Received: from mail-lf1-f52.google.com (mail-lf1-f52.google.com [209.85.167.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.154.123])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE573285C83
-	for <linux-i2c@vger.kernel.org>; Mon, 25 Aug 2025 19:51:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CF8323D7EE;
+	Tue, 26 Aug 2025 03:44:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=68.232.154.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756151491; cv=none; b=bN5eY0h3q0/Nn2gMVfS1GVn+BRx8x8MLQ3uD5bXhCctF44e9+3/0cjDx0iVuAZBASknp5FXZpwUVoq5777IpIbp/utGRmTLZ2dTD3Lkm1ugMGbat/i/CbyDXm4m+BDM6bFf+alICOHqkSNPmAa3WQ1zUrhMHzblptVmsaEZ0+WE=
+	t=1756179879; cv=none; b=WxdvC1CgMuljeIEPJ57G097VqDcW2f4rSvfoCZlLUmIBSx2tukcOr7mnhUl6f/AgvHSU/Fj/W/98OJfS08kmwcl1ErfYxcPv9Vn/lKQldkbHNelAvUmRfA4BfqRqKSM4ChC171hk959THrBFjXa7iSRKU6kHdoRnOl6TgwJ9y/k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756151491; c=relaxed/simple;
-	bh=y79/LUE75+gAdZKPm7Wiii17xZyHOsbF+TjITNREJtA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=N7zWmqdX10OUvBcMvtd6RSsliUB7jnt9CAr3YD27cQ/dGwL6D3/0zvs+25ymA6fDLSpRtMD9VuGEZ0vo4KBO40UGPp0dUWovhCkS2rNroHWkOnpmo+ilBARnvTHJAZpU0+l/qzTPLLa62m8V0xcvJoKnAnK4xEHaWjnpUcpagHc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bgdev.pl; spf=none smtp.mailfrom=bgdev.pl; dkim=pass (2048-bit key) header.d=bgdev-pl.20230601.gappssmtp.com header.i=@bgdev-pl.20230601.gappssmtp.com header.b=HaGKZuLE; arc=none smtp.client-ip=209.85.167.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bgdev.pl
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bgdev.pl
+	s=arc-20240116; t=1756179879; c=relaxed/simple;
+	bh=AFbOsv4uJX6MrAOQSsqn1mF5ZkvhtaW1FmyaM43FJI8=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=iRPIjCHn81681UV1Edx2i28B/L5ePHC0k0KH/BBRCeA5tLF0AbOEv1BwE6hNf7gGx+hi7jZJjU70nLlZDBXGvjY/FDjGa5Cnh8He/+UO8nFfaG5Kon1fUntXTVDGKVibzypkBxV39dm4ahPsJAiFC3X6rOOzbCs4sMgfX5gv4KI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com; spf=pass smtp.mailfrom=microchip.com; dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b=RYPl0WhF; arc=none smtp.client-ip=68.232.154.123
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microchip.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microchip.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20230601.gappssmtp.com header.i=@bgdev-pl.20230601.gappssmtp.com header.b="HaGKZuLE"
-Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-55f3533fd05so3073560e87.0
-        for <linux-i2c@vger.kernel.org>; Mon, 25 Aug 2025 12:51:29 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20230601.gappssmtp.com; s=20230601; t=1756151488; x=1756756288; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=y79/LUE75+gAdZKPm7Wiii17xZyHOsbF+TjITNREJtA=;
-        b=HaGKZuLE6ZJf5NweBqUmIuGwifT6BYS2i4BLg5mx+ZgR+ON4KD3FyeG291qmjdDpfJ
-         +RoEEvKdCiiXxd6ubXNVO2mpJWzfELIb9KZAOMAKunk8HTjxaguQ2pyzhtaDrTWU91n4
-         ZswiXHqVFhmkzU+40FgYuatK/oVikkgvdgbL9jh6kuZvumDtxLQUAXwRiokdo5M9ItHA
-         d/SLxabybgDP2HfHgo6lu/P7iyEMaQr5wvx4VOtw3BczFU0LG/NHP0YKpuJwkYF4P3gg
-         uweGCHAom57JbmfDHLpB/xFQLaFR/hRk5IkNdaoxBhAXINddVrPKkf/6U6VqwrmahyqY
-         tdvw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756151488; x=1756756288;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=y79/LUE75+gAdZKPm7Wiii17xZyHOsbF+TjITNREJtA=;
-        b=gbj5IhreS5e6DIQcENIqdQHzI4FrAnLwNSWEkohw1WphHiFga2cUTKLbySg3XluYtD
-         jQ4zD65K2ozOiFZx+wkwJbQLYYODRotqyTuphT9VDnulJXPadioh83mRBtIJVZ+c8ZTX
-         iNiYaKu8Aei0gg8cC09/mKRAsBaUnVTRpozuyK/EGXkCGN38QN8qVSikVC4zGC2gcT8A
-         XTpnyXKfZGd3JYR+HgSdq57nOYXA+8cYR9PaUezvyUNs84wD/Ue/rgS/PkA+TR2GizG5
-         /wQ6RmHzZ1Y7xOBr5KdJcNKr7jWHtoCf3ivPCJGHpfA2yO0vxb+ApcDdnmVcdrDr/2fq
-         5agA==
-X-Forwarded-Encrypted: i=1; AJvYcCWsyDo8Xlih8+j6PxBGQztgktTg+XtKN7S/MFBLQgR+vnwHUet8KCEfoqWM1oiD05LigXTZZEAh2kA=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxC4j1+IayMJCHLCCofSpXUb7s6I9JmtesvtBQ+Zw6Nw5AVDfJa
-	44qKSERv4QUDwS8GZja++0s579DVi1FiotuBx5emFHSUwaSFxTBwaEj3/XfwBp+LAyir8XYAu6l
-	w8lUFa2kuvcT/ABgxi6DFLa4IvmlyOQ8KsJXBy3VfgA==
-X-Gm-Gg: ASbGnct/n2AqV7OX2pwSrrn/8RvxPfTTK4sEwkVu4+3/4qazQ/zFHXUVwE6bSwpLGaT
-	yhsdnLJFKrd9iG1UpuDAIn73eueU51UI1k9akZ0R2Vv/Hld5pX3g+tNPapwHsVIFmJyea44HBPv
-	iJ2nHpctnEv0dB9oJSkEak7PGXwwDgAOX/B/+iwsi1dlGJh6SOr7jIgA2NPJfC3QvNgKNTirjG0
-	l+byFk4el7ClC6SxIXm4SRVO8JWvi+7PXJV
-X-Google-Smtp-Source: AGHT+IHCixJ3swy46ayk8UZ8ky9sJlMNCw4ccH8gYjaEf6aBpjGfhfoC4qmGYIEYeYDaVuoFN7bhmFqiGNvLwJvOuWM=
-X-Received: by 2002:a05:6512:440e:b0:55f:42ca:cc03 with SMTP id
- 2adb3069b0e04-55f42cacd56mr2238491e87.56.1756151487746; Mon, 25 Aug 2025
- 12:51:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=microchip.com header.i=@microchip.com header.b="RYPl0WhF"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1756179878; x=1787715878;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=AFbOsv4uJX6MrAOQSsqn1mF5ZkvhtaW1FmyaM43FJI8=;
+  b=RYPl0WhF57GTMewxeXsRLH7x4UYqZLOW188Fy0HRh4c4i7DmXHPFIzD2
+   /NAQy0a9d7435qeFn4K9WyEDqKf7kUsS5Mk8urPCAClaMWxuvOBlY+ecz
+   Oecjaeh4BACU8ELTcwaMn0NO+sBJ81tO//I5SVYeZD7ty0kO+ci5GjJj6
+   nYvZOCl0vPNWIRsNs0GC4ry7xyRdNiLzyhLlLJAB/yOvYAnB4jM3MXzzu
+   yOw3fpSPyi1W/WumzHNUfLUW4AnOkiXbiCGtZGrw4MuHUwl5vsUcZsjrU
+   e8vB1spB81fdOguvYmDTI5pDiAeAiYLagN/101kUMW0pabGq66ETqkfUB
+   A==;
+X-CSE-ConnectionGUID: h+d7yjNNRfSyxeG5y/G3DA==
+X-CSE-MsgGUID: iSYs/6DwSUW/YbjjXyJoOw==
+X-IronPort-AV: E=Sophos;i="6.18,214,1751266800"; 
+   d="scan'208";a="46221620"
+X-Amp-Result: SKIPPED(no attachment in message)
+Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
+  by esa2.microchip.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 25 Aug 2025 20:44:37 -0700
+Received: from chn-vm-ex04.mchp-main.com (10.10.85.152) by
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.44; Mon, 25 Aug 2025 20:44:19 -0700
+Received: from che-dk-ungapp03lx.microchip.com (10.10.85.11) by
+ chn-vm-ex04.mchp-main.com (10.10.85.152) with Microsoft SMTP Server id
+ 15.1.2507.44 via Frontend Transport; Mon, 25 Aug 2025 20:44:17 -0700
+From: Rengarajan S <rengarajan.s@microchip.com>
+To: <tharunkumar.pasumarthi@microchip.com>,
+	<kumaravel.thiagarajan@microchip.com>, <UNGLinuxDriver@microchip.com>,
+	<andi.shyti@kernel.org>, <linux-i2c@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>
+CC: <rengarajan.s@microchip.com>
+Subject: [PATCH RESEND v1 i2c-master] i2c: mchp-pci1xxxx: Update minimum bus idle time
+Date: Tue, 26 Aug 2025 09:10:10 +0530
+Message-ID: <20250826034010.8084-2-rengarajan.s@microchip.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20250826034010.8084-1-rengarajan.s@microchip.com>
+References: <20250826034010.8084-1-rengarajan.s@microchip.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250810-msm8953-cci-v1-0-e83f104cabfc@lucaweiss.eu>
- <20250810-msm8953-cci-v1-3-e83f104cabfc@lucaweiss.eu> <20250818155103.GA1272375-robh@kernel.org>
- <d6159eb6-7777-478a-8bb0-298bfa607c06@lucaweiss.eu>
-In-Reply-To: <d6159eb6-7777-478a-8bb0-298bfa607c06@lucaweiss.eu>
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-Date: Mon, 25 Aug 2025 21:51:16 +0200
-X-Gm-Features: Ac12FXzo7Xcs_f8LKjnis--6Fc7OlBNtr01kDZozGbXhIE3-aXJaLXGWXFJlZYg
-Message-ID: <CAMRc=Mf5+3KvKKrVJhx9_CmQ-tN69cahkHgjVgL5M7XCZHuNSg@mail.gmail.com>
-Subject: Re: [PATCH 3/7] dt-bindings: eeprom: at24: Add compatible for Belling BL24S64
-To: Luca Weiss <luca@lucaweiss.eu>
-Cc: Rob Herring <robh@kernel.org>, Loic Poulain <loic.poulain@oss.qualcomm.com>, 
-	Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Bjorn Andersson <andersson@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, 
-	~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org, 
-	linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 
-On Mon, Aug 18, 2025 at 7:46=E2=80=AFPM Luca Weiss <luca@lucaweiss.eu> wrot=
-e:
->
-> Hi Rob,
->
-> On 18-08-2025 5:51 p.m., Rob Herring wrote:
-> > On Sun, Aug 10, 2025 at 05:37:54PM +0200, Luca Weiss wrote:
-> >> Add the compatible for an 64Kb EEPROM from Belling.
-> >
-> > It is generally not required to add a compatible here assuming
-> > "atmel,24c64" is enough to identify the specific device (i.e. read the
-> > device's ID registers). If it is not sufficient, then some details here
-> > about why would be useful.
->
-> I thought DT was meant to describe the hardware, and this specific
-> EEPROM on the device is a Belling BL24S64, and it's software-compatible
-> to this generic atmel compatible.
-> That's why we have compatible =3D "belling,bl24s64", "atmel,24c64";
->
-> Am I missing something, or misunderstanding how DT is meant to be written=
-?
->
+The SMBUS controller clock is designed with a 64 MHz clock for the
+MCU, while the PCI1xxxx chip assumes a 31.25 MHz baud clock. SMBUS
+controller register values are calculated considering 1 unit = 32 ns.
+Based on this unit, the BUS_IDLE_MIN register values are updated for
+all supported clock frequencies. Setting the MSB of BUS_IDLE_MIN[7:0]
+register further scales the minimum bus idle time by a factor of 4.
 
-Right, this is what we've been doing historically which is evident by
-the number of compatibles we have in the schema that are never
-mentioned in the driver C code.
+Fixes: aa874cdfec07 ("i2c: mchp-pci1xxxx: Update Timing registers")
+Signed-off-by: Rengarajan S <rengarajan.s@microchip.com>
+---
+ drivers/i2c/busses/i2c-mchp-pci1xxxx.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-Bartosz
+diff --git a/drivers/i2c/busses/i2c-mchp-pci1xxxx.c b/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
+index 5ef136c3ecb1..cb9455b38c1d 100644
+--- a/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
++++ b/drivers/i2c/busses/i2c-mchp-pci1xxxx.c
+@@ -190,9 +190,9 @@
+  * Bus Idle Minimum time = BUS_IDLE_MIN[7:0] x Baud_Clock_Period x
+  * (BUS_IDLE_MIN_XK_TICKS[7] ? 4,1)
+  */
+-#define BUS_IDLE_MIN_100K_TICKS		36UL
+-#define BUS_IDLE_MIN_400K_TICKS		10UL
+-#define BUS_IDLE_MIN_1000K_TICKS	4UL
++#define BUS_IDLE_MIN_100K_TICKS		165
++#define BUS_IDLE_MIN_400K_TICKS		40
++#define BUS_IDLE_MIN_1000K_TICKS	16
+ 
+ /*
+  * CTRL_CUM_TIME_OUT_XK_TICKS defines SMBus Controller Cumulative Time-Out.
+-- 
+2.25.1
+
