@@ -1,40 +1,41 @@
 Received: from smtpbgjp3.qq.com (smtpbgjp3.qq.com [54.92.39.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6360531A540;
-	Wed, 27 Aug 2025 07:40:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 342D831AF13;
+	Wed, 27 Aug 2025 07:40:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.92.39.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756280445; cv=none; b=J+5qDalg1BrQEKodj0ljKLvH44MaL9LZ9zPaUjWk9tc72zGRIN/PkJHbZclb2sUrni4rKmMp0k4jt4/DaWc/C59DjKOSn9Deu3gTRFKVXMxlB+dCFZhlYsrN9QtqidbBKGdshc6thWQZOl8fX3w/pZrJvBlxGGH4bQxjD5Gsq5M=
+	t=1756280447; cv=none; b=Bw05bcMd4xCK2UhP3B83dyrnteaKWk8Yn+y9yAxEt0GWW67OFeeLwl97+thrZXyYOYb/KWm+iXE+dCLzbk752+gF/ichVzjIexf70nGicd5st1EAHNj7HPcfFv2ybcZ3cSY6H1B7Me5YmMtb2BjpbKkAIx2OnKCivfcJjFIa+ts=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756280445; c=relaxed/simple;
-	bh=rXhS9GnD2Dk1OWu3Ph2ZYZuY8+SqPjIYTr2qGnagdnI=;
+	s=arc-20240116; t=1756280447; c=relaxed/simple;
+	bh=PS5Zvw9vCBoK2sxY5564TXob7NjC4x5wDGBxan0GwME=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=jbvId6zO49MIPcX0Ir5u6WKoj84RT6XJ9aIxkltjuDGx0UZ21P15LFTiyBL5FsmLs3UJ/KVipPt3FZqC3q+pVQDmGtf/LAOCGNYDoTh8lriPkItNxF0Bk3O0ONbsuyia2zxy5qHHB57kks0d4EomDreIxXK+bvUeE/Pw9/GkH/Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com; spf=none smtp.mailfrom=linux.spacemit.com; dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b=eXO7hR97; arc=none smtp.client-ip=54.92.39.34
+	 In-Reply-To:To:Cc; b=kK4be77sYAVZ57mcH8rtRrjRLsEDTEU1I89R08J2n2hly8gl04wlpf8pj1zdNM8gczHs9lkoNDyIkmGLKLUBQZo3LycY8C9HahG0ZYNWkM3dU8J+nAieHQJ35XVdpjv/JpUWtWdgCHM1YO3zKip0wCYM1WUxBHkCqlOPI/Y2x6s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com; spf=none smtp.mailfrom=linux.spacemit.com; dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b=SpOC/U8m; arc=none smtp.client-ip=54.92.39.34
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.spacemit.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b="eXO7hR97"
+	dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b="SpOC/U8m"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.spacemit.com;
-	s=mxsw2412; t=1756280371;
-	bh=r62LRLONQ4ixRFoVK2WGOsYnOv0IReYh5Qvofm9lB8o=;
+	s=mxsw2412; t=1756280377;
+	bh=e5+owk1uAYBTF93PFpAJK0JqY6PBkAe/4DC7iS4iir8=;
 	h=From:Date:Subject:MIME-Version:Message-Id:To;
-	b=eXO7hR97dfNyuHfagG6Sme/Y+/BgxMc6gHADJ+NopsfYGu07SdoZtlzZim7pI6mGV
-	 k39H8YGRpo/Dt6MCmsM053l6fYRAf6NQvibMOU0mIj7vYmEH+1CA6IOwWmkpO1xNAZ
-	 8QIbMYDz4bu3FaqN9nYFqIKnfPQrzdXSvaavIr6M=
-X-QQ-mid: esmtpgz13t1756280364td1fd4c27
-X-QQ-Originating-IP: j6HUiQphb1uXSips00AFbpxD2qsvOt6geCUe1Vnr4+k=
+	b=SpOC/U8mN7WSwZwCPRFV/4rG3tEwau48BTNV9mmaO7iqNBl8UBPI770rSa58GV76z
+	 3F1VSHuHu+70V9vp2ZPZoWqKO/GPrpiY1bDcu/yHwxE1fvJIBRSWtwHHNMhVWHTHf6
+	 edZ3TEe52u4L9zoaU/w6DmafPsItRmscf+T+05MU=
+X-QQ-mid: esmtpsz17t1756280370t76cd2e64
+X-QQ-Originating-IP: 4KxmlR3k18jrmUU1/A7Vxlrw7fyygkaJunOhRTtTDAE=
 Received: from = ( [61.145.255.150])
 	by bizesmtp.qq.com (ESMTP) with 
-	id ; Wed, 27 Aug 2025 15:39:23 +0800 (CST)
+	id ; Wed, 27 Aug 2025 15:39:28 +0800 (CST)
 X-QQ-SSF: 0000000000000000000000000000000
 X-QQ-GoodBg: 0
-X-BIZMAIL-ID: 11585140463096144350
+X-BIZMAIL-ID: 5378607378161519260
 EX-QQ-RecipientCnt: 9
 From: Troy Mitchell <troy.mitchell@linux.spacemit.com>
-Date: Wed, 27 Aug 2025 15:39:09 +0800
-Subject: [PATCH 2/6] i2c: spacemit: remove stop function to avoid bus error
+Date: Wed, 27 Aug 2025 15:39:11 +0800
+Subject: [PATCH 4/6] i2c: spacemit: check SDA instead of SCL after bus
+ reset
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -43,7 +44,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20250827-k1-i2c-atomic-v1-2-e59bea02d680@linux.spacemit.com>
+Message-Id: <20250827-k1-i2c-atomic-v1-4-e59bea02d680@linux.spacemit.com>
 References: <20250827-k1-i2c-atomic-v1-0-e59bea02d680@linux.spacemit.com>
 In-Reply-To: <20250827-k1-i2c-atomic-v1-0-e59bea02d680@linux.spacemit.com>
 To: Andi Shyti <andi.shyti@kernel.org>, Yixun Lan <dlan@gentoo.org>, 
@@ -52,110 +53,68 @@ Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-riscv@lists.infradead.org, spacemit@lists.linux.dev, 
  Troy Mitchell <troy.mitchell@linux.spacemit.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1756280357; l=2481;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1756280357; l=1289;
  i=troy.mitchell@linux.spacemit.com; s=20250710; h=from:subject:message-id;
- bh=rXhS9GnD2Dk1OWu3Ph2ZYZuY8+SqPjIYTr2qGnagdnI=;
- b=WjcgZ/94u/DDSuZGRjbfrpgiUdbLCUQAsF2f0B2SWZN1q1ipHqnMJeIr0+TDv3zdanCvKGmZm
- Krc4FIjj4ruDxLP6/O11VP0NuJv7Z2atZ+pGFldHiGepX8jonw7iQPP
+ bh=PS5Zvw9vCBoK2sxY5564TXob7NjC4x5wDGBxan0GwME=;
+ b=DfQOA5jSSX/MOSAzQ5/dhpQsXjTWoVaHkWimnwdpNKX29NSLOC4e0lV+lilOWxcI1Yg/7BW/J
+ tIZ7zLI9g7GB+eBoskxop7iYcmL8U7eD6yIdKtbmocVkGTeN6rH96Gz
 X-Developer-Key: i=troy.mitchell@linux.spacemit.com; a=ed25519;
  pk=lQa7BzLrq8DfZnChqmwJ5qQk8fP2USmY/4xZ2/MSsXc=
 X-QQ-SENDSIZE: 520
-Feedback-ID: esmtpgz:linux.spacemit.com:qybglogicsvrsz:qybglogicsvrsz3a-0
-X-QQ-XMAILINFO: NK5b7h72e0qHzF2QF+s7kSizN3qr3KH08pr9thEkI/GKZIq1wBj0pqHM
-	HnWdP1V9zIbASO5vN5h6hi1KrD6HRwkFzuokDgqRR2Vz4cydhSGtNaLgOg4xdodjbqXuoPO
-	jLZfVoU20sbmuMbBxF6GDZTdgE1Ceh7L+4qk92tXkfoRTY2lmZ9nDESy/tu/gv8QqsNevou
-	T7kmihZf/94cHpZ3UTXYET2wBwD5+NNqejgzUIY1HLKUrt7aeUvDWiyRK6U5TU/iBmg9xMH
-	D/WpuEjQzWNDcUxUJIOtwCfHnXId9XpwLz8J+xUjH7RtXHU0inardZnqTjK4d5PXeNo6uj8
-	xWylVFU8OLW+cORclKYuetCOJoUm5Q6jNvuJjLRd3gPOD/8eYW63SDe2/O2FdeMSD2LlvSt
-	sD6GXYI3W8uoZe7NOPibumqfYegrKU6De91CsSP2O8518+DfobfwTpFHhsgK9SbUt1b/BhG
-	0jH1egX7DNIeTgRLs3080wfiqpd1NnoJzE4stMWrLKjo4tFpjpoI6AaDyKHo9CmLuxkdjQg
-	ouBEjb7OKeB7LfnXzSfdgmtsMMggZA2BYp42HtLMb8pUV4Xoa1yyBIEPwApp2o2tIMKuqIu
-	Nhr0x9Z5PLKrbAUglaoL6z5r3myW7MxHJF9pzIU8VjhudJ430jpMcNyQyty8eTRjQm7K2Jn
-	UnNlNhqzYOJGTI6AjMhfrHbjrNrNommAzY7CJ/+56jdY4bjmBTHkUkt9HuuiL0QFBwZZg3t
-	EaYjjlQSCRzA4aiw+HYuYWSjNuWcsBR6rJcfvDnouPeFu8cYczmH4IpN8iGs5sSWN0y5rF0
-	cFVMAteyMHe8cTCsOkrcO+21kyCePLbExqZfo6kE18vBwymXqCeX0ORPyaNPw6JAmYauJSc
-	RCov2jpayGmVJL7/7FNQa1OJEm7HvPq1+qY2ltW70+5KZt6fOVk0N0WSsTNKSSyfzgGPzVd
-	4xcZojwPRvo4jYwAddDLfWGApgBppP0oS2ld+zpOMuVd2vK6eYzCu87f3CHShlu2Unwes9a
-	vzz4uDAEK4wKIrGhV9+1eVz05kUMM029jaXhFsDfRtwB7VFopXEjBUc6w8aMXecsOMB/r6Z
-	GNc787BP9qJELOm03eK24qP8J5NZJg+3c3lIQgQBvWcVaCUIKVVeobAdm5hhowexxNI/yL3
-	/U7J
-X-QQ-XMRINFO: Nq+8W0+stu50PRdwbJxPCL0=
+Feedback-ID: esmtpsz:linux.spacemit.com:qybglogicsvrsz:qybglogicsvrsz3a-0
+X-QQ-XMAILINFO: NqN/wpVFVRYXUPmS2RiyfcIGsRvjDIfV9l+tOIQLlYCUG7f2p/wnus+y
+	YZmF6piUbAg320DS0zSSr8HXmZyAWQAY4kvgl12GRTBE7VsaESImF358MXQlyrvaSG7+5UP
+	LJf1prqvWLLZWaJcEa8F7prye6tw+PnRiocAAm8GFDNqMXWLufD/38wO/EcAx87zEYKHeXC
+	wtfRw5hgzF8uc472SJPpKrIcihFBq5Kags34O8rPfd5vyGoeZ7ueK2ReXk4hNE5Gfv+o+uO
+	EOMDJvL1uBfLgQuAFNuh9+8p6tQU9BIkLh9OKxJRLD+50ky7JSsgir6J2tChXiU8411JKKh
+	F6xFeXZnVteN9cJGCPrU60Dwo8whMTXt4yJTGpHYfASb5tb456IqcU7VwYKZND1mzTx7UYy
+	B9rAWzYTeG7gvTre5Dp64LN3XJOxEu3nWlUT8gmTi5B13RKr4qlFZBPxKUc2ZD36uLCMCv5
+	9aEfywhJB3qEbKW+sToYn9cumN7vQKDKD3ayZ50ojQTfVKLqNqGy9GTDYr7N034dfQQEnas
+	lLTffwrxCJ4nLqomv0ElX49K/AXknOq8t5TWYR0y3lkd2CL71FQjjHUdMgifoLmOd+AMOl5
+	VyJ8ETp5PWsFzKcJeZYBLNnK8sFC99WzCtFJ44OXJyfltomfDGbLn9Q/iQCk6/woGTjd9Ly
+	/K+kbH+nDPxyf51TudnYAbXiKIDbx/c/vZmuxjfOUi6zYzNhpT+4H+OQA0b8axMM5CuKseR
+	EqM0AkeM8doeaoBCN+tmwqvKR87Gkz9RlqA3mi0VncESFcTarkTrO8azprMd5LsP/R9Gj5g
+	5gLOKAn/4sTaTWiTDo8XKjomZ9zMBzEbo2qTnow7yB9WCdKUwjSKlamHHQu6bKxbjKM9JnZ
+	Sw5lNGoNX29Fpp3OowUjjZgbuXieYJ/kqH/IfcdEjuIVJM8fS41fB2Y1Cnr+davQRezJuOB
+	Pb+16Cc9XGlqIzflV30FM5aZ3ER8h27mx2tFMx/WQGlgF/jNZHbuXWbne2uwDsYlxna8Pwk
+	+pz/mqwwWQmm5c3f/StyhonQn9vxskl3W9WAylNuGTMzrXkBa7QMeRDEfmCufjzY+iePohD
+	h8aGckbjrx9sDGZLmfPl7EVrak7Zo0Teg==
+X-QQ-XMRINFO: NI4Ajvh11aEj8Xl/2s1/T8w=
 X-QQ-RECHKSPAM: 0
 
-Previously, STOP handling was split into two separate steps:
-  1) clear TB/STOP/START/ACK bits
-  2) issue STOP by calling spacemit_i2c_stop()
+After calling spacemit_i2c_conditionally_reset_bus(),
+the controller should ensure that the SDA line is release
+before proceeding.
 
-This left a small window where the control register was updated
-twice, which can confuse the controller. While this race has not
-been observed with interrupt-driven transfers, it reliably causes
-bus errors in PIO mode.
+Previously, the driver checked the SCL line instead,
+which does not guarantee that the bus is truly idle.
 
-Inline the STOP sequence into the IRQ handler and ensure that
-control register bits are updated atomically in a single writel().
+This patch changes the check to verify SDA. This ensures
+proper bus recovery and avoids potential communication errors
+after a conditional reset.
 
 Fixes: 5ea558473fa31 ("i2c: spacemit: add support for SpacemiT K1 SoC")
 Signed-off-by: Troy Mitchell <troy.mitchell@linux.spacemit.com>
 ---
- drivers/i2c/busses/i2c-k1.c | 28 +++++++++-------------------
- 1 file changed, 9 insertions(+), 19 deletions(-)
+ drivers/i2c/busses/i2c-k1.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-k1.c b/drivers/i2c/busses/i2c-k1.c
-index ee08811f4087c8e709d25dd314854ed643cc5a47..d342752030d077953adf84a2886211de96e843c4 100644
+index c1656b78f1681729ccc2ebca6e290259d14889d9..4d78ee7b6929ee43771e500d4f85d9e55e68b221 100644
 --- a/drivers/i2c/busses/i2c-k1.c
 +++ b/drivers/i2c/busses/i2c-k1.c
-@@ -267,19 +267,6 @@ static void spacemit_i2c_start(struct spacemit_i2c_dev *i2c)
- 	writel(val, i2c->base + SPACEMIT_ICR);
+@@ -172,9 +172,9 @@ static void spacemit_i2c_conditionally_reset_bus(struct spacemit_i2c_dev *i2c)
+ 	spacemit_i2c_reset(i2c);
+ 	usleep_range(10, 20);
+ 
+-	/* check scl status again */
++	/* check sda again here */
+ 	status = readl(i2c->base + SPACEMIT_IBMR);
+-	if (!(status & SPACEMIT_BMR_SCL))
++	if (!(status & SPACEMIT_BMR_SDA))
+ 		dev_warn_ratelimited(i2c->dev, "unit reset failed\n");
  }
  
--static void spacemit_i2c_stop(struct spacemit_i2c_dev *i2c)
--{
--	u32 val;
--
--	val = readl(i2c->base + SPACEMIT_ICR);
--	val |= SPACEMIT_CR_STOP | SPACEMIT_CR_ALDIE | SPACEMIT_CR_TB;
--
--	if (i2c->read)
--		val |= SPACEMIT_CR_ACKNAK;
--
--	writel(val, i2c->base + SPACEMIT_ICR);
--}
--
- static int spacemit_i2c_xfer_msg(struct spacemit_i2c_dev *i2c)
- {
- 	unsigned long time_left;
-@@ -412,7 +399,6 @@ static irqreturn_t spacemit_i2c_irq_handler(int irq, void *devid)
- 
- 	val = readl(i2c->base + SPACEMIT_ICR);
- 	val &= ~(SPACEMIT_CR_TB | SPACEMIT_CR_ACKNAK | SPACEMIT_CR_STOP | SPACEMIT_CR_START);
--	writel(val, i2c->base + SPACEMIT_ICR);
- 
- 	switch (i2c->state) {
- 	case SPACEMIT_STATE_START:
-@@ -429,14 +415,18 @@ static irqreturn_t spacemit_i2c_irq_handler(int irq, void *devid)
- 	}
- 
- 	if (i2c->state != SPACEMIT_STATE_IDLE) {
-+		val |= SPACEMIT_CR_TB;
-+		if (i2c->is_pio)
-+			val |= SPACEMIT_CR_ALDIE;
-+
- 		if (spacemit_i2c_is_last_msg(i2c)) {
- 			/* trigger next byte with stop */
--			spacemit_i2c_stop(i2c);
--		} else {
--			/* trigger next byte */
--			val |= SPACEMIT_CR_ALDIE | SPACEMIT_CR_TB;
--			writel(val, i2c->base + SPACEMIT_ICR);
-+			val |= SPACEMIT_CR_STOP;
-+
-+			if (i2c->read)
-+				val |= SPACEMIT_CR_ACKNAK;
- 		}
-+		writel(val, i2c->base + SPACEMIT_ICR);
- 	}
- 
- err_out:
 
 -- 
 2.50.1
