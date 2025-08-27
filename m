@@ -1,116 +1,125 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from smtpbguseast3.qq.com (smtpbguseast3.qq.com [54.243.244.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91DE723BF96;
-	Tue, 26 Aug 2025 18:57:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 891EE31A063;
+	Wed, 27 Aug 2025 07:40:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.243.244.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756234658; cv=none; b=VW+ZWTv2gGgnQ4RLMEHd6veCUuwiEoG+79DwAcszqq2GHF9yH3xUgLY3pytEzrc5LdAJGM7DKUd3HjJaY0wonqudabypCcMyw/NTkb6LNGnoPEJZHGVA8awpk5LwdjgtPj4XONjrA7L6qFzFpEcdTVHc9NCcMu8VdiJyILXeQwo=
+	t=1756280442; cv=none; b=ktfKBhdQ5GrVVuhaHndjSwxz4qsJsVEMjFhKBk/AA/DKVWNbyVIdKyyzA8/TelIdwsIb+Sa2Q8LOQMtW9dbIijZ0u4A7FO5zLc6wSEnbYuXQo3COrYBL1lPhpfXBly4xHRQZK7PlEsWTRy0EmnsHPe83+z9tWcDsrEYkIHTe7ZE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756234658; c=relaxed/simple;
-	bh=lN7Svp23WxXjpNEd84aTWJWKmt2lAtB6NiKqX8EzItQ=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Mk5fXMK20QSyM3m+YKTVDiits7nErWXK7tv+gJW7L0FNvTBg2RhGMy5KiSdbi++Oo1Y1FKIVHNOiCrqvqNNqniiKXyj+SKSRnK/Ccn+yhH9U5Aye//hj2KlGZekTLW9cLH0q8Biktr0liEf2OSHIaV7j8dUQ/eDh0KhFiS0lhj8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=oVUJ2hCu; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qualcomm.com
+	s=arc-20240116; t=1756280442; c=relaxed/simple;
+	bh=O2naaLl5Cs0DMQ9yfCsYpaouL4CksC9CM4vilFzvkyE=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=YdiRqjnXGtWxptrbk0TYGgiebhGhBoQbgQDLwYZqVFxGCoKXEMirXx+Clp3BAwOJKtGvs0Bi+5QCnxaNKOOwpMlOvmuNsV35EGoEFhu63NShsDXR9qkqbynu9nXbK1Eu4F4jGMcnTt3BkVH/GEK4Rehcq7poq8psb6ZYwgCV0H4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com; spf=none smtp.mailfrom=linux.spacemit.com; dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b=wpRyVp7p; arc=none smtp.client-ip=54.243.244.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.spacemit.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="oVUJ2hCu"
-Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 57QFcE9w000535;
-	Tue, 26 Aug 2025 18:57:35 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=qcppdkim1; bh=v+T8q1W6eZw3pI8dVhJfZiZIyh0d6oP9Trr
-	aMi7wJYA=; b=oVUJ2hCuNB7GpCjXWxI2ZhXc6GxdOrL+GBJLMwNA9wQFJFnNiMB
-	LMArg0dUKg0e3PUJOzfvkbzCeFN1WJmtefu+DYJeMsMWJDkgbSTidrv11pJsNfXW
-	+Kd9chhVwGCK7fjquOz5cjzPe90Gr1UoNkWkwEsZMzA5iMtSf4kEkxxr+hMbQyCX
-	jhYEMgpLlQK8Rp/3XJcAkn8PTa1WwsH4I+BIpiT/hjKOprKqVfpYlDTgNScGDKhf
-	Lz41dnxTtjK8t3EFZADWZaFr6000EnFw9i3v1FYi2x86RP4xCDIvmC08zqqHE7M0
-	xyzH8uewOg1XrW2pw3sip++zdGkljauZIyQ==
-Received: from apblrppmta01.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 48q5xfj254-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 26 Aug 2025 18:57:35 +0000 (GMT)
-Received: from pps.filterd (APBLRPPMTA01.qualcomm.com [127.0.0.1])
-	by APBLRPPMTA01.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTP id 57QIvWkT015113;
-	Tue, 26 Aug 2025 18:57:32 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-	by APBLRPPMTA01.qualcomm.com (PPS) with ESMTPS id 48q6qngy0t-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 26 Aug 2025 18:57:32 +0000
-Received: from APBLRPPMTA01.qualcomm.com (APBLRPPMTA01.qualcomm.com [127.0.0.1])
-	by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 57QIvVpR015105;
-	Tue, 26 Aug 2025 18:57:31 GMT
-Received: from hu-maiyas-hyd.qualcomm.com (hu-msavaliy-hyd.qualcomm.com [10.213.110.207])
-	by APBLRPPMTA01.qualcomm.com (PPS) with ESMTPS id 57QIvVSa015097
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 26 Aug 2025 18:57:31 +0000
-Received: by hu-maiyas-hyd.qualcomm.com (Postfix, from userid 429934)
-	id B1FC123431; Wed, 27 Aug 2025 00:27:30 +0530 (+0530)
-From: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
-To: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Cc: viken.dadhaniya@oss.qualcomm.com,
-        Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
-Subject: [PATCH] MAINTAINERS: Update email address for Qualcomm's I2C GENI maintainers
-Date: Wed, 27 Aug 2025 00:27:18 +0530
-Message-Id: <20250826185718.467474-1-mukesh.savaliya@oss.qualcomm.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b="wpRyVp7p"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.spacemit.com;
+	s=mxsw2412; t=1756280368;
+	bh=Hyx3ymaEGNzBK4ghZhgbXN2uPhad45k6Uk8y3I6pyjI=;
+	h=From:Date:Subject:MIME-Version:Message-Id:To;
+	b=wpRyVp7pbXZQrxlVCxcAVxo82mwG8M7btdd1oXaPJYMK2A1Uuc75cKJ43pYN0k/5g
+	 DDt7iKr5HRMeO2WH/AyLIgcB+4QIDd8ZGwgkw+sGmRZJLGETD3OnOu8orKb7YEe4hp
+	 ztYtY9i9lMTgOL93M327aogdkDwFMn0+nT2eo2+o=
+X-QQ-mid: esmtpgz16t1756280361t7ea55d28
+X-QQ-Originating-IP: tcnkU3el7is/5fUg3mVsc3eUfHeY/KFA8ijvRn1EyI8=
+Received: from = ( [61.145.255.150])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Wed, 27 Aug 2025 15:39:20 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 0
+X-BIZMAIL-ID: 4976485597783889117
+EX-QQ-RecipientCnt: 9
+From: Troy Mitchell <troy.mitchell@linux.spacemit.com>
+Date: Wed, 27 Aug 2025 15:39:08 +0800
+Subject: [PATCH 1/6] i2c: spacemit: ensure bus release check runs when
+ wait_bus_idle() fails
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QCInternal: smtphost
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwODIzMDAzMyBTYWx0ZWRfX1X3AEayjQO2/
- MNXbG5jPFcX0YERozMJL4UhjH6M31h1TQhTznpqaglab6E1hflIq8cMznwhhvYYs5ENCjUcJjZu
- +di/PJ6j6tMHhcOn4iWjooY5wJD9wXQZLGn5/7QWN7G1osvSyKQiJCA+4TVFpm/x1aikjoSEeX6
- RZQCTtVpi6SW7hRHrTzdLvv4dyQJ9jVAon4DBOPXhVP0/rvhHVeNrk1mqxXZX77cwlh7jJ9PScz
- qc3PwmoPw4rbQ6yaxRyvefU6lk38oabkDqdzXY+Yu7BtmsKN0J8vg0GhTl8S9rhIZmwv86sul4T
- HIe1KBUxoUOgh/kNYGWZl+f7s4SIrc2nTYGTfOC/pIqQdlBGfKTYej8ZBxwizImy/9+52g0paxX
- RoiOStsQ
-X-Proofpoint-GUID: DERzTSS-HfpVM2YfTH0WdAsbc1e2h32-
-X-Authority-Analysis: v=2.4 cv=MutS63ae c=1 sm=1 tr=0 ts=68ae039f cx=c_pps
- a=Ou0eQOY4+eZoSc0qltEV5Q==:117 a=Ou0eQOY4+eZoSc0qltEV5Q==:17
- a=2OwXVqhp2XgA:10 a=EUspDBNiAAAA:8 a=COk6AnOGAAAA:8 a=VwQbUJbxAAAA:8
- a=4VVcHpUFlTeZ-k0x__MA:9 a=TjNXssC_j7lpFel5tvFf:22
-X-Proofpoint-ORIG-GUID: DERzTSS-HfpVM2YfTH0WdAsbc1e2h32-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1099,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-08-26_02,2025-08-26_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 impostorscore=0 adultscore=0 spamscore=0 malwarescore=0
- suspectscore=0 clxscore=1011 bulkscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.19.0-2507300000 definitions=main-2508230033
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250827-k1-i2c-atomic-v1-1-e59bea02d680@linux.spacemit.com>
+References: <20250827-k1-i2c-atomic-v1-0-e59bea02d680@linux.spacemit.com>
+In-Reply-To: <20250827-k1-i2c-atomic-v1-0-e59bea02d680@linux.spacemit.com>
+To: Andi Shyti <andi.shyti@kernel.org>, Yixun Lan <dlan@gentoo.org>, 
+ Alex Elder <elder@riscstar.com>, Troy Mitchell <troymitchell988@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-riscv@lists.infradead.org, spacemit@lists.linux.dev, 
+ Troy Mitchell <troy.mitchell@linux.spacemit.com>
+X-Mailer: b4 0.14.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1756280357; l=1318;
+ i=troy.mitchell@linux.spacemit.com; s=20250710; h=from:subject:message-id;
+ bh=O2naaLl5Cs0DMQ9yfCsYpaouL4CksC9CM4vilFzvkyE=;
+ b=dhv6YDTotdlXwSY6VBfyfnMkAC83C/xlrMYrEQsEuUbvIoxzhr5l8Fn508+HCtvTsr6U0lyAR
+ rYanvaW44ksAsj7RgVne5XldNicQPyGUDPBPd4GGUi0afj4gedXtwyJ
+X-Developer-Key: i=troy.mitchell@linux.spacemit.com; a=ed25519;
+ pk=lQa7BzLrq8DfZnChqmwJ5qQk8fP2USmY/4xZ2/MSsXc=
+X-QQ-SENDSIZE: 520
+Feedback-ID: esmtpgz:linux.spacemit.com:qybglogicsvrsz:qybglogicsvrsz3a-0
+X-QQ-XMAILINFO: NhTe9p7tQP4gmwaIF09oB5LgKGXsdFKTYDLGDqFK/Ut/fbgJshsLzspC
+	t7LpguV0Q/zHpaBBuwe1IuhKVWYkF/uekP60nDVA/54cms3H8AytN7QYzN5bJZArpDKKJUl
+	zowVTef9kpZwS4QwgXipRgiagYFhkV/NhhQAMAEW/qb/gZBbaW4KagzeJ/NBfeKT5o7/4QZ
+	G9WZwSwUo2DsJQk3XnBPus70nP52S/p+O+uPPt/voNxTbNMikyJtyAepSCy6odZQd3nk0sL
+	ZwZ9n2Papp26Qz9iMIvriF3xxr+uwIGZ6o+3tAEdc5mnFVVFdC7I+ZmH2tbYWDPbT2dp25b
+	RTtbH3fXB22t8cSvg3zpcO7EsGdVlVPrxVwdbRcPxBkKSXm2PGMnWmV/WpwRv0KD0OhpdlS
+	3TkWr5AVBM5gCH/0MRO5WgOh9Dx3NlTwLpERSaGwDCcV1RdqBAZ9jE14uWkBcSog5XubD1c
+	sWtHfIDu7sf6JTZyB+G5sWgMsIG0La6BrnOWx4PfFxUyySwh1VLovcg0Bp0XppQlH/GLy9h
+	Te82ohaj0PN0q9tw0pnx7leZe29Fa8n4O3NLyuljBhlz1mqYMolLOZ+tqDnlAbZgIcBxGTm
+	eBhDQES4KU5Hof4dQX7RIzs6c/ZjWr5qBax/ozYdJCSTl5xbypIzbJqRTIS3V1ixGufxYAX
+	WB5ibrcM9HzeHcFok4+IP/gc8QE+V03q5LhhxHlF5B6E2uDU+PDhPWlnZMrdW97ai5sSzne
+	keRxGqlAEZO8+Zf+wZS0P3AtIXrUs1baHx9Ap40cR1+9iH2tW2UIUhYzsZF8SAwmdgp0a2D
+	n6yzqPy2MBbyKcqofhel+InEqqlBVL0/+mM6atzVYjYEWwYuwVOBNvm5BwwH8F65WsnE9YA
+	kFMDBRA2CUCuX9a2KR6m/2lIhbnrDIMeGx6T2XVhHvxY0MWAwYkwDOOwcxz6x62XN4+8K2R
+	TPpxNkMpUcxyfNP9oxoP8b0+KbEQ3TH4nAG7ClrlSre1Lx7sPrrTilPm5mWAH57iWivooGZ
+	Kq/hPjWallDZBvT9srFF2m93D48agyA8JFkyMnDJ9T7Yex4hPtTUEM8TD733sjQjyQT9onI
+	hz/yKCleadlfk6d/vT7oMO8gZ19bB173GT1LwGKzgRq
+X-QQ-XMRINFO: Nq+8W0+stu50PRdwbJxPCL0=
+X-QQ-RECHKSPAM: 0
 
-Update email address to @oss.qualcomm.com for both the maintainers
-from qualcomm, Viken dadhani and Mukesh Kumar Savaliya.
+spacemit_i2c_wait_bus_idle() only returns 0 on success or a negative
+error code on failure.
 
-Signed-off-by: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
+Since 'ret' can never be positive, the final 'else' branch was
+unreachable, and spacemit_i2c_check_bus_release() was never called.
+
+This commit guarantees we attempt to release the bus whenever waiting for
+an idle bus fails.
+
+Fixes: 5ea558473fa31 ("i2c: spacemit: add support for SpacemiT K1 SoC")
+Signed-off-by: Troy Mitchell <troy.mitchell@linux.spacemit.com>
 ---
- MAINTAINERS | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-k1.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 9106a1351d22..ec86e31e5fb6 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -20851,8 +20851,8 @@ S:	Supported
- F:	drivers/dma/qcom/hidma*
+diff --git a/drivers/i2c/busses/i2c-k1.c b/drivers/i2c/busses/i2c-k1.c
+index b68a21fff0b56b59fe2032ccb7ca6953423aad32..ee08811f4087c8e709d25dd314854ed643cc5a47 100644
+--- a/drivers/i2c/busses/i2c-k1.c
++++ b/drivers/i2c/busses/i2c-k1.c
+@@ -476,12 +476,13 @@ static int spacemit_i2c_xfer(struct i2c_adapter *adapt, struct i2c_msg *msgs, in
+ 	spacemit_i2c_enable(i2c);
  
- QUALCOMM I2C QCOM GENI DRIVER
--M:	Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>
--M:	Viken Dadhaniya <quic_vdadhani@quicinc.com>
-+M:	Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
-+M:	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
- L:	linux-i2c@vger.kernel.org
- L:	linux-arm-msm@vger.kernel.org
- S:	Maintained
+ 	ret = spacemit_i2c_wait_bus_idle(i2c);
+-	if (!ret)
++	if (!ret) {
+ 		ret = spacemit_i2c_xfer_msg(i2c);
+-	else if (ret < 0)
+-		dev_dbg(i2c->dev, "i2c transfer error: %d\n", ret);
+-	else
++		if (ret < 0)
++			dev_dbg(i2c->dev, "i2c transfer error: %d\n", ret);
++	} else {
+ 		spacemit_i2c_check_bus_release(i2c);
++	}
+ 
+ 	spacemit_i2c_disable(i2c);
+ 
+
 -- 
-2.25.1
+2.50.1
 
