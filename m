@@ -1,63 +1,63 @@
-Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A937A25A35D;
-	Sun, 31 Aug 2025 10:05:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC7A825F97D;
+	Sun, 31 Aug 2025 10:05:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756634733; cv=none; b=VkzUAsZPVFUIyQZksXgnf7uQ927sSJyrAGkQVjWnlSBjC22OMlLIgZ116858unXe0qXTDy3QXP7v4me8V3FUzD2b4jxyeGRH/v/2C5bUOW0AOMjQhx8DnLxk2jLCnvrTph9tWECB/MPZfDwW6ODMW1ckbz/evjjg4PQgA0U7sFc=
+	t=1756634733; cv=none; b=IwxCPNI+3DpjlMVQmWBud7LQ5HedfQ+UMoSrrz39l2+9KsAuimlupCc72Y6B6TUV5cc7eUQXn/IPPRVt+wDESXMZQay723wA1HLaMWxwdUnrPou1VVpiQ2/dkyYv5bX+5EUH+mMjVn5RzlCHB2bzks1pH0P1q1Ez5BZJ7ADgl5I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1756634733; c=relaxed/simple;
-	bh=vEHdMu4fZDG0pv0OrxT4yCsQ2r9RoDo1W3KJXPI34so=;
+	bh=Vzjm7joS6TNhuBvIAFP80rG1TH5jXTY6DxX9TbFyJh4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hFDoJkDkIteBYaMpEH2h+6pqpfL4f2fUXfLVCHp/N6DTpl/qz8tzLBLEgtQHOz/tTQ/twmfo6n9/srBiYe8yFDOyDGiQpbtgisL6/VTzJsomSPse+28lIG0fn9wtykyBaWyutAz6+PLNP5fV0/4qG35LA4QVSOMgTskHuSn8Iz8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fHR/jSx6; arc=none smtp.client-ip=209.85.128.49
+	 MIME-Version; b=PwbqiOJVFP6iGt/pVOmBtY8Vr5alHyU2nWdUquXMlZmF1VVQImWJ5Mq/sD1xPmAO8XtQ1y9Hk5YJCMPOjCTA48JYSnNN6/ybNtsgDe4bG068PvqIbLk3KG5KnWEZ66UCqvX92XX9tbx3k77x/GgMVmUchLajmKfIUD/xHWrXPlU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TXjHFo1H; arc=none smtp.client-ip=209.85.128.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fHR/jSx6"
-Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-45b7d485173so19551385e9.0;
-        Sun, 31 Aug 2025 03:05:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TXjHFo1H"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-45b89147cfbso4263815e9.3;
+        Sun, 31 Aug 2025 03:05:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1756634728; x=1757239528; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1756634730; x=1757239530; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=rVYljPZ7zSakciHIair+w4BKANbFUIx4H7fyvtM/0P4=;
-        b=fHR/jSx6S87PuSQfhS8v6Sw402yAOSA3+2ccMCID74C8pBDGGWgl4RmNKPGPtxGJbh
-         39rB9jCnA0GkhKiZHKAJl6c/sVWOBSnn0pUy7tuccTV77aOlj1u7g7SzTH05hAOaNWN4
-         7wHr2R3y6+mJBeuchUw7rxLNDAEAllZkEkf+O9z3un1un56c2sc1MZBw4z3yJLMC6UZT
-         zfiZ0ajs2ugFx1K3HH69iwYyVgKdDcTt4IYWK33gsRD231quHbLkkOqPX7i22Ucv2pMM
-         66zYJWyDajwaSM6WjadjSi3DXTOOeYUvnp1fdaFK9+jN9NIHblo+WkeQg0aIBiGm+4kR
-         fIhw==
+        bh=GzcOO2e4Ry0i+kLlkzZN4mufx+GKN499/UHIR5vQ3tk=;
+        b=TXjHFo1HCYZhLNh+gSKW9diT7miTkltC3DAY9VB47oLCh1qFZGtLRwhmveXhuYWP8q
+         Ce0k43VrmlNvM5pozCUjWsHLngaersBvXDHZTmKiNWDTui49oq0YkxlUogzoL25GT2Zk
+         7RYaP/Cz6uJupm5V063JwN+NlkSePBxb1VqjckLT9iHL+CdEjRgpmgr5K9QOM+Xbms3E
+         EUdXRGEPHeDG7PKu+lwFmA2xNhmYeAP97hO0JqEH9NBiB91V2iJY19YQhpEKiUFgZV38
+         6+OUYT1P3+ePw654Oo5BSUd0muhwdeO3spNK4ZB1cgWnttdrOjp/BlGDx6O/kroTcriQ
+         Qiig==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1756634728; x=1757239528;
+        d=1e100.net; s=20230601; t=1756634730; x=1757239530;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=rVYljPZ7zSakciHIair+w4BKANbFUIx4H7fyvtM/0P4=;
-        b=n7DXI82CkUB3kvlQfYoNTtpolOfWqj03e5/V7fZI/2M+NQYgClxKkMgFLqNdPUfwLm
-         Vm4sWuXK1npn+Yo4O0+Kd2F9w3l28HuPSNnPysMHJZdrxzk43OrBHk3AXUGSElTYlpFP
-         QjbEnvrn3ptTZo3GN0ohbfBGmMdjL1EvDo8t8E6kr0n456YHGpBE5bMuZIfTXZR/5kgn
-         ItH3AwQMitBvf2qdKsUW1IhyaIcFo4a9YC9IcC1TkPn15D9t/bvED2aTzpe3SzpR12ZP
-         OyPtZOYGZiKaomRDaKMmt13VVuLhfOiW7OYS76cbJEosV9SQGj/2wMZAgiMQiu6ys2J3
-         fYSA==
-X-Forwarded-Encrypted: i=1; AJvYcCVGGVnRVj9y2TVFi+VHizPGx37tgPDZCc3TSjCAQN+AXtqKGOx+mejKlflm/eVCSoTdLjW3jZfYgZDb@vger.kernel.org, AJvYcCVqnm2tJ+ZKlJNkZk8geXZDIOLf5hnKaUMUVUpr9ryWzVLyZEVmAxVqx/+ImFgY2Df1iZVUsluhtYfWAqGx@vger.kernel.org
-X-Gm-Message-State: AOJu0YyucFeIOg54kF26UgWaEsNFca3LSW9CwQ4jzXQbZffBG+pPIo1n
-	UpbPB+SFXPAB48q+riBxt2P24ToG38KNHlcfrTjM8MYKUIQGYwbc12yY/I3TCA==
-X-Gm-Gg: ASbGncsJ6KvHQMU15RccvWpEzGTSUADQUaf/cNZkv15+Xld2jm5V0fkIqycvXh/sJSt
-	7DsyA8eW/1s+2RDTMTLvFdaLncoaaYPJJtmdDTGOYa+TQ9HHGMaaqT4FmaLgxDQzVJJucpAEYpA
-	bhy6Px7BzNbiZe/qGnc1nF5uvYkDWOsB+q9dfkbEBHSSRoLXhYYAGigMcK2/829WkAdK1c1odqy
-	/a7iw7wM7vCPP/97Rb4ZXkOpcENwAnvqydfZObvIK/pq+zDEcGL9+DeX0K7E/g4MiA9pmLGsnWA
-	q0g31NjDegghMaI/sTkY+jAWjZpxer9YJqCuqTq3EhFNy9g1C71nQlZXHJ56AatSu7B1JJ7t2rS
-	j0mcj2zVMlnGmx0w4CNbwC5HLu8vlBwk1LOLLVonI+ci21FyRXl5i
-X-Google-Smtp-Source: AGHT+IFscJ7ti8f3py0rgPMa3sPM+GkbBJW2hqxoKCX38wnkA/sFJZEDxaFRipo1X1CkGm+y6e6s3w==
-X-Received: by 2002:a05:600c:474f:b0:45b:7951:92a2 with SMTP id 5b1f17b1804b1-45b85571351mr29190805e9.18.1756634727754;
-        Sun, 31 Aug 2025 03:05:27 -0700 (PDT)
+        bh=GzcOO2e4Ry0i+kLlkzZN4mufx+GKN499/UHIR5vQ3tk=;
+        b=C8TnCOov5noICOprq6s6fm42XNfLWqES3MrxHXuzHUGY6VxUx4iHnLM1nHgCUcUzir
+         9ELZl10tsmKGniIOOtzlCKZYx8K+GC76EtOPS7etPxKXI2GIoO7RXqb8nEGyCcHCch36
+         9vNEmt4iGIYWp+WXCKbHLGpY4a1K9CtdLi8rIlfTugt0qH+SxGYd/qbhkvHOpQAIvw7F
+         nGG8mHQEJgCPkMmQA1hc7RHb3oVunJTEy4Y3yljCfOXDkg3qQO0Jd+w6Vjb59xDhBcrR
+         CndjzC88PT7XEhPF4wOIoRRVPA/dilT8J7MXRoOq1tWJPhG6OVoRrM5qkyZPp6K53a8J
+         wMGQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUgMY84WaDa74ed/HUGZLL6J4SnA0mXVFhLQflKrQIA8yKVH+kQIloj8HcFm3hIrVoDDV/366p/mS1P@vger.kernel.org, AJvYcCWC7Tnl9UbcxIoeDnnv9BA3Q1WZQZujWuSmkP9eSNLIBFgt2b/GtD7Cgvh1jbFBs26FdGbKtAn5g1fRURBD@vger.kernel.org
+X-Gm-Message-State: AOJu0YwlHmlWkP3UKzTEQ1OYScDiWMfQU8RDtvf69tSocLdXRTu0SgkT
+	GfsXTmcebCwMl33aRD8Qlg/9m1rG43ZhvhKOIhzIE3XL8VAM7wDOYXO3
+X-Gm-Gg: ASbGncsif9fvLUbgOYHWSjEemaR6SDMKX6ftrrCrgtJ8YjI1gFHw3Qx310TKQTtXHLK
+	rc0GPIxPIP7BS2x/wfcVJwZ6GqFA8xz01Kr7JcLVQJMdEtgDhobVLOZwnUlpcfLHG2FYpKRa1CD
+	88i9/Kcy9t7KORGo+kOkiPYjOpcmH/0SgpzGkwV9aQ2tjKxlh5D2QOXP2ediee2mdCv45ENE885
+	a9xZaTicLiXW1KMFpY5g2wlpBkcK0cDDio0uhP3lQLXiqjVT9kSqRDqapLmZhXCJKvKrWQE6gJ9
+	Cjoo9JemH6ZUwq8JLNbAoICexfGzPvHc8Jeoir2lvDhjpB3zZ4B41Zymkew0uNlgQ1C2ke0jHNU
+	FFhOO6fiyRkHwpWXoUN34kgW9FSLP7ahZHSTXv/X85NwQZd3kLtRPGIMPhHJhLKI=
+X-Google-Smtp-Source: AGHT+IFBD/cApG8HQpujj3LWHIsNhhHzLUkJ3ts9jMF+J08udJTyquiiidHsKiTmUgLATrpyM1TN8g==
+X-Received: by 2002:a05:600c:1c03:b0:45b:88ed:959b with SMTP id 5b1f17b1804b1-45b88ed9ca9mr16800685e9.29.1756634729947;
+        Sun, 31 Aug 2025 03:05:29 -0700 (PDT)
 Received: from builder.. (39-10-142-46.pool.kielnet.net. [46.142.10.39])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b7e68c83asm117505565e9.20.2025.08.31.03.05.27
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-45b7e68c83asm117505565e9.20.2025.08.31.03.05.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 31 Aug 2025 03:05:27 -0700 (PDT)
+        Sun, 31 Aug 2025 03:05:29 -0700 (PDT)
 From: Jonas Jelonek <jelonek.jonas@gmail.com>
 To: Chris Packham <chris.packham@alliedtelesis.co.nz>,
 	Andi Shyti <andi.shyti@kernel.org>,
@@ -72,9 +72,9 @@ Cc: linux-i2c@vger.kernel.org,
 	Harshal Gohel <hg@simonwunderlich.de>,
 	Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	Jonas Jelonek <jelonek.jonas@gmail.com>
-Subject: [PATCH v7 10/12] i2c: rtl9300: use scoped guard instead of explicit lock/unlock
-Date: Sun, 31 Aug 2025 10:04:55 +0000
-Message-ID: <20250831100457.3114-11-jelonek.jonas@gmail.com>
+Subject: [PATCH v7 12/12] i2c: rtl9300: add support for RTL9310 I2C controller
+Date: Sun, 31 Aug 2025 10:04:57 +0000
+Message-ID: <20250831100457.3114-13-jelonek.jonas@gmail.com>
 X-Mailer: git-send-email 2.48.1
 In-Reply-To: <20250831100457.3114-1-jelonek.jonas@gmail.com>
 References: <20250831100457.3114-1-jelonek.jonas@gmail.com>
@@ -86,71 +86,128 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Use the scoped guard infrastructure which unlocks a mutex automatically
-when the guard goes out of scope, instead of explicit lock and unlock.
-This simplifies the code and control flow in rtl9300_i2c_smbus_xfer and
-removes the need of using goto in error cases to unlock before
-returning.
+Add support for the internal I2C controllers of RTL9310 series based
+SoCs to the driver for RTL9300. Add register definitions, chip-specific
+functions and compatible strings for known RTL9310-based SoCs RTL9311,
+RTL9312 and RTL9313.
+
+Make use of a new device tree property 'realtek,scl' which needs to be
+specified in case both or only the second master is used. This is
+required due how the register layout changed in contrast to RTL9300,
+which has SCL selection in a global register instead of a
+master-specific one.
 
 Signed-off-by: Jonas Jelonek <jelonek.jonas@gmail.com>
+Tested-by: Sven Eckelmann <sven@narfation.org>
 Reviewed-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Tested-by: Chris Packham <chris.packham@alliedtelesis.co.nz> # On RTL9302C based board
 Tested-by: Markus Stockhausen <markus.stockhausen@gmx.de>
 ---
- drivers/i2c/busses/i2c-rtl9300.c | 18 +++++++-----------
- 1 file changed, 7 insertions(+), 11 deletions(-)
+ drivers/i2c/busses/i2c-rtl9300.c | 44 ++++++++++++++++++++++++++++++--
+ 1 file changed, 42 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-rtl9300.c b/drivers/i2c/busses/i2c-rtl9300.c
-index fb3ebbd46a18..c67463228604 100644
+index c67463228604..bfceca24ad7d 100644
 --- a/drivers/i2c/busses/i2c-rtl9300.c
 +++ b/drivers/i2c/busses/i2c-rtl9300.c
-@@ -72,6 +72,8 @@ struct rtl9300_i2c {
- 	struct mutex lock;
+@@ -60,14 +60,16 @@ struct rtl9300_i2c_drv_data {
  };
  
-+DEFINE_GUARD(rtl9300_i2c, struct rtl9300_i2c *, mutex_lock(&_T->lock), mutex_unlock(&_T->lock))
+ #define RTL9300_I2C_MUX_NCHAN	8
++#define RTL9310_I2C_MUX_NCHAN	12
+ 
+ struct rtl9300_i2c {
+ 	struct regmap *regmap;
+ 	struct device *dev;
+-	struct rtl9300_i2c_chan chans[RTL9300_I2C_MUX_NCHAN];
++	struct rtl9300_i2c_chan chans[RTL9310_I2C_MUX_NCHAN];
+ 	struct regmap_field *fields[F_NUM_FIELDS];
+ 	u32 reg_base;
+ 	u32 data_reg;
++	u8 scl_num;
+ 	u8 sda_num;
+ 	struct mutex lock;
+ };
+@@ -98,6 +100,12 @@ struct rtl9300_i2c_xfer {
+ #define RTL9300_I2C_MST_DATA_WORD3			0x14
+ #define RTL9300_I2C_MST_GLB_CTRL			0x384
+ 
++#define RTL9310_I2C_MST_IF_CTRL				0x1004
++#define RTL9310_I2C_MST_IF_SEL				0x1008
++#define RTL9310_I2C_MST_CTRL				0x0
++#define RTL9310_I2C_MST_MEMADDR_CTRL			0x4
++#define RTL9310_I2C_MST_DATA_CTRL			0x8
 +
- enum rtl9300_i2c_xfer_type {
- 	RTL9300_I2C_XFER_BYTE,
- 	RTL9300_I2C_XFER_WORD,
-@@ -283,11 +285,11 @@ static int rtl9300_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr, unsigned s
- 	if (addr > 0x7f)
- 		return -EINVAL;
- 
--	mutex_lock(&i2c->lock);
-+	guard(rtl9300_i2c)(i2c);
- 
- 	ret = rtl9300_i2c_config_chan(i2c, chan);
- 	if (ret)
--		goto out_unlock;
-+		return ret;
- 
- 	xfer.dev_addr = addr & 0x7f;
- 	xfer.write = (read_write == I2C_SMBUS_WRITE);
-@@ -324,20 +326,14 @@ static int rtl9300_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr, unsigned s
- 		break;
- 	default:
- 		dev_err(&adap->dev, "Unsupported transaction %d\n", size);
--		ret = -EOPNOTSUPP;
--		goto out_unlock;
-+		return -EOPNOTSUPP;
- 	}
- 
- 	ret = rtl9300_i2c_prepare_xfer(i2c, &xfer);
- 	if (ret)
--		goto out_unlock;
--
--	ret = rtl9300_i2c_do_xfer(i2c, &xfer);
--
--out_unlock:
--	mutex_unlock(&i2c->lock);
-+		return ret;
- 
--	return ret;
-+	return rtl9300_i2c_do_xfer(i2c, &xfer);
+ static int rtl9300_i2c_reg_addr_set(struct rtl9300_i2c *i2c, u32 reg, u16 len)
+ {
+ 	int ret;
+@@ -114,6 +122,11 @@ static int rtl9300_i2c_select_scl(struct rtl9300_i2c *i2c, u8 scl)
+ 	return regmap_field_write(i2c->fields[F_SCL_SEL], 1);
  }
  
- static u32 rtl9300_i2c_func(struct i2c_adapter *a)
++static int rtl9310_i2c_select_scl(struct rtl9300_i2c *i2c, u8 scl)
++{
++	return regmap_field_update_bits(i2c->fields[F_SCL_SEL], BIT(scl), BIT(scl));
++}
++
+ static int rtl9300_i2c_config_chan(struct rtl9300_i2c *i2c, struct rtl9300_i2c_chan *chan)
+ {
+ 	struct rtl9300_i2c_drv_data *drv_data;
+@@ -127,7 +140,7 @@ static int rtl9300_i2c_config_chan(struct rtl9300_i2c *i2c, struct rtl9300_i2c_c
+ 		return ret;
+ 
+ 	drv_data = (struct rtl9300_i2c_drv_data *)device_get_match_data(i2c->dev);
+-	ret = drv_data->select_scl(i2c, 0);
++	ret = drv_data->select_scl(i2c, i2c->scl_num);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -379,6 +392,10 @@ static int rtl9300_i2c_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
++	ret = device_property_read_u8(dev, "realtek,scl", &i2c->scl_num);
++	if (ret || i2c->scl_num != 1)
++		i2c->scl_num = 0;
++
+ 	platform_set_drvdata(pdev, i2c);
+ 
+ 	drv_data = (struct rtl9300_i2c_drv_data *)device_get_match_data(i2c->dev);
+@@ -474,12 +491,35 @@ static const struct rtl9300_i2c_drv_data rtl9300_i2c_drv_data = {
+ 	.max_nchan = RTL9300_I2C_MUX_NCHAN,
+ };
+ 
++static const struct rtl9300_i2c_drv_data rtl9310_i2c_drv_data = {
++	.field_desc = {
++		[F_SCL_SEL]		= GLB_REG_FIELD(RTL9310_I2C_MST_IF_SEL, 12, 13),
++		[F_SDA_SEL]		= GLB_REG_FIELD(RTL9310_I2C_MST_IF_SEL, 0, 11),
++		[F_SCL_FREQ]		= MST_REG_FIELD(RTL9310_I2C_MST_CTRL, 30, 31),
++		[F_DEV_ADDR]		= MST_REG_FIELD(RTL9310_I2C_MST_CTRL, 11, 17),
++		[F_SDA_OUT_SEL]		= MST_REG_FIELD(RTL9310_I2C_MST_CTRL, 18, 21),
++		[F_MEM_ADDR_WIDTH]	= MST_REG_FIELD(RTL9310_I2C_MST_CTRL, 9, 10),
++		[F_DATA_WIDTH]		= MST_REG_FIELD(RTL9310_I2C_MST_CTRL, 5, 8),
++		[F_RD_MODE]		= MST_REG_FIELD(RTL9310_I2C_MST_CTRL, 4, 4),
++		[F_RWOP]		= MST_REG_FIELD(RTL9310_I2C_MST_CTRL, 2, 2),
++		[F_I2C_FAIL]		= MST_REG_FIELD(RTL9310_I2C_MST_CTRL, 1, 1),
++		[F_I2C_TRIG]		= MST_REG_FIELD(RTL9310_I2C_MST_CTRL, 0, 0),
++		[F_MEM_ADDR]		= MST_REG_FIELD(RTL9310_I2C_MST_MEMADDR_CTRL, 0, 23),
++	},
++	.select_scl = rtl9310_i2c_select_scl,
++	.data_reg = RTL9310_I2C_MST_DATA_CTRL,
++	.max_nchan = RTL9310_I2C_MUX_NCHAN,
++};
+ 
+ static const struct of_device_id i2c_rtl9300_dt_ids[] = {
+ 	{ .compatible = "realtek,rtl9301-i2c", .data = (void *) &rtl9300_i2c_drv_data },
+ 	{ .compatible = "realtek,rtl9302b-i2c", .data = (void *) &rtl9300_i2c_drv_data },
+ 	{ .compatible = "realtek,rtl9302c-i2c", .data = (void *) &rtl9300_i2c_drv_data },
+ 	{ .compatible = "realtek,rtl9303-i2c", .data = (void *) &rtl9300_i2c_drv_data },
++	{ .compatible = "realtek,rtl9310-i2c", .data = (void *) &rtl9310_i2c_drv_data },
++	{ .compatible = "realtek,rtl9311-i2c", .data = (void *) &rtl9310_i2c_drv_data },
++	{ .compatible = "realtek,rtl9312-i2c", .data = (void *) &rtl9310_i2c_drv_data },
++	{ .compatible = "realtek,rtl9313-i2c", .data = (void *) &rtl9310_i2c_drv_data },
+ 	{}
+ };
+ MODULE_DEVICE_TABLE(of, i2c_rtl9300_dt_ids);
 -- 
 2.48.1
 
