@@ -1,34 +1,42 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08FAD320CA0;
-	Thu,  4 Sep 2025 14:31:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EEC331A558
+	for <linux-i2c@vger.kernel.org>; Thu,  4 Sep 2025 14:31:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756996300; cv=none; b=rxQ5O93Vn3YxUcXDCtZuuvi3i2Yhukptd+ankDM+NiZ0TbwpJDQt26z9M0FcRFiIMbr8u+0Qyn8CMabOmI4UsoU2OXJQM9GDdLVCXOWnIqRN3QyKQjwlbLym9wSCcHzqDtNKytQ32Y2xui+HSY29pjtA9JbfPlOo0wP9mnVvQLs=
+	t=1756996300; cv=none; b=KiATn+W/ZWJk5/2fzWPX0b+fj8Q7Gyc7cUpyqrmNa3ZU7HaMXQe2qrn/k4JjCF7yQFDap38imatRLxq5/JsEuiQZyUBunDxNK2Uq81Y5l/50eBv/IhSa63ij2MInq5yia6DsUaxRNohbzJSuFNB4blzFlwIEuUkrU6Syaq92dKc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1756996300; c=relaxed/simple;
-	bh=W3FRmWKbxHyNCOUd1Ra/+kxcH/HvrKsMg+junB/0Om4=;
+	bh=csEcqHJunfwrhOJ4e22ofo/Jn7NbRBEUYmyri0oMaLI=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=pIoQBF3JUoWw5gdRie/LYO2I0+oioa0b9ADPPkWBgwHVjlRG7FgsM9yEUbTdp6hwjwZZfWSdjVxqW/y8B2QCRNVUs9DP/pEqGqYKSjLlzyjZ7eWJz1xRz2tYwwcR+1vhUQfHdF13tK/3XD1mHCtk1CsD2DcKl6F+PGLhkU/akdM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q1YwK/tA; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=mSNDT9aPw6hxn2sCVWpYncgGLqthvczTru2hDRPjrglwkUg/v2zP04vaEjtagXi2+ukmG17XzB2CjHu62WZP3WVpuRlhrbZyCq9NGLRkBfFaEYgkvm6JHpXq7ua/Jf1UsvcTGE2o5AvrqwW72CceGvNZYdYUK0eJi464xq1eamM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=NhwPuX4a; arc=none smtp.client-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q1YwK/tA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B5B1C4CEF7;
-	Thu,  4 Sep 2025 14:31:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1756996299;
-	bh=W3FRmWKbxHyNCOUd1Ra/+kxcH/HvrKsMg+junB/0Om4=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=Q1YwK/tAI88YuMOWlAWjfNW8vHMWlsnrvxoo8jEIZldic1uaIbdadBfHEpsvyL1Hk
-	 822H3UZbyZ5WBv+SDpZ6fEaP6XcJ3OCeZe61Eyp0RbMzH0bUgknTnoi5XSBpBVIuR3
-	 nydwRmt63tLs1nFSeCRg3ytwmGBjTHgDTI7dXyvSN3U3Xix29yGXYaDO/Qk1hzCokU
-	 f39INelvMuCL0RcOdz/OIDD94awvCkwqOdv11gNnCszLu+3B6UiLpqGN7qOBzvFqIm
-	 tJRzJGIgygK4LMjjcUMKmFeThgY9GztHXfwRAJI+Cztl0rDSUnfHWtxtTTkjmd2d6p
-	 9x4spEnOYPKPg==
-From: Konrad Dybcio <konradybcio@kernel.org>
-Date: Thu, 04 Sep 2025 16:31:22 +0200
-Subject: [PATCH 3/5] i2c: qcom-cci: Drop single-line wrappers
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="NhwPuX4a"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-02.galae.net (Postfix) with ESMTPS id DA2551A0DD7;
+	Thu,  4 Sep 2025 14:31:30 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id B3E31606BB;
+	Thu,  4 Sep 2025 14:31:30 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 4E1131C22DADF;
+	Thu,  4 Sep 2025 16:31:29 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1756996290; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=vu+Ix1zKR5LyAcdyZO+5Rs/jUAoFJLqIq9cbe0MM4YE=;
+	b=NhwPuX4aRUsYJqO2+qtU585nhCgCXKLXj98e/cQprX48xOW6Lw6xxfnycmr8YUxmqfUjE9
+	QSQRgcTPX+czBhP5HEOZyfXzQQHMfmS1SK1REYfIJV63DUnVr8dp/5NTJ4m4fbKbW9Nsfz
+	zpE91AkIyzMVBNG/7R75OuyBMQfnqthALouoEtIFiMWo/hAVdB8oJug/ZTXziVaKRzrjzs
+	GZBqZyAPyttaqlYHM9dYpqG7PcIv9gyv4k4n/IAFBZv242glbQuHxkjTWN187e5l12xVm1
+	lVRl2dIS8V2a8Z7qaGmcynY8dR5h5QqIGv2G3eyo8ZdiBFlxE9+QhEz1VIBtoA==
+From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
+Date: Thu, 04 Sep 2025 16:31:07 +0200
+Subject: [PATCH v2 2/2] i2c: designware: use dev_err_probe() when probing
+ platform device
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -36,99 +44,74 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20250904-topic-cci_updates-v1-3-d38559692703@oss.qualcomm.com>
-References: <20250904-topic-cci_updates-v1-0-d38559692703@oss.qualcomm.com>
-In-Reply-To: <20250904-topic-cci_updates-v1-0-d38559692703@oss.qualcomm.com>
-To: Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, 
- Bryan O'Donoghue <bryan.odonoghue@linaro.org>, 
- Loic Poulain <loic.poulain@oss.qualcomm.com>, 
- Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
-Cc: Marijn Suijten <marijn.suijten@somainline.org>, 
- linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
- Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Content-Transfer-Encoding: 8bit
+Message-Id: <20250904-i2c-dw-dev-err-probe-v2-2-e59da34815fa@bootlin.com>
+References: <20250904-i2c-dw-dev-err-probe-v2-0-e59da34815fa@bootlin.com>
+In-Reply-To: <20250904-i2c-dw-dev-err-probe-v2-0-e59da34815fa@bootlin.com>
+To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, 
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
+ Mika Westerberg <mika.westerberg@linux.intel.com>, 
+ Jan Dabros <jsd@semihalf.com>, Andi Shyti <andi.shyti@kernel.org>
+Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
+ Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>, 
+ Tawfik Bayouk <tawfik.bayouk@mobileye.com>, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, 
+ =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
 X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1756996284; l=1950;
- i=konrad.dybcio@oss.qualcomm.com; s=20230215; h=from:subject:message-id;
- bh=WftzdXiZKmnGP1b2v0Y7K87fxqhQ28Y81WkkVpsPg+Q=;
- b=fUGSJ3BylEq92lSIcEo1k0bSIPUy6oBmacbpkpw61NhbnUTv3X+oxbt8hmwWDgiHk7q0xKgqB
- jOC775FI8wBCQGAdCnpaBsmTSDKK2N2RqxiNsqbV4iQM3aB0/6VU6t7
-X-Developer-Key: i=konrad.dybcio@oss.qualcomm.com; a=ed25519;
- pk=iclgkYvtl2w05SSXO5EjjSYlhFKsJ+5OSZBjOkQuEms=
+X-Last-TLS-Session-Version: TLSv1.3
 
-From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Add calls to dev_err_probe() on error paths that can return
+-EPROBE_DEFER when probing platform device. Namely when requesting the
+reset controller, when probing for lock support and when requesting the
+clocks.
 
-The CCI clock en/disable functions simply call bulk_ops, remove them.
+PCI device probing already use dev_err_probe().
 
-Signed-off-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
 ---
- drivers/i2c/busses/i2c-qcom-cci.c | 20 ++++++--------------
- 1 file changed, 6 insertions(+), 14 deletions(-)
+ drivers/i2c/busses/i2c-designware-platdrv.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
-index a3afa11a71a10dbb720ee9acb566991fe55b98a0..74fedfdec3ae4e034ec4d946179e963c783b5923 100644
---- a/drivers/i2c/busses/i2c-qcom-cci.c
-+++ b/drivers/i2c/busses/i2c-qcom-cci.c
-@@ -466,21 +466,12 @@ static const struct i2c_algorithm cci_algo = {
- 	.functionality = cci_func,
- };
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index a35e4c64a1d46f43aa2d37c0d20fbbd4bc1ff600..be2f9533cef94e3d07cb52401528fe5c1985198b 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -238,7 +238,7 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
  
--static int cci_enable_clocks(struct cci *cci)
--{
--	return clk_bulk_prepare_enable(cci->nclocks, cci->clocks);
--}
--
--static void cci_disable_clocks(struct cci *cci)
--{
--	clk_bulk_disable_unprepare(cci->nclocks, cci->clocks);
--}
--
- static int __maybe_unused cci_suspend_runtime(struct device *dev)
- {
- 	struct cci *cci = dev_get_drvdata(dev);
+ 	dev->rst = devm_reset_control_get_optional_exclusive(device, NULL);
+ 	if (IS_ERR(dev->rst))
+-		return PTR_ERR(dev->rst);
++		return dev_err_probe(device, PTR_ERR(dev->rst), "failed to acquire reset\n");
  
--	cci_disable_clocks(cci);
-+	clk_bulk_disable_unprepare(cci->nclocks, cci->clocks);
-+
- 	return 0;
- }
+ 	reset_control_deassert(dev->rst);
  
-@@ -489,11 +480,12 @@ static int __maybe_unused cci_resume_runtime(struct device *dev)
- 	struct cci *cci = dev_get_drvdata(dev);
- 	int ret;
+@@ -247,21 +247,23 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 		goto exit_reset;
  
--	ret = cci_enable_clocks(cci);
-+	ret = clk_bulk_prepare_enable(cci->nclocks, cci->clocks);
- 	if (ret)
- 		return ret;
+ 	ret = i2c_dw_probe_lock_support(dev);
+-	if (ret)
++	if (ret) {
++		ret = dev_err_probe(device, ret, "failed to probe lock support\n");
+ 		goto exit_reset;
++	}
  
- 	cci_init(cci);
-+
- 	return 0;
- }
+ 	i2c_dw_configure(dev);
  
-@@ -592,7 +584,7 @@ static int cci_probe(struct platform_device *pdev)
- 		return dev_err_probe(dev, -EINVAL, "not enough clocks in DT\n");
- 	cci->nclocks = ret;
+ 	/* Optional interface clock */
+ 	dev->pclk = devm_clk_get_optional(device, "pclk");
+ 	if (IS_ERR(dev->pclk)) {
+-		ret = PTR_ERR(dev->pclk);
++		ret = dev_err_probe(device, PTR_ERR(dev->pclk), "failed to acquire pclk\n");
+ 		goto exit_reset;
+ 	}
  
--	ret = cci_enable_clocks(cci);
-+	ret = clk_bulk_prepare_enable(cci->nclocks, cci->clocks);
- 	if (ret < 0)
- 		return ret;
+ 	dev->clk = devm_clk_get_optional(device, NULL);
+ 	if (IS_ERR(dev->clk)) {
+-		ret = PTR_ERR(dev->clk);
++		ret = dev_err_probe(device, PTR_ERR(dev->clk), "failed to acquire clock\n");
+ 		goto exit_reset;
+ 	}
  
-@@ -651,7 +643,7 @@ static int cci_probe(struct platform_device *pdev)
- error:
- 	disable_irq(cci->irq);
- disable_clocks:
--	cci_disable_clocks(cci);
-+	clk_bulk_disable_unprepare(cci->nclocks, cci->clocks);
- 
- 	return ret;
- }
 
 -- 
 2.51.0
