@@ -1,42 +1,34 @@
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 780FD313524
-	for <linux-i2c@vger.kernel.org>; Thu,  4 Sep 2025 14:31:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08FAD320CA0;
+	Thu,  4 Sep 2025 14:31:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1756996299; cv=none; b=JoMx2+wyx163f4PemVp5jk2swHNk1dvi6oBfqq9NdPHUUVubXqHp9X/EYBsZ6qlpPJwUyNx4qqxQ4aPcTlEE48QIFg4iokahuoewzDq+7iG8jpzqJhOlrvbigRCOefoIq67e2B7G/RjQl7J9V5wylQhx+1h9fLs11FXbFfAlb9Y=
+	t=1756996300; cv=none; b=rxQ5O93Vn3YxUcXDCtZuuvi3i2Yhukptd+ankDM+NiZ0TbwpJDQt26z9M0FcRFiIMbr8u+0Qyn8CMabOmI4UsoU2OXJQM9GDdLVCXOWnIqRN3QyKQjwlbLym9wSCcHzqDtNKytQ32Y2xui+HSY29pjtA9JbfPlOo0wP9mnVvQLs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1756996299; c=relaxed/simple;
-	bh=nwLYi6zctGIMk4q2OtT2tH7lh5luYuTLEFgbtEoCvOU=;
+	s=arc-20240116; t=1756996300; c=relaxed/simple;
+	bh=W3FRmWKbxHyNCOUd1Ra/+kxcH/HvrKsMg+junB/0Om4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=QS4Ou9WNPoC5o8DnSZWeFcTKwbYF2ob8bx0LMdLzJDXBtabsiQRS+K1FP1Mt1V6heWzcK/orvHh53o2AOkDq2mo1E2JgHR2q1Fh1PpMu2HzgimCAU5WCzn48/t/BadSCQsAb7sEyH7XEm1XdsTBg6xtF21kNARAkqP0TkauiO2I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=E5IIHMlB; arc=none smtp.client-ip=185.171.202.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	 In-Reply-To:To:Cc; b=pIoQBF3JUoWw5gdRie/LYO2I0+oioa0b9ADPPkWBgwHVjlRG7FgsM9yEUbTdp6hwjwZZfWSdjVxqW/y8B2QCRNVUs9DP/pEqGqYKSjLlzyjZ7eWJz1xRz2tYwwcR+1vhUQfHdF13tK/3XD1mHCtk1CsD2DcKl6F+PGLhkU/akdM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Q1YwK/tA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="E5IIHMlB"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id 71F92C8F1D7;
-	Thu,  4 Sep 2025 14:31:14 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id A17B2606BB;
-	Thu,  4 Sep 2025 14:31:29 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 4052B1C22DAB3;
-	Thu,  4 Sep 2025 16:31:28 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1756996289; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=s+yxZdeDAhu9FKjinvskFo+q7px/xp6qZp7QLopDXl4=;
-	b=E5IIHMlBo7PjEiIcHIDcsni2pTrPlGbwg08157Czx6z4R7keEt2Z2mH4mPe/AQxEkXJ8rA
-	xbczihJeIHAVHLn/L9V0fEYBylw6DaNrz+1BPEkslbqsqQs/D9fjC2p3SjQH+XT58d50a9
-	mPue5IaSrhFpuq7KVvJ51llXfZK92nzDRbwDhPAv1YQ4BkfxCpPoJs5Tgwu87MXLPhAonx
-	MXRqN/ULc6e2t1bIabJ9M2n7hVH5X0QOgTmrPlJuVLwaAMSp6wGVCC0sq1baYjMsXYZEIs
-	v1b16hRRQBAUd2RjBUoOQwr+UyY9T9gTOz0PICaZyMDXSedpXDpsfO5tslyYJg==
-From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-Date: Thu, 04 Sep 2025 16:31:06 +0200
-Subject: [PATCH v2 1/2] i2c: designware: convert to dev_err_probe() on
- request IRQ error
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Q1YwK/tA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B5B1C4CEF7;
+	Thu,  4 Sep 2025 14:31:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1756996299;
+	bh=W3FRmWKbxHyNCOUd1Ra/+kxcH/HvrKsMg+junB/0Om4=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
+	b=Q1YwK/tAI88YuMOWlAWjfNW8vHMWlsnrvxoo8jEIZldic1uaIbdadBfHEpsvyL1Hk
+	 822H3UZbyZ5WBv+SDpZ6fEaP6XcJ3OCeZe61Eyp0RbMzH0bUgknTnoi5XSBpBVIuR3
+	 nydwRmt63tLs1nFSeCRg3ytwmGBjTHgDTI7dXyvSN3U3Xix29yGXYaDO/Qk1hzCokU
+	 f39INelvMuCL0RcOdz/OIDD94awvCkwqOdv11gNnCszLu+3B6UiLpqGN7qOBzvFqIm
+	 tJRzJGIgygK4LMjjcUMKmFeThgY9GztHXfwRAJI+Cztl0rDSUnfHWtxtTTkjmd2d6p
+	 9x4spEnOYPKPg==
+From: Konrad Dybcio <konradybcio@kernel.org>
+Date: Thu, 04 Sep 2025 16:31:22 +0200
+Subject: [PATCH 3/5] i2c: qcom-cci: Drop single-line wrappers
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -44,80 +36,99 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20250904-i2c-dw-dev-err-probe-v2-1-e59da34815fa@bootlin.com>
-References: <20250904-i2c-dw-dev-err-probe-v2-0-e59da34815fa@bootlin.com>
-In-Reply-To: <20250904-i2c-dw-dev-err-probe-v2-0-e59da34815fa@bootlin.com>
-To: Jarkko Nikula <jarkko.nikula@linux.intel.com>, 
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
- Mika Westerberg <mika.westerberg@linux.intel.com>, 
- Jan Dabros <jsd@semihalf.com>, Andi Shyti <andi.shyti@kernel.org>
-Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
- Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>, 
- Tawfik Bayouk <tawfik.bayouk@mobileye.com>, linux-i2c@vger.kernel.org, 
- linux-kernel@vger.kernel.org, 
- =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <20250904-topic-cci_updates-v1-3-d38559692703@oss.qualcomm.com>
+References: <20250904-topic-cci_updates-v1-0-d38559692703@oss.qualcomm.com>
+In-Reply-To: <20250904-topic-cci_updates-v1-0-d38559692703@oss.qualcomm.com>
+To: Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konradybcio@kernel.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Bryan O'Donoghue <bryan.odonoghue@linaro.org>, 
+ Loic Poulain <loic.poulain@oss.qualcomm.com>, 
+ Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>
+Cc: Marijn Suijten <marijn.suijten@somainline.org>, 
+ linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 X-Mailer: b4 0.14.2
-X-Last-TLS-Session-Version: TLSv1.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1756996284; l=1950;
+ i=konrad.dybcio@oss.qualcomm.com; s=20230215; h=from:subject:message-id;
+ bh=WftzdXiZKmnGP1b2v0Y7K87fxqhQ28Y81WkkVpsPg+Q=;
+ b=fUGSJ3BylEq92lSIcEo1k0bSIPUy6oBmacbpkpw61NhbnUTv3X+oxbt8hmwWDgiHk7q0xKgqB
+ jOC775FI8wBCQGAdCnpaBsmTSDKK2N2RqxiNsqbV4iQM3aB0/6VU6t7
+X-Developer-Key: i=konrad.dybcio@oss.qualcomm.com; a=ed25519;
+ pk=iclgkYvtl2w05SSXO5EjjSYlhFKsJ+5OSZBjOkQuEms=
 
-Simplify the error handling of devm_request_irq() in
-i2c_dw_probe_master() and i2c_dw_probe_slave() by converting to:
+From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 
-    return dev_err_probe();
+The CCI clock en/disable functions simply call bulk_ops, remove them.
 
-instead of calling:
-
-    dev_err();
-    return ret;
-
-This also handle deferred probe error without spamming the log.
-
-Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
+Signed-off-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 ---
- drivers/i2c/busses/i2c-designware-master.c | 9 ++++-----
- drivers/i2c/busses/i2c-designware-slave.c  | 9 ++++-----
- 2 files changed, 8 insertions(+), 10 deletions(-)
+ drivers/i2c/busses/i2c-qcom-cci.c | 20 ++++++--------------
+ 1 file changed, 6 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index cbd88ffa561010ff2d29086836d9119da5b8885c..c7a72c28786c2b59a249a768d43a7954119bc018 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -1068,11 +1068,10 @@ int i2c_dw_probe_master(struct dw_i2c_dev *dev)
- 	if (!(dev->flags & ACCESS_POLLING)) {
- 		ret = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr,
- 				       irq_flags, dev_name(dev->dev), dev);
--		if (ret) {
--			dev_err(dev->dev, "failure requesting irq %i: %d\n",
--				dev->irq, ret);
--			return ret;
--		}
-+		if (ret)
-+			return dev_err_probe(dev->dev, ret,
-+					     "failure requesting irq %i: %d\n",
-+					     dev->irq, ret);
- 	}
+diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
+index a3afa11a71a10dbb720ee9acb566991fe55b98a0..74fedfdec3ae4e034ec4d946179e963c783b5923 100644
+--- a/drivers/i2c/busses/i2c-qcom-cci.c
++++ b/drivers/i2c/busses/i2c-qcom-cci.c
+@@ -466,21 +466,12 @@ static const struct i2c_algorithm cci_algo = {
+ 	.functionality = cci_func,
+ };
  
- 	ret = i2c_dw_init_recovery_info(dev);
-diff --git a/drivers/i2c/busses/i2c-designware-slave.c b/drivers/i2c/busses/i2c-designware-slave.c
-index b936a240db0a9308f005148cdf4c4f9fd512be05..6eb16b7d75a6d059c7abcead609258f9d514d012 100644
---- a/drivers/i2c/busses/i2c-designware-slave.c
-+++ b/drivers/i2c/busses/i2c-designware-slave.c
-@@ -266,11 +266,10 @@ int i2c_dw_probe_slave(struct dw_i2c_dev *dev)
+-static int cci_enable_clocks(struct cci *cci)
+-{
+-	return clk_bulk_prepare_enable(cci->nclocks, cci->clocks);
+-}
+-
+-static void cci_disable_clocks(struct cci *cci)
+-{
+-	clk_bulk_disable_unprepare(cci->nclocks, cci->clocks);
+-}
+-
+ static int __maybe_unused cci_suspend_runtime(struct device *dev)
+ {
+ 	struct cci *cci = dev_get_drvdata(dev);
  
- 	ret = devm_request_irq(dev->dev, dev->irq, i2c_dw_isr_slave,
- 			       IRQF_SHARED, dev_name(dev->dev), dev);
--	if (ret) {
--		dev_err(dev->dev, "failure requesting IRQ %i: %d\n",
--			dev->irq, ret);
--		return ret;
--	}
-+	if (ret)
-+		return dev_err_probe(dev->dev, ret,
-+				     "failure requesting IRQ %i: %d\n",
-+				     dev->irq, ret);
+-	cci_disable_clocks(cci);
++	clk_bulk_disable_unprepare(cci->nclocks, cci->clocks);
++
+ 	return 0;
+ }
  
- 	ret = i2c_add_numbered_adapter(adap);
+@@ -489,11 +480,12 @@ static int __maybe_unused cci_resume_runtime(struct device *dev)
+ 	struct cci *cci = dev_get_drvdata(dev);
+ 	int ret;
+ 
+-	ret = cci_enable_clocks(cci);
++	ret = clk_bulk_prepare_enable(cci->nclocks, cci->clocks);
  	if (ret)
+ 		return ret;
+ 
+ 	cci_init(cci);
++
+ 	return 0;
+ }
+ 
+@@ -592,7 +584,7 @@ static int cci_probe(struct platform_device *pdev)
+ 		return dev_err_probe(dev, -EINVAL, "not enough clocks in DT\n");
+ 	cci->nclocks = ret;
+ 
+-	ret = cci_enable_clocks(cci);
++	ret = clk_bulk_prepare_enable(cci->nclocks, cci->clocks);
+ 	if (ret < 0)
+ 		return ret;
+ 
+@@ -651,7 +643,7 @@ static int cci_probe(struct platform_device *pdev)
+ error:
+ 	disable_irq(cci->irq);
+ disable_clocks:
+-	cci_disable_clocks(cci);
++	clk_bulk_disable_unprepare(cci->nclocks, cci->clocks);
+ 
+ 	return ret;
+ }
 
 -- 
 2.51.0
