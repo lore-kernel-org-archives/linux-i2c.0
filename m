@@ -1,158 +1,191 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3375B2DE704
-	for <linux-i2c@vger.kernel.org>; Tue, 16 Sep 2025 06:57:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB2DF28643D
+	for <linux-i2c@vger.kernel.org>; Tue, 16 Sep 2025 08:11:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758005847; cv=none; b=ShL1Uul8g+DWSmcPHYH6o42jZ1GrsAqWFQ/yTVDmZ58Dneio5SgRCiF82+lygpusUjuiuSsZHlxDo0y0YUXJo7fXQBtT6cHvTB23m41/Z9YC4I/oByYlznGZcCB11+4qwsmkp2akbk4OT37GK1TSB4DbHGiAjcPLzWPH1k4wPd0=
+	t=1758010293; cv=none; b=fS++a9yXxYfggAoW2jD3gRMDTV9bjFNJLeehzFBgHPXQ7hNfeJ66eiacOx3Eqy+JY3humFZQFM9znLwcatBysy9/62uFYM5HekR0iFLjkIxUh+jo1P1HyNpCzAG7r+E6/SYGxzoWraw9Xg2lSEW/yJERs4mxyH1LgaDIMeoDLKM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758005847; c=relaxed/simple;
-	bh=VJqgGR+I8yQ3u1riqJusgJNxUJc7JbGh1X7CuNzrMz0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DUVQ/VDV+BqurBOIXG9+XOF8CAKOubshPE3RO9axAvt1fM5oKnoUqzntgdVnLHyTZZZkjFNt7rR+QXbHicRJG+CTlrdOVUQa8L2uNKo7cpooQ/MQrFAKR7xCJiyYboHgnuWLDnrCSzBzHF+m0sP69m6+P29iSYDwsp/el0rcIH0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=jVa8Sre4; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1758010293; c=relaxed/simple;
+	bh=HyfOs7rbrqIWkqNzUpNMAaZLN/rofAij+yVLXi5+pCc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=p/SKW7rQVQPXdSFObaBDT8bbjFgZkb9zDmJKxsOrbH1/IKuwj1iXm3cnIpo3ESLFRGngs4lrjU+/22y0RWeTllyLQ9H8QLBPpqsP2OS4zbRz/VHHp97M/tTdFFnm93ki18vzsiKMSSeKRygu7Ijf8BtRY0I3lLbkFCSAtHhTddI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FyE619/e; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="jVa8Sre4"
-Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 58G3psZ4018472
-	for <linux-i2c@vger.kernel.org>; Tue, 16 Sep 2025 06:57:24 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=yDOD6naCP+XeV3EVxxXgXxWe
-	VWa+eq7jpdDsyJP98B4=; b=jVa8Sre4w3lXoBUivmQ6mnN9e46kDSeXxdGBWGa0
-	JfG4j+WY/GXv2C/PmWlnx7kJUtfjgSAmr3xOC5jGtMqBSGYhr5RLiXTGyCIxzDb7
-	LUpVq94FDMjHLam05wUVqrOmzP5HnM0LSXpA2SEZ/2kLa6RGKB19hMYmSkeNXLIL
-	4cPdD/NXIW0k/1p+317qN9PYGdEPSComfwjX9ZQQBDT4dAG3J7iIjEDMNGBt9EVz
-	EpSbUNbamEjdNLpGFh/PTZ3Z3fpPWUBpszoFgyCiBkZSPk2uQAdw1d+hhZiKWSO6
-	Q5UU2mFtt211TfDLK9C06ESo90+NzfgZ898aWF0K+fbqAQ==
-Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com [209.85.210.197])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 496da9c46h-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Tue, 16 Sep 2025 06:57:24 +0000 (GMT)
-Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-76e2eb787f2so4776143b3a.3
-        for <linux-i2c@vger.kernel.org>; Mon, 15 Sep 2025 23:57:23 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1758005843; x=1758610643;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FyE619/e"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-45b9c35bc0aso45204125e9.2
+        for <linux-i2c@vger.kernel.org>; Tue, 16 Sep 2025 01:11:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1758010290; x=1758615090; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yDOD6naCP+XeV3EVxxXgXxWeVWa+eq7jpdDsyJP98B4=;
-        b=aAZFYB7vhbpvF/Qns8GgdOElaz9mrxpfXg6XJ26kQvjT5q999meZZYEDNZfekOuoq/
-         C+4bXkJX7YKsr2cEEPKka6luH38Ov/1cddoZRYL2zrJqr6i7Oi/fNA+FHLX1CTVSbySn
-         PnVZOz8DSA5qO5uFWqoleZpL2SrlAXY45TaqAjI/wgaXILALQ6g+1PIWKtZ537xK5WCW
-         eO4VtOBEXTNON53PVF57X+oCfhk/Q2t4b85E0eNANB7nVCexEJN+d0NSbk49hU/9yuFe
-         0eioATX3b7ilFekukl+h7mSs8RRdhbgG2aA3qxNM1S2F6DdVwOn0e+DmMfZMf3l+q/db
-         nxJw==
-X-Forwarded-Encrypted: i=1; AJvYcCWbQnEm7HpSMHpgDpg2aVE4YQWKSv8DFYXZQ0+TDvTJMxn0pdKRXF5VanmDg5S1pFs94B+wgEWmpoM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyI8/uk8+NUVCOeJUdhHsMivtfntv6sOJc19vvgozja6dkepQ51
-	pjfhNQwRDCFMvZ8rXoLQt/QyiMbFdMEXxpT+IyLthw/tMbRbC/rLE+eudXbSN05hTkkXxFeBimz
-	7V0fKInje8yTZj89ywsV2+Uup5ZoF9pIlrc8WiqIiL9zrmZrCjfR3tDN3wjdG5AU=
-X-Gm-Gg: ASbGncuUWl6Fb3tFIPiD+DCA0N0bzQxs6Jxmqoc3SU7dnSpG8VTgLJB934zu4aexKmE
-	SaoANklSMiicRMkdzdQ993EeNBAFpfW5gT+GPUIiCMYMI9QThALdZuL0DucQLAwrprN2PDvjo4w
-	XCCorbPe6qS2YWRBCd73V1qBwtA8euQhSpLHQ5LmpeqXVhNSWb0dRwyXQCaoW7bmISl2rQFI4Zt
-	4suBrGHPGlRCrESwA+I7ouJoDmQT14WwMOi7Meoir/zUTXT4yybD5SuTXTbJWJ8k9CTddxy7BQh
-	ybdpru1UebzedZDJbaSceY73YmVVbB0BEAExYeQ0EwWe6UK1GLJjCnceWzyUO42ngNfY
-X-Received: by 2002:a17:902:d589:b0:24b:270e:56c5 with SMTP id d9443c01a7336-25d24ca88aemr166330715ad.15.1758005842687;
-        Mon, 15 Sep 2025 23:57:22 -0700 (PDT)
-X-Google-Smtp-Source: AGHT+IG4HAqsYboh1u5zQJIXFoukFFzA+7Y7eq8ylmhIrbJbC2vY6iiQjqmYMwdKUwYE0LFccwGbPA==
-X-Received: by 2002:a17:902:d589:b0:24b:270e:56c5 with SMTP id d9443c01a7336-25d24ca88aemr166330495ad.15.1758005842191;
-        Mon, 15 Sep 2025 23:57:22 -0700 (PDT)
-Received: from hu-wasimn-hyd.qualcomm.com ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-260cf673181sm92629055ad.99.2025.09.15.23.57.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Sep 2025 23:57:21 -0700 (PDT)
-Date: Tue, 16 Sep 2025 12:27:15 +0530
-From: Wasim Nazir <wasim.nazir@oss.qualcomm.com>
-To: Sushrut Shree Trivedi <quic_sushruts@quicinc.com>,
-        Bjorn Andersson <andersson@kernel.org>
-Cc: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Bartosz Golaszewski <brgl@bgdev.pl>, kernel@oss.qualcomm.com,
-        linux-mmc@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        netdev@vger.kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [PATCH v4 07/14] arm64: dts: qcom: lemans-evk: Enable PCIe
- support
-Message-ID: <aMkKS6m0QEOWz7md@hu-wasimn-hyd.qualcomm.com>
-References: <20250908-lemans-evk-bu-v4-0-5c319c696a7d@oss.qualcomm.com>
- <20250908-lemans-evk-bu-v4-7-5c319c696a7d@oss.qualcomm.com>
- <cb2a5c93-0643-4c6b-a97f-b947c9aad32c@oss.qualcomm.com>
- <8f8df889-3f88-4b9b-a238-16044796d897@quicinc.com>
+        bh=gZZORlflm4LecF9/7KAxcGVbVXdKEFLgc7zSGL4QiDQ=;
+        b=FyE619/ekNoM2cBJJesnCrJFqk1gzaO5s+3bZDrODZx1VANC213nn/EDNtF4Q4/9cJ
+         saHAMyFT0wKV2dTG8J35qDVfvLfXEGYaWvVsISBaMU+nrPAnSnQyrj5ISGdnYRNEToEq
+         mBJYioqwU2I+AGfrsDBVqNVv/lxSQJIhhcd8Ec2LJ0AVHxNzCiORbeYoZg6dnOEi6B9L
+         VaUEE/gOYehHAhcs28VdzD5g6t0uZqGcz0EdRaCks5ME8V770gOemiQzUoFPV1a9YYej
+         DfvgcQoeXrIBEYM4uhnLQ6R6LNG0gmIdxQK6wCk3Gr60QdxAWqETNt4rpLOuiTisatuz
+         Qtzw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1758010290; x=1758615090;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=gZZORlflm4LecF9/7KAxcGVbVXdKEFLgc7zSGL4QiDQ=;
+        b=sPXlwMxznTrKH8x6mGc2KV2Ph3AdqgVmkaOthyztjRZ3lpSL4ks2PzHvddnujGN2l8
+         AVMNsIgKsweJN+EfOF2xlvpZ53YV5A/yzetdTp9X3hZE9Ap7JJiNYiqTC2ci6bQCz2QY
+         Q+1nGkxM4J9kc9pPwC1DSSQH6stX+5XvNBcHAe3hg81WVwvBnSY+rYPO1RCKnnWYwrZ1
+         PKnvM/RJGYUHTDh5KeaBvI7c6DPGqZVbrsnFh7DkIYGk5Xdq1ppWhcf0fJxiNYxS65CT
+         ru5x5jOz3Xwx6m1A63RAk/TvVAHeGrSDeB7ZBjsNiuvLAUfyq8ZQyHMxW4/nkKD+8Gl1
+         CbLw==
+X-Forwarded-Encrypted: i=1; AJvYcCVCMCYVcHaDsnoIB/rSyT/nfCtI5fxhm6tr+SwEgPU5tqUM0NNOzu2I7IQEVSo1t13mwAhmrxrlMxk=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwJz2gCN0cm4K6JOQ9r//VYvrw5NgAHn4+wltiw4aynUxqVR8jK
+	bxTAyZzu3VTx4RJARWGwsyNcSk1FUSjBURV+NNwFjuotcTsj/+ZZKL8pSua6EgnTkxsrpiGl+bI
+	guVsrISfDGzXOSoBpJMrR5nlAz+IX/HU=
+X-Gm-Gg: ASbGncvCllzOyt+OvlBljI2tflcxU4qcmrRrrKVzNI6n323608sl4n6u9i+iiUjXzKC
+	JdrN3akTgqgGFmEorOICvHWicWEMDQISjhlIFht9uFhMythmF7xhiuv1Fc2YjhSGVuabHOySNSV
+	5TEO9hacBdQiWrJ0NG0mAsMmZIe2gPhEdXP3IzkL6JPU4wBDsGlT1vEZec8fa7udRdScCWoSkhM
+	E9hp4Iy
+X-Google-Smtp-Source: AGHT+IFqLEMM72PchwIu85GLmuVTTpcOHaMo1tyv7F4Po+jfn8jzAhB3sLa3AaeijxW03w2RP5MM6waIv1XXZtoBSHE=
+X-Received: by 2002:a5d:5886:0:b0:3e6:116a:8fdf with SMTP id
+ ffacd0b85a97d-3e7658bcb87mr14615901f8f.13.1758010289683; Tue, 16 Sep 2025
+ 01:11:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8f8df889-3f88-4b9b-a238-16044796d897@quicinc.com>
-X-Authority-Analysis: v=2.4 cv=M+5NKzws c=1 sm=1 tr=0 ts=68c90a54 cx=c_pps
- a=rEQLjTOiSrHUhVqRoksmgQ==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
- a=kj9zAlcOel0A:10 a=yJojWOMRYYMA:10 a=COk6AnOGAAAA:8 a=EUspDBNiAAAA:8
- a=aPFnfdsyqS22SUcEH6cA:9 a=CjuIK1q_8ugA:10 a=2VI0MkxyNR6bbpdq8BZq:22
- a=TjNXssC_j7lpFel5tvFf:22
-X-Proofpoint-GUID: 2qLsT9f7dDMzhakoGF1x2h8ytyCHrt6Z
-X-Proofpoint-ORIG-GUID: 2qLsT9f7dDMzhakoGF1x2h8ytyCHrt6Z
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUwOTE1MDA1NiBTYWx0ZWRfX32Kb3mV0eNr+
- BUEX5fyaiSGY6ajAazTfMbl7WZY715S6bL+xED8ZEu0JDLskwr0vNJPpWAOUIhXETrW7J99qXjK
- GWw7etMItPWYTMT3G3KMB6tTygMfCElLSiUeTMogrUXpwzcSbkyrjG05PxkLPs/2a3pKK279v1G
- 2Z7DRyTSHYaLOZlM1zz4/4QJL1CiRvCx4zU3y8vxsq2aeGVwJucvni19NIQ1/nggy4WJ6v+BS6G
- 6WNpMNGYrW8IekzYcplTkKwNFyPNEhOVRKh8+TL7OfmPEM3g+bwYfuLLxrArroyDi78mrzVP0tq
- Ul3WbzYOsW/FRElLMrp8YRhL+f5q/czHmT1FV4Yx5gqunAYQqKmd4MN6UtJg+Ng8GspitYgTgl+
- wr6L487P
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1117,Hydra:6.1.9,FMLib:17.12.80.40
- definitions=2025-09-16_02,2025-09-12_01,2025-03-28_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 spamscore=0 clxscore=1015 suspectscore=0 priorityscore=1501
- phishscore=0 adultscore=0 bulkscore=0 impostorscore=0 classifier=typeunknown
- authscore=0 authtc= authcc= route=outbound adjust=0 reason=mlx scancount=1
- engine=8.19.0-2507300000 definitions=main-2509150056
+References: <20250915060141.12540-1-clamor95@gmail.com> <aMf6DLr8pTCP8tKn@shikoro>
+ <CAPVz0n3m9VOV5unVHhU67XQnk4jckA+zyJdCHXu2fFxCSht4JQ@mail.gmail.com>
+ <aMgzzqhXeOi5cn3f@ninjato> <20250916081955.2826c6a8@bootlin.com> <ffa2a954-d161-45f1-a83f-509148be3b6f@lucaceresoli.net>
+In-Reply-To: <ffa2a954-d161-45f1-a83f-509148be3b6f@lucaceresoli.net>
+From: Svyatoslav Ryhel <clamor95@gmail.com>
+Date: Tue, 16 Sep 2025 11:11:18 +0300
+X-Gm-Features: AS18NWCT5GhXoRK8bMJ59n5EJHC15a_WloTpuyCeHJD_J5GBYxnxIFrz9tOt418
+Message-ID: <CAPVz0n1aPWZhmCAft_58-eVaynhxWJRodEzuLE8aqWqqGQHR=w@mail.gmail.com>
+Subject: Re: [PATCH v1 0/2] i2c: muxes: Add GPIO-detected hotplug I2C
+To: Luca Ceresoli <luca@lucaceresoli.net>
+Cc: Herve Codina <herve.codina@bootlin.com>, 
+	Wolfram Sang <wsa+renesas@sang-engineering.com>, Andi Shyti <andi.shyti@kernel.org>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Peter Rosin <peda@axentia.se>, =?UTF-8?B?TWljaGHFgiBNaXJvc8WCYXc=?= <mirq-linux@rere.qmqm.pl>, 
+	=?UTF-8?Q?Jonas_Schw=C3=B6bel?= <jonasschwoebel@yahoo.de>, 
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, luca.ceresoli@bootlin.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Sep 15, 2025 at 04:03:14PM +0530, Sushrut Shree Trivedi wrote:
-> 
-> On 9/12/2025 5:57 PM, Konrad Dybcio wrote:
-> > On 9/8/25 10:19 AM, Wasim Nazir wrote:
-> > > From: Sushrut Shree Trivedi <quic_sushruts@quicinc.com>
-> > > 
-> > > Enable PCIe0 and PCIe1 along with the respective phy-nodes.
-> > > 
-> > > PCIe0 is routed to an m.2 E key connector on the mainboard for wifi
-> > > attaches while PCIe1 routes to a standard PCIe x4 expansion slot.
-> > > 
-> > > Signed-off-by: Sushrut Shree Trivedi <quic_sushruts@quicinc.com>
-> > > Signed-off-by: Wasim Nazir <wasim.nazir@oss.qualcomm.com>
-> > > ---
-> > [...]
-> > 
-> > > +		perst-pins {
-> > > +			pins = "gpio2";
-> > > +			function = "gpio";
-> > > +			drive-strength = <2>;
-> > > +			bias-pull-down;
-> > > +		};
-> > Pulling down an active-low pin is a bad idea
-> 
-> Ack, we should do pull up.
-> we took reference from the previous targets which seems to be wrong.
-> we will make it pull up.
-> 
-> Bjorn,
-> can you make this change while applying or shall we send new series.
-> 
+=D0=B2=D1=82, 16 =D0=B2=D0=B5=D1=80. 2025=E2=80=AF=D1=80. =D0=BE 10:50 Luca=
+ Ceresoli <luca@lucaceresoli.net> =D0=BF=D0=B8=D1=88=D0=B5:
+>
+> Hello,
+>
+> thanks Wolfram for pulling Herv=C3=A9 and me in.
+>
+> +Cc my Bootlin e-mail address
+>
+> Il 16/09/25 08:19, Herve Codina ha scritto:
+> > Hi Wolfram,
+> >
+> > On Mon, 15 Sep 2025 17:42:06 +0200
+> > Wolfram Sang <wsa+renesas@sang-engineering.com> wrote:
+> >
+> >> On Mon, Sep 15, 2025 at 02:53:23PM +0300, Svyatoslav Ryhel wrote:
+> >>> =D0=BF=D0=BD, 15 =D0=B2=D0=B5=D1=80. 2025=E2=80=AF=D1=80. =D0=BE 14:3=
+5 Wolfram Sang
+> >>> <wsa+renesas@sang-engineering.com> =D0=BF=D0=B8=D1=88=D0=B5:
+> >>>>
+> >>>> On Mon, Sep 15, 2025 at 09:01:36AM +0300, Svyatoslav Ryhel wrote:
+> >>>>> Implement driver for hot-plugged I2C busses, where some devices on
+> >>>>> a bus are hot-pluggable and their presence is indicated by GPIO lin=
+e.
+> >>>>> This feature is used by the ASUS Transformers family, by the  Micro=
+soft
+> >>>>> Surface RT/2 and maybe more.
+> >>>>>
+> >>>>> ASUS Transformers expose i2c line via proprietary 40 pin plug and w=
+ire
+> >>>>> that line through optional dock accessory. Devices in the dock are
+> >>>>> connected to this i2c line and docks presence is detected by a dedi=
+cted
+> >>>>> GPIO.
+> >>>>>
+> >>>>> Micha=C5=82 Miros=C5=82aw (1):
+> >>>>>   i2c: muxes: Add GPIO-detected hotplug I2C
+> >>>>>
+> >>>>> Svyatoslav Ryhel (1):
+> >>>>>   dt-bindings: i2c: Document GPIO detected hot-plugged I2C bus
+> >>>>>
+> >>>>>  .../bindings/i2c/i2c-hotplug-gpio.yaml        |  65 +++++
+> >>>>>  drivers/i2c/muxes/Kconfig                     |  11 +
+> >>>>>  drivers/i2c/muxes/Makefile                    |   1 +
+> >>>>>  drivers/i2c/muxes/i2c-hotplug-gpio.c          | 263 ++++++++++++++=
+++++
+> >>>>>  4 files changed, 340 insertions(+)
+> >>>>>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-hotpl=
+ug-gpio.yaml
+> >>>>>  create mode 100644 drivers/i2c/muxes/i2c-hotplug-gpio.c
+> >>>>
+> >>>> Adding Herve and Luca to CC because they want to achieve the same wi=
+th
+> >>>> their I2C bus extensions, no?
+> >>
+> >> Sorry, a misunderstanding: the question was for Herve and Luca. I want=
+ed
+> >> to ask for a comment from them if this is the same problem (which I
+> >> think it is). The question was not meant for you.
+> >>
+> >
+> > Indeed, we try to handle the same use case.
+> >
+> > The i2c-hotplug-gpio.c driver handles only an connector with an I2C bus=
+.
+> >
+> > On our side, we try to have something more generic that can handle more
+> > than one I2C and some other busses and resources (gpio, pwm, ...) wired
+> > to a connector.
+> >
+> > To move this i2c-hotplug-gpio to our proposal direction, this should be=
+come
+> > a connector driver with a i2c bus extension and an addon DT describing =
+the
+> > i2c devices available on the addon board.
+> >
+> > The connector driver should monitor the gpio and apply the addon DT whe=
+n it
+> > detects the addon plugged.
+> >
+> > Also, I am waiting for conclusions in the export symbols discussion [1]=
+ to
+> > re-spin the i2c bus extension series.
+>
+> I just have one question to add to what Herv=C3=A9 wrote.
+>
+> I guess in the big picture you have a device tree where all
+> hot-pluggable I2C devices are always described, but they won't probe
+> until i2c_hotplug_activate() adds an adapter for them. Is my
+> understanding correct?
+>
 
-Let me send another series with this change, rebasing on top of audio
-change that is part of next.
+Yes, your understanding is correct, i2c_hotplug creates a i2c mux from
+parent with a set of always described devices by GPIO signal.
 
--- 
-Regards,
-Wasim
+> If correct, this implies you can connect only one type of dock. Multple
+> dock models with different peripherals cannot be supported.
+>
+
+This configuration is used for ASUS Transformers and they don't have
+multiple docks, only one accessory is used and it is not swappable
+even between models by design, not even talking about different
+generations. SO configuration used by Transformers can be described
+just as title says "GPIO-detected hotplug I2C" devices are fixed just
+can be detached, but never swapped.
+
+> Best regards,
+> Luca
+>
