@@ -1,91 +1,104 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B59042EDD63
-	for <linux-i2c@vger.kernel.org>; Mon, 22 Sep 2025 10:22:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 49C4823E32D;
+	Mon, 22 Sep 2025 12:06:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1758536541; cv=none; b=EXN6cEw0ss5ZKwnjr3P+arWdXYF4IMp3UHgq6R/+Eq2hRJ6te+OftUQdXLK38LR0wc7zxit46D2PkU5q/fkPXvDahY0mWO4v7dxdy8KRI6LuLBdLe7R2n/CsnMxVAeSlkOANjJrJUku+K0wd0iFwNcsPV2ZTbtPgQkOISJ9hJtE=
+	t=1758542801; cv=none; b=dszvybseCf10BeD+rZJFoJ0+b/UBtooKOglJNL3EpeTR7B1ry+EM2yrp72a6Lzak2zSWCft7htqhANbYWYM65DWhAmEO62CXCbyCCAXVfjb6d/+CjmLtitSPk+CB5UbxhO/++vMZpUOZnGpqBzyC04A85kMRKWPZkFJq9EJB/IE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1758536541; c=relaxed/simple;
-	bh=lY1rkTcMag/21AFTTX3oCz5ymkmDMJPGPuGtPJCpF+4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=R5FfFDuMLsW94EZ2JlEnip5pzxPQNdcmZSyQEsGDcr1/sArokB0emIiXcuhiqbJxEpUELZSPey4VMTACbyiGD518NOGdFV1xlmKbqyQD39yg8ZojpfiAJJOcUh3oT3qvW+xykA/pzeSVUxbgoZNS4QPI8+CLusJNVEQRX5cXOck=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=YY5IOWPy; arc=none smtp.client-ip=198.175.65.18
+	s=arc-20240116; t=1758542801; c=relaxed/simple;
+	bh=Q3oUiXEjXlddWlunbToYrjeVXr+xskvH+ciSB2ZkJtY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=jR4nljfgZsaZQU9xj4DP/AIVPCEIziN5NzyQdbriS+I7QAACZCpW3vKN+mM/m8vKdvnlV7T2H07YDuHPtwNPON+rcUuU6yCJ3inODkboTstfXf+GCHAL/gRM6SnksfcW1sDoArLm9RzjvYFbh5IiuPj2EIOQNZL14aaj57H5Ki4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=caa3iYx+; arc=none smtp.client-ip=192.198.163.13
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="YY5IOWPy"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="caa3iYx+"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1758536539; x=1790072539;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=lY1rkTcMag/21AFTTX3oCz5ymkmDMJPGPuGtPJCpF+4=;
-  b=YY5IOWPyQAje9wTD/3Dnowy41wlBhp2q/8yA6NdA/E3V1eBq9FV7OkWB
-   d8PFzUSv4WV9R9dmJgAq8/Wr01hAn3It6R2NpCpM53gK+kuaa3YS+4N2Y
-   shUG2OAnkFUMw0KYrxVy6RO+07xh/dU7cPd+NLCeFL/dq5pCRjiilrWW3
-   b3uAEM79hqJ4OaprL+xNecZV1J72Fk7D1i3sycESFfzdqSXuY2szwHkdV
-   9FjL/WnfIorJXMXaE1Khnp+pujPz8i+HCbhmMOqY0sW1GKAohFEICeHPy
-   IL5QENLOtjUHn3SLbDNzRhw5jMi52cDULfcn70sRmemCqCCCyJPV9SJVN
-   w==;
-X-CSE-ConnectionGUID: 7195l4qoQMOxxR+4ZFSbJg==
-X-CSE-MsgGUID: 67FaC8VZSf+bhq6Dyj7wzg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11531"; a="60850241"
-X-IronPort-AV: E=Sophos;i="6.17,312,1747724400"; 
-   d="scan'208";a="60850241"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Sep 2025 03:22:18 -0700
-X-CSE-ConnectionGUID: 59uUe0jeQBelCtLAoJ7B0w==
-X-CSE-MsgGUID: 05KYqiPzSr+l7tJXFNbhVQ==
+  t=1758542799; x=1790078799;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=Q3oUiXEjXlddWlunbToYrjeVXr+xskvH+ciSB2ZkJtY=;
+  b=caa3iYx+q5puRpa1TywEFCRtFTBou8Yx3mBYgLPRU8eecgHVdoGajiWz
+   IPYq9ofkNPd7jc9+NcOzzxOOFIfoxBHXJ9nvDoj9Av40Ph9larF/THYoP
+   8pY2PIVFIiC0I6JgSmbYqicuIuTGUE/49PmEKNDAWl4hIjFpdJzBw5oRp
+   j7bTgEFbfF6fLIeVuUVYbW+BUUZMBQANT2P5L2uUSJLJCnZjwtdvmyJsR
+   eTy68nE7Uly1F+05XXXkVP/OCWkO13/IWx2l1b4C0Cj2/NFQxYqrNGCf/
+   nR8BXxDCtg9d9hsj/Y72DpaSDFx7W/mTllRUt+0LxV5VUSws7ygaQSPUu
+   g==;
+X-CSE-ConnectionGUID: KX15+ghVS52OKphDjWDQkA==
+X-CSE-MsgGUID: nYwjXjP6S7Cu7gB7gRo41A==
+X-IronPort-AV: E=McAfee;i="6800,10657,11560"; a="63431622"
+X-IronPort-AV: E=Sophos;i="6.18,285,1751266800"; 
+   d="scan'208";a="63431622"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Sep 2025 05:06:38 -0700
+X-CSE-ConnectionGUID: QgomdRsyT5WbvDWWQI053A==
+X-CSE-MsgGUID: p+NL8KKBTV+tpYordBi4YA==
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.18,284,1751266800"; 
-   d="scan'208";a="175578752"
-Received: from mylly.fi.intel.com (HELO [10.237.72.52]) ([10.237.72.52])
-  by orviesa006.jf.intel.com with ESMTP; 22 Sep 2025 03:22:16 -0700
-Message-ID: <c7826545-1aec-4edd-bb13-765c101b3a5a@linux.intel.com>
-Date: Mon, 22 Sep 2025 13:22:15 +0300
+X-IronPort-AV: E=Sophos;i="6.18,285,1751266800"; 
+   d="scan'208";a="176842510"
+Received: from bergbenj-mobl1.ger.corp.intel.com (HELO kekkonen.fi.intel.com) ([10.245.244.61])
+  by fmviesa008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Sep 2025 05:06:35 -0700
+Received: from punajuuri.localdomain (unknown [192.168.240.130])
+	by kekkonen.fi.intel.com (Postfix) with ESMTP id F3498121EEF;
+	Mon, 22 Sep 2025 15:06:32 +0300 (EEST)
+Received: from sailus by punajuuri.localdomain with local (Exim 4.98.2)
+	(envelope-from <sakari.ailus@linux.intel.com>)
+	id 1v0fJQ-000000002jE-47AW;
+	Mon, 22 Sep 2025 15:06:32 +0300
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6 krs, Bertel Jungin Aukio 5, 02600 Espoo
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
+To: linux-kernel@vger.kernel.org
+Cc: Lixu Zhang <lixu.zhang@intel.com>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Alexander Usyskin <alexander.usyskin@intel.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Mark Brown <broonie@kernel.org>,
+	linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-spi@vger.kernel.org,
+	linux-usb@vger.kernel.org
+Subject: [PATCH 4/5] spi: ljca: Remove Wentong's e-mail address
+Date: Mon, 22 Sep 2025 15:06:31 +0300
+Message-ID: <20250922120632.10460-4-sakari.ailus@linux.intel.com>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20250922120632.10460-1-sakari.ailus@linux.intel.com>
+References: <20250922120632.10460-1-sakari.ailus@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/3 v2] i2c: designware: Extend check for mixed slave
- addresses
-To: Jean Delvare <jdelvare@suse.de>, Linux I2C <linux-i2c@vger.kernel.org>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Mika Westerberg <mika.westerberg@linux.intel.com>,
- Jan Dabros <jsd@semihalf.com>, Andi Shyti <andi.shyti@kernel.org>
-References: <20250918160341.39b66013@endymion>
- <20250918161054.7d650d2c@endymion> <20250919191400.29274d5d@endymion>
- <20250922101404.65f2ef3a@endymion>
-Content-Language: en-US
-From: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-In-Reply-To: <20250922101404.65f2ef3a@endymion>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 9/22/25 11:14 AM, Jean Delvare wrote:
-> The i2c-designware driver only supports transfers where all messages
-> use the same slave address. This condition is currently tested in
-> i2c_dw_xfer_msg(), with 2 limitations:
-> * The code only checks the address value, not the 10-bit address
->    flag, so it could miss an address change.
-> * For the AMD Navi GPU devices, the driver uses a dedicated function
->    instead of i2c_dw_xfer_msg(), so the check is not performed.
-> 
-> Move the check to the common code path, and add the 10-bit address
-> flag comparison, to catch and report early if a given transfer is not
-> supported.
-> 
-> Signed-off-by: Jean Delvare <jdelvare@suse.de>
-> ---
-> Changes since v1:
-> * Use unlikely() to help the compiler minimize the performance penalty.
-> 
->   drivers/i2c/busses/i2c-designware-master.c |   28 ++++++++++++++--------------
->   1 file changed, 14 insertions(+), 14 deletions(-)
-> 
-Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Wentong's e-mail address no longer works, remove it.
+
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+---
+ drivers/spi/spi-ljca.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/spi/spi-ljca.c b/drivers/spi/spi-ljca.c
+index 2cab79ad2b98..3f412cf8f1cd 100644
+--- a/drivers/spi/spi-ljca.c
++++ b/drivers/spi/spi-ljca.c
+@@ -289,7 +289,7 @@ static struct auxiliary_driver ljca_spi_driver = {
+ };
+ module_auxiliary_driver(ljca_spi_driver);
+ 
+-MODULE_AUTHOR("Wentong Wu <wentong.wu@intel.com>");
++MODULE_AUTHOR("Wentong Wu");
+ MODULE_AUTHOR("Zhifeng Wang <zhifeng.wang@intel.com>");
+ MODULE_AUTHOR("Lixu Zhang <lixu.zhang@intel.com>");
+ MODULE_DESCRIPTION("Intel La Jolla Cove Adapter USB-SPI driver");
+-- 
+2.47.3
+
