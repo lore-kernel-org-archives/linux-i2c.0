@@ -1,17 +1,17 @@
 Received: from invmail4.hynix.com (exvmail4.skhynix.com [166.125.252.92])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id DE3BD30EF90;
-	Thu,  2 Oct 2025 08:14:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id BBB9030F80A;
+	Thu,  2 Oct 2025 08:14:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=166.125.252.92
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1759392847; cv=none; b=Uj5f4WCypouFXknC3YzW1JARtan3qwREaNYfNljjVAj5a4fK3jmWmCvxIIxsitwcf3Gb9+NX1mkvoEFBITMWs+qHmqh5p/GGyiMwzGWDem11Y5iG+egK1hs7K88FTKjRh2x5j2KNIC57gGJKAvMQdpo0QjDFCOd4bzMbsnrmmqk=
+	t=1759392847; cv=none; b=VzibT19ksFu/8ExKjK9NgwujWk+u40f5PSI79VON7/yKZen4oSoSDaO2QzadL9DL32JV1zo8VbIHcv21clj3IE5cD5fHgBtGD5dPMnrtaY9KnVQcRsDOVT7sQN2jVZ/ZBNQjgsEOSDVo77aZDJ09dOXQF6qvjDgWDCizfW1+iis=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1759392847; c=relaxed/simple;
-	bh=t/a2F6GZSNvQrCbJOX44B+87G/E7zTUSJIUyOFpTJ80=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=u3uOs5Chio/1CKECxI+uzDfROC0x0DRD2nL1lYtBSegZ0zxrndIZ+phtXPVDI0A170ZaVP6/wE1wTMtB6YT8+CGqBMJSs1gHaZXSKZcmSJDxH0xvAvLn3225op7u6ggG5Npo1bN+nDY1TY3FhGvhdkJlPyx2lH7Iwv+t4XTqQQc=
+	bh=314TpUAkZxMvbV2pk3wlciVKMbaC2tgJL1bvCZ48Y0A=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=HQ1a7cIw0mInAT1j3QPNuva6Bv2UkrIX/OkfVSwmVd5a4EFPezlC77gBSrzxks72+WHcTs7Mk83YW83ax2MptWK6jhTrtDhmfFxXiJL8nDU5i1ZAvd5zsorZIz1x2O4aiIWlq/KmxQvF1jozQQfL9rD+1k7b0SKh/HE00qvxW88=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sk.com; spf=pass smtp.mailfrom=sk.com; arc=none smtp.client-ip=166.125.252.92
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sk.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sk.com
-X-AuditID: a67dfc5b-c2dff70000001609-03-68de34118901
+X-AuditID: a67dfc5b-c45ff70000001609-fc-68de34136438
 From: Byungchul Park <byungchul@sk.com>
 To: linux-kernel@vger.kernel.org
 Cc: kernel_team@skhynix.com,
@@ -162,44 +162,43 @@ Cc: kernel_team@skhynix.com,
 	rcu@vger.kernel.org,
 	linux-nfs@vger.kernel.org,
 	linux-rt-devel@lists.linux.dev
-Subject: [PATCH v17 29/47] cpu/hotplug: use a weaker annotation in AP thread
-Date: Thu,  2 Oct 2025 17:12:29 +0900
-Message-Id: <20251002081247.51255-30-byungchul@sk.com>
+Subject: [PATCH v17 37/47] completion, dept: introduce init_completion_dmap() API
+Date: Thu,  2 Oct 2025 17:12:37 +0900
+Message-Id: <20251002081247.51255-38-byungchul@sk.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20251002081247.51255-1-byungchul@sk.com>
 References: <20251002081247.51255-1-byungchul@sk.com>
-X-Brightmail-Tracker: H4sIAAAAAAAAAzXSe0hTcRQH8H73PWlym4G3WVQLCaTMzOJADwqpLlZQ+Ef0drVLG02N+SiN
-	Qi1Lq5VZ00qy+ciGW2VbD7W0MlrZEl0vV21TS1NJk6SZr2Fb0n8fvt/DOf8cBpe8J6WMKiFZ
-	0CTI1TIqgAjon1qyMCjKrYwYsc2DNk8Ogj9jRTh48600/B75QoPpXiYGuo5OCgp7MwkYqDiL
-	oPfFeuhve0TChKsbg9ahPgSdT08h8BYcgOulFgrGmppxKNS1IOip8uX3rG4EdYYsCrry7uPw
-	rjMQ3nsGKGjUnaHgZxUF+qw6Eo6X3aGg4JqZgJr2WhrsP8YxcBbkY2A0b/Id93V3g6GosAeD
-	N2VOAioyQmFCnwhWYzcNrvM6Am73N5PQ6P5IQtvLkyQ8zGinwfzpBYKcWg8B5m++ouRkOQFX
-	ip0UPK5rJCDH+xuBtforBmer7pPgNk2QcKfbgYHN+oqA5tpbJNxotWPQ0e4gwdL0BoehcyHQ
-	ckFLgiOvC8Gtn6XUajmf/dZL8aZiE+LHRvMRn53n0/O+AZy/Yeuj+FHPB4p/XcrxNVddNH+i
-	/jPN680pvMUQxpc97sX4kkEPyX/+sZI3V+ZSm8O2B6xQCGpVqqBZtCouQFncE3GwXXRYa6lB
-	GWicPo1EDMdGcZ7Gp/h/D3svUn5T7HzO4Rj5l09n53AW7XfSb5y1zeQ+2hf4HcRu5B4MWpHf
-	BBvKZV6q9M0wjJhdxg2fD5pcOZszVk2uF/nidx02wm8Ju5TLHjiBTc7cFHFFOjTpGdwzg4PI
-	Q2I9mlKJJKqE1Hi5Sh0VrkxLUB0O35cYb0a+X6s4Or6jGg22xDYglkGyqeKWUJdSQspTk9Li
-	GxDH4LLp4jiDUykRK+Rp6YImcY8mRS0kNaAQhpAFiyOHDikk7H55snBAEA4Kmv8txoikGeha
-	bNPiOPcefbHiOXk5V7n3eHpla3ntsUi1ISYspOkDCtQemRW9xPno3LSFc7Xb6i8LK8/Eh+dH
-	r90RLR2ONW7Yqhr/wljqYnbG7FJ8vRpcXhIYbpxd3yP9tSVZatHSudXLDj1cHmFKds3csMbe
-	lT6asg4bNe7O2mV/WZ0T+STxwWoZkaSULw7DNUnyv6WjRuZnAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAAzWSfUhTexjH+53z2zlnw9VpSR6sSBbjgmRvVDy9YP4RdIreKKG4l2ijTm05
-	p21mLgp8G9mLL62m5LTMclfUajkbLbErxt29taTWSqNcyzCzcgnpKl+mbUX/PHye5/vly/eP
-	hyFlLaJ4RqPLEvQ6lVZOSbBk65qCpJnLX6uXlHQsg668dgyhkSIMVTebKChqviiCJzcaEQRC
-	RQi+jVtJMLmmMITNbhpGRl/RMNXmRlDuNZPQ1JJHwLB9koJP978gsPT2UVDxIQ/DkO0sgsp+
-	Kw0f/t0AwUCrCKb87wno/jqIwNY3SUBf+0kE4fI0uFzroGC88zEJFZYnCK70+kkYsEfEFvdr
-	BG31+RS8K7tNgq9vOjwLDVHwwHKGgqC3ioDPdgpq8ttEUG01Iyi4epOC8upmDK43d2nwfpog
-	oKfcTEBj8xYI2PoxeMpqiUi/iOtWHFgrCojIGCDAcr2VgFFbAw2PrvZgsOUqwNrpE8Hb+koa
-	JnqXwlRNBrgb39PgL7VguBF8LEqxIP6bqQTzDQ4nwZuehim+6VIT4sfHzIgfqSsgeVNZZL0/
-	OETyhY6jfJ1nkOLHQs8pvu1rDeYf1nL8uc4k3lXpp/nCey/p7av/lKzdL2g12YJ+cbJSor40
-	sCTzjTin2OFCuWiCPo3EDMcu576Hz1NRptg/uBcvRskox7IJnKO4XxRlkvXM5bq8C6M8i93M
-	Ob+4UZQxq+DyLjREPAwjZVdy30tn/YqczzXa23/GiCNnX68HR1nGruBMQ4VEGZLUoGkNKFaj
-	y05XabQrFhnS1EadJmfRvoz0ZhT5JduJiXN30IhvQwdiGSSPkXoVfrVMpMo2GNM7EMeQ8lip
-	sr5HLZPuVxmPCfqMvfojWsHQgeYwWB4n3bRLUMrYg6osIU0QMgX9b5VgxPG5qHpP91hiSfBC
-	aBynTMbYD/8/L9npyNmekprxvLLu7OzEoHZd17XhLeLuUafiP29qwj+BAx5uTWZCy47wqUNK
-	Z9KJGUhITg3MXKU8HHMx/9Bw1SvZgs8f2c3+uJ2rNyYcT15falwwGDbuznrqUuC7M1z1yta/
-	HcR6z1/bdMWZvtJ4OTaoVUsTSb1B9QMgdJtnRwMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAAzXSaUiTcRgA8P7vtSkN35bg24UyKVPKTFc8QUZE1EsfwojEstCRb201p21m
+	2kEWTs3SVlJaRk6bZmp5rJxhM68s8c4DrZkapoVHaWuhebQpfnn48ZxfHj4u1JCr+TJFBKdU
+	SOQiyp6wH1ueudlR/EXq9drgAAklD0gwT33mwbyxDsHvojkKRmomEYz1lZOQMziHwWBlPIKM
+	LD0F/5pacMgc6MVhrO0RBtrrRhL6coYIaHxiImBeGwYvxlpIGBm6S4Ehpp8H5o4BDN4Y6wlI
+	mDUjqCv7isGtolcktFY2kFA43I2BvqkRh+fjWRQMdcZh8OqtGsGkzkLA+6RKDLLN4zjEfy+n
+	IE5XjEFHTzmCioR+DGoLDRjU/BnFIOWjloLp3jIS1LemeHBvJoGCm+r71pO1Fuvm2S4E4xoz
+	CenvvvB2e7F/1ckEm6cvxVj1x1mKLXhcgFi1xhqyG0YpdvpPJ8UaLVqCff2wl8fGVnzisdqS
+	86w+14P9NOLLluTdoFhT1xuKHW9u5vmtO2a/M4STyyI55ZZdwfbS7MJ0KtzoHlX7W4Ni0LRz
+	IrLjM7SY6cifQ0surtdSNlO0G9PdPYXb7Ei7MPqkIdJmnG5Yy3S1bbJ5JX2IKUytXpgl6PVM
+	1o/8hR4BvZ35oEvGF3c6M/lFlQu2s+bbBxoIm4X0Nkb9MxZb7MmwYwbSNix6FVOV201okECL
+	luUhoUwRGSqRycWe0miFLMrzZFhoCbL+Sc6VmcAyNNl6uBrRfCRaLmhd3ysVkpJIVXRoNWL4
+	uMhREJxrkgoFIZLoi5wyLEh5Xs6pqtEaPiFyEnhbLoQI6dOSCO4sx4VzyqUqxrdbHYPOuTpc
+	i9Md9T18MPjRmQlFl7gm0dxU8G3X06qKq4+DRsgDe/x/peyfVzgbXZxixa3up0JWMYaq2945
+	oZ4OcvWOsjtkYITfs+MBQXtLHyaXvtzYqdv30zI8E25w23QkqD3VObBWcTlghWEitSn2bVqP
+	wud6hFMMb9D1po/O19/08sQlEaGSSrZ64EqV5D/DMGjrIwMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAAzXSa0xScRQA8P73Xu5Firojl7ds2Sh7LTOX1lnvrQ/+q9V6fGhruWR5C+ar
+	oEzbWhqyXE+ioUu0yJIcaCLaw4pyWPYwZmRpD8hsplk+WmmlIgS1vpz9zmNn58MRkpIbgilC
+	Rdp+XpkmS5HSIkq0cZk6amLse/nCi1fnQ0tOHQWDA3kUFFWW05BnOy+A59csCNoG8xD8GjGQ
+	oKn1UzCqa2BgYOgdA357A4J8l46E8pocAn5YfTR8rf+OQN/eQUNBdw4F/aaTCAo7DQx0P4yH
+	3rY7AvB7ugho/dmDwNThI6Cj7hiC0fxkuFhSTcOIs4mEAv1zBJfaPSR8tgaaNQ3vEdjLjtLw
+	SXudhOaO8fBysJ+GJ/oTNPS6igjos9JgPGoXQLFBh0B9uZKG/GIbBbUfbjPg+uolwJ2vI8Bi
+	2wBtpk4KGrUlROC+wFRVGBgK1EQgfCZAX3GHgCGTmYFnl90UmLIjweBsFsDHskIGvO0x4Dem
+	Q4OliwHPGT0F13qbBKv1CP/SnKawufoGgTUvRmlcfqEc4ZFhHcIDpWoSa7SBtL6nn8S51Qdx
+	aWMPjYcHX9HY/tNI4aclHD7rjMK1hR4G5957y2xaul20PIlPUWTwyuiViSJ5aaWB3mufm/ng
+	hxZlo+GI4yhEyLGxXNUTIx00zc7mXr8eIoMOZadz1ac6BUGTbONUrsU1P+iJ7GaussCBgqbY
+	SK6k2/J3Rswu5h5fOU3+2xnBWax1fx0SqDe3N1JBS9g4TtOfS2iRyIjGmFGoIi0jVaZIiVug
+	SpZnpSkyF+xKT7WhwDeZDnvP3kIDzfEOxAqRdJzYFemRSwSyDFVWqgNxQlIaKk4sc8sl4iRZ
+	1iFemb5TeSCFVzlQuJCShonXbeMTJewe2X4+mef38sr/XUIYMiUbjd0Q/U0YPkP1Mjz6Q0Wr
+	8UhTws0R36Sbrc43C/eZ+yxhpebUNerM1b74SXBs+qyKCbcdw4v84qbJ0mLPzKgdR7y+rbE5
+	9c+u4BY2Zp3jyyP3rS3rE/LcK+Zg/9i7v21FkyOSlmyMc+4+k31y5dqumiT025y7tq9t1btz
+	xdbl3vvT1kgplVwWM49UqmR/AOk0IJhJAwAA
 X-CFilter-Loop: Reflected
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -207,42 +206,157 @@ List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 
-cb92173d1f0 ("locking/lockdep, cpu/hotplug: Annotate AP thread") was
-introduced to make lockdep_assert_cpus_held() work in AP thread.
+Currently, dept uses dept's map embedded in task_struct to track
+dependencies related to wait_for_completion() and its family.  So it
+doesn't need an explicit map basically.
 
-However, the annotation is too strong for that purpose.  We don't have
-to use more than try lock annotation for that.
-
-rwsem_acquire() implies:
-
-   1. might be a waiter on contention of the lock.
-   2. enter to the critical section of the lock.
-
-All we need in here is to act 2, not 1.  So trylock version of
-annotation is sufficient for that purpose.  Now that dept partially
-relies on lockdep annotaions, dept interpets rwsem_acquire() as a
-potential wait and might report a deadlock by the wait.
-
-Replace it with trylock version of annotation.
+However, for those who want to set the maps with customized class or
+key, introduce a new API to use external maps.
 
 Signed-off-by: Byungchul Park <byungchul@sk.com>
 ---
- kernel/cpu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/completion.h | 40 +++++++++++++++++++++-----------------
+ 1 file changed, 22 insertions(+), 18 deletions(-)
 
-diff --git a/kernel/cpu.c b/kernel/cpu.c
-index db9f6c539b28..285d7fa55523 100644
---- a/kernel/cpu.c
-+++ b/kernel/cpu.c
-@@ -538,7 +538,7 @@ int lockdep_is_cpus_held(void)
+diff --git a/include/linux/completion.h b/include/linux/completion.h
+index 4d8fb1d95c0a..e50f7d9b4b97 100644
+--- a/include/linux/completion.h
++++ b/include/linux/completion.h
+@@ -27,17 +27,15 @@
+ struct completion {
+ 	unsigned int done;
+ 	struct swait_queue_head wait;
++	struct dept_map *dmap;
+ };
  
- static void lockdep_acquire_cpus_lock(void)
+-#define init_completion(x)				\
+-do {							\
+-	__init_completion(x);				\
+-} while (0)
++#define init_completion(x) init_completion_dmap(x, NULL)
+ 
+ /*
+- * XXX: No use cases for now. Fill the body when needed.
++ * XXX: This usage using lockdep's map should be deprecated.
+  */
+-#define init_completion_map(x, m) init_completion(x)
++#define init_completion_map(x, m) init_completion_dmap(x, NULL)
+ 
+ static inline void complete_acquire(struct completion *x, long timeout)
  {
--	rwsem_acquire(&cpu_hotplug_lock.dep_map, 0, 0, _THIS_IP_);
-+	rwsem_acquire(&cpu_hotplug_lock.dep_map, 0, 1, _THIS_IP_);
+@@ -48,8 +46,11 @@ static inline void complete_release(struct completion *x)
  }
  
- static void lockdep_release_cpus_lock(void)
+ #define COMPLETION_INITIALIZER(work) \
+-	{ 0, __SWAIT_QUEUE_HEAD_INITIALIZER((work).wait), }
++	{ 0, __SWAIT_QUEUE_HEAD_INITIALIZER((work).wait), .dmap = NULL, }
+ 
++/*
++ * XXX: This usage using lockdep's map should be deprecated.
++ */
+ #define COMPLETION_INITIALIZER_ONSTACK_MAP(work, map) \
+ 	(*({ init_completion_map(&(work), &(map)); &(work); }))
+ 
+@@ -90,15 +91,18 @@ static inline void complete_release(struct completion *x)
+ #endif
+ 
+ /**
+- * __init_completion - Initialize a dynamically allocated completion
++ * init_completion_dmap - Initialize a dynamically allocated completion
+  * @x:  pointer to completion structure that is to be initialized
++ * @dmap:  pointer to external dept's map to be used as a separated map
+  *
+  * This inline function will initialize a dynamically created completion
+  * structure.
+  */
+-static inline void __init_completion(struct completion *x)
++static inline void init_completion_dmap(struct completion *x,
++		struct dept_map *dmap)
+ {
+ 	x->done = 0;
++	x->dmap = dmap;
+ 	init_swait_queue_head(&x->wait);
+ }
+ 
+@@ -136,13 +140,13 @@ extern void complete_all(struct completion *);
+ 
+ #define wait_for_completion(x)						\
+ ({									\
+-	sdt_might_sleep_start_timeout(NULL, -1L);			\
++	sdt_might_sleep_start_timeout((x)->dmap, -1L);			\
+ 	__wait_for_completion(x);					\
+ 	sdt_might_sleep_end();						\
+ })
+ #define wait_for_completion_io(x)					\
+ ({									\
+-	sdt_might_sleep_start_timeout(NULL, -1L);			\
++	sdt_might_sleep_start_timeout((x)->dmap, -1L);			\
+ 	__wait_for_completion_io(x);					\
+ 	sdt_might_sleep_end();						\
+ })
+@@ -150,7 +154,7 @@ extern void complete_all(struct completion *);
+ ({									\
+ 	int __ret;							\
+ 									\
+-	sdt_might_sleep_start_timeout(NULL, -1L);			\
++	sdt_might_sleep_start_timeout((x)->dmap, -1L);			\
+ 	__ret = __wait_for_completion_interruptible(x);			\
+ 	sdt_might_sleep_end();						\
+ 	__ret;								\
+@@ -159,7 +163,7 @@ extern void complete_all(struct completion *);
+ ({									\
+ 	int __ret;							\
+ 									\
+-	sdt_might_sleep_start_timeout(NULL, -1L);			\
++	sdt_might_sleep_start_timeout((x)->dmap, -1L);			\
+ 	__ret = __wait_for_completion_killable(x);			\
+ 	sdt_might_sleep_end();						\
+ 	__ret;								\
+@@ -168,7 +172,7 @@ extern void complete_all(struct completion *);
+ ({									\
+ 	int __ret;							\
+ 									\
+-	sdt_might_sleep_start_timeout(NULL, -1L);			\
++	sdt_might_sleep_start_timeout((x)->dmap, -1L);			\
+ 	__ret = __wait_for_completion_state(x, s);			\
+ 	sdt_might_sleep_end();						\
+ 	__ret;								\
+@@ -177,7 +181,7 @@ extern void complete_all(struct completion *);
+ ({									\
+ 	unsigned long __ret;						\
+ 									\
+-	sdt_might_sleep_start_timeout(NULL, t);				\
++	sdt_might_sleep_start_timeout((x)->dmap, t);			\
+ 	__ret = __wait_for_completion_timeout(x, t);			\
+ 	sdt_might_sleep_end();						\
+ 	__ret;								\
+@@ -186,7 +190,7 @@ extern void complete_all(struct completion *);
+ ({									\
+ 	unsigned long __ret;						\
+ 									\
+-	sdt_might_sleep_start_timeout(NULL, t);				\
++	sdt_might_sleep_start_timeout((x)->dmap, t);			\
+ 	__ret = __wait_for_completion_io_timeout(x, t);			\
+ 	sdt_might_sleep_end();						\
+ 	__ret;								\
+@@ -195,7 +199,7 @@ extern void complete_all(struct completion *);
+ ({									\
+ 	long __ret;							\
+ 									\
+-	sdt_might_sleep_start_timeout(NULL, t);				\
++	sdt_might_sleep_start_timeout((x)->dmap, t);			\
+ 	__ret = __wait_for_completion_interruptible_timeout(x, t);	\
+ 	sdt_might_sleep_end();						\
+ 	__ret;								\
+@@ -204,7 +208,7 @@ extern void complete_all(struct completion *);
+ ({									\
+ 	long __ret;							\
+ 									\
+-	sdt_might_sleep_start_timeout(NULL, t);				\
++	sdt_might_sleep_start_timeout((x)->dmap, t);			\
+ 	__ret = __wait_for_completion_killable_timeout(x, t);		\
+ 	sdt_might_sleep_end();						\
+ 	__ret;								\
 -- 
 2.17.1
 
