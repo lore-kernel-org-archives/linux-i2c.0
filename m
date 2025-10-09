@@ -1,212 +1,88 @@
-Received: from mx-relay02-hz2.antispameurope.com (mx-relay02-hz2.antispameurope.com [83.246.65.88])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AA062D5C67
-	for <linux-i2c@vger.kernel.org>; Thu,  9 Oct 2025 09:22:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=83.246.65.88
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760001727; cv=pass; b=uSq7+Ty32MGzNjLTtrnZXptm82kU+j0b9Q0rH5m3En3qWDN32Xt1MNrsVr+FeJ6/JsP6o84+Vy5YYF+fUut9xDXiakq5EwUd0IONHri5oBMOQvKovsYD5Jzrs2SL5HMEqKJjHe8j/ISaADju/mzHuXBxB3wziguyJE6ZI1bAKEk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760001727; c=relaxed/simple;
-	bh=XGkyybDNY1mb6KrENDxDb39fxVtd/EDG+xqpLeoMNxs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=pfqN0rUGpXXweSP5O0Bne9RolGfHMSgsptTzZoka2oFOqe+vq2/b1eBOIxZenSMgWOjBXgoXG4OZUnuJu/8kRDJbQ0scPc2Fr2Ixe97qpjI68h3zfGIv460NyoQ93AVURuLITQUfuPhB/ccEkrbyUTTBsOrj6sjkYaknsky5MaU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ew.tq-group.com; spf=pass smtp.mailfrom=ew.tq-group.com; dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b=FGgqrT0B; arc=pass smtp.client-ip=83.246.65.88
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ew.tq-group.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ew.tq-group.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E95D1862A;
+	Thu,  9 Oct 2025 09:30:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1760002228; cv=none; b=CMN5XsY8Luyqj9gUFDWEuPvkT+zLIoX0Zsu9wPWmu1gJUp8lUvx/coinc9bnndVIqYB8PsOdXuu4XObI6qzBmubXDyxRb9iwUO6FzHpZek2Pn2ebun2edrUm3oVAmcxAdiw0mLWdaJws1JtRFxjelmvW5bBy+SylWXILRXHgrIM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1760002228; c=relaxed/simple;
+	bh=o+H6H9hUXpqnVfpXB6sT7GgCLv8fKIk6uQPEP6nvCwk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ndLmVKDtBvTLtcnHW/TZowhSIgCrWQwKkHApCpa+/qu5jylCfDiNcBK/Oxls6IPzLGbNjj952UGkjkpcg549U06JKd3HX24Tj8V3pbJiXw7K00jHwmSL3Mp2RdQkvxaIFIj24K/iahU1L5pCxC5O0TFKB7V0oEaBdhFeGFYREXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=LqkqlLwN; arc=none smtp.client-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b="FGgqrT0B"
-ARC-Authentication-Results: i=1; mx-gate02-hz2.hornetsecurity.com 1; spf=pass
- reason=mailfrom (ip=94.100.132.6, headerfrom=ew.tq-group.com)
- smtp.mailfrom=ew.tq-group.com
- smtp.helo=hmail-p-smtp01-out04-hz1.hornetsecurity.com; dmarc=pass
- header.from=ew.tq-group.com orig.disposition=pass
-ARC-Message-Signature: a=rsa-sha256;
- bh=V1zco+aUJaXBAcg9GM1X/IscW6w2wuvsTjlRMqGC/NI=; c=relaxed/relaxed;
- d=hornetsecurity.com; h=from:to:date:subject:mime-version:; i=1; s=hse1;
- t=1760001650;
- b=O/OW4oflzsNMudBIYBQ2qrV4qhKjplldUTOogMrhU0DLIEJforuwRGu8WY6J0SBKTQjhfZrM
- VZyXLx3skRhjVSnANarDi4w6qmgLQ6sbrYxBfpOO8N96zFvFnkVTbgrxMXGN79hByaMX8eMkvZB
- otNYMZIDGgwFk/Jb3F8xIF+dQhzLzXF14tjtdgNnzr6Rxj7UiQeEzDeY6Cf5G3Fa56FlnxNhB/G
- AsnwQS50WHdGq+MkoDzVSOyflPLzXsp/CzsNAGpWVOZOG2Cjw0dVb9WXsthtcttwuxdPakKwGF3
- P8ydareyo4HPPVSsE90OmzBpLtiV2L4PmFE46/X2vFt2A==
-ARC-Seal: a=rsa-sha256; cv=none; d=hornetsecurity.com; i=1; s=hse1;
- t=1760001650;
- b=KEZulAFNLB4lZhBCGx49kw+TJLHHVILz5xLbb0MQpsOxW2rDLzb3U09Ljm4I6WhAGhnEvEg2
- 79yeuWLBimYZ2SyAt5Zy1QwikUSVGuBjYiTgYXYp/x4kvUw22Sg+lqogI7ZCGXEunUt2FCbN4vo
- LScPzR2c+rYqiE5dPT9CFS8PhB2bv47n6diPOlOQW4sAZrkMsx2nkqAGTsyKmpwMBEPRFVCsoVq
- zSCZLSyG7FShGG8h12s620GOC8QIhS7tVzueFPOfm7axvU403uy/IB+NQjSLljlPR6UQaAFvb8+
- pFba/64wUOkxcyru9XbuRsaTqUpnXB6lmx1nSesCUtL5Q==
-Received: from he-nlb01-hz1.hornetsecurity.com ([94.100.132.6]) by mx-relay02-hz2.antispameurope.com;
- Thu, 09 Oct 2025 11:20:50 +0200
-Received: from schifferm-ubuntu.tq-net.de (host-82-135-125-110.customer.m-online.net [82.135.125.110])
-	(Authenticated sender: matthias.schiffer@ew.tq-group.com)
-	by hmail-p-smtp01-out04-hz1.hornetsecurity.com (Postfix) with ESMTPSA id B3F5C220CF8;
-	Thu,  9 Oct 2025 11:20:39 +0200 (CEST)
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-To: Peter Korsgaard <peter@korsgaard.com>,
-	Andrew Lunn <andrew@lunn.ch>,
-	Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux@ew.tq-group.com,
-	Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Subject: [PATCH v2 1/2] i2c: ocores: increase poll timeout to total transfer timeout
-Date: Thu,  9 Oct 2025 11:19:49 +0200
-Message-ID: <51a72ceca0154d7be85c3cc67722e7dd0b364a2e.1760000254.git.matthias.schiffer@ew.tq-group.com>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="LqkqlLwN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1760002226; x=1791538226;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=o+H6H9hUXpqnVfpXB6sT7GgCLv8fKIk6uQPEP6nvCwk=;
+  b=LqkqlLwNf3MXW8MDtUN5UIuryx07UKCvSGRcQ5kLhEPyZrUCwAmV3P5b
+   sPTN+9KDNBCj3ifrYieunzesz3Y07P0ETCKc9WyxJ6DAhzf+5MoJkd1Xi
+   N9U2j8WnAXrs5IVVqXoDPaYBPccUsKmlaYnGbjhW1qtfqcmuRR/qtOg3/
+   Zbh0MncvXHDw7nCFL2Ds3ZfCsGnPqya8hGMvbErMjqgFYKyKTHFQLVmNS
+   K1G+ejLxQ/I/T+i+NqMuow1apeVqO0YvhqxGo/hEIbJ0zhmRtiBQXSRDo
+   NbENLJgABHc3Y5nnAzyKPMBSp6PqRN/miSKzXG7ozkcMyOvbBy8DzRx4o
+   Q==;
+X-CSE-ConnectionGUID: nFb1+ns8S9qpq8GSJwLdEQ==
+X-CSE-MsgGUID: ibNqeQykTT6F9FrQX+uPjA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11576"; a="66060620"
+X-IronPort-AV: E=Sophos;i="6.19,215,1754982000"; 
+   d="scan'208";a="66060620"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Oct 2025 02:30:25 -0700
+X-CSE-ConnectionGUID: C6TONWeRQ7mppdyTUW+7gQ==
+X-CSE-MsgGUID: n9aWpSf7QGeb9l5JUVziRg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.19,215,1754982000"; 
+   d="scan'208";a="185789028"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by orviesa005.jf.intel.com with ESMTP; 09 Oct 2025 02:30:23 -0700
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id 78DB195; Thu, 09 Oct 2025 11:30:22 +0200 (CEST)
+Date: Thu, 9 Oct 2025 11:30:22 +0200
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Artem Shimko <a.shimko.dev@gmail.com>
+Cc: p.zabel@pengutronix.de, andi.shyti@kernel.org,
+	andriy.shevchenko@linux.intel.com, jarkko.nikula@linux.intel.com,
+	jsd@semihalf.com, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: designware-platdrv: handle reset control deassert
+ error
+Message-ID: <20251009093022.GH2912318@black.igk.intel.com>
+References: <206e36398db6075bfb0bb0b98295ee7328c5f64f.camel@pengutronix.de>
+ <20251009083703.2038187-1-a.shimko.dev@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-cloud-security-sender:matthias.schiffer@ew.tq-group.com
-X-cloud-security-recipient:linux-i2c@vger.kernel.org
-X-cloud-security-crypt: load encryption module
-X-cloud-security-Mailarchiv: E-Mail archived for: matthias.schiffer@ew.tq-group.com
-X-cloud-security-Mailarchivtype:outbound
-X-cloud-security-Virusscan:CLEAN
-X-cloud-security-disclaimer: This E-Mail was scanned by E-Mailservice on mx-relay02-hz2.antispameurope.com with 4cj49N1cGlz2gY5Z
-X-cloud-security-connect: he-nlb01-hz1.hornetsecurity.com[94.100.132.6], TLS=1, IP=94.100.132.6
-X-cloud-security-Digest:3b51b6f303a4b4124ce7a9c384325c99
-X-cloud-security:scantime:2.538
-DKIM-Signature: a=rsa-sha256;
- bh=V1zco+aUJaXBAcg9GM1X/IscW6w2wuvsTjlRMqGC/NI=; c=relaxed/relaxed;
- d=ew.tq-group.com;
- h=content-type:mime-version:subject:from:to:message-id:date; s=hse1;
- t=1760001650; v=1;
- b=FGgqrT0B8pebctYNLaMDNfWxJUJ/zqFhZSHWO/J/YWBRH+1r0RCdDHXN6ItGFCyiK4tGdAR9
- +MckmA2sEBRHHUaUs9Lbq7kkzyEQRTyt/a6i4WVsC4i31YKH9Go3NV69f9jAvREHw9TCKExTHZ1
- qPpwO0ZgRjR7kqcqZnN4T1fJIk5xVaYfNglMZ1d+mLM3gQmNeXq5bTC16AtKzG8j+Ogbz0Nxa3F
- pKmap3yuiw1er0Y3T9HT6WHgyvRi8m2LFsbCQU+UuadGMzupMjZpCX/UX6VukO7BW3tg7sXh64m
- mTh+fCZ/0aky4qgCR8HySou3JmcDptdYLf6Hp9TUCzkSQ==
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20251009083703.2038187-1-a.shimko.dev@gmail.com>
 
-When a target makes use of clock stretching, a timeout of 1ms may not be
-enough. One extreme example is the NXP PTN3460 eDP to LVDS bridge, which
-takes ~320ms to send its ACK after a flash command has been
-submitted.
+Hi,
 
-The behavior in the regular case is unchanged, spinning for up to 1ms,
-but the open-coded poll loop is replaced with read_poll_timeout_atomic()
-as suggested by Andrew Lunn. In cases where 1ms is not sufficient,
-read_poll_timeout() is used, allowing a total transfer time up to the
-timeout set in struct i2c_adapter (defaulting to 1s, configurable through
-the I2C_TIMEOUT ioctl).
+On Thu, Oct 09, 2025 at 11:37:03AM +0300, Artem Shimko wrote:
+> Handle the error returned by reset_control_deassert() in the probe
+> function to prevent continuing probe when reset deassertion fails.
+> 
+> Previously, reset_control_deassert() was called without checking its
+> return value, which could lead to probe continuing even when the
+> device reset wasn't properly deasserted.
+> 
+> The fix checks the return value and returns an error with dev_err_probe()
+> if reset deassertion fails, providing better error handling and
+> diagnostics.
+> 
+> Signed-off-by: Artem Shimko <a.shimko.dev@gmail.com>
 
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
----
+Looks good to me,
 
-v2: avoid spinning for a whole second, switch to
-read_poll_timeout[_atomic]()
-
- drivers/i2c/busses/i2c-ocores.c | 44 ++++++++++++++++-----------------
- 1 file changed, 22 insertions(+), 22 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index 482b37c8a1297..c4587194d46be 100644
---- a/drivers/i2c/busses/i2c-ocores.c
-+++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -18,6 +18,7 @@
- #include <linux/platform_device.h>
- #include <linux/i2c.h>
- #include <linux/interrupt.h>
-+#include <linux/iopoll.h>
- #include <linux/wait.h>
- #include <linux/platform_data/i2c-ocores.h>
- #include <linux/slab.h>
-@@ -258,7 +259,7 @@ static void ocores_process_timeout(struct ocores_i2c *i2c)
-  * @reg: register to query
-  * @mask: bitmask to apply on register value
-  * @val: expected result
-- * @timeout: timeout in jiffies
-+ * @timeout: absolute timeout in jiffies
-  *
-  * Timeout is necessary to avoid to stay here forever when the chip
-  * does not answer correctly.
-@@ -269,30 +270,32 @@ static int ocores_wait(struct ocores_i2c *i2c,
- 		       int reg, u8 mask, u8 val,
- 		       const unsigned long timeout)
- {
--	unsigned long j;
--
--	j = jiffies + timeout;
--	while (1) {
--		u8 status = oc_getreg(i2c, reg);
-+	unsigned long max_wait;
-+	u8 status;
-+	int ret;
- 
--		if ((status & mask) == val)
--			break;
-+	/* In most cases the wait is short, so we spin for up to 1ms. */
-+	ret = read_poll_timeout_atomic(oc_getreg, status,
-+				       (status & mask) == val,
-+					0, 1000, false, i2c, reg);
-+	if (ret != -ETIMEDOUT)
-+		return ret;
- 
--		if (time_after(jiffies, j))
--			return -ETIMEDOUT;
--	}
--	return 0;
-+	max_wait = jiffies_to_usecs(max(0L, timeout - jiffies)) + 1;
-+	return read_poll_timeout(oc_getreg, status, (status & mask) == val,
-+				 10000, max_wait, false, i2c, reg);
- }
- 
- /**
-  * ocores_poll_wait() - Wait until is possible to process some data
-  * @i2c: ocores I2C device instance
-+ * @timeout: absolute timeout in jiffies
-  *
-  * Used when the device is in polling mode (interrupts disabled).
-  *
-  * Return: 0 on success, -ETIMEDOUT on timeout
-  */
--static int ocores_poll_wait(struct ocores_i2c *i2c)
-+static int ocores_poll_wait(struct ocores_i2c *i2c, unsigned long timeout)
- {
- 	u8 mask;
- 	int err;
-@@ -310,15 +313,11 @@ static int ocores_poll_wait(struct ocores_i2c *i2c)
- 		udelay((8 * 1000) / i2c->bus_clock_khz);
- 	}
- 
--	/*
--	 * once we are here we expect to get the expected result immediately
--	 * so if after 1ms we timeout then something is broken.
--	 */
--	err = ocores_wait(i2c, OCI2C_STATUS, mask, 0, msecs_to_jiffies(1));
-+	err = ocores_wait(i2c, OCI2C_STATUS, mask, 0, timeout);
- 	if (err)
--		dev_warn(i2c->adap.dev.parent,
--			 "%s: STATUS timeout, bit 0x%x did not clear in 1ms\n",
--			 __func__, mask);
-+		dev_dbg(i2c->adap.dev.parent,
-+			"%s: STATUS timeout, bit 0x%x did not clear\n",
-+			__func__, mask);
- 	return err;
- }
- 
-@@ -336,11 +335,12 @@ static int ocores_poll_wait(struct ocores_i2c *i2c)
-  */
- static int ocores_process_polling(struct ocores_i2c *i2c)
- {
-+	unsigned long timeout = jiffies + i2c->adap.timeout;
- 	irqreturn_t ret;
- 	int err = 0;
- 
- 	while (1) {
--		err = ocores_poll_wait(i2c);
-+		err = ocores_poll_wait(i2c, timeout);
- 		if (err)
- 			break; /* timeout */
- 
--- 
-TQ-Systems GmbH | Mühlstraße 2, Gut Delling | 82229 Seefeld, Germany
-Amtsgericht München, HRB 105018
-Geschäftsführer: Detlef Schneider, Rüdiger Stahl, Stefan Schneider
-https://www.tq-group.com/
-
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
