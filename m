@@ -1,121 +1,103 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAC9A23958A;
-	Sat, 18 Oct 2025 15:56:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A9A2246335
+	for <linux-i2c@vger.kernel.org>; Sat, 18 Oct 2025 17:34:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760802961; cv=none; b=Ieg08e9jFeayQiPspi/xPEsXT9jRAmx5bczr/pS0oQCWvpJqOhaf8NvNxnA1fyntrNL4KBGyUKBzBF2+vCHlU+nJgDYeJ/CAW4OmfypUINnirh2YezyS+yNNCPjKXY0K1ajyyBkk1u0EXdlB8LCpI+k54p/jd31LbQp7IlgnZeg=
+	t=1760808889; cv=none; b=f2aHPAJVQhk53Y3NdTL+pgi7SczAwQ0D826uEf0AhMoQgajF+24tYM2OuWkzocn07r9JCGFdulUkEFYHRmefl1iMJvm7PYJoqNlG9GuwD+8Pflrqpb79TS8jT+jY8H2a7byB8njvHUi3oMxH1zpZZO04mcVPCRoO0bWOgaQAV4k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760802961; c=relaxed/simple;
-	bh=rANeg7/9tDur3aPT6nLL3Vg3pGWC/QvMvYI+IkkU5QU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lIwQ2i80zdaesyEpGvH5khGgIUDshzaQbrDXNn7D/YxnZu9lmKyaorj5A1ZHIfqpO788SDJEQfUPPX+q6zEw/xI7laQT/rIidoNniLz7YDR2vGbLZEYoF7HsWBjFgyizJNGPf/38SP3CXLU9NF3iuk/EN/rFlusQh9GiTnKnfCo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KAH3Ne8U; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1760808889; c=relaxed/simple;
+	bh=VyHWCYgpw2XQ8+U2NPU+vM5uTD2JaXAYbZkKZnNDd5o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hCQds3d72qFbjp4gBpxrWOCCrY6BPlm+c0f9+4AQByUgb73hjAI5SVQRxIRD7E0IgnS2D84t9b0Gkdbj4u50EFpPP+61mX2neDie/Lbuym8N33r2lzdXJluuCdEvIDI6/lvD/pkzJ+prQEqw/ISNj4wYrhggoicDl0RQ816H/ws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=A8iKjyzA; arc=none smtp.client-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KAH3Ne8U"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2C90C4CEF8;
-	Sat, 18 Oct 2025 15:55:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1760802961;
-	bh=rANeg7/9tDur3aPT6nLL3Vg3pGWC/QvMvYI+IkkU5QU=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=KAH3Ne8UzqQ3HFRkQ4+bxBdpamOTpQ2NnlNq0/lBpJS1y5kOYSlmsOhge9CfEoNXd
-	 yRAHz6a2eLoobNUV59Sb7dHCuSZGiMBveZnyrCvPR232luOM42EzKAGqDfho41xW3B
-	 u9QY9Kk/+JJBMc8WeUmZSbLr09RUo8SSQ2kd7hr4f6XfCYOm4tADQHowZGEqp2lxwh
-	 GLlimW8FNON0j7KXE/lSruJ9v2shClDSJk6232ZVaQlYEFOKS+fCUTCWUd3j0z8xY6
-	 T9+CND2EbZ72l4Wp4B0hRAy2Te06/65OWp/6fRO7VCYfZl0UE3SAilr6B0i/f54tq1
-	 pKQGQYa04TWZw==
-Message-ID: <5fca6d24-b84d-408e-874a-e86b811444fc@kernel.org>
-Date: Sat, 18 Oct 2025 17:55:55 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="A8iKjyzA"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1760808887; x=1792344887;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=VyHWCYgpw2XQ8+U2NPU+vM5uTD2JaXAYbZkKZnNDd5o=;
+  b=A8iKjyzAiWCgx6WJex6yZt8euN1tmaivQHXsNd5koroE3W85ZE8MP/w+
+   nnUnbwwwJhiAQIPrl5pabj3p+O8lqo07OGiAYeG8Gul8Xb6EUSbFmzbu1
+   9YX6VbA6cl1SKHvfq5aslHfe6LYJTFtQqy9dJAFg5Hlib+UnrGi/OBMMQ
+   MlGi6NRSu6+2gdwreK87AyJa6eywoVaQE9eARoCVOT7iPKsW+O5VL/TzI
+   CWqwJTV9yGQAJCUk5l1hy3NzXCiHWTgM2Dya6jpkLuVJEpPhO+SF7CYu6
+   +woDYfeWrsmmxZrAbxeQx7Ynv7XwFKtvWCKvCiwbhLzuTMzk5SYLKGY6+
+   w==;
+X-CSE-ConnectionGUID: AZooYPDWQ1CvqBCu7zX7ZA==
+X-CSE-MsgGUID: WStn/aEiQ6G5j5VeoXeqSA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11586"; a="65614260"
+X-IronPort-AV: E=Sophos;i="6.19,239,1754982000"; 
+   d="scan'208";a="65614260"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2025 10:34:46 -0700
+X-CSE-ConnectionGUID: W+YG1XtgRLSXW1DGGAruDA==
+X-CSE-MsgGUID: 5R/UGQ+ATkCr1HmJJF4cJA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.19,239,1754982000"; 
+   d="scan'208";a="182939804"
+Received: from pgcooper-mobl3.ger.corp.intel.com (HELO ashevche-desk.local) ([10.245.244.194])
+  by fmviesa006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Oct 2025 10:34:44 -0700
+Received: from andy by ashevche-desk with local (Exim 4.98.2)
+	(envelope-from <andriy.shevchenko@linux.intel.com>)
+	id 1v91kL-00000000KTa-3LEg;
+	Wed, 15 Oct 2025 16:40:53 +0300
+Date: Wed, 15 Oct 2025 16:40:53 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Hans Verkuil <hverkuil+cisco@kernel.org>, linux-i2c@vger.kernel.org,
+	Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jan Dabros <jsd@semihalf.com>, Andi Shyti <andi.shyti@kernel.org>
+Subject: Re: i2c-designware: not possible to write to different i2c addresses
+ in one transfer?
+Message-ID: <aO-kZUwqcoqnFfTh@smile.fi.intel.com>
+References: <ee6afdd7-3117-43cd-831f-e0ec5ee46f46@kernel.org>
+ <aO-KuJ_T9cXsNpIh@ninjato>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/3] i2c: designware: Support of controller with
- IC_EMPTYFIFO_HOLD_MASTER disabled
-To: =?UTF-8?Q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>,
- Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Jarkko Nikula <jarkko.nikula@linux.intel.com>,
- Mika Westerberg <mika.westerberg@linux.intel.com>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Jan Dabros <jsd@semihalf.com>,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Clark Williams <clrkwllms@kernel.org>, Steven Rostedt <rostedt@goodmis.org>
-Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
- Gregory CLEMENT <gregory.clement@bootlin.com>,
- =?UTF-8?Q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>,
- Tawfik Bayouk <tawfik.bayouk@mobileye.com>,
- Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>,
- Dmitry Guzman <dmitry.guzman@mobileye.com>, linux-i2c@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-rt-devel@lists.linux.dev
-References: <20251017-i2c-dw-v1-0-7b85b71c7a87@bootlin.com>
- <20251017-i2c-dw-v1-3-7b85b71c7a87@bootlin.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <20251017-i2c-dw-v1-3-7b85b71c7a87@bootlin.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aO-KuJ_T9cXsNpIh@ninjato>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On 17/10/2025 16:59, Benoît Monin wrote:
->  
->  static const struct of_device_id dw_i2c_of_match[] = {
-> -	{ .compatible = "snps,designware-i2c", },
-> -	{ .compatible = "mscc,ocelot-i2c", .data = (void *)MODEL_MSCC_OCELOT },
->  	{ .compatible = "baikal,bt1-sys-i2c", .data = (void *)MODEL_BAIKAL_BT1 },
-> +	{ .compatible = "mobileye,eyeq6lplus-i2c", .data = (void *)NO_EMPTYFIFO_HOLD_MASTER },
-> +	{ .compatible = "mobileye,eyeq7h-i2c", .data = (void *)NO_EMPTYFIFO_HOLD_MASTER },
+On Wed, Oct 15, 2025 at 01:51:20PM +0200, Wolfram Sang wrote:
+> Hi Hans,
+> 
+> lucky you, I happen to have a board with that controller on the table
+> currently :)
+> 
+> > This worked fine for the Raspberry Pi 4B using the broadcom i2c driver, but for
+> > the Raspberry Pi 5 using the designware driver it fails with -EINVAL and these
+> > kernel messages:
+> > 
+> > [  272.284689] i2c_designware 1f00074000.i2c: i2c_dw_xfer_msg: invalid target address
+> 
+> Confirmed.
+> 
+> > Looking in i2c-designware-master.c it seems it cannot handle consecutive messages for
+> > different addresses.
+> 
+> I agree. I leave the final judgement to the experts (Andy, Mika), but I
+> already anticipate that I need to extend the existing
+> I2C_AQ_COMB_SAME_ADDR quirk into a more generic one. And set the quirk
+> in this driver.
 
-That's not necessary. Don't create duplicated entries, express
-compatibility.
+May I ask a dumb question? Why do we need such an awkward transaction
+to begin with?
 
-Best regards,
-Krzysztof
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
