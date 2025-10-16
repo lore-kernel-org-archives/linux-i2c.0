@@ -1,138 +1,146 @@
-Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx-relay02-hz2.antispameurope.com (mx-relay02-hz2.antispameurope.com [83.246.65.88])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E88630BF66
-	for <linux-i2c@vger.kernel.org>; Thu, 16 Oct 2025 11:50:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760615415; cv=none; b=nfwDUVhQXpeIN8hTvfGTZ1yd6AVV3F/yIEBAssFjelwgQjLoquo/G7WTIKjynCniFHWtE+ITosZSZEs43h7XO7ihsahOesgSd379xWA3JMdoE5+IjEZbKs+3A040WPi4PwjO9U0htHp4tG2c/I1sP6CDRT8nRk1uU45T5oUMsi8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760615415; c=relaxed/simple;
-	bh=N2WgTs/5T5fCBqZ4ODa1es3MMlQZNO1srOLrkvYjBhU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=E5rEvYFgKRKo8EalPCrMf8Q7SAkiTRQlAgooLwbMpjq0uqujaG73AfnqVguM9AHTD4n4lVYTFsBYfyFErEZPspUpK6lkdfGAouhQ5wiQgAiTDYHbUhfCJAWwx46oQFS6wU3wrZqRT+b72499qgwuBgALvjXNjDuf5LbmRdXHE1U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=A/M7Hfdp; arc=none smtp.client-ip=209.85.218.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0B8A326D50
+	for <linux-i2c@vger.kernel.org>; Thu, 16 Oct 2025 12:14:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=83.246.65.88
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1760616855; cv=pass; b=maY0AFZQ5iQ0iDRZcxAWiVthL5/ck73NC8Ybzl01vei7aMp3sZkE/9oBBWtf/YuFL77sxMY5614tRJ4SfFJ7p+5wscohRvsuiPCyvUmJf1T+/9p9JzSjwPJj9VLtkL0CvK9+bknl0lujLGH8JvRtkLNvROYI63OfoE9DZNvvtr4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1760616855; c=relaxed/simple;
+	bh=AhE7mWYiKwrLmMujdh80FZXwWeFEXVxROalbMp5K+rM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=NbCwmCP/qc8bLXX+zC4jvqph3ao0w8z+d13HNZDulJeC3XijSGV0H1j8vbzAlL6zxO5pJlMsRBz8gJOnxEiOjhlfyxRNRezSGsnmsWXggsQRfq5IFX/5F/7F4+fXk4TFz7zkonfYJrYXNnnAYBfqITwZuEAbSYCxMw0MfsqdwBk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ew.tq-group.com; spf=pass smtp.mailfrom=ew.tq-group.com; dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b=IJjRuyQm; arc=pass smtp.client-ip=83.246.65.88
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ew.tq-group.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ew.tq-group.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="A/M7Hfdp"
-Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-b3e9d633b78so147755966b.1
-        for <linux-i2c@vger.kernel.org>; Thu, 16 Oct 2025 04:50:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1760615411; x=1761220211; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=eEbqZZLSc+qwF2fltsWM8Kb5Qy0LiCcBgh/Rt+CAz50=;
-        b=A/M7HfdpMMCcgHIQsnEoPSfDOLdfL2GtalxzoU4elXCRSNPtciJDaOchf3uzyYuXcJ
-         9Q4RSi1JFIorxdpZeYjTRVsdT0tcX05KZw+qyCLCv+nilTnDS/hT3FRP82qBY3mBDRKh
-         Td8JdQ1ZybSR/jLzCJ8SL2SI2rDEIb8sfmEXQ4IdtTBVH9uGJZ8douDR68l1XUiNX3aV
-         KZmfuDi+SieOsm4rcmakS9CXSF9sCjmkVvKPAkUTMmnqHZRKDC/U34MQbZqI96kAVwLI
-         Xai91kaKVbgD0qcn97ay/54xnuYEaNUrAagD5uCt67eOQBADkZjAlZoy50gWhq5IteWl
-         2JYw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1760615411; x=1761220211;
-        h=content-transfer-encoding:in-reply-to:content-language:from
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=eEbqZZLSc+qwF2fltsWM8Kb5Qy0LiCcBgh/Rt+CAz50=;
-        b=Aw4oMFcEiVfiB5M6S3n9OPOIVnBAVvkXcitY7grEvBGM6E+eIUiK4EPpvF1y/JHtMz
-         aoe4B24KAcQ/KCL+j9hk8RwD2NEA4+fCGr0I+BBrmylYfv8yLkhhfc+Cpv7eSj344jkI
-         RLSrJ9xz7R0pAtu8IBWF4o6ex76jhmp2RDVhOsEkJwOY2Kio1u4gXiGd8HuWHjnXOiYM
-         FwfWWJuR5xe++fCshIYIOHvO7Hg45eOgntMgfIPKj42twvf/5j2aHWYTw0S1PagcuJrW
-         M3yFYkQN13AvyE3H/di4I+RrHXzFR5fTi6Z+zXH8PYLjnX2cqAu6anAQV245RYQONEu1
-         9rew==
-X-Gm-Message-State: AOJu0Yz/GrZU1bMWh10T0icNQ5E0cwGknzfVJFfVT5/ZZ0IqgZYbTl3H
-	I6blZA04bv5J0PkyzOQKYvf3osjgbGFyoxG4mRI49nNPw/dxz1J3F1H0FFykVO2Rl88=
-X-Gm-Gg: ASbGncttj6VMytv4q6g4vWvtTqtz5R3bEEyUrQn+wAa8HSebcTmT680NN42dlQxbWPt
-	Sh1UgFWewaMKaIW0ZnEoCj+eBVZT2yI1S8W5Ez4BDmvpYC4I8T2aBcIo8AFG0tbUocpPDK2Vo4a
-	ljVORo4f0NAUiMKzOA29v//QMnvM4o9jpfsu5q88Lz098ezXUY/hDrMw0vBctU3utmw2pHsP9mp
-	ADn98QcnTBgiDE0uF3Z38nBmEv7EI5p7VE1Qj6n4ZOYNoAKX96r0zAStDZeobj+tjVXXITB5gZn
-	hJVbQAAyO8N0qLOV4qgVV3iQ76rO1rzkuF33h4pMNsTINRheEgrnTNtxvHIOtZEqpQoP3MQNREB
-	Pzf7zB23gGPtef8ETaLSB5Zw+1kzdQ+kLry95xVoZ1b5PAgfI08EoQWs7lFFMNN2RRe9dNnwXyW
-	6Yfz5+MacYYQxV2VONM37l/4NPhED2SaJvYQXMFRituovIAA==
-X-Google-Smtp-Source: AGHT+IEW+wnaN71oLRojt+JZzgYMxYoG0XidbWJwYAOsWETEDggOgPEoiox0/+MITAms2gR7IjA89A==
-X-Received: by 2002:a17:907:96a7:b0:b2f:4970:8720 with SMTP id a640c23a62f3a-b6052a71b33mr472940466b.8.1760615411486;
-        Thu, 16 Oct 2025 04:50:11 -0700 (PDT)
-Received: from [192.168.0.19] (188-141-3-146.dynamic.upc.ie. [188.141.3.146])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b5cb965c35csm489533266b.8.2025.10.16.04.50.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 16 Oct 2025 04:50:11 -0700 (PDT)
-Message-ID: <c4fd6bfc-cc9a-4f37-99b3-f36466691a1e@linaro.org>
-Date: Thu, 16 Oct 2025 12:50:09 +0100
+	dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b="IJjRuyQm"
+ARC-Authentication-Results: i=1; mx-gate02-hz2.hornetsecurity.com 1; spf=pass
+ reason=mailfrom (ip=94.100.132.6, headerfrom=ew.tq-group.com)
+ smtp.mailfrom=ew.tq-group.com smtp.helo=smtp-out01-hz1.hornetsecurity.com;
+ dmarc=pass header.from=ew.tq-group.com orig.disposition=pass
+ARC-Message-Signature: a=rsa-sha256;
+ bh=p8HU5ghILMkmBE7X0DI6HUPtOtmviMs6RRNSg0YuQZY=; c=relaxed/relaxed;
+ d=hornetsecurity.com; h=from:to:date:subject:mime-version:; i=1; s=hse1;
+ t=1760616840;
+ b=nt7wEnxkzntjGkiwAMQDl4XTsFLOORl5upEdrJq3Bam0t/Z5Vkpr5Ms+P3OAjduv0cujPgIK
+ LbfJwHc4ThBqPuszdVwTh7JxKwXZQ20olzJQ0Wj32wEpWriNsBkzWFdwpKGGzLeANgrF2lnk651
+ jbuyagumTz834WX1I3/TygqkSPe5HKYE20ivYjIiO14NULOnh8CY7DQkTyfeVTMqJ3hqeWtMAh/
+ XCqjylrFqVgwKtOBxmj12MfE9Pc6wyUVMAA/YSExQ7YsFmr6Ttfo2RTYaD9ZKXmmFCZmxAu5IP7
+ iXf5OF+JRP1fFSLaboH7m6KVPVJs9tyu/udj7RIE6oZSg==
+ARC-Seal: a=rsa-sha256; cv=none; d=hornetsecurity.com; i=1; s=hse1;
+ t=1760616840;
+ b=dqHyeo+GlYc5eM69zoU898J/NuukMSKxb0fNPpCX2d7GlFEXuFzajBHAopaH3Gt6HvBruR6t
+ ocsGeIzEB/o2GyzVRyaxSOqvjqG4O7V7vfse74y/UywvHOp218rmlnAfOyFrmECbztQc2MsRt1P
+ 7rA0OdNcpQaoPYow+CQwmROC0YwFRoch4adHt6/5tr0Q2Itaab04VqQqzaM7mVC2NAHnlNmXHoj
+ lPJPUuRtGhy6lkK11jYYSB/3+Cs1460Dr9jX1dLOPPqMPzRFR3N2tZeTK2EbgPVByuHiVzwjIkn
+ VAHXU0s3tzEsfmmUrugWONNxLY/+sPvc/sKAsIcG1UR4A==
+Received: from he-nlb01-hz1.hornetsecurity.com ([94.100.132.6]) by mx-relay02-hz2.antispameurope.com;
+ Thu, 16 Oct 2025 14:14:00 +0200
+Received: from schifferm-ubuntu.tq-net.de (host-82-135-125-110.customer.m-online.net [82.135.125.110])
+	(Authenticated sender: matthias.schiffer@ew.tq-group.com)
+	by smtp-out01-hz1.hornetsecurity.com (Postfix) with ESMTPSA id C151BA407A7;
+	Thu, 16 Oct 2025 14:13:50 +0200 (CEST)
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+To: Andi Shyti <andi.shyti@kernel.org>,
+	Lee Jones <lee@kernel.org>
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux@ew.tq-group.com,
+	Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Subject: [PATCH v2 4/4] mfd: tqmx86: add detection for secondary I2C controller
+Date: Thu, 16 Oct 2025 14:13:29 +0200
+Message-ID: <24f2c69532dea95a7ddbf97f34dfef92c49d065b.1760601899.git.matthias.schiffer@ew.tq-group.com>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <5855f15ad83617d3a71b40d89d61273722c6e15f.1760601899.git.matthias.schiffer@ew.tq-group.com>
+References: <5855f15ad83617d3a71b40d89d61273722c6e15f.1760601899.git.matthias.schiffer@ew.tq-group.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] media: qcom: camss: Enable setting the rate to
- camnoc_rt_axi clock
-To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
- Krzysztof Kozlowski <krzk@kernel.org>,
- Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>,
- Loic Poulain <loic.poulain@oss.qualcomm.com>, Robert Foss
- <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Todor Tomov <todor.too@gmail.com>,
- Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
- Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-media@vger.kernel.org
-References: <20251014-add-new-clock-in-vfe-matching-list-v1-1-0d965ccc8a3a@oss.qualcomm.com>
- <9984bc23-05ef-4d46-aeb8-feb0a18e5762@kernel.org>
- <bc0caeb8-c99b-4bef-a69e-5ce433e6b890@oss.qualcomm.com>
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Content-Language: en-US
-In-Reply-To: <bc0caeb8-c99b-4bef-a69e-5ce433e6b890@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-cloud-security-sender:matthias.schiffer@ew.tq-group.com
+X-cloud-security-recipient:linux-i2c@vger.kernel.org
+X-cloud-security-crypt: load encryption module
+X-cloud-security-Mailarchiv: E-Mail archived for: matthias.schiffer@ew.tq-group.com
+X-cloud-security-Mailarchivtype:outbound
+X-cloud-security-Virusscan:CLEAN
+X-cloud-security-disclaimer: This E-Mail was scanned by E-Mailservice on mx-relay02-hz2.antispameurope.com with 4cnRgz2bqCz2gWjd
+X-cloud-security-connect: he-nlb01-hz1.hornetsecurity.com[94.100.132.6], TLS=1, IP=94.100.132.6
+X-cloud-security-Digest:51778a54f7a6890771feaed904a7d54d
+X-cloud-security:scantime:2.014
+DKIM-Signature: a=rsa-sha256;
+ bh=p8HU5ghILMkmBE7X0DI6HUPtOtmviMs6RRNSg0YuQZY=; c=relaxed/relaxed;
+ d=ew.tq-group.com;
+ h=content-type:mime-version:subject:from:to:message-id:date; s=hse1;
+ t=1760616839; v=1;
+ b=IJjRuyQmKbydGz+ixLQ3dKW/RNL0FPM5pMPIhDbcD9b/wLpUuRNVQdDCB9WYVGZXIErqPaPY
+ hEGJMhZResQvWv4WiC/8EhtfJAPqIcSTZE2xAtdDndoFGBQLaCrOoLSje31ZUanUO4Ybh3dB967
+ 9FNb/j1AIgpx0OGlIrmQDgJ4BJqSR+KbbKVeWwRPqRc7XOYloRosugSabnE4C78xXg6ApDqBp1t
+ wc+QgOU1sNNO7Ab5NMuI4xi2zKY9H6L2BA9ePUioKbbDD9+4LrMKI7gQpwxNNJDEgChCru1Mq+F
+ otS4I66F1ZIFpMSdk+dx5OZW6AxH3YwitrumtSNW6lc8A==
 
-On 16/10/2025 12:30, Konrad Dybcio wrote:
-> On 10/16/25 7:54 AM, Krzysztof Kozlowski wrote:
->> On 15/10/2025 04:43, Hangxiang Ma wrote:
->>> On hardware architectures where a single CAMNOC module is split into
->>> two, one for each of the real time (RT) and non real time (NRT) modules
->>> within camera sub system, processing VFE output over the AXI bus
->>> requires enabling and setting the appropriate clock rate for the RT
->>> CAMNOC. This change lays the groundwork for supporting such
->>> configurations.
->>>
->>> Signed-off-by: Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
->>> ---
->>> This change lays the groundwork for supporting configurations for
->>> hardware architectures that split a single CAMNOC module into real time
->>> (RT) and non real time (NRT).
->>> ---
->>>   drivers/media/platform/qcom/camss/camss-vfe.c | 3 ++-
->>>   1 file changed, 2 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/media/platform/qcom/camss/camss-vfe.c b/drivers/media/platform/qcom/camss/camss-vfe.c
->>> index ee08dbbddf88..09b29ba383f1 100644
->>> --- a/drivers/media/platform/qcom/camss/camss-vfe.c
->>> +++ b/drivers/media/platform/qcom/camss/camss-vfe.c
->>> @@ -914,7 +914,8 @@ static int vfe_match_clock_names(struct vfe_device *vfe,
->>>   	return (!strcmp(clock->name, vfe_name) ||
->>>   		!strcmp(clock->name, vfe_lite_name) ||
->>>   		!strcmp(clock->name, "vfe_lite") ||
->>> -		!strcmp(clock->name, "camnoc_axi"));
->>> +		!strcmp(clock->name, "camnoc_axi") ||
->>> +		!strcmp(clock->name, "camnoc_rt_axi"));
->>
->> Just use camnoc_axi for both. Look at your bindings - why do you keep
->> different names for same signal?
-> 
-> I think the correct question to ask is:
-> 
-> Is camnoc_axi going to represent the other (NRT) clock in this
-> setting?
-> 
-> Konrad
+Many TQMx86 PLDs contain 2 I2C controllers. Add support for the second
+one.
 
-I'm - perhaps naively - assuming this clock really is required ... and 
-that both will be needed concurrently.
-
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 ---
-bod
+
+v2: no changes
+
+ drivers/mfd/tqmx86.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/mfd/tqmx86.c b/drivers/mfd/tqmx86.c
+index 6447406f5026f..a6f0a185904e9 100644
+--- a/drivers/mfd/tqmx86.c
++++ b/drivers/mfd/tqmx86.c
+@@ -20,6 +20,7 @@
+ #define TQMX86_IOBASE	0x180
+ #define TQMX86_IOSIZE	0x20
+ #define TQMX86_IOBASE_I2C1	0x1a0
++#define TQMX86_IOBASE_I2C2	0x1aa
+ #define TQMX86_IOSIZE_I2C	0xa
+ #define TQMX86_IOBASE_WATCHDOG	0x18b
+ #define TQMX86_IOSIZE_WATCHDOG	0x2
+@@ -52,6 +53,7 @@
+ #define TQMX86_REG_IO_EXT_INT_12		3
+ #define TQMX86_REG_IO_EXT_INT_MASK		0x3
+ #define TQMX86_REG_IO_EXT_INT_I2C1_SHIFT	0
++#define TQMX86_REG_IO_EXT_INT_I2C2_SHIFT	2
+ #define TQMX86_REG_IO_EXT_INT_GPIO_SHIFT	4
+ #define TQMX86_REG_SAUC		0x17
+ 
+@@ -68,6 +70,10 @@ static uint i2c1_irq;
+ module_param(i2c1_irq, uint, 0);
+ MODULE_PARM_DESC(i2c1_irq, "I2C1 IRQ number (valid parameters: 7, 9, 12)");
+ 
++static uint i2c2_irq;
++module_param(i2c2_irq, uint, 0);
++MODULE_PARM_DESC(i2c2_irq, "I2C2 IRQ number (valid parameters: 7, 9, 12)");
++
+ static const struct resource tqmx_watchdog_resources[] = {
+ 	DEFINE_RES_IO(TQMX86_IOBASE_WATCHDOG, TQMX86_IOSIZE_WATCHDOG),
+ };
+@@ -338,6 +344,11 @@ static int tqmx86_probe(struct platform_device *pdev)
+ 	if (err)
+ 		return err;
+ 
++	err = tqmx86_detect_i2c(dev, "I2C2", TQMX86_IOBASE_I2C2, clock_khz, i2c2_irq,
++				NULL, 0, io_base, TQMX86_REG_IO_EXT_INT_I2C2_SHIFT);
++	if (err)
++		return err;
++
+ 	return devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
+ 				    tqmx86_devs,
+ 				    ARRAY_SIZE(tqmx86_devs),
+-- 
+TQ-Systems GmbH | Mühlstraße 2, Gut Delling | 82229 Seefeld, Germany
+Amtsgericht München, HRB 105018
+Geschäftsführer: Detlef Schneider, Rüdiger Stahl, Stefan Schneider
+https://www.tq-group.com/
+
