@@ -1,41 +1,71 @@
-Received: from TWMBX01.aspeed.com (mail.aspeedtech.com [211.20.114.72])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f42.google.com (mail-ej1-f42.google.com [209.85.218.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED8491E1A05;
-	Mon, 20 Oct 2025 01:37:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=211.20.114.72
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AC731B87C9
+	for <linux-i2c@vger.kernel.org>; Mon, 20 Oct 2025 03:06:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1760924236; cv=none; b=rS4+5lBG+g71gVBcQiZllNotwbEiGez3IVWwl7yWWKu87LuJku+QdBtAs7MjOm0kcw14kyFLORgIT2UfpZqFpf4R333g4p4XSNFXKw/CbdXIXZpGkzpsZQFQKhT6Sp61WFM4NhL08nnxzxRlwG4r8CR+f+DNzgLebq11JBQhdTw=
+	t=1760929603; cv=none; b=DXiBJVNkdnydqIgf6vYnJ2lijn5wyM5VVtaB7jb+QKs9lRzaKNNy1XPkkl0YpTYg3TwYr2Gv+xKOYU1BWwHYSIh+ZpiaNbKJrl+Fal9evdaxfJBHgy1FiANj6eRDAX1cnIUGEzJrWMMY3NezE2IiMreJqI0Txgl7L6aecefYzFY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1760924236; c=relaxed/simple;
-	bh=rZLE3w+x3F/d/lj1DCnHufPNm7UEIFSigj1F8SUs1nQ=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=l42Xr3k7vJphPvjHRx82t/DydEzpyEuBs7df/zT6bK/DCk71h0QddXVa90SR/JdmzBgWmUlV8RJa8SrCIHIY+OdQiHhFYJ88opu3QHD4n27SHLwZ2Iv6rWHEM/fFvxd4wL13eIULmTzFUOZEKUVcJvtiU0mMXzzm33RqQDla+iU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com; spf=pass smtp.mailfrom=aspeedtech.com; arc=none smtp.client-ip=211.20.114.72
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aspeedtech.com
-Received: from TWMBX01.aspeed.com (192.168.0.62) by TWMBX01.aspeed.com
- (192.168.0.62) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1748.10; Mon, 20 Oct
- 2025 09:32:01 +0800
-Received: from twmbx02.aspeed.com (192.168.10.13) by TWMBX01.aspeed.com
- (192.168.0.62) with Microsoft SMTP Server id 15.2.1748.10 via Frontend
- Transport; Mon, 20 Oct 2025 09:32:01 +0800
-From: Ryan Chen <ryan_chen@aspeedtech.com>
-To: <ryan_chen@aspeedtech.com>, <benh@kernel.crashing.org>, <joel@jms.id.au>,
-	<andi.shyti@kernel.org>, <robh@kernel.org>, <krzk+dt@kernel.org>,
-	<conor+dt@kernel.org>, <andrew@codeconstruct.com.au>,
-	<p.zabel@pengutronix.de>, <andriy.shevchenko@linux.intel.com>,
-	<naresh.solanki@9elements.com>, <linux-i2c@vger.kernel.org>,
-	<openbmc@lists.ozlabs.org>, <devicetree@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-aspeed@lists.ozlabs.org>,
-	<linux-kernel@vger.kernel.org>
-Subject: [PATCH v19 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add global-regs and transfer-mode properties
-Date: Mon, 20 Oct 2025 09:31:58 +0800
-Message-ID: <20251020013200.1858325-3-ryan_chen@aspeedtech.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20251020013200.1858325-1-ryan_chen@aspeedtech.com>
-References: <20251020013200.1858325-1-ryan_chen@aspeedtech.com>
+	s=arc-20240116; t=1760929603; c=relaxed/simple;
+	bh=YBjpHWk/OjbuNVrw3LpJ4l5G/Z9oVIc1hegX9iwUI+s=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=n7IJH0bEY+fgPZ01McWRtX7BtRCg8Y6CPrw4qWDgANAyrGnJHQ8WUzaP4Lj1CoTFUBt8SjY55O7CdxlDQsELYe+N5UcGUyW38SPtiG8Rjgwy7WHjuT58dNgxZXovp+e3YRUdbcrT4OM6Ozx1xnxpoN4Pis/IQvGODfy2uYKRqn8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=edJU7Wfh; arc=none smtp.client-ip=209.85.218.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="edJU7Wfh"
+Received: by mail-ej1-f42.google.com with SMTP id a640c23a62f3a-b50645ecfbbso767295466b.1
+        for <linux-i2c@vger.kernel.org>; Sun, 19 Oct 2025 20:06:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1760929600; x=1761534400; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=1bPrht/7jsBGYQSWDd7TS53BYGn+Ml8MxvPS8eVQKrE=;
+        b=edJU7Wfhc3rheRoyPXvBEYqHWKaZGPZzPY5B5aA4WEU4a3lAn/Cw+q9kXVPwyiNY7D
+         EpYC205n7QpQn0LKfVImYHkuvGLHNfgeJuSToClzFC3WbfJkGcd5UYK2xVgamCtcpAAl
+         tj+RyaC4dn7Y0AZ6FSCsgo4ziDdDuBcoK9Zjr3SMZhPNlSufj651FlEQlN/EMf3H+js8
+         2+YHkdf7HX3sl4hLU34rAkH3FQhY5LqXWoqD3I31iSIcj0mieagsjyiWuck4/UK1ke9D
+         /SrleaGVZs5ycYVirTUPgSHsiauoZW/lrHHe9r7oyHger6csV8Cjn17+7S10iX69Ead0
+         8fOA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1760929600; x=1761534400;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1bPrht/7jsBGYQSWDd7TS53BYGn+Ml8MxvPS8eVQKrE=;
+        b=LH4jkdtND0SAfyPY6LneM0mv1GUwqpjaRlGN+sVEPk/hkSPydbHvOn/RSvtskKR49G
+         H5FSLe9xBz+FENqWgkfipeZY78vSlU+1yB4gSzcvoqWybloUueps8weZbAHd6UPIL8SG
+         nX4le69xBxpXUzKHcE+wBP/NXLiQ8GdMpyE/FMRYssQA0NPXik2CQQ8L/azurTkaThdl
+         0ePnmChcSx2nNPNvFF0bDfbnr8xqerwyq8A90BmS4RFMBg4RaVMhupqI1TaE1bfOu26J
+         3GG/hcSpdr2RCKwjgQZ+B8sDXfI2EEE1wNIcnVFeJReFfD0NbbZYcQh0Wy8I915Pl0wq
+         pHOg==
+X-Gm-Message-State: AOJu0YwLcwjEk6u/bfFp25VWvxGDK3dBrPsTeLz0jVV8SkI/OpanqjkJ
+	FUtHU8juZx9mQD6JBUwpwuRLtMn4OqP392MEJQewBw3rTZD5eDUxI21P
+X-Gm-Gg: ASbGncs63lONAYrJ2O8xAKCnYfdAtOvHFx8c/2Vvo+phSzfpDcdpqpN4nXOJMKX/6sj
+	kv0E1jToY9AyM8zfEENMMaRoFY8rFf0M9YzBMdA7lHUhUtqozdbl2h9RhjgWC3oHXXD/4vRJvgT
+	ScoqE9E3ltoEzkjDnZb7HtF28bjk6bHeBMzNsHagXoWCDzNp9O3HYNX12x7f4yPTJbP7YmuHydV
+	WFMPrnrY+hqgLnMj1Zh3YCBabYVFUQeH5rnj4APGqdrzsEcsukhFIAk8sNgAO4ZHnxFVbMZl9Ok
+	AS3YUBWlQkvFmSVd2GnPxp2LUw5Nz9KltOA5tvGJOQXBcpS/QoSo8h7/fuDkTdQUrkmB+e7Uemv
+	y67TMDRvg6OWbIUNykClhqpyIlfrhWTJwvx7OY5jWMTB6PD3EiuWYBHYp5A95uBJm8ZZ1TDtj4U
+	o7D5zzLcccrfA=
+X-Google-Smtp-Source: AGHT+IEQIa2Rgx7bzVTwOpdEVIvCqpvuq3SS6qfKghO3EwkdnvJIJZkgozXupmlLYPPkVsElcWnqkA==
+X-Received: by 2002:a17:907:3fa8:b0:b32:2b60:eed with SMTP id a640c23a62f3a-b647500eb13mr1142751366b.44.1760929599453;
+        Sun, 19 Oct 2025 20:06:39 -0700 (PDT)
+Received: from shift.. ([86.124.201.90])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b65e7da25c9sm668375866b.11.2025.10.19.20.06.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 19 Oct 2025 20:06:38 -0700 (PDT)
+From: Cezar Chiru <chiru.cezar.89@gmail.com>
+To: andi.shyti@kernel.org,
+	wsa+renesas@sang-engineering.com
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Cezar Chiru <chiru.cezar.89@gmail.com>
+Subject: [PATCH v8 0/2] Improve usage of 'ret' variable and make pcf_doAdress() void
+Date: Mon, 20 Oct 2025 06:06:05 +0300
+Message-ID: <20251020030607.10219-1-chiru.cezar.89@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -43,82 +73,39 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
 
-The AST2600 I2C controller supports three transfer modes: byte,
-buffer, and DMA. To allow board designers and firmware to
-explicitly select the preferred transfer mode for each controller
-instance. "aspeed,transfer-mode" to allow device tree to specify
-the desired transfer method used by each I2C controller instance.
+Hello maintainers,
 
-And AST2600 i2c controller have two register mode, one is legacy
-register layout which is mix controller/target register control
-together, another is new mode which is separate controller/target
-register control.
+This patch series is a response to Change Requests made by Andi Shyti on
+[PATCH v7 0/3] i2c: pcf8584: Fix errors and warnings reported by checkpatch
+and more specific on PATCH: i2c: pcf8584: Move 'ret' variable inside for
+loop, break if ret < 0.
 
-Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
----
- .../devicetree/bindings/i2c/ast2600-i2c.yaml  | 32 ++++++++++++++++++-
- 1 file changed, 31 insertions(+), 1 deletion(-)
+Change Requests:
+ -remove initialization of 'ret' variable inside for loop of pcf_xfer() as
+ it is not needed
+ -change pcf_doAddress() function type from int to void as it always
+ returns 0.
 
-diff --git a/Documentation/devicetree/bindings/i2c/ast2600-i2c.yaml b/Documentation/devicetree/bindings/i2c/ast2600-i2c.yaml
-index 2dcddb0ecc2e..7fab9281d7b1 100644
---- a/Documentation/devicetree/bindings/i2c/ast2600-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/ast2600-i2c.yaml
-@@ -43,11 +43,39 @@ properties:
-     description: frequency of the bus clock in Hz defaults to 100 kHz when not
-       specified
- 
-+  aspeed,transfer-mode:
-+    description: |
-+      ASPEED ast2600 platform equipped with 16 I2C controllers each i2c controller
-+      have 1 byte transfer buffer(byte mode), 32 bytes buffer(buffer mode), and
-+      share a DMA engine.
-+      Select I2C transfer mode for this controller. Supported values are:
-+        - "byte": Use 1 byte for i2c transmit (1-byte buffer).
-+        - "buffer": Use buffer (32-byte buffer) for i2c transmit. (default)
-+                    Better performance then byte mode.
-+        - "dma": Each controller DMA mode is shared DMA engine. The AST2600 SoC
-+                 provides a single DMA engine shared for 16 I2C controllers,
-+                 so only a limited number of controllers can use DMA simultaneously.
-+                 Therefore, the DTS must explicitly assign which controllers are
-+                 configured to use DMA.
-+      On AST2600, each controller supports all three modes.
-+      If not specified, buffer mode is used by default.
-+    enum:
-+      - byte
-+      - buffer
-+      - dma
-+
-+  aspeed,global-regs:
-+    $ref: /schemas/types.yaml#/definitions/phandle
-+    description:
-+      Phandle reference to the i2c global syscon node, containing the
-+      SoC-common i2c register set.
-+
- required:
-   - reg
-   - compatible
-   - clocks
-   - resets
-+  - aspeed,global-regs
- 
- unevaluatedProperties: false
- 
-@@ -58,10 +86,12 @@ examples:
-       #address-cells = <1>;
-       #size-cells = <0>;
-       compatible = "aspeed,ast2600-i2c-bus";
--      reg = <0x40 0x40>;
-+      reg = <0x80 0x80>, <0xc00 0x20>;
-+      aspeed,global-regs = <&i2c_global>;
-       clocks = <&syscon ASPEED_CLK_APB>;
-       resets = <&syscon ASPEED_RESET_I2C>;
-       bus-frequency = <100000>;
-       interrupts = <0>;
-       interrupt-parent = <&i2c_ic>;
-+      aspeed,transfer-mode = "buffer";
-     };
--- 
-2.34.1
+Testing:
+  *built kernel and modules with I2C_ALGOPCF=m and my 3 patches applied on
+  top of 6.18.0-rc1.
+  *installed kernel and external modules generated by build on my laptop
+  *rebooted and loaded i2c-algo-pcf.ko without i2c_debug parameter.
+  *when loading the .ko with i2c_debug parameter an error is seen in dmesg
+  and this is expected as the parameter was removed.
+  *No success message related to i2c_algo_pcf was seen in dmesg but also
+  no failures.
+  *Module loading and unloading successful.
+  *No PCF8584 Hardware was available.
+
+Cezar Chiru (2):
+  i2c: pcf8584: Move 'ret' variable inside for loop, break if ret < 0.
+  i2c: pcf8584: Make pcf_doAddress() function void
+
+ drivers/i2c/algos/i2c-algo-pcf.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+--
+2.43.0
 
