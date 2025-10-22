@@ -1,183 +1,105 @@
-Received: from mx-relay02-hz1.antispameurope.com (mx-relay02-hz1.antispameurope.com [94.100.132.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from cstnet.cn (smtp21.cstnet.cn [159.226.251.21])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C337305967
-	for <linux-i2c@vger.kernel.org>; Wed, 22 Oct 2025 09:03:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=94.100.132.202
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761123786; cv=pass; b=tztqKckM5HlTGttbkSGWH6tiqwOYZCxNyljuVBJUrburnMbbpR2UwB9px4T+bQMY7GaGiapKiPgpCsVYHvPs2cJWVya5MY56nxoWMRI1j0/5OFCISAhUBaGNRY7ibDt+tbQAnFtxg7g5tAlitd4/mgTwLUbBiwqT/z8CTy/1vZk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1761123786; c=relaxed/simple;
-	bh=OVh0ZUwx27cW7RIRa1zzhCPbRQKVVM/TG+TpYX7rzsk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=VlNEeFh0BsVuowim0Oy5apTot2hfIeKLU1hmvGuj/Klw3BX618S4IqQNkYsQoDnbIThJXebnKvE/Z+iN04KbSxMY3+q1RDtB/nxDXRpgK4FfNSgL+LhvNqR0ExNOAmwKbmlS42cqoADWKqc8Ey0uurvR3KiF/DpdxtKwr5BoCZ0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ew.tq-group.com; spf=pass smtp.mailfrom=ew.tq-group.com; dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b=L9VKLSaf; arc=pass smtp.client-ip=94.100.132.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ew.tq-group.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ew.tq-group.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b="L9VKLSaf"
-ARC-Authentication-Results: i=1; mx-gate02-hz1.hornetsecurity.com 1; spf=pass
- reason=mailfrom (ip=94.100.132.6, headerfrom=ew.tq-group.com)
- smtp.mailfrom=ew.tq-group.com smtp.helo=smtp-out02-hz1.hornetsecurity.com;
- dmarc=pass header.from=ew.tq-group.com orig.disposition=pass
-ARC-Message-Signature: a=rsa-sha256;
- bh=z9MN8x1a3dmQkT2iCoRwYtoRNiqkW2k/qHJlG0OXDeM=; c=relaxed/relaxed;
- d=hornetsecurity.com; h=from:to:date:subject:mime-version:; i=1; s=hse1;
- t=1761123714;
- b=r33u3EnmTU6/lXGKA1WzOl0YZYikVr6EGLuhULX5raOlNVeQAa6Vmh5XJnmCjOn3vKu5vUPk
- wKd6NvAizCIonDfYsIXmijwJvMhkSe+ENVCHmNSRGE8zJZQWJfyUMKGWsc9vElgRMQA0iY8RfJQ
- 3HiM7MufZFF0+a0LYKhd+UJMPCp/iNP03sHkaRDhBVzyCKtiD71uI+8R+Pv3cB15xXfRD2TKjiv
- brhVC8zd4GESPjnhsn3clqLwCA0UhCgKlwtMkTcNcu0XJgDRm2t1XyA5Nlk8iMhvOTleGeDSsGL
- 1k3Mis851103zxt7kQYMY1ePt8NxH2bwa6PxCbkZcbRSQ==
-ARC-Seal: a=rsa-sha256; cv=none; d=hornetsecurity.com; i=1; s=hse1;
- t=1761123714;
- b=pWSnTruNAr07dPme92vdmxccwd+GeKDn4CFqtpKmymJZQ9cwy000tWN6/tqmzKoZvHVG9TLK
- PZEU68KeRa8BB4sHPRXEVz062llHTqGPVHmHMMsiL9CIXUNx75AWxDrX+F+4J9WDSTnLrCxUChB
- ok/Zf+Fxsa+Iiv0OmcxCKRohacXGzd3kt64Q5RXSoZXMMS6HWnL4+FTAkObF6XARzt6qwHlA7iA
- a1AsAEXHI8OfeISztIQWNfM6fcJ3IXIV+kIHP59WYvh9DMaQ216KU+bZPKa3dih4U+lIpo02w2T
- kHFUXn0Jwl//hsz/ZxnTLG4HUK3UREtA0RwxupOS4H/Lw==
-Received: from he-nlb01-hz1.hornetsecurity.com ([94.100.132.6]) by mx-relay02-hz1.antispameurope.com;
- Wed, 22 Oct 2025 11:01:54 +0200
-Received: from schifferm-ubuntu.tq-net.de (host-82-135-125-110.customer.m-online.net [82.135.125.110])
-	(Authenticated sender: matthias.schiffer@ew.tq-group.com)
-	by smtp-out02-hz1.hornetsecurity.com (Postfix) with ESMTPSA id 390095A20FB;
-	Wed, 22 Oct 2025 11:01:36 +0200 (CEST)
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-To: Andi Shyti <andi.shyti@kernel.org>,
-	Lee Jones <lee@kernel.org>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12C4D314A78;
+	Wed, 22 Oct 2025 09:54:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.21
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1761126865; cv=none; b=CFpjLnNQ3kULLcu3gbQtkZ+AJdTsOeIZh7+sizFuIvMZSy1lOp+CN8hgj80qgjzgdgtJQzWQIgmH368yEP8E2yt2zXIOYlbPJ2FWzfN37ahs4zDObB0JiDoIk6K2DFsJYiCLcx+otxyGLh3v2y7b4PPxtU2Sqt+dwksu0dy6bCY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1761126865; c=relaxed/simple;
+	bh=21fruIWNLjdivA6RFgeOV9STlHPvkZB2T0WctS2B14M=;
+	h=From:To:Cc:Subject:Date:Message-Id; b=VyL/No0GP+A9PknVtgf6q3vVxs82L72yu6XK+0nGkFCWHU3zPLKbL5ZmvIM+3h2D0uBr95L7+rwKu1bT1CEvor5qalvtys6444FJpqWDPBRQFqybxTjEbdW5oS3jnWjoReFvT3R7VcwqBr1NZUV0hsTylC5srck+licAsRh8OC0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from localhost.localdomain (unknown [202.112.113.212])
+	by APP-01 (Coremail) with SMTP id qwCowABnvZ+8qfhoyUDhEw--.32721S2;
+	Wed, 22 Oct 2025 17:54:14 +0800 (CST)
+From: Ma Ke <make24@iscas.ac.cn>
+To: syniurge@gmail.com,
+	shyam-sundar.s-k@amd.com,
+	andi.shyti@kernel.org,
+	wsa@kernel.org
 Cc: linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	linux@ew.tq-group.com,
-	Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Subject: [PATCH v3 3/4] mfd: tqmx86: add detection for MachXO2 I2C controller
-Date: Wed, 22 Oct 2025 11:01:15 +0200
-Message-ID: <0f08a5785424e23a99aea82e539cc2fcec61b71d.1761123080.git.matthias.schiffer@ew.tq-group.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <bc9ce42883d10d54bc0954024d7e2312ff45fdb6.1761123080.git.matthias.schiffer@ew.tq-group.com>
-References: <bc9ce42883d10d54bc0954024d7e2312ff45fdb6.1761123080.git.matthias.schiffer@ew.tq-group.com>
+	akpm@linux-foundation.org,
+	Ma Ke <make24@iscas.ac.cn>,
+	stable@vger.kernel.org
+Subject: [PATCH v3] i2c: fix reference leak in MP2 PCI device
+Date: Wed, 22 Oct 2025 17:54:02 +0800
+Message-Id: <20251022095402.8846-1-make24@iscas.ac.cn>
+X-Mailer: git-send-email 2.17.1
+X-CM-TRANSID:qwCowABnvZ+8qfhoyUDhEw--.32721S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7Zw17JF1rXr47XrWDGw4UJwb_yoW8Aw4fpF
+	WUJFWfArykGF4vgw1DX3W8ZFy3Aw4vvw4rWrWxCw1F93WrZas0kryktr909w15ArWqyF43
+	tFW7tayruFyjqaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUU9l14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26r4j6ryUM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
+	6F4UM28EF7xvwVC2z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
+	Cq3wAac4AC62xK8xCEY4vEwIxC4wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC
+	0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr
+	1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IE
+	rcIFxwCY1x0262kKe7AKxVWUtVW8ZwCY02Avz4vE14v_GFWl42xK82IYc2Ij64vIr41l4I
+	8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AK
+	xVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcV
+	AFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE42xK8VAvwI8I
+	cIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r
+	4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjfUeF4EDUUUU
+X-CM-SenderInfo: ppdnvj2u6l2u1dvotugofq/
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-cloud-security-sender:matthias.schiffer@ew.tq-group.com
-X-cloud-security-recipient:linux-i2c@vger.kernel.org
-X-cloud-security-crypt: load encryption module
-X-cloud-security-Mailarchiv: E-Mail archived for: matthias.schiffer@ew.tq-group.com
-X-cloud-security-Mailarchivtype:outbound
-X-cloud-security-Virusscan:CLEAN
-X-cloud-security-disclaimer: This E-Mail was scanned by E-Mailservice on mx-relay02-hz1.antispameurope.com with 4cs37N5kWZzR1JG
-X-cloud-security-connect: he-nlb01-hz1.hornetsecurity.com[94.100.132.6], TLS=1, IP=94.100.132.6
-X-cloud-security-Digest:fcd2d86e937189137eebea87f5b8cfd6
-X-cloud-security:scantime:3.441
-DKIM-Signature: a=rsa-sha256;
- bh=z9MN8x1a3dmQkT2iCoRwYtoRNiqkW2k/qHJlG0OXDeM=; c=relaxed/relaxed;
- d=ew.tq-group.com;
- h=content-type:mime-version:subject:from:to:message-id:date; s=hse1;
- t=1761123713; v=1;
- b=L9VKLSafINbk2HAQrgnz5jr0x3ShYN2zTReYYblLFgCT8GXXUQHOq2xv0TNwZhZdzEQkb0Ls
- 2gfIX9kwrwcK8aHUtot6gUgCm0qhz4rUzpEeYT0yLSAikkC7b/CCQGs/IPF7+ObianyXN4aS3iR
- LTwwiuXIYY3lTPjsbpFaIvVIPvQ4L3sghVBVBhR3fol5Sf2K9duRzoRQsnN8LOKDir3epCB0xo2
- noM3Nl6YfMPNfqVUy0fAJSEEJ79jna2UlYPoj2uTZKlF36rUq69TXqc973u0yRg+/GlVoPXPn2Q
- UNtQNdP4EHLRgoBQA4nBZihMyR2+EIrjPiBEJlauBGnAA==
 
-The TQMx86 PLD may contain two kinds of I2C controllers: the previously
-supported OpenCores I2C, or the MachXO2 I2C. Add support for the latter.
+In i2c_amd_probe(), amd_mp2_find_device() utilizes
+driver_find_next_device() which internally calls driver_find_device()
+to locate the matching device. driver_find_device() increments the
+reference count of the found device by calling get_device(), but
+amd_mp2_find_device() fails to call put_device() to decrement the
+reference count before returning. This results in a reference count
+leak of the PCI device each time i2c_amd_probe() is executed, which
+may prevent the device from being properly released and cause a memory
+leak.
 
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Found by code review.
+
+Cc: stable@vger.kernel.org
+Fixes: 529766e0a011 ("i2c: Add drivers for the AMD PCIe MP2 I2C controller")
+Signed-off-by: Ma Ke <make24@iscas.ac.cn>
 ---
+Changes in v3:
+- kept the temporary variable to store pci_get_drvdata() result before releasing the device reference;
+Changes in v2:
+- modified the missing initialization in the patch. Sorry for the omission.
+---
+ drivers/i2c/busses/i2c-amd-mp2-pci.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-v2: no changes
-v3: no changes
-
- drivers/mfd/tqmx86.c | 39 ++++++++++++++++++++++++++++++++++-----
- 1 file changed, 34 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/mfd/tqmx86.c b/drivers/mfd/tqmx86.c
-index 3c6f158bf1a45..6447406f5026f 100644
---- a/drivers/mfd/tqmx86.c
-+++ b/drivers/mfd/tqmx86.c
-@@ -13,6 +13,7 @@
- #include <linux/io.h>
- #include <linux/mfd/core.h>
- #include <linux/module.h>
-+#include <linux/platform_data/i2c-machxo2.h>
- #include <linux/platform_data/i2c-ocores.h>
- #include <linux/platform_device.h>
- 
-@@ -57,6 +58,8 @@
- #define TQMX86_REG_I2C_DETECT	0x7
- #define TQMX86_REG_I2C_DETECT_OCORES	0xa5
- 
-+#define TQMX86_REG_I2C_IEN	0x9
-+
- static uint gpio_irq;
- module_param(gpio_irq, uint, 0);
- MODULE_PARM_DESC(gpio_irq, "GPIO IRQ number (valid parameters: 7, 9, 12)");
-@@ -248,27 +251,53 @@ static int tqmx86_setup_i2c_ocores(struct device *dev, const char *label,
- 				sizeof(platform_data), irq);
- }
- 
-+static int tqmx86_setup_i2c_machxo2(struct device *dev, const char *label,
-+				    unsigned long i2c_base, int clock_khz, u8 irq)
-+{
-+	const struct machxo2_i2c_platform_data platform_data = {
-+		.clock_khz = clock_khz,
-+		.bus_khz = 100,
-+	};
-+
-+	return tqmx86_setup_i2c(dev, "i2c-machxo2", i2c_base, &platform_data,
-+				sizeof(platform_data), irq);
-+}
-+
- static int tqmx86_detect_i2c(struct device *dev, const char *label,
- 			     unsigned long i2c_base, int clock_khz, u8 irq,
- 			     const struct i2c_board_info *devices,
- 			     size_t num_devices, void __iomem *io_base,
- 			     u8 irq_reg_shift)
+diff --git a/drivers/i2c/busses/i2c-amd-mp2-pci.c b/drivers/i2c/busses/i2c-amd-mp2-pci.c
+index ef7370d3dbea..60edbabc2986 100644
+--- a/drivers/i2c/busses/i2c-amd-mp2-pci.c
++++ b/drivers/i2c/busses/i2c-amd-mp2-pci.c
+@@ -458,13 +458,16 @@ struct amd_mp2_dev *amd_mp2_find_device(void)
  {
--	u8 i2c_det;
-+	u8 i2c_det, i2c_ien;
+ 	struct device *dev;
+ 	struct pci_dev *pci_dev;
++	struct amd_mp2_dev *mp2_dev;
  
- 	if (tqmx86_setup_irq(dev, label, irq, io_base, irq_reg_shift))
- 		irq = 0;
+ 	dev = driver_find_next_device(&amd_mp2_pci_driver.driver, NULL);
+ 	if (!dev)
+ 		return NULL;
  
- 	/*
--	 * The I2C_DETECT register is in the range assigned to the I2C driver
--	 * later, so we don't extend TQMX86_IOSIZE. Use inb() for this one-off
--	 * access instead of ioport_map + unmap.
-+	 * These registers are in the range assigned to the I2C driver
-+	 * later, so we don't extend TQMX86_IOSIZE. Use inb() for these one-off
-+	 * accesses instead of ioport_map + unmap.
-+	 *
-+	 * There are 3 cases to distinguish:
-+	 *
-+	 * - ocores: i2c_det is a TQMx86-specific register that always contains
-+	 *   the value 0xa5. i2c_ien is unused and reads as 0xff.
-+	 * - machxo2: i2c_det is the data register can read as any value.
-+	 *   i2c_ien is the interrupt enable register; the upper nibble is
-+	 *   reserved and always reads as 0.
-+	 * - none: both i2c_det and i2c_ien read as 0xff if no I2C controller
-+	 *   exists at a given base address.
- 	 */
- 	i2c_det = inb(i2c_base + TQMX86_REG_I2C_DETECT);
-+	i2c_ien = inb(i2c_base + TQMX86_REG_I2C_IEN);
- 
--	if (i2c_det == TQMX86_REG_I2C_DETECT_OCORES)
-+	if (i2c_det == TQMX86_REG_I2C_DETECT_OCORES && i2c_ien == 0xff)
- 		return tqmx86_setup_i2c_ocores(dev, label, i2c_base, clock_khz,
- 					       irq, devices, num_devices);
-+	else if ((i2c_ien & 0xf0) == 0x00)
-+		return tqmx86_setup_i2c_machxo2(dev, label, i2c_base, clock_khz,
-+						irq);
- 
- 	return 0;
+ 	pci_dev = to_pci_dev(dev);
+-	return (struct amd_mp2_dev *)pci_get_drvdata(pci_dev);
++	mp2_dev = (struct amd_mp2_dev *)pci_get_drvdata(pci_dev);
++	put_device(dev);
++	return mp2_dev;
  }
+ EXPORT_SYMBOL_GPL(amd_mp2_find_device);
+ 
 -- 
-TQ-Systems GmbH | Mühlstraße 2, Gut Delling | 82229 Seefeld, Germany
-Amtsgericht München, HRB 105018
-Geschäftsführer: Detlef Schneider, Rüdiger Stahl, Stefan Schneider
-https://www.tq-group.com/
+2.17.1
+
