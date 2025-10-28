@@ -1,31 +1,31 @@
 Received: from ahti.lucaweiss.eu (ahti.lucaweiss.eu [128.199.32.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 665AC305E31;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 666CE33EAF3;
 	Tue, 28 Oct 2025 16:41:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=128.199.32.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761669698; cv=none; b=TFdRe3XL0khaPjuWln+eSbuO5okP/KqlZcGvp0JJ/aAfUiTq3xAf90GuAAuPqqFNHLiX0DcA/benMPfoGE/Reon/ciO6/z3VFKolIWkBUlwDiKuNCYo0uTsdDHC5/um7caSzgZHTRvshv2G+jO7Ep794iwo1gAQGszyv4IrZirQ=
+	t=1761669698; cv=none; b=JTzXsWPu4IXImvPBjA+B6R7BzSH4po9OKStLPo8w14LMBMABduSUEiGS3EeVSnTUAZ4UqFwpDaZ47uVIguCQDcQcxTBQwRCdQQmZ/7PxDwyoNRdPLCStiYvCAeyAjQjH/EBS717HTzfOQ+DvHDv6Nic6rbGRLkJTtNjWIuqP3sI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1761669698; c=relaxed/simple;
-	bh=ecnA0KG481FICL1IxqZl/Uq99VZDiX0xPco/otlm9Gw=;
+	bh=nHiJxy5dVZZ2fzE8k0XZk3dvoZtjPMtg8+vtSGKAiAE=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=DPMicen05DXG3cNz1QiZGca3Jp1ZPIKWYGsR9mjEny/nMgC9xsBKsyzk2YSff1gEYEal8tZGifY53r8rLqoC54uxBrGvbVZVesLas6KmN+hoUMH2FS1wvUtRBy/0G5GACtJ4IAAt2ksfO03VVbLWbyEoL37sesBxdEGQDo40570=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=lucaweiss.eu; spf=pass smtp.mailfrom=lucaweiss.eu; dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b=66mPCvAI; arc=none smtp.client-ip=128.199.32.197
+	 In-Reply-To:To:Cc; b=NZvljuiuqeRv2f6wXB3cac0mQMTwRiOu7lAyELSaqF8oDjEfEu3elwmP0LnyEy+hHgLP3NaAK+d3fWMzfrnxqsdhoqu+KxNVoUjVP3Ivs3QVTAUaz8PABj4nXnqUTbmmEoCI8nrClLVbLnjQIz+1+/3Q8uCAt9i9vfQbiFKWYD4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=lucaweiss.eu; spf=pass smtp.mailfrom=lucaweiss.eu; dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b=CVMuYvRE; arc=none smtp.client-ip=128.199.32.197
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=lucaweiss.eu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lucaweiss.eu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b="66mPCvAI"
+	dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b="CVMuYvRE"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lucaweiss.eu; s=s1;
-	t=1761669691; bh=ecnA0KG481FICL1IxqZl/Uq99VZDiX0xPco/otlm9Gw=;
+	t=1761669690; bh=nHiJxy5dVZZ2fzE8k0XZk3dvoZtjPMtg8+vtSGKAiAE=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=66mPCvAIA9hoc9ACXaoEmKAXo4oK0mTdFFeT+MrBYeoJbYOwojrRpcCzv/SXpZQ63
-	 Qjb+n+2BhOTYM4F78vTpVjcIHRZ1JQ9hw0EXyJf/mX5ff3sC0mpiUNa0Hq6da9Alkw
-	 yPXHve/7WKAWNVpbftwcjoo6RM5MMBTpdAh5WcLc=
+	b=CVMuYvREn4hw9EbYQdy0q/zTdbzNg6OB1HSCY5FQK70sMqNTpwF8EmS2nLgFsji5N
+	 cDxXmHTaDya+j0m4CO6d/rh9wyHzb1RBxZIGIr/y6iKd1c9+DxN6x8Z2A18kAv0POB
+	 ON1SML+UVwVvKHg3oOy3mM0PfiY45eY0FgJpLpPw=
 From: Luca Weiss <luca@lucaweiss.eu>
-Date: Tue, 28 Oct 2025 17:40:52 +0100
-Subject: [PATCH v2 7/7] arm64: dts: qcom: sdm632-fairphone-fp3: Enable CCI
- and add EEPROM
+Date: Tue, 28 Oct 2025 17:40:51 +0100
+Subject: [PATCH v2 6/7] arm64: dts: qcom: sdm632-fairphone-fp3: Add camera
+ fixed regulators
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -34,7 +34,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20251028-msm8953-cci-v2-7-b5f9f7135326@lucaweiss.eu>
+Message-Id: <20251028-msm8953-cci-v2-6-b5f9f7135326@lucaweiss.eu>
 References: <20251028-msm8953-cci-v2-0-b5f9f7135326@lucaweiss.eu>
 In-Reply-To: <20251028-msm8953-cci-v2-0-b5f9f7135326@lucaweiss.eu>
 To: ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org, 
@@ -49,64 +49,78 @@ Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
  Luca Weiss <luca@lucaweiss.eu>, 
  Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1084; i=luca@lucaweiss.eu;
- h=from:subject:message-id; bh=ecnA0KG481FICL1IxqZl/Uq99VZDiX0xPco/otlm9Gw=;
- b=kA0DAAoBcthDuJ1N11YByyZiAGkA8jSiCLgFvBfKbtvhOkmqKYyjXVuShnNWYUFYagZabQwKq
- IkCMwQAAQoAHRYhBDm60i8ILNqRuhWP+nLYQ7idTddWBQJpAPI0AAoJEHLYQ7idTddWZxcQAJCk
- JEwXQxPtkGNZDs9S6+lMY5j+Z9Hsp3k1Dv75lc2X1YdQ41FRxglzq7pHTiv1YxYbo1vnPmiGkjt
- O9oA+HnoFpo1U46RMb/OgM+p/o9RshEruUSFvrSYofT3uD7yU1CLMw0rOuc6lBao62EIeZSurtj
- OOvHNyHuDekxk/1DQmwN+VNueqp9iqVHFvsqvepg/PeEPTDuLSW6WzXY1gANgeUjR0lRA7asnaT
- 9JQzv1EP/hvFK7rSnFuUKUXJoKsp8ipnuahUz6zam3yrhuzq0rm7RQDCS6LieCm4YdIJIvPhqyw
- SiK4Qc4cN/bZjQrZuJ+Efep3TMjYvrxnLgVDTadjcIvu6UDvODkuRrvGFT+dabKbrrOTgnvWzZL
- ODw2E5fnnbRYVwwr3OPU4Dsc4Oo2XITPUUjvHzS0kwn+OxBfc187eCC7U9GZB9BOid56+M/9eKu
- 93FbNAfnuGz5bZxc2f/5+iCb/YcB3IWFhOC26V8V4tKsJ1i5rPNPcqoPNfYYrsnaYaR2MyKoZ3U
- SBqVumaV/mo8unXTSOy8ntjzICYK3Al7uBUnciLFsrDZfgO/qqodyHPrSfSDkhnHw0bqwb6UqMO
- xBUUFQhlmaIAUeByjLnTYYQEDdBVg9PdIAKVVGXY1hMkptp1023YBBA4ftoyamPuIDp7MBm4dNp
- lzZse
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1705; i=luca@lucaweiss.eu;
+ h=from:subject:message-id; bh=nHiJxy5dVZZ2fzE8k0XZk3dvoZtjPMtg8+vtSGKAiAE=;
+ b=owEBbQKS/ZANAwAKAXLYQ7idTddWAcsmYgBpAPIz1mrPUPrJSyYyyIhMPflAuAoenZv7yd4Zd
+ AnhlePwYWqJAjMEAAEKAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCaQDyMwAKCRBy2EO4nU3X
+ VuniD/43sfLliVREXfLVJhXycEH1LSZ1wF9BU3cq7OOok/4C6fQDKWAX2mxpsfK9gUj2o/0QM9C
+ wI9k7FQ88MUwKD4yzsdjeZ3U04nxuqIJ8rYUmKhwSuss2rfUWmQGAFTqRf4ACZ7vy2aU9oljIgQ
+ LohEcbRsAdcN2KIAnz/8jOSkeP58Klgk0CNnvoQNGe0Rl8+pHE7d97iNYykXmK4CF4L6NviSZqd
+ Jy7PAnH+FeqC7iBDtE/x//baUY4pouZ7o6NBNYZ37zhyDxuRSKoTvL/kx9JNyQHKRRIyrSjDHJF
+ R67wLdaeoi2ggBDJNRRgaTfnozx+aAlESn9KGJ/Wy0SrRxNtGN/fm+zo/jyxIxyrAtDOkwaMKft
+ Fpg5N4XuNB8ezDtdqCCTXacnb3BGL5OtxWOf/dp6FPkIFrd89TQqTgy89xAi15d+aOnDTVkeIHV
+ 9pAU52mSn/eiG7m0+5DGhQ3LqjYSNc5cdQKDtEJOTm+jkLq8xVC6J/+l03SDnrWWoeF2M9xImk6
+ z5BvrU9QDXsjsXieHYWvAeK+XGGc7isgoag7KDo3WVBVvQCBKb/vV/zY8jBZ9uiIG9JP8Dwf4kp
+ Pehuwc3QCNTXxflOgJTtIEgC4/wUjyG/1vJJ6sRo+TqOLjgEdwmZ1RTABgZ4wXmfgLcpW3hpHHY
+ AtIU1a1jn5/+oGg==
 X-Developer-Key: i=luca@lucaweiss.eu; a=openpgp;
  fpr=BD04DA24C971B8D587B2B8D7FAF69CF6CD2D02CD
 
-Enable the CCI where the camera modules are connected to, and add a node
-for the EEPROM found next to the IMX363 rear camera.
+Add the definitions for a few fixed regulators found on the Fairphone 3.
 
 Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 Signed-off-by: Luca Weiss <luca@lucaweiss.eu>
 ---
- arch/arm64/boot/dts/qcom/sdm632-fairphone-fp3.dts | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ arch/arm64/boot/dts/qcom/sdm632-fairphone-fp3.dts | 36 +++++++++++++++++++++++
+ 1 file changed, 36 insertions(+)
 
 diff --git a/arch/arm64/boot/dts/qcom/sdm632-fairphone-fp3.dts b/arch/arm64/boot/dts/qcom/sdm632-fairphone-fp3.dts
-index 557925a66276..0edb2992b902 100644
+index 55a45b528bd3..557925a66276 100644
 --- a/arch/arm64/boot/dts/qcom/sdm632-fairphone-fp3.dts
 +++ b/arch/arm64/boot/dts/qcom/sdm632-fairphone-fp3.dts
-@@ -88,6 +88,27 @@ vph_pwr: vph-pwr-regulator {
+@@ -36,6 +36,42 @@ key-volume-up {
+ 		};
  	};
- };
  
-+&cci {
-+	status = "okay";
-+};
++	vreg_cam_af_2p85: regulator-cam-af-2p85 {
++		compatible = "regulator-fixed";
++		regulator-name = "cam_af_2p85";
++		regulator-min-microvolt = <2850000>;
++		regulator-max-microvolt = <2850000>;
 +
-+&cci_i2c0 {
-+	/* Sony IMX363 (rear) @ 0x10 */
++		gpio = <&tlmm 128 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
 +
-+	eeprom@50 {
-+		compatible = "belling,bl24s64", "atmel,24c64";
-+		reg = <0x50>;
-+		vcc-supply = <&vreg_cam_io_1p8>;
-+		read-only;
++		vin-supply = <&vph_pwr>;
 +	};
 +
-+	/* ON Semi LC898217 VCM @ 0x72 */
-+};
++	vreg_cam_io_1p8: regulator-cam-io-1p8 {
++		compatible = "regulator-fixed";
++		regulator-name = "cam_io_1p8";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
 +
-+&cci_i2c1 {
-+	/* Samsung S5K4H7YX (front) @ 0x10 */
-+};
++		gpio = <&tlmm 130 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
 +
- &gpu {
- 	status = "okay";
- };
++		vin-supply = <&vph_pwr>;
++	};
++
++	vreg_cam2_dig_1p2: regulator-cam2-dig-1p2 {
++		compatible = "regulator-fixed";
++		regulator-name = "cam2_dig_1p2";
++		regulator-min-microvolt = <1200000>;
++		regulator-max-microvolt = <1200000>;
++
++		gpio = <&tlmm 46 GPIO_ACTIVE_HIGH>;
++		enable-active-high;
++
++		vin-supply = <&vph_pwr>;
++	};
++
+ 	/* Dummy regulator until PMI632 has LCDB VSP/VSN support */
+ 	lcdb_dummy: regulator-lcdb-dummy {
+ 		compatible = "regulator-fixed";
 
 -- 
 2.51.2
