@@ -1,30 +1,31 @@
 Received: from ahti.lucaweiss.eu (ahti.lucaweiss.eu [128.199.32.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 620F4307ADA;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D62125BEF1;
 	Tue, 28 Oct 2025 16:47:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=128.199.32.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761670075; cv=none; b=jn3Prz9QYyl1q/pphsqCipQWBh2HRxaxHTZO8eNjlhCaOyPMqGTlsRoP/fj0+uKZT72Dx+yA+HznEGrG1jt6yR2ubgUnL8G1G0pNlfIADHFmnqxOFcKAMFrqmQS2gNS4y/CE4E6n3Ux3C3KMZLncP5ZynVh6WwpMVCD6/v2QGME=
+	t=1761670075; cv=none; b=H6ejXqmHrxk4X9Pwcv6bLLgX1hRzz3cJS7HKRiJxgmHtsBNH9ESNTRNsz5qdOzroSKulxnzkVvweQbsfJ/x3tkCgUUo6/PopOxK7ekss1lsnsN1fWtkLAsBpZvw0iqErSBG5JvqW4LtnIS77V78zFnaOQXbXvYLiQblNnPNuuF4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1761670075; c=relaxed/simple;
-	bh=55EWec7cjRgTapTeWKtewYWvmLGUXFyRyTixXR7yoZI=;
+	bh=V+IfWvce/o4FPRxrzB8Oy/wcqBjaSEpXgKLk5iNy6oQ=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=fhDBAMEeRFbIqerC2g6wjD4PZlX4NtpH211VmnX+SpwGYQSwmgkrDXYy8fKpVrYLEEXADOVi7+iwo3IdDs7WZuE1YMh2f9Kp0BAMivae0OIWfWGrwJDSUER0xRFJNRRD3RzUzn7y/3uzsqDaCy8CW4c8H362o9YogMxWgrYo1dw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=lucaweiss.eu; spf=pass smtp.mailfrom=lucaweiss.eu; dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b=QXQMhl+4; arc=none smtp.client-ip=128.199.32.197
+	 In-Reply-To:To:Cc; b=ndGrN57aomKKUPoolauICTs4X0WWXfvFq+M5zRhZTtTAAveHbODWh1JCDS6IZp8g1AUbGStL0z5RjamdxKEjkfezPklgxm4NmIMhpdGc2HhJAWNj3YSgd986RM9voJd0Kogp1zU8EKgbmr+2PpvbV1vgBlMmQA6BSCigYtW0EOw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=lucaweiss.eu; spf=pass smtp.mailfrom=lucaweiss.eu; dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b=Odrd5Fk1; arc=none smtp.client-ip=128.199.32.197
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=lucaweiss.eu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lucaweiss.eu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b="QXQMhl+4"
+	dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b="Odrd5Fk1"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lucaweiss.eu; s=s1;
-	t=1761669687; bh=55EWec7cjRgTapTeWKtewYWvmLGUXFyRyTixXR7yoZI=;
+	t=1761669689; bh=V+IfWvce/o4FPRxrzB8Oy/wcqBjaSEpXgKLk5iNy6oQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=QXQMhl+47LswF0Pvdvp4DPfXrCiNx2TjZjBS+HY+XE72UcIJGpyhKEE2JmXSUDCYy
-	 YBRKBwNmWifaZDZiK5gF+iT0OxJ2kVBsuN/TK//suiDVVGwLp7iIJ3NjMaL0Er20Xj
-	 KUqKd2UgITXmNf5QDRHpu21v7TjIbTfAo2X3GFn4=
+	b=Odrd5Fk1lXjI3mCer/rnLCeFs3sC7VDqQiKlcUCpfpm+JF+Yql/9Mq+nM5cE64K6d
+	 wCAPv2fc3z+qRz5KwxgiRw/1BycjvL+nVfunLCS0uRSMDoXENAh61aMSFEFEne/umc
+	 +eoT10D3kyfmIroeSmj7G7PYE9zGCZF5+Jbl4S6w=
 From: Luca Weiss <luca@lucaweiss.eu>
-Date: Tue, 28 Oct 2025 17:40:47 +0100
-Subject: [PATCH v2 2/7] i2c: qcom-cci: Add msm8953 compatible
+Date: Tue, 28 Oct 2025 17:40:49 +0100
+Subject: [PATCH v2 4/7] arm64: dts: qcom: msm8953: Re-sort tlmm pinctrl
+ states
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -33,7 +34,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20251028-msm8953-cci-v2-2-b5f9f7135326@lucaweiss.eu>
+Message-Id: <20251028-msm8953-cci-v2-4-b5f9f7135326@lucaweiss.eu>
 References: <20251028-msm8953-cci-v2-0-b5f9f7135326@lucaweiss.eu>
 In-Reply-To: <20251028-msm8953-cci-v2-0-b5f9f7135326@lucaweiss.eu>
 To: ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org, 
@@ -46,94 +47,671 @@ To: ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
 Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
  devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
  Luca Weiss <luca@lucaweiss.eu>, 
- Wolfram Sang <wsa+renesas@sang-engineering.com>
+ Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1885; i=luca@lucaweiss.eu;
- h=from:subject:message-id; bh=55EWec7cjRgTapTeWKtewYWvmLGUXFyRyTixXR7yoZI=;
- b=owEBbQKS/ZANAwAKAXLYQ7idTddWAcsmYgBpAPIwS/fM3LkjFEaNaRvpGv6yObdO/fX0bpFmH
- RDxUG2Y1qmJAjMEAAEKAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCaQDyMAAKCRBy2EO4nU3X
- VlTYD/4yQlfHJrF0Ztr2aWgY3FTHs5NmBTUbH2O8CxBE+Zh10t5sB/NIzaFBu8i0CMCf07MiqOw
- 64rVU4wW81mNay8krTq0WoLAAa0itmgJpkyrFoIGhlfMRriMzIC+uqsrieV6xAS/B1H0Z9R3ixw
- zNzOiHo09UDRo3GqNLhQgl/r9HlTpjx7jlXQHtrF0Hh82O3BfMAt775/fdhLXa/9dxblF4Y7Jgj
- pKdh3UO9rEYR7ySl8n64xqJY31Bm4puo2dJGnkRPULFXe6V9gC5OTeyr53QuPkRxlXPW34OqM2J
- 871Jn/cR0lODKouok2mjGLyoA8RfPvSSCn1uTiC/PQdso8WiJZhDiVc/UyPYqfU+0mi1jGW464p
- xhspdM08a+Ur7sjLBd86rt6CtcHG4r5+S+DAuuujR9EmMNMZ0lfJmKoRm1n57OBpIK6pfspIbLD
- oVUmuM4SfA47Cw86iK/mQuWUso8sMRhivRiQxhbNScODXsD7bd9+l16kCfcLZU06SWsxE/2O1yL
- M2AjMnYBEWB9gKra/cxJmiOZ2OAsj0vSMf1i1SHReObdcJ2v3eC2IRQrHkMLl3UURp+ncKYRkiZ
- /Uls+hVr0WGZ/s6e0Y5Q2yrpqlMCIoEHhYM9EVok1nOHNHs7OowoxZgo9Z6tI3v8i6rAX0o15IL
- uSdMX+OkG1yMIPQ==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=14474; i=luca@lucaweiss.eu;
+ h=from:subject:message-id; bh=V+IfWvce/o4FPRxrzB8Oy/wcqBjaSEpXgKLk5iNy6oQ=;
+ b=owEBbQKS/ZANAwAKAXLYQ7idTddWAcsmYgBpAPIxUvUJqgcZcpsyWCFVfEQsdbVq5IyQVNAbR
+ unJcTsDUKqJAjMEAAEKAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCaQDyMQAKCRBy2EO4nU3X
+ VvJUEACd5K6T/RO1ktP4DuEbLJikoOmgI049DsHzFE/m4Ev3m50sWD3qqr8T0fYnJzovhmZ9vZY
+ GEnpnwKawus3HeJmocRcSoJPXx4KWR2Ik3YQ3ZCaYgXu/SJZyWhGGYPOlLRx/5Oio55WOdP+R+C
+ o7qAiZvzZLsfuI+9D1zLVqJG95BrDAyTmbzOZYqWUUurpu6MTxNk2WHqfkba6lrbkolVk7ikDAs
+ wo6CXL5L0SvKRJyhEseihYS8/qQ4+YfBV+Hp2aVtlxIbaaQnBMizLWm9UAJrmtZWlQ2p1Njb3AE
+ 29n3SPH09a9eOlVi60go5nawCh2lWOvJHrGx9I5x640m5ZZT8/gcBAnGowswN6My6muf2D2AovH
+ y/EkFQxxjsPv4s/TrBns0bzI1L61UNTpzPYbVgCW46z9xUOgdb8mGE69k/V9RSXg8G6hl4O+6kX
+ hmNerqBtt6kL6uktBMbLiHMUnMMWajQA9TFTE8G05X/6D06IrQpov40FUOD4Ty37qr2YY/gSkWG
+ k0oI/fPCeqvgtC3xI6+VshZA6YTTN8LFAwd/SlQwHMZbA4RapoWvcqjZMhQ+R13SfZlKG55JBU3
+ VUIbtI0Ba+zQWOkvNbKopSNUbrrx7c2thYVIJH64oEj7S+KE7XCLLt7a+LeJ2k85RW51FplSJU4
+ WM0Ra5aKnVt6YVA==
 X-Developer-Key: i=luca@lucaweiss.eu; a=openpgp;
  fpr=BD04DA24C971B8D587B2B8D7FAF69CF6CD2D02CD
 
-Add a config for the v1.2.5 CCI found on msm8953 which has different
-values in .params compared to others already supported in the driver.
+Follow the Devicetree Sources Coding Style and sort the pinctrl nodes by
+the pins property. This makes it simpler to add new pinctrl states in
+the future.
 
-Reviewed-by: Loic Poulain <loic.poulain@oss.qualcomm.com>
-Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 Signed-off-by: Luca Weiss <luca@lucaweiss.eu>
 ---
- drivers/i2c/busses/i2c-qcom-cci.c | 46 +++++++++++++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+ arch/arm64/boot/dts/qcom/msm8953.dtsi | 611 +++++++++++++++++-----------------
+ 1 file changed, 305 insertions(+), 306 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
-index e631d79baf14..884055df1560 100644
---- a/drivers/i2c/busses/i2c-qcom-cci.c
-+++ b/drivers/i2c/busses/i2c-qcom-cci.c
-@@ -783,8 +783,54 @@ static const struct cci_data cci_v2_data = {
- 	},
- };
+diff --git a/arch/arm64/boot/dts/qcom/msm8953.dtsi b/arch/arm64/boot/dts/qcom/msm8953.dtsi
+index 76317c578349..7884a3ed8aef 100644
+--- a/arch/arm64/boot/dts/qcom/msm8953.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8953.dtsi
+@@ -545,6 +545,20 @@ tlmm: pinctrl@1000000 {
+ 			interrupt-controller;
+ 			#interrupt-cells = <2>;
  
-+static const struct cci_data cci_msm8953_data = {
-+	.num_masters = 2,
-+	.queue_size = { 64, 16 },
-+	.quirks = {
-+		.max_write_len = 11,
-+		.max_read_len = 12,
-+	},
-+	.params[I2C_MODE_STANDARD] = {
-+		.thigh = 78,
-+		.tlow = 114,
-+		.tsu_sto = 28,
-+		.tsu_sta = 28,
-+		.thd_dat = 10,
-+		.thd_sta = 77,
-+		.tbuf = 118,
-+		.scl_stretch_en = 0,
-+		.trdhld = 6,
-+		.tsp = 1
-+	},
-+	.params[I2C_MODE_FAST] = {
-+		.thigh = 20,
-+		.tlow = 28,
-+		.tsu_sto = 21,
-+		.tsu_sta = 21,
-+		.thd_dat = 13,
-+		.thd_sta = 18,
-+		.tbuf = 32,
-+		.scl_stretch_en = 0,
-+		.trdhld = 6,
-+		.tsp = 3
-+	},
-+	.params[I2C_MODE_FAST_PLUS] = {
-+		.thigh = 16,
-+		.tlow = 22,
-+		.tsu_sto = 17,
-+		.tsu_sta = 18,
-+		.thd_dat = 16,
-+		.thd_sta = 15,
-+		.tbuf = 19,
-+		.scl_stretch_en = 1,
-+		.trdhld = 3,
-+		.tsp = 3
-+	},
-+};
++			i2c_1_default: i2c-1-default-state {
++				pins = "gpio2", "gpio3";
++				function = "blsp_i2c1";
++				drive-strength = <2>;
++				bias-disable;
++			};
 +
- static const struct of_device_id cci_dt_match[] = {
- 	{ .compatible = "qcom,msm8226-cci", .data = &cci_v1_data},
-+	{ .compatible = "qcom,msm8953-cci", .data = &cci_msm8953_data},
- 	{ .compatible = "qcom,msm8974-cci", .data = &cci_v1_5_data},
- 	{ .compatible = "qcom,msm8996-cci", .data = &cci_v2_data},
++			i2c_1_sleep: i2c-1-sleep-state {
++				pins = "gpio2", "gpio3";
++				function = "gpio";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
+ 			uart_console_active: uart-console-active-state {
+ 				pins = "gpio4", "gpio5";
+ 				function = "blsp_uart2";
+@@ -559,6 +573,297 @@ uart_console_sleep: uart-console-sleep-state {
+ 				bias-pull-down;
+ 			};
  
++			i2c_2_default: i2c-2-default-state {
++				pins = "gpio6", "gpio7";
++				function = "blsp_i2c2";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			i2c_2_sleep: i2c-2-sleep-state {
++				pins = "gpio6", "gpio7";
++				function = "gpio";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			spi_3_default: spi-3-default-state {
++				cs-pins {
++					pins = "gpio10";
++					function = "blsp_spi3";
++					drive-strength = <2>;
++					bias-disable;
++				};
++
++				spi-pins {
++					pins = "gpio8", "gpio9", "gpio11";
++					function = "blsp_spi3";
++					drive-strength = <12>;
++					bias-disable;
++				};
++			};
++
++			spi_3_sleep: spi-3-sleep-state {
++				cs-pins {
++					pins = "gpio10";
++					function = "gpio";
++					drive-strength = <2>;
++					bias-disable;
++				};
++
++				spi-pins {
++					pins = "gpio8", "gpio9", "gpio11";
++					function = "gpio";
++					drive-strength = <2>;
++					bias-pull-down;
++				};
++			};
++
++			i2c_3_default: i2c-3-default-state {
++				pins = "gpio10", "gpio11";
++				function = "blsp_i2c3";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			i2c_3_sleep: i2c-3-sleep-state {
++				pins = "gpio10", "gpio11";
++				function = "gpio";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			i2c_4_default: i2c-4-default-state {
++				pins = "gpio14", "gpio15";
++				function = "blsp_i2c4";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			i2c_4_sleep: i2c-4-sleep-state {
++				pins = "gpio14", "gpio15";
++				function = "gpio";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			spi_5_default: spi-5-default-state {
++				cs-pins {
++					pins = "gpio18";
++					function = "blsp_spi5";
++					drive-strength = <2>;
++					bias-disable;
++				};
++
++				spi-pins {
++					pins = "gpio16", "gpio17", "gpio19";
++					function = "blsp_spi5";
++					drive-strength = <12>;
++					bias-disable;
++				};
++			};
++
++			spi_5_sleep: spi-5-sleep-state {
++				cs-pins {
++					pins = "gpio18";
++					function = "gpio";
++					drive-strength = <2>;
++					bias-disable;
++				};
++
++				spi-pins {
++					pins = "gpio16", "gpio17", "gpio19";
++					function = "gpio";
++					drive-strength = <2>;
++					bias-pull-down;
++				};
++			};
++
++			uart_5_default: uart-5-default-state {
++				pins = "gpio16", "gpio17", "gpio18", "gpio19";
++				function = "blsp_uart5";
++				drive-strength = <16>;
++				bias-disable;
++			};
++
++			uart_5_sleep: uart-5-sleep-state {
++				pins = "gpio16", "gpio17", "gpio18", "gpio19";
++				function = "gpio";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			i2c_5_default: i2c-5-default-state {
++				pins = "gpio18", "gpio19";
++				function = "blsp_i2c5";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			i2c_5_sleep: i2c-5-sleep-state {
++				pins = "gpio18", "gpio19";
++				function = "gpio";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			spi_6_default: spi-6-default-state {
++				cs-pins {
++					pins = "gpio22";
++					function = "blsp_spi6";
++					drive-strength = <2>;
++					bias-disable;
++				};
++
++				spi-pins {
++					pins = "gpio20", "gpio21", "gpio23";
++					function = "blsp_spi6";
++					drive-strength = <12>;
++					bias-disable;
++				};
++			};
++
++			spi_6_sleep: spi-6-sleep-state {
++				cs-pins {
++					pins = "gpio22";
++					function = "gpio";
++					drive-strength = <2>;
++					bias-disable;
++				};
++
++				spi-pins {
++					pins = "gpio20", "gpio21", "gpio23";
++					function = "gpio";
++					drive-strength = <2>;
++					bias-pull-down;
++				};
++			};
++
++			i2c_6_default: i2c-6-default-state {
++				pins = "gpio22", "gpio23";
++				function = "blsp_i2c6";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			i2c_6_sleep: i2c-6-sleep-state {
++				pins = "gpio22", "gpio23";
++				function = "gpio";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			wcnss_pin_a: wcnss-active-state {
++				wcss-wlan2-pins {
++					pins = "gpio76";
++					function = "wcss_wlan2";
++					drive-strength = <6>;
++					bias-pull-up;
++				};
++
++				wcss-wlan1-pins {
++					pins = "gpio77";
++					function = "wcss_wlan1";
++					drive-strength = <6>;
++					bias-pull-up;
++				};
++
++				wcss-wlan0-pins {
++					pins = "gpio78";
++					function = "wcss_wlan0";
++					drive-strength = <6>;
++					bias-pull-up;
++				};
++
++				wcss-wlan-pins {
++					pins = "gpio79", "gpio80";
++					function = "wcss_wlan";
++					drive-strength = <6>;
++					bias-pull-up;
++				};
++			};
++
++			gpio_key_default: gpio-key-default-state {
++				pins = "gpio85";
++				function = "gpio";
++				drive-strength = <2>;
++				bias-pull-up;
++			};
++
++			i2c_8_default: i2c-8-default-state {
++				pins = "gpio98", "gpio99";
++				function = "blsp_i2c8";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			i2c_8_sleep: i2c-8-sleep-state {
++				pins = "gpio98", "gpio99";
++				function = "gpio";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			sdc2_cd_on: cd-on-state {
++				pins = "gpio133";
++				function = "gpio";
++				drive-strength = <2>;
++				bias-pull-up;
++			};
++
++			sdc2_cd_off: cd-off-state {
++				pins = "gpio133";
++				function = "gpio";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			i2c_7_default: i2c-7-default-state {
++				pins = "gpio135", "gpio136";
++				function = "blsp_i2c7";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			i2c_7_sleep: i2c-7-sleep-state {
++				pins = "gpio135", "gpio136";
++				function = "gpio";
++				drive-strength = <2>;
++				bias-disable;
++			};
++
++			spi_7_default: spi-7-default-state {
++				cs-pins {
++					pins = "gpio136";
++					function = "blsp_spi7";
++					drive-strength = <2>;
++					bias-disable;
++				};
++
++				spi-pins {
++					pins = "gpio135", "gpio137", "gpio138";
++					function = "blsp_spi7";
++					drive-strength = <12>;
++					bias-disable;
++				};
++			};
++
++			spi_7_sleep: spi-7-sleep-state {
++				cs-pins {
++					pins = "gpio136";
++					function = "gpio";
++					drive-strength = <2>;
++					bias-disable;
++				};
++
++				spi-pins {
++					pins = "gpio135", "gpio137", "gpio138";
++					function = "gpio";
++					drive-strength = <2>;
++					bias-pull-down;
++				};
++			};
++
+ 			sdc1_clk_on: sdc1-clk-on-state {
+ 				pins = "sdc1_clk";
+ 				bias-disable;
+@@ -640,312 +945,6 @@ sdc2_data_off: sdc2-data-off-state {
+ 				bias-pull-up;
+ 				drive-strength = <2>;
+ 			};
+-
+-			sdc2_cd_on: cd-on-state {
+-				pins = "gpio133";
+-				function = "gpio";
+-				drive-strength = <2>;
+-				bias-pull-up;
+-			};
+-
+-			sdc2_cd_off: cd-off-state {
+-				pins = "gpio133";
+-				function = "gpio";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			gpio_key_default: gpio-key-default-state {
+-				pins = "gpio85";
+-				function = "gpio";
+-				drive-strength = <2>;
+-				bias-pull-up;
+-			};
+-
+-			i2c_1_default: i2c-1-default-state {
+-				pins = "gpio2", "gpio3";
+-				function = "blsp_i2c1";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			i2c_1_sleep: i2c-1-sleep-state {
+-				pins = "gpio2", "gpio3";
+-				function = "gpio";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			i2c_2_default: i2c-2-default-state {
+-				pins = "gpio6", "gpio7";
+-				function = "blsp_i2c2";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			i2c_2_sleep: i2c-2-sleep-state {
+-				pins = "gpio6", "gpio7";
+-				function = "gpio";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			i2c_3_default: i2c-3-default-state {
+-				pins = "gpio10", "gpio11";
+-				function = "blsp_i2c3";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			i2c_3_sleep: i2c-3-sleep-state {
+-				pins = "gpio10", "gpio11";
+-				function = "gpio";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			i2c_4_default: i2c-4-default-state {
+-				pins = "gpio14", "gpio15";
+-				function = "blsp_i2c4";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			i2c_4_sleep: i2c-4-sleep-state {
+-				pins = "gpio14", "gpio15";
+-				function = "gpio";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			i2c_5_default: i2c-5-default-state {
+-				pins = "gpio18", "gpio19";
+-				function = "blsp_i2c5";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			i2c_5_sleep: i2c-5-sleep-state {
+-				pins = "gpio18", "gpio19";
+-				function = "gpio";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			i2c_6_default: i2c-6-default-state {
+-				pins = "gpio22", "gpio23";
+-				function = "blsp_i2c6";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			i2c_6_sleep: i2c-6-sleep-state {
+-				pins = "gpio22", "gpio23";
+-				function = "gpio";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			i2c_7_default: i2c-7-default-state {
+-				pins = "gpio135", "gpio136";
+-				function = "blsp_i2c7";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			i2c_7_sleep: i2c-7-sleep-state {
+-				pins = "gpio135", "gpio136";
+-				function = "gpio";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			i2c_8_default: i2c-8-default-state {
+-				pins = "gpio98", "gpio99";
+-				function = "blsp_i2c8";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			i2c_8_sleep: i2c-8-sleep-state {
+-				pins = "gpio98", "gpio99";
+-				function = "gpio";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			spi_3_default: spi-3-default-state {
+-				cs-pins {
+-					pins = "gpio10";
+-					function = "blsp_spi3";
+-					drive-strength = <2>;
+-					bias-disable;
+-				};
+-
+-				spi-pins {
+-					pins = "gpio8", "gpio9", "gpio11";
+-					function = "blsp_spi3";
+-					drive-strength = <12>;
+-					bias-disable;
+-				};
+-			};
+-
+-			spi_3_sleep: spi-3-sleep-state {
+-				cs-pins {
+-					pins = "gpio10";
+-					function = "gpio";
+-					drive-strength = <2>;
+-					bias-disable;
+-				};
+-
+-				spi-pins {
+-					pins = "gpio8", "gpio9", "gpio11";
+-					function = "gpio";
+-					drive-strength = <2>;
+-					bias-pull-down;
+-				};
+-			};
+-
+-			spi_5_default: spi-5-default-state {
+-				cs-pins {
+-					pins = "gpio18";
+-					function = "blsp_spi5";
+-					drive-strength = <2>;
+-					bias-disable;
+-				};
+-
+-				spi-pins {
+-					pins = "gpio16", "gpio17", "gpio19";
+-					function = "blsp_spi5";
+-					drive-strength = <12>;
+-					bias-disable;
+-				};
+-			};
+-
+-			spi_5_sleep: spi-5-sleep-state {
+-				cs-pins {
+-					pins = "gpio18";
+-					function = "gpio";
+-					drive-strength = <2>;
+-					bias-disable;
+-				};
+-
+-				spi-pins {
+-					pins = "gpio16", "gpio17", "gpio19";
+-					function = "gpio";
+-					drive-strength = <2>;
+-					bias-pull-down;
+-				};
+-			};
+-
+-			spi_6_default: spi-6-default-state {
+-				cs-pins {
+-					pins = "gpio22";
+-					function = "blsp_spi6";
+-					drive-strength = <2>;
+-					bias-disable;
+-				};
+-
+-				spi-pins {
+-					pins = "gpio20", "gpio21", "gpio23";
+-					function = "blsp_spi6";
+-					drive-strength = <12>;
+-					bias-disable;
+-				};
+-			};
+-
+-			spi_6_sleep: spi-6-sleep-state {
+-				cs-pins {
+-					pins = "gpio22";
+-					function = "gpio";
+-					drive-strength = <2>;
+-					bias-disable;
+-				};
+-
+-				spi-pins {
+-					pins = "gpio20", "gpio21", "gpio23";
+-					function = "gpio";
+-					drive-strength = <2>;
+-					bias-pull-down;
+-				};
+-			};
+-
+-			spi_7_default: spi-7-default-state {
+-				cs-pins {
+-					pins = "gpio136";
+-					function = "blsp_spi7";
+-					drive-strength = <2>;
+-					bias-disable;
+-				};
+-
+-				spi-pins {
+-					pins = "gpio135", "gpio137", "gpio138";
+-					function = "blsp_spi7";
+-					drive-strength = <12>;
+-					bias-disable;
+-				};
+-			};
+-
+-			spi_7_sleep: spi-7-sleep-state {
+-				cs-pins {
+-					pins = "gpio136";
+-					function = "gpio";
+-					drive-strength = <2>;
+-					bias-disable;
+-				};
+-
+-				spi-pins {
+-					pins = "gpio135", "gpio137", "gpio138";
+-					function = "gpio";
+-					drive-strength = <2>;
+-					bias-pull-down;
+-				};
+-			};
+-
+-			uart_5_default: uart-5-default-state {
+-				pins = "gpio16", "gpio17", "gpio18", "gpio19";
+-				function = "blsp_uart5";
+-				drive-strength = <16>;
+-				bias-disable;
+-			};
+-
+-			uart_5_sleep: uart-5-sleep-state {
+-				pins = "gpio16", "gpio17", "gpio18", "gpio19";
+-				function = "gpio";
+-				drive-strength = <2>;
+-				bias-disable;
+-			};
+-
+-			wcnss_pin_a: wcnss-active-state {
+-
+-				wcss-wlan2-pins {
+-					pins = "gpio76";
+-					function = "wcss_wlan2";
+-					drive-strength = <6>;
+-					bias-pull-up;
+-				};
+-
+-				wcss-wlan1-pins {
+-					pins = "gpio77";
+-					function = "wcss_wlan1";
+-					drive-strength = <6>;
+-					bias-pull-up;
+-				};
+-
+-				wcss-wlan0-pins {
+-					pins = "gpio78";
+-					function = "wcss_wlan0";
+-					drive-strength = <6>;
+-					bias-pull-up;
+-				};
+-
+-				wcss-wlan-pins {
+-					pins = "gpio79", "gpio80";
+-					function = "wcss_wlan";
+-					drive-strength = <6>;
+-					bias-pull-up;
+-				};
+-			};
+ 		};
+ 
+ 		gcc: clock-controller@1800000 {
 
 -- 
 2.51.2
