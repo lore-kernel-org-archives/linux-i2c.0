@@ -1,31 +1,31 @@
 Received: from ahti.lucaweiss.eu (ahti.lucaweiss.eu [128.199.32.197])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D701293C42;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62165316188;
 	Tue, 28 Oct 2025 16:47:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=128.199.32.197
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1761670075; cv=none; b=PIjPvGcemoydVnVxn/rvyQ7ezsgR17RGTPIi9yq3zU8hUO2ltslEc0dZ8Yl3XqFAl1KbznkeoClUB6cfxtNTrnYqLVNJZ9h+gv/QOWsO2PsSCl09fEg5yBdTzylYaMmlNs3GzSQ7x4SYuFGEP47tRTSGc6a4DhGMlAzochuLfWU=
+	t=1761670075; cv=none; b=haJbhK61uFN/Ci0xz3OCh6oNlAgIFssMlKW0bCvu4Oo5YxAvgqMLkCFUfwKBZTzSkhSJd2VDrurzLxHI3PFRkR/Hpeep9Fpjuvn15sGAkZ8y/jVaWqjKYsiaGbTWiL325OGgxXZe/X7dp/xY06DfE8ck0B8pVvjyjoLfHYSEuaw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1761670075; c=relaxed/simple;
-	bh=nS7gTTRWepKP0GOGqBnqwKJ8cql464B2EpaOiSj6rEo=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Uk+g1ez2TNBzl6VP/NrDStRoKQcPXP5UK5CuwVjX0LaimQOpPREx801WoYklCzPCtxS7HVjE0v2YESwG8x+CS3f/PEkawM+pFJK5Rph5CauFDcsIjg1FdljxTvRXM97Su4Ib4LGPW4jSrDIHnThiyA+FdFTijyJ71LczNSPNnh8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=lucaweiss.eu; spf=pass smtp.mailfrom=lucaweiss.eu; dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b=QvajOrTl; arc=none smtp.client-ip=128.199.32.197
+	bh=fROb0VuDz//V7JMJcv2t/en6SL2W7KgGB/5yC8uMATc=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Pi3/zTml3gWyqK6YT55EoOVvib4FqvTMi5A3zYgj781CBg0cBOiTG7PCGdtxlpxXUDUERyKUP90lqzN0LRWU6OZwPR5H7uedX75dE0YuZ1B94UVyw9RDhRD61agUQGQ9wrZC4E1jyjnJjib4jn6rxv78LDLCkVdHC+T3TNc3ZXc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=lucaweiss.eu; spf=pass smtp.mailfrom=lucaweiss.eu; dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b=nbjXTzSU; arc=none smtp.client-ip=128.199.32.197
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=lucaweiss.eu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lucaweiss.eu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b="QvajOrTl"
+	dkim=pass (1024-bit key) header.d=lucaweiss.eu header.i=@lucaweiss.eu header.b="nbjXTzSU"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lucaweiss.eu; s=s1;
-	t=1761669688; bh=nS7gTTRWepKP0GOGqBnqwKJ8cql464B2EpaOiSj6rEo=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=QvajOrTlzOwJwJy3x01o6A4OE1Z2R2Qnj+om1VUKn0Rn1KXfzcDsuMqle4TtTPA0p
-	 2OHHGfaLJWF4CQLPOKNN8CMVXkDm9myKp1f5te+qkqAkEwViXDeA27WgkfXIyOdUl7
-	 Axteql62adWMIjuc7//4+1B5qnk5j0RxlQAgsS8A=
+	t=1761669686; bh=fROb0VuDz//V7JMJcv2t/en6SL2W7KgGB/5yC8uMATc=;
+	h=From:Subject:Date:To:Cc;
+	b=nbjXTzSU0vivhlTdzCjXHoD5jJfOVcDV2SWPkt+Z/PBENIi/ofGVX7ymFzml1RynV
+	 Q/pRVzUy0Tv40gV2rQNgLZSKxIGehaahqPumQG/qbqXFWQ3sTuNdwbGB0jtdt0cXhq
+	 lpaaBtqPX3f1/Mrz+HO0t6GO0X80J8oGesKEBhEo=
 From: Luca Weiss <luca@lucaweiss.eu>
-Date: Tue, 28 Oct 2025 17:40:48 +0100
-Subject: [PATCH v2 3/7] dt-bindings: eeprom: at24: Add compatible for
- Belling BL24S64
+Subject: [PATCH v2 0/7] Camera I2C (CCI) enablement on MSM8953 and
+ Fairphone 3
+Date: Tue, 28 Oct 2025 17:40:45 +0100
+Message-Id: <20251028-msm8953-cci-v2-0-b5f9f7135326@lucaweiss.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -34,9 +34,10 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20251028-msm8953-cci-v2-3-b5f9f7135326@lucaweiss.eu>
-References: <20251028-msm8953-cci-v2-0-b5f9f7135326@lucaweiss.eu>
-In-Reply-To: <20251028-msm8953-cci-v2-0-b5f9f7135326@lucaweiss.eu>
+X-B4-Tracking: v=1; b=H4sIAA3yAGkC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyjHQUlJIzE
+ vPSU3UzU4B8JSMDI1MDCwML3dziXAtLU2Pd5ORMXVMLc1NLs5Q0C+OURCWgjoKi1LTMCrBp0bG
+ 1tQCgWqpTXQAAAA==
+X-Change-ID: 20250808-msm8953-cci-587596df83da
 To: ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org, 
  Loic Poulain <loic.poulain@oss.qualcomm.com>, 
  Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
@@ -46,45 +47,60 @@ To: ~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
  Konrad Dybcio <konradybcio@kernel.org>
 Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
  devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Luca Weiss <luca@lucaweiss.eu>
+ Luca Weiss <luca@lucaweiss.eu>, 
+ Wolfram Sang <wsa+renesas@sang-engineering.com>, 
+ Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=723; i=luca@lucaweiss.eu;
- h=from:subject:message-id; bh=nS7gTTRWepKP0GOGqBnqwKJ8cql464B2EpaOiSj6rEo=;
- b=owEBbQKS/ZANAwAKAXLYQ7idTddWAcsmYgBpAPIwENCgHbVmKTO1/riAVG7GJwCvKiB/GbnOG
- FfFt8BhQpGJAjMEAAEKAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCaQDyMAAKCRBy2EO4nU3X
- Vky/D/90lMqhZKF+bbh4ILqxUXHHA70s1gqGve6Yk9ilgGEGztueq1CNpltEmQT9Tkp7BBIUK3o
- ZI4DB3z9nrHmNc4TsiP9DCvh0V9/lUuaAKEXBXK2RuLMfOwvC2fJBjAHF5bCS8GOc9Ba5Teauou
- ZdpWtKvsWHJgICPGPPL6DT6Wvca/fY7rAzX3VxMBmuxTJUFXQb7xyRyDxPzm4yIvjgGvVe6+0cP
- CeKQ5GjWehYvPeZzHCzp4z62NpPMwBJhGJsX+FwZ+8DPyWvsMrHN4jPsVNSqY355XbVyzpYNMBq
- NxQ2/Wam4IWacblFCMaLBQmXYUU/+dbtT6eDSDaxs6443CLArnteT8stQZPvbdnGbi5s1tVCQNa
- RqKtXgXu75XJ9X4rI2APo5Bh9oAlim7SfgeJbKHNesyOI1ETSm85inwGtv/qVnJ2nbiGgzpuiwM
- Pn6FdLDBMCw7JgwapduVKhjFFN7PaVyoMdr768WyHxVuLzToNIj6UhBXxHVDNrd8iWc6w4lG7HW
- hhxxoIT0WXvGvpT66e3PjUTLUAiigYPI9pkP2tsfSt5I8qg0PGu2QLV403cVGnGrdzATZnhGZHV
- QOqp+8VKFe9QY2ad303/56ZvxnTTzj7/OA+H3N+tw3CgTt3dRzL5YJhhz2wFmMafK16n03BQ69Q
- 43A8MCIlSXqYolQ==
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1426; i=luca@lucaweiss.eu;
+ h=from:subject:message-id; bh=fROb0VuDz//V7JMJcv2t/en6SL2W7KgGB/5yC8uMATc=;
+ b=owEBbQKS/ZANAwAKAXLYQ7idTddWAcsmYgBpAPIQffuhxUCcqDpXujZitSVFPY6SABxhkLtHH
+ wf1DOSnr1iJAjMEAAEKAB0WIQQ5utIvCCzakboVj/py2EO4nU3XVgUCaQDyEAAKCRBy2EO4nU3X
+ VkrzD/9hCA4yQ+ezTX+k61c1VHWSuoHi5vh1tN79xXznVP160iVB4CVoIB1AY4UTvRmEH3GBtQv
+ 3YltR6fAiH4bkR+CCR9foOEkaIT6En7Dzf/sJ1masaZNS9SroKnzdH8W1EcJ78qLQiYrS7rr21T
+ h+a8Q1FV5jyOnJ4vzX8IrwS6/X/7mOIwjVBMSRwkmQVUAtXe2b0GTaOXspd9kT7jbmz6oO8Abud
+ /B3gl6P7hBpOk9SVfZoqwOEwVfkc/5elhweZeCgChQWHBZSF6YqvHsWeXld5S5/HifsHbXEi8mQ
+ zk9F+ZP3fwV+l9oHtNrjHjqZfVqqXVZ83yhxil7qkdbUdSOg/4a1+LPdKfSVxqsNq05QmXtKu6y
+ SzE7gzwGS/nQVPeEaLOy7vRiDr1mSTXYKGZMtatJCJNluLOHxn5v9Sw8uJyx/aN9Nzx3NPY1rIQ
+ XMxG9g9ptHPJrNuDBqPRvP8HgqT666cSJoEcOKS4+MoLQZsxsq89uaB6ujrCcOVPOiyTxdLdN9g
+ Sbv150cSHfCwCZCXH6XcAw6PXq+7q304qrHB79x/JSEoRhkWn4YsvzGlRtoNid70Maw9Bs2vNWW
+ iiyzd6cQig4/Em5Lim2CsM8popRONOIr9sIBk4sKYqMb36WW+GveWNdE6abfC0aiSJ7Y5hmKbqJ
+ CUliumWtQ4klB+A==
 X-Developer-Key: i=luca@lucaweiss.eu; a=openpgp;
  fpr=BD04DA24C971B8D587B2B8D7FAF69CF6CD2D02CD
 
-Add the compatible for an 64Kb EEPROM from Belling.
+Add the compatibles and config for CCI on MSM8953, then enable these I2C
+busses on Fairphone 3 and configure the EEPROM found with one of the
+camera modules.
 
 Signed-off-by: Luca Weiss <luca@lucaweiss.eu>
 ---
- Documentation/devicetree/bindings/eeprom/at24.yaml | 1 +
- 1 file changed, 1 insertion(+)
+Changes in v2:
+- Fix wrong placement of msm8953-cci in if in cci binding
+- Rebase on linux-next
+- Pick up tags
+- Link to v1: https://lore.kernel.org/r/20250810-msm8953-cci-v1-0-e83f104cabfc@lucaweiss.eu
 
-diff --git a/Documentation/devicetree/bindings/eeprom/at24.yaml b/Documentation/devicetree/bindings/eeprom/at24.yaml
-index 50af7ccf6e21..c21282634780 100644
---- a/Documentation/devicetree/bindings/eeprom/at24.yaml
-+++ b/Documentation/devicetree/bindings/eeprom/at24.yaml
-@@ -131,6 +131,7 @@ properties:
-           - const: atmel,24c32
-       - items:
-           - enum:
-+              - belling,bl24s64
-               - onnn,n24s64b
-               - puya,p24c64f
-           - const: atmel,24c64
+---
+Luca Weiss (7):
+      dt-bindings: i2c: qcom-cci: Document msm8953 compatible
+      i2c: qcom-cci: Add msm8953 compatible
+      dt-bindings: eeprom: at24: Add compatible for Belling BL24S64
+      arm64: dts: qcom: msm8953: Re-sort tlmm pinctrl states
+      arm64: dts: qcom: msm8953: Add CCI nodes
+      arm64: dts: qcom: sdm632-fairphone-fp3: Add camera fixed regulators
+      arm64: dts: qcom: sdm632-fairphone-fp3: Enable CCI and add EEPROM
 
+ Documentation/devicetree/bindings/eeprom/at24.yaml |   1 +
+ .../devicetree/bindings/i2c/qcom,i2c-cci.yaml      |   2 +
+ arch/arm64/boot/dts/qcom/msm8953.dtsi              | 668 +++++++++++----------
+ arch/arm64/boot/dts/qcom/sdm632-fairphone-fp3.dts  |  57 ++
+ drivers/i2c/busses/i2c-qcom-cci.c                  |  46 ++
+ 5 files changed, 468 insertions(+), 306 deletions(-)
+---
+base-commit: 7c0022eca56891cbc3d94cee91733c28568342bb
+change-id: 20250808-msm8953-cci-587596df83da
+
+Best regards,
 -- 
-2.51.2
+Luca Weiss <luca@lucaweiss.eu>
 
