@@ -1,356 +1,330 @@
-Received: from mx-relay13-hz2.antispameurope.com (mx-relay13-hz2.antispameurope.com [83.246.65.99])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6BEF23A564
-	for <linux-i2c@vger.kernel.org>; Thu,  6 Nov 2025 13:51:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=83.246.65.99
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762437088; cv=pass; b=REaau4M/noW72to2Co/obY4+edxSouiFdvmMfFY448w39f/SCDZXsbpJe4F9OnBIXlbw+7N7ugOrn+68dvRfBaxzhYk7f/AQoNp7pzMYqS3sz7CEZ6g4nLcFsM75o7LZncXvWX+7w3mDwpttfp559M9PAZTdIMnZvATeZjxOhhQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762437088; c=relaxed/simple;
-	bh=ng+tlkTa9/IGpedkQ9xdMe0MFEG5OEYbeJQ/H5hkQyU=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=PNF+98qOvB5OQ7IvobYpcEwQSwFe1AfLuo96Q+byIygWMfgnU51DAFQwBYU7zBsBrDiITpcc9jj+Vy7afPptOoJNsjt1c5OOVU6zThfU+OnRw9/aCINdwqPUoMXQfhWTvMwnXNDphivFSR3V7hWwOkMB6mbtnMZu6qe3c6DwjqY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ew.tq-group.com; spf=pass smtp.mailfrom=ew.tq-group.com; dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b=Jn+RHmqL; arc=pass smtp.client-ip=83.246.65.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ew.tq-group.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ew.tq-group.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7267F34575F;
+	Thu,  6 Nov 2025 14:38:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1762439920; cv=none; b=F+9JsWylMLkrXBhdkqVe6oprsRgQhLqxsxoKDn7sGVUAoXny9eBBrUEz1wztmbwwVnDjySDy/Q+DHqfs31ocZTPs8mablNOhV+Y8eFJMaclZkivQ+UtZssRJdYq3mSsjTFDgHUESpbTIlzdm3skTOTI9Q6uEnUPZfddoc2RSaFQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1762439920; c=relaxed/simple;
+	bh=q7204u9xGerR5T6o7MflCkRGjkrE/ExGBpFq/w0M0es=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=cchlWINOjC+5E3NoZa3XIbA8tfY9KGBK9Y8RijlE4WF+ZeAL1WHjrKCUXODW+uYeyuF7Z7Dk+DstD8uWkrhM5VCbOY47Y2hC+6Fo3UgynEe/Dmw5TxvYxDYGKyqHkQeXEABGv11tcWSfytFeeLWC3slnmeIAz3lKWK5iEOPdGvc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=rsr7hQgo; arc=none smtp.client-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b="Jn+RHmqL"
-ARC-Authentication-Results: i=1; mx-gate13-hz2.hornetsecurity.com 1; spf=pass
- reason=mailfrom (ip=94.100.132.6, headerfrom=ew.tq-group.com)
- smtp.mailfrom=ew.tq-group.com
- smtp.helo=hmail-p-smtp01-out03-hz1.hornetsecurity.com; dmarc=pass
- header.from=ew.tq-group.com orig.disposition=pass
-ARC-Message-Signature: a=rsa-sha256;
- bh=wDPCS0sIToSANB5h1HYj6fRXoRaMfslIE6mv/majMnI=; c=relaxed/relaxed;
- d=hornetsecurity.com; h=from:to:date:subject:mime-version:; i=1; s=hse1;
- t=1762437072;
- b=HasL12hlPrRgNRbCvL+gdmtgXCFnK08bw+lK5BPpSlX4kEGCvupKNwWrCgz3qW8OtDJNerg6
- s1Kcrfa6Byld+pRDH9QTCBh9E8AWOP8rPGkZsFPX8rVbLTuUaPy4p3HvbDXF1WL7kxuWlCzJuC1
- Wm++dhmedHZdNAZxs03osYtynpw/dDzHKMwo/48nul9Da8BYqHUtBfTQAxaIRCS6Zv5efccKae8
- lSZerFeaZMDJAL8UlczG8yfL4eHWN62A6+xxARg48GS+hQGiBR5ZiMtnO0Vm/SgigaIaA4km632
- 5NmREyrGL0eB/ckwcrJNo+wWY152ut2Nf3kcCVFt0zRoA==
-ARC-Seal: a=rsa-sha256; cv=none; d=hornetsecurity.com; i=1; s=hse1;
- t=1762437072;
- b=BZhu5amD1fuI0IfytyWuzK+pzAsHFPAot/gxowhKLVskTTaGLH0qzl5MsJDKPSaYtTvpxGH4
- E1FxpCBpN226xAaql8q2ojz1hAKZFZIFb4PinDMJCgfEL+RW0SfbrP9E47ed2CtEGDwKpwtCPsv
- +/KJExftwmi9Uu87udMwtsotRHfj6s1GKO5c7F1Wyyp1RnMvaC9SBeyD2p9DsyQZRBOL+Y1rzd1
- vCCiUfj5Wn3/HtZy1S/smeGaoxLIl7qf1LvF9y8pMbZwtAm/TuRu1yqZVC6nsigIO+WObzFeBmS
- t5IUipBYN/d6t7ymja52fodqgseK+CY0J1MqDdhF2tWpw==
-Received: from he-nlb01-hz1.hornetsecurity.com ([94.100.132.6]) by mx-relay13-hz2.antispameurope.com;
- Thu, 06 Nov 2025 14:51:12 +0100
-Received: from [192.168.153.128] (host-82-135-125-110.customer.m-online.net [82.135.125.110])
-	(Authenticated sender: matthias.schiffer@ew.tq-group.com)
-	by hmail-p-smtp01-out03-hz1.hornetsecurity.com (Postfix) with ESMTPSA id 4CD51CC0CCF;
-	Thu,  6 Nov 2025 14:51:05 +0100 (CET)
-Message-ID: <eb1b752b3584d27e4d5e38544e54d7d1b5faf4ab.camel@ew.tq-group.com>
-Subject: Re: [PATCH v3 2/4] mfd: tqmx86: refactor I2C setup
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-To: Lee Jones <lee@kernel.org>
-Cc: Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux@ew.tq-group.com
-Date: Thu, 06 Nov 2025 14:51:04 +0100
-In-Reply-To: <20251106133848.GL8064@google.com>
-References: 
-	<bc9ce42883d10d54bc0954024d7e2312ff45fdb6.1761123080.git.matthias.schiffer@ew.tq-group.com>
-	 <999718e052b5e600813cefc3ec19ba3028afa034.1761123080.git.matthias.schiffer@ew.tq-group.com>
-	 <20251106133848.GL8064@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.52.3-0ubuntu1 
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="rsr7hQgo"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-02.galae.net (Postfix) with ESMTPS id DC2291A18DD;
+	Thu,  6 Nov 2025 14:38:35 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id A49B16068C;
+	Thu,  6 Nov 2025 14:38:35 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 00936118511BB;
+	Thu,  6 Nov 2025 15:38:30 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1762439914; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=fWgLP/+jNAEzz83WSqxCu50kV6UsAyj/lIJuwbQgNhI=;
+	b=rsr7hQgoy+QCd+/XjhxlrShMdRs9dl8f0dY/tePOA5BSF2b36azRV+t2mIFutGpkLSjROX
+	L1ImsXK4AADEEszy37m1joXPl5HbK3/8hj0XyK0WhV7tZ5vmis6YSXYFcOAb5/TKluPKzc
+	wnsMUFOE20y/Gu27C1h87Q6DiaWelNeaNSPvLMqNJaKv3hQ16UZmryKiM7k6CBUk65JSA3
+	UauTEnGWJCXM2TdXVIs9WLcs1w5C2ML+3VmHtiyydqFbFZP0Ro+DGtybbtFTzOyDE5Fg38
+	YmAKMEva+73/yZhOcqrAjw/CyKU3x5ITFmxdY/IxvKi49krNnJvEto/DuivEdQ==
+From: =?UTF-8?B?QmVub8OudA==?= Monin <benoit.monin@bootlin.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
+ Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ Jan Dabros <jsd@semihalf.com>,
+ Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ Clark Williams <clrkwllms@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
+ Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+ Gregory CLEMENT <gregory.clement@bootlin.com>,
+ =?UTF-8?B?VGjDqW8=?= Lebrun <theo.lebrun@bootlin.com>,
+ Tawfik Bayouk <tawfik.bayouk@mobileye.com>,
+ Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>,
+ Dmitry Guzman <dmitry.guzman@mobileye.com>, linux-i2c@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-rt-devel@lists.linux.dev
+Subject: Re: [PATCH v2 4/5] i2c: designware: Implement I2C_M_STOP support
+Date: Thu, 06 Nov 2025 15:38:29 +0100
+Message-ID: <5791158.IbC2pHGDlb@benoit.monin>
+In-Reply-To: <20251103103908.GF2912318@black.igk.intel.com>
+References:
+ <20251031-i2c-dw-v2-0-90416874fcc0@bootlin.com>
+ <20251031-i2c-dw-v2-4-90416874fcc0@bootlin.com>
+ <20251103103908.GF2912318@black.igk.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-cloud-security-sender:matthias.schiffer@ew.tq-group.com
-X-cloud-security-recipient:linux-i2c@vger.kernel.org
-X-cloud-security-crypt: load encryption module
-X-cloud-security-Mailarchiv: E-Mail archived for: matthias.schiffer@ew.tq-group.com
-X-cloud-security-Mailarchivtype:outbound
-X-cloud-security-Virusscan:CLEAN
-X-cloud-security-disclaimer: This E-Mail was scanned by E-Mailservice on mx-relay13-hz2.antispameurope.com with 4d2NrT4tHbz3sbdL
-X-cloud-security-connect: he-nlb01-hz1.hornetsecurity.com[94.100.132.6], TLS=1, IP=94.100.132.6
-X-cloud-security-Digest:a0068ae271c376fdad0f6208d39548df
-X-cloud-security:scantime:1.917
-DKIM-Signature: a=rsa-sha256;
- bh=wDPCS0sIToSANB5h1HYj6fRXoRaMfslIE6mv/majMnI=; c=relaxed/relaxed;
- d=ew.tq-group.com;
- h=content-type:mime-version:subject:from:to:message-id:date; s=hse1;
- t=1762437072; v=1;
- b=Jn+RHmqLRt2FqWblxq2xEU7IdKNLUctUJxRbNtflvy6iZ4K+GlQnayFTaT0y6P/+TUdFcIAB
- NNWJRt/Zmk5Xn7od1DAJVJCR2DGt3a/sR9vsYb7qkhm3uDI4VSZbiRGyfFZm9Wve1FKzHtB47A0
- aF8WW3VxuEcw6RUI/9O79XYiej25aC3/wauKQjWQ5vniZOcXXcoF4hpa4k23EXYV85uHYaFljMC
- DRc1PNL9b1ytmCYVaqtSt8+mnewaWW5x3aL/EHFboRE5Hpk364medVPtxz2Ves+eis5+Lgt+eNA
- VF4nLk3xwej/E2YacJsOEac522IylicLa/jC9V9qRgZWA==
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+X-Last-TLS-Session-Version: TLSv1.3
 
-On Thu, 2025-11-06 at 13:38 +0000, Lee Jones wrote:
-> On Wed, 22 Oct 2025, Matthias Schiffer wrote:
+Hi Mika,
+
+On Monday, 3 November 2025 at 11:39:08 CET, Mika Westerberg wrote:
+> On Fri, Oct 31, 2025 at 03:35:42PM +0100, Beno=C3=AEt Monin wrote:
+> > Add the support of the I2C_M_STOP flag in i2c_msg by splitting
+> > i2c_dw_xfer() in two: __i2c_dw_xfer_unlocked() for the core transfer lo=
+gic
+> > and i2c_dw_xfer() for handling the high-level transaction management.
+> >=20
+> > In detail __i2c_dw_xfer_unlocked() starts a transaction and wait for its
+> > completion, either with a STOP on the bus or an error. i2c_dw_xfer()
+> > loops over the messages to search for the I2C_M_STOP flag and calls
+> > __i2c_dw_xfer_unlocked() for each part of the messages up to a STOP or
+> > the end of the messages array.
+> >=20
+> > i2c_dw_xfer() holds the device lock while calling __i2c_dw_xfer_unlocke=
+d(),
+> > this allows to group multiple accesses to device that support a STOP in
+> > a transaction when done via i2c_dev I2C_RDWR ioctl, in a single-master
+> > configuration.
+> >=20
+> > Also, now that we have a lookup of the messages in i2c_dw_xfer() prior
+> > to each transaction, we use it to make sure the messages are valid for
+> > the transaction. We check that the target address does not change before
+> > starting the transaction instead of aborting the transfer while it is
+> > happening, as it was done in i2c_dw_xfer_msg(). The target address can
+> > only be changed after an I2C_M_STOP flag, thus a STOP on the i2c bus.
+> >=20
+> > The I2C_FUNC_PROTOCOL_MANGLING flag is added to the list of
+> > functionalities supported by the adapter, except for the AMD NAVI i2c
 >=20
-> > Preparation for supporting the second I2C controller, and detecting bot=
-h
-> > ocores and machxo2 controllers.
+> I2C controller
+>=20
+> > controller which uses its own xfer() function and is left untouched.
 > >=20
-> > - Avoid the confusing "soft" I2C controller term - just call it the
-> >   ocores I2C
-> > - All non-const parts of the MFD cell are moved from global variables
-> >   into new functions tqmx86_setup_i2c_ocores() and tqmx86_setup_i2c()
-> > - Define TQMX86_REG_I2C_DETECT relative to I2C base register
-> >=20
-> > Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+> > Signed-off-by: Beno=C3=AEt Monin <benoit.monin@bootlin.com>
 > > ---
+> >  drivers/i2c/busses/i2c-designware-master.c | 103 ++++++++++++++++++++-=
+=2D-------
+> >  1 file changed, 70 insertions(+), 33 deletions(-)
 > >=20
-> > v2: no changes
-> > v3: no changes
-> >=20
-> >  drivers/mfd/tqmx86.c | 130 ++++++++++++++++++++++++-------------------
-> >  1 file changed, 74 insertions(+), 56 deletions(-)
-> >=20
-> > diff --git a/drivers/mfd/tqmx86.c b/drivers/mfd/tqmx86.c
-> > index 1cba3b67b0fb9..3c6f158bf1a45 100644
-> > --- a/drivers/mfd/tqmx86.c
-> > +++ b/drivers/mfd/tqmx86.c
-> > @@ -18,7 +18,7 @@
+> > diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/b=
+usses/i2c-designware-master.c
+> > index ec4fc2708d03..da1963d25def 100644
+> > --- a/drivers/i2c/busses/i2c-designware-master.c
+> > +++ b/drivers/i2c/busses/i2c-designware-master.c
+> > @@ -431,7 +431,6 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+> >  	struct i2c_msg *msgs =3D dev->msgs;
+> >  	u32 intr_mask;
+> >  	int tx_limit, rx_limit;
+> > -	u32 addr =3D msgs[dev->msg_write_idx].addr;
+> >  	u32 buf_len =3D dev->tx_buf_len;
+> >  	u8 *buf =3D dev->tx_buf;
+> >  	bool need_restart =3D false;
+> > @@ -442,18 +441,6 @@ i2c_dw_xfer_msg(struct dw_i2c_dev *dev)
+> >  	for (; dev->msg_write_idx < dev->msgs_num; dev->msg_write_idx++) {
+> >  		u32 flags =3D msgs[dev->msg_write_idx].flags;
 > > =20
-> >  #define TQMX86_IOBASE	0x180
-> >  #define TQMX86_IOSIZE	0x20
-> > -#define TQMX86_IOBASE_I2C	0x1a0
-> > +#define TQMX86_IOBASE_I2C1	0x1a0
-> >  #define TQMX86_IOSIZE_I2C	0xa
-> >  #define TQMX86_IOBASE_WATCHDOG	0x18b
-> >  #define TQMX86_IOSIZE_WATCHDOG	0x2
-> > @@ -54,8 +54,8 @@
-> >  #define TQMX86_REG_IO_EXT_INT_GPIO_SHIFT	4
-> >  #define TQMX86_REG_SAUC		0x17
-> > =20
-> > -#define TQMX86_REG_I2C_DETECT	0x1a7
-> > -#define TQMX86_REG_I2C_DETECT_SOFT		0xa5
-> > +#define TQMX86_REG_I2C_DETECT	0x7
-> > +#define TQMX86_REG_I2C_DETECT_OCORES	0xa5
-> > =20
-> >  static uint gpio_irq;
-> >  module_param(gpio_irq, uint, 0);
-> > @@ -65,17 +65,6 @@ static uint i2c1_irq;
-> >  module_param(i2c1_irq, uint, 0);
-> >  MODULE_PARM_DESC(i2c1_irq, "I2C1 IRQ number (valid parameters: 7, 9, 1=
-2)");
-> > =20
-> > -enum tqmx86_i2c1_resource_type {
-> > -	TQMX86_I2C1_IO,
-> > -	TQMX86_I2C1_IRQ,
-> > -};
-> > -
-> > -static struct resource tqmx_i2c_soft_resources[] =3D {
-> > -	[TQMX86_I2C1_IO] =3D DEFINE_RES_IO(TQMX86_IOBASE_I2C, TQMX86_IOSIZE_I=
-2C),
-> > -	/* Placeholder for IRQ resource */
-> > -	[TQMX86_I2C1_IRQ] =3D {},
-> > -};
-> > -
-> >  static const struct resource tqmx_watchdog_resources[] =3D {
-> >  	DEFINE_RES_IO(TQMX86_IOBASE_WATCHDOG, TQMX86_IOSIZE_WATCHDOG),
-> >  };
-> > @@ -91,28 +80,13 @@ static struct resource tqmx_gpio_resources[] =3D {
-> >  	[TQMX86_GPIO_IRQ] =3D {},
-> >  };
-> > =20
-> > -static struct i2c_board_info tqmx86_i2c_devices[] =3D {
-> > +static const struct i2c_board_info tqmx86_i2c1_devices[] =3D {
-> >  	{
-> >  		/* 4K EEPROM at 0x50 */
-> >  		I2C_BOARD_INFO("24c32", 0x50),
-> >  	},
-> >  };
-> > =20
-> > -static struct ocores_i2c_platform_data ocores_platform_data =3D {
-> > -	.num_devices =3D ARRAY_SIZE(tqmx86_i2c_devices),
-> > -	.devices =3D tqmx86_i2c_devices,
-> > -};
-> > -
-> > -static const struct mfd_cell tqmx86_i2c_soft_dev[] =3D {
-> > -	{
-> > -		.name =3D "ocores-i2c",
-> > -		.platform_data =3D &ocores_platform_data,
-> > -		.pdata_size =3D sizeof(ocores_platform_data),
-> > -		.resources =3D tqmx_i2c_soft_resources,
-> > -		.num_resources =3D ARRAY_SIZE(tqmx_i2c_soft_resources),
-> > -	},
-> > -};
-> > -
-> >  static const struct mfd_cell tqmx86_devs[] =3D {
-> >  	{
-> >  		.name =3D "tqmx86-wdt",
-> > @@ -238,13 +212,74 @@ static int tqmx86_setup_irq(struct device *dev, c=
-onst char *label, u8 irq,
-> >  	return 0;
-> >  }
-> > =20
-> > +static int tqmx86_setup_i2c(struct device *dev, const char *name,
-> > +			    unsigned long i2c_base, const void *platform_data,
-> > +			    size_t pdata_size, u8 irq)
-> > +{
-> > +	const struct resource resources[] =3D {
-> > +		DEFINE_RES_IO(i2c_base, TQMX86_IOSIZE_I2C),
-> > +		irq ? DEFINE_RES_IRQ(irq) : (struct resource) {},
-> > +	};
-> > +	const struct mfd_cell i2c_dev =3D {
-> > +		.name =3D name,
-> > +		.platform_data =3D platform_data,
-> > +		.pdata_size =3D pdata_size,
-> > +		.resources =3D resources,
-> > +		.num_resources =3D ARRAY_SIZE(resources),
-> > +	};
->=20
-> No, please don't do it this way.
->=20
-> Keep as much information as you can in easy to read, easy to reference,
-> easy to find, easy to follow, etc static data.  If you have to add a
-> couple more static structs above, sobeit, but all of this parameter
-> passing through abstracted functions is a regression in readability and
-> maintainability IMHO.
-
-Hmm, my reasoning for this change was that non-const static data always fee=
-ls
-yucky (and it can't be const because of the dynamic irq field); but course =
-you
-could argue that it's fine for a platform driver because there can only be =
-a
-single instance.
-
-Maybe have a const static at the toplevel, and copy that to a stack variabl=
-e to
-fill in the resources?
-
-Best,
-Matthias
-
-
-
->=20
-> > +	return devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE, &i2c_dev, 1,
-> > +				    NULL, 0, NULL);
-> > +
-> > +}
-> > +
-> > +static int tqmx86_setup_i2c_ocores(struct device *dev, const char *lab=
-el,
-> > +				   unsigned long i2c_base, int clock_khz, u8 irq,
-> > +				   const struct i2c_board_info *devices,
-> > +				   size_t num_devices)
-> > +{
-> > +	const struct ocores_i2c_platform_data platform_data =3D {
-> > +		.clock_khz =3D clock_khz,
-> > +		.num_devices =3D num_devices,
-> > +		.devices =3D devices,
-> > +	};
-> > +
-> > +	return tqmx86_setup_i2c(dev, "ocores-i2c", i2c_base, &platform_data,
-> > +				sizeof(platform_data), irq);
-> > +}
-> > +
-> > +static int tqmx86_detect_i2c(struct device *dev, const char *label,
-> > +			     unsigned long i2c_base, int clock_khz, u8 irq,
-> > +			     const struct i2c_board_info *devices,
-> > +			     size_t num_devices, void __iomem *io_base,
-> > +			     u8 irq_reg_shift)
-> > +{
-> > +	u8 i2c_det;
-> > +
-> > +	if (tqmx86_setup_irq(dev, label, irq, io_base, irq_reg_shift))
-> > +		irq =3D 0;
-> > +
-> > +	/*
-> > +	 * The I2C_DETECT register is in the range assigned to the I2C driver
-> > +	 * later, so we don't extend TQMX86_IOSIZE. Use inb() for this one-of=
-f
-> > +	 * access instead of ioport_map + unmap.
-> > +	 */
-> > +	i2c_det =3D inb(i2c_base + TQMX86_REG_I2C_DETECT);
-> > +
-> > +	if (i2c_det =3D=3D TQMX86_REG_I2C_DETECT_OCORES)
-> > +		return tqmx86_setup_i2c_ocores(dev, label, i2c_base, clock_khz,
-> > +					       irq, devices, num_devices);
-> > +
-> > +	return 0;
-> > +}
-> > +
-> >  static int tqmx86_probe(struct platform_device *pdev)
-> >  {
-> > -	u8 board_id, sauc, rev, i2c_det;
-> > +	u8 board_id, sauc, rev;
-> >  	struct device *dev =3D &pdev->dev;
-> >  	const char *board_name;
-> >  	void __iomem *io_base;
-> > -	int err;
-> > +	int err, clock_khz;
-> > =20
-> >  	io_base =3D devm_ioport_map(dev, TQMX86_IOBASE, TQMX86_IOSIZE);
-> >  	if (!io_base)
-> > @@ -259,13 +294,6 @@ static int tqmx86_probe(struct platform_device *pd=
-ev)
-> >  		 "Found %s - Board ID %d, PCB Revision %d, PLD Revision %d\n",
-> >  		 board_name, board_id, rev >> 4, rev & 0xf);
-> > =20
-> > -	/*
-> > -	 * The I2C_DETECT register is in the range assigned to the I2C driver
-> > -	 * later, so we don't extend TQMX86_IOSIZE. Use inb() for this one-of=
-f
-> > -	 * access instead of ioport_map + unmap.
-> > -	 */
-> > -	i2c_det =3D inb(TQMX86_REG_I2C_DETECT);
-> > -
-> >  	if (gpio_irq) {
-> >  		err =3D tqmx86_setup_irq(dev, "GPIO", gpio_irq, io_base,
-> >  				       TQMX86_REG_IO_EXT_INT_GPIO_SHIFT);
-> > @@ -273,23 +301,13 @@ static int tqmx86_probe(struct platform_device *p=
-dev)
-> >  			tqmx_gpio_resources[TQMX86_GPIO_IRQ] =3D DEFINE_RES_IRQ(gpio_irq);
-> >  	}
-> > =20
-> > -	ocores_platform_data.clock_khz =3D tqmx86_board_id_to_clk_rate(dev, b=
-oard_id);
-> > -
-> > -	if (i2c_det =3D=3D TQMX86_REG_I2C_DETECT_SOFT) {
-> > -		if (i2c1_irq) {
-> > -			err =3D tqmx86_setup_irq(dev, "I2C1", i2c1_irq, io_base,
-> > -					       TQMX86_REG_IO_EXT_INT_I2C1_SHIFT);
-> > -			if (!err)
-> > -				tqmx_i2c_soft_resources[TQMX86_I2C1_IRQ] =3D DEFINE_RES_IRQ(i2c1_i=
-rq);
+> > -		/*
+> > -		 * If target address has changed, we need to
+> > -		 * reprogram the target address in the I2C
+> > -		 * adapter when we are done with this transfer.
+> > -		 */
+> > -		if (msgs[dev->msg_write_idx].addr !=3D addr) {
+> > -			dev_err(dev->dev,
+> > -				"%s: invalid target address\n", __func__);
+> > -			dev->msg_err =3D -EINVAL;
+> > -			break;
 > > -		}
 > > -
-> > -		err =3D devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
-> > -					   tqmx86_i2c_soft_dev,
-> > -					   ARRAY_SIZE(tqmx86_i2c_soft_dev),
-> > -					   NULL, 0, NULL);
-> > -		if (err)
-> > -			return err;
-> > -	}
-> > +	clock_khz =3D tqmx86_board_id_to_clk_rate(dev, board_id);
-> > +
-> > +	err =3D tqmx86_detect_i2c(dev, "I2C1", TQMX86_IOBASE_I2C1, clock_khz,=
- i2c1_irq,
-> > +				tqmx86_i2c1_devices, ARRAY_SIZE(tqmx86_i2c1_devices),
-> > +				io_base, TQMX86_REG_IO_EXT_INT_I2C1_SHIFT);
-> > +	if (err)
-> > +		return err;
+> >  		if (!(dev->status & STATUS_WRITE_IN_PROGRESS)) {
+> >  			/* new i2c_msg */
+> >  			buf =3D msgs[dev->msg_write_idx].buf;
+> > @@ -801,26 +788,15 @@ static int i2c_dw_wait_transfer(struct dw_i2c_dev=
+ *dev)
+> >  }
 > > =20
-> >  	return devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
-> >  				    tqmx86_devs,
-> > --=20
-> > TQ-Systems GmbH | M=C3=BChlstra=C3=9Fe 2, Gut Delling | 82229 Seefeld, =
-Germany
-> > Amtsgericht M=C3=BCnchen, HRB 105018
-> > Gesch=C3=A4ftsf=C3=BChrer: Detlef Schneider, R=C3=BCdiger Stahl, Stefan=
- Schneider
-> > https://www.tq-group.com/
+> >  /*
+> > - * Prepare controller for a transaction and call i2c_dw_xfer_msg.
+> > + * Prepare controller for a transaction, start the transfer of the msgs
+> > + * and wait for completion.
+> > + * Caller must hold the device lock.
+> >   */
+> >  static int
+> > -i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+> > +__i2c_dw_xfer_unlocked(struct dw_i2c_dev *dev, struct i2c_msg msgs[], =
+int num)
+> >  {
+> > -	struct dw_i2c_dev *dev =3D i2c_get_adapdata(adap);
+> >  	int ret;
+> > =20
+> > -	dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
+> > -
+> > -	pm_runtime_get_sync(dev->dev);
+> > -
+> > -	switch (dev->flags & MODEL_MASK) {
+> > -	case MODEL_AMD_NAVI_GPU:
+> > -		ret =3D amd_i2c_dw_xfer_quirk(adap, msgs, num);
+> > -		goto done_nolock;
+> > -	default:
+> > -		break;
+> > -	}
+> > -
+> >  	reinit_completion(&dev->cmd_complete);
+> >  	dev->msgs =3D msgs;
+> >  	dev->msgs_num =3D num;
+> > @@ -832,10 +808,6 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_m=
+sg msgs[], int num)
+> >  	dev->abort_source =3D 0;
+> >  	dev->rx_outstanding =3D 0;
+> > =20
+> > -	ret =3D i2c_dw_acquire_lock(dev);
+> > -	if (ret)
+> > -		goto done_nolock;
+> > -
+> >  	ret =3D i2c_dw_wait_bus_not_busy(dev);
+> >  	if (ret < 0)
+> >  		goto done;
+> > @@ -896,13 +868,75 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_=
+msg msgs[], int num)
+> > =20
+> >  	ret =3D -EIO;
+> > =20
+> > +done:
+> > +	return ret;
+> > +}
+> > +
+> > +static int
+> > +i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+>=20
+> Typically if you have
+>=20
+> i2c_dw_xfer()
+> i2c_dw_xfer_unlocked()
+>=20
+> The only difference is that the former call the latter with lock held.
+> However, this is not the case here which is confusing.
+>=20
+> I suggest move the lookup to be part of the _unlocked() variant.
+>=20
+> While there, can we use size_t with the num parameter.
+>=20
+Maybe __i2c_dw_xfer_unlocked() is the wrong name, as it is meant to be
+called potentially multiple times from i2c_dw_xfer(), depending on the
+number of messages flagged with I2C_M_STOP. So it is not an unlocked
+version of i2c_dw_xfer(). I'll try to find a better name.
+
+> > +{
+> > +	struct dw_i2c_dev *dev =3D i2c_get_adapdata(adap);
+> > +	struct i2c_msg *msg;
+> > +	int ret, cnt;
+> > +
+> > +	dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
+> > +
+> > +	pm_runtime_get_sync(dev->dev);
+> > +
+> > +	switch (dev->flags & MODEL_MASK) {
+> > +	case MODEL_AMD_NAVI_GPU:
+> > +		ret =3D amd_i2c_dw_xfer_quirk(adap, msgs, num);
+> > +		goto done_nolock;
+>=20
+> Not really problem of this patch but I'm sure there is cleaner way to deal
+> with this. I mean first of all we don't wan't to differentiate here what
+> model this is. Instead we can look for a "quirks" based on dev->flags.
+>=20
+> Secondly goto inside switch is confusing too.
+>=20
+> This can be better written like:
+>=20
+> if ((dev->flags & MODEL_MASK) =3D=3D MODEL_AMD_NAVI_GPU) {
+> 	...
+> }
+>=20
+If we also add the ACQUIRE() for pm_runtime suggested by Andy to
+amd_i2c_dw_xfer_quirk(), we could then create a struct i2c_algorithm
+dedicated to this hardware and set it in i2c_dw_probe_master(). This way
+we can skip all this code, no need to check the model for every transfer.
+
+> > +	default:
+> > +		break;
+> > +	}
+> > +
+> > +	ret =3D i2c_dw_acquire_lock(dev);
+> > +	if (ret)
+> > +		goto done_nolock;
+> > +
+> > +	/*
+> > +	 * If the I2C_M_STOP is present in some the messages,
+> > +	 * we do one transaction for each part up to the STOP.
+> > +	 */
+> > +	for (msg =3D msgs; msg < msgs + num; msg +=3D cnt) {
+> > +		u16 addr =3D msg->addr;
+> > +
+> > +		/*
+> > +		 * Count the messages in a transaction, up to a STOP
+> > +		 * or the end of the msgs.
+> > +		 */
+> > +		for (cnt =3D 1; ; cnt++) {
+> > +			/*
+> > +			 * We cannot change the target address during
+> > +			 * a transaction, so make sure the address stays
+> > +			 * the same.
+> > +			 */
+> > +			if (msg[cnt - 1].addr !=3D addr) {
+> > +				dev_err(dev->dev, "invalid target address\n");
+> > +				ret =3D -EINVAL;
+> > +				goto done;
+> > +			}
+> > +
+> > +			if ((msg[cnt - 1].flags & I2C_M_STOP) ||
+> > +			    (msg + cnt =3D=3D msgs + num))
+> > +				break;
+> > +		}
+> > +
+> > +		ret =3D __i2c_dw_xfer_unlocked(dev, msg, cnt);
+> > +		if (ret < 0)
+> > +			goto done;
+>=20
+> This can be
+>=20
+> 	break;
+>=20
+> > +	}
+> > +
+> >  done:
+> >  	i2c_dw_release_lock(dev);
+> > =20
+> >  done_nolock:
+> >  	pm_runtime_put_autosuspend(dev->dev);
+> > =20
+> > -	return ret;
+> > +	if (ret < 0)
+> > +		return ret;
+> > +	return num;
+> >  }
+> > =20
+> >  static const struct i2c_algorithm i2c_dw_algo =3D {
+> > @@ -920,6 +954,9 @@ void i2c_dw_configure_master(struct dw_i2c_dev *dev)
+> > =20
+> >  	dev->functionality =3D I2C_FUNC_10BIT_ADDR | DW_IC_DEFAULT_FUNCTIONAL=
+ITY;
+> > =20
+> > +	if ((dev->flags & MODEL_MASK) !=3D MODEL_AMD_NAVI_GPU)
+> > +		dev->functionality |=3D I2C_FUNC_PROTOCOL_MANGLING;
+> > +
+> >  	dev->master_cfg =3D DW_IC_CON_MASTER | DW_IC_CON_SLAVE_DISABLE |
+> >  			  DW_IC_CON_RESTART_EN;
+> > =20
+> >=20
 >=20
 
---=20
-TQ-Systems GmbH | M=C3=BChlstra=C3=9Fe 2, Gut Delling | 82229 Seefeld, Germ=
-any
-Amtsgericht M=C3=BCnchen, HRB 105018
-Gesch=C3=A4ftsf=C3=BChrer: Detlef Schneider, R=C3=BCdiger Stahl, Stefan Sch=
-neider
-https://www.tq-group.com/
+
+Best regards,
+=2D-=20
+Beno=C3=AEt Monin, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
+
+
+
