@@ -1,109 +1,112 @@
 Received: from SY2PR01CU004.outbound.protection.outlook.com (mail-australiaeastazolkn19011031.outbound.protection.outlook.com [52.103.72.31])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C809D23BD06
-	for <linux-i2c@vger.kernel.org>; Thu,  6 Nov 2025 02:15:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC46C23EABA
+	for <linux-i2c@vger.kernel.org>; Thu,  6 Nov 2025 02:15:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.72.31
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1762395305; cv=fail; b=oWFUYAYppqvDplp3U0p0glcBWBMt0kIf45R10u4NIwmQOIAVpTEz8zzsBguOA3yhHX3CXzQX54LAswG4gYYMu4y8/bbiBVSuryGsPllmwSozbKOvtjh6KQKvlufoOHp3PwNNElDDju5rMZQizIrtFfIUTYiP+2qkrVFrLQNwS8E=
+	t=1762395308; cv=fail; b=SZH7OywQoGwpUrXQAZw3Y7iqp/w4kXG/K6PqKyQlIoofDCQ5BobkZYTYhxD6Q1VGrBL8t4cG8xy/wWN3EiZRNrLRuVUUh+Ydb3RElDS84HawrCM744i2ukEAcBcS8aTno1J0CASzK1Z3OUnphCIIOBrP7V+1n4HKOg7nw1t1POw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1762395305; c=relaxed/simple;
-	bh=n689lKVJ6q0Pv6oKEtX2wPgQgOuHgRxtKgAycR8MZ9U=;
-	h=From:To:CC:Subject:Date:Message-ID:Content-Type:MIME-Version; b=uoZtfSqObzXOPuXnN2Z4Lj8wJmSolGpry/qLLx9jJ0gAouldKJ2xYSCUNQ6DvRQvwgtxfUh5G0DTaMvVuRautgVoFRkId+ydujR70BKBEXiZ1Q3TIr1FoUmSHbfVwcWsQDx9rwe7oZm2GKHiQA8LDi1DXRbGyOeMtIotznrLdP8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com.au; spf=pass smtp.mailfrom=outlook.com.au; dkim=pass (2048-bit key) header.d=OUTLOOK.COM.AU header.i=@OUTLOOK.COM.AU header.b=FF4JXB4v; arc=fail smtp.client-ip=52.103.72.31
+	s=arc-20240116; t=1762395308; c=relaxed/simple;
+	bh=HldcWWWVLPpdDyGYdqEhSN32/n/nBlIJ5mDS1kTrvEI=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=e/urFdikTZGsTWJAzkYKLqbxR4DwgMFweKibiUrltLl0cthdPDZvy33/m1/NkPUu1c73E2JXaLUkzuouh1S9IFkuehQ3brdOoWOpIGHHUPn2EaCsdzMNyJ2Zo9raFm4siH72OxcLl8QjCVqIjhjzKkYkxOBE/4tIrr70ATk5zpQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com.au; spf=pass smtp.mailfrom=outlook.com.au; dkim=pass (2048-bit key) header.d=OUTLOOK.COM.AU header.i=@OUTLOOK.COM.AU header.b=dfC3mi3l; arc=fail smtp.client-ip=52.103.72.31
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com.au
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=OUTLOOK.COM.AU header.i=@OUTLOOK.COM.AU header.b="FF4JXB4v"
+	dkim=pass (2048-bit key) header.d=OUTLOOK.COM.AU header.i=@OUTLOOK.COM.AU header.b="dfC3mi3l"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=S9ivyOGMbodbIo5pYbR6j7XlmI2oxDQlw+zor8fSRgRCUXvc9BorM3m2WSOXWJuP+AfHdbjv6lI8DaOa/Y8/abUVYacl+CF9y5EL8Z2eJbhZysYHn6y9j/MWAnBKV2KlFstKGmVhfgS82qbWJW+BF4D8VVVFVf0pQiTBPdIIreOPhXVTUxAztJ2juGMnwESuMoyX604X0IQjgvC+yOJzw5t+co4mKzm4OcJtls+JmWwewq/INg0Vtr0WlnSAJRXRJE90+pdcwATsLJOYgvHS+C1Lsee2msFXAxMI2/e8+Kpm+upBuPl4o1XsOqd+uxvg3sQ+8S5KXyyR55/S2DC+EA==
+ b=mBUK0zl401HwvWlezIQ51vqGYpu3hyDGmbJSNo/vma4H5zXlC4QSU/CvhYPa9WaShq+gjZlL6D8EGW0G4DUnzmz3TbQIgsKbPk5EuYrCSieHNIcr4NMEpt9d9C9z+ripww6dwkmCGJL+lg+PmiCKQS9uAXFI/JxasfJLVWre1pBRypQxG8R3eAfqtpz2bvzhGAIGOPov8lRHsNJGETrQ5gmtN7g9ErFHdtAMUtWp+vSqzltJoqFREMeDKFKIqxzHfTdNSi0xvViCo7BvEd4J67+fpEw6CxQPataFIr+f43yvqnTKZi8u3oaUFtULeN5rOjkUHIJVYRpa94tpaKBNfw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=JUNbS4/0eh1vcTSbPg7VDM4cVaQg9eAMXZ9oLBwREz4=;
- b=ZPoo+MSTLqdiRawkZMpo8cU2T8EewzhGsqLStKp8DQjTedjiPnqAh61/N0DMZDJgKnTudIYtVv64cGohgmbBqFOwRqYmjXD6IQLjrhoADkQKuRqQy0AR7ykmY0UZ00lLjuRoYrhcFp5QRnIbmJpWobkpv/l9pJa9492IoAE1651CZPU3VFY4J8xWwl/ZxY18uHmi/c5kulYrIg69Yd0EfZErQAT/M4TgAxY//cXEuE9YUEzMpmywe2j5uR07wb/CMgQGeWoDK0JNdioB7Y3IO4HZz4wosFL/KejRrU3Hmo8FcrouAYgtYdLmxeDd76Y6a1URckL5C7lmKVAbhQUUUg==
+ bh=6HsPKUrHWv2jG2EAWbrOthC6Q8tL4S1WTiDztHB6iL8=;
+ b=c+BpqZvf6KnxcnDzCF/IVCjZAUJw3FC+PxSNWUPXI0I38uPfqFe1l65PAxh91CQSSel1aKJUP4MQ93UluzIiIa6H0wQXGc7QRYjvfNIQBnQrtb4vj9kISpXYUKZYNdjD30zRAKoVb0D5fcyilES5sxMIDcDVXFrgryiXp+fEBttGdXJ6i4mCPaty8U9MgAJaEEFGiWvOQrwydRseFi0Ya670P1+xGfqpoX6xRNEFLNyt7BPCIE9lUUhukMb2RNdO5kUqmyTBjJViB7iNfDN7iNZGrtGRSEe1/5S4pA1/lNhKwdRx8FbosbMtIa9RNe+SYP7V2gsHTFyj5lMAmk1AMA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
  dkim=none; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=OUTLOOK.COM.AU;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=JUNbS4/0eh1vcTSbPg7VDM4cVaQg9eAMXZ9oLBwREz4=;
- b=FF4JXB4voXcOxFpyQHB80NIU5Eo1/RdBKJyN9j1RmxMRzJ96/lrGaNR1M2nxm7JXRhTLnRlVW7KpzAypOoPFOqOzjn38pzaaBSI/lQ9S18z5+ScVWERJn8A3lM3ltNGFpGpPE8T7bJXByh4TRj3MHwmrudqc0RA3T7Up3pgnnn+0oS6w+FVRJV6XAIM6P1Zjnt+TeBGWo0yMQcnoLEscRSDyiEUi1iQWIpDq9cu5LGmM+M6+nZCBDNm6PKH9Tb7PYP/KuW/YZgRA7xBfc0hf+KjmkNjnklb9KuBLG6drQSCKJM9AfL0M4gjQ7+8wx8qUEpjYIFHZx2qAEUErOOPPmA==
+ bh=6HsPKUrHWv2jG2EAWbrOthC6Q8tL4S1WTiDztHB6iL8=;
+ b=dfC3mi3lJFCD2yQwv9GZIT6evfCCKr50Baar9FzyTJJm4MXQRntw64A0VmcWx+DH3PTit6mLFvI5aULDrw+XyLYiYuAntHnQImwTnAS2HNnkrPpeAAQRBN14bpeh6xuU9lw/b67bMyhSsHLJTzDSD7gu9FegSw5/BOLc6YOJJAT6G2Z6DQ16/PbwYq6fa0fzaEwMUgCm5s0Uuflde36K9D6I01Ci+S7f9meGkw2u4oVhjrIpv+7RGMeTaLevVj2pQkl3ZICp3erOcjdj8zKliIxBVymZSYGmKtqdxJQwL352Om0ARl+gEWbikmjSE+dx+4UpyLqlpCqTxNJcdtWoKg==
 Received: from SYBPR01MB4586.ausprd01.prod.outlook.com (2603:10c6:10:59::12)
  by SY3PPF8E5E02F08.ausprd01.prod.outlook.com (2603:10c6:18::422) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9298.8; Thu, 6 Nov
- 2025 02:14:58 +0000
+ 2025 02:15:01 +0000
 Received: from SYBPR01MB4586.ausprd01.prod.outlook.com
  ([fe80::630e:e55b:4105:c99b]) by SYBPR01MB4586.ausprd01.prod.outlook.com
  ([fe80::630e:e55b:4105:c99b%7]) with mapi id 15.20.9298.007; Thu, 6 Nov 2025
- 02:14:58 +0000
+ 02:15:01 +0000
 From: Stephen Horvath <s.horvath@outlook.com.au>
 To: Jean Delvare <jdelvare@suse.de>, "linux-i2c@vger.kernel.org"
 	<linux-i2c@vger.kernel.org>
 CC: Guenter Roeck <linux@roeck-us.net>, Kamil Aronowski
 	<kamil.aronowski@3mdeb.com>, Stephen Horvath <s.horvath@outlook.com.au>
-Subject: [PATCH v2 0/6] decode-dimms: Implement DDR5 decoding
-Thread-Topic: [PATCH v2 0/6] decode-dimms: Implement DDR5 decoding
-Thread-Index: AQHcTsMm4JZxh6aSG06ImgPUz5UiLQ==
-Date: Thu, 6 Nov 2025 02:14:57 +0000
-Message-ID: <20251106021356.208986-1-s.horvath@outlook.com.au>
+Subject: [PATCH v2 2/6] decode-dimms: Decode DDR5 Manufacturer Data
+Thread-Topic: [PATCH v2 2/6] decode-dimms: Decode DDR5 Manufacturer Data
+Thread-Index: AQHcTsMnNQg4tx4fM0WDC/QnP1aWCQ==
+Date: Thu, 6 Nov 2025 02:14:59 +0000
+Message-ID: <20251106021356.208986-3-s.horvath@outlook.com.au>
+References: <20251106021356.208986-1-s.horvath@outlook.com.au>
+In-Reply-To: <20251106021356.208986-1-s.horvath@outlook.com.au>
 Accept-Language: en-AU, en-US
 Content-Language: en-US
 X-MS-Has-Attach:
 X-MS-TNEF-Correlator:
 x-ms-publictraffictype: Email
 x-ms-traffictypediagnostic: SYBPR01MB4586:EE_|SY3PPF8E5E02F08:EE_
-x-ms-office365-filtering-correlation-id: 7336b597-cbf4-4ab8-c287-08de1cda489b
+x-ms-office365-filtering-correlation-id: 4e9e637b-f445-4a9c-7f76-08de1cda4aa6
 x-microsoft-antispam:
- BCL:0;ARA:14566002|12121999013|19110799012|8062599012|8060799015|15080799012|461199028|31061999003|38102599003|40105399003|3412199025|440099028|102099032|1710799026;
+ BCL:0;ARA:14566002|19110799012|8062599012|8060799015|15080799012|461199028|31061999003|38102599003|40105399003|3412199025|440099028|102099032|1710799026;
 x-microsoft-antispam-message-info:
- =?iso-8859-1?Q?7l8WCqI6RFeKuBHXXwkEfaSghq2NUnFeL4aCsazj5ZoWCO2+6g/3zinsDt?=
- =?iso-8859-1?Q?a0iwAOFq02DYWoDuI+Nd8uCfsSLuH5AkCdFOjeXQj8YcawaTfIyomETUsE?=
- =?iso-8859-1?Q?Eeb3A+TiUks+hlvh7VZTi6l/Sds66bSKKbRRMtfiy04GIQzowkkVRrp9M0?=
- =?iso-8859-1?Q?Doa8X5dR4YCiqQpFXE2FdAcXr0+fJRQSoLoGdflWWNbT6FKryMP2I5mAJS?=
- =?iso-8859-1?Q?UmtwFoA0p5/7xHFcewuwppjZGJextfYK6BfhvxKJ1ZFXXGrUxGIDTNjdCp?=
- =?iso-8859-1?Q?1gDJF/TXpxVQJRl7zTMxLgG2a46EwBnxuQHVVxtvZ4DycsezPFoxUukSm2?=
- =?iso-8859-1?Q?8sdUCZGaFsQ64Piplh7+GAExiSWQikXsq9cPLpstKdECKf/p7LpgiBxwaS?=
- =?iso-8859-1?Q?IF8H7wJrKmHasE+DBj+cEzY+CSJQtT028FNH2ddvjlCBiNeM/NcVGWPW+b?=
- =?iso-8859-1?Q?wFbTdjF3VFOaZpCu96G4PET1GivwDxbBEK7mGykxDhk4PsqW8kF3KwUqLU?=
- =?iso-8859-1?Q?IkS421YZQ+gOAtpgHdAZYwPHs9xmRJCCzxcnnmzGMwl3diS1KPRWp6tLZN?=
- =?iso-8859-1?Q?zOLASmSkQRSua2IUQnODh5S1F7gYH55/+2mj9Jn0JsC+7r+Bac8+ktK9Mc?=
- =?iso-8859-1?Q?7AgdBXvjuuxSVxFlJh54CFk7GOAWhTUzcZRLvyVY2T3k2Z+qJIIpZOYC9R?=
- =?iso-8859-1?Q?n+gCTiuY3fLcBcoizuszrdH2geZ0SnGSk6DKFX18a8RVvJ8i+/JHs45zhy?=
- =?iso-8859-1?Q?c/FRbzsnbnXrWWQhNiiyllVT/7aFr6K4qkFiKwPrBzqUwqLmSiJ7BUHqXu?=
- =?iso-8859-1?Q?hS9oxDi3zsRXn3AEdBlv27wKwLn8abkiVH/kHEk64/W/NBqjX23vSpo7Mm?=
- =?iso-8859-1?Q?YZuM5mgJrWtOM/tY0QTv1r8iNkIg48zB80mTJxQpbbiHoBTD5Phm5GEo6t?=
- =?iso-8859-1?Q?urm5CEQPdLXAg2PJIvaQcO/uwTMl4IKbupxeGZK+goCXj0n55ZY8LA29Ay?=
- =?iso-8859-1?Q?jQ0smzAEhGf0s+MH6di0sEMNs3Bi9BdEBOjisfp7yzeGYQhrKaIrq/3lYI?=
- =?iso-8859-1?Q?LXPP/9hB0gT1eXLvdtGU+Tlk5ibAlnjK9eHGxY+ckVCHrMjqcOXg2Prsfl?=
- =?iso-8859-1?Q?xep8Gsi2ZBKgUgZfRJhm3cAelrjJSuIO1ZVrfy7+nnPkQEY7yJ9ADqRViJ?=
- =?iso-8859-1?Q?tMOSUPCigzyfI7g7kc0PpKcNpn99hF9OuUUqGD3Akk2RqP+3GloP8YIVN1?=
- =?iso-8859-1?Q?d3zLMmu6PeETjJpXo3IXeO7bXEQ3cPIlhDlPD+Rks=3D?=
+ =?iso-8859-1?Q?DAwLD/P0beQhMIuYTYlAKRww1cTOWuZSa8Etu6BXqMq4Ld1sbN5MhfFdwv?=
+ =?iso-8859-1?Q?gX9WA3Mhr8Rv2y+hIXhk1hz8O/wZtu7zJLj5aDszI4GVjDM4sXZBN0XuHD?=
+ =?iso-8859-1?Q?HBN+E/WF1+vcvqZo+hrHQgNhN2fpmGiJ9sVHnKJTrCLbIEU902VlK6VaOf?=
+ =?iso-8859-1?Q?XWbWErTuGuH65kFFHSY4VeWG37YlghCqvKXcyIZ4622Ih5JSlW9ZJtWZ3D?=
+ =?iso-8859-1?Q?yx8mR7WVT169bggA9WwvsjGegk+M48HCzVd5uDB826oeFjgbLz8k2ggrmt?=
+ =?iso-8859-1?Q?qe+VQuzuMcIx+UR5P1PC87nvk2yfJJ8tTPC86o5pAwClRC7zkJqwFROWpH?=
+ =?iso-8859-1?Q?8tbPICKzOwoxu3FK2Mu6ot0HZueAMe+JaE8RMQuPsU+a/aQ0d1bg8alhaB?=
+ =?iso-8859-1?Q?V0hYcJBDUAOPNhVnPlLB+ZW371hke+6fqhdnuwTJ0lmhNhOdpASiXYl4HK?=
+ =?iso-8859-1?Q?tUvOU7YcJKNZud+RnkUbJRTpwicIBM0lkMV99OwOk6eKed5ZtiZr/exnsx?=
+ =?iso-8859-1?Q?CmYu46mnYCnHyrUuTdjxyrmRPZgZ6hvLEGGdy02TxZkploEwbkvrscBfzS?=
+ =?iso-8859-1?Q?zloX10iSzXCjJFxJdlvsRiaGRWspuQGVelpFQuE1gyvKKLzdaBj4SfmKL8?=
+ =?iso-8859-1?Q?8uUE80tvEOYRlC/l1JU12Cq50A6dXQDpo858qAxTTHHYC6tjizOWxVgD0U?=
+ =?iso-8859-1?Q?O9W9n/UR31aTsWEqcO6/TbqA4T1/rLp6QeiHNwI0hXNWjMYOrl5z1LXvau?=
+ =?iso-8859-1?Q?YCEYTOqZACiK3uX6J2P6AxdqoCl0ERB6ZNjnCicvSHNACbaAR8yekxEf7z?=
+ =?iso-8859-1?Q?X2836bHgd/Ncm6vvOmxclQRj0D0Vcw6+cM7LxJK7mC5K+BwJXWbosN9WlD?=
+ =?iso-8859-1?Q?hoOHVSg635JKQU7UTZOOXGM3H9T4cRAVcsLEeYmD4vsDGswUszC8DvWcu3?=
+ =?iso-8859-1?Q?CcPvZAss+1XuGCwxI0sYdpR8ki1RpbwQXlq/GuX5MyWGviTMWf264H9qIY?=
+ =?iso-8859-1?Q?eENMAcwYAq2fcbxC6WVxqGYcvcs3H60sQo7qP/RMphrvxcwXxw/BZ0NeAQ?=
+ =?iso-8859-1?Q?aTxVQQlPXKIyF5dhLj+sHcq6zvoB6Ez9cUPEE47U8Eiuppsk1T5LPiSOCu?=
+ =?iso-8859-1?Q?xTmbL0siuTpHRG3T3GJg4vadCyU3RMRadumo/jcCC6xXHUR1dMko71ZhOe?=
+ =?iso-8859-1?Q?ALYLVzg07P97NIyg8SYuYBFqaAQuL1PpNja1hXWG8elwjDoZZM78xQIUa6?=
+ =?iso-8859-1?Q?IL7GwADSNeHN7LA8vstA=3D=3D?=
 x-ms-exchange-antispam-messagedata-chunkcount: 1
 x-ms-exchange-antispam-messagedata-0:
- =?iso-8859-1?Q?rrdDQ7D7ScD0pK8NK4gXuO91JQNZfG9rPXX6ONOu+6qrFV0sNkoFIrg6BW?=
- =?iso-8859-1?Q?ClEUq3n2SqJUDUzVh2zusMXmbv2RAg4BJzWA9C/DmcwwkMSjIlTqNqLTqH?=
- =?iso-8859-1?Q?NuSYy9dXxnaD2AkYaHQ7lBA6QoMmDaqNYr6KI+s/uTyvDpH0qRyRGaU/rL?=
- =?iso-8859-1?Q?H5RBN8Jd0DYCJR2/MD0G1fpjL/34HkseTR2399QfbdcB8SK7wkFoS/Buf6?=
- =?iso-8859-1?Q?wOsqu193A6VsmBo3iKcGeGrz4uVg+ZYqvd7P5Y4tSlpzh8uJldos3oSWHr?=
- =?iso-8859-1?Q?AGXbamoV2pICBrzu62WGpSrd429jRDi+tCZbb8dWMuf5jNSzWbglIhFzJd?=
- =?iso-8859-1?Q?Ibx5DJw2XBBwh+Ed7VA7ZkIPEF+11RgjKjO1k+LCSCbw8EfT2PudXS/QQu?=
- =?iso-8859-1?Q?ZcyhemBSjQW7h4sV5WVOQa3mstJywPxXLCvrzX7zORFEcWlmToArap5/q5?=
- =?iso-8859-1?Q?MyV0b3F9Uizywy8Awjfbah2yP2kQg9H0ExlWkPae4GF464rT65lUH9esZ3?=
- =?iso-8859-1?Q?3i0H+2uHm4BQtcbfCIFAx6rmkNvcH+XceC8az58UT0VGTwyL5OZlTBmDOv?=
- =?iso-8859-1?Q?V/VRS5NLgl0dUqUC37pL9oDtc8/6Y0SsIO2XvafKS55wXb3+jOf3/bIwxO?=
- =?iso-8859-1?Q?tslwG7cEdbI9BjFK7yBHtG5Cznmn6gYOUoofl+1zJ3Bp32yRrvQ9ntTr25?=
- =?iso-8859-1?Q?DXjSoMKCF6s6JJfGiTJ/99O8LjnnRUcoEVy6o23oJnuVid2KUAPvocwT+g?=
- =?iso-8859-1?Q?8CeJIHwKPiSkT1LUhplrYmMYqbROWopfF3rRp9sLbaaPSGqFyT1ZNHFk2p?=
- =?iso-8859-1?Q?OD+o3aEi4+F9ddfvTmLrz+avUTpND6CHU1Y7Pk5AqvTIvukZBhiJW8vx5q?=
- =?iso-8859-1?Q?6eCMk8qNQVvn5rxoWqwWJPVVeATrkuoc8eaaH2GKC6InQSfV9+IgBNJDoS?=
- =?iso-8859-1?Q?ajZ/rlTaX5v5mmNcN/q6tnt0LVEYG4jljqXK15uA0um1rqxc1ha/xkbusM?=
- =?iso-8859-1?Q?4O39EUwZxopRUokO5tvheEBIuhX9IhpkOMU8ubWL1AXcfQhElqk6kqLwMH?=
- =?iso-8859-1?Q?EVkUuyPPK3q5/Nnh4buVzGrPcqEYNn9RSRGK/s2if21+ekhutx2w3z3wkB?=
- =?iso-8859-1?Q?geadryJhqKUEJPU8nR7ihfBfCIIUVlMBZwiBhR8sdSnLVKoXrDZJl/SpWH?=
- =?iso-8859-1?Q?vXIVslVRA4jtcXaAmSwR+EpG3IVdiKrhy8EodQmDPqYj+epBht8bK/Yl/9?=
- =?iso-8859-1?Q?RVfg0iJANVsQUmNUQqaCy6tCAEiaKUAMKR8J52Lcc=3D?=
+ =?iso-8859-1?Q?Z3ciIlistprPrEc8h5NE6jDnX6dEPgfy1fl07monvLVZJhoXrbF9VPdwPK?=
+ =?iso-8859-1?Q?l7qwyp2SPrytvfxFmSR4Cv7bR7YtYigBMLdUpUewm3rPYwu9sDMq8Iv028?=
+ =?iso-8859-1?Q?JC3Bm8b7/qN6feWsWQRBa3gDbsKIyA+YjAIOmYSVq95LEBx1UCP2KSMkp2?=
+ =?iso-8859-1?Q?hlrQK2qy+A950lrXwRt4D5dhgaEkU6L3eyaogYrLGTvy+UqaDt+Hp21cTP?=
+ =?iso-8859-1?Q?Ii/5Nrjggu4cRSXNu2mAwHhue5Gv2Vl0qTk22Yx19uSrp72rnSPv71iEUK?=
+ =?iso-8859-1?Q?HoMuXh3AH2IWhYHkYDNuCdyPzFxPDsS3zAoqeJvZ5GKs2tlLXLGOINf4yE?=
+ =?iso-8859-1?Q?230rQqd8yve5/DCAu2XCFikzMkDOuk4bC5uStfJwofKynjgPG88UBQbA1O?=
+ =?iso-8859-1?Q?6zfv7SmuDRKgLnlpog8ijYPGr9Xo4kBLNWC0dqaQsV/1+xTkCbiUj/Rnqz?=
+ =?iso-8859-1?Q?EDLQgD7X+ggPROTRcBIrGL2OjBpmWSlEv5u0agwapXRQVsFl3sriYNvPOf?=
+ =?iso-8859-1?Q?vocb4wHClU7KIOX/jsnmVdHdcxi6J4DsFirPxgBa7vZ8zPwyMe1XKiYAgd?=
+ =?iso-8859-1?Q?Sh48AiVmtDveT1kaoOecweH8MZ1cu6EDWmuoqfrjRw/7nM/qhks5fXqvMy?=
+ =?iso-8859-1?Q?tRPVfIuhIR6F82NxKZNRW6VatrQOwyXvBGCreiSAO0ItbJsgmbnnqE9L+7?=
+ =?iso-8859-1?Q?gkg5KN+i69IcJPDFfZAmYoect0GgWwHOC1lonfsJM0tv5Niql7RFvsvMHD?=
+ =?iso-8859-1?Q?bfFaqjEQmDrmzQ/VqV7QUvG8TuYfk1wxQHt2eA09s8OEWAyQPuLUPNnPA3?=
+ =?iso-8859-1?Q?LVQCuP0XZgjy0KjFjDzyEZUxjtuWvwdhuAsXuiDf0fIkjuDTKqfkpwIW4y?=
+ =?iso-8859-1?Q?QA6+wTV8P4+JyjPk2sRZEgfbGMqXDsqsk/pnd5ctsTnamgjUtHyBIHa8GV?=
+ =?iso-8859-1?Q?Taj/C49U4h53OfYADv+cZ9PDHefEOmMBX4HwwjxpxezBcO+jRHq9xWXXxQ?=
+ =?iso-8859-1?Q?/bEzdVxHEAEJ7riJWu2mqihAWHcVQUzdVjucCQMukg3+CJ+ylazK2u0TzT?=
+ =?iso-8859-1?Q?/Lo7vUlXuEWz7Ledm8QFrrTtoQojvEqeNADnvgSMCTyn9WuXD3bLD/jCiR?=
+ =?iso-8859-1?Q?wfFU8BReSXWDY//kxUy6YorfxFHqTzG8TrHByVhQO8DqPG1lDBEAHzLacU?=
+ =?iso-8859-1?Q?jSfciTiXKINGbieOh2+vH3+SZNe2jY1Nd+Ii+nMvaToJSnDm1dijDC2KRS?=
+ =?iso-8859-1?Q?3VCaf4Ily080T8sApR+GY6f5euTuB97EtdwIOE63M=3D?=
 Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
@@ -116,46 +119,94 @@ X-OriginatorOrg: sct-15-20-9115-0-msonline-outlook-64061.templateTenant
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: SYBPR01MB4586.ausprd01.prod.outlook.com
 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7336b597-cbf4-4ab8-c287-08de1cda489b
-X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Nov 2025 02:14:57.9665
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4e9e637b-f445-4a9c-7f76-08de1cda4aa6
+X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Nov 2025 02:14:59.5876
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
 X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: SY3PPF8E5E02F08
 
-Hi, this series of patches adds DDR5 support to decode-dimms.=0A=
+Decode the DRAM's manufacturer data for DDR5.=0A=
+There are more manufacturers in the common and type specific sections,=0A=
+but only the 'Manufacturing Information' section of the eeprom has been=0A=
+implemented.=0A=
 =0A=
-I'm not too experienced with perl or the JEDEC specs, so there's=0A=
-probably going to be some questionable choices here, but I'd love to=0A=
-hear feedback.=0A=
-=0A=
-The first 4 patches (1, 2, 3, 4) add the essential information to=0A=
-decode-dimms.=0A=
-=0A=
-The next 2 patches (5, 6) haven't been tested on hardware=0A=
-implementations so I'm happy for them to be dropped if they're not=0A=
-useful.=0A=
-=0A=
-V2 has been rebased onto master, and patch 1 has been updated to check=0A=
-byte 2 for DDR5 identification, not just byte 0, and the commit=0A=
-messages have been made more formal.=0A=
-=0A=
-Cc: Guenter Roeck <linux@roeck-us.net>=0A=
-Cc: Kamil Aronowski <kamil.aronowski@3mdeb.com>=0A=
 Signed-off-by: Stephen Horvath <s.horvath@outlook.com.au>=0A=
 ---=0A=
-Stephen Horvath (6):=0A=
-  decode-dimms: Implement DDR5 checksum parsing=0A=
-  decode-dimms: Decode DDR5 Manufacturer Data=0A=
-  decode-dimms: Decode timings and other data for DDR5=0A=
-  decode-dimms: Decode DDR5 common module information=0A=
-  decode-dimms: Add basic decoding of type specific information for DDR5=0A=
-  decode-dimms: Decode DDR5 error log=0A=
+ eeprom/decode-dimms | 51 +++++++++++++++++++++++++++++++++++++++++++++=0A=
+ 1 file changed, 51 insertions(+)=0A=
 =0A=
- eeprom/decode-dimms | 519 +++++++++++++++++++++++++++++++++++++++++++-=0A=
- 1 file changed, 515 insertions(+), 4 deletions(-)=0A=
-=0A=
+diff --git a/eeprom/decode-dimms b/eeprom/decode-dimms=0A=
+index baf85e0..9979259 100755=0A=
+--- a/eeprom/decode-dimms=0A=
++++ b/eeprom/decode-dimms=0A=
+@@ -2278,6 +2278,48 @@ sub decode_ddr4_mfg_data($)=0A=
+ 		    sprintf("0x%02X", $bytes->[349]));=0A=
+ }=0A=
+ =0A=
++# Parameter: EEPROM bytes 0-639 (using 512-554)=0A=
++sub decode_ddr5_mfg_data($)=0A=
++{=0A=
++	my $bytes =3D shift;=0A=
++=0A=
++	prints("Manufacturer Data");=0A=
++=0A=
++	printl("Module Manufacturer",=0A=
++	       manufacturer_ddr3($bytes->[512], $bytes->[513]));=0A=
++=0A=
++	printl_cond(spd_written(@{$bytes}[552..553]),=0A=
++		    "DRAM Manufacturer",=0A=
++		    manufacturer_ddr3($bytes->[552], $bytes->[553]));=0A=
++=0A=
++	printl_mfg_location_code($bytes->[514]);=0A=
++=0A=
++	printl_cond(spd_written(@{$bytes}[515..516]),=0A=
++		    "Manufacturing Date",=0A=
++		    manufacture_date($bytes->[515], $bytes->[516]));=0A=
++=0A=
++	printl_mfg_assembly_serial(@{$bytes}[517..520]);=0A=
++=0A=
++	printl("Part Number", part_number(@{$bytes}[521..550]));=0A=
++=0A=
++	printl_cond(spd_written(@{$bytes}[551]),=0A=
++		    "Revision Code",=0A=
++		    sprintf("0x%02X", $bytes->[551]));=0A=
++=0A=
++	if ($bytes->[554] !=3D 0xff) {=0A=
++		# DRAM Stepping may be a number or an uppercase ASCII letter=0A=
++		# 0x00-0xfe is valid, 0xff is invalid=0A=
++		my $stepping =3D $bytes->[554];=0A=
++		if ($stepping < 0x41 || $stepping > 0x5a) {=0A=
++			printl("DRAM Stepping",=0A=
++			       sprintf("0x%02X", $stepping));=0A=
++		} else {=0A=
++			printl("DRAM Stepping",=0A=
++			       sprintf("%c", $stepping));=0A=
++		}=0A=
++	}=0A=
++}=0A=
++=0A=
+ # Parameter: EEPROM bytes 0-127 (using 64-98)=0A=
+ sub decode_manufacturing_information($)=0A=
+ {=0A=
+@@ -2831,6 +2873,15 @@ for $current (0 .. $#dimm) {=0A=
+ 		} elsif (!$use_hexdump && $dimm[$current]->{driver} ne "ee1004") {=0A=
+ 			print STDERR "HINT: You should be using the ee1004 driver instead of th=
+e $dimm[$current]->{driver} driver\n";=0A=
+ 		}=0A=
++	} elsif ($type eq "DDR5 SDRAM" ||=0A=
++		 $type eq "LPDDR5 SDRAM" ||=0A=
++		 $type eq "DDR5 NVDIMM-P" ||=0A=
++		 $type eq "LPDDR5X SDRAM") {=0A=
++		if (@bytes >=3D 640) {=0A=
++			# Decode DDR5-specific manufacturing data in bytes=0A=
++			# 512-639=0A=
++			decode_ddr5_mfg_data(\@bytes);=0A=
++		}=0A=
+ 	} else {=0A=
+ 		# Decode next 35 bytes (64-98, common to most=0A=
+ 		# memory types)=0A=
 -- =0A=
 2.51.0=0A=
 =0A=
