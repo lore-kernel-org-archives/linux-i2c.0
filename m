@@ -1,212 +1,88 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D50C3148C8;
-	Wed, 19 Nov 2025 20:15:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 837EC331213
+	for <linux-i2c@vger.kernel.org>; Wed, 19 Nov 2025 22:42:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763583325; cv=none; b=kZ3/Aoc/2o3zFxuDtaibGki1W6tD/T9ilMeNUkN3UzRmPpsEKqvi1sRR+k6Q1tdkwHvDQLCQG1kWlsU7dOcZX4vJynzYq68EtfNA1atHxgePoxyTdUfJSvSt+9kiSxWYh19fDnhteC9rdw3g7+dIKXGP7aMPq384fHRbkKIDB7k=
+	t=1763592172; cv=none; b=gt4hqac9G6cqt8E4LHosbSBPLAZ4sYpn7a6HkyV8x+6mtYQWpjx4jIqLcZyeZYUo8oL4q3Y6I56m4cdMYyp3bD95YXrvZf0mmFdShlbAgF7cIWz5Mmfa8xLks5mdw2Rpe/t2L7Su9PUl5IJEgyy7y2fdwHdRh2NveqNWw2IxzNA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763583325; c=relaxed/simple;
-	bh=IcnEae0+EXWOtLcoJQcLINFUXnSfpO/JWRATVD8qBfA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EN/W9FjZtG64eqoJjTZcpBrL0lr9KqORuNvtzTewjCWlDK+cmD5SgE41x+AvNKIyVHiR3NpaCbJt3zr/ptSQ12ldTYrq2c2oJN0fh/b2nuwniT8+vH71plnMxKVJQzO7CY+thayLNDI8/Di4bvLMXfDB6ycZ7CyaMpWmwekihjo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=QRvFhQOE; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1763592172; c=relaxed/simple;
+	bh=BcSfZrTwXW+tG5DjjJVVlX94/P8il/6qd7mbhqcpDiU=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=SInJD2AwUY4zD6kH74/zzDKhJ0MjdP5aU1qe7ufpT7bBkOqOkC7pr7sCNkcm0o7Gqw5d242uGacd0YlZWG/Xi9irK1Uke8aFuoHY4TNRyu3vFgyZ7dbMkEe7cYW553xny09nXuM3y8isYzdzYijwxg4P0gJn9wvwuFUbgWrNoiE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=runbox.com; dkim=pass (2048-bit key) header.d=runbox.com header.i=@runbox.com header.b=pq2pDupl; arc=none smtp.client-ip=185.226.149.38
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=runbox.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QRvFhQOE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1763583323; x=1795119323;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=IcnEae0+EXWOtLcoJQcLINFUXnSfpO/JWRATVD8qBfA=;
-  b=QRvFhQOE7eDYrco2OtomTH9RBJT6Jyi/W3ZP+v0P5GIFX5miRS+UJtgw
-   TdROQMFB/W3Ut1Oi7ui40nuDTUFM5di8tIsawjIYjnJTFOhQKXw/I3Zx/
-   kRSUha1a+o4EajyEKK0+42mO0TWrIR8HB0qjBmhjYJIjCfsKH/6r3rtfS
-   r1fE/98gUnAzDPEjt5csYZZGiizg8f3SefZkPRrCADiOLYwIwCUNENzCN
-   JJOWd648M86zyOtrWOXSO0f9Zx8v75NL2MVLfwOVx/OsHkX4MZVyEWfRS
-   aTeMf0wsiSigeSgCW2eJZDuVwqlcbH1kY+oG9hbMeumi3GP+1kcVsrG0s
-   A==;
-X-CSE-ConnectionGUID: 9qcTXR94RGaxJMO/67fejw==
-X-CSE-MsgGUID: LHmtgOJ3R9+5o0Mhbr+L6g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11618"; a="64646016"
-X-IronPort-AV: E=Sophos;i="6.19,316,1754982000"; 
-   d="scan'208";a="64646016"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Nov 2025 12:15:22 -0800
-X-CSE-ConnectionGUID: UotRSlToSJ+bNOfCRs/Muw==
-X-CSE-MsgGUID: tHY77L/5RL+cPxxZurKOwg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.19,316,1754982000"; 
-   d="scan'208";a="190820471"
-Received: from rvuia-mobl.ger.corp.intel.com (HELO localhost) ([10.245.245.245])
-  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Nov 2025 12:15:18 -0800
-Date: Wed, 19 Nov 2025 22:15:16 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: =?iso-8859-1?Q?Beno=EEt?= Monin <benoit.monin@bootlin.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+	dkim=pass (2048-bit key) header.d=runbox.com header.i=@runbox.com header.b="pq2pDupl"
+Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
+	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+	(Exim 4.93)
+	(envelope-from <david.laight.linux_spam@runbox.com>)
+	id 1vLqsx-006kwV-Ru; Wed, 19 Nov 2025 23:42:47 +0100
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=runbox.com;
+	 s=selector1; h=Content-Transfer-Encoding:MIME-Version:References:In-Reply-To
+	:Message-Id:Date:Subject:Cc:To:From;
+	bh=+Igy4kUQLGvcfJ0gjg5dhRoXIT9GJM+aTt6LKCSi1bo=; b=pq2pDuplkexq8wn8TWwg5//+lK
+	7bypaF24KoUBMmsCgmL/Kl6QeeIIAxklwSAXoUxxvZ6kn3ib2OXUbjMuJjkrgT4a+0urkbTuNR2Mv
+	IUvU2WKS3ySO/zZasLvKLqfYGj59+S6vViVkMuBcrL8b1GDCoqXkjh+tYAv7eJS6ljEgikxkwj8HV
+	kaXa5fTs1jRSoEpYifoJISCEcGmfhKx5Vnk9jspw4E60lQnOB6w/EZjLR5t+eRBlCuQC0atx+XG6a
+	pVTp4qrSgRR3pFjUNQrjSaL4c/8POtkHYpX5pcuLqYZ6pvZ3G/j8zK/BUpIpAKIf827n1BZzfSHFy
+	7SIX7xaw==;
+Received: from [10.9.9.74] (helo=submission03.runbox)
+	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
+	(envelope-from <david.laight.linux_spam@runbox.com>)
+	id 1vLqsx-0000DP-Es; Wed, 19 Nov 2025 23:42:47 +0100
+Received: by submission03.runbox with esmtpsa  [Authenticated ID (1493616)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.93)
+	id 1vLqse-00Fos6-8d; Wed, 19 Nov 2025 23:42:28 +0100
+From: david.laight.linux@gmail.com
+To: linux-kernel@vger.kernel.org,
+	linux-i2c@vger.kernel.org
+Cc: Andi Shyti <andi.shyti@kernel.org>,
 	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jan Dabros <jsd@semihalf.com>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Clark Williams <clrkwllms@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-	Gregory CLEMENT <gregory.clement@bootlin.com>,
-	=?iso-8859-1?Q?Th=E9o?= Lebrun <theo.lebrun@bootlin.com>,
-	Tawfik Bayouk <tawfik.bayouk@mobileye.com>,
-	Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>,
-	Dmitry Guzman <dmitry.guzman@mobileye.com>,
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-rt-devel@lists.linux.dev
-Subject: Re: [PATCH v3 7/7] i2c: designware: Support of controller with
- IC_EMPTYFIFO_HOLD_MASTER disabled
-Message-ID: <aR4lVB8FRzHLcXJT@smile.fi.intel.com>
-References: <20251119-i2c-dw-v3-0-bc4bc2a2cbac@bootlin.com>
- <20251119-i2c-dw-v3-7-bc4bc2a2cbac@bootlin.com>
+	David Laight <david.laight.linux@gmail.com>
+Subject: [PATCH 20/44] drivers/i2c/busses: use min() instead of min_t()
+Date: Wed, 19 Nov 2025 22:41:16 +0000
+Message-Id: <20251119224140.8616-21-david.laight.linux@gmail.com>
+X-Mailer: git-send-email 2.39.5
+In-Reply-To: <20251119224140.8616-1-david.laight.linux@gmail.com>
+References: <20251119224140.8616-1-david.laight.linux@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20251119-i2c-dw-v3-7-bc4bc2a2cbac@bootlin.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Wed, Nov 19, 2025 at 04:05:36PM +0100, Benoît Monin wrote:
-> If IC_EMPTYFIFO_HOLD_MASTER_EN parameter is 0, "Stop" and "Repeated Start"
-> bits in command register does not exist, thus it is impossible to send
-> several consecutive write messages in a single hardware batch. The
-> existing implementation worked with such configuration incorrectly:
-> all consecutive write messages are joined into a single message without
-> any Start/Stop or Repeated Start conditions. For example, the following
-> command:
-> 
->     i2ctransfer -y 0 w1@0x55 0x00 w1@0x55 0x01
-> 
-> does the same as
-> 
->     i2ctransfer -y 0 w2@0x55 0x00 0x01
-> 
-> In i2c_dw_msg_is_valid(), we ensure that we do not have such sequence
-> of messages requiring a RESTART, aborting the transfer on controller
-> that cannot emit them explicitly.
-> 
-> This behavior is activated by compatible entries because the state of
-> the IC_EMPTYFIFO_HOLD_MASTER_EN parameter cannot be detected at runtime.
-> Add the compatible entry for Mobileye SoCs needing the workaround.
-> 
-> There is another possible problem with this controller configuration:
-> When the CPU is putting commands to the FIFO, this process must not be
-> interrupted because if FIFO buffer gets empty, the controller finishes
-> the I2C transaction and generates STOP condition on the bus.
-> 
-> If we continue writing the remainder of the message to the FIFO, the
-> controller will start emitting a new transaction with those data. This
-> turns a single a single message into multiple I2C transactions. To
-> protect against FIFO underrun, two changes are done:
-> 
-> First we flag the interrupt with IRQF_NO_THREAD, to prevent it from
-> running in a thread on PREEMPT-RT kernel. This ensures that we are not
-> interrupted when filling the FIFO as it is very time-senstive. For
-> example, being preempted after writing a single byte in the FIFO with
-> a 1MHz bus gives us only 18µs before an underrun.
-> 
-> Second in i2c_dw_process_transfer(), we abort if a STOP is detected
-> while a read or a write is in progress. This can occur when processing
-> a message larger than the FIFO. In that case the message is processed in
-> parts, and rely on the TX EMPTY interrupt to refill the FIFO when it gets
-> below a threshold. If servicing this interrupt is delayed for too long,
-> it can trigger a FIFO underrun, thus an unwanted STOP.
+From: David Laight <david.laight.linux@gmail.com>
 
-...
+min_t(u8, a, b) casts both its arguments to u8 potentially discarding
+signifinact bits.
+Use min(a, b) instead as it cannot discard significant bits.
 
->  #define ACCESS_NO_IRQ_SUSPEND			BIT(1)
->  #define ARBITRATION_SEMAPHORE			BIT(2)
->  #define ACCESS_POLLING				BIT(3)
-> +#define NO_EMPTYFIFO_HOLD_MASTER		BIT(4)
+Detected by an extra check added to min_t().
 
-Can we name it
+Signed-off-by: David Laight <david.laight.linux@gmail.com>
+---
+ drivers/i2c/busses/i2c-designware-master.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-#define ACCESS_NO_EMPTYFIFO_HOLD_MASTER		BIT(4)
-
-?
-
-It will at least keep them under same namespace.
-
-...
-
-> i2c_dw_msg_is_valid(struct dw_i2c_dev *dev, const struct i2c_msg *msgs, size_t i
-
-> +	/*
-> +	 * Make sure we don't need explicit RESTART between two messages
-> +	 * in the same direction for controllers that cannot emit them.
-> +	 */
-> +	if (dev->flags & NO_EMPTYFIFO_HOLD_MASTER &&
-> +	    (msgs[idx - 1].flags & I2C_M_RD) == (msgs[idx].flags & I2C_M_RD)) {
-> +		dev_err(dev->dev, "cannot emit RESTART\n");
-> +		return false;
-> +	}
-
-Ah, Now I see the point of checking the idx first, but can we rather call it
-with idx >= 1 to begin with?
-
->  	return true;
->  }
-
-...
-
-> +	/*
-> +	 * The first writing to TX FIFO buffer causes transmission start. If
-> +	 * IC_EMPTYFIFO_HOLD_MASTER_EN is not set, when TX FIFO gets empty, I2C
-> +	 * controller finishes the transaction. If writing to FIFO is
-
-Make the lines more equal by length.
-
-	 * The first writing to TX FIFO buffer causes transmission start.
-	 * If IC_EMPTYFIFO_HOLD_MASTER_EN is not set, when TX FIFO gets empty,
-	 * I2C controller finishes the transaction. If writing to FIFO is
-
-> +	 * interrupted, FIFO can get empty and the transaction will be finished
-> +	 * prematurely. FIFO buffer is filled in IRQ handler, but in PREEMPT_RT
-> +	 * kernel IRQ handler by default is executed in thread that can be
-
-> +	 * preempted with another higher priority thread or an interrupt. So,
-> +	 * IRQF_NO_THREAD flag is required in order to prevent any preemption
-> +	 * when filling the FIFO.
-
-Similarly
-
-	 * preempted with another higher priority thread or an interrupt.
-	 * So, IRQF_NO_THREAD flag is required in order to prevent any
-	 * preemption when filling the FIFO.
-
-
-Dunno if the middle part needs to be rewrapped, perhaps so...
-
-> +	 */
-
-...
-
->  	{ .compatible = "baikal,bt1-sys-i2c", .data = (void *)MODEL_BAIKAL_BT1 },
-> +	{ .compatible = "mobileye,eyeq6lplus-i2c", .data = (void *)NO_EMPTYFIFO_HOLD_MASTER },
-
-Are you expecting more with this? I would rather use a compatible matching
-instead of the flag,
-
->  	{ .compatible = "mscc,ocelot-i2c", .data = (void *)MODEL_MSCC_OCELOT },
->  	{ .compatible = "snps,designware-i2c" },
-
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index 41e9b5ecad20..8fc51d472a55 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -564,7 +564,7 @@ i2c_dw_recv_len(struct dw_i2c_dev *dev, u8 len)
+ 	 * after receiving the first byte.
+ 	 */
+ 	len += (flags & I2C_CLIENT_PEC) ? 2 : 1;
+-	dev->tx_buf_len = len - min_t(u8, len, dev->rx_outstanding);
++	dev->tx_buf_len = len - min(len, dev->rx_outstanding);
+ 	msgs[dev->msg_read_idx].len = len;
+ 	msgs[dev->msg_read_idx].flags &= ~I2C_M_RECV_LEN;
+ 
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.39.5
 
