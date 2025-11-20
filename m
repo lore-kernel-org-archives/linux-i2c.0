@@ -1,106 +1,161 @@
-Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
+Received: from mail-il1-f174.google.com (mail-il1-f174.google.com [209.85.166.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A13A6340A63
-	for <linux-i2c@vger.kernel.org>; Thu, 20 Nov 2025 13:54:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4226E341050
+	for <linux-i2c@vger.kernel.org>; Thu, 20 Nov 2025 14:52:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.166.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763646878; cv=none; b=N8wMdMKcS2m0ecLaZHFct5qwknH471PjqCzJq6wuD9aPaTYUSqRKwXdaOR8Gpx3M/UUrgylV2RsNLNB2dD8tLx7V6bCAIZ6lcEh6zCu5K6OZREYaPZV8QGOkvT7yRmnbX0p8RO48QUoXKUJWmpXgwleiKs539zjiKthGNAQFe6I=
+	t=1763650373; cv=none; b=m9IPGVA33Tq0IZWmGjnAnzIoGeA1i0Gkz7Ik7VyxHlvXJor56AkKX0gIdn0bS/O/mCOZOmsyrDsIL78HSVeF0BAu25oip04AcskpPGzuQ8url1pLXstog6qXhP/zLlXti9iF2hUBQ4nkZ/yyeOMeumTjH0Klwi5c/O9GgvoY7lg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763646878; c=relaxed/simple;
-	bh=X4L0Go7cenDlFNKxMmnI9n93MBp1ugSaHUazlkliGno=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ABKdKk68dVE48vjJ8Uw2vHowcWiUJ5J0ZUD7sjHqy6MSwUu3IQOd6nECgr2Uyr9pdhlYYbQz4WmgnIXH81+BxYZqQLMuWCrnagSsrSRfl9tlW6zf3/YivtpzGLrKmF//fMgGVRRecDtgQLo+B1z2sAQvcKq11O1vpjBmctuoP8Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bgdev.pl; spf=none smtp.mailfrom=bgdev.pl; dkim=pass (2048-bit key) header.d=bgdev-pl.20230601.gappssmtp.com header.i=@bgdev-pl.20230601.gappssmtp.com header.b=iZE+9/I/; arc=none smtp.client-ip=209.85.221.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bgdev.pl
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=bgdev.pl
+	s=arc-20240116; t=1763650373; c=relaxed/simple;
+	bh=fJNbQYu7PoiJLsEPpjUYNqAPI6k2geFEJacIKnsv5a4=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=UkdubQzG2VaGuHvXpLgtalU49Xncz4ibTWyjrA7C/9tPCswuwEGMTWwTG/HgGRIyHNkJlbhw94uKyWsn4ZU0c3NhE6By5rnvITrVKSeJ0dUIdaNYEBQvntXoll+uGDStPb9tnpl0sFNyVv3mRhKNvEoS/FjQgGoTxvwrYmIJ8jM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk; spf=pass smtp.mailfrom=kernel.dk; dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b=Nlop4bDN; arc=none smtp.client-ip=209.85.166.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.dk
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bgdev-pl.20230601.gappssmtp.com header.i=@bgdev-pl.20230601.gappssmtp.com header.b="iZE+9/I/"
-Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-42b387483bbso619266f8f.1
-        for <linux-i2c@vger.kernel.org>; Thu, 20 Nov 2025 05:54:34 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel-dk.20230601.gappssmtp.com header.i=@kernel-dk.20230601.gappssmtp.com header.b="Nlop4bDN"
+Received: by mail-il1-f174.google.com with SMTP id e9e14a558f8ab-43346da8817so5269515ab.0
+        for <linux-i2c@vger.kernel.org>; Thu, 20 Nov 2025 06:52:47 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bgdev-pl.20230601.gappssmtp.com; s=20230601; t=1763646873; x=1764251673; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ooxVuxnAEiDOd/dQjzQ0gTd+K+VG4fjlugRKAPbfNnQ=;
-        b=iZE+9/I/lYGtXC8+4Lgj/3T59mxxxSE99r7erL/brfcGqaT5vHT9KXP7ASYff3llwD
-         Q9sgddAED9MzTiuP/QWkQAoRbhUfWg1UEM/J+P0A8EdMnqWxLYkPDJM1msOkeh4Vo2g7
-         qIZ6yBDS03mtZzYICJMnxI/ibZQ2aaSK7h7fJzD1lAjZurxlbeoWI9GZWh46Syouti6g
-         7KEhmpuoZh7pdSNmj4FG1wqG/DI/YEIfe676qGXbrN3/r8vp3idSe2FbjbGzzDhjbomi
-         /UuSXY3d7sS2Mts48l4Aqvogm5AwbKfklZk11DVXycVQf+DMddioE1IQ/ty63kxR+EXY
-         UANw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1763646873; x=1764251673;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=kernel-dk.20230601.gappssmtp.com; s=20230601; t=1763650367; x=1764255167; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ooxVuxnAEiDOd/dQjzQ0gTd+K+VG4fjlugRKAPbfNnQ=;
-        b=ruPc5Z6aLEr0KXa6GM65p1vAPsMmcGHTwa94dQvCKGCq6wZhV/p4mtzUyimhoyOqoE
-         sWm88PEE36Lw7Teeuikgd3lwlsE/TJpvgFzv7fBqb6BMkYPBWPiDMWp8opF6MYsKyveF
-         xE3EPKJaDJ6TxK+/l39kZqchMN6iQ9TCIyWFYNcYLGs7AZplRC0BokV+eAQ8CkuXH+2X
-         MaVc2qV67+NuZKA2UDgs9eNX2y0PP7Mb9fPunw/EjyfER+KLUryskvX4uhAuAq6v+1L3
-         sE9YQI0u7IfcOYaeBtNqsOcewPHufRJL7EdtEPIdkj+1wkDgEhkSNxEFgzNRNCU3/D4Y
-         9jIQ==
-X-Gm-Message-State: AOJu0Yyf43CNJzHeaHdn7oyXd02RB3qMfwEDzc5iUxRKmzMfFcU2fieC
-	r03XfwIWp7mVTDdKBG6EnFf96hED7szi6gNwnr1N+BgJ8rLbc441rtWOlecCQ4Woi4s=
-X-Gm-Gg: ASbGncvcK1sIBIVnI5FUQ53SRVqp54xQEOsn3m6CtPWMyz1QoSFRQ1LDBntMmY35Oyy
-	Kj9IY6eYTrEvLeAn1NaNBb4Yq1D784j1sD1TNnsXBI6AdWE7krDAjMXRFUQ+oHOGMFZSqlERoJy
-	gErlmv1z64INk114ikpB7yvxe3fZX7gj95WW62ShvAsnJix8McPLF3Ir3zuDMcISftFNpLZF3u/
-	thIUYVrXAM8rUKib9PSuGJtqGtvRXNt9YJ19c9AOzBLzwedJ0+HvkKRKFwVfkZzCBxDppar1wDx
-	EfqI/nJDCYJIhFavQjd68hDhfmxLoVy8IX2A/Z1QFnm8tM+oL9idiM7lqsyc/4ac+9w/iJjB+NH
-	Upkky75zMVqTcgcURJ2JNbsOnPZ+tptoE5PX93KrPZlRsJFiqnARlGibpRKy3HXR/acJncJWLSb
-	f34kbLV/+8XNsz57yq0FlelnxpdHa+WHp7obSIfA==
-X-Google-Smtp-Source: AGHT+IEPCjOCio10VEqHPbRLqJHNDudfFt401fyBPJFvG2b2AacAlu5/60ghtSnaHIKqDcyc4csdOA==
-X-Received: by 2002:a5d:588d:0:b0:42b:5406:f289 with SMTP id ffacd0b85a97d-42cb9a0dff2mr3160793f8f.3.1763646872851;
-        Thu, 20 Nov 2025 05:54:32 -0800 (PST)
-Received: from brgl-uxlite ([2a01:cb1d:dc:7e00:37af:6c1f:28a:47d2])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-42cb7f363e4sm5593874f8f.12.2025.11.20.05.54.32
+        bh=mIp1emodWmrQX+c6TjoXmEBGWcecINECr9nK+dGHBUw=;
+        b=Nlop4bDNIOkjuo0pMhzaqc0ODrEsmRo7XtLqwhp00uyFASxw+sbIvvfDKg63/0WNIr
+         Irgw7i1L5c7f3KspyZuRfY76O51HffIuodvQy5ZIcDN4No7WwIxUOGZ9dpes/M6K+nsd
+         SNLzENdMcdkRpJUmuFjuM9BMlGaR61DPmsUMatu7aVJzbpi7Z/RO6GbliOgOscpBha8S
+         DnzFtV5phPRpPEJgf98WlMFKyzL6CdLykV3ZnkTgBAq3ZRb9M24771+6fglXYKmcEHuj
+         JwzMwrRMP1iOEu/PZF6XSo/nxjqLzdvmfaif9TGvKGR4YXIy2m1LIpokuAZvSHGS7C+s
+         olCQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763650367; x=1764255167;
+        h=content-transfer-encoding:mime-version:date:message-id:subject
+         :references:in-reply-to:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=mIp1emodWmrQX+c6TjoXmEBGWcecINECr9nK+dGHBUw=;
+        b=pxj2Ozyp1BKQPe27fQSx0Qc/rUzibLkeOw1bJUzzpR/VdtmFlfEvNd8mdCr/2B+KUO
+         qqMyTXwkQCJ9zxEYsjwLuEMPp8HSmKl5JR3fIupB1ITZR1zuEpoOk0Lk6SOG/yV3xJAP
+         xlAfZ/H2Iao1YNMWI4C1TxpJc1BYcdEXXUmWWsK5i5oiMt8U61O0lASdZ9XTgCSnvaHU
+         NZddRhvxranZOtc0ETB+bwwzbkWtGIi2Q1uioyKEZkYpAI6r53mHZ92MPwP11ui+9XZK
+         83ihIFTb7zTIrNY7HqQJ+yXqrVp/94LPEffP9lokMZf+dlPgvtfDwfrwt7377lFxGHnK
+         BTTw==
+X-Forwarded-Encrypted: i=1; AJvYcCWq7m+K8stJqUC2ckbJ8JJbWbL/bIaDHVKDHRIsMd5XgF9SADz+dYLh0g0YaFcXEk0ij77BQYekmho=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyXszqMyB6gg7ROuX6imbrrGJRkCKXdfruSGm/W9goSupNmKXsT
+	aA9T7l/V5RXtahYAW+GE/T8M8M3gULodxmETVfbNTR11dTI5Wy8DseEWM0HYcVT4ZUE=
+X-Gm-Gg: ASbGncv5HMLRxpHTMP6TXX5zTFlqXGMGMXeoApmT9OhT+6GG0RWaDsqHyGnPHXq6qad
+	W7vVGUVpwYGQrGXZx7yilk1GOUfwe63K9y4rOwIxNn0+ki5eUkKRsShQCcfQTw3YwaPmgMjocj1
+	FDO9aNXT1+ppU2tII8znJhdfgwVDiqKH24lbja20wPz0HLFahqgj+7lz+mnJKL1H+y7T3/OZymm
+	7op+HZrq2ivsxVsjFzIkfMbcOiUm04HxROQTNjIz1v2KoWHAZSjM+xc8cxuWdJQr0RopsCwIOFv
+	KihUAUTt3dSN6AGqQx9Y4DoyntOQk8a+7bB9XxuQkErm50ugzVLC/eBDASpnDO5tpM1jPRnh0Ti
+	2t4t6YIDtUDaWEt6HlzBpqkU2e6dqe/e+T9hubQiKAlqolVLEmYYMz9GDvs0y+BgKubokcJOyvQ
+	Ry0g==
+X-Google-Smtp-Source: AGHT+IEmRlVKCe07qbgo1t2w3uFpBKsqx62crTftDC+8sZ0oUBIrcGL53VTRakva//fmnWvcfQrQww==
+X-Received: by 2002:a05:6e02:1c01:b0:433:1d5a:5157 with SMTP id e9e14a558f8ab-435aa88e822mr21434775ab.6.1763650367018;
+        Thu, 20 Nov 2025 06:52:47 -0800 (PST)
+Received: from [127.0.0.1] ([96.43.243.2])
+        by smtp.gmail.com with ESMTPSA id 8926c6da1cb9f-5b954b207d7sm1008611173.33.2025.11.20.06.52.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Nov 2025 05:54:32 -0800 (PST)
-From: Bartosz Golaszewski <brgl@bgdev.pl>
-X-Google-Original-From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-To: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-i2c@vger.kernel.org,
-	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Subject: [GIT PULL] at24 updates for v6.19-rc1
-Date: Thu, 20 Nov 2025 14:54:30 +0100
-Message-ID: <20251120135430.33476-1-bartosz.golaszewski@linaro.org>
-X-Mailer: git-send-email 2.51.0
+        Thu, 20 Nov 2025 06:52:46 -0800 (PST)
+From: Jens Axboe <axboe@kernel.dk>
+To: linux-kernel@vger.kernel.org, david.laight.linux@gmail.com
+Cc: Alan Stern <stern@rowland.harvard.edu>, 
+ Alexander Viro <viro@zeniv.linux.org.uk>, 
+ Alexei Starovoitov <ast@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+ Andreas Dilger <adilger.kernel@dilger.ca>, Andrew Lunn <andrew@lunn.ch>, 
+ Andrew Morton <akpm@linux-foundation.org>, 
+ Andrii Nakryiko <andrii@kernel.org>, 
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
+ Ard Biesheuvel <ardb@kernel.org>, 
+ Arnaldo Carvalho de Melo <acme@kernel.org>, 
+ Bjorn Helgaas <bhelgaas@google.com>, Borislav Petkov <bp@alien8.de>, 
+ Christian Brauner <brauner@kernel.org>, 
+ =?utf-8?q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
+ Christoph Hellwig <hch@lst.de>, Daniel Borkmann <daniel@iogearbox.net>, 
+ Dan Williams <dan.j.williams@intel.com>, 
+ Dave Hansen <dave.hansen@linux.intel.com>, 
+ Dave Jiang <dave.jiang@intel.com>, David Ahern <dsahern@kernel.org>, 
+ Davidlohr Bueso <dave@stgolabs.net>, 
+ "David S. Miller" <davem@davemloft.net>, Dennis Zhou <dennis@kernel.org>, 
+ Eric Dumazet <edumazet@google.com>, 
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+ Herbert Xu <herbert@gondor.apana.org.au>, Ingo Molnar <mingo@redhat.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Jakub Sitnicki <jakub@cloudflare.com>, 
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, 
+ Jarkko Sakkinen <jarkko@kernel.org>, "Jason A. Donenfeld" <Jason@zx2c4.com>, 
+ Jiri Slaby <jirislaby@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>, 
+ John Allen <john.allen@amd.com>, 
+ Jonathan Cameron <jonathan.cameron@huawei.com>, 
+ Juergen Gross <jgross@suse.com>, Kees Cook <kees@kernel.org>, 
+ KP Singh <kpsingh@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, 
+ "Martin K. Petersen" <martin.petersen@oracle.com>, 
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>, 
+ Mika Westerberg <westeri@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+ Miklos Szeredi <miklos@szeredi.hu>, Namhyung Kim <namhyung@kernel.org>, 
+ Neal Cardwell <ncardwell@google.com>, nic_swsd@realtek.com, 
+ OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>, 
+ Olivia Mackall <olivia@selenic.com>, Paolo Abeni <pabeni@redhat.com>, 
+ Paolo Bonzini <pbonzini@redhat.com>, Peter Huewe <peterhuewe@gmx.de>, 
+ Peter Zijlstra <peterz@infradead.org>, 
+ "Rafael J. Wysocki" <rafael@kernel.org>, 
+ Sean Christopherson <seanjc@google.com>, 
+ Srinivas Kandagatla <srini@kernel.org>, 
+ Stefano Stabellini <sstabellini@kernel.org>, 
+ Steven Rostedt <rostedt@goodmis.org>, Tejun Heo <tj@kernel.org>, 
+ Theodore Ts'o <tytso@mit.edu>, Thomas Gleixner <tglx@linutronix.de>, 
+ Tom Lendacky <thomas.lendacky@amd.com>, 
+ Willem de Bruijn <willemdebruijn.kernel@gmail.com>, x86@kernel.org, 
+ Yury Norov <yury.norov@gmail.com>, amd-gfx@lists.freedesktop.org, 
+ bpf@vger.kernel.org, cgroups@vger.kernel.org, 
+ dri-devel@lists.freedesktop.org, io-uring@vger.kernel.org, 
+ kvm@vger.kernel.org, linux-acpi@vger.kernel.org, 
+ linux-block@vger.kernel.org, linux-crypto@vger.kernel.org, 
+ linux-cxl@vger.kernel.org, linux-efi@vger.kernel.org, 
+ linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org, 
+ linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ linux-integrity@vger.kernel.org, linux-mm@kvack.org, 
+ linux-nvme@lists.infradead.org, linux-pci@vger.kernel.org, 
+ linux-perf-users@vger.kernel.org, linux-scsi@vger.kernel.org, 
+ linux-serial@vger.kernel.org, linux-trace-kernel@vger.kernel.org, 
+ linux-usb@vger.kernel.org, mptcp@lists.linux.dev, netdev@vger.kernel.org, 
+ usb-storage@lists.one-eyed-alien.net, David Hildenbrand <david@kernel.org>
+In-Reply-To: <20251119224140.8616-1-david.laight.linux@gmail.com>
+References: <20251119224140.8616-1-david.laight.linux@gmail.com>
+Subject: Re: (subset) [PATCH 00/44] Change a lot of min_t() that might mask
+ high bits
+Message-Id: <176365036384.566630.2992984118137417732.b4-ty@kernel.dk>
+Date: Thu, 20 Nov 2025 07:52:43 -0700
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.14.3
 
-Wolfram,
 
-Please pull the following AT24 change for the upcoming merge window.
-It's only a single update to DT bindings.
+On Wed, 19 Nov 2025 22:40:56 +0000, david.laight.linux@gmail.com wrote:
+> It in not uncommon for code to use min_t(uint, a, b) when one of a or b
+> is 64bit and can have a value that is larger than 2^32;
+> This is particularly prevelant with:
+> 	uint_var = min_t(uint, uint_var, uint64_expression);
+> 
+> Casts to u8 and u16 are very likely to discard significant bits.
+> 
+> [...]
 
-Thanks,
-Bartosz
+Applied, thanks!
 
-The following changes since commit 3a8660878839faadb4f1a6dd72c3179c1df56787:
+[12/44] block: use min() instead of min_t()
+        commit: 9420e720ad192c53c8d2803c5a2313b2d586adbd
 
-  Linux 6.18-rc1 (2025-10-12 13:42:36 -0700)
+Best regards,
+-- 
+Jens Axboe
 
-are available in the Git repository at:
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git tags/at24-updates-for-v6.19-rc1
 
-for you to fetch changes up to aef72ebe9c86b516c6e126d4b453c96496547f0b:
-
-  dt-bindings: eeprom: at24: Add compatible for Belling BL24S64 (2025-10-29 11:41:44 +0100)
-
-----------------------------------------------------------------
-at24 updates for v6.19-rc1
-
-- add new compatible for Belling BL24S64
-
-----------------------------------------------------------------
-Luca Weiss (1):
-      dt-bindings: eeprom: at24: Add compatible for Belling BL24S64
-
- Documentation/devicetree/bindings/eeprom/at24.yaml | 1 +
- 1 file changed, 1 insertion(+)
