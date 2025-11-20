@@ -1,142 +1,106 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f181.google.com (mail-pf1-f181.google.com [209.85.210.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 452C9205E25;
-	Thu, 20 Nov 2025 10:34:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DC543446C6
+	for <linux-i2c@vger.kernel.org>; Thu, 20 Nov 2025 13:53:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763634856; cv=none; b=jtdC5N+/hVuK9GgRb5AqFxsa7k6MEY9h/9HQd1ktiItlXdApn9Q/oCr0TjuXhH2MD25uAYARHkQx7ZlY8xXYp+QJ1fZJ+bE0e9tC1FOgrenCqZ0WPCCDfUZZLTeFDYhRhaBoTfLMGcm+I6YNA/L8NQmY9bZ3qTiZejbWKeEKglw=
+	t=1763646804; cv=none; b=OTabpDbwpmml8uPnRQ6p6quJgTMjY/sPOG/PNGmoe8eNAm9LaF4cLjKX7HclHc/f/cSnDiHJOzDsXYiLM3ESeumRjtvc2smvfuwYGm86MPzix5jhksHqosIhzfgi703DlKw04KMTm/2JR/cVMUSUHTi7J3C7YbND5u5COOtUPhg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763634856; c=relaxed/simple;
-	bh=0kC3JVbniNzr/ImDlkOT0dNJwNLVLcsG6+ixM/BI2sI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HDj8fwhGgEybg4LShHdxiR1Eh1cPHhBxVl7Q37TCqw7S6+zmyRJS+j/LCTOWv7Xm2zTbjvr0Q3EDEZrpien6JI6LzHkL0/M+2EkM6e8xtbvtJoiq1xx1e0O/Wv0c9IMXvnjkHPW4FLe5NX4ENCZLwcqh9pJqk13CaCXax4fI2t8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=R634Dkwn; arc=none smtp.client-ip=192.198.163.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1763646804; c=relaxed/simple;
+	bh=+ji9rJDb1MvYDh0vNEXCjFc4fTr5v97Yi6vD9q4tUfM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=gYtFuC+CE0PnOOCj0sm8d6kxjVMH6IDNOpx9Q6RXtwRiWnOj5Mbsz79lWzg6Ti9XVE3hsrTTqsAr7cZ7NBNSjk0gZhNko/p+3BHfEebeSygzvF6ZYMHTzfcXUITIqjxYMdBAGG11SEM8KLNK+V2Ayfp0AJKyIfVV8LojdqdTiwQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e9oTTCBn; arc=none smtp.client-ip=209.85.210.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="R634Dkwn"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1763634854; x=1795170854;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=0kC3JVbniNzr/ImDlkOT0dNJwNLVLcsG6+ixM/BI2sI=;
-  b=R634DkwnCAGalqYwCscEn5XiFKz4lNkToYqCnfPZE0Axfyn88qUnmO5H
-   5u0nKXz5qvUE6WC6DD9B3Dmh28rzl+JRU9Zg/lDuZjtGuI2H8kAlwVrn8
-   nXbWSOIby2dOUfkF0CXGLPd4J8hOy4yXA9Wd61dsV+FIXPoP6dsWKjZHH
-   nId3i65xtGzGQ805Tce/s7pVN8YJ/K2iREOyDIHgMVXi1ZxpWPUewaX05
-   pRxb1pbfC35NrLUKdVxmJte94iOOueyuGG7UkkMvvTAGekKJbUvbJCxAX
-   7eyFw8/59ZRmIJGh9r4xnwUYQaNr5Z0g2fktyIuUOE+HmZZ4Inyeu+qwG
-   A==;
-X-CSE-ConnectionGUID: 2I/wwwXYQNSQGOlaIiASCw==
-X-CSE-MsgGUID: 08N8s2C9R9mA526YrgpxCQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11618"; a="76308541"
-X-IronPort-AV: E=Sophos;i="6.19,317,1754982000"; 
-   d="scan'208";a="76308541"
-Received: from orviesa003.jf.intel.com ([10.64.159.143])
-  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Nov 2025 02:34:13 -0800
-X-CSE-ConnectionGUID: w0355Oc6SFu/ZzuNlAwbEA==
-X-CSE-MsgGUID: Sf5bM+iTTw6SqHjQxv4REA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.19,317,1754982000"; 
-   d="scan'208";a="195465708"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by orviesa003.jf.intel.com with ESMTP; 20 Nov 2025 02:34:09 -0800
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id AACE196; Thu, 20 Nov 2025 11:34:07 +0100 (CET)
-Date: Thu, 20 Nov 2025 11:34:07 +0100
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: =?utf-8?Q?Beno=C3=AEt?= Monin <benoit.monin@bootlin.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Jan Dabros <jsd@semihalf.com>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Clark Williams <clrkwllms@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-	Gregory CLEMENT <gregory.clement@bootlin.com>,
-	=?utf-8?B?VGjDqW8=?= Lebrun <theo.lebrun@bootlin.com>,
-	Tawfik Bayouk <tawfik.bayouk@mobileye.com>,
-	Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>,
-	Dmitry Guzman <dmitry.guzman@mobileye.com>,
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-rt-devel@lists.linux.dev
-Subject: Re: [PATCH v3 4/7] i2c: designware: Use runtime PM macro for
- auto-cleanup
-Message-ID: <20251120103407.GO2912318@black.igk.intel.com>
-References: <20251119-i2c-dw-v3-0-bc4bc2a2cbac@bootlin.com>
- <20251119-i2c-dw-v3-4-bc4bc2a2cbac@bootlin.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e9oTTCBn"
+Received: by mail-pf1-f181.google.com with SMTP id d2e1a72fcca58-7b6dd81e2d4so844521b3a.0
+        for <linux-i2c@vger.kernel.org>; Thu, 20 Nov 2025 05:53:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1763646801; x=1764251601; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+ji9rJDb1MvYDh0vNEXCjFc4fTr5v97Yi6vD9q4tUfM=;
+        b=e9oTTCBn11vwUd9REK0TQJkAkRY63R3apyOHm6ueYypMYcRMY/BAPTaGCJ1PEEFMkH
+         R9UOkiHDBrf1KKpJ6q1pVYkfCLRWz/+zfJ75wujoc8k0VJjXEXiSlpEz8Zrzln5/vO5Q
+         t0lIZmBk8XKuQr5c7xMK+8cMieAfJzwgQa6zYE/sKWRgsust1IbJMF3TJ+iNAjr3bksb
+         oyxHSzc4pB9z1ZvIMa2XN0keoPwBLrSG/OEL6SEJKl64dOn2+Rp7wHgHd4lS8c/AmE/1
+         1iSL8fsklGDjzjVXDgVYsA/rbYhNcNBMVKpv7k76SO/YFxiBTQTaWG1wOkI4MQWv3MDd
+         htAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1763646801; x=1764251601;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=+ji9rJDb1MvYDh0vNEXCjFc4fTr5v97Yi6vD9q4tUfM=;
+        b=pk/H+By6PxKenUGcYEdF7cdpb57aFmkNiFt0r4tavDYhSjJPXEZhvPmZlss2BHGQLL
+         pkdR9K2NR4fUypdRUAjgDNMJhzkJbKk3Rv1Rd1uK2Iu5rDhetLeC46h/XuHpvvbKonkK
+         5/sTEzXmjV6jxr2Z0tPt5xAEo6hPT+rz/u2AmfMOk7Oo4Hsv3Abyu/RI680vQAlEnMO5
+         IyPpvaPNswIc0ofO0h1mgYFSjd+dpqWT0WGsgA+eNrGDvfLfKomEVyHee2ZTf0PhANPI
+         vzTzQYC7vxJolzfquiDxKdLDZhvKgtOfoiwkfSgoAEaYyFcZmx1UbNPRRDU1U31PS4MM
+         HcjA==
+X-Forwarded-Encrypted: i=1; AJvYcCXM6A4x+pGP9EyovFyCThxFpaUCNJit5j5hGSKLUKh+/V7XOaLwJtx8G3tgd9ZaqmSkan/cJwHGNrM=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzTyBsgGCanWniYxtb5gwCVp/AuTwpOOV6tzWgROQrbXgdxOMqr
+	IXCi/rO7wkMcg+ycgyB1YmJ+SqFO2UIO+CX7SaOJr3Oj589Z+SWAujkGzjn064jm8yNjf73zuUu
+	jn4JwdAtxfKVEoc9+re9TuZ6Tr/pl524=
+X-Gm-Gg: ASbGncuINzbdkyTWzeiSohk4J7Ol7VMB5OPkWUWnQEmN9MmHS+BpT4uW6z0hhd4CvAH
+	NmEzB7UW7U3LyzydSum2OqNnjF2uQwxIESrM/6bt+7d4OWlobMRsloDj3PsZ3bqoEbLyN/AAeda
+	ANd7Q90kBey+ONqWCDqwqZIaXIpcSlCfRtSzXXUyQGV5pnnvxPErT+cI61zKRAMaLnZqdzoD2Yc
+	dHTyVJkKhY06ewq0yUpkBOjdc89Y7sqi5XsRYwdZVmpb4JkkQq3SEO3ejfr68bTESXwDK/mgZqH
+	covLVC7oE1KxZUCgAyqe9hAeVa/wXziuzqvRCgCjeWFplqfyCrvwVaF0PPlERX2nAzoj7G5Zl5R
+	yvf6oOU2jRg==
+X-Google-Smtp-Source: AGHT+IHHiFdkRR2hcs7aI5ty0G7MPp6ZYGVQIosVcIdjzscilsxzXmB//cKbxOhtRhNsGf+CdA6qCE9WHN4qhmI+au8=
+X-Received: by 2002:a05:7022:6714:b0:11a:61ef:8491 with SMTP id
+ a92af1059eb24-11c9476aec2mr708193c88.3.1763646801541; Thu, 20 Nov 2025
+ 05:53:21 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20251119-i2c-dw-v3-4-bc4bc2a2cbac@bootlin.com>
+References: <20251120103039.1824209-1-carlos.song@nxp.com>
+In-Reply-To: <20251120103039.1824209-1-carlos.song@nxp.com>
+From: Daniel Baluta <daniel.baluta@gmail.com>
+Date: Thu, 20 Nov 2025 15:55:49 +0200
+X-Gm-Features: AWmQ_bnQa7oBzAN6Aw7zvXpCjSq9C--w2oU7R6YmaimQUP4lya11WGpioKQNFS4
+Message-ID: <CAEnQRZDcaWAQTLVHL1q+n2nhk3Cop2-fbOL+BqibrJHze2F9xw@mail.gmail.com>
+Subject: Re: [PATCH v2] i2c: imx-lpi2c: change to PIO mode in system-wide
+ suspend/resume progress
+To: Carlos Song <carlos.song@nxp.com>
+Cc: aisheng.dong@nxp.com, andi.shyti@kernel.org, shawnguo@kernel.org, 
+	s.hauer@pengutronix.de, kernel@pengutronix.de, frank.li@nxp.com, 
+	linux-i2c@vger.kernel.org, imx@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Nov 19, 2025 at 04:05:33PM +0100, Benoît Monin wrote:
-> Simplify runtime PM handling in i2c_dw_xfer() by using the
-> pm_runtime_active_auto_try guard. This adds the proper handling for
-> runtime PM resume errors and allows us to get rid of the done_nolock
-> label.
-> 
-> Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
+On Thu, Nov 20, 2025 at 12:31=E2=80=AFPM Carlos Song <carlos.song@nxp.com> =
+wrote:
+>
+> EDMA resume is in early stage and suspend is in late stage, but LPI2C
+> resume and suspend are in NOIRQ stage. So LPI2C resource become ready
+> earlier than EDMA. When IRQ enabled, immediately slave will trigger LPI2C
+> to read data and the length meets the requirements for DMA usage, the DMA
+> will be needed at this time. Within a very small time window, EDMA is
+> still not resumed.
+>
+> If a system-wide suspend or resume transition is in progress. LPI2C shoul=
+d
+> use PIO to transfer data not DMA to avoid issue caused by not ready DMA H=
+W
+> resource.
+>
+> Fixes: a09c8b3f9047 ("i2c: imx-lpi2c: add eDMA mode support for LPI2C")
+> Signed-off-by: Carlos Song <carlos.song@nxp.com>
 > ---
->  drivers/i2c/busses/i2c-designware-master.c | 12 +++++-------
->  1 file changed, 5 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-> index ec4fc2708d03..fe708c7cd282 100644
-> --- a/drivers/i2c/busses/i2c-designware-master.c
-> +++ b/drivers/i2c/busses/i2c-designware-master.c
-> @@ -811,12 +811,13 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->  
->  	dev_dbg(dev->dev, "%s: msgs: %d\n", __func__, num);
->  
-> -	pm_runtime_get_sync(dev->dev);
-> +	ACQUIRE(pm_runtime_active_auto_try, pm)(dev->dev);
-> +	if (ACQUIRE_ERR(pm_runtime_active_auto_try, &pm))
-> +		return -ENXIO;
->  
->  	switch (dev->flags & MODEL_MASK) {
->  	case MODEL_AMD_NAVI_GPU:
-> -		ret = amd_i2c_dw_xfer_quirk(adap, msgs, num);
-> -		goto done_nolock;
-> +		return amd_i2c_dw_xfer_quirk(adap, msgs, num);
->  	default:
->  		break;
->  	}
-> @@ -834,7 +835,7 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->  
->  	ret = i2c_dw_acquire_lock(dev);
->  	if (ret)
-> -		goto done_nolock;
-> +		return ret;
->  
->  	ret = i2c_dw_wait_bus_not_busy(dev);
->  	if (ret < 0)
-> @@ -899,9 +900,6 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
->  done:
->  	i2c_dw_release_lock(dev);
 
-There is still this goto here. I don't think it is good to mix the
-"cleanup" helpers and gotos. So if we want to use the cleanup helpers then
-I think we should convert the whole function.
+For future patches please add here a small description of what changed sinc=
+e v1:
+e.g
 
->  
-> -done_nolock:
-> -	pm_runtime_put_autosuspend(dev->dev);
-> -
->  	return ret;
->  }
->  
-> 
-> -- 
-> 2.51.1
+Changes since v1:
+* updated commit message as per discussion with Frank.
