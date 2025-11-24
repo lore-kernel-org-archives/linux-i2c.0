@@ -1,450 +1,293 @@
-Received: from DB3PR0202CU003.outbound.protection.outlook.com (mail-northeuropeazon11010033.outbound.protection.outlook.com [52.101.84.33])
+Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4562322FDE6;
-	Mon, 24 Nov 2025 06:18:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.84.33
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1763965096; cv=fail; b=KjWvpEnRl7Tage1Mi56EdG76Wa/M+x7rZ4R31mT9Of18b3QrTFPYXoWvJWQUqB99btkSv5gu6uo645pqgjz9yETV8uYrGRaPp/gDmOiZu0nyUitktHTyMxrrsziPsVQd/ZHyKYZtGdSHWHqdOBUYMQyyRGhDbAQ3r+sRnJuqJk4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1763965096; c=relaxed/simple;
-	bh=TeRXsYGkHux7XrfbqbE7Vxad/SxTZBDD8qeq74T/j2k=;
-	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=cPH2rVqSMJb1achj07IyXcRPBOaRiuJe72v2TdSBhZp187NfnRdeE8IQxpN3GPV1jLNquOx9i11LULtUg1mxNwEIEidclvDJ0CgY8AFFOcYNB+yvdpeIsCbaj26vCKG0aOg1hDOBfC+GhIiNTqVOq1lKmkpGZoj9LQvbMRe9fk8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=ka7c+WlY; arc=fail smtp.client-ip=52.101.84.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C901424B28;
+	Mon, 24 Nov 2025 09:54:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1763978079; cv=none; b=OrhBTwl6BMqS8pYcfarqR9HGAhSeI26vREWeXj7sBtD3362M7aMbqTWKdvA+MacwqTfvv60xSfYJrLX5R7ZY13HB4AG4msj+1X0S9R+Z/MP740gcweSDj6N1kvAhRDqqwqzdmvUcPjbfzOSF6WcoccepgvIZ1DE8k4B1kYcckKQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1763978079; c=relaxed/simple;
+	bh=zgUegguLz9fnh3Kc5FyiFvVdDbDa4+bOp5Www3PDcuc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ctY5ec1pVMPgAQziivIuyNMUNBBzBLjHqXG57D/iuzXjRNcJdrcJjU9kdacC12pvOLum/X7GMW/2XgVUnWfvsJJolpF2qFqE3iXEuv3DrL1T+h/W/fWPLtntbF/kEBoAZhmjDER1oIdcu/C7H+zIkeFDv76zc8PF6r9/vuR0yyU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b=P87gnIuA; arc=none smtp.client-ip=180.181.231.80
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="ka7c+WlY"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ho6CZrcIoj8dQor5Sh1wBp52Z05+rOLuEmxAwjwF3UZV0Me46jd/9NJpkKplmsXAGwjGAhswOFzj2MLv3JYqO9ue2Csvmc7VpWsQm+oum8sRK54UjhUIfuYQzLC1dWyp3PFxhOvCBV5oH2nsNc/S0I1COTuyj3e7p6EGzxjcgG5StziklRE31UPtj2m1Xi5OIHZPUfNx23YPsGx/yHIYv9+YmOIoQcEZaqAG5YQGxOFCl+0sBY2V+AieYGhygThK/sKsXh2/GHVcEmVRqXGs8jPB3zDgQ4xGNv7nXhl68kcU1AvQwLAACjVdEQpN9NYgWCOqVTqXvwJm25ECV51i5g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Eay28VVt6fuy0W5ux3jFakrgizyoolpgRjhlBs6GlSU=;
- b=ew42KeE8swUfdEkFXto3wDoi6/EhbVPlmm6mz9/RC5mJnX+fsVCW6ex57nyGdJcr6v18rxwXM64erVN58tv2LGF3cS2TYUP9x8dIOoEip0NuKBxzB89LK6Qz0L5sXJy72hV4w5IGREtaETlAzMwNeTuPI+PI/BDgYnv827b0VdZmGCJ7jSvXQ7p6tCUxJLbQQ4jLAK9DYb7Rgh6MqR8Tb+s0bhCPPb9RSdrzbPNPc+H/gascFym1G9QcfF+VzO45axbgxyQCT1aZzrxjwkhFIOMuZ6kO+9Qw0pEr4rDSngViA0iuS90Q1bS1wwbBRgP0QAel72KwBFPerwqqZ9mh1A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Eay28VVt6fuy0W5ux3jFakrgizyoolpgRjhlBs6GlSU=;
- b=ka7c+WlYwqUIApDOM3Xid9tuFjOMneAKz2WVXyAwjfrEOOY2rJ4uJZhuWeb2sy4VAH6PbUi4MuSVyx9nZXJErDdSZjtbXIb1DY9N/UBcDSPNbvKHwTr50Jfme1LhxtuVUyEfRq1u+luvfr6UGU0NGD7TVHk+BGCjD7KU2VME6wIV5OAJgDcrPSmMpvI3B8qTdjTlurAyVSOnjMEYg1l9km5It5py+1DItwXeAJTRCkILIQ5sNrNieC5+aE6o2ZAm1Cli5zRAQYfoP5LgdpnG3clk8ys9qe1GmDmYNK6CT+3dLtaWaMNnnkGhxVpQBmlSJs6kz7xg632zNX/PZTcZdw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nxp.com;
-Received: from VI2PR04MB11147.eurprd04.prod.outlook.com
- (2603:10a6:800:293::14) by AM8PR04MB8052.eurprd04.prod.outlook.com
- (2603:10a6:20b:234::9) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9343.17; Mon, 24 Nov
- 2025 06:18:09 +0000
-Received: from VI2PR04MB11147.eurprd04.prod.outlook.com
- ([fe80::75ad:fac7:cfe7:b687]) by VI2PR04MB11147.eurprd04.prod.outlook.com
- ([fe80::75ad:fac7:cfe7:b687%6]) with mapi id 15.20.9343.011; Mon, 24 Nov 2025
- 06:18:09 +0000
-From: Carlos Song <carlos.song@nxp.com>
-To: aisheng.dong@nxp.com,
-	andi.shyti@kernel.org,
-	shawnguo@kernel.org,
-	s.hauer@pengutronix.de,
-	kernel@pengutronix.de,
-	festevam@gmail.com,
-	frank.li@nxp.com
-Cc: linux-i2c@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	Carlos Song <carlos.song@nxp.com>
-Subject: [PATCH] i2c: imx-lpi2c: Add runtime PM support for IRQ and clock management on i.MX8QXP/8QM
-Date: Mon, 24 Nov 2025 14:17:43 +0800
-Message-Id: <20251124061743.1988773-1-carlos.song@nxp.com>
-X-Mailer: git-send-email 2.34.1
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SI1PR02CA0007.apcprd02.prod.outlook.com
- (2603:1096:4:1f7::6) To VI2PR04MB11147.eurprd04.prod.outlook.com
- (2603:10a6:800:293::14)
+	dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b="P87gnIuA"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
+	from:content-type:reply-to; bh=B05uJapQfRMGohKkgF1xNVyERBHmagh8Bd3xg1q2NeI=; 
+	b=P87gnIuANW/TJp73uiT1mmsGlTWnBuH0H7vh23lNqSWq4OBDSGmsQEtkmAFMHotC7U4wL6z8BsM
+	xZhrA2DnJ6Byz1eNq9hCgsl0YlQqjChTspvActJHQABJusXSSyN3NViM7BAWMow9uYLi6/azgr/1S
+	bPNPkqeI4K++8lXngyxVPKygWdoefLDaHUV8R9vP4h+Voyby/LgDfyG/U2ZiZD9XFH7HpGmBTtoYh
+	gxxkqEEHWY1my7y2fTHFr9TydDJrVMgiVb3KBgJmEGPf57jfBn092eZeVh0rkWj5FfVDm/r5gwJdx
+	bl004005PGTqWH4a9OI+Nq6nG2BqQ4oMU7WA==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.96 #2 (Debian))
+	id 1vNTCh-005XNj-0w;
+	Mon, 24 Nov 2025 17:49:52 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Mon, 24 Nov 2025 17:49:51 +0800
+Date: Mon, 24 Nov 2025 17:49:51 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: david.laight.linux@gmail.com
+Cc: linux-kernel@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Andreas Dilger <adilger.kernel@dilger.ca>,
+	Andrew Lunn <andrew@lunn.ch>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Ard Biesheuvel <ardb@kernel.org>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>, Borislav Petkov <bp@alien8.de>,
+	Christian Brauner <brauner@kernel.org>,
+	Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
+	Christoph Hellwig <hch@lst.de>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	Dave Jiang <dave.jiang@intel.com>, David Ahern <dsahern@kernel.org>,
+	David Hildenbrand <david@redhat.com>,
+	Davidlohr Bueso <dave@stgolabs.net>,
+	"David S. Miller" <davem@davemloft.net>,
+	Dennis Zhou <dennis@kernel.org>, Eric Dumazet <edumazet@google.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Ingo Molnar <mingo@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+	Jakub Sitnicki <jakub@cloudflare.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	Jarkko Sakkinen <jarkko@kernel.org>,
+	"Jason A. Donenfeld" <Jason@zx2c4.com>,
+	Jens Axboe <axboe@kernel.dk>, Jiri Slaby <jirislaby@kernel.org>,
+	Johannes Weiner <hannes@cmpxchg.org>,
+	John Allen <john.allen@amd.com>,
+	Jonathan Cameron <jonathan.cameron@huawei.com>,
+	Juergen Gross <jgross@suse.com>, Kees Cook <kees@kernel.org>,
+	KP Singh <kpsingh@kernel.org>,
+	Linus Walleij <linus.walleij@linaro.org>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>,
+	Mika Westerberg <westeri@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>, Miklos Szeredi <miklos@szeredi.hu>,
+	Namhyung Kim <namhyung@kernel.org>,
+	Neal Cardwell <ncardwell@google.com>, nic_swsd@realtek.com,
+	OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+	Olivia Mackall <olivia@selenic.com>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Peter Huewe <peterhuewe@gmx.de>,
+	Peter Zijlstra <peterz@infradead.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Sean Christopherson <seanjc@google.com>,
+	Srinivas Kandagatla <srini@kernel.org>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Steven Rostedt <rostedt@goodmis.org>, Tejun Heo <tj@kernel.org>,
+	Theodore Ts'o <tytso@mit.edu>, Thomas Gleixner <tglx@linutronix.de>,
+	Tom Lendacky <thomas.lendacky@amd.com>,
+	Willem de Bruijn <willemdebruijn.kernel@gmail.com>, x86@kernel.org,
+	Yury Norov <yury.norov@gmail.com>, amd-gfx@lists.freedesktop.org,
+	bpf@vger.kernel.org, cgroups@vger.kernel.org,
+	dri-devel@lists.freedesktop.org, io-uring@vger.kernel.org,
+	kvm@vger.kernel.org, linux-acpi@vger.kernel.org,
+	linux-block@vger.kernel.org, linux-crypto@vger.kernel.org,
+	linux-cxl@vger.kernel.org, linux-efi@vger.kernel.org,
+	linux-ext4@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-integrity@vger.kernel.org, linux-mm@kvack.org,
+	linux-nvme@lists.infradead.org, linux-pci@vger.kernel.org,
+	linux-perf-users@vger.kernel.org, linux-scsi@vger.kernel.org,
+	linux-serial@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+	linux-usb@vger.kernel.org, mptcp@lists.linux.dev,
+	netdev@vger.kernel.org, usb-storage@lists.one-eyed-alien.net
+Subject: Re: [PATCH 00/44] Change a lot of min_t() that might mask high bits
+Message-ID: <aSQqP6nlqGYOGqcJ@gondor.apana.org.au>
+References: <20251119224140.8616-1-david.laight.linux@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: VI2PR04MB11147:EE_|AM8PR04MB8052:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3f155d51-3085-4361-8bde-08de2b213cce
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|19092799006|376014|366016|52116014|38350700014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?UFdNM1dXMmttQXZuLzVMc1FMeHVYK0gvOFhrT3gvTmpIMmdnNXd6TnB2S090?=
- =?utf-8?B?ellGMmx4Q2JROFNlaVJOSTFWdlR6ekVnY2RwRjlDWGY5OCtjaUhMT0NEVzVE?=
- =?utf-8?B?UTBkVExFdlMwYmd1aXlVdFhDTDJMMDhUYllwSFB3WnJyYUh5Ujd1SS9vWjU3?=
- =?utf-8?B?cEpZSVVBcW5ZenJkTU1jazFFeEVmZVphZmZuV3BoTS9FZ04wSHpTTHZiZXZP?=
- =?utf-8?B?dm1zYmxWeFlvaFJrYVFBbVhUWnZRN1RlSVEzbjhadkQ3V1FZOExkNHdiOThq?=
- =?utf-8?B?RmsvdldSNktkK2sxVzQ5bEZ5djZFaUl3OXpNNnp3VGsvdFlhU0JuMTBGY205?=
- =?utf-8?B?TWlFSmVsQzBvczdLdTN0QmlQYzN3NkNPYzcySEdwRklZNEc1WGVXeFdVTE1H?=
- =?utf-8?B?VkxhUENHYzZtWVBZNjBJNjJLSDhZTEZDZTgwdUtUY3ZOcS9vK213d050UDNL?=
- =?utf-8?B?ODkxZDNUcFdtclovUXQ5eFJKVDlPS3NmclJ2d3RPWVBqM3BmdnJrU0taVW5U?=
- =?utf-8?B?OEpDcFhGYVpOR1J5U1htLzFLVDZ0M1ptdENoK2dESDB2NDM0T2MxekFLNWFn?=
- =?utf-8?B?U1NNK2g2dm91NW1mK3JOZFJRcngzZkxuZ3pkblFWVHFzV01IbC9JNXpQaVlF?=
- =?utf-8?B?M0dGLzJYWmZjN3JTYTZDdkFzdy9aWDNLZzRncnZwbldXSDhYZExhNXUxNzBY?=
- =?utf-8?B?b25LanZ2cjh3SjZjNEVBaTB6Q1R6WUNpVS9nQmxqMnl4WkNDUXFBTlp5TDhC?=
- =?utf-8?B?bUVhV3JmeVdkREJqTXFsU002b245ZVJmYTk3K01SZFJ2eWRIUWE2Wlh0YTRv?=
- =?utf-8?B?YzJxUnV0Y3Y2VkVVeDB0Wmo5TXpHYWp3RFdoUWZ5dFdKaGlZM25GMXJoZkkr?=
- =?utf-8?B?MTFmK0kzNjloUmRpMGNGVmsrS0RxKzhURGhtaWk2WXl5eGtyN1BhRzZoQnY5?=
- =?utf-8?B?SndIR2FsdVo3bE9GeEszL2p2ZzFFYzlOSFI5WDAvbk1VYW1mS2tpcUk4UjRn?=
- =?utf-8?B?aGt6U0hTTEQvUUpwNi9acVJXakxJbDdvbXdyb3NSRFhOMUFOZkxrMnBDVzJz?=
- =?utf-8?B?TU91OUhRei9qM1NibXNzQUJhQTNjenpBck11RjljcjNJZVNEZm1oVUs2K1NG?=
- =?utf-8?B?YkluSUZaMjZiY25ZV0kzYmZSQmV0ODZFTlJZd2FkQkg0VUNxOVFvLy9yR2hX?=
- =?utf-8?B?QnpTRlpOL2Njd2M2bHhRYWdPbUo0dkM2Qm1hNmtLempKZ3BTNnZndVJGRWRP?=
- =?utf-8?B?cnFiMnBLdnh3dlEzVGhGbFk3M2Zod0ppa1AzcWlsV05waWVKVnkxbEIwK0FO?=
- =?utf-8?B?c0RPOWp4NXRsbGFlYS8rZXVSS01nb3Fma1NGMjZkRllOd2pEVm1kM1RLZVpH?=
- =?utf-8?B?aS9pOXYzTzFxbnVNUFc3MUp3TzFWMGRqTUNHZ0t5dk4waFpqZ2YwUDJabU1t?=
- =?utf-8?B?bXVjQzNnemJDOVVqMWZmd0J1WHRLWHdBTWpUSVVVcklNM2tUdnYyaXF6dEhT?=
- =?utf-8?B?SVpIZC9xdmF6VEIxNHErSmZqbFcwVUJIaGRadGJaRE0xNGk0cmpGK1lUUGQz?=
- =?utf-8?B?S3Frazl1LzBkUmtDdG5kTFBEemJpSjNweUsxcXJENmZiNlk1UURiQmxoNzRl?=
- =?utf-8?B?WUpHOU1HeDhPQzhyRHVORklqSHpIaUx4a2Y4L1FDVGtVUjZPbkE2TFRmeHZC?=
- =?utf-8?B?Ymxtc3NXUnY0VEU1ckhua3M2VG9ucEovcWlNUmhBTE12Ry9tM0YwbjlHNXdL?=
- =?utf-8?B?Q3NWazByTkw4WXFGRmFJeXRiaUxjTmNLbHFzTkRHNUw5c3l5aVdpQzNuWmM5?=
- =?utf-8?B?MXNCYXk2ak10TzA1UzJDck1CNVdZV2xKZUozYWlwWjBlK29PZHFkSGM4MVJK?=
- =?utf-8?B?M2pnZFEvbVhDMnRDRlBlRFVEVzNXQmxWR3g5bFVDMzFtWkhBQkRvaGxrMHlE?=
- =?utf-8?B?bjZVR0czMUVNclJqQUsva3NFK2xtY21XMnJqNzQ4MU1Qd3o4T2tTWGV6RFFr?=
- =?utf-8?B?YTdkUFpPcy9LTXRGaHFBaVFhNC9LVFdYRktKS0xVUWg4bmtQQ3ZzNmpQYjJE?=
- =?utf-8?Q?KW8I3B?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI2PR04MB11147.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(19092799006)(376014)(366016)(52116014)(38350700014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?RDZxQ1JsU010bGt1dzJEQUtPUHRBeGRjZmxUOHpaT2RCcjg5UjIwV080L1JZ?=
- =?utf-8?B?bHROWEVtQ2twZDJQd0FoU1lhMGJWMlJTNkUzYXJFMzg1a0FvWlJRNCtvSzNP?=
- =?utf-8?B?WXp5cEh4OXhsNnRUSmd0dWhCRjlDWVlYc0puNE8vVkk5Zloyd2plN3g1S0xJ?=
- =?utf-8?B?WlA1M25Cc1ArQ2x3ZFNadVE3cjU3RDBscWNQZXBxUDlQYzB2UG9YbHFMaE94?=
- =?utf-8?B?TlJJeWhVdCtQSDJaQkJIRisyMVRoTWo1TDl3M2NvSmJNc1FVUXlZK3IzZGpT?=
- =?utf-8?B?RmtJbVQydlZvUnZsOGFEVnZQaHBpVGpGaGJJcUI3R1FBZUMrUWs1L1ZCT0dz?=
- =?utf-8?B?V1ptVXpveExPRysrVEJZTGRYV01ha28rbkE3bTlCNDZDc3FJOEk4YTkyYlZN?=
- =?utf-8?B?dDR3ckFoSXlIVmc3ZWcybzkyK0NCK0pzb0s5a3BtNHVMMzJGTmJKMHp6bEV5?=
- =?utf-8?B?aUViNXlmTlY5MDlGY0pBb3RoSWZvMkZFTFRkajYrQkdZQ0RlekYwMzFlN2la?=
- =?utf-8?B?dGlRbjQ4YmNyZjNtdjI2Q3BiZTRUN1BXazVIZWFLeEUwaXZ4VkI1YlhiUWV4?=
- =?utf-8?B?aExyTHlPeDRCdW03OFBTNnRPVGRySU55ZGVzTTZUK1NFRzdtOWpoN0daWkF2?=
- =?utf-8?B?OFVQRndwc045QWc5cG1TbE53YnFJS0FKM3ZyL0orbU1KaVU1SlZ0TW5pQldW?=
- =?utf-8?B?VFZjSmN1MjFxMUpVQ0ZKRjZBK0lxVFpwL2tSbTIveHRxSW9hdWdhdGE3YnZF?=
- =?utf-8?B?Wmo1bC96WC9oNW5nRHdpamFQR0Q2MVlERTNSL3hzMTFUay9iNFhRTEYzd2xM?=
- =?utf-8?B?RzlqL0NyTk4xS3lZemVQdkU2U2tDV08xYTIvcjVIRUVjMGpOY0VrYVFtcndq?=
- =?utf-8?B?K2dyeW9RWWlxMmxpMDRxbHB2ZW9VbGY5a2NFQURUMHhCeEJDdEUvTGh4T3d1?=
- =?utf-8?B?TmsreGx5NmtOM1pYV1BBWkhQay9zYjVSQXI4L2xvenlaSGFpWDNYQTBocUlY?=
- =?utf-8?B?am95TG5TYWo2YW84MzRON0FFMlZNOVRNbi9WZkYwTUdEdWowOVRPWjJCN29F?=
- =?utf-8?B?Ulllc09CbEk5bm1mSTVaOHpBUHZZWjdTSkJjWEVPVGlzdGtMa1FzakVkRGky?=
- =?utf-8?B?MTUzZ2pIRDc0d1RSalJCbkZVRSt1TU5KKytsTm5sQzJMVHJBSnlGalB1bVN0?=
- =?utf-8?B?RzJRSTZMSTlpanJka09rd1lxUlZKbHlRTkFrK3FGcDBCZUtmbWI1ODF3UWdJ?=
- =?utf-8?B?K21VS1YzSmFQNllDT1J0dXFLa3d2MG1aZUJwQ2NOd1JtalE5Mm5QOGJXajVP?=
- =?utf-8?B?a0J6aUgzZXJzd3loZmhCY1lqUHI3U1ZlUVdXOHl4bVVWdVpMSjcvcFYvbGFt?=
- =?utf-8?B?TFU4U3ZjejU5aEtmdXRCUW55WjhYUVV1MnFIL1JrUURXdFduV2V6UEJ2ait2?=
- =?utf-8?B?b2VMT2JCRmFON1BvQ242Um4wUll6a0NscmQvNEpiREUzZEhQR3RzZ1BzSkVk?=
- =?utf-8?B?cEpMMVVWMmpncm1JMWZud1JxSHdIUWFJUmdvalFQUHR4WEhpckJZd3owSTJj?=
- =?utf-8?B?NEx5SDNLR2RWb21DempaUmx5S25lZVFYZiswTWRTaFVNTVBsN3R1REFaSW5U?=
- =?utf-8?B?U1o5N29HYmt2cEJhRWE3eGdTMzVQdHdRR0tJaXJpcjNlUUZMR1Y5dy9NZnFy?=
- =?utf-8?B?eExrTFRSVkpaWW1VQVB0eGtwZnlFSjlKNlRlMXBOVmljRXl3Vm90KzhsaGFz?=
- =?utf-8?B?SCtCbFRvR1pYeUYxaGV4UUFLMGxzQ1lKaWRJYWYwWUJjK0s1UGtYaDNHTE0y?=
- =?utf-8?B?UWN2d29LSCtnUFplYWpndVNSOWNqazFwQUl0WjJJNkh0cGIwREtYRjV3cTJ4?=
- =?utf-8?B?YUlJc3hld3NYTGJqSzlEM3NtVHpLNGFEeTdpZHFGbG9lVFB5WDhYL1FyWlMy?=
- =?utf-8?B?QzFtQzhLWk43RzIveGtjMDdxVHlLUFhBOHpDM2J5NWhGaXZ6N0ZLeHRsbjFQ?=
- =?utf-8?B?OVZqb0VRcjkxT0VzWm1TTmhKSWlySzBlMDZyMHoxc2ZDUHczWHpla2NzUDA1?=
- =?utf-8?B?Q1c2L0ZVMXl1eHJqQ1crMkVuUUhyNkt5Yk80aDRJakZuRW1JOC9qQWNVKzZG?=
- =?utf-8?Q?gl5QWk6WjqpnS56cDGq5SI9+y?=
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3f155d51-3085-4361-8bde-08de2b213cce
-X-MS-Exchange-CrossTenant-AuthSource: VI2PR04MB11147.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Nov 2025 06:18:09.0704
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: VJ2v1+vqh2WVnkGC6Q/anEy/9VdhoStmoMDhVkx9z6FGOZrmw7NnM5FjbMVsFs35ZICt69qxLnBgHaJ2aKeJvw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM8PR04MB8052
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20251119224140.8616-1-david.laight.linux@gmail.com>
 
-On i.MX8QXP/8QM SoCs, both the lvds/mipi and lvds/mipi-lpi2c power domains
-must enter low-power mode during runtime suspend to achieve deep power
-savings.
+On Wed, Nov 19, 2025 at 10:40:56PM +0000, david.laight.linux@gmail.com wrote:
+> From: David Laight <david.laight.linux@gmail.com>
+> 
+> It in not uncommon for code to use min_t(uint, a, b) when one of a or b
+> is 64bit and can have a value that is larger than 2^32;
+> This is particularly prevelant with:
+> 	uint_var = min_t(uint, uint_var, uint64_expression);
+> 
+> Casts to u8 and u16 are very likely to discard significant bits.
+> 
+> These can be detected at compile time by changing min_t(), for example:
+> #define CHECK_SIZE(fn, type, val) \
+> 	BUILD_BUG_ON_MSG(sizeof (val) > sizeof (type) && \
+> 		!statically_true(((val) >> 8 * (sizeof (type) - 1)) < 256), \
+> 		fn "() significant bits of '" #val "' may be discarded")
+> 
+> #define min_t(type, x, y) ({ \
+> 	CHECK_SIZE("min_t", type, x); \
+> 	CHECK_SIZE("min_t", type, y); \
+> 	__cmp_once(min, type, x, y); })
+> 
+> (and similar changes to max_t() and clamp_t().)
+> 
+> This shows up some real bugs, some unlikely bugs and some false positives.
+> In most cases both arguments are unsigned type (just different ones)
+> and min_t() can just be replaced by min().
+> 
+> The patches are all independant and are most of the ones needed to
+> get the x86-64 kernel I build to compile.
+> I've not tried building an allyesconfig or allmodconfig kernel.
+> I've also not included the patch to minmax.h itself.
+> 
+> I've tried to put the patches that actually fix things first.
+> The last one is 0009.
+> 
+> I gave up on fixing sched/fair.c - it is too broken for a single patch!
+> The patch for net/ipv4/tcp.c is also absent because do_tcp_getsockopt()
+> needs multiple/larger changes to make it 'sane'.
+> 
+> I've had to trim the 124 maintainers/lists that get_maintainer.pl finds
+> from 124 to under 100 to be able to send the cover letter.
+> The individual patches only go to the addresses found for the associated files.
+> That reduces the number of emails to a less unsane number.
+> 
+> David Laight (44):
+>   x86/asm/bitops: Change the return type of variable__ffs() to unsigned
+>     int
+>   ext4: Fix saturation of 64bit inode times for old filesystems
+>   perf: Fix branch stack callchain limit
+>   io_uring/net: Change some dubious min_t()
+>   ipc/msg: Fix saturation of percpu counts in msgctl_info()
+>   bpf: Verifier, remove some unusual uses of min_t() and max_t()
+>   net/core/flow_dissector: Fix cap of __skb_flow_dissect() return value.
+>   net: ethtool: Use min3() instead of nested min_t(u16,...)
+>   ipv6: __ip6_append_data() don't abuse max_t() casts
+>   x86/crypto: ctr_crypt() use min() instead of min_t()
+>   arch/x96/kvm: use min() instead of min_t()
+>   block: use min() instead of min_t()
+>   drivers/acpi: use min() instead of min_t()
+>   drivers/char/hw_random: use min3() instead of nested min_t()
+>   drivers/char/tpm: use min() instead of min_t()
+>   drivers/crypto/ccp: use min() instead of min_t()
+>   drivers/cxl: use min() instead of min_t()
+>   drivers/gpio: use min() instead of min_t()
+>   drivers/gpu/drm/amd: use min() instead of min_t()
+>   drivers/i2c/busses: use min() instead of min_t()
+>   drivers/net/ethernet/realtek: use min() instead of min_t()
+>   drivers/nvme: use min() instead of min_t()
+>   arch/x86/mm: use min() instead of min_t()
+>   drivers/nvmem: use min() instead of min_t()
+>   drivers/pci: use min() instead of min_t()
+>   drivers/scsi: use min() instead of min_t()
+>   drivers/tty/vt: use umin() instead of min_t(u16, ...) for row/col
+>     limits
+>   drivers/usb/storage: use min() instead of min_t()
+>   drivers/xen: use min() instead of min_t()
+>   fs: use min() or umin() instead of min_t()
+>   block: bvec.h: use min() instead of min_t()
+>   nodemask: use min() instead of min_t()
+>   ipc: use min() instead of min_t()
+>   bpf: use min() instead of min_t()
+>   bpf_trace: use min() instead of min_t()
+>   lib/bucket_locks: use min() instead of min_t()
+>   lib/crypto/mpi: use min() instead of min_t()
+>   lib/dynamic_queue_limits: use max() instead of max_t()
+>   mm: use min() instead of min_t()
+>   net: Don't pass bitfields to max_t()
+>   net/core: Change loop conditions so min() can be used
+>   net: use min() instead of min_t()
+>   net/netlink: Use umin() to avoid min_t(int, ...) discarding high bits
+>   net/mptcp: Change some dubious min_t(int, ...) to min()
+> 
+>  arch/x86/crypto/aesni-intel_glue.c            |  3 +-
+>  arch/x86/include/asm/bitops.h                 | 18 +++++-------
+>  arch/x86/kvm/emulate.c                        |  3 +-
+>  arch/x86/kvm/lapic.c                          |  2 +-
+>  arch/x86/kvm/mmu/mmu.c                        |  2 +-
+>  arch/x86/mm/pat/set_memory.c                  | 12 ++++----
+>  block/blk-iocost.c                            |  6 ++--
+>  block/blk-settings.c                          |  2 +-
+>  block/partitions/efi.c                        |  3 +-
+>  drivers/acpi/property.c                       |  2 +-
+>  drivers/char/hw_random/core.c                 |  2 +-
+>  drivers/char/tpm/tpm1-cmd.c                   |  2 +-
+>  drivers/char/tpm/tpm_tis_core.c               |  4 +--
+>  drivers/crypto/ccp/ccp-dev.c                  |  2 +-
+>  drivers/cxl/core/mbox.c                       |  2 +-
+>  drivers/gpio/gpiolib-acpi-core.c              |  2 +-
+>  .../gpu/drm/amd/amdgpu/amdgpu_doorbell_mgr.c  |  4 +--
+>  drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c        |  2 +-
+>  .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |  2 +-
+>  drivers/i2c/busses/i2c-designware-master.c    |  2 +-
+>  drivers/net/ethernet/realtek/r8169_main.c     |  3 +-
+>  drivers/nvme/host/pci.c                       |  3 +-
+>  drivers/nvme/host/zns.c                       |  3 +-
+>  drivers/nvmem/core.c                          |  2 +-
+>  drivers/pci/probe.c                           |  3 +-
+>  drivers/scsi/hosts.c                          |  2 +-
+>  drivers/tty/vt/selection.c                    |  9 +++---
+>  drivers/usb/storage/protocol.c                |  3 +-
+>  drivers/xen/grant-table.c                     |  2 +-
+>  fs/buffer.c                                   |  2 +-
+>  fs/exec.c                                     |  2 +-
+>  fs/ext4/ext4.h                                |  2 +-
+>  fs/ext4/mballoc.c                             |  3 +-
+>  fs/ext4/resize.c                              |  2 +-
+>  fs/ext4/super.c                               |  2 +-
+>  fs/fat/dir.c                                  |  4 +--
+>  fs/fat/file.c                                 |  3 +-
+>  fs/fuse/dev.c                                 |  2 +-
+>  fs/fuse/file.c                                |  8 ++---
+>  fs/splice.c                                   |  2 +-
+>  include/linux/bvec.h                          |  3 +-
+>  include/linux/nodemask.h                      |  9 +++---
+>  include/linux/perf_event.h                    |  2 +-
+>  include/net/tcp_ecn.h                         |  5 ++--
+>  io_uring/net.c                                |  6 ++--
+>  ipc/mqueue.c                                  |  4 +--
+>  ipc/msg.c                                     |  6 ++--
+>  kernel/bpf/core.c                             |  4 +--
+>  kernel/bpf/log.c                              |  2 +-
+>  kernel/bpf/verifier.c                         | 29 +++++++------------
+>  kernel/trace/bpf_trace.c                      |  2 +-
+>  lib/bucket_locks.c                            |  2 +-
+>  lib/crypto/mpi/mpicoder.c                     |  2 +-
+>  lib/dynamic_queue_limits.c                    |  2 +-
+>  mm/gup.c                                      |  4 +--
+>  mm/memblock.c                                 |  2 +-
+>  mm/memory.c                                   |  2 +-
+>  mm/percpu.c                                   |  2 +-
+>  mm/truncate.c                                 |  3 +-
+>  mm/vmscan.c                                   |  2 +-
+>  net/core/datagram.c                           |  6 ++--
+>  net/core/flow_dissector.c                     |  7 ++---
+>  net/core/net-sysfs.c                          |  3 +-
+>  net/core/skmsg.c                              |  4 +--
+>  net/ethtool/cmis_cdb.c                        |  7 ++---
+>  net/ipv4/fib_trie.c                           |  2 +-
+>  net/ipv4/tcp_input.c                          |  4 +--
+>  net/ipv4/tcp_output.c                         |  5 ++--
+>  net/ipv4/tcp_timer.c                          |  4 +--
+>  net/ipv6/addrconf.c                           |  8 ++---
+>  net/ipv6/ip6_output.c                         |  7 +++--
+>  net/ipv6/ndisc.c                              |  5 ++--
+>  net/mptcp/protocol.c                          |  8 ++---
+>  net/netlink/genetlink.c                       |  9 +++---
+>  net/packet/af_packet.c                        |  2 +-
+>  net/unix/af_unix.c                            |  4 +--
+>  76 files changed, 141 insertions(+), 176 deletions(-)
 
-LPI2C resides in the lvds-lpi2c/mipi-lpi2c power domain, while its IRQ is
-routed through an irqsteer located in the lvds/mipi power domain. The LPI2C
-clock source comes from an LPCG within the lvds-lpi2c domain.
-
-For example, the hierarchy for lvds0 and lvds0-lpi2c0 domains is:
-┌───────────────────────┐
-│ pm-domain : lvds0     │
-│                       │
-│    ┌──────────────┐   │
-│    │   irqsteer   │   │
-│    └───────▲──────┘   │
-│            │irq       │
-│            │          │
-└────────────┼──────────┘
-┌────────────┼──────────┐
-│        ┌───┼───┐      │
-│        │lpi2c0 │      │
-│        └───┬───┘clk   │
-│   ┌────────┼───────┐  │
-│   │       LPCG     │  │
-│   └────────────────┘  │
-│pm-domain:lvds0-lpi2c0 │
-└───────────────────────┘
-
-To allow these domains to power down in system runtime suspend:
-
-- All irqsteer clients must release IRQs.
-- All LPCG clients must disable and unprepare clocks.
-
-Thus, LPI2C must:
-
-- Free its IRQ during runtime suspend and re-request it on resume.
-- Disable and unprepare all clocks during runtime suspend and prepare
-  and rne ble them on resume.
-
-This enables the lvds/mipi domains to enter deep low-power mode,
-significantly reducing power consumption compared to active mode.
-
-Signed-off-by: Carlos Song <carlos.song@nxp.com>
----
-1. Why not apply prepare and unprepare clocks management for all platforms:
-As the report from me early:
-https://lists.openwall.net/linux-kernel/2025/07/01/139
-Scope of global prepare_lock is too big, it will cause dead clock
-between RPM and prepare_lock in some specail case. But clock
-prepare/unprepare is also necessary for low power consumption in I.MX8QXP
-and 8QM, so I add separate clock management for these platforms to
-avoid impacting other I.MX platforms. But it's possible that some
-customers might encounter deadlock issues in IMX8QXP/8QM, so I prolong the
-runtime PM timeout for 8QXP/QM platforms, which is currently a suitable
-workaround method I think.
-
-2. Low power status report
-Power domain status can be shown in pm_genpd_summary and sc firmware. Take
-8QM platform lvds0 and lvds0-lpi2c0 power domain as example, before apply
-this patch set:
-root@imx8qmmek:~# cat /sys/kernel/debug/pm_genpd/pm_genpd_summary
-domain                          status          children        performance
-    /device                         runtime status               managed by
----------------------------------------------------------------------------
-lvds0-lpi2c0                    on                              0
-    lvds0_i2c0_clk                  active                      0       SW
-    56243014.clock-controller       active                      0       SW
-    56247000.i2c                    suspended                   0       SW
-lvds0                           on                              0
-    lvds0_bypass_clk                suspended                   0       SW
-    lvds0_pixel_clk                 suspended                   0       SW
-    lvds0_phy_clk                   suspended                   0       SW
-    56240000.interrupt-controller   active                      0       SW
-sc firmware will show the power domain status:
->$ power.r
-    LVDS_0 = on
-    LVDS_0_I2C_0 = on
-
-After apply this patch set:
-root@imx8qmmek:~# cat /sys/kernel/debug/pm_genpd/pm_genpd_summary
-domain                          status          children        performance
-    /device                         runtime status               managed by
----------------------------------------------------------------------------
-lvds0-lpi2c0                    off-0                           0
-    lvds0_i2c0_clk                  suspended                   0        SW
-    56243014.clock-controller       suspended                   0        SW
-    56247000.i2c                    suspended                   0        SW
-lvds0                           off-0                           0
-    lvds0_bypass_clk                suspended                   0        SW
-    lvds0_pixel_clk                 suspended                   0        SW
-    lvds0_phy_clk                   suspended                   0        SW
-    56240000.interrupt-controller   suspended                   0        SW
-
-sc firmware will show the power domain status:
->$ power.r
-    LVDS_0 = lp
-    LVDS_0_I2C_0 = lp
----
- drivers/i2c/busses/i2c-imx-lpi2c.c | 107 +++++++++++++++++++++++++----
- 1 file changed, 94 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index 39088567db59..87e34746fad3 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -132,6 +132,7 @@
- #define CHUNK_DATA	256
- 
- #define I2C_PM_TIMEOUT		10 /* ms */
-+#define I2C_PM_LONG_TIMEOUT	1000 /* Avoid dead lock caused by big clock prepare lock */
- #define I2C_DMA_THRESHOLD	8 /* bytes */
- 
- enum lpi2c_imx_mode {
-@@ -149,6 +150,11 @@ enum lpi2c_imx_pincfg {
- 	FOUR_PIN_PP,
- };
- 
-+struct imx_lpi2c_hwdata {
-+	bool	need_request_free_irq;		/* Needed by irqsteer */
-+	bool	need_prepare_unprepare_clk;	/* Needed by LPCG */
-+};
-+
- struct lpi2c_imx_dma {
- 	bool		using_pio_mode;
- 	u8		rx_cmd_buf_len;
-@@ -187,6 +193,21 @@ struct lpi2c_imx_struct {
- 	bool			can_use_dma;
- 	struct lpi2c_imx_dma	*dma;
- 	struct i2c_client	*target;
-+	int			irqsteer_irq;
-+	const struct imx_lpi2c_hwdata *hwdata;
-+};
-+
-+static const struct imx_lpi2c_hwdata imx7ulp_lpi2c_hwdata = {
-+};
-+
-+static const struct imx_lpi2c_hwdata imx8qxp_lpi2c_hwdata = {
-+	.need_request_free_irq		= true,
-+	.need_prepare_unprepare_clk	= true,
-+};
-+
-+static const struct imx_lpi2c_hwdata imx8qm_lpi2c_hwdata = {
-+	.need_request_free_irq		= true,
-+	.need_prepare_unprepare_clk	= true,
- };
- 
- #define lpi2c_imx_read_msr_poll_timeout(atomic, val, cond)                    \
-@@ -1423,7 +1444,9 @@ static const struct i2c_algorithm lpi2c_imx_algo = {
- };
- 
- static const struct of_device_id lpi2c_imx_of_match[] = {
--	{ .compatible = "fsl,imx7ulp-lpi2c" },
-+	{ .compatible = "fsl,imx7ulp-lpi2c", .data = &imx7ulp_lpi2c_hwdata,},
-+	{ .compatible = "fsl,imx8qxp-lpi2c", .data = &imx8qxp_lpi2c_hwdata,},
-+	{ .compatible = "fsl,imx8qm-lpi2c", .data = &imx8qm_lpi2c_hwdata,},
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, lpi2c_imx_of_match);
-@@ -1440,6 +1463,10 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
- 	if (!lpi2c_imx)
- 		return -ENOMEM;
- 
-+	lpi2c_imx->hwdata = of_device_get_match_data(&pdev->dev);
-+	if (!lpi2c_imx->hwdata)
-+		return -ENODEV;
-+
- 	lpi2c_imx->base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
- 	if (IS_ERR(lpi2c_imx->base))
- 		return PTR_ERR(lpi2c_imx->base);
-@@ -1448,6 +1475,9 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
- 	if (irq < 0)
- 		return irq;
- 
-+	if (lpi2c_imx->hwdata->need_request_free_irq)
-+		lpi2c_imx->irqsteer_irq = irq;
-+
- 	lpi2c_imx->adapter.owner	= THIS_MODULE;
- 	lpi2c_imx->adapter.algo		= &lpi2c_imx_algo;
- 	lpi2c_imx->adapter.dev.parent	= &pdev->dev;
-@@ -1492,7 +1522,11 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
- 		return dev_err_probe(&pdev->dev, -EINVAL,
- 				     "can't get I2C peripheral clock rate\n");
- 
--	pm_runtime_set_autosuspend_delay(&pdev->dev, I2C_PM_TIMEOUT);
-+	if (lpi2c_imx->hwdata->need_prepare_unprepare_clk)
-+		pm_runtime_set_autosuspend_delay(&pdev->dev, I2C_PM_LONG_TIMEOUT);
-+	else
-+		pm_runtime_set_autosuspend_delay(&pdev->dev, I2C_PM_TIMEOUT);
-+
- 	pm_runtime_use_autosuspend(&pdev->dev);
- 	pm_runtime_get_noresume(&pdev->dev);
- 	pm_runtime_set_active(&pdev->dev);
-@@ -1544,31 +1578,78 @@ static void lpi2c_imx_remove(struct platform_device *pdev)
- 	pm_runtime_dont_use_autosuspend(&pdev->dev);
- }
- 
--static int __maybe_unused lpi2c_runtime_suspend(struct device *dev)
-+static int __maybe_unused _lpi2c_runtime_suspend(struct lpi2c_imx_struct *lpi2c_imx,
-+						 bool need_request_free_irq,
-+						 bool need_prepare_unprepare_clk)
- {
--	struct lpi2c_imx_struct *lpi2c_imx = dev_get_drvdata(dev);
-+	if (need_request_free_irq)
-+		devm_free_irq(lpi2c_imx->adapter.dev.parent, lpi2c_imx->irqsteer_irq, lpi2c_imx);
- 
--	clk_bulk_disable(lpi2c_imx->num_clks, lpi2c_imx->clks);
--	pinctrl_pm_select_sleep_state(dev);
-+	if (need_prepare_unprepare_clk)
-+		clk_bulk_disable_unprepare(lpi2c_imx->num_clks, lpi2c_imx->clks);
-+	else
-+		clk_bulk_disable(lpi2c_imx->num_clks, lpi2c_imx->clks);
-+	pinctrl_pm_select_sleep_state(lpi2c_imx->adapter.dev.parent);
- 
- 	return 0;
- }
- 
--static int __maybe_unused lpi2c_runtime_resume(struct device *dev)
-+static int __maybe_unused _lpi2c_runtime_resume(struct lpi2c_imx_struct *lpi2c_imx,
-+						bool need_request_free_irq,
-+						bool need_prepare_unprepare_clk)
- {
--	struct lpi2c_imx_struct *lpi2c_imx = dev_get_drvdata(dev);
- 	int ret;
- 
--	pinctrl_pm_select_default_state(dev);
--	ret = clk_bulk_enable(lpi2c_imx->num_clks, lpi2c_imx->clks);
--	if (ret) {
--		dev_err(dev, "failed to enable I2C clock, ret=%d\n", ret);
--		return ret;
-+	pinctrl_pm_select_default_state(lpi2c_imx->adapter.dev.parent);
-+	if (need_prepare_unprepare_clk) {
-+		ret = clk_bulk_prepare_enable(lpi2c_imx->num_clks, lpi2c_imx->clks);
-+		if (ret) {
-+			dev_err(lpi2c_imx->adapter.dev.parent, "failed to enable clock %d\n", ret);
-+			return ret;
-+		}
-+	} else {
-+		ret = clk_bulk_enable(lpi2c_imx->num_clks, lpi2c_imx->clks);
-+		if (ret) {
-+			dev_err(lpi2c_imx->adapter.dev.parent, "failed to enable clock %d\n", ret);
-+			return ret;
-+		}
-+	}
-+
-+	if (need_request_free_irq) {
-+		ret = devm_request_irq(lpi2c_imx->adapter.dev.parent, lpi2c_imx->irqsteer_irq,
-+				       lpi2c_imx_isr, IRQF_NO_SUSPEND,
-+				       dev_name(lpi2c_imx->adapter.dev.parent),
-+				       lpi2c_imx);
-+		if (ret) {
-+			dev_err(lpi2c_imx->adapter.dev.parent, "can't claim irq %d\n",
-+				lpi2c_imx->irqsteer_irq);
-+			return ret;
-+		}
- 	}
- 
- 	return 0;
- }
- 
-+static int __maybe_unused lpi2c_runtime_resume(struct device *dev)
-+{
-+	struct lpi2c_imx_struct *lpi2c_imx = dev_get_drvdata(dev);
-+	bool need_request_free_irq = lpi2c_imx->hwdata->need_request_free_irq;
-+	bool need_prepare_unprepare_clk = lpi2c_imx->hwdata->need_prepare_unprepare_clk;
-+
-+	return _lpi2c_runtime_resume(lpi2c_imx, need_request_free_irq,
-+				     need_prepare_unprepare_clk);
-+}
-+
-+static int __maybe_unused lpi2c_runtime_suspend(struct device *dev)
-+{
-+	struct lpi2c_imx_struct *lpi2c_imx = dev_get_drvdata(dev);
-+	bool need_request_free_irq = lpi2c_imx->hwdata->need_request_free_irq;
-+	bool need_prepare_unprepare_clk = lpi2c_imx->hwdata->need_prepare_unprepare_clk;
-+
-+	return _lpi2c_runtime_suspend(lpi2c_imx, need_request_free_irq,
-+				      need_prepare_unprepare_clk);
-+}
-+
- static int __maybe_unused lpi2c_suspend_noirq(struct device *dev)
- {
- 	return pm_runtime_force_suspend(dev);
+Patches 10,14,16,37 applied.  Thanks.
 -- 
-2.34.1
-
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
