@@ -1,42 +1,41 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7231F31B83D
-	for <linux-i2c@vger.kernel.org>; Wed, 26 Nov 2025 10:46:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F05E31BCAF;
+	Wed, 26 Nov 2025 10:46:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764154013; cv=none; b=HldVcAR7R+gbkr1pf+GYx4fKQpEaInDv8HDmqeWIuoYmutczYoPzlNmI3YF1jCDw6pZz4hpI0rJ5Oj37efVy7LTWqsqQBIMM9ZTt3BKLzFNpKMmb08ZOGiQ07ERnm6EDFk9a3NzjM9C3I7BlpLjK4kWB2MU8n6lPdVrL74EKQSk=
+	t=1764154014; cv=none; b=PLVjx2QWSZv6TVXKvIjgxc+s9xgkGnSyf/MiyZgXNYkFKmQ8a/HfN0MSuiOwFG8zuGJD4pxGZAd8Lhgd2U1csw3Stu/2ou7zanvjxQzv0XdQqD5ESmVBlonqfYakswh1bu/OI0ruf/BqlYm6J3ru8FQrF3oOGcg5KJ3XjG/Virw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764154013; c=relaxed/simple;
-	bh=60y3wscYu+FR1/Eo9esnvUOIDONBxy4TZK9bJ7oCWd8=;
+	s=arc-20240116; t=1764154014; c=relaxed/simple;
+	bh=QMhG/0jhakuaZrCFcax2pEPoKx4GMav9oHIrsDzUx9c=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=nre80yfRRHqaJ5FBD29yiD1tYPgbAmwTqSDdzrc99AIsg7vA2WDJRCjisXEQBPBj12O8CHaYDRFCAuvwNyTWaG4PwxAYdqYnM5JdaEzDoZo+ZNSW7B5CK2iOp+OsGFO41MSbuwa39hwGnHjA0emasXHcAZv7C9EYEzNxAdwIuv4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=LaTC6rJx; arc=none smtp.client-ip=185.246.85.4
+	 In-Reply-To:To:Cc; b=hr1nwnedRUarrBA/xljvdZ0LobgYenCuBs++cbPL8jUSof9t+oVeJMLxu8oUjKLsW2RMUd+MADdcYJRX+UNGQZA3ZKKMN8c7okhLrFJwTf/26lPX58RjHd8zgr90iSgG4FgOeKrPZEjLLkJsXBWYxofkWLAjhaiQzHEs3iV0NBM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=RcIp/aue; arc=none smtp.client-ip=185.171.202.116
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="LaTC6rJx"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="RcIp/aue"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id E3A294E418E5;
-	Wed, 26 Nov 2025 10:46:49 +0000 (UTC)
+	by smtpout-04.galae.net (Postfix) with ESMTPS id B45ACC15D77;
+	Wed, 26 Nov 2025 10:46:22 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id B9AFA60721;
-	Wed, 26 Nov 2025 10:46:49 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id BDA87102F0828;
-	Wed, 26 Nov 2025 11:46:46 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 7749A60721;
+	Wed, 26 Nov 2025 10:46:45 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 89593102F08C9;
+	Wed, 26 Nov 2025 11:46:42 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1764154008; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1764154004; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=leYJuaPAZMswZ1nnRGUKqZ78MtonAZY7CX8PnUk/BgU=;
-	b=LaTC6rJxiHGXoBSz1am1X4/GiD59WjsAcRpJrav+7gN3PPTksZp8lBz4qTxwh7b/CxM/ig
-	5b6tw/qcu7cOHc27TAuccOWKiD23on/fWLOlcyKI80bzZsRNrQBsax7vq9O2yHb/7VXA50
-	9kfCbEkXf0VWOuChtPB1fsaXwhdETk7CkSQPTftJUjilgRkZLBzF3JqrrUHldjNAtKDRA6
-	Wt1vDxlRtaeuUe0vzcVOo2UCP7zCK2Z9CW0nl7kXLWST2xBmSJZFNrkl+HXTqeRBINEpo+
-	K4EVgdT3mzCRS51Rq+EVTA1JZiKCNjMqoWVEZJzBQmI3ZrrFNICksfjpEenlaQ==
+	bh=NvumRa6Nk5FY/qYCbY/ZM5BWU9fnNCjKXXsILsQItok=;
+	b=RcIp/auev14qyTZ3560muoYZERZ8ow7wHWFG3L6cG8Cap3Um0FB0SJeaJWRP+ghGHepPlk
+	zhCbrzR9+UMM3ryGAB20VdOvA0sK9mQ/1+0oZ6/0ylogEb2heNweiu4ci6ua3E1QjtVtYQ
+	3yTxD8Acwkr+i85ybzi+Et923qljUC60n1HU+dZO6IjdOWZQvL40Tpqd7Dl6UCl2xSkrt+
+	Tdl5oQxawenoWuWLcIUB7F6sUK1gcqAla2Cuw6mr1Hn0aZTcUJDbzhBjXn518WFRD355T7
+	GSVsvYVcuDVCKnEPVBEScxYKE1mqijI0F12HPlNevM+Aj+FMay/7Fdn2wAL6Sg==
 From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-Date: Wed, 26 Nov 2025 11:46:26 +0100
-Subject: [PATCH v4 3/7] i2c: designware: Sort compatible strings in
- alphabetical order
+Date: Wed, 26 Nov 2025 11:46:24 +0100
+Subject: [PATCH v4 1/7] dt-bindings: i2c: dw: Add Mobileye I2C controllers
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -45,7 +44,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20251126-i2c-dw-v4-3-b0654598e7c5@bootlin.com>
+Message-Id: <20251126-i2c-dw-v4-1-b0654598e7c5@bootlin.com>
 References: <20251126-i2c-dw-v4-0-b0654598e7c5@bootlin.com>
 In-Reply-To: <20251126-i2c-dw-v4-0-b0654598e7c5@bootlin.com>
 To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -65,36 +64,42 @@ Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
  Dmitry Guzman <dmitry.guzman@mobileye.com>, linux-i2c@vger.kernel.org, 
  devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
  linux-rt-devel@lists.linux.dev, 
- =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
+ =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>, 
+ Krzysztof Kozlowski <krzk@kernel.org>
 X-Mailer: b4 0.14.3
 X-Last-TLS-Session-Version: TLSv1.3
 
-Reorder the of_device_id structures so that they are in alphabetical
-order. Also drop the unneeded inner trailing comma in the
-"snps,designware-i2c" struct.
+Add compatible string for the DesignWare-based I2C controllers present
+in Mobileye Eyeq6Lplus SoC, with a fallback to the default compatible.
+The same controllers are also present in the EyeQ7H, so add a compatible
+for those with a fallback to the Eyeq6Lplus compatible.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
 Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
 ---
- drivers/i2c/busses/i2c-designware-platdrv.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 34d881572351..d7d764f7554d 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -345,9 +345,9 @@ static void dw_i2c_plat_remove(struct platform_device *pdev)
- }
- 
- static const struct of_device_id dw_i2c_of_match[] = {
--	{ .compatible = "snps,designware-i2c", },
--	{ .compatible = "mscc,ocelot-i2c", .data = (void *)MODEL_MSCC_OCELOT },
- 	{ .compatible = "baikal,bt1-sys-i2c", .data = (void *)MODEL_BAIKAL_BT1 },
-+	{ .compatible = "mscc,ocelot-i2c", .data = (void *)MODEL_MSCC_OCELOT },
-+	{ .compatible = "snps,designware-i2c" },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, dw_i2c_of_match);
+diff --git a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+index d904191bb0c6..914200188809 100644
+--- a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
+@@ -34,8 +34,15 @@ properties:
+           - const: snps,designware-i2c
+       - description: Baikal-T1 SoC System I2C controller
+         const: baikal,bt1-sys-i2c
++      - description: Mobileye EyeQ DesignWare I2C controller
++        items:
++          - enum:
++              - mobileye,eyeq7h-i2c
++          - const: mobileye,eyeq6lplus-i2c
++          - const: snps,designware-i2c
+       - items:
+           - enum:
++              - mobileye,eyeq6lplus-i2c
+               - mscc,ocelot-i2c
+               - sophgo,sg2044-i2c
+               - thead,th1520-i2c
 
 -- 
 2.52.0
