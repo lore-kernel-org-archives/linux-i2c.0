@@ -1,41 +1,42 @@
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F05E31BCAF;
-	Wed, 26 Nov 2025 10:46:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD0DB31ED95;
+	Wed, 26 Nov 2025 10:46:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764154014; cv=none; b=PLVjx2QWSZv6TVXKvIjgxc+s9xgkGnSyf/MiyZgXNYkFKmQ8a/HfN0MSuiOwFG8zuGJD4pxGZAd8Lhgd2U1csw3Stu/2ou7zanvjxQzv0XdQqD5ESmVBlonqfYakswh1bu/OI0ruf/BqlYm6J3ru8FQrF3oOGcg5KJ3XjG/Virw=
+	t=1764154015; cv=none; b=SImm9Ef4Z2skU1jv+toEnRRW0sSY6oV6SHSGeWGMIVmQcXYJeYRC5dVQyl47aHQ90JFoY2KMqUeMdMqvBwTg3DBOnFW8H3Pz6bSE5r1aKdU5Lb3BI/xOVt+NS0ONbfDD9JIAY+M+GDZQm2xHxNErj6KX9Nti/xTMHO4QBSZ5bjg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764154014; c=relaxed/simple;
-	bh=QMhG/0jhakuaZrCFcax2pEPoKx4GMav9oHIrsDzUx9c=;
+	s=arc-20240116; t=1764154015; c=relaxed/simple;
+	bh=LkyYXciWGFRGDaZZsAqr0hUiYlLTuVo9Zf8XUZJtrlU=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=hr1nwnedRUarrBA/xljvdZ0LobgYenCuBs++cbPL8jUSof9t+oVeJMLxu8oUjKLsW2RMUd+MADdcYJRX+UNGQZA3ZKKMN8c7okhLrFJwTf/26lPX58RjHd8zgr90iSgG4FgOeKrPZEjLLkJsXBWYxofkWLAjhaiQzHEs3iV0NBM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=RcIp/aue; arc=none smtp.client-ip=185.171.202.116
+	 In-Reply-To:To:Cc; b=OXwwCmixoboB8PGpihvY0GkAvwV/dlYQpmIqWQOkFWwda7zLt4Su0GMQ5CGIIHxcTsqM+SvPeyNnwcnG/Pevu1FLNm+X5PDFk02xM2yLykJKjq15o5XDF4ooSUf/6gjPP5zr67+CKgkJomfGwQz0MiRkkk72s5tpF4OAksAwoIY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=FruETx42; arc=none smtp.client-ip=185.246.85.4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="RcIp/aue"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="FruETx42"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id B45ACC15D77;
-	Wed, 26 Nov 2025 10:46:22 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 6631D4E418E6;
+	Wed, 26 Nov 2025 10:46:52 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 7749A60721;
-	Wed, 26 Nov 2025 10:46:45 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 89593102F08C9;
-	Wed, 26 Nov 2025 11:46:42 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 3BBE560721;
+	Wed, 26 Nov 2025 10:46:52 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B1850102F08C9;
+	Wed, 26 Nov 2025 11:46:48 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1764154004; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1764154011; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=NvumRa6Nk5FY/qYCbY/ZM5BWU9fnNCjKXXsILsQItok=;
-	b=RcIp/auev14qyTZ3560muoYZERZ8ow7wHWFG3L6cG8Cap3Um0FB0SJeaJWRP+ghGHepPlk
-	zhCbrzR9+UMM3ryGAB20VdOvA0sK9mQ/1+0oZ6/0ylogEb2heNweiu4ci6ua3E1QjtVtYQ
-	3yTxD8Acwkr+i85ybzi+Et923qljUC60n1HU+dZO6IjdOWZQvL40Tpqd7Dl6UCl2xSkrt+
-	Tdl5oQxawenoWuWLcIUB7F6sUK1gcqAla2Cuw6mr1Hn0aZTcUJDbzhBjXn518WFRD355T7
-	GSVsvYVcuDVCKnEPVBEScxYKE1mqijI0F12HPlNevM+Aj+FMay/7Fdn2wAL6Sg==
+	bh=OzKkisXvKa5epQi/flHcP9O680bWIEN4eKFcAiNCdnY=;
+	b=FruETx429Dm1XWoZUET/07FOXP5A5GSr4il2sEDlyaL3jjcHVkEkM7YV8JQ4otYKXQqxIO
+	k/P0Zv7IgYNht2NOzIYAJ0+EjqcabgaIBLdNekgFOLxjfU+vk3A4qz+dAziMpaM0lAQOcT
+	h/V8M2YvA5w9dfB1E4bIch7VxDGORlXfyMbFVbpZKyDZN8I2G1X41bupnCZtUrXF89oPEm
+	4efxMg+ZS0/DkVnQYa0wN4eS8Wptum9wPx8yY7Y7yb60oxI4lkZgp1iZZ1GUbj7Cn0y+dd
+	KyjaIijxSqhIBE5wmbE/YbTpUNaY9mNk2QPHaFfuODpBp2lE9pXuh9aheiEoUg==
 From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-Date: Wed, 26 Nov 2025 11:46:24 +0100
-Subject: [PATCH v4 1/7] dt-bindings: i2c: dw: Add Mobileye I2C controllers
+Date: Wed, 26 Nov 2025 11:46:27 +0100
+Subject: [PATCH v4 4/7] i2c: designware: Add dedicated algorithm for AMD
+ NAVI
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -44,7 +45,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20251126-i2c-dw-v4-1-b0654598e7c5@bootlin.com>
+Message-Id: <20251126-i2c-dw-v4-4-b0654598e7c5@bootlin.com>
 References: <20251126-i2c-dw-v4-0-b0654598e7c5@bootlin.com>
 In-Reply-To: <20251126-i2c-dw-v4-0-b0654598e7c5@bootlin.com>
 To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -64,42 +65,81 @@ Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
  Dmitry Guzman <dmitry.guzman@mobileye.com>, linux-i2c@vger.kernel.org, 
  devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
  linux-rt-devel@lists.linux.dev, 
- =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>, 
- Krzysztof Kozlowski <krzk@kernel.org>
+ =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
 X-Mailer: b4 0.14.3
 X-Last-TLS-Session-Version: TLSv1.3
 
-Add compatible string for the DesignWare-based I2C controllers present
-in Mobileye Eyeq6Lplus SoC, with a fallback to the default compatible.
-The same controllers are also present in the EyeQ7H, so add a compatible
-for those with a fallback to the Eyeq6Lplus compatible.
+Apart from runtime PM, there is nothing in common between i2c_dw_xfer()
+and amd_i2c_dw_xfer_quirk(), so give AMD NAVI controller its own algorithm
+instead of calling the quirk from i2c_dw_xfer().
 
-Reviewed-by: Krzysztof Kozlowski <krzk@kernel.org>
+Add runtime PM handling to amd_i2c_dw_xfer_quirk() and a dedicated
+i2c_algorithm for AMD NAVI controllers. The adapter algorithm is set
+during probe based on the device model.
+
+This way we avoid checking for the device model at the start of every
+transfer.
+
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
 ---
- Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/i2c/busses/i2c-designware-master.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
-index d904191bb0c6..914200188809 100644
---- a/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml
-@@ -34,8 +34,15 @@ properties:
-           - const: snps,designware-i2c
-       - description: Baikal-T1 SoC System I2C controller
-         const: baikal,bt1-sys-i2c
-+      - description: Mobileye EyeQ DesignWare I2C controller
-+        items:
-+          - enum:
-+              - mobileye,eyeq7h-i2c
-+          - const: mobileye,eyeq6lplus-i2c
-+          - const: snps,designware-i2c
-       - items:
-           - enum:
-+              - mobileye,eyeq6lplus-i2c
-               - mscc,ocelot-i2c
-               - sophgo,sg2044-i2c
-               - thead,th1520-i2c
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index ec4fc2708d03..c33198ab5018 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -354,6 +354,10 @@ static int amd_i2c_dw_xfer_quirk(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	u8 *tx_buf;
+ 	unsigned int val;
+ 
++	ACQUIRE(pm_runtime_active_auto_try, pm)(dev->dev);
++	if (ACQUIRE_ERR(pm_runtime_active_auto_try, &pm))
++		return -ENXIO;
++
+ 	/*
+ 	 * In order to enable the interrupt for UCSI i.e. AMD NAVI GPU card,
+ 	 * it is mandatory to set the right value in specific register
+@@ -813,14 +817,6 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
+ 
+ 	pm_runtime_get_sync(dev->dev);
+ 
+-	switch (dev->flags & MODEL_MASK) {
+-	case MODEL_AMD_NAVI_GPU:
+-		ret = amd_i2c_dw_xfer_quirk(adap, msgs, num);
+-		goto done_nolock;
+-	default:
+-		break;
+-	}
+-
+ 	reinit_completion(&dev->cmd_complete);
+ 	dev->msgs = msgs;
+ 	dev->msgs_num = num;
+@@ -910,6 +906,11 @@ static const struct i2c_algorithm i2c_dw_algo = {
+ 	.functionality = i2c_dw_func,
+ };
+ 
++static const struct i2c_algorithm amd_i2c_dw_algo = {
++	.xfer = amd_i2c_dw_xfer_quirk,
++	.functionality = i2c_dw_func,
++};
++
+ static const struct i2c_adapter_quirks i2c_dw_quirks = {
+ 	.flags = I2C_AQ_NO_ZERO_LEN,
+ };
+@@ -1045,7 +1046,10 @@ int i2c_dw_probe_master(struct dw_i2c_dev *dev)
+ 		scnprintf(adap->name, sizeof(adap->name),
+ 			  "Synopsys DesignWare I2C adapter");
+ 	adap->retries = 3;
+-	adap->algo = &i2c_dw_algo;
++	if ((dev->flags & MODEL_MASK) == MODEL_AMD_NAVI_GPU)
++		adap->algo = &amd_i2c_dw_algo;
++	else
++		adap->algo = &i2c_dw_algo;
+ 	adap->quirks = &i2c_dw_quirks;
+ 	adap->dev.parent = dev->dev;
+ 	i2c_set_adapdata(adap, dev);
 
 -- 
 2.52.0
