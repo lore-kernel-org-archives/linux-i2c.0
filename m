@@ -1,96 +1,142 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07EED30AAD8
-	for <linux-i2c@vger.kernel.org>; Sat, 29 Nov 2025 12:43:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D899921CC59
+	for <linux-i2c@vger.kernel.org>; Sat, 29 Nov 2025 16:58:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764420210; cv=none; b=ErF80OfLu0y9IF1TInLrQGvlj7ue4Nv77fe1J2GtACg3PujhXxDHRrTHjh1aQ7Bc4zRD6NasmvoCH78ecgPVKAbLA4wbtJ9/XIC5rkssfDu2AZUj2u0Zw42EY+UseqgD1UjmTlRC1fN8qtEO+pfP52R5o4Z5k9JRlH/GO+MRhkY=
+	t=1764435511; cv=none; b=mtxMIFNHuYzu/I5FRNxmXJIpGpJyNQh2Xhsqu+fUrutgBmtCEA7i3QV+vqcw61ogjsH5rSkKxRiDu8HRKhMUaDMvavOA9M06Qs3rB9cXItwFmkn4ux1X1AzHAPOaSBWDIZ5UGYyzLYeWco/Ei0y2rV+kEuXxfS/1RJgMIBpYgGw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764420210; c=relaxed/simple;
-	bh=gaSbPuhWn2Kn/zZWwlQRDQP1k44vTFfjid4GqAYxCXI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fGgd4sGe4L8Dr3d9nFeJdcWZ5op9mmHXQ7wFFR+w/W1tk6nJGxybuYAVh++wdrPdLm1IxlZ6lH88z/bl+CdazJGJ1Uoh+QvPlB5QQIVT8USgPCEgIspwhD5E/PxAHdwIwKS/oj753lU8IMwxs/sFdrasXklP5R+JjOJdqhtLpxY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=DNtiUBNt; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1764435511; c=relaxed/simple;
+	bh=bDsWyBR13GvWu/KmngbVucApNNubltw7ubiPWxdkZ7M=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=j+deX2MWtXvHwFrmIEIMBEvW9Co2/8CYZ89u7AeTWh7jTHGAyGn+2NRV3Z7qlbLqGF3yg/DzpBaMZ/npNmtztp2JaU4OOp2IAAmRdlpBPvmJJ3oEk2503Zr083/Q2k+UI7FfuXXKkygM21UeuUk/bMZyWbarhTMIxJsg/Y4xqZ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=mCBWIcdE; arc=none smtp.client-ip=209.85.208.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="DNtiUBNt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=gaSb
-	PuhWn2Kn/zZWwlQRDQP1k44vTFfjid4GqAYxCXI=; b=DNtiUBNtk2kzPfimXOFC
-	06tn4rIc/50olmSfP7Rjg+94pGw8gmSlWWqCjb1jGUwxSub7wZBhVOTE46q8K83W
-	nLVUlUOhryCRy8wzi/CjHTVcu5WYdxVK85jDyHZpg6OhcAe4ECWKpkKH0HGTCoiH
-	EWN1YvcSDov8Z+GQ1EFLfHASHwLICRDkoVgPFI6t6rzIJAqcrMgB+FPrG87wQphJ
-	goQGR8LL6d2adgIwMC1bgYiS1YaVD0QftxVOWDyI05B1/ZBb0ckSPze7q+BKWf9b
-	1HyopYKIT3MYLk0Et6FIicZzhjRGVggT/DD2zWWTT9kv9AdLhc/krZWfTUBKwBK5
-	Cw==
-Received: (qmail 4020742 invoked from network); 29 Nov 2025 13:36:44 +0100
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 29 Nov 2025 13:36:44 +0100
-X-UD-Smtp-Session: l3s3148p1@zWyL/7pEp/nd+uUy
-Date: Sat, 29 Nov 2025 21:36:41 +0900
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Magnus Lindholm <linmag7@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-alpha@vger.kernel.org, andi.shyti@kernel.org
-Subject: Re: [PATCH v2] i2c: i2c-elektor: Allow building on SMP kernels
-Message-ID: <aSro2TbT_RHiM4AS@shikoro>
-References: <20251122141717.28570-1-linmag7@gmail.com>
+	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="mCBWIcdE"
+Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-6418738efa0so4692828a12.1
+        for <linux-i2c@vger.kernel.org>; Sat, 29 Nov 2025 08:58:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1764435506; x=1765040306; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=hrGw+j15exTZMybruW35jjRgEf4ik1Id5jv8eW56WZo=;
+        b=mCBWIcdEfx2WG2p1Ut6jDnlvbI8O0m6XRxx3i0bhbr7iKDBdNyGwId6Zej2fJDvISI
+         RV//vzJmG6bgWfRlwpuQMdx4WP9TSxydTvIgWpw7LU7HIRQKLqyKUAcDld1FExB0p/C2
+         o0die17cXiZpZE0EJ0vqg8dVyOc6rVOldMPnR2zmxIZ7DKyMdoKxxBbFXH0sn/DP1R22
+         I/bOkyg17sppPsiVUJgxWZjYzN2yo7RjU0zmJFPK5va1LQYcWNqZ3684i7Bsnr4wwXh4
+         XAXAZOZS7NUfROC2zH9zO46pNvmt9WcPpuragQSRoik+SRIPEMlHN34g5umwqON5bRpz
+         kUnw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1764435506; x=1765040306;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=hrGw+j15exTZMybruW35jjRgEf4ik1Id5jv8eW56WZo=;
+        b=IQsUU03EpdzYT16xvrs7lNI6JaLFZadqJSF8kH2fGuZ9R2rI4M+ujn++PxKvh+2UR/
+         RjIy30FHliDVX7FKlGtrdElP0dlcPfHsCjYPLTCiNmpu/1GmCoqlQoYNnt52RoG8s34U
+         ttPp39u2lkLzlcVQqWwAZhwZBUHOf1zN4UAVD6BB7YbF20KT2he1rmJx1MSuTJmS/MSJ
+         XAKW6o8v6ogbOBP+SKp7LebhS9AO12nPr45g91i70ywKP5W5z038CBq/Xy8GGyaX3lcc
+         sRq2nb2gwIjsG01vap/XRHuI5QTVDg2o5KR6sGoRECVGIIwHq2YDpoCNEiSNoirAKQcG
+         lO+A==
+X-Forwarded-Encrypted: i=1; AJvYcCWwpsSoLcB2jA1gFgO2sbAjKSCOYwq/z+U7+YvbI+m27+eThd95Ew6ltqMi8TO1hSFqb5emZRAKoME=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwfpG8MS0OhY+vcxKR7ESO99DgPN3cRv2cBKVHOiE4kixQAY9IY
+	PIyvxJZi3W/Bs9MHZd+grhfdkDTEiodwGdedNC2qjlRIHRDAxHba1O/spZk4+i0Vq48FvRMJ7i/
+	Bse+r
+X-Gm-Gg: ASbGncveDbljVrrq/y2xEbOXWEycO93SIfsC3Pt7k4wsWQp7fNmcuIHO/SldZxUA++5
+	TiR901/6VqFeijSFJrlfRWoYwb15eZI05GW1/Ow/NiysTuyyKT3OlSkZpDSZhqAlSQkSMKm9mch
+	jOsTgRAesdQt4rBy5SmF+YNkBW8szCtN3KrHZCby6T9BPx/pWfBVGXdlF/sGKm1ur6mBUOKAoz3
+	TJseSkIgmqruHufeVnT/djv9EireoBtmLgq/KIie2fSu9klTl6c9BJ6idXFWVrAYUlAYbANlzNg
+	56TGEi48tp+4QR0PR7sRb+uAicLj/inl2pdBGI/E5asmg54xUdyB4o2YzpaCTcFXgUWuWEihZ/Z
+	dzTbiNpsuh5NWpVvph9jjkSjCC17npnqhOLqFtbTiORmWkDQSpMARVfKBeKdYOTgM3KmeCJI6Xo
+	l0amRm/TOPGiVuMieu
+X-Google-Smtp-Source: AGHT+IFRiVsXHgKH32e2UUxbjoTC/2PC7We5ekSkNgMfKep0WFlMYzP0czf50nd3+3LacbL9BeDIfw==
+X-Received: by 2002:a05:6402:4303:b0:641:8908:a558 with SMTP id 4fb4d7f45d1cf-64555ce53famr28532296a12.25.1764435506020;
+        Sat, 29 Nov 2025 08:58:26 -0800 (PST)
+Received: from localhost ([2a02:8071:b783:6940:1d24:d58d:2b65:c291])
+        by smtp.gmail.com with UTF8SMTPSA id 4fb4d7f45d1cf-64751035b75sm7855980a12.20.2025.11.29.08.58.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 29 Nov 2025 08:58:25 -0800 (PST)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: Eddie James <eajames@linux.ibm.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Mark Brown <broonie@kernel.org>
+Cc: Ninad Palsule <ninad@linux.ibm.com>,
+	linux-fsi@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	openbmc@lists.ozlabs.org,
+	linux-spi@vger.kernel.org,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 00/12] fsi: Convert to bus probe mechanism
+Date: Sat, 29 Nov 2025 17:57:36 +0100
+Message-ID: <cover.1764434226.git.ukleinek@kernel.org>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="gs+6wHZbcI3P0NCS"
-Content-Disposition: inline
-In-Reply-To: <20251122141717.28570-1-linmag7@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2312; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=bDsWyBR13GvWu/KmngbVucApNNubltw7ubiPWxdkZ7M=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBpKyYDXD6ueszNupCnGqcfTiYcaAFXAHx2f88f8 GEAG9h+7qmJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCaSsmAwAKCRCPgPtYfRL+ TuhOB/92oKD93snOWUjZjmay296pHDljAXCv9DtM027PRml5LWq3M0af8Kj+NHrNziZTYi9OnLA x+vKqFlgI7y+IYai2tZ7WLp4FR4DMXt9Q0ryxJ2FRM5r5vinjrLG6cQLOuU4w5NSruILS1SLnKe rIt0fyaMEDaE4KQaOdgp2S3zrw/W9lmkrrLSICTHmsGi3KK5wzu/aEGbXqvHd1dG1O3Dmy46LDh E4RGQJEBIo/Buq637M3fDlh1uY2VYPplZM+hojib+vWBlOrz0UKDc8Nb7W+/4Ogii/3H818BwJ0 vSZmGJk+HIskyOhodyP0BkQpu0ygHrqTw2sR4VL9cn78vHRt
+X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Transfer-Encoding: 8bit
+
+Hello,
+
+for the quest to drop .probe(), .remove() and .shutdown() from struct
+device_driver, convert the fsi subsystem to make use of the respective
+bus methods. Some cleanups are also included, I noticed those while
+working on the conversion.
+
+Regarding how to merge this series: There are two drivers touched that
+are not in drivers/fsi, namely drivers/i2c/busses/i2c-fsi.c and
+drivers/spi/spi-fsi.c. The easiest would be to merge this series through
+a single tree because the i2c and spi driver changes depend on some fsi
+core patches and fsi_bus_type can only made private when these are
+applied. I tried to quickly resort the series to only need three steps
+when merged separately, but this wasn't trivially possible, so I hope
+Andi and Mark give their acks to merge their driver changes together
+with the fsi core changes in one go.
+
+Note this series is only compile tested as I don't have a machine using
+the fsi subsystem. 
+
+All the calls to get_device() I found in these drivers look a bit
+suspicious and I think there are some issues with lifetime tracking. But
+I didn't try to address these, so I'm just mentioning that here.
+
+Best regards
+Uwe
+
+Uwe Kleine-König (12):
+  fsi: Make use of module_fsi_driver()
+  fsi: Assign driver's bus in fsi_driver_register()
+  fsi: Provide thin wrappers around dev_[gs]et_data() for fsi devices
+  i2c: fsi: Drop assigning fsi bus
+  spi: fsi: Drop assigning fsi bus
+  fsi: Make fsi_bus_type a private variable to the core
+  fsi: Create bus specific probe and remove functions
+  fsi: master: Convert to fsi bus probe mechanism
+  fsi: sbefifo: Convert to fsi bus probe mechanism
+  fsi: scom: Convert to fsi bus probe mechanism
+  i2c: fsi: Convert to fsi bus probe mechanism
+  spi: fsi: Convert to fsi bus probe mechanism
+
+ drivers/fsi/fsi-core.c       | 107 ++++++++++++++++++++++++++---------
+ drivers/fsi/fsi-master-hub.c |  17 +++---
+ drivers/fsi/fsi-sbefifo.c    |  31 +++-------
+ drivers/fsi/fsi-scom.c       |  30 +++-------
+ drivers/fsi/i2cr-scom.c      |   1 -
+ drivers/i2c/busses/i2c-fsi.c |  16 +++---
+ drivers/spi/spi-fsi.c        |   7 +--
+ include/linux/fsi.h          |  13 ++++-
+ 8 files changed, 125 insertions(+), 97 deletions(-)
 
 
---gs+6wHZbcI3P0NCS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+base-commit: 3a8660878839faadb4f1a6dd72c3179c1df56787
+-- 
+2.47.3
 
-On Sat, Nov 22, 2025 at 02:45:01PM +0100, Magnus Lindholm wrote:
-> In the past, the i2c-elektor driver was broken on SMP. Since then, there
-> appear to have been some fixes and cleanup work (as pointed out by Wolfram
-> Sang) to get rid of cli/sti usage and rely on spinlocks instead. Therefor=
-e,
-> let's allow building the driver on SMP kernels again.
->=20
-> I've tested this driver on an SMP kernel on an Alpha UP2000+ for a few da=
-ys
-> without any problems.
->=20
-> Signed-off-by: Magnus Lindholm <linmag7@gmail.com>
->=20
-> Changes since v1:
-> - Rephrased commit message
-
-Applied to for-next, thanks!
-
-
---gs+6wHZbcI3P0NCS
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmkq6NkACgkQFA3kzBSg
-KbZvMA/+N2/T/VvsmlKQKoveir7/GSiM7cYFP5RoKQRTzHBLI4OP67ajKFyW64CK
-abivS4CrX+AkbSdKdn+cJnGPi3Dcv0cYKKNI7YHy1FaQF/MEe7lSgFk8V++srwi+
-svASiixXzE8wViLBrF5mZvwB8FNKdzEhmIvr1lMcgQinJ6BRTqaSSUSlvUitRxFj
-jFup8u9iNwcEjoKmiQ2Icv4eCtOvKbm2FqCm5b3AJc7o3chEiDGjLXbdWKGcVJTy
-xC0G+3EAW7HdqgSqJf4+scUYnyDkoJaUfLcIieBEqxDXu30+OafWdzbOX4HGTfpD
-ZN9X9lb9fZLvEkmoZAZ6ZASm2fIefL2XuG9axouuQI8XZ89T6EQ63+EA/PrIkcYi
-QFMl/JfDh5RUxtxJnyEql00qY3zY6p3F9tYgpQjax9L1J9pfsVrXdC2Y4kcXLU5p
-QKzvlrFJ9ukjzsarksv58BVpQvV1N80ifeCQ0GpxbxOGovtVBWa2ht/x9y4iem2t
-6bh3UU53+dgwHDiAXm2CclFuRUbPw5A1DewsOtwpLE5cxmHEkxeDV55ayAa3b5pw
-wVpABo5E5nvjZrGnwUhJf6p88Rwle9xdDQ+1Avj7R+0L2x6aYOEFczbkHdOmV4Sk
-0IHvVhrE1y2VyIaq03wYb9GjaKE/afz1cCgyLV1bfH1hDUME1u4=
-=TLtw
------END PGP SIGNATURE-----
-
---gs+6wHZbcI3P0NCS--
