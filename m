@@ -1,72 +1,59 @@
-Received: from pokefinder.org (pokefinder.org [135.181.139.117])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id C0DA138DF9
-	for <linux-i2c@vger.kernel.org>; Sat, 29 Nov 2025 12:15:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=135.181.139.117
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97252221FB4
+	for <linux-i2c@vger.kernel.org>; Sat, 29 Nov 2025 12:40:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764418539; cv=none; b=lVSPRJGQBvvDbQT0GgZAh0+soTwo8lB/yLZsGPCZAiBY9Mo0zpAiLedNMpdqJQkFGomAxIP1rhbbY9EzGiknzOypYQ6X+YUydtD/MhDVtwWcqOGfQeP8Q0pdlq5seOk7BOdAlbassj41Prnygufu9UUXKBpkJ+LPYJPMHu/gfRE=
+	t=1764420020; cv=none; b=nBNWmRmfCeiwxt2ONAxmz5F1kEiBwQvwtEK1wBzZ7KX6CL+13L+c/zF145ttpFNH0qcEHoJ4AuFqdVwaIduZSjCvyE40S3t7c2JVggiKR0MV0vFTKUVsJkQdWZgRtBpPkyn4UiLsBoMYfM9q0ALW4n7YF1xw13vIqWKQlYxZiDQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764418539; c=relaxed/simple;
-	bh=5LJabd6Xln8NBD/VstwFc7RK/xmS/iTzPdMHjXcwy54=;
+	s=arc-20240116; t=1764420020; c=relaxed/simple;
+	bh=UslvBf8OQFDqZ971JiPLW+YGWsvBA60efPSkATHyLUI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gYyUbrbcroSd4rw18locMMZ198vP0WAlH1LavkA5ZtTAJ7ZdarZ4keYibzHpYj3jE4fISqREaRn4Lts+t2KRifF/ZOzS+EvLotL/F4oxZUqHUKbDhnBO16cDjthtYuizmz1FGJcj1qYDqfn27DFLA9zSjp2ODl4XBDgHf2M65+0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=the-dreams.de; spf=pass smtp.mailfrom=the-dreams.de; arc=none smtp.client-ip=135.181.139.117
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=the-dreams.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=the-dreams.de
-Received: from localhost (221x250x229x50.ap221.ftth.ucom.ne.jp [221.250.229.50])
-	by pokefinder.org (Postfix) with UTF8SMTPSA id 6E531A44838;
-	Sat, 29 Nov 2025 13:09:34 +0100 (CET)
-Date: Sat, 29 Nov 2025 21:09:28 +0900
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: linux-i2c@vger.kernel.org,
-	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Subject: Re: [GIT PULL] at24 updates for v6.19-rc1
-Message-ID: <aSrieNBinyWw4KoD@shikoro>
-References: <20251120135430.33476-1-bartosz.golaszewski@linaro.org>
+	 Content-Type:Content-Disposition:In-Reply-To; b=qdls9klnFMWCCEpGEWx8TcVLMJZeaElnUuuv/+QJKeT5EeoAAjYJzKSNnuU/xyVMzdqs37Z0PxgM/igRxzlbV/YdmF0s71egFO1zyuvsfh8qiqVVqsAF9uMhKWYsOhev9HIjQ9ZnLgcyPqhNkX9Lxf1BybvBiTo7xFfhYw8EroI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=RQQO5PzT; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="RQQO5PzT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=EX5c
+	PsxnsUWhdeELFkdGGiHVu3Gfh3SHP/Sov6K+um8=; b=RQQO5PzTHxwIFq3Oi1wZ
+	PzXmbU+NogiswCWtHQy5F/ke8VJ2qrj91FX+3BzvtnTJZsWnZXya5p2hsZFJASXe
+	5k5cUmC0E5SRzqfMzuUoQvqTHUiplUo4K78CklYWBKgPFZeTcUW9WS86sx5A8oGN
+	AhloRmj6Q1o7QDIbQHqLPHfWok3rVRV2ge00ZUM5klWmfkhRNUEIHf31VXtAWdLb
+	Tj81lBELw2GfDdiJ5VNYzAm9plETQszyVCZdl6AEmc7ZZuEyO8VrHt0r2OElHHrK
+	1cTerrVOSrVuM0GZJdKe2ZFmIb7mMH0k2GizabmuMXRNhBitNXrXAfEC/88Z2rYR
+	Ew==
+Received: (qmail 4021506 invoked from network); 29 Nov 2025 13:40:10 +0100
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 29 Nov 2025 13:40:10 +0100
+X-UD-Smtp-Session: l3s3148p1@MKbRC7tEI/Ld+uUy
+Date: Sat, 29 Nov 2025 21:40:07 +0900
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Subject: Re: [PATCH] i2c: i2c.h: fix a bad kernel-doc line
+Message-ID: <aSrpp1l2BQkakfF2@shikoro>
+References: <20251125022808.3168059-1-rdunlap@infradead.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="TKwts4e3bd/vcqRi"
-Content-Disposition: inline
-In-Reply-To: <20251120135430.33476-1-bartosz.golaszewski@linaro.org>
-
-
---TKwts4e3bd/vcqRi
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20251125022808.3168059-1-rdunlap@infradead.org>
 
-On Thu, Nov 20, 2025 at 02:54:30PM +0100, Bartosz Golaszewski wrote:
-> Wolfram,
->=20
-> Please pull the following AT24 change for the upcoming merge window.
-> It's only a single update to DT bindings.
+On Mon, Nov 24, 2025 at 06:28:08PM -0800, Randy Dunlap wrote:
+> Change an empty line into a blank kernel-doc line to prevent
+> a kernel-doc warning:
+> 
+> Warning: ../include/uapi/linux/i2c.h:38 bad line: 
+> 
+> Fixes: bfb3939c51d5 ("i2c: refactor documentation of struct i2c_msg")
+> Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
 
-Thanks, pulled!
+Applied to for-next, thanks!
 
-
---TKwts4e3bd/vcqRi
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmkq4nUACgkQFA3kzBSg
-KbZrihAAqv2Rf+eqsz6BXqVVLmubgcKdvZ0t1/52v6vYRTuvrDaX+7aZfH+8XX8d
-eLeTG1nXTH4YkSiqYDBA7SaeVpY+OA9shaq8sNqY4v3LOF6Q62frD2JpzF0DCzMM
-L6PfbvMUXL5jN6XM1yTCnfZtPJ2lm4T3fSc6HPh63Xm+NlcdZta6UQYG+YTmBPsj
-ugSqztjNQpnMpMpGMxcPHDlwRLtAVht4R35+C586I+XbBTBlOl1pjO+aqvDaTHzf
-3ud/yW0aG1sqfurqi2waPQ1QBvpJ0+ArNSSukizmuXUPSsIQUFYNfVJnlGTzmC+x
-bZEePxiZp4fP8t8FRkQ7Y18WCDefbYix0595SyzKhRIjcvFgFCqE/lPNsQVYLWR9
-GV4CcB6yOgIenJkZpcpjkbnzQ1zJxxehOoBEaERcSBOlPChNmhJ6XEfzPJK5Z3oS
-WAITzZUC/VMVOCqqJ1rmt3x/NXCwv7CTCF5lr5VK10Pz/C09m/Al/iIlV6JZ+IZN
-3JfpAQDpS11wQvLpxK2wnT1ZUnRcOF4GIyX4zY0bAmpWtieAaxCxEerL7YH2s5kW
-6v7L0j6oy9iUeM7JXw+EADXaLWViwXLAQQCz1Yn1gTlCbaoss1UVO6BEOGVogAGK
-QsaX/Q27QKOskI1Ljfn2x0mwadfowq2qtql2e2/gQq7uOrNg5HE=
-=Puwf
------END PGP SIGNATURE-----
-
---TKwts4e3bd/vcqRi--
