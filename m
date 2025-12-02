@@ -1,22 +1,21 @@
 Received: from mail.naobsd.org (sakura.naobsd.org [160.16.200.221])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEA30191F91;
-	Tue,  2 Dec 2025 08:50:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C15F3016F0;
+	Tue,  2 Dec 2025 08:50:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=160.16.200.221
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764665418; cv=none; b=hpObukSSsd9CwrRRM10Yzjf0j1ZOwOpAGBFloHCmuYZ9uu13DAGkjZ9ILvTzsQM30WOacnWry57RU/6fM6Hu6U2BZoeVPomnwkyQZk2+IB6wUcM4vzhF3VG7LwKNM7IFGoAuhJvl6mFUtCYl0MlLvNCXSswdwEkAidBgk1Ng1tY=
+	t=1764665419; cv=none; b=WBfBLjn+GlslPi5iFyPCC7EJIxNjXs8O33yaIvJn0soskU2gowRycPNDHoks0Tp4ua5oz7loX3/muvpcN0WGLB03DyZFxLN9bcc0HGCmWWnkc1RoUO9r3yUr1Fm6tnmOF500piyUqDSmDMyRuNvTAj5PlxiLN2eiWh2qLErAvO4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764665418; c=relaxed/simple;
-	bh=J5YLHr7jGBYlxMbTIILIoJy64pZk64fteTaMeL/SVyQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=AYsa+pdryz7XUdP30RND679ZF3u161DTsxf0Tsl3U07uOoMcjV0VJULtvA2YhmrsiSzDGtTZCNrY+rGU69CSptUC3dxaz1nqczNBNojs6OW8sPzWytcMRFWnpE3YoBmtx5zfwaBmRTS1upjKqqdwKGkwlP4kuLVPmhj79enCz3U=
+	s=arc-20240116; t=1764665419; c=relaxed/simple;
+	bh=qFU3wcXG1wJvPpJQYa1Kuwqh+yjeXawJt32VH1lrqNM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=K9RuAZSZvWsuFBa+xtl/Da52Cvh/tXdFrNeEzgfMYs/UwVWsYPfqMRYA1oFg8qaVemzMk+mpbbuB8fz4Y9mHYUx6S/Rm57DXNN27FAkUMeONjLzZ/sjQn/rrl/wEKFTywD0ngsp8ct8+Kwafbv9dTWybWC6siPlvp6i72lFod+I=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=radxa.com; spf=fail smtp.mailfrom=radxa.com; arc=none smtp.client-ip=160.16.200.221
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=radxa.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=radxa.com
 Received: from secure.fukaumi.org ([10.0.0.2])
-	by mail.naobsd.org (8.14.4/8.14.4/Debian-4.1ubuntu1.1) with ESMTP id 5B28noM4008635;
-	Tue, 2 Dec 2025 17:49:52 +0900
+	by mail.naobsd.org (8.14.4/8.14.4/Debian-4.1ubuntu1.1) with ESMTP id 5B28noM3008635;
+	Tue, 2 Dec 2025 17:49:50 +0900
 From: FUKAUMI Naoki <naoki@radxa.com>
 To: heiko@sntech.de
 Cc: brgl@kernel.org, robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
@@ -25,12 +24,10 @@ Cc: brgl@kernel.org, robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
         stephen@radxa.com, sebastian.reichel@collabora.com,
         linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
         linux-rockchip@lists.infradead.org, FUKAUMI Naoki <naoki@radxa.com>
-Subject: [RESEND PATCH 1/3] dt-bindings: eeprom: at24: Add compatible for Belling BL24C04A/BL24C16F
-Date: Tue,  2 Dec 2025 08:49:39 +0000
-Message-ID: <20251202084941.1785-2-naoki@radxa.com>
+Subject: [RESEND PATCH 0/3] Add Belling EEPROMs found in Radxa boards
+Date: Tue,  2 Dec 2025 08:49:38 +0000
+Message-ID: <20251202084941.1785-1-naoki@radxa.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20251202084941.1785-1-naoki@radxa.com>
-References: <20251202084941.1785-1-naoki@radxa.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -39,34 +36,27 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add the compatible for Belling BL24C04A 4Kb EEPROM and BL24C16F 16Kb
-EEPROM.
+This patch series adds Belling BL24C04A, BL24C16A, and BL24C16F EEPROM
+found in Radxa boards.
 
-Signed-off-by: FUKAUMI Naoki <naoki@radxa.com>
----
- Documentation/devicetree/bindings/eeprom/at24.yaml | 2 ++
- 1 file changed, 2 insertions(+)
+FUKAUMI Naoki (3):
+  dt-bindings: eeprom: at24: Add compatible for Belling
+    BL24C04A/BL24C16F
+  arm64: dts: rockchip: Add EEPROMs for Radxa ROCK 4 boards
+  arm64: dts: rockchip: Add EEPROMs for Radxa boards
 
-diff --git a/Documentation/devicetree/bindings/eeprom/at24.yaml b/Documentation/devicetree/bindings/eeprom/at24.yaml
-index c21282634780..8f16fa2ba17a 100644
---- a/Documentation/devicetree/bindings/eeprom/at24.yaml
-+++ b/Documentation/devicetree/bindings/eeprom/at24.yaml
-@@ -116,6 +116,7 @@ properties:
-           - const: atmel,24c02
-       - items:
-           - enum:
-+              - belling,bl24c04a
-               - giantec,gt24c04a
-               - onnn,cat24c04
-               - onnn,cat24c05
-@@ -124,6 +125,7 @@ properties:
-       - items:
-           - enum:
-               - belling,bl24c16a
-+              - belling,bl24c16f
-               - renesas,r1ex24016
-           - const: atmel,24c16
-       - items:
+ Documentation/devicetree/bindings/eeprom/at24.yaml |  2 ++
+ .../boot/dts/rockchip/rk3399-rock-4c-plus.dts      |  8 ++++++++
+ arch/arm64/boot/dts/rockchip/rk3399-rock-4se.dts   | 12 ++++++++++++
+ arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4.dtsi |  8 ++++++++
+ .../arm64/boot/dts/rockchip/rk3568-radxa-cm3i.dtsi | 10 +++++++++-
+ arch/arm64/boot/dts/rockchip/rk3568-rock-3a.dts    |  8 ++++++++
+ arch/arm64/boot/dts/rockchip/rk3568-rock-3b.dts    |  8 ++++++++
+ arch/arm64/boot/dts/rockchip/rk3576-rock-4d.dts    | 14 ++++++++++++++
+ .../boot/dts/rockchip/rk3588-rock-5b-plus.dts      | 10 ++++++++++
+ arch/arm64/boot/dts/rockchip/rk3588-rock-5t.dts    | 10 ++++++++++
+ 10 files changed, 89 insertions(+), 1 deletion(-)
+
 -- 
 2.43.0
 
