@@ -1,108 +1,152 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f52.google.com (mail-lf1-f52.google.com [209.85.167.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 54042302168;
-	Tue,  2 Dec 2025 07:44:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D557E221FB4
+	for <linux-i2c@vger.kernel.org>; Tue,  2 Dec 2025 08:11:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764661464; cv=none; b=IRgrWLL2ikYr1SgcULMsm1/hcDvFDzQWsYoaP1ErIpy4LcP45qS9R5rdHNtS2xf7uMCviL0tFQaKWqeMr7G5nw/R1Vl/BQOdMbTmMyvp7qkj22Qg1als2F+DuKPHL6jFSYWoCzXOACTVc2BJok9W5R7bVpIAosKU3QjDpBL+rX0=
+	t=1764663073; cv=none; b=qKlAtjpY7ecvyEUo+K4FklONPFYAzj8lZpi/nQe9SMzP7t+FuR3e6SbZgWeuZqb36y/feySrJ4i/FPtHvUq+xdYZrAtcwNJF2CjG78R5k3lkgVINgH6JfeuAsFsDSYaCqr2LuTLwEUUrCOdaUDjvnQHCHdtSQ+NSb2EcnfLQ1yQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764661464; c=relaxed/simple;
-	bh=/hjV7aqFolXgiChCI+abaRPgnYBT6FMpi4NBFF/1/w4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=vDo6rSG0tXELJkPiW6utLFmNfrwWyXo1HsIqTg9uS5rd4xAPV6FMrEjKF9AaPysotfNSX0cT9TJInccKDZioFgrjVbHDNeFMC2qe8B69+kaIOI/1OC+3yrYZGNT4TJJQNLM7uslWnzmAKRS26w3QlRXw5k6xHQDHfOHlUOsGupo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c4j/rUvJ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1764663073; c=relaxed/simple;
+	bh=Nc5M9Z8FNun2aD78Xc5NFxJfLrb5FZRGRBm8Kv/u2lM=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=kUgxyjkrJUSRgbfnRa7yN6h1W3qI4Cn3q53mK29Pxkb/FzWoLPLP9ceCMSr4IFV3brOe5/7Qq3YeNgXJAYeIIqHkKf3SbimfZpz+dljEqRLxCtO/3Ixk1U5qA87wLQYshSS64gh+Ga0juln28mpexlq7960kf7hHpJf1xGgqe0k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=e2tR9mKs; arc=none smtp.client-ip=209.85.167.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c4j/rUvJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8ACC0C116B1;
-	Tue,  2 Dec 2025 07:44:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1764661463;
-	bh=/hjV7aqFolXgiChCI+abaRPgnYBT6FMpi4NBFF/1/w4=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=c4j/rUvJrqtiXnpwr/AY9K9GNxVEwzYBh91c9zOh3jfZ2CNkpRSYkOZX/xhH4KfNe
-	 2A8ZsNe61EmclAdh2o4Og6YKIDXcY4Qwle4S6AGoH+ObO6AOskY0owD35gu5m6Ovmu
-	 hdsL9zLBGvGELYBnQxTY6tYTytYNagKgDq53gGBVCA6eJtjRRmWyrD+YTLdoYCW+eg
-	 gR3nVNFf1ri9DkVSkhqxHSrCaST/fInFQdab5v7WVdPs2noL8rY7FWLlRubzKf8bSX
-	 AnS+O0T4mKRfJybf/V73LVPb9UtgGHl32jlRXrTY11gb2MD9xTbkI4xznerqVifXOH
-	 0aXkK8jcnRWdw==
-Message-ID: <cbf9b0db-d1e4-4934-9961-0deb5e4fd001@kernel.org>
-Date: Tue, 2 Dec 2025 08:44:18 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="e2tR9mKs"
+Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-59578e38613so3945644e87.2
+        for <linux-i2c@vger.kernel.org>; Tue, 02 Dec 2025 00:11:10 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1764663069; x=1765267869; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Hjv89plBIlsGmTTvLKA+ZN//B9WD1brqNLmFgcY68x8=;
+        b=e2tR9mKsSb3foVun4gGi2NWsDtprehBo1pCozywJCR4YRlYCpcuuPnbKs5dm6/plfm
+         Wi/EugFyazTqwMgmcSLpdgRNCgqD0tqmSZIkU/bISq/aliaXUL+FZubGSbOLMCrvXmda
+         416M6B+9v5twQSjo8VNgxIniUbyDNfSIYhcyRnHz2ikxX6bNFwpTVrGGH8F6R7oEnoEY
+         pWNZlVy987/MakkMcGyP5vssYBUS+/c2IGOs2na3Qx4cpwyibElZd8cXnZ7jU6gBqL5p
+         LmCpEx1kyRKJksshQCcVursoX0xiPvz3fwF44HcLetsHtN3IqX7eZh9BiSC/GXuWjtXD
+         TIfQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1764663069; x=1765267869;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=Hjv89plBIlsGmTTvLKA+ZN//B9WD1brqNLmFgcY68x8=;
+        b=fRY8xIwA4G9VXABP4XsuzJIK+slDLJScHQPzEpl3P42jdCfXg946GMEBZ22HlYj6St
+         yB5ihIBYU1AEnWkS98gWcGEUi5lRNPh/S6s2RcXdhmUAF/d6608LuS4CNfSyTu0p1aaX
+         F3HRYbml7vR3ocBmNYfZchY7KUUjcMNoJZ7xsSwPcn3czYJtS9iz7QfAC7ZjTufP/THX
+         xuKwqbck3Xu6oEYjLdUiJjQgeYVEqhXO5vPRTcjyPufvspqj6BTw/zlAAsR5zg+IFf4t
+         7aLb7CE/PryZZq3zUEdjEmIycqGVPdlqYXfdEwI+RualzuAMX4vPJzUr48GceEZ2vduZ
+         1HZw==
+X-Gm-Message-State: AOJu0Yygj57CoTzSNyh1NipATCOJpIYyhhJg2UuoIUtJK9N7kVRXvcRx
+	93i3RiNbSiqS2d/o+2A7v+1cPgtd5ON87DdQyoDCjQImM5BjiM9BIeBv
+X-Gm-Gg: ASbGncssjRV3EzILX8jLs+37RLxUkk8Lbcxvc3V9oa73tLbBlj+tqYGrQs7DAHd54cV
+	HWpht2wbKJp9gV7oFEr3gViWfoLe2BU7RO/Y9TEM4xYG0SkseFtdXILnixjZhlvnhZklgweIjuj
+	ZSMETwcYa54flwmhJhdlIE6bCHxrjwWNEkQV+YDAgNGG9KLxxiMQaV6WtkgcDcUwhADE1JDYwrx
+	MxQ8tlifWNxUs3LrRmjDwTibIdrwRVUZoQGSxRZJVXMPcPJhzFfj2NBRgegaqjU3P+9oCahrFXB
+	53UToXOx6sgxdncRFx7lHzJpeK60AQV/RPrg6ivzT/RclOSW9/FK6pnSHcSiPxxbJDXkSZ3i0bI
+	ME2eRIvKMlbpD6O3gbW+IrZqi4KkPH+9S2uuWROBhOtcRTyST24YNMh7G7oF5msCuElBC/IlyJk
+	mrX5NqjBPfPhq8kxAGJKt0wE1u21vjmBLCnep4WhT+a7YGGVociRLkPZP6YhwZcYyJV1A=
+X-Google-Smtp-Source: AGHT+IE1iJj7SbJwoQiYcFUkDL5bk6OUrmSnL1kBvIgwjRcUBEEuS/lPd1BXU/0MQqrPwB2wqvR9Vg==
+X-Received: by 2002:a05:6512:3e1b:b0:594:25e6:8a61 with SMTP id 2adb3069b0e04-596b4e58cd7mr9910048e87.16.1764663068727;
+        Tue, 02 Dec 2025 00:11:08 -0800 (PST)
+Received: from [192.168.1.168] (83-233-6-197.cust.bredband2.com. [83.233.6.197])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-596bfa4f8a2sm4342412e87.88.2025.12.02.00.11.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Dec 2025 00:11:07 -0800 (PST)
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+Date: Tue, 02 Dec 2025 09:09:48 +0100
+Subject: [PATCH RESEND v3 1/5] i2c: core: add callback to change bus
+ frequency
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/4] dt-bindings: eeprom: at24: Add compatible for Belling
- BL24C16F
-To: FUKAUMI Naoki <naoki@radxa.com>, heiko@sntech.de
-Cc: brgl@kernel.org, robh@kernel.org, krzk+dt@kernel.org,
- conor+dt@kernel.org, dsimic@manjaro.org, didi.debian@cknow.org,
- wens@kernel.org, nicolas.frattaroli@collabora.com,
- detlev.casanova@collabora.com, stephen@radxa.com,
- sebastian.reichel@collabora.com, linux-i2c@vger.kernel.org,
- devicetree@vger.kernel.org, linux-rockchip@lists.infradead.org
-References: <20251202045655.154543-1-naoki@radxa.com>
- <20251202045655.154543-3-naoki@radxa.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <20251202045655.154543-3-naoki@radxa.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20251202-i2c-mux-v3-1-877dcf478a9f@gmail.com>
+References: <20251202-i2c-mux-v3-0-877dcf478a9f@gmail.com>
+In-Reply-To: <20251202-i2c-mux-v3-0-877dcf478a9f@gmail.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
+ Peter Rosin <peda@axentia.se>, 
+ Michael Hennerich <michael.hennerich@analog.com>, 
+ Bartosz Golaszewski <brgl@bgdev.pl>, Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, 
+ Marcus Folkesson <marcus.folkesson@gmail.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1616;
+ i=marcus.folkesson@gmail.com; h=from:subject:message-id;
+ bh=Nc5M9Z8FNun2aD78Xc5NFxJfLrb5FZRGRBm8Kv/u2lM=;
+ b=owEBbQKS/ZANAwAKAYiATm9ZXVIyAcsmYgBpLp8BuoM+ud571wc8WeRvvqmjI7EUERjmmX1g/
+ 2H3AuZw3zOJAjMEAAEKAB0WIQQFUaLotmy1TWTBLGWIgE5vWV1SMgUCaS6fAQAKCRCIgE5vWV1S
+ MrdHEACMzdOg6XFCeOjNi/bb7yWReiTy65HGhwvQgttKUfXWESp20pbKKcalCYnCq1wkYhfE/SW
+ BrPuXoltmEYqeSCWcQ566RR2Zhfvi7/EA8234WwAkPyjRs5IxYr521xbt1iQuKo4q9+jv4ANBnR
+ 0dxWN4jmjdSdEtoH/aDkTec9/SuHZV3rZJbXdep3p7LFZ45Zj0vklwC87WUPfFNTjlC6B+islG8
+ pM92OG5ld0on7Bc7tcSbFx0hSsFK+aRLPJ6Gw3XLNNVvQ0I91/TVJVBMn9rwbW+gkFLB9dVTBYz
+ lY5kR4bZVTqxsOCDhqnYWSKxp52lZHbv+wYJDXhtwQTIcvkL4q0eBcB0UVU+QBAZopZbyYfbZaA
+ YsffxVwpsKKZr45SRziL9Y7Kun5JiFHLM+GT7rBBvYep4fOikfw0PZ9am70zczzkRwAB/EvRzS8
+ IywYCdkGDl8Yzxq3SWWcBK+aVs0HpL8+Zp7CHa9Tr5hXVPK3FgqL1CKBaQI3Rn0bkHcvTJj+TDR
+ 5q8DNHeh64aOmCGGoo7NhD6k3SYsTg91V5NUm5+UxVyyPqVF79DfHtbfpYvNObQSlYEacz3yyX5
+ 0U98NyxEQtdw0a9o9kpoUr7DIFBxoawrYo/8E8aPG0jMCCf72Pl8mpzDEOzctRiGP81bTYQkMFw
+ eiDjGlwptz58ttQ==
+X-Developer-Key: i=marcus.folkesson@gmail.com; a=openpgp;
+ fpr=AB91D46C7E0F6E6FB2AB640EC0FE25D598F6C127
 
-On 02/12/2025 05:56, FUKAUMI Naoki wrote:
-> Add the compatible for Belling BL24C16F 16Kb EEPROM.
-> 
-> Signed-off-by: FUKAUMI Naoki <naoki@radxa.com>
-> ---
+All devices on the same I2C bus share the same clock line and the bus
+frequency has therefor be chosen so that all attached devices are able
+to tolarate that clock rate. IOW, the bus speed must be set for the
+slowest attached device.
 
-That's just one patch. No need for two one liners, just unneeded effort
-in acking.
+With I2C multiplexers/switches on the other hand, it would be possible
+to have different "domains" that runs with different speeds.
 
-Best regards,
-Krzysztof
+Prepare for such a feature by provide an optional callback function to
+change bus frequency.
+
+Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+---
+ include/linux/i2c.h | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 20fd41b51d5c..d147e388dbab 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -742,6 +742,8 @@ struct i2c_adapter {
+ 	struct rt_mutex mux_lock;
+ 
+ 	int timeout;			/* in jiffies */
++	int clock_hz;
++	int (*set_clk_freq)(struct i2c_adapter *adap, u32 clock_hz); /* Optional */
+ 	int retries;
+ 	struct device dev;		/* the adapter device */
+ 	unsigned long locked_flags;	/* owned by the I2C core */
+@@ -835,6 +837,17 @@ i2c_unlock_bus(struct i2c_adapter *adapter, unsigned int flags)
+ 	adapter->lock_ops->unlock_bus(adapter, flags);
+ }
+ 
++static inline int
++i2c_adapter_set_clk_freq(struct i2c_adapter *adapter, u32 clock_hz)
++{
++	int ret = -EOPNOTSUPP;
++
++	if (adapter->set_clk_freq)
++		ret = adapter->set_clk_freq(adapter, clock_hz);
++
++	return ret;
++}
++
+ /**
+  * i2c_mark_adapter_suspended - Report suspended state of the adapter to the core
+  * @adap: Adapter to mark as suspended
+
+-- 
+2.51.2
+
