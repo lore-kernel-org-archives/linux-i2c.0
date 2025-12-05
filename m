@@ -1,17 +1,17 @@
 Received: from invmail4.hynix.com (exvmail4.skhynix.com [166.125.252.92])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 347E52BD001;
-	Fri,  5 Dec 2025 07:20:48 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5510D327C19;
+	Fri,  5 Dec 2025 07:21:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=166.125.252.92
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764919282; cv=none; b=RR85O1iVz/tPkzhAcemzLSWaqmheyh6a27DXYPd+eQEtMceqZVYHm+AIFLyCXNvaBtAFMUBb4hJ6X0gNxkoD83Du0N0ghp/Dh54+RJ+DjJGl1L3OZdGS3DQbav1h4hMKROUo2Mt1iWU6EK0XLytGZKVMyxqxayId32S5qsNMB0s=
+	t=1764919284; cv=none; b=n7AwQmfqhSdqkYbqA1hixagoivR0b9IH1pxgrapD7R1HJGcv7dmVA3uS73KnAxF4OF1LcT84dj2DP+iRAHuzDWuIWYpNUsWEB3SJmLVpPkEikZqGtz890bMGKaaXoPFLW4Yf+qSCb6mx6pIzJL7ALmf1cm+Vf698iEzhz61xODM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764919282; c=relaxed/simple;
-	bh=d84wpX69Up+2Slr7QEqetnDG6V1J4VIb+bqVNe9ZHWM=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=WRv+AbYyN7fE1qv2UHWNZEaDTkafnOytKAGznQsDVBZi+jInex1Svlok5pjfXQ/7LnMFfSrbIgcO5wNOzspcmkpjMHe9u5AKcpcrPAjHx/Yghvq7/cDGbKmgxSRyosA2bCfKO+jpvj//dCZQnDpolI6kE1M5OTnAsMnEwAa8Z7I=
+	s=arc-20240116; t=1764919284; c=relaxed/simple;
+	bh=Vj5gFQhrZ6G/CwdWvsAMyxS9WmcbVQk6wQ8WAinYldk=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=FZE8RX7lm4ZyJk6bGwq43rkrAfQ5Ob2AeDDQN+sXO03txUIDlaHpqH6lUfH/46Drw8j7e5jgPrBBG0PApQVcnvPfZgshk8CMUY0SaX4/0Z8MAEaM7JgmjFJx98f24S3NQoU2uHxiqWVYvFuX4jRWLc6rNO/50M2QmD+LGayih0U=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sk.com; spf=pass smtp.mailfrom=sk.com; arc=none smtp.client-ip=166.125.252.92
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sk.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sk.com
-X-AuditID: a67dfc5b-c2dff70000001609-10-693287711aca
+X-AuditID: a67dfc5b-c45ff70000001609-23-69328773bf67
 From: Byungchul Park <byungchul@sk.com>
 To: linux-kernel@vger.kernel.org
 Cc: kernel_team@skhynix.com,
@@ -178,45 +178,45 @@ Cc: kernel_team@skhynix.com,
 	aliceryhl@google.com,
 	tmgross@umich.edu,
 	rust-for-linux@vger.kernel.org
-Subject: [PATCH v18 26/42] cpu/hotplug: use a weaker annotation in AP thread
-Date: Fri,  5 Dec 2025 16:18:39 +0900
-Message-Id: <20251205071855.72743-27-byungchul@sk.com>
+Subject: [PATCH v18 35/42] dept: introduce event_site() to disable event tracking if it's recoverable
+Date: Fri,  5 Dec 2025 16:18:48 +0900
+Message-Id: <20251205071855.72743-36-byungchul@sk.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20251205071855.72743-1-byungchul@sk.com>
 References: <20251205071855.72743-1-byungchul@sk.com>
-X-Brightmail-Tracker: H4sIAAAAAAAAAzWSbUxTdxTG97+396WNNTcdc3egE5otJpo5IGrOMiJkfvCaaGJiNhOXOG7k
-	xjYW1FZBNJvICi11ogNLQwGtA2otmGg7tCrFCisZQYoC0oISgREYWZGNFSqveiH67ZdzzvOc
-	5ySHxhVBIpZWZ50QtFm8RknKJLKJVde+OG5IVife/nUdGAvOwnTEKAGjq5yAP4P5ElgsaaXg
-	jbcVQf3v5zCwjlZQMPHyAQFvBsYwsI8sYTDiMyD4p+xfEizmJwimxgcReB35JLSZz5Mw8bQS
-	A1u+l4A61x6wjJNQYfkbg1m7k4KKjm4Chh1WCu7mDVLg+quXAG//JrhWWCOBRm+bGGQxgqDV
-	M4xB9/1KEp53XKSgNvgUA3fHYxxmiuOg9NWouH3GjkOfJUyBfXqSgi6fDQPHfxYCbng7SGi1
-	rYFbenFL4f9LBBTW3Magp+8BgibjIAa1jgkCxqxVGLRMh0VflxmHuQEPAb0lV0mYu+4XL6oS
-	ZeYFIwnnC8rETH/M4NDgj1Iw/1rMVBVJSkvjnO47GFfQtUhy9VfqETc/V4K4lvAkzundOVxt
-	e5jk7lkHKE7f1E9xNtdJzu3YyFU3jmOcy1lEci96G0nuVSBAcfeGvtq79oAsJUPQqLMF7Zfb
-	02Uqf8BOHBuUnjLfHMLz0AJlQjTNMltY57OU99hu1ZmQlCaZDWwoNIsvcwwTz7ovjBImJKNx
-	pns9a5gtFhsU/SGzmw2i5REJ8znbs9RPLbOc2caWNo1gy8wy69m6W74VG6lYNwfnVljBbGWv
-	mqIrlixTLWUNLb+9E3zCPnKEJJeQ3IY+cCKFOis7k1drtmxW5WapT20+dDTThcR3s/+48L0H
-	TT3Z14wYGilXyX05SWoFwWfrcjObEUvjyhh5WJOoVsgz+NzTgvboD9qTGkHXjOJoifJjefJM
-	ToaCOcyfEI4IwjFB+76L0dLYPBR3aP9C4LI/7dFUKLT48LvhzoRoQ2CHq8K2VMPP5yS/ZpMT
-	+hJaOtvnBz6Sf/P1mbbRkl2PX8bYjxSf0+9O3xkt/eVMl6FQlRTrqCtPPBhp8GwaTszeFT/2
-	Qpk65D8OOv2lNZ09qT/ti9LkQZ668rPq088iZ9c++za92uR5uNpZ5FNKdCo+aSOu1fFvASHz
-	9bxqAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAAzWSa0iTcRTG+793V4uXNfDFPlgju4GaXQ/dKPrQSze6QaVIrnzJ5TTZylph
-	eWm5VslabJbTMssROtPULqtWYiWVZa5Vk3LpYi1Fa1GaeF0z6Mvhd87znIfz4TC45DYZwSjS
-	DwqqdLlSRokI0aZledEZ+fMV864aloBOewLaO3wkfMhpIKC/T0dAcbWNglHLXRp0tZdIeO7O
-	JaD1ZiWCjn4dgoFhCw5ae5CAUWMTDX2Dn2gw5SAIOpoQmJ1GHNpaH+Ngq8/B4HfNGAU9T34h
-	MHl9FBR25xAQsJ5FUOS30ND9bC1873hAQtDzDQP3n14EVt8YBr6GfASj5lS4UlYXWjf/pGD4
-	9RscCk2tCK56PTj86u5EUN/0GYHjRi4FXw23cXD5JsO7/gAFL0xnKPjuLMbgRw0FpbkOEpyv
-	ehCUWIwI/B8dGORdq6bAXFJLgL3zPg3OnhEM2s1GDCprN0KH1U9As6EMC50bct0KB0thHhYq
-	XRiYqh5gMGitoFeVI35AW0DwFXV3MF77dpTibZdtiB8eMiK+rzwP57WGUPukN4DzJ+sO8+XN
-	vRQ/1P+e4h1/Sgn+ZRnHXz89hPHnX0fz9iIPvXl1vGh5sqBUZAqq2JVJopRnLVYyozPsiKnK
-	i2ejEVqPGIZjF3LNRWo9CmModhbX1jaIj7OUncbVnfOTeiRicNYVyeUPFoQEmpnCbuDcaNxC
-	sFHcu7GP9DiL2cXchUc+bJw5NpKrrGn4FxMWmpvcQ/9Ywi7irugHSAMSlaIJFUiqSM9MkyuU
-	i2LUqSmadMWRmL0H0mpR6JmsWSPn76E+19pGxDJINknccDhOISHlmWpNWiPiGFwmFfcq5ykk
-	4mS55qigOrBbdUgpqBvRVIaQhYvX7RCSJOw++UEhVRAyBNV/FWPCIrKRRbM1a8LOxDWBh9js
-	yOT7XYnToxbOrNpeM9+7c/2p9kDWBq5F6uHKN7o++e2ap8EvJ7s82/BZ8T1JzJxtK5a+sb1t
-	3x+ccVyqbY6dWBS97pJXcFtONVZHrAh3FVw8PeNLdrFr5WTl3jPdCxI6t8jWHIvak2ralaFL
-	GG5xZtnjPAa9jFCnyOPm4iq1/C/j3+wqSAMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAAzWSfUwTdxzG/d397npUGi8dZCdkovUtcZvzfV+RLMYZc4m6zLgYoi5yg5tc
+	LOBa5EVdBghSmCASC9o2UIdikVYIVcM0zK5qAwNikUyaDsE3ujmoRmYlFgpCp/9888nz5Hm+
+	/zwMqfyLimGk9ExRky6oVbQcy/2R5z7VFq+SVox0rQdd0U9wP9+BIfBKh8HUZKWhva8Ag/ty
+	I4LBgA7B2LiRhFClSwZVPZUkWK/kE/Bf8yQN1c/yMRh8Rhn4B29QUP90koCnjmIEoaoDMN59
+	l4RqvRvB6LOHCK64BhC0WQpoGKq4SkKH/mca/D0mAp4302AuaKOgp2sYgc/bRsCxuiYaeoYn
+	COivqiSgsWU7DNb78PQ/GozVx4jp8w8BetsNArrq+jEYu3speGwxyGDKnAEPTuoxXPbfpaBj
+	4D4F1hM+EnTXAxjOHT+P4WxNPw260CsEvddNNJxovkrBgHWKgjzjGAX3Gt0Ymv72ENDpasfQ
+	YWjA8OihhwJ7dxcJr8tjwX2qjAJPxRDamMKPFZVj/pL9GsEX3QvRvLXGivjxYCXib428IPlC
+	ezZ/oXOE5oOBP2n+j184/nxJkOB/NTyQ8YW/eWW8ueUQX3jbT/F2y7KvP94tT0gR1VKWqPns
+	iyR5am8oSB18Mi/nxUAZzkMXuFIUwXDsGu7m6Gn6PdtKamQzTLNLOY/nDTnDUex8zl7mo0qR
+	nCHZ3jiu+E152PiAFTnT6X/DAcwu5gJ9w2Fdwa7jXl70viuN4xqbHWE9YlrX9wXDrGTXcrWl
+	Y+FSjq2N4Nprq9D/gbnc7xYPrkAKM5p1CSml9Kw0QVKvWZ6amy7lLE/OSGtB05Or/3FiTysa
+	de90IpZBqkiFI3ulpKSELG1umhNxDKmKUoyoV0hKRYqQe1jUZOzTHFKLWieKZbDqQ8Wq19kp
+	Sna/kCkeEMWDoua9SzARMXlI+51l0RKVtClo0x1vNczPa1195/vtXxqir8lMs7NMnwi+BT8Q
+	sbP33JmIjk+K+WbW55lbmKH49tXOts0Lv+p05G9d6/h235zEyaKkI7uiPrqZsMO0IOfohm0b
+	CqgjLkVJ6aMzHlukvc660ZWc6Cy0xYY6vd5h8954XT0hHE1uiL4lqbA2VVi5jNRohbcR2gwh
+	bgMAAA==
+X-Brightmail-Tracker: H4sIAAAAAAAAAzWSe0hTcRTH+93XrqPlZQldCixGkfS0JweSyCi6BEX0TyH0GHbJi5vKZj6i
+	h9OGZvlotWlOzayt8FGmVpqMhpFkZW6tmlhLpWXZNMuctum0teifw/d8vud7OH8cGpe2kAtp
+	ISmVVyXJFTJKTIj3bslZrc5dL0R/tc6DPO1Z+NDnJuGdxkqAdzyPgPK7dRQEjA9FkNd4lYRn
+	zmwCbHdqEfR58xBMThlx0LbOEhDQdYhg3PdeBHoNgllLBwKDXYdDj+0xDnXNGgx+NcxQ4Hky
+	hkA/4KagZEhDwKj5IoKyQaMIhp7ugpG+NhJmXV8wcE4MIzC7ZzBwW3MRBAyJcK26KRg3/KBg
+	qqsbhxK9DcH1ARcOY0P9CJo7PiKw3M6m4HPxfRwc7nnwxjtKQaf+AgUj9nIMvjdQUJVtIcH+
+	0oOgwqhDMNhrwSDnxl0KDBWNBLT2PxKB3TONwQeDDoPaxj3QZx4k4EVxNRY8Nzh1bwEYS3Kw
+	YPmKgb6+DQOfuUa0zYS4SW0hwdU0PcA47esAxdVV1iFuyq9D3LgpB+e0xcH2yfAozp1rSudM
+	L4Ypzu99S3GWiSqCe17NcjfP+zHuUtdqrrXMJdoXGyeOOcYrhDRetXbrUXGCI+AnUz5FZox+
+	LCCykInNR2E0y2xk689Xiv5qilnO9vT48L86glnCNhUMkvlITOOMYzGb6ysMGfMZni2/8i0U
+	IJhlrNfpCXEJs5n9eauX+rd0MVvbYA3xsCDXO/0hLWU2sdfyJ8liJK5Cc2pQhJCUppQLik1r
+	1IkJmUlCxpr4ZGUjCv6T+fT0pRY07tjVjhgayeZKrOnrBCkpT1NnKtsRS+OyCMmwIlqQSo7J
+	M0/yquQjqhMKXt2OFtGEbIFk9wH+qJQ5Lk/lE3k+hVf9dzE6bGEWshzOmLDEHhcKpk/cj+l+
+	WFi2YYcp+/ISl+9df1T4mbiE3wM7iqoziravOjIWV7T0YvNkVn1vvG95aaTnW+erzfG/04Sd
+	j1qe3oq64kgdGslvO5B50KSMfnNopsu0Ni71qnlamRxT2qI2O7u9tm7XfqMmnV6199TKiMdE
+	zA17abgtUUaoE+TrVuAqtfwPz1lkY0sDAAA=
 X-CFilter-Loop: Reflected
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -224,42 +224,128 @@ List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 
-cb92173d1f0 ("locking/lockdep, cpu/hotplug: Annotate AP thread") was
-introduced to make lockdep_assert_cpus_held() work in AP thread.
+With multi event sites for a single wait, dept allows to skip tracking
+an event that is recoverable by other recover paths.
 
-However, the annotation is too strong for that purpose.  We don't have
-to use more than try lock annotation for that.
-
-rwsem_acquire() implies:
-
-   1. might be a waiter on contention of the lock.
-   2. enter to the critical section of the lock.
-
-All we need in here is to act 2, not 1.  So trylock version of
-annotation is sufficient for that purpose.  Now that dept partially
-relies on lockdep annotaions, dept interpets rwsem_acquire() as a
-potential wait and might report a deadlock by the wait.
-
-Replace it with trylock version of annotation.
+Introduce an API, event_site(), to skip tracking the event in the case.
 
 Signed-off-by: Byungchul Park <byungchul@sk.com>
 ---
- kernel/cpu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/dept.h     | 30 ++++++++++++++++++++++++++++++
+ include/linux/sched.h    |  6 ++++++
+ kernel/dependency/dept.c | 20 ++++++++++++++++++++
+ 3 files changed, 56 insertions(+)
 
-diff --git a/kernel/cpu.c b/kernel/cpu.c
-index b674fdf96208..06ec3ae1446e 100644
---- a/kernel/cpu.c
-+++ b/kernel/cpu.c
-@@ -538,7 +538,7 @@ int lockdep_is_cpus_held(void)
+diff --git a/include/linux/dept.h b/include/linux/dept.h
+index c796cdceb04e..7b822caee874 100644
+--- a/include/linux/dept.h
++++ b/include/linux/dept.h
+@@ -239,6 +239,31 @@ extern void dept_task_exit(struct task_struct *t);
+ extern void dept_free_range(void *start, unsigned int sz);
+ extern void dept_mark_event_site_used(void *start, void *end);
  
- static void lockdep_acquire_cpus_lock(void)
- {
--	rwsem_acquire(&cpu_hotplug_lock.dep_map, 0, 0, _THIS_IP_);
-+	rwsem_acquire(&cpu_hotplug_lock.dep_map, 0, 1, _THIS_IP_);
++extern void disable_event_track(void);
++extern void enable_event_track(void);
++
++#define event_site(es, evt_func, ...)					\
++do {									\
++	unsigned long _flags;						\
++	bool _disable;							\
++									\
++	local_irq_save(_flags);						\
++	dept_event_site_used(es);					\
++	/*								\
++	 * If !list_empty(&(es)->dept_head), the event site can be	\
++	 * recovered by others.  Do not track event dependency if so.	\
++	 */								\
++	_disable = !list_empty(&(es)->dep_head);			\
++	if (_disable)							\
++		disable_event_track();					\
++									\
++	evt_func(__VA_ARGS__);						\
++									\
++	if (_disable)							\
++		enable_event_track();					\
++	local_irq_restore(_flags);					\
++} while (0)
++
+ extern void dept_map_init(struct dept_map *m, struct dept_key *k, int sub_u, const char *n);
+ extern void dept_map_reinit(struct dept_map *m, struct dept_key *k, int sub_u, const char *n);
+ extern void dept_ext_wgen_init(struct dept_ext_wgen *ewg);
+@@ -302,6 +327,11 @@ struct dept_event_site { };
+ #define dept_task_exit(t)				do { } while (0)
+ #define dept_free_range(s, sz)				do { } while (0)
+ #define dept_mark_event_site_used(s, e)			do { } while (0)
++#define event_site(es, evt_func, ...)					\
++do {									\
++	(void)(es);							\
++	evt_func(__VA_ARGS__);						\
++} while (0)
+ 
+ #define dept_map_init(m, k, su, n)			do { (void)(n); (void)(k); } while (0)
+ #define dept_map_reinit(m, k, su, n)			do { (void)(n); (void)(k); } while (0)
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 5834555a3d09..a1737631ff54 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -879,6 +879,11 @@ struct dept_task {
+ 	 */
+ 	int				missing_ecxt;
+ 
++	/*
++	 * not to track events
++	 */
++	int				disable_event_track_cnt;
++
+ 	/*
+ 	 * for tracking IRQ-enable state
+ 	 */
+@@ -916,6 +921,7 @@ struct dept_task {
+ 	.stage_wait_stack = NULL,				\
+ 	.stage_lock = (arch_spinlock_t)__ARCH_SPIN_LOCK_UNLOCKED,\
+ 	.missing_ecxt = 0,					\
++	.disable_event_track_cnt = 0,				\
+ 	.hardirqs_enabled = false,				\
+ 	.softirqs_enabled = false,				\
+ 	.task_exit = false,					\
+diff --git a/kernel/dependency/dept.c b/kernel/dependency/dept.c
+index 07d883579269..3c3ec2701bd6 100644
+--- a/kernel/dependency/dept.c
++++ b/kernel/dependency/dept.c
+@@ -2573,6 +2573,23 @@ static void __dept_wait(struct dept_map *m, unsigned long w_f,
+ 	}
  }
  
- static void lockdep_release_cpus_lock(void)
++void disable_event_track(void)
++{
++	dept_task()->disable_event_track_cnt++;
++}
++EXPORT_SYMBOL_GPL(disable_event_track);
++
++void enable_event_track(void)
++{
++	dept_task()->disable_event_track_cnt--;
++}
++EXPORT_SYMBOL_GPL(enable_event_track);
++
++static bool event_track_disabled(void)
++{
++	return !!dept_task()->disable_event_track_cnt;
++}
++
+ /*
+  * Called between dept_enter() and dept_exit().
+  */
+@@ -2585,6 +2602,9 @@ static void __dept_event(struct dept_map *m, struct dept_map *real_m,
+ 	struct dept_key *k;
+ 	int e;
+ 
++	if (event_track_disabled())
++		return;
++
+ 	e = find_first_bit(&e_f, DEPT_MAX_SUBCLASSES_EVT);
+ 
+ 	if (DEPT_WARN_ON(e >= DEPT_MAX_SUBCLASSES_EVT))
 -- 
 2.17.1
 
