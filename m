@@ -1,17 +1,17 @@
-Received: from invmail4.hynix.com (exvmail4.skhynix.com [166.125.252.92])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5510D327C19;
-	Fri,  5 Dec 2025 07:21:03 +0000 (UTC)
+Received: from invmail4.hynix.com (exvmail4.hynix.com [166.125.252.92])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 22D2D334C0B;
+	Fri,  5 Dec 2025 07:21:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=166.125.252.92
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764919284; cv=none; b=n7AwQmfqhSdqkYbqA1hixagoivR0b9IH1pxgrapD7R1HJGcv7dmVA3uS73KnAxF4OF1LcT84dj2DP+iRAHuzDWuIWYpNUsWEB3SJmLVpPkEikZqGtz890bMGKaaXoPFLW4Yf+qSCb6mx6pIzJL7ALmf1cm+Vf698iEzhz61xODM=
+	t=1764919293; cv=none; b=FaOGeagvV2WqA6vjGREcaEKG1NJyCgg4AH5X9dWINEzUsT+aC47FIsgPb0BJzP97t7O4PhUeSCD85sPBcu0KQSSv2ObRoQkIVNhHkxbgrR57hLDgupdCquhJ0rPMo7jtesRSwc666CCa7a9EwrebqFvMJoZGPSvSNTGhbEjhuec=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764919284; c=relaxed/simple;
-	bh=Vj5gFQhrZ6G/CwdWvsAMyxS9WmcbVQk6wQ8WAinYldk=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=FZE8RX7lm4ZyJk6bGwq43rkrAfQ5Ob2AeDDQN+sXO03txUIDlaHpqH6lUfH/46Drw8j7e5jgPrBBG0PApQVcnvPfZgshk8CMUY0SaX4/0Z8MAEaM7JgmjFJx98f24S3NQoU2uHxiqWVYvFuX4jRWLc6rNO/50M2QmD+LGayih0U=
+	s=arc-20240116; t=1764919293; c=relaxed/simple;
+	bh=BKdTduih/1l/oeBZ8PU6DuY+E9HBd565xkElM5qpN+o=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=MGurb2KFLvLFRvsiA55lx1MRzrlVUXPqDIiaT/ARczPKkd6t1FDJ5j3Qzs9pr6JKG3BSQoPZBR9/s+jxvtXemPoquwX3hnThfvDuZwSXcUrsZ1kTbyvxvBdG3fF4Cewy474Uij5e4dYXxTk9jVMdZ6H8/2CZq6RPAwmNku5x5/4=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sk.com; spf=pass smtp.mailfrom=sk.com; arc=none smtp.client-ip=166.125.252.92
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sk.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sk.com
-X-AuditID: a67dfc5b-c45ff70000001609-23-69328773bf67
+X-AuditID: a67dfc5b-c2dff70000001609-bf-69328776a145
 From: Byungchul Park <byungchul@sk.com>
 To: linux-kernel@vger.kernel.org
 Cc: kernel_team@skhynix.com,
@@ -178,45 +178,45 @@ Cc: kernel_team@skhynix.com,
 	aliceryhl@google.com,
 	tmgross@umich.edu,
 	rust-for-linux@vger.kernel.org
-Subject: [PATCH v18 35/42] dept: introduce event_site() to disable event tracking if it's recoverable
-Date: Fri,  5 Dec 2025 16:18:48 +0900
-Message-Id: <20251205071855.72743-36-byungchul@sk.com>
+Subject: [PATCH v18 40/42] dept: track PG_writeback with dept
+Date: Fri,  5 Dec 2025 16:18:53 +0900
+Message-Id: <20251205071855.72743-41-byungchul@sk.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20251205071855.72743-1-byungchul@sk.com>
 References: <20251205071855.72743-1-byungchul@sk.com>
-X-Brightmail-Tracker: H4sIAAAAAAAAAzWSfUwTdxzG/d397npUGi8dZCdkovUtcZvzfV+RLMYZc4m6zLgYoi5yg5tc
-	LOBa5EVdBghSmCASC9o2UIdikVYIVcM0zK5qAwNikUyaDsE3ujmoRmYlFgpCp/9888nz5Hm+
-	/zwMqfyLimGk9ExRky6oVbQcy/2R5z7VFq+SVox0rQdd0U9wP9+BIfBKh8HUZKWhva8Ag/ty
-	I4LBgA7B2LiRhFClSwZVPZUkWK/kE/Bf8yQN1c/yMRh8Rhn4B29QUP90koCnjmIEoaoDMN59
-	l4RqvRvB6LOHCK64BhC0WQpoGKq4SkKH/mca/D0mAp4302AuaKOgp2sYgc/bRsCxuiYaeoYn
-	COivqiSgsWU7DNb78PQ/GozVx4jp8w8BetsNArrq+jEYu3speGwxyGDKnAEPTuoxXPbfpaBj
-	4D4F1hM+EnTXAxjOHT+P4WxNPw260CsEvddNNJxovkrBgHWKgjzjGAX3Gt0Ymv72ENDpasfQ
-	YWjA8OihhwJ7dxcJr8tjwX2qjAJPxRDamMKPFZVj/pL9GsEX3QvRvLXGivjxYCXib428IPlC
-	ezZ/oXOE5oOBP2n+j184/nxJkOB/NTyQ8YW/eWW8ueUQX3jbT/F2y7KvP94tT0gR1VKWqPns
-	iyR5am8oSB18Mi/nxUAZzkMXuFIUwXDsGu7m6Gn6PdtKamQzTLNLOY/nDTnDUex8zl7mo0qR
-	nCHZ3jiu+E152PiAFTnT6X/DAcwu5gJ9w2Fdwa7jXl70viuN4xqbHWE9YlrX9wXDrGTXcrWl
-	Y+FSjq2N4Nprq9D/gbnc7xYPrkAKM5p1CSml9Kw0QVKvWZ6amy7lLE/OSGtB05Or/3FiTysa
-	de90IpZBqkiFI3ulpKSELG1umhNxDKmKUoyoV0hKRYqQe1jUZOzTHFKLWieKZbDqQ8Wq19kp
-	Sna/kCkeEMWDoua9SzARMXlI+51l0RKVtClo0x1vNczPa1195/vtXxqir8lMs7NMnwi+BT8Q
-	sbP33JmIjk+K+WbW55lbmKH49tXOts0Lv+p05G9d6/h235zEyaKkI7uiPrqZsMO0IOfohm0b
-	CqgjLkVJ6aMzHlukvc660ZWc6Cy0xYY6vd5h8954XT0hHE1uiL4lqbA2VVi5jNRohbcR2gwh
-	bgMAAA==
-X-Brightmail-Tracker: H4sIAAAAAAAAAzWSe0hTcRTH+93XrqPlZQldCixGkfS0JweSyCi6BEX0TyH0GHbJi5vKZj6i
-	h9OGZvlotWlOzayt8FGmVpqMhpFkZW6tmlhLpWXZNMuctum0teifw/d8vud7OH8cGpe2kAtp
-	ISmVVyXJFTJKTIj3bslZrc5dL0R/tc6DPO1Z+NDnJuGdxkqAdzyPgPK7dRQEjA9FkNd4lYRn
-	zmwCbHdqEfR58xBMThlx0LbOEhDQdYhg3PdeBHoNgllLBwKDXYdDj+0xDnXNGgx+NcxQ4Hky
-	hkA/4KagZEhDwKj5IoKyQaMIhp7ugpG+NhJmXV8wcE4MIzC7ZzBwW3MRBAyJcK26KRg3/KBg
-	qqsbhxK9DcH1ARcOY0P9CJo7PiKw3M6m4HPxfRwc7nnwxjtKQaf+AgUj9nIMvjdQUJVtIcH+
-	0oOgwqhDMNhrwSDnxl0KDBWNBLT2PxKB3TONwQeDDoPaxj3QZx4k4EVxNRY8Nzh1bwEYS3Kw
-	YPmKgb6+DQOfuUa0zYS4SW0hwdU0PcA47esAxdVV1iFuyq9D3LgpB+e0xcH2yfAozp1rSudM
-	L4Ypzu99S3GWiSqCe17NcjfP+zHuUtdqrrXMJdoXGyeOOcYrhDRetXbrUXGCI+AnUz5FZox+
-	LCCykInNR2E0y2xk689Xiv5qilnO9vT48L86glnCNhUMkvlITOOMYzGb6ysMGfMZni2/8i0U
-	IJhlrNfpCXEJs5n9eauX+rd0MVvbYA3xsCDXO/0hLWU2sdfyJ8liJK5Cc2pQhJCUppQLik1r
-	1IkJmUlCxpr4ZGUjCv6T+fT0pRY07tjVjhgayeZKrOnrBCkpT1NnKtsRS+OyCMmwIlqQSo7J
-	M0/yquQjqhMKXt2OFtGEbIFk9wH+qJQ5Lk/lE3k+hVf9dzE6bGEWshzOmLDEHhcKpk/cj+l+
-	WFi2YYcp+/ISl+9df1T4mbiE3wM7iqoziravOjIWV7T0YvNkVn1vvG95aaTnW+erzfG/04Sd
-	j1qe3oq64kgdGslvO5B50KSMfnNopsu0Ni71qnlamRxT2qI2O7u9tm7XfqMmnV6199TKiMdE
-	zA17abgtUUaoE+TrVuAqtfwPz1lkY0sDAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAAzWSW0xTaRSF/c+1bag5qSQeIZFJ1ZiYiEAEt4lOfHE4mUSD8UEdjNrIURpL
+	0aKVTmJCkSqSsdYarIKViiNC2ygeBG9QsRQ0aAkXhaoMF8U6DTCMpdgpIk7B+PbtvfZeWQ9L
+	hMv6yTiRUn2U16gVKjklISTjMZWrtadTlElhTzz0D46QUCxcJuFZXyEBg1PFCAwPvhHw1dxG
+	QyjyloZSPYLJ2lkKLAE9AYHWdKgamcUgGBhCcLdtAEFTdSEFH0z1OPSMLISXUxMU2AqbSOh6
+	MYrgolUgoGt0BgOHsAXKLScxiFTZaSj39pDwrrqMhpnhZGhzfKRh8OkpEpx/+HEQ3vdGU30N
+	IRhwfiOhoDxMQrejk4Dnbc8IGB7ykVDnfYFD5/mzJPhMHxC8tozRUDU1QUN3sw0D/6tTGNQ0
+	eSmoqbiJwOwP0lD/2IDAVTyEgef2PQxu+1twuNBto6BOKMWh11xBgbehPZpMb0RQ3xqmofbT
+	TQr0k4MIivpTwdiRDtZQMoQcdmrTJi5sMBKc86oTcV+mzYgL3TiJcwZTdGwZm8C5G8/HKK69
+	kuX+PDONcQ/K/qK5ItcbmrMJx7gizzjJXW8MYJxgP0NxQtBMZyT8JtmQxauUWl6z5ud9kuxb
+	/1Sjw5Gl+cMNRqwARZaUILGIZday18pC1A+21HQRc0wxK1mfL4LPcSzzE1t31k+WIIkIZ3oS
+	2NMR47ywiNnIXrzVQs4xwaxgg/8+xuZYyqSxlyeDxHfTBNZR2zx/L47uS/um51nGpLIVJeF5
+	U5YpF7N3+s7h3x+WsE+qfYQJSW1ogR3JlGptjkKpWpuYrVMr8xP35+YIKNq5qhMzmfdRsHO7
+	GzEiJI+RNh9PVspIhTZPl+NGrAiXx0rHVElKmTRLofud1+Tu1RxT8XluFC8i5IulKZ+PZ8mY
+	g4qj/CGeP8xrfqiYSBxXgE6U6ZJsAW3qoUpPfONUBnxe/mRlwXiC2FS4N8brTd/Vb3fMegML
+	tv5t6Thfuzrp4FB8Zr6tb33riNtKW9t1rprE2B139FfYbYautC+bH6W51e8zrJm5l/6TzTS2
+	7Old50rbvezqveu/9KrxX5vxc84Dn9aV5ruuNYym2HYe6XjokRN52YrkVbgmT/E/T6d84W8D
+	AAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAAzWSe0hTcRTH+923o8VtSd0MykYRBNoDixM9qD+qS5D0V0UEOfKWN+eDzUdG
+	YdMumpas2Sa5fGQ5TE3XZqnZaChJ75xWSrVMmpa5tHw2l9o0+ufwOef7PV/OH4fBFQ1kCCPG
+	JwmaeJVaSckIWeTWzLDkrI3i+jIpArKldPjY7SHhnc5JwNhoNgHXa6spmDLX05Btu0bCk84M
+	AtpqqhB0j2UjmPCbcZAaZwiYMrTSMOr7QINRh2DG0YrA5DLg0NX2CIfqOh0GI9ZpCgZahhEY
+	ezwUFPTrCBiyXEJQ2Gemof/xXvjR3UTCjPsrBp3jXgQWzzQGHmcWgilTLJSU2QPrpp8U+F++
+	xqHA2IbgRo8bh+H+zwjqWj8hcFRkUNCrv4dDh2cBvBkbouCpMZeCH67rGAxaKSjNcJDgejGA
+	oMhsQND33oFB5s1aCkxFNgIaPz+gwTXwB4OPJgMGVbb90G3pI+C5vgwLnBtw3V0C5oJMLFC+
+	YWC804SBz1JJ7yxH/ISUR/CV9vsYL7VPUXx1cTXi/ZMGxI+WZ+K8pA+0Ld4hnL9gT+XLn3sp
+	fnLsLcU7xksJ/lkZx9+6OInxV16G8Y2FbvrAriOybdGCWkwRNOt2RMliagYrUKJv+eme+3nY
+	eeRbmoOCGI6N4Apuu4hZptg1XFeXD5/lYDaUs1/uI3OQjMHZjhVcli9vTljEbudMNS3kLBPs
+	am745yNsluXsZu7ayDDxL3QFV2V1zvmDAnNj5+QcK9hNXEnOBKlHslI0rxIFi/EpcSpRvSlc
+	GxuTFi+eDj+eEGdDgX+ynPtzpQGNduxtRiyDlPPlztQNooJUpWjT4poRx+DKYLlXvV5UyKNV
+	aWcETcIxTbJa0DajZQyhXCLfd0iIUrAnVUlCrCAkCpr/KsYEhZxHxQ11Cekq84lDBze/Ct1z
+	tPhUVMdjjTnfeXehfW14mGQ1rEwvKuEGv+yIfvXQpZOW+UMdqx6KjZ25bfvIXmd707OkX78X
+	aw7HJRfLdkcOzUt1WrxifVaFtHQkVKxPFPVnS9cZr85vWZC/hSmMzHf3br0ZQee4u/wv/O++
+	76Yz2pWENka1YS2u0ar+AkgIPJZLAwAA
 X-CFilter-Loop: Reflected
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -224,128 +224,111 @@ List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 
-With multi event sites for a single wait, dept allows to skip tracking
-an event that is recoverable by other recover paths.
-
-Introduce an API, event_site(), to skip tracking the event in the case.
+Makes dept able to track PG_writeback waits and events, which will be
+useful in practice.
 
 Signed-off-by: Byungchul Park <byungchul@sk.com>
 ---
- include/linux/dept.h     | 30 ++++++++++++++++++++++++++++++
- include/linux/sched.h    |  6 ++++++
- kernel/dependency/dept.c | 20 ++++++++++++++++++++
- 3 files changed, 56 insertions(+)
+ include/linux/mm_types.h   | 1 +
+ include/linux/page-flags.h | 7 +++++++
+ mm/filemap.c               | 6 +++++-
+ mm/mm_init.c               | 1 +
+ 4 files changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/dept.h b/include/linux/dept.h
-index c796cdceb04e..7b822caee874 100644
---- a/include/linux/dept.h
-+++ b/include/linux/dept.h
-@@ -239,6 +239,31 @@ extern void dept_task_exit(struct task_struct *t);
- extern void dept_free_range(void *start, unsigned int sz);
- extern void dept_mark_event_site_used(void *start, void *end);
+diff --git a/include/linux/mm_types.h b/include/linux/mm_types.h
+index 85d06073d37b..fa6ba4196e0d 100644
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -222,6 +222,7 @@ struct page {
+ #endif
+ 	struct dept_page_usage usage;
+ 	struct dept_ext_wgen pg_locked_wgen;
++	struct dept_ext_wgen pg_writeback_wgen;
+ } _struct_page_alignment;
  
-+extern void disable_event_track(void);
-+extern void enable_event_track(void);
-+
-+#define event_site(es, evt_func, ...)					\
-+do {									\
-+	unsigned long _flags;						\
-+	bool _disable;							\
-+									\
-+	local_irq_save(_flags);						\
-+	dept_event_site_used(es);					\
-+	/*								\
-+	 * If !list_empty(&(es)->dept_head), the event site can be	\
-+	 * recovered by others.  Do not track event dependency if so.	\
-+	 */								\
-+	_disable = !list_empty(&(es)->dep_head);			\
-+	if (_disable)							\
-+		disable_event_track();					\
-+									\
-+	evt_func(__VA_ARGS__);						\
-+									\
-+	if (_disable)							\
-+		enable_event_track();					\
-+	local_irq_restore(_flags);					\
-+} while (0)
-+
- extern void dept_map_init(struct dept_map *m, struct dept_key *k, int sub_u, const char *n);
- extern void dept_map_reinit(struct dept_map *m, struct dept_key *k, int sub_u, const char *n);
- extern void dept_ext_wgen_init(struct dept_ext_wgen *ewg);
-@@ -302,6 +327,11 @@ struct dept_event_site { };
- #define dept_task_exit(t)				do { } while (0)
- #define dept_free_range(s, sz)				do { } while (0)
- #define dept_mark_event_site_used(s, e)			do { } while (0)
-+#define event_site(es, evt_func, ...)					\
-+do {									\
-+	(void)(es);							\
-+	evt_func(__VA_ARGS__);						\
-+} while (0)
+ /*
+diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+index 0b0655354b08..ec736811a2c6 100644
+--- a/include/linux/page-flags.h
++++ b/include/linux/page-flags.h
+@@ -203,6 +203,7 @@ enum pageflags {
+ #include <linux/dept.h>
  
- #define dept_map_init(m, k, su, n)			do { (void)(n); (void)(k); } while (0)
- #define dept_map_reinit(m, k, su, n)			do { (void)(n); (void)(k); } while (0)
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 5834555a3d09..a1737631ff54 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -879,6 +879,11 @@ struct dept_task {
- 	 */
- 	int				missing_ecxt;
+ extern struct dept_map pg_locked_map;
++extern struct dept_map pg_writeback_map;
  
-+	/*
-+	 * not to track events
-+	 */
-+	int				disable_event_track_cnt;
-+
- 	/*
- 	 * for tracking IRQ-enable state
- 	 */
-@@ -916,6 +921,7 @@ struct dept_task {
- 	.stage_wait_stack = NULL,				\
- 	.stage_lock = (arch_spinlock_t)__ARCH_SPIN_LOCK_UNLOCKED,\
- 	.missing_ecxt = 0,					\
-+	.disable_event_track_cnt = 0,				\
- 	.hardirqs_enabled = false,				\
- 	.softirqs_enabled = false,				\
- 	.task_exit = false,					\
-diff --git a/kernel/dependency/dept.c b/kernel/dependency/dept.c
-index 07d883579269..3c3ec2701bd6 100644
---- a/kernel/dependency/dept.c
-+++ b/kernel/dependency/dept.c
-@@ -2573,6 +2573,23 @@ static void __dept_wait(struct dept_map *m, unsigned long w_f,
- 	}
+ static inline void dept_set_page_usage(struct page *p,
+ 		unsigned int new_type)
+@@ -292,6 +293,8 @@ static inline void dept_page_set_bit(struct page *p, int bit_nr)
+ 
+ 	if (bit_nr == PG_locked)
+ 		dept_request_event(&pg_locked_map, &p->pg_locked_wgen);
++	else if (bit_nr == PG_writeback)
++		dept_request_event(&pg_writeback_map, &p->pg_writeback_wgen);
  }
  
-+void disable_event_track(void)
-+{
-+	dept_task()->disable_event_track_cnt++;
-+}
-+EXPORT_SYMBOL_GPL(disable_event_track);
-+
-+void enable_event_track(void)
-+{
-+	dept_task()->disable_event_track_cnt--;
-+}
-+EXPORT_SYMBOL_GPL(enable_event_track);
-+
-+static bool event_track_disabled(void)
-+{
-+	return !!dept_task()->disable_event_track_cnt;
-+}
-+
- /*
-  * Called between dept_enter() and dept_exit().
-  */
-@@ -2585,6 +2602,9 @@ static void __dept_event(struct dept_map *m, struct dept_map *real_m,
- 	struct dept_key *k;
- 	int e;
+ static inline void dept_page_clear_bit(struct page *p, int bit_nr)
+@@ -300,6 +303,8 @@ static inline void dept_page_clear_bit(struct page *p, int bit_nr)
  
-+	if (event_track_disabled())
-+		return;
-+
- 	e = find_first_bit(&e_f, DEPT_MAX_SUBCLASSES_EVT);
+ 	if (bit_nr == PG_locked)
+ 		dept_event(&pg_locked_map, evt_f, _RET_IP_, __func__, &p->pg_locked_wgen);
++	else if (bit_nr == PG_writeback)
++		dept_event(&pg_writeback_map, evt_f, _RET_IP_, __func__, &p->pg_writeback_wgen);
+ }
  
- 	if (DEPT_WARN_ON(e >= DEPT_MAX_SUBCLASSES_EVT))
+ static inline void dept_page_wait_on_bit(struct page *p, int bit_nr)
+@@ -311,6 +316,8 @@ static inline void dept_page_wait_on_bit(struct page *p, int bit_nr)
+ 
+ 	if (bit_nr == PG_locked)
+ 		dept_wait(&pg_locked_map, evt_f, _RET_IP_, __func__, 0, -1L);
++	else if (bit_nr == PG_writeback)
++		dept_wait(&pg_writeback_map, evt_f, _RET_IP_, __func__, 0, -1L);
+ }
+ 
+ static inline void dept_folio_set_bit(struct folio *f, int bit_nr)
+diff --git a/mm/filemap.c b/mm/filemap.c
+index d7e567af3261..0ce3f9307582 100644
+--- a/mm/filemap.c
++++ b/mm/filemap.c
+@@ -1191,7 +1191,7 @@ static void folio_wake_bit(struct folio *folio, int bit_nr)
+ 	 * dept_page_clear_bit() being called multiple times is harmless.
+ 	 * The worst case is to miss some dependencies but it's okay.
+ 	 */
+-	if (bit_nr == PG_locked)
++	if (bit_nr == PG_locked || bit_nr == PG_writeback)
+ 		dept_page_clear_bit(&folio->page, bit_nr);
+ 
+ 	spin_lock_irqsave(&q->lock, flags);
+@@ -1248,6 +1248,9 @@ static inline bool folio_trylock_flag(struct folio *folio, int bit_nr,
+ struct dept_map __maybe_unused pg_locked_map = DEPT_MAP_INITIALIZER(pg_locked_map, NULL);
+ EXPORT_SYMBOL(pg_locked_map);
+ 
++struct dept_map __maybe_unused pg_writeback_map = DEPT_MAP_INITIALIZER(pg_writeback_map, NULL);
++EXPORT_SYMBOL(pg_writeback_map);
++
+ static inline int folio_wait_bit_common(struct folio *folio, int bit_nr,
+ 		int state, enum behavior behavior)
+ {
+@@ -1686,6 +1689,7 @@ void folio_end_writeback_no_dropbehind(struct folio *folio)
+ 		folio_rotate_reclaimable(folio);
+ 	}
+ 
++	dept_page_clear_bit(&folio->page, PG_writeback);
+ 	if (__folio_end_writeback(folio))
+ 		folio_wake_bit(folio, PG_writeback);
+ 
+diff --git a/mm/mm_init.c b/mm/mm_init.c
+index f1d3e4afd43b..9f99eeb99ca3 100644
+--- a/mm/mm_init.c
++++ b/mm/mm_init.c
+@@ -589,6 +589,7 @@ void __meminit __init_single_page(struct page *page, unsigned long pfn,
+ 	page_cpupid_reset_last(page);
+ 	page_kasan_tag_reset(page);
+ 	dept_ext_wgen_init(&page->pg_locked_wgen);
++	dept_ext_wgen_init(&page->pg_writeback_wgen);
+ 
+ 	INIT_LIST_HEAD(&page->lru);
+ #ifdef WANT_PAGE_VIRTUAL
 -- 
 2.17.1
 
