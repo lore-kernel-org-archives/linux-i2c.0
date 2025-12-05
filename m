@@ -1,17 +1,17 @@
-Received: from invmail4.hynix.com (exvmail4.hynix.com [166.125.252.92])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 05A913016FB;
-	Fri,  5 Dec 2025 07:20:54 +0000 (UTC)
+Received: from invmail4.hynix.com (exvmail4.skhynix.com [166.125.252.92])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1CF4D333438;
+	Fri,  5 Dec 2025 07:21:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=166.125.252.92
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1764919282; cv=none; b=YCi4JbL1bPAr0Ak/cihXiWv7ZdpvbcXpf8itchcZ6Bqup0c/Z82A8jAJGXF/tzVglBXcnz+M+YcLQupN1YrugYfWpOY4ZHKJLDjAQVgDlrJdl+LdTiIXZtWC3fRAzMNY79U6CagvvwcxxQ5tyGA0JALe60FoUgtYTRlF5J42MTI=
+	t=1764919294; cv=none; b=uefiky2h9b9Esk5d5rPzJBpHINPumljRTecsX8hpSwDwG4t7Htu6nvgHGOvoK4wCuoF+6wlpoWwmM9dxStEn3EPpnLOSjt3Ki14zDg9f+SeDA8Jwejb7nXFS8SvX6PrxEJZbBdqKmzaCtLNcJt3Zt6ULnVpeH8/A8YmdPLAHZ/E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1764919282; c=relaxed/simple;
-	bh=lEQDSxhQOw8+/qRMSSctJdIPDLmFiZCn43/uyjFJeKo=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=uQGoixvmlyRDjcv1HwPeul5akDfA0WtT4kMsqZ9umjLTReFadrYRqkGiWINwfiu4OM7+tK5WptXo4ek+xWK7GDX/c25xPxFKb6aQ5/45Z3leMd+Dafe0JqPg1jUepSVftqxC/aLY6m7PHO96RaXjxUQMCXTFdYuWMwYA1Lrvv6U=
+	s=arc-20240116; t=1764919294; c=relaxed/simple;
+	bh=Maxqvp8M2/Mbhj5qDNZmaX54vuIa2E/KjRgY0LGmkyY=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=P4HIPWxODzvvt7uuPEXqic7nvjQDyas2C3v4wHqEwFnBa9CfwPJ+niZcbMHzI2C1zx/9hQyamhMmmHJCSOCSg8jIO5GQMBeWPcxgVmq+XruWI0ohiMYpEraUJWt6fXBtRIe3syOU8DFDXZcQobdNIoIaZbGdRdKeTNiIDiLfCv8=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sk.com; spf=pass smtp.mailfrom=sk.com; arc=none smtp.client-ip=166.125.252.92
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sk.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sk.com
-X-AuditID: a67dfc5b-c45ff70000001609-e4-69328772042c
+X-AuditID: a67dfc5b-c45ff70000001609-5f-69328773bffd
 From: Byungchul Park <byungchul@sk.com>
 To: linux-kernel@vger.kernel.org
 Cc: kernel_team@skhynix.com,
@@ -178,44 +178,45 @@ Cc: kernel_team@skhynix.com,
 	aliceryhl@google.com,
 	tmgross@umich.edu,
 	rust-for-linux@vger.kernel.org
-Subject: [PATCH v18 33/42] dept: introduce a new type of dependency tracking between multi event sites
-Date: Fri,  5 Dec 2025 16:18:46 +0900
-Message-Id: <20251205071855.72743-34-byungchul@sk.com>
+Subject: [PATCH v18 37/42] dept: call dept_hardirqs_off() in local_irq_*() regardless of irq state
+Date: Fri,  5 Dec 2025 16:18:50 +0900
+Message-Id: <20251205071855.72743-38-byungchul@sk.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20251205071855.72743-1-byungchul@sk.com>
 References: <20251205071855.72743-1-byungchul@sk.com>
-X-Brightmail-Tracker: H4sIAAAAAAAAAzWSa0hTcRjG/Z+7Y4vTKjzlh2JhkZBpdHmh6PIhPBB2ob6UQa12ytXU3MpL
-	JLnIXFKWqy1KyWk0bVtpZ3ZRWyxFw0yaFbnyXmNmzrKlhqHZNPr243me93l54WVw+XtyAaNO
-	OSFoU5QaBSUhJEPS0uW6vJXq2HfOSDDknoHOHh8JoyMGAoorHRRMFj2mwSDeIMFz344gt2aK
-	gJHxDhpMegTmNiMOjmo9Bj+r/lAw2BBEYOrzUXB9QE/ATX8RDQON8TDV1Y9B+1gAgdX3BwOf
-	Ow/BpPkYlJQ5Q0Pm4VDe5EFQ2teFQ3CgF0F1UzcCV8VZCobaijGwnHWRUNNbS0Pb4AQGnWYj
-	BnYxAXqsfgJarpRhoX0UmB9EQNH1LxiY7tVhMG610fDqdicB1pwo6LpsIqC5+z0Jg34jBY9z
-	emkQPzQicFz042CoHSVA/BxyDZMjCJqefMLgYtVDErodU6G73S0kvLF7CKjs92LwuvYeCX29
-	XhKcra9wGCuI3KTif+UWELzN+QjjHbcciG8IfMf5c84M/k5LgOJdYxaCf1nG8TU3u2j+3LOP
-	NG8RT/LOimj+9tMBjC8NjpK8aLtA8WLQSO9YtleyXiVo1OmCdsWGA5Kk9gnl8cJDmY3ieToH
-	Fe7IR+EMx67iOorzyf9sdZXPMMUu5bzecXya57KLOOclf0iXMDj7diGXN14QMhhmDnuY0/ct
-	ns4QbBQ33PqNnpZl7BrOdDfxX+VCzl7lnqkJn5bbf8+wnF3NleT/mqnk2JJwriRgx/4NzOee
-	V3iJK0hmQWE2JFenpCcr1ZpVMUlZKerMmEOpySIKfZs1eyLxCQp6dtUjlkEKqcydEaeWk8p0
-	XVZyPeIYXDFXFtDEquUylTLrlKBN3a89qRF09SiSIRQRspVjGSo5e0R5QjgmCMcF7X8XY8IX
-	5CBVmOLHUIIxLSLDNavOLjuwxPGizrGzufawwVOe1tKBYglb/td57T2z+zcGC05n7Wwdkma/
-	2xSZljg8586E/lrD2nq79W55/O7MLZUjw3vIbcX9l1Mrt0s7LdKmq/uiGNNBdzMXvbm7sGjF
-	uuyasN1h8Vt/WrPjjvquDq5NcJtXRykIXZIyLhrX6pR/Ae9POqRpAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAAzVSWUwTURT1zUxnhsbqWEkcNQrWGHFB0bjcqHH5cqLR+GHU6AcOMMqEFrBF
-	BJdIqbW4Bpq0RCsKKFWhCLagIqk2KMSNWESlLmymooQiRAuEAmKr8efm3HPOPTkfl8bl1ZIZ
-	tJicJqiTeaWClBLS7Wt10WrDcjGmo38x5OhPwud2rwTea10EDPhzCLhSYSNhzHKfghz7JQk8
-	a8kmwH2nDEH7QA6CoRELDvqacQLGjA0U+Ic/UWDSIhh3NiAwNxlx8Lgf42Cr0mLwq/I3CT1P
-	fiIwdXpJyO/WEtBnPY/gcpeFgu76zdDbXiuB8dZvGLQM+hBYvb8x8LoMCMbMSXCt2BE8N/eT
-	MNL4God8kxtBUWcrDj+7OxBUNbQhcN7KJuFrbjUOzd5J8Hagj4TnpnMk9DZdweBHJQmF2U4J
-	NL3qQVBgMSLo+ujEQHe9ggRzgZ2Amo6HFDT1jGLw2WzEoMy+DdqtXQS8zC3GgnWDrrvTwJKv
-	w4LjOwam8loMhq2l1MYSxA3pLxJcqeMexunfjJGc7aoNcSMBI+L8JTqc0+cG1ye+Ppw75TjC
-	lbz0kVxg4B3JOQcLCe5FMcvdOBPAuLzGaK7mciu1Y9Ne6boEQSmmC+ql6/dLE1tG+dS8+Ix6
-	+2kqC+XtOIvCaJZZwVqdNyUhTDLzWY9nGA/hcCaSdVzoCvJSGmeaI1jD8MWgQNNTmQOstnNu
-	yEMw89j+xh9UiJYxq1jT7X3/IiPYskrX35iwEN0S+IvlzEr22tkhSS6SFqIJpShcTE5X8aJy
-	5RJNUmJmspixJD5FZUfBZ7KeGM17gPzNm+sQQyPFRJnryDJRLuHTNZmqOsTSuCJc5lPGiHJZ
-	Ap95VFCnxKoPKwVNHZpJE4ppsi27hf1y5iCfJiQJQqqg/q9idNiMLBSVFL3LMPP4oQ1ZsbOm
-	tx076b8wb/4ro2rrkK3QcKN8tmdPZHfFqjXH1xXgX2R90UuPqkQPQbra3O6nHSkZ2XGnx6cE
-	pk6it3p9j/zKernG6YjJX/AxalFE3M4PbG9kCrM6taiRL8q0Dm4Lm+yzMm3xVQWviedpETsX
-	xB56N0e3WkFoEvllC3G1hv8DvAV2HUgDAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAAzWSe0xTdxTH97v3dx+tVO+qkasmapoYDfjCV84favxj0esfJhqdfzgN1nGV
+	G8oj5SXTZWAhIPNRG8HUirSInQEMpLW61tXU6piIVVknVESEiTDGQ0UEedYLxn9OPud8z/nm
+	nOSwpLqJms9KSWmiPkmr09BKrOyLsK1Iy18jrS45xUPLqw4KGnN8GD4OFmCYsNxioMBhpuBB
+	0wkMw2MWEvLcYVkw1TJQlIMg7K1F8KFmkoaeewMIito7aLjQnYPhrf0UgoudFga6/9wGTUO9
+	COwdkwR0+PIRTBQnQGmZUx4qfkfDWOAJCbb2lyQMdLchuFHbiuCN0UVCX8MlAvpraLCe8FLQ
+	8KgHQYnFhKCz2UuA4Uo1De42DwMNPeMEtBSbCKh07IB6Yxkhr0CD5YKBkMN/BIzYKxh4dKUF
+	gz17CVgCQQrG22MgbE2G2souBupaGym4ld0m3+r5iMHbHA3myy00/OGtw1AwMYgg6LlEQ2tV
+	mIK/K59iqO4KEfAicJaBJ57r1JY4YTjvDBYqnDcJoepyFRLGRk1IGLxqIIU8o5ze631LCrnO
+	TME7ZMXCwzJeKD85SgjnAisE98WXjJB7p5kRrI50Ifd+H7Vz1T7lxjhRJ2WI+lWbDyrjw74b
+	VErOrKN5twdwNuqbUYgULM+t4wvqS5ivbHY8w1NMc0v5UGiEnOI53GLeebqTKkRKluSCi/j8
+	kTOywLKzuUN8XeOeqR7MLeH9rmpiilXcBt4wGiC+eC7iK2t80z4KuV7UNDrNam49X1o4PO3J
+	c78peEP5XfrLwDz+7rUQNiKVFX1TgdRSUkaiVtKtWxmflSQdXfljcqIDye9m/3n8h9/RwNPd
+	fsSxSBOh8mXGSGpKm5GalehHPEtq5qh6dasltSpOm/WTqE+O1afrxFQ/WsBiTaRqzVBmnJo7
+	ok0TE0QxRdR/VQlWMT8bnV3u2hKRYjy09fWDaFO0Y/Lb0nnbk6O+j1nY43ab/n/W7J+5lF5b
+	74o1fNqE+xM3/HPc3PD+yGP3NufaSLT/8f3XCTf32p6bG2t+6Z/pDbVJ/9qCu5wRlHT7WGTa
+	6X63xXM9/F2X669l5Znc4V9tUfHB5RvT2+ceV5xn18eWHlhc1qnBqfHamChSn6r9DDZAbnpq
+	AwAA
+X-Brightmail-Tracker: H4sIAAAAAAAAAzWSe0hTcRTH+93XrqvlbQldCioGPZA0LYvTkwqiS+8XFUWPW150OK02tSyi
+	5lqamdhiE12mWQ6bmjYtM1mNVfYwy0epVKbSWplbhrnETbNZ9M/hc873e76cPw6NS6vIybQ8
+	Ll5QxvEKGSUmxBuXaEJUKfPkYe6GOZCqPQ0fOhwktKhtBHj6Uwm4UlZCwbCxSgSplmwSnrUm
+	E9BwqxhBhycVwYDPiIO2eoSAYV2tCPoH34tAr0YwYq1FYGjU4dDW8BCHkko1Bj/Lf1PQ86gP
+	gb7LQUFWt5qAXlM6ghynUQTdT9aAu6OGhJH2Lxi0/nIhMDl+Y+CwpSAYNsRAXkGFf93wgwJf
+	/WscsvQNCK51tePQ192JoLL2IwJrUTIFnzPv4NDsGA9vPL0UPNdfoMDdeAWD7+UU5CdbSWh8
+	2YMg16hD4HxnxUBzvYwCQ66FgOrO+yJo7BnC4INBh0GxZQN0mJwE1GUWYP5z/a7bk8CYpcH8
+	5SsG+tIaDAZNZtGKQsQNaDMIzlxxF+O0TcMUV3K1BHE+rw5x/YUanNNm+ttHrl6cO1txjCus
+	c1Gc1/OW4qy/8gnuRQHL3TjvxbhL9SFcdU67aPPK3eKlkYJCnigo5y4/II4esVWSR9SBx7U1
+	fcQZ5B6bhgJololgsy1viVGmmFlsW9sgPspBzHS24qKTTENiGmeap7Epgxl+gaYnMgfZ5y3b
+	Rz0EM4O13ynDRlnCLGQ13nrsX+Y0trjc9jcnwD/Xt3r/spRZwOalDZCZSJyPxphRkDwuMZaX
+	KxaEqmKik+Lkx0MPHY61IP87mU4NXbqH+pvX2BFDI9k4ie1YuFxK8omqpFg7YmlcFiRxKcLk
+	Ukkkn3RCUB7er0xQCCo7mkITskmStTuFA1Imio8XYgThiKD8r2J0wOQz6OTq+C2eg/ZSuOFb
+	fLSyKKpzU/jp9Ii6wPW8OjBy9bjHl29+Z51jkiPOlT8NnJlR01SUrndVWc2+hNzZ13OGaMUy
+	R9OivWfN3K6y9SH8g31hp9zRWz/t3zC1YO+q4Hsts9flvaya8e2upvXEvoTbn9/N3zNxQpG2
+	a5smKupV8I5v08NeyQhVNB8ejCtV/B+AnKgLSgMAAA==
 X-CFilter-Loop: Reflected
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -223,418 +224,63 @@ List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 
-It's worth reporting wait-event circular dependency even if it doesn't
-lead to an actual deadlock, because it's a good information about a
-circular dependency anyway.  However, it should be suppressed once
-turning out it doesn't lead an actual deadlock, for instance, there are
-other wake-up(or event) paths.
+For dept to function properly, dept_task()->hardirqs_enabled must be set
+correctly.  If it fails to set this value to false, for example, dept
+may mistakenly think irq is still enabled even when it's not.
 
-The report needs to be suppressed by annotating that an event can be
-recovered by other sites triggering the desired wake-up, using a newly
-introduced API, dept_recover_event() specifying an event site and its
-recover site.
-
-By the introduction, need of a new type of dependency tracking arises
-since a loop of recover dependency could trigger another type of
-deadlock.  So implement a logic to track the new type of dependency
-between multi event sites for a single wait.
-
-Lastly, to make sure that recover sites must be used in code, introduce
-a section '.dept.event_sites' to mark it as 'used' only if used in code,
-and warn it if dept_recover_event()s are annotated with recover sites,
-not used in code.
+Do dept_hardirqs_off() regardless of irq state not to miss any
+unexpected cases by any chance e.g. changes of the state by asm code.
 
 Signed-off-by: Byungchul Park <byungchul@sk.com>
 ---
- include/asm-generic/vmlinux.lds.h |  13 +-
- include/linux/dept.h              |  91 ++++++++++++++
- kernel/dependency/dept.c          | 196 ++++++++++++++++++++++++++++++
- 3 files changed, 299 insertions(+), 1 deletion(-)
+ include/linux/irqflags.h | 14 ++++++++++++++
+ kernel/dependency/dept.c |  1 +
+ 2 files changed, 15 insertions(+)
 
-diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
-index a464ff6c1a61..2680f85b677a 100644
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -717,6 +717,16 @@
- #define KERNEL_CTORS()
- #endif
+diff --git a/include/linux/irqflags.h b/include/linux/irqflags.h
+index d8b9cf093f83..586f5bad4da7 100644
+--- a/include/linux/irqflags.h
++++ b/include/linux/irqflags.h
+@@ -214,6 +214,13 @@ extern void warn_bogus_irq_restore(void);
+ 		raw_local_irq_disable();		\
+ 		if (!was_disabled)			\
+ 			trace_hardirqs_off();		\
++		/*					\
++		 * Just in case that C code has missed	\
++		 * trace_hardirqs_off() at the first	\
++		 * place e.g. disabling irq at asm code.\
++		 */					\
++		else					\
++			dept_hardirqs_off();		\
+ 	} while (0)
  
-+#ifdef CONFIG_DEPT
-+#define DEPT_EVNET_SITES_USED()						\
-+	. = ALIGN(8);							\
-+	__dept_event_sites_start = .;					\
-+	KEEP(*(.dept.event_sites))					\
-+	__dept_event_sites_end = .;
-+#else
-+#define DEPT_EVNET_SITES_USED()
-+#endif
-+
- /* init and exit section handling */
- #define INIT_DATA							\
- 	KEEP(*(SORT(___kentry+*)))					\
-@@ -741,7 +751,8 @@
- 	EARLYCON_TABLE()						\
- 	LSM_TABLE()							\
- 	EARLY_LSM_TABLE()						\
--	KUNIT_INIT_TABLE()
-+	KUNIT_INIT_TABLE()						\
-+	DEPT_EVNET_SITES_USED()
+ #define local_irq_save(flags)				\
+@@ -221,6 +228,13 @@ extern void warn_bogus_irq_restore(void);
+ 		raw_local_irq_save(flags);		\
+ 		if (!raw_irqs_disabled_flags(flags))	\
+ 			trace_hardirqs_off();		\
++		/*					\
++		 * Just in case that C code has missed	\
++		 * trace_hardirqs_off() at the first	\
++		 * place e.g. disabling irq at asm code.\
++		 */					\
++		else					\
++			dept_hardirqs_off();		\
+ 	} while (0)
  
- #define INIT_TEXT							\
- 	*(.init.text .init.text.*)					\
-diff --git a/include/linux/dept.h b/include/linux/dept.h
-index 8b41f7a65abb..44083e6651ab 100644
---- a/include/linux/dept.h
-+++ b/include/linux/dept.h
-@@ -142,6 +142,82 @@ struct dept_ext_wgen {
- 	unsigned int wgen;
- };
- 
-+struct dept_event_site {
-+	/*
-+	 * event site name
-+	 */
-+	const char			*name;
-+
-+	/*
-+	 * function name where the event is triggered in
-+	 */
-+	const char			*func_name;
-+
-+	/*
-+	 * for associating its recover dependencies
-+	 */
-+	struct list_head		dep_head;
-+	struct list_head		dep_rev_head;
-+
-+	/*
-+	 * for BFS
-+	 */
-+	unsigned int			bfs_gen;
-+	struct dept_event_site		*bfs_parent;
-+	struct list_head		bfs_node;
-+
-+	/*
-+	 * flag indicating the event is not only declared but also
-+	 * actually used in code
-+	 */
-+	bool				used;
-+};
-+
-+struct dept_event_site_dep {
-+	struct dept_event_site		*evt_site;
-+	struct dept_event_site		*recover_site;
-+
-+	/*
-+	 * for linking to dept_event objects
-+	 */
-+	struct list_head		dep_node;
-+	struct list_head		dep_rev_node;
-+};
-+
-+#define DEPT_EVENT_SITE_INITIALIZER(es)					\
-+{									\
-+	.name = #es,							\
-+	.func_name = NULL,						\
-+	.dep_head = LIST_HEAD_INIT((es).dep_head),			\
-+	.dep_rev_head = LIST_HEAD_INIT((es).dep_rev_head),		\
-+	.bfs_gen = 0,							\
-+	.bfs_parent = NULL,						\
-+	.bfs_node = LIST_HEAD_INIT((es).bfs_node),			\
-+	.used = false,							\
-+}
-+
-+#define DEPT_EVENT_SITE_DEP_INITIALIZER(esd)				\
-+{									\
-+	.evt_site = NULL,						\
-+	.recover_site = NULL,						\
-+	.dep_node = LIST_HEAD_INIT((esd).dep_node),			\
-+	.dep_rev_node = LIST_HEAD_INIT((esd).dep_rev_node),		\
-+}
-+
-+struct dept_event_site_init {
-+	struct dept_event_site *evt_site;
-+	const char *func_name;
-+};
-+
-+#define dept_event_site_used(es)					\
-+do {									\
-+	static struct dept_event_site_init _evtinit __initdata =	\
-+		{ .evt_site = (es), .func_name = __func__ };		\
-+	static struct dept_event_site_init *_evtinitp __used		\
-+		__attribute__((__section__(".dept.event_sites"))) =	\
-+		&_evtinit;						\
-+} while (0)
-+
- extern void dept_stop_emerg(void);
- extern void dept_on(void);
- extern void dept_off(void);
-@@ -179,6 +255,14 @@ static inline void dept_ecxt_enter_nokeep(struct dept_map *m)
- extern void dept_key_init(struct dept_key *k);
- extern void dept_key_destroy(struct dept_key *k);
- extern void dept_map_ecxt_modify(struct dept_map *m, unsigned long e_f, struct dept_key *new_k, unsigned long new_e_f, unsigned long new_ip, const char *new_c_fn, const char *new_e_fn, int new_sub_l);
-+extern void __dept_recover_event(struct dept_event_site_dep *esd, struct dept_event_site *es, struct dept_event_site *rs);
-+
-+#define dept_recover_event(es, rs)					\
-+do {									\
-+	static struct dept_event_site_dep _esd = DEPT_EVENT_SITE_DEP_INITIALIZER(_esd);\
-+									\
-+	__dept_recover_event(&_esd, es, rs);				\
-+} while (0)
- 
- extern void dept_softirq_enter(void);
- extern void dept_hardirq_enter(void);
-@@ -192,8 +276,10 @@ extern void dept_hardirqs_off(void);
- struct dept_key { };
- struct dept_map { };
- struct dept_ext_wgen { };
-+struct dept_event_site { };
- 
- #define DEPT_MAP_INITIALIZER(n, k) { }
-+#define DEPT_EVENT_SITE_INITIALIZER(es) { }
- 
- #define dept_stop_emerg()				do { } while (0)
- #define dept_on()					do { } while (0)
-@@ -224,6 +310,7 @@ struct dept_ext_wgen { };
- #define dept_key_init(k)				do { (void)(k); } while (0)
- #define dept_key_destroy(k)				do { (void)(k); } while (0)
- #define dept_map_ecxt_modify(m, e_f, n_k, n_e_f, n_ip, n_c_fn, n_e_fn, n_sl) do { (void)(n_k); (void)(n_c_fn); (void)(n_e_fn); } while (0)
-+#define dept_recover_event(es, rs)			do { } while (0)
- 
- #define dept_softirq_enter()				do { } while (0)
- #define dept_hardirq_enter()				do { } while (0)
-@@ -234,4 +321,8 @@ struct dept_ext_wgen { };
- 
- #define dept_set_lockdep_map(m, lockdep_m)		do { } while (0)
- #endif
-+
-+#define DECLARE_DEPT_EVENT_SITE(es) extern struct dept_event_site (es)
-+#define DEFINE_DEPT_EVENT_SITE(es) struct dept_event_site (es) = DEPT_EVENT_SITE_INITIALIZER(es)
-+
- #endif /* __LINUX_DEPT_H */
+ #define local_irq_restore(flags)			\
 diff --git a/kernel/dependency/dept.c b/kernel/dependency/dept.c
-index 1de61306418b..b14400c4f83b 100644
+index 0f4464657288..a17b185d6a6a 100644
 --- a/kernel/dependency/dept.c
 +++ b/kernel/dependency/dept.c
-@@ -973,6 +973,117 @@ static void bfs(void *root, struct bfs_ops *ops, void *in, void **out)
- 	}
+@@ -2248,6 +2248,7 @@ void noinstr dept_hardirqs_off(void)
+ 	 */
+ 	dept_task()->hardirqs_enabled = false;
  }
++EXPORT_SYMBOL_GPL(dept_hardirqs_off);
  
-+/*
-+ * Recover dependency between event sites
-+ * =====================================================================
-+ * Even though an event is in a chain of wait-event circular dependency,
-+ * the corresponding wait might be woken up by another site triggering
-+ * the desired event.  To reflect that, dept allows to annotate the
-+ * recover relationship between event sites using __dept_recover_event().
-+ * However, that requires to track a new type of dependency between the
-+ * event sites.
-+ */
-+
-+/*
-+ * Print all events in the circle.
-+ */
-+static void print_recover_circle(struct dept_event_site *es)
-+{
-+	struct dept_event_site *from = es->bfs_parent;
-+	struct dept_event_site *to = es;
-+
-+	dept_outworld_enter();
-+
-+	pr_warn("===================================================\n");
-+	pr_warn("DEPT: Circular recover dependency has been detected.\n");
-+	pr_warn("%s %.*s %s\n", init_utsname()->release,
-+		(int)strcspn(init_utsname()->version, " "),
-+		init_utsname()->version,
-+		print_tainted());
-+	pr_warn("---------------------------------------------------\n");
-+
-+	do {
-+		print_spc(1, "event site(%s@%s)\n", from->name, from->func_name);
-+		print_spc(1, "-> event site(%s@%s)\n", to->name, to->func_name);
-+		to = from;
-+		from = from->bfs_parent;
-+
-+		if (to != es)
-+			pr_warn("\n");
-+	} while (to != es);
-+
-+	pr_warn("---------------------------------------------------\n");
-+	pr_warn("information that might be helpful\n");
-+	pr_warn("---------------------------------------------------\n");
-+	dump_stack();
-+
-+	dept_outworld_exit();
-+}
-+
-+static void bfs_init_recover(void *node, void *in, void **out)
-+{
-+	struct dept_event_site *root = (struct dept_event_site *)node;
-+	struct dept_event_site_dep *new = (struct dept_event_site_dep *)in;
-+
-+	root->bfs_gen = bfs_gen;
-+	new->recover_site->bfs_parent = new->evt_site;
-+}
-+
-+static void bfs_extend_recover(struct list_head *h, void *node)
-+{
-+	struct dept_event_site *cur = (struct dept_event_site *)node;
-+	struct dept_event_site_dep *esd;
-+
-+	list_for_each_entry(esd, &cur->dep_head, dep_node) {
-+		struct dept_event_site *next = esd->recover_site;
-+
-+		if (bfs_gen == next->bfs_gen)
-+			continue;
-+		next->bfs_parent = cur;
-+		next->bfs_gen = bfs_gen;
-+		list_add_tail(&next->bfs_node, h);
-+	}
-+}
-+
-+static void *bfs_dequeue_recover(struct list_head *h)
-+{
-+	struct dept_event_site *es;
-+
-+	DEPT_WARN_ON(list_empty(h));
-+
-+	es = list_first_entry(h, struct dept_event_site, bfs_node);
-+	list_del(&es->bfs_node);
-+	return es;
-+}
-+
-+static enum bfs_ret cb_check_recover_dl(void *node, void *in, void **out)
-+{
-+	struct dept_event_site *cur = (struct dept_event_site *)node;
-+	struct dept_event_site_dep *new = (struct dept_event_site_dep *)in;
-+
-+	if (cur == new->evt_site) {
-+		print_recover_circle(new->recover_site);
-+		return BFS_DONE;
-+	}
-+
-+	return BFS_CONTINUE;
-+}
-+
-+/*
-+ * NOTE: Must be called with dept_lock held.
-+ */
-+static void check_recover_dl_bfs(struct dept_event_site_dep *esd)
-+{
-+	struct bfs_ops ops = {
-+		.bfs_init = bfs_init_recover,
-+		.extend = bfs_extend_recover,
-+		.dequeue = bfs_dequeue_recover,
-+		.callback = cb_check_recover_dl,
-+	};
-+
-+	bfs((void *)esd->recover_site, &ops, (void *)esd, NULL);
-+}
-+
- /*
-  * Main operations
-  * =====================================================================
-@@ -3166,8 +3277,78 @@ static void migrate_per_cpu_pool(void)
- 	}
- }
- 
-+static bool dept_recover_ready;
-+
-+void __dept_recover_event(struct dept_event_site_dep *esd,
-+		struct dept_event_site *es, struct dept_event_site *rs)
-+{
-+	struct dept_task *dt = dept_task();
-+	unsigned long flags;
-+
-+	if (unlikely(!dept_working()))
-+		return;
-+
-+	if (dt->recursive)
-+		return;
-+
-+	if (!esd || !es || !rs) {
-+		DEPT_WARN_ONCE("All the parameters should be !NULL.\n");
-+		return;
-+	}
-+
-+	/*
-+	 * Check locklessly if another already has done it for us.
-+	 */
-+	if (READ_ONCE(esd->evt_site))
-+		return;
-+
-+	if (!dept_recover_ready) {
-+		DEPT_WARN("Should be called once dept_recover_ready.\n");
-+		return;
-+	}
-+
-+	flags = dept_enter();
-+	if (unlikely(!dept_lock()))
-+		goto exit;
-+
-+	/*
-+	 * Check if another already has done it for us with lock held.
-+	 */
-+	if (esd->evt_site)
-+		goto unlock;
-+
-+	/*
-+	 * Can be used as an indicator of whether this
-+	 * __dept_recover_event() has been processed or not as well as
-+	 * for storing its associated events.
-+	 */
-+	WRITE_ONCE(esd->evt_site, es);
-+	esd->recover_site = rs;
-+
-+	if (!es->used || !rs->used) {
-+		if (!es->used)
-+			DEPT_INFO("dept_event_site %s has never been used.\n", es->name);
-+		if (!rs->used)
-+			DEPT_INFO("dept_event_site %s has never been used.\n", rs->name);
-+
-+		DEPT_WARN("Cannot track recover dependency with events that never used.\n");
-+		goto unlock;
-+	}
-+
-+	list_add(&esd->dep_node, &es->dep_head);
-+	list_add(&esd->dep_rev_node, &rs->dep_rev_head);
-+	check_recover_dl_bfs(esd);
-+unlock:
-+	dept_unlock();
-+exit:
-+	dept_exit(flags);
-+}
-+EXPORT_SYMBOL_GPL(__dept_recover_event);
-+
- #define B2KB(B) ((B) / 1024)
- 
-+extern char __dept_event_sites_start[], __dept_event_sites_end[];
-+
- /*
-  * Should be called after setup_per_cpu_areas() and before no non-boot
-  * CPUs have been on.
-@@ -3175,6 +3356,21 @@ static void migrate_per_cpu_pool(void)
- void __init dept_init(void)
+ void noinstr dept_update_cxt(void)
  {
- 	size_t mem_total = 0;
-+	struct dept_event_site_init **evtinitpp;
-+
-+	/*
-+	 * dept recover dependency tracking works from now on.
-+	 */
-+	for (evtinitpp = (struct dept_event_site_init **)__dept_event_sites_start;
-+	     evtinitpp < (struct dept_event_site_init **)__dept_event_sites_end;
-+	     evtinitpp++) {
-+		(*evtinitpp)->evt_site->used = true;
-+		(*evtinitpp)->evt_site->func_name = (*evtinitpp)->func_name;
-+		pr_info("dept_event %s@%s is initialized.\n",
-+				(*evtinitpp)->evt_site->name,
-+				(*evtinitpp)->evt_site->func_name);
-+	}
-+	dept_recover_ready = true;
- 
- 	local_irq_disable();
- 	dept_per_cpu_ready = 1;
 -- 
 2.17.1
 
