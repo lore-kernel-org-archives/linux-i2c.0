@@ -1,898 +1,310 @@
-Received: from mx-relay41-hz1.antispameurope.com (mx-relay41-hz1.antispameurope.com [94.100.133.217])
+Received: from DU2PR03CU002.outbound.protection.outlook.com (mail-northeuropeazon11021102.outbound.protection.outlook.com [52.101.65.102])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE63A322522
-	for <linux-i2c@vger.kernel.org>; Wed, 10 Dec 2025 13:55:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=94.100.133.217
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765374907; cv=pass; b=sraHIb02ur8Mb8H8abqtTjEFiSsDiqdL6+f5HM9vbs2r438cAIlAZjVmHotNcxzUp3w3DVGQhtkKbAq3qZsrtW0AGMScmaW/v9BoQwz9FysxLBv9pzy654hib56RdgLBfEJcSan/81L9Xol8sEZckwNUC+t71EUeLIP8cFiywaE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765374907; c=relaxed/simple;
-	bh=AF7RVT7rItwMwr80OJMPcsWEKYnlEqBuDST9NiBa8GM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=YkslCTh4TBKxypsLTnX+7BrrM0geAbIhVXrvsNydcT6uBmwFi/gv/IGdjt4YumNB2DwNcn/5k87EB9QWB0yHiqGBJe91wpE2pAMsrHvMbMZ5IFZ/ev5unCcwB2IqpN13RzYLEX7Mbt8mptTVXUD83FFgQlboBCNEbmdRolYZX9Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ew.tq-group.com; spf=pass smtp.mailfrom=ew.tq-group.com; dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b=X8eSvzfT; arc=pass smtp.client-ip=94.100.133.217
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ew.tq-group.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ew.tq-group.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6764732720D;
+	Wed, 10 Dec 2025 17:39:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.65.102
+ARC-Seal:i=4; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1765388368; cv=fail; b=Pw0TeE4FIaHl0HZc14OZN3WsjYvhwsAr+7g+bZjwv3I2cKpYs7f3gpR2JmVtWrSdbWjuSu7Rr8oIBteaZMqrJ9DibNZrth48oDMbJR40sm2o35ODoXZQfdz/ENSdIrR/IXt9LD3p4ccwX5wuV3rPKmBrD8hR+JeSuOmTFbY5uOM=
+ARC-Message-Signature:i=4; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1765388368; c=relaxed/simple;
+	bh=ZKXxFr9J9/9lYwpzoyiums354Qv/n/UYGnwtjMTe0wQ=;
+	h=From:Subject:Date:Message-Id:Content-Type:To:Cc:MIME-Version; b=pPW2Q1DkNRtDN0KizLVkSb/26rFmmxMf/ER87U5x/5b9k5/mKhmGf465/qhgD488AMuJkQIboXXumxndNAQ6GcTq8uXT78QGHdGKntFUkH+DSr2apRfoYEw//GUAPyhnDuAEumHVhKnbuI4BWCxvOmioDzVGuIfzjq2KupKnHXk=
+ARC-Authentication-Results:i=4; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=solid-run.com; spf=pass smtp.mailfrom=solid-run.com; dkim=pass (1024-bit key) header.d=solidrn.onmicrosoft.com header.i=@solidrn.onmicrosoft.com header.b=D8qtKwN9; dkim=pass (1024-bit key) header.d=solidrn.onmicrosoft.com header.i=@solidrn.onmicrosoft.com header.b=D8qtKwN9; arc=fail smtp.client-ip=52.101.65.102
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=solid-run.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=solid-run.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b="X8eSvzfT"
-ARC-Authentication-Results: i=1; mx-gate41-hz1.hornetsecurity.com 1; spf=pass
- reason=mailfrom (ip=94.100.132.6, headerfrom=ew.tq-group.com)
- smtp.mailfrom=ew.tq-group.com
- smtp.helo=hmail-p-smtp01-out03-hz1.hornetsecurity.com; dmarc=pass
- header.from=ew.tq-group.com orig.disposition=pass
-ARC-Message-Signature: a=rsa-sha256;
- bh=uCwjWq/jC/9cADDh9kAp4FL12VD/NKld7X8Sc0Y/AuA=; c=relaxed/relaxed;
- d=hornetsecurity.com; h=from:to:date:subject:mime-version:; i=1; s=hse1;
- t=1765374857;
- b=jw1JXAmITHOc3YxwOE7d+TaP+ich6W0W+NjSAG91CJnKj0Var4h81Zbfmh1MzTSg+NMLkWwe
- Hdz20saE1GOcvfYDVwKY78xLMLc3KhqZaYs87yR14gV5b/NLrffIGTOjU35zx7jjCacrQHzjTDN
- 8jav4jRZYZ866LfxTtza7S4f93gz82XbnjXOGF9Vhbp4gbgZD9dW5BuJIu7pcemgE4LxGxoF0Ji
- TFjceazP+QfinIrgrZMLGjCbGSrDwlDrnJ3g0rD9xSidFehFZUESdIe4idUUY7ixRA1kuSdk4bT
- lFmPAjNgg6bCw+NaUuLGdlplxX8xFTLBLVIKwb4PMOkaA==
-ARC-Seal: a=rsa-sha256; cv=none; d=hornetsecurity.com; i=1; s=hse1;
- t=1765374857;
- b=nJ3TuBVbcujFt+rRQc+np5hUOgzDQvmEYCBIO3RqYGrdHRR/qDep8fWWFgqp0FzubRfnAVv7
- zGURiVEl9/48GN4gWUH6hneah1Ap1XEnA9HAo6jQeg9CYEpY8eOP3/PYzDd9RT8vgYZPLJSPxO9
- ArGuJj41vQI4ZZ6joWKdXAx3LEZOVfLK8/UAYqkTBrp02Vijv0Hj6dGJXFXPPphN1nmZ5EGLX4P
- NOngUgenqORsdfSg/Di4ctlojzb4O/AbgOfhNNqZQcEhsr/6uLTigCMYozZyU0s1UmNBwVES1hy
- 6fvrhwV4+rwYIB9NBTG/GG0TuL7KUxEVxrn2cM2v8y9Qg==
-Received: from he-nlb01-hz1.hornetsecurity.com ([94.100.132.6]) by mx-relay41-hz1.antispameurope.com;
- Wed, 10 Dec 2025 14:54:17 +0100
-Received: from schifferm-ubuntu.tq-net.de (host-82-135-125-110.customer.m-online.net [82.135.125.110])
-	(Authenticated sender: matthias.schiffer@ew.tq-group.com)
-	by hmail-p-smtp01-out03-hz1.hornetsecurity.com (Postfix) with ESMTPSA id 54484CC0CC7;
-	Wed, 10 Dec 2025 14:54:09 +0100 (CET)
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-To: Andi Shyti <andi.shyti@kernel.org>,
-	Lee Jones <lee@kernel.org>
-Cc: linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux@ew.tq-group.com,
-	Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Subject: [PATCH v4 1/4] i2c: machxo2: new driver
-Date: Wed, 10 Dec 2025 14:52:50 +0100
-Message-ID: <128cfc422f60d674f5ced8e8350b794945c8fa59.1765373900.git.matthias.schiffer@ew.tq-group.com>
-X-Mailer: git-send-email 2.52.0
+	dkim=pass (1024-bit key) header.d=solidrn.onmicrosoft.com header.i=@solidrn.onmicrosoft.com header.b="D8qtKwN9";
+	dkim=pass (1024-bit key) header.d=solidrn.onmicrosoft.com header.i=@solidrn.onmicrosoft.com header.b="D8qtKwN9"
+ARC-Seal: i=3; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=pass;
+ b=e4Zpe679vTb0kwo09EwBVdLA71XwQkbkONGtOD683ui5pMhfz51IUF0tiEBCtx17IXyArP1rCqSJhFtEDy7NNvDp6GcunLvVqX+EsYoTHMAtbLdDM050GFqf+QxmvbG+JubJMp1z5fO8hgYjGsHAokuXn2s5VjsuZyaddmxhbIGwo4Bhykpa0chUGHDNmklBX/bDbbt0M6t6XyeeNaSS2YxZzJU3KIThkRzf0JNwhcoJz3i+LfmQfBVLGvAjqbc39KrfTNmZ/35fGsYlgKdGsiOVaRUjoURDGWJ6GkR+h7UREOS2NJgW0WBUYmDfSLxvbqL9k2Yx9uub9n7ZqUWrEw==
+ARC-Message-Signature: i=3; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=6DOEqNVG+/MY3fXFI+rsM6fYIi9jv9ugD7hifWAO2d0=;
+ b=Py8U/oHO5zZ+yqad087jiE68MxClI6raSTBwdm5rgju82g56+QOF1LZ+3JTP6uC70MIgZWyTV4vIeOXIFLPDQYvTSuNtObA+Z1105qME7mpFViFY8TAivuspctxFmA7Q3CtxKndkbOfEIlL7L4O7BKR7tyrBIneHLkWphGKkG1yZhSAnz9RLZe1tyJLHHujrAOoKmMjmI01meLIFGa/gYb1EWYD29d/3EUVC99NYWYBpf7XXFTFVObg5mV9tJ+CeCMNPC/s2YEM+mWHvpSxy/zblFMxL02glh2N3+S3lU0rbE6ATp5r7Fp2v2YNjreT0AE92z5rGRdVMjq3XxwO/bQ==
+ARC-Authentication-Results: i=3; mx.microsoft.com 1; spf=fail (sender ip is
+ 52.17.62.50) smtp.rcpttodomain=atomide.com smtp.mailfrom=solid-run.com;
+ dmarc=fail (p=none sp=none pct=100) action=none header.from=solid-run.com;
+ dkim=pass (signature was verified) header.d=solidrn.onmicrosoft.com; arc=pass
+ (0 oda=1 ltdi=1 spf=[1,1,smtp.mailfrom=solid-run.com]
+ dkim=[1,1,header.d=solid-run.com] dmarc=[1,1,header.from=solid-run.com])
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=solidrn.onmicrosoft.com; s=selector1-solidrn-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6DOEqNVG+/MY3fXFI+rsM6fYIi9jv9ugD7hifWAO2d0=;
+ b=D8qtKwN9y4Hzb7Fe8/lbOFtUY6sXRx7eZrwHrv/CYP6YMUbxHSW0C9593Qxa9+q7Q1+Nw068l+b2Fv8sWULzqm205HK/xKSWscmIJZHdTa5+He/TqV4u4g2SOBXnhMXp9305BDNK3ziDyO6LJ8DqPuM4SA20OoyKY47eFGUixEc=
+Received: from DU2PR04CA0315.eurprd04.prod.outlook.com (2603:10a6:10:2b5::20)
+ by DU4PR04MB10362.eurprd04.prod.outlook.com (2603:10a6:10:563::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9412.7; Wed, 10 Dec
+ 2025 17:39:20 +0000
+Received: from DU6PEPF0000B61B.eurprd02.prod.outlook.com
+ (2603:10a6:10:2b5:cafe::27) by DU2PR04CA0315.outlook.office365.com
+ (2603:10a6:10:2b5::20) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9412.7 via Frontend Transport; Wed,
+ 10 Dec 2025 17:39:20 +0000
+X-MS-Exchange-Authentication-Results: spf=fail (sender IP is 52.17.62.50)
+ smtp.mailfrom=solid-run.com; dkim=pass (signature was verified)
+ header.d=solidrn.onmicrosoft.com;dmarc=fail action=none
+ header.from=solid-run.com;
+Received-SPF: Fail (protection.outlook.com: domain of solid-run.com does not
+ designate 52.17.62.50 as permitted sender) receiver=protection.outlook.com;
+ client-ip=52.17.62.50; helo=eu-dlp.cloud-sec-av.com;
+Received: from eu-dlp.cloud-sec-av.com (52.17.62.50) by
+ DU6PEPF0000B61B.mail.protection.outlook.com (10.167.8.132) with Microsoft
+ SMTP Server (version=TLS1_3, cipher=TLS_AES_256_GCM_SHA384) id 15.20.9388.8
+ via Frontend Transport; Wed, 10 Dec 2025 17:39:20 +0000
+Received: from emails-8269817-12-mt-prod-cp-eu-2.checkpointcloudsec.com (ip-10-20-6-47.eu-west-1.compute.internal [10.20.6.47])
+	by mta-outgoing-dlp-834-mt-prod-cp-eu-2.checkpointcloudsec.com (Postfix) with ESMTPS id 1A6BB7FF8A;
+	Wed, 10 Dec 2025 17:39:20 +0000 (UTC)
+ARC-Authentication-Results: i=2; mx.checkpointcloudsec.com;
+ arc=pass;
+ dkim=none header.d=none
+ARC-Message-Signature: i=2; a=rsa-sha256; c=relaxed/relaxed;
+ d=checkpointcloudsec.com; s=arcselector01; t=1765388360; h=from : to :
+ subject : date : message-id : content-type : mime-version;
+ bh=6DOEqNVG+/MY3fXFI+rsM6fYIi9jv9ugD7hifWAO2d0=;
+ b=mrfQTSVnTvQ/IHTZ5shkuIi4FBCWrCAimlH343TIzLnDD5SXDVjGRALteAhEsk56cZYeA
+ Sws9HAYQx9BsgOlVaXskxjDS5YTGwmUpk9LP982fJ3vkwEI3N0fNJAOrFkag5IKJzPrX4ni
+ Fyjk4TKnj/a3H7l0z82ZFXookMXt0Hk=
+ARC-Seal: i=2; cv=pass; a=rsa-sha256; d=checkpointcloudsec.com;
+ s=arcselector01; t=1765388360;
+ b=J0bVmzpSgxMhffPTukNgYXz3YirIhBrzSX60E5lvec0aiyhUMZlk7oUDoRVi51kbJykEH
+ gVuBi79RHgP3CrWWqFCHk7/fF9xO90cQtK3pUv3qw0+U5Ei9JLxghRtuljbHfPjlGasI7jt
+ r1wgs7GR1rtgAwFPqyk5fKy/20p1vZw=
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Nr8/JNxUXK9Hw6tXcXw5BCZLLH6//SdRqobzYFFcp06Xyu4KZya1YNMe2k3mnn7vFmUNQYmjHJ1KRiH8l+Xif4A8uYYKeb5xeB2fe6Ot7axYlHalMcA73uKum0QUpWpI0XDPVc/7R44+QzVu6PilmPM6gO9Xy7li1BK/Wdk4J+Jma8VUSReVucCSa36IG9d+AyPZTjoczo/dGpEAG5zGjT6Ol+jpmRzEfpk9NqzJpeloQEEupxGPV2zFzgPEVsgOLtvI8yc21Ptdl9HM+fgcXNhDSSVNsZXuxXikYtaMp9wSA2NKxRZ6LtpAUOKss7eLlMy5sDwcwqqC4pE8ag1xMA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=6DOEqNVG+/MY3fXFI+rsM6fYIi9jv9ugD7hifWAO2d0=;
+ b=VYN189WreS1pCgtPF1Tf90U9ro9gyuQWl1N3CRbz57qch50ZyitQ31/Gr7pbRLzXUnBHRXgqMfIEn4WluJQ8QK7JS+jyizeEpr6fSvg4N+FavaJdam44JYNsHYZkC/JuxabXLES1vIJeEwxfOA8CK19+vXBboqll9K+ZU3NVrqBz76ShLxeAOA+a1jRKU7ua/81PpHgxeePjVrpx+4eVR967ximOgIDts5RtU5P7dFmnmItSn+QJBpKctSmECbEffCjgJ7uJ7dv2vb4vGFCGxK4MxKjt0odVFWOq1bdbGwsUZ/YJBs3YiVFbemdWQ5cjV0TgkSmUAJZry61kjASDjg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=solid-run.com; dmarc=pass action=none
+ header.from=solid-run.com; dkim=pass header.d=solid-run.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=solidrn.onmicrosoft.com; s=selector1-solidrn-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6DOEqNVG+/MY3fXFI+rsM6fYIi9jv9ugD7hifWAO2d0=;
+ b=D8qtKwN9y4Hzb7Fe8/lbOFtUY6sXRx7eZrwHrv/CYP6YMUbxHSW0C9593Qxa9+q7Q1+Nw068l+b2Fv8sWULzqm205HK/xKSWscmIJZHdTa5+He/TqV4u4g2SOBXnhMXp9305BDNK3ziDyO6LJ8DqPuM4SA20OoyKY47eFGUixEc=
+Received: from PAXPR04MB8749.eurprd04.prod.outlook.com (2603:10a6:102:21f::22)
+ by PAWPR04MB9717.eurprd04.prod.outlook.com (2603:10a6:102:380::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9412.8; Wed, 10 Dec
+ 2025 17:39:07 +0000
+Received: from PAXPR04MB8749.eurprd04.prod.outlook.com
+ ([fe80::aa83:81a0:a276:51f6]) by PAXPR04MB8749.eurprd04.prod.outlook.com
+ ([fe80::aa83:81a0:a276:51f6%4]) with mapi id 15.20.9412.005; Wed, 10 Dec 2025
+ 17:39:06 +0000
+From: Josua Mayer <josua@solid-run.com>
+Subject: [PATCH v3 0/6] mmc: host: renesas_sdhi_core: support configuring
+ an optional sdio mux
+Date: Wed, 10 Dec 2025 18:38:34 +0100
+Message-Id: <20251210-rz-sdio-mux-v3-0-ca628db56d60@solid-run.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIABqwOWkC/23MQQ6CMBCF4auQrh3TKQEaV96DuIBOkUmEmlYal
+ HB3Cxujcfle8v2LCNazDeKULcLbyIHdmEZ+yITpm/FqgSltoaQqEJUG/4JA7GCYZmiMKTCvOix
+ RiyTu3nY877X6knbP4eH8c49H3N7/nYggAS3ZHDVhKbtzcDcm8NN4NG4QWyuqj1cSv71KvjVto
+ bHVmqj69eu6vgFxas866gAAAA==
+X-Change-ID: 20251128-rz-sdio-mux-acc5137f1618
+To: Ulf Hansson <ulf.hansson@linaro.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ Geert Uytterhoeven <geert+renesas@glider.be>,
+ Magnus Damm <magnus.damm@gmail.com>,
+ Wolfram Sang <wsa+renesas@sang-engineering.com>,
+ Marc Kleine-Budde <mkl@pengutronix.de>,
+ Vincent Mailhol <mailhol@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+ Kishon Vijay Abraham I <kishon@kernel.org>, Peter Rosin <peda@axentia.se>,
+ Aaro Koskinen <aaro.koskinen@iki.fi>,
+ Andreas Kemnade <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>,
+ Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
+ Vignesh R <vigneshr@ti.com>, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+ Andi Shyti <andi.shyti@kernel.org>
+Cc: Mikhail Anikin <mikhail.anikin@solid-run.com>,
+ Yazan Shhady <yazan.shhady@solid-run.com>,
+ Jon Nettleton <jon@solid-run.com>, linux-mmc@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-renesas-soc@vger.kernel.org, linux-can@vger.kernel.org,
+ linux-phy@lists.infradead.org, linux-omap@vger.kernel.org,
+ linux-i2c@vger.kernel.org, Josua Mayer <josua@solid-run.com>
+X-Mailer: b4 0.14.3
+X-ClientProxiedBy: FR0P281CA0072.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:49::9) To PAXPR04MB8749.eurprd04.prod.outlook.com
+ (2603:10a6:102:21f::22)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-cloud-security-sender:matthias.schiffer@ew.tq-group.com
-X-cloud-security-recipient:linux-i2c@vger.kernel.org
-X-cloud-security-crypt: load encryption module
-X-cloud-security-Mailarchiv: E-Mail archived for: matthias.schiffer@ew.tq-group.com
-X-cloud-security-Mailarchivtype:outbound
-X-cloud-security-Virusscan:CLEAN
-X-cloud-security-disclaimer: This E-Mail was scanned by E-Mailservice on mx-relay41-hz1.antispameurope.com with 4dRHJK50JmzKmDs
-X-cloud-security-connect: he-nlb01-hz1.hornetsecurity.com[94.100.132.6], TLS=1, IP=94.100.132.6
-X-cloud-security-Digest:85a7542a0a4bd50847b59e428e01fa25
-X-cloud-security:scantime:2.035
-DKIM-Signature: a=rsa-sha256;
- bh=uCwjWq/jC/9cADDh9kAp4FL12VD/NKld7X8Sc0Y/AuA=; c=relaxed/relaxed;
- d=ew.tq-group.com;
- h=content-type:mime-version:subject:from:to:message-id:date; s=hse1;
- t=1765374856; v=1;
- b=X8eSvzfTnNS+d6fefTxhgB6QPCCAhkgPG9RFKoOughqymR5EChf1O75BGvn1LoM8itqHPBKW
- aZR/GXWI+boVIlcDUB8P2chF18NLbAu0b1zD/4Kz6d1gsd3uYgZoVNLSM8P6adDNeTQkY6+ggie
- GuHWxAuUU3gUgQBmkDHJBOJf0OF/xWULS6TuE/Ld1uZWblvWZmusMN/uurjOuQDuiKn3laet9Xo
- SxKsEyAfT5Ku+DLmFPRba3+ctNvrP8n5yzGu6wVL0CWIudmss2aOtA0jnY5pMSVpBAaX4zwI3I0
- eJvzf+h25Hy0E+Gm217napLcg7Cle2FZATSuK7sbdBrxQ==
+X-MS-TrafficTypeDiagnostic:
+	PAXPR04MB8749:EE_|PAWPR04MB9717:EE_|DU6PEPF0000B61B:EE_|DU4PR04MB10362:EE_
+X-MS-Office365-Filtering-Correlation-Id: ebd78dab-8e8d-45b6-4e81-08de38130cd6
+X-CLOUD-SEC-AV-Info: solidrun,office365_emails,sent,inline
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam-Untrusted:
+ BCL:0;ARA:13230040|366016|376014|7416014|52116014|1800799024|38350700014|7053199007|921020;
+X-Microsoft-Antispam-Message-Info-Original:
+ =?utf-8?B?RWtUczl4OFkxUFg1R3lvakdiM1RRMDRiSXE5YkNrbGZjMllaQWhGS2cxbDBR?=
+ =?utf-8?B?UG5QcHVWVFFBZEVobDNzVkh2b1YyTDJQTlNHdlhSdDRsS3JjSTVqK2FaTkY1?=
+ =?utf-8?B?Y3g5UWNaYVoxRHFhaXZINHhKZXo0YXF0WGp3bkVWYkQ3RytPZUp1WnVLM1dw?=
+ =?utf-8?B?d2tzSVRFb3pzSk54Wkg4UVhicjN1RWE3Q3ZxTEc1RFRwYkIwR2hPQzYzRThI?=
+ =?utf-8?B?bHlqYVQ2Z1F4L2dSandMZDdia1pzcExZMlVkejYxamdHdUY2M0JncDN4Qk9q?=
+ =?utf-8?B?M05ZN0Q1WS8zeitZR2NoVi9jQU9jMkdzOFFLNGlBSXFWUGhpUm8xZVlFOXhX?=
+ =?utf-8?B?UHY5bEJZL2YxTGlMVFNDeGd0K0kzSXJ0ZjhxZG1ORmhwWXM2UjhGUDdzMXpx?=
+ =?utf-8?B?MkFaanhnYXZHc2xYR2ZJVTA1aWRBRmRhOHEzRXAycWZWZEJIZHhQUXNSWDhl?=
+ =?utf-8?B?WFd1Njd0NmgyMVQ3d3g0dm4xU1JLQloxeU4vU01JSlV6NGx4NlIwNm5ERDR4?=
+ =?utf-8?B?VmF0ODZ1RWE1WXIvYUFSMWNmcEoyZmp3bGNaRDNwcHp5Z2FPNTRjUFhMUldn?=
+ =?utf-8?B?R1R3QVBVTlM0RkhzVzcwWlJkdUVaQ1BkSmpiZmIzK1hDWEJXWU5MNHJ3dnRX?=
+ =?utf-8?B?TlUrVW9uQXJCQ2RzdkFHYmpTSU12eUtPYlFDRFJNUkV2dmlBWUZWRUM2QlU1?=
+ =?utf-8?B?UjdGZThmdTlDRDY3ekJ3b2p3QS9DME0yOHNKYlZjYTY0UTgvYTBZbmw1NXhF?=
+ =?utf-8?B?aElSUnJmN0FsNmVNWkx1dUlqNkpOSVRKaVhsVnJEWklnR1VaYVp3ZEk5QXA1?=
+ =?utf-8?B?c2NqbUtjc0l2MXJaU2JIaGJQMXdVQkVVVDRSb3pRUEhpRDJGbnkwaHBmQllF?=
+ =?utf-8?B?RzZsQ05PWXQ1bkZ4b0twSm9udktXdXVxTTJHN09BSzBvR1RKZURKMklWSkpR?=
+ =?utf-8?B?all6OW1aQ1FRdUJWdWZuMWErSHQ5akhCNmEzVVNoQWY0eFgwU3NWQy8rakQ3?=
+ =?utf-8?B?Y3RjT2svWk1ZWHBXT01kUkRpdzZpTGdEVDRzMG1HZGRlbHNjWTB5VmtyTHNT?=
+ =?utf-8?B?NitmWnhwejdNbEVkemJVWjRMZzBnMGhCb21VM0kxM0JMKzRpRVFFeGgyY1J6?=
+ =?utf-8?B?bkw2dzBwSGsrZ0xzMHNvaFdQaGhOYnE0Y05jbWpvWi9ndFA3NDRqOVNaNlkv?=
+ =?utf-8?B?UWFjZkhLOXNuOTlSckg3ZEVNMmhxTWhjNFIvaWwrc1VVeStLZDlUU2lGWnpX?=
+ =?utf-8?B?a285aWVabUtKUTBMcTloM1M5Z3Iwajl6S0hHRytKWHo2dHMwclV1UXhLMjF0?=
+ =?utf-8?B?YXcyRm05MGNtUDQrVGRtMkk1Slo0c2Jud1hPL2pLZkxoTjhRTTA4UWJrbXlI?=
+ =?utf-8?B?MXV1NUloZWRtOXZpaWFPQlg3VmFzQUoxS1FwWmpwV3NOUDdEc29KczNkNzBI?=
+ =?utf-8?B?VXpXUFBYOXA1THNwTHVORTJKcjR2Zmk1UVFCbFoyaUYwUFVjY1NJWTJ1YmJ1?=
+ =?utf-8?B?aHV2RWpMT0xOS1F1aUc1K3poU3ZTRkMxOWNQcUkyQW5uMUJ2VVIrTDlKV2wr?=
+ =?utf-8?B?Y1YrWEgzK0V5R28vcVdIcTJkWUFqS3djaFBmZDNnVnJNUVRLaDY5WHhrV2M3?=
+ =?utf-8?B?Y1ljYzFHcXNTbTZHc0ZsWHpiU0RFZzBBcDlQRXVoaTVQcFpuWFRtV0l6V2lz?=
+ =?utf-8?B?UDQrNmxYWWFpRytqTXIvdENsTjNJdXR1Sm9HMmdlQlhnVjNzQWtrM0F0S2dn?=
+ =?utf-8?B?WDRtWGtTNHVvYlkxN3pFVXl6VDZsNlRqNlFlVkdVbG1VNitkbnF3ZFF2cUhs?=
+ =?utf-8?B?Z1Z6U001cHZid1JOdnIvSFdKSWttK3U1b2g1alNkZFVRT0hENVExTVJ1ZzFp?=
+ =?utf-8?B?ckZKQzdLVDZJbzUrVWhBQXRXVjdzeGFKQ3lubk4yTkVhbVl3QXh2c1dBNm1G?=
+ =?utf-8?B?Z2M5clVUTlVMRXd2WkVnTlAwYUpBdWNwTGdxdFBXeG9iRXdRZHhTR05Xckts?=
+ =?utf-8?B?bURxSVg5bG9EZlBZZzczNDZ5WDNLK0xEZTEwR1dXM3pHMWdnMjVqNkZRZ1k3?=
+ =?utf-8?B?TUptZllUVmpRSFRIWE5oSlNYSkZuL0tVNVBXZz09?=
+X-Forefront-Antispam-Report-Untrusted:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PAXPR04MB8749.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(7416014)(52116014)(1800799024)(38350700014)(7053199007)(921020);DIR:OUT;SFP:1102;
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PAWPR04MB9717
+X-CLOUD-SEC-AV-INT-Relay: sent<mta-outgoing-dlp-mt-prod-cp-eu-2.checkpointcloudsec.com>
+X-CLOUD-SEC-AV-UUID: 3e05007524434996a4f76be0634794a0:solidrun,office365_emails,sent,inline:e3405425bbbc305e82807fbe90c335b7
+Authentication-Results-Original: mx.checkpointcloudsec.com; arc=pass;
+ dkim=none header.d=none
+X-EOPAttributedMessage: 0
+X-MS-Exchange-Transport-CrossTenantHeadersStripped:
+ DU6PEPF0000B61B.eurprd02.prod.outlook.com
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id-Prvs:
+	426d9e75-b6eb-4e0d-e6b1-08de381304a6
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|1800799024|36860700013|7416014|35042699022|82310400026|14060799003|921020;
+X-Microsoft-Antispam-Message-Info:
+	=?utf-8?B?NTVhdUI0Wm5JeEdXVEJwV01yOE05SWRJSVVZNFFkbmIyaUtuQm9jVTdNbjVG?=
+ =?utf-8?B?dlNseW0zSHJ2L1BFNWdBRVhpenVieEVrdTRwT1dubCtYL3lCMzdrNGwyT29L?=
+ =?utf-8?B?T0pvcTZ6V1FUZzB3NlN3dVNqU1JmaVBiWVYzcUVpZ2ZJMDlUT3N4VVNEdTR1?=
+ =?utf-8?B?V2o4OE1hclBYeGdaVVpQcFJCelBQVE5NN1dMdjRGNWRURFlTTEZOQnd1bm1l?=
+ =?utf-8?B?bHJtd2pxY1lQT28zV2c2dEkyQzFPK2kzOUpDV0tYdURFZlRleXY4S0NOR0g4?=
+ =?utf-8?B?ZGh5YTZJQ0VtUWFwb0pQbUNMck5Sb2RZN0pLTUVkNFFYTC9EdFRiWWV2VElx?=
+ =?utf-8?B?cFJzSGhhMzlvSHNzcGhDZmU2VEUvUDNTeEVHMDRxRzdQTVJEWUgxeFpXNWxN?=
+ =?utf-8?B?czRVMmdhVXJiL1RRaVpaLzk0WnJGdWhQd1BweUw5aGRMUVZOSnlZbWdNMjdp?=
+ =?utf-8?B?ZEQwWUg0SkoxOFlidDhaWmV2aE1lblR1SEVKVzkxKzVqMFljcitnbGdYb2Nr?=
+ =?utf-8?B?S3daYVUxeG1IdXd0ODhrTmF0QUFDNXp2Qk5lT0xhV0M1MFh0azdVRlNXQ1Z1?=
+ =?utf-8?B?VTc2N0taQ3RNbTR6U3ZDbjliWExMTDlGMUpTSFFUM3JPbHhSV1lyeHJibzBB?=
+ =?utf-8?B?ZWJiV0V5ZFRDbTJBOFRYZE1IWWVadHZCbkhjdXFnR3ovZmluaWVkek9QYmZM?=
+ =?utf-8?B?UGoreDJiTFVNVmFLOEIxRzk1MTB6QnhJYUtaRllJUGN3MW43UW9iZWMrRDRC?=
+ =?utf-8?B?NWRteS85MEZ3N0JPN0pSVnJuRzlJUlVwR05ETkVZVGFBTXNBdWZBaHdFL2VP?=
+ =?utf-8?B?ZHdselhNaER2aGxwZnhJU2g2eDdRbVdRZ3dIUXBkZXA3V29hN1Vua3dvdjJ1?=
+ =?utf-8?B?aUN6RU5kVkd3MTcvWTBsS2IwYzJhV050UzZkK3FiTitCZnJHWWtaa2N5NWZR?=
+ =?utf-8?B?S3pIMUcvMTV0ZnBiSEJHUU9iQUF0WktWM2ViUDNzeVdQZ01DeFo1YnB0TEN6?=
+ =?utf-8?B?d09aVGZ1RHp6STM2cGMyVTVnRjhteUlHQlZnZzBPMHJMRUwxUGc1UXVCVEZG?=
+ =?utf-8?B?b1IvZnZjNCsrTnJJY1gvcmR1ZnBCa3dhM0tSMTZJalVLSmtmakhSTUtFVXVw?=
+ =?utf-8?B?L2dxcmx3R1dseFpXYVVPVSsxMlhBaDlNT1RXTDRvcDF4dzYrbGVUMGZ2eVJW?=
+ =?utf-8?B?ZkFHdzVDL2xTMVFDclNWTDZJWlFRM3M1cnpDRXNJWEtTWTZzckcwcUpIY1Jv?=
+ =?utf-8?B?Q1llWm81d2tLRDZIT2ZYNmptd0NiV3l1R3JORXZQRXlIUGNXdHVVY3JkTk5r?=
+ =?utf-8?B?NGRIWXlVVEVrTXdYSVRJLzJUTW9XS2V6SU9aV0cwSDdBZU9TVnh3YVVRb3dw?=
+ =?utf-8?B?RlJYNUttelhDWjUyenVqNiswNmNQL1gyNjU4MjNac1JXZDdST1UrM3VrTHRU?=
+ =?utf-8?B?YW9XRThINndIeERSYVpmbFNYck9XWmZBamc5ZWh0enlDRmx2eFNFc1oyMklB?=
+ =?utf-8?B?a0ZReHk5U3p3TUpIZVpTblNNRC94OWpRblllWDJ3SW1SSFZSNHA2Y3V4OHh5?=
+ =?utf-8?B?VEJoUmVtWmxPT0JqSHNvMFNsVk9Xc3k1Zmp3L0ppSnBxR1lqeFIvOVJrVjRZ?=
+ =?utf-8?B?TndnbkxjbVpXZ1JTeHNCMHRSSmo0VUQwTEtneE5uNksyQmx5ZWZ6U1B3ZmFO?=
+ =?utf-8?B?eStlWGlPTUxoTGJibzg3U0hKMWdRT1VJb1Byb0d0aG9ZV3BRTjRDMkljS2Er?=
+ =?utf-8?B?cmRqT2dXOUtVUUFPdzZMOE1OTXYvNHRSUjNkQ2tJdmErNlFtcHpDanA1NXkr?=
+ =?utf-8?B?b1I3M09ScU1WbHVxc2lsVHIrYktPSkNwMFFhbTlsK0txSDBkakdtK0FVQnNq?=
+ =?utf-8?B?NFFnZHpVUm1md0RjVWw2NVRXWHlWSmlmZkw1MTlQRnJZRnZwQVZOaVVOa0Jt?=
+ =?utf-8?B?VWhuWjBFcXFlc292SFNhQUR2bytkYzI5dDZzU1lEVkYya25RNVh6YzRVZnZy?=
+ =?utf-8?B?TkVyVXRZNStQV1RGbjZRcnVIdkNkOHBiMGY3MUNPdS85cDNtcndveGpnaDMx?=
+ =?utf-8?B?S29HdEp5U0dvUHlITUVNM1JQU1kxL25STUlTdExGa3dTYUtBWjF3VzJ1dFhh?=
+ =?utf-8?Q?dBQNUbat+NtACsm6Hs6QY//GL?=
+X-Forefront-Antispam-Report:
+	CIP:52.17.62.50;CTRY:IE;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:eu-dlp.cloud-sec-av.com;PTR:eu-dlp.cloud-sec-av.com;CAT:NONE;SFS:(13230040)(376014)(1800799024)(36860700013)(7416014)(35042699022)(82310400026)(14060799003)(921020);DIR:OUT;SFP:1102;
+X-OriginatorOrg: solid-run.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Dec 2025 17:39:20.3653
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: ebd78dab-8e8d-45b6-4e81-08de38130cd6
+X-MS-Exchange-CrossTenant-Id: a4a8aaf3-fd27-4e27-add2-604707ce5b82
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=a4a8aaf3-fd27-4e27-add2-604707ce5b82;Ip=[52.17.62.50];Helo=[eu-dlp.cloud-sec-av.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	DU6PEPF0000B61B.eurprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU4PR04MB10362
 
-Implement a driver for the "Hardened I2C" controller found on Lattice
-MachXO2 family PLDs. The driver can run IRQ-driven or use a timer for
-polling.
+Some Renesas SoC based boards mux SD and eMMC on a single sdio
+controller, exposing user control by dip switch and software control by
+gpio.
 
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Purpose is to simplify development and provisioning by selecting boot
+media at power-on, and again before starting linux.
+
+Add binding and driver support for linking a (gpio) mux to renesas sdio
+controller.
+
+Introduce generic helper functions for getting managed and selected
+mux-state objects, and switch i2c-omap and phy-can-transceiver drivers.
+
+Signed-off-by: Josua Mayer <josua@solid-run.com>
 ---
+Changes in v3:
+- updated omap-i2c and phy-can-transceiver to use new helpers.
+- created generic helper functions for getting managed optional mux-state.
+  (Reported-by: Rob Herring <robh@kernel.org>)
+- picked up binding ack by Rob Herring.
+- replaced use of "SDIO" with "SD/SDIO/eMMC" in binding document and
+  commit descriptions.
+  (Reported-by: Ulf Hansson <ulf.hansson@linaro.org>)
+- Link to v2: https://lore.kernel.org/r/20251201-rz-sdio-mux-v2-0-bcb581b88dd7@solid-run.com
 
-v2:
-- use MODULE_DEVICE_TABLE()
+Changes in v2:
+- dropped mux-controller node from dt binding example
+  (Reported-by: Conor Dooley <conor@kernel.org>
+   Reported-by: Krzysztof Kozlowski <krzk@kernel.org>)
+- Link to v1: https://lore.kernel.org/r/20251128-rz-sdio-mux-v1-0-1ede318d160f@solid-run.com
 
-v3:
-- Prefix enums and register defines
-- Add machxo2_sleep() using fsleep instead of udelay, update machxo2_recover()
-  to use it
-- Add an early return in machxo2_write() to reduce indentation
-- Add a comment regarding limited prescale range
-- Use dev_err_probe() where appropriate
-- Set I2C_CR_I2CEN later, so it doesn't need to be disabled again in case of a
-  IRQ setup error. A clear of the IRQ status register is added to machxo2_init()
-  to ensure that we don't attempt to handle a pending IRQ before I2C_CR_I2CEN is
-  set.
+---
+Josua Mayer (6):
+      phy: can-transceiver: rename temporary helper function to avoid conflict
+      mux: Add helper functions for getting optional and selected mux-state
+      phy: can-transceiver: drop temporary helper getting optional mux-state
+      i2c: omap: switch to new generic helper for getting selected mux-state
+      dt-bindings: mmc: renesas,sdhi: Add mux-states property
+      mmc: host: renesas_sdhi_core: support selecting an optional mux
 
-v4:
-- Depend on HAS_IOPORT
-- Use ktime_add() for exponential backoff
-- Prefer spin_lock_irqsave() to spin_lock_irq()
-- Fix platform_get_resource() error handling
+ .../devicetree/bindings/mmc/renesas,sdhi.yaml      |  6 ++
+ drivers/i2c/busses/i2c-omap.c                      | 19 ++----
+ drivers/mmc/host/Kconfig                           |  1 +
+ drivers/mmc/host/renesas_sdhi.h                    |  1 +
+ drivers/mmc/host/renesas_sdhi_core.c               | 16 +++++-
+ drivers/mux/core.c                                 | 67 +++++++++++++++++++---
+ drivers/phy/phy-can-transceiver.c                  | 10 ----
+ include/linux/mux/consumer.h                       |  4 ++
+ 8 files changed, 89 insertions(+), 35 deletions(-)
+---
+base-commit: 3a8660878839faadb4f1a6dd72c3179c1df56787
+change-id: 20251128-rz-sdio-mux-acc5137f1618
 
- drivers/i2c/busses/Kconfig                |  11 +
- drivers/i2c/busses/Makefile               |   1 +
- drivers/i2c/busses/i2c-machxo2.c          | 709 ++++++++++++++++++++++
- include/linux/platform_data/i2c-machxo2.h |  17 +
- 4 files changed, 738 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-machxo2.c
- create mode 100644 include/linux/platform_data/i2c-machxo2.h
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 09ba55bae1fac..2da894ba4251a 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -857,6 +857,17 @@ config I2C_LS2X
- 	  This driver can also be built as a module. If so, the module
- 	  will be called i2c-ls2x.
- 
-+config I2C_MACHXO2
-+	tristate "Lattice MachXO2 I2C Controller"
-+	depends on HAS_IOPORT
-+	select REGMAP_MMIO
-+	help
-+	  If you say yes to this option, support will be included for the
-+	  "Hardened I2C" controller found on the Lattice MachXO2 PLD family.
-+
-+	  This driver can also be built as a module.  If so, the module
-+	  will be called i2c-machxo2.
-+
- config I2C_MLXBF
-         tristate "Mellanox BlueField I2C controller"
-         depends on (MELLANOX_PLATFORM && ARM64) || COMPILE_TEST
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index fb985769f5ff7..f9c44406be2e1 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -152,6 +152,7 @@ obj-$(CONFIG_I2C_BRCMSTB)	+= i2c-brcmstb.o
- obj-$(CONFIG_I2C_CROS_EC_TUNNEL)	+= i2c-cros-ec-tunnel.o
- obj-$(CONFIG_I2C_ELEKTOR)	+= i2c-elektor.o
- obj-$(CONFIG_I2C_ICY)		+= i2c-icy.o
-+obj-$(CONFIG_I2C_MACHXO2)	+= i2c-machxo2.o
- obj-$(CONFIG_I2C_MLXBF)		+= i2c-mlxbf.o
- obj-$(CONFIG_I2C_MLXCPLD)	+= i2c-mlxcpld.o
- obj-$(CONFIG_I2C_OPAL)		+= i2c-opal.o
-diff --git a/drivers/i2c/busses/i2c-machxo2.c b/drivers/i2c/busses/i2c-machxo2.c
-new file mode 100644
-index 0000000000000..169103c6a221d
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-machxo2.c
-@@ -0,0 +1,709 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * i2c-machxo2.c: I2C bus driver for Lattice MachXO2 I2C controller
-+ *
-+ * Copyright (c) 2024-2025 TQ-Systems GmbH <linux@ew.tq-group.com>, D-82229 Seefeld, Germany.
-+ * Author: Matthias Schiffer
-+ *
-+ * Based on driver by:
-+ *   Vadim V.Vlasov <vvlasov@dev.rtsoft.ru>
-+ *
-+ * Implementation follows "MachXO2 Family Handbook", HB1010 Version 01.8, with
-+ * a few additional undocumented quirks described by comments.
-+ *
-+ * Basic design:
-+ *
-+ * All functions returning an enum machxo2_i2c_state are part of a state machine,
-+ * each returning the next state to transition to. The state machine reflects
-+ * the diagrams found in the aforementioned document.
-+ *
-+ * All processing is driven by the hrtimer handler machxo2_handle(). The hrtimer
-+ * is used to poll the hardware for state transitions. In IRQ mode, the hrtimer
-+ * is disabled in states where we are waiting for an IRQ; the IRQ handler does
-+ * nothing but restart the timer to keep code paths in polling and IRQ mode as
-+ * similar as possible.
-+ */
-+
-+#include <linux/delay.h>
-+#include <linux/errno.h>
-+#include <linux/err.h>
-+#include <linux/hrtimer.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/io.h>
-+#include <linux/iopoll.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/platform_data/i2c-machxo2.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+#include <linux/wait.h>
-+
-+enum machxo2_i2c_state {
-+	MACHXO2_I2C_STATE_DONE,
-+	MACHXO2_I2C_STATE_START,
-+	MACHXO2_I2C_STATE_WRITE,
-+	MACHXO2_I2C_STATE_READ_WAIT_SRW,
-+	MACHXO2_I2C_STATE_READ,
-+};
-+
-+struct machxo2_i2c {
-+	struct i2c_adapter adap;
-+	struct regmap *regmap;
-+	u32 clock_khz;
-+	u32 bus_khz;
-+	int irq;
-+
-+	/* Current transfer state */
-+	enum machxo2_i2c_state state;
-+	struct i2c_msg *msg;
-+	int nmsgs;
-+	u16 pos;
-+
-+	wait_queue_head_t wait;
-+	ktime_t timer_wait;
-+
-+	/* lock syncs arming the timer and setting the error field */
-+	spinlock_t lock;
-+	struct hrtimer timer;
-+	int error;
-+};
-+
-+#define MACHXO2_I2C_POST_TIMEOUT_US	1000
-+
-+/* Registers */
-+#define MACHXO2_I2C_CR			0 /* Control, RW */
-+#define  MACHXO2_I2C_CR_I2CEN		0x80 /* Enable I2C */
-+
-+#define MACHXO2_I2C_CMDR		1 /* Command, RW */
-+#define  MACHXO2_I2C_CMDR_STA		0x80 /* Start */
-+#define  MACHXO2_I2C_CMDR_STO		0x40 /* Stop */
-+#define  MACHXO2_I2C_CMDR_RD		0x20 /* Read */
-+#define  MACHXO2_I2C_CMDR_WR		0x10 /* Write */
-+#define  MACHXO2_I2C_CMDR_ACK		0x08 /* Send NACK if the bit is set */
-+#define  MACHXO2_I2C_CMDR_CKSDIS	0x04 /* Clock stretch disable */
-+
-+#define MACHXO2_I2C_BR0			2 /* Clock Pre-scale, RW */
-+#define MACHXO2_I2C_BR1			3 /* Clock Pre-scale, RW */
-+#define MACHXO2_I2C_TXDR		4 /* Transmit Data, WO */
-+#define MACHXO2_I2C_SR			5 /* Status, RO */
-+#define  MACHXO2_I2C_SR_TIP		0x80 /* Transmit In Progress */
-+#define  MACHXO2_I2C_SR_BUSY		0x40 /* Bus Busy */
-+#define  MACHXO2_I2C_SR_RARC		0x20 /* Received ACK (if unset) */
-+#define  MACHXO2_I2C_SR_SRW		0x10 /* Slave Read/Write */
-+#define  MACHXO2_I2C_SR_ARBL		0x08 /* Arbitration Lost */
-+#define  MACHXO2_I2C_SR_TRRDY		0x04 /* Transmitter/Receiver Ready */
-+#define  MACHXO2_I2C_SR_TROE		0x02 /* Transmitter/Receiver Overrun Error */
-+#define  MACHXO2_I2C_SR_HGC		0x01 /* Hardware General Call Received */
-+#define MACHXO2_I2C_RXDR		7 /* Receive Data, RO */
-+#define MACHXO2_I2C_IRQ			8 /* IRQ, RW */
-+#define MACHXO2_I2C_IRQEN		9 /* IRQ Enable, RW */
-+#define  MACHXO2_I2C_IRQ_ARBL		0x08 /* Arbitration Lost */
-+#define  MACHXO2_I2C_IRQ_TRRDY		0x04 /* Transmitter/Receiver Ready */
-+#define  MACHXO2_I2C_IRQ_TROE		0x02 /* Transmitter/Receiver Overrun Error */
-+#define  MACHXO2_I2C_IRQ_HGC		0x01 /* Hardware General Call Received */
-+#define  MACHXO2_I2C_IRQ_MASK		(MACHXO2_I2C_IRQ_ARBL | \
-+					 MACHXO2_I2C_IRQ_TRRDY | \
-+					 MACHXO2_I2C_IRQ_TROE)
-+
-+static inline void machxo2_set(struct machxo2_i2c *i2c, unsigned int reg,
-+			       u8 value)
-+{
-+	regmap_write(i2c->regmap, reg, value);
-+}
-+
-+static inline u8 machxo2_get(struct machxo2_i2c *i2c, unsigned int reg)
-+{
-+	unsigned int val;
-+
-+	regmap_read(i2c->regmap, reg, &val);
-+
-+	return val;
-+}
-+
-+static inline unsigned long
-+machxo2_cycles_to_usecs(const struct machxo2_i2c *i2c, unsigned int cycles)
-+{
-+	return DIV_ROUND_UP(cycles * 1000, i2c->bus_khz);
-+}
-+
-+/* Delay by a number of SCL cycles */
-+static inline void machxo2_delay(const struct machxo2_i2c *i2c,
-+				 unsigned int cycles)
-+{
-+	udelay(machxo2_cycles_to_usecs(i2c, cycles));
-+}
-+
-+/* Sleep by a number of SCL cycles */
-+static inline void machxo2_sleep(const struct machxo2_i2c *i2c,
-+				 unsigned int cycles)
-+{
-+	fsleep(machxo2_cycles_to_usecs(i2c, cycles));
-+}
-+
-+static enum machxo2_i2c_state
-+machxo2_error(struct machxo2_i2c *i2c, int error)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&i2c->lock, flags);
-+	if (!i2c->error)
-+		i2c->error = error;
-+	spin_unlock_irqrestore(&i2c->lock, flags);
-+
-+	machxo2_set(i2c, MACHXO2_I2C_CMDR, MACHXO2_I2C_CMDR_STO);
-+
-+	return MACHXO2_I2C_STATE_DONE;
-+}
-+
-+static void machxo2_reset_timer_wait(struct machxo2_i2c *i2c)
-+{
-+	/* 10 SCL cycles is a good starting point to wait for 1 byte to get transferred */
-+	i2c->timer_wait = ns_to_ktime(machxo2_cycles_to_usecs(i2c, 10) * NSEC_PER_USEC);
-+}
-+
-+static enum machxo2_i2c_state
-+machxo2_end_of_message(struct machxo2_i2c *i2c)
-+{
-+	struct i2c_msg *msg = i2c->msg;
-+
-+	/* More messages to process? */
-+	if (--i2c->nmsgs) {
-+		i2c->msg++;
-+		i2c->pos = 0;
-+		return MACHXO2_I2C_STATE_START;
-+	}
-+
-+	/* End of transaction */
-+
-+	if (!(msg->flags & I2C_M_RD))
-+		machxo2_set(i2c, MACHXO2_I2C_CMDR, MACHXO2_I2C_CMDR_STO);
-+
-+	return MACHXO2_I2C_STATE_DONE;
-+}
-+
-+static enum machxo2_i2c_state
-+machxo2_write(struct machxo2_i2c *i2c, u8 stat)
-+{
-+	struct i2c_msg *msg = i2c->msg;
-+	bool eom = (i2c->pos == msg->len);
-+
-+	if (!(stat & MACHXO2_I2C_SR_TRRDY))
-+		return MACHXO2_I2C_STATE_WRITE;
-+
-+	if (eom) {
-+		machxo2_delay(i2c, 1);
-+		stat = machxo2_get(i2c, MACHXO2_I2C_SR);
-+	}
-+
-+	if ((i2c->pos > 0 || eom) && (stat & MACHXO2_I2C_SR_RARC)) {
-+		dev_dbg(&i2c->adap.dev, "No ACK at %d\n", i2c->pos);
-+		return machxo2_error(i2c, -ENXIO);
-+	}
-+
-+	if (eom)
-+		return machxo2_end_of_message(i2c);
-+
-+	machxo2_set(i2c, MACHXO2_I2C_TXDR, msg->buf[i2c->pos++]);
-+	machxo2_set(i2c, MACHXO2_I2C_CMDR, MACHXO2_I2C_CMDR_WR);
-+
-+	machxo2_reset_timer_wait(i2c);
-+
-+	return MACHXO2_I2C_STATE_WRITE;
-+}
-+
-+static enum machxo2_i2c_state
-+machxo2_prepare_read(struct machxo2_i2c *i2c)
-+{
-+	struct i2c_msg *msg = i2c->msg;
-+
-+	/* Prepare to stop if we are waiting for the last byte */
-+	if (i2c->pos == (msg->len - 1) && i2c->nmsgs == 1) {
-+		if (msg->len == 1)
-+			machxo2_delay(i2c, 2);
-+		machxo2_set(i2c, MACHXO2_I2C_CMDR,
-+			    MACHXO2_I2C_CMDR_RD | MACHXO2_I2C_CMDR_ACK | MACHXO2_I2C_CMDR_STO);
-+	} else if (i2c->pos == msg->len) {
-+		return machxo2_end_of_message(i2c);
-+	}
-+
-+	machxo2_reset_timer_wait(i2c);
-+
-+	return MACHXO2_I2C_STATE_READ;
-+}
-+
-+static enum machxo2_i2c_state
-+machxo2_read(struct machxo2_i2c *i2c, u8 stat)
-+{
-+	struct i2c_msg *msg = i2c->msg;
-+
-+	if (stat & MACHXO2_I2C_SR_TRRDY) {
-+		msg->buf[i2c->pos++] = machxo2_get(i2c, MACHXO2_I2C_RXDR);
-+		return machxo2_prepare_read(i2c);
-+	}
-+
-+	return MACHXO2_I2C_STATE_READ;
-+}
-+
-+static enum machxo2_i2c_state
-+machxo2_read_wait_srw(struct machxo2_i2c *i2c, u8 stat)
-+{
-+	if (!(stat & MACHXO2_I2C_SR_SRW))
-+		return MACHXO2_I2C_STATE_READ_WAIT_SRW;
-+
-+	machxo2_delay(i2c, 1);
-+	stat = machxo2_get(i2c, MACHXO2_I2C_SR);
-+	if (stat & MACHXO2_I2C_SR_RARC)
-+		return machxo2_error(i2c, -ENXIO);
-+
-+	machxo2_set(i2c, MACHXO2_I2C_CMDR, MACHXO2_I2C_CMDR_RD);
-+	return machxo2_prepare_read(i2c);
-+}
-+
-+static enum machxo2_i2c_state
-+machxo2_start(struct machxo2_i2c *i2c)
-+{
-+	struct i2c_msg *msg = i2c->msg;
-+
-+	if (!(msg->flags & I2C_M_NOSTART)) {
-+		u8 addr = i2c_8bit_addr_from_msg(msg);
-+
-+		/*
-+		 * If too much time passes between the previous write and
-+		 * setting the new address, the address may become written
-+		 * as a data byte instead of sending a restart first. Removing
-+		 * the WR flag first avoids this issue.
-+		 */
-+		machxo2_set(i2c, MACHXO2_I2C_CMDR, MACHXO2_I2C_CMDR_STA);
-+		machxo2_set(i2c, MACHXO2_I2C_TXDR, addr);
-+		machxo2_set(i2c, MACHXO2_I2C_CMDR, MACHXO2_I2C_CMDR_STA | MACHXO2_I2C_CMDR_WR);
-+	}
-+
-+	machxo2_reset_timer_wait(i2c);
-+
-+	return (msg->flags & I2C_M_RD) ? MACHXO2_I2C_STATE_READ_WAIT_SRW : MACHXO2_I2C_STATE_WRITE;
-+}
-+
-+/* I2C state machine - returns the next state to transition to */
-+static enum machxo2_i2c_state machxo2_process(struct machxo2_i2c *i2c)
-+{
-+	unsigned long flags;
-+	int error;
-+	u8 stat;
-+
-+	if (i2c->state == MACHXO2_I2C_STATE_DONE)
-+		return MACHXO2_I2C_STATE_DONE;
-+
-+	spin_lock_irqsave(&i2c->lock, flags);
-+	error = i2c->error;
-+	spin_unlock_irqrestore(&i2c->lock, flags);
-+
-+	if (error) {
-+		/* Error was set from outside of machxo2_process (timeout) */
-+		machxo2_set(i2c, MACHXO2_I2C_CMDR, MACHXO2_I2C_CMDR_STO);
-+		return MACHXO2_I2C_STATE_DONE;
-+	}
-+
-+	stat = machxo2_get(i2c, MACHXO2_I2C_SR);
-+
-+	/* Check for errors (arbitration lost / overrun) */
-+	if (stat & (MACHXO2_I2C_SR_ARBL | MACHXO2_I2C_SR_TROE))
-+		return machxo2_error(i2c, -EIO);
-+
-+	switch (i2c->state) {
-+	case MACHXO2_I2C_STATE_DONE:
-+		/* Handled above - should be unreachable */
-+		break;
-+
-+	case MACHXO2_I2C_STATE_START:
-+		return machxo2_start(i2c);
-+
-+	case MACHXO2_I2C_STATE_WRITE:
-+		return machxo2_write(i2c, stat);
-+
-+	case MACHXO2_I2C_STATE_READ_WAIT_SRW:
-+		return machxo2_read_wait_srw(i2c, stat);
-+
-+	case MACHXO2_I2C_STATE_READ:
-+		return machxo2_read(i2c, stat);
-+	}
-+
-+	/* Should be unreachable */
-+	WARN_ON(1);
-+	return machxo2_error(i2c, -EINVAL);
-+}
-+
-+static enum hrtimer_restart machxo2_restart_timer(struct machxo2_i2c *i2c)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&i2c->lock, flags);
-+	if (!hrtimer_is_queued(&i2c->timer))
-+		hrtimer_forward_now(&i2c->timer, i2c->timer_wait);
-+	spin_unlock_irqrestore(&i2c->lock, flags);
-+
-+	/* Exponential backoff for timer */
-+	i2c->timer_wait = ktime_add(i2c->timer_wait, i2c->timer_wait);
-+
-+	return HRTIMER_RESTART;
-+}
-+
-+static enum hrtimer_restart machxo2_handle(struct hrtimer *timer)
-+{
-+	struct machxo2_i2c *i2c = container_of(timer, struct machxo2_i2c, timer);
-+
-+	/*
-+	 * If the new state is MACHXO2_I2C_STATE_START, we're at a restart and want to
-+	 * run process again right away.
-+	 */
-+	do {
-+		i2c->state = machxo2_process(i2c);
-+	} while (i2c->state == MACHXO2_I2C_STATE_START);
-+
-+	switch (i2c->state) {
-+	case MACHXO2_I2C_STATE_DONE:
-+		wake_up(&i2c->wait);
-+		return HRTIMER_NORESTART;
-+
-+	case MACHXO2_I2C_STATE_READ_WAIT_SRW:
-+		/* There is no IRQ for the SRW flag, so we always use the timer here */
-+		return machxo2_restart_timer(i2c);
-+
-+	case MACHXO2_I2C_STATE_WRITE:
-+	case MACHXO2_I2C_STATE_READ:
-+		/* If we have an IRQ, it is used to drive the state machine */
-+		if (i2c->irq > 0)
-+			return HRTIMER_NORESTART;
-+
-+		return machxo2_restart_timer(i2c);
-+
-+	default:
-+		/* Unreachable */
-+		WARN_ON(1);
-+		return HRTIMER_NORESTART;
-+	}
-+}
-+
-+static irqreturn_t machxo2_isr(int irq, void *dev_id)
-+{
-+	struct machxo2_i2c *i2c = dev_id;
-+	u8 irq_stat = machxo2_get(i2c, MACHXO2_I2C_IRQ);
-+
-+	if (!(irq_stat & MACHXO2_I2C_IRQ_MASK))
-+		return IRQ_NONE;
-+
-+	/*
-+	 * Due to a race condition in the I2C controller, no edge on the IRQ
-+	 * line may be generated if an event comes in right at the moment when
-+	 * the IRQs are cleared. Loop to ensure that IRQs are actually cleared.
-+	 */
-+	do {
-+		machxo2_set(i2c, MACHXO2_I2C_IRQ, MACHXO2_I2C_IRQ_MASK);
-+		irq_stat = machxo2_get(i2c, MACHXO2_I2C_IRQ);
-+	} while (irq_stat & MACHXO2_I2C_IRQ_MASK);
-+
-+	spin_lock(&i2c->lock);
-+	hrtimer_start(&i2c->timer, 0, HRTIMER_MODE_REL);
-+	spin_unlock(&i2c->lock);
-+
-+	return IRQ_HANDLED;
-+}
-+
-+static void machxo2_recover(struct machxo2_i2c *i2c)
-+{
-+	/*
-+	 * This is happening somewhat often after reads, in particular at
-+	 * 100kHz. Further investigation is necessary, but for now the recovery
-+	 * sequence keeps the bus usable.
-+	 */
-+	dev_dbg(&i2c->adap.dev, "stuck transaction, recovering\n");
-+
-+	machxo2_set(i2c, MACHXO2_I2C_CR, 0);
-+	machxo2_set(i2c, MACHXO2_I2C_CR, MACHXO2_I2C_CR_I2CEN);
-+	machxo2_sleep(i2c, 1);
-+
-+	machxo2_set(i2c, MACHXO2_I2C_CMDR, 0);
-+	machxo2_set(i2c, MACHXO2_I2C_TXDR, 0);
-+	machxo2_set(i2c, MACHXO2_I2C_CMDR, MACHXO2_I2C_CMDR_STA | MACHXO2_I2C_CMDR_WR);
-+	machxo2_sleep(i2c, 2);
-+	machxo2_set(i2c, MACHXO2_I2C_CMDR, MACHXO2_I2C_CMDR_STO);
-+	machxo2_sleep(i2c, 10);
-+
-+	machxo2_set(i2c, MACHXO2_I2C_CR, 0);
-+	machxo2_set(i2c, MACHXO2_I2C_CR, MACHXO2_I2C_CR_I2CEN);
-+	machxo2_sleep(i2c, 1);
-+}
-+
-+static void machxo2_wait_not_busy(struct machxo2_i2c *i2c, unsigned long sleep,
-+				  u64 timeout)
-+{
-+	u8 status;
-+
-+	read_poll_timeout(machxo2_get, status, (status & MACHXO2_I2C_SR_BUSY) == 0,
-+			  sleep, timeout, false, i2c, MACHXO2_I2C_SR);
-+
-+	if (status & (MACHXO2_I2C_SR_BUSY | MACHXO2_I2C_SR_TROE))
-+		machxo2_recover(i2c);
-+}
-+
-+static int machxo2_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-+{
-+	struct machxo2_i2c *i2c = i2c_get_adapdata(adap);
-+	unsigned long flags;
-+
-+	machxo2_wait_not_busy(i2c, 1000, jiffies_to_usecs(adap->timeout) + 1);
-+
-+	dev_dbg(&adap->dev, "new msg: addr %02x, flags %x, nmsgs %d, len %d\n",
-+		msgs->addr, msgs->flags, num, msgs[0].len);
-+
-+	i2c->msg = msgs;
-+	i2c->pos = 0;
-+	i2c->nmsgs = num;
-+	i2c->error = 0;
-+	i2c->state = MACHXO2_I2C_STATE_START;
-+	/* Ensure that the hrtimer sees the state change */
-+	smp_wmb();
-+
-+	spin_lock_irqsave(&i2c->lock, flags);
-+	hrtimer_start(&i2c->timer, 0, HRTIMER_MODE_REL);
-+	spin_unlock_irqrestore(&i2c->lock, flags);
-+
-+	if (!wait_event_timeout(i2c->wait, i2c->state == MACHXO2_I2C_STATE_DONE,
-+				adap->timeout)) {
-+		spin_lock_irqsave(&i2c->lock, flags);
-+		i2c->error = -ETIMEDOUT;
-+		/* Run handler once more to send STOP */
-+		hrtimer_start(&i2c->timer, 0, HRTIMER_MODE_REL);
-+		spin_unlock_irqrestore(&i2c->lock, flags);
-+
-+		if (!wait_event_timeout(i2c->wait, i2c->state == MACHXO2_I2C_STATE_DONE,
-+					usecs_to_jiffies(MACHXO2_I2C_POST_TIMEOUT_US))) {
-+
-+			if (i2c->irq > 0)
-+				disable_irq(i2c->irq);
-+			hrtimer_cancel(&i2c->timer);
-+			i2c->state = MACHXO2_I2C_STATE_DONE;
-+			/*
-+			 * Ensure that the hrtimer sees the state change (if
-+			 * started again by pending IRQ)
-+			 */
-+			smp_wmb();
-+			if (i2c->irq > 0)
-+				enable_irq(i2c->irq);
-+		}
-+	}
-+
-+	machxo2_wait_not_busy(i2c, 100, MACHXO2_I2C_POST_TIMEOUT_US);
-+
-+	if (i2c->error) {
-+		dev_dbg(&adap->dev, "end msg: error %d, nmsgs %d, pos %d\n",
-+			i2c->error, i2c->nmsgs, i2c->pos);
-+		return i2c->error;
-+	}
-+
-+	return num;
-+}
-+
-+static int machxo2_init(struct machxo2_i2c *i2c)
-+{
-+	unsigned int prescale;
-+
-+	/* Make sure the device is disabled */
-+	machxo2_set(i2c, MACHXO2_I2C_CR, 0);
-+
-+	/* I2C bus frequencies officially supported by MachXO2 are 400, 100 and 50 kHz */
-+	if (i2c->bus_khz >= 400)
-+		i2c->bus_khz = 400;
-+	else if (i2c->bus_khz >= 100)
-+		i2c->bus_khz = 100;
-+	else
-+		i2c->bus_khz = 50;
-+
-+	prescale = DIV_ROUND_UP(i2c->clock_khz, 4 * i2c->bus_khz);
-+	/* prescale field is 10 bits wide */
-+	if (prescale > 0x3ff)
-+		return dev_err_probe(&i2c->adap.dev, -EINVAL,
-+				     "unsupported prescale: %d\n", prescale);
-+
-+	machxo2_set(i2c, MACHXO2_I2C_BR0, prescale & 0xff);
-+	machxo2_set(i2c, MACHXO2_I2C_BR1, prescale >> 8);
-+
-+	/* Disable and clear interrupts to make sure none is pending */
-+	machxo2_set(i2c, MACHXO2_I2C_IRQEN, 0);
-+	machxo2_set(i2c, MACHXO2_I2C_IRQ, MACHXO2_I2C_IRQ_MASK);
-+
-+	return 0;
-+}
-+
-+static u32 machxo2_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL | I2C_FUNC_NOSTART;
-+}
-+
-+static const struct i2c_algorithm machxo2_algorithm = {
-+	.master_xfer = machxo2_xfer,
-+	.functionality = machxo2_func,
-+};
-+
-+static const struct regmap_config machxo2_regmap_config = {
-+	.reg_bits = 8,
-+	.reg_stride = 1,
-+	.val_bits = 8,
-+	/*
-+	 * No locking is necessary for ioport access, and we don't have a
-+	 * regcache (caching doesn't make sense for this driver, as all
-+	 * registers ever read are volatile)
-+	 */
-+	.disable_locking = true,
-+	.io_port = true,
-+	.max_register = 9,
-+};
-+
-+static int machxo2_i2c_probe(struct platform_device *pdev)
-+{
-+	struct machxo2_i2c_platform_data *pdata;
-+	struct machxo2_i2c *i2c;
-+	struct resource *res;
-+	void __iomem *regs;
-+	int ret;
-+
-+	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
-+	if (!i2c)
-+		return -ENOMEM;
-+
-+	pdata = dev_get_platdata(&pdev->dev);
-+	if (!pdata || !pdata->clock_khz)
-+		return -EINVAL;
-+
-+	i2c->clock_khz = pdata->clock_khz;
-+	i2c->bus_khz = pdata->bus_khz;
-+
-+	res = platform_get_resource(pdev, IORESOURCE_IO, 0);
-+	if (!res)
-+		return dev_err_probe(&pdev->dev, -EINVAL, "Missing I/O resource\n");
-+
-+	if (!devm_request_region(&pdev->dev, res->start, resource_size(res),
-+				 pdev->name))
-+		return dev_err_probe(&pdev->dev, -EBUSY, "Can't get I/O resource\n");
-+
-+	regs = devm_ioport_map(&pdev->dev, res->start, resource_size(res));
-+	if (!regs)
-+		return dev_err_probe(&pdev->dev, -EBUSY, "Can't map I/O resource\n");
-+
-+	i2c->regmap = devm_regmap_init_mmio(&pdev->dev, regs, &machxo2_regmap_config);
-+	if (IS_ERR(i2c->regmap))
-+		return dev_err_probe(&pdev->dev, PTR_ERR(i2c->regmap),
-+				     "Unable to initialize register map\n");
-+
-+	i2c->irq = platform_get_irq_optional(pdev, 0);
-+	if (i2c->irq < 0 && i2c->irq != -ENXIO)
-+		return i2c->irq;
-+
-+	ret = machxo2_init(i2c);
-+	if (ret)
-+		return ret;
-+
-+	init_waitqueue_head(&i2c->wait);
-+	spin_lock_init(&i2c->lock);
-+	hrtimer_setup(&i2c->timer, machxo2_handle, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-+
-+	if (i2c->irq > 0) {
-+		ret = devm_request_irq(&pdev->dev, i2c->irq, machxo2_isr, 0,
-+				       pdev->name, i2c);
-+		if (ret)
-+			return dev_err_probe(&pdev->dev, ret, "Cannot claim IRQ\n");
-+
-+		machxo2_set(i2c, MACHXO2_I2C_IRQEN, MACHXO2_I2C_IRQ_MASK);
-+
-+		dev_info(&pdev->dev,
-+			 "Using IRQ %d, bus speed %dKHz, clock %dKHz\n",
-+			 i2c->irq, i2c->bus_khz, i2c->clock_khz);
-+	} else {
-+		dev_info(&pdev->dev,
-+			 "Running in polling mode, bus speed %dKHz, clock %dKHz\n",
-+			 i2c->bus_khz, i2c->clock_khz);
-+	}
-+
-+	platform_set_drvdata(pdev, i2c);
-+
-+	strscpy(i2c->adap.name, "i2c-machxo2", sizeof(i2c->adap.name));
-+	i2c->adap.algo = &machxo2_algorithm;
-+	i2c->adap.dev.parent = &pdev->dev;
-+	i2c->adap.nr = pdev->id;
-+	i2c->adap.owner = THIS_MODULE;
-+	i2c_set_adapdata(&i2c->adap, i2c);
-+
-+	machxo2_set(i2c, MACHXO2_I2C_CR, MACHXO2_I2C_CR_I2CEN);
-+
-+	ret = i2c_add_adapter(&i2c->adap);
-+	if (ret) {
-+		machxo2_set(i2c, MACHXO2_I2C_CR, 0);
-+		machxo2_set(i2c, MACHXO2_I2C_IRQEN, 0);
-+
-+		if (i2c->irq > 0)
-+			disable_irq(i2c->irq);
-+		hrtimer_cancel(&i2c->timer);
-+
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static void machxo2_i2c_remove(struct platform_device *pdev)
-+{
-+	struct machxo2_i2c *i2c = platform_get_drvdata(pdev);
-+
-+	i2c_del_adapter(&i2c->adap);
-+
-+	/* Disable I2C logic */
-+	machxo2_set(i2c, MACHXO2_I2C_CR, 0);
-+	machxo2_set(i2c, MACHXO2_I2C_IRQEN, 0);
-+
-+	if (i2c->irq > 0)
-+		disable_irq(i2c->irq);
-+	hrtimer_cancel(&i2c->timer);
-+}
-+
-+static int machxo2_i2c_suspend(struct device *dev)
-+{
-+	struct machxo2_i2c *i2c = dev_get_drvdata(dev);
-+
-+	machxo2_set(i2c, MACHXO2_I2C_CR, 0);
-+
-+	return 0;
-+}
-+
-+static int machxo2_i2c_resume(struct device *dev)
-+{
-+	struct machxo2_i2c *i2c = dev_get_drvdata(dev);
-+
-+	machxo2_set(i2c, MACHXO2_I2C_CR, MACHXO2_I2C_CR_I2CEN);
-+
-+	return 0;
-+}
-+
-+static DEFINE_NOIRQ_DEV_PM_OPS(machxo2_i2c_pm,
-+			       machxo2_i2c_suspend, machxo2_i2c_resume);
-+
-+static const struct platform_device_id machxo2_i2c_driver_ids[] = {
-+	{ .name = "i2c-machxo2", },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(platform, machxo2_i2c_driver_ids);
-+
-+static struct platform_driver machxo2_i2c_driver = {
-+	.probe = machxo2_i2c_probe,
-+	.remove = machxo2_i2c_remove,
-+	.id_table = machxo2_i2c_driver_ids,
-+	.driver  = {
-+		.name = "i2c-machxo2",
-+		.pm = pm_sleep_ptr(&machxo2_i2c_pm),
-+	},
-+};
-+
-+module_platform_driver(machxo2_i2c_driver);
-+
-+MODULE_AUTHOR("TQ-Systems GmbH <linux@ew.tq-group.com>");
-+MODULE_DESCRIPTION("Lattice MachXO2 I2C bus driver");
-+MODULE_LICENSE("GPL");
-diff --git a/include/linux/platform_data/i2c-machxo2.h b/include/linux/platform_data/i2c-machxo2.h
-new file mode 100644
-index 0000000000000..5cbfbe9d81b46
---- /dev/null
-+++ b/include/linux/platform_data/i2c-machxo2.h
-@@ -0,0 +1,17 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
-+/*
-+ * i2c-machxo2.h: Platform data for Lattice MachXO2 I2C controller
-+ *
-+ * Copyright (c) 2024 TQ-Systems GmbH <linux@ew.tq-group.com>, D-82229 Seefeld, Germany.
-+ * Author: Matthias Schiffer
-+ */
-+
-+#ifndef _LINUX_I2C_MACHXO2_H
-+#define _LINUX_I2C_MACHXO2_H
-+
-+struct machxo2_i2c_platform_data {
-+	u32 clock_khz; /* input clock in kHz */
-+	u32 bus_khz; /* I2C bus clock in kHz */
-+};
-+
-+#endif /* _LINUX_I2C_MACHXO2_H */
+Best regards,
 -- 
-TQ-Systems GmbH | Mühlstraße 2, Gut Delling | 82229 Seefeld, Germany
-Amtsgericht München, HRB 105018
-Geschäftsführer: Detlef Schneider, Rüdiger Stahl, Stefan Schneider
-https://www.tq-group.com/
+Josua Mayer <josua@solid-run.com>
+
 
