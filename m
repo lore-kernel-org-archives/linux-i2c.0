@@ -1,48 +1,48 @@
-Received: from mx-relay112-hz1.antispameurope.com (mx-relay112-hz1.antispameurope.com [94.100.132.104])
+Received: from mx-relay62-hz1.antispameurope.com (mx-relay62-hz1.antispameurope.com [94.100.133.231])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFDD0317711
-	for <linux-i2c@vger.kernel.org>; Wed, 10 Dec 2025 13:54:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=94.100.132.104
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41DEB31B111
+	for <linux-i2c@vger.kernel.org>; Wed, 10 Dec 2025 13:55:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=94.100.133.231
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765374875; cv=pass; b=Mm47fRfDdS+c8KyGtLxvlrNOqvqPCyJLKA4dx+zKMdg1+CE/n5uvQncAP0FdJA2CdbR/ZW9+lgJDjzkw2fmVbMltFDxUZ3/tTPMs6JxjS0tUXOGs1rlwLc+x23ni0mV67h/VkbEA5qsaJY1OOGIiChiwnbyzMBTANB7BkSwRN2A=
+	t=1765374905; cv=pass; b=sfSTqR+ddNMdSq9azvCFnJQlcMCit4tTK6YmMgBI9/+HoRTVbKvwX8wCNltoxS05AdUzDXspCdW9p+RHdDFRiotgdKELqAddoN8Ugwp8+o7QtgSr87lLJ2xYRbio1yWk9XcKJN52Woa0EeZQGbhobmkmvnBlV+9FZ127143Kejw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765374875; c=relaxed/simple;
-	bh=J61y2+gUfyHFzLGwLWzBQRzZC1YNTsSEyQdFmIAK360=;
+	s=arc-20240116; t=1765374905; c=relaxed/simple;
+	bh=Iyl0g4jM4WtlyhgmF3rvPpu1GKN5HCSVIUWHUuvo/B8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=dEGhAjLsIuJ84HXr9dXjSXbtWLcWab65xhzv0kYzFXFcuhXFh0PGEa89GK6cQJ+Ho8a/ZH1moX2FAiJEQL5Ua8zfwUxwsiHRBN8SrKQDgSfXOCTY453zc+ryhDAH6euFfGzCRoshfxfOrdXYoipTd6G1CArop6+wLE7zM8B1E9Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ew.tq-group.com; spf=pass smtp.mailfrom=ew.tq-group.com; dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b=iy9lwT0i; arc=pass smtp.client-ip=94.100.132.104
+	 MIME-Version:Content-Type; b=g88e+FpSMK9L3yi33IrfL2rg7MK2cToBWkKt7VOjuvrc9b++DoazMjzca+TUpuip6Kr2B5/GrvcvxxI8PzX+P6R9jK9E5O3wPr+S3lYm4F7XnNJnneQoZmBX1eOkgfqSGliY9XGx+NjIK0dzam1mCJwSXj6P+I0X+2v1lnIjL8k=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ew.tq-group.com; spf=pass smtp.mailfrom=ew.tq-group.com; dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b=pf8SHKf+; arc=pass smtp.client-ip=94.100.133.231
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ew.tq-group.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ew.tq-group.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b="iy9lwT0i"
-ARC-Authentication-Results: i=1; mx-gate112-hz1.hornetsecurity.com 1;
- spf=pass reason=mailfrom (ip=94.100.132.6, headerfrom=ew.tq-group.com)
+	dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b="pf8SHKf+"
+ARC-Authentication-Results: i=1; mx-gate62-hz1.hornetsecurity.com 1; spf=pass
+ reason=mailfrom (ip=94.100.132.6, headerfrom=ew.tq-group.com)
  smtp.mailfrom=ew.tq-group.com
  smtp.helo=hmail-p-smtp01-out03-hz1.hornetsecurity.com; dmarc=pass
  header.from=ew.tq-group.com orig.disposition=pass
 ARC-Message-Signature: a=rsa-sha256;
- bh=Rc5m14+w/GT2smQr7a0YPWZgzOaul5JPO2JsZD5uGJk=; c=relaxed/relaxed;
+ bh=WNtfNT5WfrjglKAVeovDwhEUf8jNL1MZBoPG+eDDW7M=; c=relaxed/relaxed;
  d=hornetsecurity.com; h=from:to:date:subject:mime-version:; i=1; s=hse1;
- t=1765374858;
- b=cz6JxHk214oFfu+gvW3lAQIo7CeBCE54pTq7mJoTkOy3jnCbcZik9uncJTmmONEJfOYH0auq
- WH9xNq4wxVCPPTilAF6nM5MiTmixdHyFKnvhw/fgnD+SDqqa6SP9dVzfLcHvtESspuu+o1OZFQe
- eh64U40ISozRooVvO8w4+DcnYsfOv7mK/XGsJen5pGHMhkiSSdw5nkleztxey+y3AZNfF5/LLSp
- nPs1x1NY7T247rkGyhuPxbMLbLiApvPCBTdOfE1/k/03qdSk/yG+KIoVJRgS9vd+D/PPiQRtJfz
- vDOhYbtO0YEt8UDUUN/AsR6FBauCsHFPc9t5CmitWgF4Q==
+ t=1765374857;
+ b=Y9Jvz9jNVVCl+rQVLdH4kW+8hc8rREwn4UaL9VSzMVvvjk+uMMic31zuvC+AdeUSwRMm4GV+
+ XVag8N7yG+KYNffMt6gXHy2USCfDJvbt8nqFduAcqhQqn9TaFYHA1RFSO3c5Dfg8ANHkQkj9e3E
+ iFlFjwGSnlGI+K83bZ8UOp1JoxplxukUFSRHFrGP/8gK5BKmC/h77Kb5+7F/5fIVokh/SNmITA/
+ M+JqoVL34ezWG371V6fNT8lm21gGkNevHaTZWh9E+w8PZFU6erZfEUKM54yv4B6HNNpAFxbspYW
+ TeXlo6xyjww+jgqxVkQx7ZpfZVJENnLIPPnoBU4durVWw==
 ARC-Seal: a=rsa-sha256; cv=none; d=hornetsecurity.com; i=1; s=hse1;
- t=1765374858;
- b=LjIoveKCXRvMyl9xUw/dGZ5zazSmfhRXJLZPGbuZVwQR6ftcD8vew+E64PSyIQ3MWhB0lHoO
- tgAsD+q5JmCGOheUYGG3Q59yVkl1S7uruTYJipXoX5SEuT1mGUoILicsrBMTu88G6IcswLIIPhB
- Y48u6rWDGvDSYPWsrDhYlEdrHZpfgrGU96ZSHrQ5oKQ25gpERyKwQ5pAXCk7ao+zeB3D6lFIsV6
- PL+I5v76ESNQLfN616AaI44YCJ1OZxg9tA1EoKE3Fky8tyjeCPynetgCBsARFaBNn8gb3evNyzU
- A+jayVir9a7Vhd+s+lbWCVy2G51X5mnfy3+peHJwMDpng==
-Received: from he-nlb01-hz1.hornetsecurity.com ([94.100.132.6]) by mx-relay112-hz1.antispameurope.com;
- Wed, 10 Dec 2025 14:54:18 +0100
+ t=1765374857;
+ b=JNfhPMwAoG71AkfGjh5tZXSdR7AOVwmEvKlifBYuQSOdVFMvlr+/+xmxUQjashMVTMgzMFZb
+ Z1ERuDP58ev4QdiG053e0M1uh3DiSY8tLn6+/6xcF8kzS25BkfrDOJDVsjrQpxdSB76An6WsaZL
+ wX7SCW0zTdLFRSclCUaFK8dSuvvTAFfkMHfYKthh3/IbT8FbCB6SCvcFkkx3v2IAUi0WdXJATuo
+ fJGPVU4rtBM5mW5rijQeBWmPZ2bZTJCOBscZjHRl8eMlmQlGMrsZfvXj+aXd7pXUlCWTn1eRHV9
+ 4I6T4ZrCbx8/tbMctsOlibBjLT7uFNoSzVUakL9qGx/Tw==
+Received: from he-nlb01-hz1.hornetsecurity.com ([94.100.132.6]) by mx-relay62-hz1.antispameurope.com;
+ Wed, 10 Dec 2025 14:54:17 +0100
 Received: from schifferm-ubuntu.tq-net.de (host-82-135-125-110.customer.m-online.net [82.135.125.110])
 	(Authenticated sender: matthias.schiffer@ew.tq-group.com)
-	by hmail-p-smtp01-out03-hz1.hornetsecurity.com (Postfix) with ESMTPSA id 6A9C1CC0CB7;
-	Wed, 10 Dec 2025 14:54:10 +0100 (CET)
+	by hmail-p-smtp01-out03-hz1.hornetsecurity.com (Postfix) with ESMTPSA id A7EBCCC0CC9;
+	Wed, 10 Dec 2025 14:54:09 +0100 (CET)
 From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 To: Andi Shyti <andi.shyti@kernel.org>,
 	Lee Jones <lee@kernel.org>
@@ -50,9 +50,9 @@ Cc: linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	linux@ew.tq-group.com,
 	Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Subject: [PATCH v4 4/4] mfd: tqmx86: add detection for MachXO2 I2C controller
-Date: Wed, 10 Dec 2025 14:52:53 +0100
-Message-ID: <8d275757b7544fe81e5cec4a1a5d4524e9b6967b.1765373900.git.matthias.schiffer@ew.tq-group.com>
+Subject: [PATCH v4 2/4] mfd: tqmx86: refactor I2C setup
+Date: Wed, 10 Dec 2025 14:52:51 +0100
+Message-ID: <10b68f0c46a68d9b946d6cedfacb5a9efb476e37.1765373900.git.matthias.schiffer@ew.tq-group.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <128cfc422f60d674f5ced8e8350b794945c8fa59.1765373900.git.matthias.schiffer@ew.tq-group.com>
 References: <128cfc422f60d674f5ced8e8350b794945c8fa59.1765373900.git.matthias.schiffer@ew.tq-group.com>
@@ -70,24 +70,28 @@ X-cloud-security-crypt: load encryption module
 X-cloud-security-Mailarchiv: E-Mail archived for: matthias.schiffer@ew.tq-group.com
 X-cloud-security-Mailarchivtype:outbound
 X-cloud-security-Virusscan:CLEAN
-X-cloud-security-disclaimer: This E-Mail was scanned by E-Mailservice on mx-relay112-hz1.antispameurope.com with 4dRHJL62Gtzwdsl
+X-cloud-security-disclaimer: This E-Mail was scanned by E-Mailservice on mx-relay62-hz1.antispameurope.com with 4dRHJL0qwnz40bhb
 X-cloud-security-connect: he-nlb01-hz1.hornetsecurity.com[94.100.132.6], TLS=1, IP=94.100.132.6
-X-cloud-security-Digest:9a981fd536c9a08f7dbcbc0b6e67203b
-X-cloud-security:scantime:2.237
+X-cloud-security-Digest:0af6f318f21841ad19a3cafb7d15f915
+X-cloud-security:scantime:2.128
 DKIM-Signature: a=rsa-sha256;
- bh=Rc5m14+w/GT2smQr7a0YPWZgzOaul5JPO2JsZD5uGJk=; c=relaxed/relaxed;
+ bh=WNtfNT5WfrjglKAVeovDwhEUf8jNL1MZBoPG+eDDW7M=; c=relaxed/relaxed;
  d=ew.tq-group.com;
  h=content-type:mime-version:subject:from:to:message-id:date; s=hse1;
- t=1765374857; v=1;
- b=iy9lwT0iQ3teKJpsAJ8jGamldK2j2LLJ2k+CzHl8w0nkUrHUI0arWRQ8ial9FTOys9M5Q7l3
- U0jpIvNlhEwpC8gNuSG+iW3nzpy3rbB880SFc45C5PYP/WMYfMxdC8OJ0v315ECnNURPosX0yZM
- vRD4fFRB5I9bpBJd/5URfHWeDd2QrLkPpvN/vTgG2WTR2N9d7EiXMyUuOImVP7wgxwxc8Fl1qRs
- zjWrZEc98jb8K1ImqbtqBKFluT7sxfCmWOr11G4A/CooltUV3oiSa6XZIQlyz826yriYy4H5f7c
- W5TOdIiD8J26xFRKi7R18fw48E+85AyDI0sJSwxfT8oRw==
+ t=1765374856; v=1;
+ b=pf8SHKf+rTxvxXmaPj++Tx0tdkvootSgM/PAdJy3PQyYzInY3ZKnHlEmxVzbB3ie5ZZ2/FCt
+ gcSb1RB3TGIPvS1Bp4ijunv5q7Acq4KW5M1fXNTxClyuymC4/RhQtgyx23/ZqyjlwsRHbkV1u18
+ ecuzCrJBZ9+pfa2m1n/guidJ2i1MVMmMwfpnt0HiwJ6lJm3EjqYdhGNBPSuO4Nx30Ol/F0gPGfg
+ iDi01aKC/ODSLu+iDQFxXWFUeL6FC4hl+jgwEfVPpIxswcgK0P+3kfPpBrp1KNdQi4/qnRBz8Oj
+ /9A4aucrtOtzuoO6JPIRs2BtZv1taJDWlfOhcUABhwnUw==
 
-The TQMx86 PLD may contain two kinds of I2C controllers as its secondary
-instance: the previously supported OpenCores I2C, or the MachXO2 I2C. Add
-support for the latter.
+Preparation for supporting the second I2C controller, and detecting both
+ocores and machxo2 controllers.
+
+- Introduce tqmx86_detect_i2c1()
+- Avoid the confusing "soft" I2C controller term - just call it the
+  ocores I2C
+- Define TQMX86_REG_I2C_DETECT relative to I2C base register
 
 Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 ---
@@ -97,121 +101,171 @@ v2: no changes
 v3: no changes
 
 v4:
-- Reorder patch (was 3/4) - the new order makes more sense with the changed (less generic) approach
-- Platform data and mfd_cell are toplevel variables now
-- With the new less generic approach i2c-machxo2 detection is only done for the secondary I2C controller
-  (as the primary one is always i2c-ocores anyways)
+- Keep resource and mfd_cell definitions at the toplevel
+- The very generic tqmx86_detect_i2c() of the previous version is replaced with
+  tqmx86_detect_i2c1(), so we don't need to pass so many arguments around
 
-
- drivers/mfd/tqmx86.c | 44 +++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 39 insertions(+), 5 deletions(-)
+ drivers/mfd/tqmx86.c | 92 +++++++++++++++++++++++---------------------
+ 1 file changed, 49 insertions(+), 43 deletions(-)
 
 diff --git a/drivers/mfd/tqmx86.c b/drivers/mfd/tqmx86.c
-index 708b33c3e5724..a4e3ecfccb8ab 100644
+index 1c2fe3f912389..6d304741f8989 100644
 --- a/drivers/mfd/tqmx86.c
 +++ b/drivers/mfd/tqmx86.c
-@@ -13,6 +13,7 @@
- #include <linux/io.h>
- #include <linux/mfd/core.h>
- #include <linux/module.h>
-+#include <linux/platform_data/i2c-machxo2.h>
- #include <linux/platform_data/i2c-ocores.h>
- #include <linux/platform_device.h>
+@@ -18,7 +18,7 @@
  
-@@ -61,6 +62,8 @@
- #define TQMX86_REG_I2C_DETECT	0x7
- #define TQMX86_REG_I2C_DETECT_OCORES	0xa5
+ #define TQMX86_IOBASE	0x180
+ #define TQMX86_IOSIZE	0x20
+-#define TQMX86_IOBASE_I2C	0x1a0
++#define TQMX86_IOBASE_I2C1	0x1a0
+ #define TQMX86_IOSIZE_I2C	0xa
+ #define TQMX86_IOBASE_WATCHDOG	0x18b
+ #define TQMX86_IOSIZE_WATCHDOG	0x2
+@@ -56,8 +56,8 @@
+ #define TQMX86_REG_IO_EXT_INT_GPIO_SHIFT	4
+ #define TQMX86_REG_SAUC		0x17
  
-+#define TQMX86_REG_I2C_IEN	0x9
-+
+-#define TQMX86_REG_I2C_DETECT	0x1a7
+-#define TQMX86_REG_I2C_DETECT_SOFT		0xa5
++#define TQMX86_REG_I2C_DETECT	0x7
++#define TQMX86_REG_I2C_DETECT_OCORES	0xa5
+ 
  static uint gpio_irq;
  module_param(gpio_irq, uint, 0);
- MODULE_PARM_DESC(gpio_irq, "GPIO IRQ number (valid parameters: 7, 9, 12)");
-@@ -130,6 +133,8 @@ static const struct mfd_cell tqmx86_i2c1_dev_ocores = {
- 	.num_resources = ARRAY_SIZE(tqmx_i2c1_resources),
+@@ -72,8 +72,8 @@ enum tqmx86_i2c1_resource_type {
+ 	TQMX86_I2C1_IRQ,
  };
  
-+/* Only one of the tqmx86_i2c2_* instances is registered, depending on which is detected */
-+
- static struct ocores_i2c_platform_data tqmx86_i2c2_platform_data_ocores = {};
- 
- static const struct mfd_cell tqmx86_i2c2_dev_ocores = {
-@@ -140,6 +145,18 @@ static const struct mfd_cell tqmx86_i2c2_dev_ocores = {
- 	.num_resources = ARRAY_SIZE(tqmx_i2c2_resources),
+-static struct resource tqmx_i2c_soft_resources[] = {
+-	[TQMX86_I2C1_IO] = DEFINE_RES_IO(TQMX86_IOBASE_I2C, TQMX86_IOSIZE_I2C),
++static struct resource tqmx_i2c1_resources[] = {
++	[TQMX86_I2C1_IO] = DEFINE_RES_IO(TQMX86_IOBASE_I2C1, TQMX86_IOSIZE_I2C),
+ 	/* Placeholder for IRQ resource */
+ 	[TQMX86_I2C1_IRQ] = {},
+ };
+@@ -93,26 +93,24 @@ static struct resource tqmx_gpio_resources[] = {
+ 	[TQMX86_GPIO_IRQ] = {},
  };
  
-+struct machxo2_i2c_platform_data tqmx86_i2c2_platform_data_machxo2 = {
-+	.bus_khz = 100,
-+};
-+
-+static const struct mfd_cell tqmx86_i2c2_dev_machxo2 = {
-+	.name = "i2c-machxo2",
-+	.platform_data = &tqmx86_i2c2_platform_data_machxo2,
-+	.pdata_size = sizeof(tqmx86_i2c2_platform_data_machxo2),
-+	.resources = tqmx_i2c2_resources,
-+	.num_resources = ARRAY_SIZE(tqmx_i2c2_resources),
-+};
-+
- static const struct mfd_cell tqmx86_devs[] = {
+-static struct i2c_board_info tqmx86_i2c_devices[] = {
++static const struct i2c_board_info tqmx86_i2c1_devices[] = {
  	{
- 		.name = "tqmx86-wdt",
-@@ -282,9 +299,9 @@ static int tqmx86_detect_i2c1(struct device *dev, void __iomem *io_base, int clo
- 	}
+ 		/* 4K EEPROM at 0x50 */
+ 		I2C_BOARD_INFO("24c32", 0x50),
+ 	},
+ };
  
- 	/*
--	 * The I2C_DETECT register is in the range assigned to the I2C driver
--	 * later, so we don't extend TQMX86_IOSIZE. Use inb() for this one-off
--	 * access instead of ioport_map + unmap.
-+	 * These registers are in the range assigned to the I2C driver
-+	 * later, so we don't extend TQMX86_IOSIZE. Use inb() for these one-off
-+	 * accesses instead of ioport_map + unmap.
- 	 */
- 	i2c_det = inb(TQMX86_IOBASE_I2C1 + TQMX86_REG_I2C_DETECT);
+-static struct ocores_i2c_platform_data ocores_platform_data = {
+-	.num_devices = ARRAY_SIZE(tqmx86_i2c_devices),
+-	.devices = tqmx86_i2c_devices,
++static struct ocores_i2c_platform_data tqmx86_i2c1_platform_data_ocores = {
++	.num_devices = ARRAY_SIZE(tqmx86_i2c1_devices),
++	.devices = tqmx86_i2c1_devices,
+ };
  
-@@ -300,7 +317,7 @@ static int tqmx86_detect_i2c1(struct device *dev, void __iomem *io_base, int clo
+-static const struct mfd_cell tqmx86_i2c_soft_dev[] = {
+-	{
+-		.name = "ocores-i2c",
+-		.platform_data = &ocores_platform_data,
+-		.pdata_size = sizeof(ocores_platform_data),
+-		.resources = tqmx_i2c_soft_resources,
+-		.num_resources = ARRAY_SIZE(tqmx_i2c_soft_resources),
+-	},
++static const struct mfd_cell tqmx86_i2c1_dev_ocores = {
++	.name = "ocores-i2c",
++	.platform_data = &tqmx86_i2c1_platform_data_ocores,
++	.pdata_size = sizeof(tqmx86_i2c1_platform_data_ocores),
++	.resources = tqmx_i2c1_resources,
++	.num_resources = ARRAY_SIZE(tqmx_i2c1_resources),
+ };
  
- static int tqmx86_detect_i2c2(struct device *dev, void __iomem *io_base, int clock_khz)
- {
--	u8 i2c_det;
-+	u8 i2c_det, i2c_ien;
- 
- 	if (i2c2_irq) {
- 		if (!tqmx86_setup_irq(dev, "I2C2", i2c2_irq, io_base,
-@@ -312,16 +329,33 @@ static int tqmx86_detect_i2c2(struct device *dev, void __iomem *io_base, int clo
- 	 * The I2C_DETECT register is in the range assigned to the I2C driver
- 	 * later, so we don't extend TQMX86_IOSIZE. Use inb() for this one-off
- 	 * access instead of ioport_map + unmap.
-+	 *
-+	 * There are 3 cases to distinguish for the secondary controller:
-+	 *
-+	 * - ocores: i2c_det is a TQMx86-specific register that always contains
-+	 *   the value 0xa5. i2c_ien is unused and reads as 0xff.
-+	 * - machxo2: i2c_det is the data register can read as any value.
-+	 *   i2c_ien is the interrupt enable register; the upper nibble is
-+	 *   reserved and always reads as 0.
-+	 * - none: both i2c_det and i2c_ien read as 0xff if no I2C controller
-+	 *   exists at a given base address.
- 	 */
- 	i2c_det = inb(TQMX86_IOBASE_I2C2 + TQMX86_REG_I2C_DETECT);
-+	i2c_ien = inb(TQMX86_IOBASE_I2C2 + TQMX86_REG_I2C_IEN);
- 
--	if (i2c_det == TQMX86_REG_I2C_DETECT_OCORES) {
-+	if (i2c_det == TQMX86_REG_I2C_DETECT_OCORES && i2c_ien == 0xff) {
- 		tqmx86_i2c2_platform_data_ocores.clock_khz = clock_khz;
- 		return devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
- 					    &tqmx86_i2c2_dev_ocores, 1, NULL, 0,
- 					    NULL);
-+	} else if ((i2c_ien & 0xf0) == 0x00) {
-+		tqmx86_i2c2_platform_data_machxo2.clock_khz = clock_khz;
-+		return devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
-+					    &tqmx86_i2c2_dev_machxo2, 1, NULL, 0,
-+					    NULL);
- 	}
- 
-+
+ static const struct mfd_cell tqmx86_devs[] = {
+@@ -246,13 +244,40 @@ static int tqmx86_setup_irq(struct device *dev, const char *label, u8 irq,
  	return 0;
  }
  
++static int tqmx86_detect_i2c1(struct device *dev, void __iomem *io_base, int clock_khz)
++{
++	u8 i2c_det;
++
++	if (i2c1_irq) {
++		if (!tqmx86_setup_irq(dev, "I2C1", i2c1_irq, io_base,
++				      TQMX86_REG_IO_EXT_INT_I2C1_SHIFT))
++			tqmx_i2c1_resources[TQMX86_I2C1_IRQ] = DEFINE_RES_IRQ(i2c1_irq);
++	}
++
++	/*
++	 * The I2C_DETECT register is in the range assigned to the I2C driver
++	 * later, so we don't extend TQMX86_IOSIZE. Use inb() for this one-off
++	 * access instead of ioport_map + unmap.
++	 */
++	i2c_det = inb(TQMX86_IOBASE_I2C1 + TQMX86_REG_I2C_DETECT);
++
++	if (i2c_det == TQMX86_REG_I2C_DETECT_OCORES) {
++		tqmx86_i2c1_platform_data_ocores.clock_khz = clock_khz;
++		return devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
++					    &tqmx86_i2c1_dev_ocores, 1, NULL, 0,
++					    NULL);
++	}
++
++	return 0;
++}
++
+ static int tqmx86_probe(struct platform_device *pdev)
+ {
+-	u8 board_id, sauc, rev, i2c_det;
++	u8 board_id, sauc, rev;
+ 	struct device *dev = &pdev->dev;
+ 	const char *board_name;
+ 	void __iomem *io_base;
+-	int err;
++	int err, clock_khz;
+ 
+ 	io_base = devm_ioport_map(dev, TQMX86_IOBASE, TQMX86_IOSIZE);
+ 	if (!io_base)
+@@ -267,13 +292,6 @@ static int tqmx86_probe(struct platform_device *pdev)
+ 		 "Found %s - Board ID %d, PCB Revision %d, PLD Revision %d\n",
+ 		 board_name, board_id, rev >> 4, rev & 0xf);
+ 
+-	/*
+-	 * The I2C_DETECT register is in the range assigned to the I2C driver
+-	 * later, so we don't extend TQMX86_IOSIZE. Use inb() for this one-off
+-	 * access instead of ioport_map + unmap.
+-	 */
+-	i2c_det = inb(TQMX86_REG_I2C_DETECT);
+-
+ 	if (gpio_irq) {
+ 		err = tqmx86_setup_irq(dev, "GPIO", gpio_irq, io_base,
+ 				       TQMX86_REG_IO_EXT_INT_GPIO_SHIFT);
+@@ -281,23 +299,11 @@ static int tqmx86_probe(struct platform_device *pdev)
+ 			tqmx_gpio_resources[TQMX86_GPIO_IRQ] = DEFINE_RES_IRQ(gpio_irq);
+ 	}
+ 
+-	ocores_platform_data.clock_khz = tqmx86_board_id_to_clk_rate(dev, board_id);
+-
+-	if (i2c_det == TQMX86_REG_I2C_DETECT_SOFT) {
+-		if (i2c1_irq) {
+-			err = tqmx86_setup_irq(dev, "I2C1", i2c1_irq, io_base,
+-					       TQMX86_REG_IO_EXT_INT_I2C1_SHIFT);
+-			if (!err)
+-				tqmx_i2c_soft_resources[TQMX86_I2C1_IRQ] = DEFINE_RES_IRQ(i2c1_irq);
+-		}
+-
+-		err = devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
+-					   tqmx86_i2c_soft_dev,
+-					   ARRAY_SIZE(tqmx86_i2c_soft_dev),
+-					   NULL, 0, NULL);
+-		if (err)
+-			return err;
+-	}
++	clock_khz = tqmx86_board_id_to_clk_rate(dev, board_id);
++
++	err = tqmx86_detect_i2c1(dev, io_base, clock_khz);
++	if (err)
++		return err;
+ 
+ 	return devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
+ 				    tqmx86_devs,
 -- 
 TQ-Systems GmbH | Mühlstraße 2, Gut Delling | 82229 Seefeld, Germany
 Amtsgericht München, HRB 105018
