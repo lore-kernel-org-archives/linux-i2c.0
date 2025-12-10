@@ -1,96 +1,61 @@
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+Received: from mx-relay112-hz1.antispameurope.com (mx-relay112-hz1.antispameurope.com [94.100.132.104])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81338322C9D;
-	Wed, 10 Dec 2025 12:22:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1765369335; cv=none; b=cDsQo7x6Q/SqG7C1ojqVe8jecBVUfduwWxYimqmScfFFOG8P7wTQ8frPfR3wPkyligo86SUAmfZbbAyVEd5wcoFYJQsOc7t0Q4IzMV2SM0/WgTydH9mkUvL1cJwTsy0XVRimcC6MVECsWQvTe9ftEAk1VuNRYDABplih/GulROg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1765369335; c=relaxed/simple;
-	bh=jd9K+mF97WGriGBzAJzag5o6OTccybfMhIaxrYKCKPg=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=pUK7I7KRP71apS/W+JKdYWJzznbYyM9IBucSaqlSZv8ayllBajhx4lVLv8WE4C2NA/xdOk69IB4oGTGMp0YACEPC4REZ7LnPby1iC0MWOk6DJidHLYFMcCKKXMZShDsjOtiDzAK4DT9urlmjT0bhPppopqWYXIAG/r9/0qdBGaQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=B2lhjLv0; arc=none smtp.client-ip=185.171.202.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFDD0317711
+	for <linux-i2c@vger.kernel.org>; Wed, 10 Dec 2025 13:54:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=94.100.132.104
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1765374875; cv=pass; b=Mm47fRfDdS+c8KyGtLxvlrNOqvqPCyJLKA4dx+zKMdg1+CE/n5uvQncAP0FdJA2CdbR/ZW9+lgJDjzkw2fmVbMltFDxUZ3/tTPMs6JxjS0tUXOGs1rlwLc+x23ni0mV67h/VkbEA5qsaJY1OOGIiChiwnbyzMBTANB7BkSwRN2A=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1765374875; c=relaxed/simple;
+	bh=J61y2+gUfyHFzLGwLWzBQRzZC1YNTsSEyQdFmIAK360=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=dEGhAjLsIuJ84HXr9dXjSXbtWLcWab65xhzv0kYzFXFcuhXFh0PGEa89GK6cQJ+Ho8a/ZH1moX2FAiJEQL5Ua8zfwUxwsiHRBN8SrKQDgSfXOCTY453zc+ryhDAH6euFfGzCRoshfxfOrdXYoipTd6G1CArop6+wLE7zM8B1E9Y=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ew.tq-group.com; spf=pass smtp.mailfrom=ew.tq-group.com; dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b=iy9lwT0i; arc=pass smtp.client-ip=94.100.132.104
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ew.tq-group.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ew.tq-group.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="B2lhjLv0"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id 56DB1C180F6;
-	Wed, 10 Dec 2025 12:21:39 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 1E7F96072F;
-	Wed, 10 Dec 2025 12:22:03 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 12FF8119315B3;
-	Wed, 10 Dec 2025 13:21:41 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1765369320; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=pOlUsVypsTSlBECjYHHoMGhNKvvFlUu0wSglyApNP7w=;
-	b=B2lhjLv08HCS4nwPMQdM5rtA1PxYKChropbNXfAwuDvzNvXOVjVCwFTmvmtb2ORCVRW7Qi
-	k66+Mas8QHLL/Sd+Ps87vPuBDRCwI7saahl3amPRs7SDyRx2/03xb8vTHThuJw2ga28vUp
-	mWJuGni+C/1JJduukHwT93M8LHqErcT1tCB506+eg0lsH1ug4WelgtBydwGEI8bQLgP21q
-	xgMbfofeVReqc6sRn9VIhYltwLdn5+wRI8qcr7mp32U/cqKfXDSUrrYJn+eHIG12gJQGaT
-	OtIuCTUfZrFJAHa0b3F7XsnAhwmX5iend8orwE0uMkCFCSYS7ZIq32q+F/8bOg==
-Date: Wed, 10 Dec 2025 13:21:40 +0100
-From: Herve Codina <herve.codina@bootlin.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Kalle Niemi <kaleposti@gmail.com>, Rob Herring <robh@kernel.org>, Matti
- Vaittinen <mazziesaccount@gmail.com>, linux-arm-kernel@lists.infradead.org,
- Andrew Lunn <andrew@lunn.ch>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Greg Kroah-Hartman
- <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
- Danilo Krummrich <dakr@kernel.org>, Shawn Guo <shawnguo@kernel.org>, Sascha
- Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team
- <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, Michael
- Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, Andi
- Shyti <andi.shyti@kernel.org>, Wolfram Sang
- <wsa+renesas@sang-engineering.com>, Peter Rosin <peda@axentia.se>, Arnd
- Bergmann <arnd@arndb.de>, Bjorn Helgaas <bhelgaas@google.com>, Charles
- Keepax <ckeepax@opensource.cirrus.com>, Richard Fitzgerald
- <rf@opensource.cirrus.com>, David Rhodes <david.rhodes@cirrus.com>, Linus
- Walleij <linus.walleij@linaro.org>, Ulf Hansson <ulf.hansson@linaro.org>,
- Mark Brown <broonie@kernel.org>, Andy Shevchenko
- <andriy.shevchenko@linux.intel.com>, Daniel Scally <djrscally@gmail.com>,
- Heikki Krogerus <heikki.krogerus@linux.intel.com>, Sakari Ailus
- <sakari.ailus@linux.intel.com>, Len Brown <lenb@kernel.org>, Davidlohr
- Bueso <dave@stgolabs.net>, Jonathan Cameron <jonathan.cameron@huawei.com>,
- Dave Jiang <dave.jiang@intel.com>, Alison Schofield
- <alison.schofield@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, Ira
- Weiny <ira.weiny@intel.com>, Dan Williams <dan.j.williams@intel.com>,
- Wolfram Sang <wsa@kernel.org>, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, imx@lists.linux.dev,
- linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org,
- linux-pci@vger.kernel.org, linux-sound@vger.kernel.org,
- patches@opensource.cirrus.com, linux-gpio@vger.kernel.org,
- linux-pm@vger.kernel.org, linux-spi@vger.kernel.org,
- linux-acpi@vger.kernel.org, linux-cxl@vger.kernel.org, Allan Nielsen
- <allan.nielsen@microchip.com>, Horatiu Vultur
- <horatiu.vultur@microchip.com>, Steen Hegelund
- <steen.hegelund@microchip.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>,
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Subject: Re: [PATCH v4 01/29] Revert "treewide: Fix probing of devices in DT
- overlays"
-Message-ID: <20251210132140.32dbc3d7@bootlin.com>
-In-Reply-To: <CAMuHMdXdwf7La1EYBWTJadsTAJG3nKQVW6wtBn-bUqshA=XHRw@mail.gmail.com>
-References: <20251015071420.1173068-1-herve.codina@bootlin.com>
- <20251015071420.1173068-2-herve.codina@bootlin.com>
- <f74ab0a2-b74b-4b96-8469-a716c850e230@gmail.com>
- <CAL_JsqJDOYuzutMHMeFAogd5a_OX6Hwi8Gwz1Vy7HpXgNeYKsg@mail.gmail.com>
- <5cf2a12a-7c66-4622-b4a9-14896c6df005@gmail.com>
- <CAL_JsqJjm12LxpDg6LmpY=Ro_keHwnrWiYMLVnG=s_pSP4X2WQ@mail.gmail.com>
- <072dde7c-a53c-4525-83ac-57ea38edc0b5@gmail.com>
- <CAL_JsqKyG98pXGKpL=gxSc92izpzN7YCdq62ZJByhE6aFYs1fw@mail.gmail.com>
- <55076f4b-d523-4f8c-8bd4-0645b790737e@gmail.com>
- <20251202102619.5cd971cc@bootlin.com>
- <088af3ff-bd04-4bc9-b304-85f6ed555f2a@gmail.com>
- <20251202175836.747593c0@bootlin.com>
- <dc813fc2-28d2-4f2c-a2a3-08e33eec8ec7@gmail.com>
- <20251204083839.4fb8a4b1@bootlin.com>
- <CAMuHMdXdwf7La1EYBWTJadsTAJG3nKQVW6wtBn-bUqshA=XHRw@mail.gmail.com>
-Organization: Bootlin
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.43; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=ew.tq-group.com header.i=@ew.tq-group.com header.b="iy9lwT0i"
+ARC-Authentication-Results: i=1; mx-gate112-hz1.hornetsecurity.com 1;
+ spf=pass reason=mailfrom (ip=94.100.132.6, headerfrom=ew.tq-group.com)
+ smtp.mailfrom=ew.tq-group.com
+ smtp.helo=hmail-p-smtp01-out03-hz1.hornetsecurity.com; dmarc=pass
+ header.from=ew.tq-group.com orig.disposition=pass
+ARC-Message-Signature: a=rsa-sha256;
+ bh=Rc5m14+w/GT2smQr7a0YPWZgzOaul5JPO2JsZD5uGJk=; c=relaxed/relaxed;
+ d=hornetsecurity.com; h=from:to:date:subject:mime-version:; i=1; s=hse1;
+ t=1765374858;
+ b=cz6JxHk214oFfu+gvW3lAQIo7CeBCE54pTq7mJoTkOy3jnCbcZik9uncJTmmONEJfOYH0auq
+ WH9xNq4wxVCPPTilAF6nM5MiTmixdHyFKnvhw/fgnD+SDqqa6SP9dVzfLcHvtESspuu+o1OZFQe
+ eh64U40ISozRooVvO8w4+DcnYsfOv7mK/XGsJen5pGHMhkiSSdw5nkleztxey+y3AZNfF5/LLSp
+ nPs1x1NY7T247rkGyhuPxbMLbLiApvPCBTdOfE1/k/03qdSk/yG+KIoVJRgS9vd+D/PPiQRtJfz
+ vDOhYbtO0YEt8UDUUN/AsR6FBauCsHFPc9t5CmitWgF4Q==
+ARC-Seal: a=rsa-sha256; cv=none; d=hornetsecurity.com; i=1; s=hse1;
+ t=1765374858;
+ b=LjIoveKCXRvMyl9xUw/dGZ5zazSmfhRXJLZPGbuZVwQR6ftcD8vew+E64PSyIQ3MWhB0lHoO
+ tgAsD+q5JmCGOheUYGG3Q59yVkl1S7uruTYJipXoX5SEuT1mGUoILicsrBMTu88G6IcswLIIPhB
+ Y48u6rWDGvDSYPWsrDhYlEdrHZpfgrGU96ZSHrQ5oKQ25gpERyKwQ5pAXCk7ao+zeB3D6lFIsV6
+ PL+I5v76ESNQLfN616AaI44YCJ1OZxg9tA1EoKE3Fky8tyjeCPynetgCBsARFaBNn8gb3evNyzU
+ A+jayVir9a7Vhd+s+lbWCVy2G51X5mnfy3+peHJwMDpng==
+Received: from he-nlb01-hz1.hornetsecurity.com ([94.100.132.6]) by mx-relay112-hz1.antispameurope.com;
+ Wed, 10 Dec 2025 14:54:18 +0100
+Received: from schifferm-ubuntu.tq-net.de (host-82-135-125-110.customer.m-online.net [82.135.125.110])
+	(Authenticated sender: matthias.schiffer@ew.tq-group.com)
+	by hmail-p-smtp01-out03-hz1.hornetsecurity.com (Postfix) with ESMTPSA id 6A9C1CC0CB7;
+	Wed, 10 Dec 2025 14:54:10 +0100 (CET)
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+To: Andi Shyti <andi.shyti@kernel.org>,
+	Lee Jones <lee@kernel.org>
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux@ew.tq-group.com,
+	Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Subject: [PATCH v4 4/4] mfd: tqmx86: add detection for MachXO2 I2C controller
+Date: Wed, 10 Dec 2025 14:52:53 +0100
+Message-ID: <8d275757b7544fe81e5cec4a1a5d4524e9b6967b.1765373900.git.matthias.schiffer@ew.tq-group.com>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <128cfc422f60d674f5ced8e8350b794945c8fa59.1765373900.git.matthias.schiffer@ew.tq-group.com>
+References: <128cfc422f60d674f5ced8e8350b794945c8fa59.1765373900.git.matthias.schiffer@ew.tq-group.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -99,145 +64,157 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+X-cloud-security-sender:matthias.schiffer@ew.tq-group.com
+X-cloud-security-recipient:linux-i2c@vger.kernel.org
+X-cloud-security-crypt: load encryption module
+X-cloud-security-Mailarchiv: E-Mail archived for: matthias.schiffer@ew.tq-group.com
+X-cloud-security-Mailarchivtype:outbound
+X-cloud-security-Virusscan:CLEAN
+X-cloud-security-disclaimer: This E-Mail was scanned by E-Mailservice on mx-relay112-hz1.antispameurope.com with 4dRHJL62Gtzwdsl
+X-cloud-security-connect: he-nlb01-hz1.hornetsecurity.com[94.100.132.6], TLS=1, IP=94.100.132.6
+X-cloud-security-Digest:9a981fd536c9a08f7dbcbc0b6e67203b
+X-cloud-security:scantime:2.237
+DKIM-Signature: a=rsa-sha256;
+ bh=Rc5m14+w/GT2smQr7a0YPWZgzOaul5JPO2JsZD5uGJk=; c=relaxed/relaxed;
+ d=ew.tq-group.com;
+ h=content-type:mime-version:subject:from:to:message-id:date; s=hse1;
+ t=1765374857; v=1;
+ b=iy9lwT0iQ3teKJpsAJ8jGamldK2j2LLJ2k+CzHl8w0nkUrHUI0arWRQ8ial9FTOys9M5Q7l3
+ U0jpIvNlhEwpC8gNuSG+iW3nzpy3rbB880SFc45C5PYP/WMYfMxdC8OJ0v315ECnNURPosX0yZM
+ vRD4fFRB5I9bpBJd/5URfHWeDd2QrLkPpvN/vTgG2WTR2N9d7EiXMyUuOImVP7wgxwxc8Fl1qRs
+ zjWrZEc98jb8K1ImqbtqBKFluT7sxfCmWOr11G4A/CooltUV3oiSa6XZIQlyz826yriYy4H5f7c
+ W5TOdIiD8J26xFRKi7R18fw48E+85AyDI0sJSwxfT8oRw==
 
-Hi Geert, Kalle, Rob,
+The TQMx86 PLD may contain two kinds of I2C controllers as its secondary
+instance: the previously supported OpenCores I2C, or the MachXO2 I2C. Add
+support for the latter.
 
-On Thu, 4 Dec 2025 11:49:13 +0100
-Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+---
 
-> Hi Hervé,
-> 
-> On Thu, 4 Dec 2025 at 08:39, Herve Codina <herve.codina@bootlin.com> wrote:
-> > Indeed, Kalle, Geert, I don't have your hardware, your related overlay or
-> > a similar one that could be used for test and also I don't have your out of
-> > tree code used to handle this overlay.
-> >
-> > I know overlays and fw_devlink have issues. Links created by fw_devlink
-> > when an overlay is applied were not correct on my side.
-> >
-> > Can you check your <supplier>--<consumer> links with 'ls /sys/class/devlinks'
-> >
-> > On my side, without my patches some links were not correct.
-> > They linked to the parent of the supplier instead of the supplier itself.
-> > The consequence is a kernel crash, use after free, refcounting failure, ...
-> > when the supplier device is removed.
-> >
-> > Indeed, with wrong links consumers were not removed before suppliers they
-> > used.
-> >
-> > Looking at Geert traces:
-> > --- 8< ---
-> > rcar_sound ec500000.sound: Failed to create device link (0x180) with
-> > supplier soc for /soc/sound@ec500000/rcar_sound,src/src-0
-> > rcar_sound ec500000.sound: Failed to create device link (0x180) with
-> > supplier soc for /soc/sound@ec500000/rcar_sound,src/src-1
-> > [...]
-> > --- 8< ---
-> >
-> > Even if it is not correct, why the soc device cannot be a provider?
-> > I don't have the answer to this question yet.  
-> 
-> I have no idea. These failures (sound) are also not related to the
-> device I am adding through the overlay (SPI EEPROM).
-> Note that these failures appear only with your suggested fix, and are
-> not seen with just the patch in the subject of this email thread.
-> 
-> > Without having the exact tree structure of the base device-tree, the overlay
-> > and the way it is applied, and so without been able to reproduce the issue
-> > on my side, investigating the issue is going to be difficult.
-> >
-> > I hope to find some help to move forward and fix the issue.  
-> 
-> Base DTS is [1], overlay DTS is [2].
-> Applying and removing the overlay is done using OF_CONFIGFS[3],
-> and "overlay [add|rm] 25lc040"[4].
-> 
-> I assume you can reproduce the issue on any board that has an SPI
-> EEPROM, after moving the SPI bus enablement and SPI EEPROM node to an
-> overlay. Probably even with an I2C EEPROM instead.  Or even without
-> an actual EEPROM connected, as even the SPI bus fails to appear.
-> 
-> > Saravana's email (Saravana Kannan <saravanak@google.com>) seems incorrect.
-> > Got emails delivery failure with this email address.  
-> 
-> Yeah, he moved company.
-> He is still alive, I met him in the LPC Training Session yesterday ;-)
-> 
-> Thanks!
-> 
-> [1] https://web.git.kernel.org/pub/scm/linux/kernel/git/geert/renesas-drivers.git/tree/arch/arm64/boot/dts/renesas/r8a77990-ebisu.dts
-> [2] https://web.git.kernel.org/pub/scm/linux/kernel/git/geert/renesas-drivers.git/tree/arch/arm64/boot/dts/renesas/r8a77990-ebisu-cn41-msiof0-25lc040.dtso?h=topic/renesas-overlays-v6.17-rc1
-> [3] https://web.git.kernel.org/pub/scm/linux/kernel/git/geert/renesas-drivers.git/log/?h=topic/overlays-v6.17-rc1
-> [4] https://elinux.org/R-Car/DT-Overlays#Helper_Script
-> [5] https://lore.kernel.org/CAMuHMdXEnSD4rRJ-o90x4OprUacN_rJgyo8x6=9F9rZ+-KzjOg@mail.gmail.com/
-> 
+v2: no changes
 
-I did some tests with boards I have.
+v3: no changes
 
-First I used a Marvel board based on an Armada 3720.
+v4:
+- Reorder patch (was 3/4) - the new order makes more sense with the changed (less generic) approach
+- Platform data and mfd_cell are toplevel variables now
+- With the new less generic approach i2c-machxo2 detection is only done for the secondary I2C controller
+  (as the primary one is always i2c-ocores anyways)
 
-In my overlay, I added the pinmux related to the SPI controller, enabled
-this SPI controller and added a SPI flash.
 
-It didn't work with or without culprit patches from my series applied.
-Indeed, the pinctrl driver used is an MFD driver an mixed pinmux definition
-nodes with device description (a clock) node.
+ drivers/mfd/tqmx86.c | 44 +++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 39 insertions(+), 5 deletions(-)
 
-When a new node is added, a new device is created. Indeed, because the
-driver is an MFD driver, it is a bus driver and handled by of_platform bus.
+diff --git a/drivers/mfd/tqmx86.c b/drivers/mfd/tqmx86.c
+index 708b33c3e5724..a4e3ecfccb8ab 100644
+--- a/drivers/mfd/tqmx86.c
++++ b/drivers/mfd/tqmx86.c
+@@ -13,6 +13,7 @@
+ #include <linux/io.h>
+ #include <linux/mfd/core.h>
+ #include <linux/module.h>
++#include <linux/platform_data/i2c-machxo2.h>
+ #include <linux/platform_data/i2c-ocores.h>
+ #include <linux/platform_device.h>
+ 
+@@ -61,6 +62,8 @@
+ #define TQMX86_REG_I2C_DETECT	0x7
+ #define TQMX86_REG_I2C_DETECT_OCORES	0xa5
+ 
++#define TQMX86_REG_I2C_IEN	0x9
++
+ static uint gpio_irq;
+ module_param(gpio_irq, uint, 0);
+ MODULE_PARM_DESC(gpio_irq, "GPIO IRQ number (valid parameters: 7, 9, 12)");
+@@ -130,6 +133,8 @@ static const struct mfd_cell tqmx86_i2c1_dev_ocores = {
+ 	.num_resources = ARRAY_SIZE(tqmx_i2c1_resources),
+ };
+ 
++/* Only one of the tqmx86_i2c2_* instances is registered, depending on which is detected */
++
+ static struct ocores_i2c_platform_data tqmx86_i2c2_platform_data_ocores = {};
+ 
+ static const struct mfd_cell tqmx86_i2c2_dev_ocores = {
+@@ -140,6 +145,18 @@ static const struct mfd_cell tqmx86_i2c2_dev_ocores = {
+ 	.num_resources = ARRAY_SIZE(tqmx_i2c2_resources),
+ };
+ 
++struct machxo2_i2c_platform_data tqmx86_i2c2_platform_data_machxo2 = {
++	.bus_khz = 100,
++};
++
++static const struct mfd_cell tqmx86_i2c2_dev_machxo2 = {
++	.name = "i2c-machxo2",
++	.platform_data = &tqmx86_i2c2_platform_data_machxo2,
++	.pdata_size = sizeof(tqmx86_i2c2_platform_data_machxo2),
++	.resources = tqmx_i2c2_resources,
++	.num_resources = ARRAY_SIZE(tqmx_i2c2_resources),
++};
++
+ static const struct mfd_cell tqmx86_devs[] = {
+ 	{
+ 		.name = "tqmx86-wdt",
+@@ -282,9 +299,9 @@ static int tqmx86_detect_i2c1(struct device *dev, void __iomem *io_base, int clo
+ 	}
+ 
+ 	/*
+-	 * The I2C_DETECT register is in the range assigned to the I2C driver
+-	 * later, so we don't extend TQMX86_IOSIZE. Use inb() for this one-off
+-	 * access instead of ioport_map + unmap.
++	 * These registers are in the range assigned to the I2C driver
++	 * later, so we don't extend TQMX86_IOSIZE. Use inb() for these one-off
++	 * accesses instead of ioport_map + unmap.
+ 	 */
+ 	i2c_det = inb(TQMX86_IOBASE_I2C1 + TQMX86_REG_I2C_DETECT);
+ 
+@@ -300,7 +317,7 @@ static int tqmx86_detect_i2c1(struct device *dev, void __iomem *io_base, int clo
+ 
+ static int tqmx86_detect_i2c2(struct device *dev, void __iomem *io_base, int clock_khz)
+ {
+-	u8 i2c_det;
++	u8 i2c_det, i2c_ien;
+ 
+ 	if (i2c2_irq) {
+ 		if (!tqmx86_setup_irq(dev, "I2C2", i2c2_irq, io_base,
+@@ -312,16 +329,33 @@ static int tqmx86_detect_i2c2(struct device *dev, void __iomem *io_base, int clo
+ 	 * The I2C_DETECT register is in the range assigned to the I2C driver
+ 	 * later, so we don't extend TQMX86_IOSIZE. Use inb() for this one-off
+ 	 * access instead of ioport_map + unmap.
++	 *
++	 * There are 3 cases to distinguish for the secondary controller:
++	 *
++	 * - ocores: i2c_det is a TQMx86-specific register that always contains
++	 *   the value 0xa5. i2c_ien is unused and reads as 0xff.
++	 * - machxo2: i2c_det is the data register can read as any value.
++	 *   i2c_ien is the interrupt enable register; the upper nibble is
++	 *   reserved and always reads as 0.
++	 * - none: both i2c_det and i2c_ien read as 0xff if no I2C controller
++	 *   exists at a given base address.
+ 	 */
+ 	i2c_det = inb(TQMX86_IOBASE_I2C2 + TQMX86_REG_I2C_DETECT);
++	i2c_ien = inb(TQMX86_IOBASE_I2C2 + TQMX86_REG_I2C_IEN);
+ 
+-	if (i2c_det == TQMX86_REG_I2C_DETECT_OCORES) {
++	if (i2c_det == TQMX86_REG_I2C_DETECT_OCORES && i2c_ien == 0xff) {
+ 		tqmx86_i2c2_platform_data_ocores.clock_khz = clock_khz;
+ 		return devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
+ 					    &tqmx86_i2c2_dev_ocores, 1, NULL, 0,
+ 					    NULL);
++	} else if ((i2c_ien & 0xf0) == 0x00) {
++		tqmx86_i2c2_platform_data_machxo2.clock_khz = clock_khz;
++		return devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
++					    &tqmx86_i2c2_dev_machxo2, 1, NULL, 0,
++					    NULL);
+ 	}
+ 
++
+ 	return 0;
+ }
+ 
+-- 
+TQ-Systems GmbH | Mühlstraße 2, Gut Delling | 82229 Seefeld, Germany
+Amtsgericht München, HRB 105018
+Geschäftsführer: Detlef Schneider, Rüdiger Stahl, Stefan Schneider
+https://www.tq-group.com/
 
-My new node is considered by devlink as a node that will have a device ready
-to work (driver attached and device probed). A link is created between this
-node and the consumers of this node (i.e. the SPI controller). devlink is
-waiting for this provider to be ready before allowing the its consumer to probe.
-This node (simple pinmux description) will never lead to a device and devlink
-will never see this "provider" ready.
-
-Did a test with a Renesas RZ/N1D (r9a06g032) based board and built a similar
-overlay involving I2C controller pinmux, I2C controller and an EEPROM.
-
-Here, also the overlay didn't work but the issue is different.
-
-The pinmux definition for pinctrl (i.e. pinctrl subnodes) are looked when
-the pinctrl driver probes. Adding a new node later is not handled by the
-pinctrl driver.
-Applying the overlay leads to a simple:
-  [   16.934168] rzn1-pinctrl 40067000.pinctrl: unable to find group for node /soc/pinctrl@40067000/pins_i2c2
-
-Indeed, the 'pins_i2c2' has been added by the overlay and was not present
-when the pinctrl probed.
-
-Tried without adding a new pinmux node (pinctrl subnode) from the overlay
-and used nodes already existing in the base DT.
-
-On my Marvell Armada 3720 board, it works with or without my patches.
-No regression detected due to my patches.
-
-On my RZ/N1D board, it works also with or without my patches.
-Here also, no regression detected.
-
-Also, on my Marvell Armada 3720 board, I can plug my LAN966x PCI board.
-The LAN966x PCI driver used an overlay to describe the LAN966x PCI board.
-
-With the upstream patch not reverted, i.e. 1a50d9403fb9 ("treewide: Fix
-probing of devices in DT overlays")" applied, devlinks created for the
-LAN966x PCI board internal devices are incorrect and lead to crashes when
-the LAN966x PCI driver is removed due to wrong provider/consumer dependencies.
-
-When this patch is reverted and replaced by "of: dynamic: Fix overlayed
-devices not probing because of fw_devlink", devlinks created for the LAN966x
-PCI board internal devices are corrects and crashes are no more present on
-removal.
-
-Kalle, Geert, can you perform a test on your hardware with my patches
-applied and moving your pinmux definition from the overlay to the base
-device-tree?
-
-The kernel you can use is for instance the kernel at the next-20251127 tag.
-Needed patches for test are present in this kernel:
-    - 76841259ac092 ("of: dynamic: Fix overlayed devices not probing because of fw_devlink")
-    - 7d67ddc5f0148 ("Revert "treewide: Fix probing of devices in DT overlays"")
-
-Best regards,
-Hervé
