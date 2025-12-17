@@ -1,109 +1,149 @@
-Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [202.36.163.20])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f45.google.com (mail-ed1-f45.google.com [209.85.208.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5943D2D7DD1
-	for <linux-i2c@vger.kernel.org>; Wed, 17 Dec 2025 19:47:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.36.163.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3EDD28DB76
+	for <linux-i2c@vger.kernel.org>; Wed, 17 Dec 2025 20:11:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766000834; cv=none; b=t8tc5dqLJQ8bdCUKtLiBP9C9S5tVzzaoxnxz1wgJ850DU7C+hhqhS+/BPMM88Ed+X/skHTBuw6ViYNX1NGFdVmnykyyzJqZ2MUCSqUedDC0s7LrNK/Ko4mwYwn79oFqZj7YRVJAu00fU0MOFyi+yWmzXh6YDqsjA1XqVux0GzLE=
+	t=1766002307; cv=none; b=akz8/LQ4lyAq36gi4bJb1rFxK+GMyH7Akzn43uJzSD8/jdhhnxhnMDag/KsJrr0hiIaRzJa3hyPsOwIjZVThk7Z49wmAKl9M+uPiyCOOzi7Ai9K53s3PfUVemYMrMHAjyPaKu8eg4rUgflzuuff2pkw/I9WIZR7jXSe9j+A2TRs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766000834; c=relaxed/simple;
-	bh=KJlDs1A38kQHLXJLZrk46KfCxoK7OaauVkBgN0+FiJo=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=TzFMKeSkjqVzv5nZF0yYNe5Uo8km5yUvWjh/MQU0I2xW+QtrVWkr1P0evbbovhG1oXIemNHdJuXmd9S0ozeuwlP8xpblTasE7SGL3CnlZYJYN/Cq7tKqKOjnmtARoDOA1+lQVTFcolpZ/4x32shySYJ/fp6La+PrnDx74Z+niEk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz; spf=pass smtp.mailfrom=alliedtelesis.co.nz; dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b=gqunuTJu; arc=none smtp.client-ip=202.36.163.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alliedtelesis.co.nz
+	s=arc-20240116; t=1766002307; c=relaxed/simple;
+	bh=1wqbLrmTsqabNBh3vicn4GMNQDBBlE5lOizlvcD0qhQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=m9lLwmtmVxaryy8DaD9H2/XjGZ3CANnpoyls3nZCS9VZ7WSFsdwVl0iik5Wa2wj4bL7m0TBK7B38RazKKE7vmvZrq7r2CZcETHOmBlccWHIgRtfuuNcLIr59w1Vo5QPX7hRdGyhJoCPOhQiQEOtZe8SavlwrsJvwmEu8rtP12Cc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=U2uLDuH3; arc=none smtp.client-ip=209.85.208.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="gqunuTJu"
-Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(Client did not present a certificate)
-	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 8D1DC2C038E;
-	Thu, 18 Dec 2025 08:39:59 +1300 (NZDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
-	s=mail181024; t=1766000399;
-	bh=KJlDs1A38kQHLXJLZrk46KfCxoK7OaauVkBgN0+FiJo=;
-	h=From:To:CC:Subject:Date:References:In-Reply-To:From;
-	b=gqunuTJun/9eWLnSA3Ohax0lu74zg87AlnwhNgBIpSeYlpPePoObzK7msb8OCho1y
-	 lJf8vJFKoJKdGwv8goS86o2KLZpm/xARQYe+TcGM7IDItSeqZhnYxIMT1IHgKyjdhg
-	 PB94yAq1hVZufWCH8AmnHsmZgx9e0atDmfdSPl1Q+BLPE/dQs2MpABjZtJxcspkNiA
-	 fpVyS+uZaJfyWy7DP6Y8FhWkE/2qk3FFTV3W9R/I7UEmJ/hqsZpBdSe1Y/ohr8Yrlh
-	 ZillJQlsfCqQRUjT0rjLr/stSqM8qf8xWlQmCxD3G6zoC0nGD+foB7/Ew3YzQC6yWR
-	 0Z2RYC2TkLRbw==
-Received: from svr-chch-ex2.atlnz.lc (Not Verified[2001:df5:b000:bc8::76]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
-	id <B6943070f0001>; Thu, 18 Dec 2025 08:39:59 +1300
-Received: from svr-chch-ex2.atlnz.lc (2001:df5:b000:bc8::76) by
- svr-chch-ex2.atlnz.lc (2001:df5:b000:bc8::76) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1748.10; Thu, 18 Dec 2025 08:39:59 +1300
-Received: from svr-chch-ex2.atlnz.lc ([fe80::a9eb:c9b7:8b52:9567]) by
- svr-chch-ex2.atlnz.lc ([fe80::a9eb:c9b7:8b52:9567%15]) with mapi id
- 15.02.1748.010; Thu, 18 Dec 2025 08:39:59 +1300
-From: Chris Packham <Chris.Packham@alliedtelesis.co.nz>
-To: Rosen Penev <rosenp@gmail.com>, "linux-i2c@vger.kernel.org"
-	<linux-i2c@vger.kernel.org>
-CC: Andi Shyti <andi.shyti@kernel.org>, open list
-	<linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] i2c: rtl9300: remove const cast
-Thread-Topic: [PATCH 1/2] i2c: rtl9300: remove const cast
-Thread-Index: AQHcbx6vmLmPN+ai60yUXcIrL3dHHbUlYbCA
-Date: Wed, 17 Dec 2025 19:39:59 +0000
-Message-ID: <dd2c0c2d-5a1e-46a8-9c5a-90d0330efd9a@alliedtelesis.co.nz>
-References: <20251217063027.37987-1-rosenp@gmail.com>
- <20251217063027.37987-2-rosenp@gmail.com>
-In-Reply-To: <20251217063027.37987-2-rosenp@gmail.com>
-Accept-Language: en-NZ, en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <6E8A458018E8A742B6E80D5D32D7FECB@alliedtelesis.co.nz>
-Content-Transfer-Encoding: base64
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="U2uLDuH3"
+Received: by mail-ed1-f45.google.com with SMTP id 4fb4d7f45d1cf-6498850d3f6so7955747a12.0
+        for <linux-i2c@vger.kernel.org>; Wed, 17 Dec 2025 12:11:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1766002304; x=1766607104; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=CjMTRFXSIIwwu0CfvU8Gn+sD387060ylgnfIqVwMb2A=;
+        b=U2uLDuH3zz/3Qef/1pTYJa9uAP7VWWNXBsgxnV8Zoruh5+jRcdYYS7JRuEEBHYAmc4
+         umCsaGIySRD/w2U42ZAx4PzbusxAzbM6+9aKtQgUlltV+UHk7G/Oe4BJG8pMDYZ9SbiB
+         mGHW1Qgm1310fGaJIDA54mU76hIXg7sXwCjeRc9mqzU2LDl0daYxzSlSlV14E1k5+V9a
+         3emTWpmQfGwA+X185fwfUz002B3nc0TgwioKbO/hSjXxEIibNTzeJLDfmkq0G+PuyIya
+         9heQ0fTs+QKFiwHzIGpUUdCPoJ3EyUs7FOhSN8hS+Md+tjb2pyy+B+DjrJgqeX6QSOVu
+         O8Lg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1766002304; x=1766607104;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=CjMTRFXSIIwwu0CfvU8Gn+sD387060ylgnfIqVwMb2A=;
+        b=cFpDAK7jXZM6nkld8hMStFFJnLIi5BysvKPQUeiFmcorN5mNuoCyC9cilHVkUlf/++
+         WjUJLnJXNvtMAC1djVu87TQTaYOZQJ+KiGTgpU57aUePG/VTYlpcH30VxfLTZA6S4WjA
+         eFW2pZFVY2k+uUSJ/ykC+oQRXY5LlvG7aiwkJRRvK9TrTQRVUOMTQgSt0oASRRcQxPLW
+         AKmp1NEtLAICH9jLBKmaja8Go6fdgUQqeTPV8MHXJfuSY38DQaWOYO/pxmZ12jl/Qz0J
+         M1ZaB9mBqdeKGDZ/mP1ydD+W2JEvTIJPSEKoAs/PS750MUCLg95zkV9O/nnwjzyF4naE
+         WPbA==
+X-Gm-Message-State: AOJu0YxCrSVQ/WqjJs2IOOGEW9TsPmj0OrPkvnyjPlrkkHHmXQX4v/e/
+	G3nQVJ18tNPM5PhqV/1afgw5DQbwyngnjSjRgtaDDN6Lw94FJBMKFA37h844njmmMb+7heg5jDp
+	1Kx0Xze3HEMrg2uH5cLf9Jtpl5fQDass=
+X-Gm-Gg: AY/fxX5pvlEIpexm1yd/e32X6Y8gxcHViwRB5yuKeZd11on70x2CQ2rf9UXyN6CeG07
+	LmLzZRxvKf93nsa90dVAcNrUOAYMsoREP5BSrFFTO6oac2N1S8M0mV7x5Nx4s6h4ziKSyBs+CiC
+	jwFaPueuV+4F3wE2T+TZQN3Y3JpJtsIk3qNb1rGKc4SM2lVyCu6NYW74h83Mc8yy73RBieN4jHg
+	0j7dSJrWKGt0heitLpqWN6fwGt6u0UFbkyh6c5wnFWIKoda+zvpHnwrV+k8Dazc1A522RTku3m2
+	QunAUMXf
+X-Google-Smtp-Source: AGHT+IHo8p3aJC8H2lJqwNXZrwCesauwRST/cl6nQuObKpl7dr5JAOOMHwAP1daH7lSvbZjZKoimQS5u37D/VsUd9Ko=
+X-Received: by 2002:a05:6402:40ce:b0:64b:4624:779c with SMTP id
+ 4fb4d7f45d1cf-64b462479e3mr2125449a12.26.1766002303779; Wed, 17 Dec 2025
+ 12:11:43 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-SEG-SpamProfiler-Analysis: v=2.4 cv=XMSTShhE c=1 sm=1 tr=0 ts=6943070f a=Xf/6aR1Nyvzi7BryhOrcLQ==:117 a=xqWC_Br6kY4A:10 a=drD7vYo3kbIA:10 a=IkcTkHD0fZMA:10 a=wP3pNCr1ah4A:10 a=pGLkceISAAAA:8 a=Dw-2Dg0FSfONaq_MROYA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-SEG-SpamProfiler-Score: 0
+References: <20251217063027.37987-1-rosenp@gmail.com> <20251217063027.37987-3-rosenp@gmail.com>
+ <e3276f37-a7e0-46f5-8f64-fa9e5919b5d8@alliedtelesis.co.nz>
+In-Reply-To: <e3276f37-a7e0-46f5-8f64-fa9e5919b5d8@alliedtelesis.co.nz>
+From: Rosen Penev <rosenp@gmail.com>
+Date: Wed, 17 Dec 2025 12:11:32 -0800
+X-Gm-Features: AQt7F2oLiQIz2msKPEv9cFRF4CDRJPOAb79TxK9KZHVPiTP-z27580ditzAYkgQ
+Message-ID: <CAKxU2N_Z_HdHCtcG3B7i0zEn-XPnb+-LTuFL3nG=nt0k8O6DxA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] i2c: rtl9300: use of instead of fwnode
+To: Chris Packham <Chris.Packham@alliedtelesis.co.nz>
+Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+	open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-SGkgUm9zZW4sDQoNCk9uIDE3LzEyLzIwMjUgMTk6MzAsIFJvc2VuIFBlbmV2IHdyb3RlOg0KPiBU
-aGVzZSBjYXN0cyBhcmUgdXNlZCB0byByZW1vdmUgY29uc3QgZm9yIG5vIGdvb2QgcmVhc29uLiBG
-aXggdGhlIHR5cGVzDQo+IGluc3RlYWQuDQo+DQo+IFNpZ25lZC1vZmYtYnk6IFJvc2VuIFBlbmV2
-IDxyb3NlbnBAZ21haWwuY29tPg0KUmV2aWV3ZWQtYnk6IENocmlzIFBhY2toYW0gPGNocmlzLnBh
-Y2toYW1AYWxsaWVkdGVsZXNpcy5jby5uej4NCg0KPiAtLS0NCj4gICBkcml2ZXJzL2kyYy9idXNz
-ZXMvaTJjLXJ0bDkzMDAuYyB8IDggKysrKy0tLS0NCj4gICAxIGZpbGUgY2hhbmdlZCwgNCBpbnNl
-cnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQ0KPg0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMv
-YnVzc2VzL2kyYy1ydGw5MzAwLmMgYi9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLXJ0bDkzMDAuYw0K
-PiBpbmRleCA0NzIzZTQ4Y2ZlMTguLmYyYWEzNDFhN2NkZCAxMDA2NDQNCj4gLS0tIGEvZHJpdmVy
-cy9pMmMvYnVzc2VzL2kyYy1ydGw5MzAwLmMNCj4gKysrIGIvZHJpdmVycy9pMmMvYnVzc2VzL2ky
-Yy1ydGw5MzAwLmMNCj4gQEAgLTEyOSw3ICsxMjksNyBAQCBzdGF0aWMgaW50IHJ0bDkzMTBfaTJj
-X3NlbGVjdF9zY2woc3RydWN0IHJ0bDkzMDBfaTJjICppMmMsIHU4IHNjbCkNCj4gICANCj4gICBz
-dGF0aWMgaW50IHJ0bDkzMDBfaTJjX2NvbmZpZ19jaGFuKHN0cnVjdCBydGw5MzAwX2kyYyAqaTJj
-LCBzdHJ1Y3QgcnRsOTMwMF9pMmNfY2hhbiAqY2hhbikNCj4gICB7DQo+IC0Jc3RydWN0IHJ0bDkz
-MDBfaTJjX2Rydl9kYXRhICpkcnZfZGF0YTsNCj4gKwljb25zdCBzdHJ1Y3QgcnRsOTMwMF9pMmNf
-ZHJ2X2RhdGEgKmRydl9kYXRhOw0KPiAgIAlpbnQgcmV0Ow0KPiAgIA0KPiAgIAlpZiAoaTJjLT5z
-ZGFfbnVtID09IGNoYW4tPnNkYV9udW0pDQo+IEBAIC0xMzksNyArMTM5LDcgQEAgc3RhdGljIGlu
-dCBydGw5MzAwX2kyY19jb25maWdfY2hhbihzdHJ1Y3QgcnRsOTMwMF9pMmMgKmkyYywgc3RydWN0
-IHJ0bDkzMDBfaTJjX2MNCj4gICAJaWYgKHJldCkNCj4gICAJCXJldHVybiByZXQ7DQo+ICAgDQo+
-IC0JZHJ2X2RhdGEgPSAoc3RydWN0IHJ0bDkzMDBfaTJjX2Rydl9kYXRhICopZGV2aWNlX2dldF9t
-YXRjaF9kYXRhKGkyYy0+ZGV2KTsNCj4gKwlkcnZfZGF0YSA9IGRldmljZV9nZXRfbWF0Y2hfZGF0
-YShpMmMtPmRldik7DQo+ICAgCXJldCA9IGRydl9kYXRhLT5zZWxlY3Rfc2NsKGkyYywgaTJjLT5z
-Y2xfbnVtKTsNCj4gICAJaWYgKHJldCkNCj4gICAJCXJldHVybiByZXQ7DQo+IEBAIC0zNzIsNyAr
-MzcyLDcgQEAgc3RhdGljIGludCBydGw5MzAwX2kyY19wcm9iZShzdHJ1Y3QgcGxhdGZvcm1fZGV2
-aWNlICpwZGV2KQ0KPiAgIAlzdHJ1Y3QgZGV2aWNlICpkZXYgPSAmcGRldi0+ZGV2Ow0KPiAgIAlz
-dHJ1Y3QgcnRsOTMwMF9pMmMgKmkyYzsNCj4gICAJc3RydWN0IGZ3bm9kZV9oYW5kbGUgKmNoaWxk
-Ow0KPiAtCXN0cnVjdCBydGw5MzAwX2kyY19kcnZfZGF0YSAqZHJ2X2RhdGE7DQo+ICsJY29uc3Qg
-c3RydWN0IHJ0bDkzMDBfaTJjX2Rydl9kYXRhICpkcnZfZGF0YTsNCj4gICAJc3RydWN0IHJlZ19m
-aWVsZCBmaWVsZHNbRl9OVU1fRklFTERTXTsNCj4gICAJdTMyIGNsb2NrX2ZyZXEsIHNjbF9udW0s
-IHNkYV9udW07DQo+ICAgCWludCByZXQsIGkgPSAwOw0KPiBAQCAtMzk5LDcgKzM5OSw3IEBAIHN0
-YXRpYyBpbnQgcnRsOTMwMF9pMmNfcHJvYmUoc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldikN
-Cj4gICANCj4gICAJcGxhdGZvcm1fc2V0X2RydmRhdGEocGRldiwgaTJjKTsNCj4gICANCj4gLQlk
-cnZfZGF0YSA9IChzdHJ1Y3QgcnRsOTMwMF9pMmNfZHJ2X2RhdGEgKilkZXZpY2VfZ2V0X21hdGNo
-X2RhdGEoaTJjLT5kZXYpOw0KPiArCWRydl9kYXRhID0gZGV2aWNlX2dldF9tYXRjaF9kYXRhKGky
-Yy0+ZGV2KTsNCj4gICAJaWYgKGRldmljZV9nZXRfY2hpbGRfbm9kZV9jb3VudChkZXYpID4gZHJ2
-X2RhdGEtPm1heF9uY2hhbikNCj4gICAJCXJldHVybiBkZXZfZXJyX3Byb2JlKGRldiwgLUVJTlZB
-TCwgIlRvbyBtYW55IGNoYW5uZWxzXG4iKTsNCj4gICA=
+On Wed, Dec 17, 2025 at 11:43=E2=80=AFAM Chris Packham
+<Chris.Packham@alliedtelesis.co.nz> wrote:
+>
+> Hi Rosen,
+>
+> On 17/12/2025 19:30, Rosen Penev wrote:
+> > Avoids having to use to_of_node and just assign directly. This is an OF
+> > only driver anyway.
+> >
+> > Use _scoped for the for each loop to avoid refcount leaks.
+> >
+> > Signed-off-by: Rosen Penev <rosenp@gmail.com>
+>
+> I thought the trend was to move to the more generic device properties
+> rather than using of_ specific APIs which is why I wrote the driver
+> using them. I agree that this driver is unlikely to be used on any
+> platform that doesn't use a device tree so if Andi is happy with this
+> I'm fine with the change.
+I've gotten the opposite advice on netdev before.
+>
+> Reviewed-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+>
+> > ---
+> >   drivers/i2c/busses/i2c-rtl9300.c | 9 ++++-----
+> >   1 file changed, 4 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/drivers/i2c/busses/i2c-rtl9300.c b/drivers/i2c/busses/i2c-=
+rtl9300.c
+> > index f2aa341a7cdd..672cb978066d 100644
+> > --- a/drivers/i2c/busses/i2c-rtl9300.c
+> > +++ b/drivers/i2c/busses/i2c-rtl9300.c
+> > @@ -371,7 +371,6 @@ static int rtl9300_i2c_probe(struct platform_device=
+ *pdev)
+> >   {
+> >       struct device *dev =3D &pdev->dev;
+> >       struct rtl9300_i2c *i2c;
+> > -     struct fwnode_handle *child;
+> >       const struct rtl9300_i2c_drv_data *drv_data;
+> >       struct reg_field fields[F_NUM_FIELDS];
+> >       u32 clock_freq, scl_num, sda_num;
+> > @@ -415,15 +414,15 @@ static int rtl9300_i2c_probe(struct platform_devi=
+ce *pdev)
+> >               return ret;
+> >
+> >       i =3D 0;
+> > -     device_for_each_child_node(dev, child) {
+> > +     for_each_child_of_node_scoped(dev->of_node, child) {
+> >               struct rtl9300_i2c_chan *chan =3D &i2c->chans[i];
+> >               struct i2c_adapter *adap =3D &chan->adap;
+> >
+> > -             ret =3D fwnode_property_read_u32(child, "reg", &sda_num);
+> > +             ret =3D of_property_read_u32(child, "reg", &sda_num);
+> >               if (ret)
+> >                       return ret;
+> >
+> > -             ret =3D fwnode_property_read_u32(child, "clock-frequency"=
+, &clock_freq);
+> > +             ret =3D of_property_read_u32(child, "clock-frequency", &c=
+lock_freq);
+> >               if (ret)
+> >                       clock_freq =3D I2C_MAX_STANDARD_MODE_FREQ;
+> >
+> > @@ -449,7 +448,7 @@ static int rtl9300_i2c_probe(struct platform_device=
+ *pdev)
+> >               adap->retries =3D 3;
+> >               adap->dev.parent =3D dev;
+> >               i2c_set_adapdata(adap, chan);
+> > -             adap->dev.of_node =3D to_of_node(child);
+> > +             adap->dev.of_node =3D child;
+> >               snprintf(adap->name, sizeof(adap->name), "%s SDA%d\n", de=
+v_name(dev), sda_num);
+> >               i++;
+> >
