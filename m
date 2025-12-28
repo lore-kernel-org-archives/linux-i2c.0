@@ -1,99 +1,147 @@
-Received: from smtpbgbr1.qq.com (smtpbgbr1.qq.com [54.207.19.206])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 77DC828CF7C;
-	Sun, 28 Dec 2025 10:34:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.207.19.206
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C69FF28CF7C
+	for <linux-i2c@vger.kernel.org>; Sun, 28 Dec 2025 10:34:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766918048; cv=none; b=oNLNNfyQECwbPWbRlcPq0pSLs2JvtDMRbSZug46THAKQ8XPJpsj/YJc5xLH/LMfznSdBYBCY+QndzoHQCRu9P47jkIV2iOVwcJhg7emUUMZe5HaJmoKWg3LQjmKkV1xYwThMtDGpeWRH7O7hOqtas8mxDzjQc6VyfVxsXWVCkmU=
+	t=1766918096; cv=none; b=WpVvxg/1B6p6Boq85vZQ3U2xp36wsy8mDaOzHl1LI9le2RBvJskTw21rWWfu58SC0sUu7NV+7kNAHskgBc5PccSldY/CPTIlN+B5FL7v6LxQI5DaTXdKhHXqJc1Jdp7YmCA9/A1fx6bMRXK29VrzCbuGclZPQsGMNFK1McsGDIk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766918048; c=relaxed/simple;
-	bh=qjWx4tctoUv5t2iRk1CfdEcE0l7qyPYgAoUnZLIQhEU=;
+	s=arc-20240116; t=1766918096; c=relaxed/simple;
+	bh=NXvI+P5VpbmmE59nTCwRvFpwVBPrE4C+iM7ziryf0Vo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nFPiEC4Pugf5mtpjDMMfwhI7H5X9gRH5DctyYsap6pSJwT5sqHm9wI3CtsSq/KZqfZ36TtXHbM+8KoLIUxeYd88x+U1/9Jtuc1aLa90pt3y+Nz9sUvWAYUfDmdxEWM7KcCGNGQn5DA5+voF2/dAz06kutoEBIyFrHk+IHSXkHc8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com; spf=none smtp.mailfrom=linux.spacemit.com; dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b=jeryTxn7; arc=none smtp.client-ip=54.207.19.206
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.spacemit.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=KKZA1hlU1p46maEqc7Go+FJag8nUGLIwHBfgvN1CcPYLZXvMPxWdBI9OAi1jT07rRpGvs15p3rtyDX7PFZ57+G/TWItwscRMMAA5xTagt6TfJyrYbSbzUnOwpMZfhW/6crw+ZXOsqIaH9tuMhw36OZ9YJ0uJY1IBBwm+56Y+0/o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lUOYiB2k; arc=none smtp.client-ip=209.85.208.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b="jeryTxn7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.spacemit.com;
-	s=mxsw2412; t=1766917884;
-	bh=4juI8+CNL0err5MO2vqKaa/2yYGzmUY2NVZNg7kqT8w=;
-	h=Date:From:To:Subject:Message-ID:MIME-Version;
-	b=jeryTxn7GKY2364jezJiIaz+IHhY3xIq1JfXd/wSWEvqqVOAnS7+aijnxnepE40se
-	 SmroOwsvLRvEhTUBUaqsOGow0oGj3DCHiIsOpYbQyZ2aPrUkxsjh5GVyfL2BYap5kh
-	 oczxKjIVVTm45MivtcXgTGr50iTcCcCRX2dBdkRc=
-X-QQ-mid: zesmtpip3t1766917875t195b4575
-X-QQ-Originating-IP: COBzNePZhwIpXoBfs/bCvY7aRKmMMGtpLegvX3mcOlI=
-Received: from = ( [localhost])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Sun, 28 Dec 2025 18:31:14 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 0
-X-BIZMAIL-ID: 5684403937810610960
-EX-QQ-RecipientCnt: 11
-Date: Sun, 28 Dec 2025 18:31:14 +0800
-From: Troy Mitchell <troy.mitchell@linux.spacemit.com>
-To: Andi Shyti <andi.shyti@kernel.org>,
-	Troy Mitchell <troy.mitchell@linux.spacemit.com>
-Cc: Yixun Lan <dlan@gentoo.org>, Alex Elder <elder@riscstar.com>,
-	Aurelien Jarno <aurelien@aurel32.net>,
-	Michael Opdenacker <michael.opdenacker@rootcommit.com>,
-	Troy Mitchell <troymitchell988@gmail.com>,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-riscv@lists.infradead.org, spacemit@lists.linux.dev
-Subject: Re: [PATCH v5 1/2] i2c: spacemit: replace i2c_xfer_msg()
-Message-ID: <86E3DC2399D2C68D+aVEG8iEgR4iSn5Vw@troy-wujie14pro-arch>
-References: <20251226-k1-i2c-atomic-v5-0-023c798c5523@linux.spacemit.com>
- <20251226-k1-i2c-atomic-v5-1-023c798c5523@linux.spacemit.com>
- <fnyar6fvzqr3dw33wv6abg3plmj5p2tr75a45zmyrb765fmrm2@gkw7mupx4wdw>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lUOYiB2k"
+Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-37bbb36c990so80473071fa.0
+        for <linux-i2c@vger.kernel.org>; Sun, 28 Dec 2025 02:34:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1766918093; x=1767522893; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=2JxxmkTi4FGoSoE6oHcsfNmtpGy25wMUBs6fj3QNMwA=;
+        b=lUOYiB2k1tzx4FVu9mSsSqp9eCkxePi2cDrfaIR0QIqEaV8Uyf1lXVaFoLZKUPNNGg
+         EJV5iK5AWc8xAeqJlhuzTBPujHAIu9BaOy5Wjl2H+F2V4w3/IM97Zf3e6gIv99rMuT1h
+         v2hYqTqcuzF1ax1p8jK5DWayuLctWtq9eWC/spKUqjlDaJ5x1IVelyyHw5MXhaZy71Ia
+         KLl4dA2LkdWlrg5Ig1Wsb/fH9azcbvj0orBHc1fFip4Trn043HQt86Mh018qxPZNj/lV
+         7mCz0dBO4VTtrTM2P6VKLLZeyakiUwk5926Ogqk2RQ4uA5Kfu60PckU24zGwzM2sz8jz
+         rsfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1766918093; x=1767522893;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2JxxmkTi4FGoSoE6oHcsfNmtpGy25wMUBs6fj3QNMwA=;
+        b=B9G2OTVkT6kyTmjVSTj9WMskrKPI49Cbx8CUJa34xOCvGNW8xAdl/w0LmzriGTOESv
+         1rrKgGQk5jjmu7JRTqbZ+aa2RUeVVbjmtzaIiNjQ9Vkpfi0jPR7QmX6V5JfjaEjOk6PS
+         eX75el6xPxtW5Wq5rJoqHB/KYOu0rVw54bRhshX6FmtMlg7GN41ThsPx3OOSUdKCobtY
+         rjAl4A3mfZlKn+b0EyoF1eA57HRQkOtUBONaxwScRqdGW2jt9eTlKw5uztGBnrcUJkDc
+         F9sX9EQ8uSLYK+u/q7leTlJIdNWDZih80SVYJUb+KrfMRjf4BzA8FRb21JX8lZbQo4um
+         sA6g==
+X-Gm-Message-State: AOJu0YwpcIDlnZ98IJu0G6i8yZD54ODo8yIkqbC/8D5XSiGZYnoim7WO
+	/vNuPtVlHaElQivUqsK/w4yoU7kI5y2O7/Ly9ID+vsmug56MKAyfjhBG
+X-Gm-Gg: AY/fxX4yJUcT6S7ztvjlOk7cjYtu1KLK6qvLz6jg9RZpqVSWF6LyknkkLjy4RQVITaT
+	h02EhpPuaSiSblRa1D56UPvj6e/6K9k9JCIsDdCwV28h9XL6VUdZnyHQcjqI7j38ezEN9+lnH5e
+	a+KobrUsiXjn4IRdtPgfQo5VhU2584K4t8cocNrJxRZ81EXWD9Ufz4l+LacR7fiKP63B0wLhNzq
+	V2wmJJKYJGmbWl5bQYOtXbwN1EeG6mGFsT3oY7bsZDOFBxzye96mZyYDmy3wzflwHE9ginph9TY
+	E2puBH/eegBKkQMbZ+uf1TWAp5Le5cqTI3KvlkJUon3Jt6ZG8bmvfDIV7uNdE+sQc94Oz1EF7V6
+	GEM1aFYAY5xCIEpadjo6DzL3yVy1wstlhF7xGlozzT9dTCu7l3FYhYmHbmeijIN+eUokhb9Dqv8
+	S5/Jgz5HaMMqyAlnYBcscnWal9mVTmudwLyDJsCoiaS/07bkGe
+X-Google-Smtp-Source: AGHT+IGnORvckzTpLa52QolfTAqA8mGzGUAPMaAuOTsKJD+KE4VlIltzyntZT3IUZ+4D/FxrPPT7lA==
+X-Received: by 2002:a05:651c:1506:b0:378:f3b6:f762 with SMTP id 38308e7fff4ca-3812079a3c5mr84928361fa.8.1766918092714;
+        Sun, 28 Dec 2025 02:34:52 -0800 (PST)
+Received: from gmail.com (83-233-6-197.cust.bredband2.com. [83.233.6.197])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3812251b2b0sm75897681fa.18.2025.12.28.02.34.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 28 Dec 2025 02:34:50 -0800 (PST)
+Date: Sun, 28 Dec 2025 11:34:49 +0100
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Peter Rosin <peda@axentia.se>,
+	Michael Hennerich <michael.hennerich@analog.com>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Subject: Re: [PATCH RESEND v3 0/5] I2C Mux per channel bus speed
+Message-ID: <aVEHyUsijrnFUWfD@gmail.com>
+References: <20251202-i2c-mux-v3-0-877dcf478a9f@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="7rFkj6zIm9eFzZmB"
+Content-Disposition: inline
+In-Reply-To: <20251202-i2c-mux-v3-0-877dcf478a9f@gmail.com>
+
+
+--7rFkj6zIm9eFzZmB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <fnyar6fvzqr3dw33wv6abg3plmj5p2tr75a45zmyrb765fmrm2@gkw7mupx4wdw>
-X-QQ-SENDSIZE: 520
-Feedback-ID: zesmtpip:linux.spacemit.com:qybglogicsvrgz:qybglogicsvrgz3a-0
-X-QQ-XMAILINFO: M0/UNHhZ6hMGkPFKdgToen6Vp6uEWmWe7Yh5Q0GxBZbIqdgtL8bTjmI3
-	ALEflv97CWuNb3vLuaxhCQADM7biZX/QZGQ7I57u5s9ITXRrcd8nno8onIYVhrfeMhFIjeB
-	1PpREx3oL3PJ5mXtknlI9Vutt79oCorVpjdIkPsD1Bu4KNmPYOesHRb0Mo8sj4lcgh0I2CA
-	GzCwae1HIBa6qWq28fkwkt9IN1T1EUkEUaUADBli+wNnpjdvTFrzE7sf7ZiS8Va2cG8C9Sd
-	LMvHPQDAA8WKfNQq+tzMlxATzYDrKn/Ryf/LcdH54sU+gQvngeEXgHGg7ZH4qJmTpJWn5J/
-	SYWvtiBcl6D2LEz07wFUiQ6VU5LBs8qtFEuOQJOBhVtPGmDaLi5CQ/1gxPxELtPDcRDVR7x
-	FFhy5dLGZAIiTfOMFSI/nc/nNj44SO9e/U3TnxoyloC0+wO4aFKtlJzYK3CQe+B8V4zW3Ts
-	NMNYkvXWKTSkPwdP4FBQfm+nRGuNC7Rb51pWSEmrF7JvkaJW8y9Xu0FwnPjfqCJK631CJqI
-	BKQ5A71KYWG8H//tDwY8IaVrS+ed/1pqha9SXbqiN+sVF/K1ExWHZwvWOX/v7LQnmFMR1Y3
-	4EYD2N0EzPE26cee27WllYfAWAFHNnxe72I/zyBQM/TMa1+PxJTpmR9PT1A0d+ySDgnAFNk
-	DqcsC46YN1aMugwMIziL1atSXQMYxvqBzIdryDM+C+RphInC0PNwryrs6djNu+kLM45/YvX
-	bSvW1sxYafmeip1EjshhJVxZhGxizabCK9xD/4D8AFLSP9/P2aER1jBVg6PmDX748Ba5yEs
-	soRHnuXATCgoIpCLdVBpbMg7Ly6pOTN5RrG+W7qy3Ss1VRGrLdvN2l2gizcMixFpOyYgpK5
-	Ud4HiCVDp+c6mNGB5qtn9h1GYZYDXaw+L3B6FmZn/GbFcMFd4J5CBWGBCVnBNPHHD9H97ve
-	NotasFXtcd7uXscpRqhlejOmPBTzcoO5cdtIGmbVspz6WznE4zldfeaTns8yHmjjV8ohyKP
-	vJBYBCvoK6Ay32cidlnyixh5f6NDFHzN+5RdgHS26WNVW2XyCt
-X-QQ-XMRINFO: NI4Ajvh11aEjEMj13RCX7UuhPEoou2bs1g==
-X-QQ-RECHKSPAM: 0
+Content-Transfer-Encoding: quoted-printable
 
-On Sat, Dec 27, 2025 at 08:45:31PM +0100, Andi Shyti wrote:
-> Hi Troy,
-> 
-> On Fri, Dec 26, 2025 at 11:31:10AM +0800, Troy Mitchell wrote:
-> > The upcoming PIO support requires a wait_pio_xfer() helper, which is
-> > invoked from xfer_msg().
-> > 
-> > Since wait_pio_xfer() depends on err_check(), move the definition of
-> > xfer_msg() after err_check() to avoid a forward declaration of
-> > err_check().
-> 
-> on the subject, this is clearly an i2c_xfer_msg move, not a
-> replace, right?
-Yes.
-> 
-> (if no v6 is coming, there is no need to resend for this, it can
-> be fixed before merging).
-Thanks! 
+On Tue, Dec 02, 2025 at 09:09:47AM +0100, Marcus Folkesson wrote:
+> This was a RFC on how to implement a feature to have different bus
+> speeds on different channels with an I2C multiplexer/switch.
+> As no major complaints on the design came up during the review, I
+> decided to submit the series without the RFC tag.
+>=20
+> The benefit with this feature is that you may group devices after
+> the fastest bus speed they can handle.
+> A real-world example is that you could have e.g. a display running @400kHz
+> and a smart battery running @100kHz using the same I2C controller.
+>=20
+> There are many corner cases where this may cause a problem for some
+> hardware topologies. I've tried to describe those I could think of
+> in the documentation, see Patch #5.
+>=20
+> E.g. one risk is that if the mux driver does not disconnect channels
+> when Idle, this may cause a higher frequency to "leak" through to
+> devices that are supposed to run at lower bus speed.
+> This is not only a "problem" for changing bus speed but could also be
+> an issue for potential address conflicts.
+>=20
+> The implementation is split up into several patches:
+>=20
+> Patch #1 Introduce a callback for the i2c controller to set bus speed
+> Patch #2 Introduce functionality to adjust bus speed depending on mux
+>          channel.
+> Patch #3 Cleanup i2c-davinci driver a bit to prepare it for set_clk_freq
+> Parch #4 Implement set_clk_freq for the i2c-davinci driver
+> Parch #5 Update documentation with this feature
+>=20
+> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 
-                                  - Troy
+Ping on this series.
+
+Best regards,
+Marcus Folkesson
+
+--7rFkj6zIm9eFzZmB
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAmlRB8MACgkQiIBOb1ld
+UjKa/w/9EMK7/UO6JtAlL56xG5HWlpyOxFHWUAO9UIWno2hVyQynqNH4v7diLRBc
+BsDhmURF6cuyUB+vmhczfA4CKXRSPiVju8mWMBu4XP4s3hGg7HTIezwxIFUwGHWN
+hsLRWYFIJXcxXmM+kc0/GUdxKtZnB/LtB/vBtt/hP1PqCy2PXgDoohrRoziudpcC
+c2WfApN1ouNEWggVNlvHLYks+IKY/KDDRU8K00uhqLtVLeBeHXZbn2l2U3vBAxw9
+UFjBGOTCIlSHKOQ9WXOqBo0UkiAsgAokWVn2RQ31NJHkBZpW8U/XYeYPIbjulUB8
+V8FRwEy1az7dPIGRybgl1OA3DSQxxI76KMBoUZCWXRxZUKtnVoOd72b//TUvsJ7C
+wtdRjslcTWInxdOS3n+muvaH+oOHuoUw1lidEJWF5V0z840VPFDl/IJHETIRj0AP
+9EWrz2bPlMQYi8WcwKmKmpTybU9cytA5N1uaOHUKKqYDhAFT+TQ8zAXvPN4tQJgR
+Kt5hJ+TxtzU7mHp/Q18K1T6V/Mp0SGAhysNdjEUzgSEyngN462tirHrIRIqQ54Y9
+iSUkIx3faPeQOttSzlwrW68gVxhqb+m/CGR0oLFtQ4J1gC+qP8dghQ2+NCQImIYd
+JdFL5CaaSBphpsbYDgDL1Is5APPRoURE5zCqzmqBgwyemOQXUY0=
+=kP3i
+-----END PGP SIGNATURE-----
+
+--7rFkj6zIm9eFzZmB--
