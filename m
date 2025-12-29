@@ -1,83 +1,83 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F5A5279794
-	for <linux-i2c@vger.kernel.org>; Mon, 29 Dec 2025 04:56:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1916028D8D1
+	for <linux-i2c@vger.kernel.org>; Mon, 29 Dec 2025 04:56:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1766984165; cv=none; b=sjUU8ked8n/jqTrkVpzQdrj8BOjyb2rbG50cowLuYqCElPETnycSDDtn/rh85QYAFHjNvx3rnZKuFJ+S3v6y2DFDAvpPy6Dr+YzAMbUUhoJcwi6raRoSPOCRfHe8mAri8cL1FJdilQbJL0igB+bPQrCRCvrJTsGGWJK4zWeMgZg=
+	t=1766984173; cv=none; b=of8v7J//X2r52yMJrMLCuJazDs04p0nSuScGjvV0K5pwfd9WCs5FPicPUkWwY96Q+Hop3MEOGFrpX8yc0RK6pnJ/XDEf8YX7DOjms1cfYR1I92huRODQbKfQa/3vlgXDXXnyPUo01IaPOHk4SL7ETJH/eyQKE/73Zw+4e29szOk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1766984165; c=relaxed/simple;
-	bh=sd+Xljnfm0clwQKZjvueg2pzkap7XowUeh/WoLCloXA=;
+	s=arc-20240116; t=1766984173; c=relaxed/simple;
+	bh=dd9jcM7VhtLSe01qVKxg4cqsefq6fIxIf68B+OdANWo=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=mo6avpYx4r0nUAmI35LSmY7/T5/+nMqfFC236Z0rjbjULXSsWRi9hGXPW+PiYp/27FwYmIhPO1BWLxq0JC0+UDau12bUi+ES/Zu2Fv5tuXrP/RdzDPLqxf/X/IBgk23WfdhShgu4/Jc3R857OnlUf3ATHPHdcRC/C+zW6oYlnY4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=kmqPJFCp; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=AaZzRQ5i; arc=none smtp.client-ip=205.220.168.131
+	 MIME-Version; b=JcD4Kvm2XpQ1qd+ULxtgFLSY6h1nELXZdrTxCvpnEpjL9kMEz6u8fhOfHMbOOBnMyl46+94nfhZRGmgKkQEKgRs9ZYuuZUVscbSvbcZ7jny+0xBRMjGR2hy5jDVKs0L+R0OMogv3hYwj54jAOLf6xt8Bp3k03jsVSyFdgdKb5rQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=fs1FFbJg; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=BJScILJv; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="kmqPJFCp";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="AaZzRQ5i"
-Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 5BSLopZB3777085
-	for <linux-i2c@vger.kernel.org>; Mon, 29 Dec 2025 04:56:03 GMT
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="fs1FFbJg";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="BJScILJv"
+Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 5BSMQfOS4149030
+	for <linux-i2c@vger.kernel.org>; Mon, 29 Dec 2025 04:56:10 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=qcppdkim1; bh=yHj7LcjuyR7
-	44fhCZ9TThkC8k2+KnabV2Ku2dES356o=; b=kmqPJFCpTWOu8wYmXUG+Oe44FoF
-	Fo+Nq61tgLrGMDB+Ya5EgwTzISCaHcE2GgYhy4TfJ5HyNrjcuPBbiQ5A50Q76S4C
-	GClH9WGP0uGjNdLna/eF106NZRSlevvwgxNCr5rRKJU8XikflfD9alGxuii6czOj
-	OYcnCpHRWubFEUJKtAaSe3np8c3rfrh7rFQJ1FlZTtMtsZy/9QwM83P/8/m7p+6B
-	95VAE3zjq/gJANRTH4WhYKks/JBjyaTZI/HkN/GvHtiIwWLbTOKRbG9gdEi+MwIp
-	HBKlPTVamvStywsVm6hyLxgK+QBNC0mADZEwYGvvgXjk6Uo2Pv8dq4UmwEg==
-Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com [209.85.215.198])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ba6dr3fu2-1
+	:mime-version:references:subject:to; s=qcppdkim1; bh=6DIBNmtegJx
+	j/sp5FwSU/fdzZauMmtoR986IcxrENk0=; b=fs1FFbJghCYmmqmmhZq0mGC67mi
+	JycZwI2vrl64SdhvOG1vWGw3ZbkchnhXmRY49fJmPoouHURZYxTchUpSmvdMIApj
+	27eLTrs4kuDZN4oHvFwN1JHspQLBJfOrxGzB68upTFYGsJyMGBhsvUad9g/vCgzD
+	QBSyJx5B9m1O2IPAM/hVPO+S/7sJc8Ru6t760DWlaFHZg6ptE/59VxRNnyl96Od7
+	75SnMGkPeYQ+t72LRMIcPfotk1duJAJB/TX1rxacTeNDEteKNczvYFtbqYXXdCYr
+	9Zv85Np9lC1PNMzbDBcqFJzzZED9VE2kKI3ob0kGFmaeknLeJ5bH2XtWaxQ==
+Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com [209.85.210.197])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ba7u5kbcq-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Mon, 29 Dec 2025 04:56:02 +0000 (GMT)
-Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-be8c77ecc63so13467411a12.2
-        for <linux-i2c@vger.kernel.org>; Sun, 28 Dec 2025 20:56:02 -0800 (PST)
+	for <linux-i2c@vger.kernel.org>; Mon, 29 Dec 2025 04:56:09 +0000 (GMT)
+Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-7bad1cef9bcso18282340b3a.1
+        for <linux-i2c@vger.kernel.org>; Sun, 28 Dec 2025 20:56:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1766984162; x=1767588962; darn=vger.kernel.org;
+        d=oss.qualcomm.com; s=google; t=1766984169; x=1767588969; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yHj7LcjuyR744fhCZ9TThkC8k2+KnabV2Ku2dES356o=;
-        b=AaZzRQ5iaohrlVCFoiVkbyV+99Kmt7xTDPJbxSdadqjJI/ekN6uL1MRa4LW+wDIYYZ
-         dUhQUE6IhtkeRCWljfYLX5uYExhl/2A0WUe5yXEMsfph+BxBhZJEXZTNlGm6sAaC1l0Q
-         hUtzeYU7F18sjo8xyx7VIdFtmqbi/yrkMWhLI6o77NsKFMpplN98I79DpHi26Nj6CV7V
-         bTxApdIDq/SUGNYHvaqBQXKS2okFAN1LvoU9BMiSjBW2FJcagtzLuUMI9cQggK6eMO3t
-         JFohNBWnf46WTCS5cZAl5Qx/JXpt83J5ZT9NU1et1dgnPIN+bV2cuADGzfiaWQywXKpK
-         t4lA==
+        bh=6DIBNmtegJxj/sp5FwSU/fdzZauMmtoR986IcxrENk0=;
+        b=BJScILJvzWKrrF9RjND62tzPn9QUkZtkykuep6tyLXgjO6wc4wnrO7NT65qW24cvrY
+         IccMqEhVeC5bFr8SITKvdYNobnDI+YMu4etXspcLTj9bS14+1YOLSVee0Dth67+t22Cc
+         RU+t1hfiwp+LP3ccnsW5h5JSnXW0adkqgBwT4DIeE4HPzFW7S9/xEFc67q7bHpyPsD/W
+         xWkIB0Ozrk4r6LZiTKY6KlA2mcfN0M0zQ4qDpCmae6hRFq72W/LukUmXO6f9gZC7vKzc
+         mt6KUkO3M3NTpOcgCokro0QyDKWuljorQ43fk+x3iYRzDHA2HzRPPHF3Weoia7HNYgZK
+         e6HA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1766984162; x=1767588962;
+        d=1e100.net; s=20230601; t=1766984169; x=1767588969;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=yHj7LcjuyR744fhCZ9TThkC8k2+KnabV2Ku2dES356o=;
-        b=Q8EIBLI0d9uDYA5i8TyNZM0ru7cKAkJJDDn/ojfeIBLHhZzBbdg9AvqNH7DdW6Ngdm
-         jtCONSzmXOOS6b87NufEmTxApQyFLpMggy8yg+O8NnCYUhJ19Y0CwpyNmOfobp+JGozB
-         1UhCc6iHklD4d/fPTtcf3uYwJ+5yyt5Wthy1CjxgkkKBVvlnKW2LrvGf7CRt1Jd+TyH7
-         pINWQnccxYhytJtWOwspRwmW1XocpaiNFtLMbyZ2y8gfV6v4EyEUzgagUFJ2Ltti4Zqo
-         EiVARmZ836BXnDpGfdNRYvyJcSEUBXfSF9/W6gIuwUvAeYOL8Int4xGVGk426icPSCNe
-         9Nwg==
-X-Forwarded-Encrypted: i=1; AJvYcCU/LwE9N3l7IV87QDfKvMGckwD5+EpUZGnieGyhMMUp0kVNh1mr4p7ikVHCwqZk2quQW/vsLa0ToO4=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy3FIRDGHViSGzM31QfzUswijoxOLzZsnoep/MdhzJlPZaRAwJA
-	HHeMuFiOHHLomXZP5qNKSJjOhF5qjRXPEb0d0HLH8G7FCNsnJSJTBsi8E6B30RHiiwUAXqzM7dY
-	822TO5LwSpfAxow8Hytif57hRVL/V6tOB1qY15ECBsxWjatNpcH/3etrw+U/Awms=
-X-Gm-Gg: AY/fxX54uRVDl0visZ2ZCxXGnBbgmBmMWFtz3P09lg4pyLxF7ur7NuacOWSeMJNSx/s
-	z+UelcNryIyfu8uAB144wwUFDKlzL3fK+1PXqVybk5G+7gIfo20IGUvGYifEu7FD3F+50MLZwB1
-	EUbLusleZQbM9JpKn7cBElFaDL/gEtjCdm4m/nAGGWz7Orm3ywvC5AePbWvs2opikx8ITZAi8CQ
-	URrEkJ802gntT5rSSF2E7XnRCM2uoLvA/PVSGa1s1AtbeCqcITWOKWF1bUHviBj6EYsSt47nu7j
-	BTjx/mynv8lpQdauIQeIQsOgUGzuxm/TNJG8AXklKSlB7McMCiFJZ2Aho2F5CCkGB7bWLsBkYZw
-	5OCxd3bNw/GY7mMx0DvRtvun1W98HkSkrdxedRoSQgNU=
-X-Received: by 2002:aa7:9312:0:b0:7e8:43f5:bd0c with SMTP id d2e1a72fcca58-7ff66f5a71emr25516917b3a.33.1766984162102;
-        Sun, 28 Dec 2025 20:56:02 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IHpSZwQSfycFRFi+kX7lm3SjsjxKH6VXTgnbWY4QiweMoYebX2+LJo3vobyxCXvUawEzpJqSQ==
-X-Received: by 2002:aa7:9312:0:b0:7e8:43f5:bd0c with SMTP id d2e1a72fcca58-7ff66f5a71emr25516896b3a.33.1766984161526;
-        Sun, 28 Dec 2025 20:56:01 -0800 (PST)
+        bh=6DIBNmtegJxj/sp5FwSU/fdzZauMmtoR986IcxrENk0=;
+        b=kc2ceZxU9eWHTe77UmUMAuT4mRzYgcPHAsMota1CaiSPbUZrAuvNSyQpFnvdjRqON7
+         cTLRYPYR8jOMx1ZZ6kW5DJZfcV8cdN9KoBrYf2EcQSgeazaK/b7yrokH32jYBA5qTnQN
+         ctsH73Y8QmmMUiMNsdvnV0Or691fdjFTktT9k/YrtTYNAn+Ics86Zn0QxuvD+fOOaESM
+         FxePCi73r781ZeKTIGJyCSmQSpo3BCLZ0QsQMdFdGafkdBKNXBsbQCSHyJqDO0kT/0ol
+         58d971PSRdJxSRnyyfsF+WwR9+X7sOJUaXQNw4AhrVJg8nTsjcEDxUEpx+3La4WMRk0e
+         rb5A==
+X-Forwarded-Encrypted: i=1; AJvYcCVDef+Bk1moJrQCp3g/wOyE4lxPNv75c8UkYxXzK4/4AiWWcF1V9EYrx4W8tpk0fT4CcxOYy7qblos=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxFG2B8QYCnAUJj7j9CVmyhZ38YhAX5BMY/POYPz8IjnOzUU1R7
+	CRJNe98wEvAmvlL8BXI9QDutsl8Nz1DCjMVo3087AdY4eAKTrGpZJmqmgfUM51IavjLTMMZk3WQ
+	66lZY0IZfDey+pkc8SftkNDEnzkQOvTF5fWSxMltkDHZDBXVO1GpYq1Vi6FEjYeA=
+X-Gm-Gg: AY/fxX4sG8ZqMOF3LF61zzBbWoXLEatT1FhMGA7M8ywlqvHaVHp7pkjyyLRKqC66d6B
+	87hOH8BfMecBlYUkeq4IzCcsje4SjaG3OEl8tZi8+RZZCmudnCj0TidqJ4MCT53HOqDKaNSccTr
+	a82fOsN/aXTDBx+UG9VwW4tTLxakiuGHN/9ypMUWG+tZnoRdnxhyTFNHvbZZA/HoBnxS5ISgpV3
+	T8vdXpwQ1D30qfIazeOScmmdOSXsD6RhOI/Sph12ES/OXrcaqvOicHa7jxtjz8+Jojnss61XPG+
+	nci/2OvD+YLZRuTSRCh9t9T+cPFVyQoy0ny0eA1P93g2eSmu07tbPU3JRXLJhaqclfl+7QVY38d
+	1DwIaLUDkZHmeB9QBHR1misfc/N9MY+yqOrdGP6nrguo=
+X-Received: by 2002:a05:6a00:3386:b0:7f2:1951:c130 with SMTP id d2e1a72fcca58-7ff66d5ff66mr27353199b3a.68.1766984169012;
+        Sun, 28 Dec 2025 20:56:09 -0800 (PST)
+X-Google-Smtp-Source: AGHT+IHR7M1yhRS750JdicCCmdoq4t+9wBUNIGOHfOwPohqIVn6OoIL6o7IqcuPL0ykrZIuELU6Xjw==
+X-Received: by 2002:a05:6a00:3386:b0:7f2:1951:c130 with SMTP id d2e1a72fcca58-7ff66d5ff66mr27353156b3a.68.1766984168483;
+        Sun, 28 Dec 2025 20:56:08 -0800 (PST)
 Received: from hu-ptalari-hyd.qualcomm.com ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7ff7dfac29bsm27902080b3a.39.2025.12.28.20.55.55
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-7ff7dfac29bsm27902080b3a.39.2025.12.28.20.56.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Dec 2025 20:56:01 -0800 (PST)
+        Sun, 28 Dec 2025 20:56:08 -0800 (PST)
 From: Praveen Talari <praveen.talari@oss.qualcomm.com>
 To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
         Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -94,9 +94,9 @@ To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
 Cc: psodagud@quicinc.com, djaggi@quicinc.com, quic_msavaliy@quicinc.com,
         quic_vtanuku@quicinc.com, quic_arandive@quicinc.com,
         quic_shazhuss@quicinc.com, quic_cchiluve@quicinc.com
-Subject: [PATCH v2 09/12] i2c: qcom-geni: Move resource initialization to separate function
-Date: Mon, 29 Dec 2025 10:24:43 +0530
-Message-Id: <20251229045446.3227667-10-praveen.talari@oss.qualcomm.com>
+Subject: [PATCH v2 10/12] i2c: qcom-geni: Use resources helper APIs in runtime PM functions
+Date: Mon, 29 Dec 2025 10:24:44 +0530
+Message-Id: <20251229045446.3227667-11-praveen.talari@oss.qualcomm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20251229045446.3227667-1-praveen.talari@oss.qualcomm.com>
 References: <20251229045446.3227667-1-praveen.talari@oss.qualcomm.com>
@@ -107,132 +107,107 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjI5MDA0MiBTYWx0ZWRfX3VMB7N5GFdhC
- /uM/zicyd8dlY8aoS7OJPW//Vsy7alzjqXfPgpC54YtihJ/XNCfccB3ApZwdG9T388VyRqbfweP
- zJ04gCrqvJBVshD6KNgwQBchnIi3toGoKOfr21N5Ya0fklNAVXuGwTyvS6+4UueVAknCXCOR2pE
- yTKbZThY4OeWVVGjAx6r6wdkTSyfvoVDBst0lvu7uUai/GNwnuH9htSfcD72s9/eRAkDVbS5zm1
- tfRsaftx6e4ZI1bl9Kny6dx0nWrxQX6tf7mD1jVRzt80UpP1MJIHzkT641FBDOWaAHxJQ8cxEm3
- +zYvdj8TkEA3vgoTXW0VFKpsqsJUq4Y3HCxonKHH59NHPt/ccIwRpx8ZyDpC0xcMKZNNJlELEEf
- tBLb+WDubTdKTXPyz+yHYZKPRNiAidl+dLqMaDnuAxect5psWS35D8Fe80jTJ9Icrc/sibV+46u
- p3V1y3bDgp7xxAjNmDw==
-X-Authority-Analysis: v=2.4 cv=VdP6/Vp9 c=1 sm=1 tr=0 ts=695209e2 cx=c_pps
- a=Qgeoaf8Lrialg5Z894R3/Q==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+X-Proofpoint-GUID: sY1UOkkFLswrVE7QR1rSP8PxPmx4w7JZ
+X-Proofpoint-ORIG-GUID: sY1UOkkFLswrVE7QR1rSP8PxPmx4w7JZ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjUxMjI5MDA0MiBTYWx0ZWRfX/fY9rVudIKy+
+ qh7xyl1V2G8ndTk+CxfTu8IcEWHAe0q4V5CooceUgAC1bfnFAiyfjebueqyGT8nnwGN/jsLdzk1
+ JlhUQ323wu4GKgS0JNnvwWzPCJfZ20WdMzUBbe+LHCROag6hyyh3hg93gzENQiTUTAVnmMhi5GF
+ 4rH5DupmZ1iZZ6K+YT8DvmLELaTh6Cnu9XZZgV+kI3UYA3LpUuoY9q5bdqUu5iqUTHan7V9N5lL
+ EU5Aq1gmimKhxFYXPNOHks9YHYnkNAId0f58QSBt4JuBc55aLosgiMFxrmQJi99fpgjxFQ+vwEB
+ VJhLr10o+iHAX2Xf425B2HN7toZ+kGPzr8bqieO18UhWv9i5N4vS87xF4A6Pok2bBTTKZl6CxpR
+ p1NxjDNwI9XNxA1HBFueY0xTRuTLo/UyrL9OH9dOlpWMI4jR4I5FjKshasoh8fXfS/ZFAXjnrhQ
+ JsKF4XxJzLPXtdzoTww==
+X-Authority-Analysis: v=2.4 cv=DptbOW/+ c=1 sm=1 tr=0 ts=695209e9 cx=c_pps
+ a=rEQLjTOiSrHUhVqRoksmgQ==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
  a=wP3pNCr1ah4A:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=EUspDBNiAAAA:8 a=V89BwkbFsXdiYDgkWuoA:9 a=x9snwWr2DeNwDh03kgHS:22
-X-Proofpoint-GUID: e-el85cZ060uyIDXe7FUPWI_QZ_c7neI
-X-Proofpoint-ORIG-GUID: e-el85cZ060uyIDXe7FUPWI_QZ_c7neI
+ a=EUspDBNiAAAA:8 a=3PeDo36KSfG0vlEF63sA:9 a=2VI0MkxyNR6bbpdq8BZq:22
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
  definitions=2025-12-29_01,2025-12-26_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 spamscore=0 phishscore=0 lowpriorityscore=0 bulkscore=0
- adultscore=0 clxscore=1015 malwarescore=0 suspectscore=0 priorityscore=1501
+ malwarescore=0 adultscore=0 clxscore=1015 spamscore=0 priorityscore=1501
+ suspectscore=0 bulkscore=0 impostorscore=0 lowpriorityscore=0 phishscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2512120000 definitions=main-2512290042
 
-Refactor the resource initialization in geni_i2c_probe() by introducing
-a new geni_i2c_resources_init() function and utilizing the common
-geni_se_resources_init() framework and clock frequency mapping, making the
-probe function cleaner.
+To manage GENI serial engine resources during runtime power management,
+drivers currently need to call functions for ICC, clock, and
+SE resource operations in both suspend and resume paths, resulting in
+code duplication across drivers.
+
+The new geni_se_resources_activate() and geni_se_resources_deactivate()
+helper APIs addresses this issue by providing a streamlined method to
+enable or disable all resources based, thereby eliminating redundancy
+across drivers.
 
 Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
 ---
 v1->v2:
-- Updated commit text.
+Bjorn:
+- Remove geni_se_resources_state() API.
+- Used geni_se_resources_activate() and geni_se_resources_deactivate()
+  to enable/disable resources.
 ---
- drivers/i2c/busses/i2c-qcom-geni.c | 53 ++++++++++++------------------
- 1 file changed, 21 insertions(+), 32 deletions(-)
+ drivers/i2c/busses/i2c-qcom-geni.c | 28 +++++-----------------------
+ 1 file changed, 5 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 58c32ffbd150..a4b13022e508 100644
+index a4b13022e508..b0a18e3d57d9 100644
 --- a/drivers/i2c/busses/i2c-qcom-geni.c
 +++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -1042,6 +1042,23 @@ static int geni_i2c_init(struct geni_i2c_dev *gi2c)
+@@ -1160,18 +1160,15 @@ static int __maybe_unused geni_i2c_runtime_suspend(struct device *dev)
+ 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
+ 
+ 	disable_irq(gi2c->irq);
+-	ret = geni_se_resources_off(&gi2c->se);
++
++	ret = geni_se_resources_deactivate(&gi2c->se);
+ 	if (ret) {
+ 		enable_irq(gi2c->irq);
+ 		return ret;
+-
+-	} else {
+-		gi2c->suspended = 1;
+ 	}
+ 
+-	clk_disable_unprepare(gi2c->core_clk);
+-
+-	return geni_icc_disable(&gi2c->se);
++	gi2c->suspended = 1;
++	return ret;
+ }
+ 
+ static int __maybe_unused geni_i2c_runtime_resume(struct device *dev)
+@@ -1179,28 +1176,13 @@ static int __maybe_unused geni_i2c_runtime_resume(struct device *dev)
+ 	int ret;
+ 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
+ 
+-	ret = geni_icc_enable(&gi2c->se);
++	ret = geni_se_resources_activate(&gi2c->se);
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = clk_prepare_enable(gi2c->core_clk);
+-	if (ret)
+-		goto out_icc_disable;
+-
+-	ret = geni_se_resources_on(&gi2c->se);
+-	if (ret)
+-		goto out_clk_disable;
+-
+ 	enable_irq(gi2c->irq);
+ 	gi2c->suspended = 0;
+ 
+-	return 0;
+-
+-out_clk_disable:
+-	clk_disable_unprepare(gi2c->core_clk);
+-out_icc_disable:
+-	geni_icc_disable(&gi2c->se);
+-
  	return ret;
  }
  
-+static int geni_i2c_resources_init(struct geni_i2c_dev *gi2c)
-+{
-+	int ret;
-+
-+	ret = geni_se_resources_init(&gi2c->se);
-+	if (ret)
-+		return ret;
-+
-+	ret = geni_i2c_clk_map_idx(gi2c);
-+	if (ret)
-+		return dev_err_probe(gi2c->se.dev, ret, "Invalid clk frequency %d Hz\n",
-+				     gi2c->clk_freq_out);
-+
-+	return geni_icc_set_bw_ab(&gi2c->se, GENI_DEFAULT_BW, GENI_DEFAULT_BW,
-+				  Bps_to_icc(gi2c->clk_freq_out));
-+}
-+
- static int geni_i2c_probe(struct platform_device *pdev)
- {
- 	struct geni_i2c_dev *gi2c;
-@@ -1061,16 +1078,6 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 
- 	desc = device_get_match_data(&pdev->dev);
- 
--	if (desc && desc->has_core_clk) {
--		gi2c->core_clk = devm_clk_get(dev, "core");
--		if (IS_ERR(gi2c->core_clk))
--			return PTR_ERR(gi2c->core_clk);
--	}
--
--	gi2c->se.clk = devm_clk_get(dev, "se");
--	if (IS_ERR(gi2c->se.clk) && !has_acpi_companion(dev))
--		return PTR_ERR(gi2c->se.clk);
--
- 	ret = device_property_read_u32(dev, "clock-frequency",
- 				       &gi2c->clk_freq_out);
- 	if (ret) {
-@@ -1085,16 +1092,15 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 	if (gi2c->irq < 0)
- 		return gi2c->irq;
- 
--	ret = geni_i2c_clk_map_idx(gi2c);
--	if (ret)
--		return dev_err_probe(dev, ret, "Invalid clk frequency %d Hz\n",
--				     gi2c->clk_freq_out);
--
- 	gi2c->adap.algo = &geni_i2c_algo;
- 	init_completion(&gi2c->done);
- 	spin_lock_init(&gi2c->lock);
- 	platform_set_drvdata(pdev, gi2c);
- 
-+	ret = geni_i2c_resources_init(gi2c);
-+	if (ret)
-+		return ret;
-+
- 	/* Keep interrupts disabled initially to allow for low-power modes */
- 	ret = devm_request_irq(dev, gi2c->irq, geni_i2c_irq, IRQF_NO_AUTOEN,
- 			       dev_name(dev), gi2c);
-@@ -1107,23 +1113,6 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 	gi2c->adap.dev.of_node = dev->of_node;
- 	strscpy(gi2c->adap.name, "Geni-I2C", sizeof(gi2c->adap.name));
- 
--	ret = geni_icc_get(&gi2c->se, desc ? desc->icc_ddr : "qup-memory");
--	if (ret)
--		return ret;
--	/*
--	 * Set the bus quota for core and cpu to a reasonable value for
--	 * register access.
--	 * Set quota for DDR based on bus speed.
--	 */
--	gi2c->se.icc_paths[GENI_TO_CORE].avg_bw = GENI_DEFAULT_BW;
--	gi2c->se.icc_paths[CPU_TO_GENI].avg_bw = GENI_DEFAULT_BW;
--	if (!desc || desc->icc_ddr)
--		gi2c->se.icc_paths[GENI_TO_DDR].avg_bw = Bps_to_icc(gi2c->clk_freq_out);
--
--	ret = geni_icc_set_bw(&gi2c->se);
--	if (ret)
--		return ret;
--
- 	gi2c->suspended = 1;
- 	pm_runtime_set_suspended(gi2c->se.dev);
- 	pm_runtime_set_autosuspend_delay(gi2c->se.dev, I2C_AUTO_SUSPEND_DELAY);
 -- 
 2.34.1
 
