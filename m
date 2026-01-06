@@ -1,87 +1,33 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 122E334FF6C
-	for <linux-i2c@vger.kernel.org>; Tue,  6 Jan 2026 18:40:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F79028DB49;
+	Tue,  6 Jan 2026 19:18:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767724852; cv=none; b=QKORB7E5C5K05yHQCeK43J6R8pFuKNZsYhOGO7ylE62fV7kMo0RPQ93o0q2sO3ahbJbLfyH0dsbmysTp45G1yXavbS9/dpCf52rZFOsMepav8AVfss7JVQ54XKUbqn8y0DrVJ870SkHirthv+kma1C3eD3cBa6gIHPtt7IdJqQk=
+	t=1767727118; cv=none; b=JWqAaicrGT7rjofMWhlkwpKHtXF2npizzEDNOCWRF3zlhMLmch4H9mNlemZsO6adrr5ClLpqf5Lr1cMuM/cWOJ3hVoFyrERjOYIkx8Lzo3yGMGUHmj89Q4m1dseDJAi7LtSK4efGtamiZNm3KN5f3xjB9SEEzpotn4MXE58IWIQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767724852; c=relaxed/simple;
-	bh=++DQGKnOZXg8YlFGgSsaTnIuRLTvbA/gdMLcbw0EMEM=;
+	s=arc-20240116; t=1767727118; c=relaxed/simple;
+	bh=SQY9xpLgnO1b7WXa0sl9VjJty77jql7OKhPWuUhR7sk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CBu6GYKp4khu8rG35HO42ddpa5eWuOrVIJjvmGE44jGi1WvpZiK4RRbJvBs+eVvlbCu7vDLthCMMM0Gr8/Lrw31aihISvMh/igIMw6oh0YIRRoYPBUpKgchxwX5zJT8R9GyELAJIbxeFOI90+en8KgqasLfeYP1BizgP+JAliLY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=m2ftelMR; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=LE5Iqfqu; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	 In-Reply-To:Content-Type; b=A04Sk3mpuxQbVnODli6KRrikqSQOPmlSl0IPzyZWDWrXXpasfh6btQW8jciCpfa0BPRBw15dwT0MGbd1jGYnVTHxw9mzCrvWuresLHpm7++WTRGFpyrX4lzjkGeJTuoZTOavtKh9oyhqpleA05/WGiEJF7xs3QZ74jiPKdKDb7k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DLgmWB3q; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="m2ftelMR";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="LE5Iqfqu"
-Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 606Ghwe1364880
-	for <linux-i2c@vger.kernel.org>; Tue, 6 Jan 2026 18:40:50 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	5PxAPouMyA//31qIYJm+rklBoskPqlYIqSfK+Bd0RZ4=; b=m2ftelMRML/dFZvl
-	ht2KIE6bYMfPbyV+j9Wm/WIqiBh6MuAaKMwUl8CnHzk5AkFvA4SoSohfNPfa2Thh
-	rKDkMYCx7+vWS3QqsTbmHquAoIaMnj4mYeErzGEsa21OpVVSSpd8XxNyIDaMj97Y
-	OfUdQpMIiQl7mwyVJJoTHH1ie+a9iYnVx1WDBAN/epH8rjuEYuW9saUtbPkOjkMP
-	qdhrU14zP+6bTKqifZw54iBJIqOBtJ3wzyx6dBm5zk7ERYJzQ1L4DFu2/ZCGWvNc
-	holB8CgEM6ZSAatXT2br+vup262IRixQILXlE82dV+3d7CVY4NxwUIgLGcSXcaK4
-	fPohzw==
-Received: from mail-dl1-f72.google.com (mail-dl1-f72.google.com [74.125.82.72])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4bh660rbp8-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Tue, 06 Jan 2026 18:40:50 +0000 (GMT)
-Received: by mail-dl1-f72.google.com with SMTP id a92af1059eb24-12055b90b7bso2460033c88.0
-        for <linux-i2c@vger.kernel.org>; Tue, 06 Jan 2026 10:40:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1767724850; x=1768329650; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=5PxAPouMyA//31qIYJm+rklBoskPqlYIqSfK+Bd0RZ4=;
-        b=LE5Iqfqu3CvAz97I/A/aVD5ymgxZ4fL8E1s+h9fW+nm9Sgq437VGjm21QTVjfbIk8q
-         KhmF8jkzM09zCbA8GqAn44mI32X+NU4oIL4J8d5cXXWAvXzhYFSH5K5/qrVGPFenTBVE
-         BvXwbHJCofprgHxyfZ9dZcpTKPKnPHaQgdMSIlIy/zha/biEIgrCW1LGHhiNLivFmkiw
-         6ba0RYB5kU9GqOKrnWEwY6USNnk6TXUFXJcUs21pOlvZyWuujqrhMsP22dwQQ+4x7nCl
-         7uD4OW3flv0DeYZKl/BD+gThuy6eBUiywvlA8JDxvQUVZ/erxW9pMAGFHmHPhRsSg7UK
-         W6+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1767724850; x=1768329650;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=5PxAPouMyA//31qIYJm+rklBoskPqlYIqSfK+Bd0RZ4=;
-        b=SQms1bAFRTF1kuAmiMZH7Y+OApbd4HyGto+2vetagnNEcr7QUFOXAhhA7mnh9edufb
-         ckeVe2lyfDy6O2QDYKJrWC0Fba5cbX7bE1u+gWJLHb5pcLcvsN8gY1ll7/yY6EgBvTYr
-         opN9jEDKK8C5Zj3+DeWxa28v+VsLzQTixAnix4Z/B1rqgDa+TzkPQ+u93bZREB+JPHVV
-         e+XnU2VfYg+9Oc30w5cR62ITrPfHdu8lNwt1ULJBmgij0SaWAZ5LuVHLR8i36awK/Pes
-         kwjK4PggYzFWZpxc9x4QzY6Xj7FTS6Jn2GGMyjeKHqJ9ptqiYwVCgUPe0Ho8U5WS2QVF
-         Sg2Q==
-X-Forwarded-Encrypted: i=1; AJvYcCU7pv/HaUQxr+UabNafu0JwkO4c3vUolXMX9DPFhzBIjW3vVO/cpCf1XhwOtDwW0YJ9hGhvuGsTY3A=@vger.kernel.org
-X-Gm-Message-State: AOJu0YydkK/eVcmFYmmZpXoqy9DK8Pe0Za9ceIxcst0ovzsSPVoDO5Lw
-	bVUXxNVy7074JGqDQOUDxhCaw0YS0QohZCSFK6rnlNUMdRYtgw1xrg+8jzBA51GHrrXVdfwTNvc
-	fjdrnNb7yuEK0JvSXP11Gm73AXD7vaAJ4OcKZyFjXytFPJn2xHX3BAlzDcMmQbQY=
-X-Gm-Gg: AY/fxX7YiM+8stZiIUAuQCk06mwzKFik0ggg594bkXICGh4mS15UEIQWIkq+Pligura
-	tdVCec2drOfLdc6aDlApHm4rddVvpIqHBHKFJYeE/wOYrpRvrkNHmW/7p3I8bTH/kurct9s9XGA
-	1B9MMpYbValmh7OunKiuoZCFgZZe2qahG/sMebkgWHv9x/gQ+DIy9ysHMySr5rG0WtdNUGbU2vw
-	22/b/rxfKqCcxFO1Az9HoRAbzXqpSjdSYIZEdbhf+nIjTDx9SDEnAOfayJLB7IDeZi9bZ5RF7rV
-	oVAyOm9qEfPplrW3igz/D8FOl2Oh8o/lxREppNAAun77uuvBh+9FEC+ufnisGFRUfTzJO5H8dxN
-	fx229Jeod+NY2wn/2FCJGDYkuSFPDYxJA+GDyq8PzpYkm6KjmopEDyH8Lw3QaL9Je3Q==
-X-Received: by 2002:a05:7022:418a:b0:11e:70d8:5dbb with SMTP id a92af1059eb24-121f188e0a6mr3234845c88.7.1767724849568;
-        Tue, 06 Jan 2026 10:40:49 -0800 (PST)
-X-Google-Smtp-Source: AGHT+IGSlzX+i3g8MbsJ2Eno/vHUKFXWMpqLnsUNOpaetZ9ZfpcQ9g/t+UHkyP6dmuOdvPwPx2CiQA==
-X-Received: by 2002:a05:7022:418a:b0:11e:70d8:5dbb with SMTP id a92af1059eb24-121f188e0a6mr3234816c88.7.1767724848999;
-        Tue, 06 Jan 2026 10:40:48 -0800 (PST)
-Received: from [10.62.37.112] (i-global254.qualcomm.com. [199.106.103.254])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-121f243ed62sm6788547c88.5.2026.01.06.10.40.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 06 Jan 2026 10:40:48 -0800 (PST)
-Message-ID: <6aa8ffc4-2fe5-44ad-8ac8-581e0697360f@oss.qualcomm.com>
-Date: Tue, 6 Jan 2026 10:40:46 -0800
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DLgmWB3q"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46344C116C6;
+	Tue,  6 Jan 2026 19:18:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1767727117;
+	bh=SQY9xpLgnO1b7WXa0sl9VjJty77jql7OKhPWuUhR7sk=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=DLgmWB3q/2Um4yp1nL6ZNmKVnw2XjKzg9o+MZBLRHr1v9ndZEfSZkllxOZzCCO7jp
+	 XENOgY/JpDKKXhOIWt8qRdBAMrg8To8s4M6mecjSwQjgMZZ1N/52hT2qvAHiWm3OFy
+	 IUnJh5fKdlfC28UJYcxiw23D2Y9tuARXwE9AMcd4jmpGG0hTYffp+7Pj/ikrXMt60n
+	 +QL8EHOIKLM/TfMme0TrNp8P8Wdc6EayNuuUlq6dF7ITx+mtufyvSv3npcCcpx7mCX
+	 h/8z25leHj6TzD9b1P8cgvIBsLL4rt3kOyu32FT+kIuCZ/+/06u3Bht9T//szuY/CJ
+	 iyrrYmzrRGb8w==
+Message-ID: <a228d38d-9fb9-4e61-9a02-e70593c69dac@kernel.org>
+Date: Tue, 6 Jan 2026 20:18:32 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -90,165 +36,186 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH 7/7] arm64: dts: qcom: sm8750: Add support for camss
-To: Krzysztof Kozlowski <krzk@kernel.org>,
-        Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
+To: Vijay Kumar Tumati <vijay.tumati@oss.qualcomm.com>,
+ Hangxiang Ma <hangxiang.ma@oss.qualcomm.com>
 Cc: Loic Poulain <loic.poulain@oss.qualcomm.com>,
-        Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>, Todor Tomov <todor.too@gmail.com>,
-        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
-        linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-media@vger.kernel.org,
-        jeyaprakash.soundrapandian@oss.qualcomm.com
+ Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Todor Tomov <todor.too@gmail.com>,
+ Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Bryan O'Donoghue <bryan.odonoghue@linaro.org>, linux-i2c@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+ jeyaprakash.soundrapandian@oss.qualcomm.com
 References: <20251126-add-support-for-camss-on-sm8750-v1-0-646fee2eb720@oss.qualcomm.com>
  <20251126-add-support-for-camss-on-sm8750-v1-7-646fee2eb720@oss.qualcomm.com>
  <20251127-steadfast-red-koel-8c9bc8@kuoka>
+ <6aa8ffc4-2fe5-44ad-8ac8-581e0697360f@oss.qualcomm.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
-From: Vijay Kumar Tumati <vijay.tumati@oss.qualcomm.com>
-In-Reply-To: <20251127-steadfast-red-koel-8c9bc8@kuoka>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <6aa8ffc4-2fe5-44ad-8ac8-581e0697360f@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Authority-Analysis: v=2.4 cv=MNptWcZl c=1 sm=1 tr=0 ts=695d5732 cx=c_pps
- a=bS7HVuBVfinNPG3f6cIo3Q==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17
- a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=jRZ_Em-5SMcKJbQpHL4A:9 a=QEXdDO2ut3YA:10
- a=vBUdepa8ALXHeOFLBtFW:22
-X-Proofpoint-ORIG-GUID: J6nzGKKu_GfOtHICM9J1U5akeJnMzsXX
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTA2MDE2MiBTYWx0ZWRfX92tp1nj9ZXpJ
- Y4N/dDWzHKXXSEz1SFRL9iuBR6JzjgBA2IxFAXmeGhZ4cNTDeaAFvkWZgCA4eeXg5IGSo2AdlSz
- 5bJQhlOHduhcA5HaO8bqzeqdmXGG8AvDPaKuXUlwm1JoWjqCGYqLpSxSykiAyOh4khEhHHYrfNG
- nvPvD1hbpVZBeNJSRql0jdcvW7Q678MQd+33OF7uPWxTM9r6c2/FlwmZnXY0FNjl8IkwAuhrPTv
- 7we5Qgl5niOi8Z+K3GIBjT9Ag9O+S1gH/DP+8ztDVF00pepU4ZSsV+KQ7llB4QOFc7o/12hDqQ8
- cuSb1EagvkiDRR6nQQL+nqW7qcIvAw0TSkcDQA9UsIQ/DUAoiD0Dt47jkKoeVoQCp4LYGP5PBaw
- C21/XAxjxuenxskxaMuyxmMOzZ+qHM/BjdTU65pHBWyZGlKIs4XqYbcQaYF2d/mpoJjB1ZpTReC
- E81z05tAtSe2mw0IgYg==
-X-Proofpoint-GUID: J6nzGKKu_GfOtHICM9J1U5akeJnMzsXX
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.9,FMLib:17.12.100.49
- definitions=2026-01-06_01,2026-01-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 priorityscore=1501 lowpriorityscore=0 impostorscore=0
- malwarescore=0 adultscore=0 clxscore=1015 bulkscore=0 phishscore=0
- suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2512120000
- definitions=main-2601060162
+
+On 06/01/2026 19:40, Vijay Kumar Tumati wrote:
+> 
+> On 11/27/2025 12:12 AM, Krzysztof Kozlowski wrote:
+>> On Wed, Nov 26, 2025 at 01:38:40AM -0800, Hangxiang Ma wrote:
+>>   +
+>>> +			cci1_1_default: cci1-1-default-state {
+>>> +				sda-pins {
+>>> +					pins = "gpio111";
+>>> +					function = "cci_i2c_sda";
+>>> +					drive-strength = <2>;
+>>> +					bias-pull-up;
+>>> +				};
+>>> +
+>>> +				scl-pins {
+>>> +					pins = "gpio164";
+>>> +					function = "cci_i2c_scl";
+>>> +					drive-strength = <2>;
+>>> +					bias-pull-up;
+>>> +				};
+>>> +			};
+>>> +
+>>> +			cci1_1_sleep: cci1-1-sleep-state {
+>>> +				sda-pins {
+>>> +					pins = "gpio111";
+>>> +					function = "cci_i2c_sda";
+>>> +					drive-strength = <2>;
+>>> +					bias-pull-down;
+>>> +				};
+>>> +
+>>> +				scl-pins {
+>>> +					pins = "gpio164";
+>>> +					function = "cci_i2c_scl";
+>>> +					drive-strength = <2>;
+>>> +					bias-pull-down;
+>>> +				};
+>>> +			};
+>>> +
+>>> +			cci2_0_default: cci2-0-default-state {
+>>> +				sda-pins {
+>>> +					pins = "gpio112";
+>>> +					function = "cci_i2c_sda";
+>>> +					drive-strength = <2>;
+>>> +					bias-pull-up;
+>>> +				};
+>>> +
+>>> +				scl-pins {
+>>> +					pins = "gpio153";
+>>> +					function = "cci_i2c_scl";
+>>> +					drive-strength = <2>;
+>>> +					bias-pull-up;
+>>> +				};
+>>> +			};
+>>> +
+>>> +			cci2_0_sleep: cci2-0-sleep-state {
+>>> +				sda-pins {
+>>> +					pins = "gpio112";
+>>> +					function = "cci_i2c_sda";
+>>> +					drive-strength = <2>;
+>>> +					bias-pull-down;
+>>> +				};
+>>> +
+>>> +				scl-pins {
+>>> +					pins = "gpio153";
+>>> +					function = "cci_i2c_scl";
+>>> +					drive-strength = <2>;
+>>> +					bias-pull-down;
+>>> +				};
+>>> +			};
+>>> +
+>>> +			cci2_1_default: cci2-1-default-state {
+>>> +				sda-pins {
+>>> +					pins = "gpio119";
+>>> +					function = "cci_i2c_sda";
+>>> +					drive-strength = <2>;
+>>> +					bias-pull-up;
+>>> +				};
+>>> +
+>>> +				scl-pins {
+>>> +					pins = "gpio120";
+>>> +					function = "cci_i2c_scl";
+>>> +					drive-strength = <2>;
+>>> +					bias-pull-up;
+>>> +				};
+>>> +			};
+>>> +
+>>> +			cci2_1_sleep: cci2-1-sleep-state {
+>>> +				sda-pins {
+>>> +					pins = "gpio119";
+>>> +					function = "cci_i2c_sda";
+>>> +					drive-strength = <2>;
+>>> +					bias-pull-down;
+>>> +				};
+>>> +
+>>> +				scl-pins {
+>>> +					pins = "gpio120";
+>>> +					function = "cci_i2c_scl";
+>>> +					drive-strength = <2>;
+>>> +					bias-pull-down;
+>>> +				};
+>>> +			};
+>>> +		};
+>>> +
+>>> +		cci0: cci@ac7b000 {
+>> Looks completely mis-ordered/sorted. What are the nodes above and below?
+> Hi Krzysztof, sorry, not sure how you mean exactly. The ones above are 
+> the pinctrl nodes. Each CCI has two masters using two GPIOs each, one 
+
+Why would pinctrl nodes matter anyhow? Please read how DTS syntax works.
+
+> for clk and one for data. The ones below are the actual CCI HW nodes 
+> that make use of the pinctrls. I believe this is inline with previous 
+> generations. Have I missed something? Thanks.
+I wrote what is wrong. Is this maintaining proper sorting? Did you read
+DTS coding style?
 
 
-On 11/27/2025 12:12 AM, Krzysztof Kozlowski wrote:
-> On Wed, Nov 26, 2025 at 01:38:40AM -0800, Hangxiang Ma wrote:
->   +
->> +			cci1_1_default: cci1-1-default-state {
->> +				sda-pins {
->> +					pins = "gpio111";
->> +					function = "cci_i2c_sda";
->> +					drive-strength = <2>;
->> +					bias-pull-up;
->> +				};
->> +
->> +				scl-pins {
->> +					pins = "gpio164";
->> +					function = "cci_i2c_scl";
->> +					drive-strength = <2>;
->> +					bias-pull-up;
->> +				};
->> +			};
->> +
->> +			cci1_1_sleep: cci1-1-sleep-state {
->> +				sda-pins {
->> +					pins = "gpio111";
->> +					function = "cci_i2c_sda";
->> +					drive-strength = <2>;
->> +					bias-pull-down;
->> +				};
->> +
->> +				scl-pins {
->> +					pins = "gpio164";
->> +					function = "cci_i2c_scl";
->> +					drive-strength = <2>;
->> +					bias-pull-down;
->> +				};
->> +			};
->> +
->> +			cci2_0_default: cci2-0-default-state {
->> +				sda-pins {
->> +					pins = "gpio112";
->> +					function = "cci_i2c_sda";
->> +					drive-strength = <2>;
->> +					bias-pull-up;
->> +				};
->> +
->> +				scl-pins {
->> +					pins = "gpio153";
->> +					function = "cci_i2c_scl";
->> +					drive-strength = <2>;
->> +					bias-pull-up;
->> +				};
->> +			};
->> +
->> +			cci2_0_sleep: cci2-0-sleep-state {
->> +				sda-pins {
->> +					pins = "gpio112";
->> +					function = "cci_i2c_sda";
->> +					drive-strength = <2>;
->> +					bias-pull-down;
->> +				};
->> +
->> +				scl-pins {
->> +					pins = "gpio153";
->> +					function = "cci_i2c_scl";
->> +					drive-strength = <2>;
->> +					bias-pull-down;
->> +				};
->> +			};
->> +
->> +			cci2_1_default: cci2-1-default-state {
->> +				sda-pins {
->> +					pins = "gpio119";
->> +					function = "cci_i2c_sda";
->> +					drive-strength = <2>;
->> +					bias-pull-up;
->> +				};
->> +
->> +				scl-pins {
->> +					pins = "gpio120";
->> +					function = "cci_i2c_scl";
->> +					drive-strength = <2>;
->> +					bias-pull-up;
->> +				};
->> +			};
->> +
->> +			cci2_1_sleep: cci2-1-sleep-state {
->> +				sda-pins {
->> +					pins = "gpio119";
->> +					function = "cci_i2c_sda";
->> +					drive-strength = <2>;
->> +					bias-pull-down;
->> +				};
->> +
->> +				scl-pins {
->> +					pins = "gpio120";
->> +					function = "cci_i2c_scl";
->> +					drive-strength = <2>;
->> +					bias-pull-down;
->> +				};
->> +			};
->> +		};
->> +
->> +		cci0: cci@ac7b000 {
-> Looks completely mis-ordered/sorted. What are the nodes above and below?
-Hi Krzysztof, sorry, not sure how you mean exactly. The ones above are 
-the pinctrl nodes. Each CCI has two masters using two GPIOs each, one 
-for clk and one for data. The ones below are the actual CCI HW nodes 
-that make use of the pinctrls. I believe this is inline with previous 
-generations. Have I missed something? Thanks.
->
->
->> +			compatible = "qcom,sm8750-cci", "qcom,msm8996-cci";
->> +			reg = <0x0 0x0ac7b000 0x0 0x1000>;
-> Best regards,
-> Krzysztof
->
+Best regards,
+Krzysztof
