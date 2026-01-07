@@ -1,52 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DF8B318B86;
-	Wed,  7 Jan 2026 18:11:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7827334C3D;
+	Wed,  7 Jan 2026 20:13:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1767809471; cv=none; b=Z+uvfrrfL8OeUZ/eCphl17TipAOrutMWaMkkqaSVnaj2W2xjCdsH4AhDPZPVIo1rbQ4Jm9G5tWQKMBGHRCRqkll3Mtx7olsdFdNMS0p1bj1u1FUZuVOaKwiYBsg1YNZ+LzSF5zG8JY0NRHP7fj4XXb6eIOyQonQGmLKGQft0efU=
+	t=1767816810; cv=none; b=DWItzHKHKP1AItOvEEGHJvuCs0v68VGMEYj5elFc0GTEzaX5jioz2lFAs8jN9Cb4DFcGytCHCtVOmnUNZan3ZakRAc9wniBP7V0Z8J6gDkUbc1buvFq7F+lUrCUAeg6A9I9Mljclo+EQ8C3KSoDR1qczlRUAngXo5iZIgr0v3OM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1767809471; c=relaxed/simple;
-	bh=yTNbHm4Elx5+p4958R6MqgcPSCwr1JI4nhgkqFvSTQk=;
+	s=arc-20240116; t=1767816810; c=relaxed/simple;
+	bh=4PmyOcjuUAuQC00TXSZnc4NpP7+naircmS/+sn6yl+Y=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ullz0+xaSQQl8kfqBKBhxXehs3uf6htcOZz8vFBsxxa5WxjmyPmJS85AdNOUVbZ7kZqRFhDHxwPJZcghJAEncH9exxoMLQib4QPLARiIhCQumQ0YOQhkVueYobO+7rJLlol9xFmeYelBspkXTVElYp4U3IjtnVxsid4VOuwLOZQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cfK1G1cT; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=ut40DUSgI2ue0S8kdPy1Taiez4RkMAb0uFeRVw8coU6YTeKjwqpwACFwSWVgBKIruyA9WNHE7UlE0N1YibKjFsSwpDFAY4/0Fg/Og831BTnKKYavQuinyhQiKALiPfhEwKn5pk5gE2jI+4qWc9wo/UBd2HSfAwkTxGMFVutX/rw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dEA76Ubp; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cfK1G1cT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8804DC4CEF1;
-	Wed,  7 Jan 2026 18:11:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dEA76Ubp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75230C4CEF1;
+	Wed,  7 Jan 2026 20:13:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1767809471;
-	bh=yTNbHm4Elx5+p4958R6MqgcPSCwr1JI4nhgkqFvSTQk=;
+	s=k20201202; t=1767816809;
+	bh=4PmyOcjuUAuQC00TXSZnc4NpP7+naircmS/+sn6yl+Y=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=cfK1G1cTgD2fle+eiVWG8uWGL3DLjptNzOtIstqyjt6/KrCcdkcRIYkLMAFg5sqfU
-	 23DJAQ6Ihpdb0VBgZEj5n4w3P/+Tfctp8rOxcqAdwIfRgsibuGYiVVhEMNkpf5BavK
-	 hAE9zfUD/PvELOxL1BnKLd1mySP9UBmDoUgW70rAsQSmNsdrNvRd3AB9QCLwRqAK+j
-	 oxVc3cTy7pQnwCk8nZBquR6VX65USIoYM8/BhK/axE/pa5A6txZuUFQ/C+KsYl/Wdl
-	 MWyiwSl+/46epZ2ay12CbjJus5BTD4FfLSnKm9atA3rN+Tu5UGRZsB7JumYPu4T/PH
-	 iTN8bHn/qzmQA==
-Date: Wed, 7 Jan 2026 19:11:07 +0100
+	b=dEA76UbpBU7G8jX+YypizwPSzE8/5gK1vFTwb6Yxm0U+SrDVCUFl/6+32NMSgZZwd
+	 j4YAmfJ5uX++anOG7IBfMxkQaX7dNN0GZvr1pzqLHl0nRsI2tmnT7vCl4ag2mbs6AN
+	 DlvXhl4uLBVBRIgSCmX7kr9gfLPoKn7rUXz6fzdmpV4TnkLzHYGNZJZg5h3GEU9IcL
+	 M3KVZwDvd/8yVZ3Dk68citmHrEZFM6CNhN+/6xIK+fH/DQIFzYp9O8WPpUG30gauUV
+	 xsoblF0pYpuHYrsrpJVKTikO9czCRM1q94VbaLsTqpSJvKqv0mJ1SrEvmvgk8BR6IY
+	 qwcy1kyG82gQw==
+Date: Wed, 7 Jan 2026 21:13:24 +0100
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Robert Marko <robert.marko@sartura.hr>
-Cc: robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, 
-	nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, claudiu.beznea@tuxon.dev, 
-	herbert@gondor.apana.org.au, davem@davemloft.net, vkoul@kernel.org, lee@kernel.org, 
-	andrew+netdev@lunn.ch, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
-	linusw@kernel.org, Steen.Hegelund@microchip.com, daniel.machon@microchip.com, 
-	UNGLinuxDriver@microchip.com, olivia@selenic.com, radu_nicolae.pirea@upb.ro, 
-	richard.genoud@bootlin.com, gregkh@linuxfoundation.org, jirislaby@kernel.org, 
-	broonie@kernel.org, lars.povlsen@microchip.com, devicetree@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, 
-	dmaengine@vger.kernel.org, linux-i2c@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-gpio@vger.kernel.org, linux-spi@vger.kernel.org, linux-serial@vger.kernel.org, 
-	linux-usb@vger.kernel.org, luka.perkov@sartura.hr, 
-	Conor Dooley <conor.dooley@microchip.com>
-Subject: Re: [PATCH v4 05/15] dt-bindings: i2c: atmel,at91sam: add
- microchip,lan9691-i2c
-Message-ID: <aV6hp9_AbKm9IAP9@zenone.zhora.eu>
-References: <20251229184004.571837-1-robert.marko@sartura.hr>
- <20251229184004.571837-6-robert.marko@sartura.hr>
+To: LI Qingwu <Qing-wu.Li@leica-geosystems.com.cn>
+Cc: o.rempel@pengutronix.de, kernel@pengutronix.de, shawnguo@kernel.org, 
+	s.hauer@pengutronix.de, festevam@gmail.com, linux-i2c@vger.kernel.org, 
+	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+	linux-kernel@vger.kernel.org, bsp-development.geo@leica-geosystems.com
+Subject: Re: [PATCH V1] i2c: imx: Fix SMBus block read hang on zero length
+Message-ID: <aV60-Wm0c_Oo0zWF@zenone.zhora.eu>
+References: <20251229081629.4081452-1-Qing-wu.Li@leica-geosystems.com.cn>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -55,44 +44,68 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20251229184004.571837-6-robert.marko@sartura.hr>
+In-Reply-To: <20251229081629.4081452-1-Qing-wu.Li@leica-geosystems.com.cn>
 
-Hi Robert,
+Hi,
 
-On Mon, Dec 29, 2025 at 07:37:46PM +0100, Robert Marko wrote:
-> Document Microchip LAN969x I2C compatible.
+Can anyone from Pengutronix give this patch a look and possibly a
+try? Oleksij?
+
+On Mon, Dec 29, 2025 at 08:16:29AM +0000, LI Qingwu wrote:
+> SMBus block read transfers encode the payload length in the first data
+> byte. When this first byte is zero, there is no payload and the
+> transaction should terminate immediately.
 > 
-> Signed-off-by: Robert Marko <robert.marko@sartura.hr>
-> Acked-by: Conor Dooley <conor.dooley@microchip.com>
-> Acked-by: Andi Shyti <andi.shyti@kernel.org>
+> On i.MX, if the first byte of an SMBus block read is zero, the driver
+> unconditionally overwrites the state with IMX_I2C_STATE_READ_CONTINUE.
+> This causes the state machine to enter an endless read loop, eventually
+> overrunning internal buffers and leading to a crash.
+> 
+> At the same time, the controller remains in master receive mode and
+> never generates a proper STOP condition, leaving the I2C bus permanently
+> busy and preventing any further transfers on the bus.
+> 
+> Fix this by handling the zero-length case explicitly: when the first
+> byte is zero, ensure that a clean STOP is generated. In this situation
+> the controller is in master receive mode, so it must be switched to
+> master transmit mode before stopping. This is done by draining the
+> pending received byte from I2DR, setting I2CR_MTX to enter transmit
+> mode, waiting briefly for the mode change, and then proceeding with the
+> normal STOP sequence.
+> 
+> This change has been tested on i.MX 8M Plus platform.
+> 
+> Signed-off-by: LI Qingwu <Qing-wu.Li@leica-geosystems.com.cn>
 
-Just this patch merged to i2c/i2c-host.
+Is this a fix?
+
+> ---
+>  drivers/i2c/busses/i2c-imx.c | 13 ++++++++++++-
+>  1 file changed, 12 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index dcce882f3eba..f40deecf0f66 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -735,6 +735,16 @@ static void i2c_imx_stop(struct imx_i2c_struct *i2c_imx, bool atomic)
+>  		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+>  		if (!(temp & I2CR_MSTA))
+>  			i2c_imx->stopped = 1;
+> +		if ((temp & I2CR_MSTA) && !(temp & I2CR_MTX)) {
+> +			(void)imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+
+why do we need a cast here?
+
+> +			temp |= I2CR_MTX;
+> +			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> +			if (atomic)
+> +				udelay(25);
+
+where is this 25 coming from?
+
+> +			else
+> +				usleep_range(25, 50);
+> +			temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
 
 Thanks,
 Andi
-
-> ---
-> Changes in v4:
-> * Pick Acked-by from Andi
-> 
-> Changes in v3:
-> * Pick Acked-by from Conor
-> 
->  Documentation/devicetree/bindings/i2c/atmel,at91sam-i2c.yaml | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/atmel,at91sam-i2c.yaml b/Documentation/devicetree/bindings/i2c/atmel,at91sam-i2c.yaml
-> index e61cdb5b16ef..c83674c3183b 100644
-> --- a/Documentation/devicetree/bindings/i2c/atmel,at91sam-i2c.yaml
-> +++ b/Documentation/devicetree/bindings/i2c/atmel,at91sam-i2c.yaml
-> @@ -26,6 +26,7 @@ properties:
->                - microchip,sam9x60-i2c
->        - items:
->            - enum:
-> +              - microchip,lan9691-i2c
->                - microchip,sama7d65-i2c
->                - microchip,sama7g5-i2c
->                - microchip,sam9x7-i2c
-> -- 
-> 2.52.0
-> 
