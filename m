@@ -1,58 +1,58 @@
 Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF5193596EE;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 102193596FE;
 	Mon, 12 Jan 2026 13:23:51 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768224232; cv=none; b=PhKDw/XnuNiGNN3bO+tTZ3/Le+hIC9WWThg6giV9FcWHy0mg0ReCqo5Yz3siZXBPxPWqUTETm5mIIQWkftTg7gTNbxV/zb1ROlIv5zgrCN4ixUHHYGizL5U+4T3OcVHJov8Ti9A4XG13eVk9oWW7fFK3KmP2fjRaZ+LtRCNhZMk=
+	t=1768224233; cv=none; b=ToDieI++8UJ54o5HXo3BVy/DmcieJ02VSi4JybecSG0PWmLWLecJHt4tmICKjSzeGtx7RQFCzuMEMzi+1+exnKGkSkjxYIfOPLSofI1W76H4iui2JYal5Txz1kagbW+21s6qkK2v4PRW510awdxYzdKfnbcx2gY8wT+5kLQKOIY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768224232; c=relaxed/simple;
-	bh=eU2OTr9xXoeDQ3/pCvNSRAHGCfwyYgx+lP5XcFDwXuY=;
+	s=arc-20240116; t=1768224233; c=relaxed/simple;
+	bh=eG2etpVKFnB08jm2KUL4PZFJ6ZvA17LhEazw7WLaYEc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=uuOp4RGz+/UqQ91t3x9b4YzEd2xbkrJUa3QKI6LzOGHiIZxz8Kx6hmU5vZ8naN0OxRswiXsRLQlPok22iys/l+QWXOtsgkoXoJAn1IF9JcGnWFFeNef6imbxH3H7Ke3EosTOZ5DgoXQ6g63Q5YT1MPxmrSExP8iPnLOso5RWqXI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NtiY66Mz; arc=none smtp.client-ip=198.175.65.13
+	 MIME-Version; b=fbjFN9wWq/R0Kstc+ocVQQ+TlAKkzPIWfOzWgl50L3B+zNytfig3tUdEm1ejfpN0zqrIZrjKI/yBGvrjBjDR8gafgaPlFWT4IV2w637L3ChrqifgNe04l1I5A/t6TQ64R2y3ilA3NN78iLIIuuBBi/gPq3v0O4eg5WCbw22obeg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=PiEThbjn; arc=none smtp.client-ip=198.175.65.13
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NtiY66Mz"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="PiEThbjn"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
   t=1768224232; x=1799760232;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=eU2OTr9xXoeDQ3/pCvNSRAHGCfwyYgx+lP5XcFDwXuY=;
-  b=NtiY66MzTIuh64qD8dljs7N8a+9VRjUMirFPJDu2aB3mDruWc2UnYg0A
-   GjgQ0T2/Av1KzZBw3DNKiTdaldqyFYDSXPKk2b6USbvSOjz9LkKh2Bx3G
-   vUTM4K6EntfZdyrYa/EejiMGfj5MAz5/xy/4wOrUhcttke2xFRM2Y+TJE
-   KDLx1IZKHvv3gszNlcGT7gMCSNAq6WDuWSimXC4yYssVJnNBoXJjYtPMW
-   7hSfQ9u31iChhDEstbvAZFCelTX9QL5FFC1GCqJBs4pnzXw4vkKnLRY8K
-   nO61i+P51S5Q86lNL6eZ+LxtTwo30wLEkgh7DvUkKpRAc80F3UlvXSi6N
+  bh=eG2etpVKFnB08jm2KUL4PZFJ6ZvA17LhEazw7WLaYEc=;
+  b=PiEThbjnBNmCCf/FbGn207BW5zStSIi1G8abMNAEoQM9OQm+tEKkEMpQ
+   HacYVXQtezMXtATTNjSaIp9uBRwXWCTpi4R5JhlhgxtEBXMvSw9LDy09k
+   3GKL44pZwc1IbJJvVbs23o+zi7+W10Ec4FdCb08/Dbs3zscqwKTKfpBAi
+   QJcpflcn65gHRiX7TTgjaJp/jB2xsK9nTVnRiqgZixdlKFySHRyBG6Z/E
+   73zQTmJjPcf9/Fvv179qokzZPLHn3T/HrcW/REw+A+02vdyT2bMx82EMD
+   YTEzjyYSAXlBBDZaZbGqS6Olh5VHoEjApKLvfUG5sykUukLlERkliwH84
    A==;
-X-CSE-ConnectionGUID: BMVaaWbJRly9hrrqaw7jrw==
-X-CSE-MsgGUID: YzniilR3QRKDKn5n5YmU5A==
-X-IronPort-AV: E=McAfee;i="6800,10657,11669"; a="80602708"
+X-CSE-ConnectionGUID: tls5zGWISfOM5t5UZBg5MQ==
+X-CSE-MsgGUID: 3VXN6uwVRuiB3HFtkQuZqg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11669"; a="80602710"
 X-IronPort-AV: E=Sophos;i="6.21,221,1763452800"; 
-   d="scan'208";a="80602708"
+   d="scan'208";a="80602710"
 Received: from fmviesa005.fm.intel.com ([10.60.135.145])
   by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jan 2026 05:23:50 -0800
-X-CSE-ConnectionGUID: fHMrhEWFQyerVlNmlrzReQ==
-X-CSE-MsgGUID: 4JpUL/nJRguxA68ahh6tpg==
+X-CSE-ConnectionGUID: fUMVAzaUT2qxtGwcEXhoEQ==
+X-CSE-MsgGUID: Iyss4sbyQhapASZpu0NZYA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.21,221,1763452800"; 
-   d="scan'208";a="208563188"
+   d="scan'208";a="208563189"
 Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa005.fm.intel.com with ESMTP; 12 Jan 2026 05:23:48 -0800
+  by fmviesa005.fm.intel.com with ESMTP; 12 Jan 2026 05:23:49 -0800
 Received: by black.igk.intel.com (Postfix, from userid 1003)
-	id B3B339D; Mon, 12 Jan 2026 14:23:47 +0100 (CET)
+	id ABA3699; Mon, 12 Jan 2026 14:23:47 +0100 (CET)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 3/3] i2c: core: Use dev_fwnode()
-Date: Mon, 12 Jan 2026 14:22:42 +0100
-Message-ID: <20260112132346.4087258-4-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/3] i2c: core: Check for error pointer for fwnode
+Date: Mon, 12 Jan 2026 14:22:40 +0100
+Message-ID: <20260112132346.4087258-2-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.50.1
 In-Reply-To: <20260112132346.4087258-1-andriy.shevchenko@linux.intel.com>
 References: <20260112132346.4087258-1-andriy.shevchenko@linux.intel.com>
@@ -64,30 +64,40 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-irq_domain_create_linear() takes fwnode as the first argument. It can be
-extracted from the struct device using dev_fwnode() helper instead of using
-direct dereference().
-
-So use the dev_fwnode() helper.
+Theoretically it's possible that fwnode is returned by some API,
+that may return an error pointer (and we have, for example,
+fwnode_find_reference() which does that). If such an fwnode
+is supplied to the i2c core APIs the functions will perform
+unneeded loops and checks. Avoid this by preventively checking
+for an error pointer and bail out immediately.
 
 Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/i2c-core-base.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/i2c-core-base.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index b9b44bed3243..f0fb0cfd56e0 100644
+index ae7e9c8b65a6..41c2e46ffb24 100644
 --- a/drivers/i2c/i2c-core-base.c
 +++ b/drivers/i2c/i2c-core-base.c
-@@ -1476,7 +1476,7 @@ static int i2c_setup_host_notify_irq_domain(struct i2c_adapter *adap)
- 	if (!i2c_check_functionality(adap, I2C_FUNC_SMBUS_HOST_NOTIFY))
- 		return 0;
+@@ -1090,7 +1090,7 @@ struct i2c_client *i2c_find_device_by_fwnode(struct fwnode_handle *fwnode)
+ 	struct i2c_client *client;
+ 	struct device *dev;
  
--	domain = irq_domain_create_linear(adap->dev.parent->fwnode,
-+	domain = irq_domain_create_linear(dev_fwnode(adap->dev.parent),
- 					  I2C_ADDR_7BITS_COUNT,
- 					  &i2c_host_notify_irq_ops, adap);
- 	if (!domain)
+-	if (!fwnode)
++	if (IS_ERR_OR_NULL(fwnode))
+ 		return NULL;
+ 
+ 	dev = bus_find_device_by_fwnode(&i2c_bus_type, fwnode);
+@@ -1875,7 +1875,7 @@ struct i2c_adapter *i2c_find_adapter_by_fwnode(struct fwnode_handle *fwnode)
+ 	struct i2c_adapter *adapter;
+ 	struct device *dev;
+ 
+-	if (!fwnode)
++	if (IS_ERR_OR_NULL(fwnode))
+ 		return NULL;
+ 
+ 	dev = bus_find_device(&i2c_bus_type, NULL, fwnode,
 -- 
 2.50.1
 
