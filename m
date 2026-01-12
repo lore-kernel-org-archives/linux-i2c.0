@@ -1,103 +1,77 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f69.google.com (mail-oa1-f69.google.com [209.85.160.69])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 102193596FE;
-	Mon, 12 Jan 2026 13:23:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9462635971B
+	for <linux-i2c@vger.kernel.org>; Mon, 12 Jan 2026 13:24:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.69
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768224233; cv=none; b=ToDieI++8UJ54o5HXo3BVy/DmcieJ02VSi4JybecSG0PWmLWLecJHt4tmICKjSzeGtx7RQFCzuMEMzi+1+exnKGkSkjxYIfOPLSofI1W76H4iui2JYal5Txz1kagbW+21s6qkK2v4PRW510awdxYzdKfnbcx2gY8wT+5kLQKOIY=
+	t=1768224245; cv=none; b=QEP69RzTsqDlUCyuD975BA9fHfBQCHHIaR+mayTDV08MFmCf4XPxaDXSHipAohXpq8J3r+6mHi8FQVVwLbYEAdm1KXv7nSuNCyy/OFDIqpe4oO2iujCNv7+SITDrh+ymSKwsj/TFiQ/v8Pq98eCBtCvSGZ966N9Pb/RkJaGvSTg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768224233; c=relaxed/simple;
-	bh=eG2etpVKFnB08jm2KUL4PZFJ6ZvA17LhEazw7WLaYEc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fbjFN9wWq/R0Kstc+ocVQQ+TlAKkzPIWfOzWgl50L3B+zNytfig3tUdEm1ejfpN0zqrIZrjKI/yBGvrjBjDR8gafgaPlFWT4IV2w637L3ChrqifgNe04l1I5A/t6TQ64R2y3ilA3NN78iLIIuuBBi/gPq3v0O4eg5WCbw22obeg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=PiEThbjn; arc=none smtp.client-ip=198.175.65.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="PiEThbjn"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1768224232; x=1799760232;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=eG2etpVKFnB08jm2KUL4PZFJ6ZvA17LhEazw7WLaYEc=;
-  b=PiEThbjnBNmCCf/FbGn207BW5zStSIi1G8abMNAEoQM9OQm+tEKkEMpQ
-   HacYVXQtezMXtATTNjSaIp9uBRwXWCTpi4R5JhlhgxtEBXMvSw9LDy09k
-   3GKL44pZwc1IbJJvVbs23o+zi7+W10Ec4FdCb08/Dbs3zscqwKTKfpBAi
-   QJcpflcn65gHRiX7TTgjaJp/jB2xsK9nTVnRiqgZixdlKFySHRyBG6Z/E
-   73zQTmJjPcf9/Fvv179qokzZPLHn3T/HrcW/REw+A+02vdyT2bMx82EMD
-   YTEzjyYSAXlBBDZaZbGqS6Olh5VHoEjApKLvfUG5sykUukLlERkliwH84
-   A==;
-X-CSE-ConnectionGUID: tls5zGWISfOM5t5UZBg5MQ==
-X-CSE-MsgGUID: 3VXN6uwVRuiB3HFtkQuZqg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11669"; a="80602710"
-X-IronPort-AV: E=Sophos;i="6.21,221,1763452800"; 
-   d="scan'208";a="80602710"
-Received: from fmviesa005.fm.intel.com ([10.60.135.145])
-  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jan 2026 05:23:50 -0800
-X-CSE-ConnectionGUID: fUMVAzaUT2qxtGwcEXhoEQ==
-X-CSE-MsgGUID: Iyss4sbyQhapASZpu0NZYA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,221,1763452800"; 
-   d="scan'208";a="208563189"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa005.fm.intel.com with ESMTP; 12 Jan 2026 05:23:49 -0800
-Received: by black.igk.intel.com (Postfix, from userid 1003)
-	id ABA3699; Mon, 12 Jan 2026 14:23:47 +0100 (CET)
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH v1 1/3] i2c: core: Check for error pointer for fwnode
-Date: Mon, 12 Jan 2026 14:22:40 +0100
-Message-ID: <20260112132346.4087258-2-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20260112132346.4087258-1-andriy.shevchenko@linux.intel.com>
-References: <20260112132346.4087258-1-andriy.shevchenko@linux.intel.com>
+	s=arc-20240116; t=1768224245; c=relaxed/simple;
+	bh=dI0qQ/gthUuSpdAO+vPcYC0bF3hKoy5di8aKUXm160o=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=o2z2Yb6zGIujF29GiDWP4y7rcIqfVxyG354g2n3BBuakbFD24rihcuhSxK0VfBU436UNwaxAMxwzGJkuxiI33I0p1b4ej2xyboJoR9ldgtJ9nVN232yn+gmU9LKXCLOX9kkxUMw5gckUmQg9lJJ28b79MOI/KtuE/8JKOg1Sjd8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.160.69
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oa1-f69.google.com with SMTP id 586e51a60fabf-3fea6c3e817so12578897fac.1
+        for <linux-i2c@vger.kernel.org>; Mon, 12 Jan 2026 05:24:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1768224243; x=1768829043;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=1Qq5PPFdzFMQw5BFvLom5EAoJCCfmWW/4DcqKtyulo4=;
+        b=p5WFa+CQpCkwrXfAtrt+uU1Q37FqqARAODd5k7+x15qy8E3zyDvplMIigJw6jyqQXo
+         //DydvdeudP82NyUz+v9hk6UnOB5iYv2D5pINd9tzdBkQf9iDQM0dAut32Fmojvq8oQ2
+         2I68dZLFm6YrGj5uOnkhqs3XT805/Gf1+uS/FBEqX+fm1KjFOEsO1WrCYoo1FNpo9Fyg
+         f/SxW6TszYql85v6XOZ83Jifq9JaijGNUerGPk+0Z5jQ5LlR5nNoOUp7Ha2prG9EkM6d
+         u+PkAF10sqIv7349Mozw8jL2vygaTDwLYeB5hNjJnGY4X8iWIhSOE0fzzDOAEAO/Da/o
+         F18g==
+X-Forwarded-Encrypted: i=1; AJvYcCWR5GdyD/chdKvlH9CGAw5CgNJLKTE8BXH3TuZVzbJt8ZRDKAegrTw4Z1ZrSCDUA/XzpaXpum0RTRE=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyz7eL2mIRv4+llHLGRf0m3+Ol7j4I4iO7sJwoPBRWcFjw6D36c
+	qoN44s3pTOnjkKiCr9sLlnCerZAq27Ug1dqNMfA7M0OrbBZQVY/XAFfHxg6HCOHAZRKYW5t7Qqw
+	vNL+iQIBj68kyQEbw/0lj6ipOKxABIOSCPOCe4y1fvh5iqU2olZdzG8aIars=
+X-Google-Smtp-Source: AGHT+IEHYcad4nYOub7J/of10vEUHantgA438E+UvdANmU1zG8u6CSsxiqfBaj0oEf6pIkG6exspvZDG1iY7Q0sK/4DJkbbbZwTh
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-Received: by 2002:a4a:da18:0:b0:65f:6532:6874 with SMTP id
+ 006d021491bc7-65f65326ce0mr5022238eaf.24.1768224243569; Mon, 12 Jan 2026
+ 05:24:03 -0800 (PST)
+Date: Mon, 12 Jan 2026 05:24:03 -0800
+In-Reply-To: <8703d83e-b658-4d95-b6ef-ca5f18aea152@gmail.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6964f5f3.050a0220.eaf7.00a6.GAE@google.com>
+Subject: Re: [syzbot] [usb?] INFO: task hung in i2c_tiny_usb_disconnect
+From: syzbot <syzbot+30b78308ba7e64647ff8@syzkaller.appspotmail.com>
+To: coderlogicwei@gmail.com, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-Theoretically it's possible that fwnode is returned by some API,
-that may return an error pointer (and we have, for example,
-fwnode_find_reference() which does that). If such an fwnode
-is supplied to the i2c core APIs the functions will perform
-unneeded loops and checks. Avoid this by preventively checking
-for an error pointer and bail out immediately.
+Hello,
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/i2c-core-base.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+syzbot tried to test the proposed patch but the build/boot failed:
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index ae7e9c8b65a6..41c2e46ffb24 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1090,7 +1090,7 @@ struct i2c_client *i2c_find_device_by_fwnode(struct fwnode_handle *fwnode)
- 	struct i2c_client *client;
- 	struct device *dev;
- 
--	if (!fwnode)
-+	if (IS_ERR_OR_NULL(fwnode))
- 		return NULL;
- 
- 	dev = bus_find_device_by_fwnode(&i2c_bus_type, fwnode);
-@@ -1875,7 +1875,7 @@ struct i2c_adapter *i2c_find_adapter_by_fwnode(struct fwnode_handle *fwnode)
- 	struct i2c_adapter *adapter;
- 	struct device *dev;
- 
--	if (!fwnode)
-+	if (IS_ERR_OR_NULL(fwnode))
- 		return NULL;
- 
- 	dev = bus_find_device(&i2c_bus_type, NULL, fwnode,
--- 
-2.50.1
+failed to apply patch:
+checking file drivers/i2c/busses/i2c-tiny-usb.c
+Hunk #1 FAILED at 12.
+Hunk #2 FAILED at 172.
+Hunk #5 FAILED at 229.
+Hunk #7 succeeded at 299 with fuzz 1.
+3 out of 7 hunks FAILED
+
+
+
+Tested on:
+
+commit:         0f61b186 Linux 6.19-rc5
+git tree:       upstream
+kernel config:  https://syzkaller.appspot.com/x/.config?x=a11e0f726bfb6765
+dashboard link: https://syzkaller.appspot.com/bug?extid=30b78308ba7e64647ff8
+compiler:       
+patch:          https://syzkaller.appspot.com/x/patch.diff?x=17c239fc580000
 
