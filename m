@@ -1,49 +1,50 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D2A03164B5;
-	Mon, 12 Jan 2026 13:49:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07F1435B144;
+	Mon, 12 Jan 2026 13:49:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768225753; cv=none; b=aFwiRew+cJRw9xatQ3Uw0iSUXV26Jxo6DLTK3X41ZNtLWeOOQwiSzJwJ3uPkTgdBZbPVGG2lnUJo39fzsrgyWoMO/IiwfvgRdxS1uUoLCgNsw/4S2SEI/GUgSM79aIXWV9B7tf76MqefEEUcmmjao/yd69zMql84Lzz8B2eg1tg=
+	t=1768225755; cv=none; b=CioggAJXvHgwBKO/GyqKvwWQzwiNDtKxFH4ZZVFfS9WVqb0uxjUyRdnsBXexdr+UrDd9OzER4qNuiQl90oHO+H4yV7+1ZfgKEcFPD4lbsJup624ZJlePWqPSwJcA4mp2RTH7GnLobftQ0Kmo+HhuXL2V6DWuI14970kiRRjwlAk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768225753; c=relaxed/simple;
-	bh=stoeaFvLKGGn0uhn85r/nzgAeuADmULIQT05Vn4VYoE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=DcmnHmz/9H9QzYbnCG3A0RGLSmMgzVVSG00udHFEE/fRKe5P6u60E5IaidzZ2qiu81Zx0tGIdolxAVutZ/fbtrLM50nad/XFbbtfPIC3ZcD5tVBMg6Xu1ZB80QRqqGNQSqTP72J+0vYl8kIvf+zYRz69PXB69AAqtk8lShoff4I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=IKguUDeO; arc=none smtp.client-ip=192.198.163.16
+	s=arc-20240116; t=1768225755; c=relaxed/simple;
+	bh=s4D8kw7OoyHkWsenYF7E+9Z6vB4aK7eDBACFxTCsJgQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=UDBys61DprNv3f/Wr/r4Uway6ihg9OtJfYjlZwZ09lNwq95CREsau//8SIQBBXnkSS/mdaAdMT+YWM/l8iE5I8ZMtRFcVnXDQjC6tYKbDHUAu6EvpNOLg+mi4Nk3tFLpATAOQCPJCKPexPpN4vFt3QTSH9NK5WLd5Pw+B4khht0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FEl8TskE; arc=none smtp.client-ip=192.198.163.16
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="IKguUDeO"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FEl8TskE"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1768225753; x=1799761753;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=stoeaFvLKGGn0uhn85r/nzgAeuADmULIQT05Vn4VYoE=;
-  b=IKguUDeOmK8pp3c8chlbjgqrQcixkcWDWt0XKUuP4awKqlonv5JLv90M
-   vT/CUlotJ83W1gpHWDz2gyo43jyl2NYBMB79zQYtr44IuN7JTm8pqCQ15
-   peij4gJiW4LjZZTdEvVoyIA/hni+Y/VH8U9oKnIA8b649RfvO4e84kVIS
-   lM80j15UGTGw9Vi/VpUK+sg0lS4sfLzAR8gksP3DYC3BZnGCVCylk1kAC
-   L727d1ftoK16+/cll5JaiBJLRpJuAUXV7AhraYNHvJld+Nv9jJPSiowKl
-   wo1SpxCt1us3doTGZdn4fifFhGtS9pvzpHk1M0+hwNzUeD2m3bbq9hWRX
-   w==;
-X-CSE-ConnectionGUID: jl+19WsRR32I3hy643il8g==
-X-CSE-MsgGUID: 5rsqfGkpQauxbUEqiI4pvA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11669"; a="57048279"
+  t=1768225754; x=1799761754;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=s4D8kw7OoyHkWsenYF7E+9Z6vB4aK7eDBACFxTCsJgQ=;
+  b=FEl8TskEboUQ3b0RkHdWWocSac6a7mTfc+L7fH7q6BJc1vjpl0p5SzO4
+   tHgMvG59L3bmx8SYLTauJwSTHZuBKcJagy6yRKXUoeRukt7mJpCQwR+vj
+   LIPh7MMkP2aHdS+bC1h8cM8r6C22ESD5ToRRaDM9ZYYdgGBLFYHPTFVrd
+   WzHEvy/lEC8aAPWswikvDkZQE+z/mvLIw6bPRGXBY8s6VqDQEOlcVN5m5
+   0JMmPBXARPyJ6stZ9XaXcuZVRV8oSNKab33EGoDD3wAB4oay1l4TD3FCB
+   CAfVkN1L6TSoeqqI4iOarsohg7m24FL1OFbaxgquPL8fLT683Gi21Zt1e
+   g==;
+X-CSE-ConnectionGUID: uoS8yg4FSau78+iGDXUQ5A==
+X-CSE-MsgGUID: peDSjD2kRx2RAPaXLlnOEg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11669"; a="57048269"
 X-IronPort-AV: E=Sophos;i="6.21,221,1763452800"; 
-   d="scan'208";a="57048279"
+   d="scan'208";a="57048269"
 Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jan 2026 05:49:12 -0800
-X-CSE-ConnectionGUID: 3psanrVbTtGgoavkyMUQUw==
-X-CSE-MsgGUID: g0E+JuNQRYarjdD7ueGt/Q==
+  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jan 2026 05:49:11 -0800
+X-CSE-ConnectionGUID: RSGfaLd6QVqd0LuDupeO2Q==
+X-CSE-MsgGUID: JO2qZ07QS3e8APOkDDRiqQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.21,221,1763452800"; 
-   d="scan'208";a="208618611"
+   d="scan'208";a="208618599"
 Received: from black.igk.intel.com ([10.91.253.5])
   by orviesa004.jf.intel.com with ESMTP; 12 Jan 2026 05:49:08 -0800
 Received: by black.igk.intel.com (Postfix, from userid 1003)
-	id B08B598; Mon, 12 Jan 2026 14:49:06 +0100 (CET)
+	id C1CDE9E; Mon, 12 Jan 2026 14:49:06 +0100 (CET)
 From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 To: Andi Shyti <andi@smida.it>,
 	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
@@ -64,42 +65,56 @@ Cc: Khalil Blaiech <kblaiech@nvidia.com>,
 	Heiko Stuebner <heiko@sntech.de>,
 	Patrice Chotard <patrice.chotard@foss.st.com>,
 	Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH v1 0/7] i2c: busses: Introduce and use HZ_PER_GHZ
-Date: Mon, 12 Jan 2026 14:46:08 +0100
-Message-ID: <20260112134900.4142954-1-andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 4/7] i2c: nomadik: Use HZ_PER_GHZ constant instead of plain number
+Date: Mon, 12 Jan 2026 14:46:12 +0100
+Message-ID: <20260112134900.4142954-5-andriy.shevchenko@linux.intel.com>
 X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20260112134900.4142954-1-andriy.shevchenko@linux.intel.com>
+References: <20260112134900.4142954-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-A few drivers for I²C host controllers use HZ_PER_GHZ in numeric form.
-This is less readable and prone to subtle mistakes. Instead, introduce
-a well defined constant and use it in the drivers. No functional change
-implied except one case where 64-bit division replaced with 32-bit one.
+Use defined constant to avoid the possible mistakes and to provide
+an additional information on the units.
 
-Andy Shevchenko (7):
-  units: Add HZ_PER_GHZ
-  i2c: mlxbf: Use HZ_PER_GHZ constant instead of custom one
-  i2c: mt65xx: Use HZ_PER_GHZ constant instead of plain number
-  i2c: nomadik: Use HZ_PER_GHZ constant instead of plain number
-  i2c: rk3x: Use HZ_PER_GHZ constant instead of plain number
-  i2c: st: Use HZ_PER_GHZ constant instead of plain number
-  i2c: synquacer: Use HZ_PER_GHZ constant instead of plain number
+While at it, drop unneeded 64-bit division, all operands fit 32-bit.
 
- drivers/i2c/busses/i2c-mlxbf.c     |  5 ++---
- drivers/i2c/busses/i2c-mt65xx.c    | 11 ++++++-----
- drivers/i2c/busses/i2c-nomadik.c   |  7 ++++---
- drivers/i2c/busses/i2c-rk3x.c      | 12 ++++++------
- drivers/i2c/busses/i2c-st.c        |  3 ++-
- drivers/i2c/busses/i2c-synquacer.c |  3 ++-
- include/linux/units.h              |  3 +++
- 7 files changed, 25 insertions(+), 19 deletions(-)
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-nomadik.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
+diff --git a/drivers/i2c/busses/i2c-nomadik.c b/drivers/i2c/busses/i2c-nomadik.c
+index 19b648fc094d..b63ee51c1652 100644
+--- a/drivers/i2c/busses/i2c-nomadik.c
++++ b/drivers/i2c/busses/i2c-nomadik.c
+@@ -31,6 +31,7 @@
+ #include <linux/pm_runtime.h>
+ #include <linux/regmap.h>
+ #include <linux/slab.h>
++#include <linux/units.h>
+ 
+ #define DRIVER_NAME "nmk-i2c"
+ 
+@@ -419,10 +420,10 @@ static void setup_i2c_controller(struct nmk_i2c_dev *priv)
+ 	 * modes are 250ns, 100ns, 10ns respectively.
+ 	 *
+ 	 * As the time for one cycle T in nanoseconds is
+-	 * T = (1/f) * 1000000000 =>
+-	 * slsu = cycles / (1000000000 / f) + 1
++	 * T = (1/f) * HZ_PER_GHZ =>
++	 * slsu = cycles / (HZ_PER_GHZ / f) + 1
+ 	 */
+-	ns = DIV_ROUND_UP_ULL(1000000000ULL, i2c_clk);
++	ns = DIV_ROUND_UP(HZ_PER_GHZ, i2c_clk);
+ 	switch (priv->sm) {
+ 	case I2C_FREQ_MODE_FAST:
+ 	case I2C_FREQ_MODE_FAST_PLUS:
 -- 
 2.50.1
 
