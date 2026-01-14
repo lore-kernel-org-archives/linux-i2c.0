@@ -1,123 +1,199 @@
-Received: from smtpbgeu1.qq.com (smtpbgeu1.qq.com [52.59.177.22])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8BAC37B3E4
-	for <linux-i2c@vger.kernel.org>; Wed, 14 Jan 2026 07:42:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.59.177.22
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40D3037F113;
+	Wed, 14 Jan 2026 08:20:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768376539; cv=none; b=tt3nm0Z1/2PQVoTbvCsNTJwzXUmAdCLXQHg2kovnVg/fT38Q5JYIGGCFOIqavX8nlHaxSF/mi9j5Uzf76LRzD/apN5vqdlEDoyFihOZBJ5yMFKJ4t643BQZgc34kFZxdwN8HGFTMNom7loD8+mOEs8qFdZDtqefymRAqNLAredM=
+	t=1768378808; cv=none; b=nh0eGTE+wwzSMLTZh4CNaKFImwLdA+hwf8SkVYZwvo+1j9nGjrew80uTsBSQvqEcHDHJIB8kXHxom+x5cRn7Apt3HYhxhPSzAb7juZ3xcc4gg23a1f/0+64FfQamH19C/LBQ/2uoLBSW588jeiBBQ0n6lZrU8j/r+KU4ViAmI3M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768376539; c=relaxed/simple;
-	bh=6kFdfpIlv+NjbpVMkAAzrX4Pd5Bm8hvjOOYjFPgOi9g=;
-	h=Mime-Version:Content-Type:Date:Message-Id:To:Cc:Subject:From:
-	 References:In-Reply-To; b=MHmNUyTQ4+ehPgfl5ehXnImIpvzs2WwtL/tuLW6qOqJOh4Xn0jTsJ4xp+R7yhIOP/xTds9gMldu/IME2xnT08UXq/Brdgep7/56D5NHkN4+ziJPlHGXOu/zlRa7DgObEDf8jzqMr6O9ZRBTFFWOq3pTmvBmDkWapHkn0BBrN+EA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com; spf=none smtp.mailfrom=linux.spacemit.com; dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b=FaQLCIja; arc=none smtp.client-ip=52.59.177.22
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.spacemit.com
+	s=arc-20240116; t=1768378808; c=relaxed/simple;
+	bh=GT5HmCAZ6dh6XeFOBC3Z6TVXmDJ2gi/nEihxD5w2ojA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=mAfvyM7gE7FbZd4r3EGTdTQFmgKAYu58xfI+x7dp0qEknmfx6RJYBOzz0F2hki3YYCLpMqDUecB+WOalxpNJf3rVRNw+U/qVjM26K1xDnrL98U/aE57gIwHkq4KVmFHC3IqWYKsbfpD0SyiDEEBGHkk2eEHVIXR83Kov9k09MlM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=CQdJaxf4; arc=none smtp.client-ip=198.175.65.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b="FaQLCIja"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.spacemit.com;
-	s=mxsw2412; t=1768376437;
-	bh=Y3hzIqe64eTNPZAr7HNM5Jzs/tphW9qIwXZhK18bDVM=;
-	h=Mime-Version:Date:Message-Id:To:Subject:From;
-	b=FaQLCIja0GDbUuIoZRS8YGTtPKNKvpxQawxnrUpxfSTFcYIymfyz1A7YyGkn+v3zM
-	 XYzL4ijzMz8xaGMFjmaKfVFQnPTKzf4l2GLA/Q1g/PzhRjrqEyycK8iINXcwAPM6Zl
-	 DbysDgD3Hx/3nxVArZiG2Fqh8ATReeI1rjE3mPCU=
-X-QQ-mid: esmtpsz16t1768376428t13e77d3b
-X-QQ-Originating-IP: 7aawJ3yx9b6VmjulJJNVsFBb2N3t4qxK6xGf9s1FjQk=
-Received: from = ( [120.239.196.107])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Wed, 14 Jan 2026 15:40:26 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 0
-X-BIZMAIL-ID: 16254600035269256280
-EX-QQ-RecipientCnt: 13
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="CQdJaxf4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1768378803; x=1799914803;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=GT5HmCAZ6dh6XeFOBC3Z6TVXmDJ2gi/nEihxD5w2ojA=;
+  b=CQdJaxf4SXKPl/jxnI0mRD7BfLkF+H+ugoYndjydrQk5NVt8b5cWKP3H
+   MstdAPq4GlZjmEUVJLpc4lcmU4opF0mgkGJootM3hmUh+MOpE1Ty7v5pv
+   zziMD0K6IMAKlzhV7cxcMfTaXb9qBloIT/85qO3c4I7QPiuWh0qiPFZgh
+   JtPbQZYRCRPF4mP0XLhSkksEhh49UsumQ8KFIqb1pr/MxvEOVO7z2I8J9
+   3EbwjnrivA0OQofSGhp+4jsjSKfx6xGzk4NO6yv2zzdh0ejhC+tTriyn5
+   EwYJ4gRw104wpDCAwGa4NwdZeDifPngxGg0AP+CPlVmJvNR3eUpWIDpCD
+   g==;
+X-CSE-ConnectionGUID: L510ANHBQHSdlUQF5AUlDw==
+X-CSE-MsgGUID: MQYbNEplSt+S/qUE41gaow==
+X-IronPort-AV: E=McAfee;i="6800,10657,11670"; a="73513052"
+X-IronPort-AV: E=Sophos;i="6.21,225,1763452800"; 
+   d="scan'208";a="73513052"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jan 2026 00:19:59 -0800
+X-CSE-ConnectionGUID: 53hSZIwaSBGkrgH9uZNH9g==
+X-CSE-MsgGUID: VPSgyxmKRCq+UljWlhUcZQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,225,1763452800"; 
+   d="scan'208";a="204627059"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by orviesa007.jf.intel.com with ESMTP; 14 Jan 2026 00:19:58 -0800
+Received: by black.igk.intel.com (Postfix, from userid 1003)
+	id EC98399; Wed, 14 Jan 2026 09:19:55 +0100 (CET)
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jan Dabros <jsd@semihalf.com>
+Subject: [PATCH v1 1/2] i2c: designware: Remove not-going-to-be-supported code for Baikal SoC
+Date: Wed, 14 Jan 2026 09:17:50 +0100
+Message-ID: <20260114081954.252160-2-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20260114081954.252160-1-andriy.shevchenko@linux.intel.com>
+References: <20260114081954.252160-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 14 Jan 2026 15:40:26 +0800
-Message-Id: <DFO54J7CRS8U.1D9XZAJHF57HM@linux.spacemit.com>
-To: "Lee Jones" <lee@kernel.org>, "Troy Mitchell"
- <troy.mitchell@linux.spacemit.com>
-Cc: "Yixun Lan" <dlan@gentoo.org>, "Alex Elder" <elder@riscstar.com>, "Andi
- Shyti" <andi.shyti@kernel.org>, "Alexandre Belloni"
- <alexandre.belloni@bootlin.com>, "Liam Girdwood" <lgirdwood@gmail.com>,
- "Mark Brown" <broonie@kernel.org>, <linux-kernel@vger.kernel.org>,
- <linux-riscv@lists.infradead.org>, <spacemit@lists.linux.dev>,
- <linux-i2c@vger.kernel.org>, <linux-rtc@vger.kernel.org>
-Subject: Re: [PATCH v5 2/3] mfd: simple-mfd-i2c: add default value
-From: "Troy Mitchell" <troy.mitchell@linux.spacemit.com>
-X-Mailer: aerc 0.21.0-0-g5549850facc2
-References: <20260108-p1-kconfig-fix-v5-0-6fe19f460269@linux.spacemit.com>
- <20260108-p1-kconfig-fix-v5-2-6fe19f460269@linux.spacemit.com>
- <20260113124241.GB2842980@google.com>
-In-Reply-To: <20260113124241.GB2842980@google.com>
-X-QQ-SENDSIZE: 520
-Feedback-ID: esmtpsz:linux.spacemit.com:qybglogicsvrgz:qybglogicsvrgz3a-0
-X-QQ-XMAILINFO: NQvpx3reNVf3WhyFtnskoYMLYvgG5oU62ujRS8JtwR9vHStSzynh41GG
-	OXMxYql2bohvBa6JWd06cX4JKPrE6fPg9EbZ0g21wCh2zVKOHaR36UYqhRhYsSiw82gjcSI
-	6dYEYn04C24cLRCd/pCnxabSN1IxDxPE9y8aq3Iuf7IrWNkH2sktsi1rQuUXIzb+U1G9874
-	9+3iSk0OFK3O3+X360goBWmhA7bz/rpag8wFTZDsqxfXal8W26vSb0GAoYhmINxFC+pfrhq
-	6iP9bA29sYXmqt9ZVuu1Y4eaGw9NPAMLPqJw8mdIRtVGiA7h7R+acUoFy0kjhj+I1Z0zM6T
-	1c44ggGLPCcpbIgc+nlGIC0KAOOxmNQAlTbACKx0apXgRzqEhHMV7sjU3C82cmqAeJEDTJI
-	2RiXgE9P+pw+SLATpDrsrCS2FmBuEpxcb2kbXkREvbvNYe9qU/dQDOPu4uovdmsL0iHkh7L
-	cmDWd1XxdwUwyo3rcxgRnQktvDwStwtcFVF4DEyWNjzWZf1f6WemlRLBri8V1+tg2VYpHes
-	cfttwAXToZuuYfD6GX1pDnzQFuE5ZorcHpymtUl7TT2DOk4DuWVQBnv4I3uf5Cti611jsD6
-	hbnwGxKTqsvF4TZXd6mcHsTCNSBDmLl2pj+ZsKsv76xNrMRcbnstWDVIMZfYdPOQpa62JXB
-	kW98a9Xt3UhxUuEL31gPwZEpus8/h7GJy2TYPiWmKde7rHRZDWVN5dUWJIsYAWz+7d7znbH
-	pPG+PKMDzvvHvAAsXxpadL5lKIq1nHwEbtrVVhCISeVJO2NcOkMv2bKnnHaXL4ZQ+RUwBjl
-	RGBTsk3A8PeE9OqXtbKgBSkgLW10Cc4by4cjEmJV46JvK8AktB/FMt3LEqf+cV5CTP0pKAW
-	8rwSeEddoq2CH1TnumFFmMW8jhkpMfGJtFbH7i24uX2WcLWolfpM4wDf1o0zPTWy4FDIyjw
-	A+gojymMAUzXGVSTZzZ53U0IeAgu+egoeU3GEJiyRK3eIRIzX/neY1jzVwtIWY6JRTlm4wo
-	Oew21UJ1zIhHFVmxuU/dZEMjzah/uLZfiXIpk9MF8tZHKK+AFcj9kLdxwwckivTjfBz/kGM
-	RUVOlfIo01A
-X-QQ-XMRINFO: MPJ6Tf5t3I/ylTmHUqvI8+Wpn+Gzalws3A==
-X-QQ-RECHKSPAM: 0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Tue Jan 13, 2026 at 8:42 PM CST, Lee Jones wrote:
-> On Thu, 08 Jan 2026, Troy Mitchell wrote:
->
->> The default value of the P1 sub-device depends on the value
->> of P1, so P1 should have a default value here.
->>=20
->> Acked-by: Alex Elder <elder@riscstar.com>
->> Signed-off-by: Troy Mitchell <troy.mitchell@linux.spacemit.com>
->> ---
->> Change log in v5:
->> - nothing
->> - Link to v4: https://lore.kernel.org/all/20251225-p1-kconfig-fix-v4-2-4=
-4b6728117c1@linux.spacemit.com/
->>=20
->> Change log in v4:
->> - default m if ARCH_SPACEMIT instead of default ARCH_SPACEMIT
->> - Link to v3: https://lore.kernel.org/all/20251118-p1-kconfig-fix-v3-4-8=
-839c5ac5db3@linux.spacemit.com/
->> ---
->>  drivers/mfd/Kconfig | 1 +
->>  1 file changed, 1 insertion(+)
->>=20
->> diff --git a/drivers/mfd/Kconfig b/drivers/mfd/Kconfig
->> index aace5766b38aa5e46e32a8a7b42eea238159fbcf..c757bc365029dc794c658fc5=
-b10084a0f29ac9b6 100644
->> --- a/drivers/mfd/Kconfig
->> +++ b/drivers/mfd/Kconfig
->> @@ -1276,6 +1276,7 @@ config MFD_SPACEMIT_P1
->>  	depends on ARCH_SPACEMIT || COMPILE_TEST
->>  	depends on I2C
->>  	select MFD_SIMPLE_MFD_I2C
->> +	default m if ARCH_SPACEMIT
->>  	help
->>  	  This option supports the I2C-based SpacemiT P1 PMIC, which
->>  	  contains regulators, a power switch, GPIOs, an RTC, and more.
->
-> I already applied v4.
-Apologies, I missed this.
-I will remove the patch in the next version. Thank you for your work.
+As noticed in the discussion [1] the Baikal SoC and platforms
+are not going to be finalized, hence remove stale code.
 
-                    - Troy
+Link: https://lore.kernel.org/lkml/22b92ddf-6321-41b5-8073-f9c7064d3432@infradead.org/ [1]
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/i2c/busses/Kconfig                  |  1 -
+ drivers/i2c/busses/i2c-designware-core.h    |  1 -
+ drivers/i2c/busses/i2c-designware-platdrv.c | 68 ---------------------
+ 3 files changed, 70 deletions(-)
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 860812e224a0..e11d50750e63 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -580,7 +580,6 @@ if I2C_DESIGNWARE_CORE
+ config I2C_DESIGNWARE_PLATFORM
+ 	tristate "Synopsys DesignWare Platform driver"
+ 	depends on (ACPI && COMMON_CLK) || !ACPI
+-	select MFD_SYSCON if MIPS_BAIKAL_T1
+ 	default I2C_DESIGNWARE_CORE
+ 	help
+ 	  If you say yes to this option, support will be included for the
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 2a7decc24931..cf0364079b55 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -314,7 +314,6 @@ struct dw_i2c_dev {
+ #define ACCESS_POLLING				BIT(3)
+ 
+ #define MODEL_MSCC_OCELOT			BIT(8)
+-#define MODEL_BAIKAL_BT1			BIT(9)
+ #define MODEL_AMD_NAVI_GPU			BIT(10)
+ #define MODEL_WANGXUN_SP			BIT(11)
+ #define MODEL_MASK				GENMASK(11, 8)
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 077b34535ec7..2e532f16691b 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -37,70 +37,6 @@ static u32 i2c_dw_get_clk_rate_khz(struct dw_i2c_dev *dev)
+ 	return clk_get_rate(dev->clk) / HZ_PER_KHZ;
+ }
+ 
+-#ifdef CONFIG_OF
+-#define BT1_I2C_CTL			0x100
+-#define BT1_I2C_CTL_ADDR_MASK		GENMASK(7, 0)
+-#define BT1_I2C_CTL_WR			BIT(8)
+-#define BT1_I2C_CTL_GO			BIT(31)
+-#define BT1_I2C_DI			0x104
+-#define BT1_I2C_DO			0x108
+-
+-static int bt1_i2c_read(void *context, unsigned int reg, unsigned int *val)
+-{
+-	struct dw_i2c_dev *dev = context;
+-	int ret;
+-
+-	/*
+-	 * Note these methods shouldn't ever fail because the system controller
+-	 * registers are memory mapped. We check the return value just in case.
+-	 */
+-	ret = regmap_write(dev->sysmap, BT1_I2C_CTL,
+-			   BT1_I2C_CTL_GO | (reg & BT1_I2C_CTL_ADDR_MASK));
+-	if (ret)
+-		return ret;
+-
+-	return regmap_read(dev->sysmap, BT1_I2C_DO, val);
+-}
+-
+-static int bt1_i2c_write(void *context, unsigned int reg, unsigned int val)
+-{
+-	struct dw_i2c_dev *dev = context;
+-	int ret;
+-
+-	ret = regmap_write(dev->sysmap, BT1_I2C_DI, val);
+-	if (ret)
+-		return ret;
+-
+-	return regmap_write(dev->sysmap, BT1_I2C_CTL,
+-			    BT1_I2C_CTL_GO | BT1_I2C_CTL_WR | (reg & BT1_I2C_CTL_ADDR_MASK));
+-}
+-
+-static const struct regmap_config bt1_i2c_cfg = {
+-	.reg_bits = 32,
+-	.val_bits = 32,
+-	.reg_stride = 4,
+-	.fast_io = true,
+-	.reg_read = bt1_i2c_read,
+-	.reg_write = bt1_i2c_write,
+-	.max_register = DW_IC_COMP_TYPE,
+-};
+-
+-static int bt1_i2c_request_regs(struct dw_i2c_dev *dev)
+-{
+-	dev->sysmap = syscon_node_to_regmap(dev->dev->of_node->parent);
+-	if (IS_ERR(dev->sysmap))
+-		return PTR_ERR(dev->sysmap);
+-
+-	dev->map = devm_regmap_init(dev->dev, NULL, dev, &bt1_i2c_cfg);
+-	return PTR_ERR_OR_ZERO(dev->map);
+-}
+-#else
+-static int bt1_i2c_request_regs(struct dw_i2c_dev *dev)
+-{
+-	return -ENODEV;
+-}
+-#endif
+-
+ static int dw_i2c_get_parent_regmap(struct dw_i2c_dev *dev)
+ {
+ 	dev->map = dev_get_regmap(dev->dev->parent, NULL);
+@@ -127,9 +63,6 @@ static int dw_i2c_plat_request_regs(struct dw_i2c_dev *dev)
+ 		return dw_i2c_get_parent_regmap(dev);
+ 
+ 	switch (dev->flags & MODEL_MASK) {
+-	case MODEL_BAIKAL_BT1:
+-		ret = bt1_i2c_request_regs(dev);
+-		break;
+ 	case MODEL_WANGXUN_SP:
+ 		ret = dw_i2c_get_parent_regmap(dev);
+ 		break;
+@@ -334,7 +267,6 @@ static void dw_i2c_plat_remove(struct platform_device *pdev)
+ }
+ 
+ static const struct of_device_id dw_i2c_of_match[] = {
+-	{ .compatible = "baikal,bt1-sys-i2c", .data = (void *)MODEL_BAIKAL_BT1 },
+ 	{ .compatible = "mscc,ocelot-i2c", .data = (void *)MODEL_MSCC_OCELOT },
+ 	{ .compatible = "snps,designware-i2c" },
+ 	{}
+-- 
+2.50.1
 
