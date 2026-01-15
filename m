@@ -1,113 +1,59 @@
-Received: from Atcsqr.andestech.com (60-248-80-70.hinet-ip.hinet.net [60.248.80.70])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 80E4C35C1BA;
-	Thu, 15 Jan 2026 14:55:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=60.248.80.70
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFF993B8BA8;
+	Thu, 15 Jan 2026 15:23:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768488919; cv=none; b=lxvR/CKjGdgpwd9H3tJsZUitq05/HOg9t0PjUjWIQ+0NSoELikilmTz8FSRCZvU6vVp91vg4qMACr9O37WpxqQJ+lUe3aGrUtueO8DRp69JcnvborHR3xi34fIc3lFNS95Lq9KZ09IOyoNM0BjbAD1Mr+2T5ClCpDYjY36X2YbI=
+	t=1768490630; cv=none; b=lOmwsgnYNpwOueOgFOUYe3yRes2wWrwB+mMHyJjhIgDwaN1ZHlSwSo1pAsqMZ+8r5PzGnqKTvnwlCezTywdSTiywg6HeTml9Z9ZxaJFC9BhC97uox3Tv7q1+WDAM9l9/6N2A2TojCqzswvatcXzOYeubJj5Fp7naMs6AOXFvY6I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768488919; c=relaxed/simple;
-	bh=H4BaOdHYwN+G+4tYAtMFqwQDViH5IBNZ4Z3fnksL3Vw=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=V+cLVBVs6t+AwVxtBG8lPycWxAeRGHt1wDlI7eWHW4Tn+kTQbqJR0i7MAwNdOhnPUKJa2guhPwSXHXTrv8FRX+o372b835kH9VgtVJJBsVPesiZ/VlE+wH4yf0GVTvRMGPhLVKApyLZy2ck9LS2mswjIuGOLqEeR2Vxictf+P2Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=permerror header.from=andestech.com; spf=pass smtp.mailfrom=andestech.com; arc=none smtp.client-ip=60.248.80.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=permerror header.from=andestech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=andestech.com
-Received: from mail.andestech.com (ATCPCS31.andestech.com [10.0.1.89])
-	by Atcsqr.andestech.com with ESMTPS id 60FEqmJS039368
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 15 Jan 2026 22:52:48 +0800 (+08)
-	(envelope-from ben717@andestech.com)
-Received: from swlinux02.andestech.com (10.0.15.183) by ATCPCS31.andestech.com
- (10.0.1.89) with Microsoft SMTP Server id 14.3.498.0; Thu, 15 Jan 2026
- 22:52:48 +0800
-From: Ben Zong-You Xie <ben717@andestech.com>
-To:
-CC: <andi.shyti@kernel.org>, <robh@kernel.org>, <krzk+dt@kernel.org>,
-        <conor+dt@kernel.org>, <linux-i2c@vger.kernel.org>,
-        <devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <pjw@kernel.org>, <palmer@dabbelt.com>, <aou@eecs.berkeley.edu>,
-        <alex@ghiti.fr>, <linux-riscv@lists.infradead.org>,
-        Ben Zong-You Xie
-	<ben717@andestech.com>
-Subject: [PATCH 1/4] dt-bindings: i2c: add support for Andes I2C controller
-Date: Thu, 15 Jan 2026 22:52:41 +0800
-Message-ID: <20260115145244.435890-2-ben717@andestech.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260115145244.435890-1-ben717@andestech.com>
-References: <20260115145244.435890-1-ben717@andestech.com>
+	s=arc-20240116; t=1768490630; c=relaxed/simple;
+	bh=X4kmc1mIGF7TRTatstkptIgYwOVznVAZAzsOklRiNzM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GpK4RTWczQ2FpvXJEh76+9Ifou1c/QgYmNEY3s786GikW4rwZGzxyXVlgSNQ6MTUvgNR9o2FER+LAuNJf0viByAhJCDAx82iI/BprAjSo6GvXmCuMysdTFolKiehGxERBelE5rVkYp98bcPOFhkVO8os3C6gIcEY3z2K+rX9vlI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gb0uiRRp; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gb0uiRRp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AE46C116D0;
+	Thu, 15 Jan 2026 15:23:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768490628;
+	bh=X4kmc1mIGF7TRTatstkptIgYwOVznVAZAzsOklRiNzM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=gb0uiRRpbxtiOWrlhk2q1Vlv1oBmwldMe9WsUDPNBuBsfOd92WeH+kGKCKp0CnPUB
+	 NxmCsMpYYgAkmfTnMOdsMvUGMHZxVq63+jx6UyhitEiIxL9EtF9DbBrELZqGETOZ4n
+	 Qt363AGwGlyeikO+sOcF6H4BN2VJg2F5ZQJhTAh+bsmrDkttXACda55FWX8PL+YTpc
+	 zHik8OtOactYKPtmkKf2snS4T1Q6CO+VMcRfBBqpm2GWPU/fOnAP0HiHLcz0fNUbfo
+	 KbgeYao5Gq2LNGdJD5tRTKgEa29Y0EY0IbcXm5WgftV/lHBbROfKHahnAMtLxOBJmT
+	 lN+jkQvqatEVQ==
+Date: Thu, 15 Jan 2026 16:23:40 +0100
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Mika Westerberg <mika.westerberg@linux.intel.com>, Jan Dabros <jsd@semihalf.com>
+Subject: Re: [PATCH v1 1/2] i2c: designware: Remove not-going-to-be-supported
+ code for Baikal SoC
+Message-ID: <aWkGStyupgSXS07Q@zenone.zhora.eu>
+References: <20260114081954.252160-1-andriy.shevchenko@linux.intel.com>
+ <20260114081954.252160-2-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-DKIM-Results: atcpcs31.andestech.com; dkim=none;
-X-DNSRBL: 
-X-SPAM-SOURCE-CHECK: pass
-X-MAIL:Atcsqr.andestech.com 60FEqmJS039368
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260114081954.252160-2-andriy.shevchenko@linux.intel.com>
 
-Document device tree bindings for Andes I2C controller.
+On Wed, Jan 14, 2026 at 09:17:50AM +0100, Andy Shevchenko wrote:
+> As noticed in the discussion [1] the Baikal SoC and platforms
+> are not going to be finalized, hence remove stale code.
+> 
+> Link: https://lore.kernel.org/lkml/22b92ddf-6321-41b5-8073-f9c7064d3432@infradead.org/ [1]
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Signed-off-by: Ben Zong-You Xie <ben717@andestech.com>
----
- .../bindings/i2c/andestech,atciic100.yaml     | 44 +++++++++++++++++++
- 1 file changed, 44 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/andestech,atciic100.yaml
+Until you guys sort things out with patch 2, I'm applying patch 1.
 
-diff --git a/Documentation/devicetree/bindings/i2c/andestech,atciic100.yaml b/Documentation/devicetree/bindings/i2c/andestech,atciic100.yaml
-new file mode 100644
-index 000000000000..dcbcafc8d6bd
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/andestech,atciic100.yaml
-@@ -0,0 +1,44 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/i2c/andestech,atciic100.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Andes I2C controller on QiLai SoC and AE350 platform
-+
-+maintainers:
-+  - Ben Zong-You Xie <ben717@andestech.com>
-+
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
-+
-+properties:
-+  compatible:
-+    items:
-+      - enum:
-+          - andestech,qilai-i2c
-+          - andestech,ae350-i2c
-+      - const: andestech,atciic100
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    i2c@30800000 {
-+        compatible = "andestech,qilai-i2c","andestech,atciic100";
-+        reg = <0x30800000 0x100000>;
-+        interrupts = <6 IRQ_TYPE_LEVEL_HIGH>;
-+    };
--- 
-2.34.1
-
+Thanks,
+Andi
