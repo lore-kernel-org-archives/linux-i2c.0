@@ -1,89 +1,91 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7770F42188E
-	for <linux-i2c@vger.kernel.org>; Tue, 20 Jan 2026 14:15:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15A3345BD6B
+	for <linux-i2c@vger.kernel.org>; Tue, 20 Jan 2026 14:45:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768918548; cv=none; b=AK4hTYkUH4Bn2kafnsXA5XtnU4QQ3kEBkEkva6M2ZSnRbDRP6wmqJC3xzX5O4nXAZyyeCdlZmF2x4obTRwX3v1ExkHCmIZZeUr3jQbCyVojY2LImHdzDSVGUaKYrY3DlKxv5pOqN+Cnci77ZVOCeSYnc1ktgcVLz+Q7vkaIu24M=
+	t=1768920310; cv=none; b=iiQ6qgnEevVc2uzjeMYGWS7UH1a3r5h1kJeEfkfrj8IPR5KUxLwHEyPNJ67LSkQXu7slXq8nsMQNKtwHYjOpIHMnbIhD4p9hAD6i4ehvLap3gvSBQXbwvDZtqPNujNgvpQ5rYsgauu0kEHpiC6fOgiRVtHQ4m4yK01j2FYOQJrs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768918548; c=relaxed/simple;
-	bh=zFcd7yMjFnmEmNDNXfoz/tqfA7edF8f1uAI1JJCLW8M=;
+	s=arc-20240116; t=1768920310; c=relaxed/simple;
+	bh=yNmNO6pVoIr/VJ06ROIEyjHNUAIDP+FljvOsQmCzjtc=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hEbFUdC1LGfGZk0JUaqvPa4H5hkKrCsUma9HO5YMVwux1pMSXUfgsW5Xi6ZCpkiDyZ/V1lomObVbEe/DpVLYLTvpQSBBa9rt2M+rgVst2scFRfHEqu46ts4NeGuUMyU2ImWvwzGowom3SN3J8SNQrz9U6ZdVpBDazeCDgpmdabA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=FMceTW1w; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=fj2heuNk; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=xxOknPZH; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=s8D0qnXS; arc=none smtp.client-ip=195.135.223.131
+	 MIME-Version:Content-Type; b=SBRsA7ll2Sgt3uaqKrNryCMSc6mWr/ocqwlHS/Fm/9ULD408WpYKQJAPktNzCx5Yt31W+CTzzX59uwcEH1sX9tJjOyhefxNgUFQpVb7keJdAXR/Y3oXek1xW3ntb5sFYJU3EJOCjD/iBgQk7USwNyyTcbwfIT5J/hxPIdHNH/b8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=TMNomoCI; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=665uszSy; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=TMNomoCI; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=665uszSy; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="FMceTW1w";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="fj2heuNk";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="xxOknPZH";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="s8D0qnXS"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="TMNomoCI";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="665uszSy";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="TMNomoCI";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="665uszSy"
 Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 904165BCC3;
-	Tue, 20 Jan 2026 14:15:42 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 06C09337F3;
+	Tue, 20 Jan 2026 14:45:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1768918543; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1768920307; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=zia8qI46EgB8u0dXa5r/BV0ImwNXDEE7RpEPTqPIHOI=;
-	b=FMceTW1w9eJVJ4eKpc45DpwcY176XD1B9+Cpgav0Mv0YQSySEqsZqxhH+V5K87mA5zvMx2
-	GCfCtKFGOBlyNOuqm1HOeER/15vCHrA2CBnfMg66vLcDAYeXgr2AV1m7iZuwkVSUWG94Bu
-	WWuK1u4JcXCMw/h05kK9TlSAcBe2PxM=
+	bh=xm0ehcWx+HW6FgdldOS2AWXmWdto6+IE5MdqGA0kWZM=;
+	b=TMNomoCIWOEdz3ZfIJLXNrXdK4qAOQMe9qO75bGO0o1tEd7CgDulH91kIMmTCtGY1Xg1tY
+	xfbAsvyKOvGM8LBFtI5itHfG9qz7N6ejY3zL+b9xY9ax4OgYkeHB0bsEakcUt5ax122t3h
+	AaqPSHwBnzalPZl0JbxvTUQXPTfvdHk=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1768918543;
+	s=susede2_ed25519; t=1768920307;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=zia8qI46EgB8u0dXa5r/BV0ImwNXDEE7RpEPTqPIHOI=;
-	b=fj2heuNkGxSfOMlfW93uA6KOvN3I8ryS4pm3Ecxrjd34kYo6SHcPhWYztw1AO9xZFr/945
-	8Mf1tBCcEQqODDCA==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=xxOknPZH;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=s8D0qnXS
+	bh=xm0ehcWx+HW6FgdldOS2AWXmWdto6+IE5MdqGA0kWZM=;
+	b=665uszSyO25mxMIe8kgPDT39TaYxCOBD/VXI3siLVezSiKLdg4WDDmqgudAjI1vErgy7MI
+	KJT1lsgnYjolkiDA==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=TMNomoCI;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=665uszSy
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1768918542; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1768920307; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=zia8qI46EgB8u0dXa5r/BV0ImwNXDEE7RpEPTqPIHOI=;
-	b=xxOknPZHpcWNfYK7B2xo6WWwyctabeeiP1NvUJOM+TnOyBvqD3a9yh//b0Xu4mzH9MgFy3
-	Fcb1xz+e2fQM0XlxmwfAJGzB3VpttNUJ4FQsonFcsgN4qyWU3S67KPSJ2CaL/GZ7F2b1h4
-	cgQ2Vu4QdFI0rZS8iRvXyLeT0NuUbxA=
+	bh=xm0ehcWx+HW6FgdldOS2AWXmWdto6+IE5MdqGA0kWZM=;
+	b=TMNomoCIWOEdz3ZfIJLXNrXdK4qAOQMe9qO75bGO0o1tEd7CgDulH91kIMmTCtGY1Xg1tY
+	xfbAsvyKOvGM8LBFtI5itHfG9qz7N6ejY3zL+b9xY9ax4OgYkeHB0bsEakcUt5ax122t3h
+	AaqPSHwBnzalPZl0JbxvTUQXPTfvdHk=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1768918542;
+	s=susede2_ed25519; t=1768920307;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=zia8qI46EgB8u0dXa5r/BV0ImwNXDEE7RpEPTqPIHOI=;
-	b=s8D0qnXSrT1G2Ep7JYvhaA7En9kag8WzqCALMOrWjwTK8fQZIu9RMR1A4Acmp/rRYWyhTS
-	e7gMAO+NAWG7N9Bw==
+	bh=xm0ehcWx+HW6FgdldOS2AWXmWdto6+IE5MdqGA0kWZM=;
+	b=665uszSyO25mxMIe8kgPDT39TaYxCOBD/VXI3siLVezSiKLdg4WDDmqgudAjI1vErgy7MI
+	KJT1lsgnYjolkiDA==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 50EB33EA63;
-	Tue, 20 Jan 2026 14:15:42 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 443A63EA63;
+	Tue, 20 Jan 2026 14:45:06 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id hhayEQ6Ob2l5UgAAD6G6ig
-	(envelope-from <jdelvare@suse.de>); Tue, 20 Jan 2026 14:15:42 +0000
-Date: Tue, 20 Jan 2026 15:15:36 +0100
+	id Gv2YDvKUb2k2cAAAD6G6ig
+	(envelope-from <jdelvare@suse.de>); Tue, 20 Jan 2026 14:45:06 +0000
+Date: Tue, 20 Jan 2026 15:45:05 +0100
 From: Jean Delvare <jdelvare@suse.de>
 To: =?UTF-8?B?QmVub8OudA==?= Monin <benoit.monin@bootlin.com>
 Cc: linux-i2c@vger.kernel.org, Thomas Petazzoni
  <thomas.petazzoni@bootlin.com>, Wolfram Sang
  <wsa+renesas@sang-engineering.com>
-Subject: Re: [PATCH i2c-tools v2 0/2] Add support for message modifier flags
-Message-ID: <20260120151536.7de21098@endymion>
-In-Reply-To: <20251223-msg-flags-v2-0-8d934a4366e2@bootlin.com>
+Subject: Re: [PATCH i2c-tools v2 2/2] i2ctransfer: Add optional message
+ modifier flags
+Message-ID: <20260120154505.7e860faa@endymion>
+In-Reply-To: <20251223-msg-flags-v2-2-8d934a4366e2@bootlin.com>
 References: <20251223-msg-flags-v2-0-8d934a4366e2@bootlin.com>
+	<20251223-msg-flags-v2-2-8d934a4366e2@bootlin.com>
 Organization: SUSE Linux
 X-Mailer: Claws Mail 4.2.0 (GTK 3.24.43; x86_64-suse-linux-gnu)
 Precedence: bulk
@@ -94,9 +96,8 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Score: -4.01
 X-Spamd-Result: default: False [-4.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
+	BAYES_HAM(-3.00)[99.99%];
 	NEURAL_HAM_LONG(-1.00)[-1.000];
 	MID_RHS_NOT_FQDN(0.50)[];
 	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
@@ -105,9 +106,9 @@ X-Spamd-Result: default: False [-4.01 / 50.00];
 	MX_GOOD(-0.01)[];
 	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
 	FROM_HAS_DN(0.00)[];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	ARC_NA(0.00)[];
 	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
 	MIME_TRACE(0.00)[0:+];
 	HAS_ORG_HEADER(0.00)[];
 	TO_MATCH_ENVRCPT_ALL(0.00)[];
@@ -121,70 +122,53 @@ X-Spamd-Result: default: False [-4.01 / 50.00];
 	RCVD_VIA_SMTP_AUTH(0.00)[];
 	TAGGED_RCPT(0.00)[renesas];
 	RCPT_COUNT_THREE(0.00)[4];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[bootlin.com:email,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo]
-X-Spam-Level: 
-X-Rspamd-Action: no action
-X-Rspamd-Queue-Id: 904165BCC3
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:dkim]
 X-Spam-Flag: NO
+X-Spam-Score: -4.01
+X-Rspamd-Queue-Id: 06C09337F3
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spam-Level: 
 
-Hi Beno=C3=AFt, hi Wolfram,
+On Tue, 23 Dec 2025 14:22:43 +0100, Beno=C3=AEt Monin wrote:
+> @@ -202,12 +209,21 @@ int main(int argc, char *argv[])
+>  		case PARSE_GET_DESC:
+>  			flags =3D 0;
+> =20
+> -			switch (*arg_ptr++) {
+> -			case 'r': flags |=3D I2C_M_RD; break;
+> -			case 'w': break;
+> -			default:
+> -				fprintf(stderr, "Error: Invalid direction\n");
+> -				goto err_out_with_arg;
+> +			for (int done =3D 0; !done; ) {
 
-On Tue, 23 Dec 2025 14:22:41 +0100, Beno=C3=AEt Monin wrote:
-> I2C messages can be modified with a set of flags covered by the protocol
-> mangling and the skip repeated start functionalities. This series add
-> support for such flags to i2cdetect and i2ctransfer.
->=20
-> The first patch shows the support of protocol mangling and repeated
-> start skipping in the output of 'i2cdetect -F'.
->=20
-> The second patch adds the parsing of optional flags to i2ctransfer
-> message description. Those command-line flags then set the i2c message
-> flags alongside the read/write flag.
->=20
-> I wrote these changes to test the insertion of I2C_M_STOP flag in
-> multi-message transactions with i2ctransfer, but the other flags can be
-> useful for various test scenarios.
+For compatibility with older C compilers, please declare "done" at the
+beginning of the while loop.
 
-Out of curiosity, did you have an actual scenario where you needed to
-do this? Protocol mangling is supposed to be rarely needed and avoided
-as much as possible.
+> +				switch (*arg_ptr++) {
+> +				/* optional flags */
+> +				case 'i': flags |=3D I2C_M_IGNORE_NAK; break;
+> +				case 'n': flags |=3D I2C_M_NO_RD_ACK; break;
+> +				case 'p': flags |=3D I2C_M_STOP; break;
+> +				case 's': flags |=3D I2C_M_NOSTART; break;
+> +				case 't': flags |=3D I2C_M_REV_DIR_ADDR; break;
+> +				/* mandatory flags */
 
-> The patches use defines that have been present in the kernel since
-> v3.6 released in 2012. If compatibility with older kernel is required,
-> we will need to wrap some of them with #ifndef ... #endif.
->=20
-> Maybe a minimum kernel version can be documented in the README?
+I would write "mandatory direction flag" (singular because only one can
+and must be present).
 
-Be careful if you do. Kernel versions are a very broad indicator,
-distribution kernel maintainers keep backporting features so an older
-kernel can actually support something when its version suggests it
-wouldn't. A kernel version should always be complemented with the actual
-feature or flag so that users can look it up if needed.
+> +				case 'r': flags |=3D I2C_M_RD; done =3D 1; break;
+> +				case 'w': done =3D 1; break;
+> +				default:
+> +					fprintf(stderr, "Error: Invalid flag\n");
+> +					goto err_out_with_arg;
+> +				}
+>  			}
+> =20
+>  			if (*arg_ptr =3D=3D '?') {
+>=20
 
->=20
-> Signed-off-by: Beno=C3=AEt Monin <benoit.monin@bootlin.com>
-> ---
-> Changes in v2:
-> - Document the flags in i2ctransfer.8 man page.
-> - Link to v1: https://lore.kernel.org/r/20251128-msg-flags-v1-0-6353f26fa=
-6bc@bootlin.com
->=20
-> ---
-> Beno=C3=AEt Monin (2):
->       i2cdetect: Display mangling and nostart support
->       i2ctransfer: Add optional message modifier flags
->=20
->  tools/i2cdetect.c   |  4 ++++
->  tools/i2ctransfer.8 | 26 +++++++++++++++++++++++++-
->  tools/i2ctransfer.c | 34 +++++++++++++++++++++++++---------
->  3 files changed, 54 insertions(+), 10 deletions(-)
-> ---
-> base-commit: ea51da725b743da00b894dfdc4ab189f5a51e90e
-> change-id: 20251127-msg-flags-3d2b2da9ae28
-
-I have read Wolfram's review of your patch set (thanks Wolfram!) and
-must say I agree with everything he wrote.
 
 --=20
 Jean Delvare
