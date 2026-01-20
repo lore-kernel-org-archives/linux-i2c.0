@@ -1,42 +1,42 @@
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CE333D7D6D
-	for <linux-i2c@vger.kernel.org>; Tue, 20 Jan 2026 09:28:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FFB63D7D8B
+	for <linux-i2c@vger.kernel.org>; Tue, 20 Jan 2026 09:28:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768901310; cv=none; b=AJaF6ggdc8/zD1UVLQftGv76CwSZJFiChZ3EeHMzE/2U46wjQSbX7UxKl+UkooGXD4Wr8VVjyKmCx3qn4uqrHAts2jTGJ/dGbwvZjFT7Z/kZQC9Ca1/xzdX5lOlv1Hfty19CvQcyrnr+IXPWXo+3Bh4CcYwVjNfWQLnJRTIBsu0=
+	t=1768901311; cv=none; b=L51yB/Tt50DymgSNw6DrZmcqPaaK13sSzT22sTkU2Ojc9pNxg80dvUWFOXs7DcD3jHrTuUNPnbw14gYQrRUFlBMqDbWUSZf495XD4gFxbK2q1CXF16i9RXxIllLmqRk986B8KY6GKvtKELsBDwPtL3vKlpsdV4p/8ryQlkgidlg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768901310; c=relaxed/simple;
-	bh=tF+/Q1zpGPKP7S1gEkff+3mK4nJPCY1uhXiIUOb24yM=;
+	s=arc-20240116; t=1768901311; c=relaxed/simple;
+	bh=PVjM2PNzXGXwoYiSLYJT3sWx9HO/aEYFc1+gwEBuGe4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=oQ4Ss+KHw8zIaefalLosZrG20YgBjpu465Sb7IWZlRkB5uQKAp/SlH86H8LTU7aN4uas+YWNMa9E7SDr9AdYqZPQw1aRp1yee0W4YHF8zKJMtOi1dxcftZ+yz4FOkq985CGLvXWn0ZjqMYYFDjuwwrWx/XHUOq+L2p6kaoWYRvU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=Bxk19jXH; arc=none smtp.client-ip=185.171.202.116
+	 In-Reply-To:To:Cc; b=kMFs5b6fhNXCmGhLYKlmjHOueuWvEk3tZvZ5/e9GIVr0SeUS+XwPrkUyMWSoMiXmVk22R7ICB24pOoCUGHD3CdmPlNBgowidbIedwxTzrZunx0W+l8zKIUQCN2c4Er4ZoP+4roXUAXqUkpnVkGZREvDvfmMFrRMdpSj39Oyo0YY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=q6fD+OKt; arc=none smtp.client-ip=185.246.84.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="Bxk19jXH"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="q6fD+OKt"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id B9A9AC214EB;
-	Tue, 20 Jan 2026 09:27:53 +0000 (UTC)
+	by smtpout-02.galae.net (Postfix) with ESMTPS id AC9841A295B;
+	Tue, 20 Jan 2026 09:28:27 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id D1C49606AB;
-	Tue, 20 Jan 2026 09:28:20 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 6696A10B6B33B;
-	Tue, 20 Jan 2026 10:28:18 +0100 (CET)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 81052606AB;
+	Tue, 20 Jan 2026 09:28:27 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 5425F10B6B33B;
+	Tue, 20 Jan 2026 10:28:25 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1768901299; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	t=1768901306; h=from:subject:date:message-id:to:cc:mime-version:content-type:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=kfKKpvlYqdhVG1MSbcOkt2TctRFDQWBk7FAh8gTzIEA=;
-	b=Bxk19jXHSvMkrFaV7gkDBGi2SEyv8Y1BFRjI9oIQubMADjPilvp8FrfWeFhJX8YPgmsLPH
-	5Tm+i/Nu9dfnau1YPgGY87OmKnLv2wk6f9Y4qwGd420JLwPnexBrPKRmMte+b6uhte4iHd
-	J0/tbcHnIuSDwdMEY7mLFzd66w46HA2qvRAapibeHMLOJVFpg0qgQwdQJuNJ2z03C2MFr7
-	qcTbk20m55ILHZoumNubl58BE+0t1XUuU76d1WmNPv2UUdcpJ+r8k1L7k/5krq7DGHY1CH
-	sFhp912BQ7qzh8PpIcYxS2vk57ElasZC/KQG2kibOPoYW3+BRV9DO5MmIutkcw==
+	bh=VRA9vpqgY5ftQq8JWOqSr8fWfVsmED17ACQSBqKGVlY=;
+	b=q6fD+OKtVoDjdR01g/HeINntblYokHPqJ/Akd9NQzo4Y3pgCT2VXO1KaaSjciKBzR/VKCu
+	vGar8Gchv4TlpDzeqTWUpSn/aDruYvbelFx6Qq5+40l7MaC0n0/yQNmQT7eux+sYONrNPE
+	u+sQFISobo/879jwOdKWMCcnmdUYRQ/jC5Tz1f+aAwQHpHcNXpG5DvnNQoRQxY/jwo1hmX
+	LNC0muGohnHAKJHbQMJS1z57n5ZHveE2Nozo5jjvy6zSFqUaybKihQ6hfCT5Tn335Tpugv
+	amz5v5cX0HE6Pq0wKIGArYY199UXsPtjuRf9wkOuLaNg5pEdjQzOD9PPHHNuUA==
 From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-Date: Tue, 20 Jan 2026 10:28:01 +0100
-Subject: [PATCH v5 1/6] i2c: designware: Optimize flag reading in
- i2c_dw_read()
+Date: Tue, 20 Jan 2026 10:28:05 +0100
+Subject: [PATCH v5 5/6] i2c: designware: Use runtime PM macro for
+ auto-cleanup
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -45,7 +45,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260120-i2c-dw-v5-1-0e34d6d9455c@bootlin.com>
+Message-Id: <20260120-i2c-dw-v5-5-0e34d6d9455c@bootlin.com>
 References: <20260120-i2c-dw-v5-0-0e34d6d9455c@bootlin.com>
 In-Reply-To: <20260120-i2c-dw-v5-0-0e34d6d9455c@bootlin.com>
 To: Andi Shyti <andi.shyti@kernel.org>, 
@@ -65,48 +65,67 @@ Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 X-Mailer: b4 0.14.3
 X-Last-TLS-Session-Version: TLSv1.3
 
-Optimize the i2c_dw_read() function by reading the message flags only
-once per message, rather than for every byte.
+Simplify runtime PM handling in i2c_dw_xfer() by using the
+pm_runtime_active_auto_try guard. This adds the proper handling for
+runtime PM resume errors and allows us to get rid of the done and
+done_nolock labels.
 
-The message flags are accessed both in the outer loop and the inner loop,
-so move the declaration of the local flags variable to the outer loop.
-
-The message index is only modified by the outer loop, so reading the
-flags in the inner loop was always getting the same value.
-
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
- drivers/i2c/busses/i2c-designware-master.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-designware-master.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 45bfca05bb30..4493568e2fa3 100644
+index a0ff0e2db065..ebebd8e0409c 100644
 --- a/drivers/i2c/busses/i2c-designware-master.c
 +++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -593,11 +593,12 @@ i2c_dw_read(struct dw_i2c_dev *dev)
- 	unsigned int rx_valid;
+@@ -912,11 +912,13 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
  
- 	for (; dev->msg_read_idx < dev->msgs_num; dev->msg_read_idx++) {
-+		u32 flags = msgs[dev->msg_read_idx].flags;
- 		unsigned int tmp;
- 		u32 len;
- 		u8 *buf;
+ 	dev_dbg(dev->dev, "msgs: %d\n", num);
  
--		if (!(msgs[dev->msg_read_idx].flags & I2C_M_RD))
-+		if (!(flags & I2C_M_RD))
- 			continue;
+-	pm_runtime_get_sync(dev->dev);
++	ACQUIRE(pm_runtime_active_auto_try, pm)(dev->dev);
++	if (ACQUIRE_ERR(pm_runtime_active_auto_try, &pm))
++		return -ENXIO;
  
- 		if (!(dev->status & STATUS_READ_IN_PROGRESS)) {
-@@ -611,8 +612,6 @@ i2c_dw_read(struct dw_i2c_dev *dev)
- 		regmap_read(dev->map, DW_IC_RXFLR, &rx_valid);
+ 	ret = i2c_dw_acquire_lock(dev);
+ 	if (ret)
+-		goto done_nolock;
++		return ret;
  
- 		for (; len > 0 && rx_valid > 0; len--, rx_valid--) {
--			u32 flags = msgs[dev->msg_read_idx].flags;
+ 	/*
+ 	 * If the I2C_M_STOP is present in some the messages,
+@@ -930,13 +932,15 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 		for (cnt = 1; ; cnt++) {
+ 			if (!i2c_dw_msg_is_valid(dev, msgs_part, cnt - 1)) {
+ 				ret = -EINVAL;
+-				goto done;
++				break;
+ 			}
+ 
+ 			if ((msgs_part[cnt - 1].flags & I2C_M_STOP) ||
+ 			    (msgs_part + cnt == msgs + num))
+ 				break;
+ 		}
++		if (ret < 0)
++			break;
+ 
+ 		/* transfer one part up to a STOP */
+ 		ret = __i2c_dw_xfer_one_part(dev, msgs_part, cnt);
+@@ -944,12 +948,8 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+ 			break;
+ 	}
+ 
+-done:
+ 	i2c_dw_release_lock(dev);
+ 
+-done_nolock:
+-	pm_runtime_put_autosuspend(dev->dev);
 -
- 			regmap_read(dev->map, DW_IC_DATA_CMD, &tmp);
- 			tmp &= DW_IC_DATA_CMD_DAT;
- 			/* Ensure length byte is a valid value */
+ 	if (ret < 0)
+ 		return ret;
+ 	return num;
 
 -- 
 2.52.0
