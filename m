@@ -1,71 +1,71 @@
-Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com [209.85.217.47])
+Received: from mail-qv1-f50.google.com (mail-qv1-f50.google.com [209.85.219.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 389A73D649A
-	for <linux-i2c@vger.kernel.org>; Tue, 20 Jan 2026 09:42:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 238D02EB876
+	for <linux-i2c@vger.kernel.org>; Tue, 20 Jan 2026 09:53:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768902142; cv=none; b=RklBkEVxXXo+hrDMBkNjW8PGSHbza6aC5IopNV94JMwaJhBz5wTIOBh+dtIlgJI/KEm0zonpb1AGqbPJrrnSi6AZEmgF/0XE8FeTlUAlXTGVgisaxKI9FqiryV2MwXlSA9RWS2EPVWVKXZWF6FvhXG3noBwmiYABDTXjTo9uRS0=
+	t=1768902839; cv=none; b=DuQ9nWQ6+N7+1O2hhsZYWTV1P9SclaeGJrjHTpW9TGrax6UMDShWQsxVJh3VWOL27rbA0MzlYolucWiJdEeM3vFZdNfCk20HKvgHuygK2Zn1JEO3Vd9Z4UenFygj1mHvZUlyNT3KOKRmb5U1MhDPZMkURqe2CaMTc433EcdVmdA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768902142; c=relaxed/simple;
-	bh=8oF7WvkLTpbnCP6yb2DMCynlFu+13M83ZUzjQuNxXOc=;
+	s=arc-20240116; t=1768902839; c=relaxed/simple;
+	bh=Y2e+JbZ5geFsLrIwdXvR6J7aoCBZ+QeMG1PGfBHkwC8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Gc/I8hZQ9oBT/+41ccmCk49hVetyP7Bp1Rb5mSRg0ijD6yTQWzy6y5+TdxjzAl2qkKmJKy1nLlJTOelHsO+bQrjuasR1D3VV4Xz3ksEcapJcFz+DGdsjlHSPrf9OG8hYW6OqETvcoRXBjWNiYt8kgEvAjRMe5CmdgJ5jB1NJlK4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.217.47
+	 To:Cc:Content-Type; b=Ts0c5Uj2x7TgQ5KQ8fk+W5SlSl2OUHNOyJFawqF2m+/9sD7UyKSRMrr4myggpBFXK0kg70/ftNUVjXbQVvw8X4SzC7/qzbPb0rjK9McLlWknWJTamz7psT1b4/6duo2Mt3etcf2Gx+DCXxKWgLmwNApJi5IGi1L81WHRP90SL3E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.219.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-5eea9f9c29bso3586333137.2
-        for <linux-i2c@vger.kernel.org>; Tue, 20 Jan 2026 01:42:20 -0800 (PST)
+Received: by mail-qv1-f50.google.com with SMTP id 6a1803df08f44-88a37cb5afdso86131776d6.0
+        for <linux-i2c@vger.kernel.org>; Tue, 20 Jan 2026 01:53:57 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1768902140; x=1769506940;
+        d=1e100.net; s=20230601; t=1768902837; x=1769507637;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=97LNh80TR77S8pwS2e4ZBU/MTmpHjj3Q16znIrdsedk=;
-        b=lVAS0I58cpBx4JyGj3jA41+/ORTLchBVGYoq2iY3Cs1OiDV1ehkxKHAuoz1WzKprZ/
-         NJOSnMxK9rF3SY5TWqHBA9a1jGoZYqitoXFAwEdrnIPbxWYaeTwCFIe30aKz1ywL+tH7
-         5tIGfpGisrgvF32n9XOioh1lWPA35SqIp1nj0FK210QwZjXvmUnD71+xUATJ1IX0XDoQ
-         iapw6ZxkCG60fXnqvy6zVVnsTxmaYsnMVXBDPjz2F0etMfTHecupibwsNy6DkYBWMOuD
-         42J16XtAMkILVaqkPadIbXC6TMOo6hRupkBO9H3UDKPEH2ItJjEXhaCiMSkDfzWzOhrL
-         yFqQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUDb2Z9VTbP2Z2MvGPyZhz6/q6iWy1Y2YaW7AVktMUIw73XCmR95HtJDB/sTsKd+OEJftY8xpbgX2U=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzPvI0dn0oFYhnjUEuDtiBtlPIPQihqGqZs1YuVJPTzi52xOTiT
-	08DrxsdgHLIBZIM2P4dIzVJNRkvV1lmyteY2GtkG4uqANfPWv5clphd3lX+HD/R5
-X-Gm-Gg: AZuq6aI9Qgu4cIrqov7ktxHIf4X3JAqUjWBD6mVGvf10xJs7vRGnTmMpeYsTfQy3KbA
-	vlSwvYEUtiY19s3iTDXceS4Ecu6GzU1pJGsdibethnonqJ0XixkDzN3xFalcPb+e3vnYESmy4ta
-	em5HWe3LDeCEh8IGfGKGxVJJzCHw+YCALdp1dTUMfqHglvro9Q2Cg304+WUON9UZXg1r2fvr3Wk
-	RMD2dEnvPf1QpVQzH2ho55uMQ/c45HFZfX+0otg3D4S0806rqh6RktV6JbB517ztJ+MUz7DlN2w
-	NN0fflowYxIsiOPQYFUk0OF2wEEivoL759CaKlq/Mqa0m7xrPyNQqPbJgYhWkVsWPGQBG9ssBQj
-	7ntYzJEc8p4O3SKer0FlwQy7GdcDadXawY39ATzyXQr6tx6VPnJU9F25jiyhXgtiCZ/xhBD24OQ
-	vh07VxuaJ2PV1KK4C4m/emNwYtbrx8dDjccFh07DYK271dtkNA
-X-Received: by 2002:a05:6102:3f0f:b0:5ee:9f7e:b3c7 with SMTP id ada2fe7eead31-5f1a6fde3e8mr4395166137.13.1768902139995;
-        Tue, 20 Jan 2026 01:42:19 -0800 (PST)
-Received: from mail-vs1-f53.google.com (mail-vs1-f53.google.com. [209.85.217.53])
-        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-5f1a68ff962sm4366836137.1.2026.01.20.01.42.19
+        bh=l18hDtqu7l45yo1vlmek39RB1c0Zv/I56SgfcgBEbBk=;
+        b=wKIzdwmuHjGixgCjOIVnfpnhtgJPsMkMovOHkxSchBjmCaHWvAW2zNexu81dsG3agj
+         m34kAI3AXpc3v1zSMV5KJGpZVjB3y6jvx+R5sMpddnJI4S0SliqjyCNVbONgB4pSoyA2
+         slw43y1+V1nqhJbA78yehahVQXw5ciWAlyg5W7IAgy1KLGom9vEOmSg+K8qwUxHXwbvr
+         m6sxucBDk8QkDmnRercYrXSm/P2czum5CosRC/HT7rnzm7b9g+8Cd141wnM1/dgGmEUu
+         DWdCGTh9Fx7LaZvtUf5Ux7LbILj39PLiaWos0QRtzQWHgK9HiUfnhyu6O+Dgd+2m+8oR
+         fL7A==
+X-Forwarded-Encrypted: i=1; AJvYcCVF0plAsEA/BQ79MhtEkk7TcGIHAYDom5nokUnnD72f9tXUmxoQZueUKOmj4Ui/rtD6g4tjjQ2lxlE=@vger.kernel.org
+X-Gm-Message-State: AOJu0YynMYVDU54XdNBJboJLLLQ/8fFOcsv/JIEjzN89LrgruAV6aZ+k
+	L91nreAIXX0dLklvgZGMaKCemhHxpB5JcLgk1firw1X+fn+7yUi1dBVsXpz/dsK3
+X-Gm-Gg: AZuq6aLG5Or9YqzBSqUULhxeY5bKNwJGTWDfTZ4aB/1DX0D4FMyNlJtUIwfU2OKCsOf
+	gVSM0a/J8Wp8vZUUmBgYlObaMwiKIYxjyvCWp0vrzgJUSbIyiQH9ffuaXTyLI74f36hd5TgT7oM
+	71BfTpmpclJPwrf6InUNW1gEqKKbJzqg/NoZHMycGmP3OuE/G4f8gufrJZarodcWhLU/QSmyqQI
+	HbhJ+06w6DvLDxroT1Coa0OWKlYPZTjR03dLE/pzbS5oiVK4npViNTkRtf8xDV0Bwd769SuXc9h
+	maMNF7qfpHl2FpirLqBCBUWZFaCDgymiDUfXeqEFIqX8EZQHHvr1y+25pSYPobYr1Q6/1li47IZ
+	mQbHvbYMDGCJ09UUCj/2TOCLOyCgtu5lFj/vQ80M3mspadqnm/K1k7oAWN4rsxZAWDUr5hJXOLR
+	N0aKl6SCen/wyS7RYgYtOuP5HEBm7mIYNmHDmWBZgkIYuNwARM1jVk
+X-Received: by 2002:ad4:5bc1:0:b0:888:804f:3098 with SMTP id 6a1803df08f44-8942d5f7c70mr197820326d6.3.1768902836786;
+        Tue, 20 Jan 2026 01:53:56 -0800 (PST)
+Received: from mail-qt1-f181.google.com (mail-qt1-f181.google.com. [209.85.160.181])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8942e5e5307sm100612406d6.9.2026.01.20.01.53.56
         for <linux-i2c@vger.kernel.org>
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 20 Jan 2026 01:42:19 -0800 (PST)
-Received: by mail-vs1-f53.google.com with SMTP id ada2fe7eead31-5eb8f9be588so4673639137.3
-        for <linux-i2c@vger.kernel.org>; Tue, 20 Jan 2026 01:42:19 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCUUWAma0y0FAucbJ5EXLdgyGUb2pggQrgZm/yWxoLbngh1Bg1ItpZH+rkm1NoriTAaOq1EmFkRDsg4=@vger.kernel.org
-X-Received: by 2002:a05:6102:1610:b0:530:f657:c40 with SMTP id
- ada2fe7eead31-5f1a712440dmr4338759137.22.1768901715766; Tue, 20 Jan 2026
- 01:35:15 -0800 (PST)
+        Tue, 20 Jan 2026 01:53:56 -0800 (PST)
+Received: by mail-qt1-f181.google.com with SMTP id d75a77b69052e-5029aa94f28so39387411cf.1
+        for <linux-i2c@vger.kernel.org>; Tue, 20 Jan 2026 01:53:56 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCVYLA88lutND1M/lydOcI/k7fQBdClIs5RF4Omts257YoCpsTNt62owBesduTsetNcZjfiBi1uXQok=@vger.kernel.org
+X-Received: by 2002:a05:6102:cd1:b0:5ef:233e:6b25 with SMTP id
+ ada2fe7eead31-5f192508654mr6479996137.13.1768902342092; Tue, 20 Jan 2026
+ 01:45:42 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260118-rz-sdio-mux-v5-0-3c37e8872683@solid-run.com> <20260118-rz-sdio-mux-v5-1-3c37e8872683@solid-run.com>
-In-Reply-To: <20260118-rz-sdio-mux-v5-1-3c37e8872683@solid-run.com>
+References: <20260118-rz-sdio-mux-v5-0-3c37e8872683@solid-run.com> <20260118-rz-sdio-mux-v5-2-3c37e8872683@solid-run.com>
+In-Reply-To: <20260118-rz-sdio-mux-v5-2-3c37e8872683@solid-run.com>
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 20 Jan 2026 10:35:04 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdVf7MjEAaTAy3kgaTcfs240UcnL_yFWfYH_eqVfp-6jvA@mail.gmail.com>
-X-Gm-Features: AZwV_QifN5dzgWIfmsNWfdw085d37JEd6a5y3M-TObPOlkszfcRmE9SintqdNzo
-Message-ID: <CAMuHMdVf7MjEAaTAy3kgaTcfs240UcnL_yFWfYH_eqVfp-6jvA@mail.gmail.com>
-Subject: Re: [PATCH v5 1/7] phy: can-transceiver: rename temporary helper
- function to avoid conflict
+Date: Tue, 20 Jan 2026 10:45:30 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdWnpci1v1oQb34_QRtU-P3S8TSormmNudajT0e34EO14w@mail.gmail.com>
+X-Gm-Features: AZwV_Qh1sWLkk903wC1dLdg8mLxjiEBVkYZdOb9H2O-Zh60PCWOHx0RPYuQB8LA
+Message-ID: <CAMuHMdWnpci1v1oQb34_QRtU-P3S8TSormmNudajT0e34EO14w@mail.gmail.com>
+Subject: Re: [PATCH v5 2/7] mux: Add helper functions for getting optional and
+ selected mux-state
 To: Josua Mayer <josua@solid-run.com>
 Cc: Marc Kleine-Budde <mkl@pengutronix.de>, Vincent Mailhol <mailhol@kernel.org>, 
 	Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>, 
@@ -88,15 +88,98 @@ Content-Type: text/plain; charset="UTF-8"
 Hi Josua,
 
 On Sun, 18 Jan 2026 at 11:29, Josua Mayer <josua@solid-run.com> wrote:
-> Rename the temporary devm_mux_state_get_optional function to avoid
-> conflict with upcoming implementation in multiplexer subsystem.
+> In-tree phy-can-transceiver driver has already implemented a local
+> version of devm_mux_state_get_optional.
 >
-> Acked-by: Vinod Koul <vkoul@kernel.org>
+> The omap-i2c driver gets and selects an optional mux in its probe
+> function without using any helper.
+>
+> Add new helper functions covering both aforementioned use-cases:
+>
+> - mux_control_get_optional:
+>   Get a mux-control if specified in dt, return NULL otherwise.
+> - devm_mux_state_get_optional:
+>   Get a mux-state if specified in dt, return NULL otherwise.
+> - devm_mux_state_get_selected:
+>   Get and select a mux-state specified in dt, return error otherwise.
+> - devm_mux_state_get_optional_selected:
+>   Get and select a mux-state if specified in dt, return error or NULL.
+>
+> Existing mux_get helper function is changed to take an extra argument
+> indicating whether the mux is optional.
+> In this case no error is printed, and NULL returned in case of ENOENT.
+>
+> Calling code is adapted to handle NULL return case, and to pass optional
+> argument as required.
+>
+> To support automatic deselect for _selected helper, a new structure is
+> created storing an exit pointer similar to clock core which is called on
+> release.
+>
+> To facilitate code sharing between optional/mandatory/selected helpers,
+> a new internal helper function is added to handle quiet (optional) and
+> verbose (mandatory) errors, as well as storing the correct callback for
+> devm release: __devm_mux_state_get
+>
+> Due to this structure devm_mux_state_get_*_selected can no longer print
+> a useful error message when select fails. Instead callers should print
+> errors where needed.
+>
+> Commit e153fdea9db04 ("phy: can-transceiver: Re-instate "mux-states"
+> property presence check") noted that "mux_get() always prints an error
+> message in case of an error, including when the property is not present,
+> confusing the user."
+>
+> The first error message covers the case that a mux name is not matched
+> in dt. The second error message is based on of_parse_phandle_with_args
+> return value.
+>
+> In optional case no error is printed and NULL is returned.
+> This ensures that the new helper functions will not confuse the user
+> either.
+>
+> With the addition of optional helper functions it became clear that
+> drivers should compile and link even if CONFIG_MULTIPLEXER was not enabled.
+> Add stubs for all symbols exported by mux core.
+>
 > Signed-off-by: Josua Mayer <josua@solid-run.com>
 
-My
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-on v3 is still valid.
+Thanks for your patch!
+
+> --- a/drivers/mux/core.c
+> +++ b/drivers/mux/core.c
+
+> @@ -677,7 +707,7 @@ EXPORT_SYMBOL_GPL(devm_mux_control_get);
+>   *
+>   * Return: A pointer to the mux-state, or an ERR_PTR with a negative errno.
+>   */
+> -static struct mux_state *mux_state_get(struct device *dev, const char *mux_name)
+> +static struct mux_state *mux_state_get(struct device *dev, const char *mux_name, bool optional)
+>  {
+>         struct mux_state *mstate;
+>
+> @@ -685,12 +715,10 @@ static struct mux_state *mux_state_get(struct device *dev, const char *mux_name)
+>         if (!mstate)
+>                 return ERR_PTR(-ENOMEM);
+>
+> -       mstate->mux = mux_get(dev, mux_name, &mstate->state);
+> -       if (IS_ERR(mstate->mux)) {
+> -               int err = PTR_ERR(mstate->mux);
+> -
+> +       mstate->mux = mux_get(dev, mux_name, &mstate->state, optional);
+> +       if (IS_ERR_OR_NULL(mstate->mux)) {
+>                 kfree(mstate);
+
+mstate is freed here...
+
+> -               return ERR_PTR(err);
+> +               return ERR_CAST(mstate->mux);
+
+... and dereferenced here, leading to a use after free.
+
+>         }
+>
+>         return mstate;
 
 Gr{oetje,eeting}s,
 
