@@ -1,96 +1,75 @@
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 362412EC54C
-	for <linux-i2c@vger.kernel.org>; Tue, 20 Jan 2026 15:17:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A10D11C01;
+	Tue, 20 Jan 2026 15:53:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768922275; cv=none; b=LIem/GhPZfrP7TJ+yvFtwMuNh80pTMZmjAukNyzrIwr8G5/lW3nJp7S+7mHMXEG58GJ3xu8A+GHzR5UQ41onO7CIlMLV98TiSpPy3McjPJNTPTeMFIEAaOcv2+aT3Yd34rATl8+5zGitD5DQFWDSxAFGmZVJwhVD578RRFQZYDc=
+	t=1768924430; cv=none; b=TcuZoxpRafURRHCXlCud8gzxMfX06LGlz7oBkt5yrTDcCJ94BsyLQEeB7IYaOMfJfCkVyz9lgU6sZTLAqH4AbHsrCcFrxo9zpdNcY2D+KCQ6/l/JoRlKvC4QeZCj0lQTJQw9zGxlRL1w2t6uMjlbV3s0b7C/XMr85qlATfPsDvA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768922275; c=relaxed/simple;
-	bh=HETKb5Xmh5FavPrNWu/XlU3RmMqsoKuRtz/o63hcSaM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=gQfeAl/v6z3tPjbOhDnH5Tvj7t0wle7isYOvjJ+cPmRMRxEbnm0nsvbftz+xHQ9oEhis+UNo2/yza/Igy2Ju/uceizy/wzgzwMPbHAsAlVCNdXDk4pzSq0flnYxuekuXeD8vK4+92/jW9YZ12Era4+g8HTtCOIGLDEBXvFk5G3Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=yxkVPbdE; arc=none smtp.client-ip=185.171.202.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1768924430; c=relaxed/simple;
+	bh=2lyQ956y/cjzj/E2Ndhkr/nFnx1nEeiq4PAxUbapuuU=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
+	 MIME-Version:Content-Type; b=ZVJIHOfGIoHuSYYBKcFyBvCQdYwBWhBItxuZBWeZecRtSMsT2wn2NVAyAM6EM9MicQ5PFAJCq+9k0wiX3UWVtNQtguWVnPwyoj3B+DBJtaRLdBPZdsxj1xnlR7I1WjorqAmkoUHzPyeyOTT6m9tOm7AwR3hEZF3XiXrtS7+iVk0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tda9PqQf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="yxkVPbdE"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id 85228C214F3;
-	Tue, 20 Jan 2026 15:17:24 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 99368606AB;
-	Tue, 20 Jan 2026 15:17:51 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id C93A210B6B39A;
-	Tue, 20 Jan 2026 16:17:46 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1768922270; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=iHaM2GpQ7/0PRVLnbbYcRK10f08U28CfKqezLTrDiTA=;
-	b=yxkVPbdE8eEoWwnD2ggu1LZgv8uzbvFLjAxaIjoYcY37lL19hbMYzmRcEQUwM7KT8LPZM2
-	NWq/pf2nMwM0wQR3obLRMm2rCSGOYCfLjuanVDVpdBBKdvbKRyVyRn6yD+zJrMzFglAZYi
-	MUhxI+xJEFI+wk9Lkj9JSox/E0wPlliabjpgFSPjsAPZ6ExGk1Yyl7L128LO5W9GxCC9yi
-	1/5UtclVgl9aH+k5DzHqTym3EIT1fK20oU73QJZjWtt+yKSpnl+bPlOGk8tVKiN4S6ANcJ
-	QdRF86kB9AJTEaWQPx/82stQAzgn+oIwKaDFx48gP51Hdu8Pny2sDVX6Yb+oFg==
-From: =?UTF-8?B?QmVub8OudA==?= Monin <benoit.monin@bootlin.com>
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Jan Dabros <jsd@semihalf.com>,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Clark Williams <clrkwllms@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
- Gregory CLEMENT <gregory.clement@bootlin.com>,
- =?UTF-8?B?VGjDqW8=?= Lebrun <theo.lebrun@bootlin.com>,
- Tawfik Bayouk <tawfik.bayouk@mobileye.com>,
- Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>,
- Dmitry Guzman <dmitry.guzman@mobileye.com>, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-rt-devel@lists.linux.dev
-Subject:
- Re: [PATCH v5 0/6] i2c: designware: Improve support of multi-messages
- transfer
-Date: Tue, 20 Jan 2026 16:17:46 +0100
-Message-ID: <27275605.1r3eYUQgxm@benoit.monin>
-In-Reply-To: <20260120100129.GH2275908@black.igk.intel.com>
-References:
- <20260120-i2c-dw-v5-0-0e34d6d9455c@bootlin.com>
- <20260120100129.GH2275908@black.igk.intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tda9PqQf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DF38C2BCB6;
+	Tue, 20 Jan 2026 15:53:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1768924430;
+	bh=2lyQ956y/cjzj/E2Ndhkr/nFnx1nEeiq4PAxUbapuuU=;
+	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+	b=tda9PqQf6mdU5ZN2ASc03cnbHIaazXkfER9jbCeHOVDKmaYXcnps15COS5KzH9sk9
+	 q8b4Aa0lwNs26Nrq6ObHD2+UYOeAUb+PmoWGV4v5Rf0qj/hRiRV4irKDn7SxXLsI+X
+	 A4C8phW1WNMqXH4vQKTyAJm2LWz5zZCMnVB4HfGGA+q2YSbruVNNX+9c3/nu6Xi8ZW
+	 7biB1Ph8RRFoUdg7mXSUjARCaQhrJ3IcDgm92qSiY8USKG5kSK4pQSSiSljFezBN7H
+	 tatat8ZmbUyGWWnHJ2hZCQ3YnD6MOGK2P+BYCAfmLdIcWadbT8fFTEyV7Dv9shvaDl
+	 ZSEpuqTQeljdA==
+From: Lee Jones <lee@kernel.org>
+To: robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, 
+ nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, 
+ claudiu.beznea@tuxon.dev, herbert@gondor.apana.org.au, davem@davemloft.net, 
+ vkoul@kernel.org, andi.shyti@kernel.org, lee@kernel.org, 
+ andrew+netdev@lunn.ch, edumazet@google.com, kuba@kernel.org, 
+ pabeni@redhat.com, linusw@kernel.org, Steen.Hegelund@microchip.com, 
+ daniel.machon@microchip.com, UNGLinuxDriver@microchip.com, 
+ olivia@selenic.com, radu_nicolae.pirea@upb.ro, richard.genoud@bootlin.com, 
+ gregkh@linuxfoundation.org, jirislaby@kernel.org, broonie@kernel.org, 
+ lars.povlsen@microchip.com, devicetree@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+ linux-crypto@vger.kernel.org, dmaengine@vger.kernel.org, 
+ linux-i2c@vger.kernel.org, netdev@vger.kernel.org, 
+ linux-gpio@vger.kernel.org, linux-spi@vger.kernel.org, 
+ linux-serial@vger.kernel.org, linux-usb@vger.kernel.org, 
+ Robert Marko <robert.marko@sartura.hr>
+Cc: luka.perkov@sartura.hr, Conor Dooley <conor.dooley@microchip.com>
+In-Reply-To: <20251229184004.571837-3-robert.marko@sartura.hr>
+References: <20251229184004.571837-3-robert.marko@sartura.hr>
+Subject: Re: (subset) [PATCH v4 02/15] dt-bindings: mfd:
+ atmel,sama5d2-flexcom: add microchip,lan9691-flexcom
+Message-Id: <176892442293.2297977.2838802915163703902.b4-ty@kernel.org>
+Date: Tue, 20 Jan 2026 15:53:42 +0000
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
 Content-Type: text/plain; charset="utf-8"
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Transfer-Encoding: 8bit
+X-Mailer: b4 0.15-dev-52d38
 
-On Tuesday, 20 January 2026 at 11:01:29 CET, Mika Westerberg wrote:
-> On Tue, Jan 20, 2026 at 10:28:00AM +0100, Beno=C3=AEt Monin wrote:
-[...]
-> > Changes in v5:
-> > - Rebased on v6.19-rc6 and fully retested on EyeQ6Lplus.
-> > - Drop dt-binding patch: already merged upstream in v6.19-rc2.
-> > - From Andi Shyti's review:
-> >   - __i2c_dw_xfer_one_part() now returns 0 on success instead
-> >     of the number of messages transferred.
-> >   - Drop inline keyword from i2c_dw_msg_is_valid() declaration.
-> > - Link to v4: https://lore.kernel.org/r/20251126-i2c-dw-v4-0-b0654598e7=
-c5@bootlin.com
->=20
-> Why you dropped my ack?
->=20
-Sorry about that! I somehow forgot about it and b4 did not catch it either.
-=20
-@Andi: Should I resend the series with Mika's acked-by or you handle it on
-your side?
+On Mon, 29 Dec 2025 19:37:43 +0100, Robert Marko wrote:
+> Add binding documentation for Microchip LAN969x.
+> 
+> 
 
-Thanks,
-=2D-=20
-Beno=C3=AEt Monin, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Applied, thanks!
 
+[02/15] dt-bindings: mfd: atmel,sama5d2-flexcom: add microchip,lan9691-flexcom
+        commit: 41d1f3cf1f52c75f72ce1a3e2f2ee82e7c6eb59a
 
+--
+Lee Jones [李琼斯]
 
