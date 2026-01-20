@@ -1,142 +1,232 @@
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3188F3E9F61
-	for <linux-i2c@vger.kernel.org>; Tue, 20 Jan 2026 09:28:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE8E33D5223;
+	Tue, 20 Jan 2026 09:33:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1768901313; cv=none; b=MMRunA6UFHOWzZxzXi6PtBgEft4nVXr4AWSXp6hFQxt1TWtczdXfPJx8bHOe5j3obqvSpF+f+Zpk7zgyvPUN9xUHDuIvW9kHXc79ScynSjtnTAeHJ+GlLx6G69PcUDqf0ER6AuPNUByItZqXw/kI5VDGd1VVp0fmKstXbph0cZg=
+	t=1768901587; cv=none; b=rIjWSqQZcjrzwFdx3xly+zP+f8wC9sveOsptFitrNiO8S5hAA4u5wNffCoyZyOCpnP/wHcdLMs1C56sZhF05oEwyNiM8GF8wVdzt4N0j0oYvGlpWJypztBJBPXyGhp5EH2EynG4SLwi0YPutmF8NfP9qReEQae2/YzqkML/q6Bg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1768901313; c=relaxed/simple;
-	bh=QMqioJoP80Iu3/5uGtxuCFsLXp9UlfrL0fqbcQmIhZs=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=FcZvwfFV6Z89d+pjdzd2+TU/c6TDALexUBX9VUYoByYR+AIitDgdNNe/U+sVoU7ltF08+SfeRdTUM55IprfGr5sEFS47I56vcsfpoISwBEnkibOa3oNZRnX0/TWJMQd7De2bEmoRFd6OHCnW3cpf7FkBdWVZsg1Tnhtxh9tIHeQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=od+Wp3ma; arc=none smtp.client-ip=185.171.202.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1768901587; c=relaxed/simple;
+	bh=qsJ+9HSE/FVfk7sc+DoEC7vqHjHmibKBwHR30pNYUes=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=R4koG2JeaVAvlxOMC3HDovBriVxASZk3KnObh26y8TG/7knpHqdz16ChYMr//VLduiHQx0IxotGCZk4k0rDIFJJgwXQO/m5pVV/9xw42+6NZTXSvPJaDCMW2jgb0CsmvwACiWFm36sKg0ryxeENywRtWiVO4xv/dlj7iH6gq+YY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Ls33aKIc; arc=none smtp.client-ip=198.175.65.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="od+Wp3ma"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id 04C75C214EE;
-	Tue, 20 Jan 2026 09:27:57 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 1F625606AB;
-	Tue, 20 Jan 2026 09:28:24 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B35D510B68378;
-	Tue, 20 Jan 2026 10:28:21 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1768901303; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=jc6Cz28LDEeuob4AY0w3tlBij8P56e1G48BsjZWXPos=;
-	b=od+Wp3maJgYXGKdoZr3NVTPJPcB3dHL6xN9MvjtZyVmJ2BbcYiYiqQbNhB3jQ1BTRwx+E1
-	2ig10LrHGWjus9Wo9KceMyqUwFoQs2fxsYlhwzHQlYr1mwXj82JYAsUPOUclTURZUOJ+i3
-	5NPk7G8KSbVuW72bPKSrrQv3kZc73Ril0p2/FxTgQOZUp0QrYU4MTlIIPukAnjpEopLneE
-	dMnAJI5EjdtXBmtvgjMQITokW3JWuaLP3x8feKBtJrYof0ZOOp96xw0zYkoFSU0sqqiWAd
-	GSu+s2ju6MP0TaeyJR97aHQPy709PSTendbERGbVQlDYb9l12tnfee1SsiKVdA==
-From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-Date: Tue, 20 Jan 2026 10:28:03 +0100
-Subject: [PATCH v5 3/6] i2c: designware: Add dedicated algorithm for AMD
- NAVI
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Ls33aKIc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1768901585; x=1800437585;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=qsJ+9HSE/FVfk7sc+DoEC7vqHjHmibKBwHR30pNYUes=;
+  b=Ls33aKIc66q1biKSVbeq7yBaHt0rRDloUyuFjPmaasJIculS4CnBF7zK
+   z/6cR+6FRYcT+fnorVAcUZh7VeRzqMhVAS4FK7wF3cm3JlLwC/dlQfE+D
+   9LkWRZ3DjNU7/rMMScho9GwDy4TQjDgo+32E2Q8fBd6GYrya0w/WLhr4r
+   Iv3PgHd03QfNWAeoP5vsDuD72dVClLafZxHulyNL9GnpPNSzWWTbix97S
+   3jGqtUnPtwtr+u+27J3oWEDDpDLE31Pc0jBbsjOcoABs2FOT+za7BZwK3
+   pS+xA1GrkRjQWMVaLDWJeMzo0UjeVRTSXkOg432pr79QJemGk3XCKMA3f
+   Q==;
+X-CSE-ConnectionGUID: 0xoB101/QSmo8ZFw+fH7NA==
+X-CSE-MsgGUID: YqocQeVEQqOCrf2Kfgv39w==
+X-IronPort-AV: E=McAfee;i="6800,10657,11676"; a="81214703"
+X-IronPort-AV: E=Sophos;i="6.21,240,1763452800"; 
+   d="scan'208";a="81214703"
+Received: from orviesa010.jf.intel.com ([10.64.159.150])
+  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jan 2026 01:33:04 -0800
+X-CSE-ConnectionGUID: nSFDWnAmTJ2CkibDoXdUYg==
+X-CSE-MsgGUID: XL23t75OQrW6P15MHNJRhw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,240,1763452800"; 
+   d="scan'208";a="205325840"
+Received: from dalessan-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.244.179])
+  by orviesa010-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Jan 2026 01:33:03 -0800
+Date: Tue, 20 Jan 2026 11:33:00 +0200
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: correctmost <cmlists@sent.com>
+Cc: dmaengine@vger.kernel.org, regressions@lists.linux.dev,
+	vkoul@kernel.org, linux-i2c@vger.kernel.org,
+	mika.westerberg@linux.intel.com
+Subject: Re: [REGRESSION][BISECTED] Lenovo IdeaPad touchpad does not work
+ when idma64 is present in initramfs
+Message-ID: <aW9LzBIOIePu59zV@smile.fi.intel.com>
+References: <51388859-bf5f-484c-9937-8f6883393b4d@app.fastmail.com>
+ <aWUGmfcjWpFJs3-X@smile.fi.intel.com>
+ <69f5dea3-17b0-4d3a-9de7-eb54f8f0f5cd@app.fastmail.com>
+ <aWoM3JibLSBdGHeH@smile.fi.intel.com>
+ <aWoUc_GJuZ8SuYCM@smile.fi.intel.com>
+ <e5ee42bd-0d17-44e7-a306-61d19f1d24b2@app.fastmail.com>
+ <aW4J6bmHn2dLuOxo@smile.fi.intel.com>
+ <aW4MUisgI6d2Efbr@smile.fi.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260120-i2c-dw-v5-3-0e34d6d9455c@bootlin.com>
-References: <20260120-i2c-dw-v5-0-0e34d6d9455c@bootlin.com>
-In-Reply-To: <20260120-i2c-dw-v5-0-0e34d6d9455c@bootlin.com>
-To: Andi Shyti <andi.shyti@kernel.org>, 
- Mika Westerberg <mika.westerberg@linux.intel.com>, 
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
- Jan Dabros <jsd@semihalf.com>, 
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
- Clark Williams <clrkwllms@kernel.org>, Steven Rostedt <rostedt@goodmis.org>
-Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
- Gregory CLEMENT <gregory.clement@bootlin.com>, 
- =?utf-8?q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>, 
- Tawfik Bayouk <tawfik.bayouk@mobileye.com>, 
- Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>, 
- Dmitry Guzman <dmitry.guzman@mobileye.com>, linux-i2c@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-rt-devel@lists.linux.dev, 
- =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-X-Mailer: b4 0.14.3
-X-Last-TLS-Session-Version: TLSv1.3
+In-Reply-To: <aW4MUisgI6d2Efbr@smile.fi.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Apart from runtime PM, there is nothing in common between i2c_dw_xfer()
-and amd_i2c_dw_xfer_quirk(), so give AMD NAVI controller its own algorithm
-instead of calling the quirk from i2c_dw_xfer().
+On Mon, Jan 19, 2026 at 12:49:59PM +0200, Andy Shevchenko wrote:
+> On Mon, Jan 19, 2026 at 12:39:41PM +0200, Andy Shevchenko wrote:
+> > On Fri, Jan 16, 2026 at 07:25:54PM -0500, correctmost wrote:
+> > > On Fri, Jan 16, 2026, at 5:35 AM, Andy Shevchenko wrote:
+> > > > On Fri, Jan 16, 2026 at 12:03:12PM +0200, Andy Shevchenko wrote:
+> > > >> On Thu, Jan 15, 2026 at 05:50:36PM -0500, correctmost wrote:
+> > > >> > On Mon, Jan 12, 2026, at 9:35 AM, Andy Shevchenko wrote:
+> > > >> > > On Tue, Dec 16, 2025 at 12:57:10PM -0500, correctmost wrote:
+> > > >> > >
+> > > >> > >> The following commit
+> > > >> > >
+> > > >> > > No, it's false positive. The reality is that something else is going on
+> > > >> > > there on this and other similar laptops.
+> > > >> > >
+> > > >> > >> causes my Lenovo IdeaPad touchpad not to work when
+> > > >> > >> kernel/drivers/dma/idma64.ko.zst is present in the initramfs image:
+> > > >> > >> 
+> > > >> > >> #regzbot introduced: 9140ce47872bfd89fca888c2f992faa51d20c2bc
+> > > >> > >> 
+> > > >> > >> "idma64: Don't try to serve interrupts when device is powered off"
+> > > >> > >
+> > > >> > > So, the touchpad is an I≤C device, which is connected to an Intel SoC.
+> > > >> > > The I≤C host controller is Synopsys DesignWare. On Intel SoCs the above
+> > > >> > > mentioned IP is generated with private DMA engine, that's called Intel
+> > > >> > > iDMA 64-bit. Basically it's two devices under a single PCI hood.
+> > > >> > > The problem here is that when PCI device is in D3, both devices are
+> > > >> > > powered off, but something sends an interrupt and it's not recognized
+> > > >> > > being the one, send by a device (touchpad).
+> > > >> > >
+> > > >> > > There is one of the following potential issues (or their combinations):
+> > > >> > >
+> > > >> > > - the I≤C host controller hardware got off too early
+> > > >> > > - the line is shared with something else that generates interrupt storm
+> > > >> > > - the BIOS does weird (wrong) things at a boot time, like not properly
+> > > >> > >   shutting down and disabling interrupt sources; also may have wrong
+> > > >> > >   pin control settings
+> > > >> > > - the touchpad is operating on higher frequency like 400kHz (because
+> > > >> > >   BIOS told to use that one instead of 100kHz) than the HW is designed
+> > > >> > >   for and hence unreliable with all possible side effects
+> > > >> > > - the touchpad firmware behaves wrongly on some sequences (see also
+> > > >> > >   note about the bus speed above), try to upgrade touchpad FW
+> > > >> > >
+> > > >> > > With my experience with the case of the above mentioned commit that it
+> > > >> > > may be BIOS thingy. Also consider the bus speed, there are quirks in
+> > > >> > > the kernel for that.
+> > > >> > 
+> > > >> > Thank you for the detailed notes.  I will see if I can update my BIOS and
+> > > >> > experiment with different quirks values, though I won't be able to do that
+> > > >> > until late next week.
+> > > >> 
+> > > >> You're welcome!
+> > > >> 
+> > > >> > >> Here are the related logs:
+> > > >> > >> 
+> > > >> > >> ---
+> > > >> > >> 
+> > > >> > >> irq 27: nobody cared (try booting with the "irqpoll" option)
+> > > >> > >
+> > > >> > > Almost all below is not so interesting.
+> > > >> > >
+> > > >> > > ...
+> > > >> > >
+> > > >> > >> handlers:
+> > > >> > >> [<00000000104a7621>] idma64_irq [idma64]
+> > > >> > >> [<00000000bd8d08e9>] i2c_dw_isr
+> > > >> > >> Disabling IRQ #27
+> > > >> > >
+> > > >> > > Yes, this line at least shared between those two and might be more.
+> > > >> > >
+> > > >> > > ...
+> > > >> > >
+> > > >> > >> i2c_designware i2c_designware.0: controller timed out
+> > > >> > >> hid (null): reading report descriptor failed
+> > > >> > >> i2c_hid_acpi i2c-ELAN06FA:00: can't add hid device: -110
+> > > >> > >> i2c_hid_acpi i2c-ELAN06FA:00: probe with driver i2c_hid_acpi failed with error -110
+> > > >> > >
+> > > >> > > Yes, sounds familiar with the speed settings. Try to down it to 100kHz in case
+> > > >> > > it's confirmed to be 400kHz.
+> > > >> > >
+> > > >> > >> ---
+> > > >> > >
+> > > >> > > Any pointers to that thread, please?
+> > > >> > 
+> > > >> > The following threads have users who were able to restore touchpad
+> > > >> > functionality by undoing the idma64 change in initramfs:
+> > > >> 
+> > > >> Yes, = "they have hidden the existing problem". No value in that, sorry.
+> > > >> What is the exact link that refer to the thread you previously mentioned?
+> > > >> 
+> > > >> ...
+> > > >> 
+> > > >> > Lastly, I saw another bug report that mentions the "probe with driver
+> > > >> > i2c_hid_acpi failed with error -110" error.  It seems to state that the error
+> > > >> > only occurs when a power cable is connected during boot:
+> > > >> > 
+> > > >> > - https://bugzilla.altlinux.org/57094
+> > > >> >   - Huawei Matebook D15 BOD-WXX9-PCB-B4
+> > > >> >   - i2c-GXTP7863:00
+> > > >> > 
+> > > >> > >> so I don't think this is a hardware issue with my individual laptop.
+> > > >> > >
+> > > >> > > I don't know how this conclusion is came here. You mean HW as laptop model?
+> > > >> > > But are the involved components the same (I≤C host controller + touchpad)?
+> > > >> > 
+> > > >> > Sorry for the confusion.  I meant the individual machine in my possession and
+> > > >> > not the laptop model as a whole.
+> > > >> 
+> > > >> Yeah, something here is common and I can't say for sure this all about Synaptic
+> > > >> touchpads...
+> > > >
+> > > > So, what I think I need to understand this more is the following
+> > > > (all information should be gathered under root user) for working
+> > > > and non-working cases:
+> > > >
+> > > > - `cat /proc/interrupts`
+> > > > - `dmesg`
+> > > >    # with `initcall_debug ignore_loglevel` added to the kernel command line
+> > > > - `cat /sys/kernel/debug/pinctrl/.../pins`
+> > > >    # ... should be something like INTC1234:00
+> > > >
+> > > > And just once these:
+> > > > - `acpidump -o tables.dat` # the tables.dat file
+> > > > - `grep -H 15 /sys/bus/acpi/devices/*/status`
+> > > > - `lspci -nk -vv`
+> > > 
+> > > The tables.dat file and the dmesg logs seemed too big to post inline, so I
+> > > ended up zipping all of the files (attached).
+> > 
+> > Thanks for the files. The same suspicion as in the original report
+> > https://lore.kernel.org/all/e3f2debf-c762-48d9-876e-bcb60841f909@gmail.com/
+> > 
+> > Have you read it in full?
+> > 
+> > My understanding that the pin 3 on GPIO might be wrongly configured
+> > by BIOS.  The difference with the original case is that your GPIO device
+> > is locked against modifications and until you unlock it (usually
+> > it's done in BIOS in some debug menu) it may not be fixable without OEM
+> > fixing the issue themselves. In any case you can try the workaround
+> > (see https://lore.kernel.org/all/ZftTcSA5dn13eAmr@smile.fi.intel.com/).
+> > But I am skeptical about it.
+> 
+> Just in case, this https://hansdegoede.dreamwidth.org/25589.html might be
+> also useful.
 
-Add runtime PM handling to amd_i2c_dw_xfer_quirk() and a dedicated
-i2c_algorithm for AMD NAVI controllers. The adapter algorithm is set
-during probe based on the device model.
+FWIW, seems familiar:
+https://bugzilla.kernel.org/show_bug.cgi?id=219799
 
-This way we avoid checking for the device model at the start of every
-transfer.
-
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Beno√Æt Monin <benoit.monin@bootlin.com>
----
- drivers/i2c/busses/i2c-designware-master.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 4493568e2fa3..f247cf323207 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -361,6 +361,10 @@ static int amd_i2c_dw_xfer_quirk(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	u8 *tx_buf;
- 	unsigned int val;
- 
-+	ACQUIRE(pm_runtime_active_auto_try, pm)(dev->dev);
-+	if (ACQUIRE_ERR(pm_runtime_active_auto_try, &pm))
-+		return -ENXIO;
-+
- 	/*
- 	 * In order to enable the interrupt for UCSI i.e. AMD NAVI GPU card,
- 	 * it is mandatory to set the right value in specific register
-@@ -820,14 +824,6 @@ i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[], int num)
- 
- 	pm_runtime_get_sync(dev->dev);
- 
--	switch (dev->flags & MODEL_MASK) {
--	case MODEL_AMD_NAVI_GPU:
--		ret = amd_i2c_dw_xfer_quirk(adap, msgs, num);
--		goto done_nolock;
--	default:
--		break;
--	}
--
- 	reinit_completion(&dev->cmd_complete);
- 	dev->msgs = msgs;
- 	dev->msgs_num = num;
-@@ -917,6 +913,11 @@ static const struct i2c_algorithm i2c_dw_algo = {
- 	.functionality = i2c_dw_func,
- };
- 
-+static const struct i2c_algorithm amd_i2c_dw_algo = {
-+	.xfer = amd_i2c_dw_xfer_quirk,
-+	.functionality = i2c_dw_func,
-+};
-+
- static const struct i2c_adapter_quirks i2c_dw_quirks = {
- 	.flags = I2C_AQ_NO_ZERO_LEN,
- };
-@@ -1052,7 +1053,10 @@ int i2c_dw_probe_master(struct dw_i2c_dev *dev)
- 		scnprintf(adap->name, sizeof(adap->name),
- 			  "Synopsys DesignWare I2C adapter");
- 	adap->retries = 3;
--	adap->algo = &i2c_dw_algo;
-+	if ((dev->flags & MODEL_MASK) == MODEL_AMD_NAVI_GPU)
-+		adap->algo = &amd_i2c_dw_algo;
-+	else
-+		adap->algo = &i2c_dw_algo;
- 	adap->quirks = &i2c_dw_quirks;
- 	adap->dev.parent = dev->dev;
- 	i2c_set_adapdata(adap, dev);
+Have you tried similar steps described there? (Id est turning PM off and
+see if it affects the case. In your case it might be needed to comment out
+the dev_pm_ops assignment in the LPSS driver drivers/mfd/intel-lpss*.c and
+recompile the kernel / modules).
 
 -- 
-2.52.0
+With Best Regards,
+Andy Shevchenko
+
 
