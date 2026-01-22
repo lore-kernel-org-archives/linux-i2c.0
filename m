@@ -1,126 +1,127 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FF0B3A7F49;
-	Thu, 22 Jan 2026 09:03:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE88738A29F;
+	Thu, 22 Jan 2026 09:50:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769072638; cv=none; b=f99IuUtD1+k3XOgwWG/WWza+ywJsQQMMKrPIRvSmIu4XxcCPxkdF58QCDawVJeXwO0nO6Yi7oVoeucgYuGArNdhHeYtuSctFhfX65CxeDfc1xdRa89sLIXnrHa/2L1tx4Dyhtyyf89TxmkV+ChEcR5c0Lpe7U9X+XKmCpVHJOc8=
+	t=1769075407; cv=none; b=SH2qatrZIf1NaE+OL2xIXarpDDHB3Snyi19irk9a+OBnnV8M2conDa9lYo9j8BFPjN61YWjtgI73v0dqDDkFI4AQbuAklj5+Iji0XvkPZvXMNCXz2SAFonpRUTJ8+qt7GYOJgo3tlYEVoLI7VPY/zU1I07tkbpLcv+rEgZyUzj8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769072638; c=relaxed/simple;
-	bh=4ohGY88eWkGMmFgVvnuEy0jhbn8Jw1vVAxE6b2ba4dM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gjz0mgSjv2X57H1YojCqWjbP2ClCV8KBE8V4OauRSXmPRLsgRkAQm2Pso4JINGlHhOB8pT3Pek69NKuUjXhqSwml6tol2Mv+wC+U5jY6vV3JEf8IdVI4KkQ0dS42WTkaZMzRm7jJUPlE2OxkPEdbG6ZuaPCvEC3/3hxvKqPt3bw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=MKYBue16; arc=none smtp.client-ip=192.198.163.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1769075407; c=relaxed/simple;
+	bh=WJsw+qNn+9nKYp1vyOtL6ACBhu803JQ5DWmchiOK9Y8=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=HieRXqXIIORJpPXAe8RBuJPSkyy9yYbz9e0E+e736aMPxKamdUbMlcP5KaAVJKOoaxgRN5ACjEkY5GksFVWfYUcMhORdDpN0HiED4und11nQJDjrg2DtwUQKPq5BgSu/vtJE7EIey8OZ4BaGmqmzi4N0aiInH0Hwu7Xo5d0epkM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Abodf3eM; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="MKYBue16"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769072638; x=1800608638;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=4ohGY88eWkGMmFgVvnuEy0jhbn8Jw1vVAxE6b2ba4dM=;
-  b=MKYBue161OjutgkDBTHAvsstSIEUzU0Zb4nDQUfYzQgF0JlvIgwnQTf5
-   +K7cRw+eyEH1ptAzl9oBLmQRjdWRFwSkm47A1hl5JJwIMxyXc5o1TlL5W
-   Lnla1RFARddJRwVIixveSrF3OZSQugKabQYH6JLrlNP9KztxbqEnZ4hl/
-   Mi8a/3bCY4p5o8xmJmgN63dBrJwtsCEFrO8vRR+6DkRoUQJjJyMZ0SxIP
-   ht4kNQEuyEUjoKLmm1+TMKwogURJF3qSOzN2t7KNpqxUk6v2iEn9sMCLz
-   sk0e2uMtdTzDXInSgPJUV9z3+LuRZOrcLYVHkVbFauQInWZF3Cu0XeNMS
-   w==;
-X-CSE-ConnectionGUID: Cd9IrJAdRtSXo58gv3DVfg==
-X-CSE-MsgGUID: u1qXUvXcTUGAPosvc1o3Ow==
-X-IronPort-AV: E=McAfee;i="6800,10657,11678"; a="57873879"
-X-IronPort-AV: E=Sophos;i="6.21,245,1763452800"; 
-   d="scan'208";a="57873879"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2026 01:03:56 -0800
-X-CSE-ConnectionGUID: 4XmMHhiLTv+BOKI/lEXCsg==
-X-CSE-MsgGUID: SAcLZZBOTEKZrMnpfQ/UzQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,245,1763452800"; 
-   d="scan'208";a="244284372"
-Received: from smoticic-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.225])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2026 01:03:54 -0800
-Date: Thu, 22 Jan 2026 11:03:50 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: abdurrahman@nexthop.ai
-Cc: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] i2c: xiic: switch to generic device property
- accessors
-Message-ID: <aXHn9g_aYmfJ-2ak@smile.fi.intel.com>
-References: <20260122-i2c-xiic-v2-0-134f5d743e8b@nexthop.ai>
- <20260122-i2c-xiic-v2-1-134f5d743e8b@nexthop.ai>
- <aXHnDXHfjEnKpRmg@smile.fi.intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Abodf3eM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD9FBC116C6;
+	Thu, 22 Jan 2026 09:50:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769075407;
+	bh=WJsw+qNn+9nKYp1vyOtL6ACBhu803JQ5DWmchiOK9Y8=;
+	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
+	b=Abodf3eMEKZ5ORDs9NfKM1QuVa7y6L+2hbZd8koVxJ/Y7ZEw72sLCDJazY9q1/PKD
+	 7bBgvNhZdj5S4ohzM0ETod7n4OgukJuUj2ld39OigtD7+2Rx4yO6/1slp2LZPybIuz
+	 V0q9haPLycb4CuhvC52PVdXc4tgzN2alIEObhdZl3OuCUPDh9LuI2uWfYanD67jYEJ
+	 mf6SdqlKWDA+BGmML3OFJ3dycKhYUN4xa/CM3RZytwgG8jLlo5JP2Dw/c7xKrLX7kB
+	 3vLXou8JpqOK+uxZ9kVgJSq0DO8p/vGCQAjUG4kiiWZ7GscrdNGhN6xCR8Iml2g7+d
+	 Wx1MNa+zBjnew==
+Message-ID: <732a8967-4d87-4c5d-905f-cdc0629e9946@kernel.org>
+Date: Thu, 22 Jan 2026 10:50:03 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aXHnDXHfjEnKpRmg@smile.fi.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/4] dt-bindings: i2c: add support for AE350 I2C
+ controller
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Ben Zong-You Xie <ben717@andestech.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Paul Walmsley <pjw@kernel.org>,
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>,
+ Alexandre Ghiti <alex@ghiti.fr>, linux-i2c@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-riscv@lists.infradead.org
+References: <20260122-atciic100-v2-0-7559136d07cf@andestech.com>
+ <20260122-atciic100-v2-1-7559136d07cf@andestech.com>
+ <20260122-almond-pug-of-management-33d438@quoll>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <20260122-almond-pug-of-management-33d438@quoll>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Thu, Jan 22, 2026 at 11:00:01AM +0200, Andy Shevchenko wrote:
-> On Thu, Jan 22, 2026 at 08:32:31AM +0000, Abdurrahman Hussain via B4 Relay wrote:
-
-...
-
-> > -	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
-> > +	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
-> >  	if (!i2c)
-> >  		return -ENOMEM;
+On 22/01/2026 09:08, Krzysztof Kozlowski wrote:
+>> +properties:
+>> +  compatible:
+>> +    oneOf:
+>> +      - items:
+>> +          - enum:
+>> +              - andestech,qilai-i2c
+>> +          - const: andestech,ae350-i2c
+>> +      - const: andestech,ae350-i2c
 > 
-> This type of changes should go in a separate patch after this one.
+> Same question as before. Nothing in commit msg explains me above and you
+> STILL DID NOT send your soc upstream which would help me to understand
 
-...
+To clarify: no top-level bindings for `git grep andestech,ae350`
 
-> >  	mutex_init(&i2c->lock);
+> the relation between SoCs.
 > 
-> Please, consider also switching this (in yet another separate patch) to
-> devm_mutex_init().
-
-...
-
-> > -	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
-> > -					xiic_process, IRQF_ONESHOT,
-> > -					pdev->name, i2c);
-> > +	ret = devm_request_threaded_irq(dev, irq, NULL, xiic_process,
-> > +					IRQF_ONESHOT, pdev->name, i2c);
-> >  
-> >  	if (ret < 0) {
+> Considering you did not even build check previous version, I do not give
+> you any benefits of the doubt that this is correct code.
 > 
-> > -		dev_err_probe(&pdev->dev, ret, "Cannot claim IRQ\n");
-> > +		dev_err_probe(dev, ret, "Cannot claim IRQ\n");
-> >  		goto err_pm_disable;
+> Respond to previous review.
 > 
-> Before doing it, just kill the message, it is a dup since devm_request_*irq*()
-> already prints the similar one on the error cases.
-> 
-> >  	}
-
-...
-
-> So, this patch should be transformed to three
-
-Ah, to four!
-
-(in the following order)
-
-- convert to devm_mutex_init()
-
-> - removing a dup message
-> - converting to device propries
-> - utilising the temporary 'dev' variable elsewhere
-
--- 
-With Best Regards,
-Andy Shevchenko
+> That is a NAK and I am dropping it from the patchwork.
 
 
+
+Best regards,
+Krzysztof
