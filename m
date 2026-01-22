@@ -1,95 +1,119 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 845DF330B2D;
-	Thu, 22 Jan 2026 08:32:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 061FA3EDAB3;
+	Thu, 22 Jan 2026 09:00:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769070756; cv=none; b=ALg+A9IoeUUmeFAfx8jVzTEVOafJmaJexr0lMHj68WbyK9f2IaVB6UyqnW4oS5nZzT3kDR7D9Y+Lgl1juveF76AuP7CQMHdHIy21FAF0Kk8w9ZspoFDO0Hv2+Qw6tcumlIdgfuXOYKza0ROmGz4Omw5TEHCM9eHK2/bA5JEaD/s=
+	t=1769072403; cv=none; b=MtcwmbhHhYCkPTbjiU9Pv2WhT1//oGh2J5vrGbEU9K5udNJ1gVoY3iGhn7ZH2DyyLD9VhLZaSsZNRhwAsJ/tsmEp1oN61TTXjxsK7Q74N83mXDDY0WLjsdLXNFP5+ledAyQFd9SZJOyxziRqSZyn3TOn2RjAgmkrRhJShy+qFeo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769070756; c=relaxed/simple;
-	bh=OhygDeif0qaAagip01OdretnzJcVMNjCREuPz9F/O50=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=HxL02AzN51QZKHg9nlucto8YCVfouR5PBfeSwlpqzoUXkHhru90+QZcWk4tFz7iibdIv4jCXslgmdMT6xF7NZH4HNSH/dm4AL1CcVkbL0xoxSG2uhePKuGZqoCmkgtTb6f8iKnXW+BDbs0dQRChiy3gtyd2MlpH8/6c8yV3svRo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VyzmRYku; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769072403; c=relaxed/simple;
+	bh=LLmeG593shN9Q59lrWBA8eb94dOcapiaOJUE9SxHrzU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gYUhuV+s2kmBqBFZtJdJe8uF0eBpjtpHGk8DtJ3yKCENMaL1jgJFDddm7aES5GAqVkqCdwELf4h3vFrIRMwaYHvnWYCAOaxRTayNxYAXLnhYYP84bkzHkW4OX+J2gKYwBq92DRTa7o9HnDPA5uYPJvG7vROU+1wW3Eoa7iylHLE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=afhkUhsY; arc=none smtp.client-ip=198.175.65.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VyzmRYku"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 20F94C19425;
-	Thu, 22 Jan 2026 08:32:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769070756;
-	bh=OhygDeif0qaAagip01OdretnzJcVMNjCREuPz9F/O50=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=VyzmRYkuOWEfxuT/Y5fH6dL5MFLwGYTXYTk+C8BSMZNyhN1NeX7tqLqG21ChSPSb8
-	 2V1pOUnL3nz9kUWL4GO2IPnZXoBTWmH1bNYQN6ic4/s+GBpCnibveRASviIsYtXauX
-	 QmaRP5fWfbIvQyq96c72UVTysgI06ShjT+6aePAafKakmZyBlZ/xH+xbf3x6OLbdbH
-	 j+a4aCB8KrWCfmoaE5mevugVyeCy9JWS5JHpH7N6IcBZmYRvMEYawpFZohGk8u5Zyy
-	 Ex/GYIJ3CnCN6aO1D33Gzy0fICnxJDE6LU/PjfUk/DeHPLvngf6eZn8IbcfsB3DxBt
-	 /BIpf6YpoqOjA==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1313AD625E0;
-	Thu, 22 Jan 2026 08:32:36 +0000 (UTC)
-From: Abdurrahman Hussain via B4 Relay <devnull+abdurrahman.nexthop.ai@kernel.org>
-Date: Thu, 22 Jan 2026 08:32:32 +0000
-Subject: [PATCH v2 2/2] i2c: xiic: make the clock optional
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="afhkUhsY"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1769072402; x=1800608402;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=LLmeG593shN9Q59lrWBA8eb94dOcapiaOJUE9SxHrzU=;
+  b=afhkUhsYnrYcAPrmJHAVB+R+oMUs9C62Ycwu4Z70DytDhNSTsaD9GG4v
+   fo3VX864ejgHQT7vLUIcHlpGjyHdF/PB2RgPdMe10cWLqEq+e03wTI37R
+   zoDKx8zF8zclJwgE4YsGS1brxZriiygSk/m7KgOV4b5e45Nx17t5osNDS
+   MWswWXdxHm0/b8CrYm05jQlGaa1NvBXFFBhXB8ydieJGtga7aOux245j/
+   KdHwBByf21gT5OUml+8piCchiBb3p3gkj8/v90C+tasl7dflTIh6ljQqY
+   cDyfZRrV5miTYdhuzbfdNzT7ykG8rpS7DU1qcKDnl6L33YUH5rIQvlxza
+   w==;
+X-CSE-ConnectionGUID: b+pzYs1kRDq1HelIfQAnbg==
+X-CSE-MsgGUID: JY9EkDQHSkySoM2c7RJfCQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11678"; a="70217605"
+X-IronPort-AV: E=Sophos;i="6.21,245,1763452800"; 
+   d="scan'208";a="70217605"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2026 01:00:02 -0800
+X-CSE-ConnectionGUID: 6Ekd8WSKRaeslsOMQjP6Fw==
+X-CSE-MsgGUID: 8n2W5K7cRAWIz2oBvoJ5TA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,245,1763452800"; 
+   d="scan'208";a="206741545"
+Received: from smoticic-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.225])
+  by orviesa008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2026 01:00:00 -0800
+Date: Thu, 22 Jan 2026 10:59:57 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: abdurrahman@nexthop.ai
+Cc: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>,
+	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] i2c: xiic: switch to generic device property
+ accessors
+Message-ID: <aXHnDXHfjEnKpRmg@smile.fi.intel.com>
+References: <20260122-i2c-xiic-v2-0-134f5d743e8b@nexthop.ai>
+ <20260122-i2c-xiic-v2-1-134f5d743e8b@nexthop.ai>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260122-i2c-xiic-v2-2-134f5d743e8b@nexthop.ai>
-References: <20260122-i2c-xiic-v2-0-134f5d743e8b@nexthop.ai>
-In-Reply-To: <20260122-i2c-xiic-v2-0-134f5d743e8b@nexthop.ai>
-To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>
-Cc: Andy Shevchenko <andriy.shevchenko@intel.com>, 
- linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Abdurrahman Hussain <abdurrahman@nexthop.ai>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1769070755; l=1147;
- i=abdurrahman@nexthop.ai; s=20260119; h=from:subject:message-id;
- bh=30Y4elib2oXS0UgCTGXSQddfRG4H8frOGSLNdFvW0G8=;
- b=CuQl/jaFtohkiawpscgRaSfDh2zFoUAaQuD8v9qu3C6qO1n1SZkhluEHqHAaMg63WZ1k0TuCj
- hh0YTdPwwufAH7lEYU6hJCjs0ZmN4/0UP91yD28VLrFcVOAge1JCGsd
-X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
- pk=S+ysnf+NwMcBdHBlyKIUEAtaFGSIhQwcJcgcXhq0osg=
-X-Endpoint-Received: by B4 Relay for abdurrahman@nexthop.ai/20260119 with
- auth_id=608
-X-Original-From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-Reply-To: abdurrahman@nexthop.ai
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260122-i2c-xiic-v2-1-134f5d743e8b@nexthop.ai>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+On Thu, Jan 22, 2026 at 08:32:31AM +0000, Abdurrahman Hussain via B4 Relay wrote:
 
-The xiic driver is designed to operate without explicit clock configuration
-when clocks are not specified in the firmware. This functionality is
-already implemented in xiic_setclk(), which performs an early return when
-either i2c_clk or input_clk are zero:
+> Use generic device property accessors.
 
-This condition is satisfied when clocks are missing, as clk_get_rate(NULL)
-returns zero, allowing the driver to rely on hardware-configured timing.
+...
 
-Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
----
- drivers/i2c/busses/i2c-xiic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> -	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
+> +	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
+>  	if (!i2c)
+>  		return -ENOMEM;
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 2ca736cbf688..3d86b2077d6b 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -1459,7 +1459,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	mutex_init(&i2c->lock);
- 	spin_lock_init(&i2c->atomic_lock);
- 
--	i2c->clk = devm_clk_get_enabled(dev, NULL);
-+	i2c->clk = devm_clk_get_optional_enabled(dev, NULL);
- 	if (IS_ERR(i2c->clk))
- 		return dev_err_probe(dev, PTR_ERR(i2c->clk),
- 				     "failed to enable input clock.\n");
+This type of changes should go in a separate patch after this one.
+
+...
+
+>  	mutex_init(&i2c->lock);
+
+Please, consider also switching this (in yet another separate patch) to
+devm_mutex_init().
+
+...
+
+> -	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+> -					xiic_process, IRQF_ONESHOT,
+> -					pdev->name, i2c);
+> +	ret = devm_request_threaded_irq(dev, irq, NULL, xiic_process,
+> +					IRQF_ONESHOT, pdev->name, i2c);
+>  
+>  	if (ret < 0) {
+
+> -		dev_err_probe(&pdev->dev, ret, "Cannot claim IRQ\n");
+> +		dev_err_probe(dev, ret, "Cannot claim IRQ\n");
+>  		goto err_pm_disable;
+
+Before doing it, just kill the message, it is a dup since devm_request_*irq*()
+already prints the similar one on the error cases.
+
+>  	}
+
+...
+
+So, this patch should be transformed to three
+- removing a dup message
+- converting to device propries
+- utilising the temporary 'dev' variable elsewhere
 
 -- 
-2.52.0
+With Best Regards,
+Andy Shevchenko
 
 
