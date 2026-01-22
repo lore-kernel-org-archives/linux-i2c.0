@@ -1,154 +1,85 @@
-Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0440936EA94
-	for <linux-i2c@vger.kernel.org>; Thu, 22 Jan 2026 17:18:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.24
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48FE5353EF2;
+	Thu, 22 Jan 2026 17:32:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769102342; cv=none; b=iXhrZ+BF29NlKfRIYHPzs9Zrm9lS24dtIMBHU6Ffu8qaj9doQbBBI4fn31M6zIB9m1NzTvF5eFWR6+lDaZu5rL2dQZEXLyoE6a2g77vMvRrIqILRf6jYscShTqYJzzrc8VfdBii5VhjkZPgYnjA+KopSInOOMhQhkjCf0OCf21c=
+	t=1769103160; cv=none; b=e7eYbPBNk57Ws+CslMaD82w82aKLtL4KD5gU3UcipCaUA+0uT0XFF9XpnEluzwbpROFrPOwGA4WHYwMJseqQxlvLPMntaXZicDB4n/MlSXflHC+mhcgej8Kmubznvg773QW3OokcllwsxnPbVJWk4G6oPoCnmLY3nHbMnjUnDNU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769102342; c=relaxed/simple;
-	bh=xOfocJN3sVUqsg8qPf6KsQkDTr7XDa61ob1EtjlCDHE=;
-	h=From:To:Cc:In-Reply-To:Subject:Date:Message-ID:MIME-Version:
-	 Content-Type:References; b=imwrys+ud+0TwAGQAhT/jR7Ht4sZTiSc0qZi1Dc+AWyRGj9FeyQ4hj7L489HmDJKIVsiIvlCbmLf6t4acKwmsrzt7DQ5EugS7Dq6o0KzOPRgRUeycmQKNszg5g0xA08dcGYywaQWZ66cUWOrnovWPwMhArCzK4/qFYVrcLzoEgw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=ryVfEHiU; arc=none smtp.client-ip=203.254.224.24
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1769103160; c=relaxed/simple;
+	bh=eN8J743evN9qhX8qEizF2GNsho1bSX2LeH2+rcsBo9s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=i7vo66FWQvIU9nbZRcA9ld7t7KnhQcoN0cLB0Uj5dhBATGdKlEgzDsPstzdZ+RLQ9UuVd2krbJ81ijD+0CB0mWuHh/z4lGO3XULWDnYakofMo7sYwPwlSYKu70mCsLUwWz10yvWI5WSkqMgMFryKGs5EBdOKQvOGDx6gLZb4L78=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hGK/UDdA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="ryVfEHiU"
-Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
-	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20260122171843epoutp01be510e0c8125bd70274774ee591add66~NHTDABr6R2781427814epoutp01B
-	for <linux-i2c@vger.kernel.org>; Thu, 22 Jan 2026 17:18:43 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20260122171843epoutp01be510e0c8125bd70274774ee591add66~NHTDABr6R2781427814epoutp01B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1769102323;
-	bh=Dfn6vnVnX/KCerEi1dQoZze0gUnqj9K4r4skiCF+1HU=;
-	h=From:To:Cc:In-Reply-To:Subject:Date:References:From;
-	b=ryVfEHiU6GYG3TT7YIICp09GzE4uN19pZ82TY1rOkgrFM0YChnQKtk6xuIahLw2Dw
-	 gJJU45/rmi0RNa9LapJPvAJBE5LNjqKRU00sGcC3GkEp3YCxMCS8rNsnZnP4S+fyug
-	 J1aGArqHicu5J/JCTDa4lU/qNO5q0RPR2rS51V+s=
-Received: from epsnrtp01.localdomain (unknown [182.195.42.153]) by
-	epcas5p2.samsung.com (KnoxPortal) with ESMTPS id
-	20260122171843epcas5p2b3340d2681a466691e75f7f855960b8d~NHTCgrdNT2323723237epcas5p2H;
-	Thu, 22 Jan 2026 17:18:43 +0000 (GMT)
-Received: from epcas5p2.samsung.com (unknown [182.195.38.90]) by
-	epsnrtp01.localdomain (Postfix) with ESMTP id 4dxnpV2MhJz6B9m5; Thu, 22 Jan
-	2026 17:18:42 +0000 (GMT)
-Received: from epsmtip2.samsung.com (unknown [182.195.34.31]) by
-	epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
-	20260122171841epcas5p44be34d8fa6f05a6c2f6804156dd092cc~NHTA8qE-w0552605526epcas5p4p;
-	Thu, 22 Jan 2026 17:18:41 +0000 (GMT)
-Received: from INBRO000519 (unknown [107.122.1.150]) by epsmtip2.samsung.com
-	(KnoxPortal) with ESMTPA id
-	20260122171837epsmtip2fa2844309b889494e61cc6ceb0ebd998~NHS8qaLTF1550615506epsmtip2L;
-	Thu, 22 Jan 2026 17:18:36 +0000 (GMT)
-From: "Faraz Ata" <faraz.ata@samsung.com>
-To: <andi.shyti@kernel.org>, <robh@kernel.org>, <krzk+dt@kernel.org>,
-	<conor+dt@kernel.org>, <alim.akhtar@samsung.com>
-Cc: <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-samsung-soc@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, <rosa.pila@samsung.com>,
-	<pritam.sutar@samsung.com>, <dev.tailor@samsung.com>
-In-Reply-To: 
-Subject: RE: [PATCH] dt-bindings: i2c: exynos5: add exynosautov920-hsi2c
- compatible
-Date: Thu, 22 Jan 2026 22:48:27 +0530
-Message-ID: <04e501dc8bc3$27a48810$76ed9830$@samsung.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hGK/UDdA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05E91C116C6;
+	Thu, 22 Jan 2026 17:32:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769103159;
+	bh=eN8J743evN9qhX8qEizF2GNsho1bSX2LeH2+rcsBo9s=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=hGK/UDdAU+65/D8apvZ+leLeW8WjeNATEwq2XzTblFUKi99YY5E9GyeNhL14cSnl0
+	 IWZ9MC3A++txkzdzsR09wts55/dwC1JVJqwzNCQD6pqLGfgER6VXX9slLe1f2grjnZ
+	 SzpOJsbR4KzFkg9Ty02tr0ZK+JzIa1h/qbdnaFQdHFTy/OjSlIcjfnzDuAQ4wapz3w
+	 /SLidYVy00rinShDEm6l0rn8HTowdvngzVWoxeWdEFr4AvGWwFMMLgU19XVV+bbzEP
+	 L0rvm18jT+AGv9g9oYkWkDeBGv5GFE2acdLKu898wqhDxhyWcwri4YzJzct0XoCj5U
+	 z9PRb4X14lFFg==
+Date: Thu, 22 Jan 2026 18:32:35 +0100
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Kartik Rajput <kkartik@nvidia.com>
+Cc: ldewangan@nvidia.com, digetx@gmail.com, thierry.reding@gmail.com, 
+	jonathanh@nvidia.com, akhilrajeev@nvidia.com, smangipudi@nvidia.com, 
+	linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v9 2/4] i2c: tegra: Move variant to tegra_i2c_hw_feature
+Message-ID: <aXJe_2JC7KgfBgLa@zenone.zhora.eu>
+References: <20260121153012.92243-1-kkartik@nvidia.com>
+ <20260121153012.92243-3-kkartik@nvidia.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Mailer: Microsoft Outlook 16.0
-Thread-Index: AQMyl6jZ32DHOO134xOI05SqoiCOxQG1dU1GsosmcDCAGYRjoA==
-Content-Language: en-us
-X-CMS-MailID: 20260122171841epcas5p44be34d8fa6f05a6c2f6804156dd092cc
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-CMS-TYPE: 105P
-cpgsPolicy: CPGSC10-542,Y
-X-CFilter-Loop: Reflected
-X-CMS-RootMailID: 20250904071941epcas5p1ffa00f3f1cb69f7a10d08c1e96174cf1
-References: <CGME20250904071941epcas5p1ffa00f3f1cb69f7a10d08c1e96174cf1@epcas5p1.samsung.com>
-	<20250904072844.358759-1-faraz.ata@samsung.com> 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260121153012.92243-3-kkartik@nvidia.com>
 
-HI Andi/Rob
+Hi Kartik,
 
-Kindly help to review and merge the patch.
+> @@ -280,7 +282,6 @@ struct tegra_i2c_hw_feature {
+>   * @base_phys: physical base address of the I2C controller
+>   * @cont_id: I2C controller ID, used for packet header
+>   * @irq: IRQ number of transfer complete interrupt
+> - * @variant: This represents the I2C controller variant.
+>   * @msg_complete: transfer completion notifier
+>   * @msg_buf_remaining: size of unsent data in the message buffer
+>   * @msg_len: length of message in current transfer
+> @@ -332,13 +333,12 @@ struct tegra_i2c_dev {
+>  	bool atomic_mode;
+>  	bool dma_mode;
+>  	bool msg_read;
+> -	enum tegra_i2c_variant variant;
+>  };
+>  
+>  #define IS_DVC(dev) (IS_ENABLED(CONFIG_ARCH_TEGRA_2x_SOC) && \
+> -		     (dev)->variant == TEGRA_I2C_VARIANT_DVC)
+> +		     (dev)->hw->variant == TEGRA_I2C_VARIANT_DVC)
+>  #define IS_VI(dev)  (IS_ENABLED(CONFIG_ARCH_TEGRA_210_SOC) && \
+> -		     (dev)->variant == TEGRA_I2C_VARIANT_VI)
+> +		     (dev)->hw->variant == TEGRA_I2C_VARIANT_VI)
+>  
+>  static void dvc_writel(struct tegra_i2c_dev *i2c_dev, u32 val,
+>  		       unsigned int reg)
+> @@ -1647,8 +1647,42 @@ static const struct tegra_i2c_hw_feature tegra20_i2c_hw = {
+>  	.has_interface_timing_reg = false,
+>  	.enable_hs_mode_support = false,
+>  	.has_mutex = false,
+> +	.variant = TEGRA_I2C_VARIANT_DEFAULT,
+>  };
 
-> -----Original Message-----
-> From: Faraz Ata <faraz.ata=40samsung.com>
-> Sent: Tuesday, January 6, 2026 11:17 PM
-> To: 'andi.shyti=40kernel.org' <andi.shyti=40kernel.org>; 'robh=40kernel.o=
-rg'
-> <robh=40kernel.org>; 'krzk+dt=40kernel.org' <krzk+dt=40kernel.org>;
-> 'conor+dt=40kernel.org' <conor+dt=40kernel.org>; 'alim.akhtar=40samsung.c=
-om'
-> <alim.akhtar=40samsung.com>
-> Cc: 'linux-i2c=40vger.kernel.org' <linux-i2c=40vger.kernel.org>;
-> 'devicetree=40vger.kernel.org' <devicetree=40vger.kernel.org>; 'linux-arm=
--
-> kernel=40lists.infradead.org' <linux-arm-kernel=40lists.infradead.org>; '=
-linux-
-> samsung-soc=40vger.kernel.org' <linux-samsung-soc=40vger.kernel.org>;
-> 'linux-kernel=40vger.kernel.org' <linux-kernel=40vger.kernel.org>;
-> 'rosa.pila=40samsung.com' <rosa.pila=40samsung.com>;
-> 'pritam.sutar=40samsung.com' <pritam.sutar=40samsung.com>;
-> 'dev.tailor=40samsung.com' <dev.tailor=40samsung.com>
-> Subject: RE: =5BPATCH=5D dt-bindings: i2c: exynos5: add exynosautov920-hs=
-i2c
-> compatible
->=20
-> HI Andi/Rob
->=20
-> I want to follow up on the below dt-binding patch submitted.
-> Please let me know if the patch is under review or anything else needs to=
- be
-> done.
->=20
-> Reference  - https://lore.kernel.org/all/83338b57-2e8e-4b77-9e93-
-> fadfb0f6a5fc=40kernel.org/
->=20
-> > -----Original Message-----
-> > From: Faraz Ata <faraz.ata=40samsung.com>
-> > Sent: Thursday, September 4, 2025 12:59 PM
-> > To: andi.shyti=40kernel.org; robh=40kernel.org; krzk+dt=40kernel.org;
-> > conor+dt=40kernel.org; alim.akhtar=40samsung.com
-> > Cc: linux-i2c=40vger.kernel.org; devicetree=40vger.kernel.org; linux-ar=
-m-
-> > kernel=40lists.infradead.org; linux-samsung-soc=40vger.kernel.org; linu=
-x-
-> > kernel=40vger.kernel.org; rosa.pila=40samsung.com;
-> > pritam.sutar=40samsung.com; dev.tailor=40samsung.com;
-> > faraz.ata=40samsung.com
-> > Subject: =5BPATCH=5D dt-bindings: i2c: exynos5: add exynosautov920-hsi2=
-c
-> > compatible
-> >
-> > Add =22samsung,exynosautov920-hsi2c=22 dedicated compatible for HSI2C
-> > found in ExynosAutov920 SoC.
-> >
-> > Signed-off-by: Faraz Ata <faraz.ata=40samsung.com>
-> > ---
-> >  Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml =7C 1 +
-> >  1 file changed, 1 insertion(+)
-> >
-> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
-> > b/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
-> > index 7ae8c7b1d006..207b95e392e5 100644
-> > --- a/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
-> > +++ b/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
-> > =40=40 -38,6 +38,7 =40=40 properties:
-> >                - google,gs101-hsi2c
-> >                - samsung,exynos2200-hsi2c
-> >                - samsung,exynos850-hsi2c
-> > +              - samsung,exynosautov920-hsi2c
-> >            - const: samsung,exynosautov9-hsi2c
-> >        - const: samsung,exynos5-hsi2c    =23 Exynos5250 and Exynos5420
-> >          deprecated: true
-> > --
-> > 2.34.1
+in v8 I made a question at this point, could you please answer?
 
-
+Thanks,
+Andi
