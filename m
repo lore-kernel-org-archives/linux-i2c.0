@@ -1,91 +1,42 @@
-Received: from mail-wm1-f65.google.com (mail-wm1-f65.google.com [209.85.128.65])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B73EC287276
-	for <linux-i2c@vger.kernel.org>; Thu, 22 Jan 2026 06:17:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.65
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DA9E24E4D4;
+	Thu, 22 Jan 2026 07:32:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769062651; cv=none; b=cd5BpRE9AhbG1l/0BbdtZeGByvnjpXEEwA5xAvvIQJ7Hf6wN7leseXa6oy0qI/MGRQPtHvx6kTpbZu3aDL0I+QP207ty1/qRdV8UO/bKTS0VXmhwOCVox3FvFQhvkFsBtE+RtsxqAMulIOvvG44rqRWT6k9VOwgL0IwOhzojtO8=
+	t=1769067152; cv=none; b=k/FayBqSCX609Q0VM0MEj3RtLFEmSWNSDhWN0D0x6X+naZzlN2xgYKlsIP1STcTJRct1ek6U9yqIYv1PLvUeAfrlP+y9T3dBu0cRvSMb6XYW/35ccQXNFRo7/Gt2LAgvm8UoaxdnF6370ECc41RJhjPZyzViOhR7TqlYCB81rr0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769062651; c=relaxed/simple;
-	bh=HwQQ/e13d2XeVp13BFe2FpMedQM5DZhp8KcD4K71ego=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=UUEkWGMqQb8VPANARpPdNBQAGm872pm21Cdwz0vVAwt3CpckhBAKW0Hfo70qVDkTpHEGqs6pUoW9h8Kfbiy2C7Bd4h/4Ij2nQWipvwqxq4XkTRN3gesoBwzAfcHItc4E9MmpAXm/56BEt7is8t24Fyysq7lvKd14BrBZFzN4s4M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=cCEo8lZK; arc=none smtp.client-ip=209.85.128.65
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1769067152; c=relaxed/simple;
+	bh=4c13PYVKBuj93wLp9HTpARpZW9JIi8Nd3PvLJryjPVw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=c7JPyD2pVbZi+60uhgl8/Mu+rbj9aFBACLpSidUVBfghgKg8qRFpif1clnR7z9F4rQsaMI9S01amAK0VvOEFAx6H7qXXMkZ4OM7BlsVf2lNTf6n3kLGGWzLM3Ls0QsdQzRyYDvPU4fGQk8/SPiZOIJzzl/KFAF6H+O4qMEHGT0U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f3WH1jLn; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="cCEo8lZK"
-Received: by mail-wm1-f65.google.com with SMTP id 5b1f17b1804b1-4801eb2c0a5so5706485e9.3
-        for <linux-i2c@vger.kernel.org>; Wed, 21 Jan 2026 22:17:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1769062644; x=1769667444; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
-         :to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=XFWxi+AFltNFDVpcrpAcnDmVTxmCRVFES1AkiIw22SY=;
-        b=cCEo8lZKAs1wr4lfPYM6lISHc7OyocCVXHgQM1twwkXLb2NuRB1HERaaxW76fYKOgR
-         Kv9d/riU2OCb5wtfxfGlcANv57LjTxWKE/VrxnT/EMzxLh+ZAtT99J00GtjHh/KR8S4H
-         7MHMP7DnxML999Bi32tWLzr9OZISoLZDdJd9644F++z6At/8GHg3JQEG5GpMQKOJrnyh
-         c7/vuVQ9CMDAM2UjiUYpfX5tnOaHhPIn/ynUJ6NfW1bsDsxriBKfbdNSnKcZL100q8a3
-         81xHngoT8wYXu4xVfTTg0hCauJDEExfpnclEk4qxnchsokJMNLy6sERO2HSZVj1o8xbb
-         bTHQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769062644; x=1769667444;
-        h=in-reply-to:content-disposition:mime-version:message-id:subject:cc
-         :to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=XFWxi+AFltNFDVpcrpAcnDmVTxmCRVFES1AkiIw22SY=;
-        b=iZRUNOJrgcFlFVdNPN+3UMlPKcmfq/12kEZb++WKnIsfQhwBN+QaoSFHkMEg6mME8s
-         +TV1WauFolYSUyAFp3pugpFnM7uGY0roJvANrJeZ1mdYs8WUwC9BC7OtDAvu+CeaScS6
-         RJjepW3i5eSQgNwUUiuspMHJO972FSdViHotvgJkY1UfRXc+hf+DpGmKMcmG5Qo2g64Q
-         sOUq0YryndO+jH8mvb9cA7q5UdGP0cETGBC9IvwvKEJAwDD9zQ75xhuJd0ZPW+81Yx/M
-         M77xwxdce2OSs1+Noiqg28mjZoJcF5WtZ2i11zlVmCXZu/cerXak//a7AisxtS1UYF33
-         5exg==
-X-Forwarded-Encrypted: i=1; AJvYcCUv/Xz+acOxmv3ySIom8cGz7d6nNduh2iIWWdKzS2qhKAmtZrBgeAl5co6Brvu0MYF/wd38NMD1W6w=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy5F40oyDtvzFCG1v65RZeccEQtj973uP2+tnpOnfZX72dsTB9E
-	3HuuB2GuXuQ8n7Z19czGd6vGjmCiWGv+hN421pL5ICAGmFa9SYoT44rKHDwU681zKY8=
-X-Gm-Gg: AZuq6aIr9VDpqyl5Loy0RbC8gdt+Z2vX9ZLBdQ4qWGYTTVItTLpOq/6Cm2uTyYYW+43
-	uE6vTxQ8/EpfMWEwYxsZ/3I7LLi8h4X9tDxW73HgOgG2ZmoomYGUQOOPncfzyx2W/aqnvw6kTOX
-	phjri81VmbApo03/ykNLwPAdALP8qJIByl5K5dMHTlypYsHNEwK3c743D7c0aqDQL907tGhQKXy
-	olmR2WyhrlTgURGT3txPlKLTo3UNmcuCGHXYlLdtgiJud5qgeAmIxRyUzAvixEta5G/ZOVup/4s
-	8cs18v4h2Uo7OpT7fJjUd+8winv09h2Ckv52jWu7SJzfcv8NNDRRAJ4ymrUasKx6adHJ9zWujm6
-	xQLOzGandOROW6oGbWKJ2VtwKZX5CNaDb3sigDF3q7Lq6tR4PKXWjXJFozsKHnjtQp49Mk2DgdM
-	X7OEJmTcKgUz2alL6P
-X-Received: by 2002:a05:600c:83c8:b0:477:7b16:5fb1 with SMTP id 5b1f17b1804b1-48028360726mr235733975e9.7.1769062643924;
-        Wed, 21 Jan 2026 22:17:23 -0800 (PST)
-Received: from localhost ([196.207.164.177])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4804704b89bsm40122255e9.9.2026.01.21.22.17.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 21 Jan 2026 22:17:23 -0800 (PST)
-Date: Thu, 22 Jan 2026 09:17:20 +0300
-From: Dan Carpenter <dan.carpenter@linaro.org>
-To: oe-kbuild@lists.linux.dev, Josua Mayer <josua@solid-run.com>,
-	Marc Kleine-Budde <mkl@pengutronix.de>,
-	Vincent Mailhol <mailhol@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-	Neil Armstrong <neil.armstrong@linaro.org>,
-	Peter Rosin <peda@axentia.se>, Aaro Koskinen <aaro.koskinen@iki.fi>,
-	Andreas Kemnade <andreas@kemnade.info>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
-	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-	Vignesh R <vigneshr@ti.com>, Andi Shyti <andi.shyti@kernel.org>,
-	Ulf Hansson <ulf.hansson@linaro.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Magnus Damm <magnus.damm@gmail.com>,
-	Wolfram Sang <wsa-dev@sang-engineering.com>
-Cc: lkp@intel.com, oe-kbuild-all@lists.linux.dev,
-	Yazan Shhady <yazan.shhady@solid-run.com>,
-	Jon Nettleton <jon@solid-run.com>,
-	Mikhail Anikin <mikhail.anikin@solid-run.com>,
-	linux-can@vger.kernel.org, linux-phy@lists.infradead.org,
-	linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-mmc@vger.kernel.org,
-	devicetree@vger.kernel.org
-Subject: Re: [PATCH v6 2/7] mux: Add helper functions for getting optional
- and selected mux-state
-Message-ID: <202601221036.J0kR78Uw-lkp@intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f3WH1jLn"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83E56C2BCB9;
+	Thu, 22 Jan 2026 07:32:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769067150;
+	bh=4c13PYVKBuj93wLp9HTpARpZW9JIi8Nd3PvLJryjPVw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=f3WH1jLn8JpqVyJqVSKcSP8ft/yqpIauoZPAbLZsqke25QzA4aRXAZqBHgexc4nsv
+	 NPykm/mGYzjN54Ax1JBsgwMSVhs9uANczkjvOW32ksNcH1ftrin/37ZE3ZwQYcuSRB
+	 fuqUILYiFwVZiTbAqzToDmVD/844LHRBCv8Rp1+D3JotfjrG3stS9xZxi8cMk4sU7n
+	 jzAcGiJOY6eja/8HqLE/mQ/Z4/cbSTHn9DEz8sI78f67LUbOAkdnagHmSXzgAcGAN/
+	 1bZhi0qb9QctfjidfK3gM2m98YJqAD1/ktmoCUmP8XDNRkx7IMcB4XhH6aV00eLcZO
+	 0qJ669HgNnahA==
+Date: Thu, 22 Jan 2026 08:32:24 +0100
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Ben Zong-You Xie <ben717@andestech.com>
+Cc: robh@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org, 
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	pjw@kernel.org, palmer@dabbelt.com, aou@eecs.berkeley.edu, alex@ghiti.fr, 
+	linux-riscv@lists.infradead.org
+Subject: Re: [PATCH 2/4] drivers: i2c: add the driver for Andes I2C controller
+Message-ID: <aXC6rkiG5lI6n3JF@zenone.zhora.eu>
+References: <20260115145244.435890-1-ben717@andestech.com>
+ <20260115145244.435890-3-ben717@andestech.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -94,81 +45,26 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260121-rz-sdio-mux-v6-2-38aa39527928@solid-run.com>
+In-Reply-To: <20260115145244.435890-3-ben717@andestech.com>
 
-Hi Josua,
+Hi Ben,
 
-kernel test robot noticed the following build warnings:
+...
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Josua-Mayer/phy-can-transceiver-rename-temporary-helper-function-to-avoid-conflict/20260121-173607
-base:   8f0b4cce4481fb22653697cced8d0d04027cb1e8
-patch link:    https://lore.kernel.org/r/20260121-rz-sdio-mux-v6-2-38aa39527928%40solid-run.com
-patch subject: [PATCH v6 2/7] mux: Add helper functions for getting optional and selected mux-state
-config: arm64-randconfig-r073-20260121 (https://download.01.org/0day-ci/archive/20260122/202601221036.J0kR78Uw-lkp@intel.com/config)
-compiler: aarch64-linux-gcc (GCC) 8.5.0
-smatch version: v0.5.0-8985-g2614ff1a
+> +/* I2C may be needed to bring up other drivers */
+> +static int __init atciic100_init_driver(void)
+> +{
+> +	return platform_driver_register(&atciic100_platform_driver);
+> +}
+> +subsys_initcall(atciic100_init_driver);
+> +
+> +static void __exit atciic100_exit_driver(void)
+> +{
+> +	platform_driver_unregister(&atciic100_platform_driver);
+> +}
+> +module_exit(atciic100_exit_driver);
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
-| Closes: https://lore.kernel.org/r/202601221036.J0kR78Uw-lkp@intel.com/
+Please, check how other drivers initialize.
 
-New smatch warnings:
-drivers/mux/core.c:776 __devm_mux_state_get() warn: passing zero to 'PTR_ERR'
-drivers/mux/core.c:796 __devm_mux_state_get() warn: passing zero to 'ERR_PTR'
-
-Old smatch warnings:
-drivers/mux/core.c:722 mux_state_get() warn: passing zero to 'ERR_CAST'
-
-vim +/PTR_ERR +776 drivers/mux/core.c
-
-0610cc3159b786 Josua Mayer       2026-01-21  761  static struct mux_state *__devm_mux_state_get(struct device *dev, const char *mux_name,
-0610cc3159b786 Josua Mayer       2026-01-21  762  					      bool optional,
-0610cc3159b786 Josua Mayer       2026-01-21  763  					      int (*init)(struct mux_state *mstate),
-0610cc3159b786 Josua Mayer       2026-01-21  764  					      int (*exit)(struct mux_state *mstate))
-0610cc3159b786 Josua Mayer       2026-01-21  765  {
-0610cc3159b786 Josua Mayer       2026-01-21  766  	struct devm_mux_state_state *devm_state;
-0610cc3159b786 Josua Mayer       2026-01-21  767  	struct mux_state *mstate;
-0610cc3159b786 Josua Mayer       2026-01-21  768  	int ret;
-84564481bc4520 Aswath Govindraju 2022-01-07  769  
-0610cc3159b786 Josua Mayer       2026-01-21  770  	devm_state = devres_alloc(devm_mux_state_release, sizeof(*devm_state), GFP_KERNEL);
-0610cc3159b786 Josua Mayer       2026-01-21  771  	if (!devm_state)
-0610cc3159b786 Josua Mayer       2026-01-21  772  		return ERR_PTR(-ENOMEM);
-0610cc3159b786 Josua Mayer       2026-01-21  773  
-0610cc3159b786 Josua Mayer       2026-01-21  774  	mstate = mux_state_get(dev, mux_name, optional);
-0610cc3159b786 Josua Mayer       2026-01-21  775  	if (IS_ERR_OR_NULL(mstate)) {
-
-Please, change this to if (IS_ERR(mstate)) {.  The mux_state_get() never
-returns NULL.  I have written a blog about functions which return both
-error pointers and NULL.
-
-https://staticthinking.wordpress.com/2022/08/01/mixing-error-pointers-and-null/
-
-0610cc3159b786 Josua Mayer       2026-01-21 @776  		ret = PTR_ERR(mstate);
-0610cc3159b786 Josua Mayer       2026-01-21  777  		goto err_mux_state_get;
-0610cc3159b786 Josua Mayer       2026-01-21  778  	}
-0610cc3159b786 Josua Mayer       2026-01-21  779  
-0610cc3159b786 Josua Mayer       2026-01-21  780  	if (init) {
-0610cc3159b786 Josua Mayer       2026-01-21  781  		ret = init(mstate);
-0610cc3159b786 Josua Mayer       2026-01-21  782  		if (ret)
-0610cc3159b786 Josua Mayer       2026-01-21  783  			goto err_mux_state_init;
-0610cc3159b786 Josua Mayer       2026-01-21  784  	}
-0610cc3159b786 Josua Mayer       2026-01-21  785  
-0610cc3159b786 Josua Mayer       2026-01-21  786  	devm_state->mstate = mstate;
-0610cc3159b786 Josua Mayer       2026-01-21  787  	devm_state->exit = exit;
-0610cc3159b786 Josua Mayer       2026-01-21  788  	devres_add(dev, devm_state);
-0610cc3159b786 Josua Mayer       2026-01-21  789  
-0610cc3159b786 Josua Mayer       2026-01-21  790  	return mstate;
-0610cc3159b786 Josua Mayer       2026-01-21  791  
-0610cc3159b786 Josua Mayer       2026-01-21  792  err_mux_state_init:
-84564481bc4520 Aswath Govindraju 2022-01-07  793  	mux_state_put(mstate);
-0610cc3159b786 Josua Mayer       2026-01-21  794  err_mux_state_get:
-0610cc3159b786 Josua Mayer       2026-01-21  795  	devres_free(devm_state);
-0610cc3159b786 Josua Mayer       2026-01-21 @796  	return ERR_PTR(ret);
-84564481bc4520 Aswath Govindraju 2022-01-07  797  }
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
-
+Thanks,
+Andi
