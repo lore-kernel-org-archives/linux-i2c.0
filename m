@@ -1,94 +1,63 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FDD742DFFE;
-	Thu, 22 Jan 2026 11:00:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3452B8F5B;
+	Thu, 22 Jan 2026 11:10:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769079628; cv=none; b=erS14qEekk9mDr6yVUKYJ69oJK7cxu0uIHLSBZTip6sFpv0QGw6hNicXwwt3ceHSLFvEf3Up9k3zyIEe/bKp4JsiJ+zJVz8kZ/dJt/CPB9z1CLx4V4MO4Ku5XOANFxgbWPmX2z4qkLuON0v5FAp+Uyp+4zquctCs3olPmGwMgMU=
+	t=1769080252; cv=none; b=DODtO2uoa5eoETW3vZotZOZUuFF2Mk9CNXfmoegbw8kUTHpnE2mHOIgUa2M9D70RJEN66h8okaEVKKVAYCOTqGJNcM8M57hiX03rBL9GOaReeljrYzw86ARE4VVrl6v4WVKFWd4NaAmtzA54BwXCWm9/9BNDEfHBTJcpCVYfKMY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769079628; c=relaxed/simple;
-	bh=iJSzDSjOLouw8pRYuxyAYFFe9Y8DhZMRz12WUAc0D84=;
+	s=arc-20240116; t=1769080252; c=relaxed/simple;
+	bh=pwRnhBLDDEYGv7Gna1sNHvTMPTjU37Gx4SvZPDuiuMo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ACrIDssPliNbU5JNzM+YJvFQcB+T7Eek/NLLnpuexX4FodrehDuv+EJvg07mGYa/uwq+aolo+n4wJ6z1cLoeEThOTLM74wZr3nawVrCjnrLu6zGzEVmPtlRdwyQ5D38pSFJRo8HqAcp1OJgjgAElnoy0gdSyUvgMGNKNCQyH6gg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=iTvF1jRr; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=OThvUW/+FulSQOYycuE3ULe2FIFDQwmmVgbXw5zeY1Q6YTaaOQlwbDvDmDjpSrN7rKgSIOs94OPD90LKrL0XJuWnMIGEiGNyzbFEBJ1O9fWAqSs3dMq+HdWHFrR59lRdYREe8CF0X/y7oMMDJGJI1Osqb5vQZ5Md/PJXhuQw9U0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=k6d8vjg+; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="iTvF1jRr"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769079627; x=1800615627;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=iJSzDSjOLouw8pRYuxyAYFFe9Y8DhZMRz12WUAc0D84=;
-  b=iTvF1jRrbaFvRYOFSbbn0sa+tpiCzkCPcPosTgnScUrv8vgVjrsLPJiy
-   twt2n34PekuHk+qykws1YBGAfBbsXiolvyXFpSxu8ZwN52MkwYWBYL4YK
-   NvMaC/2d5jUbj8XXkh2svld4/HHEyqN0LwmVcai3Zgrj2hGBE25JmGxnP
-   QWm5hIkPRYvjoVeSdGX/Y76j6kKHk4h68nQBl600eXF8/xXj5W3K60FrS
-   gWsQ7jLpvmnL9aTck6LyUQ8xtrd/waKkzY6MIW3E2It/ZwnyjNGRNRv6E
-   IfQwVRYKFAz0v++fVNcKLt/3IIGlZx4YMnUX6OYop9aNCnqIp5n7V6iJq
-   Q==;
-X-CSE-ConnectionGUID: KLwKtQ55ThiT+6a4viOSlg==
-X-CSE-MsgGUID: zWlxG5/CSgKU+GEqERhZHA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11678"; a="69336470"
-X-IronPort-AV: E=Sophos;i="6.21,246,1763452800"; 
-   d="scan'208";a="69336470"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2026 03:00:26 -0800
-X-CSE-ConnectionGUID: iTZLIFYrTg2FvTke9GHdKA==
-X-CSE-MsgGUID: GqINrK8pTkGYPwza+Lh+KQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,246,1763452800"; 
-   d="scan'208";a="207137681"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa009.fm.intel.com with ESMTP; 22 Jan 2026 03:00:23 -0800
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id 356A295; Thu, 22 Jan 2026 12:00:21 +0100 (CET)
-Date: Thu, 22 Jan 2026 12:00:21 +0100
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="k6d8vjg+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32CACC116C6;
+	Thu, 22 Jan 2026 11:10:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769080251;
+	bh=pwRnhBLDDEYGv7Gna1sNHvTMPTjU37Gx4SvZPDuiuMo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=k6d8vjg+ROODJ+7/QWM1h/jH1bCwD19wk/OFKERc7JG2758wMZqJGE/6mqr+JzqqO
+	 BlKznuus7tXhCqhMCIKxAzmXXPJo6tMUD0fmVXimN198HxuIBrSebYoZ3FJTNBzaHI
+	 nGECUpyeGKawb8D7TodHbtptTlKc59tctUWG3a+6cAhon1F8V0lgjHShPV3JxyXGcu
+	 oNyNUS+XkQ9KgH/cKMm4mnPRSjkLICn65IoSbBJAlJVA/SlHd+LJmoc2stZU/TV9E8
+	 9qQxKHj9Ynpd0OEAua0ofW9lWzJOufc/by+i+3zACrpJ48ttotoMNrxxti1IamJBXw
+	 FCU2Un4o1IsTw==
+Date: Thu, 22 Jan 2026 12:10:48 +0100
+From: Andi Shyti <andi.shyti@kernel.org>
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: correctmost <cmlists@sent.com>, dmaengine@vger.kernel.org,
-	regressions@lists.linux.dev, vkoul@kernel.org,
-	linux-i2c@vger.kernel.org
-Subject: Re: [REGRESSION][BISECTED] Lenovo IdeaPad touchpad does not work
- when idma64 is present in initramfs
-Message-ID: <20260122110021.GO2275908@black.igk.intel.com>
-References: <e5ee42bd-0d17-44e7-a306-61d19f1d24b2@app.fastmail.com>
- <aW4J6bmHn2dLuOxo@smile.fi.intel.com>
- <aW4MUisgI6d2Efbr@smile.fi.intel.com>
- <aW9LzBIOIePu59zV@smile.fi.intel.com>
- <d7627ea0-0965-4469-83c2-e2a15edd58a9@app.fastmail.com>
- <aXCYwBMTwkHZPYsi@smile.fi.intel.com>
- <20260121135803.GM2275908@black.igk.intel.com>
- <aXDos20kksml8wdU@smile.fi.intel.com>
- <20260121150256.GN2275908@black.igk.intel.com>
- <aXDuddwBCelAVouQ@smile.fi.intel.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Mika Westerberg <mika.westerberg@linux.intel.com>, Jan Dabros <jsd@semihalf.com>
+Subject: Re: [PATCH v1 2/2] i2c: designware: Use device_is_compatible()
+ instead of custom approach
+Message-ID: <aXIDQtLlzYvbJSGV@zenone.zhora.eu>
+References: <20260114081954.252160-1-andriy.shevchenko@linux.intel.com>
+ <20260114081954.252160-3-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aXDuddwBCelAVouQ@smile.fi.intel.com>
+In-Reply-To: <20260114081954.252160-3-andriy.shevchenko@linux.intel.com>
 
-On Wed, Jan 21, 2026 at 05:19:17PM +0200, Andy Shevchenko wrote:
-> > Well I mean if touchpads actually worked prior this idma64 commit and now
-> > they don't isn't that a regression?
+Hi,
+
+On Wed, Jan 14, 2026 at 09:17:51AM +0100, Andy Shevchenko wrote:
+> We use MODEL_MSCC_OCELOT effectively is a flag for comparing against
+> "compatible" property. Use device_is_compatible() directly to make it
+> clear.
 > 
-> I don't think so, because commit did the right thing and just revealed an issue
-> that was rather hidden. Reverting is not an option.
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-I now looked at both working and non-working /proc/interrupts and when it
-is working there is no interrupt flood at all:
+I'm coming into the discussion and I personally like Andy's
+approach. As a third party, I believe this patch has reached the
+consensus and I'm taking it in i2c/i2c-host.
 
- 27:          0          0          0          0       2277          0          0          0          0          0          0          0 IR-IO-APIC   27-fasteoi   idma64.0, i2c_designware.0
-
-This makes me think that perhaps the toucpad is powered off and that causes
-the issue until I2C HID probes and resets it. I looked at the ACPI tables
-but I did not (yet) find anything that stands out.
-
-I wonder if it was tried to put i2c-designware*.ko and i2c-hid.ko into the
-initramfs, and does work it around? I would expect so.
+Thanks Andy,
+Andi
