@@ -1,230 +1,154 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10ACC341063;
-	Thu, 22 Jan 2026 16:26:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0440936EA94
+	for <linux-i2c@vger.kernel.org>; Thu, 22 Jan 2026 17:18:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.24
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769099176; cv=none; b=rjx1gjtfumxB7yPONNzZHc2kY3NIG8guCtC4A3NsnZ/2Lx2FgHFBjTd6asuVRbTf4kUIhd41bnO4s7mS0cmV+pNTosSGQjy1G11vZx73nEjCNgMVJtSzu0dvpqlsOtg6pgGyGXt2clui6lQIXcn6eoLJfP+oVFkv1LDNQgLR4bE=
+	t=1769102342; cv=none; b=iXhrZ+BF29NlKfRIYHPzs9Zrm9lS24dtIMBHU6Ffu8qaj9doQbBBI4fn31M6zIB9m1NzTvF5eFWR6+lDaZu5rL2dQZEXLyoE6a2g77vMvRrIqILRf6jYscShTqYJzzrc8VfdBii5VhjkZPgYnjA+KopSInOOMhQhkjCf0OCf21c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769099176; c=relaxed/simple;
-	bh=Q7pUzb+BLBPkR6MTyOyPhdlElsSZljZg0UZN5joDqP4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=myCg9bmgLt2GmDaXXoc8ZMzJIURcP0xXToSz4e78hVi+V0BefMWwazE0v+lfhIP3IPGMRELVq95jCfW8MfckwuYmDbuLeoEjJJ06tj20koBAs7Xq1+VnXAZL549wKl6z+I4YyOngylf6ROjMdVWXJdygGkzzBdMQ01YaSuCTVro=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=VjAtd5g3; arc=none smtp.client-ip=198.175.65.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1769102342; c=relaxed/simple;
+	bh=xOfocJN3sVUqsg8qPf6KsQkDTr7XDa61ob1EtjlCDHE=;
+	h=From:To:Cc:In-Reply-To:Subject:Date:Message-ID:MIME-Version:
+	 Content-Type:References; b=imwrys+ud+0TwAGQAhT/jR7Ht4sZTiSc0qZi1Dc+AWyRGj9FeyQ4hj7L489HmDJKIVsiIvlCbmLf6t4acKwmsrzt7DQ5EugS7Dq6o0KzOPRgRUeycmQKNszg5g0xA08dcGYywaQWZ66cUWOrnovWPwMhArCzK4/qFYVrcLzoEgw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=ryVfEHiU; arc=none smtp.client-ip=203.254.224.24
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="VjAtd5g3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769099168; x=1800635168;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=Q7pUzb+BLBPkR6MTyOyPhdlElsSZljZg0UZN5joDqP4=;
-  b=VjAtd5g3tW523jtPtEdX1yjMMZHSQliaqpPbAP+rjzVand5hkIvjQcRQ
-   wXqEwKZF066am2bFlfgVV/GKhR8VI0ahTCEVkF8Lg78v3vVDIn6TFeDtp
-   anp5QVQXxoGl9v93TE/2fggO388HXdMf9B9px9b7x9sgVdJD730Z/4kGh
-   mFkEM2oCdUT62aX0nG+3FKOsDA626tDwj0S8cAAJHwtFQuC4hr0HjhA2V
-   7YKsSYOpUJnkBBWmjCX+sczy9prgkpk2omNBz2SDh67WAhvmxiUGnvwZE
-   KZWif7+9KMsND5HBtH49mmjEStElLTyp/of2mHVOsYKBzjnf9uMmE26Yh
-   A==;
-X-CSE-ConnectionGUID: KDd8SX6EQ4ymJwX8PzP9Xw==
-X-CSE-MsgGUID: oV8JhO/KQwGTYcqY+jko3Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11679"; a="74199176"
-X-IronPort-AV: E=Sophos;i="6.21,246,1763452800"; 
-   d="scan'208";a="74199176"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2026 08:26:03 -0800
-X-CSE-ConnectionGUID: DD5CC80dT6uPyzKjt1wxkQ==
-X-CSE-MsgGUID: rRQ3r7GqSGSlOqPINgsPtQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,246,1763452800"; 
-   d="scan'208";a="206594719"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by orviesa009.jf.intel.com with ESMTP; 22 Jan 2026 08:26:00 -0800
-Received: by black.igk.intel.com (Postfix, from userid 1003)
-	id 4721595; Thu, 22 Jan 2026 17:25:58 +0100 (CET)
-Date: Thu, 22 Jan 2026 17:25:58 +0100
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: =?iso-8859-1?Q?Beno=EEt?= Monin <benoit.monin@bootlin.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jan Dabros <jsd@semihalf.com>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Clark Williams <clrkwllms@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-	Gregory CLEMENT <gregory.clement@bootlin.com>,
-	=?iso-8859-1?Q?Th=E9o?= Lebrun <theo.lebrun@bootlin.com>,
-	Tawfik Bayouk <tawfik.bayouk@mobileye.com>,
-	Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>,
-	Dmitry Guzman <dmitry.guzman@mobileye.com>,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-rt-devel@lists.linux.dev
-Subject: Re: [PATCH v5 4/6] i2c: designware: Implement I2C_M_STOP support
-Message-ID: <aXJPljHeRxBXH_Jo@black.igk.intel.com>
-References: <20260120-i2c-dw-v5-0-0e34d6d9455c@bootlin.com>
- <20260120-i2c-dw-v5-4-0e34d6d9455c@bootlin.com>
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="ryVfEHiU"
+Received: from epcas5p3.samsung.com (unknown [182.195.41.41])
+	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20260122171843epoutp01be510e0c8125bd70274774ee591add66~NHTDABr6R2781427814epoutp01B
+	for <linux-i2c@vger.kernel.org>; Thu, 22 Jan 2026 17:18:43 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20260122171843epoutp01be510e0c8125bd70274774ee591add66~NHTDABr6R2781427814epoutp01B
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1769102323;
+	bh=Dfn6vnVnX/KCerEi1dQoZze0gUnqj9K4r4skiCF+1HU=;
+	h=From:To:Cc:In-Reply-To:Subject:Date:References:From;
+	b=ryVfEHiU6GYG3TT7YIICp09GzE4uN19pZ82TY1rOkgrFM0YChnQKtk6xuIahLw2Dw
+	 gJJU45/rmi0RNa9LapJPvAJBE5LNjqKRU00sGcC3GkEp3YCxMCS8rNsnZnP4S+fyug
+	 J1aGArqHicu5J/JCTDa4lU/qNO5q0RPR2rS51V+s=
+Received: from epsnrtp01.localdomain (unknown [182.195.42.153]) by
+	epcas5p2.samsung.com (KnoxPortal) with ESMTPS id
+	20260122171843epcas5p2b3340d2681a466691e75f7f855960b8d~NHTCgrdNT2323723237epcas5p2H;
+	Thu, 22 Jan 2026 17:18:43 +0000 (GMT)
+Received: from epcas5p2.samsung.com (unknown [182.195.38.90]) by
+	epsnrtp01.localdomain (Postfix) with ESMTP id 4dxnpV2MhJz6B9m5; Thu, 22 Jan
+	2026 17:18:42 +0000 (GMT)
+Received: from epsmtip2.samsung.com (unknown [182.195.34.31]) by
+	epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
+	20260122171841epcas5p44be34d8fa6f05a6c2f6804156dd092cc~NHTA8qE-w0552605526epcas5p4p;
+	Thu, 22 Jan 2026 17:18:41 +0000 (GMT)
+Received: from INBRO000519 (unknown [107.122.1.150]) by epsmtip2.samsung.com
+	(KnoxPortal) with ESMTPA id
+	20260122171837epsmtip2fa2844309b889494e61cc6ceb0ebd998~NHS8qaLTF1550615506epsmtip2L;
+	Thu, 22 Jan 2026 17:18:36 +0000 (GMT)
+From: "Faraz Ata" <faraz.ata@samsung.com>
+To: <andi.shyti@kernel.org>, <robh@kernel.org>, <krzk+dt@kernel.org>,
+	<conor+dt@kernel.org>, <alim.akhtar@samsung.com>
+Cc: <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-samsung-soc@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <rosa.pila@samsung.com>,
+	<pritam.sutar@samsung.com>, <dev.tailor@samsung.com>
+In-Reply-To: 
+Subject: RE: [PATCH] dt-bindings: i2c: exynos5: add exynosautov920-hsi2c
+ compatible
+Date: Thu, 22 Jan 2026 22:48:27 +0530
+Message-ID: <04e501dc8bc3$27a48810$76ed9830$@samsung.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260120-i2c-dw-v5-4-0e34d6d9455c@bootlin.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: quoted-printable
+X-Mailer: Microsoft Outlook 16.0
+Thread-Index: AQMyl6jZ32DHOO134xOI05SqoiCOxQG1dU1GsosmcDCAGYRjoA==
+Content-Language: en-us
+X-CMS-MailID: 20260122171841epcas5p44be34d8fa6f05a6c2f6804156dd092cc
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+CMS-TYPE: 105P
+cpgsPolicy: CPGSC10-542,Y
+X-CFilter-Loop: Reflected
+X-CMS-RootMailID: 20250904071941epcas5p1ffa00f3f1cb69f7a10d08c1e96174cf1
+References: <CGME20250904071941epcas5p1ffa00f3f1cb69f7a10d08c1e96174cf1@epcas5p1.samsung.com>
+	<20250904072844.358759-1-faraz.ata@samsung.com> 
 
-On Tue, Jan 20, 2026 at 10:28:04AM +0100, Benoît Monin wrote:
-> Add the support of the I2C_M_STOP flag in i2c_msg by splitting
-> i2c_dw_xfer() in two: __i2c_dw_xfer_one_part() for the core transfer logic
-> and i2c_dw_xfer() for handling the high-level transaction management.
-> 
-> In detail __i2c_dw_xfer_one_part() starts a transaction and wait for its
-> completion, either with a STOP on the bus or an error. i2c_dw_xfer()
-> loops over the messages to search for the I2C_M_STOP flag and calls
-> __i2c_dw_xfer_one_part() for each part of the messages up to a STOP or
-> the end of the messages array.
-> 
-> i2c_dw_xfer() takes care of runtime PM and holds the hardware lock on
-> the bus while calling __i2c_dw_xfer_one_part(), this allows grouping
-> multiple accesses to device that support a STOP in a transaction when
-> done via i2c_dev I2C_RDWR ioctl.
+HI Andi/Rob
 
-Does i2c-tools support this. I.o.w. can you put an example of user space call
-to achieve the above?
+Kindly help to review and merge the patch.
 
-> Also, now that we have a lookup of the messages in i2c_dw_xfer() prior
-> to each transaction, we use it to make sure the messages are valid for
-> the transaction, via a new function i2c_dw_msg_is_valid(). We check
-> that the target address does not change before starting the transaction
-> instead of aborting the transfer while it is happening, as it was done
-> in i2c_dw_xfer_msg(). The target address can only be changed after an
-> I2C_M_STOP flag, i.e after a STOP on the i2c bus.
-> 
-> The I2C_FUNC_PROTOCOL_MANGLING flag is added to the list of
-> functionalities supported by the controller, except for the AMD NAVI
-> i2c controller which uses its own xfer() function and is left untouched.
-
-...
-
-While the below is not a kernel-doc, I would still use a couple of things to
-make it a bit aligned with that.
-
->  /*
-> - * Prepare controller for a transaction and call i2c_dw_xfer_msg.
-> + * Prepare controller for a transaction, start the transfer of the msgs
-
-@msgs
-
-> + * and wait for completion, either a STOP or a error.
-> + * Return 0 or a negative error code.
-
-Return:
-
->   */
-
-...
-
-> +/*
-> + * Verify that the message at index @idx can be processed as part
-> + * of a single transaction. The @msgs array contains the messages
-> + * of the transaction. The message is checked against its predecessor
-> + * to ensure that it respects the limitation of the controller.
-
-Ha, you even used @ notation here!
-
-Perhaps also add Return: line?
-
-> + */
-
-...
-
-> +	/*
-> +	 * The first message of a transaction is valid,
-> +	 * no constraint from a previous message.
-
-constraints ?
-
-> +	 */
-
-...
-
-> +static int
-> +i2c_dw_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-> +{
-> +	struct dw_i2c_dev *dev = i2c_get_adapdata(adap);
-> +	struct i2c_msg *msgs_part;
-> +	size_t cnt;
-> +	int ret;
-
-> +	dev_dbg(dev->dev, "msgs: %d\n", num);
-> +
-> +	pm_runtime_get_sync(dev->dev);
-> +
-> +	ret = i2c_dw_acquire_lock(dev);
-> +	if (ret)
-> +		goto done_nolock;
-
-A side note: Perhaps make sense to factor the body out to another helper.
-
-> +	/*
-> +	 * If the I2C_M_STOP is present in some the messages,
-> +	 * we do one transaction for each part up to the STOP.
-> +	 */
-> +	for (msgs_part = msgs; msgs_part < msgs + num; msgs_part += cnt) {
-> +		/*
-> +		 * Count the messages in a transaction, up to a STOP
-> +		 * or the end of the msgs.
-> +		 */
-> +		for (cnt = 1; ; cnt++) {
-
-Do we have a guarantee that this doesn't become an infinite loop or more
-precisely out-of-boundary access?
-
-I hope to see this be explicitly mentioned in the comment on top of for-loop.
-
-> +			if (!i2c_dw_msg_is_valid(dev, msgs_part, cnt - 1)) {
-> +				ret = -EINVAL;
-> +				goto done;
-> +			}
-> +
-> +			if ((msgs_part[cnt - 1].flags & I2C_M_STOP) ||
-> +			    (msgs_part + cnt == msgs + num))
-> +				break;
-> +		}
-> +
-> +		/* transfer one part up to a STOP */
-> +		ret = __i2c_dw_xfer_one_part(dev, msgs_part, cnt);
-> +		if (ret < 0)
-> +			break;
-> +	}
->  
->  done:
->  	i2c_dw_release_lock(dev);
-
->  done_nolock:
->  	pm_runtime_put_autosuspend(dev->dev);
->  
-> -	return ret;
-> +	if (ret < 0)
-> +		return ret;
-> +	return num;
->  }
-
-...
-
-> +	if ((dev->flags & MODEL_MASK) != MODEL_AMD_NAVI_GPU)
-> +		dev->functionality |= I2C_FUNC_PROTOCOL_MANGLING;
-
-Why do we need this flag? I mean can't we use the fact that the code for that
-platform uses custom xfer implementation?
-
--- 
-With Best Regards,
-Andy Shevchenko
+> -----Original Message-----
+> From: Faraz Ata <faraz.ata=40samsung.com>
+> Sent: Tuesday, January 6, 2026 11:17 PM
+> To: 'andi.shyti=40kernel.org' <andi.shyti=40kernel.org>; 'robh=40kernel.o=
+rg'
+> <robh=40kernel.org>; 'krzk+dt=40kernel.org' <krzk+dt=40kernel.org>;
+> 'conor+dt=40kernel.org' <conor+dt=40kernel.org>; 'alim.akhtar=40samsung.c=
+om'
+> <alim.akhtar=40samsung.com>
+> Cc: 'linux-i2c=40vger.kernel.org' <linux-i2c=40vger.kernel.org>;
+> 'devicetree=40vger.kernel.org' <devicetree=40vger.kernel.org>; 'linux-arm=
+-
+> kernel=40lists.infradead.org' <linux-arm-kernel=40lists.infradead.org>; '=
+linux-
+> samsung-soc=40vger.kernel.org' <linux-samsung-soc=40vger.kernel.org>;
+> 'linux-kernel=40vger.kernel.org' <linux-kernel=40vger.kernel.org>;
+> 'rosa.pila=40samsung.com' <rosa.pila=40samsung.com>;
+> 'pritam.sutar=40samsung.com' <pritam.sutar=40samsung.com>;
+> 'dev.tailor=40samsung.com' <dev.tailor=40samsung.com>
+> Subject: RE: =5BPATCH=5D dt-bindings: i2c: exynos5: add exynosautov920-hs=
+i2c
+> compatible
+>=20
+> HI Andi/Rob
+>=20
+> I want to follow up on the below dt-binding patch submitted.
+> Please let me know if the patch is under review or anything else needs to=
+ be
+> done.
+>=20
+> Reference  - https://lore.kernel.org/all/83338b57-2e8e-4b77-9e93-
+> fadfb0f6a5fc=40kernel.org/
+>=20
+> > -----Original Message-----
+> > From: Faraz Ata <faraz.ata=40samsung.com>
+> > Sent: Thursday, September 4, 2025 12:59 PM
+> > To: andi.shyti=40kernel.org; robh=40kernel.org; krzk+dt=40kernel.org;
+> > conor+dt=40kernel.org; alim.akhtar=40samsung.com
+> > Cc: linux-i2c=40vger.kernel.org; devicetree=40vger.kernel.org; linux-ar=
+m-
+> > kernel=40lists.infradead.org; linux-samsung-soc=40vger.kernel.org; linu=
+x-
+> > kernel=40vger.kernel.org; rosa.pila=40samsung.com;
+> > pritam.sutar=40samsung.com; dev.tailor=40samsung.com;
+> > faraz.ata=40samsung.com
+> > Subject: =5BPATCH=5D dt-bindings: i2c: exynos5: add exynosautov920-hsi2=
+c
+> > compatible
+> >
+> > Add =22samsung,exynosautov920-hsi2c=22 dedicated compatible for HSI2C
+> > found in ExynosAutov920 SoC.
+> >
+> > Signed-off-by: Faraz Ata <faraz.ata=40samsung.com>
+> > ---
+> >  Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml =7C 1 +
+> >  1 file changed, 1 insertion(+)
+> >
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
+> > b/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
+> > index 7ae8c7b1d006..207b95e392e5 100644
+> > --- a/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
+> > +++ b/Documentation/devicetree/bindings/i2c/i2c-exynos5.yaml
+> > =40=40 -38,6 +38,7 =40=40 properties:
+> >                - google,gs101-hsi2c
+> >                - samsung,exynos2200-hsi2c
+> >                - samsung,exynos850-hsi2c
+> > +              - samsung,exynosautov920-hsi2c
+> >            - const: samsung,exynosautov9-hsi2c
+> >        - const: samsung,exynos5-hsi2c    =23 Exynos5250 and Exynos5420
+> >          deprecated: true
+> > --
+> > 2.34.1
 
 
