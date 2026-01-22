@@ -1,101 +1,77 @@
-Received: from mail-106119.protonmail.ch (mail-106119.protonmail.ch [79.135.106.119])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D7B63A782D;
-	Thu, 22 Jan 2026 15:37:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=79.135.106.119
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 158A7145355;
+	Thu, 22 Jan 2026 16:05:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769096263; cv=none; b=Lc4pm3+6oVt6jWjZLaTpKfHSCGLTFfSsfocUdCjPV9T2NwLmjJqDhf4mM368MsrJQumgU5QeJRXe2m0xBKXMJ0BETg9wykBev5euUbcDZHoefcISw6sH1vkCnO9UKCeOI1KkIQUBKSkjly6Jc8zwMboOPPYUnVBt5K/cUZGTBEo=
+	t=1769097931; cv=none; b=fKA7OUkSRY1gFOVqU0qEy6hCP5vLedGLNm8m/NzJ+JCIc7nP6H6I8pQksLUFIibmRpcTv++ur8KXVxzVJHmcHHPXJ5AsLNnoGwuRrPOlpla2B+tlsXwJZRT5x/6SvEBvOqQHOcY9rfeFjvaObH/RVbgoQUEW/Y9P3j9yHecbhMQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769096263; c=relaxed/simple;
-	bh=S1BGqcMlASMvyYCKXlGf55t9i2UcSbu9BGB4Vbxmsjw=;
-	h=Date:To:From:Cc:Subject:Message-ID:MIME-Version:Content-Type; b=ZQzsXDzaZI6ydqpvUHpNqFHScoVX4Zkw2JlKlSyDi92h7Rgmsx98oZdgEfSPhMF6/epMbuXBV1VkkH3mDqjVqvmYX+nIMjKDc39XBftbk2GzWbFVLnP/tmgKVxPBNES/kULs2N+jzswT9wBrDlPxIhxRuKl2QS+Q6w4NsYiOQj0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=protonmail.com; spf=pass smtp.mailfrom=protonmail.com; dkim=pass (2048-bit key) header.d=protonmail.com header.i=@protonmail.com header.b=OAShtVl8; arc=none smtp.client-ip=79.135.106.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=protonmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=protonmail.com
+	s=arc-20240116; t=1769097931; c=relaxed/simple;
+	bh=jTSfHd23Mmfb0kTv5tEAIVkwXaNkstr+cwjFAKhd/Fk=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=jslg/Cgma4BkN57QqRhcc3ciuejLSLHp97/LcyW8UxBdsHkp2QhTf5XiPKKMk/M2Gs3E3wnEDWXOtvBmWNyrObJj1kkcjMwBvqde2Au21ZbCTBARUj/nXBtASZDTG1st7v0rCF5C22d1UEQ7Fy7KwaLSlRNAWmd39LAqEks7Ls0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kEoUtXJy; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=protonmail.com header.i=@protonmail.com header.b="OAShtVl8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=protonmail.com;
-	s=protonmail3; t=1769096249; x=1769355449;
-	bh=S1BGqcMlASMvyYCKXlGf55t9i2UcSbu9BGB4Vbxmsjw=;
-	h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
-	 Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
-	b=OAShtVl8spr+0GUWWivMvpCjCyV4nt7net/RqiDocSoRyc2xGILA5VY3XkzJCj5rN
-	 JBlHlnEg7Vc+q+W2pH00Kt/XkXvx/kl4CFvgkIuexUOB6S+hdAhnsISrVfJP6hEtXc
-	 cgoRwCNiDa59Pd7yCtj6KSqs5XR3JzrS7A46BRv7KCBCveSUeD4L3A2c8WwOTkWaq1
-	 X/9mfBKXG/p5ecgX44tQSC0rOp26QPaFpXV84SRN1WShlnz70Tz4swAIkbTukIVFhT
-	 OrDavFueoypp77UwkvbkXzUtgk4i8ug1Z6o3wQwrbCWhC8SJ5yFWNUintGE7vIWboE
-	 791SQUjO/0mZg==
-Date: Thu, 22 Jan 2026 15:37:23 +0000
-To: Krzysztof Kozlowski <krzk@kernel.org>
-From: Arturs Artamonovs <arturs.artamonovs@protonmail.com>
-Cc: arturs.artamonovs@analog.com, Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>, Greg Malysa <greg.malysa@timesys.com>, Philipp Zabel <p.zabel@pengutronix.de>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Utsav Agarwal <Utsav.Agarwal@analog.com>, Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, Linus Walleij <linus.walleij@linaro.org>, Bartosz Golaszewski <brgl@bgdev.pl>, Thomas Gleixner <tglx@linutronix.de>, Andi Shyti <andi.shyti@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jirislaby@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Olof Johansson <olof@lixom.net>, soc@kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, linux-clk@vger.kernel.org, linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, linux-serial@vger.kernel.org, adsp-linux@analog.com, Nathan Barrett-Morrison
-	<nathan.morrison@timesys.com>
-Subject: Re: [PATCH 00/21] Adding support of ADI ARMv8 ADSP-SC598 SoC.
-Message-ID: <D29814F7-69C2-4C64-AF05-87AE6019DE21@protonmail.com>
-Feedback-ID: 15175799:user:proton
-X-Pm-Message-ID: 645533fd368795d784bccb039ef9deb7ee99176c
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kEoUtXJy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DFE7C19422;
+	Thu, 22 Jan 2026 16:05:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769097927;
+	bh=jTSfHd23Mmfb0kTv5tEAIVkwXaNkstr+cwjFAKhd/Fk=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=kEoUtXJyFuoClXVSzXxVTxCHpsNEn6uWNrrHqiMwfkNyrm5Gw/NwVUyf8tkOcVaIm
+	 rH6FLuYx6xZAZtsAy7Cr9+JC2v3SK97XaXeRjpMpIjYGhasfARR0zWv2kcvqSxJpOm
+	 fNNsxGn3p2tCOBVaHHkVO88w4PAcEM+iClRcNn4K5zW1S8Zr460ILQHc6OJuRiEci8
+	 2JTp0y6/hr1v1BY4vw9713H5+Y68PEdicLtpF7ZAr3Hlgu+RmhTWdhk+bBw9KtuKEd
+	 0RY4tToSq1uCcRdwArSq5a5Thk9xdku5MIRYTyd7hO1lB2MyuAnKcz/BiGX2+WD5Y7
+	 y8yH4Xi2xgiAA==
+Date: Thu, 22 Jan 2026 08:05:26 -0800
+From: Jakub Kicinski <kuba@kernel.org>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>, Wolfram Sang
+ <wsa+renesas@sang-engineering.com>, Jeremy Kerr <jk@codeconstruct.com.au>,
+ Matt Johnston <matt@codeconstruct.com.au>, linux-i2c@vger.kernel.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 3/4] mctp i2c: Enable SMBus ARP discovery
+Message-ID: <20260122080526.4fe83a3a@kernel.org>
+In-Reply-To: <d681a9d5-ff37-45a0-8398-3e770052177e@redhat.com>
+References: <20260121092328.2308705-1-heikki.krogerus@linux.intel.com>
+	<20260121092328.2308705-4-heikki.krogerus@linux.intel.com>
+	<d681a9d5-ff37-45a0-8398-3e770052177e@redhat.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hi, big thanks to Krysztof, Arnd, Rob and Linus Walleij for the reviewing f=
-irst set of patches that were sent some time ago. I have reviewed comments =
-few times since then and Im currently at last stage of internal review for =
-v2 series those are planned to be sent sometime in near future.=20
+On Thu, 22 Jan 2026 15:36:05 +0100 Paolo Abeni wrote:
+> On 1/21/26 10:23 AM, Heikki Krogerus wrote:
+> > Since the SMBus Address Resolution Protocol (ARP) is now
+> > supported with all I2C host adapters, every ARP-capable MCTP
+> > device will get automatically enumerated. Those devices just
+> > need to be bind to this driver.
+> > 
+> > The SMBus ARP-capable MCTP devices are identified by
+> > checking the interface (MCTP SMBus/I2C Transport Binding
+> > Specification section 6.5). The interface must match the ASF
+> > protocol, so all devices that use the ASF protocol as their
+> > interface will be probed by this driver.
+> > 
+> > Link: https://www.dmtf.org/sites/default/files/standards/documents/DSP0237_1.2.0.pdf
+> > Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>  
+> 
+> This patch depends on 1/4 but it looks like it could be a follow-up to
+> the main series. If so, I think it would be better to re-submit it after
+> the relevant code landed in net-next to avoid cross sub-tree problems.
+> 
+> Otherwise I think it should go via I2C tree - and we will solve
+> conflicts as needed later on.
 
-> On 16 Sep 2024, at 10:05, Krzysztof Kozlowski <krzk@kernel.org> wrote:
->=20
-> On 12/09/2024 20:24, Arturs Artamonovs via B4 Relay wrote:
->> This set of patches based on ADI fork of Linux Kerenl that support famil=
-y of ADSP-SC5xx
->> SoC's and used by customers for some time . Patch series contains minima=
-l set
->> of changes to add ADSP-SC598 support to upstream kernel. This series inc=
-lude
->> UART,I2C,IRQCHIP,RCU drivers and device-tree to be able boot on EV-SC598=
--SOM
->> board into serial shell and able to reset the board. Current SOM board
->> requires I2C expander to enable UART output.
->>=20
->> UART,I2C and PINCTRL drivers are based on old Blackfin drivers with
->> ADSP-SC5xx related bug fixes and improvments.
->>=20
->> Signed-off-by: Arturs Artamonovs <arturs.artamonovs@analog.com>
->> ---
->=20
-> For new platform, be sure you have 0 warnings:
-> 1. Please run standard kernel tools for static analysis, like
-> coccinelle, smatch and sparse, and fix reported warnings.
->=20
-> 2. Also check for warnings when building with W=3D1. Most of these
-> commands (checks or W=3D1 build) can build specific targets, like some
-> directory, to narrow the scope to only your code. The code here looks
-> like it needs a fix. Feel free to get in touch if the warning is not clea=
-r.
->=20
-> 3. Fix all compile test warning reported by LKP and check for common
-> configs, regardless of reports.
->=20
-> 4. Please run `make dtbs_check W=3D1` (see
-> Documentation/devicetree/bindings/writing-schema.rst or
-> https://www.linaro.org/blog/tips-and-tricks-for-validating-devicetree-sou=
-rces-with-the-devicetree-schema/
-> for instructions).
->=20
-> 5. Please run scripts/checkpatch.pl and fix reported warnings. Then
-> please run `scripts/checkpatch.pl --strict` and (probably) fix more
-> warnings. Some warnings can be ignored, especially from --strict run.
->=20
->=20
-> Best regards,
-> Krzysztof
->=20
->=20
-
-
++1 I don't wanna speak for Jeremy and Matt but with their Ack, and
+assuming there's no dependency in net-next I think i2c tree may
+be the easiest path? There isn't much code in the series under
+drivers/net.
