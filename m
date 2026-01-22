@@ -1,117 +1,103 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EAB747F2EF
-	for <linux-i2c@vger.kernel.org>; Thu, 22 Jan 2026 08:06:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ECE2480970;
+	Thu, 22 Jan 2026 08:08:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769069215; cv=none; b=as3zzEVKr4JSs3r0eTx9Fn04Bi/RdAw6Apcbkj3zbzujRqzSwg+5u2xAy6vrl2ax0XmSqLs13WUH8EIWqY9rVd1QQaGlmFmJXgZHwWRq3AN79fnoPYeL4IKOJiQNTAUaaTavARmd1dQCrwj1ynhlvjAsZC+g4He5KHzpafJoeUs=
+	t=1769069323; cv=none; b=EDOn+cwCVi5tOdyArXYLQtxaXshvMYJvUlsnw3cYV1OjoCuencVXYJcQlIQ2yHI5zVGCv0rLFukzv9HEBKXIqgooQzTjKyRgzVSWN8u3nSq5z99YJMpvMts/MvJkgW6N4p+AwgK0okrGT6WhY/inzIL0Qzr5pkPDdgfC5eDdyL0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769069215; c=relaxed/simple;
-	bh=UN81btdLXwLmy+i3FQsqe41ADn+eiw3IDaM94IgibCQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=o1PvV+HAwj7BBUg1Rzyq2GkUmi2uim3Ra6YOkdZDD0hdPQoIpZ9aOe7TuYDRsTmEzgYq0XEi+WQx3g6K7xwd2yWs3WJ2itM9WkB5fJAsch6U7QZrkviUzsX/vu/kNJULEYNRBY7PG5ErNnzhGto7INKp3hH9ZjhhjrpGze8prTY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SkrotNcn; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=qlgErSsY; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1769069323; c=relaxed/simple;
+	bh=QdnzH/k/Cpxt+cbGkFJe3060i3uFURJ3AiMAUgzjrW0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=PIA4HVdHteiqiPsyEmcFpr2yS5L4QEwMbrxxTwaWWxd0Pj0kOIQJAD7wWuW2Jbgj7IY2jEWvxA/2bUsRcFyt+z9dMxqxT56kvpluc1Dcm2/KZUt++3tgDuVTATyJNp+4TAv4eZ4XI6qcisb8AOVoheQKA7bBltgSHaCKRZPybnU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bagLUWiv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SkrotNcn";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="qlgErSsY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1769069212;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=xnAUpn2svZoy/oq95lU8MjW2YyOALbOwRLuDG6KCbUY=;
-	b=SkrotNcnJ7C/ROyMmdelAZTl8O6wSBcYq4IYukNHUKKtT6KtIqa0QY4HSBZine7RrBXwND
-	iO7cCedLtZyrBn0ZatAclfoTXAZ+yUGINUlnRMNFjh0Xod/PhzEMeoHVth60YfqxR+22sp
-	xduvvPNiftkLbvjEJa+SIZRzJvN6TYs=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-662-b8K6_epnNOKATXggIrwgzg-1; Thu, 22 Jan 2026 03:06:51 -0500
-X-MC-Unique: b8K6_epnNOKATXggIrwgzg-1
-X-Mimecast-MFC-AGG-ID: b8K6_epnNOKATXggIrwgzg_1769069210
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4803b4e3b9eso5210865e9.3
-        for <linux-i2c@vger.kernel.org>; Thu, 22 Jan 2026 00:06:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1769069210; x=1769674010; darn=vger.kernel.org;
-        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
-         :from:from:to:cc:subject:date:message-id:reply-to;
-        bh=xnAUpn2svZoy/oq95lU8MjW2YyOALbOwRLuDG6KCbUY=;
-        b=qlgErSsYdEo/pm7A674+zhPiVsaHvLXm3TfoweFapfQwrb1sBSLclJkv/Tf90+TNH6
-         gwj51mch309JNwNtAUtwV2g2c0qLDOhdk0Immo/wU+z64A4XsUWx+xZ/y23Ei/gyaGNh
-         HFJUg/xBJSMIkFQ6nWb1ZzRl8gyb4hahMsZ4FPrH72+/CtsIKUn8kWbEg1vh6s5LD3HF
-         xMVohzwE9cftn6yBA1SPGOQ6pRNX/TnQNg9fL+qeUiwhlSOs96eO2jQVfiZtJbBfuIz1
-         NCaB1a97mFJSMiEeaXn5g9d/bamdIX4RgzKPYbqzOHpuB0F/XsC4DvCf+mQQ82Wv176C
-         z6xQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769069210; x=1769674010;
-        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
-         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=xnAUpn2svZoy/oq95lU8MjW2YyOALbOwRLuDG6KCbUY=;
-        b=cN6An06YQ5C1og6hYlfwIXjuLLS7YEm3U0uazgE3zrurpPFLy7BHsJI1dJHs4WFHns
-         25k94LvHh20Ovj8NkXBEhZy4befobAY53jkHPxLOf2GFa6PughM11ykWHIiKa7UKkzd8
-         dRvWtDX4GB9VOLjujJDLPVTSem9xF4ftj+o97haqL/pI9O06qAxdD65fTcNFYsKIyi3+
-         uWEh9i2EKK3FYeYP9hm12Mz4obVrdkHcZJplqATkijNwermKvLUEf93Ksl5ZMpHyH5/3
-         EvDn21RrAHopTtajuN4iODRHpcfPI8WQ75l/7xxnQMAWxB+e/OlsOQXXzmp8azv3dFXP
-         hTrg==
-X-Forwarded-Encrypted: i=1; AJvYcCXUu1QuBeGqgIIIjHVQIT0Ux961of4ctY7b8LsfRMHhJ6j4mFcNQ+Dy66ZnHdF0vpnQ/R3005XmzLA=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwZ/RmWPZJ72lSqOnon35ywQianN7D7rdiauvlQcqXzhF9dY5vh
-	S7kMlc7gqmFoNcA5L+OuZpOB352WCsRj2sYeD6SGJFvc5FYJiDoO1L+NkPIltP3pY3hKjXoz8Ju
-	vXt2EXElehfptlTuGvAzY9CshGBXyeJbPajoWLZEq8f+AcZ89P5bw11ycXtI+Dw==
-X-Gm-Gg: AZuq6aLJLDtiQB+juKsswgW1TY81LthDH2LrTNNDK1CGnpRTBwlCYe4dnQ9tQJHJSHv
-	PrrXwJJlQ1OJ304WBZZqNsQBk14hcJM+eLoPachahPSlqOrNE5ibbuBK1AZh5z1hojQs3/HeADp
-	cGAmdJf38vK/LnckvDyzkvWHmvOs0BMizgKNS3YT0Z4q4YySF9D9EacEopzVsNgniggkOZK8mJ4
-	QJvu6UBDwXL5MBxCGuh1yh+pd0DnopVAnYLPEEuLhjyPcpwoUOsGd/F5V20RKAIaSRO/c0mSNJB
-	wHQplFH8iWVmuS3lW60dtSB3pgO/OqE0vr72+sMgEucUO8JnR906XRldHRAr9vXnlGH4hEJNArd
-	jNb2d5K28M63IvSNnMmmCcVzdyXFTYmb0H4Pfi9z0PQdgQhqo7wPSocgyBqWcIL1v8v2x
-X-Received: by 2002:a05:600c:46ce:b0:477:7b16:5f9f with SMTP id 5b1f17b1804b1-4801eb0efe0mr306255065e9.31.1769069209717;
-        Thu, 22 Jan 2026 00:06:49 -0800 (PST)
-X-Received: by 2002:a05:600c:46ce:b0:477:7b16:5f9f with SMTP id 5b1f17b1804b1-4801eb0efe0mr306254515e9.31.1769069209274;
-        Thu, 22 Jan 2026 00:06:49 -0800 (PST)
-Received: from localhost (62-151-111-63.jazzfree.ya.com. [62.151.111.63])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48042c38063sm44525215e9.12.2026.01.22.00.06.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Jan 2026 00:06:48 -0800 (PST)
-From: Javier Martinez Canillas <javierm@redhat.com>
-To: Yixun Lan <dlan@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, Troy
- Mitchell <troy.mitchell@linux.spacemit.com>
-Cc: Yixun Lan <dlan@kernel.org>, Alex Elder <elder@riscstar.com>,
- linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-riscv@lists.infradead.org, spacemit@lists.linux.dev
-Subject: Re: [PATCH] i2c: spacemit: drop IRQF_ONESHOT flag from IRQ request
-In-Reply-To: <20260122-05-k1-i2c-irq-v1-1-9b8d94bbcd22@kernel.org>
-References: <20260122-05-k1-i2c-irq-v1-1-9b8d94bbcd22@kernel.org>
-Date: Thu, 22 Jan 2026 09:06:47 +0100
-Message-ID: <87tswedqaw.fsf@ocarina.mail-host-address-is-not-set>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bagLUWiv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CE38C16AAE;
+	Thu, 22 Jan 2026 08:08:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769069323;
+	bh=QdnzH/k/Cpxt+cbGkFJe3060i3uFURJ3AiMAUgzjrW0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=bagLUWivqopIxhtDMa4hRZVJlzZb1kOZZsiVJnxhmZ7KLjsN6zgCRuoAMeWeiKT0i
+	 o5XfefkojyxAH+mcKs5mdF+lMOnuo0UyRh2dY0QzIf1CjL3Q4CapMm7uRBbDVUI9EA
+	 zXwzAvjbxhHSyFIE5UO8QV7c8bqDBXuM86amczFv7LQg/jcyNQu1XyIxE6PVHMGafq
+	 GPhJ5VVM+EESTXOyPb5bECIGqYtWvl3640i5zTALnrwGhMuEky6JZy1M6m+h3E+D9I
+	 72jCj78NUmFwr72E1RR5qO3AZFraIVU6S66ImRnev+NXK55Q7BFha/7EQqn2epNilq
+	 Pg32b92y/9i1A==
+Date: Thu, 22 Jan 2026 09:08:40 +0100
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Ben Zong-You Xie <ben717@andestech.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, linux-i2c@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org
+Subject: Re: [PATCH v2 1/4] dt-bindings: i2c: add support for AE350 I2C
+ controller
+Message-ID: <20260122-almond-pug-of-management-33d438@quoll>
+References: <20260122-atciic100-v2-0-7559136d07cf@andestech.com>
+ <20260122-atciic100-v2-1-7559136d07cf@andestech.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260122-atciic100-v2-1-7559136d07cf@andestech.com>
 
-Yixun Lan <dlan@kernel.org> writes:
-
-> In commit aef30c8d569c ("genirq: Warn about using IRQF_ONESHOT without a
-> threaded handler")[1], it will check IRQF_ONESHOT flag in IRQ request,
-> and gives a warning if there is no threaded handler. Drop this flag to
-> fix this warning.
->
-> Link: https://lore.kernel.org/r/20260112134013.eQWyReHR@linutronix.de/ [1]
-> Fixes: 5ea558473fa3 ("i2c: spacemit: add support for SpacemiT K1 SoC")
-> Signed-off-by: Yixun Lan <dlan@kernel.org>
+On Thu, Jan 22, 2026 at 11:53:18AM +0800, Ben Zong-You Xie wrote:
+> Document device tree bindings for the I2C controller on Andes AE350
+> platform.
+> 
+> Signed-off-by: Ben Zong-You Xie <ben717@andestech.com>
 > ---
+>  .../bindings/i2c/andestech,ae350-i2c.yaml          | 45 ++++++++++++++++++++++
+>  1 file changed, 45 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/andestech,ae350-i2c.yaml b/Documentation/devicetree/bindings/i2c/andestech,ae350-i2c.yaml
+> new file mode 100644
+> index 000000000000..59a521fb249b
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/andestech,ae350-i2c.yaml
+> @@ -0,0 +1,45 @@
+> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/i2c/andestech,ae350-i2c.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Andes I2C controller on AE350 platform
+> +
+> +maintainers:
+> +  - Ben Zong-You Xie <ben717@andestech.com>
+> +
+> +allOf:
+> +  - $ref: /schemas/i2c/i2c-controller.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    oneOf:
+> +      - items:
+> +          - enum:
+> +              - andestech,qilai-i2c
+> +          - const: andestech,ae350-i2c
+> +      - const: andestech,ae350-i2c
 
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Same question as before. Nothing in commit msg explains me above and you
+STILL DID NOT send your soc upstream which would help me to understand
+the relation between SoCs.
 
--- 
+Considering you did not even build check previous version, I do not give
+you any benefits of the doubt that this is correct code.
+
+Respond to previous review.
+
+That is a NAK and I am dropping it from the patchwork.
+
 Best regards,
-
-Javier Martinez Canillas
-Core Platforms
-Red Hat
+Krzysztof
 
