@@ -1,206 +1,133 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A470233CE87;
-	Thu, 22 Jan 2026 03:10:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E9AD2F12AC;
+	Thu, 22 Jan 2026 03:53:33 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769051403; cv=none; b=M8RsFWvFezqmGlaRhvBUI8jyoe+vc9WeJPNtW5kJBiFhccvThX9vaiSuhc93Er8Bt9RaNvD44ux46S9CvHjtsW1FpKnsk5fHPEdqizUMtfS5b8yp7cxd7XhzXeyt14hItNfVJ+KPqq8kT2adzdoy4Kql6OVgcy71tM4pYDVgIQw=
+	t=1769054014; cv=none; b=cpJV/ct5DgDvb0n0Fxvl17hnO2Ytw65nozoPMWA8fsyEhJyajmGZFCwzKF6F7viQDshETh9nio6d8Lki0JPm2rTRBymub5KeeeCchVITx17TtadleElSO3GkK4qn6AOmX9OzbbVcVbeKWVKKdH94BFpvjE4eSQLOTzjJaYsu4Eo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769051403; c=relaxed/simple;
-	bh=HqkUpvYzqpsTSrB+CKzL2nTtry3ut1BTOgaM9mtlkfk=;
-	h=From:Date:Content-Type:MIME-Version:Cc:To:In-Reply-To:References:
-	 Message-Id:Subject; b=pS4MvH8kNzX6K1+DtOkAyLXb4fH3ikuZ3dbutsHgSJzf0qCLs9XCi4zMu0QBRdud009csuZEvbJJlY0dD4CzF8BrymqwOWP0fYcOMG1cHXtu4ui3mT9WVA+sfr6Ff9Tgn+sxbPwzJSuwKW+V1O+/B3WHOVKFasxaAfPEhewTBb4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iRCVenAG; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769054014; c=relaxed/simple;
+	bh=6yOhuHzNdTY30xD/XYfZjff1L82lMLcjgD+SFKPnxTk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=ha7+wiay0hvXcdH1ikdG7+OXHOf2egS6OKptA91CGGOZng7ucvu5AssAuV4eWAdT35WfyDyBGQnOmczrI7qrLQl21FV0bIvdlzr4ofjwMg3TVmr1N6VN1RrURRh8FSIrYG7HUM/H4mCv3L4slURLV/QWcpp2hCHmOHWdZkMgaj4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y+lN9bJC; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iRCVenAG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19D6DC4CEF1;
-	Thu, 22 Jan 2026 03:10:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y+lN9bJC"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 92496C19422;
+	Thu, 22 Jan 2026 03:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769051403;
-	bh=HqkUpvYzqpsTSrB+CKzL2nTtry3ut1BTOgaM9mtlkfk=;
-	h=From:Date:Cc:To:In-Reply-To:References:Subject:From;
-	b=iRCVenAGLiTbnVUQ0hCElhkif0CdPtYjZ9tvA6Lf3m2a8eQTNRr5DcWm/u443SksZ
-	 GOKoFar/1CaAsoDY/iXOzhOcGZwAiUQ4Hhn7M/RrlYKXdmfEWlqI2us0hkMW26BiOo
-	 3WpFAXn7CrF9x6rQ5ygA2HYYsB/dm41v2aqjuY3lmBboMGE4IfYSoZ9PQK1mkI/iD4
-	 fcolD/D8esPeHwHvmF+zmZ9+TIsfaqXIoU58LcljepzqwKXCIPnAqeIx71ezlc+TQa
-	 /bar9Bo+6PHKzVAZiieUrxBCQAa2RLS909/Ut8yLCIx9GG1cQtfeD28/d8/V4IlMIZ
-	 V6Dyg6NUoMa4g==
-From: Rob Herring <robh@kernel.org>
-Date: Wed, 21 Jan 2026 21:10:02 -0600
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	s=k20201202; t=1769054013;
+	bh=6yOhuHzNdTY30xD/XYfZjff1L82lMLcjgD+SFKPnxTk=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=Y+lN9bJC/OHh6pjeCDwLN+4tn/hu2+LX6v15VoiWVpO3Zr0gU0T1nYSiijkqfYZfX
+	 8rR+kHJ+PzJ/NcFnj3daFZ6rbdCuOgKyuzF9B9pYi1QnIfPy/a74lBhXLZAXfY4rL1
+	 nJUTmQQRx8Be4nqxOwCBIAiOamV8WTVB+I5eaQwporb6C4hAg6AMvpja+sZZWCaMqB
+	 WOVnBuFox8TqU495d97ugwOha2fO0nPsk8t59HtME9DeuZrN2OxFcvXrnY8wjZMkTa
+	 QyypRMh5Ojm6OrhccWkuDAAn7DeH4eoLqvIMoQjzh8JGD/dc2R1wtdgMNw7vIbIluU
+	 g31EZ7pVBN5YA==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 831F7D625E7;
+	Thu, 22 Jan 2026 03:53:33 +0000 (UTC)
+From: Ben Zong-You Xie via B4 Relay <devnull+ben717.andestech.com@kernel.org>
+Date: Thu, 22 Jan 2026 11:53:18 +0800
+Subject: [PATCH v2 1/4] dt-bindings: i2c: add support for AE350 I2C
+ controller
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Cc: cros-qcom-dts-watchers@chromium.org, rfoss@kernel.org, 
- quic_svankada@quicinc.com, linux-i2c@vger.kernel.org, 
- linux-kernel@vger.kernel.org, bryan.odonoghue@linaro.org, 
- devicetree@vger.kernel.org, linux-media@vger.kernel.org, 
- konradybcio@kernel.org, hverkuil-cisco@xs4all.nl, krzk+dt@kernel.org, 
- andersson@kernel.org, andi.shyti@kernel.org, conor+dt@kernel.org, 
- linux-arm-msm@vger.kernel.org, loic.poulain@oss.qualcomm.com
-To: Nihal Kumar Gupta <quic_nihalkum@quicinc.com>
-In-Reply-To: <20260121183142.1867199-1-quic_nihalkum@quicinc.com>
-References: <20260121183142.1867199-1-quic_nihalkum@quicinc.com>
-Message-Id: <176905129175.732455.138349820288938094.robh@kernel.org>
-Subject: Re: [PATCH v9 0/5] Add CCI and imx577 sensor support for monaco
- evk
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260122-atciic100-v2-1-7559136d07cf@andestech.com>
+References: <20260122-atciic100-v2-0-7559136d07cf@andestech.com>
+In-Reply-To: <20260122-atciic100-v2-0-7559136d07cf@andestech.com>
+To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Paul Walmsley <pjw@kernel.org>, 
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+ Alexandre Ghiti <alex@ghiti.fr>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, 
+ Ben Zong-You Xie <ben717@andestech.com>
+X-Mailer: b4 0.15-dev-47773
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1769054012; l=1551;
+ i=ben717@andestech.com; s=20260120; h=from:subject:message-id;
+ bh=bzYjfsqz3N3OJ2j9q6l3BfHCzA65mq7d2npy3Ry0CC0=;
+ b=cae9XqVaBijHpGFgb5ZB/sdG9gKCTINR921/4Qy5OD1h21DNmNwnafowJvlmWthFpi9or8KCX
+ C+KJXDzvmThANQo0SX0may8Eanire4JSRp0jXdgjucOtcPuKWi2gVZ+
+X-Developer-Key: i=ben717@andestech.com; a=ed25519;
+ pk=nb8L7zQKGJpYk0yvrYKjViOZ34A36g1ZIsCmCsP518s=
+X-Endpoint-Received: by B4 Relay for ben717@andestech.com/20260120 with
+ auth_id=610
+X-Original-From: Ben Zong-You Xie <ben717@andestech.com>
+Reply-To: ben717@andestech.com
 
+From: Ben Zong-You Xie <ben717@andestech.com>
 
-On Thu, 22 Jan 2026 00:01:37 +0530, Nihal Kumar Gupta wrote:
-> From: Nihal Kumar Gupta <nihalkum@qti.qualcomm.com>
-> 
-> Monaco EVK is a single-board computer based on the Qualcomm QCS8300 SoC.
-> It lacks a camera sensor in its default configuration.
-> This series adds CCI support and enables the IMX577 sensor via CSIPHY1
-> through device tree overlay.
-> 
-> We have tested IMX577 Sensor on CCI1 with following commands:
-> - media-ctl --reset
-> - media-ctl -V '"imx577 3-001a":0[fmt:SRGGB10/4056x3040 field:none]'
-> - media-ctl -V '"msm_csiphy1":0[fmt:SRGGB10/4056x3040]'
-> - media-ctl -V '"msm_csid0":0[fmt:SRGGB10/4056x3040]'
-> - media-ctl -V '"msm_vfe0_rdi0":0[fmt:SRGGB10/4056x3040]'
-> - media-ctl -l '"msm_csiphy1":1->"msm_csid0":0[1]'
-> - media-ctl -l '"msm_csid0":1->"msm_vfe0_rdi0":0[1]'
-> - yavta -B capture-mplane -c -I -n 5 -f SRGGB10P -s 4056x3040 -F /dev/video1
-> ---
-> 
-> Changes in v9:
-> - Added i2c maintainers and linux-i2c mailing list for the qcom,i2c-cci.yaml
->   dt-bindings patch - Bryan
-> - Rebased onto the latest master.
-> - Link to v8:
->   https://lore.kernel.org/all/20251222095914.1995041-1-quic_nihalkum@quicinc.com
-> 
-> Changes in v8:
-> - Removed clock-lanes property from CAMSS node - Vladimir
-> - Changed data-lanes property to <1 2 3 4> on sensor node - Vladimir
-> - Sorted regulator entries with respect to the pin index - Konrad
-> - Link to v7:
->   https://lore.kernel.org/all/20251216062223.2474216-1-quic_nihalkum@quicinc.com
-> 
-> Changes in v7:
-> - Define MCLK pinctrl definitions in monaco.dtsi - Konrad and Vladimir
-> - Define fixed regulators for camera AVDD rails in monaco-evk.dts - Konrad
-> - Link to v6:
->   https://lore.kernel.org/all/20251126081057.4191122-1-quic_vikramsa@quicinc.com
-> 
-> Changes in v6:
-> - Fixed ordering of property-n and property-names in vreg_cam1_2p8 - Konrad
-> - Moved vreg_cam1_2p8 defintion to monaco-evk.dts - Konrad
-> - Removed description of pins with MCLK and Regulators function - Konrad
-> - Added pin hardware description for MCLK, regulators in monaco.dtsi - Konrad
-> - Link to v5:
->   https://lore.kernel.org/all/20251114064541.446276-1-quic_vikramsa@quicinc.com
-> 
-> Changes in v5:
-> - Rename cciX_i2cY_* to cciX_Y_* to shorten the labels - Vladimir
-> - Added description of pins with MCLK function - Vladimir
-> - Link to v4:
->   https://lore.kernel.org/all/20251015131303.2797800-1-quic_vikramsa@quicinc.com
-> 
-> Changes in v4:
-> - Remove the AXI source clock from the CCI node - Konrad
-> - Updated the qcs8300-camss device tree binding.
-> - Link to v3:
->   https://lore.kernel.org/all/20250917130647.1701883-1-quic_vikramsa@quicinc.com
-> 
-> Changes in v3:
-> - Updated and Wrapped commit messages for [PATCH v2 1/3] and [PATCH v2 2/3] - Rob
-> - Link to v2:
->   https://lore.kernel.org/all/20250912141134.2799078-1-quic_vikramsa@quicinc.com
-> 
-> Changes in v2:
-> - Remove the patch that adds PHY supply documentation in the qcs8300 CAMSS.
->   bindings. This change should be submitted together with the qcs8300 bindings patch.
-> - Fix indentation and regulator node name - Krzysztof.
-> - Update commit message as suggested - Dmitry.
-> - Link to v1:
->   https://lore.kernel.org/lkml/20250909114241.840842-1-quic_vikramsa@quicinc.com
-> 
-> Used following tools for the sanity check of these changes.
-> - make -j32 W=1
-> - checkpatch.pl
-> - make DT_CHECKER_FLAGS=-m W=1 DT_SCHEMA_FILES=i2c/qcom,i2c-cci.yaml dt_binding_check
-> - make CHECK_DTBS=y W=1 DT_SCHEMA_FILES=i2c/qcom,i2c-cci.yaml
-> - make DT_CHECKER_FLAGS=-m W=1 DT_SCHEMA_FILES=media/qcom,qcs8300-camss.yaml dt_binding_check
-> - make CHECK_DTBS=y W=1 DT_SCHEMA_FILES=media/qcom,qcs8300-camss.yaml
-> 
-> Signed-off-by: Nihal Kumar Gupta <quic_nihalkum@quicinc.com>
-> Signed-off-by: Vikram Sharma <quic_vikramsa@quicinc.com>
-> 
-> Nihal Kumar Gupta (5):
->   dt-bindings: i2c: qcom-cci: Document qcs8300 compatible
->   arm64: dts: qcom: monaco: Add CCI definitions
->   arm64: dts: qcom: monaco: Add camera MCLK pinctrl
->   arm64: dts: qcom: monaco-evk: Add camera AVDD regulators
->   arm64: dts: qcom: monaco-evk-camera: Add DT overlay
-> 
->  .../devicetree/bindings/i2c/qcom,i2c-cci.yaml |   2 +
->  arch/arm64/boot/dts/qcom/Makefile             |   4 +
->  .../dts/qcom/monaco-evk-camera-imx577.dtso    |  66 ++++
->  arch/arm64/boot/dts/qcom/monaco-evk.dts       |  51 +++
->  arch/arm64/boot/dts/qcom/monaco.dtsi          | 324 ++++++++++++++++++
->  5 files changed, 447 insertions(+)
->  create mode 100644 arch/arm64/boot/dts/qcom/monaco-evk-camera-imx577.dtso
-> 
-> --
-> 2.34.1
-> 
-> 
-> 
+Document device tree bindings for the I2C controller on Andes AE350
+platform.
 
+Signed-off-by: Ben Zong-You Xie <ben717@andestech.com>
+---
+ .../bindings/i2c/andestech,ae350-i2c.yaml          | 45 ++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
 
-My bot found new DTB warnings on the .dts files added or changed in this
-series.
+diff --git a/Documentation/devicetree/bindings/i2c/andestech,ae350-i2c.yaml b/Documentation/devicetree/bindings/i2c/andestech,ae350-i2c.yaml
+new file mode 100644
+index 000000000000..59a521fb249b
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/andestech,ae350-i2c.yaml
+@@ -0,0 +1,45 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/andestech,ae350-i2c.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Andes I2C controller on AE350 platform
++
++maintainers:
++  - Ben Zong-You Xie <ben717@andestech.com>
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++
++properties:
++  compatible:
++    oneOf:
++      - items:
++          - enum:
++              - andestech,qilai-i2c
++          - const: andestech,ae350-i2c
++      - const: andestech,ae350-i2c
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++  - interrupts
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c@f0a00000 {
++        compatible = "andestech,ae350-i2c";
++        reg = <0xf0a00000 0x100000>;
++        interrupts = <6 IRQ_TYPE_LEVEL_HIGH>;
++    };
 
-Some warnings may be from an existing SoC .dtsi. Or perhaps the warnings
-are fixed by another series. Ultimately, it is up to the platform
-maintainer whether these warnings are acceptable or not. No need to reply
-unless the platform maintainer has comments.
-
-If you already ran DT checks and didn't see these error(s), then
-make sure dt-schema is up to date:
-
-  pip3 install dtschema --upgrade
-
-
-This patch series was applied (using b4) to base:
- Base: attempting to guess base-commit...
- Base: tags/next-20260121 (exact match)
- Base: tags/next-20260121 (use --merge-base to override)
-
-If this is not the correct base, please add 'base-commit' tag
-(or use b4 which does this automatically)
-
-
-New warnings running 'make CHECK_DTBS=y for arch/arm64/boot/dts/qcom/' for 20260121183142.1867199-1-quic_nihalkum@quicinc.com:
-
-arch/arm64/boot/dts/qcom/qcs8300-ride.dtb: cci@ac13000 (qcom,qcs8300-cci): clock-names:0: 'ahb' was expected
-	from schema $id: http://devicetree.org/schemas/i2c/qcom,i2c-cci.yaml
-arch/arm64/boot/dts/qcom/qcs8300-ride.dtb: cci@ac14000 (qcom,qcs8300-cci): clock-names:0: 'ahb' was expected
-	from schema $id: http://devicetree.org/schemas/i2c/qcom,i2c-cci.yaml
-arch/arm64/boot/dts/qcom/qcs8300-ride.dtb: cci@ac15000 (qcom,qcs8300-cci): clock-names:0: 'ahb' was expected
-	from schema $id: http://devicetree.org/schemas/i2c/qcom,i2c-cci.yaml
-arch/arm64/boot/dts/qcom/monaco-evk.dtb: cci@ac13000 (qcom,qcs8300-cci): clock-names:0: 'ahb' was expected
-	from schema $id: http://devicetree.org/schemas/i2c/qcom,i2c-cci.yaml
-arch/arm64/boot/dts/qcom/monaco-evk.dtb: cci@ac14000 (qcom,qcs8300-cci): clock-names:0: 'ahb' was expected
-	from schema $id: http://devicetree.org/schemas/i2c/qcom,i2c-cci.yaml
-arch/arm64/boot/dts/qcom/monaco-evk.dtb: cci@ac15000 (qcom,qcs8300-cci): clock-names:0: 'ahb' was expected
-	from schema $id: http://devicetree.org/schemas/i2c/qcom,i2c-cci.yaml
-arch/arm64/boot/dts/qcom/monaco-evk-camera-imx577.dtb: cci@ac13000 (qcom,qcs8300-cci): clock-names:0: 'ahb' was expected
-	from schema $id: http://devicetree.org/schemas/i2c/qcom,i2c-cci.yaml
-arch/arm64/boot/dts/qcom/monaco-evk-camera-imx577.dtb: cci@ac14000 (qcom,qcs8300-cci): clock-names:0: 'ahb' was expected
-	from schema $id: http://devicetree.org/schemas/i2c/qcom,i2c-cci.yaml
-arch/arm64/boot/dts/qcom/monaco-evk-camera-imx577.dtb: cci@ac15000 (qcom,qcs8300-cci): clock-names:0: 'ahb' was expected
-	from schema $id: http://devicetree.org/schemas/i2c/qcom,i2c-cci.yaml
-
-
-
+-- 
+2.34.1
 
 
