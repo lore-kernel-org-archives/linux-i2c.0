@@ -1,194 +1,88 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6D413D1CC1;
-	Thu, 22 Jan 2026 11:41:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C7293033E5;
+	Thu, 22 Jan 2026 11:49:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769082103; cv=none; b=EiJmlUlpZxHuVARh19hK0meJ/VN1No/S8lkniZ652/UZCl3LHCIyBFS27Nrwrp3bpKCc1kFldFvhka+7LdOrBr4OvvBsLuc4Z/HvEZLHe438xWZvQ5HIGz6GEpRtILOjdzf/mCwHz6BBlmevJ0h2JS6df/o6kpepYquAbJDr+7E=
+	t=1769082582; cv=none; b=bz4HqzTOG2JytLvCt+Scol8tdMh0cn6DNkGaHbGAkNja3ef7+2rit2Z1GDkSTyQmXUMN7tAnc0vig8AyE1Cr1eR18LSDYxAPBLbm3JTcchFPm9rQwuZPCI9gVx/1qJZKH6CYqB7UFQ3fXj+/UOApXiCnAD9AQxEjeYUHCRNEB00=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769082103; c=relaxed/simple;
-	bh=NqQtXUERc3v4NzNZ99SDCcNfgBv7D/bmH0cyLocfDQo=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Ul6cWuiCd23bPKmADpeCXysr8QJCQMbn1PfsbJgGfT69ncBuwDVxZwk5A0qeMndfbRpYSybHfQma7BIjBxnTQsHHujPLrcIrVbl9ESyEZOaogiUuVGNPhKm+rFOHTufL9clbWijnpWAe4rQy7KnAtsjrsFcovhmywXog2FbQNyg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=UEFpYXOg; arc=none smtp.client-ip=185.246.85.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1769082582; c=relaxed/simple;
+	bh=4j7YJkbnOxR/MvySWqmB4MgSIDH7Fdw0JXk9nhr0x1k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=p6lvUTcpvq2rq00qDOc3byswtlSgb9Ibny3I7tGwp+S2oPScchS/tHSntgUsRUf5oWxqB/y59O7kKhshkZAFsPtF8gTxpO6D8TQvyMo6qfMz6X7aXN4rZZks0YCrpzntl+pJ8UBSRyJ7CDIE5jGiV8m7Tvy70UbEve8zCc9ZpbU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=BRZ3EaHy; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="UEFpYXOg"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 1D6934E421EE;
-	Thu, 22 Jan 2026 11:41:38 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id D41D760740;
-	Thu, 22 Jan 2026 11:41:37 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B0CD5119B0105;
-	Thu, 22 Jan 2026 12:41:16 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1769082094; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=Fl2SnsCgDRhlccmCWpsQ4CBlDuamahnW5kxpsohCwvo=;
-	b=UEFpYXOgJL+WIY89Mx/EpOyceBBILQiL0TxFQWpW01yiEySAJH2g1HcWGNeQm8jHeKv+xN
-	O2csc+HhLdo2gWFITsAzh6mTWYo9h+2QnQHxO2GdqZlsPvpTAG/XFqvOefokUsJca73PWu
-	919NjC9kftG/xECA0iNKY+BT7G6XeddTLl+YrGq6EFQ7innqv2Qzt9u7ZQzupbkT37WFhV
-	mgEsWUeGSzIj/19gb+Tq8BosxVfyi4TFbwa3Kmjo2kuM+uE7HxnX7idMvi9PAvs7Wiw+OR
-	Jl3h0x9NzvUaJ7inKLTNk1kZu+isqj/tgMXHTzscOm2flBtD/RFBursuZs9FuQ==
-Date: Thu, 22 Jan 2026 12:41:14 +0100
-From: Herve Codina <herve.codina@bootlin.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Matti Vaittinen <mazziesaccount@gmail.com>, Rob Herring
- <robh@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Ulf Hansson
- <ulf.hansson@linaro.org>, Kalle Niemi <kaleposti@gmail.com>,
- linux-arm-kernel@lists.infradead.org, Andrew Lunn <andrew@lunn.ch>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Danilo Krummrich <dakr@kernel.org>, Shawn Guo <shawnguo@kernel.org>, Sascha
- Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team
- <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, Michael
- Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, Andi
- Shyti <andi.shyti@kernel.org>, Wolfram Sang
- <wsa+renesas@sang-engineering.com>, Peter Rosin <peda@axentia.se>, Arnd
- Bergmann <arnd@arndb.de>, Bjorn Helgaas <bhelgaas@google.com>, Charles
- Keepax <ckeepax@opensource.cirrus.com>, Richard Fitzgerald
- <rf@opensource.cirrus.com>, David Rhodes <david.rhodes@cirrus.com>, Linus
- Walleij <linus.walleij@linaro.org>, Mark Brown <broonie@kernel.org>, Andy
- Shevchenko <andriy.shevchenko@linux.intel.com>, Daniel Scally
- <djrscally@gmail.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>,
- Sakari Ailus <sakari.ailus@linux.intel.com>, Len Brown <lenb@kernel.org>,
- Davidlohr Bueso <dave@stgolabs.net>, Jonathan Cameron
- <jonathan.cameron@huawei.com>, Dave Jiang <dave.jiang@intel.com>, Alison
- Schofield <alison.schofield@intel.com>, Vishal Verma
- <vishal.l.verma@intel.com>, Ira Weiny <ira.weiny@intel.com>, Dan Williams
- <dan.j.williams@intel.com>, Wolfram Sang <wsa@kernel.org>,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- imx@lists.linux.dev, linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org,
- linux-pci@vger.kernel.org, linux-sound@vger.kernel.org,
- patches@opensource.cirrus.com, linux-gpio@vger.kernel.org,
- linux-pm@vger.kernel.org, linux-spi@vger.kernel.org,
- linux-acpi@vger.kernel.org, linux-cxl@vger.kernel.org, Allan Nielsen
- <allan.nielsen@microchip.com>, Horatiu Vultur
- <horatiu.vultur@microchip.com>, Steen Hegelund
- <steen.hegelund@microchip.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>,
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Saravana Kannan
- <saravanak@kernel.org>
-Subject: Re: [PATCH v4 01/29] Revert "treewide: Fix probing of devices in DT
- overlays"
-Message-ID: <20260122124114.44812cc7@bootlin.com>
-In-Reply-To: <CAMuHMdWGk5ig3v9tGy1cMOg1LmKu3KrxQq2HO1vcQeZPuRxWBQ@mail.gmail.com>
-References: <20251015071420.1173068-1-herve.codina@bootlin.com>
-	<5cf2a12a-7c66-4622-b4a9-14896c6df005@gmail.com>
-	<CAL_JsqJjm12LxpDg6LmpY=Ro_keHwnrWiYMLVnG=s_pSP4X2WQ@mail.gmail.com>
-	<072dde7c-a53c-4525-83ac-57ea38edc0b5@gmail.com>
-	<CAL_JsqKyG98pXGKpL=gxSc92izpzN7YCdq62ZJByhE6aFYs1fw@mail.gmail.com>
-	<55076f4b-d523-4f8c-8bd4-0645b790737e@gmail.com>
-	<20251202102619.5cd971cc@bootlin.com>
-	<088af3ff-bd04-4bc9-b304-85f6ed555f2a@gmail.com>
-	<20251202175836.747593c0@bootlin.com>
-	<dc813fc2-28d2-4f2c-a2a3-08e33eec8ec7@gmail.com>
-	<20251204083839.4fb8a4b1@bootlin.com>
-	<CAMuHMdXdwf7La1EYBWTJadsTAJG3nKQVW6wtBn-bUqshA=XHRw@mail.gmail.com>
-	<20251210132140.32dbc3d7@bootlin.com>
-	<c50c40cc-69f6-436c-a94e-94a3a10f6727@gmail.com>
-	<20251211132044.10f5b1ea@bootlin.com>
-	<1b9fa77b-d74a-4fa7-b2e7-8b389d59a5a0@gmail.com>
-	<20251211161902.11ef4248@bootlin.com>
-	<CAMuHMdWGk5ig3v9tGy1cMOg1LmKu3KrxQq2HO1vcQeZPuRxWBQ@mail.gmail.com>
-Organization: Bootlin
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="BRZ3EaHy"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1769082581; x=1800618581;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=4j7YJkbnOxR/MvySWqmB4MgSIDH7Fdw0JXk9nhr0x1k=;
+  b=BRZ3EaHyKdi6D1K2yoEVb+v5X+kGPygMqFVxD6HGAxcgrlJ+eNdnD3gb
+   p2tzN9f8nbQ4vfx3z7Qjh0xcc3gTulNH6Hxi5V113o/wdFg3GY1fG7FBx
+   50ROSA9Y4gEB6AhcPsuEj0ZbE2FJmrYkJV2/oBjM0bKS6R8YS/T0zS7uH
+   6uRuR2OJweV2l4QEITKkQA/qc9gP6x05gn/mBcUNXV9GXhkfY7KJNi6HQ
+   rtE7pLoilW5IHRFuCBOrpRA42H9Nj4N3B5b2Ku1OiI7dGF5roIoLbVpan
+   EmN5JVanc/c+JrR82tnqSOYjVaVJoRkUAR0fhXD4GBxx+8zewkweBqliX
+   Q==;
+X-CSE-ConnectionGUID: n0tnaaECTyenmMHuI046qw==
+X-CSE-MsgGUID: bwfPZJGlTMq/QsA1562RIQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11678"; a="70370238"
+X-IronPort-AV: E=Sophos;i="6.21,246,1763452800"; 
+   d="scan'208";a="70370238"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2026 03:49:40 -0800
+X-CSE-ConnectionGUID: WA6LsTiLSnqB6cYglaqWBg==
+X-CSE-MsgGUID: JYdx8+YbQ4+b2LfMKLj61g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,246,1763452800"; 
+   d="scan'208";a="206773814"
+Received: from smoticic-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.225])
+  by orviesa008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2026 03:49:38 -0800
+Date: Thu, 22 Jan 2026 13:49:36 +0200
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jan Dabros <jsd@semihalf.com>
+Subject: Re: [PATCH v1 2/2] i2c: designware: Use device_is_compatible()
+ instead of custom approach
+Message-ID: <aXIO0FpyuHX56FCy@smile.fi.intel.com>
+References: <20260114081954.252160-1-andriy.shevchenko@linux.intel.com>
+ <20260114081954.252160-3-andriy.shevchenko@linux.intel.com>
+ <aXIDQtLlzYvbJSGV@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aXIDQtLlzYvbJSGV@zenone.zhora.eu>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Hi Geert,
+On Thu, Jan 22, 2026 at 12:10:48PM +0100, Andi Shyti wrote:
+> On Wed, Jan 14, 2026 at 09:17:51AM +0100, Andy Shevchenko wrote:
+> > We use MODEL_MSCC_OCELOT effectively is a flag for comparing against
+> > "compatible" property. Use device_is_compatible() directly to make it
+> > clear.
+> > 
+> > Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> 
+> I'm coming into the discussion and I personally like Andy's
+> approach. As a third party, I believe this patch has reached the
+> consensus and I'm taking it in i2c/i2c-host.
 
-On Wed, 21 Jan 2026 13:59:26 +0100
-Geert Uytterhoeven <geert@linux-m68k.org> wrote:
+Thank you!
 
-> Hi Hervé,
-> 
-> Revisiting his old thread (sorry for the delay)...
-> 
-> On Thu, 11 Dec 2025 at 16:19, Herve Codina <herve.codina@bootlin.com> wrote:
-> > On Thu, 11 Dec 2025 15:52:28 +0200
-> > Matti Vaittinen <mazziesaccount@gmail.com> wrote:  
-> > > On 11/12/2025 14:20, Herve Codina wrote:  
-> > > > On Thu, 11 Dec 2025 10:34:46 +0200
-> > > > Matti Vaittinen <mazziesaccount@gmail.com> wrote:
-> > > > Do you see the same trace with:
-> > > > - "pinctrl-0 = <&i2c1_pins>;" in your overlay
-> > > > - fragment0 removed from the overlay (i2c1_pins definition removed from
-> > > >    the overlay.
-> > > > - i2c1_pins node defined in your base DT.  
-> > >
-> > > Just tested. The i2c1 appears and the test-overlay probe gets called,
-> > > when the i2c1_pins is in the base-dt and not in the overlay.  
-> >
-> > Geert, do you expirement same results?  
-> 
-> Yes, after moving the pin control subnode from the overlay[1] to the
-> base DTS, the SPI bus and FLASH work after loading the overlay for
-> the first time.
+-- 
+With Best Regards,
+Andy Shevchenko
 
-Ok. What I said for Matti's use-case is also valid for your use-case.
 
-> 
-> > > > In other word, is the issues related to adding a pinctrl sub-node (pinctrl
-> > > > pins definition) in the overlay or is it something else?  
-> > >
-> > > Seems to be related to the pinctrl.  
-> >
-> > I don't think that the issue is related to pinctrl itself.
-> >
-> > IMHO, I think the issue is related to overlays and fw_devlink.
-> > The distinction between "a new node is going to lead to a device" vs "a new
-> > node is just data and will never been attached to a new device" when an
-> > overlay is applied is broken.
-> >
-> > This is broken with the upstream "treewide: Fix probing of devices in DT
-> > overlays" commit I've tried to revert. Indeed, on the LAN966x PCI device
-> > use case devlinks created are not correct with this commit applied.
-> >
-> > I am not sure also that devlinks created with a more complex overlay will be
-> > correct. For instance, Matti, with your overlay not sure that a phandle from
-> > the oscillator node referencing the pmic node will lead to a correct
-> > provider/consumer devlink between the pmic device and the oscillator device.
-> >
-> > On the other hand, this is broken with "of: dynamic: Fix overlayed devices
-> > not probing because of fw_devlink" works for the LAN966x PCI device use case
-> > an lead to correct devlinks but breaks your use cases.  
-> 
-> Loading my overlay[1] causes the following changes under
-> /sys/class/devlink/:
-> 
->     + genpd_provider:ca53-cpu0--platform:e6e90000.spi ->
-> ../../devices/virtual/devlink/genpd_provider:ca53-cpu0--platform:e6e90000.spi
->     + platform:e6055000.gpio--platform:e6e90000.spi ->
-> ../../devices/virtual/devlink/platform:e6055000.gpio--platform:e6e90000.spi
->     + platform:e6060000.pinctrl--platform:e6e90000.spi ->
-> ../../devices/virtual/devlink/platform:e6060000.pinctrl--platform:e6e90000.spi
->     - platform:e6060000.pinctrl--platform:keys ->
-> ../../devices/virtual/devlink/platform:e6060000.pinctrl--platform:keys
->     + platform:e6150000.clock-controller--platform:e6e90000.spi ->
-> ../../devices/virtual/devlink/platform:e6150000.clock-controller--platform:e6e90000.spi
->     + platform:soc--platform:e6e90000.spi ->
-> ../../devices/virtual/devlink/platform:soc--platform:e6e90000.spi
-> 
-> Note that these changes are exactly the same in the working and the
-> non-working case.
-> 
-> Removing the overlay again removes all added links, but does not
-> restore the keys link:
-
-I think you should have the exact same behavior with and without my
-modification.
-
-Can you confirm?
-
-Best regards,
-Hervé
