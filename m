@@ -1,78 +1,66 @@
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E950E3AE6E0
-	for <linux-i2c@vger.kernel.org>; Thu, 22 Jan 2026 12:18:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B34FF2C11C6;
+	Thu, 22 Jan 2026 13:06:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769084339; cv=none; b=tZ8gch6uZcMkgb9dRkxEJwSH8htZQexnJJLd99wtADNSEUJo3nycgZfK4WfQesDG/qQpsl1MsFSzCAeI0me04+1wSyRj9Uk3qJfbIQdwTJOD8NjkfnEhuW5s3emFk4SYwMRFaCXc6dAj19zTWDHrdWZ8ilGAJMjXXL8Hk/rPzqo=
+	t=1769087168; cv=none; b=V/zS/RtcLm0sUQxX7KdNarRegCXNHqUFaLTqpVg8ky5DgPNSQ130nqcVvrs6IV8BNRpSB7Hd7HxVinBPHvbDKqB+95h05dOL42RdddeNgxfb5QOP0+zG8HXE1ib8a0QbN7iOCavh3DZ3jqezqYb+BKwj2Tx9wfMOKacl6sz0YtU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769084339; c=relaxed/simple;
-	bh=s0PP6POZG+0DDhlnkBd6RLq6XlMNNCrkEEqlrLC8oio=;
+	s=arc-20240116; t=1769087168; c=relaxed/simple;
+	bh=rC6T3O4H3sHc69QHplsUYFl5tJd5RhVrogcigqQQ2PQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EzAJ0iRX4Uby+w4x/os3JHgaflwGMIjtf1yP1trWH45lKVQmtgr3WOYIPN79o5nUo/OSSff3Fe3TnM5PKQmoIz7+fzfYOC3cQqq+t2L0JOcD7cupK8UyDz40DFA4bgruhI8LuYq74r+HMDwe75x/hCgLBDKFVS4m3oyFiE/kB4Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L44yAuw9; arc=none smtp.client-ip=209.85.128.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=gXDHSqbqWz93257ZmbmyQ17dR9Gg7xGOPDlUxiIDm9MtYKQAsgVQwLnT78Ug74BrijWjze9rKopJ05lqili9H2M2iLx3nDTWXQxUmdEXWjXVM+QG7qBDiQAF2pPqcV8UOcsSHi4ZBAG0MqKwodkH5QLUdlseRiYoWgeBEBPGC5w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TKylzkSa; arc=none smtp.client-ip=192.198.163.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L44yAuw9"
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-4801c731d0aso7286985e9.1
-        for <linux-i2c@vger.kernel.org>; Thu, 22 Jan 2026 04:18:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769084336; x=1769689136; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Aw8PwRqcSFnjHYu9kruFq08beZFwPpI2ZTR02sRsPTY=;
-        b=L44yAuw9UXdXbQTfb37ta+820tlRHp05ren+Relt6nJvhkTrFiNWJ7PdUiOOBoX5xd
-         gZTqA2IkC0Gp4DqycajqLcqCp3+4I+cuiiiuWyAtxKd3QxI+GHPA1nIUXoH5tzMTTVRD
-         n342LpUbMuhkdTI2ufpW+0wHsj3E1X2xH77qW8dPXo1rd47RgDv2dhLS2wjY4U9V8tbH
-         a749LF4Xkoi1WO7ITYTJPRlFFAC5Dd1VTzdjQUI2tP0lGSWpcvnB//aZ65mhxLafBNcQ
-         c10aSh0EQuUFO9s44yBvyGnXAA2m0yF5gTRW1iqu/VWnVwS3ONOLMaXqIhnnZk3e4VZA
-         OnSA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769084336; x=1769689136;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Aw8PwRqcSFnjHYu9kruFq08beZFwPpI2ZTR02sRsPTY=;
-        b=EluSbgWmCq3ImIyIjCQWNdlR7oou4Ikb2+/tfmgjSDnuQi/IGnEO+SLKBN8wr0ifFK
-         Hivj63ob7K4kiKpImOEo77MHzGaJIoB9eDdnrfR8JAxbSQuradIShr18rIUj1cPj8k9x
-         LPe0z5IheUfq1OQX6njzKZLmt1m1k3W5rjCL/eEYI2aYFqnGRjJD+5I5+RtL69DCc8Pp
-         qgpJWzc/qtuppXmrSMiICxox0lc19ft7iNAzig5/NW87c1+ghRmpoP+gZddxdPxNeMrr
-         Kwd0mtnfYvAyfimZdIHGdWZmrLcE3z9YH4LDvf4XDapXvVMEVYSmZkducHrkJDT1vkpn
-         Y73w==
-X-Forwarded-Encrypted: i=1; AJvYcCXwH7fBpcooN4P5nN1qd7hkJN9SO3t+47AnwFIvn40D9E3J5cGTb5/EjVHkIlXWOTTG7sAQx96gUVE=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwMiuae2/hQ0UV+X+aesuNBOqY2GkTQBzsXiTlLLJwsAtttCSDq
-	vjE5uO4wTo984gsTHO0BnORqqXOJwVpAgqO6qasGd4ml17wkIkvsSIrP
-X-Gm-Gg: AZuq6aJDqz3yjbyCxI6q5DkwXfQUMmOcMR+y5syTFsjlG8Kmos1s8r9k20ZVhctjrHx
-	0UNCXwvyJ6lHAV0Y/CeUwhiyP1Hrwtq//oKQ/GIVnffW9+zsdPleS1QY7LI9oxaMgeyECGFbiHh
-	O3uapn48HDI+zNsTqrumDkSIl0RTLKgVPUEXPikXI1QmEI86vb5HG3ExcQBxCyvlZJporinzvPe
-	UP5wjt2xOyfwWOTuFx0TFqlAw1yhY21K9qKuSleU9CzQNwmijRggtr6Xu5rzTr3xvWGhmoRSrZJ
-	9/rKoFgynHZfpW1Br3HPvE+fW3aLu2g6/E8CEahOXyuhiYkED2HhRpGS2yL3JmbXJRQHZ2E7QaZ
-	Sir8JrjMX93gtdL+EtwuRrhXXFPPyti71US4VJshojYz7wO0GTYrlcGyopsV+kSanOcexqXCdRa
-	p9BZxPL53f5ikMWm3iclQ5Ng==
-X-Received: by 2002:a05:600c:3e07:b0:480:3ad0:93bf with SMTP id 5b1f17b1804b1-4803ad094b1mr190051015e9.24.1769084335819;
-        Thu, 22 Jan 2026 04:18:55 -0800 (PST)
-Received: from eichest-laptop ([77.109.188.37])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43595e0a6fasm16302233f8f.10.2026.01.22.04.18.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 22 Jan 2026 04:18:55 -0800 (PST)
-Date: Thu, 22 Jan 2026 13:18:52 +0100
-From: Stefan Eichenberger <eichest@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: LI Qingwu <Qing-wu.Li@leica-geosystems.com.cn>, o.rempel@pengutronix.de,
-	kernel@pengutronix.de, shawnguo@kernel.org,
-	Stefan Eichenberger <stefan.eichenberger@toradex.com>,
-	s.hauer@pengutronix.de, festevam@gmail.com,
-	linux-i2c@vger.kernel.org, imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	bsp-development.geo@leica-geosystems.com
-Subject: Re: [PATCH V3 1/2] i2c: imx: preserve error state in block data
- length handler
-Message-ID: <aXIVrFdTB4V6pnBh@eichest-laptop>
-References: <20260116111906.3413346-1-Qing-wu.Li@leica-geosystems.com.cn>
- <20260116111906.3413346-2-Qing-wu.Li@leica-geosystems.com.cn>
- <aXH_agPD8D2QIVs0@zenone.zhora.eu>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TKylzkSa"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1769087166; x=1800623166;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=rC6T3O4H3sHc69QHplsUYFl5tJd5RhVrogcigqQQ2PQ=;
+  b=TKylzkSa5oQmt1SjptZeVCf2iahOvFlr15w1NO07qN8kub3uGtvhRQnn
+   cFWBSmsQRzZtHbi6n2R24qSsHdNOUhJ6zLcVkAfiFByjYD3l6C7TVXjjk
+   fBtKM8PNtx5Jnj1bzQ4Z1uSAhAOzEgH3Jsx/yklnoS0GiWg50hlqWywEn
+   g6ml7b9v1KmQdrbOjqa6kqVdJ8op0vZyhzaBw8j7VBZrCezF2EI+Fgvy2
+   hdPqXyuJX9dBFpPpVl6My4AiFQxdys3vGpy1zJfUJkldrRqy8YtM+++8l
+   SPBEBR++XijeUq7JTpMldbKyFJMu+taq/Ys9QeAu7FNDlBzPYDlc9Fsif
+   Q==;
+X-CSE-ConnectionGUID: 9rroT95/QgWIxZZICfjBbQ==
+X-CSE-MsgGUID: 4ehAkqDsTeWVj5SP74N3lA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11678"; a="57892419"
+X-IronPort-AV: E=Sophos;i="6.21,246,1763452800"; 
+   d="scan'208";a="57892419"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Jan 2026 05:06:05 -0800
+X-CSE-ConnectionGUID: 079ECkJBSHqbNlHT4t7v0w==
+X-CSE-MsgGUID: Wl0Myg7PSjGDi9QeczkPvA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,246,1763452800"; 
+   d="scan'208";a="206991199"
+Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
+  by fmviesa008.fm.intel.com with ESMTP; 22 Jan 2026 05:06:01 -0800
+Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1viuNr-00000000Sqn-1c5V;
+	Thu, 22 Jan 2026 13:05:59 +0000
+Date: Thu, 22 Jan 2026 21:05:10 +0800
+From: kernel test robot <lkp@intel.com>
+To: Carlos Song <carlos.song@nxp.com>, andi.shyti@kernel.org,
+	aisheng.dong@nxp.com, shawnguo@kernel.org, s.hauer@pengutronix.de,
+	kernel@pengutronix.de, festevam@gmail.com, vz@mleia.com,
+	pandy.gao@nxp.com, B38611@freescale.com, wsa@kernel.org
+Cc: oe-kbuild-all@lists.linux.dev, linux-i2c@vger.kernel.org,
+	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org, Carlos Song <carlos.song@nxp.com>,
+	Frank Li <Frank.Li@nxp.com>
+Subject: Re: [Patch V3] i2c: imx-lpi2c: fix SMBus block read NACK after byte
+ count
+Message-ID: <202601222033.Qhu55YA4-lkp@intel.com>
+References: <20260121094837.2651035-1-carlos.song@nxp.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -81,67 +69,84 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aXH_agPD8D2QIVs0@zenone.zhora.eu>
+In-Reply-To: <20260121094837.2651035-1-carlos.song@nxp.com>
 
-Hi Andi and Li,
+Hi Carlos,
 
-On Thu, Jan 22, 2026 at 11:48:54AM +0100, Andi Shyti wrote:
-> Hi Li,
-> 
-> I'm adding also Stefan in the Cc list as he has authored the
-> lines you are changing.
-> 
-> On Fri, Jan 16, 2026 at 11:19:05AM +0000, LI Qingwu wrote:
-> > When a block read returns an invalid length, zero or >I2C_SMBUS_BLOCK_MAX,
-> > the length handler sets the state to IMX_I2C_STATE_FAILED. However,
-> > i2c_imx_master_isr() unconditionally overwrites this with
-> > IMX_I2C_STATE_READ_CONTINUE, causing an endless read loop that overruns
-> > buffers and crashes the system.
-> > 
-> > Guard the state transition to preserve error states set by the length
-> > handler.
-> > 
-> > Signed-off-by: LI Qingwu <Qing-wu.Li@leica-geosystems.com.cn>
-> 
-> I asked you to add the Fixes tag here. Perhaps you need to add:
-> 
-> Fixes: 5f5c2d4579ca ("i2c: imx: prevent rescheduling in non dma mode")
-> Cc Stefan Eichenberger <stefan.eichenberger@toradex.com>
-> Cc: <stable@vger.kernel.org> # v6.13+
-> 
-> You can get the information above with "git blame".
-> 
-> I'll wait for comments from Oleksij and/or Stefan here.
-> 
-> Andi
-> 
-> > ---
-> >  drivers/i2c/busses/i2c-imx.c | 3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> > index 205cc132fdec..05ba41144648 100644
-> > --- a/drivers/i2c/busses/i2c-imx.c
-> > +++ b/drivers/i2c/busses/i2c-imx.c
-> > @@ -1102,7 +1102,8 @@ static irqreturn_t i2c_imx_master_isr(struct imx_i2c_struct *i2c_imx, unsigned i
-> >  
-> >  	case IMX_I2C_STATE_READ_BLOCK_DATA_LEN:
-> >  		i2c_imx_isr_read_block_data_len(i2c_imx);
-> > -		i2c_imx->state = IMX_I2C_STATE_READ_CONTINUE;
-> > +		if (i2c_imx->state == IMX_I2C_STATE_READ_BLOCK_DATA_LEN)
-> > +			i2c_imx->state = IMX_I2C_STATE_READ_CONTINUE;
-> >  		break;
-> >  
-> >  	case IMX_I2C_STATE_WRITE:
-> > -- 
-> > 2.43.0
-> > 
+kernel test robot noticed the following build errors:
 
-It looks good to me, thanks for the fix. I wonder if the functions in
-the isr should instead better return a status and based on that we
-decide if we have to change the state or not. Then we would have the
-decision to what state we swtich at one place. However, this would
-probably be too much rework for that fix.
+[auto build test ERROR on linus/master]
+[also build test ERROR on v6.19-rc6 next-20260121]
+[cannot apply to andi-shyti/i2c/i2c-host]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-Therefore, if you add the fixes tag suggested by Andi:
-Reviewed-by: Stefan Eichenberger <eichest@gmail.com>
+url:    https://github.com/intel-lab-lkp/linux/commits/Carlos-Song/i2c-imx-lpi2c-fix-SMBus-block-read-NACK-after-byte-count/20260121-175629
+base:   linus/master
+patch link:    https://lore.kernel.org/r/20260121094837.2651035-1-carlos.song%40nxp.com
+patch subject: [Patch V3] i2c: imx-lpi2c: fix SMBus block read NACK after byte count
+config: m68k-allmodconfig (https://download.01.org/0day-ci/archive/20260122/202601222033.Qhu55YA4-lkp@intel.com/config)
+compiler: m68k-linux-gcc (GCC) 15.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260122/202601222033.Qhu55YA4-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202601222033.Qhu55YA4-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   In file included from drivers/i2c/busses/i2c-imx-lpi2c.c:19:
+   drivers/i2c/busses/i2c-imx-lpi2c.c: In function 'lpi2c_imx_read_init':
+>> drivers/i2c/busses/i2c-imx-lpi2c.c:93:29: error: implicit declaration of function 'FIELD_GET' [-Wimplicit-function-declaration]
+      93 | #define MSR_RDF_ASSERTED(x) FIELD_GET(MSR_RDF, (x))
+         |                             ^~~~~~~~~
+   include/linux/iopoll.h:49:21: note: in definition of macro 'poll_timeout_us'
+      49 |                 if (cond) { \
+         |                     ^~~~
+   include/linux/iopoll.h:193:9: note: in expansion of macro 'read_poll_timeout'
+     193 |         read_poll_timeout(op, val, cond, sleep_us, timeout_us, false, addr)
+         |         ^~~~~~~~~~~~~~~~~
+   include/linux/iopoll.h:228:9: note: in expansion of macro 'readx_poll_timeout'
+     228 |         readx_poll_timeout(readl, addr, val, cond, delay_us, timeout_us)
+         |         ^~~~~~~~~~~~~~~~~~
+   drivers/i2c/busses/i2c-imx-lpi2c.c:569:23: note: in expansion of macro 'readl_poll_timeout'
+     569 |                 ret = readl_poll_timeout(lpi2c_imx->base + LPI2C_MSR, val,
+         |                       ^~~~~~~~~~~~~~~~~~
+   drivers/i2c/busses/i2c-imx-lpi2c.c:570:42: note: in expansion of macro 'MSR_RDF_ASSERTED'
+     570 |                                          MSR_RDF_ASSERTED(val), 1, 1000);
+         |                                          ^~~~~~~~~~~~~~~~
+
+
+vim +/FIELD_GET +93 drivers/i2c/busses/i2c-imx-lpi2c.c
+
+    70	
+    71	#define MCR_MEN		BIT(0)
+    72	#define MCR_RST		BIT(1)
+    73	#define MCR_DOZEN	BIT(2)
+    74	#define MCR_DBGEN	BIT(3)
+    75	#define MCR_RTF		BIT(8)
+    76	#define MCR_RRF		BIT(9)
+    77	#define MSR_TDF		BIT(0)
+    78	#define MSR_RDF		BIT(1)
+    79	#define MSR_SDF		BIT(9)
+    80	#define MSR_NDF		BIT(10)
+    81	#define MSR_ALF		BIT(11)
+    82	#define MSR_MBF		BIT(24)
+    83	#define MSR_BBF		BIT(25)
+    84	#define MIER_TDIE	BIT(0)
+    85	#define MIER_RDIE	BIT(1)
+    86	#define MIER_SDIE	BIT(9)
+    87	#define MIER_NDIE	BIT(10)
+    88	#define MCFGR1_AUTOSTOP	BIT(8)
+    89	#define MCFGR1_IGNACK	BIT(9)
+    90	#define MRDR_RXEMPTY	BIT(14)
+    91	#define MDER_TDDE	BIT(0)
+    92	#define MDER_RDDE	BIT(1)
+  > 93	#define MSR_RDF_ASSERTED(x) FIELD_GET(MSR_RDF, (x))
+    94	
+
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
