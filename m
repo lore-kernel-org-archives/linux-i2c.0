@@ -1,116 +1,104 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CD3828FFFB;
-	Fri, 23 Jan 2026 14:37:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769179043; cv=none; b=E669awKGTipzvQYIoJIJ3j6oRrUxFEpCoNGDxEWuwwRbBKH+e2K+Y6XMwKogI4zHtz/mJAkFFQjmoLzOnnMFFviPVf8N7/IShD3t7soenRcoWuAlwL2vLyQ+NMShhWQAO7KtRb743tklXbErr2UrOVPKF6C2jB3G8id7/LCIEM0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769179043; c=relaxed/simple;
-	bh=aDjYSZifG6+j1Xr1fLBwNCAW0H7ApXDhylx+xTZg56o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TDQXAXUm5fuQZ1a80KVnL6PRHHctTKzW2BxtYcY5m+xLpkFT/jBPebPNMKQAmuG4+hyktCWkRGJr/5UfcVTePRmwpqRZxhSzLni6ZJwAayMJ9n1y6F9PRbq0FO568DdUmURRWuP0Kag6dYTArl3ASwlIfjIpSe0pcPmXJqW0st4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=OELLw2Ik; arc=none smtp.client-ip=192.198.163.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C85E721CA02
+	for <linux-i2c@vger.kernel.org>; Fri, 23 Jan 2026 16:03:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.43
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769184237; cv=pass; b=CaJh+Mn9mM/uDyo8jWQJs8Od8IpqID1yktpq9CSWYeLwM9EIYwm1Mhx5DXutqh7ES144kANSSE+i7UVnPcihW4TUhbUQMtBFLchcNs+mgC1YAbxmrsD9t2PVY1ukCJ53RnKueF1fc5rTWMHJ3sz2hin7y7IfgMwsM/U5MHDjxag=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769184237; c=relaxed/simple;
+	bh=TSdd2b2+wNRFWHSMzl7jYT/BVToLvIGBcqV0TesOD5A=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=r4281at5eC+xMprg+tNHEsDQz2NOZy8NqhFa3pU5v+6EOy8iVUQ6NZfXsBIbCIqsqhbG9hCcNaRDWI6ASLkbdcbZbeUgn62sT63SAgLztVs3tJEkof7u9sDAznTaWhnTt46RnvRW61coePtsn96ePvb6laijmDJE/eRoXBe5tgA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ECokD85I; arc=pass smtp.client-ip=209.85.208.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="OELLw2Ik"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769179042; x=1800715042;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=aDjYSZifG6+j1Xr1fLBwNCAW0H7ApXDhylx+xTZg56o=;
-  b=OELLw2Ik4iefFkRItysONjESnvkBcfTIMHBSZejSPkC4hzs+GdPENjhI
-   378hTkIfm+A2W+30CxBCjFfAVOpBBuE8gSRVsUva5YubwOu+c9klzHz1B
-   iQlnXFRc6GBm3ERGsoXaJ+93BmW9kuV0uXnTltJE+zvVGu2oIJjHBTFKu
-   GO0isvmw1wS+0pNCQ8mLOtoIw0CdNUw/z0jV3vfTntcDUHjOwi+ijKDwZ
-   hH7GxtyFHeMaop7TZyddTEQxF2kc5Tb53K1vhXiGQJuUzWuhGUAFqRNp8
-   qx9ya8HfExEelxVb9ToH7iIZaEweHiBKDjuCOGMhCtu+PHfNtUUDZyowM
-   A==;
-X-CSE-ConnectionGUID: TsGiO4nNQhaDT0DJghNCJw==
-X-CSE-MsgGUID: iiUn2QsWSVK7l9ERLOt4BQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11680"; a="70492040"
-X-IronPort-AV: E=Sophos;i="6.21,248,1763452800"; 
-   d="scan'208";a="70492040"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jan 2026 06:37:21 -0800
-X-CSE-ConnectionGUID: Wf2aeaClTcmPpdagfBubRg==
-X-CSE-MsgGUID: /KAjGKLpQWKAtaggnaLe2g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,248,1763452800"; 
-   d="scan'208";a="206297644"
-Received: from rvuia-mobl.ger.corp.intel.com (HELO localhost) ([10.245.244.112])
-  by orviesa010-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jan 2026 06:37:18 -0800
-Date: Fri, 23 Jan 2026 16:37:15 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: =?iso-8859-1?Q?Beno=EEt?= Monin <benoit.monin@bootlin.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jan Dabros <jsd@semihalf.com>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Clark Williams <clrkwllms@kernel.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-	Gregory CLEMENT <gregory.clement@bootlin.com>,
-	=?iso-8859-1?Q?Th=E9o?= Lebrun <theo.lebrun@bootlin.com>,
-	Tawfik Bayouk <tawfik.bayouk@mobileye.com>,
-	Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>,
-	Dmitry Guzman <dmitry.guzman@mobileye.com>,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-rt-devel@lists.linux.dev
-Subject: Re: [PATCH v5 4/6] i2c: designware: Implement I2C_M_STOP support
-Message-ID: <aXOHm3tasb_yq7hq@smile.fi.intel.com>
-References: <20260120-i2c-dw-v5-0-0e34d6d9455c@bootlin.com>
- <20260120-i2c-dw-v5-4-0e34d6d9455c@bootlin.com>
- <aXJPljHeRxBXH_Jo@black.igk.intel.com>
- <7226044.9J7NaK4W3v@benoit.monin>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ECokD85I"
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-64b791b5584so3806820a12.0
+        for <linux-i2c@vger.kernel.org>; Fri, 23 Jan 2026 08:03:55 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769184234; cv=none;
+        d=google.com; s=arc-20240605;
+        b=Dv6DbJEMoCV6mmO8WB1jZuJq7hmPo9O+IrutfLgp5lU2PgTpWZAIrJzuhY0vwAkG+F
+         aBggopwzyp1x/e1vckfyXUAbpFFxcHAhNzI9mfSC/49OQBtj4O9jpAXLlotaW5fZ85zx
+         48KsE/mkaIh2jqA2Wpnc+MAc+cgXq1IidW49cbJBB2CGH/XokgGwhbhUAejG5IiWM2Hm
+         ZzXU68/yzZhvf7ugIOjNlKVikocfGVGYbpFt2g5vRfXYISCWFql3vP+Dt6UleD+aNrPq
+         jVkzRWsMSfdRoNJva5Av3Iua8WsNAQY6Z7hGtLfvzHYMFgrEjdgwWLiL+uudIbaMCGlX
+         cdrQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=TSdd2b2+wNRFWHSMzl7jYT/BVToLvIGBcqV0TesOD5A=;
+        fh=axQUDaj91nT+6pa0/M60ED5ZMNwRjaJMywGmRYtSnZk=;
+        b=Kt/hVOc+MBuNyCbti4tb0oOo6luj5oomV6spoGm7CJ8Cjo5oc5P0GYwJb+GHcsxlz5
+         KhvvsQVKOypJEGhxkYmuZf4Bc5iDkcnQ4mvNtRqM6+vT2YFo5SZjEf44k4t29rhG8DOW
+         OPh69i6O7oBadVYsLir3VFFqRP/ZCPp0ZAItd3cj3P70Tw5p/b5HKaxIR/CcctC59Hjn
+         ScaFp1fzuxLoYT6gkD7GrEkH+8+MAcoZQwRJt8G+0RjaBX4IRm1IFSA/biW9WCynDcvC
+         Or9+fvmf772GgE3pmh1V0+lF7Xt+Wi4cOXLtzFgxvf+o3yKxZCZacUNrVBWVhhwcConK
+         0eIg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769184234; x=1769789034; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=TSdd2b2+wNRFWHSMzl7jYT/BVToLvIGBcqV0TesOD5A=;
+        b=ECokD85IP4lUmK3gRCdMuh0abP98+Lm5yrAauvd+oEgpyGy3PRHl8/UDNeZDzOeWDF
+         ZiyYUior8II33exwW2BZ1MXtd0L5/OUvhmA4M0rhsX/NfqWi/J7FNLBY4IRBzQIFEbuj
+         jb4hm5ipakqq6xulyGhaQppv2ZyIhcSua1IaO1XlROOrVMm0qscNxA0DKAXzlVV4Cbd3
+         Gzly3KTZddj+vKwrQhXwBurJT7VrjTGZjJp78bWPYgOGLAdz/fJVJIA+RAuCQcZGQHE2
+         dtZItYT6Sy2fOPs9jouZrR3cQM4DLmDsbwmNmeuXWmMSqgbUVVroW9/TOl3zu8hUJwKn
+         /gsg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769184234; x=1769789034;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=TSdd2b2+wNRFWHSMzl7jYT/BVToLvIGBcqV0TesOD5A=;
+        b=R69oiRGGvwN8sizrzwIhWHutDbpV/cRg4wPrAFQObXEDX3BnHvpSRu2KJweDI1t02G
+         QPFpbdZIi3M2FM4kGja7qB7OABYB8d6otjI9AubrJeTB7kUURSuLfllf8WrfVAMenvZ6
+         6iF/c0GKCgSJjH0w00qaXZM5GmyVsbrI+uzERyuUaXhL2oB8KRjwbXRkM2PZ7dkBmS9r
+         FXFmD+ntGjgYcFRlxhMWIlOy+81ify/fCw3q7FQTk/SUFVo4Xem6KNSK1iurhZhANSKC
+         MB6AeJQTQ5iWrEL+ydGG5l67dIx3bQKfT6d37W6CSPIe8l8ec5ki5aNgcQhCfDwAKgxa
+         zkZg==
+X-Forwarded-Encrypted: i=1; AJvYcCWvFf334DWUdYZ8e/a7Fnf3YlqgxXOiLW2fr0AC+coucF/HpEElcZpWvHpu1s473UISSwCd5RbbpCA=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzZmdiXKIFQyhA/o9uMK5rYfCYIGAOD78bPDzqXd5xNM/MLu8+I
+	UIYN430aKXY9vUQfnGrPF3jz8m3fep+mIWtttqO9ItOR6oz6KTHoyx9YcqunlcvZxaLPGcOxXmn
+	6OJT2fkYK06k6ly5SC95SjJmTOfrdEAs=
+X-Gm-Gg: AZuq6aJh133Nzgu4JiSZVpnD0cgDfMJpo61FCcS54AbP7Jrs2iIP7gOyur+rmOP/udG
+	FsjKP6Y/tlcDNBbKjNVh33DTosh21PGM04vUPOHWO2krWp7Mz2nw6W1TcHD2+iOmRC+yrZs0pBf
+	VKhLjVhm2qbqiYGIigkDNfXrzBrJn/625q5JqZddRAe+w7NZOR1iN17kVLcgq6K/MHsa27xch/D
+	mkyjNLH4bOiU4ONbHkdJ3CVPvmEHHbVW4ZJGGGWUJAO19VtMLakwc950XxpUmt/xpV4sOpZ/g==
+X-Received: by 2002:a05:6402:3641:b0:64b:7e89:811 with SMTP id
+ 4fb4d7f45d1cf-65848763ad2mr1915308a12.13.1769184233983; Fri, 23 Jan 2026
+ 08:03:53 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <7226044.9J7NaK4W3v@benoit.monin>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+References: <20260123100537.1429497-1-a.shimko.dev@gmail.com>
+ <aXNXx4elBVRpWCWf@smile.fi.intel.com> <aXNYBahiKTnVkRfg@smile.fi.intel.com>
+ <CAOPX746Fo4VP9tCTz+T42Uhy_LnbmNNSx8MtMJbRh41YtfHhpw@mail.gmail.com> <aXOBTME6GOiiSowD@smile.fi.intel.com>
+In-Reply-To: <aXOBTME6GOiiSowD@smile.fi.intel.com>
+From: Artem Shimko <a.shimko.dev@gmail.com>
+Date: Fri, 23 Jan 2026 19:03:42 +0300
+X-Gm-Features: AZwV_QgXjsyGryHcHxjODBXnUUPi7TVw-baqaPtxtx0zsOWb9b2NVoBejYCX6Ec
+Message-ID: <CAOPX745tqA=XpYA437PN=N+gC+=y_XvJ-aabXnrHZrkP1LGHqQ@mail.gmail.com>
+Subject: Re: [PATCH v5 0/2] i2c: designware-platdrv: simplify reset control
+ and error handling
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: andi.shyti@kernel.org, p.zabel@pengutronix.de, 
+	mika.westerberg@linux.intel.com, jsd@semihalf.com, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 23, 2026 at 03:25:24PM +0100, Benoît Monin wrote:
-> On Thursday, 22 January 2026 at 17:25:58 CET, Andy Shevchenko wrote:
-> > On Tue, Jan 20, 2026 at 10:28:04AM +0100, Benoît Monin wrote:
-> > > Add the support of the I2C_M_STOP flag in i2c_msg by splitting
-> > > i2c_dw_xfer() in two: __i2c_dw_xfer_one_part() for the core transfer logic
-> > > and i2c_dw_xfer() for handling the high-level transaction management.
-> > > 
-> > > In detail __i2c_dw_xfer_one_part() starts a transaction and wait for its
-> > > completion, either with a STOP on the bus or an error. i2c_dw_xfer()
-> > > loops over the messages to search for the I2C_M_STOP flag and calls
-> > > __i2c_dw_xfer_one_part() for each part of the messages up to a STOP or
-> > > the end of the messages array.
-> > > 
-> > > i2c_dw_xfer() takes care of runtime PM and holds the hardware lock on
-> > > the bus while calling __i2c_dw_xfer_one_part(), this allows grouping
-> > > multiple accesses to device that support a STOP in a transaction when
-> > > done via i2c_dev I2C_RDWR ioctl.
-> > 
-> > Does i2c-tools support this. I.o.w. can you put an example of user space call
-> > to achieve the above?
-> > 
-> I posted a patch series for i2c-tools, adding support for message modifier
-> flags including I2C_M_STOP to i2ctransfer:
-> https://lore.kernel.org/all/20251223-msg-flags-v2-0-8d934a4366e2@bootlin.com/
-> 
-> I am working on version 3, following Jean and Wolfram's reviews.
+On Fri, Jan 23, 2026 at 5:10=E2=80=AFPM Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+> Wait a bit (24h + ) for others to have a chance to comment.
 
-Thanks, it would be nice to have this being mentioned in the commit message
-that the user space tools are going to support this in near future.
-
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+Got it, thanks. =3D)
