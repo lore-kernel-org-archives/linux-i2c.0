@@ -1,112 +1,99 @@
-Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA17D3EBF16
-	for <linux-i2c@vger.kernel.org>; Fri, 23 Jan 2026 11:35:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.43
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769168159; cv=pass; b=FDNNOXaTj5FnrrJPCMD1r9zgERaBBPs6QmvdCuwS2Uu+jc7K/VyotRgJX+BSnOf/xgHGNB/rezJhbDXXJuqdpboinsgmYeZKBdH94VP9ftrFzO8sd9gXtqE4UEZU+ZAf82S/DeKyZJTukroEmr7knmYjfXk8/ceJ9a2gM6HZZGw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769168159; c=relaxed/simple;
-	bh=OE1i/9Ptz9WxZ92YJl17Q6KATL4iBAMC4F1ZCkxuhSk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QA4D9usTihjBin6/MnbefyPYSXplUfMrRc1kUFey201bl6pZpXiQLEdAoTzD0hpiuAgMZtoafc/U/NoLbBiPZK92DNw4eeEd/NR9J8RVmlWeYWKiyCsRJceUp/aawydHxi0M0iA/i58Y8kv0k1rlRiLnPTYH/3EkbSDPw47bXZo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YYWGmnE5; arc=pass smtp.client-ip=209.85.208.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F3AC346E43;
+	Fri, 23 Jan 2026 11:37:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769168243; cv=none; b=OjPiRxVjbGaP+jgGQQOM0tOi6VTZnrBWgHlApgcIsAopykApPaC32ioncqLEXu+5wAkzTOBe7E4kXVxxevGMjaRTVKlOIPJPkJpF+SupOUrRbYDLLPGZPON5f6YTFhI/D1BA7s38+pyN0EHT1RliCZmIVjv0Zb/GhBwNKCTNW8Q=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769168243; c=relaxed/simple;
+	bh=PDm01bYH0f1j2djPipiypaC3BgwBvxUZlgxTtUxWqTg=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Nb+f1J+WFoh6KTIC9IZJLCa27R1O+spgBqX/kGz9vDZk1Cteo9xWc1UYm9CJPaUfMtwVlHHwBX9hTFPYSeNwtPOaYXCzfXJR6trscVvIYtGzlMwH07IMO+Pn7EzkWaAX26xmlAZQhjQul1KzgC+EHnKHY2VHLGy7XjOkMuG/VqI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=pxyTdVBQ; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=b3KhJVod; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YYWGmnE5"
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-65808d08423so3322140a12.1
-        for <linux-i2c@vger.kernel.org>; Fri, 23 Jan 2026 03:35:57 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1769168156; cv=none;
-        d=google.com; s=arc-20240605;
-        b=g4U2nPIdT1jJ266c5QQHlniEGxsml8lv6r8cIJdDxR5j67JzLsThI/X3PWtkmwJl/s
-         Olr9TqK7ooimi9dve5Wj0kmN4OqJGJAZ7/xe0z/JTmxxLO5N9Sh/Y94pISRpwvkG8KO/
-         PTSJZhpt+9aMOj5uxjE/VQOM1jmQdYsfCh7luUhh352XZzaUPRFOsFkBYMzYhBmSIk3r
-         6wEO1CAYVTsLIdiNIy7FjKOLlMrmnXBqlL1LGL4ROnCQEA+J43VISApFcPLQlUnKgaTd
-         XNhqRUDLP/B2dHblSYaXIBYYucz2sqbIIhLMJowylt5zDk7DlESIuC3n7RNlF5ywB0js
-         fz8A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=OE1i/9Ptz9WxZ92YJl17Q6KATL4iBAMC4F1ZCkxuhSk=;
-        fh=2VC11ZQBzYTJb+sMwcueOp290KrlhNvZFCUlnS0Bneo=;
-        b=eSOZGvcdEJxmVEBM3oEQ6UxswhPH8pW1G8Qx11T4hscWUgPU13IZq4utYmN1Oap0ye
-         rFF3hP0wevr8bR3q61d/3LcIOiregXUfFgqzR2M1unE0sRA4DHLj+v1C6TcISxCtyofa
-         W11dlU7iSYO3X/OjJ+Hip10fFJzzPVhnCuHo9yDqoNQRFD20nTIhoRBCM7zu1jCauxvR
-         yM7UcH7rpRPngjanPex+y54OyR0Xmk+6ONj/ckTkX0HNaYgeAOMFmsRJcTc8olKH0tCS
-         NL2nLlufHkh/AeW6aUllzL2Ahdz5/WhHQSfroCsaSwSM5hFbKq8pYQHRO6gl0REfuUKB
-         hc1g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769168156; x=1769772956; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OE1i/9Ptz9WxZ92YJl17Q6KATL4iBAMC4F1ZCkxuhSk=;
-        b=YYWGmnE5TluC8D6ItQnm4FxxVAn23Dia5J75uqyVNs9L2j72S+6zm1zBN6KTLOihSH
-         mBsQVbRX9m1vrm3ZEaxM7GdlXGU2Y5O57xU1kTyrr+AcolYdlW0Wbw7tYLMWAC5IcZJT
-         5v5xtDxEq7R9oipLMIMVYObwnP0TmxNF1fnnF2RihwGlDdflaoz4NtGFhA0+dG7+1VSW
-         z37dVpTknjXHJgmyiaZ875mtveuyoe5m9h0HQSrTDdhEWdf/y5N9YDFxiFZtGZ27HYCt
-         1RQLnZW3yzP2jcldDX1vRpKbkHPX0NwcffzqQy6Smoi9GI27hK8ldaBNvryGDZpvzSBc
-         Xaeg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769168156; x=1769772956;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=OE1i/9Ptz9WxZ92YJl17Q6KATL4iBAMC4F1ZCkxuhSk=;
-        b=FkLwHx7qtNteDAslhYORYhMSCbMsXkY3yvp+YZHpXNTI2poRKeZAxGuBHFl5uObYF/
-         IAgmPp7P9NaIhHbgoy+2X4ArTtCoSWC/gf62yZV3tQ1jQk5u7ChOut9lJvuF/4GWhdJj
-         qyceGow3zWgLJzyY9trsHiZDpwsdlZjmLSDimxhRlBphjgh+f93ySdtJnDcYre2SyA3t
-         b37DuM8G8LpimOolQBsFw1YOrifQH93tmPYdodR7a6FZmnV1x/cqPAyRJJpFsxSIMQz4
-         XumF+6PGg6iVWsLMMVVQ6YMmVBI9Txqh8eJU0oJGaOE4IMAPbFLRbdJiH8qkb3T2m7Tn
-         Rslg==
-X-Forwarded-Encrypted: i=1; AJvYcCUPeYYC4UkhlrfggF40HKuKuqYWcZJtr1xkd6Uy3YiE64yuVBVTw+WL895vHr9bSjRsbkjoOKCC4tY=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy220CIu+Gh6X8PW1lbaoPFMWZOh7P3WGIYoWvqaQ5UebkRuN1P
-	IX62pnZXwGVCoht0QF1vqbKJZcV14mlLWq98UEIvx8MRTxCds36YwJ3nsXVK/UUrLnK9OgGPbZa
-	jxOK/9IlEaTR/9/q4yKL5nXKeHRNJxdI=
-X-Gm-Gg: AZuq6aKD6vXrqJh358W6/C0w0v22HiQ6aP95wmJ8GIE2xr1g0PhI08NcGaIBUbdMUQa
-	tlVSHZ2vLLkJCRPKTZT/faGj0UsToe6kIdG4PH1mV5lC7cOzAil5bNqf31FvgeEUf/hMrXrce69
-	JXY123m7aHsbyd2xcWfhG+eEZm2+GlniDkk9azr6gmNwiG7xLF/TNMJYN9U90cHnQcjXq8NmM0c
-	hgVYP+GRTLZTED+f9+ZDGnRE7o4FhtffCD17Q6TQvUU+9ehnjioJ5wfeaqwMPupESbmqw8ftg==
-X-Received: by 2002:a05:6402:2808:b0:656:a153:f0f8 with SMTP id
- 4fb4d7f45d1cf-658487d3f3dmr1583414a12.29.1769168155960; Fri, 23 Jan 2026
- 03:35:55 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="pxyTdVBQ";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="b3KhJVod"
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1769168236;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0ClL8eAZdmuNbLusg5jOxF2eIGZ+kWzlW9HMsa2ckZU=;
+	b=pxyTdVBQ8iNBWKLo47O3PiDCbrqnj6d/vA5AtrI7kRBHJ2n1D0ZVdaRtDJ74Dpq8QHaDM6
+	dt9gPz9AdR0TYfQkG+ri9oEFTfuUEYFeF4tAFIagXWObcsVcsPqPjbSauwIWa4KSPexIay
+	hVmXRv/N4WVTHn4CxILhrLgKab3vou3+nr08bNgVx6ypqPG9zMz5xxdI1CQpb9b3rAV78w
+	iNlcIBGglqlLlQC8rZ5wmVkoJnGjgAxmQDgiyQsAGbKFxykxU5gSXYbAhytltwzkdLJKSw
+	GCwKXxbMT0oAiMCLhw2MExOu9GqlA8cOkvDqmhpxIS/cEIvmBeY7dQLR/YofKw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1769168236;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0ClL8eAZdmuNbLusg5jOxF2eIGZ+kWzlW9HMsa2ckZU=;
+	b=b3KhJVodDLUW0D4Ju/ixICFDI3BkVvr6KzwD8FRjZSMmF43nHEMJI0S/4/xiJjK/FW9Ugx
+	VIPgsPFClpxm1uBA==
+To: linux-kernel@vger.kernel.org
+Cc: linux-rt-devel@lists.linux.dev,
+	Thomas Gleixner <tglx@kernel.org>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Troy Mitchell <troy.mitchell@linux.spacemit.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Yixun Lan <dlan@gentoo.org>,
+	linux-i2c@vger.kernel.org,
+	linux-riscv@lists.infradead.org
+Subject: [PATCH 11/21] i2c: spacemit: Remove IRQF_ONESHOT
+Date: Fri, 23 Jan 2026 12:36:57 +0100
+Message-ID: <20260123113708.416727-12-bigeasy@linutronix.de>
+In-Reply-To: <20260123113708.416727-1-bigeasy@linutronix.de>
+References: <20260123113708.416727-1-bigeasy@linutronix.de>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260123100537.1429497-1-a.shimko.dev@gmail.com>
- <aXNXx4elBVRpWCWf@smile.fi.intel.com> <aXNYBahiKTnVkRfg@smile.fi.intel.com>
-In-Reply-To: <aXNYBahiKTnVkRfg@smile.fi.intel.com>
-From: Artem Shimko <a.shimko.dev@gmail.com>
-Date: Fri, 23 Jan 2026 14:35:44 +0300
-X-Gm-Features: AZwV_QingZge1s24wh3etpuPzpi_64b2qEhpPaQHwAkyw1JX40mRdgLAEm3P6is
-Message-ID: <CAOPX746Fo4VP9tCTz+T42Uhy_LnbmNNSx8MtMJbRh41YtfHhpw@mail.gmail.com>
-Subject: Re: [PATCH v5 0/2] i2c: designware-platdrv: simplify reset control
- and error handling
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: andi.shyti@kernel.org, p.zabel@pengutronix.de, 
-	mika.westerberg@linux.intel.com, jsd@semihalf.com, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 23, 2026 at 2:14=E2=80=AFPM Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
-> On top of that, this is marked as v5, where the changelog for all previou=
-s
-> iterations?
+Passing IRQF_ONESHOT ensures that the interrupt source is masked until
+the secondary (threaded) handler is done. If only a primary handler is
+used then the flag makes no sense because the interrupt can not fire
+(again) while its handler is running.
+The flag also disallows force-threading of the primary handler and the
+irq-core will warn about this.
 
-Hi Andy,
+Remove IRQF_ONESHOT from irqflags.
 
-Got it, yeah... Thanks!
+Cc: Troy Mitchell <troy.mitchell@linux.spacemit.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>
+Cc: Yixun Lan <dlan@gentoo.org>
+Cc: linux-i2c@vger.kernel.org
+Cc: linux-riscv@lists.infradead.org
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+---
+ drivers/i2c/busses/i2c-k1.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Could you please advise, should I send it again with changelog as v6?
+diff --git a/drivers/i2c/busses/i2c-k1.c b/drivers/i2c/busses/i2c-k1.c
+index d42c03ef5db59..8ef6d5d1927b7 100644
+--- a/drivers/i2c/busses/i2c-k1.c
++++ b/drivers/i2c/busses/i2c-k1.c
+@@ -566,7 +566,7 @@ static int spacemit_i2c_probe(struct platform_device *p=
+dev)
+ 		return dev_err_probe(dev, i2c->irq, "failed to get irq resource");
+=20
+ 	ret =3D devm_request_irq(i2c->dev, i2c->irq, spacemit_i2c_irq_handler,
+-			       IRQF_NO_SUSPEND | IRQF_ONESHOT, dev_name(i2c->dev), i2c);
++			       IRQF_NO_SUSPEND, dev_name(i2c->dev), i2c);
+ 	if (ret)
+ 		return dev_err_probe(dev, ret, "failed to request irq");
+=20
+--=20
+2.51.0
 
-Regards,
-artem
