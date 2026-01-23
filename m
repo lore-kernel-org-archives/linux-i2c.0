@@ -1,58 +1,64 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EB263101B4;
-	Fri, 23 Jan 2026 08:37:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F299D2C11C6;
+	Fri, 23 Jan 2026 08:47:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769157474; cv=none; b=Xg2Fd9JoDpPm1kq7krfSTmXfxEW43L9gem221tmSp0FqRXMSZQ8rNlBkLQPrT1HtZQ0EURq+QpFZVbWQM9jP8s7/QNnPfjRAJRASHmRl9nShoB2L47RZnWlJKOP3EqdVYtv84DaxRUAN6/2wzJtosashsDn1Y2SAEdn5QDLUJtI=
+	t=1769158029; cv=none; b=GLkL03S0Sewi4+gy79m692k0n5puIBq3cRyYaT+2VI5iqgyU0ZTSqbah5ADCtrmYvsMIlmlKEMo+Dll2TAvJrYD1d9vKHdFIXR1P1F4GnH+96A5BmDV796oi2E84q+cUH+1KG8wJ7cTpdS6PaepESxS8BmcVl0JYlWmLsJMWS7A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769157474; c=relaxed/simple;
-	bh=Cm6DUjGv65AjQpL0tAuNheTXPfR6F+soqcbey/Xrz3g=;
+	s=arc-20240116; t=1769158029; c=relaxed/simple;
+	bh=v8+ahdeqZNGqOg7rDkKp02b15PjwNKBNctCI/PSRyVY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bHMcisKWfJrxBtAscgtG8/VKVvSGbVik2eXE0n/xJlyP9Woh/RVXvu2roAfHnmIeuJkZjd7lIs5ygebu+h55sHjl2qVHfIqUrw4l3JkbmHntfUsskrTqarbzBnoiB2B6AMNepOUqxuPEfYKu88bZoC/zQQVmzMN3Cvv8bbVQDa0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=h+6rj/gz; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=ILBoU+6hrL62w5fZ9b7M3/nwGxGENbQpoiM2yLvadlDCR2KvgwD9A3SkLdsozJK4VfC5B0a3/rl6BIACVJGuJMmTfjvos3j05OMuu2hC5fkcevccxDqts/8Zne4luuISaE38b6GJstv4TfS2SdEtekClzvEfV0d4Lnh/MzMNf58=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=cA1rnTpR; arc=none smtp.client-ip=192.198.163.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="h+6rj/gz"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="cA1rnTpR"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769157474; x=1800693474;
+  t=1769158028; x=1800694028;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=Cm6DUjGv65AjQpL0tAuNheTXPfR6F+soqcbey/Xrz3g=;
-  b=h+6rj/gz8MjS2GAjNKwJRtDuqL7f8sn3RdoeSHCTjob93YFCKZQ48txd
-   ZUXfJo2J6thXIjvBMphid9adZ6qBgB0th3gCuHzucTmv/39FD3QKz/iDL
-   /8Ovz9FI4S+nLGWNXcmIoogMnRYIRSugCO4pHi7fXCLekn6LC6RTaNlo5
-   fi2UVhhG6FR54bECha7li41ez0aqBU2BxmkXihDCcl9pqtI6rF0US9/qg
-   tK0ddRV0ENnueSMJQc2JzqQtMgeqIIEEaFx4avOAACOtw0igBt4UR0Hif
-   fZ/7sXegLQqCHEvWU+J1fthjqcMf7XjYut8Ss+g3DTf3cmS35bg/sUIJ7
-   w==;
-X-CSE-ConnectionGUID: HZHQL4PiSJ2sc7QbMkv9Hw==
-X-CSE-MsgGUID: OUTdne8lQPyh8pLWBR3mhA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11679"; a="95879977"
+  bh=v8+ahdeqZNGqOg7rDkKp02b15PjwNKBNctCI/PSRyVY=;
+  b=cA1rnTpReM/5b24/0i/hze83JqweIxPcdFSIOVp/6YeFkphlcjZ+AkCW
+   t9tRQQrhp7nIXDhi14YnjAlbaaMqUC0AMsQiPAMuYe54lRewWcBfU3Ahu
+   /PRK+WPMQxb6R+5WUoUvPbQNqm5i4b/Uzwwr1vd+E14ObwqDO4rEa4Ey3
+   ZzRFvG0q8QnzVPzgOlrT1ZtY1nebRFlstgF6Pb+YCkL8TmcID4a2DdPsn
+   G6xrSHgJtN/HTO/V4yMs3Er0V7cOhx0biufEhWReFyNUqIJfV3jCJQsqT
+   OzA8IOR5qeINAcH1JV1ud1CAk0G8DFW5SvhS/bMONVU24NmJXfFQh4+Dj
+   g==;
+X-CSE-ConnectionGUID: rITCRjPSQ1mbQ79YsLVPOw==
+X-CSE-MsgGUID: vsYvG4dDTn+3bRzit5ayUg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11679"; a="95880490"
 X-IronPort-AV: E=Sophos;i="6.21,248,1763452800"; 
-   d="scan'208";a="95879977"
+   d="scan'208";a="95880490"
 Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jan 2026 00:37:53 -0800
-X-CSE-ConnectionGUID: I1E9nIyOQsGIDQEZJihH4g==
-X-CSE-MsgGUID: wZjDcOigS6q5PBDrcxnuHg==
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jan 2026 00:47:07 -0800
+X-CSE-ConnectionGUID: XUjiLKQ6SCuorlhafBqovg==
+X-CSE-MsgGUID: X6uVMcT7TuKTw4K+KOqjwQ==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.21,248,1763452800"; 
-   d="scan'208";a="244586979"
-Received: from rvuia-mobl.ger.corp.intel.com (HELO localhost) ([10.245.244.112])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jan 2026 00:37:51 -0800
-Date: Fri, 23 Jan 2026 10:37:48 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: abdurrahman@nexthop.ai
-Cc: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+   d="scan'208";a="244588308"
+Received: from vverma7-desk1.amr.corp.intel.com (HELO kuha) ([10.124.222.195])
+  by orviesa001.jf.intel.com with SMTP; 23 Jan 2026 00:47:04 -0800
+Received: by kuha (sSMTP sendmail emulation); Fri, 23 Jan 2026 10:46:38 +0200
+Date: Fri, 23 Jan 2026 10:46:38 +0200
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To: Jeremy Kerr <jk@codeconstruct.com.au>
+Cc: Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Matt Johnston <matt@codeconstruct.com.au>,
+	linux-i2c@vger.kernel.org, netdev@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 5/5] i2c: xiic: minor cosmetic cleanup
-Message-ID: <aXMzXH4vvh3HK8wN@smile.fi.intel.com>
-References: <20260123-i2c-xiic-v3-0-eb7cd4254dfb@nexthop.ai>
- <20260123-i2c-xiic-v3-5-eb7cd4254dfb@nexthop.ai>
+Subject: Re: [PATCH v2 3/4] mctp i2c: Enable SMBus ARP discovery
+Message-ID: <aXM1WKi6L8PAAN2F@kuha>
+References: <20260121092328.2308705-1-heikki.krogerus@linux.intel.com>
+ <20260121092328.2308705-4-heikki.krogerus@linux.intel.com>
+ <d681a9d5-ff37-45a0-8398-3e770052177e@redhat.com>
+ <20260122080526.4fe83a3a@kernel.org>
+ <9fa316a1a4b16e9f4e1601beeebc5a5e42232dca.camel@codeconstruct.com.au>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -61,27 +67,27 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260123-i2c-xiic-v3-5-eb7cd4254dfb@nexthop.ai>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+In-Reply-To: <9fa316a1a4b16e9f4e1601beeebc5a5e42232dca.camel@codeconstruct.com.au>
 
-On Fri, Jan 23, 2026 at 08:02:48AM +0000, Abdurrahman Hussain via B4 Relay wrote:
+Fri, Jan 23, 2026 at 11:18:42AM +1100, Jeremy Kerr kirjoitti:
+> Hi Heikki and Jakub,
+> 
+> > +1 I don't wanna speak for Jeremy and Matt but with their Ack, and
+> > assuming there's no dependency in net-next I think i2c tree may
+> > be the easiest path?
+> 
+> Yes, given this is more i2c- than net-related, I would be fine for the
+> changes to go via the i2c tree there. Staging the core via i2c and then
+> (subsequently) this one via net would also work, but seems to be
+> overkill for a minor change to the net driver.
 
-> Add a temporary dev variable and reuse it instead of referencing pdev->dev
-> everywhere.
+OK. I'll drop this one from v3 and send it separately later as a
+follow-up, once we have the i2c side ready.
 
-...
+> I have some overall comments on the i2c side though, I'll follow up with
+> those separately.
 
-> -	pm_runtime_enable(i2c->dev);
-
-> +	pm_runtime_enable(dev);
-
-Ah, please also move this to devm_pm_...* in a separate patch or combine it
-with mutex and explain that this fixes the cleanup ordering and simplifies
-error handling.
+thanks,
 
 -- 
-With Best Regards,
-Andy Shevchenko
-
-
+heikki
