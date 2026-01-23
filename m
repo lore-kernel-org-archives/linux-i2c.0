@@ -1,73 +1,73 @@
-Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
+Received: from mail-ej1-f44.google.com (mail-ej1-f44.google.com [209.85.218.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B13D42C15BA
-	for <linux-i2c@vger.kernel.org>; Fri, 23 Jan 2026 10:05:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 001AE349B1D
+	for <linux-i2c@vger.kernel.org>; Fri, 23 Jan 2026 10:05:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769162750; cv=none; b=Nta7vkgdnOvoy7lZmjMyBBC3ED3xTJOyBcL/hyf+z/f3AxZddkUq4mYZJ8/jXjuPl6if8jeB0SqL5cFPaO9FPG8ghWzEqg2QMD6/m8jZSDHNIOHIuOh6y4KaOpYs8wotc4Yfm/csESBijmyFNhyCzNIg5/blO+NVhRhaq8vbI0E=
+	t=1769162759; cv=none; b=dz8xXjs8F/FwwPnH7ug+6OXf5tHGIhW46j7Eda+zQjnmL91u8mQwNb3uSJd4hYHAnXW/Ifa0cODhVfP09ZrD1QxOeybCiSxwcrOFG1lzKOGn48HOlDe835y/j9yW7eQKm/+D5RgDprEzPQh6n7I3oHHH33BGOEzVDS0lZ8QvBJU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769162750; c=relaxed/simple;
-	bh=ZixxmyDJK1TZsGAkuoNjkGaPnXKebF+tiR5kAJ33kxo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rE695T83HIC4Qj3YzYX+jj8kKS/A2yatqcANaiyiKehlUKWI2sV9sl2rdlSeSH/dLOZTijwB0Ag8PPfkvx3VsGFx2YCKf91XsrC5WKv0pso9uPhnyOCwoAhVRbV7FduyYLGqEeEG5Xqsz5HARc2Obj7JhSOz1Y1tOLLCXettdAo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=igLVGsme; arc=none smtp.client-ip=209.85.208.48
+	s=arc-20240116; t=1769162759; c=relaxed/simple;
+	bh=T4Qv34+iHO/1XsGGaVk1mRM89//Ft/tKeIBOdkp7ddA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cQbSSscoWUZ1DKVc9a1Tf5TY6BQKL+ZNfznWJb4nH1fuVpiQLZg49wRTAvVrQcXN6NBsRg3OHKJ3o2ylTA0qMUAdfFKuA3Cxe65Xci4HYZkA1ue2bWfDRATPQi5TLpqi3aj/TcTF9biAgUlBfaJTfOJ/DZ8PpaJ2aiio9/e9BAM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Nwadoczf; arc=none smtp.client-ip=209.85.218.44
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="igLVGsme"
-Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-64d1ef53cf3so2596844a12.0
-        for <linux-i2c@vger.kernel.org>; Fri, 23 Jan 2026 02:05:45 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Nwadoczf"
+Received: by mail-ej1-f44.google.com with SMTP id a640c23a62f3a-b88593aa4dcso124896366b.3
+        for <linux-i2c@vger.kernel.org>; Fri, 23 Jan 2026 02:05:48 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769162742; x=1769767542; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1769162743; x=1769767543; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=0OPAhEHcnzFb1q5rx6RdDHI02f+ORuOWyrLORsemtx8=;
-        b=igLVGsmebSjYnnV4fLKGgiFpRf696iQgjuYDpOoHpWxKgte0+9r4c7FRxNN0Nb8vQy
-         9U5vs3vr6rqxkLlPV0uJgmCipNtmJIYH5t0FKHrV5zdsDR6RiV+hEu2araclE3gETsMx
-         /HvODuyV0bkp7S0Q4wELKohjvKJafyG79zNRYmerCmctgBMlH/6lKzilsiJbtKGCICRz
-         ZskFEpDGjIlWIk18a9dCqQ8wRBreRhTqSoncTy5IYaJI1tKqvRYT5KAMa2jWbe5sCbAd
-         S5U1wRhzyMO8khk7LA7CaKoUFwmux6HfrF+0lDsfn/NYRmixnPMoRhaj2TjCEZqySRND
-         Nozg==
+        bh=yZydcSKZgcNLloFPkvpl/esGuibEnxopykSaYg2WoVk=;
+        b=NwadoczfKLbX0RQqfUoAJDN8kRG0najL3onpIpbr1Feqmm6x2RBj+DRuqhzAe6ZcBv
+         +ZCUcDTZ6Njbs+SoDrvKwkUnyua5/gxcVV1616Z9j+ditPeL6tvD4j5hTwSlVrgQxJ/s
+         TzC1ggWWxv8bqseM4DBrbrqLMOt2KdSy+n3cZFDKK+RUb2ugnOEKAEn6v9tFkUqND8JF
+         5Cdck1gsNF868Kw0ry0YJ3dGVPcDkKWkfoQ2ojvK0L7xuZNA74aknJv5ubuuLYm8wERb
+         TcPbQNKs1xlkm6WHl4OrWx1xFlUIXTNyQNCyJU+KjVtb4cG7L7rwgV0oRqkzTAyGrTHs
+         snaQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769162742; x=1769767542;
+        d=1e100.net; s=20230601; t=1769162744; x=1769767544;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=0OPAhEHcnzFb1q5rx6RdDHI02f+ORuOWyrLORsemtx8=;
-        b=FK1ubbTKP1YaU6cZoYzoF9J+EjB3sHL5kZMd4zyNcepeuLS2/IhYpY7ty/8r712WpA
-         dhNm8pMYzC8aLGLywG9FKWP5yHy0jLJ12UfgAfDIT+cZojutag83NM0gSwR0QPjJMbwW
-         JSRKEJNAEBMpFmlcHwHbQV6kZojh6DcFZ3DBTloSa2uvjXWaGw3uAYQ7Xwje0qaIlzQY
-         xGn4zeuDBWIDsJv5lHQ2T8SqSngPyWqwI2QNyoUD/jAXjp0XKCBu8QZU7tKTBT5Y49Q2
-         H1WmDM4p4powWqTLc/YbNjOUlP5RenaDn3jcDOdF7f/ZsiMM21hpf7++IPOz1dHBkBSl
-         rhBw==
-X-Forwarded-Encrypted: i=1; AJvYcCU2GFSedOqFu7t0Z5fM2S4BmsBCV7h6xU0xppLUu7ZzmGYvzl124wOxr1zrfzKI4nh0eaRBsrl5YYw=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyWPMOoRY3QjkksIf42TQm1tFGMBRxToa9kAoKpGZOIUCrnJPfC
-	B5A0ghIoNKwGO4DFFs7ZGGbKdzmYuWwLDrfXxJVvn4/331LusLgFLq6m
-X-Gm-Gg: AZuq6aKZsyr0d/db/YuJk9D9VevNovHh+SLLZJEwS/RNMl9puKYg2qYQXOHwaMALrYY
-	h1Woz20KlE6z3A+Ag/C1Rr5uMGTH+7I5CDuBK8nGKE22Fy2pNhHTvOqGGFo2Hbk4pL8uUFTBh0h
-	AUHQLe1xAXrXE7A+ha7NkMu8Az0djyY+OrJXamjwtwXBOEEMvv24d1jQt9y4wYixLnQTMek8COS
-	/bpb1pYxaZHZMwNierbVAbZE+LTrH8yiMsLNZQN8L98PYLTz7Rptq6MWBUBkmiVSsbht5mpYC4q
-	k6PUERtPFr5VHYVuCm9NUeQd0WOUq7isIRtsg0B5XWZlUu5zy+9Aj8YjdwAuDJscfb5t+Qt+2VX
-	hiaGcwxORtAG4SWcC37ba82rjrRaZuTFwMcFNSXTVZn/FAXQnYkj17w5mJqTQpyJWoXO2jefWSS
-	oI/okaig36cYjR
-X-Received: by 2002:a17:906:ee8d:b0:b73:572d:3b07 with SMTP id a640c23a62f3a-b885accd55bmr187411866b.28.1769162741297;
-        Fri, 23 Jan 2026 02:05:41 -0800 (PST)
+        bh=yZydcSKZgcNLloFPkvpl/esGuibEnxopykSaYg2WoVk=;
+        b=QezVx7qfzoRm1S3CaRFWEdRVuQA6JFFxnCAVd6wOEOc6ryEMVjYz9/qm/Vge+ZCfUG
+         1Kz850yv+h1gEyVPIq4DmFDvbDULKGKLQrCHgRTaobFd4hl1cdNBzxapFj9ddUNnJzZh
+         kd0dP8ofD3lkPqd9mfe55dnlqjgBAx6icPWBZ8W+JxmM5dJS2TEwSQl+wdEHHWTQ31jX
+         ERZkbw75j1oJg/FThcyy2RxKy3hrylyIOGXUMEt+pJY6/ZL1FmPCosz5bU3Iwa2W0Kbc
+         UaQzdnTfBMVt2hZxM/+eTZe8lA/QfjQjCGtNx4KY5IbdGPl3jgEMkHS65FQMst09oPrz
+         FVCg==
+X-Forwarded-Encrypted: i=1; AJvYcCW7fMNGMN14azwD/o89vCzeWO3YjYcQZeH8rkbOMKuVUzGzFihoPZ1dsKQLyLJYv+uWJESoKgA/2zY=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxffomUMGa45PCRaeD15PfdTz2YURn+xGmISMxh3DQ/WVGwPtUM
+	otSJvRk1A7CidB/5U3iZozVPbR3IUdPtNUXRQp0SbZz4ZgbLJle8fNeFRYgQ3qLN
+X-Gm-Gg: AZuq6aJ7FY5u0TDgSy68oz/nnXbzSL5thsfW0jCT0e6tmOrdBjbAP6b07VVsM86Wl0y
+	Wd7kpcoTgiadXzK4rLQKxQjae3XO3oQl/OV+uWuH1drBUe5ctUmTKEyhhXw2UIL5GOyybQwBCEg
+	+QmMlBC+gP0ySazNP9IXc1T7DtEIYZUu5MLK8IJWT4cuGy34J6+SDaU+R0o2h9oZUcX2wylPMKN
+	m0NVlgcSZ96IrpDI4Swb16GM51hvaU1aCNLzDzwlhA+Mvk2pAPV6ikTqEFjbvFkvLf4JP03haL+
+	VTHtxO8gERdZphLU+PN+BD9gsN1qNMMM+h8kZjHAvXszJTJs2663x7FC3/vLwGCplW9sRVe/yry
+	1Tk4Y9nl469ExB2p9rRnvIe8GaOs4zIp8mn0daq6ODA8CBywcqqtVEBjNN3pLUZ613KyQo6Z3xz
+	oCr6emwX31n8gtb2OlUtKD/UM=
+X-Received: by 2002:a17:906:fe06:b0:b84:22cc:3c8 with SMTP id a640c23a62f3a-b885abf34b6mr148764166b.4.1769162743373;
+        Fri, 23 Jan 2026 02:05:43 -0800 (PST)
 Received: from NB-6746.. ([188.243.183.148])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b885b75d669sm83079366b.51.2026.01.23.02.05.40
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b885b75d669sm83079366b.51.2026.01.23.02.05.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 23 Jan 2026 02:05:40 -0800 (PST)
+        Fri, 23 Jan 2026 02:05:43 -0800 (PST)
 From: Artem Shimko <a.shimko.dev@gmail.com>
-To: andi.shyti@kernel.org,
-	p.zabel@pengutronix.de,
-	mika.westerberg@linux.intel.com,
-	andriy.shevchenko@linux.intel.com,
-	jsd@semihalf.com
+To: Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Jan Dabros <jsd@semihalf.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Philipp Zabel <p.zabel@pengutronix.de>
 Cc: Artem Shimko <a.shimko.dev@gmail.com>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v5 0/2] i2c: designware-platdrv: simplify reset control and error handling
-Date: Fri, 23 Jan 2026 13:05:34 +0300
-Message-ID: <20260123100537.1429497-1-a.shimko.dev@gmail.com>
+Subject: [PATCH v5 1/2] i2c: designware-platdrv: simplify reset control
+Date: Fri, 23 Jan 2026 13:05:35 +0300
+Message-ID: <20260123100537.1429497-2-a.shimko.dev@gmail.com>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -77,33 +77,42 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hello maintainers and reviewers,
+The current implementation uses separate calls to acquire and deassert
+reset control, requiring manual error handling for the deassertion
+operation. This can be simplified using the dedicated devm function that
+combines both operations.
 
-This series refactors the DesignWare platform I2C driver to simplify
-reset control management and improve error handling:
-
-Patch 1 replaces the manual reset control acquisition and deassertion
-with devm_reset_control_get_optional_exclusive_deasserted(), which
-combines both operations in a single call and leverages automatic
+Replace devm_reset_control_get_optional_exclusive() with
+devm_reset_control_get_optional_exclusive_deasserted(), which handles both
+reset acquisition and deassertion in a single call as well as
+reset_control_put() which is called automatically on driver detach. This
+eliminates the need for explicit deassertion and its associated error
+checking while maintaining the same functional behavior through automatic
 resource management.
 
-Patch 2 follows up by refactoring the probe error handling to eliminate
-goto statements in favor of direct returns with dev_err_probe(), resulting
-in cleaner and more linear control flow.
+Signed-off-by: Artem Shimko <a.shimko.dev@gmail.com>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-Both patches maintain functional equivalence while improving code
-readability and maintainability.
-
-Regards,
-artem
-
-Artem Shimko (2):
-  i2c: designware-platdrv: simplify reset control
-  i2c: designware-platdrv: refactor error handling and simplify cleanup
-
- drivers/i2c/busses/i2c-designware-platdrv.c | 41 +++++++--------------
- 1 file changed, 13 insertions(+), 28 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 7be99656a67d..ab960458b5a8 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -227,12 +227,10 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
+-	dev->rst = devm_reset_control_get_optional_exclusive(device, NULL);
++	dev->rst = devm_reset_control_get_optional_exclusive_deasserted(device, NULL);
+ 	if (IS_ERR(dev->rst))
+ 		return dev_err_probe(device, PTR_ERR(dev->rst), "failed to acquire reset\n");
+ 
+-	reset_control_deassert(dev->rst);
+-
+ 	ret = i2c_dw_fw_parse_and_configure(dev);
+ 	if (ret)
+ 		goto exit_reset;
 -- 
 2.43.0
 
