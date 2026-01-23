@@ -1,157 +1,96 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6473430E0F9;
-	Fri, 23 Jan 2026 16:34:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15081227B83;
+	Fri, 23 Jan 2026 16:57:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769186057; cv=none; b=G60r6gLphOVR2zLg6lqKDzqH8auR2QBSg2mYw0gq6+qOnyh+r9u5OvuSaYcRJ+PHmDfga2CeExg+4zc844/NJQNSBlUetUsYIsblzr7j3jkhXOr4PBEOmgniufmOkjwEww4ryA5j04mIp6snCK4Q37SvSa4/rKF8XxUORU2/Peo=
+	t=1769187422; cv=none; b=ZD3u6cGQ2gaCXsUKAdMsGZ98m1E6jfQt3OpiE6hOneqfFzrYPVD6vx+QJA8QprDxi4veYerTM5yYLWCEq672RCB9PdCD0/2B1UQcdVGbvMeX7XK8wHCdO7zT7OhsmOFE6HpFzxCw/CZ4GRoPqLiPKgD05ELgwZwHvcx0uD26QgA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769186057; c=relaxed/simple;
-	bh=apN1b+EezFacC+qjuAQtj456Ag24dmmsc1OGhTskqs8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=OdMV0IqHLCuTZMezHWlu1uaVpGoFCA/ZNO9SFM7no1qpcnC6TiQaaWvFcMaHhwKysJNtRu4wZDrIIsnGPSbU9LTvXFxeRHT6oF/A4mWz2/cb8h2ul/B5ETdmrYnKA5ABwxW9y1eQciM3UgLn3iHclWkkqEj2k4wdVxzslzjwVc0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LaJ3WvO4; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769187422; c=relaxed/simple;
+	bh=ETja2x9jbkMhnduG6jPpAI5mgl3pccMdrptMXW31rbs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=qsb7Hb0h8LNwkI2OX9DxWcyzfRM4q4sg4dWdQ2TFXaoTPw1vw5zWA2wtypMj167TMApFpNXpbp4GVHJ8FVYg688S/4Qv4RVGDgR3YzqIzsYj6r402mNHmSjSoB9GPcrIbOWDb7zRkpiA0SBwlEacKF/Qr19aVMed47UjSS9a1rc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=nUL3QEJd; arc=none smtp.client-ip=192.198.163.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LaJ3WvO4"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 0DCF4C2BC87;
-	Fri, 23 Jan 2026 16:34:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769186057;
-	bh=apN1b+EezFacC+qjuAQtj456Ag24dmmsc1OGhTskqs8=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=LaJ3WvO4tZ8UGQlTgvarZvYPJ1MAMSsfOJDcv8YPnp5cp9JqfJEWpzNVqcAG5XJEY
-	 tH4SEXxeosYptq75HKkEMWDVrVWRwPWxjQWQYUaB6047vXvBrMZ0TmrNmhpO0ZKmlq
-	 u7Ycaz17nGaLTI2D7C6936kqxINuGwU7wMgPN56sgs1XWnlSBxxUVQEYgQvR0ndia7
-	 zy2XC0EkSCEsuUTF/8vwrTQcDByIBpFUfbzyXROwtbEMf06G7An97My4CPsteGG5Sh
-	 U51UplPwrL/AaTMVIBM86mle+BT6LQfcisA22zkTrCyp8DNfJERJyUY7nlNwJ+UVVX
-	 fsO3VX2qZY/qg==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07076D7237B;
-	Fri, 23 Jan 2026 16:34:17 +0000 (UTC)
-From: Abdurrahman Hussain via B4 Relay <devnull+abdurrahman.nexthop.ai@kernel.org>
-Date: Fri, 23 Jan 2026 16:34:18 +0000
-Subject: [PATCH v4 5/5] i2c: xiic: switch to generic device property
- accessors
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="nUL3QEJd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1769187421; x=1800723421;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=ETja2x9jbkMhnduG6jPpAI5mgl3pccMdrptMXW31rbs=;
+  b=nUL3QEJd/sn0IkJ1rIA9rpajqibdZdzbGYV3KeXbr0kGWGiMEHJHBo5o
+   361piDTOVslC8QL5h4Rbs8Zk0UKZ9HBdbPlhctXx87p4z8oUkvNn+cgzU
+   iuDZX5pXmcpAtuJPNOOxvVgcmlI4lZ8foWKlUrLRgK6urI+XbNJef9v9b
+   UKxQ9BVVwHl3cpKLHWZ2SetVkPn9Uuu5O95grLoG4yMj0c+kL2oehFJsQ
+   0cJ67JhzBXnlj+qvho5YmHCwMbcuM37bf9qC5rDmJibkBfIMtaNh4+BYz
+   9J5OpMfBSis9ASmdUb4UgSFcq/ncoD4YWAhIyCRG4QY+PjxJkuC0cIhJq
+   A==;
+X-CSE-ConnectionGUID: XTTBjxNRRA6cOiA3/L1xXA==
+X-CSE-MsgGUID: XCEZSQ/VS+2YnjaUTUxpPQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11680"; a="70501036"
+X-IronPort-AV: E=Sophos;i="6.21,248,1763452800"; 
+   d="scan'208";a="70501036"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jan 2026 08:57:01 -0800
+X-CSE-ConnectionGUID: MwOpywMySKGwSHbVjeVEAg==
+X-CSE-MsgGUID: tv6wIPEiRhqocY18Bga9dw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,248,1763452800"; 
+   d="scan'208";a="206185987"
+Received: from rvuia-mobl.ger.corp.intel.com (HELO localhost) ([10.245.244.112])
+  by orviesa006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jan 2026 08:56:58 -0800
+Date: Fri, 23 Jan 2026 18:56:55 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: abdurrahman@nexthop.ai
+Cc: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>,
+	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 0/5] i2c: xiic: use generic device property accessors
+Message-ID: <aXOoV-rbEGRur_UI@smile.fi.intel.com>
+References: <20260123-i2c-xiic-v4-0-4a3eba3510ce@nexthop.ai>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260123-i2c-xiic-v4-5-4a3eba3510ce@nexthop.ai>
-References: <20260123-i2c-xiic-v4-0-4a3eba3510ce@nexthop.ai>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <20260123-i2c-xiic-v4-0-4a3eba3510ce@nexthop.ai>
-To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>
-Cc: Andy Shevchenko <andriy.shevchenko@intel.com>, 
- linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
- linux-kernel@vger.kernel.org, Abdurrahman Hussain <abdurrahman@nexthop.ai>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1769186056; l=2907;
- i=abdurrahman@nexthop.ai; s=20260119; h=from:subject:message-id;
- bh=6N04KTIpIe9uMfd715SAHiqS6vRoJRqDBiumzlWnGDQ=;
- b=4oaNZy9uKbS3W4B/M27EwmlJ72yO2kLyR11GzJ+HcTLfSnqDmLfkC3V3I3rjq+VDwaJfDyZdX
- yGONqpiyZ47BSer8eLYvHi3AuVhJGMY9JK9bLYci/teeuapVcnn+Zz9
-X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
- pk=S+ysnf+NwMcBdHBlyKIUEAtaFGSIhQwcJcgcXhq0osg=
-X-Endpoint-Received: by B4 Relay for abdurrahman@nexthop.ai/20260119 with
- auth_id=608
-X-Original-From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-Reply-To: abdurrahman@nexthop.ai
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+On Fri, Jan 23, 2026 at 04:34:13PM +0000, Abdurrahman Hussain via B4 Relay wrote:
+> Switch to generic device property accessors.
+> 
+> Switch to managed devm_ functions to simplify error handling.
+> 
+> Make the clock optional since the driver is designed to operate without
+> explicit configuration in firmware thus making it useful on platforms
+> where clock is not or cannot be provided.
 
-Use generic device property accessors.
+...
 
-Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
----
- drivers/i2c/busses/i2c-xiic.c | 20 ++++++--------------
- 1 file changed, 6 insertions(+), 14 deletions(-)
+> Changes in v4:
+> - Reorder the cosmetic patch to be the first in the series.
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 800a27413978..dfb8fa2787b2 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -27,7 +27,6 @@
- #include <linux/platform_data/i2c-xiic.h>
- #include <linux/io.h>
- #include <linux/slab.h>
--#include <linux/of.h>
- #include <linux/clk.h>
- #include <linux/pm_runtime.h>
- #include <linux/iopoll.h>
-@@ -1408,7 +1407,6 @@ static const struct i2c_adapter xiic_adapter = {
- 	.algo = &xiic_algorithm,
- };
- 
--#if defined(CONFIG_OF)
- static const struct xiic_version_data xiic_2_00 = {
- 	.quirks = DYNAMIC_MODE_READ_BROKEN_BIT,
- };
-@@ -1419,14 +1417,13 @@ static const struct of_device_id xiic_of_match[] = {
- 	{},
- };
- MODULE_DEVICE_TABLE(of, xiic_of_match);
--#endif
- 
- static int xiic_i2c_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
- 	struct xiic_i2c *i2c;
- 	struct xiic_i2c_platform_data *pdata;
--	const struct of_device_id *match;
-+	const struct xiic_version_data *data;
- 	struct resource *res;
- 	int ret, irq;
- 	u8 i;
-@@ -1436,12 +1433,9 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	if (!i2c)
- 		return -ENOMEM;
- 
--	match = of_match_node(xiic_of_match, dev->of_node);
--	if (match && match->data) {
--		const struct xiic_version_data *data = match->data;
--
-+	data = device_get_match_data(dev);
-+	if (data)
- 		i2c->quirks = data->quirks;
--	}
- 
- 	i2c->base = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
- 	if (IS_ERR(i2c->base))
-@@ -1458,7 +1452,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	i2c->adap = xiic_adapter;
- 	i2c_set_adapdata(&i2c->adap, i2c);
- 	i2c->adap.dev.parent = dev;
--	i2c->adap.dev.of_node = dev->of_node;
-+	device_set_node(&i2c->adap.dev, dev_fwnode(dev));
- 	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
- 		 DRIVER_NAME " %s", pdev->name);
- 
-@@ -1482,8 +1476,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 
- 	/* SCL frequency configuration */
- 	i2c->input_clk = clk_get_rate(i2c->clk);
--	ret = of_property_read_u32(dev->of_node, "clock-frequency",
--				   &i2c->i2c_clk);
-+	ret = device_property_read_u32(dev, "clock-frequency", &i2c->i2c_clk);
- 	/* If clock-frequency not specified in DT, do not configure in SW */
- 	if (ret || i2c->i2c_clk > I2C_MAX_FAST_MODE_PLUS_FREQ)
- 		i2c->i2c_clk = 0;
-@@ -1494,8 +1487,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		return ret;
- 
--	i2c->singlemaster =
--		of_property_read_bool(dev->of_node, "single-master");
-+	i2c->singlemaster = device_property_read_bool(dev, "single-master");
- 
- 	/*
- 	 * Detect endianness
+No. that's not what I meant. I meant that the line that adds a temporary
+variable should be moved from the last patch to the first one. The order
+of the _patches_ was fine, now it's broken again.
+
+Take your time and try to play with the patches locally to see my point.
+
+Next week v5 would be nice to have that addresses my point.
+
+> - Amend the mutex_init patch to also switch to the managed pm_runtime_
+>   variant.
 
 -- 
-2.52.0
+With Best Regards,
+Andy Shevchenko
 
 
