@@ -1,93 +1,109 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F299D2C11C6;
-	Fri, 23 Jan 2026 08:47:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B13D42C15BA
+	for <linux-i2c@vger.kernel.org>; Fri, 23 Jan 2026 10:05:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769158029; cv=none; b=GLkL03S0Sewi4+gy79m692k0n5puIBq3cRyYaT+2VI5iqgyU0ZTSqbah5ADCtrmYvsMIlmlKEMo+Dll2TAvJrYD1d9vKHdFIXR1P1F4GnH+96A5BmDV796oi2E84q+cUH+1KG8wJ7cTpdS6PaepESxS8BmcVl0JYlWmLsJMWS7A=
+	t=1769162750; cv=none; b=Nta7vkgdnOvoy7lZmjMyBBC3ED3xTJOyBcL/hyf+z/f3AxZddkUq4mYZJ8/jXjuPl6if8jeB0SqL5cFPaO9FPG8ghWzEqg2QMD6/m8jZSDHNIOHIuOh6y4KaOpYs8wotc4Yfm/csESBijmyFNhyCzNIg5/blO+NVhRhaq8vbI0E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769158029; c=relaxed/simple;
-	bh=v8+ahdeqZNGqOg7rDkKp02b15PjwNKBNctCI/PSRyVY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ILBoU+6hrL62w5fZ9b7M3/nwGxGENbQpoiM2yLvadlDCR2KvgwD9A3SkLdsozJK4VfC5B0a3/rl6BIACVJGuJMmTfjvos3j05OMuu2hC5fkcevccxDqts/8Zne4luuISaE38b6GJstv4TfS2SdEtekClzvEfV0d4Lnh/MzMNf58=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=cA1rnTpR; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1769162750; c=relaxed/simple;
+	bh=ZixxmyDJK1TZsGAkuoNjkGaPnXKebF+tiR5kAJ33kxo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rE695T83HIC4Qj3YzYX+jj8kKS/A2yatqcANaiyiKehlUKWI2sV9sl2rdlSeSH/dLOZTijwB0Ag8PPfkvx3VsGFx2YCKf91XsrC5WKv0pso9uPhnyOCwoAhVRbV7FduyYLGqEeEG5Xqsz5HARc2Obj7JhSOz1Y1tOLLCXettdAo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=igLVGsme; arc=none smtp.client-ip=209.85.208.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="cA1rnTpR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769158028; x=1800694028;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=v8+ahdeqZNGqOg7rDkKp02b15PjwNKBNctCI/PSRyVY=;
-  b=cA1rnTpReM/5b24/0i/hze83JqweIxPcdFSIOVp/6YeFkphlcjZ+AkCW
-   t9tRQQrhp7nIXDhi14YnjAlbaaMqUC0AMsQiPAMuYe54lRewWcBfU3Ahu
-   /PRK+WPMQxb6R+5WUoUvPbQNqm5i4b/Uzwwr1vd+E14ObwqDO4rEa4Ey3
-   ZzRFvG0q8QnzVPzgOlrT1ZtY1nebRFlstgF6Pb+YCkL8TmcID4a2DdPsn
-   G6xrSHgJtN/HTO/V4yMs3Er0V7cOhx0biufEhWReFyNUqIJfV3jCJQsqT
-   OzA8IOR5qeINAcH1JV1ud1CAk0G8DFW5SvhS/bMONVU24NmJXfFQh4+Dj
-   g==;
-X-CSE-ConnectionGUID: rITCRjPSQ1mbQ79YsLVPOw==
-X-CSE-MsgGUID: vsYvG4dDTn+3bRzit5ayUg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11679"; a="95880490"
-X-IronPort-AV: E=Sophos;i="6.21,248,1763452800"; 
-   d="scan'208";a="95880490"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jan 2026 00:47:07 -0800
-X-CSE-ConnectionGUID: XUjiLKQ6SCuorlhafBqovg==
-X-CSE-MsgGUID: X6uVMcT7TuKTw4K+KOqjwQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,248,1763452800"; 
-   d="scan'208";a="244588308"
-Received: from vverma7-desk1.amr.corp.intel.com (HELO kuha) ([10.124.222.195])
-  by orviesa001.jf.intel.com with SMTP; 23 Jan 2026 00:47:04 -0800
-Received: by kuha (sSMTP sendmail emulation); Fri, 23 Jan 2026 10:46:38 +0200
-Date: Fri, 23 Jan 2026 10:46:38 +0200
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-To: Jeremy Kerr <jk@codeconstruct.com.au>
-Cc: Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Matt Johnston <matt@codeconstruct.com.au>,
-	linux-i2c@vger.kernel.org, netdev@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="igLVGsme"
+Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-64d1ef53cf3so2596844a12.0
+        for <linux-i2c@vger.kernel.org>; Fri, 23 Jan 2026 02:05:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769162742; x=1769767542; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=0OPAhEHcnzFb1q5rx6RdDHI02f+ORuOWyrLORsemtx8=;
+        b=igLVGsmebSjYnnV4fLKGgiFpRf696iQgjuYDpOoHpWxKgte0+9r4c7FRxNN0Nb8vQy
+         9U5vs3vr6rqxkLlPV0uJgmCipNtmJIYH5t0FKHrV5zdsDR6RiV+hEu2araclE3gETsMx
+         /HvODuyV0bkp7S0Q4wELKohjvKJafyG79zNRYmerCmctgBMlH/6lKzilsiJbtKGCICRz
+         ZskFEpDGjIlWIk18a9dCqQ8wRBreRhTqSoncTy5IYaJI1tKqvRYT5KAMa2jWbe5sCbAd
+         S5U1wRhzyMO8khk7LA7CaKoUFwmux6HfrF+0lDsfn/NYRmixnPMoRhaj2TjCEZqySRND
+         Nozg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769162742; x=1769767542;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=0OPAhEHcnzFb1q5rx6RdDHI02f+ORuOWyrLORsemtx8=;
+        b=FK1ubbTKP1YaU6cZoYzoF9J+EjB3sHL5kZMd4zyNcepeuLS2/IhYpY7ty/8r712WpA
+         dhNm8pMYzC8aLGLywG9FKWP5yHy0jLJ12UfgAfDIT+cZojutag83NM0gSwR0QPjJMbwW
+         JSRKEJNAEBMpFmlcHwHbQV6kZojh6DcFZ3DBTloSa2uvjXWaGw3uAYQ7Xwje0qaIlzQY
+         xGn4zeuDBWIDsJv5lHQ2T8SqSngPyWqwI2QNyoUD/jAXjp0XKCBu8QZU7tKTBT5Y49Q2
+         H1WmDM4p4powWqTLc/YbNjOUlP5RenaDn3jcDOdF7f/ZsiMM21hpf7++IPOz1dHBkBSl
+         rhBw==
+X-Forwarded-Encrypted: i=1; AJvYcCU2GFSedOqFu7t0Z5fM2S4BmsBCV7h6xU0xppLUu7ZzmGYvzl124wOxr1zrfzKI4nh0eaRBsrl5YYw=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyWPMOoRY3QjkksIf42TQm1tFGMBRxToa9kAoKpGZOIUCrnJPfC
+	B5A0ghIoNKwGO4DFFs7ZGGbKdzmYuWwLDrfXxJVvn4/331LusLgFLq6m
+X-Gm-Gg: AZuq6aKZsyr0d/db/YuJk9D9VevNovHh+SLLZJEwS/RNMl9puKYg2qYQXOHwaMALrYY
+	h1Woz20KlE6z3A+Ag/C1Rr5uMGTH+7I5CDuBK8nGKE22Fy2pNhHTvOqGGFo2Hbk4pL8uUFTBh0h
+	AUHQLe1xAXrXE7A+ha7NkMu8Az0djyY+OrJXamjwtwXBOEEMvv24d1jQt9y4wYixLnQTMek8COS
+	/bpb1pYxaZHZMwNierbVAbZE+LTrH8yiMsLNZQN8L98PYLTz7Rptq6MWBUBkmiVSsbht5mpYC4q
+	k6PUERtPFr5VHYVuCm9NUeQd0WOUq7isIRtsg0B5XWZlUu5zy+9Aj8YjdwAuDJscfb5t+Qt+2VX
+	hiaGcwxORtAG4SWcC37ba82rjrRaZuTFwMcFNSXTVZn/FAXQnYkj17w5mJqTQpyJWoXO2jefWSS
+	oI/okaig36cYjR
+X-Received: by 2002:a17:906:ee8d:b0:b73:572d:3b07 with SMTP id a640c23a62f3a-b885accd55bmr187411866b.28.1769162741297;
+        Fri, 23 Jan 2026 02:05:41 -0800 (PST)
+Received: from NB-6746.. ([188.243.183.148])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b885b75d669sm83079366b.51.2026.01.23.02.05.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 23 Jan 2026 02:05:40 -0800 (PST)
+From: Artem Shimko <a.shimko.dev@gmail.com>
+To: andi.shyti@kernel.org,
+	p.zabel@pengutronix.de,
+	mika.westerberg@linux.intel.com,
+	andriy.shevchenko@linux.intel.com,
+	jsd@semihalf.com
+Cc: Artem Shimko <a.shimko.dev@gmail.com>,
+	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 3/4] mctp i2c: Enable SMBus ARP discovery
-Message-ID: <aXM1WKi6L8PAAN2F@kuha>
-References: <20260121092328.2308705-1-heikki.krogerus@linux.intel.com>
- <20260121092328.2308705-4-heikki.krogerus@linux.intel.com>
- <d681a9d5-ff37-45a0-8398-3e770052177e@redhat.com>
- <20260122080526.4fe83a3a@kernel.org>
- <9fa316a1a4b16e9f4e1601beeebc5a5e42232dca.camel@codeconstruct.com.au>
+Subject: [PATCH v5 0/2] i2c: designware-platdrv: simplify reset control and error handling
+Date: Fri, 23 Jan 2026 13:05:34 +0300
+Message-ID: <20260123100537.1429497-1-a.shimko.dev@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9fa316a1a4b16e9f4e1601beeebc5a5e42232dca.camel@codeconstruct.com.au>
+Content-Transfer-Encoding: 8bit
 
-Fri, Jan 23, 2026 at 11:18:42AM +1100, Jeremy Kerr kirjoitti:
-> Hi Heikki and Jakub,
-> 
-> > +1 I don't wanna speak for Jeremy and Matt but with their Ack, and
-> > assuming there's no dependency in net-next I think i2c tree may
-> > be the easiest path?
-> 
-> Yes, given this is more i2c- than net-related, I would be fine for the
-> changes to go via the i2c tree there. Staging the core via i2c and then
-> (subsequently) this one via net would also work, but seems to be
-> overkill for a minor change to the net driver.
+Hello maintainers and reviewers,
 
-OK. I'll drop this one from v3 and send it separately later as a
-follow-up, once we have the i2c side ready.
+This series refactors the DesignWare platform I2C driver to simplify
+reset control management and improve error handling:
 
-> I have some overall comments on the i2c side though, I'll follow up with
-> those separately.
+Patch 1 replaces the manual reset control acquisition and deassertion
+with devm_reset_control_get_optional_exclusive_deasserted(), which
+combines both operations in a single call and leverages automatic
+resource management.
 
-thanks,
+Patch 2 follows up by refactoring the probe error handling to eliminate
+goto statements in favor of direct returns with dev_err_probe(), resulting
+in cleaner and more linear control flow.
+
+Both patches maintain functional equivalence while improving code
+readability and maintainability.
+
+Regards,
+artem
+
+Artem Shimko (2):
+  i2c: designware-platdrv: simplify reset control
+  i2c: designware-platdrv: refactor error handling and simplify cleanup
+
+ drivers/i2c/busses/i2c-designware-platdrv.c | 41 +++++++--------------
+ 1 file changed, 13 insertions(+), 28 deletions(-)
 
 -- 
-heikki
+2.43.0
+
