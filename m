@@ -1,101 +1,112 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com [209.85.208.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCE7532BF42;
-	Fri, 23 Jan 2026 11:14:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769166860; cv=none; b=T5IvOFGWZinip4NZAyQ1kOKJcwNR0a8PqO/roBdc9fKqiEFcj+5nkgT/RjghcrEn7RXNkpcbe7RYN0PlQeUb7vTrrR8ySLNHtIRYm9zOxNIjmB/Swy4uhiWClfvJZp21+kr2snawt5LwNnz/2aLGTQoyyyjSafg9uJPqbUY1U2Q=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769166860; c=relaxed/simple;
-	bh=K6egzW7gYIjzDIoU1oVfC7B5vC8O1YyAGe0a1QNhitc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JYa8+3ayChQH3t1EeUIZZDMjwntpSpz6EOB+nvwbwe0f8uSIe2CmVECH63c+htiOIihh2uw/9Va0LKeftHJoOcOYMpbRedpQmLOx3gInoSoHzsrazuYNxVFxr1p6+oILn98oYnVmP0Ab5/rphtcBnbd9FXV98cx7k0yvNRXoYHY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ROQkiNum; arc=none smtp.client-ip=192.198.163.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA17D3EBF16
+	for <linux-i2c@vger.kernel.org>; Fri, 23 Jan 2026 11:35:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.43
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769168159; cv=pass; b=FDNNOXaTj5FnrrJPCMD1r9zgERaBBPs6QmvdCuwS2Uu+jc7K/VyotRgJX+BSnOf/xgHGNB/rezJhbDXXJuqdpboinsgmYeZKBdH94VP9ftrFzO8sd9gXtqE4UEZU+ZAf82S/DeKyZJTukroEmr7knmYjfXk8/ceJ9a2gM6HZZGw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769168159; c=relaxed/simple;
+	bh=OE1i/9Ptz9WxZ92YJl17Q6KATL4iBAMC4F1ZCkxuhSk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=QA4D9usTihjBin6/MnbefyPYSXplUfMrRc1kUFey201bl6pZpXiQLEdAoTzD0hpiuAgMZtoafc/U/NoLbBiPZK92DNw4eeEd/NR9J8RVmlWeYWKiyCsRJceUp/aawydHxi0M0iA/i58Y8kv0k1rlRiLnPTYH/3EkbSDPw47bXZo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YYWGmnE5; arc=pass smtp.client-ip=209.85.208.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ROQkiNum"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769166859; x=1800702859;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=K6egzW7gYIjzDIoU1oVfC7B5vC8O1YyAGe0a1QNhitc=;
-  b=ROQkiNumiltP+DYMaDW1KHnyUHKVR9JEmS0ZWBWIROAVvZZ40vndbCO3
-   sjBGHQgVT5fBsrL+pEV3tLUs5pYrEgVkDccvgyvvqc4/p4mtKqxxpbNvy
-   OViB4PgoZaeGbtdyj6mQPyA1HCzK9EyEf3B/iDrAAm90NH+e3DIJmPIWJ
-   t0hnBCHvAIHarI4DBldTPIwHu5CKG5Jqm5nC7H2SL/3Mta1v+Quj+x/0a
-   PXKc9hsptCW01GiPocmcl8ytphaTzNf0oaJrVL35/tokkuDp/64Q+VzFB
-   bwscq38GDqxxqyUAkoWO3/6b1v1Vt7NDzgVn93CVZ9Kl9b4Bdd50OgkmX
-   w==;
-X-CSE-ConnectionGUID: E+2BRVAmTkurNw5W8NjyBw==
-X-CSE-MsgGUID: 0pJp5htjTciw2PbG1oGO+w==
-X-IronPort-AV: E=McAfee;i="6800,10657,11679"; a="70480277"
-X-IronPort-AV: E=Sophos;i="6.21,248,1763452800"; 
-   d="scan'208";a="70480277"
-Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jan 2026 03:14:18 -0800
-X-CSE-ConnectionGUID: swmIR8+HRyezJem1LIsjhg==
-X-CSE-MsgGUID: UfC/sD4mRweKd2HiX2Ia4A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,248,1763452800"; 
-   d="scan'208";a="211502684"
-Received: from rvuia-mobl.ger.corp.intel.com (HELO localhost) ([10.245.244.112])
-  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jan 2026 03:14:16 -0800
-Date: Fri, 23 Jan 2026 13:14:13 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Artem Shimko <a.shimko.dev@gmail.com>
-Cc: andi.shyti@kernel.org, p.zabel@pengutronix.de,
-	mika.westerberg@linux.intel.com, jsd@semihalf.com,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 0/2] i2c: designware-platdrv: simplify reset control
- and error handling
-Message-ID: <aXNYBahiKTnVkRfg@smile.fi.intel.com>
-References: <20260123100537.1429497-1-a.shimko.dev@gmail.com>
- <aXNXx4elBVRpWCWf@smile.fi.intel.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YYWGmnE5"
+Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-65808d08423so3322140a12.1
+        for <linux-i2c@vger.kernel.org>; Fri, 23 Jan 2026 03:35:57 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1769168156; cv=none;
+        d=google.com; s=arc-20240605;
+        b=g4U2nPIdT1jJ266c5QQHlniEGxsml8lv6r8cIJdDxR5j67JzLsThI/X3PWtkmwJl/s
+         Olr9TqK7ooimi9dve5Wj0kmN4OqJGJAZ7/xe0z/JTmxxLO5N9Sh/Y94pISRpwvkG8KO/
+         PTSJZhpt+9aMOj5uxjE/VQOM1jmQdYsfCh7luUhh352XZzaUPRFOsFkBYMzYhBmSIk3r
+         6wEO1CAYVTsLIdiNIy7FjKOLlMrmnXBqlL1LGL4ROnCQEA+J43VISApFcPLQlUnKgaTd
+         XNhqRUDLP/B2dHblSYaXIBYYucz2sqbIIhLMJowylt5zDk7DlESIuC3n7RNlF5ywB0js
+         fz8A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=OE1i/9Ptz9WxZ92YJl17Q6KATL4iBAMC4F1ZCkxuhSk=;
+        fh=2VC11ZQBzYTJb+sMwcueOp290KrlhNvZFCUlnS0Bneo=;
+        b=eSOZGvcdEJxmVEBM3oEQ6UxswhPH8pW1G8Qx11T4hscWUgPU13IZq4utYmN1Oap0ye
+         rFF3hP0wevr8bR3q61d/3LcIOiregXUfFgqzR2M1unE0sRA4DHLj+v1C6TcISxCtyofa
+         W11dlU7iSYO3X/OjJ+Hip10fFJzzPVhnCuHo9yDqoNQRFD20nTIhoRBCM7zu1jCauxvR
+         yM7UcH7rpRPngjanPex+y54OyR0Xmk+6ONj/ckTkX0HNaYgeAOMFmsRJcTc8olKH0tCS
+         NL2nLlufHkh/AeW6aUllzL2Ahdz5/WhHQSfroCsaSwSM5hFbKq8pYQHRO6gl0REfuUKB
+         hc1g==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1769168156; x=1769772956; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=OE1i/9Ptz9WxZ92YJl17Q6KATL4iBAMC4F1ZCkxuhSk=;
+        b=YYWGmnE5TluC8D6ItQnm4FxxVAn23Dia5J75uqyVNs9L2j72S+6zm1zBN6KTLOihSH
+         mBsQVbRX9m1vrm3ZEaxM7GdlXGU2Y5O57xU1kTyrr+AcolYdlW0Wbw7tYLMWAC5IcZJT
+         5v5xtDxEq7R9oipLMIMVYObwnP0TmxNF1fnnF2RihwGlDdflaoz4NtGFhA0+dG7+1VSW
+         z37dVpTknjXHJgmyiaZ875mtveuyoe5m9h0HQSrTDdhEWdf/y5N9YDFxiFZtGZ27HYCt
+         1RQLnZW3yzP2jcldDX1vRpKbkHPX0NwcffzqQy6Smoi9GI27hK8ldaBNvryGDZpvzSBc
+         Xaeg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769168156; x=1769772956;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=OE1i/9Ptz9WxZ92YJl17Q6KATL4iBAMC4F1ZCkxuhSk=;
+        b=FkLwHx7qtNteDAslhYORYhMSCbMsXkY3yvp+YZHpXNTI2poRKeZAxGuBHFl5uObYF/
+         IAgmPp7P9NaIhHbgoy+2X4ArTtCoSWC/gf62yZV3tQ1jQk5u7ChOut9lJvuF/4GWhdJj
+         qyceGow3zWgLJzyY9trsHiZDpwsdlZjmLSDimxhRlBphjgh+f93ySdtJnDcYre2SyA3t
+         b37DuM8G8LpimOolQBsFw1YOrifQH93tmPYdodR7a6FZmnV1x/cqPAyRJJpFsxSIMQz4
+         XumF+6PGg6iVWsLMMVVQ6YMmVBI9Txqh8eJU0oJGaOE4IMAPbFLRbdJiH8qkb3T2m7Tn
+         Rslg==
+X-Forwarded-Encrypted: i=1; AJvYcCUPeYYC4UkhlrfggF40HKuKuqYWcZJtr1xkd6Uy3YiE64yuVBVTw+WL895vHr9bSjRsbkjoOKCC4tY=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy220CIu+Gh6X8PW1lbaoPFMWZOh7P3WGIYoWvqaQ5UebkRuN1P
+	IX62pnZXwGVCoht0QF1vqbKJZcV14mlLWq98UEIvx8MRTxCds36YwJ3nsXVK/UUrLnK9OgGPbZa
+	jxOK/9IlEaTR/9/q4yKL5nXKeHRNJxdI=
+X-Gm-Gg: AZuq6aKD6vXrqJh358W6/C0w0v22HiQ6aP95wmJ8GIE2xr1g0PhI08NcGaIBUbdMUQa
+	tlVSHZ2vLLkJCRPKTZT/faGj0UsToe6kIdG4PH1mV5lC7cOzAil5bNqf31FvgeEUf/hMrXrce69
+	JXY123m7aHsbyd2xcWfhG+eEZm2+GlniDkk9azr6gmNwiG7xLF/TNMJYN9U90cHnQcjXq8NmM0c
+	hgVYP+GRTLZTED+f9+ZDGnRE7o4FhtffCD17Q6TQvUU+9ehnjioJ5wfeaqwMPupESbmqw8ftg==
+X-Received: by 2002:a05:6402:2808:b0:656:a153:f0f8 with SMTP id
+ 4fb4d7f45d1cf-658487d3f3dmr1583414a12.29.1769168155960; Fri, 23 Jan 2026
+ 03:35:55 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aXNXx4elBVRpWCWf@smile.fi.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+References: <20260123100537.1429497-1-a.shimko.dev@gmail.com>
+ <aXNXx4elBVRpWCWf@smile.fi.intel.com> <aXNYBahiKTnVkRfg@smile.fi.intel.com>
+In-Reply-To: <aXNYBahiKTnVkRfg@smile.fi.intel.com>
+From: Artem Shimko <a.shimko.dev@gmail.com>
+Date: Fri, 23 Jan 2026 14:35:44 +0300
+X-Gm-Features: AZwV_QingZge1s24wh3etpuPzpi_64b2qEhpPaQHwAkyw1JX40mRdgLAEm3P6is
+Message-ID: <CAOPX746Fo4VP9tCTz+T42Uhy_LnbmNNSx8MtMJbRh41YtfHhpw@mail.gmail.com>
+Subject: Re: [PATCH v5 0/2] i2c: designware-platdrv: simplify reset control
+ and error handling
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: andi.shyti@kernel.org, p.zabel@pengutronix.de, 
+	mika.westerberg@linux.intel.com, jsd@semihalf.com, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jan 23, 2026 at 01:13:16PM +0200, Andy Shevchenko wrote:
-> On Fri, Jan 23, 2026 at 01:05:34PM +0300, Artem Shimko wrote:
-> > Hello maintainers and reviewers,
-> > 
-> > This series refactors the DesignWare platform I2C driver to simplify
-> > reset control management and improve error handling:
-> > 
-> > Patch 1 replaces the manual reset control acquisition and deassertion
-> > with devm_reset_control_get_optional_exclusive_deasserted(), which
-> > combines both operations in a single call and leverages automatic
-> > resource management.
-> > 
-> > Patch 2 follows up by refactoring the probe error handling to eliminate
-> > goto statements in favor of direct returns with dev_err_probe(), resulting
-> > in cleaner and more linear control flow.
-> > 
-> > Both patches maintain functional equivalence while improving code
-> > readability and maintainability.
-> 
-> You send a series as _three_ detached emails. Forgot using
-> 
-> 	git format-patch --thread ...
-> 
-> ?
+On Fri, Jan 23, 2026 at 2:14=E2=80=AFPM Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+> On top of that, this is marked as v5, where the changelog for all previou=
+s
+> iterations?
 
-On top of that, this is marked as v5, where the changelog for all previous
-iterations?
+Hi Andy,
 
--- 
-With Best Regards,
-Andy Shevchenko
+Got it, yeah... Thanks!
 
+Could you please advise, should I send it again with changelog as v6?
 
+Regards,
+artem
