@@ -1,38 +1,45 @@
-Received: from smtp.gentoo.org (woodpecker.gentoo.org [140.211.166.183])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFD9033E7;
-	Fri, 23 Jan 2026 20:53:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.183
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 401E74A23;
+	Fri, 23 Jan 2026 21:36:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769201607; cv=none; b=V8SbPhGry5JcqFz+VOjjYJ4dXoXcH6s4cH4HpSAJ2M1SqSWgUkGHhgVI70SuXxhIuJIvOaOcToIaYmLqPb4nXQdhX6IcdOtwC6tSMEBuHT23ifEZ0Lfk7e/13E3wGOYWbFK9jvOK8c/JEYaBUWGnSdjS2UKP+FdJuxP+Q06upbg=
+	t=1769204202; cv=none; b=okdBBmZpkivcIU1C6Jbj/ULYI0J7MbvgC8BjcTMqV5ea3Mhp+NVs5PwWig/yvEQCfusFoPIIkw+kunJqlVEsFY2lTCFEfPdV7703gWhXzGo7pCQGnKx8oWtT33IvZJfsexTkYd/SffDYBSaBMVxTA+DmOXRES9A4R2MYVDwEVyQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769201607; c=relaxed/simple;
-	bh=g669giUV/bECjUp566rX1gBxfE10+0G+DB5+tXOc+d0=;
+	s=arc-20240116; t=1769204202; c=relaxed/simple;
+	bh=x2LAiRqR6EDrqBuoKVi3HpedqQmMfCUH32g2lYbrQAk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HTap19clcTOQg64w1yB6Ui1BAnG87UvGF2B/NFJw7RcOq5Hrb6GLKXong2iZampP1VANuIegzK4tOwjzMDkVSzILAfqSghvlgK9jlirFBgNp9EigYEpJZ+4INtm4WgiJbqxlxDx+tSFPG/1a/BlS/M57bnVU3VCrYz0tNATu0vQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gentoo.org; spf=pass smtp.mailfrom=gentoo.org; arc=none smtp.client-ip=140.211.166.183
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gentoo.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gentoo.org
-Received: from localhost (unknown [116.232.27.242])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange secp256r1 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: dlan)
-	by smtp.gentoo.org (Postfix) with ESMTPSA id DCD9A341432;
-	Fri, 23 Jan 2026 20:53:23 +0000 (UTC)
-Date: Sat, 24 Jan 2026 04:53:13 +0800
-From: Yixun Lan <dlan@gentoo.org>
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: linux-kernel@vger.kernel.org, linux-rt-devel@lists.linux.dev,
-	Thomas Gleixner <tglx@kernel.org>,
-	Troy Mitchell <troy.mitchell@linux.spacemit.com>,
-	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-riscv@lists.infradead.org
-Subject: Re: [PATCH 11/21] i2c: spacemit: Remove IRQF_ONESHOT
-Message-ID: <20260123205313-GYA71302@gentoo.org>
-References: <20260123113708.416727-1-bigeasy@linutronix.de>
- <20260123113708.416727-12-bigeasy@linutronix.de>
+	 Content-Type:Content-Disposition:In-Reply-To; b=DaZHnaBceNZQmr/hOUaj1O7E1PftPabbzR4SnAq9+Ln7nbLrr5u2mN/uuC8L4K+Z6NElxCLO65UaEf96o91+tYM8SUd0T4aNY7Q3UMq7Sq3vTvmabGyC7gjFSa9GQnlGqLInymy4zq0zDZW17UHFTmyQWuKouYQrFiVAl47r7Rc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=BX5mGMPB; arc=none smtp.client-ip=156.67.10.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="BX5mGMPB"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=ZDCZQ5Bx2m/hozseby+L8V6oMcAYkBTg1dTRmAtNL6w=; b=BX5mGMPB24nuL1NlQnNCF+KgZE
+	kJDJeAQCHb8BUiRU68GCMzkd9PYMnlLDptisUqwewAs0pE7w2v2T1sypz92eiYIkyVXvL5D591jyH
+	dY/qsa30rnwS+CpFT9UAZITj7uYjTbVcep+R7xcqoN0Jazo335f7zlyhZlXsGcQyBiPQ=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1vjOpS-004LEM-Hs; Fri, 23 Jan 2026 22:36:30 +0100
+Date: Fri, 23 Jan 2026 22:36:30 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+To: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Cc: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@intel.com>,
+	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 2/5] i2c: xiic: switch to managed version of mutex_init
+Message-ID: <df4e0611-ce76-464c-be01-e3802b04877f@lunn.ch>
+References: <20260123-i2c-xiic-v3-0-eb7cd4254dfb@nexthop.ai>
+ <20260123-i2c-xiic-v3-2-eb7cd4254dfb@nexthop.ai>
+ <efe4e155-e307-481f-8332-783cca8a098a@lunn.ch>
+ <CAGYn4vz3YuJ251JZFk7M=wsJr=bMY0Wq7x4Er=mjS_spyT5jLA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -41,50 +48,26 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260123113708.416727-12-bigeasy@linutronix.de>
+In-Reply-To: <CAGYn4vz3YuJ251JZFk7M=wsJr=bMY0Wq7x4Er=mjS_spyT5jLA@mail.gmail.com>
 
-Hi Sebastian, 
-
-On 12:36 Fri 23 Jan     , Sebastian Andrzej Siewior wrote:
-> Passing IRQF_ONESHOT ensures that the interrupt source is masked until
-> the secondary (threaded) handler is done. If only a primary handler is
-> used then the flag makes no sense because the interrupt can not fire
-> (again) while its handler is running.
-> The flag also disallows force-threading of the primary handler and the
-> irq-core will warn about this.
+On Fri, Jan 23, 2026 at 12:20:54PM -0800, Abdurrahman Hussain wrote:
+> On Fri Jan 23, 2026 at 7:22 PM UTC, Andrew Lunn wrote:
+> > On Fri, Jan 23, 2026 at 08:02:45AM +0000, Abdurrahman Hussain via B4 Relay wrote:
+> >> From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+> >>
+> >> Simplify the error path by switching to a managed version of mutex_init.
+> >
+> > How does this simplify the error path? You don't remove anything from
+> > the error path.
+> >
+> >     Andrew
 > 
-> Remove IRQF_ONESHOT from irqflags.
 > 
+> Thank you for the feedback. In v4, as suggested by Andy, I introduced managed
+> versions of the pm_runtime_ functions which do simplify the error handling.
 
-I've sent out a similar patch which already accepted and queued, see
-https://lore.kernel.org/r/20260122-05-k1-i2c-irq-v1-1-9b8d94bbcd22@kernel.org
+But this patch is not about pm_runtime_, it is about a mutex. How does
+this patch make the error path simpler? Please make sure your commit
+messages are accurate.
 
-> Cc: Troy Mitchell <troy.mitchell@linux.spacemit.com>
-> Cc: Andi Shyti <andi.shyti@kernel.org>
-> Cc: Yixun Lan <dlan@gentoo.org>
-> Cc: linux-i2c@vger.kernel.org
-> Cc: linux-riscv@lists.infradead.org
-> Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-> ---
->  drivers/i2c/busses/i2c-k1.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-k1.c b/drivers/i2c/busses/i2c-k1.c
-> index d42c03ef5db59..8ef6d5d1927b7 100644
-> --- a/drivers/i2c/busses/i2c-k1.c
-> +++ b/drivers/i2c/busses/i2c-k1.c
-> @@ -566,7 +566,7 @@ static int spacemit_i2c_probe(struct platform_device *pdev)
->  		return dev_err_probe(dev, i2c->irq, "failed to get irq resource");
->  
->  	ret = devm_request_irq(i2c->dev, i2c->irq, spacemit_i2c_irq_handler,
-> -			       IRQF_NO_SUSPEND | IRQF_ONESHOT, dev_name(i2c->dev), i2c);
-> +			       IRQF_NO_SUSPEND, dev_name(i2c->dev), i2c);
->  	if (ret)
->  		return dev_err_probe(dev, ret, "failed to request irq");
->  
-> -- 
-> 2.51.0
-> 
-
--- 
-Yixun Lan (dlan)
+     Andrew
