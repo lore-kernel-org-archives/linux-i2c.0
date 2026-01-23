@@ -1,74 +1,88 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35FA51FC7C5
-	for <linux-i2c@vger.kernel.org>; Fri, 23 Jan 2026 12:48:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 862971F1518;
+	Fri, 23 Jan 2026 14:10:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769172507; cv=none; b=lYh6Ri07KRP/4m6bXVqUCcnwTrVvn0cWBwSY1LrGNfyYciU/06F8DMC/d9hWCS/fnA7k1p+hJbv3FheXUB6UR5ra/bVVU6nN7yZhFRW8j4OYClEX0a6KlYxYtmhXopZw5puzSDNIzbJVM4pGS/75xFXotogeuIH/6kM3RMRlqDs=
+	t=1769177427; cv=none; b=GWt62VMEvTRlCcPqyJxX3gNY9FCP7X3pKnmYMTGaDfoXzy8ywZ5cBoe2y1Os0UX8BWrzxXcKkYDKAZW2DwozZbFCoNQ4h/zqEoBB5DECUR8DKuUleIefIDqBGAaGHsr8TfPrAaFv94czmCGdI6bOy1IBCMHyovJCLH0FIYnKIOg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769172507; c=relaxed/simple;
-	bh=sLKncsIpAR+9g5qW/XVOkuKxSZQ9qSFECYXQkmCd+Yg=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=SCwSaA9OF4XX09BCT3Gb2HpEn5meWW2l+inu/uxn+l8+U4dDYssu3QmOzhWp4DA3qU4zYXoqWqveIKHNUUsuAQA1myeFk4z0alAwfP14t2rataKEUcsjxD2dgxSbTDRv/m3SBe97PNVYAtK7Nzad6cE3zslaL+ula4CE7L8huZ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <p.zabel@pengutronix.de>)
-	id 1vjGaF-0008QP-Ry; Fri, 23 Jan 2026 13:48:15 +0100
-Received: from lupine.office.stw.pengutronix.de ([2a0a:edc0:0:900:1d::4e] helo=lupine)
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <p.zabel@pengutronix.de>)
-	id 1vjGaF-0025sQ-2E;
-	Fri, 23 Jan 2026 13:48:15 +0100
-Received: from pza by lupine with local (Exim 4.98.2)
-	(envelope-from <p.zabel@pengutronix.de>)
-	id 1vjGaE-000000006YO-3zSh;
-	Fri, 23 Jan 2026 13:48:14 +0100
-Message-ID: <d802354283652410ebfbe7717716bb347d7dba25.camel@pengutronix.de>
-Subject: Re: [PATCH v5 2/2] i2c: designware-platdrv: refactor error handling
- and simplify cleanup
-From: Philipp Zabel <p.zabel@pengutronix.de>
-To: Artem Shimko <a.shimko.dev@gmail.com>, Mika Westerberg	
- <mika.westerberg@linux.intel.com>, Andy Shevchenko	
- <andriy.shevchenko@linux.intel.com>, Jan Dabros <jsd@semihalf.com>, Andi
- Shyti	 <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Date: Fri, 23 Jan 2026 13:48:14 +0100
-In-Reply-To: <20260123100537.1429497-3-a.shimko.dev@gmail.com>
-References: <20260123100537.1429497-3-a.shimko.dev@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2-0+deb13u1 
+	s=arc-20240116; t=1769177427; c=relaxed/simple;
+	bh=h+/Z9Yes6ScdNolaLLAflTQSgtOpNvBxXOIhcFp/PcY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=A+IFEdqfjZjHifDNfoLt0OSI+8l0bofQ1KlUnlF20ZsCeVTcEvXfFTE1KOBAcEtTKaTnCeHpODki+ylhKCKbOb9tq7l1WfcGGBVDBkEckV3IYyKWE9JWEMThVKdh/HA9GiwiNv1072MZKLl+kJjy1rLw4tWN1zcaxLkSYgwCFGY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mb0pc29U; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mb0pc29U"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1769177426; x=1800713426;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=h+/Z9Yes6ScdNolaLLAflTQSgtOpNvBxXOIhcFp/PcY=;
+  b=mb0pc29UNZ683r8nTBy1ZbYT01EcXgnhvP542NSHvQE3eZIIbu7b9o+j
+   ZAw3+ZTpHSQ4ppJyrohG260LFDltTJ5dlxfEPAAZo0BdBPy/3LiUs1l1i
+   mhspElUjBAXg3ljDmmSmZ3UeB3ewIzi2crhyLijrEj9SviyEVHyU81jWk
+   S6F6Rd/kBTf3M1i6kyUPq3CFrNSiIapoV3zWu7H+z4kJgC04VZD25VJQy
+   DRsLE3X3cMhnTkpB4DnEDJzaA1GEaEtacPMKYbQBNsEVQWRd+rxKLHbk6
+   F6ELsmBh5xfMduD3XA7ti77MJhtBU57VDOpm/nRvmxlCNm1pOneRcE+pt
+   g==;
+X-CSE-ConnectionGUID: CzGTdHRLQFScvt0hnBh3DA==
+X-CSE-MsgGUID: T7rIxCdrT/CBRfWqR7SQDA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11680"; a="70481600"
+X-IronPort-AV: E=Sophos;i="6.21,248,1763452800"; 
+   d="scan'208";a="70481600"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jan 2026 06:10:25 -0800
+X-CSE-ConnectionGUID: W3wRB1YNRG+nF2gpf/WUGw==
+X-CSE-MsgGUID: H3SsJvxIS5muJ5VMninPkQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,248,1763452800"; 
+   d="scan'208";a="244641358"
+Received: from rvuia-mobl.ger.corp.intel.com (HELO localhost) ([10.245.244.112])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jan 2026 06:10:23 -0800
+Date: Fri, 23 Jan 2026 16:10:20 +0200
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Artem Shimko <a.shimko.dev@gmail.com>
+Cc: andi.shyti@kernel.org, p.zabel@pengutronix.de,
+	mika.westerberg@linux.intel.com, jsd@semihalf.com,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v5 0/2] i2c: designware-platdrv: simplify reset control
+ and error handling
+Message-ID: <aXOBTME6GOiiSowD@smile.fi.intel.com>
+References: <20260123100537.1429497-1-a.shimko.dev@gmail.com>
+ <aXNXx4elBVRpWCWf@smile.fi.intel.com>
+ <aXNYBahiKTnVkRfg@smile.fi.intel.com>
+ <CAOPX746Fo4VP9tCTz+T42Uhy_LnbmNNSx8MtMJbRh41YtfHhpw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: p.zabel@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAOPX746Fo4VP9tCTz+T42Uhy_LnbmNNSx8MtMJbRh41YtfHhpw@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Fr, 2026-01-23 at 13:05 +0300, Artem Shimko wrote:
-> Streamline the probe error handling by replacing goto statements with
-> direct returns and using dev_err_probe() for consistent error reporting.
-> This results in more linear and readable control flow.
->=20
-> Remove the explicit reset_control_assert() call from the driver's
-> remove function, as the reset controller is acquired with
-> devm_reset_control_get_optional_exclusive_deasserted() which manages
-> the reset state automatically through devm resource management.
+On Fri, Jan 23, 2026 at 02:35:44PM +0300, Artem Shimko wrote:
+> On Fri, Jan 23, 2026 at 2:14 PM Andy Shevchenko
+> <andriy.shevchenko@linux.intel.com> wrote:
+> > On top of that, this is marked as v5, where the changelog for all previous
+> > iterations?
+> 
+> Got it, yeah... Thanks!
+> 
+> Could you please advise, should I send it again with changelog as v6?
 
-This change belongs in patch 1, same with the assert in the  probe
-error path.
+Wait a bit (24h + ) for others to have a chance to comment.
 
-regards
-Philipp
+-- 
+With Best Regards,
+Andy Shevchenko
 
 
