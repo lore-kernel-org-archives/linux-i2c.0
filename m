@@ -1,132 +1,90 @@
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40E782367D3
-	for <linux-i2c@vger.kernel.org>; Sat, 24 Jan 2026 10:24:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82FCF27A122
+	for <linux-i2c@vger.kernel.org>; Sat, 24 Jan 2026 11:58:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769250278; cv=none; b=qNJraS4Ao0ye/DkP1cMfVHgdH83ZFxG17YTRhJrBlKpWlkYqgmAUDxGHU+1XhzooVBj9e9WMbP4VVUTxO+JxfrA/l0342HElPRiEIkQWoF/dSMAJLGpgyIWuU13SdxADMsBfaDF7z7DtK8S5SCDe4MyDev6vfVGVqzFBBg5N0XY=
+	t=1769255909; cv=none; b=FUCcsciH+KviLI8Ea2xrl320ua49/d9GCmVNPliftdKHg45BssxzcdyO0KIKloHmpcFQyYmAspvBJaU0gnJUs6XEw30pDldwkH8WziYVU+y15hNl4/dSR6VhZZkLTSPMCHYXLIUA8JgOmAVTMHf66bd5ZLWjB20dYZyJs2e3gzQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769250278; c=relaxed/simple;
-	bh=SsIOscoc4kxZ0+X5vINR23gFekLWS36exm5VqIWN7ug=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=D31jsPs2Gssq86gVjObheQtlM5GOXDCescfjiM9OCSb49/cVrrUImx6C0xqDCwQB9D9YI/ppundsUBqa0FRHfokj0DOfYg779zPwKX7jfR4pA6mzlJPe//xq9+ceBAUj57WqQWCJLkLdbKTEurlmyTjxMFfjG92UHyb1AsSnYr4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=sartura.hr; spf=pass smtp.mailfrom=sartura.hr; dkim=pass (2048-bit key) header.d=sartura.hr header.i=@sartura.hr header.b=Lx3ieygl; arc=none smtp.client-ip=209.85.128.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=sartura.hr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sartura.hr
+	s=arc-20240116; t=1769255909; c=relaxed/simple;
+	bh=CUWd0gE6oVDCYdnu2h2ylu5gIU8T6EgndR3LLEMVxJA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=YR1BaMF2oGNQuPTwtSNL5N3naWGRPW2xyK3ABZluO9Vm5QkHEYS8MS2sr54YmiBxnP3nnimYXl+PE20iQ7RangeQCTHODa5cI3WPvm3N0a6MBzei4mgxWtg0E73ltZmVGb3xoooLLZXlFeVohSsYbX+39QMewzmsWEMIyQnJ5BQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=Ju8UGdL0; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sartura.hr header.i=@sartura.hr header.b="Lx3ieygl"
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-48039fdc8aeso15898575e9.3
-        for <linux-i2c@vger.kernel.org>; Sat, 24 Jan 2026 02:24:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sartura.hr; s=sartura; t=1769250275; x=1769855075; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=f6KeuWtNDinjaFnZinUuAvPa1zdf4IDBNYyQ0smSyMs=;
-        b=Lx3ieygl3ijotffRo1OJkk/3ZfMlNYxbrpJN4NEKR1Clb0Jqb7ZR5GMHZkmtxJEIFn
-         tbNcfpcg0lioh7LlFc+4yDp9+3DpJVcplgZseMjABHStumeRqAn6pceuAGymEK9bCtCj
-         z/0B2YGBZMs+52RPtuW+WMiQ0D/cEQgRY8laprvSTrC3R/7hmr63cAhyr5YUQo5W9bOe
-         P8lHsTFbIqobYE/FIFWDWFD3uzqEHuLggqSi05rCtN8spwD2FJtxykHAiwx147mgdqcJ
-         W2g689wH8t5FAnKVSDV3Uso5GBbBz62GGnckPlnhPnP7EjWJ3u06VxaOdjYFWLOVQ1Na
-         LvTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769250275; x=1769855075;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=f6KeuWtNDinjaFnZinUuAvPa1zdf4IDBNYyQ0smSyMs=;
-        b=OD3qSnJxo+EEDbt87shHjBxIdhNV8zazhiB+99d5keGxf/bHKsz8QEzSvmaaEv0Klq
-         c5TmlhCt75o+K1NtkTOxg6gT30tjttrDL4qFsTsl03wKWP1lN5ad3ERmSXF3aeNgSOk8
-         CjOilS+QVoS7qGkbrwYYbvp0NKJiFjoQMYSZeocxoCjKvVLhdjCDp/cfFKg0RiZs7ouZ
-         Zj99Ygqke60dBKMb5b7LCdLFboqJ0LPOyf3V5QIv2kc2a/2Hbjbg96T85PDl+4TZi7Z5
-         dvnuiyh20zeTILtuEYoONwMv/XfjOOwBAdoojF2aioBH8sX0jhE6isaRR03l6wSPWA8h
-         0wxg==
-X-Forwarded-Encrypted: i=1; AJvYcCXpkPxS1ywazhk1UL1AzabSDfuBm2qaRl7vpx2qi3E8qFn/B49kTkg5pQJMcCbq3wqn8/2KuiEAxoI=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz3UKxufsBqwDFog6w4Cxwkji47P6oAUBxwFgC68nr5q3w4rvVf
-	8Qe6Mzk1dY8VW+GZvk926hJT7p7Gs3+5/PFywrAsyGyuKbKgBplrCdCrVGLKkA71mMc=
-X-Gm-Gg: AZuq6aJW1SFm1TAtxtZkmDXyL82eKz0F18v16/RDzkIf0Ss//jXyX/nf0NmID5CJab+
-	S+tOO4mYTYskIjCmZCi/o0ktZX9o7EnWRRE9oB3qtDLgbdj+lsMIAUKyf2JpLtB42G60bilc+57
-	tUAWH/HQR3Cy6UNBGSjME7W2LybhtB3G9lGH1OWhSOWQaLcV7pMg6i32lHGuuxuoD5KlP1y8kMi
-	+ztKUOwebiRVgKEXrGCjhiaVN2enYvMxgGlekKEezAwgM35qKqfrkj6j5YM+7qwXKCTMlPVbtiC
-	+/oKSBfXqHv25N4Y+dsJ5WlIf33oUPh7zxR8MF0C438ZkIZ2Ttwiuvr3AVqufIM4is7S11/C3YG
-	m4rRGh2mZO3TD7HUxFTDzV3m91/HEqGlrGf2NiRITb9DmfK4Ha5lD00OepjCODSgfDCR8jm3Nuy
-	fo+V5SCNI7V0zyWcla84Yo0vs9E2NYZljD4ThSumXFyfANOpJSgJ2+rPdoDHgl3dYu7XjqdcxV1
-	XCKvwf2XmJtit/593PA0UkSwEMz4BQPLVGIgEKkaA==
-X-Received: by 2002:a05:600c:5308:b0:477:b48d:ba7a with SMTP id 5b1f17b1804b1-4804c9b834amr88128575e9.32.1769250275201;
-        Sat, 24 Jan 2026 02:24:35 -0800 (PST)
-Received: from [192.168.3.32] (cpe-109-60-82-187.zg3.cable.xnet.hr. [109.60.82.187])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-435b1c02cd8sm12647198f8f.8.2026.01.24.02.24.34
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 24 Jan 2026 02:24:34 -0800 (PST)
-Message-ID: <55f7c157-c624-4b1f-ac07-f70aa3668b34@sartura.hr>
-Date: Sat, 24 Jan 2026 11:24:33 +0100
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Ju8UGdL0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=CUWd
+	0gE6oVDCYdnu2h2ylu5gIU8T6EgndR3LLEMVxJA=; b=Ju8UGdL0tqWltuuQ0pKH
+	h5hiHUBsPdfjsHn2bhz1vfAFxVntYWnlXVd2DJh3fUjp4p97jmgFUNALbMpRXrh2
+	eb+2iP6ko3xTBEd21gbTAne+O+tPjER28MaC7Lxyo7ysx8H42NYM+ftSw0Be1v8O
+	BqwVvbfN9ZJw7ysh149kVq/Dn++Slb9kFtItXhFKjgZEgDtLow8mFJBv29e5jr8P
+	rIoOCHnBX1flkZN1vvE/7RlxW71dqPyPImcDiE4xOXyZ5f6YQarCsy6gE8/v78CN
+	8yjgul0MS9AwLnwdUWW/J8Q0m+IQMR9rX4AGVSLc2sc22Bvw+wbtF2ozGJp2bqf4
+	2Q==
+Received: (qmail 1758874 invoked from network); 24 Jan 2026 12:58:17 +0100
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 24 Jan 2026 12:58:17 +0100
+X-UD-Smtp-Session: l3s3148p1@xdU3/SBJtJgujnu6
+Date: Sat, 24 Jan 2026 12:58:14 +0100
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+	linux-i2c <linux-i2c@vger.kernel.org>
+Subject: Re: [GIT PULL] i2c-host-fixes for v6.19-rc7
+Message-ID: <aXSz1uwSW5fvFv_U@ninjato>
+References: <aXNqakUtNhWJdgLW@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 0/2] i2c: pxa: fix I2C communication on Armada 3700
-To: Gabor Juhos <j4g8y7@gmail.com>, Wolfram Sang <wsa@kernel.org>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- Andi Shyti <andi.shyti@kernel.org>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Russell King <rmk+kernel@armlinux.org.uk>, Andrew Lunn <andrew@lunn.ch>,
- Hanna Hawa <hhhawa@amazon.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>, linux-i2c@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
- stable@vger.kernel.org, Imre Kaloz <kaloz@openwrt.org>
-References: <20250827-i2c-pxa-fix-i2c-communication-v3-0-052c9b1966a2@gmail.com>
-Content-Language: en-US
-From: Robert Marko <robert.marko@sartura.hr>
-In-Reply-To: <20250827-i2c-pxa-fix-i2c-communication-v3-0-052c9b1966a2@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="VBLuOT/PjfOUCGbK"
+Content-Disposition: inline
+In-Reply-To: <aXNqakUtNhWJdgLW@zenone.zhora.eu>
 
 
-On 8/27/25 19:13, Gabor Juhos wrote:
-> There is a long standing bug which causes I2C communication not to
-> work on the Armada 3700 based boards. The first patch in the series
-> fixes that regression. The second patch improves recovery to make it
-> more robust which helps to avoid communication problems with certain
-> SFP modules.
->
-> Signed-off-by: Gabor Juhos <j4g8y7@gmail.com>
-> ---
+--VBLuOT/PjfOUCGbK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi, I see the series have not been merged so far.
-Without it, I2C is completely broken on Armada 3720 if I2C recovery is 
-used, and
-without I2C recovery, certain SFP modules will also cause the bus to hang.
+Hi Andi,
 
-Regards,
-Robert
+> one fix for this week. It addresses a genirq warning in the
+> SpacemiT K1 driver by dropping the IRQF_ONESHOT flag, which is
+> not supposed to be used without a threaded handler.
+>=20
+> Thank you and I wish you a great weekend,
 
-> Changes in v3:
->    - rebase on tip of i2c/for-current
->    - remove Imre's tag from the cover letter, and replace his SoB tag to
->      Reviewed-by in the individual patches
->    - rework the second patch so it does not need changes in the I2C core code,
->      and drop the first one as it is not needed now
->    - Link to v2: https://lore.kernel.org/r/20250811-i2c-pxa-fix-i2c-communication-v2-0-ca42ea818dc9@gmail.com
->
-> Changes in v2:
->    - collect offered tags
->    - rebase and retest on tip of i2c/for-current
->    - Link to v1: https://lore.kernel.org/r/20250511-i2c-pxa-fix-i2c-communication-v1-0-e9097d09a015@gmail.com
->
-> ---
-> Gabor Juhos (2):
->        i2c: pxa: defer reset on Armada 3700 when recovery is used
->        i2c: pxa: handle 'Early Bus Busy' condition on Armada 3700
->
->   drivers/i2c/busses/i2c-pxa.c | 35 ++++++++++++++++++++++++++++-------
->   1 file changed, 28 insertions(+), 7 deletions(-)
-> ---
-> base-commit: 3dd22078026c7cad4d4a3f32c5dc5452c7180de8
-> change-id: 20250510-i2c-pxa-fix-i2c-communication-3e6de1e3d0c6
->
-> Best regards,
+Same for you!
+
+Thank you, pulled!
+
+
+--VBLuOT/PjfOUCGbK
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAml0s9IACgkQFA3kzBSg
+KbYKCg//brL/jItFUmaVL2J4OZzfvF5RRf7LSheFbL8+GggJTEkO/PCSdj9KkxgL
+QV2ItOqqRAo0z5hqaaXme+4h2bCMxIvd3R+WhD01BLA6/4gHhSqr78dhnGrardSe
+Uz5Ll6ORZV0MBzVm+AzAJsT5o+hhZq7Dg7eanOYQT3Lt8i7kigV5IisB9Ki/3TbW
+XPFZ6VscWcTaQ6WbLC2HHE72/UaDB8QPK8728Ch6lOrL+3GnV+nZ0KStpO9L7Wu+
+uDyhxF9alJyf66dHQ1TGBJdj53sqBe4TkbBSrfmvgdmiFoXW7ItBb1S1oR1uTdse
+YqzHhs0EPZXlnyFSYh4P15j4yKLfK6xd5WhKaYAZUbNAqZJeMoyWSdBKvC8bxwqK
+/lEegZ72jkWK1tgwg0BXA46Jc/13NC8kUtHB8yeDTHa+bqe2bUG7mniA2Q1Iqr1Z
+jZtGKSrry70WY2yt030JIdtPtNNsH7egEkvcGYiY05zkSeWt5ZJA+PB/bSx1I0Gg
+HuLhXi50kHcPGVnmPkLGcjb9R55EaUvo4mqdsnAilo6z3O3Br9afkytJGWOFExsc
+nofRTQjyvrpGqcNaOvlLqYM9hlRI7XaR/F3p2LXqsFI9yib2sPEI08gOmLEYIHE4
+sZRmEI2iCFJkWxonOIG7zqqNxiCtgH1LZgE4GY7hIP9RDkQBjmI=
+=L55K
+-----END PGP SIGNATURE-----
+
+--VBLuOT/PjfOUCGbK--
