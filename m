@@ -1,339 +1,181 @@
-Received: from mail-ed1-f51.google.com (mail-ed1-f51.google.com [209.85.208.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C99330275F
-	for <linux-i2c@vger.kernel.org>; Mon, 26 Jan 2026 09:13:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.51
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769418784; cv=pass; b=WZaihZgkWidLj2kwLssVQtxqT1qAphuNpwzkEgujoYgDTS2wzvAvrJH5MW+TwfEmXT/6IfsF7Ej6eEL0VE0qlif+qdLItY5iaEG1tngqvRNHdIBHxZDbOP02xATfj8JeBj76TX4YPuBzV00/misUKM8M4fq6WtebS1qq56YFfxY=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769418784; c=relaxed/simple;
-	bh=Wo/vQPz+0V8LDd9oV6OYeXAtWjk9LyHablfez9LuH8M=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=lORCCn9LfhuL/zkNNqxP2sxBPCq0OY6TAEDRyhP9w/0boAamb0419DxXpnlY53pi0y2plEAYfAGUHF65z+qgGqlyh8CHohPIc3G2LAay1D0+m3q+UH2KXMdZL4Uayy6rhOoivqs57Nr0M8UrznLYLWh+LyJPSj2Tg6CVi6CPhOw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=sartura.hr; spf=pass smtp.mailfrom=sartura.hr; dkim=pass (2048-bit key) header.d=sartura.hr header.i=@sartura.hr header.b=mdOdYjhB; arc=pass smtp.client-ip=209.85.208.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=sartura.hr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sartura.hr
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B06BB330B2C
+	for <linux-i2c@vger.kernel.org>; Mon, 26 Jan 2026 10:32:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769423579; cv=none; b=eEWjHIfVR4Lg54466SJ4BZEUUoWDWaEhJAbQQ9Rk67YTQn67t8knCEYpHD35oBFeQHfOZsEphQlDSo06CHa9FYXvtnJypGqEjY7NV7APubnQbolWf0kea4uLAQUD17OIvIYcRMEF/cSvvDjKfWTnR7YWKPh+5Hrrr+e3eVmqcqs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769423579; c=relaxed/simple;
+	bh=eWAdrV6TAtui1MJq3ZE1m/+gDAFZQQwdZF81DH6TaDQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=YIQ/CCPGomP/VQpo5r57RwtbXNKyLJZSD6usZVKjuTlc5p+6yXrUTINNITlKTANRTGQeNp1ZCzdIDeqCoM/SmyrddQdiy2TGAldIYIHq1f6inX5nOzYr5BqEYX3WFyKo2G8+D9Wl+P0QSEF3eVoQkvmHsyUiOfzQ+M/YYIVBGVE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=ULxdXg8G; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=i0DC6o7G; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sartura.hr header.i=@sartura.hr header.b="mdOdYjhB"
-Received: by mail-ed1-f51.google.com with SMTP id 4fb4d7f45d1cf-64b9cb94ff5so5871449a12.2
-        for <linux-i2c@vger.kernel.org>; Mon, 26 Jan 2026 01:13:02 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1769418781; cv=none;
-        d=google.com; s=arc-20240605;
-        b=CUyRw0GVVbVw1zgSx6m4QsrEtK1tuDR8gyXvNOmY6ZZQ3SRslhiGdfjzI3UIGwTpEd
-         vW4PMGB+ZXYL4vD7EAjTDBDpu61HM+KYtO/kUJNqv1JvbEVTDJha0XFT/0qApIG57RaG
-         jmrXKWpBtwLelcpM6iJYgpxMq1RmA/jUWuVzDDVMYHyUEOO+JncArUC98vfLHjPAs0Mw
-         KRGt5EAly2433f9qT2UNniw2io4Jf/AAVDzUzgk5tKpdD39dBszZCcecIFII+2v64f89
-         XGaqcomSO2cPukbKt3yYTk/UtjE9NEchxqcE2zfGxZWBJOA+KpewxAHdlAWaghzBe97A
-         DyEw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=38F1GYV0XN/PxaeV/i4/kx4eQmWmLGFD/ba5srNlENw=;
-        fh=nlxG5T+LgI9468QhHsKm5sZp7PoAPi7+xdjyRBQC97I=;
-        b=KR56gMIy2pwROf7tgk42j5AnyDN3VXvHAd1elOsWzf0zpyCWNCUsJWukzkyIeKFM6O
-         K2PNCd1mOK0udmP6DNPTFkK0Hc4ABJcD8Nub5+tNFX03aD1YC6aU/W1DeBwyqFNvmEo4
-         2/M9qZXgWK/FJgQ1/za21DwygqFjtpAwpKCzn3J6GS98xT20Eu65KIJhKWpwzpbOsa1+
-         m33OzfQSBPC91lTRzF2otf05rgU9SvfDhV/uiKwJKHS2mptANeFWRTJGOUNiRmUiH3Yl
-         +4D7EvJOK7AJWRTBfxgiLrS03oLOa8iTYx5UgaLZaE8Xa4YlBGilX2UUZVLLFclu4omB
-         5qPg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="ULxdXg8G";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="i0DC6o7G"
+Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60Q90XOS899362
+	for <linux-i2c@vger.kernel.org>; Mon, 26 Jan 2026 10:32:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	JnGQa+VppXSpGH8Db51uvFUmO5TW2cub0y3XamdlXbo=; b=ULxdXg8GOuwlgBJL
+	TgivDwLrLmZGDQj6b7363AGK+1t5pNEoyeTBAP87E7bO8F2CRgksn+JM4V6iF9cB
+	TedXI5UGCAgtChJkpTvInxkibW3S4B9oS0ie3qbqr/9ZPIBNoFfHFVPBH0gEVNJv
+	psl+3qIqHyDB1Cq2MC2Jml1UuRptrNf+O8xs0i8PvvpOaIG8OMNVZRvzoLG+7WNE
+	by8je9iU5ZEYXN7AOcZwUAzF5w0ZE5onMXRLIA3zWu1cENk2NCxJqQKBeunQF5eH
+	WWqv+SowYjxeCAV/9/TqfcRCP/sVgmS7djm+h6GeMps28Y84192T5UWZr4/Hw4Z5
+	oeFgOw==
+Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4bvq9f4726-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Mon, 26 Jan 2026 10:32:56 +0000 (GMT)
+Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-8c6de73fab8so134484285a.3
+        for <linux-i2c@vger.kernel.org>; Mon, 26 Jan 2026 02:32:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sartura.hr; s=sartura; t=1769418781; x=1770023581; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=38F1GYV0XN/PxaeV/i4/kx4eQmWmLGFD/ba5srNlENw=;
-        b=mdOdYjhBQN+aJT68cRff7fe8X1jgC+0RQsVrgGZeUSVa9ZRpdqx1dEtl8uX7BNpx/U
-         HnD42uJ877sAvKkRfQ51yJPC8mbosbwaXxGoVCqihXdfFiTUYWTBFf3xKVI6+dTyLIsp
-         WC9JN1achyXKf+XKZo9CSMQRjY5Sm9MMAoUEo/rcl1nTQ8HZjhPV0ojqpKEL/B4paIrZ
-         LzdSRjK9l6rs6ypTFQQtz6+uJftsMlf3eQIQ/YgzFlzphLyFGPPn44wtt8DywbJFZviX
-         k2CZ1szqpy71jNDV/Rf+LDs/Dxq/Hxi5T5uhDHoF++uZJJQJlhPwOffIHmqDB0cV9PJt
-         2MOQ==
+        d=oss.qualcomm.com; s=google; t=1769423576; x=1770028376; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=JnGQa+VppXSpGH8Db51uvFUmO5TW2cub0y3XamdlXbo=;
+        b=i0DC6o7Gv3QuE4zW7J0iXqYQhrM5/Pc/wVemT9IA8LVftVgfrGQ7AAjeCJfVzxcmCg
+         vxfYa7qHjdicuZes1UxS5cZm6CwnD1Zzh+w+gr/kUxqgZLw003lFel3ErFTluQ8hgho8
+         sblioBU8ehzBp0froR+WxrfneOsSDbPOFJHK4KCbSCRovN+RIVvHOnL9D4DJw6FKiQm4
+         KqtiwOsHYlYmp5WKPFYlkSTIfsgWjMHAKG5HyvL6CTBOWioiIA0vacKqnLERopnvxhHZ
+         4DeA0KEA5vsnnFzGtluXP2+0IkUQvX+5DzA/Nt5VTAXDgDtqVwDtDFuM+Vtvc3JIRqTB
+         mrrw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769418781; x=1770023581;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=38F1GYV0XN/PxaeV/i4/kx4eQmWmLGFD/ba5srNlENw=;
-        b=kw+fN+ReqTOUaBijBtpaf8rBLvQ99Ws6RfpGE/EdiOgEF2XmfeXYh+eZekSlMkyrDJ
-         Taj5e7VZxtaAmGRkqhbu4fjAttyRJBmmSgTVQvd56p4DQrIz1VgU9yh6NjJ63ZQDLMcj
-         jB9xMKw9ddu/J0E8KrbAQbJM0iBVqRcYflJa0ECR6Q4Ua6Ac84gE+jJS/3YWL7T2JkV8
-         CygLqXYB7OO0bBGAP5un/JJyg7PjJTATFgatBKoHC2FGYaTVzygT4lifm+4QWSY6tx1f
-         3n6pbCxATYJL00OXR0feDHzXQVZKno56hnuSghup7lXRaZN96vefd3OKPuSMDhRQOXFZ
-         7DAg==
-X-Forwarded-Encrypted: i=1; AJvYcCXH7eO/qpN5/PjyTEp2OBVR1Yex0sK5s22EFo631YHSrDeBZ0/tx7EnCZ161fdSGz25e/j4UI7ABb4=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzlyMvmLWdud4kkVlPnz7d648M6DJgIonZVDjZw279+nvJGeTUo
-	WN99FZ0hN84zPtshCKKbJR/C0LHRa+svZC15Zk/N+aUYhQkbgHfMBYAd59hA5k/8Tniu+y3uYrq
-	QZVRPFRoJI1bYY39QRCfVlWj+DKu/UG/9g5P2btMfWw==
-X-Gm-Gg: AZuq6aIC0cvNXxfHpxjf31Qyn77ZSXk1Sl1OUpI28+lHV7XvqMvgb6oF0YIiL+FLLS+
-	2HgktqOADQnEy72d8TO61eHXdwLE/DSMd6oKchyQpDVotAE9gr/RuL5SHfdjLB1P6e8+M4fvGbT
-	SDTB0SMyS2OF/xvp1jU73IC6UXOJQTV8vcmkfyLjC/RNkl2rfuQf7mZloqf6+KDGDYWFV/HTnny
-	iovEy5VWC5ArGeGT2wTjS17KX28XIO+c5nF4MJspsOhECAMfLMbz44Qpcna89PLFhTMtIh/T1+E
-	Bonx2Z+k3MMvGO8fqGSZOTuKDBiyJQ8mAQIoyh3i4wngZw6cxjU=
-X-Received: by 2002:a17:907:3cc6:b0:b87:e75:92e3 with SMTP id
- a640c23a62f3a-b8cfedfbb3cmr291271166b.4.1769418780434; Mon, 26 Jan 2026
- 01:13:00 -0800 (PST)
+        d=1e100.net; s=20230601; t=1769423576; x=1770028376;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=JnGQa+VppXSpGH8Db51uvFUmO5TW2cub0y3XamdlXbo=;
+        b=OYvdk1PXkEKIh/suIcKhDQFYxgv2cDKIlsQDrfglHwAb/Qc4zoPHrIpZyLqLURmBM0
+         MsudY5mF4jyFMYo5Gs19Ndi6KnI7Ys0tf8kTrHEYexjskXnrrGU2yyJGOhXzv+OBVP3S
+         yXXooObQmVnfKG1HvCSA2V1gE+FKaYiks/LN+tSHp/GHP/PB0YdFD0MHReNTImwYjkt/
+         byLrJUfkEbMQC+1KbYu+DZppFGYE0NCj7+HvgO7VllNeZLzr6O/kKbZ3ZwoUsBdpv0HI
+         xu6rm30U/MuNSSLscEBt1yJODSnwrVUMsEl4fN7Mp+80QCDLF/a4IUX8uf1EASAy99rS
+         dIxA==
+X-Gm-Message-State: AOJu0YzX8emOms8yBtnpiuCVT94Gx/MRtvS7CDuVG1srsadJ3a0qtfeR
+	+9onsdKORmboX4CRBQkKRXnEjZKOqj6A2dC1t2TSPIZAZGGiRxigdwFuErHIYNlzuvmSwuoHTMW
+	iCGFI2AlkJy6bBvBimuCL3ezHl6X8s1ic9p5n5qJTF/sWK/4toRWtClgNLBTnnJg=
+X-Gm-Gg: AZuq6aKcbN8bkFYvMKXFdguJqaNXunKzE95auZ3diOE/nTIvzNJmTCZfXel10Or8BDy
+	MRL3iwAzYN+FosvC+J9iwl3XTS6rOir/jNFm+zzDarMziDWzV7Wvgn7BoTLltuINY6wEIdL4dq5
+	3GH+kjwwY9VNe8eg2gHaM7wQW67A3tbmJ+BxALab/hHl1aaRL7ELX6QnASa8ahgxusLq4YZx8Ag
+	p2L/+n7bYranwAP016Vz3nmDB9BAzxQVt+ldBDo78BihhyLPAERdk1WXfO1ANrN06ULFbiZS8qn
+	RNQ3fiRQCrL7kfOvvkygq1klKehZ/JTqUkGfyo6+3QxcBdku6aau3aLgdkYl0I3gubJ0nVNs8+7
+	BOf8h4lCrSd+x+3Q2AjGHAXDGs4Ro8+bQcqoyGmpduOW+ycJ5+jxIrOI9WrEe/lhagyo=
+X-Received: by 2002:a05:620a:2588:b0:8c6:a707:dae7 with SMTP id af79cd13be357-8c6f95790c0mr358654085a.1.1769423575897;
+        Mon, 26 Jan 2026 02:32:55 -0800 (PST)
+X-Received: by 2002:a05:620a:2588:b0:8c6:a707:dae7 with SMTP id af79cd13be357-8c6f95790c0mr358637685a.1.1769423570661;
+        Mon, 26 Jan 2026 02:32:50 -0800 (PST)
+Received: from [192.168.119.254] (078088045245.garwolin.vectranet.pl. [78.88.45.245])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b885b7d7d89sm606513966b.68.2026.01.26.02.32.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 26 Jan 2026 02:32:49 -0800 (PST)
+Message-ID: <291206cc-85e7-4251-9507-5848f721a708@oss.qualcomm.com>
+Date: Mon, 26 Jan 2026 11:32:46 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20250827-i2c-pxa-fix-i2c-communication-v3-0-052c9b1966a2@gmail.com>
- <20250827-i2c-pxa-fix-i2c-communication-v3-2-052c9b1966a2@gmail.com>
-In-Reply-To: <20250827-i2c-pxa-fix-i2c-communication-v3-2-052c9b1966a2@gmail.com>
-From: Robert Marko <robert.marko@sartura.hr>
-Date: Mon, 26 Jan 2026 10:12:49 +0100
-X-Gm-Features: AZwV_QjbdS2c5gKFf7G1ps0B7bA9mX_zUUwnEF3cB_N_luca8ANmVfGDdft_W_U
-Message-ID: <CA+HBbNE9yKj6pnZZm3m_+vsUjOvMPtuQQJ2SjZ9XSgvBf0n0Kw@mail.gmail.com>
-Subject: Re: [PATCH v3 2/2] i2c: pxa: handle 'Early Bus Busy' condition on
- Armada 3700
-To: Gabor Juhos <j4g8y7@gmail.com>
-Cc: Wolfram Sang <wsa@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Andi Shyti <andi.shyti@kernel.org>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
-	Russell King <rmk+kernel@armlinux.org.uk>, Andrew Lunn <andrew@lunn.ch>, 
-	Hanna Hawa <hhhawa@amazon.com>, Linus Walleij <linus.walleij@linaro.org>, linux-i2c@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org, Imre Kaloz <kaloz@openwrt.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 5/5] arm64: dts: qcom: talos-evk-camera: Add DT overlay
+To: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>,
+        Loic Poulain <loic.poulain@oss.qualcomm.com>,
+        Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley
+ <conor+dt@kernel.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>, Robert Foss <rfoss@kernel.org>,
+        Todor Tomov <todor.too@gmail.com>,
+        Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-media@vger.kernel.org, imx@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org
+References: <20260122-sm6150_evk-v5-0-039b170450a3@oss.qualcomm.com>
+ <20260122-sm6150_evk-v5-5-039b170450a3@oss.qualcomm.com>
+ <825c3e7c-469a-4d69-b298-18f2edf72ea4@oss.qualcomm.com>
+ <e0e6f248-3d82-4b0c-9ee2-4a655b7bbbfd@oss.qualcomm.com>
+Content-Language: en-US
+From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+In-Reply-To: <e0e6f248-3d82-4b0c-9ee2-4a655b7bbbfd@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Authority-Analysis: v=2.4 cv=YLGSCBGx c=1 sm=1 tr=0 ts=697742d8 cx=c_pps
+ a=qKBjSQ1v91RyAK45QCPf5w==:117 a=FpWmc02/iXfjRdCD7H54yg==:17
+ a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=KKAkSRfTAAAA:8 a=EUspDBNiAAAA:8
+ a=qa14B8Bdw_gfn3ERDOEA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=NFOGd7dJGGMPyQGDc5-O:22 a=cvBusfyB2V15izCimMoJ:22
+X-Proofpoint-GUID: _vDseYQRL6XkV2fzj5i5wQRd-DYz6Tvr
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI2MDA5MCBTYWx0ZWRfX1C4dqbt11sSG
+ FI+FSyi36YN0ftUs1kZqKBN3tmx6Rnm+UPb0a49+tdteWJPkq0liH/oAXIT4S8oagfsnyLqFb9r
+ rIp0qYbFIi2XMhJWEb3dq5oZAQY3X8MLqJ22Cr/R9HhbehDo+RtRk09WBJx4cavlQldazXiqe4X
+ mALFyB//zI4XTUPC/KjSbhXdfhyc5DolH4/3A/q4SGbB5Buu1S8KVSsh5oaTamjag9+5aYYmyj/
+ 9clP2uMNUMLZ8wIW0kkIH03BkEQK6wCG1jIs/M+L8WtHHG1oB7jtzh5pYuPmcCabzH68e6ayMa5
+ vnBgbqrw+p+v1L5kMmyY18fwZdEZxkqCsUR7yn6K09a19mwjs8ZIvEMtk/mK42OFKgVrLOT4qZk
+ NDG/qlkME7VPpEjwu1A93lp3KFllBk5THG2v+uk8QHhpFh8+AKac6jX7vChNHBsl8t2yR60pY/h
+ LkqxHEKhfLpmzgjyjsg==
+X-Proofpoint-ORIG-GUID: _vDseYQRL6XkV2fzj5i5wQRd-DYz6Tvr
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.20,FMLib:17.12.100.49
+ definitions=2026-01-26_02,2026-01-22_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 priorityscore=1501 suspectscore=0 bulkscore=0 lowpriorityscore=0
+ clxscore=1015 impostorscore=0 phishscore=0 spamscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2601260090
 
-On Wed, Aug 27, 2025 at 7:14=E2=80=AFPM Gabor Juhos <j4g8y7@gmail.com> wrot=
-e:
->
-> Under some circumstances I2C recovery fails on Armada 3700. At least
-> on the Methode uDPU board, removing and replugging an SFP module fails
-> often, like this:
->
->   [   36.953127] sfp sfp-eth1: module removed
->   [   38.468549] i2c i2c-1: i2c_pxa: timeout waiting for bus free
->   [   38.486960] sfp sfp-eth1: module MENTECHOPTO      POS22-LDCC-KR    r=
-ev 1.0  sn MNC208U90009     dc 200828
->   [   38.496867] mvneta d0040000.ethernet eth1: unsupported SFP module: n=
-o common interface modes
->   [   38.521448] hwmon hwmon2: temp1_input not attached to any thermal zo=
-ne
->   [   39.249196] sfp sfp-eth1: module removed
->   ...
->   [  292.568799] sfp sfp-eth1: please wait, module slow to respond
->   ...
->   [  625.208814] sfp sfp-eth1: failed to read EEPROM: -EREMOTEIO
->
-> Note that the 'unsupported SFP module' messages are not relevant. The
-> module is used only for testing the I2C recovery funcionality, because
-> the error can be triggered easily with this specific one.
->
-> Enabling debug in the i2c-pxa driver reveals the following:
->
->   [   82.034678] sfp sfp-eth1: module removed
->   [   90.008654] i2c i2c-1: slave_0x50 error: timeout with active message
->   [   90.015112] i2c i2c-1: msg_num: 2 msg_idx: 0 msg_ptr: 0
->   [   90.020464] i2c i2c-1: IBMR: 00000003 IDBR: 000000a0 ICR: 000007e0 I=
-SR: 00000802
->   [   90.027906] i2c i2c-1: log:
->   [   90.030787]
->
-> This continues until the retries are exhausted ...
->
->   [  110.192489] i2c i2c-1: slave_0x50 error: exhausted retries
->   [  110.198012] i2c i2c-1: msg_num: 2 msg_idx: 0 msg_ptr: 0
->   [  110.203323] i2c i2c-1: IBMR: 00000003 IDBR: 000000a0 ICR: 000007e0 I=
-SR: 00000802
->   [  110.210810] i2c i2c-1: log:
->   [  110.213633]
->
-> ... then the whole sequence starts again ...
->
->   [  115.368641] i2c i2c-1: slave_0x50 error: timeout with active message
->
-> ... while finally the SFP core gives up:
->
->   [  671.975258] sfp sfp-eth1: failed to read EEPROM: -EREMOTEIO
->
-> When we analyze the log, it can be seen that bit 1 and 11 is set in the
-> ISR (Interface Status Register). Bit 1 indicates the ACK/NACK status, but
-> the purpose of bit 11 is not documented in the driver code unfortunately.
->
-> The 'Functional Specification' document of the Armada 3700 SoCs family
-> however says that this bit indicates an 'Early Bus Busy' condition. The
-> document also notes that whenever this bit is set, it is not possible to
-> initiate a transaction on the I2C bus. The observed behaviour corresponds
-> to this statement.
->
-> Unfortunately, I2C recovery does not help as it never runs in this
-> special case. Although the driver checks the busyness of the bus at
-> several places, but since it does not consider the A3700 specific bit
-> in these checks it can't determine the actual status of the bus correctly
-> which results in the errors above.
->
-> In order to fix the problem, add a new member to struct 'i2c_pxa' to
-> store a controller specific bitmask containing the bits indicating the
-> busy status, and use that in the code while checking the actual status
-> of the bus. This ensures that the correct status can be determined on
-> the Armada 3700 based devices without causing functional changes on
-> devices based on other SoCs.
->
-> With the change applied, the driver detects the busy condition, and runs
-> the recovery process:
->
->   [  742.617312] i2c i2c-1: state:i2c_pxa_wait_bus_not_busy:449: ISR=3D00=
-000802, ICR=3D000007e0, IBMR=3D03
->   [  742.626099] i2c i2c-1: i2c_pxa: timeout waiting for bus free
->   [  742.631933] i2c i2c-1: recovery: resetting controller, ISR=3D0x00000=
-802
->   [  742.638421] i2c i2c-1: recovery: IBMR 0x00000003 ISR 0x00000000
->
-> This clears the EBB bit in the ISR register, so it makes it possible to
-> initiate transactions on the I2C bus again.
->
-> After this patch, the SFP module used for testing can be removed and
-> replugged numerous times without causing the error described at the
-> beginning. Previously, the error happened after a few such attempts.
->
-> The patch has been tested also with the following kernel versions:
-> 5.10.240, 5.15.189, 6.1.148, 6.6.102, 6.12.42, 6.14.11, 6.15.10, 6.16.1
-> It improves recovery on all of them.
->
-> Cc: stable@vger.kernel.org # 5.10+
-> Reviewed-by: Imre Kaloz <kaloz@openwrt.org>
-> Signed-off-by: Gabor Juhos <j4g8y7@gmail.com>
-> ---
+On 1/23/26 3:30 AM, Wenmeng Liu wrote:
+> Hi Konrad,
+> 
+> On 1/22/2026 9:44 PM, Konrad Dybcio wrote:
+>> On 1/22/26 11:48 AM, Wenmeng Liu wrote:
+>>> Enable IMX577 via CCI on Taloss EVK Core Kit.
+>>>
+>>> The Talos EVK board does not include a camera sensor
+>>> by default, this DTSO has enabled the Arducam 12.3MP
+>>> IMX577 Mini Camera Module on the CSI-1 interface.
+>>>
+>>> Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+>>> Signed-off-by: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>
+>>> ---
+>>
+>> [...]
+>>
+>>> +&cci_i2c1 {
+>>> +    #address-cells = <1>;
+>>> +    #size-cells = <0>;
+>>> +
+>>> +    camera@1a {
+>>> +        compatible = "sony,imx577";
+>>> +        reg = <0x1a>;
+>>> +
+>>> +        reset-gpios = <&tlmm 29 GPIO_ACTIVE_LOW>;
+>>
+>> Let's define the pin settings for the reset pin too, otherwise lgtm
+> 
+> The reset pin on the Talos EVK board is different from the default. Do you recommend that I define the reset pin's pinctrl in the Talos EVK board's DTS?
 
-Tested-by: Robert Marko <robert.marko@sartura.hr>
+Certianly not in the SoC DTSI
 
-> Changes in v3:
->   - rebase on tip of i2c/for-current
->   - use Reviewed-by tag for Imre
->   - remove Fixes tag as the problem is not caused by the previously menti=
-oned
->     commit, simply it is not handled by the code yet
->   - update list of tested kernels
->   - Link to v2: https://lore.kernel.org/r/20250811-i2c-pxa-fix-i2c-commun=
-ication-v2-3-ca42ea818dc9@gmail.com
->
-> Changes in v2:
->   - rebase and retest on tip of i2c/for-current
->   - Link to v1: https://lore.kernel.org/r/20250511-i2c-pxa-fix-i2c-commun=
-ication-v1-3-e9097d09a015@gmail.com
-> ---
->  drivers/i2c/busses/i2c-pxa.c | 18 ++++++++++++------
->  1 file changed, 12 insertions(+), 6 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-> index 70acf33e1d573231f84a1f09cffb376a8277351d..19f5da08def11ded1d3de968f=
-50fa5b5851066f5 100644
-> --- a/drivers/i2c/busses/i2c-pxa.c
-> +++ b/drivers/i2c/busses/i2c-pxa.c
-> @@ -71,6 +71,7 @@
->  #define ISR_GCAD       (1 << 8)           /* general call address detect=
-ed */
->  #define ISR_SAD                (1 << 9)           /* slave address detec=
-ted */
->  #define ISR_BED                (1 << 10)          /* bus error no ACK/NA=
-K */
-> +#define ISR_A3700_EBB  (1 << 11)          /* early bus busy for armada 3=
-700 */
->
->  #define ILCR_SLV_SHIFT         0
->  #define ILCR_SLV_MASK          (0x1FF << ILCR_SLV_SHIFT)
-> @@ -263,6 +264,7 @@ struct pxa_i2c {
->         bool                    highmode_enter;
->         u32                     fm_mask;
->         u32                     hs_mask;
-> +       u32                     busy_mask;
->
->         struct i2c_bus_recovery_info recovery;
->         struct pinctrl          *pinctrl;
-> @@ -430,7 +432,7 @@ static int i2c_pxa_wait_bus_not_busy(struct pxa_i2c *=
-i2c)
->
->         while (1) {
->                 isr =3D readl(_ISR(i2c));
-> -               if (!(isr & (ISR_IBB | ISR_UB)))
-> +               if (!(isr & i2c->busy_mask))
->                         return 0;
->
->                 if (isr & ISR_SAD)
-> @@ -467,7 +469,7 @@ static int i2c_pxa_wait_master(struct pxa_i2c *i2c)
->                  * quick check of the i2c lines themselves to ensure they=
-'ve
->                  * gone high...
->                  */
-> -               if ((readl(_ISR(i2c)) & (ISR_UB | ISR_IBB)) =3D=3D 0 &&
-> +               if ((readl(_ISR(i2c)) & i2c->busy_mask) =3D=3D 0 &&
->                     readl(_IBMR(i2c)) =3D=3D (IBMR_SCLS | IBMR_SDAS)) {
->                         if (i2c_debug > 0)
->                                 dev_dbg(&i2c->adap.dev, "%s: done\n", __f=
-unc__);
-> @@ -488,7 +490,7 @@ static int i2c_pxa_set_master(struct pxa_i2c *i2c)
->         if (i2c_debug)
->                 dev_dbg(&i2c->adap.dev, "setting to bus master\n");
->
-> -       if ((readl(_ISR(i2c)) & (ISR_UB | ISR_IBB)) !=3D 0) {
-> +       if ((readl(_ISR(i2c)) & i2c->busy_mask) !=3D 0) {
->                 dev_dbg(&i2c->adap.dev, "%s: unit is busy\n", __func__);
->                 if (!i2c_pxa_wait_master(i2c)) {
->                         dev_dbg(&i2c->adap.dev, "%s: error: unit busy\n",=
- __func__);
-> @@ -514,7 +516,7 @@ static int i2c_pxa_wait_slave(struct pxa_i2c *i2c)
->                         dev_dbg(&i2c->adap.dev, "%s: %ld: ISR=3D%08x, ICR=
-=3D%08x, IBMR=3D%02x\n",
->                                 __func__, (long)jiffies, readl(_ISR(i2c))=
-, readl(_ICR(i2c)), readl(_IBMR(i2c)));
->
-> -               if ((readl(_ISR(i2c)) & (ISR_UB|ISR_IBB)) =3D=3D 0 ||
-> +               if ((readl(_ISR(i2c)) & i2c->busy_mask) =3D=3D 0 ||
->                     (readl(_ISR(i2c)) & ISR_SAD) !=3D 0 ||
->                     (readl(_ICR(i2c)) & ICR_SCLE) =3D=3D 0) {
->                         if (i2c_debug > 1)
-> @@ -1177,7 +1179,7 @@ static int i2c_pxa_pio_set_master(struct pxa_i2c *i=
-2c)
->         /*
->          * Wait for the bus to become free.
->          */
-> -       while (timeout-- && readl(_ISR(i2c)) & (ISR_IBB | ISR_UB))
-> +       while (timeout-- && readl(_ISR(i2c)) & i2c->busy_mask)
->                 udelay(1000);
->
->         if (timeout < 0) {
-> @@ -1322,7 +1324,7 @@ static void i2c_pxa_unprepare_recovery(struct i2c_a=
-dapter *adap)
->          * handing control of the bus back to avoid the bus changing stat=
-e.
->          */
->         isr =3D readl(_ISR(i2c));
-> -       if (isr & (ISR_UB | ISR_IBB)) {
-> +       if (isr & i2c->busy_mask) {
->                 dev_dbg(&i2c->adap.dev,
->                         "recovery: resetting controller, ISR=3D0x%08x\n",=
- isr);
->                 i2c_pxa_do_reset(i2c);
-> @@ -1479,6 +1481,10 @@ static int i2c_pxa_probe(struct platform_device *d=
-ev)
->         i2c->fm_mask =3D pxa_reg_layout[i2c_type].fm;
->         i2c->hs_mask =3D pxa_reg_layout[i2c_type].hs;
->
-> +       i2c->busy_mask =3D ISR_UB | ISR_IBB;
-> +       if (i2c_type =3D=3D REGS_A3700)
-> +               i2c->busy_mask |=3D ISR_A3700_EBB;
-> +
->         if (i2c_type !=3D REGS_CE4100)
->                 i2c->reg_isar =3D i2c->reg_base + pxa_reg_layout[i2c_type=
-].isar;
->
->
-> --
-> 2.50.1
->
+The other question is whether to put it in the board or mezz DTS(O)
 
+I think the latter makes more sense, as presumably a different mezz
+could use it for different purposes
 
---=20
-Robert Marko
-Staff Embedded Linux Engineer
-Sartura d.d.
-Lendavska ulica 16a
-10000 Zagreb, Croatia
-Email: robert.marko@sartura.hr
-Web: www.sartura.hr
+Konrad
