@@ -1,181 +1,98 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B06BB330B2C
-	for <linux-i2c@vger.kernel.org>; Mon, 26 Jan 2026 10:32:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 867D233A9C1;
+	Mon, 26 Jan 2026 13:53:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769423579; cv=none; b=eEWjHIfVR4Lg54466SJ4BZEUUoWDWaEhJAbQQ9Rk67YTQn67t8knCEYpHD35oBFeQHfOZsEphQlDSo06CHa9FYXvtnJypGqEjY7NV7APubnQbolWf0kea4uLAQUD17OIvIYcRMEF/cSvvDjKfWTnR7YWKPh+5Hrrr+e3eVmqcqs=
+	t=1769435637; cv=none; b=DyoNGIVb2tXAVwul3R81OpaWc2JHGOnBOkr0brKshIttNMPFJPvgEeyOPt/y4yJKau0+fnBn1SwsHivRSf72PszlWKXznFxkRGDcZmM3KFYjSVZLKxKePAQVhmyqeLuiMnjiEnzrvmbEeBed7bkCRcOEMC/qmKUePljZmT78WIo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769423579; c=relaxed/simple;
-	bh=eWAdrV6TAtui1MJq3ZE1m/+gDAFZQQwdZF81DH6TaDQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YIQ/CCPGomP/VQpo5r57RwtbXNKyLJZSD6usZVKjuTlc5p+6yXrUTINNITlKTANRTGQeNp1ZCzdIDeqCoM/SmyrddQdiy2TGAldIYIHq1f6inX5nOzYr5BqEYX3WFyKo2G8+D9Wl+P0QSEF3eVoQkvmHsyUiOfzQ+M/YYIVBGVE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=ULxdXg8G; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=i0DC6o7G; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1769435637; c=relaxed/simple;
+	bh=9icDPg6ZkVm6GU7we/zP1+CTW2MSDGgmmBuETqa+oJU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZHJjW+9yYMyDZ7D15RP/tbOmi82/kylbgi0vvSBwBBQfAmiS+wcpOn2bI1j9cQTXhrJvE5vUnOS0DeDPmdIBDcQuP9BdL4FSE6cWDkpOJXIMmjoueQiTUWcQfIoExiI3AiIgHrBt2s854f9rdqxkBtXai8TzPEu1iKM8H+Ehnao=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=R9zPEz78; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="ULxdXg8G";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="i0DC6o7G"
-Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60Q90XOS899362
-	for <linux-i2c@vger.kernel.org>; Mon, 26 Jan 2026 10:32:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	JnGQa+VppXSpGH8Db51uvFUmO5TW2cub0y3XamdlXbo=; b=ULxdXg8GOuwlgBJL
-	TgivDwLrLmZGDQj6b7363AGK+1t5pNEoyeTBAP87E7bO8F2CRgksn+JM4V6iF9cB
-	TedXI5UGCAgtChJkpTvInxkibW3S4B9oS0ie3qbqr/9ZPIBNoFfHFVPBH0gEVNJv
-	psl+3qIqHyDB1Cq2MC2Jml1UuRptrNf+O8xs0i8PvvpOaIG8OMNVZRvzoLG+7WNE
-	by8je9iU5ZEYXN7AOcZwUAzF5w0ZE5onMXRLIA3zWu1cENk2NCxJqQKBeunQF5eH
-	WWqv+SowYjxeCAV/9/TqfcRCP/sVgmS7djm+h6GeMps28Y84192T5UWZr4/Hw4Z5
-	oeFgOw==
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4bvq9f4726-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Mon, 26 Jan 2026 10:32:56 +0000 (GMT)
-Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-8c6de73fab8so134484285a.3
-        for <linux-i2c@vger.kernel.org>; Mon, 26 Jan 2026 02:32:56 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1769423576; x=1770028376; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=JnGQa+VppXSpGH8Db51uvFUmO5TW2cub0y3XamdlXbo=;
-        b=i0DC6o7Gv3QuE4zW7J0iXqYQhrM5/Pc/wVemT9IA8LVftVgfrGQ7AAjeCJfVzxcmCg
-         vxfYa7qHjdicuZes1UxS5cZm6CwnD1Zzh+w+gr/kUxqgZLw003lFel3ErFTluQ8hgho8
-         sblioBU8ehzBp0froR+WxrfneOsSDbPOFJHK4KCbSCRovN+RIVvHOnL9D4DJw6FKiQm4
-         KqtiwOsHYlYmp5WKPFYlkSTIfsgWjMHAKG5HyvL6CTBOWioiIA0vacKqnLERopnvxhHZ
-         4DeA0KEA5vsnnFzGtluXP2+0IkUQvX+5DzA/Nt5VTAXDgDtqVwDtDFuM+Vtvc3JIRqTB
-         mrrw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769423576; x=1770028376;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=JnGQa+VppXSpGH8Db51uvFUmO5TW2cub0y3XamdlXbo=;
-        b=OYvdk1PXkEKIh/suIcKhDQFYxgv2cDKIlsQDrfglHwAb/Qc4zoPHrIpZyLqLURmBM0
-         MsudY5mF4jyFMYo5Gs19Ndi6KnI7Ys0tf8kTrHEYexjskXnrrGU2yyJGOhXzv+OBVP3S
-         yXXooObQmVnfKG1HvCSA2V1gE+FKaYiks/LN+tSHp/GHP/PB0YdFD0MHReNTImwYjkt/
-         byLrJUfkEbMQC+1KbYu+DZppFGYE0NCj7+HvgO7VllNeZLzr6O/kKbZ3ZwoUsBdpv0HI
-         xu6rm30U/MuNSSLscEBt1yJODSnwrVUMsEl4fN7Mp+80QCDLF/a4IUX8uf1EASAy99rS
-         dIxA==
-X-Gm-Message-State: AOJu0YzX8emOms8yBtnpiuCVT94Gx/MRtvS7CDuVG1srsadJ3a0qtfeR
-	+9onsdKORmboX4CRBQkKRXnEjZKOqj6A2dC1t2TSPIZAZGGiRxigdwFuErHIYNlzuvmSwuoHTMW
-	iCGFI2AlkJy6bBvBimuCL3ezHl6X8s1ic9p5n5qJTF/sWK/4toRWtClgNLBTnnJg=
-X-Gm-Gg: AZuq6aKcbN8bkFYvMKXFdguJqaNXunKzE95auZ3diOE/nTIvzNJmTCZfXel10Or8BDy
-	MRL3iwAzYN+FosvC+J9iwl3XTS6rOir/jNFm+zzDarMziDWzV7Wvgn7BoTLltuINY6wEIdL4dq5
-	3GH+kjwwY9VNe8eg2gHaM7wQW67A3tbmJ+BxALab/hHl1aaRL7ELX6QnASa8ahgxusLq4YZx8Ag
-	p2L/+n7bYranwAP016Vz3nmDB9BAzxQVt+ldBDo78BihhyLPAERdk1WXfO1ANrN06ULFbiZS8qn
-	RNQ3fiRQCrL7kfOvvkygq1klKehZ/JTqUkGfyo6+3QxcBdku6aau3aLgdkYl0I3gubJ0nVNs8+7
-	BOf8h4lCrSd+x+3Q2AjGHAXDGs4Ro8+bQcqoyGmpduOW+ycJ5+jxIrOI9WrEe/lhagyo=
-X-Received: by 2002:a05:620a:2588:b0:8c6:a707:dae7 with SMTP id af79cd13be357-8c6f95790c0mr358654085a.1.1769423575897;
-        Mon, 26 Jan 2026 02:32:55 -0800 (PST)
-X-Received: by 2002:a05:620a:2588:b0:8c6:a707:dae7 with SMTP id af79cd13be357-8c6f95790c0mr358637685a.1.1769423570661;
-        Mon, 26 Jan 2026 02:32:50 -0800 (PST)
-Received: from [192.168.119.254] (078088045245.garwolin.vectranet.pl. [78.88.45.245])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b885b7d7d89sm606513966b.68.2026.01.26.02.32.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 26 Jan 2026 02:32:49 -0800 (PST)
-Message-ID: <291206cc-85e7-4251-9507-5848f721a708@oss.qualcomm.com>
-Date: Mon, 26 Jan 2026 11:32:46 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="R9zPEz78"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1769435636; x=1800971636;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=9icDPg6ZkVm6GU7we/zP1+CTW2MSDGgmmBuETqa+oJU=;
+  b=R9zPEz78XXqH/uW1OW5FljohC2kNp8hczTBriZZRpRGVl1S8okZ1WwwJ
+   SlY30eLhPCpnCMlE7yGmKHxxthQ3E94gdJeL4dzNJHz8tBrjbz6kJP53Q
+   Fr+9SVHEgZePS9bPygCfXQe3EbvyoVj+w5JdJBD4aCdQVITdk/C5M5DyJ
+   NyJ3tX9KJPJgwOPlaJ4cy5IJo4uo8v1BSdWXMKU0LyUaoIJfxHRbE7Ywi
+   +v5T8WKlx4Mh5AswBneuONTur9GRmsOC1QQpAqciVoLcb69sMk1GE81yC
+   RBkUfgqg21NiAEmrKyAU2fDJ/hcF8fQhp5MIAeyTTGuiHxFMaRqYVIvW3
+   Q==;
+X-CSE-ConnectionGUID: xM1wGhvCT7a4Z27ZmmCkWw==
+X-CSE-MsgGUID: 5Hz0Qdx+Rmmr5bsQ8C6Y9w==
+X-IronPort-AV: E=McAfee;i="6800,10657,11683"; a="88024051"
+X-IronPort-AV: E=Sophos;i="6.21,255,1763452800"; 
+   d="scan'208";a="88024051"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2026 05:53:56 -0800
+X-CSE-ConnectionGUID: rfXz4owASQq6Na4vpyGh8A==
+X-CSE-MsgGUID: oHsN1RWcR0mRUT+g0ZpOmw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,255,1763452800"; 
+   d="scan'208";a="206805556"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by orviesa006.jf.intel.com with ESMTP; 26 Jan 2026 05:53:55 -0800
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id 0D8F895; Mon, 26 Jan 2026 14:53:53 +0100 (CET)
+Date: Mon, 26 Jan 2026 14:53:53 +0100
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: correctmost <cmlists@sent.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	dmaengine@vger.kernel.org, regressions@lists.linux.dev,
+	vkoul@kernel.org, linux-i2c@vger.kernel.org
+Subject: Re: [REGRESSION][BISECTED] Lenovo IdeaPad touchpad does not work
+ when idma64 is present in initramfs
+Message-ID: <20260126135353.GT2275908@black.igk.intel.com>
+References: <d7627ea0-0965-4469-83c2-e2a15edd58a9@app.fastmail.com>
+ <aXCYwBMTwkHZPYsi@smile.fi.intel.com>
+ <20260121135803.GM2275908@black.igk.intel.com>
+ <aXDos20kksml8wdU@smile.fi.intel.com>
+ <20260121150256.GN2275908@black.igk.intel.com>
+ <aXDuddwBCelAVouQ@smile.fi.intel.com>
+ <20260122110021.GO2275908@black.igk.intel.com>
+ <a6474592-87db-4fdc-958c-8b09d324df1e@app.fastmail.com>
+ <20260123063621.GP2275908@black.igk.intel.com>
+ <5c5645eb-66b8-4419-a4e9-ba2672af2f40@app.fastmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 5/5] arm64: dts: qcom: talos-evk-camera: Add DT overlay
-To: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>,
-        Loic Poulain <loic.poulain@oss.qualcomm.com>,
-        Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley
- <conor+dt@kernel.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>, Robert Foss <rfoss@kernel.org>,
-        Todor Tomov <todor.too@gmail.com>,
-        Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
-        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-media@vger.kernel.org, imx@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org
-References: <20260122-sm6150_evk-v5-0-039b170450a3@oss.qualcomm.com>
- <20260122-sm6150_evk-v5-5-039b170450a3@oss.qualcomm.com>
- <825c3e7c-469a-4d69-b298-18f2edf72ea4@oss.qualcomm.com>
- <e0e6f248-3d82-4b0c-9ee2-4a655b7bbbfd@oss.qualcomm.com>
-Content-Language: en-US
-From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-In-Reply-To: <e0e6f248-3d82-4b0c-9ee2-4a655b7bbbfd@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Authority-Analysis: v=2.4 cv=YLGSCBGx c=1 sm=1 tr=0 ts=697742d8 cx=c_pps
- a=qKBjSQ1v91RyAK45QCPf5w==:117 a=FpWmc02/iXfjRdCD7H54yg==:17
- a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=KKAkSRfTAAAA:8 a=EUspDBNiAAAA:8
- a=qa14B8Bdw_gfn3ERDOEA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=NFOGd7dJGGMPyQGDc5-O:22 a=cvBusfyB2V15izCimMoJ:22
-X-Proofpoint-GUID: _vDseYQRL6XkV2fzj5i5wQRd-DYz6Tvr
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI2MDA5MCBTYWx0ZWRfX1C4dqbt11sSG
- FI+FSyi36YN0ftUs1kZqKBN3tmx6Rnm+UPb0a49+tdteWJPkq0liH/oAXIT4S8oagfsnyLqFb9r
- rIp0qYbFIi2XMhJWEb3dq5oZAQY3X8MLqJ22Cr/R9HhbehDo+RtRk09WBJx4cavlQldazXiqe4X
- mALFyB//zI4XTUPC/KjSbhXdfhyc5DolH4/3A/q4SGbB5Buu1S8KVSsh5oaTamjag9+5aYYmyj/
- 9clP2uMNUMLZ8wIW0kkIH03BkEQK6wCG1jIs/M+L8WtHHG1oB7jtzh5pYuPmcCabzH68e6ayMa5
- vnBgbqrw+p+v1L5kMmyY18fwZdEZxkqCsUR7yn6K09a19mwjs8ZIvEMtk/mK42OFKgVrLOT4qZk
- NDG/qlkME7VPpEjwu1A93lp3KFllBk5THG2v+uk8QHhpFh8+AKac6jX7vChNHBsl8t2yR60pY/h
- LkqxHEKhfLpmzgjyjsg==
-X-Proofpoint-ORIG-GUID: _vDseYQRL6XkV2fzj5i5wQRd-DYz6Tvr
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.20,FMLib:17.12.100.49
- definitions=2026-01-26_02,2026-01-22_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 priorityscore=1501 suspectscore=0 bulkscore=0 lowpriorityscore=0
- clxscore=1015 impostorscore=0 phishscore=0 spamscore=0 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2601260090
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <5c5645eb-66b8-4419-a4e9-ba2672af2f40@app.fastmail.com>
 
-On 1/23/26 3:30 AM, Wenmeng Liu wrote:
-> Hi Konrad,
+On Sat, Jan 24, 2026 at 10:38:14PM -0500, correctmost wrote:
+> I am seeing mixed results with those i2c config changes, depending on which modules are included in the initramfs image.
 > 
-> On 1/22/2026 9:44 PM, Konrad Dybcio wrote:
->> On 1/22/26 11:48 AM, Wenmeng Liu wrote:
->>> Enable IMX577 via CCI on Taloss EVK Core Kit.
->>>
->>> The Talos EVK board does not include a camera sensor
->>> by default, this DTSO has enabled the Arducam 12.3MP
->>> IMX577 Mini Camera Module on the CSI-1 interface.
->>>
->>> Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
->>> Signed-off-by: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>
->>> ---
->>
->> [...]
->>
->>> +&cci_i2c1 {
->>> +    #address-cells = <1>;
->>> +    #size-cells = <0>;
->>> +
->>> +    camera@1a {
->>> +        compatible = "sony,imx577";
->>> +        reg = <0x1a>;
->>> +
->>> +        reset-gpios = <&tlmm 29 GPIO_ACTIVE_LOW>;
->>
->> Let's define the pin settings for the reset pin too, otherwise lgtm
+> Build info for both tests:
+> - Commit c072629f05d7
+> - CONFIG_I2C_DESIGNWARE_CORE=m
+> - CONFIG_I2C_DESIGNWARE_PLATFORM=m
 > 
-> The reset pin on the Talos EVK board is different from the default. Do you recommend that I define the reset pin's pinctrl in the Talos EVK board's DTS?
+> --> Test 1 - Various i2c modules absent from initramfs
+> 
+> Modules:
+> - drivers/dma/idma64.ko.zst present in initramfs
+> - drivers/hid/i2c-hid/{i2c-hid-acpi.ko.zst,i2c-hid.ko.zst} absent from initramfs
+> - drivers/i2c/busses/{i2c-designware-core.ko.zst,i2c-designware-platform.ko.zst,i2c-i801.ko.zst} absent from initramfs
+> - drivers/i2c/{i2c-mux.ko.zst,i2c-smbus.ko.zst} absent from initramfs
+> 
+> Result: The touchpad works, but there are still IRQ #27 messages:
 
-Certianly not in the SoC DTSI
+And the touchpad is working fine after boot too?
 
-The other question is whether to put it in the board or mezz DTS(O)
-
-I think the latter makes more sense, as presumably a different mezz
-could use it for different purposes
-
-Konrad
+Can you share full dmesg of this boot and let's add "i2c-hid.dyndbg=+p" in
+the kernel command line so we can see what it is doing as well.
