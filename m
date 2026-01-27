@@ -1,129 +1,130 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE25035CB7E;
-	Tue, 27 Jan 2026 15:09:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6B50360746;
+	Tue, 27 Jan 2026 15:26:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769526574; cv=none; b=UzJK0rmOPWOOLt6o4FrTMDGn0RS+5StQ7AcTIyZIOjf37qEtrJufBJdNW0LLVkGbXXS7KmJ0qTrOLSXFpUp/xtvTz160KJQ4WdeTKZEhNrGpIwWTzhOU9dhaCCiwgeYeTVtjF9qOvtS/SBQyhW6PdxnwxIRw9QTCTyFZx+hIpKs=
+	t=1769527576; cv=none; b=EdB9jKGrrJR6WoIldFb1wMi3of0ICpNLmo7XAOqgk7XWsWVEmRR6ZrkX1Ox1fI7DE3qM9LOKLKb0R/vSlkWSKxojARBp2y1lVdCOPUdkbc4nVxbXCOx9w19MGoD7LY3om+FvkXGuoPq8ouKrEZp7ZUmOyDgytOo9MesRJRyFrVk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769526574; c=relaxed/simple;
-	bh=l6MXp60odRBYxNQsyCcgzadItXrr5jiugzsoSFXfN/4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bjOj6Zwap+3F0ipHB9YXIVFIptexvmB+TznTU5j2jaqeXs5P6K43v03gjsVOBbY7/bxVL0QOzK+Tnmo9ZeX742aF80Wi++i+HgIoOWB4+w/facadkOIEjufdqZzPAibbaWNdZPlqFBk3TrQB6MB71cJmid1vy4VwYDAU0EU80lM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KDacxiz9; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1769527576; c=relaxed/simple;
+	bh=mv+xNoximdUqTk04oROrEurHmuvlFVWRCPrHErUlWow=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=A9s1DYHXU5ysdpZmcHrVG/C4cOXsgUIJxoIlE6O7VVjtvup/+HlXxb44chqXpnAwt7Tj/wDb2w6Vznh5iuhcVySKPom7FC8TvVtpe9IXqSennpU273GLqinVn8gZRGl6PKHG5rH8qi9qLCz7HP7Y1BHt9yj7U8a1d+BNn6wz1zo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=OiODPW+6; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KDacxiz9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769526573; x=1801062573;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=l6MXp60odRBYxNQsyCcgzadItXrr5jiugzsoSFXfN/4=;
-  b=KDacxiz9FWivQjEJM6v0zf39TvI7RBS/CNnwsFy776Vhv/r+K8Q9jQLS
-   eAtn26PhxgezERgWv5N/zVCb86KE62e2QPaMy48vxOu7hY+NZY7jKB1ib
-   q3cJhaBFTpw+7HVDLsm3Su/iaiZ7H91Nbk9KblIFw1qn1lL1Ho5iN0PbN
-   SssmTotVzy96d2wCWILNttsoDBx5vRM9et1ebgoPtmQ8fZ5iEQ1hXOqOW
-   AE+ZMOkYZgaSMWtZolU/Swy1X6LIfxUHlAN7Ug/rgfsVIW594VBL2bSr5
-   VOGfCFKBbP499OVBbsShy1yaoloiYk+OIFaUoJpd/wRFgdTT4UYI70GYQ
-   A==;
-X-CSE-ConnectionGUID: VBCr5KRqT42AynT6fI17PA==
-X-CSE-MsgGUID: gt2C4UO8Qs6o9snfS4OmDw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11684"; a="96189314"
-X-IronPort-AV: E=Sophos;i="6.21,257,1763452800"; 
-   d="scan'208";a="96189314"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jan 2026 07:09:22 -0800
-X-CSE-ConnectionGUID: Clr8MPhzQXa4KHaExIpsLg==
-X-CSE-MsgGUID: I/tFTgRpQJuAxW+dJaJraw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,257,1763452800"; 
-   d="scan'208";a="207240877"
-Received: from egrumbac-mobl6.ger.corp.intel.com (HELO localhost) ([10.245.245.248])
-  by orviesa010-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jan 2026 07:09:21 -0800
-Date: Tue, 27 Jan 2026 17:09:18 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: correctmost <cmlists@sent.com>, dmaengine@vger.kernel.org,
-	regressions@lists.linux.dev, vkoul@kernel.org,
-	linux-i2c@vger.kernel.org
-Subject: Re: [REGRESSION][BISECTED] Lenovo IdeaPad touchpad does not work
- when idma64 is present in initramfs
-Message-ID: <aXjVHocwkflAnKw2@smile.fi.intel.com>
-References: <a6474592-87db-4fdc-958c-8b09d324df1e@app.fastmail.com>
- <20260123063621.GP2275908@black.igk.intel.com>
- <5c5645eb-66b8-4419-a4e9-ba2672af2f40@app.fastmail.com>
- <20260126135353.GT2275908@black.igk.intel.com>
- <57727c07-33d5-4b52-abe2-4fdc2a7488b6@app.fastmail.com>
- <20260127084201.GA2275908@black.igk.intel.com>
- <b285137a-06bc-43c2-ab24-b3bacf8592ec@app.fastmail.com>
- <20260127101912.GJ2275908@black.igk.intel.com>
- <3d78d3cf-bebd-4bdb-8dca-3024dd769f76@app.fastmail.com>
- <20260127144357.GL2275908@black.igk.intel.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="OiODPW+6"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.2/8.18.1.2) with ESMTP id 60R728DH019338;
+	Tue, 27 Jan 2026 15:26:07 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=dlmBsj
+	kw84x+g5b6TsR7HoVLKdYHJCQQk3graKa+piU=; b=OiODPW+6UB6ood4M+i8oMF
+	/mQ3zXfBJOFJlgNKePoM+Ywh3nTTHQw4KQjKvfe9fYO7DAcUXWD81DX5Hv7U4kE8
+	Ncg3sfSZ9drf+wZHnXC2G93AqFRdizN9udFk2xEQvooQan3R2r8TtLTgJXI3RNh0
+	rfd21JryLEJvnjk1WEP2RQHC1mNt+3yBeh7oWPKX9JrfgRDbsRxibb9pEh5UD85c
+	G94LSW+DlvVRAvLJfNPQABb8p7qpBBBQif5Yaa/T1ZZRW/3wPSWmMdIsvRu3SdiS
+	u3ZyRSthl8LzI2DcaW6uvBuWtFSHScPdVHQefBMTseMrwOMdY244/eotEpZbA4iQ
+	==
+Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4bvmgfvgb9-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 27 Jan 2026 15:26:06 +0000 (GMT)
+Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
+	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 60RCcnkw031024;
+	Tue, 27 Jan 2026 15:26:06 GMT
+Received: from smtprelay06.dal12v.mail.ibm.com ([172.16.1.8])
+	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4bw8dsh8fh-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 27 Jan 2026 15:26:06 +0000
+Received: from smtpav05.dal12v.mail.ibm.com (smtpav05.dal12v.mail.ibm.com [10.241.53.104])
+	by smtprelay06.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 60RFQ5uq21824146
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 27 Jan 2026 15:26:05 GMT
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id A0F0C58067;
+	Tue, 27 Jan 2026 15:26:05 +0000 (GMT)
+Received: from smtpav05.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 5825158052;
+	Tue, 27 Jan 2026 15:26:05 +0000 (GMT)
+Received: from [9.61.135.234] (unknown [9.61.135.234])
+	by smtpav05.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Tue, 27 Jan 2026 15:26:05 +0000 (GMT)
+Message-ID: <e8b4d09c-f034-4e2f-9f05-109acd074864@linux.ibm.com>
+Date: Tue, 27 Jan 2026 09:26:05 -0600
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 04/13] i2c: fsi: Drop assigning fsi bus
+To: =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+Cc: Ninad Palsule <ninad@linux.ibm.com>, linux-fsi@lists.ozlabs.org,
+        Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+        openbmc@lists.ozlabs.org, linux-kernel@vger.kernel.org
+References: <cover.1765279318.git.u.kleine-koenig@baylibre.com>
+ <8a36a0dba809d3bfe225627fd178daece10ff6a5.1765279318.git.u.kleine-koenig@baylibre.com>
+Content-Language: en-US
+From: Eddie James <eajames@linux.ibm.com>
+In-Reply-To: <8a36a0dba809d3bfe225627fd178daece10ff6a5.1765279318.git.u.kleine-koenig@baylibre.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260127144357.GL2275908@black.igk.intel.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
-
-On Tue, Jan 27, 2026 at 03:43:57PM +0100, Mika Westerberg wrote:
-> On Tue, Jan 27, 2026 at 05:56:37AM -0500, correctmost wrote:
-
-...
-
-> > > Okay can you set CONFIG_INTEL_IDMA64=n in .config? That should prevent it
-> > > from loading. Keep the rest as it was.
-> > 
-> > That change makes the IRQ message go away and the touchpad seems to work
-> > fine in my desktop environment (log attached).
-> > 
-> > These are the config changes that I tested with:
-> > - CONFIG_I2C_DESIGNWARE_CORE=m
-> > - CONFIG_I2C_DESIGNWARE_PLATFORM=m
-> > - CONFIG_INTEL_IDMA64=n
-> 
-> Okay thanks it looks good to me too.
-> 
-> I tried to go through the datasheets again but could not figure why the
-> LPSS I2C IP would keep the interrupt asserted.
-
-We can try to dig something internally, but it's another story.
-
-> However, I think we can
-> hack^Hwork this around by simply not creating the IDMA64 device at all for
-> I2C. This should be fine to do because I2C is really not using DMA in the
-> first place so this is kind of just wasting "memory". So something like
-> below.
-> 
-> Please re-enable CONFIG_INTEL_IDMA64=m and the rest and try if this makes
-> it work without the irq splat. And if it does please try with the
-> "original" arch setup and see if that works too (keeping the patch applied
-> of course).
-> 
-> Andy, what's your thoughts on this?
-
-Fun fact, that I was thinking about the similar approach as in "don't enumerate
-DMA for I�C LPSS controllers" a few hours ago (and for the record, sometime ago
-but I don't remember why that time).
-
-So I'm fine, but we need to put also a big comment with the reference to this
-discussion or so.
-
-...
-
-Btw, do we have an i2c alert interrupt here? Might be it's somehow related?
-
--- 
-With Best Regards,
-Andy Shevchenko
+X-TM-AS-GCONF: 00
+X-Authority-Analysis: v=2.4 cv=Z4vh3XRA c=1 sm=1 tr=0 ts=6978d90e cx=c_pps
+ a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+ a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=VnNF1IyMAAAA:8 a=IpJZQVW2AAAA:8 a=VwQbUJbxAAAA:8 a=bKyC4-_fwZ91YHrlqQQA:9
+ a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10 a=IawgGOuG5U0WyFbmm1f5:22
+X-Proofpoint-GUID: _tXxP29DnSdE9Dv-CgRG3n93ZaHxvkB-
+X-Proofpoint-ORIG-GUID: _tXxP29DnSdE9Dv-CgRG3n93ZaHxvkB-
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI3MDEyNSBTYWx0ZWRfX0bXzp67aL2Ds
+ F/wG1c2vZ3hnUQrDwQxaLpRknGyXsfWeFdgd8in5ILCesRpWUqsdkCfsijBRciJmKRZvqVLy/Gx
+ aM0dNRqjHLgjoVuHpzEqWJxq3LF0Bb5E+Q5iXzs1NjtAG4xayjG5jr88t4xJcCZFYeePmwOzJA8
+ SqwPeHJERph1/qzYaWHtjGXlVLf6+mYL3bXAXAYnyx/ladkbLfOMu9UfFVawKotKIMgKqM+ZRcV
+ o4xPe+YSbvSf6nIO18djR5cBigdzgD60UjcdtSxMpZ+Pa/zHcmd8CYr+DvS6P5YH0IMIUEgC7cH
+ y3t87tOkg74RlpbF/SQ/41nC7tBbdJoZ5eycj117JoMnQpvK9dMlW8mpBEVo3+godtunDScvU6p
+ R8r7C07pRM/bLbXKunG7ZxKYbGSYFL607S3aTFrgTjxgS8pMYUcgLHno8c/iIYuy8HQ3eKo9FjV
+ vzdyxohqLoBonraPEIg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-01-27_03,2026-01-27_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 malwarescore=0 phishscore=0 priorityscore=1501 bulkscore=0
+ adultscore=0 clxscore=1011 lowpriorityscore=0 impostorscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2601150000 definitions=main-2601270125
 
 
+On 12/9/25 5:40 AM, Uwe Kleine-König wrote:
+> Since commit FIXME ("fsi: Assign driver's bus in fsi_driver_register()")
+> module_fsi_driver() cares about assigning the driver's bus member. Drop
+> the explicit driver specific assignment.
+
+
+Acked-by: Eddie James <eajames@linux.ibm.com>
+
+
+>
+> Signed-off-by: Uwe Kleine-König <u.kleine-koenig@baylibre.com>
+> Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
+> ---
+>   drivers/i2c/busses/i2c-fsi.c | 1 -
+>   1 file changed, 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
+> index ae016a9431da..e98dd5dcac0f 100644
+> --- a/drivers/i2c/busses/i2c-fsi.c
+> +++ b/drivers/i2c/busses/i2c-fsi.c
+> @@ -763,7 +763,6 @@ static struct fsi_driver fsi_i2c_driver = {
+>   	.id_table = fsi_i2c_ids,
+>   	.drv = {
+>   		.name = "i2c-fsi",
+> -		.bus = &fsi_bus_type,
+>   		.probe = fsi_i2c_probe,
+>   		.remove = fsi_i2c_remove,
+>   	},
