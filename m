@@ -1,118 +1,169 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+Received: from mx0b-0046e701.pphosted.com (mx0b-0046e701.pphosted.com [67.231.157.77])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4536357A26;
-	Tue, 27 Jan 2026 14:44:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDC4D2264A9;
+	Tue, 27 Jan 2026 14:52:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.157.77
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769525043; cv=none; b=R+3s5llrESwo6Gz0wximfkm7gjCpK0xgPvITVAAEA1geXhNBmHjihrSl95rN2VZdn1IG/vcoo4IPrONtyP4C/mxsHjIxqbjyVNM1xA0+aEgz0nfyvv/D2x8o7TYi/QS55c1YzoiK64RWsQ21sPS+ifrjE6R8r0Nitz7fF60sW28=
+	t=1769525522; cv=none; b=Rpf5j7XXp0S9ZZsmxCTzM9PBKJ8yifbOIMawvr0OAkYbCtRgnxFqiCn5+MtzrjLZxAe1ZhzT4k4jefR5qdShZeP3jOiGZ99SSI6/SgjjiUiSdNKGCbSv62MS7bpwkz3CB+8aT8ZGlaWAxobkYPH2DdWUPHFvpZsFfGUmznF96yI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769525043; c=relaxed/simple;
-	bh=T0qWElQLzg+1ZC1JrnIAFEDP5+QVXsscSywLXBIs8Y0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=upeYC5rHQJfnSiHk2LuXkbb0rKzsLQmKADHp4D1Pgq+NTgnyfosztZVnDzeOcbZIjJIQtzNXNFPT3PgzaCbwq+jcpHMWQQbBe9McxhJqmaOtsIm68JfmpgfHpztGX6cNp+UpSMfaMWInEpv6v1UXb2EabtmQWKJRc1Ydq61pn6k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ZCxAgdhQ; arc=none smtp.client-ip=198.175.65.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1769525522; c=relaxed/simple;
+	bh=HJJYRUvdMmPuj3Cq1bg3W40kKCjYk5QhoGsJqhjfatA=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=uAJGJ52sEVhZ9Y8k4b9BDx6KK6qU7d8DJ+k2rnMrEw2kUoHAjM7D4cOzYf9RrarkPPDconTitoANL7tuYKDIF8L7ftQ0ap/lerdSPUW+s9yUBfxwA39qQbIFeWxHzw6xy7mbnabj+6/F9xwPDT0Zof+h7TYMDp4m2O3jmB8sXO8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com; spf=pass smtp.mailfrom=plexus.com; dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b=Iz2iEN4D; arc=none smtp.client-ip=67.231.157.77
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=plexus.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ZCxAgdhQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769525040; x=1801061040;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=T0qWElQLzg+1ZC1JrnIAFEDP5+QVXsscSywLXBIs8Y0=;
-  b=ZCxAgdhQI2lIzXUdpgG5X14Em5Oh1yIlxlPhsW/U/si12oEohDFqfyAz
-   EuFKiBx5mgw4/nk7eVYXN0L0W+d1DM8PmCBBxYqNqP/yNP5MmCV7ywuvn
-   n2afxA/t/4dZaK3fa67kG7EiERvugpgvCV/A9kSMs42ro6ry3KzGHI3ZG
-   auxAa+58C+p5vgXQsYDqXo2sQfBqNdm2wTWkhP67c8jVxcbL4iwlsURU2
-   rhUbFTa8sCJ3YNNvSXgovI/aRjvmxJAU3eWgc91erWyyZ+8oH4zGjhKvs
-   9OC7wkG+juMF84XdZ2tHjNJpaMQMd6zAGPEm9Ma4VVaj6K4eSlXpH0BE/
-   A==;
-X-CSE-ConnectionGUID: cD3XHOqfRa2hmLLAnkx3Sw==
-X-CSE-MsgGUID: cfbxy0RQR+2n5Mi3QTOH/A==
-X-IronPort-AV: E=McAfee;i="6800,10657,11684"; a="93378906"
-X-IronPort-AV: E=Sophos;i="6.21,257,1763452800"; 
-   d="scan'208";a="93378906"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jan 2026 06:44:00 -0800
-X-CSE-ConnectionGUID: j/FmQVYhQBGghL9jn8vrcA==
-X-CSE-MsgGUID: fLGOckWMTq+WoYmrqBPF8A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,257,1763452800"; 
-   d="scan'208";a="212852373"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa004.fm.intel.com with ESMTP; 27 Jan 2026 06:43:59 -0800
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id B7AF998; Tue, 27 Jan 2026 15:43:57 +0100 (CET)
-Date: Tue, 27 Jan 2026 15:43:57 +0100
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: correctmost <cmlists@sent.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	dmaengine@vger.kernel.org, regressions@lists.linux.dev,
-	vkoul@kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [REGRESSION][BISECTED] Lenovo IdeaPad touchpad does not work
- when idma64 is present in initramfs
-Message-ID: <20260127144357.GL2275908@black.igk.intel.com>
-References: <20260122110021.GO2275908@black.igk.intel.com>
- <a6474592-87db-4fdc-958c-8b09d324df1e@app.fastmail.com>
- <20260123063621.GP2275908@black.igk.intel.com>
- <5c5645eb-66b8-4419-a4e9-ba2672af2f40@app.fastmail.com>
- <20260126135353.GT2275908@black.igk.intel.com>
- <57727c07-33d5-4b52-abe2-4fdc2a7488b6@app.fastmail.com>
- <20260127084201.GA2275908@black.igk.intel.com>
- <b285137a-06bc-43c2-ab24-b3bacf8592ec@app.fastmail.com>
- <20260127101912.GJ2275908@black.igk.intel.com>
- <3d78d3cf-bebd-4bdb-8dca-3024dd769f76@app.fastmail.com>
+	dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b="Iz2iEN4D"
+Received: from pps.filterd (m0425993.ppops.net [127.0.0.1])
+	by mx0b-0046e701.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60R3F5U82411442;
+	Tue, 27 Jan 2026 08:51:43 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plexus.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pps1; bh=U25PI
+	jG5bqh7F5nJn+Y7T5LroIAB8LxvKkGQPhyfsWA=; b=Iz2iEN4DvZiTvofdkhN0g
+	K4B0gP5KSFfMAcUuBL9pflkWOQByj5KaYeQksRMgaRIoOaTcDcNwXuPYm+8TnNVT
+	WsH5lA8omV6hZXfIVOR11YSjrwUnOxPvEqZ7ZCjq9OtcxdgjX2YlXlIihqjRm6S0
+	t0U8C554KomNS8+HYuzjWwR4HeJ9Z9udwJRZvCLCFVyRp+COpnPaJh318vumagwU
+	q7Z8CdTQ+J9xOiyeY4HDFHfou6JN13SRTGG65LJxXzAgDqkf9ZKZbzOuWu2Z/2i4
+	8esXhVaTN6wTwK61WBAXleVGl4p/rVUeuODrRItvmYYzOr2tqGEnPBaBMG8ifkZ2
+	Q==
+Received: from intranet-smtp.plexus.com ([64.215.193.254])
+	by mx0b-0046e701.pphosted.com (PPS) with ESMTPS id 4bwe1vc1d4-1
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 27 Jan 2026 08:51:42 -0600 (CST)
+Received: from LNDCL34533.neenah.na.plexus.com (unknown [10.255.48.203])
+	by intranet-smtp.plexus.com (Postfix) with ESMTP id D538D580C3;
+	Tue, 27 Jan 2026 08:51:41 -0600 (CST)
+From: Danny Kaehn <danny.kaehn@plexus.com>
+Date: Tue, 27 Jan 2026 08:47:49 -0600
+Subject: [PATCH v13 2/3] HID: cp2112: Fwnode Support
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <3d78d3cf-bebd-4bdb-8dca-3024dd769f76@app.fastmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260127-cp2112-dt-v13-2-6448ddd4bf22@plexus.com>
+References: <20260127-cp2112-dt-v13-0-6448ddd4bf22@plexus.com>
+In-Reply-To: <20260127-cp2112-dt-v13-0-6448ddd4bf22@plexus.com>
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Benjamin Tissoires <bentiss@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Danny Kaehn <danny.kaehn@plexus.com>,
+        Andi Shyti <andi.shyti@kernel.org>, Conor Dooley <conor+dt@kernel.org>
+Cc: Jiri Kosina <jikos@kernel.org>, devicetree@vger.kernel.org,
+        linux-input@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
+        Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
+        Ting-Kai Chen <tingkaic@nvidia.com>
+X-Mailer: b4 0.14-dev-d4707
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1769525272; l=2353;
+ i=danny.kaehn@plexus.com; s=20260127; h=from:subject:message-id;
+ bh=HJJYRUvdMmPuj3Cq1bg3W40kKCjYk5QhoGsJqhjfatA=;
+ b=xzI4ZRgrlQqV0JVhyBQ7Q4uFNrhbhHRGp7pO74y518o8JVQakCnxoU4lvhiLnjPgkfurnqihv
+ 5zE0P+hXYGDDSIXNVHDlVuBL/FH5rMyHd0ZjJKwA0f/7Hj0Dv+2P7c8
+X-Developer-Key: i=danny.kaehn@plexus.com; a=ed25519;
+ pk=cbcR30mXg2VNyXtpE2SxVSXEDWLYwrxgnPCjJZn6A8s=
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Authority-Analysis: v=2.4 cv=c6CmgB9l c=1 sm=1 tr=0 ts=6978d0fe cx=c_pps
+ a=356DXeqjepxy6lyVU6o3hA==:117 a=356DXeqjepxy6lyVU6o3hA==:17
+ a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=Y_joWELsAAAA:8 a=pVqXFfmJREZmDo3ecgYA:9 a=QEXdDO2ut3YA:10
+ a=g_BQsM8wYJVSTWLOHH1t:22
+X-Proofpoint-ORIG-GUID: Oh2C83xSz3kiHDDvzEIhShc8oqOXaTK0
+X-Proofpoint-GUID: 7DoEXa_cFaXPT2pe2V1CZnQLggOD5Hl9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTI3MDEyMSBTYWx0ZWRfX6hNtwZmSblaP
+ obyqZ/0c7v3uqzOI/nOhWljJTbr0I65e5qfFdoAV+OtCdTKOuDz/BJffz1/yEZ0VGHB1jnn9Srf
+ t73cqZNzNqdD8sFUrBksaF2AASH6Aab38G+UGHmUBw3t0U3QG6xnzIolldHebKkc9qkBQgOiIrg
+ qDqgFLtnnbA/g46JGg3v5fsV5+018QLtqof/DBR+ZIX0HKVVKserTvxFXJhvkBPAUmdWPXxIWVI
+ +Sz7s8KGTdp3CEYKAoAvIPaZzXmto5UGp2BpLpPUvG6IAKAv8zItDgXolOOL1UQAZOEdWmuUb+h
+ X+6bWbMRNZfkGqZnyh2CglU4SJccTZ7uYRVXBOzOQhk7oaIzhZVzF5HhuYK/54bb+2p06zlkjsY
+ OdrUV/JBYqKtIdblploU+tlLICZpepOGZNmSuIfE3X/l7k1IuUHq/lLkTiXbbpGYd13jS5paI64
+ ubNDcsjWmqCwStc2a3g==
+X-Proofpoint-Spam-Reason: orgsafe
 
-On Tue, Jan 27, 2026 at 05:56:37AM -0500, correctmost wrote:
-> > Okay can you set CONFIG_INTEL_IDMA64=n in .config? That should prevent it
-> > from loading. Keep the rest as it was.
-> 
-> That change makes the IRQ message go away and the touchpad seems to work
-> fine in my desktop environment (log attached).
-> 
-> These are the config changes that I tested with:
-> - CONFIG_I2C_DESIGNWARE_CORE=m
-> - CONFIG_I2C_DESIGNWARE_PLATFORM=m
-> - CONFIG_INTEL_IDMA64=n
+Support describing the CP2112's I2C and GPIO interfaces in firmware.
 
-Okay thanks it looks good to me too.
+Bindings between the firmware nodes and the functions of the device
+are distinct between ACPI and DeviceTree.
 
-I tried to go through the datasheets again but could not figure why the
-LPSS I2C IP would keep the interrupt asserted. However, I think we can
-hack^Hwork this around by simply not creating the IDMA64 device at all for
-I2C. This should be fine to do because I2C is really not using DMA in the
-first place so this is kind of just wasting "memory". So something like
-below.
+For ACPI, the i2c_adapter will use the child with _ADR Zero and the
+gpio_chip will use the child with _ADR One. For DeviceTree, the
+i2c_adapter will use the child with name "i2c", but the gpio_chip
+will share a firmware node with the CP2112.
 
-Please re-enable CONFIG_INTEL_IDMA64=m and the rest and try if this makes
-it work without the irq splat. And if it does please try with the
-"original" arch setup and see if that works too (keeping the patch applied
-of course).
+Signed-off-by: Danny Kaehn <danny.kaehn@plexus.com>
+---
+ drivers/hid/hid-cp2112.c | 33 +++++++++++++++++++++++++++++++++
+ 1 file changed, 33 insertions(+)
 
-Andy, what's your thoughts on this?
-
-diff --git a/drivers/mfd/intel-lpss.c b/drivers/mfd/intel-lpss.c
-index 63d6694f7145..088db88b10d5 100644
---- a/drivers/mfd/intel-lpss.c
-+++ b/drivers/mfd/intel-lpss.c
-@@ -246,7 +246,8 @@ static int intel_lpss_assign_devs(struct intel_lpss *lpss)
+diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
+index 803b883ae875..ea19b5cb58f9 100644
+--- a/drivers/hid/hid-cp2112.c
++++ b/drivers/hid/hid-cp2112.c
+@@ -29,6 +29,16 @@
+ #include <linux/usb/ch9.h>
+ #include "hid-ids.h"
  
- static bool intel_lpss_has_idma(const struct intel_lpss *lpss)
- {
--	return (lpss->caps & LPSS_PRIV_CAPS_NO_IDMA) == 0;
-+	return (lpss->caps & LPSS_PRIV_CAPS_NO_IDMA) == 0 &&
-+		lpss->type != LPSS_DEV_I2C;
- }
++/**
++ * enum cp2112_child_acpi_cell_addrs - Child ACPI addresses for CP2112 sub-functions
++ * @CP2112_I2C_ADR: Address for I2C node
++ * @CP2112_GPIO_ADR: Address for GPIO node
++ */
++enum cp2112_child_acpi_cell_addrs {
++	CP2112_I2C_ADR = 0,
++	CP2112_GPIO_ADR = 1,
++};
++
+ #define CP2112_REPORT_MAX_LENGTH		64
+ #define CP2112_GPIO_CONFIG_LENGTH		5
+ #define CP2112_GPIO_GET_LENGTH			2
+@@ -1208,7 +1218,9 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 	struct cp2112_device *dev;
+ 	u8 buf[3];
+ 	struct cp2112_smbus_config_report config;
++	struct fwnode_handle *child;
+ 	struct gpio_irq_chip *girq;
++	u32 addr;
+ 	int ret;
  
- static void intel_lpss_set_remap_addr(const struct intel_lpss *lpss)
+ 	dev = devm_kzalloc(&hdev->dev, sizeof(*dev), GFP_KERNEL);
+@@ -1226,6 +1238,27 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		return ret;
+ 	}
+ 
++	if (is_acpi_device_node(dev_fwnode(&hdev->dev))) {
++		device_for_each_child_node(&hdev->dev, child) {
++			ret = acpi_get_local_address(ACPI_HANDLE_FWNODE(child), &addr);
++			if (ret)
++				continue;
++
++			switch (addr) {
++			case CP2112_I2C_ADR:
++				device_set_node(&dev->adap.dev, child);
++				break;
++			case CP2112_GPIO_ADR:
++				dev->gc.fwnode = child;
++				break;
++			}
++		}
++	} else {
++		child = device_get_named_child_node(&hdev->dev, "i2c");
++		device_set_node(&dev->adap.dev, child);
++		fwnode_handle_put(child);
++	}
++
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "parse failed\n");
+
+-- 
+2.25.1
+
