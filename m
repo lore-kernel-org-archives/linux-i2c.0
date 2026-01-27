@@ -1,22 +1,23 @@
 Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id A3D0B4F5E0;
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 30173139D;
 	Tue, 27 Jan 2026 02:48:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769482104; cv=none; b=k0iAUhH07DGDK9nIFk/UuyK7BH8xMnbBSwum6aqRpEmILF9lvWbVCKLFJtfe2wSpIHTLQoMAw1NvctM61S4qLraNUIZTHcj21WByQQlA/Y4hgOFiiYtNFgPQTr0TCeJuRn4fhULNtUpQOQ9aUM84W6xjk87hlhZD9xyzxyY/xDM=
+	t=1769482104; cv=none; b=fR23QW69w5YNzGaqrTZs3MZLiI7maOpdQsvMkxPPl0e0QX7Lp5qNSHg5TWUJMIU9qA2HSKVPxB/4Yg6VtiSkHS8dHi+vdwFzn8vPNnlgK4Tx5zeXI9SxZ40nH8jqyrEwckiY6utAl8ZR/8EAgSfgtGrIkKCR1hDAgan1/SkuZ8M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1769482104; c=relaxed/simple;
-	bh=qs50nfhR6TdkPTvLK+9MuwCc57o3mV26cBlcEaAA3ro=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tdaqwyYD5uP3blFrUWnW6LvXfyTqrg2Zl/saPYGI29tiJrNDvuzDRdjpkPMFMiznOogSBuw9wVy/ufo98VEoHbKaXt1k6qEFDlgMb2Fjus0OFSAn72j3eCNE8NvLLB9ZhS6fayCQ7mq5OpkD3++GSPHCB267To/NRlz1QALTxvk=
+	bh=4yQQFdO+BmzOQwKmp//pjMtarcuNliXPQ5tUWpcZNXY=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ujwZWc6/x2f2FEtp9iQ1IS0S4Tswc5ekuPbB2yPauKD6i0FqxGOre4gtq/IN9bM+kcazK+1h4YO70vXiQmracJ7S5YWVrzcFRh4k5LFzGk/tsFohQO7iDQLTKiRUiiymIdVvMSEV2+RST7w3P8xhosOwh46SDj9TlxW4N4F48/M=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
 Received: from loongson.cn (unknown [223.64.69.42])
-	by gateway (Coremail) with SMTP id _____8CxLMNsJ3hpZPsMAA--.42513S3;
-	Tue, 27 Jan 2026 10:48:12 +0800 (CST)
+	by gateway (Coremail) with SMTP id _____8BxmsJtJ3hpbPsMAA--.42383S3;
+	Tue, 27 Jan 2026 10:48:13 +0800 (CST)
 Received: from localhost.localdomain (unknown [223.64.69.42])
-	by front1 (Coremail) with SMTP id qMiowJCxWeBnJ3hpPJEzAA--.36583S2;
-	Tue, 27 Jan 2026 10:48:09 +0800 (CST)
+	by front1 (Coremail) with SMTP id qMiowJCxWeBnJ3hpPJEzAA--.36583S3;
+	Tue, 27 Jan 2026 10:48:12 +0800 (CST)
 From: Binbin Zhou <zhoubinbin@loongson.cn>
 To: Binbin Zhou <zhoubb.aaron@gmail.com>,
 	Huacai Chen <chenhuacai@loongson.cn>,
@@ -31,11 +32,14 @@ Cc: Huacai Chen <chenhuacai@kernel.org>,
 	Xuerui Wang <kernel@xen0n.name>,
 	loongarch@lists.linux.dev,
 	devicetree@vger.kernel.org,
-	Binbin Zhou <zhoubinbin@loongson.cn>
-Subject: [PATCH v2 0/2] i2c: Add Loongson-2K0300 I2C controller support
-Date: Tue, 27 Jan 2026 10:47:55 +0800
-Message-ID: <cover.1769476820.git.zhoubinbin@loongson.cn>
+	Binbin Zhou <zhoubinbin@loongson.cn>,
+	Conor Dooley <conor.dooley@microchip.com>
+Subject: [PATCH v2 1/2] dt-bindings: i2c: loongson,ls2x: Add ls2k0300-i2c compatible
+Date: Tue, 27 Jan 2026 10:47:56 +0800
+Message-ID: <8ba86d2daf43527ee41795b86ea0411a3ea19b2f.1769476820.git.zhoubinbin@loongson.cn>
 X-Mailer: git-send-email 2.47.3
+In-Reply-To: <cover.1769476820.git.zhoubinbin@loongson.cn>
+References: <cover.1769476820.git.zhoubinbin@loongson.cn>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -43,64 +47,76 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJCxWeBnJ3hpPJEzAA--.36583S2
-X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/1tbiAQEACGl3AjkTtgAAsI
-X-Coremail-Antispam: 1Uk129KBj9xXoW7XryDXrWxWr4xWF43Cw43XFc_yoWkArcEk3
-	4xWasrAw1kCF93Ca4UJF4fZry3CayUta48A3Zrtw4ak3y2gw1YgF97CrZxZ3WxXF47GFn8
-	Ww1UZF1IvwnxGosvyTuYvTs0mTUanT9S1TB71UUUUUDqnTZGkaVYY2UrUUUUj1kv1TuYvT
-	s0mT0YCTnIWjqI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUI
-	cSsGvfJTRUUUbI8YFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20x
-	vaj40_Wr0E3s1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
-	w2x7M28EF7xvwVC0I7IYx2IY67AKxVW8JVW5JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
-	W8JVWxJwA2z4x0Y4vEx4A2jsIE14v26F4j6r4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
-	Gr1j6F4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI0UMc
-	02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUXVWUAwAv7VC2z280aVAF
-	wI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxkF7I0En4kS14
-	v26r126r1DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8C
-	rVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8Zw
-	CIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x02
-	67AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr
-	0_Gr1lIxAIcVC2z280aVCY1x0267AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuYvjxU2BT5
-	DUUUU
+X-CM-TRANSID:qMiowJCxWeBnJ3hpPJEzAA--.36583S3
+X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/1tbiAgEACGl3Ah0TuAAAsh
+X-Coremail-Antispam: 1Uk129KBj93XoWrtFWkCrW3Gr48uF1xXr18Zwc_yoW8JrWrpF
+	nxC3s8Gr10qF13W398ta48Cw1Yvr9Yy3ZrGFs7tr17KF4DJw4UXw13Krn8Xw45uryvvFW3
+	XrZ7Kr4UCas7ZrcCm3ZEXasCq-sJn29KB7ZKAUJUUUU7529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUB2b4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+	6r4UJVWxJr1ln4kS14v26r1Y6r17M2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12
+	xvs2x26I8E6xACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1q
+	6rW5McIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64
+	vIr41lc7CjxVAaw2AFwI0_Jw0_GFyl42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_
+	Jr0_Gr1l4IxYO2xFxVAFwI0_Jrv_JF1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8Gjc
+	xK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0
+	cI8IcVAFwI0_Gr0_Xr1lIxAIcVC0I7IYx2IY6xkF7I0E14v26r4j6F4UMIIF0xvE42xK8V
+	AvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWxJwCI42IY6I8E87Iv6xkF7I0E
+	14v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjxU4ZqXDUUUU
 
-Hi all:
+Add "loongson,ls2k0300-i2c" dedicated compatible for representing I2C of
+Loongson-2K0300 chip, because its HW integration is quiet different from
+others.
 
-This patch set describes the I2C controller integrated the
-Loongson-2K0300 chip.
+Acked-by: Conor Dooley <conor.dooley@microchip.com>
+Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
+---
+ .../bindings/i2c/loongson,ls2x-i2c.yaml           | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-It has a significantly different design from the previous I2C
-controller(i2c-ls2x), such as support for master-slave transfer mode,
-and  DMA transfers (implementation in progress), etc. Therefore, we try
-to name it i2c-ls2x-v2.
-
-Thanks.
-
-======
-V2:
-Patch (1/2):
- - Add Acked-by tag from Conor, thanks.
-
-Patch (2/2):
- - Reorder the definitions of read() and write();
- - Adjust the calculation method for bus speed.
-
-Link to V1:
-https://lore.kernel.org/all/cover.1763018288.git.zhoubinbin@loongson.cn/
-
-Binbin Zhou (2):
-  dt-bindings: i2c: loongson,ls2x: Add ls2k0300-i2c compatible
-  i2c: ls2x-v2: Add driver for Loongson-2K0300 I2C controller
-
- .../bindings/i2c/loongson,ls2x-i2c.yaml       |  15 +
- MAINTAINERS                                   |   1 +
- drivers/i2c/busses/Kconfig                    |  10 +
- drivers/i2c/busses/Makefile                   |   1 +
- drivers/i2c/busses/i2c-ls2x-v2.c              | 545 ++++++++++++++++++
- 5 files changed, 572 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-ls2x-v2.c
-
-
-base-commit: 880977fdc7f67923d1904ee23ca75fa1e375ea46
+diff --git a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+index 67882ec6e06a..4c381559f7f0 100644
+--- a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+@@ -16,6 +16,7 @@ properties:
+   compatible:
+     enum:
+       - loongson,ls2k-i2c
++      - loongson,ls2k0300-i2c
+       - loongson,ls7a-i2c
+ 
+   reg:
+@@ -24,6 +25,9 @@ properties:
+   interrupts:
+     maxItems: 1
+ 
++  clocks:
++    maxItems: 1
++
+ required:
+   - compatible
+   - reg
+@@ -31,6 +35,17 @@ required:
+ 
+ unevaluatedProperties: false
+ 
++if:
++  properties:
++    compatible:
++      contains:
++        enum:
++          - loongson,ls2k0300-i2c
++
++then:
++  required:
++    - clocks
++
+ examples:
+   - |
+     #include <dt-bindings/interrupt-controller/irq.h>
 -- 
 2.47.3
 
