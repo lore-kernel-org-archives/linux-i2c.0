@@ -1,88 +1,106 @@
-Received: from codeconstruct.com.au (pi.codeconstruct.com.au [203.29.241.158])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14EAB38FA3;
-	Tue, 27 Jan 2026 00:32:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.29.241.158
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id A3D0B4F5E0;
+	Tue, 27 Jan 2026 02:48:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769473956; cv=none; b=UnimRtKwNebrWIVrmCL5k5xlcLLyBeJ7BMNnDqa39kCIwZwqHsixWrart2pMd9wPAMH9eJKS6mjtt7OhEYD2NPzZ5dpspe4pKjhi/wbLT9H0HzHIz7gD06XRx9t616zm+1FqIfFwyHHWJaSuhlV7WbkG+D/4rw7Nyq6NJQjEVXs=
+	t=1769482104; cv=none; b=k0iAUhH07DGDK9nIFk/UuyK7BH8xMnbBSwum6aqRpEmILF9lvWbVCKLFJtfe2wSpIHTLQoMAw1NvctM61S4qLraNUIZTHcj21WByQQlA/Y4hgOFiiYtNFgPQTr0TCeJuRn4fhULNtUpQOQ9aUM84W6xjk87hlhZD9xyzxyY/xDM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769473956; c=relaxed/simple;
-	bh=0H3mcYtLkoimfh59Ktyvf7h4R2eDIiT8HXaTVTxM8+M=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=ibVavHpzw9zMrXH6/37aBd4r4PKqDSkISMZoN8AFWXnL2unCsjyUtjwUHD+ryPdlibXjkCc2MxAZ48oWUG6+BUBC1b4SlHoTF3OQXDe7HhYzo4vJ/nEDHWwpfgNH/d1Z8Qj4EqAd/nm8tytsaMdbNxF7zMFFTnjdRl6JSxkOOlE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codeconstruct.com.au; spf=pass smtp.mailfrom=codeconstruct.com.au; dkim=pass (2048-bit key) header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.b=lVf2ImBy; arc=none smtp.client-ip=203.29.241.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codeconstruct.com.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=codeconstruct.com.au
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.b="lVf2ImBy"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=codeconstruct.com.au; s=2022a; t=1769473946;
-	bh=0H3mcYtLkoimfh59Ktyvf7h4R2eDIiT8HXaTVTxM8+M=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=lVf2ImBywBa+k42XkU+DqPsa1yMlILXzb8z87z9p2bLEvciuHd+VapIJxFqDJ9a04
-	 UbJH1lG/dtJbR+kbgCnN3ILfAPGoBjKdDE6G6q7NnmKLeb6Kf2ji+fyln/TKOrvByn
-	 Jgeu6KNxsnR+KT3Wn/VcwZGWdc7UQHfWJMfPbi1a9lt2rKKEfqpBy3ku8Jj44J/ZtF
-	 Q/aOvC5Ail2Jqp56tlwNI6XFEPySDO52ZIYKyfq8IncNVOSyhFtgwKoyrrM8iHBsBb
-	 lqlmM/9mEAiX4Rms5Lx14QG9nbUg18FIZOWTU3FKub/pNfElXiZp1n57TiDFIAfXR0
-	 k1LRM9n14Fcyw==
-Received: from pecola.lan (unknown [159.196.93.152])
-	by mail.codeconstruct.com.au (Postfix) with ESMTPSA id 2B9B864704;
-	Tue, 27 Jan 2026 08:32:24 +0800 (AWST)
-Message-ID: <6ca4bc87620bb0c2e5bfb264ec88189f32b53757.camel@codeconstruct.com.au>
-Subject: Re: [PATCH v2 0/4] i2c: SMBus ARP support
-From: Jeremy Kerr <jk@codeconstruct.com.au>
-To: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Matt Johnston
- <matt@codeconstruct.com.au>, linux-i2c@vger.kernel.org,
- netdev@vger.kernel.org,  linux-kernel@vger.kernel.org
-Date: Tue, 27 Jan 2026 08:32:24 +0800
-In-Reply-To: <aXdyll4KVOF6SWni@kuha>
-References: <20260121092328.2308705-1-heikki.krogerus@linux.intel.com>
-	 <30ad166e2b3d7f10080356ec232e604f3ac9ea2e.camel@codeconstruct.com.au>
-	 <aXdyll4KVOF6SWni@kuha>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4-2+deb12u1 
+	s=arc-20240116; t=1769482104; c=relaxed/simple;
+	bh=qs50nfhR6TdkPTvLK+9MuwCc57o3mV26cBlcEaAA3ro=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tdaqwyYD5uP3blFrUWnW6LvXfyTqrg2Zl/saPYGI29tiJrNDvuzDRdjpkPMFMiznOogSBuw9wVy/ufo98VEoHbKaXt1k6qEFDlgMb2Fjus0OFSAn72j3eCNE8NvLLB9ZhS6fayCQ7mq5OpkD3++GSPHCB267To/NRlz1QALTxvk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [223.64.69.42])
+	by gateway (Coremail) with SMTP id _____8CxLMNsJ3hpZPsMAA--.42513S3;
+	Tue, 27 Jan 2026 10:48:12 +0800 (CST)
+Received: from localhost.localdomain (unknown [223.64.69.42])
+	by front1 (Coremail) with SMTP id qMiowJCxWeBnJ3hpPJEzAA--.36583S2;
+	Tue, 27 Jan 2026 10:48:09 +0800 (CST)
+From: Binbin Zhou <zhoubinbin@loongson.cn>
+To: Binbin Zhou <zhoubb.aaron@gmail.com>,
+	Huacai Chen <chenhuacai@loongson.cn>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Andy Shevchenko <andy@kernel.org>,
+	linux-i2c@vger.kernel.org
+Cc: Huacai Chen <chenhuacai@kernel.org>,
+	Xuerui Wang <kernel@xen0n.name>,
+	loongarch@lists.linux.dev,
+	devicetree@vger.kernel.org,
+	Binbin Zhou <zhoubinbin@loongson.cn>
+Subject: [PATCH v2 0/2] i2c: Add Loongson-2K0300 I2C controller support
+Date: Tue, 27 Jan 2026 10:47:55 +0800
+Message-ID: <cover.1769476820.git.zhoubinbin@loongson.cn>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJCxWeBnJ3hpPJEzAA--.36583S2
+X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/1tbiAQEACGl3AjkTtgAAsI
+X-Coremail-Antispam: 1Uk129KBj9xXoW7XryDXrWxWr4xWF43Cw43XFc_yoWkArcEk3
+	4xWasrAw1kCF93Ca4UJF4fZry3CayUta48A3Zrtw4ak3y2gw1YgF97CrZxZ3WxXF47GFn8
+	Ww1UZF1IvwnxGosvyTuYvTs0mTUanT9S1TB71UUUUUDqnTZGkaVYY2UrUUUUj1kv1TuYvT
+	s0mT0YCTnIWjqI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUI
+	cSsGvfJTRUUUbI8YFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20x
+	vaj40_Wr0E3s1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
+	w2x7M28EF7xvwVC0I7IYx2IY67AKxVW8JVW5JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
+	W8JVWxJwA2z4x0Y4vEx4A2jsIE14v26F4j6r4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
+	Gr1j6F4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI0UMc
+	02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUXVWUAwAv7VC2z280aVAF
+	wI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxkF7I0En4kS14
+	v26r126r1DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8C
+	rVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8Zw
+	CIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x02
+	67AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr
+	0_Gr1lIxAIcVC2z280aVCY1x0267AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuYvjxU2BT5
+	DUUUU
 
-Hi Heikki,
+Hi all:
 
-> Since we use kernel mode device drivers, we need the kernel device
-> instances (struct device) that bind to them. If you want to deal with
-> user mode drivers then you can always do that with the i2c-dev
-> interface, but then you will not be using the kernel drivers such as
-> the mctp-i2c.c in this case.
+This patch set describes the I2C controller integrated the
+Loongson-2K0300 chip.
 
-Sure you could - the userspace ARP implementation would be responsible
-for binding an existing kernel driver to the newly-allocated dynamic i2c
-address - say, through the new_device interface. The choice of driver
-would typically depend on the enumerated UDID.
+It has a significantly different design from the previous I2C
+controller(i2c-ls2x), such as support for master-slave transfer mode,
+and  DMA transfers (implementation in progress), etc. Therefore, we try
+to name it i2c-ls2x-v2.
 
-> But just to be clear, this is not only
-> about MCTP. The ARP-capable i2c-clients can be anything.
+Thanks.
 
-Yes, I'm not just talking about MCTP here either.
+======
+V2:
+Patch (1/2):
+ - Add Acked-by tag from Conor, thanks.
 
-> So even if you still want to scan the ARP-devices in user space
-> separately, the kernel must enumerate those devices independently in
-> any case.
->=20
-> I should also point out that to my surprise the i2c-dev interface
-> (I2C_CHARDEV) isn't always enabled, even when I2C seems to be
-> otherwise fully supported in the kernel. We simply can't assume that
-> it's always available.
+Patch (2/2):
+ - Reorder the definitions of read() and write();
+ - Adjust the calculation method for bus speed.
 
-I don't think requiring a specific functionality to be enabled would be
-a showstopper for any particular implementation. We need CONFIG_I2C
-already, why is CONFIG_I2C_CHARDEV any different?
+Link to V1:
+https://lore.kernel.org/all/cover.1763018288.git.zhoubinbin@loongson.cn/
 
-Cheers,
+Binbin Zhou (2):
+  dt-bindings: i2c: loongson,ls2x: Add ls2k0300-i2c compatible
+  i2c: ls2x-v2: Add driver for Loongson-2K0300 I2C controller
+
+ .../bindings/i2c/loongson,ls2x-i2c.yaml       |  15 +
+ MAINTAINERS                                   |   1 +
+ drivers/i2c/busses/Kconfig                    |  10 +
+ drivers/i2c/busses/Makefile                   |   1 +
+ drivers/i2c/busses/i2c-ls2x-v2.c              | 545 ++++++++++++++++++
+ 5 files changed, 572 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-ls2x-v2.c
 
 
-Jeremy
+base-commit: 880977fdc7f67923d1904ee23ca75fa1e375ea46
+-- 
+2.47.3
+
