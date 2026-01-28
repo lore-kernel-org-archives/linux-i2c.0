@@ -1,196 +1,129 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F9D525485A;
-	Wed, 28 Jan 2026 12:31:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78369191F98;
+	Wed, 28 Jan 2026 12:49:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769603501; cv=none; b=HnIOZ4EJwGrse7sE3oL1xTEp/yXajj1dEiANP319OYuAwO9WUVVp65fmhKB8fJkX9EE9woYuXFIpLEhyCoLnGliBJUIP/avz/Y0hDMguR+dd8qiuDcX3wcNPFja5V/6QRZygTP24XEGW8zmQzx63+IXeyYt8kGFIdgcWlqTEoI4=
+	t=1769604587; cv=none; b=Q4MIBHkopGRpZuc6uugpxii4sYe4jN0qWrtcRoRc8jYBfxl/XdpwiKRCvZHFAD+HGdcaGkdk8wCp73IhT3lbsdlseBwyorOSWwJhURHhsDJRfaMjfpP9Xh/3TMhrpImFlLQOEN7wpAbvBAG6IMOighW1v6eWmYw5b/C3cRs9Lpk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769603501; c=relaxed/simple;
-	bh=jhReHcVoLeAYfxmXSnz9SKAPwc/pTTpvp9BhBdYEkn0=;
+	s=arc-20240116; t=1769604587; c=relaxed/simple;
+	bh=KmjdpuWSlmGRPloRpd2Hx6yaXSeiIiqP/jIxfSxWb6s=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IPmiFqPpdVQ+NDkxZkX1+pUFc6fwnHoXG2PIXWOQX4z/7ekG7wfodotcIGp1DKr8rXKZtC70AxM+B0aYX5ax2tVl848/pGnjGvjRHvF5QCFQ/N0aCYiOuB6m968H8qVNvARVHQNI1asrmJqr4Zad1/iWp9/h6XByOfMseavpzx4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XCZuIhRo; arc=none smtp.client-ip=192.198.163.17
+	 Content-Type:Content-Disposition:In-Reply-To; b=nSjnclmUuYKg5A69YZpT/YnA94Lp6sdw1G7f0HGsm4tBDGrJIQHBr3HXlEiTTZQ7ZwN8E55j2NJVt4SL5/fCp0jEqSqWN9Cmyqu0KyAm3iO0g8Zm1kG1P/gyDS3If6DzqT1mkEELFlTFQ7I9Adly5qHnjkYolE93nBPjCGOxDpM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WEUnJSQw; arc=none smtp.client-ip=192.198.163.9
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XCZuIhRo"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WEUnJSQw"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769603499; x=1801139499;
+  t=1769604587; x=1801140587;
   h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=jhReHcVoLeAYfxmXSnz9SKAPwc/pTTpvp9BhBdYEkn0=;
-  b=XCZuIhRo6rfqip4Hf+CDM4JMyh+hPRYcpZloXKOym+2qpUTR3jfBlhtU
-   ykvpSuP5E0rfbbqBdkCu9e6wM9TxFUA2rKla5nfQrDmi1TvEOACqN35R8
-   MzDx4EeeXQCJr1PB6YMZP4FLxDUVJ4AJ8meOBPtgZQtvrar3lp5d5YtlZ
-   k0DrjabBBjS26DzgO3EhLQV0yqhusXoKqtJU+jHLAcgKY+JOHEAemyRRQ
-   Nol4vwlNbmY7fFYE/NG8kLu/AJFdAxn83eNn1ZeasuGIV55F/v10M2/gY
-   P1+dG/gJ98kAIY/ZpW6V7BVEfVdJyE7d3fZInWqI8DvlfOw8sXLiQrcqt
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=KmjdpuWSlmGRPloRpd2Hx6yaXSeiIiqP/jIxfSxWb6s=;
+  b=WEUnJSQwbkBBwq19uzdj7gGSkkTOtvKhgY51h0HZvDb9yVHCArTGHQ0u
+   NhZc4/WZzzZhG2l6jLLFo+fi+bNzZEpZKnW2XLjJkO3CuJVGDc+9MoYTO
+   w8HkFhZPWrbovV1JFSBpzt/2J0pBJPjgmwvtwLB6/5HHDYbJKtz3FhPfz
+   PMku6WErij+n/w7V+n0oOIoI4IROjjeu0dpa6wCi4NeU/cmg/Q+eQeFo2
+   5BFJm1b7mPOa4mWsjckqgPnyFsFS/RlSuuK1ZLkx80uuY26shGwi6L3F7
+   mqQCTClgazJ5wUtAHh3kKYM22AvZZNlukr0V+qvXiooKz7i3o6e79h6Nq
    A==;
-X-CSE-ConnectionGUID: jSbyUAvUTUOBsC1AMHmOGg==
-X-CSE-MsgGUID: zlRrRJqsReW5gq0NnA650A==
-X-IronPort-AV: E=McAfee;i="6800,10657,11684"; a="70713797"
+X-CSE-ConnectionGUID: +pkohkgjQGe0EKhXMoh/iw==
+X-CSE-MsgGUID: go94jGEpT5Gg+C8AO+WcvA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11684"; a="81537942"
 X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
-   d="scan'208";a="70713797"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2026 04:31:39 -0800
-X-CSE-ConnectionGUID: U7/xe9KjS8qNnnTkKxvSDw==
-X-CSE-MsgGUID: W0GHs2ttRfuqYkLG1KcqLg==
+   d="scan'208";a="81537942"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2026 04:49:46 -0800
+X-CSE-ConnectionGUID: a2PVRto2Qdyxt04flRADMw==
+X-CSE-MsgGUID: qk2UHxACR/a81rcNcGkVDg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
-   d="scan'208";a="213229400"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by orviesa005.jf.intel.com with ESMTP; 28 Jan 2026 04:31:37 -0800
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id F292998; Wed, 28 Jan 2026 13:31:35 +0100 (CET)
-Date: Wed, 28 Jan 2026 13:31:35 +0100
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: correctmost <cmlists@sent.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	dmaengine@vger.kernel.org, regressions@lists.linux.dev,
-	vkoul@kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [REGRESSION][BISECTED] Lenovo IdeaPad touchpad does not work
- when idma64 is present in initramfs
-Message-ID: <20260128123135.GM2275908@black.igk.intel.com>
-References: <69f5dea3-17b0-4d3a-9de7-eb54f8f0f5cd@app.fastmail.com>
- <aWoM3JibLSBdGHeH@smile.fi.intel.com>
- <aWoUc_GJuZ8SuYCM@smile.fi.intel.com>
- <e5ee42bd-0d17-44e7-a306-61d19f1d24b2@app.fastmail.com>
- <aW4J6bmHn2dLuOxo@smile.fi.intel.com>
- <aW4MUisgI6d2Efbr@smile.fi.intel.com>
- <aW9LzBIOIePu59zV@smile.fi.intel.com>
- <d7627ea0-0965-4469-83c2-e2a15edd58a9@app.fastmail.com>
- <aXnYJQJW4wypkkPC@smile.fi.intel.com>
- <0d93a56c-e452-4cd0-abb4-09c9f916274a@app.fastmail.com>
+   d="scan'208";a="245865958"
+Received: from hrotuna-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.244.196])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2026 04:49:41 -0800
+Date: Wed, 28 Jan 2026 14:49:39 +0200
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Danny Kaehn <danny.kaehn@plexus.com>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+	devicetree@vger.kernel.org, linux-input@vger.kernel.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+	Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
+	Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
+	Ting-Kai Chen <tingkaic@nvidia.com>
+Subject: Re: [PATCH v13 1/3] dt-bindings: i2c: Add CP2112 HID USB to SMBus
+ Bridge
+Message-ID: <aXoF4zi4SZrXaku5@smile.fi.intel.com>
+References: <20260127-cp2112-dt-v13-0-6448ddd4bf22@plexus.com>
+ <20260127-cp2112-dt-v13-1-6448ddd4bf22@plexus.com>
+ <20260127160217.GA3776731@LNDCL34533.neenah.na.plexus.com>
+ <20260128-magnificent-faithful-otter-c4f900@quoll>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <0d93a56c-e452-4cd0-abb4-09c9f916274a@app.fastmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260128-magnificent-faithful-otter-c4f900@quoll>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Wed, Jan 28, 2026 at 05:21:20AM -0500, correctmost wrote:
-> On Wed, Jan 28, 2026, at 4:34 AM, Andy Shevchenko wrote:
-> > On Tue, Jan 20, 2026 at 11:56:15PM -0500, correctmost wrote:
-> >> On Tue, Jan 20, 2026, at 4:33 AM, Andy Shevchenko wrote:
-> >> > On Mon, Jan 19, 2026 at 12:49:59PM +0200, Andy Shevchenko wrote:
-> >> >> On Mon, Jan 19, 2026 at 12:39:41PM +0200, Andy Shevchenko wrote:
-> >> >> > On Fri, Jan 16, 2026 at 07:25:54PM -0500, correctmost wrote:
-> >
-> > ...
-> >
-> >> >> > My understanding that the pin 3 on GPIO might be wrongly configured
-> >> >> > by BIOS.  The difference with the original case is that your GPIO device
-> >> >> > is locked against modifications and until you unlock it (usually
-> >> >> > it's done in BIOS in some debug menu) it may not be fixable without OEM
-> >> >> > fixing the issue themselves. In any case you can try the workaround
-> >> >> > (see https://lore.kernel.org/all/ZftTcSA5dn13eAmr@smile.fi.intel.com/).
-> >> >> > But I am skeptical about it.
-> >> 
-> >> I tested commit c03e9c42ae8 with the following patch and still saw the "probe
-> >> with driver i2c_hid_acpi failed" error:
-> >
-> >> +	{
-> >> +		void __iomem *padcfg0;
-> >> +	        u32 value;
-> >
-> >> +		padcfg0 = intel_get_padcfg(pctrl, 3, PADCFG0);
-> >
-> > I'm sorry to get you back to this one, but can you replace 3 with 82 and try
-> > again (keep the kernel command options with HID debug enabled, etc, but no
-> > other patches applied).
+On Wed, Jan 28, 2026 at 11:35:25AM +0100, Krzysztof Kozlowski wrote:
+> On Tue, Jan 27, 2026 at 10:02:17AM -0600, Danny Kaehn wrote:
+> > On Tue, Jan 27, 2026 at 08:47:48AM -0600, Danny Kaehn wrote:
+> > > This is a USB HID device which includes an I2C controller and 8 GPIO pins.
+> > > 
+> > > The binding allows describing the chip's gpio and i2c controller in DT,
+> > > with the i2c controller being bound to a subnode named "i2c". This is
+> > > intended to be used in configurations where the CP2112 is permanently
+> > > connected in hardware.
+> > > 
+> > > Signed-off-by: Danny Kaehn <danny.kaehn@plexus.com>
+> > > ---
+> > 
+> > Hi Folks (Intended for Rob or Krzysztof),
+> > 
+> > Wasn't sure the best way to go about this, but trying to see the best
+> > way to get a message in front of you regarding an ask from Andy S.
+> > 
+> > In [1], Rob H initially directed that the gpio chip share a node with
+> > the CP2112 itself, rather than having a subnode named 'gpio'.
+> > 
+> > Initially, I did the same thing for both DT and ACPI, but Andy S.
+> > directed that ACPI should not have the node be shared in that way.
+> > 
+> > With the last revision of this patch, Andy S. asked that I try to get a
+> > rationalle from Rob (or other DT expert presumably) on why the gpio node
+> > should be combined with the parent, rather than being a named subnode
+> > [2].
 > 
-> I tested the pin 82 patch by itself (no other patches and no config changes).  I received the IRQ message and the touchpad didn't work (full log attached):
+> Because it is explicitly asked in writing bindings. Please read it.
+> 
+> Because we do not want Linux driver model affecting design of bindings
+> and DTS, by subnodes present only to instantiate Linux drivers. I do not
+> care about driver model in this review and I do not see any reason it
+> should make DTS less obvious or readable.
+> 
+> That's actually rule communicated many times, also documented in writing
+> bindings and in recent talks.
 
-Okay let's add some debug to the drivers involved and try to figure out
-what is happening.
+Does DT represents HW in this case? Shouldn't I²C controller be the same node?
+Why not? This is inconsistent for the device that is multi-functional. And from
+my understanding the firmware description (DT, ACPI, you-name-it) must follow
+the HW. I don't see how it's done in this case.
 
-Can you next apply the below patch (only that one) and try? Any test case
-where it reproduces is good. The provide again full dmesg. While at it can
-you enable CONFIG_PRINTK_TIME=y so we can also get timestamps to the dmesg.
+-- 
+With Best Regards,
+Andy Shevchenko
 
-diff --git a/drivers/dma/idma64.c b/drivers/dma/idma64.c
-index d147353d47ab..9c06b137ed0b 100644
---- a/drivers/dma/idma64.c
-+++ b/drivers/dma/idma64.c
-@@ -6,6 +6,7 @@
-  * Author: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-  */
- 
-+#define DEBUG
- #include <linux/bitops.h>
- #include <linux/delay.h>
- #include <linux/dmaengine.h>
-@@ -171,6 +172,8 @@ static irqreturn_t idma64_irq(int irq, void *dev)
- 	u32 status_err;
- 	unsigned short i;
- 
-+	dev_dbg_ratelimited(idma64->dma.dev, "status=%#x\n", status);
-+
- 	/* Since IRQ may be shared, check if DMA controller is powered on */
- 	if (status == GENMASK(31, 0))
- 		return IRQ_NONE;
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 45bfca05bb30..7461254ec863 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -10,6 +10,7 @@
-  */
- 
- #define DEFAULT_SYMBOL_NAMESPACE	"I2C_DW"
-+#define DEBUG
- 
- #include <linux/delay.h>
- #include <linux/err.h>
-@@ -756,6 +757,7 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
- 
- 	regmap_read(dev->map, DW_IC_ENABLE, &enabled);
- 	regmap_read(dev->map, DW_IC_RAW_INTR_STAT, &stat);
-+	dev_dbg_ratelimited(dev->dev, "enabled=%#x stat=%#x\n", enabled, stat);
- 	if (!enabled || !(stat & ~DW_IC_INTR_ACTIVITY))
- 		return IRQ_NONE;
- 	if (pm_runtime_suspended(dev->dev) || stat == GENMASK(31, 0))
-diff --git a/drivers/mfd/intel-lpss.c b/drivers/mfd/intel-lpss.c
-index 63d6694f7145..b82a22e5977f 100644
---- a/drivers/mfd/intel-lpss.c
-+++ b/drivers/mfd/intel-lpss.c
-@@ -501,6 +501,8 @@ static int intel_lpss_suspend(struct device *dev)
- 	struct intel_lpss *lpss = dev_get_drvdata(dev);
- 	unsigned int i;
- 
-+	dev_info(dev, "supend started\n");
-+
- 	/* Save device context */
- 	for (i = 0; i < LPSS_PRIV_REG_COUNT; i++)
- 		lpss->priv_ctx[i] = readl(lpss->priv + i * 4);
-@@ -513,6 +515,8 @@ static int intel_lpss_suspend(struct device *dev)
- 	if (lpss->type != LPSS_DEV_UART)
- 		writel(0, lpss->priv + LPSS_PRIV_RESETS);
- 
-+	dev_info(dev, "supend finished\n");
-+
- 	return 0;
- }
- 
-@@ -521,12 +525,16 @@ static int intel_lpss_resume(struct device *dev)
- 	struct intel_lpss *lpss = dev_get_drvdata(dev);
- 	unsigned int i;
- 
-+	dev_info(dev, "resume started\n");
-+
- 	intel_lpss_deassert_reset(lpss);
- 
- 	/* Restore device context */
- 	for (i = 0; i < LPSS_PRIV_REG_COUNT; i++)
- 		writel(lpss->priv_ctx[i], lpss->priv + i * 4);
- 
-+	dev_info(dev, "resume finished\n");
-+
- 	return 0;
- }
- 
+
