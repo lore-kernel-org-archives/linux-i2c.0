@@ -1,259 +1,174 @@
-Received: from SJ2PR03CU001.outbound.protection.outlook.com (mail-westusazon11012000.outbound.protection.outlook.com [52.101.43.0])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 118F13314AE;
-	Wed, 28 Jan 2026 15:00:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.43.0
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769612442; cv=fail; b=Ugb2fCN36nMw8XMvyzQLjYy5Kz2zBffI5Qp0+FIqLFLMBufaWCLpjaDSh41RpdCspLRLQ3o7lPG289z4b6V7NrnHZy0/v2dSPP5SNn4juiWMDQudB21TUUWN+FzkBicIxonQERX6FKMTQ5hLA+NuaMZeuADtk6pkiRgPFbml3b0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769612442; c=relaxed/simple;
-	bh=/5PA/agc7mT5z1Uh/PPTlO4BD2eofsLlbe7GZuameiY=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=hp4LaY4ZqI/colUM83BKR1PLnaG4VToj+pLm4OCcTwB+YOamBm6+IPWo9RnT7Lv5579kFwc6k1HIDA0OQo+dDmHRcY1dusW+3t+SIzG7cuqHZMea6FBi+SwAfB8LiS7NsQzPJD0CQGyQUOliYledLWxBMxZENTvaxTYw1+DZxN0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=YBAJSf3v; arc=fail smtp.client-ip=52.101.43.0
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DE43369993;
+	Wed, 28 Jan 2026 15:03:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769612601; cv=none; b=Ypo4pi5lojDj1p/EbXNdq/+N1oHHB+MwMmmpIUL8UMI6u3SmmuB0puV72rS0/eSDd/Fi+G69LoFL1tBo66pc2kQOluu1cdQrHsHKlUD72G2UlodZeoj7P9J15YKMEnF3L2eWTygMMhHCvs7rqd/G50iOsAFccfwyGTwDzSC8h24=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769612601; c=relaxed/simple;
+	bh=QuVKlB6eN8V1XIu3FelRKHG398FLmSIM21NyvBg5vYw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ifskQdz8KThZ85ju/0NaAlqwCcZHQLk1oK3Q4FFn4Qazxi+KsbFiNmJjFh3xgXN3wVIfWTii7A4Wdrsz+MWiJqP3vqcEgJYUQFu1NDVYUtXcFqsJkFxvqT5CiJOxLyO/EVWE+mwhWFIgk5e8iyy3POGKamqfb4LLDfYKjjGCkX8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=CD01nf6J; arc=none smtp.client-ip=192.198.163.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="YBAJSf3v"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=oBcN7CW1sgu6oDWvEMyZoH80TRlLHYe2Aepp1DlMHYzvkEBePIWO1pcBmaLfxm+tk/P6EtLL8/nWgBh7P9CcBwI2rZtBy2Lev7q2U3vZgCeaPyGl8h35/dsXCjbfg3L59BihF2jspHd0VRuoSnt2FEaOvRKWOcvM5WCP5uXVpwsU9nKMfTDprgk7Q8v7va6GNDLO3LHE12toTDRFj3VAYFw8GmHPdllXMMcc/f5rfZIPhJNeerIFb9aCAZq9h5RfUHA6UUOJph2i4dfdPPBZf63uRV6lC0Mf4BLAgiwYWJGQ8A7c/88PHNi2Q4T4TL0cyOTTxOHh/mymmN3NbRtWGQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=zqzIDyZoRweZP0pc33Bwsflhm0Uh9r4mzQDZraYgGJc=;
- b=y4F6SuoJ2Zes98J+ZBhCDXpVcCNJ9+gbWmDBL7aBwuDsAIcYLdxXbek4Rbr2NqHpfK2dl854ldHL7b6kEA4acAbnGNxqqwYloJRjcWZGiTcDCOFO5mNqYVctF3subz5P6lWn7Clfmd4fA/oqPEUq9M1vCJ7RbLjcYGPs8KBToQPO98dGtyzOjMNsCKUQzGmSD0OeIUtZDlTvaBOqOy37CX9foo+Sq65fpt6+quQQp8t2kl/3hecGB6qZBjRgBlb8A0ackmMY98xFmhHshevt//mnJZZCRQC2MnDXPR1o+2e1nnEh6EkyvzE+OXrWTWtlhXQJfXUxbMARH3wp+tpdQA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zqzIDyZoRweZP0pc33Bwsflhm0Uh9r4mzQDZraYgGJc=;
- b=YBAJSf3vZ4mZaJuKxCIF7lXu1NttLXwxe1DW2UCFRlECBS9wP4jJ9Hd6abO8gVYtRRPSoupoNPuf69rcS1tPXkSgVw9mS2zy0Fvna7RdNm7YkK5k1NntsAjH05ye3gQOXepWmvpvVeq/FeFmTlvjEBOogBx8We8IjXSNYNSsslE=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from PH8PR12MB6939.namprd12.prod.outlook.com (2603:10b6:510:1be::18)
- by DM4PR12MB9733.namprd12.prod.outlook.com (2603:10b6:8:225::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9542.11; Wed, 28 Jan
- 2026 15:00:35 +0000
-Received: from PH8PR12MB6939.namprd12.prod.outlook.com
- ([fe80::d84:b1d8:bca1:7c3d]) by PH8PR12MB6939.namprd12.prod.outlook.com
- ([fe80::d84:b1d8:bca1:7c3d%4]) with mapi id 15.20.9542.010; Wed, 28 Jan 2026
- 15:00:35 +0000
-Message-ID: <5dc423be-c1f4-4a59-abcc-807f63b25f3f@amd.com>
-Date: Wed, 28 Jan 2026 16:00:30 +0100
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 1/7] dt-bindings: i2c: xiic: make clocks optional
-To: Andy Shevchenko <andriy.shevchenko@intel.com>,
- Andrew Lunn <andrew@lunn.ch>
-Cc: Krzysztof Kozlowski <krzk@kernel.org>,
- Abdurrahman Hussain <abdurrahman@nexthop.ai>,
- Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, info@mocean-labs.com,
- linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-References: <20260127-i2c-xiic-v6-0-e82e2f6f657c@nexthop.ai>
- <20260127-i2c-xiic-v6-1-e82e2f6f657c@nexthop.ai>
- <20260128-remarkable-airborne-chihuahua-a1a16c@quoll>
- <66c7435c-a936-413e-a016-c860d448c971@amd.com>
- <fc00f8cf-b566-4694-82fe-76010d2f7c78@lunn.ch>
- <aXog-KBw7Bp-VEC4@smile.fi.intel.com>
-Content-Language: en-US
-From: Michal Simek <michal.simek@amd.com>
-Autocrypt: addr=michal.simek@amd.com; keydata=
- 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
- mpwx1d8=
-In-Reply-To: <aXog-KBw7Bp-VEC4@smile.fi.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SJ0PR13CA0172.namprd13.prod.outlook.com
- (2603:10b6:a03:2c7::27) To PH8PR12MB6939.namprd12.prod.outlook.com
- (2603:10b6:510:1be::18)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="CD01nf6J"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1769612589; x=1801148589;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=QuVKlB6eN8V1XIu3FelRKHG398FLmSIM21NyvBg5vYw=;
+  b=CD01nf6JTQVAD9bFhFLWeRNHKeCOZO6BSr9+7pCPHSM7no5XgXmr8CI5
+   mgiBNb+y1MMrN4gREdlwGTf+Wx+GaB7jwKnb/nTy83nbP7pzCyrtEJJcy
+   SSqCjyfuieV/BKa9H22zWC+elht02Qx87Hs/Sz7Yo2XEzlvs4U1DeVhu4
+   JmaAT/+hUua+Xv8XQp81JsLkfFy4P1ArKZ9fZoTswN4fs2Ck7jFGf3WMR
+   hb6dEP7sInVj2XkgbxI7biQa9svhIHnujA47bgIR5arv8nX/jGOV1AG39
+   hKMwW7T/jI7LllyHbwOQc9JzEferB9hcZ9+yXhM+j4iTxzLdWv7eiKIDo
+   w==;
+X-CSE-ConnectionGUID: kL2vQfAcSE2FRgj1XF6Anw==
+X-CSE-MsgGUID: 1YXmMBvjQ1ytE+Pm4Bc50w==
+X-IronPort-AV: E=McAfee;i="6800,10657,11684"; a="96287143"
+X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
+   d="scan'208";a="96287143"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2026 07:02:53 -0800
+X-CSE-ConnectionGUID: 36iywvRTRNGbF61rZgnJXQ==
+X-CSE-MsgGUID: RmydpcKVS8Cigw5XJGfpMQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
+   d="scan'208";a="213259839"
+Received: from mdroper-mobl2.amr.corp.intel.com (HELO kuha) ([10.124.220.19])
+  by orviesa005.jf.intel.com with SMTP; 28 Jan 2026 07:02:50 -0800
+Received: by kuha (sSMTP sendmail emulation); Wed, 28 Jan 2026 17:02:22 +0200
+Date: Wed, 28 Jan 2026 17:02:22 +0200
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To: Jeremy Kerr <jk@codeconstruct.com.au>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Matt Johnston <matt@codeconstruct.com.au>,
+	linux-i2c@vger.kernel.org, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 0/4] i2c: SMBus ARP support
+Message-ID: <aXokxtlFTeZK8lP8@kuha>
+References: <20260121092328.2308705-1-heikki.krogerus@linux.intel.com>
+ <30ad166e2b3d7f10080356ec232e604f3ac9ea2e.camel@codeconstruct.com.au>
+ <aXdyll4KVOF6SWni@kuha>
+ <6ca4bc87620bb0c2e5bfb264ec88189f32b53757.camel@codeconstruct.com.au>
+ <aXjDENOsmWe5_VqS@kuha>
+ <189d4a03f32ace3fd995596e8b5415ced6ae9c3a.camel@codeconstruct.com.au>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH8PR12MB6939:EE_|DM4PR12MB9733:EE_
-X-MS-Office365-Filtering-Correlation-Id: 97677a77-6678-4b6d-0b2d-08de5e7dfdad
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|366016|1800799024|376014;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?RDFEQVBjMHhCeTQwTGVNV01BMXR1UUNVRXRqbmF0cTVjamxuSmI2czV6YktF?=
- =?utf-8?B?ZGtiS2Rzc3FzTUFLbVI5MXFzTDR3Sm9XY2xIVEVmdktCRCtPdXFFZCt1UTYw?=
- =?utf-8?B?UGgrWjZXY2ZRa2hBa1REU2VzTlFGUXFqQlZTOThBMUE3U0ZPMXBPcDNQTndi?=
- =?utf-8?B?blJhbFFZTVVjamZlUlZPVjRJQi9ER2NPQ1pST3cranNNMHpyWDRqbXIvUXRp?=
- =?utf-8?B?UDlySVBZWjF0dHpkWktUd25reDE0czBMbEZ0Slh4czB6RTJQODF5UjNzdFpE?=
- =?utf-8?B?azhoOExjVWQ4dXY2Zzlxd3lyUVlqNVNSMFh6WVoraEFWdGNHbFVoK0trbTky?=
- =?utf-8?B?bkR6QnB3ZEM1c2Z3YWxxWEtkY1FFc2tUQkZDVWF5R2NRMG5QTDNFVE90SElG?=
- =?utf-8?B?ZjRxMDZZRDhKL3BLRFJ1R1FuTFZHOThqTGhPeTJYTWg0MzVZK1p4Si9QdmU5?=
- =?utf-8?B?azZBc3NNVzFvaWQwSlo2WGZ5VGFOTGtpMkdPRnVFY1RJcmJER0M3YTNUMkRU?=
- =?utf-8?B?SnNjcjRSSkNISHYyVVV5TTRrRzQrb2MwTGJHTStaRlFYa0VmYmJ4S0dUQUQx?=
- =?utf-8?B?eE9NQktsM1Z4ME9Ja2pTVmhmcFFSWmFxM1UydlVsQTlscC8rb2xPTnkxR3Y1?=
- =?utf-8?B?TkRwRkdpSWN4WUwySDU4cHF6TUNMTTFldGlFN1BHQVZ6T0N4emdzMjU2dXdJ?=
- =?utf-8?B?c0kwTFo0RnBuc2Vaa3dvcElTMGRYOU5zb3ZlcXNMMC9Oa1RzWk5qOEZTeU05?=
- =?utf-8?B?SGJRTWpJOXA2b0VJRCtCRXJ3b0swai9mK3dBZXpiOHFNQjVwbkcvOWRFSXVm?=
- =?utf-8?B?ZEpreXJ0WUczcU9qWTB1SXJIZ2JMN3NZNU15bXgzNFEyZXNBMWpsQUUrVEw5?=
- =?utf-8?B?Q0h3RkZ3WnJleVVpTkt2bnNzWksrbmpQSkdjN250enZueHhjbEsrL2VQNWJR?=
- =?utf-8?B?YWpOdXU3bVN5cHlFRVBEQ3VGb1g2K2lSYUdRaGRTcndKQVZHdllYc1E0ME85?=
- =?utf-8?B?SWN3dnVVS2JyQ25VdEZOSFcraFpWSlNWcHZJOUV0Um5zNU9zVWNpTXdKbTZt?=
- =?utf-8?B?Q1FUeXlQcEd4bDVjcGxFelg2SHIvSEY4d25ORVExSWVQd1Rqc3Z1b2Z2OWx3?=
- =?utf-8?B?ZTNaRDRvTENoTjhQTW0vSWpKbllDYzB6cUJhNHNkYjJqd1ROOUdzUVJ3Z3VC?=
- =?utf-8?B?Y3lXSExDUFg3Mm1ZNlZTTVhVYzN4RkFwZ1Ftd1k1TGh0MGlpcEhabisrdjg4?=
- =?utf-8?B?TkhSK1Z3dHZPUlFuS0cwZWdlSG5XcTlTa01xSEdGUFZPM1hBQnFNOW9oTEFJ?=
- =?utf-8?B?Y28xSVYwQ3VKY1lDTVEzclYxSitwUmwwU21UUTArVVZBdDduR2VTVzBYazYz?=
- =?utf-8?B?cGtZNDFsdzZ2RnVqY3FqRjZOUWw3cTBOSGgxeXNQTzcybEpwTW1RcHViazdO?=
- =?utf-8?B?Mzl3NUxIQnFqT3A5YTFhemFXNmEyL0dYL0hZcW5pU1Njelllb01VL0UvbC92?=
- =?utf-8?B?Wk9KeUIxV29UNGx1bTJ6NVp3TElQaFV0bVRzQUptL0F2WDVDcE1ka2d3RlV5?=
- =?utf-8?B?S2FpdXMxazBEZGpBdnY5MUxsckFncXBJSFI4L1BFYzNVR2czRHVDSk5DczdP?=
- =?utf-8?B?K2E1THF1YmJGZlhGV3JZV0FnVCtvZU9xOFR1bkZjYVFtaVlnZUJDaHR4MVNL?=
- =?utf-8?B?RFptd0xUa2hXTnNDZGNvQzdZb3BHWmllc0pMeDRGdDcydWx3S29DR2VEOXhE?=
- =?utf-8?B?UDMvRTdaUGFCanh5NjltaEE3TWtxM2U2WEJuUkpRS0ZHMzVFSUxSNFpqUU1B?=
- =?utf-8?B?TWc4RzNUUVcrSG5IVWRPZTNNYzVuZmErQUZPcXhIaEpqamlYNjVUOCs5V2N0?=
- =?utf-8?B?RUJmOW84YW4waGpjWC9YU3c0RGp0TVZ1b3hwVlA1VHp6MWtJUHlKQkorbXRX?=
- =?utf-8?B?NkFJODZiRE5tUVA4QnBjeHg0Nk9nUHlmWFNXU0t5RmtiNUExc2Ztcmd5emUz?=
- =?utf-8?B?UkhTUERQZSs5Sk1HRzFnbTRaalRkT3hVd3F5Q3dGTEUxV2l1OTludnRXRG1n?=
- =?utf-8?B?WkZsZ05iS2xnaXY5UEF4S2hvWFJJUk1KQUhmMjNlblNHTm9ONXFTOEREYnlo?=
- =?utf-8?Q?zCP8=3D?=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH8PR12MB6939.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(366016)(1800799024)(376014);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?T1ZNbldlKzVHUzVFWjJIYi9HTHZwOUN1SHVsTzM3NEl6eEFkaHBVd3d2QllL?=
- =?utf-8?B?cTZiSVJKNEVLUUdZQTBtWkZRZWcvRjdjT1VlUGt0bGxxeC9FenV2UE96Sjdl?=
- =?utf-8?B?UG1XenM4dzlPREdUNFpmWVRXdzZtell6eXhlUE5rTVE2bDVNK2JpcE5HRXFa?=
- =?utf-8?B?RDMya3dTSU9sV1FlaDFjdWJIeFZrN2xlRFdGck1ncDdITGxNOTFOQUUwVmtu?=
- =?utf-8?B?dENmWExIRzdWMkhpUW84ME5nZVM3VFhLL3U1SDc2d0luZ29mZm9QOU1ic0Rx?=
- =?utf-8?B?dUFMajY5ODlBWk8vWG9senR1RDZJTU9wR01nRkNQZGU0TGtlYTllZ0VncmpO?=
- =?utf-8?B?VWkrOTI0Q0trdUdnRGdpRExIN282VkxiT1k0Y1l6ZUJvWUc3OFZUeW5qUUhY?=
- =?utf-8?B?Z09sY3lXbnBDUzhhbE83T2U4RzdzWmZCK1Z0MUV6SlBZUUplT1dvSEtIcUxV?=
- =?utf-8?B?UG9UcnkrQTVnbFJ0a3hlblp3NWlOTW5ISmlzbmFMdjMrbEloN2RHRFgzWjNh?=
- =?utf-8?B?OWd6MDBXVWY4ckd3bXJ4NjhtN1Z6cEVXTStmZTFsWEFWbE9iei8vN0hJczF5?=
- =?utf-8?B?QjJYc3huNkdOc2xKQTlIaVFESUFuTWRueW1DUGNBVHJPRmdIakVhVUdTd2pL?=
- =?utf-8?B?V1g0OHdsZnlUaGtZRkQ5UTBXaGNDcEhONlUvL2VBOEIxNFNXQ29iS2NveVRJ?=
- =?utf-8?B?cmVTdGloL3VpS3hxUHRhNGZIRGFHM09HbFJ6Sk5BcVRrR1RacGlESnM1cVlz?=
- =?utf-8?B?bXQ4TFV5Z3p2ZkpZZXYwQVdLYmdMQzRXek1WQzFRb0NITnlDYWppYzFBVVVK?=
- =?utf-8?B?Mnh5YVF6UGtqTkZ0ZXVsNjhjWXN4WVVJMzhEbjhjYWd5SVpKVGNqck5YaUtj?=
- =?utf-8?B?bTQxTW1ueDBGODg0R3lKU1ZzOTZnYnBvKzlVL0dvdHprUXYrbk82ckNUaUVO?=
- =?utf-8?B?UDgzcFpXVDd3MlpoVUtOYkRIcEV1MlFERVIzdzkraHdqM2svNncreWpqODNi?=
- =?utf-8?B?dnVMUGdPc3gzTDI2ODNBQXg5ZWw2Y3RGbWVtSnVzNTJEdFBDZmlFSEtlSVlZ?=
- =?utf-8?B?bEdwaVVDZ0JHVm02ekt3WFBERGFxL3B0MytsSkRhVVNEa2piK2hIYjRqRWRZ?=
- =?utf-8?B?WXlUdko1VktvZjNySHhObTY5VTFFYmNWaGs5emludUh2VUwzZ3JpSjM4d0dW?=
- =?utf-8?B?cG5CcU1Ua0E1eU5VamxlTmJ1d3FMdkErZGI2OU5GOEE3U09UL2trczJOY3l2?=
- =?utf-8?B?UHN1MzkwYXlTcFIrWTJJUlNvU24rVEt3aHVPeUx0eW9pSGVETG16YXB5dEJv?=
- =?utf-8?B?WFV1NGpLTzlHaGVZTjFRbjMvdDNpOEZHdnUyN1grRE0zd0IvdlB0S3FYVCtN?=
- =?utf-8?B?ekUrcTRDY1VwQkdoRmkvVDloazBlMWd6NCs0YjRVTnlYM3ZoU2d1Slp4L29R?=
- =?utf-8?B?ZlI4WDd5SHJ1ekZyRkZlVlBySHJ0OUJiUEd0UGY1Qk1JdnNZckJBVDA3U0hM?=
- =?utf-8?B?dlBoTVJLTDFnOWw0dzFGU3QrMWFHOHlDU0pIVkJDUkVvdzBvWk1NUTk0eXRQ?=
- =?utf-8?B?aTYrcktiUFpVUVFQbDh6c21ObVZ3WXZlOCtCb3VCSGU3RHpGQk45SEdNQUtO?=
- =?utf-8?B?WFlQOUtBZ3lyVkJzRzhZTGp2Rlk3dkc2cHluaFozSFVaQVFUb3FINWFEVktj?=
- =?utf-8?B?WWpjZm93RTVlZkE3eGxKR0ZPc1krTHVESUlDcFFERWlRbTcvRlhaL1FRMHpr?=
- =?utf-8?B?S29zaVhjcDBWVGxVUUI2cVVHb1VjRHVOa1RmRXNIRnpmdU9LbUJkUjRQdk9a?=
- =?utf-8?B?aTdJNDgvSU4yMUlVQWI1ZXE0YzZKMy83THpEZ2p1T1B6ZCs0UDNQbzdVTG1i?=
- =?utf-8?B?YWdKaHhVTFI4NGlnd216dmZuQVZ4RXpTTzN2MjlrM1RTUmVTNk1jaGF3c2lt?=
- =?utf-8?B?Z2h6cXNnd2RxcnBmN1B3UjZQOHE0b2Y4NkNaY0VoRVBRSUNXa0Z4cFZnSUJa?=
- =?utf-8?B?L3FTcVVHVDE2Wk90K3I3M0xRaXhDLy8yNlVlbjRZSGd0OUo2YkFkL3hCTE01?=
- =?utf-8?B?S3BFRlcxUG9ZWXhpL2JLeCs5V2Y5WTdGVVZNMUdzdGx1UWVJeTFhWld2Q0xZ?=
- =?utf-8?B?YkxSUGZkZ2FBOHA1UWtNK1ptMFplSzgrd3dhaTc0ek9SZVFCUjBOZmdoODZG?=
- =?utf-8?B?SXNLS2h2U0hYaGU0VXV2QndzcXg4cjYybUpyaENxYVVDb3ZtOE1zTjhJMGlF?=
- =?utf-8?B?eVpqUXpwYllLMXk2VmJpSXNYVk1kUDY5WERyNVhDK2N0UlJSWmpGVnVyNEts?=
- =?utf-8?B?emhUbDBXN2poUEV3dFNadUt1cDBVTlpWeFUrNlhGKy9BM240Q1FKZz09?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 97677a77-6678-4b6d-0b2d-08de5e7dfdad
-X-MS-Exchange-CrossTenant-AuthSource: PH8PR12MB6939.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Jan 2026 15:00:35.4463
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: /cqQ3EYSBrsYiUQGWsGyTrBg9YnO394q2Nes6eBwWFccHbGQSoLNsyetDO1yKqQW
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB9733
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <189d4a03f32ace3fd995596e8b5415ced6ae9c3a.camel@codeconstruct.com.au>
 
+Hi Jeremy,
 
+There seems to be another a bit more severe issue with ARP and
+i2c-dev. Right now it seems that anything that can access the i2c
+character devices can silently (without the kernel having any idea
+what's going on) assign a conflicting address to a dynamically
+addressed ARP-device. Perhaps more importantly, the user space can
+remove access to an ARP-device by silently assigning a new address to
+it or simply by resetting its state with Prepare to ARP.
 
-On 1/28/26 15:45, Andy Shevchenko wrote:
-> On Wed, Jan 28, 2026 at 03:34:02PM +0100, Andrew Lunn wrote:
->> On Wed, Jan 28, 2026 at 12:21:41PM +0100, Michal Simek wrote:
->>> On 1/28/26 11:37, Krzysztof Kozlowski wrote:
->>>> On Tue, Jan 27, 2026 at 09:03:55PM +0000, Abdurrahman Hussain wrote:
->>>>> The xiic driver is designed to operate without explicit clock configuration
->>>>
->>>> And if you change this in the driver, then you change bindings?
->>>>
->>>> You miss here explanation based on hardware - how does the hardware work
->>>> if nothing ticks it clocks?
->>>
->>> Hardware obviously have clock input which needs to be connected. Without it
->>> it won't work.
->>
->> Should ACPI potential limitations be making the DT description less
->> accurate?
->>
->> Would it not be better that the driver has an DT binding and an ACPI
->> binding? Where there are common properties, common functions can be
->> used to retrieve them. However, if ACPI lacks usable clocks, use the
->> of_ method to get the clock from DT, and skip it for ACPI.
+That can happen accidentally, but it can also be done intentionally.
+
+Unless I've missed something, this really is a major threat that we
+have to solve. Right now the only idea that I have is that we simply
+prevent the i2c-dev from using the SMBus Default Address.
+
+Wed, Jan 28, 2026 at 06:28:24PM +0800, Jeremy Kerr wrote:
+> > Uh, no. You should only use interfaces like new_device with the
+> > devices that really can't be detected in kernel, which isn't the case
+> > here.
 > 
-> Why should we use of_ methods? If this is required we can check the type of
-> fwnode and act accordingly, but I think this should go deeper into some
-> treewide available helpers, because now some drivers repeat the mantra.
+> Who is deciding this "you should only" case? If the facility works, it's
+> suitable. You raise some good points that may mean it is not a suitable
+> approach for an ARP implementation, but we should still make sure we're
+> taking the right approach.
 > 
-> But how do the driver get the clock frequency (if needed for some register
-> settings and/or calculations)? DT seems to have well established property
-> 'clock-frequency' for that. Can we consider it as "ACPI binding" as well?
+> [You seem pretty defensive here? I'm not saying no to the kernel
+> implementation, just doing our homework before agreeing to it]
 
-"clock-frequency" property in i2c is used for selecting i2c speed 100/400kHz.
+I'm sorry if I sounded arrogant, it was not my intention. We don't
+control the user space, so we can not rely on it to enumerate devices
+like this. We will not be always even able to wait for user space with
+them. The kernel will also still need to be in full control of the
+device, also with the ARP protocol, in order to deal with things like
+conflicts. So consider for example hotplugged devices that are not
+ARP-capable. If the device has a conflicting address with a
+dynamically addressed ARP-device, then kernel really has to be able to
+assign new address to the ARP-device completely independently.
 
-Clock frequency in this driver is about describing clock coming to IP itself.
-Documentation/devicetree/bindings/i2c/xlnx,xps-iic-2.00.a.yaml
+> > So why would you want involve the user space at all since it would
+> > just add complexity and limitations without any benefits?
+> 
+> Because we have fewer risks implementing this in userspace.
+> 
+> As an example, you currently seem to have a stack information leak in
+> the proposed Get UDID implementation, which would be much less of an
+> issue for the equivalent protocol handling implemented in userspace.
 
-Thanks,
-Michal
+If there are bugs in the code then we need to fix them. Can you please
+comment to the patch that has the problem?
 
+> > - You still need to deliver the UDID to the kernel because of things
+> >   like the PEC flag, and the drivers will also need information from
+> >   it.
+> 
+> That seems like the main reason for requiring a kernel approach, in that
+> we need more information than just the assigned address. It's not
+> possible (at present) to specify the PEC flag through existing
+> interfaces, right?
+> 
+> For me, this would be the deciding factor to go for a kernel approach,
+> in that we otherwise cannot properly describe ARPed devices to the i2c
+> subsystem. We *could* push a new_device with a UDID, but I'm not sure
+> that's a great idea.
+> 
+> > - With the static (not hotplugged) devices you need to assign the
+> >   correct ACPI node (or what ever fwnode) to the ARP-device.
+> 
+> Is that possible at present? how are you planning to represent ARPed
+> devices in the DT - or more importantly, correlate DT (or other fwnode)
+> nodes to discovered devices?
+
+I don't know about DT, but with ACPI the devices are expected to
+either be fixed address devices or just use target address that
+matches to the address in the I2C Serial Bus Connection Resource
+Descriptor. The mapping is not yet done, but the idea is to just
+assign the detected UDID to the i2c-client that was already created
+from the fwnode.
+
+> > - When the device is hotplugged, you would need new ABI, like I think
+> >   you already noticed, but this really does not make any sense. We
+> >   simply don't need it, because the kernel can process this
+> >   information on its own very simply.
+> 
+> Even this "very simple" implementation may have bugs.
+> 
+> Assuming we go with a kernel approach: For the MCTP case, for full ARP
+> support of MCTP endpoints, we would still need to consume a hotplug
+> event that indicates that the device is available at its new address
+> - there is no kernel driver bound for the remote MCTP endpoints. This
+> event would be consumed by the (existing) MCTP infrastructure in order
+> to start MCTP enumeration. Is this something you have looked at
+> already? If so, if you can send an example of an actual event, I will
+> look at the mctpd part of this.
+
+We will have the address attribute file that the user space can use.
+If the address changes uevent will be send it.
+
+thanks,
+
+-- 
+heikki
