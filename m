@@ -1,171 +1,162 @@
-Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD72E313295
-	for <linux-i2c@vger.kernel.org>; Wed, 28 Jan 2026 16:40:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BD941E511;
+	Wed, 28 Jan 2026 17:24:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769618426; cv=none; b=KO9ctr6oLibOUiNKFkBSDU6VHAkPGXH2wbvaHjHxE+eFVqlhFmgQ/sHxXWxM3Bf6iubSOSt2ULrbuUxyYQoZ9KugfYDIj+na+spWOmN1k3VpizIwZ76rFJD7BWl6uHR3hIniwuksdS53LJRNg+XAmFsiB1znN6HFxN1su0hmmzk=
+	t=1769621070; cv=none; b=NYfsbSnzAfUVL2qRFkMu0VVZxREb6QVhdyJX9TEqUZ/H+S/gLcO+X2KRjk8MXbffJlVuXMrZE91BNwYdvqXvOmEL2nKim4cIKDBY78ikVxenZj9L9VyOzemQaa5U7jfaOGYbKadLfBVDcRJ3HcYvq46441dK0ZK1bJvuKo38EM0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769618426; c=relaxed/simple;
-	bh=iYk18bX7cRzr0uBEytpgIQTDx3Sgm8mS05n6bJfcUrs=;
-	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
-	 Message-Id:References:To; b=CEzVonQfoNU4acYW1sjEfAjdPLE6CWSqUDRtv6XJJQpf4edGaZKvETTcx9RHr+RbirZGs6w2oOhEWeK7rBvelMkGDoVz67PEIaOiMe4XNK952RoNxdQoYfqePbLLl2gk4KHvCKZ0sXeDbsJgeAkwbSBdgeXgmxhl8xsI+v6cnaE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=lHKFJgAD; arc=none smtp.client-ip=209.85.216.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nexthop.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
+	s=arc-20240116; t=1769621070; c=relaxed/simple;
+	bh=qsTK90imvUggzkgr0qY97dt5TxW+eT/iHwvC7ES+sBg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=iDgvm3l1U7RQyH8yYLKZdahaX9+312KLvXRgoL9IAOBGp+8a4h9YkTAOb+XPoiJHi7fe+L3Gvjl2TgsJUucafUF4Xmqj0aJ7QSg/v6f3aypRv2KpUs6oWUC5TpPRGOhJiBIebKUy3mkj0GgfdVaeU0p8+OUuAeBhUf25kgmHr5c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A5w2YDZE; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="lHKFJgAD"
-Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-3530f597ea3so3171644a91.1
-        for <linux-i2c@vger.kernel.org>; Wed, 28 Jan 2026 08:40:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1769618424; x=1770223224; darn=vger.kernel.org;
-        h=to:references:message-id:content-transfer-encoding:cc:date
-         :in-reply-to:from:subject:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=iYk18bX7cRzr0uBEytpgIQTDx3Sgm8mS05n6bJfcUrs=;
-        b=lHKFJgADm9tyGKkB2Bboes1J/ZIyyziOl+/Lg36VOjmwAUzt+C0LACvG0wZz8qgl/U
-         PM6AE6QLSN19WbZs6KnS8EHe3Yp6CjzC6AmLID02NOzm/S0P90TPEhQGuRREDqYqJ9HA
-         nicms5CzV4meOzjfigTODNJ24XOWeO0VCAPyMbMs7HAzJ6IvKWqVk/9FB30nsolvm7VR
-         Q4w+ompDxprtU4fkQmHl/7eiU8Mr9tvLprZx4a7WiGWfJvsw/FHB58jFJhHSJRmMIkSY
-         PPclUwurZ+N49eK1DWSF164HQy6mZPuGTW6H7m5lsQZ4KG8tqrp1EdJaSdhY7zwz/Xpp
-         nbaQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769618424; x=1770223224;
-        h=to:references:message-id:content-transfer-encoding:cc:date
-         :in-reply-to:from:subject:mime-version:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=iYk18bX7cRzr0uBEytpgIQTDx3Sgm8mS05n6bJfcUrs=;
-        b=gXpb724b8WvYP7C7J0QwDs2T+K4DVkHkQDenLrDb68iXnkPipAsfIqqA38gZHN0+ru
-         vUuDeZgCjItCn1i+U8o5h5jPoHMezokH/cbSsymuaYHc7BSmOs+O4ti5PO8LSgYEInRJ
-         c3RWRTkocRjhc+7HWVAWkcfvns5b2nzIOOlcvlgDBgHf+kRCFl+cvCGyltiPGsxjU54h
-         J2SsxhQGbV1LqiQMKnqiE6XEpl20zBN5vpMnJFyOrMuOsBa4UMgdK+ERQJOAYdzqt3Mq
-         8yjgRLn1ZbyQkbWx+HwMePcPYXLO0WR79F89LR0BfZUP9jEY4lD7DEflQqYcjJqSPZOo
-         RLOw==
-X-Forwarded-Encrypted: i=1; AJvYcCU8acOFyU9ABoYghkQw9jq5L3onTNwhQFGp1hR7AZqKJL9NiF8jTYbXxKAMjJmbYVyOb09czjmoiQY=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyI7OhqOqwBD4poYCoY/pTApn6KmVsCG9N/ZGbdtxfccvwfaknR
-	g6bpVyaWuh3N7taXY1b96AkZRaNFMEb87y9cCoCsY8p9n3/JcPAmnwU+6+17p4nRvDs=
-X-Gm-Gg: AZuq6aJrhGcuhKO802wmwe0zP9Gxi3EUL3F/LyUjN+ES/WYCkquv2d8iFUceq1HwBUZ
-	Q7u6VnUlJMerUtNtDhxyAji1U8vJeM/savFgN87Yu3SsdUTgdr2/ExqBFlAhDRLQTZHKbmhuwk+
-	5wIrWOaL0afFxkulcYDP2K/KvuVA/GnF9fx3zFdnjSkEy/ek/fSWtq44OzQerEyQZ9btQm4kikC
-	npMAa9wTcSbJkVThtUthaGHZ3BHoHBeYRcSVus3dJVep86zQ+JRc3M7l/ae73Q4mFqRzI1qzEkA
-	q4j7gzi96n3CsFH/kIHTaNAsEqqZxjrvTbZPm9bkzQzDTlSXjdQ5ZyCZh2RB2W31ksB4QqBJQhP
-	6oz4k4t43mwVc4zDKiyruLTTJSf/zPqwtz9E/kSKyNVHtR0hvuUFVKos4NlsIfov3gELporscvD
-	0+Hcno+FKcMQeLm+c9b4zRm8xjcLU6cM8MLNfew9wmGg41rQ==
-X-Received: by 2002:a17:90b:3c11:b0:352:c995:808a with SMTP id 98e67ed59e1d1-353fecda875mr5481744a91.14.1769618423968;
-        Wed, 28 Jan 2026 08:40:23 -0800 (PST)
-Received: from smtpclient.apple ([2601:602:8700:e32a:245f:3d9c:239d:6b19])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-353f61e0007sm5993765a91.12.2026.01.28.08.40.22
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 28 Jan 2026 08:40:23 -0800 (PST)
-Content-Type: text/plain;
-	charset=utf-8
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A5w2YDZE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DB42C4CEF7;
+	Wed, 28 Jan 2026 17:24:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769621070;
+	bh=qsTK90imvUggzkgr0qY97dt5TxW+eT/iHwvC7ES+sBg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=A5w2YDZEQLkjxTDGcF2tRpFscp9eOXLP4KHiGaUwoGkHTMNGgCt3HbkGY1Lbsy+Kh
+	 JVD8tQ3nsJMlRZfo/RU3V0Bau+qJG6Ut8EduizXdK8GehwJQmPpI/Syy4z42AwMRsw
+	 j5Bh8dBmSC9Ut0NKXls8jA8CfOJ6WuxLJnQzYywKzwmFZ+MKNqPsWfwQwruLVmPGXV
+	 D1QIZD+94oOdA2cSUztjhk3Ng8AT1mr7tXXVvnQ21IEGMW6CGFWAd5qMqKROzn+8tE
+	 IjI1VXZIMaM5vBVz7Hycjpdvycbx0paWcKzBpakrXc/RAPl0EPts9ZQLSXhH2aBfxz
+	 IZqfxydUEVFtw==
+Date: Wed, 28 Jan 2026 17:24:24 +0000
+From: Conor Dooley <conor@kernel.org>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Danny Kaehn <danny.kaehn@plexus.com>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+	devicetree@vger.kernel.org, linux-input@vger.kernel.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+	Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
+	Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
+	Ting-Kai Chen <tingkaic@nvidia.com>
+Subject: Re: [PATCH v13 1/3] dt-bindings: i2c: Add CP2112 HID USB to SMBus
+ Bridge
+Message-ID: <20260128-embezzle-deacon-74815f461fe9@spud>
+References: <20260127-cp2112-dt-v13-0-6448ddd4bf22@plexus.com>
+ <20260127-cp2112-dt-v13-1-6448ddd4bf22@plexus.com>
+ <20260127160217.GA3776731@LNDCL34533.neenah.na.plexus.com>
+ <20260128-magnificent-faithful-otter-c4f900@quoll>
+ <aXoF4zi4SZrXaku5@smile.fi.intel.com>
+ <20260128-pelican-silenced-cd6a5bf69672@spud>
+ <a579100b-6c38-4fd1-bab3-b1e7663ab412@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3864.300.41.1.7\))
-Subject: Re: [PATCH v6 1/7] dt-bindings: i2c: xiic: make clocks optional
-From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-In-Reply-To: <aXoul5n9sA1UmqoS@smile.fi.intel.com>
-Date: Wed, 28 Jan 2026 08:40:11 -0800
-Cc: Michal Simek <michal.simek@amd.com>,
- Andrew Lunn <andrew@lunn.ch>,
- Krzysztof Kozlowski <krzk@kernel.org>,
- Andi Shyti <andi.shyti@kernel.org>,
- Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>,
- info@mocean-labs.com,
- linux-arm-kernel@lists.infradead.org,
- linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org,
- devicetree@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="3t42j44j7XCiyLoM"
+Content-Disposition: inline
+In-Reply-To: <a579100b-6c38-4fd1-bab3-b1e7663ab412@kernel.org>
+
+
+--3t42j44j7XCiyLoM
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
-Message-Id: <E2D1B484-CBF0-4763-908C-DF293332D2B1@nexthop.ai>
-References: <20260127-i2c-xiic-v6-0-e82e2f6f657c@nexthop.ai>
- <20260127-i2c-xiic-v6-1-e82e2f6f657c@nexthop.ai>
- <20260128-remarkable-airborne-chihuahua-a1a16c@quoll>
- <66c7435c-a936-413e-a016-c860d448c971@amd.com>
- <fc00f8cf-b566-4694-82fe-76010d2f7c78@lunn.ch>
- <aXog-KBw7Bp-VEC4@smile.fi.intel.com>
- <5dc423be-c1f4-4a59-abcc-807f63b25f3f@amd.com>
- <aXoul5n9sA1UmqoS@smile.fi.intel.com>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-X-Mailer: Apple Mail (2.3864.300.41.1.7)
 
-
-
-> On Jan 28, 2026, at 7:43=E2=80=AFAM, Andy Shevchenko =
-<andriy.shevchenko@intel.com> wrote:
+On Wed, Jan 28, 2026 at 04:52:01PM +0100, Krzysztof Kozlowski wrote:
+> On 28/01/2026 16:06, Conor Dooley wrote:
+> > On Wed, Jan 28, 2026 at 02:49:39PM +0200, Andy Shevchenko wrote:
+> >> On Wed, Jan 28, 2026 at 11:35:25AM +0100, Krzysztof Kozlowski wrote:
+> >>> On Tue, Jan 27, 2026 at 10:02:17AM -0600, Danny Kaehn wrote:
+> >>>> On Tue, Jan 27, 2026 at 08:47:48AM -0600, Danny Kaehn wrote:
+> >>>>> This is a USB HID device which includes an I2C controller and 8 GPI=
+O pins.
+> >>>>>
+> >>>>> The binding allows describing the chip's gpio and i2c controller in=
+ DT,
+> >>>>> with the i2c controller being bound to a subnode named "i2c". This =
+is
+> >>>>> intended to be used in configurations where the CP2112 is permanent=
+ly
+> >>>>> connected in hardware.
+> >>>>>
+> >>>>> Signed-off-by: Danny Kaehn <danny.kaehn@plexus.com>
+> >>>>> ---
+> >>>>
+> >>>> Hi Folks (Intended for Rob or Krzysztof),
+> >>>>
+> >>>> Wasn't sure the best way to go about this, but trying to see the best
+> >>>> way to get a message in front of you regarding an ask from Andy S.
+> >>>>
+> >>>> In [1], Rob H initially directed that the gpio chip share a node with
+> >>>> the CP2112 itself, rather than having a subnode named 'gpio'.
+> >>>>
+> >>>> Initially, I did the same thing for both DT and ACPI, but Andy S.
+> >>>> directed that ACPI should not have the node be shared in that way.
+> >>>>
+> >>>> With the last revision of this patch, Andy S. asked that I try to ge=
+t a
+> >>>> rationalle from Rob (or other DT expert presumably) on why the gpio =
+node
+> >>>> should be combined with the parent, rather than being a named subnode
+> >>>> [2].
+> >>>
+> >>> Because it is explicitly asked in writing bindings. Please read it.
+> >>>
+> >>> Because we do not want Linux driver model affecting design of bindings
+> >>> and DTS, by subnodes present only to instantiate Linux drivers. I do =
+not
+> >>> care about driver model in this review and I do not see any reason it
+> >>> should make DTS less obvious or readable.
+> >>>
+> >>> That's actually rule communicated many times, also documented in writ=
+ing
+> >>> bindings and in recent talks.
+> >>
+> >> Does DT represents HW in this case? Shouldn't I=B2C controller be the =
+same node?
+> >> Why not? This is inconsistent for the device that is multi-functional.=
+ And from
+> >> my understanding the firmware description (DT, ACPI, you-name-it) must=
+ follow
+> >> the HW. I don't see how it's done in this case.
+> >=20
+> > The i2c controller should probably be in the same node too, unless it
+> > would cause conflicts between function (e.g. inability to figure out if
 >=20
-> On Wed, Jan 28, 2026 at 04:00:30PM +0100, Michal Simek wrote:
->> On 1/28/26 15:45, Andy Shevchenko wrote:
->>> On Wed, Jan 28, 2026 at 03:34:02PM +0100, Andrew Lunn wrote:
->>>> On Wed, Jan 28, 2026 at 12:21:41PM +0100, Michal Simek wrote:
->>>>> On 1/28/26 11:37, Krzysztof Kozlowski wrote:
->>>>>> On Tue, Jan 27, 2026 at 09:03:55PM +0000, Abdurrahman Hussain =
-wrote:
->>>>>>> The xiic driver is designed to operate without explicit clock =
-configuration
->>>>>>=20
->>>>>> And if you change this in the driver, then you change bindings?
->>>>>>=20
->>>>>> You miss here explanation based on hardware - how does the =
-hardware work
->>>>>> if nothing ticks it clocks?
->>>>>=20
->>>>> Hardware obviously have clock input which needs to be connected. =
-Without it
->>>>> it won't work.
->>>>=20
->>>> Should ACPI potential limitations be making the DT description less
->>>> accurate?
->>>>=20
->>>> Would it not be better that the driver has an DT binding and an =
-ACPI
->>>> binding? Where there are common properties, common functions can be
->>>> used to retrieve them. However, if ACPI lacks usable clocks, use =
-the
->>>> of_ method to get the clock from DT, and skip it for ACPI.
->>>=20
->>> Why should we use of_ methods? If this is required we can check the =
-type of
->>> fwnode and act accordingly, but I think this should go deeper into =
-some
->>> treewide available helpers, because now some drivers repeat the =
-mantra.
->>>=20
->>> But how do the driver get the clock frequency (if needed for some =
-register
->>> settings and/or calculations)? DT seems to have well established =
-property
->>> 'clock-frequency' for that. Can we consider it as "ACPI binding" as =
-well?
->>=20
->> "clock-frequency" property in i2c is used for selecting i2c speed =
-100/400kHz.
->>=20
->> Clock frequency in this driver is about describing clock coming to IP =
-itself.
->> Documentation/devicetree/bindings/i2c/xlnx,xps-iic-2.00.a.yaml
+> This one is the rationale.
 >=20
-> Ah, I see, then is_of_node() probably is the compromise how to deal =
-with
-> this setup.
->=20
+> > a child is a hog or a i2c device). I would like a rationale provided for
+> > why the i2c controller is in a subnode.
 
-Thanks for all the feedback!
+I guess it wasn't clear that I was trying to say that the rationale
+should be provided by the submitter in their patch, and the first
+portion of my comment was trying to mention what has to be considered.
 
-So, if everyone agrees, I can make the changes to:
-
-- Remove the DT bindings change.
-- Make the driver fetch the clock only on OF by checking is_of_node().
-
-Does this sound acceptable?
-
-Best regards,
-Abdurrahman
+> I2C controller will have children, because it is a bus, so moving it up
+> one level would make the entire node I2C bus and that's not only problem
+> for the kernel but actually for reading DT - we expect consistent choice
+> for children, instead of mixing nodes with and without bus-addressing.
+> What's more, if you have two buses you also need separate nodes to group
+> them (obviously).
 
 
+
+--3t42j44j7XCiyLoM
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaXpGSAAKCRB4tDGHoIJi
+0soQAP94RgMAu6RjrAxCdXR4SFJqDk0BCec9Uzh3mtJH5I8sawD7BHDy8qaa2/HE
+AyaKj5MWRRxV3km+nB3lCp0i5LZlogc=
+=8zBE
+-----END PGP SIGNATURE-----
+
+--3t42j44j7XCiyLoM--
