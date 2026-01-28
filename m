@@ -1,174 +1,140 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DE43369993;
-	Wed, 28 Jan 2026 15:03:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86E6D36167D;
+	Wed, 28 Jan 2026 15:07:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769612601; cv=none; b=Ypo4pi5lojDj1p/EbXNdq/+N1oHHB+MwMmmpIUL8UMI6u3SmmuB0puV72rS0/eSDd/Fi+G69LoFL1tBo66pc2kQOluu1cdQrHsHKlUD72G2UlodZeoj7P9J15YKMEnF3L2eWTygMMhHCvs7rqd/G50iOsAFccfwyGTwDzSC8h24=
+	t=1769612825; cv=none; b=JXmlrQaTpVAn09lvpxgBH6EBPDkNt0+LMPhb98nycYe07tuqp382bFGtTayHJcW0W9SIh65c8U5AzSiuAhHBLjB+xVUJpwKXD0GLzJl2grRWBrjRAlUlQtJqMP88mi8GljI24iQCPZpjbAY2VNJLYUqAsEWz9FC6aqQrHxYfNq8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769612601; c=relaxed/simple;
-	bh=QuVKlB6eN8V1XIu3FelRKHG398FLmSIM21NyvBg5vYw=;
+	s=arc-20240116; t=1769612825; c=relaxed/simple;
+	bh=4+Bd/BA2bIwfk/ICQhR8hSgPiwgzJSwgE8pAKiT4amU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ifskQdz8KThZ85ju/0NaAlqwCcZHQLk1oK3Q4FFn4Qazxi+KsbFiNmJjFh3xgXN3wVIfWTii7A4Wdrsz+MWiJqP3vqcEgJYUQFu1NDVYUtXcFqsJkFxvqT5CiJOxLyO/EVWE+mwhWFIgk5e8iyy3POGKamqfb4LLDfYKjjGCkX8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=CD01nf6J; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=BVspy5CySd/3DrCmA5bF8iSQkKDsS7N3BlPiYPYHG3o4BCsCcXD1peEARA1O/ZI6iZ9f+lrmctxcGZ+Ee3Y7lx5+x6OlGEZELYd+WUwGUoYcr6LzYo6jkqyimPT0rkHQ/5tmVYmtGa8Cu8pWn3SE+jVdivtHDUcPbemWLe8KgKA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C84sDqh9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="CD01nf6J"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769612589; x=1801148589;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=QuVKlB6eN8V1XIu3FelRKHG398FLmSIM21NyvBg5vYw=;
-  b=CD01nf6JTQVAD9bFhFLWeRNHKeCOZO6BSr9+7pCPHSM7no5XgXmr8CI5
-   mgiBNb+y1MMrN4gREdlwGTf+Wx+GaB7jwKnb/nTy83nbP7pzCyrtEJJcy
-   SSqCjyfuieV/BKa9H22zWC+elht02Qx87Hs/Sz7Yo2XEzlvs4U1DeVhu4
-   JmaAT/+hUua+Xv8XQp81JsLkfFy4P1ArKZ9fZoTswN4fs2Ck7jFGf3WMR
-   hb6dEP7sInVj2XkgbxI7biQa9svhIHnujA47bgIR5arv8nX/jGOV1AG39
-   hKMwW7T/jI7LllyHbwOQc9JzEferB9hcZ9+yXhM+j4iTxzLdWv7eiKIDo
-   w==;
-X-CSE-ConnectionGUID: kL2vQfAcSE2FRgj1XF6Anw==
-X-CSE-MsgGUID: 1YXmMBvjQ1ytE+Pm4Bc50w==
-X-IronPort-AV: E=McAfee;i="6800,10657,11684"; a="96287143"
-X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
-   d="scan'208";a="96287143"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2026 07:02:53 -0800
-X-CSE-ConnectionGUID: 36iywvRTRNGbF61rZgnJXQ==
-X-CSE-MsgGUID: RmydpcKVS8Cigw5XJGfpMQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
-   d="scan'208";a="213259839"
-Received: from mdroper-mobl2.amr.corp.intel.com (HELO kuha) ([10.124.220.19])
-  by orviesa005.jf.intel.com with SMTP; 28 Jan 2026 07:02:50 -0800
-Received: by kuha (sSMTP sendmail emulation); Wed, 28 Jan 2026 17:02:22 +0200
-Date: Wed, 28 Jan 2026 17:02:22 +0200
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-To: Jeremy Kerr <jk@codeconstruct.com.au>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Matt Johnston <matt@codeconstruct.com.au>,
-	linux-i2c@vger.kernel.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/4] i2c: SMBus ARP support
-Message-ID: <aXokxtlFTeZK8lP8@kuha>
-References: <20260121092328.2308705-1-heikki.krogerus@linux.intel.com>
- <30ad166e2b3d7f10080356ec232e604f3ac9ea2e.camel@codeconstruct.com.au>
- <aXdyll4KVOF6SWni@kuha>
- <6ca4bc87620bb0c2e5bfb264ec88189f32b53757.camel@codeconstruct.com.au>
- <aXjDENOsmWe5_VqS@kuha>
- <189d4a03f32ace3fd995596e8b5415ced6ae9c3a.camel@codeconstruct.com.au>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C84sDqh9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C27D0C4CEF1;
+	Wed, 28 Jan 2026 15:07:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769612824;
+	bh=4+Bd/BA2bIwfk/ICQhR8hSgPiwgzJSwgE8pAKiT4amU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=C84sDqh9jKrZjCQRScQ/rs8J/VwnvAHVaR+sd8+IjH/NLIAyI3ECn2kzsjs8mlmre
+	 E7TES1IOLRBmgbS7U+FM6AUrQecvX7b/jWAcW7WIRHQ8V6MeccbLjLyjFaNdp7MXwk
+	 8TIb+Kc08kuwb69MioP6QV93fSnzaUKVR3lAcfaG8dRRp2ZCITfBlVpCvLwP2WebCP
+	 Asf7G7vlSwowpfUlUOmAEiVSe1s26ZuGAFz1HUQC43qOz0gHMMKxB4e/j7KBpUOW4z
+	 OAtIU96UxjJZkOF7Oh/FcuJi17US4nhN6rMI0HHiZjf5dpy9MSJunOwCnYyvS0TKT7
+	 DTc/DXEigTDJA==
+Date: Wed, 28 Jan 2026 15:06:58 +0000
+From: Conor Dooley <conor@kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>,
+	Danny Kaehn <danny.kaehn@plexus.com>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+	devicetree@vger.kernel.org, linux-input@vger.kernel.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+	Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
+	Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
+	Ting-Kai Chen <tingkaic@nvidia.com>
+Subject: Re: [PATCH v13 1/3] dt-bindings: i2c: Add CP2112 HID USB to SMBus
+ Bridge
+Message-ID: <20260128-pelican-silenced-cd6a5bf69672@spud>
+References: <20260127-cp2112-dt-v13-0-6448ddd4bf22@plexus.com>
+ <20260127-cp2112-dt-v13-1-6448ddd4bf22@plexus.com>
+ <20260127160217.GA3776731@LNDCL34533.neenah.na.plexus.com>
+ <20260128-magnificent-faithful-otter-c4f900@quoll>
+ <aXoF4zi4SZrXaku5@smile.fi.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="bpOAQqhnQbizHtBL"
+Content-Disposition: inline
+In-Reply-To: <aXoF4zi4SZrXaku5@smile.fi.intel.com>
+
+
+--bpOAQqhnQbizHtBL
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <189d4a03f32ace3fd995596e8b5415ced6ae9c3a.camel@codeconstruct.com.au>
+Content-Transfer-Encoding: quoted-printable
 
-Hi Jeremy,
+On Wed, Jan 28, 2026 at 02:49:39PM +0200, Andy Shevchenko wrote:
+> On Wed, Jan 28, 2026 at 11:35:25AM +0100, Krzysztof Kozlowski wrote:
+> > On Tue, Jan 27, 2026 at 10:02:17AM -0600, Danny Kaehn wrote:
+> > > On Tue, Jan 27, 2026 at 08:47:48AM -0600, Danny Kaehn wrote:
+> > > > This is a USB HID device which includes an I2C controller and 8 GPI=
+O pins.
+> > > >=20
+> > > > The binding allows describing the chip's gpio and i2c controller in=
+ DT,
+> > > > with the i2c controller being bound to a subnode named "i2c". This =
+is
+> > > > intended to be used in configurations where the CP2112 is permanent=
+ly
+> > > > connected in hardware.
+> > > >=20
+> > > > Signed-off-by: Danny Kaehn <danny.kaehn@plexus.com>
+> > > > ---
+> > >=20
+> > > Hi Folks (Intended for Rob or Krzysztof),
+> > >=20
+> > > Wasn't sure the best way to go about this, but trying to see the best
+> > > way to get a message in front of you regarding an ask from Andy S.
+> > >=20
+> > > In [1], Rob H initially directed that the gpio chip share a node with
+> > > the CP2112 itself, rather than having a subnode named 'gpio'.
+> > >=20
+> > > Initially, I did the same thing for both DT and ACPI, but Andy S.
+> > > directed that ACPI should not have the node be shared in that way.
+> > >=20
+> > > With the last revision of this patch, Andy S. asked that I try to get=
+ a
+> > > rationalle from Rob (or other DT expert presumably) on why the gpio n=
+ode
+> > > should be combined with the parent, rather than being a named subnode
+> > > [2].
+> >=20
+> > Because it is explicitly asked in writing bindings. Please read it.
+> >=20
+> > Because we do not want Linux driver model affecting design of bindings
+> > and DTS, by subnodes present only to instantiate Linux drivers. I do not
+> > care about driver model in this review and I do not see any reason it
+> > should make DTS less obvious or readable.
+> >=20
+> > That's actually rule communicated many times, also documented in writing
+> > bindings and in recent talks.
+>=20
+> Does DT represents HW in this case? Shouldn't I=B2C controller be the sam=
+e node?
+> Why not? This is inconsistent for the device that is multi-functional. An=
+d from
+> my understanding the firmware description (DT, ACPI, you-name-it) must fo=
+llow
+> the HW. I don't see how it's done in this case.
 
-There seems to be another a bit more severe issue with ARP and
-i2c-dev. Right now it seems that anything that can access the i2c
-character devices can silently (without the kernel having any idea
-what's going on) assign a conflicting address to a dynamically
-addressed ARP-device. Perhaps more importantly, the user space can
-remove access to an ARP-device by silently assigning a new address to
-it or simply by resetting its state with Prepare to ARP.
+The i2c controller should probably be in the same node too, unless it
+would cause conflicts between function (e.g. inability to figure out if
+a child is a hog or a i2c device). I would like a rationale provided for
+why the i2c controller is in a subnode.
 
-That can happen accidentally, but it can also be done intentionally.
+--bpOAQqhnQbizHtBL
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Unless I've missed something, this really is a major threat that we
-have to solve. Right now the only idea that I have is that we simply
-prevent the i2c-dev from using the SMBus Default Address.
+-----BEGIN PGP SIGNATURE-----
 
-Wed, Jan 28, 2026 at 06:28:24PM +0800, Jeremy Kerr wrote:
-> > Uh, no. You should only use interfaces like new_device with the
-> > devices that really can't be detected in kernel, which isn't the case
-> > here.
-> 
-> Who is deciding this "you should only" case? If the facility works, it's
-> suitable. You raise some good points that may mean it is not a suitable
-> approach for an ARP implementation, but we should still make sure we're
-> taking the right approach.
-> 
-> [You seem pretty defensive here? I'm not saying no to the kernel
-> implementation, just doing our homework before agreeing to it]
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaXomEgAKCRB4tDGHoIJi
+0gyjAQDUBw26qDbXJlE2uJALcz1YCTh6ZCxLcS2VBrbZDMkg1gD9Fc8xi3MLZIar
+82GXJjQcBxOsWrBYPqkblpECUrG5ngw=
+=Vctq
+-----END PGP SIGNATURE-----
 
-I'm sorry if I sounded arrogant, it was not my intention. We don't
-control the user space, so we can not rely on it to enumerate devices
-like this. We will not be always even able to wait for user space with
-them. The kernel will also still need to be in full control of the
-device, also with the ARP protocol, in order to deal with things like
-conflicts. So consider for example hotplugged devices that are not
-ARP-capable. If the device has a conflicting address with a
-dynamically addressed ARP-device, then kernel really has to be able to
-assign new address to the ARP-device completely independently.
-
-> > So why would you want involve the user space at all since it would
-> > just add complexity and limitations without any benefits?
-> 
-> Because we have fewer risks implementing this in userspace.
-> 
-> As an example, you currently seem to have a stack information leak in
-> the proposed Get UDID implementation, which would be much less of an
-> issue for the equivalent protocol handling implemented in userspace.
-
-If there are bugs in the code then we need to fix them. Can you please
-comment to the patch that has the problem?
-
-> > - You still need to deliver the UDID to the kernel because of things
-> >   like the PEC flag, and the drivers will also need information from
-> >   it.
-> 
-> That seems like the main reason for requiring a kernel approach, in that
-> we need more information than just the assigned address. It's not
-> possible (at present) to specify the PEC flag through existing
-> interfaces, right?
-> 
-> For me, this would be the deciding factor to go for a kernel approach,
-> in that we otherwise cannot properly describe ARPed devices to the i2c
-> subsystem. We *could* push a new_device with a UDID, but I'm not sure
-> that's a great idea.
-> 
-> > - With the static (not hotplugged) devices you need to assign the
-> >   correct ACPI node (or what ever fwnode) to the ARP-device.
-> 
-> Is that possible at present? how are you planning to represent ARPed
-> devices in the DT - or more importantly, correlate DT (or other fwnode)
-> nodes to discovered devices?
-
-I don't know about DT, but with ACPI the devices are expected to
-either be fixed address devices or just use target address that
-matches to the address in the I2C Serial Bus Connection Resource
-Descriptor. The mapping is not yet done, but the idea is to just
-assign the detected UDID to the i2c-client that was already created
-from the fwnode.
-
-> > - When the device is hotplugged, you would need new ABI, like I think
-> >   you already noticed, but this really does not make any sense. We
-> >   simply don't need it, because the kernel can process this
-> >   information on its own very simply.
-> 
-> Even this "very simple" implementation may have bugs.
-> 
-> Assuming we go with a kernel approach: For the MCTP case, for full ARP
-> support of MCTP endpoints, we would still need to consume a hotplug
-> event that indicates that the device is available at its new address
-> - there is no kernel driver bound for the remote MCTP endpoints. This
-> event would be consumed by the (existing) MCTP infrastructure in order
-> to start MCTP enumeration. Is this something you have looked at
-> already? If so, if you can send an example of an actual event, I will
-> look at the mctpd part of this.
-
-We will have the address attribute file that the user space can use.
-If the address changes uevent will be send it.
-
-thanks,
-
--- 
-heikki
+--bpOAQqhnQbizHtBL--
