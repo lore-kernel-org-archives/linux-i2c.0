@@ -1,33 +1,50 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC7813A1CD;
-	Wed, 28 Jan 2026 14:40:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 881922882CD;
+	Wed, 28 Jan 2026 14:45:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769611218; cv=none; b=V+7OWjG12x73Lr7aBzpA/QcD/1LU20f1mEJyFOwYaTOKCW9lMBOTf/rcTr08CHGCWE+txEd8qJTAdaWE/pwObaC/MoxkYWQyy6bdrZf3fmqHNiAXOvWAzgBBmI3Q6FLYr6wTP83N8ED1MQ0C2icDo4cekWni8/fWqSWtEN8iZx4=
+	t=1769611520; cv=none; b=d6jgaWDKiHyBDbWafMFEzcamekVWtaGOiOr721UMbvFjEVUsmK/RCK3HN/5dE1J/PspxLPLT1HmLkOa2cdXoHNq6e22HnPNiznwczzUmN174ohA89vQgmfkYPGuqMvtSTp4efmXwsEzbAEAF7/Xlkuv7ccraBo+varh1+L37c4s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769611218; c=relaxed/simple;
-	bh=+V397SMOrDC+3Vm5YyGZsLbYiiKsHSTZGmiMS9Hv5tk=;
+	s=arc-20240116; t=1769611520; c=relaxed/simple;
+	bh=/Noec6um4sg420tnSvek85Gdh+vG/B7APWADS2BN5M0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=h7kFPiww7xjrHc8qtYNECe2rMoqW44aDxbF9AIYX1iUk1V+cH4VpxlWgVVFjv8sp352OOchADD/VMUDJY64KDGHzZT1xYCVt7tVoGuDuWLvFEhw3YzNWmnpFGgYQB8kfv523lXlS83pASipvGbL/7mWv5y4boVtIrR/KnP8TPdI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BNz+YEYx; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=BFQJtG590PvHiZ0VjDBvlUvRqkwU1tC4Tte6eRBUrI7H3EyA3YdiJM/8xozXcUuuW7kGy0o6/LkNVJyIFacWweFSorzuseOfRd/rCCTz98nGbJoL2Wh3DBlHBImLQe1SbcnRM5IlQ3o0BKBh0TP2Gs8N1RqaIiWBmrS/EaXq+6I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=YV/0nosc; arc=none smtp.client-ip=198.175.65.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BNz+YEYx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E38B3C4CEF1;
-	Wed, 28 Jan 2026 14:40:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769611218;
-	bh=+V397SMOrDC+3Vm5YyGZsLbYiiKsHSTZGmiMS9Hv5tk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=BNz+YEYxF1GK7BXs8jSLwQ6tQ1HibxFjFu/ueuSYEh0cgIPWocxBbZ0x4z0TQ5xte
-	 JO52DEOQXcciYMuwwFFc5XG0YEhkL2a1Gf6tnfNmcCobrK56aUBPl713yuPlGzHPta
-	 7BB4SbDoMZO6Kj40fS1ukucf5blFXggRNCkyOBNie/PyTqZ3cQ19pSE/DR8YoRVShf
-	 CmlgqFIzj1+HWFWRfjFT6r9yRu4eLDzLqH5/HwtxBSdmkjn/g+dD9/zJ22qACfndqg
-	 Wra50E8Hd0h+sEpJDBLDKpmKXbg+ZlA0cuXyCjErhhv3jk4q3AFx+j95GYRgUj0RqO
-	 rU3XBBRi8hK2g==
-Date: Wed, 28 Jan 2026 14:40:13 +0000
-From: Conor Dooley <conor@kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="YV/0nosc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1769611518; x=1801147518;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=/Noec6um4sg420tnSvek85Gdh+vG/B7APWADS2BN5M0=;
+  b=YV/0nosc+apQunuw97lymYfJEH0YUr7XUPX0xYYge29icHOuz5mmo0r4
+   SdTatftWFdzwZfD794cfqWKCef74ACVb0B/umBTNg0/jQfgVkavmFtPDY
+   qrmaj7Ssl51JeWehHUqQ9vsoT1ZJRRBjeVcylFrhSusl+2/lv5+xY/EsY
+   OmLaq2p7sCG/nSDmptJomFSaj4SoHv+VtQnI/X4o8KDN+4SUpLQX3+SdH
+   M+mSif3+NfECqcVcHX9t0EelJd7gsAOI02Rfz9yZ2RMbsOnrdChtxwJ6h
+   XRa78zAbTnWZLdCCDE5nJvru9QNPO2CMjgkxWcWBi9iCp/2p+vg/FaAYX
+   A==;
+X-CSE-ConnectionGUID: 4s3KWQGESSWOOlQoAj0E3Q==
+X-CSE-MsgGUID: 67Onsne5TVGY76zAEFPvUw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11684"; a="93482243"
+X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
+   d="scan'208";a="93482243"
+Received: from fmviesa007.fm.intel.com ([10.60.135.147])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2026 06:45:17 -0800
+X-CSE-ConnectionGUID: 7dzyFWYbSqCVtXSpEEOFJg==
+X-CSE-MsgGUID: V/JExwARRnaYBRB6yGznUw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,258,1763452800"; 
+   d="scan'208";a="207903992"
+Received: from egrumbac-mobl6.ger.corp.intel.com (HELO localhost) ([10.245.245.57])
+  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2026 06:45:15 -0800
+Date: Wed, 28 Jan 2026 16:45:12 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
 To: Andrew Lunn <andrew@lunn.ch>
 Cc: Michal Simek <michal.simek@amd.com>,
 	Krzysztof Kozlowski <krzk@kernel.org>,
@@ -35,11 +52,10 @@ Cc: Michal Simek <michal.simek@amd.com>,
 	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>, info@mocean-labs.com,
-	Andy Shevchenko <andriy.shevchenko@intel.com>,
 	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
 Subject: Re: [PATCH v6 1/7] dt-bindings: i2c: xiic: make clocks optional
-Message-ID: <20260128-uncivil-precut-84f8e37b7f2c@spud>
+Message-ID: <aXog-KBw7Bp-VEC4@smile.fi.intel.com>
 References: <20260127-i2c-xiic-v6-0-e82e2f6f657c@nexthop.ai>
  <20260127-i2c-xiic-v6-1-e82e2f6f657c@nexthop.ai>
  <20260128-remarkable-airborne-chihuahua-a1a16c@quoll>
@@ -51,60 +67,44 @@ List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="aCmLzXhnGY6FeQEX"
-Content-Disposition: inline
-In-Reply-To: <fc00f8cf-b566-4694-82fe-76010d2f7c78@lunn.ch>
-
-
---aCmLzXhnGY6FeQEX
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <fc00f8cf-b566-4694-82fe-76010d2f7c78@lunn.ch>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
 On Wed, Jan 28, 2026 at 03:34:02PM +0100, Andrew Lunn wrote:
 > On Wed, Jan 28, 2026 at 12:21:41PM +0100, Michal Simek wrote:
-> >=20
-> >=20
 > > On 1/28/26 11:37, Krzysztof Kozlowski wrote:
 > > > On Tue, Jan 27, 2026 at 09:03:55PM +0000, Abdurrahman Hussain wrote:
-> > > > The xiic driver is designed to operate without explicit clock confi=
-guration
-> > >=20
+> > > > The xiic driver is designed to operate without explicit clock configuration
+> > > 
 > > > And if you change this in the driver, then you change bindings?
-> > >=20
-> > > You miss here explanation based on hardware - how does the hardware w=
-ork
+> > > 
+> > > You miss here explanation based on hardware - how does the hardware work
 > > > if nothing ticks it clocks?
-> >=20
-> > Hardware obviously have clock input which needs to be connected. Withou=
-t it
+> > 
+> > Hardware obviously have clock input which needs to be connected. Without it
 > > it won't work.
->=20
+> 
 > Should ACPI potential limitations be making the DT description less
 > accurate?
-
-We absolutely should not be cocking up bindings because ACPI requires
-less complete descriptions.
-
+> 
 > Would it not be better that the driver has an DT binding and an ACPI
 > binding? Where there are common properties, common functions can be
 > used to retrieve them. However, if ACPI lacks usable clocks, use the
 > of_ method to get the clock from DT, and skip it for ACPI.
->=20
->     Andrew
->=20
->=20
 
---aCmLzXhnGY6FeQEX
-Content-Type: application/pgp-signature; name="signature.asc"
+Why should we use of_ methods? If this is required we can check the type of
+fwnode and act accordingly, but I think this should go deeper into some
+treewide available helpers, because now some drivers repeat the mantra.
 
------BEGIN PGP SIGNATURE-----
+But how do the driver get the clock frequency (if needed for some register
+settings and/or calculations)? DT seems to have well established property
+'clock-frequency' for that. Can we consider it as "ACPI binding" as well?
 
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaXofygAKCRB4tDGHoIJi
-0kiCAQDNKNbaUn79Xc6x4BQryiWSp2li7RJKHh5XJCPManEc3QD+JINgu6NOEuXs
-KJEnNeT2aVLtmcNMS0KMi6CR6HkRUgg=
-=YpjJ
------END PGP SIGNATURE-----
+-- 
+With Best Regards,
+Andy Shevchenko
 
---aCmLzXhnGY6FeQEX--
+
