@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C92236405F;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C4B936402B;
 	Thu, 29 Jan 2026 21:43:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769723006; cv=none; b=WBAIUwDS7f7YMkPBHPLDQNImllVNh6RKECdnpIrYWCuTwGBwTMCbdoDnO02d5uEM4qUUSKAGec7e8sv3d9jR49imGfo0Qj2SpilHQje5AM6G1JjlVLosi5FjZ+OAxWRNl7vw2HdIdlBUL2/vidF9VA60PQ+Dtz05EHYn9i8Ocxs=
+	t=1769723006; cv=none; b=U089eMGtHG4xFpGI9YsXpmFVlDSBAbiR6jakPXCbiPckulDb4qbN2NKMvIj5FauLDbqHmyUMFKmpjyWEI4uh0gFNsz3//djZH/DcdZtZtU+bWvOLfCkt7kqGxQ3pCSHAKTJ7CR6yakEc7iBqohCfb22eiU2L1jf3IRKHgujI7Kk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1769723006; c=relaxed/simple;
-	bh=IpG7K26YMbIYlMeNw0cmbfVLcX2DzmYeW2ZXxwHgglM=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=MQt46NyNb2TGkE+kduTX3JM085cHccvv1vrm/ocoJnONSxJ4TYRX6vm57RqxHuc3f2ttRIAvNCOXFFGtrIQ6CYdNWXGTcqrN1oi+DRcq49kcMzBcfTEpZsRDunllbwT9tCAE8fvXtICHl9UY5/WWG+5JTRSpqz1HszPvAg7TGkg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sYL33MXb; arc=none smtp.client-ip=10.30.226.201
+	bh=7smW9wv7mnfx4la6W1Qts9O6kM1lftllC1c0AQLzYw0=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=Hg220pG7YTK3rgEB2D2GaN7FCrqiMvIRjT9HXoPJleLmsRCfUcGx6/4+RmXbix/J4/CuioO1DkCSHxjmy22KiAbkRkcZ4ZGb2hRWhOssrrnXzV8xTTgxqJhtD0d8lJv2c0OdT0U35oWA33Tx+IOl1le6/iDy/UWuLuSMN3NGoIo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O2fX8xji; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sYL33MXb"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id BFCD9C16AAE;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O2fX8xji"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id AE4F1C19421;
 	Thu, 29 Jan 2026 21:43:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1769723005;
-	bh=IpG7K26YMbIYlMeNw0cmbfVLcX2DzmYeW2ZXxwHgglM=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=sYL33MXb3f9GkOtqfM77vPMoYK6szbN6GSOObPKiYrrkp1YfDoX88/BPiMfYU9T6R
-	 HrA3Nu7Jc8pfz7Ks6MB4lpFdRiWxsO6xuSNuUfiLrENpLGD06vhOhNMZVa7fe4BJMU
-	 I/0QZcDyzOHYyNZ2tatvLD3tU91G55JUKyuDgBdJ0KaVV5mzAOrPkB9B54IArOuODi
-	 LO10ob4jWju0JUgQP9EQVnhCel77MVe9lxyqYrFiI0WadxRq1Ll0lBKBfK+COd0lYs
-	 nx9Hu/HmlSQoK5/KtarUmK5mFOxobWU3oA7YHKZQK/sqUVrUwg9BfzD0JsQQlrzs9P
-	 1wqVugwkgbvzw==
+	bh=7smW9wv7mnfx4la6W1Qts9O6kM1lftllC1c0AQLzYw0=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=O2fX8xjiBytJKz1dtLSUIoLjqIENP5rpV5zxiSiewqicWudeffKeUxf4qPOAXl+vm
+	 EApcR21/73tz1mJ2aC3PmvJ4qPQQ7OgSpQoHOpn4+5b/P9Y8XzXf+F1g/nHJ7CgTft
+	 yIoQ5BXSCHZ8abGIMCfCQKkZsL6r+3F41JztREkvD5ZQm6o7Wf/xHYn90iC4OwXkHN
+	 J4uRcB3WuQ1q2EWVcREW82UsV1POteGkTpGK+8t6KI3S4LborYJUPZIpUhcH3FMGrk
+	 leBhZW9YqPmbEa/QqdDTI0+KiDytrx5k5cF9++UIYoaKU2XbSp/Db8/F1ijF+6FPdn
+	 IRQLPl+Y0EIWw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB6FDD73E9B;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 993DED73E9C;
 	Thu, 29 Jan 2026 21:43:25 +0000 (UTC)
 From: Abdurrahman Hussain via B4 Relay <devnull+abdurrahman.nexthop.ai@kernel.org>
-Date: Thu, 29 Jan 2026 21:43:13 +0000
-Subject: [PATCH v7 1/6] i2c: xiic: skip input clock setup on non-OF systems
+Subject: [PATCH v7 0/6] i2c: xiic: use generic device property accessors
+Date: Thu, 29 Jan 2026 21:43:12 +0000
+Message-Id: <20260129-i2c-xiic-v7-0-727e434897ef@nexthop.ai>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -40,22 +40,25 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260129-i2c-xiic-v7-1-727e434897ef@nexthop.ai>
-References: <20260129-i2c-xiic-v7-0-727e434897ef@nexthop.ai>
-In-Reply-To: <20260129-i2c-xiic-v7-0-727e434897ef@nexthop.ai>
+X-B4-Tracking: v=1; b=H4sIAHDUe2kC/3XOTW6DMBCG4atEXteRPf6lq96j6mJsxsWLQGQoo
+ oq4e01WrmiXI83z6nuwmUqmmb1eHqzQmuc8jfVwLxcWBxw/iee+3gwEWCEBeIbIt5wjVwF9l5I
+ h7BSr7/dCKW/P1PtHvVOZbnwZCmETkEYI8NpewSjfcckx9F+l4HDD8W2kbRmm+xXz0RvyvEzl+
+ 7lshaP6x4gVuOBS6WR6pxX50EaOFatqpWqkqpKCi70Go/t0lvo/qavUqCigMlJEOknTSttIU6X
+ 3KC2CdyDjSdpWukbaY60HgmSTNe633Pf9B2Xj/2DJAQAA
+X-Change-ID: 20260122-i2c-xiic-3ba89ff5ea93
 To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
  Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
  Conor Dooley <conor+dt@kernel.org>
 Cc: Andy Shevchenko <andriy.shevchenko@intel.com>, 
  linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
  linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
- Abdurrahman Hussain <abdurrahman@nexthop.ai>
+ Abdurrahman Hussain <abdurrahman@nexthop.ai>, Andrew Lunn <andrew@lunn.ch>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1769723005; l=1542;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1769723005; l=2376;
  i=abdurrahman@nexthop.ai; s=20260119; h=from:subject:message-id;
- bh=6voIA/a0l46cOc5ueYDVp8U+gfCNRwVU2ZoxgHh2Stc=;
- b=uBwWwmjKsmN67KJ/S9Ua6hanWw+GJQYf5zu/W4/drXYAPDqOkwughktr2P0AaBqADRvqAnCOm
- V4MRkqI0US1BbcTMGp7vo1PHJU6tME9zl1ePwNyn+YoiJHIm62Y0GzG
+ bh=7smW9wv7mnfx4la6W1Qts9O6kM1lftllC1c0AQLzYw0=;
+ b=d4ZaXTI8ZTXU3UokV9L94MlJcMelypXusSRQkbs4aKOPqCOI/p+76DFcmQapIHKmR6z4TxqgA
+ FcEf4ua9LK1BFZoBQq2Su5sNs7Yj75FrF6TbpX9Tu0opg7AUPJA2FPa
 X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
  pk=S+ysnf+NwMcBdHBlyKIUEAtaFGSIhQwcJcgcXhq0osg=
 X-Endpoint-Received: by B4 Relay for abdurrahman@nexthop.ai/20260119 with
@@ -63,49 +66,67 @@ X-Endpoint-Received: by B4 Relay for abdurrahman@nexthop.ai/20260119 with
 X-Original-From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
 Reply-To: abdurrahman@nexthop.ai
 
-From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Switch to generic device property accessors.
 
-The xiic driver supports operation without explicit clock configuration
-when clocks cannot be specified via firmware, such as on ACPI-based
-systems. This behavior is implemented in xiic_setclk(), which returns
-early when either i2c_clk or input_clk are zero.
+Switch to managed devm_ functions to simplify error handling.
+
+Skip clock setup on non-OF systems where clock cannot be provided.
 
 Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
 ---
- drivers/i2c/busses/i2c-xiic.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+Changes in v7:
+- Drop the dt-bindings patch.
+- Skip clock setup on non-OF systems.
+- Minor commit body rewording.
+- Applied code-review trailers with `b4 trailers -u`
+- Link to v6: https://lore.kernel.org/r/20260127-i2c-xiic-v6-0-e82e2f6f657c@nexthop.ai
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 28015d77599d..912a94d4d080 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -1423,6 +1423,7 @@ MODULE_DEVICE_TABLE(of, xiic_of_match);
- 
- static int xiic_i2c_probe(struct platform_device *pdev)
- {
-+	struct device *dev = &pdev->dev;
- 	struct xiic_i2c *i2c;
- 	struct xiic_i2c_platform_data *pdata;
- 	const struct of_device_id *match;
-@@ -1464,10 +1465,12 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	mutex_init(&i2c->lock);
- 	spin_lock_init(&i2c->atomic_lock);
- 
--	i2c->clk = devm_clk_get_enabled(&pdev->dev, NULL);
--	if (IS_ERR(i2c->clk))
--		return dev_err_probe(&pdev->dev, PTR_ERR(i2c->clk),
--				     "failed to enable input clock.\n");
-+	if (is_of_node(dev->fwnode)) {
-+		i2c->clk = devm_clk_get_enabled(dev, NULL);
-+		if (IS_ERR(i2c->clk))
-+			return dev_err_probe(&pdev->dev, PTR_ERR(i2c->clk),
-+					"failed to enable input clock.\n");
-+	}
- 
- 	i2c->dev = &pdev->dev;
- 	pm_runtime_set_autosuspend_delay(i2c->dev, XIIC_PM_TIMEOUT);
+Changes in v6:
+- Cosmetic changes to address the comments.
+- Added a patch to use resource format specifier in debug log.
+- Link to v5: https://lore.kernel.org/r/20260126-i2c-xiic-v5-0-88a16a28721c@nexthop.ai
 
+Changes in v5:
+- Reorder the cosmetic patch to be the last in the series.
+- Added a documentation patch to describe the optional clock.
+- Minor commit body rewording.
+- Link to v4: https://lore.kernel.org/r/20260123-i2c-xiic-v4-0-4a3eba3510ce@nexthop.ai
+
+Changes in v4:
+- Reorder the cosmetic patch to be the first in the series.
+- Amend the mutex_init patch to also switch to the managed pm_runtime_
+  variant.
+- Link to v3: https://lore.kernel.org/r/20260123-i2c-xiic-v3-0-eb7cd4254dfb@nexthop.ai
+
+Changes in v3:
+- Reorder the "optional clock" patch to be the first in the series. 
+- Add a patch to switch to devm_mutex_init().
+- Remove dup message in error path.
+- Cosmetic: use temporary dev variable.
+- Link to v2: https://lore.kernel.org/r/20260122-i2c-xiic-v2-0-134f5d743e8b@nexthop.ai
+
+Changes in v2:
+- Split the patch into two independent changes.
+- Added struct device *dev at the top of probe() and remove() to re-use.
+- Switched to device_set_node(...)
+
+---
+Abdurrahman Hussain (6):
+      i2c: xiic: skip input clock setup on non-OF systems
+      i2c: xiic: switch to devres managed APIs
+      i2c: xiic: remove duplicate error message
+      i2c: xiic: switch to generic device property accessors
+      i2c: xiic: cosmetic cleanup
+      i2c xiic: cosmetic: use resource format specifier in debug log
+
+ drivers/i2c/busses/i2c-xiic.c | 98 +++++++++++++++++++------------------------
+ 1 file changed, 42 insertions(+), 56 deletions(-)
+---
+base-commit: 63804fed149a6750ffd28610c5c1c98cce6bd377
+change-id: 20260122-i2c-xiic-3ba89ff5ea93
+
+Best regards,
 -- 
-2.52.0
+Abdurrahman Hussain <abdurrahman@nexthop.ai>
 
 
