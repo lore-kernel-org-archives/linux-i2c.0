@@ -1,181 +1,294 @@
-Received: from codeconstruct.com.au (pi.codeconstruct.com.au [203.29.241.158])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 033AB3A1CD;
-	Thu, 29 Jan 2026 13:43:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.29.241.158
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 554B424887E;
+	Thu, 29 Jan 2026 14:38:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769694219; cv=none; b=gN34pBHcL6rq6i/NVEM3pNwtp9oUa8A7BrLRRp0fG+QMTU0cHuf89wOx5LgvNXssnvXScWMYzXnvcxE9KQi354u1T28IgwmTeFKkfcMekh/akrDaLcAJR2HZL3xotp/KoB//wlt64+Q1avhBTt6PCRdDkr0Mi/cCFSl/diU5nkM=
+	t=1769697534; cv=none; b=KZ5QDEYy2zXD5g9ytOTrHel5p+bSIOMGWDXoy5EAuPaifvZUQtMl3zYqy7GR72O2jsIZFoCouELVMxA5//7lbupxq+iHJtpSUKC/hJsHfreae5rQ8vDN/vjXNjGGa4QVdgdcW47ZhY/ET35dqYpDZsOaokLDwsmyNze841O0QbY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769694219; c=relaxed/simple;
-	bh=mcJS9C87+K5tbv4t1sPnNZdQCMYqgIX5w9Sr9bv0ezE=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=QnHbcjpYZTy/DgpBkhYUr0xZgii/L7lerHaxUP/BD0+Om053Mb+S407G9R+i7B4Dn8speoejC6bAbrJpwME3k+gSXt9HQU0KZOyHU95ZDxpVcGthIRDY55RT2An8WHxU69e0q4ghPJr2EaqTDDSpVZUruCNOPJkH+kIkT2kgA7U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codeconstruct.com.au; spf=pass smtp.mailfrom=codeconstruct.com.au; dkim=pass (2048-bit key) header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.b=BFhh/9Lk; arc=none smtp.client-ip=203.29.241.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codeconstruct.com.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=codeconstruct.com.au
+	s=arc-20240116; t=1769697534; c=relaxed/simple;
+	bh=J0CXaR9Xv5YMEu9lpIeArNADiWmdVJJkiFyMfktIAKM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=D7w1hga87kzXKW1qL7Okj8tZMxnP87G0lQ+yWK9bDhx481ef406okybX3/Kw1qZf3dUIJ+SHjtmPY4i8YXRwE1sRf+uenRxhcsEvWqUZZR7Ma81gxA/BUmqhnE9sXKhIy2ugCTR1CXGbdxMNga2DEYZfHb5PprEU2HOHY27Es94=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WbnsN7PG; arc=none smtp.client-ip=192.198.163.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.b="BFhh/9Lk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=codeconstruct.com.au; s=2022a; t=1769694209;
-	bh=cqbwRhoH+gHh8BHTPN0cIk2URG7raiuuJ2m6fyZxtlE=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=BFhh/9LkLMQ7Ln4nTVx14j4d2BjUoNDuJD71UgERiLDfs039A+QcrkkVhKkshVB6R
-	 dQ8NKbLBxtnWpqSJuRNiDuXY/6oIF5sxl4yndyY41ukTEtnJFTrN/EFpME2Y6xEUJ7
-	 TUcZLFD7uI8BIL0pLzipdjDC3aL7aNnx3hI4DVE4SU2jhLYvH1arCUeMCRqxnQNlo3
-	 0PwScWCFc2Gysr0jtVTEDOCgo/2aSgHpXJ8+sKg+KXFFxNbA/aKnU1LLFpp8iQR1Ly
-	 JVoD6Q0mlFRroY0qauyrVLiYJ1EqLMS+ziAMVcpx4j9Hzcbw3LRDsKKx2NDEZEdN1o
-	 3IcqHy2DsVfrQ==
-Received: from sparky.lan (unknown [159.196.93.152])
-	by mail.codeconstruct.com.au (Postfix) with ESMTPSA id B957960011;
-	Thu, 29 Jan 2026 21:43:27 +0800 (AWST)
-Message-ID: <547a1a5fd7238897b35b26e83ac27db452e6a5f7.camel@codeconstruct.com.au>
-Subject: Re: [PATCH v2 0/4] i2c: SMBus ARP support
-From: Jeremy Kerr <jk@codeconstruct.com.au>
-To: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Matt Johnston
- <matt@codeconstruct.com.au>, linux-i2c@vger.kernel.org,
- netdev@vger.kernel.org,  linux-kernel@vger.kernel.org
-Date: Thu, 29 Jan 2026 21:43:26 +0800
-In-Reply-To: <aXokxtlFTeZK8lP8@kuha>
-References: <20260121092328.2308705-1-heikki.krogerus@linux.intel.com>
-	 <30ad166e2b3d7f10080356ec232e604f3ac9ea2e.camel@codeconstruct.com.au>
-	 <aXdyll4KVOF6SWni@kuha>
-	 <6ca4bc87620bb0c2e5bfb264ec88189f32b53757.camel@codeconstruct.com.au>
-	 <aXjDENOsmWe5_VqS@kuha>
-	 <189d4a03f32ace3fd995596e8b5415ced6ae9c3a.camel@codeconstruct.com.au>
-	 <aXokxtlFTeZK8lP8@kuha>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4-2+deb12u1 
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WbnsN7PG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1769697534; x=1801233534;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=J0CXaR9Xv5YMEu9lpIeArNADiWmdVJJkiFyMfktIAKM=;
+  b=WbnsN7PGJaaFycTLppuna32ETQkIrEvVk+YG19xuRg2JP2cu49r6ZEZC
+   ZZnCVSxz8P01SvT3tcfiP9AVm3iY3fR2I108udZYFYACSUNNzF1dzXGOe
+   kZn5p5X0bszIMDxLpSCSVBEfiveg0fALlxWw4I8egvSLWB9SwV8IEBDAX
+   1jwmcTiq4WxT18uzAWcPafNk5QgdU2BVlEOaqc21/hUKx63CVfPutKaNq
+   vDJm/UhFej2n3rwzdRjgX0qOU2nI7NasUbhbyeEtaRqEc9TyHBdwr3o6D
+   k6m7uvuh3MtIxu7SKQ2xmNiiXCUfshqhlKYLMNIWHBckfWMMjIoLFpPm8
+   A==;
+X-CSE-ConnectionGUID: +Dt0Y6cyQTuzuPO9xDe8Hg==
+X-CSE-MsgGUID: QddSZY1lT5m2ozRhjc7+HQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11686"; a="96401232"
+X-IronPort-AV: E=Sophos;i="6.21,261,1763452800"; 
+   d="scan'208";a="96401232"
+Received: from orviesa005.jf.intel.com ([10.64.159.145])
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2026 06:38:53 -0800
+X-CSE-ConnectionGUID: mQJ0XTNXR/eGlwmM7QaAwA==
+X-CSE-MsgGUID: gW0mzCeKRs2s9OLL4qA+2g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,261,1763452800"; 
+   d="scan'208";a="213552921"
+Received: from klitkey1-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.155])
+  by orviesa005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2026 06:38:49 -0800
+Date: Thu, 29 Jan 2026 16:38:46 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Binbin Zhou <zhoubb.aaron@gmail.com>
+Cc: Binbin Zhou <zhoubinbin@loongson.cn>,
+	Huacai Chen <chenhuacai@loongson.cn>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Andy Shevchenko <andy@kernel.org>, linux-i2c@vger.kernel.org,
+	Huacai Chen <chenhuacai@kernel.org>,
+	Xuerui Wang <kernel@xen0n.name>, loongarch@lists.linux.dev,
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] i2c: ls2x-v2: Add driver for Loongson-2K0300 I2C
+ controller
+Message-ID: <aXtw9h8WUs5H9MgC@smile.fi.intel.com>
+References: <cover.1769476820.git.zhoubinbin@loongson.cn>
+ <402121da829497fc97f1461c8aaa3a44252c3f06.1769476820.git.zhoubinbin@loongson.cn>
+ <aXh000kBfaqd1G9H@smile.fi.intel.com>
+ <CAMpQs4JTqWr6AqRwEO9bcno-_MjjE8GKm_kUvrpy7m_tLMtuSQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAMpQs4JTqWr6AqRwEO9bcno-_MjjE8GKm_kUvrpy7m_tLMtuSQ@mail.gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Hi Heikki,
+On Thu, Jan 29, 2026 at 04:07:06PM +0800, Binbin Zhou wrote:
+> On Tue, Jan 27, 2026 at 4:18 PM Andy Shevchenko
+> <andriy.shevchenko@intel.com> wrote:
+> > On Tue, Jan 27, 2026 at 10:47:57AM +0800, Binbin Zhou wrote:
 
-> There seems to be another a bit more severe issue with ARP and
-> i2c-dev. Right now it seems that anything that can access the i2c
-> character devices can silently (without the kernel having any idea
-> what's going on) assign a conflicting address to a dynamically
-> addressed ARP-device. Perhaps more importantly, the user space can
-> remove access to an ARP-device by silently assigning a new address to
-> it or simply by resetting its state with Prepare to ARP.
->=20
-> That can happen accidentally, but it can also be done intentionally.
->=20
-> Unless I've missed something, this really is a major threat that we
-> have to solve. Right now the only idea that I have is that we simply
-> prevent the i2c-dev from using the SMBus Default Address.
+...
 
-I don't necessarily see this as an issue; access to the chardev somewhat
-implies full access to the i2c bus, and so arbitrary interactions with
-devices to alter device states. Including the i2c address as part of the
-affected state doesn't seem like a huge difference in access.
+> > > +/*
+> >
+> > It's not marked as kernel-doc, but looks very much like that. Why?
+> > Same Q for *all* cases like this.
+> 
+> I didn't intend to mark it in kernel-doc; I just wanted to comment on
+> the variable.
+> Is removing the `@` symbol sufficient?
 
-There may be a specific case that is interesting though:
+But why? If you want it being properly documented, make sure it follows
+the regular format.
 
- - an ARP-able device is in use by a kernel driver, which excludes
-   access through the chardev
+> > > + * struct loongson2_i2c_msg - client specific data
+> > > + * @addr: 8-bit slave addr, including r/w bit
+> > > + * @count: number of bytes to be transferred
+> > > + * @buf: data buffer
+> > > + * @stop: last I2C msg to be sent, i.e. STOP to be generated
+> > > + * @result: result of the transfer
+> > > + */
+> > > +struct loongson2_i2c_msg {
+> > > +     u8 addr;
+> > > +     u32 count;
+> > > +     u8 *buf;
+> > > +     bool stop;
+> > > +     int result;
+> >
+> > Run `pahole` and amend *all* data types accordingly.
+> 
+>  Moving 'stop' from after 'buf' to after 'addr'.
+> >
+> > > +};
 
- - interactions with that device are possible using ARP commands to
-   address 0x61 over the chardev
+...
 
- - so, the device may be re-addressed, now allowing accesses through
-   the chardev
+> After run `pahole`, the structs are reorganized as follow:
+> 
+> pahole --show_reorg_steps --reorganize --sort -C loongson2_i2c_priv
+> i2c-ls2x-v2.o
+> struct loongson2_i2c_priv {
+>         struct i2c_adapter         adapter
+> __attribute__((__aligned__(8))); /*     0  1064 */
+>         /* --- cacheline 16 boundary (1024 bytes) was 40 bytes ago ---
+> */
+>         struct clk *               clk;                  /*  1064
+> 8 */
+>         struct completion          complete;             /*  1072
+> 32 */
+>         /* --- cacheline 17 boundary (1088 bytes) was 16 bytes ago ---
+> */
+>         struct regmap *            regmap;               /*  1104
 
-However, I am not sure there are existing cases where access to the
-chardev is a distinct privilege domain to not just unbind the driver
-anyway.
+It's better to keep pointers like clk and regmap next to each other.
+They are semantically coupled as "resources".
 
-> I'm sorry if I sounded arrogant, it was not my intention.
+> 8 */
+>         int                        speed;                /*  1112
+> 4 */
+>         int                        parent_rate;          /*  1116
+> 4 */
+>         struct loongson2_i2c_msg   msg;                  /*  1120
+> 24 */
+> 
+>         /* XXX last struct has 4 bytes of padding */
+> 
+>         /* size: 1144, cachelines: 18, members: 7 */
+>         /* paddings: 1, sum paddings: 4 */
+>         /* forced alignments: 1 */
+>         /* last cacheline: 56 bytes */
+> } __attribute__((__aligned__(8)));
 
-No problem, just trying to keep things collaborative!
+...
 
-> We don't control the user space, so we can not rely on it to enumerate
-> devices like this. We will not be always even able to wait for user
-> space with them.
+> pahole --show_reorg_steps --reorganize --sort -C loongson2_i2c_msg
+> i2c-ls2x-v2.o
+> struct loongson2_i2c_msg {
+>         u8                         addr;                 /*     0
+> 1 */
+>         bool                       stop;                 /*     1
+> 1 */
+> 
+>         /* XXX 2 bytes hole, try to pack */
 
-Could you give some details on your intended use-case? That might help
-to understand the constraints you're facing.
+>         u32                        count;                /*     4
+> 4 */
+>         u8 *                       buf;                  /*     8
+> 8 */
 
-> The kernel will also still need to be in full control of the
-> device, also with the ARP protocol, in order to deal with things like
-> conflicts. So consider for example hotplugged devices that are not
-> ARP-capable. If the device has a conflicting address with a
-> dynamically addressed ARP-device, then kernel really has to be able to
-> assign new address to the ARP-device completely independently.
+Also think about it (don't blindly follow the `pahole` automatic mode).
+This is much better if you move the pointer to be the first, followed
+by a count, result, and others.
 
-Yeah, managing the bus addressing would definitely be simpler in-kernel.
+>         int                        result;               /*    16
+> 4 */
+> 
+>         /* size: 24, cachelines: 1, members: 5 */
+>         /* sum members: 18, holes: 1, sum holes: 2 */
+>         /* padding: 4 */
+>         /* last cacheline: 24 bytes */
+> };
 
-So I think there's sufficient justification for your approach here, but
-I would have a few requests:
+TL;DR: don't use `pahole` blindly. Use the common sense.
 
- - that ARP is enabled explicitly. I'd be interested in having a DT
-   property on the controller node that allows us to enable ARP on a
-   per-bus basis.
+...
 
-   Otherwise, I'm pretty sure we'll break someone's existing platform
-   by assuming we can start interactions on the SMBus default address.
+> > > +static int loongson2_i2c_wait_free_bus(struct loongson2_i2c_priv *priv)
+> > > +{
+> > > +     u32 status;
+> > > +     int ret;
+> > > +
+> > > +     ret = regmap_read_poll_timeout(priv->regmap, LOONGSON2_I2C_SR2, status,
+> > > +                                    !(status & LOONGSON2_I2C_SR2_BUSY),
+> > > +                                    LOONGSON2_I2C_FREE_SLEEP_US,
+> > > +                                    LOONGSON2_I2C_FREE_TIMEOUT_US);
+> > > +     if (ret) {
+> > > +             dev_dbg(priv->dev, "I2C bus free failed.\n");
+> >
+> > > +             ret = -EBUSY;
+> >
+> > Why?! What's wrong with the error code returned in ret?
+> 
+> I want to indicate the bus busy state if it times out.
 
-   Is there some equivalent facility for ACPI based config?
+This is not an answer. So, why do you remap error code. What's wrong with
+the callee's one?
 
- - I'd need to ensure that the i2c_client doesn't conflict with the MCTP
-   transport's use of the device, post-ARP. I'll get a test setup sorted
-   here, but I think that requires some changes to the controller driver
-   that I'm using.
+> > > +     }
+> > > +
+> > > +     return ret;
+> > > +}
 
-> > > So why would you want involve the user space at all since it would
-> > > just add complexity and limitations without any benefits?
-> >=20
-> > Because we have fewer risks implementing this in userspace.
-> >=20
-> > As an example, you currently seem to have a stack information leak in
-> > the proposed Get UDID implementation, which would be much less of an
-> > issue for the equivalent protocol handling implemented in userspace.
->=20
-> If there are bugs in the code then we need to fix them. Can you please
-> comment to the patch that has the problem?
+...
 
-Of course, yes. I'd just like to sort the structural things before
-dealing with implementation.
+> > Ah, it seems it's a helper. Please, return the error code from it as int and
+> > not irqreturn_t, this will make things clearer.
+> 
+> How about just define it as void:
+> 
+> static void loongson2_i2c_isr_error(u32 status, void *data)
+> {
+> .........
+>         if (status & LOONGSON2_I2C_SR1_ARLO) {
+>          ........
+>                 msg->result = -EAGAIN;
+>                 goto out;
+>         }
+>         if (status & LOONGSON2_I2C_SR1_AF) {
+>            .......
+>                 msg->result = -EIO;
+>                 goto out;
+>         }
+>         if (status & LOONGSON2_I2C_SR1_BERR) {
+>          .........
+>                 msg->result = -EIO;
+>                 goto out;
+>         }
+> 
+> out:
+>         loongson2_i2c_disable_irq(priv);
+>         complete(&priv->complete);
+> }
+> 
+> and in loongson2_i2c_isr_event(), I reference it as:
+> 
+>         if (status & LOONGSON2_I2C_SR1_ITERREN_MASK) {
+>                 loongson2_i2c_isr_error(status, data);
+>                 return IRQ_NONE;
+>         }
 
-> > Is that possible at present? how are you planning to represent ARPed
-> > devices in the DT - or more importantly, correlate DT (or other fwnode)
-> > nodes to discovered devices?
->=20
-> I don't know about DT, but with ACPI the devices are expected to
-> either be fixed address devices or just use target address that
-> matches to the address in the I2C Serial Bus Connection Resource
-> Descriptor. The mapping is not yet done, but the idea is to just
-> assign the detected UDID to the i2c-client that was already created
-> from the fwnode.
+> Its return value is meaningless for loongson2_i2c_isr_event().
 
-OK, but how do you map the UDID to the resource descriptor? I don't know
-much about ACPI, but the descriptor seems to be only keyed on a target
-address, which is now dynamic.
+Works for me.
 
-(same with DT, devices are keyed by target address)
+...
 
-> > Assuming we go with a kernel approach: For the MCTP case, for full ARP
-> > support of MCTP endpoints, we would still need to consume a hotplug
-> > event that indicates that the device is available at its new address
-> > - there is no kernel driver bound for the remote MCTP endpoints. This
-> > event would be consumed by the (existing) MCTP infrastructure in order
-> > to start MCTP enumeration. Is this something you have looked at
-> > already? If so, if you can send an example of an actual event, I will
-> > look at the mctpd part of this.
->=20
-> We will have the address attribute file that the user space can use.
-> If the address changes uevent will be send it.
+> > > +     u32 possible_status = LOONGSON2_I2C_SR1_ITEVTEN_MASK;
+> >
+> > Split assignment...
 
-Sounds good, but for MCTP there is no struct device bound to the remote
-i2c device/address. Are you proposing we change that?
+> > ...to be here, which improves readability (no need to go somewhere up in
+> > the code to see what this is about.
+> 
+> ok, I will put  `possible_status = LOONGSON2_I2C_SR1_ITEVTEN_MASK;` here.
+> 
+> > > +     /* Update possible_status if buffer interrupt is enabled */
+> > > +     if (ien & LOONGSON2_I2C_CR2_ITBUFEN)
+> > > +             possible_status |= LOONGSON2_I2C_SR1_ITBUFEN_MASK;
 
-Cheers,
+I expect something like this:
+
+		/* Update possible_status if buffer interrupt is enabled */
+		possible_status = LOONGSON2_I2C_SR1_ITEVTEN_MASK;
+		if (ien & LOONGSON2_I2C_CR2_ITBUFEN)
+			possible_status |= LOONGSON2_I2C_SR1_ITBUFEN_MASK;
+
+...
+
+> > > +     strscpy(adap->name, pdev->name, sizeof(adap->name));
+> >
+> > 2-arguments version is even better.
+> 
+> Sorry, I'm not quite sure what you mean by `2-arguments version.`
+
+Use 2 arguments instead of 3. I.o.w. just drop the third argument.
+
+-- 
+With Best Regards,
+Andy Shevchenko
 
 
-Jeremy
