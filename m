@@ -1,253 +1,161 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF7CB3081BD;
-	Fri, 30 Jan 2026 07:26:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 311802F8BD0;
+	Fri, 30 Jan 2026 07:53:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769757993; cv=none; b=UdYZKI+n7b2E62sgOZhk1yjYdi4Tye6Td9nVazg46dpjTkk/mBytpDHGMtSRS9CbHV3b8Vcq8tjf2QFMwxUfrsh7uDWbQ5KsxRwxPhjoiLec8BkuoT0Tyai2ozs3PuMAHOWtc94MLtmt6YuMt7LNl4Q8kwMQGoHpOBo37Zl/AeY=
+	t=1769759594; cv=none; b=Db+GxLsPIN/xl/n+d1W/rj8f45Ii8K5j3EveAJAXMsFlWvbyGvfV+Pa3hl4qKSy6BbHvWOkpX/UOgOjlhvROelD+sREQJxY6wfT4IUjaExLXInKN6b0p4ICWw5pC0HSf0tOBcDg7AgOsByFC00v/q81UfLxcgBBmP/FsDH2KCss=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769757993; c=relaxed/simple;
-	bh=Lb6IQKDZ1FpcpnxnPG/csOeSSZKW4yVl6L5kiRVWdUQ=;
+	s=arc-20240116; t=1769759594; c=relaxed/simple;
+	bh=N+XzgfavOWTt7osrny+ea51lBffcN2kQA5aqYOJwhhg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Txs12e01YuDLl2QIo07DRHa4F38+U5wI3hE8z4qHNB+ptNcZEwQRzugK2Cl1OXLY5sKYl82fSn8Nlu0pj7AxFHXfDD6ikmk6jci5WaN9bqJxdnY2BA1T9CZem6GonS8YXYjARGto5nrTODTAk4Ldzdsoe594q9n2FYFN62Y12uU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gP9HBAU/; arc=none smtp.client-ip=192.198.163.17
+	 Content-Type:Content-Disposition:In-Reply-To; b=CnMlZMBCT8WBXPk4+xeU0/aBcY03Z7w7HAVO4/B+d2ccc8qEizaQHUzDB8RwwA7Qs/2c/saa7Gi6xwpePKQ2GUqkJwkIHwzB/b9TlG+fzyE2PyTwxBT76dVdWsaLKQhebF17z7WvgcSADw92lgmtZPM+Gk3wvCcOXOVPRtWG8vY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=e0IgF1zm; arc=none smtp.client-ip=192.198.163.11
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gP9HBAU/"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="e0IgF1zm"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769757991; x=1801293991;
+  t=1769759593; x=1801295593;
   h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Lb6IQKDZ1FpcpnxnPG/csOeSSZKW4yVl6L5kiRVWdUQ=;
-  b=gP9HBAU/sOSQYKx/asu4XSkjxODjcWSklacGl9fy03TBBTYree5FffhZ
-   0U2xTpSMwxLY+cCaGtRxKiOaikYEsClAYyIdK76qubX61wIWMK8ThAdll
-   vfsVdPNOnluzmqlnVpghOXZ0r+N9EBU+ntje95vsUZ9sQToLS8z/2vX+3
-   j/n8+R3i8dQoEsHzbZy2z6EAnlfGqZa50sEnmqrMUQJTin+klVH52vAeV
-   E477lQ8OvorlCH+4l0fOlz90atLv4ji32pLipFNZhFSAhiDR0jWih3E8i
-   CtxrKvo7ne1u9lXkDa9YGiMJnXFya2hUOdNZs0+RCUv3WpcvwS00KQYa0
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=N+XzgfavOWTt7osrny+ea51lBffcN2kQA5aqYOJwhhg=;
+  b=e0IgF1zm451RjgDhf2hsQzhPYjv7/hT3wSD4srTRae7sDRWKy5pYd3aM
+   KelCvCDcFno5dpmvvF9OFQXIMYHcLWgTNFgYAv5LtE4LTlu+B1rJU5FQc
+   E8Ank6uG6Za/E06ePPz+bmVh0U9YmrNFaBiTMINWh2jfD3gE38oVx2OeR
+   72WRSWtY69O+Vm9zkph/FuUVF26WhQTp9H9sjrpY/xbE8R/uznJ7r9a/I
+   U+OIR/Q807wZ+/w4Z5QF0uignRP6qmf4f7KQ1bmhG6/Alg2Y0w5a3ro1D
+   AwMmFw9UJm7SZpi7vFaYd6VsULNDSnqmmZlqbfIPxXy2u+h4Rewl89SRF
    A==;
-X-CSE-ConnectionGUID: yi/I4Zd2SoSKXYUlkjUljA==
-X-CSE-MsgGUID: 7hMLr+WYTomIL9UGJkGzLQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11686"; a="70912402"
+X-CSE-ConnectionGUID: dr1LMaVxQmaHCfHGl13jPA==
+X-CSE-MsgGUID: zOmMK3WyRQuSsPnDZn7i3Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11686"; a="81642347"
 X-IronPort-AV: E=Sophos;i="6.21,262,1763452800"; 
-   d="scan'208";a="70912402"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2026 23:26:31 -0800
-X-CSE-ConnectionGUID: P8a5reU+SLe8t2+GKf86RA==
-X-CSE-MsgGUID: qthRW0+QRJiQYqwWrYWmTw==
+   d="scan'208";a="81642347"
+Received: from fmviesa007.fm.intel.com ([10.60.135.147])
+  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2026 23:53:12 -0800
+X-CSE-ConnectionGUID: aLY2uB+aRhi8535KZgPeyw==
+X-CSE-MsgGUID: t67pp0MMQ4+qux+BXtDumg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.21,262,1763452800"; 
-   d="scan'208";a="208034489"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by orviesa010.jf.intel.com with ESMTP; 29 Jan 2026 23:26:22 -0800
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id DBD8495; Fri, 30 Jan 2026 08:26:20 +0100 (CET)
-Date: Fri, 30 Jan 2026 08:26:20 +0100
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: correctmost <cmlists@sent.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	dmaengine@vger.kernel.org, regressions@lists.linux.dev,
-	vkoul@kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [REGRESSION][BISECTED] Lenovo IdeaPad touchpad does not work
- when idma64 is present in initramfs
-Message-ID: <20260130072620.GW2275908@black.igk.intel.com>
-References: <aW9LzBIOIePu59zV@smile.fi.intel.com>
- <d7627ea0-0965-4469-83c2-e2a15edd58a9@app.fastmail.com>
- <aXnYJQJW4wypkkPC@smile.fi.intel.com>
- <0d93a56c-e452-4cd0-abb4-09c9f916274a@app.fastmail.com>
- <20260128123135.GM2275908@black.igk.intel.com>
- <e94cc7af-4696-4ea6-8231-26f693272004@app.fastmail.com>
- <20260129065837.GT2275908@black.igk.intel.com>
- <513c490f-c433-4298-ae66-6e165aa7b299@app.fastmail.com>
- <20260129115609.GV2275908@black.igk.intel.com>
- <7d966d39-aa5a-4a0f-a115-a4b90632a26c@app.fastmail.com>
+   d="scan'208";a="208391437"
+Received: from egrumbac-mobl6.ger.corp.intel.com (HELO localhost) ([10.245.245.227])
+  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Jan 2026 23:53:08 -0800
+Date: Fri, 30 Jan 2026 09:53:06 +0200
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Danny Kaehn <danny.kaehn@plexus.com>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Jiri Kosina <jikos@kernel.org>,
+	devicetree@vger.kernel.org, linux-input@vger.kernel.org,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+	Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
+	Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
+	Ting-Kai Chen <tingkaic@nvidia.com>
+Subject: Re: [PATCH v13 2/3] HID: cp2112: Fwnode Support
+Message-ID: <aXxjYtiZnSX-wEUh@smile.fi.intel.com>
+References: <20260127-cp2112-dt-v13-0-6448ddd4bf22@plexus.com>
+ <20260127-cp2112-dt-v13-2-6448ddd4bf22@plexus.com>
+ <aXkawwpmLW7m4Fu8@smile.fi.intel.com>
+ <20260129183650.GA1419235@LNDCL34533.neenah.na.plexus.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <7d966d39-aa5a-4a0f-a115-a4b90632a26c@app.fastmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260129183650.GA1419235@LNDCL34533.neenah.na.plexus.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Thu, Jan 29, 2026 at 08:06:29AM -0500, correctmost wrote:
-> On Thu, Jan 29, 2026, at 6:56 AM, Mika Westerberg wrote:
-> > On Thu, Jan 29, 2026 at 02:20:22AM -0500, correctmost wrote:
-> >> >> > Can you next apply the below patch (only that one) and try? Any test case
-> >> >> > where it reproduces is good. The provide again full dmesg. While at it can
-> >> >> > you enable CONFIG_PRINTK_TIME=y so we can also get timestamps to the dmesg.
-> >> >> 
-> >> >> Full log attached with the added debug prints and timestamps
-> >> >
-> >> > Thanks! Okay so the interrupt is active immediately when the LPSS probes.
-> >> > One thing that could explain this is that the IO-APIC is misconfigured to
-> >> > have the polarity reversed. Can you boot with "apic=debug" in the kernel
-> >> > command line so that it dumps the entries and provide again full dmesg?
-> >> 
-> >> Sure, full log attached
-> >
-> > Thanks! The IO-APIC configuration seems fine too. I also compared with my
-> > MTLP based reference system and it shows the same (but my system does not
-> > have this issue).
-> >
-> > Let's add even more debug. Can you replace the previous hack patch with the
-> > below.
-> >
-> > You can drop the "apic=debug" from the command line but can you add
-> > acpi.dyndbg=+p" instead.
-> >
-> > Then also enable CONFIG_PCI_DEBUG=y.
+On Thu, Jan 29, 2026 at 12:36:50PM -0600, Danny Kaehn wrote:
+> On Tue, Jan 27, 2026 at 10:06:27PM +0200, Andy Shevchenko wrote:
+> > On Tue, Jan 27, 2026 at 08:47:49AM -0600, Danny Kaehn wrote:
+
+...
+
+> > I'm wondering if we can avoid this (additional) check and use the result of one
+> > of the branches.
 > 
-> Full log attached.  (I also set CONFIG_LOG_BUF_SHIFT=24 to handle the extra dmesg output.) 
+> Meaning something like using the result of acpi_get_local_address() to
+> determine whether the node is ACPI vs. not? That is what it used to do,
+> before I needed to switch to different schemas for DT vs. ACPI. Now, it
+> doesn't really make sense to use the child node types to determine
+> whether the GPIO node is shared, but still possible if we store a bool
+> result from the *_for_each_child_node() loop, but needs more complex
+> logic to store that based on each child's type (and the loop is fully
+> unnecessary for the non-ACPI case anyways).
+> 
+> Following the discussion on the DT binding thread, do you still want
+> ACPI to follow this different schema with the separate GPIO child node,
+> or would you prefer to unify them?
 
-Thanks! Unfortunaly I can't still spot anything that could cause this
-behaviour :-/
+Wouldn't it be a bit messy if we combine main Device object with the GPIO
+and leave I²C as a separate node? Besides that it seems already established
+practice to have GPIO + I²C controllers separated based on _ADR (see Intel
+Galileo case, drivers/mfd/intel_quark_i2c_gpio.c). Even if we can combine
+I prefer to use the existing schema to have less animals in the zoo, for
+the consistency's sake.
 
-Lets try this: block LPSS runtime PM. I know you did it in the past but
-this one does it slightly differently (you commented out the ops, this one
-prevents the LPSS from runtime suspending). Can you replace previous hack
-patch with the below?
+...
 
-diff --git a/drivers/dma/idma64.c b/drivers/dma/idma64.c
-index d147353d47ab..9c06b137ed0b 100644
---- a/drivers/dma/idma64.c
-+++ b/drivers/dma/idma64.c
-@@ -6,6 +6,7 @@
-  * Author: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-  */
- 
-+#define DEBUG
- #include <linux/bitops.h>
- #include <linux/delay.h>
- #include <linux/dmaengine.h>
-@@ -171,6 +172,8 @@ static irqreturn_t idma64_irq(int irq, void *dev)
- 	u32 status_err;
- 	unsigned short i;
- 
-+	dev_dbg_ratelimited(idma64->dma.dev, "status=%#x\n", status);
-+
- 	/* Since IRQ may be shared, check if DMA controller is powered on */
- 	if (status == GENMASK(31, 0))
- 		return IRQ_NONE;
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 5b1e8f74c4ac..6be3ce3edd4b 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -772,12 +772,17 @@ static int i2c_dw_runtime_suspend(struct device *device)
- {
- 	struct dw_i2c_dev *dev = dev_get_drvdata(device);
- 
-+	dev_info(device, "runtime suspend start\n");
-+
-+
- 	if (dev->shared_with_punit)
- 		return 0;
- 
- 	i2c_dw_disable(dev);
- 	i2c_dw_prepare_clk(dev, false);
- 
-+	dev_info(device, "runtime suspend finished\n");
-+
- 	return 0;
- }
- 
-@@ -794,11 +799,15 @@ static int i2c_dw_runtime_resume(struct device *device)
- {
- 	struct dw_i2c_dev *dev = dev_get_drvdata(device);
- 
-+	dev_info(device, "runtime resume start\n");
-+
- 	if (!dev->shared_with_punit)
- 		i2c_dw_prepare_clk(dev, true);
- 
- 	dev->init(dev);
- 
-+	dev_info(device, "runtime resume finished\n");
-+
- 	return 0;
- }
- 
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 45bfca05bb30..7461254ec863 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -10,6 +10,7 @@
-  */
- 
- #define DEFAULT_SYMBOL_NAMESPACE	"I2C_DW"
-+#define DEBUG
- 
- #include <linux/delay.h>
- #include <linux/err.h>
-@@ -756,6 +757,7 @@ static irqreturn_t i2c_dw_isr(int this_irq, void *dev_id)
- 
- 	regmap_read(dev->map, DW_IC_ENABLE, &enabled);
- 	regmap_read(dev->map, DW_IC_RAW_INTR_STAT, &stat);
-+	dev_dbg_ratelimited(dev->dev, "enabled=%#x stat=%#x\n", enabled, stat);
- 	if (!enabled || !(stat & ~DW_IC_INTR_ACTIVITY))
- 		return IRQ_NONE;
- 	if (pm_runtime_suspended(dev->dev) || stat == GENMASK(31, 0))
-diff --git a/drivers/mfd/intel-lpss-pci.c b/drivers/mfd/intel-lpss-pci.c
-index 8d92c895d3ae..b2d387080619 100644
---- a/drivers/mfd/intel-lpss-pci.c
-+++ b/drivers/mfd/intel-lpss-pci.c
-@@ -81,14 +81,14 @@ static int intel_lpss_pci_probe(struct pci_dev *pdev,
- 		return ret;
- 
- 	pm_runtime_put(&pdev->dev);
--	pm_runtime_allow(&pdev->dev);
-+//	pm_runtime_allow(&pdev->dev);
- 
- 	return 0;
- }
- 
- static void intel_lpss_pci_remove(struct pci_dev *pdev)
- {
--	pm_runtime_forbid(&pdev->dev);
-+//	pm_runtime_forbid(&pdev->dev);
- 	pm_runtime_get_sync(&pdev->dev);
- 
- 	intel_lpss_remove(&pdev->dev);
-diff --git a/drivers/mfd/intel-lpss.c b/drivers/mfd/intel-lpss.c
-index 63d6694f7145..b82a22e5977f 100644
---- a/drivers/mfd/intel-lpss.c
-+++ b/drivers/mfd/intel-lpss.c
-@@ -501,6 +501,8 @@ static int intel_lpss_suspend(struct device *dev)
- 	struct intel_lpss *lpss = dev_get_drvdata(dev);
- 	unsigned int i;
- 
-+	dev_info(dev, "supend started\n");
-+
- 	/* Save device context */
- 	for (i = 0; i < LPSS_PRIV_REG_COUNT; i++)
- 		lpss->priv_ctx[i] = readl(lpss->priv + i * 4);
-@@ -513,6 +515,8 @@ static int intel_lpss_suspend(struct device *dev)
- 	if (lpss->type != LPSS_DEV_UART)
- 		writel(0, lpss->priv + LPSS_PRIV_RESETS);
- 
-+	dev_info(dev, "supend finished\n");
-+
- 	return 0;
- }
- 
-@@ -521,12 +525,16 @@ static int intel_lpss_resume(struct device *dev)
- 	struct intel_lpss *lpss = dev_get_drvdata(dev);
- 	unsigned int i;
- 
-+	dev_info(dev, "resume started\n");
-+
- 	intel_lpss_deassert_reset(lpss);
- 
- 	/* Restore device context */
- 	for (i = 0; i < LPSS_PRIV_REG_COUNT; i++)
- 		writel(lpss->priv_ctx[i], lpss->priv + i * 4);
- 
-+	dev_info(dev, "resume finished\n");
-+
- 	return 0;
- }
- 
+> > > +		device_for_each_child_node(&hdev->dev, child) {
+> > 
+> > If we are still use the above check it will be dev_fwnode() duplication call,
+> > so perhaps a temporary variable to collect the device's fwnode and use it
+> > there, below (see below), and here as for
+> > 
+> > 		fwnode_for_each_child_node()
+> 
+> 
+> Makes sense, will update. I initially assumed we wanted to use the
+> "device_*" API wherever possible.
+
+Yes, but use a common sense. If we have fwnode already available, why should we
+still use device_*()?
+
+> > > +			ret = acpi_get_local_address(ACPI_HANDLE_FWNODE(child), &addr);
+> > > +			if (ret)
+> > > +				continue;
+> > > +
+> > > +			switch (addr) {
+> > > +			case CP2112_I2C_ADR:
+> > > +				device_set_node(&dev->adap.dev, child);
+> > > +				break;
+> > > +			case CP2112_GPIO_ADR:
+> > > +				dev->gc.fwnode = child;
+> > > +				break;
+> > > +			}
+> > > +		}
+> > > +	} else {
+> > 
+> > I would still check if this is a proper (OF) node, in case we stick with the
+> > ACPI check above. Because we might have swnode and if it triggers, it will be
+> > really something unexpected.
+> >
+> > 	} else if (is_of_node(fwnode)) {
+> 
+> Wouldn't it be valid to use software nodes to describe the
+> CP2112's functions? Is there any reason to intentionally prevent that?
+
+swnode:s are for quirks. I hope in this case we won't see them IRL.
+In any case, let's enable them when we will have the case.
+
+> > > +		child = device_get_named_child_node(&hdev->dev, "i2c");
+> > > +		device_set_node(&dev->adap.dev, child);
+> > > +		fwnode_handle_put(child);
+> > > +	}
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
