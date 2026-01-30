@@ -1,239 +1,157 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56130345CD3
-	for <linux-i2c@vger.kernel.org>; Fri, 30 Jan 2026 15:52:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8E04339861
+	for <linux-i2c@vger.kernel.org>; Fri, 30 Jan 2026 16:44:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769788368; cv=none; b=CHkdTpFFE0c/bvdZ9vQqWlaQdWhhoptid0w3PeF40PrxbUz5C4kQHWthZ3lR2nYRpAztNGBuC1T8olMUfr9NiofOouy3k1jKpmHBqOEXdnbfPxtQQY8q9Y0G8j8PVNG0hSEvr/3HJ2aJGG2mbbWKZWD6i4NcfdUg06jjGSsZ5eo=
+	t=1769791466; cv=none; b=iVjrda24eOTVkEIhckU34PCdXqDGk1SrgKmYBZKV0YxlVw2YNl9jFpOAkQ6oGEzYwkO4LtMSAP8V8WQR9DYPNWdchElV6rlaBhey9rHqJaCFqBCW5BdVQe5UGfzVTD0zCSNvhTfjvx+/sBtz7Xf/GI8J6jh+T5vc3diVAaIDYCg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769788368; c=relaxed/simple;
-	bh=AakYswf0PURP85z0cKZMM2azCbtWXH9wUNMFsYSILi4=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=TMCmWylipTUYHka3fEkfqx8UhYNFsaEaGTyjhsRWmoeYTau3x1FeTTnhM88NOPeftPUuTKKjySjHxJOknkYfSZgR9JZ7iYEU9beUvDDGGy+hAiO0ZU4vFpSsObiEYzM2VugUnBDufXwDBJDzik7d/2Yr+s4y8x79tTL5MxP+rgg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=d6tdWlCU; arc=none smtp.client-ip=185.246.85.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1769791466; c=relaxed/simple;
+	bh=yez3OppoYEvzvHqgPP8Op7queq7voD/wLWYBFRMWLBg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=LHZ6uauukOh6AICChgtpdpFfwCd9ZS9BzAEpLbfrFV/2h55GDTaT9JQpDCmCKT/GDkT6s7HgfapQ6sQkcEwxuprnOvg767Ni0TM20qVKTHaJkZq6NipZbrpx2lX21mMZ6il4uf/bAtseQ9m01k1ngLM92P40EIhWfxXON6s9Yfo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=m2qblr0o; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=LiJNUhhN; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="d6tdWlCU"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 0521E4E42358;
-	Fri, 30 Jan 2026 15:52:45 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id D040E6075A;
-	Fri, 30 Jan 2026 15:52:44 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id A4678119A888B;
-	Fri, 30 Jan 2026 16:52:42 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1769788364; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=H6502f9v+m0yfsRyGf4npsshP4GW5USO0fLVkUBO4xU=;
-	b=d6tdWlCUq0L+of1UgzhZus0rG611KWeyUxvBE45NDoc2fIBKPrbBmYZOtAghOxihZESxJe
-	NWlHToqDuffPYOVDX/7uR9rJ/nuXFr6K8s1PKMw33u4mpHQuTK4BDfzySs2wfS3m6iWpxk
-	XyKW2M2/GQn1EzpGlImDxAIdeeh2urRLGjK8g0tKehKQRv/of65/fNfMoGIshDZ9xMueBD
-	SxmpUQIpC471/oxUz9B7taN8PAgA9+rO9iqUEsL0xDhdBQ44P9BLDf56BfkBHH0nxcejEa
-	LiZWlT12SujzD8dehI2RZLZNjlCwg+FjbVn2BjKw/9lPlKMSFC5GwZU51B6jMw==
-From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-Date: Fri, 30 Jan 2026 16:52:31 +0100
-Subject: [PATCH v6 3/3] i2c: designware: Support of controller with
- IC_EMPTYFIFO_HOLD_MASTER disabled
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="m2qblr0o";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="LiJNUhhN"
+Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 60UAwCm11489610
+	for <linux-i2c@vger.kernel.org>; Fri, 30 Jan 2026 16:44:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	Pb5P25J2+yJr3aAp+kbXRtjGFi3YnmIjvMmocPYH8eU=; b=m2qblr0oNwVVtmR9
+	TodGEmHOfngaCo4QwGnQUdtX5YvzULPmU4WsunCr/24aceVWQxm95tJvp1V1omT6
+	PHyirxWgYzuRNogwJq8DnyEE2g72PknMs4u5YsAZDjnoarplAjtAn/Uz4s2/uVxN
+	6TrhMZ1/MRm+nZkl0VX4UkfCv1TkM1IEc1h+To9kc1O4pJGyfk2YxlW3J3koeCwd
+	6fjm+zEBwPWaMdKDdSv8Y69BcuWKzuC6R3xdK3QjVIpUAZuupIHTq/QwT6Dj/WOk
+	SREFlBjjd1sx2j7EOUgJMpYZOtWysykIeW/u4ZA4K5e5A5cRH3FSvjDSOkTs2aCF
+	RrDa8g==
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c0bp3uxxx-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Fri, 30 Jan 2026 16:44:24 +0000 (GMT)
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2a79164b686so24536705ad.0
+        for <linux-i2c@vger.kernel.org>; Fri, 30 Jan 2026 08:44:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1769791463; x=1770396263; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Pb5P25J2+yJr3aAp+kbXRtjGFi3YnmIjvMmocPYH8eU=;
+        b=LiJNUhhNAN2F8A1n3E/Nnmska7DDhGOooQssq0++qeR9LbjFve5dwP+t0ee9vPWBw8
+         Je9w1L/X2m2gZRdfbf9yfGe6JuGe4ATwwSk5UZY0woJv+sco/F+idHDTVX9FrF3wEzdK
+         h1EEq2nWU6imAOqre4Nvu3ugcSx5ZdBysCiwzf6raUpluYaAHumaBd38FMcXMYV8UNJu
+         Exdk3FfVS9sBzD7O/869WcmJT22bQT7OXC0hvEBV1/MmE0bZof8rk3UKm6oOAWhxdU57
+         kSlosPswWptDIdgsZFpJbOnP5/DWBHHdZGYiLkYGYZZNDUc0qKLWeTgq14+Ns59W/1Do
+         /w4A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1769791463; x=1770396263;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Pb5P25J2+yJr3aAp+kbXRtjGFi3YnmIjvMmocPYH8eU=;
+        b=Y4nbaGo3skpx+F8Rr+qoAalsQOgF3BuypbhVkXHQ49kkGyLBJJb8mvhDlAUWuEYJ4Q
+         KAxRAPkzno7ZEwDheiDL6X7BCDT22jV+sjDFfOMsPvx3HIozYsV8BZPo2bSN7EYcRv/K
+         1BZTMQMTa15sihcA+1KDSWNwTw6VadGHAmWu/gWnKn9bLLAw/j1lYaahS6PclJodbZj3
+         UttYlbVQ1WfwESjYqo3tDWhXn3TaRT6gHQHWid9JpvSn0MZFWtp6b2WaWNYLa7137301
+         ifoATkAb2OcJ2c1OzG+JgTAe9B5iP7gZjOZrgUCh2YPT5X8/FtmXd8/gkkqjNekGJS6y
+         WowQ==
+X-Forwarded-Encrypted: i=1; AJvYcCU72OJPpZXXoqcYgbOONEMgoXzDFYy76CiMSkImLhb5CiotJvlOalmna+sL1J3BLa7dUu8QrA2XOmY=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzdzUDQF2jMyzPd4abjEe8acxbOwdpSj2byPtSfCoHcF6Gi+KUW
+	SfL1sRVpvphlqYHL/Z/FL/t9p4ckqua3wTsb/2NXZjkuzexvAGM7+KA3pTi/BRaahKa05WCkX4A
+	xkZLWI56Xy4+TQozx2SI/PBZTZCwCsjAkkIZiJfPU//TfaQe3mg0PM0xd7uuX86U=
+X-Gm-Gg: AZuq6aIts3miAUhv0jyhg2MkjqprL/0Sc2UfknE8i4p6NhqUAHDY+2FOQInV1ojFhMY
+	NfoiiUqWM79lPBVVJMsCs0brN4RFgpE0cAtvCRUg0K63ksSIjErH0Kg2TkFxrlCnk/KsNO2TB7h
+	epLcwHK7Qw5i7aMrXLfHwNqPIO05U9YtPTh2qD2/j7VJFWaXNsIsnrC+/QmO/5SQj0QH3nbqktP
+	byR5sx5G6GDgiOD6qITydpPebCu4E31cVTFm6qosp1It3Yelkyx5ZNpPV2uNsS2GOCdxCEgjwjT
+	fpJ62vcy034D2Nc0EcNIVYaxVOKB3zvfzYcRhh5EO5Xaqlw8lwbAvVluFg9Auas8cgVsdOr29wI
+	jkdzugEWr4I0z7MUiNGorz3jgA4brCua1cNK8tmKX
+X-Received: by 2002:a17:902:ef43:b0:296:2b7a:90cd with SMTP id d9443c01a7336-2a8d990aaebmr36989185ad.32.1769791463350;
+        Fri, 30 Jan 2026 08:44:23 -0800 (PST)
+X-Received: by 2002:a17:902:ef43:b0:296:2b7a:90cd with SMTP id d9443c01a7336-2a8d990aaebmr36988745ad.32.1769791462739;
+        Fri, 30 Jan 2026 08:44:22 -0800 (PST)
+Received: from [192.168.1.7] ([49.204.111.90])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a88b5d9e25sm83063825ad.80.2026.01.30.08.44.15
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 30 Jan 2026 08:44:22 -0800 (PST)
+Message-ID: <e9d3c0b8-2abd-47a5-b594-83f0288d95ba@oss.qualcomm.com>
+Date: Fri, 30 Jan 2026 22:14:12 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 12/12] i2c: qcom-geni: Enable I2C on SA8255p Qualcomm
+ platforms
+To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
+        Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley
+ <conor+dt@kernel.org>,
+        Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>, linux-arm-msm@vger.kernel.org,
+        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, bryan.odonoghue@linaro.org,
+        dmitry.baryshkov@oss.qualcomm.com, bjorn.andersson@oss.qualcomm.com
+Cc: prasad.sodagudi@oss.qualcomm.com, quic_vtanuku@quicinc.com,
+        aniket.randive@oss.qualcomm.com, chandana.chiluveru@oss.qualcomm.com
+References: <20260112104722.591521-1-praveen.talari@oss.qualcomm.com>
+ <20260112104722.591521-13-praveen.talari@oss.qualcomm.com>
+ <8e410852-37f2-452b-b851-19b7c4222727@oss.qualcomm.com>
+Content-Language: en-US
+From: Praveen Talari <praveen.talari@oss.qualcomm.com>
+In-Reply-To: <8e410852-37f2-452b-b851-19b7c4222727@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260130-i2c-dw-v6-3-08ca1e9ece07@bootlin.com>
-References: <20260130-i2c-dw-v6-0-08ca1e9ece07@bootlin.com>
-In-Reply-To: <20260130-i2c-dw-v6-0-08ca1e9ece07@bootlin.com>
-To: Andi Shyti <andi.shyti@kernel.org>, 
- Mika Westerberg <mika.westerberg@linux.intel.com>, 
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
- Jan Dabros <jsd@semihalf.com>, 
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
- Clark Williams <clrkwllms@kernel.org>, Steven Rostedt <rostedt@goodmis.org>
-Cc: Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
- Gregory CLEMENT <gregory.clement@bootlin.com>, 
- =?utf-8?q?Th=C3=A9o_Lebrun?= <theo.lebrun@bootlin.com>, 
- Tawfik Bayouk <tawfik.bayouk@mobileye.com>, 
- Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>, 
- Dmitry Guzman <dmitry.guzman@mobileye.com>, linux-i2c@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-rt-devel@lists.linux.dev, 
- =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-X-Mailer: b4 0.14.3
-X-Last-TLS-Session-Version: TLSv1.3
+X-Proofpoint-GUID: tXxLqRE8f927F-qtcPPIiSWADlaVVSxA
+X-Proofpoint-ORIG-GUID: tXxLqRE8f927F-qtcPPIiSWADlaVVSxA
+X-Authority-Analysis: v=2.4 cv=d6T4CBjE c=1 sm=1 tr=0 ts=697cdfe8 cx=c_pps
+ a=JL+w9abYAAE89/QcEU+0QA==:117 a=10aD+GSAjGS7IfLbEAHBKg==:17
+ a=IkcTkHD0fZMA:10 a=vUbySO9Y5rIA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=hbV_D0MF1U8yBtKqu6sA:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10 a=324X-CrmTo6CU4MGRt3R:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMTMwMDEzNyBTYWx0ZWRfXwtFWlms2p9Ky
+ e/36o66Bz8P5ITilFjyL3UDnYXGajMHQjAy0N5rx2pYvng3vGZ491Sta5g1qg42i9KbNXpg70Rh
+ /2uqW3OPii6hm3H4rnHeUEHHzcU4aRTHqr5qmHpZGfO1Xc6/q5WEdOYW8sog/C+yhshSPuFNYS2
+ jD+GnMsdf20IpYDq7WIbb2QZE88Jjn8k+RwCvCJAGf1Updz7nVO0WUMJXkj/VAtxbbYyLjizUdq
+ b8kxOdnC1RV6TSbk8YvqA4spAe2cH2kA8jYEjlpUEVJwl0uuFkEXNCTegWo50U+lNOuKQZXNuEN
+ ibqsXm/0LVpeRYozWeKEQBX2KlavkSsshS/mA6RWHMXpOGK3vfAOVK4wJMf531VOZOah06Y6bIU
+ ak8ESaKEeNd23bL7a30GgV+9v7NTiQLbqqclH+MX/klndew4licFjzsHe+Tngsv/Wffu0afGHiK
+ xerUkSu97tbhxWoVqdg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-01-30_02,2026-01-30_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ suspectscore=0 impostorscore=0 spamscore=0 lowpriorityscore=0 adultscore=0
+ bulkscore=0 malwarescore=0 clxscore=1015 phishscore=0 priorityscore=1501
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2601300137
 
-If IC_EMPTYFIFO_HOLD_MASTER_EN parameter is 0, "Stop" and "Repeated Start"
-bits in command register do not exist, thus it is impossible to send
-several consecutive write messages in a single hardware batch. The
-existing implementation worked with such configuration incorrectly:
-all consecutive write messages are joined into a single message without
-any Start/Stop or Repeated Start conditions. For example, the following
-command:
+Hi Konrad,
 
-    i2ctransfer -y 0 w1@0x55 0x00 w1@0x55 0x01
+On 1/30/2026 6:04 PM, Konrad Dybcio wrote:
+>> +static const struct geni_i2c_desc sa8255p_geni_i2c = {
+>> +	.resources_init = geni_se_domain_attach,
+>> +	.set_rate = geni_se_set_perf_opp,
+> This means, on SCMI devices you won't don't the vote on the POWER
+> domain (or PERF for that matter) and switch the GPIOs to a _suspend
+> state - is that by design?
 
-does the same as
+With PD_FLAG_DEV_LINK_ON enabled, every pm_runtime_get_sync() or 
+pm_runtime_put_sync() on the device triggers a corresponding genpd 
+on/off transition. These transitions are translated into SCMI 
+power‑domain commands, allowing the firmware (GearVM) to perform the 
+actual enable/disable sequencing.
 
-    i2ctransfer -y 0 w2@0x55 0x00 0x01
-
-In i2c_dw_msg_is_valid(), we ensure that we do not have such sequence
-of messages requiring a RESTART, aborting the transfer on controller
-that cannot emit them explicitly.
-
-This behavior is activated by compatible entries because the state of
-the IC_EMPTYFIFO_HOLD_MASTER_EN parameter cannot be detected at runtime.
-The new flag emptyfifo_hold_master reflects the state of the parameter,
-it is set to true for all controllers except those found in Mobileye
-SoCs. For now, the controllers in Mobileye SoCs are the only ones known
-to need the workaround. The behavior of the driver is left unmodified
-for other controllers.
-
-There is another possible problem with this controller configuration:
-When the CPU is putting commands to the FIFO, this process must not be
-interrupted because if FIFO buffer gets empty, the controller finishes
-the I2C transaction and generates STOP condition on the bus.
-
-If we continue writing the remainder of the message to the FIFO, the
-controller will start emitting a new transaction with those data. This
-turns a single message into multiple I2C transactions. To protect against
-FIFO underrun, two changes are done:
-
-First we flag the interrupt with IRQF_NO_THREAD, to prevent it from
-running in a thread on PREEMPT-RT kernel. This ensures that we are
-not interrupted when filling the FIFO as it is very time-senstive. For
-example, being preempted after writing a single byte in the FIFO with
-a 1MHz bus gives us only 18µs before an underrun. DMA would allow us
-to keep the interrupt threaded but it is not available on Mobileye SoC
-for I2C.
-
-Second in i2c_dw_process_transfer(), we abort if a STOP is detected
-while a read or a write is in progress. This can occur when processing
-a message larger than the FIFO. In that case the message is processed in
-parts, and rely on the TX EMPTY interrupt to refill the FIFO when it gets
-below a threshold. If servicing this interrupt is delayed for too long,
-it can trigger a FIFO underrun, thus an unwanted STOP.
-
-Originally-by: Dmitry Guzman <dmitry.guzman@mobileye.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
----
- drivers/i2c/busses/i2c-designware-common.c  | 20 ++++++++++++++++++++
- drivers/i2c/busses/i2c-designware-core.h    |  3 +++
- drivers/i2c/busses/i2c-designware-master.c  | 18 ++++++++++++++++++
- drivers/i2c/busses/i2c-designware-platdrv.c |  1 +
- 4 files changed, 42 insertions(+)
-
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 64654dabbb21..4dc57fd56170 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -492,6 +492,12 @@ int i2c_dw_fw_parse_and_configure(struct dw_i2c_dev *dev)
- 
- 	dev->clk_freq_optimized = device_property_read_bool(device, "snps,clk-freq-optimized");
- 
-+	/* Mobileye controllers do not hold the clock on empty FIFO */
-+	if (device_is_compatible(device, "mobileye,eyeq6lplus-i2c"))
-+		dev->emptyfifo_hold_master = false;
-+	else
-+		dev->emptyfifo_hold_master = true;
-+
- 	i2c_dw_adjust_bus_speed(dev);
- 
- 	if (is_of_node(fwnode))
-@@ -918,6 +924,20 @@ int i2c_dw_probe(struct dw_i2c_dev *dev)
- 	else
- 		irq_flags = IRQF_SHARED | IRQF_COND_SUSPEND;
- 
-+	/*
-+	 * The first writing to TX FIFO buffer causes transmission start.
-+	 * If IC_EMPTYFIFO_HOLD_MASTER_EN is not set, when TX FIFO gets
-+	 * empty, I2C controller finishes the transaction. If writing to
-+	 * FIFO is interrupted, FIFO can get empty and the transaction will
-+	 * be finished prematurely. FIFO buffer is filled in IRQ handler,
-+	 * but in PREEMPT_RT kernel IRQ handler by default is executed
-+	 * in thread that can be preempted with another higher priority
-+	 * thread or an interrupt. So, IRQF_NO_THREAD flag is required in
-+	 * order to prevent any preemption when filling the FIFO.
-+	 */
-+	if (!dev->emptyfifo_hold_master)
-+		irq_flags |= IRQF_NO_THREAD;
-+
- 	ret = i2c_dw_acquire_lock(dev);
- 	if (ret)
- 		return ret;
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index a49263a36023..9d8d104cc391 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -260,6 +260,8 @@ struct reset_control;
-  * @clk_freq_optimized: if this value is true, it means the hardware reduces
-  *	its internal clock frequency by reducing the internal latency required
-  *	to generate the high period and low period of SCL line.
-+ * @emptyfifo_hold_master: true if the controller acting as master holds
-+ *	the clock when the Tx FIFO is empty instead of emitting a stop.
-  *
-  * HCNT and LCNT parameters can be used if the platform knows more accurate
-  * values than the one computed based only on the input clock frequency.
-@@ -318,6 +320,7 @@ struct dw_i2c_dev {
- 	struct i2c_bus_recovery_info rinfo;
- 	u32			bus_capacitance_pF;
- 	bool			clk_freq_optimized;
-+	bool			emptyfifo_hold_master;
- };
- 
- #define ACCESS_INTR_MASK			BIT(0)
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index 73d9347a6a08..de929b91d5ea 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -652,6 +652,14 @@ static void i2c_dw_process_transfer(struct dw_i2c_dev *dev, unsigned int stat)
- 	if (stat & DW_IC_INTR_TX_EMPTY)
- 		i2c_dw_xfer_msg(dev);
- 
-+	/* Abort if we detect a STOP in the middle of a read or a write */
-+	if ((stat & DW_IC_INTR_STOP_DET) &&
-+	    (dev->status & (STATUS_READ_IN_PROGRESS | STATUS_WRITE_IN_PROGRESS))) {
-+		dev_err(dev->dev, "spurious STOP detected\n");
-+		dev->rx_outstanding = 0;
-+		dev->msg_err = -EIO;
-+	}
-+
- 	/*
- 	 * No need to modify or disable the interrupt mask here.
- 	 * i2c_dw_xfer_msg() will take care of it according to
-@@ -834,6 +842,16 @@ i2c_dw_msg_is_valid(struct dw_i2c_dev *dev, const struct i2c_msg *msgs, size_t i
- 		return false;
- 	}
- 
-+	/*
-+	 * Make sure we don't need explicit RESTART between two messages
-+	 * in the same direction for controllers that cannot emit them.
-+	 */
-+	if (!dev->emptyfifo_hold_master &&
-+	    (msgs[idx - 1].flags & I2C_M_RD) == (msgs[idx].flags & I2C_M_RD)) {
-+		dev_err(dev->dev, "cannot emit RESTART\n");
-+		return false;
-+	}
-+
- 	return true;
- }
- 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 4e6fe3b55322..481a4eaaa28d 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -267,6 +267,7 @@ static void dw_i2c_plat_remove(struct platform_device *pdev)
- }
- 
- static const struct of_device_id dw_i2c_of_match[] = {
-+	{ .compatible = "mobileye,eyeq6lplus-i2c" },
- 	{ .compatible = "mscc,ocelot-i2c" },
- 	{ .compatible = "snps,designware-i2c" },
- 	{}
-
--- 
-2.52.0
+Thanks,
+Praveen.
 
