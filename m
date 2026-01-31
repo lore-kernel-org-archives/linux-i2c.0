@@ -1,86 +1,123 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14BFF25D216;
-	Sat, 31 Jan 2026 10:57:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40EDD155757;
+	Sat, 31 Jan 2026 14:12:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769857056; cv=none; b=kYN9BgxeE5MWMxzdIbm+cO9+/mIsUf5H0FbOJblNK3KFYphpvsRCGzYKpZgNgsvVAaY/SkI/Je0RJYxGbgQVlSpLeDrUKUZB8j6haqNEu/BPW/A7DU4S/M4cOIoixRPxPiNZT1eICW24APfkHBaenFO51pfHPctszezqF3Kouhw=
+	t=1769868773; cv=none; b=CTiKDo7PYlqsBcYxVUuVJrOABKrZNQEO6Z7EwjJ4U7iHGfTaNT/2fjVhLW6dh+DptFvTvgrs0DXivemYnhbZP0Xdto8YUdxhLteTuj9oPYa1/onDJkrxsI3KhWMpKC3QIno/tWsn8HkQBTkFzbdJcBto0ynGbDrOdFX6XOXeptA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769857056; c=relaxed/simple;
-	bh=3ctKiyNg4ambyWt7fnVocvftWSiDr2Re2IDPMzawjaA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZK+I9xqI6gn9/uUelJRAmYdJooa/rwpKVv7+HpiF6Yss4jhBb6CyC8sCfyqeVdtmFqxXX5Y22c4qVtJqywZ+BhioXCBQPERzhZLC/2bYhlPElo5NmoIYdVIAIVNFnQgdme3s29FsoGYTLrOa/D8UMTikJmM6OIZDMpbWyw8aOK0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jU4YbmkQ; arc=none smtp.client-ip=198.175.65.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1769868773; c=relaxed/simple;
+	bh=YWgwSGL7NFu8wA5Ois87/WxkNSDJhp8JTOnbIFhNw4M=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=GrPZFGsn7d5J+kaQZXAVfyJcGS+xa6sqZyTCzIviLoxNCRX/Fj/IZH2+JoXWZg6ARqw1nPoMe7dc6Ot8YhVwyb3grSfuQ2LEh8saLI71jEr9oh1pbmUtTesPdgqgH3EVstQfqPvOjR7BMXNhwmtd/imO+BHDmIWMSB/SkHZSH2Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VC0cocy+; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jU4YbmkQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1769857056; x=1801393056;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=3ctKiyNg4ambyWt7fnVocvftWSiDr2Re2IDPMzawjaA=;
-  b=jU4YbmkQByfX9OvjMZB8JWUSC+5oyYfuHZ71KMNP3TgugPNkGPwVmR1p
-   Ru9AIejBu9TwZIVHwMOcHc5ScT0mQf1TrgUGs/K3EnxddoKZAUHq3TGWx
-   t5kiqyfQAxVUHpxr0MmO/Hpucj1OP10o8B305NbRZgIO5+6gNkvTVsfIr
-   GXprBxRn47XQCe36FqQY1TlcyJMriAk/cVGF75GLF/oXRoM/sZrKRSyVa
-   MRkAJYwKi9KA7FuNoRds5pgUfLfjSYHriygv54Y5Eq19qIe2IXP2DKfpg
-   1pgtSJtFj9GQs4TgRaTadFqzvGtIdtWgvOOOnD1Zw9SM7NU9l7x7rG5d7
-   A==;
-X-CSE-ConnectionGUID: 6DAn7/s2SVSYi6fTaZOe6g==
-X-CSE-MsgGUID: LjfIxkGmSHKUyRkRF3EXQQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11687"; a="71003727"
-X-IronPort-AV: E=Sophos;i="6.21,264,1763452800"; 
-   d="scan'208";a="71003727"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2026 02:57:35 -0800
-X-CSE-ConnectionGUID: 7OLvNaPdQF+ihKc+/98WBQ==
-X-CSE-MsgGUID: uxRy37pdR1S6Od9dDDT+CA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,264,1763452800"; 
-   d="scan'208";a="213964787"
-Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.244.97])
-  by fmviesa004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2026 02:57:31 -0800
-Date: Sat, 31 Jan 2026 12:57:29 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: abdurrahman@nexthop.ai, Michal Simek <michal.simek@amd.com>,
-	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-Subject: Re: [PATCH v7 0/6] i2c: xiic: use generic device property accessors
-Message-ID: <aX3gGYnBnA8otdMr@smile.fi.intel.com>
-References: <20260129-i2c-xiic-v7-0-727e434897ef@nexthop.ai>
- <ec8693a4-e982-4227-9558-0b1fac543e62@lunn.ch>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VC0cocy+"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id D662AC16AAE;
+	Sat, 31 Jan 2026 14:12:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1769868772;
+	bh=YWgwSGL7NFu8wA5Ois87/WxkNSDJhp8JTOnbIFhNw4M=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=VC0cocy+zfUibR5XhyehDPJuyq4K/dE7pt4+HMwuTxAloZ3o8oVJa3Azln5CbFiEz
+	 2egiezTIYHXEQdAIRAXtoss8SeNe2wFYlq7VmNXy1KaE0KNyYohhYKmoBrNa7n1eiD
+	 Ef4zdJFfKBwoX1eEWjKwrtGJH1am8D5dG9Raz32ScllAjda0Dt+0tdYrBWXyCSCvNN
+	 AajoQ52SnCeDGuQjvKFbCnHNy/+VPB2jyxg9ux7HznNRhbE7Akm90MeEO6wpAhUxCk
+	 5iWuhaKtqfXV3LBs0Ngg2hynlKsZG2JgPXABejzVhN3jRpiXSfp6Mi3AsIPHLfoGdK
+	 cIXGwKPXXu73w==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3E50D79770;
+	Sat, 31 Jan 2026 14:12:52 +0000 (UTC)
+From: Igor Korotin via B4 Relay <devnull+igor.korotin.linux.gmail.com@kernel.org>
+Subject: [PATCH 0/5] rust: extend I2C functionality
+Date: Sat, 31 Jan 2026 14:12:42 +0000
+Message-Id: <20260131-i2c-adapter-v1-0-5a436e34cd1a@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ec8693a4-e982-4227-9558-0b1fac543e62@lunn.ch>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIANoNfmkC/yXOywrCMBCF4VcJszYlF2O0iPge0kVMpjXUXpxUE
+ Urf3dgu/wPzMTMkpIgJSjYD4SemOPQ55I6Bf7i+QR5DblBCHYTUkkfluQtunJB40MegtfB7rwz
+ ki5Gwjt9Vu1VbE77eGZ22ETpMya1oyc6bKawU2khZGCuMMlzy4Fq6tkg9PouBmsufvruE3A9dF
+ 6eSOevzL7W1J6OhWpYfLGRRwMYAAAA=
+X-Change-ID: 20260131-i2c-adapter-d38d330c4c25
+To: Danilo Krummrich <dakr@kernel.org>, 
+ Daniel Almeida <daniel.almeida@collabora.com>, 
+ Miguel Ojeda <ojeda@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, 
+ Gary Guo <gary@garyguo.net>, 
+ =?utf-8?q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, 
+ Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, 
+ Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, 
+ Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-kernel@vger.kernel.org, rust-for-linux@vger.kernel.org, 
+ linux-i2c@vger.kernel.org, markus.probst@posteo.de, 
+ Igor Korotin <igor.korotin.linux@gmail.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1769868772; l=2298;
+ i=igor.korotin.linux@gmail.com; s=20260125; h=from:subject:message-id;
+ bh=YWgwSGL7NFu8wA5Ois87/WxkNSDJhp8JTOnbIFhNw4M=;
+ b=NYx1gpxD4caOuoDAMtgUPYxZAFyMYfRR1NZcLY5lk90c5c4Dk/xcpMcA0pxsTfdE2c/F9U+Ci
+ 344uPpFIbNPDh2BY+DwOy+smwVsM0zAkFirPRxMMYN66XCfMMf0J/1F
+X-Developer-Key: i=igor.korotin.linux@gmail.com; a=ed25519;
+ pk=SjZ//wxnynZgJJgTqANyU10A7hdQQdDXLvXIr+zWroE=
+X-Endpoint-Received: by B4 Relay for igor.korotin.linux@gmail.com/20260125
+ with auth_id=615
+X-Original-From: Igor Korotin <igor.korotin.linux@gmail.com>
+Reply-To: igor.korotin.linux@gmail.com
 
-On Thu, Jan 29, 2026 at 11:36:20PM +0100, Andrew Lunn wrote:
-> > Skip clock setup on non-OF systems where clock cannot be provided.
-> 
-> I think 'cannot' is wrong here. Non-OF system technically could
-> provide a clock, using whatever binding method they use. Not having a
-> clock simply appears to be a limitation of your implementation.
+This patch series extend the existing I2C functionality with:
+- Abstractions allowing to implement I2C algorithms used by I2C adapters;
+- Abstractions allowing to create and add new I2C adapters;
+- Safe wrappers upon I2C and SMbus transferring C API: read/write
+  bytes/words/byte arrays.
 
-Abdurrahman, can you rebase the series to move DT and clock changes to be the
-last in it? This way we can move forward with the cleanups that have no
-objections.
+The patch series contains additional new sample driver `rust_i2c_adapter`
+presenting the new functionality. 
 
+Patch series depend on 
+message-id: <20260107103511.570525-1-dakr@kernel.org>
+
+Signed-off-by: Igor Korotin <igor.korotin.linux@gmail.com>
+---
+Igor Korotin (5):
+      rust: i2c: split client and adapter code into separate files
+      rust: bits: add define_flags macro
+      rust: i2c: Add I2C Adapter registration abstractions
+      rust: i2c: add I2C wrappers
+      samples: rust: add Rust I2C adapter registration sample
+
+ MAINTAINERS                      |   4 +-
+ include/linux/i2c.h              |   6 +
+ rust/helpers/helpers.c           |   1 +
+ rust/helpers/i2c.c               |  15 ++
+ rust/kernel/bits.rs              |  57 ++++++++
+ rust/kernel/i2c.rs               | 254 ++-------------------------------
+ rust/kernel/i2c/adapter.rs       | 200 ++++++++++++++++++++++++++
+ rust/kernel/i2c/algo.rs          | 300 +++++++++++++++++++++++++++++++++++++++
+ rust/kernel/i2c/client.rs        | 284 ++++++++++++++++++++++++++++++++++++
+ samples/rust/Kconfig             |  12 ++
+ samples/rust/Makefile            |   1 +
+ samples/rust/rust_driver_i2c.rs  |  10 +-
+ samples/rust/rust_i2c_adapter.rs | 170 ++++++++++++++++++++++
+ samples/rust/rust_i2c_client.rs  |  15 +-
+ 14 files changed, 1069 insertions(+), 260 deletions(-)
+---
+base-commit: a7c013f779530190d0c1e1aa5e7c8a61f0bd479e
+change-id: 20260131-i2c-adapter-d38d330c4c25
+prerequisite-message-id: <20260107103511.570525-1-dakr@kernel.org>
+prerequisite-patch-id: 6e4d28a06d842ddfc7db82f410532a35b8fe317d
+prerequisite-patch-id: 9739295d85b688257fca29be1e1217a05a69c9e7
+prerequisite-patch-id: 78eaed3746a40713f44f13508fcf43653b0a4528
+prerequisite-patch-id: 99f1881bc896896297a903affcfa4f62cab1a307
+prerequisite-patch-id: ea8baa9d648f1178d6f39d140b98bddf3c183f6f
+prerequisite-patch-id: f8a9e049d204bde04e80151a67dfff5ec2633e7a
+
+Best regards,
 -- 
-With Best Regards,
-Andy Shevchenko
+Igor Korotin <igor.korotin.linux@gmail.com>
 
 
