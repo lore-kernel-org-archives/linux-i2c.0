@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40EDD155757;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4105123BCEE;
 	Sat, 31 Jan 2026 14:12:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769868773; cv=none; b=CTiKDo7PYlqsBcYxVUuVJrOABKrZNQEO6Z7EwjJ4U7iHGfTaNT/2fjVhLW6dh+DptFvTvgrs0DXivemYnhbZP0Xdto8YUdxhLteTuj9oPYa1/onDJkrxsI3KhWMpKC3QIno/tWsn8HkQBTkFzbdJcBto0ynGbDrOdFX6XOXeptA=
+	t=1769868773; cv=none; b=rlOJjM3Ha3BWJL6/mK2G0opurc4pOv8lEo778BgzYKh5V2B0DaYQ8QjCUjAjpSytma8v8+rubwa1LZlAMF/I1hzXJ6FuCgdVTFhHgzzqmLSlbkc2gVNM2124vpcUx+zVZgwkTnOsls7Vv06fLD1kVR291cTUxchEapbkv5qjx0w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1769868773; c=relaxed/simple;
-	bh=YWgwSGL7NFu8wA5Ois87/WxkNSDJhp8JTOnbIFhNw4M=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=GrPZFGsn7d5J+kaQZXAVfyJcGS+xa6sqZyTCzIviLoxNCRX/Fj/IZH2+JoXWZg6ARqw1nPoMe7dc6Ot8YhVwyb3grSfuQ2LEh8saLI71jEr9oh1pbmUtTesPdgqgH3EVstQfqPvOjR7BMXNhwmtd/imO+BHDmIWMSB/SkHZSH2Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VC0cocy+; arc=none smtp.client-ip=10.30.226.201
+	bh=079AUMoHViksAspHbH7ag8128A6gK7HVSqZMHGf8rkk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=XUZPJO7/aO8fBhL43HGWUa0a/6ij/VS4TCCMaE345fudNaJmhoNkYpY7mBrsdccMBRiakZS6eQ4O5o1/stPdjfbwk9IDpwZXWV2Qaefgf0WwAwUIWj/p8Tu6Qdk3+E96u43laCj/MTVjmPPFkddkJZzxlpSQSir8YZB7sQgs+zI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mC0M0ObH; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VC0cocy+"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id D662AC16AAE;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mC0M0ObH"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id F22ABC19422;
 	Sat, 31 Jan 2026 14:12:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769868772;
-	bh=YWgwSGL7NFu8wA5Ois87/WxkNSDJhp8JTOnbIFhNw4M=;
-	h=From:Subject:Date:To:Cc:Reply-To:From;
-	b=VC0cocy+zfUibR5XhyehDPJuyq4K/dE7pt4+HMwuTxAloZ3o8oVJa3Azln5CbFiEz
-	 2egiezTIYHXEQdAIRAXtoss8SeNe2wFYlq7VmNXy1KaE0KNyYohhYKmoBrNa7n1eiD
-	 Ef4zdJFfKBwoX1eEWjKwrtGJH1am8D5dG9Raz32ScllAjda0Dt+0tdYrBWXyCSCvNN
-	 AajoQ52SnCeDGuQjvKFbCnHNy/+VPB2jyxg9ux7HznNRhbE7Akm90MeEO6wpAhUxCk
-	 5iWuhaKtqfXV3LBs0Ngg2hynlKsZG2JgPXABejzVhN3jRpiXSfp6Mi3AsIPHLfoGdK
-	 cIXGwKPXXu73w==
+	s=k20201202; t=1769868773;
+	bh=079AUMoHViksAspHbH7ag8128A6gK7HVSqZMHGf8rkk=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=mC0M0ObHTpYVumFwFJM/9fz5UywXHOZKJDgkIVjMwHyfD96hT12bTdzFvrT6IwU9R
+	 /3jabASYniGatpDg0tPYnBhPhFC4cCM8nyAnNvzsVPd/5lKlNT0tfHIYTyUpNqw4BF
+	 WoIjY8MxTWej0RC3kVB+LpMB6gC1FEF+Q3CF1OmsVvCUP4a84fcc6tCIScRIXX2tLt
+	 qeTPy6NL/ReBCAANuFqlKMw36EVwmGLOiUm9ob4PzDYziiskfb30+lO4X3+ED775ap
+	 7Tw1sTS6F95/DG9R9VUzi6Lpw70hmYvMtAgown7MiQbHGBeLUfx04cMwO7OU+5hXRW
+	 bxGKkMGNhcYdQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3E50D79770;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2AD6D79774;
 	Sat, 31 Jan 2026 14:12:52 +0000 (UTC)
 From: Igor Korotin via B4 Relay <devnull+igor.korotin.linux.gmail.com@kernel.org>
-Subject: [PATCH 0/5] rust: extend I2C functionality
-Date: Sat, 31 Jan 2026 14:12:42 +0000
-Message-Id: <20260131-i2c-adapter-v1-0-5a436e34cd1a@gmail.com>
+Date: Sat, 31 Jan 2026 14:12:44 +0000
+Subject: [PATCH 2/5] rust: bits: add define_flags macro
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -40,11 +40,9 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIANoNfmkC/yXOywrCMBCF4VcJszYlF2O0iPge0kVMpjXUXpxUE
- Urf3dgu/wPzMTMkpIgJSjYD4SemOPQ55I6Bf7i+QR5DblBCHYTUkkfluQtunJB40MegtfB7rwz
- ki5Gwjt9Vu1VbE77eGZ22ETpMya1oyc6bKawU2khZGCuMMlzy4Fq6tkg9PouBmsufvruE3A9dF
- 6eSOevzL7W1J6OhWpYfLGRRwMYAAAA=
-X-Change-ID: 20260131-i2c-adapter-d38d330c4c25
+Message-Id: <20260131-i2c-adapter-v1-2-5a436e34cd1a@gmail.com>
+References: <20260131-i2c-adapter-v1-0-5a436e34cd1a@gmail.com>
+In-Reply-To: <20260131-i2c-adapter-v1-0-5a436e34cd1a@gmail.com>
 To: Danilo Krummrich <dakr@kernel.org>, 
  Daniel Almeida <daniel.almeida@collabora.com>, 
  Miguel Ojeda <ojeda@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, 
@@ -57,11 +55,11 @@ Cc: linux-kernel@vger.kernel.org, rust-for-linux@vger.kernel.org,
  linux-i2c@vger.kernel.org, markus.probst@posteo.de, 
  Igor Korotin <igor.korotin.linux@gmail.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1769868772; l=2298;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1769868772; l=2311;
  i=igor.korotin.linux@gmail.com; s=20260125; h=from:subject:message-id;
- bh=YWgwSGL7NFu8wA5Ois87/WxkNSDJhp8JTOnbIFhNw4M=;
- b=NYx1gpxD4caOuoDAMtgUPYxZAFyMYfRR1NZcLY5lk90c5c4Dk/xcpMcA0pxsTfdE2c/F9U+Ci
- 344uPpFIbNPDh2BY+DwOy+smwVsM0zAkFirPRxMMYN66XCfMMf0J/1F
+ bh=sn8tyhgAOXgu5sl9ZR6vPMjhDT98q30bKO29ZzpI3ac=;
+ b=yEMAIEqB8thmwTAB8YbWq5ph+DxUCzWFu6c9XkTqwOAGPvGImN/YzflWGoHFNqjokbugMGrXA
+ tOVxoF2cyRiApPT1aIc7zoqf5nUuZTZRBRKaHXq/FBe13LhUl20XPdX
 X-Developer-Key: i=igor.korotin.linux@gmail.com; a=ed25519;
  pk=SjZ//wxnynZgJJgTqANyU10A7hdQQdDXLvXIr+zWroE=
 X-Endpoint-Received: by B4 Relay for igor.korotin.linux@gmail.com/20260125
@@ -69,55 +67,83 @@ X-Endpoint-Received: by B4 Relay for igor.korotin.linux@gmail.com/20260125
 X-Original-From: Igor Korotin <igor.korotin.linux@gmail.com>
 Reply-To: igor.korotin.linux@gmail.com
 
-This patch series extend the existing I2C functionality with:
-- Abstractions allowing to implement I2C algorithms used by I2C adapters;
-- Abstractions allowing to create and add new I2C adapters;
-- Safe wrappers upon I2C and SMbus transferring C API: read/write
-  bytes/words/byte arrays.
+From: Igor Korotin <igor.korotin.linux@gmail.com>
 
-The patch series contains additional new sample driver `rust_i2c_adapter`
-presenting the new functionality. 
-
-Patch series depend on 
-message-id: <20260107103511.570525-1-dakr@kernel.org>
+introduce define_flags macro that incorporates BitOr BitAnd and Not
+implementations.
 
 Signed-off-by: Igor Korotin <igor.korotin.linux@gmail.com>
 ---
-Igor Korotin (5):
-      rust: i2c: split client and adapter code into separate files
-      rust: bits: add define_flags macro
-      rust: i2c: Add I2C Adapter registration abstractions
-      rust: i2c: add I2C wrappers
-      samples: rust: add Rust I2C adapter registration sample
+ rust/kernel/bits.rs | 57 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 57 insertions(+)
 
- MAINTAINERS                      |   4 +-
- include/linux/i2c.h              |   6 +
- rust/helpers/helpers.c           |   1 +
- rust/helpers/i2c.c               |  15 ++
- rust/kernel/bits.rs              |  57 ++++++++
- rust/kernel/i2c.rs               | 254 ++-------------------------------
- rust/kernel/i2c/adapter.rs       | 200 ++++++++++++++++++++++++++
- rust/kernel/i2c/algo.rs          | 300 +++++++++++++++++++++++++++++++++++++++
- rust/kernel/i2c/client.rs        | 284 ++++++++++++++++++++++++++++++++++++
- samples/rust/Kconfig             |  12 ++
- samples/rust/Makefile            |   1 +
- samples/rust/rust_driver_i2c.rs  |  10 +-
- samples/rust/rust_i2c_adapter.rs | 170 ++++++++++++++++++++++
- samples/rust/rust_i2c_client.rs  |  15 +-
- 14 files changed, 1069 insertions(+), 260 deletions(-)
----
-base-commit: a7c013f779530190d0c1e1aa5e7c8a61f0bd479e
-change-id: 20260131-i2c-adapter-d38d330c4c25
-prerequisite-message-id: <20260107103511.570525-1-dakr@kernel.org>
-prerequisite-patch-id: 6e4d28a06d842ddfc7db82f410532a35b8fe317d
-prerequisite-patch-id: 9739295d85b688257fca29be1e1217a05a69c9e7
-prerequisite-patch-id: 78eaed3746a40713f44f13508fcf43653b0a4528
-prerequisite-patch-id: 99f1881bc896896297a903affcfa4f62cab1a307
-prerequisite-patch-id: ea8baa9d648f1178d6f39d140b98bddf3c183f6f
-prerequisite-patch-id: f8a9e049d204bde04e80151a67dfff5ec2633e7a
+diff --git a/rust/kernel/bits.rs b/rust/kernel/bits.rs
+index 553d50265883..6750aef18708 100644
+--- a/rust/kernel/bits.rs
++++ b/rust/kernel/bits.rs
+@@ -201,3 +201,60 @@ pub const fn [<genmask_ $ty>](range: RangeInclusive<u32>) -> $ty {
+     /// assert_eq!(genmask_u8(0..=7), u8::MAX);
+     /// ```
+ );
++
++/// defines flags
++#[macro_export]
++macro_rules! define_flags {
++    (
++        $gen_name:ident($gen_type:ident),
++        $($variant:ident = $binding:expr,)+
++    ) => {
++        /// Flags that can be combined with the operators `|`, `&`, and `!`.
++        ///
++        /// Values can be used from the [`flags`] module.
++        #[derive(Clone, Copy, PartialEq)]
++        pub struct $gen_name($gen_type);
++
++        impl $gen_name {
++            /// Get the raw representation of this flag.
++            pub(crate) fn as_raw(self) -> $gen_type {
++                self.0
++            }
++
++            /// Check whether `flags` is contained in `self`.
++            pub fn contains(self, flags: $gen_name) -> bool {
++                (self & flags) == flags
++            }
++        }
++
++        impl core::ops::BitOr for $gen_name {
++            type Output = $gen_name;
++            fn bitor(self, rhs: Self) -> Self::Output {
++                Self(self.0 | rhs.0)
++            }
++        }
++
++        impl core::ops::BitAnd for $gen_name {
++            type Output = $gen_name;
++            fn bitand(self, rhs: Self) -> Self::Output {
++                Self(self.0 & rhs.0)
++            }
++        }
++
++        impl core::ops::Not for $gen_name {
++            type Output = $gen_name;
++            fn not(self) -> Self::Output {
++                Self(!self.0)
++            }
++        }
++
++        #[allow(missing_docs)]
++        pub mod flags {
++            use super::$gen_name;
++            $(
++                #[allow(missing_docs)]
++                pub const $variant: $gen_name = $gen_name($binding as $gen_type);
++            )+
++        }
++    }
++}
 
-Best regards,
 -- 
-Igor Korotin <igor.korotin.linux@gmail.com>
+2.43.0
 
 
