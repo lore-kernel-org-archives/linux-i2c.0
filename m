@@ -1,37 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40F6C1DF74F;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AB1F355022;
 	Sat, 31 Jan 2026 14:12:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769868773; cv=none; b=u3/dZ3I8VGlHc2iFPycA0ufqA9dFUGy9+NAsoh/HeJBR6zLmekVyBXzSgMCij4BkEvHeKPgMPMz0b5YPOsFWdy01bYv7LsdaUjdKt03m42V6xmQCYWPGWVnVadBhzvi8wF7ztVuTHRVqCqICh9aaoLodcRlSN5S9y/u7imx0XCQ=
+	t=1769868773; cv=none; b=bOYzBFL4o9yprmyXu+plkUFKhjsQclB3DPV7YHf9nzjwTjdkAXYlCBEXxqgexR9wrqx5Lmybm78MYFUxAj+Yu7GBfNirQZ7TrJ0Q/oMrrPARPuG254B69lBAcgpi5NnCBjLcvKlMCbYkSrbI2T2jYXGTgCh0Ip+uUp76Qvh8ZwY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1769868773; c=relaxed/simple;
-	bh=hp23VIwMy10ONa2wQWefma68fpJyhyAlZMhA9o9qHW0=;
+	bh=pN7PB1pCh1IWJygKI2Vu4CWLqsurcsYp3Gs/ABkgY6I=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=cnQqeV4dyf7s7VrWOaMu/IjG3fLIGrVA9mQRDC3jzE1aImNzHn/mHpDdqGeQrSRkWNgrYxwtvf+sZT6SiumSsCjMAiPgX2IiDbIRrV3jDJ2tI7fz/lUX0OBxC6HalYTtgiJUV4cHFYtPvhS20Cso076AtlX18diSBYYsY1I3uKI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CSwEV1W1; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=LhUBk2tZFGxp3MoLlrKgOHaM8rHupkn9/F+Q1+nQ8zEK6YAl55xD7I+5R6mLWoiTN3P7tLhOxbrR3ahPiEivifDFXPMpVp2jQI6a5sBVyWHlEGWQcGfqF7cJtgEDEphgWvAWshi/iiS8N9hWsBN3dAluTqY+iudTOoe4ydPrPRE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EgYYYSV9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CSwEV1W1"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 069D2C2BC9E;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EgYYYSV9"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 263E5C2BCB4;
 	Sat, 31 Jan 2026 14:12:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1769868773;
-	bh=hp23VIwMy10ONa2wQWefma68fpJyhyAlZMhA9o9qHW0=;
+	bh=pN7PB1pCh1IWJygKI2Vu4CWLqsurcsYp3Gs/ABkgY6I=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=CSwEV1W1RVcf1eAfV0QkvqBYzB6YNzu9GHuHHsYxR0KGz/V1AkOMtMO4rYTB0Xzv3
-	 c5OK2TyB8upCDXX3fkuRYE6xU7L0T5DCzMOIDKDqJkEnz/iyb2PG/YVAyhuDN0rja2
-	 Ae8FhLP8C2d7qaWCQ7RcD/qsmskghuk5l+116ugYgBRAck7qVikDrUV7fDZ3NJY3el
-	 OnmTCLdqXD7EWJyKoME6ses6+JCMhF/0VL8vhM4rzNR6ohHBz9XiZwnFWXTeW80y+n
-	 GrNroMFx1ZP2CpMHAM04sSwmRJ76bWWfELATDEK8UfZDeMcJUmRzw5DXeI6WjmLAgp
-	 PL/XLKGpFXbcg==
+	b=EgYYYSV91B/xdRpxt4pz2j4nC/1je+kvqwwvxqKSUHi0ByiLoaqcVXMQQvkJkEGQW
+	 4Rv7+zu7aj2U4ZFY+85ukwyr6R6zrMhxgwFT3Rius36Dt0hg5FS25+ftQAoj9/1k2u
+	 f8q+ObbdS1xTmQZAaFGSR7KXPPgKeOvyPaDNJ+deJNXlcq+yRkvtz3UFXE6459QEc4
+	 SVDZXZMood/0QgA7r5VM16MADi4d3D6ph7JcKTOHsy2iqVh19Tq6xteC3/MkOvAg9S
+	 qGlLcLUM3eIf7dSeYzg7QLY6uMnjxmIN2g4kPvAZJpBzvVm0mNIfltTsaCX7EcVIfs
+	 aU7X/KM78sPrw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F02E4D79773;
-	Sat, 31 Jan 2026 14:12:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BB35D79770;
+	Sat, 31 Jan 2026 14:12:53 +0000 (UTC)
 From: Igor Korotin via B4 Relay <devnull+igor.korotin.linux.gmail.com@kernel.org>
-Date: Sat, 31 Jan 2026 14:12:45 +0000
-Subject: [PATCH 3/5] rust: i2c: Add I2C Adapter registration abstractions
+Date: Sat, 31 Jan 2026 14:12:47 +0000
+Subject: [PATCH 5/5] samples: rust: add Rust I2C adapter registration
+ sample
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -40,7 +41,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260131-i2c-adapter-v1-3-5a436e34cd1a@gmail.com>
+Message-Id: <20260131-i2c-adapter-v1-5-5a436e34cd1a@gmail.com>
 References: <20260131-i2c-adapter-v1-0-5a436e34cd1a@gmail.com>
 In-Reply-To: <20260131-i2c-adapter-v1-0-5a436e34cd1a@gmail.com>
 To: Danilo Krummrich <dakr@kernel.org>, 
@@ -55,11 +56,11 @@ Cc: linux-kernel@vger.kernel.org, rust-for-linux@vger.kernel.org,
  linux-i2c@vger.kernel.org, markus.probst@posteo.de, 
  Igor Korotin <igor.korotin.linux@gmail.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1769868772; l=17907;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1769868772; l=7280;
  i=igor.korotin.linux@gmail.com; s=20260125; h=from:subject:message-id;
- bh=O00AxujwITCbYlKLKHLjBJTRZG5L0086MO+yva6+Jr4=;
- b=LxB+rq1ASkCN+in6cH21y6M6VHepp11Uq292hpMHHaCkpy5Ly9cB5ZYm2tziGKZ6z/8F0CToL
- IEwMwh1V+a7ACCXsRDws/S+z/zU9cv5JOP+12oQBhNP+CodhGCieLMd
+ bh=UoiJITbB7wSdqa0+19oS9e0ghILI5njDjJv+rjpQTNo=;
+ b=OJMA6QqqxEoPFMUi/s6s6vUTrFKJwRrspekSjPnBxBTRXVy2rYv7XsxvuwQ2sLrxN9izdsPPP
+ eVuBxGsChbWCKUGKyTtelRLz2VjTCBrCm7z+Z8P954G66OF/8b0QJBK
 X-Developer-Key: i=igor.korotin.linux@gmail.com; a=ed25519;
  pk=SjZ//wxnynZgJJgTqANyU10A7hdQQdDXLvXIr+zWroE=
 X-Endpoint-Received: by B4 Relay for igor.korotin.linux@gmail.com/20260125
@@ -69,515 +70,241 @@ Reply-To: igor.korotin.linux@gmail.com
 
 From: Igor Korotin <igor.korotin.linux@gmail.com>
 
-Add safe Rust abstractions for I2C adapter registration and
-management, wrapping the C functions `i2c_add_adapter` and
-`i2c_del_adapter`.
-
-This includes:
-- Hide `struct i2c_algorithm` unions from bindgen to avoid unnecessary
-  mangles.
-- Safe wrappers upon `struct i2c_msg` and `struct i2c_smbus_data`
-- I2C Algorithm wrapper around `struct i2c_algorithm`
-- I2C Adapter Flags wrapper
-- Registration/deregistration logic for I2C adapters
+Add a new `rust_i2c_adapter` sample, showing how to create a new
+i2c adapter using `i2c::adapter::Registration`
 
 Signed-off-by: Igor Korotin <igor.korotin.linux@gmail.com>
 ---
- include/linux/i2c.h        |   6 +
- rust/kernel/i2c.rs         |   1 +
- rust/kernel/i2c/adapter.rs | 120 ++++++++++++++++++
- rust/kernel/i2c/algo.rs    | 300 +++++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 427 insertions(+)
+ MAINTAINERS                      |   3 +-
+ samples/rust/Kconfig             |  12 +++
+ samples/rust/Makefile            |   1 +
+ samples/rust/rust_i2c_adapter.rs | 170 +++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 184 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 20fd41b51d5c..c176243de254 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -548,18 +548,24 @@ struct i2c_algorithm {
- 	 * smbus_xfer. If set to NULL, the SMBus protocol is simulated
- 	 * using common I2C messages.
- 	 */
-+#ifndef __BINDGEN__
- 	union {
-+#endif
- 		int (*xfer)(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 			    int num);
-+#ifndef __BINDGEN__
- 		int (*master_xfer)(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 				   int num);
- 	};
- 	union {
-+#endif
- 		int (*xfer_atomic)(struct i2c_adapter *adap,
- 				   struct i2c_msg *msgs, int num);
-+#ifndef __BINDGEN__
- 		int (*master_xfer_atomic)(struct i2c_adapter *adap,
- 					   struct i2c_msg *msgs, int num);
- 	};
-+#endif
- 	int (*smbus_xfer)(struct i2c_adapter *adap, u16 addr,
- 			  unsigned short flags, char read_write,
- 			  u8 command, int size, union i2c_smbus_data *data);
-diff --git a/rust/kernel/i2c.rs b/rust/kernel/i2c.rs
-index 0bebfde3e495..af33a3be83c4 100644
---- a/rust/kernel/i2c.rs
-+++ b/rust/kernel/i2c.rs
-@@ -19,6 +19,7 @@
- };
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 60662984176d..bae13f1f9a23 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11888,8 +11888,7 @@ L:	rust-for-linux@vger.kernel.org
+ S:	Maintained
+ F:	rust/i2c/*
+ F:	rust/kernel/i2c.rs
+-F:	samples/rust/rust_driver_i2c.rs
+-F:	samples/rust/rust_i2c_client.rs
++F:	samples/rust/rust_*i2c*.rs
  
- pub mod adapter;
-+pub mod algo;
- pub mod client;
+ I2C SUBSYSTEM HOST DRIVERS
+ M:	Andi Shyti <andi.shyti@kernel.org>
+diff --git a/samples/rust/Kconfig b/samples/rust/Kconfig
+index 3efa51bfc8ef..a5157b50e27c 100644
+--- a/samples/rust/Kconfig
++++ b/samples/rust/Kconfig
+@@ -107,6 +107,18 @@ config SAMPLE_RUST_I2C_CLIENT
  
- /// An I2C device id table.
-diff --git a/rust/kernel/i2c/adapter.rs b/rust/kernel/i2c/adapter.rs
-index 4a0d2faaf98b..ec64c1327792 100644
---- a/rust/kernel/i2c/adapter.rs
-+++ b/rust/kernel/i2c/adapter.rs
-@@ -6,7 +6,9 @@
- use crate::{
-     bindings,
-     device,
-+    devres::Devres,
-     error::*,
-+    i2c::algo::*,
-     prelude::*,
-     types::Opaque, //
- };
-@@ -38,6 +40,15 @@ impl<Ctx: device::DeviceContext> I2cAdapter<Ctx> {
-     pub(super) fn as_raw(&self) -> *mut bindings::i2c_adapter {
-         self.0.get()
-     }
-+
-+    /// Convert a raw C `struct i2c_adapter` pointer to a `&'a I2cAdapter`.
-+    pub(super) fn from_raw<'a>(ptr: *mut bindings::i2c_adapter) -> &'a Self {
-+        // SAFETY: Callers must ensure that `ptr` is valid, non-null, and has a non-zero reference
-+        // count, i.e. it must be ensured that the reference count of the C `struct i2c_adapter`
-+        // `ptr` points to can't drop to zero, for the duration of this function call and the entire
-+        // duration when the returned reference exists.
-+        unsafe { &*ptr.cast() }
-+    }
- }
+ 	  If unsure, say N.
  
- impl I2cAdapter {
-@@ -78,3 +89,112 @@ unsafe fn dec_ref(obj: NonNull<Self>) {
-         unsafe { bindings::i2c_put_adapter(obj.as_ref().as_raw()) }
-     }
- }
++config SAMPLE_RUST_I2C_ADAPTER
++	tristate "I2C Adapter Registration"
++	depends on I2C=y
++	help
++	  This option builds the Rust I2C adapter manual creation
++	  sample.
 +
-+impl<Ctx: device::DeviceContext> AsRef<device::Device<Ctx>> for I2cAdapter<Ctx> {
-+    fn as_ref(&self) -> &device::Device<Ctx> {
-+        let raw = self.as_raw();
-+        // SAFETY: By the type invariant of `Self`, `self.as_raw()` is a pointer to a valid
-+        // `struct i2c_adapter`.
-+        let dev = unsafe { &raw mut (*raw).dev };
++	  To compile this as a module, choose M here:
++	  the module will be called rust_i2c_adapter.
 +
-+        // SAFETY: `dev` points to a valid `struct device`.
-+        unsafe { device::Device::from_raw(dev) }
-+    }
-+}
++	  If unsure, say N.
 +
-+/// Options for creating an I2C adapter device.
-+pub struct I2cAdapterOptions {
-+    /// The name of the I2C adapter device.
-+    pub name: &'static CStr,
-+}
-+
-+impl I2cAdapterOptions {
-+    /// Create a raw `struct i2c_adapter` ready for registration.
-+    pub const fn as_raw<T: I2cAlgorithm>(self) -> bindings::i2c_adapter {
-+        let mut adapter: bindings::i2c_adapter = pin_init::zeroed();
-+        // TODO: make it some other way... this looks like shit
-+        let src = self.name.to_bytes_with_nul();
-+        let mut i: usize = 0;
-+        while i < src.len() {
-+            adapter.name[i] = src[i];
-+            i += 1;
-+        }
-+        adapter.algo = I2cAlgorithmVTable::<T>::build();
-+
-+        adapter
-+    }
-+}
-+
-+/// A registration of a I2C Adapter.
-+///
-+/// # Invariants
-+///
-+/// - `inner` contains a `struct i2c_adapter` that is registered using
-+///   `i2c_add_adapter()`.
-+/// - This registration remains valid for the entire lifetime of the
-+///   [`i2c::adapter::Registration<T>`] instance.
-+/// - Deregistration occurs exactly once in [`Drop`] via `i2c_del_adapter()`.
-+/// - `inner` wraps a valid, pinned `i2c_adapter` created using
-+///   [`I2cAdapterOptions::as_raw`].
-+#[repr(transparent)]
-+#[pin_data(PinnedDrop)]
-+pub struct Registration<T> {
-+    #[pin]
-+    inner: Opaque<bindings::i2c_adapter>,
-+    t_: PhantomData<T>,
-+}
-+
-+impl<T: I2cAlgorithm> Registration<T> {
-+    /// Register an I2C adapter.
-+    pub fn register<'a>(
-+        parent_dev: &'a device::Device<device::Bound>,
-+        opts: I2cAdapterOptions,
-+    ) -> impl PinInit<Devres<Self>, Error> + 'a
-+    where
-+        T: 'a,
-+    {
-+        Devres::new(parent_dev, Self::new(parent_dev, opts))
-+    }
-+
-+    fn new<'a>(
-+        parent_dev: &'a device::Device<device::Bound>,
-+        opts: I2cAdapterOptions,
-+    ) -> impl PinInit<Self, Error> + use<'a, T>
-+    where
-+        T: 'a,
-+    {
-+        try_pin_init! { Self {
-+            inner <- Opaque::try_ffi_init(move |slot: *mut bindings::i2c_adapter| {
-+                // SAFETY: The initializer can write to the provided `slot`.
-+                unsafe {slot.write(opts.as_raw::<T>()) };
-+
-+                // SAFETY: `slot` is valid from the initializer; `parent_dev` outlives the adapter.
-+                unsafe { (*slot).dev.parent = parent_dev.as_raw() };
-+
-+                // SAFETY: the `struct i2c_adapter` was just created in slot. The adapter will
-+                // get unregistered before `slot` is deallocated because the memory is pinned and
-+                // the destructor of this type deallocates the memory.
-+                // INVARIANT: If this returns `Ok(())`, then the `slot` will contain a registered
-+                // i2c adapter.
-+                to_result(unsafe {bindings::i2c_add_adapter(slot)})
-+            }),
-+            t_: PhantomData,
-+            }
-+        }
-+    }
-+}
-+
-+#[pinned_drop]
-+impl<T> PinnedDrop for Registration<T> {
-+    fn drop(self: Pin<&mut Self>) {
-+        // SAFETY: We know that the device is registered by the type invariants.
-+        unsafe { bindings::i2c_del_adapter(self.inner.get()) };
-+    }
-+}
-+
-+// SAFETY: A `Registration` of a `struct i2c_client` can be released from any thread.
-+unsafe impl<T> Send for Registration<T> {}
-+
-+// SAFETY: `Registration` offers no interior mutability (no mutation through &self
-+// and no mutable access is exposed)
-+unsafe impl<T> Sync for Registration<T> {}
-diff --git a/rust/kernel/i2c/algo.rs b/rust/kernel/i2c/algo.rs
+ config SAMPLE_RUST_DRIVER_PCI
+ 	tristate "PCI Driver"
+ 	depends on PCI
+diff --git a/samples/rust/Makefile b/samples/rust/Makefile
+index f65885d1d62b..7026eb46ae50 100644
+--- a/samples/rust/Makefile
++++ b/samples/rust/Makefile
+@@ -9,6 +9,7 @@ obj-$(CONFIG_SAMPLE_RUST_DEBUGFS_SCOPED)	+= rust_debugfs_scoped.o
+ obj-$(CONFIG_SAMPLE_RUST_DMA)			+= rust_dma.o
+ obj-$(CONFIG_SAMPLE_RUST_DRIVER_I2C)		+= rust_driver_i2c.o
+ obj-$(CONFIG_SAMPLE_RUST_I2C_CLIENT)		+= rust_i2c_client.o
++obj-$(CONFIG_SAMPLE_RUST_I2C_ADAPTER)		+= rust_i2c_adapter.o
+ obj-$(CONFIG_SAMPLE_RUST_DRIVER_PCI)		+= rust_driver_pci.o
+ obj-$(CONFIG_SAMPLE_RUST_DRIVER_PLATFORM)	+= rust_driver_platform.o
+ obj-$(CONFIG_SAMPLE_RUST_DRIVER_USB)		+= rust_driver_usb.o
+diff --git a/samples/rust/rust_i2c_adapter.rs b/samples/rust/rust_i2c_adapter.rs
 new file mode 100644
-index 000000000000..ca9fcc385426
+index 000000000000..542766e27d6f
 --- /dev/null
-+++ b/rust/kernel/i2c/algo.rs
-@@ -0,0 +1,300 @@
++++ b/samples/rust/rust_i2c_adapter.rs
+@@ -0,0 +1,170 @@
 +// SPDX-License-Identifier: GPL-2.0
 +
-+//! I2C subsystem
++//! Rust I2C adapter registration sample.
++//!
++//! An I2C adapter in Rust cannot exist on its own. To register a new I2C adapter,
++//! it must be bound to a parent device. In this sample driver, a platform device
++//! is used as the parent.
 +
-+// I2C Algorithm abstractions.
-+use crate::{
-+    bindings::{
-+        i2c_adapter,
-+        i2c_msg,
-+        i2c_smbus_data,
-+        u16_,
-+        u32_,
-+        u8_, //
++//! ACPI match table test
++//!
++//! This demonstrates how to test an ACPI-based Rust I2C adapter registration driver
++//! using QEMU with a custom SSDT.
++//!
++//! Steps:
++//!
++//! 1. **Create an SSDT source file** (`ssdt.dsl`) with the following content:
++//!
++//!     ```asl
++//!     DefinitionBlock ("", "SSDT", 2, "TEST", "VIRTACPI", 0x00000001)
++//!     {
++//!         Scope (\_SB)
++//!         {
++//!             Device (T432)
++//!             {
++//!                 Name (_HID, "LNUXBEEF")  // ACPI hardware ID to match
++//!                 Name (_UID, 1)
++//!                 Name (_STA, 0x0F)        // Device present, enabled
++//!                 Name (_CRS, ResourceTemplate ()
++//!                 {
++//!                     Memory32Fixed (ReadWrite, 0xFED00000, 0x1000)
++//!                 })
++//!             }
++//!         }
++//!     }
++//!     ```
++//!
++//! 2. **Compile the table**:
++//!
++//!     ```sh
++//!     iasl -tc ssdt.dsl
++//!     ```
++//!
++//!     This generates `ssdt.aml`
++//!
++//! 3. **Run QEMU** with the compiled AML file:
++//!
++//!     ```sh
++//!     qemu-system-x86_64 -m 512M \
++//!         -enable-kvm \
++//!         -kernel path/to/bzImage \
++//!         -append "root=/dev/sda console=ttyS0" \
++//!         -hda rootfs.img \
++//!         -serial stdio \
++//!         -acpitable file=ssdt.aml
++//!     ```
++//!
++//!     Requirements:
++//!     - The `rust_i2c_adapter` must be present either:
++//!         - built directly into the kernel (`bzImage`), or
++//!         - available as a `.ko` file and loadable from `rootfs.img`
++//!
++//! 4. **Verify it worked** by checking `dmesg`:
++//!
++//!     ```
++//!     rust_i2c_adapter LNUXBEEF:00: Probe Rust I2C Adapter registration sample.
++//!     ```
++//!
++
++use kernel::{
++    acpi,
++    device,
++    devres::Devres,
++    i2c::adapter::{
++        I2cAdapter,
++        I2cAdapterOptions,
++        Registration, //
 +    },
-+    device::Normal,
-+    error::VTABLE_DEFAULT_ERROR,
-+    i2c::adapter::I2cAdapter,
++    i2c::algo::{
++        flags, //
++        I2cAlgorithm,
++        I2cFlags,
++        I2cSmbusData,
++    },
++    platform,
 +    prelude::*,
-+    types::Opaque, //
++    sync::aref::ARef, //
 +};
 +
-+use core::{
-+    marker::PhantomData, //
-+};
++#[pin_data]
++struct SampleDriver {
++    parent_dev: ARef<platform::Device>,
++    #[pin]
++    i2c_adap: Devres<Registration<SampleDevice>>,
++}
 +
-+/// The i2c msg representation.
-+///
-+/// This structure represents the Rust abstraction for a C `struct i2c_msg`. The
-+/// implementation abstracts the usage of an existing C `struct i2c_msg` that
-+/// gets passed from/to the C side
-+///
-+/// # Invariants
-+///
-+/// A [`I2cMsg`] instance represents a valid `struct i2c_msg` created by the C portion of
-+/// the kernel.
-+#[repr(transparent)]
-+pub struct I2cMsg(Opaque<bindings::i2c_msg>);
++struct SampleDevice {}
 +
-+impl I2cMsg {
-+    /// Convert a raw C `struct i2c_msg` pointers to `&'a mut [I2cMsg]`.
-+    pub fn from_raw_parts_mut<'a>(msgs: *mut bindings::i2c_msg, len: usize) -> &'a mut [Self] {
-+        // SAFETY: Callers must ensure that `msgs` is valid, non-null, for the duration of this
-+        // function call and the entire duration when the returned slice exists.
-+        unsafe { core::slice::from_raw_parts_mut(msgs.cast::<Self>(), len) }
++#[vtable]
++impl I2cAlgorithm for SampleDevice {
++    fn smbus_xfer(
++        _adap: &I2cAdapter<device::Normal>,
++        _addr: u16,
++        _flags: u16,
++        _read_write: u8,
++        _command: u8,
++        _size: usize,
++        _data: &I2cSmbusData,
++    ) -> Result {
++        dev_info!(_adap.as_ref(), "SMBus xfer: request handler called");
++        Ok(())
++    }
++
++    fn functionality(_adap: &I2cAdapter<device::Normal>) -> I2cFlags {
++        flags::I2C_FUNC_SMBUS_READ_BYTE | flags::I2C_FUNC_SMBUS_WRITE_BYTE
 +    }
 +}
 +
-+/// The i2c smbus data representation.
-+///
-+/// This structure represents the Rust abstraction for a C `struct i2c_smbus_data`. The
-+/// implementation abstracts the usage of an existing C `struct i2c_smbus_data` that
-+/// gets passed from/to the C side
-+///
-+/// # Invariants
-+///
-+/// A [`I2cSmbusData`] instance represents a valid `struct i2c_smbus_data` created by the C
-+/// portion of the kernel.
-+#[repr(transparent)]
-+pub struct I2cSmbusData(Opaque<bindings::i2c_smbus_data>);
-+
-+impl I2cSmbusData {
-+    /// Convert a raw C `struct i2c_smbus_data` pointer to `&'a I2cSmbusData`.
-+    fn from_raw<'a>(ptr: *const bindings::i2c_smbus_data) -> &'a Self {
-+        // SAFETY: Callers must ensure that `ptr` is valid, non-null, for the duration of this
-+        // function call and the entire duration when the returned reference exists.
-+        unsafe { &*ptr.cast() }
-+    }
-+}
-+
-+kernel::define_flags!(
-+    I2cFlags(u32),
-+    I2C_FUNC_I2C = bindings::I2C_FUNC_I2C,
-+    I2C_FUNC_10BIT_ADDR = bindings::I2C_FUNC_10BIT_ADDR,
-+    I2C_FUNC_PROTOCOL_MANGLING = bindings::I2C_FUNC_PROTOCOL_MANGLING,
-+    I2C_FUNC_SMBUS_PEC = bindings::I2C_FUNC_SMBUS_PEC,
-+    I2C_FUNC_NOSTART = bindings::I2C_FUNC_NOSTART,
-+    I2C_FUNC_SLAVE = bindings::I2C_FUNC_SLAVE,
-+    I2C_FUNC_SMBUS_BLOCK_PROC_CALL = bindings::I2C_FUNC_SMBUS_BLOCK_PROC_CALL,
-+    I2C_FUNC_SMBUS_QUICK = bindings::I2C_FUNC_SMBUS_QUICK,
-+    I2C_FUNC_SMBUS_READ_BYTE = bindings::I2C_FUNC_SMBUS_READ_BYTE,
-+    I2C_FUNC_SMBUS_WRITE_BYTE = bindings::I2C_FUNC_SMBUS_WRITE_BYTE,
-+    I2C_FUNC_SMBUS_READ_BYTE_DATA = bindings::I2C_FUNC_SMBUS_READ_BYTE_DATA,
-+    I2C_FUNC_SMBUS_WRITE_BYTE_DATA = bindings::I2C_FUNC_SMBUS_WRITE_BYTE_DATA,
-+    I2C_FUNC_SMBUS_READ_WORD_DATA = bindings::I2C_FUNC_SMBUS_READ_WORD_DATA,
-+    I2C_FUNC_SMBUS_WRITE_WORD_DATA = bindings::I2C_FUNC_SMBUS_WRITE_WORD_DATA,
-+    I2C_FUNC_SMBUS_PROC_CALL = bindings::I2C_FUNC_SMBUS_PROC_CALL,
-+    I2C_FUNC_SMBUS_READ_BLOCK_DATA = bindings::I2C_FUNC_SMBUS_READ_BLOCK_DATA,
-+    I2C_FUNC_SMBUS_WRITE_BLOCK_DATA = bindings::I2C_FUNC_SMBUS_WRITE_BLOCK_DATA,
-+    I2C_FUNC_SMBUS_READ_I2C_BLOCK = bindings::I2C_FUNC_SMBUS_READ_I2C_BLOCK,
-+    I2C_FUNC_SMBUS_WRITE_I2C_BLOCK = bindings::I2C_FUNC_SMBUS_WRITE_I2C_BLOCK,
-+    I2C_FUNC_SMBUS_HOST_NOTIFY = bindings::I2C_FUNC_SMBUS_HOST_NOTIFY,
++kernel::acpi_device_table!(
++    ACPI_TABLE,
++    MODULE_ACPI_TABLE,
++    <SampleDriver as platform::Driver>::IdInfo,
++    [(acpi::DeviceId::new(c"LNUXBEEF"), ())]
 +);
 +
-+/// Trait implemented by the private data of an i2c adapter.
-+#[vtable]
-+pub trait I2cAlgorithm {
-+    /// Handler for transfer a given number of messages defined by the msgs array
-+    /// via the specified adapter.
-+    fn xfer(_adap: &I2cAdapter<Normal>, _msgs: &mut [I2cMsg]) -> Result {
-+        build_error!(VTABLE_DEFAULT_ERROR)
++impl platform::Driver for SampleDriver {
++    type IdInfo = ();
++
++    const ACPI_ID_TABLE: Option<acpi::IdTable<Self::IdInfo>> = Some(&ACPI_TABLE);
++
++    fn probe(
++        pdev: &platform::Device<device::Core>,
++        _id_info: Option<&Self::IdInfo>,
++    ) -> impl PinInit<Self, Error> {
++        pin_init::pin_init_scope(move || {
++            dev_info!(
++                pdev.as_ref(),
++                "Probe Rust I2C Adapter registration sample.\n"
++            );
++
++            Ok(try_pin_init!(Self {
++                parent_dev: pdev.into(),
++                i2c_adap <- {
++                    let name = I2cAdapterOptions{ name: c"rust_i2c_adapter"};
++                    Registration::register(pdev.as_ref(), name)
++                },
++            }))
++        })
 +    }
 +
-+    /// Same as @xfer. Yet, only using atomic context so e.g. PMICs
-+    /// can be accessed very late before shutdown. Optional.
-+    fn xfer_atomic(_adap: &I2cAdapter<Normal>, _msgs: &mut [I2cMsg]) -> Result {
-+        build_error!(VTABLE_DEFAULT_ERROR)
-+    }
-+
-+    /// Issue SMBus transactions to the given I2C adapter. If this
-+    /// is not present, then the bus layer will try and convert the SMBus calls
-+    /// into I2C transfers instead.
-+    fn smbus_xfer(
-+        _adap: &I2cAdapter<Normal>,
-+        _addr: u16,
-+        _flags: u16,
-+        _read_write: u8,
-+        _command: u8,
-+        _size: usize,
-+        _data: &I2cSmbusData,
-+    ) -> Result {
-+        build_error!(VTABLE_DEFAULT_ERROR)
-+    }
-+
-+    /// Same as @smbus_xfer. Yet, only using atomic context
-+    /// so e.g. PMICs can be accessed very late before shutdown. Optional.
-+    fn smbus_xfer_atomic(
-+        _adap: &I2cAdapter<Normal>,
-+        _addr: u16,
-+        _flags: u16,
-+        _read_write: u8,
-+        _command: u8,
-+        _size: usize,
-+        _data: &I2cSmbusData,
-+    ) -> Result {
-+        build_error!(VTABLE_DEFAULT_ERROR)
-+    }
-+
-+    /// Return the flags that this algorithm/adapter pair supports
-+    /// from the ``I2C_FUNC_*`` flags.
-+    fn functionality(_adap: &I2cAdapter<Normal>) -> I2cFlags {
-+        build_error!(VTABLE_DEFAULT_ERROR)
++    fn unbind(pdev: &platform::Device<device::Core>, _this: Pin<&Self>) {
++        dev_info!(
++            pdev.as_ref(),
++            "Unbind start: Rust I2C Adapter registration sample.\n"
++        );
++        // The i2c_adap (Devres<Registration<SampleDevice>>) will be automatically
++        // dropped here, which will call i2c_del_adapter() in its Drop impl
++        dev_info!(
++            pdev.as_ref(),
++            "Unbind complete: Rust I2C Adapter registration sample.\n"
++        );
 +    }
 +}
 +
-+/// A vtable for the I2C xfer operations of a Rust i2c adapter.
-+pub struct I2cAlgorithmVTable<T: I2cAlgorithm>(PhantomData<T>);
-+
-+impl<T: I2cAlgorithm> I2cAlgorithmVTable<T> {
-+    /// # Safety
-+    ///
-+    /// `adap` must be a valid pointer to `struct i2c_adapter` that is associated with a
-+    /// `i2c::adapter::Registration<T>`.
-+    /// `msgs` must be a valid pointer to `struct i2c_msg` for reading/writing.
-+    unsafe extern "C" fn xfer(
-+        adap: *mut i2c_adapter,
-+        msgs: *mut i2c_msg,
-+        num: ffi::c_int,
-+    ) -> ffi::c_int {
-+        let num = match usize::try_from(num) {
-+            Ok(num) => num,
-+            Err(_err) => return EINVAL.to_errno(),
-+        };
-+
-+        let msg_slice = I2cMsg::from_raw_parts_mut(msgs, num);
-+
-+        match T::xfer(I2cAdapter::from_raw(adap), msg_slice) {
-+            Ok(()) => 0,
-+            Err(err) => err.to_errno(),
-+        }
-+    }
-+
-+    /// # Safety
-+    ///
-+    /// `adap` must be a valid pointer to `struct i2c_adapter` that is associated with a
-+    /// `i2c::adapter::Registration<T>`.
-+    /// `msgs` must be a valid pointer to `struct i2c_msg` for reading/writing.
-+    unsafe extern "C" fn xfer_atomic(
-+        adap: *mut i2c_adapter,
-+        msgs: *mut i2c_msg,
-+        num: ffi::c_int,
-+    ) -> ffi::c_int {
-+        let num = match usize::try_from(num) {
-+            Ok(num) => num,
-+            Err(_err) => return EINVAL.to_errno(),
-+        };
-+
-+        let msg_slice = I2cMsg::from_raw_parts_mut(msgs, num);
-+
-+        match T::xfer_atomic(I2cAdapter::from_raw(adap), msg_slice) {
-+            Ok(()) => 0,
-+            Err(err) => err.to_errno(),
-+        }
-+    }
-+
-+    /// # Safety
-+    ///
-+    /// `adap` must be a valid pointer to `struct i2c_adapter` that is associated with a
-+    /// `i2c::adapter::Registration<T>`.
-+    /// `data` must be a valid pointer to `struct i2c_smbus_data` for reading/writing.
-+    unsafe extern "C" fn smbus_xfer(
-+        adap: *mut i2c_adapter,
-+        addr: u16_,
-+        flags: ffi::c_ushort,
-+        read_write: ffi::c_char,
-+        command: u8_,
-+        size: ffi::c_int,
-+        data: *mut i2c_smbus_data,
-+    ) -> ffi::c_int {
-+        let size = match usize::try_from(size) {
-+            Ok(size) => size,
-+            Err(_err) => return EINVAL.to_errno(),
-+        };
-+
-+        let data = I2cSmbusData::from_raw(data);
-+
-+        match T::smbus_xfer(
-+            I2cAdapter::from_raw(adap),
-+            addr,
-+            flags,
-+            read_write,
-+            command,
-+            size,
-+            data,
-+        ) {
-+            Ok(()) => 0,
-+            Err(err) => err.to_errno(),
-+        }
-+    }
-+
-+    /// # Safety
-+    ///
-+    /// `adap` must be a valid pointer to `struct i2c_adapter` that is associated with a
-+    /// `i2c::adapter::Registration<T>`.
-+    /// `data` must be a valid pointer to `struct i2c_smbus_data` for reading/writing.
-+    unsafe extern "C" fn smbus_xfer_atomic(
-+        adap: *mut i2c_adapter,
-+        addr: u16_,
-+        flags: ffi::c_ushort,
-+        read_write: ffi::c_char,
-+        command: u8_,
-+        size: ffi::c_int,
-+        data: *mut i2c_smbus_data,
-+    ) -> ffi::c_int {
-+        let size = match usize::try_from(size) {
-+            Ok(size) => size,
-+            Err(_err) => return EINVAL.to_errno(),
-+        };
-+
-+        let data = I2cSmbusData::from_raw(data);
-+
-+        match T::smbus_xfer_atomic(
-+            I2cAdapter::from_raw(adap),
-+            addr,
-+            flags,
-+            read_write,
-+            command,
-+            size,
-+            data,
-+        ) {
-+            Ok(()) => 0,
-+            Err(err) => err.to_errno(),
-+        }
-+    }
-+
-+    /// # Safety
-+    ///
-+    /// `adap` must be a valid pointer to `struct i2c_adapter` that is associated with a
-+    /// `I2cAdapterRegistration<T>`.
-+    unsafe extern "C" fn functionality(adap: *mut i2c_adapter) -> u32_ {
-+        T::functionality(I2cAdapter::from_raw(adap)).as_raw()
-+    }
-+
-+    const VTABLE: bindings::i2c_algorithm = bindings::i2c_algorithm {
-+        xfer: if T::HAS_XFER { Some(Self::xfer) } else { None },
-+        xfer_atomic: if T::HAS_XFER_ATOMIC {
-+            Some(Self::xfer_atomic)
-+        } else {
-+            None
-+        },
-+        smbus_xfer: if T::HAS_SMBUS_XFER {
-+            Some(Self::smbus_xfer)
-+        } else {
-+            None
-+        },
-+        smbus_xfer_atomic: if T::HAS_SMBUS_XFER_ATOMIC {
-+            Some(Self::smbus_xfer_atomic)
-+        } else {
-+            None
-+        },
-+        functionality: if T::HAS_FUNCTIONALITY {
-+            Some(Self::functionality)
-+        } else {
-+            None
-+        },
-+    };
-+
-+    pub(super) const fn build() -> &'static bindings::i2c_algorithm {
-+        &Self::VTABLE
-+    }
++kernel::module_platform_driver! {
++    type: SampleDriver,
++    name: "rust_i2c_adapter",
++    authors: ["Igor Korotin"],
++    description: "Sample I2C Adapter registration",
++    license: "GPL",
 +}
 
 -- 
