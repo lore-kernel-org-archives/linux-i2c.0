@@ -1,313 +1,129 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AB1F355022;
-	Sat, 31 Jan 2026 14:12:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8D99359F9E;
+	Sat, 31 Jan 2026 14:26:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769868773; cv=none; b=bOYzBFL4o9yprmyXu+plkUFKhjsQclB3DPV7YHf9nzjwTjdkAXYlCBEXxqgexR9wrqx5Lmybm78MYFUxAj+Yu7GBfNirQZ7TrJ0Q/oMrrPARPuG254B69lBAcgpi5NnCBjLcvKlMCbYkSrbI2T2jYXGTgCh0Ip+uUp76Qvh8ZwY=
+	t=1769869587; cv=none; b=OsrbrCs/iQSplrIFVYFvViOfaGygCaPg//Bn3E3h5nIt+YxBwpLsNUM8ro0M7a9a0EbUrZhsz310X7Ccg9wghsakncP6J/k33mG/CQu6/Rh6ly0RUykpiIMX/mcw92lTVo/m7CEmYmYga1m1JFbFd3FNbd5wT/uM1/MNdanpkiA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769868773; c=relaxed/simple;
-	bh=pN7PB1pCh1IWJygKI2Vu4CWLqsurcsYp3Gs/ABkgY6I=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=LhUBk2tZFGxp3MoLlrKgOHaM8rHupkn9/F+Q1+nQ8zEK6YAl55xD7I+5R6mLWoiTN3P7tLhOxbrR3ahPiEivifDFXPMpVp2jQI6a5sBVyWHlEGWQcGfqF7cJtgEDEphgWvAWshi/iiS8N9hWsBN3dAluTqY+iudTOoe4ydPrPRE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EgYYYSV9; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1769869587; c=relaxed/simple;
+	bh=u3VhyHPpmSgE968spvdigjspg7knx3QFio0q8K5leto=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:Cc:To:From:
+	 References:In-Reply-To; b=ms+Cu/n0pzmJ3dV1NhN128i2c1gjPwEx9JTUvOJSo4i1Jmx4R8W/xe4OLAiYjlWR0cvQyD08rVRBK1cWWG5iFZcSSX3Z+oiVxUnkqzA6vbCbBEHfCYdBVfyDWbwV+S5C3xg8OyvFGlCEPdMzv5hndU5fdRE8xs21CxLjjyz8+1A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VcciIHyJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EgYYYSV9"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 263E5C2BCB4;
-	Sat, 31 Jan 2026 14:12:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VcciIHyJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3456C4CEF1;
+	Sat, 31 Jan 2026 14:26:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1769868773;
-	bh=pN7PB1pCh1IWJygKI2Vu4CWLqsurcsYp3Gs/ABkgY6I=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=EgYYYSV91B/xdRpxt4pz2j4nC/1je+kvqwwvxqKSUHi0ByiLoaqcVXMQQvkJkEGQW
-	 4Rv7+zu7aj2U4ZFY+85ukwyr6R6zrMhxgwFT3Rius36Dt0hg5FS25+ftQAoj9/1k2u
-	 f8q+ObbdS1xTmQZAaFGSR7KXPPgKeOvyPaDNJ+deJNXlcq+yRkvtz3UFXE6459QEc4
-	 SVDZXZMood/0QgA7r5VM16MADi4d3D6ph7JcKTOHsy2iqVh19Tq6xteC3/MkOvAg9S
-	 qGlLcLUM3eIf7dSeYzg7QLY6uMnjxmIN2g4kPvAZJpBzvVm0mNIfltTsaCX7EcVIfs
-	 aU7X/KM78sPrw==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1BB35D79770;
-	Sat, 31 Jan 2026 14:12:53 +0000 (UTC)
-From: Igor Korotin via B4 Relay <devnull+igor.korotin.linux.gmail.com@kernel.org>
-Date: Sat, 31 Jan 2026 14:12:47 +0000
-Subject: [PATCH 5/5] samples: rust: add Rust I2C adapter registration
- sample
+	s=k20201202; t=1769869587;
+	bh=u3VhyHPpmSgE968spvdigjspg7knx3QFio0q8K5leto=;
+	h=Date:Subject:Cc:To:From:References:In-Reply-To:From;
+	b=VcciIHyJvfLK+/b83PlK2qWRxzBf8mvZxkhLtVHz1W3yVuQzesPNl7ebTgY3mYs8X
+	 r6bGc8qR9kWOFx9ASfWhHsg/as/AXp4CBzKSQiog8FhDEHUefB+23XWHFApzzqaRpF
+	 pl53FNcwlxFFudv20nW+2T9yQ+PXmQU+VTBhZNGYFecJPpoyecVGDzdB5uRRg8JeJA
+	 uy+y6r5dHbB3PnABIK3JipiTVn6SsV2hf+MgUpgWh8EULY79vSyJa7Ow6m0RwV71S0
+	 EXm20oxkmf7Sa9VPPvu0fL7Z+GhcQpEdr3bQwp8b/CVIuiPzbF25/Vs0fLmTNn/Yer
+	 iEUDsmIzEvBiQ==
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260131-i2c-adapter-v1-5-5a436e34cd1a@gmail.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Sat, 31 Jan 2026 15:26:22 +0100
+Message-Id: <DG2UELGNDQDS.1LR5TLOZTSC29@kernel.org>
+Subject: Re: [PATCH 0/5] rust: extend I2C functionality
+Cc: <igor.korotin.linux@gmail.com>, "Daniel Almeida"
+ <daniel.almeida@collabora.com>, "Miguel Ojeda" <ojeda@kernel.org>, "Boqun
+ Feng" <boqun.feng@gmail.com>, "Gary Guo" <gary@garyguo.net>,
+ =?utf-8?q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, "Benno Lossin"
+ <lossin@kernel.org>, "Andreas Hindborg" <a.hindborg@kernel.org>, "Alice
+ Ryhl" <aliceryhl@google.com>, "Trevor Gross" <tmgross@umich.edu>, "Wolfram
+ Sang" <wsa+renesas@sang-engineering.com>, <linux-kernel@vger.kernel.org>,
+ <rust-for-linux@vger.kernel.org>, <linux-i2c@vger.kernel.org>,
+ <markus.probst@posteo.de>, <brgl@kernel.org>, <gregkh@linuxfoundation.org>,
+ <rafael@kernel.org>, <driver-core@lists.linux.dev>
+To: "Igor Korotin via B4 Relay"
+ <devnull+igor.korotin.linux.gmail.com@kernel.org>
+From: "Danilo Krummrich" <dakr@kernel.org>
 References: <20260131-i2c-adapter-v1-0-5a436e34cd1a@gmail.com>
 In-Reply-To: <20260131-i2c-adapter-v1-0-5a436e34cd1a@gmail.com>
-To: Danilo Krummrich <dakr@kernel.org>, 
- Daniel Almeida <daniel.almeida@collabora.com>, 
- Miguel Ojeda <ojeda@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, 
- Gary Guo <gary@garyguo.net>, 
- =?utf-8?q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, 
- Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, 
- Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, 
- Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-kernel@vger.kernel.org, rust-for-linux@vger.kernel.org, 
- linux-i2c@vger.kernel.org, markus.probst@posteo.de, 
- Igor Korotin <igor.korotin.linux@gmail.com>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1769868772; l=7280;
- i=igor.korotin.linux@gmail.com; s=20260125; h=from:subject:message-id;
- bh=UoiJITbB7wSdqa0+19oS9e0ghILI5njDjJv+rjpQTNo=;
- b=OJMA6QqqxEoPFMUi/s6s6vUTrFKJwRrspekSjPnBxBTRXVy2rYv7XsxvuwQ2sLrxN9izdsPPP
- eVuBxGsChbWCKUGKyTtelRLz2VjTCBrCm7z+Z8P954G66OF/8b0QJBK
-X-Developer-Key: i=igor.korotin.linux@gmail.com; a=ed25519;
- pk=SjZ//wxnynZgJJgTqANyU10A7hdQQdDXLvXIr+zWroE=
-X-Endpoint-Received: by B4 Relay for igor.korotin.linux@gmail.com/20260125
- with auth_id=615
-X-Original-From: Igor Korotin <igor.korotin.linux@gmail.com>
-Reply-To: igor.korotin.linux@gmail.com
 
-From: Igor Korotin <igor.korotin.linux@gmail.com>
+(Cc: Bartosz, Greg, Rafael, driver-core)
 
-Add a new `rust_i2c_adapter` sample, showing how to create a new
-i2c adapter using `i2c::adapter::Registration`
+On Sat Jan 31, 2026 at 3:12 PM CET, Igor Korotin via B4 Relay wrote:
+> This patch series extend the existing I2C functionality with:
+> - Abstractions allowing to implement I2C algorithms used by I2C adapters;
+> - Abstractions allowing to create and add new I2C adapters;
+> - Safe wrappers upon I2C and SMbus transferring C API: read/write
+>   bytes/words/byte arrays.
+>
+> The patch series contains additional new sample driver `rust_i2c_adapter`
+> presenting the new functionality.=20
 
-Signed-off-by: Igor Korotin <igor.korotin.linux@gmail.com>
----
- MAINTAINERS                      |   3 +-
- samples/rust/Kconfig             |  12 +++
- samples/rust/Makefile            |   1 +
- samples/rust/rust_i2c_adapter.rs | 170 +++++++++++++++++++++++++++++++++++++++
- 4 files changed, 184 insertions(+), 2 deletions(-)
+The i2c_adapter code on the C side has some lifetime issues, Bartosz looks =
+into
+resolving.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 60662984176d..bae13f1f9a23 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -11888,8 +11888,7 @@ L:	rust-for-linux@vger.kernel.org
- S:	Maintained
- F:	rust/i2c/*
- F:	rust/kernel/i2c.rs
--F:	samples/rust/rust_driver_i2c.rs
--F:	samples/rust/rust_i2c_client.rs
-+F:	samples/rust/rust_*i2c*.rs
- 
- I2C SUBSYSTEM HOST DRIVERS
- M:	Andi Shyti <andi.shyti@kernel.org>
-diff --git a/samples/rust/Kconfig b/samples/rust/Kconfig
-index 3efa51bfc8ef..a5157b50e27c 100644
---- a/samples/rust/Kconfig
-+++ b/samples/rust/Kconfig
-@@ -107,6 +107,18 @@ config SAMPLE_RUST_I2C_CLIENT
- 
- 	  If unsure, say N.
- 
-+config SAMPLE_RUST_I2C_ADAPTER
-+	tristate "I2C Adapter Registration"
-+	depends on I2C=y
-+	help
-+	  This option builds the Rust I2C adapter manual creation
-+	  sample.
-+
-+	  To compile this as a module, choose M here:
-+	  the module will be called rust_i2c_adapter.
-+
-+	  If unsure, say N.
-+
- config SAMPLE_RUST_DRIVER_PCI
- 	tristate "PCI Driver"
- 	depends on PCI
-diff --git a/samples/rust/Makefile b/samples/rust/Makefile
-index f65885d1d62b..7026eb46ae50 100644
---- a/samples/rust/Makefile
-+++ b/samples/rust/Makefile
-@@ -9,6 +9,7 @@ obj-$(CONFIG_SAMPLE_RUST_DEBUGFS_SCOPED)	+= rust_debugfs_scoped.o
- obj-$(CONFIG_SAMPLE_RUST_DMA)			+= rust_dma.o
- obj-$(CONFIG_SAMPLE_RUST_DRIVER_I2C)		+= rust_driver_i2c.o
- obj-$(CONFIG_SAMPLE_RUST_I2C_CLIENT)		+= rust_i2c_client.o
-+obj-$(CONFIG_SAMPLE_RUST_I2C_ADAPTER)		+= rust_i2c_adapter.o
- obj-$(CONFIG_SAMPLE_RUST_DRIVER_PCI)		+= rust_driver_pci.o
- obj-$(CONFIG_SAMPLE_RUST_DRIVER_PLATFORM)	+= rust_driver_platform.o
- obj-$(CONFIG_SAMPLE_RUST_DRIVER_USB)		+= rust_driver_usb.o
-diff --git a/samples/rust/rust_i2c_adapter.rs b/samples/rust/rust_i2c_adapter.rs
-new file mode 100644
-index 000000000000..542766e27d6f
---- /dev/null
-+++ b/samples/rust/rust_i2c_adapter.rs
-@@ -0,0 +1,170 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+//! Rust I2C adapter registration sample.
-+//!
-+//! An I2C adapter in Rust cannot exist on its own. To register a new I2C adapter,
-+//! it must be bound to a parent device. In this sample driver, a platform device
-+//! is used as the parent.
-+
-+//! ACPI match table test
-+//!
-+//! This demonstrates how to test an ACPI-based Rust I2C adapter registration driver
-+//! using QEMU with a custom SSDT.
-+//!
-+//! Steps:
-+//!
-+//! 1. **Create an SSDT source file** (`ssdt.dsl`) with the following content:
-+//!
-+//!     ```asl
-+//!     DefinitionBlock ("", "SSDT", 2, "TEST", "VIRTACPI", 0x00000001)
-+//!     {
-+//!         Scope (\_SB)
-+//!         {
-+//!             Device (T432)
-+//!             {
-+//!                 Name (_HID, "LNUXBEEF")  // ACPI hardware ID to match
-+//!                 Name (_UID, 1)
-+//!                 Name (_STA, 0x0F)        // Device present, enabled
-+//!                 Name (_CRS, ResourceTemplate ()
-+//!                 {
-+//!                     Memory32Fixed (ReadWrite, 0xFED00000, 0x1000)
-+//!                 })
-+//!             }
-+//!         }
-+//!     }
-+//!     ```
-+//!
-+//! 2. **Compile the table**:
-+//!
-+//!     ```sh
-+//!     iasl -tc ssdt.dsl
-+//!     ```
-+//!
-+//!     This generates `ssdt.aml`
-+//!
-+//! 3. **Run QEMU** with the compiled AML file:
-+//!
-+//!     ```sh
-+//!     qemu-system-x86_64 -m 512M \
-+//!         -enable-kvm \
-+//!         -kernel path/to/bzImage \
-+//!         -append "root=/dev/sda console=ttyS0" \
-+//!         -hda rootfs.img \
-+//!         -serial stdio \
-+//!         -acpitable file=ssdt.aml
-+//!     ```
-+//!
-+//!     Requirements:
-+//!     - The `rust_i2c_adapter` must be present either:
-+//!         - built directly into the kernel (`bzImage`), or
-+//!         - available as a `.ko` file and loadable from `rootfs.img`
-+//!
-+//! 4. **Verify it worked** by checking `dmesg`:
-+//!
-+//!     ```
-+//!     rust_i2c_adapter LNUXBEEF:00: Probe Rust I2C Adapter registration sample.
-+//!     ```
-+//!
-+
-+use kernel::{
-+    acpi,
-+    device,
-+    devres::Devres,
-+    i2c::adapter::{
-+        I2cAdapter,
-+        I2cAdapterOptions,
-+        Registration, //
-+    },
-+    i2c::algo::{
-+        flags, //
-+        I2cAlgorithm,
-+        I2cFlags,
-+        I2cSmbusData,
-+    },
-+    platform,
-+    prelude::*,
-+    sync::aref::ARef, //
-+};
-+
-+#[pin_data]
-+struct SampleDriver {
-+    parent_dev: ARef<platform::Device>,
-+    #[pin]
-+    i2c_adap: Devres<Registration<SampleDevice>>,
-+}
-+
-+struct SampleDevice {}
-+
-+#[vtable]
-+impl I2cAlgorithm for SampleDevice {
-+    fn smbus_xfer(
-+        _adap: &I2cAdapter<device::Normal>,
-+        _addr: u16,
-+        _flags: u16,
-+        _read_write: u8,
-+        _command: u8,
-+        _size: usize,
-+        _data: &I2cSmbusData,
-+    ) -> Result {
-+        dev_info!(_adap.as_ref(), "SMBus xfer: request handler called");
-+        Ok(())
-+    }
-+
-+    fn functionality(_adap: &I2cAdapter<device::Normal>) -> I2cFlags {
-+        flags::I2C_FUNC_SMBUS_READ_BYTE | flags::I2C_FUNC_SMBUS_WRITE_BYTE
-+    }
-+}
-+
-+kernel::acpi_device_table!(
-+    ACPI_TABLE,
-+    MODULE_ACPI_TABLE,
-+    <SampleDriver as platform::Driver>::IdInfo,
-+    [(acpi::DeviceId::new(c"LNUXBEEF"), ())]
-+);
-+
-+impl platform::Driver for SampleDriver {
-+    type IdInfo = ();
-+
-+    const ACPI_ID_TABLE: Option<acpi::IdTable<Self::IdInfo>> = Some(&ACPI_TABLE);
-+
-+    fn probe(
-+        pdev: &platform::Device<device::Core>,
-+        _id_info: Option<&Self::IdInfo>,
-+    ) -> impl PinInit<Self, Error> {
-+        pin_init::pin_init_scope(move || {
-+            dev_info!(
-+                pdev.as_ref(),
-+                "Probe Rust I2C Adapter registration sample.\n"
-+            );
-+
-+            Ok(try_pin_init!(Self {
-+                parent_dev: pdev.into(),
-+                i2c_adap <- {
-+                    let name = I2cAdapterOptions{ name: c"rust_i2c_adapter"};
-+                    Registration::register(pdev.as_ref(), name)
-+                },
-+            }))
-+        })
-+    }
-+
-+    fn unbind(pdev: &platform::Device<device::Core>, _this: Pin<&Self>) {
-+        dev_info!(
-+            pdev.as_ref(),
-+            "Unbind start: Rust I2C Adapter registration sample.\n"
-+        );
-+        // The i2c_adap (Devres<Registration<SampleDevice>>) will be automatically
-+        // dropped here, which will call i2c_del_adapter() in its Drop impl
-+        dev_info!(
-+            pdev.as_ref(),
-+            "Unbind complete: Rust I2C Adapter registration sample.\n"
-+        );
-+    }
-+}
-+
-+kernel::module_platform_driver! {
-+    type: SampleDriver,
-+    name: "rust_i2c_adapter",
-+    authors: ["Igor Korotin"],
-+    description: "Sample I2C Adapter registration",
-+    license: "GPL",
-+}
+My biggest concern is that struct i2c_adapter is a bus device implementatio=
+n,
+but does not use the reference count of the embedded struct device.
 
--- 
-2.43.0
+Instead, I2C bus drivers embedd the i2c_adapter in their driver specific
+structure, which is typically freed in the I2C bus driver's remove() callba=
+ck.
 
+This violates struct device reference counts.
+
+Until this is fixed, the Rust abstractions should probably work around this=
+, to
+subsequent painful rework.
+
+> Patch series depend on=20
+> message-id: <20260107103511.570525-1-dakr@kernel.org>
+>
+> Signed-off-by: Igor Korotin <igor.korotin.linux@gmail.com>
+> ---
+> Igor Korotin (5):
+>       rust: i2c: split client and adapter code into separate files
+>       rust: bits: add define_flags macro
+>       rust: i2c: Add I2C Adapter registration abstractions
+>       rust: i2c: add I2C wrappers
+>       samples: rust: add Rust I2C adapter registration sample
+>
+>  MAINTAINERS                      |   4 +-
+>  include/linux/i2c.h              |   6 +
+>  rust/helpers/helpers.c           |   1 +
+>  rust/helpers/i2c.c               |  15 ++
+>  rust/kernel/bits.rs              |  57 ++++++++
+>  rust/kernel/i2c.rs               | 254 ++-------------------------------
+>  rust/kernel/i2c/adapter.rs       | 200 ++++++++++++++++++++++++++
+>  rust/kernel/i2c/algo.rs          | 300 +++++++++++++++++++++++++++++++++=
+++++++
+>  rust/kernel/i2c/client.rs        | 284 +++++++++++++++++++++++++++++++++=
++++
+>  samples/rust/Kconfig             |  12 ++
+>  samples/rust/Makefile            |   1 +
+>  samples/rust/rust_driver_i2c.rs  |  10 +-
+>  samples/rust/rust_i2c_adapter.rs | 170 ++++++++++++++++++++++
+>  samples/rust/rust_i2c_client.rs  |  15 +-
+>  14 files changed, 1069 insertions(+), 260 deletions(-)
+> ---
+> base-commit: a7c013f779530190d0c1e1aa5e7c8a61f0bd479e
+> change-id: 20260131-i2c-adapter-d38d330c4c25
+> prerequisite-message-id: <20260107103511.570525-1-dakr@kernel.org>
+> prerequisite-patch-id: 6e4d28a06d842ddfc7db82f410532a35b8fe317d
+> prerequisite-patch-id: 9739295d85b688257fca29be1e1217a05a69c9e7
+> prerequisite-patch-id: 78eaed3746a40713f44f13508fcf43653b0a4528
+> prerequisite-patch-id: 99f1881bc896896297a903affcfa4f62cab1a307
+> prerequisite-patch-id: ea8baa9d648f1178d6f39d140b98bddf3c183f6f
+> prerequisite-patch-id: f8a9e049d204bde04e80151a67dfff5ec2633e7a
+>
+> Best regards,
+> --=20
+> Igor Korotin <igor.korotin.linux@gmail.com>
 
