@@ -1,121 +1,219 @@
-Received: from mail-ed1-f50.google.com (mail-ed1-f50.google.com [209.85.208.50])
+Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8898B324B24
-	for <linux-i2c@vger.kernel.org>; Sun,  1 Feb 2026 11:18:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B86692EBB86
+	for <linux-i2c@vger.kernel.org>; Sun,  1 Feb 2026 22:23:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769944703; cv=none; b=IN2TL6w1F3t7yoR9hI5QEUXKVUUFc3VKUc4usxO8gx0OzV6CWniczBanu58WT/M4Fsb1F+1hvknG9hDK1TxEPBMjBjKur4IAqvfvtWUL5vyTEEhH6uYL3KKUL4HancifMIO0/QqWe3Y8J5Cd9FI0iXqoy1dUuzOKqjfiD706bxE=
+	t=1769984622; cv=none; b=geLg6N++fMtHxuGcJ1m3k2xuwYgz5ejZSjIa2wMyyohnJuv9OZrr74NfXkH5n5tcY3ypqQsLy6IOczHvfgCmel3bmfN15Gd+TGlFUJvSQcSl2pBOim5ar6guFQ3ih/FJJCkf+OIAH6W7LPUW2Xx+tLXQWh3fvaDQd6zaSLdM4os=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769944703; c=relaxed/simple;
-	bh=DT/AC0f3v8zTwDpTqWISUM92EMD8mREJDDZ5pNdtZYw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Il3H3b3ic2BWksca2zhj08szFByKqCPkCq9Ii8U0yh8OtUVkoQggZwWlZLAmsqAd8VfQ/Dqw0hVog7oTRVBP9W/Gz3KgBkWqSTBin3uA4LY60ZinIoEkOqHgwB6dRXf3E34mEk7XMdNw7C4mCVyjrUMjhFIdlIKmvB+RrDff2Q4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lNZPwrFf; arc=none smtp.client-ip=209.85.208.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1769984622; c=relaxed/simple;
+	bh=8iC6WKxiYQIrJeCuFClcXSQIT1svC15xrYOO4ADNDkI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Jicv8ohzRGgyS9dcvnjJt6bDbeDo5myVs+rvioNmX5P2FyxzIipuTWvGtk84Yl7T796wMhPlrDy2dcu4+J3zdU/nAQvA3rFJpxQnK/OQew7FVIy77JFckkC6GFr16kKk3GP5QBgT8CFQ39nVP1HODZ7qitwjF5qgP+Yn2uDF4hQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=McG75+iP; arc=none smtp.client-ip=209.85.128.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lNZPwrFf"
-Received: by mail-ed1-f50.google.com with SMTP id 4fb4d7f45d1cf-658f1fde4bfso1888065a12.1
-        for <linux-i2c@vger.kernel.org>; Sun, 01 Feb 2026 03:18:21 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="McG75+iP"
+Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-4806ce0f97bso32076695e9.0
+        for <linux-i2c@vger.kernel.org>; Sun, 01 Feb 2026 14:23:38 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1769944700; x=1770549500; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lGn3i/O/y+GdrcNDRMS16OuGNGT+puPLYW3aCy6Bi54=;
-        b=lNZPwrFfUVHJobP8737sLm3ff2MZU/dhdCu+vC14sb67nOdJXNh1rmUzZL4otHpH44
-         DsT+CKHkQD6hRD6bODQuD2QQ+TXy15OhuTO/EF7pzwHXLjSVTr5Mpa4yDgPf4CHFEVev
-         fMIvu394le0JZPH/9UgCjPDOQF/L69B55aFVyW8IyFiJPMllVgkt313tGlq6vBhm6lUy
-         Pa66ggn2e8ZIQCGNnjiVX9V0Hn23aAlq3t9wTTHvoH0ekLxCtVU7cgC6Uc83b5thu7OX
-         851g2upf33kOCRRf/xSpOe/Y5VdToKdkp/9s2+GRD3ihjXTLu4Dd+6i6DUCpERo5lzOu
-         yFFg==
+        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1769984617; x=1770589417; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=CH9BC69jP5RCt/eJVwGMK2W67lZNWhB3HFcUKx/WFj4=;
+        b=McG75+iPZKX7EM4YYBfBHalN1JYB6Ac8LzMedBHKgerN1JSUMnj1LV+vh7XqRGf9Kh
+         bkUYnIXzYNgMMAzcvO3zsDyZXNPzds+iyTVNQ/ytbqBiII/ZwwW87hGbHzD6WvNXbtqM
+         9JJOyOrSQdU2ilKFnw4clxMxMTpLhFXKidc6CiNaMVowttd9Kutk7OQt7Yck6iGJIpHt
+         O2vMcn+J/cF1/0CxEUcGUf9TeQWsHAQFQ5VxAHQivE/U3VAvYHMNxVISdUc9hj8gVb4w
+         TGq9AF6q4RRnfn7tx3JrF1jZOlNhm7fxxVDcmPv+r7aPKTPGQ2WeyBhQ4d55G+SErxKo
+         8yzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769944700; x=1770549500;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=lGn3i/O/y+GdrcNDRMS16OuGNGT+puPLYW3aCy6Bi54=;
-        b=Fmg7aXuNpOhLMqFJbQ+ECcBbp6uaj1ke8KbjCV6a/vSqXTZUYzQ18dvbhlwat1ryxN
-         Uq6mjM6LjBqxiBK5RHF73VVddK8EZ0BtQi8YIjyYMbAehy4OlAYabLgEJulJl67S+6VW
-         cERukn6QOdcCc1LQ1ehJzDm6gtF7/1MOK+aCLAnM7KYzgJvb4ccJD656CLQnQQiV6fkC
-         e0ioRn5TkwbSpDcLwDrs98Tuc83T3zju82TkXhtqD2U3ArwiDLrQ4iAmxsugFQxA1yTv
-         rafHyy3eNxgGD/Nzuks5vWXzRC7DiQLf2gEaYYlxWjDpu/WAM1jgT02aJAjYHT2IVRus
-         rlOw==
-X-Gm-Message-State: AOJu0YxclFW7qej7Iysc7Efsd48RVq2oov9fmuNVl/xLFj6m3C+61HOt
-	8/thDAFlnAZcu4kw2/rQEGrvfLxWQ7ZRkAFoSyzIXbKuvEjWhn3wXo4w
-X-Gm-Gg: AZuq6aJZeJrGLZWsf1/KM2FA1M2sTR94V2xyqzNZ9q75NXz0IWs4rwOgwlAta1Wn18o
-	et8rY3IfsbMgHRIBtrhmypoe3LekKkiZRqCvVWXe4d27blxPR3AYuOesRkZFUFcou0tTKplG/Mp
-	03v1OyyH9eIoJHQkP7EAub4jFsW2zMtiBuD8U9yIpYq0cOR9JEd3+0HHeWE43uFc3CkVsgfgfIk
-	eu0VOJP2IlaFhZ4UDaD21z3RSPZCcM5aHOCLg/7gf7H1AllhJrkG/LIGupjia5/wsiTqGk0TOue
-	YOCKUuPxp/MOMdxGjD7KbEoJXhxkk70oFxIChVvarKZjHA4PppZAtSKBIYtXsYDBNGf6ODE+yyr
-	luJwGa+XBzLqq8CfD552Cpwlp3ACYYeX3kVRSeByFfKbB1x4PMchf7RvWhigN9en5ZauZwsYDzf
-	piy8IbOHWeq5BNWOvokeQNnCE=
-X-Received: by 2002:a17:907:3f08:b0:b8a:e013:9c5b with SMTP id a640c23a62f3a-b8dff1f35d0mr611231766b.4.1769944699726;
-        Sun, 01 Feb 2026 03:18:19 -0800 (PST)
-Received: from C-PF5D4647.localdomain ([147.161.249.21])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8dbf2ed6besm714713066b.60.2026.02.01.03.18.18
+        d=1e100.net; s=20230601; t=1769984617; x=1770589417;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=CH9BC69jP5RCt/eJVwGMK2W67lZNWhB3HFcUKx/WFj4=;
+        b=nbJu1oLEW0IMQs/22wlKw3xKhpwXzoVmF8JOG2sO9APNrsv4+XkwkX+H+5MR5LpLKN
+         IOqaXuYzQmC42TnARJrArOXU0vttCEMfeKUdmXdypXNhWE2RrBJwRiIsgy8KcXzlzuiv
+         qEboOv2wohjySDyIFOw51yHmJ42yMzMFkwmv+PfUnGiMpLEvivV8GxtwwjUudOsx8UdH
+         X707s/JJUraNfFT0+pym1PATeF1Sytws5u4yaPwKMg4ToCy8Xay1w9vtxK14sduwmrpJ
+         mrF34dVEgMUdLT0J4dTTqm+8BUhn4O1jTblozu/9e/VmIDJZwrIp/1K/TNAbs3VgNsCU
+         mFSw==
+X-Forwarded-Encrypted: i=1; AJvYcCVMpDp6VueDIRefi3Hh3/6nkJuRJtsHKRNaAg2w+MqgWfREzRGxYanoAvDL91iCeF1JHMHOCOaS5zY=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwqesJjdn6e5N+KgjLyvrFN58jxR4EsqRZLZksj49j8nZwFpGWY
+	uwpwJQCQfKiktfJgm/HgAC5DVrVt/4WnwwWdugD6s8RVWHu02RwQQgdPhQMrT+Dd1z4=
+X-Gm-Gg: AZuq6aIiSVzxB9fSMtB5mpE3W6q5y75gB2k4LSA6ntMzJn+tpwtCNWv04/M08t03Mdi
+	ky53eJ07cBqDAFP8zGo8ZZHv1Ju5RTYMUTrwQaOKlgjdXhPvN1nQGazDEb83c85bjbc7LP4wkK/
+	IYv3xIJmM23rHPSE/NekFpOVIqkpF5LLukmB4Iu4eaMfCKD1h1cytvb5ut/yrULlbB6iJvsAeXl
+	hYCEp86D3K/4XTak71U/5q2sTVoSDT8otGTZUP3SYb3pcXFDaqMLpRBo+bQK001IGTse5HhO9+E
+	FTjQC5ZsO6qkpzcaglWWbYlDUTEhCGQ3GhOlDiSF2iFZuzBzI+IHMcgoqZVBGBRLRNQ0CepzNiU
+	too40e3xw9KbTLrDs3ts64fbeKUqgWpWv/l6hOvNv1fy0e6TPitjt0tXTstLZnD26RePR03skE2
+	lpEfx1E15rt36q+Z1YDfv/Hh9V6lZN
+X-Received: by 2002:a05:600c:19cc:b0:480:690e:f14a with SMTP id 5b1f17b1804b1-482db4563b7mr126551145e9.14.1769984616317;
+        Sun, 01 Feb 2026 14:23:36 -0800 (PST)
+Received: from localhost (212-166-21-66.win.be. [212.166.21.66])
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4806cdd79c7sm362884475e9.2.2026.02.01.14.23.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 01 Feb 2026 03:18:19 -0800 (PST)
-From: Jie Li <lj29312931@gmail.com>
-X-Google-Original-From: Jie Li <jie.i.li@nokia.com>
-To: wsa@kernel.org,
-	linusw@kernel.org
-Cc: linux-i2c@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Jie Li <jie.i.li@nokia.com>
-Subject: [PATCH v3 2/2] i2c: core: support recovery for single-ended GPIOs
-Date: Sun,  1 Feb 2026 12:18:12 +0100
-Message-ID: <20260201111812.18945-3-jie.i.li@nokia.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260201111812.18945-1-jie.i.li@nokia.com>
-References: <CAD++jLnk_5KG_q1aCtpOrTCbhtK-FxXH6BhPFSwukyt2F4uxmQ@mail.gmail.com>
- <20260201111812.18945-1-jie.i.li@nokia.com>
+        Sun, 01 Feb 2026 14:23:35 -0800 (PST)
+Date: Sun, 1 Feb 2026 23:23:34 +0100
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>
+To: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Cc: Dan Carpenter <dan.carpenter@linaro.org>, oe-kbuild@lists.linux.dev, 
+	Abdurrahman Hussain via B4 Relay <devnull+abdurrahman.nexthop.ai@kernel.org>, Michal Simek <monstr@monstr.eu>, 
+	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk@kernel.org>, Conor Dooley <conor+dt@kernel.org>, lkp@intel.com, 
+	oe-kbuild-all@lists.linux.dev, Andy Shevchenko <andriy.shevchenko@intel.com>, 
+	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH v7 5/6] i2c: xiic: cosmetic cleanup
+Message-ID: <r2qkeep6jf7xxjzckn72z4avgx3qiqh4g2fkvzeyu2p2o54bff@xs4kzlong7cn>
+References: <202601311615.10yziOui-lkp@intel.com>
+ <81522270-1703-48E1-B64C-8CF174E1EF94@nexthop.ai>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="v37yrfnsg2gibrlx"
+Content-Disposition: inline
+In-Reply-To: <81522270-1703-48E1-B64C-8CF174E1EF94@nexthop.ai>
 
-Currently, i2c_init_recovery() only assigns the set_sda/set_scl
-hooks if gpiod_get_direction() returns 0 (output).
 
-This logic fails on certain SoC controllers where open-drain lines
-in a high-impedance state are physically reported as inputs. This
-leads to a "deadlock" where the I2C core refuses to assign the
-recovery hooks because it incorrectly assumes the pins are
-input-only, even though they are fully capable of driving the bus
-low for recovery.
+--v37yrfnsg2gibrlx
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v7 5/6] i2c: xiic: cosmetic cleanup
+MIME-Version: 1.0
 
-Update the recovery initialization to use the new
-gpiod_is_single_ended() helper. If a GPIO is configured as
-open-drain or open-source in the firmware, it is safe to assume
-it can be used for bus recovery, even if the current hardware
-direction is reported as input.
+Hello,
 
-Signed-off-by: Jie Li <jie.i.li@nokia.com>
-Reviewed-by: Linus Walleij <linusw@kernel.org>
----
- drivers/i2c/i2c-core-base.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+On Sat, Jan 31, 2026 at 06:14:58PM -0800, Abdurrahman Hussain wrote:
+> > On Jan 31, 2026, at 6:35=E2=80=AFAM, Dan Carpenter <dan.carpenter@linar=
+o.org> wrote:
+> > kernel test robot noticed the following build warnings:
+> >=20
+> > url:    https://github.com/intel-lab-lkp/linux/commits/Abdurrahman-Huss=
+ain-via-B4-Relay/i2c-xiic-skip-input-clock-setup-on-non-OF-systems/20260130=
+-054653
+> > base:   63804fed149a6750ffd28610c5c1c98cce6bd377
+> > patch link:    https://lore.kernel.org/r/20260129-i2c-xiic-v7-5-727e434=
+897ef%40nexthop.ai
+> > patch subject: [PATCH v7 5/6] i2c: xiic: cosmetic cleanup
+> > config: i386-randconfig-141-20260130 (https://download.01.org/0day-ci/a=
+rchive/20260131/202601311615.10yziOui-lkp@intel.com/config)
+> > compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87=
+f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+> > smatch version: v0.5.0-8994-gd50c5a4c
+> >=20
+> > If you fix the issue in a separate patch/commit (i.e. not just a new ve=
+rsion of
+> > the same patch/commit), kindly add following tags
+> > | Reported-by: kernel test robot <lkp@intel.com>
+> > | Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
+> > | Closes: https://lore.kernel.org/r/202601311615.10yziOui-lkp@intel.com/
+> >=20
+> > smatch warnings:
+> > drivers/i2c/busses/i2c-xiic.c:1539 xiic_i2c_remove() warn: pm_runtime_g=
+et_sync() also returns 1 on success
+> >=20
+> > vim +1539 drivers/i2c/busses/i2c-xiic.c
+> >=20
+> > e190a0c389e601 Uwe Kleine-K=C3=B6nig    2023-05-08  1529  static void x=
+iic_i2c_remove(struct platform_device *pdev)
+> > e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1530  {
+> > 2557b4ba04df79 Abdurrahman Hussain 2026-01-29  1531   struct device *de=
+v =3D &pdev->dev;
+> > e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1532   struct xiic_=
+i2c *i2c =3D platform_get_drvdata(pdev);
+> > 36ecbcab84d023 Shubhrajyoti Datta  2016-03-02  1533   int ret;
+> > e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1534 =20
+> > e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1535   /* remove ad=
+apter & data */
+> > e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1536   i2c_del_adap=
+ter(&i2c->adap);
+> > e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1537 =20
+> > 2557b4ba04df79 Abdurrahman Hussain 2026-01-29  1538   ret =3D pm_runtim=
+e_get_sync(dev);
+> > 2557b4ba04df79 Abdurrahman Hussain 2026-01-29 @1539   if (ret)
+> > 2557b4ba04df79 Abdurrahman Hussain 2026-01-29  1540   dev_warn(dev, "Fa=
+iled to activate device for removal (%pe)\n",
+> > 810199f7315604 Uwe Kleine-K=C3=B6nig    2022-10-19  1541   ERR_PTR(ret)=
+);
+> >=20
+> >=20
+> > pm_runtime_get_sync() can return 1 on success.  Perhaps use
+> > pm_runtime_resume_and_get()?
+> >=20
+> > 810199f7315604 Uwe Kleine-K=C3=B6nig    2022-10-19  1542   else
+> > e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1543   xiic_deinit(=
+i2c);
+> > 810199f7315604 Uwe Kleine-K=C3=B6nig    2022-10-19  1544 =20
+> > 2557b4ba04df79 Abdurrahman Hussain 2026-01-29  1545   pm_runtime_put_sy=
+nc(dev);
+> > 2557b4ba04df79 Abdurrahman Hussain 2026-01-29  1546   pm_runtime_dont_u=
+se_autosuspend(dev);
+> > e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1547  }
+> >=20
+> > --=20
+> > 0-DAY CI Kernel Test Service
+> > https://github.com/intel/lkp-tests/wiki
+> >=20
+>=20
+> This maybe a false positive.
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index ae7e9c8b65a6..11bd801418e8 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -446,7 +446,8 @@ static int i2c_init_recovery(struct i2c_adapter *adap)
- 		if (bri->sda_gpiod) {
- 			bri->get_sda = get_sda_gpio_value;
- 			/* FIXME: add proper flag instead of '0' once available */
--			if (gpiod_get_direction(bri->sda_gpiod) == 0)
-+			if (gpiod_get_direction(bri->sda_gpiod) == 0 ||
-+				gpiod_is_single_ended(bri->sda_gpiod))
- 				bri->set_sda = set_sda_gpio_value;
- 		}
- 	} else if (bri->recover_bus == i2c_generic_scl_recovery) {
--- 
-2.43.0
+It's not.
 
+The blamed commit 2557b4ba04df ("i2c: xiic: cosmetic cleanup") has:
+
+-       ret =3D pm_runtime_get_sync(i2c->dev);
+-
+-       if (ret < 0)
+-               dev_warn(&pdev->dev, "Failed to activate device for removal=
+ (%pe)\n",
++       ret =3D pm_runtime_get_sync(dev);
++       if (ret)
++               dev_warn(dev, "Failed to activate device for removal (%pe)\=
+n",
+                         ERR_PTR(ret));
+
+So we need
+
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index 37a15065db60..a5334b7c46d8 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -1536,7 +1536,7 @@ static void xiic_i2c_remove(struct platform_device *p=
+dev)
+ 	i2c_del_adapter(&i2c->adap);
+=20
+ 	ret =3D pm_runtime_get_sync(dev);
+-	if (ret)
++	if (ret < 0)
+ 		dev_warn(dev, "Failed to activate device for removal (%pe)\n",
+ 			 ERR_PTR(ret));
+ 	else
+
+Best regards
+Uwe
+
+--v37yrfnsg2gibrlx
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAml/0mMACgkQj4D7WH0S
+/k5SaQf+L43J+R9BBhzzRsM+a56bqT+f6V9BbGxQCgPvb2ug8BZRliJSX8Q3zsFm
+EaNRAQ5tL6LTRPZUsMsJskjVpizKEtFORW26RjcmlLbTqpKj9e24IWyIczVmHaih
+dFIe69J7Kzl6o2HzEpjf942SS2F2HD8JoJbx2GYTVnmsYM8w0JX1PZRO8+EZ5jo3
+KJxf556LsB5aK5nw2bOy7JlZYw9P2P1kH/bTMvFNf/+6u4XDGYkHmh2t1SWPSDks
+llkR84RXfcWTLzCW3uX9ecgAfNUVZ1uZxbPCF1yyz4cHJ0rFOCE6NLpHjwXpRrDS
+A6GLXBGHlpfLu3RSWb/jClQ3kpk5MA==
+=tXAs
+-----END PGP SIGNATURE-----
+
+--v37yrfnsg2gibrlx--
