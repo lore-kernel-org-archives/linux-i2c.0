@@ -1,143 +1,184 @@
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
+Received: from mail-pl1-f195.google.com (mail-pl1-f195.google.com [209.85.214.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E6AF15665C
-	for <linux-i2c@vger.kernel.org>; Sun,  1 Feb 2026 01:30:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.175
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1769909444; cv=pass; b=bmQTH8P5bs97J9yYBnI8tv1U4tJA7yLiZo1bSIVo2a77hYepw88TrwmTkHxaSpPOarE9e5C56E20Efhy/uXjV/yEiB41Zaiy7hB2BrQ9HWpi3RF/vkKx9IDRlKqrlD71Qatau9wYY0OvzC7dTuKUTjZn+aXWTLcwY+r2iI87e7U=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1769909444; c=relaxed/simple;
-	bh=YtJzQSsz3r19x6lp4EmF1fkbMg2fNMXsYEr5P8h6zJQ=;
-	h=Mime-Version:From:References:In-Reply-To:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XSD1D3Zbvh97NiZBw84+2/NcVp3RrMi2aQW7B9xNSKPuEaV6KlHI+e1P5Iw0XFyP11nO+y5RujThKDbsBuw8sNih7IKWRAuHfPSXoEfWq5qOkD5msTkPR6L+2QMu4BbopeW1dY5EHyHE2/Upzc+0+19X3mJCB6vvPN8YBXIH1/o=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=gYzK34zH; arc=pass smtp.client-ip=209.85.128.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE0681C84A0
+	for <linux-i2c@vger.kernel.org>; Sun,  1 Feb 2026 02:15:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.195
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1769912113; cv=none; b=r4aSZ/fY+9dJxdJlzVIY+i6sYjd6ZnIaUvzdVIhDp8/lA5ToNv87qFk1dK4h0ds7WOHdrt1sNleiptfzHUOe1rqrp4JbT7a18kCQ7iUjX+SpvRK5g9oqy+NhsPd9eTEVdNMW7DH27H1gLSrSKJv/fVde/ZAzMxtr5mwW0pASjSM=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1769912113; c=relaxed/simple;
+	bh=aj9lZYh7kNC+5k/nDqMXYXmMyDNkwDg0+SpPugkdyPg=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=moMOC/emx/nZtKCXfbXuEGK7Q78BLiYqfinZbFZMmuPr1+crntVSZTJpf0a2Koo6CVF9TNP52LoBEvV3RgjF7RJe7VgMUoqSrtKuNsVz7PNlG9Ax48LywkiJdEFXvR/SnXrTv96m4mHyYR6OC0or0vgGFVAhpZkLtB+5KqDaTUg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=AxQn8ZSZ; arc=none smtp.client-ip=209.85.214.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="gYzK34zH"
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-794cbd4bb51so470197b3.3
-        for <linux-i2c@vger.kernel.org>; Sat, 31 Jan 2026 17:30:42 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1769909441; cv=none;
-        d=google.com; s=arc-20240605;
-        b=PMdGZ8egfXGkcUdHoxbjkf0yOktNKHaLYiWX05yxDEt0cpJdBTWC4l3YbTLMHG8NCs
-         f4xKIXPR1vu96VcKx/+PY4tbR7k99/ml9rA5KOS7wYnI5EH5gciwxcSEZng9rU+FsflD
-         yljPBup4qgi4KlLAVfuEMjSZ1DK9afiztIXIJOR6i9FGlBRNi67D7jaafS3uHUjamL0e
-         Tu9Lmzo5fEm/LNQRlLCk5OtEljpPof+qVW7Afhyj7IDMEzLx126evW6TW09U0l2Vt+NS
-         2hMzTgCFvCQ+AkDTAWTc5noY0yyRSJ7bv8kEBmBxDQJyeD3rgksVEyu76HV7p9R0cgon
-         PiKA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:in-reply-to
-         :references:from:mime-version:dkim-signature;
-        bh=YtJzQSsz3r19x6lp4EmF1fkbMg2fNMXsYEr5P8h6zJQ=;
-        fh=3Tx/itsSD2uOjI0oL6pX/K3WOd8Xma3I1pXI2NqCypw=;
-        b=ktw2bsImKYTJxjVXytdV7nowm2PA4wWFcbYOJf+GjNLkNKb3YDRMeDevumt1TsEeDA
-         8Y77j1L6AEHrPZEyAQQaaPK77LKIl7OnKe7P6dtGUBdUMTdeO9b0G5YB5JW8gWtjGFna
-         lrrIDugj66osAj9qMzqwyRuBL45iPs6z9RCvvdwwJtUp94AOJJKv0fBFUo0szUSfMGa+
-         StQVWR6QaSOGZW3G5tyM4lVR00PTxFebr3glKopSi7XcBsKh0OCM4jKj05VWP+rFKvAj
-         uRDY+Y5XhU2qQxOE+Ccv8A0wURBcv6skOPJZsA9U2RblDf+LuE80TKSEmiCmyxv3YR0y
-         tw6g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="AxQn8ZSZ"
+Received: by mail-pl1-f195.google.com with SMTP id d9443c01a7336-29efd139227so20995715ad.1
+        for <linux-i2c@vger.kernel.org>; Sat, 31 Jan 2026 18:15:10 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1769909441; x=1770514241; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:in-reply-to
-         :references:from:mime-version:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=YtJzQSsz3r19x6lp4EmF1fkbMg2fNMXsYEr5P8h6zJQ=;
-        b=gYzK34zHchmDkmR9qtexCQmBxxhV0NOwLpqlZuEpfWMn9GzSm+4RmX/qbO9tR5vnua
-         vHAcJSuiowCdNBV0xE4IH8ewIDwYmkmDLwOZKmSEOeqxBSCHoUh2LpNUomo41xkYuObQ
-         dTBufNx8j6jlKPMxmoGXJ6icHh21ne4AlUXuRZNGaQnShX5F5Q2z0OHLPbhetRAikpfJ
-         nppmhIFLfeaQtBjJk3Ed2qKFek5a+pSeNU+8mY5tB9nUrluTbrVrksdfa5KLycJ4aEpf
-         iAO/ENnzELfE0A/ZC5gPh8oZal+9WQY+XLBAf4g2t1PvN0L4G2Wxne1/MvgTxKb7WDuH
-         KjVA==
+        d=nexthop.ai; s=google; t=1769912110; x=1770516910; darn=vger.kernel.org;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=sX+STYIHVNsNRwCOU5eoDnw7m2xr9Ak+mtAzKnocjoo=;
+        b=AxQn8ZSZdxpDUMpJAzBT5rYs5ncX7YBsHz+MTp3FE8UWuDDTWZa+zgLB9jvOYkZQNs
+         xhZVm9B+lDjycEhZOGashJTbAOzavduIqxeR5Mttc9l/iS6QFZmh3nbnglzOQkGarLpC
+         P/P3f/1M5vY93BFjcyAgFprCe/QIFCJcINNYP03GaE5vTzwp5jCkw0b70yf+w4lV5UCX
+         r9hxKps3Kvbi73XkN7gm4ZQVcXbSSGJBnu56oF9UKDKwEzFGlyhaiMufXtuWh3Luc5DN
+         Z9zoxWB0PcjBAA616F0rusk8nWuIvzQZdM+4FKCPXvCBfPobCDnK5qKcTV+vE2JaOby6
+         v34A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1769909441; x=1770514241;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:in-reply-to
-         :references:from:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=YtJzQSsz3r19x6lp4EmF1fkbMg2fNMXsYEr5P8h6zJQ=;
-        b=FScoPEILzEGGIxaGRzEysd5sB+gJqYn5IseoTJ2K97TgP4B0SPwsVWVoBE6xm65rQm
-         eZwcIXjGojC19zzThotyxte/SZad7JTNjTg50kCmcfI5ktX550QBCh4Bu3jCLaw26NQx
-         fkb//53OgBGPQI2VPs/3hW6WAWW1Ki5qRErsLPpPtEP3hmw+C97TDDTV7lNAIwbNRUUd
-         w+dUPRc6TzAaFlyW4KeG3iTBwuDUTiXQSiGg8qZFfe1pkQHi5Mx9nACJF2wsrb0mQBWE
-         v4JmCVFZxBHuYFXTR5wkYpJsZnPg7HcRblRC4z6PiRcEjide0sgLSRUYzE1hycz4b/Xh
-         ZzAQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXu0bQMfsEO7QuNSONwaEtXKwDqwAkTjwnnpAg5B0X350ZpU5Uk5ypswrbawhFY6T22I2+eMm6rgNM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxOpLWzURm49WaiHj1mjdOlXk3TT2inVGh39ygy40WS/DQ4fKka
-	Qt/czba5N7a3q6VVChxBk4WdEbtA3vPcWwkskW9Osx3W/9SRfuf/Sk4P5rL/+/LjG4v7vqBvYp3
-	zngTTe8iVCmZqVXfWkpTBdl7HjU/Br4MvxNbbxpNLQw==
-X-Gm-Gg: AZuq6aLKdrDVRGmktdREs4WIAHKBfkucZM8uAdKmguNOYTDMbFnyRzH2fnEPwdAk/My
-	weSLZYzjvQzq8xqk5awsuoQq7vpwN4HiXr40WzvTAmOR5Qy04alCJqsiuOK2gdv/rjJW8t0iX3J
-	hiGxN/Z97Jc5u0fIaSOSysMXQZkW0WcV8bgRgQAI5Hj38kpGnz4lc1Oi6f1rgH0K9ey4cPWgmXV
-	ZnnuGeFJgpuyNxKk7LuD/A0AkD7MurqHDMRW5/jgyqn2j2pfiNEXS9HD2z7Y77GkUfjicI2
-X-Received: by 2002:a05:690c:10:b0:786:25e9:387c with SMTP id
- 00721157ae682-7949dea8009mr71339287b3.20.1769909441554; Sat, 31 Jan 2026
- 17:30:41 -0800 (PST)
-Received: from 753933720722 named unknown by gmailapi.google.com with
- HTTPREST; Sat, 31 Jan 2026 20:30:40 -0500
-Received: from 753933720722 named unknown by gmailapi.google.com with
- HTTPREST; Sat, 31 Jan 2026 20:30:40 -0500
+        d=1e100.net; s=20230601; t=1769912110; x=1770516910;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=sX+STYIHVNsNRwCOU5eoDnw7m2xr9Ak+mtAzKnocjoo=;
+        b=jFN9plQf0dJ6pI4pUubnCzM8FnuzS8a2GkjN8GUAgcjtbAlKR/D2Mz2p4oKE6sPmGK
+         yFBiol409fPdVDuSqD+3qRoOs5VBrUq2TFDn7bJk6IEMMt8wnAgY1clGXWEYh3NSt8C+
+         BOWFwEOsSfnIyA0KqsgqJdNOdicwNVId1kNW9dnh1KgjQFBYp43ttIPAIbpaRF39k5Qb
+         9DHytV+vyZfd4wKWOvcbhK2JepZwL+4JfS3100mCk/cjpwvJp0V6PX54xJC7JVCT6yFv
+         P1Wmzhy8B1/bIvKknb2CQQyWb2+vj4jUIovZpmz4Dd1KlPNsXmtJFtFL3RQ3RZXFiCVu
+         6Ylw==
+X-Forwarded-Encrypted: i=1; AJvYcCUCuKRNx+efUmZ6SmdRic+Cn/uM2g4Bl/7knYTjVVTIpolhpAEhNjPEG15JshpF9l1IosckPuRDqbg=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxeRzeq6KaPjhAfD2bjCc6X0pWTI1OnLI0O0slGheWeWZ8H8HOy
+	4vFMo3lmRLXXavHekDOXtrlBt0Y9D55w+fost282hZG/KJH+s4P+4z5t4LR+ErkgT+Q=
+X-Gm-Gg: AZuq6aK9p1PUlnaekF0tQGLQfLznMlk3vbVJa/M5jdMSpwWI+wTqkAlB1qX9Dmy1UoR
+	IrsW6sZ5qrsIs5kUzUEHCQHmB8NUpYfG7HJaTrWszZ6weI4pWgm5za1BCpzAGbkbpfiaSrOor+0
+	WCKna+kASc7yASmuM8fuvPxIM8RqdYn8WR8d5GQ7Ewho3/59tVwP5AsE3IfnxKzadkd5clRhX+Y
+	Nw7SCXDfqRaKo8VB3yyTSau926rJHeAp7H3LnsWcv8BscgFirdwbot8VHGr7loZUD813nlcylxI
+	NcL52jlB2gz5fOk3tMeKZzMn/TqwUzQa/awYDCC9cTlk7FfaAXgV3mWsJ5OGf5bdMQPF+8dnrfk
+	8Is9+6zeYhlGwndlvqnZlPvKRc/OZmxIQvfiBN9CXPLsT7vhSS/ygBBFeC+fqBWYaA9FDNaXCIr
+	BG7pHWF+XkT5YLVLcJwPSy3WLJy0q1gTbDEK3dZqW+P2u/Pph0Mgom1pqEznRStrluiP3ED60=
+X-Received: by 2002:a17:902:ebc1:b0:2a7:7872:8f52 with SMTP id d9443c01a7336-2a8d7ee6a5dmr71880265ad.26.1769912110101;
+        Sat, 31 Jan 2026 18:15:10 -0800 (PST)
+Received: from smtpclient.apple (c-24-16-26-157.hsd1.wa.comcast.net. [24.16.26.157])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a8ea985c48sm39915685ad.22.2026.01.31.18.15.09
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 31 Jan 2026 18:15:09 -0800 (PST)
+Content-Type: text/plain;
+	charset=utf-8
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3864.300.41.1.7\))
+Subject: Re: [PATCH v7 5/6] i2c: xiic: cosmetic cleanup
 From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-X-Mailer: aerc 0.21.0
-References: <20260129-i2c-xiic-v7-0-727e434897ef@nexthop.ai>
- <20260129-i2c-xiic-v7-1-727e434897ef@nexthop.ai> <ab9dc191-59c1-40a9-bbf1-e6c082af128a@lunn.ch>
- <2428D892-89F9-4013-9681-AD9BD76B0874@nexthop.ai> <aX3VqGlIUGCvMY5p@smile.fi.intel.com>
-In-Reply-To: <aX3VqGlIUGCvMY5p@smile.fi.intel.com>
-Date: Sat, 31 Jan 2026 20:30:40 -0500
-X-Gm-Features: AZwV_QgjzkwTZse_VBoXXZ0HhPaLJE15hdM8B0uOOS1PwkXcf_ENvfshKOTUuzk
-Message-ID: <CAGYn4vxRbPVFvzm1b_mk2KvnRcJSO0Ewmx1tCTEALaZAu+ZQJQ@mail.gmail.com>
-Subject: Re: [PATCH v7 1/6] i2c: xiic: skip input clock setup on non-OF systems
-To: Andy Shevchenko <andriy.shevchenko@intel.com>, 
-	Abdurrahman Hussain <abdurrahman@nexthop.ai>
-Cc: Andrew Lunn <andrew@lunn.ch>, Michal Simek <michal.simek@amd.com>, 
-	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <202601311615.10yziOui-lkp@intel.com>
+Date: Sat, 31 Jan 2026 18:14:58 -0800
+Cc: oe-kbuild@lists.linux.dev,
+ Abdurrahman Hussain via B4 Relay <devnull+abdurrahman.nexthop.ai@kernel.org>,
+ Michal Simek <monstr@monstr.eu>,
+ Andi Shyti <andi.shyti@kernel.org>,
+ Rob Herring <robh@kernel.org>,
+ =?utf-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>,
+ Krzysztof Kozlowski <krzk@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ lkp@intel.com,
+ oe-kbuild-all@lists.linux.dev,
+ Andy Shevchenko <andriy.shevchenko@intel.com>,
+ linux-arm-kernel@lists.infradead.org,
+ linux-i2c@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ devicetree@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
+Message-Id: <81522270-1703-48E1-B64C-8CF174E1EF94@nexthop.ai>
+References: <202601311615.10yziOui-lkp@intel.com>
+To: Dan Carpenter <dan.carpenter@linaro.org>
+X-Mailer: Apple Mail (2.3864.300.41.1.7)
 
-On Sat Jan 31, 2026 at 10:12 AM UTC, Andy Shevchenko wrote:
-> On Thu, Jan 29, 2026 at 03:29:45PM -0800, Abdurrahman Hussain wrote:
->> > On Jan 29, 2026, at 2:43=E2=80=AFPM, Andrew Lunn <andrew@lunn.ch> wrot=
-e:
->> > On Thu, Jan 29, 2026 at 09:43:13PM +0000, Abdurrahman Hussain via B4 R=
-elay wrote:
->
->> >> The xiic driver supports operation without explicit clock configurati=
-on
->> >> when clocks cannot be specified via firmware, such as on ACPI-based
->> >> systems.
->> >
->> > Are you saying it is technically impossible to specify a clock in
->> > ACPI?
->> >
->> > Maybe a more accurate would be:
->> >
->> > The xiic driver supports operation without explicit clock
->> > configuration when the clocks are not specified via firmware, such as
->> > when the ACPI tables are missing the description of the clocks.
->>
->> Actually, ACPI (since 6.5) added a ClockInput() macro that can be added =
-to
->> _CRS of a device node. The ACPI subsystem in kernel could parse these an=
-d
->> convert into proper clocks integrated with the CCF. But, AFAIK, this ide=
-a was
->> rejected in the past.
->
-> Rejected by which side? CCF?
-> Because specification still has that.
 
-I think the argument was that on ACPI based systems clocks are "owned"
-by AML and there could be syncronizations issuebetween AML and the OS.
 
-See https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1712165.ht=
-ml
+> On Jan 31, 2026, at 6:35=E2=80=AFAM, Dan Carpenter =
+<dan.carpenter@linaro.org> wrote:
+>=20
+> Hi Abdurrahman,
+>=20
+> kernel test robot noticed the following build warnings:
+>=20
+> url:    =
+https://github.com/intel-lab-lkp/linux/commits/Abdurrahman-Hussain-via-B4-=
+Relay/i2c-xiic-skip-input-clock-setup-on-non-OF-systems/20260130-054653
+> base:   63804fed149a6750ffd28610c5c1c98cce6bd377
+> patch link:    =
+https://lore.kernel.org/r/20260129-i2c-xiic-v7-5-727e434897ef%40nexthop.ai=
+
+> patch subject: [PATCH v7 5/6] i2c: xiic: cosmetic cleanup
+> config: i386-randconfig-141-20260130 =
+(https://download.01.org/0day-ci/archive/20260131/202601311615.10yziOui-lk=
+p@intel.com/config)
+> compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project =
+87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+> smatch version: v0.5.0-8994-gd50c5a4c
+>=20
+> If you fix the issue in a separate patch/commit (i.e. not just a new =
+version of
+> the same patch/commit), kindly add following tags
+> | Reported-by: kernel test robot <lkp@intel.com>
+> | Reported-by: Dan Carpenter <dan.carpenter@linaro.org>
+> | Closes: =
+https://lore.kernel.org/r/202601311615.10yziOui-lkp@intel.com/
+>=20
+> smatch warnings:
+> drivers/i2c/busses/i2c-xiic.c:1539 xiic_i2c_remove() warn: =
+pm_runtime_get_sync() also returns 1 on success
+>=20
+> vim +1539 drivers/i2c/busses/i2c-xiic.c
+>=20
+> e190a0c389e601 Uwe Kleine-K=C3=B6nig    2023-05-08  1529  static void =
+xiic_i2c_remove(struct platform_device *pdev)
+> e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1530  {
+> 2557b4ba04df79 Abdurrahman Hussain 2026-01-29  1531   struct device =
+*dev =3D &pdev->dev;
+> e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1532   struct =
+xiic_i2c *i2c =3D platform_get_drvdata(pdev);
+> 36ecbcab84d023 Shubhrajyoti Datta  2016-03-02  1533   int ret;
+> e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1534 =20
+> e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1535   /* remove =
+adapter & data */
+> e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1536   =
+i2c_del_adapter(&i2c->adap);
+> e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1537 =20
+> 2557b4ba04df79 Abdurrahman Hussain 2026-01-29  1538   ret =3D =
+pm_runtime_get_sync(dev);
+> 2557b4ba04df79 Abdurrahman Hussain 2026-01-29 @1539   if (ret)
+> 2557b4ba04df79 Abdurrahman Hussain 2026-01-29  1540   dev_warn(dev, =
+"Failed to activate device for removal (%pe)\n",
+> 810199f7315604 Uwe Kleine-K=C3=B6nig    2022-10-19  1541   =
+ERR_PTR(ret));
+>=20
+>=20
+> pm_runtime_get_sync() can return 1 on success.  Perhaps use
+> pm_runtime_resume_and_get()?
+>=20
+> 810199f7315604 Uwe Kleine-K=C3=B6nig    2022-10-19  1542   else
+> e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1543   =
+xiic_deinit(i2c);
+> 810199f7315604 Uwe Kleine-K=C3=B6nig    2022-10-19  1544 =20
+> 2557b4ba04df79 Abdurrahman Hussain 2026-01-29  1545   =
+pm_runtime_put_sync(dev);
+> 2557b4ba04df79 Abdurrahman Hussain 2026-01-29  1546   =
+pm_runtime_dont_use_autosuspend(dev);
+> e1d5b6598cdc33 Richard R=C3=B6jfors     2010-02-11  1547  }
+>=20
+> --=20
+> 0-DAY CI Kernel Test Service
+> https://github.com/intel/lkp-tests/wiki
+>=20
+
+This maybe a false positive.
+
+The following commit switched from pm_runtime_resume_and_get() to
+pm_runtime_get_sync():
+
+commit 810199f7315604b i2c: xiic: Make sure to disable clock on =
+.remove()
+
+Uwe, Michal, can you guys comment on this?
+
+Regards,
+Abdurrahman=
