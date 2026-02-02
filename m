@@ -1,175 +1,156 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96BA3367F3A;
-	Mon,  2 Feb 2026 13:29:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF56A8635D
+	for <linux-i2c@vger.kernel.org>; Mon,  2 Feb 2026 14:53:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770039000; cv=none; b=DrLoNia1q0P/s7Lt3gRAi2pEhfFvzx/XZl47TU+FUTkSnYF363TLbyfZGRJn4RKFGrzRF5UmCc0T7moVljHIxySCR1a854cK1XokhdYNroITLcLEdfMG41zluw7YT146zE/D6OxZlbA6HXDma3Hj0kqYxOwnPLrnJYNiVIWlMvM=
+	t=1770044041; cv=none; b=sStyj6+i5+vaf/yhP3oAHMEfeiCYAEaQBiYhEgHyfbiAocGjancBW2sSRbOa+tddPuLw6gJ8HGzamkEkyM8Uh5GRy3PowbK2D7jwcYd9J12y7RSTU+zjQtsXmhD3yL+8g9/jHRRqm7cJXaJ8ZSRuExDMbf1VAyyP1fc/Pc2ddIM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770039000; c=relaxed/simple;
-	bh=Po4XURyEzCW8smpz/DmF0VKvnXajycyLgM7X+skVhFU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LZROhbA065oE+F6QMuCTe0yIYZqhrJ/nUG+7ItuS9QGdbEycx6smsZqUgjlfmxb62R+sBzzE+8IaaCnZqoC3FQJCpFbgzwuisGAXj4D9iL/QqY0Wn+BUegB+MP4hA8hFMnGd4vIbGgzi5LWvHzIvRerTib3KHwjaVC4ITs3WF2U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=U/0KRZek; arc=none smtp.client-ip=192.198.163.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1770044041; c=relaxed/simple;
+	bh=UqeDK4RsfAzKZ1rg6NnKveKlrERd9ILP3xgumZ/4wr0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=W6cbBvwrm64r0cDcYT7WV9vA9Lsyie+hhnBEVxxz0X8tdR1C8haWSBY4zqiWjA4I1qls27VqjksHrDIUJXpjJhia3jb5El1uY03loKB9F+erkdf1xvuT3bXzViHTKrUtoXPUx2OdbSSciafNFMIQ2AgHM07wG3Rw0wQdgEQOsXQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=VGzS2n3x; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=kQrdi8g5; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="U/0KRZek"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1770038998; x=1801574998;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Po4XURyEzCW8smpz/DmF0VKvnXajycyLgM7X+skVhFU=;
-  b=U/0KRZekQNjIenTlHjmSICTXHvakT6d2/JcvnXkVA3wtdEP2z1GYL7Lc
-   UCFjJ1DdgtwgRKTalSuSSL65rLYUrtQqnPl9JVfuAGurGjwuv1jLOKqQg
-   aOPWH0CvERrlTTwM5WAa0rSA7O8uXX4u8ymDEe7ClUn+yZYmaeg13r6aq
-   9kx2bJ9/JrI2GTegNj1Ss0VyWHy6ckEqtPNbqCpwKzpP4BQFNV78bZTtP
-   +UfELfjt401S8AntAsr0WzBlMw7A9/lzBmnp0IgNHpOwkmDnFTz15gsro
-   qlC71dkjrvF60twcjWCq9fXhJx5qyNLMz3PUVf2Sq99qh6DgsnZe4U9RD
-   w==;
-X-CSE-ConnectionGUID: Xykm/tHeTX6aojYrTLWWHA==
-X-CSE-MsgGUID: +PuUh3KnRRKWjY/WFmWZKg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11689"; a="58775899"
-X-IronPort-AV: E=Sophos;i="6.21,268,1763452800"; 
-   d="scan'208";a="58775899"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Feb 2026 05:29:58 -0800
-X-CSE-ConnectionGUID: ZYPY+pYURVuRlB3Zf8gDvQ==
-X-CSE-MsgGUID: 90mJWH+vQrC4SbdR7ZitkQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,268,1763452800"; 
-   d="scan'208";a="232445658"
-Received: from vverma7-mobl3.amr.corp.intel.com (HELO kuha) ([10.124.221.53])
-  by fmviesa002.fm.intel.com with SMTP; 02 Feb 2026 05:29:55 -0800
-Received: by kuha (sSMTP sendmail emulation); Mon, 02 Feb 2026 15:29:27 +0200
-Date: Mon, 2 Feb 2026 15:29:27 +0200
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-To: Jeremy Kerr <jk@codeconstruct.com.au>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Matt Johnston <matt@codeconstruct.com.au>,
-	linux-i2c@vger.kernel.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 0/4] i2c: SMBus ARP support
-Message-ID: <aYCmt6Jnn9uieXwy@kuha>
-References: <20260121092328.2308705-1-heikki.krogerus@linux.intel.com>
- <30ad166e2b3d7f10080356ec232e604f3ac9ea2e.camel@codeconstruct.com.au>
- <aXdyll4KVOF6SWni@kuha>
- <6ca4bc87620bb0c2e5bfb264ec88189f32b53757.camel@codeconstruct.com.au>
- <aXjDENOsmWe5_VqS@kuha>
- <189d4a03f32ace3fd995596e8b5415ced6ae9c3a.camel@codeconstruct.com.au>
- <aXokxtlFTeZK8lP8@kuha>
- <547a1a5fd7238897b35b26e83ac27db452e6a5f7.camel@codeconstruct.com.au>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="VGzS2n3x";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="kQrdi8g5"
+Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 612B0MG92899912
+	for <linux-i2c@vger.kernel.org>; Mon, 2 Feb 2026 14:53:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	jsknitCYb9UiikAxJqZ9uv2e+Vzn8UiuNyv88IZxQ/Q=; b=VGzS2n3xh3AWYRCz
+	74VKX9bgR8mA1WDUITCcmoc6e+RqAyg7PQ8OXOseItw0+WXB0vFhvSthIIRQ41O3
+	V0hNtCcA5yVKvrfFmseiiWfFPGB6tKux5I4yL6d1ZMc9Uw9+KC2YRirSdQ7fdJg6
+	Etc3uNPcnMXJ9K/lpN29LEjtAiuGXuBe1UWlWEJGmZLN9C8EKbgP3m5ZMbG7jzhl
+	xx+AUZxM3UWj4eUyr60Nh/hYVP8Saq+HVmyCyZwcgRBESEpl/eG1DL9NywTppfS1
+	ZDJJSuqd0+hntCaWiEvra55oST9NkkbpMYOcgxOtyx7JCzSCQagsgNqB6qfsHvV4
+	I1ByIw==
+Received: from mail-qv1-f70.google.com (mail-qv1-f70.google.com [209.85.219.70])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c2tp0rm6f-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Mon, 02 Feb 2026 14:53:58 +0000 (GMT)
+Received: by mail-qv1-f70.google.com with SMTP id 6a1803df08f44-88fd7ddba3fso14477216d6.1
+        for <linux-i2c@vger.kernel.org>; Mon, 02 Feb 2026 06:53:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1770044038; x=1770648838; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=jsknitCYb9UiikAxJqZ9uv2e+Vzn8UiuNyv88IZxQ/Q=;
+        b=kQrdi8g5mXF/FMODWzUXqMBradhW3wTezdIgwjakwgOXAJCdtonRRT8l4PuPJFU+BE
+         79iU1u43HUUYD/Sadw21dWDCCF7pPI9USgDR5MZLjnY7zWLCTJeGvX2J212bo4zlM+S/
+         /KP4wG5rl3BfPnbiiE7qGhrCbNZvTAUNgVzFiblP7QW9I6OEQOBu2vaYregIolITOyAs
+         PZT4j8U/0g4vxdifzD7oVzbrV2soOEyGg4wnmwVQh/aXmEBexumlIClmcXh5la7mv8it
+         tUyCQnD+bUFgNjTsYav7uXfHFQxDk/8O70GVQPxrPf2NtIAOxZWqBChBiZLASWkW9yiD
+         WlZg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770044038; x=1770648838;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=jsknitCYb9UiikAxJqZ9uv2e+Vzn8UiuNyv88IZxQ/Q=;
+        b=YannFdW6+9RTNaEMzBuDKbi2Z9vQt4EV4TocManQMXve5lOTbiEOf4MvCQErqCI1nW
+         kP5dM+ya9KWxHT5Qilk3qVC3BmDQbb668dQH0sXw/WRZKp0bFT6UPkBxu3kBG9m4XPI0
+         j3jEhArUauwXuGsnsW6EpWm+lQ+lLSs+BUR5Mts3KfkCciCBu/A5zA/14AIgoCXCihQz
+         hnFO/xdJji4d64BSZghvgI7NDVdtu+CuJfsdOuNtTTnPJz5yieNWoPokadHTGsVp6424
+         tqzSmc1dQLhLqcYJxU+W5BF3HCp2AoVGtHwopm0aSGAdVu9XPtpV9o6+cJLrESYDzYtu
+         RRuA==
+X-Forwarded-Encrypted: i=1; AJvYcCWt28NKOjqdm/Rz2SyvC3HViUfWziuvN52t9qI+KW3l9Kh7an1tgS63dxLiXpAbL57s6y/w9OACgIg=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzau3wEZuowvPO52kAIKnMoIqL0sUeKw8qJxo9F05gy2RIvHvs/
+	ecOS/QJouQCmgyyTYi+bJtVaYyHjPDIP97dIz9h8eWJUjalkaR3iodGUUPnHtFltv19GLXSHsFs
+	XufWa0uJdFzn8DyUPoZwZrw2+1Mea3d8b1w0FyoaN6DPH1ON7SCU2ONNWVNrbuQE=
+X-Gm-Gg: AZuq6aJY03n1Tl8nan/fnsWyQoC7sWYi9rU4lec2NR73BH+lVxJmo89o4EmUPq7zuN1
+	anoJ1Ohulrc65vRjRZx+CpRzyKFWWHRGZXHarX0bHoeaGWdTbUua+dix0LiPitEJkbYQWlE5IkO
+	OEqPcv55aFnrssaJ5Lx3w3quZyqjD7XUHBniZq4lMiqLhESslqxmGj8xxO3D2ws0FyQLWS9TJsa
+	+cY6gFsrlfxjcHdL061U5DchPIdg36nls5nCZzhkHmop0n04PFHT2Mm4e6OiQFVQcWq04Y8Vsu9
+	HTmrQJ8KvxfjlH4x8J3cxBSxoHu6RcK1Ci26gmOslM/2Wjk+/uFo2ffXTRfOzPwzvAuaZY7keCP
+	x7T1izGoROHeXzIl1QrAPteOzf/yiRlCU4iGRpnc9/RfoXdQAylP7nL18iAelwddboPQ=
+X-Received: by 2002:ac8:5889:0:b0:501:4504:6f80 with SMTP id d75a77b69052e-505d2288f8bmr124104431cf.9.1770044038182;
+        Mon, 02 Feb 2026 06:53:58 -0800 (PST)
+X-Received: by 2002:ac8:5889:0:b0:501:4504:6f80 with SMTP id d75a77b69052e-505d2288f8bmr124104051cf.9.1770044037676;
+        Mon, 02 Feb 2026 06:53:57 -0800 (PST)
+Received: from [192.168.119.254] (078088045245.garwolin.vectranet.pl. [78.88.45.245])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-59e07481b5asm3638004e87.19.2026.02.02.06.53.54
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 02 Feb 2026 06:53:56 -0800 (PST)
+Message-ID: <6e5924f2-a9e0-45db-8a79-b328ebd12a0d@oss.qualcomm.com>
+Date: Mon, 2 Feb 2026 15:53:53 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <547a1a5fd7238897b35b26e83ac27db452e6a5f7.camel@codeconstruct.com.au>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 12/12] i2c: qcom-geni: Enable I2C on SA8255p Qualcomm
+ platforms
+To: Praveen Talari <praveen.talari@oss.qualcomm.com>,
+        Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley
+ <conor+dt@kernel.org>,
+        Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>, linux-arm-msm@vger.kernel.org,
+        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+        linux-kernel@vger.kernel.org, bryan.odonoghue@linaro.org,
+        dmitry.baryshkov@oss.qualcomm.com, bjorn.andersson@oss.qualcomm.com
+Cc: prasad.sodagudi@oss.qualcomm.com, quic_vtanuku@quicinc.com,
+        aniket.randive@oss.qualcomm.com, chandana.chiluveru@oss.qualcomm.com
+References: <20260112104722.591521-1-praveen.talari@oss.qualcomm.com>
+ <20260112104722.591521-13-praveen.talari@oss.qualcomm.com>
+ <8e410852-37f2-452b-b851-19b7c4222727@oss.qualcomm.com>
+ <e9d3c0b8-2abd-47a5-b594-83f0288d95ba@oss.qualcomm.com>
+Content-Language: en-US
+From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+In-Reply-To: <e9d3c0b8-2abd-47a5-b594-83f0288d95ba@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-ORIG-GUID: zGljS2rUgeQ_3RWNMfaL1TtGA6J2tREA
+X-Authority-Analysis: v=2.4 cv=VJ/QXtPX c=1 sm=1 tr=0 ts=6980ba86 cx=c_pps
+ a=oc9J++0uMp73DTRD5QyR2A==:117 a=FpWmc02/iXfjRdCD7H54yg==:17
+ a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=Hn_5opO5PlqZgVx7yE0A:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10 a=iYH6xdkBrDN1Jqds4HTS:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjAyMDExNyBTYWx0ZWRfX3W0qx4NHpEkr
+ ehc7TBI98XBWJF1XXa67lPUHTfv4FQ6GLKLqxNaZcFLCnDHslOSK53sJaoScotKdjd50/eYPSVJ
+ HH3LJtWFP5YuAQNxlLzQhxqhZ6Keq6UZn2zkFVNLoQtBxwvjXbI4OrRwE6x4Bh+VPfS7UKVK7vh
+ g/JRyeyy+sb+FuWZ3hRPw1vHx17ot1E0NndwCbgqZMaaQLpGc6KR/nNkhc5KiaBFjnyC2OQrtgL
+ LMdXfJvzTFZttrSt86xIbG9YUDtW2xLJ9Um+cteWYJ07ccr+F4kTrS1kjJFX3bak4vqGvXnCvoo
+ 81gTBj1KQdP1r2y77WaUQalxKowv824xA+0STZxnDO6IdUo6Iwu3FaisMpnMbm6z1YJoZU/KDQ1
+ ZWvdMjerqWFiI+FrGL30F0iWAz+NP/vp97Q2GCcL1uL3lRYxaGdpHaLAH0lIYVM8I0lJOjG0LFm
+ Vme6z64aatycpGcqk6g==
+X-Proofpoint-GUID: zGljS2rUgeQ_3RWNMfaL1TtGA6J2tREA
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-02_04,2026-01-30_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 adultscore=0 malwarescore=0 spamscore=0 clxscore=1015
+ lowpriorityscore=0 phishscore=0 priorityscore=1501 impostorscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
+ definitions=main-2602020117
 
-Hi,
+On 1/30/26 5:44 PM, Praveen Talari wrote:
+> Hi Konrad,
+> 
+> On 1/30/2026 6:04 PM, Konrad Dybcio wrote:
+>>> +static const struct geni_i2c_desc sa8255p_geni_i2c = {
+>>> +    .resources_init = geni_se_domain_attach,
+>>> +    .set_rate = geni_se_set_perf_opp,
+>> This means, on SCMI devices you won't don't the vote on the POWER
+>> domain (or PERF for that matter) and switch the GPIOs to a _suspend
+>> state - is that by design?
+> 
+> With PD_FLAG_DEV_LINK_ON enabled, every pm_runtime_get_sync() or pm_runtime_put_sync() on the device triggers a corresponding genpd on/off transition. These transitions are translated into SCMI power‑domain commands, allowing the firmware (GearVM) to perform the actual enable/disable sequencing.
 
-> > There seems to be another a bit more severe issue with ARP and
-> > i2c-dev. Right now it seems that anything that can access the i2c
-> > character devices can silently (without the kernel having any idea
-> > what's going on) assign a conflicting address to a dynamically
-> > addressed ARP-device. Perhaps more importantly, the user space can
-> > remove access to an ARP-device by silently assigning a new address to
-> > it or simply by resetting its state with Prepare to ARP.
-> > 
-> > That can happen accidentally, but it can also be done intentionally.
-> > 
-> > Unless I've missed something, this really is a major threat that we
-> > have to solve. Right now the only idea that I have is that we simply
-> > prevent the i2c-dev from using the SMBus Default Address.
-> 
-> I don't necessarily see this as an issue; access to the chardev somewhat
-> implies full access to the i2c bus, and so arbitrary interactions with
-> devices to alter device states. Including the i2c address as part of the
-> affected state doesn't seem like a huge difference in access.
-> 
-> There may be a specific case that is interesting though:
-> 
->  - an ARP-able device is in use by a kernel driver, which excludes
->    access through the chardev
-> 
->  - interactions with that device are possible using ARP commands to
->    address 0x61 over the chardev
-> 
->  - so, the device may be re-addressed, now allowing accesses through
->    the chardev
-> 
-> However, I am not sure there are existing cases where access to the
-> chardev is a distinct privilege domain to not just unbind the driver
-> anyway.
+Does that handle the >1 pd case too? If so, then all good
 
-Thanks for the answer. I don't think this is necessarily a major
-problem either, but since it was raiced (internally) I had to make a
-note. Let's not worry about this for now.
-
-> I would have a few requests:
-> 
->  - that ARP is enabled explicitly. I'd be interested in having a DT
->    property on the controller node that allows us to enable ARP on a
->    per-bus basis.
-> 
->    Otherwise, I'm pretty sure we'll break someone's existing platform
->    by assuming we can start interactions on the SMBus default address.
-> 
->    Is there some equivalent facility for ACPI based config?
-
-With ACPI systems, we just don't know what the platform is going to be
-used for in the end. This is a bit tricky with ACPI.
-
-But I'll make the registration of the feature conditional somehow in
-any case.
-
-> > > Is that possible at present? how are you planning to represent ARPed
-> > > devices in the DT - or more importantly, correlate DT (or other fwnode)
-> > > nodes to discovered devices?
-> > 
-> > I don't know about DT, but with ACPI the devices are expected to
-> > either be fixed address devices or just use target address that
-> > matches to the address in the I2C Serial Bus Connection Resource
-> > Descriptor. The mapping is not yet done, but the idea is to just
-> > assign the detected UDID to the i2c-client that was already created
-> > from the fwnode.
-> 
-> OK, but how do you map the UDID to the resource descriptor? I don't know
-> much about ACPI, but the descriptor seems to be only keyed on a target
-> address, which is now dynamic.
-> 
-> (same with DT, devices are keyed by target address)
-
-I don't know how a dynamically addressed device, that does not return
-any kind of target address with the UDID, could be mapped to the
-fwnode.
-
-> > > Assuming we go with a kernel approach: For the MCTP case, for full ARP
-> > > support of MCTP endpoints, we would still need to consume a hotplug
-> > > event that indicates that the device is available at its new address
-> > > - there is no kernel driver bound for the remote MCTP endpoints. This
-> > > event would be consumed by the (existing) MCTP infrastructure in order
-> > > to start MCTP enumeration. Is this something you have looked at
-> > > already? If so, if you can send an example of an actual event, I will
-> > > look at the mctpd part of this.
-> > 
-> > We will have the address attribute file that the user space can use.
-> > If the address changes uevent will be send it.
-> 
-> Sounds good, but for MCTP there is no struct device bound to the remote
-> i2c device/address. Are you proposing we change that?
-
-I'm sorry, I'm probable missing something here. If the address gets
-changed, then you have to inform the remote endpoint about the new
-address somehow in any case, right? So how did you do that with the
-user space approach?
-
-Br,
-
--- 
-heikki
+Konrad
