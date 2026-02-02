@@ -1,82 +1,82 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61CBE38BF9D
-	for <linux-i2c@vger.kernel.org>; Mon,  2 Feb 2026 18:10:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9B95387563
+	for <linux-i2c@vger.kernel.org>; Mon,  2 Feb 2026 18:10:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770055831; cv=none; b=gwLm1zXM9so7H3gLXX36gyyoNVoOJ9a3F9YFfNld1C5V2bfz2ze8ddzYZMWrSZ5JoDQBF7gzRpLtzuTWjlW5Jrwo4fO/7JWHxVbM17TiR0UUytiFVxKRZW7q1K1vEHVLlY5YtBCl1ewtCgCYsiYQTjH0vaXVf+Ai0cF2eFyr4mY=
+	t=1770055839; cv=none; b=MPYaUWT56WYL3XvendxilHFnu6cv4js206tWy7iSCANnPF+ataxeuPanpGO/xfmaT0vLaL360cB3edS336+lgWimVi5LXNarZ7xLY4KKyJisP0xW8Qk+4SR9uK7GXzOMT5FWyh7hTJ8g4j09Q0zf9MYH9hKXzN73TJjUxHUb7SM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770055831; c=relaxed/simple;
-	bh=u7ew6qh+piNDH+u5pZnf9q5xI6HsyRCZPq8Bi7+YzDQ=;
+	s=arc-20240116; t=1770055839; c=relaxed/simple;
+	bh=fLcHXdKV5/hDu2wr6i98ZasPwufFwNkdfF36wyuIx94=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=WZmt6VWDdkVc91JZAqydbDv609t1F1zLsw0ydXE3JtaQIJEsrpsjN3qY+62FRMzYY01CrFaAoOh1KEUqspdCo+ZJtI13ptnhcWx+T7zcrNtbrUELaCDb7LzmsGyEQp6n3qoScs5SigepiBhBQ1bjMwKgvABwIvIXKYcuiB/mv9Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=O5xcBR0w; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=SL2gyjO3; arc=none smtp.client-ip=205.220.180.131
+	 MIME-Version; b=tfHPMZxXZEdEC5ZTZXcJ2PHsTOSFcxVREesPpJv6fVErIGq3rTAonF/ujbzBU0dws8J3WU34F1JmcZzLFJjKdaRdU38ELvEpLSAUSOhTca1ljZAkFC9ib5rU+KMXiMJuUNPXbwYV1TRaEmbU728l+LnvtDvDJ0wOLzVrKDlqqxU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=HpMNVcip; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Dbx1PYte; arc=none smtp.client-ip=205.220.168.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="O5xcBR0w";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="SL2gyjO3"
-Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 612AvnOO2261754
-	for <linux-i2c@vger.kernel.org>; Mon, 2 Feb 2026 18:10:29 GMT
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="HpMNVcip";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Dbx1PYte"
+Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 612CJSIo2884359
+	for <linux-i2c@vger.kernel.org>; Mon, 2 Feb 2026 18:10:37 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=qcppdkim1; bh=+hhRIcP4ObJ
-	nfpPZ+yGg/UX1gYqSYL8XEGYmg5LvFnk=; b=O5xcBR0wAjBp3Dgl7D/JTcx3+Tu
-	8jQYYV7X4fhmhLqXdmGRQaIuEpaEe9ocqNvRaqJMISDYrfiVdd9Q0Wo3hsVYKdRk
-	FzMVtBb2JWLjRKUVaJYceBX3Xz96tZUwm12TWGCK8BRL0JLHnNC7fvhO5l8DbI47
-	z6uadSfP/u3fOnJ8CwmGaQL66S2i1LljdlouXYlFzC/ObBPwxHxjpZqXhklsd0Hk
-	9ENcu6cg+AQCTeMrhrEi37cahB1RQUSIv4Mz1bh/d1lC6yhXAhn9MsTSHZRnQQwl
-	ts64cmYa2zYIfp7lFGJ0B2WYaOkDSUr9Yx2Ft74xyf98Mj9gkcbI/nGYA9w==
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com [209.85.214.200])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c2tmth9b3-1
+	:mime-version:references:subject:to; s=qcppdkim1; bh=cbpTgWXazdO
+	AfAdL49uExcjxZu696DCuIHbDLPHFMMY=; b=HpMNVcipAqegOF32c3LLEcQmm6A
+	ikQb5KQHhYJtQ77BXaQRlvhCPxNwDUqCXilM6IUZCqEDG5GMZkoWJA0gxtqRwVPG
+	ZsPbkNogMdcikhN39j+CmVN/hCz8FiVOlWTCApMmwjgWkOf4FYnwpirsb9LrSDiA
+	nxQI+UJT5GFL9GnKsW+MyPGYHTKEy9EvUopMwYlIjPrULqcgdOdvqgSSFBlEOue6
+	ZiO8XdxlsrF4G1pMJQ8T66CTXozSCVEnRfWBZdS/H7tVPa6u/SI6BNiTgiq8lIVr
+	0VbO5ZLmkivs5+lAjcAPbpI/sYFVFDPVqTtTK+16QlF6zcHCa2A6eYNCV0w==
+Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com [209.85.210.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c2uu3h4tm-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Mon, 02 Feb 2026 18:10:29 +0000 (GMT)
-Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2a7701b6353so48496885ad.3
-        for <linux-i2c@vger.kernel.org>; Mon, 02 Feb 2026 10:10:29 -0800 (PST)
+	for <linux-i2c@vger.kernel.org>; Mon, 02 Feb 2026 18:10:37 +0000 (GMT)
+Received: by mail-pf1-f199.google.com with SMTP id d2e1a72fcca58-81ed3e6b917so3929990b3a.1
+        for <linux-i2c@vger.kernel.org>; Mon, 02 Feb 2026 10:10:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1770055828; x=1770660628; darn=vger.kernel.org;
+        d=oss.qualcomm.com; s=google; t=1770055836; x=1770660636; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=+hhRIcP4ObJnfpPZ+yGg/UX1gYqSYL8XEGYmg5LvFnk=;
-        b=SL2gyjO3r+05UrgxpDmeLDkI+vIIqxcTEAI0Ye2I7v0ekrl6j66bLcfhgtn9EKAYl5
-         ZGi5XZy0xEWA8Bv4KYtOg1jGO+I1JJOZmsFvn7eOEDHflSnXxMzCTBkYV7w0oF+LWIUX
-         X94okfWHJjTHxzmUD+9MtuqN+VYCcKAQWg79SWjL391YX3yrggboKLpgLKD42+TXHAeu
-         QCMAaDATgUZIUwnQbYW5WgL9i54AwLo3ylwUMHb8rwwkZ6EjE/cVFqGQjdgz6MvwGPtC
-         guANJS1QjOlwv9gaCGIw6+y/Pws+s7yK7ntQ5F1xDGK8VronNq9NDpGiyjKubLH4j47t
-         5jmw==
+        bh=cbpTgWXazdOAfAdL49uExcjxZu696DCuIHbDLPHFMMY=;
+        b=Dbx1PYteGR6wo5l4svG1lRs0cfZ9ouQ9uXnMHju/wXTTyFYEJFN3ktS3iFG8Gl61a/
+         ciWK3Zly2xWniEKgkh4re8GkpoaVZK1ySrMJVj68HBGRtE6YVv5fvmzsauUBdmofZJqd
+         waP/Srk7iGFedQCJ1Sd/ozMOrhTk2FIeDWFWn99fnMTJXeVCtnz8DxGoH4mJDWMdSQiG
+         mtUH2xBYlHLPrLJYRn0+33f8P6u2ejf9xSLX7vfVFVTyCubYucWSzq1S4fZm9xzxW00N
+         e6FPpOkkWhw//DQ01CyMLUqeLuBxsFddXUMHvHpgQ2EsSdz1dqGenRBcZsAfwH+4w7Vx
+         A/Hw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770055828; x=1770660628;
+        d=1e100.net; s=20230601; t=1770055836; x=1770660636;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=+hhRIcP4ObJnfpPZ+yGg/UX1gYqSYL8XEGYmg5LvFnk=;
-        b=p/xtomxerpPQ6j9ScyzxEplvnDW3dcLaJ9URXF5aJby54eb/VDgaxA3gta2wiyAfPs
-         PtJ8uVJG/daU4EUxDxaWsk0z3mz/VXQsfciJ9cV7N2J+5ou6E7awJISTLRt9vf+fKN74
-         wZwjsc50lDDzh8tThBCer9zvEJFNhKfmQjy83z3cUwdk9Gq1Eu/qprcyiG6CpmI56Zpw
-         lj6Vqgh/n9SSIXpfd30pZb00Smr0NMViK7OQSuhjQ/Bw/XQ5VK5YGHwmPW90yCvdptJy
-         dA7ftx/xdKqWLPShUUfux7RQd5RcW/9kkni8kgs3oX4GCl96svfai+mzmpG6ydM0sO+3
-         4w3Q==
-X-Forwarded-Encrypted: i=1; AJvYcCUeW14taaVx3T/6O1O5J3tT4FZrEiJMDT/m8+qPcN1OMYwzhcaePUYc1zIybYTZClSO3eFGTR20BrE=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxtld2Jt+ZphSHQHZ6DqnXaFSkxCcSrmriLTmf+C8KbQt3yV6la
-	JjkwrA4YWbdUiCCDVk/bJco9TFugNcI8eI595IM1sHxezL+cykKpoJFNPVrNwRQk+vNlifOfwQf
-	WhlgFynS6vIFJ/dUPVZ9nNE9szFDjHxHNGYA0RfLccC2T1O4tQ7tr7RQD2hcfLV0=
-X-Gm-Gg: AZuq6aJ94idFJkH67Ot0YfhwG/aSXfIOAODThtR7oy52R0+RjwKLjTt5iOf0LuvuJfj
-	EMG+cT0414JmGnjD9JNaaXyjWPSPB/dsb9BW1NHj66jqF2+TVjkn5O0HGuMDKtqRbarkReQsrDe
-	QhBAXpGIwnX1wEUWLzTtCsUj3DuNoFyx4aP7o7Zqs3elkqCa75pGwSZiKtBgAwlwXOT2tb0ZpE8
-	sTtQAPbvgzIN6sJdZmq4+0bd7tEFgPvl9SOf4qNCdxHo/+Hj8Ec4HU9nB6g7l8WaPLGsKlonHw5
-	stcPJqJciRKAFBDUTt21ARLfUwh4Vt0973CR6TQ7lFwA01RCQDFxHWDIUjhqdV4XsbyVMHlHKzw
-	Vh6B9pM3jDJuOImvyMOPd9PwaX7f/t221IOOlswoANDk=
-X-Received: by 2002:a17:903:2c04:b0:269:8d1b:40c3 with SMTP id d9443c01a7336-2a8d7eaadd2mr123033455ad.12.1770055828486;
-        Mon, 02 Feb 2026 10:10:28 -0800 (PST)
-X-Received: by 2002:a17:903:2c04:b0:269:8d1b:40c3 with SMTP id d9443c01a7336-2a8d7eaadd2mr123033035ad.12.1770055827918;
-        Mon, 02 Feb 2026 10:10:27 -0800 (PST)
+        bh=cbpTgWXazdOAfAdL49uExcjxZu696DCuIHbDLPHFMMY=;
+        b=r4kIX6RLW/fulRLYQA8L5yLYbOvrVS/OBOFdjwZpUbCsEu79afM4PROy98Rvxr+zs6
+         vQG2RHhMxgJ7gf4YK+TBmfVE93qQm2QQepda7PU5M0u6Jtk+6FDXldRJ0OXsvUzZUfs7
+         f40zZUdFY5QSJoB5Rgt5u3MYIIp6PWq2EFMw+tw/JBZDedsyADNfDboKsuy4PJUoHChH
+         Q/iZAyeK1vwghgOfbIWA4VflyNala8aOwKm/vWbpy1fnM7QUfXvXWD2YJAoh4vHOZDPH
+         potHsYK9E672ELV/KIxu9qUSEFz0qqevp6H5Bq44eZ0FEh9P0UzXRv5Px3++C83GJdj5
+         SKhg==
+X-Forwarded-Encrypted: i=1; AJvYcCUC2PWslL7mTGCYrfW9CMZzdSpOFeLofeUr5rFvvLtvR6gGehVilkvKDR5TGXoggtOfZWD1UYuX7jg=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxj7O2V2jneNmnYXhN8F/oUz9BuVvqNvTr3krUqpnMh2pkPQ0Cg
+	lJUXzHKId5/f79vHnD4ZwJqTf6EfJsC9s35lV63j9FAZCaobCcD98hBKGyB+nUPvovTnPASG7/n
+	G0DH8kmEYAjvsuQyABZY8llikC4NT6Tc/2A7YFdKWKMAAxLMFINcMEGS5n6c2Y1M=
+X-Gm-Gg: AZuq6aIXuxyRPsc2fL3zEsfo0jWmr+6zlLVU1gbGGjFXxRnoI2nXdZ00O8/RNmSnCGm
+	zBd4t0iP7lY4L9HAjNrVC9GdD9lJi9MDOLrbBcWE/cU/n2YQUJxdFk6BGn/YsPo5nI1Tv2pBEvu
+	cyY38kOWooJMLrq42ZGQm1MR4xz1l4CSauDzzt13KByPKKvxWENWgQMBTSDwY5NisZxZBPN9q5D
+	PlY1Iz9nZpLz2D3ZbfPIH+aj8SD4b3JD7hnRCX1x6aU88PclCBT9hTj+IDGl8vtGFQHas7aU7ao
+	wapVEU8Cr7oqZL0X+B2sMBFbbsXllsaxGa9GVgZ1E0S7lJIGKSi2RycAvNMFXSXL/rgJ0daqGBh
+	DoaHsvv33iqYOjUI/MVkfJUu0O+fMYy8Zl4iUgdDGC20=
+X-Received: by 2002:a05:6a00:94f3:b0:7e8:4398:b360 with SMTP id d2e1a72fcca58-823ab748f55mr12083560b3a.51.1770055836408;
+        Mon, 02 Feb 2026 10:10:36 -0800 (PST)
+X-Received: by 2002:a05:6a00:94f3:b0:7e8:4398:b360 with SMTP id d2e1a72fcca58-823ab748f55mr12083520b3a.51.1770055835816;
+        Mon, 02 Feb 2026 10:10:35 -0800 (PST)
 Received: from hu-ptalari-hyd.qualcomm.com ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82379bfc712sm17476780b3a.40.2026.02.02.10.10.21
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82379bfc712sm17476780b3a.40.2026.02.02.10.10.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 02 Feb 2026 10:10:27 -0800 (PST)
+        Mon, 02 Feb 2026 10:10:35 -0800 (PST)
 From: Praveen Talari <praveen.talari@oss.qualcomm.com>
 To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
         Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -92,10 +92,12 @@ To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
         konrad.dybcio@oss.qualcomm.com
 Cc: prasad.sodagudi@oss.qualcomm.com, quic_vtanuku@quicinc.com,
         aniket.randive@oss.qualcomm.com, chandana.chiluveru@oss.qualcomm.com,
-        jyothi.seerapu@oss.qualcomm.com
-Subject: [PATCH v4 07/13] soc: qcom: geni-se: Introduce helper APIs for performance control
-Date: Mon,  2 Feb 2026 23:39:16 +0530
-Message-Id: <20260202180922.1692428-8-praveen.talari@oss.qualcomm.com>
+        jyothi.seerapu@oss.qualcomm.com,
+        Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
+        Nikunj Kela <quic_nkela@quicinc.com>
+Subject: [PATCH v4 08/13] dt-bindings: i2c: Describe SA8255p
+Date: Mon,  2 Feb 2026 23:39:17 +0530
+Message-Id: <20260202180922.1692428-9-praveen.talari@oss.qualcomm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260202180922.1692428-1-praveen.talari@oss.qualcomm.com>
 References: <20260202180922.1692428-1-praveen.talari@oss.qualcomm.com>
@@ -106,127 +108,128 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Authority-Analysis: v=2.4 cv=Xb6EDY55 c=1 sm=1 tr=0 ts=6980e895 cx=c_pps
- a=IZJwPbhc+fLeJZngyXXI0A==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+X-Proofpoint-ORIG-GUID: QK6dluB6p-PcyCfrqVBmDQV0CQsh5ZZE
+X-Authority-Analysis: v=2.4 cv=OrRCCi/t c=1 sm=1 tr=0 ts=6980e89d cx=c_pps
+ a=WW5sKcV1LcKqjgzy2JUPuA==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
  a=HzLeVaNsDn8A:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=EUspDBNiAAAA:8 a=NwCh5GMA9Nt760FYQHkA:9 a=uG9DUKGECoFWVXl0Dc02:22
-X-Proofpoint-ORIG-GUID: l81MSSjC3wClAjv198EHVMbr6rAye5pl
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjAyMDE0MiBTYWx0ZWRfX9YZhVOp1qTQQ
- cj44QIeNZ4T/oOIrl74Yk80wBDmWcXJFEgmoPdfDF7IpWwfn0e30UAf7QoAjaFVJRy9yZThIU69
- /a5guVVzMykLo5b7jScxLVtIxu+YkuRPcMEzMN5ou6OIJMI3QmYI7BfVXD7ZPQ1dLBVYmHQXIqV
- 2+WwlZ6V1cvw25ZyLet4pdFlCJG/oypnG6FqmTODXNjJYfahW+iQggEwHP7VTLIEKMl4JxjXuq1
- TYwpxk/duclS1Lzo4de2cG1xQX6rtcQGoRnP0RW9ipnZZXS9urKeQB+W8YD0Fs0cts0XcvKio30
- bVpo7bNIOaT5RQqr1PtqoMwXYCC9qXZHKlq+C+eJBfRKZAPQfqAxqtCd7hMzIUUnHKjljIZNY5r
- 0mYAtpWw4sgJbKjHtyk+F9JoJIiiMB/9SjSBJHv3p4hfrUUr7GKLlTIOvck301Uec+TSfwDR86V
- 5+SnSHWt+npLyjCDQ7A==
-X-Proofpoint-GUID: l81MSSjC3wClAjv198EHVMbr6rAye5pl
+ a=gEfo2CItAAAA:8 a=EUspDBNiAAAA:8 a=COk6AnOGAAAA:8 a=apMzWF-kzHp83YoYYzAA:9
+ a=OpyuDcXvxspvyRM73sMx:22 a=sptkURWiP4Gy88Gu7hUp:22 a=TjNXssC_j7lpFel5tvFf:22
+X-Proofpoint-GUID: QK6dluB6p-PcyCfrqVBmDQV0CQsh5ZZE
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjAyMDE0MiBTYWx0ZWRfX8GG5TeFrn6JF
+ G1UPR473COJhPjF/amrEsXkpuKq8rlEHe2QF2qKhfVwjpEaCKIeYafrsG1mlJ6lisfj4BUivqhP
+ 5ZORAWIj2/Asi2tBXEMWjWeULQ7sY/bKWSTLwwS4FAS4lSNHnTJaVbWMteDxMDaeAzRqau9g8/g
+ gIm5ayi6IiV23NzBzAzXsKM6SHUUdqNSvnZ6bqF7vEKBgMbuaBEzjGXy+kHwM/9GGexLyp11twS
+ H8+jzqkNdHlgoUnty83x1f81wNQ1B/IvMdR95XG4n+cEH+/25KEysfwhl41Qd2qMv5lEpP12dZs
+ BBWemRzZ5RgRSx4BLtSaePmcojNZUKEtFOEkjI+TTqU+1Sdo3bmsjQ6Im4ZPRoH3vZFB1K8S5X5
+ X2JpdelfubF+tRSPubTZH9Sy3CgRqcc4eWPG+NJt41njIn6oL8cOjypn0lcvVSQADBA1xatsDpq
+ 0yYdENt/meIzhBpl88Q==
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-02-02_05,2026-02-02_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 priorityscore=1501 lowpriorityscore=0 phishscore=0 adultscore=0
- suspectscore=0 bulkscore=0 impostorscore=0 malwarescore=0 spamscore=0
+ suspectscore=0 lowpriorityscore=0 spamscore=0 clxscore=1015 adultscore=0
+ malwarescore=0 phishscore=0 impostorscore=0 priorityscore=1501 bulkscore=0
  classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
  reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602020142
 
-The GENI Serial Engine (SE) drivers (I2C, SPI, and SERIAL) currently
-manage performance levels and operating points directly. This resulting
-in code duplication across drivers. such as configuring a specific level
-or find and apply an OPP based on a clock frequency.
+Add DT bindings for the QUP GENI I2C controller on sa8255p platforms.
 
-Introduce two new helper APIs, geni_se_set_perf_level() and
-geni_se_set_perf_opp(), addresses this issue by providing a streamlined
-method for the GENI Serial Engine (SE) drivers to find and set the OPP
-based on the desired performance level, thereby eliminating redundancy.
+SA8255p platform abstracts resources such as clocks, interconnect and
+GPIO pins configuration in Firmware. SCMI power and perf protocol
+are utilized to request resource configurations.
 
+SA8255p platform does not require the Serial Engine (SE) common properties
+as the SE firmware is loaded and managed by the TrustZone (TZ) secure
+environment.
+
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Co-developed-by: Nikunj Kela <quic_nkela@quicinc.com>
+Signed-off-by: Nikunj Kela <quic_nkela@quicinc.com>
 Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
 ---
- drivers/soc/qcom/qcom-geni-se.c  | 50 ++++++++++++++++++++++++++++++++
- include/linux/soc/qcom/geni-se.h |  4 +++
- 2 files changed, 54 insertions(+)
+v2->v3:
+- Added Reviewed-by tag
 
-diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
-index d80ae6c36582..2241d1487031 100644
---- a/drivers/soc/qcom/qcom-geni-se.c
-+++ b/drivers/soc/qcom/qcom-geni-se.c
-@@ -282,6 +282,12 @@ struct se_fw_hdr {
- #define geni_setbits32(_addr, _v) writel(readl(_addr) |  (_v), _addr)
- #define geni_clrbits32(_addr, _v) writel(readl(_addr) & ~(_v), _addr)
- 
-+enum domain_idx {
-+	DOMAIN_IDX_POWER,
-+	DOMAIN_IDX_PERF,
-+	DOMAIN_IDX_MAX
-+};
+v1->v2:
+Krzysztof:
+- Added dma properties in example node
+- Removed minItems from power-domains property
+- Added in commit text about common property
+---
+ .../bindings/i2c/qcom,sa8255p-geni-i2c.yaml   | 64 +++++++++++++++++++
+ 1 file changed, 64 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml
+
+diff --git a/Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml b/Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml
+new file mode 100644
+index 000000000000..a61e40b5cbc1
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml
+@@ -0,0 +1,64 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/qcom,sa8255p-geni-i2c.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
 +
- /**
-  * geni_se_get_qup_hw_version() - Read the QUP wrapper Hardware version
-  * @se:	Pointer to the corresponding serial engine.
-@@ -1093,6 +1099,50 @@ int geni_se_resources_activate(struct geni_se *se)
- }
- EXPORT_SYMBOL_GPL(geni_se_resources_activate);
- 
-+/**
-+ * geni_se_set_perf_level() - Set performance level for GENI SE.
-+ * @se: Pointer to the struct geni_se instance.
-+ * @level: The desired performance level.
-+ *
-+ * Sets the performance level by directly calling dev_pm_opp_set_level
-+ * on the performance device associated with the SE.
-+ *
-+ * Return: 0 on success, or a negative error code on failure.
-+ */
-+int geni_se_set_perf_level(struct geni_se *se, unsigned long level)
-+{
-+	return dev_pm_opp_set_level(se->pd_list->pd_devs[DOMAIN_IDX_PERF], level);
-+}
-+EXPORT_SYMBOL_GPL(geni_se_set_perf_level);
++title: Qualcomm SA8255p QUP GENI I2C Controller
 +
-+/**
-+ * geni_se_set_perf_opp() - Set performance OPP for GENI SE by frequency.
-+ * @se: Pointer to the struct geni_se instance.
-+ * @clk_freq: The requested clock frequency.
-+ *
-+ * Finds the nearest operating performance point (OPP) for the given
-+ * clock frequency and applies it to the SE's performance device.
-+ *
-+ * Return: 0 on success, or a negative error code on failure.
-+ */
-+int geni_se_set_perf_opp(struct geni_se *se, unsigned long clk_freq)
-+{
-+	struct device *perf_dev = se->pd_list->pd_devs[DOMAIN_IDX_PERF];
-+	struct dev_pm_opp *opp;
-+	int ret;
++maintainers:
++  - Praveen Talari <praveen.talari@oss.qualcomm.com>
 +
-+	opp = dev_pm_opp_find_freq_floor(perf_dev, &clk_freq);
-+	if (IS_ERR(opp)) {
-+		dev_err(se->dev, "failed to find opp for freq %lu\n", clk_freq);
-+		return PTR_ERR(opp);
-+	}
++properties:
++  compatible:
++    const: qcom,sa8255p-geni-i2c
 +
-+	ret = dev_pm_opp_set_opp(perf_dev, opp);
-+	dev_pm_opp_put(opp);
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(geni_se_set_perf_opp);
++  reg:
++    maxItems: 1
 +
- /**
-  * geni_se_domain_attach() - Attach power domains to a GENI SE device.
-  * @se: Pointer to the geni_se structure representing the GENI SE device.
-diff --git a/include/linux/soc/qcom/geni-se.h b/include/linux/soc/qcom/geni-se.h
-index 5f75159c5531..c5e6ab85df09 100644
---- a/include/linux/soc/qcom/geni-se.h
-+++ b/include/linux/soc/qcom/geni-se.h
-@@ -550,5 +550,9 @@ int geni_se_resources_deactivate(struct geni_se *se);
- int geni_load_se_firmware(struct geni_se *se, enum geni_se_protocol_type protocol);
- 
- int geni_se_domain_attach(struct geni_se *se);
++  dmas:
++    maxItems: 2
 +
-+int geni_se_set_perf_level(struct geni_se *se, unsigned long level);
++  dma-names:
++    items:
++      - const: tx
++      - const: rx
 +
-+int geni_se_set_perf_opp(struct geni_se *se, unsigned long clk_freq);
- #endif
- #endif
++  interrupts:
++    maxItems: 1
++
++  power-domains:
++    maxItems: 2
++
++  power-domain-names:
++    items:
++      - const: power
++      - const: perf
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - power-domains
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/arm-gic.h>
++    #include <dt-bindings/dma/qcom-gpi.h>
++
++    i2c@a90000 {
++        compatible = "qcom,sa8255p-geni-i2c";
++        reg = <0xa90000 0x4000>;
++        interrupts = <GIC_SPI 357 IRQ_TYPE_LEVEL_HIGH>;
++        dmas = <&gpi_dma0 0 0 QCOM_GPI_I2C>,
++               <&gpi_dma0 1 0 QCOM_GPI_I2C>;
++        dma-names = "tx", "rx";
++        power-domains = <&scmi0_pd 0>, <&scmi0_dvfs 0>;
++        power-domain-names = "power", "perf";
++    };
++...
 -- 
 2.34.1
 
