@@ -1,38 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A180930E842;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B136630EF83;
 	Mon,  2 Feb 2026 20:37:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770064656; cv=none; b=tkI2bbI/Ttzt0h05PIDJRuaWinnsknlaeDfIwWQ+fly1t2D8oV+DMoj0mB17dk61hYk1HeRZmpNbFVewm/B2QaNLqJYJgLtK8cSEwvqrMeudIGeNOibCI6f0STvnWE21tsNijEeyppgZCJSh1d4qjdIdRi2iODqtPLmOpI4yMpA=
+	t=1770064656; cv=none; b=Bc2zFWfAogsfXg6mdkXx+pUKF/Ka/RTc13oxRpu9564NPgF+6JiqU5N/MEOzULf54kwwCvczKenmx3dCnIfxUUTclNdqGXhyjI1+Fy2K739VnIlX3ys+tN//mkdNpE4bHeStdD+AtzhnIxnb9TReh9G7y18DmgQ4Qb/SqtJYXt8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1770064656; c=relaxed/simple;
-	bh=Xksoe2+S7Mf+L+o1XLDCUHOeZtAgXsNJ8wt02v5c5fE=;
+	bh=EQnetrtHFK2rEBzsiSIHup8oVhTEzY0ph1INzOphpyk=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=bZz3Micocyl9O9/yPM6R2hmec5kGoKt4MCQRmRyAQX0YOjAD9jZ5sbCgHJug9K9I2bUsrIfH5FrasmfGrdd/vyHtTNF5IVn2lXBgv2WaaOxSz2Jcmb9FWEzqxAl6vhsx7U960bemVAXddYq1nK9guo5xt9YOuNanD7BNnp8TxoQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uD2LGyb7; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=qePDuy4JNsLk6/qjQygKxSNOl6dGuBvlcItb7mx7tA/2WRmErIDCIV/CbAVDo2c6T1i/P4/E+V2HMAtjUsICSegVNNVDLm+O/CF2z185RmNZFTn/RDCSQD+n2bK0AYxJ+8iDaeo97K+iY/ud21og5gMw7ZkNlxAdSgH6z6sGywk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mVs0lrsT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uD2LGyb7"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 56D55C2BCB1;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mVs0lrsT"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 7D10DC19425;
 	Mon,  2 Feb 2026 20:37:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1770064656;
-	bh=Xksoe2+S7Mf+L+o1XLDCUHOeZtAgXsNJ8wt02v5c5fE=;
+	bh=EQnetrtHFK2rEBzsiSIHup8oVhTEzY0ph1INzOphpyk=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=uD2LGyb79vtLQ27ZflKOdGS31cNVKV16K1yKZAqPGM0X7keSbvKWPlejyAYZbGMxd
-	 IrU1PQzTW5ybZO91p8VBqORtypSss0t1N9dpdKk+WKqQY/kD24hE/yTrv0Y7iAMqbx
-	 o5qF+EBMpov0ZYcJPlG97wga2oGS+vWDzFvX5WN7+6SGc1f0b8knsL6qJXhxc4w4Hw
-	 PpUatl0or53JPtRqA9LAHVgw2sjcdkQjoVCEPiLvaHeQ6iEQ9+O2LhfqBDYrdvx6yv
-	 LU32jWOcTQ5l7Mytuh9PGybtZ0ErxQMKyCvFebdOMiym2Tvfnzf1dD4O++x410biUl
-	 091HTGHncwFng==
+	b=mVs0lrsT6Q8iv11/hUkqq8F6pK1qito6+AOxXu6XThaE+hX3IUVzmqFrFz5MlxpBe
+	 58RBCk38RWthf7aDeq/tUgPjld8mTooLO3viTeIklH3GTgjZLygIqzm6xV4LharqCg
+	 O8C71UPsWbmoKkivbdTdjlDboJBVxnywBOJfD1Zl2zekvbEI4vfmA+/MPKxvhNabq3
+	 7mi183bXvrdyp9wVNU1iZEJdSUFOfZAsqx9IbRlNU2ln3JuKYQw9mp4GXfMFSHgRJC
+	 bewWHGv7LOhbRCdWdhQOr/beiMoGOhpDTI6mfrDDWrc+R4OE4BBoAqASmxOvfGg1+p
+	 AoIhgHc7k1cGQ==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 47768E7FDD4;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 67E3CE7FDD3;
 	Mon,  2 Feb 2026 20:37:36 +0000 (UTC)
 From: Abdurrahman Hussain via B4 Relay <devnull+abdurrahman.nexthop.ai@kernel.org>
-Date: Mon, 02 Feb 2026 20:37:22 +0000
-Subject: [PATCH v9 5/7] i2c: xiic: cosmetic: use resource format specifier
- in debug log
+Date: Mon, 02 Feb 2026 20:37:23 +0000
+Subject: [PATCH v9 6/7] i2c: xiic: use numbered adapter registration
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -41,7 +40,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260202-i2c-xiic-v9-5-ce4695f5267d@nexthop.ai>
+Message-Id: <20260202-i2c-xiic-v9-6-ce4695f5267d@nexthop.ai>
 References: <20260202-i2c-xiic-v9-0-ce4695f5267d@nexthop.ai>
 In-Reply-To: <20260202-i2c-xiic-v9-0-ce4695f5267d@nexthop.ai>
 To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
@@ -52,11 +51,11 @@ Cc: Andy Shevchenko <andriy.shevchenko@intel.com>,
  linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
  Abdurrahman Hussain <abdurrahman@nexthop.ai>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1770064654; l=856;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1770064654; l=1108;
  i=abdurrahman@nexthop.ai; s=20260119; h=from:subject:message-id;
- bh=t2F391AQVy1CL9rMsRzI2NPAaYKBn3gbJ/BmjKyoXVM=;
- b=W3gV+F76fdQ6UqgI5HpUynyGfb5qvfIWV9fvKzLobDKxlBrKDdvI9S8L9/eeV50woSaJbJUYs
- qnRcBQYalwQAnRxJqrUci5kHgtCWUlFjDY67md93N50xL8ZdEltZZyp
+ bh=RLQIf1A/Hfhfj6sGMEhyze1brD6x3yYtifNZ+L92dP4=;
+ b=Pv2jgLeasoQVQ/mHZBmVLZKipUHNjCA59kwN3eQa9PgZN51zKu0N7s+U/mc0h0C5qL+qQZ+/7
+ AxI21/tBr1hBWozpraAV4N1nqfZ5knMK4UZ1RMS6mAqM7yaxWPfX/gz
 X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
  pk=S+ysnf+NwMcBdHBlyKIUEAtaFGSIhQwcJcgcXhq0osg=
 X-Endpoint-Received: by B4 Relay for abdurrahman@nexthop.ai/20260119 with
@@ -66,29 +65,35 @@ Reply-To: abdurrahman@nexthop.ai
 
 From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
 
-Use standard resource format specifier %pR in debug log.
+Use i2c_add_numbered_adapter() to allow platform devices to specify
+fixed bus numbers when needed.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
 Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
 ---
- drivers/i2c/busses/i2c-xiic.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index ade0fd66451b..eeb8ba8e131e 100644
+index eeb8ba8e131e..2c0470452221 100644
 --- a/drivers/i2c/busses/i2c-xiic.c
 +++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -1518,8 +1518,8 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 			i2c_new_client_device(&i2c->adap, pdata->devices + i);
- 	}
+@@ -1450,6 +1450,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 	/* hook up driver to tree */
+ 	platform_set_drvdata(pdev, i2c);
+ 	i2c->adap = xiic_adapter;
++	i2c->adap.nr = pdev->id;
+ 	i2c_set_adapdata(&i2c->adap, i2c);
+ 	i2c->adap.dev.parent = dev;
+ 	device_set_node(&i2c->adap.dev, dev_fwnode(dev));
+@@ -1506,7 +1507,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 		return dev_err_probe(dev, ret, "Cannot xiic_reinit\n");
  
--	dev_dbg(dev, "mmio %08lx irq %d scl clock frequency %d\n",
--		(unsigned long)res->start, irq, i2c->i2c_clk);
-+	dev_dbg(dev, "mmio %pR irq %d scl clock frequency %d\n",
-+		res, irq, i2c->i2c_clk);
- 
- 	return ret;
- }
+ 	/* add i2c adapter to i2c tree */
+-	ret = i2c_add_adapter(&i2c->adap);
++	ret = i2c_add_numbered_adapter(&i2c->adap);
+ 	if (ret) {
+ 		xiic_deinit(i2c);
+ 		return ret;
 
 -- 
 2.52.0
