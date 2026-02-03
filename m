@@ -1,70 +1,69 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D3472EF64F;
-	Tue,  3 Feb 2026 09:53:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66630396D24;
+	Tue,  3 Feb 2026 10:04:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770112397; cv=none; b=Dq2r3wjYouMWGmawNKbcjSDjdJBcClayv0fqohQqFsW12RstKtrUrWhbhvR78RJnBxRYQBoZGfqCLhhSMouWJrIfyGhK/4kkJFLpVTuw2wPyf43ljjCT5QPWvkCeLjbo+I58EgzCyIPvrv/nKkjW9vCQFKXgHVoFT5PFQpQtqcc=
+	t=1770113096; cv=none; b=Z2FXQ6eewzp3j7gz01FaokPAIHTECYuEiRNiPHJn3K4Kdb46oSbVq7a243ylNT3ZCMjiKr6LQRxYCM4EfLzLMNFyo7qHrGfH9uIxSaPSzDgOWxfCLaqENijC1eO1LuKgmZ5z2yb3u1ySrCoP8610t9n+toxAFs1+EqrHa4r/tUQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770112397; c=relaxed/simple;
-	bh=eLCHDZQSBnp8TQNvGvK8JfVIMSYc96hG4trl4sdtfqk=;
+	s=arc-20240116; t=1770113096; c=relaxed/simple;
+	bh=vtrpsVqQb5YbyQPqbOoqVjxnUae20uePToXzdPR9HFg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=M2cMCoiT42JGL0BKa7BW3sjAKWCilo2N5v4XKbiJ+i6MEgie7SAwhVaanazmwdEtkJlly01WOj1yhrK/IbXdw6cQ6tPpuzCG1NGUF2+30gRQmVfHiA+F2cXrVt84qyXvN2dp9XoA6xQRIiWs2CIvCrnGTPLLRElhyDItPBDb9vc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Ta07Qlpl; arc=none smtp.client-ip=192.198.163.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=mIoJ3D10YiDERzDqgCFn3HgzjvdaTbXBGNoGLJOfSoavo7IL5hYUr62w15ZnG46BxMX8HlC59AbDWAhGjCr7bcAU+EJglc3DHskNxI8z4GExfuPjI6pa9kTYeZ5ysEX1iDVOA5hCbUKeWC6adUjmnazqnizvZsVZKa1YegS0hq8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=n/d9IjOT; arc=none smtp.client-ip=198.175.65.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Ta07Qlpl"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="n/d9IjOT"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1770112396; x=1801648396;
+  t=1770113095; x=1801649095;
   h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=eLCHDZQSBnp8TQNvGvK8JfVIMSYc96hG4trl4sdtfqk=;
-  b=Ta07Qlpl2w6DWhwcbABwEhSxU/AK1jvSujtLRTPIrokVNFG9ztRVExEK
-   BPdwrZHAiXg0tDjvu9+1jrupoKkPlviGUxO/xc2rIoIYyACupr0yaPnId
-   RedDVfoE9LyX244PPYG+bCXF4uyh8SefWagVbGOo7VhQ7mYDXQG2zMxlO
-   0x1vlps1IYdFD/+3iSs+3KVRCKdYlCHl0mwEpgyO/JGdzbuQLDlCTW5SR
-   lSGAAa/1Er20dfdvJjvC9fYYdC2yE9gx4DAFnCPQViuZhzh5l2uo1B4oG
-   KdadzHUjdUnoXOxWcK0dp5ZPyGlJEdhHgxDS8kZT3OcbtXPcbC9MvO6lZ
+   mime-version:in-reply-to;
+  bh=vtrpsVqQb5YbyQPqbOoqVjxnUae20uePToXzdPR9HFg=;
+  b=n/d9IjOTt/U8zzM0q7vJZP+dm4jEY5JkdQ+9vjzCLqzmu9Ni9GqmHjj9
+   DqhSYgOknWE8YoCU0MuGzpCZQ6D8FvzNkaMAbjfGXP9OfG1UwDArpQScu
+   VYDX9zjRujMqxiCHNqW5xDl8SMUOqA5vv+7MLXxGpbRBvyQjHL2F8MvX0
+   iz4PVYVQJS3p13uFQo1YgAoOwXI7eZ4E2jjUR4yCSNXYZidIOqIxg2JtO
+   uYK56V8HTdJ6zyNuVTP7bachyLsDewWn8HNos0nmxkT4wm52bjMnbm4Fw
+   xk4h5zm8yUbkT/pfkmRdo89Oy24qRFT2Tw854Lp8rnj35qgU8siviGSkZ
    A==;
-X-CSE-ConnectionGUID: 0elgfAwISBa/kN7pbNHEkQ==
-X-CSE-MsgGUID: a1VlzXh2QcqDFa8k0S0IYA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11690"; a="81908316"
+X-CSE-ConnectionGUID: pJNGc9MHQuOCaR9USnj9NQ==
+X-CSE-MsgGUID: siD45I7zR4KkJAL13d3jLA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11690"; a="71262688"
 X-IronPort-AV: E=Sophos;i="6.21,270,1763452800"; 
-   d="scan'208";a="81908316"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Feb 2026 01:53:16 -0800
-X-CSE-ConnectionGUID: GNFGkw07RIOTfgCtUURYtw==
-X-CSE-MsgGUID: JzwdxFYWSxW57x3BwOns+A==
+   d="scan'208";a="71262688"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Feb 2026 02:04:55 -0800
+X-CSE-ConnectionGUID: cQg2U5gcRlGlQJ4QvktJ9A==
+X-CSE-MsgGUID: k4wVpFo6TQCFjuzyYyKKSA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.21,270,1763452800"; 
-   d="scan'208";a="209955718"
-Received: from pgcooper-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.245.99])
-  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Feb 2026 01:53:12 -0800
-Date: Tue, 3 Feb 2026 11:53:10 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Binbin Zhou <zhoubb.aaron@gmail.com>
-Cc: Binbin Zhou <zhoubinbin@loongson.cn>,
-	Huacai Chen <chenhuacai@loongson.cn>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Andy Shevchenko <andy@kernel.org>, linux-i2c@vger.kernel.org,
-	Huacai Chen <chenhuacai@kernel.org>,
-	Xuerui Wang <kernel@xen0n.name>, loongarch@lists.linux.dev,
-	devicetree@vger.kernel.org
-Subject: Re: [PATCH v2 2/2] i2c: ls2x-v2: Add driver for Loongson-2K0300 I2C
- controller
-Message-ID: <aYHFhsjUo1SzAlQF@smile.fi.intel.com>
-References: <cover.1769476820.git.zhoubinbin@loongson.cn>
- <402121da829497fc97f1461c8aaa3a44252c3f06.1769476820.git.zhoubinbin@loongson.cn>
- <aXh000kBfaqd1G9H@smile.fi.intel.com>
- <CAMpQs4JTqWr6AqRwEO9bcno-_MjjE8GKm_kUvrpy7m_tLMtuSQ@mail.gmail.com>
- <aXtw9h8WUs5H9MgC@smile.fi.intel.com>
- <CAMpQs4+Rk7-ERUetW_V4ojGxLtpzoX+hGgr7wV+0iQ8Uhdri4A@mail.gmail.com>
+   d="scan'208";a="209977287"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by fmviesa010.fm.intel.com with ESMTP; 03 Feb 2026 02:04:53 -0800
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id 1BB7495; Tue, 03 Feb 2026 11:04:52 +0100 (CET)
+Date: Tue, 3 Feb 2026 11:04:52 +0100
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: correctmost <cmlists@sent.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	dmaengine@vger.kernel.org, regressions@lists.linux.dev,
+	vkoul@kernel.org, linux-i2c@vger.kernel.org
+Subject: Re: [REGRESSION][BISECTED] Lenovo IdeaPad touchpad does not work
+ when idma64 is present in initramfs
+Message-ID: <20260203100452.GE2275908@black.igk.intel.com>
+References: <20260129065837.GT2275908@black.igk.intel.com>
+ <513c490f-c433-4298-ae66-6e165aa7b299@app.fastmail.com>
+ <20260129115609.GV2275908@black.igk.intel.com>
+ <7d966d39-aa5a-4a0f-a115-a4b90632a26c@app.fastmail.com>
+ <20260130072620.GW2275908@black.igk.intel.com>
+ <53bd143f-525d-4748-af93-3460c9f59d1a@app.fastmail.com>
+ <20260202075118.GY2275908@black.igk.intel.com>
+ <00ee321d-1f36-4f1e-91f7-fdee4212c5cc@app.fastmail.com>
+ <20260202102225.GB2275908@black.igk.intel.com>
+ <5ed857f5-59ae-4052-8f2e-dac7fcd014cc@app.fastmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -73,114 +72,85 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAMpQs4+Rk7-ERUetW_V4ojGxLtpzoX+hGgr7wV+0iQ8Uhdri4A@mail.gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+In-Reply-To: <5ed857f5-59ae-4052-8f2e-dac7fcd014cc@app.fastmail.com>
 
-On Mon, Feb 02, 2026 at 02:39:28PM +0800, Binbin Zhou wrote:
-> On Thu, Jan 29, 2026 at 10:38 PM Andy Shevchenko
-> <andriy.shevchenko@intel.com> wrote:
-> > On Thu, Jan 29, 2026 at 04:07:06PM +0800, Binbin Zhou wrote:
-> > > On Tue, Jan 27, 2026 at 4:18 PM Andy Shevchenko
-> > > <andriy.shevchenko@intel.com> wrote:
-> > > > On Tue, Jan 27, 2026 at 10:47:57AM +0800, Binbin Zhou wrote:
-
-...
-
-> > > After run `pahole`, the structs are reorganized as follow:
-> > >
-> > > pahole --show_reorg_steps --reorganize --sort -C loongson2_i2c_priv
-> > > i2c-ls2x-v2.o
-> > > struct loongson2_i2c_priv {
-> > >         struct i2c_adapter         adapter
-> > > __attribute__((__aligned__(8))); /*     0  1064 */
-> > >         /* --- cacheline 16 boundary (1024 bytes) was 40 bytes ago ---
-> > > */
-> > >         struct clk *               clk;                  /*  1064
-> > > 8 */
-> > >         struct completion          complete;             /*  1072
-> > > 32 */
-> > >         /* --- cacheline 17 boundary (1088 bytes) was 16 bytes ago ---
-> > > */
-> > >         struct regmap *            regmap;               /*  1104
-> >
-> > It's better to keep pointers like clk and regmap next to each other.
-> > They are semantically coupled as "resources".
-> >
-> > > 8 */
-> > >         int                        speed;                /*  1112
-> > > 4 */
-> > >         int                        parent_rate;          /*  1116
-> > > 4 */
-> > >         struct loongson2_i2c_msg   msg;                  /*  1120
-> > > 24 */
-> > >
-> > >         /* XXX last struct has 4 bytes of padding */
-> > >
-> > >         /* size: 1144, cachelines: 18, members: 7 */
-> > >         /* paddings: 1, sum paddings: 4 */
-> > >         /* forced alignments: 1 */
-> > >         /* last cacheline: 56 bytes */
-> > > } __attribute__((__aligned__(8)));
-> >
-> > ...
-> >
-> > > pahole --show_reorg_steps --reorganize --sort -C loongson2_i2c_msg
-> > > i2c-ls2x-v2.o
-> > > struct loongson2_i2c_msg {
-> > >         u8                         addr;                 /*     0
-> > > 1 */
-> > >         bool                       stop;                 /*     1
-> > > 1 */
-> > >
-> > >         /* XXX 2 bytes hole, try to pack */
-> >
-> > >         u32                        count;                /*     4
-> > > 4 */
-> > >         u8 *                       buf;                  /*     8
-> > > 8 */
-> >
-> > Also think about it (don't blindly follow the `pahole` automatic mode).
-> > This is much better if you move the pointer to be the first, followed
-> > by a count, result, and others.
-> >
-> > >         int                        result;               /*    16
-> > > 4 */
-> > >
-> > >         /* size: 24, cachelines: 1, members: 5 */
-> > >         /* sum members: 18, holes: 1, sum holes: 2 */
-> > >         /* padding: 4 */
-> > >         /* last cacheline: 24 bytes */
-> > > };
-> >
-> > TL;DR: don't use `pahole` blindly. Use the common sense.
+On Mon, Feb 02, 2026 at 06:16:02AM -0500, correctmost wrote:
+> > Could you drop the above hack again so that it should "fail". Then build
+> > the kernel with CONFIG_PREEMPT_VOLUNTARY=y and add the below hack. Perhaps
+> > this is just lucky timing? Please try a couple of boots and make sure the
+> > results are the same each time.
 > 
-> Sorry, I slacked off.
-> How about the organized data structure as follows:
+> I cold booted five times and the touchpad did not work during any of those boots.
+
+Thanks!
+
+> I noticed that the "probe with driver" failure reports -22 instead of -110 now:
 > 
-> struct loongson2_i2c_msg {
->         u8      *buf;
->         u32     count;
->         int     result;
->         u8      addr;
->         bool    stop;
-> };
+> [   33.023932] i2c_hid_acpi i2c-ELAN06FA:00: Report Descriptor: 05 01 09 02 a1 01 85 01 09 01 a1 00 05 09 19 01 29 02 15 00 25 01 75 01 95 02 81 02 95 06 81 03 05 01 09 30 09 31 15 81 25 7f 75 08 95 02 81 06 75 08 95 05 81 03 c0 06 00 ff 09 01 85 0e 09 c5
+> [   33.026070] hid-generic 0018:04F3:327E.0001: item fetching failed at offset 638/675
+> [   33.027573] hid-generic 0018:04F3:327E.0001: probe with driver hid-generic failed with error -22
+> ...
+> [   33.183959] hid-multitouch 0018:04F3:327E.0001: item fetching failed at offset 638/675
+> [   33.183975] hid-multitouch 0018:04F3:327E.0001: probe with driver hid-multitouch failed with error -22
 > 
-> struct loongson2_i2c_priv {
->         struct i2c_adapter              adapter;
->         struct completion               complete;
->         struct clk                      *clk;
->         struct regmap                   *regmap;
->         int                             speed;
->         int                             parent_rate;
->         struct loongson2_i2c_msg        msg;
-> };
 
-At the first glance looks okay to me.
+This is really odd because "item fetching" is not really accessing any
+hardware bus - it just parses the descriptor and the descriptor looks fine
+to me (and this is the same as in case of working run):
 
--- 
-With Best Regards,
-Andy Shevchenko
+Usage Page (Generic Desktop)
+Usage (Generic Desktop.Mouse)
+Collection (1)
+  Report ID (1)
+  Usage (Generic Desktop.Pointer)
+  Collection (0)
+    Usage Page (Button)
+    Usage Minimum (1)
+    Usage Maximum (2)
+    Logical Minimum (0)
+    Logical Maximum (1)
+    Report Size (1)
+    Report Count (2)
+    Input (2)
+    Report Count (6)
+    Input (3)
+    Usage Page (Generic Desktop)
+    Usage (Generic Desktop.X)
+    Usage (Generic Desktop.Y)
+    Logical Minimum (129)
+    Logical Maximum (127)
+    Report Size (8)
+    Report Count (2)
+    Input (6)
+    Report Size (8)
+    Report Count (5)
+    Input (3)
+  End Collection (0)
+  Usage Page (Vendor Defined Page 1)
+  Usage (Vendor Defined Page 1.Vendor Usage 1)
+  Report ID (14)
+  Usage (Vendor Defined Page 1.00c5)
 
+I noticed  you still have:
 
+[    0.069726] Dynamic Preempt: full
+
+Can you change that in .config to:
+
+CONFIG_PREEMPT_VOLUNTARY=y
+
+Also let's add on top of everything one more hack patch, just in case ;-)
+
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index ed90858a27b7..0297ebedb802 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -371,7 +371,7 @@ static const struct acpi_device_id i2c_acpi_force_100khz_device_ids[] = {
+ 	 * a 400KHz frequency. The root cause of the issue is not known.
+ 	 */
+ 	{ "DLL0945", 0 },
+-	{ "ELAN06FA", 0 },
++//	{ "ELAN06FA", 0 },
+ 	{}
+ };
+ 
