@@ -1,74 +1,89 @@
-Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C7F73659F4;
-	Tue,  3 Feb 2026 19:58:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19FA12820AC
+	for <linux-i2c@vger.kernel.org>; Tue,  3 Feb 2026 20:52:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770148733; cv=none; b=ESLSqZ5KTGYc5OdoRDz21ITfZHT1mLuzNd/ps0X4HSWkNVssVTJ4Bm5Th4UgyDS4vZeCNW46ErgqSvciuqScaqEqxta2opalBPfR7F39HaexQ9lWW1NjCfNte0guOXKrgGnPe6VW0WgPeNdI55BRfw+fepPIMOjhB60lWg9k1kc=
+	t=1770151934; cv=none; b=WmrYMpfAc42b3jd1xTGYLJ28fIf4zZVdYmtTcF6IIzRN9Sbp3/INYe/ASELFSOA1gsXEgkCOeJSC5IfzTHIDyJz6M38cscZWOkil04Zm8Ag16IokgEM6KdKkeeRQ06o99YykygS/1tGAiVhg0c2K8mwO5SIIDac351dfD5WNU5c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770148733; c=relaxed/simple;
-	bh=r6ebOifb5oipciC4TfNCfM4gNzsZbhkk+dVdvHmGDvs=;
+	s=arc-20240116; t=1770151934; c=relaxed/simple;
+	bh=X9WTrVSFUounPOGaVIIii+C+mSd/Zh35xazajV3XRf0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Rt/OsFS9d7NA+QOA60QaxwNqwTH1hgq956p8uhU6Operl4FShbZjUvyikPqUPBKVK2+TNjXPPYrfz0ZDqMS1xX9n2Y3cTRbo+96T3xLsVCfjP10+tjpunEHgEOtOK+qit2z+hLq1z3GrSrUDRz69jiHOHr3fGPaRUJs+ak/Q1gs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=gTEutDCG; arc=none smtp.client-ip=156.67.10.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
+	 Content-Type:Content-Disposition:In-Reply-To; b=j+7cYd3sQue6pG2Zl4ZlF6pM8yTjQkgBRbI2r2Uj21ZbXDhzhidxELjzwEqWOXQFEnlC5ia6o7lKw+GcXH3thVm6TD37zZkf0TOV8TXq1C7yo4lGmbC3PVwRSwBC3SlzuoehF3zfWAakIb+dgMvTmoLE4hB6vvS604UKESPtgGI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=GELE6HMV; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="gTEutDCG"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124; h=In-Reply-To:Content-Transfer-Encoding:Content-Disposition:
-	Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:From:
-	Sender:Reply-To:Subject:Date:Message-ID:To:Cc:MIME-Version:Content-Type:
-	Content-Transfer-Encoding:Content-ID:Content-Description:Content-Disposition:
-	In-Reply-To:References; bh=qul62GtCDsQZaOnqvry1ZplbnKvVjFpiZ9Xacrsftfw=; b=gT
-	EutDCGk6vzh06S51sz6Yk8lO5i98esRV2XUpNLLw9ojyZCHmeknBNHQm+nVR+6S/qsePbHIhZicfJ
-	FMZK6NmjZQNQctP02fDZznHj9XIoMDdlq9EdZhRy0RfrkKDZF4LElRg6762D6jWjATPfD8ifhB99h
-	V790lNuV3oHNyd8=;
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
-	(envelope-from <andrew@lunn.ch>)
-	id 1vnMXm-005zYN-PS; Tue, 03 Feb 2026 20:58:38 +0100
-Date: Tue, 3 Feb 2026 20:58:38 +0100
-From: Andrew Lunn <andrew@lunn.ch>
-To: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-Cc: Andy Shevchenko <andriy.shevchenko@intel.com>,
-	Michal Simek <michal.simek@amd.com>,
-	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-Subject: Re: [PATCH v9 6/7] i2c: xiic: use numbered adapter registration
-Message-ID: <96adf8b2-da6e-491e-a20f-acccd988d585@lunn.ch>
-References: <20260202-i2c-xiic-v9-0-ce4695f5267d@nexthop.ai>
- <20260202-i2c-xiic-v9-6-ce4695f5267d@nexthop.ai>
- <aYIYBheQgIN71os8@smile.fi.intel.com>
- <2F830E87-F00A-4A54-A5CC-E59BD2C5C7B2@nexthop.ai>
- <1ac7be34-22b1-4d93-9957-fc7ade9a2649@lunn.ch>
- <DF13B121-56F2-4987-A47B-99A20E18554E@nexthop.ai>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="GELE6HMV"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=Cyac
+	JKNKfEv9UF4tTueejyJLKNYk8cJgfzgRyFu/R/4=; b=GELE6HMVX047ieDLrWXZ
+	InU8ZCmVdQQQLlK9ve2ysajhfS6nzacd7rf1000CtKCM8b2f5y1BrKl6mpK8cuSc
+	/6FzD1GEEHMcCRSOycnpjNW+5hJLoa2Qkigt/NrAqDgIDYNNPvmv1a28GxwoMgmx
+	tb+FuTgAtEd/y3KsRk436bHaqjaTxkXHLY29L+gh0B7mEyekAocITB9ngwpHxrrP
+	Feo3Wcbp5rS+b1RbX3PSHfQxWnFYkvHZyyqExbj/EzKwDAto0Yp4y89dAVgs1vuH
+	VlRI1CV0z7IaI6k9+gCjtU/4crzzbuEovqFe2+/yRBvVutPE0Ua9nIauL+VSyXsG
+	dQ==
+Received: (qmail 2068158 invoked from network); 3 Feb 2026 21:52:02 +0100
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 3 Feb 2026 21:52:02 +0100
+X-UD-Smtp-Session: l3s3148p1@BbiCnPFJoNgqAAAQagvIAoH29ntsUY5F
+Date: Tue, 3 Feb 2026 21:52:01 +0100
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+	linux-i2c <linux-i2c@vger.kernel.org>
+Subject: Re: [GIT PULL] i2c-host-fixes for v6.19-rc8
+Message-ID: <aYJf8X5hpVFMeyeR@shikoro>
+References: <aXyk_FOGDp7qIReN@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="ul+z89EnD8WLUbsf"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <DF13B121-56F2-4987-A47B-99A20E18554E@nexthop.ai>
+In-Reply-To: <aXyk_FOGDp7qIReN@zenone.zhora.eu>
 
-> Before, the driver was always doing the dynamic allocation due to
-> i2c_add_adapter(). So there could not have been a system that relied on
-> consistent i2c bus numbering. Even between reboots bus numbering could change.
-> 
-> The systems that did set pdev->id and were expecting a consistent i2c bus
-> numbering were broken to begin with.
-> 
-> This patch won’t break any existing systems or cause regressions.
 
-Great, now please add that to the commit message. These are the sort
-of things reviewers want to know, is a change going to cause
-regressions. If you have done your homework, mentioning it in the
-commit message will help avoid the questions being asked.
+--ul+z89EnD8WLUbsf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-       Andrew
+Hi Andi,
+
+> another single-fix pull request for this week. It addresses a
+> potential endless loop in the imx driver.
+
+I cherry-picked the commit instead of pulling the branch because the
+branch was not based on an -rcX. Will send out for 6.19 final.
+
+Thanks and happy hacking,
+
+   Wolfram
+
+
+--ul+z89EnD8WLUbsf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmmCX+0ACgkQFA3kzBSg
+KbaCsxAApqS7b2e5e+Fjae2XFRb407BcIpALSzxjwhi8hHzzLb/L3DRz8gk+I90C
+EzBavhkIkmwFkkM3cjdVj9hyQ5GoOCZBp38ZF472eGE4AwUF4zHJGNREGK/s3dM9
+V8Ph4hMLZPGO7526SU2s8TvucsJvSyIztp6Zd5AS9JBO66z09Z5vnRGiDGt+SfWR
+d0CVeFmo/6AsAQ3UxgVOUI9XhLk1/mSMaolmoL0eLbBLDw8cP4wFCQgMlUSgG0cd
+n8pEG5naBAJkApO0AiYglqsSaHSBxsBZe3mu/3zka7I4aWe7nI9h6wPiOyrQkG3w
+VMc8A2I5JppuFk1D1nyx4Nc6SnlWbyIHNNUDihczvw63l0Zg2xzx2/v96751upTl
+qMQyeeLaU0WbactzODrZ5yDvr8TFSe90w27y4lbcq9vt5pdSZhZOWy5A5mOM0+7B
+hF292U8S30u1nBzcFdh0M2a9l6iORVFchO58J6tZpf6+9tNIcgjFSRl2ZB5QsVaI
+QrJUPtUAsUBnyCzDfp9tBC3RnPanr3beeGNbfk6FPkx1XmdFxErD1cwVhfdFpYzs
+/Ekm2a8W3urt3p4hmMh+kyIf6BUFMlz+hMTY30E0eOqYrrFUqBXRpnbSGZGUkVdn
+22GA+TdZ+rxHVlB4sIXS5l6ovQpmLRVh+G7CG0hGzr5gtqOXOVc=
+=K911
+-----END PGP SIGNATURE-----
+
+--ul+z89EnD8WLUbsf--
