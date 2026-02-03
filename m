@@ -1,64 +1,63 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74EBC352942
-	for <linux-i2c@vger.kernel.org>; Tue,  3 Feb 2026 18:39:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C58102E975E
+	for <linux-i2c@vger.kernel.org>; Tue,  3 Feb 2026 18:50:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770143945; cv=none; b=AFU5PhhBPVwnaY6nTY3tomqO5nscLlNXq4Rk66P3vHHdvFniPjFa0zrW8eNuKExIyR8Q6Wqjt/v+Svj/7G8vUhsrNajVYosjZ7129cUV0OpbZYznhrUAIfa2hC2iN927DAXJHeKz5QVFW2fEFYdczZRua6HTM53HminZt3g89ZE=
+	t=1770144659; cv=none; b=CIRa/XPMJJxUvlIsxTRVHEBE++IL95BgcEW+DmCCXoPZhVyRbxBW4WrobCsnTu0pstknL+Guv28ovT+fV18doiDRywtJeDOtJX2wCDS4iePKpNSiBjTl8ImPUYPXOraOwb1u6mc0B3h8b/iksJAOw/scVppucqCkevPYgEj5UGM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770143945; c=relaxed/simple;
-	bh=S7ZwS6nHEpnT2Ed8O6Wsq8QnI7o0iZGRuFsNLUgRsT8=;
+	s=arc-20240116; t=1770144659; c=relaxed/simple;
+	bh=DHmaR94WIM1xMhIJTLcWEnvc7pYhuGrKmKB5FjKwX9o=;
 	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
-	 Message-Id:References:To; b=ObNWCxp5LRXU+DvFx4evoIE9+6nVl50pKAwP4qGXCmVP4+1YQ4kYKAzrO2R90dIalIZlhbmajnWDptO9J4CCgwYZgHCMZN7NssMhiBv1mQ7PVy+Er3WuLfQ4lxhEHSDRP0eX8HVJjgd7WOY0gSRPArcvs+MkuLmzHBi0GKDZwVM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=IdG09KtF; arc=none smtp.client-ip=209.85.210.178
+	 Message-Id:References:To; b=K9hMuRaPYI+2qD2kviVsEezMl9/L9Kqr+zeQ0N9tD+pctyFs6SL5pJEWprfsOoe/rbnEZoVfGv+ycxRO/Ub4mOr3RwJUkqIpYVTJzhEf4ekKZNgo55DGKI4XvqYCN7Ue0tp/DTgX4hNcxvKnRk2YAYtZmlcsValt/YMgMkxfv2w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=lgS6/KZV; arc=none smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="IdG09KtF"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-823c56765fdso2068723b3a.1
-        for <linux-i2c@vger.kernel.org>; Tue, 03 Feb 2026 10:39:04 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="lgS6/KZV"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2a7a23f5915so40298485ad.2
+        for <linux-i2c@vger.kernel.org>; Tue, 03 Feb 2026 10:50:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1770143943; x=1770748743; darn=vger.kernel.org;
+        d=nexthop.ai; s=google; t=1770144657; x=1770749457; darn=vger.kernel.org;
         h=to:references:message-id:content-transfer-encoding:cc:date
          :in-reply-to:from:subject:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=S7ZwS6nHEpnT2Ed8O6Wsq8QnI7o0iZGRuFsNLUgRsT8=;
-        b=IdG09KtFcRQnjRTSJ9PzGTYmsZcuyq8t9eXORTya3ef+pFSv5lE6U3F+mfKM8ou1Ey
-         kH8Eu5EBBqtxWmmA4nrlzmQXgW/1eCxbJpgi/bGxO8PT9nhL6osmOiTFZRqtpFqmnYKM
-         J4M8VdSV1JkklKnTWYAtihIqFLF74HhAYt6QkMSWYyBHOloS4W+EwZVddu5tAReqJ9qV
-         Jjvi82p5i3XDmIY60tI9W+KwGxpSaeUGnfL9h99j8hhKtun1+KfL7tFJkdNZbkn9/4u8
-         zM2fIZa1S/9jdSoJLJBHr0tuFkLGL0y1I+vNJyrVImYT/kNXzZ8V3OInVsmLMXv+MS2G
-         6flg==
+        bh=+Rfw0XG2ThbAXfeMl6ZSUUMc+ZydcYLefy3zvZERR6M=;
+        b=lgS6/KZVx25a5hA5kFzufCxZ1oE0H9QnPSaeDrKRQALZtYmqJnmz0+akN+w1wK3qFB
+         3GUphA/B9duMHad9aXQsg7wb0LLCu2cYLalNPMEFG+jHukLzh0hs9X+uWhsastMNEGGr
+         c9QLQEF8XTRltJYNfKATFft2RcDeOaieVEqSH8xQc3xBtcfaJo0L7RKihRGSpvMib6Pq
+         kydh2nogc0T4/DAOcPOVMpr2525N3g1WnqifVICeobyjJ8DI/le8l7R35ueM6cgUXn7r
+         aXKMFwsgmWRakPQnMEtj01fy+sdkG3TWonn6xUQcA7EDHlm8sqvA+W9M5Woqqw65xDEx
+         We5w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770143943; x=1770748743;
+        d=1e100.net; s=20230601; t=1770144657; x=1770749457;
         h=to:references:message-id:content-transfer-encoding:cc:date
          :in-reply-to:from:subject:mime-version:x-gm-gg:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=S7ZwS6nHEpnT2Ed8O6Wsq8QnI7o0iZGRuFsNLUgRsT8=;
-        b=Cdqy7J5MtH5z/f3jX85THrQh/4sVgB7s8ZzOop5X9cIpY6pq6WLOge37FpQsmrh5KY
-         fui2WDe6Pm+WDMersn6+UhZkSYhcd1jA5E8f48Zn8EU4ZC19ple8X4lgsLHQtSU0MvkC
-         yPMc86yAGOMQ2dMZu9X7ehEkThxeNuzaZ/SJLk4KTuvWE3/rMhXlqbL9o56bLB+ZnlAK
-         XWDe0Fd2H6S0cFwM7b0hZbtCXo56pPJZQ9AyAZass6dHuk1jqgWIf0YaUzSgP9MGiijs
-         TPIcXHfE0TtODPEZsC358rtpZZ8pXmwUzdWt/vBRwNG+rtV7rZPA8/kLCEii+eIps6mu
-         TZOw==
-X-Forwarded-Encrypted: i=1; AJvYcCUR+aOfNCIpdadVeUqeqhlfsn8epvuKutJe2URhr/wkxjhW9xLvNOZK8C45yUwyQ2dtRffVZASjryk=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzLkVHyRl0rPMst8ULqkSaiF5gDV9Q6cqRm99e4ZIEbb9HKZY2T
-	0OahGh8iv98T9CQUHbxNZ/unOB866GPgp/elyJZWoSllkaw40wmWrusdfeSD1RbGrlfEftGWb5N
-	Q8fKH
-X-Gm-Gg: AZuq6aLHir1U06TrbKMNSpks6P4bboDFvEVYMQSlTV+rssFGryDMHpXCNnLR8DQiUd5
-	iQbdQt1KwbkobsGwuS2pE9R2bSTiUS06VirnXfViTd/XmnNEMJt71MubuH7EdfPxnhsj83zjgOS
-	7B63kIZgVc/5086xJDgHq+GxglglaYHAe8fJ7TJdBFpefS2G47enD2aeLtfzQAhAh2NZp1YRZUn
-	3G5gZhXbo8pSscv11LcXavllBjSDp5z7YCuM0K4GDpZ4M5dx5tS8EJL7ZJEcsdiCxTQYjx3SVie
-	4Wh1iGKUiFWjgbJz73kdQZToe8la4iv87zpdq2dB/L3nXEjGKD2vw1RiOsM/WQa4nVcZxsgpfGz
-	VyYC+AVvTrAL42Gq9MEzoYCrnYdcQ9YBbfUA8yoAubZJTZcn/eflauWhCn3kYd/WVuC2p9V8VrI
-	9x2jNPio5MeIWhdYDYOclvADpsulDnP3j/b0nRsRUIyNEmlEEUW4togf8R
-X-Received: by 2002:a05:6a00:1148:b0:81f:9c39:14f3 with SMTP id d2e1a72fcca58-8241c5f6390mr296399b3a.42.1770143943444;
-        Tue, 03 Feb 2026 10:39:03 -0800 (PST)
+        bh=+Rfw0XG2ThbAXfeMl6ZSUUMc+ZydcYLefy3zvZERR6M=;
+        b=hB//xF+R77CQxmCSFe2JMzeGfI62BVLyBkLjd7uwO8wJmw5mfjooi+RSwzKlBF3AlR
+         9yYiVwwST5JYsmUvN6Mib0S8knhC/mlHWZosw6fY48oxnQOnOyP7P8mCGPi94NcqGnIy
+         E2sW6aQiQPcQUH3nAjsHZP5UAKRbtY/k9LS/5zO1vESqRwCtAXTd8ESabZC85g/L3kmQ
+         rIwgm/G7T4p0ASXZlyELmkD2ebxcjN5DJ+jLuJgQuU3TL6lAfl+9kGgK7338ueoJZ+gZ
+         Xf0x5JiY7c8tP/jP1LqFeGRewGCrfKJUGPU85C17yVc5F/xR7H+HNVA12AP4vxivB+rQ
+         Pvlg==
+X-Forwarded-Encrypted: i=1; AJvYcCUbNe0AloHIPo/ntxlw2IeLqSHnlbrp3sBQizj3KQ7fKpN6UpADw52itMWiwI/QL9PfpjUslb9O11g=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzp7YO62bEaargCZ7qVaclp/SalQCiUzvDvosmJQ0YSw5i1onXk
+	3ykiWEVzDySzUhGBcr/vlAgQo9RGhuYMzXEPAW9K8cbHdDHKP4kPsYKjjNzUK8JiP24=
+X-Gm-Gg: AZuq6aIqZovdO7Qkz7ZV7YytYPf2hlYoXwFdd7ZTfUOD4L6vnvL4nAECGfFCqpc7q6W
+	wqIP2J/teOHAbX3jeKp8U5WsLyHblg4q0bF/HwW3xdSUZydJSLXU465Dk1SRi/nzEiGl5ETUBsR
+	O1/iDbc0bxsfzoUqt9VLK4mCJ6L6Vjki/Ir9gBgMI/VspRE3TXPFfoElY7e+KUUmfasnicFrdFn
+	bmAqP6Pw81lWymIt9wz9DB1sH83JoeS44BMjCDsmxtQEBYTDPYroMEaVIA2/DxabEsIuKuWo7kv
+	/wNM1CFeNoy1570RJFYLachyACqGhBUeeRBtpjz7f58g5LDxPjD4B80/hc/UT9FLfUzixMuhq+K
+	gYWMLWXiZ3U1kMoySP+o0Q2VMeiKO2ydVHK8lnZrQHG0ZaTMzys63asQpTzg3E2+pSB+wi73505
+	/TkwbTceYzhHYs9hTuyNZ8bADo70Fhu3fQ1it6fLakTPLhlA==
+X-Received: by 2002:a17:903:19cf:b0:2a7:aa14:82f7 with SMTP id d9443c01a7336-2a933b9d152mr3156645ad.10.1770144657038;
+        Tue, 03 Feb 2026 10:50:57 -0800 (PST)
 Received: from smtpclient.apple ([2601:602:8701:5361:2dd6:2d53:d593:7d46])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8241d47a418sm68996b3a.53.2026.02.03.10.39.01
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a933888e8csm2181465ad.29.2026.02.03.10.50.55
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 03 Feb 2026 10:39:02 -0800 (PST)
+        Tue, 03 Feb 2026 10:50:55 -0800 (PST)
 Content-Type: text/plain;
 	charset=utf-8
 Precedence: bulk
@@ -67,12 +66,12 @@ List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3864.300.41.1.7\))
-Subject: Re: [PATCH v9 7/7] i2c: xiic: skip input clock setup on non-OF
- systems
+Subject: Re: [PATCH v9 6/7] i2c: xiic: use numbered adapter registration
 From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-In-Reply-To: <aYIYUNejGCVdekx7@smile.fi.intel.com>
-Date: Tue, 3 Feb 2026 10:38:51 -0800
-Cc: Michal Simek <michal.simek@amd.com>,
+In-Reply-To: <1ac7be34-22b1-4d93-9957-fc7ade9a2649@lunn.ch>
+Date: Tue, 3 Feb 2026 10:50:44 -0800
+Cc: Andy Shevchenko <andriy.shevchenko@intel.com>,
+ Michal Simek <michal.simek@amd.com>,
  Andi Shyti <andi.shyti@kernel.org>,
  Rob Herring <robh@kernel.org>,
  Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -82,59 +81,68 @@ Cc: Michal Simek <michal.simek@amd.com>,
  linux-kernel@vger.kernel.org,
  devicetree@vger.kernel.org
 Content-Transfer-Encoding: quoted-printable
-Message-Id: <9F7815FA-80D8-4C96-B61F-5CA6CB405F7A@nexthop.ai>
+Message-Id: <DF13B121-56F2-4987-A47B-99A20E18554E@nexthop.ai>
 References: <20260202-i2c-xiic-v9-0-ce4695f5267d@nexthop.ai>
- <20260202-i2c-xiic-v9-7-ce4695f5267d@nexthop.ai>
- <aYIYUNejGCVdekx7@smile.fi.intel.com>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
+ <20260202-i2c-xiic-v9-6-ce4695f5267d@nexthop.ai>
+ <aYIYBheQgIN71os8@smile.fi.intel.com>
+ <2F830E87-F00A-4A54-A5CC-E59BD2C5C7B2@nexthop.ai>
+ <1ac7be34-22b1-4d93-9957-fc7ade9a2649@lunn.ch>
+To: Andrew Lunn <andrew@lunn.ch>
 X-Mailer: Apple Mail (2.3864.300.41.1.7)
 
 
 
-> On Feb 3, 2026, at 7:46=E2=80=AFAM, Andy Shevchenko =
+> On Feb 3, 2026, at 10:31=E2=80=AFAM, Andrew Lunn <andrew@lunn.ch> =
+wrote:
+>=20
+> On Tue, Feb 03, 2026 at 10:14:49AM -0800, Abdurrahman Hussain wrote:
+>>=20
+>>=20
+>>> On Feb 3, 2026, at 7:45=E2=80=AFAM, Andy Shevchenko =
 <andriy.shevchenko@intel.com> wrote:
->=20
-> On Mon, Feb 02, 2026 at 08:37:24PM +0000, Abdurrahman Hussain via B4 =
+>>>=20
+>>> On Mon, Feb 02, 2026 at 08:37:23PM +0000, Abdurrahman Hussain via B4 =
 Relay wrote:
+>>>=20
+>>>> Use i2c_add_numbered_adapter() to allow platform devices to specify
+>>>> fixed bus numbers when needed.
+>>>=20
+>>> Not sure about this. Doesn't it break the current approach? Please, =
+double
+>>> check that.
+>>>=20
+>>> --=20
+>>> With Best Regards,
+>>> Andy Shevchenko
+>>>=20
+>>>=20
+>>=20
+>> If pdev->id is PLATFORM_DEVID_NONE(-1) then =
+i2c_add_numbered_adapter()
+>> falls back to dynamic allocation and calls i2c_add_adapter().
+>>=20
+>> Many existing i2c drivers use the same approach, see i2c-pxa.c and
+>> i2c-pnx.c etc.
 >=20
->> Currently Linux does not implement ACPI ClockInput to describe clock
+> It is not about if other drivers do this. Its about does this change
+> the behaviour of this driver, so that I2C busses get different IDs
+> then before, and so cause regressions?
 >=20
-> ClockInput() resource
+> You need to explain in the commit message why you think this is safe.
 >=20
->> resources, unlike DT. However the xiic driver is happy if something
->> magically enables the clock before the driver probes, and does not
->> turn it off again. The clock should always be considered optional for
->> ACPI.
->=20
+>    Andrew
 
-I just used the wording provided earlier by Andrew verbatim. But can =
-change
-to the following if you insist:
+Before, the driver was always doing the dynamic allocation due to
+i2c_add_adapter(). So there could not have been a system that relied on
+consistent i2c bus numbering. Even between reboots bus numbering could =
+change.
 
-Currently Linux does not implement ACPI ClockInput() resource to =
-describe
-clocks, unlike DT. However the xiic driver is happy if something
-magically enables the clock before the driver probes, and does not
-turn it off again. The clock should always be considered optional for
-ACPI.
+The systems that did set pdev->id and were expecting a consistent i2c =
+bus
+numbering were broken to begin with.
 
-> ...
->=20
->> + if (is_of_node(dev_fwnode(dev))) {
->> + i2c->clk =3D devm_clk_get_enabled(dev, NULL);
->> + if (IS_ERR(i2c->clk))
->> + return dev_err_probe(&pdev->dev, PTR_ERR(i2c->clk),
->=20
-> Haven't you seen my previous comments? Why 'pdev=E2=80=99?
->=20
-Sorry, I missed it. Will fix in V10.
+This patch won=E2=80=99t break any existing systems or cause =
+regressions.
 
->> + "failed to enable input clock.\n");
->> + }
->=20
-> --=20
-> With Best Regards,
-> Andy Shevchenko
->=20
->=20
+
 
