@@ -1,105 +1,108 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1219E38B9A4;
-	Wed,  4 Feb 2026 07:02:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F8391850A4;
+	Wed,  4 Feb 2026 08:02:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770188527; cv=none; b=vDOfzMqIleuRvrZaXTKhKGv9jUkdYAiI0RPnQ67DwOQ7z7TnLRx9VtCQVT/87JRanVs3Ra+G8Ab6d+THkmnTPubM8TDH1Hc+Rd07Rs1mBoPkDRF3CmLt0kEpICGN5/mowmnO81GBNovlatR3brV6r72qaPf9b/3QdFLyxGDE3Hk=
+	t=1770192144; cv=none; b=UzJeVRqrK49P3J4+bTCjBNrkryVCOqJ13EablCK1dhuVP7G9NS6ctZG9fo4svSU67j6HO7SEuxDXtr27vRmk6McH+R1ft6cRM5br/s591OJ5v0c98YaqUQNqbE4O3EaXgCbDq5uLinuVQum8ZpJlMzslJfGyzIQwsE1RlFaZlg0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770188527; c=relaxed/simple;
-	bh=4+G4utc/06tDm3FrxJFapDNzuA7QGnO1MVuLuQtaqfE=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=ThBKLFbN72GyCD/n3cL3BngSZ8aJ0z8+RfpnP4ww47EaaFe+jlSli71OA5QIXR/umuDE1rqhvHIu/k5kU9hU0mDjJNKukgq2DkZiiJ4MjaYY6uzthf97c7ZsdoZDwRG0UhP0UC8SOZQsunX8MJLf2VdxiybpbUvtCe2BcLPw+xQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PDh/nPqy; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1770192144; c=relaxed/simple;
+	bh=nRrC8wphQ1dc/BfGnKr7IWUN3Ln6veciQrvR7VK7Ook=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=d6Y/ti0WgbJXJHXW2DsWBFW7K0oX1rKbl4jhomj7I+srxOepjrtiy9BmU0o04UQ60Uz2l04JZ28blFe6l7CqizTV7lZkBaU43yIYSgDeDaTIv+ji2fhQKWxqyy8efd9hNa5gGV1rzmSoKj7vzkfg15cH5dhsjfUUuQgYAQXR5Po=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A0kyECe9; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PDh/nPqy"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id C0906C4AF1D;
-	Wed,  4 Feb 2026 07:02:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A0kyECe9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51BD3C4CEF7;
+	Wed,  4 Feb 2026 08:02:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770188526;
-	bh=4+G4utc/06tDm3FrxJFapDNzuA7QGnO1MVuLuQtaqfE=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=PDh/nPqyJLw/v8SJSfIPqaysVcTa4uLnhPgy3O95qxubpfSA3abPS3dj9hFmEw+f9
-	 oiBB/EEizPG3hjTco3msTreR2KCNkVLlzdEy61bp0CpgY2h9HzAx4Rs7+FGVC1lqmx
-	 RJ5Cm39irNfTfEAUM/UdYmPDFTEurfOAnkAHg6wQ10kb3iYTGhbWp9VoXTX75cFe0U
-	 C6S/mXyiR8GzRyWxEfAWDT/qE0oOmZ6Vh401FeTPZZqGXfggMGeqaJK9MkBwwqS2oJ
-	 9PtHmdPLkL53UExBPsf0rMfEuhy7L2CLcY9I78BqqXA6xIuAm8nRDMrCUjb9PGwvWi
-	 fgtVXKitv5emw==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6CD7E83041;
-	Wed,  4 Feb 2026 07:02:06 +0000 (UTC)
-From: Abdurrahman Hussain via B4 Relay <devnull+abdurrahman.nexthop.ai@kernel.org>
-Date: Wed, 04 Feb 2026 07:02:04 +0000
-Subject: [PATCH v10 7/7] i2c: xiic: skip input clock setup on non-OF
- systems
+	s=k20201202; t=1770192144;
+	bh=nRrC8wphQ1dc/BfGnKr7IWUN3Ln6veciQrvR7VK7Ook=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=A0kyECe9zWPpUVDyRYGYpTfDn14yi64ekYqYmxZee7Riz1wWcOOBoyPnRXZ/6ekBA
+	 sNc4VzDWLWlT3A1k4Aw7mJiZMUwHw6oEFSFZTHE8ryyOt1dKipxppN9S9TzScTMZqi
+	 yze/jCixMgyabO3dGH4wr/ZeYI61T2M+PEjxmVLQk1Bg0RECk6vblAGzsX18Yng2ob
+	 5yOu8Okf4u/0a8LiJkoxtZC2lmEWnBz0drbjEYOmqH0BUU0+4bUkpHUhUarROd17Zz
+	 KietqbYBSlFdrKRu4vE42l9J4uOkfT6geC68q+juJN2jBUWJZw2VD6NS6al3zQRYHC
+	 7X8/lbcymdzJA==
+Date: Wed, 4 Feb 2026 09:02:19 +0100
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Felix Gu <ustc.gu@gmail.com>
+Cc: Chen-Yu Tsai <wens@kernel.org>, 
+	Jernej Skrabec <jernej.skrabec@gmail.com>, Samuel Holland <samuel@sholland.org>, 
+	Maxime Ripard <mripard@kernel.org>, Wolfram Sang <wsa@kernel.org>, 
+	Boris Brezillon <bbrezillon@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-i2c@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: sun6i-p2wi: Fix device node reference leak in
+ p2wi_probe()
+Message-ID: <aYL2OAdZTV78Vsy0@zenone.zhora.eu>
+References: <20260201-p2wi-v1-1-e0ec9cda82b3@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260204-i2c-xiic-v10-7-c2b996425235@nexthop.ai>
-References: <20260204-i2c-xiic-v10-0-c2b996425235@nexthop.ai>
-In-Reply-To: <20260204-i2c-xiic-v10-0-c2b996425235@nexthop.ai>
-To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>
-Cc: Andy Shevchenko <andriy.shevchenko@intel.com>, 
- linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
- linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
- Abdurrahman Hussain <abdurrahman@nexthop.ai>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1770188524; l=1203;
- i=abdurrahman@nexthop.ai; s=20260119; h=from:subject:message-id;
- bh=tYS/VjjyJSR7laAGSOlbLWbUAEEO7GSJdraxofdKYu8=;
- b=reH74jvc9iL/OqdvmPi42fqas2VeKfyY9DxbAVuLmBwi3xnNMpx8UHSJJ9L5TMMcgviHbDYj8
- 0aU2eko7nQnDAICiEOQKoTKw5iHIV/jk8V9JygEwS98ZQ8s3sFNcHeX
-X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
- pk=S+ysnf+NwMcBdHBlyKIUEAtaFGSIhQwcJcgcXhq0osg=
-X-Endpoint-Received: by B4 Relay for abdurrahman@nexthop.ai/20260119 with
- auth_id=608
-X-Original-From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-Reply-To: abdurrahman@nexthop.ai
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260201-p2wi-v1-1-e0ec9cda82b3@gmail.com>
 
-From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Hi Felix,
 
-Currently Linux does not implement ACPI ClockInput() resource to describe
-clocks, unlike DT. However the xiic driver is happy if something
-magically enables the clock before the driver probes, and does not
-turn it off again. The clock should always be considered optional for
-ACPI.
+On Sun, Feb 01, 2026 at 02:29:00AM +0800, Felix Gu wrote:
+> Use the __free(device_node) scoped variable to automatically release
+> the device node reference, preventing a device node reference leak.
+> 
+> Fixes: 3e833490fae5 ("i2c: sunxi: add P2WI (Push/Pull 2 Wire Interface) controller support")
+> Signed-off-by: Felix Gu <ustc.gu@gmail.com>
+> ---
+>  drivers/i2c/busses/i2c-sun6i-p2wi.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-sun6i-p2wi.c b/drivers/i2c/busses/i2c-sun6i-p2wi.c
+> index fb5280b8cf7f..652b37b57159 100644
+> --- a/drivers/i2c/busses/i2c-sun6i-p2wi.c
+> +++ b/drivers/i2c/busses/i2c-sun6i-p2wi.c
+> @@ -184,7 +184,6 @@ static int p2wi_probe(struct platform_device *pdev)
+>  {
+>  	struct device *dev = &pdev->dev;
+>  	struct device_node *np = dev->of_node;
+> -	struct device_node *childnp;
+>  	unsigned long parent_clk_freq;
+>  	u32 clk_freq = I2C_MAX_STANDARD_MODE_FREQ;
+>  	struct p2wi *p2wi;
+> @@ -223,7 +222,8 @@ static int p2wi_probe(struct platform_device *pdev)
+>  	 * In this case the target_addr is set to -1 and won't be checked when
+>  	 * launching a P2WI transfer.
+>  	 */
+> -	childnp = of_get_next_available_child(np, NULL);
+> +	struct device_node *childnp __free(device_node) =
+> +		of_get_next_available_child(np, NULL);
 
-Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
----
- drivers/i2c/busses/i2c-xiic.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+A few spontaneous questions here:
 
-diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 2c0470452221..223074e263ee 100644
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -1463,10 +1463,12 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 
- 	spin_lock_init(&i2c->atomic_lock);
- 
--	i2c->clk = devm_clk_get_enabled(&pdev->dev, NULL);
--	if (IS_ERR(i2c->clk))
--		return dev_err_probe(&pdev->dev, PTR_ERR(i2c->clk),
--				     "failed to enable input clock.\n");
-+	if (is_of_node(dev_fwnode(dev))) {
-+		i2c->clk = devm_clk_get_enabled(dev, NULL);
-+		if (IS_ERR(i2c->clk))
-+			return dev_err_probe(dev, PTR_ERR(i2c->clk),
-+					"failed to enable input clock.\n");
-+	}
- 
- 	i2c->dev = dev;
- 
+- Why are you moving the declaration of childnp in the middle of
+  the function?
 
--- 
-2.52.0
+- Have you run checkpatch.pl before sending the patch?
 
+- Is of_get_next_available_child() allocating the device_node?
 
+- Have you tested the patch?
+
+Thanks,
+Andi
+
+>  	if (childnp) {
+>  		ret = of_property_read_u32(childnp, "reg", &target_addr);
+>  		if (ret) {
+> 
+> ---
+> base-commit: 33a647c659ffa5bdb94abc345c8c86768ff96215
+> change-id: 20260201-p2wi-a199cdfe69e0
+> 
+> Best regards,
+> -- 
+> Felix Gu <ustc.gu@gmail.com>
+> 
