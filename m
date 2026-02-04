@@ -1,86 +1,86 @@
 Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7336531BCAE
-	for <linux-i2c@vger.kernel.org>; Wed,  4 Feb 2026 05:42:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AB7E34D915
+	for <linux-i2c@vger.kernel.org>; Wed,  4 Feb 2026 05:44:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770183774; cv=none; b=Y1llvZZ4E0s3l0qnATwjd3opgJ8DPibJGDK9idduxEhL1tGhr/lm5RwgjlZgJdabklV+Tvs+SDVwpzBhn3Tjg3vO5cl+QTgUnOGtyxxJiIuTe6NJntq0pazmz+LAXpXwt2QWEkvdiOvLHkZV8bE3twJuB/Gru8mBsd6YnmnzFWM=
+	t=1770183840; cv=none; b=RLJbG4k+/4MWKw1etw1/Sxy+BxkK//YGQp6p4dGo1fBrcMnIEZw6T6wNDyar4izxLLtmWnz/CsRNcXrPlxoknM8p6MKhH0Gu2+SC0v2ZWfA1O+70VgtczsY71/rrjoeB/qGs/ZbFde3P4HTrDuvjovOTfOQIXAfpaeQn7b3WRjg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770183774; c=relaxed/simple;
-	bh=VKk566DJsJRFQWWApNx+fXFkB29f9cIdPS57ACaQtUw=;
+	s=arc-20240116; t=1770183840; c=relaxed/simple;
+	bh=go6m8g8r//fiUrk5B79pQDICJEzKqS0qc5HSpLjpegY=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=rpDYQHjA1z4BihwAsyQsAPVJXXhtgQwGwtLtlodNRk2LXXQ9fvf1aq9rH1pT+5DczN9E4mVNBUJ/kmIvSGwnFlfKCa/0RQVlbFe6SQ2WZTEAKPAzeMAT1sKaFK4BDHyep2V/vy9EuGeo0bc4nXXx7lbkSCSjKPuzbz8ipOhEk5c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=nFjONCGY; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=PRYYtE/Z; arc=none smtp.client-ip=205.220.180.131
+	 In-Reply-To:Content-Type; b=tOC7Vvg3Vhcax7rbD7PWG/lz/zXluXt9noCJZeu6uuhUaG9pPtkPSLLCKfYLqjoOuslwSXjr7y5TiFQ1R+sUBO3piAksVenXRYEH31ZkQYz3Monx65/FJJuClbSoFYipqhCBPfWVkJTlNnQISVxLcTklCioNt/ys7BtQz/n9++s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=htPMq55m; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Jc3iGYdm; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="nFjONCGY";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="PRYYtE/Z"
-Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61443bvw3337303
-	for <linux-i2c@vger.kernel.org>; Wed, 4 Feb 2026 05:42:53 GMT
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="htPMq55m";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Jc3iGYdm"
+Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6144Rgge2667050
+	for <linux-i2c@vger.kernel.org>; Wed, 4 Feb 2026 05:43:59 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	xgVjf7Y9rnuVQSWYsmXtX7za1suTWFNBUqVZI1G6cCs=; b=nFjONCGYx6W9cAdm
-	X/9uIMbXa5RBv1WCSstKd94U6nniMQ+mkuvs5d8fbfJ2/mK/dvJJFclA/x3H4Etm
-	IYAsD7PsaFsJPFzLwlYlN2Q3JPMe6MMoBTLUQ/n+uH8Tiw8BXjz4wCtksEcchFjb
-	9eVoVN//CLNv6k/ePCQEDsJ1XDVUrKZW/wgz6Dfc2jXe0CE3JwnKZiYqc7WA1XZv
-	c3w8i1fn0kVvSz0jYYd6si8yclxWEfeYjyXcEGJLSQWgkmctlyGBCA3xXJ2P4kP4
-	qyP3LhMWlBzh1jHyE+mYZ1HM16ACZ96k1ipzZCt2LAbmN5cC1cDL1uxPxOTucBiy
-	L/GlnQ==
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c3gewb530-1
+	POZ441e2LFMbxIQBK+YboacBpaYFysPEfDX6j0TRNhU=; b=htPMq55m0Y/EQ4Rf
+	oO/D1UE2SoCF0JuHd5TI55XY9BQh0RoDqLs906WG1TCCee4UnauKZiDl+okExb//
+	ngLSTRPfPO5ssMVIgLgCES7gNNn6S24I8igrHtKTf68j3AmymW2QsXANcJdBIWSl
+	pLuRpwGjJN4n+t0rFE6YTOBVMQlpI6jazw5mbSVRSSGUoyxGsY0jg3Y28GeOS3h+
+	il9ZHXop5mNHbsH3nDbHGRGYPDc1NQJ5nkrENk5OD0svTBXNcwnKkUOYmFtGz7BP
+	aa7ZaQ4NkZ/YmGWNN4ACY7tXkqHsXWcsHxeClyiy0HrXwq6Azzhko84VCenqyiih
+	BClj2w==
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com [209.85.215.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c3nf621v6-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Wed, 04 Feb 2026 05:42:53 +0000 (GMT)
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-352de7a89e1so5565723a91.1
-        for <linux-i2c@vger.kernel.org>; Tue, 03 Feb 2026 21:42:53 -0800 (PST)
+	for <linux-i2c@vger.kernel.org>; Wed, 04 Feb 2026 05:43:59 +0000 (GMT)
+Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-c63597a63a6so3957145a12.3
+        for <linux-i2c@vger.kernel.org>; Tue, 03 Feb 2026 21:43:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1770183772; x=1770788572; darn=vger.kernel.org;
+        d=oss.qualcomm.com; s=google; t=1770183838; x=1770788638; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=xgVjf7Y9rnuVQSWYsmXtX7za1suTWFNBUqVZI1G6cCs=;
-        b=PRYYtE/ZoDrW5bc0WFTpQXOoMwXyheBn6TKaKCmyR8eLMze6BhWjw2PpO7DeLYPxHF
-         Z1zeeiHWq04MF3BGA8zYz76H3Nz2gdvRvx/Nb824snfiifBLcUguTXH2Up/JV/dw9dC2
-         Dt9A2ZrlW8Oed9mSjl/lANrz3QFcOXl08uIzNDep8wJB81HOgar7sffND6YLA6JMF/zb
-         7sgYyFswsAIfv3fLU2qVyanDZzE+UPyAqO8o9WkxcchTr5VJmQfU59bOGD0BFJc9XYPP
-         2JeixUrM++56sGreN2iNLTzn9c4PDjA28WFvQz/y3Gsh/8aDBhd9zmvBOhOcozrjUDtD
-         bisA==
+        bh=POZ441e2LFMbxIQBK+YboacBpaYFysPEfDX6j0TRNhU=;
+        b=Jc3iGYdm6MY+SJBgggpd9RfrW6V7PYI7al33TzdJNOyXeviLTcJDEtgrP/yeVXw76p
+         unYhxw4czJYx0N/KjJsYxSSMsbUDPk53Ggefn5rsN76lfswnIDUDtW6GRBvszvdzHa6/
+         hYRlKqS7+b+rKed8ybecHvOk6FgqPJmJB5A1Czo7CeetWuuclY6mOgBBlgDq49LMDcrq
+         xupDncWHi4J5FcXjDUGi64IeWfsTECOy045/40wjRImFlYGNsBZ3Bi9Z4xRVum6Vzxf8
+         sHHv+eixVCyV94X0vPCkrclxB+jTZJ2BadaiKXpjvRjCQG35BK81YD/sY7mXYvxN4EZP
+         78Gw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770183772; x=1770788572;
+        d=1e100.net; s=20230601; t=1770183838; x=1770788638;
         h=content-transfer-encoding:in-reply-to:from:content-language
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=xgVjf7Y9rnuVQSWYsmXtX7za1suTWFNBUqVZI1G6cCs=;
-        b=C16Lm7t9cZj+KIh2hVwdwRvBDqCVz8FaYVZkZTS42Q1rvTB5j86NvZZBY4qJeKbrun
-         Zl+MQfmYcf/7O08Kwei1GPuG11t2Rw2IurKtkhJOnfgyMg0g4P40aklg9uJP6UcUw995
-         zQDTau7W3IuMBvlxpJRBDWe4RT76sFgjAjWQk+LpbJYplwh2IRjl8+Tpy4ydoUok3hZm
-         noBbPMvNtlNqqr32UscsHi86S4dbidMsx2Xw9vnInMoy4ZT3zUrk0RpjBngdh117crwx
-         U5FJC7eF43IE7h5jcSOX0NlvkT4oYX8REYPmjpBfAc+6tpQxV22rYo01DLg0uglCNlbd
-         ZB/g==
-X-Forwarded-Encrypted: i=1; AJvYcCU9St7NC5Me3IoRcHivuHLrbCN+zypXunQxNq67+rp+3+NbkJ9ZO12Q+4OsJF7IVZezCvbTgcaRIrE=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzkh5whIhyFW98yrBsmamSrNwaaSq75le4ZHlSOrGyQl/mkydgt
-	v//U0xxF0Hcv0KvkkqwkpeZHOtOKkJCGTz9JQh1Ok24808l4jAK8sBYLsvC+2MQ0A/uq9Kpf4SK
-	6VjrUYLZA5Q7YrAOt5ii731Wm8vxKdWMlwqGLW8dCP+YT2zuG1H9NA3M3E3KZ8pI=
-X-Gm-Gg: AZuq6aLBH8WG1XQbs6UDz6SPA9ZDm3UhccU9D4N3gtScWw7fSOqw3iWkVf20sEPm6Tx
-	Z+hNUjeiH1UMQCBJFvPNcrLye3jg0VdWsMmMWlvojguJ+dMvRuVWcIzYPP5/1vS1zHIm0Nxjc3d
-	wGM59Ek93vf0757cyPIjLbt0BIXBwvjk4jBneWrYbTgncBY73Tw1pWXJm5jY7NbnNyy1id1gHQw
-	IqFdsr578MnoJMLpg92pFyfn8/8qPKppF8sKPclb1586zABIlFdCTbfPm3wsLy+j8wa/WvWB4mh
-	JBnB/+wZ+17upKJiOnGwoxzcTw7r3tClFUaslX2CarzQVRp5S8NXN11CNUKjLbyyhLWr+fZdIvT
-	X22IN2tUcFq1BHeUZQo1cMysAOEl35zGJ0tYk/32NlQ==
-X-Received: by 2002:a17:90a:d88c:b0:340:bb5c:7dd7 with SMTP id 98e67ed59e1d1-354870cb7fbmr1438075a91.5.1770183772368;
-        Tue, 03 Feb 2026 21:42:52 -0800 (PST)
-X-Received: by 2002:a17:90a:d88c:b0:340:bb5c:7dd7 with SMTP id 98e67ed59e1d1-354870cb7fbmr1438050a91.5.1770183771831;
-        Tue, 03 Feb 2026 21:42:51 -0800 (PST)
+        bh=POZ441e2LFMbxIQBK+YboacBpaYFysPEfDX6j0TRNhU=;
+        b=lGKWftVV0W3vRSYZqw2FLISqKiXjBws5dVWOqGiJc1X3SmIYCcpVOTsNWfpG6VPKD+
+         2c3HmwA6h5qcUHXGU2kYMGOYO8xSNZAbMhrDNHNB/l/cjJoORm6+Mpswf5fCJXKHfEQP
+         QKtynh8evzhTgLZXT1gjREErCv+c5H9XUze0deMvaVPeWy/iyFQ0OXRJ9pbp01d8bhnu
+         I0yAcCj56pvi8e+bqBg67CqHm9k75+CbpX9L+a3OtW/TEJ9D1shp26x4Ph3uj2tjTTOv
+         aHmN0dbjMWma8C3DvzOGqHUnejBSHPB1q9apD7QAVKLQkb2NEDMgpA0NIwQ7ZrgAjm3Y
+         TLlQ==
+X-Forwarded-Encrypted: i=1; AJvYcCX/cKQpAqpJkX47v8PoH/VmysmaM5HeQnQ4PQ0Nz6aWkYy/fcO5yGelmsmAc3nwfgZjj3db+Xst7Hw=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw9FRLXUpj/ph1H6dRVvtxq9yn9AvQDYTnJdxU0aUaAncAwRbho
+	Q/8lXYQ5CcyqQICOG1ILJ58j0zsHbZEBZyGHFNV6CuBZelbDxoY1Y/VrJyUl2Ra/q528RvHI1pf
+	jt+Z/lfcyUQ2yUg6yanb9hCHxGh7eAS1v0BOqZnXCHAR5+iWKeapWx359l3g2bLU=
+X-Gm-Gg: AZuq6aKQvAT8bCfS8dva+2TUbWcusXeKM+GJx1MdEu8vW7aHrzh8VDgLfqbdztNupAJ
+	aqRYaAg+qZGaaLsp6Yzlw0IX1rE6W5mGTToxccwRBeccIxgY1AwkuOQfUZn5QoAr9ovgiBOY7Ct
+	Q+XeWiBogLzqWlzxmw6O59y2k61xiV14Yq18LTjwVplC+UHvae7L2sVdFvZzBYFxZT3TijmnLsn
+	NsB1190Xa2D3KVdWkBMnNrftx39FbB7hK1S8N5RPmnVULa74SDYjqwymlM7usmcSMR/SsuDEpwS
+	L5px+BqCJMBwWLt8Vog1azNc+oIpgKOXy43rWM3KM/BHlhztGL3ccUJ4TDOzgo3g8piNmMoBqji
+	N982VWSH2CwaazjvqOL9XOR2evqntOqlfd7l8ABvvPA==
+X-Received: by 2002:a05:6a00:4c92:b0:81f:4c37:7647 with SMTP id d2e1a72fcca58-8241c79edfamr1857625b3a.68.1770183838554;
+        Tue, 03 Feb 2026 21:43:58 -0800 (PST)
+X-Received: by 2002:a05:6a00:4c92:b0:81f:4c37:7647 with SMTP id d2e1a72fcca58-8241c79edfamr1857609b3a.68.1770183838024;
+        Tue, 03 Feb 2026 21:43:58 -0800 (PST)
 Received: from [10.218.32.171] ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3548630df97sm1217006a91.13.2026.02.03.21.42.45
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8241d4a5c28sm1239114b3a.62.2026.02.03.21.43.52
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 03 Feb 2026 21:42:51 -0800 (PST)
-Message-ID: <92dc98b7-8047-420b-9743-4bcbc7e30fed@oss.qualcomm.com>
-Date: Wed, 4 Feb 2026 11:12:44 +0530
+        Tue, 03 Feb 2026 21:43:57 -0800 (PST)
+Message-ID: <bc743f55-75ae-42d6-82bf-593ad2359134@oss.qualcomm.com>
+Date: Wed, 4 Feb 2026 11:13:50 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -88,8 +88,8 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 06/12] soc: qcom: geni-se: Introduce helper APIs for
- performance control
+Subject: Re: [PATCH v3 12/12] i2c: qcom-geni: Enable I2C on SA8255p Qualcomm
+ platforms
 To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
         Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
         Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -105,123 +105,61 @@ To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
 Cc: prasad.sodagudi@oss.qualcomm.com, quic_vtanuku@quicinc.com,
         aniket.randive@oss.qualcomm.com, chandana.chiluveru@oss.qualcomm.com
 References: <20260112104722.591521-1-praveen.talari@oss.qualcomm.com>
- <20260112104722.591521-7-praveen.talari@oss.qualcomm.com>
- <af0eba46-329f-4979-8b8a-fb5dbe2ad992@oss.qualcomm.com>
- <b918cfa9-1f40-4aee-ad91-d6425798bd07@oss.qualcomm.com>
- <24f967b5-0f15-4aed-a81f-ad54f8e541fa@oss.qualcomm.com>
+ <20260112104722.591521-13-praveen.talari@oss.qualcomm.com>
+ <8e410852-37f2-452b-b851-19b7c4222727@oss.qualcomm.com>
+ <e9d3c0b8-2abd-47a5-b594-83f0288d95ba@oss.qualcomm.com>
+ <6e5924f2-a9e0-45db-8a79-b328ebd12a0d@oss.qualcomm.com>
 Content-Language: en-US
 From: Praveen Talari <praveen.talari@oss.qualcomm.com>
-In-Reply-To: <24f967b5-0f15-4aed-a81f-ad54f8e541fa@oss.qualcomm.com>
+In-Reply-To: <6e5924f2-a9e0-45db-8a79-b328ebd12a0d@oss.qualcomm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-GUID: KqaboHhDUw03i9hgmouzTTk-NxVrgrGE
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA0MDAzOSBTYWx0ZWRfX7KdmRB6s1fUI
- ZmSRkwDg5+08rykDEI2AVfRwK3KGobJoiUm4lvDBP4b7gh1vxHuaT7ammJHWGLxY1clzXkFjfD6
- eFLkE/cq+gqwnO6x/Ek/sObKdWhqkGAWUoU1OQoeW/fSeCNvOrFZuvZheld0+nKRHaE1co/Ja32
- wRuKMxL+k7ix8OyEV5FFiFpxL1uhYod9gWkWXV5IrAE69he/BHPCy3QDH4KcRb8NflbhsR88gF8
- YVZNhpQsthAijTYq4yt1rpimVslNmMCSFfYZnP5+tpok7wAB9Z2LCheO2Ih2oASUhXqBc9OA407
- YMopSJ0yOppt8fO3IbhvdFzXRctWK+c928SSnvWUsd6aiSyS1OGxvhvOg+IEd2A4jQs/L0gtq4p
- FsihG6/JgCYwdkWSgVk/g+lp2wArn0uMZu9zld/b8/qgQqSkD0+N+pw3qhcQF1GXtqqO3oeL4hG
- ns9QQotBgC795KJaBrw==
-X-Authority-Analysis: v=2.4 cv=XI89iAhE c=1 sm=1 tr=0 ts=6982dc5d cx=c_pps
- a=vVfyC5vLCtgYJKYeQD43oA==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+X-Proofpoint-GUID: zuke5gcDgtHwsSppitv8logGO7y1bCum
+X-Proofpoint-ORIG-GUID: zuke5gcDgtHwsSppitv8logGO7y1bCum
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA0MDAzOSBTYWx0ZWRfX3JVoK1SxuRYp
+ gkgVtsh/RvOySFnfoNUTN9vNCNEyx5wV5SfH7rLhMjqORrfa9WxTyLcMJrjyOdPkp0M6UYtLtMZ
+ xCodcWXIjo81Xq2+cXOxiBD5XNqVgj9feqvPX5y5N3R9MNVzZCSYMnRYUtPH2ZFPur5H1dI1v8J
+ sQun7T0REdcB6r4/JxrL0/hOw2YM4//11Y/8wtmfDb+X0LFXiDo4dsJXZgOSJna+aKzjAADQqge
+ imDZkiA0MCVtR3bRkj9j+DuSIZAQFboyQBaJGb0++falQVlYYw7y8v+6RHDm0unyen3t2HzUXVw
+ iyqS4J/HR8xQfbbA9xMfcNoV8BdmL30rSarOkzyMnuFwLtGtmlc5La4TY49gwDWdQCdGGLkD2jl
+ P2tVyMBVzzaaOINKsCQgxYPmh2T1cem3CKAyXw8vn1TCMJFm34jkbZksS7L1vHk2uxUiAlvmi3e
+ xzkdX/RXmxx2oWYJcmg==
+X-Authority-Analysis: v=2.4 cv=doTWylg4 c=1 sm=1 tr=0 ts=6982dc9f cx=c_pps
+ a=Qgeoaf8Lrialg5Z894R3/Q==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
  a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=EUspDBNiAAAA:8 a=YQ0tCwKMeMYZxcjLr5wA:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10 a=rl5im9kqc5Lf4LNbBjHf:22
-X-Proofpoint-ORIG-GUID: KqaboHhDUw03i9hgmouzTTk-NxVrgrGE
+ a=VkNPw1HP01LnGYTKEx00:22 a=WgL0-2sr_UKP2Gu6nnoA:9 a=3ZKOabzyN94A:10
+ a=QEXdDO2ut3YA:10 a=x9snwWr2DeNwDh03kgHS:22
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-02-03_07,2026-02-03_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 impostorscore=0 suspectscore=0 phishscore=0
- lowpriorityscore=0 malwarescore=0 adultscore=0 clxscore=1015 spamscore=0
- bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
- definitions=main-2602040039
+ adultscore=0 clxscore=1015 impostorscore=0 suspectscore=0 spamscore=0
+ priorityscore=1501 bulkscore=0 phishscore=0 lowpriorityscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602040039
 
 Hi Konrad,
 
-On 2/3/2026 4:44 PM, Konrad Dybcio wrote:
-> On 1/30/26 5:54 PM, Praveen Talari wrote:
->> Hi Konrad
+On 2/2/2026 8:23 PM, Konrad Dybcio wrote:
+> On 1/30/26 5:44 PM, Praveen Talari wrote:
+>> Hi Konrad,
 >>
->> On 1/30/2026 5:53 PM, Konrad Dybcio wrote:
->>> On 1/12/26 11:47 AM, Praveen Talari wrote:
->>>> The GENI Serial Engine (SE) drivers (I2C, SPI, and SERIAL) currently
->>>> manage performance levels and operating points directly. This resulting
->>>> in code duplication across drivers. such as configuring a specific level
->>>> or find and apply an OPP based on a clock frequency.
->>>>
->>>> Introduce two new helper APIs, geni_se_set_perf_level() and
->>>> geni_se_set_perf_opp(), addresses this issue by providing a streamlined
->>>> method for the GENI Serial Engine (SE) drivers to find and set the OPP
->>>> based on the desired performance level, thereby eliminating redundancy.
->>>>
->>>> Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
->>>> ---
->>>
->>> [...]
->>>
->>>> +/**
->>>> + * geni_se_set_perf_level() - Set performance level for GENI SE.
->>>> + * @se: Pointer to the struct geni_se instance.
->>>> + * @level: The desired performance level.
->>>> + *
->>>> + * Sets the performance level by directly calling dev_pm_opp_set_level
->>>> + * on the performance device associated with the SE.
->>>> + *
->>>> + * Return: 0 on success, or a negative error code on failure.
->>>> + */
->>>> +int geni_se_set_perf_level(struct geni_se *se, unsigned long level)
->>>> +{
->>>> +    return dev_pm_opp_set_level(se->pd_list->pd_devs[DOMAIN_IDX_PERF], level);
->>>> +}
->>>> +EXPORT_SYMBOL_GPL(geni_se_set_perf_level);
->>>
->>> This function is never used
+>> On 1/30/2026 6:04 PM, Konrad Dybcio wrote:
+>>>> +static const struct geni_i2c_desc sa8255p_geni_i2c = {
+>>>> +    .resources_init = geni_se_domain_attach,
+>>>> +    .set_rate = geni_se_set_perf_opp,
+>>> This means, on SCMI devices you won't don't the vote on the POWER
+>>> domain (or PERF for that matter) and switch the GPIOs to a _suspend
+>>> state - is that by design?
 >>
->> it will be used by UART driver, not for I2C/SPI.
+>> With PD_FLAG_DEV_LINK_ON enabled, every pm_runtime_get_sync() or pm_runtime_put_sync() on the device triggers a corresponding genpd on/off transition. These transitions are translated into SCMI power‑domain commands, allowing the firmware (GearVM) to perform the actual enable/disable sequencing.
 > 
-> Adding unused exported symbols is "eeeh"..
+> Does that handle the >1 pd case too? If so, then all good
 
-I keep in mind for UART, i have added this API.
-> 
->>>
->>>> +
->>>> +/**
->>>> + * geni_se_set_perf_opp() - Set performance OPP for GENI SE by frequency.
->>>> + * @se: Pointer to the struct geni_se instance.
->>>> + * @clk_freq: The requested clock frequency.
->>>> + *
->>>> + * Finds the nearest operating performance point (OPP) for the given
->>>> + * clock frequency and applies it to the SE's performance device.
->>>> + *
->>>> + * Return: 0 on success, or a negative error code on failure.
->>>> + */
->>>> +int geni_se_set_perf_opp(struct geni_se *se, unsigned long clk_freq)
->>>
->>> I think with the SPI driver in mind (which seems to do a simple rateset
->>
->> APIs were added as generic interfaces shared across I²C/SPI which is specific to firmware control, not Linux control.
->>
->>> for both backends) we could do:
->>>
->>>> +{
->>>> +    struct device *perf_dev = se->pd_list->pd_devs[DOMAIN_IDX_PERF];
->>>
->>> Then, we can do struct device * perf_dev = se->dev;
->> I don't think, it is needed since this is specific to firmware control, not Linux control.
-> 
-> My point is that it doesn't have to be specific to the auto usecase,
-> further commonizing the code.
-
-This API will not useful for non-auto cases as well.
-
-Lets talk on on V4 version patch-set.
+Yes,
 
 Thanks,
 Praveen Talari
-
 > 
 > Konrad
 
