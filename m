@@ -1,108 +1,89 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F8391850A4;
-	Wed,  4 Feb 2026 08:02:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A01B62BDC16;
+	Wed,  4 Feb 2026 10:01:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.176.79.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770192144; cv=none; b=UzJeVRqrK49P3J4+bTCjBNrkryVCOqJ13EablCK1dhuVP7G9NS6ctZG9fo4svSU67j6HO7SEuxDXtr27vRmk6McH+R1ft6cRM5br/s591OJ5v0c98YaqUQNqbE4O3EaXgCbDq5uLinuVQum8ZpJlMzslJfGyzIQwsE1RlFaZlg0=
+	t=1770199269; cv=none; b=azKyFNCXQsyc5mWfEyt2a0PF8CciJkFm3199ipLU1tnOiCcSnXwEa9hyKXPO/PtNHillCxfjeP1Oh0fpO8TgGjDw1u8L2T7XjJ6TX//Go22/A+Gdx15tjIjSQswBHUs8vhFFAoIZcnK9JJKgdvNGxQcj7gFAPWCk64iW/m5NmjM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770192144; c=relaxed/simple;
-	bh=nRrC8wphQ1dc/BfGnKr7IWUN3Ln6veciQrvR7VK7Ook=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=d6Y/ti0WgbJXJHXW2DsWBFW7K0oX1rKbl4jhomj7I+srxOepjrtiy9BmU0o04UQ60Uz2l04JZ28blFe6l7CqizTV7lZkBaU43yIYSgDeDaTIv+ji2fhQKWxqyy8efd9hNa5gGV1rzmSoKj7vzkfg15cH5dhsjfUUuQgYAQXR5Po=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=A0kyECe9; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="A0kyECe9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51BD3C4CEF7;
-	Wed,  4 Feb 2026 08:02:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770192144;
-	bh=nRrC8wphQ1dc/BfGnKr7IWUN3Ln6veciQrvR7VK7Ook=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=A0kyECe9zWPpUVDyRYGYpTfDn14yi64ekYqYmxZee7Riz1wWcOOBoyPnRXZ/6ekBA
-	 sNc4VzDWLWlT3A1k4Aw7mJiZMUwHw6oEFSFZTHE8ryyOt1dKipxppN9S9TzScTMZqi
-	 yze/jCixMgyabO3dGH4wr/ZeYI61T2M+PEjxmVLQk1Bg0RECk6vblAGzsX18Yng2ob
-	 5yOu8Okf4u/0a8LiJkoxtZC2lmEWnBz0drbjEYOmqH0BUU0+4bUkpHUhUarROd17Zz
-	 KietqbYBSlFdrKRu4vE42l9J4uOkfT6geC68q+juJN2jBUWJZw2VD6NS6al3zQRYHC
-	 7X8/lbcymdzJA==
-Date: Wed, 4 Feb 2026 09:02:19 +0100
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Felix Gu <ustc.gu@gmail.com>
-Cc: Chen-Yu Tsai <wens@kernel.org>, 
-	Jernej Skrabec <jernej.skrabec@gmail.com>, Samuel Holland <samuel@sholland.org>, 
-	Maxime Ripard <mripard@kernel.org>, Wolfram Sang <wsa@kernel.org>, 
-	Boris Brezillon <bbrezillon@kernel.org>, Arnd Bergmann <arnd@arndb.de>, linux-i2c@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: sun6i-p2wi: Fix device node reference leak in
- p2wi_probe()
-Message-ID: <aYL2OAdZTV78Vsy0@zenone.zhora.eu>
-References: <20260201-p2wi-v1-1-e0ec9cda82b3@gmail.com>
+	s=arc-20240116; t=1770199269; c=relaxed/simple;
+	bh=EyB6nIiTH7nUDLPMhvFl7nlT2MZbd09dRv46ibZTjWI=;
+	h=Date:From:To:CC:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=YdO9VYS4AfS/G/umPNc899kv+ItHOYOqdPOZBm/yx8ktsWxmS1OsFL4kN4WuTIaCPlUgarEpCMuC9SoSJYgLm9lS6y5F+tMAC7M8G4AhYwfSjsSOVMzFdlCf7KoAmNOXLKdiEY8KXShi9ls3xZm3nyXfGnN0UO4EiYqMJqT0KOA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=185.176.79.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.18.224.83])
+	by frasgout.his.huawei.com (SkyGuard) with ESMTPS id 4f5bSd2lRLzJ46hC;
+	Wed,  4 Feb 2026 18:00:17 +0800 (CST)
+Received: from dubpeml500005.china.huawei.com (unknown [7.214.145.207])
+	by mail.maildlp.com (Postfix) with ESMTPS id 39DB940573;
+	Wed,  4 Feb 2026 18:01:06 +0800 (CST)
+Received: from localhost (10.203.177.15) by dubpeml500005.china.huawei.com
+ (7.214.145.207) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Wed, 4 Feb
+ 2026 10:01:05 +0000
+Date: Wed, 4 Feb 2026 10:01:04 +0000
+From: Jonathan Cameron <jonathan.cameron@huawei.com>
+To: Abdurrahman Hussain via B4 Relay
+	<devnull+abdurrahman.nexthop.ai@kernel.org>
+CC: <abdurrahman@nexthop.ai>, Michal Simek <michal.simek@amd.com>, Andi Shyti
+	<andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski
+	<krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Andy Shevchenko
+	<andriy.shevchenko@intel.com>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+	<devicetree@vger.kernel.org>, Andrew Lunn <andrew@lunn.ch>
+Subject: Re: [PATCH v10 2/7] i2c: xiic: remove duplicate error message
+Message-ID: <20260204100104.00001a85@huawei.com>
+In-Reply-To: <20260204-i2c-xiic-v10-2-c2b996425235@nexthop.ai>
+References: <20260204-i2c-xiic-v10-0-c2b996425235@nexthop.ai>
+	<20260204-i2c-xiic-v10-2-c2b996425235@nexthop.ai>
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.42; x86_64-w64-mingw32)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260201-p2wi-v1-1-e0ec9cda82b3@gmail.com>
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: lhrpeml100010.china.huawei.com (7.191.174.197) To
+ dubpeml500005.china.huawei.com (7.214.145.207)
 
-Hi Felix,
+On Wed, 04 Feb 2026 07:01:59 +0000
+Abdurrahman Hussain via B4 Relay <devnull+abdurrahman.nexthop.ai@kernel.org> wrote:
 
-On Sun, Feb 01, 2026 at 02:29:00AM +0800, Felix Gu wrote:
-> Use the __free(device_node) scoped variable to automatically release
-> the device node reference, preventing a device node reference leak.
+> From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
 > 
-> Fixes: 3e833490fae5 ("i2c: sunxi: add P2WI (Push/Pull 2 Wire Interface) controller support")
-> Signed-off-by: Felix Gu <ustc.gu@gmail.com>
+> The devm_request_threaded_irq() already prints an error message. Remove
+> the duplicate.
+> 
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+> Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+> Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Reviewed-by: Jonathan Cameron <jonathan.cameron@huawei.com>
+
 > ---
->  drivers/i2c/busses/i2c-sun6i-p2wi.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  drivers/i2c/busses/i2c-xiic.c | 5 +----
+>  1 file changed, 1 insertion(+), 4 deletions(-)
 > 
-> diff --git a/drivers/i2c/busses/i2c-sun6i-p2wi.c b/drivers/i2c/busses/i2c-sun6i-p2wi.c
-> index fb5280b8cf7f..652b37b57159 100644
-> --- a/drivers/i2c/busses/i2c-sun6i-p2wi.c
-> +++ b/drivers/i2c/busses/i2c-sun6i-p2wi.c
-> @@ -184,7 +184,6 @@ static int p2wi_probe(struct platform_device *pdev)
->  {
->  	struct device *dev = &pdev->dev;
->  	struct device_node *np = dev->of_node;
-> -	struct device_node *childnp;
->  	unsigned long parent_clk_freq;
->  	u32 clk_freq = I2C_MAX_STANDARD_MODE_FREQ;
->  	struct p2wi *p2wi;
-> @@ -223,7 +222,8 @@ static int p2wi_probe(struct platform_device *pdev)
->  	 * In this case the target_addr is set to -1 and won't be checked when
->  	 * launching a P2WI transfer.
->  	 */
-> -	childnp = of_get_next_available_child(np, NULL);
-> +	struct device_node *childnp __free(device_node) =
-> +		of_get_next_available_child(np, NULL);
-
-A few spontaneous questions here:
-
-- Why are you moving the declaration of childnp in the middle of
-  the function?
-
-- Have you run checkpatch.pl before sending the patch?
-
-- Is of_get_next_available_child() allocating the device_node?
-
-- Have you tested the patch?
-
-Thanks,
-Andi
-
->  	if (childnp) {
->  		ret = of_property_read_u32(childnp, "reg", &target_addr);
->  		if (ret) {
+> diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+> index 16ff83fe280b..4cb7c40fb565 100644
+> --- a/drivers/i2c/busses/i2c-xiic.c
+> +++ b/drivers/i2c/busses/i2c-xiic.c
+> @@ -1491,11 +1491,8 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+>  	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
+>  					xiic_process, IRQF_ONESHOT,
+>  					pdev->name, i2c);
+> -
+> -	if (ret < 0) {
+> -		dev_err_probe(&pdev->dev, ret, "Cannot claim IRQ\n");
+> +	if (ret)
+>  		return ret;
+> -	}
+>  
+>  	i2c->singlemaster =
+>  		of_property_read_bool(pdev->dev.of_node, "single-master");
 > 
-> ---
-> base-commit: 33a647c659ffa5bdb94abc345c8c86768ff96215
-> change-id: 20260201-p2wi-a199cdfe69e0
-> 
-> Best regards,
-> -- 
-> Felix Gu <ustc.gu@gmail.com>
-> 
+
