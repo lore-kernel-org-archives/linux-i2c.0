@@ -1,46 +1,40 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 587BF81724;
-	Wed,  4 Feb 2026 01:24:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B65181509AB;
+	Wed,  4 Feb 2026 01:29:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770168291; cv=none; b=qEyFp259AaDiX99buE6u28+Qk0VZWkd3iehVCVeVv7KzDiI5WIj5F13mZBEdljMFt7pIGT4UBEhvkrmj3ibANekLs/RlgVPzqgvy121UxTOEq2h0K9iqOopIprboQwI6r2HxZBCbcl9SZjDuzTqgkplN6jYmEKaobJSf+5ZYYy4=
+	t=1770168589; cv=none; b=G9WQnQ8r4XtAk72o2HfmTDYCL/5cVrrGIPlkY4q8sbKsSKo92R+GS9nrK/ABwsw48Afqqr/i30c6PzKnbfCQ3yHDsQ98GyhHxemPH3eaTnVj0lEKCvSzXlBPzWb4yCwndvPrsiqHqoqGMmm7RukUnVHS/01ZbX7RSYxYCuXMCoQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770168291; c=relaxed/simple;
-	bh=9NQ4pYJZzXZxB0prHhOgxU25gF7J+7dtfLyhZiTdkx0=;
+	s=arc-20240116; t=1770168589; c=relaxed/simple;
+	bh=pcRF1SAQQ81q4UIjx8AqJMQ5ODjOXLDTavWrNXAFpZU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=V24qYCKZCW8l8nvuvvqJUllmvcMBd5JbTQsoVzB/bZphUFPPa5+pe0pEIkY4n7L53swnHFJkRnBVDR9cq5+0y8bUy3uWHBYjK30pp3wHzEUdJ3pGkIIbBnPiHPhLNW7lubQE+fJ5jBvIsX2kugkZ2imxEGI0jRM0SUm8CN5bTn8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PufZMXuM; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=b1P/P+6zZ0cG97tnG7nAwavyN+Ya9QSYoAhGSnqABB1hsDPgI/+o/2tMFWUTC/ONGS+d1+4rvxptH4fl/ptHW14ZbHulzhgVPp2CqF5CMxP1lProoim5K8W6Ffd4867AlITiM5+Z2lC+lWoFl/Nm9LneOjc86Vjla6/vp1i9V6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oMlwxql4; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PufZMXuM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D971C116D0;
-	Wed,  4 Feb 2026 01:24:50 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oMlwxql4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDD94C116D0;
+	Wed,  4 Feb 2026 01:29:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770168290;
-	bh=9NQ4pYJZzXZxB0prHhOgxU25gF7J+7dtfLyhZiTdkx0=;
+	s=k20201202; t=1770168589;
+	bh=pcRF1SAQQ81q4UIjx8AqJMQ5ODjOXLDTavWrNXAFpZU=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=PufZMXuMRWm+sNOdFD6+ejHcKo2dRYQY2RN4H1hMoB3ViMYRxNonX2kFQQpH6c5Oz
-	 Fj1DOR8EjesAIZZ2uFtLqMGglLYZwHxOzcFYJImLIJlFMlS7hW5r10qnKefzwD05rG
-	 9VTfD7qg9r/rHXTv9x43AZryZaOgw6OYnZ56Jo7XUPErYMPc46P3yHh5jNMrZscVnh
-	 Ke0YNCVaqXHaqSvYk7LXSWf5LgGJXwNfCQtOhuhtKUa0JLwePgWP4UMektVv6cDz1D
-	 hgxJ+yB3oovL1HaT78F3PoXoed7k8qt7/uHYsF719BdbH8YrKavmYfeuIfIFKcQyRr
-	 Nxc6/eooEmWAw==
-Date: Wed, 4 Feb 2026 02:24:47 +0100
+	b=oMlwxql4lyc7sEzShzTeIkbP/iHSbB/wk9+Z4Vh2ga8t3qSRe/t7uWOsjK8KsVOcD
+	 s+8AbipsQO+SdW+HCXayFL37jA5zM5i6i9srS2uHyBtnNpIy4rOEvoYrTf7jx36aQf
+	 ou/N4l1gXxaPHVfPTien/Hd9m96uQ8UgPlKoPjKuYaNOYaRn7hqBig+OPjqD74qj7K
+	 HeaAaKsThBHPT9Sm5r5Nv9ya669Be09K81pGo1j98BNmpyU7C9f6bq2JSDvbmkAHbH
+	 sBzRNIlZ/orlPyZjkkzTEBStl99dP0Le0ueKULV9Nmngd9ZE3uSi+2jawrfbHJPLxK
+	 eRTqPPTRffpTw==
+Date: Wed, 4 Feb 2026 02:29:46 +0100
 From: Andi Shyti <andi.shyti@kernel.org>
-To: =?utf-8?Q?Beno=C3=AEt?= Monin <benoit.monin@bootlin.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jan Dabros <jsd@semihalf.com>, 
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>, Clark Williams <clrkwllms@kernel.org>, 
-	Steven Rostedt <rostedt@goodmis.org>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
-	Gregory CLEMENT <gregory.clement@bootlin.com>, =?utf-8?B?VGjDqW8=?= Lebrun <theo.lebrun@bootlin.com>, 
-	Tawfik Bayouk <tawfik.bayouk@mobileye.com>, Vladimir Kondratiev <vladimir.kondratiev@mobileye.com>, 
-	Dmitry Guzman <dmitry.guzman@mobileye.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-rt-devel@lists.linux.dev
-Subject: Re: [PATCH v6 0/3] i2c: designware: Improve support of
- multi-messages transfer
-Message-ID: <aYKfnaQIgZT_odux@zenone.zhora.eu>
-References: <20260130-i2c-dw-v6-0-08ca1e9ece07@bootlin.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Pratap Nirujogi <pratap.nirujogi@amd.com>, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Mika Westerberg <mika.westerberg@linux.intel.com>, 
+	Jan Dabros <jsd@semihalf.com>, Bin Du <bin.du@amd.com>
+Subject: Re: [PATCH v1 1/1] i2c: designware: Remove dead code in AMD ISP case
+Message-ID: <aYKg7-dfRa51vxe_@zenone.zhora.eu>
+References: <20260129103439.187478-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -50,16 +44,18 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260130-i2c-dw-v6-0-08ca1e9ece07@bootlin.com>
+In-Reply-To: <20260129103439.187478-1-andriy.shevchenko@linux.intel.com>
 
-Hi Benoit,
+Hi Andy,
 
-> Benoît Monin (3):
->       i2c: designware: Implement I2C_M_STOP support
->       i2c: designware: Use runtime PM macro for auto-cleanup
->       i2c: designware: Support of controller with IC_EMPTYFIFO_HOLD_MASTER disabled
+On Thu, Jan 29, 2026 at 11:34:38AM +0100, Andy Shevchenko wrote:
+> The I²C bus shared with P-Unit is Intel only thing as far as I know.
+> The AMD ISP driver has no relationship with P-Unit. Remove dead code
+> that seems copied without much thinking.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-merged to i2c/i2c-host-2 for the second part of the merge window
-pull request.
+merged to i2c/i2c-host-2.
 
+Thanks,
 Andi
