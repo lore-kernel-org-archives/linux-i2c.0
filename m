@@ -1,169 +1,225 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from fhigh-b3-smtp.messagingengine.com (fhigh-b3-smtp.messagingengine.com [202.12.124.154])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 643603E9F70
-	for <linux-i2c@vger.kernel.org>; Wed,  4 Feb 2026 13:47:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4496954723;
+	Wed,  4 Feb 2026 14:01:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770212869; cv=none; b=Tfcht6bDaq4vjIlchklz0jDZb0Kw/GFv/ePivXcz/u2osmLMdWqxMb1wFbpcvDebYu5Ax6OiCtGAkXQZaCuQYH6ocgpmPxKVNgqQqQbxGoV7UY2Vd0fvMY54vIlcrSCgIVoThKeNzR9RdDVw6dnHH2JZwwRiYuKSGoBlTVqvU0Y=
+	t=1770213682; cv=none; b=pzm2eo9aSRO13iYJg0IyRypHheevZAJ9dLC80s/+MUWDjW4sAseM8gZZyip7r0jaGAocNneUOzO88DPd97zTSfXuNUuRGEK4jF+fPyiQQ4fqpYMUfoAbEk6ZhamODEVBHwPab+R4xTSaUgKy5MH459s4UYVhSE0fTwvrJv2EdwY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770212869; c=relaxed/simple;
-	bh=yu9L+d/NKnOZPCAeoijRwUSB9NsZEdGlJw0gmHRRJmY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=clWBqzyhhqsnLzoNLbc80Yt2EJylgu28oNpqowCCegxhWEAD1GKMGuigLxsw6jYmLGW1TlSs3Jd3B3W6XPTWwxpnAiUWo1ERPOh1nbeOaZsx9L7ACeZCj7EVLdGoEDYtxrQfWXhIjwqgbfV21XrIM5oew5ePGeFnSC/w0aZvGvI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=ZKU1cwhJ; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=DbuAxVSM; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1770213682; c=relaxed/simple;
+	bh=cxCoQUgyB5uFoNXencSaKrrHlbF28CImoCVBhUEYQjY=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=t1tgwyFXrackqcIjBHkJ5HV/H+e5Er76cYTtDWehG/dzqrcOsavIdn0iMzh2Hqnor2Quo3Ze6T+5Jq8GrWUusHWRVwytfMyXiUku16kmnwc4/C4t5eGO/r/iCI8fXNd8OcdzjvPrD6/Hq/QU/s7iidWUyjde+5c3dpmE23+QkPU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sent.com; spf=pass smtp.mailfrom=sent.com; dkim=pass (2048-bit key) header.d=sent.com header.i=@sent.com header.b=Z9b9lqXI; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=kKNNYcCn; arc=none smtp.client-ip=202.12.124.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sent.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sent.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="ZKU1cwhJ";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="DbuAxVSM"
-Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 614CIa7I200240
-	for <linux-i2c@vger.kernel.org>; Wed, 4 Feb 2026 13:47:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	WmQjygrGvlInql0/zrmdguNNjU0MyhM6vQvuIR3ecsE=; b=ZKU1cwhJizuA4SgR
-	VtNfQ1Vmcz1PIeepUNPH7Y6/mljCSC3IcvOIx7wWdzDqxl6p3a7+jmKaUD4x5ZsQ
-	8qQiWUkQxrkenuRs4ifxZrVOJSoXvejSoyDKHJoUVJfCI4uTFxwyRPuxCqYBGZr2
-	4nbdu/su4XZEZIyTquipK8Zt8Qc6FVmx7EniU+P2btc92jKNQ3qb3/gykZ8QQycC
-	sJRnj/4MsrAva4MlJhPVSoM/+6VdkgssxqdyEgX5nc/0PFaT3gziTTfVxsXfQnkm
-	mzZGkl05b3Xgz3zuapnBhKM+8BVlSUuUFCWRLHiWqQPF3T7jAZe03ePo/1y1CrYA
-	rPe4JA==
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c3yp59fg6-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Wed, 04 Feb 2026 13:47:48 +0000 (GMT)
-Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-8c70cb31bcdso166138485a.1
-        for <linux-i2c@vger.kernel.org>; Wed, 04 Feb 2026 05:47:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1770212868; x=1770817668; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=WmQjygrGvlInql0/zrmdguNNjU0MyhM6vQvuIR3ecsE=;
-        b=DbuAxVSM2ABQMEI8n9x+g5cFkyigksf1P+6X97zQdWBVOGpUFAJX2btDs0k5lysBhK
-         71pgvx9Ig0338fYVikyHLbZuiA02HHltmdyV/ozcEB61rliUxU3wTDt11FZt22XM0+g6
-         /Tj2bKOUICxNPmAo5XeJTMcmNR5YA6qF3mvagJ0cadNLy/73kZsvG3aP0WbS3sUOm/GR
-         C5ArQIOHY/g23H517dOqKvOzvFDEjQL3jeXOoTote9piw3nUyLUWgzJMC3GjoOJ8oUqL
-         HLs4YFa/Ft0WenQVMo75nnZiRdYBXkEJK5zJWHQu9bfq6FD5L7GEk/g5bDdGg67Ff9YW
-         WgMQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770212868; x=1770817668;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=WmQjygrGvlInql0/zrmdguNNjU0MyhM6vQvuIR3ecsE=;
-        b=Y8MdD/gqInKYAQRxN7AOlkBvMS9fgNjOzneM3aKt4UmjniSulyV3N/jYs3rIToJk9v
-         PhrjgEFXgUjIuCth+eQuGX48hBZtb9c1+mvuhceEs67MogEiBd52scDK/ZfznShcfvu5
-         DH0Q/AQhgWiUJe1AM5qjQzfo2q1UormGkZ4Z8OHsh1seUfzNlCyyqb4aIKs/Ez2+hv98
-         h9eGcydcyZnZW3GYYCQMh6tu/EHMsscoYSnyNjovC7akZZoKnyqfstIogSxYHPbXhwOX
-         cUrgCuOBxI5y4LRnpK2l41T40TiSU8gzc7sYrDsC+rJ2rpwYVr2x34vhgfrfZmpUCurj
-         TeSw==
-X-Forwarded-Encrypted: i=1; AJvYcCUVjiOts/fj/dQDH5hOkCgdTpm89S892RsEeyvJIHnzl57uE3O7EqkVOCOvDnoZFyUxNgfVw/SMKnM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyHF6DBTMM3hpRTHXt0WkBaEE9V+cDwl6OX8izpd6cjU4aV5UtT
-	a6rOqRIX858/uMWTxCg5RI5TZSmOKWOYNpwakw7Cl8NuIvgdVOjBaR2Qqba46Lb/cWeu5Pikotm
-	sUaFxlVj6dVt2NDBCM7Ak2ZOG6bfWTZyooVCGkH0zG9O4JSi1owLu9egCl73cDek=
-X-Gm-Gg: AZuq6aIzNh8C7qGdrgbdtk+YoX/p+FPw98IfX2bMeXfjQEjddrBGerbhDa4v6E0TJyE
-	/vn2w14HqvtWyL3zr7+3pcwuwGMBCwJ879nl2E/rRp+QUKQCii+FqKNCajni20S2lpGfJkaQUA4
-	lX1+FcZ9y5iJy7zq/HkzJcKrKnKqhzlxs7fEFbAgsduyCp8TAHpLyQbCT5ciQZzDZ0pEbowAn6B
-	Ds8n0MwC/Hi1xRAiRAlkPzuy5DVfuuxwHoVH6B3wySEazQFlcX6K1C/c1tRJuJB58rOB4iLd3/o
-	BFLJ8eI/6b+dAtSLYEK+K1t+i2BCqqYpoET91JC+y4DfMzn4imUaA1YkkoSwB96xA9WVye07CLe
-	qNVAwUMv/mNXGAckYnNT8cFo3++44d2FQ+LHM6yvQD+YuOPew7ICbH7w731yfMW+rhXI=
-X-Received: by 2002:a05:620a:288d:b0:8c0:c999:df5a with SMTP id af79cd13be357-8ca3311995dmr181098085a.6.1770212867830;
-        Wed, 04 Feb 2026 05:47:47 -0800 (PST)
-X-Received: by 2002:a05:620a:288d:b0:8c0:c999:df5a with SMTP id af79cd13be357-8ca3311995dmr181094885a.6.1770212867196;
-        Wed, 04 Feb 2026 05:47:47 -0800 (PST)
-Received: from [192.168.119.254] (078088045245.garwolin.vectranet.pl. [78.88.45.245])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b8ea00250f5sm119002366b.52.2026.02.04.05.47.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 04 Feb 2026 05:47:46 -0800 (PST)
-Message-ID: <37905097-ec5a-4922-a34a-7cf0ddce33f4@oss.qualcomm.com>
-Date: Wed, 4 Feb 2026 14:47:43 +0100
+	dkim=pass (2048-bit key) header.d=sent.com header.i=@sent.com header.b="Z9b9lqXI";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="kKNNYcCn"
+Received: from phl-compute-03.internal (phl-compute-03.internal [10.202.2.43])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id 6AC927A0160;
+	Wed,  4 Feb 2026 09:01:21 -0500 (EST)
+Received: from phl-imap-04 ([10.202.2.82])
+  by phl-compute-03.internal (MEProxy); Wed, 04 Feb 2026 09:01:21 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sent.com; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm3; t=1770213681;
+	 x=1770300081; bh=qv4GIpt/eGZa57JuRvpIe4Hk8AHNwetxeVikP31gzg4=; b=
+	Z9b9lqXIcLvtAFqXmLL6eyv4VETuPAKF3A7G+xX7+XWP9wp6sqMOCkKwNDlCu9o/
+	47t4c4xKk/ODsXAu2h2ParX6wEyS0YqQiUuwBk+0lFAkiT+ikHmEdQnunwhqLiWp
+	IgkX5QfqTwStpZcsva1wOswqgXhOaYfJoLzyHHaAPKnF1jaz8xBUVYOKzy7Fv8JQ
+	aMaMsIld4kXVKW+pDjb1+KbJb3zFeXnSTwHNQOoZ+NvS5gT8rHUFCCQysqMZCc0Y
+	uV/Ux6SAhfyP8dugGrfUsd9nw0WLS/5lmxNf94wUAMWh3cShsJpXzT7t7AN7Zd8p
+	FfetV2WXwo9L9CgPgbcnDg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1770213681; x=
+	1770300081; bh=qv4GIpt/eGZa57JuRvpIe4Hk8AHNwetxeVikP31gzg4=; b=k
+	KNNYcCn4W9pTJqFNdeev6mkc4Q4GIcUZsaS8XUvMFsCZacDcMW7e4m1wwHl2PRex
+	G1SH851yltp2ZgPFZgFFDUCMLWmaE/2IrDplUkWwqxg8XzaEfVoOLPsjcWEwO0cf
+	YHGH/ifgBWbJs7U3XTL/hLkIs6GIwAiZ4QrEspCGSf/IgxQCjXaAjT84aBiQD6mV
+	FbEZpxD1WD7xgNd2wa3DugH3FndhwdsEDV2FOxWn+gddOcVHlh0xpM0SmhT+p2oF
+	M8jI2OYiNENuzMs9LdUXf6xkVsgKdNm8nevyJeLwYmxC3u3X3Cp+/VSZWo03GEr/
+	N0ho5pkVtbWylC7Hx3zPw==
+X-ME-Sender: <xms:MVGDafAK3Iza7Jb0gkeOeuYUR2QrLcn6lC9L0Pe6rqo1E-3AHqZ2GQ>
+    <xme:MVGDaQUcU7wRVoP4KYxBzxdgCY8HUGINYoZCSPhMT1G4ALfKtSLqyXRvpI7dvoVY8
+    2HCqJ1ZvjZ_G8PhlcOkksqa2Fqy4hYZucViO6VkzedF6DoBi8cssAY>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefgedrtddtgddukedviedvucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepofggfffhvfevkfgjfhfutgfgsehtjeertdertddtnecuhfhrohhmpegtohhrrhgv
+    tghtmhhoshhtuceotghmlhhishhtshesshgvnhhtrdgtohhmqeenucggtffrrghtthgvrh
+    hnpeejleevhedvjefhtdfhueffhfefgedtvddtgfegfeeiveffhfeffeelgffgffegleen
+    ucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegtmhhlih
+    hsthhssehsvghnthdrtghomhdpnhgspghrtghpthhtohepiedpmhhouggvpehsmhhtphho
+    uhhtpdhrtghpthhtohepvhhkohhulheskhgvrhhnvghlrdhorhhgpdhrtghpthhtoheprg
+    hnughrihihrdhshhgvvhgthhgvnhhkoheslhhinhhugidrihhnthgvlhdrtghomhdprhgt
+    phhtthhopehmihhkrgdrfigvshhtvghrsggvrhhgsehlihhnuhigrdhinhhtvghlrdgtoh
+    hmpdhrtghpthhtoheprhgvghhrvghsshhiohhnsheslhhishhtshdrlhhinhhugidruggv
+    vhdprhgtphhtthhopegumhgrvghnghhinhgvsehvghgvrhdrkhgvrhhnvghlrdhorhhgpd
+    hrtghpthhtoheplhhinhhugidqihdvtgesvhhgvghrrdhkvghrnhgvlhdrohhrgh
+X-ME-Proxy: <xmx:MVGDaUqhxoG3BOSkoOen_5dleyaDF7-HlSXIzzzKBfVrO2yDXI1GoA>
+    <xmx:MVGDaUuIAOX3rJiLmCakfYDf9Q2a-YRKUo3f6jVcBoEg-z7GRzBChg>
+    <xmx:MVGDaZHFqx6z6Rv15cNh3gietaOIvFy6mMN0RNNLnXh1fnoqyQk2ZQ>
+    <xmx:MVGDadZfuNBN11g1tX56J-T6Vcw177hxbewtnGrxi9upuoWLJEad0Q>
+    <xmx:MVGDabLiwEF5-HUso4YmW3glUiOu10IftddhWUStW0mo0-GqFzDuXONV>
+Feedback-ID: i87314915:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 0C111B6006E; Wed,  4 Feb 2026 09:01:21 -0500 (EST)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 12/13] i2c: qcom-geni: Store of_device_id data in
- driver private struct
-To: Praveen Talari <praveen.talari@oss.qualcomm.com>,
-        Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley
- <conor+dt@kernel.org>,
-        Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
-        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>, linux-arm-msm@vger.kernel.org,
-        linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, bjorn.andersson@oss.qualcomm.com,
-        dmitry.baryshkov@oss.qualcomm.com
-Cc: prasad.sodagudi@oss.qualcomm.com, quic_vtanuku@quicinc.com,
-        aniket.randive@oss.qualcomm.com, chandana.chiluveru@oss.qualcomm.com,
-        jyothi.seerapu@oss.qualcomm.com
-References: <20260202180922.1692428-1-praveen.talari@oss.qualcomm.com>
- <20260202180922.1692428-13-praveen.talari@oss.qualcomm.com>
- <df7cbe46-153e-4959-911a-14600b3bea21@oss.qualcomm.com>
- <cf2b7624-eaf9-4ba3-9b2e-81be3adbb53f@oss.qualcomm.com>
-Content-Language: en-US
-From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-In-Reply-To: <cf2b7624-eaf9-4ba3-9b2e-81be3adbb53f@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: zzCRnY6Kl-Ve9-CraPqP_YMDmUXHLHCb
-X-Authority-Analysis: v=2.4 cv=cquWUl4i c=1 sm=1 tr=0 ts=69834e04 cx=c_pps
- a=qKBjSQ1v91RyAK45QCPf5w==:117 a=FpWmc02/iXfjRdCD7H54yg==:17
- a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=EUspDBNiAAAA:8 a=DvpAP8q0oNssZ-h8920A:9
- a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10 a=NFOGd7dJGGMPyQGDc5-O:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA0MDEwNSBTYWx0ZWRfX/U+4vWwc2jXM
- Wmn6HWIPEM0EtE++FATzryL0tUyhex/d5zPYFUCTHHIW6dqqEmh6RByHJb3Aa9wNeSdImMO+zvk
- HnAsbfiT2qUCqPVCH9I/VqA/OrDFumAigVti6zI1IotpzRv02h7GyF3GNxTWH1xcmeV6hX2wnls
- M58Cww/gXk8ptCxxF6/29HR/9G572t0HsYJtIN4TYnb6WiFRIR0ZpO3Yr55N+yCgPQpaII4SsIr
- c6qK4s0TW/Z4xrNfDDqak+AcpmmbSHxBKXDSTcOwRBm0hRrH4BZyqGasSb91xKAWQvRedorNROr
- APpYXFA5G2I/YVIcV5/CfXFjQR3wyawLfkWne7cvbt1NaLpbYXulFp3mQGV4pCtcX0e0I5dAKw/
- niSP0/vqx2EhiOpEbxmWwCOt6660qcjpi54fpBfM1SrZHIQyxUUm3mkCwGC52uA+0Ea2fhKwnAM
- K+vWmog+CmGT0e/xw0g==
-X-Proofpoint-GUID: zzCRnY6Kl-Ve9-CraPqP_YMDmUXHLHCb
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-04_04,2026-02-04_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 bulkscore=0 malwarescore=0 impostorscore=0
- priorityscore=1501 spamscore=0 suspectscore=0 clxscore=1015 phishscore=0
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
- definitions=main-2602040105
+X-ThreadId: AwebR64VcaZc
+Date: Wed, 04 Feb 2026 09:01:00 -0500
+From: correctmost <cmlists@sent.com>
+To: "Andy Shevchenko" <andriy.shevchenko@linux.intel.com>
+Cc: "Mika Westerberg" <mika.westerberg@linux.intel.com>,
+ dmaengine@vger.kernel.org, regressions@lists.linux.dev, vkoul@kernel.org,
+ linux-i2c@vger.kernel.org
+Message-Id: <e7a0d992-ed5c-4435-b567-e0b873360a48@app.fastmail.com>
+In-Reply-To: <aYNHeqYYa9ixrksM@smile.fi.intel.com>
+References: <20260130072620.GW2275908@black.igk.intel.com>
+ <53bd143f-525d-4748-af93-3460c9f59d1a@app.fastmail.com>
+ <20260202075118.GY2275908@black.igk.intel.com>
+ <00ee321d-1f36-4f1e-91f7-fdee4212c5cc@app.fastmail.com>
+ <20260202102225.GB2275908@black.igk.intel.com>
+ <5ed857f5-59ae-4052-8f2e-dac7fcd014cc@app.fastmail.com>
+ <20260203100452.GE2275908@black.igk.intel.com>
+ <5d134f4f-f7f4-4972-9adb-6d10ede5c1bb@app.fastmail.com>
+ <20260204123107.GN2275908@black.igk.intel.com>
+ <5ed53c66-69e9-45e1-9b89-e3d555ff412c@app.fastmail.com>
+ <aYNHeqYYa9ixrksM@smile.fi.intel.com>
+Subject: Re: [REGRESSION][BISECTED] Lenovo IdeaPad touchpad does not work when idma64
+ is present in initramfs
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-On 2/4/26 6:04 AM, Praveen Talari wrote:
-> Hi Konrad,
-> 
-> On 2/3/2026 5:55 PM, Konrad Dybcio wrote:
->> On 2/2/26 7:09 PM, Praveen Talari wrote:
->>> To avoid repeatedly fetching and checking platform data across various
->>> functions, store the struct of_device_id data directly in the i2c
->>> private structure. This change enhances code maintainability and reduces
->>> redundancy.
->>>
->>> Acked-by: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
->>> Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
->>> ---
->>
->> [...]
->>
->>>   -    desc = device_get_match_data(&pdev->dev);
->>> +    gi2c->dev_data = device_get_match_data(&pdev->dev);
->>
->> Because you dereference it unconditionally later, this should be
->> null-checked
-> 
-> Initially this was added, but based on Bjorn’s comment like there is no possibility of getting a null value here since we are already adding the platform data to compatibles
+On Wed, Feb 4, 2026, at 8:19 AM, Andy Shevchenko wrote:
+> On Wed, Feb 04, 2026 at 08:11:27AM -0500, correctmost wrote:
+>> On Wed, Feb 4, 2026, at 7:31 AM, Mika Westerberg wrote:
+>> > On Tue, Feb 03, 2026 at 07:39:36AM -0500, correctmost wrote:
+>> >> On Tue, Feb 3, 2026, at 5:04 AM, Mika Westerberg wrote:
+>> >> > On Mon, Feb 02, 2026 at 06:16:02AM -0500, correctmost wrote:
+>> >> >> > Could you drop the above hack again so that it should "fail". Then build
+>> >> >> > the kernel with CONFIG_PREEMPT_VOLUNTARY=y and add the below hack. Perhaps
+>> >> >> > this is just lucky timing? Please try a couple of boots and make sure the
+>> >> >> > results are the same each time.
+>> >> >> 
+>> >> >> I cold booted five times and the touchpad did not work during any of those boots.
+>> >> >
+>> >> > Thanks!
+>> >> >
+>> >> >> I noticed that the "probe with driver" failure reports -22 instead of -110 now:
+>> >> >> 
+>> >> >> [   33.023932] i2c_hid_acpi i2c-ELAN06FA:00: Report Descriptor: 05 01 09 02 a1 01 85 01 09 01 a1 00 05 09 19 01 29 02 15 00 25 01 75 01 95 02 81 02 95 06 81 03 05 01 09 30 09 31 15 81 25 7f 75 08 95 02 81 06 75 08 95 05 81 03 c0 06 00 ff 09 01 85 0e 09 c5
+>> >> >> [   33.026070] hid-generic 0018:04F3:327E.0001: item fetching failed at offset 638/675
+>> >> >> [   33.027573] hid-generic 0018:04F3:327E.0001: probe with driver hid-generic failed with error -22
+>> >> >> ...
+>> >> >> [   33.183959] hid-multitouch 0018:04F3:327E.0001: item fetching failed at offset 638/675
+>> >> >> [   33.183975] hid-multitouch 0018:04F3:327E.0001: probe with driver hid-multitouch failed with error -22
+>> >> >> 
+>> >> >
+>> >> > This is really odd because "item fetching" is not really accessing any
+>> >> > hardware bus - it just parses the descriptor and the descriptor looks fine
+>> >> > to me (and this is the same as in case of working run):
+>> >> >
+>> >> > Usage Page (Generic Desktop)
+>> >> > Usage (Generic Desktop.Mouse)
+>> >> > Collection (1)
+>> >> >   Report ID (1)
+>> >> >   Usage (Generic Desktop.Pointer)
+>> >> >   Collection (0)
+>> >> >     Usage Page (Button)
+>> >> >     Usage Minimum (1)
+>> >> >     Usage Maximum (2)
+>> >> >     Logical Minimum (0)
+>> >> >     Logical Maximum (1)
+>> >> >     Report Size (1)
+>> >> >     Report Count (2)
+>> >> >     Input (2)
+>> >> >     Report Count (6)
+>> >> >     Input (3)
+>> >> >     Usage Page (Generic Desktop)
+>> >> >     Usage (Generic Desktop.X)
+>> >> >     Usage (Generic Desktop.Y)
+>> >> >     Logical Minimum (129)
+>> >> >     Logical Maximum (127)
+>> >> >     Report Size (8)
+>> >> >     Report Count (2)
+>> >> >     Input (6)
+>> >> >     Report Size (8)
+>> >> >     Report Count (5)
+>> >> >     Input (3)
+>> >> >   End Collection (0)
+>> >> >   Usage Page (Vendor Defined Page 1)
+>> >> >   Usage (Vendor Defined Page 1.Vendor Usage 1)
+>> >> >   Report ID (14)
+>> >> >   Usage (Vendor Defined Page 1.00c5)
+>> >> >
+>> >> > I noticed  you still have:
+>> >> >
+>> >> > [    0.069726] Dynamic Preempt: full
+>> >> >
+>> >> > Can you change that in .config to:
+>> >> >
+>> >> > CONFIG_PREEMPT_VOLUNTARY=y
+>> >> 
+>> >> Strange, I did change that config.  Do I need to change another config for it to take effect?
+>> >
+>> > Probably not.
+>> >
+>> >> CONFIG_PREEMPT_BUILD=y
+>> >> # CONFIG_PREEMPT_NONE is not set
+>> >> CONFIG_PREEMPT_VOLUNTARY=y
+>> >> CONFIG_PREEMPT=y
+>> >> # CONFIG_PREEMPT_LAZY is not set
+>> >> CONFIG_PREEMPT_COUNT=y
+>> >> CONFIG_PREEMPTION=y
+>> >> CONFIG_PREEMPT_DYNAMIC=y
+>> >> CONFIG_PREEMPT_RCU=y
+>> >> CONFIG_PREEMPT_NOTIFIERS=y
+>> >> # CONFIG_PREEMPT_TRACER is not set
+>> >> # CONFIG_PREEMPTIRQ_DELAY_TEST is not set
+>> >> 
+>> >> >
+>> >> > Also let's add on top of everything one more hack patch, just in case ;-)
+>> >> >
+>> >> > diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+>> >> > index ed90858a27b7..0297ebedb802 100644
+>> >> > --- a/drivers/i2c/i2c-core-acpi.c
+>> >> > +++ b/drivers/i2c/i2c-core-acpi.c
+>> >> > @@ -371,7 +371,7 @@ static const struct acpi_device_id 
+>> >> > i2c_acpi_force_100khz_device_ids[] = {
+>> >> >  	 * a 400KHz frequency. The root cause of the issue is not known.
+>> >> >  	 */
+>> >> >  	{ "DLL0945", 0 },
+>> >> > -	{ "ELAN06FA", 0 },
+>> >> > +//	{ "ELAN06FA", 0 },
+>> >> >  	{}
+>> >> >  };
+>> >> 
+>> >> The "DSDT uses known not-working I2C bus speed 400000, forcing it to 100000" message is now gone, but the touchpad still doesn't function (full log attached).
+>> >
+>> > Thanks again! It still fails in completely unexpected place I wonder if the
+>> > BPF quirsk somehow could affect it?
+>> >
+>> > Could you still try with CONFIG_HID_BPF=n and see if there is any change?
+>> 
+>> I applied that config change and saw the same touchpad failure (full log attached).
+>
+> Just to confirm, after you applied the change, compiled a kernel, the change is
+> visible in .config in the kernel output folder (by default it's the same where
+> kernel sources are located for compilation), correct?
 
-The ACPI match entries don't have it, which I think gives a good
-example of how easy this may be overlooked
+Sorry, the CONFIG_HID_BPF=n and CONFIG_PREEMPT_VOLUNTARY=y changes are not visible in /proc/config.gz.  The CONFIG_PCI_DEBUG=y and CONFIG_LOG_BUF_SHIFT=24 changes are visible, though, which is why I thought my process for applying config changes was working okay.
 
-Konrad
+I will try to debug the config issue and retest the touchpad with the proper config changes.
