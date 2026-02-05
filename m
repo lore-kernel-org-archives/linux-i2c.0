@@ -1,107 +1,132 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3789D2C859;
-	Thu,  5 Feb 2026 10:31:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 091C43A7844
+	for <linux-i2c@vger.kernel.org>; Thu,  5 Feb 2026 10:35:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770287492; cv=none; b=Jad2HFXtt2yGE5IiQFEecXmPdKlkCqr5rOf/eneSsF8Xc2c75ihMk7kAqVy869mPrk2iECfuJVpR7NHvNx6sUcb4KOzguEBfgA+O0OkXEnHxjARM1cfJonp0rBniAHN6qixMNGHjyfHBMHFzv3cbD8PTPYqHromLxTq/R1EjufM=
+	t=1770287748; cv=none; b=HgupDUYVVaUZAMlinLywtwoEKxw7vSF0+f0wsOUKFXb9FSP/ZKIeR5boHunGwtXIcyWYYeViJkKI3FYRxpT7whQ6OQYhk0axQ6WuOAEpRqmdNfSFwEPp8o96ZxFPlY44TIloCk8+4ZvvQZJnldc2wazgjbsOxzH+Xmm25rb+pm0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770287492; c=relaxed/simple;
-	bh=pcP3a+xDAHGsf3sLhLOsCca0XK2h9iK3CBragd6MWUo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QaWgAzIW1s2EH0GKOrW8sCaNsxJrn+grHx2iajxAk68e2pKeHCMgyRE+rZREC2RTdgjgwU28kvAt7/ZPKXU/HQy0cK4sDwNUTlU9/4HtdGEB6nZmv9CZ4M97vGvTJd53MM/gnboCZM76lHjMv+ty//p0cHpBm+j3qgYW8F0H4eE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=i2iX2hr8; arc=none smtp.client-ip=198.175.65.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1770287748; c=relaxed/simple;
+	bh=Uml2Jc5zq2ELeW2m7lg/hpmfJO/PpPf6Iv4tN7jmR+U=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ffKOA74+8Oye6HiXwyQPvkNyqrMBadn5rmvZJQ5DibI59rButE072gSM7Exra1JQTx2u6EVWgcIaDKgnKJfbQ729Y1cchDMe2/fSuXTTqd2H7VBUi4eLacQpcTq1Qjmn6GT7l6Yc5bY/3OTzhG137vdJbr7LYoatOMriq6VX65A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jc0ZzOzG; arc=none smtp.client-ip=209.85.128.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="i2iX2hr8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1770287492; x=1801823492;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=pcP3a+xDAHGsf3sLhLOsCca0XK2h9iK3CBragd6MWUo=;
-  b=i2iX2hr8dfiR/aWb9WJsx7pe+/tQ/iangFK7TMkjChgBBsv+mbz7j4BZ
-   gHwn836fJfiNQp8hZdNCKgZGC6XP2sy4y2wqrS2vAlsBl03XT7MalmBlb
-   b5BLhGI1vVpG8p4qULhNxg67bO2JgY0MbMTueoS41uJuO3jFisp/B3pOj
-   4cPWDFvJMp59AH4efgYa0yaidSINTjMYUEVoULMVx3CUMkb+57XaU57C8
-   MJGzNEYkgi2Uh04npmlGSY2ioyplRaryIIptaxvykGMYgsKPZXGM4jSrH
-   0fbQ8JlPC5/S9PGcPIcHnU1Uhc4lTrHcn3E1i6E0ORz60DMQKkxF4iPyP
-   w==;
-X-CSE-ConnectionGUID: jVuj7dVQTR60yIYO++3Z2Q==
-X-CSE-MsgGUID: MJbKG9k9SvSU0ADwyq3gCw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11691"; a="71522758"
-X-IronPort-AV: E=Sophos;i="6.21,274,1763452800"; 
-   d="scan'208";a="71522758"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2026 02:31:31 -0800
-X-CSE-ConnectionGUID: JuioupECQDCU2SpJ5cCDow==
-X-CSE-MsgGUID: WgW1uW91RQaT0EEfdeBWEQ==
-X-ExtLoop1: 1
-Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa003.fm.intel.com with ESMTP; 05 Feb 2026 02:31:30 -0800
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id 4916F95; Thu, 05 Feb 2026 11:31:29 +0100 (CET)
-Date: Thu, 5 Feb 2026 11:31:29 +0100
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: correctmost <cmlists@sent.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	dmaengine@vger.kernel.org, regressions@lists.linux.dev,
-	vkoul@kernel.org, linux-i2c@vger.kernel.org
-Subject: Re: [REGRESSION][BISECTED] Lenovo IdeaPad touchpad does not work
- when idma64 is present in initramfs
-Message-ID: <20260205103129.GT2275908@black.igk.intel.com>
-References: <5ed857f5-59ae-4052-8f2e-dac7fcd014cc@app.fastmail.com>
- <20260203100452.GE2275908@black.igk.intel.com>
- <5d134f4f-f7f4-4972-9adb-6d10ede5c1bb@app.fastmail.com>
- <20260204123107.GN2275908@black.igk.intel.com>
- <5ed53c66-69e9-45e1-9b89-e3d555ff412c@app.fastmail.com>
- <aYNHeqYYa9ixrksM@smile.fi.intel.com>
- <e7a0d992-ed5c-4435-b567-e0b873360a48@app.fastmail.com>
- <72c71247-8b54-4820-b25d-34f659e7f957@app.fastmail.com>
- <20260204153402.GR2275908@black.igk.intel.com>
- <0d13a547-5f4c-4d5b-83e2-3530469d36c1@app.fastmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jc0ZzOzG"
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-47ee76e8656so11174015e9.0
+        for <linux-i2c@vger.kernel.org>; Thu, 05 Feb 2026 02:35:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1770287746; x=1770892546; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=W5Uax/LDotqlsD55VWpiCWlcKNKI7QyNOkqZjmWwhCs=;
+        b=Jc0ZzOzGz8ooCzlI1hNelGUfwOaOz9+fQjNxcsJB3qieaYM1ZhGjkzsyd/JEEm3qw8
+         BP1iMrJ0nyojYPBGCCuko1ngs2RmsFtP9Vz2j10X53JAGrxHGwuuzwkVuvapH8nw3gZN
+         gH3jNvk36XEU7WsUTdJ++rdnJ/Zy9ZElWLREqIduTWpaKhiJX95x0DvchaNeLOhsL/s0
+         ULHet1ajRzddY0I0kYI5Q8ivvKNOcjEmBcFd2cy6jYkU56Xbbh9N9YywiU/ONf65EL73
+         JTb4judH41bUwADOsgC5Tpf6snkRPH28JmOfcLJ4xbFaDy+4U8nXjgu+zDVCWMZU56yw
+         cBFQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770287746; x=1770892546;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=W5Uax/LDotqlsD55VWpiCWlcKNKI7QyNOkqZjmWwhCs=;
+        b=FLoKYggae1ML/VvfO/+s/KqgbzHIqNVv6bFH2fTuFYhkib92y728mRGMTtVyXZefnx
+         L04SVKMb9d33qwDY2IVz2jOo1il/c6HWh0ayDI4mQDG5o2KTWPu31a6SSjPem5hPLbWp
+         8EUEPa/0SkoH4Kwnw7WAH6QBCBVQzJZ/OYJtAeEW9mLE1jK9y1BSnCggsq9chuGwnCXD
+         bv4XVEBwpEE9O7UoOo19LYSSk6Ba9m7XrghNDWLwYlaOzvlyNwFQTPeFNZZUcKppwTM3
+         BDtM8PGW8HHNNA+9DiVuZM41EMGoTuIk0TGlAAw/hNs4gGqKKCvJCuvdciradmWV1ZDT
+         BJpQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVSIFJBQsWGE12i8wxkoNUqlwFYmP/QSIfzZAl1z0drMp34JqkBqlSUW1vbvuW7tCm9t9+JtFhyEBc=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyz13pJqxAMHkypFhFEO8Xw8PnlwITxQsaYNjRDhYWpi9VyoWk4
+	XklQPf3d9gPi9eQy9s+XU3k89NeAsq4rXnfbRkOmR21HqLxM4DCHkMeT
+X-Gm-Gg: AZuq6aIMrXAI7Ze7+8O27Wb8Mg7mUpeADL7w08Ezr+rXpUD8EhsnTLeUSyUOHt422fR
+	sYY2b+gy4zH9XGE5n84ATE4chSmJP4SS/VyLhH6HIKmUVg4wewPXPMMRFaKll4bFbwjVDU15toN
+	FdtcQwiNUmJi8W+gUl9IB1fRsRJYxaonAlfGX8Px+pf4+84B3BDtDD6De5CcTRIoHkrcFBxU1U5
+	o7wEqYQY5UdR6oQeJAuBGRwotW2F5TcjVGpmZUUYoOKww6j+bp56dMyeMkoKan+wpIPtF+hWNg8
+	4iKlG5S6d9aPq2KLZ5swMzP3Dhj/RiAXT6OM2DxoGwcCFAHQlrUcxRj5KXa+erDlAbq1dTkhVaK
+	/mUk60HhnrWnnq50toleejRYqqornIUCp0s7SIQvSOU9oXbIwggqpAqizbu3K7MwgOCY/mAp0fZ
+	oFhHpHREOld4VPwgnn2nrur0MSaBk4XVFl
+X-Received: by 2002:a05:600c:c4b8:b0:47e:e712:aa88 with SMTP id 5b1f17b1804b1-4830e971bddmr97102565e9.31.1770287746111;
+        Thu, 05 Feb 2026 02:35:46 -0800 (PST)
+Received: from localhost.localdomain ([196.191.61.3])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4830ec4a76esm67876655e9.1.2026.02.05.02.35.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 05 Feb 2026 02:35:45 -0800 (PST)
+From: Tinsae Tadesse <tinsaetadesse2015@gmail.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Jean Delvare <jdelvare@suse.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Guenter Roeck <linux@roeck-us.net>
+Cc: Tinsae Tadesse <tinsaetadesse2015@gmail.com>,
+	linux-i2c@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 2/2] hwmon: spd5118: Fail probe if SPD writes are disabled
+Date: Thu,  5 Feb 2026 13:29:25 +0300
+Message-ID: <20260205102942.28745-3-tinsaetadesse2015@gmail.com>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260205102942.28745-1-tinsaetadesse2015@gmail.com>
+References: <20260205102942.28745-1-tinsaetadesse2015@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <0d13a547-5f4c-4d5b-83e2-3530469d36c1@app.fastmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Wed, Feb 04, 2026 at 10:53:57AM -0500, correctmost wrote:
-> On Wed, Feb 4, 2026, at 10:34 AM, Mika Westerberg wrote:
-> > On Wed, Feb 04, 2026 at 10:12:57AM -0500, correctmost wrote:
-> >> > I will try to debug the config issue and retest the touchpad with the 
-> >> > proper config changes.
-> >> 
-> >> After fixing the config issue, I now see "Dynamic Preempt: voluntary" in
-> >> the dmesg output.  I also see "# CONFIG_HID_BPF is not set" in
-> >> /proc/config.gz.
-> >> 
-> >> The "probe with driver hid-generic failed with error -22" message is
-> >> still present and the touchpad doesn't work (full log attached).
-> >
-> > Thanks!
-> >
-> > I don't see any other way than adding even more debug. It really should at
-> > least be able to parse the report descriptor as that's exactly the same as
-> > in working case but let's try to figure why it fails. Can you add again on
-> > top of everything this one:
-> 
-> The attached log has the added hid debug lines.
+SPD5118 requires write access for page selection, configuration,
+and cache synchronization during suspend/resume. If the host
+controller does not allow SPD writes, the driver cannot function
+properly.
 
-Thanks!
+Detect this state using adapter quirks and determine whether to
+stop the probe.
 
-I now realized that the dump of the report descriptor truncates it into 64
-bytes so it can actually contain whatever crap that the controller read and
-this is probably why the HID parser fails. My apologies.
+Signed-off-by: Tinsae Tadesse <tinsaetadesse2015@gmail.com>
+---
+ drivers/hwmon/spd5118.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-I think at this point there is not much we can do :( You have the
-workaround, to put everything in the initramfs (or built into the kernel
-image), right? We have asked schematics from Lenovo but there is no
-guarantee we get them and I think those are needed to figure out how the
-touchpad is connected.
+diff --git a/drivers/hwmon/spd5118.c b/drivers/hwmon/spd5118.c
+index 5da44571b6a0..094d05472562 100644
+--- a/drivers/hwmon/spd5118.c
++++ b/drivers/hwmon/spd5118.c
+@@ -525,6 +525,8 @@ static int spd5118_common_probe(struct device *dev, struct regmap *regmap,
+ 	unsigned int capability, revision, vendor, bank;
+ 	struct spd5118_data *data;
+ 	struct device *hwmon_dev;
++	struct i2c_client *client;
++	const struct i2c_adapter_quirks *quirks;
+ 	int err;
+ 
+ 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+@@ -552,6 +554,19 @@ static int spd5118_common_probe(struct device *dev, struct regmap *regmap,
+ 	if (!spd5118_vendor_valid(bank, vendor))
+ 		return -ENODEV;
+ 
++	/*
++	 * SPD5118 requires write access for correct operation
++	 * (page selection, configuration, and suspend/resume cache sync).
++	 * If the SPD writes are blocked by the SMBus controller, the
++	 * probe fails.
++	 */
++	client = to_i2c_client(dev);
++	quirks = client->adapter->quirks;
++	if (quirks && (quirks->flags & I2C_AQ_SPD_WRITE_DISABLED)) {
++		dev_err_probe(dev, -ENODEV, "SPD Write Disable is set on adapter; refusing probe\n");
++		return -ENODEV;
++	}
++
+ 	data->regmap = regmap;
+ 	mutex_init(&data->nvmem_lock);
+ 	dev_set_drvdata(dev, data);
+-- 
+2.52.0
+
