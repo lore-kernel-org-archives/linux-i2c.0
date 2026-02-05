@@ -1,226 +1,107 @@
-Received: from relay1.mymailcheap.com (relay1.mymailcheap.com [144.217.248.100])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FE192C859;
-	Thu,  5 Feb 2026 10:31:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=144.217.248.100
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3789D2C859;
+	Thu,  5 Feb 2026 10:31:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770287488; cv=none; b=A7hU5oGz7ePXrWeuz00Lcr+xosNL7fDo+wxNOEY1SfdLF3y7rJ6BjY87S//1Kb5siqLM9VgmX4D2nDAaWB4OYwSqHuSaa7loILxWB9QZz9AU31DCBPQwwK5AyGHjfDsYHaSbJqrEAlhY0TFhrUUVmvjn1+1VMkV/HoCzdU4nVSY=
+	t=1770287492; cv=none; b=Jad2HFXtt2yGE5IiQFEecXmPdKlkCqr5rOf/eneSsF8Xc2c75ihMk7kAqVy869mPrk2iECfuJVpR7NHvNx6sUcb4KOzguEBfgA+O0OkXEnHxjARM1cfJonp0rBniAHN6qixMNGHjyfHBMHFzv3cbD8PTPYqHromLxTq/R1EjufM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770287488; c=relaxed/simple;
-	bh=Y51/vkwZf26q2e+XhHxvTOLyHFwURHRyVgaZFIOUt/w=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=TU24XdCZYqLtBLiyqGZGi8ZOVj/9ws3sLedofY9erBzSCP5zz+8KBph7RcTTXuP5qu7Oz04FGMfo4Udw0piJ+7KGvSGUOmRursCLVLeyKCFEdiiNT9gpCNJ25ZkbLiiz5MlNmS+fIew982KPCyCDEoro6bTSVyf52y7/cHWPuWw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=aosc.io; spf=pass smtp.mailfrom=aosc.io; dkim=pass (1024-bit key) header.d=aosc.io header.i=@aosc.io header.b=MZjB8W2p; arc=none smtp.client-ip=144.217.248.100
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=aosc.io
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aosc.io
+	s=arc-20240116; t=1770287492; c=relaxed/simple;
+	bh=pcP3a+xDAHGsf3sLhLOsCca0XK2h9iK3CBragd6MWUo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QaWgAzIW1s2EH0GKOrW8sCaNsxJrn+grHx2iajxAk68e2pKeHCMgyRE+rZREC2RTdgjgwU28kvAt7/ZPKXU/HQy0cK4sDwNUTlU9/4HtdGEB6nZmv9CZ4M97vGvTJd53MM/gnboCZM76lHjMv+ty//p0cHpBm+j3qgYW8F0H4eE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=i2iX2hr8; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=aosc.io header.i=@aosc.io header.b="MZjB8W2p"
-Received: from nf2.mymailcheap.com (nf2.mymailcheap.com [54.39.180.165])
-	by relay1.mymailcheap.com (Postfix) with ESMTPS id 17EC23E86D;
-	Thu,  5 Feb 2026 10:31:27 +0000 (UTC)
-Received: from mail20.mymailcheap.com (mail20.mymailcheap.com [51.83.111.147])
-	by nf2.mymailcheap.com (Postfix) with ESMTPSA id 6017640129;
-	Thu,  5 Feb 2026 10:31:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=aosc.io; s=default;
-	t=1770287485; bh=Y51/vkwZf26q2e+XhHxvTOLyHFwURHRyVgaZFIOUt/w=;
-	h=From:To:Cc:Subject:Date:From;
-	b=MZjB8W2p5LreHuhMwqSr1HmIqtLKG/Vm9L9gJBHcTsmjVJZSRZ1Sypy3uchjp1Z+6
-	 pITTVXTvz7/56ihyL3JpWIzhhqhdx3YDy8qvc2N+YHP8H7RwA/FaPOGRKLdaRHi+1W
-	 gpaF2f0p7jPwGnlsaNs/Ckq8cVgzl4kd4A27YdVQ=
-Received: from avenger-XINGYAO-Series (unknown [114.244.128.38])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mail20.mymailcheap.com (Postfix) with ESMTPSA id 69C8E42B54;
-	Thu,  5 Feb 2026 10:31:12 +0000 (UTC)
-From: WangYuli <wangyuli@aosc.io>
-To: mario.limonciello@amd.com,
-	thomas.lendacky@amd.com,
-	john.allen@amd.com,
-	herbert@gondor.apana.org.au,
-	davem@davemloft.net,
-	mika.westerberg@linux.intel.com,
-	andriy.shevchenko@linux.intel.com,
-	jsd@semihalf.com,
-	andi.shyti@kernel.org
-Cc: linux-crypto@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	bp@alien8.de,
-	ashish.kalra@amd.com,
-	wangyuli@aosc.io,
-	markhas@chromium.org,
-	jarkko.nikula@linux.intel.com,
-	wsa@kernel.org,
-	WangYuli <wangyl5933@chinaunicom.cn>,
-	stable@vger.kernel.org
-Subject: [PATCH] i2c: designware: Enable PSP semaphore for AMDI0010 and fix probe deferral
-Date: Thu,  5 Feb 2026 18:30:47 +0800
-Message-ID: <20260205103047.19127-1-wangyuli@aosc.io>
-X-Mailer: git-send-email 2.51.0
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="i2iX2hr8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1770287492; x=1801823492;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=pcP3a+xDAHGsf3sLhLOsCca0XK2h9iK3CBragd6MWUo=;
+  b=i2iX2hr8dfiR/aWb9WJsx7pe+/tQ/iangFK7TMkjChgBBsv+mbz7j4BZ
+   gHwn836fJfiNQp8hZdNCKgZGC6XP2sy4y2wqrS2vAlsBl03XT7MalmBlb
+   b5BLhGI1vVpG8p4qULhNxg67bO2JgY0MbMTueoS41uJuO3jFisp/B3pOj
+   4cPWDFvJMp59AH4efgYa0yaidSINTjMYUEVoULMVx3CUMkb+57XaU57C8
+   MJGzNEYkgi2Uh04npmlGSY2ioyplRaryIIptaxvykGMYgsKPZXGM4jSrH
+   0fbQ8JlPC5/S9PGcPIcHnU1Uhc4lTrHcn3E1i6E0ORz60DMQKkxF4iPyP
+   w==;
+X-CSE-ConnectionGUID: jVuj7dVQTR60yIYO++3Z2Q==
+X-CSE-MsgGUID: MJbKG9k9SvSU0ADwyq3gCw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11691"; a="71522758"
+X-IronPort-AV: E=Sophos;i="6.21,274,1763452800"; 
+   d="scan'208";a="71522758"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2026 02:31:31 -0800
+X-CSE-ConnectionGUID: JuioupECQDCU2SpJ5cCDow==
+X-CSE-MsgGUID: WgW1uW91RQaT0EEfdeBWEQ==
+X-ExtLoop1: 1
+Received: from black.igk.intel.com ([10.91.253.5])
+  by fmviesa003.fm.intel.com with ESMTP; 05 Feb 2026 02:31:30 -0800
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id 4916F95; Thu, 05 Feb 2026 11:31:29 +0100 (CET)
+Date: Thu, 5 Feb 2026 11:31:29 +0100
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: correctmost <cmlists@sent.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	dmaengine@vger.kernel.org, regressions@lists.linux.dev,
+	vkoul@kernel.org, linux-i2c@vger.kernel.org
+Subject: Re: [REGRESSION][BISECTED] Lenovo IdeaPad touchpad does not work
+ when idma64 is present in initramfs
+Message-ID: <20260205103129.GT2275908@black.igk.intel.com>
+References: <5ed857f5-59ae-4052-8f2e-dac7fcd014cc@app.fastmail.com>
+ <20260203100452.GE2275908@black.igk.intel.com>
+ <5d134f4f-f7f4-4972-9adb-6d10ede5c1bb@app.fastmail.com>
+ <20260204123107.GN2275908@black.igk.intel.com>
+ <5ed53c66-69e9-45e1-9b89-e3d555ff412c@app.fastmail.com>
+ <aYNHeqYYa9ixrksM@smile.fi.intel.com>
+ <e7a0d992-ed5c-4435-b567-e0b873360a48@app.fastmail.com>
+ <72c71247-8b54-4820-b25d-34f659e7f957@app.fastmail.com>
+ <20260204153402.GR2275908@black.igk.intel.com>
+ <0d13a547-5f4c-4d5b-83e2-3530469d36c1@app.fastmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: 6017640129
-X-Spamd-Result: default: False [1.40 / 10.00];
-	MID_CONTAINS_FROM(1.00)[];
-	R_MISSING_CHARSET(0.50)[];
-	MIME_GOOD(-0.10)[text/plain];
-	FROM_HAS_DN(0.00)[];
-	ASN(0.00)[asn:16276, ipnet:51.83.0.0/16, country:FR];
-	ARC_NA(0.00)[];
-	RCVD_COUNT_ONE(0.00)[1];
-	RCPT_COUNT_TWELVE(0.00)[20];
-	MIME_TRACE(0.00)[0:+];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	SURBL_MULTI_FAIL(0.00)[chinaunicom.cn:server fail];
-	LOCAL_OUTBOUND(0.00)[];
-	TO_DN_SOME(0.00)[];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	URIBL_BLOCKED(0.00)[chinaunicom.cn:email,aosc.io:mid,aosc.io:from_smtp,aosc.io:from_mime,mail20.mymailcheap.com:rdns,mail20.mymailcheap.com:helo];
-	RCVD_TLS_ALL(0.00)[]
-X-Rspamd-Action: no action
-X-Rspamd-Server: nf2.mymailcheap.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <0d13a547-5f4c-4d5b-83e2-3530469d36c1@app.fastmail.com>
 
-From: WangYuli <wangyl5933@chinaunicom.cn>
+On Wed, Feb 04, 2026 at 10:53:57AM -0500, correctmost wrote:
+> On Wed, Feb 4, 2026, at 10:34 AM, Mika Westerberg wrote:
+> > On Wed, Feb 04, 2026 at 10:12:57AM -0500, correctmost wrote:
+> >> > I will try to debug the config issue and retest the touchpad with the 
+> >> > proper config changes.
+> >> 
+> >> After fixing the config issue, I now see "Dynamic Preempt: voluntary" in
+> >> the dmesg output.  I also see "# CONFIG_HID_BPF is not set" in
+> >> /proc/config.gz.
+> >> 
+> >> The "probe with driver hid-generic failed with error -22" message is
+> >> still present and the touchpad doesn't work (full log attached).
+> >
+> > Thanks!
+> >
+> > I don't see any other way than adding even more debug. It really should at
+> > least be able to parse the report descriptor as that's exactly the same as
+> > in working case but let's try to figure why it fails. Can you add again on
+> > top of everything this one:
+> 
+> The attached log has the added hid debug lines.
 
-AMD Strix Point platforms use the AMDI0010 ACPI HID for their I2C
-controllers, but this entry was missing the ARBITRATION_SEMAPHORE flag
-that enables PSP-based bus arbitration.
+Thanks!
 
-Without proper arbitration, when both the x86 host and AMD PSP
-(Platform Security Processor) attempt to access the shared I2C bus
-simultaneously, the DesignWare controller loses arbitration and reports:
+I now realized that the dump of the report descriptor truncates it into 64
+bytes so it can actually contain whatever crap that the controller read and
+this is probably why the HID parser fails. My apologies.
 
-  i2c_designware AMDI0010:01: i2c_dw_handle_tx_abort: lost arbitration
-
-This causes communication failures with I2C devices such as touchpads
-(e.g., BLTP7853 HID-over-I2C).
-
-Add the ARBITRATION_SEMAPHORE flag to the AMDI0010 entry to enable PSP
-mailbox-based I2C bus arbitration, consistent with how AMDI0019 was
-handled for AMD Cezanne platforms.
-
-However, simply enabling this flag exposes a latent bug introduced by
-commit 440da737cf8d ("i2c: designware: Use PCI PSP driver for
-communication"): the driver unconditionally returns -EPROBE_DEFER when
-psp_check_platform_access_status() fails, causing an infinite probe
-deferral loop on platforms that lack PSP platform access support.
-
-The problem is that psp_check_platform_access_status() returned -ENODEV
-for all failure cases, but there are two distinct scenarios:
-
-  1. PSP is still initializing (psp pointer exists but platform_access_data
-     is not yet ready, while vdata->platform_access indicates support) -
-     this is a transient condition that warrants probe deferral.
-
-  2. The platform genuinely lacks PSP platform access support (either no
-     psp pointer, or vdata->platform_access is not set) - this is a
-     permanent condition where probe deferral would loop indefinitely.
-
-Fix this by updating psp_check_platform_access_status() to return:
-
-  - -EPROBE_DEFER: when PSP exists with platform_access capability but
-    platform_access_data is not yet initialized (transient)
-  - -ENODEV: when the platform lacks PSP platform access support (permanent)
-
-Then update the I2C driver to pass through the actual return code from
-psp_check_platform_access_status() instead of forcing -EPROBE_DEFER,
-allowing the driver to fail gracefully on unsupported platforms.
-
-Tested on MECHREVO XINGYAO 14 with AMD Ryzen AI 9 H 365.
-
-Fixes: 440da737cf8d ("i2c: designware: Use PCI PSP driver for communication")
-Cc: stable@vger.kernel.org
-Signed-off-by: WangYuli <wangyl5933@chinaunicom.cn>
----
- drivers/crypto/ccp/platform-access.c        |  7 ++++++-
- drivers/i2c/busses/i2c-designware-amdpsp.c  | 11 +++++++++--
- drivers/i2c/busses/i2c-designware-platdrv.c |  2 +-
- include/linux/psp-platform-access.h         |  5 +++--
- 4 files changed, 19 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/crypto/ccp/platform-access.c b/drivers/crypto/ccp/platform-access.c
-index 1b8ed3389733..3f20cf194cb6 100644
---- a/drivers/crypto/ccp/platform-access.c
-+++ b/drivers/crypto/ccp/platform-access.c
-@@ -46,7 +46,12 @@ int psp_check_platform_access_status(void)
- {
- 	struct psp_device *psp = psp_get_master_device();
- 
--	if (!psp || !psp->platform_access_data)
-+	/* PSP driver not loaded yet, caller should defer */
-+	if ((!psp) || (!psp->platform_access_data && psp->vdata->platform_access))
-+		return -EPROBE_DEFER;
-+
-+	/* PSP loaded but platform_access not supported by hardware */
-+	if (!psp->platform_access_data && !psp->vdata->platform_access)
- 		return -ENODEV;
- 
- 	return 0;
-diff --git a/drivers/i2c/busses/i2c-designware-amdpsp.c b/drivers/i2c/busses/i2c-designware-amdpsp.c
-index 404571ad61a8..341232767177 100644
---- a/drivers/i2c/busses/i2c-designware-amdpsp.c
-+++ b/drivers/i2c/busses/i2c-designware-amdpsp.c
-@@ -269,6 +269,7 @@ static const struct i2c_lock_operations i2c_dw_psp_lock_ops = {
- int i2c_dw_amdpsp_probe_lock_support(struct dw_i2c_dev *dev)
- {
- 	struct pci_dev *rdev;
-+	int ret;
- 
- 	if (!IS_REACHABLE(CONFIG_CRYPTO_DEV_CCP_DD))
- 		return -ENODEV;
-@@ -291,8 +292,14 @@ int i2c_dw_amdpsp_probe_lock_support(struct dw_i2c_dev *dev)
- 		_psp_send_i2c_req = psp_send_i2c_req_doorbell;
- 	pci_dev_put(rdev);
- 
--	if (psp_check_platform_access_status())
--		return -EPROBE_DEFER;
-+	/*
-+	 * Check if PSP platform access is available.
-+	 * Returns 0 on success, -EPROBE_DEFER if PSP driver not loaded,
-+	 * -ENODEV if platform_access is not supported by hardware.
-+	 */
-+	ret = psp_check_platform_access_status();
-+	if (ret)
-+		return ret;
- 
- 	psp_i2c_dev = dev->dev;
- 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 7be99656a67d..63b1c06ee111 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -345,7 +345,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
- 	{ "80860F41", ACCESS_NO_IRQ_SUSPEND },
- 	{ "808622C1", ACCESS_NO_IRQ_SUSPEND },
- 	{ "AMD0010", ACCESS_INTR_MASK },
--	{ "AMDI0010", ACCESS_INTR_MASK },
-+	{ "AMDI0010", ACCESS_INTR_MASK | ARBITRATION_SEMAPHORE },
- 	{ "AMDI0019", ACCESS_INTR_MASK | ARBITRATION_SEMAPHORE },
- 	{ "AMDI0510", 0 },
- 	{ "APMC0D0F", 0 },
-diff --git a/include/linux/psp-platform-access.h b/include/linux/psp-platform-access.h
-index 540abf7de048..84dbdbeb61d6 100644
---- a/include/linux/psp-platform-access.h
-+++ b/include/linux/psp-platform-access.h
-@@ -64,8 +64,9 @@ int psp_ring_platform_doorbell(int msg, u32 *result);
-  * if platform features has initialized.
-  *
-  * Returns:
-- * 0          platform features is ready
-- * -%ENODEV   platform features is not ready or present
-+ *  0:            platform features is ready
-+ *  -%ENODEV:     platform_access is not supported by hardware
-+ *  -%EPROBE_DEFER: PSP driver not ready or platform features not yet initialized
-  */
- int psp_check_platform_access_status(void);
- 
--- 
-2.51.0
-
+I think at this point there is not much we can do :( You have the
+workaround, to put everything in the initramfs (or built into the kernel
+image), right? We have asked schematics from Lenovo but there is no
+guarantee we get them and I think those are needed to figure out how the
+touchpad is connected.
