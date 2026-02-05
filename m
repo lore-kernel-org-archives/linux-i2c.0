@@ -1,108 +1,135 @@
-Received: from mail-wr1-f45.google.com (mail-wr1-f45.google.com [209.85.221.45])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF51F3D4137
-	for <linux-i2c@vger.kernel.org>; Thu,  5 Feb 2026 12:57:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D824339FD4
+	for <linux-i2c@vger.kernel.org>; Thu,  5 Feb 2026 13:46:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770296272; cv=none; b=UYCewNbs96i+jYLjkXVBMiAWIm4VyZrn2+bQsYrz/dEYMqy/SWbynrEXtUmoYRgbrn3HBTWVazVqrvj1AqjlYZDoPBytumMonXW7VtgIvj837SQcv7qWTktUxk/ptFI7i/Un4UkhIQupEw0we8Q//3R8X6Y1JSHSZ/S0x0sWyss=
+	t=1770299181; cv=none; b=KrxN2jgFCjhxPlA2/mJM8Tbps3QO2j1C6fMTRfscBqSRglMPd1eQ3zcaZ67tsbBwL0IOW3rkig2RgNodJsWdwlN5JJnujFtAa5tTK1Ji+Z3LHFFtaf25Di3CFm/Sznnu71myI7vlPa84rcW4SVbRE6QqFgNzvb/OQlWQuiF0HzI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770296272; c=relaxed/simple;
-	bh=u408GEn+r7rpYool1ipTSvS5yUGjc6/mxdNfTwVEj5o=;
+	s=arc-20240116; t=1770299181; c=relaxed/simple;
+	bh=l1bejRBRLY+E0zgxMm8aWgHFVVyo8u7BYlnJTLwNLac=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HpYgVOlYE+bNwYoiNub0ek+EgR/0OSk1/D4WR1zjY9BmArAyQv/EysPPgexbJCjcz+jy84wXrPFTwEOQewUrd72aiPOJhx2zyy4hqOoa69NjTPNG7TgOtNMVHbqZqTj30jVSuWUX83a05t/8nVF/WbLW7aXszkvdjAIYiqXvCNY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Pt9xM+Fh; arc=none smtp.client-ip=209.85.221.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=YphehEbf9ClPy9/7KTI1FKRNTxd6u15greUHljmD44icSIwqbtHqsILHXpCPrpt0N4FcG5b76/wGkP4h9EB7C7oL77MOLSu+8t1cFhThnjQ+7w4RhzP4SPj8GSEiAs3ocj/orHKg5o6rL4X0qX4ky4w95FaXw3HZ3knVE+KbSmA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NqXOijHn; arc=none smtp.client-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Pt9xM+Fh"
-Received: by mail-wr1-f45.google.com with SMTP id ffacd0b85a97d-435a517be33so624387f8f.0
-        for <linux-i2c@vger.kernel.org>; Thu, 05 Feb 2026 04:57:51 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NqXOijHn"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2a871daa98fso7115735ad.1
+        for <linux-i2c@vger.kernel.org>; Thu, 05 Feb 2026 05:46:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770296270; x=1770901070; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=w1syDhd5NfaU3goDOmun9W28zqJO0qiGwzzr5rkRfKM=;
-        b=Pt9xM+FhVTCYSJHba6Pd1DerbcpE2xMJJjKsRnvAIsbWufGsHscy3IWgMa6c8Z2f0a
-         hxq1RBypardq9CeLFVbXR6evB3TCpDpT7hHdnw8S0S0i7xASuBnMKquZhazZf5Kr/6MH
-         mHYUR/SjFRuzwykB9zYIAuEyNxicGC5/I9dAeZeI5mVgkxPksnhEFZCLvL8Tm6E5Qt7F
-         //Xio5pWUYxh1ZKij3lcDTnPEaKesfYz7WwPk3BD3ECWwwIHTqR8/hFV4QDDeIj0goFv
-         sdU4JTj6CHAHsLeE9HaE6af/DLPUpRaQsEtImPQM8vziyAoepOARiprfI1YIKqhqHQsT
-         vIvw==
+        d=gmail.com; s=20230601; t=1770299180; x=1770903980; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=XNJhfXMPSL9iFWz6R60RceCWsjhIvrWwTqzQWCvi4LI=;
+        b=NqXOijHnwtWGko0FsmvqBGsVenVS+HJo3muYt+bsTWoaW4b2eZR1Ra/Oy1sroobZl7
+         vku/gj11nJtsdL3sO2ODyOH1/k5W0tV0kRs5ToE0kHLyr+rs8a3kQ35+2cEe1P86qELj
+         gvK15x719Ue3tjSG+WfN9u2XC6JFpA+8rdAsGuTXqZqtoXa7Uus/r0GjkEknFbrO76Cy
+         GAuat3jOGNye+/w8Gy5vUFR24k+v3Z89bbZh+DXAy0fWr7zr8nHso90iyLMTXGKEWxcr
+         6aadvHKViMYmHnUSApQF2Art+IP60k/0b8EhXanDajxV5+4Hj5+Xpk1H6C43Nzi/U9eA
+         gxCQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770296270; x=1770901070;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=w1syDhd5NfaU3goDOmun9W28zqJO0qiGwzzr5rkRfKM=;
-        b=Xr01hUyFw7/FqxJRju+Qgjqwu24ZJcM6Aokx6NpeD26ZwSpF8JB04kxga2GNpmhUaU
-         I0Su7RqJw2hOtsynuXopLfcK2x/Y6V1agAqD8EpfrSFvJFvam9kpBh0TxkWVPYCYiYtq
-         U+rcnh0Zj+3OtVyZWovcNlfJMHpxevxNoot4gU02LDWyoLY32VHnuV7p0//Qjfn89Yqg
-         VGgjGFjeNdRJx+2vre8KgoWUsTQiRm19k6ceWGqg3pssRCPCn+NcMeuKS6zFrRjhZ9tO
-         vRNKoEPztX7eyiaj0T9zWQjR0gs0YvSrEt0q/0TZyUsCfciAtJnKTFPym270jPk6RNNc
-         T+hA==
-X-Forwarded-Encrypted: i=1; AJvYcCUKM3hBCIUwhFQq3EkEcaBq6hMuSt9g7Vd9wouGPHqjlUXO93gzVufa+OAgZU5BORnnO8aLBgEPu2M=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzGlcW72jvyJx486wmW3AR70IeKD2vAlJNV9/5mlcdyzPFK5yYf
-	uf+tnrMaJ2l26C0x2NYwzO4wouP7XWgV8Lie+qsbpOI8xVpSY9s9KLz5
-X-Gm-Gg: AZuq6aKh5yEU9R3t9Xh14laGxwTZAQf/63jmVhIe0Ax02FqdAFiWYIHAiA3cHYe9Quy
-	ZfOiyvRHQAqrY8/VU1JKk2vb4Cy+hbi8dC56I7mHRu0+a14YPoS9k+6ClNBxcQ8ATTZjVHJNbL4
-	yiJ6l86XySCkq3K8fDi2U6GzsM1WUsOO6wpTmbJnwO6BGmIHkyBRv4a07F1hJde4Exstw0XTRA+
-	I8ufLQ42Meuh8b6VNn5IfhNVRt18/s/B1oFRxsy1jA76zTLUYxde/Wyyziuh0Uj870795XbovW7
-	KPFjkbwZdhPW3bbLGK4vsqsGExYSANC7O6ZxoerpyC/0OQUsRH4SpFxH/UYmrrGFO4sWUKWlkY6
-	5m+x9w43snssTd51nY1Jb5uP6RY+yNHZDL5NxIHdVgCtAzebKS722WUqFiedhrTWcQiZ6GiBslZ
-	Upa/SGOWqo9VBebAItd/wmyk0=
-X-Received: by 2002:a05:6000:3110:b0:435:92d3:d9b4 with SMTP id ffacd0b85a97d-436180318bfmr9531080f8f.26.1770296269844;
-        Thu, 05 Feb 2026 04:57:49 -0800 (PST)
-Received: from fedora ([138.199.6.232])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43618064844sm13730468f8f.42.2026.02.05.04.57.49
+        d=1e100.net; s=20230601; t=1770299180; x=1770903980;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=XNJhfXMPSL9iFWz6R60RceCWsjhIvrWwTqzQWCvi4LI=;
+        b=lURVJD9pIbKQl4HJBRk95KaK5PRVGQdWaL8+djnTEnCDVOA67luiKSGiDPal5j2X4Y
+         LiVedkJ1heNc/CXqvubi5u/vJnBtbVtT2ebZ0VF7NJxahnJ5EYDxC7Z3Xjy44uh8FkmY
+         y85XJLDxMMul1QrHQlT5iKu4UqS8uR+x1EHLATG80A6o5CUSotl2O7Y4ABDoDXVahIS3
+         adWdMdC53zXjwp/thpWRqah8kD8WAYlb7lzE0e3pcqFE5Q7N1UAzpYJ7u5MCENkZiGrW
+         3ole3suXeh5ltb2XWTq9iQ+xSvxWuhCmYZKxr+ljW9p6NRxSQDq4+zBuHpB77B1ZrBD3
+         rKUw==
+X-Forwarded-Encrypted: i=1; AJvYcCWixp4+M2lsct+yDW9J6HnyiI0HALbhOgzXW76de7ldIqJ/Qvzy3M/j1VLAGRCiHjxln+ue0ko5siY=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxoJMmeELUXFlQM2DT9dwvUpv/MuW12Rbo99A8WoOrFC3UP5Vhe
+	rnZIVHlE+9bDB88e3/b2qRpgc0SdV0xC8QPGm4O/ioBY4PmLh5HoQCSk
+X-Gm-Gg: AZuq6aKxVwPWnzrj0AdQjdL3h0PnPLVbpqMqqaK9N0LPDardaI8bKosjgqtceByu3fY
+	SKo2S+1ijTqwVz3lVMZ17nvAdZs+53qQOrhiZ8yyPhDnp46IWBzxrKxrnhK6+JE7zeMTe/YY5AP
+	sdSUhXjdF4MW0Ts+pSY1B64EZ9kRkax0KjCZvNE27Cniu2UsOVAk7E0c8RbRWqgXf91q17gQgpL
+	eoUSS9JyZVX/5KuxqJPst9ioRwWWA45pll8umePdjr91moJ7Wt6ta/QZXYpmWoFLlBubCaIb5Lf
+	kS56Po+Dnx/caedqwzRIcOa0McGtDKBDOyQ1sqp7PttTaI85bU7+AOwRLFCPziQsIMMH1TkKyiv
+	HbZE1LyMqxV86uHs3C9KwuQvwNnwg06zqDwBYCZXwrgLtHeh9Lj0qAuBgXZfmjgBHqhChxmCQVI
+	lci2NWJYqsL8p3dpejB78KutHwfO44v9WeFyU=
+X-Received: by 2002:a17:903:1c2:b0:2a9:43b0:edd9 with SMTP id d9443c01a7336-2a943b0f3d6mr22736135ad.60.1770299180084;
+        Thu, 05 Feb 2026 05:46:20 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2a93396747esm52048515ad.80.2026.02.05.05.46.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 05 Feb 2026 04:57:49 -0800 (PST)
-Date: Thu, 5 Feb 2026 13:57:46 +0100
-From: Filippo =?utf-8?B?TXVzY2hlcsOg?= <filippo.muschera@gmail.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: jdelvare@suse.com, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] i2c: amd8111: switch to devm_ functions
-Message-ID: <aYSTDkptTxxQARWV@fedora>
-References: <20260202131304.8524-1-filippo.muschera@gmail.com>
- <20260202131304.8524-2-filippo.muschera@gmail.com>
- <aYR4E9UmuQ4Wx_ro@zenone.zhora.eu>
+        Thu, 05 Feb 2026 05:46:19 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date: Thu, 5 Feb 2026 05:46:18 -0800
+From: Guenter Roeck <linux@roeck-us.net>
+To: Tinsae Tadesse <tinsaetadesse2015@gmail.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Jean Delvare <jdelvare@suse.com>,
+	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-hwmon@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] hwmon: spd5118: Fail probe if SPD writes are disabled
+Message-ID: <6cd7920b-165d-43e4-9c60-aae9492bc814@roeck-us.net>
+References: <20260205102942.28745-1-tinsaetadesse2015@gmail.com>
+ <20260205102942.28745-3-tinsaetadesse2015@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <aYR4E9UmuQ4Wx_ro@zenone.zhora.eu>
+In-Reply-To: <20260205102942.28745-3-tinsaetadesse2015@gmail.com>
 
-On Thu, Feb 05, 2026 at 12:03:51PM +0100, Andi Shyti wrote:
-> Hi Filippo,
+On Thu, Feb 05, 2026 at 01:29:25PM +0300, Tinsae Tadesse wrote:
+> SPD5118 requires write access for page selection, configuration,
+> and cache synchronization during suspend/resume. If the host
+> controller does not allow SPD writes, the driver cannot function
+> properly.
 > 
-> On Mon, Feb 02, 2026 at 02:13:04PM +0100, Filippo Muscherà wrote:
-> > Use devm_kzalloc() to manage the memory allocation of the smbus structure
-> > and devm_request_region() to manage the I/O port region.
+> Detect this state using adapter quirks and determine whether to
+> stop the probe.
 > 
-> Merged to i2c/i2c-host-2.
+> Signed-off-by: Tinsae Tadesse <tinsaetadesse2015@gmail.com>
+> ---
+>  drivers/hwmon/spd5118.c | 15 +++++++++++++++
+>  1 file changed, 15 insertions(+)
 > 
-> Just a few notes for the next time:
-> 
-> 1. I prefer two different patches for devm_kzalloc() and
->    devm_request_region().
-> 
-> 2. For series with more than one patch, I'd like to have a cover
->    letter to introduce the series.
-> 
-> Thanks,
-> Andi
+> diff --git a/drivers/hwmon/spd5118.c b/drivers/hwmon/spd5118.c
+> index 5da44571b6a0..094d05472562 100644
+> --- a/drivers/hwmon/spd5118.c
+> +++ b/drivers/hwmon/spd5118.c
+> @@ -525,6 +525,8 @@ static int spd5118_common_probe(struct device *dev, struct regmap *regmap,
+>  	unsigned int capability, revision, vendor, bank;
+>  	struct spd5118_data *data;
+>  	struct device *hwmon_dev;
+> +	struct i2c_client *client;
+> +	const struct i2c_adapter_quirks *quirks;
+>  	int err;
+>  
+>  	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
+> @@ -552,6 +554,19 @@ static int spd5118_common_probe(struct device *dev, struct regmap *regmap,
+>  	if (!spd5118_vendor_valid(bank, vendor))
+>  		return -ENODEV;
+>  
+> +	/*
+> +	 * SPD5118 requires write access for correct operation
+> +	 * (page selection, configuration, and suspend/resume cache sync).
+> +	 * If the SPD writes are blocked by the SMBus controller, the
+> +	 * probe fails.
+> +	 */
+> +	client = to_i2c_client(dev);
+> +	quirks = client->adapter->quirks;
+> +	if (quirks && (quirks->flags & I2C_AQ_SPD_WRITE_DISABLED)) {
+> +		dev_err_probe(dev, -ENODEV, "SPD Write Disable is set on adapter; refusing probe\n");
+> +		return -ENODEV;
 
-Hi Andi,
+		return dev_err_probe(...);
 
-Thanks for the review and the notes.
-I'll make sure to follow these guidelines for my future submissions.
-
-Thanks,
-Filippo 
+> +	}
+> +
+>  	data->regmap = regmap;
+>  	mutex_init(&data->nvmem_lock);
+>  	dev_set_drvdata(dev, data);
+> -- 
+> 2.52.0
+> 
