@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FB042D59E8;
-	Fri,  6 Feb 2026 16:31:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1E621E487;
+	Fri,  6 Feb 2026 16:34:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770395519; cv=none; b=D27ZHm7UnnyC4re64l/4jw5P2lpoCaD2zHHrOrVKMXlT2q/i1YBukDq1YAnIr25Ham21rYjzsywGsCBdb0Qs5U4prph+VJMALMN6wE/ccOv5KuvnJPLGBsEDiEbjQ7V5NtTQzoOK0yUWyroi3n09nBkq5Uu2BwhneKG6Lyh4QOQ=
+	t=1770395678; cv=none; b=M8JK88O1TqP0/mZouR56KMuHlVWQfl93tXNJDRkk3js3cWQ8qzbzcx1tVAV80FOHhuzUjsAwDS8fr2hBGU08MP0BAxS4haKSqn8Ug2ODtvmjt52qNTo54pS2IszcHGl9UXzc6QLR1LmwOkttxwiKXr9nACGQkrc/5o5iP6VulwE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770395519; c=relaxed/simple;
-	bh=SSM0/6NMkB6hrFzK/KE9bEts4iRvYgEngqBWiP+yPns=;
+	s=arc-20240116; t=1770395678; c=relaxed/simple;
+	bh=WAPdLRBhDtSLKYg3mPAjpGZVxy+WeW3rzoRyc9CWpjo=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=YZl/2CHuIZVb6ZVvG70KMdYYHfgkArpbZWkfv1uufRG4x5T4y8uZ/X7vfCXbSzK8LRbM+Vvy0ofu1wzUGbAYGKyxzDrImVfwLZRK/3izCsLVlEj1mCacHgBZKd2JKZZbQNt0hMTxUqssAjCH7RcQ08z+6esRaoGGVToBaeAE+e8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ME5qbyDb; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=AzpzJtLLmAnmEzvFuOqTZoptRRl/KpG18pzQotksO35DKBZllxdZlWUh4JP0fS3uOvhE5EUz/8aj6lC02hHKWPF6IpXANrwMambcDoM4Kh6ccH6Drnncmi3ExO69lHQ4XWdhhMoKOpqbNMkcVJUL3veF7JSCMPOLYFjaKIZuS58=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=roeZW1EX; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ME5qbyDb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E524C116C6;
-	Fri,  6 Feb 2026 16:31:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="roeZW1EX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03100C116C6;
+	Fri,  6 Feb 2026 16:34:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770395519;
-	bh=SSM0/6NMkB6hrFzK/KE9bEts4iRvYgEngqBWiP+yPns=;
+	s=k20201202; t=1770395677;
+	bh=WAPdLRBhDtSLKYg3mPAjpGZVxy+WeW3rzoRyc9CWpjo=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=ME5qbyDbEBlw174e3d18qE+K+cq9L0oUame7HIWLYhlLw4rDVUZ2BArDdxPB5Tore
-	 vb+FFpcBdNWaoVKvolO6GUqdy6kJfDDE1MHCXDzCUUXH/Ssxm5SAi/LZ5zaItnrgYX
-	 khMq168SFONZuSegEOjZuV3Ekjc7ygD9CoNa/PlO5cazDW0xSf3s1BtgcneBnu70Mp
-	 eK9YZo08QXE52tWUox7FJoSTt7fKaYJ8Ap8BQ4qBGpnTEFs0MG/7+nVO24Es0UnZlR
-	 03t0qpQ4M7lPNPTzag1LYRR7/5FguyWozWUMrbo1A5WRoSepgp/2f3e/WvMXQYHyrj
-	 B/mQNyhxRkFEQ==
-Message-ID: <73ce4035-412a-4b62-9c19-abb26d5237f5@kernel.org>
-Date: Fri, 6 Feb 2026 17:31:51 +0100
+	b=roeZW1EXrwVpm0FE4PzAbnhV2EwlLAc7qF9+684L2HliulbkC+xUZ9V8KJ1wXyJ2o
+	 BOk//K1zHsQljoUe/A5OZW1nP13gjy1rpEgxj3aiBrwr4XWcX1FQO1PdcVhivSSyQc
+	 uS8B4ZI5GuVwhk0/VGQrt5bD+ooDguEC+H4rqqoK99nGxIPZaoZT3jBX0yNv40OPWr
+	 whNvDbDYL1kq85UhjHFkQibO+NxIUqSezt+uGsQ5tj5UUtEKfDTYQqcM2Ltdv2Vfhc
+	 ug7kSCvLF15z9a0CBcr78QJ8IUF1HNTELJIdJzHfLARfY04OS2A8EWz50SLqZdo2f4
+	 sTVPTunUhwlVQ==
+Message-ID: <e19dbe7e-353d-4c6b-9b62-582eec018d24@kernel.org>
+Date: Fri, 6 Feb 2026 17:34:32 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -35,26 +35,20 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 2/5] dt-bindings: i2c: qcom-cci: Document sm6150
+Subject: Re: [PATCH v9 1/5] dt-bindings: i2c: qcom-cci: Document qcs8300
  compatible
-To: Andi Shyti <andi.shyti@kernel.org>,
- Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>
-Cc: Loic Poulain <loic.poulain@oss.qualcomm.com>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, Robert Foss <rfoss@kernel.org>,
- Todor Tomov <todor.too@gmail.com>,
- Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
- Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
- Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>, linux-i2c@vger.kernel.org,
+To: Nihal Kumar Gupta <quic_nihalkum@quicinc.com>,
+ bryan.odonoghue@linaro.org, robh@kernel.org, krzk+dt@kernel.org,
+ conor+dt@kernel.org, andersson@kernel.org, konradybcio@kernel.org,
+ hverkuil-cisco@xs4all.nl, loic.poulain@oss.qualcomm.com, rfoss@kernel.org,
+ andi.shyti@kernel.org, linux-i2c@vger.kernel.org,
+ cros-qcom-dts-watchers@chromium.org
+Cc: quic_svankada@quicinc.com, linux-media@vger.kernel.org,
  linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
- imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org
-References: <20260122-sm6150_evk-v5-0-039b170450a3@oss.qualcomm.com>
- <20260122-sm6150_evk-v5-2-039b170450a3@oss.qualcomm.com>
- <aYNtLbUel_oWUHfh@zenone.zhora.eu>
+ linux-kernel@vger.kernel.org,
+ Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+References: <20260121183142.1867199-1-quic_nihalkum@quicinc.com>
+ <20260121183142.1867199-2-quic_nihalkum@quicinc.com>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -100,26 +94,23 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
  zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
  XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <aYNtLbUel_oWUHfh@zenone.zhora.eu>
+In-Reply-To: <20260121183142.1867199-2-quic_nihalkum@quicinc.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 04/02/2026 17:01, Andi Shyti wrote:
-> Hi Wenmeng,
+On 21/01/2026 19:31, Nihal Kumar Gupta wrote:
+> The three instances of CCI found on the QCS8300 are functionally the same
+> as on a number of existing Qualcomm SoCs.
 > 
-> On Thu, Jan 22, 2026 at 06:48:53PM +0800, Wenmeng Liu wrote:
->> Add the sm6150 CCI device string compatible.
->>
->> Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
->> Signed-off-by: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>
+> Introduce a new SoC-specific compatible string "qcom,qcs8300-cci" with a
+> common fallback.
 > 
-> Acked-by: Andi Shyti <andi.shyti@kernel.org>
+> Signed-off-by: Nihal Kumar Gupta <quic_nihalkum@quicinc.com>
+> Signed-off-by: Vikram Sharma <quic_vikramsa@quicinc.com>
 
-There is no dependency here. It should have never been placed here
-(repeated to Qualcomm many times...). It seems like contributors want to
-make their life more difficult and avoid merging their work...
+Incorrect SoB chain.
 
-Andi, please take the patch instead.
+Having this broken at v9 is surprising.
 
 Best regards,
 Krzysztof
