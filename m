@@ -1,308 +1,417 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 374E040F8DF
-	for <linux-i2c@vger.kernel.org>; Fri,  6 Feb 2026 17:43:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770399781; cv=none; b=MR8MEVDj4r12LNdD8XJ1RohFkEnQPa9TEc3aNeMzWiOWVqjr1nfT84NhJ0GGUNFt9F9m+ow1jMVbsK4Vuug/bgZujPrPkXYNwVCgDMtkZ7M4ZV5wzbz7eC0iDRdL9UJ0cgF09J+t2EFZYqMyVaBzUBhbdLHnT3Imm/ihOiYANFY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770399781; c=relaxed/simple;
-	bh=vLJsaTbwLSxqS35M14DCmMeySl42SBb+4n+kKoraVRE=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=AKk18QwAHxp1tigq0z1Xjxq/GSvR3Z/k7HU4uJ3Geju+ZcQqOTISPYNbfOc+SbdixgNjQokdRJMJ2ZmSUzS4JFuIiCUHXh4qMc7a8Clm79zuz9o6/h6tQcviJcAZh/lr+CeTooVbUg0Gl24xuJarGcDMILlFWmY7tUjMIfyPWzY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=FYBpiziP; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=bSPebR3N; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D07192F5A0D
+	for <linux-i2c@vger.kernel.org>; Fri,  6 Feb 2026 22:22:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.47
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770416553; cv=pass; b=WJXOk5nlbTwMgLWHC2f7Chbjn/CC5hrKP44DcxAJlVmCEhJ4Ysv4kAW6EfKf80vvp8oJTEl7ezxuCd1fRTmpFtnHQD7zCFuN5NRWqaXcmYII5/ZDys/MLxOivnP3EsLmafs5rHy60VTNkvzmLB0COCUs327Ee+nKvkSvwEn5JFw=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770416553; c=relaxed/simple;
+	bh=tKHwQrCS3W+CzrYrusS9+IwfZncSewOmUEqc/jHtXoA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=cITR6AWwlUPjlL+sjD1A1XppNn7H90ci9aHU1XE5IV14b6+XsTsKTxXvcC3p5atwWQBUGzuh6ziq4CPRNlxRler8FMFwEQ9Y4gy/0tApP0w+IW6aPu/FkXM+9fAkpNAVVsawFr+VJ4mF8FO6HZAvQxZr7Fouo4/z/vgl55GjGbA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XNgrk+Qo; arc=pass smtp.client-ip=209.85.208.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="FYBpiziP";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="bSPebR3N"
-Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 616B4P9K3764220
-	for <linux-i2c@vger.kernel.org>; Fri, 6 Feb 2026 17:43:00 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=qcppdkim1; bh=JdbbozLruhe
-	G7fmmV59QuHISGYrAXtPnLDfWr1IiNvs=; b=FYBpiziPoG2ziU+D3kD3JAkOW++
-	ghsXw4Z+MZ6d+zhsE2IYY+cBbgSEcprlx0qk1XVR37hJVUJAlzUZPv0QOkDRd/uq
-	pVBBzszFKs2pupH5ohb4jgc9WGqu7Dvbn61PRT58qXWzsvTxSk4zXM+5M9UieyaA
-	c2tWZM1oE6a5Wa7EpASmLAVlanpq73fXT54HbRGmyU1MgfhKOlsrL6HpR2aXfnnz
-	y52aMULyRcjmevMUB21m6UCmwtjqLJcEzDZhRFtUvMoJ8pCiljrOM5vHtc5zrWHq
-	sLNrElTF0eaw7F0CuZnvvkQiguyaaHwKgTe6A7aK+X7CI0WLgwfSCp4vT2A==
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com [209.85.215.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c5f3wh4v6-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Fri, 06 Feb 2026 17:43:00 +0000 (GMT)
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-b6ce1b57b9cso552763a12.1
-        for <linux-i2c@vger.kernel.org>; Fri, 06 Feb 2026 09:42:59 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XNgrk+Qo"
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-65378ba2ff7so1561834a12.2
+        for <linux-i2c@vger.kernel.org>; Fri, 06 Feb 2026 14:22:32 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770416551; cv=none;
+        d=google.com; s=arc-20240605;
+        b=IRVMHw/EO1bYNdmI8EYdX6aWpXGab0Qmy+BgtsyCodt7klOa0L2aUtjidPXHGZhmZg
+         xqS8ZGgBNJWWTBe7ux8vKnD2Fs+gNAXc+UagbcINHZ70WY/vqkMEKQCBbxcZWv+u5xJn
+         m2Opv9NUv3OnmrnrY/CJ/AZzEGI0GPyQwm8x1SU/51RJUOfZ/reky+FwyhJnvRprkHkX
+         IA7ewlwcfO3mCaxTvSKw5L35Gtsj3Bq2b9MldDE3w93r8Np1s5qlkVyWhXkPmitsVrY0
+         8GJP5t93AZWdmrw0FxWJlDpdg0LID5/96yySXEJRGBYwwto3Y8L6knK3MAzuNuqfK6OS
+         1Hiw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=E8UTPXmc+HrCAjPBirihpCEvgRfcmGIUW0NJNHqLhhU=;
+        fh=4ZwS1amAKeEw5RzYVjSUnMfoJjVKu/QSEYwtIiwOzS8=;
+        b=JOB8vpmPL5ADW+qjLChvZj9/xH6M/fOe1Mvn3o3QlgyO1uI6KfD34212vacgDgieF9
+         f0birWXD67qHLfcatvDbxXycQyh0x9NZM3VUFuYScALNdJ5YB/Q6a7gyNmj4BNfPIP+6
+         7pJgEBuOYaFSWU2UwVWc7KXd+rKGlTXerDZiqWGPrn6i/s7DGvY1iqxG8QzCyLjQ/gjx
+         boxCC/o20UwrL5iWGiz0I6Uuj/oAynjrrkTdg31+XBMl8wtYd5DMM9OjfyXmh7f6PqDL
+         8jiCeFjwFZPlun9MLWCVI8HkLTNEJWJuCqR7vi5mtJgHIrVoPhQBC76Zqhcak2ftTWqD
+         85Gg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1770399779; x=1771004579; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=JdbbozLruheG7fmmV59QuHISGYrAXtPnLDfWr1IiNvs=;
-        b=bSPebR3NlObwsE61fbrt6xAMltXRCQ6TEnnWimCiBQhlfBiVHQdCwABlzeIyvtJiEn
-         /KYkPfTPu3QASc9ByVj8Wq5MX7Xubqxnpx8kQ0XjVBPp6ZZ6b/t6Po8UZUj/za/Vs2Kc
-         E7ddCP1Tm31wg1trCSAc174k+QHSNsrIVwD3Qam+v9DTVhrkJNJu2TLEvUROkj2UyI9M
-         yHRl91GJCgXjZ1dGYb2tjioT1mT1fEnFZQrzPkXQLd+aaq1y1N0Nj2uHxAN9Q3dpvFXL
-         TpjAmb3bugfxE228goIO2KozNnhE+gZq03vAJGs87bRnx6htKBOcLBfhkjJirLJJBMWE
-         tcRw==
+        d=gmail.com; s=20230601; t=1770416551; x=1771021351; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=E8UTPXmc+HrCAjPBirihpCEvgRfcmGIUW0NJNHqLhhU=;
+        b=XNgrk+QoRcRs7tw/25Tqmb0qo9WPHBckCHZZyo4NkPinTT1Do1kCvAclXFT/jutZUR
+         9wgjBFUnHDOiij3KnJyA/sAXdN85bh1sogiAti4qHTmC8cKBZxNsbest+NbDseOsE+qi
+         ZGuw1V2ghPoeiBRxlKjbBipK7g8iKxmNGwRZ8HHZRQ4wm6fI7cJMbaae5wfDQ/2MXgwL
+         15ahll/PCBla7ws4gV8RcfsgPpbgUf4bTplr6MEYHhCzl4suFdPD8CYo7VftnlllllL1
+         D7TabDVQf1B45oN4cumhCmTnASR9GNob1URNTE3svzh6IxPX3N5z9LQrkfyqjXyHSN6a
+         SXKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770399779; x=1771004579;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=JdbbozLruheG7fmmV59QuHISGYrAXtPnLDfWr1IiNvs=;
-        b=GrflLToSsdryjmb8GBMqi79Y9fXRgjVZZTc01V/57sMRCHfIx3A1UA5a7CgdR30mEy
-         RJMLNZ6TB1AAMBlcJa41ZjT7SJNOr0FnqgZZ7CoGdjcvfiAf4XXLCto3ck/KGnNOqVDN
-         OA+GsExNMw5fAsz5q93BnyqNduAfl5xVZ8spb7q4JO7t7FzVbaQ6Z1PZOCiryY2VjhcW
-         bkPoNow1S15lSAX0lK+/xWmI+nDSmVToPsRd3xkKSeE8dsBjBi2+vg2iD1V9ir/IeUUN
-         3ZS4bP+To3LNK/o9t+gGtIyBk1NBcbaWroOb56PbLaG1ugFIyO1YAqxl7TYbyR4EOhSz
-         dK5w==
-X-Forwarded-Encrypted: i=1; AJvYcCXeNu9Ki7vFVhjOz2TP0oG6pPo3LV2p+SB4KYlDZHfllq8fawDnR57lUnnZWdqWVIS0lGfEnQbZTAo=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzKzTVHbRVAi88QtO3vdFEvwiTGsHeFoQ+tfohi1udsiZ2Ja0Sk
-	MQF6lXFzUI5rZm2VEr6n+2dAQyPZRNhdPCT+BI5Jf/A1GNErN5254n3NL2r6QK2t0sK4kBp8iUm
-	eLFaH3y5bcYa+YyX5G7DJIY3ySfSlUttslol8o8kMj7jyuDfqZFvfwJh+twA5tGQ=
-X-Gm-Gg: AZuq6aKU1fEI8uk/WI9fGOZUhZ0ug8m1ZMOsXJSwUJE4lsMz/tmKcSEZ4Kda9EdWysU
-	FZrcp/ObssC/EF6SWw93zfMxSUOVwDZJ2dI73oz/hiIJX+c83GjzUfBoKE5FsRJEppDrJ4oZtH+
-	PKGp3mkg/mJulRDmcWAHbR3YJBDiiG6EcA4QVnSp5SBLJqAv7QHrlon4pcGLuwamBWgElSm+ULQ
-	hxS5DF9DGD7crRvnFEX3gLQtdYw1H7Izk5WgHb/lw1+d3Iw5Rx8ksvHZ8Lg1XbsJXpZ9dStjyyC
-	mGovcngwj9TKCJvfha+AlMPv5qstGBehS5JihDaj1Ug+oSILxLbKMbOFrXQohM8JLiOdVD6Qf7P
-	NgQqO9m8ujfG1mk7y7EpaMN5HJJMqljWbRph+XkbbyYo=
-X-Received: by 2002:a05:6a21:1fc1:b0:38d:f405:709f with SMTP id adf61e73a8af0-393ad33a8cemr3428816637.48.1770399778891;
-        Fri, 06 Feb 2026 09:42:58 -0800 (PST)
-X-Received: by 2002:a05:6a21:1fc1:b0:38d:f405:709f with SMTP id adf61e73a8af0-393ad33a8cemr3428782637.48.1770399778305;
-        Fri, 06 Feb 2026 09:42:58 -0800 (PST)
-Received: from hu-ptalari-hyd.qualcomm.com ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c6dcb5eccbdsm2639387a12.19.2026.02.06.09.42.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Feb 2026 09:42:57 -0800 (PST)
-From: Praveen Talari <praveen.talari@oss.qualcomm.com>
-To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>,
-        Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
-        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>,
-        Praveen Talari <praveen.talari@oss.qualcomm.com>,
-        linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        bjorn.andersson@oss.qualcomm.com, dmitry.baryshkov@oss.qualcomm.com,
-        konrad.dybcio@oss.qualcomm.com
-Cc: prasad.sodagudi@oss.qualcomm.com, quic_vtanuku@quicinc.com,
-        aniket.randive@oss.qualcomm.com, chandana.chiluveru@oss.qualcomm.com,
-        jyothi.seerapu@oss.qualcomm.com, chiluka.harish@oss.qualcomm.com
-Subject: [PATCH v5 13/13] i2c: qcom-geni: Enable I2C on SA8255p Qualcomm platforms
-Date: Fri,  6 Feb 2026 23:11:12 +0530
-Message-Id: <20260206174112.4149893-14-praveen.talari@oss.qualcomm.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260206174112.4149893-1-praveen.talari@oss.qualcomm.com>
-References: <20260206174112.4149893-1-praveen.talari@oss.qualcomm.com>
+        d=1e100.net; s=20230601; t=1770416551; x=1771021351;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=E8UTPXmc+HrCAjPBirihpCEvgRfcmGIUW0NJNHqLhhU=;
+        b=wPg8gUMczb4RTsSPlEX/yz8PTHbr/U8wH2FZEBSq97YFJAX58n01FvR1szsO4lu1NH
+         9I8yHr+mNR0QipQEa4otfYnu19TbFTnFLghnS5Pmdxh7lXJAYS5ECPyfx/roAavRZ3gH
+         fTM//ON+qs+gsglvERDPLFptpjwD5m9gRMOsA1ywTSB1Zx8KhxwSCHBOQjWXqG+vilqP
+         UGKhQvym9V1O5KRDchYCJaAF17JwfM7VPmmIFdsPHlQkiElidx/Qtmen5KJXa+eISXcr
+         9LBrfahMG8PZrztcTxdAvT1VmhUq7r+FDZz1+2cbmeT/fhiNw6w1mUNL8XEv79jO7FYX
+         RSIg==
+X-Forwarded-Encrypted: i=1; AJvYcCWqeY81km0S1LY9/t15Gh2sgu08WYDaxrPtCWXPwoa3qqO/c6eq2Ovttwg+H0j62NthZ5IwMQUukEA=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyn2VlENIoX/VRzsi8Za5AFCoRMUPmTvKZhD8iTDLInu4eZsDu3
+	7nZGuHQ8OHVHDOexzcqmvFenudzyieeP/JCXVfLSkCIt28F8DDy3kemF9N2cukeFqpKo6v88Q7T
+	w4KDovxkEfOmo1TcUKQ01P7t+PnQDhrk=
+X-Gm-Gg: AZuq6aJAG9Id5WaAGXCscR5Y58twjOySXlmNHzByrvSZPg6zLSzizAuyTntFsUG1R10
+	e9lu0JhSUIwmNSNHKdEQTd3IL+kzd9ShBqPE7PxFH+YitjORjaGDmXiLbW03uTUUwfVP2oYliNY
+	FOf4Zhc3/FpitV365kdMqcEwN2yKzTW81oPWIkVVUePczpomZf3O+waklUpdCAOMd7Vvu/g0mqu
+	2AK9umNgkh785kS6j1OOyIZ7ly/d03GFlZXk4A6iVZBG2CQFvGkvOadCjB/AVS3IkXBR9E=
+X-Received: by 2002:a05:6402:4314:b0:659:4295:970 with SMTP id
+ 4fb4d7f45d1cf-65984126188mr1802337a12.8.1770416550916; Fri, 06 Feb 2026
+ 14:22:30 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjA2MDEyOSBTYWx0ZWRfX4IfjGDlx8mek
- 1cFe/w2s6u4rG2YRD8suPcBJpdb4/CfKjOq68jC5fW6NKqs8/V1Qf3xOUvRTdwtIrI5zVNhbNFu
- 0cMCGA9N5Axj4wlCWjc8HU4/UMuHNRgyuNnOEZDpoksNk8OtyFZzthJcB6tBNVIJnK9ZSrdzo+t
- c+1YcNz4b00ta84yJX0xeFHPNvcj8KUtUSh1UGcRw/Vgi9gVqnteBsmP2pXjho25sTJdUhZgRh7
- HY6cvL88/znmehP1CzU2gf+7VgBG4ed+4KQYTMV8t8R8P+brZTRAPWmypfRIK+qZVKTKGcOTAiw
- vX7/Avk/69CmHIkVbgXEUTArMK7cAHqHnOjJWN1shQfPWVD3qp0inxXX8UnSsdAcr/K+i1rxF9D
- 5djcDRM3ecoCObdRBt9QkU9NNsRfJWHsuW0HigjVunUBAG9Jqj5hQyrmedVxo0NVyz4QZaWOS8x
- YlGGOUzqaWlR5OUntvw==
-X-Proofpoint-ORIG-GUID: gXBsXexuyy7wFnviadMgKQfD74NSeNpD
-X-Authority-Analysis: v=2.4 cv=NajrFmD4 c=1 sm=1 tr=0 ts=69862824 cx=c_pps
- a=Oh5Dbbf/trHjhBongsHeRQ==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
- a=HzLeVaNsDn8A:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22 a=EUspDBNiAAAA:8
- a=zgZzUwpPmSg69XYvEVoA:9 a=_Vgx9l1VpLgwpw_dHYaR:22
-X-Proofpoint-GUID: gXBsXexuyy7wFnviadMgKQfD74NSeNpD
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-06_05,2026-02-05_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 suspectscore=0 priorityscore=1501 impostorscore=0 bulkscore=0
- malwarescore=0 lowpriorityscore=0 clxscore=1015 spamscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602060129
+References: <20260206043600.780298-1-ssp.nesin@crpt.ru>
+In-Reply-To: <20260206043600.780298-1-ssp.nesin@crpt.ru>
+From: Michael Zaidman <michael.zaidman@gmail.com>
+Date: Sat, 7 Feb 2026 00:22:19 +0200
+X-Gm-Features: AZwV_QgUW3iQzGTC_GvYjyiXTbU55q5pLapaLZg-0KHr8z51pPrM3O7gG1JFJeQ
+Message-ID: <CAPnwWgMac8-k729=u6xs03KZ9EEgJeuojqOSE2srTxT8J9YnvA@mail.gmail.com>
+Subject: Re: [PATCH] HID: ft260: fix block size validation in SMBus transfers
+To: Rostislav Nesin <ssp.nesin@crpt.ru>
+Cc: Jiri Kosina <jikos@kernel.org>, Benjamin Tissoires <bentiss@kernel.org>, linux-i2c@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	lvc-project@linuxtesting.org, 
+	syzbot+64ca69977b37604cd6d9@syzkaller.appspotmail.com
+Content-Type: multipart/mixed; boundary="0000000000009f985f064a2f39b9"
 
-The Qualcomm automotive SA8255p SoC relies on firmware to configure
-platform resources, including clocks, interconnects and TLMM.
-The driver requests resources operations over SCMI using power
-and performance protocols.
+--0000000000009f985f064a2f39b9
+Content-Type: multipart/alternative; boundary="0000000000009f985c064a2f39b7"
 
-The SCMI power protocol enables or disables resources like clocks,
-interconnect paths, and TLMM (GPIOs) using runtime PM framework APIs,
-such as resume/suspend, to control power on/off.
+--0000000000009f985c064a2f39b7
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The SCMI performance protocol manages I2C frequency, with each
-frequency rate represented by a performance level. The driver uses
-geni_se_set_perf_opp() API to request the desired frequency rate..
+Hi Rostislav,
 
-As part of geni_se_set_perf_opp(), the OPP for the requested frequency
-is obtained using dev_pm_opp_find_freq_floor() and the performance
-level is set using dev_pm_opp_set_opp().
+Thank you for the patch and for reporting this.
 
-Acked-by: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
-Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
----
-v3->v4:
-- Added Acked-by tag.
+The bug is real: an unvalidated data->block[0] in the native SMBus
+path can cause OOB access, and your analysis is correct.
 
-V1->v2:
-From kernel test robot:
-- Initialized ret to "0" in resume/suspend callbacks.
+However, I'd prefer to fix this in the I2C core rather than in
+individual drivers. Here is why:
 
-Bjorn:
-- Used seperate APIs for the resouces enable/disable.
----
- drivers/i2c/busses/i2c-qcom-geni.c | 56 ++++++++++++++++++++++--------
- 1 file changed, 42 insertions(+), 14 deletions(-)
+drivers/i2c/i2c-core-smbus.c already validates block size in the
+emulated path (i2c_smbus_xfer_emulated): for I2C_SMBUS_BLOCK_DATA
+write, I2C_SMBUS_I2C_BLOCK_DATA, and I2C_SMBUS_BLOCK_PROC_CALL it
+rejects data->block[0] > I2C_SMBUS_BLOCK_MAX with -EINVAL. But when
+the adapter provides a native smbus_xfer, __i2c_smbus_xfer() calls
+it without any prior validation on data->block[0].
 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 9045187ad0b5..6b936c7552c9 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -80,6 +80,10 @@ enum geni_i2c_err_code {
- struct geni_i2c_desc {
- 	bool no_dma_support;
- 	unsigned int tx_fifo_depth;
-+	int (*resources_init)(struct geni_se *se);
-+	int (*set_rate)(struct geni_se *se, unsigned long freq);
-+	int (*power_on)(struct geni_se *se);
-+	int (*power_off)(struct geni_se *se);
- };
- 
- #define QCOM_I2C_MIN_NUM_OF_MSGS_MULTI_DESC	2
-@@ -201,8 +205,9 @@ static int geni_i2c_clk_map_idx(struct geni_i2c_dev *gi2c)
- 	return -EINVAL;
- }
- 
--static void qcom_geni_i2c_conf(struct geni_i2c_dev *gi2c)
-+static int qcom_geni_i2c_conf(struct geni_se *se, unsigned long freq)
- {
-+	struct geni_i2c_dev *gi2c = dev_get_drvdata(se->dev);
- 	const struct geni_i2c_clk_fld *itr = gi2c->clk_fld;
- 	u32 val;
- 
-@@ -215,6 +220,7 @@ static void qcom_geni_i2c_conf(struct geni_i2c_dev *gi2c)
- 	val |= itr->t_low_cnt << LOW_COUNTER_SHFT;
- 	val |= itr->t_cycle_cnt;
- 	writel_relaxed(val, gi2c->se.base + SE_I2C_SCL_COUNTERS);
-+	return 0;
- }
- 
- static void geni_i2c_err_misc(struct geni_i2c_dev *gi2c)
-@@ -906,7 +912,9 @@ static int geni_i2c_xfer(struct i2c_adapter *adap,
- 		return ret;
- 	}
- 
--	qcom_geni_i2c_conf(gi2c);
-+	ret = gi2c->dev_data->set_rate(&gi2c->se, gi2c->clk_freq_out);
-+	if (ret)
-+		return ret;
- 
- 	if (gi2c->gpi_mode)
- 		ret = geni_i2c_gpi_xfer(gi2c, msgs, num);
-@@ -1041,8 +1049,9 @@ static int geni_i2c_init(struct geni_i2c_dev *gi2c)
- 	return ret;
- }
- 
--static int geni_i2c_resources_init(struct geni_i2c_dev *gi2c)
-+static int geni_i2c_resources_init(struct geni_se *se)
- {
-+	struct geni_i2c_dev *gi2c = dev_get_drvdata(se->dev);
- 	int ret;
- 
- 	ret = geni_se_resources_init(&gi2c->se);
-@@ -1097,7 +1106,7 @@ static int geni_i2c_probe(struct platform_device *pdev)
- 	spin_lock_init(&gi2c->lock);
- 	platform_set_drvdata(pdev, gi2c);
- 
--	ret = geni_i2c_resources_init(gi2c);
-+	ret = gi2c->dev_data->resources_init(&gi2c->se);
- 	if (ret)
- 		return ret;
- 
-@@ -1156,15 +1165,17 @@ static void geni_i2c_shutdown(struct platform_device *pdev)
- 
- static int __maybe_unused geni_i2c_runtime_suspend(struct device *dev)
- {
--	int ret;
-+	int ret = 0;
- 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
- 
- 	disable_irq(gi2c->irq);
- 
--	ret = geni_se_resources_deactivate(&gi2c->se);
--	if (ret) {
--		enable_irq(gi2c->irq);
--		return ret;
-+	if (gi2c->dev_data->power_off) {
-+		ret = gi2c->dev_data->power_off(&gi2c->se);
-+		if (ret) {
-+			enable_irq(gi2c->irq);
-+			return ret;
-+		}
- 	}
- 
- 	gi2c->suspended = 1;
-@@ -1173,12 +1184,14 @@ static int __maybe_unused geni_i2c_runtime_suspend(struct device *dev)
- 
- static int __maybe_unused geni_i2c_runtime_resume(struct device *dev)
- {
--	int ret;
-+	int ret = 0;
- 	struct geni_i2c_dev *gi2c = dev_get_drvdata(dev);
- 
--	ret = geni_se_resources_activate(&gi2c->se);
--	if (ret)
--		return ret;
-+	if (gi2c->dev_data->power_on) {
-+		ret = gi2c->dev_data->power_on(&gi2c->se);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	enable_irq(gi2c->irq);
- 	gi2c->suspended = 0;
-@@ -1215,16 +1228,31 @@ static const struct dev_pm_ops geni_i2c_pm_ops = {
- 									NULL)
- };
- 
--static const struct geni_i2c_desc geni_i2c = {};
-+static const struct geni_i2c_desc geni_i2c = {
-+	.resources_init = geni_i2c_resources_init,
-+	.set_rate = qcom_geni_i2c_conf,
-+	.power_on = geni_se_resources_activate,
-+	.power_off = geni_se_resources_deactivate,
-+};
- 
- static const struct geni_i2c_desc i2c_master_hub = {
- 	.no_dma_support = true,
- 	.tx_fifo_depth = 16,
-+	.resources_init = geni_i2c_resources_init,
-+	.set_rate = qcom_geni_i2c_conf,
-+	.power_on = geni_se_resources_activate,
-+	.power_off = geni_se_resources_deactivate,
-+};
-+
-+static const struct geni_i2c_desc sa8255p_geni_i2c = {
-+	.resources_init = geni_se_domain_attach,
-+	.set_rate = geni_se_set_perf_opp,
- };
- 
- static const struct of_device_id geni_i2c_dt_match[] = {
- 	{ .compatible = "qcom,geni-i2c", .data = &geni_i2c },
- 	{ .compatible = "qcom,geni-i2c-master-hub", .data = &i2c_master_hub },
-+	{ .compatible = "qcom,sa8255p-geni-i2c", .data = &sa8255p_geni_i2c },
- 	{}
- };
- MODULE_DEVICE_TABLE(of, geni_i2c_dt_match);
--- 
-2.34.1
+This means every native SMBus adapter is exposed. For example,
+hid-mcp2221 has the exact same class of bug -- it uses data->block[0]
+in the block paths without any upper-bound check. hid-cp2112 happens
+to have a driver-level guard, but relying on each driver to do this
+independently is fragile.
 
+Fixing it once in __i2c_smbus_xfer() protects all native SMBus
+adapters and aligns the native path with the emulated path's contract.
+
+Also note that the correct bound is data->block[0] > I2C_SMBUS_BLOCK_MAX
+(i.e. > 32), consistent with the UAPI definition of union i2c_smbus_data
+and the emulated path checks. The + 1 in the submitted patch would allow
+33, which is already out of spec per the SMBus standard.
+
+Could you please respin the patch against drivers/i2c/i2c-core-smbus.c
+instead? Something like in the attached .diff file, added in
+__i2c_smbus_xfer() right
+after flags &=3D ... and before xfer_func =3D adapter->algo->smbus_xfer
+
+You can keep the same Reported-by, Closes, and Fixes tags. Once this
+core patch is in, we won't need separate driver-level checks in
+hid-ft260 (or hid-mcp2221).
+
+Thanks,
+Michael
+
+
+On Fri, Feb 6, 2026 at 6:36=E2=80=AFAM Rostislav Nesin <ssp.nesin@crpt.ru> =
+wrote:
+
+> In ft260_smbus_xfer(), data->block[0] specifies the data length for
+> block transfers. Without proper validation, a caller can set block[0]
+> to a value larger than I2C_SMBUS_BLOCK_MAX (32), causing out-of-bounds
+> access in both ft260_smbus_write() and ft260_i2c_read(). This
+> triggered the out-of-bounds access reported by syzbot.
+>
+> BUG: KASAN: stack-out-of-bounds in ft260_smbus_write+0x19b/0x2f0
+> drivers/hid/hid-ft260.c:486
+> Read of size 42 at addr ffffc90003427d81 by task syz.2.65/6119
+>
+> CPU: 0 UID: 0 PID: 6119 Comm: syz.2.65 Not tainted syzkaller #0
+> PREEMPT(full)
+> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+> Google 10/25/2025
+> Call Trace:
+>  <TASK>
+>  __dump_stack lib/dump_stack.c:94 [inline]
+>  dump_stack_lvl+0x116/0x1f0 lib/dump_stack.c:120
+>  print_address_description mm/kasan/report.c:378 [inline]
+>  print_report+0xcd/0x630 mm/kasan/report.c:482
+>  kasan_report+0xe0/0x110 mm/kasan/report.c:595
+>  check_region_inline mm/kasan/generic.c:194 [inline]
+>  kasan_check_range+0x100/0x1b0 mm/kasan/generic.c:200
+>  __asan_memcpy+0x23/0x60 mm/kasan/shadow.c:105
+>  ft260_smbus_write+0x19b/0x2f0 drivers/hid/hid-ft260.c:486
+>  ft260_smbus_xfer+0x22c/0x640 drivers/hid/hid-ft260.c:736
+>  __i2c_smbus_xfer drivers/i2c/i2c-core-smbus.c:591 [inline]
+>  __i2c_smbus_xfer+0x4f0/0xf60 drivers/i2c/i2c-core-smbus.c:554
+>  i2c_smbus_xfer drivers/i2c/i2c-core-smbus.c:546 [inline]
+>  i2c_smbus_xfer+0x200/0x3c0 drivers/i2c/i2c-core-smbus.c:536
+>  i2cdev_ioctl_smbus+0x237/0x990 drivers/i2c/i2c-dev.c:389
+>  i2cdev_ioctl+0x361/0x840 drivers/i2c/i2c-dev.c:478
+>  vfs_ioctl fs/ioctl.c:51 [inline]
+>  __do_sys_ioctl fs/ioctl.c:597 [inline]
+>  __se_sys_ioctl fs/ioctl.c:583 [inline]
+>  __x64_sys_ioctl+0x18e/0x210 fs/ioctl.c:583
+>  do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+>  do_syscall_64+0xcd/0xf80 arch/x86/entry/syscall_64.c:94
+>  entry_SYSCALL_64_after_hwframe+0x77/0x7f
+>  </TASK>
+>
+> Add validation for data->block[0] > I2C_SMBUS_BLOCK_MAX + 1 at the
+> start of I2C_SMBUS_BLOCK_DATA and I2C_SMBUS_I2C_BLOCK_DATA cases to
+> protect both read and write paths.
+>
+> Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+>
+> Reported-by: syzbot+64ca69977b37604cd6d9@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?extid=3D64ca69977b37604cd6d9
+> Fixes: 6a82582d9fa4 ("HID: ft260: add usb hid to i2c host bridge driver")
+> Signed-off-by: Rostislav Nesin <ssp.nesin@crpt.ru>
+> ---
+>  drivers/hid/hid-ft260.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+>
+> diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+> index 79505c64dbfe..7bd858e40826 100644
+> --- a/drivers/hid/hid-ft260.c
+> +++ b/drivers/hid/hid-ft260.c
+> @@ -659,6 +659,10 @@ static int ft260_smbus_xfer(struct i2c_adapter
+> *adapter, u16 addr, u16 flags,
+>                 }
+>                 break;
+>         case I2C_SMBUS_BLOCK_DATA:
+> +               if (data->block[0] > I2C_SMBUS_BLOCK_MAX + 1) {
+> +                       ret =3D -EINVAL;
+> +                       goto smbus_exit;
+> +               }
+>                 if (read_write =3D=3D I2C_SMBUS_READ) {
+>                         ret =3D ft260_smbus_write(dev, addr, cmd, NULL, 0=
+,
+>                                                 FT260_FLAG_START);
+> @@ -675,6 +679,10 @@ static int ft260_smbus_xfer(struct i2c_adapter
+> *adapter, u16 addr, u16 flags,
+>                 }
+>                 break;
+>         case I2C_SMBUS_I2C_BLOCK_DATA:
+> +               if (data->block[0] > I2C_SMBUS_BLOCK_MAX + 1) {
+> +                       ret =3D -EINVAL;
+> +                       goto smbus_exit;
+> +               }
+>                 if (read_write =3D=3D I2C_SMBUS_READ) {
+>                         ret =3D ft260_smbus_write(dev, addr, cmd, NULL, 0=
+,
+>                                                 FT260_FLAG_START);
+> --
+> 2.34.1
+>
+
+--0000000000009f985c064a2f39b7
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+<div dir=3D"ltr">Hi Rostislav,<br><br>Thank you for the patch and for repor=
+ting this.<br><br>The bug is real: an unvalidated data-&gt;block[0] in the =
+native SMBus<br>path can cause OOB access, and your analysis is correct.<br=
+><br>However, I&#39;d prefer to fix this in the I2C core rather than in<br>=
+individual drivers. Here is why:<br><br>drivers/i2c/i2c-core-smbus.c alread=
+y validates block size in the<br>emulated path (i2c_smbus_xfer_emulated): f=
+or I2C_SMBUS_BLOCK_DATA<br>write, I2C_SMBUS_I2C_BLOCK_DATA, and I2C_SMBUS_B=
+LOCK_PROC_CALL it<br>rejects data-&gt;block[0] &gt; I2C_SMBUS_BLOCK_MAX wit=
+h -EINVAL. But when<br>the adapter provides a native smbus_xfer, __i2c_smbu=
+s_xfer() calls<br>it without any prior validation on data-&gt;block[0].<br>=
+<br>This means every native SMBus adapter is exposed. For example,<br>hid-m=
+cp2221 has the exact same class of bug -- it uses data-&gt;block[0]<br>in t=
+he block paths without any upper-bound check. hid-cp2112 happens<br>to have=
+ a driver-level guard, but relying on each driver to do this<br>independent=
+ly is fragile.<br><br>Fixing it once in __i2c_smbus_xfer() protects all nat=
+ive SMBus<br>adapters and aligns the native path with the emulated path&#39=
+;s contract.<br><br>Also note that the correct bound is data-&gt;block[0] &=
+gt; I2C_SMBUS_BLOCK_MAX<br>(i.e. &gt; 32), consistent with the UAPI definit=
+ion of union i2c_smbus_data<br>and the emulated path checks. The + 1 in the=
+ submitted patch would allow<br>33, which is already out of spec per the SM=
+Bus standard.<br><br>Could you please respin the patch against drivers/i2c/=
+i2c-core-smbus.c<br>instead? Something like in the attached .diff file, add=
+ed in __i2c_smbus_xfer() right<br>after flags &amp;=3D ... and before xfer_=
+func =3D adapter-&gt;algo-&gt;smbus_xfer<div><br>You can keep the same Repo=
+rted-by, Closes, and Fixes tags. Once this<br>core patch is in, we won&#39;=
+t need separate driver-level checks in<br>hid-ft260 (or hid-mcp2221).<br><b=
+r>Thanks,<br>Michael</div></div><br><br><div class=3D"gmail_quote gmail_quo=
+te_container"><div dir=3D"ltr" class=3D"gmail_attr">On Fri, Feb 6, 2026 at =
+6:36=E2=80=AFAM Rostislav Nesin &lt;<a href=3D"mailto:ssp.nesin@crpt.ru">ss=
+p.nesin@crpt.ru</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" s=
+tyle=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);pad=
+ding-left:1ex">In ft260_smbus_xfer(), data-&gt;block[0] specifies the data =
+length for<br>
+block transfers. Without proper validation, a caller can set block[0]<br>
+to a value larger than I2C_SMBUS_BLOCK_MAX (32), causing out-of-bounds<br>
+access in both ft260_smbus_write() and ft260_i2c_read(). This<br>
+triggered the out-of-bounds access reported by syzbot.<br>
+<br>
+BUG: KASAN: stack-out-of-bounds in ft260_smbus_write+0x19b/0x2f0 drivers/hi=
+d/hid-ft260.c:486<br>
+Read of size 42 at addr ffffc90003427d81 by task syz.2.65/6119<br>
+<br>
+CPU: 0 UID: 0 PID: 6119 Comm: syz.2.65 Not tainted syzkaller #0 PREEMPT(ful=
+l) <br>
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Goo=
+gle 10/25/2025<br>
+Call Trace:<br>
+=C2=A0&lt;TASK&gt;<br>
+=C2=A0__dump_stack lib/dump_stack.c:94 [inline]<br>
+=C2=A0dump_stack_lvl+0x116/0x1f0 lib/dump_stack.c:120<br>
+=C2=A0print_address_description mm/kasan/report.c:378 [inline]<br>
+=C2=A0print_report+0xcd/0x630 mm/kasan/report.c:482<br>
+=C2=A0kasan_report+0xe0/0x110 mm/kasan/report.c:595<br>
+=C2=A0check_region_inline mm/kasan/generic.c:194 [inline]<br>
+=C2=A0kasan_check_range+0x100/0x1b0 mm/kasan/generic.c:200<br>
+=C2=A0__asan_memcpy+0x23/0x60 mm/kasan/shadow.c:105<br>
+=C2=A0ft260_smbus_write+0x19b/0x2f0 drivers/hid/hid-ft260.c:486<br>
+=C2=A0ft260_smbus_xfer+0x22c/0x640 drivers/hid/hid-ft260.c:736<br>
+=C2=A0__i2c_smbus_xfer drivers/i2c/i2c-core-smbus.c:591 [inline]<br>
+=C2=A0__i2c_smbus_xfer+0x4f0/0xf60 drivers/i2c/i2c-core-smbus.c:554<br>
+=C2=A0i2c_smbus_xfer drivers/i2c/i2c-core-smbus.c:546 [inline]<br>
+=C2=A0i2c_smbus_xfer+0x200/0x3c0 drivers/i2c/i2c-core-smbus.c:536<br>
+=C2=A0i2cdev_ioctl_smbus+0x237/0x990 drivers/i2c/i2c-dev.c:389<br>
+=C2=A0i2cdev_ioctl+0x361/0x840 drivers/i2c/i2c-dev.c:478<br>
+=C2=A0vfs_ioctl fs/ioctl.c:51 [inline]<br>
+=C2=A0__do_sys_ioctl fs/ioctl.c:597 [inline]<br>
+=C2=A0__se_sys_ioctl fs/ioctl.c:583 [inline]<br>
+=C2=A0__x64_sys_ioctl+0x18e/0x210 fs/ioctl.c:583<br>
+=C2=A0do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]<br>
+=C2=A0do_syscall_64+0xcd/0xf80 arch/x86/entry/syscall_64.c:94<br>
+=C2=A0entry_SYSCALL_64_after_hwframe+0x77/0x7f<br>
+=C2=A0&lt;/TASK&gt;<br>
+<br>
+Add validation for data-&gt;block[0] &gt; I2C_SMBUS_BLOCK_MAX + 1 at the<br=
+>
+start of I2C_SMBUS_BLOCK_DATA and I2C_SMBUS_I2C_BLOCK_DATA cases to<br>
+protect both read and write paths.<br>
+<br>
+Found by Linux Verification Center (<a href=3D"http://linuxtesting.org" rel=
+=3D"noreferrer" target=3D"_blank">linuxtesting.org</a>) with Syzkaller.<br>
+<br>
+Reported-by: <a href=3D"mailto:syzbot%2B64ca69977b37604cd6d9@syzkaller.apps=
+potmail.com" target=3D"_blank">syzbot+64ca69977b37604cd6d9@syzkaller.appspo=
+tmail.com</a><br>
+Closes: <a href=3D"https://syzkaller.appspot.com/bug?extid=3D64ca69977b3760=
+4cd6d9" rel=3D"noreferrer" target=3D"_blank">https://syzkaller.appspot.com/=
+bug?extid=3D64ca69977b37604cd6d9</a><br>
+Fixes: 6a82582d9fa4 (&quot;HID: ft260: add usb hid to i2c host bridge drive=
+r&quot;)<br>
+Signed-off-by: Rostislav Nesin &lt;<a href=3D"mailto:ssp.nesin@crpt.ru" tar=
+get=3D"_blank">ssp.nesin@crpt.ru</a>&gt;<br>
+---<br>
+=C2=A0drivers/hid/hid-ft260.c | 8 ++++++++<br>
+=C2=A01 file changed, 8 insertions(+)<br>
+<br>
+diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c<br>
+index 79505c64dbfe..7bd858e40826 100644<br>
+--- a/drivers/hid/hid-ft260.c<br>
++++ b/drivers/hid/hid-ft260.c<br>
+@@ -659,6 +659,10 @@ static int ft260_smbus_xfer(struct i2c_adapter *adapte=
+r, u16 addr, u16 flags,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 break;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 case I2C_SMBUS_BLOCK_DATA:<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (data-&gt;block[=
+0] &gt; I2C_SMBUS_BLOCK_MAX + 1) {<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0ret =3D -EINVAL;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0goto smbus_exit;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (read_write =3D=
+=3D I2C_SMBUS_READ) {<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 ret =3D ft260_smbus_write(dev, addr, cmd, NULL, 0,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 FT260_FLAG_START);<br>
+@@ -675,6 +679,10 @@ static int ft260_smbus_xfer(struct i2c_adapter *adapte=
+r, u16 addr, u16 flags,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 }<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 break;<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 case I2C_SMBUS_I2C_BLOCK_DATA:<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0if (data-&gt;block[=
+0] &gt; I2C_SMBUS_BLOCK_MAX + 1) {<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0ret =3D -EINVAL;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0goto smbus_exit;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0}<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 if (read_write =3D=
+=3D I2C_SMBUS_READ) {<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 ret =3D ft260_smbus_write(dev, addr, cmd, NULL, 0,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =
+=C2=A0 =C2=A0 =C2=A0 FT260_FLAG_START);<br>
+-- <br>
+2.34.1<br>
+</blockquote></div>
+
+--0000000000009f985c064a2f39b7--
+--0000000000009f985f064a2f39b9
+Content-Type: application/octet-stream; 
+	name="i2c-core-smbus-validate-block-size.diff"
+Content-Disposition: attachment; 
+	filename="i2c-core-smbus-validate-block-size.diff"
+Content-Transfer-Encoding: base64
+Content-ID: <f_mlbg5wfp0>
+X-Attachment-Id: f_mlbg5wfp0
+
+LS0tCiBkcml2ZXJzL2kyYy9pMmMtY29yZS1zbWJ1cy5jIHwgMjkgKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysKIDEgZmlsZSBjaGFuZ2VkLCAyOSBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0
+IGEvZHJpdmVycy9pMmMvaTJjLWNvcmUtc21idXMuYyBiL2RyaXZlcnMvaTJjL2kyYy1jb3JlLXNt
+YnVzLmMKLS0tIGEvZHJpdmVycy9pMmMvaTJjLWNvcmUtc21idXMuYworKysgYi9kcml2ZXJzL2ky
+Yy9pMmMtY29yZS1zbWJ1cy5jCkBAIC01NzYsNiArNTc2LDM1IEBAIHMzMiBfX2kyY19zbWJ1c194
+ZmVyKHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcHRlciwgdTE2IGFkZHIsCiAKIAlmbGFncyAmPSBJ
+MkNfTV9URU4gfCBJMkNfQ0xJRU5UX1BFQyB8IEkyQ19DTElFTlRfU0NDQjsKIAorCS8qCisJICog
+VmFsaWRhdGUgYmxvY2sgdHJhbnNmZXIgc2l6ZXMgc28gdGhhdCBhZGFwdGVycyB0aGF0IGltcGxl
+bWVudAorCSAqIG5hdGl2ZSBzbWJ1c194ZmVyIHNlZSB0aGUgc2FtZSBjb250cmFjdCBhcyB0aGUg
+ZW11bGF0ZWQgcGF0aC4KKwkgKi8KKwlpZiAoZGF0YSkgeworCQlzd2l0Y2ggKHByb3RvY29sKSB7
+CisJCWNhc2UgSTJDX1NNQlVTX0JMT0NLX0RBVEE6CisJCWNhc2UgSTJDX1NNQlVTX0kyQ19CTE9D
+S19EQVRBOgorCQkJaWYgKGRhdGEtPmJsb2NrWzBdID4gSTJDX1NNQlVTX0JMT0NLX01BWCkgewor
+CQkJCWRldl9lcnIoJmFkYXB0ZXItPmRldiwKKwkJCQkJIkludmFsaWQgYmxvY2sgc2l6ZSAlZCAo
+bWF4ICVkKVxuIiwKKwkJCQkJZGF0YS0+YmxvY2tbMF0sIEkyQ19TTUJVU19CTE9DS19NQVgpOwor
+CQkJCXJldHVybiAtRUlOVkFMOworCQkJfQorCQkJYnJlYWs7CisJCWNhc2UgSTJDX1NNQlVTX0JM
+T0NLX1BST0NfQ0FMTDoKKwkJCWlmIChyZWFkX3dyaXRlID09IEkyQ19TTUJVU19XUklURSAmJgor
+CQkJICAgIGRhdGEtPmJsb2NrWzBdID4gSTJDX1NNQlVTX0JMT0NLX01BWCkgeworCQkJCWRldl9l
+cnIoJmFkYXB0ZXItPmRldiwKKwkJCQkJIkludmFsaWQgYmxvY2sgd3JpdGUgc2l6ZSAlZCAobWF4
+ICVkKVxuIiwKKwkJCQkJZGF0YS0+YmxvY2tbMF0sIEkyQ19TTUJVU19CTE9DS19NQVgpOworCQkJ
+CXJldHVybiAtRUlOVkFMOworCQkJfQorCQkJYnJlYWs7CisJCWRlZmF1bHQ6CisJCQlicmVhazsK
+KwkJfQorCX0KKwogCXhmZXJfZnVuYyA9IGFkYXB0ZXItPmFsZ28tPnNtYnVzX3hmZXI7CiAJaWYg
+KGkyY19pbl9hdG9taWNfeGZlcl9tb2RlKCkpIHsKIAkJaWYgKGFkYXB0ZXItPmFsZ28tPnNtYnVz
+X3hmZXJfYXRvbWljKQo=
+--0000000000009f985f064a2f39b9--
