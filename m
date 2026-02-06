@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C57F327C1D;
-	Fri,  6 Feb 2026 16:37:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87230314B94;
+	Fri,  6 Feb 2026 16:39:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770395862; cv=none; b=hsRQESdNxdPwx04idpFiLA1326+xyjZlhSOEGD1PI2BWOSeScBAHWWymR8N6P2TJAEJePX95vCdqrjdNaXcm8jkvtVR10iWqq1fqkjgF3hUCPIMuID6MOu6J8193Xc6MwRKRwxeXZQXeENBIkULAe4skowt8z5ocku7r5DXqNp8=
+	t=1770395985; cv=none; b=t566xA4BAJHIBIHxBgzN2drDogrYRc11cCtjJmUE3eI3W67Uk4/LZkfC5r9iTwuV+k9lLtYOMSPiccCaNN7IeyV3va1ECa8LgilAh+5Fx21Gt8xj6CrmQ8N6In6h3MkQKvkxrLOCroIDfmiLkqJm9c4ZMuk9rUwg/ZYpzTLcW2E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770395862; c=relaxed/simple;
-	bh=hQxzl+VJLXxD+xMjUyp7XH7zGWD53PYvI1MxQsDUrj4=;
+	s=arc-20240116; t=1770395985; c=relaxed/simple;
+	bh=7syuwNXdSVR4Ve65sRTX3ZIgMyR5B8X1JRDHZX9yUMg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RQHvnT4kgbHGdQ/Ci4oDM0n6bBTSEaURh+muuBby35sTQfdpjcMQMceLz+cty7+OLNk1PI4Nu4Jr3ztlg8h9iID1ZQZXYARCqBRNeJnbFGJa4ivrJ8VeMHfHtnDp+cMhEezw3i1obLoYu0uvliAl6eEjriPL/sTid6dTel8MZ1o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QkHGDLHN; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=FthCjCeMsWeDsYhV0CWwCFw8Y54JYEDmVp06OAcuM9dpyo7cYQvmjx2koRkdinLxQujIz64Mi0s2U7cgriEIrZaUuMDuW+n9rLXpXlfIn6PQbqKW7vcbu2O6cKj922w0fPlZ9li+xNn5PhKmh05acrnieaPXf+WN1i2z3lbJjaA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W3D4XoT4; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QkHGDLHN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57B15C116C6;
-	Fri,  6 Feb 2026 16:37:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W3D4XoT4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEF9AC116C6;
+	Fri,  6 Feb 2026 16:39:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770395861;
-	bh=hQxzl+VJLXxD+xMjUyp7XH7zGWD53PYvI1MxQsDUrj4=;
+	s=k20201202; t=1770395985;
+	bh=7syuwNXdSVR4Ve65sRTX3ZIgMyR5B8X1JRDHZX9yUMg=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=QkHGDLHN3HnHXhDxXg132+808SmK7wjqC39H9lUjAOkJPSncgcf3/xZwUl6tT99VN
-	 LNkyJDlvuCxJY717FJB5RwXQJsRErJSVoRYuGveGR7tWSf9TLb1iCZKLOOeZmQ3e0J
-	 bD0v2t2y/XpdrtgrcpVILsm6YPXHBJ/QMuqeze7e+2XwJRyY5QkSxxnmbWJYMqvWW/
-	 LXP8G/rtxFbNjwbMks1zc/meNP1WYAu6eQWbM8fcpZj1ymiwG7OwKLLOhWpwKwetLR
-	 Mi68T3GTglWGmS+HIkld/mLDaw2lNCxZo3Kg+Vjzb3ZURMpUJDOJly1CdNeAsqY9Gq
-	 CCQJL122lXI3Q==
-Message-ID: <1591d0a9-d5c6-4043-a156-98954bb5b1e6@kernel.org>
-Date: Fri, 6 Feb 2026 17:37:35 +0100
+	b=W3D4XoT4M+nzs/FnoLQ8dPxkCDuyt8OdqSz3BWlBhGRFPlL5y/XZ02B//xXpHtyor
+	 8lm9NZHz4VO1EFvnp8AIlwO67KvxRqdh0JcMTRF4S04m2spQr+uVnLcUYBvUD7dcvS
+	 rJCpiFZKcKFh9ST5tu/31svO3x7W4Z2SUqirkACu3y2O+gKFtiLQVIgIySV9BxPvPR
+	 /G0PwCy051RKUTN+y9M7JvEdQBxebyfl6zYk9xs2BzVn+iRTgZRVotEWfvzB4dLyvY
+	 wr4INPYXJy0pd1fF7We4NyM9lrPZuTCXo3p4ah5Vedr53IS8MM1HqG8xQu1n+IRxSa
+	 uuKP6II03Zkcw==
+Message-ID: <32c4d3c3-6cbc-42cc-8c6e-7f1d0d35cc2c@kernel.org>
+Date: Fri, 6 Feb 2026 17:39:39 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -35,7 +35,8 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v9 2/5] arm64: dts: qcom: monaco: Add CCI definitions
+Subject: Re: [PATCH v9 5/5] arm64: dts: qcom: monaco-evk-camera: Add DT
+ overlay
 To: Nihal Kumar Gupta <quic_nihalkum@quicinc.com>,
  bryan.odonoghue@linaro.org, robh@kernel.org, krzk+dt@kernel.org,
  conor+dt@kernel.org, andersson@kernel.org, konradybcio@kernel.org,
@@ -49,7 +50,7 @@ Cc: quic_svankada@quicinc.com, linux-media@vger.kernel.org,
  Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
  Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 References: <20260121183142.1867199-1-quic_nihalkum@quicinc.com>
- <20260121183142.1867199-3-quic_nihalkum@quicinc.com>
+ <20260121183142.1867199-6-quic_nihalkum@quicinc.com>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -95,25 +96,50 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
  zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
  XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <20260121183142.1867199-3-quic_nihalkum@quicinc.com>
+In-Reply-To: <20260121183142.1867199-6-quic_nihalkum@quicinc.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 21/01/2026 19:31, Nihal Kumar Gupta wrote:
-> Qualcomm QCS8300 SoC contains three Camera Control Interface (CCI).
-> Compared to Lemans, the key difference is in SDA/SCL GPIO assignments
-> and number of CCIs.
+> Monaco EVK board does not include a camera sensor in its default hardware
+> configuration. Introducing a device tree overlay to support optional
+> integration of the IMX577 sensor via CSIPHY1.
+> 
+> Camera reset is handled through an I2C expander, and power is enabled
+> via TLMM GPIO74.
+> 
+> An example media-ctl pipeline for the imx577 is:
+> 
+> media-ctl --reset
+> media-ctl -V '"imx577 3-001a":0[fmt:SRGGB10/4056x3040 field:none]'
+> media-ctl -V '"msm_csiphy1":0[fmt:SRGGB10/4056x3040]'
+> media-ctl -V '"msm_csid0":0[fmt:SRGGB10/4056x3040]'
+> media-ctl -V '"msm_vfe0_rdi0":0[fmt:SRGGB10/4056x3040]'
+> media-ctl -l '"msm_csiphy1":1->"msm_csid0":0[1]'
+> media-ctl -l '"msm_csid0":1->"msm_vfe0_rdi0":0[1]'
+> yavta -B capture-mplane -c -I -n 5 -f SRGGB10P -s 4056x3040 -F /dev/video1
 > 
 > Signed-off-by: Nihal Kumar Gupta <quic_nihalkum@quicinc.com>
 > Co-developed-by: Ravi Shankar <quic_rshankar@quicinc.com>
 > Signed-off-by: Ravi Shankar <quic_rshankar@quicinc.com>
 > Co-developed-by: Vishal Verma <quic_vishverm@quicinc.com>
 > Signed-off-by: Vishal Verma <quic_vishverm@quicinc.com>
-> Co-developed-by: Suresh Vankadara <quic_svankada@quicinc.com>
-> Signed-off-by: Suresh Vankadara <quic_svankada@quicinc.com>
 > Signed-off-by: Vikram Sharma <quic_vikramsa@quicinc.com>
+> Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+> Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+> Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+> ---
+>  arch/arm64/boot/dts/qcom/Makefile             |  4 ++
+>  .../dts/qcom/monaco-evk-camera-imx577.dtso    | 66 +++++++++++++++++++
+>  2 files changed, 70 insertions(+)
 
-Wrong DCO chain. And above looks like total mess...
+
+So many people developed it, three people reviewed it, patch is at v9 and...
+
+still was not build-tested by the author. At this point this is big
+surprise.
+
+NAK
 
 Best regards,
 Krzysztof
