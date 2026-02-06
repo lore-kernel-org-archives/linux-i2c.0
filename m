@@ -1,132 +1,179 @@
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C19672EE5FC
-	for <linux-i2c@vger.kernel.org>; Fri,  6 Feb 2026 10:28:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33C2C322A13
+	for <linux-i2c@vger.kernel.org>; Fri,  6 Feb 2026 16:15:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770373691; cv=none; b=g31rIJwTiZQOTjZjcj4TE3W1KItDQJ91XqNVvZ4D0AE94fYa3Pdq9R3D0vdhu7GHTYhGUjStds+IPCqokuXAX4okaPnaIGnf9A7y5rAD6uo7SvaWy8x9lhPx5FCyEpN+8sfgq4umDP17dsRhUxW+TesgPtNfAvA1qT6FW4mmPMA=
+	t=1770394517; cv=none; b=Wg/Suz+xqYW7Fs6trEcT+6i1vFab1CLv6PWTpXc0/rop5cGfhMCQjdSaT3X6+GNCR3teaMjzW5sxJWM/a+qdicPp2g6g+ZNwsTrM7Nfjn59pU0fMlKAGKRXwCwS/FwQohdhQWVGv33fYIq87trPoV1gKAs4858Kdwpt9d0qALBs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770373691; c=relaxed/simple;
-	bh=MGzU5XV9oidAi7TVfG3Lywdby56GcQhKhZjDkTR9Nnk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=puAIa+7mz1ZGyuijNPagDR4wsmpUWcDmzxMTFMCKVNgvmyhjDqeYph9XppLsdwFdCXVhfJsyNU8hdivBDYGoHrSaSQ1Oi1PPFVSRVyz86jNAI07pNESCh0r4eIn3yuiVpnpUtwnP6irP9Bsr+o7h7NDJIHIhziFqAeA7KBV7sB4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cRG/guzL; arc=none smtp.client-ip=209.85.128.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1770394517; c=relaxed/simple;
+	bh=PgHh9sO6g1i1ICu0i5WHmFr2GjxMXiWnxdDbOdqYd2M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=duh+dmABKnWDJHCnJcDpUaz71JMsEvZnkNjC7JWN4T0hqFGI9MXt6ztxcH53dsCRuAsu04dHmKG0/lhd+dzMGUAM2He8Dc9M5SRx7JkvmyWziwK96KYoHab6BPmsm8enu2jn04oG5mNGsbqF9zgvw9lR1GxUXGnnGQ40em5e95Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=y+/mUjRz; arc=none smtp.client-ip=209.85.167.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cRG/guzL"
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4806d23e9f1so22282145e9.2
-        for <linux-i2c@vger.kernel.org>; Fri, 06 Feb 2026 02:28:10 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="y+/mUjRz"
+Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-59de45b5580so237093e87.3
+        for <linux-i2c@vger.kernel.org>; Fri, 06 Feb 2026 08:15:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770373689; x=1770978489; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=1znmvJRZinh0UjxXVnbV8XU237BL4In8MXKnqCzTiis=;
-        b=cRG/guzLCvhrYnEdDGTwevhiQ/cwTE1LcIBoz71CtdDrX8xt3lEPRcjjL82M9Diwv0
-         Bn7Wvr7R3OMYbrluamnJEmXm+g9kW7SC77cdAAJcATOZIJpY8X/mZ1bdF/XOIWKn7Buj
-         xYRUrXaL8WIBWvoQZDqoVOAmsgpLtDRk6xrqoKORKZO6ywPeqjGBrvRiReLKJU2F22qC
-         DNP/cq0dP5Mn3LFlFBrzcn+yDfLI3+diky+ISCY13gCa8x9zhL7+nUT8kG0uFISkTvEr
-         3FzJAiZxI8PFiD+3D9R1VurO/UK/gddQQ2D5r5Us1KWt0CJq137mxT/gn85h1t4jEy8n
-         znUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770373689; x=1770978489;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=linaro.org; s=google; t=1770394515; x=1770999315; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
+         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=1znmvJRZinh0UjxXVnbV8XU237BL4In8MXKnqCzTiis=;
-        b=a6lA8njDiKFd5Usdu0jbSonmle6qikq8aFdcRELx8Gj9NXVbYX32zeBlvNeC23csD5
-         T+n+hYYR3tXU2dK4iCGwYEVIa/rtdQLZc52jyfWaWjL/IPtFXve8CE+xz5XA9n6t7DFQ
-         RvjrcWAhBT1BWYP0dac1/V8g5JPwv/BbAuPD/NSpqIMf2Eh3cqxpw6tRcyhWU9w3pmq0
-         0q32ODxk5v5qWDUOElIs9/hpmIzMQfPSiDHcfDA5UJZHo1YxSywWpec9o3oZb8LWk8VA
-         x/TUUd/YIMWlE1Xkwa7gyq79Y/aqz2w6JR9KGTcHiE6qxNRqEIIN+gdG8Jd/slp91NjL
-         VTJg==
-X-Forwarded-Encrypted: i=1; AJvYcCUFA1WcMNFrsDL/WOM5EXrchl5QvBL3w2xkFr9nnxhFes1rMgn3ybrYd0k7MIfZQoTZHR0sZz5+mbU=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyOO40qO/8IX4BNUeD98GS61K59fBmvllRxe5zW76CrskGIt+YJ
-	4Hsfl6RWQTh4MB3fILva0EZpO7kCAJPgqA/FyEYoTmR2GVdSRR6Yvila
-X-Gm-Gg: AZuq6aKEi6XQc2w3eqMQU2Bh5TNs/2BQGNOYiFLbF7dxYieMb4xaB0NhNjxHunBYFgn
-	DpKqagREidseLmu5sdZyMsqZXZ1zT8WSUH9ZS/w2l8LHVvv8UBUVDRJ6BN8TOv+i6dJm8qy4Xbj
-	XRHJ9FbhXhqiiIwQEp30Dw7YVDhd3uBv2gaqQ0NVTwn1QHa+CcOafUwwWOerYNuRCnUR3fEleb6
-	KEfXWowLYJLQuxfLuxnGmzUqvyGEtKHewJ7R01r4tTVk8EK2Aisj71sreGy0J1kwBWXQrhT4aCx
-	oJKwgHG/tJlkxQxpcfNvL/frPeTw2e4JqjjT5Qjk8T5G5VvBi7CaOputKkn0fr8Synn+GUdtzwd
-	w6ddGQ1q050vyk94JnZAdFJBGhl70K2axbFDX1gJEqJJW/yhb+01K2xSLcnjiXGcOaSb4vN99Y2
-	FUGUS+FgSJLW1GC+SFFo6drCqEoMsvFSCLxW6VSY4lUXVjPdc=
-X-Received: by 2002:a05:600c:548d:b0:480:7162:fa48 with SMTP id 5b1f17b1804b1-483201ecd90mr35232785e9.13.1770373688883;
-        Fri, 06 Feb 2026 02:28:08 -0800 (PST)
-Received: from localhost.localdomain ([196.189.144.157])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48317d299bfsm108677295e9.2.2026.02.06.02.28.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 06 Feb 2026 02:28:08 -0800 (PST)
-From: Tinsae Tadesse <tinsaetadesse2015@gmail.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Jean Delvare <jdelvare@suse.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Guenter Roeck <linux@roeck-us.net>
-Cc: Tinsae Tadesse <tinsaetadesse2015@gmail.com>,
-	linux-i2c@vger.kernel.org,
-	linux-hwmon@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 2/2] hwmon: spd5118: Fail probe if SPD writes are disabled
-Date: Fri,  6 Feb 2026 13:26:59 +0300
-Message-ID: <20260206102758.14626-1-tinsaetadesse2015@gmail.com>
-X-Mailer: git-send-email 2.52.0
+        bh=j7YltPymBDZDAXQzrrunk/e6Y1HtLsHo+KDRbCcly/E=;
+        b=y+/mUjRzihDm2JixE9p6rIb3fSOUWLS8I9ZP1yfw4volOB7qr/iIg9DcfjpoqVrOOY
+         l493LZzuOq30hGV4lZOTWgXvcSpaDjJq3yKBxzUwu86qPouYsVX1x+CbLaYeAnJ/fvT1
+         n7IbLT7s6zSuRFCcScHtVOsMXsVu83M0H6vgNqmloSVPN1UpptdM+A3mLN1z3pv8LvMT
+         7j8rjkw9ECOuHjZaM1FofiNDVgf2iYNs8+pxbs1/9tw3GT6o2b9VKgnKYZChOzbYF97b
+         Pgg3glu5WIT8xCepjlfJPom5TXcldwixBbcWs2YWa6axr8H6EYd4nkTilWBSep+ph0NZ
+         eDng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770394515; x=1770999315;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
+         :user-agent:mime-version:date:message-id:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=j7YltPymBDZDAXQzrrunk/e6Y1HtLsHo+KDRbCcly/E=;
+        b=f/9m2DvamEh2gARUZ8l9a4t1dp/JmDfuOv6kEL2XIxEod1v3oep9EjM3ScZ+qo4yXG
+         7EbEEEzWl/pB9RB7xx4ZtfytezSL5QUwvlj+oNVwPZb5zJZW8HP9wD/4W1KOZaihozlk
+         miSAHyxj1V0ftQlsFuhTgTWn/QKhoIpiEi4Ks5JjPeUmDi80lH8SE0dXmK6LTBhxDX4K
+         kHFH1PqPsmrbDrDPtqtrhvhr6H0ikOpUAccHUEvOm0AqcqxI+FN3B6QINqC8M/+uiL/L
+         m09N5lL7UlsbWXvS08sDEQjR4FCCN5TQNT+Jz/p2wacTqZyuebJXfxMs/HHkDj0v3aMx
+         UBPQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVkiKh2JWXv2pWrqsdnwwPW1sNwHjuaFfZrxQynbK9I7zQMhMzm5omLFdNXWLfYoUtumhdD8VdfgO0=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzWBB6bREnam9AAXIUfpcXdPZ5ndXHYiXVeL2Afb+9SJffcd8ZU
+	ljCo6987bjYyuZRYz/waDNPkORM3I/ITD1Nxs7UsWwlelXEFYELR3wPGPROhc8xkxgY=
+X-Gm-Gg: AZuq6aLvEk6v99bMYhvXGdrabLx0wZPwjcfsW52SkA7Wr50/bO/Cx9JmYXPDCkYI/VP
+	yvFahZLD6kW8tm2MZQHA9Jcxk8IVlw0Ha8cBqkjrVR6d77xayg4MgGqi+O0SveZUS73+1+Gcq3l
+	FOBc58Ca0rKO2LlVC6rsT7qb6sTKqBpaMJg/jCsIU+4H0xe4+GQKx2KNvnKU9ibTBkxJuH6q7L0
+	BZBO0eTUzvRzCxaKVphQyqJIihMn/wPR7YsL8qSHEM3UBYz/MOQ6tIbjvqjv1s9omECRX7qK95E
+	DyKFPx6qZ2HlrjXO1QCWNqmbUOACSrpAHBVjeesvE+AKjn562oTxxBkLZgdQoGyPbbnWyfQSyhW
+	n1US+BcCoB2zEBT6H2IKTixjQFqwA1QcKOiDSi5yWm3xwqYzKxBZqRikg/mHXOL1bn0lmFqysVj
+	n25L5qaxba6wodruTRuPrc+J9iy8f0qYPwP3/cOIZoeTnf7rIy8iZq6JGTfIVrKcg7AQ==
+X-Received: by 2002:a05:6512:24d7:10b0:59e:3e87:1a with SMTP id 2adb3069b0e04-59e4518da53mr385299e87.7.1770394515297;
+        Fri, 06 Feb 2026 08:15:15 -0800 (PST)
+Received: from [192.168.1.100] (91-159-24-186.elisa-laajakaista.fi. [91.159.24.186])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-59e44cf713fsm698812e87.1.2026.02.06.08.15.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 06 Feb 2026 08:15:14 -0800 (PST)
+Message-ID: <9de74828-85bf-408c-8f64-2a8694f71563@linaro.org>
+Date: Fri, 6 Feb 2026 18:15:01 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v9 4/5] arm64: dts: qcom: monaco-evk: Add camera AVDD
+ regulators
+To: Nihal Kumar Gupta <quic_nihalkum@quicinc.com>,
+ bryan.odonoghue@linaro.org, robh@kernel.org, krzk+dt@kernel.org,
+ conor+dt@kernel.org, andersson@kernel.org, konradybcio@kernel.org,
+ hverkuil-cisco@xs4all.nl, loic.poulain@oss.qualcomm.com, rfoss@kernel.org,
+ andi.shyti@kernel.org, linux-i2c@vger.kernel.org,
+ cros-qcom-dts-watchers@chromium.org
+Cc: quic_svankada@quicinc.com, linux-media@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+References: <20260121183142.1867199-1-quic_nihalkum@quicinc.com>
+ <20260121183142.1867199-5-quic_nihalkum@quicinc.com>
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+In-Reply-To: <20260121183142.1867199-5-quic_nihalkum@quicinc.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-SPD5118 requires write access for page selection, configuration,
-and cache synchronization during suspend/resume. If the host
-controller does not allow SPD writes, the driver cannot function
-properly.
+On 1/21/26 20:31, Nihal Kumar Gupta wrote:
+> Define three fixed regulators for camera AVDD rails, each gpio-controlled
+> with corresponding pinctrl definitions.
+> 
+> Signed-off-by: Nihal Kumar Gupta <quic_nihalkum@quicinc.com>
+> Signed-off-by: Vikram Sharma <quic_vikramsa@quicinc.com>
+> Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+> ---
+>   arch/arm64/boot/dts/qcom/monaco-evk.dts | 51 +++++++++++++++++++++++++
+>   1 file changed, 51 insertions(+)
+> 
+> diff --git a/arch/arm64/boot/dts/qcom/monaco-evk.dts b/arch/arm64/boot/dts/qcom/monaco-evk.dts
+> index 565418b86b2a..65c1b49c6dfb 100644
+> --- a/arch/arm64/boot/dts/qcom/monaco-evk.dts
+> +++ b/arch/arm64/boot/dts/qcom/monaco-evk.dts
+> @@ -77,6 +77,36 @@ platform {
+>   			};
+>   		};
+>   	};
+> +
+> +	vreg_cam0_2p8: vreg-cam0-2p8 {
+> +		compatible = "regulator-fixed";
+> +		regulator-name = "vreg_cam0_2p8";
+> +		startup-delay-us = <10000>;
+> +		enable-active-high;
+> +		gpio = <&tlmm 73 GPIO_ACTIVE_HIGH>;
+> +		pinctrl-0 = <&cam0_avdd_2v8_en_default>;
+> +		pinctrl-names = "default";
+> +	};
+> +
+> +	vreg_cam1_2p8: vreg-cam1-2p8 {
+> +		compatible = "regulator-fixed";
+> +		regulator-name = "vreg_cam1_2p8";
+> +		startup-delay-us = <10000>;
+> +		enable-active-high;
+> +		gpio = <&tlmm 74 GPIO_ACTIVE_HIGH>;
+> +		pinctrl-0 = <&cam1_avdd_2v8_en_default>;
+> +		pinctrl-names = "default";
+> +	};
+> +
+> +	vreg_cam2_2p8: vreg-cam2-2p8 {
+> +		compatible = "regulator-fixed";
+> +		regulator-name = "vreg_cam2_2p8";
+> +		startup-delay-us = <10000>;
+> +		enable-active-high;
+> +		gpio = <&tlmm 75 GPIO_ACTIVE_HIGH>;
+> +		pinctrl-0 = <&cam2_avdd_2v8_en_default>;
+> +		pinctrl-names = "default";
 
-Detect this state using adapter quirks and determine whether to
-stop the probe.
+Since voltage level is known for all three regulators, why not to add
 
-Signed-off-by: Tinsae Tadesse <tinsaetadesse2015@gmail.com>
----
-Changes in v2:
-- Return the device probe error value
+     regulator-min-microvolt = <2800000>;
+     regulator-max-microvolt = <2800000>;
 
----
- drivers/hwmon/spd5118.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+properties?
 
-diff --git a/drivers/hwmon/spd5118.c b/drivers/hwmon/spd5118.c
-index 5da44571b6a0..9aa2b2aa6b39 100644
---- a/drivers/hwmon/spd5118.c
-+++ b/drivers/hwmon/spd5118.c
-@@ -525,6 +525,8 @@ static int spd5118_common_probe(struct device *dev, struct regmap *regmap,
- 	unsigned int capability, revision, vendor, bank;
- 	struct spd5118_data *data;
- 	struct device *hwmon_dev;
-+	struct i2c_client *client;
-+	const struct i2c_adapter_quirks *quirks;
- 	int err;
- 
- 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
-@@ -552,6 +554,19 @@ static int spd5118_common_probe(struct device *dev, struct regmap *regmap,
- 	if (!spd5118_vendor_valid(bank, vendor))
- 		return -ENODEV;
- 
-+	/*
-+	 * SPD5118 requires write access for correct operation
-+	 * (page selection, configuration, and suspend/resume cache sync).
-+	 * If the SPD writes are blocked by the SMBus controller, the
-+	 * probe fails.
-+	 */
-+	client = to_i2c_client(dev);
-+	quirks = client->adapter->quirks;
-+	if (quirks && (quirks->flags & I2C_AQ_SPD_WRITE_DISABLED)) {
-+		return dev_err_probe(dev, -ENODEV,
-+				"SPD Write Disable is set on adapter; refusing probe\n");
-+	}
-+
- 	data->regmap = regmap;
- 	mutex_init(&data->nvmem_lock);
- 	dev_set_drvdata(dev, data);
+> +	}
+>   };
+>   
+>   &apps_rsc {
+> @@ -564,6 +594,27 @@ perst-pins {
+>   		};
+>   	};
+>   
+> +	cam0_avdd_2v8_en_default: cam0-avdd-2v8-en-state {
+> +		pins = "gpio73";
+> +		function = "gpio";
+> +		drive-strength = <2>;
+> +		bias-disable;
+> +	};
+> +
+> +	cam1_avdd_2v8_en_default: cam1-avdd-2v8-en-state {
+> +		pins = "gpio74";
+> +		function = "gpio";
+> +		drive-strength = <2>;
+> +		bias-disable;
+> +	};
+> +
+> +	cam2_avdd_2v8_en_default: cam2-avdd-2v8-en-state {
+> +		pins = "gpio75";
+> +		function = "gpio";
+> +		drive-strength = <2>;
+> +		bias-disable;
+> +	};
+> +
+>   	qup_i2c15_default: qup-i2c15-state {
+>   		pins = "gpio91", "gpio92";
+>   		function = "qup1_se7";
+
 -- 
-2.52.0
-
+Best wishes,
+Vladimir
