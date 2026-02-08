@@ -1,39 +1,42 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B76E253B42;
-	Sun,  8 Feb 2026 17:13:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01C8615539A
+	for <linux-i2c@vger.kernel.org>; Sun,  8 Feb 2026 17:22:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770570808; cv=none; b=Tor2kIUEsZSPJaCGW/Aorlg9adjC93Jw/wdLVPyhrZqgF9jbg2gtbmaJLmdMgqkGaNAbi+CrGTCmnNXDr7E24upHwdeAKibHWvTY62dFUQawEfNJRskI+okT7HY/zw79tob08f5Cvv3+x0cfGjmKzDJkwpxzGUOycYfaR/QYVjg=
+	t=1770571371; cv=none; b=MTsxQAx9fWV5UFgV4O2epc9bxXNTK9rwrWBcED+/8M4WqGxRVnDfVUN8I/QA0qi5IsyYX3Dro89Akt74L8gmaRpgR6aC/PnkMYusljpxgjozcSfgZpX62PekcTwwnSAuOX/r+/1ZX0TFO9yF1aCHnfR5sGKhLvSDuJ8ofSOkshM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770570808; c=relaxed/simple;
-	bh=jpoQ2BnzMeMQ9AGPckNcPnBswJtoR0znLbChYlIDBDc=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=UBpR4L8gYUqyya3whNtPhsyoyfjNcdZ88lL4r6d9B7NilbE67OcA2GD6NvlX31F/C5K8p63czxKTclGIemvgq6qmU+1Gro5LzgWhU3t8aWpvPKRFLabbzTMUGgRSbcvpRpSPmUp+b31N0m03gAcq9T1OYWCYgmKmvZIC0s9sGV8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=myN6ObLP; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1770571371; c=relaxed/simple;
+	bh=wv5GKBbg9TZSznC4JwYyXtj/zG5wXk6C4FcXgfg8EfI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=of3lR4AVhDyQFwNB6+EoEhuOR5mffSxfGXnbzPza3OXGaW8NteQOBsQa4OjGuvcNRK/uOjjH2Wu6xipt11ncka9c+ov5BHZMSRfEJ5amb0+T4GpWKr2tnfacFgjvnxcUlnx4RQB3rTV6X8yinSHFstJ0/JfwdsIpL+1hTmJMw68=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=HOkZyFzW; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="myN6ObLP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F04FC4CEF7;
-	Sun,  8 Feb 2026 17:13:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770570808;
-	bh=jpoQ2BnzMeMQ9AGPckNcPnBswJtoR0znLbChYlIDBDc=;
-	h=Date:From:To:Cc:Subject:From;
-	b=myN6ObLPMWym2mPkpkz8FCQrUNhECPn1A+FT2R8WTyK4hvh2pJl86GloUhN0zABjW
-	 u77K4yIVGP4SJsWH37/SoqcQjGshn20z4v+Ls3yE2DnOSqiMa+xbnS6n085lWDF5H3
-	 bs7TNEqSLcWyyXpJjgu0XzOFdTkOVSDXmoNEPJaHLE8NgSJl0aOGNLAzNaj2IOFLuH
-	 E2bcKO7VOLl/487XyN0rOsqmLGmOJ3Ez/KI+a4tIHIVq81ymSKzAHZ9H7Bi3tpVVi0
-	 aGmSFTGxPxhCIbozg6XHDVPatXSAX2xl7K3edqNCMBPKYesWZUl+SGOs4hazAMNgNQ
-	 R3ETnQLuo+FJw==
-Date: Sun, 8 Feb 2026 18:13:24 +0100
-From: Wolfram Sang <wsa@kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>
-Subject: [PULL REQUEST] i2c-for-6.19-final
-Message-ID: <aYjEEsu44xfIeoAz@ninjato>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="HOkZyFzW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=n+bk
+	dw3//T+LC4O8F19LmzyEJSJilvg74uF8cQGGLQk=; b=HOkZyFzWbMNaVHEEQY8b
+	ULjYb13sBuqhr4YL6WCs75FnBQfr1ixtE5W845YKLX55rmoEjkOW7xgIto7EFFGy
+	tSlk5zG6iK8w+vUKokXtWntxGtG3JbsdKYlXFkoMExt1HTK0Vk3+hsq0nD0HORlw
+	K/1XwPLNO0RSkDKpfY00gZqr66uYeyEZStAGtvq391dGyzpcoleZSoiUhGyO9SMu
+	ICC1Yrs8eBhDjV3Z4FZCCPWZikapD3vhd6sm7fB7GYfm+OXzEcOUJdSw7e2zmaXs
+	ygS9vqTShZrYbkpNIV8XL73O1PaDiSiBlOzSj9OSHoPJ99OHKNlZQIuMr4/WWHJw
+	jQ==
+Received: (qmail 648753 invoked from network); 8 Feb 2026 18:16:04 +0100
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 8 Feb 2026 18:16:04 +0100
+X-UD-Smtp-Session: l3s3148p1@a5tlLVNKsrkujnt2
+Date: Sun, 8 Feb 2026 18:16:04 +0100
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+	linux-i2c <linux-i2c@vger.kernel.org>
+Subject: Re: i2c-host-fixes for v6.19-rc9
+Message-ID: <aYjE1N-_26RNg6os@ninjato>
+References: <aYZ-AZcfwfG1poEH@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -41,63 +44,47 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="7nOPOkjRV3RD8DEZ"
+	protocol="application/pgp-signature"; boundary="+HSH1unwJL+ztNJ/"
 Content-Disposition: inline
+In-Reply-To: <aYZ-AZcfwfG1poEH@zenone.zhora.eu>
 
 
---7nOPOkjRV3RD8DEZ
+--+HSH1unwJL+ztNJ/
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
+Hi Andi,
 
-The following changes since commit 18f7fcd5e69a04df57b563360b88be72471d6b62:
+>  drivers/i2c/busses/i2c-imx-lpi2c.c | 107 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++------------------------
+>  1 file changed, 83 insertions(+), 24 deletions(-)
 
-  Linux 6.19-rc8 (2026-02-01 14:01:13 -0800)
+Well, this is a bit too intrusive for an after-rc8 pull request. I will
+add it to for-mergewindow. With the tags in here, it will be backported
+nonetheless.
 
-are available in the Git repository at:
+Thanks and happy hacking,
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-6.19-final
-
-for you to fetch changes up to b126097b0327437048bd045a0e4d273dea2910dd:
-
-  i2c: imx: preserve error state in block data length handler (2026-02-03 21:47:48 +0100)
-
-----------------------------------------------------------------
-i2c-for-6.19-final
-
-imx: preserve error state during SMBus block read length handling
-
-----------------------------------------------------------------
-LI Qingwu (1):
-      i2c: imx: preserve error state in block data length handler
+   Wolfram
 
 
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Stefan Eichenberger (1):
-      (Rev.) i2c: imx: preserve error state in block data length handler
-
- drivers/i2c/busses/i2c-imx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
---7nOPOkjRV3RD8DEZ
+--+HSH1unwJL+ztNJ/
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmmIxDQACgkQFA3kzBSg
-KbYvyxAAr//CiJ2IoHi1pwZzeU4Zl1ckb4uj+DDpQDDbvTYv6TTX3xfTvks4pk0g
-ZZ5A89yRUTSLsvrQT4xqfQpUqCafx/TaGQz8FWsPcciAhbuw0zh8IIgkrnWMZxGc
-MXUyHXkNvWmQSsApAhGYtwgjSgtcXUIXTr2Ak+2Otu5a96M8h3fazy6n6jI1KNdx
-Tp0YVV/c5y/g61BGOMsu6dv58VpmZB6f5mGkXL+cbWEzdqqwIqa8kSdVoofpgpon
-LHSSNL2QFaoaMY9Inh0lJa/g5I3arx48fzC8sRgMwt/IIy0ZxCx0cSOnOign6LKF
-r8WjYxSlICaFjhBhVaJKTM/PSmJIHDCu8vkfNb44EEOv/1tJaGBYI0MsGylWQD0b
-OYKCwh4t4plgRUaxMvV4vJhTEQCnioIPEQkwjAjqUP3CPR4USJX0I2CfShWUCPwJ
-UDjc4GOH4Vb546hqFzXrfV4AHgxnKrV/yS7w0AB3ikekf21OajFiBijuWNQ/fgZO
-DHWfWgmHpTIe5iWULFfwmcg9Z9zAhrirw7NcLWSFj5cP8ZA+v/VdN2HW7Da7IR/Z
-UMHFts7kKqwjJ1x3C5JbmFG8h1yIZpT/g+/J9v9n44S07aoBxgslF7XX0O13SpY4
-MWZ5o+F3JQmvfvzpJGr6m7y52WL/9jqCMHOaHk1upsaoQKkCJnI=
-=BfD7
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmmIxNQACgkQFA3kzBSg
+KbYfYQ/9FYZB/5mEWCVtKoXf02viQweI28UZj4uQhOgmlPUItHW+McZnsYaVr2mn
+yMAD/ahQZ6Hf72UK2lj9AnGtMrN1euVXebuLW9N79bnrtINX2TYh8iNf9rbIjIUk
+nePBX/rCIZq3IJ446bF5MOK+O61LcisSOXYQkX1QgELMJT/PILS3vSlE8USRjymR
+id5qGRcn5sRpWeq9P2Yt40py4aVWQHLX0GdEnM1kr2JTTbvy0u+Z0Lh90agpHq6d
+I4/k9dniWkV+aFkMgGt+xz5Y4+NcPZ0M9etGvgkr4GX2PqxoBERq61q60TsWjAL1
+agOKgcT/V3hJTDOKwn0SpnSKHIihhYxNN2AIPhKTY1Vc4weZBvElAIvGGE+6OKQf
+vzDUZ6MkvywiFKSrYXTlTTpL9D6Nshn1odLSA036aBJMM6FbJYB5TMgar9m0InD4
+k8bIgwAz9MeaTwdVPUsMaV4t3em1I2RuI6hBoAahV7aBx+yP/TYZAoINIjHKBo0O
+uGWd66IWX9XFKOi73mjwih4qQtei7leWHafBeUW/9J7nfFRf5b4kyaTHfDc3UilP
+LIZDYBVpC21XNWX55rexhjZunR2Ar+aN93LWx1eB4D+D2eRTO0FKNgmMCze7pbzo
+NgjRaeTL2NFerapNopgtFKock1/qpVejT+utOI0ZoAB1JH3cxM4=
+=V5R/
 -----END PGP SIGNATURE-----
 
---7nOPOkjRV3RD8DEZ--
+--+HSH1unwJL+ztNJ/--
