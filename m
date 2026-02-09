@@ -1,187 +1,111 @@
-Received: from mail-ua1-f50.google.com (mail-ua1-f50.google.com [209.85.222.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22CF536C0DD
-	for <linux-i2c@vger.kernel.org>; Mon,  9 Feb 2026 11:10:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14663309F13
+	for <linux-i2c@vger.kernel.org>; Mon,  9 Feb 2026 11:31:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770635439; cv=none; b=OAQUlIm5ebvCdovNUTjClePPePLo0cLQceLUf7Kjk1G8zFG52fttqWVAAoK9ebvCjLQ5GWeDI+ll0ymAoNxCPRW+SGczIKD0BLtrGl/jITNAdA/dz9P56UAQOjk8H78qVAaYjJ5tDSweVOk92F+ZN0YNaXG7bIsj7l4knHuBIns=
+	t=1770636675; cv=none; b=kexEh4O4MO8fYtUExx8JxxGpq8cH70j/LqwRh6rlGT/POlXQ4KTrDs3VAp3G8wiWTBRaIejB5ucV5AxSTuPn2w9aMIxT3b6o/smG/jms86p1vJFkzQEF46OtNUYT0zPsVGTeizZeUvLrBq8SEjFffDvYa/t7bNbtVzNkhF1H0l0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770635439; c=relaxed/simple;
-	bh=sC1KLy2SPQ43D9OQaLHsL9GAH/uPG9wpQURfezxkw+M=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NToC/XWZ9oou9GpY8B/vsXd7AvojgaDCzUdSd32NmtTFe4xdYO30sFMYtmJBWi7+NeLIllqxVTuq8DPwf4fD3ModoVk9jPpdeWazMD9u5xykjuezlKWhz5K8NYk/EF6/KzOhWh5dgRdemU9gQd70AT2C0kyiudlIVa/WvBp3boM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.222.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-ua1-f50.google.com with SMTP id a1e0cc1a2514c-94ac8cbf3feso786957241.0
-        for <linux-i2c@vger.kernel.org>; Mon, 09 Feb 2026 03:10:38 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770635438; x=1771240238;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=CFhQGFBF0i+66a0TJna2Rm6FRsUIJ3sMEDyWqu3+t6g=;
-        b=VjezzCwPpfYcTBxEXJis+DFTOXtmreFU+8E78Sf/nLljzW6O1h8fkCFYGyE4Ks6qDE
-         HdxQ8RAp/y6KWblSDAiRJYGvbo3AkE/8Y4dZ4BVQ1Tjr7SuPKRaPZAJsPumBM3ZS1NEt
-         5iRCuG8vr2+G7QHse3Z1WCrlWb3Tn6WF90Q7GfPNTPdfBXsLprlq59uSN4V+N8DnwtcR
-         HgIl+pKWe3wpCz3AguRRUiisZC58/AFd7Yo4s/jFzEQ/LrdAztVeVEBtfV2ws0eQMUhC
-         WGt8cv2RRc3ylGqKo/OCE4awJ1X0t6doghwASp+EQKzJiPw+ib/6dRUQBPQ9fvM9vWnu
-         C5CQ==
-X-Forwarded-Encrypted: i=1; AJvYcCX1LrX22SiZjSW449EOLg6JdVLc/LEDXOKFVWsExzrWnxK8y5MfFsi8qIFuEC+2QoyRZwibOVu3tKY=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy2N+kroIK2et+Vv52j+cBl6z2ER5X0viTXzCDqVWnXR7AFIVj6
-	/aIhauKuLOB0gsonaOW1FQS2Eg3h2di2SukM0R4MCLrHi/I4dr1C4PxIkidZEXpu
-X-Gm-Gg: AZuq6aJ+DA+lQZ+WqT3gJ37j2uGkY0EyTMzkAOPaWTWeneZaXcMe3qgJEPf/Mt/qtIn
-	biHmBmrICyK79gTSJ/pCSrWDJy4rOb8XbgCq1gr+ooezpt1jxfh/rj5mPXpm/cB2yudaJ0qvVPD
-	AhNH5Q3XqvNndHGC5MrEYJPbi+M+fM5C2laaJxxxTgJmjJZLbAzvYpVjxO26u0WPEpYnZi9Bws7
-	oyQE1pqlnhnW/s6Lw0cHd0B3gRL5ycTuC3ChRsWLOiHNxC9JDuQi93QzGmy7OIxxvHwTNbBPOhr
-	YI/wL5QTO6rjKCj6hfFQBFsZbyWailUblNLIiI7r8ZXAXMjKIaxR9tsOvZH7ZB+7znowssC4hIU
-	4xIiFiFjGLXfxEj5+FriaT95YxUpdS/zmXvptaPFYbweAsVqOf47bOzAykpMPc2jcfhmPApYRK4
-	sckVVCAEvoKJnqFtNSRuKOIgpO8ybR/+I/z0cv3951yc5gA6m3
-X-Received: by 2002:a05:6102:510a:b0:5dd:b287:e5f4 with SMTP id ada2fe7eead31-5fae87c6238mr3022842137.0.1770635437911;
-        Mon, 09 Feb 2026 03:10:37 -0800 (PST)
-Received: from mail-vs1-f47.google.com (mail-vs1-f47.google.com. [209.85.217.47])
-        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-949016c6851sm2978839241.9.2026.02.09.03.10.37
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 09 Feb 2026 03:10:37 -0800 (PST)
-Received: by mail-vs1-f47.google.com with SMTP id ada2fe7eead31-5fadd5d4319so2471266137.1
-        for <linux-i2c@vger.kernel.org>; Mon, 09 Feb 2026 03:10:37 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCW0d8nOmqCfxptr4LRYxtjazf5qsZpS/KwwqJcdYmrixJL3FzjNCOXkLhJYMhxrug1kFvGUWGlf5QU=@vger.kernel.org
-X-Received: by 2002:a05:6102:f10:b0:5ef:ac78:3c77 with SMTP id
- ada2fe7eead31-5fae8aafb2dmr2699695137.18.1770635026255; Mon, 09 Feb 2026
- 03:03:46 -0800 (PST)
+	s=arc-20240116; t=1770636675; c=relaxed/simple;
+	bh=F7CgYeYFczAzufbFEfMETyEe9HD9YnDdtisLZR34ADQ=;
+	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=sfrIT+naUzWdWzli/b/QddE+AehSX4Uzo2CimXXsuif2rdO5B18HOkbmwYITctkOVcAR0IRxVXwttVtQz8aFLoiKJjE83Y889Lpu+z/kz6QIdxUe1uH0/7gcOOKMaWfi0+HlW9z/cuvmIuFN5oTQjF0T7OrqUwmssvwOG7GAjTk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VhXJqY7p; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VhXJqY7p"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4F3AC2BCB4
+	for <linux-i2c@vger.kernel.org>; Mon,  9 Feb 2026 11:31:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1770636674;
+	bh=F7CgYeYFczAzufbFEfMETyEe9HD9YnDdtisLZR34ADQ=;
+	h=From:In-Reply-To:References:Date:Subject:To:Cc:From;
+	b=VhXJqY7p+48InMR3+GrsHgpinSngqGHWnP3WEZ8D4Ziwl0mD1ljFilJxmLKOKcSXE
+	 s8hhKQA0am/e0uRixyXxP0XqqeLZcBUorl3N4Til3E2XYSUHTNUW38yA38gyfeU1yT
+	 87I78/9AFhwd7GeIR/PKRl8JSYwoD6JpOHcELQ3eLSw9vNAyob8qfEVwf/4g0O52xS
+	 bDHzfUg+7lglPWLLZIV9fyS0yR8++5Rvpv+pYU/e8Day02CeOSH2UJ84OFxxv3wUcW
+	 kBOCu9bqiPOEvpLIM4vXVyAqJg76jFFuotXoyjyX7KcKVAs9BreStfM2eC5ndqgBqr
+	 Na0hFZtKbXW/g==
+Received: by mail-lj1-f179.google.com with SMTP id 38308e7fff4ca-385bdc72422so38618961fa.1
+        for <linux-i2c@vger.kernel.org>; Mon, 09 Feb 2026 03:31:14 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCX72xgynPJG2mbai8dlXbGmA/YmZqfABSS/bE7YQ2BQFfb0O5yJTyxMRTPQarbT5YWgnfqZyhbFcjU=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxQBR4HgEpjpJS9q6J6SifhD2sNjAQBRvXQ8uy9Vv8dz7R1z06c
+	RP+WZhTxh5mj9CYFdkOC+e2DE4+5vILxRMToUajp1HHEuLFLe2+7fY3tqPG9ggJ49FK3Bzt2zRk
+	SFNyZFmFOM03SOeDiE/NU1AgJNZEYSQRt1tEOSHqh6w==
+X-Received: by 2002:a2e:bc10:0:b0:386:e765:e359 with SMTP id
+ 38308e7fff4ca-386e765fff6mr1384061fa.12.1770636673314; Mon, 09 Feb 2026
+ 03:31:13 -0800 (PST)
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Mon, 9 Feb 2026 05:31:11 -0600
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Mon, 9 Feb 2026 05:31:11 -0600
+From: Bartosz Golaszewski <brgl@kernel.org>
+In-Reply-To: <DG2UELGNDQDS.1LR5TLOZTSC29@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260203-rz-sdio-mux-v8-0-024ea405863e@solid-run.com>
- <20260203-rz-sdio-mux-v8-3-024ea405863e@solid-run.com> <b7dcb374-b79c-4e9f-ac30-2f507127cfb3@solid-run.com>
- <CAMuHMdU01vwif4H6H-cYUfW0Y56fN6Anp9F4Ru7q3fveNqqoXA@mail.gmail.com>
- <39f3891c-c05a-4e10-9ad4-ab3cbc6fa70e@solid-run.com> <CAMuHMdVbi=2puhk84k+FCDXqkQ9jFsy0rsseQiFCF8i=KsR1OQ@mail.gmail.com>
- <1a4288f2-ee5c-494f-9fbe-ea3a90a16014@solid-run.com>
-In-Reply-To: <1a4288f2-ee5c-494f-9fbe-ea3a90a16014@solid-run.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 9 Feb 2026 12:03:34 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdWa6o19+oX=-Hkpx+tEsnJ39vyi91FwbU+YHJqv=QsPkA@mail.gmail.com>
-X-Gm-Features: AZwV_QiXoAPXWcsFJ5cXmi5LxanLCRJoL8Hmi_xM0cWtiaFZbVoUaSfpkEx2uEE
-Message-ID: <CAMuHMdWa6o19+oX=-Hkpx+tEsnJ39vyi91FwbU+YHJqv=QsPkA@mail.gmail.com>
-Subject: Re: [PATCH v8 3/7] mux: add help text for MULTIPLEXER config option
-To: Josua Mayer <josua@solid-run.com>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>, Vincent Mailhol <mailhol@kernel.org>, 
-	Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>, 
-	Peter Rosin <peda@axentia.se>, Aaro Koskinen <aaro.koskinen@iki.fi>, 
-	Andreas Kemnade <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>, 
-	Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>, 
-	Janusz Krzysztofik <jmkrzyszt@gmail.com>, Vignesh R <vigneshr@ti.com>, 
-	Andi Shyti <andi.shyti@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Geert Uytterhoeven <geert+renesas@glider.be>, Magnus Damm <magnus.damm@gmail.com>, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Yazan Shhady <yazan.shhady@solid-run.com>, Jon Nettleton <jon@solid-run.com>, 
-	Mikhail Anikin <mikhail.anikin@solid-run.com>, 
-	"linux-can@vger.kernel.org" <linux-can@vger.kernel.org>, 
-	"linux-phy@lists.infradead.org" <linux-phy@lists.infradead.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	"linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, 
-	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, 
-	"linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>, 
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, 
-	"linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>
+References: <20260131-i2c-adapter-v1-0-5a436e34cd1a@gmail.com> <DG2UELGNDQDS.1LR5TLOZTSC29@kernel.org>
+Date: Mon, 9 Feb 2026 05:31:11 -0600
+X-Gmail-Original-Message-ID: <CAMRc=Mc8x4gZu-ALA_c85djWHT6TinBK3KuLGQqMALWA477bMg@mail.gmail.com>
+X-Gm-Features: AZwV_QihqdBsSecx2hKeC8xcTUDilEQ9rqhBDbEDj7GnSFAOP8qJjVk8adtyk-I
+Message-ID: <CAMRc=Mc8x4gZu-ALA_c85djWHT6TinBK3KuLGQqMALWA477bMg@mail.gmail.com>
+Subject: Re: [PATCH 0/5] rust: extend I2C functionality
+To: Danilo Krummrich <dakr@kernel.org>
+Cc: igor.korotin.linux@gmail.com, 
+	Daniel Almeida <daniel.almeida@collabora.com>, Miguel Ojeda <ojeda@kernel.org>, 
+	Boqun Feng <boqun.feng@gmail.com>, Gary Guo <gary@garyguo.net>, 
+	=?UTF-8?Q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, 
+	Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, 
+	Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, 
+	Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-kernel@vger.kernel.org, 
+	rust-for-linux@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	markus.probst@posteo.de, brgl@kernel.org, gregkh@linuxfoundation.org, 
+	rafael@kernel.org, driver-core@lists.linux.dev, 
+	Igor Korotin via B4 Relay <devnull+igor.korotin.linux.gmail.com@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Hi Josua,
+On Sat, 31 Jan 2026 15:26:22 +0100, Danilo Krummrich <dakr@kernel.org> said:
+> (Cc: Bartosz, Greg, Rafael, driver-core)
+>
+> On Sat Jan 31, 2026 at 3:12 PM CET, Igor Korotin via B4 Relay wrote:
+>> This patch series extend the existing I2C functionality with:
+>> - Abstractions allowing to implement I2C algorithms used by I2C adapters;
+>> - Abstractions allowing to create and add new I2C adapters;
+>> - Safe wrappers upon I2C and SMbus transferring C API: read/write
+>>   bytes/words/byte arrays.
+>>
+>> The patch series contains additional new sample driver `rust_i2c_adapter`
+>> presenting the new functionality.
+>
+> The i2c_adapter code on the C side has some lifetime issues, Bartosz looks into
+> resolving.
+>
+> My biggest concern is that struct i2c_adapter is a bus device implementation,
+> but does not use the reference count of the embedded struct device.
+>
+> Instead, I2C bus drivers embedd the i2c_adapter in their driver specific
+> structure, which is typically freed in the I2C bus driver's remove() callback.
+>
 
-On Mon, 9 Feb 2026 at 11:47, Josua Mayer <josua@solid-run.com> wrote:
-> On 09/02/2026 12:17, Geert Uytterhoeven wrote:
-> > On Mon, 9 Feb 2026 at 11:12, Josua Mayer <josua@solid-run.com> wrote:
-> >> On 09/02/2026 10:06, Geert Uytterhoeven wrote:
-> >>> On Sun, 8 Feb 2026 at 16:16, Josua Mayer <josua@solid-run.com> wrote:
-> >>>> On 03/02/2026 15:01, Josua Mayer wrote:
-> >>>>> Add prompt and help text for CONFIG_MULTIPLEXER to allow enabling t=
-his
-> >>>>> option thorugh the kernel configuration without explicit "select" d=
-river
-> >>>>> dependencies.
-> >>>>>
-> >>>>> Select it by default when COMPILE_TEST is set for better coverage.
-> >>>>>
-> >>>>> Signed-off-by: Josua Mayer <josua@solid-run.com>
-> >>>>> ---
-> >>>>>     drivers/mux/Kconfig | 8 +++++++-
-> >>>>>     1 file changed, 7 insertions(+), 1 deletion(-)
-> >>>>>
-> >>>>> diff --git a/drivers/mux/Kconfig b/drivers/mux/Kconfig
-> >>>>> index c68132e38138..e31c46820bdf 100644
-> >>>>> --- a/drivers/mux/Kconfig
-> >>>>> +++ b/drivers/mux/Kconfig
-> >>>>> @@ -4,7 +4,13 @@
-> >>>>>     #
-> >>>>>
-> >>>>>     config MULTIPLEXER
-> >>>>> -     tristate
-> >>>>> +     tristate "Generic Multiplexer Support" if COMPILE_TEST
-> >>>> This didn't do what I thought it would.
-> >>>> It was my intention to allow enabling this through menuconfig / .con=
-fig.
-> >>>>
-> >>>> With the syntax above menuconfig shows:
-> >>>>
-> >>>> =E2=94=82 Symbol: MULTIPLEXER [=3Dn]
-> >>>> =E2=94=82 Type  : tristate
-> >>>> =E2=94=82 Defined at drivers/mux/Kconfig:6
-> >>>> =E2=94=82   Prompt: Generic Multiplexer Support
-> >>>> =E2=94=82   Visible if: COMPILE_TEST [=3Dn]
-> >>>>
-> >>>> This means it cannot be selected.
-> >>> Looks like you haven't enabled COMPILE_TEST first?
-> >> Correct.
-> >> But CONFIG_MULTIPLEXER should be visible always,
-> >> not just when COMPILE_TEST is set.
-> > Why should it always be visible? All users select it?
->
-> This is not relevant for v7 now and can be handled later.
->
-> It was discussed previously that drivers supporting optional muxes
-> do not need to "select" MULTIPLEXER through Kconfig,
-> E.g. the renesas sdhi driver.
->
-> However other drivers are already selecting it even though the mux
-> is optional, see e.g. phy-can-transceiver.
->
-> In order to support muxes in renesas sdhi driver e.g., users must choose =
-to
-> enable both the renesas driver, and multiplexer subsystem via the
-> configuration.
->
-> The mux core standalone also supports a limited use-case without other
-> driver
-> interactions, setting idle-state e.g.:
->
-> mux-controller {
->      compatible =3D "gpio-mux";
->      #mux-control-cells =3D <0>;
->      mux-gpios =3D <&tca6416_u20 0 GPIO_ACTIVE_HIGH>;
->      idle-state =3D <0>;
-> };
->
-> So it can be generally useful for a user to enable CONFIG_MULTIPLEXER.
+Correct.
 
-Then please say so in the patch description.
+> This violates struct device reference counts.
+>
 
-Gr{oetje,eeting}s,
+What's currently done in order to not crash is: we wait forever until all users
+release their references[1].
 
-                        Geert
+> Until this is fixed, the Rust abstractions should probably work around this, to
+> subsequent painful rework.
+>
 
---=20
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
+The rework of the C part will be long an painful already. I estimated the work
+will take at least a year. More info here[2].
 
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
+Bart
+
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/i2c/i2c-core-base.c#n1814
+[2] https://lore.kernel.org/all/aWYYZEPX-_1GfQtL@ninjato/
