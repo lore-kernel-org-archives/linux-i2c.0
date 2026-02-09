@@ -1,101 +1,146 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD22D32693E
-	for <linux-i2c@vger.kernel.org>; Mon,  9 Feb 2026 09:17:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770628656; cv=none; b=iVOIEjr8tvufWze4EJdnXipB0fDqcjlzhMMbUwFsvHICY1F5toLLodPsX3AwnuoqXwO+0WmYM34+xDW4WwcCxeUhLbxJ8KLgvDU28+mwVruBHs41HW7xp4wxWH88XPAkKNl8kiIdWsuFlo+zUX8pTT2bbX0KLxUjsf5Ps9OvMv0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770628656; c=relaxed/simple;
-	bh=xky7xwQrL56STM9QQxkbDPU+lCLuKOLy9n6Qf1yRiew=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=NYjKMIcIftab/satbN09qkOyEQQOX3mnLQmJFOugeiKbi1DvxVwk1E9I4wOFnx9g+vAxbjgp+S7vPNHeWJLRKM6tibvS8f9oPLfqbKw6Hpp6N6cukPH+39nLfy3mM9XK5xC0y2g747z/uFkdotOZqnYOKcATOf0Gpoe4AHYw6GY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b=m7VLPYnv; arc=none smtp.client-ip=209.85.128.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28015366064
+	for <linux-i2c@vger.kernel.org>; Mon,  9 Feb 2026 09:57:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770631069; cv=pass; b=b1f4DzWkRMHYZvw/jPayXs/F+XjtJlV1vj+HN9SbCvBgKGHPrZ0+9KgxzytglLIKmVpyTw6yaRNI/BVK4bEdNG0po8PRgB8wqPMcj/FtNon6jKL8B+sfg3n9XcfLCOIBPQdJp+QkzHEwPAKiARAf2bQGrk2uaqP5azoi6RqLJM4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770631069; c=relaxed/simple;
+	bh=bC10K83OlDdfvr2htwpjLlKwvpR995Jtaa8b2VaNWRw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=QjUke2LAvMPXZjEUzngqXNcMYZOlbM1hl/V7uP1czWy1fz5bKdO0ovQacjfUN9CEctxLAySjqDXhf2TzcKLqGrd8x1A+ias3v7mpwj4CU10oUbhvrqpfKOtqagRPr2TwwfAMmq9vGUiy2g3YFA0iDFp8EUIznuFQdfq6cORjSeI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=IHe4hmOl; arc=pass smtp.client-ip=209.85.167.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20230601.gappssmtp.com header.i=@baylibre-com.20230601.gappssmtp.com header.b="m7VLPYnv"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4801bc32725so20524415e9.0
-        for <linux-i2c@vger.kernel.org>; Mon, 09 Feb 2026 01:17:35 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="IHe4hmOl"
+Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-59dd3e979ceso3172510e87.1
+        for <linux-i2c@vger.kernel.org>; Mon, 09 Feb 2026 01:57:46 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; t=1770631065; cv=none;
+        d=google.com; s=arc-20240605;
+        b=EDxmahi7Dv/6ciuPO1jhSOPbMMV7sIcaS2bpJPNLsfyn9eOHRtYxnu3Hu2FxY2elWR
+         oZFSGdasUJWatsQSB0OGYJponAUfJovNymY5kYD9A0K/W5oHW8dxOynCqgR58WLJTfjO
+         yBtd9qtktFhlMte8jYhfTXkWYFyQN0rDz8exQHLrGLMZzHbMJNi8I+GnonTJo6ADZSCQ
+         06q8IoDDcK1YzN/nGJwWzksL/LdApPsWVMLKkN9/1hBp8mavd0SgPCwBppu7jcLEggE5
+         FlW9o6hFjKHMxx5NSzvvi/T1d51LHrxxPddCgOruFDY2Xhc/hSEUn0MMnVvvM1k4VKyM
+         N/0A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=fzG/baFh/xjTaP0Ii0cvwWmrEVxPL+eR3yu7Xbk6kuo=;
+        fh=JClkvQqZJy0TYbGygllT2vCpan9p7HL2JOhSrAAHdO8=;
+        b=G2JkSCwkEKW4cfnS96+o4zS7CS0aUY3NzTlBa/QMPbS5H4DPNWUsV6r3P717lHu5Bn
+         lJjkCsCmckAwhmxtprCu7Q4W0hQbtFy0gM4h2JkEez9RcrSA1yA0AOfb+J5TwMmemHFM
+         eCXvtO12lUECLr6ou2FQlnO/wlZbZJ0grAKrihNCo78lL3e2VdhVgE3oN5RU6Qsrkadh
+         6r1uWRRfeYHAoDDP3ReHU69jCYGzYmeOMv0MIOi4W4r2Q3ET6AJqgFclvN+8865sZMby
+         FVvIi7M5r6uyv5FqqhCSYhfnhKgmRb65AKIyr0Hc6j1Lg8JK2fwkMhsG1+o73Bob4Wzl
+         kPuQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20230601.gappssmtp.com; s=20230601; t=1770628654; x=1771233454; darn=vger.kernel.org;
-        h=mime-version:user-agent:content-transfer-encoding:organization
-         :references:in-reply-to:date:cc:to:from:subject:message-id:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=xky7xwQrL56STM9QQxkbDPU+lCLuKOLy9n6Qf1yRiew=;
-        b=m7VLPYnvTBJA+guEEGOZ0+csqTXgIJmvUErz0Q5MqFXBazi/L45cElx05IWmYPx4Pa
-         dNhxHfRUasUW0XYfbmWXb672TKjgxNlfuUUSCZwaNKbr8xBEUGlSx4LI9UtrDFHJip39
-         r6tYKc/HRg8IXfkJ9YyRIJpPrTVR1oJKd4mgGYV6K4/nqlvBNoaPl8bU7TwwT9PRpF1C
-         0juCy2JMlJxNKx/6AomNg1EfF6UISaM/ARtsi0TgAI16mwLqvr8OrfmDeotbH6yn3O0B
-         zuhssFSQt2EGafYdlMNUh6ZxYHB3Zr7qd5Bugqxj6aT1yIwGB8lY36Mufmt/J/a1MLKF
-         6EkA==
+        d=linaro.org; s=google; t=1770631065; x=1771235865; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=fzG/baFh/xjTaP0Ii0cvwWmrEVxPL+eR3yu7Xbk6kuo=;
+        b=IHe4hmOl9w7pUpUQyLkq/OgztYofxuV5/j5kZqVf8IuLW8jsfSkKju7oFLOuFmO+Ok
+         OuFB7tI5XhFwXmudwca2G0nYRBQ7eEr59JH2p9nQqOTDdW7Y2gLLMsCnKuWV4LpK8sMg
+         QEhJgWugZkGH8AlPG3KIjl+KmD0zJUnuheHF85f1h7T24sKIswi0tGubJyQrgfXVOHcH
+         068szk1RA7QB0OCEWzd4kP3VEp4dtKPFLkidYA4mXBpOOysC+6s4HXG+8zne7P8+mUJC
+         0JfCkcMfokYv8neInNUS7ZSf0KHQvK4NmCQEumO+4rTfN36qUquObsdAu9osKWCZSwzx
+         gwzg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770628654; x=1771233454;
-        h=mime-version:user-agent:content-transfer-encoding:organization
-         :references:in-reply-to:date:cc:to:from:subject:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xky7xwQrL56STM9QQxkbDPU+lCLuKOLy9n6Qf1yRiew=;
-        b=MlAo7gecp2rjxcWmGDwuTwgtDFcpYDpVaGkV/t3QJXhidY9Bet1JiJlkJCGoRM92A/
-         Eg26QBwV3AX0LpjiHAO01xXDdrPMQ6wNAY7ghca6IKM85+907fFb1tvYgdf8uON+ZSMO
-         IBfGttFmhFQp16qDlWCmjm2Bz3TGH8+ELz0jBdV1R26pFmm0m+ndq17JZ3mk4dwmOxAz
-         Gk+/R1SrIOqOjDcL82AiL/8KjvEut/oQNdy1IDViYcwJnpEbErQSVV+l1F9FG6D0EZsM
-         Tnvrx5E1LYkfmQaOGihUb3XfqyjZi4pNzzSQXIHGzDXdnhr8ebgGTtPp8mwtUzZtp8FB
-         oN3w==
-X-Forwarded-Encrypted: i=1; AJvYcCVUZX+tT3C6ChjPp38aOMJufWctMZ5ymnilRcECwGTa8uCiCf+szJPvtRde3pi0ZEv/vp9Ldg3fSt4=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyeUh/MkLeAQJY4zvnXzSzCZkYAbRo4gdKGcAd+HUhEHeL8JRFL
-	vf+qDUow8Dz9S3GIJ6mZRVd2HYzZp6ML/eTVB5dzVaaD5QI/XpKNkc3GflDO1c+7ywpPnBQ4EZn
-	WhQgUMrw=
-X-Gm-Gg: AZuq6aJ32x8oArGwz127djSsEIEJjd8o6ojGPmvV6WQxx5SUBm7aBs1WeGAoLes/NtZ
-	nPdxjnmU2hcfaC6RKFcwhafXhWbOfWt5rLqBi0BRWT1NqcRR/yQkN2KGSDFlEyQEcrPeBjwLgAM
-	gIv4C5ACEpFe3lJbXxU+vgYP6Itg/P6s4rxaXouBm/5Sbgem89tI4+hcPht73ajcnhyzF/29c+b
-	06hH69xf8I3+lyPcPDWUa7y7wlgTYA/jSFqBBtZqa01YRDn9pnkJR572RZhw4uS2HdXmNch4nZM
-	b3L45FWw6NJMYs2xWxpciQ+ASGOJ20TzFh+iWVHj9i1E8Bf3h1aFh3aGlg1TzUKZFupCVMxDvgd
-	f3ApfjJpxXjcrmB9aagCpg04hKCFFovNsX1rSwlDOvNdC05LpreJnw56K+4+sC8Ede4eNGWGIlK
-	c6yiAl4DVOKEPl
-X-Received: by 2002:a05:600c:528b:b0:477:2f7c:314f with SMTP id 5b1f17b1804b1-483201e25b5mr140575465e9.10.1770628654251;
-        Mon, 09 Feb 2026 01:17:34 -0800 (PST)
-Received: from [10.203.83.32] ([151.57.91.229])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48317d33f5fsm315880595e9.5.2026.02.09.01.17.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 09 Feb 2026 01:17:34 -0800 (PST)
-Message-ID: <115bc80b5d4098cd350569a12c41a072c4ffd6d3.camel@baylibre.com>
-Subject: Re: [PATCH v3] i2c: Add FTDI FT4222H USB I2C adapter
-From: Francesco Lavra <flavra@baylibre.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Date: Mon, 09 Feb 2026 10:17:32 +0100
-In-Reply-To: <aYPBXTrREaaXZIdM@zenone.zhora.eu>
-References: <20260129155230.3054708-1-flavra@baylibre.com>
-	 <aYPBXTrREaaXZIdM@zenone.zhora.eu>
-Organization: BayLibre
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
-User-Agent: Evolution 3.46.4-2 
+        d=1e100.net; s=20230601; t=1770631065; x=1771235865;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fzG/baFh/xjTaP0Ii0cvwWmrEVxPL+eR3yu7Xbk6kuo=;
+        b=rs6+TnLsb3lI3Lts2o3N3p5FFGLpaIUPgo05GsU/GrvV0uteO279LMHtH3zw4+wEzS
+         5V0DINsBAtmMh+7cTBbEVlBOAcSYrKN+HXTHo/bezbycAcD2ef/oAeHyxsCe+QPF7X0Y
+         bKH2vX2GvaOzUINflzphELJmXD3OtD/ACZM+MlSjb05xPPzFVd1XCWpsg2u9Kcbxu7ZC
+         xJTCTnvkYSjT1FSxyqbQEOHFX+Lv1TculQqHMEULlJ3LZRZug/DQh3IIDx46oitAjVuw
+         T0b2ncv0sbLJ6jg/9d1gKpzVM+n74/8l5WWxWnw90PSc4bzRlcmDPJrDlxnLFrjfzir+
+         tJ+g==
+X-Forwarded-Encrypted: i=1; AJvYcCUleKvgUi1JN9qifIUbW18N2k/9o9II8wZ478jEFEZEkh/O+tP/XOMgWdSji1qkIC0gtS6kJNFX83k=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyBjTRY/uDSlUAtcDrkDvuz3CdNmTO3CSAYODzhwgZf7zToern2
+	bTAN4fVRUZgg1h8wnfoubbupbLoXMEX9p8Pnf1r6pr0YMVVCO0W/hd7HpHgtqPEjoZeM0uMNzJZ
+	TuEWiG7BgWzOrqeESE30z/vRQZueg27+HStuYJSlF+g==
+X-Gm-Gg: AZuq6aJM6IX92RnI1QYlAwumYiKvsKTtEHL4skJZ5VXhCklHNzZclIaM/dNtj8ioYnR
+	a2aSbDwOkzW7Q5wZCLQEx4V6kXoXGAMMIErFZYkyRNUao0cIDdrmkp3N0ywvJQEUFlBs1P0P7Ro
+	L5yV3CsgBVhUDMnGlIIRx1OMjqxR9A2G2y6pAi8S+ci8j7V2Xf6LjZ51MewsEdZxKu8tCAjcpoE
+	8wclcCdAsjaOAFFA/ezvmuxzrSIhRRDLtKrYNVlC84Nczvze1xTGupFb51bodTTmKxNDmGj
+X-Received: by 2002:a05:6512:230e:b0:59e:25a7:e46e with SMTP id
+ 2adb3069b0e04-59e4517351bmr3165761e87.36.1770631065180; Mon, 09 Feb 2026
+ 01:57:45 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+References: <20260208-rz-sdio-mux-v9-0-9a3be13c1280@solid-run.com>
+In-Reply-To: <20260208-rz-sdio-mux-v9-0-9a3be13c1280@solid-run.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Date: Mon, 9 Feb 2026 10:57:09 +0100
+X-Gm-Features: AZwV_QjtuvXehDumL81rfo3XecEhBGMIVZdeTW9qGb9n_Rk2fTCxSh0YYaQSYSY
+Message-ID: <CAPDyKFpbpcg3ei51hEcG5FzJL7tK44PdBcMbxfOdON7ozxP2Xg@mail.gmail.com>
+Subject: Re: [PATCH v9 0/7] mmc: host: renesas_sdhi_core: support configuring
+ an optional sdio mux
+To: Josua Mayer <josua@solid-run.com>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>, Vincent Mailhol <mailhol@kernel.org>, 
+	Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>, 
+	Peter Rosin <peda@axentia.se>, Aaro Koskinen <aaro.koskinen@iki.fi>, 
+	Andreas Kemnade <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>, 
+	Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>, 
+	Janusz Krzysztofik <jmkrzyszt@gmail.com>, Vignesh R <vigneshr@ti.com>, 
+	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Geert Uytterhoeven <geert+renesas@glider.be>, Magnus Damm <magnus.damm@gmail.com>, 
+	Wolfram Sang <wsa+renesas@sang-engineering.com>, 
+	Yazan Shhady <yazan.shhady@solid-run.com>, Jon Nettleton <jon@solid-run.com>, 
+	Mikhail Anikin <mikhail.anikin@solid-run.com>, linux-can@vger.kernel.org, 
+	linux-phy@lists.infradead.org, linux-kernel@vger.kernel.org, 
+	linux-omap@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-mmc@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-renesas-soc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-T24gV2VkLCAyMDI2LTAyLTA0IGF0IDIzOjA2ICswMTAwLCBBbmRpIFNoeXRpIHdyb3RlOgouLi4K
-PiA+ICvCoMKgwqDCoMKgwqDCoGJ1ZlswXSA9IHNsYXZlX2FkZHIgPDwgMTsKPiA+ICvCoMKgwqDC
-oMKgwqDCoGJ1ZlsyXSA9IGJ1ZlszXSA9IDA7Cj4gPiArwqDCoMKgwqDCoMKgwqBkbyB7Cj4gPiAr
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgaW50IHBrdF9sZW4gPSBtaW4oRlQ0MjIyX1RY
-X0hEUkxFTiArIGxlbiAtIHdyaXR0ZW4sCj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBGVDQyMjJfQlVMS19NQVhMRU4p
-Owo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGJvb2wgZmlyc3RfcGt0ID0gKHdy
-aXR0ZW4gPT0gMCk7Cj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgYm9vbCBsYXN0
-X3BrdCA9ICh3cml0dGVuICsgcGt0X2xlbiA9PSBGVDQyMjJfVFhfSERSTEVOCj4gPiArIGxlbik7
-Cj4gPiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgaW50IHJldCwgYWN0dWFsX2xlbjsK
-PiA+ICsKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqBidWZbMV0gPSAwOwo+ID4g
-K8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGlmIChmaXJzdF9wa3QpCj4gPiArwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGJ1ZlsxXSB8PSBmbGFncyAm
-IEZUNDIyMl9GTEFHX1JFU1RBUlQ7Cj4gCj4gQXJlbid0IHdlIGxvc2luZyB0aGUgX1NUQVJUIGNh
-c2UgaGVyZT8KClRoZSBfUkVTVEFSVCBmbGFnIGlzIDB4MywgYW5kIHRoZSBfU1RBUlQgZmxhZyBp
-cyAweDAyLCBzbyBieSBhcHBseWluZyB0aGUKX1JFU1RBUlQgbWFzayB3ZSBhcmUgaW5jbHVkaW5n
-IHRoZSBfU1RBUlQgY2FzZSB0b28uIEJ1dCB0aGUgY29kZSBzaG91bGRuJ3QKZGVwZW5kIG9uIHRo
-aXMgZGV0YWlsLCBJIHdpbGwgY2hhbmdlIGl0IHRvIGBmbGFncyAmIChGVDQyMjJfRkxBR19TVEFS
-VCB8CkZUNDIyMl9GTEFHX1JFU1RBUlQpYC4K
+On Sun, 8 Feb 2026 at 16:39, Josua Mayer <josua@solid-run.com> wrote:
+>
+> Some Renesas SoC based boards mux SD and eMMC on a single sdio
+> controller, exposing user control by dip switch and software control by
+> gpio.
+>
+> Purpose is to simplify development and provisioning by selecting boot
+> media at power-on, and again before starting linux.
+>
+> Add binding and driver support for linking a (gpio) mux to renesas sdio
+> controller.
+>
+> Introduce generic helper functions for getting managed and selected
+> mux-state objects, and switch i2c-omap and phy-can-transceiver drivers.
+>
+> Signed-off-by: Josua Mayer <josua@solid-run.com>
+> ---
+> Changes in v9:
+> - compile-tested on x86 with MULTIPLEXER=m/y/unset.
+> - fixed Kconfig changes so that CONFIG_MULTIPLEXER can be selected.
+>   through menuconfig / .config as intended.
+> - updated trailers
+> - document null return value for mux_control_get_optional.
+> - fix build error for CONFIG_MULTIPLEXER=m, found with x86_64
+>   allmodconfig: replaced ifdef ... with if IS_ENABLED(...).
+>   (Reported-by: Mark Brown <broonie@kernel.org>)
+> - Link to v8: https://lore.kernel.org/r/20260203-rz-sdio-mux-v8-0-024ea405863e@solid-run.com
 
+[...]
+
+I have already applied for v8 and it's going to be in my pull-request
+for v7.0 in a few hours.
+
+Please send incremental fixes on top instead of a new version of the
+series, then I can pick them as fixes for v7.0.
+
+Kind regards
+Uffe
