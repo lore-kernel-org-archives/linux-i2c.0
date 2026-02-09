@@ -1,63 +1,116 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 410B11E7C2E;
-	Sun,  8 Feb 2026 17:29:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66DE828980F;
+	Mon,  9 Feb 2026 02:12:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770571779; cv=none; b=lgdwflIw1S+rIboeqTBLakqn56sFhdxdHVnFjDaK5RNX3RRjZY9xDbfzm4S6JEW9SDl99Wvkn+8DeuyN/6TXS4s+dIAVrwaXzjeG/x/e7IkooUGzPzOBsJeA3spO01MhgRq3ce9TDPed7HfLLUZ+NKmvGMq0o2WlE+YOxgU5zEg=
+	t=1770603161; cv=none; b=DiTJajRitACkuDKNj0ACveyoFLDk7B4kRgjH4PIJ6aFL2Hn4/DXIE1AJOqf741u0OjHB0DKW+CQc7YqzdwIWLtQLgD54z/9+9HCHR3UMcnpj+peOKojQjGmDMgfEipDuQ0qmksaTfRBm+LZ6fPZ82MmB9LhBAnCljIx59j4UqbY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770571779; c=relaxed/simple;
-	bh=B26Gwyr840Vv1KfwA1HqlZ4qBySmAMbXwNpoOACe3XM=;
-	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=go4n/ll0vXhdPuAzsApvWHtESqFdv5I1MmKHF/d7ZTlmAMDjOGM4O8Kueiqs/9xndEuomQxiAbRrVW21r6l/c4wwVSwtpIxVNf+IVT+BtADerkTGV+CTth5SOLVH53zUMZhMUDgRHFTOmObEgrcNS0VdinrW4cscrOCY8Tjsazg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aTTKHCKC; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1770603161; c=relaxed/simple;
+	bh=li3Bz7MB9Db5p57EW1iDijoV/yjuamNyqKYmNRYo6WM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WS9cyIawqVPP8IspgCr+K8sAnSrRvDdKOEgOGK27cmv6kY/+0EyjJjt/VNEIFLMdnflrh3Fi0fWfgB7syrcWDyHs5hrEAnFrSFaO8r5g2KCrpj8sxKhnRGZnLErnKUNL+rlVqgtHSKl/OoBpkUpC7t4piPRxI+wElnzSt09KCMk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=IlJBJrQk; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aTTKHCKC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12D56C4CEF7;
-	Sun,  8 Feb 2026 17:29:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770571779;
-	bh=B26Gwyr840Vv1KfwA1HqlZ4qBySmAMbXwNpoOACe3XM=;
-	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
-	b=aTTKHCKCWOgkWMOuDG8350xzmTL1Ea1ihBIR28fSKj1N3ekA8QNEmdGWFrDSaM5/n
-	 ZdwWxHucKBXqGBemMtvxUebX7y1AKrxDIHwMK6crDjRjg+xwFzLjCJ2manwN23DzjY
-	 dqO7OCffvXV0orFVBa5X7XNrewl1loFOlUh54fg5sVJr0moyYURNM1H22dW/jyij0Y
-	 +ROd90t8PvyVK0hBGhk6lC4kJ7ewxKq8k1yyZC8Ppf9elCbyJ4RLsUgmTbZVZpzf4i
-	 r6bPAfSassCiGMZMJjaMDJAA2XBvfyMVQdvh/Q71kA/n208rJTStSsb3japq8OGggY
-	 YA5u7NhK8ugRA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 8542E3809A80;
-	Sun,  8 Feb 2026 17:29:36 +0000 (UTC)
-Subject: Re: [PULL REQUEST] i2c-for-6.19-final
-From: pr-tracker-bot@kernel.org
-In-Reply-To: <aYjEEsu44xfIeoAz@ninjato>
-References: <aYjEEsu44xfIeoAz@ninjato>
-X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
-X-PR-Tracked-Message-Id: <aYjEEsu44xfIeoAz@ninjato>
-X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-6.19-final
-X-PR-Tracked-Commit-Id: b126097b0327437048bd045a0e4d273dea2910dd
-X-PR-Merge-Tree: torvalds/linux.git
-X-PR-Merge-Refname: refs/heads/master
-X-PR-Merge-Commit-Id: e98f34af61167aee238e666bfbc97d1620afd88a
-Message-Id: <177057177525.1573884.872365030296859591.pr-tracker-bot@kernel.org>
-Date: Sun, 08 Feb 2026 17:29:35 +0000
-To: Wolfram Sang <wsa@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>, Andi Shyti <andi.shyti@kernel.org>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="IlJBJrQk"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1770603162; x=1802139162;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=li3Bz7MB9Db5p57EW1iDijoV/yjuamNyqKYmNRYo6WM=;
+  b=IlJBJrQkxZbj8WkChIrfk0TnaCZAvIYOoYJLwNiQV/YznaavQu5CSQjQ
+   5xi/q0Nq0XiYny41zGD2/PfjzpW9Vnusxd8yUyZ0GOQIuCA9tH6fniigS
+   c1BcMUowNpK/ZU/oUyWze7BFrBf/YxHK3W/Ntf22L5mLhXUy/ODvZT1tW
+   g2b6jhtn5rU7slGrVnkYHyMcyjoB2Srh+vbLEdJ/UIV2irqHJ2QHYTlnM
+   FZuCKTuCP4vAWWOv4MgTxwuwBW+otcQO1SonHOUcGe6K8zxVwxutqZBmo
+   gdzfnUTPpkU9IWr3YrPvQz1zB0+kf3BZp558g3tbenTed7bTfg02lpx7D
+   A==;
+X-CSE-ConnectionGUID: TbGAjXA/RPWtLaep2YpmVQ==
+X-CSE-MsgGUID: ir+wEO6EQf6SK6O791MNkw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11695"; a="83152685"
+X-IronPort-AV: E=Sophos;i="6.21,281,1763452800"; 
+   d="scan'208";a="83152685"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Feb 2026 18:12:41 -0800
+X-CSE-ConnectionGUID: O3GWCk0XQz68cDcF85WjTA==
+X-CSE-MsgGUID: h2jjiJw6QHyTvzyFF1iPiw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,281,1763452800"; 
+   d="scan'208";a="211241339"
+Received: from lkp-server01.sh.intel.com (HELO 765f4a05e27f) ([10.239.97.150])
+  by orviesa009.jf.intel.com with ESMTP; 08 Feb 2026 18:12:34 -0800
+Received: from kbuild by 765f4a05e27f with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1vpGlL-00000000mVm-0bVo;
+	Mon, 09 Feb 2026 02:12:31 +0000
+Date: Mon, 9 Feb 2026 10:12:03 +0800
+From: kernel test robot <lkp@intel.com>
+To: Josua Mayer <josua@solid-run.com>,
+	Marc Kleine-Budde <mkl@pengutronix.de>,
+	Vincent Mailhol <mailhol@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Peter Rosin <peda@axentia.se>, Aaro Koskinen <aaro.koskinen@iki.fi>,
+	Andreas Kemnade <andreas@kemnade.info>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
+	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+	Vignesh R <vigneshr@ti.com>, Andi Shyti <andi.shyti@kernel.org>,
+	Ulf Hansson <ulf.hansson@linaro.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Wolfram Sang <wsa-dev@sang-engineering.com>
+Cc: oe-kbuild-all@lists.linux.dev,
+	Yazan Shhady <yazan.shhady@solid-run.com>,
+	Jon Nettleton <jon@solid-run.com>,
+	Mikhail Anikin <mikhail.anikin@solid-run.com>,
+	linux-can@vger.kernel.org, linux-phy@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-mmc@vger.kernel.org,
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH v9 7/7] mmc: host: renesas_sdhi_core: support selecting
+ an optional mux
+Message-ID: <202602091037.wNIGJdbh-lkp@intel.com>
+References: <20260208-rz-sdio-mux-v9-7-9a3be13c1280@solid-run.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260208-rz-sdio-mux-v9-7-9a3be13c1280@solid-run.com>
 
-The pull request you sent on Sun, 8 Feb 2026 18:13:24 +0100:
+Hi Josua,
 
-> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-6.19-final
+kernel test robot noticed the following build errors:
 
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/e98f34af61167aee238e666bfbc97d1620afd88a
+[auto build test ERROR on 8f0b4cce4481fb22653697cced8d0d04027cb1e8]
 
-Thank you!
+url:    https://github.com/intel-lab-lkp/linux/commits/Josua-Mayer/phy-can-transceiver-rename-temporary-helper-function-to-avoid-conflict/20260208-234345
+base:   8f0b4cce4481fb22653697cced8d0d04027cb1e8
+patch link:    https://lore.kernel.org/r/20260208-rz-sdio-mux-v9-7-9a3be13c1280%40solid-run.com
+patch subject: [PATCH v9 7/7] mmc: host: renesas_sdhi_core: support selecting an optional mux
+config: s390-randconfig-r054-20260209 (https://download.01.org/0day-ci/archive/20260209/202602091037.wNIGJdbh-lkp@intel.com/config)
+compiler: s390-linux-gcc (GCC) 8.5.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260209/202602091037.wNIGJdbh-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202602091037.wNIGJdbh-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   s390-linux-ld: drivers/mmc/host/renesas_sdhi_core.o: in function `renesas_sdhi_probe':
+>> renesas_sdhi_core.c:(.text+0x1996): undefined reference to `devm_mux_state_get_optional_selected'
 
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/prtracker.html
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
