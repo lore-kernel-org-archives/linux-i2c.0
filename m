@@ -1,71 +1,131 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 051B4318BAF
-	for <linux-i2c@vger.kernel.org>; Tue, 10 Feb 2026 11:40:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9B0CF4FA;
+	Tue, 10 Feb 2026 12:43:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770723606; cv=none; b=SUIStxivSBmKJDo8lgFMczekEhOKjC5gtv+lUfyLUkVZDpH+/b11i4p9Ep8FvViqfNKUTaBlmcY+yc9L9LzB2CAdlKV+rO505F4eJF9LTWIoxCwtosw1P7miz5Pu8HxFL8Fs3ToGN4i9V0Ii6OTm+smiAlFGHyt2fWMjU6Im/54=
+	t=1770727411; cv=none; b=fJyTP1Z8PmhV+n8U6cMg8y47rQIRyQO++J7Q+F8u6xZC43+Vye1clpGCi7Fs29ZQQhUIGToCXhZTZUfsz7EyTfs1UGyV5bWHA3eZXgxQp8IgcCvfuo2YllrlHOEQKRDVlV3/PweVJcgbsTomQty+kd5lMhuN8Tf9clZxTGU+tJ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770723606; c=relaxed/simple;
-	bh=dqKxOobFcJBqPyepQzrqKnD+LxxtZE+dlRRofbhfCcg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JOfYV7adLtpF//HEmYHxL7qI+dXL1YHdswVOR2EExGIweA/cCuuPxMIoApNz0f9q9jSZh+70B0I99X0BiSnfmJcMwfSkD4gxGmBPerghZ4CPF1ta+TySRIN1AUKR/fhW65r7/oV6/yktHY3TjbXPZLmBZHWWs1KIMVkcYXuw5xo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=BY+ugDEN; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1770727411; c=relaxed/simple;
+	bh=SsUey4ngL1IxmEKLVcbKNfqjTf3Op/WYv3+uHVC9HVg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=lhoDWWnVoqNprBCxN/mUNgSEueCgcjwcI7eu4HMJMQVnGsUoYeyvkxvS+dwmXS1yNZ5Jwp2dUJXP+Hi2vUTeeDXDprO+MEKjnClvu9AbvOMW30txgxAzTuUE8xhFZ7xznL7mxxT9jTnt1uIZGDGVF8HsXtIt5wPjAN5hDW7C3oU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=acnwf4vJ; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="BY+ugDEN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=3owP
-	HeRA/CYaNIOo1gP+9CE62ZAMUeKpNDjPPeZoat4=; b=BY+ugDEN4WmOuJBKq/dK
-	b2dJ8L9pf4obK2MYpLyt+fG1pENsAmsuLiTgf0NkxeKuysAoXAfKtgCtswnQ+S/w
-	6es+KMICiIZppj/5VaEygS75yUWtV56wEeEybc8AW8Mj2sHdYrO+DD9ZEPRAqlLd
-	htVJ8xtQRuekfsjnE3KcV3I0XznxCJ54Fie3R1G/pp7xm9oiHyU84giFTBxrcBjF
-	umOl8upFNkAnTrXBN0SDigG8zTtNoB3/7IuR9jSEZnqOqDzEKw/ePlO8EIQzCKEj
-	uY9XIylAWmvEDIXLRsiW07Yh9u6z1LMERi+rHelr0v8iC4/XpwOg3RkKtmX+vEoN
-	Vw==
-Received: (qmail 375243 invoked from network); 10 Feb 2026 12:40:03 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 10 Feb 2026 12:40:03 +0100
-X-UD-Smtp-Session: l3s3148p1@ky1Wt3ZKgMEujnuT
-Date: Tue, 10 Feb 2026 12:40:02 +0100
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-	linux-i2c <linux-i2c@vger.kernel.org>
-Subject: Re: i2c-host-fixes for v6.19-rc9
-Message-ID: <aYsZEqnyKRzP2wCZ@shikoro>
-References: <aYZ-AZcfwfG1poEH@zenone.zhora.eu>
- <aYjE1N-_26RNg6os@ninjato>
- <aYsWFSABsDeu4C7V@zenone.zhora.eu>
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="acnwf4vJ"
+Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61AB01dA1940314;
+	Tue, 10 Feb 2026 12:43:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	/DJUZuxMxHgBmLTMKLMgpfnmRklM8tdMOAxKG/xygi0=; b=acnwf4vJonQLz/nN
+	+M2c4JvMSZmChvFX3Hi1hzhA0MiUak1VWWTfxsmzc5pBz61aOd3Pn/uK3tH8qTni
+	0OTwq8qH6ovr9RGYtVHE82P3ol6/ME/Z9x6w+LRWW6h0XCWFyrIe5I7Bylk98nu0
+	RPuEMZ1qIIFRDCfix6vd8/WDqjSqwynWFdbM756uuu+lcQ3JVr8E8iXOH62ijpiM
+	yZw1UM/+IWQMiFomDySBva2AQGgfrFJRq05EnYiW6A0HT/TXoM2JnxL+vTBFxOt9
+	E75H7o8xCZCP15tR25LRvyS0yx1E46FK5GhUUyv6sv8YBcJD0JJS0hrnfkJZa0I5
+	w7kAHQ==
+Received: from nalasppmta04.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c7w1jsk4r-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Feb 2026 12:43:22 +0000 (GMT)
+Received: from nalasex01c.na.qualcomm.com (nalasex01c.na.qualcomm.com [10.47.97.35])
+	by NALASPPMTA04.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 61AChMtA022796
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 10 Feb 2026 12:43:22 GMT
+Received: from [10.216.16.89] (10.80.80.8) by nalasex01c.na.qualcomm.com
+ (10.47.97.35) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Tue, 10 Feb
+ 2026 04:43:11 -0800
+Message-ID: <d63a0663-626e-416c-a5b4-e7d91f158b44@quicinc.com>
+Date: Tue, 10 Feb 2026 18:12:59 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aYsWFSABsDeu4C7V@zenone.zhora.eu>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v9 5/5] arm64: dts: qcom: monaco-evk-camera: Add DT
+ overlay
+To: Krzysztof Kozlowski <krzk@kernel.org>, <bryan.odonoghue@linaro.org>,
+        <robh@kernel.org>, <krzk+dt@kernel.org>, <conor+dt@kernel.org>,
+        <andersson@kernel.org>, <konradybcio@kernel.org>,
+        <hverkuil-cisco@xs4all.nl>, <loic.poulain@oss.qualcomm.com>,
+        <rfoss@kernel.org>, <andi.shyti@kernel.org>,
+        <linux-i2c@vger.kernel.org>, <cros-qcom-dts-watchers@chromium.org>
+CC: <quic_svankada@quicinc.com>, <linux-media@vger.kernel.org>,
+        <linux-arm-msm@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Ravi Shankar <quic_rshankar@quicinc.com>,
+        Vishal Verma <quic_vishverm@quicinc.com>,
+        Vladimir Zapolskiy
+	<vladimir.zapolskiy@linaro.org>,
+        Konrad Dybcio
+	<konrad.dybcio@oss.qualcomm.com>
+References: <20260121183142.1867199-1-quic_nihalkum@quicinc.com>
+ <20260121183142.1867199-6-quic_nihalkum@quicinc.com>
+ <32c4d3c3-6cbc-42cc-8c6e-7f1d0d35cc2c@kernel.org>
+ <7889e13e-fd81-42aa-873c-92de641e1979@quicinc.com>
+ <c9d1e8ca-253a-4e87-8dc7-d2036737b5e4@kernel.org>
+Content-Language: en-US
+From: Nihal Kumar Gupta <quic_nihalkum@quicinc.com>
+In-Reply-To: <c9d1e8ca-253a-4e87-8dc7-d2036737b5e4@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nalasex01c.na.qualcomm.com (10.47.97.35)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-GUID: OYhPIZr6wCzhrCvheCyrDBt15RWjAilF
+X-Proofpoint-ORIG-GUID: OYhPIZr6wCzhrCvheCyrDBt15RWjAilF
+X-Authority-Analysis: v=2.4 cv=YrIChoYX c=1 sm=1 tr=0 ts=698b27ea cx=c_pps
+ a=ouPCqIW2jiPt+lZRy3xVPw==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17
+ a=GEpy-HfZoHoA:10 a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22
+ a=uqR9VxAXCapsPfiRIz4A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjEwMDEwNyBTYWx0ZWRfXxOWIvIMH6TaC
+ OwZPD7hRCr5RAFGXZ489cBHFAbMiHVKOztXjxxARcvxfTyV3k85X2N0d0UyK5SQyml975DyOCsS
+ +aZIppzRnivpZErDI31bILww0lnPUlWp2ilRsx/OfGCqSt87+gjpyMBfscjJwychNrTp36brKm7
+ lHUQ0GBERy7Uj1t0vwNgPzzwUakVKsaalr4oDBsPJChT/7ptSyLZKFH+ljisiji1vepM5jQfxc3
+ Gvd9MfvK3Hld3MhdT9u9KCUR2Iv+73qkDaQxHnElAcp6Kcn2HTUpnpylYRH7hTUxEy7O3xcVuMH
+ pgevAzo78FRxK7oYT42w3nAy93Urc6dGIndTWjcHvEZhrtnr1qPBtW7oMNI6Ff/0p7jJv3KYAO8
+ fATXpWwF1YPAZYk7sIMY+bjqKM/CnxoW0JJuEg0q+M0Mn/C3cOnmIIPkIrJmjj4n0FxfYuNSUaE
+ mC1oAdgKk4OHBQLvy3Q==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-10_01,2026-02-10_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 suspectscore=0 bulkscore=0 adultscore=0 clxscore=1015
+ impostorscore=0 lowpriorityscore=0 priorityscore=1501 phishscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2601150000
+ definitions=main-2602100107
 
-Hi Andi,
 
-> > Well, this is a bit too intrusive for an after-rc8 pull request. I will
-> > add it to for-mergewindow. With the tags in here, it will be backported
-> > nonetheless.
-> 
-> don't worry, I will include it in the pull request I will send on
-> Friday.
 
-Please don't. I have it already in my pushed-out for-mergewindow branch.
+On 09-02-2026 22:08, Krzysztof Kozlowski wrote:
+>> Krzysztof, Thanks for your review.
+>> All patches posted here were build‑tested and verified by the author.
+> Then please explain reported by Rob build-process warnings.
 
-> Meantime, you still have this one[*] in the queue for this week's
-> merge window.
+The dt-binding for qcom,qcs8300-cci specifies two clocks:
+clock-names = "ahb", "cci";
 
-Yeah, thanks. It is also in the pushed-out branch.
+On Monaco, the CCI node currently defines:
+clock-names = "cpas_ahb", "cci";
 
-Happy hacking,
+The dt-binding warns because it expects the clock-names to be "ahb" and
+"cci", while the Monaco DTS uses "cpas_ahb" instead of "ahb". The
+hardware works correctly, but the name doesn't match the binding.
+Renaming "cpas_ahb" to "ahb" aligns the DTS with the binding and clears
+the warning. Please advise if you prefer a different approach.
 
-   Wolfram
+-- 
+Regards,
+Nihal Kumar Gupta
 
