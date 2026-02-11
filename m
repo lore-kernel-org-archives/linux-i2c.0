@@ -1,170 +1,131 @@
-Received: from mail-ed1-f46.google.com (mail-ed1-f46.google.com [209.85.208.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA550353ED2
-	for <linux-i2c@vger.kernel.org>; Wed, 11 Feb 2026 04:23:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.46
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770783839; cv=pass; b=BOSBDlJttuy2Lr+VGjzZiLkXibZSTUTxpczzKmPr/hu1StOWYjbeBLq+jxPBYRrjMlKBkPGCpLj5vSt/X7mWn165Q05Hn9mfCXwkxNsRLRD8vN015nWlNUAZygWOfjDQglOSR6X0iEpNJYM8wNSarngoBr0XSgcJVRPXtiAnaY8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770783839; c=relaxed/simple;
-	bh=AYf9PzYvGROYCkBsZp+oebw62lOGvJB1aK9owXm/Xl4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mEtpBy4+2d8APEHdIoYhzLGVvKJv5GL5NXmstCuT13+otq9Q5mCw1tgrlkXtgJDaaylvh9kMQ+ey72xc5h0f0dVjTheAizybfZH+bCq8/cboNib4zhCNK3SofF62LRy3IVWSRq6gLn1ZDPHlBGALoiSJeBESRkGJv6Gc+r7BunQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mXFjECIC; arc=pass smtp.client-ip=209.85.208.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEFB0C8EB;
+	Wed, 11 Feb 2026 13:39:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1770817173; cv=none; b=Kt8MSnRSkJiiBQctHJuvCIsZ51MuW+/zI8BTG34ieETQstagfp5ABPyuZ0/fc202SVu0D4myL7KWO+T1Wr7LSagKjX2MGdFUrEW4krI7cuwcN6nDqnCoqZNZTuv0LRlxDa8rQTNq/uriZJqp6gUBF1mV2RAUwMiKoIF45fuxyk0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1770817173; c=relaxed/simple;
+	bh=smH6/u2dHedP1RNEYZ2moMcAIaSKU0/J5N0ml/3MVps=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=qMI2sVNfiB8XqOU01QH+lQt5uuTKtswVqQ3jnoSeHx5nqLzIs8hasdI5rl1bkdQsNm6OQcRBwjm+90+8Rv0U9U9wnkWBYAHcxNHmstZZlyGTaVTP+ekL5COP81+P5s4M5OKETAwZRGRMS79hNJfVbsYkupp20K5oAY4ihSuM6bU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=Q+nUAoil; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mXFjECIC"
-Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-65808d08423so2228452a12.1
-        for <linux-i2c@vger.kernel.org>; Tue, 10 Feb 2026 20:23:58 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1770783837; cv=none;
-        d=google.com; s=arc-20240605;
-        b=GbTqUU6q3jnQcFt8bgct1/msXwSkOyT22EQhPiB2bIK+tyPJrqLnueUDX/v0l9A9Py
-         boBxtSBhzstARlHsXcLDnvAeFR8w670lgKHAzFFBemBhIAKE0bMWsG287P92gKFvs8FH
-         Uo4BxpbG71Ajpo3+GV6kn7CmCEKqeBJCcfWnCS6BlLP3nvovV34+46cOYq+VX8AGLsHN
-         dL100vLH0VryIAFUhkSNrYKns0ju0ylI8N4IemgN7OvpbhsUhEDbWXJDjkrdqeFOgG/h
-         e2Yah6q0RKBkxzb8l4FMJsOxukynmbiGBLw7uiKmQC0RG7bmmng+0flS1gM110LI7qbd
-         3SmQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=BIWA8RluXGR6oQRlAJWI5a2TCkKeGW1RA568WY8/pdo=;
-        fh=Us2J/GF/iIqXy8a2MFzuFZBvbq9RQnjEChEhBqeBSd0=;
-        b=Y3ir8WeTdhDB3seWFI4hBqt39dsLWYCZ8qkT4fUCxJG8h0E8rKWTigArruMVPZE2c6
-         3c0qODsIBO/I+SGBWxRRGkpEL4UmK3K/tKChiRadn8tQC/PPmva+iYGWZZ/lI05Y+143
-         veIGwWnWQN0njxvq1iD+iOrvu+j3IUfshyztdUYtVI1auXeR99pP4KgPpei/lzPy5ylt
-         4vIjbqIzX6ceZoZFOpVpXR/2tu3NhUJd8XZEWagUxN9pxyLcVUxnFyrmr1C+8CWDeTVg
-         gOK01L5nr6hM+He4d+p40JYBthxhGL3JpyogeKHu7dsrEZ4LLW02/tXIYDH9kk+za2cZ
-         CX3Q==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770783837; x=1771388637; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BIWA8RluXGR6oQRlAJWI5a2TCkKeGW1RA568WY8/pdo=;
-        b=mXFjECICsGhvMbXmCou3XphOP2ikapvNxo/la69670OYIqQJUxvroCjjPeB+dgbfBU
-         pzib0c+m/Vv4hWKcDj9/Q4SDLTn/qJQDS7/OXLt9D+maB0w+vd9Iae4fN8Z3s4SMf7nt
-         yVhA9K09itvV7Nc7cPAVtMcyVKxuRisAKsXzWKl1VDiA9EtwRaRfEYVcHC9DKCRkF1Ke
-         lSVUQ2YaT3ba96cO5fR5WSBn00FB4Sp35g3rYLjdDeUnLzV/D8M0mRvxSXLAI0qFETYO
-         GHbeIAM7YsQdClLN5EIKUiKiRXlXU7y23AGxGMO47mc8YZNzv9QMZfqJO1FR7oBfIXVf
-         M/lQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770783837; x=1771388637;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=BIWA8RluXGR6oQRlAJWI5a2TCkKeGW1RA568WY8/pdo=;
-        b=NV9EUVbLnW2m3tPaWfQlzdHXvXLiXWm3zMWQc0IqDnxllMHKmCHuUcyeX360uWyWrN
-         luSDKoKQnB+qPCe8tAdYjA83NGnC1ZFx/qzl6ow1/JipxXcv9r00ICIvZry2gYMIJ+nh
-         Aj1QyD+8albBNoxVSHoCN5qVoJIo9TZFlXrMh89gLaEZXls5IJP9OHBQ6aVtLk0tYedn
-         jJahUBfyjzsHtzosBmL7wcIpajmZQDPdr+PMTA9Z1/qesDlrleyJtTSnaXsBFtDzFLvN
-         QR3fegFuiAE+TrTGrsxaxd5JShXWKcDHcdn+B1pGSJPUSgiKfnkOtD046FVuZ/60jArK
-         oSlg==
-X-Forwarded-Encrypted: i=1; AJvYcCXit68j0WOdDizC/D1019h+DEjqilo6cE4Q/bh6s/o3nxlrtt5JFxSO7LQ2pcrqbhTPb3uwlsjgxZ8=@vger.kernel.org
-X-Gm-Message-State: AOJu0YywdZqQbHFKFuU5vSDUqWrC8HQHNtCkjqh/rm50Mo1peolUIFfh
-	DXgO0dN+tdlFGvEItSNXTKWpWJgK3hPNbeC18sb9rIRM6yYr1bc0OU+x6Gsmq8wc38VCCbmxA4H
-	/qbE+frnDpW0EpdcWSXjbFaQZc3ahKgs=
-X-Gm-Gg: AZuq6aICZa31BMog+VoRbV+ot0CZ8TeHhcTGHQNLNAXJnxNa9df14ZP9wt048y21ZlS
-	olayMsamXM7nzt19kXVyKDhsCKfN3EYt1lx/JDuAlz3PFqRSJGd0ySN0EifYcShQ3Qq/R42U14R
-	sHTRxo53+n6uNvIYdRi5oL1UrC+FsBonK6mFBJXBXATqCQm1uUBDqz9l93Jj/vYXEL6DNS43Zxf
-	77t+Nr2BYRC9DcFBgYgc9rtyT9jiCveMZgahAbXg6bDcAEgG3oHtDkjNT/UUHYEY3N7l/hcAXDM
-	Yauj+BvNqb6hiWLNsgbH
-X-Received: by 2002:a05:6402:1e88:b0:658:c11e:44dc with SMTP id
- 4fb4d7f45d1cf-6598418449dmr8359535a12.32.1770783836845; Tue, 10 Feb 2026
- 20:23:56 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="Q+nUAoil"
+Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61BAHuGA2298192;
+	Wed, 11 Feb 2026 13:39:27 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	ovI1Of9i62sla3VPPmetJfS7B15pM70XX/7h+Sqz6lA=; b=Q+nUAoilRCx10j9x
+	vQ+AyqWj2qjbPb29vWOWq6f+dq5u/A8+jt4hlppekwd8wUg9iHcnCRoZ5SOXapHY
+	prmcLSxb8qxUi2HuAhaACIoTbznrCXlxdhWR4A7OgIdb83puTB65d9DrNTvA7dUM
+	p1u/1yy01aaHza6Jhm490vX2hv8rGOt/uBT2F+8gF/6p9aCMSsTIM+0/qHCzCvyi
+	JDThK6KV7kd7YMUEaTjtRYF1mzOe0T98WyRBu0vbvFV7fZUje71pEJG12q6P3Zfl
+	nR38BtZJ41CmQBbk3FA9h3QnWnTgQYWJb5ROeeDtWG6clBV22TbzKiAqvzBu2Nug
+	PMw3+A==
+Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c8qvq8jrm-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 11 Feb 2026 13:39:27 +0000 (GMT)
+Received: from nalasex01c.na.qualcomm.com (nalasex01c.na.qualcomm.com [10.47.97.35])
+	by NALASPPMTA05.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 61BDdQhc031031
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 11 Feb 2026 13:39:26 GMT
+Received: from [10.216.0.199] (10.80.80.8) by nalasex01c.na.qualcomm.com
+ (10.47.97.35) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Wed, 11 Feb
+ 2026 05:39:16 -0800
+Message-ID: <675789d0-9fea-4ee6-a368-e1ec0f2c5a8d@quicinc.com>
+Date: Wed, 11 Feb 2026 19:09:06 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260211025057.29746-1-wanghongliang@loongson.cn>
-In-Reply-To: <20260211025057.29746-1-wanghongliang@loongson.cn>
-From: Binbin Zhou <zhoubb.aaron@gmail.com>
-Date: Wed, 11 Feb 2026 12:23:45 +0800
-X-Gm-Features: AZwV_Qjs2S_8KaNapnjsnLabauF-uP__2B7rU_oiaYXijjPm1jJP5WmfKCg6UMk
-Message-ID: <CAMpQs4LeFNEXyg-fVDiSDpEVdbPAY5Z5gL7-5s5uZ52BWmXP5w@mail.gmail.com>
-Subject: Re: [PATCH v1] LoongArch: add i2c clocks and clock-div parameter parsing.
-To: Hongliang Wang <wanghongliang@loongson.cn>
-Cc: Binbin Zhou <zhoubinbin@loongson.cn>, Andi Shyti <andi.shyti@kernel.org>, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	loongarch@lists.linux.dev
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v9 5/5] arm64: dts: qcom: monaco-evk-camera: Add DT
+ overlay
+To: Krzysztof Kozlowski <krzk@kernel.org>, <bryan.odonoghue@linaro.org>,
+        <robh@kernel.org>, <krzk+dt@kernel.org>, <conor+dt@kernel.org>,
+        <andersson@kernel.org>, <konradybcio@kernel.org>,
+        <hverkuil-cisco@xs4all.nl>, <loic.poulain@oss.qualcomm.com>,
+        <rfoss@kernel.org>, <andi.shyti@kernel.org>,
+        <linux-i2c@vger.kernel.org>, <cros-qcom-dts-watchers@chromium.org>
+CC: <quic_svankada@quicinc.com>, <linux-media@vger.kernel.org>,
+        <linux-arm-msm@vger.kernel.org>, <devicetree@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>,
+        Ravi Shankar <quic_rshankar@quicinc.com>,
+        Vishal Verma <quic_vishverm@quicinc.com>,
+        Vladimir Zapolskiy
+	<vladimir.zapolskiy@linaro.org>,
+        Konrad Dybcio
+	<konrad.dybcio@oss.qualcomm.com>
+References: <20260121183142.1867199-1-quic_nihalkum@quicinc.com>
+ <20260121183142.1867199-6-quic_nihalkum@quicinc.com>
+ <32c4d3c3-6cbc-42cc-8c6e-7f1d0d35cc2c@kernel.org>
+ <7889e13e-fd81-42aa-873c-92de641e1979@quicinc.com>
+ <c9d1e8ca-253a-4e87-8dc7-d2036737b5e4@kernel.org>
+ <d63a0663-626e-416c-a5b4-e7d91f158b44@quicinc.com>
+ <8f8d7469-5edb-4718-997e-9cd01f7a9689@kernel.org>
+Content-Language: en-US
+From: Nihal Kumar Gupta <quic_nihalkum@quicinc.com>
+In-Reply-To: <8f8d7469-5edb-4718-997e-9cd01f7a9689@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
+ nalasex01c.na.qualcomm.com (10.47.97.35)
+X-QCInternal: smtphost
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
+X-Proofpoint-ORIG-GUID: 7fOO1Wx2NiT14tvRyLQp7kLG0CysBqbN
+X-Authority-Analysis: v=2.4 cv=Q77fIo2a c=1 sm=1 tr=0 ts=698c868f cx=c_pps
+ a=ouPCqIW2jiPt+lZRy3xVPw==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17
+ a=GEpy-HfZoHoA:10 a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22
+ a=NOhv38UlziJEWAsVEukA:9 a=QEXdDO2ut3YA:10 a=zZCYzV9kfG8A:10
+X-Proofpoint-GUID: 7fOO1Wx2NiT14tvRyLQp7kLG0CysBqbN
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjExMDEwNSBTYWx0ZWRfXxSRwkFB9eYH3
+ ezFbL4P7AnClBQYUlCrKmf0+wL+TwiywkjcS8CgotxyHtVtBXsUE+gFinTf/BjgbFcdlPxdX8ko
+ uwITtWPnQSWQNpTQwNvsriAd2NWx/2y5gu1DFFwHUoIOaeU65TyKP/dnTdTACXKQeWDpE9o3re1
+ q4w6XCfsMi0o6VySMFPLi2nmd2C02UA+N6+zwSYVkNse7y/p+8DpaHoMm/4hF7dQ0YFveRFu262
+ 0IxvwgRCSyJtrKMa62Sf/Hj8djD54UAYe55uaKTuIZQJudWccChT3nm+kV/AxNRwqh7MsGEgnHD
+ ReoDjKMCnpp4zZNcN2frwH+gHG1fmqwQQpgSq6ZOHqNWA/y/vPCIXyi1JHdq/apJAF7/p3B+LFA
+ EZxMbTj9K2a4cg2VlBXsGKCCD/zuzqKJpK09Gl0vHgDOqHypk/TAhfEjGv+srX+GFkfH6i3cs0+
+ xFfN18qyZInlgZnU9gg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-02-11_01,2026-02-11_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1015 suspectscore=0 bulkscore=0 impostorscore=0 malwarescore=0
+ lowpriorityscore=0 spamscore=0 priorityscore=1501 adultscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602110105
 
-Hi Hongliang:
 
 
-Bad commit subject, it should start with:
-i2c: ls2x:
+On 10-02-2026 18:21, Krzysztof Kozlowski wrote:
+>> Renaming "cpas_ahb" to "ahb" aligns the DTS with the binding and clears
+>> the warning. Please advise if you prefer a different approach.
+> I said this was not build-time tested. I gave a proof of that.
+> 
+> You said it was build tested but you confirm it has build error.
+> 
+> Listen, when tools report you errors and maintainers say your code does
+> not pass basic tests, don't insist that this was basic tested.
+> 
+> It was not and discussing this just wastes our time. I am not going to
+> spend more time on this discussion, wasted already too much.
 
-On Wed, Feb 11, 2026 at 10:51=E2=80=AFAM Hongliang Wang
-<wanghongliang@loongson.cn> wrote:
->
-> On 3A/7A/2K platform, i2c ref clocks and clock divisor maybe
-> different, through firmware parameter passing, "clocks" and
-> "clock-div" are used to describe i2c ref clocks and divisor.
+Apologies for the inconvenience, Krzysztof.
+I will discuss this internally with the team and resend the patch accordingly.
 
-I feel it's necessary to specify which platforms are different in the
-commit message.
->
-> Signed-off-by: Hongliang Wang <wanghongliang@loongson.cn>
-> ---
->  drivers/i2c/busses/i2c-ls2x.c | 8 +++++++-
->  1 file changed, 7 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-ls2x.c b/drivers/i2c/busses/i2c-ls2x.=
-c
-> index b475dd27b7af..562bf32a9d6c 100644
-> --- a/drivers/i2c/busses/i2c-ls2x.c
-> +++ b/drivers/i2c/busses/i2c-ls2x.c
-> @@ -96,6 +96,8 @@ static irqreturn_t ls2x_i2c_isr(int this_irq, void *dev=
-_id)
->  static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
->  {
->         u16 val;
-> +       u32 pclk;
-> +       u32 div;
+-- 
+Regards,
+Nihal Kumar Gupta
 
-Place them in a single line.
->         struct i2c_timings *t =3D &priv->i2c_t;
->         struct device *dev =3D priv->adapter.dev.parent;
->         u32 acpi_speed =3D i2c_acpi_find_bus_speed(dev);
-> @@ -107,12 +109,16 @@ static void ls2x_i2c_adjust_bus_speed(struct ls2x_i=
-2c_priv *priv)
->         else
->                 t->bus_freq_hz =3D LS2X_I2C_FREQ_STD;
->
-> +       if (!device_property_read_u32(dev, "clocks", &pclk) &&
-> +               !device_property_read_u32(dev, "clock-div", &div) && div =
-!=3D 0)
-> +               val =3D (pclk * 10) / (div * t->bus_freq_hz) - 1;
-
-I think you should update dt-binding synchronously and verify whether
-the existing i2c node in DTS{i} requires updating.
-> +       else
-> +               val =3D LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
->         /*
->          * According to the chip manual, we can only access the registers=
- as bytes,
->          * otherwise the high bits will be truncated.
->          * So set the I2C frequency with a sequential writeb() instead of=
- writew().
->          */
-> -       val =3D LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
->         writeb(FIELD_GET(GENMASK(7, 0), val), priv->base + I2C_LS2X_PRER_=
-LO);
->         writeb(FIELD_GET(GENMASK(15, 8), val), priv->base + I2C_LS2X_PRER=
-_HI);
->  }
-> --
-> 2.47.2
->
->
-
---=20
-Thanks.
-Binbin
