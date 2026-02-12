@@ -1,131 +1,162 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEFB0C8EB;
-	Wed, 11 Feb 2026 13:39:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 06698284672
+	for <linux-i2c@vger.kernel.org>; Thu, 12 Feb 2026 13:49:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770817173; cv=none; b=Kt8MSnRSkJiiBQctHJuvCIsZ51MuW+/zI8BTG34ieETQstagfp5ABPyuZ0/fc202SVu0D4myL7KWO+T1Wr7LSagKjX2MGdFUrEW4krI7cuwcN6nDqnCoqZNZTuv0LRlxDa8rQTNq/uriZJqp6gUBF1mV2RAUwMiKoIF45fuxyk0=
+	t=1770904181; cv=none; b=sCiBOzYKr7iNyRtjt4mxj5JUiLX9zA9mRAYqvZfThBf3Fp5FCg5kUGszLkXgATEuU59afJClSMPmpm9zeVw5SRCT8kCrQ0J/DkzaYdzs9KQbUbe/2D4HF/ahG3k8H/sA+fZK5RpTrgunktvE25ets3XbWzrecotevdqriBfbCQ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770817173; c=relaxed/simple;
-	bh=smH6/u2dHedP1RNEYZ2moMcAIaSKU0/J5N0ml/3MVps=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=qMI2sVNfiB8XqOU01QH+lQt5uuTKtswVqQ3jnoSeHx5nqLzIs8hasdI5rl1bkdQsNm6OQcRBwjm+90+8Rv0U9U9wnkWBYAHcxNHmstZZlyGTaVTP+ekL5COP81+P5s4M5OKETAwZRGRMS79hNJfVbsYkupp20K5oAY4ihSuM6bU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=Q+nUAoil; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	s=arc-20240116; t=1770904181; c=relaxed/simple;
+	bh=XoRTysmGOAbvFNIaBGY4BvJwXgLYDVmLc1+jYE2Zq+M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SIi1ckB+whCZBORK52rGnG7c3nBoaVNfv6jDobomHJLo5Egdhmc/9641IqPI5f7nfkcSp57heyomHzywiQFs4tITxf9A+H3sSacO2PvXw3U5Zkr3+X51AmmxaeMC4/E6E6cCx9blAPttdVkZFMiuTh7k31rIHB4HpzFXMua+Sa8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nMja6STh; arc=none smtp.client-ip=209.85.167.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="Q+nUAoil"
-Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61BAHuGA2298192;
-	Wed, 11 Feb 2026 13:39:27 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	ovI1Of9i62sla3VPPmetJfS7B15pM70XX/7h+Sqz6lA=; b=Q+nUAoilRCx10j9x
-	vQ+AyqWj2qjbPb29vWOWq6f+dq5u/A8+jt4hlppekwd8wUg9iHcnCRoZ5SOXapHY
-	prmcLSxb8qxUi2HuAhaACIoTbznrCXlxdhWR4A7OgIdb83puTB65d9DrNTvA7dUM
-	p1u/1yy01aaHza6Jhm490vX2hv8rGOt/uBT2F+8gF/6p9aCMSsTIM+0/qHCzCvyi
-	JDThK6KV7kd7YMUEaTjtRYF1mzOe0T98WyRBu0vbvFV7fZUje71pEJG12q6P3Zfl
-	nR38BtZJ41CmQBbk3FA9h3QnWnTgQYWJb5ROeeDtWG6clBV22TbzKiAqvzBu2Nug
-	PMw3+A==
-Received: from nalasppmta05.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4c8qvq8jrm-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Feb 2026 13:39:27 +0000 (GMT)
-Received: from nalasex01c.na.qualcomm.com (nalasex01c.na.qualcomm.com [10.47.97.35])
-	by NALASPPMTA05.qualcomm.com (8.18.1.2/8.18.1.2) with ESMTPS id 61BDdQhc031031
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 11 Feb 2026 13:39:26 GMT
-Received: from [10.216.0.199] (10.80.80.8) by nalasex01c.na.qualcomm.com
- (10.47.97.35) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Wed, 11 Feb
- 2026 05:39:16 -0800
-Message-ID: <675789d0-9fea-4ee6-a368-e1ec0f2c5a8d@quicinc.com>
-Date: Wed, 11 Feb 2026 19:09:06 +0530
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nMja6STh"
+Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-59e60b3ccdfso2206580e87.0
+        for <linux-i2c@vger.kernel.org>; Thu, 12 Feb 2026 05:49:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1770904177; x=1771508977; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=HUxxqBz3jOTMwO/v0XklbtGC8c413o3aUlrwycDgd5k=;
+        b=nMja6SThYr+RdMgsmfRgrYgLJDoPr+LJcwiHTIIvffABP9s0zOcAgDEWjyVBBo7gs2
+         qJjyI6gK88cpeuDf5YTnU2ZYpumimNObeHKXnaSGf0cODqwugKdGp9h2b3Y1S1sH9sqJ
+         R2quMsF6ONQKU4Ieir0RHYq9SHefRwWLN+kK8ozz7CvUKZauk4I7gKN7oL7BjEklHsT5
+         w09rDSE6Yl/+HY0RuQcbO7bMNKdGeTzZViOUSfoKZHf4OQAWg8ikKYvjWKj9X4AIi6Nc
+         5zKAoI3xarv7beftoK7i67CfQfNbmNhkRRmdlDRRX5ZFDqXVbvYAT+p41b58IGag4z+v
+         K/ZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1770904177; x=1771508977;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=HUxxqBz3jOTMwO/v0XklbtGC8c413o3aUlrwycDgd5k=;
+        b=tbOndxgYrkAhzBjiX0XKAyvJjVd1XhAuISnuGUhH8ZXkTAxwduisAoq458qY6Guis8
+         bJ2WQ7qwLAGQfdcdsD1A+oVXgIT0Y7qsj/MU+F2hDLXbHn1X2ljQkpQMnILyXo7NE+qn
+         FO6y3RAhoLCHSA6SxaYF9a+QFSneGbRRJ448+auhr4WAaypa5nF+/MQ/opcM/spzcV2f
+         DeGc2JIiPscSVabtSDJd5qExsaSlMDdXgJG4TrX1B12fhw2vU4HZYBA5YXrKovAARPbW
+         zJrsf1B+FYF0P1OZCg/dh6NRvn5yUPSjbAZ0i9L14RrWeD+86GlHuWa9nCGA9JaLHVnw
+         4upg==
+X-Gm-Message-State: AOJu0Yx4BDO3pnE+FJg8OUuTjALsLetUk7w9+Xqnl6P2/QNdWVKtnqsB
+	Vyb3xmcFJrk2cGutNq4FAXzMAE712T/kGFqRV/ASIi+A74vgzX1fuWsM
+X-Gm-Gg: AZuq6aIXLycnf35sX2XgDgabGAE2AtkKBspeUInzvJxf9mCiWsSh/M35tT/8ALlFy8g
+	Omnu9RSBEtv8iXs83HN7GcmSXaGFPt9UmJUwvLajraGdG9OF3MogsN1xti8qSLc82VVGDTHQWhL
+	k5ED4DX5nop2l9ng/Yk8QKkOyW11bpe9kBmGy6kzS9rr5+mldXAn9SlougcuW7WVqOb/1835DOk
+	pv23/AmJmGd8vTjqKUnlTccwqjuz8aOzEsD50YgTAyQa9W2Z2xXn1zIW176LKOZSg7teFyjROJk
+	hs3ky/EOIWkhINUBj8KrWxWVr1nwckpM+869r5Mj9257JV7nvtSFdO7QkpE71CP4Hej5DoRmJIC
+	E6KdFltbs0XK50mULfZM3fY1JUxiglEj+YejwQH2vsHGbZ9HvynIZWdktu8kEeUQ36//hI6+vND
+	3nq7k3hWixxaMKQKFMYUlNvbcJuL73gQP8e9awqWsI+Baosh5zfXbk2p+Md6AP
+X-Received: by 2002:a05:6512:2244:b0:59b:7c03:f2ec with SMTP id 2adb3069b0e04-59e64149398mr1135497e87.41.1770904176750;
+        Thu, 12 Feb 2026 05:49:36 -0800 (PST)
+Received: from gmail.com (83-233-6-197.cust.bredband2.com. [83.233.6.197])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-59e5f568d95sm961995e87.30.2026.02.12.05.49.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Feb 2026 05:49:35 -0800 (PST)
+Date: Thu, 12 Feb 2026 14:49:34 +0100
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Peter Rosin <peda@axentia.se>,
+	Michael Hennerich <michael.hennerich@analog.com>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v4 0/5] I2C Mux per channel bus speed
+Message-ID: <aY3aboaHYNPbXIbr@gmail.com>
+References: <20260128-i2c-mux-v4-0-dee49ce276c0@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v9 5/5] arm64: dts: qcom: monaco-evk-camera: Add DT
- overlay
-To: Krzysztof Kozlowski <krzk@kernel.org>, <bryan.odonoghue@linaro.org>,
-        <robh@kernel.org>, <krzk+dt@kernel.org>, <conor+dt@kernel.org>,
-        <andersson@kernel.org>, <konradybcio@kernel.org>,
-        <hverkuil-cisco@xs4all.nl>, <loic.poulain@oss.qualcomm.com>,
-        <rfoss@kernel.org>, <andi.shyti@kernel.org>,
-        <linux-i2c@vger.kernel.org>, <cros-qcom-dts-watchers@chromium.org>
-CC: <quic_svankada@quicinc.com>, <linux-media@vger.kernel.org>,
-        <linux-arm-msm@vger.kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>,
-        Ravi Shankar <quic_rshankar@quicinc.com>,
-        Vishal Verma <quic_vishverm@quicinc.com>,
-        Vladimir Zapolskiy
-	<vladimir.zapolskiy@linaro.org>,
-        Konrad Dybcio
-	<konrad.dybcio@oss.qualcomm.com>
-References: <20260121183142.1867199-1-quic_nihalkum@quicinc.com>
- <20260121183142.1867199-6-quic_nihalkum@quicinc.com>
- <32c4d3c3-6cbc-42cc-8c6e-7f1d0d35cc2c@kernel.org>
- <7889e13e-fd81-42aa-873c-92de641e1979@quicinc.com>
- <c9d1e8ca-253a-4e87-8dc7-d2036737b5e4@kernel.org>
- <d63a0663-626e-416c-a5b4-e7d91f158b44@quicinc.com>
- <8f8d7469-5edb-4718-997e-9cd01f7a9689@kernel.org>
-Content-Language: en-US
-From: Nihal Kumar Gupta <quic_nihalkum@quicinc.com>
-In-Reply-To: <8f8d7469-5edb-4718-997e-9cd01f7a9689@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nalasex01c.na.qualcomm.com (10.47.97.35)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: 7fOO1Wx2NiT14tvRyLQp7kLG0CysBqbN
-X-Authority-Analysis: v=2.4 cv=Q77fIo2a c=1 sm=1 tr=0 ts=698c868f cx=c_pps
- a=ouPCqIW2jiPt+lZRy3xVPw==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17
- a=GEpy-HfZoHoA:10 a=IkcTkHD0fZMA:10 a=HzLeVaNsDn8A:10
- a=VkNPw1HP01LnGYTKEx00:22 a=Mpw57Om8IfrbqaoTuvik:22 a=GgsMoib0sEa3-_RKJdDe:22
- a=NOhv38UlziJEWAsVEukA:9 a=QEXdDO2ut3YA:10 a=zZCYzV9kfG8A:10
-X-Proofpoint-GUID: 7fOO1Wx2NiT14tvRyLQp7kLG0CysBqbN
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjExMDEwNSBTYWx0ZWRfXxSRwkFB9eYH3
- ezFbL4P7AnClBQYUlCrKmf0+wL+TwiywkjcS8CgotxyHtVtBXsUE+gFinTf/BjgbFcdlPxdX8ko
- uwITtWPnQSWQNpTQwNvsriAd2NWx/2y5gu1DFFwHUoIOaeU65TyKP/dnTdTACXKQeWDpE9o3re1
- q4w6XCfsMi0o6VySMFPLi2nmd2C02UA+N6+zwSYVkNse7y/p+8DpaHoMm/4hF7dQ0YFveRFu262
- 0IxvwgRCSyJtrKMa62Sf/Hj8djD54UAYe55uaKTuIZQJudWccChT3nm+kV/AxNRwqh7MsGEgnHD
- ReoDjKMCnpp4zZNcN2frwH+gHG1fmqwQQpgSq6ZOHqNWA/y/vPCIXyi1JHdq/apJAF7/p3B+LFA
- EZxMbTj9K2a4cg2VlBXsGKCCD/zuzqKJpK09Gl0vHgDOqHypk/TAhfEjGv+srX+GFkfH6i3cs0+
- xFfN18qyZInlgZnU9gg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-02-11_01,2026-02-11_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 suspectscore=0 bulkscore=0 impostorscore=0 malwarescore=0
- lowpriorityscore=0 spamscore=0 priorityscore=1501 adultscore=0 phishscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2601150000 definitions=main-2602110105
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="2rS0NZa0G0VvGsej"
+Content-Disposition: inline
+In-Reply-To: <20260128-i2c-mux-v4-0-dee49ce276c0@gmail.com>
+
+
+--2rS0NZa0G0VvGsej
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Wed, Jan 28, 2026 at 10:54:26AM +0100, Marcus Folkesson wrote:
+> This was a RFC on how to implement a feature to have different bus
+> speeds on different channels with an I2C multiplexer/switch.
+> As no major complaints on the design came up during the review, I
+> decided to submit the series without the RFC tag.
+>=20
+> The benefit with this feature is that you may group devices after
+> the fastest bus speed they can handle.
+> A real-world example is that you could have e.g. a display running @400kHz
+> and a smart battery running @100kHz using the same I2C controller.
+>=20
+> There are many corner cases where this may cause a problem for some
+> hardware topologies. I've tried to describe those I could think of
+> in the documentation, see Patch #5.
+>=20
+> E.g. one risk is that if the mux driver does not disconnect channels
+> when Idle, this may cause a higher frequency to "leak" through to
+> devices that are supposed to run at lower bus speed.
+> This is not only a "problem" for changing bus speed but could also be
+> an issue for potential address conflicts.
+>=20
+> This patchset has been used and tested heavily the last months
+> on a custom board based on a da850 (DaVinci) platform.
+>=20
+> The implementation is split up into several patches:
+>=20
+> Patch #1 Introduce a callback for the i2c controller to set bus speed
+> Patch #2 Introduce functionality to adjust bus speed depending on mux
+>          channel.
+> Patch #3 Cleanup i2c-davinci driver a bit to prepare it for set_clk_freq
+> Parch #4 Implement set_clk_freq for the i2c-davinci driver
+> Parch #5 Update documentation with this feature
+>=20
+> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+
+Hi all,
+
+A friently reminder to everyone out there who might be able to review this
+patchset.
+
+The patches has been tested and used for a long time on a custom board,
+so I feel quite confident with the implementation.
+It also should not affect existing code that not make use of the new
+feature.
+But it needs reviews.
+
+Thank you in advance
+
+Best regards,
+Marcus Folkesson
 
 
 
-On 10-02-2026 18:21, Krzysztof Kozlowski wrote:
->> Renaming "cpas_ahb" to "ahb" aligns the DTS with the binding and clears
->> the warning. Please advise if you prefer a different approach.
-> I said this was not build-time tested. I gave a proof of that.
-> 
-> You said it was build tested but you confirm it has build error.
-> 
-> Listen, when tools report you errors and maintainers say your code does
-> not pass basic tests, don't insist that this was basic tested.
-> 
-> It was not and discussing this just wastes our time. I am not going to
-> spend more time on this discussion, wasted already too much.
+--2rS0NZa0G0VvGsej
+Content-Type: application/pgp-signature; name=signature.asc
 
-Apologies for the inconvenience, Krzysztof.
-I will discuss this internally with the team and resend the patch accordingly.
+-----BEGIN PGP SIGNATURE-----
 
--- 
-Regards,
-Nihal Kumar Gupta
+iQIzBAEBCgAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAmmN2mgACgkQiIBOb1ld
+UjJyyA/8DQfVswJwLs4RPMdXzmUPcI98CHFFZ+0g2p3hplUpfq27qmT6pENvo0PF
+vsx3QLtpxTWAdSTRwjRda6sW+11AVYLb4PxjJ6KKsAQH6EO6Yht+HwPhjh+2L2D5
+fjsMk7DkVL4pHnJj64UP5bHr3MxyTVM/7olk7M7g3Gbj2Qge0IeKVNn/i/AvM1yl
+jOAYKEcAFXX0ZofMaJ3L/irlGqV/NwfNWbOXt6ztY0XzK30EWU5CLbY43QBUCNUQ
+8HbzbuoarlXoesg33sZnuoFl6rCJIkF4wow99ssbdLMQq/NSXlUdzn611kdBXgiy
+ts7iESn/P/tQ45QyzyjksSssHHU9hN3U0NdAx4dRekcJIB0cP07t8wDXIByEK7ig
+yRu43LdaGU8vGYyWh3salssI4aHyetyS/p00CWS4ww05X9IKVMNtIFDTm6Tt6ydL
+OIi+ORTZjMifI+n5VSKEZZOZO9q7vhB1320W55FP/cPDkqGzKC1xOkXwl3OLyT1t
+C32MkUJ3ywBKJZders6aGgjUHGmXr0flLCeYrZOHSDQoxIeTaPRU0TRh2DxMTBHb
+dcAj0DpCVM8egl6P21MmLgqx2lHEBIwIpdJG/CipdnpRigDjTD++i/4g478KSuYE
+tPU73QKRL3OWKwHIExyMQIn2SjjdySAOpakgzKXRd4jSdJPIjNA=
+=d6VN
+-----END PGP SIGNATURE-----
 
+--2rS0NZa0G0VvGsej--
