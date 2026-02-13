@@ -1,179 +1,169 @@
-Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2AC0F1E487
-	for <linux-i2c@vger.kernel.org>; Thu, 12 Feb 2026 21:47:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3BDA1F30A9;
+	Fri, 13 Feb 2026 00:15:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770932865; cv=none; b=ldMQ0kZlzjXhAvhYMgpgE6RgPblgtjAeGE8VNLilBmKNqJtMmZrkBkYfUPbDd/2etgMipAhHCFB+Y3Uk27meHAGzjKndFo4BmcYGIpVG3u6hZhArH9AeAYdV9BkfWQ2qIDgnmXiXT9t3wltruHM1u1PSczhjXd38aTEJxEZsdBk=
+	t=1770941722; cv=none; b=oR5cilXClzw792/2Rxl1IqNYT0Ud/SMXVhMWOZ96XrgYnpM9ZwONSkYTJ+C/7uscrRyfDJGxfqencOAmZP3CADiUU93eAz+A6/aB96DKwzwZ7igYbGVUWaaMs7t4nwpwTSRa71uo39BdQjsegFshwYs+cBlUZuEN1RYxEfNdCZk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770932865; c=relaxed/simple;
-	bh=WUVEbns8lbGeXg02l+QeZugnAQx0JP+e9sc/HPp2eXU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nANaDSuC+oWeUl3cSAwZORkV/LC44/GKSqSy60fdNuqakiDTBKFIQoK3cixWzT4feVPAS/exrJ5pLvWEHPaAt4RY7QcaUsQSR0A4vwrJekdhyFGb/eIBD6E9mB/7N3wSpPPwcARTBI6GO1IQy23MWXzQed/99W2Bzy9VVsr3F2U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Nd3hY9dn; arc=none smtp.client-ip=209.85.167.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1770941722; c=relaxed/simple;
+	bh=odmV5niUZmpfJnRwHXoQMD5/apRHKE+2PCyK8AQML/I=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=OtB/X4rfgKsYJqU60+794YAg1BP0ZuliWkHZ0rr6FROEeX1mWPkOUaT/vzIcAurl5RTmLSX5wLbwPBH3ceNFYxyBjc+lHNdGFSEg+f+qGqyqvviWbm7y1LfkK+dGhlxxtn+r2UqQFSXWNDYmsSmA8ciww8I98vSOQdMOoajY7HA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WfBxamJ/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Nd3hY9dn"
-Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-59de2d1fc2cso355623e87.2
-        for <linux-i2c@vger.kernel.org>; Thu, 12 Feb 2026 13:47:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1770932862; x=1771537662; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=uI0DWSxvm6NFySyRZeE8NYakt+hMKZcgOA3uk/TYi0k=;
-        b=Nd3hY9dnzXCWJokcsBbEVxCNf7afxrkt/I+IMe/Tar9pK5L7/zWVWgmaye+YcXPh41
-         Q49U8lbir0ERb2nQ8bwNLAcTdfpI+Y8/k/ssu8Kk+fItzdyn51TMv3GybYHElUddaOMV
-         gyIUn8yt2DBYtyWbeRyn0jgAsrTIZcSjyDfyR9c/bnhNQD3vlmC69IRmVTzbZxoYA2Dj
-         LtsSSRL+q5C9G4oAyNv8y4oth1FcSv10ft41AQeZRPYIR5MVTZmsuF1HIN154YGxg7WO
-         mxeorrrwIkxwD+Rbi7rOsPxkU7We244j6r1WZTw/3JXg2mRtb+qwUxMVGTibcamMomv9
-         tgKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1770932862; x=1771537662;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=uI0DWSxvm6NFySyRZeE8NYakt+hMKZcgOA3uk/TYi0k=;
-        b=iUm+ffLvXdH5g+jF1X+MuMOPMCx3wKD26V8BPUxzaKc6yaBS/zWAyqe9w6S+MipyXi
-         O0rtXNVLqniGGDmw8F5GpNqzHB+bIhDfmlmMaOJJUidkCdp/wtpBuMeZre9RUkmttgWu
-         tEFOD5PB6Gx7Vbsxfxlro9ZQGVDqw52ue6m/5rmnoT2peAkRhfoBy3kctqtHW8kKIstb
-         35WmYYWqeTGvDyPbg9spJIFYYiuTBwE7ac26T/Y8+Eoi7EKB8qjwX2TkIKHcMLZnVn/R
-         Rmx9FFb3nuI7GAuTXH4B+VfCA+mjRWahwBD0sDtGIJ1GK4mKwo13zubfr2PNGGEJSr++
-         sHFg==
-X-Forwarded-Encrypted: i=1; AJvYcCU0u2oaeF6dju8MVSM9sKoTuy8f5DFIF/HtnBbTHfZWpik3gPFduxBgwjguuQBOIc7LMbzlWy5nSL4=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwIhh74AD+lqwwduIW9ACG6o8dpFVg2hYtP8JffPudb95gsIepZ
-	lMtJVp3DxZ1W9Tm6HlNvlsk0Gn9tjooFgsiW/TcxMRnYS39opdoLJJjX4tMmLQ==
-X-Gm-Gg: AZuq6aKMWyuIygv4tlLi/yA+Nt48ZHyEtvB1uJNy/FNl2BsKZIGaU4aURMB0VPqe7GK
-	3CYYjtEwYJN85roEQRGhj7OrKmf/LAumPHb6xnld+z3uWv5Xaz3zfm7Z7lUc+0zbdWCXArclSVd
-	+Y+iQ+7wUOPCrXXLNQL0+Vt3ztDnazD29dMvTCuPRxvsku3Pr7zkJj3w1YxhGCEhJoLi0a9nCsW
-	LVAd6jjwFBRla+2m+0QFwV3vp0HyrPLyEtXokxhz7H5rLEUeRFf5PEk5pz/Ge+XAmp9zEttc6w1
-	X5FGag91wffZl1yGGuK9cM3tTGMGQCe00L5DKN6NZ1wVbQImsNcAn0nsIOeDkd0w7f02lUi/sTK
-	QoqhV5WlbUIQ6giVVbzFfljp7EovWPhGU6rpRLsSfSst0IeTrfuO/7j30K0IAEayM763tb9OHF6
-	xtohgc9caaYs2MAR5pXmwMn0IcKroNh0NjqxY4y7vV8NArohGv4kn4PLrC5X8A
-X-Received: by 2002:a05:651c:41c7:b0:385:f7ce:f322 with SMTP id 38308e7fff4ca-387f80ded45mr477031fa.35.1770932861977;
-        Thu, 12 Feb 2026 13:47:41 -0800 (PST)
-Received: from gmail.com (83-233-6-197.cust.bredband2.com. [83.233.6.197])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-38706928d9esm10989251fa.42.2026.02.12.13.47.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 12 Feb 2026 13:47:39 -0800 (PST)
-Date: Thu, 12 Feb 2026 22:47:36 +0100
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Peter Rosin <peda@axentia.se>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Michael Hennerich <michael.hennerich@analog.com>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v4 2/5] i2c: mux: add support for per channel bus
- frequency
-Message-ID: <aY5KeH3Z1S3MswHI@gmail.com>
-References: <20260128-i2c-mux-v4-0-dee49ce276c0@gmail.com>
- <20260128-i2c-mux-v4-2-dee49ce276c0@gmail.com>
- <2ecbebd8-0842-34fa-a593-25168c91aa6b@axentia.se>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WfBxamJ/"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 7C840C4CEF7;
+	Fri, 13 Feb 2026 00:15:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1770941722;
+	bh=odmV5niUZmpfJnRwHXoQMD5/apRHKE+2PCyK8AQML/I=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
+	b=WfBxamJ/v4rzIhn4fsDBL2srK/hZQamO77VWOl2dssNtaxfNZwa6hdkdXQ4lv6f7O
+	 h/i6ZlCQAJrIrfxkS9Clp6Y+b9CY81fq4Wcz++0od31q+ePvk7x933oyE5Ik27666S
+	 lI6u7NBOK3SJt9nGDD4e346t+DOsS77tRi0p7h3BzMyGWYI0WvcQ4d8/No5zjSRoq2
+	 pzdtsJYMkSPTMUdOJ84pmI+aRJYsSYMwvvS/hd9H3q/U9aI5+ftD4upcdtwUQTv7IF
+	 OcKlMOJutNxNwjC+fMgx5O6WrUNtE7Jh/3rgD4B5DEM6Qf2tDYqH70hCiIhOQMrr4N
+	 agJQPU+BHtULw==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4BC41EEA86E;
+	Fri, 13 Feb 2026 00:15:22 +0000 (UTC)
+From: Abdurrahman Hussain via B4 Relay <devnull+abdurrahman.nexthop.ai@kernel.org>
+Date: Fri, 13 Feb 2026 00:15:16 +0000
+Subject: [PATCH v11 1/7] i2c: xiic: switch to devres managed APIs
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="+EwcLp+XXXrhpKBe"
-Content-Disposition: inline
-In-Reply-To: <2ecbebd8-0842-34fa-a593-25168c91aa6b@axentia.se>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260213-i2c-xiic-v11-1-5d18aea11bde@nexthop.ai>
+References: <20260213-i2c-xiic-v11-0-5d18aea11bde@nexthop.ai>
+In-Reply-To: <20260213-i2c-xiic-v11-0-5d18aea11bde@nexthop.ai>
+To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@intel.com>, 
+ linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
+ Abdurrahman Hussain <abdurrahman@nexthop.ai>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1770941721; l=2992;
+ i=abdurrahman@nexthop.ai; s=20260119; h=from:subject:message-id;
+ bh=xe5Qq7Si6KCzd0ih/kyZJPCw0i78NqZP8R5Fx1dBPLI=;
+ b=qoaB1lNHbbTdBA5ZFW4APj4o2rrcGUF80x8qghPJ1pqxa0+McQMy5g10+ojZE32jgJTRE4UhV
+ IXoeXoL4uzFAmCBHWCEolwBB3XxjzIcWqcBUbX2CGOUVrj9PwGrEA0z
+X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
+ pk=S+ysnf+NwMcBdHBlyKIUEAtaFGSIhQwcJcgcXhq0osg=
+X-Endpoint-Received: by B4 Relay for abdurrahman@nexthop.ai/20260119 with
+ auth_id=608
+X-Original-From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Reply-To: abdurrahman@nexthop.ai
 
+From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
 
---+EwcLp+XXXrhpKBe
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Simplify the error code paths by switching to devres managed helper
+functions.
 
-Hi Peter!
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+---
+ drivers/i2c/busses/i2c-xiic.c | 30 ++++++++++++------------------
+ 1 file changed, 12 insertions(+), 18 deletions(-)
 
-Thank you so much for your thoughs!
-
-On Thu, Feb 12, 2026 at 04:02:16PM +0100, Peter Rosin wrote:
-> Hi!
->=20
-
-[...]
-
-> > +static int i2c_mux_select_chan(struct i2c_adapter *adap, u32 chan_id)
-> > +{
-> > +	struct i2c_mux_priv *priv =3D adap->algo_data;
-> > +	struct i2c_mux_core *muxc =3D priv->muxc;
-> > +	struct i2c_adapter *parent =3D muxc->parent;
-> > +	struct i2c_adapter *root;
-> > +	int ret;
-> > +
-> > +	if (priv->adap.clock_hz && priv->adap.clock_hz !=3D parent->clock_hz)=
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index 28015d77599d..65aa280f6fd9 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -1423,6 +1423,7 @@ MODULE_DEVICE_TABLE(of, xiic_of_match);
+ 
+ static int xiic_i2c_probe(struct platform_device *pdev)
  {
-> > +		root =3D i2c_root_adapter(&adap->dev);
-> > +
-> > +		/* if we are parent-locked and the root adapter is our parent,
-> > +		 * we already have the lock we need. Otherwise take the bus lock for=
- the root
-> > +		 * adapter before changing bus clock.
-> > +		 */
->=20
-> The assumptions made for the "otherwise" case is wrong, I think.
++	struct device *dev = &pdev->dev;
+ 	struct xiic_i2c *i2c;
+ 	struct xiic_i2c_platform_data *pdata;
+ 	const struct of_device_id *match;
+@@ -1461,7 +1462,10 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
+ 		 DRIVER_NAME " %s", pdev->name);
+ 
+-	mutex_init(&i2c->lock);
++	ret = devm_mutex_init(dev, &i2c->lock);
++	if (ret)
++		return ret;
++
+ 	spin_lock_init(&i2c->atomic_lock);
+ 
+ 	i2c->clk = devm_clk_get_enabled(&pdev->dev, NULL);
+@@ -1472,8 +1476,9 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 	i2c->dev = &pdev->dev;
+ 	pm_runtime_set_autosuspend_delay(i2c->dev, XIIC_PM_TIMEOUT);
+ 	pm_runtime_use_autosuspend(i2c->dev);
+-	pm_runtime_set_active(i2c->dev);
+-	pm_runtime_enable(i2c->dev);
++	ret = devm_pm_runtime_set_active_enabled(dev);
++	if (ret)
++		return ret;
+ 
+ 	/* SCL frequency configuration */
+ 	i2c->input_clk = clk_get_rate(i2c->clk);
+@@ -1489,7 +1494,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 
+ 	if (ret < 0) {
+ 		dev_err_probe(&pdev->dev, ret, "Cannot claim IRQ\n");
+-		goto err_pm_disable;
++		return ret;
+ 	}
+ 
+ 	i2c->singlemaster =
+@@ -1508,16 +1513,14 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 		i2c->endianness = BIG;
+ 
+ 	ret = xiic_reinit(i2c);
+-	if (ret < 0) {
+-		dev_err_probe(&pdev->dev, ret, "Cannot xiic_reinit\n");
+-		goto err_pm_disable;
+-	}
++	if (ret)
++		return dev_err_probe(dev, ret, "Cannot xiic_reinit\n");
+ 
+ 	/* add i2c adapter to i2c tree */
+ 	ret = i2c_add_adapter(&i2c->adap);
+ 	if (ret) {
+ 		xiic_deinit(i2c);
+-		goto err_pm_disable;
++		return ret;
+ 	}
+ 
+ 	if (pdata) {
+@@ -1530,12 +1533,6 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 		(unsigned long)res->start, irq, i2c->i2c_clk);
+ 
+ 	return 0;
+-
+-err_pm_disable:
+-	pm_runtime_disable(&pdev->dev);
+-	pm_runtime_set_suspended(&pdev->dev);
+-
+-	return ret;
+ }
+ 
+ static void xiic_i2c_remove(struct platform_device *pdev)
+@@ -1555,9 +1552,6 @@ static void xiic_i2c_remove(struct platform_device *pdev)
+ 		xiic_deinit(i2c);
+ 
+ 	pm_runtime_put_sync(i2c->dev);
+-	pm_runtime_disable(&pdev->dev);
+-	pm_runtime_set_suspended(&pdev->dev);
+-	pm_runtime_dont_use_autosuspend(&pdev->dev);
+ }
+ 
+ static const struct dev_pm_ops xiic_dev_pm_ops = {
 
-I think you are right.
-
-> Consider e.g. the case where we are parent-locket, our parent is
-> another parent-locked mux and our grand-parent is the root adapter.
-> In that case we also have all the locks we need. Trying to grab
-> them again will be a deadlock.
->=20
-> The more correct approach is to do the parent walk in search of
-> the first ancestor mux that is not parent-locked and then call
-
-Hrm, does it not apply for all mutex-locked ancestors?
-
-Consider the following chain:
-Root - P1 - M1 - M2 - P2 - D1
-
-P - Parent locked
-M - Mux locked
-D - Device
-
-In this case we need to lock both M1 and M2, not just M2 ?
-I'm not completely sure though, I need to refresh myself on the code
-base.
-
->=20
-> 	i2c_lock_bus(ancestor->parent, I2C_LOCK_ROOT_ADAPTER);
->=20
-> for it.
->=20
-> Again, I think. Famous last words. Handwaving...
->=20
-> Cheers,
-> Peter
+-- 
+2.52.0
 
 
-Best regards,
-Marcus Folkesson
-
---+EwcLp+XXXrhpKBe
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAmmOSnMACgkQiIBOb1ld
-UjJJuxAAry/YKUutgdQpqDwjHcLxJ8g9+h48FnCkvCuZYOtcjYn9DnGyzNEHJFRU
-QHHwGWr5YkH1I+mxO33fLPHDPcrvXiUeyPNaMbtzc5TJoLPa+3ijYKO0reKvQ2ky
-gg66PjR9X1GYAwCbObk7fuBjkMQvsOEG0z8nfT/1EMOMFBgnnkGB8rV/JajjsScT
-iek1dWSsdogCaaeC9HBMDrJtiybreMtIVpd6AyKSP4BZJ3SoCxnSzEfmUNsRbkTR
-FiekVhRCzE4x/ENnUAffaiPJJ85jkiAh/oiFCGXTbhaVrX3ECmuKBzXgwMG/KfUH
-A4Wkn2N/0XmO5DwlBgZjJgoPM+3jEBGmdxtR/8Els3/sbJeopKRJj/K+ugDX+sOi
-/aRgqSQSlbXfEGjCFdofLekKmHgu15IxqX6yMjKCVkF1nlUtSKlOyXwunSEwhTXd
-rPLJFXTFDd9VyEZt6kPD1QbaAyTqlXGmqD539T9vr/fOB9lYZRUxgS6J729XbWFg
-JDjkeEBsZZ+ET5mdGEboFzJY+Mdy5Pgt9sYv/MWsGuvAG4tdilD/EkCCueypcxt3
-syAtReFNlgkJCQkV0OI0pS1ttYdom3yzhdNH7GylSbERUTuCpsFX21fgWlgYsiaP
-OS+t0KqO4nCKaTEYkS28ZhUBmkgj41PN1vTFsRawGBrCntIfSDI=
-=NZ95
------END PGP SIGNATURE-----
-
---+EwcLp+XXXrhpKBe--
