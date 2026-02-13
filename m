@@ -1,37 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E621B20DD51;
-	Fri, 13 Feb 2026 00:15:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 073B92153D8;
+	Fri, 13 Feb 2026 00:15:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770941723; cv=none; b=ld5MeC7oBAC9LaBqgeoSqxc6e1ue71QBFogVp7KvEqXWE3MqJvHND5HiLOsvJ4S9HXr/mBv8DLRQMoeUW+l6utVbG3+3tyscxYRvpqHwFOeZTtzz6tvyGM6VpgOmFv6pIApLC1YsmsKtC6oJ8PBHRR3/apHY3q7zXr35xIR0Ne8=
+	t=1770941723; cv=none; b=HsVUwGf5ELbTVnTNZTuMz5CS2oHhEN+3G4aGijB3kFBLvndbncRchMyDGDtTE1ZIh5dfjz4oBwxWP9JuzvdQ4vNKMA/B8m8a8sOWzKb83aIqpIkZCRG/MtVrpxisD1fSNdoEwIfRys+PrwV12U6AQpzgC2gdM9/DgTY7bONzitE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1770941723; c=relaxed/simple;
-	bh=0cagQQWs1EQdChAxlxHuUUZ51gQ+OoWY5PxjVHvtV3E=;
+	bh=i0It30sqUuBb6w3dSvN+K4xAmB3+vRycrDLUAHCmoR4=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=f5uRSkCvQ7dWM/1M66xRBTSFACG1w253xbXwAsR01cm7vo7FSlAVJjOD7YMOmO/klhIJFjEzrVsxHXGhsOrcy76gEiyeo1u8LYHYJtGk70BtxoyzBG1fLSwCnFGCHynCRSXs1WlYTtR1g00aYoFZe2dgMpxfSNb24pjVBH6OnKc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dBJgHY44; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=BYP8f8TSIoDxaLjTU1bVnIG3Dr0iuuq3KrKG+ed6Q87OjNx4gjL9TAPW427avqoQkdpjaq3364BqF+tUjk5E5XuLOi5ZozAGKFv0/xPP5WZ+PjSc8z+ReXgJ7iaOQf8JLDPpbisC/7tzdFsRQdMctlZokLJa1bmeY2gEkXaqruQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O7w81c0V; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dBJgHY44"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id A3D0FC2BCB3;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O7w81c0V"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id B6355C2BCC6;
 	Fri, 13 Feb 2026 00:15:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1770941722;
-	bh=0cagQQWs1EQdChAxlxHuUUZ51gQ+OoWY5PxjVHvtV3E=;
+	bh=i0It30sqUuBb6w3dSvN+K4xAmB3+vRycrDLUAHCmoR4=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=dBJgHY44dTIuOY9xXALHU9Y/QCqRKAHspXUjwHRr34EaF0+tLS9UWE8A9PreFAjpO
-	 i6BL4QzyR407nVAQvGJ/cuaNur5mEI/Vfg3x18glhy66hsmNmTHPfgkdatH8R1UkFd
-	 R2W7GTTkbzhrAC4ki0qFWNcRIu+xktyeSuxDWVfGw1QTgesnYgSFkxrY0J0eGkB5Se
-	 qqLdoDEz+A1gSfei/kDLBT1BiEJzOcwGlbVMrdA6meoB6xww1v8BAVYTD9xDTfbUp0
-	 /cuHwEu+EaDsqes3AOgKlSt0zf/QjAAnq7z//oWAzoewC44ZTOQNDNGvJFAjmRaMnC
-	 2aOQGCwqkVDYQ==
+	b=O7w81c0VDV7ngVKI/feWUryR8Xc0UgOHb0lphOG17ufO3BtdP9K8bS7JzCcPdMBZU
+	 ATTHBx7x9fXidcm9PJWsteQUW/LCNCee9YQfeSTLS+RQ6oqvpq9aSseG2knwZcgx3K
+	 j8aFevf7ng/YG6aUSr7MMxqMLSMLxLJKBYyasYUq8fXezAIJCPM/1ae8Y+NOrush2R
+	 AGNo5LwAyrTfDRdsJ7o6seBgGVQOjYHirbymgofcQWotfWGOaTtGd8BXCqAHpM7aLo
+	 ofR4jHhBOSob/5Z33ENZw/bgi4Ypcs5SYqsMgeN2G9tVFf2zDTSCIxU5pWIFAr38Hx
+	 WIDm9WAI2hUog==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A4A6EEA872;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9EBF8EEA875;
 	Fri, 13 Feb 2026 00:15:22 +0000 (UTC)
 From: Abdurrahman Hussain via B4 Relay <devnull+abdurrahman.nexthop.ai@kernel.org>
-Date: Fri, 13 Feb 2026 00:15:19 +0000
-Subject: [PATCH v11 4/7] i2c: xiic: cosmetic cleanup
+Date: Fri, 13 Feb 2026 00:15:21 +0000
+Subject: [PATCH v11 6/7] i2c: xiic: use numbered adapter registration
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -40,7 +40,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260213-i2c-xiic-v11-4-5d18aea11bde@nexthop.ai>
+Message-Id: <20260213-i2c-xiic-v11-6-5d18aea11bde@nexthop.ai>
 References: <20260213-i2c-xiic-v11-0-5d18aea11bde@nexthop.ai>
 In-Reply-To: <20260213-i2c-xiic-v11-0-5d18aea11bde@nexthop.ai>
 To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
@@ -51,11 +51,11 @@ Cc: Andy Shevchenko <andriy.shevchenko@intel.com>,
  linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
  Abdurrahman Hussain <abdurrahman@nexthop.ai>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1770941721; l=2969;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1770941721; l=1381;
  i=abdurrahman@nexthop.ai; s=20260119; h=from:subject:message-id;
- bh=4goe1hN23ExSd3bXmlNyi4c8jVT0rjfLxvQAv2IuPoE=;
- b=UG0j3nVRP5W7SvnQm4//0ani0A3FVvsGWRY67oVUvfCso0Nr4yMGnTlpamwnzNcgayMcWb+rV
- 6iFLUqzfA9tDd5RRgCfjO4tJxV4JbKRkZ2+2ER1kRMIdW8v0y/iOHjG
+ bh=OcfhhTnF0WtrdPeWNqGBAVD1c0SVBN7KhRbWFtUKE0E=;
+ b=x96Wn3uuPvc410bLRuXiGYkplzRWuLttTyJI9nXHfMJhzJq0/V8kNe6hltjxFJpDfsYODUu3l
+ 1BQHVyRnVcIC4Q7VgvNexWkyQetdFE+JV1WlmRrA5BzmvIrAve16DsT
 X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
  pk=S+ysnf+NwMcBdHBlyKIUEAtaFGSIhQwcJcgcXhq0osg=
 X-Endpoint-Received: by B4 Relay for abdurrahman@nexthop.ai/20260119 with
@@ -65,95 +65,40 @@ Reply-To: abdurrahman@nexthop.ai
 
 From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
 
-Re-use dev pointer instead of referencing &pdev->dev everywhere.
+Switch from i2c_add_adapter() to i2c_add_numbered_adapter() to enable
+platforms to specify fixed I2C bus numbers via the platform device ID.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+This allows systems to maintain consistent bus numbering across reboots.
+On platforms where the device ID is PLATFORM_DEVID_NONE (the default),
+the adapter falls back to dynamic allocation, preserving backward
+compatibility.
+
 Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
 ---
- drivers/i2c/busses/i2c-xiic.c | 26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 20cee7b6200c..377fa5948c3f 100644
+index 373c00a93034..2ad75325154c 100644
 --- a/drivers/i2c/busses/i2c-xiic.c
 +++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -1429,7 +1429,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	u8 i;
- 	u32 sr;
- 
--	i2c = devm_kzalloc(&pdev->dev, sizeof(*i2c), GFP_KERNEL);
-+	i2c = devm_kzalloc(dev, sizeof(*i2c), GFP_KERNEL);
- 	if (!i2c)
- 		return -ENOMEM;
- 
-@@ -1445,13 +1445,13 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	if (irq < 0)
- 		return irq;
- 
--	pdata = dev_get_platdata(&pdev->dev);
-+	pdata = dev_get_platdata(dev);
- 
+@@ -1450,6 +1450,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
  	/* hook up driver to tree */
  	platform_set_drvdata(pdev, i2c);
  	i2c->adap = xiic_adapter;
++	i2c->adap.nr = pdev->id;
  	i2c_set_adapdata(&i2c->adap, i2c);
--	i2c->adap.dev.parent = &pdev->dev;
-+	i2c->adap.dev.parent = dev;
+ 	i2c->adap.dev.parent = dev;
  	device_set_node(&i2c->adap.dev, dev_fwnode(dev));
- 	snprintf(i2c->adap.name, sizeof(i2c->adap.name),
- 		 DRIVER_NAME " %s", pdev->name);
-@@ -1467,9 +1467,10 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 		return dev_err_probe(&pdev->dev, PTR_ERR(i2c->clk),
- 				     "failed to enable input clock.\n");
+@@ -1506,7 +1507,7 @@ static int xiic_i2c_probe(struct platform_device *pdev)
+ 		return dev_err_probe(dev, ret, "Cannot xiic_reinit\n");
  
--	i2c->dev = &pdev->dev;
--	pm_runtime_set_autosuspend_delay(i2c->dev, XIIC_PM_TIMEOUT);
--	pm_runtime_use_autosuspend(i2c->dev);
-+	i2c->dev = dev;
-+
-+	pm_runtime_set_autosuspend_delay(dev, XIIC_PM_TIMEOUT);
-+	pm_runtime_use_autosuspend(dev);
- 	ret = devm_pm_runtime_set_active_enabled(dev);
- 	if (ret)
- 		return ret;
-@@ -1481,9 +1482,8 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 	if (ret || i2c->i2c_clk > I2C_MAX_FAST_MODE_PLUS_FREQ)
- 		i2c->i2c_clk = 0;
- 
--	ret = devm_request_threaded_irq(&pdev->dev, irq, NULL,
--					xiic_process, IRQF_ONESHOT,
--					pdev->name, i2c);
-+	ret = devm_request_threaded_irq(dev, irq, NULL, xiic_process,
-+					IRQF_ONESHOT, pdev->name, i2c);
- 	if (ret)
- 		return ret;
- 
-@@ -1526,21 +1526,21 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 
- static void xiic_i2c_remove(struct platform_device *pdev)
- {
-+	struct device *dev = &pdev->dev;
- 	struct xiic_i2c *i2c = platform_get_drvdata(pdev);
- 	int ret;
- 
- 	/* remove adapter & data */
- 	i2c_del_adapter(&i2c->adap);
- 
--	ret = pm_runtime_get_sync(i2c->dev);
--
-+	ret = pm_runtime_get_sync(dev);
- 	if (ret < 0)
--		dev_warn(&pdev->dev, "Failed to activate device for removal (%pe)\n",
-+		dev_warn(dev, "Failed to activate device for removal (%pe)\n",
- 			 ERR_PTR(ret));
- 	else
+ 	/* add i2c adapter to i2c tree */
+-	ret = i2c_add_adapter(&i2c->adap);
++	ret = i2c_add_numbered_adapter(&i2c->adap);
+ 	if (ret) {
  		xiic_deinit(i2c);
- 
--	pm_runtime_put_sync(i2c->dev);
-+	pm_runtime_put_sync(dev);
- }
- 
- static const struct dev_pm_ops xiic_dev_pm_ops = {
+ 		return ret;
 
 -- 
 2.52.0
