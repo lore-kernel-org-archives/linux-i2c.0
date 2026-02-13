@@ -1,115 +1,89 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28FED34F473;
-	Fri, 13 Feb 2026 09:53:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4023334F256;
+	Fri, 13 Feb 2026 09:59:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770976424; cv=none; b=T3mRBU6ooJVPbu5B+Z/wVU4cvSY98EctglawkdU/Zh/B4OV14E8v4WJ0YhiZlrxH7owxp7XOrdkS9I76z8qd87qt4zP3jBxXyY2gjAzJ7PP5KE3g56zlF2Dns6vs3e7Qw/9LSHYNzB+tB8JMWbz+feuyNhkbsYlT0BpVC3tdTKE=
+	t=1770976790; cv=none; b=DmI8Hd/XOr29E1wLFLaSlnP2mIhxkF3xG/3ahAHrK1cxdEwg4ycfEo9t/33a0cUVSO5EB9DFHFvlQG9FIWTeupXj5z4oxkVQXFgXNzX1im9DeynC8amt/5xFhSYOS7/atHWFpoDNscHTD/+HQFzSAOQJchg7EY4uSVC7+r62M94=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770976424; c=relaxed/simple;
-	bh=z68VAFgu03wyf7l3IWaQwDISBEKZz0P9EzF4N4uzcrM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=oUCpJwdBl5kCYKKdCSIBXEcgOgeJO7/q4xRWevkKz7pId4GIiB0xfl2900LJcb2iJHCjChfUtGlQ6geP0DHLS5Y33d8fdYAesASDyS4KAD7+8cKy/wMAflKMp3+Nq9qHaVoJU3KS68g2DXSOdJZfzrZCL20CI99/GB+hj99eTgQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Shln6tAt; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1770976790; c=relaxed/simple;
+	bh=g4Px+rF4j2zO6sLf5t/WktofEyLTwzxfotiEC9NhgjA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Xd03siPUL1hDnPxZJ7LG5HBCVmm0rdZNXX30nounMIywqQajs0umKXiKTQp33P33OmkKNf4IuIpSlVjGZ/GGnp4r5cr2SfxUMon5MfhqspKX1r/WqJalhO2/8YDIvHVdJRvT/s0FsALSYjkBHWodMh2ei68EiVydnh20wlpuUYM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mPb2bzmv; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Shln6tAt"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A585EC16AAE;
-	Fri, 13 Feb 2026 09:53:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1770976424;
-	bh=z68VAFgu03wyf7l3IWaQwDISBEKZz0P9EzF4N4uzcrM=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=Shln6tAtclu66CGUtl+strj0q/v+4yx/M34Gk3WD5urfoIJfKcGuBwb7kqWXXks22
-	 Yyx4Jt1IgaYs+wo85MUn4HC8YAEDSvy2pF24usmqLQ6FzKttEePR63uzXeHc5JR3v8
-	 rR9BnRHBWV00uLXF8eDKQNhTXiQQbNxXOoPzlgriH2RvJxJJ1aOi0Lj7ulfxowkofb
-	 gppTRjrNB4Elv1457kbv/CLj1ENK5EOlHBv1QmVtLzKcoWbAylnrTjlWriy7DBlf1A
-	 ohXtPJdwwTo/gl8S1/xJ2/PWg7fFnHv6ZpBouKToEypf6XfElPyb6d62riYPsaxUox
-	 xXxN5i4A+L+nA==
-Message-ID: <738dbc7c-9915-4308-8e0b-388d6b73b067@kernel.org>
-Date: Fri, 13 Feb 2026 10:53:40 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mPb2bzmv"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1770976788; x=1802512788;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=g4Px+rF4j2zO6sLf5t/WktofEyLTwzxfotiEC9NhgjA=;
+  b=mPb2bzmvdmP4Y5/joPRFjlLbGRITg55tyx5GGc7LCpx8cLUuFvKVR07x
+   0BSJSLl/IKIDe9na9jGFSKn7MH2YoM1GXXM5w8UMcU+KkKdsmqxGoHJmC
+   brzXUliYlnPDYKNKBvEJpod1zuRxaHPjv+bxfxnm3RYVlE8hWrvjdxwQN
+   K+xK2cLAihZU/eQ22IPLYWt3TGFPwu5a7IA3OcARAVXmNU5iLGQYL95i8
+   VXUIJoA2m0nV9njCgwiG/RFTSEfhkLu9U7vmc5u4EYx6iDnLMuheu/1TX
+   CNG+Pv9Asc9gA5d7out26cEXlLpm5luFYQ7CGjr+JSqA1vb+115j3yLQT
+   Q==;
+X-CSE-ConnectionGUID: INJ6Kou5TC+juVFwl6FfKw==
+X-CSE-MsgGUID: 7pA+dt7bRTelGoCUxNvH+g==
+X-IronPort-AV: E=McAfee;i="6800,10657,11699"; a="89571124"
+X-IronPort-AV: E=Sophos;i="6.21,288,1763452800"; 
+   d="scan'208";a="89571124"
+Received: from fmviesa003.fm.intel.com ([10.60.135.143])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2026 01:59:47 -0800
+X-CSE-ConnectionGUID: s7Aj24DqSn6NXPib4aGpNQ==
+X-CSE-MsgGUID: UuvcFjcfS5+WPe/RF/REOQ==
+X-ExtLoop1: 1
+Received: from pgcooper-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.245.242])
+  by fmviesa003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2026 01:59:45 -0800
+Date: Fri, 13 Feb 2026 11:59:42 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: abdurrahman@nexthop.ai, Michal Simek <michal.simek@amd.com>,
+	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+Subject: Re: [PATCH v11 3/7] i2c: xiic: switch to generic device property
+ accessors
+Message-ID: <aY72DtP9qwGxhMLd@smile.fi.intel.com>
+References: <20260213-i2c-xiic-v11-0-5d18aea11bde@nexthop.ai>
+ <20260213-i2c-xiic-v11-3-5d18aea11bde@nexthop.ai>
+ <738dbc7c-9915-4308-8e0b-388d6b73b067@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v11 3/7] i2c: xiic: switch to generic device property
- accessors
-To: abdurrahman@nexthop.ai, Michal Simek <michal.simek@amd.com>,
- Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>
-Cc: Andy Shevchenko <andriy.shevchenko@intel.com>,
- linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-References: <20260213-i2c-xiic-v11-0-5d18aea11bde@nexthop.ai>
- <20260213-i2c-xiic-v11-3-5d18aea11bde@nexthop.ai>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <20260213-i2c-xiic-v11-3-5d18aea11bde@nexthop.ai>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <738dbc7c-9915-4308-8e0b-388d6b73b067@kernel.org>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On 13/02/2026 01:15, Abdurrahman Hussain via B4 Relay wrote:
-> From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+On Fri, Feb 13, 2026 at 10:53:40AM +0100, Krzysztof Kozlowski wrote:
+> On 13/02/2026 01:15, Abdurrahman Hussain via B4 Relay wrote:
+
+> > Use generic device property accessors.
 > 
-> Use generic device property accessors.
+> You should explain here the impact, e.g. making them work for ACPI
+> platforms.
 
-You should explain here the impact, e.g. making them work for ACPI
-platforms.
+Good suggestion!
 
-> 
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-> Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-> ---
->  drivers/i2c/busses/i2c-xiic.c | 20 ++++++--------------
->  1 file changed, 6 insertions(+), 14 deletions(-)
-> 
+This all probably warrants a v12, but please, wait a few days. In any case
+we are in the middle of a merge window, not much activity is usually happening
+regarding to patch acceptance.
+
+-- 
+With Best Regards,
+Andy Shevchenko
 
 
-Best regards,
-Krzysztof
