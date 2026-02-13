@@ -1,107 +1,115 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E80B34D38E;
-	Fri, 13 Feb 2026 09:34:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28FED34F473;
+	Fri, 13 Feb 2026 09:53:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1770975260; cv=none; b=V4zikCk/sOJeI98KAkvayougIX3iVNTxi9b0hufTu5Kl9dC9Ry6kljwXncd/xpdGL5DoVT/1jDoUtnKpe/iL6Y3Y70PM0AMPME6Gg+qSTS0WjRQxqSYy+xccZnRfMNF0G3PbK2agoC1YSbTJB3Pzf51+tmLwNawKV8F9nEYFGt0=
+	t=1770976424; cv=none; b=T3mRBU6ooJVPbu5B+Z/wVU4cvSY98EctglawkdU/Zh/B4OV14E8v4WJ0YhiZlrxH7owxp7XOrdkS9I76z8qd87qt4zP3jBxXyY2gjAzJ7PP5KE3g56zlF2Dns6vs3e7Qw/9LSHYNzB+tB8JMWbz+feuyNhkbsYlT0BpVC3tdTKE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1770975260; c=relaxed/simple;
-	bh=u2WYAevwv/bre8sXgj9rzmMSY8BHqfPohwWP/K3U+PM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=PEBu+N5yLQaI01vnrMCJsrlBEiL/XrweMqFZCT4ZaHuM01514pc/+grxmn9Mm4Duqtze9Uat5cqW1DikzrPRPOIM8NCkTR4rVZbyNu8c/9EscDqROKVJZd9y67TnzcemxdpGNfvfG63PD+bTxrOIauH/hCP7o+bqRGGLZ3jEK08=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=R1uNWkjX; arc=none smtp.client-ip=192.198.163.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1770976424; c=relaxed/simple;
+	bh=z68VAFgu03wyf7l3IWaQwDISBEKZz0P9EzF4N4uzcrM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=oUCpJwdBl5kCYKKdCSIBXEcgOgeJO7/q4xRWevkKz7pId4GIiB0xfl2900LJcb2iJHCjChfUtGlQ6geP0DHLS5Y33d8fdYAesASDyS4KAD7+8cKy/wMAflKMp3+Nq9qHaVoJU3KS68g2DXSOdJZfzrZCL20CI99/GB+hj99eTgQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Shln6tAt; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="R1uNWkjX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1770975259; x=1802511259;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=u2WYAevwv/bre8sXgj9rzmMSY8BHqfPohwWP/K3U+PM=;
-  b=R1uNWkjX0v6aJCwbEpppCCCgTGAUsEAZ4EJm8JB6fYCrff54wRhgaUfS
-   Rumx/VIu/Wuf3p+g+XLRPv2uF+hpDJqTzbZ+mmvREAmRFA2MLcMx2qyRy
-   qNScug/tEOqXGjy+CRXXuXzvNsZRxzhklq/dEhJXpsJyyWetHOV3qLH4C
-   niTiPbjz8NA9jUSwXdFPRSATwqZ1f3eQikps9ec4LwBECpfP7drg/hDpI
-   AUBXvbgEvUJBVLzo93py8RiL+dCrYE2g7p8/9GQn0Y5MbTU1Xpg65Ol7z
-   HRAZz7bqjE5tS1x1NbEt6dV01XaFfTr6DxcU5GYsceg3o5sSvBu7J0Y10
-   w==;
-X-CSE-ConnectionGUID: 9COukf0RTOGjmIEv6wU4Bg==
-X-CSE-MsgGUID: WFindOKzQPerUbPp36zzZg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11699"; a="82792042"
-X-IronPort-AV: E=Sophos;i="6.21,288,1763452800"; 
-   d="scan'208";a="82792042"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2026 01:34:18 -0800
-X-CSE-ConnectionGUID: r3qh6X7TScGQFOLfBlP3Lw==
-X-CSE-MsgGUID: xwZTVq/PTcm2YlPgSq7zMA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,288,1763452800"; 
-   d="scan'208";a="212910054"
-Received: from pgcooper-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.245.242])
-  by orviesa008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2026 01:34:15 -0800
-Date: Fri, 13 Feb 2026 11:34:13 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: abdurrahman@nexthop.ai
-Cc: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
-Subject: Re: [PATCH v11 7/7] i2c: xiic: skip input clock setup on non-OF
- systems
-Message-ID: <aY7wFbwUr3KLT0Zi@smile.fi.intel.com>
-References: <20260213-i2c-xiic-v11-0-5d18aea11bde@nexthop.ai>
- <20260213-i2c-xiic-v11-7-5d18aea11bde@nexthop.ai>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Shln6tAt"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A585EC16AAE;
+	Fri, 13 Feb 2026 09:53:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1770976424;
+	bh=z68VAFgu03wyf7l3IWaQwDISBEKZz0P9EzF4N4uzcrM=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=Shln6tAtclu66CGUtl+strj0q/v+4yx/M34Gk3WD5urfoIJfKcGuBwb7kqWXXks22
+	 Yyx4Jt1IgaYs+wo85MUn4HC8YAEDSvy2pF24usmqLQ6FzKttEePR63uzXeHc5JR3v8
+	 rR9BnRHBWV00uLXF8eDKQNhTXiQQbNxXOoPzlgriH2RvJxJJ1aOi0Lj7ulfxowkofb
+	 gppTRjrNB4Elv1457kbv/CLj1ENK5EOlHBv1QmVtLzKcoWbAylnrTjlWriy7DBlf1A
+	 ohXtPJdwwTo/gl8S1/xJ2/PWg7fFnHv6ZpBouKToEypf6XfElPyb6d62riYPsaxUox
+	 xXxN5i4A+L+nA==
+Message-ID: <738dbc7c-9915-4308-8e0b-388d6b73b067@kernel.org>
+Date: Fri, 13 Feb 2026 10:53:40 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260213-i2c-xiic-v11-7-5d18aea11bde@nexthop.ai>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v11 3/7] i2c: xiic: switch to generic device property
+ accessors
+To: abdurrahman@nexthop.ai, Michal Simek <michal.simek@amd.com>,
+ Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>
+Cc: Andy Shevchenko <andriy.shevchenko@intel.com>,
+ linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+ linux-kernel@vger.kernel.org, devicetree@vger.kernel.org
+References: <20260213-i2c-xiic-v11-0-5d18aea11bde@nexthop.ai>
+ <20260213-i2c-xiic-v11-3-5d18aea11bde@nexthop.ai>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <20260213-i2c-xiic-v11-3-5d18aea11bde@nexthop.ai>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, Feb 13, 2026 at 12:15:22AM +0000, Abdurrahman Hussain via B4 Relay wrote:
+On 13/02/2026 01:15, Abdurrahman Hussain via B4 Relay wrote:
+> From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+> 
+> Use generic device property accessors.
 
-> Currently Linux does not implement ACPI ClockInput() resource to describe
-> clocks, unlike DT. However the xiic driver is happy if something
-> magically enables the clock before the driver probes, and does not
-> turn it off again. The clock should always be considered optional for
-> ACPI.
+You should explain here the impact, e.g. making them work for ACPI
+platforms.
 
-...
-
-> +	if (is_of_node(dev_fwnode(dev))) {
-
-You would want to have
-
-	struct fwnode_handle *fwnode = dev_fwnode(dev);
-
-at the top now, as here is the second time it's being used.
-Perhaps it makes sense to do in the patch that switches to
-agnostic device property interface.
-
-In any case, wait a few days before doing any new version, unless Andi asks
-you for it. The first 6 patches may be already applied as is, in such a case
-the above comment can be addressed here (with a little churn of touching
-a line that has been already modified in the series).
-
-> +		i2c->clk = devm_clk_get_enabled(dev, NULL);
-> +		if (IS_ERR(i2c->clk))
-> +			return dev_err_probe(dev, PTR_ERR(i2c->clk),
-> +					"failed to enable input clock.\n");
-> +	}
-
--- 
-With Best Regards,
-Andy Shevchenko
+> 
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
+> Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+> ---
+>  drivers/i2c/busses/i2c-xiic.c | 20 ++++++--------------
+>  1 file changed, 6 insertions(+), 14 deletions(-)
+> 
 
 
+Best regards,
+Krzysztof
