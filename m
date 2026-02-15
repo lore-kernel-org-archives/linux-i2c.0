@@ -1,59 +1,63 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B72DB28EA56;
-	Sun, 15 Feb 2026 12:42:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7EE34A21;
+	Sun, 15 Feb 2026 16:58:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771159354; cv=none; b=iOafktdbxHc6R38zCDbHuGHVCqMQikmSPObHIoXL3yamBY3hICKqJjQj1KwMwkDXfFvP/t1VuDjq2t9y9domxlgdv+4RxPl6nvKbiDJtRDtz2AktnIMvC5RY2Lkoai9NkzSuwMP3PnCQtND6a8O/StXPLCnAN6NcjxIKo4qMO2s=
+	t=1771174690; cv=none; b=f2gbpO29Ghj7fFhf9M/hVZmv7b/XO3YbVjX0ILW0aZpexNPWfjFD++BQWJpJ1585+sK3dVgdJ49UYH6RB/x0ZL+DoY4uc4ZF+VoNPkr1YMWMswdU/FE+hQICRX5QML3R/w9LdiseTYb5AxGpxR8LwOqb39Ns4EX68OCVACBaYqA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771159354; c=relaxed/simple;
-	bh=X7pfNpY9UNuUCe0f8VCFQgNXEAPXZmQnpI9wn2/fh2Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OkItiUHPPiA8CbKu1xxap2m8ye9MF2zbvjTRiOwSLi5Wfawfa432MvtX96EEIRhTwjJeXqHEWNGSlExjNPpYNC3TDAhEDdoBdEA0MFNEqzVGed8nosU0yLLiesB/fNe2kzypTpB7nZsGRcAg89oxJgnM/Us+tMLs7xDQEbRI+vY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=r4cbGAak; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1771174690; c=relaxed/simple;
+	bh=XNmOhLOTcbAw0IPeVxgTzJsM7mPKb8kFk0XR+mlF5uI=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=RHewREISJxoEvJexW0I9p/xXz2CGMVmyxY1H6k9Fv90SfvAh09vi08kutTrV1sXY4dXwpPKOSr2w+6nSKaVC8oOvA4/jhEXoniT77FpJIapVgwEHGlp05338HSkDA4WRXZWMZm1dtfUjSkJYNyZmehEIkKzXw8+me/rimQTIS5o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AJTBJOag; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="r4cbGAak"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BF56C4CEF7;
-	Sun, 15 Feb 2026 12:42:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AJTBJOag"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 614DBC4CEF7;
+	Sun, 15 Feb 2026 16:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771159354;
-	bh=X7pfNpY9UNuUCe0f8VCFQgNXEAPXZmQnpI9wn2/fh2Y=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=r4cbGAak/g3QUTvSnjkDr1ZZ/LrCtsQFgj8lhi4QhJInTCKMQ9HHIYSxI7JBpRbUl
-	 cbxCacBaZoMLnhfAg84VVXjeRiT3cyXaFbu5YJdfB3BtZ74QUdp1E+A6Sv7+xJ404U
-	 GTnnvykR42H9p9IZpuh2FqS4daDZqvtb2JfUMrW23n6mad6SdpBHUIW3kfDIFgACFl
-	 LD3YtZItDhmYl3qtSVldC9ikM39nGAPwzWLbTh597YG9NZbd9KCQhvvhBmbL1UzcYb
-	 vdSEZ16LhPrAKWtEuDeOYqEZnx3qibp/PNmahcGqoHWyoY0VBqH7I3hOoFJHEcKSmh
-	 PHzUarmewtT4g==
-Date: Sun, 15 Feb 2026 13:42:30 +0100
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, 
-	linux-i2c <linux-i2c@vger.kernel.org>
-Subject: Re: [GIT PULL] i2c-host for v6.20, part 2
-Message-ID: <aZG-2rIlH45C1yFI@zenone.zhora.eu>
-References: <aZD9aby8PsJHlq5T@zenone.zhora.eu>
+	s=k20201202; t=1771174690;
+	bh=XNmOhLOTcbAw0IPeVxgTzJsM7mPKb8kFk0XR+mlF5uI=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+	b=AJTBJOag7fMShjmVqWQA/ecbE42DcZC0k+tjWQ7eAVf4ZWEQZDbJVhvxmowRQt/eC
+	 EcD8WvKsSM5mysjasVVvUM2mhqUZkzhAKxbxya83WJTQ6tz5oEKuQo4OeryT+R/LU/
+	 BKB7TM2dJExgSIj9Kk/8ER2Fr7BZUam3WG9VX8Owt06CMPi0clXnZ/qkZNbX/HZsLc
+	 SidsftJ3id200vhqSLz9kDLxVOp46nqTeQw/cR4wGPVx7FVYG61Pkl8Sr54l9RxnHH
+	 uUEhoevfk6MUe4P/VZsPA3PI+dYkV5YoVAiJxf3QdUEFkm7hH5vHO/itv6qGknW2CX
+	 0pz0jCErlyLxg==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 854053930925;
+	Sun, 15 Feb 2026 16:58:04 +0000 (UTC)
+Subject: Re: [PULL REQUEST] i2c-for-7.0-rc1
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <aZGaVvjGs7vP4lHv@ninjato>
+References: <aZGaVvjGs7vP4lHv@ninjato>
+X-PR-Tracked-List-Id: <linux-kernel.vger.kernel.org>
+X-PR-Tracked-Message-Id: <aZGaVvjGs7vP4lHv@ninjato>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-7.0-rc1
+X-PR-Tracked-Commit-Id: efdc383d1cc28d45cbf5a23b5ffa997010aaacb4
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: bb7a3fc2c976b5d0deb35a54ca237519816d7ba9
+Message-Id: <177117468313.3131369.2739110656678118290.pr-tracker-bot@kernel.org>
+Date: Sun, 15 Feb 2026 16:58:03 +0000
+To: Wolfram Sang <wsa@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>, Andi Shyti <andi.shyti@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aZD9aby8PsJHlq5T@zenone.zhora.eu>
 
-Hi Wolfram,
+The pull request you sent on Sun, 15 Feb 2026 11:05:10 +0100:
 
-> Danny Kaehn (1):
->       dt-bindings: i2c: Add CP2112 HID USB to SMBus Bridge
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-7.0-rc1
 
-I forgot to mention that you might find a little merge conflict
-here, easy to fix. This is because my branch is based on 4.19-rc1
-and in the fixes branch there was a patch conflicting.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/bb7a3fc2c976b5d0deb35a54ca237519816d7ba9
 
-Let me know if you prefer to rebase everything on top of your
-branch, instead.
+Thank you!
 
-Andi
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
