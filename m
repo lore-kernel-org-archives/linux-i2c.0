@@ -1,149 +1,156 @@
-Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D9D42AE77
-	for <linux-i2c@vger.kernel.org>; Mon, 16 Feb 2026 09:22:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEED02D3750
+	for <linux-i2c@vger.kernel.org>; Mon, 16 Feb 2026 09:29:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771233726; cv=none; b=rtosHOYSZLPXr03RvEKQYN85uBpj90cVWalWYQc+/MssRQz2yMDLze81jqkVt+a2NhYYcP53vXunSWXF90BIuFB6MJe/zOL1lst1HTQEZO7i91eKoQy25pL96Pk5+LgwqQLbUYwDDMtNnRNX/YPHpfm9aiYk7TTp7P3rhyHQI9o=
+	t=1771234162; cv=none; b=DSsbaY04F9UI6kacorrqvzlE2Ti3r+OmWCuuD94fSrGfDfF5cYf0U9qTTmigYALay48i++kZsRi63BsELTQmZ/wVF3poT+qYMqvNQUnE1oPRVAPhNG/s3zspkonlmRGt2ZkBR05K8/3y2MwBUn22FnM1cvYeBrJHDbdMqtqaHs0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771233726; c=relaxed/simple;
-	bh=9vVt/M8Zf7dfYvjhGcLF+iwb+7V0sMWjCW655yCRpYM=;
+	s=arc-20240116; t=1771234162; c=relaxed/simple;
+	bh=w+XEoEDh9P6pvfwimOIKt86v4LQn9xAIGzRD/YzWpXE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DTU39kXQouKUxKct/XrI2GlLs6vA1vNlOExjqtDcOJrVJDxovhSNyTVqoG5aiJcX18WYJQQWDjfZjwyvMzjm7Tys+vn0MRVAIivjHjpRWpuEjkKqxiDMNT+A93xXoBnefCdH9mUwrZqKibrFPYRl0EQfxEaGnE4K7Tk8GAEYI4I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kARttwNx; arc=none smtp.client-ip=209.85.208.176
+	 Content-Type:Content-Disposition:In-Reply-To; b=IoLQIknq8HjYqobqDQP5nPWvPHBlhwB6ITv9eS9+CbT97eybYfYlXmNzLKHZ9oOTkSixO5bt0jes4Isqjlcd/6HSj4pccLDZPuNS+VZRc40Qz3WF00egL4rklOQuobsKYySeheToSJC46HP53bRb6Wrr+GtSULgKbm6h9z7Zwbk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XNA9XTUc; arc=none smtp.client-ip=209.85.128.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kARttwNx"
-Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-3871126dcceso23077151fa.1
-        for <linux-i2c@vger.kernel.org>; Mon, 16 Feb 2026 01:22:05 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XNA9XTUc"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-4837991d1e1so1898555e9.0
+        for <linux-i2c@vger.kernel.org>; Mon, 16 Feb 2026 01:29:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771233723; x=1771838523; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1771234159; x=1771838959; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=UarNnN2KNK2j0++meMQ9ppJ7gBS1qqj3ee9dbEJEimM=;
-        b=kARttwNxLimdpbz/dyF1HzLDFr3R+2q++/OwPOfwFWkNzPISkBjkgZz7ROwe9TqM4G
-         SMOVBkuExR/90E0+imVBXsAxXjykufOFChfcPRHE7phZ1VZIK9pMKDK+sGeqAi1hwfD7
-         FETfJDSTQ2Gs32UI+nloX9rEIVwMewDwFmxNSEnxYv/u0oOTloeiKNedl8Y4zXV3GTSD
-         pNP4hV0HjlflONv3orylImmF/OLgSPlz9dWjAJT4e6K0mBwv+qde0AL/YidCAQJP4yEH
-         Qw9A/oJntHELb3S/tLKBRaMQwYbztTsyDdqQxHqyr+VFwZbSAjEaNF29uA0rZjvVpHHL
-         q93Q==
+        bh=ogvJ3kqaNl4WpBdAZZzPnlDtG3SqRNUddgrdVVu6K+8=;
+        b=XNA9XTUc4pPlbAk1mNsas+pKUjSEQlVEORYJHizZR5CDezYMZeEe3xpt2uDWu++cjc
+         Oq4k/0DOL9OqS3N/Dlzb2pjim7QylscnsVDmI5b9JrnIUVxNUYIYADSF0zV+iBx1/I3o
+         +vbGoWw6aH5D9+ogxuZJFff+SDlyS9dw2kMvIGOZ2MwF5gw4gYMulKbAuXJoNm9yJc5R
+         bhzxq3XLnTzDHV2rM+TlUhXHlRDLdBZv8LuVcWE3gBWU4QSGVQ8zi1ptSVc2l98PNREy
+         8SZVp2oXX091m0IQZb6WGk+G15PWRiyF8RWNgYPKompeaYzHgc1NGctQdHyRbNewbKup
+         m5UQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771233723; x=1771838523;
+        d=1e100.net; s=20230601; t=1771234159; x=1771838959;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=UarNnN2KNK2j0++meMQ9ppJ7gBS1qqj3ee9dbEJEimM=;
-        b=Losxf9kFCqSrI0In4qeMNEleGLqhyjeWB8MXVlpPc7FqFOvtqIbUzUYR44HGAJbZEV
-         7fmB2Z09UvMvvAceoufddBoDU75Qt4mIvm+RjJh+cbSYcBvDgARGw2ySqGgbmnJnRy2P
-         SsGbpiejYwoxatHAfZ8aq8fi4fqbBUn9Si9llDrMz4ecKefgluMaHGPbrzUoE3ERRMdj
-         V9o3yZagOU9Ey/9WYOBGVNVlDl/gv98UsWz0R5TfmOD4qRnSHMGLsp5mrjPMaG+/K0XW
-         FT9asuOrfVI6YfQD1wLS/XA3dYhP5uqjs7mlD0/IMHPqgVZO7EaKkTJWkB6VAcyh4Efi
-         9+ww==
-X-Forwarded-Encrypted: i=1; AJvYcCXmffXTkYebOC+izDr3oBjAgjjFIS6nrAzaLyJeDSWepUZEKaocyg9q9B9dy4Uc5tWMz7uzR+6mJwE=@vger.kernel.org
-X-Gm-Message-State: AOJu0YziOv/hHJ8FYbknh2Di1sxk6nkmxXVisSftAl2IR4BeWkDXztTG
-	Ro/NbRhvjunKwl9jTNbRImpnsgln+ziBVZUhdDtJ+cZTVoHnnPVr3nip
-X-Gm-Gg: AZuq6aJbwoAI4tTWmCWxLAstW8MuYWZ/dTIL3kDtoRWO5G28Im5anbbI8iAFsqYwllE
-	wUZfcjrGHUb2JS7PijqCBj7drrmjwS6WdJfHGh33hWEgDf97fKN0xWOIeMaiNdTyh7waW83F63M
-	/+Yq82i9LvQrUATGD+bt4GOr09sXT13sD96/Zulb3EZvQrK7EAzOqaIV2zJ7dw1KIW8aj28ZWhC
-	AAEkLBtbcD4wNTYxxPlsVbDQ3ycYGQsYoKKCmPw/INCZuLJZbFRQ/xy/0D9fo07tykMwb5nUrqi
-	AhCB+ErHAcrR5hmx0CO84VaMoUui6nyzHQJMwn+L+buLWxrLlZEbZquw+CxDF8f1W+PbG0nUKxs
-	srDAlXdYYEc7CUXmswVsh/8LjABJqC4blIPD4vRgNnqtDPGFnlrnUReymlux05BaquRSXYx5e9w
-	/MixPVL08u06KGJspQWAtcLx/5JNenbq2jWZF0D7x5xzZY919VbY3EE4UtQQgIGIrLT8U2hDY=
-X-Received: by 2002:a05:6512:ad0:b0:598:8f91:6d0f with SMTP id 2adb3069b0e04-59f02837b34mr3533006e87.50.1771233723135;
-        Mon, 16 Feb 2026 01:22:03 -0800 (PST)
-Received: from gmail.com (83-233-6-197.cust.bredband2.com. [83.233.6.197])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-59e5f568bb7sm3132045e87.25.2026.02.16.01.22.01
+        bh=ogvJ3kqaNl4WpBdAZZzPnlDtG3SqRNUddgrdVVu6K+8=;
+        b=HJLkufuXEatjOgQGMNZNLvdhq2L9bCHTfciIPdWNLPrEvDnPKAjdMoDnbcnrhuQYDI
+         Ie/JlP9Zeg4iwMr9P1UkYHmkr8kuOw2Opvx0BEXzdubw/zqKWoOPK3gw831kjl3bXuJ0
+         V3NKGF8PIeijCx08foeb/g4PRzrdjo62h9GqmLRtyFSwRRSB9AoZYcqlU+pxLhS87wub
+         OQoNcIJsYESWF2yhfaaP5ytqP06AVmxqlH7a9jE2WCakRy7fjWAkXyNx8WWfY42FlBbj
+         BShZWEH5FKxOzr3Nd9mVfF1dQ/OiDrAvCjttxhF7vLZUyvIoKFMCGEvSjFrFvQ7reacc
+         muLA==
+X-Forwarded-Encrypted: i=1; AJvYcCWzgN6FEAN7AHM8ivJL0vwGU9iHwcn6AztfjiEdzpBOl5JaO5hyHdmdVS7HvHxYAoxd85MREJvrW9k=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzGmDwGgxzuYGtvK/LOLWqIDEH2jRftXrSSbWNyrSFjg3U2Ow4J
+	kkcm3LcVNW+xs0V/MqbhsclDNh1L/4JlFk5mYLs2moFqZ4XMRu/W+J/l
+X-Gm-Gg: AZuq6aIdOxjyI2wUSKaemG7RXReB5y+qTi8FNcZ+oLKU2lB6n/zVPtXBMNpaWE1GY1d
+	w11ObVHt+0yfOsK/huNk3/CLsCEUy9nnexztQdInEjTfXzaqd/3TzbpJ4jNb3cPj8PIQn1JKbLD
+	7eLdFz4WmOP3h9cQiK8o25XuFuraPdgLvBJ1d6lV2pwvFXUyc6c9FZaVTRcvdMf4WvT1yK31oS4
+	03GHeaUQPvZvTe2hQCpoxH+Ad2tJKQyH19Zko9yWxH5BtNAl+zOfKIbT8Hp3MLjVIAwTZlqXxHY
+	CAxNMLphYAiFFsEIZvDz+VaIUHO4TAiZilKJlpOoTcg7QJ9kJukza/9kqgSeiyUoLEmJuGZ3sGs
+	v/gtBmaDz8lMfhFNbcgXpC7xUdXw4jncsKraTny3Do8NDPeAuaE0any8gnY8KSntZ3S9rNSNXG/
+	Eez82uz47GWNwdVQ==
+X-Received: by 2002:a05:600c:3b98:b0:47d:3ffa:9838 with SMTP id 5b1f17b1804b1-48370e18ff1mr144504325e9.1.1771234159012;
+        Mon, 16 Feb 2026 01:29:19 -0800 (PST)
+Received: from skbuf ([2a02:2f04:d501:d900:68e2:cc27:74c:c083])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48371a3c03asm76821035e9.24.2026.02.16.01.29.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Feb 2026 01:22:02 -0800 (PST)
-Date: Mon, 16 Feb 2026 10:22:00 +0100
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Peter Rosin <peda@axentia.se>,
-	Michael Hennerich <michael.hennerich@analog.com>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v5 1/5] i2c: core: add callback to change bus frequency
-Message-ID: <aZLhuIfP7rh7o3MH@gmail.com>
-References: <20260213-i2c-mux-v5-0-fb2cbf9979b3@gmail.com>
- <20260213-i2c-mux-v5-1-fb2cbf9979b3@gmail.com>
- <aY8HfN3c3qcVbOJj@black.igk.intel.com>
+        Mon, 16 Feb 2026 01:29:18 -0800 (PST)
+Date: Mon, 16 Feb 2026 11:29:14 +0200
+From: Vladimir Oltean <olteanv@gmail.com>
+To: Josua Mayer <josua@solid-run.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+	Marc Kleine-Budde <mkl@pengutronix.de>,
+	Vincent Mailhol <mailhol@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Peter Rosin <peda@axentia.se>, Aaro Koskinen <aaro.koskinen@iki.fi>,
+	Andreas Kemnade <andreas@kemnade.info>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
+	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+	Vignesh R <vigneshr@ti.com>, Andi Shyti <andi.shyti@kernel.org>,
+	Ulf Hansson <ulf.hansson@linaro.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Yazan Shhady <yazan.shhady@solid-run.com>,
+	Jon Nettleton <jon@solid-run.com>,
+	Mikhail Anikin <mikhail.anikin@solid-run.com>,
+	"linux-can@vger.kernel.org" <linux-can@vger.kernel.org>,
+	"linux-phy@lists.infradead.org" <linux-phy@lists.infradead.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	"linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>
+Subject: Re: [PATCH v9 1/7] phy: can-transceiver: rename temporary helper
+ function to avoid conflict
+Message-ID: <20260216092914.kmvl7aep7dantcsd@skbuf>
+References: <20260208-rz-sdio-mux-v9-0-9a3be13c1280@solid-run.com>
+ <20260208-rz-sdio-mux-v9-1-9a3be13c1280@solid-run.com>
+ <20260212164823.mbeycqwzsy2dfq6e@skbuf>
+ <CAMuHMdVOqovkugmCnR4FOfk8VkQyN_dmyKFzbsOSN0mPKQedeQ@mail.gmail.com>
+ <f9ede0d3-6a37-449c-b62b-a5c761ece097@solid-run.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="1s4Vai7zOQ1kU7EG"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aY8HfN3c3qcVbOJj@black.igk.intel.com>
+In-Reply-To: <f9ede0d3-6a37-449c-b62b-a5c761ece097@solid-run.com>
 
+Hi Josua,
 
---1s4Vai7zOQ1kU7EG
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, Feb 16, 2026 at 08:19:27AM +0000, Josua Mayer wrote:
+> >> In the future, when you have a series with cross-tree dependencies,
+> >> please try to think of it as individual mini-series for each tree's
+> >> 'next' branch, and specify clearly that you need stable tags (to be
+> >> pulled into other trees).
+> 
+> I don't really understand how I could split my series up to avoid this 
+> issue.
+> 
+> Due to the fact that one (and now two) drivers implemented local
+> mux helpers, to undo that an atomic change must be made tree-wide.
+> 
+> Meanwhile it must be avoided that while the mux core helpers are being
+> tested / reviewed, that any tree adds another driver-local mux helper
+> like appears to have happened here.
+> 
+> Note that my patch-set did go to linux-phy@lists.infradead.org list, too.
+> 
+> The second challenge for this series was that mux framework is being
+> enabled only by drivers Kconfig "select" - and not possible by menuconfig.
+> This is e.g. responsible for being unable to test =m build with arm64
+> defconfig - and lead to it only being detected through kernel robot
+> x86_64 allmodconfig.
 
-Hi Andy,
+To avoid this, a combination of developer due diligence + maintainer due
+diligence is probably required.
 
-On Fri, Feb 13, 2026 at 12:14:04PM +0100, Andy Shevchenko wrote:
-> On Fri, Feb 13, 2026 at 12:06:50PM +0100, Marcus Folkesson wrote:
-> > All devices on the same I2C bus share the same clock line and the bus
-> > frequency has therefor be chosen so that all attached devices are able
-> > to tolarate that clock rate. IOW, the bus speed must be set for the
-> > slowest attached device.
-> >=20
-> > With I2C multiplexers/switches on the other hand, it would be possible
-> > to have different "domains" that runs with different speeds.
-> >=20
-> > Prepare for such a feature by provide an optional callback function to
-> > change bus frequency.
->=20
-> ...
->=20
-> > struct i2c_adapter {
->=20
-> > +	int clock_hz;
->=20
-> Why signed? Even inconsistent with the parameter of the below.
->=20
-> > +	int (*set_clk_freq)(struct i2c_adapter *adap, u32 clock_hz); /* Optio=
-nal */
->=20
-> It's already a huge struct, can we make this compile-time chosen
-> (when I=B2C muxes are not required, for example)?
+From linux-phy perspective, there will be some automated build testing
+(which did not exist at the time of your submission). This would have
+caught the 'hidden' devm_mux_state_get_optional() call present only in
+linux-phy/next, when testing patch 2/7.
 
-Hrm, many bus drivers (k1, jz4780, stm32 to mention a few) already have
-the clock value stored in their private data, so maybe it is better to
-have this value in a uniform place in the i2c_adapter struct and make
-those drivers use it instead?
+But, to work, the build automation needs to be able to apply the entire
+patch set on linux-phy/next. So expect some pushback if it doesn't
+(hence the recommendation to send a mini-series to linux-phy first, and
+request a stable tag).
 
-Best regards,
-Marcus Folkesson
+These are the tools we have, we need to find a way to make them work somehow.
 
---1s4Vai7zOQ1kU7EG
-Content-Type: application/pgp-signature; name=signature.asc
+Then there is the fact that local definitions of devm_mux_state_get_optional()
+keep popping up, possibly in unrelated trees (not the case here). This seems
+to be a bad practice which should be discouraged during review if caught.
+Otherwise, some 'retries' will be required from the developer until all
+occurrences are removed.
 
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAmmS4bMACgkQiIBOb1ld
-UjIochAAzvzsvYXR0NOI143dfUe5xvJqZCtvPGYgopBVydOd6J6rG4V/WRA2vqJU
-JOO2f9+Ry9gQEGYKKhbUNMftM8mUqS3ePmOBe1CWKf064HPGOYENXEBTl1yHzHWT
-qzMXoi58M3OMDxiJEysPSVG07ivJjwd8FOdCLOjCK6u9o+PKJ8vOP04ii85YGoF1
-vFg8Xv1GlrNC+tCYojbzng7ItEhrkDhHjDsJfRzLwcK4xQV+eMqWaufRGxz49Bov
-wLhKIDCnltp2EkSBpgHC8MJgwB7VAowwf1JI+fyq0YqEZJj67P2FqX+K8dsJ5Lso
-5fva5ROMuqXcR/DNhTQVPpwUtwQ2RTFGmBO9pPSMZEwWzWM3rvtYK1H4KpKMb/go
-rtc9x+WeggLeDTPnGcWGTNdQL3TuOfF+X3sJ7VWXhVVsz4x5SmekacvveUmO0QHg
-7gdbtURVmqsexkBjX4bfD3TgPipjoHrKIr8MEB0afrOQ4F79U6iPfRgsWJ6FSeGt
-9qQdC7JrVjWWlAIRAYHqWl8nsoRaKCYundYeKPCd95+QUUouG/XiluOp6uxIeDbA
-2pqA1ALPLsEug11bqjWj5jRWwACBPXS8jtiuMx2OPkTYxq2+AZGmX6Jb26BAZy+b
-8vtZNaqteC/g2YcjyNoyQRI+GmVPrzK40GW78RtZ6WrDBj54rAM=
-=MC3m
------END PGP SIGNATURE-----
-
---1s4Vai7zOQ1kU7EG--
+Note that the upcoming linux-phy automated build testing does have an
+x86_64 allmodconfig test too.
