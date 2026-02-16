@@ -1,114 +1,118 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f52.google.com (mail-ua1-f52.google.com [209.85.222.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED71B2836B0;
-	Mon, 16 Feb 2026 09:31:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AD4F2F5331
+	for <linux-i2c@vger.kernel.org>; Mon, 16 Feb 2026 10:07:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771234308; cv=none; b=Gc7+RzdfyB5GyhRhjprgBiORelfHcxyDwlf/VoUFPkWtYOX+ceuHrXb96z9rzYEb/27U4dsgAtcnMQbg4zeV50350ZqV38XAua/IcKYqld9szRHQWQZVSXg+fUCspmFnteymjOelZP3sf5KHmqYpKf4Ec3lWFLA4ypPYcnUXJ3Y=
+	t=1771236475; cv=none; b=HkyzDO8ZMsLJ5brcwVW8cmE3nJ3rdRTAaKRFre+86GEJZ/ntQVmo3AkJLsRhJcyg2ZvX4FTsSHGNCmztZ6kcu+n0Uby2zrVJDbSwtcw7IFtP5t1ftpyXfLhLKwEZExR5+aaHcO7ZliY1kTXQ5mzAgugFfAN1iFcfH4k1/5cySTM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771234308; c=relaxed/simple;
-	bh=VqmQ8cU6ecdNri2hd0MgTCwaRZCbGcpQt8oiFnMymNw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qcazwRD8wXU8wC1R6f/g1nXkIec495pScj5oMs+h1HJTWZ+/aK8EcD9wuSWNJXHi/jFJJTFZhhYti0xcgGrLDZ8xUDfFqXTEMsNv3iDkAWS9AUsBOPfq+2A8pR9uitxlE23XG5AVCpqcpbA70M5TWqHFLolrGaZGx2uF9CKNd4Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=A0SObN7G; arc=none smtp.client-ip=198.175.65.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="A0SObN7G"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1771234307; x=1802770307;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=VqmQ8cU6ecdNri2hd0MgTCwaRZCbGcpQt8oiFnMymNw=;
-  b=A0SObN7GmV88on03iEM6FR/u07468FOv0+i6yf34T6igxVQS6DJIi1kn
-   GO6EhG9J7Kp95I4POd6KtBGLTGT4jskfeSLuBphT/zW6hnuiV/iiRM8SS
-   VMwNFwOLcOql6HPislCJC7bgC/6wwGxdNVN//rMRdi/pl+4fc3SZ5obFM
-   WHOq0TlVev7RGXYWwOU44Y0IB0vxNEQz/xPnb68s+fM9oReqiI4prt+Mw
-   WXbR6sHNTFhehkTIBodWKUvGWxwJPiqejnRwazb8mPbS2pP6bJKToloG5
-   4HaZ8wTWlFtvZQF4Yvb8pwfMbem+X0hj5mEArCwJ+2nccuZv+m6a8xqUQ
-   A==;
-X-CSE-ConnectionGUID: DnAMKtjnQ1GX2iQSFABZrw==
-X-CSE-MsgGUID: 4s5loZsVTdW9Qz0kGwtvsQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11702"; a="72355164"
-X-IronPort-AV: E=Sophos;i="6.21,293,1763452800"; 
-   d="scan'208";a="72355164"
-Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Feb 2026 01:31:46 -0800
-X-CSE-ConnectionGUID: taENNqnyRY+eGYUhBVdZnw==
-X-CSE-MsgGUID: XKK/X2j2Qx6WHX3pf0yeTw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,293,1763452800"; 
-   d="scan'208";a="218104475"
-Received: from abityuts-desk.ger.corp.intel.com (HELO localhost) ([10.245.244.188])
-  by orviesa004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Feb 2026 01:31:43 -0800
-Date: Mon, 16 Feb 2026 11:31:41 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Peter Rosin <peda@axentia.se>,
-	Michael Hennerich <michael.hennerich@analog.com>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v5 1/5] i2c: core: add callback to change bus frequency
-Message-ID: <aZLj_dGXOPzp4tMz@smile.fi.intel.com>
-References: <20260213-i2c-mux-v5-0-fb2cbf9979b3@gmail.com>
- <20260213-i2c-mux-v5-1-fb2cbf9979b3@gmail.com>
- <aY8HfN3c3qcVbOJj@black.igk.intel.com>
- <aZLhuIfP7rh7o3MH@gmail.com>
+	s=arc-20240116; t=1771236475; c=relaxed/simple;
+	bh=qIHY7cCiEnGtwkY7aFFwE/mZ8uiiY18ecDxBJTYhSwg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=OQtAotTzzquM6HRxA7004X6THGcS2Ev6S7aDJAv+6zJtlqJcn56nEu0ooCqqGCLSL20b3QXAxQGB0xQkr+h3bZldG54nrNqBqKwq4erxMvSQttSbK3w9OBeA1ER7N4TqrI3ufmVL3wp7l5vShsna/a/Uz+r4QpvKLt+ss5mPaLQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.222.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-ua1-f52.google.com with SMTP id a1e0cc1a2514c-9489d087bcfso1713784241.0
+        for <linux-i2c@vger.kernel.org>; Mon, 16 Feb 2026 02:07:54 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1771236473; x=1771841273;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8QwpdPffhWm62Ds9NyNo/SaQsJWiUgFomKDnAW7WiSg=;
+        b=cZSgGOOMSg9fvFmKcVAn0j0rSdVBn0AiV8R7l30Ap9RdZZfNzhDMmTLvF9+C2nPdos
+         mkqdyHrMD7Up9+bQR021vZDUxgNnMOIpdAnptvmmJq9OWAQWqXYsonm4faFgCaFZR0xV
+         HcQ/r7dSk7YRD/GN8U0U2DUoHkNAdr99B9bVX8gLotx+Rbuz0sGMTwFet8AeRtb7qbPE
+         rO1YLr/0A0u9cQ1xNdc6UGygkYtuM1+NrGyamkTTNGfooWamCoRCDtD03Q9WZEa05zk1
+         wfQ+WfELRTBHqok/FI0L5QuhoHMwL8q2AFWYkbVECDk41zdOI/PB29V7ucRRpULSsD5+
+         4tFw==
+X-Forwarded-Encrypted: i=1; AJvYcCUlHq3apcheymGZj/w6Sx+EOblqMn/Vm2iFz2huAyDRnDbLGrjVJWzh+grMEKuEasnnW64i+LR/Rsw=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzDhsCe8qDbkiQa7vnf6+qwMpJRv4t/EuIPvvbsa2YdMPSCWjVw
+	7uLL3E5ke7odb0qc9FgqnEP+hD2r+D0eS872vKBufbbTC3NpVU3yNIQwM4JD8iKV
+X-Gm-Gg: AZuq6aKIsBbez19AYYR3U5j9bBisVcxtlyLeb4RKf6y+PaqDGUmBOV1TXk0C4aFTBAm
+	oK6opLCXSknYraf8eIOyT49Wn2JRfFzTiQmkfMG/AtPnZfttaXPVlN0frcf5RIe4YslV/pJ1VVn
+	MVwuXxcwVHthcspCKkNNaRK83CZO38iraZY+nduwZpRmD/0YYpHVQkk6RHHXNjJA2Q0JkyRrsx0
+	gHmja6BAnxhSAZ+X3IPwFatrD1zn7WcEfhtVBVvMwvnAOHLYXbBcKNkHGWINbmA/+gyOGfMWzta
+	0+YYlMBcRqoRSKVv9C4E/VocICtqBGTmVsFcsYykRmbGJM2h32ep/3IdtTi9b7YYNPjRzF1mhkA
+	5sQi0iNZFibhTIGtYoxxxmuk1+K9+ayOv+eSxzBJ/3rP3zTGW/CuVZNMNRQrQbg2bQ2GOVcfxnC
+	yNFWkjKsZ71+wiJVWgwU17WY0YpL8MFbD4Zjfynx1x9Sj21JrFWvzACQ6P3sv6qZW5
+X-Received: by 2002:a05:6102:32c5:b0:5fd:efb0:855f with SMTP id ada2fe7eead31-5fe1afe397fmr3854500137.43.1771236473211;
+        Mon, 16 Feb 2026 02:07:53 -0800 (PST)
+Received: from mail-vk1-f182.google.com (mail-vk1-f182.google.com. [209.85.221.182])
+        by smtp.gmail.com with ESMTPSA id ada2fe7eead31-5fde88ada5bsm7047100137.7.2026.02.16.02.07.53
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 16 Feb 2026 02:07:53 -0800 (PST)
+Received: by mail-vk1-f182.google.com with SMTP id 71dfb90a1353d-566390e7db3so2248517e0c.1
+        for <linux-i2c@vger.kernel.org>; Mon, 16 Feb 2026 02:07:53 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCVo1W5VpHyrQ4Dmj+/LQiS1WZWieaMeyH693WeKigJGRlcBvuzFL0kDmvnIU6Uk6S9zlSqM9hfIE0Y=@vger.kernel.org
+X-Received: by 2002:a05:6102:cd1:b0:5fd:f145:b88a with SMTP id
+ ada2fe7eead31-5fe1afcd3b7mr3584435137.40.1771236100546; Mon, 16 Feb 2026
+ 02:01:40 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <aZLhuIfP7rh7o3MH@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+References: <20260208-rz-sdio-mux-v9-0-9a3be13c1280@solid-run.com>
+ <20260208-rz-sdio-mux-v9-1-9a3be13c1280@solid-run.com> <20260212164823.mbeycqwzsy2dfq6e@skbuf>
+ <CAMuHMdVOqovkugmCnR4FOfk8VkQyN_dmyKFzbsOSN0mPKQedeQ@mail.gmail.com>
+ <f9ede0d3-6a37-449c-b62b-a5c761ece097@solid-run.com> <20260216092914.kmvl7aep7dantcsd@skbuf>
+In-Reply-To: <20260216092914.kmvl7aep7dantcsd@skbuf>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 16 Feb 2026 11:01:29 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdUH4W9W2uNknr41AgVQfO7inwZP6BfuMatyEUvJtf+Ueg@mail.gmail.com>
+X-Gm-Features: AaiRm50a7dRj7dLKtMGILEQb14-VkaVzM5nFFHi-S8Lj08OYuJXTfF9bVPV6HRk
+Message-ID: <CAMuHMdUH4W9W2uNknr41AgVQfO7inwZP6BfuMatyEUvJtf+Ueg@mail.gmail.com>
+Subject: Re: [PATCH v9 1/7] phy: can-transceiver: rename temporary helper
+ function to avoid conflict
+To: Vladimir Oltean <olteanv@gmail.com>
+Cc: Josua Mayer <josua@solid-run.com>, Marc Kleine-Budde <mkl@pengutronix.de>, 
+	Vincent Mailhol <mailhol@kernel.org>, Vinod Koul <vkoul@kernel.org>, 
+	Neil Armstrong <neil.armstrong@linaro.org>, Peter Rosin <peda@axentia.se>, 
+	Aaro Koskinen <aaro.koskinen@iki.fi>, Andreas Kemnade <andreas@kemnade.info>, 
+	Kevin Hilman <khilman@baylibre.com>, Roger Quadros <rogerq@kernel.org>, 
+	Tony Lindgren <tony@atomide.com>, Janusz Krzysztofik <jmkrzyszt@gmail.com>, Vignesh R <vigneshr@ti.com>, 
+	Andi Shyti <andi.shyti@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Geert Uytterhoeven <geert+renesas@glider.be>, Magnus Damm <magnus.damm@gmail.com>, 
+	Wolfram Sang <wsa+renesas@sang-engineering.com>, 
+	Yazan Shhady <yazan.shhady@solid-run.com>, Jon Nettleton <jon@solid-run.com>, 
+	Mikhail Anikin <mikhail.anikin@solid-run.com>, 
+	"linux-can@vger.kernel.org" <linux-can@vger.kernel.org>, 
+	"linux-phy@lists.infradead.org" <linux-phy@lists.infradead.org>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
+	"linux-omap@vger.kernel.org" <linux-omap@vger.kernel.org>, 
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, 
+	"linux-mmc@vger.kernel.org" <linux-mmc@vger.kernel.org>, 
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>, 
+	"linux-renesas-soc@vger.kernel.org" <linux-renesas-soc@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-On Mon, Feb 16, 2026 at 10:22:00AM +0100, Marcus Folkesson wrote:
-> On Fri, Feb 13, 2026 at 12:14:04PM +0100, Andy Shevchenko wrote:
-> > On Fri, Feb 13, 2026 at 12:06:50PM +0100, Marcus Folkesson wrote:
-> > > All devices on the same I2C bus share the same clock line and the bus
-> > > frequency has therefor be chosen so that all attached devices are able
-> > > to tolarate that clock rate. IOW, the bus speed must be set for the
-> > > slowest attached device.
-> > > 
-> > > With I2C multiplexers/switches on the other hand, it would be possible
-> > > to have different "domains" that runs with different speeds.
-> > > 
-> > > Prepare for such a feature by provide an optional callback function to
-> > > change bus frequency.
+Hi Vladimir,
 
-...
+On Mon, 16 Feb 2026 at 10:29, Vladimir Oltean <olteanv@gmail.com> wrote:
+> Then there is the fact that local definitions of devm_mux_state_get_optional()
+> keep popping up, possibly in unrelated trees (not the case here). This seems
+> to be a bad practice which should be discouraged during review if caught.
 
-> > > struct i2c_adapter {
-> > 
-> > > +	int clock_hz;
-> > 
-> > Why signed? Even inconsistent with the parameter of the below.
-> > 
-> > > +	int (*set_clk_freq)(struct i2c_adapter *adap, u32 clock_hz); /* Optional */
-> > 
-> > It's already a huge struct, can we make this compile-time chosen
-> > (when I²C muxes are not required, for example)?
-> 
-> Hrm, many bus drivers (k1, jz4780, stm32 to mention a few) already have
-> the clock value stored in their private data, so maybe it is better to
-> have this value in a uniform place in the i2c_adapter struct and make
-> those drivers use it instead?
+This was done on purpose, to (1) avoid having to make too many changes
+to the file when a common helper would be introduced later, and (2) make
+it easy to find all locations where a future common helper could be used.
 
-Perhaps say it clearly in the commit message? It seems that commit message
-currently focused on I²C mux.
+The alternative is to use a completely different name (which is thus harder
+to find), and having to fix up all the users of that name too.
+
+Gr{oetje,eeting}s,
+
+                        Geert
 
 -- 
-With Best Regards,
-Andy Shevchenko
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
