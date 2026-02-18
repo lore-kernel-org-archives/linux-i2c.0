@@ -1,214 +1,187 @@
-Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from DB3PR0202CU003.outbound.protection.outlook.com (mail-northeuropeazon11010039.outbound.protection.outlook.com [52.101.84.39])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 673CC285CB3
-	for <linux-i2c@vger.kernel.org>; Wed, 18 Feb 2026 15:09:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771427396; cv=none; b=GwsQq0ODUgY6lItP3NmK3JhMKHmLSM25zNYVxZU9BW0Z/ADXCOgsg58BdWCVwasPVAvAlJXwRpZupvwzkx2VXNMchWWsJDoQ2zpn169cW2J6gVjdk5vS4c3vbFgHkTfPC50AWbifmkDvh1pcyt1toLLh8FkQqDdX+birLxaoAfs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771427396; c=relaxed/simple;
-	bh=nD2q10ThWeIvjvO9WzEUwgKZIjJ/JreIZj5OT5fabdY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pET0M1acOJVvuSfejab2FwrU6tDmpBsn+2/ULPjDdm5kQKm+9jEQ49LdLr23/IHzoijpVBod2NbOpV6MZryKWFsGHPlgxSo1PFNKplJv8yMNZ/53OwGzPZAIn3/OXBG/EnA2vfo8TfUdNQdxeveRNzEDNoRHctVfgvDAd6YEXYs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N+KMiHrg; arc=none smtp.client-ip=209.85.128.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0E4B334682;
+	Wed, 18 Feb 2026 16:22:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.84.39
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1771431780; cv=fail; b=r6t8X+eU8MUtss1s9/+5RysBvkHN9C9Yx6oWrzgG2XB6DMjlXUQ7iEWCgWzNVFRBBliVikh0jwBJU2yRonUx9JUg+5N7nXgvT54RmPDAjePGk/wpmhD7WTb1ANdUIPPjZxgeB32hbB79t8W5xJegSr7rGT1SSbsq0iYyxPNRLwg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1771431780; c=relaxed/simple;
+	bh=fPsw1kldIiXrJuHwTPybQXMkPqW+kTEbLRtJ9pl37Wk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=IURgZQdXL1QsU0jqENuLQlnDBlM6BfjS2IyPWlox7YnMStAM9wTyG4YJKzmE64uPZAkzruJ7CtHHQZjGiHNmo0VpbP8sDnA5t+uxp1F6HP/gQ0HA/DWBu4IOtdIk8+l1pyykXt0HuwZUNcy/L02zfPu4f1nRnJQlMStbJR1t0wU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=aaEEowf6; arc=fail smtp.client-ip=52.101.84.39
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N+KMiHrg"
-Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-48371119eacso51479175e9.2
-        for <linux-i2c@vger.kernel.org>; Wed, 18 Feb 2026 07:09:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771427394; x=1772032194; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=YiCCUrdk9XYqcbI+I7lzNNzu+GG7xW/ZdG+JQfCsf/M=;
-        b=N+KMiHrgFWHEPKSZoiDJvWVFBaBSeygtPh2iuxwN64QKECidoiB0q+fP+FGNhcJAvD
-         N3tmKKwsedRVpOj7hfyH8B2b+go6MP2cGhL/6aGBkOOpvutG88u1vuEbc5MDeVZU8oiN
-         G2CaOoR0IoRu4mqjZOL6yR/xrOVixBOZ3XyCnCR6zqkjBtDBuL9Qjv2svWcORL/w5NtE
-         7egE5nnsl9scsxbEoSrFpnSNC97KykE+u1tARGtLVTTzNpmIa+TCWzxEHGWY9iXSFU7E
-         U8ipA/ftwkRvXnvueZt8edCehJPmTowBTa1QfjoTwjJrYLQLeBQWsw14BLyZQgqS3VWm
-         1pWQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771427394; x=1772032194;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=YiCCUrdk9XYqcbI+I7lzNNzu+GG7xW/ZdG+JQfCsf/M=;
-        b=tM6D1BuQuS0mjD9ve6VktCb/Ar0TAXlzJ3HHkbyKdJ8b4SX92xWAu7eDq5OivO7uCs
-         M9HCClvA1A+jnEQkbyLMKG1/rmkY0m68NRbyrswSds2eS0a88VwaKOi/AVqMAn4JG5T4
-         VbG75foeaJSnodQoHyn2kUD07Ahri35H+ETwykrO/cNJJjTwL36jYOhQYWE7pOO4ZZdO
-         c1QeorMw0PpBm47h6LEgi2HxPNR3qhjVR3cTC84TAWj8FFAyu9wBQdvN295O4a3gSpqZ
-         xfsHdLt7vAyScMsZEbg6f5AeUACy05QvhMcvY39nVS6ONu1iQ+iqYVt2F++RApNmY68Q
-         DkEQ==
-X-Gm-Message-State: AOJu0YzSEBuSotXvxjqEoijlO4zGQVq9akiufVJKXG8PhMRBWDoE1HVC
-	va7Rho698ow92+2E6rB6hkGdY3bjjN8JHlfI70EpHpTO7ZfbFHha3f6/
-X-Gm-Gg: AZuq6aLiKzDYIpOiAInirX/AvNb2KMubmEBkMYVfakFJa8FrhoZvJG1EqFjAnAbyMP1
-	HBeecCrDU892Un1svUT5TPNBT9K8bdJJUO6i7vqgcbWTK5CR0b3QqgSbYgwlzFUbDlCON4ks4la
-	GssFfJblIm/J7P4KNEEMOASIDvb82xwS9/W8FVzAcAxy+rfjGFLDRoVxfgpzUWRmq+IKmoYR+jr
-	BthJEK6n5KQKlG5G0w8tDaBw06wDqSXs37yxSTFdhJrAEKmFFrXE+TRwxGE4y3BsVnWKogHgaAl
-	kFAyJ4+thUOE34Tpz3kNC/0dTyjlGI9CM8L0Tg/4E2QrVqUEiMaFiooeR/6dS7dH1OmC8jM/Jx6
-	55SeWEAwN3KcXp7uobLD7OoQhmQOqB+3xjjnrrpXZwTpvaIl6g994aZzkL4AjJG+UX70Mjj475X
-	zuwmh+j4VVrCxk0EWs4lyaYWG8uhZ0ntxx+ZIYHJDP2ieG0A56yMykqfoaoYGb5LZ9e2e+JVM4b
-	8zg5dEnBpMgXHBRtAoVbORCeYEl8qD6bSlGjoOTOneJVzQ=
-X-Received: by 2002:a05:600d:13:b0:477:5b0a:e616 with SMTP id 5b1f17b1804b1-4839b4c7242mr20986195e9.5.1771427393465;
-        Wed, 18 Feb 2026 07:09:53 -0800 (PST)
-Received: from eichest-laptop.corp.toradex.com (248.201.173.83.static.wline.lns.sme.cust.swisscom.ch. [83.173.201.248])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43796ac7d91sm44333116f8f.26.2026.02.18.07.09.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 18 Feb 2026 07:09:53 -0800 (PST)
-From: Stefan Eichenberger <eichest@gmail.com>
-To: o.rempel@pengutronix.de,
-	kernel@pengutronix.de,
-	andi.shyti@kernel.org,
-	Frank.Li@nxp.com,
-	s.hauer@pengutronix.de,
-	festevam@gmail.com,
-	stefan.eichenberger@toradex.com,
-	francesco.dolcini@toradex.com
-Cc: linux-i2c@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="aaEEowf6"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=yXJykL4CZ0zsmnQOmBbET0zWK/SEW/G/2QErcCWwnOauc6cJ+JCiqiIEQQHUo9atLcAjhQ06hgobCq7FThkAJXQ+aq+6C/0lWDLVqi7mNUqzFKrucXKx4X0Za8jxY0o+TUwhUf30ZIq+JIjAh7yOgTv2tqWf9h91CwxzB7eGEur+XpMtVwp7J6sDDAmoR7dg2tf6yK9JigllnYyzEfDYpP7dUJ8oM+rCnwMGJw8BgbWGWi7+1XP9VBjaDM/0HQDgCL49NrpK5Wg3gPZuWNonuuw89ewYZ6E9PdkvNPVTu12tyQ2mzZeN3y77bHVn6uAmY7JT0t/0zMc6Gn8f17gARQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=iih5KUiM5tM+QCOGXlFAiLqlRRD8LmUO0lR/3Gk18k0=;
+ b=pykhhjjYHPNCdxmiBHUGnqilZCSEZh/pwNNWQu9VQBA6VU2Um4xFwk6BCaBex9aPt1FBcSnptKTZm4Fg9FSgx9Ht1mMueGlHj6aigXwwT6+6SWElAMjAItNFxRgSuxLL5rOxhucjGt6Q3H6BqrE3KDE0yJv5eI1egl5rWUEcLCox3RlGkX8b7jM3MQeSwj/MM8NURds16OsIbh258vx2eVIbC0iFc9n7kmkQeyB7O4atOh2zgoTXomKYgI6orFBu9R0CdaUwVnRmhkVyvfJldFM21mZsgOJqpT4c+sNL2xsV7wlIQRVL0oglSMzsF220ykuFbVRxQ65UnKp8LOoFUg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=iih5KUiM5tM+QCOGXlFAiLqlRRD8LmUO0lR/3Gk18k0=;
+ b=aaEEowf68GFbgqDDKAGLtlzTNSDkSCxTIW58afd9GRd8iYihQOIuULo1kRXAcVbO9yaAfuZV2937zexdz92SVmwgrLdumbA7FLySczznQOcGdDiCd9BEEw+22HN/o92j4X/mGm67+9FWt1qiwUrwGB2Eo1PuMYchEsADQY8mg7FUuyre7dg9S0FlX1FIxuqgUdVQOosu5DSyVManXabq1rTgjmvOZDpt6rVXBfGt4T/ic7cSMXoHIzW+vBAmRoWzDPy87wUFH/tioZBsDHEPE1MI08WyIxzqAnh2SgTQBEbOLqSA1RM9ylM3nmhJFkbtxRorYQLDNicsIacrrREj5g==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nxp.com;
+Received: from PA4PR04MB9366.eurprd04.prod.outlook.com (2603:10a6:102:2a9::8)
+ by PA4PR04MB9367.eurprd04.prod.outlook.com (2603:10a6:102:2aa::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9632.14; Wed, 18 Feb
+ 2026 16:22:53 +0000
+Received: from PA4PR04MB9366.eurprd04.prod.outlook.com
+ ([fe80::75e4:8143:ddbc:6588]) by PA4PR04MB9366.eurprd04.prod.outlook.com
+ ([fe80::75e4:8143:ddbc:6588%6]) with mapi id 15.20.9632.010; Wed, 18 Feb 2026
+ 16:22:53 +0000
+Date: Wed, 18 Feb 2026 11:22:44 -0500
+From: Frank Li <Frank.li@nxp.com>
+To: Stefan Eichenberger <eichest@gmail.com>
+Cc: o.rempel@pengutronix.de, kernel@pengutronix.de, andi.shyti@kernel.org,
+	s.hauer@pengutronix.de, festevam@gmail.com,
+	stefan.eichenberger@toradex.com, francesco.dolcini@toradex.com,
+	linux-i2c@vger.kernel.org, imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH v1 2/2] i2c: imx: ensure no clock is generated after last read
-Date: Wed, 18 Feb 2026 16:08:50 +0100
-Message-ID: <20260218150940.131354-3-eichest@gmail.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260218150940.131354-1-eichest@gmail.com>
+Subject: Re: [PATCH v1 1/2] i2c: imx: fix i2c issue when reading multiple
+ messages
+Message-ID: <aZXnVHOuNt-2JnhE@lizhi-Precision-Tower-5810>
 References: <20260218150940.131354-1-eichest@gmail.com>
+ <20260218150940.131354-2-eichest@gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260218150940.131354-2-eichest@gmail.com>
+X-ClientProxiedBy: BYAPR07CA0082.namprd07.prod.outlook.com
+ (2603:10b6:a03:12b::23) To PA4PR04MB9366.eurprd04.prod.outlook.com
+ (2603:10a6:102:2a9::8)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PA4PR04MB9366:EE_|PA4PR04MB9367:EE_
+X-MS-Office365-Filtering-Correlation-Id: ab354887-2260-4294-a598-08de6f09f7ac
+X-LD-Processed: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635,ExtAddr
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+ BCL:0;ARA:13230040|1800799024|19092799006|366016|376014|52116014|7416014|38350700014;
+X-Microsoft-Antispam-Message-Info:
+ =?us-ascii?Q?Ogzbuzysiitn2LrbKJFXlViOY3Z3viJ2nZmzqszcvf0zU3NEB893aMwJUbbK?=
+ =?us-ascii?Q?1KZ/GiHYoVhiKvy5zz84JZ0rZP5entjZNmZdFF4sUWYhxhkK0glblMaGDzOm?=
+ =?us-ascii?Q?N1JyDQVuDkiDy88F3F8hyTyY3P7ll9efRlOuNol0qD4UNpBjEkP0Y09hgz36?=
+ =?us-ascii?Q?uhFyGyOYsWqnE5/NVNulg2QK9dL/rroXRmNyw3sLL+A38hnJzjMi2MBW/gXm?=
+ =?us-ascii?Q?JFUncsu6GTk3XSJx6o8ZPooZouW2QCjuqK9M5ax8XkQppzd4EBJq/9zmadBm?=
+ =?us-ascii?Q?AfLWWzUJQqw8w1z+VSvyqT9XGfC/fd679t1mNQyy0VUIzBwtb9SroLgq9Rt+?=
+ =?us-ascii?Q?sj9tJRr0IULfuoswaaOJWCkmeNruNB0GtQIo728qTaEN5M+v1knf5S1sOpN6?=
+ =?us-ascii?Q?e9XLH5mEsIntbQQGwdQetq0Zkqwj1dFsZHfuUC20vnSH/Chu9T4g6PTYcNHK?=
+ =?us-ascii?Q?b8Jha6l7/D7EIlDEsGOdJAQRKZROrquSrN2y5F2Y8CJhBThkCsaOHWIZeVGl?=
+ =?us-ascii?Q?+3KT03Fo/Qzm5c7ZWRZLJdX+bzZSTXmrkT/5XnJyBWKq4rmfEDT/wYv6GzsW?=
+ =?us-ascii?Q?TH5rmqVHbm0+fPm1AEwaaIT04k2tVOSRnhS5/eM2Xn3gNzk1n30eLeRYBdX1?=
+ =?us-ascii?Q?/+QwhqjFkLcWsJlwLxE2y1L8jocsQXiV5ftJ983vy4JcLxnMnwDeKmjjUmc3?=
+ =?us-ascii?Q?TwCJ8YAa/7xULpSSaj7MkQI+LDcVXE8Ndp+ZPW2prg1ymb6fLTe0jymTXUmP?=
+ =?us-ascii?Q?WDVMyA9i/d/zSfi3i/wXGHVYvadcdTwK+oNnIzVAUiZq5XT4yCRQprhFvpw+?=
+ =?us-ascii?Q?l9GwT/1oqD1mOFratB1MbjhurPWYM0+mhmjmrkPWBgJo1cfBg0Nl7Ur8JOMp?=
+ =?us-ascii?Q?/gUeiuJGbWUi13bn6AJKr5U6bXSBwILaRYdFBOkuD7D3AO1+PQ06+IpGPoEA?=
+ =?us-ascii?Q?lx6smVC9UXfc9I+ADEg8PjRkx5QKJdy6as/I5qdgoLmRvqNNoxRmCYEIhEio?=
+ =?us-ascii?Q?BZ9hP0Jfw0PTlP94F1Fkda88ujeUhNjsoQ5JkRSSxxxQGOAA73cPNT849dsa?=
+ =?us-ascii?Q?crH6SJIOPHD6t+v2gXd6pKdQcbXAje4ns9dCOXL1/otq0+3ErJbAKtX05vZX?=
+ =?us-ascii?Q?hjHzgJstLiKQanqIXqQ4WZMpuKdkWey/reYQ33lYqdu/x5Sf/rxwh0pW5rec?=
+ =?us-ascii?Q?4CO/Yh8j2IfgM3bfKr6GI3V66OWa9FC8LLdex2TReGTnekBg+T38nLWKrFrf?=
+ =?us-ascii?Q?pPur4ggVOuGqkDe1W1ahXV+RhWKZlxDtfq+sD7foEqksVzBiv8nJ3NXPp6Gf?=
+ =?us-ascii?Q?ysK7iO+wWdm+75qC6PaYAoiefq+bAPbKcL4jc67/XPCMnhYP4CES+Nhav9+G?=
+ =?us-ascii?Q?D5BagVf6XHOyvMLeC2tTbL0zHbT4tq12Zu2xyMo7XFDAHvTwz1TcxcAs/Uh+?=
+ =?us-ascii?Q?Ll1m5xPrcv02W23uty1oxSP6BR0QZG6fo97hNOq5iktomKo+aTewhxFpAVmC?=
+ =?us-ascii?Q?fa6Hi0AHrqkOA77MppJ8KMYN/8dJTXqqK97C9fRyB/OxT1R9GcdDmpWFxIZX?=
+ =?us-ascii?Q?xVVU7cSpZoBzIZRKpbZ42Z6NsOSQwPzHNuwKlAOoD7ve5aAR2NjeIqsdJupx?=
+ =?us-ascii?Q?ZiK1sCcTcWbNfgm8+1Opbu0=3D?=
+X-Forefront-Antispam-Report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PA4PR04MB9366.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(19092799006)(366016)(376014)(52116014)(7416014)(38350700014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+ =?us-ascii?Q?hlWp/nRSsD/bDpP8pzWn8PvHExwPXsMh/gTT5sxmB/cy4NCNMmszAfDgm50c?=
+ =?us-ascii?Q?aAytMj5CEK9aovpqJuyz9NEJpuw64SHxteC95Jb7i1L6RVzFS5SraE3C/H5K?=
+ =?us-ascii?Q?Jh9S1TEAd4wbfXXDGDXhf8Gb33UVF8YKqlOMsUwhEqIeBYBGVRP8o5clSvQA?=
+ =?us-ascii?Q?EgXtypBtGtdc1JCJcZsQotPVQPgm57ModdpRAhEBUAGtL5TZFaeJUkjwWlmY?=
+ =?us-ascii?Q?eLRLK3BhZCRLhwCqTVmhNd49IMhsPkr3+RxnPT7msgn+ZrmFhLv38ZK83EXf?=
+ =?us-ascii?Q?yiG0tgTBbWGgwj+ruSKg9kbPcCO40oaGEK7GKj6+DdE7qskZx/g8XlQx3Zni?=
+ =?us-ascii?Q?FT9svFNm1UiUm3dvJVaoJAYDtejbY/+B8nRbS/kmV7wdN34sxqWIdl9M326o?=
+ =?us-ascii?Q?JleueSfp9Rg0XI1f7PNKD9bkZ9pgSP5UA+tmEV9/ELBLq5+ATOoJvN7hsNT1?=
+ =?us-ascii?Q?cT2BH+cKt1VA/sHHEi55oDxvPo8ewGLnH+YyCru7mAb31Ru2edwzt350woMX?=
+ =?us-ascii?Q?te30tz5p2hjXb634GLwKnfq42GTVW8nbzCy8rNjAPp2ARKJ8NZfLkJC+pboZ?=
+ =?us-ascii?Q?8DujrbVETu+yz2wBTZmosk0TEpQIQgbWZsEXh2NEi1IWdnn/KMrFundpKmru?=
+ =?us-ascii?Q?d/26+mFd4cPTwFAxUiihnM2q0D2GQNkb9cQu8Ug+JgRW5xoCSTiEjQnm96gK?=
+ =?us-ascii?Q?8gU1ERI/fYPLnEjm8hVpcyauQzMb47+NL9UB9FQIjUWWLeJY7VVHM+dPFufQ?=
+ =?us-ascii?Q?8T19wJSoaqJWNFUr59OCnHiIfsjc3SRm3KR4lEtwHwoT+gN0Wd40MVcfhaq3?=
+ =?us-ascii?Q?HoMbDmC+SKlgyGEjYyrWYKsOSnX/Pu31J65xba831sdiw3bugYF6UqzV/nbP?=
+ =?us-ascii?Q?npKNV03b6x2CrdP5RderzHyL8weULNMxNhTeleSyvhhdCHTsG1UiRTvWHbDh?=
+ =?us-ascii?Q?QD/tWrxp6vKBI0k18oQGv/nphhu0FScvZ65n392PTQ6sMZIgpm1jE5izhgLf?=
+ =?us-ascii?Q?d4nDJEr5LfXuQE0B90h1hKOxnoNtkRUbvnEeflquDyUzoFVy7Cf5ik/9mrV/?=
+ =?us-ascii?Q?5G+yNfTS83ErclT2oAbffYUSyi53Ho5HyLhNDEr7pF5YS8pmzCeVBC8rwQ2G?=
+ =?us-ascii?Q?7z4SZYl6vyP1EIbb7VDF7v+k5C0xo0ZB8XX9fqR67jAC/KHHmkKk25joYUNP?=
+ =?us-ascii?Q?tQytXuE2urf8Out+9WPGxtDIbB32Y5cd7j9kyAYZRk3DpK3oTGaL5IhNz0b+?=
+ =?us-ascii?Q?Fa/90msGejBbEn76/WEQELiWp3PxyqupZ3tRaKvkiQcGBGq+p3URaPZ3l60J?=
+ =?us-ascii?Q?TsOyo4xEH9zV1YtGht+htSpcFpHBF1vqwgyq0MfQM7Ek8Q246zCLLJaXt+oj?=
+ =?us-ascii?Q?WR4zbHmV9V9HdUrWXrjFc60e1bJCiEQuKGQQMdd/eYclgE4azNghlNBzVCfh?=
+ =?us-ascii?Q?ky4PcLuTRx1UOku4juxkw0zTc1+2Aa+zk8AzY4RoPu/Y1gzT0nK5R8VeDMGz?=
+ =?us-ascii?Q?ZuWEuZ7LEHzErQLyJaV2MtQbwjo6CHg95i3OkS6aZmCQGTkluUz8FHcuf2xX?=
+ =?us-ascii?Q?OGlLb35HrgrPiJsNUlBDPy2fWngrGhMuaSpHd3oo+YNVHhftPafnLqWnvr0T?=
+ =?us-ascii?Q?UWJjiXNYgKma1N+y/9d85LKJ+M425YkagZkk4237WXVCsLyYngxqBO/Srh2m?=
+ =?us-ascii?Q?bkFY7hr5YnYbDe5Ki8TcoU7OR+PwhIzUV71oAMozWZMdLQbh9q5wmc0NlHuD?=
+ =?us-ascii?Q?mxIBouRr+A=3D=3D?=
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ab354887-2260-4294-a598-08de6f09f7ac
+X-MS-Exchange-CrossTenant-AuthSource: PA4PR04MB9366.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 Feb 2026 16:22:53.5467
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 2ReDEYDU+b2gvlvuCdM8sMuz1Spx2LJlmtqE1Yl/O80NgBYay8nIRJUrQeaQnXFMFGduaAowSNIA16QSPwbclw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA4PR04MB9367
 
-From: Stefan Eichenberger <stefan.eichenberger@toradex.com>
-
-When reading from the I2DR register, right after releasing the bus by
-clearing MSTA and MTX, the I2C controller might still generate an
-additional clock cycle which can cause devices to misbehave. Ensure to
-only read from I2DR after the bus is not busy anymore. Because this
-requires polling, the read of the last byte is moved outside of the
-interrupt handler.
-
-An example for such a failing transfer is this:
-i2ctransfer -y -a 0 w1@0x00 0x02 r1
-Error: Sending messages failed: Connection timed out
-It does not happen with every device because not all devices react to
-the additional clock cycle.
-
-Fixes: 5f5c2d4579ca ("i2c: imx: prevent rescheduling in non dma mode")
-Cc: <stable@vger.kernel.org> # v6.13+
-Signed-off-by: Stefan Eichenberger <stefan.eichenberger@toradex.com>
----
- drivers/i2c/busses/i2c-imx.c | 51 ++++++++++++++++++++++--------------
- 1 file changed, 32 insertions(+), 19 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 56e2a14495a9a..452d120a210b1 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1018,8 +1018,9 @@ static inline int i2c_imx_isr_read(struct imx_i2c_struct *i2c_imx)
- 	return 0;
- }
- 
--static inline void i2c_imx_isr_read_continue(struct imx_i2c_struct *i2c_imx)
-+static inline enum imx_i2c_state i2c_imx_isr_read_continue(struct imx_i2c_struct *i2c_imx)
- {
-+	enum imx_i2c_state next_state = IMX_I2C_STATE_READ_CONTINUE;
- 	unsigned int temp;
- 
- 	if ((i2c_imx->msg->len - 1) == i2c_imx->msg_buf_idx) {
-@@ -1033,18 +1034,20 @@ static inline void i2c_imx_isr_read_continue(struct imx_i2c_struct *i2c_imx)
- 				i2c_imx->stopped =  1;
- 			temp &= ~(I2CR_MSTA | I2CR_MTX);
- 			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
--		} else {
--			/*
--			 * For i2c master receiver repeat restart operation like:
--			 * read -> repeat MSTA -> read/write
--			 * The controller must set MTX before read the last byte in
--			 * the first read operation, otherwise the first read cost
--			 * one extra clock cycle.
--			 */
--			temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
--			temp |= I2CR_MTX;
--			imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-+
-+			return IMX_I2C_STATE_DONE;
- 		}
-+		/*
-+		 * For i2c master receiver repeat restart operation like:
-+		 * read -> repeat MSTA -> read/write
-+		 * The controller must set MTX before read the last byte in
-+		 * the first read operation, otherwise the first read cost
-+		 * one extra clock cycle.
-+		 */
-+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+		temp |= I2CR_MTX;
-+		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-+		next_state = IMX_I2C_STATE_DONE;
- 	} else if (i2c_imx->msg_buf_idx == (i2c_imx->msg->len - 2)) {
- 		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
- 		temp |= I2CR_TXAK;
-@@ -1052,6 +1055,7 @@ static inline void i2c_imx_isr_read_continue(struct imx_i2c_struct *i2c_imx)
- 	}
- 
- 	i2c_imx->msg->buf[i2c_imx->msg_buf_idx++] = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
-+	return next_state;
- }
- 
- static inline void i2c_imx_isr_read_block_data_len(struct imx_i2c_struct *i2c_imx)
-@@ -1088,11 +1092,9 @@ static irqreturn_t i2c_imx_master_isr(struct imx_i2c_struct *i2c_imx, unsigned i
- 		break;
- 
- 	case IMX_I2C_STATE_READ_CONTINUE:
--		i2c_imx_isr_read_continue(i2c_imx);
--		if (i2c_imx->msg_buf_idx == i2c_imx->msg->len) {
--			i2c_imx->state = IMX_I2C_STATE_DONE;
-+		i2c_imx->state = i2c_imx_isr_read_continue(i2c_imx);
-+		if (i2c_imx->state == IMX_I2C_STATE_DONE)
- 			wake_up(&i2c_imx->queue);
--		}
- 		break;
- 
- 	case IMX_I2C_STATE_READ_BLOCK_DATA:
-@@ -1490,6 +1492,7 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
- 			bool is_lastmsg)
- {
- 	int block_data = msgs->flags & I2C_M_RECV_LEN;
-+	int ret = 0;
- 
- 	dev_dbg(&i2c_imx->adapter.dev,
- 		"<%s> write slave address: addr=0x%x\n",
-@@ -1522,10 +1525,20 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
- 		dev_err(&i2c_imx->adapter.dev, "<%s> read timedout\n", __func__);
- 		return -ETIMEDOUT;
- 	}
--	if (i2c_imx->is_lastmsg && !i2c_imx->stopped)
--		return i2c_imx_bus_busy(i2c_imx, 0, false);
-+	if (i2c_imx->is_lastmsg) {
-+		if (!i2c_imx->stopped)
-+			ret = i2c_imx_bus_busy(i2c_imx, 0, false);
-+		/*
-+		 * Only read the last byte of the last message after the bus is
-+		 * not busy. Else the controller generates another clock which
-+		 * might confuse devices.
-+		 */
-+		if (!ret)
-+			i2c_imx->msg->buf[i2c_imx->msg_buf_idx++] = imx_i2c_read_reg(i2c_imx,
-+										     IMX_I2C_I2DR);
-+	}
- 
--	return 0;
-+	return ret;
- }
- 
- static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
--- 
-2.51.0
-
+On Wed, Feb 18, 2026 at 04:08:49PM +0100, Stefan Eichenberger wrote:
+> From: Stefan Eichenberger <stefan.eichenberger@toradex.com>
+>
+> When reading multiple messages, meaning a repeated start is required,
+> polling the bus busy bit must be avoided. This must only be done for
+> the last message. Otherwise, the driver will timeout.
+>
+> Here an example of such a sequence that fails with an error:
+> i2ctransfer -y -a 0 w1@0x00 0x02 r1 w1@0x00 0x02 r1
+> Error: Sending messages failed: Connection timed out
+>
+> Fixes: 5f5c2d4579ca ("i2c: imx: prevent rescheduling in non dma mode")
+> Cc: <stable@vger.kernel.org> # v6.13+
+> Signed-off-by: Stefan Eichenberger <stefan.eichenberger@toradex.com>
+> ---
+Reviewed-by: Frank Li <Frank.Li@nxp.com>
+>  drivers/i2c/busses/i2c-imx.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+> index 85f554044cf1e..56e2a14495a9a 100644
+> --- a/drivers/i2c/busses/i2c-imx.c
+> +++ b/drivers/i2c/busses/i2c-imx.c
+> @@ -1522,7 +1522,7 @@ static int i2c_imx_read(struct imx_i2c_struct *i2c_imx, struct i2c_msg *msgs,
+>  		dev_err(&i2c_imx->adapter.dev, "<%s> read timedout\n", __func__);
+>  		return -ETIMEDOUT;
+>  	}
+> -	if (!i2c_imx->stopped)
+> +	if (i2c_imx->is_lastmsg && !i2c_imx->stopped)
+>  		return i2c_imx_bus_busy(i2c_imx, 0, false);
+>
+>  	return 0;
+> --
+> 2.51.0
+>
