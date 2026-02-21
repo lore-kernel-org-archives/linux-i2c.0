@@ -1,172 +1,63 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65772275B03;
-	Fri, 20 Feb 2026 09:07:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 013ED215F7D;
+	Sat, 21 Feb 2026 01:20:07 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771578461; cv=none; b=WUySkHp7d6CaoOYVksoyzFSdDADo1JsFKtAfLrVL5JNgZRu1AyWLQ6HW/bhDsd7rEPAHfEp2T+d9BLmJGOtZTlnWlho7C8URwFAH6ilPQB7d8QxW5hVP6Dbze3cGRZtMuFLN+4sQ3J/oiNus/PV0yppJSRgZK1wqfWjAJaNCfP8=
+	t=1771636807; cv=none; b=qQM2q6rxZ/9+D7oar+0vKx1oq469gDEm+e08gOpSNnBIsxMwBrlb7LdhyH8W7f6tMFbYb1iz9w9s50cH/yygHQOgkomI9bb3SbyIMDUM7+x1yNhP55DNLsvh0FMTkhOmUHVaEjNr0Wu/mVx5LmSkwbn2AtbQxKy+l8PZd0AtqA4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771578461; c=relaxed/simple;
-	bh=zVU4YHAMPuyP3TXSeujd3zW7idIB926oNCh+q5/7yB4=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=m26U86evcy3P5CYT5GhHFmPag3c3pRvpp81fopvN783KjzMwPDtVwdBZ2z1g4BybkXlEfEa+18m4o8gclVhaiih9+K5HcnjWl+M+N7baJoJJrCZjf36c3wZ4HE7dKmjKPJKAUDzIcpi1X1oBB4J4vQ8pr95Nd/yK1OLr4DFzRK0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ib/aad0/; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1771636807; c=relaxed/simple;
+	bh=KcXOP4oX7Os6lqK6yNh7wAtdTFbznd1R4xDBn31XavY=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=G6Mfj2ShJGX3VEZ0CmqtRjklJSck5J1zQ2IZRyXpjyJZgrXY2JL5UMTmlFWN3v0lmEKKYC8aQ0wx9cS2VsP8M4r1UKQrUfDJGrGKHa4ZpI1PgkONHk0TBLs8rMZMCoX6YTNT3B2AE6eiGruj7hULvkEhqsBe0Hi4TsAB+vknTR0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V0L7maWA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ib/aad0/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3310AC116C6;
-	Fri, 20 Feb 2026 09:07:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V0L7maWA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D57CFC19423;
+	Sat, 21 Feb 2026 01:20:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771578460;
-	bh=zVU4YHAMPuyP3TXSeujd3zW7idIB926oNCh+q5/7yB4=;
-	h=Date:From:To:Cc:Subject:From;
-	b=ib/aad0/ilZtVB9BCsExTVe3/fiYJ2pN21Ye7o2gtfEKtTaWGxqA0rNxSYFFAf2n7
-	 kY4o7uxXxm6Ot0ZIeTccwgNaGQ41/TxXkMhEjhLIYch6szO+5YXxRMrjRh/V1hg+mY
-	 x+dhvt5/hPueXiS1tu9iLwF3r9PjVzkVFMb6h1gqgvZEytNuMSZm2L0152I1yIcFq+
-	 4Y5x4XSfGNk9H+Z8BaptXH2Rpx6L2WTnM5Y8qt1/rgKPoVVjreJBqcw/ZHaHfkrsO+
-	 Lw7fvhdmQJGv6gsbyIKq1x/SPr+g5XQQNfMgTsDTqvDQ9kf3rw4bxOFaFbhlR+14Zw
-	 ic1wMWiwTW0fg==
-Date: Fri, 20 Feb 2026 10:07:37 +0100
-From: Wolfram Sang <wsa@kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>
-Subject: [PULL REQUEST] i2c-for-7.0-part2
-Message-ID: <aZgkWTsMn1zWAlJa@ninjato>
+	s=k20201202; t=1771636806;
+	bh=KcXOP4oX7Os6lqK6yNh7wAtdTFbznd1R4xDBn31XavY=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+	b=V0L7maWATbI7zOiiP7XCj98bZloV+fKUZKH3UmMOW08zzkLCH884FmYr0239cunMR
+	 6r6l0ry3gsIVRPmhnTJreYglzxyV4br6xJoXeIsq86tHbVuGrZAC3yAoVlaKe11Yg1
+	 bUlKt9NVLzSuteYENu7wV7kY/lu1ocsMvNLSNHPCB0lxcnfw3RN5pRbPxA6jNaoID3
+	 VZlU9r3dBnm9HCOqlJRifrTAITmYcfuL22nF7E8kWTVM/43RjtcCi89jdDeYq86+iR
+	 F0YV9PMFqBF8xDcBLbouemkWtetFE3CAxkfeR3d4QTh+L5qhcjCIfyi3GlU2mJZ7ya
+	 d2s1+I5tSaEyA==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 02EED3808200;
+	Sat, 21 Feb 2026 01:20:16 +0000 (UTC)
+Subject: Re: [PULL REQUEST] i2c-for-7.0-part2
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <aZgkWTsMn1zWAlJa@ninjato>
+References: <aZgkWTsMn1zWAlJa@ninjato>
+X-PR-Tracked-List-Id: <linux-i2c.vger.kernel.org>
+X-PR-Tracked-Message-Id: <aZgkWTsMn1zWAlJa@ninjato>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-7.0-part2
+X-PR-Tracked-Commit-Id: 709cc48d3d01facaeb1eec3d93e1e1fb2fb21717
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: 99e447220b938dfed6488db95a2930b57ea849ba
+Message-Id: <177163681481.969912.3439197785487481456.pr-tracker-bot@kernel.org>
+Date: Sat, 21 Feb 2026 01:20:14 +0000
+To: Wolfram Sang <wsa@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>, Andi Shyti <andi.shyti@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="uyoyAyrsjlv2nq/r"
-Content-Disposition: inline
 
+The pull request you sent on Fri, 20 Feb 2026 10:07:37 +0100:
 
---uyoyAyrsjlv2nq/r
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-7.0-part2
 
-Linus,
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/99e447220b938dfed6488db95a2930b57ea849ba
 
-here is the second part refactoring the designware driver for this
-cycle. Some easy ID additions and cleanups for other drivers added.
+Thank you!
 
-Please pull.
-
-   Wolfram
-
-
-The following changes since commit 2b7a25df823dc7d8f56f8ce7c2d2dac391cea9c2:
-
-  Merge tag 'mm-nonmm-stable-2026-02-18-19-56' of git://git.kernel.org/pub/=
-scm/linux/kernel/git/akpm/mm (2026-02-18 21:40:16 -0800)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-=
-7.0-part2
-
-for you to fetch changes up to 709cc48d3d01facaeb1eec3d93e1e1fb2fb21717:
-
-  Merge branch 'i2c/i2c-host-2' of git://git.kernel.org/pub/scm/linux/kerne=
-l/git/andi.shyti/linux into i2c/for-mergewindow (2026-02-19 15:11:15 +0100)
-
-----------------------------------------------------------------
-i2c-for-7.0-part2
-
-designware:
-- refactor the transfer path to support I2C_M_STOP
-- handle pm runtime by using the active auto try macros
-- handle controllers lacking explicit START and STOP conditions
-- general cleanups
-
-qualcomm: add support for qcs8300-cci
-amd8111: general cleanups
-cp2112: add DT bindings
-
-----------------------------------------------------------------
-Andy Shevchenko (1):
-      i2c: designware: Remove dead code in AMD ISP case
-
-Artem Shimko (2):
-      i2c: designware-platdrv: simplify reset control
-      i2c: designware-platdrv: fix cleanup on probe failure
-
-Beno=C3=AEt Monin (3):
-      i2c: designware: Implement I2C_M_STOP support
-      i2c: designware: Use runtime PM macro for auto-cleanup
-      i2c: designware: Support of controller with IC_EMPTYFIFO_HOLD_MASTER =
-disabled
-
-Danny Kaehn (1):
-      dt-bindings: i2c: Add CP2112 HID USB to SMBus Bridge
-
-Filippo Muscher=C3=A0 (2):
-      i2c: amd8111: Remove spaces in MODULE_* macros
-      i2c: amd8111: switch to devm_ functions
-
-Nihal Kumar Gupta (1):
-      dt-bindings: i2c: qcom-cci: Document qcs8300 compatible
-
-Wolfram Sang (1):
-      Merge branch 'i2c/i2c-host-2' of git://git.kernel.org/pub/scm/linux/k=
-ernel/git/andi.shyti/linux into i2c/for-mergewindow
-
-
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Andy Shevchenko (3):
-      (Rev.) i2c: designware: Support of controller with IC_EMPTYFIFO_HOLD_=
-MASTER disabled
-      (Rev.) i2c: designware: Use runtime PM macro for auto-cleanup
-      (Rev.) i2c: designware: Implement I2C_M_STOP support
-
-Bryan O'Donoghue (1):
-      (Rev.) dt-bindings: i2c: qcom-cci: Document qcs8300 compatible
-
-Pratap Nirujogi (1):
-      (Rev.) i2c: designware: Remove dead code in AMD ISP case
-
-Rob Herring (Arm) (1):
-      (Rev.) dt-bindings: i2c: Add CP2112 HID USB to SMBus Bridge
-
-Vladimir Zapolskiy (1):
-      (Rev.) dt-bindings: i2c: qcom-cci: Document qcs8300 compatible
-
- .../devicetree/bindings/i2c/qcom,i2c-cci.yaml      |   2 +
- .../devicetree/bindings/i2c/silabs,cp2112.yaml     | 100 +++++++++++++
- drivers/i2c/busses/i2c-amd8111.c                   |  30 ++--
- drivers/i2c/busses/i2c-designware-amdisp.c         |  13 +-
- drivers/i2c/busses/i2c-designware-common.c         |  20 +++
- drivers/i2c/busses/i2c-designware-core.h           |   3 +
- drivers/i2c/busses/i2c-designware-master.c         | 162 +++++++++++++++--=
-----
- drivers/i2c/busses/i2c-designware-platdrv.c        |  42 ++----
- 8 files changed, 266 insertions(+), 106 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/silabs,cp2112.yaml
-
---uyoyAyrsjlv2nq/r
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmmYJFkACgkQFA3kzBSg
-KbYGThAAlFZagcB3MP4JDLKMigUqur2fUkykz30rQaULN3ZMJ+9grrJCwpeFTLUy
-L4Ghc/kuJG42N3qIBrt6o7LAwwZn3bpKdc01nh8aWArDR9NH7WkHbxKF40NnTjin
-IoPprtcxLMNcB5X4N/Rhg5qby2Ge0dWBfHtOIHw5Lte0qrSyypnj1yfmFeQqs60D
-WdmkXUILxRWAE1RFiKG0Wod2dadktOmqky0XaIZpXpBaUcWw16tyTL4fxkOAwcVz
-WOO7PFBWfFEAMYCC8meeJ99YWyPpXpxyA8hH3Bg3jBOwyLywb0aDgVMtzHtWLbt7
-9CpKOMuuMlw0Jv2wVsh1tt5IjXyeAnjS5AEd6ixl68+gV3ncJPr86Fv2kKIHJawF
-zcZaSo5gPNwo9ymAVinQrb+QNhWYBo17g58+leG3ERqfuwQIZWyGbksob5wLGAlC
-QEFuul/bDvaK9TASWjs/5e7gUv08ykj1SfvAqRDs5otwp31mlivarJYPK08MFvWA
-ZObKy6cx18H//UMw96segb2jcgTZteqnbZF6rjhqTihE4vNDzIAtCTxSqiefY4qV
-edUXxpwMuHkObv0f1zxfbzxfw24ixk/xsuaqb/WKJqf1vCZSly6RbxmL/yuiZlYJ
-gejjMaT3E+KVgvavFquptm1ab7C4S+Ac8zWfcdhRLTZV89vJaNU=
-=dufV
------END PGP SIGNATURE-----
-
---uyoyAyrsjlv2nq/r--
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
