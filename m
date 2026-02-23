@@ -1,65 +1,65 @@
-Received: from mail-lf1-f45.google.com (mail-lf1-f45.google.com [209.85.167.45])
+Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com [209.85.167.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B69429C327
-	for <linux-i2c@vger.kernel.org>; Mon, 23 Feb 2026 14:33:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4092229B78B
+	for <linux-i2c@vger.kernel.org>; Mon, 23 Feb 2026 14:33:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771857231; cv=none; b=abJegKgfHbQp5SBJbnsOFOkqsJA6K+N4SDmL1rqCmgYgCWXYNjY+OSVwH4af/iHKaXFWmaNmYwuNzwEpTKmVjLPLEwRowgZEuL3gkXyYLH+uo7bOCdhvXbr1bOajiHF6qJcqjWo2XvFJlxJaQs99ib70BDNF+BWo/wDej7ThNcw=
+	t=1771857234; cv=none; b=cK4r8cti75/Vpg5/uCOFwgMPJ5pN8W7sfYyqNLd2O/9AFx2jeUH3Y4mgeKXUnszl/75l9GjsAhZkeIiHA9v8yXclJ647lx8o7bHSu7qJJZl6z88X67WFvqCBw6mchSLczhIJQ+nmgC7K9IfvqfJbFxGoSYV2foXSCOXKcWrna+c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771857231; c=relaxed/simple;
-	bh=koxBCehUmN3RuwVhQnNS8zqbXgiVP6LXVx/A/SkLKJU=;
+	s=arc-20240116; t=1771857234; c=relaxed/simple;
+	bh=T1ZRGejY53iNiPMBXm4VnJeMfnzHH7k7DvyBHsdYhe0=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=gTu4w7gSTknJRBRMwM8tvYWzCGSr5GMrLjvVa6ZouqVbf0YIpmWAPIbw8hSOTuq1BCo9UzJ527E33vf1RyKDChIDm+aHmNUDGT1t7tgwnSl95YRYDH0Qpj63j87M8sMDcnDFJ+Pm4ktq+dbRbS4HXPFCEa3rP3YRlWoKrLYoZEg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HMjfayva; arc=none smtp.client-ip=209.85.167.45
+	 In-Reply-To:To:Cc; b=s58W/tQNzVazkpymqfGGrFE3m3MDX27E91YpOnF+Ow/QEDL1vCXHDj6MC0gL4+vbHGhKUSr+RBi0q3wk0lcCd55vt3idZUTCFuMDUvs/kd1PwLwKqsmPOfMADCsK9m6mU/ot1IFQjVNCwUwj9iieZ0dPev/25lLz0GSEVBadbak=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ed0iEA2Y; arc=none smtp.client-ip=209.85.167.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HMjfayva"
-Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-59e6c181402so5564312e87.3
-        for <linux-i2c@vger.kernel.org>; Mon, 23 Feb 2026 06:33:50 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ed0iEA2Y"
+Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-59e607a3824so4917071e87.1
+        for <linux-i2c@vger.kernel.org>; Mon, 23 Feb 2026 06:33:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771857229; x=1772462029; darn=vger.kernel.org;
+        d=gmail.com; s=20230601; t=1771857230; x=1772462030; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=/ZXG84vOT5vo62fVrV4g27oZ8qKjWT76ti4NF1pkRLs=;
-        b=HMjfayva2bCxl+G9QhT/u2KesxdhiGSp82hQ0ct5VtkLpISoCFFRVu9TfBK9OmUUtT
-         lLzH4FU39qFQ/0zwG5dTe59xip0ZQ55q1vn6JTMIPYhm/pWvdYAMv67JLhQhIXMwVmeV
-         mXc6v8Lq4diXbQ0ZgFgGg+eRV62fCTvDc/kXn/7mK/NCBQTmuB+EwJraNCJ51TgrYEFt
-         b0z6LxjtDGG4yZB5aidWW2XrWHYTI13NG8nn846KHKgdQYeyZsPSPXVlVDkLEkWUT+v+
-         grGyJC2qZUXNRUhQnL3E/IuzqyF6ToaU51LkrL7dTJT7z610jLvKPvpGjeIWVn7ywWrZ
-         g+mg==
+        bh=bdwzVEey6I7USs7waZMdzZIVAgnmK4BTn29UGHk3ryw=;
+        b=ed0iEA2YFSBitYXeS029S/mtcuSbSzbSMj3fHL3AiU+X+FLZEbgIJMDBw2xeJT1p2N
+         rLTlGOnlLD7NZBZCr330PVcKQfnKUVAEQMJpZporWCrhR6hHe+NBxbAU5FiRGQNyjfe5
+         iXBaaZ5eCEZNNZWSbdoJSOZb/DoPhLA2riqjuxsLJD9lZGfVhAtYvtZVk2zNpTjtm0kO
+         8ey/jtmUV+Dmv+9Arz0XN/Fsytku0N8hO7xgRsGUgbmkMAgLRS/i9Shohc5nfaUzRKu3
+         EVw7awpMbwDSrfLd8BHqzWILj7fJtLoQdZV51Fr6+70113Py3TFRvmS/6rxPh89OYnoh
+         KJnA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771857229; x=1772462029;
+        d=1e100.net; s=20230601; t=1771857230; x=1772462030;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=/ZXG84vOT5vo62fVrV4g27oZ8qKjWT76ti4NF1pkRLs=;
-        b=huyOpoPiJWl/r9QINawMbiajpnvZbaCzin30fdhav46b2uC6EWu9mM/PNV9LPnexin
-         cqylIAA/sfqtQFJTqZ5lxI7TWtgEsxqVOtcCHmVsMNG0bXBug9LA0acHxk3nKlAvwWQ+
-         yFvBtH15GCbdCEg0BqN54ExDmnfPG7GZPYIEKyFrIHoCDMLaPo914M9YZ7/XCXXM0Gjs
-         0g1tSdwZ34YmoUZ02TssJbqti4xktJdc1C75k3Xa92dZPcB7EjwoKIP8++5XBzc+zejq
-         wyyG/+lM5SCO3KdmRDiMOy1Y05sB+3v1nkQBtj0MPojJY2I6Vx15ZxaFC3BFJFBpCRbO
-         k3wQ==
-X-Gm-Message-State: AOJu0YwvVUad6wwF7kOkGc+/jaaaNLJmD2WsX4eHnGDmC9siA1pi+KNz
-	6XzGzg4/ovhqSUCkI33gcZzqtbmQgqaCRnLbJGEi5YJ7mzi6cDydWUja
-X-Gm-Gg: AZuq6aJyplipDru4UBrJp8fVP59f48k3pQJg448eLQJ52u6Mf1AT09mvwb8w/9n3YBL
-	YMZgcN0XZSwdhmhwjfMfrrHHS/vWHSFLoh6rL5R3j6wsUkpqhkuh4ABJkgrPnBUqWzpl2Iw83W2
-	UBRKyGdQm4osD55/NPgrQx1vWYMYx1RA0ptau8Tiq+XWXZo1dY/E97Sh+InhC6H4Ih5vOFYrjMx
-	VaWGlx0Z+IsJoRtKyQOqhBCly6uF0XqkEAwo6Ke22uwUL1QtDLxFt28VLeMWx+pQnCEz7AeI2EN
-	pOOHW7YdqQzJJ+ZLe2/qZy8D+FGO8YNr6cuHFbnpgRVQ9P3VEZLrk/isRZ1PyxebDVha9TlfYE2
-	3uAzPOWSt8I4V7hbxeXeIEZcezAMNuPOGegr4h5JJUeU/cDfvIrnKDrL+JmbkedlEvZAVx649si
-	qMemhklRdfarfqpeRx8Q5yutrESElbGf6yUDQrLR6CZ3Ns46wVs5XdTXsGRBNG303Xvl5L
-X-Received: by 2002:a05:6512:3091:b0:59f:6c3b:6d3c with SMTP id 2adb3069b0e04-5a0ed8a0556mr2804029e87.29.1771857228506;
-        Mon, 23 Feb 2026 06:33:48 -0800 (PST)
+        bh=bdwzVEey6I7USs7waZMdzZIVAgnmK4BTn29UGHk3ryw=;
+        b=BvC67MZxVOFWaLSDjGHbZu8S2CvQsyM41gX7BdUKSilVSOcgeDyiiMpjTHkgica4lO
+         IPSGeA21jorxKAS8IfH48+T4gF0dXOgT4yU4H1E1uz86MYd/I3A1nHeDGCS6f8X4Uxjq
+         6rJqEsmpvAZdIj+8W5VvcL3C8QxKT5buR6J1pxlXk/O+Ep2zp/7+4VcWtuVDQIjsIYtH
+         Qq1QX46eGelVeawI1DpM3leS3JBSELvdDO7kodXaRxejBNsCYg43QwfqZnrg+j/Glfk+
+         7DpzQI6rA57jcN5J6gmIRHBv8/P6+HbqB+yaKnaT8tipqkh/cBVKrDiFCqixnnrLV1Do
+         C3eA==
+X-Gm-Message-State: AOJu0YyLDjZguWpnStet11ZOusf0fz/Wn6xgzljh89uXIth4DXb6f33J
+	x0JuAp2aFy+Rvbntm1EaYazDNeW5IgHRHH3F9TSxbgcZJtZ4wdydQDdN
+X-Gm-Gg: AZuq6aJXHaHprFu+2wMsO0jg2yQYEylehf+gs8TTf22jYDb+uyfXmBtzQpX0tpy6C+8
+	0S67bpPL0wAqNOOJKzNCFworumzKzYQ8TUZxQIZ5N5p+KN/fxG/Nduf06OfSl9UiaxKSlRABauF
+	BZDgMGJ42Ff0TNYAIppG1P/trjwLv+06xtIPQrUwT5RxsdIWuXsH4QxA3/cIAHOh/Dw3ZrovvRv
+	O1lU0uoTEIS70wOCcI7QS0TwRRELBkWynjoChyLARh3m31nLwgTPz10tSG8mgyWHwF/VIWeUuox
+	BchJoSO+aSBn0MJrI6oKNs11TAyGR2S+jQTcflvQzDHRyxQJbL8wnp/Q7ncwhj7klCvZmyTRgqR
+	GSBYnclxO7u+qvTvTp29IGUq4cf+UFWvK5BfQX3n9B8eim5B+E1AxFRNqAEQd7xfPBTtx/sq+uh
+	xrmiagM970KPX44p3B+92A5Om7oNPR/JoV7xSfBuR4udbbTJAOgpakF+YJuM+covW4EssQ
+X-Received: by 2002:a05:6512:3b88:b0:59e:2242:fbc with SMTP id 2adb3069b0e04-5a0ed89aaf1mr2837745e87.22.1771857230118;
+        Mon, 23 Feb 2026 06:33:50 -0800 (PST)
 Received: from [192.168.1.135] (83-233-6-197.cust.bredband2.com. [83.233.6.197])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a0eeb16344sm1631709e87.37.2026.02.23.06.33.47
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a0eeb16344sm1631709e87.37.2026.02.23.06.33.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Feb 2026 06:33:47 -0800 (PST)
+        Mon, 23 Feb 2026 06:33:49 -0800 (PST)
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
-Date: Mon, 23 Feb 2026 15:33:50 +0100
-Subject: [PATCH v7 1/5] i2c: core: add callback to change bus frequency
+Date: Mon, 23 Feb 2026 15:33:51 +0100
+Subject: [PATCH v7 2/5] i2c: mux: add support for per channel bus frequency
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -68,7 +68,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260223-i2c-mux-v7-1-ec75b214718a@gmail.com>
+Message-Id: <20260223-i2c-mux-v7-2-ec75b214718a@gmail.com>
 References: <20260223-i2c-mux-v7-0-ec75b214718a@gmail.com>
 In-Reply-To: <20260223-i2c-mux-v7-0-ec75b214718a@gmail.com>
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
@@ -81,96 +81,269 @@ Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-arm-kernel@lists.infradead.org, 
  Marcus Folkesson <marcus.folkesson@gmail.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2473;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=7623;
  i=marcus.folkesson@gmail.com; h=from:subject:message-id;
- bh=koxBCehUmN3RuwVhQnNS8zqbXgiVP6LXVx/A/SkLKJU=;
- b=owEBbQKS/ZANAwAKAYiATm9ZXVIyAcsmYgBpnGVU3pImY+NWazZLlexByac0kY/hMMlKtqzJv
- e9xVfT04j6JAjMEAAEKAB0WIQQFUaLotmy1TWTBLGWIgE5vWV1SMgUCaZxlVAAKCRCIgE5vWV1S
- MhosD/0XnbcAzCIPj1635aCrdLCtY5TJLNP8ObSXOAaHcIKi3jRWMFcPXPmuEYnvcHxyZrQtThM
- gVckS2NTcVX+3Cj0fblydVNv70lOKxRPlYjnXNkjXF7N27AvOb2A5eY5URJ2bYNOMLFftfWOhkE
- QREkYMV5eSG/PJuTDkdgg87uy3FjuLlYxzrYTAzr5Dkzlfq9QM+2gYNrcNMzIbcEwpGAIDHAgcW
- STCAV325YoV0LVvczNkH+4MwSnjM5GBIPHvry/wFKppUwjsWphoPWYMXBIYWn3AW2pmuI4n5gbI
- NQmoRzcphKsMKFTmtF68krmuqEqO6BagZKhsG7BmEXLPIQQRuNvpd8/IKGuFTH98zLkYULRIBhx
- SrvfgNqKRrqtEtI+FjstCJxw7knWC3jIF9kSYNKyjgLbXIXqZkIf3capDa2uZTgzkKSRxrZWdkB
- s05Qxa65bq1RyNzVEkFL5tpbOwXLprRFJ7+lLL+/JoNhMkXihwy+rBeQjABrHIttue9u7jnI7Bz
- cILhNd+Il6GTNL5czhX3PbBI4VMt9U7yCUylUgTLJMrWOWeb6nfYrpuMoB+KEOFoHSZ2VXIdGyD
- bilSw+JZ0VvDLxOK+SazGOYHERiYfMwtpJWM5znhM7XJlvIRNMYePCr5cvCwLbdTN9UfqWYaLir
- AMnPiXBBEk5N6Sw==
+ bh=T1ZRGejY53iNiPMBXm4VnJeMfnzHH7k7DvyBHsdYhe0=;
+ b=owEBbQKS/ZANAwAKAYiATm9ZXVIyAcsmYgBpnGVYCPqM91GgwZmF9aiuRWi3kupzj47baPEtT
+ DDralVjMaKJAjMEAAEKAB0WIQQFUaLotmy1TWTBLGWIgE5vWV1SMgUCaZxlWAAKCRCIgE5vWV1S
+ MofrD/9GqYIqO2Mb3oj/ExjXYNRw4CPXDesKMiydZsbTYzy/0s1Iosvhblktu/xEAiziD8mYldP
+ JnntcUhFXTn1pIfGg/oZ/QHx49ZPAnVJdnzgu0U5UEoKE5pPomoIdRjs3bgIKiOUWeoPBjaHcK+
+ lHmySCknIiKLafDQnlTH7MPJAcOKNCYy75nNEC4b2bT38T9ujKvFiwlNiax0qKWuSn8KGjYKZu8
+ PtSFwvnNqK3GOLSdoBMCkSgvVLPzRRBHH3G7GHC6V+nNFpv57vlM93tLm3lD7+pa/fX9KCW2zvl
+ sQ1g4XPoZ3hQclD7XhLRRLY2SQpCMBukenUjjysClTZzEY0bJ0jBcU1Y/2fQYKEsbMl0+er9ebJ
+ GUeewjvEtKJ6gAKUgJ7TB3yy4mW7IP2It2JtfzCxjelNfl18gNpaKtnw6WXtfSbpSLLIkPFK98E
+ jGkSNO06Mn4c3M94+ohA5db/O+WdOMFNZM4d6OXRfVfG5dxXrJdA6590srMDl8fS2yPuRrHYO8j
+ u9dNCOiLyJ6CJ22pSXak4GBLKcEH6nwtM/93isyTZxjpYDhd7bgnFTklIHHeBYOQE3KeRAxQ/xk
+ 7Kxwl2SHt0ZTLDynJ3LKdEN0wvnR52pNaZBxYKQhFQOO5L2odiR1khuTMAweoU1wdnPHm01mx8V
+ IRfl5jMG7k/p2+w==
 X-Developer-Key: i=marcus.folkesson@gmail.com; a=openpgp;
  fpr=AB91D46C7E0F6E6FB2AB640EC0FE25D598F6C127
 
-All devices on the same I2C bus share the same clock line and the bus
-frequency has therefor be chosen so that all attached devices are able
-to tolarate that clock rate. IOW, the bus speed must be set for the
-slowest attached device.
+There may be several reasons why you may need to use a certain speed
+on an I2C bus. E.g.
 
-With I2C multiplexers/switches on the other hand, it would be possible
-to have different "domains" that runs with different speeds.
+- When several devices are attached to the bus, the speed must be
+  selected according to the slowest device.
 
-Prepare for such a feature by provide an optional callback function to
-change bus frequency.
+- Electrical conditions may limit the usuable speed on the bus for
+  different reasons.
 
-As a side effect, several bus drivers keep the bus speed in a
-private structure and can now have this value stored in a uniform way
-instead.
+With an I2C multiplexer, it is possible to group the attached devices
+after their preferred speed by e.g. put all "slow" devices on a separate
+channel on the multiplexer.
+
+Consider the following topology:
+
+                      .----------. 100kHz .--------.
+    .--------. 400kHz |          |--------| dev D1 |
+    |  root  |--+-----| I2C MUX  |        '--------'
+    '--------'  |     |          |--. 400kHz .--------.
+                |     '----------'  '-------| dev D2 |
+                |  .--------.               '--------'
+                '--| dev D3 |
+                   '--------'
+
+One requirement with this design is that a multiplexer may only use the
+same or lower bus speed as its parent.
+Otherwise, if the multiplexer would have to increase the bus frequency,
+then all siblings (D3 in this case) would run into a clock speed it may
+not support.
+
+The bus frequency for each channel is set in the devicetree. As the
+i2c-mux bindings import the i2c-controller schema, the clock-frequency
+property is already allowed.
+If no clock-frequency property is set, the channel inherit their parent
+bus speed.
+
+The following example uses dt bindings to illustrate the topology above:
+
+    i2c {
+	clock-frequency = <400000>;
+
+        i2c-mux {
+            i2c@0 {
+                clock-frequency = <100000>;
+
+                D1 {
+                    ...
+                };
+            };
+
+            i2c@1 {
+                D2 {
+                  ...
+                };
+            };
+        };
+
+        D3 {
+            ...
+        }
+    };
 
 Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
 ---
- include/linux/i2c.h | 34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+ drivers/i2c/i2c-mux.c | 107 ++++++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 95 insertions(+), 12 deletions(-)
 
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 20fd41b51d5c..f81decb3f1f7 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -742,6 +742,8 @@ struct i2c_adapter {
- 	struct rt_mutex mux_lock;
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index d59644e50f14..df18930d6ed4 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -36,21 +36,75 @@ struct i2c_mux_priv {
+ 	u32 chan_id;
+ };
  
- 	int timeout;			/* in jiffies */
-+	u32 clock_hz;			/* bus clock speed */
-+	int (*set_clk_freq)(struct i2c_adapter *adap, u32 clock_hz); /* Optional */
- 	int retries;
- 	struct device dev;		/* the adapter device */
- 	unsigned long locked_flags;	/* owned by the I2C core */
-@@ -835,6 +837,38 @@ i2c_unlock_bus(struct i2c_adapter *adapter, unsigned int flags)
- 	adapter->lock_ops->unlock_bus(adapter, flags);
- }
- 
-+static inline int
-+__i2c_adapter_set_clk_freq(struct i2c_adapter *adapter, u32 clock_hz)
++static int i2c_mux_select_chan(struct i2c_adapter *adap, u32 chan_id, u32 *oldclock)
 +{
-+	if (adapter->set_clk_freq)
-+		return adapter->set_clk_freq(adapter, clock_hz);
-+
-+	/*
-+	 * If the adapter is a root adapter without set_clk_freq implemented, this feature is not
-+	 * supported
-+	 */
-+	if (!i2c_parent_is_i2c_adapter(adapter))
-+		return -EOPNOTSUPP;
-+
-+	/* Update the clock_hz for non-root adapters, even if set_clk_freq is not implemented,
-+	 * to allow * the clock frequency to be propagated to root adapters that do support it.
-+	 */
-+	adapter->clock_hz = clock_hz;
-+	return 0;
-+}
-+
-+static inline int
-+i2c_adapter_set_clk_freq(struct i2c_adapter *adapter, u32 clock_hz)
-+{
++	struct i2c_mux_priv *priv = adap->algo_data;
++	struct i2c_mux_core *muxc = priv->muxc;
++	struct i2c_adapter *parent = muxc->parent;
 +	int ret;
 +
-+	i2c_lock_bus(adapter, I2C_LOCK_SEGMENT);
-+	ret = __i2c_adapter_set_clk_freq(adapter, clock_hz);
-+	i2c_unlock_bus(adapter, I2C_LOCK_SEGMENT);
++	if (priv->adap.clock_hz && priv->adap.clock_hz < parent->clock_hz) {
++		*oldclock = parent->clock_hz;
 +
-+	return ret;
++		if (muxc->mux_locked)
++			ret = i2c_adapter_set_clk_freq(parent, priv->adap.clock_hz);
++		else
++			ret = __i2c_adapter_set_clk_freq(parent, priv->adap.clock_hz);
++
++		dev_dbg(&adap->dev, "Set clock frequency %dHz on %s\n",
++			priv->adap.clock_hz, parent->name);
++
++		if (ret)
++			dev_err(&adap->dev,
++				"Failed to set clock frequency %dHz on adapter %s: %d\n",
++				*oldclock, parent->name, ret);
++	}
++
++	return muxc->select(muxc, priv->chan_id);
 +}
 +
- /**
-  * i2c_mark_adapter_suspended - Report suspended state of the adapter to the core
-  * @adap: Adapter to mark as suspended
++static void i2c_mux_deselect_chan(struct i2c_adapter *adap, u32 chan_id, u32 oldclock)
++{
++	struct i2c_mux_priv *priv = adap->algo_data;
++	struct i2c_mux_core *muxc = priv->muxc;
++	struct i2c_adapter *parent = muxc->parent;
++	int ret;
++
++	if (muxc->deselect)
++		muxc->deselect(muxc, priv->chan_id);
++
++	if (oldclock && oldclock != priv->adap.clock_hz) {
++		if (muxc->mux_locked)
++			ret = i2c_adapter_set_clk_freq(parent, oldclock);
++		else
++			ret = __i2c_adapter_set_clk_freq(parent, oldclock);
++
++		dev_dbg(&adap->dev, "Restored clock frequency %dHz on %s\n",
++			oldclock, parent->name);
++
++		if (ret)
++			dev_err(&adap->dev,
++				"Failed to set clock frequency %dHz on adapter %s: %d\n",
++				oldclock, parent->name, ret);
++	}
++}
++
+ static int __i2c_mux_master_xfer(struct i2c_adapter *adap,
+ 				 struct i2c_msg msgs[], int num)
+ {
+ 	struct i2c_mux_priv *priv = adap->algo_data;
+ 	struct i2c_mux_core *muxc = priv->muxc;
+ 	struct i2c_adapter *parent = muxc->parent;
++	u32 oldclock = 0;
+ 	int ret;
+ 
+ 	/* Switch to the right mux port and perform the transfer. */
+ 
+-	ret = muxc->select(muxc, priv->chan_id);
++	ret = i2c_mux_select_chan(adap, priv->chan_id, &oldclock);
+ 	if (ret >= 0)
+ 		ret = __i2c_transfer(parent, msgs, num);
+-	if (muxc->deselect)
+-		muxc->deselect(muxc, priv->chan_id);
++
++	i2c_mux_deselect_chan(adap, priv->chan_id, oldclock);
+ 
+ 	return ret;
+ }
+@@ -61,15 +115,16 @@ static int i2c_mux_master_xfer(struct i2c_adapter *adap,
+ 	struct i2c_mux_priv *priv = adap->algo_data;
+ 	struct i2c_mux_core *muxc = priv->muxc;
+ 	struct i2c_adapter *parent = muxc->parent;
++	u32 oldclock = 0;
+ 	int ret;
+ 
+ 	/* Switch to the right mux port and perform the transfer. */
+ 
+-	ret = muxc->select(muxc, priv->chan_id);
++	ret = i2c_mux_select_chan(adap, priv->chan_id, &oldclock);
+ 	if (ret >= 0)
+ 		ret = i2c_transfer(parent, msgs, num);
+-	if (muxc->deselect)
+-		muxc->deselect(muxc, priv->chan_id);
++
++	i2c_mux_deselect_chan(adap, priv->chan_id, oldclock);
+ 
+ 	return ret;
+ }
+@@ -82,16 +137,17 @@ static int __i2c_mux_smbus_xfer(struct i2c_adapter *adap,
+ 	struct i2c_mux_priv *priv = adap->algo_data;
+ 	struct i2c_mux_core *muxc = priv->muxc;
+ 	struct i2c_adapter *parent = muxc->parent;
++	u32 oldclock = 0;
+ 	int ret;
+ 
+ 	/* Select the right mux port and perform the transfer. */
+ 
+-	ret = muxc->select(muxc, priv->chan_id);
++	ret = i2c_mux_select_chan(adap, priv->chan_id, &oldclock);
+ 	if (ret >= 0)
+ 		ret = __i2c_smbus_xfer(parent, addr, flags,
+ 				       read_write, command, size, data);
+-	if (muxc->deselect)
+-		muxc->deselect(muxc, priv->chan_id);
++
++	i2c_mux_deselect_chan(adap, priv->chan_id, oldclock);
+ 
+ 	return ret;
+ }
+@@ -104,16 +160,17 @@ static int i2c_mux_smbus_xfer(struct i2c_adapter *adap,
+ 	struct i2c_mux_priv *priv = adap->algo_data;
+ 	struct i2c_mux_core *muxc = priv->muxc;
+ 	struct i2c_adapter *parent = muxc->parent;
++	u32 oldclock = 0;
+ 	int ret;
+ 
+ 	/* Select the right mux port and perform the transfer. */
+ 
+-	ret = muxc->select(muxc, priv->chan_id);
++	ret = i2c_mux_select_chan(adap, priv->chan_id, &oldclock);
+ 	if (ret >= 0)
+ 		ret = i2c_smbus_xfer(parent, addr, flags,
+ 				     read_write, command, size, data);
+-	if (muxc->deselect)
+-		muxc->deselect(muxc, priv->chan_id);
++
++	i2c_mux_deselect_chan(adap, priv->chan_id, oldclock);
+ 
+ 	return ret;
+ }
+@@ -362,6 +419,32 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+ 			}
+ 		}
+ 
++		of_property_read_u32(child, "clock-frequency", &priv->adap.clock_hz);
++
++		/* If the mux adapter has no clock-frequency property, inherit from parent */
++		if (!priv->adap.clock_hz)
++			priv->adap.clock_hz = parent->clock_hz;
++
++		/*
++		 * Warn if the mux adapter is not parent-locked as
++		 * this may cause issues for some hardware topologies.
++		 */
++		if ((priv->adap.clock_hz < parent->clock_hz) && muxc->mux_locked)
++			dev_warn(muxc->dev,
++				 "channel %u is slower than parent on a non parent-locked mux\n",
++				 chan_id);
++
++		/* We don't support mux adapters faster than their parent */
++		if (priv->adap.clock_hz > parent->clock_hz) {
++			dev_err(muxc->dev,
++				"channel (%u) is faster (%u) than parent (%u)\n",
++				chan_id, priv->adap.clock_hz, parent->clock_hz);
++
++			of_node_put(mux_node);
++			ret = -EINVAL;
++			goto err_free_priv;
++		}
++
+ 		priv->adap.dev.of_node = child;
+ 		of_node_put(mux_node);
+ 	}
 
 -- 
 2.52.0
