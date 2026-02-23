@@ -1,47 +1,49 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13C63244692;
-	Mon, 23 Feb 2026 14:57:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37BE6276038;
+	Mon, 23 Feb 2026 14:59:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771858674; cv=none; b=S9LkHZEbgVSlJkUBYOUS8f5Z0ebW5ETVu4bwR9BoYw9VeQ92wFcO9svZTKf1Q8/jXlujEo0ko4u9zxBFMXNIbh8Imgi5gC/Lns077g4hQ6VO4+CF9IYComFUIhzY8p2JeAvK4WpCv4RRtWpd9jHZsDCXvuQfS6rlR8NBlQmHxKg=
+	t=1771858795; cv=none; b=R30ENkey4opIxVuHqF4N5W58ATkZmiAhsTuYV/tTzj7hITKppaJJ8hmZyfqGiZXUZYxyiApN9eBFwJyU4cFYvV9EKG0Cz1TeJtZy7Fwxv2vPaQWeVniPM0V1UhiLuonyc15J1AhJ/glckTwlLUeJCOIG1+3H3KNYlXUHT5PCTPs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771858674; c=relaxed/simple;
-	bh=flglz7jLz0npManpl/9aE8WpQyBTpZbOojs4WvzstnE=;
+	s=arc-20240116; t=1771858795; c=relaxed/simple;
+	bh=eeWYPc8OuwfwyaVW6aOAdz8XwY93DInoJYhirUrauSw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=p7q4u4xA2uXjfondsm6XcZKIDoqDTpcXFTaoLXuX/ZPeDmzfljDoUELLfN645CXRikb7KViiAUVsqDbIL+1vaKpEkgfty7n1+yZGzB9rtHeBO9KQUTtHVkoAE3b0kqh4EWkLQ5jT/DEdKEIN07bf5u/UxlviZlLmODV+1XusuxE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ecjeTwe8; arc=none smtp.client-ip=192.198.163.9
+	 Content-Type:Content-Disposition:In-Reply-To; b=tns0L0Zw9hQ8Sl6+PyP7XAr6kRfa2LAtq6gc9mXyRnjZvsXcK6lD0Mq7J9uNR1KNWvX4lxrZq5GbxZzJhCyF2v0RNLiYRsbUflLLqIku1fyjJUrrdrV0nkNGv2YYMkanlhIKPj5FjUlfdR51tCmEbo+PNF3+7QqZg9xSSAlg+j0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ONhwtS1p; arc=none smtp.client-ip=198.175.65.21
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ecjeTwe8"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ONhwtS1p"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1771858673; x=1803394673;
+  t=1771858794; x=1803394794;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=flglz7jLz0npManpl/9aE8WpQyBTpZbOojs4WvzstnE=;
-  b=ecjeTwe8xEjbm0xeByHgXsKbWZlaUxrwe4m/8yUYNusXExRVzZtDNHHB
-   WxmV92wuH5kVmwsK2z1l1EkrV78njWQe1Y0jPb6cWLIGhraSwlTVguqwe
-   4J9Fk0yydIdbVkY3fYF0m9+1WP+pfe4XaaXceEBg/RsaNRJZl3exYrOh3
-   L16Ot4ZW9vK6j9yJ6TABbesPKC/PyQAwKAMpZkpaICsHLox3EeJxCKpGD
-   fzeyZi95qriEAUiKoHMQNdxdVqotlQ5H1mE+pBjE2sc+lXPTQd38Nlks9
-   9+DDBz45tiUmUFgzBvZSkLzED+C2lh/8Jx//OmwqJKrYusHry8cgCIFtJ
-   A==;
-X-CSE-ConnectionGUID: gMYUWkfXTciJhtZ43ghNKg==
-X-CSE-MsgGUID: VAlL5HikSFmoIfpTHlIbEw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11710"; a="83566012"
+  bh=eeWYPc8OuwfwyaVW6aOAdz8XwY93DInoJYhirUrauSw=;
+  b=ONhwtS1pHSFvJnhMJDShh5Xk5OfeU3raHaIfPSzsntkv2ePRb9xlq+0T
+   CrcgThvfLl6bR3HH6aipeqnXfnkmiMx/PAAjjssyawhC6r8sUYKtYD63P
+   IyCfm/+6RbNxuuWYJfDth4Un1hiEz56wTrcEk99ckngPGgYcJOI7jrEI4
+   UUSpX+eLtf6GYccgR8h5mwAbbYzbr9WX6r0e6/3WZd2q4n8MNFMu3fjI1
+   mLSZjRFv4261ZLSNdSPLamsc3iZxbXGdcT57Us5ZWaJ094a2ZjmJIp/Hf
+   C34MLa/Rvx1O9kjmfhQZkJR2R6hABam2qD0PScn1FR/XsEu/DuEoRaxY+
+   Q==;
+X-CSE-ConnectionGUID: z2/+d9kXS7ulxtCGKe1wCA==
+X-CSE-MsgGUID: rMg/+P51TfWxSac51jkBdg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11710"; a="72732162"
 X-IronPort-AV: E=Sophos;i="6.21,306,1763452800"; 
-   d="scan'208";a="83566012"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Feb 2026 06:57:52 -0800
-X-CSE-ConnectionGUID: t/bW694MTr2W80FjruUmOA==
-X-CSE-MsgGUID: 0C3LqggtSgmn0EmsY8zpQg==
+   d="scan'208";a="72732162"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Feb 2026 06:59:53 -0800
+X-CSE-ConnectionGUID: shuSI13fSgCfW9D2/WJiUQ==
+X-CSE-MsgGUID: bJFQHpcxSWuxnu5RtOf7iA==
 X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,306,1763452800"; 
+   d="scan'208";a="214666564"
 Received: from abityuts-desk.ger.corp.intel.com (HELO localhost) ([10.245.245.222])
-  by fmviesa003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Feb 2026 06:57:49 -0800
-Date: Mon, 23 Feb 2026 16:57:47 +0200
+  by orviesa006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Feb 2026 06:59:51 -0800
+Date: Mon, 23 Feb 2026 16:59:49 +0200
 From: Andy Shevchenko <andriy.shevchenko@intel.com>
 To: Marcus Folkesson <marcus.folkesson@gmail.com>
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
@@ -51,11 +53,11 @@ Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
 	Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v7 2/5] i2c: mux: add support for per channel bus
- frequency
-Message-ID: <aZxq6wXsS7DDEfIV@smile.fi.intel.com>
+Subject: Re: [PATCH v7 3/5] i2c: davinci: calculate bus freq from Hz instead
+ of kHz
+Message-ID: <aZxrZbbXxm31q62s@smile.fi.intel.com>
 References: <20260223-i2c-mux-v7-0-ec75b214718a@gmail.com>
- <20260223-i2c-mux-v7-2-ec75b214718a@gmail.com>
+ <20260223-i2c-mux-v7-3-ec75b214718a@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -64,110 +66,32 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260223-i2c-mux-v7-2-ec75b214718a@gmail.com>
+In-Reply-To: <20260223-i2c-mux-v7-3-ec75b214718a@gmail.com>
 Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
  krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Mon, Feb 23, 2026 at 03:33:51PM +0100, Marcus Folkesson wrote:
-> There may be several reasons why you may need to use a certain speed
-> on an I2C bus. E.g.
+On Mon, Feb 23, 2026 at 03:33:52PM +0100, Marcus Folkesson wrote:
+> The bus frequency is unnecessarily converted between Hz and kHz in
+> several places.
+> This is probably an old legacy from the old times (pre-devicetrees)
+> when the davinci_i2c_platform_data took the bus_freq in kHz.
 > 
-> - When several devices are attached to the bus, the speed must be
->   selected according to the slowest device.
-> 
-> - Electrical conditions may limit the usuable speed on the bus for
->   different reasons.
-> 
-> With an I2C multiplexer, it is possible to group the attached devices
-> after their preferred speed by e.g. put all "slow" devices on a separate
-> channel on the multiplexer.
-> 
-> Consider the following topology:
-> 
->                       .----------. 100kHz .--------.
->     .--------. 400kHz |          |--------| dev D1 |
->     |  root  |--+-----| I2C MUX  |        '--------'
->     '--------'  |     |          |--. 400kHz .--------.
->                 |     '----------'  '-------| dev D2 |
->                 |  .--------.               '--------'
->                 '--| dev D3 |
->                    '--------'
-> 
-> One requirement with this design is that a multiplexer may only use the
-> same or lower bus speed as its parent.
-> Otherwise, if the multiplexer would have to increase the bus frequency,
-> then all siblings (D3 in this case) would run into a clock speed it may
-> not support.
-> 
-> The bus frequency for each channel is set in the devicetree. As the
-> i2c-mux bindings import the i2c-controller schema, the clock-frequency
-> property is already allowed.
-> If no clock-frequency property is set, the channel inherit their parent
-> bus speed.
-> 
-> The following example uses dt bindings to illustrate the topology above:
-> 
->     i2c {
-> 	clock-frequency = <400000>;
-> 
->         i2c-mux {
->             i2c@0 {
->                 clock-frequency = <100000>;
-> 
->                 D1 {
->                     ...
->                 };
->             };
-> 
->             i2c@1 {
->                 D2 {
->                   ...
->                 };
->             };
->         };
-> 
->         D3 {
->             ...
->         }
->     };
+> Stick to Hz.
 
 ...
 
-> +static int i2c_mux_select_chan(struct i2c_adapter *adap, u32 chan_id, u32 *oldclock)
-> +{
-> +	struct i2c_mux_priv *priv = adap->algo_data;
-> +	struct i2c_mux_core *muxc = priv->muxc;
-> +	struct i2c_adapter *parent = muxc->parent;
-> +	int ret;
-> +
-> +	if (priv->adap.clock_hz && priv->adap.clock_hz < parent->clock_hz) {
-> +		*oldclock = parent->clock_hz;
-> +
-> +		if (muxc->mux_locked)
-> +			ret = i2c_adapter_set_clk_freq(parent, priv->adap.clock_hz);
-> +		else
-> +			ret = __i2c_adapter_set_clk_freq(parent, priv->adap.clock_hz);
-> +
-> +		dev_dbg(&adap->dev, "Set clock frequency %dHz on %s\n",
-> +			priv->adap.clock_hz, parent->name);
+> -	clk = ((input_clock / (psc + 1)) / (dev->bus_freq * 1000));
+> +	clk = ((input_clock / (psc + 1)) / (dev->bus_freq_hz));
 
-%u
+Two pairs too many parentheses!
 
-> +		if (ret)
-> +			dev_err(&adap->dev,
-> +				"Failed to set clock frequency %dHz on adapter %s: %d\n",
-> +				*oldclock, parent->name, ret);
+	clk = (input_clock / (psc + 1)) / dev->bus_freq_hz;
 
-%u
+...
 
-Oh, and so on...
+> +	dev_dbg(dev->dev, "bus_freq_hz = %dHz\n", dev->bus_freq_hz);
 
-Please, carefully inspect all printf() specifiers in the patches.
-
-> +	}
-> +
-> +	return muxc->select(muxc, priv->chan_id);
-> +}
+%u ?
 
 -- 
 With Best Regards,
