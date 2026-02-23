@@ -1,115 +1,197 @@
-Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
+Received: from mail-lj1-f177.google.com (mail-lj1-f177.google.com [209.85.208.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1CBEE257843
-	for <linux-i2c@vger.kernel.org>; Mon, 23 Feb 2026 00:52:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF1EB34A765
+	for <linux-i2c@vger.kernel.org>; Mon, 23 Feb 2026 07:29:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771807964; cv=none; b=CZkFzLI0NI9XLkr1cGmvz5Qj9qdtNtN8wnOJe5Kh6eycXTDfnYdrr2mc4n/VArU4mLFDwXckRTrdYjLu/8MmEUfx7uX590jaWdqk70nPp4JaDK2x8znREKzwUgPDnoiy9w8hooW5tPntC5/Ihp5XDu1DTqYW8HnSeu69FdVCsYk=
+	t=1771831756; cv=none; b=HcByL/2tdhh2gcsO0F07ySJ9znUH6YmqeNpV0d+RoWN0OfqkFo/3GeUiQ52zvstHEKlOdwGayoWIbaGAgUq8qDDU1kaOaO64C78rbrxGe6z4uZq0qUGcYuIhyoOwc1N4anm/iac3cV0Jod1MqzKc78gFWC99jh8LVux+SdwV6kc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771807964; c=relaxed/simple;
-	bh=NXWi2qspmLoMuK0oFM8TKtglzf9rvFsL8LsE8+ayg5s=;
-	h=Mime-Version:Content-Type:Date:Message-Id:To:Cc:Subject:From:
-	 References:In-Reply-To; b=rqqY/lbqAVQTy2F6IQRdKn+aCB9VWD4HXFz8OHNSr8LZEGPLnUeZYaIibz4bCUMOAi1KyfNDrnm5NsKvfQsu11xb5Gumggk+XAtccSSzAVospGPV/GJMBNAp8VTYxUcgPkCRu/CnZl8ZE2I1NV/NseMCALGo5xoBcgYuBP4KXY0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com; spf=pass smtp.mailfrom=brighamcampbell.com; dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b=PGn4yR5o; arc=none smtp.client-ip=74.125.82.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=brighamcampbell.com
+	s=arc-20240116; t=1771831756; c=relaxed/simple;
+	bh=bFi8UYq+Jz7bZ8mRheKvygjYVrr12Us6LVK+gr5p+RY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Qz9s1cUDeMRu6FSsoqQBZe9hXQUgtTCaKAm4s6iSqt/wfvwLRA/H/aTJzIsglRlDROTujc3gNPSCQ421I0mkY5V1+JUkX3Jx9nDTP5qFAIaXzU1yqUYYt64lpOOqBwkqCt3/PbJ4ssrtmpYSjmtul23tc+j6EbIYyXYQKnoM7Go=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PAi108jF; arc=none smtp.client-ip=209.85.208.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b="PGn4yR5o"
-Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-2ba64b5a53aso3472139eec.0
-        for <linux-i2c@vger.kernel.org>; Sun, 22 Feb 2026 16:52:42 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PAi108jF"
+Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-387114fdbedso32619391fa.2
+        for <linux-i2c@vger.kernel.org>; Sun, 22 Feb 2026 23:29:14 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=brighamcampbell.com; s=google; t=1771807962; x=1772412762; darn=vger.kernel.org;
-        h=in-reply-to:references:from:subject:cc:to:message-id:date
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=frs1IRziFlL5ohPBZrVbDbsa5wmnKDLt4hUZ8Mvfu5s=;
-        b=PGn4yR5ol75N6GYBHQyo5c2PLCX3Vb68YMnUPUcjRP526nXVVYx9Sy9DkXM15VWeQK
-         eUWvC24VHLJtpImsFg9lxrSw3fhakJ8O5Pr7THf0Wh2DpiIj/xCzIdts9r3/9L7wC5DW
-         p+0ekvJYGNxPusrhElYWoZIhy4JX90HzZrL7Dw68RRV7SMmWxW4Zu1G0svgdux9nq8W4
-         KhdeVwCncxKqtYY3Mu6QsHKRseNykQqVIrAtytXZs/L3LsQ7YMMMzaYc8+dY50JWJ1EK
-         djM1kHqJ6tdHe/xzyCrbvJdieq3CQImoxFqtMHjwi7RUIXrcqEOK/Jt/LPeDZoq9IJqq
-         puKg==
+        d=gmail.com; s=20230601; t=1771831753; x=1772436553; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=hbZ5b7ao+DiagEDcdfKn3Bm3NVsuaQOHTS0dAlMskSs=;
+        b=PAi108jFDs0oGTTkZTYAfZaQI7PJDC7H7NlS5HaX3uYKPuAChkyGhBDnYYVy5QMF5w
+         3/6FtPa7rBGIltxetI6c7TRlv1DlLMklzg6McuVe2jGk8vRtAGLFh2GarMvKy2L08a/E
+         7MNwa+xOl2kICE3nggfhQ87812exOEn7+DMh8r8AmhXZiw+4zMHAqAbdTYptkhR1W3/b
+         FTEAh4nHBoQ3wdI3e88bS38+FiZGFkFSSIB6P7F6LXE6VeuDNprApLsFlkZLfOn1GCDp
+         5LHpym0CitHcc/EuRPMVMD6X+ziIZ6pt1z7rFPy4FMzAinro61YHRgmKwhpwxtazsGmL
+         QPnQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771807962; x=1772412762;
-        h=in-reply-to:references:from:subject:cc:to:message-id:date
-         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=frs1IRziFlL5ohPBZrVbDbsa5wmnKDLt4hUZ8Mvfu5s=;
-        b=kwFer1Jae3XJceRl3tMl+cg2lGwoo/00o4PZuf+uCTYmKZVue0lckrwzVie7kxV24g
-         D/kYVwmSxISMJd3arS6cQSNPFQUOYvPXq3zx0cxpbuYunL2xPE4YiACOEEDVo7njhbvE
-         Ww8CZ5RyJeTRLcb+RSyAPWb43e0r/T1skqCGSRA4O894wNKLlr8GLUHEP11UhdACLI+X
-         FOB5DnKIGmVkoXcAHjfV262LszoKhGVLayYWUJrmoqeCr3yJGFJ+JBnoZbVZ3G8Y8IvO
-         VjsrXG9ueJlfPwdarWUXb8i0pFVTYaassfFm7T08mx7eFHNAuIoAM3GWig2OgJFicmav
-         deOg==
-X-Forwarded-Encrypted: i=1; AJvYcCW+eddQ/La1I4ICj1umLneowy/qEohZEX601RTZzO7wiS3UyyQ237Afjy7SclXIPeS3C5Db0PNG6wM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxUOGuNAHBJlRVRX6TVmEBvwgmm++Q0Fq7Ex1VmEGj0Wi3bA+IP
-	RMeMYONzQ3FKxmhMy5CBlUiNXWjC8R/d9Y5HO0/PliNHqgtM5B6kACOntVlAn+VGIdI=
-X-Gm-Gg: AZuq6aJ33SpQpHUnxHJoRw1xCXz0F8iEd+l+KgBqDEHMfPaUToKuOMsSJPmgfvmTpBy
-	73KQTQ/A9ZHd/LeVH3krfYjrUzcyHw+2c2g/0JK0h+koEQf9CWW89mYCJ5adxgeAD+eGVTnkvzN
-	3032Qy2z9Bcmd7Nt1yQdNbrjZS522q3mtRLGOTS4Kej9A2jhmsIwvcGunfZoiAhCESLqYHRmVKT
-	EBxhK1I11waUu4FWEF0rJ9bvKqpLfGz4BR2OU7gP+rKfLm1sSd5TwhlBp3yOc2xnBFzZrTcae1S
-	y20MRFXcaFmMnDpC3e+s8hhTWS1HQva6VhB40f0jQ0RolzmaKjoJ1s6lsIml25RqGl9S0ae9aF8
-	53nomtlCPZTt3fL5JJ6s7H5LcB6Qkh/SbaTCP0eigSp69O+wl0Vcbn51tvOUjhOe1iyNwx5soXY
-	kc5LwongTYY4x/8NivquQ/be4IfwLD4nkb7WRLj6Fekr+Mlvv01gyFpA9iW44rcrgMZw==
-X-Received: by 2002:a05:693c:23c6:b0:2ba:6c38:c79e with SMTP id 5a478bee46e88-2bd7bd6fe06mr2634418eec.28.1771807961944;
-        Sun, 22 Feb 2026 16:52:41 -0800 (PST)
-Received: from localhost ([2605:fb40:0:c09:323a:5679:3782:80b8])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2bd7dbe78b9sm3895671eec.18.2026.02.22.16.52.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 22 Feb 2026 16:52:41 -0800 (PST)
+        d=1e100.net; s=20230601; t=1771831753; x=1772436553;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=hbZ5b7ao+DiagEDcdfKn3Bm3NVsuaQOHTS0dAlMskSs=;
+        b=WSW3FlBrhZ6o/qhjVD8vcLDWh4udHVFCEQBc+ShK6xqQWXJ0B5nEFCDH/lPFvTvxr6
+         Dr4ui5/nbFojvvlzlTk4XzyN16HnriOEyNEYqdZtRrsaVGzlavIp+3FwyFeh8K95DFNa
+         o4AcTy9xPKcQ2pAb/vjtkCsIPnHF6cVLLrlrgNJbtNf9tR2aitZX4apz3pt8n6qXjjwA
+         ICZUvYNfbyKqQFcgh2ElmYrPsPi4abTFYbr/L4um4MsoTTJNXUmvndfb3YsccHBNO1gK
+         39BAThYUuQspak+InWMTZpWyKIvKD4UDNF6Rrib2+NxcIXumk0bjLq0K4WzmtuUlpGgx
+         R2fA==
+X-Forwarded-Encrypted: i=1; AJvYcCUvvJniEs31DI69faf8ucLW74/zlIBg20czr731lER8hQ/MA866P52VqtWRPLAppsBHrnWIICMek28=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyG9rqlAgt4jFdlFH1ITLbFL5b0wCbd7uAA5GVxg2Yh315jRE34
+	tDrlPaQqr13pAGNTGDadhMGWN3ZG/b3ozcx/itTBB692ZCMPoKNGoS16
+X-Gm-Gg: AZuq6aI4pnwgk6gJWsXXn0jniYxqqg8hixAdHh5IWAXp1kc99PqPtLZ31VuXVwJk+1Y
+	he9h0y/9mSEgEhlAXRSzIMzMR3B/JqYQVq93uAt5mijQaQJttww3idLADUfuYbgTPIL42NQP1vJ
+	brxAB78LQhPRkkG22+Nx2T0+csi6VQGulZidkcr9938f9dEQGXjqaIrOnt0E5NMlhM3fGjq5Zpt
+	9VkTRqt3iI8NjM3nGc0epneBMfTKSMGoGdPLc0FsquAADnfARTSLVJj1/11Sh1JslzFHgRONYha
+	03tYcFYGIKVTRQghVYUt5OHCQ3a4L7xck7CeMGUzGYX+oMVQz97QO1d6cSgtnwF56OTmA6QQaqB
+	k3RrRBgbDunz1YDD5DMVxQATPTxM2Cuj5Sm5liBS3ReOYVoX87MJkaIsKLMOCste4gEQKwmjZBo
+	JlqKQYLe0fP40WEbSC7oLnScr69e9Tz6rQNkmHeW7ioMw2uJfRZ3Q+Aqo4Cu6R
+X-Received: by 2002:a05:6512:1599:b0:59e:645d:192c with SMTP id 2adb3069b0e04-5a0ed99c6admr2114208e87.24.1771831752661;
+        Sun, 22 Feb 2026 23:29:12 -0800 (PST)
+Received: from gmail.com (83-233-6-197.cust.bredband2.com. [83.233.6.197])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a0eeb45813sm1367725e87.64.2026.02.22.23.29.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 22 Feb 2026 23:29:10 -0800 (PST)
+Date: Mon, 23 Feb 2026 08:29:07 +0100
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+To: Peter Rosin <peda@axentia.se>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Michael Hennerich <michael.hennerich@analog.com>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@intel.com>,
+	Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v6 2/5] i2c: mux: add support for per channel bus
+ frequency
+Message-ID: <aZwBw4vSNO5YNQ1d@gmail.com>
+References: <20260216-i2c-mux-v6-0-9be28ecfd7e3@gmail.com>
+ <20260216-i2c-mux-v6-2-9be28ecfd7e3@gmail.com>
+ <ab7090f3-4c03-098b-b118-4cd7a68af8f0@axentia.se>
+ <aZNm6LSK9C8DHC8U@gmail.com>
+ <e21781e7-0ba2-19ce-3c0c-bd198e73c03c@axentia.se>
+ <aZVkHoDsJc6CPszz@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="MoMPLdIF9j3bHqVN"
+Content-Disposition: inline
+In-Reply-To: <aZVkHoDsJc6CPszz@gmail.com>
+
+
+--MoMPLdIF9j3bHqVN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Sun, 22 Feb 2026 17:52:39 -0700
-Message-Id: <DGLXI3TWXQHM.12PGD5R3RH000@brighamcampbell.com>
-To: "Brigham Campbell" <me@brighamcampbell.com>, "Jean Delvare"
- <jdelvare@suse.de>, <linux-i2c@vger.kernel.org>
-Cc: "Wolfram Sang" <wsa+renesas@sang-engineering.com>,
- =?utf-8?q?Gero_Schw=C3=A4ricke?= <gero.schwaericke@sevenlab.de>
-Subject: Re: [PATCH] Make userspace tools accept device file paths
-From: "Brigham Campbell" <me@brighamcampbell.com>
-X-Mailer: aerc 0.21.0-0-g5549850facc2
-References: <20260219032849.668488-1-me@brighamcampbell.com>
-In-Reply-To: <20260219032849.668488-1-me@brighamcampbell.com>
 
-On Wed Feb 18, 2026 at 8:28 PM MST, Brigham Campbell wrote:
->            if it can be stat'ed as a path and is a character device file
-> of major device type 89, return the character device's minor number.
+Hi Peter,
 
-After stewing on it while driving down Interstate 15, I think I've taken
-the wrong approach with this patch. Specifically, the I2C device major
-number is _not_ a part of the stable ABI (as suggested by I2C_MAJOR
-being present in /include/linux/i2c-dev.h instead of /include/uapi/...).
-Because it's not a part of the stable ABI, I shouldn't be relying on it
-to identify I2C character devices.
+On Wed, Feb 18, 2026 at 08:02:54AM +0100, Marcus Folkesson wrote:
+> Hi Peter!
+>=20
+> On Tue, Feb 17, 2026 at 10:37:39AM +0100, Peter Rosin wrote:
+> > Hi!
+> >=20
+> > 2026-02-16 at 19:50, Marcus Folkesson wrote:
+> > > Hi Peter!
+> > >=20
+> > > On Mon, Feb 16, 2026 at 05:40:37PM +0100, Peter Rosin wrote:
+> > >> Hi!
+> > >>
+> > >>> +static struct i2c_mux_core *i2c_mux_first_mux_locked(struct i2c_ad=
+apter *adap)
+> > >>> +{
+> > >>> +	struct i2c_adapter *parent;
+> > >>> +
+> > >>> +	while ((parent =3D i2c_parent_is_i2c_adapter(adap)) !=3D NULL) {
+> > >>> +		struct i2c_mux_priv *priv =3D adap->algo_data;
+> > >>
+> > >> This assumption does not hold, making the cast pretty wild indeed. T=
+here
+> > >> are other i2c_adapters with a parent besides muxes. See e.g. i2c_atr=
+=2Ec
+> > >=20
+> > > I see. Hrm, not sure how to decide if it is a mux or not. The best I
+> > > could come up with is to look at the i2c_adapter.lock_ops. E.g.
+> > >=20
+> > >=20
+> > > 	while ((parent =3D i2c_parent_is_i2c_adapter(adap)) !=3D NULL) {
+> > > 		/*
+> > > 		 * Check if this adapter is a mux channel by verifying its
+> > > 		 * lock_ops. Only mux channels use these specific lock operations.
+> > > 		 */
+> > > 		if (adap->lock_ops =3D=3D &i2c_mux_lock_ops ||
+> > > 		    adap->lock_ops =3D=3D &i2c_parent_lock_ops) {
+> > > 			struct i2c_mux_priv *priv =3D adap->algo_data;
+> > >=20
+> > > 			if (priv->muxc->mux_locked)
+> > > 				return priv->muxc;
+> > > 		}
+> > > 		adap =3D parent;
+> > > 	}
+> > >=20
+> > > Or do you have a better idea?
+> >=20
+> > That looks fragile. My recommendation would be to avoid trying to
+> > guess how a potentially diverse adapter tree should be handled
+> > locally in the mux code. To me, it would feel better to introduce
+> > locking/recursion in i2c_adapter_set_clk_freq() for muxes (and
+> > address translators), i.e. take inspiration from i2c_transfer()
+> > and i2c_smbus_xfer().
+>=20
+> That would be a more robust solution indeed.
+>=20
+> >=20
+> > I guess an unlocked __i2c_adapter_set_clk_freq() is needed.
+> >=20
+>=20
+> Rethinking the whole locking approach;
+> If I follow the same locking logic as in i2c_transfer/__i2c_transfer, do I
+> really need do take any more locks than the root adapter with
+> I2C_LOCK_ROOT_ADAPTER?
+> As the frequency can only be lowered, an intermediate i2c message will
+> not mess anything up?
+>=20
+> If so, do you think  i2c_root_adapter() should be moved to i2c-core-base.=
+c?
+> Then i2c_adapter_set(_root?)_clk_freq() could lookup the root adapter
+> and take the lock there.
 
-If I simply remove the check against the magic value 89, then that opens
-up some very unexpected edge cases. For example, a user could invoke
-`i2cget /dev/video0 ...`, which would cause the code to recognize
-/dev/video0 as a character device and use its device minor number to
-construct a new file path of /dev/i2c-0. I fear that users would
-(rightfully) curse my name if they stumbled upon this "clever" kind of
-behavior.
+I've reworked this during the weekend and think I've got some my
+answers. I will send out a new version later today.
 
-So either I need to switch up this patch to make lookup_i2c_bus return a
-file path instead of an integer or I2C_MAJOR needs to become a part of
-the stable ABI (Are most major numbers intentionally excluded from the
-ABI?).
+Thanks!
 
-Making lookup_i2c_bus return more than just the minor device number as
-an integer requires some more invasive changes and more design thought
-(particularly because the current code will try to open both
-/dev/i2c-<N> and /dev/i2c/<N>, which suggests that lookup_i2c_bus should
-either return a list of paths or some sort of new `i2c_path_hints`
-struct).
+Best regards,
+Marcus Folkesson
 
-I'll go ahead and whip up a new revision soon. After I've finished my
-homework, that is...
+--MoMPLdIF9j3bHqVN
+Content-Type: application/pgp-signature; name=signature.asc
 
-Brigham
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEBVGi6LZstU1kwSxliIBOb1ldUjIFAmmcAb4ACgkQiIBOb1ld
+UjKEDg/+IBFMAKiHUARtHOWdNvNXagaezYzxvlG9U7d8nSHCg+2eZpqJYyjyBb1j
+WGlrRz1xUjCVcP46qy0OOMof5l0tyra6E2+bVwBJ2V8Rg4msHLQ6Fq4mQZ0H2bKG
+sGQyy0YOVzi3OppgDVthHyEbYB6h1PPKpGzyzHfdCoAbU2vlbhoK5ta/SNu49Hsj
+RG7XoX66PCKEi8VIMmb+RbUHgzOVVmBe6Ycv7IvvDjMze92oudNu3BhUJugi6y7A
+45WsilJKAC2SR6Wc6lWQPSZ/JH6bii9vCCealITbv1xdOGRWG7AJtnGXB0T86jPP
+JyB0wguefWE8O1WmR+wZ+MFBdUQZyQ54fr3LNBcX3gkze82Yay3zhMCNbDToqYHl
+o2aWR2LjMW0skWna3a6FlhEDh/reoNavq7ARKv+ANEP7VrZYEXZgrAfMSQZ0iy0p
+AVZOEPVPilfnoaGo7DD40v6Gd41yHqjLuabIEfvb/A6VdTq/MZcV30eBeV/EyqVe
+wdGTLFY+Ivm/GNJ2MMak/ju6zmfWzzVRj1ibZjEq5KtWaxiPSCY/ewxNWXXh+yQu
+XQRqo643UB3plS3w4oTWGO4JtKDZ3B6vJKPKLlT4D4nUjOCCO70mxENNnfoSGOwn
+DjPonu0VeDuVcASuSOJQ4/9bJaQ6sBWCtqn/EHWfKzi0mcfx2e8=
+=514b
+-----END PGP SIGNATURE-----
+
+--MoMPLdIF9j3bHqVN--
