@@ -1,38 +1,38 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27E0230B50B;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C50630C37B;
 	Mon, 23 Feb 2026 15:59:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771862360; cv=none; b=uUrfY/GohMOGdKVDmoeKkrN3eSH0/03GRPdRiBNwVThGVfPOd4oFdlNQ8Y0cBsl07X+YUVf4AEcoxLRU/eA+wasfg10BQjDkaPvLFRsZx93cB7NDLK4bpm8spugpFW9LvIWXMUPw9rfqbHgmbBdjA0RnQypL+CpETZerOcwxaKQ=
+	t=1771862360; cv=none; b=g6zAZGpKz6W40P+BTGJZxUYndxEc5BhaWjegc8WRfqCqbzvYbZL8FVRv2btpFyu6w7hxTWHHCh3wfVMSJfPvCrOln7SlGiv3ULCHXT1SST6biNIkHm0gOoA7y1r6jNX5oTJOjIVmH8isE2tir+IC3TBrYAJ7HtM9wqaiXtVATEg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1771862360; c=relaxed/simple;
-	bh=eDeGqWzfszSxlsa0dgDJoVbCF0RNmd/ZzVa697YK8KE=;
+	bh=8VgLBNuTxD72+GI4e0fkK8v9sYu+VLaZ56iTicorfVQ=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=qWACghnl4fPbw62orCx4W5aEUokKsT53sYdCkSYoi6Jcj9t8b6hDfeEpjPEMPyUXt8Pm6I2HHrbBpgo6amme51YddlOdsv/sz582wHFSLh6guvCpSpAindrn4wjFeFobMiwlcMFmifnpFp6iWQ49UE+cOWteLgiO/EPucsksYwg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RQ6ZeCtL; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=fttUEU4kCTAsStj99StLfOQS789kifzFgH+YgZmUo2T54nnIMAsa2aIbJDEgO+z6i8clsjrdJt2YYoMJnZQWB3fmLS2WPsP0yvzTt2phRABuO2ieDbLmVKgj+dZ7PJwj8DbLwY1fwp0P1PkXqIzN/V4bHDkWw4XoR8obm84iz/k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NUXNpPay; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RQ6ZeCtL"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id F0334C2BCB0;
-	Mon, 23 Feb 2026 15:59:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NUXNpPay"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 27EE9C116D0;
+	Mon, 23 Feb 2026 15:59:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1771862360;
-	bh=eDeGqWzfszSxlsa0dgDJoVbCF0RNmd/ZzVa697YK8KE=;
+	bh=8VgLBNuTxD72+GI4e0fkK8v9sYu+VLaZ56iTicorfVQ=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=RQ6ZeCtL9n4bB0jdne9IogDl7WOMZu1aVge4oisE82c/ew8EiVeUL7IVZFY6idg2o
-	 ZdN0PbY3VHZa28FX8nTyXse2aOCgV4/nWbgpDO8lrm7Ovejbz9JjsHsVz2zNkUj/Op
-	 NKkcQQFSf/qk1IgkNfB0bmYRiPtmHP68k97IQscYt+pxaf6vjMLevIVr4wFJBu5wA7
-	 PZEqF4ymhhE2dO0xPDMgmPZHwj6PyGpg2tbeRTwggePYPbxfKlmT1NQ8gnYy8DsBko
-	 MO89F1U+velR/Qf2hy1/MmsN0ESgtJQtEyb1//7ba30K+vgTHGr3heONQSkrN+3EqI
-	 BtEpmAODggjBQ==
+	b=NUXNpPayyGsKW9S8uDu3RI4dyDMmw9yk5MjGvGpU8WVZ+jR+qRN/wmS18qegVP6Um
+	 U0n0Nt4f1xPvKSuGcTMmcz2Xcjgw9NrbTIF/D4zSz19Zhzn0zmjnCPiind2d2aVGyE
+	 7oO1zsUEGWJrje2+ZGsnWnxTmSPApUxGaA/0yaFY+r9/mvl7v+cRKl4SQG4QyculwA
+	 VCgQjBZTpGlE8+QPsdDiUklj2vQnIxb9xCkzKr9ii9qD/HDOu8CSP28B9geUCBw3sR
+	 531w9w3n832apGGrB1OCMGMShZhqUyT/+oP8ot3Y1cupMxpodQht5IzInp3XadJ7kJ
+	 GzOUsFKRgUkGw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E60B7E98E1E;
-	Mon, 23 Feb 2026 15:59:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 202BDEA4FC7;
+	Mon, 23 Feb 2026 15:59:20 +0000 (UTC)
 From: Abdurrahman Hussain via B4 Relay <devnull+abdurrahman.nexthop.ai@kernel.org>
-Date: Mon, 23 Feb 2026 15:59:20 +0000
-Subject: [PATCH v12 5/7] i2c: xiic: cosmetic: use resource format specifier
- in debug log
+Date: Mon, 23 Feb 2026 15:59:22 +0000
+Subject: [PATCH v12 7/7] i2c: xiic: skip input clock setup on non-OF
+ systems
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -41,7 +41,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260223-i2c-xiic-v12-5-b6c9ce4e4f3c@nexthop.ai>
+Message-Id: <20260223-i2c-xiic-v12-7-b6c9ce4e4f3c@nexthop.ai>
 References: <20260223-i2c-xiic-v12-0-b6c9ce4e4f3c@nexthop.ai>
 In-Reply-To: <20260223-i2c-xiic-v12-0-b6c9ce4e4f3c@nexthop.ai>
 To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
@@ -52,11 +52,11 @@ Cc: Andy Shevchenko <andriy.shevchenko@intel.com>,
  linux-kernel@vger.kernel.org, devicetree@vger.kernel.org, 
  Abdurrahman Hussain <abdurrahman@nexthop.ai>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1771862359; l=861;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1771862359; l=1194;
  i=abdurrahman@nexthop.ai; s=20260119; h=from:subject:message-id;
- bh=7a+Jv/sysSvCd9GgBokRdDYOqlTm04F/cT7DP1ztyWA=;
- b=yUwadXileWxfaXhhsoyottKwsdmIg23ZJsFROqUlA6qIGvuEPkkkn3orZJN3IvkPzyirgjsLE
- MqZXzAIGXIzBhXzPkTyJQsVuGJJrH6BGWxu3m7oXuyi94i1l4xyzIAG
+ bh=usc1CKg+f05YBR4E4GFMUb7OKXzoYUSPfhhuE4yE/XA=;
+ b=+y1k9kEklzjax8kw0/GxG/XFD+YRKhH4DvYmswPoEay7CKIIqzhSrJB5CtDpA1+ol87X1I/6o
+ wBmNI3aTuLmDsP7/x9j7bzPOs5MdZ3A0bhlLvxYUcuC5Ia6PtpP5mJV
 X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
  pk=S+ysnf+NwMcBdHBlyKIUEAtaFGSIhQwcJcgcXhq0osg=
 X-Endpoint-Received: by B4 Relay for abdurrahman@nexthop.ai/20260119 with
@@ -66,29 +66,38 @@ Reply-To: abdurrahman@nexthop.ai
 
 From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
 
-Use standard resource format specifier %pR in debug log.
+Currently Linux does not implement ACPI ClockInput() resource to describe
+clocks, unlike DT. However the xiic driver is happy if something
+magically enables the clock before the driver probes, and does not
+turn it off again. The clock should always be considered optional for
+ACPI.
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@intel.com>
 Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
 ---
- drivers/i2c/busses/i2c-xiic.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index 463a207c6a76..80e183b6e4f1 100644
+index 6eb0c6a2618a..3e7735e1dae0 100644
 --- a/drivers/i2c/busses/i2c-xiic.c
 +++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -1519,8 +1519,8 @@ static int xiic_i2c_probe(struct platform_device *pdev)
- 			i2c_new_client_device(&i2c->adap, pdata->devices + i);
- 	}
+@@ -1464,10 +1464,12 @@ static int xiic_i2c_probe(struct platform_device *pdev)
  
--	dev_dbg(&pdev->dev, "mmio %08lx irq %d scl clock frequency %d\n",
--		(unsigned long)res->start, irq, i2c->i2c_clk);
-+	dev_dbg(dev, "mmio %pR irq %d scl clock frequency %d\n",
-+		res, irq, i2c->i2c_clk);
+ 	spin_lock_init(&i2c->atomic_lock);
  
- 	return 0;
- }
+-	i2c->clk = devm_clk_get_enabled(&pdev->dev, NULL);
+-	if (IS_ERR(i2c->clk))
+-		return dev_err_probe(&pdev->dev, PTR_ERR(i2c->clk),
+-				     "failed to enable input clock.\n");
++	if (is_of_node(fwnode)) {
++		i2c->clk = devm_clk_get_enabled(dev, NULL);
++		if (IS_ERR(i2c->clk))
++			return dev_err_probe(dev, PTR_ERR(i2c->clk),
++					"failed to enable input clock.\n");
++	}
+ 
+ 	i2c->dev = dev;
+ 
 
 -- 
 2.52.0
