@@ -1,103 +1,105 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E7D42512C8
-	for <linux-i2c@vger.kernel.org>; Tue, 24 Feb 2026 14:42:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 289643806B8;
+	Tue, 24 Feb 2026 16:20:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.176.79.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771944176; cv=none; b=jdZ8p+d+zOWC0H0vJRbgfBV4LbUR0avM6J74zRQVULVxwwQ1AIwv6oZotb8fP5rX6sipWikRwOJURx7CtBuLEPGeppi0WVGKaKGy/2WJshN4EbtspX74RlU+baSkWSKFB0BRbEpKyGoRocdBPN1bgt1iwv2X7Ggc562qld+psWs=
+	t=1771950009; cv=none; b=a/3p31JN+Ln/iVhYClMUdHR3BEsDFxCHW96XzI3tyXtY5LCkp2vrLjg86/BEWyjuipZvFv2s1Y0cqe8joQM+E2YLtk7p5dsjrQ890aFqnxiJG1LiGX7PXqsqORj6ZDEm+02lyVU/bnFW4xDNumuejjzP9warqWLYpTsupDig0IA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771944176; c=relaxed/simple;
-	bh=TRs6fgkQYCZmT3snZ+87Qz6FxsRhtiQwZHuPDvKLEcM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CgojtWpVCFKVSQcuzCOonnK152UNbUe0t+dQy9x2v/RswQKj56ZhRegfU+rVm4MUutBnTecKeiPzoxfpplIeYFADhMX7WJbBvyk2q6irGua5VcEbpbzzS2JkQ91IG9TmdJG1e7fRs32Eqfl52+qMhuXhwRVxhGQanbDYhXzVrqU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fvSvfMxh; arc=none smtp.client-ip=209.85.128.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fvSvfMxh"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-48334ee0aeaso42330535e9.1
-        for <linux-i2c@vger.kernel.org>; Tue, 24 Feb 2026 06:42:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1771944173; x=1772548973; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=TRs6fgkQYCZmT3snZ+87Qz6FxsRhtiQwZHuPDvKLEcM=;
-        b=fvSvfMxh4oLcgJO9kOPO+iboVdl7woS6DAdDmISdjnuWTjuTDz2W1BbwyncjiB41i0
-         xqA5bK81c8dbl2AFLiLv6zjrYbtjn5u4P8JchfBWS52STqmUCsajOlKApBEX5jjbJygJ
-         dzwy5dMFHO4iMOR9AzZtMoF60a8B+9tCVvxeV9nneFPSVyG1c1kdlaBI1ovKA3JxFuhc
-         GWvTaXeB4iojeDTBJaFdhV2JtKBHMAqcoUKSa7vatb9l829vST1kBDo15mTa+91Us14w
-         aFwT9wEIqcd3lB3il7le9wJUwllsLuR3ZTcTETxh5dZqTqzAhPGjtO96l6xbirYb/NbT
-         zLHw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1771944173; x=1772548973;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=TRs6fgkQYCZmT3snZ+87Qz6FxsRhtiQwZHuPDvKLEcM=;
-        b=WvS6NRth54LR9IWiUlDCR/4MqGNzfF2nbr/Yp0ymjTOsp2Pm9WElyHF0rwJODwct07
-         E8RQGijA5nLHlgrg3/my7WWyNxDx35d8CWO/UKOvjWQD4ktNJ0IwES0H5flrMMOrif8c
-         TkbLuF8+KjHBavm4Dya4+0BymJ5LTvw+kyHd0PIsvajmIKzcbZU+8u859Atgi5xR68w6
-         qX0NFeeUOQXs8V4v50qjjDf+YKNGkCmt5NhatHFqs2BSrtUyAnkNekruNJQHerYw/y1h
-         DEsMW4ixFhHhxmbPQOcqhm/45nVXkBd9NT8AwMq9IHU1Zu9vCteEMPynw1Am8UYF08Zp
-         zcNg==
-X-Forwarded-Encrypted: i=1; AJvYcCWxYxnKKPfrW8BqFkGQLpRbCOsyECwAbcrEyjXwF6LQzUyOBfV8wJvfYnp45slbQPGHOtGLd+rsLTM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwhyyM8rKA+tjEYPQGBwau0ThnJqhXo+5FWg9qtcNzh5lrJbNPy
-	NlajCtvdB66x04/yi6xk856ahDapkcDGA8G1QyofgN+YGEsr2mBysItR
-X-Gm-Gg: AZuq6aISwOuMrn7veOC7kUHz1OQY9p+dSOsDijYeHddAvsEvbrCq6ksw6KmEDa8VqIb
-	6qhYBp34uVF2r4fAb2wb84LZwauo0N4fT79Sj7Cl8J65Q9pWybAmTEdF/4EIO15+AnxKlLxfA+R
-	JNqfEA1kE3AesfTlN1cPY8p1Cu8TrAP94CwQUy5s4ghw43EZvIH98yyXU2ODwsVZlpOszxZ2On2
-	jEVIU09kXei0QBRCOhVWpSRKqdBkyux3aQfFxgO5yWEWgdyWTEJ1xndlRoCWKHXnNEmSCKo3VWa
-	huD4s/mdBqtB5FVi+397EV29ucV3amDFPjAUjllaxDnVcUNM2+sBGeKSbbqp233kYb90MV9ckbD
-	q4/2pjZa0PkX1AhaqXFHZ4I9avcAw2TC/JkFe53RSQTr+2mKIouNJBaZ2yG5G9fl7cv3JOqZ43g
-	I5rGmdrGjssRzh+0P0IPWnMhHO
-X-Received: by 2002:a05:600c:3b10:b0:471:700:f281 with SMTP id 5b1f17b1804b1-483a95e5b24mr202226015e9.25.1771944173275;
-        Tue, 24 Feb 2026 06:42:53 -0800 (PST)
-Received: from fedora ([146.70.134.19])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-483b8902ed2sm20141925e9.20.2026.02.24.06.42.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Feb 2026 06:42:52 -0800 (PST)
-Date: Tue, 24 Feb 2026 15:42:49 +0100
-From: Filippo =?utf-8?B?TXVzY2hlcsOg?= <filippo.muschera@gmail.com>
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: jdelvare@suse.com, andi.shyti@kernel.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: amd8111: Switch to pcim_enable_device() and
- pcim_request_region()
-Message-ID: <aZ22mN9uT8xq9EQf@fedora>
-References: <aZx_Yvo_an2_13Lq@black.igk.intel.com>
- <20260224102216.17606-1-filippo.muschera@gmail.com>
- <aZ1_lZLd37VyREHY@smile.fi.intel.com>
+	s=arc-20240116; t=1771950009; c=relaxed/simple;
+	bh=6G91BbTqFSYq68w6yhfkl+JDGrXisXHtlEgCseE/wwo=;
+	h=Date:From:To:CC:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=USqOVO1G8thfgen45iXNVM6Ww1j0fmbiTNzRg5c7dxMz8bF4y4wQ0aLX+j9GyfK2JA3wIrVqkYLQdlrzBkNRCizxSSmBL4mlSz2rAAu5ju1vSO5mAI3PlnyzZd0LFo3AZFrEeaA2khoswtV2yxqdIflZTG4g0REjoy8UHhwRGjY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=185.176.79.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+Received: from mail.maildlp.com (unknown [172.18.224.107])
+	by frasgout.his.huawei.com (SkyGuard) with ESMTPS id 4fL2xC01QGzJ46C2;
+	Wed, 25 Feb 2026 00:19:43 +0800 (CST)
+Received: from dubpeml500005.china.huawei.com (unknown [7.214.145.207])
+	by mail.maildlp.com (Postfix) with ESMTPS id C0C2D40570;
+	Wed, 25 Feb 2026 00:20:04 +0800 (CST)
+Received: from localhost (10.203.177.15) by dubpeml500005.china.huawei.com
+ (7.214.145.207) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Tue, 24 Feb
+ 2026 16:20:01 +0000
+Date: Tue, 24 Feb 2026 16:20:00 +0000
+From: Jonathan Cameron <jonathan.cameron@huawei.com>
+To: Shawn Lin <shawn.lin@rock-chips.com>
+CC: Bjorn Helgaas <bhelgaas@google.com>, "Vaibhaav Ram T . L"
+	<vaibhaavram.tl@microchip.com>, Kumaravel Thiagarajan
+	<kumaravel.thiagarajan@microchip.com>, Even Xu <even.xu@intel.com>, Xinpeng
+ Sun <xinpeng.sun@intel.com>, Srinivas Pandruvada
+	<srinivas.pandruvada@linux.intel.com>, Jiri Kosina <jikos@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>, Zhou Wang
+	<wangzhou1@hisilicon.com>, Longfang Liu <liulongfang@huawei.com>, "Vinod
+ Koul" <vkoul@kernel.org>, Lee Jones <lee@kernel.org>, Jijie Shao
+	<shaojijie@huawei.com>, Jian Shen <shenjian15@huawei.com>, Sunil Goutham
+	<sgoutham@marvell.com>, Andrew Lunn <andrew+netdev@lunn.ch>, "Heiner
+ Kallweit" <hkallweit1@gmail.com>, "David S . Miller" <davem@davemloft.net>,
+	Jeff Hugo <jeff.hugo@oss.qualcomm.com>, Oded Gabbay <ogabbay@kernel.org>,
+	Maciej Falkowski <maciej.falkowski@linux.intel.com>, Karol Wachowski
+	<karol.wachowski@linux.intel.com>, Min Ma <mamin506@gmail.com>, Lizhi Hou
+	<lizhi.hou@amd.com>, Andreas Noever <andreas.noever@gmail.com>, "Mika
+ Westerberg" <westeri@kernel.org>, Tomasz Jeznach <tjeznach@rivosinc.com>,
+	Will Deacon <will@kernel.org>, Xinliang Liu <xinliang.liu@linaro.org>, Tian
+ Tao <tiantao6@hisilicon.com>, Davidlohr Bueso <dave@stgolabs.net>, Srujana
+ Challa <schalla@marvell.com>, Bharat Bhushan <bbhushan2@marvell.com>, Antoine
+ Tenart <atenart@kernel.org>, Herbert Xu <herbert@gondor.apana.org.au>, Raag
+ Jadav <raag.jadav@intel.com>, "Hans de Goede" <hansg@kernel.org>, Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby
+	<jirislaby@kernel.org>, Andy Shevchenko <andy@kernel.org>, Manivannan
+ Sadhasivam <mani@kernel.org>, Mika Westerberg
+	<mika.westerberg@linux.intel.com>, Andi Shyti <andi.shyti@kernel.org>, Robert
+ Richter <rric@kernel.org>, Mark Brown <broonie@kernel.org>, "Nirmal Patel"
+	<nirmal.patel@linux.intel.com>, Kurt Schwemmer
+	<kurt.schwemmer@microsemi.com>, Logan Gunthorpe <logang@deltatee.com>, Linus
+ Walleij <linusw@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, Sakari
+ Ailus <sakari.ailus@linux.intel.com>, Bingbu Cao <bingbu.cao@intel.com>, Ulf
+ Hansson <ulf.hansson@linaro.org>, Arnd Bergmann <arnd@arndb.de>, Benjamin
+ Tissoires <bentiss@kernel.org>, <linux-input@vger.kernel.org>,
+	<linux-i3c@lists.infradead.org>, <dmaengine@vger.kernel.org>, Philipp Stanner
+	<phasta@kernel.org>, <netdev@vger.kernel.org>, <nic_swsd@realtek.com>,
+	<linux-arm-msm@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
+	<linux-usb@vger.kernel.org>, <iommu@lists.linux.dev>,
+	<linux-riscv@lists.infradead.org>, David Airlie <airlied@gmail.com>, Simona
+ Vetter <simona@ffwll.ch>, <linux-cxl@vger.kernel.org>,
+	<linux-crypto@vger.kernel.org>, <platform-driver-x86@vger.kernel.org>,
+	<linux-serial@vger.kernel.org>, <mhi@lists.linux.dev>, Andy Shevchenko
+	<andriy.shevchenko@linux.intel.com>, Jan Dabros <jsd@semihalf.com>,
+	<linux-i2c@vger.kernel.org>, Daniel Mack <daniel@zonque.org>, "Haojian
+ Zhuang" <haojian.zhuang@gmail.com>, <linux-spi@vger.kernel.org>, "Jonathan
+ Derrick" <jonathan.derrick@linux.dev>, <linux-pci@vger.kernel.org>,
+	<linux-gpio@vger.kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>,
+	<linux-media@vger.kernel.org>, <linux-mmc@vger.kernel.org>
+Subject: Re: [PATCH 01/37] PCI/MSI: Add Devres managed IRQ vectors
+ allocation
+Message-ID: <20260224162000.000001a5@huawei.com>
+In-Reply-To: <1771860581-82092-2-git-send-email-shawn.lin@rock-chips.com>
+References: <1771860581-82092-1-git-send-email-shawn.lin@rock-chips.com>
+	<1771860581-82092-2-git-send-email-shawn.lin@rock-chips.com>
+X-Mailer: Claws Mail 4.3.0 (GTK 3.24.42; x86_64-w64-mingw32)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aZ1_lZLd37VyREHY@smile.fi.intel.com>
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: lhrpeml500009.china.huawei.com (7.191.174.84) To
+ dubpeml500005.china.huawei.com (7.214.145.207)
 
-On Tue, Feb 24, 2026 at 12:38:13PM +0200, Andy Shevchenko wrote:
-> Looking at the code now I see the difference this patch may bring.
-> I was under impression that there is pci_enable_device() already in
-> the code. But it is not the case, which makes quite a different
-> enumeration flow (it will write CMD register and touch some bits
-> that might be sensitive). While the code looks okay and I can even
-> Acked-by: Andy Shevchenko <andriy.shevchenko@intel.com>
-> the change needs to be tested on real hardware before going in.
+On Mon, 23 Feb 2026 23:29:40 +0800
+Shawn Lin <shawn.lin@rock-chips.com> wrote:
 
-Hi Andy,
+> pcim_alloc_irq_vectors() and pcim_alloc_irq_vectors_affinity() are created for
+> pci device drivers which rely on the devres machinery to help cleanup the IRQ
+> vectors.
 
-Thanks for the review and the Acked-by.
-Unfortunately I don't have access to an AMD8111 system to test if
-pcim_enable_device() causes any regressions.
+It might be worth adding some details on why we need the is_msi_managed
+flag in the first place vs just doing conventional devm_add_action_or_reset()
+with pci_free_irq_vectors().
 
-I completely see the point you're making now. I was focusing purely on
-the API modernization and I didn't consider these legacy implications.
 
-I leave it entirely up to you and the subsystem maintainers whether to
-queue this patch for testing or just drop it to avoid any risks.
-
-Best regards,
-Filippo
