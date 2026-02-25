@@ -1,72 +1,121 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 672433A9DA5;
-	Tue, 24 Feb 2026 17:56:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5884C274B2B;
+	Wed, 25 Feb 2026 07:35:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1771955762; cv=none; b=tgVO0tuoz2ngqzrWWSJaxqc6HYZXYM6YCNH31sTggAixey5RHEirgz9sySC2/Hrmd5HM+uQDajc55x3kS8vjPHzYQHYl9K7LkEMfe0OgaQbY3LrJNufl8KvEkMy/6fLQPJntveq+U1v5BjJ96Lh4D95tR8sXr2CoHJRu9i9GCCc=
+	t=1772004906; cv=none; b=g4USiafJH/PA6rprB/DKVJtorZkcYrK9sMes9BWGkSO/To3SyU8T+E27hpcvb1SJOprJtlams2DKYgW6gUJ0fXKLkLblvFyNH/HPH+sZcor69RDrHBj+npBmFs1II4rc7T9FR0JWMTa9qhprosaB0WVmAWjhCeyeQPgwrfpqCGg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1771955762; c=relaxed/simple;
-	bh=FYJMufp8dDEIilx5JgSY/m2olD6DzD4PzEhfO392SMg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tAicr/m9IBFHV22BwEHbUhixoePPL4H6c5RLODWBht9WG1kUp8JDZh7m8pPeRWgQ31GE/blSFSFkscn2frUO/xpTaUnY1dB55hq2tCML9mRsgjttLRH6p443SsNQVoNPwxDwDG3zDLF9BfRln5DJQ516yVBejxJIO5IA33wXy0I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PlhQukWm; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PlhQukWm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A47DC19422;
-	Tue, 24 Feb 2026 17:56:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1771955762;
-	bh=FYJMufp8dDEIilx5JgSY/m2olD6DzD4PzEhfO392SMg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=PlhQukWmeRaR5yJI5mEWXiW9v7pTAZUJA8PyNoImzNrxJYYlYENWMOkN/4cc/jB2v
-	 eSvC1R00nFP4fPAlafPZVxkG+yPdbTluLS3MwJwa2bP5beq4mOKufu9/XXrHsyoQhF
-	 2RmUqoFf6saxg6sTOtOyVNTWCbjPdIK6Ekfp3HqwqU0mRw6bxXYxsU9FM2WCnCSEV9
-	 KTGK3gZNUZ4VkdKocCcKbPYHqYC33okH7buyzVccihMwP2kIY7Jj6uUYjWn+P2wg4N
-	 C3dtPPaRurjdUZ+SiF0lfmb6BnokBTRK8ZpBqgKLBNRahwHtJyGQZ4NzFyhzzkx3z6
-	 CTfyzSVmucNtQ==
-Date: Tue, 24 Feb 2026 17:55:58 +0000
-From: Conor Dooley <conor@kernel.org>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@kernel.org>,
+	s=arc-20240116; t=1772004906; c=relaxed/simple;
+	bh=+yBWQeNfgbn1YzlZgOOINbQ1VVXe/SU11SE1jUNt9sI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=W4AmOjzmPOyxszvXhIRW0dcYeV8SBiXQsVmkNdhYTtGHRDE+BCll0W9d5wHmkeDZcPJYTJALAnIxyw4Z4LKTqZGMS/OAslwSPJ3t982qQyxs+qcr/ZtC3JoaR/zgn+1IodVUMTTRuXcJAGv8o09czfxz3RfIplAkNxiWgqn0zcI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [223.64.68.227])
+	by gateway (Coremail) with SMTP id _____8Dx_8Mlpp5pNP0UAA--.64600S3;
+	Wed, 25 Feb 2026 15:35:01 +0800 (CST)
+Received: from kernelserver (unknown [223.64.68.227])
+	by front1 (Coremail) with SMTP id qMiowJBx78Ifpp5prsNKAA--.10268S2;
+	Wed, 25 Feb 2026 15:34:57 +0800 (CST)
+From: Binbin Zhou <zhoubinbin@loongson.cn>
+To: Binbin Zhou <zhoubb.aaron@gmail.com>,
+	Huacai Chen <chenhuacai@loongson.cn>,
 	Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>,
-	Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: [PATCH v1 1/1] dt-bindings: i2c: dw: Remove unused bindings
-Message-ID: <20260224-wrinkly-flinch-8c75a8ec7d61@spud>
-References: <20260224115210.3499191-1-andriy.shevchenko@linux.intel.com>
+	Andi Shyti <andi.shyti@kernel.org>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Andy Shevchenko <andy@kernel.org>,
+	linux-i2c@vger.kernel.org
+Cc: Huacai Chen <chenhuacai@kernel.org>,
+	Xuerui Wang <kernel@xen0n.name>,
+	loongarch@lists.linux.dev,
+	devicetree@vger.kernel.org,
+	Binbin Zhou <zhoubinbin@loongson.cn>
+Subject: [PATCH v3 0/2] i2c: Add Loongson-2K0300 I2C controller support
+Date: Wed, 25 Feb 2026 15:34:42 +0800
+Message-ID: <cover.1772001073.git.zhoubinbin@loongson.cn>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="aqINCfUvLFkexCVG"
-Content-Disposition: inline
-In-Reply-To: <20260224115210.3499191-1-andriy.shevchenko@linux.intel.com>
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJBx78Ifpp5prsNKAA--.10268S2
+X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/1tbiAgEJCGmejyEBaAAAsy
+X-Coremail-Antispam: 1Uk129KBj93XoW7ZrWDWFWfCr17uF1DKF17Arc_yoW8WF43pa
+	n8A3sxKF1jgr4I9rs3Jr4xuryYva1xJF43Wr42vw1v9a15A3yDZw4akF1YvFZrCryxZF42
+	qrWDGF1xCa4qvrbCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUv2b4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+	6r4UJVWxJr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4CE44I27w
+	Aqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jrv_JF1lYx0Ex4A2jsIE
+	14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCY1x0262kKe7
+	AKxVWUAVWUtwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02
+	F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GF
+	ylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7Cj
+	xVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r
+	1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8aZ
+	X5UUUUU==
+
+Hi all:
+
+This patch set describes the I2C controller integrated the
+Loongson-2K0300 chip.
+
+It has a significantly different design from the previous I2C
+controller(i2c-ls2x), such as support for master-slave transfer mode,
+and  DMA transfers (implementation in progress), etc. Therefore, we try
+to name it i2c-ls2x-v2.
+
+Thanks.
+
+======
+V3:
+- Rebase on linux-i2c/i2c-next;
+Patch (2/2):
+ - Reorder header file follow IWYU principle;
+ - Better indentation and coding style;
+ - Use generic macro definitions;
+ - Amend *all* struct data types;
+ - Correct unreasonable variable type definitions;
+ - Refact loongson2_i2c_isr_error();
+ - of_property_read_u32()->device_property_read_u32();
+ - Remove meaningless blank lines and output.
+
+Link to V2:
+https://lore.kernel.org/all/cover.1769476820.git.zhoubinbin@loongson.cn/
+
+V2:
+Patch (1/2):
+ - Add Acked-by tag from Conor, thanks.
+
+Patch (2/2):
+ - Reorder the definitions of read() and write();
+ - Adjust the calculation method for bus speed.
+
+Link to V1:
+https://lore.kernel.org/all/cover.1763018288.git.zhoubinbin@loongson.cn/
+
+Binbin Zhou (2):
+  dt-bindings: i2c: loongson,ls2x: Add ls2k0300-i2c compatible
+  i2c: ls2x-v2: Add driver for Loongson-2K0300 I2C controller
+
+ .../bindings/i2c/loongson,ls2x-i2c.yaml       |   4 +
+ MAINTAINERS                                   |   1 +
+ drivers/i2c/busses/Kconfig                    |  10 +
+ drivers/i2c/busses/Makefile                   |   1 +
+ drivers/i2c/busses/i2c-ls2x-v2.c              | 510 ++++++++++++++++++
+ 5 files changed, 526 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-ls2x-v2.c
 
 
---aqINCfUvLFkexCVG
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+base-commit: 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
+-- 
+2.52.0
 
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
-pw-bot: not-applicable
-
---aqINCfUvLFkexCVG
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaZ3mLgAKCRB4tDGHoIJi
-0vc8AQCvmdMr3IA8S4jVeOckvB7RomrAPaU1dlRAyx5Ptq9I0wEA3M9BSxJUf1jM
-NO9cHlBcAyKE5HgnpWKe9LP9craEvwA=
-=sK/M
------END PGP SIGNATURE-----
-
---aqINCfUvLFkexCVG--
