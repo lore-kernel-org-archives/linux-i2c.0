@@ -1,647 +1,709 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id EC6C22DB789;
-	Wed, 25 Feb 2026 07:35:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from TWMBX01.aspeed.com (mail.aspeedtech.com [211.20.114.72])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C3032C0263;
+	Wed, 25 Feb 2026 09:20:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=211.20.114.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772004911; cv=none; b=sZDYEpUDNaDTzKvG2+2KkktA4F8Pw7VDlRATl0IWjeDdY8Bs0wPXClGjTP3g9TuEnE70j/YtaqTZhYO6fVlm9RgqMjluStaKIOqOOeFh4H8TJ8oK053xj6IRurb/U0W7wgyXdnItmsIuXuks3kGJqv8WhOgm6G/WtwTh8ZmQjg4=
+	t=1772011256; cv=none; b=H5iScnlDR59jHcULjBpfp8x0WpXiaW/M4nJ56Kck82syGiZw1ixCt8dSJDkPDkZ3ULD+ikJUjPy9Tnal0Ln+TDY5rxO9RWq4TSiTeRKVy/AnIuEDQRT61Jw4BInagLNw0KKKqVcYuyY2yfUSgykk8VUNFaJAd0lO5Ej51RLR7qo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772004911; c=relaxed/simple;
-	bh=XjIjEOFuKhD3metFdS51gCaT9rsHjCludbLSCbfhNCk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=fmI6ZDjLc732QRA0mI0j04kKPdOlXrkmjYNgZztlZB+EcDxByXLl88mKkQ4Ns07yzNWeLSno4O4UqNKTW6tX/tnkT11cconCwcZViBo+00ctGRYu7ZOC1fiM4VX4aTKYRFyZTRQQFteDsukkj5WJFbVi4PzMhU0fQmrneC5Yg10=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [223.64.68.227])
-	by gateway (Coremail) with SMTP id _____8CxJMEqpp5pQv0UAA--.17096S3;
-	Wed, 25 Feb 2026 15:35:06 +0800 (CST)
-Received: from kernelserver (unknown [223.64.68.227])
-	by front1 (Coremail) with SMTP id qMiowJBx78Ifpp5prsNKAA--.10268S4;
-	Wed, 25 Feb 2026 15:35:03 +0800 (CST)
-From: Binbin Zhou <zhoubinbin@loongson.cn>
-To: Binbin Zhou <zhoubb.aaron@gmail.com>,
-	Huacai Chen <chenhuacai@loongson.cn>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	linux-i2c@vger.kernel.org
-Cc: Huacai Chen <chenhuacai@kernel.org>,
-	Xuerui Wang <kernel@xen0n.name>,
-	loongarch@lists.linux.dev,
-	devicetree@vger.kernel.org,
-	Binbin Zhou <zhoubinbin@loongson.cn>
-Subject: [PATCH v3 2/2] i2c: ls2x-v2: Add driver for Loongson-2K0300 I2C controller
-Date: Wed, 25 Feb 2026 15:34:44 +0800
-Message-ID: <27899156d9218ced7cb0679cad2b2f59f688bd99.1772001073.git.zhoubinbin@loongson.cn>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <cover.1772001073.git.zhoubinbin@loongson.cn>
-References: <cover.1772001073.git.zhoubinbin@loongson.cn>
+	s=arc-20240116; t=1772011256; c=relaxed/simple;
+	bh=deYbWCQ84iHM9aE9nxhlxi14pN/53DFt4HKGu85rb1k=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:References:
+	 In-Reply-To:To:CC; b=Jip6pbnlX7PTHS19GijjfD+eu0niuCxtjE5qieBbb26Oi6px2gPAq5tKWGW6SUtZ8ZuI8USWVod+d2B54tAaI1+Z2MqMZWA44UsW1VJK//uiqEAwOAG7BvhmvGbpwDlTccKAcgzSpONUDo9Kg0JhHLr10xyXedl8PvrLVxSZPus=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com; spf=pass smtp.mailfrom=aspeedtech.com; arc=none smtp.client-ip=211.20.114.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aspeedtech.com
+Received: from TWMBX01.aspeed.com (192.168.0.62) by TWMBX01.aspeed.com
+ (192.168.0.62) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1748.10; Wed, 25 Feb
+ 2026 17:19:41 +0800
+Received: from [127.0.1.1] (192.168.10.13) by TWMBX01.aspeed.com
+ (192.168.0.62) with Microsoft SMTP Server id 15.2.1748.10 via Frontend
+ Transport; Wed, 25 Feb 2026 17:19:41 +0800
+From: Ryan Chen <ryan_chen@aspeedtech.com>
+Date: Wed, 25 Feb 2026 17:19:41 +0800
+Subject: [PATCH v25 4/4] i2c: ast2600: Add target mode support
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJBx78Ifpp5prsNKAA--.10268S4
-X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/1tbiAQEJCGmejz8BZgAAsh
-X-Coremail-Antispam: 1Uk129KBj9fXoW3tF13tr1DZFW8ZFyrJr4DJrc_yoW8CF45Ao
-	W093Wftr45Jw18u342k34jyr4xXF98ArnrCw4xJrs7Jryjy3WUKFWvkw13Ga4fCryUtr4f
-	ZF95tFWxCFs3t3s8l-sFpf9Il3svdjkaLaAFLSUrUUUU1b8apTn2vfkv8UJUUUU8wcxFpf
-	9Il3svdxBIdaVrn0xqx4xG64xvF2IEw4CE5I8CrVC2j2Jv73VFW2AGmfu7bjvjm3AaLaJ3
-	UjIYCTnIWjp_UUUYA7kC6x804xWl14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI
-	8IcIk0rVWrJVCq3wAFIxvE14AKwVWUXVWUAwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xG
-	Y2AK021l84ACjcxK6xIIjxv20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14
-	v26r4j6F4UM28EF7xvwVC2z280aVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVCY1x0267AK
-	xVW8Jr0_Cr1UM2kKe7AKxVWUXVWUAwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07
-	AIYIkI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
-	tVWrXwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
-	AKI48JMxkF7I0En4kS14v26r126r1DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY
-	6r1j6r4UMxCIbckI1I0E14v26r1Y6r17MI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7
-	xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xII
-	jxv20xvE14v26r4j6ryUMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw2
-	0EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aVCY1x02
-	67AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU0epB3UUUUU==
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-ID: <20260225-upstream_i2c-v25-4-9f4bdd954f3f@aspeedtech.com>
+References: <20260225-upstream_i2c-v25-0-9f4bdd954f3f@aspeedtech.com>
+In-Reply-To: <20260225-upstream_i2c-v25-0-9f4bdd954f3f@aspeedtech.com>
+To: <jk@codeconstruct.com.au>, <andriy.shevchenko@linux.intel.com>, Andi Shyti
+	<andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski
+	<krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Joel Stanley
+	<joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>, "Benjamin
+ Herrenschmidt" <benh@kernel.crashing.org>, Rayn Chen
+	<rayn_chen@aspeedtech.com>, Philipp Zabel <p.zabel@pengutronix.de>
+CC: <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-aspeed@lists.ozlabs.org>,
+	<linux-kernel@vger.kernel.org>, <openbmc@lists.ozlabs.org>, Ryan Chen
+	<ryan_chen@aspeedtech.com>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1772011180; l=25832;
+ i=ryan_chen@aspeedtech.com; s=20251126; h=from:subject:message-id;
+ bh=deYbWCQ84iHM9aE9nxhlxi14pN/53DFt4HKGu85rb1k=;
+ b=G6r5Uh08WdMxCnb2lddPvTgMtuAz6L6ZGkWl9Dtvgd/S/9L7K+n6CNs7FY4voHuv41WpIrQdv
+ f5qY0CFkTcrA1jyhd1pIqG8gY58bhr8zjg8Bivhb78+zXBwNBN7Ys9C
+X-Developer-Key: i=ryan_chen@aspeedtech.com; a=ed25519;
+ pk=Xe73xY6tcnkuRjjbVAB/oU30KdB3FvG4nuJuILj7ZVc=
 
-This I2C module is integrated into the Loongson-2K0300 SoCs.
+Add target mode support to the AST2600 I2C driver.
 
-It provides multi-master functionality and controls all I2C bus-specific
-timing, protocols, arbitration, and timing. It supports both standard
-and fast modes.
+Target mode features implemented include:
+- Add target interrupt handling
+- Address match and response logic
+- Separate Tx/Rx DMA address and length configuration
 
-Signed-off-by: Binbin Zhou <zhoubinbin@loongson.cn>
+This complements the existing controller-mode support, enabling
+dual-role capability.
+
+Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
 ---
- MAINTAINERS                      |   1 +
- drivers/i2c/busses/Kconfig       |  10 +
- drivers/i2c/busses/Makefile      |   1 +
- drivers/i2c/busses/i2c-ls2x-v2.c | 510 +++++++++++++++++++++++++++++++
- 4 files changed, 522 insertions(+)
- create mode 100644 drivers/i2c/busses/i2c-ls2x-v2.c
+ drivers/i2c/busses/i2c-ast2600.c | 559 ++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 558 insertions(+), 1 deletion(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 55af015174a5..464d00c16b96 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -14960,6 +14960,7 @@ M:	Binbin Zhou <zhoubinbin@loongson.cn>
- L:	linux-i2c@vger.kernel.org
- S:	Maintained
- F:	Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
-+F:	drivers/i2c/busses/i2c-ls2x-v2.c
- F:	drivers/i2c/busses/i2c-ls2x.c
+diff --git a/drivers/i2c/busses/i2c-ast2600.c b/drivers/i2c/busses/i2c-ast2600.c
+index c3e4abb426e2..861a1d2df310 100644
+--- a/drivers/i2c/busses/i2c-ast2600.c
++++ b/drivers/i2c/busses/i2c-ast2600.c
+@@ -273,6 +273,13 @@ struct ast2600_i2c_bus {
+ 	void __iomem		*buf_base;
+ 	int (*setup_tx)(u32 cmd, struct ast2600_i2c_bus *i2c_bus);
+ 	int (*setup_rx)(u32 cmd, struct ast2600_i2c_bus *i2c_bus);
++#if IS_ENABLED(CONFIG_I2C_SLAVE)
++	/* target structure */
++	int			target_operate;
++	unsigned char	*target_dma_buf;
++	dma_addr_t		target_dma_addr;
++	struct i2c_client	*target;
++#endif
+ };
  
- LOONGSON PWM DRIVER
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index e11d50750e63..5cad2d0d2569 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -850,6 +850,16 @@ config I2C_LS2X
- 	  This driver can also be built as a module. If so, the module
- 	  will be called i2c-ls2x.
+ static void ast2600_i2c_ac_timing_config(struct ast2600_i2c_bus *i2c_bus)
+@@ -356,6 +363,440 @@ static int ast2600_i2c_recover_bus(struct ast2600_i2c_bus *i2c_bus)
+ 	return ret;
+ }
  
-+config I2C_LS2X_V2
-+	tristate "Loongson-2 Fast Speed I2C adapter"
-+	depends on LOONGARCH || COMPILE_TEST
-+	help
-+	  If you say yes to this option, support will be included for the
-+	  I2C interface on the Loongson-2K0300 SoCs.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called i2c-ls2x-v2.
-+
- config I2C_MLXBF
-         tristate "Mellanox BlueField I2C controller"
-         depends on (MELLANOX_PLATFORM && ARM64) || COMPILE_TEST
-diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-index 547123ab351f..3755c54b3d82 100644
---- a/drivers/i2c/busses/Makefile
-+++ b/drivers/i2c/busses/Makefile
-@@ -80,6 +80,7 @@ obj-$(CONFIG_I2C_KEBA)		+= i2c-keba.o
- obj-$(CONFIG_I2C_KEMPLD)	+= i2c-kempld.o
- obj-$(CONFIG_I2C_LPC2K)		+= i2c-lpc2k.o
- obj-$(CONFIG_I2C_LS2X)		+= i2c-ls2x.o
-+obj-$(CONFIG_I2C_LS2X_V2)	+= i2c-ls2x-v2.o
- obj-$(CONFIG_I2C_MESON)		+= i2c-meson.o
- obj-$(CONFIG_I2C_MICROCHIP_CORE)	+= i2c-microchip-corei2c.o
- obj-$(CONFIG_I2C_MPC)		+= i2c-mpc.o
-diff --git a/drivers/i2c/busses/i2c-ls2x-v2.c b/drivers/i2c/busses/i2c-ls2x-v2.c
-new file mode 100644
-index 000000000000..36017354803d
---- /dev/null
-+++ b/drivers/i2c/busses/i2c-ls2x-v2.c
-@@ -0,0 +1,510 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Loongson-2K0300 I2C controller driver
-+ *
-+ * Copyright (C) 2025-2026 Loongson Technology Corporation Limited
-+ */
-+
-+#include <linux/bitfield.h>
-+#include <linux/bits.h>
-+#include <linux/clk.h>
-+#include <linux/io.h>
-+#include <linux/iopoll.h>
-+#include <linux/i2c.h>
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/platform_device.h>
-+#include <linux/property.h>
-+#include <linux/regmap.h>
-+#include <linux/types.h>
-+#include <linux/units.h>
-+
-+/* Loongson-2 fast I2C offset registers */
-+#define LOONGSON2_I2C_CR1	0x00	/* I2C control 1 register */
-+#define LOONGSON2_I2C_CR2	0x04	/* I2C control 2 register */
-+#define LOONGSON2_I2C_OAR	0x08	/* I2C slave address register */
-+#define LOONGSON2_I2C_DR	0x10	/* I2C data register */
-+#define LOONGSON2_I2C_SR1	0x14	/* I2C status 1 register */
-+#define LOONGSON2_I2C_SR2	0x18	/* I2C status 2 register */
-+#define LOONGSON2_I2C_CCR	0x1c	/* I2C clock control register */
-+#define LOONGSON2_I2C_TRISE	0x20	/* I2C trise register */
-+#define LOONGSON2_I2C_FLTR	0x24
-+
-+/* Bitfields of I2C control 1 register */
-+#define LOONGSON2_I2C_CR1_PE		BIT(0)
-+#define LOONGSON2_I2C_CR1_START		BIT(8)
-+#define LOONGSON2_I2C_CR1_STOP		BIT(9)
-+#define LOONGSON2_I2C_CR1_ACK		BIT(10)
-+#define LOONGSON2_I2C_CR1_POS		BIT(11)
-+
-+#define LOONGSON2_I2C_CR1_OP_MASK	(LOONGSON2_I2C_CR1_START | LOONGSON2_I2C_CR1_STOP)
-+
-+/* Bitfields of I2C control 2 register */
-+#define LOONGSON2_I2C_CR2_FREQ		GENMASK(5, 0)	/* APB Clock Frequency in MHz */
-+#define LOONGSON2_I2C_CR2_ITERREN	BIT(8)	/* Fault-Class Interrupt Enable */
-+#define LOONGSON2_I2C_CR2_ITEVTEN	BIT(9)	/* Event-Based Interrupt Enable */
-+#define LOONGSON2_I2C_CR2_ITBUFEN	BIT(10)	/* Cache-Class Interrupt Enable */
-+
-+#define LOONGSON2_I2C_CR2_INT_MASK	\
-+	(LOONGSON2_I2C_CR2_ITBUFEN | LOONGSON2_I2C_CR2_ITEVTEN | LOONGSON2_I2C_CR2_ITERREN)
-+
-+/* Bitfields of I2C status 1 register */
-+#define LOONGSON2_I2C_SR1_SB		BIT(0)
-+#define LOONGSON2_I2C_SR1_ADDR		BIT(1)
-+#define LOONGSON2_I2C_SR1_BTF		BIT(2)
-+#define LOONGSON2_I2C_SR1_RXNE		BIT(6)
-+#define LOONGSON2_I2C_SR1_TXE		BIT(7)
-+#define LOONGSON2_I2C_SR1_BERR		BIT(8)
-+#define LOONGSON2_I2C_SR1_ARLO		BIT(9)
-+#define LOONGSON2_I2C_SR1_AF		BIT(10)
-+
-+#define LOONGSON2_I2C_SR1_ITEVTEN_MASK	\
-+	(LOONGSON2_I2C_SR1_BTF | LOONGSON2_I2C_SR1_ADDR | LOONGSON2_I2C_SR1_SB)
-+#define LOONGSON2_I2C_SR1_ITBUFEN_MASK	(LOONGSON2_I2C_SR1_TXE | LOONGSON2_I2C_SR1_RXNE)
-+#define LOONGSON2_I2C_SR1_ITERREN_MASK	\
-+	(LOONGSON2_I2C_SR1_AF | LOONGSON2_I2C_SR1_ARLO | LOONGSON2_I2C_SR1_BERR)
-+
-+/* Bitfields of I2C status 2 register */
-+#define LOONGSON2_I2C_SR2_BUSY		BIT(1)
-+
-+/* Bitfields of I2C clock control register */
-+#define LOONGSON2_I2C_CCR_CCR		GENMASK(11, 0)
-+#define LOONGSON2_I2C_CCR_DUTY		BIT(14)
-+#define LOONGSON2_I2C_CCR_FS		BIT(15)
-+
-+/* Bitfields of I2C trise register */
-+#define LOONGSON2_I2C_TRISE_SCL		GENMASK(5, 0)
-+
-+#define LOONGSON2_I2C_FREE_SLEEP_US	(1 * USEC_PER_MSEC)
-+#define LOONGSON2_I2C_FREE_TIMEOUT_US	(5 * USEC_PER_MSEC)
-+
-+/**
-+ * struct loongson2_i2c_msg - client specific data
-+ * @buf: data buffer
-+ * @count: number of bytes to be transferred
-+ * @result: result of the transfer
-+ * @addr: 8-bit slave addr, including r/w bit
-+ * @stop: last I2C msg to be sent, i.e. STOP to be generated
-+ */
-+struct loongson2_i2c_msg {
-+	u8	*buf;
-+	u32	count;
-+	int	result;
-+	u8      addr;
-+	bool	stop;
-+};
-+
-+/**
-+ * struct loongson2_i2c_priv - private data of the controller
-+ * @adapter: I2C adapter for this controller
-+ * @clk: hw i2c clock
-+ * @complete: completion of I2C message
-+ * @regmap: regmap of the I2C device
-+ * @speed: I2C clock frequency of the controller. Standard or Fast are supported
-+ * @parent_rate: I2C clock parent rate in MHz
-+ * @msg: I2C transfer information
-+ */
-+struct loongson2_i2c_priv {
-+	struct i2c_adapter		adapter;
-+	struct completion		complete;
-+	struct clk			*clk;
-+	struct regmap			*regmap;
-+	int				speed;
-+	int				parent_rate;
-+	struct loongson2_i2c_msg	msg;
-+};
-+
-+static void loongson2_i2c_disable_irq(struct loongson2_i2c_priv *priv)
++#if IS_ENABLED(CONFIG_I2C_SLAVE)
++static void ast2600_i2c_target_packet_dma_irq(struct ast2600_i2c_bus *i2c_bus, u32 sts)
 +{
-+	regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR2, LOONGSON2_I2C_CR2_INT_MASK, 0);
-+}
++	int target_rx_len = 0;
++	u32 cmd = 0;
++	u8 value;
++	int i;
 +
-+static void loongson2_i2c_read_msg(struct loongson2_i2c_priv *priv)
-+{
-+	struct loongson2_i2c_msg *msg = &priv->msg;
-+	u32 rbuf;
++	sts &= ~(AST2600_I2CS_SLAVE_PENDING);
++	/* Handle i2c target timeout condition */
++	if (sts & AST2600_I2CS_INACTIVE_TO) {
++		/* Reset timeout counter */
++		u32 ac_timing = readl(i2c_bus->reg_base + AST2600_I2CC_AC_TIMING) &
++				AST2600_I2CC_AC_TIMING_MASK;
 +
-+	regmap_read(priv->regmap, LOONGSON2_I2C_DR, &rbuf);
-+	*msg->buf++ = rbuf;
-+	msg->count--;
-+}
++		writel(ac_timing, i2c_bus->reg_base + AST2600_I2CC_AC_TIMING);
++		ac_timing |= AST2600_I2CC_TTIMEOUT(i2c_bus->timeout);
++		writel(ac_timing, i2c_bus->reg_base + AST2600_I2CC_AC_TIMING);
++		cmd = TARGET_TRIGGER_CMD | AST2600_I2CS_RX_DMA_EN;
++		writel(AST2600_I2CS_SET_RX_DMA_LEN(I2C_TARGET_MSG_BUF_SIZE),
++		       i2c_bus->reg_base + AST2600_I2CS_DMA_LEN);
++		writel(cmd, i2c_bus->reg_base + AST2600_I2CS_CMD_STS);
++		writel(AST2600_I2CS_PKT_DONE, i2c_bus->reg_base + AST2600_I2CS_ISR);
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_STOP, &value);
++		return;
++	}
 +
-+static void loongson2_i2c_write_msg(struct loongson2_i2c_priv *priv, u8 byte)
-+{
-+	regmap_write(priv->regmap, LOONGSON2_I2C_DR, byte);
-+}
++	sts &= ~(AST2600_I2CS_PKT_DONE | AST2600_I2CS_PKT_ERROR);
 +
-+static void loongson2_i2c_terminate_xfer(struct loongson2_i2c_priv *priv)
-+{
-+	struct loongson2_i2c_msg *msg = &priv->msg;
-+
-+	loongson2_i2c_disable_irq(priv);
-+	regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR1, LOONGSON2_I2C_CR1_OP_MASK,
-+			   msg->stop ? LOONGSON2_I2C_CR1_STOP : LOONGSON2_I2C_CR1_START);
-+	complete(&priv->complete);
-+}
-+
-+static void loongson2_i2c_handle_read(struct loongson2_i2c_priv *priv, int flag)
-+{
-+	struct loongson2_i2c_msg *msg = &priv->msg;
-+	unsigned int i;
-+	bool changed;
-+
-+	switch (msg->count) {
-+	case 1:
-+		/* only transmit 1 bytes condition */
-+		loongson2_i2c_disable_irq(priv);
-+		loongson2_i2c_read_msg(priv);
-+		complete(&priv->complete);
-+		break;
-+	case 2:
-+		if (flag != 1) {
-+			/* ensure only transmit 2 bytes condition */
-+			regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR2,
-+					   LOONGSON2_I2C_CR2_ITBUFEN, 0);
-+			break;
++	switch (sts) {
++	case AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_RX_DONE | AST2600_I2CS_WAIT_RX_DMA:
++	case AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_WAIT_RX_DMA:
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_REQUESTED, &value);
++		target_rx_len = AST2600_I2C_GET_RX_DMA_LEN(readl(i2c_bus->reg_base +
++						      AST2600_I2CS_DMA_LEN_STS));
++		for (i = 0; i < target_rx_len; i++) {
++			i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_RECEIVED,
++					&i2c_bus->target_dma_buf[i]);
 +		}
-+		regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR1, LOONGSON2_I2C_CR1_OP_MASK,
-+				   msg->stop ? LOONGSON2_I2C_CR1_STOP : LOONGSON2_I2C_CR1_START);
-+
-+		loongson2_i2c_disable_irq(priv);
-+
-+		for (i = msg->count; i > 0; i--)
-+			loongson2_i2c_read_msg(priv);
-+
-+		regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR1, LOONGSON2_I2C_CR1_POS, 0);
-+		complete(&priv->complete);
++		writel(AST2600_I2CS_SET_RX_DMA_LEN(I2C_TARGET_MSG_BUF_SIZE),
++		       i2c_bus->reg_base + AST2600_I2CS_DMA_LEN);
++		cmd = TARGET_TRIGGER_CMD | AST2600_I2CS_RX_DMA_EN;
 +		break;
-+	case 3:
-+		regmap_update_bits_check(priv->regmap, LOONGSON2_I2C_CR2, LOONGSON2_I2C_CR2_ITBUFEN,
-+					 0, &changed);
-+		if (changed)
-+			break;
-+		regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR1, LOONGSON2_I2C_CR1_ACK, 0);
++	case AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_STOP:
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_STOP, &value);
++		writel(AST2600_I2CS_SET_RX_DMA_LEN(I2C_TARGET_MSG_BUF_SIZE),
++		       i2c_bus->reg_base + AST2600_I2CS_DMA_LEN);
++		cmd = TARGET_TRIGGER_CMD | AST2600_I2CS_RX_DMA_EN;
++		break;
++	case AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_RX_DONE_NAK |
++			AST2600_I2CS_RX_DONE | AST2600_I2CS_STOP:
++	case AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_WAIT_RX_DMA |
++			AST2600_I2CS_RX_DONE | AST2600_I2CS_STOP:
++	case AST2600_I2CS_RX_DONE_NAK | AST2600_I2CS_RX_DONE | AST2600_I2CS_STOP:
++	case AST2600_I2CS_RX_DONE | AST2600_I2CS_WAIT_RX_DMA | AST2600_I2CS_STOP:
++	case AST2600_I2CS_RX_DONE | AST2600_I2CS_STOP:
++	case AST2600_I2CS_RX_DONE | AST2600_I2CS_WAIT_RX_DMA:
++	case AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_RX_DONE | AST2600_I2CS_STOP:
++		if (sts & AST2600_I2CS_SLAVE_MATCH)
++			i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_REQUESTED, &value);
++
++		target_rx_len = AST2600_I2C_GET_RX_DMA_LEN(readl(i2c_bus->reg_base +
++						      AST2600_I2CS_DMA_LEN_STS));
++		for (i = 0; i < target_rx_len; i++) {
++			i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_RECEIVED,
++					&i2c_bus->target_dma_buf[i]);
++		}
++		writel(AST2600_I2CS_SET_RX_DMA_LEN(I2C_TARGET_MSG_BUF_SIZE),
++		       i2c_bus->reg_base + AST2600_I2CS_DMA_LEN);
++		if (sts & AST2600_I2CS_STOP)
++			i2c_slave_event(i2c_bus->target, I2C_SLAVE_STOP, &value);
++		cmd = TARGET_TRIGGER_CMD | AST2600_I2CS_RX_DMA_EN;
++		break;
++
++	/* it is Mw data Mr coming -> it need send tx */
++	case AST2600_I2CS_RX_DONE | AST2600_I2CS_WAIT_TX_DMA:
++	case AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_RX_DONE | AST2600_I2CS_WAIT_TX_DMA:
++		/* it should be repeat start read */
++		if (sts & AST2600_I2CS_SLAVE_MATCH)
++			i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_REQUESTED, &value);
++
++		target_rx_len = AST2600_I2C_GET_RX_DMA_LEN(readl(i2c_bus->reg_base +
++						      AST2600_I2CS_DMA_LEN_STS));
++		for (i = 0; i < target_rx_len; i++) {
++			i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_RECEIVED,
++					&i2c_bus->target_dma_buf[i]);
++		}
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_READ_REQUESTED,
++				&i2c_bus->target_dma_buf[0]);
++		writel(AST2600_I2CS_SET_TX_DMA_LEN(1),
++		       i2c_bus->reg_base + AST2600_I2CS_DMA_LEN);
++		cmd = TARGET_TRIGGER_CMD | AST2600_I2CS_TX_DMA_EN;
++		break;
++	case AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_WAIT_TX_DMA:
++		/* First Start read */
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_READ_REQUESTED,
++				&i2c_bus->target_dma_buf[0]);
++		writel(AST2600_I2CS_SET_TX_DMA_LEN(1),
++		       i2c_bus->reg_base + AST2600_I2CS_DMA_LEN);
++		cmd = TARGET_TRIGGER_CMD | AST2600_I2CS_TX_DMA_EN;
++		break;
++	case AST2600_I2CS_WAIT_TX_DMA:
++		/* it should be next start read */
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_READ_PROCESSED,
++				&i2c_bus->target_dma_buf[0]);
++		writel(AST2600_I2CS_SET_TX_DMA_LEN(1),
++		       i2c_bus->reg_base + AST2600_I2CS_DMA_LEN);
++		cmd = TARGET_TRIGGER_CMD | AST2600_I2CS_TX_DMA_EN;
++		break;
++	case AST2600_I2CS_TX_NAK | AST2600_I2CS_STOP:
++		/* it just tx complete */
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_STOP, &value);
++		writel(AST2600_I2CS_SET_RX_DMA_LEN(I2C_TARGET_MSG_BUF_SIZE),
++		       i2c_bus->reg_base + AST2600_I2CS_DMA_LEN);
++		cmd = TARGET_TRIGGER_CMD | AST2600_I2CS_RX_DMA_EN;
++		break;
++	case AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_RX_DONE:
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_REQUESTED, &value);
++		break;
++	case AST2600_I2CS_STOP:
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_STOP, &value);
++		break;
++	default:
++		dev_dbg(i2c_bus->dev, "unhandled target isr case %x, sts %x\n", sts,
++			readl(i2c_bus->reg_base + AST2600_I2CC_STS_AND_BUFF));
++		break;
++	}
++
++	if (cmd)
++		writel(cmd, i2c_bus->reg_base + AST2600_I2CS_CMD_STS);
++	writel(AST2600_I2CS_PKT_DONE, i2c_bus->reg_base + AST2600_I2CS_ISR);
++	readl(i2c_bus->reg_base + AST2600_I2CS_ISR);
++}
++
++static void ast2600_i2c_target_packet_buff_irq(struct ast2600_i2c_bus *i2c_bus, u32 sts)
++{
++	int target_rx_len = 0;
++	u32 cmd = 0;
++	u8 value;
++	int i;
++
++	/* due to controller target is common buffer, need force the master stop not issue */
++	if (readl(i2c_bus->reg_base + AST2600_I2CM_CMD_STS) & GENMASK(15, 0)) {
++		writel(0, i2c_bus->reg_base + AST2600_I2CM_CMD_STS);
++		i2c_bus->cmd_err = -EBUSY;
++		writel(0, i2c_bus->reg_base + AST2600_I2CC_BUFF_CTRL);
++		complete(&i2c_bus->cmd_complete);
++	}
++
++	/* Handle i2c target timeout condition */
++	if (AST2600_I2CS_INACTIVE_TO & sts) {
++		/* Reset timeout counter */
++		u32 ac_timing = readl(i2c_bus->reg_base + AST2600_I2CC_AC_TIMING) &
++				AST2600_I2CC_AC_TIMING_MASK;
++
++		writel(ac_timing, i2c_bus->reg_base + AST2600_I2CC_AC_TIMING);
++		ac_timing |= AST2600_I2CC_TTIMEOUT(i2c_bus->timeout);
++		writel(ac_timing, i2c_bus->reg_base + AST2600_I2CC_AC_TIMING);
++		writel(TARGET_TRIGGER_CMD, i2c_bus->reg_base + AST2600_I2CS_CMD_STS);
++		writel(AST2600_I2CS_PKT_DONE, i2c_bus->reg_base + AST2600_I2CS_ISR);
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_STOP, &value);
++		i2c_bus->target_operate = 0;
++		return;
++	}
++
++	sts &= ~(AST2600_I2CS_PKT_DONE | AST2600_I2CS_PKT_ERROR);
++
++	if (sts & AST2600_I2CS_SLAVE_MATCH)
++		i2c_bus->target_operate = 1;
++
++	switch (sts) {
++	case AST2600_I2CS_SLAVE_PENDING | AST2600_I2CS_WAIT_RX_DMA |
++		 AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_RX_DONE | AST2600_I2CS_STOP:
++	case AST2600_I2CS_SLAVE_PENDING |
++		 AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_RX_DONE | AST2600_I2CS_STOP:
++	case AST2600_I2CS_SLAVE_PENDING |
++		 AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_STOP:
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_STOP, &value);
 +		fallthrough;
++	case AST2600_I2CS_SLAVE_PENDING |
++		 AST2600_I2CS_WAIT_RX_DMA | AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_RX_DONE:
++	case AST2600_I2CS_WAIT_RX_DMA | AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_RX_DONE:
++	case AST2600_I2CS_WAIT_RX_DMA | AST2600_I2CS_SLAVE_MATCH:
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_REQUESTED, &value);
++		cmd = TARGET_TRIGGER_CMD;
++		if (sts & AST2600_I2CS_RX_DONE) {
++			target_rx_len = AST2600_I2CC_GET_RX_BUF_LEN(readl(i2c_bus->reg_base +
++							       AST2600_I2CC_BUFF_CTRL));
++			for (i = 0; i < target_rx_len; i++) {
++				value = readb(i2c_bus->buf_base + 0x10 + i);
++				i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_RECEIVED, &value);
++			}
++		}
++		if (readl(i2c_bus->reg_base + AST2600_I2CS_CMD_STS) & AST2600_I2CS_RX_BUFF_EN)
++			cmd = 0;
++		else
++			cmd = TARGET_TRIGGER_CMD | AST2600_I2CS_RX_BUFF_EN;
++
++		writel(AST2600_I2CC_SET_RX_BUF_LEN(i2c_bus->buf_size),
++		       i2c_bus->reg_base + AST2600_I2CC_BUFF_CTRL);
++		break;
++	case AST2600_I2CS_WAIT_RX_DMA | AST2600_I2CS_RX_DONE:
++		cmd = TARGET_TRIGGER_CMD;
++		target_rx_len = AST2600_I2CC_GET_RX_BUF_LEN(readl(i2c_bus->reg_base +
++						       AST2600_I2CC_BUFF_CTRL));
++		for (i = 0; i < target_rx_len; i++) {
++			value = readb(i2c_bus->buf_base + 0x10 + i);
++			i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_RECEIVED, &value);
++		}
++		cmd |= AST2600_I2CS_RX_BUFF_EN;
++		writel(AST2600_I2CC_SET_RX_BUF_LEN(i2c_bus->buf_size),
++		       i2c_bus->reg_base + AST2600_I2CC_BUFF_CTRL);
++		break;
++	case AST2600_I2CS_SLAVE_PENDING | AST2600_I2CS_WAIT_RX_DMA |
++				AST2600_I2CS_RX_DONE | AST2600_I2CS_STOP:
++		cmd = TARGET_TRIGGER_CMD;
++		target_rx_len = AST2600_I2CC_GET_RX_BUF_LEN(readl(i2c_bus->reg_base +
++								 AST2600_I2CC_BUFF_CTRL));
++		for (i = 0; i < target_rx_len; i++) {
++			value = readb(i2c_bus->buf_base + 0x10 + i);
++			i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_RECEIVED, &value);
++		}
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_STOP, &value);
++		cmd |= AST2600_I2CS_RX_BUFF_EN;
++		writel(AST2600_I2CC_SET_RX_BUF_LEN(i2c_bus->buf_size),
++		       i2c_bus->reg_base + AST2600_I2CC_BUFF_CTRL);
++		break;
++	case AST2600_I2CS_SLAVE_PENDING | AST2600_I2CS_RX_DONE | AST2600_I2CS_STOP:
++		cmd = TARGET_TRIGGER_CMD;
++		target_rx_len = AST2600_I2CC_GET_RX_BUF_LEN(readl(i2c_bus->reg_base +
++								 AST2600_I2CC_BUFF_CTRL));
++		for (i = 0; i < target_rx_len; i++) {
++			value = readb(i2c_bus->buf_base + 0x10 + i);
++			i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_RECEIVED, &value);
++		}
++		/* workaround for avoid next start with len != 0 */
++		writel(BIT(0), i2c_bus->reg_base + AST2600_I2CC_BUFF_CTRL);
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_STOP, &value);
++		break;
++	case AST2600_I2CS_RX_DONE | AST2600_I2CS_STOP:
++		cmd = TARGET_TRIGGER_CMD;
++		target_rx_len = AST2600_I2CC_GET_RX_BUF_LEN(readl(i2c_bus->reg_base +
++								 AST2600_I2CC_BUFF_CTRL));
++		for (i = 0; i < target_rx_len; i++) {
++			value = readb(i2c_bus->buf_base + 0x10 + i);
++			i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_RECEIVED, &value);
++		}
++		/* workaround for avoid next start with len != 0 */
++		writel(BIT(0), i2c_bus->reg_base + AST2600_I2CC_BUFF_CTRL);
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_STOP, &value);
++		break;
++	case AST2600_I2CS_SLAVE_PENDING | AST2600_I2CS_RX_DONE |
++	     AST2600_I2CS_WAIT_TX_DMA | AST2600_I2CS_STOP:
++		target_rx_len = AST2600_I2CC_GET_RX_BUF_LEN(readl(i2c_bus->reg_base +
++								 AST2600_I2CC_BUFF_CTRL));
++		for (i = 0; i < target_rx_len; i++) {
++			value = readb(i2c_bus->buf_base + 0x10 + i);
++			i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_RECEIVED, &value);
++		}
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_STOP, &value);
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_READ_REQUESTED, &value);
++		writeb(value, i2c_bus->buf_base);
++		break;
++	case AST2600_I2CS_WAIT_TX_DMA | AST2600_I2CS_SLAVE_MATCH:
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_READ_REQUESTED, &value);
++		writeb(value, i2c_bus->buf_base);
++		writel(AST2600_I2CC_SET_TX_BUF_LEN(1),
++		       i2c_bus->reg_base + AST2600_I2CC_BUFF_CTRL);
++		cmd = TARGET_TRIGGER_CMD | AST2600_I2CS_TX_BUFF_EN;
++		break;
++	case AST2600_I2CS_SLAVE_PENDING | AST2600_I2CS_STOP |
++	     AST2600_I2CS_TX_NAK | AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_RX_DONE:
++	case AST2600_I2CS_SLAVE_PENDING | AST2600_I2CS_WAIT_RX_DMA | AST2600_I2CS_STOP |
++	     AST2600_I2CS_TX_NAK | AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_RX_DONE:
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_STOP, &value);
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_REQUESTED, &value);
++		target_rx_len = AST2600_I2CC_GET_RX_BUF_LEN(readl(i2c_bus->reg_base +
++						AST2600_I2CC_BUFF_CTRL));
++		for (i = 0; i < target_rx_len; i++) {
++			value = readb(i2c_bus->buf_base + 0x10 + i);
++			i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_RECEIVED, &value);
++		}
++		writel(AST2600_I2CC_SET_RX_BUF_LEN(i2c_bus->buf_size),
++		       i2c_bus->reg_base + AST2600_I2CC_BUFF_CTRL);
++		cmd = TARGET_TRIGGER_CMD | AST2600_I2CS_RX_BUFF_EN;
++		break;
++	case AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_WAIT_TX_DMA | AST2600_I2CS_RX_DONE:
++	case AST2600_I2CS_WAIT_TX_DMA | AST2600_I2CS_RX_DONE:
++	case AST2600_I2CS_WAIT_TX_DMA:
++		if (sts & AST2600_I2CS_SLAVE_MATCH)
++			i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_REQUESTED, &value);
++
++		if (sts & AST2600_I2CS_RX_DONE) {
++			target_rx_len = AST2600_I2CC_GET_RX_BUF_LEN(readl(i2c_bus->reg_base +
++							AST2600_I2CC_BUFF_CTRL));
++			for (i = 0; i < target_rx_len; i++) {
++				value = readb(i2c_bus->buf_base + 0x10 + i);
++				i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_RECEIVED, &value);
++			}
++			i2c_slave_event(i2c_bus->target, I2C_SLAVE_READ_REQUESTED, &value);
++		} else {
++			i2c_slave_event(i2c_bus->target, I2C_SLAVE_READ_PROCESSED, &value);
++		}
++		writeb(value, i2c_bus->buf_base);
++		writel(AST2600_I2CC_SET_TX_BUF_LEN(1),
++		       i2c_bus->reg_base + AST2600_I2CC_BUFF_CTRL);
++		cmd = TARGET_TRIGGER_CMD | AST2600_I2CS_TX_BUFF_EN;
++		break;
++	/* workaround : trigger the cmd twice to fix next state keep 1000000 */
++	case AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_RX_DONE:
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_REQUESTED, &value);
++		cmd = TARGET_TRIGGER_CMD | AST2600_I2CS_RX_BUFF_EN;
++		writel(cmd, i2c_bus->reg_base + AST2600_I2CS_CMD_STS);
++		break;
++	case AST2600_I2CS_TX_NAK | AST2600_I2CS_STOP:
++	case AST2600_I2CS_STOP:
++		cmd = TARGET_TRIGGER_CMD;
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_STOP, &value);
++		break;
 +	default:
-+		loongson2_i2c_read_msg(priv);
++		dev_dbg(i2c_bus->dev, "unhandled target isr case %x, sts %x\n", sts,
++			readl(i2c_bus->reg_base + AST2600_I2CC_STS_AND_BUFF));
++		break;
 +	}
++
++	if (cmd)
++		writel(cmd, i2c_bus->reg_base + AST2600_I2CS_CMD_STS);
++	writel(AST2600_I2CS_PKT_DONE, i2c_bus->reg_base + AST2600_I2CS_ISR);
++	readl(i2c_bus->reg_base + AST2600_I2CS_ISR);
++
++	if ((sts & AST2600_I2CS_STOP) && !(sts & AST2600_I2CS_SLAVE_PENDING))
++		i2c_bus->target_operate = 0;
 +}
 +
-+static void loongson2_i2c_handle_write(struct loongson2_i2c_priv *priv)
++static void ast2600_i2c_target_byte_irq(struct ast2600_i2c_bus *i2c_bus, u32 sts)
 +{
-+	struct loongson2_i2c_msg *msg = &priv->msg;
++	u32 i2c_buff = readl(i2c_bus->reg_base + AST2600_I2CC_STS_AND_BUFF);
++	u32 cmd = AST2600_I2CS_ACTIVE_ALL;
++	u8 byte_data;
++	u8 value;
 +
-+	if (msg->count) {
-+		loongson2_i2c_write_msg(priv, *msg->buf++);
-+		msg->count--;
-+		if (!msg->count)
-+			regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR2,
-+					   LOONGSON2_I2C_CR2_ITBUFEN, 0);
-+	} else {
-+		loongson2_i2c_terminate_xfer(priv);
++	/* Handle i2c target timeout condition */
++	if (sts & AST2600_I2CS_INACTIVE_TO) {
++		/* Reset timeout counter */
++		u32 ac_timing = readl(i2c_bus->reg_base + AST2600_I2CC_AC_TIMING) &
++				AST2600_I2CC_AC_TIMING_MASK;
++
++		writel(ac_timing, i2c_bus->reg_base + AST2600_I2CC_AC_TIMING);
++		ac_timing |= AST2600_I2CC_TTIMEOUT(i2c_bus->timeout);
++		writel(ac_timing, i2c_bus->reg_base + AST2600_I2CC_AC_TIMING);
++		writel(AST2600_I2CS_ACTIVE_ALL, i2c_bus->reg_base + AST2600_I2CS_CMD_STS);
++		writel(sts, i2c_bus->reg_base + AST2600_I2CS_ISR);
++		readl(i2c_bus->reg_base + AST2600_I2CS_ISR);
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_STOP, &value);
++		i2c_bus->target_operate = 0;
++		return;
 +	}
-+}
 +
-+static void loongson2_i2c_handle_rx_addr(struct loongson2_i2c_priv *priv)
-+{
-+	struct loongson2_i2c_msg *msg = &priv->msg;
-+
-+	switch (msg->count) {
-+	case 0:
-+		loongson2_i2c_terminate_xfer(priv);
++	switch (sts) {
++	case AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_RX_DONE | AST2600_I2CS_WAIT_RX_DMA:
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_REQUESTED, &value);
++		/* first address match is address */
++		byte_data = AST2600_I2CC_GET_RX_BUFF(i2c_buff);
 +		break;
-+	case 1:
-+		regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR1,
-+				   LOONGSON2_I2C_CR1_ACK | LOONGSON2_I2C_CR1_POS, 0);
-+		/* start or stop */
-+		regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR1, LOONGSON2_I2C_CR1_OP_MASK,
-+				   msg->stop ? LOONGSON2_I2C_CR1_STOP : LOONGSON2_I2C_CR1_START);
++	case AST2600_I2CS_RX_DONE | AST2600_I2CS_WAIT_RX_DMA:
++		byte_data = AST2600_I2CC_GET_RX_BUFF(i2c_buff);
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_WRITE_RECEIVED, &byte_data);
 +		break;
-+	case 2:
-+		regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR1, LOONGSON2_I2C_CR1_ACK, 0);
-+		regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR1, LOONGSON2_I2C_CR1_POS,
-+				   LOONGSON2_I2C_CR1_POS);
++	case AST2600_I2CS_SLAVE_MATCH | AST2600_I2CS_RX_DONE | AST2600_I2CS_WAIT_TX_DMA:
++		cmd |= AST2600_I2CS_TX_CMD;
++		byte_data = AST2600_I2CC_GET_RX_BUFF(i2c_buff);
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_READ_REQUESTED, &byte_data);
++		writel(byte_data, i2c_bus->reg_base + AST2600_I2CC_STS_AND_BUFF);
 +		break;
-+
++	case AST2600_I2CS_TX_ACK | AST2600_I2CS_WAIT_TX_DMA:
++		cmd |= AST2600_I2CS_TX_CMD;
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_READ_PROCESSED, &byte_data);
++		writel(byte_data, i2c_bus->reg_base + AST2600_I2CC_STS_AND_BUFF);
++		break;
++	case AST2600_I2CS_STOP:
++	case AST2600_I2CS_STOP | AST2600_I2CS_TX_NAK:
++		i2c_slave_event(i2c_bus->target, I2C_SLAVE_STOP, &value);
++		break;
 +	default:
-+		regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR1, LOONGSON2_I2C_CR1_ACK,
-+				   LOONGSON2_I2C_CR1_ACK);
-+		regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR1, LOONGSON2_I2C_CR1_POS, 0);
++		dev_dbg(i2c_bus->dev, "unhandled pkt isr %x\n", sts);
++		break;
 +	}
++	writel(cmd, i2c_bus->reg_base + AST2600_I2CS_CMD_STS);
++	writel(sts, i2c_bus->reg_base + AST2600_I2CS_ISR);
++	readl(i2c_bus->reg_base + AST2600_I2CS_ISR);
 +}
 +
-+static void loongson2_i2c_isr_error(u32 status, void *data)
++static int ast2600_i2c_target_irq(struct ast2600_i2c_bus *i2c_bus)
 +{
-+	struct loongson2_i2c_priv *priv = data;
-+	struct loongson2_i2c_msg *msg = &priv->msg;
++	u32 ier = readl(i2c_bus->reg_base + AST2600_I2CS_IER);
++	u32 isr = readl(i2c_bus->reg_base + AST2600_I2CS_ISR);
 +
-+	/* Arbitration lost */
-+	if (status & LOONGSON2_I2C_SR1_ARLO) {
-+		regmap_update_bits(priv->regmap, LOONGSON2_I2C_SR1, LOONGSON2_I2C_SR1_ARLO, 0);
-+		msg->result = -EAGAIN;
-+		goto out;
-+	}
++	if (!(isr & ier))
++		return 0;
 +
 +	/*
-+	 * Acknowledge failure:
-+	 * In master transmitter mode a Stop must be generated by software
++	 * Target interrupt coming after controller packet done
++	 * So need handle controller first.
 +	 */
-+	if (status & LOONGSON2_I2C_SR1_AF) {
-+		regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR1, LOONGSON2_I2C_CR1_STOP,
-+				   LOONGSON2_I2C_CR1_STOP);
-+		regmap_update_bits(priv->regmap, LOONGSON2_I2C_SR1, LOONGSON2_I2C_SR1_AF, 0);
-+		msg->result = -EIO;
-+		goto out;
-+	}
++	if (readl(i2c_bus->reg_base + AST2600_I2CM_ISR) & AST2600_I2CM_PKT_DONE)
++		return 0;
 +
-+	/* Bus error */
-+	if (status & LOONGSON2_I2C_SR1_BERR) {
-+		regmap_update_bits(priv->regmap, LOONGSON2_I2C_SR1, LOONGSON2_I2C_SR1_BERR, 0);
-+		msg->result = -EIO;
-+		goto out;
-+	}
++	isr &= ~(AST2600_I2CS_ADDR_INDICATE_MASK);
 +
-+out:
-+	loongson2_i2c_disable_irq(priv);
-+	complete(&priv->complete);
-+}
++	if (AST2600_I2CS_ADDR1_NAK & isr)
++		isr &= ~AST2600_I2CS_ADDR1_NAK;
 +
-+static irqreturn_t loongson2_i2c_isr_event(int irq, void *data)
-+{
-+	struct loongson2_i2c_priv *priv = data;
-+	struct device *dev = priv->adapter.dev.parent;
-+	struct loongson2_i2c_msg *msg = &priv->msg;
-+	u32 status, ien, event, cr2, possible_status;
++	if (AST2600_I2CS_ADDR2_NAK & isr)
++		isr &= ~AST2600_I2CS_ADDR2_NAK;
 +
-+	regmap_read(priv->regmap, LOONGSON2_I2C_SR1, &status);
-+	if (status & LOONGSON2_I2C_SR1_ITERREN_MASK) {
-+		loongson2_i2c_isr_error(status, data);
-+		return IRQ_NONE;
-+	}
++	if (AST2600_I2CS_ADDR3_NAK & isr)
++		isr &= ~AST2600_I2CS_ADDR3_NAK;
 +
-+	regmap_read(priv->regmap, LOONGSON2_I2C_CR2, &cr2);
-+	ien = cr2 & LOONGSON2_I2C_CR2_INT_MASK;
++	if (AST2600_I2CS_ADDR_MASK & isr)
++		isr &= ~AST2600_I2CS_ADDR_MASK;
 +
-+	/* Update possible_status if buffer interrupt is enabled */
-+	possible_status = LOONGSON2_I2C_SR1_ITEVTEN_MASK;
-+	if (ien & LOONGSON2_I2C_CR2_ITBUFEN)
-+		possible_status |= LOONGSON2_I2C_SR1_ITBUFEN_MASK;
-+
-+	event = status & possible_status;
-+	if (!event) {
-+		dev_dbg(dev, "spurious evt irq (status=0x%08x, ien=0x%08x)\n", status, ien);
-+		return IRQ_NONE;
-+	}
-+
-+	/* Start condition generated */
-+	if (event & LOONGSON2_I2C_SR1_SB)
-+		loongson2_i2c_write_msg(priv, msg->addr);
-+
-+	/* I2C Address sent */
-+	if (event & LOONGSON2_I2C_SR1_ADDR) {
-+		if (msg->addr & I2C_M_RD)
-+			loongson2_i2c_handle_rx_addr(priv);
-+		/* Clear ADDR flag */
-+		regmap_read(priv->regmap, LOONGSON2_I2C_SR2, &status);
-+		/* Enable buffer interrupts for RX/TX not empty events */
-+		regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR2, LOONGSON2_I2C_CR2_ITBUFEN,
-+				   LOONGSON2_I2C_CR2_ITBUFEN);
-+	}
-+
-+	if (msg->addr & I2C_M_RD) {
-+		/* RX not empty */
-+		if (event & LOONGSON2_I2C_SR1_RXNE)
-+			loongson2_i2c_handle_read(priv, 0);
-+
-+		if (event & LOONGSON2_I2C_SR1_BTF)
-+			loongson2_i2c_handle_read(priv, 1);
++	if (AST2600_I2CS_PKT_DONE & isr) {
++		if (i2c_bus->mode == DMA_MODE)
++			ast2600_i2c_target_packet_dma_irq(i2c_bus, isr);
++		else
++			ast2600_i2c_target_packet_buff_irq(i2c_bus, isr);
 +	} else {
-+		/* TX empty */
-+		if (event & LOONGSON2_I2C_SR1_TXE)
-+			loongson2_i2c_handle_write(priv);
-+
-+		if (event & LOONGSON2_I2C_SR1_BTF)
-+			loongson2_i2c_handle_write(priv);
++		ast2600_i2c_target_byte_irq(i2c_bus, isr);
 +	}
 +
-+	return IRQ_HANDLED;
++	return 1;
 +}
++#endif
 +
-+static int loongson2_i2c_xfer_msg(struct loongson2_i2c_priv *priv, struct i2c_msg *msg,
-+				  bool is_stop)
-+{
-+	struct loongson2_i2c_msg *l_msg = &priv->msg;
-+	unsigned long timeout;
+ static int ast2600_i2c_setup_dma_tx(u32 cmd, struct ast2600_i2c_bus *i2c_bus)
+ {
+ 	struct i2c_msg *msg = &i2c_bus->msgs[i2c_bus->msgs_index];
+@@ -627,6 +1068,20 @@ static void ast2600_i2c_controller_packet_irq(struct ast2600_i2c_bus *i2c_bus, u
+ 		}
+ 		break;
+ 	case AST2600_I2CM_RX_DONE:
++#if IS_ENABLED(CONFIG_I2C_SLAVE)
++		/*
++		 * Workaround for controller/target packet mode enable rx done stuck issue
++		 * When controller go for first read (RX_DONE), target mode will also effect
++		 * Then controller will send nack, not operate anymore.
++		 */
++		if (readl(i2c_bus->reg_base + AST2600_I2CS_CMD_STS) & AST2600_I2CS_PKT_MODE_EN) {
++			u32 target_cmd = readl(i2c_bus->reg_base + AST2600_I2CS_CMD_STS);
 +
-+	l_msg->addr   = i2c_8bit_addr_from_msg(msg);
-+	l_msg->buf    = msg->buf;
-+	l_msg->count  = msg->len;
-+	l_msg->stop   = is_stop;
-+	l_msg->result = 0;
++			writel(0, i2c_bus->reg_base + AST2600_I2CS_CMD_STS);
++			writel(target_cmd, i2c_bus->reg_base + AST2600_I2CS_CMD_STS);
++		}
++		fallthrough;
++#endif
+ 	case AST2600_I2CM_RX_DONE | AST2600_I2CM_NORMAL_STOP:
+ 		/* do next rx */
+ 		if (i2c_bus->mode == DMA_MODE) {
+@@ -725,6 +1180,12 @@ static irqreturn_t ast2600_i2c_bus_irq(int irq, void *dev_id)
+ {
+ 	struct ast2600_i2c_bus *i2c_bus = dev_id;
+ 
++#if IS_ENABLED(CONFIG_I2C_SLAVE)
++	if (readl(i2c_bus->reg_base + AST2600_I2CC_FUN_CTRL) & AST2600_I2CC_SLAVE_EN) {
++		if (ast2600_i2c_target_irq(i2c_bus))
++			return IRQ_HANDLED;
++	}
++#endif
+ 	return IRQ_RETVAL(ast2600_i2c_controller_irq(i2c_bus));
+ }
+ 
+@@ -741,12 +1202,30 @@ static int ast2600_i2c_controller_xfer(struct i2c_adapter *adap, struct i2c_msg
+ 			return ret;
+ 	}
+ 
++#if IS_ENABLED(CONFIG_I2C_SLAVE)
++	if (i2c_bus->mode == BUFF_MODE) {
++		if (i2c_bus->target_operate)
++			return -EBUSY;
++		/* disable target isr */
++		writel(0, i2c_bus->reg_base + AST2600_I2CS_IER);
++		if (readl(i2c_bus->reg_base + AST2600_I2CS_ISR) || i2c_bus->target_operate) {
++			writel(AST2600_I2CS_PKT_DONE, i2c_bus->reg_base + AST2600_I2CS_IER);
++			return -EBUSY;
++		}
++	}
++#endif
 +
-+	reinit_completion(&priv->complete);
-+
-+	/* Enable events and errors interrupts */
-+	regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR2,
-+			   LOONGSON2_I2C_CR2_ITEVTEN | LOONGSON2_I2C_CR2_ITERREN,
-+			   LOONGSON2_I2C_CR2_ITEVTEN | LOONGSON2_I2C_CR2_ITERREN);
-+
-+	timeout = wait_for_completion_timeout(&priv->complete, priv->adapter.timeout);
-+	if (!timeout)
-+		return -ETIMEDOUT;
-+
-+	return l_msg->result;
-+}
-+
-+static int loongson2_i2c_xfer(struct i2c_adapter *i2c_adap, struct i2c_msg msgs[], int num)
-+{
-+	struct loongson2_i2c_priv *priv = i2c_get_adapdata(i2c_adap);
-+	struct device *dev = priv->adapter.dev.parent;
-+	unsigned int i, status;
-+	int ret;
-+
-+	/* Wait I2C bus free */
-+	ret = regmap_read_poll_timeout(priv->regmap, LOONGSON2_I2C_SR2, status,
-+				       !(status & LOONGSON2_I2C_SR2_BUSY),
-+				       LOONGSON2_I2C_FREE_SLEEP_US,
-+				       LOONGSON2_I2C_FREE_TIMEOUT_US);
-+	if (ret) {
-+		dev_dbg(dev, "The I2C bus is busy now.\n");
-+		return ret;
+ 	i2c_bus->cmd_err = 0;
+ 	i2c_bus->msgs = msgs;
+ 	i2c_bus->msgs_index = 0;
+ 	i2c_bus->msgs_count = num;
+ 	reinit_completion(&i2c_bus->cmd_complete);
+ 	ret = ast2600_i2c_do_start(i2c_bus);
++#if IS_ENABLED(CONFIG_I2C_SLAVE)
++	/* avoid race condication target is wait and controller wait 1st target operate */
++	if (i2c_bus->mode == BUFF_MODE)
++		writel(AST2600_I2CS_PKT_DONE, i2c_bus->reg_base + AST2600_I2CS_IER);
++#endif
+ 	if (ret)
+ 		goto controller_out;
+ 	timeout = wait_for_completion_timeout(&i2c_bus->cmd_complete, i2c_bus->adap.timeout);
+@@ -764,7 +1243,7 @@ static int ast2600_i2c_controller_xfer(struct i2c_adapter *adap, struct i2c_msg
+ 		 * a master timeout. In multi-master mode, attempt bus recovery
+ 		 * if the bus is still busy.
+ 		 */
+-		if (i2c_bus->multi_master &&
++		if (i2c_bus->multi_master && !i2c_bus->target_operate &&
+ 		    (readl(i2c_bus->reg_base + AST2600_I2CC_STS_AND_BUFF) &
+ 		    AST2600_I2CC_BUS_BUSY_STS))
+ 			ast2600_i2c_recover_bus(i2c_bus);
+@@ -812,8 +1291,79 @@ static int ast2600_i2c_init(struct ast2600_i2c_bus *i2c_bus)
+ 	/* Clear Interrupt */
+ 	writel(GENMASK(27, 0), i2c_bus->reg_base + AST2600_I2CM_ISR);
+ 
++#if IS_ENABLED(CONFIG_I2C_SLAVE)
++	/* for memory buffer initial */
++	if (i2c_bus->mode == DMA_MODE) {
++		i2c_bus->target_dma_buf =
++			dmam_alloc_coherent(i2c_bus->dev, I2C_TARGET_MSG_BUF_SIZE,
++					    &i2c_bus->target_dma_addr, GFP_KERNEL);
++		if (!i2c_bus->target_dma_buf)
++			return -ENOMEM;
 +	}
 +
-+	/* Start generation */
-+	regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR1, LOONGSON2_I2C_CR1_START,
-+			   LOONGSON2_I2C_CR1_START);
++	writel(GENMASK(27, 0), i2c_bus->reg_base + AST2600_I2CS_ISR);
 +
-+	for (i = 0; i < num; i++) {
-+		ret = loongson2_i2c_xfer_msg(priv, &msgs[i], i == num - 1);
-+		if (ret < 0)
-+			return ret;
-+	}
-+
-+	return num;
-+}
-+
-+static u32 loongson2_i2c_func(struct i2c_adapter *adap)
-+{
-+	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-+}
-+
-+static const struct i2c_algorithm loongson2_i2c_algo = {
-+	.xfer		= loongson2_i2c_xfer,
-+	.functionality	= loongson2_i2c_func,
-+};
-+
-+static int loongson2_i2c_adjust_bus_speed(struct loongson2_i2c_priv *priv)
-+{
-+	u32 val, freq_mhz, ccr;
-+
-+	priv->parent_rate = clk_get_rate(priv->clk);
-+	freq_mhz = DIV_ROUND_UP(priv->parent_rate, HZ_PER_MHZ);
-+
-+	if (priv->speed == I2C_MAX_STANDARD_MODE_FREQ) {
-+		 /* Select Standard mode */
-+		ccr = 0;
-+		val = DIV_ROUND_UP(priv->parent_rate, I2C_MAX_STANDARD_MODE_FREQ * 2);
-+	} else {
-+		/* Select Fast mode */
-+		ccr = LOONGSON2_I2C_CCR_FS;
-+		val = DIV_ROUND_UP(priv->parent_rate, I2C_MAX_FAST_MODE_FREQ * 3);
-+	}
-+
-+	FIELD_MODIFY(LOONGSON2_I2C_CCR_CCR, &ccr, val);
-+	regmap_write(priv->regmap, LOONGSON2_I2C_CCR, ccr);
-+
-+	regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR2, LOONGSON2_I2C_CR2_FREQ,
-+			   FIELD_GET(LOONGSON2_I2C_CR2_FREQ, freq_mhz));
-+	regmap_update_bits(priv->regmap, LOONGSON2_I2C_TRISE, LOONGSON2_I2C_TRISE_SCL,
-+			   LOONGSON2_I2C_TRISE_SCL);
-+
-+	/* Enable I2C */
-+	regmap_update_bits(priv->regmap, LOONGSON2_I2C_CR1, LOONGSON2_I2C_CR1_PE,
-+			   LOONGSON2_I2C_CR1_PE);
++	if (i2c_bus->mode == BYTE_MODE)
++		writel(GENMASK(15, 0), i2c_bus->reg_base + AST2600_I2CS_IER);
++	else
++		writel(AST2600_I2CS_PKT_DONE, i2c_bus->reg_base + AST2600_I2CS_IER);
++#endif
 +
 +	return 0;
 +}
 +
-+static const struct regmap_config loongson2_i2c_regmap_config = {
-+	.reg_bits = 32,
-+	.val_bits = 32,
-+	.reg_stride = 4,
-+	.max_register = LOONGSON2_I2C_TRISE,
-+};
-+
-+static int loongson2_i2c_probe(struct platform_device *pdev)
++#if IS_ENABLED(CONFIG_I2C_SLAVE)
++static int ast2600_i2c_reg_target(struct i2c_client *client)
 +{
-+	struct device *dev = &pdev->dev;
-+	struct loongson2_i2c_priv *priv;
-+	struct i2c_adapter *adap;
-+	void __iomem *base;
-+	u32 clk_rate;
-+	int irq, ret;
++	struct ast2600_i2c_bus *i2c_bus = i2c_get_adapdata(client->adapter);
++	u32 cmd = TARGET_TRIGGER_CMD;
 +
-+	priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-+	if (!priv)
-+		return -ENOMEM;
++	if (i2c_bus->target)
++		return -EINVAL;
 +
-+	base = devm_platform_ioremap_resource(pdev, 0);
-+	if (IS_ERR(base))
-+		return PTR_ERR(base);
++	dev_dbg(i2c_bus->dev, "target addr %x\n", client->addr);
 +
-+	priv->regmap = devm_regmap_init_mmio(dev, base, &loongson2_i2c_regmap_config);
-+	if (IS_ERR(priv->regmap))
-+		return dev_err_probe(dev, PTR_ERR(priv->regmap), "Failed to init regmap.\n");
++	writel(0, i2c_bus->reg_base + AST2600_I2CS_ADDR_CTRL);
++	writel(AST2600_I2CC_SLAVE_EN | readl(i2c_bus->reg_base + AST2600_I2CC_FUN_CTRL),
++	       i2c_bus->reg_base + AST2600_I2CC_FUN_CTRL);
 +
-+	priv->clk = devm_clk_get_enabled(dev, NULL);
-+	if (IS_ERR(priv->clk))
-+		return dev_err_probe(dev, PTR_ERR(priv->clk), "Failed to enable clock.\n");
++	/* trigger rx buffer */
++	if (i2c_bus->mode == DMA_MODE) {
++		cmd |= AST2600_I2CS_RX_DMA_EN;
++		writel(i2c_bus->target_dma_addr, i2c_bus->reg_base + AST2600_I2CS_RX_DMA);
++		writel(i2c_bus->target_dma_addr, i2c_bus->reg_base + AST2600_I2CS_TX_DMA);
++		writel(AST2600_I2CS_SET_RX_DMA_LEN(I2C_TARGET_MSG_BUF_SIZE),
++		       i2c_bus->reg_base + AST2600_I2CS_DMA_LEN);
++	} else if (i2c_bus->mode == BUFF_MODE) {
++		cmd = TARGET_TRIGGER_CMD;
++	} else {
++		cmd &= ~AST2600_I2CS_PKT_MODE_EN;
++	}
 +
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0)
-+		return irq;
++	writel(cmd, i2c_bus->reg_base + AST2600_I2CS_CMD_STS);
++	i2c_bus->target = client;
++	/* Set target addr. */
++	writel(client->addr | AST2600_I2CS_ADDR1_ENABLE,
++	       i2c_bus->reg_base + AST2600_I2CS_ADDR_CTRL);
 +
-+	adap = &priv->adapter;
-+	adap->retries = 5;
-+	adap->nr = pdev->id;
-+	adap->dev.parent = dev;
-+	adap->owner = THIS_MODULE;
-+	adap->algo = &loongson2_i2c_algo;
-+	adap->timeout = 2 * HZ;
-+	device_set_node(&adap->dev, dev_fwnode(dev));
-+	i2c_set_adapdata(adap, priv);
-+	strscpy(adap->name, pdev->name);
-+	init_completion(&priv->complete);
-+	platform_set_drvdata(pdev, priv);
-+
-+	priv->speed = I2C_MAX_STANDARD_MODE_FREQ;
-+	ret = device_property_read_u32(dev, "clock-frequency", &clk_rate);
-+	if (!ret && clk_rate >= I2C_MAX_FAST_MODE_FREQ)
-+		priv->speed = I2C_MAX_FAST_MODE_FREQ;
-+
-+	ret = loongson2_i2c_adjust_bus_speed(priv);
-+	if (ret)
-+		return ret;
-+
-+	ret = devm_request_irq(dev, irq, loongson2_i2c_isr_event, IRQF_SHARED, pdev->name, priv);
-+	if (ret)
-+		return ret;
-+
-+	return devm_i2c_add_adapter(dev, adap);
++	return 0;
 +}
 +
-+static const struct of_device_id loongson2_i2c_id_table[] = {
-+	{ .compatible = "loongson,ls2k0300-i2c" },
-+	{ /* sentinel */ }
-+};
-+MODULE_DEVICE_TABLE(of, loongson2_i2c_id_table);
++static int ast2600_i2c_unreg_target(struct i2c_client *client)
++{
++	struct ast2600_i2c_bus *i2c_bus = i2c_get_adapdata(client->adapter);
 +
-+static struct platform_driver loongson2_i2c_driver = {
-+	.driver = {
-+		.name = "loongson2-i2c-v2",
-+		.of_match_table = loongson2_i2c_id_table,
-+	},
-+	.probe = loongson2_i2c_probe,
-+};
-+module_platform_driver(loongson2_i2c_driver);
++	/* Turn off target mode. */
++	writel(~AST2600_I2CC_SLAVE_EN & readl(i2c_bus->reg_base + AST2600_I2CC_FUN_CTRL),
++	       i2c_bus->reg_base + AST2600_I2CC_FUN_CTRL);
++	writel(readl(i2c_bus->reg_base + AST2600_I2CS_ADDR_CTRL) & ~AST2600_I2CS_ADDR1_MASK,
++	       i2c_bus->reg_base + AST2600_I2CS_ADDR_CTRL);
 +
-+MODULE_DESCRIPTION("Loongson-2K0300 I2C bus driver");
-+MODULE_AUTHOR("Loongson Technology Corporation Limited");
-+MODULE_LICENSE("GPL");
++	i2c_bus->target = NULL;
++
+ 	return 0;
+ }
++#endif
+ 
+ static u32 ast2600_i2c_functionality(struct i2c_adapter *adap)
+ {
+@@ -823,6 +1373,10 @@ static u32 ast2600_i2c_functionality(struct i2c_adapter *adap)
+ static const struct i2c_algorithm i2c_ast2600_algorithm = {
+ 	.xfer = ast2600_i2c_controller_xfer,
+ 	.functionality = ast2600_i2c_functionality,
++#if IS_ENABLED(CONFIG_I2C_SLAVE)
++	.reg_target = ast2600_i2c_reg_target,
++	.unreg_target = ast2600_i2c_unreg_target,
++#endif
+ };
+ 
+ static int ast2600_i2c_probe(struct platform_device *pdev)
+@@ -861,6 +1415,9 @@ static int ast2600_i2c_probe(struct platform_device *pdev)
+ 		regmap_write(i2c_bus->global_regs, AST2600_I2CG_CLK_DIV_CTRL, I2CCG_DIV_CTRL);
+ 	}
+ 
++#if IS_ENABLED(CONFIG_I2C_SLAVE)
++	i2c_bus->target_operate = 0;
++#endif
+ 	i2c_bus->dev = dev;
+ 	i2c_bus->multi_master = device_property_read_bool(dev, "multi-master");
+ 	i2c_bus->mode = BUFF_MODE;
+
 -- 
-2.52.0
+2.34.1
 
