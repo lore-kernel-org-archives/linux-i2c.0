@@ -1,50 +1,66 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0D93466B7D
-	for <linux-i2c@vger.kernel.org>; Thu, 26 Feb 2026 20:23:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63FE146AEDB
+	for <linux-i2c@vger.kernel.org>; Thu, 26 Feb 2026 20:24:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772137403; cv=none; b=Ihkofhnif4YH1uXcAw+S5lAeM3XO/1ZW9dZDhD4Hu/6J33FUvH06bKgrPhmEJ6Z9CLaP/r0ezUMiEFyQ732V95xY0vZ6zHthaUvjIXs5qVLUuG+TYZOSVEOcLGjgQyY7A0dm5qHi5wZF6CZfcoowBUibiw9NtzVs1fNhlrEK8pc=
+	t=1772137446; cv=none; b=VWT0eYoUGa4Ib+w+qEeEdtHqpEGtZp0rSn4BiXbd4kmE6Kac6MdC/ir2KZ8O0F8zZQhBccAQ4twIk2Y+1k2wA0qWEHtQIVwv2+LZV/zFLOVVDJfWB0IeDdSaZZdiDAPano4wt+nbDX6vpn176u/mnMCH4jaO80S6H/5qCJkQ15A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772137403; c=relaxed/simple;
-	bh=3wmuF/fxEWZQwBZ8WHojwu2xkwzDmFAKtWlFi9WgKmw=;
+	s=arc-20240116; t=1772137446; c=relaxed/simple;
+	bh=7cIptIAtCy+YKmfm48wrDxQzATrxEhpTKqY9xKxhVPw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NqOoG3kyEhhbUy4ZTToDC9+lQXrplZc1afgH6hE6LI3wRUc5LUqXp0ucr2TvEsCZlxQauJcOK8xXBKYKY46meOhee/8Ir+xR8vA9ofNn6E5TPf90QlpbuuQW3lEKA8mOiHSINfAyuWRYd4GqIiSPkrJbZ2NoF5fEJk049GHgmvI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=bdEwtGmm; arc=none smtp.client-ip=194.117.254.33
+	 Content-Type:Content-Disposition:In-Reply-To; b=UhhzofSPAsFhfQjJb+pV1pcm2KLGjiXP+LRri2FSELCvsYsAphhntY3OQ51HibJ9iHzoIblEzesN8+846rBDjcuFMM02lu9uzSMEhEkeVZzSPWiCpAKTSVBGBQU2SPKTURP+PhcEEyOayVCSg/f6UJpjPMtIIn2U2DwFr5VVyU8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=ArwLD00N; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="bdEwtGmm"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="ArwLD00N"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=Xbgl
-	BQeJSkLehsWeb80bfzv3OZadjgSR6O1tXfRogv8=; b=bdEwtGmmujKEB/NEwaAh
-	yTkp7di+ilP9+aWhR4ZWZzRamVsE4wAdPC2mDeR2pKtTvoWUQw/Di1axGmpwI1UZ
-	6PioQZ6vvfMmxZKBxs+utKxzzvuAwH1p794JFOFcrf5kw/hWuG9tc1eBQTKIYY4+
-	m47BoFV9ID+LyyqByvn8lUOhqG53SRRh3e5SNckyoLO+G4UuSMnE5RMPdsAcTt/M
-	lfXsDbKyCAFLsWK8r2x3rdc5wVvwCTj39i4cj68fmeoUbp+GWaRXfhvKDp73s7tQ
-	/rndF7T5eBkNrtK9TOJITqf1w4tkhJAUSH265n/6cNXQPSaKBAA5FOklebLIuxMy
-	wQ==
-Received: (qmail 1209802 invoked from network); 26 Feb 2026 21:23:18 +0100
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 26 Feb 2026 21:23:18 +0100
-X-UD-Smtp-Session: l3s3148p1@tb4g5L9LpNgujnuU
-Date: Thu, 26 Feb 2026 21:23:18 +0100
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=P103
+	FCGrnxs/xWkEVMA9wfCrrwGUD1RHdk9OgkWjkw4=; b=ArwLD00NgpD8GB6F3smK
+	N81VP79SFKd4S2KXc7kXA8DG2HqiKcVJFAE84wiZkLVbYc0dcDn7xVrrqOstsWmm
+	7Soa2GzK0V7rlrV345mLTHVvK9YqnQjwG8WTaHRhEhp5Lj26sWW7ILiQSNNSg0Lk
+	6xVBe+6iePHwSS6IMD4VazRh8aWVu/Jlk7ukQYVSFWIflH3BUhp3GEp+Sxk2fnii
+	ObczMWhgDQeaLFMLAlD8cApZLoPT+tppLZb/0yLahD4PGixDzB3JaKRupzLSPzpI
+	dzo/jA0JGrDU8Ch20uk3ospXBOmwShwf7nY7+Zwqqvg+YlA/gOPAl+aqZgJfkyfm
+	pw==
+Received: (qmail 1210022 invoked from network); 26 Feb 2026 21:24:01 +0100
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 26 Feb 2026 21:24:01 +0100
+X-UD-Smtp-Session: l3s3148p1@u1Kn5r9L+OUujnuU
+Date: Thu, 26 Feb 2026 21:24:00 +0100
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-Cc: Jean Delvare <jdelvare@suse.com>, Andi Shyti <andi.shyti@kernel.org>,
-	Shyam Sundar S K <shyam-sundar.s-k@amd.com>,
-	Nirujogi Pratap <pratap.nirujogi@amd.com>, Bin Du <bin.du@amd.com>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Jan Dabros <jsd@semihalf.com>,
-	Gregory CLEMENT <gregory.clement@bootlin.com>,
-	Hans Hu <hanshu@zhaoxin.com>, Bartosz Golaszewski <brgl@kernel.org>,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Jean Delvare <jdelvare@suse.de>
-Subject: Re: [PATCH v2 0/4] i2c: provide and use i2c_adapter_dev()
-Message-ID: <aaCrtsNpTPeXDYnT@ninjato>
-References: <20260223-i2c-adapter-dev-wrapper-v2-0-d02946569773@oss.qualcomm.com>
+Cc: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Vignesh R <vigneshr@ti.com>, Aaro Koskinen <aaro.koskinen@iki.fi>,
+	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+	Tony Lindgren <tony@atomide.com>,
+	Andreas Kemnade <andreas@kemnade.info>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Roger Quadros <rogerq@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Patrice Chotard <patrice.chotard@foss.st.com>,
+	Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Linus Walleij <linusw@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+	Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+	linux-omap@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, imx@lists.linux.dev,
+	linux-rpi-kernel@lists.infradead.org
+Subject: Re: [PATCH v2 00/12] i2c: configure parent device and OF node
+ through the adapter struct
+Message-ID: <aaCr4CeJFGaRMWRU@ninjato>
+References: <20260223-i2c-adap-dev-config-v2-0-d78db0a6fcf7@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -53,9 +69,9 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260223-i2c-adapter-dev-wrapper-v2-0-d02946569773@oss.qualcomm.com>
+In-Reply-To: <20260223-i2c-adap-dev-config-v2-0-d78db0a6fcf7@oss.qualcomm.com>
 
-On Mon, Feb 23, 2026 at 10:02:48AM +0100, Bartosz Golaszewski wrote:
+On Mon, Feb 23, 2026 at 10:05:46AM +0100, Bartosz Golaszewski wrote:
 > It's been another year of discussing the object life-time problems at
 > conferences. I2C is one of the offenders and its problems are more
 > complex than those of some other subsystems. It seems the revocable[1]
@@ -71,25 +87,17 @@ On Mon, Feb 23, 2026 at 10:02:48AM +0100, Bartosz Golaszewski wrote:
 > can be *revoked*. To that end we need to hide all dereferences of
 > adap->dev in drivers.
 > 
-> Other series address more generic problems - like printk helpers and
-> parent/of_node setting - but there are still some more specific
-> use-cases of drivers dereferencing the internal struct device of
-> i2c_adapters. We need to hide the fact that the device is embedded in
-> i2c_adapter before we can move it out so provide a helper that provides
-> the address of struct device without showing how it's stored and use it
-> in some drivers.
+> This series addresses the usage of adap->dev in probe() callbacks where
+> drivers assign the parent device address and the associated OF-node
+> directly to the struct device embedded in i2c_adapter. We extend the
+> latter struct to accept the parent struct device and of_node directly
+> and make it assign it to its internal struct device inside
+> i2c_register_adapter(). For now just 12 patches but I'll keep on doing it
+> if these get accepted. Once these get upstream for v6.20/7.0, we'll be
+> able to also start converting i2c drivers outside of drivers/i2c/.
 > 
-> Link: [1] https://lore.kernel.org/all/20251106152330.11733-1-tzungbi@kernel.org/
+> Link: https://lore.kernel.org/all/20251106152330.11733-1-tzungbi@kernel.org/
 > Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
 
-Also applied to for-current and squashed everything into one patch...
-
-> ---
-> Changes in v2:
-> - drop two patches that can be addressed in a different series
-> - rebase on top of v7.0-rc1
-
-... but why didn't you rebase on top of rc1 + plus your previous series?
-The merge conflict was easy to solve but kinda unnecessary in my
-book...?
+Also applied (and squashed) to for-current. Tags are retained BTW.
 
