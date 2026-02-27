@@ -1,82 +1,82 @@
 Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AA0E32B994
-	for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 06:16:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3470532B994
+	for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 06:16:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772172964; cv=none; b=XGofV8AYE+Hb5tV5dw2gw/84TCrQNHJSoKv+Vp1Nsnxks2dJR7bTFKcK9zoW+vzsKLorhjrifeWR/oBtt1EncqxY0GtQDWpPCSqzBmKHMxGrWlRpX4myOL8Lu8XUjLw1JZXzfJz7z0MZ8kl+cqH/HgC/QZdSumB91n+HdqATCwI=
+	t=1772172971; cv=none; b=lbSuL1KsL7wG9kTfs2Oq80UiMMd/+nJRqg6a6f8x3230PlnXOTr3TqzXCwpRx/k0Haa0D+DYbLdqL1cAjY8aR8IsYSNJNqBpK2bSGhLPGUF8s+5x5J+BvoI+H8oz36/f4hsFiSZ/AGsss1+hmvJkBSM+SEFdYTw/+Qh2eYNv1vc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772172964; c=relaxed/simple;
-	bh=Eck/D6KmwOrBysTJIIaZmSoFBAq/RlW1moTUSu+Xl3I=;
+	s=arc-20240116; t=1772172971; c=relaxed/simple;
+	bh=85mnIBih5TefJNp/bHk7qTk7tspz31Q1DwJ4d0ufNMs=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=bQe+yEQahvAn8LhagS8Qy7bijYTkBiumIlxisu0AhdUs7UtXlE2nNcStgLBw3jBnMDXPGyRCroWkeWc4yMoKJjnPeAe5135ei2tmnyuB7koF2l6nbtbJ1xtUKkTUpqZ+qBMKfRKzLOc9w/WvqaoAa7hLgdiSGxUQUbIKzN/n16o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=TUq8BI5o; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=L6glwckm; arc=none smtp.client-ip=205.220.180.131
+	 MIME-Version; b=dZYLx4neA7RXVZeTKOS+QnPVdRUd9hVTa9D8DM6ujBwvxYzuOv/vt1uLKAwjIC1wYLTtbEbW7PtwpcpDcfC+9ci1XaMbzRWbDmHSe9tdpzn/HI2PtL82p0w3L4hgOx/EK6zBLYxGyXDBs6PfLL4S6f3VbY7Kph55+9svb3n+nVs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=HONesOLC; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=CuU+1nhg; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="TUq8BI5o";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="L6glwckm"
-Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61R2K1Yg2353440
-	for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 06:16:02 GMT
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="HONesOLC";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="CuU+1nhg"
+Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 61R2Jush3746989
+	for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 06:16:09 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=qcppdkim1; bh=KnpiwG0d//X
-	/Doe7m+7TdtdTnhg6HQ3OqoiGCkLu8T8=; b=TUq8BI5oP0uCUQMb/aMfSVM7/4U
-	rLBldCkEcVQDLwjBG150mjFIK9jWCB/erR5vaw8IOVgeoEhTRLl6Utggp+ATllp3
-	tGWIJl2Ct4zmU+TuPxbqRHbF3leCcIpUr5Lq+ReOxv5mXBm6qER7NIBBQ86BNfT1
-	zFe+dYAIubWB8s1jLgiGCF7rD+P/RSgP204IJfRRwIXkrehHpBuA7QAvUrSgP0EV
-	dINy9xWxlpKQoqzCaAu8UXCYu7C0wrZOXz14oGuL2py7XHMo26W3f6PDSoLNgcc7
-	kcw9KVAgMIB5K3h3DY4zvX0qFcn5puFRmpBzCcy1lIL1RWy1M48oo5KDn9Q==
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4cjm8u3j5x-1
+	:mime-version:references:subject:to; s=qcppdkim1; bh=GkgK+E57psN
+	HC9wkY83ywNIDVuH2SOJteZ2XuiMuHCw=; b=HONesOLCedQ9+wzv5b5Wfspo7aM
+	BcjMYWNsF3vn3zLNFLA9uYem4eCRV1g5hVk23tdqbt2PYs5VtXDC2zfiFjRWVs2V
+	bwpRWsDo5ltkKIvK8jARoHcv0d0lk0WReUQrVCyaWxHKdO2NRMYLtrUSZy6XGzRM
+	a+ZBEUiBi6FAMeslkusa4WI2EG7yokhSjWMTyuiFCdQ2BPdOEh/KtV06ccNYwdV3
+	rbqZoa7dI/CVvFuHSUubOsxIxsaltlVjWhL3pZJWVgX993FNuCB/QXE/S/LRxkTG
+	jekYiluG8w/GtsaBSrsMtlHVQGItC5p6n77AFLjQcUDXkBYpeAW1JUEFdjQ==
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4cjuur1tn7-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 06:16:02 +0000 (GMT)
-Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2adae3b2135so74043115ad.1
-        for <linux-i2c@vger.kernel.org>; Thu, 26 Feb 2026 22:16:01 -0800 (PST)
+	for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 06:16:09 +0000 (GMT)
+Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2adb1bdf778so17068965ad.3
+        for <linux-i2c@vger.kernel.org>; Thu, 26 Feb 2026 22:16:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1772172961; x=1772777761; darn=vger.kernel.org;
+        d=oss.qualcomm.com; s=google; t=1772172968; x=1772777768; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=KnpiwG0d//X/Doe7m+7TdtdTnhg6HQ3OqoiGCkLu8T8=;
-        b=L6glwckm7SPTRs2PuRdb2xvTV+MebXTvAbU8xmdjy1pFQWI83S1LwwhgEvykaPSGkX
-         7TKCeOdqbuSVrANiOisRzduXRck0lE2B76PBy+qQVlg3ZWCFC05CToswMW2y5JsFQ5ir
-         7zeUDGjiMTdsulH3OKBaLYTEOJtxC+bImFjYU8qiCvdJghZ37iqzoZ8G/Sh3bL++FNcg
-         UBgeij6J6b9c2YGuHLrkvD8KcnCOchhgh9hp6PeaBaeDWGBYglwCCJHJCtvlwi3uR8Zt
-         IWqZRtvzkYWSLlyzsdLHDPNF+yRghn7rDc6eyXV1jKFgATVZR6FsQtha5SPBsCqz5tJh
-         JlBA==
+        bh=GkgK+E57psNHC9wkY83ywNIDVuH2SOJteZ2XuiMuHCw=;
+        b=CuU+1nhgFrYmMr1LPszIVutrm6uKYNk4joN0/D/cKwwdpZLedqNaZr2+YczB4FWsU4
+         FrAagrYLVF/0dCqYpXsPo4hjaUsN6JJ7BCtekFXTTOHof5JTBYJR1z24SGMIxHMQWhMt
+         yT2oPN998RBQOatehfowacmHS1zb5FpFlNdM+Wmr0LBZOgiu09b1npq31FjP4R3ulNCR
+         SqMDs1dnk49B+GpY8Ewc67C/e3yNNkDV7VZxiTFIdUijJ2I+gkyB45f3Bbnq727fO1uk
+         ZbAr5iTmOosqd19qollMSiCKtGPyqrXp01Io1f+jwogMfGwRZLWYB0bW0npfVQg+8Mqd
+         TrKw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772172961; x=1772777761;
+        d=1e100.net; s=20230601; t=1772172968; x=1772777768;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=KnpiwG0d//X/Doe7m+7TdtdTnhg6HQ3OqoiGCkLu8T8=;
-        b=sQNC8dU5SeqypnK7VMo84tAJwoQi+rE7KS+mI/lW3fBsuluA43zkGB672nXn4fg1MS
-         Yax34t2rXTx5J3qSPzeogq2CZ6uc2PDwEfT4l/pC2m29BjeodSVNDWT8yq0HkE1M7ErO
-         hWc5r63WJvETLs4FwmR2Cn3nqt4RTSkYQSSa3sliDPhfXUbgkEF+ti+KbJKZjDpU/goq
-         KFyLcYWn8Pf8NxvvhvYk3ZtfjayHaMATaB/p0EbC7CI6eFZUqaixOKh+xgjEA7l5Rw5g
-         hS6/6bPwEV5wVwI3P06MeUiXjcDkSV0jDrTZrNXyOna3UndlVEh8NRudxuI0kZbRT+Ll
-         CWFQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUdKDSo/A1BO/OQmuamRqt+OcQFGhYPM19xhf28nJOh7vN5Yj90peH5y++F/dXeUTnyVRdzl7HjTSA=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwwKe75W5fIq6vQaX4rX0b5QWtEah7YmIpSnmmzKGFHkYTjarAE
-	yj2rqOHZwW1EO9ntJ38IIHSBw8zd2ZNmFMxikguJB4XOgN1o6nsHm2AybkbbD/DFvCThUClPj7U
-	yDJMitSJNWg2q1nh0XkzC9aeGEMKzvcIek/RDIcJJjiQcAdbQRcKpPe++5i2wbSI0dS2Gc58=
-X-Gm-Gg: ATEYQzy/j44m7y0NELsB6nCW2OASTY8hFi9wU3ER2Kasnx/LxKnipLlz3AykmBiVvM2
-	NUH+wQ1lwagveq612vooy8eFYsqwvjNuW91GdL/o0eAc6vb8onNLJlUjq60dB0CzYie4b4SnpYB
-	o/Jh+5/YoBGOisJbUFys5jPJS5byY/L3AR1FFELrl2fFOQv/UpVhclQYaosbxEsb5LpIcRm/rj1
-	6rsPYHWvo7idn3UnkkYx9L7+dE7zLDklyIu9RE2tgK6vfAM/Pwqx5O7x4regXG7QI7ztfukIspI
-	xLRAOFVNmhu0FXesjoxG0deqK333m1ouTgZqVF8LpkwEfpcOMDL2hMNC579aZTEM/zKiTkIRDkh
-	dKHLOmRFng1HfSZ6QLnUvpsgHvFuQU3fUHcF/++hWlt/W+2PrO9XiNFw=
-X-Received: by 2002:a17:903:298b:b0:2aa:e34c:4c8c with SMTP id d9443c01a7336-2ae2e3f156amr15664755ad.20.1772172960843;
-        Thu, 26 Feb 2026 22:16:00 -0800 (PST)
-X-Received: by 2002:a17:903:298b:b0:2aa:e34c:4c8c with SMTP id d9443c01a7336-2ae2e3f156amr15664435ad.20.1772172960303;
-        Thu, 26 Feb 2026 22:16:00 -0800 (PST)
+        bh=GkgK+E57psNHC9wkY83ywNIDVuH2SOJteZ2XuiMuHCw=;
+        b=LYBm/DBoo9EaWUL4qcy5zaE1aOx15QRlUeD6aHSIdD0leanr2xqs9im6dQ5aUAm5QI
+         R0Mb5elI68EX/IhHybOzt6pzlxdzPaS2yZSu79vsfQvCIsqxScCUxXF3yMl2p/+aDrzU
+         N3PAz1NS50sRjvFDos52BNSn8aeZ51FBv6DmCrxafVKesjpuT0e796GlcZEM6djLRdKS
+         T0tUE8vzZxqmyI/EMzSDBS20oCBxQLLmBQvC9hpjANp678bJWaPFwgTOXK2gW0XRs3KK
+         qJ0gciPOlFPj8yZe3+sxMe2bMXaTpeTIQGa2ofCU4zDjordCSH69bm0UM3alivYUBDdy
+         LveQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXoE+HUsDUz+qHLdJWrsu1MI0efQlCATeZhXq7OLCP1MkiYalXPXnlPX3eRzbsC37EW+3hUs/EhRNU=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx98O+MFtlvS/D3Y+AWfub+KY1BBgXsxd/CdrWeUsCylhmRcvqv
+	4bkMwj87wwLSO/3JM9HUlql0wW01GPfyvJLIHEtiII+KJDDrrTv4yKPjv1mkagJMn+ra/iOHjxS
+	cxJ6XMj5NpQGsqGq4qB7YTx/SN3aVPaetPpOvIDs7FkWP+EgHvsuETIgc9B/98Ld6lrt3nuA=
+X-Gm-Gg: ATEYQzyGAUt1lzwRvsQbuMr8tso6YgU0qpHWg/kBwrVJBzuQUvNImWOC3gI2nQ/1ggn
+	O76vioUiopO9ZTlkv4C+ePZ/OLHhAjoV+4DIzjl8DKqK25LnPriv1zNUCyKLmzhZduHE/wuH3UX
+	mlg54Lcc3CHav0WLJ7Xbh6CpmkGm0NknAJNChlv5gAIt+8opqhSwVDBrPk+37xurnsdamgx3Rla
+	TdHS0B9YxPUkaZSUMmyNUfCTfvE8yVTUcTf65ec0Bw9VLF+itos4JRqoZkH4jEI4uXck+nGMC4E
+	veP9DmQwN6KCWsA7vouzHhgf0oN4oanGeTyo0KIw8PqOsnNVoOFdt1eJAKTG03fg/XHPSFDdh7l
+	OnvWSKyAxcoQcQCa0Edmls74zHboRTi/rvPYZmBIDjiMAgPjjUIg1DXQ=
+X-Received: by 2002:a17:903:11d2:b0:2a0:a0cc:9994 with SMTP id d9443c01a7336-2ae2e4d6114mr18570315ad.47.1772172967678;
+        Thu, 26 Feb 2026 22:16:07 -0800 (PST)
+X-Received: by 2002:a17:903:11d2:b0:2a0:a0cc:9994 with SMTP id d9443c01a7336-2ae2e4d6114mr18570085ad.47.1772172967100;
+        Thu, 26 Feb 2026 22:16:07 -0800 (PST)
 Received: from hu-ptalari-hyd.qualcomm.com ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2adfb6a043dsm64813025ad.54.2026.02.26.22.15.54
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2adfb6a043dsm64813025ad.54.2026.02.26.22.16.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Feb 2026 22:16:00 -0800 (PST)
+        Thu, 26 Feb 2026 22:16:06 -0800 (PST)
 From: Praveen Talari <praveen.talari@oss.qualcomm.com>
 To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
         Krzysztof Kozlowski <krzk+dt@kernel.org>,
@@ -93,9 +93,9 @@ To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
 Cc: prasad.sodagudi@oss.qualcomm.com, aniket.randive@oss.qualcomm.com,
         chandana.chiluveru@oss.qualcomm.com, jyothi.seerapu@oss.qualcomm.com,
         chiluka.harish@oss.qualcomm.com
-Subject: [PATCH v6 01/13] soc: qcom: geni-se: Refactor geni_icc_get() and make qup-memory ICC path optional
-Date: Fri, 27 Feb 2026 11:45:32 +0530
-Message-Id: <20260227061544.1785978-2-praveen.talari@oss.qualcomm.com>
+Subject: [PATCH v6 02/13] soc: qcom: geni-se: Add geni_icc_set_bw_ab() function
+Date: Fri, 27 Feb 2026 11:45:33 +0530
+Message-Id: <20260227061544.1785978-3-praveen.talari@oss.qualcomm.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260227061544.1785978-1-praveen.talari@oss.qualcomm.com>
 References: <20260227061544.1785978-1-praveen.talari@oss.qualcomm.com>
@@ -106,105 +106,92 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI3MDA1MCBTYWx0ZWRfXzo4uaA2raDWL
- xa/fKVxmzkq47P6qkDg44N752cZmc7Y81ybfliqALIQ/NV1ZQ/cQuq7zrt98qpgn+nRcJZAbtw3
- Y5ly8Km2sLKWem+njvgOTvN2h2a2PUSQzu9CtsYdOPPQihz38B1mTV98GlH5h8MFjZZfzDiDyzh
- PULayUBPcZMFFNeqdVikQCUbJFRTD6d6C/lrob1Lja873nF0bDAwbS1MKDE7TltywzulWGvH3he
- CX1FOgYXJpkwgfYFa4fg/pehC207KTViSK3g6TY+iIAoN9d8IZbvZ1auhCefoPl4FBZZnS5kH1T
- B01UiGumXiqthrLqHGV3RtQEafVa6YFcGHtQHGj3EOzvmMk4b6jXud32mCje/6F4+W+vr2+Hzyp
- bspESdjUC25LGnl3VJGy14dLvdYzUJxbJSCw2JGhWsGd6HhevVElOdxpPK5xZI11jXfwYKHK1UW
- HBIGjPJBXVdp1BtArjA==
-X-Authority-Analysis: v=2.4 cv=O780fR9W c=1 sm=1 tr=0 ts=69a136a2 cx=c_pps
- a=JL+w9abYAAE89/QcEU+0QA==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+X-Proofpoint-GUID: ia5iSJWiKrMHzroBl5MSST7bfi4NmRCG
+X-Authority-Analysis: v=2.4 cv=PN8COPqC c=1 sm=1 tr=0 ts=69a136a9 cx=c_pps
+ a=MTSHoo12Qbhz2p7MsH1ifg==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
  a=HzLeVaNsDn8A:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=ZpdpYltYx_vBUK5n70dp:22 a=EUspDBNiAAAA:8
- a=Wptve8LSCQjy2B8HgooA:9 a=324X-CrmTo6CU4MGRt3R:22
-X-Proofpoint-ORIG-GUID: CJEyA6BzmebUZojUNE0zk39ysMlXxuGE
-X-Proofpoint-GUID: CJEyA6BzmebUZojUNE0zk39ysMlXxuGE
+ a=u7WPNUs3qKkmUXheDGA7:22 a=_glEPmIy2e8OvE2BGh3C:22 a=EUspDBNiAAAA:8
+ a=BVB3BO4C9w_THQaB-9MA:9 a=GvdueXVYPmCkWapjIL-Q:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMjI3MDA1MCBTYWx0ZWRfXzyp9BS0KbjO5
+ IHEtVCzxPT7w9XVC7sxeGoJwC9/92lyLNYILszFx/08+zYRFXhEFOfGrrxSsjlM5WbLXe4eiFLM
+ TPW2ULGY+1YT3RaybqZMOOKw8PvhWGeb3nbV3t14dZPf4RBOMhVpwKnsAcpVKkn1Fja5YpZcfno
+ 7LblejxkcmqoeRSn3al9cgAiM3uqCashqZ2fZL4lhN2q2iWE7ye3Sqjiy5WfjUlI/jWLIBQKEGM
+ TNmn19nXzbHqGVvVumH8fySNtN+YR8jFhr/nhFqBcki6MLwB1lm/AFnRKjlc/azEJ9aowVKjXr1
+ vePNjsikVd7kZ89svzztzpNT1AiMk48vhQFMkAGHQAOFvb4HFJg91bikyCY+rMqugJ5SfvBCw+3
+ rrPeEoWWJfg8m0kEaXKhCcihxFQs4YTWrbmMOVOBrawQicBhpj/WYSK/AEZ1ymiAUlcCRPe2FzA
+ PNAKiP3z9Rm0u8dxiJg==
+X-Proofpoint-ORIG-GUID: ia5iSJWiKrMHzroBl5MSST7bfi4NmRCG
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1121,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-02-27_01,2026-02-26_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- suspectscore=0 phishscore=0 adultscore=0 spamscore=0 clxscore=1015
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 impostorscore=0
+ priorityscore=1501 impostorscore=0 clxscore=1015 lowpriorityscore=0
+ adultscore=0 spamscore=0 phishscore=0 suspectscore=0 bulkscore=0
  malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2602130000
  definitions=main-2602270050
 
-The "qup-memory" interconnect path is optional and may not be defined
-in all device trees. Unroll the loop-based ICC path initialization to
-allow specific error handling for each path type.
+Add a new function geni_icc_set_bw_ab() that allows callers to set
+average bandwidth values for all ICC (Interconnect) paths in a single
+call. This function takes separate parameters for core, config, and DDR
+average bandwidth values and applies them to the respective ICC paths.
 
-The "qup-core" and "qup-config" paths remain mandatory and will fail
-probe if missing, while "qup-memory" is now handled as optional and
-skipped when not present in the device tree.
+This provides a more convenient API for drivers that need to configure
+specific average bandwidth values.
 
 Co-developed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 Signed-off-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
 ---
-v1->v2:
-Bjorn:
-- Updated commit text.
-- Used local variable for more readable.
----
- drivers/soc/qcom/qcom-geni-se.c | 36 +++++++++++++++++----------------
- 1 file changed, 19 insertions(+), 17 deletions(-)
+ drivers/soc/qcom/qcom-geni-se.c  | 22 ++++++++++++++++++++++
+ include/linux/soc/qcom/geni-se.h |  1 +
+ 2 files changed, 23 insertions(+)
 
 diff --git a/drivers/soc/qcom/qcom-geni-se.c b/drivers/soc/qcom/qcom-geni-se.c
-index cd1779b6a91a..b6167b968ef6 100644
+index b6167b968ef6..b0542f836453 100644
 --- a/drivers/soc/qcom/qcom-geni-se.c
 +++ b/drivers/soc/qcom/qcom-geni-se.c
-@@ -899,30 +899,32 @@ EXPORT_SYMBOL_GPL(geni_se_rx_dma_unprep);
- 
- int geni_icc_get(struct geni_se *se, const char *icc_ddr)
- {
--	int i, err;
--	const char *icc_names[] = {"qup-core", "qup-config", icc_ddr};
-+	struct geni_icc_path *icc_paths = se->icc_paths;
- 
- 	if (has_acpi_companion(se->dev))
- 		return 0;
- 
--	for (i = 0; i < ARRAY_SIZE(se->icc_paths); i++) {
--		if (!icc_names[i])
--			continue;
--
--		se->icc_paths[i].path = devm_of_icc_get(se->dev, icc_names[i]);
--		if (IS_ERR(se->icc_paths[i].path))
--			goto err;
-+	icc_paths[GENI_TO_CORE].path = devm_of_icc_get(se->dev, "qup-core");
-+	if (IS_ERR(icc_paths[GENI_TO_CORE].path))
-+		return dev_err_probe(se->dev, PTR_ERR(icc_paths[GENI_TO_CORE].path),
-+				     "Failed to get 'qup-core' ICC path\n");
-+
-+	icc_paths[CPU_TO_GENI].path = devm_of_icc_get(se->dev, "qup-config");
-+	if (IS_ERR(icc_paths[CPU_TO_GENI].path))
-+		return dev_err_probe(se->dev, PTR_ERR(icc_paths[CPU_TO_GENI].path),
-+				     "Failed to get 'qup-config' ICC path\n");
-+
-+	/* The DDR path is optional, depending on protocol and hw capabilities */
-+	icc_paths[GENI_TO_DDR].path = devm_of_icc_get(se->dev, "qup-memory");
-+	if (IS_ERR(icc_paths[GENI_TO_DDR].path)) {
-+		if (PTR_ERR(icc_paths[GENI_TO_DDR].path) == -ENODATA)
-+			icc_paths[GENI_TO_DDR].path = NULL;
-+		else
-+			return dev_err_probe(se->dev, PTR_ERR(icc_paths[GENI_TO_DDR].path),
-+					     "Failed to get 'qup-memory' ICC path\n");
- 	}
- 
- 	return 0;
--
--err:
--	err = PTR_ERR(se->icc_paths[i].path);
--	if (err != -EPROBE_DEFER)
--		dev_err_ratelimited(se->dev, "Failed to get ICC path '%s': %d\n",
--					icc_names[i], err);
--	return err;
--
+@@ -946,6 +946,28 @@ int geni_icc_set_bw(struct geni_se *se)
  }
- EXPORT_SYMBOL_GPL(geni_icc_get);
+ EXPORT_SYMBOL_GPL(geni_icc_set_bw);
  
++/**
++ * geni_icc_set_bw_ab() - Set average bandwidth for all ICC paths and apply
++ * @se:		Pointer to the concerned serial engine.
++ * @core_ab:	Average bandwidth in kBps for GENI_TO_CORE path.
++ * @cfg_ab:	Average bandwidth in kBps for CPU_TO_GENI path.
++ * @ddr_ab:	Average bandwidth in kBps for GENI_TO_DDR path.
++ *
++ * Sets bandwidth values for all ICC paths and applies them. DDR path is
++ * optional and only set if it exists.
++ *
++ * Return: 0 on success, negative error code on failure.
++ */
++int geni_icc_set_bw_ab(struct geni_se *se, u32 core_ab, u32 cfg_ab, u32 ddr_ab)
++{
++	se->icc_paths[GENI_TO_CORE].avg_bw = core_ab;
++	se->icc_paths[CPU_TO_GENI].avg_bw = cfg_ab;
++	se->icc_paths[GENI_TO_DDR].avg_bw = ddr_ab;
++
++	return geni_icc_set_bw(se);
++}
++EXPORT_SYMBOL_GPL(geni_icc_set_bw_ab);
++
+ void geni_icc_set_tag(struct geni_se *se, u32 tag)
+ {
+ 	int i;
+diff --git a/include/linux/soc/qcom/geni-se.h b/include/linux/soc/qcom/geni-se.h
+index 0a984e2579fe..980aabea2157 100644
+--- a/include/linux/soc/qcom/geni-se.h
++++ b/include/linux/soc/qcom/geni-se.h
+@@ -528,6 +528,7 @@ void geni_se_rx_dma_unprep(struct geni_se *se, dma_addr_t iova, size_t len);
+ int geni_icc_get(struct geni_se *se, const char *icc_ddr);
+ 
+ int geni_icc_set_bw(struct geni_se *se);
++int geni_icc_set_bw_ab(struct geni_se *se, u32 core_ab, u32 cfg_ab, u32 ddr_ab);
+ void geni_icc_set_tag(struct geni_se *se, u32 tag);
+ 
+ int geni_icc_enable(struct geni_se *se);
 -- 
 2.34.1
 
