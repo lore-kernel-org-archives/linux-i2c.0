@@ -1,94 +1,78 @@
-Received: from vh06.kantert.net (vh06.kantert.net [5.75.216.175])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB18F1F5842
-	for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 11:14:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.75.216.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7D90239E7E;
+	Fri, 27 Feb 2026 13:52:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772190853; cv=none; b=cLgum05LgHWx/GVDSn6mGevm/MFZ3hVNJgEqCAwY1XrwFsAOFHHMCmw3UGbXotLeSGZbBBoYNAHiqrtJovB8xBrtGrHHNy9mow4bc37Fftd7LPMNridNJg4t4tijCjzetemqs520FMe67EKqMySWlJgr8ROV/UqthLWc6XWEpVI=
+	t=1772200354; cv=none; b=cUaJOZ9+BJXJe4zob6UY7ikXFv0Tn0ciF++iYnKHmGNTJ97/IGn9FB+FR/rWuK2yI1ph+X6jrylmfqdK53M3Wh3jcSzc6YVwSVZ4aq4+WSYaPCBXagpMaYLSMTTpyZyO8Gz+UujhWPsuVoe+257YBu4uIFpGpM2JWSRMfQ9yf3g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772190853; c=relaxed/simple;
-	bh=UksT+1ZpJ8dxACJ0CV8uegefYrT7fFGKgQhOPhEIgm8=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=oVdFQ10Seo1d3do50mpZCIp/1wkIf1b5Bom2R8V4c1wbIlk8y+DAoeRWLWgB+g5JX1mq2u8/8UnCtGNTHuUruaiUVy6nlrVUN2mV+R8cTSESl3verzjoo5YKdgBLLSnvR+ACOnGPubAWi3yJUekeRqrS+ABeWpsz5zita4jT/sg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kantert.net; spf=pass smtp.mailfrom=kantert.net; dkim=pass (2048-bit key) header.d=kantert.net header.i=@kantert.net header.b=A++q9Tec; dkim=permerror (0-bit key) header.d=kantert.net header.i=@kantert.net header.b=/QV2KTeg; arc=none smtp.client-ip=5.75.216.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=kantert.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kantert.net
+	s=arc-20240116; t=1772200354; c=relaxed/simple;
+	bh=1aioRZsT/x015BhRflc0NizKTzba3nmZZdRjXLysTLY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=DeaIhWh2PaCukL7i5iZbGMuNm/9NFXgXwo68x70SUsCuJRGXmEE+Jj9af6RJJqjHg/G3NfbbOqPEVn3B24AIxgCSEvscMkeP6y92bryKX/TnkT1tjOQr8zJOeIESZ+plguHTL0Uic+G+cBZNhzkkA1wNzguaqeQ/ZwkZkpLcQiY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZKTp/tLu; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kantert.net header.i=@kantert.net header.b="A++q9Tec";
-	dkim=permerror (0-bit key) header.d=kantert.net header.i=@kantert.net header.b="/QV2KTeg"
-DKIM-Signature: v=1; a=rsa-sha256; s=202510r; d=kantert.net; c=relaxed/relaxed;
-	h=Message-Id:Date:Subject:To:From; t=1772190709; bh=xohdy1VecBXWSfTiTZDR4iX
-	0PchP9QrVqX/03igd2tE=; b=A++q9Tecx3ZoevS3EM89c5YImwn79zpRwHgMZ59BHJuqC8No3H
-	fqICcnB4vuaW2gGO3Axv0tjHKDhF695Rfw9AT1LAugc3oElm+4w/1IFF6r1A6MrJYCPEPvy3Bp9
-	eDcFy49yq6h8gTIiwgiQ9LooDckzBfWzrEXX1sxk83Re8u4x/e1ZNMffTVlNBnsRr2LD5EGALu3
-	aoUMp9nK48bGfCXqHO3O2c+Jwr8/v+D5c4xrhIIz7ZQ4RzwSL2xujN4KoNOPhgnF0EUNl2vXu82
-	GbqRV59ZjmFe8u5GiOuinUUweb/OBgSOp33pCsBB6UUKzmXLsTKXZUTlmoj81ukTMHQ==;
-DKIM-Signature: v=1; a=ed25519-sha256; s=202510e; d=kantert.net; c=relaxed/relaxed;
-	h=Message-Id:Date:Subject:To:From; t=1772190709; bh=xohdy1VecBXWSfTiTZDR4iX
-	0PchP9QrVqX/03igd2tE=; b=/QV2KTegiyIxmW1151AfvCZ4dck56aUpsW0GrMSnj8Houvh+jG
-	Omr4OnovZdPRyg2fHUGun9aRPqpEsg0hMbCw==;
-From: Jan Kantert <jan-kernel@kantert.net>
-To: chris.packham@alliedtelesis.co.nz,
-	linux-i2c@vger.kernel.org
-Cc: Jan Kantert <jan-kernel@kantert.net>
-Subject: [PATCH] i2c: rtl9300: add support for 50 kHz and 2.5 MHz bus speeds
-Date: Fri, 27 Feb 2026 12:11:34 +0100
-Message-Id: <20260227111134.2163701-1-jan-kernel@kantert.net>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZKTp/tLu"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C076BC19423;
+	Fri, 27 Feb 2026 13:52:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772200354;
+	bh=1aioRZsT/x015BhRflc0NizKTzba3nmZZdRjXLysTLY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ZKTp/tLu+wqzSPRuDSsgiiAj+iG35J5v43Y0sjKtzn3ByCpGg6WGzAZh10dKcs94N
+	 SScd4MzCSMOaib46Rj80zqtgiPVuKuIA0ZXF92yxf/r8I8/udV/xItmlrxR1FsHR0q
+	 //5CEUy5kcR5lE9mod7Z2ov6Ey/1mcganvINJK6o7UvSCs8QCwHXylRP1zxrwaJ4Im
+	 9YRKhj429gJ11KkgSp6oV7+GGJLcmuPTqgZMGYRBShWSIKG0EUrrgnx5z/O+DOgBAh
+	 m5CBn36upkSlQh52p+FTi/q/CnGLw89qSiKJL7YVAmHovGT8wA7X1LGCA9yiOtFLRP
+	 20cNtPCl9A9tA==
+Date: Fri, 27 Feb 2026 19:22:31 +0530
+From: Vinod Koul <vkoul@kernel.org>
+To: Josua Mayer <josua@solid-run.com>
+Cc: Marc Kleine-Budde <mkl@pengutronix.de>,
+	Vincent Mailhol <mailhol@kernel.org>,
+	Neil Armstrong <neil.armstrong@linaro.org>,
+	Peter Rosin <peda@axentia.se>, Aaro Koskinen <aaro.koskinen@iki.fi>,
+	Andreas Kemnade <andreas@kemnade.info>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>,
+	Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+	Vignesh R <vigneshr@ti.com>, Andi Shyti <andi.shyti@kernel.org>,
+	Ulf Hansson <ulf.hansson@linaro.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+	Yazan Shhady <yazan.shhady@solid-run.com>,
+	Jon Nettleton <jon@solid-run.com>,
+	Vladimir Oltean <olteanv@gmail.com>,
+	Mikhail Anikin <mikhail.anikin@solid-run.com>,
+	linux-can@vger.kernel.org, linux-phy@lists.infradead.org,
+	linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-mmc@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-renesas-soc@vger.kernel.org
+Subject: Re: [PATCH v11 1/9] phy: can-transceiver: rename temporary helper
+ function to avoid conflict
+Message-ID: <aaGhn_vBoruYDqji@vaman>
+References: <20260226-rz-sdio-mux-v11-0-c2a350f9bbd3@solid-run.com>
+ <20260226-rz-sdio-mux-v11-1-c2a350f9bbd3@solid-run.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260226-rz-sdio-mux-v11-1-c2a350f9bbd3@solid-run.com>
 
-Some SFP modules on certain switches (for example the ONTi ONT-S508CL-8S and
-XikeStor SKS8300-8X) exhibit unreliable I2C communication at the currently
-supported speeds. Add support for 50 kHz and 2.5 MHz I2C bus modes on the
-RTL9300 to improve compatibility with these devices.
+On 26-02-26, 15:21, Josua Mayer wrote:
+> Rename the temporary devm_mux_state_get_optional function to avoid
+> conflict with upcoming implementation in multiplexer subsystem.
 
-Signed-off-by: Jan Kantert <jan-kernel@kantert.net>
----
- drivers/i2c/busses/i2c-rtl9300.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+Acked-by: Vinod Koul <vkoul@kernel.org>
 
-diff --git a/drivers/i2c/busses/i2c-rtl9300.c b/drivers/i2c/busses/i2c-rtl9300.c
-index 672cb978066d..67a5c4228fc9 100644
---- a/drivers/i2c/busses/i2c-rtl9300.c
-+++ b/drivers/i2c/busses/i2c-rtl9300.c
-@@ -11,10 +11,16 @@
- #include <linux/unaligned.h>
- 
- enum rtl9300_bus_freq {
--	RTL9300_I2C_STD_FREQ,
--	RTL9300_I2C_FAST_FREQ,
-+	RTL9300_I2C_STD_FREQ,			// 100kHz
-+	RTL9300_I2C_FAST_FREQ,			// 400kHz
-+	RTL9300_I2C_SUPER_FAST_FREQ,		// 2.5MHz
-+	RTL9300_I2C_SLOW_FREQ,			// 50kHz
- };
- 
-+#define RTL9300_I2C_MAX_SUPER_FAST_FREQ		2500000
-+#define RTL9300_I2C_MAX_SLOW_FREQ		50000
-+
-+
- struct rtl9300_i2c;
- 
- struct rtl9300_i2c_chan {
-@@ -433,6 +439,12 @@ static int rtl9300_i2c_probe(struct platform_device *pdev)
- 		case I2C_MAX_FAST_MODE_FREQ:
- 			chan->bus_freq = RTL9300_I2C_FAST_FREQ;
- 			break;
-+		case RTL9300_I2C_MAX_SUPER_FAST_FREQ:
-+			chan->bus_freq = RTL9300_I2C_SUPER_FAST_FREQ;
-+			break;
-+		case RTL9300_I2C_MAX_SLOW_FREQ:
-+			chan->bus_freq = RTL9300_I2C_SLOW_FREQ;
-+			break;
- 		default:
- 			dev_warn(i2c->dev, "SDA%d clock-frequency %d not supported using default\n",
- 				 sda_num, clock_freq);
 -- 
-2.34.1
-
+~Vinod
