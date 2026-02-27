@@ -1,158 +1,106 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F322227FB1F;
-	Fri, 27 Feb 2026 07:10:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 963FC3815F2
+	for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 08:38:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772176216; cv=none; b=Mn6hoHjAZ2DTG0hAzNL9p/DlGfK+ZBcpOScmMHwH1SLIoaY48DGa40XRZenZbtgdb4rCjeLFB4o9dfpM6IZq12GqIdaxI9h/lI/kQz0zZpYUipFoLKO7GD6LSPJ2jsqz6CokfYhPdCvR6UGPmP8oiJUw1SsmGslBxqbmSnLfMkc=
+	t=1772181507; cv=none; b=n6Ws5CHI7hexakfqRBIwmo9rRPr2bXNcBy7mvEvgk735N91VTkhUefESFbF26MIAZKbryFBrGoW8WPXKa92XSzGnag7fFY2sHkW2zHvExbcb8C3XNehMq6qdYOCHdzgxjSPit2RVvMLASSLziwORvt71RqUXITNiQIUzeATKd0E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772176216; c=relaxed/simple;
-	bh=93SPmf8E1jF/TUfDZS9PtOn4hN3P8OgjiQA0WaPpkyc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kozGweQGFFekV56vSMuZRROc4WrIrdIomk+Ua6KsrRoVlfJy1HbQTjNJdF+m+PLTmtiwP/TtPyihzw1E79XaSZ/xvedoSSnSfgvwamoe7W6iGyt7U8sSZ6pNi1ydjh0yDPHreYzj7AepeR9QDRch0D0+fX+KKduapPT+ip+jSqw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lOqvjHTI; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772181507; c=relaxed/simple;
+	bh=B8/5bI+d66y81V2rFiaH4FWnj6qjMkY7SACemFjjFkQ=;
+	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=W6VY5N6FjfUT0JXoz74CF3ULjwHQ7q78cDcNF4f/FYROPKNpnPLO2jKkVDhRlQ67FFR/5ZVItNg/ID7nlKWk44D/E/xUuvtocqMfAssfrt9v0/nUXwu2dpPOqxtHj9zuaYe1k2SRh55XRLj3LGUqUWlEeEQYaxeDiMrqi0YFo78=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rRWuw9/T; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lOqvjHTI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EB63C116C6;
-	Fri, 27 Feb 2026 07:10:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rRWuw9/T"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65A40C2BCB3
+	for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 08:38:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772176215;
-	bh=93SPmf8E1jF/TUfDZS9PtOn4hN3P8OgjiQA0WaPpkyc=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=lOqvjHTIbBmGaLmKo7MKt67M5+Af+GJ86NRwN2OlqEJLzdbtTezhxOjbSjJZP+xAs
-	 SOZErT7krFSIlClMQH0xvETYKDJOpapuDbdCtTZSTSWGC8nt8nqpJNkgapfjQQDACw
-	 d1Lx7lLoAcgJOYBlHEMNH0OU7AKP/WTMdKXZyYZzcx0ytP6la3SlCiXC3fH9WOEbJw
-	 oFi2oLFSaoUuE+grq3S68v8jO7xA6iCmPBD5ny1o2eGrcvZhBJXjb3t3YxumCGQIAg
-	 CTL5f2NtnpBhwgj1RoEpk/UyD1mf0sMQWtZJ6As3q0P8c3K8caAMYahDY0HMawDNcv
-	 EuQGP1TFrpOyw==
-Date: Fri, 27 Feb 2026 08:10:13 +0100
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Ryan Chen <ryan_chen@aspeedtech.com>
-Cc: jk@codeconstruct.com.au, andriy.shevchenko@linux.intel.com, 
-	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>, 
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>, Rayn Chen <rayn_chen@aspeedtech.com>, 
-	Philipp Zabel <p.zabel@pengutronix.de>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, 
-	openbmc@lists.ozlabs.org
-Subject: Re: [PATCH v25 1/4] dt-bindings: i2c: Split AST2600 binding into a
- new YAML
-Message-ID: <20260227-fragrant-industrious-aardwark-bdb63b@quoll>
-References: <20260225-upstream_i2c-v25-0-9f4bdd954f3f@aspeedtech.com>
- <20260225-upstream_i2c-v25-1-9f4bdd954f3f@aspeedtech.com>
+	s=k20201202; t=1772181507;
+	bh=B8/5bI+d66y81V2rFiaH4FWnj6qjMkY7SACemFjjFkQ=;
+	h=From:In-Reply-To:References:Date:Subject:To:Cc:From;
+	b=rRWuw9/TnLwpOnG2Dpa/ftMLizMNL6RcO4Fp7w9HPl1gDrgoIXsuZRVJ6muNILsPc
+	 WTjb91b2F65aXORG6g28JbNgIdZUHVWHJCAYlCQB8eDyHhU2yeJG1YJp69uC4e/CwC
+	 C0WF8d5iqzKBJGc7+Qab+/E74MhB/O1WKKr6mEg7uf7NIV1JZyKDDlJ2rrXEWD+ary
+	 1INp5PzUpApixPN78wGg9+v+Eh6SP0OMrTYQVbJy9DjJjxQvsYdEOZ+O/rczHUzo63
+	 cXpJVCvz6/uOeaet8B4gG0IwxYWqKZC01R4d9xkn15DBakmkYwAbstEp170PWksfep
+	 hGiLJ/2BmEn+g==
+Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-389e268a9b4so19938391fa.2
+        for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 00:38:27 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCXZ+hJAEKgGhGWWbPp+p/PjsfAJzyjrMQ7FKdnWo5exV3n7t6rSw9tV5fY3dhNFrPNGtlbeP2KmiMg=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxp0Yu9kDQxKS1hvKvOlO/XBmXAvt2AL2Lm11oY+yXpNGB7uass
+	7fFZ6dr5guI0biAK0wjb10YBC54DxK15neaw0B3Yn3K2e/5FT/4RdvBiIihYWlXLiNjPBdvWw02
+	eyV7EQakdIZZb0kvu3gCkw+jL69vwH+qSQQs0OQCEmA==
+X-Received: by 2002:a2e:a10b:0:b0:389:ef35:fb9e with SMTP id
+ 38308e7fff4ca-389ff15f2f5mr11325631fa.24.1772181505403; Fri, 27 Feb 2026
+ 00:38:25 -0800 (PST)
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Fri, 27 Feb 2026 00:38:23 -0800
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Fri, 27 Feb 2026 00:38:23 -0800
+From: Bartosz Golaszewski <brgl@kernel.org>
+In-Reply-To: <aaCrT1SvMCIKQDmc@ninjato>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260225-upstream_i2c-v25-1-9f4bdd954f3f@aspeedtech.com>
+References: <20260223-i2c-printk-helpers-v2-0-13b2a97762af@oss.qualcomm.com> <aaCrT1SvMCIKQDmc@ninjato>
+Date: Fri, 27 Feb 2026 00:38:23 -0800
+X-Gmail-Original-Message-ID: <CAMRc=MfwR7TfAFXO4opu7a=v84MK9hY048woPg+-09wkGJgWFg@mail.gmail.com>
+X-Gm-Features: AaiRm52Yb9kd_att7B9hKBtSpFgOcTtzo7FDwU7A01PqlXP6UIrlHqDUHcGb-x8
+Message-ID: <CAMRc=MfwR7TfAFXO4opu7a=v84MK9hY048woPg+-09wkGJgWFg@mail.gmail.com>
+Subject: Re: [PATCH v2 00/13] i2c: add and start using i2c_adapter-specific
+ printk helpers
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>, Chen-Yu Tsai <wens@kernel.org>, 
+	Jernej Skrabec <jernej.skrabec@gmail.com>, Samuel Holland <samuel@sholland.org>, 
+	Khalil Blaiech <kblaiech@nvidia.com>, Asmaa Mnebhi <asmaa@nvidia.com>, Jean Delvare <jdelvare@suse.com>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+	=?UTF-8?Q?Andreas_F=C3=A4rber?= <afaerber@suse.de>, 
+	Manivannan Sadhasivam <mani@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-sunxi@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	linux-actions@lists.infradead.org, Bartosz Golaszewski <brgl@kernel.org>, 
+	linux-media@vger.kernel.org, 
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed, Feb 25, 2026 at 05:19:38PM +0800, Ryan Chen wrote:
-> The AST2600 I2C controller introduces a completely new register layout
-> with separate controller and target register blocks, unlike the mixed
-> register layout used by AST2400/AST2500.
-> 
-> To describe this properly, split out the AST2600 I2C binding into its
-> own YAML file. The compatible string remains unchanged.
+On Thu, 26 Feb 2026 21:21:35 +0100, Wolfram Sang
+<wsa+renesas@sang-engineering.com> said:
+> On Mon, Feb 23, 2026 at 09:59:29AM +0100, Bartosz Golaszewski wrote:
+>> It's been another year of discussing the object life-time problems at
+>> conferences. I2C is one of the offenders and its problems are more
+>> complex than those of some other subsystems. It seems the revocable[1]
+>> API may make its way into the kernel this year but even with it in
+>> place, I2C won't be able to use it as there's currently nothing to
+>> *revoke*. The struct device is embedded within the i2c_adapter struct
+>> whose lifetime is tied to the provider device being bound to its driver.
+>>
+>> Fixing this won't be fast and easy but nothing's going to happen if we
+>> don't start chipping away at it. The ultimate goal in order to be able
+>> to use an SRCU-based solution (revocable or otherwise) is to convert the
+>> embedded struct device in struct i2c_adapter into an __rcu pointer that
+>> can be *revoked*. To that end we need to hide all dereferences of
+>> adap->dev in drivers.
+>>
+>> This series addresses the usage of adap->dev in device printk() helpers
+>> (dev_err() et al). It introduces a set of i2c-specific helpers and
+>> starts using them across bus drivers. For now just 12 patches but I'll
+>> keep on doing it if these get accepted. Once these get upstream for
+>> v6.20/7.0, we'll be able to also start converting i2c drivers outside of
+>> drivers/i2c/.
+>
+> I applied the series to for-current but squashed the user conversions
+> into patch 1. Changes are trivial enough and I don't want the pull
+> request to look excessive, so it can go in smoothly. Hope you are fine
+> with it.
+>
 
-But you made other changes in the binding. You must list them, because
-otherwise it sounds like you only SPLIT. It's not true. You actually
-changed the binding in at least two places, maybe more.
+Sure, do you still want me to send these changes in separate patches for
+review?
 
-> 
-> The example section is updated to reflect the actual AST2600 SoC
-> register layout and interrupt configuration (aspeed-g6.dtsi,
-> lines 885-897):
-> 
-> - I2C bus and buffer register offsets
->   - AST2600 I2C controller register base starts at 0x80, and the
->     buffer region is located at 0xc00, per the AST2600 SoC register map.
-> 
-> - Interrupt configuration
->   - AST2600 I2C controllers are connected to the ARM GIC, not the legacy
->     internal interrupt controller.
-
-Example is irrelevant, don't mention it. We discuss here binding.
-
-> 
-> Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
-> ---
->  .../bindings/i2c/aspeed,ast2600-i2c.yaml           | 62 ++++++++++++++++++++++
->  .../devicetree/bindings/i2c/aspeed,i2c.yaml        |  3 +-
->  2 files changed, 63 insertions(+), 2 deletions(-)
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml b/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
-> new file mode 100644
-> index 000000000000..077be85137c9
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
-> @@ -0,0 +1,62 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/i2c/aspeed,ast2600-i2c.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: ASPEED I2C on the AST26XX SoCs
-
-s/26XX/2600/ probably
-
-> +
-> +maintainers:
-> +  - Ryan Chen <ryan_chen@aspeedtech.com>
-> +
-> +allOf:
-> +  - $ref: /schemas/i2c/i2c-controller.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    enum:
-> +      - aspeed,ast2600-i2c-bus
-> +
-> +  reg:
-> +    items:
-> +      - description: controller registers
-> +      - description: controller buffer space
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +  clocks:
-> +    maxItems: 1
-> +
-> +  clock-frequency:
-> +    description: Desired operating frequency of the I2C bus in Hz.
-> +    minimum: 500
-> +    maximum: 4000000
-> +    default: 100000
-> +
-> +  resets:
-> +    maxItems: 1
-> +
-> +required:
-> +  - reg
-> +  - compatible
-> +  - clocks
-> +  - resets
-> +  - interrupts
-> +
-> +unevaluatedProperties: false
-> +
-> +examples:
-> +  - |
-> +    #include <dt-bindings/clock/aspeed-clock.h>
-> +    #include <dt-bindings/interrupt-controller/arm-gic.h>
-> +    i2c@80 {
-> +      #address-cells = <1>;
-> +      #size-cells = <0>;
-
-Please follow DTS coding style.
-
-Best regards,
-Krzysztof
-
+Bart
