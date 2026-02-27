@@ -1,248 +1,93 @@
-Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
+Received: from mail-vs1-f73.google.com (mail-vs1-f73.google.com [209.85.217.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F86535A38C
-	for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 16:58:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A270E37418D
+	for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 18:23:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772211513; cv=none; b=ODK+xtWPBQe668Xzms3+Op9LFvzr2+Ti7A4HLaO9BuqMdaumOvC0efmQ5wqc7oZOaP5oDFhWqTjFnLyhiXY1wPJlHZgOWj9fKCASRajARgJaCkDwIJW3JxJMZA/o4dUryvELAVOQZDnRNYVj5ukqReqNdmjFY48LusWMbdUVSIk=
+	t=1772216610; cv=none; b=X3Pid7Yt5Jl7MIvupPx+lZB8G+4u5m+paxmY43osy17B4J4n9s00B6wMPZqx8rHKAXYcyTHgK1rHbuTQkQt4muLET1mTrlrSTJ8TmwxHEQWkZioWmy2p5Zt8+DOGlp6cP9TSzgBiLNX3maiZVSngfQlwaMcs7yRoekQXFUpU25M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772211513; c=relaxed/simple;
-	bh=8QooufOo4pPMQ94Tm+1S+IKUXQJzBKWDChzX4qil09A=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Rx7S/oT7DV3qJzTURuzsFfIdM1Exn+1khaLEtBJbbWkNPxa0wVPg/SX460tfpPwD0FZKsiYUGYfX7OKlwoYVb1WLjbrPG5uoPKvRXk1PhRCGYHpwtHYkOZKoVwb0Uelq4ywMT+BfOE+e5MwAD0soINuBgOOWVAaUo9Qe3RWaL14=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.210.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-824a829f9bbso1140303b3a.0
-        for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 08:58:31 -0800 (PST)
+	s=arc-20240116; t=1772216610; c=relaxed/simple;
+	bh=PYAhNtqtnszYu5l+tbTZL3tiM35a60fQLKNvKel4cUY=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=jbm4Qq/T54/zoD4n1AjXpXjHueywnqqqH2Pn1n8Ux0e/GN0I8plnW5DBqjvuGmkEh7j7K26mtqM6klnm/ttKla4LDFjoN1gnzWTkUidkTVWl3lF34olR0mwY5eG5nnq6otLyFHR2p6z6FCkJBAzgVtZdcKUBZCqyrRcX5p3JuhA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--moritzf.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vUl7Bbh1; arc=none smtp.client-ip=209.85.217.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--moritzf.bounces.google.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vUl7Bbh1"
+Received: by mail-vs1-f73.google.com with SMTP id ada2fe7eead31-5ff2bc282baso2357347137.3
+        for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 10:23:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1772216606; x=1772821406; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=lo+eJagIXatFxiZOuXjyzp4yV+2ptGEyj5f4SK9fDa0=;
+        b=vUl7Bbh1GXFsTsEp+3e+gZJR4RMxSyeY/8Qv9nV01Q7aL+ojXcXsHtNY8jJMFLO6rf
+         6vh8VVPLjZV5gF0hPLo+ccF3eNmHfzMSNHfqg8B8HKogNKWb0vezbclJ+wIKvsY6gt3y
+         P/fFJDbEscFwr0Avh/fLOpPh+aBAG6pwC9jZNOU9Bzff0O9CMIK41eNlw7G85KNmuXE2
+         FQZnV0N/2mioVdN8gJ4P1Cv5U1AlVXJnH7I1ckOGCmcVfkgyfue1SaB6ccfadDs/BfLT
+         f5VHqbsG4oV/fv6KVTd2JmsJxLHOolVX0n7uzjzoJJTzBngoJ8joLOIhVfzgjX/Q950M
+         7BFA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772211511; x=1772816311;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=AIGPgG8NajjCLfKfqfkEsLDhUiGu4xrfbhUgqAmvE/8=;
-        b=aEUtVbtYuK99rxFfDmEB49vKKW47ZwiOG5jImIVFotAbmyPfVmd4b0pWzKU9xq/HlQ
-         OpMWBCCjvGYyUlS72yrxTQHONzCHa7JgjYIYRKfN3Qr6l35AWSgEsxqYHAURrMIqO2LO
-         smd98WWOaOOd9MeqWcEihrJ0luK9TCiSeanBv6kee8ixOUmaAAUWGSMwSh6QySMX+r3g
-         4fGuxtRPw3iBVwv38ab7kNOW3h4BmR0PQ6hUUgxoZj2HjDTXATUsq+vpKA2dTkO4TTWe
-         WwKmfesjvEf23QocyCT9rIg0sPtEBH7/jr1gzP2EDJZiniso1wQ9jMFqrhvOnlW/MD6u
-         kyHg==
-X-Forwarded-Encrypted: i=1; AJvYcCUowhoxoLQsryh7Qehdyjjw5axgSJGT2wxAqlDW6GJtSTbYbbeOqrRixGiiUxtrLa6lq+5I4D9Lw+g=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyeaTklSEjxhoACEmX4RnxcVBwBUnKGC0vxzxGvPDTW2mryDACA
-	jyqtuKqmcpO2NfbEryurHMqqz3xwb5rLC6OtOpU9gfFa2N9uAIg8Kw0TyT79JWGQ2ZI=
-X-Gm-Gg: ATEYQzzaw+mo79Nxy7LeFi8ct3Ngj1EgzSD2fO/BnhgLdE4RCQgMhtlbMMTi0xbHELS
-	Sr9mBzrdvLv8Npeo5mCD/K689JipGbKHHoiBPc6OKhjnI/p08+KWZDY0nuZNJ+nVh7rWokbwi7U
-	HALlO92j8gFcyTu0ypd5QWOmhHE9Rhy6//Z1qAiPcsusbKskejQXL+/tNcFtVlO61h2/5vhUR+l
-	E016MeTq1ypdzwl4oQeCq1VLQU50nV823VvFm0puDsqm79/s8VeVUHoCZTLsByc8akYTRGes0Ub
-	h0I+2T58a99B76D8qaMJ7s/uEunHtr3UlSQm9RQnAAs2sGbdeDMg/oOK3j/uB0P2YfjO9wc62PD
-	bH1iara0yWvmd8TFSskOd7NaDpykda3WxKvGav3rdCbZLty+4tRA4PuHlAkSMbGcGcqVAfHHeZi
-	G2zw4+7YuauyZEeX1JAm7zKEAfmGXhon087N/O6E1CQPL/b+ehpXcYO3WA7DE=
-X-Received: by 2002:a05:6a00:189f:b0:823:3fc7:4c84 with SMTP id d2e1a72fcca58-8274d7b86aamr3827849b3a.0.1772211510928;
-        Fri, 27 Feb 2026 08:58:30 -0800 (PST)
-Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com. [74.125.82.44])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82739ff1ccasm5861846b3a.39.2026.02.27.08.58.30
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 27 Feb 2026 08:58:30 -0800 (PST)
-Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-12732e6a123so354747c88.1
-        for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 08:58:30 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCUnUo8TssDXOJLesOlqRE2PkIQBvgX4f9HFdyE+PI57CE3o3bvOpHfFFsm5X3Bb7EC5JI/Ppne5ncM=@vger.kernel.org
-X-Received: by 2002:a05:6102:c01:b0:5f5:33c9:c9b3 with SMTP id
- ada2fe7eead31-5ff32536408mr1676835137.29.1772211026292; Fri, 27 Feb 2026
- 08:50:26 -0800 (PST)
+        d=1e100.net; s=20230601; t=1772216606; x=1772821406;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=lo+eJagIXatFxiZOuXjyzp4yV+2ptGEyj5f4SK9fDa0=;
+        b=oB/uC9vljD+kMcXPUmqHf6e94eqIKNuhlcWFkyZChUqXuLXmGHRAP0V2Ywckc2pQAC
+         aogohW2X1//QgKJvMDpTuWcMHIR7DAw+anYehQtEfdGgNzGlzlOMwRqgZOgkiPLHzJmf
+         GNYAciV9+jf5ZxkzkZcOLh8VNWzKuI1lGEmctyOoAAfvsZTi4SpUm/8v3BvitIvKIdaT
+         VNc4IDENroCNUMjTcxbJddphYtj2A3Aco+9qe+l2lTrMJPjCBanNT4o5gS8+OSYHAsX7
+         11orf9VAvT4PP5WAs99O/LuBWTHuIus5qxl44vYNgSNKAD5xKff+wK0RNGMHNJBbD0Vf
+         /6hg==
+X-Gm-Message-State: AOJu0Yx0iuur5Y8muE3Pw/LwIlLHI/9Y4FqrUyiYtOANag2qyr1t2i0b
+	ifE7XO8hjszNxk8EpyjUqpPLKVdZ9s9hl+35JaTF3+lpCtSZZVuKT8DCFi1WvuZnW4Il16AHTyt
+	KGqwEbKLGXUcMYCmlkL3tcKl6aHElo+uyF5a+lEPBnNC/4dFp6qj2vhBC4dtgqgPYJwy07XicLL
+	8QszvqOakSFllQvWMBkFOFweeGjp4/63ZW8diikhZNTuw7dg==
+X-Received: from vsig23.prod.google.com ([2002:a05:6102:9d7:b0:5ff:1300:8955])
+ (user=moritzf job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6102:3e8a:b0:5dd:89af:459b
+ with SMTP id ada2fe7eead31-5ff322c4256mr1650178137.7.1772216606273; Fri, 27
+ Feb 2026 10:23:26 -0800 (PST)
+Date: Fri, 27 Feb 2026 18:23:07 +0000
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260227135428.783983-1-herve.codina@bootlin.com> <20260227135428.783983-4-herve.codina@bootlin.com>
-In-Reply-To: <20260227135428.783983-4-herve.codina@bootlin.com>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Fri, 27 Feb 2026 17:50:14 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdUAHXNbGfJFcUMQbzPqRS0S_RErU8u7t=AdmX0ZFQMjhQ@mail.gmail.com>
-X-Gm-Features: AaiRm53ZqgozcqNHytSHwR_CUbVuY8sQSeRMANHqThlNEOeyZsxQir9SPbAYLBo
-Message-ID: <CAMuHMdUAHXNbGfJFcUMQbzPqRS0S_RErU8u7t=AdmX0ZFQMjhQ@mail.gmail.com>
-Subject: Re: [PATCH v5 03/28] of: dynamic: Fix overlayed devices not probing
- because of fw_devlink
-To: Herve Codina <herve.codina@bootlin.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Kalle Niemi <kaleposti@gmail.com>, Matti Vaittinen <mazziesaccount@gmail.com>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Danilo Krummrich <dakr@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
-	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
-	Fabio Estevam <festevam@gmail.com>, Michael Turquette <mturquette@baylibre.com>, 
-	Stephen Boyd <sboyd@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, Peter Rosin <peda@axentia.se>, 
-	Arnd Bergmann <arnd@arndb.de>, Saravana Kannan <saravanak@kernel.org>, 
-	Bjorn Helgaas <bhelgaas@google.com>, Charles Keepax <ckeepax@opensource.cirrus.com>, 
-	Richard Fitzgerald <rf@opensource.cirrus.com>, David Rhodes <david.rhodes@cirrus.com>, 
-	Linus Walleij <linusw@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, 
-	Mark Brown <broonie@kernel.org>, Len Brown <lenb@kernel.org>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Daniel Scally <djrscally@gmail.com>, 
-	Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
-	Sakari Ailus <sakari.ailus@linux.intel.com>, Davidlohr Bueso <dave@stgolabs.net>, 
-	Jonathan Cameron <jonathan.cameron@huawei.com>, Dave Jiang <dave.jiang@intel.com>, 
-	Alison Schofield <alison.schofield@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, 
-	Ira Weiny <ira.weiny@intel.com>, Dan Williams <dan.j.williams@intel.com>, 
-	Shawn Guo <shawnguo@kernel.org>, Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org, 
-	driver-core@lists.linux.dev, imx@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
-	patches@opensource.cirrus.com, linux-gpio@vger.kernel.org, 
-	linux-pm@vger.kernel.org, linux-spi@vger.kernel.org, 
-	linux-acpi@vger.kernel.org, linux-cxl@vger.kernel.org, 
-	Allan Nielsen <allan.nielsen@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>, 
-	Steen Hegelund <steen.hegelund@microchip.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Saravana Kannan <saravanak@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.53.0.473.g4a7958ca14-goog
+Message-ID: <20260227182308.776922-1-moritzf@google.com>
+Subject: [PATCH] i2c: designware: Add a new ACPI HID for GOOG5000 I2C controller
+From: Moritz Fischer <moritzf@google.com>
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org, mdf@kernel.org, ovt@google.com, 
+	Moritz Fischer <moritzf@google.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, 
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jan Dabros <jsd@semihalf.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Hi Herv=C3=A9,
+Define a new ACPI HID for GOOG5000 as used on Google Axion.
 
-On Fri, 27 Feb 2026 at 14:56, Herve Codina <herve.codina@bootlin.com> wrote=
-:
-> From: Saravana Kannan <saravanak@google.com>
->
-> When an overlay is applied, if the target device has already probed
-> successfully and bound to a device, then some of the fw_devlink logic
-> that ran when the device was probed needs to be rerun. This allows newly
-> created dangling consumers of the overlayed device tree nodes to be
-> moved to become consumers of the target device.
->
-> Fixes: 1a50d9403fb9 ("treewide: Fix probing of devices in DT overlays")
-> Reported-by: Herve Codina <herve.codina@bootlin.com>
-> Closes: https://lore.kernel.org/lkml/CAMuHMdXEnSD4rRJ-o90x4OprUacN_rJgyo8=
-x6=3D9F9rZ+-KzjOg@mail.gmail.com/
-> Closes: https://lore.kernel.org/all/20240221095137.616d2aaa@bootlin.com/
-> Closes: https://lore.kernel.org/lkml/20240312151835.29ef62a0@bootlin.com/
-> Signed-off-by: Saravana Kannan <saravanak@google.com>
-> Link: https://lore.kernel.org/lkml/20240411235623.1260061-3-saravanak@goo=
-gle.com/
-> [Herve: Rebase on top of recent kernel and use get_device_from_fwnode()]
-> [Herve: Add the call to driver_deferred_probe_trigger()]
+This has been validated on Silicon.
 
-Thanks, that last change did the trick, finally!
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jan Dabros <jsd@semihalf.com>
+Signed-off-by: Moritz Fischer <moritzf@google.com>
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-> Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 426ffec06e22..3351c4a9ef11 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -268,6 +268,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
+ 	{ "AMDI0510", 0 },
+ 	{ "APMC0D0F", 0 },
+ 	{ "FUJI200B", 0 },
++	{ "GOOG5000", 0 },
+ 	{ "HISI02A1", 0 },
+ 	{ "HISI02A2", 0 },
+ 	{ "HISI02A3", 0 },
+-- 
+2.53.0.473.g4a7958ca14-goog
 
-Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
-
-> --- a/drivers/base/core.c
-> +++ b/drivers/base/core.c
-> @@ -235,6 +235,79 @@ static void __fw_devlink_pickup_dangling_consumers(s=
-truct fwnode_handle *fwnode,
->                 __fw_devlink_pickup_dangling_consumers(child, new_sup);
->  }
->
-> +static void fw_devlink_pickup_dangling_consumers(struct device *dev)
-> +{
-> +       struct fwnode_handle *child;
-> +
-> +       guard(mutex)(&fwnode_link_lock);
-> +
-> +       fwnode_for_each_available_child_node(dev->fwnode, child)
-> +               __fw_devlink_pickup_dangling_consumers(child, dev->fwnode=
-);
-> +       __fw_devlink_link_to_consumers(dev);
-> +}
-> +
-> +/**
-> + * fw_devlink_refresh_fwnode - Recheck the tree under this firmware node
-> + * @fwnode: The fwnode under which the fwnode tree has changed
-> + *
-> + * This function is mainly meant to adjust the supplier/consumer depende=
-ncies
-> + * after a fwnode tree overlay has occurred.
-> + */
-> +void fw_devlink_refresh_fwnode(struct fwnode_handle *fwnode)
-> +{
-> +       struct device *dev;
-> +
-> +       /*
-> +        * Find the closest ancestor fwnode that has been converted to a =
-device
-> +        * that can bind to a driver (bus device).
-> +        */
-> +       fwnode_handle_get(fwnode);
-> +       do {
-> +               if (fwnode->flags & FWNODE_FLAG_NOT_DEVICE)
-> +                       continue;
-> +
-> +               dev =3D get_device_from_fwnode(fwnode);
-> +               if (!dev)
-> +                       continue;
-> +
-> +               if (dev->bus)
-> +                       break;
-> +
-> +               put_device(dev);
-> +       } while ((fwnode =3D fwnode_get_next_parent(fwnode)));
-> +
-> +       /*
-> +        * If none of the ancestor fwnodes have (yet) been converted to a=
- device
-> +        * that can bind to a driver, there's nothing to fix up.
-> +        */
-> +       if (!fwnode)
-> +               return;
-> +
-> +       WARN(device_is_bound(dev) && dev->links.status !=3D DL_DEV_DRIVER=
-_BOUND,
-> +            "Don't multithread overlaying and probing the same device!\n=
-");
-> +
-> +       /*
-> +        * If the device has already bound to a driver, then we need to r=
-edo
-> +        * some of the work that was done after the device was bound to a
-> +        * driver. If the device hasn't bound to a driver, running thing =
-too
-
-things
-
-> +        * soon would incorrectly pick up consumers that it shouldn't.
-> +        */
-> +       if (dev->links.status =3D=3D DL_DEV_DRIVER_BOUND) {
-> +               fw_devlink_pickup_dangling_consumers(dev);
-> +               /*
-> +                * Some of dangling consumers could have been put previou=
-sly in
-> +                * the deferred probe list due to the unavailability of t=
-heir
-> +                * suppliers. Those consumers have been picked up and som=
-e of
-> +                * their suppliers links have been update. Time to re-try=
- their
-
-updated
-
-> +                * probe sequence.
-> +                */
-> +               driver_deferred_probe_trigger();
-> +       }
-> +
-> +       put_device(dev);
-> +       fwnode_handle_put(fwnode);
-> +}
-> +
->  static DEFINE_MUTEX(device_links_lock);
->  DEFINE_STATIC_SRCU(device_links_srcu);
->
-
-Gr{oetje,eeting}s,
-
-                        Geert
-
---=20
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
-.org
-
-In personal conversations with technical people, I call myself a hacker. Bu=
-t
-when I'm talking to journalists I just say "programmer" or something like t=
-hat.
-                                -- Linus Torvalds
