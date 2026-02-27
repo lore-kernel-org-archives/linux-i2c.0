@@ -1,40 +1,39 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C6063AEF2B;
-	Fri, 27 Feb 2026 08:59:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56AD03A0EA1
+	for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 09:08:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772182747; cv=none; b=mxVg5UjcFLQeXL6uBNyM0FAhDDEbhbe+JfvrG6k477W1Su7oVvNAInt2okQMIIsyqUo0uLrphEy72+8OGnhSfDVqLlDlO8Bj/yTD3UowH38mZKCcgdFRDR8KFb0tLGSTzVVeBEHIK/sibJ6PlWRaQ2102l8b4G6rHwswb20b7cE=
+	t=1772183319; cv=none; b=XWdudPUlk1cAMK2jBTK8cgotS5WzioDa+mC1hzL9IiMyRbydK4m92lfk8oNrv6Zv4tHsLWHwHStlaC2ZV9KbV4v9Ol6njF8y1hduwG6l43pjwBZb6jEgXQrRUSKYbkxiYUMiv5AryTflItFypcOpU48/PxwDPbC/rZmvk5ZfP08=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772182747; c=relaxed/simple;
-	bh=VzY/ze97VjQJB6pusfmZwjsA+pOGa2Ehm/PhEEoeuXo=;
+	s=arc-20240116; t=1772183319; c=relaxed/simple;
+	bh=PKbbwoJiySWh9ee8roBwDMpkbdIyqL01vBKdnFsot5c=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nW1LsdBpOebAKFLrhPauML+GxNp2wDicWXva2BSOQegSM0hYbwjSn5V0+QKvU+DH/nAT8xJBPzZjaDfC2gM+jEYZF+3y8KjCAE683mG1qi/TpkarcaCywvzRqkgf3QXhAeiIMi7HopJ7GGJCoO0iAzAQOLkDi/DQsm2MEbMtA/4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JAEhKUUK; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=AOySAqFEoAwV0Wuf2Phy31DSkELNFfEy+JA5ntTkE5sZrSvm9dkcPtwxt8KygckBeYnHyiVsKcuUCItjf023xAR/v7BmqxeguCBEcOBVtOMVLWqXza1CQidi/sGeoG6di7Kn2UsGGdr2woTXHmp74g9+IyidzYgNCDzYEORTqjc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=NNt/+kgd; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JAEhKUUK"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3918C2BCB0;
-	Fri, 27 Feb 2026 08:59:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772182746;
-	bh=VzY/ze97VjQJB6pusfmZwjsA+pOGa2Ehm/PhEEoeuXo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=JAEhKUUK1BXG9J99lnYRvccU7OFWmcACPC8G9rjuzLEiFAB2pFKgNDr54l7D9w7aY
-	 xSx557fMzTqXOTN8Kd/9smGEiItjVaMfSsC/FVg+l0Ja7O5Y5AFFDboPmD3blrTLBc
-	 qCpF0Whlvi8V/CSgBZSgfiu2Wu+JrwNu+N6eY65JcwI3csJVwuRyHs/glM0nZ0lbRv
-	 1WyAUrwiutxoCbarTjTNR2oXy2mPIL5AwjVCagk1Hpn5C+PSAovHSd+tXGxkLdH9ju
-	 ePuzH2Ur7TfopAXlAuB1pO5xVPa1dQecHrZr/EP44S+wpOCuPcj249WAdenNAENoJ+
-	 vi95mzuN0VLqg==
-Received: from johan by xi.lan with local (Exim 4.98.2)
-	(envelope-from <johan@kernel.org>)
-	id 1vvtg3-000000001ZV-3EUL;
-	Fri, 27 Feb 2026 09:58:27 +0100
-Date: Fri, 27 Feb 2026 09:58:27 +0100
-From: Johan Hovold <johan@kernel.org>
-To: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>, Chen-Yu Tsai <wens@kernel.org>,
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="NNt/+kgd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=PMFA
+	O4csiSN1neHee9OeKdJZyaErSWGhMT/VU9fURKM=; b=NNt/+kgdJvUJ6dErCiQZ
+	FsjmBZOYgAIctuPF+FsJTFm1XfUfq0bbV2r75EIzm32GJZONBIpZQb18pjKoEYfz
+	v1BkfHcvRUuWFPaUKI52cD5vUZlgEh0U0jC6YnGQF4FAUS/ANpi708r2HeFeps5d
+	760lZ8tMAOh2/LW5EnJwMWBybA8EisVDcz8Nt+j1enOM4kBmiEXnL2+BV8/6VZwn
+	Ii6YPZvpBS1ZzqSqUimwGhUmg4M9rNqVVZs0zgGX0Fd7v92aJIi7IbX/S4NhfDB2
+	rr+uysI8ngNiXM9fOjw2UQiaonzEht4kHSYcngE0oAEswp32ODspy3yP4k3v7KZn
+	fg==
+Received: (qmail 1412929 invoked from network); 27 Feb 2026 10:08:35 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 27 Feb 2026 10:08:35 +0100
+X-UD-Smtp-Session: l3s3148p1@JPv0lMpLHKAgAwDPXzF+ANZpdrMKUeLI
+Date: Fri, 27 Feb 2026 10:08:34 +0100
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Johan Hovold <johan@kernel.org>
+Cc: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
+	Andi Shyti <andi.shyti@kernel.org>, Chen-Yu Tsai <wens@kernel.org>,
 	Jernej Skrabec <jernej.skrabec@gmail.com>,
 	Samuel Holland <samuel@sholland.org>,
 	Khalil Blaiech <kblaiech@nvidia.com>,
@@ -52,8 +51,9 @@ Cc: Andi Shyti <andi.shyti@kernel.org>, Chen-Yu Tsai <wens@kernel.org>,
 	Bartosz Golaszewski <brgl@kernel.org>, linux-media@vger.kernel.org
 Subject: Re: [PATCH v2 00/13] i2c: add and start using i2c_adapter-specific
  printk helpers
-Message-ID: <aaFcs1miP88QWmtH@hovoldconsulting.com>
+Message-ID: <aaFfEsfh0xTh0b1y@shikoro>
 References: <20260223-i2c-printk-helpers-v2-0-13b2a97762af@oss.qualcomm.com>
+ <aaFcs1miP88QWmtH@hovoldconsulting.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -62,34 +62,23 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260223-i2c-printk-helpers-v2-0-13b2a97762af@oss.qualcomm.com>
+In-Reply-To: <aaFcs1miP88QWmtH@hovoldconsulting.com>
 
-On Mon, Feb 23, 2026 at 09:59:29AM +0100, Bartosz Golaszewski wrote:
-> It's been another year of discussing the object life-time problems at
-> conferences. I2C is one of the offenders and its problems are more
-> complex than those of some other subsystems. It seems the revocable[1]
-> API may make its way into the kernel this year but even with it in
-> place, I2C won't be able to use it as there's currently nothing to
-> *revoke*. The struct device is embedded within the i2c_adapter struct
-> whose lifetime is tied to the provider device being bound to its driver.
-> 
-> Fixing this won't be fast and easy but nothing's going to happen if we
-> don't start chipping away at it. The ultimate goal in order to be able
-> to use an SRCU-based solution (revocable or otherwise) is to convert the
-> embedded struct device in struct i2c_adapter into an __rcu pointer that
-> can be *revoked*. To that end we need to hide all dereferences of
-> adap->dev in drivers.
+Johan,
 
-Again, this is not the way to do this. You don't need to wrap every
-access to struct device in random subsystem specific helpers to address
-the lifetime issues. You're just creating a big mess here for no good
-reason.
+> Wolfram, I noticed you merged these last night. Please think again and
+> let's discuss the end result here. There's no question that there are
+> lifetime issues in i2c, but this is not the way to solve it.
 
-I asked you to show where you think you're going with this because none
-of this looks right. Same comment applies to your other series.
+I did think again and do not see a way how the life cycle problems can
+be solved while drivers happily access the device struct of the adapter.
+Whatever the solution to the core problem is (revocable, custom SRCU,
+something else), I still think this step is needed in any case. If I am
+wrong with this opinion, please enlighten me. Pointer to some existing
+thread is OK, too. I didn't have the bandwidth to read the revocable
+mail threads.
 
-Wolfram, I noticed you merged these last night. Please think again and
-let's discuss the end result here. There's no question that there are
-lifetime issues in i2c, but this is not the way to solve it.
+Happy hacking,
 
-Johan
+   Wolfram
+
