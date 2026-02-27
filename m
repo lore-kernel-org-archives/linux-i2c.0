@@ -1,115 +1,248 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E5B9346E5E;
-	Fri, 27 Feb 2026 16:41:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F86535A38C
+	for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 16:58:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772210469; cv=none; b=A+71L1tYFrNlABoONSE8HOY1Iq8106hwzXaDKXtbOV+7BJ03wt45rlfrrbYr9WNG/7wTlKBNVI0M88nX9BuwYzvM1nwkeHOPU733kgk11ax045/qszBOUjHWl1PQzKCUVQSxd1zUrCToqQ7eUFeiKyX77512H/KPqhPEUL+4J+g=
+	t=1772211513; cv=none; b=ODK+xtWPBQe668Xzms3+Op9LFvzr2+Ti7A4HLaO9BuqMdaumOvC0efmQ5wqc7oZOaP5oDFhWqTjFnLyhiXY1wPJlHZgOWj9fKCASRajARgJaCkDwIJW3JxJMZA/o4dUryvELAVOQZDnRNYVj5ukqReqNdmjFY48LusWMbdUVSIk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772210469; c=relaxed/simple;
-	bh=Ra4gGeTukVvl+IUi3kpBx/h8Xrcr5tcq4BLIbbsXf6c=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WHlze4E1QJRgwKf1fTjgP47QJPTVdB/DQcbGBgQRZV1NMS1EG3Bbx+rJcSzuWd2b756gPhdJM7zylyR2A9z1xVbWncYgB1vtF+lAkXLL5PF4ktT4oOL1ibKdZTAqNLr/WXmb/ylFGmuIHX14jINS8KDylLpSFEJOvqUHpcXtbQU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kaYFALf4; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kaYFALf4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9A9DC116C6;
-	Fri, 27 Feb 2026 16:41:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772210468;
-	bh=Ra4gGeTukVvl+IUi3kpBx/h8Xrcr5tcq4BLIbbsXf6c=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=kaYFALf4xSZVQAbA312F7K02ns0zy5kcaOvWHFJNWY9AvATt7pUW+bvMJKbdtChtm
-	 tH2uUwehXsL2Hj8fdwwpVCcWuHdDsb63uUFJP2cMF43xNCJTDSxZcHpwvTLSu1U7Sl
-	 M2FUvnb6mDY3PWKJMno+e3SWOYvxG8KKG8vxw4MEn6hOq41EUPBH23+RINiw2vhX+e
-	 FbHp3qUfZvbZuE+CnrnSZvs5NqaaWkofdWxMYqTtE/Z0RbEfnkD+zmDgc1t+2WJ5x1
-	 9nBJrTX+Zzefz1LyUgn8uO+y6uQ40gkpU5G5jKsZVOMPxB3x2051Wg3WzGAPsaffSQ
-	 nrMMZp0t1q53A==
-Received: from johan by xi.lan with local (Exim 4.98.2)
-	(envelope-from <johan@kernel.org>)
-	id 1vw0tB-000000002TD-2FBk;
-	Fri, 27 Feb 2026 17:40:29 +0100
-Date: Fri, 27 Feb 2026 17:40:29 +0100
-From: Johan Hovold <johan@kernel.org>
-To: Bartosz Golaszewski <brgl@kernel.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
-	Andi Shyti <andi.shyti@kernel.org>, Chen-Yu Tsai <wens@kernel.org>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Samuel Holland <samuel@sholland.org>,
-	Khalil Blaiech <kblaiech@nvidia.com>,
-	Asmaa Mnebhi <asmaa@nvidia.com>, Jean Delvare <jdelvare@suse.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Andreas =?utf-8?Q?F=C3=A4rber?= <afaerber@suse.de>,
-	Manivannan Sadhasivam <mani@kernel.org>,
-	Mauro Carvalho Chehab <mchehab@kernel.org>,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-sunxi@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org, linux-actions@lists.infradead.org,
-	linux-media@vger.kernel.org
-Subject: Re: [PATCH v2 00/13] i2c: add and start using i2c_adapter-specific
- printk helpers
-Message-ID: <aaHI_VavZugXjVoL@hovoldconsulting.com>
-References: <20260223-i2c-printk-helpers-v2-0-13b2a97762af@oss.qualcomm.com>
- <aaFcs1miP88QWmtH@hovoldconsulting.com>
- <aaFfEsfh0xTh0b1y@shikoro>
- <aaFsZbiLYSz_YEjw@hovoldconsulting.com>
- <CAMRc=MfcvD1nJy=zpoCkSkJq6WjyXQxFUZ4QE6vyCS+XFCn5AA@mail.gmail.com>
+	s=arc-20240116; t=1772211513; c=relaxed/simple;
+	bh=8QooufOo4pPMQ94Tm+1S+IKUXQJzBKWDChzX4qil09A=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Rx7S/oT7DV3qJzTURuzsFfIdM1Exn+1khaLEtBJbbWkNPxa0wVPg/SX460tfpPwD0FZKsiYUGYfX7OKlwoYVb1WLjbrPG5uoPKvRXk1PhRCGYHpwtHYkOZKoVwb0Uelq4ywMT+BfOE+e5MwAD0soINuBgOOWVAaUo9Qe3RWaL14=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.210.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-824a829f9bbso1140303b3a.0
+        for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 08:58:31 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772211511; x=1772816311;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=AIGPgG8NajjCLfKfqfkEsLDhUiGu4xrfbhUgqAmvE/8=;
+        b=aEUtVbtYuK99rxFfDmEB49vKKW47ZwiOG5jImIVFotAbmyPfVmd4b0pWzKU9xq/HlQ
+         OpMWBCCjvGYyUlS72yrxTQHONzCHa7JgjYIYRKfN3Qr6l35AWSgEsxqYHAURrMIqO2LO
+         smd98WWOaOOd9MeqWcEihrJ0luK9TCiSeanBv6kee8ixOUmaAAUWGSMwSh6QySMX+r3g
+         4fGuxtRPw3iBVwv38ab7kNOW3h4BmR0PQ6hUUgxoZj2HjDTXATUsq+vpKA2dTkO4TTWe
+         WwKmfesjvEf23QocyCT9rIg0sPtEBH7/jr1gzP2EDJZiniso1wQ9jMFqrhvOnlW/MD6u
+         kyHg==
+X-Forwarded-Encrypted: i=1; AJvYcCUowhoxoLQsryh7Qehdyjjw5axgSJGT2wxAqlDW6GJtSTbYbbeOqrRixGiiUxtrLa6lq+5I4D9Lw+g=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyeaTklSEjxhoACEmX4RnxcVBwBUnKGC0vxzxGvPDTW2mryDACA
+	jyqtuKqmcpO2NfbEryurHMqqz3xwb5rLC6OtOpU9gfFa2N9uAIg8Kw0TyT79JWGQ2ZI=
+X-Gm-Gg: ATEYQzzaw+mo79Nxy7LeFi8ct3Ngj1EgzSD2fO/BnhgLdE4RCQgMhtlbMMTi0xbHELS
+	Sr9mBzrdvLv8Npeo5mCD/K689JipGbKHHoiBPc6OKhjnI/p08+KWZDY0nuZNJ+nVh7rWokbwi7U
+	HALlO92j8gFcyTu0ypd5QWOmhHE9Rhy6//Z1qAiPcsusbKskejQXL+/tNcFtVlO61h2/5vhUR+l
+	E016MeTq1ypdzwl4oQeCq1VLQU50nV823VvFm0puDsqm79/s8VeVUHoCZTLsByc8akYTRGes0Ub
+	h0I+2T58a99B76D8qaMJ7s/uEunHtr3UlSQm9RQnAAs2sGbdeDMg/oOK3j/uB0P2YfjO9wc62PD
+	bH1iara0yWvmd8TFSskOd7NaDpykda3WxKvGav3rdCbZLty+4tRA4PuHlAkSMbGcGcqVAfHHeZi
+	G2zw4+7YuauyZEeX1JAm7zKEAfmGXhon087N/O6E1CQPL/b+ehpXcYO3WA7DE=
+X-Received: by 2002:a05:6a00:189f:b0:823:3fc7:4c84 with SMTP id d2e1a72fcca58-8274d7b86aamr3827849b3a.0.1772211510928;
+        Fri, 27 Feb 2026 08:58:30 -0800 (PST)
+Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com. [74.125.82.44])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82739ff1ccasm5861846b3a.39.2026.02.27.08.58.30
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 27 Feb 2026 08:58:30 -0800 (PST)
+Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-12732e6a123so354747c88.1
+        for <linux-i2c@vger.kernel.org>; Fri, 27 Feb 2026 08:58:30 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCUnUo8TssDXOJLesOlqRE2PkIQBvgX4f9HFdyE+PI57CE3o3bvOpHfFFsm5X3Bb7EC5JI/Ppne5ncM=@vger.kernel.org
+X-Received: by 2002:a05:6102:c01:b0:5f5:33c9:c9b3 with SMTP id
+ ada2fe7eead31-5ff32536408mr1676835137.29.1772211026292; Fri, 27 Feb 2026
+ 08:50:26 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAMRc=MfcvD1nJy=zpoCkSkJq6WjyXQxFUZ4QE6vyCS+XFCn5AA@mail.gmail.com>
+References: <20260227135428.783983-1-herve.codina@bootlin.com> <20260227135428.783983-4-herve.codina@bootlin.com>
+In-Reply-To: <20260227135428.783983-4-herve.codina@bootlin.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Fri, 27 Feb 2026 17:50:14 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdUAHXNbGfJFcUMQbzPqRS0S_RErU8u7t=AdmX0ZFQMjhQ@mail.gmail.com>
+X-Gm-Features: AaiRm53ZqgozcqNHytSHwR_CUbVuY8sQSeRMANHqThlNEOeyZsxQir9SPbAYLBo
+Message-ID: <CAMuHMdUAHXNbGfJFcUMQbzPqRS0S_RErU8u7t=AdmX0ZFQMjhQ@mail.gmail.com>
+Subject: Re: [PATCH v5 03/28] of: dynamic: Fix overlayed devices not probing
+ because of fw_devlink
+To: Herve Codina <herve.codina@bootlin.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Kalle Niemi <kaleposti@gmail.com>, Matti Vaittinen <mazziesaccount@gmail.com>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+	Danilo Krummrich <dakr@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
+	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
+	Fabio Estevam <festevam@gmail.com>, Michael Turquette <mturquette@baylibre.com>, 
+	Stephen Boyd <sboyd@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+	Wolfram Sang <wsa+renesas@sang-engineering.com>, Peter Rosin <peda@axentia.se>, 
+	Arnd Bergmann <arnd@arndb.de>, Saravana Kannan <saravanak@kernel.org>, 
+	Bjorn Helgaas <bhelgaas@google.com>, Charles Keepax <ckeepax@opensource.cirrus.com>, 
+	Richard Fitzgerald <rf@opensource.cirrus.com>, David Rhodes <david.rhodes@cirrus.com>, 
+	Linus Walleij <linusw@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, 
+	Mark Brown <broonie@kernel.org>, Len Brown <lenb@kernel.org>, 
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Daniel Scally <djrscally@gmail.com>, 
+	Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
+	Sakari Ailus <sakari.ailus@linux.intel.com>, Davidlohr Bueso <dave@stgolabs.net>, 
+	Jonathan Cameron <jonathan.cameron@huawei.com>, Dave Jiang <dave.jiang@intel.com>, 
+	Alison Schofield <alison.schofield@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, 
+	Ira Weiny <ira.weiny@intel.com>, Dan Williams <dan.j.williams@intel.com>, 
+	Shawn Guo <shawnguo@kernel.org>, Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org, 
+	driver-core@lists.linux.dev, imx@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
+	patches@opensource.cirrus.com, linux-gpio@vger.kernel.org, 
+	linux-pm@vger.kernel.org, linux-spi@vger.kernel.org, 
+	linux-acpi@vger.kernel.org, linux-cxl@vger.kernel.org, 
+	Allan Nielsen <allan.nielsen@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>, 
+	Steen Hegelund <steen.hegelund@microchip.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Saravana Kannan <saravanak@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 27, 2026 at 04:42:09PM +0100, Bartosz Golaszewski wrote:
-> On Fri, Feb 27, 2026 at 11:06 AM Johan Hovold <johan@kernel.org> wrote:
+Hi Herv=C3=A9,
 
-> > It seems all that is needed is to decouple the struct i2c_adapter from
-> > the driver data and have core manage the lifetime of the former using
-> > the reference count of the embedded struct device.
+On Fri, 27 Feb 2026 at 14:56, Herve Codina <herve.codina@bootlin.com> wrote=
+:
+> From: Saravana Kannan <saravanak@google.com>
+>
+> When an overlay is applied, if the target device has already probed
+> successfully and bound to a device, then some of the fw_devlink logic
+> that ran when the device was probed needs to be rerun. This allows newly
+> created dangling consumers of the overlayed device tree nodes to be
+> moved to become consumers of the target device.
+>
+> Fixes: 1a50d9403fb9 ("treewide: Fix probing of devices in DT overlays")
+> Reported-by: Herve Codina <herve.codina@bootlin.com>
+> Closes: https://lore.kernel.org/lkml/CAMuHMdXEnSD4rRJ-o90x4OprUacN_rJgyo8=
+x6=3D9F9rZ+-KzjOg@mail.gmail.com/
+> Closes: https://lore.kernel.org/all/20240221095137.616d2aaa@bootlin.com/
+> Closes: https://lore.kernel.org/lkml/20240312151835.29ef62a0@bootlin.com/
+> Signed-off-by: Saravana Kannan <saravanak@google.com>
+> Link: https://lore.kernel.org/lkml/20240411235623.1260061-3-saravanak@goo=
+gle.com/
+> [Herve: Rebase on top of recent kernel and use get_device_from_fwnode()]
+> [Herve: Add the call to driver_deferred_probe_trigger()]
 
-> This is a weird pattern you sometimes see where a driver allocates
-> something and passes the ownership to the subsystem.
+Thanks, that last change did the trick, finally!
 
-It's not weird at all, this is the standard way to handle this. We have
-these things called reference counts for a reason.
+> Signed-off-by: Herve Codina <herve.codina@bootlin.com>
 
-> This often
-> causes confusion among driver authors, who logically assume that if
-> you allocate something, you are responsible for freeing it.Since this
-> is C and not Rust (where such things are tracked by the compiler), I
-> strongly believe we should strive to keep ownership consistent: the
-> driver should free resources it allocated within the bounds of the
-> lifetime of the device it controls. The subsystem should manage the
-> data it allocated - in this case the i2c adapter struct device.
+Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-Drivers are responsible for dropping *their* reference, it doesn't mean
-that the resource is necessarily freed immediately as someone else may
-be holding a reference. Anyone surprised by this should not be doing
-kernel development.
+> --- a/drivers/base/core.c
+> +++ b/drivers/base/core.c
+> @@ -235,6 +235,79 @@ static void __fw_devlink_pickup_dangling_consumers(s=
+truct fwnode_handle *fwnode,
+>                 __fw_devlink_pickup_dangling_consumers(child, new_sup);
+>  }
+>
+> +static void fw_devlink_pickup_dangling_consumers(struct device *dev)
+> +{
+> +       struct fwnode_handle *child;
+> +
+> +       guard(mutex)(&fwnode_link_lock);
+> +
+> +       fwnode_for_each_available_child_node(dev->fwnode, child)
+> +               __fw_devlink_pickup_dangling_consumers(child, dev->fwnode=
+);
+> +       __fw_devlink_link_to_consumers(dev);
+> +}
+> +
+> +/**
+> + * fw_devlink_refresh_fwnode - Recheck the tree under this firmware node
+> + * @fwnode: The fwnode under which the fwnode tree has changed
+> + *
+> + * This function is mainly meant to adjust the supplier/consumer depende=
+ncies
+> + * after a fwnode tree overlay has occurred.
+> + */
+> +void fw_devlink_refresh_fwnode(struct fwnode_handle *fwnode)
+> +{
+> +       struct device *dev;
+> +
+> +       /*
+> +        * Find the closest ancestor fwnode that has been converted to a =
+device
+> +        * that can bind to a driver (bus device).
+> +        */
+> +       fwnode_handle_get(fwnode);
+> +       do {
+> +               if (fwnode->flags & FWNODE_FLAG_NOT_DEVICE)
+> +                       continue;
+> +
+> +               dev =3D get_device_from_fwnode(fwnode);
+> +               if (!dev)
+> +                       continue;
+> +
+> +               if (dev->bus)
+> +                       break;
+> +
+> +               put_device(dev);
+> +       } while ((fwnode =3D fwnode_get_next_parent(fwnode)));
+> +
+> +       /*
+> +        * If none of the ancestor fwnodes have (yet) been converted to a=
+ device
+> +        * that can bind to a driver, there's nothing to fix up.
+> +        */
+> +       if (!fwnode)
+> +               return;
+> +
+> +       WARN(device_is_bound(dev) && dev->links.status !=3D DL_DEV_DRIVER=
+_BOUND,
+> +            "Don't multithread overlaying and probing the same device!\n=
+");
+> +
+> +       /*
+> +        * If the device has already bound to a driver, then we need to r=
+edo
+> +        * some of the work that was done after the device was bound to a
+> +        * driver. If the device hasn't bound to a driver, running thing =
+too
 
-> I know there are a lot of places where this is done in the kernel but
-> let's not introduce new ones. This is a bad pattern.
+things
 
-No, it's not. It's literally the standard way of doing this.
+> +        * soon would incorrectly pick up consumers that it shouldn't.
+> +        */
+> +       if (dev->links.status =3D=3D DL_DEV_DRIVER_BOUND) {
+> +               fw_devlink_pickup_dangling_consumers(dev);
+> +               /*
+> +                * Some of dangling consumers could have been put previou=
+sly in
+> +                * the deferred probe list due to the unavailability of t=
+heir
+> +                * suppliers. Those consumers have been picked up and som=
+e of
+> +                * their suppliers links have been update. Time to re-try=
+ their
 
-> But even if you decided this is the way to go, I fail to see how it
-> would be easier than what I'm trying to do. You would have to modify
-> *all* I2C bus drivers as opposed to only modifying those that access
-> the underlying struct device. Or am I missing something?
+updated
 
-Yes, you have to update the allocation and replace container_of() with
-dev_get_drvdata() but it's a straight-forward transformation that brings
-the i2c subsystem more in line with the driver model (unlike whatever it
-is you're trying to do).
+> +                * probe sequence.
+> +                */
+> +               driver_deferred_probe_trigger();
+> +       }
+> +
+> +       put_device(dev);
+> +       fwnode_handle_put(fwnode);
+> +}
+> +
+>  static DEFINE_MUTEX(device_links_lock);
+>  DEFINE_STATIC_SRCU(device_links_srcu);
+>
 
-Johan
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--=20
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
