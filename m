@@ -1,30 +1,30 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 327E72E6CC0;
-	Sun,  1 Mar 2026 01:54:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5CB2C190664;
+	Sun,  1 Mar 2026 02:03:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772330047; cv=none; b=kLUx/IFzBDXA3oVQgQGEb/yBPnwKc88kL8H0ku/yDvHUDnl3meGRYkEpjfnbHvAwg6fLNaLF3KNuhTXZjF/+Kd2BfXKge/8tXwjOnCZU3VeX9DUY0P2S+DwMaiYFRfZ+9114YhLB9KlosSvd5I+mxSb0ODvmPLQ6GwcphhycJ0g=
+	t=1772330632; cv=none; b=jxwnN5bEQ6eTM2wZkhEsPRBkgZOurCcTO8G7P7EE2nj276ssZCNxO2/acMJkc39WQ3DD+/15JTTvnUnBFO/V8frFkma3jvqhCv2LxhsujwqWtx7aohOG1/Niqsw7RC2h/zBYLIDpt/E9x2C4Yc8yidGkMQ/SfyQqoxSq16A7yPs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772330047; c=relaxed/simple;
-	bh=SO2B0CyaS7nK/LfgfMKexgW2jOXtjzciAdXsj8TqOF4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=JkywvQuYLPFMwievEWrQT72fdVd7iJLeVXWVfP3dxOccdqU8mzF/OQboVcLJfFzaYDAdnJc7ETmjvNQefDm2qfxPRdFUKSdf80NADJQWCjipa/A8Tvdywnswy9GdQ0cnTifLvHwYVjEHIEDeCvXjAf3JxZ8Ur6QTpazg8jEkQl0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EB8jKFh2; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772330632; c=relaxed/simple;
+	bh=ZsU7kq9bmoqZf/0tYxQwyAyC9nmm5BgnueLyyJWqEsg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pUzw06UCKEfQkhED9ZVWTnk1BUPwrYcAcwZzryTzMkI7245Ve/9L8Qn+w5bH49NhgVLKRJa41BXy8io1J5jUT2Mtc3Rk/Ggt/Py25zxZpyecqVcs8WK/n7mG6+G2IkEKpp+H2KV75Jv8sDeTI8GNDfaJDbFzUBnesASzxJxQcfE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nJzCPEsV; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EB8jKFh2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05087C19421;
-	Sun,  1 Mar 2026 01:54:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nJzCPEsV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CB8BC19421;
+	Sun,  1 Mar 2026 02:03:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772330046;
-	bh=SO2B0CyaS7nK/LfgfMKexgW2jOXtjzciAdXsj8TqOF4=;
+	s=k20201202; t=1772330632;
+	bh=ZsU7kq9bmoqZf/0tYxQwyAyC9nmm5BgnueLyyJWqEsg=;
 	h=From:To:Cc:Subject:Date:From;
-	b=EB8jKFh2IjDi+KKfD9/zgmPowEG+TjjiAacKHfTO7PvGAjXP3xuRskL2hB+jdhFI6
-	 eNgP31dCqdfoqDe1pzaEg3+2nv8J7Y8T348m5soz4XIXjR/HnCJxDOXVk39cCRHmap
-	 r93m0WqF7JksdMd4y/Rw9FwJlFIt6DQBLq6W0yFRC64e0VKLVFZksflPfRb8skNUij
-	 UM+reUI1/E6F6iDXnPKv84hfa2HPm+pOqWqLyHrSTna70AIJ8mwMDVfwqBG71Mzhcy
-	 SFHmR+PI7JKhJzer/KUwTZ3cSD2C+4N21uiRn6yMJH5w/X3AH/9P8WpnHm6bfpttnu
-	 rr08xRauPZPZA==
+	b=nJzCPEsVMYOf7DyA8VQBtU4/raxdk03beNzUOrIEdZtnPdlpTC0/hpSAb+2cK4KnU
+	 b9Lhdg9x9cE1R5BC+GKu0FGP/pjMZlKqvVvgXCO7RN/LUBDEyUD6DRM+HBjDLfjtdE
+	 k2xNGyebRbk3KO9apeFDzT//byy7p/RCKD7lIOGaxJBZj9vw9aBv65kVKcarhSOZcJ
+	 cuwsCFF5q0VDJPZwV2MuQygeLyLBmZODT9i2bQSPIoPaY+K8Ia1gwv28OH1gI0UwFo
+	 hOiMuiG8jXIzSn4LhA+8r/gKEn68jI98GKpYBkazhur8kHj0hX0Tg1ZXsPSEEXIUcJ
+	 eQ7WOuqBuKLPg==
 From: Sasha Levin <sashal@kernel.org>
 To: stable@vger.kernel.org,
 	carlos.song@nxp.com
@@ -34,9 +34,9 @@ Cc: Frank Li <Frank.Li@nxp.com>,
 	linux-i2c@vger.kernel.org,
 	imx@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org
-Subject: FAILED: Patch "i2c: imx-lpi2c: fix SMBus block read NACK after byte count" failed to apply to 5.15-stable tree
-Date: Sat, 28 Feb 2026 20:54:04 -0500
-Message-ID: <20260301015404.1721001-1-sashal@kernel.org>
+Subject: FAILED: Patch "i2c: imx-lpi2c: fix SMBus block read NACK after byte count" failed to apply to 5.10-stable tree
+Date: Sat, 28 Feb 2026 21:03:49 -0500
+Message-ID: <20260301020350.1731983-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -48,7 +48,7 @@ X-Patchwork-Hint: ignore
 X-stable: review
 Content-Transfer-Encoding: 8bit
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
