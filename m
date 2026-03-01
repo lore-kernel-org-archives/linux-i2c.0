@@ -1,103 +1,104 @@
-Received: from mail.as397444.net (mail.as397444.net [69.59.18.99])
+Received: from gate2.alliedtelesis.co.nz (gate2.alliedtelesis.co.nz [202.36.163.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1C081946DA;
-	Sun,  1 Mar 2026 17:10:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=69.59.18.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F34C4302753
+	for <linux-i2c@vger.kernel.org>; Sun,  1 Mar 2026 19:29:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.36.163.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772385015; cv=none; b=dCpz0cIE0sfIpcNIUow820Jm2HTDGZPO0/Fu56k9zXxGu6nhuA5c+40dS6Y6dP0OxW+qvHtbIiOYuTdRh9WYIdmEqTOoa89uucHhR055ZuXb64alwMclGUbba52QV7aRKv8dMsKdTvjTdC1GiYysbVihpy1P5ucma+NjB0flKxs=
+	t=1772393373; cv=none; b=P61BVgQnwpNXP6KFGKUnoPFqFdOQX6EqFSVOUoZTJF6YiARjrOoYAglbiJ+PYXCv8ypcc3hzYWi3hFJjHSiWx763snk6dxurvfFqkenNtycXTGMWxh9TI41Ddut8//O/7TXU0dAde6HkhXv+9Nbeddw5zFeIC7HT0WJ/kLwlTMI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772385015; c=relaxed/simple;
-	bh=BwtIxymzcsNe+MXXLfPE1AyI8YH6gFdwPIn52Jm6k/o=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=AuWXNl4tDMk9LudEPDsFIfh0Sfe9xlfEeTzPQwNuSN812GdtT5XgapEkrLqF1Qa+rHCUf9x+ObYbQ8daFgE58qIkAx4wDL2PGLjpYQA7jGyWiJ9l8OAOrOw1w2MNwrObVazmQKrv9oIubWn0uEfu3+ZsfSsrDWeDTpBo7TYztjI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mattcorallo.com; spf=pass smtp.mailfrom=mattcorallo.com; dkim=pass (2048-bit key) header.d=mattcorallo.com header.i=@mattcorallo.com header.b=g7jkeWPS; dkim=pass (2048-bit key) header.d=clients.mail.as397444.net header.i=@clients.mail.as397444.net header.b=Tzu8WgA7; arc=none smtp.client-ip=69.59.18.99
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=mattcorallo.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mattcorallo.com
+	s=arc-20240116; t=1772393373; c=relaxed/simple;
+	bh=2NqTcIliIP77dCY1wsxxiykKVs/kDKw87cIQmtO8uXA=;
+	h=From:To:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=a6GqP7c+VmPikFYDWlpZpXi72eyQZMFzOPnnXvxSnZY+3rMNWaVnzMajHz9rHrojvmygOjYyyBJR54CyKSSKLsqD3ISvQ6HJRxXZgwuy2pzFpil06J1RiqTHmU+jrytrThgqSc7LUGDaE1td39YnzeKDCVDQZkg6aZr4ViYFdw0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz; spf=pass smtp.mailfrom=alliedtelesis.co.nz; dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b=XPQKmITe; arc=none smtp.client-ip=202.36.163.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=alliedtelesis.co.nz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alliedtelesis.co.nz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mattcorallo.com header.i=@mattcorallo.com header.b="g7jkeWPS";
-	dkim=pass (2048-bit key) header.d=clients.mail.as397444.net header.i=@clients.mail.as397444.net header.b="Tzu8WgA7"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=mattcorallo.com; s=1772383262; h=In-Reply-To:From:References:Cc:To:Subject:
-	From:Subject:To:Cc:Reply-To; bh=6yzpMGcLsiDWsRNd9YIrBVPBsDkMvnzQ/31bfqGpYbE=;
-	b=g7jkeWPS8yogS7PczBX1HhQClD8v0FVePMxNmYKIt+cgiY/UO2lFKcDvmsd8h3+zCF/KS3+QN3B
-	9g+hkqYs8xP7sWeNKxranAzcxbBHnT8fYBpHzJCqjh6pb45WD2YjNvgXfRIHsTLRKZ5RC/rNPiEeW
-	evv7sS4cjrSenghUqqWuO/R7bFyC87Nqj35achEfC3PoX43Bp+Ny8fyzr8fLWvHAd8s6XudCqQu84
-	nRihEMKZ+X1vGiLd5Nbhu7tgYRIP36S3fAIhC+bJHUb3FBql68Kqsb/pA4w0oQfCV8bR6M23/cojC
-	jaW4w6AOF48wvor9hsTXH8ds98TPBd7vtiYA==;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=clients.mail.as397444.net; s=1772383264; h=In-Reply-To:From:References:Cc:
-	To:Subject:From:Subject:To:Cc:Reply-To;
-	bh=6yzpMGcLsiDWsRNd9YIrBVPBsDkMvnzQ/31bfqGpYbE=; b=Tzu8WgA7UCKuBrYvfFVcQ6Hyca
-	60iT1gWz+YDb92UGg6Mqff/aUHcir1QohRJrPNHqgmeDW1i7LzV9A2x/XREbOyDO8NsXn4anAIjKU
-	K29mUktzmiWdV3hY8kFOzxafK85kCVgwzV1A26TUbdh5LqpPqU0yxk8EBY4Y3QW6juw2aODhc8oxN
-	5on2z09MpTMmNd3ZchJhvSduGcvX9GFq4/bQlWQDe5kujO2rjkxmGyZ6dEb68Qf5lpuhbYZ/cAF6Z
-	gHOfNZxkY9Sjt+poJlsz2sNgOL5ZRc8p8zeiXjaldtDa+qcM4hXnOxzAhylXQOZ1kAYUqtnPVj/Tp
-	jFsZmSSg==;
-X-DKIM-Note: Keys used to sign are likely public at
-X-DKIM-Note: https://as397444.net/dkim/mattcorallo.com and
-X-DKIM-Note: https://as397444.net/dkim/clients.mail.as397444.net
-X-DKIM-Note: For more info, see https://as397444.net/dkim/
-Received: by mail.as397444.net with esmtpsa (TLS1.3) (Exim)
-	(envelope-from <yalbrymrb@mattcorallo.com>)
-	id 1vwkJ0-0000000BL7M-20wC;
-	Sun, 01 Mar 2026 17:10:10 +0000
-Message-ID: <e1eaab50-3a21-4aee-9224-6a1bbf8cfa6e@mattcorallo.com>
-Date: Sun, 1 Mar 2026 12:10:08 -0500
+	dkim=pass (2048-bit key) header.d=alliedtelesis.co.nz header.i=@alliedtelesis.co.nz header.b="XPQKmITe"
+Received: from svr-chch-seg1.atlnz.lc (mmarshal3.atlnz.lc [10.32.18.43])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	by gate2.alliedtelesis.co.nz (Postfix) with ESMTPS id 361D12C083A
+	for <linux-i2c@vger.kernel.org>; Mon,  2 Mar 2026 08:19:38 +1300 (NZDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alliedtelesis.co.nz;
+	s=mail181024; t=1772392778;
+	bh=2NqTcIliIP77dCY1wsxxiykKVs/kDKw87cIQmtO8uXA=;
+	h=From:To:Subject:Date:References:In-Reply-To:From;
+	b=XPQKmITeAAIMCJGLZuCOQQiLSghHxz8h1CU/sRuLmPFHUOkbgqT6AO+mHJjP6FjV6
+	 MYBYJRw7LH23VqpSzddCsvtIkW9uuNhlCZjz4UAv9AASvPAbYdKlnQfAGw/pHzZ9aQ
+	 fHnRijwwv1PEzl5W4ZKZyQqPcxEDloa0CrtunFa40lxNfCHieBaoURFxkBvLpLCqi2
+	 QpqVU01UPN9loaLBPlWOsfoWqb3b43j7zbwK0E8s3RR2MP+ZMTmpanoBNRbMpGxpqj
+	 8y5jfLHPB1ZwXSnFlXbU0DJclC68lqb8r2ikerwFnm4rTKL3ewODGezWmipjX9KL5e
+	 cSntZFYO9vE4g==
+Received: from svr-chch-ex2.atlnz.lc (Not Verified[2001:df5:b000:bc8::76]) by svr-chch-seg1.atlnz.lc with Trustwave SEG (v8,2,6,11305)
+	id <B69a4914a0001>; Mon, 02 Mar 2026 08:19:38 +1300
+Received: from svr-chch-ex2.atlnz.lc (2001:df5:b000:bc8::76) by
+ svr-chch-ex2.atlnz.lc (2001:df5:b000:bc8::76) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1748.39; Mon, 2 Mar 2026 08:19:37 +1300
+Received: from svr-chch-ex2.atlnz.lc ([fe80::a9eb:c9b7:8b52:9567]) by
+ svr-chch-ex2.atlnz.lc ([fe80::a9eb:c9b7:8b52:9567%15]) with mapi id
+ 15.02.1748.039; Mon, 2 Mar 2026 08:19:37 +1300
+From: Chris Packham <Chris.Packham@alliedtelesis.co.nz>
+To: Jan Kantert <jan-kernel@kantert.net>, "linux-i2c@vger.kernel.org"
+	<linux-i2c@vger.kernel.org>
+Subject: Re: [PATCH] i2c: rtl9300: add support for 50 kHz and 2.5 MHz bus
+ speeds
+Thread-Topic: [PATCH] i2c: rtl9300: add support for 50 kHz and 2.5 MHz bus
+ speeds
+Thread-Index: AQHcp9nlfaiyPOZwFkOkq2cdAuASo7WZNw6A
+Date: Sun, 1 Mar 2026 19:19:37 +0000
+Message-ID: <4be6f824-fa05-490b-8414-e08e654523ff@alliedtelesis.co.nz>
+References: <20260227111134.2163701-1-jan-kernel@kantert.net>
+In-Reply-To: <20260227111134.2163701-1-jan-kernel@kantert.net>
+Accept-Language: en-NZ, en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <505EBE91AC551C449B7CCCA8D0AF953F@alliedtelesis.co.nz>
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: PMBus memory overflow
-To: Kees Cook <kees@kernel.org>, Greg KH <gregkh@linuxfoundation.org>
-Cc: Guenter Roeck <linux@roeck-us.net>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- linux-hwmon@vger.kernel.org, Linux I2C <linux-i2c@vger.kernel.org>,
- security@kernel.org
-References: <d5abeb59-8286-425c-9f78-cd60b0e26ada@mattcorallo.com>
- <00baca6f-8046-46ae-a68c-525472562be7@roeck-us.net>
- <aAtEydwUfVcE0XeA@shikoro>
- <3a9ab7bf-6761-4a14-983e-e6bb288ce58a@mattcorallo.com>
- <e0e789b3-24c2-4ea3-9c79-fa815d801d83@roeck-us.net>
- <bc9a14b5-8b10-436f-a791-28df245465e6@mattcorallo.com>
- <4e198aa1-527b-4ad8-abc5-e7408296bfbd@roeck-us.net>
- <03da7997-74f4-4435-a6c5-6aa5aea2f6d7@mattcorallo.com>
- <2025060749-attendant-trout-d2c8@gregkh>
- <695ebdae-7292-4a83-8aff-763da184921e@mattcorallo.com>
- <2025060848-reset-recovery-f67a@gregkh>
- <d16cb075-f924-4bd4-adec-8eaba589a3f2@mattcorallo.com>
- <a149cb52-925a-4365-8529-081e7e0a7b81@mattcorallo.com>
- <87767DC8-784D-4B9D-A2F2-0BB10EC4A96A@kernel.org>
-Content-Language: en-US
-From: Matt Corallo <yalbrymrb@mattcorallo.com>
-In-Reply-To: <87767DC8-784D-4B9D-A2F2-0BB10EC4A96A@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+X-SEG-SpamProfiler-Analysis: v=2.4 cv=d/NWygjE c=1 sm=1 tr=0 ts=69a4914a a=Xf/6aR1Nyvzi7BryhOrcLQ==:117 a=xqWC_Br6kY4A:10 a=drD7vYo3kbIA:10 a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=yYSUFh-PAAAA:8 a=DGfo-y3Mp4DUiHDfqWQA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10 a=CgABnY4_5IjXit5a9HeR:22
+X-SEG-SpamProfiler-Score: 0
 
-
-
-On 3/1/26 11:12 AM, Kees Cook wrote:
-> 
-> 
-> On March 1, 2026 5:46:33 AM PST, Matt Corallo <yalbrymrb@mattcorallo.com> wrote:
->>
->>
->> On 6/9/25 9:57 AM, Matt Corallo wrote:
->>>
->>>
->>> On 6/8/25 3:14 AM, Greg KH wrote:
->>>> Have a pointer to that patch on lore for the maintainers involved to
->>>> review?  Note, we are in the middle of the merge window, so no new
->>>> changes can be added to our trees until -rc1 is out.
->>>
->>> A proposed patch was posted by Guenter, and tested and confirmed that it fixes the issue by myself, at https://lore.kernel.org/linux-hwmon/284466fd-39e8-419e-8af5-41dbabb788af@roeck-us.net/ . Wolfram suggested this patch was acceptable at https://lore.kernel.org/linux-hwmon/aAtEydwUfVcE0XeA@shikoro/ but that's the last he chimed in on this issue.
->>
->> Any update on getting this patch applied Wolfram? Looks like the buffer overflow is still present on at least 6.18.
-> 
-> Looking at the code, I think probably the best place to check would be in i2c_smbus_read_block_data() when it does a I2C_SMBUS_BLOCK_DATA cmd, since the callers are all already checking the returned status.
-
-I believe that's what the above patch does?
-
-Matt
+SGkgSmFuLA0KDQpPbiAyOC8wMi8yMDI2IDAwOjExLCBKYW4gS2FudGVydCB3cm90ZToNCj4gU29t
+ZSBTRlAgbW9kdWxlcyBvbiBjZXJ0YWluIHN3aXRjaGVzIChmb3IgZXhhbXBsZSB0aGUgT05UaSBP
+TlQtUzUwOENMLThTIGFuZA0KPiBYaWtlU3RvciBTS1M4MzAwLThYKSBleGhpYml0IHVucmVsaWFi
+bGUgSTJDIGNvbW11bmljYXRpb24gYXQgdGhlIGN1cnJlbnRseQ0KPiBzdXBwb3J0ZWQgc3BlZWRz
+LiBBZGQgc3VwcG9ydCBmb3IgNTAga0h6IGFuZCAyLjUgTUh6IEkyQyBidXMgbW9kZXMgb24gdGhl
+DQo+IFJUTDkzMDAgdG8gaW1wcm92ZSBjb21wYXRpYmlsaXR5IHdpdGggdGhlc2UgZGV2aWNlcy4N
+Cj4NCj4gU2lnbmVkLW9mZi1ieTogSmFuIEthbnRlcnQgPGphbi1rZXJuZWxAa2FudGVydC5uZXQ+
+DQoNClJldmlld2VkLWJ5OiBDaHJpcyBQYWNraGFtIDxjaHJpcy5wYWNraGFtQGFsbGllZHRlbGVz
+aXMuY28ubno+DQoNClRoYW5rcywNCg0KPiAtLS0NCj4gICBkcml2ZXJzL2kyYy9idXNzZXMvaTJj
+LXJ0bDkzMDAuYyB8IDE2ICsrKysrKysrKysrKysrLS0NCj4gICAxIGZpbGUgY2hhbmdlZCwgMTQg
+aW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkNCj4NCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
+aTJjL2J1c3Nlcy9pMmMtcnRsOTMwMC5jIGIvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1ydGw5MzAw
+LmMNCj4gaW5kZXggNjcyY2I5NzgwNjZkLi42N2E1YzQyMjhmYzkgMTAwNjQ0DQo+IC0tLSBhL2Ry
+aXZlcnMvaTJjL2J1c3Nlcy9pMmMtcnRsOTMwMC5jDQo+ICsrKyBiL2RyaXZlcnMvaTJjL2J1c3Nl
+cy9pMmMtcnRsOTMwMC5jDQo+IEBAIC0xMSwxMCArMTEsMTYgQEANCj4gICAjaW5jbHVkZSA8bGlu
+dXgvdW5hbGlnbmVkLmg+DQo+ICAgDQo+ICAgZW51bSBydGw5MzAwX2J1c19mcmVxIHsNCj4gLQlS
+VEw5MzAwX0kyQ19TVERfRlJFUSwNCj4gLQlSVEw5MzAwX0kyQ19GQVNUX0ZSRVEsDQo+ICsJUlRM
+OTMwMF9JMkNfU1REX0ZSRVEsCQkJLy8gMTAwa0h6DQo+ICsJUlRMOTMwMF9JMkNfRkFTVF9GUkVR
+LAkJCS8vIDQwMGtIeg0KPiArCVJUTDkzMDBfSTJDX1NVUEVSX0ZBU1RfRlJFUSwJCS8vIDIuNU1I
+eg0KPiArCVJUTDkzMDBfSTJDX1NMT1dfRlJFUSwJCQkvLyA1MGtIeg0KPiAgIH07DQo+ICAgDQo+
+ICsjZGVmaW5lIFJUTDkzMDBfSTJDX01BWF9TVVBFUl9GQVNUX0ZSRVEJCTI1MDAwMDANCj4gKyNk
+ZWZpbmUgUlRMOTMwMF9JMkNfTUFYX1NMT1dfRlJFUQkJNTAwMDANCj4gKw0KPiArDQo+ICAgc3Ry
+dWN0IHJ0bDkzMDBfaTJjOw0KPiAgIA0KPiAgIHN0cnVjdCBydGw5MzAwX2kyY19jaGFuIHsNCj4g
+QEAgLTQzMyw2ICs0MzksMTIgQEAgc3RhdGljIGludCBydGw5MzAwX2kyY19wcm9iZShzdHJ1Y3Qg
+cGxhdGZvcm1fZGV2aWNlICpwZGV2KQ0KPiAgIAkJY2FzZSBJMkNfTUFYX0ZBU1RfTU9ERV9GUkVR
+Og0KPiAgIAkJCWNoYW4tPmJ1c19mcmVxID0gUlRMOTMwMF9JMkNfRkFTVF9GUkVROw0KPiAgIAkJ
+CWJyZWFrOw0KPiArCQljYXNlIFJUTDkzMDBfSTJDX01BWF9TVVBFUl9GQVNUX0ZSRVE6DQo+ICsJ
+CQljaGFuLT5idXNfZnJlcSA9IFJUTDkzMDBfSTJDX1NVUEVSX0ZBU1RfRlJFUTsNCj4gKwkJCWJy
+ZWFrOw0KPiArCQljYXNlIFJUTDkzMDBfSTJDX01BWF9TTE9XX0ZSRVE6DQo+ICsJCQljaGFuLT5i
+dXNfZnJlcSA9IFJUTDkzMDBfSTJDX1NMT1dfRlJFUTsNCj4gKwkJCWJyZWFrOw0KPiAgIAkJZGVm
+YXVsdDoNCj4gICAJCQlkZXZfd2FybihpMmMtPmRldiwgIlNEQSVkIGNsb2NrLWZyZXF1ZW5jeSAl
+ZCBub3Qgc3VwcG9ydGVkIHVzaW5nIGRlZmF1bHRcbiIsDQo+ICAgCQkJCSBzZGFfbnVtLCBjbG9j
+a19mcmVxKTs=
