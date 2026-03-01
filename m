@@ -1,100 +1,84 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp.smtpout.orange.fr (smtp-15.smtpout.orange.fr [80.12.242.15])
+	(using TLSv1.2 with cipher AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0ADE53A8F7;
-	Sun,  1 Mar 2026 16:12:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9E0B175A6C;
+	Sun,  1 Mar 2026 16:22:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.12.242.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772381575; cv=none; b=lbnD7i2gWijzJa/T5Pgq3pg2RMao+KUD0/Loy/IBzqF0M/qW3F6C0Er8bYgiSkWE/dqNLmwjmAuMIdYLxoBN3jTy391l+b6NlStU0GcX2xgJ4/vqEAJiknDTImFF8BAGX0CZ1rlqqAtnpnlpgBS214+mhcERo6nkJu8dpfspFW8=
+	t=1772382140; cv=none; b=C1F51nsGTFy/8s7U2HCFpdAEUBpsBgop+Du0sU1IkX9hXNtOuvtqN3Bo9ClmH7VwCDhF3kjjSaJi98bDxCrGrmkbvlLzAqbCffuBX+aBVqGeeGOmnR19wynS0khh2t075oL7bTbU//4GRC+tbKE3z0lRhGNgA0fCPoWbgB9n2ew=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772381575; c=relaxed/simple;
-	bh=DgyESKIjRaPC+E4yh9+FWtF4iKJJn4Q9Ct57JDTKb+g=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=ertoG7SndnKT/HJdU9OfOVu8TKj5NdQvmdNw/9HoE3EyXt6FgiCmm4MQVlXW6Vxl3PZKGgRY3iAJ93SV/BqJ4cW75/NVSyVEL0Rv+WqB4NhhUUANU7zIfuTuYuKjPWHSG0hsIqH0wklemHbufKZpJ+BKn6uORJZxXVkU46YKGU0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hSmm0pgJ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772382140; c=relaxed/simple;
+	bh=+EFaN8ukVl2jbon2CP+tjXmZpNoO68XrGZDN1hGeeDc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GkW7tvsy1bCgLE226YFNuB92IUD6D0nw8CIqHUP44gov4BnfA/Ry0cZ/s9KurCX0oxvN2ocppAY8saL/xrLkAgpHd1+m0Y+n+O/6jXBHtVEJaMyFPyW+rTvmBKbojvsHsEdusDRCAhPvWcV0nooLRi1uEPuoO8Qqqn/cNuizW5E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr; spf=pass smtp.mailfrom=wanadoo.fr; dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b=cBXl3qaJ; arc=none smtp.client-ip=80.12.242.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=wanadoo.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=wanadoo.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hSmm0pgJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E24FC116C6;
-	Sun,  1 Mar 2026 16:12:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772381574;
-	bh=DgyESKIjRaPC+E4yh9+FWtF4iKJJn4Q9Ct57JDTKb+g=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:From;
-	b=hSmm0pgJ5ZfSfDeO+WYDT02nvh+geId6av1HAPJjpTzT6IJzhuCtOp/gT+6ZNORFa
-	 agAjlTvWqLDQXLo1mLT643bKbKWzTW60c8caz2dR6ptRyTvrhYv8iM/HVf7jLqLgHz
-	 CeaRfcbbVBRwwwboDJ2vV1bpnxmgppbvT28x+MgitmhSKbB/22tPHHvWnkD+ZV5tS6
-	 s3sNJVVxf0oWAdzZu/o8j++JxvWGIf0yl/bsDOynlo3C4LKoz72kj7rRgGnIfosbZT
-	 xCFf+ubOQ8vdvS2sy4edd/6WYCiTXBPRkEnfwdaF4XAtfmq9xX9wgYg2yR5adoNT4w
-	 7Np5iMMRQpYBw==
-Date: Sun, 01 Mar 2026 08:12:53 -0800
-From: Kees Cook <kees@kernel.org>
-To: Matt Corallo <yalbrymrb@mattcorallo.com>,
- Greg KH <gregkh@linuxfoundation.org>
-CC: Guenter Roeck <linux@roeck-us.net>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-hwmon@vger.kernel.org,
- Linux I2C <linux-i2c@vger.kernel.org>, security@kernel.org
-Subject: Re: PMBus memory overflow
-User-Agent: K-9 Mail for Android
-In-Reply-To: <a149cb52-925a-4365-8529-081e7e0a7b81@mattcorallo.com>
-References: <d5abeb59-8286-425c-9f78-cd60b0e26ada@mattcorallo.com> <00baca6f-8046-46ae-a68c-525472562be7@roeck-us.net> <aAtEydwUfVcE0XeA@shikoro> <3a9ab7bf-6761-4a14-983e-e6bb288ce58a@mattcorallo.com> <e0e789b3-24c2-4ea3-9c79-fa815d801d83@roeck-us.net> <bc9a14b5-8b10-436f-a791-28df245465e6@mattcorallo.com> <4e198aa1-527b-4ad8-abc5-e7408296bfbd@roeck-us.net> <03da7997-74f4-4435-a6c5-6aa5aea2f6d7@mattcorallo.com> <2025060749-attendant-trout-d2c8@gregkh> <695ebdae-7292-4a83-8aff-763da184921e@mattcorallo.com> <2025060848-reset-recovery-f67a@gregkh> <d16cb075-f924-4bd4-adec-8eaba589a3f2@mattcorallo.com> <a149cb52-925a-4365-8529-081e7e0a7b81@mattcorallo.com>
-Message-ID: <87767DC8-784D-4B9D-A2F2-0BB10EC4A96A@kernel.org>
+	dkim=pass (2048-bit key) header.d=wanadoo.fr header.i=@wanadoo.fr header.b="cBXl3qaJ"
+Received: from fedora.home ([IPv6:2a01:cb10:785:b00:8347:f260:7456:7662])
+	by smtp.orange.fr with ESMTPSA
+	id wjXVvgvwZrKIuwjXVvxE5w; Sun, 01 Mar 2026 17:21:06 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=wanadoo.fr;
+	s=t20230301; t=1772382066;
+	bh=ZDU6YEmeKfV0DZTfQRWPUrC0979+SE4F08nNSXKB+Rw=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=cBXl3qaJB63B45EjFaVLtaEMsSamPxFhByNIgYPTgYFgmSON8X/UUgQNg64hh/H4j
+	 IgNLkQj8avGmaSvnjhYtEAHOiCfWoq7pQQF3Q1HWXI5zdupSU42eeZBfCDufBD7yri
+	 wVYaDVGx1owXInYbbJVk3Hu5ZhwOVnnRowAqGuTewtkBTtJqvkgDJLFmF+SmBCMYqo
+	 8c6W2IETu6BFBEj2s65kc94Aw+hQ5Vv12/6xptjN9vsOFdA/qThREfY7/EXZTzl0xF
+	 kYJcUJongu+PD9SyKiWJrixnC1kWZHG7E8umBOUkGkkOmUw5N4s6+0V+5iqid8NvbV
+	 NDba2IlekOFnQ==
+X-ME-Helo: fedora.home
+X-ME-Auth: Y2hyaXN0b3BoZS5qYWlsbGV0QHdhbmFkb28uZnI=
+X-ME-Date: Sun, 01 Mar 2026 17:21:06 +0100
+X-ME-IP: 2a01:cb10:785:b00:8347:f260:7456:7662
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+To: Eddie James <eajames@linux.ibm.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Wolfram Sang <wsa@kernel.org>,
+	"Oliver O'Halloran" <oohall@gmail.com>
+Cc: linux-kernel@vger.kernel.org,
+	kernel-janitors@vger.kernel.org,
+	Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+	linux-i2c@vger.kernel.org,
+	openbmc@lists.ozlabs.org
+Subject: [PATCH] i2c: fsi: Fix a potential leak in fsi_i2c_probe()
+Date: Sun,  1 Mar 2026 17:21:01 +0100
+Message-ID: <fd805c39f8de51edf303856103d782138a1633c8.1772382022.git.christophe.jaillet@wanadoo.fr>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
+In the commit in Fixes:, when the code has been updated to use an explicit
+for loop, instead of for_each_available_child_of_node(), the assumption
+that a reference to a device_node structure would be released at each
+iteration has been broken.
 
+Now, an explicit of_node_put() is needed to release the reference.
 
-On March 1, 2026 5:46:33 AM PST, Matt Corallo <yalbrymrb@mattcorallo=2Ecom=
-> wrote:
->
->
->On 6/9/25 9:57 AM, Matt Corallo wrote:
->>=20
->>=20
->> On 6/8/25 3:14 AM, Greg KH wrote:
->>> On Sat, Jun 07, 2025 at 09:25:44AM -0400, Matt Corallo wrote:
->>>>=20
->>>>=20
->>>> On 6/7/25 4:19 AM, Greg KH wrote:
->>>>> On Fri, Jun 06, 2025 at 04:57:37PM -0400, Matt Corallo wrote:
->>>>>> Adding security@kernel=2Eorg cause probably they should make sure t=
-his gets fixed=2E
->>>>>=20
->>>>> That's not how security@k=2Eo works, sorry=2E=C2=A0 As this is alrea=
-dy public, no
->>>>> need for security@k=2Eo to get involved at all, the normal developme=
-nt
->>>>> process happens here now=2E
->>>>>=20
->>>>> So, submit a patch and people will be glad to review it!
->>>>=20
->>>> Thanks, figured I'd ask=2E Sadly there is a patch that folks seem to =
-be okay
->>>> with to fix a buffer overflow but its just sitting=2E
->>>=20
->>> Have a pointer to that patch on lore for the maintainers involved to
->>> review?=C2=A0 Note, we are in the middle of the merge window, so no ne=
-w
->>> changes can be added to our trees until -rc1 is out=2E
->>=20
->> A proposed patch was posted by Guenter, and tested and confirmed that i=
-t fixes the issue by myself, at https://lore=2Ekernel=2Eorg/linux-hwmon/284=
-466fd-39e8-419e-8af5-41dbabb788af@roeck-us=2Enet/ =2E Wolfram suggested thi=
-s patch was acceptable at https://lore=2Ekernel=2Eorg/linux-hwmon/aAtEydwUf=
-VcE0XeA@shikoro/ but that's the last he chimed in on this issue=2E
->
->Any update on getting this patch applied Wolfram? Looks like the buffer o=
-verflow is still present on at least 6=2E18=2E
+Fixes: 095561f476ab ("i2c: fsi: Create busses for all ports")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+---
+ drivers/i2c/busses/i2c-fsi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Looking at the code, I think probably the best place to check would be in =
-i2c_smbus_read_block_data() when it does a I2C_SMBUS_BLOCK_DATA cmd, since =
-the callers are all already checking the returned status=2E
+diff --git a/drivers/i2c/busses/i2c-fsi.c b/drivers/i2c/busses/i2c-fsi.c
+index 82c87e04ac6f..b2dc5ae1d0e4 100644
+--- a/drivers/i2c/busses/i2c-fsi.c
++++ b/drivers/i2c/busses/i2c-fsi.c
+@@ -729,6 +729,7 @@ static int fsi_i2c_probe(struct fsi_device *fsi_dev)
+ 		rc = i2c_add_adapter(&port->adapter);
+ 		if (rc < 0) {
+ 			dev_err(dev, "Failed to register adapter: %d\n", rc);
++			of_node_put(np);
+ 			kfree(port);
+ 			continue;
+ 		}
+-- 
+2.53.0
 
---=20
-Kees Cook
