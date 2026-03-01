@@ -1,155 +1,278 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3604D40F8DA;
-	Sat, 28 Feb 2026 10:47:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 963B82727EB;
+	Sun,  1 Mar 2026 01:26:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772275673; cv=none; b=YWc+jbeMFIf2mThS7EH5rrZkt2ZlMMBAnQ11K4E5mQA0QHSWZH2GLGN6XIS7PP61JGfy2fDTqrWeez6LeJ5i4HpsBMCU6wRQzZ9dNYNW6xb4bAlRBhDx/X3KpYu1PGFcQxERcWbstELawDnX037IiJ7PFEHVoVZYLBHv4qIqqTg=
+	t=1772328412; cv=none; b=NDiLUknybBZts3mfbX+wVFiUToqTx8y4AfNS51O1aTUG/Gp1HeEC29w6HbOnbdT5W0OQUvUxmul1egY7e7KFCqjeJ76c/GWu6imf5Cpi/PlMk1wU1d6tTfn13hbFClnoMF4n72pr42ieW1MHpddPgky40UYqw5oOEkDRt1ifeCs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772275673; c=relaxed/simple;
-	bh=Wp7N/Bur+qepvCnUr3xVdMJur0M8+r23EUDZqtEPWXY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jvrX4/8po0pQ3+6mXU66U3vRSqDaA5GGEEIEsINwKgAbwg+mUZdqlFxKUE36ki3d/0IKN6tRBXvrswaNp3I+m19GpaK4w+n47IUA+XMv87pKRMLjzv63XU6iOUtGFV5cjxKvodY7BtWwdVB1m33aR/hTBwpAGgoZdxc/B7mileE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=UMDa+lg3; arc=none smtp.client-ip=192.198.163.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1772328412; c=relaxed/simple;
+	bh=3MZKkAQ+/lLbtqIpHBglDDD43lZAIdpQLWVxkjT8l2c=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LuUBIGKuf3g14A3IT4XexzNy/i+ZriMHRVp5QlwNE93NIfFEXgNq+HYTUu5cAIoxRJNzJbUG3wbBaw2dU6LerjcEZERU53f6r7UtqVwABPe7+IXmR6bHYjUDbp680Ve4DiRg3uNJOn+QEDYSjVVQG/7HIsaaaLCQttTKle7JbeY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PtsX3nUS; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="UMDa+lg3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1772275672; x=1803811672;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Wp7N/Bur+qepvCnUr3xVdMJur0M8+r23EUDZqtEPWXY=;
-  b=UMDa+lg3hAXExVS04ueLcT5wmJvsgfS3xOjj3l+Ue4ZFeuNSVqD9cFiw
-   2PuTy8aziwlmSx0iAxLTTnAmJM0E4V0AaZH4mDA/sb0wIn9d4DjJoC9Sd
-   VapLEMMWaB8Fqu3pWUWVYSwCrh+9MD/LdV11400mhc64ukQEp3khcsboU
-   RC5VUhaz6DcUwWQtuZpRsSk0L4BPgIDMfRMaiQg/vE8H0g6jp0GOgGtTS
-   8dxgp7SSkN+8ZPF3gTDXVqe41QK63wo+z2JZYKMlV//gcWZ7EZm4to8FI
-   PYTKr1nOOY+J5ovAjhxrtPfrTjqwaEkItXpoP1TU8TV0qH/UzwaNAchKD
-   Q==;
-X-CSE-ConnectionGUID: zhyvXiq0QmK3iTEtQ5fCRQ==
-X-CSE-MsgGUID: Dp63X0DfQ2+k6FymDp+ZBQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11714"; a="84700545"
-X-IronPort-AV: E=Sophos;i="6.21,316,1763452800"; 
-   d="scan'208";a="84700545"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2026 02:47:51 -0800
-X-CSE-ConnectionGUID: qMqK+YQiTki4hKV07FaIsg==
-X-CSE-MsgGUID: 7qKbLsOURwG+g/YunwndcA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.21,316,1763452800"; 
-   d="scan'208";a="213894829"
-Received: from dhhellew-desk2.ger.corp.intel.com (HELO localhost) ([10.245.245.224])
-  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2026 02:47:49 -0800
-Date: Sat, 28 Feb 2026 12:47:47 +0200
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Moritz Fischer <moritzf@google.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, mdf@kernel.org,
-	ovt@google.com, Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jan Dabros <jsd@semihalf.com>
-Subject: Re: [PATCH] i2c: designware: Add a new ACPI HID for GOOG5000 I2C
- controller
-Message-ID: <aaLH0wYeUki0jqGc@ashevche-desk.local>
-References: <20260227182308.776922-1-moritzf@google.com>
- <aaHnrj0onxlxH5D0@ashevche-desk.local>
- <ttbg5vcgzximy77bswykeprkl27hc2civnlpfwmgusm62wvzad@hvnapqphg6af>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PtsX3nUS"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6389EC19421;
+	Sun,  1 Mar 2026 01:26:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772328412;
+	bh=3MZKkAQ+/lLbtqIpHBglDDD43lZAIdpQLWVxkjT8l2c=;
+	h=From:To:Cc:Subject:Date:From;
+	b=PtsX3nUS9Gkr404JbGiBiq8uEpGxthcYqNO2ReRbrqPQkwFvl2SSPKx3tIJa36ZHi
+	 5AK37xjFqpIHTltK65QwLMRrWgKMR2pxKdbRtivbNhp2F6HRcvK4QUgygtDKpPj5qU
+	 ykXjoACDmurwDVIMVLUQCUiOrkSxSHrpjVgJtJohdkLdMGEgSzBpgCaPCaYKsXDQ5Z
+	 o92vo8bsIfQkfH43lXlGuDUYdPmjsbRNf5rSi86uk6QR5+u1PpotLbzHPJepticLsJ
+	 8aZZDtypp9l4FoJI6g+k8nPiaTdeIRPuQfNDNNVdwWJyMlG6mE17bpr/ezJVhoxnI+
+	 40SS6u8r4l29A==
+From: Sasha Levin <sashal@kernel.org>
+To: stable@vger.kernel.org,
+	carlos.song@nxp.com
+Cc: Frank Li <Frank.Li@nxp.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	linux-i2c@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org
+Subject: FAILED: Patch "i2c: imx-lpi2c: fix SMBus block read NACK after byte count" failed to apply to 6.12-stable tree
+Date: Sat, 28 Feb 2026 20:26:49 -0500
+Message-ID: <20260301012650.1684287-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ttbg5vcgzximy77bswykeprkl27hc2civnlpfwmgusm62wvzad@hvnapqphg6af>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+X-Patchwork-Hint: ignore
+X-stable: review
+Content-Transfer-Encoding: 8bit
 
-On Fri, Feb 27, 2026 at 09:52:48PM +0000, Moritz Fischer wrote:
-> On Fri, Feb 27, 2026 at 08:51:26PM +0200, Andy Shevchenko wrote:
-> > On Fri, Feb 27, 2026 at 06:23:07PM +0000, Moritz Fischer wrote:
-> > > Define a new ACPI HID for GOOG5000 as used on Google Axion.
-> > >
-> > > This has been validated on Silicon.
-> 
-> > > Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > > Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > > Cc: Jan Dabros <jsd@semihalf.com>
-> 
-> > Please, put Cc list...
-> 
-> > > Signed-off-by: Moritz Fischer <moritzf@google.com>
-> > > ---
-> 
-> > ...somewhere here. It will have the same effect on the email. But the
-> > positive
-> > outcome is the noise reduction in the commit message.
-> 
-> > See also this discussion (patch 18 subthread):
-> > https://lore.kernel.org/lkml/20260123113708.416727-19-bigeasy@linutronix.de/
-> 
-> Ok, fair. Do you want me to resend or do you want to patch it when
-> applying?
+The patch below does not apply to the 6.12-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I'm not a maintainer, so from my p.o.v. the safest option is to send a new
-version with all data gathered and put properly (Cc list, ACPI excerpt, et
-cetera) in one place.
+Thanks,
+Sasha
 
-...
+------------------ original commit in Linus's tree ------------------
 
-> > > +	{ "GOOG5000", 0 },
-> 
-> > The ID seems legit, but we need an ACPI excerpt from DSDT to show how it's
-> > described (just important pieces of the respective Device() object) and
-> > better
-> > reference to the device / platform in question: Is it already on the
-> > market?
-> 
-> I pulled this out of the EDK2 code, I hope this satisfies your request.
-> 
->     Device (I2C0)
->     {
->       Name (_HID, "GOOG5000")
->       Name (_UID, 0x00)
->       Method (_STA) {
->         Return (0xf)
->       }
->       Name (_CRS, ResourceTemplate ()
->       {
->         QWordMemory (
->           ResourceProducer,
->           PosDecode,
->           MinFixed,
->           MaxFixed,
->           NonCacheable,
->           ReadWrite,
->           0x0,
->           0xA02048000,
->           0xA020480FF,
->           0x000000000,
->           0x000000100
->         )
->         Interrupt (ResourceConsumer, Level, ActiveHigh, Exclusive)
-> 	{
->           109
->         }
->       })
->       ...
->     }
-> 
-> This is being used by SoCs powering Google's Axion product line.
-> 
-> I can't go into more details on timelines etc, but they *are* real
-> products.
+From efdc383d1cc28d45cbf5a23b5ffa997010aaacb4 Mon Sep 17 00:00:00 2001
+From: Carlos Song <carlos.song@nxp.com>
+Date: Fri, 23 Jan 2026 18:54:58 +0800
+Subject: [PATCH] i2c: imx-lpi2c: fix SMBus block read NACK after byte count
 
-Good, just collect summary of this with the ACPI excerpt in the comment field
-(after '---' line) in a new version, so we will have it for the record in the
-ML archive in one place.
+The LPI2C controller sends a NACK at the end of a receive command
+unless another receive command is already queued in MTDR. During
+SMBus block reads, this causes the controller to NACK immediately
+after receiving the block length byte, aborting the transfer before
+the data bytes are read.
 
+Fix this by queueing a second receive command as soon as the block
+length byte is received, keeping MTDR non-empty and ensuring
+continuous ACKs. The initial receive command reads the block length,
+and the subsequent command reads the remaining data bytes according
+to the reported length.
+
+Fixes: a55fa9d0e42e ("i2c: imx-lpi2c: add low power i2c bus driver")
+Signed-off-by: Carlos Song <carlos.song@nxp.com>
+Cc: <stable@vger.kernel.org> # v4.10+
+Reviewed-by: Frank Li <Frank.Li@nxp.com>
+Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+Link: https://lore.kernel.org/r/20260123105459.3448822-1-carlos.song@nxp.com
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ drivers/i2c/busses/i2c-imx-lpi2c.c | 107 ++++++++++++++++++++++-------
+ 1 file changed, 83 insertions(+), 24 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+index be7134eefc2f5..f97f73faec82d 100644
+--- a/drivers/i2c/busses/i2c-imx-lpi2c.c
++++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+@@ -5,6 +5,7 @@
+  * Copyright 2016 Freescale Semiconductor, Inc.
+  */
+ 
++#include <linux/bitfield.h>
+ #include <linux/clk.h>
+ #include <linux/completion.h>
+ #include <linux/delay.h>
+@@ -90,6 +91,7 @@
+ #define MRDR_RXEMPTY	BIT(14)
+ #define MDER_TDDE	BIT(0)
+ #define MDER_RDDE	BIT(1)
++#define MSR_RDF_ASSERTED(x) FIELD_GET(MSR_RDF, (x))
+ 
+ #define SCR_SEN		BIT(0)
+ #define SCR_RST		BIT(1)
+@@ -482,7 +484,7 @@ static bool lpi2c_imx_write_txfifo(struct lpi2c_imx_struct *lpi2c_imx, bool atom
+ 
+ static bool lpi2c_imx_read_rxfifo(struct lpi2c_imx_struct *lpi2c_imx, bool atomic)
+ {
+-	unsigned int blocklen, remaining;
++	unsigned int remaining;
+ 	unsigned int temp, data;
+ 
+ 	do {
+@@ -493,15 +495,6 @@ static bool lpi2c_imx_read_rxfifo(struct lpi2c_imx_struct *lpi2c_imx, bool atomi
+ 		lpi2c_imx->rx_buf[lpi2c_imx->delivered++] = data & 0xff;
+ 	} while (1);
+ 
+-	/*
+-	 * First byte is the length of remaining packet in the SMBus block
+-	 * data read. Add it to msgs->len.
+-	 */
+-	if (lpi2c_imx->block_data) {
+-		blocklen = lpi2c_imx->rx_buf[0];
+-		lpi2c_imx->msglen += blocklen;
+-	}
+-
+ 	remaining = lpi2c_imx->msglen - lpi2c_imx->delivered;
+ 
+ 	if (!remaining) {
+@@ -514,12 +507,7 @@ static bool lpi2c_imx_read_rxfifo(struct lpi2c_imx_struct *lpi2c_imx, bool atomi
+ 	lpi2c_imx_set_rx_watermark(lpi2c_imx);
+ 
+ 	/* multiple receive commands */
+-	if (lpi2c_imx->block_data) {
+-		lpi2c_imx->block_data = 0;
+-		temp = remaining;
+-		temp |= (RECV_DATA << 8);
+-		writel(temp, lpi2c_imx->base + LPI2C_MTDR);
+-	} else if (!(lpi2c_imx->delivered & 0xff)) {
++	if (!(lpi2c_imx->delivered & 0xff)) {
+ 		temp = (remaining > CHUNK_DATA ? CHUNK_DATA : remaining) - 1;
+ 		temp |= (RECV_DATA << 8);
+ 		writel(temp, lpi2c_imx->base + LPI2C_MTDR);
+@@ -557,18 +545,77 @@ static int lpi2c_imx_write_atomic(struct lpi2c_imx_struct *lpi2c_imx,
+ 	return err;
+ }
+ 
+-static void lpi2c_imx_read_init(struct lpi2c_imx_struct *lpi2c_imx,
+-				struct i2c_msg *msgs)
++static unsigned int lpi2c_SMBus_block_read_length_byte(struct lpi2c_imx_struct *lpi2c_imx)
+ {
+-	unsigned int temp;
++	unsigned int data;
++
++	data = readl(lpi2c_imx->base + LPI2C_MRDR);
++	lpi2c_imx->rx_buf[lpi2c_imx->delivered++] = data & 0xff;
++
++	return data;
++}
++
++static int lpi2c_imx_read_init(struct lpi2c_imx_struct *lpi2c_imx,
++			       struct i2c_msg *msgs)
++{
++	unsigned int temp, val, block_len;
++	int ret;
+ 
+ 	lpi2c_imx->rx_buf = msgs->buf;
+ 	lpi2c_imx->block_data = msgs->flags & I2C_M_RECV_LEN;
+ 
+ 	lpi2c_imx_set_rx_watermark(lpi2c_imx);
+-	temp = msgs->len > CHUNK_DATA ? CHUNK_DATA - 1 : msgs->len - 1;
+-	temp |= (RECV_DATA << 8);
+-	writel(temp, lpi2c_imx->base + LPI2C_MTDR);
++
++	if (!lpi2c_imx->block_data) {
++		temp = msgs->len > CHUNK_DATA ? CHUNK_DATA - 1 : msgs->len - 1;
++		temp |= (RECV_DATA << 8);
++		writel(temp, lpi2c_imx->base + LPI2C_MTDR);
++	} else {
++		/*
++		 * The LPI2C controller automatically sends a NACK after the last byte of a
++		 * receive command, unless the next command in MTDR is also a receive command.
++		 * If MTDR is empty when a receive completes, a NACK is sent by default.
++		 *
++		 * To comply with the SMBus block read spec, we start with a 2-byte read:
++		 * The first byte in RXFIFO is the block length. Once this byte arrives, the
++		 * controller immediately updates MTDR with the next read command, ensuring
++		 * continuous ACK instead of NACK.
++		 *
++		 * The second byte is the first block data byte. Therefore, the subsequent
++		 * read command should request (block_len - 1) bytes, since one data byte
++		 * has already been read.
++		 */
++
++		writel((RECV_DATA << 8) | 0x01, lpi2c_imx->base + LPI2C_MTDR);
++
++		ret = readl_poll_timeout(lpi2c_imx->base + LPI2C_MSR, val,
++					 MSR_RDF_ASSERTED(val), 1, 1000);
++		if (ret) {
++			dev_err(&lpi2c_imx->adapter.dev, "SMBus read count failed %d\n", ret);
++			return ret;
++		}
++
++		/* Read block length byte and confirm this SMBus transfer meets protocol */
++		block_len = lpi2c_SMBus_block_read_length_byte(lpi2c_imx);
++		if (block_len == 0 || block_len > I2C_SMBUS_BLOCK_MAX) {
++			dev_err(&lpi2c_imx->adapter.dev, "Invalid SMBus block read length\n");
++			return -EPROTO;
++		}
++
++		/*
++		 * When block_len shows more bytes need to be read, update second read command to
++		 * keep MTDR non-empty and ensuring continuous ACKs. Only update command register
++		 * here. All block bytes will be read out at IRQ handler or lpi2c_imx_read_atomic()
++		 * function.
++		 */
++		if (block_len > 1)
++			writel((RECV_DATA << 8) | (block_len - 2), lpi2c_imx->base + LPI2C_MTDR);
++
++		lpi2c_imx->msglen += block_len;
++		msgs->len += block_len;
++	}
++
++	return 0;
+ }
+ 
+ static bool lpi2c_imx_read_chunk_atomic(struct lpi2c_imx_struct *lpi2c_imx)
+@@ -613,6 +660,10 @@ static bool is_use_dma(struct lpi2c_imx_struct *lpi2c_imx, struct i2c_msg *msg)
+ 	if (!lpi2c_imx->can_use_dma)
+ 		return false;
+ 
++	/* DMA is not suitable for SMBus block read */
++	if (msg->flags & I2C_M_RECV_LEN)
++		return false;
++
+ 	/*
+ 	 * When the length of data is less than I2C_DMA_THRESHOLD,
+ 	 * cpu mode is used directly to avoid low performance.
+@@ -623,10 +674,14 @@ static bool is_use_dma(struct lpi2c_imx_struct *lpi2c_imx, struct i2c_msg *msg)
+ static int lpi2c_imx_pio_xfer(struct lpi2c_imx_struct *lpi2c_imx,
+ 			      struct i2c_msg *msg)
+ {
++	int ret;
++
+ 	reinit_completion(&lpi2c_imx->complete);
+ 
+ 	if (msg->flags & I2C_M_RD) {
+-		lpi2c_imx_read_init(lpi2c_imx, msg);
++		ret = lpi2c_imx_read_init(lpi2c_imx, msg);
++		if (ret)
++			return ret;
+ 		lpi2c_imx_intctrl(lpi2c_imx, MIER_RDIE | MIER_NDIE);
+ 	} else {
+ 		lpi2c_imx_write(lpi2c_imx, msg);
+@@ -638,8 +693,12 @@ static int lpi2c_imx_pio_xfer(struct lpi2c_imx_struct *lpi2c_imx,
+ static int lpi2c_imx_pio_xfer_atomic(struct lpi2c_imx_struct *lpi2c_imx,
+ 				     struct i2c_msg *msg)
+ {
++	int ret;
++
+ 	if (msg->flags & I2C_M_RD) {
+-		lpi2c_imx_read_init(lpi2c_imx, msg);
++		ret = lpi2c_imx_read_init(lpi2c_imx, msg);
++		if (ret)
++			return ret;
+ 		return lpi2c_imx_read_atomic(lpi2c_imx, msg);
+ 	}
+ 
 -- 
-With Best Regards,
-Andy Shevchenko
+2.51.0
+
+
 
 
