@@ -1,205 +1,130 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f73.google.com (mail-vs1-f73.google.com [209.85.217.73])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6279A313550
-	for <linux-i2c@vger.kernel.org>; Mon,  2 Mar 2026 18:03:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03CA93B7B7A
+	for <linux-i2c@vger.kernel.org>; Mon,  2 Mar 2026 20:39:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772474605; cv=none; b=VwWBW9D8N/FhLiyrFJ5/l7cilbmk64EIVAW9abtAp+eypQ9jC8AFoKbJVnJ5c2amKEvd9NDKxWZaGoondNwCfFbLQHTFku9Jec6z98FdjBETsPN+10CRmNIf2Z0G76S863TNDRlq0aZXP9ndVC16hSFi/+WdXC2yVrt2zoys65s=
+	t=1772483999; cv=none; b=bl3RsDKZ1bNwlfKVT5Q/pqsT9AizQgqYEdFzuCgEKvH4v4R1+GQjM6A1Xctb7p87pLZHYqWoDWJmo51TRjG0FFsqza8HLKB9L+FSQoYAaEARGUD9xes+me6sz6GDGSoEzhjPXBcL3k3hPseFhlAEqIK1OUlGL1WfLsr8tDlbXLM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772474605; c=relaxed/simple;
-	bh=KYTmWdCkzi4ZeFomh2vR1ikSgEuPoY2tyFbdDD9n6fM=;
-	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pwfjV2pjP2R/hZKiwqA0yRNkTj2rBQuOrkeBSAvs1qxtaq4Pgl132QZmQTX1jlTp7EekAmlMfUpPduPCqP2c0CVSXyiOwmrx+NTqnRQujUCKYY7H8JsxbrnR8aohHOhiLclWIDkKmvLJ4uSXFLUK5pPHDTuLs/SPRgHjOq8lwbE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JveeZMtv; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772483999; c=relaxed/simple;
+	bh=OHbjNsMFJA4CoiDEb7PeLa9Dac39hTEz/JHm1j+wFEU=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=ewd/mttNnKX7vWFZZgbSYu4K0PQDSzZ3BYVF6lFZ5IRg66kvjb9oPl2ecmsVobiJdUgb3yguxLv7HnDo7jHqE0TDvgPKDG0quzYOdvhJTmXmg+uVnEJHgoawf+PveA2SANKiU6RmGEZKMBZbFijyS+qavXfwLEqVZUkl1cDGb64=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--moritzf.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=vnKJ6ZSS; arc=none smtp.client-ip=209.85.217.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--moritzf.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JveeZMtv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 360C3C19425
-	for <linux-i2c@vger.kernel.org>; Mon,  2 Mar 2026 18:03:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772474605;
-	bh=KYTmWdCkzi4ZeFomh2vR1ikSgEuPoY2tyFbdDD9n6fM=;
-	h=From:In-Reply-To:References:Date:Subject:To:Cc:From;
-	b=JveeZMtvHh4b2GDnkkVyoJrGK+Q2MGZFf2Lk8CJ9YYMT4wWsD3PjgDtK7j34pvmkY
-	 E/43eNsIP8bpY89IsD8OrgREu5LCcRj7pKs0QIYodWLXf6g93QTVZwpnizkwSMkiD/
-	 BAD5de04STMakF6ho5rUZ4mdp3ksx9UZGqEhuoNweZ5bjy7iVs4ZDhR8XhmlSfKsq9
-	 aqUCS3W32PniuLquL7+5UC0sVXuXO6bNivAp/drZVWd+BZ5RPwdd7zxREDEk7BANKu
-	 a8pv6i+LfkS2BDrxpBLMH8Xyj37KtCQY5fLs47mdIwqbIGRRnNAtweJ8U1AdATlvx6
-	 qVNNtRXG2g0rw==
-Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-1279eced0b9so1766361c88.0
-        for <linux-i2c@vger.kernel.org>; Mon, 02 Mar 2026 10:03:24 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCU4xhiwXN4hrMaCBCKYhC6YVJYxa5pEAr5cniEfiPMUER+9uFCwBy2KeeQx3KH3ZiPzJ0emYq1aCcM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YymAVV7bzoFPPTKUkl+nZXtnqjx22YDtbHIg/qFtuOWiD1iWe9D
-	zygh8FH46SiW8cknP39AKCTgOOvodXz0GY62gT76L+9D7NbAb0VWBBbgUk6ftW6zSOu/BVg8gax
-	8pnM7boCbhUppUAfOo0O1GeONGFiLn7nZ0PliwxyEng==
-X-Received: by 2002:a05:7022:6624:b0:11b:b3a1:714a with SMTP id
- a92af1059eb24-1278fb78dd9mr4239860c88.12.1772474603495; Mon, 02 Mar 2026
- 10:03:23 -0800 (PST)
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 2 Mar 2026 12:03:19 -0600
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 2 Mar 2026 12:03:19 -0600
-From: Bartosz Golaszewski <brgl@kernel.org>
-In-Reply-To: <aaHI_VavZugXjVoL@hovoldconsulting.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="vnKJ6ZSS"
+Received: by mail-vs1-f73.google.com with SMTP id ada2fe7eead31-5fdd83e8edaso43861942137.2
+        for <linux-i2c@vger.kernel.org>; Mon, 02 Mar 2026 12:39:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20230601; t=1772483997; x=1773088797; darn=vger.kernel.org;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=X3mmlBVt1FgEKATAP0PqgbanOKHO9lhbY7UtQbKGuGg=;
+        b=vnKJ6ZSSPGfgfL7azIvFUwCQgJfwZUJw97YzB/Rxclzvau2aK9AGPSH1QP3ZC3JY10
+         7iOtlJt5VkqYrr+i9VvGxHzreWC940TAmV9WQEwLyZnklg6yHg9Q5rUhO08MTGzqWAj8
+         +LEAZcHIE5nvGR3bBJJszsgg1rY+cbS6zCj5tT/Q82+aCluZAtWa9xwkhH4XTL7qoUGv
+         qra455gWrQYQB2PM9kykXUTLyBR4Os8o+eLRCDcJEiV9NLLrNK2kcIMdWrIY8k+0AFxd
+         afu9yVWhxjifpl4FaiXRf7x5If6cuZJstFYmRGPPoIJ04f2hdY18iautmDSi/ZYaUw80
+         BQlw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1772483997; x=1773088797;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=X3mmlBVt1FgEKATAP0PqgbanOKHO9lhbY7UtQbKGuGg=;
+        b=jzva9wVEIYW+VdZ3rw7qOjFPR6DNa4Q/6BDh3TQqmgr2UDmIrwzbz9ad3uGfm25HHN
+         jNNt8LgzE8UEwGp3AuGK8Cl+GyajdLT2BTCLyWKDDVC7hDQ1yx/fJzEvte3vhGvD2es1
+         Cg1EkbNC3dtMJyv8rpln6YUt7P+NYpERMCU+MGIkOg1zsC1MbYD6ZzdwAsc95URACLC6
+         tZYKrj0ug74ll8IaZ2YBYVIatsQ4qn5BTt57LTDkgM/4YBAsvguAzoVEonurDQT6u+Db
+         +Ro71cSSmBt/VY8uEdsMdDxEzytD2QWDfXwZxwbbrao63qEgdgwNzwVAZSz3FAXeVYgo
+         ttiQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUrd2JxMcoaRzrdyCUr9K1xv2mOhcPBLMKO38Rids6vYAvBVbYwtYeqZyJBqeK69Oyx3HLrBzOu7pw=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzxgO3azAYob0nrLACffLpSxUqhZkKHrbCSQ/qtiksVPCrpMPME
+	24UEsBVLyuCHYGJsCDzxGwheU6p7522ZsvBBMXDj4Gp1/m9yly1r64fj1YK1cl4HPuKcGwBN8dd
+	x3tpj5btK5w==
+X-Received: from vsbgl14.prod.google.com ([2002:a05:6102:644e:b0:5ff:171a:2949])
+ (user=moritzf job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6102:508f:b0:5f7:2430:cba
+ with SMTP id ada2fe7eead31-5ff3235e45fmr7008742137.12.1772483996644; Mon, 02
+ Mar 2026 12:39:56 -0800 (PST)
+Date: Mon, 2 Mar 2026 20:39:56 +0000
+In-Reply-To: <aaVBg3tX8MRR9rZK@ashevche-desk.local>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260223-i2c-printk-helpers-v2-0-13b2a97762af@oss.qualcomm.com>
- <aaFcs1miP88QWmtH@hovoldconsulting.com> <aaFfEsfh0xTh0b1y@shikoro>
- <aaFsZbiLYSz_YEjw@hovoldconsulting.com> <CAMRc=MfcvD1nJy=zpoCkSkJq6WjyXQxFUZ4QE6vyCS+XFCn5AA@mail.gmail.com>
- <aaHI_VavZugXjVoL@hovoldconsulting.com>
-Date: Mon, 2 Mar 2026 12:03:19 -0600
-X-Gmail-Original-Message-ID: <CAMRc=MdKF29McBJ9U=qELkzf9GYV1CQpRF7U6OweDNtVzMXo7A@mail.gmail.com>
-X-Gm-Features: AaiRm5300NChK-leJ7j5rh6yPxkWOdKqgHQ-hP_JtNKBqi3Lo4LpSjP98XQOjgM
-Message-ID: <CAMRc=MdKF29McBJ9U=qELkzf9GYV1CQpRF7U6OweDNtVzMXo7A@mail.gmail.com>
-Subject: Re: [PATCH v2 00/13] i2c: add and start using i2c_adapter-specific
- printk helpers
-To: Johan Hovold <johan@kernel.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>, Andi Shyti <andi.shyti@kernel.org>, 
-	Chen-Yu Tsai <wens@kernel.org>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
-	Samuel Holland <samuel@sholland.org>, Khalil Blaiech <kblaiech@nvidia.com>, 
-	Asmaa Mnebhi <asmaa@nvidia.com>, Jean Delvare <jdelvare@suse.com>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
-	=?UTF-8?Q?Andreas_F=C3=A4rber?= <afaerber@suse.de>, 
-	Manivannan Sadhasivam <mani@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-sunxi@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	linux-actions@lists.infradead.org, linux-media@vger.kernel.org, 
-	Bartosz Golaszewski <brgl@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+References: <20260227182308.776922-1-moritzf@google.com> <aaHnrj0onxlxH5D0@ashevche-desk.local>
+ <ttbg5vcgzximy77bswykeprkl27hc2civnlpfwmgusm62wvzad@hvnapqphg6af>
+ <aaLH0wYeUki0jqGc@ashevche-desk.local> <20260302053738.GO2275908@black.igk.intel.com>
+ <aaVBg3tX8MRR9rZK@ashevche-desk.local>
+Message-ID: <2n6jkrsxvtkcmbejvbrtc5iq6tidufu72j4rcfphf3bann5os5@u6ha46m4x5ph>
+Subject: Re: [PATCH] i2c: designware: Add a new ACPI HID for GOOG5000 I2C controller
+From: Moritz Fischer <moritzf@google.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, mdf@kernel.org, ovt@google.com, 
+	Jan Dabros <jsd@semihalf.com>, andi.shyti@kernel.org
+Content-Type: text/plain; charset="UTF-8"; format=flowed; delsp=yes
 
-On Fri, Feb 27, 2026 at 5:41=E2=80=AFPM Johan Hovold <johan@kernel.org> wro=
-te:
->
-> On Fri, Feb 27, 2026 at 04:42:09PM +0100, Bartosz Golaszewski wrote:
-> > On Fri, Feb 27, 2026 at 11:06=E2=80=AFAM Johan Hovold <johan@kernel.org=
-> wrote:
->
-> > > It seems all that is needed is to decouple the struct i2c_adapter fro=
-m
-> > > the driver data and have core manage the lifetime of the former using
-> > > the reference count of the embedded struct device.
->
-> > This is a weird pattern you sometimes see where a driver allocates
-> > something and passes the ownership to the subsystem.
->
-> It's not weird at all, this is the standard way to handle this. We have
-> these things called reference counts for a reason.
->
+On Mon, Mar 02, 2026 at 09:51:31AM +0200, Andy Shevchenko wrote:
+> On Mon, Mar 02, 2026 at 06:37:38AM +0100, Mika Westerberg wrote:
+> > On Sat, Feb 28, 2026 at 12:47:47PM +0200, Andy Shevchenko wrote:
+> > > On Fri, Feb 27, 2026 at 09:52:48PM +0000, Moritz Fischer wrote:
+> > > > On Fri, Feb 27, 2026 at 08:51:26PM +0200, Andy Shevchenko wrote:
+> > > > > On Fri, Feb 27, 2026 at 06:23:07PM +0000, Moritz Fischer wrote:
+> > > > > > Define a new ACPI HID for GOOG5000 as used on Google Axion.
+> > > > > >
+> > > > > > This has been validated on Silicon.
+> > > >
+> > > > > > Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > > > > > Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > > > > > Cc: Jan Dabros <jsd@semihalf.com>
+> > > >
+> > > > > Please, put Cc list...
+> > > >
+> > > > > > Signed-off-by: Moritz Fischer <moritzf@google.com>
+> > > > > > ---
+> > > >
+> > > > > ...somewhere here. It will have the same effect on the email. But  
+> the
+> > > > > positive
+> > > > > outcome is the noise reduction in the commit message.
+> > > >
+> > > > > See also this discussion (patch 18 subthread):
+> > > > >  
+> https://lore.kernel.org/lkml/20260123113708.416727-19-bigeasy@linutronix.de/
+> > > >
+> > > > Ok, fair. Do you want me to resend or do you want to patch it when
+> > > > applying?
+> > >
+> > > I'm not a maintainer, so from my p.o.v. the safest option is to send  
+> a new
+> > > version with all data gathered and put properly (Cc list, ACPI  
+> excerpt, et
+> > > cetera) in one place.
+> >
+> > I don't think the excerpt adds any real value.
 
-I wouldn't say it's *the* standard way. There are at least several differen=
-t
-ways driver subsystems handle resource ownership. And even so: the fact tha=
-t
-something's done a lot does not make it automatically correct.
+> It doesn't per se in the commit message. I am asking to have it in the  
+> comment
+> block for the record (in the mailing list archives).
 
-> > This often
-> > causes confusion among driver authors, who logically assume that if
-> > you allocate something, you are responsible for freeing it.Since this
-> > is C and not Rust (where such things are tracked by the compiler), I
-> > strongly believe we should strive to keep ownership consistent: the
-> > driver should free resources it allocated within the bounds of the
-> > lifetime of the device it controls. The subsystem should manage the
-> > data it allocated - in this case the i2c adapter struct device.
->
-> Drivers are responsible for dropping *their* reference, it doesn't mean
-> that the resource is necessarily freed immediately as someone else may
-> be holding a reference. Anyone surprised by this should not be doing
-> kernel development.
->
+Will do next time. I think now we have already a record in this thread
+that'll get archived.
 
-I disagree. For some reason, you're defending a suboptimal programming
-interface. I'm all for reference counting but mixing reference-counted data
-with non-counted is simply not a good idea. An API should be easy to use an=
-d
-hard to misuse. Given the amount of issues, this approach is definitely eas=
-y
-to misuse.
+> > Only thing that really
+> > matters is that the ACPI ID is "correct" meaning that it is properly
+> > assigned by the owner and that's true here. For the CC list does not  
+> matter
+> > to me but if you want to resend with that fixed no problem.
+> >
+> > Either way,
+> >
+> > Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-I'm advocating for a hard split between the subsystem data (reference-count=
-ed)
-and driver data (living from probe() until remove()). A logical struct devi=
-ce
-managed entirely by the subsystem should live in a separate structure than
-driver data and be allocated - and freed - by the subsystem module.
+Ok, will leave it as is then. Thanks
 
-Let's put aside kernel code for a minute and work with an abstract C exampl=
-e,
-where the equivalent of what you're proposing would look like this:
-
-struct bar {
-	struct foo foo;
-	...
-};
-
-struct bar *bar =3D malloc(sizeof(*bar));
-
-ret =3D foo_register(&bar->foo);
-
-And the corresponding free() lives who knows where because foo_register()
-automagically introduces reference counting (nevermind the need to calculat=
-e
-where bar is in relations to foo).
-
-I strongly believe that this makes more sense:
-
-struct bar {
-	...
-};
-
-struct bar *bar =3D malloc();
-
-struct foo *foo =3D foo_register(bar);
-
-// foo is reference counted and allocated in the provider of foo_register()
-
-foo_put(foo);
-free(bar);
-
-The equivalent of which is moving struct device out of struct i2c_adapter.
-In fact: I would love to see i2c_adapter become a truly reference-counted
-object detached from driver data but due to it being embedded in every bus
-driver data structure it realistically won't happen.
-
-> > I know there are a lot of places where this is done in the kernel but
-> > let's not introduce new ones. This is a bad pattern.
->
-> No, it's not. It's literally the standard way of doing this.
->
-> > But even if you decided this is the way to go, I fail to see how it
-> > would be easier than what I'm trying to do. You would have to modify
-> > *all* I2C bus drivers as opposed to only modifying those that access
-> > the underlying struct device. Or am I missing something?
->
-> Yes, you have to update the allocation and replace container_of() with
-> dev_get_drvdata() but it's a straight-forward transformation that brings
-> the i2c subsystem more in line with the driver model (unlike whatever it
-> is you're trying to do).
->
-
-No, it's not that simple. The .release() callback of struct device embedded
-in struct i2c_adapter is assigned from the bus type and only calls complete=
-()
-(yeah, I too don't think it looks right, one would expect to see the associ=
-ated
-kfree() here, right?). It relies on the bus driver freeing the data in its
-remove() path. That's why we wait until all references to said struct devic=
-e
-are dropped. After your proposed change, if your new release() lives in the
-driver module, it must not be removed until all the references are dropped
-- basically where we are now. If on the other hand, the release() callback'=
-s
-functionality is moved into i2c-core, how would you handle the fact i2c_ada=
-pter
-can be embedded in a larger driver data structure? Provide yet another call=
-back
-in i2c_adapter called from the device's .release()? Sure, can be done but I
-doubt it's a better solution.
-
-Bartosz
+- Moritz
