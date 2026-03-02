@@ -1,41 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAB482DAFBB;
-	Mon,  2 Mar 2026 07:24:11 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC372430BAC;
+	Mon,  2 Mar 2026 07:25:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772436251; cv=none; b=rw9i4U05OTe26459eXPHA7VyXf1lv80SEGTCud7zCgBRhpUmH4wPX1j2L5ENL1Uaa44HxdBsaaTKuElrepp+RD/CBF0MqQDLrE4b8ch6LX+Q2jULmnLCyCuSU8oQbBEHriv/YrDQLEUQsmK7W8ec3MRa4tyYjYr4YXXnHGzLgTk=
+	t=1772436317; cv=none; b=XzTIH1Q+bHHH4C7FxiqOVcv1gHzJklCAnyGg+Jc5h9+/aslMvmjx/SEsY/GY8wHrUzWruJMGLsUOacTVommebMnmbt838WnLztUKOzukO7287q8kTSSkekJ//uM4kfxuBk03NaUS4oXQGZ0+CXHWtVJQVQ5WhilciKWdCXhGbOU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772436251; c=relaxed/simple;
-	bh=mckUW/1KbPzJ+xiJL5UO159/k0otECZIExeNuSqax1s=;
+	s=arc-20240116; t=1772436317; c=relaxed/simple;
+	bh=7gVoKDdC5aVPTpZDUql6knM+f5JpIj34CLV1tjGpOxA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZobrogM48qIZcV+qY1wt+CbOqRgRKmxIFfxz1QKoEq6QjT4js5ho/y/Ut6PpPRqQGPhUjFvDwNVBE7ez9gV4haW6wq/Rw5R72CvZetj20QwS2FVPel4pYDhyhXJyJTySKOJ543fax1giGNj7x+K9qnFS8ghSi0RVxhKC2nn+5s8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TA1Y95kr; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=tsYfMf76aprb/fxlNzS27IdE6R0t2cA+MUFI+fGR0azzmdH1xoH+ejAuhK7lWvzhDfOpMtCasuUooHMZvoR80w30LsNgeaeUjpG1Bx3DZqxWA09Jcaw81L4aGeOJy9UmyYuLRre0IbWAtbeWi2APiZjvhvdUm9C7BZZY8EXhjS4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CKhkESAV; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TA1Y95kr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6403C19423;
-	Mon,  2 Mar 2026 07:24:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CKhkESAV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0B29C19423;
+	Mon,  2 Mar 2026 07:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772436251;
-	bh=mckUW/1KbPzJ+xiJL5UO159/k0otECZIExeNuSqax1s=;
+	s=k20201202; t=1772436317;
+	bh=7gVoKDdC5aVPTpZDUql6knM+f5JpIj34CLV1tjGpOxA=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=TA1Y95krxt0o+actWzMSM0X0DwjzYlLg9rwCSCDHsKGiHOfsl/Fv5B6tcWjCvJ5lQ
-	 R2Z9Eo1RQFqh3Ic+eOQ2KPoxHqHKOr0Xi1qTjB7ZGZzi4O610tKMO+4nahMx3RKyYu
-	 Hq+vad/1X3AkUvGUWVxmsOoPWgEfec0PDpTo9v9m4cYG6DbF8LrlRGxEfgruYF4QOj
-	 Nsk4DUhoW71Zo1OJi79nfNdBbWCUwveOg2Yw6Y5+wihlrrZe9ZTOL7PJpsrLy2KdSF
-	 8XR0ihx3xyE7gjbMhS4Fn9yjugDxdrB2WlRHtBUXZ5k2aam3cZX29xInJiYbGS1wTE
-	 1PTt7u88aeU8Q==
-Date: Mon, 2 Mar 2026 08:24:08 +0100
+	b=CKhkESAVIg3bAHWkpKjB9O3rV9eK766cVLOVveUzBuBVA7dfZNKt0z9AFBxGbjwyH
+	 YGxJw2U1FI40PLjSl9UdWh/HNYpH9D7zjoysyXjc8Va/zklHypgcWwro6xYZaoXz3Y
+	 FfpyNsrbWTCcKabkXLleXMJV3qkwtTdXxGVYqsKLTnAp4MuiRQSPO/7+J9nmj7FUOq
+	 1VDOJmHl68M1+j5XV2o32rBv9bZGhaIu38c6MGGVQ2PZgXCMa5GOv9wfAeywoHzIPJ
+	 jhv5bhjVIICI/bQAeSVSakv7GlKELOxDtWgAqxMxYqek4LJJwnYKxS5rJ5pNIJLppH
+	 nrRiN/Ci7se9A==
+Date: Mon, 2 Mar 2026 08:25:15 +0100
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Zi-Yu Chen <zychennvt@gmail.com>
 Cc: andi.shyti@kernel.org, ychuang3@nuvoton.com, robh@kernel.org, 
 	krzk+dt@kernel.org, conor+dt@kernel.org, linux-i2c@vger.kernel.org, 
 	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 2/3] i2c: ma35d1: Add Nuvoton MA35D1 I2C driver support
-Message-ID: <20260302-spiffy-capuchin-of-completion-e8c5b2@quoll>
+Subject: Re: [PATCH 3/3] arm64: dts: nuvoton: Add I2C nodes for MA35D1 SoC
+Message-ID: <20260302-amiable-rugged-mastiff-ccded3@quoll>
 References: <20260302020822.13936-1-zychennvt@gmail.com>
- <20260302020822.13936-3-zychennvt@gmail.com>
+ <20260302020822.13936-4-zychennvt@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -44,234 +44,146 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260302020822.13936-3-zychennvt@gmail.com>
+In-Reply-To: <20260302020822.13936-4-zychennvt@gmail.com>
 
-On Mon, Mar 02, 2026 at 02:08:21AM +0000, Zi-Yu Chen wrote:
-> Add I2C support for Nuvoton MA35D1 SoC.
-> The controller supports standard, fast and fast-plus modes,
-> and provides master/slave functionality.
+On Mon, Mar 02, 2026 at 02:08:22AM +0000, Zi-Yu Chen wrote:
+> Add I2C controller nodes to the MA35D1 SoC dtsi.
+> Also enable the I2C interfaces on the MA35D1 SOM board
+> to allow communication with onboard peripherals.
 > 
 > Signed-off-by: Zi-Yu Chen <zychennvt@gmail.com>
 > ---
->  drivers/i2c/busses/Kconfig      |  13 +
->  drivers/i2c/busses/Makefile     |   1 +
->  drivers/i2c/busses/i2c-ma35d1.c | 819 ++++++++++++++++++++++++++++++++
->  3 files changed, 833 insertions(+)
->  create mode 100644 drivers/i2c/busses/i2c-ma35d1.c
+>  .../boot/dts/nuvoton/ma35d1-som-256m.dts      | 14 ++++
+>  arch/arm64/boot/dts/nuvoton/ma35d1.dtsi       | 65 +++++++++++++++++++
+>  2 files changed, 79 insertions(+)
 > 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index e11d50750e63..6bf8be1d2575 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -1589,4 +1589,17 @@ config I2C_VIRTIO
->            This driver can also be built as a module. If so, the module
->            will be called i2c-virtio.
+> diff --git a/arch/arm64/boot/dts/nuvoton/ma35d1-som-256m.dts b/arch/arm64/boot/dts/nuvoton/ma35d1-som-256m.dts
+> index f6f20a17e501..2a8f0fd90ded 100644
+> --- a/arch/arm64/boot/dts/nuvoton/ma35d1-som-256m.dts
+> +++ b/arch/arm64/boot/dts/nuvoton/ma35d1-som-256m.dts
+> @@ -98,6 +98,14 @@ pinctrl_uart16: uart16-pins {
+>  			power-source = <1>;
+>  		};
+>  	};
+
+Missing blank line
+
+> +	i2c-grp {
+> +		pinctrl_i2c1: i2c1-pins {
+> +			nuvoton,pins = <1 10 12>,
+> +				       <1 11 12>;
+> +			bias-disable;
+> +		};
+> +
+> +	};
+>  };
 >  
-> +config I2C_MA35D1
-> +	tristate "Nuvoton MA35D1 I2C driver"
-> +	depends on ARCH_MA35
+>  &uart0 {
+> @@ -129,3 +137,9 @@ &uart16 {
+>  	pinctrl-0 = <&pinctrl_uart16>;
+>  	status = "okay";
+>  };
+> +
+> +&i2c1 {
 
+Why 'i' is after 'u'? Please read DTS coding style.
 
-Missing COMPILE_TEST
-
-...
-
-> +	/* Setup info block for the I2C core */
-> +	strscpy(i2c->adap.name, "ma35d1-i2c", sizeof(i2c->adap.name));
-> +	i2c->adap.owner = THIS_MODULE;
-> +	i2c->adap.algo = &ma35d1_i2c_algorithm;
-> +	i2c->adap.retries = 2;
-> +	i2c->adap.algo_data = i2c;
-> +	i2c->adap.dev.parent = &pdev->dev;
-> +	i2c->adap.dev.of_node = pdev->dev.of_node;
-> +	i2c_set_adapdata(&i2c->adap, i2c);
-> +
-> +	ret = of_property_read_u32(pdev->dev.of_node, "clock-frequency",
-> +				   &busfreq);
-> +	if (ret) {
-> +		dev_err(i2c->dev, "clock-frequency not specified in DT\n");
-> +		return ret;
-> +	}
-> +
-> +	/* Calculate divider based on the current peripheral clock rate */
-> +	clkdiv = DIV_ROUND_CLOSEST(clk_get_rate(i2c->clk), busfreq * 4) - 1;
-> +	if (clkdiv < 0 || clkdiv > 0xffff) {
-> +		dev_err(dev, "invalid clkdiv value: %d\n", clkdiv);
-> +		return -EINVAL;
-> +	}
-> +
-> +	i2c->irq = platform_get_irq(pdev, 0);
-> +	if (i2c->irq < 0)
-> +		return i2c->irq;
-> +
-> +	platform_set_drvdata(pdev, i2c);
-> +
-> +	pm_runtime_set_autosuspend_delay(dev, I2C_PM_TIMEOUT);
-> +	pm_runtime_use_autosuspend(dev);
-> +	pm_runtime_set_active(dev);
-> +	pm_runtime_enable(dev);
-> +
-> +	ret = pm_runtime_get_sync(dev);
-> +	if (ret < 0)
-> +		goto rpm_disable;
-> +
-> +	writel(clkdiv & 0xffff, i2c->regs + MA35_CLKDIV);
-> +
-> +	ret = devm_request_irq(dev, i2c->irq, ma35d1_i2c_irq, IRQF_SHARED,
-> +			       dev_name(dev), i2c);
-> +
-
-No blank line ever between call and if()
-
-> +	if (ret != 0) {
-
-Write simple and obvious code.
-
-if (ret)
-
-> +		dev_err(dev, "cannot claim IRQ %d\n", i2c->irq);
-> +		goto rpm_disable;
-> +	}
-> +
-> +	/* Give it another chance if pinctrl used is not ready yet */
-> +	if (ret == -EPROBE_DEFER)
-
-Pointless and dead code.
-
-> +		goto rpm_disable;
-> +
-> +	ret = i2c_add_adapter(&i2c->adap);
-> +	if (ret) {
-> +		dev_err(dev, "failed to add bus to i2c core: %d\n", ret);
-> +		goto rpm_disable;
-> +	}
-> +
-> +	pm_runtime_put_autosuspend(dev);
-> +
-> +	return 0;
-> +
-> +rpm_disable:
-> +	pm_runtime_put_noidle(dev);
-> +	pm_runtime_disable(dev);
-> +	pm_runtime_set_suspended(dev);
-> +	pm_runtime_dont_use_autosuspend(dev);
-> +	return ret;
-> +}
-> +
-> +static void ma35d1_i2c_remove(struct platform_device *pdev)
-> +{
-> +	struct ma35d1_i2c *i2c = platform_get_drvdata(pdev);
-> +
-> +	i2c_del_adapter(&i2c->adap);
-> +	pm_runtime_disable(&pdev->dev);
-> +}
-> +
-> +static int ma35d1_i2c_suspend(struct device *dev)
-> +{
-> +	struct ma35d1_i2c *i2c = dev_get_drvdata(dev);
-> +	unsigned int val;
-> +
-> +	spin_lock_irq(&i2c->lock);
-> +
-> +	/* Prepare for wake-up from I2C events if slave mode is active */
-> +	if (i2c->slave) {
-> +		val = readl(i2c->regs + MA35_CTL0);
-> +		val |= (MA35_CTL_SI | MA35_CTL_AA);
-> +		writel(val, i2c->regs + MA35_CTL0);
-> +		ma35d1_i2c_enable_irq(i2c);
-> +	}
-> +
-> +	spin_unlock_irq(&i2c->lock);
-> +
-> +	/* Setup wake-up control */
-> +	writel(0x1, i2c->regs + MA35_WKCTL);
-> +
-> +	/* Clear pending wake-up flags */
-> +	val = readl(i2c->regs + MA35_WKSTS);
-> +	writel(val, i2c->regs + MA35_WKSTS);
-> +
-> +	enable_irq_wake(i2c->irq);
-> +
-> +	return 0;
-> +}
-> +
-> +static int ma35d1_i2c_resume(struct device *dev)
-> +{
-> +	struct ma35d1_i2c *i2c = dev_get_drvdata(dev);
-> +	unsigned int val;
-> +
-> +	/* Disable wake-up */
-> +	writel(0x0, i2c->regs + MA35_WKCTL);
-> +
-> +	/* Clear pending wake-up flags */
-> +	val = readl(i2c->regs + MA35_WKSTS);
-> +	writel(val, i2c->regs + MA35_WKSTS);
-> +
-> +	disable_irq_wake(i2c->irq);
-> +	return 0;
-> +}
-> +
-> +static int ma35d1_i2c_runtime_suspend(struct device *dev)
-> +{
-> +	struct ma35d1_i2c *i2c = dev_get_drvdata(dev);
-> +	unsigned int val;
-> +
-> +	/* Disable I2C controller */
-> +	val = readl(i2c->regs + MA35_CTL0);
-> +	val &= ~MA35_CTL_I2CEN;
-> +	writel(val, i2c->regs + MA35_CTL0);
-> +
-> +	clk_disable_unprepare(i2c->clk);
-> +
-> +	return 0;
-> +}
-> +
-> +static int ma35d1_i2c_runtime_resume(struct device *dev)
-> +{
-> +	struct ma35d1_i2c *i2c = dev_get_drvdata(dev);
-> +	unsigned int val;
-> +	int ret;
-> +
-> +	ret = clk_prepare_enable(i2c->clk);
-> +	if (ret) {
-> +		dev_err(dev, "failed to enable clock in resume\n");
-> +		return ret;
-> +	}
-> +
-> +	/* Enable I2C controller */
-> +	val = readl(i2c->regs + MA35_CTL0);
-> +	val |= MA35_CTL_I2CEN;
-> +	writel(val, i2c->regs + MA35_CTL0);
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct dev_pm_ops ma35d1_i2c_pmops = {
-> +	SYSTEM_SLEEP_PM_OPS(ma35d1_i2c_suspend, ma35d1_i2c_resume)
-> +		RUNTIME_PM_OPS(ma35d1_i2c_runtime_suspend,
-> +			       ma35d1_i2c_runtime_resume, NULL)
+> +	pinctrl-names = "default";
+> +	pinctrl-0 = <&pinctrl_i2c1>;
+> +	status = "okay";
 > +};
-> +
-> +static const struct of_device_id ma35d1_i2c_of_match[] = {
-> +	{ .compatible = "nuvoton,ma35d1-i2c" },
-> +	{},
-> +};
-> +MODULE_DEVICE_TABLE(of, ma35d1_i2c_of_match);
-> +
-> +static struct platform_driver ma35d1_i2c_driver = {
-> +	.probe      = ma35d1_i2c_probe,
-> +	.remove     = ma35d1_i2c_remove,
-> +	.driver     = {
-> +		.name   = "ma35d1-i2c",
-> +		.owner  = THIS_MODULE,
+> diff --git a/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi b/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi
+> index e51b98f5bdce..36bd19e37b57 100644
+> --- a/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi
+> +++ b/arch/arm64/boot/dts/nuvoton/ma35d1.dtsi
+> @@ -17,6 +17,10 @@ / {
+>  	#address-cells = <2>;
+>  	#size-cells = <2>;
+>  
+> +	aliases {
+> +		i2c0 = &i2c2;
 
-Do not upstream 12-year-old code. We fixed all these issues long time.
-Please write your driver from scratch, so you will not
-repeat/reintroduce all the issues which we already fixed.
+Not a property of DTSI, but DTS.
 
-> +		.of_match_table = ma35d1_i2c_of_match,
-> +		.pm = pm_ptr(&ma35d1_i2c_pmops),
-> +	},
+> +	};
+> +
+>  	cpus {
+>  		#address-cells = <2>;
+>  		#size-cells = <0>;
+> @@ -372,6 +376,66 @@ uart15: serial@407f0000 {
+>  			status = "disabled";
+>  		};
+>  
+> +		i2c1: i2c@40810000 {
+> +			compatible = "nuvoton,ma35d1-i2c";
+> +			reg = <0x0 0x40810000 0x0 0x1000>;
+> +			interrupts = <GIC_SPI 69 IRQ_TYPE_LEVEL_HIGH>;
+> +			clocks = <&clk I2C1_GATE>;
+> +			clock-frequency = <100000>;
+> +			resets = <&sys MA35D1_RESET_I2C1>;
+> +			status = "disabled";
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +		};
+> +
+> +		i2c2: i2c@40820000 {
+> +			compatible = "nuvoton,ma35d1-i2c";
+> +			reg = <0x0 0x40820000 0x0 0x1000>;
+> +			interrupts = <GIC_SPI 97 IRQ_TYPE_LEVEL_HIGH>;
+> +			clocks = <&clk I2C2_GATE>;
+> +			clock-frequency = <100000>;
+> +			resets = <&sys MA35D1_RESET_I2C2>;
+> +			status = "disabled";
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +		};
+> +
+> +		i2c3: i2c@40830000 {
+> +			compatible = "nuvoton,ma35d1-i2c";
+> +			reg = <0x0 0x40830000 0x0 0x1000>;
+> +			interrupts = <GIC_SPI 98 IRQ_TYPE_LEVEL_HIGH>;
+> +			clocks = <&clk I2C3_GATE>;
+> +			clock-frequency = <100000>;
+> +			resets = <&sys MA35D1_RESET_I2C3>;
+> +			status = "disabled";
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +		};
+> +
+> +		i2c4: i2c@40840000 {
+> +			compatible = "nuvoton,ma35d1-i2c";
+> +			reg = <0x0 0x40840000 0x0 0x1000>;
+> +			interrupts = <GIC_SPI 123 IRQ_TYPE_LEVEL_HIGH>;
+> +			clocks = <&clk I2C4_GATE>;
+> +			clock-frequency = <100000>;
+> +			resets = <&sys MA35D1_RESET_I2C4>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+> +
+> +		i2c5: i2c@40850000 {
+> +			compatible = "nuvoton,ma35d1-i2c";
+> +			reg = <0x0 0x40850000 0x0 0x1000>;
+> +			interrupts = <GIC_SPI 124 IRQ_TYPE_LEVEL_HIGH>;
+> +			clocks = <&clk I2C5_GATE>;
+> +			clock-frequency = <100000>;
+> +			resets = <&sys MA35D1_RESET_I2C5>;
+> +			#address-cells = <1>;
+> +			#size-cells = <0>;
+> +			status = "disabled";
+> +		};
+> +
+>  		uart16: serial@40880000 {
+>  			compatible = "nuvoton,ma35d1-uart";
+>  			reg = <0x0 0x40880000 0x0 0x100>;
+> @@ -379,5 +443,6 @@ uart16: serial@40880000 {
+>  			clocks = <&clk UART16_GATE>;
+>  			status = "disabled";
+>  		};
+> +
+
+Why? Do not introduce random changes.
 
 Best regards,
 Krzysztof
