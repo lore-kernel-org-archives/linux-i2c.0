@@ -1,164 +1,124 @@
-Received: from mail-lj1-f176.google.com (mail-lj1-f176.google.com [209.85.208.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E4EA3859E6
-	for <linux-i2c@vger.kernel.org>; Mon,  2 Mar 2026 07:47:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91F2B1DF73C;
+	Mon,  2 Mar 2026 07:51:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772437632; cv=none; b=LJ9yg+1sh2eR3vL5/yhZrx8Pm3U56M2gdC4ok4894fWYnaWzcLvYz11qw0A7261B2DXOWYWDbFaDqrUqI+4PrB2/TroMjhraXazMuz4bNyui+xEREW2b5AZHMVdAjjCT9xkGOUIcXavpIrZwzBPATpENo3A+FgZ2OE6SnCFk8cE=
+	t=1772437897; cv=none; b=cQbbe767lD6tO81yyS9qWSpTdCKbJm+RQgVtI8L2cxO4lwjGDoq4X644H6RaNU20IutOcNb/G0j6FQUidrnZ75VvcFiR3mxN3vn0V9ETLsODD40zJq1/QFl9EfDB3oCDsAHfvtc9959DwD9QQqGZCMBvcKH7qsbB2JMuo46JfwQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772437632; c=relaxed/simple;
-	bh=xSIZpSl0bzT5ncKHIOJrQHcDCKTg9OSZ3st72BWj5dQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=six0DyQaneuQHOQVwW7GqzDTRob8yIKc2jtxcrgSh2gc5sEBhs87RuThxiCtrzzfNZx0mhyA8iZ3g57C96edzuyxhvZN5BNmsWenzh6XDIkUrg7cIE1zH+TGG8ueb5oGHyxFNvLy0ol9F2lBsnsZWrhkDVT6k3rql++Gye35ofw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EFjC6SVc; arc=none smtp.client-ip=209.85.208.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1772437897; c=relaxed/simple;
+	bh=jDWwIMhpvWhr+hgcm3uoSHgMOFJeN+QEZ6fs9JqT2vg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UidHeu/u9yohE3HxukykGclHOiUMz8fBQC76yU/xaLJShNaLW+vT1hG6Pb9qHqFq8x6DvR7s/ABAyT88PJGvz2F6ykNiYV76pTxNw28poxr/H3zUHC2ledLeaEk7DJcEiJawHHO7SB+yTuRVGgvUsokdyj4BTMCKG4LNih2r7eQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=D57wUE68; arc=none smtp.client-ip=192.198.163.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EFjC6SVc"
-Received: by mail-lj1-f176.google.com with SMTP id 38308e7fff4ca-389e87e3452so62049491fa.3
-        for <linux-i2c@vger.kernel.org>; Sun, 01 Mar 2026 23:47:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772437629; x=1773042429; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=e68qiM5Z/tLR2me+b5hOCaInO/EcJkXq3qS1H6cb7Bs=;
-        b=EFjC6SVc9p/eFXdAZNIgST336R2XCOSFernJ/n2gRKzFc1U2hrJxIruAKk4yhUIS+q
-         H2nMCLm7FRMSFxb1533zLePDJ0iEUu/BpOfAdJs47hQQyhMrW8ONnrhEM9TGZqUST6HG
-         ZKGJTe+3WIfVLmhjjd2AeCQb70W/CO7IONLAhiQTo/9XJd/s5N4u2Dz/6QTxBUvXfjH8
-         bM7ZejXHZMcGJ483hrWMsLalhV7cPIvSvyyINI8x8SCgJDI0K68Fy8uRAucfqeSYQeEe
-         vZcqcWj1aAZCf2B1hCLw/UieKQ5Y3GWj5E7rZoOYKTaSCwOizhXxV29SEWvKJaWqyKIp
-         ho1Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772437629; x=1773042429;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=e68qiM5Z/tLR2me+b5hOCaInO/EcJkXq3qS1H6cb7Bs=;
-        b=d3hX+s/2saVzVROTXBANbHl3OWlbgrWvF3b5PL7cZP80fvr4q3/UE89b5RDdUCIlVK
-         xk3QKt7N9hoG86adZrAZOjbBoYZKAmHhUPz7pRnle1iAtPnNl4Khq2I/cHjGFGbW9E7H
-         YSr0HK4tCjpxenTZvS9L8//2xHAiqGUfNTtDplhvwVulYQXgkjI0DGzb9Kz46SF6kfDT
-         vYF25+kltcaTpdK7RVLhcHJkgBJwvmP1Yew+EeTA8jXXe/k/W4vK9OJRjRjc0WPZRF3p
-         /TT9nDWDI9nrox6VQ5qBkSpQXhe97EASO5gSRGmyuRIaSQW7ScvtGrusjQ1UQqATclLy
-         c/AQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXWMA3qZaCXyVG5ibliqrlOtKmYuyGXcj7KyX29LtBBqFreq8Py8S222VH1dI8Zrkzn355FKoGem9M=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz0f94DZNW2FonDF/2Agh9DGJBZP/pUJk7hYs32BD1ihKfBTYLw
-	rk83RcaUVXQ/DKYbjox8w6ri/WkW6d8/jbfOFBZPpi7JU6b2p8gVkt4e
-X-Gm-Gg: ATEYQzxDBvrBaJVT5jYCScbjzSSQs7EL69g5kn9YJaUszgQxLc/N4ynGKZbrsNAzXhR
-	6Dvd+HeE6xeSPrECgI6bVHjYIbfnXGgCBOufOeaxFazhxW0OGcquVMQmZ9GfjLt74RK18zQ2E2h
-	wPjwy1l0P9h7qfKfEbvM09M//HYraTMztCMRZulVVKibgQ6Sy5DNQIEWMNCimCqpzuisDkw8wx3
-	a4cZ6MXLUH5oO2xcJaYucgADsS2TCrgpwTdM4uyNnFCT4pAxYyNo6xa0aCJyAYMo3wjr1GHPRIC
-	nXyCwpAFDG7HUVcL6CG7+LF5pQLQvZTVV9NNf9b14KgeNDe8Bs1Hu7f/miUajXkxgYpKTiUJXo3
-	FgcAR6RmbsMvVM+aftMwRAE9qLzXclmlcCGW4pomANJfqA6/SnXKJ+tDBATypNDl8g/bptqlDIN
-	729xY3ytMU1RGPGN9t6pINUNMX4g==
-X-Received: by 2002:a05:651c:1c7:b0:383:1c5f:84c7 with SMTP id 38308e7fff4ca-389ff130e18mr78428611fa.12.1772437628986;
-        Sun, 01 Mar 2026 23:47:08 -0800 (PST)
-Received: from [10.38.18.76] ([213.255.186.37])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a10a319f05sm3299418e87.50.2026.03.01.23.47.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 01 Mar 2026 23:47:08 -0800 (PST)
-Message-ID: <ac23aec1-6dce-4dd5-8990-9fad40998478@gmail.com>
-Date: Mon, 2 Mar 2026 09:47:05 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="D57wUE68"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1772437896; x=1803973896;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=jDWwIMhpvWhr+hgcm3uoSHgMOFJeN+QEZ6fs9JqT2vg=;
+  b=D57wUE68R0J6VgIfQRYW3Pw7E374ekHq4AAi2b68ONm31pXTTsAXuGrE
+   r3ypZzoxs4SnVHJ5+U4IVXwTNbv2PMdKZdgHGkCm5Z0lTe9EkB7PuvCp0
+   j038eJmaFrrA1jAnVCbn5RcJ8FVgN2DGadNEYkRAi2EtxeCfTH9w7NgoT
+   ASWKSnRX7ienNA76NCcto+JkKiTRnuKLla18ocBP8oiBPppqWKnAeVk/A
+   CeNeuaapOgx5J+SPTGzamDlhrm0SAtRsP45U2a2JXoCxGCgvw75kYqj8o
+   zWUu8zv5w0XqMpYrSxZjl+oXxzXj6UjKjZCnLj3TbgGUDQ2jzMD+a0ona
+   w==;
+X-CSE-ConnectionGUID: 39qNJbJSSCuNBBr2/DHV6g==
+X-CSE-MsgGUID: ezOAolwlQkSj8qkJevJHCg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11716"; a="98908189"
+X-IronPort-AV: E=Sophos;i="6.21,319,1763452800"; 
+   d="scan'208";a="98908189"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Mar 2026 23:51:35 -0800
+X-CSE-ConnectionGUID: 42fr2R+tS2CipYEmG2QuuA==
+X-CSE-MsgGUID: FamnUeSMSgyDSyEOjlBdKg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.21,319,1763452800"; 
+   d="scan'208";a="216706086"
+Received: from dalessan-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.244.52])
+  by orviesa006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Mar 2026 23:51:34 -0800
+Date: Mon, 2 Mar 2026 09:51:31 +0200
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Moritz Fischer <moritzf@google.com>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, mdf@kernel.org, ovt@google.com,
+	Jan Dabros <jsd@semihalf.com>
+Subject: Re: [PATCH] i2c: designware: Add a new ACPI HID for GOOG5000 I2C
+ controller
+Message-ID: <aaVBg3tX8MRR9rZK@ashevche-desk.local>
+References: <20260227182308.776922-1-moritzf@google.com>
+ <aaHnrj0onxlxH5D0@ashevche-desk.local>
+ <ttbg5vcgzximy77bswykeprkl27hc2civnlpfwmgusm62wvzad@hvnapqphg6af>
+ <aaLH0wYeUki0jqGc@ashevche-desk.local>
+ <20260302053738.GO2275908@black.igk.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 01/12] i2c: allow setting the parent device and OF node
- through the adapter struct
-To: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
- Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
- Andi Shyti <andi.shyti@kernel.org>,
- Florian Fainelli <florian.fainelli@broadcom.com>, Ray Jui
- <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Vignesh R <vigneshr@ti.com>,
- Aaro Koskinen <aaro.koskinen@iki.fi>,
- Janusz Krzysztofik <jmkrzyszt@gmail.com>, Tony Lindgren <tony@atomide.com>,
- Andreas Kemnade <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>,
- Roger Quadros <rogerq@kernel.org>,
- Geert Uytterhoeven <geert+renesas@glider.be>,
- Magnus Damm <magnus.damm@gmail.com>,
- Patrice Chotard <patrice.chotard@foss.st.com>,
- Shawn Guo <shawnguo@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>, Linus Walleij <linusw@kernel.org>,
- Frank Li <Frank.Li@nxp.com>
-Cc: Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org,
- linux-omap@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, imx@lists.linux.dev,
- linux-rpi-kernel@lists.infradead.org,
- Matti Vaittinen <mazziesaccount@gmail.com>
-References: <20260223-i2c-adap-dev-config-v2-0-d78db0a6fcf7@oss.qualcomm.com>
- <20260223-i2c-adap-dev-config-v2-1-d78db0a6fcf7@oss.qualcomm.com>
-Content-Language: en-US
-From: Kalle Niemi <kaleposti@gmail.com>
-In-Reply-To: <20260223-i2c-adap-dev-config-v2-1-d78db0a6fcf7@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260302053738.GO2275908@black.igk.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On 2/23/26 11:05, Bartosz Golaszewski wrote:
-> In order to stop i2c bus drivers from dereferencing the struct device
-> embedded in struct i2c_adapter, let's allow configuring the parent
-> device and OF-node of the adapter directly through dedicated fields.
+On Mon, Mar 02, 2026 at 06:37:38AM +0100, Mika Westerberg wrote:
+> On Sat, Feb 28, 2026 at 12:47:47PM +0200, Andy Shevchenko wrote:
+> > On Fri, Feb 27, 2026 at 09:52:48PM +0000, Moritz Fischer wrote:
+> > > On Fri, Feb 27, 2026 at 08:51:26PM +0200, Andy Shevchenko wrote:
+> > > > On Fri, Feb 27, 2026 at 06:23:07PM +0000, Moritz Fischer wrote:
+> > > > > Define a new ACPI HID for GOOG5000 as used on Google Axion.
+> > > > >
+> > > > > This has been validated on Silicon.
+> > > 
+> > > > > Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > > > > Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > > > > Cc: Jan Dabros <jsd@semihalf.com>
+> > > 
+> > > > Please, put Cc list...
+> > > 
+> > > > > Signed-off-by: Moritz Fischer <moritzf@google.com>
+> > > > > ---
+> > > 
+> > > > ...somewhere here. It will have the same effect on the email. But the
+> > > > positive
+> > > > outcome is the noise reduction in the commit message.
+> > > 
+> > > > See also this discussion (patch 18 subthread):
+> > > > https://lore.kernel.org/lkml/20260123113708.416727-19-bigeasy@linutronix.de/
+> > > 
+> > > Ok, fair. Do you want me to resend or do you want to patch it when
+> > > applying?
+> > 
+> > I'm not a maintainer, so from my p.o.v. the safest option is to send a new
+> > version with all data gathered and put properly (Cc list, ACPI excerpt, et
+> > cetera) in one place.
 > 
-> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-> ---
->   drivers/i2c/i2c-core-base.c | 5 +++++
->   include/linux/i2c.h         | 4 ++++
->   2 files changed, 9 insertions(+)
+> I don't think the excerpt adds any real value.
+
+It doesn't per se in the commit message. I am asking to have it in the comment
+block for the record (in the mailing list archives).
+
+> Only thing that really
+> matters is that the ACPI ID is "correct" meaning that it is properly
+> assigned by the owner and that's true here. For the CC list does not matter
+> to me but if you want to resend with that fixed no problem.
 > 
-> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-> index 9c46147e3506d15d53b9b7d6b592709de56e41b9..dd8cec9b04c64b8340d20e018ab5ba28f1f7f5c9 100644
-> --- a/drivers/i2c/i2c-core-base.c
-> +++ b/drivers/i2c/i2c-core-base.c
-> @@ -1561,6 +1561,11 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
->   	adap->dev.type = &i2c_adapter_type;
->   	device_initialize(&adap->dev);
->   
-> +	if (!adap->dev.parent)
-> +		adap->dev.parent = adap->parent;
-> +	if (!adap->dev.of_node)
-> +		adap->dev.of_node = adap->of_node;
-> +
->   	/*
->   	 * This adapter can be used as a parent immediately after device_add(),
->   	 * setup runtime-pm (especially ignore-children) before hand.
-> diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-> index 20fd41b51d5c85ee1665395c07345faafd8e2fca..72677f29aff161530bc3c497d1e07144a44eb9e4 100644
-> --- a/include/linux/i2c.h
-> +++ b/include/linux/i2c.h
-> @@ -761,6 +761,10 @@ struct i2c_adapter {
->   	struct irq_domain *host_notify_domain;
->   	struct regulator *bus_regulator;
->   
-> +	/* Device configuration. */
-> +	struct device *parent;
-> +	struct device_node *of_node;
-> +
->   	struct dentry *debugfs;
->   
->   	/* 7bit address space */
+> Either way,
 > 
+> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-Hello,
+Thanks!
 
-Automated driver test system bisected this commit to be the first bad 
-commit, linux-next next-20260227 was tested. Failed tests include driver 
-tests for ROHM PMIC and accelerometers, which are connected to 
-BeagleBone Black.
+-- 
+With Best Regards,
+Andy Shevchenko
 
-The failed driver tests all fail to first i2cget and the tests stop 
-there: "Could not open file '/dev/i2c-2' or 'dev/i2c/2': No such file or 
-directory".
-
-BR
-Kalle Niemi
 
