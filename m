@@ -1,115 +1,118 @@
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6119336C9C0;
-	Mon,  2 Mar 2026 12:24:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.176.79.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67D7640FDA1;
+	Mon,  2 Mar 2026 15:11:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.238.236.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772454295; cv=none; b=TD9pabN5H9t/N6Xwhx/ROn+PhQN+IRiLbhgHGrJlj4050xQctgoHiHlPL2raltdVG/G65/UPyD3HYTaCAyry+gyPjCTuwIFpss8Y777jLfBYIqF6fXK2AUuIZUOfd2OEmE92URRAMXKtPbYN5alnOthdAz6JjtnbFwkqDX/pwak=
+	t=1772464317; cv=none; b=Z6c+hEvufVbkNQMsUWBeHocOAepNFC6KvSsJWn7SmRt1pc1QubKlGzq2HpVjXgjjLCAkrJ/jiO3aoY/FI2QP3l5zpti8HkVD0nkfiDjvcirEDZ9SI1DC4x8DK1CwSYRNFV0wSGr09cQdhX+YxIwYyqG19saKNCRMQKo8Jr9+gZc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772454295; c=relaxed/simple;
-	bh=x7t/iAkWcnd9QyYdAw+6vUuJizpL9ieaOGsdRW/mZTI=;
-	h=Date:From:To:CC:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Plzmmjwo/rkdSWqDPiCNpKpq5/enW0sgvoeIhjIAs7uRGmj+ntrdJ3RQOvGPSzV2978iyH1zEEAU/RbAWWCysC/zy9BY90O90H6Tccr+QCg8Uoy19NOFASmyWuYwT0BZctuCsCmS2T3CxDoan6wo/7MAs+7uSzZXkNPsBRk2ktc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; arc=none smtp.client-ip=185.176.79.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
-Received: from mail.maildlp.com (unknown [172.18.224.107])
-	by frasgout.his.huawei.com (SkyGuard) with ESMTPS id 4fPdQT1L9qzHnH7x;
-	Mon,  2 Mar 2026 20:24:01 +0800 (CST)
-Received: from dubpeml500005.china.huawei.com (unknown [7.214.145.207])
-	by mail.maildlp.com (Postfix) with ESMTPS id E1AB340584;
-	Mon,  2 Mar 2026 20:24:52 +0800 (CST)
-Received: from localhost (10.203.177.15) by dubpeml500005.china.huawei.com
- (7.214.145.207) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.11; Mon, 2 Mar
- 2026 12:24:50 +0000
-Date: Mon, 2 Mar 2026 12:24:49 +0000
-From: Jonathan Cameron <jonathan.cameron@huawei.com>
-To: Herve Codina <herve.codina@bootlin.com>
-CC: Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh@kernel.org>, "Krzysztof
- Kozlowski" <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, "Geert
- Uytterhoeven" <geert+renesas@glider.be>, Kalle Niemi <kaleposti@gmail.com>,
-	Matti Vaittinen <mazziesaccount@gmail.com>, Greg Kroah-Hartman
-	<gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Danilo
- Krummrich <dakr@kernel.org>, Frank Li <Frank.Li@nxp.com>, "Sascha Hauer"
-	<s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>, "Michael Turquette"
-	<mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, "Andi Shyti"
-	<andi.shyti@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Peter Rosin <peda@axentia.se>, "Arnd Bergmann" <arnd@arndb.de>, Saravana
- Kannan <saravanak@kernel.org>, "Bjorn Helgaas" <bhelgaas@google.com>, Charles
- Keepax <ckeepax@opensource.cirrus.com>, Richard Fitzgerald
-	<rf@opensource.cirrus.com>, David Rhodes <david.rhodes@cirrus.com>, "Linus
- Walleij" <linusw@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, "Mark
- Brown" <broonie@kernel.org>, Len Brown <lenb@kernel.org>, Andy Shevchenko
-	<andriy.shevchenko@linux.intel.com>, Daniel Scally <djrscally@gmail.com>,
-	Heikki Krogerus <heikki.krogerus@linux.intel.com>, Sakari Ailus
-	<sakari.ailus@linux.intel.com>, Davidlohr Bueso <dave@stgolabs.net>, "Dave
- Jiang" <dave.jiang@intel.com>, Alison Schofield <alison.schofield@intel.com>,
-	Vishal Verma <vishal.l.verma@intel.com>, "Ira Weiny" <ira.weiny@intel.com>,
-	Dan Williams <dan.j.williams@intel.com>, "Shawn Guo" <shawnguo@kernel.org>,
-	Wolfram Sang <wsa@kernel.org>, <linux-kernel@vger.kernel.org>,
-	<driver-core@lists.linux.dev>, <imx@lists.linux.dev>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-clk@vger.kernel.org>,
-	<linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
-	<linux-pci@vger.kernel.org>, <linux-sound@vger.kernel.org>,
-	<patches@opensource.cirrus.com>, <linux-gpio@vger.kernel.org>,
-	<linux-pm@vger.kernel.org>, <linux-spi@vger.kernel.org>,
-	<linux-acpi@vger.kernel.org>, <linux-cxl@vger.kernel.org>, Allan Nielsen
-	<allan.nielsen@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>,
-	Steen Hegelund <steen.hegelund@microchip.com>, Luca Ceresoli
-	<luca.ceresoli@bootlin.com>, Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Subject: Re: [PATCH v5 11/28] cxl/test: Use fw_devlink_set_device()
-Message-ID: <20260302122449.00006c77@huawei.com>
-In-Reply-To: <20260227135428.783983-12-herve.codina@bootlin.com>
-References: <20260227135428.783983-1-herve.codina@bootlin.com>
-	<20260227135428.783983-12-herve.codina@bootlin.com>
-X-Mailer: Claws Mail 4.3.0 (GTK 3.24.42; x86_64-w64-mingw32)
+	s=arc-20240116; t=1772464317; c=relaxed/simple;
+	bh=3iYO0kg6ueKYDxo+WUqxQW/1ohu/Io5iWqOcMOoZVaY=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=QssdM/O35g7ViXM5tIHHDoiMt1NW4MBvyMGz91fwp48riO+A3zao7k5PLnBPQD3GhjfrOZ8yZHeXlsLeK31H1FBes71YOktETSfoZwjxFR9bpPDONPY/61KlmS5rsmsHV8i1JvkNRh0+vaZlMA7+oXf7XU16/Yj6I8Pgzs0JurA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info; spf=pass smtp.mailfrom=kemnade.info; dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b=noBkohPQ; arc=none smtp.client-ip=178.238.236.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="noBkohPQ"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kemnade.info; s=20220719; h=References:In-Reply-To:Cc:From:Sender:Reply-To:
+	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID;
+	bh=fOE00VOY5CO+udhbXmZXmQz9cKeY+YffWZiDPf2sZPk=; b=noBkohPQtvbuoZmsWo6lCfVC0v
+	wnxzq1SQ5Lj/pBCMSx747FmzuCK3eO9Ch94CEp6EBHx2GpGzcEerfJlEq3n25yBTSh935UFK8DGD4
+	SzpfFNUZZdnGXXIg7FSlb6nQN0crQj1+1RVt0ZZrhPMu/VabG3RzgYsd+0pDI8YtVWoftgAogzXGG
+	/Kt60pHaK6B/3iUjTMbmMNc/i8GCJHUQ93IX3MyLxeBxH+Y2VHs239W1HoqMHwAv+BQ0YU39VuaD6
+	rxdtCJn8AyOra+wikSbvm26LeV9ISHk9b2tds38fBYg7DDQIVOZYTRpNq1xyd648ZITveXnM4+DWx
+	DsvP98lQ==;
+Date: Mon, 2 Mar 2026 16:09:23 +0100
+From: Andreas Kemnade <andreas@kemnade.info>
+To: Kalle Niemi <kaleposti@gmail.com>
+Cc: Bartosz Golaszewski <brgl@kernel.org>, Wolfram Sang
+ <wsa+renesas@sang-engineering.com>, Bartosz Golaszewski
+ <bartosz.golaszewski@oss.qualcomm.com>, Mukesh Kumar Savaliya
+ <mukesh.savaliya@oss.qualcomm.com>, Viken Dadhaniya
+ <viken.dadhaniya@oss.qualcomm.com>, Andi Shyti <andi.shyti@kernel.org>,
+ Florian Fainelli <florian.fainelli@broadcom.com>, Ray Jui
+ <rjui@broadcom.com>, Branden Scott <sbranden@broadcom.com>,
+ bcm-kernel-feedback-list@broadcom.com, Vignesh R <vigneshr@ti.com>, Aaro
+ Koskinen <aaro.koskinen@iki.fi>, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+ Tony Lindgren <tony@atomide.com>, Kevin Hilman <khilman@baylibre.com>,
+ Roger Quadros <rogerq@kernel.org>, Geert Uytterhoeven
+ <geert+renesas@glider.be>, Magnus Damm <magnus.damm@gmail.com>, Patrice
+ Chotard <patrice.chotard@foss.st.com>, Shawn Guo <shawnguo@kernel.org>,
+ Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team
+ <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, Linus Walleij
+ <linusw@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+ linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, linux-omap@vger.kernel.org,
+ linux-renesas-soc@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ imx@lists.linux.dev, linux-rpi-kernel@lists.infradead.org, Matti Vaittinen
+ <mazziesaccount@gmail.com>
+Subject: Re: [PATCH v2 01/12] i2c: allow setting the parent device and OF
+ node through the adapter struct
+Message-ID: <20260302160923.53abf2ea@kemnade.info>
+In-Reply-To: <EDF3FB58-4747-442E-8463-6F1C6E568962@gmail.com>
+References: <EDF3FB58-4747-442E-8463-6F1C6E568962@gmail.com>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; aarch64-unknown-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-X-ClientProxiedBy: lhrpeml100009.china.huawei.com (7.191.174.83) To
- dubpeml500005.china.huawei.com (7.214.145.207)
 
-On Fri, 27 Feb 2026 14:54:08 +0100
-Herve Codina <herve.codina@bootlin.com> wrote:
+On Mon, 2 Mar 2026 12:38:27 +0200
+Kalle Niemi <kaleposti@gmail.com> wrote:
 
-> The code set directly fwnode.dev field.
+> =EF=BB=BFOn 3/2/26 10:55, Bartosz Golaszewski wrote:
+> > On Mon, Mar 2, 2026 at 8:47=E2=80=AFAM Kalle Niemi <kaleposti@gmail.com=
+> wrote: =20
+> >> On 2/23/26 11:05, Bartosz Golaszewski wrote: =20
+> >>> In order to stop i2c bus drivers from dereferencing the struct device
+> >>> embedded in struct i2c_adapter, let's allow configuring the parent
+> >>> device and OF-node of the adapter directly through dedicated fields.
+> >>> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.=
+com>
+> >>> --- =20
+> >> Hello,
+> >> Automated driver test system bisected this commit to be the first bad
+> >> commit, linux-next next-20260227 was tested. Failed tests include driv=
+er
+> >> tests for ROHM PMIC and accelerometers, which are connected to
+> >> BeagleBone Black.
+> >> The failed driver tests all fail to first i2cget and the tests stop
+> >> there: "Could not open file '/dev/i2c-2' or 'dev/i2c/2': No such file =
+or
+> >> directory". =20
+> > Wolfram: well, now it would actually be useful to know which commit
+> > exactly is the culprit so maybe splitting the changes is not a bad
+> > idea after all.
+> > Kalle: which i2c bus driver fails here? Any errors in kernel log?
+> > Bart =20
 >=20
-> Use the dedicated fw_devlink_set_device() helper to perform this
-> operation.
+> Hello Bart,
 >=20
-> Signed-off-by: Herve Codina <herve.codina@bootlin.com>
-> Reviewed-by: Dave Jiang <dave.jiang@intel.com>
-Reviewed-by: Jonathan Cameron <jonathan.cameron@huawei.com>
-
-=46rom practical point of view, what path do you expect this to take?
-Is there urgency to make the change, or does it make more sense to
-add the helper this cycle and cleanup up the various places it can be
-used next?
-
-> ---
->  tools/testing/cxl/test/cxl.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> i2c-1 and i2c-2 are failing. I am not seeing any i2c errors in kernel log=
+. I got two failures without the dmesg available (this is bugged test seque=
+nce, and not a kernel crash), but those got the same stdout message "Could =
+not open file ...." as all others.
 >=20
-> diff --git a/tools/testing/cxl/test/cxl.c b/tools/testing/cxl/test/cxl.c
-> index 3d9107b2661c..7f232a869389 100644
-> --- a/tools/testing/cxl/test/cxl.c
-> +++ b/tools/testing/cxl/test/cxl.c
-> @@ -1137,7 +1137,7 @@ static void mock_companion(struct acpi_device *adev=
-, struct device *dev)
->  	device_initialize(&adev->dev);
->  	fwnode_init(&adev->fwnode, NULL);
->  	device_set_node(dev, &adev->fwnode);
-> -	adev->fwnode.dev =3D dev;
-> +	fw_devlink_set_device(&adev->fwnode, dev);
->  }
-> =20
->  #ifndef SZ_64G
+Probably I am using the same host driver
 
+tested on OMAP3 DM3730, result: i2c drivers get bound to their devices,
+no obvious trouble. But controllers are registered with high indexes.
+
+localhost:~# i2cdetect -l
+i2c-3	i2c       	OMAP I2C adapter                	I2C adapter
+i2c-4	i2c       	OMAP I2C adapter                	I2C adapter
+i2c-5	i2c       	OMAP I2C adapter                	I2C adapter
+localhost:~# uname -a
+Linux localhost 7.0.0-rc1-next-20260227 #27 SMP Mon Mar  2 11:56:27 CET 202=
+6 armv7l Linux
+
+Regards,
+Andreas
