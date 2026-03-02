@@ -1,61 +1,42 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A14130E0E9;
-	Mon,  2 Mar 2026 05:37:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D13361D0DEE;
+	Mon,  2 Mar 2026 07:20:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772429864; cv=none; b=r4BNVYkq0vSbwQ3/NLCq2nNn1Nu6BpU/bMhvoqrbwBN8BF8WL74UqTIaqMjEPdzuFjb2iWMrl3VYwFevbd7v8GTCJDQZ0Pb+hc9A9N4IqnLrmitSq5vog5aI7wBJY8oRegutKLN723aaprT0P9Et9VKEILlI6LQqIgag8PeS3JE=
+	t=1772436008; cv=none; b=Q811JMxmjLD0TKpGItuv6YNY6SIMpYGryZFixYswf6gW3ZgbSSEen4l3BYOhLSPZIF+eqRf8RmqIVRNRdzRVwSECXm6jk64RFuFJPP9LplfoHeUs4BIwLhKnVxSD4gzqAaeWXJXgWicxhXhYEtXXScliR1S7f6e/1ZB0CYlcL9g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772429864; c=relaxed/simple;
-	bh=edhVmc9VGgbqzSJc7LpoLV9GlpZ/Y2vb+lcTI8qcia8=;
+	s=arc-20240116; t=1772436008; c=relaxed/simple;
+	bh=aDIYRsp0TpIxZFNgF1g0ihmHMMwniaVYzKfwjHLo04A=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TO07Ig0ezFrvt3xmKgULXHXgHMhgHOEHKXrD+h4sTQIYQzf+f2kO2iTCGUGrJhfDe1gSmX2EhSWsIsovW0lJABGQu6EuI3BXZckTNLWiI7FSnM2AW9vchVmTKwpF57xek1Fra650XsuoY71r+mIPaGCrs/83B79jzQk5zBz1+gE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KZEh+yjd; arc=none smtp.client-ip=198.175.65.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=bs4QOkCpm36ymxHfcnNqQvfSAVye7JsJdlU62NYQVjEtUoD9rRX+eTxjkr/yd0rntrYzmm2KzxpDccDbvVsA/Csf/aVgfcYQf/3Fj2gaow2+d7RoSrZXzR3g824yR+Y3zXeOajpiFEAaD1oGozMrdaq6Gk0HhrmrdksZgbOOyhs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dv0emQky; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KZEh+yjd"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1772429863; x=1803965863;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=edhVmc9VGgbqzSJc7LpoLV9GlpZ/Y2vb+lcTI8qcia8=;
-  b=KZEh+yjdKvjjDnzzA/R8MjfhnJfRcKTHQXmN+gjuPcGdvh7Vfk64mHGG
-   dr/p5e56v0dQrHUUyCjcU2iH8k0xtNlNKVCGCfUH2gPaSvTsyxduJV5US
-   Gfa+2hL8NFI0Zeh8drINRbBQCbR9/rPI13ihBdxo3rSpc9jUDCLHafAoO
-   +IUt0PN1CDTOGGN9FQb4ISwU0e+U/lhGg3tU08DekzdeEYv+EFKozt3uD
-   Ihcyd/ZU7E4XT3r+sL5z0t5TGuMyn1MAUmXXXdrTnwJy3degHdo1rH0vq
-   CdTBZyj1qbxgNT0J+AFfZESjLEjpNVblFQh2xbyXfBR7YU0Ci0TAt1wJX
-   Q==;
-X-CSE-ConnectionGUID: YSsiWA7BSl25ZmAlIK1LpQ==
-X-CSE-MsgGUID: vEzjo6WfQ3utSHGp7Sa13g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11716"; a="77040350"
-X-IronPort-AV: E=Sophos;i="6.21,319,1763452800"; 
-   d="scan'208";a="77040350"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Mar 2026 21:37:41 -0800
-X-CSE-ConnectionGUID: vv4H0LvGRSig0Hm6jUUIYQ==
-X-CSE-MsgGUID: PnCZWF9tQ5WB5Ilyb1qTcQ==
-X-ExtLoop1: 1
-Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa003.fm.intel.com with ESMTP; 01 Mar 2026 21:37:39 -0800
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id D1FA095; Mon, 02 Mar 2026 06:37:38 +0100 (CET)
-Date: Mon, 2 Mar 2026 06:37:38 +0100
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Moritz Fischer <moritzf@google.com>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, mdf@kernel.org, ovt@google.com,
-	Jan Dabros <jsd@semihalf.com>
-Subject: Re: [PATCH] i2c: designware: Add a new ACPI HID for GOOG5000 I2C
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dv0emQky"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3FF9C19423;
+	Mon,  2 Mar 2026 07:20:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772436008;
+	bh=aDIYRsp0TpIxZFNgF1g0ihmHMMwniaVYzKfwjHLo04A=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=dv0emQkyq8MxQqIAz2FtULYOzXKF2eQpsX1pa0SVsqLkuvmb4/R3hu+9FkU6nJiwV
+	 P6LPvlHLEXMvXXsyjscyFeIclok5Zm1NVxV7mp5wyWW09uEaIR4JNwThnCeAx1hPei
+	 v5qMSWMzpcGvJMRWQZS1DiK8qQ0u5Y4iR1vcs3cvfZ6sdWGthDWKX3JR0QvKgZTq60
+	 iis1QtBK/+HNLfFWrnECeZkGueMlUWHLCaRJ1sKIWea8gAs3RD90NMCpcscSW+3jW+
+	 MzzrNdKbXKU/iVTSgqVJMPgKVf1CWqUW+0LqQi4PtzN0hnaUI2a7enLZfYLvTFcGL9
+	 Jrw5ZTgoGNwfg==
+Date: Mon, 2 Mar 2026 08:20:06 +0100
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Zi-Yu Chen <zychennvt@gmail.com>
+Cc: andi.shyti@kernel.org, ychuang3@nuvoton.com, robh@kernel.org, 
+	krzk+dt@kernel.org, conor+dt@kernel.org, linux-i2c@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 1/3] dt-bindings: i2c: nuvoton,ma35d1-i2c: Add MA35D1 I2C
  controller
-Message-ID: <20260302053738.GO2275908@black.igk.intel.com>
-References: <20260227182308.776922-1-moritzf@google.com>
- <aaHnrj0onxlxH5D0@ashevche-desk.local>
- <ttbg5vcgzximy77bswykeprkl27hc2civnlpfwmgusm62wvzad@hvnapqphg6af>
- <aaLH0wYeUki0jqGc@ashevche-desk.local>
+Message-ID: <20260302-agile-mighty-cassowary-ed972e@quoll>
+References: <20260302020822.13936-1-zychennvt@gmail.com>
+ <20260302020822.13936-2-zychennvt@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -64,44 +45,56 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <aaLH0wYeUki0jqGc@ashevche-desk.local>
+In-Reply-To: <20260302020822.13936-2-zychennvt@gmail.com>
 
-On Sat, Feb 28, 2026 at 12:47:47PM +0200, Andy Shevchenko wrote:
-> On Fri, Feb 27, 2026 at 09:52:48PM +0000, Moritz Fischer wrote:
-> > On Fri, Feb 27, 2026 at 08:51:26PM +0200, Andy Shevchenko wrote:
-> > > On Fri, Feb 27, 2026 at 06:23:07PM +0000, Moritz Fischer wrote:
-> > > > Define a new ACPI HID for GOOG5000 as used on Google Axion.
-> > > >
-> > > > This has been validated on Silicon.
-> > 
-> > > > Cc: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > > > Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> > > > Cc: Jan Dabros <jsd@semihalf.com>
-> > 
-> > > Please, put Cc list...
-> > 
-> > > > Signed-off-by: Moritz Fischer <moritzf@google.com>
-> > > > ---
-> > 
-> > > ...somewhere here. It will have the same effect on the email. But the
-> > > positive
-> > > outcome is the noise reduction in the commit message.
-> > 
-> > > See also this discussion (patch 18 subthread):
-> > > https://lore.kernel.org/lkml/20260123113708.416727-19-bigeasy@linutronix.de/
-> > 
-> > Ok, fair. Do you want me to resend or do you want to patch it when
-> > applying?
+On Mon, Mar 02, 2026 at 02:08:20AM +0000, Zi-Yu Chen wrote:
+> Add device tree binding documentation for the I2C controller
+> found in the Nuvoton MA35D1 SoC.
 > 
-> I'm not a maintainer, so from my p.o.v. the safest option is to send a new
-> version with all data gathered and put properly (Cc list, ACPI excerpt, et
-> cetera) in one place.
+> Signed-off-by: Zi-Yu Chen <zychennvt@gmail.com>
+> ---
+>  .../bindings/i2c/nuvoton,ma35d1-i2c.yaml      | 65 +++++++++++++++++++
+>  1 file changed, 65 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/nuvoton,ma35d1-i2c.yaml
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/nuvoton,ma35d1-i2c.yaml b/Documentation/devicetree/bindings/i2c/nuvoton,ma35d1-i2c.yaml
+> new file mode 100644
+> index 000000000000..fa8b01e2c5b1
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/nuvoton,ma35d1-i2c.yaml
+> @@ -0,0 +1,65 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/i2c/nuvoton,ma35d1-i2c.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Nuvoton MA35D1 I2C Controller
+> +
+> +maintainers:
+> +  - Zi-Yu Chen <zychennvt@gmail.com>
+> +
+> +description: |
 
-I don't think the excerpt adds any real value. Only thing that really
-matters is that the ACPI ID is "correct" meaning that it is properly
-assigned by the owner and that's true here. For the CC list does not matter
-to me but if you want to resend with that fixed no problem.
+Do not need '|' unless you need to preserve formatting.
 
-Either way,
+> +  The Nuvoton MA35D1 I2C controller supports master mode and optional
+> +  slave mode operation. The controller is configured via Device Tree
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Use modern naming, not master/slave.
+
+> +  and supports interrupt-driven I2C transfers.
+
+Drop "The controller is configured via Device Tree", because it is
+completely irrelevant. Why telling in DT binding that you use DT? Can
+you use ACPI here?
+
+And with dropping this it could be one simple sentence.
+
+With these changes:
+
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+
+Best regards,
+Krzysztof
+
