@@ -1,112 +1,97 @@
-Received: from mail-oo1-f48.google.com (mail-oo1-f48.google.com [209.85.161.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBF8B3382C8
-	for <linux-i2c@vger.kernel.org>; Wed,  4 Mar 2026 15:02:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.48
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772636535; cv=pass; b=fxssL8/PNRqLg/SzVx3M6jV0PbqOVjc/43k9tQZLLgG8BpVyRxWxGnFRT7XJ4A8ZU4qE7yF0B7Jr3lzp5JkpC5vZ6/gPTjIDk9rOK2XA83/y4l8/NNC3/Jx4nKOPKmBN3zGHbO8+qiTI3WG3wRgvB9su8ZSlKbUaKzXC0FQUyAQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772636535; c=relaxed/simple;
-	bh=HvZUHId3jvCqEWXcfw1WzgEIhl+2wFP10xKoDSa5dBU=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4491836074F
+	for <linux-i2c@vger.kernel.org>; Wed,  4 Mar 2026 16:43:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1772642590; cv=none; b=cpsZtleDFCjDbM40RkgjQDjRdCHpRbvYckMOfVwmyA43JqD9euho69Y/37RaCrM9VYGcmSFtrmfsdAypzmEQkaNiKYARVvuAOJMA0Sidg819NQn90SgXN9lt5Ct467H1bEv2tJZOgFsDht21djxBncN9URQuAnbRkb6Mvqzo8Hk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1772642590; c=relaxed/simple;
+	bh=9OqUlajEsyaPvA+Ou3Wj1PI8aRB4Ig+mv6GW9s47I7w=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Content-Type; b=nTjgAxR9Ov7DixAUUrO/Bvk2V3Slk8V17aeZjT5dcAaKJKUeFh8LFkMYbQE7JPEiFUyh86s9rnNEBoCg3pq39triXig0FjS3uBF1JUgAjh1tJ4gN+yytFQNTI+Sn2FSFG1Xjq+SWQn3pYIQMzlKHKEFyeu92n6gaAMx5WTWjFwk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GagjfwBz; arc=pass smtp.client-ip=209.85.161.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=Nt8Yvts36h3wRzdIt1s+7PeYEy3vh78g+WtrvJJht/xwmBVIUH26l/adYsi1JUrtVvJwDj+T6zDS2/90+yrJoumBflOrYW7dgXZbLJXe3og4YiZp9Bx/K6C1ZxtfFA/eaUFUczR86+3B9XBbaEAib7ZLySvo9PyAy5viXgxprig=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BCnC9O/I; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GagjfwBz"
-Received: by mail-oo1-f48.google.com with SMTP id 006d021491bc7-677bb1c3a9dso2401544eaf.3
-        for <linux-i2c@vger.kernel.org>; Wed, 04 Mar 2026 07:02:14 -0800 (PST)
-ARC-Seal: i=1; a=rsa-sha256; t=1772636533; cv=none;
-        d=google.com; s=arc-20240605;
-        b=k00+ZuMZ3nt7HG+gbvvEl4ItN0UhvirJywrZ9RcPtrut1Ag7nUh0S6kB2oB49wfH3z
-         Ea3Z6h/hfYcI6SBYAFgvpGrDG3piJBnk541Hgr3XZchdtiOLaFBEGVPnJBDYNBuN6cwa
-         RMaSixHjPH8PZ31kmeGt2ONGpHTIn5EVklH67UCNYlTqwxn5/4SPQ0CNAXWVNDpG/HVC
-         m5BvnGlk+/gv84SAM3u684ofBEUNCkzoTlpNM8YuDndZ7PLDlodOv3rvhwaKCtPGaOJM
-         BJfXJdjtE3bt8xoqr3hHytMxRL7UUkuJOCV9c/2w24xyFP2AtmibICO7RGkZS8gX/toh
-         1XYg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
-         :dkim-signature;
-        bh=HvZUHId3jvCqEWXcfw1WzgEIhl+2wFP10xKoDSa5dBU=;
-        fh=bzCIbAMP/Pi0UINroRoLvMkJUOmBk79Mh7UOj6YbYck=;
-        b=FeRET4ACY0Rx5+mtk0XuK3Iyv5jTHELkgfSGtgkcXR0dHZqpul8+1YS1VzyCjliNj3
-         YdHLTKcMATOd8RmDMjEy1N7aq5BdvjGM1MEGuQRZkG93rxISCJYc7TjljPZ1lxHrp5Nj
-         a6QP4iZiVvBaIkkclQ6ltnSBbQu1pYaOUzXMhQiRTcy0sRTrDTfl07BVs6F2rGnyZOwC
-         K3b2eXHo+PPpU0qOpT3G0k+9O70721h9z4BvsI0smeWLM4jKUR0VGfjIgQBPFPgu0Epp
-         klH4qdYEsfEdQuMXpPCdceIn/Ds/Sf8TK9uQj8OsEwzDBvfQ3KdIM3TXgFbwU2bXZg0B
-         SxfQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1772636533; x=1773241333; darn=vger.kernel.org;
-        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=HvZUHId3jvCqEWXcfw1WzgEIhl+2wFP10xKoDSa5dBU=;
-        b=GagjfwBzvPUrJUVgvH3hBHsrRDtB+nkej0xKO9BZNWIgNV3TGjDENKDbOwJvedun8k
-         O6MOQ9eJyt2ZhCq+BfCmpm177ZPZpviiv194H1DLGkElyXxoS9Vyaoe/bVLK/qEOgubg
-         qv4smHILv/4SX/aGhkyrLxD/pY3gd+ZZEnXTVgIOxGgX0qJHQY4ffz93t+8JY4DN+92E
-         V4MzDP7oTKzVNezBPeVZAF/upsRYicX9vMemJPszTvLpbWd9MTItjFKwi8eQPPoLA7PG
-         0h00/S1qUPVEygLIWN68l1d1r9ucThZC4TGNL4P0WAkT9nytf9l1AIehgtcZHzYEx31/
-         BDSg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1772636533; x=1773241333;
-        h=to:subject:message-id:date:from:in-reply-to:references:mime-version
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=HvZUHId3jvCqEWXcfw1WzgEIhl+2wFP10xKoDSa5dBU=;
-        b=YRQm0vL33NTmO0cjmjzyPKdoW3HYTHXISvj4uyp3Nhm1k9CfifL2MPykzFTZInB3v8
-         z5UXDFualInQWGsFljM4cGI6j7qOThl+v56QK+NCT6PJ6sRjkAAeshwdtGGxsJMqFJuH
-         oBZhJay9RFKjT9iqptIt1mpRnmbaTYD5x7MbVfD8q+HDsLZfzaTde0j7GFl0eSj4WEfB
-         GV6m1G9CpXx5DxRfDM6Qyb+e1VlLKo/9xOcJ5pDw8JPz1V7/o+GMHLGOx2vkSi4kj6fc
-         SiPb/wQmCKn2D9y/AcasrwHvoL89xJcpmU5W5UPbPAhOG3Eg5pDvZ3QakRYa0XgMm3q4
-         4rXA==
-X-Forwarded-Encrypted: i=1; AJvYcCUUnQRNO8cTDDbRgwtnakfLCwTeiVqGM7Kjq20Z1Ct/gLDWQLMPn45j/6IDNqPv7kiGKPB04enRHHA=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy9iUHp7HL+REEuMAzg0J+/plv8hXStbBMEurzEU8bXXNieylYp
-	JY8XdTZfDae8SZ1GOwDdzvPzQ/GtPYXrK5D3ZjL3MJaS8xhbwm9feDlH2mpqepDGQnUR5Dfzgxp
-	1INBSdZfG2tnXy4S5JsRooyrEKO82CepHpTdY
-X-Gm-Gg: ATEYQzxPlD5SXYGrtqi+uBPesI8/tj/zyfONtZVRYFPd+K4N2FCnLSAUxxlICQ4aKqZ
-	jX8dCNfZkadrZGddJUxoWDSENEw30zNTlcLv2uu2eQExCW4AfClBryojYaCxOx1p1IkwmnHTSVB
-	yCyk0aEDneLnP8oHDll0OKAVlCaF0MgJJI5yWUwVDSDD9cwBNi3lEsHXO+CMbdX9y246MH9FN+n
-	zxeklafS+lYpccM1tTJMg7EuoYzM20gbjRNt2wU2fMHSA5mdrAVsc4KZb3SMKR8vXAgFeN7dpQZ
-	Ck7+8rv3lYbKhXwrQIrr
-X-Received: by 2002:a05:6820:4410:b0:65f:7470:38bd with SMTP id
- 006d021491bc7-67b1e909f56mr888184eaf.58.1772636533212; Wed, 04 Mar 2026
- 07:02:13 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BCnC9O/I"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7E6FC2BCB3
+	for <linux-i2c@vger.kernel.org>; Wed,  4 Mar 2026 16:43:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772642589;
+	bh=9OqUlajEsyaPvA+Ou3Wj1PI8aRB4Ig+mv6GW9s47I7w=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=BCnC9O/IEPyPHpuW1wYYPFqUtD8Auc9hKfyd5IevjyB07JJKZkdFVkpg5xJe7m1aB
+	 Rp5C7ZjunBgpIR7oPDlQ/cEkAserS1HUaBfTXz9EVXtOAFmLsOn4farl/22NKoCPMB
+	 g7nIrOCcWHUQ+RriZE98eM1CdYTdRD4N9HWz3mz0dLZ2rlfNEtz5h1RMoxdu3D+wPz
+	 Ncf5DhnDycHQZI0sgXpnvLT0NcPmh9wexnD8Pfctkd9FNFtze74AZlrhhG2+wWYfiT
+	 vym5YN+i6bt495P+C8KFs3NqRA1k1AXAo8ef9HA3wlYvkHs+3KagTEjXZ3UldKE2cS
+	 DdyMCBd6SkG6w==
+Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-38a3066b68bso11387561fa.3
+        for <linux-i2c@vger.kernel.org>; Wed, 04 Mar 2026 08:43:09 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCXLw7dzoJfC/2MYkDJ+Kkq51LE7JxfDBa8xvl3NjdQvvCAMDBh+npT4tweNR0SJONL5bHlmZUc/Pow=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzhig/GI705nczp9H8Hiy3mSQ48srFkISnVNQZC3J5xiO81w0Oo
+	Rv5o3LkuHJijxLIeayUsWOsd88LStATMpE5sf0LkvNLMl/4M+xF9xTzAbP2TghSZTAxgbcOH7/4
+	j4PXg5cxGKduZTJqskg2wySn7+It/Co3ReEo26DFaSQ==
+X-Received: by 2002:a2e:90c6:0:b0:386:e9ba:1de7 with SMTP id
+ 38308e7fff4ca-38a2c7b90a4mr17313261fa.33.1772642588346; Wed, 04 Mar 2026
+ 08:43:08 -0800 (PST)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CANkKV92bTD11PCXYzz60WSxcP-0UCM8xtnY4_WraEwQx6TMjaw@mail.gmail.com>
-In-Reply-To: <CANkKV92bTD11PCXYzz60WSxcP-0UCM8xtnY4_WraEwQx6TMjaw@mail.gmail.com>
-From: =?UTF-8?B?UsOhY3ogTcOhdMOp?= <raczm0812@gmail.com>
-Date: Wed, 4 Mar 2026 16:02:01 +0100
-X-Gm-Features: AaiRm53WpMLirIo8D6jGIgns39aLQmDjbG0I0U5xvR78o8KaLNSvGnl4_G2CFPg
-Message-ID: <CANkKV91Zfp_Bn_koM=Tb5vHQbog2Ja72C819aL-49kQ6PWA_Ow@mail.gmail.com>
-Subject: Re: [6.18.] ThinkPad T14 Gen 2 AMD (LEN2073) - Synaptics touchpad
- remains PS/2, intertouch=1 ineffective, lost sync events
-To: linux-input@vger.kernel.org, linux-i2c@vger.kernel.org
+References: <20260302-i2cfix-v1-1-a95418e9217e@kemnade.info> <aagNrTJYj-MdeBRO@shikoro>
+In-Reply-To: <aagNrTJYj-MdeBRO@shikoro>
+From: Bartosz Golaszewski <brgl@kernel.org>
+Date: Wed, 4 Mar 2026 17:42:55 +0100
+X-Gmail-Original-Message-ID: <CAMRc=McAvQTc=yZngaHh54B-ZLAfLf_ssFQc-_EUh4zjnuOR5A@mail.gmail.com>
+X-Gm-Features: AaiRm51-_KL7ZixwZgVk2_cm-jJx3DIhdOxUqfoRDQxWkcsWqF3-bp6Fl9c1u1c
+Message-ID: <CAMRc=McAvQTc=yZngaHh54B-ZLAfLf_ssFQc-_EUh4zjnuOR5A@mail.gmail.com>
+Subject: Re: [PATCH] i2c: i2c-core-base: fix devicetree alias handling
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Andreas Kemnade <andreas@kemnade.info>, Frank Li <Frank.Li@nxp.com>, 
+	Linus Walleij <linusw@kernel.org>, Patrice Chotard <patrice.chotard@foss.st.com>, 
+	Florian Fainelli <florian.fainelli@broadcom.com>, 
+	Dave Stevenson <dave.stevenson@raspberrypi.com>, 
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Kalle Niemi <kaleposti@gmail.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This might be related to the earlier report from 2021:
+On Wed, Mar 4, 2026 at 11:47=E2=80=AFAM Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+>
+> Hi Andreas, Bart, all
+>
+> On Mon, Mar 02, 2026 at 06:04:42PM +0100, Andreas Kemnade wrote:
+> > Parent device is not set up there, so use the new of_node pointer to
+> > handle aliases.
+> >
+> > Fixes: 0ab80451c70f ("i2c: allow setting the parent device and OF node =
+through the adapter struct")
+> > Reported-by: Kalle Niemi <kaleposti@gmail.com>
+> > Closes: https://lore.kernel.org/lkml/EDF3FB58-4747-442E-8463-6F1C6E5689=
+62@gmail.com/
+> > Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+>
+> Thank you a lot for this fix! I will apply the patch. Plus, I want to
+> describe what it also made me do.
+>
+> Bart's patches are in for-current and were planned to be sent to Linus
+> as an "after -rc1 cleanup". This patch tells me that we are not there
+> yet and the patch series should have a full cycle in -next, so we (read:
+> I) have more trust that we didn't overlook side-effects. As a
+> conclusion, I will move Bart's patch series to for-mergewindow and apply
+> your patch on top of it.
+>
+> Bart, I am sorry for the delay it introduces, but I think the smoother
+> the transition the better. Maybe we can save some time somewhere else?
+>
 
-https://lore.kernel.org/linux-input/3d6f7f74-3214-4c03-b352-a2a0d27ea42b@amd.com/
+I think there's been a misunderstanding. I've never suggested this
+should go into v7.0. This is definitely v7.1 material and should cook
+in linux-next. So yeah, feel free to queue it for the next merge
+window.
 
-and a similar report from 2025:
-
-https://lore.kernel.org/linux-input/b2d0af40-876e-4a2d-99a2-236b583e9497@gmail.com/
-
-The 2021 report describes incorrect SMBus address detection with
-i2c_piix4 on ThinkPad P14s Gen 2 (AMD), resulting in RMI4/SMBus not
-functioning correctly and the device remaining in PS/2 mode.
-
-On my system (LEN2073), the behaviour appears very similar:
-- intertouch has no effect
-- "SMBus companion is not ready yet" in dmesg
-- device stays in PS/2 mode
-
-It seems possible that the same underlying piix4 SMBus detection
-issue is still present.
+Bartosz
