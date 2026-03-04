@@ -1,79 +1,390 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B9CD1A2C0B;
-	Wed,  4 Mar 2026 08:35:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AE4539F167
+	for <linux-i2c@vger.kernel.org>; Wed,  4 Mar 2026 09:55:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772613340; cv=none; b=W6EZRfEOq4bRTBWHnetAUZa3p1mUbWoq56TKTzZOmqEGblCo9ZLklpiTdFxi9hh0eO0jSDo8NpFg28vJWpjL4dDmqQbdjCbOIxHTX1EC6D4kDM1us2Eur5NK4rSPzn6YxS+boac5X95hsMjTCTRQ7EuZvUFT6y2Hc1b9gHEnKpY=
+	t=1772618118; cv=none; b=R1eRrBED0gGnEh+C9p+kY47cF1HvnvVyqHrwJ0rhZYliiysPQ9nXnD462jiKxZnqyHSyQOBD6jmou5I2laUqct4IGbboveiWLyg9mGbNasY6LOD8HXb4eBJ9qqCZUFY2sjouqHE8hGJu1Z9wxOwXvN2BAYND7WiBYYCDkKWu3PY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772613340; c=relaxed/simple;
-	bh=oWg/cg7kWlEES/qZchQJbpztQ2Tn1CAdFHkpToBc1HM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=morPEMXc9ZeQ1I/COKlK5J4xTTrjmz2vq5Q+Ir/PWwhO+c/muxdN0sPit4bBZAbhCpLZbAdLe8O3dzQSK8pqp+GiTwURcApIst5l3jWBhcRGNCYe7cEWc+/nC59JfaxLpIgDmqE0jZuXZJTFNQQMT9LXxnEyEgCa717JDRUbKVI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jbDO9REZ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772618118; c=relaxed/simple;
+	bh=g7rT5pzmvMWMQmalMKqVnAHzQr5G/tKv45hmbKvwObA=;
+	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=t2rIGAlw1cubnOgXGda5Pgn+SgKt5rH6J1+TctHkD+r1NphISqNg4HSt2P0aemdAC/Mj3IyB12gfcHGVd2dgk2r956qKQtqkcEDHR564R+mOKSVb9eZjhvf85olJ8R5Ow4U/jbN6X2jR5zTxmtB+puwrU/gf8UhMSF54HsLfP3Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IDXN7gmv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jbDO9REZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F715C19423;
-	Wed,  4 Mar 2026 08:35:39 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IDXN7gmv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A68CC2BCB1
+	for <linux-i2c@vger.kernel.org>; Wed,  4 Mar 2026 09:55:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772613340;
-	bh=oWg/cg7kWlEES/qZchQJbpztQ2Tn1CAdFHkpToBc1HM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=jbDO9REZow53raDLG6Ylx8rKhsJQX8kWtGz7KlNrZATvSPnmX8sDpV9Tq+my2eKvY
-	 fxJqZ2FcA3QsALILV1TuSsnrTBrnRVWgb5tvTZ68Y1EyPOKMv4Dz+/lACKzqHTY2X+
-	 1xoIDJ6XusXVNeZ++c8yjBO/fmwvYxk0Ho360/zfWqZQBTxfXe9F1YaKXPNhMk9xwH
-	 3gCfDP4acMucgyzLN1qpWikFA5i0c0IdrgBnmw4riv5065a5oWxTHJYCTIOcGCW/yC
-	 D/RR6oVtruJAhNNZpSMlo6xU3+68Lhsyr3sUyv+6OP/8sIperKgNYz8Km8c0NNllJg
-	 HP7x24bA6QNNQ==
-Date: Wed, 4 Mar 2026 09:35:37 +0100
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Conor Dooley <conor@kernel.org>
-Cc: linux-i2c@vger.kernel.org, Conor Dooley <conor.dooley@microchip.com>, 
-	Daire McNamara <daire.mcnamara@microchip.com>, Andi Shyti <andi.shyti@kernel.org>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	linux-riscv@lists.infradead.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1] dt-bindings: i2c: microchip,corei2c: permit resets
-Message-ID: <20260304-vivacious-congenial-bear-f47377@quoll>
-References: <20260303-clang-earthling-8a4904cb8a7b@spud>
+	s=k20201202; t=1772618118;
+	bh=g7rT5pzmvMWMQmalMKqVnAHzQr5G/tKv45hmbKvwObA=;
+	h=From:In-Reply-To:References:Date:Subject:To:Cc:From;
+	b=IDXN7gmvS9xa2vrKN++cCjK7d/KvXRb8Ik0WHfWNMmet7lpWxZGOi/26+b9OM7+D7
+	 jkyHHARrjVqQ2XdR15cJxU7/YrIaJgEl/o1N+z9S4sph2NDNuRNtXEAEV+iYiuJPYL
+	 AlbzlzVW0NNL6Gk2MLDe8MnTnzokO3kRjwZtLUWqGGY9CRfn0Fp14dkym+JrKsDYBw
+	 /Yj93DNrLfKKLV3Rxo3MnjOXo/0wNJGwHDYwVSC1hL5gSaFNPhKi1d21p4AuSzWMn9
+	 rlqIfOI6OOVSL4MYR10JjAzenjWnefs3y8N2nZJHyhOsEE1p5F9FhahSOVCLOvtA0p
+	 vMTF4c2zJ9rlw==
+Received: by mail-lj1-f171.google.com with SMTP id 38308e7fff4ca-389f200c26eso3553771fa.0
+        for <linux-i2c@vger.kernel.org>; Wed, 04 Mar 2026 01:55:18 -0800 (PST)
+X-Forwarded-Encrypted: i=1; AJvYcCVJ/8KTw0qnIIyhFfvw23pqPAFyBLA5B7xaV9YGGGip2vf+Rd33tZ1mmb/TbjbCWblqr7JNdz7dWPk=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwaxcKuAQItWcSQ3B9jxiqeOrTB72UONxd0Oea2CD5qvoRGmTcB
+	KMkCGp4dRH0r6/eyYOtJlSQ/70gRA2tj6W7InISiYzByR57KIS5c1l9h/LDnlcFtw74fRDh7Pht
+	3oEj/jDdc0YN/Mvox+VYsdu2ZCaSjAM0at7y3PBKMFA==
+X-Received: by 2002:a2e:a4d0:0:b0:38a:18e0:6433 with SMTP id
+ 38308e7fff4ca-38a2c7bf182mr10049121fa.37.1772618116458; Wed, 04 Mar 2026
+ 01:55:16 -0800 (PST)
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Wed, 4 Mar 2026 01:55:14 -0800
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Wed, 4 Mar 2026 01:55:14 -0800
+From: Bartosz Golaszewski <brgl@kernel.org>
+In-Reply-To: <aacE-27iaYneKCJi@hovoldconsulting.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260303-clang-earthling-8a4904cb8a7b@spud>
+References: <20260223-i2c-printk-helpers-v2-0-13b2a97762af@oss.qualcomm.com>
+ <aaFcs1miP88QWmtH@hovoldconsulting.com> <aaFfEsfh0xTh0b1y@shikoro>
+ <aaFsZbiLYSz_YEjw@hovoldconsulting.com> <CAMRc=MfcvD1nJy=zpoCkSkJq6WjyXQxFUZ4QE6vyCS+XFCn5AA@mail.gmail.com>
+ <aaHI_VavZugXjVoL@hovoldconsulting.com> <CAMRc=MdKF29McBJ9U=qELkzf9GYV1CQpRF7U6OweDNtVzMXo7A@mail.gmail.com>
+ <aacE-27iaYneKCJi@hovoldconsulting.com>
+Date: Wed, 4 Mar 2026 01:55:14 -0800
+X-Gmail-Original-Message-ID: <CAMRc=Mcx8Hu407arSEo3o-Xhmep_ZK4BM2TVi_55nXGwYcaijw@mail.gmail.com>
+X-Gm-Features: AaiRm53mBePX3Vk4_MZn1-cdblcn8U2NxlCqWwVL6LjJiipLfY2kXBxQWFn1FB4
+Message-ID: <CAMRc=Mcx8Hu407arSEo3o-Xhmep_ZK4BM2TVi_55nXGwYcaijw@mail.gmail.com>
+Subject: Re: [PATCH v2 00/13] i2c: add and start using i2c_adapter-specific
+ printk helpers
+To: Johan Hovold <johan@kernel.org>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>, Andi Shyti <andi.shyti@kernel.org>, 
+	Chen-Yu Tsai <wens@kernel.org>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
+	Samuel Holland <samuel@sholland.org>, Khalil Blaiech <kblaiech@nvidia.com>, 
+	Asmaa Mnebhi <asmaa@nvidia.com>, Jean Delvare <jdelvare@suse.com>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+	=?UTF-8?Q?Andreas_F=C3=A4rber?= <afaerber@suse.de>, 
+	Manivannan Sadhasivam <mani@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-sunxi@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	linux-actions@lists.infradead.org, linux-media@vger.kernel.org, 
+	Bartosz Golaszewski <brgl@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 03, 2026 at 04:34:54PM +0000, Conor Dooley wrote:
-> From: Conor Dooley <conor.dooley@microchip.com>
-> 
-> Both CoreI2C and the hardened versions of it on mpfs and pic64gx have a
-> reset pin. For the former, usually this is wired to a common fabric
-> reset not managed by software and for the latter two the platform
-> firmware takes them out of reset on first-party boards (or those using
-> modified versions of the vendor firmware), but not all boards may take
-> this approach. Permit providing a reset in devicetree for Linux, or
-> other devicetree-consuming software, to use.
-> 
-> Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-> ---
-> CC: Conor Dooley <conor.dooley@microchip.com>
-> CC: Daire McNamara <daire.mcnamara@microchip.com>
-> CC: Andi Shyti <andi.shyti@kernel.org>
-> CC: Rob Herring <robh@kernel.org>
-> CC: Krzysztof Kozlowski <krzk+dt@kernel.org>
-> CC: linux-riscv@lists.infradead.org
-> CC: linux-i2c@vger.kernel.org
-> CC: devicetree@vger.kernel.org
-> CC: linux-kernel@vger.kernel.org
-> ---
->  Documentation/devicetree/bindings/i2c/microchip,corei2c.yaml | 3 +++
->  1 file changed, 3 insertions(+)
+On Tue, Mar 3, 2026 at 4:57=E2=80=AFPM Johan Hovold <johan@kernel.org> wrot=
+e:
+>
+> On Mon, Mar 02, 2026 at 12:03:19PM -0600, Bartosz Golaszewski wrote:
+> > On Fri, Feb 27, 2026 at 5:41=E2=80=AFPM Johan Hovold <johan@kernel.org>=
+ wrote:
+> > >
+> > > On Fri, Feb 27, 2026 at 04:42:09PM +0100, Bartosz Golaszewski wrote:
+> > > > On Fri, Feb 27, 2026 at 11:06=E2=80=AFAM Johan Hovold <johan@kernel=
+.org> wrote:
+> > >
+> > > > > It seems all that is needed is to decouple the struct i2c_adapter=
+ from
+> > > > > the driver data and have core manage the lifetime of the former u=
+sing
+> > > > > the reference count of the embedded struct device.
+> > >
+> > > > This is a weird pattern you sometimes see where a driver allocates
+> > > > something and passes the ownership to the subsystem.
+> > >
+> > > It's not weird at all, this is the standard way to handle this. We ha=
+ve
+> > > these things called reference counts for a reason.
+> > >
+> >
+> > I wouldn't say it's *the* standard way. There are at least several diff=
+erent
+> > ways driver subsystems handle resource ownership. And even so: the fact=
+ that
+> > something's done a lot does not make it automatically correct.
+>
+> It's the way the driver model works.
+>
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+No, it does not impose any specific pattern to use for subsystems other tha=
+n
+requiring each device that's been *initialized* to provide a .release() cal=
+lback
+called when the last reference is dropped.
 
-Best regards,
-Krzysztof
+> > > > This often
+> > > > causes confusion among driver authors, who logically assume that if
+> > > > you allocate something, you are responsible for freeing it.Since th=
+is
+> > > > is C and not Rust (where such things are tracked by the compiler), =
+I
+> > > > strongly believe we should strive to keep ownership consistent: the
+> > > > driver should free resources it allocated within the bounds of the
+> > > > lifetime of the device it controls. The subsystem should manage the
+> > > > data it allocated - in this case the i2c adapter struct device.
+> > >
+> > > Drivers are responsible for dropping *their* reference, it doesn't me=
+an
+> > > that the resource is necessarily freed immediately as someone else ma=
+y
+> > > be holding a reference. Anyone surprised by this should not be doing
+> > > kernel development.
+> >
+> > I disagree. For some reason, you're defending a suboptimal programming
+> > interface. I'm all for reference counting but mixing reference-counted =
+data
+> > with non-counted is simply not a good idea. An API should be easy to us=
+e and
+> > hard to misuse. Given the amount of issues, this approach is definitely=
+ easy
+> > to misuse.
+> >
+> > I'm advocating for a hard split between the subsystem data (reference-c=
+ounted)
+> > and driver data (living from probe() until remove()). A logical struct =
+device
+> > managed entirely by the subsystem should live in a separate structure t=
+han
+> > driver data and be allocated - and freed - by the subsystem module.
+>
+> It doesn't really matter what you think. You can't just go around
+> making up new subsystem specific rules at your whim. The linux driver
+> model uses reference counting and that's what developers expect to be
+> used.
+>
 
+And I've never said that it should not use reference counting. I'm not sure
+what you're implying here.
+
+> > Let's put aside kernel code for a minute and work with an abstract C ex=
+ample,
+> > where the equivalent of what you're proposing would look like this:
+> >
+> > struct bar {
+> >	   struct foo foo;
+> >	   ...
+> > };
+> >
+> > struct bar *bar =3D malloc(sizeof(*bar));
+> >
+> > ret =3D foo_register(&bar->foo);
+> >
+> > And the corresponding free() lives who knows where because foo_register=
+()
+> > automagically introduces reference counting (nevermind the need to calc=
+ulate
+> > where bar is in relations to foo).
+>
+> No, that's not what I'm suggesting here, but it would be compatible with
+> the driver model (ever heard of struct device which works exactly like
+> this?).
+>
+
+I know how struct device works. I'm pointing out that this is a bad API (ju=
+st
+to be absolutely clear: not the reference counting of struct device itself =
+but
+using it in a way tha looks like it's not refcounted but becomes so after a=
+n
+API call) because it's confusing. I'm not buying the argument that if it
+confuses you then you should not be doing kernel development because it's n=
+ot
+the goal of API design to make it as complex and confusing as possible - qu=
+ite
+the contrary. And it *is* confusing given the amount of misuse present. I'v=
+e
+heard Greg KH say on multiple occasions during his talks that we try to off=
+load
+complex code to subsystems so that drivers can remain fairly simple. I agre=
+e
+with that.
+
+> > I strongly believe that this makes more sense:
+> >
+> > struct bar {
+> >	   ...
+> > };
+> >
+> > struct bar *bar =3D malloc();
+> >
+> > struct foo *foo =3D foo_register(bar);
+> >
+> > // foo is reference counted and allocated in the provider of foo_regist=
+er()
+> >
+> > foo_put(foo);
+> > free(bar);
+> >
+> > The equivalent of which is moving struct device out of struct i2c_adapt=
+er.
+>
+> No, it's not.
+>
+> > In fact: I would love to see i2c_adapter become a truly reference-count=
+ed
+> > object detached from driver data but due to it being embedded in every =
+bus
+> > driver data structure it realistically won't happen.
+>
+> And this is what I've been suggesting all along, separating the driver
+> data and making the adapter reference counted.
+>
+> The idiomatic way to handle this is:
+>
+>		 xyz_probe()
+>		 {
+>				 adap =3D i2c_adapter_alloc();
+>				 // initialise driver data, store pointer in adap
+>				 i2c_adapter_register(adap);
+>		 }
+>
+>		 xyz_remove()
+>		 {
+>				 i2c_adapter_deregister(adap);
+>				 i2c_adapter_put(adap);
+>		 }
+>
+> Exactly where the driver data is stored is secondary, it could be memory
+> allocated by core or by the driver.
+>
+> But the adapter is reference counted and kept around until all users are
+> gone.
+>
+
+Yeah, that's awesome but that's not what's being done in i2c. We do:
+
+struct foo_i2c_driver_data {
+	struct i2c_adapter adap {
+		struct device dev;
+		...
+	};
+	...
+};
+
+instead which is a completely different story. It makes foo_i2c_driver_data
+implicitly reference counted despite its lifetime being tied to the bound-s=
+tate
+of the device. It becomes painfully obvious in rust when the compiler start=
+s
+enforcing proper lifetime management.
+
+What you showed above is totally fine. For an even simpler API, my personal
+preference would be to:
+
+xyz_probe()
+{
+	struct drv_data *data =3D kzalloc();
+	/*
+	 * ... stands for any other arguments or a config struct. In the concrete
+	 * example of i2c, we'd supply the algo struct, fwnode, etc.
+	 */
+	struct i2c_adapter *adap =3D i2c_adapter_register(data, ...);
+}
+
+xyz_remove()
+{
+	kfree(data);
+	i2c_adapter_unregister();
+}
+
+The reference counting of i2c_adapter happens behind the scenes in the
+subsystem code. We're hiding the implementation details from the driver as =
+it
+has no business knowing it - it always only needs a single reference.
+
+This way you have a kfree() corresponding with the kmalloc() and an
+unregister() corresponding with the register().
+
+But sure, your example works fine too. My point is: getting to that state w=
+ould
+require more churn than allowing drivers to continue allocating i2c_adapter
+struct themselves with struct device being moved out of it - making referen=
+ce
+counting of it work properly.
+
+And I agree: doing the above would be even better but you'd need - for ever=
+y
+driver - to move the i2c_adapter struct out of driver data and make it a
+pointer. That's in addition to providing new APIs and using them. I2C drive=
+rs
+are spread treewide. There's a reason why nobody attempted it for decades. =
+I'm
+proposing something a bit less complex: allow drivers to free i2c_adapter a=
+t
+unbind but make i2c core keep a private, reference-counted structure for as
+long as it's needed.
+
+> > > > I know there are a lot of places where this is done in the kernel b=
+ut
+> > > > let's not introduce new ones. This is a bad pattern.
+> > >
+> > > No, it's not. It's literally the standard way of doing this.
+> > >
+> > > > But even if you decided this is the way to go, I fail to see how it
+> > > > would be easier than what I'm trying to do. You would have to modif=
+y
+> > > > *all* I2C bus drivers as opposed to only modifying those that acces=
+s
+> > > > the underlying struct device. Or am I missing something?
+> > >
+> > > Yes, you have to update the allocation and replace container_of() wit=
+h
+> > > dev_get_drvdata() but it's a straight-forward transformation that bri=
+ngs
+> > > the i2c subsystem more in line with the driver model (unlike whatever=
+ it
+> > > is you're trying to do).
+> > >
+> >
+> > No, it's not that simple. The .release() callback of struct device embe=
+dded
+> > in struct i2c_adapter is assigned from the bus type and only calls comp=
+lete()
+> > (yeah, I too don't think it looks right, one would expect to see the as=
+sociated
+> > kfree() here, right?). It relies on the bus driver freeing the data in =
+its
+> > remove() path. That's why we wait until all references to said struct d=
+evice
+> > are dropped. After your proposed change, if your new release() lives in=
+ the
+> > driver module, it must not be removed until all the references are drop=
+ped
+> > - basically where we are now. If on the other hand, the release() callb=
+ack's
+> > functionality is moved into i2c-core, how would you handle the fact i2c=
+_adapter
+> > can be embedded in a larger driver data structure? Provide yet another =
+callback
+> > in i2c_adapter called from the device's .release()? Sure, can be done b=
+ut I
+> > doubt it's a better solution.
+>
+> You seem to be constructing some kind of straw man here. Obviously, the
+> release function would free the memory allocated for the adapter struct.
+>
+> An adapter driver can free its driver data on unbind as core will
+> guarantee that there are no further callbacks after the adapter has been
+> deregistered.
+>
+
+Sure, but my point all along has been that - with struct device currently
+embedded in struct i2c_adapter - that's not the case. Driver data *and*
+i2c_adapter are tied together. You need a major rework in either case.
+
+I'm frustrated because I'm spending time working on an actual solution. I'v=
+e
+explained what I'm doing and what the end result will look like based on wh=
+at
+works for GPIO (struct gpio_chip's lifetime is bound to device's "bound" st=
+ate,
+struct gpio_device is refcounted, I want to mirror it with i2c_adapter and
+whatever we eventually call its refcounted counterpart - let's say:
+i2c_bus_device). If you claim you have a better alternative - will you do t=
+he
+work to make it happen?
+
+Bartosz
