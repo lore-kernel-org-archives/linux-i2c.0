@@ -1,42 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71A7637FF5B;
-	Thu,  5 Mar 2026 10:30:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E947139E6C7;
+	Thu,  5 Mar 2026 12:52:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772706612; cv=none; b=CArRWgqg3QWa4trXNdXioIF+rp0FGHc84CnR+slKlVFTKa65xGoLV8Rjw6RvOaHPKYLHFOwmIAEkCElspiDHWavZH3smbz4BLVBiNBNXBxyD/bkQUML+42O6BIJZIjNUhoUNLcxpumr2aYA7/CtelkqbpJRqNOAMP1XwW1OYzCQ=
+	t=1772715174; cv=none; b=XC9kNBYyNW4rt5lQoDmyQYMak0Db6KJn8bUeelAgnksAlYNtZPW9h5aEvHdvtx1wB+SlY1/RjIXXVn9zSr3gd/sYAdTiZ52ItMnR75G15ACesjhTaeFHML1myynnhcsVEUky43kXlrDamLQNpGd2EX1yZsNKnP8eSBo2hSrtmss=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772706612; c=relaxed/simple;
-	bh=BFNKN9v4k5Rw3ARFvmyP6/Rc0ntOa6ng6yphjuGdAbE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=tZdEf/WB3rz+SXWm+IPs0MXYYu/513XwFiW7Z6lTUvT8EI+Q3lVTh5XKcodrTRyGSrArPg/wodkVgkXNEDNU0eA2SYJMK/n63A5xzNGC9nyXEPpUBZypBpc5GJVQ/9mSRlsD1hmKKV91RXqUwASVRT974Pq+3XMrAtu8toQoJqw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GBRHAyNv; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772715174; c=relaxed/simple;
+	bh=xOL/rAl/uCuHho2CDxpnI0gMXRxrKE0bb+kNoRGcHbs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WCI/nSCnSFzUJ5HEXrfXgOegieX6mSQmWcQGE8OFzpbuup0ArdKYe24ZwjYNTS2hWQCZJvsDOmoijBetP6ObBoGdVJyIQX4gOtl5N63PKXTG+bJMV59UIIWt3clQ3EgyTTfEAvKdsSinZq8kJbR/bml8s8HnRBkZcxZXIoGVWjw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DBddT9JI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GBRHAyNv"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B664C116C6;
-	Thu,  5 Mar 2026 10:30:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DBddT9JI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60E78C116C6;
+	Thu,  5 Mar 2026 12:52:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772706612;
-	bh=BFNKN9v4k5Rw3ARFvmyP6/Rc0ntOa6ng6yphjuGdAbE=;
+	s=k20201202; t=1772715173;
+	bh=xOL/rAl/uCuHho2CDxpnI0gMXRxrKE0bb+kNoRGcHbs=;
 	h=From:To:Cc:Subject:Date:From;
-	b=GBRHAyNvf6cdD30kttKL/rPCJAWK3QgyK5if+K01yFO+EdPdPxBl0KwqtZM3gSWF6
-	 udJoWLgOe1VhsxI1r8wUZp3nJSB6ZxX9O9opXJKgBqJIS59y4O+squd7qdVHmuglQo
-	 l5wr/nlxtVNEu5A1lq5mRyT6Vt/tmX9ooOTaVjlrGBi6CC2Yzi1AqvwhgJ2cCKrkxu
-	 bEuTt/V5013jaT8v8r6jRFGFks3XUWH0rhgW4f0RoTZYkVkZdfh1hwh3eJGgw5W+dE
-	 vSzUYAFSFvN5CeebgsMPHPtRlU1ObdheRt9sPenyumCpFqy+DHiJaIUQ+eZKofgY70
-	 /4EIb+4Qp0jJQ==
+	b=DBddT9JI1a8bz62qKvq1unutdOr8m8nTaTX8LFSJBBo2xYaZ7oOiesL/TFfBqBPdF
+	 P556pqxLehtfemFn1S8PaGiOUbuXBXSG4n3sZzCuMo4i7FfFGEgxoDONlvfTlITKfp
+	 Y0lMOR55/i5D2VNXcQP2W2D5CqzQpZiMvq2eBkT0on0nWeswS8s//SaaSn3Uud5hcq
+	 nTWNQx5WzMvJGwahDsOVTGTdSwLIFNCFn6sI1keNZ1gt/SowiDA6PD+oU1ryCbGTE1
+	 bc9iKdtymr78blc7nBTc71JTIbBONgxsvoUQNGOWvFjuAbr+mW+g0Bzfy7SLNKudB0
+	 /SHSY6gt4yFRg==
 Received: from johan by xi.lan with local (Exim 4.98.2)
 	(envelope-from <johan@kernel.org>)
-	id 1vy5y5-000000003DR-42Pj;
-	Thu, 05 Mar 2026 11:30:09 +0100
+	id 1vy8CB-000000002sC-027j;
+	Thu, 05 Mar 2026 13:52:51 +0100
 From: Johan Hovold <johan@kernel.org>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org,
+To: Guenter Roeck <linux@roeck-us.net>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
 	Johan Hovold <johan@kernel.org>
-Subject: [PATCH] i2c: robotfuzz-osif: drop redundant device reference
-Date: Thu,  5 Mar 2026 11:29:55 +0100
-Message-ID: <20260305102955.12340-1-johan@kernel.org>
+Subject: [PATCH] i2c: diolan-u2c: drop redundant device reference
+Date: Thu,  5 Mar 2026 13:52:21 +0100
+Message-ID: <20260305125221.11009-1-johan@kernel.org>
 X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -57,38 +58,53 @@ the risk of memory leaks when drivers fail to release it.
 
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/i2c/busses/i2c-robotfuzz-osif.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-diolan-u2c.c | 12 +++---------
+ 1 file changed, 3 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-robotfuzz-osif.c b/drivers/i2c/busses/i2c-robotfuzz-osif.c
-index e0a76fb5bc31..412fa8e37f69 100644
---- a/drivers/i2c/busses/i2c-robotfuzz-osif.c
-+++ b/drivers/i2c/busses/i2c-robotfuzz-osif.c
-@@ -141,7 +141,7 @@ static int osif_probe(struct usb_interface *interface,
- 	if (!priv)
- 		return -ENOMEM;
+diff --git a/drivers/i2c/busses/i2c-diolan-u2c.c b/drivers/i2c/busses/i2c-diolan-u2c.c
+index 077b093ba834..d502f6e4732f 100644
+--- a/drivers/i2c/busses/i2c-diolan-u2c.c
++++ b/drivers/i2c/busses/i2c-diolan-u2c.c
+@@ -427,12 +427,6 @@ static const struct usb_device_id diolan_u2c_table[] = {
  
--	priv->usb_dev = usb_get_dev(interface_to_usbdev(interface));
-+	priv->usb_dev = interface_to_usbdev(interface);
- 	priv->interface = interface;
+ MODULE_DEVICE_TABLE(usb, diolan_u2c_table);
  
- 	usb_set_intfdata(interface, priv);
-@@ -163,7 +163,6 @@ static int osif_probe(struct usb_interface *interface,
- 			    NULL, 0);
- 	if (ret) {
- 		dev_err(&interface->dev, "failure sending bit rate");
--		usb_put_dev(priv->usb_dev);
- 		return ret;
- 	}
+-static void diolan_u2c_free(struct i2c_diolan_u2c *dev)
+-{
+-	usb_put_dev(dev->usb_dev);
+-	kfree(dev);
+-}
+-
+ static int diolan_u2c_probe(struct usb_interface *interface,
+ 			    const struct usb_device_id *id)
+ {
+@@ -453,7 +447,7 @@ static int diolan_u2c_probe(struct usb_interface *interface,
+ 	dev->ep_out = hostif->endpoint[0].desc.bEndpointAddress;
+ 	dev->ep_in = hostif->endpoint[1].desc.bEndpointAddress;
  
-@@ -184,7 +183,6 @@ static void osif_disconnect(struct usb_interface *interface)
+-	dev->usb_dev = usb_get_dev(interface_to_usbdev(interface));
++	dev->usb_dev = interface_to_usbdev(interface);
+ 	dev->interface = interface;
  
- 	i2c_del_adapter(&(priv->adapter));
+ 	/* save our data pointer in this interface device */
+@@ -488,7 +482,7 @@ static int diolan_u2c_probe(struct usb_interface *interface,
+ 
+ error_free:
  	usb_set_intfdata(interface, NULL);
--	usb_put_dev(priv->usb_dev);
+-	diolan_u2c_free(dev);
++	kfree(dev);
+ error:
+ 	return ret;
  }
+@@ -499,7 +493,7 @@ static void diolan_u2c_disconnect(struct usb_interface *interface)
  
- static struct usb_driver osif_driver = {
+ 	i2c_del_adapter(&dev->adapter);
+ 	usb_set_intfdata(interface, NULL);
+-	diolan_u2c_free(dev);
++	kfree(dev);
+ 
+ 	dev_dbg(&interface->dev, "disconnected\n");
+ }
 -- 
 2.52.0
 
