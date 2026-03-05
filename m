@@ -1,43 +1,40 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81727366075;
-	Thu,  5 Mar 2026 12:54:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 596AB2405EB;
+	Thu,  5 Mar 2026 12:56:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772715251; cv=none; b=lFSOW+9NDmL/LghHQKADY0D+h5+x2BIlSlH/kslCJPrFi7T4gzI8y8VFRwgYR5C1/yDeFA5hNvUr5OhxpUkwZWiZuQJfeDKr27SIRnna9F6wwkOgk1WNWoYWG49Ud5AAhAWUJS/B7/Sm4BtP8sbqiuyUzySfU9OsQi/1D9wkoBQ=
+	t=1772715415; cv=none; b=YiJ7uMJLlgjMWYvfbSEjH10blvSuOeoDh1QI0T01jMjXvijAuoTiFZdgwI6takDIzlOcYsFSsRcd81jrA9v5U8CAMVdQvNMpE0/k/PyH2FTrvTRhBembTJdrQ6aNtpO3BQK0T4G9mhXZlTb+IAcRY9NOz/ncfSX3n1g7cUJySxE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772715251; c=relaxed/simple;
-	bh=txrPg4XsAYJXs/oAEYHqH+/gYk2I2YfZy/PgGm7UwUQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Avoa/8W6a7Rgewp7raOP1iuxg7IK7tccsWHM6E49cRzjxgeIByh1HTRBBfmaPxm/EpcQHzN63559z5Qej6/KsmA8bMqT1T9pXE1yFESzb5qjmrVY9NK3QDIUQ7NhD2qZyo12Iowwwq4SxPLFflHpP5RKonj7dGgzwgH2d6IC42c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bZQk+tna; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bZQk+tna"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EF21C116C6;
-	Thu,  5 Mar 2026 12:54:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772715251;
-	bh=txrPg4XsAYJXs/oAEYHqH+/gYk2I2YfZy/PgGm7UwUQ=;
-	h=From:To:Cc:Subject:Date:From;
-	b=bZQk+tnazYPgwvl3hZoTVLrTscLQph1jLtzdhR5rkziUd18LUZj2NnaRQirjnnQ/V
-	 ML9ygP/yRvTZsr6CSiDGck1tes9jkk5GlS5RBW1jtscVjmGVTT+x5faU/vhRpvlxiP
-	 HvmUn1oFpQZTAt8JrzsUmhiz8Ik+QD9/De0tX9mXaZUnwfcR6cruw4o4Aocxt84adD
-	 oBb0NvxfVpel11NBIUUntfRhoFXoFARIOWSjxr4aisqnISJrlK9eleOS8xoThEpKi+
-	 F3L9XakOfnVud2ZSXyUs0ZR8bsVRjCQELZVEQ3+qR/+WbyuZGmPcIZlDpQlIdr9zHC
-	 FSfeIYpfBDvsg==
-Received: from johan by xi.lan with local (Exim 4.98.2)
-	(envelope-from <johan@kernel.org>)
-	id 1vy8DQ-000000002ty-3bMo;
-	Thu, 05 Mar 2026 13:54:08 +0100
-From: Johan Hovold <johan@kernel.org>
-To: Till Harbaum <till@harbaum.org>
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Johan Hovold <johan@kernel.org>
-Subject: [PATCH] i2c: tiny-usb: drop redundant device reference
-Date: Thu,  5 Mar 2026 13:54:03 +0100
-Message-ID: <20260305125403.11132-1-johan@kernel.org>
+	s=arc-20240116; t=1772715415; c=relaxed/simple;
+	bh=OohVGk8rJoJKukEILdvo11BXKOqdjAIBoh85kJ5Eye8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=N1O62aZKleB0UCgqLzX8TmB9Xjvec89AZ26z6q3HSVz6H4gZ6ps7TJ7QO2sHrNKh9AnFkm8xM+mN+XSKvPcZ+HMH7I9tXS1w+KTcsyH+vO0pAY2ffYj/9fmQ/T4OEdBBP6yBi67pQKP7A1qUce6/PUro3LLoRMV7v7fxxwZyBtU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [223.64.68.227])
+	by gateway (Coremail) with SMTP id _____8Dx7qmOfalpJsYXAA--.11818S3;
+	Thu, 05 Mar 2026 20:56:46 +0800 (CST)
+Received: from kernelserver (unknown [223.64.68.227])
+	by front1 (Coremail) with SMTP id qMiowJDxjcKGfalpJt5OAA--.16319S2;
+	Thu, 05 Mar 2026 20:56:43 +0800 (CST)
+From: Binbin Zhou <zhoubinbin@loongson.cn>
+To: Binbin Zhou <zhoubb.aaron@gmail.com>,
+	Huacai Chen <chenhuacai@loongson.cn>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Andy Shevchenko <andy@kernel.org>,
+	linux-i2c@vger.kernel.org
+Cc: Huacai Chen <chenhuacai@kernel.org>,
+	Xuerui Wang <kernel@xen0n.name>,
+	loongarch@lists.linux.dev,
+	devicetree@vger.kernel.org,
+	Binbin Zhou <zhoubinbin@loongson.cn>
+Subject: [PATCH v4 0/2] i2c: Add Loongson-2K0300 I2C controller support
+Date: Thu,  5 Mar 2026 20:56:29 +0800
+Message-ID: <cover.1772714348.git.zhoubinbin@loongson.cn>
 X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -46,66 +43,93 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJDxjcKGfalpJt5OAA--.16319S2
+X-CM-SenderInfo: p2kr3uplqex0o6or00hjvr0hdfq/1tbiAQERCGmpG0IKfAAAs2
+X-Coremail-Antispam: 1Uk129KBj93XoW7ZrWDWFWfCr17uF1DKFWxGrX_yoW8uFWfpa
+	y5A3sIkF1jgr129rs3XrWfZryavF4fJF43Wr47A34Y9anrA3yUZ3yakFs0vFWDCryxuF42
+	q39rKw1UCa4qvFgCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUvIb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
+	xVW8Jr0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
+	1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv
+	67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lc7CjxVAaw2
+	AFwI0_JF0_Jw1l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAq
+	x4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r
+	43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF
+	7I0E14v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxV
+	WUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07jn
+	SdgUUUUU=
 
-Driver core holds a reference to the USB interface and its parent USB
-device while the interface is bound to a driver and there is no need to
-take additional references unless the structures are needed after
-disconnect.
+Hi all:
 
-Drop the redundant device reference to reduce cargo culting, make it
-easier to spot drivers where an extra reference is needed, and reduce
-the risk of memory leaks when drivers fail to release it.
+This patch set describes the I2C controller integrated the
+Loongson-2K0300 chip.
 
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
- drivers/i2c/busses/i2c-tiny-usb.c | 13 +++----------
- 1 file changed, 3 insertions(+), 10 deletions(-)
+It has a significantly different design from the previous I2C
+controller(i2c-ls2x), such as support for master-slave transfer mode,
+and DMA transfers (implementation in progress), etc. Therefore, we try
+to name it i2c-ls2x-v2.
 
-diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
-index 9ef495f88ef2..88d66593d9fc 100644
---- a/drivers/i2c/busses/i2c-tiny-usb.c
-+++ b/drivers/i2c/busses/i2c-tiny-usb.c
-@@ -213,12 +213,6 @@ static int usb_write(struct i2c_adapter *adapter, int cmd,
- 	return ret;
- }
- 
--static void i2c_tiny_usb_free(struct i2c_tiny_usb *dev)
--{
--	usb_put_dev(dev->usb_dev);
--	kfree(dev);
--}
--
- static int i2c_tiny_usb_probe(struct usb_interface *interface,
- 			      const struct usb_device_id *id)
- {
-@@ -237,7 +231,7 @@ static int i2c_tiny_usb_probe(struct usb_interface *interface,
- 	if (!dev)
- 		goto error;
- 
--	dev->usb_dev = usb_get_dev(interface_to_usbdev(interface));
-+	dev->usb_dev = interface_to_usbdev(interface);
- 	dev->interface = interface;
- 
- 	/* save our data pointer in this interface device */
-@@ -277,8 +271,7 @@ static int i2c_tiny_usb_probe(struct usb_interface *interface,
- 	return 0;
- 
-  error:
--	if (dev)
--		i2c_tiny_usb_free(dev);
-+	kfree(dev);
- 
- 	return retval;
- }
-@@ -289,7 +282,7 @@ static void i2c_tiny_usb_disconnect(struct usb_interface *interface)
- 
- 	i2c_del_adapter(&dev->adapter);
- 	usb_set_intfdata(interface, NULL);
--	i2c_tiny_usb_free(dev);
-+	kfree(dev);
- 
- 	dev_dbg(&interface->dev, "disconnected\n");
- }
+Thanks.
+
+======
+V4:
+- Rebase on linux-i2c/i2c-next;
+Patch (2/2):
+ - The parent_rate parameter type should be `unsigned long`;
+ - Drop fallthrough and add missing break;
+ - device_set_node()->i2c_adapter_set_node();
+ - Use i2c_parse_fw_timings();
+ - Use i2c_t.bus_freq_hz instead of priv->speed;
+ - Sperate loongson2_i2c_handle_read() into loongson2_i2c_handle_read()
+   and loongson2_i2c_handle_rx_done().
+
+Link to V3:
+https://lore.kernel.org/all/cover.1772001073.git.zhoubinbin@loongson.cn/
+
+V3:
+- Rebase on linux-i2c/i2c-next;
+Patch (2/2):
+ - Reorder header file follow IWYU principle;
+ - Better indentation and coding style;
+ - Use generic macro definitions;
+ - Amend *all* struct data types;
+ - Correct unreasonable variable type definitions;
+ - Refact loongson2_i2c_isr_error();
+ - of_property_read_u32()->device_property_read_u32();
+ - Remove meaningless blank lines and output.
+
+Link to V2:
+https://lore.kernel.org/all/cover.1769476820.git.zhoubinbin@loongson.cn/
+
+V2:
+Patch (1/2):
+ - Add Acked-by tag from Conor, thanks.
+
+Patch (2/2):
+ - Reorder the definitions of read() and write();
+ - Adjust the calculation method for bus speed.
+
+Link to V1:
+https://lore.kernel.org/all/cover.1763018288.git.zhoubinbin@loongson.cn/
+
+Binbin Zhou (2):
+  dt-bindings: i2c: loongson,ls2x: Add ls2k0300-i2c compatible
+  i2c: ls2x-v2: Add driver for Loongson-2K0300 I2C controller
+
+ .../bindings/i2c/loongson,ls2x-i2c.yaml       |   4 +
+ MAINTAINERS                                   |   1 +
+ drivers/i2c/busses/Kconfig                    |  10 +
+ drivers/i2c/busses/Makefile                   |   1 +
+ drivers/i2c/busses/i2c-ls2x-v2.c              | 545 ++++++++++++++++++
+ 5 files changed, 561 insertions(+)
+ create mode 100644 drivers/i2c/busses/i2c-ls2x-v2.c
+
+
+base-commit: 6117e1ba1db78a52a4161208ea403d3769ad73c6
 -- 
 2.52.0
 
