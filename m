@@ -1,209 +1,94 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FADA339878
-	for <linux-i2c@vger.kernel.org>; Fri,  6 Mar 2026 17:34:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7B6D251793;
+	Sat,  7 Mar 2026 17:55:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.238.236.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772818497; cv=none; b=Tgc9dXY5ubg5xmUw7X/xqUpgr1OgAh4eN9hImTuIRXfQh7QCtFTavWJfkVgUA9vmWr4owP/Td23qyIqPMl6jS+7MMidpdSkjhBk3L/ERHU2iBqh85bxxfIMdMzHMghkAyqCja1Sh/7sT+fR4FJ3+gryGxNSeZekqNzpOKOzDkNI=
+	t=1772906159; cv=none; b=C1e0+Zl2t1AdnIQ++1faX1LhTKZpBusOyUmSgbFcVsIoujev0bWoPorXoSV3VmnkxrsMnpExlyXlRHnxC7sd+YWIB4JrAuayJp1l5E9cSPc7f0TvUQQT7A2DSYA8rrsb1J6oDlCpisETWz6Vd0QiKDsbp+ZactD9VEJUyxAaf1w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772818497; c=relaxed/simple;
-	bh=SR+mdgLhlOhUS2wbF1s2i9ovITikFxXdvE5yE1P9YdI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=cwekins8k6zINm+C6K4SDsf5UOaGZ/Sgm5ZYc7WbweH02paC8+b3UkbD5NIGHeqHj7k4so9ypZfsMUUsQWtINPtDOtzQq5RdDAPP9zhL6iuOKrE8guuJDLGrODa2mY7C8nCQmymFrKhjFXiJmocRlgJAS0AFHRGgCiLi0/dNt8k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IsUF/XTy; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1772906159; c=relaxed/simple;
+	bh=JixTgKowbvz3hPRSaIC4iVDhGP7BrzeUbOYe9GLtyyY=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=XN/xQR+Pye7zpbx+q2gMYgfWQcLVwVVvrYLj0qeXZGiF/b/A9lL5+Ksx+cKS3aGNS+1cN7Il8Bw0OARAgdqdLUJ7Ma2eyD6NESWb+sKhcxEKobqrW72vDHDXs7sGy4inojLkmEDC6MxUkku7vsRB33FKgHfFoLQjzJRnvMVUJwI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info; spf=pass smtp.mailfrom=kemnade.info; dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b=gpPmwwQm; arc=none smtp.client-ip=178.238.236.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IsUF/XTy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62F48C2BCC6
-	for <linux-i2c@vger.kernel.org>; Fri,  6 Mar 2026 17:34:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1772818497;
-	bh=SR+mdgLhlOhUS2wbF1s2i9ovITikFxXdvE5yE1P9YdI=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=IsUF/XTycn0CKydUrnqYikvqNO9ZMczOJtjO7TCzrOjWyt7xzMh8RLVcJR9Kcb+5q
-	 p1bmm3B7gLT9FCdqdxb2Mh4JrPsGdbFgezfpW2UGKyugg6Nmr2CsN753l7cMgg+0G8
-	 H97kSflQSfMoro7L5rGmLF+7FdVRGSAANOX0sfJI0pd/isMPuBj6paL/J0Tc1PmQiW
-	 x+SUG5lzK1HO6XXo9imEvaZGYe5GqG5j85GzWaIbRqlE/hAJybSxzOI+gdUO33z6WM
-	 I11kDz4Q6EEuhM7PS6k8a4ub5XAvMDUtyeRl66FGf1nxsF1KbxA7IjCRs4GuM0pJw3
-	 KpEjmfBqp9QNQ==
-Received: by mail-lj1-f177.google.com with SMTP id 38308e7fff4ca-38a33a542aeso21621651fa.3
-        for <linux-i2c@vger.kernel.org>; Fri, 06 Mar 2026 09:34:57 -0800 (PST)
-X-Forwarded-Encrypted: i=1; AJvYcCXIF9o4IoxXTseE4IqfWrOu3J61dl1gLsJJsaX0fzd1pg+5jiRUdWPazTgTMGlMFriR0/60e2Zgn7s=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxX20j+0RR1Ydo0jdDQXMOuEUjkwYRooaKnd8+7WVNMoPmmH7uu
-	cxAWxgkHBXXaPcjdqIMeI3zDqON7tCOKpgT8dW4AHTT3JNviZyCukFi1TVY8HI6IdD0CNFX426t
-	X21tGNV4k75VS42WMZEvHcvvBk6yVcY7IJhI5UAss3A==
-X-Received: by 2002:a05:651c:893:b0:38a:519:f788 with SMTP id
- 38308e7fff4ca-38a40b388d2mr12029891fa.2.1772818495778; Fri, 06 Mar 2026
- 09:34:55 -0800 (PST)
+	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="gpPmwwQm"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=kemnade.info; s=20220719; h=References:In-Reply-To:Cc:From:Sender:Reply-To:
+	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+	Resent-To:Resent-Cc:Resent-Message-ID;
+	bh=Taf8QKd8++5heUK6i/mGRj//WC4gBXj3LSLau58JkDQ=; b=gpPmwwQm4pUuWz0Ueam5wdwjts
+	GeramEceA9tkDM4cQ1GLn1f6XcpqWM2NIkRuYzNtEa/RkDwuwZJuEQvOmTQTS5jkj9n8+pHC01GSY
+	ZRVCuIDwX+DhN6A7B9HlDdc89CquXWCTxv0V2G0UCZxhqdJbisyg9+D6bMcBv+32N6wthSVsLhAzz
+	R3ddKzMY+X1mTp4hIe1dIdyXqIlmdvUk8nsJji7ZlSFl9/gvxgN0XYadb5OCIdd7fXopz/PWAJ3M4
+	kNXblVrEAQO9HKXQ9fY5XqRksXaSsh/kBTsXzTumbl5VaQkazf9FSAU0Rh95q3XNCsbFHlIooXru7
+	kLGC0eAQ==;
+Date: Sat, 7 Mar 2026 18:26:10 +0100
+From: Andreas Kemnade <andreas@kemnade.info>
+To: Jon Hunter <jonathanh@nvidia.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Frank Li
+ <Frank.Li@nxp.com>, Linus Walleij <linusw@kernel.org>, Patrice Chotard
+ <patrice.chotard@foss.st.com>, Florian Fainelli
+ <florian.fainelli@broadcom.com>, Dave Stevenson
+ <dave.stevenson@raspberrypi.com>, Bartosz Golaszewski
+ <bartosz.golaszewski@oss.qualcomm.com>, Bartosz Golaszewski
+ <brgl@kernel.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Kalle Niemi <kaleposti@gmail.com>, "linux-tegra@vger.kernel.org"
+ <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH] i2c: i2c-core-base: fix devicetree alias handling
+Message-ID: <20260307182610.48cae8b4@kemnade.info>
+In-Reply-To: <9b3c0190-7996-40a3-8306-5038f42b2b15@nvidia.com>
+References: <20260302-i2cfix-v1-1-a95418e9217e@kemnade.info>
+	<9b3c0190-7996-40a3-8306-5038f42b2b15@nvidia.com>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; aarch64-unknown-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260223-i2c-printk-helpers-v2-0-13b2a97762af@oss.qualcomm.com>
- <aaFcs1miP88QWmtH@hovoldconsulting.com> <aaFfEsfh0xTh0b1y@shikoro>
- <aaFsZbiLYSz_YEjw@hovoldconsulting.com> <CAMRc=MfcvD1nJy=zpoCkSkJq6WjyXQxFUZ4QE6vyCS+XFCn5AA@mail.gmail.com>
- <aaHI_VavZugXjVoL@hovoldconsulting.com> <CAMRc=MdKF29McBJ9U=qELkzf9GYV1CQpRF7U6OweDNtVzMXo7A@mail.gmail.com>
- <aacE-27iaYneKCJi@hovoldconsulting.com> <CAMRc=Mcx8Hu407arSEo3o-Xhmep_ZK4BM2TVi_55nXGwYcaijw@mail.gmail.com>
- <aar1PDUB2t7DgEP6@hovoldconsulting.com>
-In-Reply-To: <aar1PDUB2t7DgEP6@hovoldconsulting.com>
-From: Bartosz Golaszewski <brgl@kernel.org>
-Date: Fri, 6 Mar 2026 18:34:43 +0100
-X-Gmail-Original-Message-ID: <CAMRc=Mcv+ZMGaC_MD8WRH113rDuuxdiZXuW5JAXWga1V7vM_ng@mail.gmail.com>
-X-Gm-Features: AaiRm50UrSeiyZ4TiR6fS-QYqCuucHSEPqczNWdyNSw2yOiisqheMyZnUWDBliw
-Message-ID: <CAMRc=Mcv+ZMGaC_MD8WRH113rDuuxdiZXuW5JAXWga1V7vM_ng@mail.gmail.com>
-Subject: Re: [PATCH v2 00/13] i2c: add and start using i2c_adapter-specific
- printk helpers
-To: Johan Hovold <johan@kernel.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>, Andi Shyti <andi.shyti@kernel.org>, 
-	Chen-Yu Tsai <wens@kernel.org>, Jernej Skrabec <jernej.skrabec@gmail.com>, 
-	Samuel Holland <samuel@sholland.org>, Khalil Blaiech <kblaiech@nvidia.com>, 
-	Asmaa Mnebhi <asmaa@nvidia.com>, Jean Delvare <jdelvare@suse.com>, 
-	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
-	Nicholas Piggin <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
-	=?UTF-8?Q?Andreas_F=C3=A4rber?= <afaerber@suse.de>, 
-	Manivannan Sadhasivam <mani@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-sunxi@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
-	linux-actions@lists.infradead.org, linux-media@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Fri, Mar 6, 2026 at 4:39=E2=80=AFPM Johan Hovold <johan@kernel.org> wrot=
-e:
->
-> On Wed, Mar 04, 2026 at 01:55:14AM -0800, Bartosz Golaszewski wrote:
-> > On Tue, Mar 3, 2026 at 4:57=E2=80=AFPM Johan Hovold <johan@kernel.org> =
-wrote:
-> > >
-> > > On Mon, Mar 02, 2026 at 12:03:19PM -0600, Bartosz Golaszewski wrote:
-> > > > On Fri, Feb 27, 2026 at 5:41=E2=80=AFPM Johan Hovold <johan@kernel.=
-org> wrote:
-> > > > >
-> > > > > On Fri, Feb 27, 2026 at 04:42:09PM +0100, Bartosz Golaszewski wro=
-te:
-> > > > > > On Fri, Feb 27, 2026 at 11:06=E2=80=AFAM Johan Hovold <johan@ke=
-rnel.org> wrote:
-> > > > >
-> > > > > > > It seems all that is needed is to decouple the struct i2c_ada=
-pter from
-> > > > > > > the driver data and have core manage the lifetime of the form=
-er using
-> > > > > > > the reference count of the embedded struct device.
-> > > > >
-> > > > > > This is a weird pattern you sometimes see where a driver alloca=
-tes
-> > > > > > something and passes the ownership to the subsystem.
-> > > > >
-> > > > > It's not weird at all, this is the standard way to handle this. W=
-e have
-> > > > > these things called reference counts for a reason.
-> > > >
-> > > > I wouldn't say it's *the* standard way. There are at least several =
-different
-> > > > ways driver subsystems handle resource ownership. And even so: the =
-fact that
-> > > > something's done a lot does not make it automatically correct.
-> > >
-> > > It's the way the driver model works.
-> >
-> > No, it does not impose any specific pattern to use for subsystems other=
- than
-> > requiring each device that's been *initialized* to provide a .release()=
- callback
-> > called when the last reference is dropped.
->
-> Reference counting is a core part of the driver model and this is
-> reflected in the way subsystems manage lifetime.
->
+On Fri, 6 Mar 2026 10:18:09 +0000
+Jon Hunter <jonathanh@nvidia.com> wrote:
 
-Seems like we've reached an agreement and can stop arguing but you
-make it sound here like I'm somehow against reference counting. I've
-never said anything like that and here, I just explained how reference
-counting works and what it imposes on users.
+[...]
 
-> > > > I'm advocating for a hard split between the subsystem data (referen=
-ce-counted)
-> > > > and driver data (living from probe() until remove()). A logical str=
-uct device
-> > > > managed entirely by the subsystem should live in a separate structu=
-re than
-> > > > driver data and be allocated - and freed - by the subsystem module.
-> > >
-> > > It doesn't really matter what you think. You can't just go around
-> > > making up new subsystem specific rules at your whim. The linux driver
-> > > model uses reference counting and that's what developers expect to be
-> > > used.
-> > >
-> >
-> > And I've never said that it should not use reference counting. I'm not =
-sure
-> > what you're implying here.
->
-> You have posted changes that will prevent driver from accessing the
-> struct device of core i2c structures. This is unexpected, non-idiomatic
-> and subsystem specific and therefore a bad idea.
->
+> /sys/class/i2c-dev/i2c-0/name --> 3160000.i2c
+> /sys/class/i2c-dev/i2c-1/name --> c240000.i2c
+> /sys/class/i2c-dev/i2c-4/name --> Tegra BPMP I2C adapter
+> /sys/class/i2c-dev/i2c-8/name --> 31e0000.i2c
+> 
+> After this change I now see ...
+> 
+> /sys/class/i2c-dev/i2c-9/name --> Tegra BPMP I2C adapter
+> /sys/class/i2c-dev/i2c-10/name --> 3160000.i2c
+> /sys/class/i2c-dev/i2c-11/name --> 31e0000.i2c
+> /sys/class/i2c-dev/i2c-12/name --> c240000.i2c
+> 
+> So the subject says that this fixes device-tree aliases, but it appears 
+> to break it for Tegra. In fact, this patch appears to have the same 
+> problem that you reported with Bartosz's change. Reverting this change 
+> fixes the problem. So I am a bit confused why we are seeing different 
+> behaviour.
+> 
+Hmm, i2c-tegra.c was forgotten in Bartosz's change because
+the code looks a bit different.
 
-That's not true, the changes provide a helper to that end.
+There is still
+i2c_dev->adapter.dev.of_node = i2c_dev->dev->of_node;
+        i2c_dev->adapter.dev.parent = i2c_dev->dev;
+there.
+compared to 
+  adap->parent = &pdev->dev;
+        adap->of_node = pdev->dev.of_node;
 
-> > > > Let's put aside kernel code for a minute and work with an abstract =
-C example,
-> > > > where the equivalent of what you're proposing would look like this:
-> > > >
-> > > > struct bar {
-> > > >      struct foo foo;
-> > > >      ...
-> > > > };
-> > > >
-> > > > struct bar *bar =3D malloc(sizeof(*bar));
-> > > >
-> > > > ret =3D foo_register(&bar->foo);
-> > > >
-> > > > And the corresponding free() lives who knows where because foo_regi=
-ster()
-> > > > automagically introduces reference counting (nevermind the need to =
-calculate
-> > > > where bar is in relations to foo).
-> > >
-> > > No, that's not what I'm suggesting here, but it would be compatible w=
-ith
-> > > the driver model (ever heard of struct device which works exactly lik=
-e
-> > > this?).
-> >
-> > I know how struct device works. I'm pointing out that this is a bad API=
- (just
-> > to be absolutely clear: not the reference counting of struct device its=
-elf but
-> > using it in a way tha looks like it's not refcounted but becomes so aft=
-er an
-> > API call) because it's confusing. I'm not buying the argument that if i=
-t
-> > confuses you then you should not be doing kernel development because it=
-'s not
-> > the goal of API design to make it as complex and confusing as possible =
-- quite
-> > the contrary. And it *is* confusing given the amount of misuse present.=
- I've
-> > heard Greg KH say on multiple occasions during his talks that we try to=
- offload
-> > complex code to subsystems so that drivers can remain fairly simple. I =
-agree
-> > with that.
->
-> Again, this is a core feature of the driver model. You can't just ignore
-> it and come up with random ways to work around just because you disagree
-> with design decisions that were made 25 years ago.
->
+in omap code. So I think, the easiest to get forward is to
+also adapt i2c-tegra.c.
 
-It absolutely *can* be done differently. There's nothing that imposes
-a certain API design on susbsystems. If you design the subsystem code
-well, provider drivers don't need more than one reference (taken in
-probe(), released in remove(), for instance via the
-register()/unregister() pair) so the counting can be hidden within the
-subsystems that control them.
-
-Bartosz
+Regards,
+Andreas
