@@ -1,94 +1,96 @@
-Received: from mail.andi.de1.cc (mail.andi.de1.cc [178.238.236.174])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7B6D251793;
-	Sat,  7 Mar 2026 17:55:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.238.236.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C608346AF0;
+	Sun,  8 Mar 2026 07:50:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1772906159; cv=none; b=C1e0+Zl2t1AdnIQ++1faX1LhTKZpBusOyUmSgbFcVsIoujev0bWoPorXoSV3VmnkxrsMnpExlyXlRHnxC7sd+YWIB4JrAuayJp1l5E9cSPc7f0TvUQQT7A2DSYA8rrsb1J6oDlCpisETWz6Vd0QiKDsbp+ZactD9VEJUyxAaf1w=
+	t=1772956202; cv=none; b=BZQqvWkqytY4RRi4Pde8ulyTyXoC/vHItIvtqCRm7QQvtyNXffLZH8mJEKjijrJDathGlB0CfnndAEFSZF6rMRkyZnn1mi7KdM4Mg78BiaBo7pwqFywTmztc5bbVNFKfFU9NqsnRZNkvfNlbSNnzD110YpH5w1Pdtso7/DHddM8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1772906159; c=relaxed/simple;
-	bh=JixTgKowbvz3hPRSaIC4iVDhGP7BrzeUbOYe9GLtyyY=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=XN/xQR+Pye7zpbx+q2gMYgfWQcLVwVVvrYLj0qeXZGiF/b/A9lL5+Ksx+cKS3aGNS+1cN7Il8Bw0OARAgdqdLUJ7Ma2eyD6NESWb+sKhcxEKobqrW72vDHDXs7sGy4inojLkmEDC6MxUkku7vsRB33FKgHfFoLQjzJRnvMVUJwI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info; spf=pass smtp.mailfrom=kemnade.info; dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b=gpPmwwQm; arc=none smtp.client-ip=178.238.236.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=kemnade.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kemnade.info
+	s=arc-20240116; t=1772956202; c=relaxed/simple;
+	bh=3v4pNYXE1KgqkgfxV4hZJ3pB5UY+2OrgggKz0k+/iMM=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=SM/+MqWOpCcqBSJUkBfkiYAapmcsEtM3kw7M7nWZKBVLGdsuDJkieRzaH6aEjqtLLP6lL1vVuxPuDPusu6HprlrJTv7JS8JF7Y2VS0RtSKUfCBiBRG5NNO+EuOG5gHxqvnjVAiYupgh6lRwrf3KAZWXasQLuoIsza4ZnhqTlDzI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ijtRE46M; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kemnade.info header.i=@kemnade.info header.b="gpPmwwQm"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=kemnade.info; s=20220719; h=References:In-Reply-To:Cc:From:Sender:Reply-To:
-	Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-	Resent-To:Resent-Cc:Resent-Message-ID;
-	bh=Taf8QKd8++5heUK6i/mGRj//WC4gBXj3LSLau58JkDQ=; b=gpPmwwQm4pUuWz0Ueam5wdwjts
-	GeramEceA9tkDM4cQ1GLn1f6XcpqWM2NIkRuYzNtEa/RkDwuwZJuEQvOmTQTS5jkj9n8+pHC01GSY
-	ZRVCuIDwX+DhN6A7B9HlDdc89CquXWCTxv0V2G0UCZxhqdJbisyg9+D6bMcBv+32N6wthSVsLhAzz
-	R3ddKzMY+X1mTp4hIe1dIdyXqIlmdvUk8nsJji7ZlSFl9/gvxgN0XYadb5OCIdd7fXopz/PWAJ3M4
-	kNXblVrEAQO9HKXQ9fY5XqRksXaSsh/kBTsXzTumbl5VaQkazf9FSAU0Rh95q3XNCsbFHlIooXru7
-	kLGC0eAQ==;
-Date: Sat, 7 Mar 2026 18:26:10 +0100
-From: Andreas Kemnade <andreas@kemnade.info>
-To: Jon Hunter <jonathanh@nvidia.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Frank Li
- <Frank.Li@nxp.com>, Linus Walleij <linusw@kernel.org>, Patrice Chotard
- <patrice.chotard@foss.st.com>, Florian Fainelli
- <florian.fainelli@broadcom.com>, Dave Stevenson
- <dave.stevenson@raspberrypi.com>, Bartosz Golaszewski
- <bartosz.golaszewski@oss.qualcomm.com>, Bartosz Golaszewski
- <brgl@kernel.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
- Kalle Niemi <kaleposti@gmail.com>, "linux-tegra@vger.kernel.org"
- <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH] i2c: i2c-core-base: fix devicetree alias handling
-Message-ID: <20260307182610.48cae8b4@kemnade.info>
-In-Reply-To: <9b3c0190-7996-40a3-8306-5038f42b2b15@nvidia.com>
-References: <20260302-i2cfix-v1-1-a95418e9217e@kemnade.info>
-	<9b3c0190-7996-40a3-8306-5038f42b2b15@nvidia.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.49; aarch64-unknown-linux-gnu)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ijtRE46M"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C4CAC116C6;
+	Sun,  8 Mar 2026 07:50:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1772956202;
+	bh=3v4pNYXE1KgqkgfxV4hZJ3pB5UY+2OrgggKz0k+/iMM=;
+	h=Date:From:To:Cc:Subject:From;
+	b=ijtRE46MGYNHrIGRqz5jJWlLRqSdY1H1VFARdQ/VIfkX/98Rspr4v0rRhtVw2mRNN
+	 8cKqmV26LAq5EPcxtC5XqOuWjfp9Xx6DzcTS4A8HIDGt6g7QDBmBU+awZh6i86MCmN
+	 J845vTXhtmVKfd99RQ1F4texjls1doplg9uFMN3UcJqFRO/TpCKaR04T2Z9mg4ZLrm
+	 teVvWF5IndYAkZo4snax0YcrwhG4JA5wtXhd9kKpXUP+lbhFqptYUdxb4tbJDYLVEj
+	 VJiQ3a/fm2hPOolpurEoIlJ5tW0gxQo2sQjT8281v+RJTjm0aCTWocwLCFL31lB8fe
+	 OGyhOMwztZ0Lw==
+Date: Sun, 8 Mar 2026 08:49:58 +0100
+From: Wolfram Sang <wsa@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>
+Subject: [PULL REQUEST] i2c-for-7.0-rc3
+Message-ID: <aa0qJvLMHMrBOJvf@shikoro>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="+SpWsZfokBG5DI9G"
+Content-Disposition: inline
 
-On Fri, 6 Mar 2026 10:18:09 +0000
-Jon Hunter <jonathanh@nvidia.com> wrote:
 
-[...]
+--+SpWsZfokBG5DI9G
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> /sys/class/i2c-dev/i2c-0/name --> 3160000.i2c
-> /sys/class/i2c-dev/i2c-1/name --> c240000.i2c
-> /sys/class/i2c-dev/i2c-4/name --> Tegra BPMP I2C adapter
-> /sys/class/i2c-dev/i2c-8/name --> 31e0000.i2c
-> 
-> After this change I now see ...
-> 
-> /sys/class/i2c-dev/i2c-9/name --> Tegra BPMP I2C adapter
-> /sys/class/i2c-dev/i2c-10/name --> 3160000.i2c
-> /sys/class/i2c-dev/i2c-11/name --> 31e0000.i2c
-> /sys/class/i2c-dev/i2c-12/name --> c240000.i2c
-> 
-> So the subject says that this fixes device-tree aliases, but it appears 
-> to break it for Tegra. In fact, this patch appears to have the same 
-> problem that you reported with Bartosz's change. Reverting this change 
-> fixes the problem. So I am a bit confused why we are seeing different 
-> behaviour.
-> 
-Hmm, i2c-tegra.c was forgotten in Bartosz's change because
-the code looks a bit different.
+The following changes since commit 11439c4635edd669ae435eec308f4ab8a0804808:
 
-There is still
-i2c_dev->adapter.dev.of_node = i2c_dev->dev->of_node;
-        i2c_dev->adapter.dev.parent = i2c_dev->dev;
-there.
-compared to 
-  adap->parent = &pdev->dev;
-        adap->of_node = pdev->dev.of_node;
+  Linux 7.0-rc2 (2026-03-01 15:39:31 -0800)
 
-in omap code. So I think, the easiest to get forward is to
-also adapt i2c-tegra.c.
+are available in the Git repository at:
 
-Regards,
-Andreas
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-7.0-rc3
+
+for you to fetch changes up to cfc69c2e6c699c96949f7b0455195b0bfb7dc715:
+
+  i2c: i801: Revert "i2c: i801: replace acpi_lock with I2C bus lock" (2026-03-04 12:44:14 +0100)
+
+----------------------------------------------------------------
+i2c-for-7.0-rc3
+
+A revert for the i801 driver restoring old locking behaviour.
+
+----------------------------------------------------------------
+Charles Haithcock (1):
+      i2c: i801: Revert "i2c: i801: replace acpi_lock with I2C bus lock"
+
+ drivers/i2c/busses/i2c-i801.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
+
+--+SpWsZfokBG5DI9G
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmmtKiYACgkQFA3kzBSg
+KbYAlQ/+J39yTST3aiqad3f4omyFauHntWnfR/zn/tbynYE1IxyS/zRemQ0wpzpk
+0tPTZjhSeydMgjiPobXu3OiPei+jty2+InyHsrWzqYyYVPSs2rGBollDUSvDFEdx
+OlT79XX4gmmi7Lp2/FvG8jJK9SYQZiqH9OEUsOXNr9VO6x8LtGZiubsg9DW2BtYo
+B5pgTf6RT/1H0PweCupjGRc894Sdt9Y4G2xZ+cBPTKQRRq0rz35ZYoxAuqRFfk5y
+OmasSeWCMXGeKyNn9m0ONj3DuSgkdfb//xS8Vlnhb7y9adz2NKJEV6hRa+X4sU54
+DejVsjOixY3j/I9BVjN+8hqup/od5YjsOpX1W6s0YC7xFS20QkEERad4nhJO7Nc2
+6L48gNUwhy9ZCVRFm+YmzyhbIvGZQ0yBS6zpE1xaLuKrA+ySQnKw4yiydug7OLJc
+e5I7fBvcHYxU9yRMecB3fnUL3UF96fHWmvr53sTqFpEscwa9XkP6zTSgkxAnD/60
+oG2xlSIF/CH65K3ZeY5Xc3TcHf05HZPBEtfO1XnK+lOoKI3Qs5iJzJfmL80ZFlGd
+kmsimowirIHbti3YfjV8k74ukkwQcjvQQqwmStw4/5yO0SW3FXq54PujedqzmDQP
+BILCS6IWL/tK4oCbQ/FxTgRbsdH1mmxXm7ddw5yMYT2jM9IRiqM=
+=5FPv
+-----END PGP SIGNATURE-----
+
+--+SpWsZfokBG5DI9G--
