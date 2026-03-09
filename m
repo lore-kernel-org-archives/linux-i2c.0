@@ -1,171 +1,141 @@
-Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com [209.85.167.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from BN1PR04CU002.outbound.protection.outlook.com (mail-eastus2azon11010055.outbound.protection.outlook.com [52.101.56.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2D493D4111
-	for <linux-i2c@vger.kernel.org>; Mon,  9 Mar 2026 15:06:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D077313291;
+	Mon,  9 Mar 2026 22:01:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.56.55
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773068821; cv=pass; b=AbE1486Y0ug/1G0atQHdJXBw3oBe5ckI6EYvOpIP1eS3hx47cvNxxXmpZPMERmiQWeIL4eN6N9q8VQuzDL4hERppqDwyCH7mRJSuY/uKmSbheAaH2d+K5QXA17ugXNh6bDLqBHZBjQb1f78zhVOWo80FZSXUW4aCwVvolGTPjIg=
+	t=1773093664; cv=fail; b=io5+4pcMr5qLwsBQSCZz26hWizhBJgz61LoqXF8bIkzmRrbsljFiysDzDRe0IB6aRcj2IVlZtfVIrQeaU69UJNWvTaUX87pt9XkNN4Ab9T1mcJPf+3R+j/4ftIon8ZgU2CHjmO8EjM41GEJTXoNMsyauqQY08zKE7r+mNmH5aaQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773068821; c=relaxed/simple;
-	bh=JKN2J4kHq0yD8TjxvyPjjgMMFAS3NaA1mJTCXgnPsRA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=VGpDjzEStbG3VcBlzx6ZSd30GMYl5jYK/6wLL73+AnIki56113v2C+yJ/bbTlv6nG+YZ1ibYBKkNNwQvYFD1F8h6f4F+ZBzUL7GBX5VXQT8oGHUWREbNqBeUuy7Http7F6bAKRAep/32iaisMGxM/RQtJvhhzOxfn75EmNOSrGk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=YDCKAWzT; arc=pass smtp.client-ip=209.85.167.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1773093664; c=relaxed/simple;
+	bh=exqApVg/OtNAAfxsdEMYrfQq/Dpe0ED+Yw0VBM8I984=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=VVh/WrvR+IrrBkt3ENldV3fFb26fhqkO+MgEYmchs+LUwv9tVrI6vowrLVp4bpf2WUewimQI7c6ps3tnkZ/X+sPxlipKNWJUDg0dHiTdftiybgfUWXhNITIvrd3cN25nxaByzM/yv3E7Mufgi0X0dMXNeJ88dOyPoc8ZTL3OwOM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=gbaUaYQf; arc=fail smtp.client-ip=52.101.56.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="YDCKAWzT"
-Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-5a13f6bcbf4so3457818e87.1
-        for <linux-i2c@vger.kernel.org>; Mon, 09 Mar 2026 08:06:59 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773068818; cv=none;
-        d=google.com; s=arc-20240605;
-        b=PG0RxHzkqwk+r+iS8VDM6ZQ8+RFG7SBNtbeQgQMUnJDPe76bUmdA9GtN+d6KHt18U6
-         WNr6+31W26cImfFcBEOYlWXShK1lCqRKIYvXpKGdYyC1rL+FJQGtHH24BMcozJoeJz+D
-         54Z4QQn0CmoYR+qq6kDispVejiKx7ksryZ8ztWnohx6CSZR8KsP6dKkcxPybESn/zKz6
-         FXbJKGZNlhbTQxi+HCEvSv7LSTc51rWh7qLu6t5juK61QufBEqWeGgOQZM3KxAMc7V1/
-         LwvbUVJOPopta3HRUOV6ZMnpfb6Ix3QpIkhlV5tQvb9pk5+c4IMwEANyIH10UjiWlm/G
-         Y2OA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=5tCYLBqDfvBtAEmrKe/1f8U+n/JTrn4BGEWGrJUqdlY=;
-        fh=iBLxFNLQ33xixMoezYSkmAvxGK+oF8p7QPB+MmuVLkk=;
-        b=lMI1xZv7Qz+MVGQz5/kpAyyF0+PXzKV5Bs51zkx1mgAVdXONE2g7vhwD+wBPxuGqIO
-         GMYZVwsmbhx88+a1xEn+2Z0/NctOZNunE6DZf3f014IDCmoH4NNkHiPurgZk8quj+oWF
-         nPhTCchnjDvHBgj9wXjQBb1n0j7WUJSbXHpXOeBKSPXucxv7vim0VS1Qyv/+h6DUQBiq
-         Ur3RHZVEsX0ux+lSb8pYEYWfiO3lS3eEnJJNLReccmg3nT5q+EvRQpfUWNHYAI3H70qV
-         wo08GM98SEfWFaWjjv5HUCOgFtIVGW80P11pYN+xp/c3QefeRwEOh0xKcVg5PkZEwqHh
-         soAg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1773068818; x=1773673618; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=5tCYLBqDfvBtAEmrKe/1f8U+n/JTrn4BGEWGrJUqdlY=;
-        b=YDCKAWzTSjoyOKxywxX/89IU//SMk/64iocZQqSPHMm+RZyOKO61dyNWFH8+fDrUSH
-         BhsrZMeW8TAfJqMdaAyEkf3OFDA63mDRaFuayeHDpbmqxS6dFezk9eEnH002tQ2OpMEt
-         tv4B6QfA+/uuB001aM95V6PbaZdpSB6LnvAC5az3zDD7/Jeo503Erl50y/Z/OQoTmfUB
-         gsrXxHQWndpKSnkqBf/TQThoIOiQSSpNSmwWdGp8MIQZC9wRKuXaD5KsunxTNwISM3pU
-         +z078T8q/N7b+1nsIPv2gGu4cwBm7Lir78sm8SKWJd+vbaQ/R1qNAs6hWZ9EdoUy7rDb
-         S6bw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773068818; x=1773673618;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5tCYLBqDfvBtAEmrKe/1f8U+n/JTrn4BGEWGrJUqdlY=;
-        b=SzxMFat5SvIakVxeh3ndu6JZMirhXCSLNdzld4kyar7+ogdB45pRw6r1RwfFm8PGo/
-         46pWfYtU6YWQPhLva11PhtufdxKx3Oiow5zHQ47mSpiMxhLs0XtISmgVZZuoARUYgE3Y
-         g4mCq0Cs/h3k9ON7MGfbxsBgH8mdLAtWmi7AbNqBc1Vf8hsXIyeXyGb5Nl7PqK8bgWuB
-         pVLiLuNSwxQa1scVhkV4tTwii6Arm8BOKcmQ88wtfxDCUUXxdBd+X2Dwy8ruwrjkYaLj
-         9UspIwoXaNly8/ajBlaUhy2YHedgW56X2/eeQdfkvMQmgxeAYQadjjAazlffVazuQrLK
-         hFkg==
-X-Forwarded-Encrypted: i=1; AJvYcCVxzuvagAypyr/KXwx8RBrZi4gvVaw+mfMNgeF4R24CmBmYORhIOHs/EdhqYzXMplWGYfdE/nTCEAQ=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxyKSnHEW+fkav54VwQwsGC+SHLkbaHISs/4xsf0mGAwzdGTt+x
-	7eAZJwLnOqmTrlK1pUGaBAWa32aOpudEMn17sdMqKa4A2CVtXZex+GCntvHdqnYOTAS+MesE1NA
-	8QH3UnQ6yrx82Vnha8MwK+qqEx5cT3QELUE6rMlZNOg==
-X-Gm-Gg: ATEYQzzUKLZx2h+ELB3JSE8Z6cnbsG1l1qajP8E/ayqbCIwqsOvCLxv6EmaEvm7TGPR
-	v5pLX0/u6ObQFKe9uuwffU/AcBjbg8eE8Qq6jR0V3Py422yHTd/51Dd4BBXDrnM02OGSIgr4OZF
-	dAA4DEUbTGg7oKm9CpueEZYbGMZftw4lL/T5kw0uhS7kc2sk3Y1I9IQcBiZZ5++Gfeg4G1ZGX+n
-	hhaFxZilpI09Y0Lt71nKxNCLruVRcGZTeOnydvb0iiSsFRYEhmMmvxWtIeYoKRda4tAOGs2LczV
-	Mag8QA+Z
-X-Received: by 2002:ac2:4644:0:b0:5a1:3ab6:6de2 with SMTP id
- 2adb3069b0e04-5a13cce183dmr2793114e87.37.1773068817703; Mon, 09 Mar 2026
- 08:06:57 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="gbaUaYQf"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=SBojKvnLblljNcr6FTtcotgx9EbXfW7pu0Az8lkXml+HzU22H+r0NQemFyJON6UWG3q4tMkPrpNB0U+aK10Tju5alloGvxOLlQo3RiekHLoObsv5jfA+wj1Db8BQ5Xf/vxJ8JuRUiNZgZPY2qbsWfU3dHMNKK0Mns+6sIjhLQLEsYk02JQoUDcdQJUQKrqBV9QaE0qNnbOrXDXUyusS/GEEny1195taIWSmr6juxRB9DepX9/cGf7rLTiHpOT6z0hmqpvAm+izxJuVS9spqAv/2ZLzeN7wsXJfARWoIqRkrg6oWjVVJBZLEf6caxTCLiAWUw5iTneUyF411nkl35dg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ZMxC4NYh/ubHr20mhCVGrEZwD/BADmgtlw97Nv0kGFw=;
+ b=BWUYNY0zk81spmfM27RlulxjM11W5RGbU5kG/DER3o0K6DSWGyKSNvy6MYzhwPY66Vp/kPbw2f0+L/r6FcpT1pkiJ/yneLHhfqPQuT4ApZjUVukQxxuM1YeaQQZTTtO4hM2dQe2QIkvVmdVW9P2fmouWZW9DA/0CZZj+oQK04B1NHrdgr30u6TuBugKG9i8IFTGU3CkefRAdTilmiqU0x2tzFwQSKG/iIv5X9GBvGoQWbcz6QCaXDQfOMJ36PegErpT2WBm5biEXbx0VDdi/U7P6lI0Hm4AgnuHCT3YiJSV38sOqK4qU5Xbqa55oue7IyyN4JiqHpeKddXT8hirdKQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ZMxC4NYh/ubHr20mhCVGrEZwD/BADmgtlw97Nv0kGFw=;
+ b=gbaUaYQfayzQRkyaSd0iiSxg22rlSyLoqrZC5dckUWsg/eg/ndmOeyZsef9AOLUocm7xERLK4YKZdYWaQQxQIchYBGz9qqQ0jC1eAG55p4YSDXEQ41/vW/Ie+HXTrdAZM0ypiiXFhPPnB0NK0kx6sQadr7LSUoPugBoqloW8kwM=
+Received: from BYAPR05CA0054.namprd05.prod.outlook.com (2603:10b6:a03:74::31)
+ by DS7PR12MB6311.namprd12.prod.outlook.com (2603:10b6:8:94::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9700.11; Mon, 9 Mar
+ 2026 22:00:55 +0000
+Received: from MWH0EPF000C6191.namprd02.prod.outlook.com
+ (2603:10b6:a03:74:cafe::62) by BYAPR05CA0054.outlook.office365.com
+ (2603:10b6:a03:74::31) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9678.24 via Frontend Transport; Mon,
+ 9 Mar 2026 22:00:52 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
+Received: from satlexmb07.amd.com (165.204.84.17) by
+ MWH0EPF000C6191.mail.protection.outlook.com (10.167.249.106) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9654.16 via Frontend Transport; Mon, 9 Mar 2026 22:00:55 +0000
+Received: from STXH3-MAPLE-10.amd.com (10.180.168.240) by satlexmb07.amd.com
+ (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Mon, 9 Mar
+ 2026 17:00:54 -0500
+From: Pratap Nirujogi <pratap.nirujogi@amd.com>
+To: <andi.shyti@kernel.org>, <mika.westerberg@linux.intel.com>,
+	<andriy.shevchenko@linux.intel.com>, <jsd@semihalf.com>
+CC: <rafael.j.wysocki@intel.com>, <mlimonci@amd.com>, <benjamin.chan@amd.com>,
+	<bin.du@amd.com>, <king.li@amd.com>, <linux-i2c@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, Pratap Nirujogi <pratap.nirujogi@amd.com>,
+	Bin Du <Bin.Du@amd.com>
+Subject: [PATCH v1] i2c: designware: amdisp: Fix null pointer dereference in runtime resume
+Date: Mon, 9 Mar 2026 18:00:01 -0400
+Message-ID: <20260309220038.1420996-1-pratap.nirujogi@amd.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260226-rz-sdio-mux-v11-0-c2a350f9bbd3@solid-run.com> <CAPDyKFr5NZKEKpV2+GXGnzH9pyyj_TLmMCc3rac8h248srX_dw@mail.gmail.com>
-In-Reply-To: <CAPDyKFr5NZKEKpV2+GXGnzH9pyyj_TLmMCc3rac8h248srX_dw@mail.gmail.com>
-From: Ulf Hansson <ulf.hansson@linaro.org>
-Date: Mon, 9 Mar 2026 16:06:20 +0100
-X-Gm-Features: AaiRm51gPNstmfmPCbGsevKfnVyHAve3znxWrnZO7sNkn4-s9OVpM21rgVmHXjc
-Message-ID: <CAPDyKFqyUsKbp9pgKHsMoOd5Qe_0f9rxsX6C61adQC344eA9Lw@mail.gmail.com>
-Subject: Re: [PATCH v11 0/9] mmc: host: renesas_sdhi_core: support configuring
- an optional sdio mux
-To: Josua Mayer <josua@solid-run.com>, Peter Rosin <peda@axentia.se>
-Cc: Marc Kleine-Budde <mkl@pengutronix.de>, Vincent Mailhol <mailhol@kernel.org>, 
-	Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>, 
-	Aaro Koskinen <aaro.koskinen@iki.fi>, Andreas Kemnade <andreas@kemnade.info>, 
-	Kevin Hilman <khilman@baylibre.com>, Roger Quadros <rogerq@kernel.org>, 
-	Tony Lindgren <tony@atomide.com>, Janusz Krzysztofik <jmkrzyszt@gmail.com>, Vignesh R <vigneshr@ti.com>, 
-	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Geert Uytterhoeven <geert+renesas@glider.be>, Magnus Damm <magnus.damm@gmail.com>, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>, 
-	Yazan Shhady <yazan.shhady@solid-run.com>, Jon Nettleton <jon@solid-run.com>, 
-	Vladimir Oltean <olteanv@gmail.com>, Mikhail Anikin <mikhail.anikin@solid-run.com>, 
-	linux-can@vger.kernel.org, linux-phy@lists.infradead.org, 
-	linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-mmc@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-renesas-soc@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: satlexmb07.amd.com (10.181.42.216) To satlexmb07.amd.com
+ (10.181.42.216)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: MWH0EPF000C6191:EE_|DS7PR12MB6311:EE_
+X-MS-Office365-Filtering-Correlation-Id: 951af5b9-4389-466f-e04e-08de7e2756a5
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|376014|82310400026|36860700016;
+X-Microsoft-Antispam-Message-Info:
+	MAt/tVysCdK2z+8qfG6eDadWNVB+6qJ8g3BI4rOGLXth/uPVxcl1DGJz0IojeK9j4Z/Odl4hGBNiPVi+ZySaxOpAw2eLaGGiZfwjUMLlg0hn+NX+Ir+Lpb3z+D1xVoo0MnRwZBwrZIIHpRJQKXTCj5NtxCuDgt1ZwYPnFrSH3u44yPJNZtahtIPAeIiCCJPTergbuUTMPwiHj786Kbs095LDje1qv4x7ZUIdMRhezN4/r3fze7WCIZn9mLhVvRjkHkdrMF7SMdtIqej+jjLYg2P29g0fq2phodNC/BbbADO1f3twLMgu7YK30nc8BIJ42ApLd84XuTY+QkQnJM6NtCs+6bnK9edu8g50TtFFr/dIvO/nVN2GkuNCv1x9063RUG069uyESzpxx3a5ZNPRc5DgAR1Pwpxy1ujGpIJJnai2WH2sK2JJmYBJf8+rgnK2j8B/MwlV21bssvp6oID1E33qY2F8iw8M3F94lcW8LFlg0fu3c7jrR5JlEtFQME6t9KDkxBW4I6JBALffNJxK6YBAay+5sVRcSmTGy9UK3nZLvleTEilajzzNZ9wFqHfDK5dMZis74NIRPPoBWNptUYWTo4jipBX2QXPbeNHX3zcAMaYw/xsCOtWWTFYARGDrisZp8GpbgF2P5+JFlv5ejKnMBnsknA7elJcJH24ULYdkyuga6n0aqYtpL9boGu5yfY7e8WG2BXfwdWDtKm9y4ZbMmWF8mc8tCpCLxBpze9SAHkPj1tcyYwmIRkKbkZL3OPTlynFoUEmrNjUB1OEPAg==
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(1800799024)(376014)(82310400026)(36860700016);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	k94ffurJXFKPgerS1yYlasHHbwwogfv8Vd10c7F354boixDCw27gEfbkIPLJ9E0W6SlQe7nRwxlU73tdkecJeC8ee+Ve2Y93Y1jp1HlFti9zqykkfN4qMTxZuEX5DrfYy21nsM6JwKj2JQClkccOvWBqAGN+5MmUpC+PnXQCwsfT+aE0U/nLv5Ic11XPJcO4Q1ZgTEPlzmcFRzCadgX4Y2mgYyJn0wW8hoR/5d8FlVu+nWaav/vKv2STHZklqrOiN4MF8tGk6K3wf2oANA+z+W8HW8scQI2ZYbNpiBjiGSlGD4YH8CHepzMU0x8wSfvaPA4wWx4eZ+LLddZoODNnWGmNcsE57fcTwVA94RTIkqd9v12C1oshSX8XjlrsEvF4ymDt11UFZwc8x6qE835SU9r6Ecmh6r+nkTW2tMv3/mNNlRweOKeC5hvMx2D+/g5g
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Mar 2026 22:00:55.4918
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 951af5b9-4389-466f-e04e-08de7e2756a5
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	MWH0EPF000C6191.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS7PR12MB6311
 
-On Thu, 5 Mar 2026 at 17:19, Ulf Hansson <ulf.hansson@linaro.org> wrote:
->
-> On Thu, 26 Feb 2026 at 14:21, Josua Mayer <josua@solid-run.com> wrote:
-> >
-> > This series has evolved over time from adding generic mux support for
-> > renesas sdhi driver, to partial rewrite of the mux framework.
-> >
-> > Several drivers have started implementing driver-local managed and
-> > unmanaged helper functions for getting and selecting a mux-state object.
-> >
-> > mmc maintainers have requested that new code shall intreoduce and use
-> > generic helper functions that can be shared by all drivers, avoiding
-> > code duplication.
-> >
-> > This series is structured in 5 parts, each of which is self-sufficient
-> > depending only on the previous patches. This shall allow the first N
-> > patches to be applied even if the last ones need further discussion.
-> >
-> > 1. Rename driver-local helper functions to avoid name collision with
-> >    global version to be introduced later.
-> >
-> > 2. Implement generic device-managed helper functions in mux core.
-> >
-> > 3. Convert driver local code from similar patterns to use the newly
-> >    added global helpers.
-> >
-> > 4. Change mux-core Kconfig so that it can be enabled through menuconfig,
-> >    without an explicit "select" dependency from other drivers.
-> >
-> > 5. add dt bindings and driver support for mux in renesas sdhi driver.
-> >
-> > Signed-off-by: Josua Mayer <josua@solid-run.com>
-> > ---
-> > Changes in v11:
-> > - changed approach to Kconfig making MULTIPLEXER a bool, and adding a
-> >   user-visible wrapper for menuconfig.
-> >   (Reported-by: Ulf Hansson <ulf.hansson@linaro.org>)
-> > - dropped the "default m if COMPILE_TEST".
-> >   (Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>)
-> > - improved kerneldoc line wrapping.
-> > - removed unnecessary changes to original devm_mux_control-get.
-> > - fix "reference preceded by free" in mux_state_get function
-> > - Link to v10: https://lore.kernel.org/r/20260225-rz-sdio-mux-v10-0-1ee44f2ea112@solid-run.com
-> >
->
-> [...]
->
-> To me, this looks ready for a new try. Unless I hear some objections,
-> I intend to apply this as material for v7.1 via my mmc tree on Monday.
->
-> The complete series will be available on an immutable branch, for
-> other subsystem maintainers to pull in if that turns out to be needed.
-> I let you know of more details on Monday.
+Add NULL check for i_dev->map before calling i2c_dw_init() in the
+runtime resume path. The regmap may not be initialized yet when
+runtime PM tries to resume the device early in the probe sequence,
+leading to a NULL pointer dereference. Skip the i2c_dw_init() call
+if regmap is not yet created.
 
-I have now queued up this series for v7.1 via my next branch.
+This race condition occurs when runtime PM resume is triggered before
+i2c_dw_probe() completes the regmap initialization and was observed in
+kernel v7.0 where the order of device enumeration has changed because
+of the changes in registering the device sources in the device hierarchy.
 
-The series is also available at the immutable "mux" branch (based on
-v7.0-rc1) via my mmc tree, which other subsystem maintainers can pull
-in if needed.
+Co-developed-by: Bin Du <Bin.Du@amd.com>
+Fixes: 02c057ddefef ("ACPI: video: Convert the driver to a platform one")
+Signed-off-by: Pratap Nirujogi <pratap.nirujogi@amd.com>
+---
+ drivers/i2c/busses/i2c-designware-amdisp.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-Kind regards
-Uffe
+diff --git a/drivers/i2c/busses/i2c-designware-amdisp.c b/drivers/i2c/busses/i2c-designware-amdisp.c
+index c48728ad9f6f2..cd7ee55fbe1ee 100644
+--- a/drivers/i2c/busses/i2c-designware-amdisp.c
++++ b/drivers/i2c/busses/i2c-designware-amdisp.c
+@@ -153,7 +153,10 @@ static int amd_isp_dw_i2c_plat_runtime_resume(struct device *dev)
+ 		return -ENODEV;
+ 
+ 	i2c_dw_prepare_clk(i_dev, true);
+-	i2c_dw_init(i_dev);
++
++	/* Skip i2c_dw_init if regmap not yet created by i2c_dw_probe */
++	if (i_dev->map)
++		i2c_dw_init(i_dev);
+ 
+ 	return 0;
+ }
+-- 
+2.43.0
+
