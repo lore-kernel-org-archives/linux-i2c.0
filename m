@@ -1,103 +1,98 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08CD03A4F53;
-	Mon,  9 Mar 2026 11:33:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C0593A7F49
+	for <linux-i2c@vger.kernel.org>; Mon,  9 Mar 2026 11:40:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773056009; cv=none; b=aYjwi3QHrSAbAkztgA3dZkNPmziUYOnS+zH3jqnmdCThOVHqptqsHAV0folDFuMHlQlUQz0Nm/sxa170XV9AYYAi/STjjel5WCOHJDrNzESn5G3rAgnSxx7edaJOhvVgzri+wctiDI0JvD3uDfT2hLg1rJNCSP4337CNuV/vUpM=
+	t=1773056442; cv=none; b=aIrdpNN3zkC6aXXnpIm3s6V99cI6RpGVo8eN65+U/sQCAgJETCxWJEMojVoAdJ1d+QGsdnrr7jbLzto5c30Y0+8AtZdFG2W1NZevjIeLlzd37D77fb5TQpmlkAFCfMBvFa9uP/jQ0dCvXHrFagdhEHnysA6CGKDymBjkktd0iIY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773056009; c=relaxed/simple;
-	bh=JuHpzrbAufQ+zpTIrGamvkXdl9yX1h0YnfoBnl5c9Yo=;
+	s=arc-20240116; t=1773056442; c=relaxed/simple;
+	bh=xC8SfweL7ryzpgO3KWD2W2s8wIB+Yz650LsyKxFl6TY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=InR0rsTLMdofl/d8QxqNRoSiDsBBUKpSrytmg0of22fHgULC/Kh03qYW+amZRdkaksEEczrX2Pbh/ulVUa2jelUpvN19AO+J5avQE0++UtmmYsMc/MU+Ux4jDwnLw9898COZqgXKQgt2OiHVaOFzZ1yEsi76caFakQrzVtbRQrs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lp75yGXD; arc=none smtp.client-ip=198.175.65.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=GkBJg/4/jbjA9qzSLZubOU4xhuWeXShpETEffaUG+8kg7GxbLXGTtIBB+uM4bZSK+jPERf4EYip2TTdvhIelTvovVeefxBbLNMpgSDKPhopahpFlpQf61bEwXAW660jkAbI64jsOY78kxbYgDkriLAlbdaJ1P4oIuQyprf3iSas=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=mcLWt7J0; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lp75yGXD"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1773056008; x=1804592008;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=JuHpzrbAufQ+zpTIrGamvkXdl9yX1h0YnfoBnl5c9Yo=;
-  b=lp75yGXDB6y182gvZTry5GcrRKrnTUYvKf7OQKQzIbysJB2G2+rYObjt
-   9FKH8DdICY1KHW4+zuPktn0zTCyo/R9TuMoA9c75XzXcFZSvBAmVkjBKO
-   qfrAzi4hdEh0yjQGnqLp/YdOm9iuwtLu0LsntJN2Ov2P0ZIPb1+XDX5zm
-   Ryqz4yh6fFLsEkSCj1ygm709P/qaQhXMcKG/ARwSTMAt7gD3HVvv1KGyR
-   ux0Tb9ZUZIksKeMRrLGhKy0NAse0J8a5o6e6er8P9SBWbjsDocfFaiohZ
-   7tas6OAhh8dhx6sZ1eW4nUKT2wcm3BlBwoaZcRmgl76qFL7WG8bAIma0P
-   Q==;
-X-CSE-ConnectionGUID: NXtU76+KQvyaTefqHDC4Zg==
-X-CSE-MsgGUID: uW7DulIiTjm0kma64vDMpA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11723"; a="77926820"
-X-IronPort-AV: E=Sophos;i="6.23,109,1770624000"; 
-   d="scan'208";a="77926820"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Mar 2026 04:33:27 -0700
-X-CSE-ConnectionGUID: BYjNij6OTQmvnxYxvf3Gqg==
-X-CSE-MsgGUID: zc0Q1d8yRM+8lYkv2wtCgg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,109,1770624000"; 
-   d="scan'208";a="219851993"
-Received: from rvuia-mobl.ger.corp.intel.com (HELO localhost) ([10.245.245.181])
-  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Mar 2026 04:33:25 -0700
-Date: Mon, 9 Mar 2026 13:33:22 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Peter Rosin <peda@axentia.se>,
-	Michael Hennerich <michael.hennerich@analog.com>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v7 3/5] i2c: davinci: calculate bus freq from Hz instead
- of kHz
-Message-ID: <aa6wAvSdgqs8947d@ashevche-desk.local>
-References: <20260223-i2c-mux-v7-0-ec75b214718a@gmail.com>
- <20260223-i2c-mux-v7-3-ec75b214718a@gmail.com>
- <aZxrZbbXxm31q62s@smile.fi.intel.com>
- <aa6rhyZLhPY7aE-D@gmail.com>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="mcLWt7J0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=QR/l
+	HRJN6QTS54oLeSIVIW7MqrbPoHcfkNxU/qstUjg=; b=mcLWt7J0KeOKEgRV35ko
+	F8eGhLlwVU4YH3L/N2VAYNI0SNBZkujFjndL+gVtdcv9Z2MeiFuAeyE8mDldV3Kp
+	OgpYp94DVIxdCWDqMbzIEDIdooaL6kxuNrD0oDBenQuJVmHS9NjOMpImyQPC/riV
+	9rL9gVtO55FgClT5w6W/PevfORwI2wg21GeFJKXCIciuAUH9G0fRpZzx0G5QrcCK
+	RVKOv9L1OaHXWYZsfzRHMJuURSp3dTYYMLnstYKPbSC7uDA+JajqPwntsUl5iTJr
+	NB43VzGxsUzjpfVWWGYngydyrGpwCqRJ62Azkjv++catAKtflaVJcSG03HUwuPYo
+	3Q==
+Received: (qmail 2755381 invoked from network); 9 Mar 2026 12:40:35 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 9 Mar 2026 12:40:35 +0100
+X-UD-Smtp-Session: l3s3148p1@Qyn73pVMVpggAwDPXzF+ANZpdrMKUeLI
+Date: Mon, 9 Mar 2026 12:40:34 +0100
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Bartosz Golaszewski <brgl@kernel.org>
+Cc: Andreas Kemnade <andreas@kemnade.info>, Johan Hovold <johan@kernel.org>,
+	Jon Hunter <jonathanh@nvidia.com>, Frank Li <Frank.Li@nxp.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Patrice Chotard <patrice.chotard@foss.st.com>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Dave Stevenson <dave.stevenson@raspberrypi.com>,
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Kalle Niemi <kaleposti@gmail.com>,
+	"linux-tegra@vger.kernel.org" <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH] i2c: i2c-core-base: fix devicetree alias handling
+Message-ID: <aa6xslY4hP1WRDzf@shikoro>
+References: <20260302-i2cfix-v1-1-a95418e9217e@kemnade.info>
+ <9b3c0190-7996-40a3-8306-5038f42b2b15@nvidia.com>
+ <20260307182610.48cae8b4@kemnade.info>
+ <CAMRc=MfrXZY5k-b6eUWUov=MLnXojAenPwiM-eeOpjKZrBHeSA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="NeraYF8T9JTPZ9TB"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <aa6rhyZLhPY7aE-D@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
-
-On Mon, Mar 09, 2026 at 12:14:15PM +0100, Marcus Folkesson wrote:
-> On Mon, Feb 23, 2026 at 04:59:49PM +0200, Andy Shevchenko wrote:
-> > On Mon, Feb 23, 2026 at 03:33:52PM +0100, Marcus Folkesson wrote:
-
-...
-
-> > > +	dev_dbg(dev->dev, "bus_freq_hz = %dHz\n", dev->bus_freq_hz);
-> > 
-> > %u ?
-> 
-> Thank you for your comments, both this and the other.
-> 
-> This driver has a a few  other style & formatting issues, would you prefer
-> to fix those in a separate patch in this patchset or in a following one?
-
-Depending on the issues and churn it makes.
-
-In cases you already touched the lines these (what I mentioned) can be done at
-the same time as they do not change the logic. (Yes, theoretically you may get
--BIG NUMBER for big frequencies, but I do not believe we have 2+GHz for any I²C
-controller in the world, so IRL it's close to impossible.)
+In-Reply-To: <CAMRc=MfrXZY5k-b6eUWUov=MLnXojAenPwiM-eeOpjKZrBHeSA@mail.gmail.com>
 
 
--- 
-With Best Regards,
-Andy Shevchenko
+--NeraYF8T9JTPZ9TB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+Hi Bart,
+
+> Wolfram: do you want to drop these patches from your v7.1 queue then?
+
+Yes, I think this makes sense. Let's see how Johan's approach goes?
+
+Happy hacking,
+
+   Wolfram
 
 
+--NeraYF8T9JTPZ9TB
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmmusa8ACgkQFA3kzBSg
+KbZVKg//WTepQmm8TdWDdDb2fZW/8Su47poQd9aNBJ61z64iVu8LCd9UU4jJxzzd
+tYmWQl9qTwFIwhp2uS+8mUiQdKSnBgT/inBnbs0mPXi6zp/hfgXDA/aehfiNOPp3
+af5F3+sSDvXSJPxsRlIOmWMVYpZKBxCjU+LHwVPp1CIE53hEk2BTa3ZEzeONKVIu
+yjDxFgJ07NipNvlD941P/S0YqjMIaU5hIaLpicBTd5PCKYqmHJHbLo4Q6iyVMqMq
+RX1Q9uXNaviyh8i4ykfCcaudEy9xfldvHhDY/34havFH1l++zyBDOvtGVe+Ob2mp
+d7excBSF11WBD3/g0cLAZXX2TZh5XfjSAbKMqy31gK/nA/j+0kdUHXzGOOLwxW/y
+sfvIenQhTjepQTyK7mHzO5elPanfQqxO1ueyEsTGdr/M3Fhdwd/e309JXOwxVZL5
+8zdD9jcHgcHN/CfV9JYUB0nSTnQKjttPocD9c2iNf9ZyqbjxwaDB961bChf0iOXV
+lF14XUuElo3reUnd55KfAInBLLP1BNbl2zR5SZwBGwB7Bh7WX/J9kywv6q3GuED4
+Her6/VAwBXAX4kYbMLMzJT0C/bzbOv4s87w3wR9l1qraiBXIH3UH6yvjGuWq6N6P
+GgF1OGfWei1T++2ItWAfTexI4eJZ3M4oPCCK5KOX9xPyqrA270I=
+=9gE3
+-----END PGP SIGNATURE-----
+
+--NeraYF8T9JTPZ9TB--
