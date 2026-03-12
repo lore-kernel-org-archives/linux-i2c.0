@@ -1,188 +1,163 @@
-Received: from mail-yx1-f43.google.com (mail-yx1-f43.google.com [74.125.224.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76C513F660D
-	for <linux-i2c@vger.kernel.org>; Thu, 12 Mar 2026 16:09:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.43
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773331744; cv=pass; b=baRLBOHOTN6LPFYChTfL6ezSv6ScErBnMZPRibwCfq6zOGMuGVUJkt9DAqWczGDGYAEbeMVSb+b5MaaoVWn5YLQzFl6hNsWJZDZ77uANp57pA58gP5+KN3AvdqPkKvKuyUH0P+om1n0HYLoVfxAiO2p8qAoACV9hUT0DX8OinQI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773331744; c=relaxed/simple;
-	bh=/9ZhlXnE8IpHyY7rKGq8AMXoEoLmeVmAM+IAe1Oezhg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rwVM9tV12CvDAX3YFseBfOV5085cJJjZh7PkY7UydIqkCdhODDtA0Gh4guCKa4LBfl5o0NSzhzliMD4MhE9gx3+JgMHxNOR93NFc+BUfV+aAtYDb7F4HIa/WbqDmyFXpVANyF84+oskUy2qr4bD2LDp5bBV6aYcZ1Uh6nLBy9lc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitbyteword.org; spf=pass smtp.mailfrom=bitbyteword.org; dkim=pass (2048-bit key) header.d=bitbyteword.org header.i=@bitbyteword.org header.b=m1ki3q6s; arc=pass smtp.client-ip=74.125.224.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitbyteword.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bitbyteword.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EA5B377016;
+	Thu, 12 Mar 2026 16:21:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773332481; cv=none; b=MJ6CFT8zsaV+qdhPhCaZTF/lhw+OOOyMzd1G6mPx4XcDvi3dHeS+shnKwrYRyNvl58r2uq9rtFbGVzA5BT88QAg+HLWwBDdnmeuTo4rgpAO4TwGfGui45F9Jy19jIX+c/HXYBzUmfSKtPTXtgANtenTH6AQnbgZmRNC+B8jLvkU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773332481; c=relaxed/simple;
+	bh=E0tzcZpn2M5zDMTbuEGhMbwdcnWTA9+Yo32dgdGl5hE=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=oi+rPezFHiHWO6ZuN7RNiOTLJ6imAXO+EC91lUoyntaWIm1KEretNjgl88WvDDkZf3+U1GlscTb1LTyUtv/LEsv6WGvORIof83GhnOkvaYUKVfEnEkc4QuL7pdfT33FAxUT13C95U4FwzRRL8Vj3oNmC5GAexsrfKXc9VI9Nihg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dEOXKyyY; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bitbyteword.org header.i=@bitbyteword.org header.b="m1ki3q6s"
-Received: by mail-yx1-f43.google.com with SMTP id 956f58d0204a3-64ad79dfb7cso1480002d50.2
-        for <linux-i2c@vger.kernel.org>; Thu, 12 Mar 2026 09:09:02 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773331741; cv=none;
-        d=google.com; s=arc-20240605;
-        b=OAUNxD6YEKQeiczlGkBPIkAA0RUEye8vhQsIqu1mTh3xOg9lTHU6+cR8x+YSd7PlAd
-         OUMxTSe6lnkQgu5oc9YHVYDraEqCJq8NjgYidvfhwSi5ZRUf/nohKzSVqI89VOAUjZE3
-         A/SDSWrK7WY8ODveTATEoZryBCO/PVWYUIVu8wloDA47ikhFtQA5pmSo2xBVKylfpt8Y
-         yr1U4KOJbfFbfjYwDPXZ681XEYmtJyj1Dc5Tm4K4/Lvqa5l/vbkXlggqesbhqMNXaAbF
-         48xcjdsjItl7N4msEyzLMSAi1NCW4l/MH3/eUS67o9kZO5JYvuHX30ePdsKzOrA/jFBA
-         iEVg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=kI5PTFr09piXXwe+dHgxbmefu5uh1N96l8rxcGpDT20=;
-        fh=B7ulzjOkPvpdt71ae8KZnKFjvFMF4uX4Y1lotSECzeU=;
-        b=F9jWByWrI/o0Yf7u7+YEh3POzOMFGnW/I/i9F+LYCJRW1jNfKkUGev4o84qOsiVQe3
-         QjQwGQ62BI0MPlLGC3GBx598yRlU2AXPN56QXZkUmzwQMezVwIuNkhhp5evtMZTaO5a9
-         fUQIpzXQ0rUSqcCldjIQZeSbk7GCZTME4ZtzLV7S1s4zSyE4Aj03yBDJUTAf5K8YB9PL
-         TwpKsmsv723M0tgt3DRIe+rVY9x9fyQjxSGg2xcVDNOfTeYTJfeZbYh7+gPc8mUF0mVG
-         ql8eLo6+gBBh18+TRzXs0nNdU497t/jn+YHZC38d6a5BNaUJrU+mFJHUN+bw4NWAyTnd
-         cG3g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bitbyteword.org; s=google; t=1773331741; x=1773936541; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kI5PTFr09piXXwe+dHgxbmefu5uh1N96l8rxcGpDT20=;
-        b=m1ki3q6sM4E2UACesTTqdadtI+Q0abqlUwfIdHI+OjmsRX2whEFMpQZptypVWhQx7h
-         QD04yZlyfzP3xSivF9scjOrX5/FKYwiLrKA2X7JGefZSd1ksKzyMr15sFt8BUlBtCA1S
-         qJU7H/z8w1uO+F9Lf0dqC/P0kEVsXjabxHZfvBx9uTBgICn+qEBxH7rHMoE2jVFa285u
-         ZgHMmgqvOB2dgKagDrzwCVgXrpWT6UXW/+5qlE/3A3PliRynwsbURLgRm9zWpjrvx8vj
-         l50ZunSLyn6Bt2c18cyLVOhmld8Lw2f3Z/Tl83A9P3MTDzd0bDNTqIw9vU+Apak8seEn
-         KC5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20230601; t=1773331741; x=1773936541;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=kI5PTFr09piXXwe+dHgxbmefu5uh1N96l8rxcGpDT20=;
-        b=AigasB08XfZcdq9nzLwuH/6CIoSVtjBKa1f1/hxtFTr38HWnBI18IejbqLkRg4M871
-         rZlKE5pmaHLMAxY/wIYG+gv7xirg5Tp/JT+lNc5pVfRF8exbOo3TW7N843vpVXNmKEgi
-         RrIoH4DFhRxCzhDjdKnyptTyu6sjZf8JDSeWiXTT2u1KnLO+1/gwW9pclFEb/rrIw17i
-         XltBoyEigDZL6+pfIIVEi8FMKM1pjJSQQZ70jO8WyzkwLj7rWJ1GZQ2ZcHDlNOufX2GO
-         Cr/HLym5rsQXjVdF4jMq20oHhPs5pDqvmnECauVj4RnN3PUWvF7e7Sh/D6lLcwR89xjq
-         8tlQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXs39KbMjsT9O5loEo2ATeMoN/DGtJJ7KvwQRpnPLOekop2sElQ1N4nN6s3jlH2LcY12msEXWyJu3c=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwEDgxg3BqBQJ+418TaCXz9dJi1kUitpLM+HOe4Wm7e9VARo86p
-	K8Hd5Xol6uzTIzTu2cwGFHjf7vhzhLLHmmtaIU3P7iLLQEgujCs0LXqcd6isGllmK14otnnuhLf
-	C6S/USbQedAA3KQ5Boe6Sw2A4inBNfPI1eePYlkeTug==
-X-Gm-Gg: ATEYQzwWg74zMa6Cuc5+oByymFjtlMVAZs8L6F9D80+Rv2EPOL48tcTXzN7F7ghNWjM
-	ip57l0nUAW6EBNBRtyRYThVre3AKFThHW1YljsTHstgjU0/QUYqkFMaoDrWf1C8LdoMjitoPTN0
-	clbKGuqPlnCda8cYBFPhXSp+A5eEmprlje5eaJv7LHmNKlB0r9tJXPOWx5f8HQbeQGmH+2zc5mR
-	Gc2YPgU8FWJQFDDA8IyHz+FCqEZnhgnAAfWD97L7yRjIzTtOYvQ1qlYLf1l83aZaieAdXKpG5wD
-	f6ZkDBM=
-X-Received: by 2002:a05:690e:448d:b0:64a:e799:1d9c with SMTP id
- 956f58d0204a3-64e63079bb0mr62693d50.60.1773331741406; Thu, 12 Mar 2026
- 09:09:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dEOXKyyY"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B51DC4CEF7;
+	Thu, 12 Mar 2026 16:21:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773332481;
+	bh=E0tzcZpn2M5zDMTbuEGhMbwdcnWTA9+Yo32dgdGl5hE=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
+	b=dEOXKyyYqmInnVErJ/xccwlmYQjLB4P6TpcaYbZS1/+qgLk95IbuzxQbZ2muAoDCV
+	 Iv/L/JpyOHSFvq0ctI08ZfesgPDRXUx/iw1XIM6enA1H5ftT/sYaTEsBs/viIH+YOG
+	 8PWvOue01HC8vFL1Y5JWtX+76qCTVSj75IwkZHFLunsGuJwNa7SCC2SdNVJ8ImTi15
+	 hxLNWaNn2nNfnh5HF63s5Pxmvcf9JJDeXi1qZw3X6d3KiaA9Se00Ow5iQC1q6xp+iq
+	 07ev+o7HGmCcFmU4CcT2U4j1uP38ETAuLvwAYmJHc2yhPDYLuL0uGa2C1SfpUtWRkh
+	 /kFvXOXjEZjcA==
+From: Mattijs Korpershoek <mkorpershoek@kernel.org>
+To: Praveen Talari <praveen.talari@oss.qualcomm.com>, Andi Shyti
+ <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof
+ Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Mukesh
+ Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, Viken Dadhaniya
+ <viken.dadhaniya@oss.qualcomm.com>, Bjorn Andersson
+ <andersson@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, Praveen
+ Talari <praveen.talari@oss.qualcomm.com>, linux-arm-msm@vger.kernel.org,
+ linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, bjorn.andersson@oss.qualcomm.com,
+ dmitry.baryshkov@oss.qualcomm.com, konrad.dybcio@oss.qualcomm.com
+Cc: prasad.sodagudi@oss.qualcomm.com, aniket.randive@oss.qualcomm.com,
+ chandana.chiluveru@oss.qualcomm.com, jyothi.seerapu@oss.qualcomm.com,
+ chiluka.harish@oss.qualcomm.com
+Subject: Re: [PATCH v6 00/13] Enable I2C on SA8255p Qualcomm platforms
+In-Reply-To: <20260227061544.1785978-1-praveen.talari@oss.qualcomm.com>
+References: <20260227061544.1785978-1-praveen.talari@oss.qualcomm.com>
+Date: Thu, 12 Mar 2026 17:21:18 +0100
+Message-ID: <873425m329.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260312150523.2054552-1-vineeth@bitbyteword.org>
- <1e3c2830-765e-4271-89f7-0b6784b37597@efficios.com> <20260312112354.3dd99e36@gandalf.local.home>
- <219d015d-076b-4c80-8f63-88569115fdad@efficios.com> <20260312114041.5193c729@gandalf.local.home>
- <1becdbce-2c01-468a-bbab-42b5dea9fdf8@efficios.com>
-In-Reply-To: <1becdbce-2c01-468a-bbab-42b5dea9fdf8@efficios.com>
-From: Vineeth Remanan Pillai <vineeth@bitbyteword.org>
-Date: Thu, 12 Mar 2026 12:08:49 -0400
-X-Gm-Features: AaiRm50l09G2avZYKQas6kLTqrDst8ZjnHTnngudy3h6MyVa79lzABXaRh3Trz0
-Message-ID: <CAO7JXPjnnruhM5oC6xMgnYaQ9efzYFqMCFiJLNM3HCQ+ZeCiJw@mail.gmail.com>
-Subject: Re: [PATCH 00/15] tracepoint: Avoid double static_branch evaluation
- at guarded call sites
-To: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Peter Zijlstra <peterz@infradead.org>, 
-	Dmitry Ilvokhin <d@ilvokhin.com>, Masami Hiramatsu <mhiramat@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
-	Jens Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>, 
-	Daniel Borkmann <daniel@iogearbox.net>, Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, 
-	Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>, 
-	Aaron Conole <aconole@redhat.com>, Eelco Chaudron <echaudro@redhat.com>, 
-	Ilya Maximets <i.maximets@ovn.org>, netdev@vger.kernel.org, bpf@vger.kernel.org, 
-	linux-sctp@vger.kernel.org, tipc-discussion@lists.sourceforge.net, 
-	dev@openvswitch.org, Oded Gabbay <ogabbay@kernel.org>, Koby Elbaz <koby.elbaz@intel.com>, 
-	dri-devel@lists.freedesktop.org, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Viresh Kumar <viresh.kumar@linaro.org>, "Gautham R. Shenoy" <gautham.shenoy@amd.com>, 
-	Huang Rui <ray.huang@amd.com>, Mario Limonciello <mario.limonciello@amd.com>, 
-	Len Brown <lenb@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
-	linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>, 
-	Kyungmin Park <kyungmin.park@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, 
-	=?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	Sumit Semwal <sumit.semwal@linaro.org>, linaro-mm-sig@lists.linaro.org, 
-	Eddie James <eajames@linux.ibm.com>, Andrew Jeffery <andrew@codeconstruct.com.au>, 
-	Joel Stanley <joel@jms.id.au>, linux-fsi@lists.ozlabs.org, 
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
-	Alex Deucher <alexander.deucher@amd.com>, Danilo Krummrich <dakr@kernel.org>, 
-	Matthew Brost <matthew.brost@intel.com>, Philipp Stanner <phasta@kernel.org>, 
-	Harry Wentland <harry.wentland@amd.com>, Leo Li <sunpeng.li@amd.com>, 
-	amd-gfx@lists.freedesktop.org, Jiri Kosina <jikos@kernel.org>, 
-	Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, 
-	Mark Brown <broonie@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>, 
-	=?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, linux-spi@vger.kernel.org, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, linux-scsi@vger.kernel.org, 
-	Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
 
-On Thu, Mar 12, 2026 at 11:49=E2=80=AFAM Mathieu Desnoyers
-<mathieu.desnoyers@efficios.com> wrote:
->
-> On 2026-03-12 11:40, Steven Rostedt wrote:
-> > On Thu, 12 Mar 2026 11:28:07 -0400
-> > Mathieu Desnoyers <mathieu.desnoyers@efficios.com> wrote:
-> >
-> >>> Note, Vineeth came up with the naming. I would have done "do" but whe=
-n I
-> >>> saw "invoke" I thought it sounded better.
-> >>
-> >> It works as long as you don't have a tracing subsystem called
-> >> "invoke", then you get into identifier clash territory.
-> >
-> > True. Perhaps we should do the double underscore trick.
-> >
-> > Instead of:  trace_invoke_foo()
-> >
-> > use:  trace_invoke__foo()
-> >
-> >
-> > Which will make it more visible to what the trace event is.
-> >
-> > Hmm, we probably should have used: trace__foo() for all tracepoints, as
-> > there's still functions that are called trace_foo() that are not
-> > tracepoints :-p
->
-> One certain way to eliminate identifier clash would be to go for a
-> prefix to "trace_", e.g.
->
-> do_trace_foo()
-> call_trace_foo()
+Hi Praveen,
 
-This was the initial idea, but it had conflict in the existing source:
-call_trace_sched_update_nr_running. do_trace_##name also had
-collisions when I checked. So, went with trace_invoke_##name. Did not
-check rest of the suggestions here though.
+Thank you for the series.
 
-Thanks,
-Vineeth
+On Fri, Feb 27, 2026 at 11:45, Praveen Talari <praveen.talari@oss.qualcomm.com> wrote:
 
-> emit_trace_foo()
-> __trace_foo()
-> invoke_trace_foo()
-> dispatch_trace_foo()
+> The Qualcomm automotive SA8255p SoC relies on firmware to configure
+> platform resources, including clocks, interconnects and TLMM.
+> The driver requests resources operations over SCMI using power
+> and performance protocols.
 >
-> Thanks,
+> The SCMI power protocol enables or disables resources like clocks,
+> interconnect paths, and TLMM (GPIOs) using runtime PM framework APIs,
+> such as resume/suspend, to control power states(on/off).
 >
-> Mathieu
+> The SCMI performance protocol manages I2C frequency, with each
+> frequency rate represented by a performance level. The driver uses
+> geni_se_set_perf_opp() API to request the desired frequency rate..
+>
+> As part of geni_se_set_perf_opp(), the OPP for the requested frequency
+> is obtained using dev_pm_opp_find_freq_floor() and the performance
+> level is set using dev_pm_opp_set_opp().
+>
+> Praveen Talari (13):
+>   soc: qcom: geni-se: Refactor geni_icc_get() and make qup-memory ICC
+>     path optional
+>   soc: qcom: geni-se: Add geni_icc_set_bw_ab() function
+>   soc: qcom: geni-se: Introduce helper API for resource initialization
+>   soc: qcom: geni-se: Handle core clk in geni_se_clks_off() and
+>     geni_se_clks_on()
+>   soc: qcom: geni-se: Add resources activation/deactivation helpers
+>   soc: qcom: geni-se: Introduce helper API for attaching power domains
+>   soc: qcom: geni-se: Introduce helper APIs for performance control
+>   dt-bindings: i2c: Describe SA8255p
+>   i2c: qcom-geni: Isolate serial engine setup
+>   i2c: qcom-geni: Move resource initialization to separate function
+>   i2c: qcom-geni: Use resources helper APIs in runtime PM functions
+>   i2c: qcom-geni: Store of_device_id data in driver private struct
+>   i2c: qcom-geni: Enable I2C on SA8255p Qualcomm platforms
+
+I did some basic testing on the Ride SX (SA8775P) board with this
+series using base:
+commit 80234b5ab240 ("Merge tag 'rproc-v7.0-fixes' of git://git.kernel.org/pub/scm/linux/kernel/git/remoteproc/linux")
+
+/ # i2cdetect -l
+i2c-11  i2c             Geni-I2C                                I2C adapter
+i2c-18  i2c             Geni-I2C                                I2C adapter
+/ # i2cdetect -F 11
+Functionalities implemented by bus #11
+I2C                              yes
+SMBus quick command              no
+SMBus send byte                  yes
+SMBus receive byte               yes
+SMBus write byte                 yes
+SMBus read byte                  yes
+SMBus write word                 yes
+SMBus read word                  yes
+SMBus process call               yes
+SMBus block write                yes
+SMBus block read                 no
+SMBus block process call         no
+SMBus PEC                        yes
+I2C block write                  yes
+I2C block read                   yes
+/ # i2cdetect -F 18
+Functionalities implemented by bus #18
+I2C                              yes
+SMBus quick command              no
+SMBus send byte                  yes
+SMBus receive byte               yes
+SMBus write byte                 yes
+SMBus read byte                  yes
+SMBus write word                 yes
+SMBus read word                  yes
+SMBus process call               yes
+SMBus block write                yes
+SMBus block read                 no
+SMBus block process call         no
+SMBus PEC                        yes
+I2C block write                  yes
+I2C block read                   yes
+
+Note that I used a downstream device tree which has both
+i2c11 (i2c@a90000) and i2c18(i2c@890000) enabled.
+
+The sources for that dts can be found here:
+https://gitlab.com/mkorpershoek-rh/downstream-dtbs/-/tree/8775-upstream-i2c/qcom?ref_type=heads
+
+If this is considered useful testing, feel free to add:
+
+Tested-by: Mattijs Korpershoek <mkorpershoek@kernel.org>
+
+> ---
+> v3->v4
+> - Added a new patch(4/13) to handle core clk as part of
+>   geni_se_clks_off/on().
+>
+>  .../bindings/i2c/qcom,sa8255p-geni-i2c.yaml   |  64 ++++
+>  drivers/i2c/busses/i2c-qcom-geni.c            | 324 +++++++++---------
+>  drivers/soc/qcom/qcom-geni-se.c               | 270 ++++++++++++++-
+>  include/linux/soc/qcom/geni-se.h              |  19 +
+>  4 files changed, 491 insertions(+), 186 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml
 >
 >
->
-> --
-> Mathieu Desnoyers
-> EfficiOS Inc.
-> https://www.efficios.com
+> base-commit: 7d6661873f6b54c75195780a40d66bad3d482d8f
+> -- 
+> 2.34.1
