@@ -1,163 +1,69 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EA5B377016;
-	Thu, 12 Mar 2026 16:21:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C38613EB800
+	for <linux-i2c@vger.kernel.org>; Thu, 12 Mar 2026 16:50:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773332481; cv=none; b=MJ6CFT8zsaV+qdhPhCaZTF/lhw+OOOyMzd1G6mPx4XcDvi3dHeS+shnKwrYRyNvl58r2uq9rtFbGVzA5BT88QAg+HLWwBDdnmeuTo4rgpAO4TwGfGui45F9Jy19jIX+c/HXYBzUmfSKtPTXtgANtenTH6AQnbgZmRNC+B8jLvkU=
+	t=1773334225; cv=none; b=igbuvl0XR+1AuCX4JmGWE+wnV96LsKi8mrdBAPrh94KxULzM4qTjadci33nH6tY/dz/3SHmaD2BpngVfW6kNvNGDHM4GGdXhTJsluryaooluxVIrtAtljUah+7fw/0FDPkasvX+p6QEXkTVwyErNCKrvpgBiIgfIIihk35mOR7I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773332481; c=relaxed/simple;
-	bh=E0tzcZpn2M5zDMTbuEGhMbwdcnWTA9+Yo32dgdGl5hE=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=oi+rPezFHiHWO6ZuN7RNiOTLJ6imAXO+EC91lUoyntaWIm1KEretNjgl88WvDDkZf3+U1GlscTb1LTyUtv/LEsv6WGvORIof83GhnOkvaYUKVfEnEkc4QuL7pdfT33FAxUT13C95U4FwzRRL8Vj3oNmC5GAexsrfKXc9VI9Nihg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dEOXKyyY; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773334225; c=relaxed/simple;
+	bh=Vu/AtXeAuApZgvU55tsnXQV9qTS+ilZ6eVLKJtSSib8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EGaFZuLiW5cF3PaQefU4ChRUq20kJ2+EgrmjL+x3cG9+ngeMuJ9Gwr/ALogfmLp6rQQUpiVMCrWY3TQYsfstgzjI1e0MnTE3v7px5KDKvwdeCY/QQxel2L6iHofaQYQ/Oln/CGn12U76ATcCXleRDZcbFArjV7aWVIeeXeGcYgI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=DIajkH8a; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dEOXKyyY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B51DC4CEF7;
-	Thu, 12 Mar 2026 16:21:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773332481;
-	bh=E0tzcZpn2M5zDMTbuEGhMbwdcnWTA9+Yo32dgdGl5hE=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=dEOXKyyYqmInnVErJ/xccwlmYQjLB4P6TpcaYbZS1/+qgLk95IbuzxQbZ2muAoDCV
-	 Iv/L/JpyOHSFvq0ctI08ZfesgPDRXUx/iw1XIM6enA1H5ftT/sYaTEsBs/viIH+YOG
-	 8PWvOue01HC8vFL1Y5JWtX+76qCTVSj75IwkZHFLunsGuJwNa7SCC2SdNVJ8ImTi15
-	 hxLNWaNn2nNfnh5HF63s5Pxmvcf9JJDeXi1qZw3X6d3KiaA9Se00Ow5iQC1q6xp+iq
-	 07ev+o7HGmCcFmU4CcT2U4j1uP38ETAuLvwAYmJHc2yhPDYLuL0uGa2C1SfpUtWRkh
-	 /kFvXOXjEZjcA==
-From: Mattijs Korpershoek <mkorpershoek@kernel.org>
-To: Praveen Talari <praveen.talari@oss.qualcomm.com>, Andi Shyti
- <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof
- Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Mukesh
- Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, Viken Dadhaniya
- <viken.dadhaniya@oss.qualcomm.com>, Bjorn Andersson
- <andersson@kernel.org>, Konrad Dybcio <konradybcio@kernel.org>, Praveen
- Talari <praveen.talari@oss.qualcomm.com>, linux-arm-msm@vger.kernel.org,
- linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, bjorn.andersson@oss.qualcomm.com,
- dmitry.baryshkov@oss.qualcomm.com, konrad.dybcio@oss.qualcomm.com
-Cc: prasad.sodagudi@oss.qualcomm.com, aniket.randive@oss.qualcomm.com,
- chandana.chiluveru@oss.qualcomm.com, jyothi.seerapu@oss.qualcomm.com,
- chiluka.harish@oss.qualcomm.com
-Subject: Re: [PATCH v6 00/13] Enable I2C on SA8255p Qualcomm platforms
-In-Reply-To: <20260227061544.1785978-1-praveen.talari@oss.qualcomm.com>
-References: <20260227061544.1785978-1-praveen.talari@oss.qualcomm.com>
-Date: Thu, 12 Mar 2026 17:21:18 +0100
-Message-ID: <873425m329.fsf@kernel.org>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="DIajkH8a"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=jgDs
+	ke1It431HYOLY25QmR9+rotAbe+iAMW/3tgAjDw=; b=DIajkH8asd8LF+/wo1Oi
+	ZBm/9XdJmdslwQXizqy4Kxixgt7wVsvj4b8209fi2901aPVG0iQXAlahBkUah88g
+	asLaL4nMnJXkCrqD3FniI/Ob1Q0BkdYBIFLNsxwk+HKDonnjAOpOeGRoKtOW+pVv
+	n6Tc9cOQmnMxoauR9xdZStBk0tDN59xiezfTDtXMBuTcX3gSJeQEsNH8XpXVr8+c
+	GLTAaG6QF57KWZUr632gbelox3AjaJXxjZQ6uYF13ZO//FMitnTZ6bIeYUtr3ut8
+	4L16VBpw5KZIMgytzbBcoxV0reOqyffUJnov5Pva+tyaSAgK7CjtXyPfCgRHVa1R
+	6A==
+Received: (qmail 4160860 invoked from network); 12 Mar 2026 17:50:08 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 12 Mar 2026 17:50:08 +0100
+X-UD-Smtp-Session: l3s3148p1@9u2Ki9ZM6KoujnvS
+Date: Thu, 12 Mar 2026 17:50:07 +0100
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: "Vineeth Pillai (Google)" <vineeth@bitbyteword.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+	Peter Zijlstra <peterz@infradead.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org
+Subject: Re: [PATCH 12/15] i2c: Use trace_invoke_##name() at guarded
+ tracepoint call sites
+Message-ID: <abLuv627ILX5E7Jy@shikoro>
+References: <20260312150523.2054552-1-vineeth@bitbyteword.org>
+ <20260312150523.2054552-13-vineeth@bitbyteword.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260312150523.2054552-13-vineeth@bitbyteword.org>
 
-Hi Praveen,
+On Thu, Mar 12, 2026 at 11:05:07AM -0400, Vineeth Pillai (Google) wrote:
+> Replace trace_foo() with the new trace_invoke_foo() at sites already
+> guarded by trace_foo_enabled(), avoiding a redundant
+> static_branch_unlikely() re-evaluation inside the tracepoint.
+> trace_invoke_foo() calls the tracepoint callbacks directly without
+> utilizing the static branch again.
+> 
+> Suggested-by: Steven Rostedt <rostedt@goodmis.org>
+> Suggested-by: Peter Zijlstra <peterz@infradead.org>
+> Signed-off-by: Vineeth Pillai (Google) <vineeth@bitbyteword.org>
+> Assisted-by: Claude:claude-sonnet-4-6
 
-Thank you for the series.
+From my side, this can go upstream with the rest of this series (when it
+is ready). So:
 
-On Fri, Feb 27, 2026 at 11:45, Praveen Talari <praveen.talari@oss.qualcomm.com> wrote:
+Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-> The Qualcomm automotive SA8255p SoC relies on firmware to configure
-> platform resources, including clocks, interconnects and TLMM.
-> The driver requests resources operations over SCMI using power
-> and performance protocols.
->
-> The SCMI power protocol enables or disables resources like clocks,
-> interconnect paths, and TLMM (GPIOs) using runtime PM framework APIs,
-> such as resume/suspend, to control power states(on/off).
->
-> The SCMI performance protocol manages I2C frequency, with each
-> frequency rate represented by a performance level. The driver uses
-> geni_se_set_perf_opp() API to request the desired frequency rate..
->
-> As part of geni_se_set_perf_opp(), the OPP for the requested frequency
-> is obtained using dev_pm_opp_find_freq_floor() and the performance
-> level is set using dev_pm_opp_set_opp().
->
-> Praveen Talari (13):
->   soc: qcom: geni-se: Refactor geni_icc_get() and make qup-memory ICC
->     path optional
->   soc: qcom: geni-se: Add geni_icc_set_bw_ab() function
->   soc: qcom: geni-se: Introduce helper API for resource initialization
->   soc: qcom: geni-se: Handle core clk in geni_se_clks_off() and
->     geni_se_clks_on()
->   soc: qcom: geni-se: Add resources activation/deactivation helpers
->   soc: qcom: geni-se: Introduce helper API for attaching power domains
->   soc: qcom: geni-se: Introduce helper APIs for performance control
->   dt-bindings: i2c: Describe SA8255p
->   i2c: qcom-geni: Isolate serial engine setup
->   i2c: qcom-geni: Move resource initialization to separate function
->   i2c: qcom-geni: Use resources helper APIs in runtime PM functions
->   i2c: qcom-geni: Store of_device_id data in driver private struct
->   i2c: qcom-geni: Enable I2C on SA8255p Qualcomm platforms
-
-I did some basic testing on the Ride SX (SA8775P) board with this
-series using base:
-commit 80234b5ab240 ("Merge tag 'rproc-v7.0-fixes' of git://git.kernel.org/pub/scm/linux/kernel/git/remoteproc/linux")
-
-/ # i2cdetect -l
-i2c-11  i2c             Geni-I2C                                I2C adapter
-i2c-18  i2c             Geni-I2C                                I2C adapter
-/ # i2cdetect -F 11
-Functionalities implemented by bus #11
-I2C                              yes
-SMBus quick command              no
-SMBus send byte                  yes
-SMBus receive byte               yes
-SMBus write byte                 yes
-SMBus read byte                  yes
-SMBus write word                 yes
-SMBus read word                  yes
-SMBus process call               yes
-SMBus block write                yes
-SMBus block read                 no
-SMBus block process call         no
-SMBus PEC                        yes
-I2C block write                  yes
-I2C block read                   yes
-/ # i2cdetect -F 18
-Functionalities implemented by bus #18
-I2C                              yes
-SMBus quick command              no
-SMBus send byte                  yes
-SMBus receive byte               yes
-SMBus write byte                 yes
-SMBus read byte                  yes
-SMBus write word                 yes
-SMBus read word                  yes
-SMBus process call               yes
-SMBus block write                yes
-SMBus block read                 no
-SMBus block process call         no
-SMBus PEC                        yes
-I2C block write                  yes
-I2C block read                   yes
-
-Note that I used a downstream device tree which has both
-i2c11 (i2c@a90000) and i2c18(i2c@890000) enabled.
-
-The sources for that dts can be found here:
-https://gitlab.com/mkorpershoek-rh/downstream-dtbs/-/tree/8775-upstream-i2c/qcom?ref_type=heads
-
-If this is considered useful testing, feel free to add:
-
-Tested-by: Mattijs Korpershoek <mkorpershoek@kernel.org>
-
-> ---
-> v3->v4
-> - Added a new patch(4/13) to handle core clk as part of
->   geni_se_clks_off/on().
->
->  .../bindings/i2c/qcom,sa8255p-geni-i2c.yaml   |  64 ++++
->  drivers/i2c/busses/i2c-qcom-geni.c            | 324 +++++++++---------
->  drivers/soc/qcom/qcom-geni-se.c               | 270 ++++++++++++++-
->  include/linux/soc/qcom/geni-se.h              |  19 +
->  4 files changed, 491 insertions(+), 186 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml
->
->
-> base-commit: 7d6661873f6b54c75195780a40d66bad3d482d8f
-> -- 
-> 2.34.1
