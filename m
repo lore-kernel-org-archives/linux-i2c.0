@@ -1,80 +1,236 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ot1-f47.google.com (mail-ot1-f47.google.com [209.85.210.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC6EB355F5B;
-	Thu, 12 Mar 2026 10:35:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AC653BE65C
+	for <linux-i2c@vger.kernel.org>; Thu, 12 Mar 2026 15:05:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773311751; cv=none; b=UpIUaPA9noPzJp/r+qIeInsRZP6AWA0gZzGzFZnqxlD91QBHnOWX8WFgbCbBAn3JsvCCVJ8suQ4Mi/UpoOmsckpi05dMl7WmKklnupgCyJp82ZeadirN3R/9BSMOw4kxnX2C0gSBPDLzIkXDlhFPxhQfOXM/6K9gV5NIQs9wY0A=
+	t=1773327933; cv=none; b=ipjzy4L3PxrWThP99pmn3crjph+o0qYWBgWImLhFO/b75+EoRE14ojtD9hjREFWziO4Etn8dqappHZFO2/AjtiHYpKF0IzrQVD5tstNaXBL/JY7gRTP7nHd1vwx/JWn2sCY4om6DmYsPIPdCEwUTRkj+Zu3uHZZrL6gHgbJmXiw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773311751; c=relaxed/simple;
-	bh=GTwHdgF7vBAV/IsVwtapwEsSAu9UF5nUCSNkVMRw+fw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=U73ZYA1ybNCfgXxP1a081qUahr3oMbTG6EcxtsvOmJOIXXywSBwCC96KaTMrwC43dSdaRjcSO3wyxyyRxLiRRwVPER21vGNgQ1e34Zr27An7EGUJiGvH/qqnBY/8eHjHxtSBKWKqccqP/RGnfLXYhh/WQmogykm/Z0zhaI5VP2E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OOaGn4lM; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773327933; c=relaxed/simple;
+	bh=wFrH16wRP/ZRrLPrdvN9J5kV/62KiVf8oPQZXnkjAN4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=EXH5jeanR3yYuLA7SMErlVFGVagzy9ystU+N62GEHlBOt3mQVwYuWDZWCoSO21NSwegmaRrhGlDjTszRrWIh22c+2iMUr8UeLZOAaqu/BJzS0Bn24mQsMABCxHEZDfw7CbjOLKt0x+OGMjOKZmsxihDXIsk/fOusMkphRa/zn90=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitbyteword.org; spf=pass smtp.mailfrom=bitbyteword.org; dkim=pass (2048-bit key) header.d=bitbyteword.org header.i=@bitbyteword.org header.b=OW/DV1AC; arc=none smtp.client-ip=209.85.210.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitbyteword.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bitbyteword.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OOaGn4lM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65117C4CEF7;
-	Thu, 12 Mar 2026 10:35:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773311751;
-	bh=GTwHdgF7vBAV/IsVwtapwEsSAu9UF5nUCSNkVMRw+fw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=OOaGn4lMFtpFhff53VnZ9raxbzyqqWyYnNqZnriFYucAH87SIXx7Lyut4Visrcr9+
-	 WWkL6K2fVwQqFzYZmW0ax89ssBBO7G6CMD/05wi1/RAthptHXRXtsTMiqIzugVKDR+
-	 mVrmqs4Ot7pdvnPT0inLKtbOYP7uE0i7St7HdfaN+gJduL898MJDt0IO2sxiRoyw1b
-	 a7Q0H6PmNP0gTZrwwncNFq3ra54/CUTYsbKucQx6IQ1VDMQ1ZShT3YR5uO2cmmc4rF
-	 QbDiHsBNdy67SRjfY72T7o5Sb9DLGdejXa3TlEHjp8TbHDQrU629mi7d77X8R0c/Yb
-	 LNOZI4ansjbAw==
-Received: from johan by xi.lan with local (Exim 4.98.2)
-	(envelope-from <johan@kernel.org>)
-	id 1w0dOP-000000007mh-01Bz;
-	Thu, 12 Mar 2026 11:35:49 +0100
-Date: Thu, 12 Mar 2026 11:35:49 +0100
-From: Johan Hovold <johan@kernel.org>
-To: Bence =?utf-8?B?Q3PDs2vDoXM=?= <bence98@sch.bme.hu>
-Cc: linux-i2c@vger.kernel.org, Andi Shyti <andi.shyti@kernel.org>,
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] i2c: cp2615: fix serial string NULL-deref at probe
-Message-ID: <abKXBepGY2ha3DHc@hovoldconsulting.com>
-References: <20260309075016.25612-1-johan@kernel.org>
- <32f6793c-d728-451d-9e32-35d864fe0035@sch.bme.hu>
+	dkim=pass (2048-bit key) header.d=bitbyteword.org header.i=@bitbyteword.org header.b="OW/DV1AC"
+Received: by mail-ot1-f47.google.com with SMTP id 46e09a7af769-7d7412cfb9eso1076944a34.1
+        for <linux-i2c@vger.kernel.org>; Thu, 12 Mar 2026 08:05:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=bitbyteword.org; s=google; t=1773327931; x=1773932731; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=p/UukkhQcW1lhFqWI/Fw5V3bxdryulukbz8WWfM9zNY=;
+        b=OW/DV1ACXgC1meD5kqUaAm+FZL1lWnMvkS4yVJbykbP7K5vclRgwIJ0xyKjX7imhp/
+         JxxjkcYDPIFgCcRsHpsq5835/4tOiZXx4U2LrD/Jieum8wVn2Z6Z5nqk/9SiB45nd/qy
+         /BuK9l4E6H6ktN13lZ0Hr7tfv7gU2Q/gQrPyh80u+hQmfQJHWoBipgWsTEkUGem3Rz81
+         JNQzSDmb8/zc02tAEL+0aWPXdIdNl9rSHS9aSNKbrZ7DJXEXNUQ5AdKmtdWCkC9j1FJ2
+         ratzAuFfZH/Mj07Ii9/24wDft/5/id9dHt4PadP+Rpp8ksPWtVWSLG+Lvf0x5+CB9K5Z
+         62Vw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20230601; t=1773327931; x=1773932731;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=p/UukkhQcW1lhFqWI/Fw5V3bxdryulukbz8WWfM9zNY=;
+        b=B8BWJ2FiEdZDRFHqtptVNsWxim/HbpEy8krd2G7jbxTVQ7xVasmbVltu4Mjz4lRoe6
+         kF0sT3HKeXv36+5pVK5ereS4osHy36NcblzKvDqIm4Hy8zurYQBlmVAmwSv9xqqX4tKn
+         V1M13PUzM8kGGWGtvEtprAR0XbWlCrDjEUojJZwt7gE3o1aJJ/oin00nslEu8yRay0Ck
+         kwxfEn3aZ1on7jsx839PwKx21JwVS+cWWRlApV/hd147NLOslfgIGIV0lfLyE4A4/tvn
+         J33zO2oDjJiuJCgOisZ9eru0VDvGKS91S1yPwsVa78yxVlX9iYeH7Iesd+/qkG6lW1Y4
+         HEuw==
+X-Forwarded-Encrypted: i=1; AJvYcCWJtNLbjM7AJcyV9r8UonpDcuFPGa8ECDKrJSkrVeiITGD62ZtFq9usyU1844xuBr+ELQ7zB5brzFA=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yydk2e066b2r1LQ5DbDOacOqsRqL57Oy6x/TqTTrXz2aGOKs6Xe
+	PGLUqHm7OfYb7MzFjl7+CSmFqWvs/n9tyTw02ZVlSVyjihdmMqPOD2LMP+XMn/IjuNo=
+X-Gm-Gg: ATEYQzwwuSjE5S32S9AYhIzQh++4H4Nh5sEi0KvbenSjT0LTxTIye6bS2ntU7QblHYY
+	/iD3Hlp9gzy1/Oj1tcp+0pJQ8JC6K2VhpXD9xa16EbEi65iAS++0UBjHarzQtERpNY7ySe1a8En
+	kswX1Zyk4lpux+hZ89u32ywLFU3hxutM+p6EAvcjvKeTIV0Msm4oEuWN06GCSlg73AMCHmr8t3Q
+	Ke2ww3+M1uc7VAcMGF4FT8esKvRzOHlyklWQpVnPDJyX+jlWJAg1gNJwNoNiU/7rQyaP2abYoFK
+	kAuFxVaXsOLfknNbbHsOu9j7KN88UEQE1s+9oUMfYdz7mcZtPu9+DEE34SbWTQmhQbfLFJSB73B
+	XudVlwULHoZ3upsO5jum4iZijM3J+sEJs3HnpJF0OX8E1tgOdz/JJOt+lnKZ4GEZfzOgeG/XM6W
+	ivEhQsmBn6cIQHwQoRvg4fVZkZObPYxt3+hxVcQHwwZscD7tZFrufsNfk/mKcJf9sIDQ==
+X-Received: by 2002:a05:6830:488d:b0:7d5:1101:9196 with SMTP id 46e09a7af769-7d76a6bdefamr3754389a34.6.1773327930614;
+        Thu, 12 Mar 2026 08:05:30 -0700 (PDT)
+Received: from vinmini.lan (c-73-143-21-186.hsd1.vt.comcast.net. [73.143.21.186])
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7d76aedae57sm4321776a34.28.2026.03.12.08.05.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Mar 2026 08:05:29 -0700 (PDT)
+From: "Vineeth Pillai (Google)" <vineeth@bitbyteword.org>
+To: Steven Rostedt <rostedt@goodmis.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Dmitry Ilvokhin <d@ilvokhin.com>
+Cc: "Vineeth Pillai (Google)" <vineeth@bitbyteword.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Ingo Molnar <mingo@redhat.com>,
+	Jens Axboe <axboe@kernel.dk>,
+	io-uring@vger.kernel.org,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+	Xin Long <lucien.xin@gmail.com>,
+	Jon Maloy <jmaloy@redhat.com>,
+	Aaron Conole <aconole@redhat.com>,
+	Eelco Chaudron <echaudro@redhat.com>,
+	Ilya Maximets <i.maximets@ovn.org>,
+	netdev@vger.kernel.org,
+	bpf@vger.kernel.org,
+	linux-sctp@vger.kernel.org,
+	tipc-discussion@lists.sourceforge.net,
+	dev@openvswitch.org,
+	Oded Gabbay <ogabbay@kernel.org>,
+	Koby Elbaz <koby.elbaz@intel.com>,
+	dri-devel@lists.freedesktop.org,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Viresh Kumar <viresh.kumar@linaro.org>,
+	"Gautham R. Shenoy" <gautham.shenoy@amd.com>,
+	Huang Rui <ray.huang@amd.com>,
+	Mario Limonciello <mario.limonciello@amd.com>,
+	Len Brown <lenb@kernel.org>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	linux-pm@vger.kernel.org,
+	MyungJoo Ham <myungjoo.ham@samsung.com>,
+	Kyungmin Park <kyungmin.park@samsung.com>,
+	Chanwoo Choi <cw00.choi@samsung.com>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+	Sumit Semwal <sumit.semwal@linaro.org>,
+	linaro-mm-sig@lists.linaro.org,
+	Eddie James <eajames@linux.ibm.com>,
+	Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Joel Stanley <joel@jms.id.au>,
+	linux-fsi@lists.ozlabs.org,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Alex Deucher <alexander.deucher@amd.com>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Philipp Stanner <phasta@kernel.org>,
+	Harry Wentland <harry.wentland@amd.com>,
+	Leo Li <sunpeng.li@amd.com>,
+	amd-gfx@lists.freedesktop.org,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>,
+	linux-input@vger.kernel.org,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	linux-i2c@vger.kernel.org,
+	Mark Brown <broonie@kernel.org>,
+	Michael Hennerich <michael.hennerich@analog.com>,
+	=?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+	linux-spi@vger.kernel.org,
+	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	linux-scsi@vger.kernel.org,
+	Chris Mason <clm@fb.com>,
+	David Sterba <dsterba@suse.com>,
+	linux-btrfs@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH 00/15] tracepoint: Avoid double static_branch evaluation at guarded call sites
+Date: Thu, 12 Mar 2026 11:04:55 -0400
+Message-ID: <20260312150523.2054552-1-vineeth@bitbyteword.org>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <32f6793c-d728-451d-9e32-35d864fe0035@sch.bme.hu>
 
-On Wed, Mar 11, 2026 at 10:40:19PM +0100, Bence Csókás wrote:
-> Reviewed-by: Bence Csókás <bence98@sch.bme.hu>
-> 
-> On 3/9/26 08:50, Johan Hovold wrote:
-> > The cp2615 driver uses the USB device serial string as the i2c adapter
-> > name but does not make sure that the string exists.
-> > 
-> > Verify that the device has a serial number before accessing it to avoid
-> > triggering a NULL-pointer dereference (e.g. with malicious devices).
+When a caller already guards a tracepoint with an explicit enabled check:
 
-> > @@ -297,6 +297,9 @@ cp2615_i2c_probe(struct usb_interface *usbif, const struct usb_device_id *id)
-> >   	if (!adap)
-> >   		return -ENOMEM;
-> >   
-> > +	if (!usbdev->serial)
-> > +		return -EINVAL;
-> > +
-> >   	strscpy(adap->name, usbdev->serial, sizeof(adap->name));
-> >   	adap->owner = THIS_MODULE;
-> >   	adap->dev.parent = &usbif->dev;
+  if (trace_foo_enabled() && cond)
+      trace_foo(args);
 
-> AFAIK real CP2615s will always have a serial, so returning error should 
-> not be a major problem.
+trace_foo() internally re-evaluates the static_branch_unlikely() key.
+Since static branches are patched binary instructions the compiler cannot
+fold the two evaluations, so every such site pays the cost twice.
 
-That's my reasoning as well. In the unlikely event that there'll ever be
-valid firmware without a serial string we can amend the driver.
+This series introduces trace_invoke_##name() as a companion to
+trace_##name().  It calls __do_trace_##name() directly, bypassing the
+redundant static-branch re-check, while preserving all other correctness
+properties of the normal path (RCU-watching assertion, might_fault() for
+syscall tracepoints).  The internal __do_trace_##name() symbol is not
+leaked to call sites; trace_invoke_##name() is the only new public API.
 
-Johan
+  if (trace_foo_enabled() && cond)
+      trace_invoke_foo(args);   /* calls __do_trace_foo() directly */
+
+The first patch adds the three-location change to
+include/linux/tracepoint.h (__DECLARE_TRACE, __DECLARE_TRACE_SYSCALL,
+and the !TRACEPOINTS_ENABLED stub).  The remaining 14 patches
+mechanically convert all guarded call sites found in the tree:
+kernel/, io_uring/, net/, accel/habanalabs, cpufreq/, devfreq/,
+dma-buf/, fsi/, drm/, HID, i2c/, spi/, scsi/ufs/, and btrfs/.
+
+This series is motivated by Peter Zijlstra's observation in the discussion
+around Dmitry Ilvokhin's locking tracepoint instrumentation series, where
+he noted that compilers cannot optimize static branches and that guarded
+call sites end up evaluating the static branch twice for no reason, and
+by Steven Rostedt's suggestion to add a proper API instead of exposing
+internal implementation details like __do_trace_##name() directly to
+call sites:
+
+  https://lore.kernel.org/linux-trace-kernel/8298e098d3418cb446ef396f119edac58a3414e9.1772642407.git.d@ilvokhin.com
+
+Suggested-by: Steven Rostedt <rostedt@goodmis.org>
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+
+Vineeth Pillai (Google) (15):
+  tracepoint: Add trace_invoke_##name() API
+  kernel: Use trace_invoke_##name() at guarded tracepoint call sites
+  io_uring: Use trace_invoke_##name() at guarded tracepoint call sites
+  net: Use trace_invoke_##name() at guarded tracepoint call sites
+  accel/habanalabs: Use trace_invoke_##name() at guarded tracepoint call
+    sites
+  cpufreq: Use trace_invoke_##name() at guarded tracepoint call sites
+  devfreq: Use trace_invoke_##name() at guarded tracepoint call sites
+  dma-buf: Use trace_invoke_##name() at guarded tracepoint call sites
+  fsi: Use trace_invoke_##name() at guarded tracepoint call sites
+  drm: Use trace_invoke_##name() at guarded tracepoint call sites
+  HID: Use trace_invoke_##name() at guarded tracepoint call sites
+  i2c: Use trace_invoke_##name() at guarded tracepoint call sites
+  spi: Use trace_invoke_##name() at guarded tracepoint call sites
+  scsi: ufs: Use trace_invoke_##name() at guarded tracepoint call sites
+  btrfs: Use trace_invoke_##name() at guarded tracepoint call sites
+
+ drivers/accel/habanalabs/common/device.c          | 12 ++++++------
+ drivers/accel/habanalabs/common/mmu/mmu.c         |  3 ++-
+ drivers/accel/habanalabs/common/pci/pci.c         |  4 ++--
+ drivers/cpufreq/amd-pstate.c                      | 10 +++++-----
+ drivers/cpufreq/cpufreq.c                         |  2 +-
+ drivers/cpufreq/intel_pstate.c                    |  2 +-
+ drivers/devfreq/devfreq.c                         |  2 +-
+ drivers/dma-buf/dma-fence.c                       |  4 ++--
+ drivers/fsi/fsi-master-aspeed.c                   |  2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_cs.c            |  2 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_vm.c            |  4 ++--
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |  2 +-
+ drivers/gpu/drm/scheduler/sched_entity.c          |  4 ++--
+ drivers/hid/intel-ish-hid/ipc/pci-ish.c           |  2 +-
+ drivers/i2c/i2c-core-slave.c                      |  2 +-
+ drivers/spi/spi-axi-spi-engine.c                  |  4 ++--
+ drivers/ufs/core/ufshcd.c                         | 12 ++++++------
+ fs/btrfs/extent_map.c                             |  4 ++--
+ fs/btrfs/raid56.c                                 |  4 ++--
+ include/linux/tracepoint.h                        | 11 +++++++++++
+ io_uring/io_uring.h                               |  2 +-
+ kernel/irq_work.c                                 |  2 +-
+ kernel/sched/ext.c                                |  2 +-
+ kernel/smp.c                                      |  2 +-
+ net/core/dev.c                                    |  2 +-
+ net/core/xdp.c                                    |  2 +-
+ net/openvswitch/actions.c                         |  2 +-
+ net/openvswitch/datapath.c                        |  2 +-
+ net/sctp/outqueue.c                               |  2 +-
+ net/tipc/node.c                                   |  2 +-
+ 30 files changed, 62 insertions(+), 50 deletions(-)
+
+-- 
+2.53.0
+
