@@ -1,116 +1,147 @@
-Received: from relay.hostedemail.com (smtprelay0015.hostedemail.com [216.40.44.15])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f170.google.com (mail-yw1-f170.google.com [209.85.128.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FC483CAE8E;
-	Thu, 12 Mar 2026 17:03:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D98CC299A82
+	for <linux-i2c@vger.kernel.org>; Fri, 13 Mar 2026 00:23:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773334994; cv=none; b=Z1Eq/3mfRpiSpvWNOYoUQ8ZKK1P8HvXTz2NtP+Xv1zsJkMcofw7flwCwoi0FM/kRyNsQfMU6wn9om8HDP6aC9z2wxkkQcsGJ2juDTjr+KWckbhLzGPcYZxvq3z2C7z1QqPtXwoVYUbQtphtxcrrz1cJa+8genGi/8y4RunMBzZg=
+	t=1773361409; cv=none; b=q0Flw6iipLqAHZh9XobPv2Ndyr6MG4C9cOHCfyXX0RQ+TdnYdcSWJLhfUTUaqove4YZuHyhwYVZeCGyNq4bvYXARRadVs9W75qz1ITwyAUznp0S1R4K/IGYr8baaZAoYl2xLm+YlFYYLRsE7GvJBfnFK0vKBOPJ1LtfCxSM0r3Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773334994; c=relaxed/simple;
-	bh=gymGM9n7wddVYvwk2Iyj0H5MpRVhidPG4DavbVCxGds=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=bG5ihaMsPFngmAGcyqHMa3B9ZoapeLoaVI2NFNAQrywHYRSIQxXK47QHdcQ7aNptbfaYdg3o3iPRxnbGyhW4Jtq3/QdpzYQLXJ3DmNV7BcMAx6gQ8z3wJv7sNV9ikDehbn+CiygWxQx652HzkVxH970Jv5kCIYI+467JO4fstnA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
-Received: from omf03.hostedemail.com (a10.router.float.18 [10.200.18.1])
-	by unirelay09.hostedemail.com (Postfix) with ESMTP id B37CD8B479;
-	Thu, 12 Mar 2026 17:03:07 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf03.hostedemail.com (Postfix) with ESMTPA id 1BAFA6000C;
-	Thu, 12 Mar 2026 17:02:41 +0000 (UTC)
-Date: Thu, 12 Mar 2026 13:02:55 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andrii Nakryiko <andrii.nakryiko@gmail.com>
-Cc: Vineeth Remanan Pillai <vineeth@bitbyteword.org>, Mathieu Desnoyers
- <mathieu.desnoyers@efficios.com>, Peter Zijlstra <peterz@infradead.org>,
- Dmitry Ilvokhin <d@ilvokhin.com>, Masami Hiramatsu <mhiramat@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, Jens Axboe <axboe@kernel.dk>,
- io-uring@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo
- Abeni <pabeni@redhat.com>, Alexei Starovoitov <ast@kernel.org>, Daniel
- Borkmann <daniel@iogearbox.net>, Marcelo Ricardo Leitner
- <marcelo.leitner@gmail.com>, Xin Long <lucien.xin@gmail.com>, Jon Maloy
- <jmaloy@redhat.com>, Aaron Conole <aconole@redhat.com>, Eelco Chaudron
- <echaudro@redhat.com>, Ilya Maximets <i.maximets@ovn.org>,
- netdev@vger.kernel.org, bpf@vger.kernel.org, linux-sctp@vger.kernel.org,
- tipc-discussion@lists.sourceforge.net, dev@openvswitch.org, Oded Gabbay
- <ogabbay@kernel.org>, Koby Elbaz <koby.elbaz@intel.com>,
- dri-devel@lists.freedesktop.org, "Rafael J. Wysocki" <rafael@kernel.org>,
- Viresh Kumar <viresh.kumar@linaro.org>, "Gautham R. Shenoy"
- <gautham.shenoy@amd.com>, Huang Rui <ray.huang@amd.com>, Mario Limonciello
- <mario.limonciello@amd.com>, Len Brown <lenb@kernel.org>, Srinivas
- Pandruvada <srinivas.pandruvada@linux.intel.com>, linux-pm@vger.kernel.org,
- MyungJoo Ham <myungjoo.ham@samsung.com>, Kyungmin Park
- <kyungmin.park@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>,
- Christian =?UTF-8?B?S8O2bmln?= <christian.koenig@amd.com>, Sumit Semwal
- <sumit.semwal@linaro.org>, linaro-mm-sig@lists.linaro.org, Eddie James
- <eajames@linux.ibm.com>, Andrew Jeffery <andrew@codeconstruct.com.au>, Joel
- Stanley <joel@jms.id.au>, linux-fsi@lists.ozlabs.org, David Airlie
- <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Alex Deucher
- <alexander.deucher@amd.com>, Danilo Krummrich <dakr@kernel.org>, Matthew
- Brost <matthew.brost@intel.com>, Philipp Stanner <phasta@kernel.org>, Harry
- Wentland <harry.wentland@amd.com>, Leo Li <sunpeng.li@amd.com>,
- amd-gfx@lists.freedesktop.org, Jiri Kosina <jikos@kernel.org>, Benjamin
- Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, Wolfram Sang
- <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Mark Brown
- <broonie@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>,
- Nuno =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>, linux-spi@vger.kernel.org,
- "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, "Martin K.
- Petersen" <martin.petersen@oracle.com>, linux-scsi@vger.kernel.org, Chris
- Mason <clm@fb.com>, David Sterba <dsterba@suse.com>,
- linux-btrfs@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 00/15] tracepoint: Avoid double static_branch evaluation
- at guarded call sites
-Message-ID: <20260312130255.6476e560@gandalf.local.home>
-In-Reply-To: <CAEf4BzbnfyhCqp0ne=2gRnVxp-mdGmuZwDeFRyhRYH+eDcz2-w@mail.gmail.com>
-References: <20260312150523.2054552-1-vineeth@bitbyteword.org>
-	<1e3c2830-765e-4271-89f7-0b6784b37597@efficios.com>
-	<20260312112354.3dd99e36@gandalf.local.home>
-	<219d015d-076b-4c80-8f63-88569115fdad@efficios.com>
-	<20260312114041.5193c729@gandalf.local.home>
-	<1becdbce-2c01-468a-bbab-42b5dea9fdf8@efficios.com>
-	<CAO7JXPjnnruhM5oC6xMgnYaQ9efzYFqMCFiJLNM3HCQ+ZeCiJw@mail.gmail.com>
-	<CAEf4BzbnfyhCqp0ne=2gRnVxp-mdGmuZwDeFRyhRYH+eDcz2-w@mail.gmail.com>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1773361409; c=relaxed/simple;
+	bh=DAOotS0+fJKT3Knk+MeZ7HSRumsv/xP9lPM/rU63+iE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=CVTVH3+tZ48BDeIEw6oh9StPXsmaVPgX0FqcXZ9Vdfu4O6aVkhA29K+7u5APuJU4BI4QKlaq25cjmRHsm8OiJC1dXsCdV0KX0ZYBtddGnYYXw5bu1+JWm0S8LW20t9LKA6cHR31xFP8vAdnDJ4g/f+8T+RBhqfqUzo6T0bMipOY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kBbm3S5X; arc=none smtp.client-ip=209.85.128.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kBbm3S5X"
+Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-799569f6e9dso18090987b3.3
+        for <linux-i2c@vger.kernel.org>; Thu, 12 Mar 2026 17:23:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773361407; x=1773966207; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=bpGg8KlAOke1kfXQdKS/v1oPTBpVb3phcbFoPsToyyw=;
+        b=kBbm3S5XfkOimj5j68nNMgRHRssj72ZnCsTjJGIPBtmQ+uRo3fBIHz7BbTMChu1hV1
+         X10KojimkhYYp82RwZ3cKhnkFuxu+IJ51oECy6cJr2ntxYwzoCVtBvhFabfODfzUrobp
+         gS/zg/q6fMz9gGS7v8aqFlqvL/PX2Ov41xnGzAkcSKOrP9HriaGICwQ+znLdEMJa9p2Z
+         ggr3b5IEaboFi+v6dLG+jA/BMEexXxDS/kntRWV5BwvqgQCr1zTnV9k/hJg0+vj2hpSa
+         fb9PYWrsgD+mOG/5SCYLRmL4Ov/LszwmqIJjbMnOfPW6wueVcz+SFhGqEzadpNo65K+J
+         58+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773361407; x=1773966207;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bpGg8KlAOke1kfXQdKS/v1oPTBpVb3phcbFoPsToyyw=;
+        b=MlFKNw9NiZrr2aJzZ5k4e7P9NOZq3QS5/znFStTBBpvv5EFDCwqApQDS4ihOyZUDSF
+         ME3yJEOf7vZ1/kG3WnLoScb0KZBP383zPYBVkFrjOrohyIn9pNVgRQK8ni7+RXJQnmg0
+         Cljpv34LjuxBg+vgxbgNz+NpjX25/TI+67fFDmNfPdnIKPb+gTTCjvjyuD+FtMyQq9Xa
+         5fPkuy0jfrcquzpTTrqasVxaoq2IT/jkBiaxslPqMETQFCk62U23n4L+VD+aoHVfcd0H
+         pfDaSuJtVeMYv5uo1Ly1euyuh4E6Qv0PbEUvLVABRMCRCt8H7dlQ+SPFsx6CRdiHhDC1
+         vswg==
+X-Gm-Message-State: AOJu0YydgbOMN+1EQp69bUVbEiNiA7ru9AZb/Rg3L82RK7ZmFeYEpcdV
+	dvqMhNTogykQL+wIUoWJ1DsiO3qikDyOZmR0oudZVfUyLAj/vUhKnCKlqYe9i+gf
+X-Gm-Gg: ATEYQzzbgZr6EBoH9RbQbkHC2+wtUriebMCeKQd3m5JjRzV1xflO5t8N1HQTkN4RYb0
+	0zkbgG+Knc/vGsjvMefaWUK6R3NP+VQOitCdeFXQ+WWiA55pXY1JSV7iHRvD9vgmzFSUnEdMNQA
+	0lrMoF9QZ7y0U1gatKxrTq1CzLx9grwQBliTcZKKk7IS72g61cm0Ef7SZM0i3aNlL3pq31v+gcS
+	JyLtDvZwpRjUV9QR1Cjo1jl3EdX/I4hb/fvaeNkD/cP1/O9Q+KM/MKscmfHw7ZxAk5QS5/0XPea
+	GB0NQFcluCfnROWkixkVVUn42UxpwbuFNM46kxOeBjMrQ7Yi7IONKgQ1oZZuTQI5ZuxPs0+UIm9
+	TzNAyopFSCz/4yP89HTNPCx66ObMtEFWzKpS+SK0Bez9CPeGUnFG/9egqTjA+XJLwhls113/T0U
+	VjoVIn7mDaE9v2dgkVzRJeTwurEYlL72S6KzwjrgetW9oAkS5kyT1o6g==
+X-Received: by 2002:a05:690c:ed5:b0:798:ff7e:96a6 with SMTP id 00721157ae682-79a1c23cd40mr16090467b3.63.1773361406680;
+        Thu, 12 Mar 2026 17:23:26 -0700 (PDT)
+Received: from ryzen ([2601:644:8000:56f5::8bd])
+        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-64e65b67185sm152768d50.19.2026.03.12.17.23.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 12 Mar 2026 17:23:26 -0700 (PDT)
+From: Rosen Penev <rosenp@gmail.com>
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+	Luca Ceresoli <luca.ceresoli@bootlin.com>,
+	Kees Cook <kees@kernel.org>,
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
+	linux-kernel@vger.kernel.org (open list),
+	linux-hardening@vger.kernel.org (open list:KERNEL HARDENING (not covered by other areas):Keyword:\b__counted_by(_le|_be)?\b)
+Subject: [PATCH] i2c: atr: use kzalloc_flex
+Date: Thu, 12 Mar 2026 17:23:08 -0700
+Message-ID: <20260313002308.119343-1-rosenp@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Rspamd-Queue-Id: 1BAFA6000C
-X-Stat-Signature: kfs6qijpbuferuuhtorb6b835ny66tin
-X-Rspamd-Server: rspamout03
-X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
-X-Session-ID: U2FsdGVkX18gNtqVqUvpV9OuqznTYLgQxysBeUr1V4g=
-X-HE-Tag: 1773334961-101407
-X-HE-Meta: U2FsdGVkX18nBBc/wjwt+Uq/UDhPM+TvyqJ3PzJ7XTdg8zJwcAeVzhmYzxHLf7pqvroMwwz3w+ZMve24FXDlwN4Al9l18e+sIMsly59QHs1WIGUGFWD+n9vC0YFBju5YF4U2cW8usaKA9ACod/DJfkWwChqILC7YI5fjo0jn+MDRzWgSUtcRWc+1ACqufST8GE1+cVaguSIGVLtHO49AgMgvbvjSqwoHR4+HUaDb14GsztIWWkzSI6t3CvJZWLJ62JKH4l1NZ0cseEdgq33l48qG8hnnyAiEMhQWmONsALjOWujHAfplawqsGy97HetKzPQbnSWVIVPTZt4F/YmoVmEIzpjR6X9B
+Content-Transfer-Encoding: 8bit
 
-On Thu, 12 Mar 2026 09:54:29 -0700
-Andrii Nakryiko <andrii.nakryiko@gmail.com> wrote:
+Convert kzalloc_obj + kcalloc to kzalloc_flex to save an allocation.
 
-> > > emit_trace_foo()
-> > > __trace_foo()  
-> 
-> this seems like the best approach, IMO. double-underscored variants
-> are usually used for some specialized/internal version of a function
-> when we know that some conditions are correct (e.g., lock is already
-> taken, or something like that). Which fits here: trace_xxx() will
-> check if tracepoint is enabled, while __trace_xxx() will not check and
-> just invoke the tracepoint? It's short, it's distinct, and it says "I
-> know what I am doing".
+Add __counted_by to get extra runtime analysis. Move counting variable
+assignment immediately after allocation as required by __counted_by.
 
-Honestly, I consider double underscore as internal only and not something
-anyone but the subsystem maintainers use.
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
+---
+ drivers/i2c/i2c-atr.c | 15 +++------------
+ 1 file changed, 3 insertions(+), 12 deletions(-)
 
-This, is a normal function where it's just saying: If you have it already
-enabled, then you can use this. Thus, I don't think it qualifies as a "you
-know what you are doing".
+diff --git a/drivers/i2c/i2c-atr.c b/drivers/i2c/i2c-atr.c
+index f9fcb4793aaf..b0aedcf0bf71 100644
+--- a/drivers/i2c/i2c-atr.c
++++ b/drivers/i2c/i2c-atr.c
+@@ -58,8 +58,8 @@ struct i2c_atr_alias_pool {
+ 
+ 	/* Protects aliases and use_mask */
+ 	spinlock_t lock;
+-	u16 *aliases;
+ 	unsigned long *use_mask;
++	u16 aliases[] __counted_by(size);
+ };
+ 
+ /**
+@@ -137,22 +137,16 @@ static struct i2c_atr_alias_pool *i2c_atr_alloc_alias_pool(size_t num_aliases, b
+ 	struct i2c_atr_alias_pool *alias_pool;
+ 	int ret;
+ 
+-	alias_pool = kzalloc_obj(*alias_pool);
++	alias_pool = kzalloc_flex(*alias_pool, aliases, num_aliases);
+ 	if (!alias_pool)
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	alias_pool->size = num_aliases;
+ 
+-	alias_pool->aliases = kcalloc(num_aliases, sizeof(*alias_pool->aliases), GFP_KERNEL);
+-	if (!alias_pool->aliases) {
+-		ret = -ENOMEM;
+-		goto err_free_alias_pool;
+-	}
+-
+ 	alias_pool->use_mask = bitmap_zalloc(num_aliases, GFP_KERNEL);
+ 	if (!alias_pool->use_mask) {
+ 		ret = -ENOMEM;
+-		goto err_free_aliases;
++		goto err_free_alias_pool;
+ 	}
+ 
+ 	alias_pool->shared = shared;
+@@ -161,8 +155,6 @@ static struct i2c_atr_alias_pool *i2c_atr_alloc_alias_pool(size_t num_aliases, b
+ 
+ 	return alias_pool;
+ 
+-err_free_aliases:
+-	kfree(alias_pool->aliases);
+ err_free_alias_pool:
+ 	kfree(alias_pool);
+ 	return ERR_PTR(ret);
+@@ -171,7 +163,6 @@ static struct i2c_atr_alias_pool *i2c_atr_alloc_alias_pool(size_t num_aliases, b
+ static void i2c_atr_free_alias_pool(struct i2c_atr_alias_pool *alias_pool)
+ {
+ 	bitmap_free(alias_pool->use_mask);
+-	kfree(alias_pool->aliases);
+ 	kfree(alias_pool);
+ }
+ 
+-- 
+2.53.0
 
-Perhaps: call_trace_foo() ?
-
--- Steve
