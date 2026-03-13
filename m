@@ -1,152 +1,131 @@
-Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD80624397A
-	for <linux-i2c@vger.kernel.org>; Fri, 13 Mar 2026 21:48:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.49
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773438537; cv=pass; b=OSEpsrIiH7AGKeFQKwbTgtM0kmEdYHUNYmZkKB5xu/cZ9cHj8ILtwOFnLqQvDKB4K4g1vAMohayYlSQsk6NM+vvJ439Vp2tNqoe/FptV5vVfxVEMbDaRWNaNpqFjMu/7Sg7wOdYXSNKOJ6OGZzuikusEBaeP7sVPFVXnj5PFioA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773438537; c=relaxed/simple;
-	bh=+ac43UU2AUQrSK97u9UGEOszTRTdeBowAhfRrskEKl8=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GjtwK7xitWzLsx2D/ClxLANi02G+1qicGwlgEv0BmBt2778VNe02SnJf2xREQCTkqbXKZPYAyl1NYPiJjN5Ayd5H7aZs0WmEEf7HdYR8ibULCoCxxXicLYOUovxJ7pQnx+UlVz6JP7P22C8vv/lzltISLfghVYxacl5do4zvbjo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IQ6UO4Pc; arc=pass smtp.client-ip=209.85.218.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FB1F2DC321;
+	Fri, 13 Mar 2026 23:21:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773444087; cv=none; b=UXZ+rGtGp9PvSMm0ewxmlRpemSqrfODs+3OpCgMjXYS8aWPXB7OtvqzpybKbyoQSe3NV99Wumj22aa0CsMqPOc5QoLrEE1fXkx2S55DiIglZAyRHN+yZxPub8Me5wgXH4ErXNXBdyjbFsZ3ydEc/ye5Baz4szbIUmKhqL0v72u0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773444087; c=relaxed/simple;
+	bh=K0MwS09dQ1FesouGXSEQMZwoJn+bXck8mb7B9eGY9PE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=aIqp24Zy/AKa03tMDK048xVZyhfTHs2z5PYtmKqsBbKcT7N717OifFxw39tQyelgHAZ8hZVvm6yhW2UTT28G+S4KBNOE4oiMQN7h3P5A8uF73F7k5RAmXLCqWqHjIbVoVwpvUf4dS5UCORol2jOcdVkZEgVp1z/x0QYfVyUsXe0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CUA3BHEN; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IQ6UO4Pc"
-Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-b972641eb96so350908666b.2
-        for <linux-i2c@vger.kernel.org>; Fri, 13 Mar 2026 14:48:55 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773438534; cv=none;
-        d=google.com; s=arc-20240605;
-        b=MBjuVpDGPlLaXMjAoSjLFEEOomTYr5eSxs4k0LcaBBiopcrIPvuXlUn6/1pIz106et
-         Edx9W1fq3TvsMD6VQXWCtGgpXsjk33rqUbok94KxoE9TXJrPCxZw1eWMuYVgVk0BOBw2
-         KbXpb0Qrm2ZvM/ulLoEWmIClPXbUccIyIVtgiFC6ysCav+2MJI5fyjUnVQ/gGq8FXLGC
-         rDAnc07Qx5Unk7nwQCMBUk9YPsp6K5EjhznPlDolm/P1XMsQ2K5dOVrTbBEt0kqHWSbs
-         EaVzpSrlAI+36bsppzxszTXA6PO02joIomekZnJllxGIdCbEEh3GcYpt6oavCuxT+yYc
-         Zgtg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=og5m3EI8g6Lkpx9tArNrMEyQTpBxjM5bkfRM3pMy1BU=;
-        fh=1WTmiXFT7EZRMo0blyyQ76NCTvaZVS/ggZ7G9CQJkxw=;
-        b=M6X9TYHCtEmWjUSqfiKHFIzdAdKO2n6SvgNEe05CZMfjZvJRO8rFDTb1joPlCy7EPE
-         xqa6VwjgGsV6+AP81iuSPz5bUhM9HndtwUwXwampSbN+i7DPaCO0kqDSbznSbJcOaLa3
-         LPDqFTRzHDGPfVcy7gmrta+pLbLRsfw+4uTOgzIYmW99D3XjSgE7a/bbS8PAYRccVGEB
-         r1/r+u9gCdqINlgFRGX7ma1vGlMemx2XCDn/Ziw7MRxPxvWWlKnEmI6tReGSilkoOvLW
-         KR76wljQmd24ojMFG458qydmLFAvnkWhbnli4s77roNUtOcLcbG4pVjxcTLPQudG3+XM
-         FhUA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773438534; x=1774043334; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=og5m3EI8g6Lkpx9tArNrMEyQTpBxjM5bkfRM3pMy1BU=;
-        b=IQ6UO4PcxEv3rvX+xeEUU+rAojHW21nxxZKLikbbUoKsxdfevikzdsweD+fN1wb5uL
-         1Z0rGEntEfVr2G6EspEudhkmkoh5jhqFbu5/vdaDjp8DhGvo0G09TSbYllIJVNH4IhFD
-         IC4BJpR+kQoaezcxPJAGNmidIJ3jH9Dknveu19Uz468iozLrWukTFuof1uwfhlG9thqW
-         5BnUoY+55lXG5Hmgs+MSfBwAfvzsdzUfte+TKgZH4Nosi5pyI0230iUdtdKhYpYGWosu
-         a4eJ9iYKEeKkN06xaBx3RMP9qSaaxa+FKGXen+5s3dOQYiedcIqo+i8vPLNcBWSJFRt3
-         620Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773438534; x=1774043334;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=og5m3EI8g6Lkpx9tArNrMEyQTpBxjM5bkfRM3pMy1BU=;
-        b=FNtFfJNFcUXjKneMBpdXoXU3kqgBrGE9zpQ1e8LaZDH6MbPCjwoy/1wHDSU7yMtYGw
-         GcoecMcDUxxbHY7z1NPs+ZhNPgN/nBnC4jO8XbGPJZg1BuU9apIg5U+r4pZ5ScVPlT2g
-         BBTz789FBzjifcX75f/65WnQHKYscUu4O55DPNLhFiUzWox2168D7gGT1sDp6E1WGLE/
-         PO2lsxWeqF9oX64nFCLhT179sFM1fkrxDADnkssXhh6kwd140FwG+kLYXvHFPzzH1gom
-         eQABTPY3Uo+aSCveVcwZzWmRjExpaao79fM1V0vSV9A88MSMUR+n1C+hlnlpdmJ9nxky
-         ZgFQ==
-X-Gm-Message-State: AOJu0Yz/trpEIBqo6NlPfrnnZSzQGGcHSWd0jSO6r2iHoYB5bJuWZfvi
-	Bf1qWF0Czq1xnyRunFX6WtNM5d4S2O6m5VvQgieX1As0ymMXEOZBybMva7Waetpck3EAPEueleS
-	6MCVmknZpBCuVq8Uoo52hBD7wSF8SDSw=
-X-Gm-Gg: ATEYQzyBrQ88fWGE04Sqe0RTV/NoyoIKxTBDIaX9tN+UEKZ3ILIiqGd9ot7zhYHN6Le
-	97O75XApa0DPb5WW032S8zdqj6/La4049VNV1H3xufjpR58eYhNcNuWuPrTtJYMbqLhlsF1XGc5
-	O4FDpmgZg8p5P0faDeqo/PtmdTuqUG5s2MxwhY5atcwAwaOkTDtgo3xGXAbW1hvTxPeeEre9vS0
-	8vozP9kk9txvnlsI27qP7i6IxhsPBfsntNG0Lf14zVPkj4/OF5N2SdZU2Jx4hcmnZ62zPJwyv5j
-	EC+AHZQID0ecA5nUA09gLKS9v2sYGSkWGR5yPjb0rQ11hW/5nCnEELCFwmNKLvtFPcF+iR+087S
-	7bwq5w3IFOtk8VhtH
-X-Received: by 2002:a17:906:2099:b0:b97:896:7c4 with SMTP id
- a640c23a62f3a-b9765352484mr178298666b.51.1773438533882; Fri, 13 Mar 2026
- 14:48:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CUA3BHEN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC0F5C19421;
+	Fri, 13 Mar 2026 23:21:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773444087;
+	bh=K0MwS09dQ1FesouGXSEQMZwoJn+bXck8mb7B9eGY9PE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=CUA3BHENTCO2/8OpmA3fhIz4IpKY34WfNmtQuCpCcMZWtzNE54vhGCjTdx9AX+zFl
+	 a0rjFZG33yC1qgp80l/Gb4AQodxRLwDMV7gu1kfjvdu916/jGRmk81bll8octDidUm
+	 PqPhCWBmsgpmzNgHa3oVOvA4ZYLuEVkXhJb9MNS6dv8k0KHb/Ygiit1OP72nEVch85
+	 pzh7f2mZ7r6SKN6qPAxubHSs9pwxpYQjdH2wWxfNMgPm5xTUVMUEFielRF6yktLTGk
+	 6KYpxSlliMHhj6Zu0bD9/0ftA5JF0RbNE2s7n59C2iFSJoQLXW3APjj+J8FuIRvx50
+	 gMbzlcF6SwfyQ==
+Date: Fri, 13 Mar 2026 18:21:25 -0500
+From: Rob Herring <robh@kernel.org>
+To: Ryan Chen <ryan_chen@aspeedtech.com>
+Cc: jk@codeconstruct.com.au, andriy.shevchenko@linux.intel.com,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Joel Stanley <joel@jms.id.au>,
+	Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Rayn Chen <rayn_chen@aspeedtech.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>, linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	openbmc@lists.ozlabs.org
+Subject: Re: [PATCH v26 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add
+ global-regs and transfer-mode properties
+Message-ID: <20260313232125.GA3618633-robh@kernel.org>
+References: <20260309-upstream_i2c-v26-0-5fedcff8ffe8@aspeedtech.com>
+ <20260309-upstream_i2c-v26-2-5fedcff8ffe8@aspeedtech.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260313002308.119343-1-rosenp@gmail.com> <DH1I88QT17NI.1MZERF8Z4M6P5@bootlin.com>
-In-Reply-To: <DH1I88QT17NI.1MZERF8Z4M6P5@bootlin.com>
-From: Rosen Penev <rosenp@gmail.com>
-Date: Fri, 13 Mar 2026 14:48:42 -0700
-X-Gm-Features: AaiRm51_uufIP7vby0iQyhJE9Np66DA5ybD5UNuzVwNcO2sPLvT_d9qY5sI1mJE
-Message-ID: <CAKxU2N_sp+OGQWr_+vjHmCGfe+FDA0=4ZNJ6+MgThbbXU-3Aqw@mail.gmail.com>
-Subject: Re: [PATCH] i2c: atr: use kzalloc_flex
-To: Luca Ceresoli <luca.ceresoli@bootlin.com>
-Cc: linux-i2c@vger.kernel.org, Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, Kees Cook <kees@kernel.org>, 
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>, open list <linux-kernel@vger.kernel.org>, 
-	"open list:KERNEL HARDENING (not covered by other areas):Keyword:b__counted_by(_le|_be)?b" <linux-hardening@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260309-upstream_i2c-v26-2-5fedcff8ffe8@aspeedtech.com>
 
-On Fri, Mar 13, 2026 at 1:23=E2=80=AFAM Luca Ceresoli <luca.ceresoli@bootli=
-n.com> wrote:
->
-> Hello Rosen,
->
-> On Fri Mar 13, 2026 at 1:23 AM CET, Rosen Penev wrote:
-> > Convert kzalloc_obj + kcalloc to kzalloc_flex to save an allocation.
-> >
-> > Add __counted_by to get extra runtime analysis. Move counting variable
-> > assignment immediately after allocation as required by __counted_by.
->
-> Not sure what you mean by the last sentence, you are not moving the
-> assignment.
-Yeah, will remove.
->
-> > --- a/drivers/i2c/i2c-atr.c
-> > +++ b/drivers/i2c/i2c-atr.c
-> > @@ -58,8 +58,8 @@ struct i2c_atr_alias_pool {
-> >
-> >       /* Protects aliases and use_mask */
-> >       spinlock_t lock;
-> > -     u16 *aliases;
-> >       unsigned long *use_mask;
-> > +     u16 aliases[] __counted_by(size);
->
-> Please reorder the parameters accordingly in the kdoc documentation above=
-.
-Will do.
->
-> > @@ -137,22 +137,16 @@ static struct i2c_atr_alias_pool *i2c_atr_alloc_a=
-lias_pool(size_t num_aliases, b
-> >       struct i2c_atr_alias_pool *alias_pool;
-> >       int ret;
-> >
-> > -     alias_pool =3D kzalloc_obj(*alias_pool);
-> > +     alias_pool =3D kzalloc_flex(*alias_pool, aliases, num_aliases);
-> >       if (!alias_pool)
-> >               return ERR_PTR(-ENOMEM);
-> >
-> >       alias_pool->size =3D num_aliases;
->
-> I'm not really sure about that, but I suspect kzalloc_flex() does set the
-> counter variable automatically if it's annotated using __counted_by. If
-> that's true, you can drop this line.
-It's automatic with GCC15+.
->
-> Otherwise LGTM.
->
-> Luca
->
-> --
-> Luca Ceresoli, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
+On Mon, Mar 09, 2026 at 02:53:53PM +0800, Ryan Chen wrote:
+> The AST2600 I2C controller supports three transfer modes (byte, buffer,
+> DMA). Add "aspeed,transfer-mode" so DT can select the preferred transfer
+> method per controller instance. Also add the "aspeed,global-regs"
+> phandle to reference the AST2600 global registers syscon/regmap used by
+> the controller.
+> 
+> These properties apply only to the AST2600 binding and are not part of
+> the legacy binding, which uses a mixed controller/target register layout
+> and does not have the split register blocks or these new configuration
+> registers. Legacy DTs remain unchanged.
+> 
+> Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
+> ---
+>  .../bindings/i2c/aspeed,ast2600-i2c.yaml           | 29 ++++++++++++++++++++++
+>  1 file changed, 29 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml b/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
+> index de2c359037da..323e4f9b290a 100644
+> --- a/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
+> +++ b/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
+> @@ -37,6 +37,33 @@ properties:
+>    resets:
+>      maxItems: 1
+>  
+> +  aspeed,transfer-mode:
+> +    description: |
+> +      ASPEED ast2600 platform equipped with 16 I2C controllers each i2c controller
+> +      have 1 byte transfer buffer(byte mode), 32 bytes buffer(buffer mode), and
+> +      share a DMA engine.
+> +      Select I2C transfer mode for this controller. Supported values are:
+> +        - "byte": Use 1 byte for i2c transmit (1-byte buffer).
+> +        - "buffer": Use buffer (32-byte buffer) for i2c transmit. (default)
+> +                    Better performance then byte mode.
+
+Good, I like worse performance so I can use byte mode.
+
+> +        - "dma": Each controller DMA mode is shared DMA engine. The AST2600 SoC
+> +                 provides a single DMA engine shared for 16 I2C controllers,
+> +                 so only a limited number of controllers can use DMA simultaneously.
+> +                 Therefore, the DTS must explicitly assign which controllers are
+> +                 configured to use DMA.
+> +      On AST2600, each controller supports all three modes.
+> +      If not specified, buffer mode is used by default.
+> +    enum:
+> +      - byte
+> +      - buffer
+> +      - dma
+
+This is not required, so what is the default mode? If there's a default, 
+you don't need the default value in the first place as the default is 
+the property omitted.
+
+> +
+> +  aspeed,global-regs:
+> +    $ref: /schemas/types.yaml#/definitions/phandle
+> +    description:
+> +      Phandle reference to the i2c global syscon node, containing the
+> +      SoC-common i2c register set.
+> +
+>  required:
+>    - reg
+>    - compatible
+> @@ -59,4 +86,6 @@ examples:
+>          resets = <&syscon ASPEED_RESET_I2C>;
+>          clock-frequency = <100000>;
+>          interrupts = <GIC_SPI 110 IRQ_TYPE_LEVEL_HIGH>;
+> +        aspeed,global-regs = <&i2c_global>;
+> +        aspeed,transfer-mode = "buffer";
+>      };
+> 
+> -- 
+> 2.34.1
+> 
