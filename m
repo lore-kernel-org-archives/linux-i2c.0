@@ -1,106 +1,175 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com [209.85.167.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FC2C322B8C;
-	Fri, 13 Mar 2026 08:17:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773389842; cv=none; b=BHBBJnvbiz8Xs0dTZ1GBdVyxh55fTv4TLaG1vhODHB7zoQRy7BilNHXz1ti0r265g/8k3mfStXPwQU8FgOhN6HzxwhPXw6sy0PEsqGPGQpqIQx+ivzba7msmNvztr1saMs0hIyGYJSgG6zQZ8kmrhYvcYJ0fH6RiOhu6oZoP69A=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773389842; c=relaxed/simple;
-	bh=R2fon5pzajJZitAIkcVtPhbUt65B/YCLWO8IrF9U0TQ=;
-	h=Mime-Version:Content-Type:Date:Message-Id:To:From:Subject:Cc:
-	 References:In-Reply-To; b=jtCxX+MdkEYxBQC+YGEfw4UberzRfpOqMzXx2ShcjdWYJipD+2Vo/VwG/d8vdVwz8zxx9RbK+wt+NNHZP63Edku8Ex6r9n+8yLcARBiz5Uv8KsDP/ZdVKje9hgjWXqAe5nwcGfnJ/z0TeeAIcWRDeJFWkKEwAI/7u8WhamPc5lk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=QOV5/YEP; arc=none smtp.client-ip=185.246.85.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC42026A1CF
+	for <linux-i2c@vger.kernel.org>; Fri, 13 Mar 2026 09:44:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773395054; cv=pass; b=idjgBhYa2pJ1/MofTLVfhB3BsuHX3SA3+nQym1Sld90WlH5kEJwtQ2+ZP0niCOzKX2vR2T1ynTbV7jiE2Y2afdxWsOqV3V6S8cdeg4fFRFRacuC+Njak8piTMOC8xUDiRSsWuKJQDflkPRxG/0y7w7SlG+BBiVpvNOJD+c0WvpA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773395054; c=relaxed/simple;
+	bh=a4PkyDJIX7KyCPscZwhkhXLXTwGONJMI97/AnswuOLU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=WJwRIsodF7yAI3IQW36KAecCVC0jwdbp02uEtSJdZshuqLIcxsE9JMiMgRuynCayi1JYW8EjMCuFZsj2znWc+kOai6Nhg/ahx6MLzLkfEo/ku9pvK9rnBneIg82zMJcomLnc8qA0VEd9d2tVc2SfPnKJ2cUsnNHFMJiVZrV34R4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=CVJB0EpM; arc=pass smtp.client-ip=209.85.167.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="QOV5/YEP"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 6A5424E4265D;
-	Fri, 13 Mar 2026 08:17:12 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 3F48660027;
-	Fri, 13 Mar 2026 08:17:12 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 1AA9B10369C8B;
-	Fri, 13 Mar 2026 09:17:09 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1773389831; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=4nfwtz9pCMH5vgqfUwq/GzIjQmaSYzvxqLV8rNp3KWU=;
-	b=QOV5/YEPTRHPbUOlNDbTU+OOq0yBtrq6nnMvg8PUr5YJAI7cpw6fE+08/WsO/qt6FpSzg9
-	e96OZvcHR3m1UcJsI+7gonwdzvqcNsPRjMOMGD/zUxACm1w6He1TJjpSWwA2CiaWgwT5MJ
-	NkB+qJpERk41hrVWB7CCMga1ThktulTU7IN/GnXKp04VDMaJhvY9KiAhzohpoS9DMpAc1E
-	uN9DtBJzDHrQADhivFWlR8IFQRzmwwkpYA5QqnqeQEQbRTrKBhPA+hbgH549PcE5nuuXOj
-	OY42hzQpPZ71EgwDPXJoeUBqGfeDje6YcbplX3ALLguxCgEEIAGZqGIEiBrMJA==
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="CVJB0EpM"
+Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-5a13f6bcbf4so3002607e87.1
+        for <linux-i2c@vger.kernel.org>; Fri, 13 Mar 2026 02:44:12 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1773395051; cv=none;
+        d=google.com; s=arc-20240605;
+        b=ioex1oqYLYdVVnauUQ7ZGWAfsufqlQ2ABP9T5/rDkKIC4sie4br476tYmRp01d9i9q
+         oiArZGeiLrb0WmMF8raWlpRIex6bIX8fGrFWrCpOTlxrRbrpNx8FrZsoKcrBBOdDVBkg
+         3QQeVQMD4D8MInWEQlN8g5BKbJuW3Fexf0WvlkZr15eaR/WCYViEXi138NTGLB2TmHWZ
+         wAlPH6ZHntJhBBkTjpyQyIPzGUGg967M8ge5aTEvUt0qqdfSvR5jCPTu1+wjELFrSdON
+         MpwXkANSjtZ5jdQKG3X1tp0MuIabvVfaUeCDl/QlIti0hZD6LmWQID31xdQN1JEwcekp
+         RgzA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=zhNoTkJIeGg7k6SX7++UNulbkoe8PKd3t4WsYSulIm0=;
+        fh=N27l5qpaXgQPjEFWOmYACP4NB6yaSatNRwybTwS8BoA=;
+        b=IyrSgM0E834gQJ803rgvPXBe5dh5F73MKiX85jux0xQsBRQdNbk/nx/h8lBBCZCHtX
+         EMWTvbb2X4iz67MH4h0wZ0DTYMzxPgejeFbxubqnHVxou0EKOIr4izT5oGT12VkXiax7
+         8hSLkNEbzXKEHvQDhxTSm+2fCP06Xz5564SZIfGIfcxdh4uLSkxKQJg5xBgGxuqYWzZ6
+         qtxRLbQwvaQIw7xR22gwvdPNq035pqve+TF+mIKgJ+PZiPmLASf6o1zz0uat+B3liRP5
+         ncIeO+Sv8pPC0fzYBLPfTRr3/PY6qcK1Dy7y841v8QrjWD5h8sn6Vn4gMmXMI9Y7nSAC
+         ZPgQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1773395051; x=1773999851; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zhNoTkJIeGg7k6SX7++UNulbkoe8PKd3t4WsYSulIm0=;
+        b=CVJB0EpMEVa6sLzbpbpZgC6oxzg2jOtTdosOr5xZNtsl8bsqrxagaYbJB1fdwaFsDi
+         MU38WYuy9AWHvdgCpCuHaIpr0k74xYGQOeELdWDSwcfyzs8cqYkIXiRIRrqyxiibpEVP
+         wMrz3HxyzbyPSSjmSzWbKbBJgizyZo+BgjwH4r+2CXA44MTS6E41EE0YnfUJRp2yUitr
+         rl9LQ9jslbZWwEoeHXtCnBIpFBQl7bMUoyyvJJ1DVrzW8G12l73vTupZQjGfuJkAAf20
+         jQIIgy05OQGFnn5ib4SoM+EKD7qPNjwSuIvoucoWtcAxJOQaShYcNfKbcoRIEG60ZMKr
+         agpw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773395051; x=1773999851;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=zhNoTkJIeGg7k6SX7++UNulbkoe8PKd3t4WsYSulIm0=;
+        b=OOP8aZy/yFHMByN3FRylh/oZiV7xaLT8XRWmZnB9Lz9yx0wn3nYrK7qvMhM5kK26pf
+         7JdnJbWZUh52pMcL94E0A8OXglTamXl3TBu8UdKV6PS4OcPhiME7E1/itM0L+YBgfntx
+         kfVpBXB4w9mq47640JdmDIh64hVprC0aFdBLsY2eTc0GcbGaNfMxoVgqywlM5lWg3Vgo
+         TpB3T/DYCfNEgk72aRyWdwYDRWoHrd2bQWCnp6G3jIo9029GFxHTuvxS7tZjAFzfgnS8
+         ae/HfzkeJKQWjrWjeybG0ui/SpKKyolfM3qLizucEDe3D21zSEdxkJ5d378bLNOFzkyG
+         dK5A==
+X-Forwarded-Encrypted: i=1; AJvYcCWGo7s/G6nOIBiZ8R3OAXN/Y05V3/A+KXl3x4Qn/61tXwvRXBHZ0oAs7+H99FWwBc1Ba7Pg6f62bTE=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzB9mH0hnWJP8N0V3TbeBQuOgzumjf++GYGXE/OqMzor5M4zyEj
+	4tD/weCCG6yKsdoykQSm/MlP4bxRkgEZh/ZSeIEM4xRKFKfZhlEjdHGmHuNGxpixOAaXAWlKL9J
+	4JAlZDLH/I44b4dLOMoNvEfVu1xe6H48j8K5lLYkMvw==
+X-Gm-Gg: ATEYQzyJLqyajT82ZpCED3cSQeKnIwqgs4NhiRKC+aHpTTV2bxC4/sUxFzyfcjw6NF7
+	RPqUW9+4rpzf2pYM49BelwLq8/ZiSPrcBV7pVREEY1HrUv9/UepwRE/yHZ25ecJFNPx+7O6HW7N
+	RkK06wMZPO4NH94Xt8fGiCml63xTvb6JUU9Ush/tBpTzOBQBSwyRUhRDPLrEdEHMqG5k+3pVb+I
+	FjuZ9kBfIdHcLqDssDLFGUBDqqVqRc1KOS4gbc2FnUrSs+jy0Q9xGPzDzLwjdErqYn094pjfNVV
+	gtVOZDSd
+X-Received: by 2002:a05:6512:1589:b0:5a1:381b:fae2 with SMTP id
+ 2adb3069b0e04-5a162b0d32fmr863539e87.33.1773395050576; Fri, 13 Mar 2026
+ 02:44:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
+References: <20260227135428.783983-1-herve.codina@bootlin.com>
+ <20260227135428.783983-3-herve.codina@bootlin.com> <CAMuHMdVVsEB-xb8Jz4ujBam2NxtxAOb7byYa3VR_eHsbTD5rXw@mail.gmail.com>
+ <2026031242-debug-aviation-19b8@gregkh>
+In-Reply-To: <2026031242-debug-aviation-19b8@gregkh>
+From: Ulf Hansson <ulf.hansson@linaro.org>
+Date: Fri, 13 Mar 2026 10:43:33 +0100
+X-Gm-Features: AaiRm535RzzFrlMRqNsLHd1XM8yzn674dd-38MKB2CsmserIvJfHsK0fUYGtRYw
+Message-ID: <CAPDyKFpX3A3r4s72PNjBz5QaZUsq1xaGhn5vXwegue7Tyh_Zew@mail.gmail.com>
+Subject: Re: [PATCH v5 02/28] driver core: Rename get_dev_from_fwnode()
+ wrapper to get_device_from_fwnode()
+To: Herve Codina <herve.codina@bootlin.com>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Kalle Niemi <kaleposti@gmail.com>, Matti Vaittinen <mazziesaccount@gmail.com>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
+	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
+	Fabio Estevam <festevam@gmail.com>, Michael Turquette <mturquette@baylibre.com>, 
+	Stephen Boyd <sboyd@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+	Wolfram Sang <wsa+renesas@sang-engineering.com>, Peter Rosin <peda@axentia.se>, 
+	Arnd Bergmann <arnd@arndb.de>, Saravana Kannan <saravanak@kernel.org>, 
+	Bjorn Helgaas <bhelgaas@google.com>, Charles Keepax <ckeepax@opensource.cirrus.com>, 
+	Richard Fitzgerald <rf@opensource.cirrus.com>, David Rhodes <david.rhodes@cirrus.com>, 
+	Linus Walleij <linusw@kernel.org>, Mark Brown <broonie@kernel.org>, Len Brown <lenb@kernel.org>, 
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Daniel Scally <djrscally@gmail.com>, 
+	Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
+	Sakari Ailus <sakari.ailus@linux.intel.com>, Davidlohr Bueso <dave@stgolabs.net>, 
+	Jonathan Cameron <jonathan.cameron@huawei.com>, Dave Jiang <dave.jiang@intel.com>, 
+	Alison Schofield <alison.schofield@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, 
+	Ira Weiny <ira.weiny@intel.com>, Dan Williams <dan.j.williams@intel.com>, 
+	Shawn Guo <shawnguo@kernel.org>, Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org, 
+	driver-core@lists.linux.dev, imx@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
+	patches@opensource.cirrus.com, linux-gpio@vger.kernel.org, 
+	linux-pm@vger.kernel.org, linux-spi@vger.kernel.org, 
+	linux-acpi@vger.kernel.org, linux-cxl@vger.kernel.org, 
+	Allan Nielsen <allan.nielsen@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>, 
+	Steen Hegelund <steen.hegelund@microchip.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Saravana Kannan <saravanak@google.com>, 
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 13 Mar 2026 09:17:09 +0100
-Message-Id: <DH1I88QT17NI.1MZERF8Z4M6P5@bootlin.com>
-To: "Rosen Penev" <rosenp@gmail.com>, <linux-i2c@vger.kernel.org>
-From: "Luca Ceresoli" <luca.ceresoli@bootlin.com>
-Subject: Re: [PATCH] i2c: atr: use kzalloc_flex
-Cc: "Wolfram Sang" <wsa+renesas@sang-engineering.com>, "Tomi Valkeinen"
- <tomi.valkeinen@ideasonboard.com>, "Kees Cook" <kees@kernel.org>, "Gustavo
- A. R. Silva" <gustavoars@kernel.org>, "open list"
- <linux-kernel@vger.kernel.org>, "open list:KERNEL HARDENING (not covered by
- other areas):Keyword:b__counted_by(_le|_be)?b"
- <linux-hardening@vger.kernel.org>
-X-Mailer: aerc 0.20.1
-References: <20260313002308.119343-1-rosenp@gmail.com>
-In-Reply-To: <20260313002308.119343-1-rosenp@gmail.com>
-X-Last-TLS-Session-Version: TLSv1.3
 
-Hello Rosen,
-
-On Fri Mar 13, 2026 at 1:23 AM CET, Rosen Penev wrote:
-> Convert kzalloc_obj + kcalloc to kzalloc_flex to save an allocation.
+On Thu, 12 Mar 2026 at 16:27, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> Add __counted_by to get extra runtime analysis. Move counting variable
-> assignment immediately after allocation as required by __counted_by.
-
-Not sure what you mean by the last sentence, you are not moving the
-assignment.
-
-> --- a/drivers/i2c/i2c-atr.c
-> +++ b/drivers/i2c/i2c-atr.c
-> @@ -58,8 +58,8 @@ struct i2c_atr_alias_pool {
+> On Tue, Mar 10, 2026 at 04:03:42PM +0100, Geert Uytterhoeven wrote:
+> > Hi Herv=C3=A9,
+> >
+> > On Fri, 27 Feb 2026 at 14:55, Herve Codina <herve.codina@bootlin.com> w=
+rote:
+> > > get_dev_from_fwnode() calls get_device() and so it acquires a referen=
+ce
+> > > on the device returned.
+> > >
+> > > In order to be more obvious that this wrapper is a get_device() varia=
+nt,
+> > > rename it to get_device_from_fwnode().
+> > >
+> > > Suggested-by: Mark Brown <broonie@kernel.org>
+> > > Link: https://lore.kernel.org/lkml/CAGETcx97QjnjVR8Z5g0ndLHpK96hLd4aY=
+SV=3DiEkKPNbNOccYmA@mail.gmail.com/
+> > > Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+> > > Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > > Reviewed-by: Saravana Kannan <saravanak@google.com>
+> > > Reviewed-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
+> > > Acked-by: Ulf Hansson <ulf.hansson@linaro.org>
+> >
+> > FTR, one more user of get_dev_from_fwnode() appeared in commit
+> > 9035073d0ef1de81 ("reset: convert reset core to using firmware nodes")
+> > in reset/next.
 >
->  	/* Protects aliases and use_mask */
->  	spinlock_t lock;
-> -	u16 *aliases;
->  	unsigned long *use_mask;
-> +	u16 aliases[] __counted_by(size);
-
-Please reorder the parameters accordingly in the kdoc documentation above.
-
-> @@ -137,22 +137,16 @@ static struct i2c_atr_alias_pool *i2c_atr_alloc_ali=
-as_pool(size_t num_aliases, b
->  	struct i2c_atr_alias_pool *alias_pool;
->  	int ret;
+> Ick, that's going to make this hard to land anywhere.  This is a rough
+> series, perhaps it should be split up to make it easier somehow?
 >
-> -	alias_pool =3D kzalloc_obj(*alias_pool);
-> +	alias_pool =3D kzalloc_flex(*alias_pool, aliases, num_aliases);
->  	if (!alias_pool)
->  		return ERR_PTR(-ENOMEM);
+> thanks,
 >
->  	alias_pool->size =3D num_aliases;
+> greg k-h
 
-I'm not really sure about that, but I suspect kzalloc_flex() does set the
-counter variable automatically if it's annotated using __counted_by. If
-that's true, you can drop this line.
+I fully agree with the above. Renaming the function isn't necessary
+for the $subject series.
 
-Otherwise LGTM.
+I suggest we simply drop this patch from the series - and if the
+renaming really makes sense in the end, we can deal with that
+separately later on.
 
-Luca
+So withdrawing my ack from this one.
 
---
-Luca Ceresoli, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+Kind regards
+Uffe
