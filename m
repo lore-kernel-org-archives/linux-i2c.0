@@ -1,103 +1,102 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 495CA30FC39
-	for <linux-i2c@vger.kernel.org>; Sat, 14 Mar 2026 17:03:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B134213DBA0;
+	Sat, 14 Mar 2026 21:11:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773507831; cv=none; b=My1jxRiQBCvNIrqGMqkul1xNsGvE1ulErmdXx+JQ+0qM//TNDjhPgUqSsNhvJmu6wUqMS0PyCFCgjuuUgX6uQU/jmKEwQ5STEiauVblAEZWSMQYdeVgImtw3bEWU7s+PD4heCc0SXbejy2K3lxjHrAuLzvEM43kNEAsP2xrF9DA=
+	t=1773522707; cv=none; b=tMTcx90FVOh4W+bi7HawK4+rvQtDYB1egdL6kbOJhsDx8p3+F/81ZH/7qsgOHFbojdt3xhIWm3oz9/lVE3aSSqyL3R62MNaJvUhpdbVwXeqnwrce3oYFAY672ZVFW1B8VkoHmuei/2tcsg38tKVNW1Hp+Nmlau4l8TzC+/V9Hso=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773507831; c=relaxed/simple;
-	bh=BECZ2kWUv9/sN/1vY2tcda5a7XzLvGpcZP8UN42zdk4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=UKNkt+nCha8pcqpgVcywHcFMET7psSeYQiaoGizfr5yiLC0KXCdhbbnttKUFzWrEJ1WkJYUD64Ht99JL5KhHchQrvJXGwmzNAI3+4j8gHKKUWuxl6ePIJR5+knktvYCr37gDZ/v2flodKWeiud2VL0NR3CZ316F8M3hPczoqxCM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jfnd3g7Y; arc=none smtp.client-ip=209.85.128.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1773522707; c=relaxed/simple;
+	bh=9VK2XwSOjbBTcJ7sZbKDIR1ACWvVRlL5IqYVkFUdauQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=CDAeQ3XCl9loh7gyvmB1bkQt6TQyUQBUBOmupnYshLuVEMDJVF/szhnLZ/6SNN/eKdvgw7aGSuMtYQzxblHNV1XqC2Jn3r/b4zAw1iG/aDGg2jCCG7VB2c48585CDH/vz+Lpsg8Nupy/Cokmg1Pwh6eBEohuMOMYoBr6x3U9WQo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gDWLEKlP; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jfnd3g7Y"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4852f8ac7e9so37361085e9.1
-        for <linux-i2c@vger.kernel.org>; Sat, 14 Mar 2026 10:03:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773507828; x=1774112628; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=KVES9EBO2t19jyDyTJ/K+Tu3EVOBdgA74w8xUim9e9E=;
-        b=jfnd3g7Y+QiaVtJOna+E/eiNUpOkEVyEphKKNlKn+T76b2oU+OMk2hUMOPsZN4P7V2
-         aXufnB0E3blnAnBi/VfEp53m1a5eg2PtCOMckDOmg4U7Wc+eoGKXsSq+Z9NeTwpb022T
-         1YeKfZzfaQ9Q6PYjeA75ptDpiCQA1dzwHIGAZADT4GwaYESwwhpN1EyRaSdSfYkMwIFA
-         S9HA2w54UN7nf14vjJdiy7FKL+JVjge5ifMXNErjvadxQoMl6nydXuU+QLjsaJiE5vdH
-         YMo5P1xmOxbgb7Jpe9Di/Zsc0t5+QtP/7MWAWtyRh5kVNTqZUg7ZFwt/lAjH7wqIJ2bQ
-         XDjA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773507828; x=1774112628;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=KVES9EBO2t19jyDyTJ/K+Tu3EVOBdgA74w8xUim9e9E=;
-        b=j4WiG98j0Y48KUzn36XR04/pvnI6RbCUgZ2DMXIk5XAq8DgV/0kd+7AzU7mBtcgMa5
-         yLI0H+ZDO4ANvN+u7PZaPVCxGxnb1FByVsKpe9OgKUBI3y7KuUpmptVTn/gJFKx6T0/h
-         kWDO+cngsJlw1Y1WjUAtyIfeMnqJKAbvwhqlCKzVqEXRlOiSHDkl20EXPIKfZxguaoEK
-         vsEVXwrOpW7V/vdwTcOSFAfxG8/xB+jzlDcBfZ6yPGa3CZps1/ygTrcxcb9QU5/qfZKT
-         iQc74MQbKyKENF7vNEHw+ySYCpFPeDqkIJxbq6wSm1Lm39ZG1ONfuPwOrecFAjvV7h5b
-         dziw==
-X-Forwarded-Encrypted: i=1; AJvYcCWBEPqQO0aA8WKNzS0ITPPZ6YTXE9RzqsFNSWfbOx8pHPN7S1utcwryu4QPiCPe9UckNeGYBu7XHig=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxA0RY3sOYJ8r87lwNmQEXwiMA01HH3h0qj5KxJVzc9lRwPi5wM
-	qH8e2nCFREfFPdbE883tW7l90dEvV4SCRAxuHX+3FT8PbiqgcvyUhmaR
-X-Gm-Gg: ATEYQzwJxJ6UfZdUVZwcHSTXC6gzyje2FZwbCor1y/evDhFr5mlAMVm+z6UxUV5hGF/
-	W7Dk7/mZf+O86pU89yb8XWnbpq3OkZxV4EYYa0N2qA5prkOuFqv3i+7jE1JXtyKvumyCYffguyz
-	ewr//cCGTvPvnOvF9Ngd5BrtmiItowAfPDv3/mnqvvIoT6sUtZ7Acj51VnKPisnFIoduuNR8X2o
-	mCDvxgjoO+Xd09WR9q1TGO3/qHLpTvInduZpwWl+RO8fMbcxUvMKQ474L0+j2OP+V8Klt4w+RQ4
-	fQ29A/nU8nyXGLT8LKvLAmPLfgQxVQl7O9HofSfvfSLrpS6LwvgHv6HoPWhLIemIpGSO1Fsoya2
-	ePgYc/QcKRtUfXbNhG+Xy8qQ8ja42OLhlVAeXdo1C07wi2w3Q/DM0rSTm1sJ3BeIKSIpBQp9WYE
-	e7bNHRgIV6drw/K0uBYgXc/A==
-X-Received: by 2002:a05:600c:3550:b0:483:709e:f238 with SMTP id 5b1f17b1804b1-4855670c971mr130625545e9.29.1773507828313;
-        Sat, 14 Mar 2026 10:03:48 -0700 (PDT)
-Received: from localhost ([87.254.0.141])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4854b47145dsm288880245e9.0.2026.03.14.10.03.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Mar 2026 10:03:47 -0700 (PDT)
-From: Colin Ian King <colin.i.king@gmail.com>
-To: Rishi Gupta <gupt21@gmail.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>,
-	linux-i2c@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	Linus Walleij <linusw@kernel.org>
-Cc: kernel-janitors@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH][next] HID: mcp2221: Fix spelling mistake "Enfore" -> "Enforce"
-Date: Sat, 14 Mar 2026 17:02:25 +0000
-Message-ID: <20260314170225.1260440-1-colin.i.king@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gDWLEKlP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22753C116C6;
+	Sat, 14 Mar 2026 21:11:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773522707;
+	bh=9VK2XwSOjbBTcJ7sZbKDIR1ACWvVRlL5IqYVkFUdauQ=;
+	h=Date:From:To:Cc:Subject:From;
+	b=gDWLEKlPjYbZgEyvObBpsfRGD1pBpFIH0q4wnP036FTmd1TCgLI9vc2Vs6hfberfD
+	 ZSNgUutMH7CFqZPJWA0WNpyil0obKYYI9uTBgxnnZq//SCDasqyzZE7+KolWMG0stx
+	 AdXl6He5Nl0GRSYtYSX9P3MtrrKcHVmW1zh2Ac8GWiRIAiMMC7hZqeIW1BnK2CLD4t
+	 vS5f9W1usEb7bI/qdF5xGsXj7tavEMuuw1fefVKi09r3YylDA9p5P9a8xdt8NnCdMP
+	 fKik+grPtTz3nYYNJV/yoqnRFzVrP7LA/0+ey2jaACrgF96rjImYwUuCAObXhJF4NZ
+	 QJKJRujscPwgA==
+Date: Sat, 14 Mar 2026 22:11:43 +0100
+From: Wolfram Sang <wsa@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>
+Subject: [PULL REQUEST] i2c-for-7.0-rc4
+Message-ID: <abXPD2v0M7BoSaXT@shikoro>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="Yrrdte4ZX9muvs9p"
+Content-Disposition: inline
 
-There is a spelling mistake in a module description. Fix it.
 
-Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
----
- drivers/hid/hid-mcp2221.c | 2 +-
+--Yrrdte4ZX9muvs9p
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+The following changes since commit 1f318b96cc84d7c2ab792fcc0bfd42a7ca890681:
+
+  Linux 7.0-rc3 (2026-03-08 16:56:54 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-7.0-rc4
+
+for you to fetch changes up to d800d0bb2009a73630a096d7c7a80a2e64c1e41e:
+
+  dt-bindings: i2c: dw: Update maintainer (2026-03-09 13:02:58 +0100)
+
+----------------------------------------------------------------
+i2c-for-7.0-rc4
+
+designware: DT binding maintainer update
+
+----------------------------------------------------------------
+Mika Westerberg (1):
+      dt-bindings: i2c: dw: Update maintainer
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Andy Shevchenko (1):
+      (Rev.) dt-bindings: i2c: dw: Update maintainer
+
+ Documentation/devicetree/bindings/i2c/snps,designware-i2c.yaml | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index ea9f7ddd93a2..be80970ab48e 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -26,7 +26,7 @@ static bool gpio_mode_enforce;
- 
- module_param(gpio_mode_enforce, bool, 0644);
- MODULE_PARM_DESC(gpio_mode_enforce,
--	 "Enfore GPIO mode for GP0 thru GP3 (default: false, will be used for IIO)");
-+	 "Enforce GPIO mode for GP0 thru GP3 (default: false, will be used for IIO)");
- 
- /* Commands codes in a raw output report */
- enum {
--- 
-2.53.0
+--Yrrdte4ZX9muvs9p
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmm1zw8ACgkQFA3kzBSg
+KbYZ+g/7BWfy1bm4ae/MBPcQazgvIEhFcErffkchg3HXft60wqiYyB99fGFhs8M3
+CX3zePbJKmx+yPIvFEEuIBrraKKXE36xH53ucUynjWaIcwC+5mYU/NavekN/lbak
+4CVcdkOK4aWhodoBXd2dZP12i57NrdYVLXtk4hfR2QznVFeujbgzGUVz4M23wiuE
+n6p0LlkEswZNn5FIchasmv3c27lUtSJc87Oyn/tuhqcDhjeH7dKS2cmaOge7nrj/
+kmtQJEa3Dl/Tmm+DeTRMGfBRt99YQl3uc+AQmaMc9Ayw12lQ9o6W2TsRU09QUWEQ
+gFYbJBAocwjxfZuAp2RuRXhvZOLs78H2VonG+Z7Vxj0kmAztEiiC7ta9JslKKjv+
+hc+dVKkn2qsYHMoQQHVo6XuJrT5XiiW2yOAJK19u+PKlGgTZiPu4qiu0pEY661Eu
+a/Pfb8UlIb9eNqmz23NYCOg/zTdlGdA2RP4sLzJDjfZ6a2nKQvC0L8aIpOle9CmY
+Sq15hh7F8e5eyfp7GlVwOU8aFezsPPtfzque0LAAvBQUfbLiSeLOMqSL19KihNH0
+1VwkSESiFClb9+KA//h1N16q7e7ETnx/soM3AxHxptFPPluggrI4clJn+So56kkk
+CEgil8QgpkIVQPsmt5wjTGeLI2DXjsXVPnhr8w7Ptk1VDWkeh3s=
+=vmTu
+-----END PGP SIGNATURE-----
+
+--Yrrdte4ZX9muvs9p--
