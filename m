@@ -1,36 +1,37 @@
 Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 220E715746F;
-	Sat, 14 Mar 2026 08:27:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBE762DCC05;
+	Sat, 14 Mar 2026 08:27:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773476839; cv=none; b=cjhPqZYpjuw5/Qz00X0GwT6kZI3VhOHv5JkgBBp4VdnAfZ47xoTurRfpihL5fhybjNQaHLIVVqQP0Qey8QFz7aDWP/j9+V0gDyD01h+ZRBgxDSg22U2+fk9ple1ErqDeesCqqwAa8U/Sd0Ew4sYbD5nbYKK/oxj9CXdUSW/eFKk=
+	t=1773476841; cv=none; b=f6yL7CaM6gWM4DTdH7zIcOztAUL0mwavtj2TaNQ/wdtuiPkoR0AmT5jilRmt6qTYwFwu33qXcChHsdxMXBQMTmQLpfh5oFitPGyHHn2cZW28mc2n8p8G3wCMx/aNovpOeVhRyoEHM7rHbokhbDPGlwgV/9/6UD1bY1QEqsfkoqo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773476839; c=relaxed/simple;
-	bh=B0+rwl7k5Ymu86+8SPURTOEvovnWeyeCR4ShiKDU9Bc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZtHBvT/HQoSzyE6QYg0vTJcSMM350aL7kNfKBcAXkSEGYhcBvCDz5kTLVlTUJKmb84QYzRWu/9j0yY/sMV/474NGa6t6YBGhJR2g3FngoAUlvUtPSU1NZvIFkwNwDV8BzXAhzwRPPoTn9+G+ogOiWAEGsfmOTf9wEigCblKOFKw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=gOvO8lft; arc=none smtp.client-ip=178.21.23.139
+	s=arc-20240116; t=1773476841; c=relaxed/simple;
+	bh=mqj4cJpd6qLwJ/bpExmiNn7phn7P9JaoseG1YDfjN/8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=fWZwwc9xJwbLtkzNrbwvDOygMeNU05yVM8/bwFrtdwS2mi06oCBDFXdn5Exg2+b1YVx0MbMLoiDPwoGzCCT0SJSrScg4CWQkbfUrsfcvN7GbcdJKEwoiNztP2Hyql0j/ztVyxGsI/1YaNKw2RHPPhOppHOS+r9urkpE/Vq7Vc6E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=JTWsbB2H; arc=none smtp.client-ip=178.21.23.139
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="gOvO8lft"
+	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="JTWsbB2H"
 Received: from [127.0.0.1] (localhost [127.0.0.1])
-	by disroot.org (Postfix) with ESMTP id E76EC2676F;
-	Sat, 14 Mar 2026 09:27:14 +0100 (CET)
+	by disroot.org (Postfix) with ESMTP id A3BAF26849;
+	Sat, 14 Mar 2026 09:27:18 +0100 (CET)
 X-Virus-Scanned: SPAM Filter at disroot.org
 Received: from layka.disroot.org ([127.0.0.1])
  by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Sggo6NPvid9b; Sat, 14 Mar 2026 09:27:14 +0100 (CET)
+ id Wzomg2mFgRHj; Sat, 14 Mar 2026 09:27:18 +0100 (CET)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
-	t=1773476834; bh=B0+rwl7k5Ymu86+8SPURTOEvovnWeyeCR4ShiKDU9Bc=;
-	h=From:To:Cc:Subject:Date;
-	b=gOvO8lftKqqSlVuDp1PzwJj1KIKAKsPp4gL7iULTyBzKTlwARjWcrKy38JtKS8OVn
-	 JLpOH3MvKDL9i50vukmFhS6HQ1/srSU0Gkeq+f+JQ3LDyGcRadIloL/rRjxYPRJg3x
-	 jXehOJle63wTuanEAAbXyw9VgkYjxGugQp2ou0LF20y+CnN2LjBjkzNQx7Ec5fQsvg
-	 dy69/KYzw36NAElkZ8Srr4O3jxNoRTDpDWTfjMHRs10icOgpSIk8rBwY0IQIU3xpDc
-	 0h9zQ/EJY4P1tOGtXONKQK4MsniVX6AH9hKbJBh+muWHMJ0TR6u7i5gPhCyoNY5fmz
-	 YNxhrcbge1jmg==
+	t=1773476838; bh=mqj4cJpd6qLwJ/bpExmiNn7phn7P9JaoseG1YDfjN/8=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=JTWsbB2HZ85LabopbvSFmpDzJGDYuBKqSnL4BnbeHVGi+671Xi8Szl68GSWl8hj4b
+	 5K4cG4/DnlbZbI//r2HIny0+s3qA0Q2JEnr0WWfjVjK4YWOPPtJFBpuJmGRKXY/8Ku
+	 doY/0CL3tDujTWBCPpG9FNQenrU4xTR19H+yeH7OXHFPeIG1rSj1MYIZyGMGeHcDX6
+	 NEM2HB+3yk2n0/3XO/rlvkIAQdFAS9UQwBoodrizJFcRdPaUOhvs/iRnuTT8wrVLMr
+	 WTVz+1OuLM7gLiSECYTvgjxXA10tFUsEgqU4LZ8e3LlM9rYVdhT1jS7egVAZScVJw+
+	 WOFV9GwDc0SqQ==
 From: Rustam Adilov <adilov@disroot.org>
 To: Chris Packham <chris.packham@alliedtelesis.co.nz>,
 	Andi Shyti <andi.shyti@kernel.org>,
@@ -41,9 +42,11 @@ To: Chris Packham <chris.packham@alliedtelesis.co.nz>,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org
 Cc: Rustam Adilov <adilov@disroot.org>
-Subject: [PATCH 0/8] i2c: rtl9300: support for RTL9607C I2C controller
-Date: Sat, 14 Mar 2026 13:26:20 +0500
-Message-ID: <20260314082628.25206-1-adilov@disroot.org>
+Subject: [PATCH 1/8] i2c: rtl9300: split data_reg into read and write reg
+Date: Sat, 14 Mar 2026 13:26:21 +0500
+Message-ID: <20260314082628.25206-2-adilov@disroot.org>
+In-Reply-To: <20260314082628.25206-1-adilov@disroot.org>
+References: <20260314082628.25206-1-adilov@disroot.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -52,35 +55,112 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This patch series for the RTL9300 I2C driver adds i2c support for
-RTL9607C SoC. They are somewhat different to the RTL9300 and
-RTL9310 but not enough to warrant a new whole driver.
+In RTL9607C i2c controller, there are 2 separate registers for reads
+and writes as opposed the combined 1 on rtl9300 and rtl9310.
 
-The patch series was split into patches that add/change something in the
-driver to smooth out the RTL9607C support addition in the end and for
-ease of review. Because of that, the patch 8 depends on all the prior
-patches before it.
+In preparation for RTL9607C support, split it up into rd_reg and wd_reg
+properties and change the i2c read and write functions accordingly.
 
-RTL9607C primarly uses the i2c controller for communication with laser
-driver over on i2c interface 1 or 2.
+Signed-off-by: Rustam Adilov <adilov@disroot.org>
+---
+ drivers/i2c/busses/i2c-rtl9300.c | 25 +++++++++++++++----------
+ 1 file changed, 15 insertions(+), 10 deletions(-)
 
-I have successfully tested the byte read operations on my RTL9607C board
-which has GN25L95 laser driver in OpenWrt.
-
-Rustam Adilov (8):
-  i2c: rtl9300: split data_reg into read and write reg
-  i2c: rtl9300: introduce max length property to driver data
-  i2c: rtl9300: introduce F_BUSY to the reg_fields struct
-  i2c: rtl9300: introduce a property for 8 bit width reg address
-  i2c: rtl9300: introduce clk struct for upcoming rtl9607 support
-  i2c: rtl9300: intoduce new function properties to driver data
-  dt-bindings: i2c: realtek,rtl9301-i2c: extend for RTL9607C support
-  i2c: rtl9300: add RTL9607C i2c controller support
-
- .../bindings/i2c/realtek,rtl9301-i2c.yaml     |  15 ++
- drivers/i2c/busses/i2c-rtl9300.c              | 179 +++++++++++++++---
- 2 files changed, 165 insertions(+), 29 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-rtl9300.c b/drivers/i2c/busses/i2c-rtl9300.c
+index 672cb978066d..66390420bd6a 100644
+--- a/drivers/i2c/busses/i2c-rtl9300.c
++++ b/drivers/i2c/busses/i2c-rtl9300.c
+@@ -55,7 +55,8 @@ enum rtl9300_i2c_reg_fields {
+ struct rtl9300_i2c_drv_data {
+ 	struct rtl9300_i2c_reg_field field_desc[F_NUM_FIELDS];
+ 	int (*select_scl)(struct rtl9300_i2c *i2c, u8 scl);
+-	u32 data_reg;
++	u32 rd_reg;
++	u32 wd_reg;
+ 	u8 max_nchan;
+ };
+ 
+@@ -68,7 +69,8 @@ struct rtl9300_i2c {
+ 	struct rtl9300_i2c_chan chans[RTL9310_I2C_MUX_NCHAN];
+ 	struct regmap_field *fields[F_NUM_FIELDS];
+ 	u32 reg_base;
+-	u32 data_reg;
++	u32 rd_reg;
++	u32 wd_reg;
+ 	u8 scl_num;
+ 	u8 sda_num;
+ 	struct mutex lock;
+@@ -165,7 +167,7 @@ static int rtl9300_i2c_read(struct rtl9300_i2c *i2c, u8 *buf, u8 len)
+ 	if (len > 16)
+ 		return -EIO;
+ 
+-	ret = regmap_bulk_read(i2c->regmap, i2c->data_reg, vals, ARRAY_SIZE(vals));
++	ret = regmap_bulk_read(i2c->regmap, i2c->rd_reg, vals, ARRAY_SIZE(vals));
+ 	if (ret)
+ 		return ret;
+ 
+@@ -192,12 +194,12 @@ static int rtl9300_i2c_write(struct rtl9300_i2c *i2c, u8 *buf, u8 len)
+ 		vals[reg] |= buf[i] << shift;
+ 	}
+ 
+-	return regmap_bulk_write(i2c->regmap, i2c->data_reg, vals, ARRAY_SIZE(vals));
++	return regmap_bulk_write(i2c->regmap, i2c->wd_reg, vals, ARRAY_SIZE(vals));
+ }
+ 
+ static int rtl9300_i2c_writel(struct rtl9300_i2c *i2c, u32 data)
+ {
+-	return regmap_write(i2c->regmap, i2c->data_reg, data);
++	return regmap_write(i2c->regmap, i2c->wd_reg, data);
+ }
+ 
+ static int rtl9300_i2c_prepare_xfer(struct rtl9300_i2c *i2c, struct rtl9300_i2c_xfer *xfer)
+@@ -262,14 +264,14 @@ static int rtl9300_i2c_do_xfer(struct rtl9300_i2c *i2c, struct rtl9300_i2c_xfer
+ 	if (!xfer->write) {
+ 		switch (xfer->type) {
+ 		case RTL9300_I2C_XFER_BYTE:
+-			ret = regmap_read(i2c->regmap, i2c->data_reg, &val);
++			ret = regmap_read(i2c->regmap, i2c->rd_reg, &val);
+ 			if (ret)
+ 				return ret;
+ 
+ 			*xfer->data = val & 0xff;
+ 			break;
+ 		case RTL9300_I2C_XFER_WORD:
+-			ret = regmap_read(i2c->regmap, i2c->data_reg, &val);
++			ret = regmap_read(i2c->regmap, i2c->rd_reg, &val);
+ 			if (ret)
+ 				return ret;
+ 
+@@ -402,7 +404,8 @@ static int rtl9300_i2c_probe(struct platform_device *pdev)
+ 	if (device_get_child_node_count(dev) > drv_data->max_nchan)
+ 		return dev_err_probe(dev, -EINVAL, "Too many channels\n");
+ 
+-	i2c->data_reg = i2c->reg_base + drv_data->data_reg;
++	i2c->rd_reg = i2c->reg_base + drv_data->rd_reg;
++	i2c->wd_reg = i2c->reg_base + drv_data->wd_reg;
+ 	for (i = 0; i < F_NUM_FIELDS; i++) {
+ 		fields[i] = drv_data->field_desc[i].field;
+ 		if (drv_data->field_desc[i].scope == REG_SCOPE_MASTER)
+@@ -487,7 +490,8 @@ static const struct rtl9300_i2c_drv_data rtl9300_i2c_drv_data = {
+ 		[F_SDA_SEL]		= GLB_REG_FIELD(RTL9300_I2C_MST_GLB_CTRL, 0, 7),
+ 	},
+ 	.select_scl = rtl9300_i2c_select_scl,
+-	.data_reg = RTL9300_I2C_MST_DATA_WORD0,
++	.rd_reg = RTL9300_I2C_MST_DATA_WORD0,
++	.wd_reg = RTL9300_I2C_MST_DATA_WORD0,
+ 	.max_nchan = RTL9300_I2C_MUX_NCHAN,
+ };
+ 
+@@ -507,7 +511,8 @@ static const struct rtl9300_i2c_drv_data rtl9310_i2c_drv_data = {
+ 		[F_MEM_ADDR]		= MST_REG_FIELD(RTL9310_I2C_MST_MEMADDR_CTRL, 0, 23),
+ 	},
+ 	.select_scl = rtl9310_i2c_select_scl,
+-	.data_reg = RTL9310_I2C_MST_DATA_CTRL,
++	.rd_reg = RTL9310_I2C_MST_DATA_CTRL,
++	.wd_reg = RTL9310_I2C_MST_DATA_CTRL,
+ 	.max_nchan = RTL9310_I2C_MUX_NCHAN,
+ };
+ 
 -- 
 2.53.0
 
