@@ -1,246 +1,127 @@
-Received: from TYPPR03CU001.outbound.protection.outlook.com (mail-japaneastazon11022114.outbound.protection.outlook.com [52.101.126.114])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92A531E1DFC;
-	Sat, 14 Mar 2026 00:24:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.126.114
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773447885; cv=fail; b=MEmtD6n3lL93YXj4iWDl8TPRW0wl2IG2XmbhbGQWF/Ei7zlR5I4sbmXVMUIwk+GE6dryZqBi1AAvA++X2QAYnYwqWyEaYD2yJcis2bZcoNRj1mjIJaltCOqLiLByLbc2u8hxvsxDBaOZewe3MrsFIiwyCO/NmpeZ9BxqpwEkeHE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773447885; c=relaxed/simple;
-	bh=b6ujyK0Gwi7YOeRuzDfw0/TPngbYjoYGGiAK+c1UUQw=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=bF7/h4bgMKab7HZxjLbdVLRzJqp0mV4YINTZ/0AEpiLX+duzDpwq4QpNCE8WmaqNtRMPS8pG5vQKzmsHfHcUQirprPw/QfaBVeR9XXMC+AHBc9eMyxhjWoh4d4YUJBB2JYS324wDHiIq4FuIrGQ8oYit9QukNJ4L1YOk6GBJpGc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com; spf=pass smtp.mailfrom=aspeedtech.com; dkim=pass (2048-bit key) header.d=aspeedtech.com header.i=@aspeedtech.com header.b=mary8yaI; arc=fail smtp.client-ip=52.101.126.114
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aspeedtech.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA75278F2B
+	for <linux-i2c@vger.kernel.org>; Sat, 14 Mar 2026 01:32:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773451934; cv=none; b=M6X+gx8ajljIcBJ/ygyHjSG2GX1/ja22NqZb0APYAOJEgFh+BnIvEXmVN9gXgRg+Y2aHEXhokXMK6GqIZ7yI/ksCCDDSklxopDbtrhXf1k7+fwey7cDWZ/oHfOf8m9YlEO8+miHeT+YwAIBqdoNDK9iwWKyomSDa31kRrf5Uu1M=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773451934; c=relaxed/simple;
+	bh=dNJvwOvtKkuRy5CJp7kfu5V0sbcA8LMVkK7KgeS0AaI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=g18Egx9GRLyvBl7HhVMp2tJTv5E/4Hks3oxj6Hu9j46aa+i5SEYTjmNGcANS9HxfpeM8ibbkO09vA6ST0lRNUs9t/r0gwA1oxSjYSElY7Ka6YmoxM69DNxayMlTHqLTsDlo7HmdX787LVHolutypXKY0Xf5yl0RQCHt4KIsJYss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=T3y/RC0Q; arc=none smtp.client-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=aspeedtech.com header.i=@aspeedtech.com header.b="mary8yaI"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=w3xbDB4IfLLxGWQcXgrj1x3M4eqr8LPnrK+PmLcE1TbAMv6rM4l0X49UHWnxsDv8VZXYsgRrtcoAZU0NEqOWMuMtfjfdAifjPFPVAmiodII8KytfNEvaJifGnpveIzVO9290ppoU733hLabkkh1YbfJuiwxyE8DZH+rC7zkuee7p2gR8vRTGE+HE4U8O1wP3Vh5dMAyO1GFgU2sJImScXEMj19TF+gpT6m3Yl3npcbDSi7towUhvXhQQkP9aigJmanRX2R/ez8FIf2L2W7JL6tr5OthjtJa9aVe5JGAlMV5NOrotadUc0Azrv79OJKwBr9JD1eogyXSnpKEG/B86vQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=SWjaXLWXuX8xBbvy5KG+KG+3bYuL50JP2i674dYVlHk=;
- b=SOY+ckzgQm6ewyxlAGUQXa1XWwXyE3uo5QkQt/AA79zoTN59K6GaYunz9gTEecrFdvLqiAtWc+6McTDSV7iVeaRmW/XaHQc8DaBZBiYhf+6u3O6E/xzuOighZyovek7uDalhbNuyPW1wK8r/mtc+FWOh0d82lJhD7CeM3ZDQyEwetATDmHvTk4hfopd+vElSBHp5pmu7fHiWbk6NdFdj0l2z3YeA3DgDWAu9+QbDfFQQrTVM20IiLrAJ+EFWztzRnF601kCHkK/dF0SOGk5LY9xa5LMEpn7XE5XM5yIgx0VLHFNKh167sMSQ0VXpH7SnPpP/Hsfnj+v/2gTVnawrYQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=aspeedtech.com; dmarc=pass action=none
- header.from=aspeedtech.com; dkim=pass header.d=aspeedtech.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aspeedtech.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=SWjaXLWXuX8xBbvy5KG+KG+3bYuL50JP2i674dYVlHk=;
- b=mary8yaI+djeyGAKFWnfv1oW532Bb/8qt1Jjp+C3a/50CdGu69kELLU9eFPwV8EWThF88rPo0/VMNCkT35OkhYDqZOs+bmP3CVwUVdiIk3X9bKJzhJHqNbC0IjDYiKqZz3QBDXYDJ2Y/ABN6y6BUHiyyj9A8guA48a4jqOTkJLpaeiM8YOgFbCX6+IPFrM5uRde68XKBWTBT9rBWfI2x1cqvsebYrHEln04kNQIIQRQPi1Xc8b9MGod3XDg/dqDSX1lnT+1FK9cyioYh0lZvLkeQ8+0t2RSx7WELHMnmJgZKjfjHejMDD+0jgz6KW5zrjZhlWdajAApsK9iHoEbkRQ==
-Received: from TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com (2603:1096:408::791)
- by SEYPR06MB5253.apcprd06.prod.outlook.com (2603:1096:101:87::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9700.18; Sat, 14 Mar
- 2026 00:24:39 +0000
-Received: from TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com
- ([fe80::8c70:cb01:78fb:d9c0]) by TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com
- ([fe80::8c70:cb01:78fb:d9c0%6]) with mapi id 15.20.9700.013; Sat, 14 Mar 2026
- 00:24:39 +0000
-From: Ryan Chen <ryan_chen@aspeedtech.com>
-To: Rob Herring <robh@kernel.org>
-CC: "jk@codeconstruct.com.au" <jk@codeconstruct.com.au>,
-	"andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>, Andi
- Shyti <andi.shyti@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Andrew
- Jeffery <andrew@codeconstruct.com.au>, Benjamin Herrenschmidt
-	<benh@kernel.crashing.org>, Philipp Zabel <p.zabel@pengutronix.de>,
-	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linux-aspeed@lists.ozlabs.org"
-	<linux-aspeed@lists.ozlabs.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "openbmc@lists.ozlabs.org"
-	<openbmc@lists.ozlabs.org>
-Subject: RE: [PATCH v26 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add
- global-regs and transfer-mode properties
-Thread-Topic: [PATCH v26 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add
- global-regs and transfer-mode properties
-Thread-Index: AQHcr5GE+hDVSyX/WkC7T78e6kO8trWtIRWAgAAQdrA=
-Date: Sat, 14 Mar 2026 00:24:39 +0000
-Message-ID:
- <TY2PPF5CB9A1BE6A19D439C675AF5028C13F242A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
-References: <20260309-upstream_i2c-v26-0-5fedcff8ffe8@aspeedtech.com>
- <20260309-upstream_i2c-v26-2-5fedcff8ffe8@aspeedtech.com>
- <20260313232125.GA3618633-robh@kernel.org>
-In-Reply-To: <20260313232125.GA3618633-robh@kernel.org>
-Accept-Language: zh-TW, en-US
-Content-Language: zh-TW
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=aspeedtech.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: TY2PPF5CB9A1BE6:EE_|SEYPR06MB5253:EE_
-x-ms-office365-filtering-correlation-id: d57816fa-1bd4-44a0-fcb3-08de81601481
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|366016|376014|7416014|1800799024|56012099003|18002099003|22082099003|38070700021;
-x-microsoft-antispam-message-info:
- xxCcIP7/FK8mcjK5tsAZ80ppsWArVmh1crroafFKyXQ+RPV3Bx2uO8SmM2Tn6tbBLvGM3DC4LjiUBdwpYdqU2yxPQnepsVi6z9JXUJTWxktJQIPyiRan5DIMYGdnOjfUgIPklGt7qK0mqjxPSjaxzUsNR9U/77/eN3cv8keA8yecZr8SShtAJKHq1vIF5Lec/dnFhY4/15d6mycYD2KYEotMO/flPHl19WULBuUAxEzLxjg/aC1cl0ZnfBNl6pUjqqbiqX+KinYYSZ/CXfrqShEczwBx/cR4WNIg4CFR7RUfCwJZcS+fg87n023otzxLb/byOwKZC0wful5qQ0xQ4x3AxtEKNptWN0XRdWEcvvcuKPUzrNTu9MdjK2Kb2TnMUK8Rx7RVF4CZBPFts5F5fjoYj8XozQ2eYQk9wwMvz7EDb6tR4EPV+ju/uVE+q86LX0Ub4OCuDWKC6AhTAIW25GJa5D1SbhBHBqRPKNturaxVxkvlMbro7U98rT+uDbIJ/UhFgis045mM22bKpe8+I3WvGI3MyPO0PWlHkYHuu/cJXxuvdEvfMeAOI/xpS8080KpTEHFom5LKsP7J8hivt4XtDaS0OuAyEWjFRIA2r+4NTcPvhuxEhIFOnCGJFK3N/PTMI5twg+/gCTFWnjIakLpxT8rnLxkuBo20q3wbhlsSfwylh6PG/hun89t42W+RGJlobDnCD9p5qIwSiKvwaKfDlAOnFL0cb+JzG6sBBL9dQ4gMUg8zPrsnp7uRt0kZ7dAAOLiKvktbz89RYqrgvrXApEMkHdJCPnP0z1YTujE=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(7416014)(1800799024)(56012099003)(18002099003)(22082099003)(38070700021);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?OGLiDKcq9NTuDqWaKsu2ph719p+L0Pg+eUl864/kIChrStJnVBYfe89VVgLM?=
- =?us-ascii?Q?S1PTVHwTJJSPV832Orm7T5EQUeki16IlqfV8SSzAzCJAY0w9tt7jjBEzIILc?=
- =?us-ascii?Q?PdK1Sothd1QCFl8XLLieHIS82dArpA9Kn0gg2dnitXEh27oMic8ERa5OHPxp?=
- =?us-ascii?Q?5MK4WWu8Qvh7fOhf5fzmZ/qCayORfF2TX3LuGx4XsKVmd1cLrrFXP/CjIjP4?=
- =?us-ascii?Q?hmd91M7pLy+TueCfmkpXgfBT3a9RXvTW6Gy+WC64r0pD8d1+/DQRxI0nJWPX?=
- =?us-ascii?Q?9DYpO7fOHIyq8iPZDzAH9MpEnyoP0ze+GVH9/ItYU4HloqcY7mXTuyWWznOo?=
- =?us-ascii?Q?F50Nl2cdEUNMxkzmazUAEUchytAL4UY3KfOOJUrQNrmVsfu8CueCeKj7jYyz?=
- =?us-ascii?Q?Kkn3KPQ9x8pgGGvGcCRKfyir4AKmHACKV4aUp+BaM4AT8kM2KN1k5s0+6ebd?=
- =?us-ascii?Q?Ywnkwz/TjGwBWhHPD8Lk0bwsU5FocliQT9baKIfLhMN9WakJy6KfA9xIqLOX?=
- =?us-ascii?Q?clw3wJ44XHCmqw6oEdYCK0RGv9YxzGrmVRjL3N9wX1gg8Cunwl2LugARkOm9?=
- =?us-ascii?Q?aJsbBFzzqYqvBKXJ+ahiFmf2LPEL3hJGNPaeUc1Pv54atI5nvfyWCZ05fgqj?=
- =?us-ascii?Q?IzlNl5FwNiuwHo0WtmHVlu4YdAaUKKwbuMK5yhJ+TTzOlIsLgHgqeUluAKiC?=
- =?us-ascii?Q?kBSghRp2p9zFKf3YVySnOWvy3RkNrE2ikNqlugeS+sdQMgHmTdTa0PvS8bE/?=
- =?us-ascii?Q?aSxvNBeUarSMlFeBjNVm+8jFDUoxvsKSUnwzN9LmRp0Lw4BiPJBzHR4UvZ8w?=
- =?us-ascii?Q?+tBxxZVo1wALYjsuTXguucLNOOZG8W+eK8FRqEUHaS/rHLaM5cpxpu9DeZnc?=
- =?us-ascii?Q?+bS2wuoHo6AlA/+YOYr/ycEOUlxZ0OcRp0VD7yCZO8ny+rFTIT9km9O5rq7E?=
- =?us-ascii?Q?MyHFlV8slJIfS0pumWG9L+xANsqzdO+rC/A/YVZFU5TWIL1Qmxl7uH2rTlfH?=
- =?us-ascii?Q?Jy/dlrOAQnPDeNqaQcwJjzKIBJtkzRD5sAAhZnQ1YFM3oiwQ+S28Rab6hYIl?=
- =?us-ascii?Q?6VMki9ahvgCW0m3CV12UTvcNIbTTW+edDpiPELjg2YLIBrA5OA65T/jE1CsS?=
- =?us-ascii?Q?0GqllOBCMXTtq4FJvjenZ6bxMt7tHX0DbyOPVmxociNcTCfnI2QP6Pz7+ais?=
- =?us-ascii?Q?iWaBQ1Vch3txlVdL6IxwmIpFDHWjxn33BxF4WByFfoIFG+DW24lHN7Xt6z+U?=
- =?us-ascii?Q?C8gdnZ6XcWLKr0hmEuWFWEzEm0BOA3QXd++Eb4A5BeoVogrbpuJq2jgaJBdL?=
- =?us-ascii?Q?j8/n66Xl6v5lwTdD4Jd1Im3TNVL5+EPj+fJlE57plE9CRYc9fXqnovMW4Pig?=
- =?us-ascii?Q?hH0KLAETXA3o8+3CQj1hpvE1kFkcO1JH3H9hmGY8lMsOqxtZdHSYTbHdmkrs?=
- =?us-ascii?Q?pHZeILMCWUXzTMF0Eqwcf7ZNG3AJVbZPmLYJZsX3kgYKnjewr0OsXpirjCuW?=
- =?us-ascii?Q?I6c+b9UnvWUIIi8XE7AwHZjtfdZJlAb1e3/kxkLPUWCXO53ll3Kd9JUftJrv?=
- =?us-ascii?Q?OYjrgfltnxApvl5gcpPz7UD+dFb4K7QKhzNg7+XwA2nIgrXj/JMchTvK6gSD?=
- =?us-ascii?Q?UYsBDYAGvRcsds9QSjIBm6aimS9QFYP/nNyo58oWGb4yLo1ghbA+lPUKzBzE?=
- =?us-ascii?Q?A99cXCFG2sIWtHZe14UUrUHz0/XXDdRhXph4D/jYbpEgexbVBqItKqOs4Cxe?=
- =?us-ascii?Q?My2N8Pjasw=3D=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="T3y/RC0Q"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4853aec185aso23123595e9.1
+        for <linux-i2c@vger.kernel.org>; Fri, 13 Mar 2026 18:32:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773451931; x=1774056731; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=+3d+vA9WOD1aIXWABPX3fea+gZYGZsE6ZaKFwHPcp3I=;
+        b=T3y/RC0QSiLCNAODcJPUDco8nXt0Ps2Hv4BoFX9ZvOp8xtZvax0GV6+eYvmfoKFylr
+         M294aq0xTu9devijqN5tNUkq05k3ZIZRZj4cMvxq7cMlAZ18qOeua47x6c+77CKaNHVr
+         VyNF3QzD82MxmP+wkM43h3bXJgSyYC2jfCurzCLpmQZUTjSHH3/ZRpc9EO+KEV04Gkt3
+         MY+07o/3QJmlJcesemijSQB9SUqzyOt51XV9EnCyW8xU135nL6cHJWi3qq13AXceoljz
+         xWzcJqI6N7GMdM7VkNxkg8a3xSB2ySJmwJR+zPXnRjF3L4y4o6rXXu7FGo5YG8lotakD
+         4CmQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773451931; x=1774056731;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=+3d+vA9WOD1aIXWABPX3fea+gZYGZsE6ZaKFwHPcp3I=;
+        b=FUtRGzAQ/pfDYJS+CnjNpcXtC6btreCTrJJeNiB2Ata0C2sfMQV6yZmc+ZjL+YtERe
+         poSMiEWAxbt5jVEZoSJyt1hhiwvwIvSwJ25t/pPGzBmVuy4q1eCvmtWRN+dHHwL8dte2
+         zgFUIel9BOsCnqQY6U7oxBFoGbHDEZTHGJ1XAf2fIvHHEaziYFkJCgJY2vKlhA/FohX1
+         ckBnZuCGZoksfoGT60a7+6yLWzAa9+8FqMn9cS2hT4n8vFatkD6XZ67LmZR1r53pSWP2
+         uHIOFrWlcCBts8p+xo3Wu39YtfoKHihGPOlp1W60R0Ty0DQJ/p/Qp9dtu0O9F9+NHr3X
+         DNHg==
+X-Gm-Message-State: AOJu0YypXPKe5J+1x8oTPg0amvaDVg3bYJYzlMvWjvEgyzVB8rXWaqv9
+	z4BFIQHc24JVYhnJpH8PTUGf+ZfgvMgbEr5ivLrBu7V7t6fDALD2DKnBu01ERFn4AY4=
+X-Gm-Gg: ATEYQzwfuBQ1ohqFwEVlIACaaeBQswip3QO+M85KXkMlJJomnATHT2gENd+EQKLGHeP
+	BO89dYiOeCMhZJBgbcgCE8eeo1b/RnastH34vr/pHx8F2SWJyLB0kbepZrN8v3hQx1XHxX6OAz5
+	/s3RbJcjRX2vRxwINVVI7ZZ6mPf4XQb8uFAiup+J8k8vi0Y1SNiMiCCWyrFgMQIiDMMtu+OrCLk
+	wuyjteAw0zwuFeixJZo13WP2UEaDxPuqlrQloOKwhM16Wq6Q9PqCxjJeWmUjToLG3zJwFdwlhRL
+	2nSsRcFCn57eg/XQGRYtOd/9llgHNAWgm/RVA0lTGfzHJXnZLjqMW/DQ8luRDrb+L2k+XXMAdip
+	Tky5VIGXC42+3lRZhH9cP5SOPyabnUw4Gkd6U2mWcupQSaNwpEwz1WJcHnyyb32KCMCg0Ncrz6g
+	9/5MpBb/W57gOuNlL+EMX/EDwraLF5kxQukKknWsrPz06fMxQYqSurPKi4Bb87BPCvUG0mUfmdt
+	N0zzoKznnStw0RC/QG11jLmeM2UtU3FOceQkHdiOlxq2PYVtwrUCaGmpVL92hjfXXajIeFgmaBm
+	I6t3YsoZotg=
+X-Received: by 2002:a05:600c:3b14:b0:485:17a7:b9c7 with SMTP id 5b1f17b1804b1-485566d5178mr83204885e9.10.1773451930625;
+        Fri, 13 Mar 2026 18:32:10 -0700 (PDT)
+Received: from scambox.localdomain (5-198-68-184.static.kc.net.uk. [5.198.68.184])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-439fe22529csm21876575f8f.31.2026.03.13.18.32.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Mar 2026 18:32:10 -0700 (PDT)
+From: Edward Blair <edward.blair@gmail.com>
+To: linux-i2c@vger.kernel.org,
+	linux-usb@vger.kernel.org
+Cc: heikki.krogerus@linux.intel.com,
+	gregkh@linuxfoundation.org,
+	wsa+renesas@sang-engineering.com,
+	westeri@kernel.org,
+	linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Edward Blair <edward.blair@gmail.com>
+Subject: [PATCH 0/2] Add UCSI I2C transport driver for ITE885x USB-C controllers
+Date: Sat, 14 Mar 2026 01:31:54 +0000
+Message-ID: <20260314013157.7181-1-edward.blair@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-OriginatorOrg: aspeedtech.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d57816fa-1bd4-44a0-fcb3-08de81601481
-X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Mar 2026 00:24:39.3478
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43d4aa98-e35b-4575-8939-080e90d5a249
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: HtHHx58OKUNqEEV2OMmH4NKvUqTVwG744xliVI/t14tkdRwoSNEiYZ9lMsS2bq5CrTNHUh2W5aFsDN9BWq9z2UJHO+ljgRR3F7wtlWVBfIY=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SEYPR06MB5253
+Content-Transfer-Encoding: 8bit
 
-> Subject: Re: [PATCH v26 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add glob=
-al-regs
-> and transfer-mode properties
->=20
-> On Mon, Mar 09, 2026 at 02:53:53PM +0800, Ryan Chen wrote:
-> > The AST2600 I2C controller supports three transfer modes (byte,
-> > buffer, DMA). Add "aspeed,transfer-mode" so DT can select the
-> > preferred transfer method per controller instance. Also add the
-> "aspeed,global-regs"
-> > phandle to reference the AST2600 global registers syscon/regmap used
-> > by the controller.
-> >
-> > These properties apply only to the AST2600 binding and are not part of
-> > the legacy binding, which uses a mixed controller/target register
-> > layout and does not have the split register blocks or these new
-> > configuration registers. Legacy DTs remain unchanged.
-> >
-> > Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
-> > ---
-> >  .../bindings/i2c/aspeed,ast2600-i2c.yaml           | 29
-> ++++++++++++++++++++++
-> >  1 file changed, 29 insertions(+)
-> >
-> > diff --git
-> > a/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
-> > b/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
-> > index de2c359037da..323e4f9b290a 100644
-> > --- a/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
-> > +++ b/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
-> > @@ -37,6 +37,33 @@ properties:
-> >    resets:
-> >      maxItems: 1
-> >
-> > +  aspeed,transfer-mode:
-> > +    description: |
-> > +      ASPEED ast2600 platform equipped with 16 I2C controllers each i2=
-c
-> controller
-> > +      have 1 byte transfer buffer(byte mode), 32 bytes buffer(buffer m=
-ode),
-> and
-> > +      share a DMA engine.
-> > +      Select I2C transfer mode for this controller. Supported values a=
-re:
-> > +        - "byte": Use 1 byte for i2c transmit (1-byte buffer).
-> > +        - "buffer": Use buffer (32-byte buffer) for i2c transmit. (def=
-ault)
-> > +                    Better performance then byte mode.
->=20
-> Good, I like worse performance so I can use byte mode.
-Thanks your review.
-Will remove performance statement.
->=20
-> > +        - "dma": Each controller DMA mode is shared DMA engine. The
-> AST2600 SoC
-> > +                 provides a single DMA engine shared for 16 I2C
-> controllers,
-> > +                 so only a limited number of controllers can use DMA
-> simultaneously.
-> > +                 Therefore, the DTS must explicitly assign which
-> controllers are
-> > +                 configured to use DMA.
-> > +      On AST2600, each controller supports all three modes.
-> > +      If not specified, buffer mode is used by default.
-> > +    enum:
-> > +      - byte
-> > +      - buffer
-> > +      - dma
->=20
-> This is not required, so what is the default mode? If there's a default, =
-you don't
-> need the default value in the first place as the default is the property =
-omitted.
+ASUS Z690/Z790/X670E motherboards use ITE8853 (and related ITE8800-ITE8805)
+USB Type-C controllers that implement UCSI over I2C. These are currently
+unsupported in Linux, causing a boot error:
 
-Thanks, Will update with following.
+  i2c i2c-1: Failed to register i2c client ITE8853:00 at 0x40 (-16)
 
-aspeed,transfer-mode:
-  description:
-    Selects the AST2600 I2C transfer mode:
-      - byte: 1-byte transfer buffer
-      - buffer: 32-byte transfer buffer
-      - dma: DMA-based transfers
-  enum:
-    - byte
-    - buffer
-    - dma
->=20
-> > +
-> > +  aspeed,global-regs:
-> > +    $ref: /schemas/types.yaml#/definitions/phandle
-> > +    description:
-> > +      Phandle reference to the i2c global syscon node, containing the
-> > +      SoC-common i2c register set.
-> > +
-> >  required:
-> >    - reg
-> >    - compatible
-> > @@ -59,4 +86,6 @@ examples:
-> >          resets =3D <&syscon ASPEED_RESET_I2C>;
-> >          clock-frequency =3D <100000>;
-> >          interrupts =3D <GIC_SPI 110 IRQ_TYPE_LEVEL_HIGH>;
-> > +        aspeed,global-regs =3D <&i2c_global>;
-> > +        aspeed,transfer-mode =3D "buffer";
-> >      };
-> >
-> > --
-> > 2.34.1
-> >
+The BIOS on these boards declares two ACPI devices for the same physical
+hardware at the same I2C address: a generic UCSI device (MSFT8000) and a
+vendor-specific device (ITE8853). The generic device registers first during
+ACPI enumeration, blocking the vendor-specific one with -EBUSY. The ITE8853
+ACPI device carries the GPIO interrupt resource needed for proper operation,
+while MSFT8000 does not.
+
+Patch 1 fixes the i2c ACPI enumeration to skip known generic devices when a
+vendor-specific sibling exists at the same address. This is a general fix
+that could benefit other platforms with the same BIOS pattern.
+
+Patch 2 adds the ITE885x UCSI transport driver, modeled after ucsi_stm32g0.c.
+The only device-specific quirk is that PPM_RESET is handled internally by the
+ITE8853 and must not be sent over I2C.
+
+Tested on ASUS ROG Strix Z790-E Gaming WiFi:
+  - Boot error eliminated
+  - /sys/class/typec/port0 registered successfully
+  - UCSI commands complete within one polling cycle (~50ms)
+  - USB-C device attach/detach detected with partner enumeration
+  - USB Power Delivery negotiation functional
+  - SuperSpeed Plus Gen 2x1 devices operational through UCSI-managed port
+
+No MAINTAINERS entry is added as the driver falls under the existing
+USB TYPEC UCSI section. Happy to add one if preferred.
+
+Edward Blair (2):
+  i2c: acpi: skip generic I2C device when vendor-specific sibling exists
+  usb: typec: ucsi: add ITE885x I2C transport driver
+
+ drivers/i2c/i2c-core-acpi.c       |  88 +++++++++
+ drivers/usb/typec/ucsi/Kconfig    |  11 ++
+ drivers/usb/typec/ucsi/Makefile   |   1 +
+ drivers/usb/typec/ucsi/ucsi_ite.c | 285 ++++++++++++++++++++++++++++++
+ 4 files changed, 385 insertions(+)
+ create mode 100644 drivers/usb/typec/ucsi/ucsi_ite.c
+
+-- 
+2.53.0
+
