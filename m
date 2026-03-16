@@ -1,86 +1,96 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 066BB355F48;
-	Mon, 16 Mar 2026 08:42:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE96534A3A2;
+	Mon, 16 Mar 2026 10:00:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773650549; cv=none; b=Vbt6lIMQVdOVncZUNeoff36Aggy0GlO5YiMzRL7P6oKBmy2UR6Jn5uld5anNK6ECdMkNsLypm11TyE9mO7goFppoMmz1hITPhgTrFC/b/dzNh7Pkypbl7lKuf4a1ul+SJ6L4BXM+RPJoSp8y/FW6Fut7LQimpHv1h/TBqg/tSjU=
+	t=1773655223; cv=none; b=NVqyRtO6i1Gmx5VqfvnSF2NTxqea26gw0T62pHumSXVNWqQv5rPbTPsMqwrftwkbhjhLh5XLEZHfr1abPE199pS7OJf7qpFpwIF34itI1ASX7IAjBRqg1fnxE2MoF2Pb1BVpWpva1ZFfIG2AyT3t6PeIyo6pkuSz1/8VRXQVhdI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773650549; c=relaxed/simple;
-	bh=9LJ2+2SgK7w+NRyNaEGoZkSKWLsSd19na5lnCcCLdDA=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=C+0fgfDcMZ06UON8XQYJZZgLIqiErtsQ7RSgml/te1VYrgTtJHbB1JnDyt+dmo7RbeA67xDnuAlWzkDdieUZplpiJBg3IszTVmRNGHUvpYWZ829xx+TWd2y6qbDzKgskTyDav8EaVc1Ecl4lzfybnF3aQ3ubw0v249VO42xsTXM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HueAbbgb; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773655223; c=relaxed/simple;
+	bh=oDCWXtcdNUoexWPdAJlnnGHY5eh//4KjcNNcgNjgvqA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dm1JwKKpG8GRvGMfeswQTlZyxhHDdqVmgZNS8jrT/fn9aoHWlb4qoh0MeOhL90r2zYM2tyXb4ZleB0FiWUz5QwntKJX//LL+0imVKqo7gPUg808bPj7XF80xmyrYnsvd9DZWfxVaWtbkaqZlVgpvvwEht4qFJc6m4WzWyPGVQHc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Q8n1M2ss; arc=none smtp.client-ip=192.198.163.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HueAbbgb"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB1B3C19421;
-	Mon, 16 Mar 2026 08:42:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773650548;
-	bh=9LJ2+2SgK7w+NRyNaEGoZkSKWLsSd19na5lnCcCLdDA=;
-	h=Date:From:Subject:To:Cc:References:In-Reply-To:From;
-	b=HueAbbgbhxKEaBW7w0dzIcNXgtAE9iyH0WnDtPEOzjPRgM71uZliWj8r0Mz7sQCrS
-	 9SwYtorMTIo0o4AfIeBdDWSRXF5TlvCphV36rMWzFcoLZaVnQH4SPhLc3M5TlZqb0L
-	 vBkdB79aBc76zAUt2+11fObdKcjBUIqAF0qYW/h354DhJbLj4D4ByTZjqswWFutVFE
-	 Sbp+n19NLxxsFope55qDW3egNxCb48nf/BiUjaHT9Gj/TFwXInqNlsxLvnow3vHZrZ
-	 05ThNtgMvOZ0L8xV7rj4yEbEmu+rSSb2eDyuLBCyh0Ehst/lK8lGR+IyiVfrES+pTh
-	 ffgqQGNEIQF7w==
-Message-ID: <2d879c2a-aded-444c-a54f-cb0e8acd89b1@kernel.org>
-Date: Mon, 16 Mar 2026 09:42:21 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Q8n1M2ss"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1773655222; x=1805191222;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=oDCWXtcdNUoexWPdAJlnnGHY5eh//4KjcNNcgNjgvqA=;
+  b=Q8n1M2ssUJEGoQpJZn+myeSY/ra3jWdENJ3ZRq/if1ABoOJzOkaXz+pI
+   eFrb0tkFuQNBXA/5OyaeJo46LHh/n+/+OeeGKHNjWWwBV0ilfZ9UCUY0v
+   Hn5k8a8ex2iwbRmqcyyap8zuAHCPVOfcxlGNyfWoOgHmvGp8BXZ2mzQbE
+   k/Z9NTLoJf+OEyLPCYD3VhO9uCOkVAvDV/+VqaHZwOo42lyQ1ikBPH6Oc
+   dnbQLQQJowJpAOyzPFHhjiHBdUdxc6hfilaO5ldV++8TJo6+lO1hSuanF
+   QShkLAHmkIPHW/0f7bYG8NKFiAwnetCnhqYCPIvYyu8qemVHI1/6vKsIP
+   Q==;
+X-CSE-ConnectionGUID: k4yZI/uESMOS5z32IUtZUw==
+X-CSE-MsgGUID: P1egZdJ+QK6RGyD6+j2/Xw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11730"; a="73681468"
+X-IronPort-AV: E=Sophos;i="6.23,123,1770624000"; 
+   d="scan'208";a="73681468"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2026 03:00:21 -0700
+X-CSE-ConnectionGUID: rSxpTnUpRkqodHdy8QXgDw==
+X-CSE-MsgGUID: t2z2WKsKS7qI22OnAKAatw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,123,1770624000"; 
+   d="scan'208";a="259768354"
+Received: from vpanait-mobl.ger.corp.intel.com (HELO localhost) ([10.245.244.237])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2026 03:00:18 -0700
+Date: Mon, 16 Mar 2026 12:00:16 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Marcus Folkesson <marcus.folkesson@gmail.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Peter Rosin <peda@axentia.se>,
+	Michael Hennerich <michael.hennerich@analog.com>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v8 4/5] i2c: davinci: add support for setting bus
+ frequency
+Message-ID: <abfUsE0cR6GddDDz@ashevche-desk.local>
+References: <20260314-i2c-mux-v8-0-fb1738a4df0a@gmail.com>
+ <20260314-i2c-mux-v8-4-fb1738a4df0a@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Hans Verkuil <hverkuil+cisco@kernel.org>
-Subject: Re: [PATCH v2 01/13] media: saa7134: rename i2c_dbg() to
- saa7134_i2c_dbg()
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
- Andi Shyti <andi.shyti@kernel.org>, Chen-Yu Tsai <wens@kernel.org>,
- Jernej Skrabec <jernej.skrabec@gmail.com>,
- Samuel Holland <samuel@sholland.org>, Khalil Blaiech <kblaiech@nvidia.com>,
- Asmaa Mnebhi <asmaa@nvidia.com>, Jean Delvare <jdelvare@suse.com>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- =?UTF-8?Q?Andreas_F=C3=A4rber?= <afaerber@suse.de>,
- Manivannan Sadhasivam <mani@kernel.org>,
- Mauro Carvalho Chehab <mchehab@kernel.org>, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-sunxi@lists.linux.dev, linuxppc-dev@lists.ozlabs.org,
- linux-actions@lists.infradead.org, Bartosz Golaszewski <brgl@kernel.org>,
- linux-media@vger.kernel.org
-References: <20260223-i2c-printk-helpers-v2-0-13b2a97762af@oss.qualcomm.com>
- <20260223-i2c-printk-helpers-v2-1-13b2a97762af@oss.qualcomm.com>
- <76fd11b2-7789-47c1-a832-12907155ead1@kernel.org> <abfBkg8YpDKIlOVu@shikoro>
-Content-Language: en-US, nl
-In-Reply-To: <abfBkg8YpDKIlOVu@shikoro>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260314-i2c-mux-v8-4-fb1738a4df0a@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On 16/03/2026 09:38, Wolfram Sang wrote:
-> Hi Hans,
+On Sat, Mar 14, 2026 at 10:22:43AM +0100, Marcus Folkesson wrote:
+> Populate adapter with clock_hz and .set_clk_freq() to enable support for
+> dynamic bus frequency.
 > 
->> Do you want to merge this through the i2c subsystem? Or do you want me to
->> merge this patch through the media subsystem?
-> 
-> The rest of this series has been dropped in favor of a different
-> approach. I still think this single patch here is useful, so if you
-> could pick it up, that would make a potential future change easier.
+> Remove bus_freq_hz entirely and only use clock_hz instead.
 
-OK! The patch makes sense, so I'll pick it up.
+...
 
-Regards,
+>  	u32 input_clock = clk_get_rate(dev->clk);
+> +	u32 bus_freq_hz = dev->adapter.clock_hz;
 
-	Hans
+> +
 
-> 
-> Thanks and happy hacking,
-> 
->    Wolfram
-> 
+Stray blank line. We have already one below.
+
+>  
+>  	/* NOTE: I2C Clock divider programming info
+>  	 * As per I2C specs the following formulas provide prescaler
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
 
