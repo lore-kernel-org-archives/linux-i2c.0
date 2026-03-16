@@ -1,60 +1,60 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB55A382362;
-	Mon, 16 Mar 2026 13:12:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A1DE6FC5;
+	Mon, 16 Mar 2026 14:07:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773666744; cv=none; b=MlODgqJ8D1E2af7Q1GNAwRFMWOhk8IPiGSZpTBmcJ9z0rFDnnnqxRMhc4ZTwPVc3Vu4M0hwcqv2HmWA8C46leKoXkmflxZPakl+ZMRcJupsRBjaUQ1g1QSdNCdMW4DFuBVZy1cNDNaKZDhyxsmuZGtaus6r/E+cYbCvniMjdrPk=
+	t=1773670066; cv=none; b=LgLcUww8zyKzvAKiAFbNaJiE3xwJQezT8xL8nGiXv4706F6mJCrJV1s7mFBaf9VUQE0ikNRcd0UQlnMz8LNCm6bMretjnssTObCD67pbOk7rj99Oc5Y/ITU9GvKHecTARhQi6nU+Krm+71YumeRGD4j5l0ZmbFU+2ImyCnQbi8k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773666744; c=relaxed/simple;
-	bh=lTabpCjBeJaGNQ4Rm4dBCUuNvEcTFzKMAs3b6NmGIFE=;
+	s=arc-20240116; t=1773670066; c=relaxed/simple;
+	bh=Y+V9+zbKfrDyL4a5iacNwH2u07h1sCoC3a1ixh5Uhs0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KQyBQ13idvVgq7/zjS/DrwksJrf/PdRvsr0hP9oFDRb0AbuNLGtsqJy6F3u13mlkhMND2TAignOSqbBjn8V5p/ub5sMOMuUJD31nN/fD5QGjG1L4871xwCAxEw1OynAai/2Ri/v5NjPIF4j8er0Z13hM190CG+glr3DOhjq0XLY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=MGV8Q87a; arc=none smtp.client-ip=198.175.65.9
+	 Content-Type:Content-Disposition:In-Reply-To; b=oiLCIjsjAd+SrMZa5x/TUHX7wDKZ3z5IzAUzcLAp6OGmHBZKAs1sles008v4b4lTllpTedjAf4v6K7rHW3ijeLgY5Ke/yKP4GsrpZhzUUGh1b7byRyra4bvNYRYIleqwRzN8wULJg9HQmdI/y92mzbvchnuCkj60uTUC9xNq1dA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=lMn3Yi4d; arc=none smtp.client-ip=192.198.163.16
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="MGV8Q87a"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="lMn3Yi4d"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1773666743; x=1805202743;
+  t=1773670065; x=1805206065;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=lTabpCjBeJaGNQ4Rm4dBCUuNvEcTFzKMAs3b6NmGIFE=;
-  b=MGV8Q87a9gVN3iGWL8U7m9ocdJ547t+1CJt7MVfTw06FX3BB0qIGXWcA
-   FglcCvsfRD5OX3zTmEpFT4gouXt0nY4QH2iK6btzRL7vUAwTlY+4+g7nQ
-   WXcNjTUWYkTYl7arZUY4mSa5ttODqLpAXUKZ8+8lKfEa06B3gzduOhXEA
-   RJaCoqAY0XBL/s3Csvb9EoVXJqqdPG6bf8EJ3zhesEK7PVgwH5T+SEhQb
-   Cnr9MLTNcBppdid765A2x2UeSIeX1T/ynuc9DBZYwtN7DryGeFITIvaSt
-   HzmA+cpcJaqfTXibxFpxk2lhCBbgayYJo9I+BKV9yPT7qleLMG45ufujn
-   A==;
-X-CSE-ConnectionGUID: VVQ+XAvMTvqB+3I79q0++A==
-X-CSE-MsgGUID: 4zOxRV+sRben+5G5O3PP0A==
-X-IronPort-AV: E=McAfee;i="6800,10657,11731"; a="97289838"
+  bh=Y+V9+zbKfrDyL4a5iacNwH2u07h1sCoC3a1ixh5Uhs0=;
+  b=lMn3Yi4dn2JLt8UnjjjktV9e71POPloauT3ekA5deU5o/QvkgdgqAIqM
+   bsFO3PzVA0TKJBtaWeC00NmNKpAwabW3CtBkPcCjOsKTwAiFAyt6YebDa
+   UmBlqDRWSDQ/df49xz+gTZfV1luHbaXJ4imIFn17uGehiDKkywwuZ1UGx
+   Widf47cWaB+sO1eXTe8sQCqdyMYfLosL8Yzr7C5Z4xFU6pU5m1lrFdAV0
+   or/tK6lbr4WF4V8s6JoJZzyZhrV0Tm3b2G3rhqZxqFJQ2QW33xc28QuBy
+   H9Xrn+e2WuxuGbI7EDjFBMx8O2sY7qXyshn+io68K8/JodL1YNjaC4IZb
+   w==;
+X-CSE-ConnectionGUID: oy1GVYcOS+KTcl0FVvbFvw==
+X-CSE-MsgGUID: YenDiutjSOSEqg7eTZhHUg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11731"; a="62252946"
 X-IronPort-AV: E=Sophos;i="6.23,124,1770624000"; 
-   d="scan'208";a="97289838"
-Received: from orviesa004.jf.intel.com ([10.64.159.144])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2026 06:12:22 -0700
-X-CSE-ConnectionGUID: RdEDXrOGSIuEDuaXQjLJOw==
-X-CSE-MsgGUID: G+IyBQQyRImK9X1PBtyWEQ==
+   d="scan'208";a="62252946"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2026 07:07:44 -0700
+X-CSE-ConnectionGUID: l6Le8XKQQAWDfVYOcMSIeA==
+X-CSE-MsgGUID: LOf5DD+oSOOa3rF5kObdtA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.23,124,1770624000"; 
-   d="scan'208";a="226372232"
+   d="scan'208";a="219502454"
 Received: from black.igk.intel.com ([10.91.253.5])
-  by orviesa004.jf.intel.com with ESMTP; 16 Mar 2026 06:12:21 -0700
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id 1CD2F95; Mon, 16 Mar 2026 14:12:19 +0100 (CET)
-Date: Mon, 16 Mar 2026 14:12:19 +0100
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+  by fmviesa008.fm.intel.com with ESMTP; 16 Mar 2026 07:07:43 -0700
+Received: by black.igk.intel.com (Postfix, from userid 1008)
+	id B2CC798; Mon, 16 Mar 2026 15:07:41 +0100 (CET)
+Date: Mon, 16 Mar 2026 16:07:00 +0200
+From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 To: Edward Blair <edward.blair@gmail.com>
 Cc: linux-i2c@vger.kernel.org, linux-usb@vger.kernel.org,
-	heikki.krogerus@linux.intel.com, gregkh@linuxfoundation.org,
-	wsa+renesas@sang-engineering.com, westeri@kernel.org,
-	linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+	gregkh@linuxfoundation.org, wsa+renesas@sang-engineering.com,
+	westeri@kernel.org, linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
 Subject: Re: [PATCH 1/2] i2c: acpi: skip generic I2C device when
  vendor-specific sibling exists
-Message-ID: <20260316131219.GD2275908@black.igk.intel.com>
+Message-ID: <abgOhNVOKMaeAGSx@kuha>
 References: <20260314013157.7181-1-edward.blair@gmail.com>
  <20260314013157.7181-2-edward.blair@gmail.com>
 Precedence: bulk
@@ -63,11 +63,11 @@ List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20260314013157.7181-2-edward.blair@gmail.com>
 
-On Sat, Mar 14, 2026 at 01:31:55AM +0000, Edward Blair wrote:
+Sat, Mar 14, 2026 at 01:31:55AM +0000, Edward Blair wrote:
 > Some BIOS implementations (notably ASUS Z690/Z790/X670E motherboards)
 > declare both a generic UCSI device (MSFT8000) and a vendor-specific
 > device (e.g., ITE8853) as ACPI children of the same I2C controller,
@@ -108,7 +108,15 @@ On Sat, Mar 14, 2026 at 01:31:55AM +0000, Edward Blair wrote:
 > +	{}
 > +};
 
-Are they both "present"? I mean their _STA() returns 0xF for both?
+That's not a generic UCSI device. That's the "RhProxy" device unless
+I'm completely mistaken, and it's meant to be used in Windows to give
+the user mode access to GPIOs, SPI, I2C and UART:
+https://learn.microsoft.com/en-us/windows/uwp/devices-sensors/enable-usermode-access
 
-We have a quirk table already in drivers/acpi/x86/utils.c that I think could
-be used to mark the other one being not present.
+I think we need to handle that one in drivers/acpi/x86/utils.c like
+Mika said.
+
+thanks,
+
+-- 
+heikki
