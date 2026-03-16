@@ -1,96 +1,114 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE96534A3A2;
-	Mon, 16 Mar 2026 10:00:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB55A382362;
+	Mon, 16 Mar 2026 13:12:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773655223; cv=none; b=NVqyRtO6i1Gmx5VqfvnSF2NTxqea26gw0T62pHumSXVNWqQv5rPbTPsMqwrftwkbhjhLh5XLEZHfr1abPE199pS7OJf7qpFpwIF34itI1ASX7IAjBRqg1fnxE2MoF2Pb1BVpWpva1ZFfIG2AyT3t6PeIyo6pkuSz1/8VRXQVhdI=
+	t=1773666744; cv=none; b=MlODgqJ8D1E2af7Q1GNAwRFMWOhk8IPiGSZpTBmcJ9z0rFDnnnqxRMhc4ZTwPVc3Vu4M0hwcqv2HmWA8C46leKoXkmflxZPakl+ZMRcJupsRBjaUQ1g1QSdNCdMW4DFuBVZy1cNDNaKZDhyxsmuZGtaus6r/E+cYbCvniMjdrPk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773655223; c=relaxed/simple;
-	bh=oDCWXtcdNUoexWPdAJlnnGHY5eh//4KjcNNcgNjgvqA=;
+	s=arc-20240116; t=1773666744; c=relaxed/simple;
+	bh=lTabpCjBeJaGNQ4Rm4dBCUuNvEcTFzKMAs3b6NmGIFE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=dm1JwKKpG8GRvGMfeswQTlZyxhHDdqVmgZNS8jrT/fn9aoHWlb4qoh0MeOhL90r2zYM2tyXb4ZleB0FiWUz5QwntKJX//LL+0imVKqo7gPUg808bPj7XF80xmyrYnsvd9DZWfxVaWtbkaqZlVgpvvwEht4qFJc6m4WzWyPGVQHc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Q8n1M2ss; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=KQyBQ13idvVgq7/zjS/DrwksJrf/PdRvsr0hP9oFDRb0AbuNLGtsqJy6F3u13mlkhMND2TAignOSqbBjn8V5p/ub5sMOMuUJD31nN/fD5QGjG1L4871xwCAxEw1OynAai/2Ri/v5NjPIF4j8er0Z13hM190CG+glr3DOhjq0XLY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=MGV8Q87a; arc=none smtp.client-ip=198.175.65.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Q8n1M2ss"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="MGV8Q87a"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1773655222; x=1805191222;
+  t=1773666743; x=1805202743;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=oDCWXtcdNUoexWPdAJlnnGHY5eh//4KjcNNcgNjgvqA=;
-  b=Q8n1M2ssUJEGoQpJZn+myeSY/ra3jWdENJ3ZRq/if1ABoOJzOkaXz+pI
-   eFrb0tkFuQNBXA/5OyaeJo46LHh/n+/+OeeGKHNjWWwBV0ilfZ9UCUY0v
-   Hn5k8a8ex2iwbRmqcyyap8zuAHCPVOfcxlGNyfWoOgHmvGp8BXZ2mzQbE
-   k/Z9NTLoJf+OEyLPCYD3VhO9uCOkVAvDV/+VqaHZwOo42lyQ1ikBPH6Oc
-   dnbQLQQJowJpAOyzPFHhjiHBdUdxc6hfilaO5ldV++8TJo6+lO1hSuanF
-   QShkLAHmkIPHW/0f7bYG8NKFiAwnetCnhqYCPIvYyu8qemVHI1/6vKsIP
-   Q==;
-X-CSE-ConnectionGUID: k4yZI/uESMOS5z32IUtZUw==
-X-CSE-MsgGUID: P1egZdJ+QK6RGyD6+j2/Xw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11730"; a="73681468"
-X-IronPort-AV: E=Sophos;i="6.23,123,1770624000"; 
-   d="scan'208";a="73681468"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2026 03:00:21 -0700
-X-CSE-ConnectionGUID: rSxpTnUpRkqodHdy8QXgDw==
-X-CSE-MsgGUID: t2z2WKsKS7qI22OnAKAatw==
+  bh=lTabpCjBeJaGNQ4Rm4dBCUuNvEcTFzKMAs3b6NmGIFE=;
+  b=MGV8Q87a9gVN3iGWL8U7m9ocdJ547t+1CJt7MVfTw06FX3BB0qIGXWcA
+   FglcCvsfRD5OX3zTmEpFT4gouXt0nY4QH2iK6btzRL7vUAwTlY+4+g7nQ
+   WXcNjTUWYkTYl7arZUY4mSa5ttODqLpAXUKZ8+8lKfEa06B3gzduOhXEA
+   RJaCoqAY0XBL/s3Csvb9EoVXJqqdPG6bf8EJ3zhesEK7PVgwH5T+SEhQb
+   Cnr9MLTNcBppdid765A2x2UeSIeX1T/ynuc9DBZYwtN7DryGeFITIvaSt
+   HzmA+cpcJaqfTXibxFpxk2lhCBbgayYJo9I+BKV9yPT7qleLMG45ufujn
+   A==;
+X-CSE-ConnectionGUID: VVQ+XAvMTvqB+3I79q0++A==
+X-CSE-MsgGUID: 4zOxRV+sRben+5G5O3PP0A==
+X-IronPort-AV: E=McAfee;i="6800,10657,11731"; a="97289838"
+X-IronPort-AV: E=Sophos;i="6.23,124,1770624000"; 
+   d="scan'208";a="97289838"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2026 06:12:22 -0700
+X-CSE-ConnectionGUID: RdEDXrOGSIuEDuaXQjLJOw==
+X-CSE-MsgGUID: G+IyBQQyRImK9X1PBtyWEQ==
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,123,1770624000"; 
-   d="scan'208";a="259768354"
-Received: from vpanait-mobl.ger.corp.intel.com (HELO localhost) ([10.245.244.237])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2026 03:00:18 -0700
-Date: Mon, 16 Mar 2026 12:00:16 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Peter Rosin <peda@axentia.se>,
-	Michael Hennerich <michael.hennerich@analog.com>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v8 4/5] i2c: davinci: add support for setting bus
- frequency
-Message-ID: <abfUsE0cR6GddDDz@ashevche-desk.local>
-References: <20260314-i2c-mux-v8-0-fb1738a4df0a@gmail.com>
- <20260314-i2c-mux-v8-4-fb1738a4df0a@gmail.com>
+X-IronPort-AV: E=Sophos;i="6.23,124,1770624000"; 
+   d="scan'208";a="226372232"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by orviesa004.jf.intel.com with ESMTP; 16 Mar 2026 06:12:21 -0700
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id 1CD2F95; Mon, 16 Mar 2026 14:12:19 +0100 (CET)
+Date: Mon, 16 Mar 2026 14:12:19 +0100
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Edward Blair <edward.blair@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-usb@vger.kernel.org,
+	heikki.krogerus@linux.intel.com, gregkh@linuxfoundation.org,
+	wsa+renesas@sang-engineering.com, westeri@kernel.org,
+	linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] i2c: acpi: skip generic I2C device when
+ vendor-specific sibling exists
+Message-ID: <20260316131219.GD2275908@black.igk.intel.com>
+References: <20260314013157.7181-1-edward.blair@gmail.com>
+ <20260314013157.7181-2-edward.blair@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260314-i2c-mux-v8-4-fb1738a4df0a@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+In-Reply-To: <20260314013157.7181-2-edward.blair@gmail.com>
 
-On Sat, Mar 14, 2026 at 10:22:43AM +0100, Marcus Folkesson wrote:
-> Populate adapter with clock_hz and .set_clk_freq() to enable support for
-> dynamic bus frequency.
+On Sat, Mar 14, 2026 at 01:31:55AM +0000, Edward Blair wrote:
+> Some BIOS implementations (notably ASUS Z690/Z790/X670E motherboards)
+> declare both a generic UCSI device (MSFT8000) and a vendor-specific
+> device (e.g., ITE8853) as ACPI children of the same I2C controller,
+> both referencing the same I2C slave address.
 > 
-> Remove bus_freq_hz entirely and only use clock_hz instead.
-
-...
-
->  	u32 input_clock = clk_get_rate(dev->clk);
-> +	u32 bus_freq_hz = dev->adapter.clock_hz;
-
-> +
-
-Stray blank line. We have already one below.
-
+> During ACPI I2C enumeration, whichever device is walked first claims
+> the address, causing the second to fail with -EBUSY. When the generic
+> MSFT8000 device registers first, the vendor-specific driver cannot
+> bind, losing access to device-specific features like GPIO interrupt
+> resources that are only declared on the vendor-specific ACPI device.
+> 
+> Fix this by checking, before registering a known generic I2C device,
+> whether a sibling ACPI device exists at the same address on the same
+> adapter. If so, skip the generic device to let the vendor-specific
+> one register instead.
+> 
+> Signed-off-by: Edward Blair <edward.blair@gmail.com>
+> ---
+>  drivers/i2c/i2c-core-acpi.c | 88 +++++++++++++++++++++++++++++++++++++
+>  1 file changed, 88 insertions(+)
+> 
+> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+> index 2cbd31f77..87582eac7 100644
+> --- a/drivers/i2c/i2c-core-acpi.c
+> +++ b/drivers/i2c/i2c-core-acpi.c
+> @@ -137,6 +137,17 @@ static const struct acpi_device_id i2c_acpi_ignored_device_ids[] = {
+>  	{}
+>  };
 >  
->  	/* NOTE: I2C Clock divider programming info
->  	 * As per I2C specs the following formulas provide prescaler
+> +/*
+> + * Generic I2C device IDs that may be duplicated by vendor-specific devices.
+> + * When a vendor-specific sibling exists at the same address, the generic
+> + * device is skipped to avoid -EBUSY address conflicts.
+> + */
+> +static const struct acpi_device_id i2c_acpi_generic_device_ids[] = {
+> +	/* Microsoft UCSI - often paired with vendor-specific UCSI device */
+> +	{ "MSFT8000" },
+> +	{}
+> +};
 
--- 
-With Best Regards,
-Andy Shevchenko
+Are they both "present"? I mean their _STA() returns 0xF for both?
 
-
+We have a quirk table already in drivers/acpi/x86/utils.c that I think could
+be used to mark the other one being not present.
