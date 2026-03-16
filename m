@@ -1,100 +1,157 @@
-Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
+Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BED339DBEC
-	for <linux-i2c@vger.kernel.org>; Mon, 16 Mar 2026 15:04:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FA05324B1E;
+	Mon, 16 Mar 2026 16:29:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773673459; cv=none; b=afq9CnDMg1suc/u73NBV4RSXDFq22vA2tnCdI/LhO32bjebvsu2z2E4BImFsxLiwQaKGm3FMDQDQ2mSy6F9NWiYtqK4sAvC+twYIlCaR/ZJieA1ziE51Zky8G6PCvviUGWcCYwyq/AprrCJirifCX9pAWbawjoXK75fGYeuNjhg=
+	t=1773678544; cv=none; b=hw3O0+XKHoM977CUFfMwCPf8XHo0nNr6Go0Zq3EkGebea71Qb3gDE7vGUBI+e9WpOjX/nSzIpooOXz9x9NnPZuXcrW3y6NE/dpiNX7hSiDMamfGZ4uzaigNBPQwT/0arYojGPdb+zRA82YCIlZPO13Las0mR5hOHCda4693SdAo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773673459; c=relaxed/simple;
-	bh=rGewoBv2ScUyk29jPFBjVpjQ0sFVMwuXWUMDaqZZ04k=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Ao/YbLU3YXzD7q9Q++3RFTmAxQqNPZex8rWXnTWT3eKbx3fEWaFDpkqjaq15+rHl0KRnQRU/SZuuGpHgZR/yLtqNRH85Lh8gT7GooFHHr7B7bpV0Br9z+YFFiuJJcrYEFzWcXSDqIvE1H2r0j3DyMNlwExIJGsYLgQzRj1u/sy8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TGxFq+cz; arc=none smtp.client-ip=209.85.221.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1773678544; c=relaxed/simple;
+	bh=xGy5Xa1dQr/5pfh8pXxYijxQkHbJMOii4GfmIYyf+38=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=d5hyXBZ1nq+vgqhpoH9yZXCqrQL6ogMDYaJ4+6FJKrDULFpb6NKOkpWFU1lDoSAeG6G0jYkXSf/qmKD06bzdOg6BG/gwvM5IyZPLs0x+TW7fQNgA6tVUcSkHdfAnVkcRQPr5/AOuL+ZWR4s9r3yc0pnkk7MY2pfWaK9YTarOCIQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=Ie4vuMdT; arc=none smtp.client-ip=178.21.23.139
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TGxFq+cz"
-Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-439c5b40f60so3670570f8f.0
-        for <linux-i2c@vger.kernel.org>; Mon, 16 Mar 2026 08:04:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773673454; x=1774278254; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=rGewoBv2ScUyk29jPFBjVpjQ0sFVMwuXWUMDaqZZ04k=;
-        b=TGxFq+cz4sJV1LPt4FZhCwb8ZWtZubL9ZPh8wD513yTM9xRPIzTzg6iai2aIMqaJt4
-         IxQfA3gZtCqCaJcqhNSFC7hLHz9Djmr2OEPn1+TN2q905XsvDRRDHu/N1U7jPxFla6nH
-         TErrTEoNL7WSrhgyFnc95xtK9v+zh8z4HJV33NmhMJXdBVM5/yNrfVOK1R5j+Dy34iNY
-         +C4ddYnUub1H9LMduBHm6+grXVkk1MVZ/VhsynI6q6KuKrMwVT729LrzzWE8N+D1TLsC
-         JcPe6jrDJb8O26qCqj0DxZwcDVWz6nnRcx9E2iNmaCV5UPiUhy0nhHcBoS9jKHtTtl4p
-         FkPg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773673454; x=1774278254;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=rGewoBv2ScUyk29jPFBjVpjQ0sFVMwuXWUMDaqZZ04k=;
-        b=rx+vHrGN9qPS6Cu18qBbzvMSjwNlvb5W6vHxLiPMhKsKgGgQevufUqsPnVP49xE2vu
-         K/r7O47DQVAk6Q4+QycQb2ZP7vp0IF5pd2Y7yJorp7sGD408sPPtzqemycJgwCLBpkQu
-         /ta6p0aQi1539H/UaU35HWWEYXuLwPiOY50fzdnCh978GSyquvaLudMgPOgelPhp6lmh
-         H6yfUePIeR1gAK6sI6MJ4ItxSpqRIF9iYpOATsZ4YonpfSrLKY6FuyssPgSDGYDM4EiE
-         Ow6w+kdXa08x3ROEe8/GcGfuEVkZyqBVxyYPPcpvOloIoQH/312Bw9BEIwmZNAG1Jf4Q
-         tBKQ==
-X-Forwarded-Encrypted: i=1; AJvYcCUBvAq7ZT/E/RLdbdiOldMaj2dpdrNm2gkWmIpsTjFDOvXsnIpkmIyvVJEjcx+JIAROgqaDKgHuNZ4=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwSJK1D0D1Z3dfBgSAuUg1G9s2y8fWXhB/j5e0UyK7s9ht3qMH3
-	uNy+y/BYxno+bKdXgP8TjGYl203cAPYb+Pj1bHkqaf81HLs7OJXpVrT8
-X-Gm-Gg: ATEYQzwYkxvORBjxjRlWlaIc08BVeZj5o2ylKM0aqj7+WTnTPcDlo9Z6hJkXaR2Jtuy
-	ePymJpyN+sw5W10cN8lBcSmGZIrvOLy8Xc48bmgVExmzdO+dq2JiBbgpxWQZY5GKi26bAuX9GHV
-	/hiGI/m/a4hXpEn5mU7nywQlhnpb3DNG6BBtZ0jgrDPTp2xmzZIVZT7tKTJWfXQ8UQs7A4FnkKT
-	z3TuSXwTRavHIfEICtwJ97Z3kUiHCfHxFSfA9rGCQPr1b/24aUywex+OQK88un7gKIGtuTE81Ph
-	gj6dBjaVTyBPlBL2gVd8Tlu7f5wgQZQu/RUpW87bYYLI2EkH+OhEibT+XQ0mDHrJ0hpEIVIZBgA
-	aZSAfNx5gkA6AHwo7Psy1YSZJ1G6fErPXGvVEpIAtnmlTN6jN9ThB57ayeea081KSHnhAgFVVjI
-	J2iUhPt748Uw8fFpDVXAlPf0DGO6fvIAUrnEu1WkcUKNv/R3QUFtVrvNXBoVopEnujRiMqW8erC
-	848wzdWOMim/t4fvRyvPqulIasrWvSnDMb8/D/WnFtM++mHONWDKIpF3epy6bWFSBQwpOLeVnIp
-	OwzKJLm69y8=
-X-Received: by 2002:a05:6000:230f:b0:439:b6d6:723 with SMTP id ffacd0b85a97d-43a04dc3209mr24334097f8f.42.1773673454171;
-        Mon, 16 Mar 2026 08:04:14 -0700 (PDT)
-Received: from scambox.localdomain (5-198-68-184.static.kc.net.uk. [5.198.68.184])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-439fe20c473sm45642278f8f.24.2026.03.16.08.04.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Mar 2026 08:04:12 -0700 (PDT)
-From: Edward Blair <edward.blair@gmail.com>
-To: mika.westerberg@linux.intel.com
-Cc: heikki.krogerus@linux.intel.com,
-	linux-usb@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-acpi@vger.kernel.org
-Subject: Re: [PATCH 1/2] i2c: acpi: skip generic I2C device when vendor-specific sibling exists
-Date: Mon, 16 Mar 2026 15:04:07 +0000
-Message-ID: <20260316150407.30475-1-edward.blair@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260316144510.GE2275908@black.igk.intel.com>
-References: <20260316144510.GE2275908@black.igk.intel.com>
+	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="Ie4vuMdT"
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+	by disroot.org (Postfix) with ESMTP id E22CE270D2;
+	Mon, 16 Mar 2026 17:28:53 +0100 (CET)
+X-Virus-Scanned: SPAM Filter at disroot.org
+Received: from layka.disroot.org ([127.0.0.1])
+ by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id SynF4M5Uyg-P; Mon, 16 Mar 2026 17:28:53 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
+	t=1773678533; bh=xGy5Xa1dQr/5pfh8pXxYijxQkHbJMOii4GfmIYyf+38=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=Ie4vuMdTynPHxBbYmYEBuDW7mJeUD3XImKyeyF4lQt/cBYK67N+aInW0Oi0W0lCuU
+	 WpWPKeM8EiasvfX+Du9QVE78IKw73bQkvrcQwALu1IJszLZmp0grbPfoVZJLsvXuOg
+	 FsE3NZmnQ7H/2U8dmFn+ZKzD96beO4Oa3M727guddGlUqpW+ULnk1bJRVq9vapih3b
+	 CuTqCqY6oXhYLGwr5iHowS8KLFH5aOpMXc51seKJM1xB/0X4vG+EhzJ62pPIu/48br
+	 ADe0uqEtxqeum+bP6sIsj/0BBhtX7hKM8/3es0g4+QplAFY7ua5tEmNRWlLdElNjCm
+	 8aT2DPnp6bplA==
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Date: Mon, 16 Mar 2026 16:28:52 +0000
+From: Rustam Adilov <adilov@disroot.org>
+To: Chris Packham <Chris.Packham@alliedtelesis.co.nz>
+Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, linux-i2c@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 4/8] i2c: rtl9300: introduce a property for 8 bit width
+ reg address
+In-Reply-To: <d91f5897-c565-4574-81e4-5b0624da2766@alliedtelesis.co.nz>
+References: <20260314082628.25206-1-adilov@disroot.org>
+ <20260314082628.25206-5-adilov@disroot.org>
+ <d91f5897-c565-4574-81e4-5b0624da2766@alliedtelesis.co.nz>
+Message-ID: <c03ba2a5b0fa3ee0714d9e6cf475a1c6@disroot.org>
+X-Sender: adilov@disroot.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Sun, 16 Mar 2026 at 14:45, Mika Westerberg wrote:
-> Well it needs to be somewhere unfortunately :( Gathering these into
-> one file at least makes it sligthly more maintainable IMHO.
+Hello,
+On 2026-03-15 21:31, Chris Packham wrote:
+> Hi Rustam,
+> 
+> (sorry I might have prematurely hit send on an earlier reply)
+> 
+> On 14/03/2026 21:26, Rustam Adilov wrote:
+>> In RTL9607C i2c controller, in order to indicate that the width of
+>> memory address is 8 bits, 0 is written to MEM_ADDR_WIDTH field as
+>> opposed to 1 for RTL9300 and RTL9310.
+>>
+>> Introduce a new property to a driver data to indicate what value
+>> need to written to MEM_ADDR_WIDTH field for this case.
+>>
+>> Signed-off-by: Rustam Adilov <adilov@disroot.org>
+>> ---
+>>   drivers/i2c/busses/i2c-rtl9300.c | 8 +++++++-
+>>   1 file changed, 7 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-rtl9300.c b/drivers/i2c/busses/i2c-rtl9300.c
+>> index 2525b57a9d03..86a82f2c3ce0 100644
+>> --- a/drivers/i2c/busses/i2c-rtl9300.c
+>> +++ b/drivers/i2c/busses/i2c-rtl9300.c
+>> @@ -60,6 +60,7 @@ struct rtl9300_i2c_drv_data {
+>>   	u32 wd_reg;
+>>   	u8 max_nchan;
+>>   	u8 max_data_len;
+>> +	u8 reg_addr_8bit_len;
+>>   };
+>>   
+>>   #define RTL9300_I2C_MUX_NCHAN	8
+>> @@ -105,6 +106,7 @@ struct rtl9300_i2c_xfer {
+>>   #define RTL9300_I2C_MST_DATA_WORD2			0x10
+>>   #define RTL9300_I2C_MST_DATA_WORD3			0x14
+>>   #define RTL9300_I2C_MST_GLB_CTRL			0x384
+>> +#define RTL9300_REG_ADDR_8BIT_LEN			1
+>>   
+>>   #define RTL9310_I2C_MST_IF_CTRL				0x1004
+>>   #define RTL9310_I2C_MST_IF_SEL				0x1008
+>> @@ -299,6 +301,7 @@ static int rtl9300_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr, unsigned s
+>>   				  union i2c_smbus_data *data)
+>>   {
+>>   	struct rtl9300_i2c_chan *chan = i2c_get_adapdata(adap);
+>> +	const struct rtl9300_i2c_drv_data *drv_data;
+>>   	struct rtl9300_i2c *i2c = chan->i2c;
+>>   	struct rtl9300_i2c_xfer xfer = {0};
+>>   	int ret;
+>> @@ -308,6 +311,7 @@ static int rtl9300_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr, unsigned s
+>>   
+>>   	guard(rtl9300_i2c)(i2c);
+>>   
+>> +	drv_data = device_get_match_data(i2c->dev);
+>>   	ret = rtl9300_i2c_config_chan(i2c, chan);
+>>   	if (ret)
+>>   		return ret;
+>> @@ -315,7 +319,7 @@ static int rtl9300_i2c_smbus_xfer(struct i2c_adapter *adap, u16 addr, unsigned s
+>>   	xfer.dev_addr = addr & 0x7f;
+>>   	xfer.write = (read_write == I2C_SMBUS_WRITE);
+>>   	xfer.reg_addr = command;
+>> -	xfer.reg_addr_len = 1;
+>> +	xfer.reg_addr_len = drv_data->reg_addr_8bit_len;
+> 
+> For this one I wonder if we could come up with something that involves a 
+> subtraction for the rtl9607? len = 1 just makes sense to me so maybe 
+> RTL_9300_ADDR_LEN(1) which expands to 1 - 0 on the rtl9300 and 1 - 1 on 
+> the rtl9607 would be easier to follow.
 
-Fair enough, I'll move it to override_status_ids[] for v2.
+I am not entirely sure i understand this approach. Is RTL_9300_ADDR_LEN(1)
+gonna be a "#define"? Would like to know before i proceed with possible
+changes for v2.
 
-One thing I noticed: the CPU match in acpi_device_override_status()
-is mandatory, so each CPU family that ships boards with RhProxy will
-need its own entry. The DMI check is already optional (skipped when
-slot is unset), but there's no equivalent path for cpu_ids.
+And wouldn't something like this work just as well:
 
-For now I'll add an entry for INTEL_RAPTORLAKE_S without DMI, which
-covers all Raptor Lake desktop boards. Other platforms can add
-entries as needed. If the per-CPU duplication becomes a problem later,
-making cpu_ids optional would be a small change to the loop.
+xfer.reg_addr_len = 1 - drv_data->subtract_len;
 
-Thanks,
-Edward
+But then, i honestly think "drv_data->reg_addr_8bit_len" would be a bit less
+cluttery?
+
+> Not a deal breaker just thought I'd mention it.
+> 
+>>   
+>>   	switch (size) {
+>>   	case I2C_SMBUS_BYTE:
+>> @@ -501,6 +505,7 @@ static const struct rtl9300_i2c_drv_data rtl9300_i2c_drv_data = {
+>>   	.wd_reg = RTL9300_I2C_MST_DATA_WORD0,
+>>   	.max_nchan = RTL9300_I2C_MUX_NCHAN,
+>>   	.max_data_len = RTL9300_I2C_MAX_DATA_LEN,
+>> +	.reg_addr_8bit_len = RTL9300_REG_ADDR_8BIT_LEN,
+>>   };
+>>   
+>>   static const struct rtl9300_i2c_drv_data rtl9310_i2c_drv_data = {
+>> @@ -524,6 +529,7 @@ static const struct rtl9300_i2c_drv_data rtl9310_i2c_drv_data = {
+>>   	.wd_reg = RTL9310_I2C_MST_DATA_CTRL,
+>>   	.max_nchan = RTL9310_I2C_MUX_NCHAN,
+>>   	.max_data_len = RTL9300_I2C_MAX_DATA_LEN,
+>> +	.reg_addr_8bit_len = RTL9300_REG_ADDR_8BIT_LEN,
+>>   };
+>>   
+>>   static const struct of_device_id i2c_rtl9300_dt_ids[] = {
