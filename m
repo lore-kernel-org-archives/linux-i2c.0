@@ -1,108 +1,102 @@
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8DAC285041
-	for <linux-i2c@vger.kernel.org>; Mon, 16 Mar 2026 14:33:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2069F2DF701;
+	Mon, 16 Mar 2026 14:45:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773671612; cv=none; b=h6UsA3IIgB+8LiBG3c9rP2nlrsceWpQaOFZjg9TG+wkkHifgnhDP3B4u5TrcDA0FiAn5W591s78RIb5PGlhxhtHVB/grvbLzlXxFfOvoxhtHWnKtkfWEAQYeqlu5a9DE+5o+FKAyAORWomQ0Reu9OLJM9dR33wOZrfx+dwF8AN0=
+	t=1773672315; cv=none; b=uBuJWFB68ukQrPiNR66WaIUxWLfh9TKL+kDTEPzkSLU8F3EQoS+Pl7xTajkLQlrtYLU50BZkIwwtHJ0i3VrSxMW0OCv19QmWoyZ0SU96fnlNtq+QNwImn5u98WSmQLOZuQJX86x/lL4id0AXDFhTbDtsm2qZPzuEOHcuxEn4pi0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773671612; c=relaxed/simple;
-	bh=ovFl0FRA/Y50902pWqD3zOFTf5Y8L0LkM20eP95/xVw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZQ3SLPAuhZ76cPG+mfbBudBvRPozPaJSfrxdE0TyTWDX8pxTG9t3w9yU3bPC/M8gNa/LfdH8tlbw7XeuRPljcDPbbt5IKcdQasusDAzJ/9tlwemWNBgj4s8fENerqsWlu4JoINDRi26UNwqd0iyl97/RT0/c8OkUfXBRgXB6yRE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=KtkVn6h6; arc=none smtp.client-ip=209.85.221.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1773672315; c=relaxed/simple;
+	bh=og9BD3TryGJSPc8bT2MFJlHrohgQUVEIJVI7Bh7zAAI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ks056vrFVLOShuht4tWEIh+JyqRQxCbvq/j/UdxU3EKGhx7y65h2skLXGSChXHI49d5I8fAyiMFII/crTpSq4h7cM0lSO6m1+UVVuAAzWL3qKgHlCtU7hIGtRT91Uuymq9hqVIYR3I12qg+zaTMm64HvBC3Vizzwqg0UpN9f3/I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Z08dYTxp; arc=none smtp.client-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="KtkVn6h6"
-Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-439b6d9c981so3346952f8f.1
-        for <linux-i2c@vger.kernel.org>; Mon, 16 Mar 2026 07:33:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773671609; x=1774276409; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ovFl0FRA/Y50902pWqD3zOFTf5Y8L0LkM20eP95/xVw=;
-        b=KtkVn6h6JqJikItyIXK6w6Evu8ALKW2c3vDiRRMAF3DKvXKfSfx9tJP2VlZNI+om3U
-         tCxG8uf0VLhsV2ungGj3G8VrPibRs8d90seIi9UJo3CiSyphmubwmGDxcKZ8p+0/Qsf0
-         wYPdnhC/1doIFu4ZOr5c1VYYJjH6FNMPUz5KVhiIiKl/fXhmuiZzyU+sgYqX3h46TI3n
-         d9AaKFXjVdwhd3H4UtNOyRjBLgJCiGr9YVb9xkVxBNZTSTCBbK6Yf8caiXxiv2tBfgwV
-         szBYQf2ZW8FAoi4Flz8PzZD8J7jlyPeEbd9+YvB3UHqkty3LxBR4A1CEhOZUsY/q4JSJ
-         lc/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773671609; x=1774276409;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=ovFl0FRA/Y50902pWqD3zOFTf5Y8L0LkM20eP95/xVw=;
-        b=gQhm860z/weSpHJ9wAzB2dkXVltubH22u2F6pAy+5BknOyxUxPLZBIYYj6U/LRkb6v
-         5Ib40zDEOZ3CdwomBarIUjpO3SkrNmAddytL0OjWiuxtxiVABT4BzJoX3pxm3dClCBNP
-         FxVGzlIedBljZ960U47j5yVpKWOphkzHynJ2VYOSn9DpyS56jqe8e55b5pSzgR9ShKq7
-         q/L2K3B4oxW6HrEKVPl40hHmml7k1ecymQbrBu21a8uVcwmZAkEq41D7HOStmggrYLZW
-         w11HDCI4oCC50ZI1cz2FfZaUK3VbCrQoXMSB0PdEd+uVzxtK3LBwW+STy+Y8B8awk5R3
-         t59Q==
-X-Forwarded-Encrypted: i=1; AJvYcCVYF4E+TGiBCZlcxd8QeXlk7vKWiZ6yFS8Eyb3M1X/WNIZntvwjGwv/vHXmXo3ARVU3kBC2LXUFohM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzuJ/89+qU6AHaH3G4NHb5VTxZg4uSBC03CVHnvdguTH6RlXwmK
-	GnpBvCtuSV9oDK2h1L/qt9wwyKefi5jxMm7YugZpa7/SXjoZOOD5ncWm
-X-Gm-Gg: ATEYQzxyRTo82FogcQh6I9bca8MiIC689AP1TIgQAUAAPTKYIre2/nfKfi5LMHAthJN
-	HbUA5EM9GnBlDIgnDV15dDPzSxV2yPW6OG0+33iXRuUYHcujkLRS4MRiAe8z0hlhVEcFzZ0iZDe
-	8TA6IkRRtnR+At33pqJMIvlg5suhCOTwkzq+JIG98BZReV+z8+9Tl39HYWWHOjt6EHaiGBW/XSL
-	JVCRRIUW20Qrxohox7EnjFTVikTAddaDkYW+OOLldt+bdMD+K3YIEZLd/rjoBiW600Cj2f3vcDy
-	VT/flCevhNkCopgYffqI3iEN2DrlhgQtNRBiy/FnG7Li189aqAo/i1B7W/u4ebfnXDg4aTgn7Jf
-	LvqHrMi0hJZJxi/0k6dV77sZgXnlIUB7wxGeub+4NUm0WukqoiFPrqSoERlJ08hHSuL1fa7ven5
-	SJCn4CsXZUhmFv42kKLzinaLLFpbPzj2fnP75Bo/7OJyLXjrDlAhz0vHkhsjulNmjELXebEHvRL
-	8UzO+Mafk0etQ5Pm3M227W3omCsqgBN1/vsDpvjRbHWL66PsZcvJOLVyfZ36tl5VDBgni2+vpIq
-	TODYKxDKEKI=
-X-Received: by 2002:adf:e984:0:b0:43b:3c32:d901 with SMTP id ffacd0b85a97d-43b3c32dbd9mr10069381f8f.11.1773671608811;
-        Mon, 16 Mar 2026 07:33:28 -0700 (PDT)
-Received: from scambox.localdomain (5-198-68-184.static.kc.net.uk. [5.198.68.184])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43b468cf785sm4877457f8f.12.2026.03.16.07.33.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Mar 2026 07:33:28 -0700 (PDT)
-From: Edward Blair <edward.blair@gmail.com>
-To: mika.westerberg@linux.intel.com
-Cc: heikki.krogerus@linux.intel.com,
-	linux-usb@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-acpi@vger.kernel.org
-Subject: Re: [PATCH 1/2] i2c: acpi: skip generic I2C device when vendor-specific sibling exists
-Date: Mon, 16 Mar 2026 14:32:42 +0000
-Message-ID: <20260316143242.24248-1-edward.blair@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260316131219.GD2275908@black.igk.intel.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Z08dYTxp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1773672314; x=1805208314;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=og9BD3TryGJSPc8bT2MFJlHrohgQUVEIJVI7Bh7zAAI=;
+  b=Z08dYTxpXjp6UkuuekSxi4FauXXJkM9FhD0WCHW5U1jNLLfawx1hVxg9
+   y5O/vK+uLsSI/OWsgO+68xnEuCjX3bTl3oBHeWtQ+rBsgFKdYb7O1wRe2
+   d32y+TeZ/RocNn0gskTbCM1j3cZCmddb7yUVqQW+e/2hxGPujJAAa+Sze
+   2Rj2dg6Ai35VUra/u4daIdDZXR2pOUDb+KwpDLziCkgNXta4j2QUn3E5m
+   PSBrqHO1cuRyFv63Gcoqis3/60RgLy6mxrueC1qy6Hj+9MVeozUivh44f
+   cmN5UxIODiFsR6v2FGtaOpRPQYWxfY8z2oAWXY/zjCauVoJsZ6FR91DZl
+   w==;
+X-CSE-ConnectionGUID: 4COnaSD3REmA2b+LEFcrzQ==
+X-CSE-MsgGUID: 3WSVWNWnRRyN/mHqz5m/Yg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11731"; a="77298267"
+X-IronPort-AV: E=Sophos;i="6.23,124,1770624000"; 
+   d="scan'208";a="77298267"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 Mar 2026 07:45:14 -0700
+X-CSE-ConnectionGUID: 6ZjyMMHHSfOvX8L4r3tqfQ==
+X-CSE-MsgGUID: kCsKpV1CSUSxeX7ST+nAxg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,124,1770624000"; 
+   d="scan'208";a="220979760"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by orviesa006.jf.intel.com with ESMTP; 16 Mar 2026 07:45:12 -0700
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id BBF2E98; Mon, 16 Mar 2026 15:45:10 +0100 (CET)
+Date: Mon, 16 Mar 2026 15:45:10 +0100
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Edward Blair <edward.blair@gmail.com>
+Cc: heikki.krogerus@linux.intel.com, linux-usb@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org
+Subject: Re: [PATCH 1/2] i2c: acpi: skip generic I2C device when
+ vendor-specific sibling exists
+Message-ID: <20260316144510.GE2275908@black.igk.intel.com>
 References: <20260316131219.GD2275908@black.igk.intel.com>
+ <20260316143242.24248-1-edward.blair@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260316143242.24248-1-edward.blair@gmail.com>
 
-On Sun, 16 Mar 2026 at 13:12, Mika Westerberg wrote:
-> Are they both 'present'? I mean their _STA() returns 0xF for both?
+On Mon, Mar 16, 2026 at 02:32:42PM +0000, Edward Blair wrote:
+> On Sun, 16 Mar 2026 at 13:12, Mika Westerberg wrote:
+> > Are they both 'present'? I mean their _STA() returns 0xF for both?
+> 
+> MSFT8000:00 has no _STA method at all. The sysfs status attribute is
+> absent, which only happens when acpi_has_method(handle, "_STA")
+> returns false (device_sysfs.c line 591). So it defaults to present per
+> the ACPI spec. ITE8853:00 has _STA returning 0xF.
 
-MSFT8000:00 has no _STA method at all. The sysfs status attribute is
-absent, which only happens when acpi_has_method(handle, "_STA")
-returns false (device_sysfs.c line 591). So it defaults to present per
-the ACPI spec. ITE8853:00 has _STA returning 0xF.
+Okay.
 
-As Heikki pointed out, MSFT8000 is the RhProxy device, not UCSI. My
-mistake in the commit message.
+> As Heikki pointed out, MSFT8000 is the RhProxy device, not UCSI. My
+> mistake in the commit message.
+> 
+> > We have a quirk table already in drivers/acpi/x86/utils.c that I
+> > think could be used to mark the other one being not present.
+> 
+> That would work. acpi_device_override_status() runs before _STA
+> evaluation so it can force status=0 even without a _STA method.
+> 
+> My concern is scope. MSFT8000 is a Windows-only Resource Hub Proxy
+> (RhProxy) device with no Linux driver, no module binding, and no
+> in-kernel consumer. It's a static ACPI node with no _STA, so the
+> BIOS exports it unconditionally. Skipping it during I2C client
+> enumeration would have zero functional impact on Linux while avoiding
+> a quirk table entry that needs duplicating per board.
 
-> We have a quirk table already in drivers/acpi/x86/utils.c that I
-> think could be used to mark the other one being not present.
+Well it needs to be somewhere unfortunately :( Gathering these into one
+file at least makes it sligthly more maintainable IMHO. I think the
+override_status_ids could be made to use only the HID so no need to add DMI
+strings. Of course if we ever want to bind a driver to it then it needs to
+be exposed again (but that sounds unlikely since we already have a real
+device that a driver could bind to).
 
-That would work. acpi_device_override_status() runs before _STA
-evaluation so it can force status=0 even without a _STA method.
-
-My concern is scope. MSFT8000 is a Windows-only Resource Hub Proxy
-(RhProxy) device with no Linux driver, no module binding, and no
-in-kernel consumer. It's a static ACPI node with no _STA, so the
-BIOS exports it unconditionally. Skipping it during I2C client
-enumeration would have zero functional impact on Linux while avoiding
-a quirk table entry that needs duplicating per board.
-
-Thanks,
-Edward
+Just my 2 cents.
