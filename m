@@ -1,37 +1,51 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C511392812
-	for <linux-i2c@vger.kernel.org>; Tue, 17 Mar 2026 07:42:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5940E2BEFFD;
+	Tue, 17 Mar 2026 08:04:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773733336; cv=none; b=XwUjTC0FZ3PtQAStiwglI6K8+bwvQdavxHQXwAq8tXyq071eRdNFYu3u5YHKfDNXiZ2cx1nL0TNbs8ov0oRA4xuNeISUBOmlaYDmXs3Yqn32TCeaOx0WJ/eCvf4Z+WKSmhI9ahM9SoXzXYga676l23T3D4hmQqjfe0KQyFRsF7w=
+	t=1773734689; cv=none; b=Ru58mMLmZ9T4UVefwZmmqCKG85Nbzwb7mkVJWZ74QWAsVe+b7Igjk+5UWNiXMCY+AWZ1TfObRY8CSdm7yi2C9sO2A44Z/Oxnnbj3l4Y2Cc7kGTzV2uQdhqNfkJ8v5N2xsjVRt2ZyJQ3x9wx5b5sV6N+EurxcctxhleD1wqZFwcw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773733336; c=relaxed/simple;
-	bh=axppJ7vgRT+l1j200xQDrNPk6kDH5EhBlMQpMegQ1DE=;
+	s=arc-20240116; t=1773734689; c=relaxed/simple;
+	bh=C5+6ibWMe+6CGLCJ89fg6/WRPHNmqm+d8HkwRrykciE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OARlymxJCTsBVuuXPZ7z9ZX0GXkAHuZS6K+hB70BhzrHWcPgnkufAtUUdRje6/tU+cO++iz1Ah4gpbliYNfOXqE0TP0kKeT860UxyNdouYD3UZZeGm7hf6T1u7J+XoO+zg1cZixYW2POECivB3p12C0MG8qO3c8f7yvmHidP7Xk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=Aa6jzP26; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=ksnGRuHM7Gu7cRkWb3Vxh46SeVQoE3uWDu8SKNVgQaJHWZpVX+G0QF3VVKvYkymDzhy/DlFl8W+r00c39cGDecKmXU86jEL61ACuOtfuMbsbS5x+SOnZOMx4lbQLVdApWDv7Kn47jSXOe6rilVRwvn7BY06vw/AmD+dw5VDXT/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TgoO7a9/; arc=none smtp.client-ip=192.198.163.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Aa6jzP26"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=1fxb
-	qImj03OXajBmpzO1CQUCWD5bO4dGjX1EHtbcLAY=; b=Aa6jzP26tOFbp867zHZJ
-	/Wez7/ws1xj+fYCjTuWXNVyOt8TBM+Qh+9qqjoe/08lACxSnjZnuze2e/foZ8dk5
-	5gst9VJR9MVZxK1up39HIYurtorLzowfdVFjGTms2Bd8nOqGP5sUHw81+ZPpqBc4
-	kUmK5QGGEDgIYjxUNWGYXrynV4eLqPjfsHo+Be1UGornxMXwK7Ojtawvhpsw54Jx
-	9zkzEXqQSec60WN/Ef1vkS+Kv1IySz9OyALNAU3OcWxPLI0SJrrpG4sxCalVmrfL
-	MhE59O6Bns/GhGXVP0ItcgSyUpPoLjBr095rHZgRWEkvI6o1weebYFFstS9Q7bGU
-	NA==
-Received: (qmail 167291 invoked from network); 17 Mar 2026 08:42:08 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 17 Mar 2026 08:42:08 +0100
-X-UD-Smtp-Session: l3s3148p1@Ze/6eDNNfNVSwmvS
-Date: Tue, 17 Mar 2026 08:42:08 +0100
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TgoO7a9/"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1773734688; x=1805270688;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=C5+6ibWMe+6CGLCJ89fg6/WRPHNmqm+d8HkwRrykciE=;
+  b=TgoO7a9/ZtqohlD5M0xeGtc3gBMWEyxFVTJO5/cmHgLU523yAw3rtxbM
+   9W0Kxw2iOdJYKVmHPdhErmw1fFWTIzvR+bG+bmsHMYxN2UUzQnroPfwuR
+   YlZ6Z8ZyX+S5tBEnEs9/fLIhKLkdc7+8U8NoXRoCVJ2aQezjLZ9mKs0zH
+   XSRbhQc+1g5NPMNU0P5iTmwcNaLU40FEBYd0ewV5ewwAJxkHfrWdIXmw9
+   BjZecKgENs0+hOaM2fl02yJ009g4LR5Z5Egv5LViBBpqj1i8X2xjmrmXm
+   3TWya89xm9/1mXJXMYVRPzQg+hBFs14iAuAdgwEQv35ePx7x6ToWZVKk1
+   A==;
+X-CSE-ConnectionGUID: jDXmnQDbQO+VY5AfZuYQIg==
+X-CSE-MsgGUID: NUouNz5iTFi988rd/HmXJA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11731"; a="100214527"
+X-IronPort-AV: E=Sophos;i="6.23,124,1770624000"; 
+   d="scan'208";a="100214527"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Mar 2026 01:04:44 -0700
+X-CSE-ConnectionGUID: 2FRFFUu5ROiSZGHfQOS4eQ==
+X-CSE-MsgGUID: 6ilrKriWSSuart1nhUvBbA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,124,1770624000"; 
+   d="scan'208";a="222244723"
+Received: from abityuts-desk.ger.corp.intel.com (HELO localhost) ([10.245.245.97])
+  by orviesa008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Mar 2026 01:04:37 -0700
+Date: Tue, 17 Mar 2026 10:04:34 +0200
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc: Douglas Anderson <dianders@chromium.org>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	"Rafael J . Wysocki" <rafael@kernel.org>,
@@ -55,10 +69,11 @@ Cc: Douglas Anderson <dianders@chromium.org>,
 	linux-spi@vger.kernel.org, netdev@vger.kernel.org
 Subject: Re: [PATCH] device property: Make modifications of fwnode "flags"
  thread safe
-Message-ID: <abkF0GO01sMcOhvb@shikoro>
+Message-ID: <abkLEgrZbdb03VWg@ashevche-desk.local>
 References: <20260316154159.1.I0a4d03104ecd5103df3d76f66c8d21b1d15a2e38@changeid>
  <abkCPU3rxHI49N4_@shikoro>
  <abkD-VLprcbbEbB1@ashevche-desk.local>
+ <abkF0GO01sMcOhvb@shikoro>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -67,18 +82,29 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <abkD-VLprcbbEbB1@ashevche-desk.local>
+In-Reply-To: <abkF0GO01sMcOhvb@shikoro>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
+On Tue, Mar 17, 2026 at 08:42:08AM +0100, Wolfram Sang wrote:
 
-> > ... this change costs some memory on every system. Maybe it can be
-> > avoided?
+> > > ... this change costs some memory on every system. Maybe it can be
+> > > avoided?
+> > 
+> > How much memory does it cost? On most 64-bit architectures is +4 bytes,
+> > rarely +0 bytes, on m68k it might be +2bytes. On 32-bit it most likely
+> > +0 bytes. I expect that 64-bit machines will cope with this bump.
 > 
-> How much memory does it cost? On most 64-bit architectures is +4 bytes,
-> rarely +0 bytes, on m68k it might be +2bytes. On 32-bit it most likely
-> +0 bytes. I expect that 64-bit machines will cope with this bump.
+> I am not opposing that the issue should be fixed. If it is not possible
+> to take the lock everywhere, this is a proper solution. But if we don't
+> have to use more memory, then we could save it. Our new SoC easily has
+> 'struct device' in the hundreds.
 
-I am not opposing that the issue should be fixed. If it is not possible
-to take the lock everywhere, this is a proper solution. But if we don't
-have to use more memory, then we could save it. Our new SoC easily has
-'struct device' in the hundreds.
+What's the alignment for the u8 member in your SoC? 4 bytes or 8 bytes?
+(I assume it's 64-bit SoC.)
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
 
