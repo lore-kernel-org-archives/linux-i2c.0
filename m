@@ -1,132 +1,135 @@
-Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCBB338F24F;
-	Wed, 18 Mar 2026 08:46:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=60.244.123.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0607A38E110
+	for <linux-i2c@vger.kernel.org>; Wed, 18 Mar 2026 08:47:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773823593; cv=none; b=jlwnZXgyzGlPkjOdNjXfvwOsohOEAweoGCZwq/+/uKBXjQotbBnHG8nq6wfVVusO7ag87772tGe4wmDmlyIQPNCZMWwBjwxFTEHo1L1F4t58J3OCkoBPDm/zSVgvyEefHAur05TWwl2QivhcQNilyCMo6n3Jsggs7xKUfmhOI8E=
+	t=1773823667; cv=none; b=kuJ1Kvd5AxgsEXlg+AjU+L29CLrHSUOiKcMqR2sssbS1e0zkJ1uBVPRJkIMRYYwu5+VIjCt6L5Q2IW6uHXkrLJQznk5ciY4i2UPKxtLYou1I8rbRr9HYacoScAaKDChq8wMd70MaloYoG28gO+J2lW1u2+xDkkkSYi7LXWRP6ds=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773823593; c=relaxed/simple;
-	bh=mjXXuIHewfu+iEaT2xOPWa/ssz2EyIZUkW84O7ZF4JE=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=F2PW4J8US6x8j0MNR6usUVWkFjR+4louliuW+LXIrBJY9ozQjWp9bRYnwnKsvxZeqvrEfflzAbA3+Pj/upy8PH99+X6ixjp1D31lBZsMQxe9OP88RJ1Ty29tLOK/+53uLoQCECeQCwhS+VOU6PQjhmWyV4Jgk7BuToOAgCn60CM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com; spf=pass smtp.mailfrom=mediatek.com; dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b=toI8xKgU; arc=none smtp.client-ip=60.244.123.138
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mediatek.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="toI8xKgU"
-X-UUID: f2e5bdb222a611f1a02d4725871ece0b-20260318
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-	h=Content-Type:Content-Transfer-Encoding:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=jNAxvMlpKbnk3xa//SsNLWzTbu90yHBu0yVq6XBO01c=;
-	b=toI8xKgU2WD1t7OZU/WLbYxyU9Urz1RDYoaA9HO1DNvwkhLlP771UG/nPjdG5zJAZZZIwpHh4g0/KcxD4utzAW4rplZlgLY3+e5AqYD9lULknxZYNfsemt9KWKtoJwaXksWJ5MTWsTXp28461lEcoapikLOToe9D19f4ByWl8fE=;
-X-CID-CACHE: Type:Local,Time:202603181611+08,HitQuantity:1
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.12,REQID:66e843d1-788b-4b4c-9c15-f4e5fab99e76,IP:0,U
-	RL:0,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
-	:release,TS:-5
-X-CID-META: VersionHash:e7bac3a,CLOUDID:8321ef93-f8ef-4ca8-bea0-143568f9ca1d,B
-	ulkID:nil,BulkQuantity:0,Recheck:0,SF:81|82|102|836|888|898,TC:-5,Content:
-	0|15|50,EDM:-3,IP:nil,URL:0,File:130,RT:0,Bulk:nil,QS:nil,BEC:-1,COL:0,OSI
-	:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: f2e5bdb222a611f1a02d4725871ece0b-20260318
-Received: from mtkmbs11n2.mediatek.inc [(172.21.101.187)] by mailgw01.mediatek.com
-	(envelope-from <adlavinitha.reddy@mediatek.com>)
-	(Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-	with ESMTP id 368408986; Wed, 18 Mar 2026 16:46:26 +0800
-Received: from mtkmbs13n1.mediatek.inc (172.21.101.193) by
- mtkmbs13n2.mediatek.inc (172.21.101.108) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.29; Wed, 18 Mar 2026 16:46:24 +0800
-Received: from mtksitap99.mediatek.inc (10.233.130.16) by
- mtkmbs13n1.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
- 15.2.2562.29 via Frontend Transport; Wed, 18 Mar 2026 16:46:24 +0800
-From: adlavinitha reddy <adlavinitha.reddy@mediatek.com>
-To: Qii Wang <qii.wang@mediatek.com>, Andi Shyti <andi.shyti@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>, AngeloGioacchino Del Regno
-	<angelogioacchino.delregno@collabora.com>
-CC: <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-mediatek@lists.infradead.org>,
-	<Project_Global_Chrome_Upstream_Group@mediatek.com>, adlavinitha reddy
-	<adlavinitha.reddy@mediatek.com>
-Subject: [v1,PATCH 1/1] i2c: mediatek: add bus regulator control for power saving
-Date: Wed, 18 Mar 2026 16:46:16 +0800
-Message-ID: <20260318084621.4127757-2-adlavinitha.reddy@mediatek.com>
-X-Mailer: git-send-email 2.45.2
-In-Reply-To: <20260318084621.4127757-1-adlavinitha.reddy@mediatek.com>
-References: <20260318084621.4127757-1-adlavinitha.reddy@mediatek.com>
+	s=arc-20240116; t=1773823667; c=relaxed/simple;
+	bh=1Q3Co6bxbshrYxrPl4jn/U2T1xBX3gjFWpDnRI8lYDQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=mKQSdf9x+505OD4dkpSVGtJ2JsgG2ZNTK9YUeOhfVm2SvCJEwbHEambeU76sa36FfpRq+0vFZr9FyC91KcFUMqZ3WiLGKTeg1u+qmXM22uZ+gNRK3enRSVls8fxFlEx9QwwkeTV79Rzzg/KWhhtj13DoFwn49K354gKv8X/Upzc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.222.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-8cb5c9ba82bso1027485285a.2
+        for <linux-i2c@vger.kernel.org>; Wed, 18 Mar 2026 01:47:45 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773823665; x=1774428465;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tqPUDw6RZ7tI/8SbuWaBeZ31o+A7cvn/glmx6dclWwI=;
+        b=LdK5v6d7S937/vqTopjx0W/1nuBVKpbGriq6JmhaDxDyAR/h2fETtn/+HlWcAKJAW9
+         LdvsdVjh+YV+qLc2gQCxM6Hqvvqehwu6EBfa32NY6FTdsHITsH6epY0oPb3+b5JmwtwP
+         EvTxDMj3R7jXgtqYXsIUYBxBAJIfKKOu8pdU7mqS2hWTXm+q6ZQdSEsBjmjJcL7fD0sg
+         wEFPkxFPMYrz4+vDQuPeYmnFYLDwzRlZnEmXr7aQxrupIKfBdKToAOas9YdiRIBl/1qA
+         hC5nhe1RRFBoMB6/RMAzeYaUUOr33nEzzrfe6TzXnTMk+qCRlpJVuQAXu0gOk7hTzUT2
+         Uu2A==
+X-Forwarded-Encrypted: i=1; AJvYcCVg1QflipvH405ne2Rg54E0PGjIBPVF5NL6vgp8xnhqMYOM2B0G5MfWQQfUSFEOABZBA9616uXV3aQ=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyaT0EfiY+mtFW2sJCzsp7Bt7Yhgx6w7GiqmXpFZOVXAUDBemIw
+	PoZCGcYFP0D7ko2cEn3cp4fsNmZRgSRhU/xa1qi668pesbHZSwh34EqJpFIKRzxVmjU=
+X-Gm-Gg: ATEYQzx/fdaOMcud8LcEjz/Jg+EKm1JNeG/ea0wmLGm05oQITAgNvyJQwXILPCDGfPS
+	eOyVsdCwbMfgt0m02aClAA1m3DG9gknuodXw8qntGNFJejc0/NS20pjZr23Huplrxmx5g5nMVHh
+	WWe4GTwP9PZkez8xV5Zj30LCfFUfufmhoLcbBJj5G+FchrUR83dhuMjNId7vN2SQcQF6Fk01k01
+	5gWl7Di595jreI2Axr9bNPR4G2M5GDL+a44mh7WuKvydLFGou9QuJvkhimu1mGAsVeNBHAVOXWK
+	mmyAxk6nfpqW8XtxqSgMfrIo/l1pDBh/QcbT9YYtRmMEn4viya7RM+3vI/a1zlZWo4ov80Dv6ji
+	A9U0oDQBtnHcq5b/T7fubwrwFiaKKq/vAJhTzPnSdIvJEhCUnpb8UqVP09ZMeH+chwGsS00uar/
+	Z1QAwl/5V6QPb4fgRvHKL4bExsChI0+iNyIJL60xHNz+qmkvUkCQ1A6LPJN7fpHmvT
+X-Received: by 2002:ad4:5ded:0:b0:895:7864:f69d with SMTP id 6a1803df08f44-89c6b5617dbmr33049746d6.40.1773823664849;
+        Wed, 18 Mar 2026 01:47:44 -0700 (PDT)
+Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com. [209.85.222.171])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-89c703c854esm7247556d6.42.2026.03.18.01.47.44
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 18 Mar 2026 01:47:44 -0700 (PDT)
+Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-8c9f6b78ca4so832401485a.0
+        for <linux-i2c@vger.kernel.org>; Wed, 18 Mar 2026 01:47:44 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCVvFb8pQCpy3TbhYHDUxDoClvW8IlfRsHtTpuJfLLvZgrxUl92NfAAj6JnI1b+ZmJVgus3c4vdd+PQ=@vger.kernel.org
+X-Received: by 2002:a05:6102:5087:b0:5ff:e39d:9f9b with SMTP id
+ ada2fe7eead31-6027d159e7fmr1126209137.16.1773823315107; Wed, 18 Mar 2026
+ 01:41:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-MTK: N
+References: <20260316154159.1.I0a4d03104ecd5103df3d76f66c8d21b1d15a2e38@changeid>
+ <abkCPU3rxHI49N4_@shikoro> <abkD-VLprcbbEbB1@ashevche-desk.local>
+In-Reply-To: <abkD-VLprcbbEbB1@ashevche-desk.local>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 18 Mar 2026 09:41:44 +0100
+X-Gmail-Original-Message-ID: <CAMuHMdVX4tfko8iv-EdwO-bBcwCd+cPkb9aP8qJbcM1F4zdz4g@mail.gmail.com>
+X-Gm-Features: AaiRm52_MgNfiAr79FL-62Ac0xXnTx-AfzVYThIE_IN0tF6AadQcPRzCkdJNUOc
+Message-ID: <CAMuHMdVX4tfko8iv-EdwO-bBcwCd+cPkb9aP8qJbcM1F4zdz4g@mail.gmail.com>
+Subject: Re: [PATCH] device property: Make modifications of fwnode "flags"
+ thread safe
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
+	Douglas Anderson <dianders@chromium.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	"Rafael J . Wysocki" <rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>, stable@vger.kernel.org, 
+	Andrew Lunn <andrew@lunn.ch>, Daniel Scally <djrscally@gmail.com>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Fabio Estevam <festevam@gmail.com>, Frank Li <Frank.Li@nxp.com>, 
+	Heikki Krogerus <heikki.krogerus@linux.intel.com>, Heiner Kallweit <hkallweit1@gmail.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Len Brown <lenb@kernel.org>, Mark Brown <broonie@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Pengutronix Kernel Team <kernel@pengutronix.de>, Rob Herring <robh@kernel.org>, 
+	Russell King <linux@armlinux.org.uk>, Sakari Ailus <sakari.ailus@linux.intel.com>, 
+	Saravana Kannan <saravanak@kernel.org>, Sascha Hauer <s.hauer@pengutronix.de>, 
+	devicetree@vger.kernel.org, driver-core@lists.linux.dev, imx@lists.linux.dev, 
+	linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-spi@vger.kernel.org, netdev@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Add conditional bus regulator enable/disable in mtk_i2c_transfer()
-to support I2C bus power gating for platforms that require it.
+Hi Andy,
 
-This implementation:
-- Enables bus_regulator before clk_bulk_enable() if vbus-supply is defined
-- Disables bus_regulator after clk_bulk_disable()
-- Only activates when vbus-supply is provided in device tree
-- Has no impact on platforms without vbus-supply defined
+On Tue, 17 Mar 2026 at 08:34, Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+> On Tue, Mar 17, 2026 at 08:26:53AM +0100, Wolfram Sang wrote:
+>
+> ...
+>
+> > Thanks for tackling this issue! I agree it should be fixed, just
+> > wondered about one thing:
+> >
+> > > While flags are often modified while under the "fwnode_link_lock",
+> > > this is not universally true.
+> >
+> > Is it a possibility to use the lock in all code paths instead?
+> > Because...
+> >
+> > >     struct list_head consumers;
+> > > -   u8 flags;
+> > > +   unsigned long flags;
+> >
+> > ... this change costs some memory on every system. Maybe it can be
+> > avoided?
+>
+> How much memory does it cost? On most 64-bit architectures is +4 bytes,
+> rarely +0 bytes, on m68k it might be +2bytes. On 32-bit it most likely
+> +0 bytes. I expect that 64-bit machines will cope with this bump.
 
-This approach provides power savinggs for platforms with an extra I2C bus
-regulator, while avoiding runtime PM complexity.
+On all architectures with natural alignment of pointers and longs,
+it won't cost a thing: struct list_head contains pointers, so the
+struct must be padded to a multiple of 4 or 8 bytes anyway.
+On m68k[*],  it will cost 2 bytes, as the existing padding is just a
+single byte.
 
-TEST= Build and boot on MT8188
+[*] Iff m68k ever switches to 32-bit alignment, there won't be an
+    additional cost due to the change of flags here, but of course
+    there would be a cost all over the place.
 
-Signed-off-by: adlavinitha reddy <adlavinitha.reddy@mediatek.com>
----
- drivers/i2c/busses/i2c-mt65xx.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+Gr{oetje,eeting}s,
 
-diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
-index cb4d3aa709d0..126040ca05f1 100644
---- a/drivers/i2c/busses/i2c-mt65xx.c
-+++ b/drivers/i2c/busses/i2c-mt65xx.c
-@@ -21,6 +21,7 @@
- #include <linux/module.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
-+#include <linux/regulator/consumer.h>
- #include <linux/scatterlist.h>
- #include <linux/sched.h>
- #include <linux/slab.h>
-@@ -1244,9 +1245,15 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
- 	bool write_then_read_en = false;
- 	struct mtk_i2c *i2c = i2c_get_adapdata(adap);
+                        Geert
 
-+	if (i2c->adap.bus_regulator) {
-+		ret = regulator_enable(i2c->adap.bus_regulator);
-+		if (ret)
-+			return ret;
-+	}
-+
- 	ret = clk_bulk_enable(I2C_MT65XX_CLK_MAX, i2c->clocks);
- 	if (ret)
--		return ret;
-+		goto err_regulator;
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
- 	i2c->auto_restart = i2c->dev_comp->auto_restart;
-
-@@ -1301,6 +1308,10 @@ static int mtk_i2c_transfer(struct i2c_adapter *adap,
-
- err_exit:
- 	clk_bulk_disable(I2C_MT65XX_CLK_MAX, i2c->clocks);
-+err_regulator:
-+	if (i2c->adap.bus_regulator)
-+		regulator_disable(i2c->adap.bus_regulator);
-+
- 	return ret;
- }
-
---
-2.45.2
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
