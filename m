@@ -1,165 +1,87 @@
-Received: from mail-yw1-f181.google.com (mail-yw1-f181.google.com [209.85.128.181])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CABDA3B9601
-	for <linux-i2c@vger.kernel.org>; Wed, 18 Mar 2026 10:58:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.181
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773831542; cv=pass; b=fJlyRhtsxB9b8jZT24VoZnClun2Z6QGjBHviDyPzfYhwdzweBM0XiGFzphue4LIDeC661qXilC/qDKdbkuwPAQT8hAr0sUhbaE9LwDX8eRmPQ0ZH/fe2RVWJ6l9HbaBn+pFc47PDcABC0yHKHtlSt4LfxlaA742umz0oOO6aS80=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773831542; c=relaxed/simple;
-	bh=LVVELEXkmiKTU/p+oy+of4jebFSUmNrxF9w9nex4moo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BdZ0gO+QHRYIH9GdMkC+tSWxZ/OZTaYnzgTHpWBosYgpGF4iDsjueqvsp03B7QD+g6BVJR1qaZa77eEz2Zy21FaimEz1gQNu2ZiOwL4wdc6o04HSqMkRmWt9E/Tj2mDxDN/IqUX2z4LAS5+FdcVW7rwmZSfqJ0hq/tbbcbwbO4M=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitbyteword.org; spf=pass smtp.mailfrom=bitbyteword.org; dkim=pass (2048-bit key) header.d=bitbyteword.org header.i=@bitbyteword.org header.b=Y+F4gIrC; arc=pass smtp.client-ip=209.85.128.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=bitbyteword.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bitbyteword.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 89B4F3DA5CC;
+	Wed, 18 Mar 2026 13:51:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773841865; cv=none; b=gQtS+lJ1iztSsvqiSia5f9kF1O7pKkhJF7b3SI0wC91RHhjagNAnKGO7kKn8FgbYJdwvl2i+NmcHV5CE24vWsIbYi09czq4K9ZlsuiWOG9jInCC3z/IKsozM3/uRtiXqPf3aNmvhV/SyiRGpvhtsJPiracS31DkapF4ToMZ690E=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773841865; c=relaxed/simple;
+	bh=t4XrOTAp1NUQqg+dCJBOJQbE7YyQZQbY5D1CqGz1zSc=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=JgKuNDI/PKffLZdlx1TBKsLjQfpQJlcycQG5/vpB9AuB2zG4wHhTOeJQgvafFHgtNYkoMZKGDNgO1Ebv/zyXmFToBHK5NeC7RF9vqEOtaAby/5wJNxp+fr8F1SLLn9nFf7vc1hT581errYNyxiAh6tzRMEAfGXevje5ANn9GeRE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RIyYEcjQ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bitbyteword.org header.i=@bitbyteword.org header.b="Y+F4gIrC"
-Received: by mail-yw1-f181.google.com with SMTP id 00721157ae682-79a5a37113aso28012347b3.2
-        for <linux-i2c@vger.kernel.org>; Wed, 18 Mar 2026 03:58:58 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1773831537; cv=none;
-        d=google.com; s=arc-20240605;
-        b=XNsOHvdJ4Mz5P9/tJs9HaI6aNNmtRlgyf1qu3YCjpoTzjhIL1zvL8QxDhBw/pf9YKm
-         gFKfww8mk6UCyfP4GUpVcfAozHLRSQmFQa4Pyl/H12Ff7m+V6luszhWyHz+ervudHRev
-         JE169Rni5gNDLrTBQVYs7h+KgNW4B3KqcfI3MGkkUuFw4ynNOChExi/rAzeRubK9bhZk
-         1amyud3kKDAaDildctKFEUD6n5Vw8Ge1OZvCnXt1rKxdrSoSFzw/CSkaTLcY4ah1mJ1c
-         eVW+a5PlcUROzr9coUy4bBLQ1K8S/c1ST7MZ/7kFekUSIytlwPBTzZP/TbpRuVh8AyY9
-         3X3Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=LVVELEXkmiKTU/p+oy+of4jebFSUmNrxF9w9nex4moo=;
-        fh=1TjVFlwgqAvgf/aua6D7nhP/Yi1CocJ6DoI1FGTi64w=;
-        b=SGqMHcE15lycOHb/760AyzMrTCGSBZDJ6dYAE9tPr7SmgaXiybBVXT5crRoAMPmjhH
-         nCGdILlzC9J/IJptF4z+4o71/3I8HhE94b6b3N6SkoUsBlFX/X66vocjsFqnDZGAT/sO
-         KPxYOXt9/8k3Rj/14h6ksHkOFTSYIqru+JNxdeJVjTQNIQU581YjZbkNldMuKONmIT9Y
-         WV28+8wlGOlDCeO67xVT/6qrQbrinNdXbd0eCsXdyt/fga/FaAs/DdQo2mgS0+dVTdae
-         EQcFAwG1AtoEc+n2o+23Upj2O5dZCCZ1/BtQ06INQeMIgZGK8hjIJZg3P3r67Zd6C4Cq
-         AKMA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bitbyteword.org; s=google; t=1773831537; x=1774436337; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LVVELEXkmiKTU/p+oy+of4jebFSUmNrxF9w9nex4moo=;
-        b=Y+F4gIrCy3AlMDM7CSYzAY8MdpN5nfDAenVYSS8jF8/QGMe0BtbaqtvpoNu4HHsdwI
-         eCHGz033wV+iu7o9yHNzl8ab1W8iVYNVNBYMUrCHRQLI9DZgf1n+KJ5WGJM874ZC8E1f
-         V8AfDwxwo6eY0vCZpRljMsNdbb7jgkZbz3BUBCDiRZdtki+wXyJ231XN2e5CQzBOtHl2
-         RNzehobgF8tA59rhsLrK604RjKLDzwzujNWXDWsClMTvJ5qFhXeMw/pwvPnR1XkeD7qu
-         tmTv/A7/XayQthiGv4k2dz99RPffdzi9GNohb9QPIB0xHVtAoLzYczErYFx/GTFFdjmi
-         QFOw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773831537; x=1774436337;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=LVVELEXkmiKTU/p+oy+of4jebFSUmNrxF9w9nex4moo=;
-        b=TtLE8SXjq1Wk+74B0MIYxdATt2E+BLKIyX3h9FjMPNZ+ulaB890nxMuj3zR65Sf7ej
-         A24wksiBH3Ive2aHkHo0NTK8aYBasdUJ5lEXCxwTuifHogtcdjhbdG+hryAAA/HfRVTw
-         MjnJAHizj48kaHQQepzf8VptHHNh6ziNlAWFnrCidKOQ9NILiov5TtxbL1XkXIn0mXOR
-         XbIffoHFLzv/qwTx10kRkqp2A1TwtalfXZojQl4dpZ3u/ekZ0PDwU6Bk8+rxf5J+AUAt
-         /Z+k9yovtLEyPUaoKcs6uJZ/iD3P2agxLuf1M0Ep9GJIoWjyqPtp8gtKe9MaHldQtq6G
-         Pdxg==
-X-Forwarded-Encrypted: i=1; AJvYcCWy6WDQOPIIOMFbdnMlgHoo93Txi3yw6xzGjkgv/iGLiL+tXU8P1HHA+OiZxqmXjtvQKed4fuSJ7rc=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxgw4z8rjV1QEr2NA/riZsGcSP+CEziCshdZea61tDwgdBuCiKR
-	OMjdt7pdZuJ6TZXGzayhaxSQiNrSKdZdcevOU+BzheTx1QZ+cjDH3p64ahr7BsESD0sVuObeBrP
-	gLIOnGs2TXBydoeumaedNu33n18GtvvLmVHkGBvwLPA==
-X-Gm-Gg: ATEYQzwK117S17uocimpnhCShdyAXkZ+4p7egeqFJJV/xz+mxcVCqVZzasN3RuJrYjn
-	xO/Nxop9xu+gUrIcLOVpKnnRMM3CZHqziDO+CztvVqqIJnvLBYBt1aCRwxC6UZakoQuD8pYFFTG
-	sR9km5/ElDmj2EYCWsbsrAHZ9mbG8kTm4wzeyMMG49oxl3g3e7MlQcdrpMcDS/g+vTPmeRU2EC3
-	t5xRdLaJOryF5wAfpmeMzIhQFmUFEeB6hs5TiVSHBxQ+4X9cKG0MTCnPYKmVFpcXGi1P/ZT4aVM
-	H8BM1o8=
-X-Received: by 2002:a05:690c:c50e:b0:79a:3a33:933 with SMTP id
- 00721157ae682-79a71ad413dmr29714557b3.31.1773831537485; Wed, 18 Mar 2026
- 03:58:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RIyYEcjQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D06FC19421;
+	Wed, 18 Mar 2026 13:51:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773841865;
+	bh=t4XrOTAp1NUQqg+dCJBOJQbE7YyQZQbY5D1CqGz1zSc=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=RIyYEcjQWYYsCIx+GGVX+zc3Qf7f4VtmeLLzL9h1R40tMW8YZMvZdcJmugCGa3piA
+	 J4mz06U+N2KNfRLkCQGh2d4NsvqXLDxx55I/Co9LOJlzFr4V0zn+Z51fymZOaDkZux
+	 QDpqW37zpFJMVnyaHLNHs9RZTLbInc3VVnOM+qn8I+AIAaVeOoxzo+bv1sKCikvuD5
+	 1BeKuyNtdx+30zbgqNC37M5tRJB+lPZ/K/3gdk8T8NUOtGzcNq9N/aZ9P289tPDpym
+	 59jVvY+G0dFTZOUrR/+TW/uyoW5JjaP7gTfHznIybgd7kilnReXYDe6nqSc0HbaOSe
+	 VjA6mbIPXbh8A==
+From: Bjorn Andersson <andersson@kernel.org>
+To: bryan.odonoghue@linaro.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	konradybcio@kernel.org,
+	loic.poulain@oss.qualcomm.com,
+	rfoss@kernel.org,
+	andi.shyti@kernel.org,
+	linux-i2c@vger.kernel.org,
+	cros-qcom-dts-watchers@chromium.org,
+	Hans Verkuil <hverkuil@kernel.org>,
+	Nihal Kumar Gupta <quic_nihalkum@quicinc.com>
+Cc: quic_svankada@quicinc.com,
+	quic_vikramsa@quicinc.com,
+	linux-media@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: (subset) [PATCH v10 0/5] Add CCI and imx577 sensor support for monaco evk
+Date: Wed, 18 Mar 2026 08:50:20 -0500
+Message-ID: <177384182916.14526.14815252097843930157.b4-ty@kernel.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260213132058.521474-1-quic_nihalkum@quicinc.com>
+References: <20260213132058.521474-1-quic_nihalkum@quicinc.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260312150523.2054552-1-vineeth@bitbyteword.org>
- <1e3c2830-765e-4271-89f7-0b6784b37597@efficios.com> <20260312112354.3dd99e36@gandalf.local.home>
- <219d015d-076b-4c80-8f63-88569115fdad@efficios.com> <20260312114041.5193c729@gandalf.local.home>
- <1becdbce-2c01-468a-bbab-42b5dea9fdf8@efficios.com> <CAO7JXPjnnruhM5oC6xMgnYaQ9efzYFqMCFiJLNM3HCQ+ZeCiJw@mail.gmail.com>
- <CAEf4BzbnfyhCqp0ne=2gRnVxp-mdGmuZwDeFRyhRYH+eDcz2-w@mail.gmail.com>
- <20260312130255.6476e560@gandalf.local.home> <CAO7JXPgHYZ9zF1HFahb2447X85YRZCQQBHB6ihOwKSDtiZi8kQ@mail.gmail.com>
- <20260317120049.6a60fa88@gandalf.local.home> <6ca9f884-9566-4a82-9995-4c802a0bf8a0@efficios.com>
-In-Reply-To: <6ca9f884-9566-4a82-9995-4c802a0bf8a0@efficios.com>
-From: Vineeth Remanan Pillai <vineeth@bitbyteword.org>
-Date: Wed, 18 Mar 2026 06:58:46 -0400
-X-Gm-Features: AaiRm52iP799baA3h48fwfLjW02Pe87nEMlmDoXLIPKYRV2LFYQQkuww_KlSUU0
-Message-ID: <CAO7JXPgbERfc_P+aPFB1+nR5ua3mZGbhdkbxCr0TFR4Cr6Khuw@mail.gmail.com>
-Subject: Re: [PATCH 00/15] tracepoint: Avoid double static_branch evaluation
- at guarded call sites
-To: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>, Andrii Nakryiko <andrii.nakryiko@gmail.com>, 
-	Peter Zijlstra <peterz@infradead.org>, Dmitry Ilvokhin <d@ilvokhin.com>, 
-	Masami Hiramatsu <mhiramat@kernel.org>, Ingo Molnar <mingo@redhat.com>, Jens Axboe <axboe@kernel.dk>, 
-	io-uring@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
-	Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, Xin Long <lucien.xin@gmail.com>, 
-	Jon Maloy <jmaloy@redhat.com>, Aaron Conole <aconole@redhat.com>, 
-	Eelco Chaudron <echaudro@redhat.com>, Ilya Maximets <i.maximets@ovn.org>, netdev@vger.kernel.org, 
-	bpf@vger.kernel.org, linux-sctp@vger.kernel.org, 
-	tipc-discussion@lists.sourceforge.net, dev@openvswitch.org, 
-	Oded Gabbay <ogabbay@kernel.org>, Koby Elbaz <koby.elbaz@intel.com>, 
-	dri-devel@lists.freedesktop.org, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Viresh Kumar <viresh.kumar@linaro.org>, "Gautham R. Shenoy" <gautham.shenoy@amd.com>, 
-	Huang Rui <ray.huang@amd.com>, Mario Limonciello <mario.limonciello@amd.com>, 
-	Len Brown <lenb@kernel.org>, Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, 
-	linux-pm@vger.kernel.org, MyungJoo Ham <myungjoo.ham@samsung.com>, 
-	Kyungmin Park <kyungmin.park@samsung.com>, Chanwoo Choi <cw00.choi@samsung.com>, 
-	=?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>, 
-	Sumit Semwal <sumit.semwal@linaro.org>, linaro-mm-sig@lists.linaro.org, 
-	Eddie James <eajames@linux.ibm.com>, Andrew Jeffery <andrew@codeconstruct.com.au>, 
-	Joel Stanley <joel@jms.id.au>, linux-fsi@lists.ozlabs.org, 
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
-	Alex Deucher <alexander.deucher@amd.com>, Danilo Krummrich <dakr@kernel.org>, 
-	Matthew Brost <matthew.brost@intel.com>, Philipp Stanner <phasta@kernel.org>, 
-	Harry Wentland <harry.wentland@amd.com>, Leo Li <sunpeng.li@amd.com>, 
-	amd-gfx@lists.freedesktop.org, Jiri Kosina <jikos@kernel.org>, 
-	Benjamin Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, 
-	Mark Brown <broonie@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>, 
-	=?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, linux-spi@vger.kernel.org, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, linux-scsi@vger.kernel.org, 
-	Chris Mason <clm@fb.com>, David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org, 
-	linux-trace-kernel@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 
-On Tue, Mar 17, 2026 at 12:02=E2=80=AFPM Mathieu Desnoyers
-<mathieu.desnoyers@efficios.com> wrote:
->
-> On 2026-03-17 12:00, Steven Rostedt wrote:
-> > On Fri, 13 Mar 2026 10:02:32 -0400
-> > Vineeth Remanan Pillai <vineeth@bitbyteword.org> wrote:
-> >
-> >>>
-> >>> Perhaps: call_trace_foo() ?
-> >>>
-> >> call_trace_foo has one collision with the tracepoint
-> >> sched_update_nr_running and a function
-> >> call_trace_sched_update_nr_running. I had considered this and later
-> >> moved to trace_invoke_foo() because of the collision. But I can rename
-> >> call_trace_sched_update_nr_running to something else if call_trace_foo
-> >> is the general consensus.
-> >
-> > OK, then lets go with: trace_call__foo()
-> >
-> > The double underscore should prevent any name collisions.
-> >
-> > Does anyone have an objections?
-> I'm OK with it.
->
-Great thanks! I shall send a v2 with s/trace_invoke_foo/trace_call__foo/ so=
-on.
 
-Thanks,
-Vineeth
+On Fri, 13 Feb 2026 18:50:53 +0530, Nihal Kumar Gupta wrote:
+> From: Nihal Kumar Gupta <nihalkum@qti.qualcomm.com>
+> 
+> Monaco EVK is a single-board computer based on the Qualcomm QCS8300 SoC.
+> It lacks a camera sensor in its default configuration.
+> This series adds CCI support and enables the IMX577 sensor via CSIPHY1
+> through device tree overlay.
+> 
+> [...]
+
+Applied, thanks!
+
+[2/5] arm64: dts: qcom: monaco: Add CCI definitions
+      commit: ff1dbc3c093120cfea2bde95f406dad951c5ea83
+[3/5] arm64: dts: qcom: monaco: Add camera MCLK pinctrl
+      commit: 6754e6b5d69745513c254139368cf765bd15c6a3
+[4/5] arm64: dts: qcom: monaco-evk: Add camera AVDD regulators
+      commit: e9f95530ce1298e2b3e2770d441857df4592adad
+[5/5] arm64: dts: qcom: monaco-evk-camera: Add DT overlay
+      commit: cb473de813004512c8cdf3ef0fb882723a47f33c
+
+Best regards,
+-- 
+Bjorn Andersson <andersson@kernel.org>
