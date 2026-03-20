@@ -1,100 +1,106 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E54273C73D9;
-	Fri, 20 Mar 2026 14:50:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0664C382379
+	for <linux-i2c@vger.kernel.org>; Fri, 20 Mar 2026 15:01:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774018228; cv=none; b=YkaApWpyNErZUvZFHnc4hQCwtb7X9k0dUxz6IVmW9QdKWXxgwiFRBEQW7qejIBwk0y9MOd9h7/eXug2XYboF/ch+tBheDPJgF0FO0+NDdZtyZx1KihDeyc4B9F3+d2b20szNRfw83BZcKWDx7C9l9BhGd3HlSVuim6cIfzcM1os=
+	t=1774018921; cv=none; b=bCHpSkKjhs05tU4dHDJ/dASH8cvfoBP1wKtnI4cd5oWqkTfVJt8YjzwMnG93x2S1CtCr7Z2+VfIS71QfBb85HhW+CQQUkj3m+fh/fIKcH8t0L+jKT7cpKsgMSsEnTNBt/Rbi+qz03r4fuuC7NdUEVZHcBuFpmGM0SUwSx/BMJ9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774018228; c=relaxed/simple;
-	bh=xEq0lkHiWlfzRjTk9tAbY2BUU4eS/9QAmtJ8rJpta60=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ho83ocKaPVOW6sTICrI+fQjeL1xCvyL6nMMUos8WO9+gGLYIaugt/NHOozipZhP+860xTRHQejtcuURFlB8xlPMPOIKtBVXXdtDVTfU+vW6VNZEjJv80WHR7V+hvLqFYhYo6Z9fjej2CDoIDMDC4s7gHJUSJUJImIJ4ho81qQkg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X8PyEklX; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774018921; c=relaxed/simple;
+	bh=M3LaB/n2bRWU2FBZC6RO8rehNEGvKfQDDHq3Q0zanrk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=M0RANwCcMCM2jPs7kg/Yu2PLn+Pfn8NnZhbET2thj6gI3+VBe5DenlTb4HUIw/GtoMCO8HgH5kjdElkDcxy9ODivFUhA5yvERDBNnkcliYqVZKL2/dkQfWE/AJbYl3XIM/sb5V6IBjeQQ3fGerJSZE+vtWxAk40TTZdv3sdkFuM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ywrg7mjH; arc=none smtp.client-ip=209.85.222.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X8PyEklX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3FC3C19425;
-	Fri, 20 Mar 2026 14:50:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774018227;
-	bh=xEq0lkHiWlfzRjTk9tAbY2BUU4eS/9QAmtJ8rJpta60=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=X8PyEklXlRJu+UqDu9GCKeEZJfQdaZQ3fRzearO8/+biLOD5xVHtfvWxJ83UTPeTm
-	 e3vfw/zpLxQpWpcuCfR/Ot1WDWP6YV6P0j3HqTUX9hXJDnxljg+GIn6pFEgBlqPe8i
-	 GMJJKLqjV2etuZF+CCXEUaMFnWJKgxzzldDO9rHQdo0vESuUDXw8L/GJAGpYHk44bO
-	 v+KchtE9yiJAOELCm8qR2BhmbUSSPoviK0FF2OWgY2BSP9ciCloM3FwE+nPW9lzSdZ
-	 x/jvOIcgKEl/RfsbNMEDvoNAJ3xRPleQRcLWO2w2X9XMw0kVjdrM4NhhMMcXvtgYAV
-	 VoCq4zNKjnF3Q==
-Date: Fri, 20 Mar 2026 15:50:24 +0100
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <ukleinek@kernel.org>
-To: Janne Grunau <j@jannau.net>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Lorenzo Pieralisi <lpieralisi@kernel.org>, Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>, 
-	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
-	Linus Walleij <linusw@kernel.org>, Mark Kettenis <kettenis@openbsd.org>, 
-	Andi Shyti <andi.shyti@kernel.org>, Sasha Finkelstein <fnkl.kernel@gmail.com>, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, asahi@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-pwm@vger.kernel.org
-Subject: Re: [PATCH 7/9] dt-bindings: pwm: apple,s5l-fpwm: Add t8122
- compatible
-Message-ID: <ab1d82Y9dGzstkgy@monoceros>
-References: <20260320-apple-m3-initial-devicetrees-v1-0-5842e1e393a8@jannau.net>
- <20260320-apple-m3-initial-devicetrees-v1-7-5842e1e393a8@jannau.net>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ywrg7mjH"
+Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-8cfd44fa075so12012185a.0
+        for <linux-i2c@vger.kernel.org>; Fri, 20 Mar 2026 08:01:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1774018919; x=1774623719; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=tlG6o3IymovaUMvTR7MBl3xO/ZinUQDi/0H4OCVq+j4=;
+        b=Ywrg7mjHsfosy5iXRkDwnfsbT5IcMiN1+uTi716N0zxPAU2VBiXlQmS7P00frBfMvT
+         iyMN+sYN9cc+mIuqN8qAPnvZgY1WjGaIcxGn683M3R+IgeFKUN4jqB7tWdS735n60haA
+         K9fri0RUvyNlk4nLk7DRk81Hef39siMNC2vidDsbHGyKCnFZx1nrxSp581weyw1exr21
+         YzCPjGm5jIN6DxtzyUMY5t+FG/APNPy78ucvOrpyapYnIymnfJT7SznK0fZvLCtqjKtO
+         W/PttNwiOZlLfuPbQikS238y7UIdlH0S2RMhsqFucHUSTmXvmgol0lgX8WrrJ5j10ynl
+         AmvQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774018919; x=1774623719;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=tlG6o3IymovaUMvTR7MBl3xO/ZinUQDi/0H4OCVq+j4=;
+        b=hQOp5gYfeCWdZ4SvKX5ls18BJRLxPVezDlVA2gKX6jBScfioLV0kmvnT53gHqil5C6
+         EW7ENsAQZ/u6EU7X+I+ozz8arcMhOCQj5g5eGDHvBAycl3mVyLmNNL7KkKqttkh1TeFc
+         DelmZaVC3hErM0ERPrrUc6rokG0JbYuRfe0KZf65HTHrI7sTN660Zq+/tPSqc/mnNVmX
+         jIaAlaPrfLoY7PFhNxwyCv6rDD/GjDtqTnAlvFjb9B0hnjVKNIE55t9gbaPB4AR2cK21
+         LGMcQu+6TguesDLb5W34kh6+Dea38piDoeAZiMCRQjM16xYpy4JeE5B7ur58cMwJSBo8
+         8yrA==
+X-Forwarded-Encrypted: i=1; AJvYcCWiQYT2/JxsKpKvb682yCNPupBydLCQ6IU67wy+VfUpSuJ1hQ747s6VWF+ozieAMRK061JN1mwcryA=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxH2G4BUByW3co+TdED/uYLBx8LdC3i9//JaqHljvF4Fn2U/Ak3
+	27HHJ1adc1zE6kpFOy7Yj93OU4IxG8g7NCkP+XwM5foqoIBG1UrBAL//f6/ae2KF9UE=
+X-Gm-Gg: ATEYQzzdl/pXeWXIUcVMKeYVfPLexllFaL70FU58IRIkr2ypzUjVQfnI9puQg61niqc
+	XnwLFJotTZddbRqjQ/7CvDlckvAFUP4xUkTrvk+i0RZNvL7OayO7eaDUlMnWrAKkyIdYOHBqNiA
+	mECaVzw1B9eonbP1KT4fh2N9l1XZGJB21XwkGAHeeL/1ALA1TFzHjpxkVlwa3SADQGZy49PfOLV
+	shXb9i5wicl2QlJFKKIe25y6c0B2O578ag+KmHUl7NTckzKgliK6mvqOPO5p+Ur3g0GgT8thlzH
+	NyIRYNxUN244KIb++ko6RM47eT9a/c4j1UoYkj2MbqOh7zaHt6P4rjxG0BRgLkXhfLPZjjaXvC4
+	UwCAxXrCc1GiHlWeMLLxnwFATny35R3rHxbPpZvGN+DgLfsh6PPIw83UwRRhuJI3moaSqC1QxJ6
+	RJkd++/FmeSA==
+X-Received: by 2002:a05:620a:c45:b0:8cf:c75d:29fa with SMTP id af79cd13be357-8cfc7e6785dmr510633085a.11.1774018918605;
+        Fri, 20 Mar 2026 08:01:58 -0700 (PDT)
+Received: from jovin ([184.145.97.4])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8cfc9089ca9sm178047085a.24.2026.03.20.08.01.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 20 Mar 2026 08:01:57 -0700 (PDT)
+From: Jovin Basil <jovin555@gmail.com>
+To: 
+Cc: jovin555@gmail.com,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] i2c: gpio: replace printk with dev_err in probe
+Date: Fri, 20 Mar 2026 11:01:37 -0400
+Message-ID: <20260320150144.432345-1-jovin555@gmail.com>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260320122656.430939-1-jovin555@gmail.com>
+References: <20260320122656.430939-1-jovin555@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="pshe747cvhfvjhsk"
-Content-Disposition: inline
-In-Reply-To: <20260320-apple-m3-initial-devicetrees-v1-7-5842e1e393a8@jannau.net>
+Content-Transfer-Encoding: 8bit
 
+v2:
+    - Restore original log message prefix ("i2c-gpio:")
+    - Restore original spacing and colon placement
 
---pshe747cvhfvjhsk
-Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH 7/9] dt-bindings: pwm: apple,s5l-fpwm: Add t8122
- compatible
-MIME-Version: 1.0
+Signed-off-by: Jovin Basil <jovin555@gmail.com>
+---
+ drivers/i2c/busses/i2c-gpio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Hello,
+diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
+index f4355b17bfbf..724f13cef9fe 100644
+--- a/drivers/i2c/busses/i2c-gpio.c
++++ b/drivers/i2c/busses/i2c-gpio.c
+@@ -490,7 +490,7 @@ static int __init i2c_gpio_init(void)
+ 
+ 	ret = platform_driver_register(&i2c_gpio_driver);
+ 	if (ret)
+-		printk(KERN_ERR "i2c-gpio: probe failed: %d\n", ret);
++		dev_err(&pdev->dev, "i2c-gpio: probe failed: %d\n",ret);
+ 
+ 	return ret;
+ }
+-- 
+2.47.3
 
-On Fri, Mar 20, 2026 at 01:23:25PM +0100, Janne Grunau wrote:
-> The PWM controller on the Apple silicon t8122 (M3) SoC is compatible
-> with the existing driver. Add "apple,t8122-fpwm" as SoC specific
-> compatible under "apple,s5l-fpwm" used by the driver.
->=20
-> Signed-off-by: Janne Grunau <j@jannau.net>
-
-You didn't say what the merge plan is here. I assume they should all go
-in together via arm-soc?
-
-If so:
-
-Acked-by: Uwe Kleine-K=F6nig <ukleinek@kernel.org>
-
-Best regards
-Uwe
-
---pshe747cvhfvjhsk
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmm9Xq4ACgkQj4D7WH0S
-/k7iZQf/VTQKMp3e1OfZ1SAfsbTIm7E2kaGDHWHFtIVuX45NMEsa5s60N6D2/j0T
-nwX7JnD1CLlsDCLGR9s3H/iTHHlfdmptcfT2+I8ViUMDZ5driYxpysuUMnyDfzMe
-aQbUtV3SRsRzD35HLuiLV06UIUXEiwt1aeBCZRlzfmWsi14Or0IPcHY/D1lPnVvT
-bLrFxHXIfECSWwXcuFekr+Iu7h5iM5EuUiJ7JcaPW4G/K0a+mL8s5LbV69kGF9Lb
-2y+ow+PAdQbmSY9swQuO17set/frraA/XfgUV5DmB+QDwXZ/r927lMNIbdsfTPuk
-woJH3T+AOnP7z2Su0xKexD40E0FiBA==
-=kFFv
------END PGP SIGNATURE-----
-
---pshe747cvhfvjhsk--
