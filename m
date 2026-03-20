@@ -1,244 +1,145 @@
-Received: from BN8PR05CU002.outbound.protection.outlook.com (mail-eastus2azon11011066.outbound.protection.outlook.com [52.101.57.66])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi1-f173.google.com (mail-oi1-f173.google.com [209.85.167.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CC143BBA1D;
-	Fri, 20 Mar 2026 13:57:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.57.66
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774015034; cv=fail; b=kZAiUY3bZlHZ/KYqtvpRm0H2HeyxVkrOjfjvmjksjY/BCQZEO58CmXDMFk81VZfTg6qOmInpOYYTn9uN3OPMCvsezAiD99RCTKvHvWsdyPs4CcvVgBPJ1c15QaH6HRrSSy7/y0T4AxG4NWIs6N1NHv4cwvR/gJhtOmbt0+vvDWw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774015034; c=relaxed/simple;
-	bh=hbjwPpUepIqX/Ou4uqwtNm85b7vqgkFaUawlKBdy2iw=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=g30YWqsLeBKeJUx90tnkTM1ecFv30PFAyjO7Uy0bTYqzKoyFsaO7zXSCOeEmcLKbOVMfBxpLrkFkueY9Ji0VDd05jkmF4tdh+iFW/WBPrgbwfhZlkX04I16Qd1BsaI4qyhj2Sx44H9k0TmLTVmspX6PZsJ12duAryKJZw26XjQk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=eKScb98t; arc=fail smtp.client-ip=52.101.57.66
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="eKScb98t"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=HKz2AjCHKcs2fh/YON0H+vGFrSgdHPI8xR9HIxNTwKKJL5fQbGXeX+CZUii2TDxOAEVFWzFXi5N39HOcadaSGJMGubFFruxaO4ZtT40pvMFsD8XhYl/874qVrI1bkGaEvghcWbDC2m2LfP/UG50658XZGg3ZzDeQxBTdTlRry+FKzJbadmR3QLiatJTg1Hd46NzLqEMcy1Rn8Mr7JvDOLtDUnCg76CL5C87a4pQXjGtxtAGrhLqcKMdixUEZ7HP4JwTF+p/kvswKDk0ZslWCFw7L+78cqqQwDJ98R5lUywwdKP/CTdSoTnH2BKFxeh8M+ohLRSTOOktmsnPQnRResg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=xzw5+uWwDu05R6N7ZFhoi4a8hCkJkdokSmyTEQ1KqOs=;
- b=ystnMi0ltxs1tHepi820PZj3bUtU/JhsjJNRm5uyjgqJ5fWSBV7yTaT/HYQe+4bFNiP6mUBufGKtaaAHIqeBzfKjLgNPmoO20ug2qY/DQ9xs5/iy2LnDnS5PG/zR6fPGc+CM6vuAyrFL51pWjBtUFzRyFW32FjRohQF6FOX/wtU/wwWRraGuB7je1rH2zcTajsLZDv5orRdZFQPlzIavSdrVZswEvak61SIno6OeMGQjYSlzkPFQUVDPhzNfV+vshcrGdLdCpn/q6ajQC5vtWsInF2Z4SkKAkZjsNmuSf/l5qdnXvarfRNRf0qQiTcbTeQ2OQIMawiszDiTytX48nQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=xzw5+uWwDu05R6N7ZFhoi4a8hCkJkdokSmyTEQ1KqOs=;
- b=eKScb98tV/8g/UMOFUv+mLpL2/zkugMwA9NgdmDKMPR1ES3h3mvtW1foIWWGAiphtJZQdJ0wwfbE1ZTNShBlf1nM7nD5x5FxXG674Kb3X58dEyDmgyHq/VbE5HsMZraJDG4h7bIVs7tX+zPOgBtRG4ve/hUvgLMnZIqm67MA8dQ=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from SA0PR12MB4557.namprd12.prod.outlook.com (2603:10b6:806:9d::10)
- by PH0PR12MB7011.namprd12.prod.outlook.com (2603:10b6:510:21c::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9745.15; Fri, 20 Mar
- 2026 13:57:02 +0000
-Received: from SA0PR12MB4557.namprd12.prod.outlook.com
- ([fe80::885a:79b3:8288:287]) by SA0PR12MB4557.namprd12.prod.outlook.com
- ([fe80::885a:79b3:8288:287%5]) with mapi id 15.20.9745.007; Fri, 20 Mar 2026
- 13:57:01 +0000
-Message-ID: <2b9162e5-be5a-49eb-915a-4a557b027e13@amd.com>
-Date: Fri, 20 Mar 2026 08:56:59 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] i2c: designware: amdisp: Fix null pointer dereference
- in runtime resume
-To: "Nirujogi, Pratap" <pnirujog@amd.com>,
- Pratap Nirujogi <pratap.nirujogi@amd.com>, andi.shyti@kernel.org,
- mika.westerberg@linux.intel.com, andriy.shevchenko@linux.intel.com,
- jsd@semihalf.com
-Cc: rafael.j.wysocki@intel.com, mlimonci@amd.com, benjamin.chan@amd.com,
- bin.du@amd.com, king.li@amd.com, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260309220038.1420996-1-pratap.nirujogi@amd.com>
- <4527c72d-bc59-4f5d-af94-4b2f37d75a96@amd.com>
- <61dbe8a1-6578-4690-8571-6b00c1850d34@amd.com>
-Content-Language: en-US
-From: Mario Limonciello <mario.limonciello@amd.com>
-In-Reply-To: <61dbe8a1-6578-4690-8571-6b00c1850d34@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: BYAPR06CA0004.namprd06.prod.outlook.com
- (2603:10b6:a03:d4::17) To SA0PR12MB4557.namprd12.prod.outlook.com
- (2603:10b6:806:9d::10)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D1053C0637
+	for <linux-i2c@vger.kernel.org>; Fri, 20 Mar 2026 14:01:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.173
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774015271; cv=none; b=rxw6Z1YWgdpeWbc915VdsZIdkIR13eRbgQ7tGjDJDyAgE7aE6wbaukHjHwR95v0RzIkp5vMFaC1JGHNksfKuzMYM3vDihYrRLfeh5vbXAr9mYl3PsTLM6XQiRCSqIwPk9pWrLQYsOSKVfNRTQiE7clG/xumlLAstNPG5w0Tbggc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774015271; c=relaxed/simple;
+	bh=Nx8bQBs95SJZiGV9sxDUOjb6cqnHHMShwIEg031kToo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=SR7QgqnOIvBgU+lV64K+Zy39IVsVnl7cL3cDaGV4K+HEnzrh6FdxaBAQl7JHC+F/iHp1B+BMcwqmVFYGLWhrFGPcURoDYKO46rvWjE4C8pwnf76EYmqCTibD6XHb9iBMY9JuUUQ+6u1+IW8Kihh55lG7TCYnXnvm3TTFDIPM5pI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gompa.dev; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.167.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gompa.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-oi1-f173.google.com with SMTP id 5614622812f47-46726528f1cso1464812b6e.0
+        for <linux-i2c@vger.kernel.org>; Fri, 20 Mar 2026 07:01:08 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774015267; x=1774620067;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=txsLO2jkdNhN6oBkuArfXNgiBSygoSMNA3GUMB3p1q0=;
+        b=S5i0YRjWUrrhBihkSYLAHvaWmKrRP97WLDyGWHWL8Xpm8lGr/r+zKxNzMG2vvfBSXM
+         sbq2qTU8p97dCn9z3fyPvBRTmgG/LrdEIEYLviTbfU2oRV9xVcEf+Tn7GlhDuG3aBxD2
+         q3fX9C7LjCP2GP/HsvypLu9vsDrVC9lPjjTS8DqrqbSV2baj2Id1MKPTnWuFWFrMqr9D
+         Rfa1iZzHZgbO3O19jJ9iFwG24tu45qJFWwyynb8P0eUDwQXxBaqdEqAIi2KFPUN4mS8m
+         NWFW3b6dngPi68Lzm65zccjANUlCljVNvjBIJseBTQD8MOOUJ9efRJHq8R2uFNz0v+co
+         dmdw==
+X-Forwarded-Encrypted: i=1; AJvYcCVqnwAIvLlf4epxPpJgZ44H7XtyXVlKQhoax848YOkMKHv4YzMHV/TaYQtX+1/aCRWRmgrLM6+dRDA=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxNNz21iMST5FylR8fd9NvtFxsQDFEf1GmCbE5KyS+3zh3fHBHL
+	SCFbUnNEO0Y0a7pLJwI8VYS12Xj64rY6c6xVppHqaq44NS4OlFK5z6FEty90n+uZ
+X-Gm-Gg: ATEYQzwhvVXQH6pKqG/UKYSQ5E6V/Em3RLWGumFIWaj60HQYGXz3vyM+F0Qvf7E7B+p
+	MTcwaYRtnrkq9Jm2FyKHQAfvP1foh2ze+eW8vgFCG8h39Xdcq+xRDHh3qJ2cueRvqlqD9Sq25Jt
+	sp95WobaVgPFC5vl3M7Kvuw8suE+knBj6xPr8lLYnMwoF0wFgENJWP7BIY6JmcM7ymTqdZDody1
+	GMQ9CmvhGwRB994dlpNGIW6bLM3FekYQPEXauT1Bb5cUR7pBIMn8w1FvIEZOt5EVyiFDMHfKEfQ
+	27lAGLIoMDjXaWYFVqwLKCXU7d/5Mek8a5El0yq+AxNqR2YSLdPe322ckUOBMTlOatwl7zZXsSy
+	gTWJe7NRsPS+Vnw+52QEDpJ3OgtkekxPhta0zHvIoAR7TOZ5vQGVOAPbzW8JK2jWTapw593gCVf
+	OCqXPp5pfhOZ3mjJusEdbQA9WpuF160oJxtedGfPPHXjX8CBvxPlNvU5152pG4zOx81f9j95M1Q
+	lNQQ4UjjObylO8WWJmF1J59disUobSkYpsqouawHWlvbmGtehouu6lrHWGmiN5fdeUXv8Actg==
+X-Received: by 2002:a05:6808:f94:b0:467:db7f:ab97 with SMTP id 5614622812f47-467e5dbf1efmr1677373b6e.22.1774015264791;
+        Fri, 20 Mar 2026 07:01:04 -0700 (PDT)
+Received: from mail-ot1-f50.google.com (mail-ot1-f50.google.com. [209.85.210.50])
+        by smtp.gmail.com with ESMTPSA id 5614622812f47-467e7d1a68fsm1353903b6e.3.2026.03.20.07.01.03
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 20 Mar 2026 07:01:03 -0700 (PDT)
+Received: by mail-ot1-f50.google.com with SMTP id 46e09a7af769-7d7851e2cc4so1880859a34.3
+        for <linux-i2c@vger.kernel.org>; Fri, 20 Mar 2026 07:01:03 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCVL0iA7lVLeBdoPLwdg5vxsXGPXhho6T/zhKSI7MgIoKklkv7sy0DNpCS9MwGm6GRFT0FczlfbaKWk=@vger.kernel.org
+X-Received: by 2002:a05:6830:67c5:b0:7d7:d15a:ce8e with SMTP id
+ 46e09a7af769-7d7eb04feffmr2015751a34.32.1774015263260; Fri, 20 Mar 2026
+ 07:01:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SA0PR12MB4557:EE_|PH0PR12MB7011:EE_
-X-MS-Office365-Filtering-Correlation-Id: d9d130c6-ee73-4937-c2f4-08de86888f9b
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|1800799024|376014|22082099003|18002099003|56012099003;
-X-Microsoft-Antispam-Message-Info:
-	4qnOHwoTaocZFJcItLe0RBvmtXnMEH+vapAEgMjOMbl6ZOfgMiSIgM/3tG4uBHzbYaYlEVwJ3DDExQvIoMrf4iXDFE8OVNJaPSNjuGeT+zGN5ossM+dNFaEq8kg7eEPK2C5EBjxvj9SwYolfd1+uFpzCEmEQiED5n0WzXzLsd0GrNM8j3uKEj7Ab9PxhJmCI94I6kQA7GqpGm3LfXiVS3siqRKNdGv4qk/PStMlPcBVijkQVN6igRZl5iV2bh9Xk2cJYRtKMoZX190+QeTKJV2WaiE12MIJNMWeAzMM70WarjiLx8S+Nx33x8FRxT67YdCGpKMZnOs1pg26h/QkXyOSh61F9EQ8M1/uqcS7k5O0bCaPvYP1w+rXA8sqRqGqVA62Xiy2taJl+J9CQUqzkq71pEG4fqpLy6VTPxTHlfUQtpoAhJgWYwoh0iRi+mCKTqqjyPD2mq2WfXYRN4yUD/SoyhjibhRYYfuikuXki6pk7NMeFak8wTe1e5OEllkcdZi4AewCIOTJ1Or23HvMMq3CaZ1fDM+gcoT0e9pbUWSoYzy9QZ7xDDJ0cFaPFlL89SI/mEQAO95PR7fvNNqECCSCpC01sXIZPg5ZTByiPiP/kfbKIrT7vk62/MDLki0PabeTdVWJa3hfciJRkblKR5Y4GMwvTiEAKuhpzGqHGOchRlZMRfuT7fQDMAXq3KrAe
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA0PR12MB4557.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(22082099003)(18002099003)(56012099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?WW5oK2JyaG03U3ZlTmU5Y0tBUkNMYXdLbnNuSU1vd3Z5eG1PWFZhZjl4QlFi?=
- =?utf-8?B?QUVZcEIwUnM4VDFGbVRxZHR4aE5KemtBbHFrWE1HUmxtQ2JLRFowbVN0RE04?=
- =?utf-8?B?WEdFdldlckF1bjNvZ2c1TkJNYjNxUWp5VG1XMEpxSXhyakdSMEFnRGg2dzZ4?=
- =?utf-8?B?emoxZUZWb2Zmck94UG53ZlIvT2hPYlN3anFjQ25hUS8zNGxRNEtSRU9OdlNp?=
- =?utf-8?B?QzhoUFdFc2RndkJKMU1uYWJKTldRUk1PVTJwQi81dUlQOUVFYjlETHR4TGZK?=
- =?utf-8?B?anhJbUhaYTc5eXE2YWtxcC9Dd200Nm5zMkVDNXFGV0d5K2hEclhKa0NVQ3ph?=
- =?utf-8?B?ajgvYTQzQjJmaWRiZ1hEVGZRNFNzdHdGRTFqdkl6ZlFTYlBnK3cyVU5RZlhG?=
- =?utf-8?B?NTRxcmF5ZDBsMWhyZHZxcU1lbGlYbzNQL0FHcFp4dHE5dHVQNmdLa2prWldF?=
- =?utf-8?B?Znd2M3pzL3lEdmN3SWNKVGNWRDVZdnoxNWJJUzlpK093ZWpnM0lqVUxUTi9K?=
- =?utf-8?B?TWNGU2dDbStrMXJHRC9sU29rTElsOWJYK0J5KzRyaENPUFJmQ3NSZ01vSmhl?=
- =?utf-8?B?cFBLN3lHNjZhdmRpUXFGSG1Kbmt5ZXRXd2F5RTUzRDVVOTFDLzRTa0tDSDhu?=
- =?utf-8?B?dVR4NGpybkJDUTZ3VmNMTVRuYzJGTXpObXNMSUhIamNXdCtPZUZHMWdGQlJ1?=
- =?utf-8?B?WnduY1FINldycVF5VnZjb2t6L0ZsVFlxRnB1dHlHVDFPTCtrbXlRa25Kczd4?=
- =?utf-8?B?SDU4T2oyTWtlSWsxQXB2dWh2Y25hZFk3QnovU3NhN0FSTmlNb0VtRjBLRHZF?=
- =?utf-8?B?U3VvZnIrbXVXWEViVlpCQ09aaldmQVFnTSsrTzQ1RHhoTVMyVmN2anBXMC9V?=
- =?utf-8?B?WEJUSk1OcmpnS3BzV0lNQ3hzSmJweFcweE1JZTZrNFlZaDl5YXpLV1JWRDgv?=
- =?utf-8?B?K242Sm1wV3lLdFdnb0R0UldIdFNxWmRVTUhLRlhsNDVIc3crZkpOeENyREZZ?=
- =?utf-8?B?K1l2SElDelVhMThoWHVhNXhPTVQzWUJ6c0FjMXl5b1YxWmFlV2xEMVN0cUxt?=
- =?utf-8?B?cFZOTGN3aU9QcCtQOENFSHpKK0k1RHVpb2x0UXJsUVZEdU5ubStoRDlsdE9k?=
- =?utf-8?B?NnpXWVNTdkRSRzRndjJGcHNHT25tbHIwRUUydklBZ042V1JWcG5ROVNxMU9m?=
- =?utf-8?B?TkdBdnExc1FSMCtvNjR1UVN2T01XUW1xQ2VhcVhhT21lTHlyKzJGLytZeG0x?=
- =?utf-8?B?eHA5YWlQMy9xUTE3YlZxcXdJdEI1b1pxeGNqNkdpdFdReVBuN014aUNPRHVJ?=
- =?utf-8?B?dWgyZ0ZQMnJRVWpabFI3WUxvcWVLMFJpYlFxak1RSHZocVlrQmVDUHNaOHZW?=
- =?utf-8?B?MUVNVUJYQkFha2k2d2xrS2JwRitKbzR6aGZKZHFQMW95SkxVMTh1bUdIQzdJ?=
- =?utf-8?B?dXNSelk2Sjd5YmZDMXp2WVQ1cThmOEVscVR1MzJwRlhDa2tqTW5pYW1JRU5x?=
- =?utf-8?B?YWh4MjRvZG5sRmhab0wvdmwrOUVESk94QU5pUVhWZXV4cHBZa2M5RzM2eDNj?=
- =?utf-8?B?aHhsYVlJVnVvWmt5bUdNdjI0eC96RHpNc0E1ZjFMTzZWblV6Tno4UE1oL2tC?=
- =?utf-8?B?UWJrUXhGbVVLa1FHUjYrQ2hkdE55ZTRUbDA4MWNjRFBwRUxKMk1OV1IzelJk?=
- =?utf-8?B?aXpERmdOWkgzSitjWlgyZFhobjB0S0tBQlNuUXRJSUpkRmVHdkh1OUIwY25t?=
- =?utf-8?B?VlkyQklGczJ4NXVwdFozNlBtbzROYWRXWUxiemlLb3lzaFlrUy9naEVjc2Q5?=
- =?utf-8?B?MWJDM0lVdDAwcDUzQVdKcy9FRHdIQ0NKOHROVTBKZGc0eTdpSDZuWDJ6R1VW?=
- =?utf-8?B?UmszSHEzeWxaZ1FvVWNXWEhQM3Z5RUh5eUpFc3hvWkxmcVlRTjEzb3E3S3JP?=
- =?utf-8?B?RWZ4M3VBZGJHekYyV3dwRkUyQ0RnN2hJOEY1Z0RaY1ViVU10bXhPTFRaMWVC?=
- =?utf-8?B?ZlBBYngzU3NyTVhhSWh0RnkvUXBsWW1zd2FVUWdRNENzb0VBNXhlUnBuUDlx?=
- =?utf-8?B?NmxRdkRRa1VDUTI0c0YxMktwLy9vWEtxUC9pMUpWOHkvcDFxWlpGL1BHWStp?=
- =?utf-8?B?a3pyZGtTdnp5T0gvVXJBdjZqdFdheGlOMTZEQjE1a2plZGxGMnA1bTJUTGs2?=
- =?utf-8?B?UCtMNE9IWkNwTU1scEFadElSNWtxN0VmdXAvcXk1bjhxbXc3OXhHYThVWjQ3?=
- =?utf-8?B?VFQvd3pidENORWx3blBYNks2YnFqcVNZQTR1S1U0M0JWRVZLZVQxdnQvY2s3?=
- =?utf-8?B?cXQwSDZMVTBEUy9jQWxUc1ZZSFZLbVc2Ym5DTXhOUm5LWGVJMWo2Zz09?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d9d130c6-ee73-4937-c2f4-08de86888f9b
-X-MS-Exchange-CrossTenant-AuthSource: SA0PR12MB4557.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Mar 2026 13:57:01.8211
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: b9WgR3zvZQFRqkBb23viQ57+xO6is/it7ybebLXhGeeoVUcWM8SnxtglDZgC0vKW4fjcL7Rwlf7H4Lk+m/WTPw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB7011
+References: <20260320-apple-m3-initial-devicetrees-v1-0-5842e1e393a8@jannau.net>
+In-Reply-To: <20260320-apple-m3-initial-devicetrees-v1-0-5842e1e393a8@jannau.net>
+From: Neal Gompa <neal@gompa.dev>
+Date: Fri, 20 Mar 2026 10:00:26 -0400
+X-Gmail-Original-Message-ID: <CAEg-Je9b1VujkHCVdXowQs+BXA0+DL=6sdoP0wuSYpau4T31XQ@mail.gmail.com>
+X-Gm-Features: AaiRm53Q86Nf9dVOSTKn0cYEE4xmDvp3jUYoCfYFj-SX9hFNk_weUYFVfwHr6Ok
+Message-ID: <CAEg-Je9b1VujkHCVdXowQs+BXA0+DL=6sdoP0wuSYpau4T31XQ@mail.gmail.com>
+Subject: Re: [PATCH 0/9] Initial Apple silicon M3 device trees and dt-bindings
+To: Janne Grunau <j@jannau.net>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Lorenzo Pieralisi <lpieralisi@kernel.org>, 
+	Sven Peter <sven@kernel.org>, Wim Van Sebroeck <wim@linux-watchdog.org>, 
+	Guenter Roeck <linux@roeck-us.net>, Linus Walleij <linusw@kernel.org>, 
+	Mark Kettenis <kettenis@openbsd.org>, Andi Shyti <andi.shyti@kernel.org>, 
+	=?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <ukleinek@kernel.org>, 
+	Sasha Finkelstein <fnkl.kernel@gmail.com>, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, asahi@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org, 
+	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-pwm@vger.kernel.org, Michael Reeves <michael.reeves077@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+On Fri, Mar 20, 2026 at 8:23=E2=80=AFAM Janne Grunau <j@jannau.net> wrote:
+>
+> Hej,
+>
+> This series adds initial device trees for M3 Apple silicon devices. The
+> device trees contain only a minimal set of hardware not going much
+> beyond the minimum required for booting kernel and initramfs and
+> verify via serial console that the hardware and drivers work.
+> The hardware with the exception of the interrupt controller is
+> compatible with the M1 and M2 SoCs and the existing drivers.
+> Changes for the interrupt controller were sent separately in [1] and are
+> picked up and in linux-next. The device trees pass make dtbs_check with
+> the apple,aic2 dt-bindings change from that series.
+>
+> Link: https://lore.kernel.org/asahi/20260223-irq-apple-aic3-v3-0-2b732807=
+6b8d@jannau.net/ [1]
+>
+> Signed-off-by: Janne Grunau <j@jannau.net>
+> ---
+> Janne Grunau (9):
+>       dt-bindings: arm: cpus: Add Apple M3 CPU core compatibles
+>       dt-bindings: arm: apple: apple,pmgr: Add t8122 compatible
+>       dt-bindings: power: apple,pmgr-pwrstate: Add t8122 compatible
+>       dt-bindings: watchdog: apple,wdt: Add t8122 compatible
+>       dt-bindings: pinctrl: apple,pinctrl: Add t8122 compatible
+>       dt-bindings: i2c: apple,i2c: Add t8122 compatible
+>       dt-bindings: pwm: apple,s5l-fpwm: Add t8122 compatible
+>       dt-bindings: arm: apple: Add M3 based devices
+>       arm64: dts: apple: Initial t8122 (M3) device trees
+>
+>  Documentation/devicetree/bindings/arm/apple.yaml   |   18 +
+>  .../devicetree/bindings/arm/apple/apple,pmgr.yaml  |    4 +-
+>  Documentation/devicetree/bindings/arm/cpus.yaml    |    2 +
+>  .../devicetree/bindings/i2c/apple,i2c.yaml         |    4 +-
+>  .../devicetree/bindings/pinctrl/apple,pinctrl.yaml |    4 +-
+>  .../bindings/power/apple,pmgr-pwrstate.yaml        |    4 +-
+>  .../devicetree/bindings/pwm/apple,s5l-fpwm.yaml    |    1 +
+>  .../devicetree/bindings/watchdog/apple,wdt.yaml    |    4 +-
+>  arch/arm64/boot/dts/apple/Makefile                 |    5 +
+>  arch/arm64/boot/dts/apple/t8122-j433.dts           |   19 +
+>  arch/arm64/boot/dts/apple/t8122-j434.dts           |   19 +
+>  arch/arm64/boot/dts/apple/t8122-j504.dts           |   37 +
+>  arch/arm64/boot/dts/apple/t8122-j613.dts           |   35 +
+>  arch/arm64/boot/dts/apple/t8122-j615.dts           |   35 +
+>  arch/arm64/boot/dts/apple/t8122-jxxx.dtsi          |   48 +
+>  arch/arm64/boot/dts/apple/t8122-pmgr.dtsi          | 1149 ++++++++++++++=
+++++++
+>  arch/arm64/boot/dts/apple/t8122-usbpd-i2c.dtsi     |   32 +
+>  arch/arm64/boot/dts/apple/t8122.dtsi               |  444 ++++++++
+>  18 files changed, 1859 insertions(+), 5 deletions(-)
+> ---
+> base-commit: 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
+> change-id: 20260319-apple-m3-initial-devicetrees-5c546ad977a2
+>
 
+LGTM.
 
-On 3/19/2026 4:09 PM, Nirujogi, Pratap wrote:
-> Hi Mario,
-> 
-> On 3/9/2026 9:29 PM, Mario Limonciello wrote:
->>
->>
->> On 3/9/2026 5:00 PM, Pratap Nirujogi wrote:
->>> Add NULL check for i_dev->map before calling i2c_dw_init() in the
->>> runtime resume path. The regmap may not be initialized yet when
->>> runtime PM tries to resume the device early in the probe sequence,
->>> leading to a NULL pointer dereference. Skip the i2c_dw_init() call
->>> if regmap is not yet created.
->>>
->>> This race condition occurs when runtime PM resume is triggered before
->>> i2c_dw_probe() completes the regmap initialization and was observed in
->>> kernel v7.0 where the order of device enumeration has changed because
->>> of the changes in registering the device sources in the device 
->>> hierarchy.
->>>
->>> Co-developed-by: Bin Du <Bin.Du@amd.com>
->>> Fixes: 02c057ddefef ("ACPI: video: Convert the driver to a platform 
->>> one")
->>
->> Is this the right commit that introduced the race?  Did it change the 
->> timing?
->>
->> Or was the race always there and we just got lucky until that commit 
->> went in?
->>
-> My apologies for mixing up this change along with other changes that 
-> were needed to fix the AMD ISP driver regressions in v7.0.
-> 
-> I investigated further and found that this issue was exposed by the 
-> below commit.
-> 
-> https://github.com/torvalds/linux/ 
-> commit/38fa29b01a6a295aedb69d1bbdad70acd7d204c6
-> 
-> However, the resume‑probe race condition existed even earlier and had 
-> not surfaced because device initialization in resume is done only when 
-> init handle is valid.
-> 
-> Here is some background and context on this change:
-> 
-> The amdisp i2c device requires ISP to be in power on state for probe to 
-> succeed. To meet this requirement, we added this device, which is a 
-> amdgpu MFD child to the genpd, to control isp power using runtime PM. 
-> The pm_runtime_get_sync() call before probe triggers a PM resume, which 
-> powers on the ISP and also invokes the amdisp i2c runtime resume before 
-> the probe completes resulting in this race condition.
-> 
-> To fix this issue properly, I’m considering this change. Please review 
-> and share your feedback on whether this makes sense.
-> 
-> - Call dev_pm_genpd_resume() to Power ON ISP before probe
-> - Call dev_pm_genpd_suspend() to Power OFF ISP after probe
-> - Call pm_runtime_enable() after probe is successful to take care of 
-> system suspend/resume.
-> 
-> diff --git a/drivers/i2c/busses/i2c-designware-amdisp.c b/drivers/i2c/ 
-> busses/i2c-designware-amdisp.c
-> index 19de518be30a4..9ce58522951cd 100644
-> --- a/drivers/i2c/busses/i2c-designware-amdisp.c
-> +++ b/drivers/i2c/busses/i2c-designware-amdisp.c
-> @@ -7,6 +7,7 @@
-> 
->   #include <linux/module.h>
->   #include <linux/platform_device.h>
-> +#include <linux/pm_domain.h>
->   #include <linux/pm_runtime.h>
->   #include <linux/soc/amd/isp4_misc.h>
-> 
-> @@ -76,9 +77,7 @@ static int amd_isp_dw_i2c_plat_probe(struct 
-> platform_device *pdev)
-> 
->          device_enable_async_suspend(&pdev->dev);
-> 
-> -       pm_runtime_enable(&pdev->dev);
-> -       pm_runtime_get_sync(&pdev->dev);
-> -
-> +       dev_pm_genpd_resume(&pdev->dev);
->          ret = i2c_dw_probe(isp_i2c_dev);
->          if (ret) {
-> @@ -86,14 +85,14 @@ static int amd_isp_dw_i2c_plat_probe(struct 
-> platform_device *pdev)
->                  goto error_release_rpm;
->          }
-> -
-> -       pm_runtime_put_sync(&pdev->dev);
-> +       dev_pm_genpd_suspend(&pdev->dev);
-> +       pm_runtime_set_suspended(&pdev->dev);
-> +       pm_runtime_enable(&pdev->dev);
-> 
->          return 0;
-> 
->   error_release_rpm:
->          amd_isp_dw_i2c_plat_pm_cleanup(isp_i2c_dev);
-> -       pm_runtime_put_sync(&pdev->dev);
->          return ret;
->   }
-> 
-Good investigation.  Since this was around all the time and just got 
-worse I would say you should add a fixes tag for the first commit that 
-introduced this driver rather than 
-38fa29b01a6a295aedb69d1bbdad70acd7d204c6 and just note in the commit 
-message that 38fa29b01a6a295aedb69d1bbdad70acd7d204c6 made it worse.
+Reviewed-by: Neal Gompa <neal@gompa.dev>
+
+--=20
+=E7=9C=9F=E5=AE=9F=E3=81=AF=E3=81=84=E3=81=A4=E3=82=82=E4=B8=80=E3=81=A4=EF=
+=BC=81/ Always, there's only one truth!
