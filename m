@@ -1,78 +1,97 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8911371893
-	for <linux-i2c@vger.kernel.org>; Fri, 20 Mar 2026 21:23:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90AE63B4E96
+	for <linux-i2c@vger.kernel.org>; Fri, 20 Mar 2026 21:25:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774041839; cv=none; b=BbItWkBXAGq1GKmErRaBwlkbAqi3r5UuIMDJubt5o2rsxPK176secTvhH4Rr6PqFIrkbYUiHlaouf3+k0cj1PNEzg1YeiEMVfxX6lT50/dJ0h/lprf+rAPnepZNA/6cBW4p8vib14+esthTBVVkF0kbg9PiLv4UWZGNwHCYxSHw=
+	t=1774041934; cv=none; b=pfwyHHgJXn+cTO7eePPdRvB8Z8FzeY6HAAJ6TnmS5/EYr3Z0J05JfiZMx0NPqMh4Mbpopa2undZwV9938UERoBQCL/AzxAwiUmcESFlEFUva2Fzi9sstpKOSy2NYV6JXSTyiLwSGFIdg3FuV/KbDa4qEviRK64sxHPTjZTPR8yw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774041839; c=relaxed/simple;
-	bh=uTaN04j6+cb6/7R2Oaa7TFsdeuAss2ZJO+KB7exIZv4=;
+	s=arc-20240116; t=1774041934; c=relaxed/simple;
+	bh=sAgiFG031bElYipESixIpj24GpWwr1Ns7a0BOIHYcHQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=sxzwg2HMV0oPJvfvWyh09ENr9D0PQPb8gZQjORSs3/6rzrhR7f9SxnTLjdiFeaIKzwZMaOuPAa4190e4x171ZQyvqPZ7fQKwS0RBG9/DTJ4IXvaP/qt8OHGlZx5bdG4sgKj2VB0QM0mEUBpF7f/+S2a0EikrgH4XuajcI/I0ejE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=L8Fp4irv; arc=none smtp.client-ip=194.117.254.33
+	 Content-Type:Content-Disposition:In-Reply-To; b=pKH28ZWeRTdghYHH4EKtGEk0XiCFHK/XB7nI0HzATDBgdBraPNe1p9enFS4Nh/ZrbqfIYGtzOnGEjTgVZNouYMYv0z/AKfU5PAma9QXBHSb7GWTn7indSSSYQ7wgslwbgBt20C8fZXhFGBju9Y5W8ElZJnr5MWv8CixYrqusBbE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=iuaHDYlz; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="L8Fp4irv"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="iuaHDYlz"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=jAQD
-	Q2Ijn2JafmoVVhu9OwhIlf/ITjKAIPoy10A798Y=; b=L8Fp4irv4LycvmIlOZ3f
-	WUViDiZxJrvz9m7VzpNUdk3cGXX0Aeo61n8EJTCw0K9+d4I/PGRtkPig7GSaosp7
-	bgCmcWipGxQUCT61C2BVKByrJpsvoyQJybJFDLrHrFcLUNYrBeldQUxr7vS4E8Io
-	ZMjTN6EKxsAC2rIo4e1LljfH8CFRnthH8/r0fy6OTvUxV0PYxA3dNYXY+mRTrCrD
-	P47+wuBlLfRS7EjA7UzMZJvbX1rs/j5hoFr8G0GP51EuX/irog4Dh5BtP6aW2HR2
-	WZ62n6T/enlZrq/cuxNwPlea9aiK2HPz3Cengtv1RPKmWK1wN4xsWoZ5kH7ybTLN
-	Ag==
-Received: (qmail 1700375 invoked from network); 20 Mar 2026 22:23:53 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 20 Mar 2026 22:23:53 +0100
-X-UD-Smtp-Session: l3s3148p1@2XBHTXtNHLEujnsL
-Date: Fri, 20 Mar 2026 22:23:52 +0100
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=sAgi
+	FG031bElYipESixIpj24GpWwr1Ns7a0BOIHYcHQ=; b=iuaHDYlzT3bP9wjmvTPC
+	VOICncWG1ma1b5dAMT3PBbMOzS5M8xltNPps9kRqYn8ohJe8Sp04xwY0eprxjzhp
+	5X+gHOXwoH0Hq0abox7POGWZxSDpoZyediBTgg9PnIXFILTusBHNNiKNeW692Jdp
+	CygLH/YnA/OxrXcpZkBmCu70rKoiTXBWdASQuLDM2gi9L9lNbqqUIgMGgcPZuDcG
+	7fd67lNVS3fbycj/2E3Uua8ex5m5kjFIk+ve7Wkz2hoMFx7/YuiehqpWUlHCR5w9
+	HpgoQirJ0tQLpwAUCgwSR+V9K+/EGTXI8WKVkJ0DVa/AOm4cGepk8FGwL7uGjsZM
+	vw==
+Received: (qmail 1700833 invoked from network); 20 Mar 2026 22:25:29 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 20 Mar 2026 22:25:29 +0100
+X-UD-Smtp-Session: l3s3148p1@bjwBU3tNBMwujnsL
+Date: Fri, 20 Mar 2026 22:25:29 +0100
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>
-Cc: Loic Poulain <loic.poulain@oss.qualcomm.com>,
+To: Biju <biju.das.au@gmail.com>
+Cc: Chris Brandt <chris.brandt@renesas.com>,
 	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
 	Conor Dooley <conor+dt@kernel.org>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konradybcio@kernel.org>,
-	Robert Foss <rfoss@kernel.org>, Todor Tomov <todor.too@gmail.com>,
-	Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
-	Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-	Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>, Frank Li <Frank.Li@nxp.com>,
-	linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Magnus Damm <magnus.damm@gmail.com>,
+	Biju Das <biju.das.jz@bp.renesas.com>,
+	linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org,
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-media@vger.kernel.org, imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Subject: Re: [PATCH v6 1/5] dt-bindings: i2c: qcom-cci: Document sm6150
- compatible
-Message-ID: <ab266KF-8ll2TKxm@shikoro>
-References: <20260305-sm6150_evk-v6-0-38ce4360d5e0@oss.qualcomm.com>
- <20260305-sm6150_evk-v6-1-38ce4360d5e0@oss.qualcomm.com>
+	Prabhakar Mahadev Lad <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Subject: Re: [PATCH] dt-bindings: i2c: renesas,riic: Document the R9A08G046
+ support
+Message-ID: <ab27STFXwgOLr5Xc@shikoro>
+References: <20260304071732.5864-1-biju.das.jz@bp.renesas.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="zVZR+CFJbEFFPASI"
+Content-Disposition: inline
+In-Reply-To: <20260304071732.5864-1-biju.das.jz@bp.renesas.com>
+
+
+--zVZR+CFJbEFFPASI
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260305-sm6150_evk-v6-1-38ce4360d5e0@oss.qualcomm.com>
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 05, 2026 at 05:48:12PM +0800, Wenmeng Liu wrote:
-> Add the sm6150 CCI device string compatible.
-> 
-> Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-> Acked-by: Andi Shyti <andi.shyti@kernel.org>
-> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-> Reviewed-by: Loic Poulain <loic.poulain@oss.qualcomm.com>
-> Signed-off-by: Wenmeng Liu <wenmeng.liu@oss.qualcomm.com>
+On Wed, Mar 04, 2026 at 07:17:28AM +0000, Biju wrote:
+> From: Biju Das <biju.das.jz@bp.renesas.com>
+>=20
+> Document the Renesas RZ/G3L (R9A08G046) RIIC IP. This is compatible with
+> the version available on Renesas RZ/V2H (R9A09G057).
+>=20
+> Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
 
 Applied to for-next, thanks!
 
+
+--zVZR+CFJbEFFPASI
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmm9u0gACgkQFA3kzBSg
+KbZj2Q//ZKGxH2CW4HrGUd+n1EPLjZEBCIaDr5rOE1S9Dbpf/08kB2/5Ppz5AizB
+e9+CngsaVGJKWfv6p4lubRNQbGhwwNyMHWQv+FcPU5X0v6JYjvFkoXUBd8ITMM19
+qNdURDem2YaNGZAKyQLr1bqsLAN6q7hIUA3/yew3df1gr6qxo7v/h+3QjZW+wXdA
+99Ea3y9V34KankNSaCQkYFKGoZN3f3Qc9MY5N4J2fCMXmC9kiJsKOt4DOCQ9583v
+3f4noXNKEJcufm576j1W6JlPo9kEM5lASdWEIYEOjLyFXFRdVWm74LPTIm3qcGu1
+Iv9//M5ZNqvwCcRZg6RE0ZRbBo78O91kyJT3RFUwZ1SjR7U2zOYVbHb+O0PxGgJp
+0kYYSnCgKqQP6Q84hgHxZCD0OOvkcUpxf4Kj198YER6WvEgNMrS58pUCz7AJSUfm
+Z51U3dAKsj2A755f2QM4IQN9H0V19rS9c9pHqfnD9VNoguWERtnWxfFHx4TlCGCg
+F1SH8DFL8BYq3N62vPjwllKzWNeNZT/Dx67x1w80lF/dfvuZeVb3HAq/3Ek3kOuB
+xsYptmwHBUM9CSPrZzXjvdDtbvdmuguqztG8JV/YUvNgcvuCuTzUQO/wuCNeHXXT
+eu0TbIdj9rlM3F584sW5UbqGoQ/CSKhqK7Lwng7AScdAkYgr6vw=
+=yMuc
+-----END PGP SIGNATURE-----
+
+--zVZR+CFJbEFFPASI--
