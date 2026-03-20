@@ -1,235 +1,216 @@
-Received: from AM0PR83CU005.outbound.protection.outlook.com (mail-westeuropeazon11010004.outbound.protection.outlook.com [52.101.69.4])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13BA42EC090;
-	Fri, 20 Mar 2026 02:04:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.69.4
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773972274; cv=fail; b=Nx/yDLc1l5WtmJa+D8XW6qSoqRtuwsf8xhDSUQ90iiD9zFaP6NQOqnaJy+7LEqhsvuWC9JHoLOyX/r/xgq1Fex4XZMcsSo4B3LiAax4vj6RTdJ6G6Z+d1wRFituO5k6awvIj5CfkcT0Mr+lGpV+JJR8ww430Rv5B3NeYV9cfe4s=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773972274; c=relaxed/simple;
-	bh=3M4lbtCV/zptjjiUD80aUnZqWeLCISm2Skx3ooiD6rY=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=ajUIJnZQ+2SNyB0TL+y8yg1zKgBS/uD2hmOrjixPZHOoZErgCmyZ/FY+S4z8p6ngiQfduSnUtlRr3kKFQO8jLfA7nX8cFau/7KLjE1FfjM0Nox3BxZDQAdRkkmJeUwJvtNG9eiMqns5/aCoNJVLEfkoUDayp2PezOexGXDbFFIg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com; spf=pass smtp.mailfrom=nxp.com; dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b=XPpt/HSA; arc=fail smtp.client-ip=52.101.69.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C22425B663
+	for <linux-i2c@vger.kernel.org>; Fri, 20 Mar 2026 06:12:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1773987152; cv=none; b=pjGCpFKaw6stvZ3xLXbjt4PNBpuzyUVUMjTeKk5NM+WaRf/qQRlv4VuBNt+ReWwzJ5r6OkM/Q3y9iz9sKEQcWUdPwu3ARQg9MFwxVbXPZGz6jasEAglRmP/tDu9K7BEraMmPhqIFnFDm/poLQEALilj+7AhCeQsFQbPlEfle+10=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1773987152; c=relaxed/simple;
+	bh=4hoa9J6xOBHrM0aN7Jc9XMxjRE3Ci9RIclJ6AJ0pnyk=;
+	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
+	 Message-Id:References:To; b=S+V3mVnEoQmOO57mw1vngiotMZzempZSWpPL4qn3V4pOqUMUcyiSN8fX6vrFAVGz5l5ASPZPJj921DwzPJNYWmaE6pE21/mfH4jspvT+80K1CZp5QLtYAJjuwNuYR9PUT75D9H3fJJ4z4wutLIyMS/rfkZhCJEAhcDYzb03gLmc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=FgbEaZbS; arc=none smtp.client-ip=209.85.215.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=nexthop.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nxp.com header.i=@nxp.com header.b="XPpt/HSA"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Zr41vd2G3l5rR8IhdDH6J6wFxaZb/shHMXPxzijWVRA7Qev2a8WLIJOYDyUvoLnUX9qoAN7I5SNE9Z7qSsQNEH85rmZBBUBn/sz7sL124HW5KPeFqw8CFLgYB0jqpGCBdbcxLIbq7iBY8crKE2Tb6XSrT/WVq8LV8oi0pe8M/7aJTcbroiAsCmGRb+d/fEdaLEE5Jz3CJCe78Vbma3bDf2Jg9D5DmRZC9OyZoYspUeEA/JO5bOcQiZ8l2ZwHKh7ePW4iXc3LC+5pngyEvNS4VX2vmA2obOG0f9J+6Kt/H5yQM5nwEkRVT6sPvTtLtI1jEwKF+A/4/+lgnNsJId++KQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=3M4lbtCV/zptjjiUD80aUnZqWeLCISm2Skx3ooiD6rY=;
- b=N8/eVSgrslGoulBOWbRkUo8P9yjDx7IMVDaVkVbOfbIZH6ccowp03v8/0BX1PLK9ZP1L25xCxlA2tMtHX+Q6aeSZUPNn8WWpNf+ACusE3HJyzfeBF7xE3X+I1In/zP03LIwHj3wgSR0J4/AQK2Q9uFdoocZevj0lANdx4s+Bicug1Pxmhw8z/FbS51HcQWJW7DR67nwQFdTht/YT8S5YCbR2RBsfsCnFi1MqUmwVIPYV3W73MMeVpg/vzZa0KD9tjOh1EYD0g2fM8tecMlIc4/baxZxALvjNQbxl4IjKBnvEfb77R80yH+sbzmRSaqcgsYtFLbejFvLZttdahgH7+A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
- header.d=nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=3M4lbtCV/zptjjiUD80aUnZqWeLCISm2Skx3ooiD6rY=;
- b=XPpt/HSAoTCsWjUaNLgyST4sXURH3Z1G78iebaKccCl2vX7Vuc8tw5lSE8mXNacHL/zKWmGW9dO7XhQFS35Tl9wXKliSgRPLAtJymi/R3VzJ2IAYLvegAlCYf3htFo2MMm8I8Uwy+GVp+6RbmiZhHYM14oJ/7lKX0ujziW91rGojAh+DS1b5fMuLOWVdP0iPdQvdRS+UxNkUlev2i3Mx+zPj3C77yTI+k2u4rioZmaRr6+0KB3UObBMQyzKuW6Apx8bB10e1DFrKFc1iX39AqXiOnBknj70+qTkShrw3xLsWUcMPi4JDhB/TJ6YfQko3JOyLd0C1p1jIMB+bKU+Vxg==
-Received: from PAWPR04MB9960.eurprd04.prod.outlook.com (2603:10a6:102:38b::5)
- by DU4PR04MB12111.eurprd04.prod.outlook.com (2603:10a6:10:63e::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9723.19; Fri, 20 Mar
- 2026 02:04:22 +0000
-Received: from PAWPR04MB9960.eurprd04.prod.outlook.com
- ([fe80::566f:3659:511:76cf]) by PAWPR04MB9960.eurprd04.prod.outlook.com
- ([fe80::566f:3659:511:76cf%5]) with mapi id 15.20.9723.022; Fri, 20 Mar 2026
- 02:04:22 +0000
-From: Carlos Song <carlos.song@nxp.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-CC: Frank Li <frank.li@nxp.com>, Stefan Eichenberger <eichest@gmail.com>,
-	"o.rempel@pengutronix.de" <o.rempel@pengutronix.de>, "kernel@pengutronix.de"
-	<kernel@pengutronix.de>, "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-	"festevam@gmail.com" <festevam@gmail.com>, "stefan.eichenberger@toradex.com"
-	<stefan.eichenberger@toradex.com>, Francesco Dolcini
-	<francesco.dolcini@toradex.com>, "linux-i2c@vger.kernel.org"
-	<linux-i2c@vger.kernel.org>, "imx@lists.linux.dev" <imx@lists.linux.dev>,
-	"linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "stable@vger.kernel.org"
-	<stable@vger.kernel.org>
-Subject: RE: [EXT] Re: [PATCH v1 2/2] i2c: imx: ensure no clock is generated
- after last read
-Thread-Topic: [EXT] Re: [PATCH v1 2/2] i2c: imx: ensure no clock is generated
- after last read
-Thread-Index: AQHcqyXwBHUr+bUJrUuXl+mBxXWLd7WdqYeAgBjrEACAAC+/kA==
-Date: Fri, 20 Mar 2026 02:04:22 +0000
-Message-ID:
- <PAWPR04MB9960D02AE0E9D0FFF53D2E82E84CA@PAWPR04MB9960.eurprd04.prod.outlook.com>
-References: <20260218150940.131354-1-eichest@gmail.com>
- <20260218150940.131354-3-eichest@gmail.com>
- <aZXoTGK_v3L4pc-E@lizhi-Precision-Tower-5810>
- <aZXq4gn4xhInQQlq@eichest-laptop> <aaamYByn9dZEIBWb@eichest-laptop>
- <aacECsJ6O8QjHsUa@lizhi-Precision-Tower-5810>
- <PAWPR04MB9960F0118ACC092BCAAB0142E87CA@PAWPR04MB9960.eurprd04.prod.outlook.com>
- <abyBxAvJcMshvB7G@zenone.zhora.eu>
-In-Reply-To: <abyBxAvJcMshvB7G@zenone.zhora.eu>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nxp.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PAWPR04MB9960:EE_|DU4PR04MB12111:EE_
-x-ms-office365-filtering-correlation-id: a02860f4-7e0a-4c52-9b47-08de8625010a
-x-ld-processed: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635,ExtAddr
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|19092799006|7416014|366016|376014|1800799024|38070700021|18002099003|22082099003|56012099003;
-x-microsoft-antispam-message-info:
- Yc7Orjqu1Bt/29sOMaKqfRYVNByJWKJxpWUrD15VWA+AOWf+3FxiT+cwmglzRho5tbnyNZBZQOJAzCibCX0Qz2ypZdcHFo1ndwNFDFl7yhjv0aRQnO1drz6nwbldagBgHGjMERIgESHaHs+Clx4uxhPMIqeu8dz9BBkOZLRUW7gw05Cl8kKLKJz2dYIJ3tQCwdj5PHNQClmYssEQE4pp93nTIqKAifO54gcg+F132/zbK454FayNaELfwGBHJTxySh0xpKhdcaforK4aBuBb36Pc6zTUzt5+HQ/dPP+bXsUwPpyqfq8heyPlwTwlq7ahRWf2JWEIjadG6GGD1sEsRtjnuzoXYj2sKOyLvxb4B43oYHxWEK8wrYuVwOLTmAVmMkK2KN9lJ7p17hHXbslq1qRpGuK6UL6rpZ7+zt5OvdMdVPx2vRBRZ7Yg8OVQF2BL4Si/VqIhtOKzj1/X9JFg2yEwSsuFICu+b9anU1GPFQt9I7uJzOGTMmXhBwZXv9+lcHljeXE+y1TEMQc1J66qZ31s6x8LL3MbfZ6QoSoRhfjHj6HiKzgudQaXdI/dGj1CRCm4XByFjUTpu91rV5yYaI9ZsLvv+WFPORcwazIXSh/iPg4PahfqXjHp2NVcBsNXxZkBmeIWj43J+7AeebNJ9fYAztKRqRemAEYHCk6jRiuwqXpql/fp55IInlqnihRS+0oaFxJe73pZm+DgWHNfZ0NiLgrR9c4g/53Q1MkklMY=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PAWPR04MB9960.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(19092799006)(7416014)(366016)(376014)(1800799024)(38070700021)(18002099003)(22082099003)(56012099003);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?8ydNrWAAAzoSeKKBwmJyCIQPIgdc1efMMpCbxfRXEwuQI3AcFEYsRTJxZvlA?=
- =?us-ascii?Q?LVb3kWCSf5E7GzsFmaKV93qfTilZvGqyDP6sYdVGyLB4QymMuuxsKcN/J3gG?=
- =?us-ascii?Q?HROzC5Rd1jZzhkQYviTVdxbHg/cALAxyw+qC6Y0//5ua1KZdC6mDiygamwkN?=
- =?us-ascii?Q?r7eoZYeHnUhc5nFNPiQzWY13vRghsba4No79f9DQMB9ofUO2ieImuYT+SN/s?=
- =?us-ascii?Q?+AvCNiK5qT6m+iaG2lwzl/ozQJ9v88RWipItWo1wx57s0cQ2I6BPQ34nOXQh?=
- =?us-ascii?Q?ituFLbkUvWcnQ05Bw943OWJUqe7Q4ukicxMJpBeqpXn1g6x+c7YAuqUQ5/wP?=
- =?us-ascii?Q?v/MOi1zcHSC1AYb1lAyYSlKZaxd5I0OZRC0RNx9OPhdyX8oX7Kv+8iiD//mP?=
- =?us-ascii?Q?Yc9WZOaKL89v/ROlcrOaGQKStKn6A4XQP+LrmyNMgavKnyJjyF+iVjuyRZrJ?=
- =?us-ascii?Q?bKFVhNOzggaqNXF4Bbsng58Zf8GKDsM9Xog2V8TpWuX+GIm1GfVCIxfTosuK?=
- =?us-ascii?Q?rA18XcDNNQZjAuf7eh7tct0X8kVSzpybRBkARENgsIvVUmlr+lk9i4oa2GjE?=
- =?us-ascii?Q?HhKqlc8Yb53NCBTUzqtSAdvXFusLpYbpgyOg7KBWn40ENUxG26ltK/2Wm/pK?=
- =?us-ascii?Q?q0PxHdPnXL5CHB4h46L+6uPXw6YpG8NLsWxWIcm3UYmqp54jCoejKgEROaN+?=
- =?us-ascii?Q?+G9Mt5K7eDJuRfr950PpU2BaSIOVdg/lZwxAv16m4We5FwV4GWCnqchSZOnl?=
- =?us-ascii?Q?uQ9Pdxg3Hc7eGQz72KfVGjv0ObmUU+Ufa6EcsmhUDY/ORq/QY/iPvq6BLRUU?=
- =?us-ascii?Q?5js/s1KhLoqtbwI8OvTFaspgMSsPpsonbkIPOIP5I1U9jK9fgWjY1RdwTefL?=
- =?us-ascii?Q?Puk9pHcSbvKh3zg627lOUoeVP93WjXftEEE7vnaKkOnyO23xBpFXKSBTqIG3?=
- =?us-ascii?Q?bLxIibLabJYU48c7YZDNxb4DJNypbjB64bgGSUhCOSWmCR2V8fdMvphjg/gk?=
- =?us-ascii?Q?PEivtT23IgFrDNCX+3GuP1xHzeV0TS+aSg1Bxa0isXbeICyuKf8nOOKHNnGI?=
- =?us-ascii?Q?PfqHABGWJITu7XlFUlGRSTc0OPjvlZc4RDm93RWFtOtS5Br7AOb+Det7X82O?=
- =?us-ascii?Q?9GW690kwdvQeIRGD6EtfuJjX3b1pjp9o0tEnlXQPhE7vHQrtrOPswseXfzcI?=
- =?us-ascii?Q?6GEyJ2Qjhwn1EIZI8RmxRP2R/egNAK2T7WaBRDc8662cvheyLAHDZ8naDG3F?=
- =?us-ascii?Q?wWhwgKMLqA5wziATYYyYFpd4acBYoYCnQDxpnTy5wQy5sl1ZKH9KKo0kJvcQ?=
- =?us-ascii?Q?p/beK8ZSsYlvzITIpGFaHzFAugFvJAgYj8IEhawQlUJ9xgNvkWL5vZVjEfCN?=
- =?us-ascii?Q?PIFduE43RyTQ2JaZf6lvu+ODE+F14jZ9LZFBLrVTzaln2VMzGqXP19YFd5HP?=
- =?us-ascii?Q?az8OrbpTPppheFBnUfvRXJIjsbyhDO2Xbco/sP3nAvJg+oCjjNIJ23JR+0tb?=
- =?us-ascii?Q?3NzCzxk9I0DtgL3BehpE6Xwn2ycnXWi5XhvC0vMwcuF5nr952qBNEMVj1lb3?=
- =?us-ascii?Q?sYERvFB0TcSDiHyt7qeXFNSM1jae0C2ooERbSuZsGyojoPG2OWwtAhNChMJT?=
- =?us-ascii?Q?/gJdAt2wOhMLvN2xlYmqPAdtIoffNen7M8FO4y/57Bwq9BXHQourZlu/cwcW?=
- =?us-ascii?Q?zFSOqCqlnKEv3nUqpRsgfz26jrbiqe+nM6I+84S+dP4JjVm9?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="FgbEaZbS"
+Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-c6dd5b01e14so606264a12.0
+        for <linux-i2c@vger.kernel.org>; Thu, 19 Mar 2026 23:12:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=nexthop.ai; s=google; t=1773987150; x=1774591950; darn=vger.kernel.org;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=i1iz6MeksNNtIcxd9ic1iSI1CofBBNW6rOw3XqGitRw=;
+        b=FgbEaZbSCtAtCCltN/d54QqT/e+GkqN0SgWTavF0Uyn7wsSQPCK/M9p/ODhlGsRQuP
+         v0Iy8islxmP8u9vd5w1+5zPwXpPdIli+tkzUzllCDVgkXF0Inb9gO5qnYAUhdLhILP63
+         xgo4Qa7XijSB6PBXpnFlJXCqySbP+gp8390jq+9H3xYRh8son8Pcg0j3nDUSDOGlNqoR
+         uiuyIFcGpbgN9y8/rVclrFm77t/HFVDkvAYlBoQgSg6iF9wGT855ruoCmrsJWNwkx3ai
+         yRtVlqRHYTJQTAPawYA4KHliM1F1A3O9U9n+WmTcuQDjg6ueuSPF1CDbTPQLm6VmVX6M
+         Rc9Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773987150; x=1774591950;
+        h=to:references:message-id:content-transfer-encoding:cc:date
+         :in-reply-to:from:subject:mime-version:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=i1iz6MeksNNtIcxd9ic1iSI1CofBBNW6rOw3XqGitRw=;
+        b=dGZxsF3zkLzHr4zdX4mWc89kjKEoWj7BK6rQ3Dl2ZytIm8DEAlkywtPLYSZ8DJ+NiY
+         ej7xHPY4o8NW/rpJyZOgdQpRRQL5MVQhO4cmVAjj578p02PYJ+kis3//VgUqRbBSnTw4
+         ji0BTBBcwYU/Cm7udWx1ZCqemuIWfAlBsW0MlGW9Tu/oP4ABymFlLWPyvcLrfveklu2y
+         zKHVhzSg2bO9Oc3JGQki9qVws60v5UbTkS06BOn0YauNxbo80g4GY/t8jsI+qv9x7MhG
+         jylqDNzlayS0r5gLDYaS14Gr0sIV1slr8A3CCDkB0ZthWRcStdRq+gUWICuT65pLYZS4
+         0CEw==
+X-Forwarded-Encrypted: i=1; AJvYcCW9d1CiV0wdmiNSOyBZ7vz9F1JiwdLjvdcDCZED9LJ9RjBqSitkCUZZxLvsZ4nB7YDOyP2mmP6NH18=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwpFTPXeqctVVWFgJrc0WncV/DZ8nhOQZ+61+f6KCFQUM3b4r+j
+	gTj2JimOVXh/n6QNsG9rYyTDIbvFBhfoS3k1v9QnI0Fn+AUUg0FBqrBV2yZo5gj64Ig=
+X-Gm-Gg: ATEYQzyh/8cjDPbbYC8CZei4fUePAgRjVG+boGpz67D6LaYo4sMEU2kD60aBj/wXqgV
+	7FQW1mtkMWN1H8vieADO6Mvm1EmSeKctwJfhXL8wwlb+Hg3vFPWcro6Ant5dVHBrrq8yNXtKxlg
+	UZKYVcye1oARWM9vGwrYv7HQe39azf3pgzJdHGXDWb5OKdFqyDNTMqkqYCcABbQfxw0VqmPea2I
+	PwgPffw5m76H3fLHPzhJwGDzUUKQ9t5Kyvj/uvGaWbx6/+sOdfzG4f9+1gkRR8STOyE9Wdg9B2L
+	hw0ZbTC+vxlCdw8441xpoMXx0n/nqAdeIqS8JTHF30W9I8lghIm2MBnnkV5q19RZuMhY0bKtqfF
+	gHVk2E+KEPS52fm3AU61vdmhLt1PF9MANE88RDlsID1ZEJ2+t4UMqoumJjcSpZFNNILRWKGCeAh
+	pUOwFLgLSQUTXcF4X75rHB83m1lTPA/jsoPpiqG4x7xF7Cun8=
+X-Received: by 2002:a05:6a20:7f9f:b0:398:b178:a53f with SMTP id adf61e73a8af0-39bceb427b1mr1734963637.40.1773987150278;
+        Thu, 19 Mar 2026 23:12:30 -0700 (PDT)
+Received: from smtpclient.apple ([50.47.115.214])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82b0409f409sm968942b3a.31.2026.03.19.23.12.29
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 19 Mar 2026 23:12:29 -0700 (PDT)
+Content-Type: text/plain;
+	charset=utf-8
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PAWPR04MB9960.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a02860f4-7e0a-4c52-9b47-08de8625010a
-X-MS-Exchange-CrossTenant-originalarrivaltime: 20 Mar 2026 02:04:22.2479
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: IZNGN4OM1806n5JR0Lfy5qTGlyxWVL3w7MvwpOhGrgsMb94fjYZ/ZG5L/iRMPBJDukl9zkDI7LyMSJDNnPxgGA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU4PR04MB12111
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3864.400.21\))
+Subject: Re: [PATCH v12 0/7] i2c: xiic: use generic device property accessors
+From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+In-Reply-To: <20260223-i2c-xiic-v12-0-b6c9ce4e4f3c@nexthop.ai>
+Date: Thu, 19 Mar 2026 23:12:19 -0700
+Cc: Michal Simek <michal.simek@amd.com>,
+ Andi Shyti <andi.shyti@kernel.org>,
+ Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ Andy Shevchenko <andriy.shevchenko@intel.com>,
+ linux-arm-kernel@lists.infradead.org,
+ linux-i2c@vger.kernel.org,
+ linux-kernel@vger.kernel.org,
+ devicetree@vger.kernel.org,
+ Andrew Lunn <andrew@lunn.ch>,
+ Jonathan Cameron <jonathan.cameron@huawei.com>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <FC244FF4-29CA-4A3A-8E58-C6CDB05A248D@nexthop.ai>
+References: <20260223-i2c-xiic-v12-0-b6c9ce4e4f3c@nexthop.ai>
+To: abdurrahman@nexthop.ai
+X-Mailer: Apple Mail (2.3864.400.21)
 
+Hi Andi,
 
+I'm just following up on this patch series (v12) aimed at updating the =
+xiic
+driver to use generic device property accessors.
 
-> -----Original Message-----
-> From: Andi Shyti <andi.shyti@kernel.org>
-> Sent: Friday, March 20, 2026 7:10 AM
-> To: Carlos Song <carlos.song@nxp.com>
-> Cc: Frank Li <frank.li@nxp.com>; Stefan Eichenberger <eichest@gmail.com>;
-> o.rempel@pengutronix.de; kernel@pengutronix.de; s.hauer@pengutronix.de;
-> festevam@gmail.com; stefan.eichenberger@toradex.com; Francesco Dolcini
-> <francesco.dolcini@toradex.com>; linux-i2c@vger.kernel.org;
-> imx@lists.linux.dev; linux-arm-kernel@lists.infradead.org;
-> linux-kernel@vger.kernel.org; stable@vger.kernel.org
-> Subject: [EXT] Re: [PATCH v1 2/2] i2c: imx: ensure no clock is generated =
-after
-> last read
->=20
-> Caution: This is an external email. Please take care when clicking links =
-or
-> opening attachments. When in doubt, report the message using the 'Report
-> this email' button
->=20
->=20
-> Hi Carlos,
->=20
-> > > > > > > When reading from the I2DR register, right after releasing
-> > > > > > > the bus by clearing MSTA and MTX, the I2C controller might
-> > > > > > > still generate an additional clock cycle which can cause
-> > > > > > > devices to misbehave. Ensure to
-> > > > > >
-> > > > > > Do you means SCL have additional toggle? You capture waveform?
-> > > > > >
-> > > > >
-> > > > > Yes exactly. We were able to capture the waveform when the issue
-> > > > > happens. It doesn't always happen though, it depends on how much
-> > > > > time passes between clearing MSTA and MTX and reading from I2DR.
-> > > > >
-> > > > > If you want to see the waveform, I uploaded it to our server:
-> > > > > https://eur01.safelinks.protection.outlook.com/?url=3Dhttps%3A%2F=
-%
-> > > > >
-> 2Fshare.toradex.com%2Fdwnhcrl6b9toib6&data=3D05%7C02%7Ccarlos.song
-> > > > > %40nxp.com%7C9567b791c35345a75eba08de860c9954%7C686ea1d
-> 3bc2b4c6f
-> > > > >
-> a92cd99c5c301635%7C0%7C0%7C639095585800985569%7CUnknown%7CT
-> WFpbG
-> > > > >
-> Zsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMi
-> > > > >
-> IsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=3DAK6DGztAek
-> > > > > 8Dq0M8G98PO%2F68UhcwfJPxsLSJQZ4jumE%3D&reserved=3D0
-> > > > > You can see the additional clock at the right end, after "0x17 + =
-NAK".
-> > > >
-> > > > Have you had a chance to look at the waveform? Do you have any
-> > > > concerns about the proposed solution?
-> > >
-> > > I am fine. Add carlos, who did many work about I2C.
-> > >
-> > > Frank
-> >
-> > Hi,
-> >
-> > Just review this series, looks this series patch make this fix for the =
-limitation[1]
-> safer:
-> > "It must generate STOP before read I2DR to prevent controller from
-> generating another clock cycle".
-> >
-> > Previous patch[2] has done this to avoid the limitation. However accord=
-ing to
-> the waveform, I2C controller still generated an additional clock cycle
-> sometime.
-> >
-> > The key of patch is ensure to read the last bytes after the bus is not =
-busy
-> anymore to avoid this another clock cycle.So these patches are fine to me=
- also.
-> >
-> > [1] 054b62d9f25c ("i2c: imx: fix the i2c bus hang issue when do repeat
-> > restart") [2] 5f5c2d4579ca ("i2c: imx: prevent rescheduling in non dma
-> > mode")
->=20
-> Sorry, I'm not understanding your point here. Are you suggesting to chang=
-e the
-> Fixes tag to [1]?
->=20
+I addressed the feedback from Krzysztof and Andy in this version. Do you
+have any updates or further comments on this series? I am happy to make
+any necessary changes.
 
-Hi, Andi
+Thank you,
+Abdurrahman
 
-No, don't need to do anything, . I agreed with this patch totally, it is re=
-asonable.
+Link to patchwork: =
+https://patchwork.ozlabs.org/project/linux-i2c/list/?series=3D493003
 
-> Thanks,
-> Andi
+> On Feb 23, 2026, at 7:59=E2=80=AFAM, Abdurrahman Hussain via B4 Relay =
+<devnull+abdurrahman.nexthop.ai@kernel.org> wrote:
+>=20
+> - Switch to generic device property accessors.
+> - Switch to managed devm_ functions to simplify error handling.
+> - General cleanups.
+> - Skip clock setup on non-OF systems where clock is not specified via
+> firmware.
+>=20
+> Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+> ---
+> Changes in v12:
+> - Reworded the patch 3 description as suggested by Krzysztof.
+> - Added fwnode to patch 3 as suggested by Andy.
+> - Used fwnode added in patch 3 in patch 7 as suggested by Andy.
+> - Link to v11: =
+https://lore.kernel.org/r/20260213-i2c-xiic-v11-0-5d18aea11bde@nexthop.ai
+>=20
+> Changes in v11:
+> - Cosmetic change to return 0 in patch 1.
+> - Remove pm_runtime_dont_use_autosuspend() in patch 1.
+> - Link to v10: =
+https://lore.kernel.org/r/20260204-i2c-xiic-v10-0-c2b996425235@nexthop.ai
+>=20
+> Changes in v10:
+> - Moved dev_dbg() change from patch 4 to patch 5.
+> - Reworded description in patch 6.
+> - Addressed Andy's comment in patch 7 (&pdev->dev -> dev).
+> - Link to v9: =
+https://lore.kernel.org/r/20260202-i2c-xiic-v9-0-ce4695f5267d@nexthop.ai
+>=20
+> Changes in v9:
+> - Fix an issue found by the test robot in the cleanup patch.
+> - Reworded the clock change description.
+> - Add a patch to switch to i2c_add_numbered_adapter().
+> - Link to v8: =
+https://lore.kernel.org/r/20260201-i2c-xiic-v8-0-deb2dd158d1a@nexthop.ai
+>=20
+> Changes in v8:
+> - Made the clock change the last patch in the series.
+> - Reworded the clock change description.
+> - Changed dev->fwnode to dev_fwnode(dev).
+> - Link to v7: =
+https://lore.kernel.org/r/20260129-i2c-xiic-v7-0-727e434897ef@nexthop.ai
+>=20
+> Changes in v7:
+> - Drop the dt-bindings patch.
+> - Skip clock setup on non-OF systems.
+> - Minor commit body rewording.
+> - Applied code-review trailers with `b4 trailers -u`
+> - Link to v6: =
+https://lore.kernel.org/r/20260127-i2c-xiic-v6-0-e82e2f6f657c@nexthop.ai
+>=20
+> Changes in v6:
+> - Cosmetic changes to address the comments.
+> - Added a patch to use resource format specifier in debug log.
+> - Link to v5: =
+https://lore.kernel.org/r/20260126-i2c-xiic-v5-0-88a16a28721c@nexthop.ai
+>=20
+> Changes in v5:
+> - Reorder the cosmetic patch to be the last in the series.
+> - Added a documentation patch to describe the optional clock.
+> - Minor commit body rewording.
+> - Link to v4: =
+https://lore.kernel.org/r/20260123-i2c-xiic-v4-0-4a3eba3510ce@nexthop.ai
+>=20
+> Changes in v4:
+> - Reorder the cosmetic patch to be the first in the series.
+> - Amend the mutex_init patch to also switch to the managed pm_runtime_
+>  variant.
+> - Link to v3: =
+https://lore.kernel.org/r/20260123-i2c-xiic-v3-0-eb7cd4254dfb@nexthop.ai
+>=20
+> Changes in v3:
+> - Reorder the "optional clock" patch to be the first in the series.=20
+> - Add a patch to switch to devm_mutex_init().
+> - Remove dup message in error path.
+> - Cosmetic: use temporary dev variable.
+> - Link to v2: =
+https://lore.kernel.org/r/20260122-i2c-xiic-v2-0-134f5d743e8b@nexthop.ai
+>=20
+> Changes in v2:
+> - Split the patch into two independent changes.
+> - Added struct device *dev at the top of probe() and remove() to =
+re-use.
+> - Switched to device_set_node(...)
+>=20
+> ---
+> Abdurrahman Hussain (7):
+>      i2c: xiic: switch to devres managed APIs
+>      i2c: xiic: remove duplicate error message
+>      i2c: xiic: switch to generic device property accessors
+>      i2c: xiic: cosmetic cleanup
+>      i2c: xiic: cosmetic: use resource format specifier in debug log
+>      i2c: xiic: use numbered adapter registration
+>      i2c: xiic: skip input clock setup on non-OF systems
+>=20
+> drivers/i2c/busses/i2c-xiic.c | 97 =
++++++++++++++++++++------------------------
+> 1 file changed, 42 insertions(+), 55 deletions(-)
+> ---
+> base-commit: 37a93dd5c49b5fda807fd204edf2547c3493319c
+> change-id: 20260122-i2c-xiic-3ba89ff5ea93
+>=20
+> Best regards,
+> --=20
+> Abdurrahman Hussain <abdurrahman@nexthop.ai>
+>=20
+>=20
 
