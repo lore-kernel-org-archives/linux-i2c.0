@@ -1,53 +1,43 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2A40368972
-	for <linux-i2c@vger.kernel.org>; Fri, 20 Mar 2026 21:14:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4A8B1E98FF
+	for <linux-i2c@vger.kernel.org>; Fri, 20 Mar 2026 21:16:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774041302; cv=none; b=YRJVsdV9eF7xfFX37Hqpkf4Y0G7ZbCne/QWdV4QLNr3NT+UgK6o3IOy1olQwFodWaDjvdCnxaCFvaH+XqI3gICJNrqz0PR7lCTX6pESDvdCYtmidJUkSpkxhlhNbCHWQurO+ZsJT3EVH4GQ2XuVjGXo5pWV5vFD2FJbFsIYE7TU=
+	t=1774041393; cv=none; b=P9NXSBgu47mQwS1fztYr0+dL8ItuuwvGxxS2QIc6uH7aoRk+xwvuwt4vfZtwuM6ua/DX1f1ksEqyuMXBJbO6tIMwD5HTkqhqvvQNs7sV0/Rx+vmxCDq+jBaG9v9IolYBe8xhacbetaHwNxNQ010oAnD+dVkvP/M2X/yy1Y8IvyU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774041302; c=relaxed/simple;
-	bh=gO5UhDNhFn1ojze5ogbDG991DIMWJJB4bmVCCn865V8=;
+	s=arc-20240116; t=1774041393; c=relaxed/simple;
+	bh=m0jAX2jhSJ+4YOM659dXaIv5WVwfXv/1NEu8joApXho=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=g8RJJ9LrC+gdbgn7Ae3OFxOGDRBs3K4+FHveD3L9Bar90753pmGv2GQJvUCecWlJhPQGgomwtToeE5fYtTRPjoZaqn8To7Y3+A7tE/Eh0DnY6Uv5E9nsYBjRXbUjrV0yap2MKvTtrUvWW79fHRnpu8VLMoOhQvyqas2pXoxtn2k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=Vg8Hpznx; arc=none smtp.client-ip=194.117.254.33
+	 Content-Type:Content-Disposition:In-Reply-To; b=MP79k0Lmbt7PTYnSc5ygQ8AZulh1NUBa944neIAL98u08Rp+8ZfgNFgnqj4xQnQbPXRru6R2bgUhbTv4VrUuMbgH3xb7kiIOOfTHhRK+/2d2xJvfb1eUcJX+FaxiF6GtCrTYGHLZucRIgscJd6cHfIi6i3qiIV2bQj8CzH4lUpk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=icEe6YZo; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Vg8Hpznx"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="icEe6YZo"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=gO5U
-	hDNhFn1ojze5ogbDG991DIMWJJB4bmVCCn865V8=; b=Vg8HpznxbbPncQ+oD/Gx
-	uTP5MuK2gtU86+BgVaiobyOxL8/V9XpjhGfjc6upZK7XfpS3mK5lmhDdnXjKCTT+
-	sseSWGjuGE6HwOpA0x+zneOFN5n92Un2kDDiSGjYbK0pDxLSolYzwKf4HsGxHTxU
-	FkDsKaN/eXTlf0QJD48IHx9aVapCKYsr5LQS1B1e6JOkyLzaVDo9RcmuMqSik1gt
-	A1PwN4asXfybC3B4CtJ2VWqTQogCu0ui+gXMOe5IZ3Akfs6KxJUuoig1Vh04cLhT
-	nHW1Waaurbcvn0o3hzADqRTAdrsWcTnDE9G/4ysCGodYAdWac+eIvEsAvXJscqHe
-	Eg==
-Received: (qmail 1698466 invoked from network); 20 Mar 2026 22:14:48 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 20 Mar 2026 22:14:48 +0100
-X-UD-Smtp-Session: l3s3148p1@z72LLHtNjoEujnsL
-Date: Fri, 20 Mar 2026 22:14:43 +0100
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=/t+8
+	UF4jkcGMc6EqL/sMsbOsNUTLTFRDgYjYwmMB3sE=; b=icEe6YZobaWGCQbm+AXl
+	gAFlgtvVtDmwcmyMvs8zWHxltcKRI+b3hytXhhcPbYUG3Bq9m8YWchcIuwkwWSoc
+	aJDBbYSuDOLheENF+mxtyflqUpoblz11g4W510JTmImQkf7mYEcWWfVZU3UZQtLw
+	I916dfQZn5n91R2uvsqsrHai7qkPOGFF76l00mrj55dCKYi9ICVfe1DkqxjzW40v
+	uF9TqUKFuINCWC0AwiEYyAby0a6FbfyDR7+jwWsCmuViR9X39sFcBArmDcSsR/RE
+	5gNElSYWUtvQgV4m4Azcjd4sKvDXCXOUUeJGQxkjbsJW4KPBtm7xtE+K1/T5iAvy
+	tA==
+Received: (qmail 1698964 invoked from network); 20 Mar 2026 22:16:30 +0100
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 20 Mar 2026 22:16:30 +0100
+X-UD-Smtp-Session: l3s3148p1@KB3aMntN5uAujnsL
+Date: Fri, 20 Mar 2026 22:16:29 +0100
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Luca Weiss <luca.weiss@fairphone.com>
-Cc: Loic Poulain <loic.poulain@oss.qualcomm.com>,
-	Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Bjorn Andersson <andersson@kernel.org>,
-	Konrad Dybcio <konradybcio@kernel.org>,
-	~postmarketos/upstreaming@lists.sr.ht, phone-devel@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Subject: Re: [PATCH v2 1/3] dt-bindings: i2c: qcom-cci: Document Milos
- compatible
-Message-ID: <ab24w_ESHK46nG8P@shikoro>
-References: <20260320-milos-cci-v2-0-1947fc83f756@fairphone.com>
- <20260320-milos-cci-v2-1-1947fc83f756@fairphone.com>
+To: Jovin Basil <jovin555@gmail.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: gpio: replace printk with dev_err in probe
+Message-ID: <ab25LXF50CSUhgjY@shikoro>
+References: <20260320122656.430939-1-jovin555@gmail.com>
+ <20260320150144.432345-1-jovin555@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -55,43 +45,45 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="pD0ll/xn1Oqxasoq"
+	protocol="application/pgp-signature"; boundary="AsiGbg3kNRnu7i2x"
 Content-Disposition: inline
-In-Reply-To: <20260320-milos-cci-v2-1-1947fc83f756@fairphone.com>
+In-Reply-To: <20260320150144.432345-1-jovin555@gmail.com>
 
 
---pD0ll/xn1Oqxasoq
+--AsiGbg3kNRnu7i2x
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 20, 2026 at 09:09:49AM +0100, Luca Weiss wrote:
-> Add Milos compatible for the CAMSS CCI interfaces.
+On Fri, Mar 20, 2026 at 11:01:37AM -0400, Jovin Basil wrote:
+> v2:
+>     - Restore original log message prefix ("i2c-gpio:")
+>     - Restore original spacing and colon placement
 >=20
-> Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-> Signed-off-by: Luca Weiss <luca.weiss@fairphone.com>
+> Signed-off-by: Jovin Basil <jovin555@gmail.com>
 
-Applied to for-next, thanks!
+Please read 'Documentation/process/submitting-patches.rst',
+especially the section "Describe your changes".
 
 
---pD0ll/xn1Oqxasoq
+--AsiGbg3kNRnu7i2x
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmm9uMMACgkQFA3kzBSg
-KbZ0tg/+LUI3JxaBw5Qt8zsyDLp5qi5ASZQO/aaaU4PH8JR1EuCcV4lnbEDr9TnH
-85Z88F4dpUstC/vB8OXPpU0pZbOvQiq2NFQihiGA0Lq0oqiylmYDieJxiVZGDjwZ
-U4WpM91KThPy7c9wWFFV24XcPTs5YFKcR7nYi72O+ukGePF+31CrTFRgmbay3C+y
-Fb0lqtY7rKlxvlZP4qhQRNOuhlfwH/mJkpCvI8FzQOe048Zf5hHq0p+Un+Ndap3b
-C98q2HTTu+UOFNVgOqEIatFKBtZY2GhLenXwCmCtuNDJW7XLeUfjCTF8eAnQsK1q
-eG7ZJmzLR5KYI5ly/BlSDefVS9Bd7cfLtNnaGDDhVLB25Vls9uT1F0mAeXDVu+20
-j796W6D94GInA0PFdOHB8Hh7r0GHm/zfABI6yuE+8e1W5oILXyMj92SDup7ktKEL
-WcNRpDivBGof2aYmcHkXF54zGULcctuYNrbNzQHi89+NQd1+u57uLGgBgREMbwK5
-EVTUGmjn7yXNStuWTmHghj/hkNWVcOcGVw57p1zrJiL1MK3Dwiw57FsR2FMhohzp
-cxaJv3Ky5EDsbFh1ON+T59UFXp7Lqr5LC46AMxNJ3Phpi5leXT8iQb+KY3jG/olL
-iIMRTua+RFtyfw4Stur3reyPB60d3lfHkYZu7Q7RybCs99y9ZtE=
-=sp0J
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmm9uS0ACgkQFA3kzBSg
+KbYkDQ//X5RKpBD4jQhOi9qX7AmS3c8nE7IuVw3JLHPNa+KAXsuVvlSK3SnnOZYp
+t8mlsCzfIXpovIfYuaVtd/aZJyfC2iG8jkb5K3IUbiOhZrtQfYzq1PXNJ6vhNZKo
+bBMdCeLRtLgdr/VdSh3Uf+4qsKuwDxG/Q76hi/eA/a1g8yw+EoxqKJkIlqe2m62b
+U59zoHTkcJBoHlTaBopevbsvgCBvsmDc1t9rRP0UXXIHXji2Br0wfm10Se7DzicV
+X4IhMzNont3XXIK70udsJ734Vhf07BPfZSQj9mlGrwZHuX1R22e0wxLzw/WqgJT5
+G4zhbT0SXA23R5ilqFUfCrwnMLk5WHJilWOz7a7Ep6DXWQ51Io9u9jj1n6gdWP4W
+eAtiDUa7RH6lGrfJmmVRW5b7bd5BBI8+yt2ynm7zL5kRuVzdHK18V1wLVsT61sAK
+MwVIDyzT+qN5A6idZq5leatQXjamee4ZXE82//7gCw518yPAKrTXprXARK6hWPL+
+hIDbm3Y/8Cz57YJAh7ctdMJ5Xfp6XWGknjgaBKPbg7u/8/lg210e2c2hNlh7cy+9
+aEPj2r2dEC2nen65slagmUN6UNgFDjuAXVPeKBuFqWREpJ92iJm7oRTa7h1zozKs
+eBBlGNOVrz2F+MpuiLr5Mvo7tZ5idVXgFNvd1MNyivyPbWIQfHQ=
+=BSVe
 -----END PGP SIGNATURE-----
 
---pD0ll/xn1Oqxasoq--
+--AsiGbg3kNRnu7i2x--
