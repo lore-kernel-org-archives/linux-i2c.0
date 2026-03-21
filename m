@@ -1,91 +1,140 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97CCE257825
-	for <linux-i2c@vger.kernel.org>; Sat, 21 Mar 2026 18:53:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97F3F86329;
+	Sat, 21 Mar 2026 22:24:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774119212; cv=none; b=p4IMg1+2i+cprJZia4miP7Lkj+gpBxxqEgwwxsFKkJJiJVTZrLmk5IxVPlnisvVRzKpSVlm1YKXcRg21ceX5yD2mp4rY5cIjCldD3DVy6rTBdREc9XMoz6JZlPQqODQnzRrabLGwWvOT9yGDsGR02JHoNswqUY7joGeH6Pcmezw=
+	t=1774131856; cv=none; b=jCmjJ4DkoS/KmGQ9+pqKWODByGfuk1jSNacgmaBY2ysKi2MZKukrLjzK6ntZfVVLpUqnNZkTFP4lMTRr35MP8eFjDSZgl03Vl0r1ZPj0NOUult4dkEhMvANiMbqS24iLLDrSw7q6mjMEAryybfdIbXk9OM6s3dbPO2iqaaL/Cg8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774119212; c=relaxed/simple;
-	bh=jrFiSy8UirUQzk2fGfIl9Sc+caY1oTjJrVaugRuUSAc=;
+	s=arc-20240116; t=1774131856; c=relaxed/simple;
+	bh=+6LCAcP2Ap2mDAhfU0g8LPq4J+1jMBraG3Dx2Gy3OZs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cjMZCUvrI/OGEXcF4JbtU7Up2rmvpyHpHvo8tv3XC47BxQca2LMIhILFMSAgTKtRc9heM4NRZhEUAAZRQp+h1isjPFSLYfqhlLt6aaHlX7NykdQzKtY24OHLAsVr951Hb0vN3J7F5SL0xAavInzrJVBqNxX/171ol599Wz37vmM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=EYbRzcg/; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=a8C01hdzlO9h1r2lMwP8EdUJU5UlUmNLzX1bCy+7iVV8HPY7auD+bCiX1djseo/Yk/skzYL4mzw5QkOAoRTI5yE69J/NBd60sPo5XNv6dF3eFaSTFk94q35pZzTcx9Qa05myH+vo1dweM/lmcK6ZgOErNRY/T8fOFrHmpTpIX2g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=QTens8p0; arc=none smtp.client-ip=198.175.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="EYbRzcg/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=jrFi
-	Sy8UirUQzk2fGfIl9Sc+caY1oTjJrVaugRuUSAc=; b=EYbRzcg/K+vdMJktpkfe
-	l9pKxOyhzdePsr9Lpb2qfzdVrxNMKSREQxL3zqxPOhdZIo1jrEQy2Is71Gq3gdaY
-	Bxx+UwUQLxmiJaCteB+dzYCn3i6yrU9mocalVsGCmUEZ7Af1xMFNksXBr/pbXFTD
-	6UZ7cduCRtMUcC6k3Jfa7v1C8w4bxZdMEAWjYR8SH7WdWHzoBr2SyErv0n7P4pMD
-	xeeby4EfOnmaDRtETXXOML6uXirnzkt93FlC/gNVl3VVfvR7biZSHbR4uYQ+YgS4
-	cC5eNECxsTunM0rbdQCmUxC13nezirpQ+04ugqmuu/Xwucv73UN/kiqZsQ4O49hR
-	2A==
-Received: (qmail 2010729 invoked from network); 21 Mar 2026 19:53:25 +0100
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 21 Mar 2026 19:53:25 +0100
-X-UD-Smtp-Session: l3s3148p1@0a0HUY1NpoYgAQnoAEXFAPccZfR0+Aoz
-Date: Sat, 21 Mar 2026 19:53:25 +0100
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-	linux-i2c <linux-i2c@vger.kernel.org>
-Subject: Re: [GIT PULL] i2c-host-fixes for v7.0-rc5
-Message-ID: <ab7pJYZ68SXC_j6w@shikoro>
-References: <ab4-Fe7_muMFBnNo@zenone.zhora.eu>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="QTens8p0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1774131854; x=1805667854;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=+6LCAcP2Ap2mDAhfU0g8LPq4J+1jMBraG3Dx2Gy3OZs=;
+  b=QTens8p066nW41RSdt8PKOvFyVtXAUQFNpPVvEY3w/8LGnkbKLfcpHcj
+   tUT0NJOUbW0FD0TZ5KRlEbheJ0glV2yi+LrZA6NtT78UOq6MX5bNsW7OS
+   z7qrdmQ0VQI/BYCMc56GUMS8SkebBanT2bCwBq0Na9bNMidPm9iyrVYVz
+   YY0ADmJ+IjQ76IBm8+xj/ys6memgwQBmT7ZTuXifr0hM8nazhKJ+bCO6z
+   6UHjXExJsvjeQ7dzWLzx6wBgKS8zwJ00eaeQ+Q4r+C9AxMeNk1miln+dz
+   HPEOcyKuSLBHiNV8tEG3JcPl8NTPzOb6pEKGFXPHrfWi1SnrvjxA1oHWB
+   Q==;
+X-CSE-ConnectionGUID: 36DxQ2zrQ2CH/smdorDVBA==
+X-CSE-MsgGUID: UxatvV5hSDugwwjFtBX37Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11736"; a="75073401"
+X-IronPort-AV: E=Sophos;i="6.23,134,1770624000"; 
+   d="scan'208";a="75073401"
+Received: from fmviesa001.fm.intel.com ([10.60.135.141])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 Mar 2026 15:24:13 -0700
+X-CSE-ConnectionGUID: 5YWR4Y/gTWet3GAJDUAO4Q==
+X-CSE-MsgGUID: OIRoU6eERRKOV/nuQq2peg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,134,1770624000"; 
+   d="scan'208";a="247580568"
+Received: from lkp-server02.sh.intel.com (HELO d7fefbca0d04) ([10.239.97.151])
+  by fmviesa001.fm.intel.com with ESMTP; 21 Mar 2026 15:24:11 -0700
+Received: from kbuild by d7fefbca0d04 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1w44je-000000001K5-0cHZ;
+	Sat, 21 Mar 2026 22:24:01 +0000
+Date: Sun, 22 Mar 2026 06:22:45 +0800
+From: kernel test robot <lkp@intel.com>
+To: Jovin Basil <jovin555@gmail.com>
+Cc: oe-kbuild-all@lists.linux.dev, jovin555@gmail.com,
+	Wolfram Sang <wsa-dev@sang-engineering.com>,
+	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: gpio: replace printk with dev_err in probe
+Message-ID: <202603220644.6OGhQIXH-lkp@intel.com>
+References: <20260320150144.432345-1-jovin555@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="kreLmOjw0K5QxrQ+"
-Content-Disposition: inline
-In-Reply-To: <ab4-Fe7_muMFBnNo@zenone.zhora.eu>
-
-
---kreLmOjw0K5QxrQ+
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20260320150144.432345-1-jovin555@gmail.com>
 
-On Sat, Mar 21, 2026 at 07:52:59AM +0100, Andi Shyti wrote:
-> Hi Wolfram,
->=20
-> here's the pull request for v7.0-rc5.
->=20
-> It contains three fixes for a regression, a reference leak, and a
-> potential NULL-dereference.
->=20
-> Thank you,
-> Andi
+Hi Jovin,
 
-Pulled, thanks!
+kernel test robot noticed the following build errors:
+
+[auto build test ERROR on andi-shyti/i2c/i2c-host]
+[also build test ERROR on wsa/i2c/for-next linus/master v7.0-rc4 next-20260320]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Jovin-Basil/i2c-gpio-replace-printk-with-dev_err-in-probe/20260322-012109
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git i2c/i2c-host
+patch link:    https://lore.kernel.org/r/20260320150144.432345-1-jovin555%40gmail.com
+patch subject: [PATCH] i2c: gpio: replace printk with dev_err in probe
+config: csky-randconfig-r073-20260322 (https://download.01.org/0day-ci/archive/20260322/202603220644.6OGhQIXH-lkp@intel.com/config)
+compiler: csky-linux-gcc (GCC) 15.2.0
+smatch: v0.5.0-9004-gb810ac53
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260322/202603220644.6OGhQIXH-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202603220644.6OGhQIXH-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   In file included from include/linux/device.h:15,
+                    from include/linux/acpi.h:15,
+                    from include/linux/i2c.h:13,
+                    from include/linux/i2c-algo-bit.h:13,
+                    from drivers/i2c/busses/i2c-gpio.c:11:
+   drivers/i2c/busses/i2c-gpio.c: In function 'i2c_gpio_init':
+>> drivers/i2c/busses/i2c-gpio.c:493:26: error: 'pdev' undeclared (first use in this function); did you mean 'cdev'?
+     493 |                 dev_err(&pdev->dev, "i2c-gpio: probe failed: %d\n",ret);
+         |                          ^~~~
+   include/linux/dev_printk.h:110:25: note: in definition of macro 'dev_printk_index_wrap'
+     110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
+         |                         ^~~
+   drivers/i2c/busses/i2c-gpio.c:493:17: note: in expansion of macro 'dev_err'
+     493 |                 dev_err(&pdev->dev, "i2c-gpio: probe failed: %d\n",ret);
+         |                 ^~~~~~~
+   drivers/i2c/busses/i2c-gpio.c:493:26: note: each undeclared identifier is reported only once for each function it appears in
+     493 |                 dev_err(&pdev->dev, "i2c-gpio: probe failed: %d\n",ret);
+         |                          ^~~~
+   include/linux/dev_printk.h:110:25: note: in definition of macro 'dev_printk_index_wrap'
+     110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
+         |                         ^~~
+   drivers/i2c/busses/i2c-gpio.c:493:17: note: in expansion of macro 'dev_err'
+     493 |                 dev_err(&pdev->dev, "i2c-gpio: probe failed: %d\n",ret);
+         |                 ^~~~~~~
 
 
---kreLmOjw0K5QxrQ+
-Content-Type: application/pgp-signature; name="signature.asc"
+vim +493 drivers/i2c/busses/i2c-gpio.c
 
------BEGIN PGP SIGNATURE-----
+   486	
+   487	static int __init i2c_gpio_init(void)
+   488	{
+   489		int ret;
+   490	
+   491		ret = platform_driver_register(&i2c_gpio_driver);
+   492		if (ret)
+ > 493			dev_err(&pdev->dev, "i2c-gpio: probe failed: %d\n",ret);
+   494	
+   495		return ret;
+   496	}
+   497	subsys_initcall(i2c_gpio_init);
+   498	
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmm+6SEACgkQFA3kzBSg
-KbaF2w//SCCJDVsH2LIpubXtsBXUNTJ1ox4yBivK/izYpd+tVGevO00Idu/Pmnei
-g5B27W9qogCDOf9wtPRfTSZfKtjdWMIA357+5t10mM5b/DRBV8pew8bMShl8IY3f
-hKOrQh6OtLBmURaR3DWuKGWu32PA/voQRI7RmxXA9XQ7XlQC0AvYi2fVUNxiAiaO
-njTCSI/Dnpb4QVr47+Txg9fkt9b4S8CFu2UTe3P2sM3OpFWNv7HiNuEBZViNg3j5
-VnmDpdobqPaiVh6pRbn0LhU8KcEvggDBtL9/BpM2u3HV30rKlLpS0UcRUzi2mVHE
-NgAH9kUJli3K+0tgPGD+D3MW2faxA28/pf1O4V2BE+UuELIBc8GN4ovoTrqmgLK0
-cd5zQbj3d0yaeCQWwNcxrprMATe8pZaWeAi3389jOh8sHs3T8CKBZkLjScdlTZ6A
-ME3U8HHaiIEylShZ4kTor3/fgUuWjS/OYYY18iOQrXnLrNUU9k4VilF9OtVbC9FL
-ngu/4/ssBTdS2JJWvof5vPIePQfCaLnWI9cn8Io5h6t6Qajk+FUOw7OWruRrc171
-xdN9KCIcq3MhYECwxOF44ai/wcLKjJSgpAsyVaYbJ5yLSl5qyHkiwWp+DLuzSYga
-6WiEZLArGSSKJ1ivDGwmX38NCgUqAMftql/unHEDteLQk9f7uus=
-=j9Mh
------END PGP SIGNATURE-----
-
---kreLmOjw0K5QxrQ+--
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
