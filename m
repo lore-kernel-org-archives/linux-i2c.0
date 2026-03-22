@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A6F51D7E5C;
-	Sun, 22 Mar 2026 21:02:00 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD03A311968;
+	Sun, 22 Mar 2026 21:02:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774213321; cv=none; b=bRwRcNCAEA4uvCTRChcpGO7YHwCuT6bHQFVnTzI9eOCo5pqk4eF3EabpI+Z6K0VTj5WprYrYbw/TuoYsF8ofJQcVfsG9PGKN+IDRLaNxBqbA/3+JL0vsQK98mjauzI/TH0/9WeZNFK7c2jl5JJx7Ca1qhlCaS59JnITk3s42ntQ=
+	t=1774213368; cv=none; b=LJ1PYeLLmVonrma5VP3RTs1Y07WhFIHjpHIBPXAooqfW/eTPnEMmM2eYSoCmBoTSCoc7NdcQFUdf6Y57GOjo68EgAyMpgUj6BzpkUC7eJtCUfTXSwJcVilscN+QcrM33GtdKDHnZ/sxLrivNlYYUDJrrEYKRYvEXk5gth5NsWCo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774213321; c=relaxed/simple;
-	bh=ntHnllHtQsrveqm9nj6eVguKq84YPa5WfO03K6N2AfE=;
+	s=arc-20240116; t=1774213368; c=relaxed/simple;
+	bh=x9V58/gnkVfB51NGOXZzFEfFF3mJPlTWN/BLFiKFxsE=;
 	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=R0cCJ/0bedL33GVLZvHxX/XSlEwduyQMVQBmbi2IutUieR6G5NAooUjv6UvTYWGbCNv9+AsA+IVbDU/dPBX/hxO/Jj4T9fR+h8JaHsdcanFISdclZMAPqGa5U65s7CFfGZKYOcLChEWgxSAlQkbx2p739IJJBHqVxnuv8u4fpKY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ptaxs8Ou; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=QpF2OKTPMJRinWww2fTd5iLZvi308rIyfDtuOvpCiIIPkJlnKEggFNKh50Ijo5As/mY5r2kvijlsTR6KQBHSiIRWZkVKd2yY3Cf/QtJxiyuWXuIuhP2fwD00RE9g3Geji8rBvzvEVBYMAyNZRuTa4wCT5kOfHSwQ8gvVpVKBs4g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dJddt7+f; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ptaxs8Ou"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A65BAC19424;
-	Sun, 22 Mar 2026 21:01:58 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dJddt7+f"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34FE1C19424;
+	Sun, 22 Mar 2026 21:02:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774213320;
-	bh=ntHnllHtQsrveqm9nj6eVguKq84YPa5WfO03K6N2AfE=;
+	s=k20201202; t=1774213368;
+	bh=x9V58/gnkVfB51NGOXZzFEfFF3mJPlTWN/BLFiKFxsE=;
 	h=Date:Subject:To:References:From:In-Reply-To:From;
-	b=Ptaxs8Ou5Cv+kNZDeWrmcWtL+OGCqKTnH0+1x46vlcR8lm7D4xgvROqN9aFf2gnTt
-	 NimYZ+8FK3OjEd6AAu0hUITd1GfxCTePmDIWeSzlPDoWfXpjy9ia4ZiS8HMzTH6XPA
-	 eLkHSlVcOf4bk0i3B1U0YhKS1EHhhywZpTrHDDsv7dipad78ZlEja907hTay4EDggD
-	 QJFLTedITRQPTpidVtqzj960OL85vkZ9FDVb1cmaG1PmodNcskZvQ037DSJf2dWKZc
-	 zv1V9nShBPqdy0aEINPMPmDsUeNdG+bevl7hfhGOsAo08XbwodcSj7dz9i+JdURKYn
-	 Z0C8dlVunY1Vg==
-Message-ID: <c1c9b1e2-9add-42ea-b87a-c8d2c4f465f1@kernel.org>
-Date: Sun, 22 Mar 2026 22:01:56 +0100
+	b=dJddt7+fNmPwlsikvpHTnfDfZLogBnIeKVkSJKWqYxdIfFxack39JFFHMCM18hnvT
+	 dg1M5rXlnfb3WzrebbD9J6IMrjtnyWA/QNcWyrZtiPgBdYVDahQVCHfWN6WyuxIoTv
+	 hnKKGd03msTJ+dMeG4UMfawuz+UKnTVk/nlrzH/wQ10OTdBshaaI4zEI6VO9pFerNI
+	 jNiQUcdJ84M/KvBpBR1NkTBeZwBUZStbqT/uWGJ15k42a4URa4SeMhcKjR4/URCwF9
+	 ZDLDfO5z8ofl8u2xSPOo1XuPC7IYmCZbmuD+plQ+GjzCiJKjPqSAq8Pd/tjVM84ES0
+	 /X4kai6maYRBQ==
+Message-ID: <76007bf5-26fa-485c-a07c-6c8c3f437cdf@kernel.org>
+Date: Sun, 22 Mar 2026 22:02:44 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -35,8 +35,8 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 5/8] i2c: rtl9300: introduce clk struct for upcoming
- rtl9607 support
+Subject: Re: [PATCH v3 7/8] dt-bindings: i2c: realtek,rtl9301-i2c: extend for
+ RTL9607C support
 To: Rustam Adilov <adilov@disroot.org>,
  Chris Packham <chris.packham@alliedtelesis.co.nz>,
  Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
@@ -44,7 +44,7 @@ To: Rustam Adilov <adilov@disroot.org>,
  <conor+dt@kernel.org>, linux-i2c@vger.kernel.org,
  devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <20260322123411.32102-1-adilov@disroot.org>
- <20260322123411.32102-6-adilov@disroot.org>
+ <20260322123411.32102-8-adilov@disroot.org>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -90,25 +90,22 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
  zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
  XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <20260322123411.32102-6-adilov@disroot.org>
+In-Reply-To: <20260322123411.32102-8-adilov@disroot.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 22/03/2026 13:34, Rustam Adilov wrote:
->  DEFINE_GUARD(rtl9300_i2c, struct rtl9300_i2c *, mutex_lock(&_T->lock), mutex_unlock(&_T->lock))
-> @@ -432,6 +436,10 @@ static int rtl9300_i2c_probe(struct platform_device *pdev)
->  	if (ret)
->  		return ret;
->  
-> +	i2c->clk = devm_clk_get_optional_enabled(dev, NULL);
+> Add the "realtek,rtl9607-i2c" compatible for i2c controller on the
+> RTL9607C SoC series.
+> 
+> Add a clocks property to the properties to describe the i2c reference
+> clock and make it available for all the compatibles. This i2c reference
+> clock is assumed to be coming from switchcore region via Lexra bus as
+> the other SoC peripherals.
+> 
 
-Undocumented ABI at this point.
+Why the clock is not required for rtl9607? I did not find explanation of
+such change in the changelog/cover letter.
 
-Order your patches in correct order. First go bindings.
-
-> +	if (IS_ERR(i2c->clk))
-> +		return dev_err_probe(dev, PTR_ERR(i2c->clk), "Failed to enable i2c clock\n");
-> +
->  	i = 0;
 Best regards,
 Krzysztof
