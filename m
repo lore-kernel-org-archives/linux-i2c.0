@@ -1,189 +1,146 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF0F63CCFB2
-	for <linux-i2c@vger.kernel.org>; Mon, 23 Mar 2026 17:42:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE00E390C8B;
+	Mon, 23 Mar 2026 19:41:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774287775; cv=none; b=GoAbsByGbt0vYmilJHnC96tEEMiLXvEvk8/rcuRtyl9z4RXAq5AM4DMJ+tHqhOTwiXwSy/cpti/I2gMQ+O3uGNhGxqtAfno5uLgt4ElG6gZfNOBq4MEtf/iZJZATRvoTTWQvpEay9Jhz6pJug+qlaE2VfzKmEF6yvHKkZBgnmbI=
+	t=1774294909; cv=none; b=JnKRovwadYxPOLmnKsULR0K+gSGYICfHqUIvFMBP/F/2YWpDmL/8DaWODdalC4aNGMIp+/DthdPu+7p47qNrmr9hrKzTidHU+9WlWxFkPqmG6/Wkiocx65UzlA5k5RyJHq16dzIh8vR9j+370IAOC/TWvtccmkidb70Iout027Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774287775; c=relaxed/simple;
-	bh=Zia7/De1q5TthWSYEWLCdCXljCxkVAiumOWzbpU94iI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mK5nlz8AjHvrZL3mO8plk8oAfwb5pyk5VsUAnSM7moidIuXKh6kMWVPas4xNKl6gXSXI9xTZBtePEno+ldt9M0LRkbUjBSHZScLu8BE0Hj924p26etxL8gP0nd3IhEif7gHQcQ85UigJVX7x1uToWzuYlhhRNZFQslMFZlWDdaA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bR+UAaw9; arc=none smtp.client-ip=209.85.210.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1774294909; c=relaxed/simple;
+	bh=XHvZkuQSHGadK6IJyyoHKtds+0+8fGnVO/0hW+LCfkw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hlStQCEmmBYtzYPeL8wKHfmvFiE3ltZXVPUwj/YMzgpkxDLT2gPYkQilUS27qaXb//7wYHE3Y3TJcU3G5L6vji/MAY6f9tqxRDhTOnKBPfgfFXs7XYQzX/hfaNgtug52SN1Yq/dKLE9cyehyWbuf6H+GegM7qjtO1oarI176YrY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ul/BYAwj; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bR+UAaw9"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-82c4b5dfe6cso564375b3a.2
-        for <linux-i2c@vger.kernel.org>; Mon, 23 Mar 2026 10:42:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1774287772; x=1774892572; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=F9rgDJBvOjQHeJIHea/WkUik8ezrEjHRne7jLDTut+8=;
-        b=bR+UAaw9REN0zR8aBZkLuWfFnqxvlW/mi3su9CB0Icbog0ZE3y0kJFmuLct2VUF72f
-         BhKbefa1PkLOzbujhHVokeSeT7ZddWen4D57ml7zgKNLJ5/PNizKIxBe3WP/RwMeyn4w
-         cWGecSEh0Ygx+msHst+pofificU5vtfa2a9weiB71yaoziZ8hd48KgGZhXAuSFMT9aDV
-         aYhN9T20GC7IsyLjYJNNBq7KCxvzSRfBKcNShCExdX/JVBSgYM1es9GkiZ9OtN7m/hhE
-         3QI202z/Rh/xnCBWGBF5LbKqNb/byXJcRdMaoGp6H++bLZNEUljeasl8C0c6cw5vC43q
-         0WJg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774287772; x=1774892572;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=F9rgDJBvOjQHeJIHea/WkUik8ezrEjHRne7jLDTut+8=;
-        b=CZkcHP/1QUR7K98URhBAzMGaVBXFsH7ULm/RtdtezMtz34bNskmJRh0oV5ejB9mPiG
-         sWl44o2afTZWmyxCmroU5U4S0SjufdMZKiOqWCKbcswDGdjVLqQLDZl6FhoTOdkQTg6p
-         q2o+ZEbX5AAVGY0TYRcSHA8di0V6Vvbt3tfkvvFh8eOBgClBnJrzPQqkkf0K0SnuUdlr
-         Jez1o6ssfoV0pv+MIXujSi67+iF11x2FbmWKIEcVoC1r4ej9D5gld5x1baGTA574jhLr
-         t3pTpoYucUz3tgdvKm3JiSsfSywjJYgb4xalsKuKiAlUGBaHxIjZENO1FQSDSwfkpRZ/
-         4Xsw==
-X-Forwarded-Encrypted: i=1; AJvYcCX4Ht7g4aKyop0hFnPgZh80U6Cx2c/0sTwOeBq8NnYLKB6+i8S8ip7hCCBBUTLfX+0admwsdYfpzkk=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyrlTyAwGomVrS7fATTm1uVzslbTuxwMwoyFkokCTEJJ+nBPien
-	HfWWpfAK77UO9aBFS9YUTssqguZ9UcM2KCWSKBVDsF4q7M8PPyTTDyAc
-X-Gm-Gg: ATEYQzyJhMol0gXbBMdW8TVEUTtYNDUUO/psVKGj+6vZgnhL686wrKIgJO4kZRwjvmd
-	NBUAQdl303jdR8TYatKegp3iksB1PqbQSbMGLifL6lPOCfyElQppRxi/HfSyjx1p+NWJ+Fy1QO8
-	38hRT4/2mS/s66w3kRaqCdpX9kCWhr6NfELszmOYWdRp16rk5nzkNMfj3B3FxKQLoadQHRr3Zbb
-	hzcTid3ZAwLHzQ+ioOZsR6a6F22AWbYGBrcnA8wUnp3KLC2Zzr/zhwhdoOH/I/DM3Qcb+MSGk8q
-	kGaSa8Z6nrPPDL39KeJlfWquGdSCnxXtmnD9VxLLssP2RGaddvapp0OJsGT7TyfJgU65CdJkM91
-	UXINrfdXFkHfNo4THKKXWOVZjdM1ibx2wrA5/2ADz+Dulx9ZMvMUyh0NCic5YosF/W4CxVMKrtM
-	PHIpX5vTVv+U06zh/E8eHHzrMJAN60mSikjw==
-X-Received: by 2002:a05:6a00:b4e:b0:829:8942:2ca4 with SMTP id d2e1a72fcca58-82a8c241249mr11327052b3a.19.1774287772189;
-        Mon, 23 Mar 2026 10:42:52 -0700 (PDT)
-Received: from fedora ([2401:4900:1f32:22d3:4161:93a:b87c:36eb])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82b040da3dfsm9847123b3a.45.2026.03.23.10.42.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Mar 2026 10:42:51 -0700 (PDT)
-From: Shi Hao <i.shihao.999@gmail.com>
-To: krzk+dt@kernel.org
-Cc: robh@kernel.org,
-	andi.shyti@kernel.org,
-	conor+dt@kernel.org,
-	linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	daniel.baluta@nxp.com,
-	simona.toaca@nxp.com,
-	d-gole@ti.com,
-	m-chawdhry@ti.com,
-	i.shihao.999@gmail.com
-Subject: [PATCH] dt-bindings: i2c: cnxt,cx92755-i2c: Convert to DT schema
-Date: Mon, 23 Mar 2026 23:12:36 +0530
-Message-ID: <20260323174236.147507-1-i.shihao.999@gmail.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ul/BYAwj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C561AC4CEF7;
+	Mon, 23 Mar 2026 19:41:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774294909;
+	bh=XHvZkuQSHGadK6IJyyoHKtds+0+8fGnVO/0hW+LCfkw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ul/BYAwj9IUz9XALPgRGIFXSXzjVOo97eMEWnwff5skt29JsFkSX5Wbc1VyalYC0P
+	 wNiW4DRp5tHf2eabSF1NhqN7+l00LcGk+l5OCW0roIrs7vI+IWgRX+AnlAx68IIXZw
+	 Jpldn4oCmf1FrDaoJ9da9t7sqHSz94dFtu4toR/WX/mXDTpVReRVLaxeFqT3JL8XfA
+	 zRmSlCu8RLdCt+qOiotBPDH4Rz3f9VMGhCmp0D3hlGqah1i23+5ooB9a67VB/TrZ7S
+	 5uQVzogkNrg+MpFwn+Npo52J2qvkU83FlrRK+DRfE9Ckl6pJmS3KA9MCJRYh56BvRN
+	 noisucFEEnEMA==
+Date: Mon, 23 Mar 2026 19:41:45 +0000
+From: Conor Dooley <conor@kernel.org>
+To: Rustam Adilov <adilov@disroot.org>
+Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>,
+	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 5/8] dt-bindings: i2c: realtek,rtl9301-i2c: extend for
+ clocks and RTL9607C support
+Message-ID: <20260323-stash-contend-ea5974195eac@spud>
+References: <20260323071337.15410-1-adilov@disroot.org>
+ <20260323071337.15410-6-adilov@disroot.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="EsRIo3u5oPaEi/ur"
+Content-Disposition: inline
+In-Reply-To: <20260323071337.15410-6-adilov@disroot.org>
 
-Convert the Conexant Digicolor I2C bindings to DT schema.
 
-Signed-off-by: Shi Hao <i.shihao.999@gmail.com>
----
+--EsRIo3u5oPaEi/ur
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Note:
-This patch is part of the GSoC2026 application process for device tree
-bindings conversions https://github.com/LinuxFoundationGSoC/ProjectIde
-as/wiki/GSoC-2026-Device-Tree-Bindings
----
- .../bindings/i2c/cnxt,cx92755-i2c.yaml        | 51 +++++++++++++++++++
- .../devicetree/bindings/i2c/i2c-digicolor.txt | 25 ---------
- 2 files changed, 51 insertions(+), 25 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/cnxt,cx92755-i2c.yaml
- delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-digicolor.txt
+On Mon, Mar 23, 2026 at 12:13:34PM +0500, Rustam Adilov wrote:
+> Add the "realtek,rtl9607-i2c" compatible for i2c controller on the
+> RTL9607C SoC series.
+>=20
+> Add a clocks property to the properties to describe the i2c reference
+> clock and make it available for all the compatibles. This i2c reference
 
-diff --git a/Documentation/devicetree/bindings/i2c/cnxt,cx92755-i2c.yaml b/Documentation/devicetree/bindings/i2c/cnxt,cx92755-i2c.yaml
-new file mode 100644
-index 000000000000..669397bbc571
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/cnxt,cx92755-i2c.yaml
-@@ -0,0 +1,51 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/i2c/cnxt,cx92755-i2c.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Conexant Digicolor I2C controller
-+
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
-+
-+maintainers:
-+  - Baruch Siach <baruch@tkos.co.il>
-+
-+properties:
-+  compatible:
-+    const: cnxt,cx92755-i2c
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+  clock-frequency:
-+    default: 100000
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - clocks
-+  - '#address-cells'
-+  - '#size-cells'
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    i2c@f0000120 {
-+      compatible = "cnxt,cx92755-i2c";
-+      reg = <0xf0000120 0x10>;
-+      interrupts = <28>;
-+      clocks = <&main_clk>;
-+      clock-frequency = <100000>;
-+      #address-cells = <1>;
-+      #size-cells = <0>;
-+    };
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-digicolor.txt b/Documentation/devicetree/bindings/i2c/i2c-digicolor.txt
-deleted file mode 100644
-index 457a098d4f7e..000000000000
---- a/Documentation/devicetree/bindings/i2c/i2c-digicolor.txt
-+++ /dev/null
-@@ -1,25 +0,0 @@
--Conexant Digicolor I2C controller
--
--Required properties:
-- - compatible: must be "cnxt,cx92755-i2c"
-- - reg: physical address and length of the device registers
-- - interrupts: a single interrupt specifier
-- - clocks: clock for the device
-- - #address-cells: should be <1>
-- - #size-cells: should be <0>
--
--Optional properties:
--- clock-frequency: the desired I2C bus clock frequency in Hz; in
--  absence of this property the default value is used (100 kHz).
--
--Example:
--
--	i2c: i2c@f0000120 {
--		compatible = "cnxt,cx92755-i2c";
--		reg = <0xf0000120 0x10>;
--		interrupts = <28>;
--		clocks = <&main_clk>;
--		clock-frequency = <100000>;
--		#address-cells = <1>;
--		#size-cells = <0>;
--	};
---
-2.53.0
+Why? I can see that you're doing that, and it's good to know that that
+is intentional, but why is it being done? Need to explain that all of
+these devices actually do have this clock etc.
+
+> clock is assumed to be coming from switchcore region via Lexra bus as
+> the other SoC peripherals.
+>=20
+> RTL9607C requires the "realtek,scl" and "clocks" to be specified
+> and so handle it under separate if check for "realtek,rtl9607-i2c".
+>=20
+> Signed-off-by: Rustam Adilov <adilov@disroot.org>
+> ---
+>  .../bindings/i2c/realtek,rtl9301-i2c.yaml         | 15 +++++++++++++++
+>  1 file changed, 15 insertions(+)
+>=20
+> diff --git a/Documentation/devicetree/bindings/i2c/realtek,rtl9301-i2c.ya=
+ml b/Documentation/devicetree/bindings/i2c/realtek,rtl9301-i2c.yaml
+> index f9a449fee2b0..5873cfdc5b3e 100644
+> --- a/Documentation/devicetree/bindings/i2c/realtek,rtl9301-i2c.yaml
+> +++ b/Documentation/devicetree/bindings/i2c/realtek,rtl9301-i2c.yaml
+> @@ -15,6 +15,8 @@ description:
+>    assigned to either I2C controller.
+>    RTL9310 SoCs have equal capabilities but support 12 common SDA lines w=
+hich
+>    can be assigned to either I2C controller.
+> +  RTL9607C SoCs have equal capabilities but each controller only support=
+s 1
+> +  SCL/SDA line.
+> =20
+>  properties:
+>    compatible:
+> @@ -34,6 +36,7 @@ properties:
+>        - enum:
+>            - realtek,rtl9301-i2c
+>            - realtek,rtl9310-i2c
+> +          - realtek,rtl9607-i2c
+> =20
+>    reg:
+>      items:
+> @@ -51,6 +54,9 @@ properties:
+>        The SCL line number of this I2C controller.
+>      enum: [ 0, 1 ]
+> =20
+> +  clocks:
+> +    maxItems: 1
+> +
+>  patternProperties:
+>    '^i2c@[0-9ab]$':
+>      $ref: /schemas/i2c/i2c-controller.yaml
+> @@ -81,6 +87,15 @@ allOf:
+>      then:
+>        patternProperties:
+>          '^i2c@[89ab]$': false
+> +  - if:
+> +      properties:
+> +        compatible:
+> +          contains:
+> +            const: realtek,rtl9607-i2c
+> +    then:
+> +      required:
+> +        - realtek,scl
+> +        - clocks
+> =20
+>  required:
+>    - compatible
+> --=20
+> 2.53.0
+>=20
+
+--EsRIo3u5oPaEi/ur
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCacGXeQAKCRB4tDGHoIJi
+0lklAQDCDXGYDV0Jc1ynS3YLxK9VgTrniDsg3jUih5oYwjBPdwEAiyT5qiFN1Qhx
+sLCoZ+0uc/2f5Wqrh0uX0jez1jLHegQ=
+=JKDV
+-----END PGP SIGNATURE-----
+
+--EsRIo3u5oPaEi/ur--
