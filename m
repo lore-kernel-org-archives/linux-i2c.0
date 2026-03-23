@@ -1,148 +1,211 @@
-Received: from PA4PR04CU001.outbound.protection.outlook.com (mail-francecentralazon11023089.outbound.protection.outlook.com [40.107.162.89])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D4183ACA62;
-	Mon, 23 Mar 2026 13:53:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.162.89
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CEB2399004
+	for <linux-i2c@vger.kernel.org>; Mon, 23 Mar 2026 14:34:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.49
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774273999; cv=fail; b=anyvZduQIflvnl5lRsCcDxl9cVghKY4nhmeCChxyPupSxsHO5csuBzMX9FrPtJfJ1K4xDc4zYttwlPdA76cfiMe+VZzUOrfWql2cpCDbotRbf5oHnwG1J8DORdIFwpXcdVfUC+dT8A/DCrEDGDVKxhnJWLQ7rIsRCYmGLZKH1v4=
+	t=1774276478; cv=pass; b=Pzyu0PwSr2WStuprA/9gB1zxova7YPHF3fWGpUfxs/gG6gr/n47N7BovpieQF1tNIYjl+nu/UPSAlGsVJtBmk79aSsAIGJDdNbUC8/GoRmLgL3WHH6029vfeSbLw9bxeJhZlbtVKkZiTiaCZVYs70WyUFJ+s6SIVJO6xTwn6ags=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774273999; c=relaxed/simple;
-	bh=3j96NCvKJok1QXS4XbhNXK+wHL/X115nj/WNVLdnJ+Q=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=QB5SA8KZP7FgAAma0XMGZ3PmYei6/CJo67RhMD1ocwAgl8NaIu/tPsKeuNNp0Ivoio5hbJM+TGqnxHl2urjYl/M8hk7Bu2EtCQzUTLXZGhEqZAcyh/e6jJUTy1QFv0KW3uuCsKhoCQecsxhrW7Mv2Wus2lt+7XHAj8euoJvaPuY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bachmann.info; spf=pass smtp.mailfrom=bachmann.info; dkim=pass (1024-bit key) header.d=bachmann.info header.i=@bachmann.info header.b=KjFMNvba; arc=fail smtp.client-ip=40.107.162.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=bachmann.info
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bachmann.info
+	s=arc-20240116; t=1774276478; c=relaxed/simple;
+	bh=vxPDw7or47fxtPpxapUmMGp6UDZhFhul7mz8eYtaK8g=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=pyXyfFV+lApptj75ZrkQtZzaKblZu3ZOUZ+tQ/Eyk/WOmJFNv2PyfHTK+4g4sKjZnedP0nJVTIcXjiah6zbt8HwuVCJlZQl/yc5bfsnFO3ZbZ71WAUF9zTkeV07IYFACaZOR3UWQwQclrS9y/fRsQ9x21oj6XHJSV9Qyi0OCtHg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WTlz1cNP; arc=pass smtp.client-ip=209.85.216.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=bachmann.info header.i=@bachmann.info header.b="KjFMNvba"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=KM/37hEnKVigoo23coI06RetnpDOAJBW/AKaaZjAv+dHYIZEInvJe+KFe8K1VD168JZvlwBfpfpUDwPGMOru1Ld+m9H1UlqTHkFs3TR+SvAa+fGBlPrl9c7dbJZMhRE4T2oL3oyM4DZB5YfCEUK8N3Zez9dlq9gXCX4oa2H1E8QWc7LnAw9tTOArljBAS5eb4y/hrnopDb3w/VwIEkPwHhbhuhmtViVF3rHc6eD3YbiVTESV81eDlsvQGWhMvkqUBf8StrkuQ2I7BW6NN8mMC5bRAa1Ac8kZ9+Kt0n9MVfXFSE0tktd0Hih040zc+K1t0ArflMtjcJkFaEPu7TDhwg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=/G4/fptXQoKzJz2eILYuhLPx53KQV3SdGHr1Frv2fKk=;
- b=SZeUrehha86eT4Ay21fyHtzg+3yNVotzMrkcYsfc6GL2W4T7LB2dr94nKEJhcGpe2jg90GpmGUc4w4j30phYU5MBk0COjhh0nzZQ4zaAniFH6gGzeJHl0hdyl2Spi+f+UWMeVRirptvwWZ2G0h6Ru6JS9EfwH7lUeSLag+Km7lPjBJ0tDVuqc8CWbrAH0e7tKuS7JZUqM5Uqk/aiXcMn2AUeaITYMmyrOwlNDPzabF7Cm3iCl/owmBawFZnxPVNc7E9p/mnrWpNB8GAGyFb8OJLTcyibtFmm/oeTd4Xf1GVd0yKDcDT4CprNk+z/t0KGMV7T/1zPDoRqFk9eB6cDvw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=softfail (sender ip
- is 185.67.228.71) smtp.rcpttodomain=korsgaard.com
- smtp.mailfrom=bachmann.info; dmarc=fail (p=quarantine sp=quarantine pct=100)
- action=quarantine header.from=bachmann.info; dkim=none (message not signed);
- arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bachmann.info;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=/G4/fptXQoKzJz2eILYuhLPx53KQV3SdGHr1Frv2fKk=;
- b=KjFMNvbaqmvNxziVjRb0YomqbzS13t2VE/+uiiDGJHIWPcQ2woLNiNbud+iwnCr8We4BWdLAcf2E7odvLGHvfCsQ13co2oeom0tgtj9vRVemphlfkJwnovrA9kUYwQ5bqBUJoEGWYbyZz97csFgmj3trGqsdU9CVvnRPW1NUrTE=
-Received: from DU7P194CA0018.EURP194.PROD.OUTLOOK.COM (2603:10a6:10:553::9) by
- DB8PR05MB6714.eurprd05.prod.outlook.com (2603:10a6:10:13f::19) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9723.31; Mon, 23 Mar 2026 13:53:12 +0000
-Received: from DB1PEPF000509E6.eurprd03.prod.outlook.com
- (2603:10a6:10:553:cafe::e0) by DU7P194CA0018.outlook.office365.com
- (2603:10a6:10:553::9) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9723.31 via Frontend Transport; Mon,
- 23 Mar 2026 13:53:10 +0000
-X-MS-Exchange-Authentication-Results: spf=softfail (sender IP is
- 185.67.228.71) smtp.mailfrom=bachmann.info; dkim=none (message not signed)
- header.d=none;dmarc=fail action=quarantine header.from=bachmann.info;
-Received-SPF: SoftFail (protection.outlook.com: domain of transitioning
- bachmann.info discourages use of 185.67.228.71 as permitted sender)
-Received: from webmail.bachmann.info (185.67.228.71) by
- DB1PEPF000509E6.mail.protection.outlook.com (10.167.242.56) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9723.19 via Frontend Transport; Mon, 23 Mar 2026 13:53:12 +0000
-Received: from ATFKPCLXMAAB.bachmann.at (10.204.120.2) by atfkex03.bachmann.at
- (10.10.10.31) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.29; Mon, 23 Mar
- 2026 14:53:11 +0100
-From: Martin Aberer <martin.aberer@bachmann.info>
-To: <peter@korsgaard.com>, <andrew@lunn.ch>
-CC: <andi.shyti@kernel.org>, <linux-i2c@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>, Martin Aberer <martin.aberer@bachmann.info>
-Subject: [PATCH] i2c: ocores: re-check status after poll timeout to avoid false errors
-Date: Mon, 23 Mar 2026 14:52:49 +0100
-Message-ID: <20260323135249.550925-1-martin.aberer@bachmann.info>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WTlz1cNP"
+Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-35a211df8e3so162250a91.2
+        for <linux-i2c@vger.kernel.org>; Mon, 23 Mar 2026 07:34:37 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1774276477; cv=none;
+        d=google.com; s=arc-20240605;
+        b=NZNXZvbCuY8ntAMvlyFJD07wsE1xP4KTeXF6a1iVzWeX/We/b5mg2OD1mLRiz93zLJ
+         /e3vZBCgdwZHJ1m6vHEK75wzvYi4Ye4sCETK0Nc5JOLYtzidv0rWlhazI3yrXXEdA8S/
+         llzAp/phPznuQagLrp4150MheYLYUpdOf72M4HaFsKx55BWetv30JJlJjk/MQ9BubDYF
+         +ApqaHSMxModsJ9VzMNYxmUF7l9wrfNIn2DDPWWSbIyI+K7Q1yHl4LmHI/GJ/U3E8jjY
+         XTtNtudoaHpf5w0vvPydRsmLiSMztIlBzeqaTKWDvUiOfpGDaDKr3u/YSX0R8LNO4WD0
+         SE9A==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=WVYH7xVGA2teNLj1Bfrz6my9P8EY5ujLY9EoEeuqJnU=;
+        fh=sL4VuXPoQ7Gee2N/yq+pJySlF0hROK4U9hT//PJSBL8=;
+        b=M1igKI+VHnDXjGiH1hWUdUwSp085JHSFTBKjWGo7LCAp7TAsMLoWvSL9fAVvzRQogZ
+         xZNJPXz4rxYn8oxkqMZV/8ctX/HCDGytZo31UpGqjqekD7SgtK3b4Xpb81he76RA0aBt
+         0QjEt8y9YbSdwb3vaomJUVXAMKgrITZAGkOAdDGSuQjirma6lMMjO592N5v0PrntlR8Z
+         l1t021aP4GrdalbIZLMFa1EngHCaTCmvy02qSi5A5EWBJpJ+WgSUvLhbC5LbpwnKRPRC
+         LfiLJfDfQm00w8/3E2Bnp1n3Fh9dHcznVSSfzSKC2ETDBfAZ9PCGqzpGMDIPTGD47Dl3
+         zUDA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1774276477; x=1774881277; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=WVYH7xVGA2teNLj1Bfrz6my9P8EY5ujLY9EoEeuqJnU=;
+        b=WTlz1cNPmhKDfKSB/pPon8JKMObghzhqMZqQYxbbxUiDhkmJBCnMBiUyFOWxxJo8d2
+         l+a/uqZPEB6hpePSssD3pjMO7zIgw4eJmgQ7tLRBK1gTM8kCy3Dim+Wir741o51GVoGQ
+         7DPzATr1EiutfHFl7EVHutO9Z4sW242vnXRkG4fJbYSVtvw4NV1IbWhK5AHxJkRCuDN8
+         69u8TnG6ucn8g7ZZkgTWBmohvNgs5KREvSTt68SGkLz7FdPAHhiAv8tYYCajf2a3Il3N
+         TvY73NGv3lvyrucNwTkkdz3wSXUJNYQbHcodoCx09KPGBpcONTyA4LEY9NvNMC3g5bXH
+         bJzA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774276477; x=1774881277;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WVYH7xVGA2teNLj1Bfrz6my9P8EY5ujLY9EoEeuqJnU=;
+        b=L4KWjy4F1HA4zHyM4eFsuOvvFl0A9SpiGknsOW9+vJl4XE1a2yJ7tQHNxsxDr3Xgxz
+         TIr5utmrGf0Ppc0oDSHnjr9Sjc5glenVLVZS4mevnbQDmv1trt/6xOY/pn65Iu0n92o8
+         vOQ31cPDQ+shd+yse8xqzNL3uR8CVnQILnqL6mFJhHoCIbR9eEDQBHp2ITEU2GW3PiMm
+         EFYqJPKprgPrvvKkfTguE8zlyyrN2LwJVbdeAWIPORTYcUFah1ieXQ3jbxEHOJCU6U/9
+         zD56QyEpWd3/t0jQVlsLZju/x+AeNoCUC8zBqxAD9E7N4ngSCWTGyb+IlvwV1+vmYPkT
+         y/5A==
+X-Forwarded-Encrypted: i=1; AJvYcCVoYVK9u9W/V1UJfwn4FCpKc2sznl8vvUIctz3bP7IPOf0OfGYNbZsxdw9TfDcHZcaqm4GI3DRcAfs=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxpJeGwAK71TV+tw5qcX1zW4E76LlZaHnPmgz3HOxzuoYR2+QDr
+	GdK2B5ZcOuV495o4qveYlkR3kwfgsTBSWRKkeo5r09eietrKXemdYKcYguMrZBMh0LGV5ySftuQ
+	XqSS3ZmkTnR4qyr5D5WuAleot2F2MILU=
+X-Gm-Gg: ATEYQzy+wGgfuk8gCDoXLwNEtZOjQ96tFQrjnVASOWyaOYdsRL9hBJQcWPQkEbh8Wm/
+	JI0ji9wpnk3K2rYJn/Q86oeDTQu1L1JbrUB/PQzVkeyeGrbYXOtL3SlzynJrG+uSdk32l/mOSs4
+	Ho1fLHXAyPzI27zp5NMzQexuRvdfZ24jpYhVEz/Qmqdu3pdYMSpvlHXGerlsxwJ3DXw6j9Jtm3e
+	WxQl6MriZufqn4AnxjkA+ZyTosV+w2Kq939EZo7kYbvKPRU0Odh2mWJtwzeYp0MsWHQY+35gfAe
+	o92RLmyOlV7MeE85KgDngCBEBUL4jQBluPuwGQ==
+X-Received: by 2002:a17:90b:3902:b0:35b:99f8:966d with SMTP id
+ 98e67ed59e1d1-35bd2d1460bmr10070628a91.24.1774276476552; Mon, 23 Mar 2026
+ 07:34:36 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: atfkex03.bachmann.at (10.10.10.31) To atfkex03.bachmann.at
- (10.10.10.31)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DB1PEPF000509E6:EE_|DB8PR05MB6714:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3664aeeb-ee78-4fbd-6d21-08de88e38613
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700016|376014|1800799024|82310400026|56012099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	5GhBo9XZYmI3FlYfDyu3hy+U9KYdx56d8CzMdLrNLNRWCIK/e9soFa4GYIBT1rrEnKLXKwddgsNz1Avhl9lncaolMFh7afg4K3C+xSovzXWkdNu7uhPx1vX/3JB1Qy+VP8AP3KFRNOXWAZnRh2mDMWZ9ojh1jJJgw6XkX1t0BwzYrSomcq37f40VAGBp8/J6BkAP61BfHJxMHHc3R2NTJWg8L/4JL68XsqWTntkYQ4MsI6biFsuTj1t3HVfCh3TfBqmGwu9ALnDNP8XxUcHtpXpjv0u5snib5AKdMVAiwuxsuLYAwzUYkA3ttPUG6JHooftFtGYIt3pJhh+w7+10r4XlmtF+5lSUj4vReQYXb6V8hg9WiflVxuE+Cy4HC3Bq1azDI20n/zlugoNvkkiQVwDWcudVoy4YVHV9c4rJ6B88mMcE7qMrxgjg1fcjrMTmiCvCO3VC5ReEypNJNSEU3l58fEmV1SmL8p21XSzeWXgXG3UmtTYSAw/Ou3f1Gg3eLNbOzdYlhpvC+pBad1NtkbUg/z001A0IQmJ6wHDTTIVQJWQKgSNcj/yZKZ+D2tQY1KBw8gH+4XEN/QNS/Qe+vI49kCjAtqpaT+P+smvhqae7B0GeUfOlitJCrlDsjWfRG5WIIItViuS2JrCV9g7ATWoQdoXdlJLY9yGBLHdPRwoeB/I1lXAQepLLbCWyvOfgVNlUC66mj5D5NaUEtp6a0808iNqRmU0B2Ktd8+1ZU1VFUHCTfo8/w6c070A441EGvo6nVCa9leMJGNVZ5fTtiQ==
-X-Forefront-Antispam-Report:
-	CIP:185.67.228.71;CTRY:AT;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:webmail.bachmann.info;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(36860700016)(376014)(1800799024)(82310400026)(56012099003)(18002099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	fyeN0T9pF93ov1Ny/xPlKJQ6YMggtjNO2ZRZ3VpQmy/Gk1MNf7aofeJGR+5wwWWyd5m3VkWo9209QhGSKxdCoF36ygXPP1tKXHMKr2tf5B7KUz6/HsjMpn8gINQuwO0ut4eE28qqA+pzuYTp8H52s2OEqnKPpITx2Cu5sptKtBXQrCTTpRzP4cp7KWmyF4YqSR6YSdtuJz608vlRdSOUfHxQmHzsr4aYBdqrlXvoC0+lah2j0mb0HKgAHNyUcj4n2zbPHMn8l0budNj4nQFCqK3xPi0ONQAVAxYP+Qmw0/dNWyXZImP2UF6DzrsR+nEwb7rafKBAK5+za51Sf+OA6fwIHkeHWcwNmbiKVRcvzvP3d7oKty93b2XXQ0CxIXQMuGxW4KXTVS9eSHXRUmxoYCKl78QCx+kdPesTlvuwiQxoRath6Nw1VceeoXlJHfvW
-X-OriginatorOrg: bachmann.info
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Mar 2026 13:53:12.0538
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3664aeeb-ee78-4fbd-6d21-08de88e38613
-X-MS-Exchange-CrossTenant-Id: e3bace4d-d2e7-4d8f-afb8-152509ee3f1a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=e3bace4d-d2e7-4d8f-afb8-152509ee3f1a;Ip=[185.67.228.71];Helo=[webmail.bachmann.info]
-X-MS-Exchange-CrossTenant-AuthSource:
-	DB1PEPF000509E6.eurprd03.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB8PR05MB6714
+References: <20260323135249.550925-1-martin.aberer@bachmann.info>
+In-Reply-To: <20260323135249.550925-1-martin.aberer@bachmann.info>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Date: Mon, 23 Mar 2026 15:34:24 +0100
+X-Gm-Features: AaiRm534_Ifawxle-7bh1yPoxYBzLb1c7xP5h-pAxJW2cnyPYGXqA0fpe2M7bUw
+Message-ID: <CAH9NwWdLtaSsS=B-hq1WV2RF81o6NcO4mai9M0ts+fuq-YkH+Q@mail.gmail.com>
+Subject: Re: [PATCH] i2c: ocores: re-check status after poll timeout to avoid
+ false errors
+To: Martin Aberer <martin.aberer@bachmann.info>
+Cc: peter@korsgaard.com, andrew@lunn.ch, andi.shyti@kernel.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-The polling task can be preempted at any point inside ocores_wait(),
-including just before the time_after() check. If the scheduler does
-not resume the task until after the 1ms deadline, ocores_wait()
-returns -ETIMEDOUT even though the hardware already cleared the
-status bit.
+Hey Martin
 
-Re-read the status register after a timeout before declaring failure.
-This avoids spurious timeout warnings under high CPU load.
+> The polling task can be preempted at any point inside ocores_wait(),
+> including just before the time_after() check. If the scheduler does
+> not resume the task until after the 1ms deadline, ocores_wait()
+> returns -ETIMEDOUT even though the hardware already cleared the
+> status bit.
+>
+> Re-read the status register after a timeout before declaring failure.
+> This avoids spurious timeout warnings under high CPU load.
+>
+> Signed-off-by: Martin Aberer <martin.aberer@bachmann.info>
+> ---
+>  drivers/i2c/busses/i2c-ocores.c | 14 +++++++++++++-
+>  1 file changed, 13 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
+> index 0f67e57cdeff..6f5aece94d57 100644
+> --- a/drivers/i2c/busses/i2c-ocores.c
+> +++ b/drivers/i2c/busses/i2c-ocores.c
+> @@ -313,12 +313,24 @@ static int ocores_poll_wait(struct ocores_i2c *i2c)
+>         /*
+>          * once we are here we expect to get the expected result immediately
+>          * so if after 1ms we timeout then something is broken.
+> +        *
+> +        * The polling task can be preempted at any point inside ocores_wait(),
+> +        * including just before the time_after() check. If the scheduler does
+> +        * not resume the task until after the 1ms deadline, ocores_wait()
+> +        * returns -ETIMEDOUT even though the hardware already cleared the
+> +        * status bit.
+> +
+> +        * Re-read the status register after a timeout before declaring failure.
+> +        * This avoids spurious timeout warnings under high CPU load.
+>          */
+>         err = ocores_wait(i2c, OCI2C_STATUS, mask, 0, msecs_to_jiffies(1));
+> -       if (err)
+> +       if (err) {
+> +               if ((oc_getreg(i2c, OCI2C_STATUS) & mask) == 0)
+> +                       return 0;
+>                 dev_warn(i2c->adap.dev.parent,
+>                          "%s: STATUS timeout, bit 0x%x did not clear in 1ms\n",
+>                          __func__, mask);
+> +       }
+>         return err;
+>  }
+>
 
-Signed-off-by: Martin Aberer <martin.aberer@bachmann.info>
----
- drivers/i2c/busses/i2c-ocores.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+In my view, a proper fix would be to switch to read_poll_timeout_atomic().
+Something like this - untested:
+
+---8<----
 
 diff --git a/drivers/i2c/busses/i2c-ocores.c b/drivers/i2c/busses/i2c-ocores.c
-index 0f67e57cdeff..6f5aece94d57 100644
+index 0f67e57cdeff..df6ebf32d6e8 100644
 --- a/drivers/i2c/busses/i2c-ocores.c
 +++ b/drivers/i2c/busses/i2c-ocores.c
-@@ -313,12 +313,24 @@ static int ocores_poll_wait(struct ocores_i2c *i2c)
- 	/*
- 	 * once we are here we expect to get the expected result immediately
- 	 * so if after 1ms we timeout then something is broken.
-+	 *
-+	 * The polling task can be preempted at any point inside ocores_wait(),
-+	 * including just before the time_after() check. If the scheduler does
-+	 * not resume the task until after the 1ms deadline, ocores_wait()
-+	 * returns -ETIMEDOUT even though the hardware already cleared the
-+	 * status bit.
-+
-+	 * Re-read the status register after a timeout before declaring failure.
-+	 * This avoids spurious timeout warnings under high CPU load.
- 	 */
- 	err = ocores_wait(i2c, OCI2C_STATUS, mask, 0, msecs_to_jiffies(1));
--	if (err)
-+	if (err) {
-+		if ((oc_getreg(i2c, OCI2C_STATUS) & mask) == 0)
-+			return 0;
- 		dev_warn(i2c->adap.dev.parent,
- 			 "%s: STATUS timeout, bit 0x%x did not clear in 1ms\n",
- 			 __func__, mask);
-+	}
- 	return err;
- }
- 
--- 
-2.43.0
+@@ -24,6 +24,7 @@
+#include <linux/io.h>
+#include <linux/log2.h>
+#include <linux/spinlock.h>
++#include <linux/iopoll.h>
+#include <linux/jiffies.h>
+/*
+@@ -258,7 +259,7 @@ static void ocores_process_timeout(struct ocores_i2c *i2c)
+* @reg: register to query
+* @mask: bitmask to apply on register value
+* @val: expected result
+- * @timeout: timeout in jiffies
++ * @timeout_us: timeout in microseconds
+*
+* Timeout is necessary to avoid to stay here forever when the chip
+* does not answer correctly.
+@@ -267,21 +268,14 @@ static void ocores_process_timeout(struct ocores_i2c *i2c)
+*/
+static int ocores_wait(struct ocores_i2c *i2c,
+int reg, u8 mask, u8 val,
+- const unsigned long timeout)
++ unsigned long timeout_us)
+{
+- unsigned long j;
++ u8 status;
+- j = jiffies + timeout;
+- while (1) {
+- u8 status = oc_getreg(i2c, reg);
+-
+- if ((status & mask) == val)
+- break;
+-
+- if (time_after(jiffies, j))
+- return -ETIMEDOUT;
+- }
+- return 0;
++ return read_poll_timeout_atomic(oc_getreg, status,
++ (status & mask) == val,
++ 0, timeout_us, false,
++ i2c, reg);
+}
+/**
+@@ -314,7 +308,7 @@ static int ocores_poll_wait(struct ocores_i2c *i2c)
+* once we are here we expect to get the expected result immediately
+* so if after 1ms we timeout then something is broken.
+*/
+- err = ocores_wait(i2c, OCI2C_STATUS, mask, 0, msecs_to_jiffies(1));
++ err = ocores_wait(i2c, OCI2C_STATUS, mask, 0, 1000);
+if (err)
+dev_warn(i2c->adap.dev.parent,
+"%s: STATUS timeout, bit 0x%x did not clear in 1ms\n",
 
+---8<---
+
+-- 
+greets
+--
+Christian Gmeiner, MSc
+
+https://christian-gmeiner.info/privacypolicy
