@@ -1,111 +1,92 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD03A311968;
-	Sun, 22 Mar 2026 21:02:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C0E82BD00C;
+	Mon, 23 Mar 2026 05:54:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774213368; cv=none; b=LJ1PYeLLmVonrma5VP3RTs1Y07WhFIHjpHIBPXAooqfW/eTPnEMmM2eYSoCmBoTSCoc7NdcQFUdf6Y57GOjo68EgAyMpgUj6BzpkUC7eJtCUfTXSwJcVilscN+QcrM33GtdKDHnZ/sxLrivNlYYUDJrrEYKRYvEXk5gth5NsWCo=
+	t=1774245286; cv=none; b=UXxDoW8NDF5HimEO773Gy3OQELTes4Nx/ragpz2IeWGHB/rf6NuNM/ohpdK81rQ4lIC74u5rczU1ZCI1vIx/QFf6TdJ/18RDlu/BGWeDR2Nx0o8/iL2X1njgJfSt0PxqEQ//XBiKq02XZsWWhwELlqgT3Tw8TNEaIBoa8s+YNOQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774213368; c=relaxed/simple;
-	bh=x9V58/gnkVfB51NGOXZzFEfFF3mJPlTWN/BLFiKFxsE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=QpF2OKTPMJRinWww2fTd5iLZvi308rIyfDtuOvpCiIIPkJlnKEggFNKh50Ijo5As/mY5r2kvijlsTR6KQBHSiIRWZkVKd2yY3Cf/QtJxiyuWXuIuhP2fwD00RE9g3Geji8rBvzvEVBYMAyNZRuTa4wCT5kOfHSwQ8gvVpVKBs4g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dJddt7+f; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774245286; c=relaxed/simple;
+	bh=7pB3IexWILkGZQPD/drt3kTnoy8lnETc+f0miqD/wwQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HgR1Q8MToxNZt4XGFy7eBsien7u16y5YOahEcdAwn+TjijneoSlaQ/MYMxrhV/nxp/R5EOT3eav/x2aYVgC3o1qfKDxJXNv05dZhEG2g4yqjpQscqQxnAPLuOclDDvOh4yzpZDnR9n2sGmWK0tJZPpRUKTkIW+CBCmdJEXhZE3U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=dU5dg0DG; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dJddt7+f"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34FE1C19424;
-	Sun, 22 Mar 2026 21:02:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774213368;
-	bh=x9V58/gnkVfB51NGOXZzFEfFF3mJPlTWN/BLFiKFxsE=;
-	h=Date:Subject:To:References:From:In-Reply-To:From;
-	b=dJddt7+fNmPwlsikvpHTnfDfZLogBnIeKVkSJKWqYxdIfFxack39JFFHMCM18hnvT
-	 dg1M5rXlnfb3WzrebbD9J6IMrjtnyWA/QNcWyrZtiPgBdYVDahQVCHfWN6WyuxIoTv
-	 hnKKGd03msTJ+dMeG4UMfawuz+UKnTVk/nlrzH/wQ10OTdBshaaI4zEI6VO9pFerNI
-	 jNiQUcdJ84M/KvBpBR1NkTBeZwBUZStbqT/uWGJ15k42a4URa4SeMhcKjR4/URCwF9
-	 ZDLDfO5z8ofl8u2xSPOo1XuPC7IYmCZbmuD+plQ+GjzCiJKjPqSAq8Pd/tjVM84ES0
-	 /X4kai6maYRBQ==
-Message-ID: <76007bf5-26fa-485c-a07c-6c8c3f437cdf@kernel.org>
-Date: Sun, 22 Mar 2026 22:02:44 +0100
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="dU5dg0DG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1774245285; x=1805781285;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=7pB3IexWILkGZQPD/drt3kTnoy8lnETc+f0miqD/wwQ=;
+  b=dU5dg0DG95E0QKGhu4l1QAv6DCn7npR9hBqgxCH9eBlJ2Z+rAqWbqQyI
+   Lr3S7vuk2hKIX4nvHCsZXtaQhZrs+NcFlwIsxaMNllnilRkv9BElFLh8W
+   ucjCmkX1CdqIsvefX0e1PkoJPgXv+k1Tl5WCZ4m74v0ABau6vEiboZB/N
+   gvbL5p6GLL/Cp9tA2SrQHXys96V0KCRWm01ib4ejRCDKEhThoZxlfL5Gg
+   tM0ZnOFK/vvGDlHtl6DJ8cyqsJitx41oQhHqQ0woXX1LuZoLZRlKUwAB5
+   IClvejT4UVO+rJdReTL5xXk9LCnqg6THdr1w7vbmeKBmVekpzv5vlHvxp
+   w==;
+X-CSE-ConnectionGUID: Kq4rOqwzQhezH0SUBnIo7w==
+X-CSE-MsgGUID: 6vApx4snReSXgaeDnz90Sw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11737"; a="92618808"
+X-IronPort-AV: E=Sophos;i="6.23,136,1770624000"; 
+   d="scan'208";a="92618808"
+Received: from orviesa004.jf.intel.com ([10.64.159.144])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Mar 2026 22:54:45 -0700
+X-CSE-ConnectionGUID: HStTgEnoQiq48sXoYSDMSg==
+X-CSE-MsgGUID: nP0vo3MQS/+MU+R7E+PBFw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,136,1770624000"; 
+   d="scan'208";a="228393311"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by orviesa004.jf.intel.com with ESMTP; 22 Mar 2026 22:54:42 -0700
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id 58B8B95; Mon, 23 Mar 2026 06:54:41 +0100 (CET)
+Date: Mon, 23 Mar 2026 06:54:41 +0100
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Pratap Nirujogi <pratap.nirujogi@amd.com>
+Cc: andi.shyti@kernel.org, andriy.shevchenko@linux.intel.com,
+	mlimonci@amd.com, jsd@semihalf.com, rafael.j.wysocki@intel.com,
+	benjamin.chan@amd.com, bin.du@amd.com, king.li@amd.com,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] i2c: designware: amdisp: Fix resume-probe race
+ condition issue
+Message-ID: <20260323055441.GW2275908@black.igk.intel.com>
+References: <20260320201302.3490570-1-pratap.nirujogi@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 7/8] dt-bindings: i2c: realtek,rtl9301-i2c: extend for
- RTL9607C support
-To: Rustam Adilov <adilov@disroot.org>,
- Chris Packham <chris.packham@alliedtelesis.co.nz>,
- Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, linux-i2c@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260322123411.32102-1-adilov@disroot.org>
- <20260322123411.32102-8-adilov@disroot.org>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <20260322123411.32102-8-adilov@disroot.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260320201302.3490570-1-pratap.nirujogi@amd.com>
 
-On 22/03/2026 13:34, Rustam Adilov wrote:
-> Add the "realtek,rtl9607-i2c" compatible for i2c controller on the
-> RTL9607C SoC series.
+On Fri, Mar 20, 2026 at 04:12:22PM -0400, Pratap Nirujogi wrote:
+> Identified resume-probe race condition in kernel v7.0 with the commit
+> 38fa29b01a6a ("i2c: designware: Combine the init functions"),but this
+> issue existed from the beginning though not detected.
 > 
-> Add a clocks property to the properties to describe the i2c reference
-> clock and make it available for all the compatibles. This i2c reference
-> clock is assumed to be coming from switchcore region via Lexra bus as
-> the other SoC peripherals.
+> The amdisp i2c device requires ISP to be in power-on state for probe
+> to succeed. To meet this requirement, this device is added to genpd
+> to control ISP power using runtime PM. The pm_runtime_get_sync() called
+> before i2c_dw_probe() triggers PM resume, which powers on ISP and also
+> invokes the amdisp i2c runtime resume before the probe completes resulting
+> in this race condition and a NULL dereferencing issue in v7.0
 > 
+> Fix this race condition by using the genpd APIs directly during probe:
+>   - Call dev_pm_genpd_resume() to Power ON ISP before probe
+>   - Call dev_pm_genpd_suspend() to Power OFF ISP after probe
+>   - Set the device to suspended state with pm_runtime_set_suspended()
+>   - Enable runtime PM only after the device is fully initialized
+> 
+> Fixes: d6263c468a761 ("i2c: amd-isp: Add ISP i2c-designware driver")
+> Co-developed-by: Bin Du <bin.du@amd.com>
+> Signed-off-by: Bin Du <bin.du@amd.com>
+> Signed-off-by: Pratap Nirujogi <pratap.nirujogi@amd.com>
 
-Why the clock is not required for rtl9607? I did not find explanation of
-such change in the changelog/cover letter.
-
-Best regards,
-Krzysztof
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
