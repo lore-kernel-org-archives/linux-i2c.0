@@ -1,182 +1,193 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 321C639C658
-	for <linux-i2c@vger.kernel.org>; Tue, 24 Mar 2026 18:28:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774376939; cv=none; b=Gfz58oLk9iggufGag1LmRTEeoXIRPq0QF4v0GpfPBuSY2fiDYtryZErmyduAR37T3la1xWhKmZRseRgj9qbW2YnKredMtdePQcJ++eCoz3MZx17XkMsP18PpZtHFC8kIALlvv8KRqsBf691iUGCjepHlGEicE5UqiipRw3O/4No=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774376939; c=relaxed/simple;
-	bh=7g/jARnkhTd3DIs23AFH73jSfHB7zbCwImSIcA8YsoQ=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Ohp3b8P+M6PxygPUx2BuQPkmewe8Maek9bds8ARAV7656EDfiyddE1Z+T6CvbPR3i8ZPLKPmq5OTIxXJQytffywvy7BDUAtgAR2KrgOA9dgWvM7dWzyvai/lxDuD8VUG2gp8yEwLefbqy7zIYBRN/NOCRH8Kgk//JLDe8LYdawo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oeayEKFn; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BE1020D4FF
+	for <linux-i2c@vger.kernel.org>; Tue, 24 Mar 2026 20:00:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.41
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774382434; cv=pass; b=JUv+6OMFJg2DHZYKatQMmJzq5johV1GrDxRk+WU4YB3nKA/grX1F8UqZY6YaV9ibL3TgaiIlvHi2mltsiWvZW7KRTwaenw+rJJAqE53evCSSB0RUJ1xZX0S6hdXPNfMM7/IzouXYua37CmAWnEQke24d6xjpfoukSxxK2J4m/aQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774382434; c=relaxed/simple;
+	bh=H/3/HljBKkNQvfAF2nYLo4pPn7IMLelTewsSEwuiXqA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=dlb+UbXLUilXIi3ZvzqDSI77pC63O1RoeTDOYjH2IKBosO5mJp9G8ybLUBwaSr1skFa3RkEwshUn351g2PK3xK6/WBfSTGCLue4K92uwy7Gmc+5oV0P4+tBl3G0YpThhBixb1dT35TdHy/fZt1uLjP3SuZ2Z4TZj2zFFB6JWc18=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F7mtgBtR; arc=pass smtp.client-ip=209.85.208.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oeayEKFn"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-35a07c4b17dso2114499a91.2
-        for <linux-i2c@vger.kernel.org>; Tue, 24 Mar 2026 11:28:58 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F7mtgBtR"
+Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-66a4c2cbfb6so1586769a12.1
+        for <linux-i2c@vger.kernel.org>; Tue, 24 Mar 2026 13:00:32 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1774382431; cv=none;
+        d=google.com; s=arc-20240605;
+        b=bDTWNMsVFF3q3J4qUvEs/GYkBEUsTVHMuprUNHDwzeEKYx1Os2qrSIqjFu5Lz9w57E
+         GUEKilEre/1mqNzXUFBki7Eu7MB9gqh3zmnih3KtxNlJGa004Xo+jQMpn0I4ZtD1Za9e
+         FeoslBDjFopjc/umckbgb+IJbG/bWhrWiIntrMeiL+5rJ9wT/qrNpG4Qu3l66gAwdEWr
+         IGYYRnam9NA0UpT8p0DOrh7X1vfXchnNXjGUw9KNP2V4ct4ATbQAMFkL4y3UR22Aa/E0
+         ZzgbzKADxek6Uhw839EAdu8LVkpJHWukWgVqbePOfK1UBkQ5W9LpEGokXss+E5jXp14y
+         yiuA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=1nuigy5i6MlCzZ5OS0a7Db3vipXMg/2DN1anL0e9s4w=;
+        fh=58P/iLzrGlXCc8o4PsYa6pa4W9i/y3rqGUL5UoOKYMY=;
+        b=gtL6DC7K3NLQDgRzwCW+KnjK8QuGS1URDbrjL5GpDtW8vsUkAM5xuz9eK02agdOifS
+         rBtuO/rDNIgZOAaNWxSLAC3Ykc0KeZro5VzWeQ9yebQj9Rk1SkGJqu/c8PkTBkB22WGq
+         arxtIM62abnOAHErJOANy8sDE+13XAIE+XpRXSYTz0amdeH/hQuTsrtHAcvhhO20j44O
+         0VDJvgYfedKt/fKPm1ddbNpX5ShpwxMCWIJkuk4ezhigkayE9ib2tgGkOYxqtirHiSoj
+         8UTJeFrmm0uhK4nO5VR0oF52Z0c4cGDfro4mIbEfWjP4ja3YM4goxoSmHH0yuad1aUOB
+         hBGA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774376937; x=1774981737; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=2MPILU45gcDsKK8jp+8jqoirIZBgcXX7ZY0CuqSl9cY=;
-        b=oeayEKFny7vadu4kiqbm4VW6IkcFRMWDumZCZUWfZYCw/RxXLv0aaKBlq4/VUUbDp1
-         KOa5FwW0/GzBQxBlZw6D6fi8V53ez3Bl6fagBvPaNDh7OzWeo774+Sen0yKN4nSYcmCJ
-         7mtLkTPv7K6AD1jUMNdOoaQduZzvAhBO0XhmZyAkJTbvUPriCVAuuAMM/Z3g1O4cdtpk
-         ou8bmXIQlpxhaPDV2cdSEcDjxt8zhqlatUqSvYdSryoti2ViVZmB6Ac3Sc5DUOq9qS5A
-         +I87rhwmm0Za4LigTmct0Tdjgkj658A48UbVEMAW5aF313a3k+aJOEBCbaLBFBJ5Vz+l
-         wHYQ==
+        d=gmail.com; s=20251104; t=1774382431; x=1774987231; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1nuigy5i6MlCzZ5OS0a7Db3vipXMg/2DN1anL0e9s4w=;
+        b=F7mtgBtRyRp+eUyW0oozsSHJAmc87CmiVVOlDMGik0btrZGo5RYmJmYgRT96t2z4Z0
+         nsrFs9OpzCJIGsa781SDRlkGBbsYJqmGG97BglLgX61JkLrPRiD3SfBwjtB0YVa7iG+9
+         6BYQAdAtt5l1GPtIhdFwwhxzq0/HecEKOW02Wqa7Ri8HmEvzRj/ScQAhuUAagwjHmXmc
+         /RJYmPkOxHygfmmfKQxW83CzScLwt2/udvyzth7Sh5HsjFF8k0KmUSD9CO2SC+u2BvA9
+         B0VEhihjRnX36imrSDFJLI8UV4rEG+PCUgEvq8z/skQhTZi3D2fphLhf/K83K6MJ8/Kz
+         Ffcw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774376937; x=1774981737;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=2MPILU45gcDsKK8jp+8jqoirIZBgcXX7ZY0CuqSl9cY=;
-        b=irddfQJh6xGqLesYEaEpJZS3ZPL+7UuiCx5MRavEsqo2KYrX9c/PqW9AnBldM7xSqf
-         T3nEdUt0fmBGt+dZ5DteSbfvi1G361trXoHISUkxf8LDtKwTmoQTnkcaN7C0/nxRmBMO
-         VRGQgnH1pj2TkhaC2//id/bh6qxDmveEiph5wtjfV06htapd+7eQwZStaXLk/0NyHBTo
-         rf5ansDoQUKy9ZKh3g+r266tX1wqOX2/JBBSWXfdVuS9qGHMx4tJLWbhRGjwCqSr+9g4
-         egY6Zt8Sarycv9er7/35wTNUxa/bl+BCxcvL+N7mPFBS41NT3FhMjINB+Olww4KQEY4S
-         JI7A==
-X-Gm-Message-State: AOJu0Yx33IRReck5sgks/BtVcWYGpDq8WPrfsgJ9gb/yFjSXVGLqjRPi
-	w9qLwtW5qixvQ8USn+MGTv9HksurerGKasbvGtmpcL5k9/OXF3vWUQJqdWvcGlO1fFQ=
-X-Gm-Gg: ATEYQzzj31JWQuQq0fDigre9eHwBX/5Qtk+YASHOI7ELwAQ9fQaktbCEKodRR++QDoU
-	PAgkQwR9cIzk7+FpRyTwjk4sKv3/PhM824FawhfJCEzxMQt0Qj7KrtRoYZO60bQcZYuPVtEFkWW
-	T/MGCppRejrREsG9kpKym1j/ZnltOulpMSIxk9dBJIULhlmo3tTUa8UqKdxIfkG5jhleXfHjvnd
-	xtwn6QtByHEwpU9/+AisbxBLq/eV5SPaPqDACa2IZ8tcm+ha/axxcU/klY08xjDy3b2PcGDH+lP
-	F5cwXuaXVEmitT86Yk5QgOr2cciKsDZXSGdmcLQjDnWnRABgzdgkec+dBOmBJ4phKG40El9Svdi
-	Agu99mQucaydpLXzuYzga7bEg5uJPK5zBX+yJpaFPHbKgCRMRXsyjAB3A9O2f1l7akzZfR3hzlO
-	JCc2q4aAFeowturqRnyXv7Pl8cOQ==
-X-Received: by 2002:a17:90b:3dc4:b0:35b:929f:7e8f with SMTP id 98e67ed59e1d1-35c0dd1000bmr297824a91.13.1774376937217;
-        Tue, 24 Mar 2026 11:28:57 -0700 (PDT)
-Received: from [127.0.1.1] ([103.216.213.160])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35c0d6060b5sm350576a91.17.2026.03.24.11.28.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Mar 2026 11:28:56 -0700 (PDT)
-From: Atharv Dubey <atharvd440@gmail.com>
-Date: Tue, 24 Mar 2026 23:56:58 +0530
-Subject: [PATCH 10/10] i2c: sis630: Replace dev_err() with dev_err_probe()
- in probe function
+        d=1e100.net; s=20251104; t=1774382431; x=1774987231;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=1nuigy5i6MlCzZ5OS0a7Db3vipXMg/2DN1anL0e9s4w=;
+        b=fZvlmd7Tb4rs2Q9PF2A1CEZcjuq727GZ+KULW/UTgKuP4lC1oiDw2ymP9TB4T5ebyR
+         8wy+7yVvRkUIbInNn310g9XpIjOIr8wHc508Xx4mGzmF5MnlSYR9lWjrAmtOa9x3qYaw
+         zZrlT9VWlGR2shXTWqQ/EFt9sJ1YWSK26X9/wxENkfHM0KBwBYvDUXPCIIl/vl5Jsj/j
+         cGLUOc183D2Dn4hwgvXqMBVTM4RGz9o7kh4JbTvOD9LSgVNzKXYo7wIteob6AiS2WmHT
+         qr8tT3g6Jczf37c22AkaXovJYwFUcBukP1kceWLurcH2nqD98OcLK5fcuvA6ePHwwcFO
+         igCA==
+X-Forwarded-Encrypted: i=1; AJvYcCW9+SOAqjDIKb0Vxlh91H9qnoFeB6kMYI+uhmihtQwiix7sTeqsv0+sT8GWnNbPTXU4GbaH1zegu5E=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxK2BCFS8zuV2yRjQxKVNV+IIUooiI4yGUBhHdh18xb62ZnXyA5
+	qBGru3y5R5kvnNaNH1FJkfMLscL2cEUm7xV23687/tjLt774G/+hlvHMdE3usUJmC9TsW+oGC0y
+	o9ufKhTCj3IPaW3E5nZZgF9Eu0YAMJRA=
+X-Gm-Gg: ATEYQzzZH82hjdzWCmgoI1QjYNFvz95Umh3Ynsp9iRGMxRLnlFtKfx2Fcyh5mPP99h/
+	3JzfUCpLqBTF7b0iwbMs+n5Z4bmz901kYlkqDUvSVwERgqblFmiCKH3iPl4ttYk8H0TLR42ptHH
+	I6VBv92D3kkNORH/EDC4IEvKPSfYNyNMYx8PhcysLIfW5NnndPnGhZr9DY9uek2cTW76j4EqCR0
+	j9ic3oQ8w3ueLt6SOJBUpRgo0p1R9HGbWVgoJaGnOE+q/zHLdoBqW7A1AkvlTqR3qT/es7e22HV
+	ikK9fZw=
+X-Received: by 2002:a17:907:1999:b0:b97:89b5:d7a0 with SMTP id
+ a640c23a62f3a-b9a54288647mr44602266b.48.1774382431128; Tue, 24 Mar 2026
+ 13:00:31 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260324-deverr-v1-10-7e591cce33a3@gmail.com>
-References: <20260324-deverr-v1-0-7e591cce33a3@gmail.com>
-In-Reply-To: <20260324-deverr-v1-0-7e591cce33a3@gmail.com>
-To: Till Harbaum <till@harbaum.org>, Andi Shyti <andi.shyti@kernel.org>, 
- Laxman Dewangan <ldewangan@nvidia.com>, Dmitry Osipenko <digetx@gmail.com>, 
- Thierry Reding <thierry.reding@gmail.com>, 
- Jonathan Hunter <jonathanh@nvidia.com>, Chen-Yu Tsai <wens@kernel.org>, 
- Jernej Skrabec <jernej.skrabec@gmail.com>, 
- Samuel Holland <samuel@sholland.org>, 
- Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>, 
- Alain Volmat <alain.volmat@foss.st.com>, 
- Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
- Alexandre Torgue <alexandre.torgue@foss.st.com>, 
- Patrice Chotard <patrice.chotard@foss.st.com>, 
- Orson Zhai <orsonzhai@gmail.com>, 
- Baolin Wang <baolin.wang@linux.alibaba.com>, 
- Chunyan Zhang <zhang.lyra@gmail.com>, Jean Delvare <jdelvare@suse.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-tegra@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
- linux-sunxi@lists.linux.dev, linux-stm32@st-md-mailman.stormreply.com, 
- Enrico Zanda <e.zanda1@gmail.com>, Atharv Dubey <atharvd440@gmail.com>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1774376818; l=2804;
- i=atharvd440@gmail.com; s=20260314; h=from:subject:message-id;
- bh=nhsfDSLdFe3nGX23EexwATKRFgvnwZsN/uRkVIgsfDc=;
- b=MfTL2nua2/UaTOkuHox/mofQ9uGkaQFwD4ef2QTeyEIJWKrK1affTlrqYL2fD+dQbiqZ2kQf1
- 368O9MeLyraCsNY7XiqbLSbdhihgwtkeZhLhsjgkAnvnbcpMTIg+zrj
-X-Developer-Key: i=atharvd440@gmail.com; a=ed25519;
- pk=T6i1xWOKT/RUSDYATSgyVG/4X7ac8jPjRSG1mMAcqVk=
+References: <20260324173527.11321-1-sebasjosue84@gmail.com>
+In-Reply-To: <20260324173527.11321-1-sebasjosue84@gmail.com>
+From: Michael Zaidman <michael.zaidman@gmail.com>
+Date: Tue, 24 Mar 2026 22:00:20 +0200
+X-Gm-Features: AQROBzD7DJFoR-w2ZbaKS2onxXaNipjwmPIQropG4PSX5rpIV2agbqhUt5sEkcM
+Message-ID: <CAPnwWgOY6UO2JKMNWw_fZK3Vvg_v9zQWX6Ugz=X+b4esPTn7Rg@mail.gmail.com>
+Subject: Re: [PATCH] HID: ft260: validate report size in raw_event handler
+To: Sebastian Josue Alba Vives <sebasjosue84@gmail.com>
+Cc: jikos@kernel.org, bentiss@kernel.org, linux-i2c@vger.kernel.org, 
+	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Enrico Zanda <e.zanda1@gmail.com>
+Hi Sebastian,
 
-This simplifies the code while improving log.
+Thanks for the patch. The report size validation gap in ft260_raw_event()
+is a valid concern - the raw_event callback is indeed invoked before
+hid_report_raw_event() validates the report size, so a truncated report
+from a malicious or buggy device could cause OOB reads.
 
-Signed-off-by: Enrico Zanda <e.zanda1@gmail.com>
-Signed-off-by: Atharv Dubey <atharvd440@gmail.com>
----
- drivers/i2c/busses/i2c-sis630.c | 31 +++++++++++++------------------
- 1 file changed, 13 insertions(+), 18 deletions(-)
+However, I have a couple of comments on the proposed fix:
 
-diff --git a/drivers/i2c/busses/i2c-sis630.c b/drivers/i2c/busses/i2c-sis630.c
-index a19c3d251804..3d0638c2bc51 100644
---- a/drivers/i2c/busses/i2c-sis630.c
-+++ b/drivers/i2c/busses/i2c-sis630.c
-@@ -431,24 +431,23 @@ static int sis630_setup(struct pci_dev *sis630_dev)
- 	   in acpi io space and read acpi base addr
- 	*/
- 	if (pci_read_config_byte(sis630_dev, SIS630_BIOS_CTL_REG, &b)) {
--		dev_err(&sis630_dev->dev, "Error: Can't read bios ctl reg\n");
--		retval = -ENODEV;
-+		retval = dev_err_probe(&sis630_dev->dev, -ENODEV,
-+				       "Error: Can't read bios ctl reg\n");
- 		goto exit;
- 	}
- 	/* if ACPI already enabled , do nothing */
- 	if (!(b & 0x80) &&
- 	    pci_write_config_byte(sis630_dev, SIS630_BIOS_CTL_REG, b | 0x80)) {
--		dev_err(&sis630_dev->dev, "Error: Can't enable ACPI\n");
--		retval = -ENODEV;
-+		retval = dev_err_probe(&sis630_dev->dev, -ENODEV,
-+				       "Error: Can't enable ACPI\n");
- 		goto exit;
- 	}
- 
- 	/* Determine the ACPI base address */
- 	if (pci_read_config_word(sis630_dev,
- 				 SIS630_ACPI_BASE_REG, &acpi_base)) {
--		dev_err(&sis630_dev->dev,
--			"Error: Can't determine ACPI base address\n");
--		retval = -ENODEV;
-+		retval = dev_err_probe(&sis630_dev->dev, -ENODEV,
-+				       "Error: Can't determine ACPI base address\n");
- 		goto exit;
- 	}
- 
-@@ -469,11 +468,10 @@ static int sis630_setup(struct pci_dev *sis630_dev)
- 	/* Everything is happy, let's grab the memory and set things up. */
- 	if (!request_region(smbus_base + SMB_STS, SIS630_SMB_IOREGION,
- 			    sis630_driver.name)) {
--		dev_err(&sis630_dev->dev,
--			"I/O Region 0x%04x-0x%04x for SMBus already in use.\n",
--			smbus_base + SMB_STS,
--			smbus_base + SMB_STS + SIS630_SMB_IOREGION - 1);
--		retval = -EBUSY;
-+		retval = dev_err_probe(&sis630_dev->dev, -EBUSY,
-+				       "I/O Region 0x%04x-0x%04x for SMBus already in use.\n",
-+				       smbus_base + SMB_STS,
-+				       smbus_base + SMB_STS + SIS630_SMB_IOREGION - 1);
- 		goto exit;
- 	}
- 
-@@ -511,12 +509,9 @@ static int sis630_probe(struct pci_dev *dev, const struct pci_device_id *id)
- {
- 	int ret;
- 
--	if (sis630_setup(dev)) {
--		dev_err(&dev->dev,
--			"SIS630 compatible bus not detected, "
--			"module not inserted.\n");
--		return -ENODEV;
--	}
-+	if (sis630_setup(dev))
-+		return dev_err_probe(&dev->dev, -ENODEV,
-+				     "Compatible bus not detected, module not inserted.\n");
- 
- 	/* set up the sysfs linkage to our parent device */
- 	sis630_adapter.dev.parent = &dev->dev;
+Please use the existing FT260_REPORT_MAX_LENGTH macro instead of the
+hardcoded 64.
 
--- 
-2.43.0
+More importantly, the size < 64 check alone is insufficient. It prevents
+accessing struct fields in a truncated buffer, but does not guard against
+a corrupted xfer->length field in an otherwise full-sized report.
 
+Consider: a device sends a valid 64-byte report (passes the size check),
+but with xfer->length set to, say, 100. The data payload starts at offset 2=
+,
+so only 62 bytes are available in the buffer. The existing check at line 10=
+77
+validates against the destination buffer (dev->read_len - dev->read_idx),
+not the source. If read_len is large enough (e.g., 180), the check passes,
+and the memcpy reads 100 bytes from a 62-byte region - a 38-byte OOB heap
+read from the source side.
+
+A more complete fix would validate xfer->length against the actual report s=
+ize:
+
+    struct ft260_i2c_input_report *xfer =3D (void *)data;
+    if (size < FT260_REPORT_MAX_LENGTH) {
+        hid_warn(hdev, "short report: %d\n", size);
+        return 0;
+    }
+    if (xfer->length > size -
+        offsetof(struct ft260_i2c_input_report, data)) {
+        hid_warn(hdev, "payload %d exceeds report size %d\n",
+             xfer->length, size);
+        return 0;
+    }
+This catches both truncated reports and corrupted length fields.
+
+Would you like to send a v2 addressing the above?
+
+Thanks, Michael
+
+On Tue, Mar 24, 2026 at 7:35=E2=80=AFPM Sebastian Josue Alba Vives
+<sebasjosue84@gmail.com> wrote:
+>
+> ft260_raw_event() casts the raw data buffer to a
+> ft260_i2c_input_report struct and accesses its fields without
+> validating the size parameter. Since __hid_input_report() invokes
+> the driver's raw_event callback before hid_report_raw_event()
+> performs its own report-size validation, a device sending a
+> truncated HID report can cause out-of-bounds heap reads in the
+> kernel.
+>
+> In the I2C response path, xfer->length (data[1]) is used as the
+> length for a memcpy into dev->read_buf. While xfer->length is
+> checked against dev->read_len, there is no check that size is large
+> enough to actually contain xfer->length bytes of data starting at
+> offset 2. A malicious USB device could therefore cause an OOB read
+> from the kernel heap, with the result accessible from userspace via
+> the I2C read interface.
+>
+> FT260 devices use 64-byte HID reports. Add a check at the top of
+> the handler to reject any report shorter than expected, and log a
+> warning to aid debugging.
+>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Sebastian Josue Alba Vives <sebasjosue84@gmail.com>
+> ---
+>  drivers/hid/hid-ft260.c | 6 ++++++
+>  1 file changed, 6 insertions(+)
+>
+> diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+> index 333341e80..7ca323992 100644
+> --- a/drivers/hid/hid-ft260.c
+> +++ b/drivers/hid/hid-ft260.c
+> @@ -1068,6 +1068,12 @@ static int ft260_raw_event(struct hid_device *hdev=
+, struct hid_report *report,
+>         struct ft260_device *dev =3D hid_get_drvdata(hdev);
+>         struct ft260_i2c_input_report *xfer =3D (void *)data;
+>
+> +       /* FT260 always sends 64-byte reports */
+> +       if (size < 64) {
+> +               hid_warn(hdev, "report too short: %d < 64\n", size);
+> +               return 0;
+> +       }
+> +
+>         if (xfer->report >=3D FT260_I2C_REPORT_MIN &&
+>             xfer->report <=3D FT260_I2C_REPORT_MAX) {
+>                 ft260_dbg("i2c resp: rep %#02x len %d\n", xfer->report,
+> --
+> 2.43.0
+>
