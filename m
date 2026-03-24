@@ -1,147 +1,107 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
+Received: from relay.hostedemail.com (smtprelay0011.hostedemail.com [216.40.44.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 683D82D5950;
-	Tue, 24 Mar 2026 14:10:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDC053624BC;
+	Tue, 24 Mar 2026 14:28:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774361448; cv=none; b=A0JczbXlbNeX03sp99h/22M2WD0EsOwu+In+1NoMwTFILHPnp/n7zR/e5nWNCy5zh1IEkBncpGPUbiPgOyz3QPwuhbSeVVEc9qe8FGHdGy4zPJejDj/Nn8LP0UR6BirwS40eKpn5MYmldMWwNcSJoUuTbvCpmzbIdgQHFJzhKBM=
+	t=1774362484; cv=none; b=h3iPYxXvfn0HYV7ftl81qTGxxKBG2lf/F0Qg3hhLshSQL1MV+BSDizgUyiJkbdJF8qy9SuWMkK5899VCqoQB1EaX96zgWHQF6KepC4Gx91RDol7GHEAcNut1k0//iKz8e5Ii9c2aB5p5PFtDfVWYCeU/kwz/EuZgs3WGn8PkyAk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774361448; c=relaxed/simple;
-	bh=Zwde7jG+zF9qr5SPigLAIwxRSoBCrA0SpkWRrEkdqSo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XZzB/NN1N7CQ2vL1ySZGKWNsu+o+zs2eHfveeDXkVi6mb6wyZWbl/moAxWGa734lCCsjFEd5TuwhZBL6voR4t1GxmegQ+DNfSf6Pf4EjdlQYeA9xiASGGwiXQYgpYqvKguvybV5RAPE/LBBgiavOdI8j9xKYJnYXROuLu7v2rvI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=XjBt1M2O; arc=none smtp.client-ip=198.175.65.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="XjBt1M2O"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1774361446; x=1805897446;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Zwde7jG+zF9qr5SPigLAIwxRSoBCrA0SpkWRrEkdqSo=;
-  b=XjBt1M2OyBeE5AFStSif+mBQkGedxZyLRSXF2mhzCAegp5v7NCNlWhE+
-   CUeV2EM4Kf3tQkdleA7/g2+DmnJjOclZK9yFSLLtFPSX34FvlA9jERVTx
-   QxD3qJ9rdjZPqu1BFrjZc1qWTi/nrtx5X4kW2AXac0fkKsnOB05vzxpGF
-   +6Ngza4g4pMVps3XX6kG7T8MRRVnaYtK9hBg5ywJCTE3hSWR5iYXY3i9a
-   cPpm1fz7xHgT8OtDO1XEoRkQ+mit/31XEew6rYN7wWSVvBHbejw5wPlNK
-   GVZ5flNpLrdW+gcPLHcRX0OXuHkxxatMYbsRCpcnKWSTqwFrtMdQbVcmr
-   w==;
-X-CSE-ConnectionGUID: S9CN8qS8QfOGlm4lcLZfCg==
-X-CSE-MsgGUID: AhiyiqmtRCmNKY/A1GAvtA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11739"; a="78974106"
-X-IronPort-AV: E=Sophos;i="6.23,138,1770624000"; 
-   d="scan'208";a="78974106"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2026 07:10:46 -0700
-X-CSE-ConnectionGUID: yBwwehg/RoG+sHw14JK3TQ==
-X-CSE-MsgGUID: d5ltkdDNRIm+yGn5KU0M0Q==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,138,1770624000"; 
-   d="scan'208";a="247970109"
-Received: from abityuts-desk.ger.corp.intel.com (HELO localhost) ([10.245.244.214])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Mar 2026 07:10:44 -0700
-Date: Tue, 24 Mar 2026 16:10:42 +0200
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Peter Rosin <peda@axentia.se>,
-	Michael Hennerich <michael.hennerich@analog.com>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v9 2/5] i2c: mux: add support for per channel bus
- frequency
-Message-ID: <acKbYhbwZzv2gTnB@ashevche-desk.local>
-References: <20260324-i2c-mux-v9-0-5292b0608243@gmail.com>
- <20260324-i2c-mux-v9-2-5292b0608243@gmail.com>
+	s=arc-20240116; t=1774362484; c=relaxed/simple;
+	bh=Tli2X3y0LVZah9JzvHCs3qERanTby0V0BrV4nXSA3Js=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=EDiC7YBWVSVjd1xuN7MVDRcf1lwlemnAX/FkCSHp/Ezdt1+m+mPid5mVMNdulCjbxsxh4eT78D7rBs8HwjJ/iKvV8gjj9zg0VDoo27Fby5ccARnIYHDa1LrGYzOUjtE/gLloBphqYFyF+ujqub7B3s3H2caxCrixTxF3dwC49Ng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
+Received: from omf02.hostedemail.com (a10.router.float.18 [10.200.18.1])
+	by unirelay09.hostedemail.com (Postfix) with ESMTP id 1F17D9396F;
+	Tue, 24 Mar 2026 14:27:53 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf02.hostedemail.com (Postfix) with ESMTPA id DC83180011;
+	Tue, 24 Mar 2026 14:27:20 +0000 (UTC)
+Date: Tue, 24 Mar 2026 10:28:02 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: "Vineeth Pillai (Google)" <vineeth@bitbyteword.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Dmitry Ilvokhin <d@ilvokhin.com>,
+ Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>, Ingo Molnar <mingo@redhat.com>, Jens
+ Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
+ <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov
+ <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Marcelo Ricardo
+ Leitner <marcelo.leitner@gmail.com>, Xin Long <lucien.xin@gmail.com>, Jon
+ Maloy <jmaloy@redhat.com>, Aaron Conole <aconole@redhat.com>, Eelco
+ Chaudron <echaudro@redhat.com>, Ilya Maximets <i.maximets@ovn.org>,
+ netdev@vger.kernel.org, bpf@vger.kernel.org, linux-sctp@vger.kernel.org,
+ tipc-discussion@lists.sourceforge.net, dev@openvswitch.org, Jiri Pirko
+ <jiri@resnulli.us>, Oded Gabbay <ogabbay@kernel.org>, Koby Elbaz
+ <koby.elbaz@intel.com>, dri-devel@lists.freedesktop.org, "Rafael J.
+ Wysocki" <rafael@kernel.org>, Viresh Kumar <viresh.kumar@linaro.org>,
+ "Gautham R. Shenoy" <gautham.shenoy@amd.com>, Huang Rui
+ <ray.huang@amd.com>, Mario Limonciello <mario.limonciello@amd.com>, Len
+ Brown <lenb@kernel.org>, Srinivas Pandruvada
+ <srinivas.pandruvada@linux.intel.com>, linux-pm@vger.kernel.org, MyungJoo
+ Ham <myungjoo.ham@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>,
+ Chanwoo Choi <cw00.choi@samsung.com>, Christian =?UTF-8?B?S8O2bmln?=
+ <christian.koenig@amd.com>, Sumit Semwal <sumit.semwal@linaro.org>,
+ linaro-mm-sig@lists.linaro.org, Eddie James <eajames@linux.ibm.com>, Andrew
+ Jeffery <andrew@codeconstruct.com.au>, Joel Stanley <joel@jms.id.au>,
+ linux-fsi@lists.ozlabs.org, David Airlie <airlied@gmail.com>, Simona Vetter
+ <simona@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>, Danilo
+ Krummrich <dakr@kernel.org>, Matthew Brost <matthew.brost@intel.com>,
+ Philipp Stanner <phasta@kernel.org>, Harry Wentland
+ <harry.wentland@amd.com>, Leo Li <sunpeng.li@amd.com>,
+ amd-gfx@lists.freedesktop.org, Jiri Kosina <jikos@kernel.org>, Benjamin
+ Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, Wolfram Sang
+ <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Mark Brown
+ <broonie@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>,
+ Nuno =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>, linux-spi@vger.kernel.org,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, "Martin K.
+ Petersen" <martin.petersen@oracle.com>, linux-scsi@vger.kernel.org, Chris
+ Mason <clm@fb.com>, David Sterba <dsterba@suse.com>,
+ linux-btrfs@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Andrew
+ Morton <akpm@linux-foundation.org>, SeongJae Park <sj@kernel.org>,
+ linux-mm@kvack.org, Borislav Petkov <bp@alien8.de>, Dave Hansen
+ <dave.hansen@linux.intel.com>, x86@kernel.org,
+ linux-trace-kernel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 00/19] tracepoint: Avoid double static_branch
+ evaluation at guarded call sites
+Message-ID: <20260324102802.4f8af148@gandalf.local.home>
+In-Reply-To: <20260323160052.17528-1-vineeth@bitbyteword.org>
+References: <20260323160052.17528-1-vineeth@bitbyteword.org>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260324-i2c-mux-v9-2-5292b0608243@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Stat-Signature: rgnt1g9q8d9rzsk6azwgoui85joqhwik
+X-Rspamd-Server: rspamout04
+X-Rspamd-Queue-Id: DC83180011
+X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
+X-Session-ID: U2FsdGVkX19u4yDoihzmlvbQbp4GBKk4Sx0FsrK0H8g=
+X-HE-Tag: 1774362440-296898
+X-HE-Meta: U2FsdGVkX18Kg3NfvHLPV0rnp3UrERb/HeySVgjR0PuCDys+LVJ4s2L8fsy1rJHv82yu9UO4h+xU9iEx3z3YFKVS1OFx2Vvti4rEmq0enV2xaTwbpZ+YWf60TFzb8QMlheid4NsXOVqOYcFPHCn+ZrWqPDCdrmq0l+tkyLSeYhbpJixFuANIjXhtSBZInyEBtAAqHPqUuWZ3PdZupXAY7JMTASH2KNw+CMFxYOXnDTbb38gpzJzBKiUcyoxK6GlO0db0aEPLlOAMHWKzcQEu5msgaweBGFFWtD9G0uWRbe+OcS9gBl+SI1CDJFvGCt0Z8gh5xinNWW7KF0gSIEh3ZlA0AO0+B5wCRjivVxgdquYH5bWbk7CtReb5es0u0tOp
 
-On Tue, Mar 24, 2026 at 02:54:16PM +0100, Marcus Folkesson wrote:
-> There may be several reasons why you may need to use a certain speed
-> on an I2C bus. E.g.
+On Mon, 23 Mar 2026 12:00:19 -0400
+"Vineeth Pillai (Google)" <vineeth@bitbyteword.org> wrote:
+
+> When a caller already guards a tracepoint with an explicit enabled check:
 > 
-> - When several devices are attached to the bus, the speed must be
->   selected according to the slowest device.
-> 
-> - Electrical conditions may limit the usable speed on the bus for
->   different reasons.
-> 
-> With an I2C multiplexer, it is possible to group the attached devices
-> after their preferred speed by e.g. putting all "slow" devices on a
-> separate channel on the multiplexer.
-> 
-> Consider the following topology:
-> 
->                       .----------. 100kHz .--------.
->     .--------. 400kHz |          |--------| dev D1 |
->     |  root  |--+-----| I2C MUX  |        '--------'
->     '--------'  |     |          |--. 400kHz .--------.
->                 |     '----------'  '-------| dev D2 |
->                 |  .--------.               '--------'
->                 '--| dev D3 |
->                    '--------'
-> 
-> One requirement with this design is that a multiplexer may only use the
-> same or lower bus speed as its parent.
-> Otherwise, if the multiplexer would have to increase the bus frequency,
-> then all siblings (D3 in this case) would run into a clock speed it may
-> not support.
-> 
-> The bus frequency for each channel is set in the devicetree. As the
-> i2c-mux bindings import the i2c-controller schema, the clock-frequency
-> property is already allowed.
-> If no clock-frequency property is set, the channel inherits their parent
-> bus speed.
+>   if (trace_foo_enabled() && cond)
+>       trace_foo(args);
 
-...
+Thanks Vineeth!
 
-> +		of_property_read_u32(child, "clock-frequency", &priv->adap.clock_hz);
+I'm going to start pulling in this series. I'll take the first patch, and
+then any patch that has an Acked-by or Reviewed-by from the maintainer.
 
-Wondering if we may use existing API to get i2c timings from fw description?
-i2c_parse_fw_timings() (it might be that it needs to be split for pure fwnode
-one and device wrapped).
+For patches without acks, I'll leave alone and then after the first patch
+gets merged into mainline, the maintainers could pull in their own patches
+at their own convenience. Unless of course they speak up now if they want
+me to take them ;-)
 
-> +
-> +		/* If the mux adapter has no clock-frequency property, inherit from parent */
-> +		if (!priv->adap.clock_hz)
-> +			priv->adap.clock_hz = parent->clock_hz;
-> +
-> +		/*
-> +		 * Warn if the mux adapter is not parent-locked as
-> +		 * this may cause issues for some hardware topologies.
-> +		 */
-> +		if ((priv->adap.clock_hz < parent->clock_hz) && muxc->mux_locked)
-> +			dev_warn(muxc->dev,
-> +				 "channel %u is slower than parent on a non parent-locked mux\n",
-> +				 chan_id);
-> +
-> +		/* We don't support mux adapters faster than their parent */
-> +		if (priv->adap.clock_hz > parent->clock_hz) {
-> +			dev_err(muxc->dev,
-> +				"channel (%u) is faster (%u) than parent (%u)\n",
-> +				chan_id, priv->adap.clock_hz, parent->clock_hz);
-> +
-> +			of_node_put(mux_node);
-> +			ret = -EINVAL;
-> +			goto err_free_priv;
-> +		}
-
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+-- Steve
