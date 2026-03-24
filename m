@@ -1,267 +1,172 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 369D43ECBD2;
-	Tue, 24 Mar 2026 11:19:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E05B3FE366
+	for <linux-i2c@vger.kernel.org>; Tue, 24 Mar 2026 13:50:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774351183; cv=none; b=CXuLfgmVJGhauTUN4OloVQjvYbp+Nqh4nxdTioWNDj0E/jGu2e3pu7tdYaqF2Mt20R642feggIKPeCSii3WDJwTU0370R/8HwtqUwxqKrQSBGTTRAZ/9/1rY/tI3VkfxsnZC1J1TiCMdoLkCVG3jQZ6qt4hWilQn4Jaiq+ovqMk=
+	t=1774360227; cv=none; b=tEq9IzJkmSDldV2tr3iqlrlVDpdoDuT+4pQIcpd9aUaAqh2ab7Er2HDT3acQr6jkrjszI3YZ4yV9z993/vWN783vstLO4nodbAermZUhxTrZ1+8H39l6uyNX7V9P/T+GwIYFGAjCpF8Owfy/c5XHCBrBgzO6vDZ/neQJQN9ocMk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774351183; c=relaxed/simple;
-	bh=BKTk3rQ25SsxVZEq48IRP2YHJlexTUbR0Y7iATCy0Lg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=cRM+3Tm9ywWuCZG6fbB+N5brg/vhVz00WeUgtgKBqiGLl2C2oSvUagJ+FyFHcCtVYIs/8NGC5q5xlELX+tDN64RXgxFZvaTJQ1Q9KVmaWWZ+/6OwT76SzTIbf+XoTBwZjdS5ZK3HQEcwgkPOnk/Efx49EzFxhUYrXVw1cSqA5JA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HLMyUeoT; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774360227; c=relaxed/simple;
+	bh=ZFB19VUeR99A5y68es2jsd4tSaX8a4ZSbxHmtlwKA54=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Bb0nIzgTUzpDVcbFPov/p2KvYGGhVRTIwjhVVHapX2dh1ZHU0Nx5bwXZhtctwvVZbnBuVXZJEUFDJQhzU5aKbu8UUcVYNw0GQW5kYpiE5oi+qCZvHM4NfWyJuPwPcAWMbRjOTE9BE8yeOf3EgaMSX1VMEw8UoL3pziWVWz0n7Uw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ENBwxu/2; arc=none smtp.client-ip=209.85.215.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HLMyUeoT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D882C2BCB3;
-	Tue, 24 Mar 2026 11:19:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774351182;
-	bh=BKTk3rQ25SsxVZEq48IRP2YHJlexTUbR0Y7iATCy0Lg=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=HLMyUeoT/xXwI5EE2IM6ErlhVWOTe7etTAhiGJfzXk+1IwtqZjbZCbPW29bHxDilW
-	 f2rlTwKy5iatv9HR9xBBmiHD55diOyOsPc9Ik65jWnB2LoiAhBX8bw1fo1JJRcNoHg
-	 TaXgtQVQoCJx6joKaqQjnZR57tooPJLQCJxnl0knOtSAojnxZDq2OXzy1Ygd+bnO6C
-	 Mr0IKTCTaRD2XLbO0HGsJf1PcGFP4/YzJgytTPk4FkTy6cfW1yVD6rYt5R1DlkwUmB
-	 InNuplX2IgWFkJVCCY767IQELma8Op4P6AKuR8gGiwt7cqwiv2s98qEctkyWXk+Icy
-	 BlvGvnhvRKaDA==
-From: Sasha Levin <sashal@kernel.org>
-To: patches@lists.linux.dev,
-	stable@vger.kernel.org
-Cc: Mikko Perttunen <mperttunen@nvidia.com>,
-	Russell King <rmk+kernel@armlinux.org.uk>,
-	Linus Torvalds <torvalds@linux-foundation.org>,
-	Sasha Levin <sashal@kernel.org>,
-	andi.shyti@kernel.org,
-	ldewangan@nvidia.com,
-	thierry.reding@gmail.com,
-	jonathanh@nvidia.com,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ENBwxu/2"
+Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-c7358a7a8d1so758865a12.3
+        for <linux-i2c@vger.kernel.org>; Tue, 24 Mar 2026 06:50:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1774360225; x=1774965025; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=eG09CQ6i9jLIM83EphpMOCR5GqtN/33XucYU6e5iqHM=;
+        b=ENBwxu/2cYviaNH67Gl3pMTMthedNf2x2/n8rThJGB++zrlVdPd9BoXxpqxxT5tphQ
+         BQ9x8BMG02dLhttKToD6qMh6O0VJfyPW0fQBAj3D2NHQ+9pqrNu6sRzbohWl21X2qwPX
+         GN+w0lqr74C3kGzsO0r4tzTY/S/P0gKK4o9VnAPwSK9A5CpeRutZaUAJZ2s7wPtNM/LB
+         NVnDe/WoNNS3vtN1CYYjOVzx0wYxX5+u+fadx8oh+DWEEvsnWZauqoF79TsqemYj0Qd3
+         cGT6oc7684agDMImj62yA1RwbAuAb3siS2/0E8ft45VFJ22v3sNaXIxfF83OPbLK5k9c
+         028g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774360225; x=1774965025;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=eG09CQ6i9jLIM83EphpMOCR5GqtN/33XucYU6e5iqHM=;
+        b=nThCUmWfJDbP3Slv+2+KFS8rtSkzPZj5QSzKOFbgmII7ivE3jBnkBLa0AmR3rFDVrE
+         nvbkVeRbQnEFAHP4up7s+EXkM/BFNkR/y6PUJO8DfJ7pEaX/haiomD/8VH2+TmWq5pmx
+         n7hWGZbZh406LlTXXQyBtdbHc8V5DVQT6vPwx0BJmw9qU9aYNuxZJaSw1N8z6rSI7qay
+         ejX1aaFvcyQKPdqWAlmr2p4VN9b/060ZdS1lTHe+VWQ1TyylujrAwhvKqnTh10SCY/Oy
+         WNciJ9RYsfVwXGrkYsylHDdBuW2n9Uav3ZFVBJD5V2TdTtF1LJo7Z1GSGD/JRZCHp3nP
+         1LXw==
+X-Forwarded-Encrypted: i=1; AJvYcCXzRTG3mcex5Nm8YQ1w07VDF2iQo/3e4YNoNrdhjbKBLYw/EST4MgVbqVZ9FwT4W8yU871XrtyoTRA=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwvD0nlL2voVCr1Z8PPHzXx4JQ9l7wA53Eeav76Kkv1sCVVmJcj
+	+subNT6hkcFNuufuukZhOwahabynJxaoy4UfL7h5ARFIp8JOPLC1pAfW
+X-Gm-Gg: ATEYQzzw8Yc8ljvoTZHf0mGukQC5gNw+HKZg5X2BDqqA3cusHHCgEhKwkWdB76Qh3qq
+	zcbRK8ot1c2bFbSxqsdZiaYRs8s5LzwDDlt9QyoGBq+AeDoBY2XdjoGVf5yoSGxyiMEIF2jE6ws
+	xze+I0gQpKK3dc2nRC79o4a4nf/T6HrE9zIcsG0B6jxidptIr9wZK/RPAAf2Xodw01bG9qALFBB
+	J1oSLAqOfB1VI4/Tav8vRzL6W607z4IvPcUdDQ6xCV+K1DMcwpSMC+XHZ+gZJPE8I1A/1E/+XbB
+	1PxhqWYMrdPuTnOdo6Et3/eBPiOciazXI4bevbh9olV49RhXcqWdtgx2REZvG8Io++UzoEPmCw8
+	FdsAoUpUioR6EWQEBCFNRV+f5epyJznwrZStG6lumlI4urfDYDAxNplSvmBWxUC9ucRl+GoWCsI
+	vMNVFYeJ3GGht+cClLALI0RTo=
+X-Received: by 2002:a17:90a:d446:b0:35b:982a:28c4 with SMTP id 98e67ed59e1d1-35bd2bd5848mr12549745a91.3.1774360224631;
+        Tue, 24 Mar 2026 06:50:24 -0700 (PDT)
+Received: from fedora ([2401:4900:1f32:22d3:4161:93a:b87c:36eb])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35c030577f7sm2900902a91.0.2026.03.24.06.50.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Mar 2026 06:50:24 -0700 (PDT)
+From: Shi Hao <i.shihao.999@gmail.com>
+To: andi.shyti@kernel.org
+Cc: krzk+dt@kernel.org,
+	robh@kernel.org,
+	conor+dt@kernel.org,
 	linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.19-6.1] i2c: tegra: Don't mark devices with pins as IRQ safe
-Date: Tue, 24 Mar 2026 07:19:16 -0400
-Message-ID: <20260324111931.3257972-7-sashal@kernel.org>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260324111931.3257972-1-sashal@kernel.org>
-References: <20260324111931.3257972-1-sashal@kernel.org>
+	daniel.baluta@nxp.com,
+	simona.toaca@nxp.com,
+	d-gole@ti.com,
+	m-chawdhry@ti.com,
+	i.shihao.999@gmail.com
+Subject: [PATCH] dt-bindings: i2c: intel,ixp4xx-i2c: Convert to Dt schema
+Date: Tue, 24 Mar 2026 19:20:10 +0530
+Message-ID: <20260324135010.17730-1-i.shihao.999@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 6.19.9
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Mikko Perttunen <mperttunen@nvidia.com>
+Convert IOP3xx and IXP4xx XScale bindings to DT schema.
 
-[ Upstream commit ec69c9e88315c4be70c283f18c2ff130da6320b5 ]
-
-I2C devices with associated pinctrl states (DPAUX I2C controllers)
-will change pinctrl state during runtime PM. This requires taking
-a mutex, so these devices cannot be marked as IRQ safe.
-
-Add PINCTRL as dependency to avoid build errors.
-
-Signed-off-by: Mikko Perttunen <mperttunen@nvidia.com>
-Reported-by: Russell King <rmk+kernel@armlinux.org.uk>
-Link: https://lore.kernel.org/all/E1vsNBv-00000009nfA-27ZK@rmk-PC.armlinux.org.uk/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Shi Hao <i.shihao.999@gmail.com>
 ---
+Note:
+* This patch is part of the GSoC2026 application process for device tree bindings conversions
+* https://github.com/LinuxFoundationGSoC/ProjectIdeas/wiki/GSoC-2026-Device-Tree-Bindings
+---
+ .../devicetree/bindings/i2c/i2c-iop3xx.txt    | 20 ---------
+ .../bindings/i2c/intel,ixp4xx-i2c.yaml        | 41 +++++++++++++++++++
+ 2 files changed, 41 insertions(+), 20 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-iop3xx.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/intel,ixp4xx-i2c.yaml
 
-LLM Generated explanations, may be completely bogus:
-
-Record for Phase 6:
-- The buggy code exists in ALL active stable trees (v5.15, v6.1, v6.6,
-  v6.12)
-- The condition varies across trees — backporting needs minor adaptation
-  for trees without the ACPI check
-- Pinctrl code has been in the driver since v4.9
-- The Kconfig change (adding PINCTRL dependency) is needed in all trees
-- For v5.15/v6.1: the condition is `if (!i2c_dev->is_vi)` — patch must
-  add `&& !i2c_dev->dev->pins`
-- For v6.6: `if (!IS_VI(i2c_dev))` — same adaptation needed
-- For v6.12+: `if (!IS_VI(i2c_dev) &&
-  !has_acpi_companion(i2c_dev->dev))` — closest to mainline, minor
-  conflict
-
-## PHASE 7: SUBSYSTEM AND MAINTAINER CONTEXT
-
-### Step 7.1: SUBSYSTEM CRITICALITY
-- **Subsystem:** drivers/i2c/busses — I2C bus driver (NVIDIA Tegra
-  specific)
-- **Criticality:** PERIPHERAL — affects Tegra SoC users (NVIDIA Jetson
-  platforms, embedded/automotive)
-- However, Tegra is a significant embedded platform used in NVIDIA
-  Jetson (AI/robotics), automotive (NVIDIA Drive), and Nintendo Switch
-
-### Step 7.2: SUBSYSTEM ACTIVITY
-The driver has moderate activity — updated regularly for new Tegra
-generations.
-
-## PHASE 8: IMPACT AND RISK ASSESSMENT
-
-### Step 8.1: WHO IS AFFECTED
-- Users with Tegra SoCs that have DPAUX I2C controllers (Tegra124,
-  Tegra132, Tegra210+)
-- Specifically Jetson Xavier NX was reported as affected (Russell King's
-  report)
-- Platform-specific: only NVIDIA Tegra platforms
-
-### Step 8.2: TRIGGER CONDITIONS
-- **Trigger:** Device probe when the I2C controller has associated
-  pinctrl states
-- **How common:** Happens on every boot for affected hardware — not a
-  race condition, not timing-dependent
-- **Unprivileged trigger:** No (hardware-dependent, happens at boot)
-
-### Step 8.3: FAILURE MODE SEVERITY
-- **Failure:** BUG: sleeping function called from invalid context
-  (mutex_lock in atomic context)
-- **Severity:** CRITICAL — kernel BUG/panic on every boot for affected
-  hardware
-- The device cannot be used at all — it crashes during probe
-
-### Step 8.4: RISK-BENEFIT RATIO
-- **Benefit:** HIGH — fixes kernel BUG on every boot for DPAUX I2C
-  controllers on Tegra
-- **Risk:** VERY LOW — adds one additional condition (`!dev->pins`) to
-  an existing if-statement, plus a Kconfig dependency
-- The fix is obviously correct: if pinctrl operations need a mutex, the
-  device cannot be IRQ-safe
-- **Ratio:** Strongly favors backporting
-
-## PHASE 9: FINAL SYNTHESIS
-
-### Step 9.1: COMPILE THE EVIDENCE
-
-**Evidence FOR backporting:**
-1. Fixes a real BUG (sleeping in atomic context) with stack trace from
-   Russell King
-2. Affects every boot on affected hardware (not a theoretical race)
-3. Fix is extremely small and surgical (one condition added + Kconfig
-   dep)
-4. Obviously correct — if runtime PM calls mutex, device cannot be IRQ-
-   safe
-5. Same class of bug was already fixed twice (VI: 9e29420ddb133, ACPI:
-   14d069d92951a) — ACPI fix was Cc'd to stable
-6. Reported by Russell King, a highly respected ARM kernel developer
-7. Merged directly by Linus Torvalds
-8. Buggy code exists in all active stable trees (since v4.9)
-9. Went through 3 patch iterations — well-reviewed
-
-**Evidence AGAINST backporting:**
-1. Tegra-specific — affects only NVIDIA Tegra platform users
-2. Requires minor adaptation for older stable trees (different condition
-   syntax)
-3. The Kconfig PINCTRL dependency might affect COMPILE_TEST
-   configurations
-
-**UNRESOLVED:**
-- Exact list of hardware models/boards affected (known: Jetson Xavier
-  NX)
-
-### Step 9.2: STABLE RULES CHECKLIST
-1. **Obviously correct and tested?** YES — reported and tested by
-   Russell King, 3 patch iterations, merged by Linus
-2. **Fixes a real bug?** YES — BUG: sleeping function called from
-   invalid context, with stack trace
-3. **Important issue?** YES — kernel BUG/crash on every boot for
-   affected hardware
-4. **Small and contained?** YES — ~6 lines changed, single condition
-   addition + Kconfig dep
-5. **No new features or APIs?** CORRECT — no new features
-6. **Can apply to stable trees?** With minor adaptation — the condition
-   syntax differs across stable trees
-
-### Step 9.3: EXCEPTION CATEGORIES
-Not an exception category — this is a standard bug fix that meets all
-stable rules.
-
-### Step 9.4: DECISION
-This is a clear bug fix that causes a kernel BUG (crash) on every boot
-for affected Tegra hardware. The fix is small, surgical, obviously
-correct, and follows the same pattern as two previous fixes for the same
-class of bug (one of which was already Cc'd to stable). The previous
-ACPI variant (commit 14d069d92951a) was explicitly marked `Cc: stable` —
-this is the same bug with a different trigger.
-
-## Verification
-
-- [Phase 1] Parsed tags: Reported-by Russell King, Link to lore, merged
-  by Linus Torvalds directly
-- [Phase 1] Commit explains: pinctrl state transitions need mutex, IRQ-
-  safe marking causes BUG
-- [Phase 2] Diff analysis: +1 condition `!i2c_dev->dev->pins` in
-  probe(), +2 lines Kconfig PINCTRL dep, +3 lines comment
-- [Phase 3] git blame: `pm_runtime_irq_safe()` call existed since VI
-  exception was added; pinctrl support added in v4.9 (718917b9875fc)
-- [Phase 3] Related fix 14d069d92951a (ACPI variant) had `Cc: stable
-  v5.17+` — same class of bug
-- [Phase 3] Author Mikko Perttunen is NVIDIA Tegra subsystem contributor
-- [Phase 4] Lore link confirms: BUG sleeping function called from
-  invalid context, stack trace: tegra_i2c_runtime_suspend →
-  pinctrl_pm_select_idle_state → mutex_lock
-- [Phase 4] Patch went through v1/v2/v3, kernel test robot found build
-  issue leading to PINCTRL Kconfig dep
-- [Phase 5] `dev->pins` is `#ifdef CONFIG_PINCTRL` in
-  include/linux/device.h:592 — Kconfig dep ensures it compiles
-- [Phase 5] `tegra_i2c_probe` is platform driver probe, called during
-  device enumeration
-- [Phase 6] Verified buggy code exists in v5.15 (`if
-  (!i2c_dev->is_vi)`), v6.1 (same), v6.6 (`if (!IS_VI(i2c_dev))`), v6.12
-  (has ACPI check) — all need this fix
-- [Phase 6] Backport needs minor adaptation for trees without ACPI check
-  (v5.15, v6.1, v6.6)
-- [Phase 7] Subsystem: Tegra I2C driver, PERIPHERAL but significant
-  embedded platform
-- [Phase 8] Failure mode: kernel BUG on every boot for affected
-  hardware, severity CRITICAL
-- [Phase 8] Risk: VERY LOW (one additional condition in existing if-
-  statement)
-
-**YES**
-
- drivers/i2c/busses/Kconfig     | 2 ++
- drivers/i2c/busses/i2c-tegra.c | 5 ++++-
- 2 files changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-index 09ba55bae1fac..7d0afdc7d8862 100644
---- a/drivers/i2c/busses/Kconfig
-+++ b/drivers/i2c/busses/Kconfig
-@@ -1220,6 +1220,8 @@ config I2C_TEGRA
- 	tristate "NVIDIA Tegra internal I2C controller"
- 	depends on ARCH_TEGRA || (COMPILE_TEST && (ARC || ARM || ARM64 || M68K || RISCV || SUPERH || SPARC))
- 	# COMPILE_TEST needs architectures with readsX()/writesX() primitives
-+	depends on PINCTRL
-+	# ARCH_TEGRA implies PINCTRL, but the COMPILE_TEST side doesn't.
- 	help
- 	  If you say yes to this option, support will be included for the
- 	  I2C controller embedded in NVIDIA Tegra SOCs
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index e533460bccc39..a9aed411e3190 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -1837,8 +1837,11 @@ static int tegra_i2c_probe(struct platform_device *pdev)
- 	 *
- 	 * VI I2C device shouldn't be marked as IRQ-safe because VI I2C won't
- 	 * be used for atomic transfers. ACPI device is not IRQ safe also.
-+	 *
-+	 * Devices with pinctrl states cannot be marked IRQ-safe as the pinctrl
-+	 * state transitions during runtime PM require mutexes.
- 	 */
--	if (!IS_VI(i2c_dev) && !has_acpi_companion(i2c_dev->dev))
-+	if (!IS_VI(i2c_dev) && !has_acpi_companion(i2c_dev->dev) && !i2c_dev->dev->pins)
- 		pm_runtime_irq_safe(i2c_dev->dev);
- 
- 	pm_runtime_enable(i2c_dev->dev);
--- 
-2.51.0
-
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-iop3xx.txt b/Documentation/devicetree/bindings/i2c/i2c-iop3xx.txt
+deleted file mode 100644
+index dcc8390e0d24..000000000000
+--- a/Documentation/devicetree/bindings/i2c/i2c-iop3xx.txt
++++ /dev/null
+@@ -1,20 +0,0 @@
+-i2c Controller on XScale platforms such as IOP3xx and IXP4xx
+-
+-Required properties:
+-- compatible : Must be one of
+-  "intel,iop3xx-i2c"
+-  "intel,ixp4xx-i2c";
+-- reg
+-- #address-cells = <1>;
+-- #size-cells = <0>;
+-
+-Optional properties:
+-- Child nodes conforming to i2c bus binding
+-
+-Example:
+-
+-i2c@c8011000 {
+-	compatible = "intel,ixp4xx-i2c";
+-	reg = <0xc8011000 0x18>;
+-	interrupts = <33 IRQ_TYPE_LEVEL_LOW>;
+-};
+diff --git a/Documentation/devicetree/bindings/i2c/intel,ixp4xx-i2c.yaml b/Documentation/devicetree/bindings/i2c/intel,ixp4xx-i2c.yaml
+new file mode 100644
+index 000000000000..13ba2a0e336e
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/intel,ixp4xx-i2c.yaml
+@@ -0,0 +1,41 @@
++# SPDX License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/intel,ixp4xx-i2c.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: I2c Controller on XScale platforms such as IOP3xx and IXP4xx
++
++maintainers:
++  - Andi Shyti <andi.shyti@kernel.org>
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++
++properties:
++  compatible:
++    enum:
++      - intel,ixp4xx-i2c
++      - intel,iop3xx-i2c
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++required:
++  - compatible
++  - reg
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    #include <dt-bindings/interrupt-controller/irq.h>
++
++    i2c@c8011000 {
++        compatible = "intel,ixp4xx-i2c";
++        reg = <0xc8011000 0x18>;
++        interrupts = <33 IRQ_TYPE_LEVEL_LOW>;
++    };
+--
+2.53.0
