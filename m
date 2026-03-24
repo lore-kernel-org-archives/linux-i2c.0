@@ -1,107 +1,120 @@
-Received: from relay.hostedemail.com (smtprelay0011.hostedemail.com [216.40.44.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDC053624BC;
-	Tue, 24 Mar 2026 14:28:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5DAE3F8E0E;
+	Tue, 24 Mar 2026 15:30:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774362484; cv=none; b=h3iPYxXvfn0HYV7ftl81qTGxxKBG2lf/F0Qg3hhLshSQL1MV+BSDizgUyiJkbdJF8qy9SuWMkK5899VCqoQB1EaX96zgWHQF6KepC4Gx91RDol7GHEAcNut1k0//iKz8e5Ii9c2aB5p5PFtDfVWYCeU/kwz/EuZgs3WGn8PkyAk=
+	t=1774366248; cv=none; b=mo504Eviv29PcgnEuT4N7bveEPM/NbAcN3KO9klIgM5csTWTbE+7lO56R2vMHoReo7MLHIs0k3aoIbH1tdgttbnRIJGh/9cP5boJgOOCA5Vp/+57vzF8A0M4w4xz56EYGWTFrRkID5iePShB/RxbiftuL0zRTK1IUciJlG9KrKA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774362484; c=relaxed/simple;
-	bh=Tli2X3y0LVZah9JzvHCs3qERanTby0V0BrV4nXSA3Js=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=EDiC7YBWVSVjd1xuN7MVDRcf1lwlemnAX/FkCSHp/Ezdt1+m+mPid5mVMNdulCjbxsxh4eT78D7rBs8HwjJ/iKvV8gjj9zg0VDoo27Fby5ccARnIYHDa1LrGYzOUjtE/gLloBphqYFyF+ujqub7B3s3H2caxCrixTxF3dwC49Ng=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
-Received: from omf02.hostedemail.com (a10.router.float.18 [10.200.18.1])
-	by unirelay09.hostedemail.com (Postfix) with ESMTP id 1F17D9396F;
-	Tue, 24 Mar 2026 14:27:53 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf02.hostedemail.com (Postfix) with ESMTPA id DC83180011;
-	Tue, 24 Mar 2026 14:27:20 +0000 (UTC)
-Date: Tue, 24 Mar 2026 10:28:02 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "Vineeth Pillai (Google)" <vineeth@bitbyteword.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Dmitry Ilvokhin <d@ilvokhin.com>,
- Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers
- <mathieu.desnoyers@efficios.com>, Ingo Molnar <mingo@redhat.com>, Jens
- Axboe <axboe@kernel.dk>, io-uring@vger.kernel.org, "David S. Miller"
- <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
- <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Alexei Starovoitov
- <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Marcelo Ricardo
- Leitner <marcelo.leitner@gmail.com>, Xin Long <lucien.xin@gmail.com>, Jon
- Maloy <jmaloy@redhat.com>, Aaron Conole <aconole@redhat.com>, Eelco
- Chaudron <echaudro@redhat.com>, Ilya Maximets <i.maximets@ovn.org>,
- netdev@vger.kernel.org, bpf@vger.kernel.org, linux-sctp@vger.kernel.org,
- tipc-discussion@lists.sourceforge.net, dev@openvswitch.org, Jiri Pirko
- <jiri@resnulli.us>, Oded Gabbay <ogabbay@kernel.org>, Koby Elbaz
- <koby.elbaz@intel.com>, dri-devel@lists.freedesktop.org, "Rafael J.
- Wysocki" <rafael@kernel.org>, Viresh Kumar <viresh.kumar@linaro.org>,
- "Gautham R. Shenoy" <gautham.shenoy@amd.com>, Huang Rui
- <ray.huang@amd.com>, Mario Limonciello <mario.limonciello@amd.com>, Len
- Brown <lenb@kernel.org>, Srinivas Pandruvada
- <srinivas.pandruvada@linux.intel.com>, linux-pm@vger.kernel.org, MyungJoo
- Ham <myungjoo.ham@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>,
- Chanwoo Choi <cw00.choi@samsung.com>, Christian =?UTF-8?B?S8O2bmln?=
- <christian.koenig@amd.com>, Sumit Semwal <sumit.semwal@linaro.org>,
- linaro-mm-sig@lists.linaro.org, Eddie James <eajames@linux.ibm.com>, Andrew
- Jeffery <andrew@codeconstruct.com.au>, Joel Stanley <joel@jms.id.au>,
- linux-fsi@lists.ozlabs.org, David Airlie <airlied@gmail.com>, Simona Vetter
- <simona@ffwll.ch>, Alex Deucher <alexander.deucher@amd.com>, Danilo
- Krummrich <dakr@kernel.org>, Matthew Brost <matthew.brost@intel.com>,
- Philipp Stanner <phasta@kernel.org>, Harry Wentland
- <harry.wentland@amd.com>, Leo Li <sunpeng.li@amd.com>,
- amd-gfx@lists.freedesktop.org, Jiri Kosina <jikos@kernel.org>, Benjamin
- Tissoires <bentiss@kernel.org>, linux-input@vger.kernel.org, Wolfram Sang
- <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, Mark Brown
- <broonie@kernel.org>, Michael Hennerich <michael.hennerich@analog.com>,
- Nuno =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>, linux-spi@vger.kernel.org,
- "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, "Martin K.
- Petersen" <martin.petersen@oracle.com>, linux-scsi@vger.kernel.org, Chris
- Mason <clm@fb.com>, David Sterba <dsterba@suse.com>,
- linux-btrfs@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, Andrew
- Morton <akpm@linux-foundation.org>, SeongJae Park <sj@kernel.org>,
- linux-mm@kvack.org, Borislav Petkov <bp@alien8.de>, Dave Hansen
- <dave.hansen@linux.intel.com>, x86@kernel.org,
- linux-trace-kernel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 00/19] tracepoint: Avoid double static_branch
- evaluation at guarded call sites
-Message-ID: <20260324102802.4f8af148@gandalf.local.home>
-In-Reply-To: <20260323160052.17528-1-vineeth@bitbyteword.org>
-References: <20260323160052.17528-1-vineeth@bitbyteword.org>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1774366248; c=relaxed/simple;
+	bh=c5qZrqum6694nrzOJ/PimVl9LdaNvtxdc/OgwxKyDJ0=;
+	h=MIME-Version:Date:From:To:Cc:Subject:In-Reply-To:References:
+	 Message-ID:Content-Type; b=qdWrsIDmFNAMlsgCe8rBIZFGxTM+5UQxHSU5DcIImowWNkcth99+Lug8IJ0cVt+6WwtBvOX6KhjhzRSp7KHseoLg6fKOmI6D8GEYHp4W4L20FJ52qJX8O+N8zP4+Xd44gvRKLxyM4G8TNIWP3Zkf1NFxeI/IMY3ij5nj3fNv0mQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=OQ8GoRe4; arc=none smtp.client-ip=178.21.23.139
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="OQ8GoRe4"
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+	by disroot.org (Postfix) with ESMTP id D6E9527225;
+	Tue, 24 Mar 2026 16:30:36 +0100 (CET)
+X-Virus-Scanned: SPAM Filter at disroot.org
+Received: from layka.disroot.org ([127.0.0.1])
+ by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id eiBq1DAL3Mhh; Tue, 24 Mar 2026 16:30:36 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
+	t=1774366236; bh=c5qZrqum6694nrzOJ/PimVl9LdaNvtxdc/OgwxKyDJ0=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=OQ8GoRe4YdT9bwF9x2lscG5GlDfw9yO/I8fIUUUjeqSYMad3iWvw/zgu2ehP1KmiM
+	 C7WuTWS4cjHMCAp7R6G4q3hGdpfFvds7lrRtQTWMSVlqqxbGSPRLiWJ3aEzNtMZr4v
+	 NzOt6B5ko3NT0axEY3vOdz2uL4wHiYvr41ikPXRUAqouuz32MfIDctVW43hprlnrXV
+	 ijiHIV4eA2eiVK0/G2y6j/Dg84S9hJE3zv1k0KRiWpGcNQcuAOf62xhRFiqxv7hw8Z
+	 PZowYIv0xNZPl22hcr/kq4Dpbgli5bBpDo6TgpVHU7FrU67hmoh6kPs6DHCg6IeK4g
+	 Op8FeeDSEHW6Q==
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Date: Tue, 24 Mar 2026 15:30:34 +0000
+From: Rustam Adilov <adilov@disroot.org>
+To: Conor Dooley <conor@kernel.org>
+Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>, Andi Shyti
+ <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof Kozlowski
+ <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
+ linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 5/8] dt-bindings: i2c: realtek,rtl9301-i2c: extend for
+ clocks and RTL9607C support
+In-Reply-To: <20260323-stash-contend-ea5974195eac@spud>
+References: <20260323071337.15410-1-adilov@disroot.org>
+ <20260323071337.15410-6-adilov@disroot.org>
+ <20260323-stash-contend-ea5974195eac@spud>
+Message-ID: <be24b1e5651ba3a059cefdbbee361ed7@disroot.org>
+X-Sender: adilov@disroot.org
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Stat-Signature: rgnt1g9q8d9rzsk6azwgoui85joqhwik
-X-Rspamd-Server: rspamout04
-X-Rspamd-Queue-Id: DC83180011
-X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
-X-Session-ID: U2FsdGVkX19u4yDoihzmlvbQbp4GBKk4Sx0FsrK0H8g=
-X-HE-Tag: 1774362440-296898
-X-HE-Meta: U2FsdGVkX18Kg3NfvHLPV0rnp3UrERb/HeySVgjR0PuCDys+LVJ4s2L8fsy1rJHv82yu9UO4h+xU9iEx3z3YFKVS1OFx2Vvti4rEmq0enV2xaTwbpZ+YWf60TFzb8QMlheid4NsXOVqOYcFPHCn+ZrWqPDCdrmq0l+tkyLSeYhbpJixFuANIjXhtSBZInyEBtAAqHPqUuWZ3PdZupXAY7JMTASH2KNw+CMFxYOXnDTbb38gpzJzBKiUcyoxK6GlO0db0aEPLlOAMHWKzcQEu5msgaweBGFFWtD9G0uWRbe+OcS9gBl+SI1CDJFvGCt0Z8gh5xinNWW7KF0gSIEh3ZlA0AO0+B5wCRjivVxgdquYH5bWbk7CtReb5es0u0tOp
 
-On Mon, 23 Mar 2026 12:00:19 -0400
-"Vineeth Pillai (Google)" <vineeth@bitbyteword.org> wrote:
-
-> When a caller already guards a tracepoint with an explicit enabled check:
+Hello,
+On 2026-03-23 19:41, Conor Dooley wrote:
+> On Mon, Mar 23, 2026 at 12:13:34PM +0500, Rustam Adilov wrote:
+>> Add the "realtek,rtl9607-i2c" compatible for i2c controller on the
+>> RTL9607C SoC series.
+>> 
+>> Add a clocks property to the properties to describe the i2c reference
+>> clock and make it available for all the compatibles. This i2c reference
 > 
->   if (trace_foo_enabled() && cond)
->       trace_foo(args);
+> Why? I can see that you're doing that, and it's good to know that that
+> is intentional, but why is it being done? Need to explain that all of
+> these devices actually do have this clock etc.
 
-Thanks Vineeth!
+As far as available information goes, there are some datasheets that note
+the existence of these clocks. For example, RTL9310 Developer Guide 1.0 in [1]
+mentions "I2C master support 12 peripherals with 2 clocks" at page 19.
 
-I'm going to start pulling in this series. I'll take the first patch, and
-then any patch that has an Acked-by or Reviewed-by from the maintainer.
+And RTL9607 calculates the clk_div with this equation found in Realtek SDK code
 
-For patches without acks, I'll leave alone and then after the first patch
-gets merged into mainline, the maintainers could pull in their own patches
-at their own convenience. Unless of course they speak up now if they want
-me to take them ;-)
+data = (62500 / clock) - 1;
 
--- Steve
+where clock is clock frequency in kHz and so the 62500 must be the clock frequency
+of the i2c master controller clock in kHz. And since there are 2 i2c controllers,
+there are 2 clocks.
+
+That is also the reason why it the rtl9607 is the only one to require the clocks to
+be specified and also why the clocks property was added at all.
+
+That's how the rtl9607 i2c controller would look like
+
+i2cclock: i2cclock {
+	#clock-cells = <0>;
+	compatible = "fixed-clock";
+
+	/* 62.5 MHz */
+	clock-frequency = <62500000>;
+};
+
+i2c@b4 {
+	compatible = "realtek,rtl9607-i2c";
+	reg = <0xb4 0x4>;
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	clocks = <&i2cclock>;
+	realtek,scl = <0>;
+
+	i2c@0 {
+		reg = <0>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+	};
+};
+
+I hope this explains the whole intention behind it. And if there is better way to explain
+this in the commit message, let me know.
+
+[1] - https://github.com/plappermaul/realtek-doc/tree/main/datasheets
+
+Best,
+Rustam
