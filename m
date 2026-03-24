@@ -1,145 +1,158 @@
-Received: from codeconstruct.com.au (pi.codeconstruct.com.au [203.29.241.158])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42D5F3876C0;
-	Tue, 24 Mar 2026 03:11:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.29.241.158
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 2DB3019D093;
+	Tue, 24 Mar 2026 03:27:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774321909; cv=none; b=BJJezb7vyrStSROURVXJDGkwIfGT8gRXTBGLK+HHrBDroT+6bBoy7L4dWBrRDVXnwIVNO1VJRAfhMfGmBbEz2UPc1f/ji2wC997kN4vZ57s8+TCTPzp7nwpVvQjsLPeiVaZCZqOyUbAYdxC/ny6t+k11cyKgDtSC8aI0OMFN6FM=
+	t=1774322882; cv=none; b=g4gYyXh7ObwySg4SsH4VOoaCmb4vkuTCdEmDHPmRkzKkVJLwmOH0DldibMPG1F6wC0OP+adnnzmcXtGyTva1UsIj1CIpkSbYT0PL9mqqq+aVjxSikGVhW3R3XYjglLBwlDhC3wnuMntMpELDA5d3Q7GkimN/Ys2mTgEmw1NsUeI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774321909; c=relaxed/simple;
-	bh=40hYrgHMhL5Y3sgIvyGDHr2DSh4JcFjI1IXGpM/589E=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=cxNxNtuQ9EYfggt7WNgmOtgE4SiFr63ZIHq0iJ7qBdh3o7+TCR8o//5tlq6p/b1TP8jEx8siyZ9EJd3iuByIbbKJq/l24qW5bqp1+nCgNwZx1mUU6fLRr3NU2Vip5tDulTatxRheKvJ5iJ7g5yM1orjE/YhVq6NcIfWYf6+/Sc0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codeconstruct.com.au; spf=pass smtp.mailfrom=codeconstruct.com.au; dkim=pass (2048-bit key) header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.b=E8hVtBNg; arc=none smtp.client-ip=203.29.241.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codeconstruct.com.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=codeconstruct.com.au
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.b="E8hVtBNg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=codeconstruct.com.au; s=2022a; t=1774321899;
-	bh=40hYrgHMhL5Y3sgIvyGDHr2DSh4JcFjI1IXGpM/589E=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=E8hVtBNgBrNdvLlWQvKdjHzlxebKnv8/HKVeiS/DFd3RTyaMLM8i+lnyTJLUyqnr1
-	 5oRE0irl1i5UBIeJ+/lz6onh2hv1Mg4d4Cj1xC8RNAAChpl7eoCItUni3F0TUoG7pT
-	 brHVXfEIUCGD0f//XMqUytT4jc2dqB+rDmmnVmDTyrmHzYtoDbiu3sZBR2mXO1HPIv
-	 vhuugmBNZWegkcJlc0y6P5gnPNRLuEbzAhlbYrORsfXNnOY1wetPJ3LqYkgse9r/On
-	 c2JhmK/wPo2fBHKDGUjamOc/QPN5gwwp46CruZ/qVp5cVLwt2eEgG8Z1CQCe1jIElO
-	 WFCplhl1kCfgw==
-Received: from [192.168.72.167] (210-10-213-150.per.static-ipl.aapt.com.au [210.10.213.150])
-	by mail.codeconstruct.com.au (Postfix) with ESMTPSA id 605EF602C2;
-	Tue, 24 Mar 2026 11:11:38 +0800 (AWST)
-Message-ID: <405f6b1b4081ffb379a21bcdb5d2a8e81d2e2e3e.camel@codeconstruct.com.au>
-Subject: Re: [PATCH v27 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add
- global-regs and transfer-mode properties
-From: Jeremy Kerr <jk@codeconstruct.com.au>
-To: Ryan Chen <ryan_chen@aspeedtech.com>, andriy.shevchenko@linux.intel.com,
-  Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery
- <andrew@codeconstruct.com.au>, Benjamin Herrenschmidt
- <benh@kernel.crashing.org>, Rayn Chen <rayn_chen@aspeedtech.com>, Philipp
- Zabel <p.zabel@pengutronix.de>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, 
-	linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org
-Date: Tue, 24 Mar 2026 11:11:38 +0800
-In-Reply-To: <20260324-upstream_i2c-v27-2-f19b511c8c28@aspeedtech.com>
-References: <20260324-upstream_i2c-v27-0-f19b511c8c28@aspeedtech.com>
-	 <20260324-upstream_i2c-v27-2-f19b511c8c28@aspeedtech.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4-2+deb12u1 
+	s=arc-20240116; t=1774322882; c=relaxed/simple;
+	bh=5zpPfK9qx4nsVjwcncSCblXIhDwd/QWTTgqCxW1t81k=;
+	h=From:To:Cc:Subject:Message-ID:Date:MIME-Version:Content-Type; b=s7dHpZa0eS3EI0dosBNuuI8jSSs1OsSJuyjkDayQZv6IeDMj8rbEBd5xI7OYvRRQNH9y6d3pm1VTOcuKhMuzLF/8p0CoMhhLXNEc27SH/wg7MwZrskjJsZ31lcP5FgFyGhSxRcB7TUdQjhjjY3Ai+4TvWuagnt0/NHnc5eORbL0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.101])
+	by gateway (Coremail) with SMTP id _____8Dx_6u8BMJptBAeAA--.27076S3;
+	Tue, 24 Mar 2026 11:27:56 +0800 (CST)
+Received: from [10.20.42.101] (unknown [10.20.42.101])
+	by front1 (Coremail) with SMTP id qMiowJDxTMK7BMJpS+hbAA--.42028S3;
+	Tue, 24 Mar 2026 11:27:55 +0800 (CST)
+From: Hongliang Wang <wanghongliang@loongson.cn>
+To: Binbin Zhou <zhoubinbin@loongson.cn>
+Cc: Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+ linux-kernel@vger.kernel.org, loongarch@lists.linux.dev
+Subject: Subject: Re:Re: [PATCH v1] LoongArch: add i2c clocks and clock-div
+ parameter parsing.
+Message-ID: <6a88588c-5ec3-84b8-6bd7-be107e36e529@loongson.cn>
+Date: Tue, 24 Mar 2026 11:27:45 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-CM-TRANSID:qMiowJDxTMK7BMJpS+hbAA--.42028S3
+X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
+X-Coremail-Antispam: 1Uk129KBj93XoWxAr4DGrWrXF18XFW7CrWDJrc_yoW5tF1DpF
+	ykGFWDCryUJF1kXr4DJryUXFy5Jws8JayUGr18JFyDXF43Jr1qqF1UXr1q9r18JF48G34U
+	Xa1DJr1UuF17ZrcCm3ZEXasCq-sJn29KB7ZKAUJUUUU8529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUvYb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r106r15M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
+	Gr1j6F4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI0UMc
+	02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUGVWUXwAv7VC2z280aVAF
+	wI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMxk0xIA0c2IEe2xFo4
+	CEbIxvr21l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG
+	67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r126r1DMI
+	IYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E
+	14v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJV
+	W8JwCI42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07URa0PU
+	UUUU=
 
-Hi Ryan,
-
-> The AST2600 I2C controller supports three transfer modes (byte, buffer,
-> DMA). Add "aspeed,transfer-mode" so DT can select the preferred transfer
-> method per controller instance.
-
-This patch does not add an aspeed,transfer-mode property.
-
-> Also add the "aspeed,global-regs"
-> phandle to reference the AST2600 global registers syscon/regmap used by
-> the controller.
->=20
-> These properties apply only to the AST2600 binding and are not part of
-> the legacy binding, which uses a mixed controller/target register layout
-> and does not have the split register blocks or these new configuration
-> registers. Legacy DTs remain unchanged.
->=20
-> Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
-> ---
-> Changes in v27:
-> - change aspeed,transfer-mode to aspeed,enable-dma.
-
-What about all the previous changes?
-
-> ---
-> =C2=A0.../devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml=C2=A0=C2=A0=C2=
-=A0=C2=A0 | 17 +++++++++++++++++
-> =C2=A01 file changed, 17 insertions(+)
->=20
-> diff --git a/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yam=
-l b/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
-> index de2c359037da..38da6fc6424f 100644
-> --- a/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
-> +++ b/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
-> @@ -37,6 +37,21 @@ properties:
-> =C2=A0=C2=A0 resets:
-> =C2=A0=C2=A0=C2=A0=C2=A0 maxItems: 1
-> =C2=A0
-> +=C2=A0 aspeed,enable-dma:
-> +=C2=A0=C2=A0=C2=A0 type: boolean
-> +=C2=A0=C2=A0=C2=A0 description: |
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 I2C bus enable dma mode transfer.
-> +
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ASPEED ast2600 platform equipped with 16 =
-I2C controllers that share a
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 single DMA engine. DTS files can specify =
-the data transfer mode to/from
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 the device, either DMA or programmed I/O.
-
-As we had discussed: this does not define the transfer mode, only
-whether DMA is available to the peripheral.
-
-Why mention the 16 i2c controllers here?
-
-Please keep this description simple and relevant to the specific purpose
-of the property.
-
-> +
-> +=C2=A0 aspeed,global-regs:
-> +=C2=A0=C2=A0=C2=A0 $ref: /schemas/types.yaml#/definitions/phandle
-> +=C2=A0=C2=A0=C2=A0 description:
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 Phandle reference to the i2c global sysco=
-n node, containing the
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 SoC-common i2c register set.
-> +
-> =C2=A0required:
-> =C2=A0=C2=A0 - reg
-> =C2=A0=C2=A0 - compatible
-> @@ -59,4 +74,6 @@ examples:
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 resets =3D <&syscon ASPE=
-ED_RESET_I2C>;
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 clock-frequency =3D <100=
-000>;
-> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 interrupts =3D <GIC_SPI =
-110 IRQ_TYPE_LEVEL_HIGH>;
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 aspeed,global-regs =3D <&i2c_=
-global>;
-> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 aspeed,transfer-mode =3D "buf=
-fer";
-
-This example does not match the binding.
-
-Cheers,
+Hi,  Binbin:
 
 
-Jeremy
+Sorry,  due to email reason,  I did not see your reply in a timely.
+
+For your suggestion, I will make the changes as soon as possible.
+
+
+Thanks,
+
+Hongliang Wang
+
+
+From: Binbin Zhou <zhoubb.aaron@gmail.com>
+To: Hongliang Wang <wanghongliang@loongson.cn>
+Cc: Binbin Zhou <zhoubinbin@loongson.cn>,
+     Andi Shyti <andi.shyti@kernel.org>,
+      linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+      loongarch@lists.linux.dev
+Subject: Re: [PATCH v1] LoongArch: add i2c clocks and clock-div 
+parameter parsing.
+Date: Wed, 11 Feb 2026 12:23:45 +0800    [thread overview]
+Message-ID: 
+<CAMpQs4LeFNEXyg-fVDiSDpEVdbPAY5Z5gL7-5s5uZ52BWmXP5w@mail.gmail.com> (raw)
+In-Reply-To: <20260211025057.29746-1-wanghongliang@loongson.cn>
+
+Hi Hongliang:
+
+
+Bad commit subject, it should start with:
+i2c: ls2x:
+
+On Wed, Feb 11, 2026 at 10:51 AM Hongliang Wang
+<wanghongliang@loongson.cn> wrote:
+ >
+ > On 3A/7A/2K platform, i2c ref clocks and clock divisor maybe
+ > different, through firmware parameter passing, "clocks" and
+ > "clock-div" are used to describe i2c ref clocks and divisor.
+
+I feel it's necessary to specify which platforms are different in the
+commit message.
+ >
+ > Signed-off-by: Hongliang Wang <wanghongliang@loongson.cn>
+ > ---
+ >  drivers/i2c/busses/i2c-ls2x.c | 8 +++++++-
+ >  1 file changed, 7 insertions(+), 1 deletion(-)
+ >
+ > diff --git a/drivers/i2c/busses/i2c-ls2x.c 
+b/drivers/i2c/busses/i2c-ls2x.c
+ > index b475dd27b7af..562bf32a9d6c 100644
+ > --- a/drivers/i2c/busses/i2c-ls2x.c
+ > +++ b/drivers/i2c/busses/i2c-ls2x.c
+ > @@ -96,6 +96,8 @@ static irqreturn_t ls2x_i2c_isr(int this_irq, void 
+*dev_id)
+ >  static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
+ >  {
+ >         u16 val;
+ > +       u32 pclk;
+ > +       u32 div;
+
+Place them in a single line.
+ >         struct i2c_timings *t = &priv->i2c_t;
+ >         struct device *dev = priv->adapter.dev.parent;
+ >         u32 acpi_speed = i2c_acpi_find_bus_speed(dev);
+ > @@ -107,12 +109,16 @@ static void ls2x_i2c_adjust_bus_speed(struct 
+ls2x_i2c_priv *priv)
+ >         else
+ >                 t->bus_freq_hz = LS2X_I2C_FREQ_STD;
+ >
+ > +       if (!device_property_read_u32(dev, "clocks", &pclk) &&
+ > +               !device_property_read_u32(dev, "clock-div", &div) && 
+div != 0)
+ > +               val = (pclk * 10) / (div * t->bus_freq_hz) - 1;
+
+I think you should update dt-binding synchronously and verify whether
+the existing i2c node in DTS{i} requires updating.
+ > +       else
+ > +               val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
+ >         /*
+ >          * According to the chip manual, we can only access the 
+registers as bytes,
+ >          * otherwise the high bits will be truncated.
+ >          * So set the I2C frequency with a sequential writeb() 
+instead of writew().
+ >          */
+ > -       val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
+ >         writeb(FIELD_GET(GENMASK(7, 0), val), priv->base + 
+I2C_LS2X_PRER_LO);
+ >         writeb(FIELD_GET(GENMASK(15, 8), val), priv->base + 
+I2C_LS2X_PRER_HI);
+ >  }
+ > --
+ > 2.47.2
+ >
+ >
+
+-- 
+Thanks.
+Binbin
+
