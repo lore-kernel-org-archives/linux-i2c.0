@@ -1,99 +1,123 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 061343242B5
-	for <linux-i2c@vger.kernel.org>; Wed, 25 Mar 2026 18:31:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4244342CB0;
+	Wed, 25 Mar 2026 20:10:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774463516; cv=none; b=txpSUh47+MssAnHC1Y6WhgEQgUpv1MaRvdHJ/CmGWAak25u6zWV2uypOP2lCmDhectVZ13vqgdWkS7xGzAfa1v7KNIEHAtmArIZNtW2cyReE8xsQGjaURaw6P4Gm4NyF5Tzd+nRK3O/6bJ2HRKOfqLBUYuy28WbmXLvt6R2Lq9w=
+	t=1774469450; cv=none; b=mPxxdlgWuGmJ+rDC17OIowaPvXXIv/NLVLypEbhOQfVNrPTqZxvX0cH1aKp9EwJISlvW13QqxbvU4Lqhni+JTb7JWfiIY6ZSSnxtU7uwL4gEnKKPX88lnSqTi4FKxZgCdxGx1VgmNSxKZFxrkvaAVDAz/flIVwZ7ebphIX/VU4I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774463516; c=relaxed/simple;
-	bh=4xuZhglcoJDA/BrhgaQMDHF2urWeAaGI1Z1eNAwKbsM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=q7xH4zT38rFRgv8a2VLI3EGVuWAIEh5xiH5A+D5SL4W0QrvnMeq9TmlpOW5ovgyKO3w5ULZy2s6d90yk6N7/tsUq3sNB0/pzEwgOl5+dFzKchJU67QwrMNtGStiRlsT3Qj8agVCXKvlcjobIDwqSiXHlss9QY5dpAfmBT5P9PDE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qJLSN20a; arc=none smtp.client-ip=209.85.216.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1774469450; c=relaxed/simple;
+	bh=ujRd5LjK5mcsQ8mmgXBul5fE27uXDx8ALFuMg04ypL4=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition:In-Reply-To; b=ZwC8aBsqWcMHGHiP5dgGjKMtEMkNPISEMpoZooVl4TiJ169aubEU/FndkIvuhr+cea5YrmPWUYultpbmn9VDzbRCT9/ql4zuLlY5tHMsT8ESrAfZL/PVI6G9aYEbS/7LdiN0+Sen3Ub25S8b0TwzYit+Ib+lbumbsCRr6se+knM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pFmztkEm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qJLSN20a"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-35c0e7b751aso141907a91.2
-        for <linux-i2c@vger.kernel.org>; Wed, 25 Mar 2026 11:31:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774463514; x=1775068314; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=gy65ZJCUKrHKtVo+Gt/tJ26gW+mdGsVi4ZKpe38qdBs=;
-        b=qJLSN20aIAzHJK9Jlp5ZX/9di1iuEJhQdyHNljf/sbAwyPV2gV3Ye/HsjdXPRODv5P
-         LQRflbaFBVCHkjw34XscIWOOv6YUYBFyo8PvNuM9K5YhPWz3YQOgM/uqJE7Fvfg5aWKE
-         IOhJvMc/yb0P7zFp+QBP58MlkzAXAk+JfG1Mx/xBgRRrg7cKCOfHmyeVuBGUwoIAY9ih
-         rgyGVyGoumPAVLJTvA+pwnznjg62xHETSjKBgkHueX/esefLYmhJ2k+POnG9/4CO4pSC
-         4i4ihdBjHnoz1/PWTKyLo4vqyC9UiX9sLBzrUqYdV2QTCzQodqVyuQE0anlC74hlheho
-         qMjw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774463514; x=1775068314;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=gy65ZJCUKrHKtVo+Gt/tJ26gW+mdGsVi4ZKpe38qdBs=;
-        b=ENARbby6KbHdzawWpquIfSledHYz6neO+x8xzyZpBbc6jK3+vXyiR8mYA9ZLJhtC9i
-         gwje4UDeI2fMEkX7yMuvDuJ/ja/iKZo5WOMt/R7Av3l0Fp4ghcAr4KHgQ06+RLvNHYJF
-         Sg22eI9bQqdkrxd5ltYLmC01lTvGoKV9f+8Lf3vo+U2m4fEEHuehuzKnZNAVhsaBXNva
-         zvGr6wc799FMgHb8y9S3wxGv2Qz+Oum9wCeAVYRMa5F5CsFbtXJ9mSd1iMwVwG3IS5UO
-         R8Ckd0fxwr1bX/poj5tqZonGXWyD4buLnXD54bwabltJZ+l7mEyCJbPsH6LfnDD8+9St
-         5iYg==
-X-Forwarded-Encrypted: i=1; AJvYcCWrQXAYu/SWscVpaY1J1eCCdOPrEKxKSsF5AWGTuqZIJwVJKnhzbhQGXKC5m+DJHVnLfYAWj6b1n/Q=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxQ3MRUn+v5GH/44CHlx8Ft2H7ZSKPyHFZBjOD5CiadEIoleq0O
-	W4ipL/whaicvBtPD6KBil5KIbAEiS68knlYzUG3tZH69ED2vYO9rzKHS
-X-Gm-Gg: ATEYQzy4KfRy4h6gnY7030Rpd7/3u2GLQptrswe/0gLbVHlCBcze1uSZf63Szqp8nUi
-	5HRVk5lbBbjHiheKsXWyvqYGHbycZwE0Geyq4jCZR4IvqBBu0ap9GpCiToGfZEcFHPvMccuOrmQ
-	IAAP3cPHdE5pEhVlK3vSH0AqYHpcMAPWGbgdOMUbndxq6F0kRqUwx8qUUBgzVUQUHWwKBt6cDdE
-	BGM+uckyPIEGnuWXiwQ+jMKl/7WNPNFaBSe1QhG65eczZyVCVcmtB/Yo62fTUDOMA5NpNRBAdGm
-	m0WTOg81O9mgmcbkhxi8tXyPNDb6zYK7/rN/n4J76blQ7uTNy++nqwNrOe3Q4vAwnFV+3p6AdbU
-	zd/lstCgXBGlHOcqY3PxZLFLlu1kecrOoWPOVVbuCT64H1JSaXjIGmMGltojyjmkonwS3JVv7fV
-	lPbZMujRPgnJqEhDBbsWLNlLw=
-X-Received: by 2002:a17:90b:5305:b0:35b:e519:213b with SMTP id 98e67ed59e1d1-35c0dd85d0fmr4311947a91.30.1774463514471;
-        Wed, 25 Mar 2026 11:31:54 -0700 (PDT)
-Received: from fedora ([2401:4900:1f32:22d3:4161:93a:b87c:36eb])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35c0e954ba9sm1336724a91.5.2026.03.25.11.31.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Mar 2026 11:31:54 -0700 (PDT)
-Date: Thu, 26 Mar 2026 00:01:47 +0530
-From: ShiHao <i.shihao.999@gmail.com>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: andi.shyti@kernel.org, krzk+dt@kernel.org, robh@kernel.org,
-	conor+dt@kernel.org, linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: i2c: intel,ixp4xx-i2c: Convert to Dt schema
-Message-ID: <acQqE-iW51fOJnTJ@fedora>
-References: <20260324135010.17730-1-i.shihao.999@gmail.com>
- <20260325-bulky-mushroom-of-science-8c95c4@quoll>
- <acP69aM-euL7wl87@fedora>
- <c9b68d56-48f1-4ade-8711-fedd8acf0666@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pFmztkEm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0804AC4CEF7;
+	Wed, 25 Mar 2026 20:10:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774469450;
+	bh=ujRd5LjK5mcsQ8mmgXBul5fE27uXDx8ALFuMg04ypL4=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:From;
+	b=pFmztkEmcFWpgL3kWBx9QwNbkpZBMlusvqoTnjSjBDNyrUVednVv9U0iCioGOuEMX
+	 ohHhvIxQdFYFtSfzQiNpjjyH6hlMHyxfnqAivGCkXB2s9xdf075XPyFm501ilrNH8B
+	 xihJ0JDUVVnu5B78Ln4s8O2PCl6USk7Wa+Tp1KrHj2/mBZZSoX029j56ss3nWDkKIB
+	 hpPNwkJrV8lkjf8pY4CyfKODg13UDaJCOOC8BTTyPcKqfdrH9dKOEPW/q3jeGRM2sX
+	 Ui34HaTivXjTnedeG17USNY6sfInAxwD/PAHKZOKDuLQbEwJgz5d6m6qvH68WFTKin
+	 J7Gx9gxuZ5DvQ==
+Date: Wed, 25 Mar 2026 15:10:48 -0500
+From: Bjorn Helgaas <helgaas@kernel.org>
+To: Herve Codina <herve.codina@bootlin.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Kalle Niemi <kaleposti@gmail.com>,
+	Matti Vaittinen <mazziesaccount@gmail.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Michael Turquette <mturquette@baylibre.com>,
+	Stephen Boyd <sboyd@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Peter Rosin <peda@axentia.se>, Arnd Bergmann <arnd@arndb.de>,
+	Saravana Kannan <saravanak@kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Charles Keepax <ckeepax@opensource.cirrus.com>,
+	Richard Fitzgerald <rf@opensource.cirrus.com>,
+	David Rhodes <david.rhodes@cirrus.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Ulf Hansson <ulf.hansson@linaro.org>,
+	Mark Brown <broonie@kernel.org>, Len Brown <lenb@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Daniel Scally <djrscally@gmail.com>,
+	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Davidlohr Bueso <dave@stgolabs.net>,
+	Jonathan Cameron <jonathan.cameron@huawei.com>,
+	Dave Jiang <dave.jiang@intel.com>,
+	Alison Schofield <alison.schofield@intel.com>,
+	Vishal Verma <vishal.l.verma@intel.com>,
+	Ira Weiny <ira.weiny@intel.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Shawn Guo <shawnguo@kernel.org>, Wolfram Sang <wsa@kernel.org>,
+	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-pci@vger.kernel.org,
+	linux-sound@vger.kernel.org, patches@opensource.cirrus.com,
+	linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
+	linux-spi@vger.kernel.org, linux-acpi@vger.kernel.org,
+	linux-cxl@vger.kernel.org,
+	Allan Nielsen <allan.nielsen@microchip.com>,
+	Horatiu Vultur <horatiu.vultur@microchip.com>,
+	Steen Hegelund <steen.hegelund@microchip.com>,
+	Luca Ceresoli <luca.ceresoli@bootlin.com>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Subject: Re: [PATCH v6 11/27] PCI: of: Use fw_devlink_set_device()
+Message-ID: <20260325201048.GA1291425@bhelgaas>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <c9b68d56-48f1-4ade-8711-fedd8acf0666@kernel.org>
+In-Reply-To: <20260325143555.451852-12-herve.codina@bootlin.com>
 
-On Wed, Mar 25, 2026 at 04:15:39PM +0100, Krzysztof Kozlowski wrote:
-> I don't understand this at all.
+On Wed, Mar 25, 2026 at 03:35:38PM +0100, Herve Codina wrote:
+> The code set directly fwnode.dev field.
 > 
-> You did not run checkpatch. Neither with --strict nor without --strict.
-> The --strict does not matter, why are you even mentioning it if you did
-> not run the checkpatch in the first place?
+> Use the dedicated fw_devlink_set_device() helper to perform this
+> operation.
 > 
-> Best regards,
-> Krzysztof
+> Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Although I did run it, I think it might be best to pause this thread here.
-I will send the next version in the coming days after properly running the
-checkpatch.pl script. Also, you mentioned some guidelines regarding GSoC
-could you please let me know where I can read them?
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
 
-Thanks
-Shihao
-
+> ---
+>  drivers/pci/of.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/pci/of.c b/drivers/pci/of.c
+> index 9f8eb5df279e..5fb7f501fd35 100644
+> --- a/drivers/pci/of.c
+> +++ b/drivers/pci/of.c
+> @@ -803,7 +803,7 @@ void of_pci_make_host_bridge_node(struct pci_host_bridge *bridge)
+>  	 * bus. Avoid any new device creation.
+>  	 */
+>  	of_node_set_flag(np, OF_POPULATED);
+> -	np->fwnode.dev = &bridge->dev;
+> +	fw_devlink_set_device(&np->fwnode, &bridge->dev);
+>  	fwnode_dev_initialized(&np->fwnode, true);
+>  
+>  	ret = of_changeset_apply(cset);
+> -- 
+> 2.53.0
+> 
