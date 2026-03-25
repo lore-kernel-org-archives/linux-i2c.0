@@ -1,123 +1,204 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B15D02D8364;
-	Wed, 25 Mar 2026 15:15:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99ADC3E023A
+	for <linux-i2c@vger.kernel.org>; Wed, 25 Mar 2026 16:01:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774451742; cv=none; b=Mp07dPo664Fch3yG+kss9TSGMP8lbzISel95fEmsAXOr1+cZ9cT+FA5p76N3UnHF34Rza8eoloNyJL86KmAM1MPzBHP7nOqsBq47oX4Xiq6evtezcL+uJYEbpCxg/w3oZ8rVKMd7fptbsd799QCI4pUkTAJeBSqXFLwU1tEttiE=
+	t=1774454506; cv=none; b=hEk9YCJqjPlaHCVM/mEtbqHxsoYSVkqnSob594ogjlObiuRZu8eg+aQL9/CTTPJ0pzBraopQ0WvC6J/ZzqronN5OH5625hMxeLFcELzNOAb/DW0ym2vhEnnGvF5OxPCtubO7OyGiAucNiHVVWHEiUQ/RfY1SC7LDYv/sETmPyE4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774451742; c=relaxed/simple;
-	bh=j8gNRPy6u1ObH5yBkBbSK7NnYy7PdJdxRDpjmvu12+w=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=L2s2mb67LSxDYYOaYe7Xl1hfusKt/jUXCaJj3EvmCMpaWznsjrzPFFAcIPCqYBzwcMaTOBr1nuZMPe//MqqEEoqmODwQmCP30VrHCoYYsYed15hzTPbOIykUe3lUFpDmkhwHUSS0tnwZMq8fXhbVweo86x7Rh7GuPm5Wly0z9ts=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QNd7/JMQ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774454506; c=relaxed/simple;
+	bh=aldmRPDOiiniGw503t8LDK2MsDSx7z+uZZ/KCfzSBN4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=rZ+9yOsO3XpYVZQfYRC1WRhs5x25WniB666wtTmNxZweNlUfN8XBeZ3DKGPG6MkTKnrKyImaCHoy5Otyabb0EePp5Mzd4u6KI4OdUxi4F4agbf6EUPEDoTdBMBrr54Z09J2z57IMfxJOK3hkEnmg+5hDVEIo8eH66eUhPHrl8ys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Gk0/ZngP; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QNd7/JMQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDCD1C4CEF7;
-	Wed, 25 Mar 2026 15:15:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Gk0/ZngP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F85DC2BCC4
+	for <linux-i2c@vger.kernel.org>; Wed, 25 Mar 2026 16:01:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774451742;
-	bh=j8gNRPy6u1ObH5yBkBbSK7NnYy7PdJdxRDpjmvu12+w=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=QNd7/JMQ41FD96eSKtR29IHLye0P4gsZg7eKayyjwiEdKvP73+j6UoL2TEx+4URE+
-	 6FuX8H6i6fsZGlXZCDHy25NcxYEAAfIHebDbhIksda6lAaILdTwEZSX3+vdKIWSP+D
-	 fNHWDJSOmNQZL4fLoASVA1INyn5xqXKIEjuoSy+LZYrJYIOlmwmSn3/VbU+9d+UDrA
-	 5+5KmeKl8mKQb2yfN08U9JFbfJutxnNBZRENayGoqrzuLC0T8zMUX7taXnV8JPr/E2
-	 8Coh9aavHrVmHty+lj8hqD4ZB5YHiIep2gPmemZR/S/oEAwytJi/ee2gX2Iog8wQ/r
-	 +vrszntuT2GXg==
-Message-ID: <c9b68d56-48f1-4ade-8711-fedd8acf0666@kernel.org>
-Date: Wed, 25 Mar 2026 16:15:39 +0100
+	s=k20201202; t=1774454506;
+	bh=aldmRPDOiiniGw503t8LDK2MsDSx7z+uZZ/KCfzSBN4=;
+	h=References:In-Reply-To:Reply-To:From:Date:Subject:To:Cc:From;
+	b=Gk0/ZngPQjeGn36eOsdWZQWLWprEWy3AkR5hni/lE8ONxCfP3wN9iJXuu5vn2pyMJ
+	 nJiG+ExwL18ilB8uMi+50Px+48WLD35cA/KJzXl30cOrLm1XHkP6/u7CfzuhuMgYBp
+	 DDxza3CMzAS8sMQyLGYMo2oiYPpT8nggzBl8focYuTSXEM2IAcs5OZqZ1j3YzIY+XT
+	 1I001RKPlZrVl+U7XDdwRzb6asn8XwzNOGgT85IMqibPiISmDfL5M3GvsTJxSjcZ3J
+	 RB4byEEi8D5lGMQp3KZ85qQNPUmFfiaaLH5yO8GZd2D+YWbKD3ud9QCm4xCljSwmLN
+	 AM82iX3FkN6qw==
+Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-38b13652c87so22837211fa.0
+        for <linux-i2c@vger.kernel.org>; Wed, 25 Mar 2026 09:01:46 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCUiklpT2j+Aw2E+NeYf4xszbyeUfAcpX69XBdYSI55evFcWkSgTMZtJQLc51f3AzsK9J18RyiJiD74=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy2eyHt5d84Gz58/FwmvTZVxjb85oQX41prFbml+ww+WxaqwYg3
+	UeE1hSCXdDGSIQJB0Gr6bS/jzyyNMnRUzKFhQHiVybXCj7pjuijP1Xp0VhML5A57oSytRAdsxel
+	Z+C57sn2XlwEsuq5qdGdvJ6vXNkgWBaQ=
+X-Received: by 2002:a05:651c:1469:b0:38c:6b7:ad47 with SMTP id
+ 38308e7fff4ca-38c43072d48mr15879491fa.7.1774454504493; Wed, 25 Mar 2026
+ 09:01:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] dt-bindings: i2c: intel,ixp4xx-i2c: Convert to Dt schema
-To: ShiHao <i.shihao.999@gmail.com>
-Cc: andi.shyti@kernel.org, krzk+dt@kernel.org, robh@kernel.org,
- conor+dt@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260324135010.17730-1-i.shihao.999@gmail.com>
- <20260325-bulky-mushroom-of-science-8c95c4@quoll> <acP69aM-euL7wl87@fedora>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <acP69aM-euL7wl87@fedora>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <20260324-deverr-v1-0-7e591cce33a3@gmail.com> <20260324-deverr-v1-3-7e591cce33a3@gmail.com>
+In-Reply-To: <20260324-deverr-v1-3-7e591cce33a3@gmail.com>
+Reply-To: wens@kernel.org
+From: Chen-Yu Tsai <wens@kernel.org>
+Date: Thu, 26 Mar 2026 00:01:31 +0800
+X-Gmail-Original-Message-ID: <CAGb2v66++ZtfJ_K=de9ah45sqK0sNDkPr0B64C_U+WMhW7jc-w@mail.gmail.com>
+X-Gm-Features: AQROBzDy-rsBXq4Ru9U4FVjZxHD70RtzjKuDaTmPj80U_CHIL3nYWTBGwt2KYN8
+Message-ID: <CAGb2v66++ZtfJ_K=de9ah45sqK0sNDkPr0B64C_U+WMhW7jc-w@mail.gmail.com>
+Subject: Re: [PATCH 03/10] i2c: sun6i-p2wi: Replace dev_err() with
+ dev_err_probe() in probe function
+To: Atharv Dubey <atharvd440@gmail.com>
+Cc: Till Harbaum <till@harbaum.org>, Andi Shyti <andi.shyti@kernel.org>, 
+	Laxman Dewangan <ldewangan@nvidia.com>, Dmitry Osipenko <digetx@gmail.com>, 
+	Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, 
+	Jernej Skrabec <jernej.skrabec@gmail.com>, Samuel Holland <samuel@sholland.org>, 
+	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>, Alain Volmat <alain.volmat@foss.st.com>, 
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>, Alexandre Torgue <alexandre.torgue@foss.st.com>, 
+	Patrice Chotard <patrice.chotard@foss.st.com>, Orson Zhai <orsonzhai@gmail.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Chunyan Zhang <zhang.lyra@gmail.com>, 
+	Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-tegra@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-sunxi@lists.linux.dev, linux-stm32@st-md-mailman.stormreply.com, 
+	Enrico Zanda <e.zanda1@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 25/03/2026 16:10, ShiHao wrote:
-> On Wed, Mar 25, 2026 at 12:16:27PM +0100, Krzysztof Kozlowski wrote:
-> 
->> Please run scripts/checkpatch.pl on the patches and fix reported
->> warnings. After that, run also 'scripts/checkpatch.pl --strict' on the
->> patches and (probably) fix more warnings. Some warnings can be ignored,
->> especially from --strict run, but the code here looks like it needs a
->> fix. Feel free to get in touch if the warning is not clear.
->>
-> 
-> Hello Krzysztof, 
-> 
->       Once again thank you for your time. Those warnings are from running
->       checkpatch.pl without the --strict option i myself discovered when you
->       said that because i only use it with --strict option. I thought
->       checkpatch.pl --strict  was more strict then checkpatch.pl but i guess
->       it is not so strict as i thought it was. But apart from this i mean
->       why in the first place there is the --strict option when it is actually
->       not so strict it must have shown all errors, checks and warnings but it
->       does not Anyway i will make sure to run both from now on thanks for pointing
->       it.
+On Wed, Mar 25, 2026 at 2:27=E2=80=AFAM Atharv Dubey <atharvd440@gmail.com>=
+ wrote:
+>
+> From: Enrico Zanda <e.zanda1@gmail.com>
+>
+> This simplifies the code while improving log.
+>
+> Signed-off-by: Enrico Zanda <e.zanda1@gmail.com>
+> Signed-off-by: Atharv Dubey <atharvd440@gmail.com>
+> ---
+>  drivers/i2c/busses/i2c-sun6i-p2wi.c | 55 ++++++++++++++-----------------=
+------
+>  1 file changed, 20 insertions(+), 35 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-sun6i-p2wi.c b/drivers/i2c/busses/i2c=
+-sun6i-p2wi.c
+> index fb5280b8cf7f..dffbe776a195 100644
+> --- a/drivers/i2c/busses/i2c-sun6i-p2wi.c
+> +++ b/drivers/i2c/busses/i2c-sun6i-p2wi.c
+> @@ -194,22 +194,16 @@ static int p2wi_probe(struct platform_device *pdev)
+>         int ret;
+>
+>         of_property_read_u32(np, "clock-frequency", &clk_freq);
+> -       if (clk_freq > P2WI_MAX_FREQ) {
+> -               dev_err(dev,
+> -                       "required clock-frequency (%u Hz) is too high (ma=
+x =3D 6MHz)",
+> -                       clk_freq);
+> -               return -EINVAL;
+> -       }
+> +       if (clk_freq > P2WI_MAX_FREQ)
+> +               return dev_err_probe(dev, -EINVAL,
+> +                                    "required clock-frequency (%u Hz) is=
+ too high (max =3D 6MHz)",
+> +                                    clk_freq);
+>
+> -       if (clk_freq =3D=3D 0) {
+> -               dev_err(dev, "clock-frequency is set to 0 in DT\n");
+> -               return -EINVAL;
+> -       }
+> +       if (clk_freq =3D=3D 0)
+> +               return dev_err_probe(dev, -EINVAL, "clock-frequency is se=
+t to 0 in DT\n");
+>
+> -       if (of_get_child_count(np) > 1) {
+> -               dev_err(dev, "P2WI only supports one target device\n");
+> -               return -EINVAL;
+> -       }
+> +       if (of_get_child_count(np) > 1)
+> +               return dev_err_probe(dev, -EINVAL, "P2WI only supports on=
+e target device\n");
+>
+>         p2wi =3D devm_kzalloc(dev, sizeof(struct p2wi), GFP_KERNEL);
+>         if (!p2wi)
+> @@ -226,11 +220,9 @@ static int p2wi_probe(struct platform_device *pdev)
+>         childnp =3D of_get_next_available_child(np, NULL);
+>         if (childnp) {
+>                 ret =3D of_property_read_u32(childnp, "reg", &target_addr=
+);
+> -               if (ret) {
+> -                       dev_err(dev, "invalid target address on node %pOF=
+\n",
+> -                               childnp);
+> -                       return -EINVAL;
+> -               }
+> +               if (ret)
+> +                       return dev_err_probe(dev, -EINVAL,
+> +                                            "invalid target address on n=
+ode %pOF\n", childnp);
+>
+>                 p2wi->target_addr =3D target_addr;
+>         }
+> @@ -245,26 +237,20 @@ static int p2wi_probe(struct platform_device *pdev)
+>                 return irq;
+>
+>         p2wi->clk =3D devm_clk_get_enabled(dev, NULL);
+> -       if (IS_ERR(p2wi->clk)) {
+> -               ret =3D PTR_ERR(p2wi->clk);
+> -               dev_err(dev, "failed to enable clk: %d\n", ret);
+> -               return ret;
+> -       }
+> +       if (IS_ERR(p2wi->clk))
+> +               return dev_err_probe(dev, PTR_ERR(p2wi->clk),
+> +                                    "failed to enable clk\n");
+>
+>         parent_clk_freq =3D clk_get_rate(p2wi->clk);
+>
+>         p2wi->rstc =3D devm_reset_control_get_exclusive(dev, NULL);
+> -       if (IS_ERR(p2wi->rstc)) {
+> -               dev_err(dev, "failed to retrieve reset controller: %pe\n"=
+,
+> -                       p2wi->rstc);
+> -               return PTR_ERR(p2wi->rstc);
+> -       }
+> +       if (IS_ERR(p2wi->rstc))
+> +               return dev_err_probe(dev, PTR_ERR(p2wi->rstc),
+> +                                    "failed to retrieve reset controller=
+\n");
+>
+>         ret =3D reset_control_deassert(p2wi->rstc);
+> -       if (ret) {
+> -               dev_err(dev, "failed to deassert reset line: %d\n", ret);
+> -               return ret;
+> -       }
+> +       if (ret)
+> +               return dev_err_probe(dev, ret, "failed to deassert reset =
+line\n");
 
-I don't understand this at all.
+You could also simplify this whole block with
+devm_reset_control_get_exclusive_deasserted().
 
-You did not run checkpatch. Neither with --strict nor without --strict.
-The --strict does not matter, why are you even mentioning it if you did
-not run the checkpatch in the first place?
+Either way,
 
-Best regards,
-Krzysztof
+Reviewed-by: Chen-Yu Tsai <wens@kernel.org>
+
+
+>         init_completion(&p2wi->complete);
+>         p2wi->adapter.dev.parent =3D dev;
+> @@ -276,8 +262,7 @@ static int p2wi_probe(struct platform_device *pdev)
+>
+>         ret =3D devm_request_irq(dev, irq, p2wi_interrupt, 0, pdev->name,=
+ p2wi);
+>         if (ret) {
+> -               dev_err(dev, "can't register interrupt handler irq%d: %d\=
+n",
+> -                       irq, ret);
+> +               dev_err_probe(dev, ret, "can't register interrupt handler=
+ irq%d\n", irq);
+>                 goto err_reset_assert;
+>         }
+>
+>
+> --
+> 2.43.0
+>
