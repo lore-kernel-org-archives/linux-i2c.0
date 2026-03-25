@@ -1,110 +1,235 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A01B355F30;
-	Wed, 25 Mar 2026 11:16:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2A7E3AB276;
+	Wed, 25 Mar 2026 11:20:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774437390; cv=none; b=GvUy8Ksg/lV8W604gdW1aTJk47c1MLGAupX9W5lu5nXI5+OG9uhS2yTfyE5xY4OjsvB2Zmx8SdIUdXCxvlytSfzbZb88fMFEETDAcNk7JalfwKJ/oxEs8suRAY+jSYaqfM8dwRTBSq7FRoSCUyty67WDIFZ5mgvweKOeUP0Umd0=
+	t=1774437634; cv=none; b=GnOELcXBvgcoYlmx+nu5WCTCKRDAA581PxyebESCOogpqf0FeLihnb4eD8G37OOjY9Steur82zL4xiyuEVuiNOoehrXlUK2UlxWcT8ho0gc25mV7dpNqyFgOw+avwkilxLIv8YKDG20iiYJDu+qsey79PlmE99vHmwZTvnpJRj4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774437390; c=relaxed/simple;
-	bh=ACb4GGFjTrdVvF2Oke1q4PEwSt/ZiYyj9QQXBzZRsVo=;
+	s=arc-20240116; t=1774437634; c=relaxed/simple;
+	bh=TVTcQb5blXw3BEZG0IaidyohTKbDsy4QnSKmj9ruqUo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ISkX9HAFdFHmFo9gll/F19nOG6BffcDeSNlCF0rGdoL+4+Iv3KNC3iykxgm2ebc80ysGcL1u4Z+LS3Eir78AG5cs6j6fzXvHydfG0dVM4Q4qV9Qq9viRoFZLOfOj0fqdweBtbc8X3OGmMilbHaj0jvFZbE6l6K791jdUyg3UO1k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lAGwA7J9; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=r/whbBzUO0R/HRT+cozpk0+8KtQI6Gh3kCFXmqCS3tFjwQgnRm5Cqin3nHc16UQZu2siiOYan3UI30017NAncvnnBdyIXlfCWbVBmmfxLER4UA1VJ9oNQ4l7wO6HKX+5StDFeHuXeDxcUDVln23FnMHWZEtQ//RQ9tBZABu2sSw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hNGXzfRJ; arc=none smtp.client-ip=192.198.163.13
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lAGwA7J9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F4B2C4CEF7;
-	Wed, 25 Mar 2026 11:16:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774437389;
-	bh=ACb4GGFjTrdVvF2Oke1q4PEwSt/ZiYyj9QQXBzZRsVo=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=lAGwA7J93JgTqleQAKxVNRgJTmXJVtGmwRgF6Fow99Djzk5G45z8PY53GEyfKoimf
-	 1GH1q7ke+rzh+n1uQcjnEF4dXa3foUCe5NwGcq/PnKpPdQYB9xnkc5ZpDJOngqYd0X
-	 PkK6ioVir39Q6hbKoyNNXKWWzBrItY8snidEMsXF8C6ZYCtuvORCo9Q7r7++vWX1tD
-	 ur9TKX2b4N8pVbglzuM5+8rQsCjkD5dz/Pac33gtj4XnDMkSOKhvpAK/zWC117t/bU
-	 UrFm7q1PSYevuaOaDGZDwrIuKSiqgixBCTfK4h5x4hDwO3ervhyekstB3q/XKGINH4
-	 FjwcFJhXydUrA==
-Date: Wed, 25 Mar 2026 12:16:27 +0100
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Shi Hao <i.shihao.999@gmail.com>
-Cc: andi.shyti@kernel.org, krzk+dt@kernel.org, robh@kernel.org, 
-	conor+dt@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, daniel.baluta@nxp.com, simona.toaca@nxp.com, d-gole@ti.com, 
-	m-chawdhry@ti.com
-Subject: Re: [PATCH] dt-bindings: i2c: intel,ixp4xx-i2c: Convert to Dt schema
-Message-ID: <20260325-bulky-mushroom-of-science-8c95c4@quoll>
-References: <20260324135010.17730-1-i.shihao.999@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hNGXzfRJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1774437632; x=1805973632;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=TVTcQb5blXw3BEZG0IaidyohTKbDsy4QnSKmj9ruqUo=;
+  b=hNGXzfRJXmrfgB3j6FP35GqB606nJZ/4GSgxumCmF1IoRjwgixFeJtxY
+   86LBWdP/Ioa10b9V4UvB4cIxbDVfTH5CQeRRJaw6M++27VZMFkQMDGm++
+   4eE9Wbvn0crnykaQjCti5qylKh6YHuqGU6AnQL9RDChYQHVgcADq6DIaQ
+   DoKcqc1WgbWuUTTR111VXAHgI5KHaulhFIHgPKZ4k+toFby5z2+bW0XY0
+   5M8hhdfLMrxCKPFVlz8pUvHPB+lWTuSawvodazErK21VTkbGtzWUlbhW9
+   O9W45QvdPG6GxfZ5/pUULmp38gmg4hTnxzg3TfH7BEUNOR2SIsxznU6P6
+   g==;
+X-CSE-ConnectionGUID: 98ETVPi5RH+a6Clw/lJ0Xg==
+X-CSE-MsgGUID: yC0B4eBfTjupVwynoqwGWw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11739"; a="78069418"
+X-IronPort-AV: E=Sophos;i="6.23,140,1770624000"; 
+   d="scan'208";a="78069418"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Mar 2026 04:20:31 -0700
+X-CSE-ConnectionGUID: gUUN8aQtQuOki9WyooG9HA==
+X-CSE-MsgGUID: KF6uE9rERyaXq4YCDcDQEQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,140,1770624000"; 
+   d="scan'208";a="226294612"
+Received: from lkp-server01.sh.intel.com (HELO 3905d212be1b) ([10.239.97.150])
+  by fmviesa004.fm.intel.com with ESMTP; 25 Mar 2026 04:20:27 -0700
+Received: from kbuild by 3905d212be1b with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1w5MHg-000000006jB-0AT4;
+	Wed, 25 Mar 2026 11:20:24 +0000
+Date: Wed, 25 Mar 2026 19:20:12 +0800
+From: kernel test robot <lkp@intel.com>
+To: Ryan Chen <ryan_chen@aspeedtech.com>, jk@codeconstruct.com.au,
+	andriy.shevchenko@linux.intel.com,
+	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, Joel Stanley <joel@jms.id.au>,
+	Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Rayn Chen <rayn_chen@aspeedtech.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org,
+	Ryan Chen <ryan_chen@aspeedtech.com>
+Subject: Re: [PATCH v27 3/4] i2c: ast2600: Add controller driver for AST2600
+ new register set
+Message-ID: <202603251922.TFJuUipj-lkp@intel.com>
+References: <20260324-upstream_i2c-v27-3-f19b511c8c28@aspeedtech.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260324135010.17730-1-i.shihao.999@gmail.com>
+In-Reply-To: <20260324-upstream_i2c-v27-3-f19b511c8c28@aspeedtech.com>
 
-On Tue, Mar 24, 2026 at 07:20:10PM +0530, Shi Hao wrote:
-> Convert IOP3xx and IXP4xx XScale bindings to DT schema.
-> 
-> Signed-off-by: Shi Hao <i.shihao.999@gmail.com>
+Hi Ryan,
 
-Please run scripts/checkpatch.pl on the patches and fix reported
-warnings. After that, run also 'scripts/checkpatch.pl --strict' on the
-patches and (probably) fix more warnings. Some warnings can be ignored,
-especially from --strict run, but the code here looks like it needs a
-fix. Feel free to get in touch if the warning is not clear.
+kernel test robot noticed the following build errors:
 
-> ---
-> Note:
-> * This patch is part of the GSoC2026 application process for device tree bindings conversions
-> * https://github.com/LinuxFoundationGSoC/ProjectIdeas/wiki/GSoC-2026-Device-Tree-Bindings
-> ---
+[auto build test ERROR on 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f]
 
-...
+url:    https://github.com/intel-lab-lkp/linux/commits/Ryan-Chen/dt-bindings-i2c-Split-AST2600-binding-into-a-new-YAML/20260325-112805
+base:   6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
+patch link:    https://lore.kernel.org/r/20260324-upstream_i2c-v27-3-f19b511c8c28%40aspeedtech.com
+patch subject: [PATCH v27 3/4] i2c: ast2600: Add controller driver for AST2600 new register set
+config: i386-buildonly-randconfig-003-20260325 (https://download.01.org/0day-ci/archive/20260325/202603251922.TFJuUipj-lkp@intel.com/config)
+compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260325/202603251922.TFJuUipj-lkp@intel.com/reproduce)
 
-> diff --git a/Documentation/devicetree/bindings/i2c/intel,ixp4xx-i2c.yaml b/Documentation/devicetree/bindings/i2c/intel,ixp4xx-i2c.yaml
-> new file mode 100644
-> index 000000000000..13ba2a0e336e
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/intel,ixp4xx-i2c.yaml
-> @@ -0,0 +1,41 @@
-> +# SPDX License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/i2c/intel,ixp4xx-i2c.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: I2c Controller on XScale platforms such as IOP3xx and IXP4xx
-> +
-> +maintainers:
-> +  - Andi Shyti <andi.shyti@kernel.org>
-> +
-> +allOf:
-> +  - $ref: /schemas/i2c/i2c-controller.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    enum:
-> +      - intel,ixp4xx-i2c
-> +      - intel,iop3xx-i2c
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202603251922.TFJuUipj-lkp@intel.com/
 
-Alphabetical order. Dunno why you reversed it from original binding.
+All errors (new ones prefixed by >>):
+
+>> drivers/i2c/busses/i2c-ast2600.c:955:15: error: no member named 'dma_abailable' in 'struct ast2600_i2c_bus'; did you mean 'dma_available'?
+     955 |         if (i2c_bus->dma_abailable)
+         |                      ^~~~~~~~~~~~~
+         |                      dma_available
+   drivers/i2c/busses/i2c-ast2600.c:271:9: note: 'dma_available' declared here
+     271 |         bool                    dma_available;
+         |                                 ^
+   1 error generated.
 
 
-> +
-> +  reg:
-> +    maxItems: 1
-> +
-> +  interrupts:
-> +    maxItems: 1
+vim +955 drivers/i2c/busses/i2c-ast2600.c
 
-This wasn't in the original binding.
+   916	
+   917	static int ast2600_i2c_probe(struct platform_device *pdev)
+   918	{
+   919		struct device *dev = &pdev->dev;
+   920		struct ast2600_i2c_bus *i2c_bus;
+   921		struct reset_control *rst;
+   922		struct resource *res;
+   923		u32 global_ctrl;
+   924		int ret;
+   925	
+   926		if (!device_property_present(dev, "aspeed,global-regs"))
+   927			return -ENODEV;
+   928	
+   929		i2c_bus = devm_kzalloc(dev, sizeof(*i2c_bus), GFP_KERNEL);
+   930		if (!i2c_bus)
+   931			return -ENOMEM;
+   932	
+   933		i2c_bus->reg_base = devm_platform_ioremap_resource(pdev, 0);
+   934		if (IS_ERR(i2c_bus->reg_base))
+   935			return PTR_ERR(i2c_bus->reg_base);
+   936	
+   937		rst = devm_reset_control_get_shared_deasserted(dev, NULL);
+   938		if (IS_ERR(rst))
+   939			return dev_err_probe(dev, PTR_ERR(rst), "Missing reset ctrl\n");
+   940	
+   941		i2c_bus->global_regs =
+   942			syscon_regmap_lookup_by_phandle(dev_of_node(dev), "aspeed,global-regs");
+   943		if (IS_ERR(i2c_bus->global_regs))
+   944			return PTR_ERR(i2c_bus->global_regs);
+   945	
+   946		regmap_read(i2c_bus->global_regs, AST2600_I2CG_CTRL, &global_ctrl);
+   947		if ((global_ctrl & AST2600_GLOBAL_INIT) != AST2600_GLOBAL_INIT) {
+   948			regmap_write(i2c_bus->global_regs, AST2600_I2CG_CTRL, AST2600_GLOBAL_INIT);
+   949			regmap_write(i2c_bus->global_regs, AST2600_I2CG_CLK_DIV_CTRL, I2CCG_DIV_CTRL);
+   950		}
+   951	
+   952		i2c_bus->dev = dev;
+   953		i2c_bus->multi_master = device_property_read_bool(dev, "multi-master");
+   954		i2c_bus->dma_available = device_property_read_bool(dev, "aspeed,enable-dma");
+ > 955		if (i2c_bus->dma_abailable)
+   956			i2c_bus->mode = DMA_MODE;
+   957		else
+   958			i2c_bus->mode = BUFF_MODE;
+   959	
+   960		if (i2c_bus->mode == BUFF_MODE) {
+   961			i2c_bus->buf_base = devm_platform_get_and_ioremap_resource(pdev, 1, &res);
+   962			if (IS_ERR(i2c_bus->buf_base))
+   963				i2c_bus->mode = BYTE_MODE;
+   964			else
+   965				i2c_bus->buf_size = resource_size(res) / 2;
+   966		}
+   967	
+   968		ast2600_i2c_set_xfer_mode(i2c_bus, i2c_bus->mode);
+   969	
+   970		/*
+   971		 * i2c timeout counter: use base clk4 1Mhz,
+   972		 * per unit: 1/(1000/1024) = 1024us
+   973		 */
+   974		ret = device_property_read_u32(dev, "i2c-scl-clk-low-timeout-us", &i2c_bus->timeout);
+   975		if (!ret)
+   976			i2c_bus->timeout = DIV_ROUND_UP(i2c_bus->timeout, 1024);
+   977	
+   978		init_completion(&i2c_bus->cmd_complete);
+   979	
+   980		i2c_bus->irq = platform_get_irq(pdev, 0);
+   981		if (i2c_bus->irq < 0)
+   982			return i2c_bus->irq;
+   983	
+   984		platform_set_drvdata(pdev, i2c_bus);
+   985	
+   986		i2c_bus->clk = devm_clk_get(i2c_bus->dev, NULL);
+   987		if (IS_ERR(i2c_bus->clk))
+   988			return dev_err_probe(i2c_bus->dev, PTR_ERR(i2c_bus->clk), "Can't get clock\n");
+   989	
+   990		i2c_bus->apb_clk = clk_get_rate(i2c_bus->clk);
+   991	
+   992		i2c_parse_fw_timings(i2c_bus->dev, &i2c_bus->timing_info, true);
+   993	
+   994		/* Initialize the I2C adapter */
+   995		i2c_bus->adap.owner = THIS_MODULE;
+   996		i2c_bus->adap.algo = &i2c_ast2600_algorithm;
+   997		i2c_bus->adap.retries = 0;
+   998		i2c_bus->adap.dev.parent = i2c_bus->dev;
+   999		device_set_node(&i2c_bus->adap.dev, dev_fwnode(dev));
+  1000		i2c_bus->adap.algo_data = i2c_bus;
+  1001		strscpy(i2c_bus->adap.name, pdev->name);
+  1002		i2c_set_adapdata(&i2c_bus->adap, i2c_bus);
+  1003	
+  1004		ret = ast2600_i2c_init(i2c_bus);
+  1005		if (ret < 0)
+  1006			return dev_err_probe(dev, ret, "Unable to initial i2c %d\n", ret);
+  1007	
+  1008		ret = devm_request_irq(dev, i2c_bus->irq, ast2600_i2c_bus_irq, 0,
+  1009				       dev_name(dev), i2c_bus);
+  1010		if (ret < 0) {
+  1011			ret = dev_err_probe(dev, ret, "Unable to request irq %d\n",
+  1012					    i2c_bus->irq);
+  1013			goto err;
+  1014		}
+  1015	
+  1016		writel(AST2600_I2CM_PKT_DONE | AST2600_I2CM_BUS_RECOVER,
+  1017		       i2c_bus->reg_base + AST2600_I2CM_IER);
+  1018	
+  1019		ret = devm_i2c_add_adapter(dev, &i2c_bus->adap);
+  1020		if (ret)
+  1021			goto err;
+  1022	
+  1023		ret = sysfs_create_file(&dev->kobj, &dev_attr_xfer_mode.attr);
+  1024		if (ret)
+  1025			goto err;
+  1026	
+  1027		return 0;
+  1028	
+  1029	err:
+  1030		writel(0, i2c_bus->reg_base + AST2600_I2CC_FUN_CTRL);
+  1031		writel(0, i2c_bus->reg_base + AST2600_I2CM_IER);
+  1032		return ret;
+  1033	}
+  1034	
 
-What does my guideline/expectations for GSoC say? Did you read it?
-
-Best regards,
-Krzysztof
-
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
