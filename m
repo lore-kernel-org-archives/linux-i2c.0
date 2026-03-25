@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA306347536;
-	Wed, 25 Mar 2026 11:20:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F68C3A1A44;
+	Wed, 25 Mar 2026 11:26:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774437647; cv=none; b=JrUb6W3mi6IkRRJq2H1OsS/GCy/JZG3RLGG9b3wD8gKl+Om+mjMOs7YMHDnCI9ZbKQkv3jp8MLhBMrnd29HiCdxb4CuHqEyoZw+ERlFHRwN9BrYhzt5ODYDZ08JqaJ2wNXO+SMQP3EdVNc35i1Dg2+KLbb+lcllSxvL7j35hpsM=
+	t=1774437996; cv=none; b=AA5VSwd7f0uf+5qpDOuira47dR+BUuII2V9Yhx9bYnvRhtCM0gMhd+tOVwEXdZqL6dJEDkcNEIyokZYUgYfA1RPPqeQ5SDHYNS9Gm4jUsOEEUchjO50ZvHQ8Oj1o/RWyK7nLqSftcQtZygnq1WGuq998VUIJhTOqqSkJYFUbxkI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774437647; c=relaxed/simple;
-	bh=OwD8IInsBVR69RJ3fTQO6dfAbyq7+B75hFav9aAi7Sc=;
+	s=arc-20240116; t=1774437996; c=relaxed/simple;
+	bh=XmNUJ0mpif4qhL8464aWIYdfMLi/kRQgNJ+zmPxYBN4=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sMGDfULLU54K38mT8hpjxz0bH7ZRHqyDUEEgyj12PmpNpGUItEkG0qrvEmAVOawgL3sZl4vt732XnuxaW5OHaT1Ol9H9gXwmDQOwbVO2ok7cqXXeuQZsprteIlLxI1Un/86ihP/w4pJsmlFhlNWSuJaJ3RII3U9weQM/sCRC6G8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gTY+KwfC; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=s8xWgG4yaCvgdphw3IakZwnUGwTNHE79QHBQr0nM2ZBuLZLq9c0oMdajGimNuINFS+6Y//R98egn2X5o6vuw1jY+BiPCeJFao1ZeCMDM4GWZzJez2kdZQq6UOg+zi7BWPjd+Xex6CgNnwD6cQu8ItaTNSW0rFmQvy4hEQxLSdG4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=t/QxqqGd; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gTY+KwfC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE296C4CEF7;
-	Wed, 25 Mar 2026 11:20:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="t/QxqqGd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28E1FC4CEF7;
+	Wed, 25 Mar 2026 11:26:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774437646;
-	bh=OwD8IInsBVR69RJ3fTQO6dfAbyq7+B75hFav9aAi7Sc=;
+	s=k20201202; t=1774437996;
+	bh=XmNUJ0mpif4qhL8464aWIYdfMLi/kRQgNJ+zmPxYBN4=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=gTY+KwfCN4dFuTA83RZ+dqSXaMGB8wNcV8nhoPHgFl7Wea6X/++c3nUsQwtbseTgL
-	 QbVqJO2izLM+pM9LOEAVMQG5Ld2duhylv9hzLCmxLf3qsfTNgGiEBvfmvcSeS9L1yD
-	 Wmmc/SRavV7xG+DOvshZYOABSfVj1/OGbxhj3cLFer8Sokt7N7HokWHla89y7jxTe5
-	 QKI+SfMeKEZrzkzQ1WIhHt1YxvNkc4bMt5478zlY1SYEfA7FYsoHt2e+mbcW9qUYSR
-	 5H/oGbOfzvEfRiUo5D8ZBiEk6yV3GCH468axVo8ZqZhxAyraD0Y83OrNpSnd/gTEJk
-	 Q0uWqMQiAcXjw==
-Message-ID: <be702ca9-e3c5-4b45-8592-966bb5b31080@kernel.org>
-Date: Wed, 25 Mar 2026 12:20:41 +0100
+	b=t/QxqqGdqZAcefBlHzFAiSkEt+0dhU7HG/y/IBQU9HP69ETPhD4gJ++yhMtsVk4V6
+	 PgE7/kXvupUOZKDcIk4MS/nFY9j4tGQyyjtD8hjCL8jIadJCo76F6h7pOaqCt4ZNPD
+	 hrJZBUsxMr9gpSOHacvDAw686LzZnTSJeDKc4kWZcJmoh1bDsqgV6UVMILlQjMQ2bz
+	 ClW0gE9ng1LQVg/rtTHI/VDTFrjC8hdywba+556C0w/PDtHBFN71dcmpso2bmWxLpa
+	 H7V8I4lXYQdJdrbMYtRyGaqV4CLV4IQtpKOi/E5aw8VDBDOX7q7+8SbTD638x661Eo
+	 j1MApet909n4w==
+Message-ID: <fbb0fc19-45b1-4d5b-9954-9244cfec8027@kernel.org>
+Date: Wed, 25 Mar 2026 12:26:30 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -35,13 +35,21 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] dt-bindings: i2c: cnxt,cx92755-i2c: Convert to DT schema
-To: Shi Hao <i.shihao.999@gmail.com>, krzk+dt@kernel.org
-Cc: robh@kernel.org, andi.shyti@kernel.org, conor+dt@kernel.org,
+Subject: Re: [PATCH v27 3/4] i2c: ast2600: Add controller driver for AST2600
+ new register set
+To: kernel test robot <lkp@intel.com>, Ryan Chen <ryan_chen@aspeedtech.com>,
+ jk@codeconstruct.com.au, andriy.shevchenko@linux.intel.com,
+ Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Joel Stanley <joel@jms.id.au>,
+ Andrew Jeffery <andrew@codeconstruct.com.au>,
+ Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+ Rayn Chen <rayn_chen@aspeedtech.com>, Philipp Zabel <p.zabel@pengutronix.de>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
  linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, daniel.baluta@nxp.com, simona.toaca@nxp.com,
- d-gole@ti.com, m-chawdhry@ti.com
-References: <20260323174236.147507-1-i.shihao.999@gmail.com>
+ linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org,
+ linux-kernel@vger.kernel.org, openbmc@lists.ozlabs.org
+References: <20260324-upstream_i2c-v27-3-f19b511c8c28@aspeedtech.com>
+ <202603251922.TFJuUipj-lkp@intel.com>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -87,25 +95,39 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
  zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
  XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <20260323174236.147507-1-i.shihao.999@gmail.com>
+In-Reply-To: <202603251922.TFJuUipj-lkp@intel.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 23/03/2026 18:42, Shi Hao wrote:
-> Convert the Conexant Digicolor I2C bindings to DT schema.
+On 25/03/2026 12:20, kernel test robot wrote:
+> Hi Ryan,
 > 
-> Signed-off-by: Shi Hao <i.shihao.999@gmail.com>
-> ---
+> kernel test robot noticed the following build errors:
 > 
-> Note:
-> This patch is part of the GSoC2026 application process for device tree
-> bindings conversions https://github.com/LinuxFoundationGSoC/ProjectIde
-> as/wiki/GSoC-2026-Device-Tree-Bindings
+> [auto build test ERROR on 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f]
+> 
+> url:    https://github.com/intel-lab-lkp/linux/commits/Ryan-Chen/dt-bindings-i2c-Split-AST2600-binding-into-a-new-YAML/20260325-112805
+> base:   6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
+> patch link:    https://lore.kernel.org/r/20260324-upstream_i2c-v27-3-f19b511c8c28%40aspeedtech.com
+> patch subject: [PATCH v27 3/4] i2c: ast2600: Add controller driver for AST2600 new register set
+> config: i386-buildonly-randconfig-003-20260325 (https://download.01.org/0day-ci/archive/20260325/202603251922.TFJuUipj-lkp@intel.com/config)
+> compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260325/202603251922.TFJuUipj-lkp@intel.com/reproduce)
+> 
+> If you fix the issue in a separate patch/commit (i.e. not just a new version of
+> the same patch/commit), kindly add following tags
+> | Reported-by: kernel test robot <lkp@intel.com>
+> | Closes: https://lore.kernel.org/oe-kbuild-all/202603251922.TFJuUipj-lkp@intel.com/
+> 
+> All errors (new ones prefixed by >>):
+> 
+>>> drivers/i2c/busses/i2c-ast2600.c:955:15: error: no member named 'dma_abailable' in 'struct ast2600_i2c_bus'; did you mean 'dma_available'?
+>      955 |         if (i2c_bus->dma_abailable)
 
-Stop here, please.
 
-You are not following the process and required steps, thus you keep
-sending new patches with the same mistakes.
+v27 which is still not building.
+
+This is madness.
 
 Best regards,
 Krzysztof
