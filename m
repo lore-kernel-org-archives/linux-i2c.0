@@ -1,154 +1,129 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 657CD3E315D;
-	Wed, 25 Mar 2026 14:44:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC9783D666F
+	for <linux-i2c@vger.kernel.org>; Wed, 25 Mar 2026 15:10:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774449857; cv=none; b=NaMmfr6R38m2MYYdjYBQuL+RGLQXMmUfJnAlDtiyyp1CDIOWszWiOdCYqAQLbjR05WhnIz0o8vmd4iPVP0FAfUXXBzX2dW6paPJIJWuaFI4IPNk1KIVnXpCGjGQEnSzZs92EyEsCdTZrEUv+t/1aF778KEq7rFL70wqZCgtmS0A=
+	t=1774451455; cv=none; b=j9gqEt2oQqoobr4fiUaRHfY+mEy8PDS9nY1iwkv7q16UpVXZTurEa7ZVuY+oBSP5OsIXRli/PtawnLlODtSKVN3Cn0YxpZZaf9SKNdWQy2sBLlwwLuDI8HAHUXBGa5qAUmsCRE2Y3TUS5wEcIF+X8uy1WMTuat1R0gA6bv1XFG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774449857; c=relaxed/simple;
-	bh=jT14jpW+74aFxWT5k0JsiKiyPP15AQVRZS7/5fdgNS0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pwxEeCaP+ai/eI1w8dxCgsbmo+yN/Y6FMQedj71gHARqo0JqKkOBplORWasMSSVe+I7bGc3U28tNPtBeHqOn8gQjQ2P6keKlm3iaUWVTACY9Ax+bvtm0zwJrvgqJasXsrdld3OIhIgGK74usQNUWu3OyQp0P/b3ybqkuE3RZ8sM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=gqvjBLpm; arc=none smtp.client-ip=185.246.84.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1774451455; c=relaxed/simple;
+	bh=BZGGufgX0i80QOP5QxdXC8NEtX7e9nkLE2X0Sj3u1YU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=o2l2n01MXgRtZOBI31AcKGg8NCehUgwgnm0sNUgvkm1Rr8iPlLA1Nv6psROp6XjZhtLwXl/WaTfXDbfeWsX1186BOv2S0yFelNtgSr2GKuIX0IxLiiLl3+dUR30i1AdPfgXqFN5kobJtAJYueXOZ/Hql/hVf6kjY90lsv1aTwTw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f+/Bb4Zi; arc=none smtp.client-ip=209.85.216.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="gqvjBLpm"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 4AF2F1A2F95;
-	Wed, 25 Mar 2026 14:44:15 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 217C9601FA;
-	Wed, 25 Mar 2026 14:44:15 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 56D7D10451522;
-	Wed, 25 Mar 2026 15:43:55 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1774449852; h=from:subject:date:message-id:to:cc:mime-version:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=JD+Fs5XfMyLydBRoehNihG/5lsm5NM0S4zMf8NGpirs=;
-	b=gqvjBLpmkSLJAYbmDeGzZRLD9Ccx0kGJ+DN1N+YpWxaW5rwGSimaQrzjJDOYlV9EYSCJXC
-	EGclYReSW/RNCSO1Hu4WTUKD57Ziz1RKr8cPgpsfGmAP4WEPw+vgCwWkjKY9MSUY9LEVJ5
-	6tZHX14Ux3GOzP2naksiasYRWY6SGCxOeInkkhKHnjF3KzqTlDE/RonHW77l2feenMrKtZ
-	cSTYd0V7ODBlSM4QX1RMj5id3x2Ob313sCSnE3Hd+xGsT3juXCzJcIYBFohtcxaPyYLz+X
-	eKq3F87xw+izeQvuGGtry4ygCvsiMBpIw+2Bl/K7VPxnw+SA0SbnFtvGb6ObSA==
-From: Herve Codina <herve.codina@bootlin.com>
-To: Andrew Lunn <andrew@lunn.ch>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Kalle Niemi <kaleposti@gmail.com>,
-	Matti Vaittinen <mazziesaccount@gmail.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>,
-	Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Peter Rosin <peda@axentia.se>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Herve Codina <herve.codina@bootlin.com>,
-	Saravana Kannan <saravanak@kernel.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Charles Keepax <ckeepax@opensource.cirrus.com>,
-	Richard Fitzgerald <rf@opensource.cirrus.com>,
-	David Rhodes <david.rhodes@cirrus.com>,
-	Linus Walleij <linusw@kernel.org>,
-	Ulf Hansson <ulf.hansson@linaro.org>,
-	Mark Brown <broonie@kernel.org>,
-	Len Brown <lenb@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Daniel Scally <djrscally@gmail.com>,
-	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	Davidlohr Bueso <dave@stgolabs.net>,
-	Jonathan Cameron <jonathan.cameron@huawei.com>,
-	Dave Jiang <dave.jiang@intel.com>,
-	Alison Schofield <alison.schofield@intel.com>,
-	Vishal Verma <vishal.l.verma@intel.com>,
-	Ira Weiny <ira.weiny@intel.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Shawn Guo <shawnguo@kernel.org>
-Cc: Wolfram Sang <wsa@kernel.org>,
-	linux-kernel@vger.kernel.org,
-	driver-core@lists.linux.dev,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-clk@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-pci@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	patches@opensource.cirrus.com,
-	linux-gpio@vger.kernel.org,
-	linux-pm@vger.kernel.org,
-	linux-spi@vger.kernel.org,
-	linux-acpi@vger.kernel.org,
-	linux-cxl@vger.kernel.org,
-	Allan Nielsen <allan.nielsen@microchip.com>,
-	Horatiu Vultur <horatiu.vultur@microchip.com>,
-	Steen Hegelund <steen.hegelund@microchip.com>,
-	Luca Ceresoli <luca.ceresoli@bootlin.com>,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Subject: [PATCH v6 27/27] misc: lan966x_pci: Add drivers needed to support SFPs in Kconfig help
-Date: Wed, 25 Mar 2026 15:35:54 +0100
-Message-ID: <20260325143555.451852-28-herve.codina@bootlin.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260325143555.451852-1-herve.codina@bootlin.com>
-References: <20260325143555.451852-1-herve.codina@bootlin.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f+/Bb4Zi"
+Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-35691a231a7so1578184a91.3
+        for <linux-i2c@vger.kernel.org>; Wed, 25 Mar 2026 08:10:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1774451453; x=1775056253; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=u8WzrX2hzPXJ1j9AbxoRyE/tbN7PT5lnxfJP5D79TMk=;
+        b=f+/Bb4ZiFnmUzjUKkFs8NSaixluI8FxGqe8GEsvRanwXgQCsI3csc9T7jaSWLdyEAb
+         gni7LAdF+7020jv8XTRT8JKA/r3ZWzdc4AWJUEOU3QOk+5OI9lzvdXvDqq1ix3EhM9SL
+         hvSXUDaKYaSt00cMu/IHohnf1P0mijwtlOHtj3rM5YHHceKbMl1YQxwbayXRT5gthvcR
+         yxtYwW9+VUojspJcYV8hHb5W8D2o0i1U6E0bybSRy8CgTvDw1XERKmY4p007Xc1I/E9b
+         o8LbtK5YxwoqQ5telb3Yhne1oqfZiYk+BS8Ix+rtTgVeH55A0NDKECRTMnlMKhpBFp8L
+         alqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774451453; x=1775056253;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=u8WzrX2hzPXJ1j9AbxoRyE/tbN7PT5lnxfJP5D79TMk=;
+        b=jcOx+RX5BiESt/cyMmrTHBOfWR7ji0zZDmzbH2ncaIs+/OMGkpCkapMVo4hMkFpdv6
+         6ro0kEV5egatpTO2SYiSN5VCsXAor6MJm96UJ6zd+tpjXi/iSTBPrpMRKH+bxw42C/xU
+         5icOchWmsAysgDQklmwsM49ojQgVS0svjo9r8lzQMcSuhxME4ObJOthOAs205yh23Xru
+         SVuYt1j8WVxPOsFXkcxot1A8WMSDQM/8f0QxvNnHM4VQY72lmIgd778VWwGoUGltZb5f
+         jIXVpdiN1qocUHthi5+EdlYnxJFG5190KcBXTHodRZ0QPB6RQf3udDRmBiTIxq09DbQG
+         Tu/g==
+X-Forwarded-Encrypted: i=1; AJvYcCUbzOe29X7DX31hj+IKyxGPffiMys+pyRQfUEjUy+sLLKlVd/GRMxovc7U0kxJsLluZWrnZ8q+QSGE=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxop9xFsBVcyhUxu6VrARzI13Bumjs39DGMrrFKrBGMeS6o5WU5
+	m8A9YmxgtgUn06YfEevnWKk1UUO5DUollq9kOwpNhTrzSHd3jNSJ9hqJ
+X-Gm-Gg: ATEYQzxLrWe7sXXPwpqfqR8JkkIOltRRfnyhtn3glw7dbtGsc/JFyqVCw1hlJTRRjVC
+	aWRxo3qGUfT9vyQE6wUVv0VHF6em+bTskKkY1K/jaLSIX8kahyMhkyYQDcYhKpvBi1j/8/1qG+X
+	Tj8yFGlYBygkRrasgsZgs+kVMjvKE73r0tN574oF6QrqzlWljvITpTR1GBmUrtWq7IesjWR2HaA
+	JpiatBU2ybyI8fL2bVFHC6wsWUVBosKPf8HX7X4I5Za1lvTv7+iLgVU+n4v83qZzeuhNw3e3zYK
+	ZhzXtJEBAlfQienIZMT1MKdEGTm9oUvw2OSl3La6nNFG01g2q9bhnEAeaHukzSx6UvMkQ86Mjgl
+	/Q+bdQILDn7U9d39p1tcAEfBtox8dK9s7PP09kOf6PnbO24jyZfXTCpI6kBon3S2ybw4UreCIfj
+	jqYSF4ut0LJLq0kEN0UYaDwCQ=
+X-Received: by 2002:a17:90b:570c:b0:35b:9896:cbd0 with SMTP id 98e67ed59e1d1-35c0ddc7c64mr3761784a91.25.1774451453060;
+        Wed, 25 Mar 2026 08:10:53 -0700 (PDT)
+Received: from fedora ([2401:4900:1f32:22d3:4161:93a:b87c:36eb])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35c1a022db8sm181861a91.3.2026.03.25.08.10.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 25 Mar 2026 08:10:52 -0700 (PDT)
+Date: Wed, 25 Mar 2026 20:40:45 +0530
+From: ShiHao <i.shihao.999@gmail.com>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: andi.shyti@kernel.org, krzk+dt@kernel.org, robh@kernel.org,
+	conor+dt@kernel.org, linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: i2c: intel,ixp4xx-i2c: Convert to Dt schema
+Message-ID: <acP69aM-euL7wl87@fedora>
+References: <20260324135010.17730-1-i.shihao.999@gmail.com>
+ <20260325-bulky-mushroom-of-science-8c95c4@quoll>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260325-bulky-mushroom-of-science-8c95c4@quoll>
 
-Recently, new device-tree nodes were added in the overlay to add support
-for SFPs on LAN966x PCI device.
+On Wed, Mar 25, 2026 at 12:16:27PM +0100, Krzysztof Kozlowski wrote:
 
-The LAN966X Kconfig help section mentions drivers related to devices
-added based on the overlay description.
+> Please run scripts/checkpatch.pl on the patches and fix reported
+> warnings. After that, run also 'scripts/checkpatch.pl --strict' on the
+> patches and (probably) fix more warnings. Some warnings can be ignored,
+> especially from --strict run, but the code here looks like it needs a
+> fix. Feel free to get in touch if the warning is not clear.
+> 
 
-Add drivers related to devices described by those new nodes in the
-already existing driver list.
+Hello Krzysztof, 
 
-Signed-off-by: Herve Codina <herve.codina@bootlin.com>
----
- drivers/misc/Kconfig | 5 +++++
- 1 file changed, 5 insertions(+)
+      Once again thank you for your time. Those warnings are from running
+      checkpatch.pl without the --strict option i myself discovered when you
+      said that because i only use it with --strict option. I thought
+      checkpatch.pl --strict  was more strict then checkpatch.pl but i guess
+      it is not so strict as i thought it was. But apart from this i mean
+      why in the first place there is the --strict option when it is actually
+      not so strict it must have shown all errors, checks and warnings but it
+      does not Anyway i will make sure to run both from now on thanks for pointing
+      it.
 
-diff --git a/drivers/misc/Kconfig b/drivers/misc/Kconfig
-index 9c285a7c88ba..69825dc0f85e 100644
---- a/drivers/misc/Kconfig
-+++ b/drivers/misc/Kconfig
-@@ -635,13 +635,18 @@ config MCHP_LAN966X_PCI
- 	  Even if this driver does not depend on those other drivers, in order
- 	  to have a fully functional board, the following drivers are needed:
- 	    - fixed-clock (COMMON_CLK)
-+	    - i2c-mux-pinctrl (I2C_MUX_PINCTRL)
- 	    - lan966x-cpu-syscon (MFD_SYSCON)
-+	    - lan966x-gck (COMMON_CLK_LAN966X)
- 	    - lan966x-miim (MDIO_MSCC_MIIM)
- 	    - lan966x-oic (LAN966X_OIC)
- 	    - lan966x-pinctrl (PINCTRL_OCELOT)
- 	    - lan966x-serdes (PHY_LAN966X_SERDES)
- 	    - lan966x-switch (LAN966X_SWITCH)
- 	    - lan966x-switch-reset (RESET_MCHP_SPARX5)
-+	    - sam9x60-i2c (I2C_AT91)
-+	    - sama5d2-flexcom (MFD_ATMEL_FLEXCOM)
-+	    - sfp (SFP)
- 
- source "drivers/misc/c2port/Kconfig"
- source "drivers/misc/eeprom/Kconfig"
--- 
-2.53.0
+> > +properties:
+> > +  compatible:
+> > +    enum:
+> > +      - intel,ixp4xx-i2c
+> > +      - intel,iop3xx-i2c
+> 
+> Alphabetical order. Dunno why you reversed it from original binding.
+> 
+> 
+> > +
+> > +  reg:
+> > +    maxItems: 1
+> > +
+> > +  interrupts:
+> > +    maxItems: 1
+> 
+> This wasn't in the original binding.
+> 
+> What does my guideline/expectations for GSoC say? Did you read it?
+> 
+> 
 
+ I will make sure to fix these issues in the next version. Also
+ i did not read any guidelines so, please provide some resources
+ to the GSoC guidlines you mentioned. I texted on IRC but Daniel
+ said email is where i should ask for it. Thanks for your time.
+
+Kind regards
+Shihao
