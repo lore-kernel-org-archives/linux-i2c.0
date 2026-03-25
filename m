@@ -1,129 +1,123 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC9783D666F
-	for <linux-i2c@vger.kernel.org>; Wed, 25 Mar 2026 15:10:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B15D02D8364;
+	Wed, 25 Mar 2026 15:15:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774451455; cv=none; b=j9gqEt2oQqoobr4fiUaRHfY+mEy8PDS9nY1iwkv7q16UpVXZTurEa7ZVuY+oBSP5OsIXRli/PtawnLlODtSKVN3Cn0YxpZZaf9SKNdWQy2sBLlwwLuDI8HAHUXBGa5qAUmsCRE2Y3TUS5wEcIF+X8uy1WMTuat1R0gA6bv1XFG8=
+	t=1774451742; cv=none; b=Mp07dPo664Fch3yG+kss9TSGMP8lbzISel95fEmsAXOr1+cZ9cT+FA5p76N3UnHF34Rza8eoloNyJL86KmAM1MPzBHP7nOqsBq47oX4Xiq6evtezcL+uJYEbpCxg/w3oZ8rVKMd7fptbsd799QCI4pUkTAJeBSqXFLwU1tEttiE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774451455; c=relaxed/simple;
-	bh=BZGGufgX0i80QOP5QxdXC8NEtX7e9nkLE2X0Sj3u1YU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=o2l2n01MXgRtZOBI31AcKGg8NCehUgwgnm0sNUgvkm1Rr8iPlLA1Nv6psROp6XjZhtLwXl/WaTfXDbfeWsX1186BOv2S0yFelNtgSr2GKuIX0IxLiiLl3+dUR30i1AdPfgXqFN5kobJtAJYueXOZ/Hql/hVf6kjY90lsv1aTwTw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=f+/Bb4Zi; arc=none smtp.client-ip=209.85.216.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1774451742; c=relaxed/simple;
+	bh=j8gNRPy6u1ObH5yBkBbSK7NnYy7PdJdxRDpjmvu12+w=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=L2s2mb67LSxDYYOaYe7Xl1hfusKt/jUXCaJj3EvmCMpaWznsjrzPFFAcIPCqYBzwcMaTOBr1nuZMPe//MqqEEoqmODwQmCP30VrHCoYYsYed15hzTPbOIykUe3lUFpDmkhwHUSS0tnwZMq8fXhbVweo86x7Rh7GuPm5Wly0z9ts=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=QNd7/JMQ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="f+/Bb4Zi"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-35691a231a7so1578184a91.3
-        for <linux-i2c@vger.kernel.org>; Wed, 25 Mar 2026 08:10:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774451453; x=1775056253; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=u8WzrX2hzPXJ1j9AbxoRyE/tbN7PT5lnxfJP5D79TMk=;
-        b=f+/Bb4ZiFnmUzjUKkFs8NSaixluI8FxGqe8GEsvRanwXgQCsI3csc9T7jaSWLdyEAb
-         gni7LAdF+7020jv8XTRT8JKA/r3ZWzdc4AWJUEOU3QOk+5OI9lzvdXvDqq1ix3EhM9SL
-         hvSXUDaKYaSt00cMu/IHohnf1P0mijwtlOHtj3rM5YHHceKbMl1YQxwbayXRT5gthvcR
-         yxtYwW9+VUojspJcYV8hHb5W8D2o0i1U6E0bybSRy8CgTvDw1XERKmY4p007Xc1I/E9b
-         o8LbtK5YxwoqQ5telb3Yhne1oqfZiYk+BS8Ix+rtTgVeH55A0NDKECRTMnlMKhpBFp8L
-         alqg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774451453; x=1775056253;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=u8WzrX2hzPXJ1j9AbxoRyE/tbN7PT5lnxfJP5D79TMk=;
-        b=jcOx+RX5BiESt/cyMmrTHBOfWR7ji0zZDmzbH2ncaIs+/OMGkpCkapMVo4hMkFpdv6
-         6ro0kEV5egatpTO2SYiSN5VCsXAor6MJm96UJ6zd+tpjXi/iSTBPrpMRKH+bxw42C/xU
-         5icOchWmsAysgDQklmwsM49ojQgVS0svjo9r8lzQMcSuhxME4ObJOthOAs205yh23Xru
-         SVuYt1j8WVxPOsFXkcxot1A8WMSDQM/8f0QxvNnHM4VQY72lmIgd778VWwGoUGltZb5f
-         jIXVpdiN1qocUHthi5+EdlYnxJFG5190KcBXTHodRZ0QPB6RQf3udDRmBiTIxq09DbQG
-         Tu/g==
-X-Forwarded-Encrypted: i=1; AJvYcCUbzOe29X7DX31hj+IKyxGPffiMys+pyRQfUEjUy+sLLKlVd/GRMxovc7U0kxJsLluZWrnZ8q+QSGE=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxop9xFsBVcyhUxu6VrARzI13Bumjs39DGMrrFKrBGMeS6o5WU5
-	m8A9YmxgtgUn06YfEevnWKk1UUO5DUollq9kOwpNhTrzSHd3jNSJ9hqJ
-X-Gm-Gg: ATEYQzxLrWe7sXXPwpqfqR8JkkIOltRRfnyhtn3glw7dbtGsc/JFyqVCw1hlJTRRjVC
-	aWRxo3qGUfT9vyQE6wUVv0VHF6em+bTskKkY1K/jaLSIX8kahyMhkyYQDcYhKpvBi1j/8/1qG+X
-	Tj8yFGlYBygkRrasgsZgs+kVMjvKE73r0tN574oF6QrqzlWljvITpTR1GBmUrtWq7IesjWR2HaA
-	JpiatBU2ybyI8fL2bVFHC6wsWUVBosKPf8HX7X4I5Za1lvTv7+iLgVU+n4v83qZzeuhNw3e3zYK
-	ZhzXtJEBAlfQienIZMT1MKdEGTm9oUvw2OSl3La6nNFG01g2q9bhnEAeaHukzSx6UvMkQ86Mjgl
-	/Q+bdQILDn7U9d39p1tcAEfBtox8dK9s7PP09kOf6PnbO24jyZfXTCpI6kBon3S2ybw4UreCIfj
-	jqYSF4ut0LJLq0kEN0UYaDwCQ=
-X-Received: by 2002:a17:90b:570c:b0:35b:9896:cbd0 with SMTP id 98e67ed59e1d1-35c0ddc7c64mr3761784a91.25.1774451453060;
-        Wed, 25 Mar 2026 08:10:53 -0700 (PDT)
-Received: from fedora ([2401:4900:1f32:22d3:4161:93a:b87c:36eb])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35c1a022db8sm181861a91.3.2026.03.25.08.10.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Mar 2026 08:10:52 -0700 (PDT)
-Date: Wed, 25 Mar 2026 20:40:45 +0530
-From: ShiHao <i.shihao.999@gmail.com>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: andi.shyti@kernel.org, krzk+dt@kernel.org, robh@kernel.org,
-	conor+dt@kernel.org, linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: i2c: intel,ixp4xx-i2c: Convert to Dt schema
-Message-ID: <acP69aM-euL7wl87@fedora>
-References: <20260324135010.17730-1-i.shihao.999@gmail.com>
- <20260325-bulky-mushroom-of-science-8c95c4@quoll>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="QNd7/JMQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDCD1C4CEF7;
+	Wed, 25 Mar 2026 15:15:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774451742;
+	bh=j8gNRPy6u1ObH5yBkBbSK7NnYy7PdJdxRDpjmvu12+w=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=QNd7/JMQ41FD96eSKtR29IHLye0P4gsZg7eKayyjwiEdKvP73+j6UoL2TEx+4URE+
+	 6FuX8H6i6fsZGlXZCDHy25NcxYEAAfIHebDbhIksda6lAaILdTwEZSX3+vdKIWSP+D
+	 fNHWDJSOmNQZL4fLoASVA1INyn5xqXKIEjuoSy+LZYrJYIOlmwmSn3/VbU+9d+UDrA
+	 5+5KmeKl8mKQb2yfN08U9JFbfJutxnNBZRENayGoqrzuLC0T8zMUX7taXnV8JPr/E2
+	 8Coh9aavHrVmHty+lj8hqD4ZB5YHiIep2gPmemZR/S/oEAwytJi/ee2gX2Iog8wQ/r
+	 +vrszntuT2GXg==
+Message-ID: <c9b68d56-48f1-4ade-8711-fedd8acf0666@kernel.org>
+Date: Wed, 25 Mar 2026 16:15:39 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260325-bulky-mushroom-of-science-8c95c4@quoll>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] dt-bindings: i2c: intel,ixp4xx-i2c: Convert to Dt schema
+To: ShiHao <i.shihao.999@gmail.com>
+Cc: andi.shyti@kernel.org, krzk+dt@kernel.org, robh@kernel.org,
+ conor+dt@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260324135010.17730-1-i.shihao.999@gmail.com>
+ <20260325-bulky-mushroom-of-science-8c95c4@quoll> <acP69aM-euL7wl87@fedora>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <acP69aM-euL7wl87@fedora>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Mar 25, 2026 at 12:16:27PM +0100, Krzysztof Kozlowski wrote:
+On 25/03/2026 16:10, ShiHao wrote:
+> On Wed, Mar 25, 2026 at 12:16:27PM +0100, Krzysztof Kozlowski wrote:
+> 
+>> Please run scripts/checkpatch.pl on the patches and fix reported
+>> warnings. After that, run also 'scripts/checkpatch.pl --strict' on the
+>> patches and (probably) fix more warnings. Some warnings can be ignored,
+>> especially from --strict run, but the code here looks like it needs a
+>> fix. Feel free to get in touch if the warning is not clear.
+>>
+> 
+> Hello Krzysztof, 
+> 
+>       Once again thank you for your time. Those warnings are from running
+>       checkpatch.pl without the --strict option i myself discovered when you
+>       said that because i only use it with --strict option. I thought
+>       checkpatch.pl --strict  was more strict then checkpatch.pl but i guess
+>       it is not so strict as i thought it was. But apart from this i mean
+>       why in the first place there is the --strict option when it is actually
+>       not so strict it must have shown all errors, checks and warnings but it
+>       does not Anyway i will make sure to run both from now on thanks for pointing
+>       it.
 
-> Please run scripts/checkpatch.pl on the patches and fix reported
-> warnings. After that, run also 'scripts/checkpatch.pl --strict' on the
-> patches and (probably) fix more warnings. Some warnings can be ignored,
-> especially from --strict run, but the code here looks like it needs a
-> fix. Feel free to get in touch if the warning is not clear.
-> 
+I don't understand this at all.
 
-Hello Krzysztof, 
+You did not run checkpatch. Neither with --strict nor without --strict.
+The --strict does not matter, why are you even mentioning it if you did
+not run the checkpatch in the first place?
 
-      Once again thank you for your time. Those warnings are from running
-      checkpatch.pl without the --strict option i myself discovered when you
-      said that because i only use it with --strict option. I thought
-      checkpatch.pl --strict  was more strict then checkpatch.pl but i guess
-      it is not so strict as i thought it was. But apart from this i mean
-      why in the first place there is the --strict option when it is actually
-      not so strict it must have shown all errors, checks and warnings but it
-      does not Anyway i will make sure to run both from now on thanks for pointing
-      it.
-
-> > +properties:
-> > +  compatible:
-> > +    enum:
-> > +      - intel,ixp4xx-i2c
-> > +      - intel,iop3xx-i2c
-> 
-> Alphabetical order. Dunno why you reversed it from original binding.
-> 
-> 
-> > +
-> > +  reg:
-> > +    maxItems: 1
-> > +
-> > +  interrupts:
-> > +    maxItems: 1
-> 
-> This wasn't in the original binding.
-> 
-> What does my guideline/expectations for GSoC say? Did you read it?
-> 
-> 
-
- I will make sure to fix these issues in the next version. Also
- i did not read any guidelines so, please provide some resources
- to the GSoC guidlines you mentioned. I texted on IRC but Daniel
- said email is where i should ask for it. Thanks for your time.
-
-Kind regards
-Shihao
+Best regards,
+Krzysztof
