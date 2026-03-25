@@ -1,86 +1,42 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E682430AAB8;
-	Wed, 25 Mar 2026 20:13:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 611ED31F99A;
+	Wed, 25 Mar 2026 20:17:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774469603; cv=none; b=GjVhdeR2BeLqRRxTld0UwIHSFG42p4FdOZ2FtjkKYU6JwjUsRSHRd0OAurSTVQ4P9IUnUI5m+nt36qXdR2ppVEIPR70ekMyYI9skRylRsz3qAYnMrl/A85I0xKqCzJgPBbsBqnwziZpjOVlJk8/vmzEirdMClA0t+TW9g+z3968=
+	t=1774469834; cv=none; b=YSfesofq/ORkN8iFDLpWqUhcWiynAZvdvoEfG8xCJQ42w1qUpw9mvVrwPDYIUPXJSeOq0GDRO1j61imsnw+AcXvoNtdsyPtQ+n5qeBELYEmpsIMsRwvWMIgVs64JtD8tkSCOpm+OeHSiqoFu/GelX04wA5yk7EJLqZtLwrGDb4Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774469603; c=relaxed/simple;
-	bh=jSl4cR/M8opltn/7URZzvWelml/MUa8MCbVkBC5H/7Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition:In-Reply-To; b=qgevVwaaTobrMFsconOqqgZk00nddbSy7VzK3zCYLufblSAyGV1Bsrj78G1b9dZzU1y3Fno2Owu2TH4JtUxSBCUtfwN30GNWnTkP2BF7+ePrL/1d5ZBkrs7XnYyseNAEvjaBv1dKlS74INB0qNBH1NYro0WZV9KStro3EAzbfcU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Tkz39/YI; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774469834; c=relaxed/simple;
+	bh=eyiL26rfv9GlIzXO7zceGaWbWrBz6TpSU3eOieXvYrI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=CdO6t1Br5VwzW9XZ8fw6BfWgqxBUm2G4baX8c7tJarX93pYHes7MGeDUB8JocyzpaUK3eAdn/fnByDVhKA9oZ1iv1eTuLfQoi8sZwy+XTw9E3MDXJuqHqdD/q9FD5x8qIz9EANs8pdH0Iuq6963ud4SBzpxFBEg8OdjGIVg8GGU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gw1l5upN; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Tkz39/YI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C2F0C4CEF7;
-	Wed, 25 Mar 2026 20:13:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gw1l5upN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E1B7C4CEF7;
+	Wed, 25 Mar 2026 20:17:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774469602;
-	bh=jSl4cR/M8opltn/7URZzvWelml/MUa8MCbVkBC5H/7Q=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:From;
-	b=Tkz39/YIGOURtW2ow6h0sqScd2hCTpyVv9CGSZY9qtGWrSrjMUV5SL+I7z/kx260/
-	 0+RE2w69mycl2mfgjzZeSRZQBe+mUZ/l9N951dkmLGzxXGu2Q+zr+qjLBYDIV894R5
-	 2WaGAo+2zazNInal2SK6bs14ktm3stdXhU8IlYkwfgW/K5P8YQkf0skh5OzwK3roy5
-	 vRmlJoGDLRnR2uIJMFV7MxtEwL5cJ+oG7yYhXF5yvbEn1eKlvMOUZn0ScMRRHyyhmC
-	 dRG/71EX8DgaOGRpoya2j4xfZeZht+iT2MH99TCE6FYC/om6X7Ujq96H5hBTgb+7n+
-	 osAPLMTcZT91g==
-Date: Wed, 25 Mar 2026 15:13:21 -0500
-From: Bjorn Helgaas <helgaas@kernel.org>
-To: Herve Codina <herve.codina@bootlin.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Kalle Niemi <kaleposti@gmail.com>,
-	Matti Vaittinen <mazziesaccount@gmail.com>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Michael Turquette <mturquette@baylibre.com>,
-	Stephen Boyd <sboyd@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Peter Rosin <peda@axentia.se>, Arnd Bergmann <arnd@arndb.de>,
-	Saravana Kannan <saravanak@kernel.org>,
-	Bjorn Helgaas <bhelgaas@google.com>,
-	Charles Keepax <ckeepax@opensource.cirrus.com>,
-	Richard Fitzgerald <rf@opensource.cirrus.com>,
-	David Rhodes <david.rhodes@cirrus.com>,
-	Linus Walleij <linusw@kernel.org>,
-	Ulf Hansson <ulf.hansson@linaro.org>,
-	Mark Brown <broonie@kernel.org>, Len Brown <lenb@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Daniel Scally <djrscally@gmail.com>,
-	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	Davidlohr Bueso <dave@stgolabs.net>,
-	Jonathan Cameron <jonathan.cameron@huawei.com>,
-	Dave Jiang <dave.jiang@intel.com>,
-	Alison Schofield <alison.schofield@intel.com>,
-	Vishal Verma <vishal.l.verma@intel.com>,
-	Ira Weiny <ira.weiny@intel.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Shawn Guo <shawnguo@kernel.org>, Wolfram Sang <wsa@kernel.org>,
-	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
-	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-clk@vger.kernel.org, linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-pci@vger.kernel.org,
-	linux-sound@vger.kernel.org, patches@opensource.cirrus.com,
-	linux-gpio@vger.kernel.org, linux-pm@vger.kernel.org,
-	linux-spi@vger.kernel.org, linux-acpi@vger.kernel.org,
-	linux-cxl@vger.kernel.org,
-	Allan Nielsen <allan.nielsen@microchip.com>,
-	Horatiu Vultur <horatiu.vultur@microchip.com>,
-	Steen Hegelund <steen.hegelund@microchip.com>,
-	Luca Ceresoli <luca.ceresoli@bootlin.com>,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Subject: Re: [PATCH v6 12/27] PCI: of: Set fwnode device of newly created PCI
- device nodes
-Message-ID: <20260325201321.GA1291474@bhelgaas>
+	s=k20201202; t=1774469834;
+	bh=eyiL26rfv9GlIzXO7zceGaWbWrBz6TpSU3eOieXvYrI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=gw1l5upNfOVKt4AGI7ChQIxmWj4sfssV12vq3QOI8DmE4wbOfqLctcfh46ktEwWFM
+	 jTYIU1i0DAkqYbfqzAUXDXkN8FfdaH7N0J7Hhb9V7H5htIUD96YpTyKusC3KF9//KO
+	 vCuWFfFvag+dC+iswfoaIDfeXs3zqalY6l3vkSVokaJwD6vfhTpT3y5mxlfAT9RKzE
+	 E6uG4P2HbHPKQrPW2wnXphNYBrgBTORBJ7DK4YX5mXSFm+kQULmjv0Njv0/kcTKm5u
+	 m+kIYFmeHAqlF+FfnUifBRtO4m7lYv608v5ko60jkhecvXUjWACMWepWvM8X7i8Gda
+	 ypCiYqd3NihXw==
+Date: Wed, 25 Mar 2026 21:17:10 +0100
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Pratap Nirujogi <pratap.nirujogi@amd.com>
+Cc: andriy.shevchenko@linux.intel.com, mlimonci@amd.com, 
+	mika.westerberg@linux.intel.com, jsd@semihalf.com, rafael.j.wysocki@intel.com, 
+	benjamin.chan@amd.com, bin.du@amd.com, king.li@amd.com, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] i2c: designware: amdisp: Fix resume-probe race
+ condition issue
+Message-ID: <acRCk2muSdoEvbEI@zenone.zhora.eu>
+References: <20260320201302.3490570-1-pratap.nirujogi@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -89,53 +45,34 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260325143555.451852-13-herve.codina@bootlin.com>
+In-Reply-To: <20260320201302.3490570-1-pratap.nirujogi@amd.com>
 
-On Wed, Mar 25, 2026 at 03:35:39PM +0100, Herve Codina wrote:
-> Device-tree node can be created when CONFIG_PCI_DYNAMIC_OF_NODES. Those
-> node are created and filled based on PCI core information but the
-> fwnode device field is not set.
+Hi Pratap,
 
-s/Those node are/Those nodes are/
+On Fri, Mar 20, 2026 at 04:12:22PM -0400, Pratap Nirujogi wrote:
+> Identified resume-probe race condition in kernel v7.0 with the commit
+> 38fa29b01a6a ("i2c: designware: Combine the init functions"),but this
+> issue existed from the beginning though not detected.
+> 
+> The amdisp i2c device requires ISP to be in power-on state for probe
+> to succeed. To meet this requirement, this device is added to genpd
+> to control ISP power using runtime PM. The pm_runtime_get_sync() called
+> before i2c_dw_probe() triggers PM resume, which powers on ISP and also
+> invokes the amdisp i2c runtime resume before the probe completes resulting
+> in this race condition and a NULL dereferencing issue in v7.0
+> 
+> Fix this race condition by using the genpd APIs directly during probe:
+>   - Call dev_pm_genpd_resume() to Power ON ISP before probe
+>   - Call dev_pm_genpd_suspend() to Power OFF ISP after probe
+>   - Set the device to suspended state with pm_runtime_set_suspended()
+>   - Enable runtime PM only after the device is fully initialized
+> 
+> Fixes: d6263c468a761 ("i2c: amd-isp: Add ISP i2c-designware driver")
+> Co-developed-by: Bin Du <bin.du@amd.com>
+> Signed-off-by: Bin Du <bin.du@amd.com>
+> Signed-off-by: Pratap Nirujogi <pratap.nirujogi@amd.com>
 
-> When later an overlay is applied, this confuses fw_devlink. Indeed,
-> without any device attached to the node, fw_devlink considers that this
-> node will never become a device. When this node is pointed as a
-> supplier, devlink looks at its ancestors in order to find a node with a
-> device that could be used as the supplier.
-> 
-> In the PCI use case, this leads to links that wrongly use the PCI root
-> bridge device as the supplier instead of the expected PCI device.
-> 
-> Setting the fwnode device to the device of the PCI device allows devlink
-> to use this device as a supplier and so, correct links are created.
-> 
-> Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+merged to i2c/i2c-host-fixes.
 
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-
-> ---
->  drivers/pci/of.c | 7 +++++++
->  1 file changed, 7 insertions(+)
-> 
-> diff --git a/drivers/pci/of.c b/drivers/pci/of.c
-> index 5fb7f501fd35..b694fcda16b1 100644
-> --- a/drivers/pci/of.c
-> +++ b/drivers/pci/of.c
-> @@ -709,6 +709,13 @@ void of_pci_make_dev_node(struct pci_dev *pdev)
->  	if (ret)
->  		goto out_free_node;
->  
-> +	/*
-> +	 * Set the fwnode device in order to have fw_devlink creating links
-> +	 * pointing to this PCI device instead of walking up to the PCI host
-> +	 * bridge.
-> +	 */
-> +	fw_devlink_set_device(&np->fwnode, &pdev->dev);
-> +
->  	ret = of_changeset_apply(cset);
->  	if (ret)
->  		goto out_free_node;
-> -- 
-> 2.53.0
-> 
+Thanks,
+Andi
