@@ -1,146 +1,92 @@
-Received: from codeconstruct.com.au (pi.codeconstruct.com.au [203.29.241.158])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBFB32FFFBE;
-	Wed, 25 Mar 2026 09:15:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.29.241.158
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1089335AC17;
+	Wed, 25 Mar 2026 09:49:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774430161; cv=none; b=toRWKoSw1tdn5gpMrIS/6A0KYqTJoMEgs6UD2+7wNXl6s65Ci5NCltr1WssBnjmoHzK6gL1l5Dwi2tz6LLGpDcVcJObYg+OanfEMlu1DTXIosqlpoACxGkpLcVF7J8pLlZcWMkJMQnV7fWizvib7uBBKusIhZCI57A1blul4Nb4=
+	t=1774432193; cv=none; b=m0HqsdLg/GYsf3lR3uBV31Jpo1WS0fP/rtaHxnBQ7D0nsBZY9gLKk75GLDtHL56YO1Ya8yNDBZelsQPW+DFyLdmFy59mph6Cem9jRYTJLgUpByTyaGCXpgffzDAex+XWx1cgX5ldN5pUgNtOnVVSVSIFr55A6jW1/n5/sPWLo7E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774430161; c=relaxed/simple;
-	bh=gK91G0Kh3+mdj3OrhSUyPB44TdtMO6pJoTRl9mo39qQ=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=TFJUvt9QSQ47gvllmklojIviCesogGctmzPz4O3u6la8w18dvT79OipES1GYtrohCzUbeHkf4w0Gt07bUVv3IIKHAXfAWl5rBfrMrRBfROemUy81agdT4ZI+K6ruxsnuZlMXiDaHmxNtE33ah7xWjXb6bqB8iXySD3/SYsheogc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codeconstruct.com.au; spf=pass smtp.mailfrom=codeconstruct.com.au; dkim=pass (2048-bit key) header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.b=ZnphFnjB; arc=none smtp.client-ip=203.29.241.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=codeconstruct.com.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=codeconstruct.com.au
+	s=arc-20240116; t=1774432193; c=relaxed/simple;
+	bh=Vaosi1pX1K3xtkInII2d2k9K5rhC7gGh7uUHH86JsCc=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=QzaTchaFkbjB8Q/tpDxRNBejEvIf3RRvWr1x7BgkFGMyKcxL8o7DEsrbb1O4cCAmAEQrwjUepoUix7+KTxeSjGCLJrcTpqliDNeJ1fweB/+brQ3emDnk+HBFQj/IfnZneq3byOFjMS7gpQHm7Y5DkHn2ZQt4/jsZ2uLwaV5ybFM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E7JtgHhA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=codeconstruct.com.au header.i=@codeconstruct.com.au header.b="ZnphFnjB"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=codeconstruct.com.au; s=2022a; t=1774430157;
-	bh=gK91G0Kh3+mdj3OrhSUyPB44TdtMO6pJoTRl9mo39qQ=;
-	h=Subject:From:To:Cc:Date:In-Reply-To:References;
-	b=ZnphFnjBKvQXgZewq1BcRIyvVp/KbXTSwy5zs660K1Q/BPNeFqfRZfvVEdKoK67iR
-	 OVB8Y5kuoKvgaLyJk0RFnEfYhPhmM5xSgFwWqE1TQfZ4A8Q5LHrsPY6L3C4c+y0StC
-	 OEkHNOg8VK9kjYfrF6V0ZUlbncIGBOaC+LfLuQHDTj3IvZtyI9FzdhjcbzZW6Wq7Wh
-	 13E+wFO/y6QXMrBDMmSuEOtMAhnAcwCycyfzTWRKxalbbA2FES4fnkF+y9troHKI2j
-	 dt7XWyY2nv5lSC77qVcjwQtL3Wz5wItkd8JRLeHrf/KKGBum3zbKOG2EP+L8cZhcCQ
-	 2mYJfLdMxno2w==
-Received: from pecola.lan (unknown [159.196.93.152])
-	by mail.codeconstruct.com.au (Postfix) with ESMTPSA id 7D3296452E;
-	Wed, 25 Mar 2026 17:15:54 +0800 (AWST)
-Message-ID: <28eee6d05ed1e1814f09ec907d56798a279f226d.camel@codeconstruct.com.au>
-Subject: Re: [PATCH v27 3/4] i2c: ast2600: Add controller driver for AST2600
- new register set
-From: Jeremy Kerr <jk@codeconstruct.com.au>
-To: Ryan Chen <ryan_chen@aspeedtech.com>,
- "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>,
- Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Joel Stanley <joel@jms.id.au>, Andrew Jeffery
- <andrew@codeconstruct.com.au>, Benjamin Herrenschmidt
- <benh@kernel.crashing.org>,  Philipp Zabel <p.zabel@pengutronix.de>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>, 
-	"devicetree@vger.kernel.org"
-	 <devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
-	 <linux-arm-kernel@lists.infradead.org>, "linux-aspeed@lists.ozlabs.org"
-	 <linux-aspeed@lists.ozlabs.org>, "linux-kernel@vger.kernel.org"
-	 <linux-kernel@vger.kernel.org>, "openbmc@lists.ozlabs.org"
-	 <openbmc@lists.ozlabs.org>
-Date: Wed, 25 Mar 2026 17:15:54 +0800
-In-Reply-To: <TY2PPF5CB9A1BE6D451E8AFDBA03B81AFB4F249A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
-References: <20260324-upstream_i2c-v27-0-f19b511c8c28@aspeedtech.com>
-	 <20260324-upstream_i2c-v27-3-f19b511c8c28@aspeedtech.com>
-	 <db921d6b820a13d59d0ffb0ab042dc6c8c11897f.camel@codeconstruct.com.au>
-	 <TY2PPF5CB9A1BE6D451E8AFDBA03B81AFB4F249A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
-User-Agent: Evolution 3.46.4-2+deb12u1 
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E7JtgHhA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFF04C2BC9E;
+	Wed, 25 Mar 2026 09:49:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774432192;
+	bh=Vaosi1pX1K3xtkInII2d2k9K5rhC7gGh7uUHH86JsCc=;
+	h=From:Subject:Date:To:Cc:From;
+	b=E7JtgHhAupTJ8CzREFMJoQ6Bw3YDgrUZkEegxbttFI5MdxI7hDlkknWakc+QOp5eM
+	 r+oIJ8QK7tQCAH+b9wIbSxFCJlgzoSq1GxlsqJnFFYUvLmrrX+1bHp8h6PdfJKwEE4
+	 O1w4RQJmSoye/Kg9pCN119SOdJ9+HB7nIJmuhW6VwbG0KJOlJc+Rq7CVGhBHo5dBDr
+	 2U5TSL254HsHU2Zk3go7QNVojqcWxYFlr19EkIYlFu3bG3x0tb6nb+52g+MDrCypuh
+	 K/nMHvYshfhaApZQkwu8/K/ZsRexsmbCGHGenhUU2A2SMBpXd0P5uDSMjqyxPEIDvR
+	 z4sR3WeBB2A9g==
+From: Yixun Lan <dlan@kernel.org>
+Subject: [PATCH 0/2] riscv: spacemit: k3: Add I2C support
+Date: Wed, 25 Mar 2026 09:49:23 +0000
+Message-Id: <20260325-02-k3-i2c-v1-0-78f29c83d9ac@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAKOvw2kC/y3MSwqAMAxF0a1IxgbaFAu6FXFQbNQg+GlVBHHvF
+ nV4Ho97QeQgHKHKLgh8SJR5StB5Bu3gpp5RfDKQIquM1qgIR4NCLVrnCyqsdaUzkP5L4E7Ot1U
+ 3nwOve0pu/3jfD+V51wpwAAAA
+X-Change-ID: 20260311-02-k3-i2c-6ad52566a9a3
+To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Paul Walmsley <pjw@kernel.org>, 
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+ Alexandre Ghiti <alex@ghiti.fr>, 
+ Troy Mitchell <troy.mitchell@linux.spacemit.com>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-riscv@lists.infradead.org, spacemit@lists.linux.dev, 
+ linux-kernel@vger.kernel.org, Yixun Lan <dlan@kernel.org>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openpgp-sha256; l=641; i=dlan@kernel.org;
+ h=from:subject:message-id; bh=Vaosi1pX1K3xtkInII2d2k9K5rhC7gGh7uUHH86JsCc=;
+ b=owEB6QIW/ZANAwAKATGq6kdZTbvtAcsmYgBpw6+09WRmYMPEjLZE2p7r5oxok1cDWf9KdEPZQ
+ Pu2/KGczIKJAq8EAAEKAJkWIQS1urjJwxtxFWcCI9wxqupHWU277QUCacOvtBsUgAAAAAAEAA5t
+ YW51MiwyLjUrMS4xMSwyLDJfFIAAAAAALgAoaXNzdWVyLWZwckBub3RhdGlvbnMub3BlbnBncC5
+ maWZ0aGhvcnNlbWFuLm5ldEI1QkFCOEM5QzMxQjcxMTU2NzAyMjNEQzMxQUFFQTQ3NTk0REJCRU
+ QACgkQMarqR1lNu+3uOQ//XHHfw4wvmtnMP9Dz38p2iSAG318MgZGdUbv54RWlICA0HQaGkKd/n
+ +WsgTmmZQ/0G5v/7r280fK6c8czBy4EH+ab2sV2CIIey8+Qcd2bmJhZ4tAstvF+owZbdkMvZ9vv
+ T2gQbuqRVXFvuaeq5bEYkJUVn8Ze28I7Q9fwKaXeoYcaBwyrzVG2GFuswZ6w0cMy8DFeV7bfrE9
+ MuB9fUb+ezBHDiN9dBUYM6+EgzjRuCUBz7PcTDtem5BwkaCo2PWfbbAizAN8UPC/by81MwI7kgB
+ tQReS8tPiEt9nDYilZB5pEB4B8lXQL0qcauEUGTQSrzlX0Zac8wRFfTSvVkS/g82ddWUJ3T0uxH
+ H0GM2lXL1aCMsB343AtIhu7P67/crjm0Vhnj7w7dRBDa1bwm+g0/W7+B54psYc+dCUQDZdGoaNt
+ ZV8YswieSxXTE1QORxpAgttMMx4zUGP+gzPSNp/r+uHRl7d8QWFrXeT0hrME2MguDnb+RwflTUR
+ n3VkY3u56KM6bJUhRIG4qdJwQz7l3FhbMYwe/RMl2HuIN/hfdZQCBQN+ulXo1GU3H+ZPdEFaSiB
+ wcucr/S4ItM/7Cm+aII4NctR8lWH1jVxndSHzHHhNweJTdEYxGC4MGGTlZQi/ET2Dph/Ffpt3n3
+ xQHoCJ+B56woGmBQPra4geiaLjOcY8=
+X-Developer-Key: i=dlan@kernel.org; a=openpgp;
+ fpr=50B03A1A5CBCD33576EF8CD7920C0DBCAABEFD55
 
-SGkgUnlhbiwKCj4gPiBJIHdvdWxkIHN1Z2dlc3Qgc2VwYXJhdGluZyB0aGUgc3RyaW5nIHBhcnNp
-bmcgZnJvbSB0aGUgImlzIHRoZSBtb2RlIGF2YWlsYWJsZSIKPiA+IGxvZ2ljLCBtb3JlIG9uIHRo
-YXQgYmVsb3cuCj4gPiAKPiBJIHdpbGwgc2VwYXJhdGUgd2l0aCBmb2xsb3dpbmcuCj4gwqAKPiBz
-dGF0aWMgaW50IGFzdDI2MDBfaTJjX3hmZXJfbW9kZV9wYXJzZShjb25zdCBjaGFyICpidWYsIGVu
-dW0geGZlcl9tb2RlICptb2RlKQo+IHsKPiDCoMKgwqAgaWYgKHN5c2ZzX3N0cmVxKGJ1ZiwgImJ5
-dGUiKSnCoMKgIHsgKm1vZGUgPSBCWVRFX01PREU7IHJldHVybiAwOyB9Cj4gwqDCoMKgIGlmIChz
-eXNmc19zdHJlcShidWYsICJidWZmZXIiKSkgeyAqbW9kZSA9IEJVRkZfTU9ERTsgcmV0dXJuIDA7
-IH0KPiDCoMKgwqAgaWYgKHN5c2ZzX3N0cmVxKGJ1ZiwgImRtYSIpKcKgwqDCoCB7ICptb2RlID0g
-RE1BX01PREU7wqAgcmV0dXJuIDA7IH0KPiDCoMKgwqAgcmV0dXJuIC1FSU5WQUw7Cj4gfQoKT0ss
-IGJ1dCB3aXRoIGtlcm5lbC1zdHlsZSBmb3JtYXR0aW5nLgoKPiAKPiBzdGF0aWMgaW50IGFzdDI2
-MDBfaTJjX3hmZXJfbW9kZV9jaGVjayhzdHJ1Y3QgYXN0MjYwMF9pMmNfYnVzICppMmNfYnVzLAo+
-IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgZW51bSB4ZmVyX21vZGUgbW9kZSkKPiB7Cj4gwqDCoMKgIGlm
-IChtb2RlID09IEJVRkZfTU9ERSAmJiAhaTJjX2J1cy0+YnVmX2Jhc2UpCj4gwqDCoMKgwqDCoMKg
-wqAgcmV0dXJuIC1FSU5WQUw7Cj4gwqDCoMKgIGlmIChtb2RlID09IERNQV9NT0RFICYmICFpMmNf
-YnVzLT5kbWFfYXZhaWxhYmxlKQo+IMKgwqDCoMKgwqDCoMKgIHJldHVybiAtRUlOVkFMOwo+IMKg
-wqDCoCByZXR1cm4gMDsKPiB9Cj4gCj4gPiA+ICsKPiA+ID4gK3N0YXRpYyBjb25zdCBjaGFyICph
-c3QyNjAwX2kyY194ZmVyX21vZGVfbmFtZShlbnVtIHhmZXJfbW9kZSBtb2RlKSB7Cj4gPiA+ICvC
-oMKgwqDCoMKgwqDCoHN3aXRjaCAobW9kZSkgewo+ID4gPiArwqDCoMKgwqDCoMKgwqBjYXNlIEJZ
-VEVfTU9ERToKPiA+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoHJldHVybiAiYnl0
-ZSI7Cj4gPiA+ICvCoMKgwqDCoMKgwqDCoGNhc2UgRE1BX01PREU6Cj4gPiA+ICvCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm4gImRtYSI7Cj4gPiA+ICvCoMKgwqDCoMKgwqDCoGNh
-c2UgQlVGRl9NT0RFOgo+ID4gPiArwqDCoMKgwqDCoMKgwqBkZWZhdWx0Ogo+ID4gPiArwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgcmV0dXJuICJidWZmZXIiOwo+ID4gPiArwqDCoMKgwqDC
-oMKgwqB9Cj4gPiA+ICt9Cj4gPiA+ICsKPiA+ID4gK3N0YXRpYyBzc2l6ZV90IHhmZXJfbW9kZV9z
-aG93KHN0cnVjdCBkZXZpY2UgKmRldiwgc3RydWN0Cj4gPiA+ICtkZXZpY2VfYXR0cmlidXRlICph
-dHRyLCBjaGFyICpidWYpIHsKPiA+ID4gK8KgwqDCoMKgwqDCoMKgc3RydWN0IGFzdDI2MDBfaTJj
-X2J1cyAqaTJjX2J1cyA9IGRldl9nZXRfZHJ2ZGF0YShkZXYpOwo+ID4gPiArCj4gPiA+ICvCoMKg
-wqDCoMKgwqDCoHJldHVybiBzeXNmc19lbWl0KGJ1ZiwgIiVzXG4iLAo+ID4gPiArYXN0MjYwMF9p
-MmNfeGZlcl9tb2RlX25hbWUoaTJjX2J1cy0+bW9kZSkpOwo+ID4gPiArfQo+ID4gPiArCj4gPiA+
-ICtzdGF0aWMgc3NpemVfdCB4ZmVyX21vZGVfc3RvcmUoc3RydWN0IGRldmljZSAqZGV2LAo+ID4g
-PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoCBzdHJ1Y3QgZGV2aWNlX2F0dHJpYnV0ZSAqYXR0ciwKPiA+ID4gK8KgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgY29uc3QgY2hhciAq
-YnVmLCBzaXplX3QgY291bnQpCj4gPiB7Cj4gPiA+ICvCoMKgwqDCoMKgwqDCoHN0cnVjdCBhc3Qy
-NjAwX2kyY19idXMgKmkyY19idXMgPSBkZXZfZ2V0X2RydmRhdGEoZGV2KTsKPiA+ID4gK8KgwqDC
-oMKgwqDCoMKgZW51bSB4ZmVyX21vZGUgbW9kZTsKPiA+ID4gK8KgwqDCoMKgwqDCoMKgaW50IHJl
-dDsKPiA+ID4gKwo+ID4gPiArwqDCoMKgwqDCoMKgwqByZXQgPSBhc3QyNjAwX2kyY194ZmVyX21v
-ZGVfcGFyc2UoaTJjX2J1cywgYnVmLCAmbW9kZSk7Cj4gPiA+ICvCoMKgwqDCoMKgwqDCoGlmIChy
-ZXQpCj4gPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqByZXR1cm4gcmV0Owo+ID4g
-PiArCj4gPiA+ICvCoMKgwqDCoMKgwqDCoGkyY19sb2NrX2J1cygmaTJjX2J1cy0+YWRhcCwgSTJD
-X0xPQ0tfUk9PVF9BREFQVEVSKTsKPiA+ID4gK8KgwqDCoMKgwqDCoMKgYXN0MjYwMF9pMmNfc2V0
-X3hmZXJfbW9kZShpMmNfYnVzLCBtb2RlKTsKPiA+ID4gK8KgwqDCoMKgwqDCoMKgaTJjX3VubG9j
-a19idXMoJmkyY19idXMtPmFkYXAsIEkyQ19MT0NLX1JPT1RfQURBUFRFUik7Cj4gPiA+ICsKPiA+
-ID4gK8KgwqDCoMKgwqDCoMKgcmV0dXJuIGNvdW50Owo+ID4gPiArfQo+ID4gPiArCj4gPiA+ICtz
-dGF0aWMgREVWSUNFX0FUVFJfUlcoeGZlcl9tb2RlKTsKPiA+IAo+ID4gVGhpcyB3aWxsIG5lZWQg
-c3lzZnMgQUJJIGRvY3VtZW50YXRpb24uCj4gCj4gU2luY2UgaXQgaXMgaW4gc3lzZnMgL3N5cy9i
-dXMvcGxhdGZvcm0vZHJpdmVycy9pMmNfYXN0MjYwMAo+IFNvIEkgYWRkIERvY3VtZW50YXRpb24v
-QUJJL3Rlc3Rpbmcvc3lzZnMtYnVzLXBsYXRmb3JtLWRyaXZlcnMtaTJjLWFzdDI2MDAgCj4gYW0g
-SSByaWdodD8KCkkgd291bGQgc3VnZ2VzdCBEb2N1bWVudGF0aW9uL0FCSS90ZXN0aW5nL3N5c2Zz
-LWRyaXZlci1hc3QyNjAwLWkyYwoKPiAKPiBXaGF0OsKgwqDCoMKgwqDCoMKgwqDCoMKgwqAvc3lz
-L2J1cy9wbGF0Zm9ybS9kcml2ZXJzL2kyYy1hc3QyNjAwLy4uLi94ZmVyX21vZGUKPiBEYXRlOsKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqBNYXJjaCAyMDI2Cj4gS2VybmVsVmVyc2lvbjrCoMKgNi54CgpL
-ZXJuZWxWZXJzaW9uIGlzIG9wdGlvbmFsLCBidXQgaWYgeW91IGluY2x1ZGUgaXQsIGl0IHdvdWxk
-IGJlIDcueC4KCj4gQ29udGFjdDrCoMKgwqDCoMKgwqDCoMKgUnlhbiBDaGVuIDxyeWFuX2NoZW5A
-YXNwZWVkdGVjaC5jb20+Cj4gRGVzY3JpcHRpb246CgpLZWVwIHRoZSBmaXJzdCBsaW5lIG9mIHRo
-ZSBkZXNjcmlwdGlvbiBvbiB0aGUgc2FtZSBsaW5lLgoKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoFNob3dzIG9yIHNldHMgdGhlIHRyYW5zZmVyIG1vZGUgZm9yIHRoZSBBU1BFRUQg
-QVNUMjYwMCBJMkMKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoGNvbnRyb2xsZXIu
-IFZhbGlkIHZhbHVlcyBhcmU6Cj4gCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAt
-ICJieXRlIjrCoMKgIFByb2dyYW1tZWQgSS9PLCBvbmUgYnl0ZSBhdCBhIHRpbWUuCj4gwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAtICJidWZmZXIiOiBQcm9ncmFtbWVkIEkvTyB1c2lu
-ZyB0aGUgaGFyZHdhcmUgRklGTyBidWZmZXIuCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqAtICJkbWEiOsKgwqDCoCBETUEgdHJhbnNmZXIgKG9ubHkgYXZhaWxhYmxlIGlmIGFzcGVl
-ZCxlbmFibGUtZG1hCj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgIGlzIHNldCBpbiB0aGUgZGV2aWNlIHRyZWUpLgoKRGVjb3VwbGUgdGhpcyBm
-cm9tIHRoZSBkZXZpY2UgdHJlZSBjb25maWd1cmF0aW9uIG1lY2hhbmlzbToKCiDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoC0gImRtYSI6wqDCoMKgIERNQSB0cmFuc2ZlciAoaWYgRE1B
-IGlzIGF2YWlsYWJsZSBmb3IgdGhpcwogICAgICAgICAgICAgICAgICAgICAgICAgICAgIGNvbnRy
-b2xsZXIpCgo+IGkyY19idXMtPmJ1Zl9iYXNlID0gZGV2bV9wbGF0Zm9ybV9nZXRfYW5kX2lvcmVt
-YXBfcmVzb3VyY2UocGRldiwgMSwgJnJlcyk7Cj4gaWYgKCFJU19FUlIoaTJjX2J1cy0+YnVmX2Jh
-c2UpKQo+IMKgwqDCoCBpMmNfYnVzLT5idWZfc2l6ZSA9IHJlc291cmNlX3NpemUocmVzKSAvIDI7
-Cj4gZWxzZQo+IMKgwqDCoCBpMmNfYnVzLT5idWZfYmFzZSA9IE5VTEw7CgpJIHdvdWxkIHN1Z2dl
-c3QgYSB0ZW1wb3JhcnksIHNvIHRoZXJlJ3Mgbm8gY2hhbmNlIHRoYXQgZnV0dXJlIGNoYW5nZXMK
-Y291bGQgc2VlIGFuIEVSUl9QVFIgdmFsdWUgaW4gaTJjX2J1cy0+YnVmX2Jhc2U6CgogICAgYnVm
-X2Jhc2UgPSBkZXZtX3BsYXRmb3JtX2dldF9hbmRfaW9yZW1hcF9yZXNvdXJjZShwZGV2LCAxLCAm
-cmVzKTsKICAgIGlmICghSVNfRVJSKGJ1Zl9iYXNlKSkgewogICAgICAgIGkyY19idXMtPmJ1Zl9i
-YXNlID0gYnVmX2Jhc2UKICAgIMKgwqDCoCBpMmNfYnVzLT5idWZfc2l6ZSA9IHJlc291cmNlX3Np
-emUocmVzKSAvIDI7CiAgICB9CgphbmQgeW91IGhhdmUga3phbGxvYygpZWQsIHNvIG5vIG5lZWQg
-Zm9yIHRoZSBOVUxMIGluaXQgaW4gdGhlIGVycm9yIHBhdGguCgpDaGVlcnMsCgoKSmVyZW15Cg==
+This series try to introduce a compatible string for the I2C
+controller found in K3 SoC, and add all devicetree nodes .
+
+Signed-off-by: Yixun Lan <dlan@kernel.org>
+---
+Yixun Lan (2):
+      dt-bindings: i2c: spacemit: k3: Add compatible
+      dts: riscv: spacemit: k3: Add i2c nodes
+
+ .../devicetree/bindings/i2c/spacemit,k1-i2c.yaml   |  6 +-
+ arch/riscv/boot/dts/spacemit/k3.dtsi               | 98 ++++++++++++++++++++++
+ 2 files changed, 103 insertions(+), 1 deletion(-)
+---
+base-commit: c68360c0d636dae71f766b7b296ddfcf2827ccc7
+change-id: 20260311-02-k3-i2c-6ad52566a9a3
+
+Best regards,
+-- 
+Yixun Lan <dlan@kernel.org>
 
