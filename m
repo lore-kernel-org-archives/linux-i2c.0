@@ -1,134 +1,116 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f49.google.com (mail-lf1-f49.google.com [209.85.167.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE0173CB2FA
-	for <linux-i2c@vger.kernel.org>; Thu, 26 Mar 2026 10:33:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF0893ECBDA
+	for <linux-i2c@vger.kernel.org>; Thu, 26 Mar 2026 11:39:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774521212; cv=none; b=Z945pAxM8kI7VKe+0dF6VOAIEM9ft+dtwHCEvcrhiQX466kCgnofsJOHSMbDydqrQycaA9Wx1z1GBb+7YdXbAFfqmFFS3tVlh2+YK8YTXuzZy80PA6lp8NEnTQEBtgze+98XE43S6IbaBS+Uz8b507/nuZD+OJ28Hp7WA1rqZKs=
+	t=1774525177; cv=none; b=GFThkiwu7X+MkGLTCoG4v4jgZgAriU/BEgT/VJp5cCURMF1DdWp068woOrdqd7Ynf4Ud7ZUnQyOlRx+yOfXDClYf2QTpaXiZ6G1tM+lZFMK4Q5zluUFuQWKDsWT7GddQoGYsLbYINBESJ6YjZOPJZzVh+DoWhBt6ILHjD5zpNco=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774521212; c=relaxed/simple;
-	bh=ZudevnbvHxuJFNRVUgY0l6TTlPYj57cCXzQfq18RxyU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=RGND5Tk6sZo1QNAWUHcn9RSbt38jLPeNhR8XF9Cb4S54x6BT6xA9q7QDA9xvhqmDWev3uMpDjXwCa77UJlEbsvthk0ZGFLHAYe1NwaTAsiQ3VuoY1knVUCkYkUrl2M+aZWVkgJABCKeMTovZrAfCWdTH7MmhMsnkuIF2oxKZJ8w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kLAVn+yy; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774525177; c=relaxed/simple;
+	bh=f62V4X4hSvGxJKdk/w/IZZ3abRCMpC8myNrDjm5ZBe8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=cjS5rWl75hSL6i1PVnFv8jX+vebC4xexyiY++/hY66vZSjhMTvrDnVd+yaebwUKiAY38nblaeIUjlZ4YMRKNiwRx2Lcc/jxhqqYlmHVhPf6Nsac1kIWX/Sbmfn8V0oc/wCjb9xkgAccsIj+gGk3dicU3N/TeOPapZlSCFRm5XN8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FxlPVJc2; arc=none smtp.client-ip=209.85.167.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kLAVn+yy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0ECCC2BCC4
-	for <linux-i2c@vger.kernel.org>; Thu, 26 Mar 2026 10:33:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774521211;
-	bh=ZudevnbvHxuJFNRVUgY0l6TTlPYj57cCXzQfq18RxyU=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=kLAVn+yyTl/Q8z+UhqbNmfz2LrWrp36HL1Ae4tSkcqPbq1qp3GRw4UjT323vqOUua
-	 8ahJjFB01lxdM/2KIMuWIT/npAo065XzkAEJITt09khnLhIl+eLEP4WHkDeGlGhT4f
-	 e0aeWHoRGhZBI4R40jiCJ1bYcjad052WCHxrFwLVGoii6XzPg7Pg1HGrPKXJuKh9dZ
-	 FixFToi4dvl3Fnnmk6MV3sIitDaktMkzrAFWZVUVpwagZgrFRx2FtV0UYZvB2u1NgG
-	 sqo55jxPVDBNxHLQcxm2vrGc3ZOgOvS+j+ZAYexlcyf+b06vLqMYU9z3zUlgUTwEUY
-	 w55U+UPZxDs9w==
-Received: by mail-yw1-f170.google.com with SMTP id 00721157ae682-7982c3b7dfcso8234347b3.0
-        for <linux-i2c@vger.kernel.org>; Thu, 26 Mar 2026 03:33:31 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCXqC6e55xx9K1vtzTzEyvIvcDtfRaDB7fOQ104Hg6ysdZwUHTkJ+Ib6te56S/fb9g7h84IFT28uEYI=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw6EoDbArFoJid+gA2sIrRyK5nc5PCOZikhpRNO+MP0P5SB+HHZ
-	P2ny/LMFIRpZ9neSQh8X/VG59qpob/Azwgx2TiJsYSOvQFGm1WgZpG79uxtA7UrbuKa3g6UgupZ
-	OTRPIcmkjNx5CY3/+ViAuvTmVd3rAXQ8=
-X-Received: by 2002:a05:690c:6086:b0:79a:69bc:f20f with SMTP id
- 00721157ae682-79acf3a8b76mr76387137b3.21.1774521210579; Thu, 26 Mar 2026
- 03:33:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FxlPVJc2"
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5a12c310e8aso1038217e87.3
+        for <linux-i2c@vger.kernel.org>; Thu, 26 Mar 2026 04:39:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1774525167; x=1775129967; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=JL83gbLudZtH8CT7uiZfcAOnl7OPRgnYQKRWmn1MAfI=;
+        b=FxlPVJc2MUKH2AmviRK1mChmKLuinzobiZGuSCCKQzP/xKuhe4tvCoaX3Q7bE5OwEg
+         uNK2rwc6LYACbB4S/i1pAxffe26r3HJfbE0vDfWCtQ0l7QhqFSjK1kKSH4yf/lyxpf5H
+         gOq6miYpdCXXEhRR32ppudAnKRocqW8qBjMZ7CChHT78yWdGPw5wOpeF4c4wVYNex29G
+         hrkM+2TSpDuq6/BNeh/IOtnhxYh3/rYPt95fl6KNVqNH9b7udkVPj6BQQMT1KrVbu/Nw
+         lIB4/vRJqtvlrZyfV6XbXUyWsZUswrrVWcjFzM1cSHGGiUf1wfHqEJpe3odlFg5lyRFD
+         dCyA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774525167; x=1775129967;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=JL83gbLudZtH8CT7uiZfcAOnl7OPRgnYQKRWmn1MAfI=;
+        b=ToWtu+/VkNGOdhNVSQtGf3bYSq4livAK3GT4b7ydmaWDiEkUiDOopkNGIgyBBBoRQR
+         T8YzCY7Jr0c4Lo2LBeuf8XTwC7Sxw2drp4Jza1zOgNmfHB1vbeVDxoZ9Za+/H4Ov2/L4
+         hdYsFoijYjaMUYx5xO6E8efh8VNGzX2EKjIykqVAB3G/V6GXAYjgEDAAO2NfHMyhjJ4q
+         br9V6tf+HGOiwvtQSvX0JxPMTjo2OO2Pac07a1pqPI3mvqlj3KXWNWFFMI43bfsyvft6
+         A4PW/vIRcHAxTfNpdKA4H/3324Fedk7FxcNnwljj9pChZGc2kK09uhpwOLk+g2AojOfd
+         Qpcw==
+X-Forwarded-Encrypted: i=1; AJvYcCVrFY5IWWRUYv4zkp4yTa2lWIHcWGSKnF4YslNxX64+pMG9lb964IjfzSbIbxKw6T5oAWXOec03I6Y=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy64lHt/gRieuITMpi6hkF/hEhkoJx0YknVmwB97yG56FKhl4Nv
+	yxUooW8Xu4TnFoeAQzmUMoFGqb60/VF79hocCvP/LnOUL237lqk8OuwE
+X-Gm-Gg: ATEYQzxPiwbuTTCWiPWO8do2n/w9Q8zscJB3uUpM1HPV0n56xD7ZIFZZ6MI35WJv0l2
+	cXnqx3Ix4NlOGoZyIrKzGHOaonyTjRPpMklf1zdGXtF3Yq0IOESchcirvL3kQW9ENJG8UnwXRvu
+	KH6NeBk2jxnPn6C2U7NbF0nLJV3rZJyX/Hf/3pR0o4UTDUYMCMc0RuUy7ZaSrdq4ngvvuLL3Fl2
+	1N31D12BRprDklt99DlYP1vSOCQJKfDdZPH9T15SbH3wtt+xmK9jn+isO1r7/dPvTLWKiC+i4yY
+	YekebIqpHF656vgwpJBnFGmGkmAahl2E8h1etPKz3GFx9cr+KI0L6yjYikd0YChS3YIFsWkM4jV
+	DeSzzXQPV0fMV1o9GAkHZa3cmtM1BlcHH9kIr05AsNvfbYf3GBpal3FEXR0W8aHwYy5hWTYaKq1
+	IRoMMREn7skvQw8ZIxhwfwQF6/L69ZoWLXM2kcVXshRYu3ubDCZivKbObRKKV5upcKb44xd34=
+X-Received: by 2002:a05:6512:2254:b0:5a2:a5a1:4732 with SMTP id 2adb3069b0e04-5a2a5a147e0mr437733e87.5.1774525166301;
+        Thu, 26 Mar 2026 04:39:26 -0700 (PDT)
+Received: from gmail.com (83-233-6-197.cust.bredband2.com. [83.233.6.197])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a2a063dcc3sm546963e87.7.2026.03.26.04.39.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 26 Mar 2026 04:39:25 -0700 (PDT)
+Date: Thu, 26 Mar 2026 12:39:23 +0100
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+To: Andy Shevchenko <andriy.shevchenko@intel.com>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Peter Rosin <peda@axentia.se>,
+	Michael Hennerich <michael.hennerich@analog.com>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v9 2/5] i2c: mux: add support for per channel bus
+ frequency
+Message-ID: <acUa61a_XIuoOobd@gmail.com>
+References: <20260324-i2c-mux-v9-0-5292b0608243@gmail.com>
+ <20260324-i2c-mux-v9-2-5292b0608243@gmail.com>
+ <acKbYhbwZzv2gTnB@ashevche-desk.local>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260325143555.451852-1-herve.codina@bootlin.com> <20260325143555.451852-21-herve.codina@bootlin.com>
-In-Reply-To: <20260325143555.451852-21-herve.codina@bootlin.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Thu, 26 Mar 2026 11:33:19 +0100
-X-Gmail-Original-Message-ID: <CAD++jLkFu+Z22QBFiaa9S+Epeh=RJZOYX8BOLVDFw4bhEoYF1Q@mail.gmail.com>
-X-Gm-Features: AQROBzC4i_eE97sXtt89YSs_3fVQUuKW8eO9nnDvhVba5azUhozyRvIt7ceD-wY
-Message-ID: <CAD++jLkFu+Z22QBFiaa9S+Epeh=RJZOYX8BOLVDFw4bhEoYF1Q@mail.gmail.com>
-Subject: Re: [PATCH v6 20/27] misc: lan966x_pci: Fix dtso nodes ordering
-To: Herve Codina <herve.codina@bootlin.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Geert Uytterhoeven <geert+renesas@glider.be>, Kalle Niemi <kaleposti@gmail.com>, 
-	Matti Vaittinen <mazziesaccount@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	"Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
-	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
-	Fabio Estevam <festevam@gmail.com>, Michael Turquette <mturquette@baylibre.com>, 
-	Stephen Boyd <sboyd@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, Peter Rosin <peda@axentia.se>, 
-	Arnd Bergmann <arnd@arndb.de>, Saravana Kannan <saravanak@kernel.org>, 
-	Bjorn Helgaas <bhelgaas@google.com>, Charles Keepax <ckeepax@opensource.cirrus.com>, 
-	Richard Fitzgerald <rf@opensource.cirrus.com>, David Rhodes <david.rhodes@cirrus.com>, 
-	Ulf Hansson <ulf.hansson@linaro.org>, Mark Brown <broonie@kernel.org>, Len Brown <lenb@kernel.org>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Daniel Scally <djrscally@gmail.com>, 
-	Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
-	Sakari Ailus <sakari.ailus@linux.intel.com>, Davidlohr Bueso <dave@stgolabs.net>, 
-	Jonathan Cameron <jonathan.cameron@huawei.com>, Dave Jiang <dave.jiang@intel.com>, 
-	Alison Schofield <alison.schofield@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, 
-	Ira Weiny <ira.weiny@intel.com>, Dan Williams <dan.j.williams@intel.com>, 
-	Shawn Guo <shawnguo@kernel.org>, Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org, 
-	driver-core@lists.linux.dev, imx@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
-	patches@opensource.cirrus.com, linux-gpio@vger.kernel.org, 
-	linux-pm@vger.kernel.org, linux-spi@vger.kernel.org, 
-	linux-acpi@vger.kernel.org, linux-cxl@vger.kernel.org, 
-	Allan Nielsen <allan.nielsen@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>, 
-	Steen Hegelund <steen.hegelund@microchip.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <acKbYhbwZzv2gTnB@ashevche-desk.local>
 
-Hi Herve,
+On Tue, Mar 24, 2026 at 04:10:42PM +0200, Andy Shevchenko wrote:
 
-this is nitpicking, but if you respin the series consider the following:
+[...]
+>=20
+> ...
+>=20
+> > +		of_property_read_u32(child, "clock-frequency", &priv->adap.clock_hz);
+>=20
+> Wondering if we may use existing API to get i2c timings from fw descripti=
+on?
+> i2c_parse_fw_timings() (it might be that it needs to be split for pure fw=
+node
+> one and device wrapped).
 
-On Wed, Mar 25, 2026 at 3:42=E2=80=AFPM Herve Codina <herve.codina@bootlin.=
-com> wrote:
->
-> Nodes available in the dtso are not ordered by their unit address.
->
-> Fix that re-ordering them according to their unit address.
->
-> Signed-off-by: Herve Codina <herve.codina@bootlin.com>
-(...)
-> +                               switch: switch@e0000000 {
+I like the idea, even if I don't see that many other parts of the
+kernel will be using it.
 
-Recommended practice is:
+After this patchset, I intend to make all other bus drivers use
+i2c_parse_fw_timings() for fetching their clock frequency. I will
+investigate the splitup in the scope of that series.
 
-ethernet-switch@...
+>=20
+> --=20
+> With Best Regards,
+> Andy Shevchenko
+>=20
 
-> +                                       compatible =3D "microchip,lan966x=
--switch";
-> +                                       reg =3D <0xe0000000 0x0100000>,
-> +                                             <0xe2000000 0x0800000>;
-> +                                       reg-names =3D "cpu", "gcb";
-> +
-> +                                       interrupt-parent =3D <&oic>;
-> +                                       interrupts =3D <12 IRQ_TYPE_LEVEL=
-_HIGH>,
-> +                                                    <9 IRQ_TYPE_LEVEL_HI=
-GH>;
-> +                                       interrupt-names =3D "xtr", "ana";
-> +
-> +                                       resets =3D <&reset 0>;
-> +                                       reset-names =3D "switch";
-> +
-> +                                       pinctrl-names =3D "default";
-> +                                       pinctrl-0 =3D <&tod_pins>;
-> +
-> +                                       ethernet-ports {
-> +                                               #address-cells =3D <1>;
-> +                                               #size-cells =3D <0>;
-> +
-> +                                               port0: port@0 {
-
-Recommended practice is:
-ethernet-port@...
-
-Yours,
-Linus Walleij
+Best regards,
+Marcus Folkesson
