@@ -1,93 +1,66 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 176DA346E63;
-	Thu, 26 Mar 2026 21:03:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FB983016EB;
+	Thu, 26 Mar 2026 22:22:31 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774558991; cv=none; b=AGrv5rwy69ZCxe0ocg/aMu8YX+EgIh5k7FGi1LMOpytl7OAnhHzvtycrciYQWXSmTqgQBpCDTL3wKeY27PfaWy4iXvBdr1mI3N1jPZrndAOS5EMbC9iC0uUVAenJh7+NHgjhdLRN/TtDDNAmxjhutK3OimS8w3YyzPUHVFQuT9I=
+	t=1774563751; cv=none; b=sHQOFO8Q21Yrsu/6uiU9S4E11A/qvoXcleWSVCHbOPmZEOsBvbXTwHjZQsDeD4diDd9Gm6fMtUUAUptweeLWfON19TucoQ7qyQiAXr2JVz8WTCnA/I17LiS8s3FvF1UPlNrQmSQ0+8PO6Ma2kWT56KEyYo+Yu23W42g/w3TsJgk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774558991; c=relaxed/simple;
-	bh=Oga/OddxY2WJCZhkLe7zcVGjS6Fu4I4k5/6EH62Urbk=;
-	h=Mime-Version:Content-Type:Date:Message-Id:To:From:Subject:Cc:
-	 References:In-Reply-To; b=szeZkdJJEMaEKEac4/jeT1SsUEMRT55nf43o96zp0tzF4C0WskdEWf4Do1YrS0zir83x9XuewaUh6xPvnopAOvBxU18C/h+q6XCVThmbSeWtLBo55oJbX0nW8TKedAgWHjzOkk+wMsNUfkZyGPeEplpJHZwCwuG4U0d8EHEpmf0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gPAAIB3f; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774563751; c=relaxed/simple;
+	bh=QFvbS0GhFnRlo+56h6KYVqI4hNKBx9LjI/HgLWKtYxc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=tLxcTAjnoaxhWRXGWcpPv9La0t3XO9EVmyurWEG+piyt1wvkxyu5KOj6xjYdIbZLUIBVFHl8m42ewayu9LUqJTMOdLo5nST4UpPV5jT0EpumKNnV7wpbMyTHe6L13Ng7KEEI/Ux8ts9qzviLZXsBBbn+MSRWtCegOO25gJxCvnI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YQBepmYf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gPAAIB3f"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9306BC116C6;
-	Thu, 26 Mar 2026 21:03:04 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YQBepmYf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81441C2BC87;
+	Thu, 26 Mar 2026 22:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774558990;
-	bh=Oga/OddxY2WJCZhkLe7zcVGjS6Fu4I4k5/6EH62Urbk=;
-	h=Date:To:From:Subject:Cc:References:In-Reply-To:From;
-	b=gPAAIB3fsENGAvoB1ls1d+lyJstfElum/pLWj2DuNK2WleRkSJpZzbuOcSRguNRex
-	 LE7yjFpGJeYqgeiTWSX6kkVoDPXfYgQsoiYvVNcYBuRy7Weff6IyhdJ7LJejW3y2q7
-	 Lu58LJqd2qR99uWpkNGFPfJeYhdGTH7gmxUd9PImDf3hgeIKuz12xa1bfI6GtosZ25
-	 zz/3VILPimPfvECimlah9QRnSQlerX84zqBcJ1XtWuuz4pCn2J3IQkAwYpmSsY+R6p
-	 Vq0PeeQgRdA6sV45AaVZZ3KVJItFvjXCg6L1WvlZQDmeunZRkvtTNmqHb/caoBZYIw
-	 rdfYLFPYbjpsg==
+	s=k20201202; t=1774563751;
+	bh=QFvbS0GhFnRlo+56h6KYVqI4hNKBx9LjI/HgLWKtYxc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=YQBepmYfZMV5yL7Sh4QV7gumKup40c8mFrfl+1n6NpvgQvcctZVNa5Ntt6lk5EbvF
+	 bvGmDlsWBHCQM1xndpWifoWWcQ0gIMYn+C4jNeythO3zJEpGS3G7Tt/G3EfrMA1ZsO
+	 afuwMqKvlhxMNNUzw4WkV72eMNtLyK6ux3LFsmKQ6y1zs1U/Z+S2UtLCie1ryn9FIU
+	 ZPUTlq8AaTqPufMsL2wXPVWE0ekM17D3yDOy1syUlRqxXSQou5ZNLBi7Wsa9SgsTfT
+	 JOteDq9En2aG/C6XTUwMPJm9iNEtOWjKKfHhJ8zzDpeCs92z0pqsRK3hRNky6qRiLU
+	 J12HHeapLDoAQ==
+Date: Thu, 26 Mar 2026 23:22:26 +0100
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Yixun Lan <dlan@kernel.org>
+Cc: Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Paul Walmsley <pjw@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
+	Albert Ou <aou@eecs.berkeley.edu>, Alexandre Ghiti <alex@ghiti.fr>, 
+	Troy Mitchell <troy.mitchell@linux.spacemit.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-riscv@lists.infradead.org, spacemit@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] dts: riscv: spacemit: k3: Add i2c nodes
+Message-ID: <acWxJNK_vZca_xCZ@zenone.zhora.eu>
+References: <20260325-02-k3-i2c-v1-0-78f29c83d9ac@kernel.org>
+ <20260325-02-k3-i2c-v1-2-78f29c83d9ac@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 26 Mar 2026 22:03:02 +0100
-Message-Id: <DHD0NQH9UJ21.3J691DBDXS0K0@kernel.org>
-To: "Douglas Anderson" <dianders@chromium.org>
-From: "Danilo Krummrich" <dakr@kernel.org>
-Subject: Re: [PATCH v2] device property: Make modifications of fwnode
- "flags" thread safe
-Cc: "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>, "Rafael J . Wysocki"
- <rafael@kernel.org>, <stable@vger.kernel.org>, "Andy Shevchenko"
- <andriy.shevchenko@linux.intel.com>, "Mark Brown" <broonie@kernel.org>,
- "Wolfram Sang" <wsa+renesas@sang-engineering.com>, "Andrew Lunn"
- <andrew@lunn.ch>, "Daniel Scally" <djrscally@gmail.com>, "David S. Miller"
- <davem@davemloft.net>, "Eric Dumazet" <edumazet@google.com>, "Fabio
- Estevam" <festevam@gmail.com>, "Frank Li" <Frank.Li@nxp.com>, "Heikki
- Krogerus" <heikki.krogerus@linux.intel.com>, "Heiner Kallweit"
- <hkallweit1@gmail.com>, "Jakub Kicinski" <kuba@kernel.org>, "Len Brown"
- <lenb@kernel.org>, "Paolo Abeni" <pabeni@redhat.com>, "Pengutronix Kernel
- Team" <kernel@pengutronix.de>, "Rob Herring" <robh@kernel.org>, "Russell
- King" <linux@armlinux.org.uk>, "Sakari Ailus"
- <sakari.ailus@linux.intel.com>, "Saravana Kannan" <saravanak@kernel.org>,
- "Sascha Hauer" <s.hauer@pengutronix.de>, <devicetree@vger.kernel.org>,
- <driver-core@lists.linux.dev>, <imx@lists.linux.dev>,
- <linux-acpi@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
- <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
- <linux-spi@vger.kernel.org>, <netdev@vger.kernel.org>
-References: <20260317090112.v2.1.I0a4d03104ecd5103df3d76f66c8d21b1d15a2e38@changeid>
-In-Reply-To: <20260317090112.v2.1.I0a4d03104ecd5103df3d76f66c8d21b1d15a2e38@changeid>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260325-02-k3-i2c-v1-2-78f29c83d9ac@kernel.org>
 
-On Tue Mar 17, 2026 at 5:01 PM CET, Douglas Anderson wrote:
-> In various places in the kernel, we modify the fwnode "flags" member
-> by doing either:
->   fwnode->flags |=3D SOME_FLAG;
->   fwnode->flags &=3D ~SOME_FLAG;
->
-> This type of modification is not thread-safe. If two threads are both
-> mucking with the flags at the same time then one can clobber the
-> other.
->
-> While flags are often modified while under the "fwnode_link_lock",
-> this is not universally true.
->
-> Create some accessor functions for setting, clearing, and testing the
-> FWNODE flags and move all users to these accessor functions. New
-> accessor functions use set_bit() and clear_bit(), which are
-> thread-safe.
->
-> Cc: stable@vger.kernel.org
-> Fixes: c2c724c868c4 ("driver core: Add fw_devlink_parse_fwtree()")
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Acked-by: Mark Brown <broonie@kernel.org>
-> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Hi Yixun,
 
-    [ Fix fwnode_clear_flag() argument alignment, restore dropped blank
-      line in fwnode_dev_initialized(), and remove unnecessary parentheses
-      around fwnode_test_flag() calls. - Danilo ]
+On Wed, Mar 25, 2026 at 09:49:25AM +0000, Yixun Lan wrote:
+> Populate all I2C devicetree nodes for SpacemiT K3 SoC.
+> 
+> Signed-off-by: Yixun Lan <dlan@kernel.org>
 
-Applied to driver-core-testing, thanks!
+this second patch does not apply on my i2c branch. I'm missing
+some other patches on k3.
+
+Can you please rebase it on top of my i2c/i2c-host branch,
+otherwise I will need to wait for the merge window to open in
+order to take this.
+
+Andi
