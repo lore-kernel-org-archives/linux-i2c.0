@@ -1,221 +1,123 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 587D63F7864;
-	Thu, 26 Mar 2026 11:50:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com [209.85.208.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0CED317173
+	for <linux-i2c@vger.kernel.org>; Thu, 26 Mar 2026 12:17:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774525857; cv=none; b=RHd5p4PlCf4OcLAHFJ+XypGW4S31jCRw8sh8axWiDX5F0zhYlVB/3MXU3h3vk4rmtiCx+byVILyirc6c50KcZPrfS8aKIPrUyTWWY8UqtXwlOGstVyysSQ48WpCLuxKujbpA5p5JUMwXlf0Gw9G0CzZZ1cFIf+4ifS/hPgLvSLc=
+	t=1774527476; cv=none; b=fVvLlKNNwNU+aWc+DtafV0YcqLFI42zd1SW5XRR0aCEbZRgrJtLH51n9MdavWwqXfZPrR8YJgvlcd7tzIufBAARR0v7ytFz9GjWnZ5E7ASkalZABF5Fv2/ORNEA6wrm5AQA1/rlBasbvqPXpTNBRiwwDcfm20l/fTCJO0R0gtVQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774525857; c=relaxed/simple;
-	bh=yBC9iRcI0RMWYmdPl05Q2QSv8MlbDu2UM41nM8WYe6I=;
-	h=From:Subject:To:Cc:References:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=J7fT9H102IJexPlaJKoJR3ltlY6uOFEkyvBJV1bN/xysf0fofPAFntnVvmniwelNKT+emLlanKsl0FxcTsc+AwWsD6Eu6/ycmU0rebQN10jWq44HsHIlFcglLi55aKPcgXwqIqF2QZ2HPTv/MCMC1sdWkElbEJBhILZ8UAiQoJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.101])
-	by gateway (Coremail) with SMTP id _____8Dx_6skHcVpsuMeAA--.29201S3;
-	Thu, 26 Mar 2026 19:48:52 +0800 (CST)
-Received: from [10.20.42.101] (unknown [10.20.42.101])
-	by front1 (Coremail) with SMTP id qMiowJDx6+AiHcVpd+1dAA--.49386S3;
-	Thu, 26 Mar 2026 19:48:50 +0800 (CST)
-From: Hongliang Wang <wanghongliang@loongson.cn>
-Subject: Re: [PATCH v1 1/2] dt-bindings: i2c: ls2x-i2c: Add clock- related
- properties
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Binbin Zhou <zhoubinbin@loongson.cn>, Andi Shyti <andi.shyti@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, linux-i2c@vger.kernel.org,
- devicetree@vger.kernel.org, loongarch@lists.linux.dev
-References: <20260325011852.19079-1-wanghongliang@loongson.cn>
- <20260325011852.19079-2-wanghongliang@loongson.cn>
- <20260325-outstanding-weasel-of-fruition-89db37@quoll>
- <1b5283d8-294c-86de-c3d8-bf205ac24216@loongson.cn>
- <0d7dfe5b-5e2d-4850-8922-16eb6bd9bcae@kernel.org>
- <900dc1a4-66ab-411f-8a32-4c6cf339e8ec@kernel.org>
-Message-ID: <2d032399-d3fd-92b3-6dd4-28e0c78f199d@loongson.cn>
-Date: Thu, 26 Mar 2026 19:48:40 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+	s=arc-20240116; t=1774527476; c=relaxed/simple;
+	bh=11RIqE/GIXPQqschhxYiFlJAG+TR548JsD/YNqT3np4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=RPi0TdIGAGhOVmjTG+O02Jr/GmMJm55dngcCDJZHvO50Inc7QZTu/jeXv6Wc5V3anyV3cXTJIa11fWQVCVfRgvDCzUMXXSNDGUjHKxBOUYFf8OR34tbW1OCRMMPcUtQIVf/hJ2hO3kxprNzAJTkMxZl/XZaKk9OZlsONe1E0pF8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jp71WrtV; arc=none smtp.client-ip=209.85.208.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jp71WrtV"
+Received: by mail-lj1-f181.google.com with SMTP id 38308e7fff4ca-3870778358aso5764151fa.1
+        for <linux-i2c@vger.kernel.org>; Thu, 26 Mar 2026 05:17:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1774527473; x=1775132273; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=/azvFG1nnUlhxSiJLaoTFukeNHF4vMpB+fiAo39JynM=;
+        b=jp71WrtVDe+yF1J6FnexBIi6PBFc0fmAfSBfbUEk9NddakrLDV1ZRqLpawp0ReVhYh
+         AktOSsue7jpo4hcNjliI0cIy6pRuAJOw8MA6nQo5llzxFOqXDujlGX+uSv8ouUa52/tN
+         pQuvTiWfa9EQb3mchUoEhCHpIpRuHWZEiVTa7o0UodrSp9Gz+u1SmN+exeuDhhsfCWgU
+         OOeV4AnpWwCWzZHIiZimfuhUMQf5E7X4GZjmQ5WTiI/tZQCnPrTpgmtm7UqLfc7UVu/o
+         fAUgYSXaBWNeIlXTVXiXwkMDBva2WLQt24EhFgrziGNKDtHZ3Fa6aymqhRGP8+Mn22ss
+         mLNQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774527473; x=1775132273;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=/azvFG1nnUlhxSiJLaoTFukeNHF4vMpB+fiAo39JynM=;
+        b=Ml3kYw6OFfYospnKMlfk6sI0afni8q2Tjj3Rqh3QnTQwleoH4uh7Gmc3q/Ggmo+rzd
+         hK2oogV3ZdIfegkRELjmi7Q1NvGfUWDdiG7tBjq6FdWW0V+xkqrH+d5BVOskTdMtA5/P
+         0ticsNehI/oliOk95WxIa2wX0Xuy5O2ocGQHwYKhcIcXHKfddjlXdVKEgxwRBlxv4GtC
+         kdEuqICvSATyAcazTSXmWqjIVetf9dL5PJcInEHmDDAtg6+EJ0hzFVEjSVfmYhu0Nt29
+         9XT79XAhppuala8a2D1UTe+K6a6VYl7jxQRtm9iaERjJ8wE4QXXk+7bGcXNo01JoNCuG
+         0vfw==
+X-Gm-Message-State: AOJu0YyQleI29Tp5kxtHS2S/63iYro9cc1QNt8aO7DWIwhCOyGZ/rm7B
+	+HL0ziECpzYyrp1R/bGRKjTvd5ORzEPXfyPjdgO+H6QbibpqG9FD3rRy
+X-Gm-Gg: ATEYQzyeA5UP0FGShwSfr9n/sQg+iLL/RQgnulHDjAoQXnhFgO1O8j1vAMFMipjG9N/
+	qHRVTh3/Uk09Oz7u3Yc6q6wxKPeoA9zavB0+MMGxQ9vRX0L556aD6aDoiL5El27Sl+NI+WE5NE1
+	wa3fclflkuqRRiWW0A1mP0sL6/p4ORGdMEw3J9/WRbGotVbDkGnNS6Pqn1xqyMNFBb9w9awJYS0
+	TlqWdQMfR93ucDiDwGovLlPYsIcHrCMIRvggti3kKm9CssfkTC03GSxbLQPEFqPOoI2cESM1wiE
+	PoIYmsVKLdY4v7jfAenuyZ9tePhzOMp199VcGFHbxukQpIYMpY+PfqarvNEFOi7XuLncG48BQ2n
+	6SfnHM0cVJEJxjVjWgdbsky2K00AzxZBkMYF83eFhoSKicqUfJE723uD5CIwBI9fqI6Col+8mPs
+	Q5rDH9ENxtvktBbVBNZ7r9ASJDW/5yENjEXhMkbDwcjY1GtebSFLJRH0K4nliQ
+X-Received: by 2002:a05:651c:1114:b0:383:18fb:fdf0 with SMTP id 38308e7fff4ca-38c431f2536mr24521661fa.22.1774527472629;
+        Thu, 26 Mar 2026 05:17:52 -0700 (PDT)
+Received: from gmail.com (83-233-6-197.cust.bredband2.com. [83.233.6.197])
+        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-38c6a848cddsm520711fa.13.2026.03.26.05.17.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 26 Mar 2026 05:17:52 -0700 (PDT)
+Date: Thu, 26 Mar 2026 13:17:50 +0100
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Peter Rosin <peda@axentia.se>,
+	Michael Hennerich <michael.hennerich@analog.com>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@intel.com>,
+	Bartosz Golaszewski <brgl@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v9 0/5] I2C Mux per channel bus speed
+Message-ID: <acUj7u5o0Pch260w@gmail.com>
+References: <20260324-i2c-mux-v9-0-5292b0608243@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <900dc1a4-66ab-411f-8a32-4c6cf339e8ec@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-CM-TRANSID:qMiowJDx6+AiHcVpd+1dAA--.49386S3
-X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxWF17tFWUGFy8Aw1xWFWkZrc_yoW7JryDpF
-	W3Ka95Kr1qkF4SvwsFvr1xZFyYyws8Ar45Jr1UJrnrWwsxXry0vFZxGas09rWkXr1xAayj
-	vrWDKayDGFW5ZagCm3ZEXasCq-sJn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUv2b4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
-	xVW8Jr0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
-	1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r106r15McIj6I8E87Iv
-	67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07
-	AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02
-	F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GF
-	ylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7Cj
-	xVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r
-	1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8j-
-	e5UUUUU==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260324-i2c-mux-v9-0-5292b0608243@gmail.com>
 
-Hi Krzysztof and Andi,
+On Tue, Mar 24, 2026 at 02:54:14PM +0100, Marcus Folkesson wrote:
+> This was a RFC on how to implement a feature to have different bus
+> speeds on different channels with an I2C multiplexer/switch.
+> As no major complaints on the design came up during the review, I
+> decided to submit the series without the RFC tag.
+> 
+> The benefit with this feature is that you may group devices after
+> the fastest bus speed they can handle.
+> A real-world example is that you could have e.g. a display running @400kHz
+> and a smart battery running @100kHz using the same I2C controller.
+> 
+> There are many corner cases where this may cause a problem for some
+> hardware topologies. I've tried to describe those I could think of
+> in the documentation, see Patch #5.
+> 
+> E.g. one risk is that if the mux driver does not disconnect channels
+> when Idle, this may cause a higher frequency to "leak" through to
+> devices that are supposed to run at lower bus speed.
+> This is not only a "problem" for changing bus speed but could also be
+> an issue for potential address conflicts.
+> 
+> This patchset has been used and tested heavily the last months
+> on a custom board based on a da850 (DaVinci) platform.
+> 
+> The implementation is split up into several patches:
+> 
+> Patch #1 Introduce a callback for the i2c controller to set bus speed
+> Patch #2 Introduce functionality to adjust bus speed depending on mux
+>          channel.
+> Patch #3 Cleanup i2c-davinci driver a bit to prepare it for set_clk_freq
+> Parch #4 Implement set_clk_freq for the i2c-davinci driver
+> Parch #5 Update documentation with this feature
+> 
+> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+> ---
 
-Sorry, I didn't express myself clearly. The purpose of defining clock-input and
-clock-div properties is to use them in both acpi and dts. If these properties
-cannot be used in dts, can I first use them in acpi? and second, use clock
-framework in dts.
-if these properties can be used in acpi, use clocks property describes the
-clock input may be appropriate.
+Peter,
+Do you have any feedback on this new approach?
 
-the [PATCH v2] i2c: ls2x: Add clocks and clock-div properties parsing for ACPI
-as follows:
-
- From 40bdf5588594d2b51f50682fb841c6cbe87c4297 Mon Sep 17 00:00:00 2001
-From: wanghongliang <wanghongliang@loongson.cn>
-Date: Sun, 12 Apr 2026 03:13:09 +0800
-Subject: [PATCH v2] i2c: ls2x: Add clocks and clock-div properties parsing for
-  ACPI
-
-On 3A/7A/2K3000 platform, the input clock of i2c controller
-and the divisor of input clock maybe different, so define
-the clocks and clock-div properties in Device (I2Cx) in acpi
-parameter passing. clocks describes the input clock of i2c
-controller and clock-div describes the clock divisor of the
-input clock.
-
-  Device (I2C1)
-  {
-    Name (_HID, "LOON0004" /* AT Real-Time Clock */)  // _HID: Hardware ID
-    Name (_UID, 0x1)  // _UID: Unique ID
-    Name (_DSD, Package (0x02)  // _DSD: Device-Specific Data
-    {
-      ToUUID ("daffd814-6eba-4d8c-8a91-bc9bbf4aa301")
-      Package (0x03)
-      {
-        Package (0x02)
-        {
-          "clock-frequency",
-          100000
-        }
-        Package (0x02)
-        {
-          "clocks",
-          100000000
-        }
-        Package (0x02)
-        {
-          "clock-div",
-          40
-        }
-      }
-    })
-
-The formulas is
-Prcescale = (clock-input * 10) / (clock-div * t->bus_freq_hz) - 1
-
-The value of clocks and clock-div on different platforms are
-listed below:
-
-1.7A1000/7A2000:
-clock-input = 80MHZ
-clock-div = 50
-
-2.3A5000/3C5000/3A6000/3C6000:
-clock-input = 100MHZ
-clock-div = 40
-
-3.2K3000:
-clock-input = 100MHZ
-clock-div = 55
-
-Signed-off-by: wanghongliang <wanghongliang@loongson.cn>
----
-  drivers/i2c/busses/i2c-ls2x.c | 13 ++++++++++++-
-  1 file changed, 12 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-ls2x.c b/drivers/i2c/busses/i2c-ls2x.c
-index b475dd27b7af..4d1d461d065a 100644
---- a/drivers/i2c/busses/i2c-ls2x.c
-+++ b/drivers/i2c/busses/i2c-ls2x.c
-@@ -96,6 +96,7 @@ static irqreturn_t ls2x_i2c_isr(int this_irq, void *dev_id)
-  static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
-  {
-  	u16 val;
-+	u32 pclk, div;
-  	struct i2c_timings *t = &priv->i2c_t;
-  	struct device *dev = priv->adapter.dev.parent;
-  	u32 acpi_speed = i2c_acpi_find_bus_speed(dev);
-@@ -107,12 +108,22 @@ static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
-  	else
-  		t->bus_freq_hz = LS2X_I2C_FREQ_STD;
-  
-+	if (has_acpi_companion(dev)) {
-+		if (!device_property_read_u32(dev, "clock-input", &pclk) &&
-+		    !device_property_read_u32(dev, "clock-div", &div) &&
-+		    div != 0)
-+			val = (pclk * 10) / (div * t->bus_freq_hz) - 1;
-+		else
-+			val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
-+	} else {
-+		val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
-+	}
-+
-  	/*
-  	 * According to the chip manual, we can only access the registers as bytes,
-  	 * otherwise the high bits will be truncated.
-  	 * So set the I2C frequency with a sequential writeb() instead of writew().
-  	 */
--	val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
-  	writeb(FIELD_GET(GENMASK(7, 0), val), priv->base + I2C_LS2X_PRER_LO);
-  	writeb(FIELD_GET(GENMASK(15, 8), val), priv->base + I2C_LS2X_PRER_HI);
-  }
--- 
-2.47.2
-
-Best regards,
-Hongliang Wang
-
-On 2026/3/26 下午3:49, Krzysztof Kozlowski wrote:
-> On 26/03/2026 08:02, Krzysztof Kozlowski wrote:
->> On 26/03/2026 03:12, Hongliang Wang wrote:
->>> Hi Krzysztof,
->>>
->>> Consider the clock framework relies on the device tree, and can only be
->>> used on
->>> Loongson 2K platform with dts parameter mechanism, It cannot be used on
->>> Loongson
->> Don't top post or request read receipts.
->>
->>> 3A+7A platform with the acpi parameter mechanism.
->> And this patch is for ACPI? Then we finish discussion here, because
->> dt-bindings is not for ACPI.
->>
->>> The i2c-ls2x driver is compatible with both Loongson 2K and 3A+7A
->>> platform, parse
->>> the same parameters regardless of dts or acpi parameter passing, So
->>> clock-input
->>> and clock-div attributes are defined to describe input clock of i2c
->>> controller and
->>> divisor of input clock. It can be used on both 2K and 3A+7A platform.
->> And you cannot use them in DTS.
-> I need to keep guessing what you want to achieve, because neither your
-> message nor commit text was explicit - if you need properties for ACPI
-> and you want to be sure that DTS does not have them, then you could
-> define them as "foo:false" with a comment why (you always explain WHY
-> you are doing things). We don't have such convention so far, but I think
-> it will be useful when Rob finishes the ABI checker.
->
-> *Otherwise* minimum would be a comment in the driver that these are not
-> allowed in DTS.
->
-> Best regards,
-> Krzysztof
-
+Thanks in advance,
+Marcus
