@@ -1,132 +1,93 @@
-Received: from mail-ua1-f74.google.com (mail-ua1-f74.google.com [209.85.222.74])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C36923B612
-	for <linux-i2c@vger.kernel.org>; Thu, 26 Mar 2026 20:04:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 176DA346E63;
+	Thu, 26 Mar 2026 21:03:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774555496; cv=none; b=PsG7oZQ/+cC/bytOHUI7T19mEpw7WTgEBQOTGktijXBj0gZVMzu3K1X2TuY9Dn+I9wKP6kkhXzlwHpG+5oZvr7W2FKO9hwBMYwqBcoK6d09cjeLgb7VrGhNiuAvXruU78zuOzZp6BTiPDfi2DiwkAF7JxRpoprn59WNju4UDnrg=
+	t=1774558991; cv=none; b=AGrv5rwy69ZCxe0ocg/aMu8YX+EgIh5k7FGi1LMOpytl7OAnhHzvtycrciYQWXSmTqgQBpCDTL3wKeY27PfaWy4iXvBdr1mI3N1jPZrndAOS5EMbC9iC0uUVAenJh7+NHgjhdLRN/TtDDNAmxjhutK3OimS8w3YyzPUHVFQuT9I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774555496; c=relaxed/simple;
-	bh=QaKKbCcJMgekZSc5+8aGKpYxuiEwDbDAhp6CDgKHl60=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=KKbRLYFQupKIZBvGFkiovo0GhMk6rlSzQMXoj9KQcD7J0ciU8wG2BplinCCOzcyGwjzpISZKuy7n7mHrVAJ0db/8Ru6TcyefF+N3qX9MALgSxrrPnWOBNz+NYSRRvPb+8dvnC0QX28zU6HROd6KxpEd4joZIyCLXqXSN0LwSICo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--moritzf.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=OJWGw6R6; arc=none smtp.client-ip=209.85.222.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--moritzf.bounces.google.com
+	s=arc-20240116; t=1774558991; c=relaxed/simple;
+	bh=Oga/OddxY2WJCZhkLe7zcVGjS6Fu4I4k5/6EH62Urbk=;
+	h=Mime-Version:Content-Type:Date:Message-Id:To:From:Subject:Cc:
+	 References:In-Reply-To; b=szeZkdJJEMaEKEac4/jeT1SsUEMRT55nf43o96zp0tzF4C0WskdEWf4Do1YrS0zir83x9XuewaUh6xPvnopAOvBxU18C/h+q6XCVThmbSeWtLBo55oJbX0nW8TKedAgWHjzOkk+wMsNUfkZyGPeEplpJHZwCwuG4U0d8EHEpmf0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gPAAIB3f; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="OJWGw6R6"
-Received: by mail-ua1-f74.google.com with SMTP id a1e0cc1a2514c-9519c5d5b27so471398241.1
-        for <linux-i2c@vger.kernel.org>; Thu, 26 Mar 2026 13:04:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1774555494; x=1775160294; darn=vger.kernel.org;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=XmfpOWHILBNPoUIFigWXCvXcdE+KdaoK2IRTSOIkuFQ=;
-        b=OJWGw6R6gb99dfWFKXC9cxtk/7GgkNiV1QN0mJNnMTgRpdSW4jsUdeZjJIVELcIxpc
-         rA3mujhTMSkgQoOSit8QzygyzTfYJbQLh4rGaGh1jaYrImrPu5StlMGcXDDm/FTVGHbF
-         T1Tzh1ZZOqPAYUssbVhw7Ws/3cSuLcuq2jXzC3Fahyb9EZiIqjP9JpgUuZJ8+zeRf1ZP
-         JBQ+SmuF9Jpx46w38WiqmgBgR7qvIzTfV3JILumr85NqrE9XKkLlbXHcEsFQLExaMMP1
-         t9Te3Su/axjhnW/v19qsHNuHYtOj+82myfG65snux8fDk108P42UMSWVnsXQnStjHDPX
-         I1+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774555494; x=1775160294;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=XmfpOWHILBNPoUIFigWXCvXcdE+KdaoK2IRTSOIkuFQ=;
-        b=RtX0lz12f6YRuQNlkdgMEoofolaiRuvJiHh4zDG3HGlB308PTrXlgOEaKS5Y331Hex
-         Kv7RqyjN2wmC8B2kcWGnlLKlkhYrORdAo/nPLpoPfdEYxcnhdEshCTwfb2TNLTXoKsPF
-         bOJzetx087QF4429XRcWov0p2YE6R4SGBxWx8pyuT9ZACQiHAtwCQPtlixjrHJDWCQje
-         HzxEw4Mc7V8u2Cvhl7Chc4ACObMZ//gufPf4w4qui7lihSqkeUPcrOFikRNRqddUvtAn
-         5+UrOeAK3EURfYndjFggdJAYwLGhFbZVneaQr87ypHts3BY2gcXWAD+OncoqnrBk3TS3
-         3FyA==
-X-Gm-Message-State: AOJu0YwhYabDNtYZaqf4LjGz5WzLz+cCl+e6lIwz6CydIzRybRqQHAJd
-	qvjticcXacgmn9aaie5D70zLmFyr0qj0/OSQsQKXN5LIWUeiQzJZXfHoVappnP+U7Eb/h7M3wZY
-	HqMFGrkEDwmZT3i8tnTiHDFk7ICYlrB/WmXXxmgcP8jEaqde+m1Tehgju9SH8U30W3Eq+uD4aTG
-	myADXZvQdbUaY7ojGEyFbBkPs4hDczBEVsWH33pTNkNdh6/Q==
-X-Received: from uaaq11-n1.prod.google.com ([2002:a05:6130:834b:10b0:951:94f8:e12])
- (user=moritzf job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6102:5808:b0:602:9977:a4e3
- with SMTP id ada2fe7eead31-603948182c9mr4252179137.33.1774555493607; Thu, 26
- Mar 2026 13:04:53 -0700 (PDT)
-Date: Thu, 26 Mar 2026 20:04:51 +0000
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gPAAIB3f"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9306BC116C6;
+	Thu, 26 Mar 2026 21:03:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774558990;
+	bh=Oga/OddxY2WJCZhkLe7zcVGjS6Fu4I4k5/6EH62Urbk=;
+	h=Date:To:From:Subject:Cc:References:In-Reply-To:From;
+	b=gPAAIB3fsENGAvoB1ls1d+lyJstfElum/pLWj2DuNK2WleRkSJpZzbuOcSRguNRex
+	 LE7yjFpGJeYqgeiTWSX6kkVoDPXfYgQsoiYvVNcYBuRy7Weff6IyhdJ7LJejW3y2q7
+	 Lu58LJqd2qR99uWpkNGFPfJeYhdGTH7gmxUd9PImDf3hgeIKuz12xa1bfI6GtosZ25
+	 zz/3VILPimPfvECimlah9QRnSQlerX84zqBcJ1XtWuuz4pCn2J3IQkAwYpmSsY+R6p
+	 Vq0PeeQgRdA6sV45AaVZZ3KVJItFvjXCg6L1WvlZQDmeunZRkvtTNmqHb/caoBZYIw
+	 rdfYLFPYbjpsg==
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: git-send-email 2.53.0.1018.g2bb0e51243-goog
-Message-ID: <20260326200451.2904375-1-moritzf@google.com>
-Subject: [PATCH v2] i2c: designware: Add a new ACPI HID for GOOG5000 I2C controller
-From: Moritz Fischer <moritzf@google.com>
-To: linux-i2c@vger.kernel.org, andi.shyti@kernel.org
-Cc: linux-kernel@vger.kernel.org, mdf@kernel.org, ovt@google.com, 
-	Moritz Fischer <moritzf@google.com>, Mika Westerberg <mika.westerberg@linux.intel.com>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Jan Dabros <jsd@semihalf.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 26 Mar 2026 22:03:02 +0100
+Message-Id: <DHD0NQH9UJ21.3J691DBDXS0K0@kernel.org>
+To: "Douglas Anderson" <dianders@chromium.org>
+From: "Danilo Krummrich" <dakr@kernel.org>
+Subject: Re: [PATCH v2] device property: Make modifications of fwnode
+ "flags" thread safe
+Cc: "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>, "Rafael J . Wysocki"
+ <rafael@kernel.org>, <stable@vger.kernel.org>, "Andy Shevchenko"
+ <andriy.shevchenko@linux.intel.com>, "Mark Brown" <broonie@kernel.org>,
+ "Wolfram Sang" <wsa+renesas@sang-engineering.com>, "Andrew Lunn"
+ <andrew@lunn.ch>, "Daniel Scally" <djrscally@gmail.com>, "David S. Miller"
+ <davem@davemloft.net>, "Eric Dumazet" <edumazet@google.com>, "Fabio
+ Estevam" <festevam@gmail.com>, "Frank Li" <Frank.Li@nxp.com>, "Heikki
+ Krogerus" <heikki.krogerus@linux.intel.com>, "Heiner Kallweit"
+ <hkallweit1@gmail.com>, "Jakub Kicinski" <kuba@kernel.org>, "Len Brown"
+ <lenb@kernel.org>, "Paolo Abeni" <pabeni@redhat.com>, "Pengutronix Kernel
+ Team" <kernel@pengutronix.de>, "Rob Herring" <robh@kernel.org>, "Russell
+ King" <linux@armlinux.org.uk>, "Sakari Ailus"
+ <sakari.ailus@linux.intel.com>, "Saravana Kannan" <saravanak@kernel.org>,
+ "Sascha Hauer" <s.hauer@pengutronix.de>, <devicetree@vger.kernel.org>,
+ <driver-core@lists.linux.dev>, <imx@lists.linux.dev>,
+ <linux-acpi@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+ <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+ <linux-spi@vger.kernel.org>, <netdev@vger.kernel.org>
+References: <20260317090112.v2.1.I0a4d03104ecd5103df3d76f66c8d21b1d15a2e38@changeid>
+In-Reply-To: <20260317090112.v2.1.I0a4d03104ecd5103df3d76f66c8d21b1d15a2e38@changeid>
 
-Define a new ACPI HID for GOOG5000 as used on Google Axion.
+On Tue Mar 17, 2026 at 5:01 PM CET, Douglas Anderson wrote:
+> In various places in the kernel, we modify the fwnode "flags" member
+> by doing either:
+>   fwnode->flags |=3D SOME_FLAG;
+>   fwnode->flags &=3D ~SOME_FLAG;
+>
+> This type of modification is not thread-safe. If two threads are both
+> mucking with the flags at the same time then one can clobber the
+> other.
+>
+> While flags are often modified while under the "fwnode_link_lock",
+> this is not universally true.
+>
+> Create some accessor functions for setting, clearing, and testing the
+> FWNODE flags and move all users to these accessor functions. New
+> accessor functions use set_bit() and clear_bit(), which are
+> thread-safe.
+>
+> Cc: stable@vger.kernel.org
+> Fixes: c2c724c868c4 ("driver core: Add fw_devlink_parse_fwtree()")
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Acked-by: Mark Brown <broonie@kernel.org>
+> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> Signed-off-by: Douglas Anderson <dianders@chromium.org>
 
-This has been validated on Silicon.
+    [ Fix fwnode_clear_flag() argument alignment, restore dropped blank
+      line in fwnode_dev_initialized(), and remove unnecessary parentheses
+      around fwnode_test_flag() calls. - Danilo ]
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Moritz Fischer <moritzf@google.com>
----
- drivers/i2c/busses/i2c-designware-platdrv.c | 1 +
- 1 file changed, 1 insertion(+)
-
----
-
-Changelog from v1:
-- Added Mika's Acked-by
-
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Jan Dabros <jsd@semihalf.com>
-
-A DSDT excerpt is here:
-    Device (I2C0)                                                                                                                                                                            
-    {                                                                                                                                                                                        
-      Name (_HID, "GOOG5000")                                                                                                                                                                
-      Name (_UID, 0x00)                                                                                                                                                                      
-      Method (_STA) {                                                                                                                                                                        
-        Return (0xf)                                                                                                                                                                         
-      }                                                                                                                                                                                      
-      Name (_CRS, ResourceTemplate ()                                                                                                                                                        
-      {                                                                                                                                                                                      
-        QWordMemory (                                                                                                                                                                        
-          ResourceProducer,                                                                                                                                                                  
-          PosDecode,                                                                                                                                                                         
-          MinFixed,                                                                                                                                                                          
-          MaxFixed,                                                                                                                                                                          
-          NonCacheable,                                                                                                                                                                      
-          ReadWrite,                                                                                                                                                                         
-          0x0,                                                                                                                                                                               
-          0xA02048000,                                                                                                                                                                       
-          0xA020480FF,                                                                                                                                                                       
-          0x000000000,                                                                                                                                                                       
-          0x000000100                                                                                                                                                                        
-        )                                                                                                                                                                                    
-        Interrupt (ResourceConsumer, Level, ActiveHigh, Exclusive)                                                                                                                           
-      {                                                                                                                                                                                      
-          109                                                                                                                                                                                
-        }                                                                                                                                                                                    
-      })                                                                                                                                                                                     
-      ...                                                                                                                                                                                    
-    }                                                                                                                                                                                        
-                                                                                                                                                                                             
-This is being used by SoCs powering Google's Axion product line.   
-
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 426ffec06e22..3351c4a9ef11 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -268,6 +268,7 @@ static const struct acpi_device_id dw_i2c_acpi_match[] = {
- 	{ "AMDI0510", 0 },
- 	{ "APMC0D0F", 0 },
- 	{ "FUJI200B", 0 },
-+	{ "GOOG5000", 0 },
- 	{ "HISI02A1", 0 },
- 	{ "HISI02A2", 0 },
- 	{ "HISI02A3", 0 },
--- 
-2.53.0.1018.g2bb0e51243-goog
-
+Applied to driver-core-testing, thanks!
