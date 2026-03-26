@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB4DD38E5C0;
-	Thu, 26 Mar 2026 07:02:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCEAB34EF05;
+	Thu, 26 Mar 2026 07:08:12 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774508532; cv=none; b=BZhADlJdJCyz7thYy36hOLgzZNg3wBD/MJOiEBxHljRF+Zj9Qt2701hgm/ir1FLl5MzzbFH0CsWJ3Y17jKOslm7SmXreFp9QIPfWRpMZIaBjaTKNCHj3p7kcAg2bd6qlZDfcjGQAoR8U9A516L8KuykMQyzIQM/3z1IpHIqPZdQ=
+	t=1774508892; cv=none; b=LsBFOiRqRyJMpc9SLn+hmVkXlAOT8vyZEesCcIcdIJCfMvEz0KJeTPPaQCpC6NmFI+dsY2V9G3jPgEIaHgMovMKtyhAMNpaIe6Y9xq04Zww7Opcw/pxqoWo7Lq0VMcXVjE+5bD5wDija58crDBdd0KXt3l04gAcnru3KmccmIsQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774508532; c=relaxed/simple;
-	bh=pO1h3ubT2qclNuMe09uahHKMaBdgnKCOwzVePLCVo0E=;
+	s=arc-20240116; t=1774508892; c=relaxed/simple;
+	bh=8XNoHLPwwyftM/lyfi3U4sohcwJmTZQOJxnTbo63tfI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gJ0LK+4ZYUK0HDDXRrvcxy5sRD6OLlAgOOU164IXFO6DRY96sjg7UZIoXQsYwnQ+Vav8UCVp2gqEA2kyuNaltBa/HolXhTngPBkiLkZ/neEA7GJ92bx0+CuZ+IYIO7N4toD9KAUO/7G1Y9Sv7HE39ODB4vxeSR2o8mZRQ4sU4tQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y/VPM8zY; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=JemABhjDWexQRLUhD9+l87+gAJMMkm63A058V6KEnZaoy7KbhSfzTQQEd9R04/ESuh/hAgmHEYNJkvd0ElUjc1tIsuMm6lvmKkW2akLkaZTfXvAkxMlCcr4Dmrk3QW43M0ITbGXVsmWn8jwhSytIgnqYxMXaE2iuYbF/9K/3bEs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j5d7tBg3; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y/VPM8zY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D8EBC116C6;
-	Thu, 26 Mar 2026 07:02:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j5d7tBg3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70A71C116C6;
+	Thu, 26 Mar 2026 07:08:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774508532;
-	bh=pO1h3ubT2qclNuMe09uahHKMaBdgnKCOwzVePLCVo0E=;
+	s=k20201202; t=1774508892;
+	bh=8XNoHLPwwyftM/lyfi3U4sohcwJmTZQOJxnTbo63tfI=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=Y/VPM8zYngSQ6DAIurBIQmv3O3AJj893sEGSlTvkBSM19gMhoCFXAVh05Mgqhrhek
-	 ggzJYbWakBsKbmoWN8y9bNbOx8NTUmi/6kB226A0YSDvI2ozMl3Een29jaL1cxERLy
-	 mKowYz94ptIsGxkGL6Bhgbo7YjU3xJAyegvwE6x0M3sN5iV8ECYKKJ4xY/Xk/lM+t+
-	 n8SUW4/YwgPFap/UD4FvGxSlYg8kF2XSuLoYNr9JgV7+Ie2t9INgV+a90eEvoNRVn/
-	 KhDXq10uCilz/VbWKqvvqRBXquI+K9giLtiE6Ntiso+ug8x0ssziZnL++LPQYdBK8N
-	 e9UWPZgXHO8RQ==
-Message-ID: <0d7dfe5b-5e2d-4850-8922-16eb6bd9bcae@kernel.org>
-Date: Thu, 26 Mar 2026 08:02:08 +0100
+	b=j5d7tBg3TBAg7xebRej7tgBbvsDJBEl1QLlQ/GariSVgih2rL5VxDKEjd0oB9kDrR
+	 5vcx3Gf6TBEOdrl91GYE0SrGhiUwhuOgCdtlPa1OHm/U7POpW5SU5GA21fXC6mT8hM
+	 BMg+v1t6zvVs87A7l7YoAv8Es9+yMzMxJQ5sem1ci+50qDrOWXlrDb8mRYDWFxXxmA
+	 vne2cypozaNDJ0UsPpSsedb2AAND6TKnmCRtx6xGpAVdQqmD2fRhpovbZz/4LsG+ec
+	 FW15RvFXi39Qq7ehxJ8RWwOQeFVB3EQKlsawXNTQrMa9Ni4M+Hcf0k45MUJcA1tq++
+	 GrDw/VCHogAGw==
+Message-ID: <1bda00e6-a3bf-4890-8982-4d61a4b4845e@kernel.org>
+Date: Thu, 26 Mar 2026 08:08:06 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -35,17 +35,14 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 1/2] dt-bindings: i2c: ls2x-i2c: Add clock- related
- properties
-To: Hongliang Wang <wanghongliang@loongson.cn>
-Cc: Binbin Zhou <zhoubinbin@loongson.cn>, Andi Shyti <andi.shyti@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, linux-i2c@vger.kernel.org,
- devicetree@vger.kernel.org, loongarch@lists.linux.dev
-References: <20260325011852.19079-1-wanghongliang@loongson.cn>
- <20260325011852.19079-2-wanghongliang@loongson.cn>
- <20260325-outstanding-weasel-of-fruition-89db37@quoll>
- <1b5283d8-294c-86de-c3d8-bf205ac24216@loongson.cn>
+Subject: Re: [PATCH] dt-bindings: i2c: intel,ixp4xx-i2c: Convert to Dt schema
+To: ShiHao <i.shihao.999@gmail.com>
+Cc: andi.shyti@kernel.org, krzk+dt@kernel.org, robh@kernel.org,
+ conor+dt@kernel.org, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260324135010.17730-1-i.shihao.999@gmail.com>
+ <20260325-bulky-mushroom-of-science-8c95c4@quoll> <acP69aM-euL7wl87@fedora>
+ <c9b68d56-48f1-4ade-8711-fedd8acf0666@kernel.org> <acQqE-iW51fOJnTJ@fedora>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -91,34 +88,34 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
  zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
  XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <1b5283d8-294c-86de-c3d8-bf205ac24216@loongson.cn>
+In-Reply-To: <acQqE-iW51fOJnTJ@fedora>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 26/03/2026 03:12, Hongliang Wang wrote:
-> Hi Krzysztof,
+On 25/03/2026 19:31, ShiHao wrote:
+> On Wed, Mar 25, 2026 at 04:15:39PM +0100, Krzysztof Kozlowski wrote:
+>> I don't understand this at all.
+>>
+>> You did not run checkpatch. Neither with --strict nor without --strict.
+>> The --strict does not matter, why are you even mentioning it if you did
+>> not run the checkpatch in the first place?
+>>
+>> Best regards,
+>> Krzysztof
 > 
-> Consider the clock framework relies on the device tree, and can only be 
-> used on
-> Loongson 2K platform with dts parameter mechanism, It cannot be used on 
-> Loongson
+> Although I did run it, I think it might be best to pause this thread here.
 
-Don't top post or request read receipts.
+By running, I assume actually read its output and fix it, so please
+share why each one of your patches has the same mistake reported by
+checkpatch?
 
-> 3A+7A platform with the acpi parameter mechanism.
+> I will send the next version in the coming days after properly running the
+> checkpatch.pl script. Also, you mentioned some guidelines regarding GSoC
+> could you please let me know where I can read them?
 
-And this patch is for ACPI? Then we finish discussion here, because
-dt-bindings is not for ACPI.
-
-> The i2c-ls2x driver is compatible with both Loongson 2K and 3A+7A 
-> platform, parse
-> the same parameters regardless of dts or acpi parameter passing, So 
-> clock-input
-> and clock-div attributes are defined to describe input clock of i2c 
-> controller and
-> divisor of input clock. It can be used on both 2K and 3A+7A platform.
-
-And you cannot use them in DTS.
+I gave them to GSoC folks, so they should be in the GSoC DT
+guidelines/description. It was also posted for more than a year on
+@krzk@social.kernel.org and some days ago I updated it as well.
 
 Best regards,
 Krzysztof
