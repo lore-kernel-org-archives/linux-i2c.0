@@ -1,102 +1,196 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id A87E51F2380;
-	Thu, 26 Mar 2026 02:12:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774491159; cv=none; b=JvJ/76cowg9Wt6Y0z+4qkn+ONQy6ADitB9bNDxeEB/dBJm7HCDoVOW1XxOTBGwyxuATawukZ3UHJmRjscYM7T9kAa2Gefakb+Un/etFK1+w3SJUKtNMK5qlthbnp3s7merYmFD2yam9xq9Whb8XX5QiMn35+VrI/tZZO8eerSqw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774491159; c=relaxed/simple;
-	bh=dOfo0Atrong7Sgc1T7KnrLH7bcjyIUA8oVN9P0B0pEQ=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=EaUMZc79lt1oknfp+4lpnDOnuj7RxzaFyeOhO286B0BcixMEhA8rXLvIXQX9V58b0vi3lIT6BR0QjDwIMYKbr6A5JHHKOjfYPkwjH3wzzMGvZgT02enrdIEANAGF8iUEwtCqgjG/8kCnVEAbtInz1Ph7xc7YNAf7zSYhB4AiDFo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.101])
-	by gateway (Coremail) with SMTP id _____8CxJMERlsRppMceAA--.41005S3;
-	Thu, 26 Mar 2026 10:12:33 +0800 (CST)
-Received: from [10.20.42.101] (unknown [10.20.42.101])
-	by front1 (Coremail) with SMTP id qMiowJCxPMIPlsRpfY9dAA--.46396S3;
-	Thu, 26 Mar 2026 10:12:32 +0800 (CST)
-Subject: Re: [PATCH v1 1/2] dt-bindings: i2c: ls2x-i2c: Add clock- related
- properties
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Binbin Zhou <zhoubinbin@loongson.cn>, Andi Shyti <andi.shyti@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, linux-i2c@vger.kernel.org,
- devicetree@vger.kernel.org, loongarch@lists.linux.dev
-References: <20260325011852.19079-1-wanghongliang@loongson.cn>
- <20260325011852.19079-2-wanghongliang@loongson.cn>
- <20260325-outstanding-weasel-of-fruition-89db37@quoll>
-From: Hongliang Wang <wanghongliang@loongson.cn>
-Message-ID: <1b5283d8-294c-86de-c3d8-bf205ac24216@loongson.cn>
-Date: Thu, 26 Mar 2026 10:12:21 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+Received: from TYDPR03CU002.outbound.protection.outlook.com (mail-japaneastazon11023110.outbound.protection.outlook.com [52.101.127.110])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9546A2116F6;
+	Thu, 26 Mar 2026 02:19:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.127.110
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774491560; cv=fail; b=IjPinZkDn5/1VetlAPuS/psTPn/8B/HhKpPdIm0WZC9lnsulh77giZ2UNnDOyVNpOKo6sObm+WoKZARZAFqvYSrVLOXDgiJ8vqdiIaXJQiZ45TblJ6NVhfJ29wP2nd7kLcNDuPPnML0iEPY3mvu3JwnW6IeZXb0S6x9HYkfp+AI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774491560; c=relaxed/simple;
+	bh=LUhdWO6hTiHQyIp6MVHteKPGN6hsYt/nlSfOgoAeUkE=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=AnF4U8Zor63Emmlf7CH98IKlJvs4rJzlV+er+tM8rUrkea4VYBKbhiJS7QVdUJjSlPUfv9S14E91FYswVxVVRhmqCIWK7s53e4hDr5yXPP2cNNcNX/aY5LTkl7o7RJ0oX3NnJgC+8xbFnlaE2riqu3nIoGoFuuzmZUjwSSX/SWg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com; spf=pass smtp.mailfrom=aspeedtech.com; dkim=pass (2048-bit key) header.d=aspeedtech.com header.i=@aspeedtech.com header.b=kmglUccl; arc=fail smtp.client-ip=52.101.127.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aspeedtech.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=aspeedtech.com header.i=@aspeedtech.com header.b="kmglUccl"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=OKOzxK2D6fYiu76UKUGNzKQzV4ugbpXceuQ5iRXSNAvoZby2JBJr1ffGE9S1ydWqM8K5XXfkpYLbQUm8pL0tLTeYbJ1GnkHmA2ZCcnDOmh4sNn5CKQZd2yPf7L2vJKs0REXa6S/ftHW5alklyIpmLS81mFwDp8A73m9EWh4HZQBbptIEEilVm6KPrCtwyPSMf92/HOGCXvoBLma2X5wM0jMAFDhGxC5ZuczYexLfVflHmDb+KMhxJePCtfnPzySQ9Dq06EMoEZqiInMMtfixpVTEK0iE9/W55jcjNu+lNnLJ8sp5vHVutb5rrZgAPft0KGie9JtV/J1TkBah2NGiGA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=XeicnQENM80sgLS00GECVF/Zy5AYCc1s70sNJVVQwsk=;
+ b=OW8K+HUfU/dlOPQpxtMG293nrTF4XlRWCvw9Epkcd34xbU0BYG/+asJGTh48TDCGkomb2HBGPIiCEszg/pW74+Jc1vAXCoeLUFfg2AsDlgLXJdjDGUgN9sPGN48+zYDY7xJvaobFvruZ/l1UWhzqhsn8r87dbKKv1glnBDmADXTwfgPdUyCNnPy1SODntvdLzd+ximjFhgax8n2pP1Tmav7nqMG90aOvI37clw8gIbKNSLhuo9Bp2+5ShtgpUss2CFDuRFmyqNzV8KJrd8z39f77uYZfoNg6VcLu1GWIaZMEP6sfh3ZqEFFSVItFhD/CCuEU1X95hTOm/cSXH73nNg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=aspeedtech.com; dmarc=pass action=none
+ header.from=aspeedtech.com; dkim=pass header.d=aspeedtech.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aspeedtech.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=XeicnQENM80sgLS00GECVF/Zy5AYCc1s70sNJVVQwsk=;
+ b=kmglUcclCVOymJF0gwoZABzolq15hYoztFdNg0yyODNhGN7PXZDQ2TXKq4MRAiaJ0taOHkboOfqyDBvpWVaf9tiXFep4/mdXTDNa0N6+eT5wqvOq1RuGJUu8gI7cebH4jZuzrDeEmOI+EcdqGlGTWTxVXpEyB9WnNLx+PLdzIm0H8+8llo3liSZLpwXImsJjI/7v/XhmprS9UkQrKZPOXY7Akk/Us9pLRcLNILb+/djmAQ+jELaWZ2qzy5ivg/KFU7onXlxcMkjyYPpUr86xaJ0Db6lg6AJTZgyYTqUfvMtQsrtiZfJopEV3B2jDjaRYHysNMNVyc4T/hESfu7sOtQ==
+Received: from TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com (2603:1096:408::791)
+ by TYQPR06MB8264.apcprd06.prod.outlook.com (2603:1096:405:377::14) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9745.20; Thu, 26 Mar
+ 2026 02:19:16 +0000
+Received: from TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com
+ ([fe80::8c70:cb01:78fb:d9c0]) by TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com
+ ([fe80::8c70:cb01:78fb:d9c0%6]) with mapi id 15.20.9723.018; Thu, 26 Mar 2026
+ 02:19:16 +0000
+From: Ryan Chen <ryan_chen@aspeedtech.com>
+To: Rob Herring <robh@kernel.org>
+CC: Jeremy Kerr <jk@codeconstruct.com.au>, "andriy.shevchenko@linux.intel.com"
+	<andriy.shevchenko@linux.intel.com>, Andi Shyti <andi.shyti@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>,
+	Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>, Philipp Zabel
+	<p.zabel@pengutronix.de>, "linux-i2c@vger.kernel.org"
+	<linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org"
+	<devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linux-aspeed@lists.ozlabs.org"
+	<linux-aspeed@lists.ozlabs.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "openbmc@lists.ozlabs.org"
+	<openbmc@lists.ozlabs.org>
+Subject: RE: [PATCH v27 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add
+ global-regs and transfer-mode properties
+Thread-Topic: [PATCH v27 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add
+ global-regs and transfer-mode properties
+Thread-Index: AQHcuzs4qjzU97MMJUicgXu5EEZ27bW9AWUAgAHaG5CAAJ2WgIAAnbqQ
+Date: Thu, 26 Mar 2026 02:19:16 +0000
+Message-ID:
+ <TY2PPF5CB9A1BE6B84773925372254CEBB6F256A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
+References: <20260324-upstream_i2c-v27-0-f19b511c8c28@aspeedtech.com>
+ <20260324-upstream_i2c-v27-2-f19b511c8c28@aspeedtech.com>
+ <405f6b1b4081ffb379a21bcdb5d2a8e81d2e2e3e.camel@codeconstruct.com.au>
+ <TY2PPF5CB9A1BE6F0B9087048F46ABD72A6F249A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
+ <20260325165233.GA3782899-robh@kernel.org>
+In-Reply-To: <20260325165233.GA3782899-robh@kernel.org>
+Accept-Language: zh-TW, en-US
+Content-Language: zh-TW
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=aspeedtech.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: TY2PPF5CB9A1BE6:EE_|TYQPR06MB8264:EE_
+x-ms-office365-filtering-correlation-id: ff12cf9a-4431-4ff3-9f54-08de8ade1471
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|1800799024|7416014|376014|366016|38070700021|22082099003|18002099003|56012099003;
+x-microsoft-antispam-message-info:
+ maGe8q5YvTJ/ammVRmMBgO3WMVq9KUBw/mEggk6XjuUMJIabjqtYkRDsLzMVszMUd3xRRlOgIBXbOuxQazfE7T1F/axTQN2j9nDyQ0oh8fd7iNnveWHj6arwNv+T5UxTLKV2dZEHQwbF5E/5KUJWkg1AMP2+Iag94f0TADpzPf0/wiJToMdlSTqIl9VF/bakua0irVNCpVZuSwXhtY6NMS5AMiZ7TwbpE9cxl4zzq3Hf9iaTTDV8voFl2Xhf6iRzgVuvfhR02uPPymwK8yndc26HEtxDhNMP1uptu9vslOpyss8pGn/E1frez21xGTXUiVCjjaO4wHSTk6ypbl1f5Yd3CzAP7EYa45+WGgckulg9oh1aX3HRJLMxwd+F15BqoJoIRW7HaAunJnjI/Uu+5egYHNlYgPbcTpMjhbeaUmjzHw+CqXKkAIrTZWg7wZKBjsD+cKItNFTcHdCUMD0C6P3vqOm+fneqv9v5OcvtvJ6i3U895/0xaj4EQ+WTYCVfmprPkFd20UVZQtK6+5e5rkwl0Vplr8bboHJER8gxSLdsC1jMfzomrHoChU9Tjp/S2cz08vnbgffpfQ88U4ym6avDCUt/njzcbNLb4q8uOY0puaa6nj1SboVZNdDcmiJBtr3J+hWir5LwcY98WE0VpSnBPbG7DNpU1AQRCT30WEOvR+VM51v0SMavwW46xttJHhy76sHTwIATjG6q86XHekqenaRK3memTxsSbQojCVmJK+cy7FIU/5L6VZ+GF+htsYLAFB4V8/h85k864hEzpRJNYl+CWAkpU9qlBse1K90=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:zh-tw;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(366016)(38070700021)(22082099003)(18002099003)(56012099003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?iso-8859-1?Q?dCyMx0YUPI6bcHeh0M04m+65KAVZLKYo9SDf978ELus2Ks6YnZWJyV7c2Q?=
+ =?iso-8859-1?Q?UuTxgtI9SNHCq+gE5VhEF2ewQgXSpW1KoOCZ0lpRtP+/VeeD01DxAxnMj7?=
+ =?iso-8859-1?Q?AuYVSHOyZfCCuC2nKAYnUleoaB5/b2WeqO375b97ip0l5IsDZ+z2JiAvoi?=
+ =?iso-8859-1?Q?S9ZpPTn9nUGZ3r5Gm2f1vxTx0RLKgyYEMAkuVZdSF9KjU6wWs81xkffEQC?=
+ =?iso-8859-1?Q?9RewKmdokO9A1NL5HSjPwn30ak5+sGtqENaQ0Qz0Lc1wAS5JACypEGECze?=
+ =?iso-8859-1?Q?Gz/Kd44NvEma2GMDn/gk9GmITOrlXwmTRc+krIx50Hv+IAjCLcDC06S2Af?=
+ =?iso-8859-1?Q?Olh3HqYC10AdulioCR8Q/z4Bi6imPalpqNfzfagQ46/On00BeIm5y5qxG4?=
+ =?iso-8859-1?Q?QisLZbW9FgXT4k/URxL/Suf5qgTKmM1u+Nc6cgPTAmdVulGtvvZEFiU12K?=
+ =?iso-8859-1?Q?ucez8eoIAimlWsDrPMJ+su7EHxJPcnTEt6IIeU3U5C9QNWumNqHywm8Z2Y?=
+ =?iso-8859-1?Q?sNpvqGM7WiabfTS/1dSWV7CCZtaz89Xi/3cl1gCjxs/CHshKae7SXQ7mAE?=
+ =?iso-8859-1?Q?J5ojckEQVeDseni0QUf7wNl6xOk59f3Z9tzOEQg1Q+mfsJfPZUSzxa029T?=
+ =?iso-8859-1?Q?BAa5gXmk9fUd3AyEaL1MCI3+0tQqaPDO7PpSnv3MwV7/rBgGGqVmYb7a/O?=
+ =?iso-8859-1?Q?dLTpJqlg7HNfvk+bAfgvyiX38M6jxScF/kqsG3ZAp70i6qCx6fQwvxebgK?=
+ =?iso-8859-1?Q?QOycAZ09pl22kiQ4YmtaRQJTIyty6cdyZgmYKWmA85ivd7wNwEhKlxPTQX?=
+ =?iso-8859-1?Q?zzFkhXje3SnuPbuvq89d7y/lC4TbrH+a9EYwPLzih9Qd4oUVhknzVaEvy2?=
+ =?iso-8859-1?Q?ZjhK5n/lFzXGNNp73Ah20yfCY7BQj3twePQRAD6BCpXfuovKRacd5zQseb?=
+ =?iso-8859-1?Q?enmgOHTVCZn2h5nJrhZ8Xbek0g3VWVfP4JJiM3UJA21asUFN0LB9rpwjsw?=
+ =?iso-8859-1?Q?S6fkWvuxe0vXTblkMeiMA51hvFA3i8zSor05s/RGlGxG0WLOAmmm5qqUN+?=
+ =?iso-8859-1?Q?VilBiJBm1S72Wua5zi4EqLG+aL5Q1tbcftFegOeeu0nqk3iR2V6wfK5yF4?=
+ =?iso-8859-1?Q?SLao+uzgBBqQuasLAi6dFb9lLt+FYCzvK6p0Dk2kElAR/wBf+LOfAEN/u3?=
+ =?iso-8859-1?Q?3zfDszW/EQXDYh9XQlIQ182sv6Scl/2t8itSLurC+GiN6CSAEG2zU02LZ+?=
+ =?iso-8859-1?Q?LgxZBGFk6UVz5WqPL1ZFil0SsswaRggdyVzbdJ1HYC9f+Pna07u7db96SN?=
+ =?iso-8859-1?Q?ZcuswP1U1ctFoEn/mU+vpqqZjR2pbQfpxMWoK9jFG3xLU2lbn1i7AKcXpR?=
+ =?iso-8859-1?Q?5j6Y3Ab8GBkAZ7qnmRJwMugNQYw3OCNxCIzjmurRCodps96rDodcC5sypW?=
+ =?iso-8859-1?Q?2iDakgxE4gb+lavC5tfr8qFqSSG6EFBuLMbJT2a/0y7OyveBiW75/63Rj5?=
+ =?iso-8859-1?Q?8xd5G8Q7aptQc2/z+OYQL0iKWgthyVKhsOz+cfZUSPaBo4FmEBkCQh47Mh?=
+ =?iso-8859-1?Q?7qsYZdFBmH1JM2n8lQHrH2dK4+KFqVD/+1wFr6k69kD37yw7B+M0ic3dhc?=
+ =?iso-8859-1?Q?iLd35c8aEkrs9lcacXzs6BhLJmRTHbwR8qplmRZd9CEeCEKdg8SmSuExPm?=
+ =?iso-8859-1?Q?F1xVFEkHNO+vioGUnLOv8ED3u3uDJIFpUh1KENi1Ob7td13GNm+AkwMROd?=
+ =?iso-8859-1?Q?c0mXKNDNm7q7XwxXBVsy4OjD2J/rWOypueL/KIjzrokf7rfWj57m1cl3oF?=
+ =?iso-8859-1?Q?077ieuiMMg=3D=3D?=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20260325-outstanding-weasel-of-fruition-89db37@quoll>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-CM-TRANSID:qMiowJCxPMIPlsRpfY9dAA--.46396S3
-X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
-X-Coremail-Antispam: 1Uk129KBj9xXoW7Xw4rKry5WFWrWr45Gr13Jrc_yoWkurg_ZF
-	yvy3WDt3s2kF9xGrnaqF45J3Waq34UG3yqgr1DAF1SgasxtF4Du3Z2vw1xWF4jqrWa9w1f
-	Cw1vkw1xCr1avosvyTuYvTs0mTUanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUj1kv1TuYvT
-	s0mT0YCTnIWjqI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUI
-	cSsGvfJTRUUUbxkYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20x
-	vaj40_Wr0E3s1l1IIY67AEw4v_JrI_Jryl8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
-	w2x7M28EF7xvwVC0I7IYx2IY67AKxVWUCVW8JwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
-	W8JVWxJwA2z4x0Y4vEx4A2jsIE14v26F4j6r4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
-	Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx1l5I
-	8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AK
-	xVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07AlzV
-	AYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
-	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIx
-	kGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAF
-	wI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r
-	4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8czVUUU
-	UUU==
+X-OriginatorOrg: aspeedtech.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ff12cf9a-4431-4ff3-9f54-08de8ade1471
+X-MS-Exchange-CrossTenant-originalarrivaltime: 26 Mar 2026 02:19:16.3086
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43d4aa98-e35b-4575-8939-080e90d5a249
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: cbi2RQJDuIwL4yz4Ym+0A4/yLNhugOOa2Tygr4d2IFswPbQBKkLmFc+MK+6wZM0CcSqE8NY9WS/OPBWQgM/aWgiFh3zY9x1kKdjx8dlvcWE=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: TYQPR06MB8264
 
-Hi Krzysztof,
 
-Consider the clock framework relies on the device tree, and can only be 
-used on
-Loongson 2K platform with dts parameter mechanism, It cannot be used on 
-Loongson
-3A+7A platform with the acpi parameter mechanism.
-The i2c-ls2x driver is compatible with both Loongson 2K and 3A+7A 
-platform, parse
-the same parameters regardless of dts or acpi parameter passing, So 
-clock-input
-and clock-div attributes are defined to describe input clock of i2c 
-controller and
-divisor of input clock. It can be used on both 2K and 3A+7A platform.
-
-Thanks
-
-Hongliang Wang
-
-On 2026/3/25 下午7:43, Krzysztof Kozlowski wrote:
-> On Wed, Mar 25, 2026 at 09:18:51AM +0800, Hongliang Wang wrote:
->> From: wanghongliang <wanghongliang@loongson.cn>
->>
->> Add clock-input and clock-div properties.
->>
->> clock-input describes the input clock of i2c controller.
->> clock-div describes the clock divisor of the input clock
->> of i2c controller.
->>
->> Prcescale = (clock-input * 10) / (clock-div * t->bus_freq_hz) - 1
->>
->> Signed-off-by: wanghongliang <wanghongliang@loongson.cn>
-> Also, why are you using inconsistent identities?
->
-> Best regards,
-> Krzysztof
-
+> Subject: Re: [PATCH v27 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add glob=
+al-regs
+> and transfer-mode properties
+>=20
+> On Wed, Mar 25, 2026 at 08:11:54AM +0000, Ryan Chen wrote:
+> > Hello Jeremy,
+> > 	Thanks the review.
+> >
+> > > Subject: Re: [PATCH v27 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add
+> > > global-regs and transfer-mode properties
+> > >
+> > > Hi Ryan,
+> > >
+> > > > The AST2600 I2C controller supports three transfer modes (byte,
+> > > > buffer, DMA). Add "aspeed,transfer-mode" so DT can select the
+> > > > preferred transfer method per controller instance.
+> > >
+> > > This patch does not add an aspeed,transfer-mode property.
+> > Will update use aspeed,enable-dma
+>=20
+> [...]
+>=20
+> > > > +=A0 aspeed,enable-dma:
+> > > > +=A0=A0=A0 type: boolean
+> > > > +=A0=A0=A0 description: |
+> > > > +=A0=A0=A0=A0=A0 I2C bus enable dma mode transfer.
+> > > > +
+> > > > +=A0=A0=A0=A0=A0 ASPEED ast2600 platform equipped with 16 I2C contr=
+ollers
+> > > > +that share a
+> > > > +=A0=A0=A0=A0=A0 single DMA engine. DTS files can specify the data =
+transfer
+> > > > +mode to/from
+> > > > +=A0=A0=A0=A0=A0 the device, either DMA or programmed I/O.
+> > >
+> > > As we had discussed: this does not define the transfer mode, only
+> > > whether DMA is available to the peripheral.
+> > >
+> > > Why mention the 16 i2c controllers here?
+> > >
+> > > Please keep this description simple and relevant to the specific
+> > > purpose of the property.
+> >
+> > Will update with following.
+> > description: Enable DMA for transfers on this I2C bus.
+>=20
+> You still don't understand the distinction. It's not enable, but that the=
+ h/w
+> instance *has* DMA capability or not. It is still up to the OS what to do=
+ with
+> that information.
+>=20
+Thanks=20
+Will update
+description: Indicates this I2C controller instance has DMA capability.
