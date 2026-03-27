@@ -1,40 +1,42 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C47362DA75A;
-	Thu, 26 Mar 2026 22:46:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCBCF188596;
+	Fri, 27 Mar 2026 00:27:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774565173; cv=none; b=m2vhwcoDnT+LUXLDEb+5dHtR1dB/Df08seGlW0Q4LwH11w+JQ64MZE9McMr9vd7tpOhQ6E0wriDmY/f12W3cRHFRuTZz8nUVaDR5eVRKM+BNn4Mj4he+13LHNhB+pVCdjnd+XLHJy8Xrg9xuiw6AcZZOfInknTaAKon79Cd+u8w=
+	t=1774571251; cv=none; b=IqF29yZYLz6XfBjULJDLEK68tEchjl75DJrhtuGyldAcMaxA62Tn0OL9npzuUy5o/U95uIPti/VxzKfsqg7Oxq7svDR/QEqAoL9lnyCzivjiEIVvaHMWOgQt4OBhtj6WMvlc1n0hv6KY5CoSps84v/eEUn+xeTHSMuA+AaWZJTI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774565173; c=relaxed/simple;
-	bh=09hdXevDu1/IwNG3Menqnf6eWM8T+7oRxKD5M3zx4vI=;
+	s=arc-20240116; t=1774571251; c=relaxed/simple;
+	bh=9qHZtiDhanOQnxlnlcnMIGn5yWvjvh/nCVC9KUTq/2c=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iq1UGUzXktwT8Hrsrr25MVCqfO4pN472CfznrMrsYAyJkbk3Fhg+NCuVlq/HKhe0fCLAC+imB3Un19RBV/VMF4dlDjRfh2K16E7wOWyXE595hzL6ftmx677E8KkcI3QvxN3RoI98H3FV0vvdx+Qfe86YlArnOb+vdYtyForBH2w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PXWhVk7s; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=AKHVKT92mQw2ig7lEEYwhhvVd2KQU1geqz/VdUeTI8uVLSpMI1G7hy5CRFQXTGI2WXotq1tyPfcYOFt5BsdCRh5HQwf2VkockmFaIC8xqxEma8EyD4Lj6x+oNd/BQsENGdH28fIg0ROGToM2MXWL+kTAIh0kRVktEJrPwSF14n8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=dckkfzoW; arc=none smtp.client-ip=156.67.10.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PXWhVk7s"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F054BC116C6;
-	Thu, 26 Mar 2026 22:46:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774565173;
-	bh=09hdXevDu1/IwNG3Menqnf6eWM8T+7oRxKD5M3zx4vI=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=PXWhVk7saJLTqVL3C5AxqZMn5XX5loYsQnzqf0Tr1phZnip9Nd+MCUKGp32lNsPb7
-	 Y+pgcDhEv+I3tVU/b+OGkXJDxCCaGgvQ5A7EPIJwVbbC7x1uNs1eYXAg4XLVOU4/SL
-	 V8Qy6FsnJCWaEZR9i07dpsdG60OjcPoR4mqA9a9lUE20vUFeD5OZJa4YevrcbB6uLW
-	 R5H30SKVhWW+9plytTSktuMqSM4jMDtt39d4/gPalh//z8aPV4P4yIFWb4YCby7laY
-	 WituCVPfbmI18CBgaxQojP9akDGfftxVPWoynIqmylQQ5WILFbB5iu9tjUhb3tU/qY
-	 k1mFiDuQ/Yp8w==
-Date: Thu, 26 Mar 2026 23:46:09 +0100
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Kartik Rajput <kkartik@nvidia.com>
-Cc: ldewangan@nvidia.com, digetx@gmail.com, thierry.reding@gmail.com, 
-	jonathanh@nvidia.com, akhilrajeev@nvidia.com, smangipudi@nvidia.com, 
-	linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v10 RESEND 0/3] Add I2C support for Tegra410
-Message-ID: <acW2-1Xvp4VARppV@zenone.zhora.eu>
-References: <20260324055843.549808-1-kkartik@nvidia.com>
+	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="dckkfzoW"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=eG/sTjio8XWgbGLo2OAUG4mjXh3DemIvsZC9G4MtvBw=; b=dckkfzoWgBd8lmaM1ZBOtoBWI9
+	JNARRzv/aULxVQoN2n0ykkuapNlnytAC77PsQi8VsIy1vmDPA4XVqBeVyiDw6apQQ1i8q41fwOyFo
+	p4PR8vMSXYLfiPEiLf+Y+CLil//NmsAWqnNSPEcJjNSjIHuXML50ol/OHXgTXhR+tS5s=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1w5v2i-00DZ1u-BQ; Fri, 27 Mar 2026 01:27:16 +0100
+Date: Fri, 27 Mar 2026 01:27:16 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+To: Martin Aberer <martin.aberer@bachmann.info>
+Cc: peter@korsgaard.com, andi.shyti@kernel.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: ocores: Use read_poll_timeout_atomic to avoid false
+ poll timeouts
+Message-ID: <c9afbdf9-d5ce-4f1c-8192-5d3baebe125c@lunn.ch>
+References: <20260323135249.550925-1-martin.aberer@bachmann.info>
+ <20260324140556.2249039-1-martin.aberer@bachmann.info>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -43,16 +45,20 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260324055843.549808-1-kkartik@nvidia.com>
+In-Reply-To: <20260324140556.2249039-1-martin.aberer@bachmann.info>
 
-Hi Kartik,
+On Tue, Mar 24, 2026 at 03:05:56PM +0100, Martin Aberer wrote:
+> Replace the manual polling loop in ocores_wait() with the kernel helper
+> read_poll_timeout_atomic(). This simplifies the code and ensures robust
+> timeout handling. By using this helper, we avoid spurious timeout errors
+> that could occur under high CPU load or preemption, as the macro handles
+> timing and condition checks atomically.
 
-> Kartik Rajput (3):
->   i2c: tegra: Introduce tegra_i2c_variant to identify DVC and VI
->   i2c: tegra: Add logic to support different register offsets
->   i2c: tegra: Add support for Tegra410
+It is not that it does it atomically, but that it always does a check
+after the delay, even if the delay has taken us past the timeout.
 
-merged to i2c/i2c-host.
+Apart from that, and the other comments:
 
-Thanks,
-Andi
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+
+    Andrew
