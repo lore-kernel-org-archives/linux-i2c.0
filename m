@@ -1,81 +1,81 @@
-Received: from mail-oo1-f72.google.com (mail-oo1-f72.google.com [209.85.161.72])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BF723BA24F
-	for <linux-i2c@vger.kernel.org>; Fri, 27 Mar 2026 12:54:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.72
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF03F3BD63B;
+	Fri, 27 Mar 2026 12:58:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774616059; cv=none; b=MzvfWu54hIZDwwEL0DZEWlBykjnSNZsp/1IU/Muunp3qWsA5XNBfVRdIxL4DL9mfSDS9pKOFzcwbHXhSG8dHZ68scBB5iqtf7bakjfzN5ZeSTVySueddsUyXqVMbG6HSDkAQ+4ndexGnroRNv8b2xmESe5Q0bkIpxzjKUrT5l64=
+	t=1774616282; cv=none; b=HTMa0uXLWh7Pa4tuCrjJJXDnQDb3qVJDpTRgb9fD/wXpFVPBWkvclyXWKO9436yNzVv2r0FYea2rXXErZUO0RklWHAoPDQv1uSvltGddwpmHpDp1X9ejC/NHSNWQWbIfkfyiRdgK71iP+4NJJdrk6g8NMCFojzFeIuoKFdLpm0E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774616059; c=relaxed/simple;
-	bh=VH22dmBs2XmDNBL5wRrU0ElEruxSrh6mChqeflUDrcM=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=Hr80rStn50gqUdT/aiGbOFqud4iaXPlTXy3lXMdx15ho4pdq7H2omRJwxVi8yn0VG7V8DiWWRpmQfNLlzLJ4CvicIO9hSvRoVV9dYRVAvGDMD93pIHVERQe+eLPHwK5Kqd6FZ0nOeern4nq1izZpauSBeRlR7L4KIkdoMYoFGqI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.72
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oo1-f72.google.com with SMTP id 006d021491bc7-67df0afe34fso5663778eaf.0
-        for <linux-i2c@vger.kernel.org>; Fri, 27 Mar 2026 05:54:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774616057; x=1775220857;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=2DqQuewHFZyQz+mFOWrbaXT2rLBGcu9qZfqMlFRAtr0=;
-        b=Yp9CXjKcN6IkgltdX2brUKJbh6g1IrPKvbirBvHaqoSSrIB4QyAGiwM/DfxaHYNsfc
-         687j9Il1cnL27hv6xo0XAEO2qvoOqSAEkch4N5hykhU1XK2PITl6ktkiWATP5ZJe6+9E
-         pV+W5cecyRndMSBs/kMDlHuZZmCSy71ByGV3nNoIawSbbLooxsm2PvPcZpnVr4xEI82K
-         rekQNHc94qM/fbaXggzZmlynkqEJms9Nz2Q21+X4Bxpc5Qbw1a+0/G8BWABSDY6aZ9zw
-         LSiUt7Ieu9UaKa2DM2bOBqwobnmJhWacp3L0sCrC4+K9bOZ1iKhPhukdtn2hlwbFxGz8
-         nSrA==
-X-Gm-Message-State: AOJu0YwKknnGvMWLuTNOXCPnwoZO20mt9kSBhI3RJe9x3OmMa+NpBnqf
-	NsR7t9+Fxrm7VWC0QIkWXRVlI7XvwzjjUO4XvKAlPejjaUrAhxlI4LG+7tcX0zVyhcag6A+I3tk
-	K6oiZkUQI0UEuZk/q/jGMbi7RvT2hWJadfrKCRqKAic156XMKm+RLiW3cip0=
+	s=arc-20240116; t=1774616282; c=relaxed/simple;
+	bh=CRPuBFW5ySU1B//8Y58WVzYgdDh/go+1LEbi+0sdrhE=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=JLJi3b+mKkBR8aOCUv20IuMOkI4gnr4mHnFKqQsKr0rBRttUwh72zqA7NHrLTRDsuiwAPBtXq+UtbL1vzpGUoVyezwtVync4Bf4H62V3m6L++9YosqDh4Y/BZtoVq4GRamSIZXk+fLS8zyRm8NzQAmKCPSn1JD7ZNMD0TH/UweI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rWmo0wRX; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rWmo0wRX"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 302F9C19423;
+	Fri, 27 Mar 2026 12:57:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774616281;
+	bh=CRPuBFW5ySU1B//8Y58WVzYgdDh/go+1LEbi+0sdrhE=;
+	h=Date:From:To:Cc:Subject:From;
+	b=rWmo0wRXJ591uaQmaHosV/ZhEFcHqAGc4pLXi57f5oPV1nDncYHjH2+KmCbMetDa3
+	 nFiCRqjT1nMDXU6EBLRhVrbs4sv8XDS2ZXBUWWLLWxbAZgE0gO7/rYe58dwvXwTcmE
+	 qsRUpXe7fFDLoKECJj5+lO5e9KGLGVv5UT4zFkR3+5KqZ3y5zErVNtPO/Ou9ByU+Ao
+	 WLevsPaWrWQAfB5NlhrjfQT0jBIqKTOZdG8E0DQ0tIeYmCjSxr9H1CQOySDInWTm9i
+	 vqKyjzT84CWnraaOdyvU36lSWD8lmYmJ0vk0tqczW1zUhibujx54teKpiu9/b5dUdI
+	 3SPMSjrHbIfUQ==
+Date: Fri, 27 Mar 2026 13:57:56 +0100
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, 
+	linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>
+Subject: [GIT PULL] i2c-host-fixes for v7.0-rc6
+Message-ID: <acZnOtLJANk9wbZR@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:1614:b0:67e:1cf0:6721 with SMTP id
- 006d021491bc7-67e1cf06895mr595099eaf.33.1774616057525; Fri, 27 Mar 2026
- 05:54:17 -0700 (PDT)
-Date: Fri, 27 Mar 2026 05:54:17 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <69c67df9.050a0220.172bcd.0002.GAE@google.com>
-Subject: [syzbot] Monthly i2c report (Mar 2026)
-From: syzbot <syzbot+list7b2c005c48716a5b1a1c@syzkaller.appspotmail.com>
-To: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hello i2c maintainers/developers,
+Hi Wolfram,
 
-This is a 31-day syzbot report for the i2c subsystem.
-All related reports/information can be found at:
-https://syzkaller.appspot.com/upstream/s/i2c
+here is the fixes pull request for v7.0-rc6. It contains three
+fixes in designware and imx.
 
-During the period, 0 new issues were detected and 0 were fixed.
-In total, 3 issues are still open and 4 have already been fixed.
+Thanks, and I wish you a great weekend,
+Andi
 
-Some of the still happening issues:
+The following changes since commit c369299895a591d96745d6492d4888259b004a9e:
 
-Ref Crashes Repro Title
-<1> 959     Yes   KMSAN: kernel-infoleak in i2cdev_ioctl_smbus
-                  https://syzkaller.appspot.com/bug?extid=08b819a87faa6def6dfb
-<2> 105     Yes   KMSAN: uninit-value in __i2c_smbus_xfer
-                  https://syzkaller.appspot.com/bug?extid=0a36c1fec090c67a9885
-<3> 4       Yes   INFO: trying to register non-static key in i2c_register_adapter
-                  https://syzkaller.appspot.com/bug?extid=4718cc0f82054afeea8f
+  Linux 7.0-rc5 (2026-03-22 14:42:17 -0700)
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+are available in the Git repository at:
 
-To disable reminders for individual bugs, reply with the following command:
-#syz set <Ref> no-reminders
+  git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-host-fixes-7.0-rc6
 
-To change bug's subsystems, reply with:
-#syz set <Ref> subsystems: new-subsystem
+for you to fetch changes up to e2f1ada8e089dd5a331bcd8b88125ae2af8d188f:
 
-You may send multiple commands in a single email message.
+  i2c: designware: amdisp: Fix resume-probe race condition issue (2026-03-27 13:51:21 +0100)
+
+----------------------------------------------------------------
+i2c-fixes for v7.0-rcX
+
+designware: fix resume-probe race causing NULL-deref in amdisp
+imx: fix timeout on repeated reads and extra clock at end
+
+----------------------------------------------------------------
+Pratap Nirujogi (1):
+      i2c: designware: amdisp: Fix resume-probe race condition issue
+
+Stefan Eichenberger (2):
+      i2c: imx: fix i2c issue when reading multiple messages
+      i2c: imx: ensure no clock is generated after last read
+
+ drivers/i2c/busses/i2c-designware-amdisp.c | 11 +++++------
+ drivers/i2c/busses/i2c-imx.c               | 51 ++++++++++++++++++++++++++++++++-------------------
+ 2 files changed, 37 insertions(+), 25 deletions(-)
