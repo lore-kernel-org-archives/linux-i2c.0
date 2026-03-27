@@ -1,42 +1,44 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F264289E06;
-	Fri, 27 Mar 2026 14:03:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E280222173D;
+	Fri, 27 Mar 2026 14:05:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774620229; cv=none; b=ktFezQOpXw1vs72I8NnILYINkciUtFFoKW0/9KKSNa0XmlnaeQpEf4qkccyCCx5ESfPkiR1q9GbUT5IspH50URVk7cLErnCVSYFLEgYrPWhsu9xiZ92TPKP4RsoVyUOp41ijQ37andC87RpAdI4y3yguEfx7UcQ2Vxj6UP6wDyk=
+	t=1774620351; cv=none; b=tXEQlK4FQtCsCdT49jzBvEUWqJZGZ1+u7oqa+LyoJaWhvgfDi0M46eU9cGorwnjrv3Y2LCHVS5wyq+al+Zn2BS9K/MBF+BOW+dHPAqjh5y9CElJOxOf49Os4FV8LC2yRXB9y2uBCYexEejyUE7+uBsH0Z89BUSM6SpxvrQZ+Clc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774620229; c=relaxed/simple;
-	bh=XxTRwyCGAx0jvq4FieN6junPj14vSkBn4sCe5OTN4Q0=;
+	s=arc-20240116; t=1774620351; c=relaxed/simple;
+	bh=1Ytr54Qui4gyj+gv4PL4vq/K3QaCphWji1udL+1JykU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fr1/MQJBWuv/qCiYokWEBsPa9WQZn9GhKah3kMUMu7+i5BHiyt4gtCrG/NFvXwHicwLmTngN4sDgvnfCNfoZqyAoFtHekPhaE5FuplaEskhVhCsTotWqseUbFo7S61iQABkma5p8usp7qxetsPTUHSr8RUtSBqxnr/swjkOTte4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cRq1A9K9; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=rvX3AJNT3wv9vFrHDkoo/xePZWAl/pSRsFr+mWHFqqhRkMC1JhvByJFa/s32Y4HEg0i7k2wAYRrhf7ztKGwMdrsBGOnqc2gncq64nReehUba653I5gsf5v6gTA2zjZ9v2WxTO2OEdWu5DQKZz1/Dy9Nma+lI1wHmqAZLkWMnNWc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=NfirfCPq; arc=none smtp.client-ip=156.67.10.101
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cRq1A9K9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48F56C2BCB2;
-	Fri, 27 Mar 2026 14:03:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774620228;
-	bh=XxTRwyCGAx0jvq4FieN6junPj14vSkBn4sCe5OTN4Q0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=cRq1A9K9qe/yOh/MR+dHyrx6H+FaAi5EX/X0EjZZqEja30Yd0K5G/aTTd+Cu6EkGL
-	 KDTgxd1GStIoLPiqkCw1KaFJ8AEmBnuRqhChViYlApDK9Z3qP7sglA3Wy/aIizlxvE
-	 WthE09EVJ6ePfS3JFP1Kmhg+pRrO9PEXdROgr7JCfHLdjwW8I9LLf2aXWvhp5EBcMD
-	 W+dU/tvlK2L5GJ+tGUTQG/8w1haw6cREbCNEt4DCN4Da0osLdMlWpJ8rm4Qa963sNr
-	 DXROiHonq5S65sxb3uG6woqAyMyklJAaV3YmmOoAyB2W3efHTANsiN+pdNDZ0FNOaU
-	 N+IYgObWwL8Vw==
-Date: Fri, 27 Mar 2026 15:03:44 +0100
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: Martin Aberer <martin.aberer@bachmann.info>, peter@korsgaard.com, 
+	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="NfirfCPq"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
+	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
+	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
+	bh=6gGcLLtSBfnKsz9SgIctKwnoDITsxj0pHAg5z2KVu6M=; b=NfirfCPqbP4T1VNxijPYAaKw1Y
+	YVfZYew3om/nsamtTPK7cyYab0+xBEygtqCj0p374qzMSJsceCnJ1kU4pcyEJ2MXHxs9Hnb+Xp+G+
+	6XPJEp0VGp9GEDc2c7yU604iwqtCxKEsfgdcPmeRJ5HhjpmH/cwWX48scQ1tv6IETRqE=;
+Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
+	(envelope-from <andrew@lunn.ch>)
+	id 1w67ok-00DfYf-7r; Fri, 27 Mar 2026 15:05:42 +0100
+Date: Fri, 27 Mar 2026 15:05:42 +0100
+From: Andrew Lunn <andrew@lunn.ch>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Martin Aberer <martin.aberer@bachmann.info>, peter@korsgaard.com,
 	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] i2c: ocores: Use read_poll_timeout_atomic to avoid false
  poll timeouts
-Message-ID: <acaMqaKYy6mctA2S@zenone.zhora.eu>
+Message-ID: <8acca1c5-af03-4cb4-9d01-6b4d035cf81a@lunn.ch>
 References: <20260323135249.550925-1-martin.aberer@bachmann.info>
  <20260324140556.2249039-1-martin.aberer@bachmann.info>
  <c9afbdf9-d5ce-4f1c-8192-5d3baebe125c@lunn.ch>
+ <acaMqaKYy6mctA2S@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -45,36 +47,14 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <c9afbdf9-d5ce-4f1c-8192-5d3baebe125c@lunn.ch>
+In-Reply-To: <acaMqaKYy6mctA2S@zenone.zhora.eu>
 
-Hi,
-
-On Fri, Mar 27, 2026 at 01:27:16AM +0100, Andrew Lunn wrote:
-> On Tue, Mar 24, 2026 at 03:05:56PM +0100, Martin Aberer wrote:
-> > Replace the manual polling loop in ocores_wait() with the kernel helper
-> > read_poll_timeout_atomic(). This simplifies the code and ensures robust
-> > timeout handling. By using this helper, we avoid spurious timeout errors
-> > that could occur under high CPU load or preemption, as the macro handles
-> > timing and condition checks atomically.
+>     In particular, the helper guarantees a condition check after the
+>     delay, even if the delay exceeds the timeout, avoiding spurious
+>     timeout errors under load or preemption.
 > 
-> It is not that it does it atomically, but that it always does a check
-> after the delay, even if the delay has taken us past the timeout.
+> Let me know if it doesn't work.
 
-I took the liberty of changing the commit log to this:
+That is good, thanks.
 
-    i2c: ocores: Use read_poll_timeout_atomic to avoid false poll timeouts
-
-    Replace the manual polling loop in ocores_wait() with the kernel helper
-    read_poll_timeout_atomic(). This simplifies the code and ensures robust
-    timeout handling.
-
-    In particular, the helper guarantees a condition check after the
-    delay, even if the delay exceeds the timeout, avoiding spurious
-    timeout errors under load or preemption.
-
-Let me know if it doesn't work.
-
-I merged the patch to i2c/i2c-host.
-
-Thanks,
-Andi
+     Andrew
