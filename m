@@ -1,158 +1,156 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f45.google.com (mail-dl1-f45.google.com [74.125.82.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F25C92652AF
-	for <linux-i2c@vger.kernel.org>; Fri, 27 Mar 2026 02:50:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04E5634D90C
+	for <linux-i2c@vger.kernel.org>; Fri, 27 Mar 2026 03:03:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774579815; cv=none; b=k5XLuGj06r+mZnOtLgX5AJ4FKMxomQXlRrtduTwG8C9CiDAkBTa3WNqaRA9jXQlUCdDFRAgrUxRaYyAcYqGjHSS0eua20qPOjfn/VMNxexKxCNH2ZTB3EGuH0+stuIlbde+euixs9kMxz+U8OTmelUNsew9trsoXhkPcBfF89bs=
+	t=1774580611; cv=none; b=KxEjS+iAY4Yn56R732gyJt2kTZtL6uVMWv7yOP6M8OfE5Uu8KqlgFt6mrSGXntk11fe0qVKpxQO8nf3TENvwpiHGbElOuBgJeHHAE4jydKEECm7LqJg7AbEIUIpIb0VgxOJ1yqgrDTEM0ZXB0bMSF9LuWTVL8+zdgyM+sdLTtnQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774579815; c=relaxed/simple;
-	bh=EeR2ghfQJW+Im1ogJ1DveL3qKBLXf5xwwrhzVm92TwM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rTrviXN50KWzC44kO7Lfm+BO/nl8DYY3N19lJAH4RhYbcR5X1gwAU9iFjOj/bV8cqLnw/jvQTgXTNBacWM7gfi26gCW5BNuifc4p6d0QlmmLe9di58qEHcPHX9TzfCKi2ZBGyyjbo2+/D0lamX77WuufKI4wVJT7pjo8/dncCrM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aQqSUPlh; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774580611; c=relaxed/simple;
+	bh=GWG5hZy1veFdtnzqyHdYWLrPolKgR7bSn7NtmrJOIFs=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=dwoDT9UZEsfYPbFiLa5OBMPnBGkSoUR4XQRT6TUAiRjwDzA4yojzCzcXkpDeLEkNkuiEhGZGdSQGSpXnYZ+2r0mgybQLQBIvasiIy79lF2/dBILjYe+dlLu/lglLC2TnUKHDS2P0bMA5GSI8E1oBwKUjA04vlqCQ0bF5D7tgmZ0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LTOFxOjV; arc=none smtp.client-ip=74.125.82.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aQqSUPlh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBA29C2BCB5
-	for <linux-i2c@vger.kernel.org>; Fri, 27 Mar 2026 02:50:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774579814;
-	bh=EeR2ghfQJW+Im1ogJ1DveL3qKBLXf5xwwrhzVm92TwM=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=aQqSUPlhKnKTufTllpwSEQ08jG9hc8kHYX7eOulcmajI34kwCHmiAs/iM9ugsiBOz
-	 Ze69PAlguKgMxt2t+gLAihwaQGYBFSHX52o2r+UPZS1QVmpdH7t0sw4C4le+YMj/qI
-	 bkNTEqZz7w8PxYMKAOUBpO9ZHsC+lnSA6iJubqhD/0aNKFkr4ApohjolKcPQio+vPA
-	 wAErcRIaKL9cjzJ/lvnjCALofjUFaaP//soE/T2AhBoJ4VWYYl+YVVbEJrjfRgulHq
-	 phN56rEIiHy2ZwaVdvFep2xyVsXwUczLrP4JzmcUtPkwRnLkRzYMKjXgt5vmR4Uod8
-	 X2tam9Yndiqlg==
-Received: by mail-ed1-f43.google.com with SMTP id 4fb4d7f45d1cf-6634bb959a2so2006341a12.1
-        for <linux-i2c@vger.kernel.org>; Thu, 26 Mar 2026 19:50:14 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCVjmuYodoY5fAoc8ytQD400Izb9MT6fBPPUTiA5FywwdP99bsMlLbRH31wlZtQdnfvdrWHPH+1Hzq8=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy/ddVxwD4IMC5te1akNYS/DL+T2mLOjlwXtzLw8+SiIKlBcmeX
-	bv/2TqD4QNFmvSFhdBtEPSjUSbzGK5b56Z3ed5bAbR75H2nfUpiKGr1E6iM/OFbRRi0JlsOD7gi
-	Vl3qdqaO5fgSx2Rc2TlUncOJtCvke+vg=
-X-Received: by 2002:a17:907:960e:b0:b98:6c41:a77f with SMTP id
- a640c23a62f3a-b9b50360c1bmr41758066b.20.1774579813141; Thu, 26 Mar 2026
- 19:50:13 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LTOFxOjV"
+Received: by mail-dl1-f45.google.com with SMTP id a92af1059eb24-1273349c56bso2120308c88.0
+        for <linux-i2c@vger.kernel.org>; Thu, 26 Mar 2026 20:03:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1774580609; x=1775185409; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=vSaSNFof8LDeaSt87Ybd7wXF7naIBHoN3VgDG9Jp8yE=;
+        b=LTOFxOjVus0teg82jxGyS+KYCrJ1FWKK2MI3ZpSsJcdm44SAy8XwVrunuRYoaMjyOD
+         66LZLrMxg2MdGRYrlfsqso8yOxkJgweF4tdZ0AXkunF2+2piCWZsNULhR5XTejHEcBUO
+         NMevfhhjdVLsbRn3NIezCSUPoVt/utHQFJ10ZU2gk34siaTEtFMfv1c7iuut1Qjz2NCF
+         Lhpk6hOjln/LepNS/NrXPBvg4hjMX6NQgfAiOMqh0YgUF+NFJ/8BPyrZZd3ZYOv/6uxy
+         9sswud72udfY5zmRaKZFWYESRdgQZI9zP1ERFzRALhGD70OUTWhz1zxR8hk1o+EdieKn
+         lR5A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774580609; x=1775185409;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=vSaSNFof8LDeaSt87Ybd7wXF7naIBHoN3VgDG9Jp8yE=;
+        b=Wt8CInDFc7sPcr4aVfotedkUTy0MB0yaISWL2WwFUjIWJPiCyVB8HHlrJtE4BZLCZc
+         MGe8HZFgLez+d7Sat+Tp8OhaFarwcJ7XchGm+fCxO1GdStrNlWQVkaUp+zILUs8GVTnt
+         eoucwNLyvGFWus7+N0IKn2A8rquGi7uRdlFUeoC07VrQwZ/RaOg+oIU6DLS0uVGQNSIx
+         pv/NATyBLPiCew/eWTD+MnL8uM8iABr5g3tpun9DOT+I2yYqOjSrVjpatWiIUBPEBYHY
+         Eppb0sN2+tz61EeRGnN0OrhuPuuRKKyLYSQ8pQ8Q/rsjPjrjTqZ38eX3TxzrtlSchUhx
+         ApMw==
+X-Gm-Message-State: AOJu0YyjFUc0hQ7HbfGvfE/zvTv2ngAudrLlSQixrJrOS65QcIBH56y8
+	QXGojj4MD6HRBniMYefQaHiVKcvaiSzu5B6ov/oCbAl79UwHMLUzy7kAHJn+Y7U0
+X-Gm-Gg: ATEYQzwRopKi+sPNgKs9/Q1EGVPdpipgsj2SBBP8x4FollGkWRZLbKUv5kIuQXpzRg9
+	0C44VNRzXiVV4wofLjsH31VZYNROwp9SEJ846wzQkKCHP60AInlyVm251XWbwmxUlPCUDLd4XCB
+	Cxa/4CZWsVZ93ARO6QOE3Xt+7ACzDes8fcYs7FXw9YGhdCzNR/Gh502DAbZzKoYspNa70Ni+xNg
+	mqoDdWFiefKk631YKFUSUCHsBwOqBdgCYReorox3wp9RAa7RZup6O+3Qyu4Aa0RHyqkOT7craA+
+	nqxD/+qktyXCK8rFKU7kXL2ZbQqbfUp0YDO8xAZOmFaeO9YCcZPXi/RH77uqgDl290n2hjuDlYN
+	cILT3ETwZkc5FEk+PCO06XCRUg4+lDgOzc5g8eTYs/l27mnleKvhnCCK9iDC27qv9oWKBzEirje
+	mS4m8IflXkVqZexWBPqaTl7VmzCZP7gGLTFrM5Xdp0CsGYaTnfbsEC8cA=
+X-Received: by 2002:a05:7022:220a:b0:128:d7a7:526f with SMTP id a92af1059eb24-12ab284be71mr452177c88.4.1774580608570;
+        Thu, 26 Mar 2026 20:03:28 -0700 (PDT)
+Received: from ryzen ([2601:644:8000:5b5d::8bd])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-12aa78462fesm6576388c88.15.2026.03.26.20.03.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 26 Mar 2026 20:03:27 -0700 (PDT)
+From: Rosen Penev <rosenp@gmail.com>
+To: linux-i2c@vger.kernel.org
+Cc: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+	Luca Ceresoli <luca.ceresoli@bootlin.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Kees Cook <kees@kernel.org>,
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>,
+	linux-kernel@vger.kernel.org (open list),
+	linux-hardening@vger.kernel.org (open list:KERNEL HARDENING (not covered by other areas):Keyword:\b__counted_by(_le|_be)?\b)
+Subject: [PATCH] i2c: atr: use kzalloc_flex
+Date: Thu, 26 Mar 2026 20:03:10 -0700
+Message-ID: <20260327030310.8502-1-rosenp@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <cover.1773991081.git.zhoubinbin@loongson.cn>
-In-Reply-To: <cover.1773991081.git.zhoubinbin@loongson.cn>
-From: Huacai Chen <chenhuacai@kernel.org>
-Date: Fri, 27 Mar 2026 10:50:11 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H7VYjdAxEpC48k6kLO8zva35ZBwHdEXZ0fwrcbpBN8dZQ@mail.gmail.com>
-X-Gm-Features: AQROBzBu9j-t6TF29c5qqk7L_3HlwULFXFLlCYEI3RHQk_QGfgebXI10G_BgZOk
-Message-ID: <CAAhV-H7VYjdAxEpC48k6kLO8zva35ZBwHdEXZ0fwrcbpBN8dZQ@mail.gmail.com>
-Subject: Re: [PATCH v6 0/2] i2c: Add Loongson-2K0300 I2C controller support
-To: Binbin Zhou <zhoubinbin@loongson.cn>
-Cc: Binbin Zhou <zhoubb.aaron@gmail.com>, Huacai Chen <chenhuacai@loongson.cn>, 
-	Andi Shyti <andi.shyti@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Andy Shevchenko <andy@kernel.org>, linux-i2c@vger.kernel.org, 
-	Xuerui Wang <kernel@xen0n.name>, loongarch@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-For the whole series:
+Convert kzalloc_obj + kcalloc to kzalloc_flex to save an allocation.
 
-Reviewed-by: Huacai Chen <chenhuacai@loongson.cn>
+Add __counted_by to get extra runtime analysis.
 
-On Fri, Mar 20, 2026 at 3:26=E2=80=AFPM Binbin Zhou <zhoubinbin@loongson.cn=
-> wrote:
->
-> Hi all:
->
-> This patch set describes the I2C controller integrated the
-> Loongson-2K0300 chip.
->
-> It has a significantly different design from the previous I2C
-> controller(i2c-ls2x), such as support for master-slave transfer mode,
-> and  DMA transfers (implementation in progress), etc. Therefore, we try
-> to name it i2c-ls2x-v2.
->
-> Thanks.
->
-> =3D=3D=3D=3D=3D=3D
-> V6:
-> - Rebase on linux-i2c/i2c-next;
-> Patch (2/2):
->   - Update comment;
->   - Use regmap_get_device();
->
-> Link to V5:
-> https://lore.kernel.org/all/cover.1773142933.git.zhoubinbin@loongson.cn/
->
-> V5:
-> - Rebase on linux-i2c/i2c-next;
-> Patch (2/2):
->   - Add time.h header file;
->   - Add the `MHz` suffix to `parent_rate` and `freq`;
->   - Define an iterator within the for loop, with its type being
->     `unsigned int`;
->   - Use dev_err_probe() in loongson2_i2c_adjust_bus_speed();
->   - i2c_adapter_set_node()->device_set_node().
->
-> Link to V4:
-> https://lore.kernel.org/all/cover.1772714348.git.zhoubinbin@loongson.cn/
->
-> V4:
-> - Rebase on linux-i2c/i2c-next;
-> Patch (2/2):
->  - The parent_rate parameter type should be `unsigned long`;
->  - Drop fallthrough and add missing break;
->  - device_set_node()->i2c_adapter_set_node();
->  - Use i2c_parse_fw_timings();
->  - Use i2c_t.bus_freq_hz instead of priv->speed;
->  - Sperate loongson2_i2c_handle_read() into loongson2_i2c_handle_read()
->    and loongson2_i2c_handle_rx_done().
->
-> Link to V3:
-> https://lore.kernel.org/all/cover.1772001073.git.zhoubinbin@loongson.cn/
->
-> V3:
-> - Rebase on linux-i2c/i2c-next;
-> Patch (2/2):
->  - Reorder header file follow IWYU principle;
->  - Better indentation and coding style;
->  - Use generic macro definitions;
->  - Amend *all* struct data types;
->  - Correct unreasonable variable type definitions;
->  - Refact loongson2_i2c_isr_error();
->  - of_property_read_u32()->device_property_read_u32();
->  - Remove meaningless blank lines and output.
->
-> Link to V2:
-> https://lore.kernel.org/all/cover.1769476820.git.zhoubinbin@loongson.cn/
->
-> V2:
-> Patch (1/2):
->  - Add Acked-by tag from Conor, thanks.
->
-> Patch (2/2):
->  - Reorder the definitions of read() and write();
->  - Adjust the calculation method for bus speed.
->
-> Link to V1:
-> https://lore.kernel.org/all/cover.1763018288.git.zhoubinbin@loongson.cn/
->
-> Binbin Zhou (2):
->   dt-bindings: i2c: loongson,ls2x: Add ls2k0300-i2c compatible
->   i2c: ls2x-v2: Add driver for Loongson-2K0300 I2C controller
->
->  .../bindings/i2c/loongson,ls2x-i2c.yaml       |   4 +
->  MAINTAINERS                                   |   1 +
->  drivers/i2c/busses/Kconfig                    |  10 +
->  drivers/i2c/busses/Makefile                   |   1 +
->  drivers/i2c/busses/i2c-ls2x-v2.c              | 544 ++++++++++++++++++
->  5 files changed, 560 insertions(+)
->  create mode 100644 drivers/i2c/busses/i2c-ls2x-v2.c
->
->
-> base-commit: e9b13580b334040da0184a9f32106d808acd7fd5
-> --
-> 2.52.0
->
+Signed-off-by: Rosen Penev <rosenp@gmail.com>
+---
+ drivers/i2c/i2c-atr.c | 17 ++++-------------
+ 1 file changed, 4 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/i2c/i2c-atr.c b/drivers/i2c/i2c-atr.c
+index f9fcb4793aaf..e6d2af659d81 100644
+--- a/drivers/i2c/i2c-atr.c
++++ b/drivers/i2c/i2c-atr.c
+@@ -49,8 +49,8 @@ struct i2c_atr_alias_pair {
+  * @shared:   Indicates if this alias pool is shared by multiple channels
+  *
+  * @lock:     Lock protecting @aliases and @use_mask
+- * @aliases:  Array of aliases, must hold exactly @size elements
+  * @use_mask: Mask of used aliases
++ * @aliases:  Array of aliases, must hold exactly @size elements
+  */
+ struct i2c_atr_alias_pool {
+ 	size_t size;
+@@ -58,8 +58,8 @@ struct i2c_atr_alias_pool {
+ 
+ 	/* Protects aliases and use_mask */
+ 	spinlock_t lock;
+-	u16 *aliases;
+ 	unsigned long *use_mask;
++	u16 aliases[] __counted_by(size);
+ };
+ 
+ /**
+@@ -137,22 +137,16 @@ static struct i2c_atr_alias_pool *i2c_atr_alloc_alias_pool(size_t num_aliases, b
+ 	struct i2c_atr_alias_pool *alias_pool;
+ 	int ret;
+ 
+-	alias_pool = kzalloc_obj(*alias_pool);
++	alias_pool = kzalloc_flex(*alias_pool, aliases, num_aliases);
+ 	if (!alias_pool)
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	alias_pool->size = num_aliases;
+ 
+-	alias_pool->aliases = kcalloc(num_aliases, sizeof(*alias_pool->aliases), GFP_KERNEL);
+-	if (!alias_pool->aliases) {
+-		ret = -ENOMEM;
+-		goto err_free_alias_pool;
+-	}
+-
+ 	alias_pool->use_mask = bitmap_zalloc(num_aliases, GFP_KERNEL);
+ 	if (!alias_pool->use_mask) {
+ 		ret = -ENOMEM;
+-		goto err_free_aliases;
++		goto err_free_alias_pool;
+ 	}
+ 
+ 	alias_pool->shared = shared;
+@@ -161,8 +155,6 @@ static struct i2c_atr_alias_pool *i2c_atr_alloc_alias_pool(size_t num_aliases, b
+ 
+ 	return alias_pool;
+ 
+-err_free_aliases:
+-	kfree(alias_pool->aliases);
+ err_free_alias_pool:
+ 	kfree(alias_pool);
+ 	return ERR_PTR(ret);
+@@ -171,7 +163,6 @@ static struct i2c_atr_alias_pool *i2c_atr_alloc_alias_pool(size_t num_aliases, b
+ static void i2c_atr_free_alias_pool(struct i2c_atr_alias_pool *alias_pool)
+ {
+ 	bitmap_free(alias_pool->use_mask);
+-	kfree(alias_pool->aliases);
+ 	kfree(alias_pool);
+ }
+ 
+-- 
+2.53.0
+
