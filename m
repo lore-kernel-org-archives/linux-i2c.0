@@ -1,141 +1,114 @@
-Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BD4740FDAF
-	for <linux-i2c@vger.kernel.org>; Fri, 27 Mar 2026 18:35:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.41
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774636557; cv=pass; b=oIParoELotpIZLLU5dmzvgK7Lof8ZkTWIAEmdbfBPBHsg0Llmc//0YLhs8FHs66/v5384hQ1WEHAcTZUZ/tA+J0lv+Ri1YRtfduExKhD43PyngG/fwEFW7kZ9K3Exr37f/cJ2xorrkCXgVZO9tKFF4M0Mc+RhQwNzupF3m16dAs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774636557; c=relaxed/simple;
-	bh=v5X0zYzLvx13iVIiY+jHgdPrq0zyDUhqyAsIlrZnjhQ=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=h6tdvtrqUTBVelbvgP9cdArPveD5UVuNlqbxicc4cf+AjZs2NowHW7o/7/06hrB9cMGIUx54Bv/n4xsi3oHoAycNwqPzwYHUvpK/Amawm5nW46iV3NCw4IkK4PooM5qxf8odOQDLZlN/p7CSlgdmDIt0WV54xjMvX6JAmW+PLmw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rPryKOpP; arc=pass smtp.client-ip=209.85.208.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B12A2EB860
+	for <linux-i2c@vger.kernel.org>; Sat, 28 Mar 2026 09:47:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774691250; cv=none; b=EXNeuXanQN+U+Afoqr3pdFS9QKuVoV9Nx4N0k0DiuHSmvaTLHhtUK2pM2NxnCkMcIl9qA1n8D8nrHNmxan+9Mvg+s/7CObWZ/p3MkaL+5m9e9G5yBN78D22/JCrA0W63LSojdTNLWCFsmWO/oYEuZ3rnWo+R6oPfNAo59Z7Ldeo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774691250; c=relaxed/simple;
+	bh=Jxt6Vb/LL+6x0BLPYxR+WMTw7Py82v9S57v6w1ZdW6Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HK5HoLTKe7GW9OV3RruqWC1KIpABOwuO+YNwRNVbWQOjg5WDEbXe1exsprE5LS6YrB/627cCiiL3j8S1BLrh7UQwd7N3xuA8ISNT/z7B46T1H7FIaWuYlkNjd7hd/j7pTCAjsAmkLQcYorXejh6nEBzVUHbet8H/aQSLN2QhLck=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XW8/ExsC; arc=none smtp.client-ip=209.85.214.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rPryKOpP"
-Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-66b05026e82so4061035a12.3
-        for <linux-i2c@vger.kernel.org>; Fri, 27 Mar 2026 11:35:55 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774636554; cv=none;
-        d=google.com; s=arc-20240605;
-        b=JwHsxggCUEy9rA6tgBtHQj+I2dgBnvxfKm2H94R/6EoLA+ALejAW7J/0AcABLv1Xfu
-         /h5Pkv2Z42o9EuIdZvw0XuYXRTcgJicrPjvzvQ9pxrgcpftxo9vp76MaaVKz+L19Vca4
-         mTfcvlHrdaeLDuvE8ifwPTBqZyccSp8hcx0kGFfpaOQjIF1fj5/X6xhjlZBnTyuwscw1
-         Aze41B23uGvvhodI6Jn9rhKiE4AeHVjIytf0+F7wxyCwTDw89ZJgJG9erY2J8WvuQRWu
-         BON/Jb1pTFaRdOvyAeggJxrvDF+rV2uqjNZvLLpSZIHehdbTW3K+50iE/HhGaj8QJ6MZ
-         h/yQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=v5X0zYzLvx13iVIiY+jHgdPrq0zyDUhqyAsIlrZnjhQ=;
-        fh=oW+flFwwnm3vR1B/QmhfUP8HGcB7wR+BqGaJpZqWOmA=;
-        b=Gx/89eSJMuzaY1UIESzgrdtYteqGIVweVh+UqPgSUS9iwv/OrSPnoX9Vo9yvvwCiA/
-         v0Q3HFyfoDHqH4x0iSnJoTA72SB/NT9vuqtxdLdZpI1qMYH6zCMqqmAzy9Km7PSxW3TX
-         zc9EGAxK/6+lOHrRNGUbeHiKvVF/xcvbDN9cSuxtVIK1K0Xcm+slveGciz7FRSt7XujF
-         JdFoAhPRE0c42/r95kSxKqYYy94zF+v6zxrml6kcGimqnPrXFpK1c8ERliQXbUWYCBH4
-         bHa7YtIlEQWvlAJ/ZjVqCRkXhT+x49JhubqWbgZiUAe8t7l008e3Cfy3QeA+LorWt4qe
-         geyA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XW8/ExsC"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2b0603ee486so18181995ad.0
+        for <linux-i2c@vger.kernel.org>; Sat, 28 Mar 2026 02:47:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1774636554; x=1775241354; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=v5X0zYzLvx13iVIiY+jHgdPrq0zyDUhqyAsIlrZnjhQ=;
-        b=rPryKOpPzY16cdqL+RO7c6Vi8KkMV4fg4uaQ6eLGkQji1YKHG/sdkJKRO4NZZkft6m
-         pbH/2gCZQV5J+FNIAcF2BF/Hbg1G0j1wCD+Us9ZalpE6SvHuCOFNDTyd7l8Ba0iRftiR
-         3rFP5ISKQdNLtrd1gRBMxxgP+OF2y2ej3wozGmDapjt3GbO76d2O1J46LpWs5HtG7JPo
-         DYpr75J+Nx8dk9pfWGySJ9aw2j7BY8ZszouBY54rA0/oYMwL2Yod8/D9TN5kRs8mKPnS
-         EOWnP4MuGO1LJD5Gjr4AQPxZfNmOb3RHx5cWR/tQG15Y7ecxzreFLqsGI0P3N2c9xMDP
-         OIlw==
+        d=gmail.com; s=20251104; t=1774691248; x=1775296048; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=G2KVjx+zR6dP4AMcDHfWZnjTLG5qrt1ahEeg2hEXDck=;
+        b=XW8/ExsCEmLvyvg0eY4nkTgPFNRWuyswV6wt+nFxXr4YPIyXnlT37d3HYBiejeihRJ
+         d2uH6ImyJE1f6kxEJmzsFQY/baoF30Ngr02bgtqF8pQP5wAXTcEL209xtzK5WQKFTGYQ
+         UrSW6VRWOD8sKosHoAWBbCsADZIcUpzp1S+FofRTXTqN5+aJ74NCX82/Vh652nt2O9eV
+         8Dq2Zjv+8CRjykUuT1xUYhe+FMcWSirhDdbej+efkVbFPB+9GFiXeYzojpVdXdj7mx50
+         B9h4thPSfbmp/+m0aw0B3EKQUhYb90UGydZ7x6Pde7UL3PBI5XCPJ0E9p2zpH5DUQX9/
+         Irjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774636554; x=1775241354;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=v5X0zYzLvx13iVIiY+jHgdPrq0zyDUhqyAsIlrZnjhQ=;
-        b=MYPYOd0m7KqIOxzX7yFnFRgS3G0XVG391AznZVfjoOoEHPu8nTODU1owxr+Kvtij1M
-         zt4zUk11DAKXy2fsjszUDqVpDOiyS5qDZ6d/IZRSY2X+O3WdFMjako7T+0g197YC9UqP
-         qHVeFjgKKeBJE1/QA5Jlfx9qNUAOe0jjeGd+rUAG+8RkVNlnp3lPj1tWPzCvEBoHm+kt
-         BoZvgjowSsukpGvPrlSrW+Z3qnB3p4hjdkQ+16ypsPbJ0+W/E0wHqvrWKPK7b+qgWOMq
-         +1GwrhGnJTgaDukwNOexi+UpCb8m3kqsMZciPCOXxdIft5DFQneXP7H5L/XCamhDiFd+
-         WxIA==
-X-Gm-Message-State: AOJu0YwR4poAgAv8RWL470Lwal7xRnR4B384Yfff51pjQnmJlIBx385h
-	rGIUC6FwdfWAJuxYlc476vqPB5PA/H5JB2B34kTEMrNmeU+pDRBvH5mhMn1RMjvI5TIcefeEyCY
-	J3/Df+EY9NK88wCXtSOq3oob09MSzXlg=
-X-Gm-Gg: ATEYQzwkBxuCvREYZUlrtNqfMTWcgI9tCaDDQOOhJT4DRjm44ymsbBNYNhcPW+eiPB2
-	drVGmIpP1ndq0nvtrWUeP2InV3jCTQC9CIOU3YuqpeNZT4Ns/IgZpOZdyCwGlspNUXk4DHnDfbj
-	c3505I7RfPJ8IgtxLAnrADCfXmDrWDw+NZodahLTjo/FXwW+2ekwqyzKQiZrQJ7qQ8oxZNaN9f5
-	ITkwWKAZu0HApCOhAbxWv2F6XlMSOZHCYQjMI+UmybK6l52DgCgQTOf4MYPkUA+Ova471p6E3g3
-	mBHeYZa9NPjtlGAg7lAmchM3Fz6Zd/Et58BGu8pbDuAV1851dBw9QX7eFGXxNG3cbd0FBFjZeWM
-	xzdDD7g==
-X-Received: by 2002:a05:6402:4494:b0:663:6d0a:6f97 with SMTP id
- 4fb4d7f45d1cf-66b28f72394mr2419395a12.27.1774636553813; Fri, 27 Mar 2026
- 11:35:53 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1774691248; x=1775296048;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=G2KVjx+zR6dP4AMcDHfWZnjTLG5qrt1ahEeg2hEXDck=;
+        b=WDLYSNZauQUQVhhYAGAG/d8ePsuD3OXVyjG6wLGcGN95zGeMQhAX4lWj3cxHxWAIW3
+         bIZrJ/Dazb8yEVW3VW/J7IVZYcXCuiv9eb3ZY/pmO4nJyJ5QCfQVEFkIyB350nWBLe33
+         gsLccQdFPnSRzrB2LWEXgmRgxlAOFOo/YxlcNjY8QOuMzH47Lj+1mqTGGnLR0qfs8iH5
+         EPs6XNWBBrR01tRfihvuP1xpuqcDsb2jm1Iq92smEby1ft8+YxpQZr7NnSbqOZe7Y1NH
+         8zYkJdYX1xd6s2JBhyr82+cYHsQ8kyFzrzG9vizd1WKT1vvGRHWz47WUkFeR/jgIjetD
+         PdmA==
+X-Forwarded-Encrypted: i=1; AJvYcCWwlOaIFYClF5EPug4b7FEE87P2OwkBf3tqOTYDGHDci0re4Jm1QLRWB5cPhNJhwItNh3GljBUfjbY=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxhwMIixPW0FMRaoo9hlR3VsrRx0wBY5TaEctk3IZ/2UCTw06VR
+	pT3o3VyM1jvMu4n0br0qBLslQY40m0X19F5KKDAqrpZRHD4sioKKoPAl
+X-Gm-Gg: ATEYQzwPeA5EWx7/fcTdNkp5w+xl2B3gUUJ+EXt87OQfJktkfMscAj57Evhx0H8Tw8e
+	YmV+FqftmetFOkybZL83eEXUFeYrKOB0mWm6kipX7DzK0V5+Aom7lWaw6mF3uFrvX+kDC/2pEQz
+	p80uV+XRhtRH2P+EArVKVGgD2uqXfT0Ioav7L5L/BrfyhAyrBZ4rUP8LOjF+756uiZ6yYRRDPwT
+	lgS3D2T5u1uvXX6bFBDTYMTAtttU+Y54M33J5PasNl7xVBZGX/2EhT6Reoota1pqJ8tTM+7G526
+	MTlsS2jBkK7o01vZgT65r7d50Xma3eKcrQIJu+9iSw/bdSKhDNv4UyBNiIhhfaEHFdj2Hoy8rXD
+	lOxlySHLNQfCqes8GkFmYlvUn2sgTVBzlr5WIFcJt/Jf/lqIpvUSIWhG5qEi5m4VFbizKHb+KFO
+	+LHpYabcA6pGmpsbFhAb0=
+X-Received: by 2002:a17:902:ea08:b0:2b0:6e8f:8e73 with SMTP id d9443c01a7336-2b0cdd9260amr63454695ad.44.1774691248291;
+        Sat, 28 Mar 2026 02:47:28 -0700 (PDT)
+Received: from fedora ([122.173.26.34])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b242787bc7sm18789745ad.59.2026.03.28.02.47.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 28 Mar 2026 02:47:28 -0700 (PDT)
+Date: Sat, 28 Mar 2026 15:16:49 +0530
+From: ShiHao <i.shihao.999@gmail.com>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: andi.shyti@kernel.org, krzk+dt@kernel.org, robh@kernel.org,
+	conor+dt@kernel.org, linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	i.shihao.999@gmail.com
+Subject: Re: [PATCH] dt-bindings: i2c: intel,ixp4xx-i2c: Convert to Dt schema
+Message-ID: <acejiSOOcHmqcouI@fedora>
+References: <20260324135010.17730-1-i.shihao.999@gmail.com>
+ <20260325-bulky-mushroom-of-science-8c95c4@quoll>
+ <acP69aM-euL7wl87@fedora>
+ <c9b68d56-48f1-4ade-8711-fedd8acf0666@kernel.org>
+ <acQqE-iW51fOJnTJ@fedora>
+ <1bda00e6-a3bf-4890-8982-4d61a4b4845e@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260327030310.8502-1-rosenp@gmail.com> <DHDEWIRRJTP1.58HXGTBGH4A@bootlin.com>
-In-Reply-To: <DHDEWIRRJTP1.58HXGTBGH4A@bootlin.com>
-From: Rosen Penev <rosenp@gmail.com>
-Date: Fri, 27 Mar 2026 11:35:42 -0700
-X-Gm-Features: AQROBzBmB0kpJXECWuRS7Ed_1LjUhTq7PZ0stLx1p30txIODqyrw8I4yJhCfQ60
-Message-ID: <CAKxU2N-21Zt3+5D5Q=ZjTdS27QtJWOPZZDTiqHGENqjxgCpR3A@mail.gmail.com>
-Subject: Re: [PATCH] i2c: atr: use kzalloc_flex
-To: Luca Ceresoli <luca.ceresoli@bootlin.com>
-Cc: linux-i2c@vger.kernel.org, 
-	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, Kees Cook <kees@kernel.org>, 
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>, open list <linux-kernel@vger.kernel.org>, 
-	"open list:KERNEL HARDENING (not covered by other areas):Keyword:b__counted_by(_le|_be)?b" <linux-hardening@vger.kernel.org>, Cosmin Tanislav <demonsingur@gmail.com>, 
-	Romain Gantois <romain.gantois@bootlin.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <1bda00e6-a3bf-4890-8982-4d61a4b4845e@kernel.org>
 
-On Fri, Mar 27, 2026 at 1:12=E2=80=AFAM Luca Ceresoli <luca.ceresoli@bootli=
-n.com> wrote:
->
-> Hello Rosen,
->
-> +Cc Cosmin, Romain
->
-> On Fri Mar 27, 2026 at 4:03 AM CET, Rosen Penev wrote:
-> > Convert kzalloc_obj + kcalloc to kzalloc_flex to save an allocation.
-> >
-> > Add __counted_by to get extra runtime analysis.
-> >
-> > Signed-off-by: Rosen Penev <rosenp@gmail.com>
->
-> This is the second version of the previous patch, so the subject line
-> should start with "[PATCH v2]". You may try using b4 to automate this, it
-> takes over this and many other boring-but-useful details.
-Didn't realize that. I searched for attr vs atr in Sent...
->
-> Additionally I suspect b4 would have a more complete Cc list, including
-> recent contributors to this driver like Cosmin Tanislav and Romain Gantoi=
-s
-> who might want to review this patch. I'm Cc-ing them this time.
-I use ./scripts/get_maintainer.pl --no-git-fallback as it was
-requested elsewhere.
->
-> > ---
->
-> Also a changelog would be nice after the '---' marker, to help reviewers,
-> and a link to previous versions. It took a moment to me to realize I had
-> already reviewed almost the exact same code.
-Will do.
->
-> Other than than the patch looks good:
->
-> Reviewed-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
->
-> --
-> Luca Ceresoli, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
+On Thu, Mar 26, 2026 at 08:08:06AM +0100, Krzysztof Kozlowski wrote:
+ 
+> By running, I assume actually read its output and fix it, so please
+> share why each one of your patches has the same mistake reported by
+> checkpatch?
+> 
+> > I will send the next version in the coming days after properly running the
+> > checkpatch.pl script. Also, you mentioned some guidelines regarding GSoC
+> > could you please let me know where I can read them?
+> 
+> I gave them to GSoC folks, so they should be in the GSoC DT
+> guidelines/description. It was also posted for more than a year on
+> @krzk@social.kernel.org and some days ago I updated it as well.
+> 
+> Best regards,
+> Krzysztof
+
+Hello Krzysztof,
+
+      I hope you are doing good. I checked this binding it has 3 warnings
+      one of them was  from the license text and the rest two are this" 
+      WARNING: DT binding docs and includes should be a separate patch.
+      See: Documentation/devicetree/bindings/submitting-patches.rst". I fixed
+      the license warning but not these two "DT binding doc warnings". I wonder
+      what warning you want me to fix please let me know if i need to solve 
+      this remaining two  warnings because they are in my every conversion patches.
+
+Thanks
+Shihao
+
