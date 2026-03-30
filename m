@@ -1,135 +1,140 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE7323815FF;
-	Mon, 30 Mar 2026 07:23:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AEF8286D73;
+	Mon, 30 Mar 2026 07:30:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774855411; cv=none; b=Y2Tg2Y62elvDT9BrDLfrICybYyztVVT5jOLicWxPXkuyMiY7ed4XB5pcRHj9z+7tLmmlCKq7xfOC+dEJ3TDT+BdLoriXP6foWMnUUpy6nyvMTglibiRRek3azs3dQiNw4kAUIVdBcF85qOHmhRf+AAqXYGyK7REDZoG//ED50Hk=
+	t=1774855836; cv=none; b=FYzLeZ2o9LG6Bc+FT+rJpZzb8uN/IgT50iJ+kRuUl+rRXB/f1wkjTDSMARgAlOBql8Omc4K1YD6huaetoU+2/8L7kgbK/fRmfhkaE1Op2uEbzAuZxEScUo8CeIpeaikNeDblaxm07cA7u4xKn3EfNHERXtxLQJAheIFO1aS9Yas=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774855411; c=relaxed/simple;
-	bh=kwNDRT9OrPmFc/hILh1ysWYBh5D2F0Zu0uy0zV4cgoY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=f3rwTI2vtLawrGA2lDppGv0dg4lkO5W8X2F3pYW6DAxkFrBGR1FQZyx1owLXoXytAQQ4WzW6Ic++zD5cuUe5nUSW3YHjhK0Mu2YJBtAq1iZphLpxOeDWdhBVXlUz1LCtCuqb5L1OWfgCyL5NEoEDKin60cWP70EdpXUU7Raimro=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=qDvOM0cN; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774855836; c=relaxed/simple;
+	bh=8txCKy0cIY/YJ5xHReKfEq7kDm9ITShL2ROCT8dUI9U=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=l0LEKBLPf55chSfOOecEcUC7yFHBzIYjpGOFJ9sj8fT/8uw6D2FLU86yez/3xqQj2E+rp76RQL809bQM66jxqerJxBYQ9Noz0HFYFu0iqySVAJbglvm3DB2VczNvT0B15gS/4LuwflBexpaZiKV8xyuOmB8yfsNPCEBDThp0NLM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IGWKGfkq; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="qDvOM0cN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F765C4CEF7;
-	Mon, 30 Mar 2026 07:23:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IGWKGfkq"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id C0537C19423;
+	Mon, 30 Mar 2026 07:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774855411;
-	bh=kwNDRT9OrPmFc/hILh1ysWYBh5D2F0Zu0uy0zV4cgoY=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=qDvOM0cNhw0b4IKaKQzJoOS5AJawBLxv3ayv6ZH4+d1bqMZNPzgyVHn6Jo4lse2Q6
-	 F1OANWizgJTVAkhIYNTV8A8Mza6QArHTTBpVPsZRGYd3xiNkBWlCZm772KQMM/GKdv
-	 rW/pEyKyC9u9L1JNd2lnqgiJI+Mx04hSu34fHpee3BTwfqfsiar7BhxiPqa2zaYYtZ
-	 saoJ/+XdeqWQx2LaOK+S+2esvDtqioswiqZIK4rTYeQfjXuDInTzMubAwPnWsI2Lxf
-	 OcrjRmgZPI9dTppwMwDNLY59LHDUU26jTQIiMO/jhfBe6lf0TS8J83mhnBrrAXXNmE
-	 cgM+b6r6jZnvw==
-Message-ID: <2388acbc-a927-4727-a23c-5ecd7c33a926@kernel.org>
-Date: Mon, 30 Mar 2026 09:23:27 +0200
+	s=k20201202; t=1774855835;
+	bh=8txCKy0cIY/YJ5xHReKfEq7kDm9ITShL2ROCT8dUI9U=;
+	h=From:Subject:Date:To:Cc:Reply-To:From;
+	b=IGWKGfkqwh54Td5GMvd9U1Ycv1Dfnz5zcr/+jY97l23kYmfvOYsaO9N7piDwRt7BB
+	 CGNMoCODz7xvJ+rgyBJiO7ULzo8+g4+N58OVQ3xztUaW6oZhwk6AEIbBUwqE2OXrLu
+	 zIXl/5QsovpaPIC6b3Y5fFOFixRFxibQAuTsFmDbG7eIeN/KMxS6da3IpC3YMV+G6Z
+	 CaNZp6yMpkRQ3iBw/C9Lau3FgkN8ZP89R2EXRa4jrjAYCfiP61+dr4+mFSIv1yYMCG
+	 qRX/q7Z9CutqbmWOsVO46CSQP3q7PMDx2v2VIDepunteVcBrDR9r2PMFvH/3+9ETny
+	 PO9pVKuYykHgQ==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AF6D5FF492F;
+	Mon, 30 Mar 2026 07:30:35 +0000 (UTC)
+From: Ben Zong-You Xie via B4 Relay <devnull+ben717.andestech.com@kernel.org>
+Subject: [PATCH v4 0/4] i2c: add support for Andes platform
+Date: Mon, 30 Mar 2026 15:30:30 +0800
+Message-Id: <20260330-atciic100-v4-0-d40822f63e4e@andestech.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 1/2] dt-bindings: i2c: ls2x-i2c: Add clock- related
- properties
-To: Hongliang Wang <wanghongliang@loongson.cn>
-Cc: Binbin Zhou <zhoubinbin@loongson.cn>, Andi Shyti <andi.shyti@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, linux-i2c@vger.kernel.org,
- devicetree@vger.kernel.org, loongarch@lists.linux.dev
-References: <20260325011852.19079-1-wanghongliang@loongson.cn>
- <20260325011852.19079-2-wanghongliang@loongson.cn>
- <20260325-outstanding-weasel-of-fruition-89db37@quoll>
- <1b5283d8-294c-86de-c3d8-bf205ac24216@loongson.cn>
- <0d7dfe5b-5e2d-4850-8922-16eb6bd9bcae@kernel.org>
- <900dc1a4-66ab-411f-8a32-4c6cf339e8ec@kernel.org>
- <bc22bad4-9825-829d-1df0-a801ebd933d6@loongson.cn>
- <ca984be0-e7a6-4897-bf9f-db9465942c6e@kernel.org>
- <ac62e280-1099-c0bc-f322-ba8b65307053@loongson.cn>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <ac62e280-1099-c0bc-f322-ba8b65307053@loongson.cn>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAJYmymkC/22PQQ6CMBBFr2K6tmQ6BQquvIdxAcMgNRFMi0RDu
+ LstxoQYlz/5782fWXh2lr047GbheLLeDn0I6X4nqKv6C0vbhCwQMAeFIKuRrCUFIJtKM+VFa+o
+ 6FaF/d9za5+o6nT/ZP+or0xgFsdFZPw7utR6bVOxFbwYIBlCVqBMsFWqjpZI190aZY9U37EemL
+ qHhJqJ2wi8YB+Fm0IQSpMmyUum8AUPtP1pv6WJL60AXBIAtEYaffullWd4E3EHwLwEAAA==
+X-Change-ID: 20260120-atciic100-da3ec68f7bb4
+To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Paul Walmsley <pjw@kernel.org>, 
+ Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
+ Alexandre Ghiti <alex@ghiti.fr>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, 
+ Ben Zong-You Xie <ben717@andestech.com>, 
+ Conor Dooley <conor.dooley@microchip.com>
+X-Mailer: b4 0.15-dev-47773
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1774855834; l=2820;
+ i=ben717@andestech.com; s=20260120; h=from:subject:message-id;
+ bh=8txCKy0cIY/YJ5xHReKfEq7kDm9ITShL2ROCT8dUI9U=;
+ b=IFTl0zwTqspv0YWzjnUCFXSpskVBqNcKD1vyxDFvZtJeA++FI5JhnxuKqOJgltge55RQVodOa
+ Oknphz5Lj2dC10c9UTfvpN+cDkSEidymTOyj2WQwwsFP4igV6SkFQGK
+X-Developer-Key: i=ben717@andestech.com; a=ed25519;
+ pk=nb8L7zQKGJpYk0yvrYKjViOZ34A36g1ZIsCmCsP518s=
+X-Endpoint-Received: by B4 Relay for ben717@andestech.com/20260120 with
+ auth_id=610
+X-Original-From: Ben Zong-You Xie <ben717@andestech.com>
+Reply-To: ben717@andestech.com
 
-On 30/03/2026 09:18, Hongliang Wang wrote:
-> 
-> On 2026/3/27 下午2:39, Krzysztof Kozlowski wrote:
->> On 27/03/2026 04:09, Hongliang Wang wrote:
->>> The initial idea was that this patch could be used for both ACPI and DTS.
->>>>>> The i2c-ls2x driver is compatible with both Loongson 2K and 3A+7A
->>>>>> platform, parse
->>>>>> the same parameters regardless of dts or acpi parameter passing, So
->>>>>> clock-input
->>>>>> and clock-div attributes are defined to describe input clock of i2c
->>>>>> controller and
->>>>>> divisor of input clock. It can be used on both 2K and 3A+7A platform.
->>>>> And you cannot use them in DTS.
->>> OK
->>>> I need to keep guessing what you want to achieve, because neither your
->>>> message nor commit text was explicit
->>> What I want to achieve is to describe the input clock and divisor of I2C
->>> controller
->> Input clocks are defined as clock inputs obviously in DT, not as
->> integers. Bindings need to describe the hardware, so start with that.
-> I can describe the hardware in loongson,ls2x-i2c.yaml, and I would like to
-> confirm with you what final implementation plan you agree to? clock 
-> framework
-> or custom clock-input an clock-div attributes? if clock framework, how 
-> can it
-> also be used for ACPI?
+This patch series adds I2C support to Andes platform, such as AE350 and
+QiLai SoC.
 
-And you ask DT maintainer for that? It's not relevant. You sent DT
-bindings patch, so this patch must be correct and we discuss this patch
-here.
+Signed-off-by: Ben Zong-You Xie <ben717@andestech.com>
+---
+Changes in v4:
+- Rebased on andi.shyti/i2c/i2c-host-next.
+- (1/4)
+  - Added Conor's acked by tag.
+
+- Link to v3: https://patch.msgid.link/20260128-atciic100-v3-0-8c002fcc2bb4@andestech.com
+
+Changes in v3:
+- (1/4)
+  - Rewrote the commit message to provide a detailed hardware
+    description and explain the relationship between the ATCIIC100 IP,
+    the AE350 platform, and the QiLai SoC. (Krzysztof)
+
+- Link to v2: https://patch.msgid.link/20260122-atciic100-v2-0-7559136d07cf@andestech.com
+
+Changes in v2:
+- ATCIIC100 is the hardware name for the Andes I2C controller and was used
+  throughout v1. However, since Device Tree bindings should reflect the hardware
+  identity and driver/config naming typically follows the i2c-<soc/platform>
+  convention, this version replaces occurrences of "atciic100" with more
+  appropriate names, such as "i2c-andes" or "andes_i2c," to align with upstream
+  standards.
+- Updated cover letter title and the description.
+- Rebased on andi.shyti/i2c/i2c-host-next.
+- (1/4)
+  - Updated the title and the description of the patch.
+  - Specified what the hardware is, and modify the title and compatibles. (Krzysztof)
+  - Corrected device register size.
+- (2/4)
+  - Updated the title and the description of the patch.
+  - Replaced the readl/writel operations with regmap APIs.
+  - Replaced all occurrences of atciic100 with proper names.
+  - Used module_platform_driver() to initialize. (Andi)
+  - Moved CONFIG_I2C_ANDES (CONFIG_I2C_ATCIIC100 in v1) to the
+    "Embedded system I2C/SMBus host controller drivers" section.
+  - Made CONFIG_I2C_ANDES depend on ARCH_ANDES
+- (3/4) (new)
+  - Added an entry to the MAINTAINERS file.
+- (4/4) (new)
+  - Added the I2C node to QiLai DTS.
+
+- Link to v1: https://patch.msgid.link/20250207021923.2912373-1-ben717@andestech.com
+
+---
+Ben Zong-You Xie (4):
+      dt-bindings: i2c: add support for AE350 I2C controller
+      i2c: add Andes I2C driver support
+      MAINTAINERS: add an entry for Andes I2C driver
+      riscv: dts: andes: qilai: add I2C controller
+
+ .../bindings/i2c/andestech,ae350-i2c.yaml          |  45 +++
+ MAINTAINERS                                        |   6 +
+ arch/riscv/boot/dts/andes/qilai.dtsi               |   7 +
+ drivers/i2c/busses/Kconfig                         |  10 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-andes.c                     | 341 +++++++++++++++++++++
+ 6 files changed, 410 insertions(+)
+---
+base-commit: 46ec065d8610c5e8d11a8b205a6b7bd3c40d46b8
+change-id: 20260120-atciic100-da3ec68f7bb4
 
 Best regards,
-Krzysztof
+--  
+Ben Zong-You Xie <ben717@andestech.com>
+
+
