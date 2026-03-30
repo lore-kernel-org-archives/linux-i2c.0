@@ -1,38 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2810F3859C5;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31429395DB4;
 	Mon, 30 Mar 2026 07:30:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774855836; cv=none; b=o6BXVud0aTjHoOGaSTmoM7w5NqJEcZpctDS+g4htBFtMSQ7wXhmLwfscNJ9x5t36TEhfQiV9A862pwKt8+rQkgqpY6T1S1dJaSkeeVQaF71o78PDYtYBZwuzF808UpE6lrmJ9LFoCbnbbGTQQoeoa8TB+9f1935xRqBh+vPJBoU=
+	t=1774855836; cv=none; b=BQ3dQ34LGGuIbR5NdLo/dXfa9AXJMKfifFcZPGDGKhEbuJ4pArCmbkC+N8LOIPcWfYbsD0g3BwESDUmoSwnk7qPHEBxWrYW09rCYLWSOcNT4R3QfB4iJwz/xbYmhV6UfrVRHpr1q4WafQa9K+FUlK9Wx0G2qFUzq8ZV53SWg/FI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1774855836; c=relaxed/simple;
-	bh=jeJK/0eq1Juwssxo5nwTiMxxOoLDoi/bwnaw/cpSUuQ=;
+	bh=zsqXZYapJk4lTUfsp/UHiNYmhCmbGFBx8fixkiHGjbA=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Idt1fZyZN3Pc7xRG7c1ZVfaq2jWs03Ny6pR2mV8UWrCJ8jJtB/ZgmnP72m1QkSM3QncL6ODwTL7o+T2g+koR8itvbfEXeFNQxjfEauDPczwDt7k9K9UK6CPv0/pykmFnl4hPnv9Mw5Ga1ZymfOmu2uPrY4AW6QhQd+XDSH/CtpE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=H4chgCCL; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=Fjo1/xwMLTT2K3EyEI0/7JN9jDaVWLKYWOWAndPqotTb/ks6edjsf2hVnPD5Med9SNqqqzpn1mW4vreqIVKQ4eW4IA3AtYyLTRMQ/0ipqNGBLkz3jh6tswHxhfUnK2kjVKhg5fcZQ0hgF7BEjrEoVH5CKh79PSDOY9AuOybTRNo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=X0p88OMZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="H4chgCCL"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id D3BB5C4CEF7;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="X0p88OMZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id F08A9C4AF0B;
 	Mon, 30 Mar 2026 07:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774855835;
-	bh=jeJK/0eq1Juwssxo5nwTiMxxOoLDoi/bwnaw/cpSUuQ=;
+	s=k20201202; t=1774855836;
+	bh=zsqXZYapJk4lTUfsp/UHiNYmhCmbGFBx8fixkiHGjbA=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=H4chgCCLXKFNvFgh7JzxWjeoTUzf8/hdOicdhlvxRLrZ8y0R1pGs+9eKg07poylYO
-	 i8jzveeWw/EJAajv//5MaGBrDXGnwq/yPwQ8kpkhyvIXp9ZsilGF8dXrX9xMb/kT9v
-	 PKXV0qpNkrsq5MnhRugCpmwdw+UY/hGZs8tRZrf9q1d7JuE/j6VsCnDzBKtKs+vkvx
-	 wp+3woz9D2cvMJeSAAUc/cSJVb/NwW+9fOsCC/hOJDWGY5xmOwc7gcSY/hcnoZgcdU
-	 hrW2OQL+6zKmEqu/cOyWHgwMULHWchVUu9DZsdHtg+7fDf6omdpPGJKQ2Llx2OClas
-	 +d16kZVtTOYfg==
+	b=X0p88OMZ0Gb9QxsAtCsO1gdH4Tu6ESMHd6JEqo0MTwdQ18z1rHHzC/VohS/WlNlg5
+	 m/w2DyWkrhxFQlrw7TrNMjSFgtAtbYW5OtjUj/wmQFGqVLzjBgcdRTZsfRFJWaiIi0
+	 TByK8nMpZ//UDtoZhYdYoQ0Cpmkhq7A0ATZwbzIYDNnAkrQs3yNrbBaOWYdQn39i58
+	 edMEd/ZtIkWUaNZ6zhuNqqlJr+gzO7a5vkxIn42g0tcPkuRRB7tjReGziW9Joipe0+
+	 DknkUjUjtLv9L0o/lERjBaFcnT7h2hqywmMSnOvfWVKwZmBHdV7MOEconCzrRgtVat
+	 9f7cjkzYwFnXg==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C37C8FF4958;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E591CFF495B;
 	Mon, 30 Mar 2026 07:30:35 +0000 (UTC)
 From: Ben Zong-You Xie via B4 Relay <devnull+ben717.andestech.com@kernel.org>
-Date: Mon, 30 Mar 2026 15:30:31 +0800
-Subject: [PATCH v4 1/4] dt-bindings: i2c: add support for AE350 I2C
- controller
+Date: Mon, 30 Mar 2026 15:30:33 +0800
+Subject: [PATCH v4 3/4] MAINTAINERS: add an entry for Andes I2C driver
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -40,8 +39,8 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260330-atciic100-v4-1-d40822f63e4e@andestech.com>
+Content-Transfer-Encoding: 8bit
+Message-Id: <20260330-atciic100-v4-3-d40822f63e4e@andestech.com>
 References: <20260330-atciic100-v4-0-d40822f63e4e@andestech.com>
 In-Reply-To: <20260330-atciic100-v4-0-d40822f63e4e@andestech.com>
 To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
@@ -51,14 +50,13 @@ To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
  Alexandre Ghiti <alex@ghiti.fr>
 Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
  linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, 
- Ben Zong-You Xie <ben717@andestech.com>, 
- Conor Dooley <conor.dooley@microchip.com>
+ Ben Zong-You Xie <ben717@andestech.com>
 X-Mailer: b4 0.15-dev-47773
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1774855834; l=2147;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1774855834; l=761;
  i=ben717@andestech.com; s=20260120; h=from:subject:message-id;
- bh=QY1WQtlgEcHyWij1EoGxUJsa8Gq3KZczgBDeH8ReATU=;
- b=aHryHMU39d3nmQBj2v/ecoPILsTHhtNBnf2NaJeaHpgWmMN4mWwlO7BjgIc2PiMrQS1qMdSQz
- wPlUIdPFk0jB10HmN/v0kh3YrevU0Xe1sxNUcUYN1f1zHBHHq3cApl+
+ bh=YiEx76SInP9JPwiKbc2slZ7Do4K0fx/VOtW1zrmzoiE=;
+ b=cGuKKUe2ItklPvrrHhtXXu6mGLNhsReLY7Aqk85OiXJ76fLYf7jOPjpYRCE7znqZPx2tryyT3
+ YrhaGvbnU5HBw1Ibl3b+Ar480h6R3bFHIfpeiBvdnv725OlGsqi06VI
 X-Developer-Key: i=ben717@andestech.com; a=ed25519;
  pk=nb8L7zQKGJpYk0yvrYKjViOZ34A36g1ZIsCmCsP518s=
 X-Endpoint-Received: by B4 Relay for ben717@andestech.com/20260120 with
@@ -68,77 +66,30 @@ Reply-To: ben717@andestech.com
 
 From: Ben Zong-You Xie <ben717@andestech.com>
 
-Document device tree bindings for the I2C controller on Andes AE350
-platform.
+Add an entry for the Andes I2C driver to the MAINTAINERS file.
 
-The ATCIIC100 is a dedicated I2C controller IP developed by
-Andes Technology. This IP block is a core component of the Andes
-AE350 platform, which serves as a reference architecture for SoC
-designs. The QiLai SoC also integrates this I2C controller.
-
-The binding introduces the following compatible strings:
-- "andestech,qilai-i2c": For the implementation integrated into the
-  Andes QiLai SoC.
-- "andestech,ae350-i2c": As a fallback compatible string representing
-  the base IP design used across the AE350 platform architecture.
-
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
 Signed-off-by: Ben Zong-You Xie <ben717@andestech.com>
 ---
- .../bindings/i2c/andestech,ae350-i2c.yaml          | 45 ++++++++++++++++++++++
- 1 file changed, 45 insertions(+)
+ MAINTAINERS | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/andestech,ae350-i2c.yaml b/Documentation/devicetree/bindings/i2c/andestech,ae350-i2c.yaml
-new file mode 100644
-index 000000000000..59a521fb249b
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/andestech,ae350-i2c.yaml
-@@ -0,0 +1,45 @@
-+# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/i2c/andestech,ae350-i2c.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 7d10988cbc62..7272ebe7a22b 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -1863,6 +1863,12 @@ S:	Supported
+ F:	Documentation/devicetree/bindings/spi/andestech,ae350-spi.yaml
+ F:	drivers/spi/spi-atcspi200.c
+ 
++ANDES I2C DRIVER
++M:	Ben Zong-You Xie <ben717@andestech.com>
++S:	Supported
++F:	Documentation/devicetree/bindings/i2c/andestech,ae350-i2c.yaml
++F:	drivers/i2c/busses/i2c-andes.c
 +
-+title: Andes I2C controller on AE350 platform
-+
-+maintainers:
-+  - Ben Zong-You Xie <ben717@andestech.com>
-+
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
-+
-+properties:
-+  compatible:
-+    oneOf:
-+      - items:
-+          - enum:
-+              - andestech,qilai-i2c
-+          - const: andestech,ae350-i2c
-+      - const: andestech,ae350-i2c
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/interrupt-controller/irq.h>
-+
-+    i2c@f0a00000 {
-+        compatible = "andestech,ae350-i2c";
-+        reg = <0xf0a00000 0x100000>;
-+        interrupts = <6 IRQ_TYPE_LEVEL_HIGH>;
-+    };
+ ANDROID DRIVERS
+ M:	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ M:	Arve Hjønnevåg <arve@android.com>
 
 -- 
 2.34.1
