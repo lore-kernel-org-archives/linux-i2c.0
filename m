@@ -1,97 +1,109 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D09139E182;
-	Mon, 30 Mar 2026 07:30:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED1A23AB284
+	for <linux-i2c@vger.kernel.org>; Mon, 30 Mar 2026 08:13:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774855836; cv=none; b=F/AHIvfuKYSpS7TM1sj+Kpm6EwGeCaXctJOlJUXWDDfNPPGPgC7cT3pXKliMSlQVdIf22Rnb9vqeVxjQoXsqRKgP3fxaRw87MyUU4DYVuOU9BEUCYkWp48DrRbsdc9BnamfKC7aKOqre8Qv7leUWtrK4oLp96LSijfFERzYz50w=
+	t=1774858405; cv=none; b=elqkjwASj5NeVydNLqknHFeWN/UR8jHOWZRmnsmi5jL7EBQPkWXuwwkWYnBYNwUr4jueG7WneMoz07s7KBJ8posM9Vdm0pnAvzMfGNpiWCcP5XVXJyKfJ/tNxRO9uH/xPwg5LFft2Zd5pfm72sWmwY5BgUjXAmdiNDZJiIN58AQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774855836; c=relaxed/simple;
-	bh=YUyTnratnqlECwzSAzk6FREP35eA7ZpjXULZWweNn00=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Y80K54hR3W+I9ZaZziIvDsDXKUp05fakXR/LsEV9BOTOFuJAjeVhv2pfdxATmeCwBwjU4ufUDluHqJwsjtMvQ6X8w+FtbYKZf85Ody8BaoybD5rmKePI21z5xLo44Hd1kqixuUAmez9ayh58NqRG+5CuAbh3PKCwBazBjiNXvS8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZoKQsrAJ; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774858405; c=relaxed/simple;
+	bh=I12ZMybdCEL1+sBz0zjm69FWWXF7EDYCmjxzXtAD94k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eo5t+8jhGFKJRj+wNhpdpBGxS7R1J/y+lpoe+ySF2oZ4diCFG9BiwoU6egi9cPiDG/9KO01HmLODBXMi5k5L6iuye22q8T+G3zDZaFHQAIkfvjeKhysh1eF/Q/7Iwcb5X4EJHhRKZWQfr4etUXBUSi01qIuQYQ2y/QP2gmXljjU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=tL+M+z57; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZoKQsrAJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 0F40DC2BCB6;
-	Mon, 30 Mar 2026 07:30:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774855836;
-	bh=YUyTnratnqlECwzSAzk6FREP35eA7ZpjXULZWweNn00=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=ZoKQsrAJbzb3TJu/oO7LXEcHIOYjAh59baGNRqqnUvRoWSmjUT8NieQ+cwTfavFY7
-	 YCd+y5PHt3xivi4czI8PVcKrSWFk9Pcpb5nN+vWF7VEjrN90giWPG9ZaK0zD+vIRbX
-	 IU6Bl+DyxCsxndSED1DZiH6N+DxIjJqCUJEujnyGHFbUAgzQhWhKyHYD6g9Sk4sRsY
-	 bw97S4Bq3J/6cLUimHJNwoYxO5fz33n4gIfRsfnrFPVot7i1TTY7pJx2NfMeSU+5lZ
-	 mAR6R8z/ElAf6NruZrHV6qL83N3dmoIVbVq6SWs25KNSQwToz08cHzsOdoEWMMOil8
-	 N8CzQp75De6QA==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 004DFFF492F;
-	Mon, 30 Mar 2026 07:30:36 +0000 (UTC)
-From: Ben Zong-You Xie via B4 Relay <devnull+ben717.andestech.com@kernel.org>
-Date: Mon, 30 Mar 2026 15:30:34 +0800
-Subject: [PATCH v4 4/4] riscv: dts: andes: qilai: add I2C controller
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tL+M+z57"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2adff872068so16702285ad.1
+        for <linux-i2c@vger.kernel.org>; Mon, 30 Mar 2026 01:13:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1774858403; x=1775463203; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=b+Rk6xeRr6lRsoXLZ3DwiTNhcEH4M7IXDtOiENwg6TE=;
+        b=tL+M+z575d1R0sBj1mM6TRmQHBLzYYguaGby+0QYTCjNJEINCNuE9QU9RwPPahNmBa
+         qWwajrUOjOhAcNCr69w0jfJmYML7NDH2ZSDwPYz35l80MWsH+TuQKiwhEa6nfHV45gCv
+         CHst1Z1tps9KjjIWX54tW2lJLkmv/V8DQjHRjADKwpIhTjUxux9o/IKQiW8ZunkuFDp4
+         4EALq2GGI6MtCcmODEbHhJM4umVs45yVDcsmg92T9+ictOv/3TYRIReIR4X/8MJLuBw9
+         s4SoDG1EYAw7eJbz3BeGGn8U+dIXy3Djv9toMjO4PPJfMiD7gverjM1soGzl457OgfoS
+         J9+A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774858403; x=1775463203;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=b+Rk6xeRr6lRsoXLZ3DwiTNhcEH4M7IXDtOiENwg6TE=;
+        b=Bg8GmUNo4VuzI8WBqoD7txbky/ldQor55QPRDCWl5CyL/UcQKoim3gYWoAnNoQE6Ml
+         Rn2MFfXPei/I1PRULA0OTCyggP9TbuJjiXY100T0flhoe2erh0EI0iO0NGjLV20ivckP
+         +dPafhu5t00IKPihfZAfKjBAAw8O9lVrLxQvtZ3D9zTJQXDjoZtQjHPi5yd66s0OxpYr
+         ubvUiIKFzwpdaCR7VDe0VGCyaRVrgyPIuNhfB85GKEbhJ6rulsP1Obk8rCeZ94+RKNOm
+         GpktGEbH1hSyL+sF5/voayLdhBxegUuULNHxUQYYkE9gnV8y0vlFgXAOmjElyG1f84Zd
+         yOaA==
+X-Forwarded-Encrypted: i=1; AJvYcCXfltzenDnQCOodo9dV2DLGAQJv4wILwJLgwLaNj+Oc8DRs+5blVRqSAwK638KDspzJABNXb9qt4/A=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzp6cgylTMgr1MlRSpLGRTPmp4b1Zq0+vvG1NDJ0qU4TI22Axed
+	hDJhsy4VdvVgB0KEKy90STsjNiQAgzvc3btITERPKjAMPJsBRPopsOPY
+X-Gm-Gg: ATEYQzyg6zIxeYZWKaCsz4yBLhWfxwYwUj/9/x/rLUx1XKh2Qu2mi7N4XpEU6B88b/b
+	30jWJ4YPypgPx1PIpb32x1kUC2Yne5hvGFS6cZgytW1lS+fA4Pnoxm3QLMeD4WTvDvNaEhc18od
+	WJ/jEmg/NXoEJzjfMjCjA+o1DZepGyIrU89I8skwJjx7hFY7GaAsTEasjUOTSkiHJkTitSGklbv
+	n2fMsql8SRApXwL7AprYeL/axv0Rr8Bm7akBkVFJ2zVvX9oRXg9CUlSQw5XUkkxg3ia2RESKQWE
+	lxE4uIrTORTIvJ/Ye2Iv4fxFwlhSudRyiNXDG34N45jIUzp8QDIx0y08iiVGOOPEhJVcWfsQVnr
+	1PPqInt12sr20XbcE1I9HnRQEezxb7N+CBxxat/fMqulo97uAA0aexb9Dtz0a0bxFPapb4SBED9
+	Z9gWdN+cxSIkqSvSetpvE=
+X-Received: by 2002:a17:902:f611:b0:2b0:5ae9:ee4 with SMTP id d9443c01a7336-2b0cdbf72c3mr120475445ad.5.1774858403197;
+        Mon, 30 Mar 2026 01:13:23 -0700 (PDT)
+Received: from fedora ([122.173.26.34])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c76917bb31asm5745435a12.23.2026.03.30.01.13.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 30 Mar 2026 01:13:22 -0700 (PDT)
+Date: Mon, 30 Mar 2026 13:42:44 +0530
+From: ShiHao <i.shihao.999@gmail.com>
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: robh@kernel.org, andi.shyti@kernel.org, conor+dt@kernel.org,
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, daniel.baluta@nxp.com
+Subject: Re: [PATCH] dt-bindings: i2c: cnxt,cx92755-i2c: Convert to DT schema
+Message-ID: <acowfAeFD1dK0Ei0@fedora>
+References: <20260323174236.147507-1-i.shihao.999@gmail.com>
+ <be702ca9-e3c5-4b45-8592-966bb5b31080@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260330-atciic100-v4-4-d40822f63e4e@andestech.com>
-References: <20260330-atciic100-v4-0-d40822f63e4e@andestech.com>
-In-Reply-To: <20260330-atciic100-v4-0-d40822f63e4e@andestech.com>
-To: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Paul Walmsley <pjw@kernel.org>, 
- Palmer Dabbelt <palmer@dabbelt.com>, Albert Ou <aou@eecs.berkeley.edu>, 
- Alexandre Ghiti <alex@ghiti.fr>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, 
- Ben Zong-You Xie <ben717@andestech.com>
-X-Mailer: b4 0.15-dev-47773
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1774855834; l=723;
- i=ben717@andestech.com; s=20260120; h=from:subject:message-id;
- bh=lHt2jE6+LDmM/nXD6n9TCCx5A6rJ3cqG+Q1RYfyMh24=;
- b=3JQUmdg7CTpz4PVd+oiNv5GYe8NiGErraflMYoIzTBmXF+bglT80SfCOh3YAhrvP/Cnx4m9cA
- wEiDld68pirA8uiNBghFZrqCIMp+oS996n6BNjbin/JG3S8S2dqDTd0
-X-Developer-Key: i=ben717@andestech.com; a=ed25519;
- pk=nb8L7zQKGJpYk0yvrYKjViOZ34A36g1ZIsCmCsP518s=
-X-Endpoint-Received: by B4 Relay for ben717@andestech.com/20260120 with
- auth_id=610
-X-Original-From: Ben Zong-You Xie <ben717@andestech.com>
-Reply-To: ben717@andestech.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <be702ca9-e3c5-4b45-8592-966bb5b31080@kernel.org>
 
-From: Ben Zong-You Xie <ben717@andestech.com>
+On Wed, Mar 25, 2026 at 12:20:41PM +0100, Krzysztof Kozlowski wrote:
+> On 23/03/2026 18:42, Shi Hao wrote:
+> > Convert the Conexant Digicolor I2C bindings to DT schema.
+> > 
+> > 
+> > Note:
+> > This patch is part of the GSoC2026 application process for device tree
+> > bindings conversions https://github.com/LinuxFoundationGSoC/ProjectIde
+> > as/wiki/GSoC-2026-Device-Tree-Bindings
+> 
+> Stop here, please.
+> 
+> You are not following the process and required steps, thus you keep
+> sending new patches with the same mistakes.
+> 
+> Best regards,
+> Krzysztof
 
-Add the I2C node to QiLai DTS.
+Hello Krzysztof,
 
-Signed-off-by: Ben Zong-You Xie <ben717@andestech.com>
----
- arch/riscv/boot/dts/andes/qilai.dtsi | 7 +++++++
- 1 file changed, 7 insertions(+)
+      First sorry for the inconvenience that i am causing. Just wanted to
+      ask that what went wrong with this patch. I have just send two patches
+      as you requested however i am not sure about this one that what i need to
+      fix here. I would really appreciate if you could tell me what i need
+      to change also please spare some time to review the patches i just sent
+      and give your guidence because i might have messed up again. thank you
+      for your time. Thanks a lot
 
-diff --git a/arch/riscv/boot/dts/andes/qilai.dtsi b/arch/riscv/boot/dts/andes/qilai.dtsi
-index de3de32f8c39..8b40f4d7f8d5 100644
---- a/arch/riscv/boot/dts/andes/qilai.dtsi
-+++ b/arch/riscv/boot/dts/andes/qilai.dtsi
-@@ -182,5 +182,12 @@ uart0: serial@30300000 {
- 			reg-io-width = <4>;
- 			no-loopback-test;
- 		};
-+
-+		i2c: i2c@30800000 {
-+			compatible = "andestech,qilai-i2c",
-+				     "andestech,ae350-i2c";
-+			reg = <0x0 0x30800000 0x0 0x100000>;
-+			interrupts = <6 IRQ_TYPE_LEVEL_HIGH>;
-+		};
- 	};
- };
-
--- 
-2.34.1
-
-
+Respectfully
+Shihao
