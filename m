@@ -1,139 +1,100 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0E862673B0;
-	Tue, 31 Mar 2026 06:14:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5DE7A36EA9B;
+	Tue, 31 Mar 2026 06:47:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774937662; cv=none; b=QW900jKqDjXzuVO834UAx5dIBfSXvrch9pxRJ7EyXaw8wHvYAYmZiVjLjr/P7JsZLY2vwUTcQj38BujckBerpwwC5Ze+YhxI1qd9VWPB7VGHmkCR4N+vZe3ReJacnadMQsuXl7cxPn/dchCa643+8n81YAnsIxmGUSnujlvYM+I=
+	t=1774939627; cv=none; b=VztvST3j42OirTrGIIpbUyMQGZnJYVmmoncbTPdWQWuHyomEdKKuZ1bjBlL1YPgF10sm6UYE72FDv1z+hSwonuO7MK2Myw+3ouyM0NQmE9Z7LjCHwDCN31/IUp6gWwlY7v2XNyNWXAql+Ax6mlKYIyMjcpQ3OTQ7LNL87KHOtfg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774937662; c=relaxed/simple;
-	bh=jUfWV5yAI3EAt25n1XzK3t/1tif6YWMIXLxxQVq6Umk=;
+	s=arc-20240116; t=1774939627; c=relaxed/simple;
+	bh=9Im09qmYZGWCtbT+mlfJFXb6Hn2kX5UH/o7ZzZP/L1c=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KpZt6fXyiE5ckxjALTttst0BQvFW9EsJZ1YHpksY4EK6uho4uHNnFn2C2wd/+HMxd/inrBC0/jImL2ASzh/IDjDPqeRUo88MO9686sUoRvilT6UuMfas9dngEDf3al+vb9fVGQiIkqA+Njv1IeC9mMjhMixcycMJEDv9oVlKQec=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HRbE69MW; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=AJOML08kvOopVdp1TOgHvlX0tPVZiAv0dirW/9Y9cF+V5/KOxYBO2I9ExW+lMJEK9G+K0C5+M8SecOwOq0LcxZ0k6fK8bsX8hGEKL4eOp4gu4CDAraWubxH9uhZKGfD7LZZIFLWR7h/jw1Tw646RIpYtbg2PYxvlhnt0xkaqb3Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GtbBV9lG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HRbE69MW"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1774937659; x=1806473659;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=jUfWV5yAI3EAt25n1XzK3t/1tif6YWMIXLxxQVq6Umk=;
-  b=HRbE69MWUZMBc3QB+SgeFExf76fRhaWqeDB+aB4DVsa8eHQ6IrpjKavw
-   oabQRB8X55t07jkgoFPjQVOwuaU4VJzuPH7Nz3fcCr1weNN+YQR/mhFRp
-   1HAOd/kpskUWed5G+huESJKFkF2zCfAGhbJGZY+o4WfPrx5nX+VLv7Ieb
-   lkr2+ooTOG7ImjYZ3klbyrEZmH6rSgNt3qvXLrWjeQh5uvmv2lCzrnvl/
-   G6Z5H2QVoHyH9sMEgDFsDZ7I9NWzJQlzzcN1+7qDCbSLr+Bs4G28cRilu
-   vNoVaU79dQ5/hqohm7rpCCgeLxk3BxjTThmtlgDxSWqahUzDvk59NQzoy
-   g==;
-X-CSE-ConnectionGUID: 1vBzA5qLT5mmxvobRq3e1w==
-X-CSE-MsgGUID: 0k3ib5hMQf6y5NSmw/yGCQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11744"; a="101397822"
-X-IronPort-AV: E=Sophos;i="6.23,151,1770624000"; 
-   d="scan'208";a="101397822"
-Received: from fmviesa004.fm.intel.com ([10.60.135.144])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2026 23:14:18 -0700
-X-CSE-ConnectionGUID: UVPdt9mLSE6u4cpV/i95Cg==
-X-CSE-MsgGUID: 7BsiN1+kSPeqPYVM1PM73A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,151,1770624000"; 
-   d="scan'208";a="227885558"
-Received: from lkp-server01.sh.intel.com (HELO 283bf2e1b94a) ([10.239.97.150])
-  by fmviesa004.fm.intel.com with ESMTP; 30 Mar 2026 23:14:17 -0700
-Received: from kbuild by 283bf2e1b94a with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1w7SMg-000000002In-25qD;
-	Tue, 31 Mar 2026 06:14:14 +0000
-Date: Tue, 31 Mar 2026 14:14:10 +0800
-From: kernel test robot <lkp@intel.com>
-To: Jovin Basil <jovin555@gmail.com>
-Cc: oe-kbuild-all@lists.linux.dev, jovin555@gmail.com,
-	Wolfram Sang <wsa-dev@sang-engineering.com>,
-	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: gpio: replace printk with dev_err in probe
-Message-ID: <202603311422.LqU7rVlM-lkp@intel.com>
-References: <20260320122656.430939-1-jovin555@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GtbBV9lG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F053C19424;
+	Tue, 31 Mar 2026 06:47:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774939627;
+	bh=9Im09qmYZGWCtbT+mlfJFXb6Hn2kX5UH/o7ZzZP/L1c=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=GtbBV9lGOF8Kq+J0uN0/aq0fHcjswO5NXh1oX/mmeHALzTL8VVJJ2U3XkcddvCK5/
+	 2Zvo0pb4scqWdq9bt0PFAmwFSTlMQWAelrJbltpF3veYac79TSmRPJr07KJut3caek
+	 UAzHx/T9MW9c3pCEYQUlMQocGKL8kA2Hy4Y2sL5+JG3OLeYhxR6KyqqClA6TfBeH13
+	 LUsI70JcLiQbQl6F0EyKiZQnbH8aXtSFuAbYcDzW7ptApDNqJ07dwbZ0jQBAbxzSOV
+	 qy8+soVAjjX+hVjRzUAopj0cI8bR3QgL890Kz73gwhJH6vFvwB0zCbCKoo6qzasK+b
+	 dIpeH0HNEPLQA==
+Date: Tue, 31 Mar 2026 08:47:04 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Ryan Chen <ryan_chen@aspeedtech.com>
+Cc: jk@codeconstruct.com.au, andriy.shevchenko@linux.intel.com, 
+	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Joel Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>, 
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>, Rayn Chen <rayn_chen@aspeedtech.com>, 
+	Philipp Zabel <p.zabel@pengutronix.de>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org, 
+	openbmc@lists.ozlabs.org
+Subject: Re: [PATCH v28 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add
+ global-regs and enable-dma properties
+Message-ID: <20260331-fanatic-certain-bustard-fb13bc@quoll>
+References: <20260330-upstream_i2c-v28-0-17bdae39c5cb@aspeedtech.com>
+ <20260330-upstream_i2c-v28-2-17bdae39c5cb@aspeedtech.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260320122656.430939-1-jovin555@gmail.com>
+In-Reply-To: <20260330-upstream_i2c-v28-2-17bdae39c5cb@aspeedtech.com>
 
-Hi Jovin,
+On Mon, Mar 30, 2026 at 04:21:47PM +0800, Ryan Chen wrote:
+> Add aspeed,enable-dma boolean property to indicate that DMA is
+> available for transfers on this I2C bus.
+> 
+> Also add the aspeed,global-regs phandle to reference the AST2600
+> global registers syscon node, containing the SoC-common I2C register
+> set.
+> 
+> These properties apply only to the AST2600 binding. Legacy DTs remain
+> unchanged.
+> 
+> Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
+> ---
+> Changes in v28:
+> - update commit message correspond with aspeed,enable-dma.
+> - remove aspeed,transfer-mode and add aspeed,enable-dma property and
+>   description.
+> - Fix aspeed,enable-dma description to reflect hardware capability rather
+>   than software behavior
+> Changes in v27:
+> - change aspeed,transfer-mode to aspeed,enable-dma.
+> ---
+>  .../devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml          | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml b/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
+> index de2c359037da..67b23d1a4cec 100644
+> --- a/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
+> +++ b/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
+> @@ -37,6 +37,16 @@ properties:
+>    resets:
+>      maxItems: 1
+>  
+> +  aspeed,enable-dma:
+> +    type: boolean
+> +    description: Indicates this I2C controller instance has DMA capability.
 
-kernel test robot noticed the following build errors:
+Compatible implies that "I2C controller instance has DMA capability", no?
 
-[auto build test ERROR on andi-shyti/i2c/i2c-host]
-[also build test ERROR on wsa/i2c/for-next linus/master v7.0-rc6 next-20260330]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+How two same devices, with exactly the same or compatible programming
+model can have difference in the programming model for DMA (one lacks
+it)?
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Jovin-Basil/i2c-gpio-replace-printk-with-dev_err-in-probe/20260322-133522
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git i2c/i2c-host
-patch link:    https://lore.kernel.org/r/20260320122656.430939-1-jovin555%40gmail.com
-patch subject: [PATCH] i2c: gpio: replace printk with dev_err in probe
-config: x86_64-randconfig-078-20250816-CONFIG_SENSORS_LM75 (https://download.01.org/0day-ci/archive/20260331/202603311422.LqU7rVlM-lkp@intel.com/config)
-compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260331/202603311422.LqU7rVlM-lkp@intel.com/reproduce)
+Best regards,
+Krzysztof
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202603311422.LqU7rVlM-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   In file included from include/linux/device.h:15,
-                    from include/linux/acpi.h:15,
-                    from include/linux/i2c.h:13,
-                    from include/linux/i2c-algo-bit.h:13,
-                    from drivers/i2c/busses/i2c-gpio.c:11:
-   drivers/i2c/busses/i2c-gpio.c: In function 'i2c_gpio_init':
->> drivers/i2c/busses/i2c-gpio.c:493:26: error: 'pdev' undeclared (first use in this function); did you mean 'cdev'?
-     493 |                 dev_err(&pdev->dev, "probe failed :%d\n",ret);
-         |                          ^~~~
-   include/linux/dev_printk.h:110:25: note: in definition of macro 'dev_printk_index_wrap'
-     110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
-         |                         ^~~
-   drivers/i2c/busses/i2c-gpio.c:493:17: note: in expansion of macro 'dev_err'
-     493 |                 dev_err(&pdev->dev, "probe failed :%d\n",ret);
-         |                 ^~~~~~~
-   drivers/i2c/busses/i2c-gpio.c:493:26: note: each undeclared identifier is reported only once for each function it appears in
-     493 |                 dev_err(&pdev->dev, "probe failed :%d\n",ret);
-         |                          ^~~~
-   include/linux/dev_printk.h:110:25: note: in definition of macro 'dev_printk_index_wrap'
-     110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
-         |                         ^~~
-   drivers/i2c/busses/i2c-gpio.c:493:17: note: in expansion of macro 'dev_err'
-     493 |                 dev_err(&pdev->dev, "probe failed :%d\n",ret);
-         |                 ^~~~~~~
-
-
-vim +493 drivers/i2c/busses/i2c-gpio.c
-
-   486	
-   487	static int __init i2c_gpio_init(void)
-   488	{
-   489		int ret;
-   490	
-   491		ret = platform_driver_register(&i2c_gpio_driver);
-   492		if (ret)
- > 493			dev_err(&pdev->dev, "probe failed :%d\n",ret);
-   494	
-   495		return ret;
-   496	}
-   497	subsys_initcall(i2c_gpio_init);
-   498	
-
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
