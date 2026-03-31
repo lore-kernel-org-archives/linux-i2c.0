@@ -1,86 +1,139 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E03838C405;
-	Mon, 30 Mar 2026 16:02:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0E862673B0;
+	Tue, 31 Mar 2026 06:14:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774886524; cv=none; b=dB9n+b0o7KZQ31rSoNtO4NxCiWF/KCOKk1tBH5326wY7JxVyCawLdcFp9CJ4I7RYz/menRaidwx1J3BBLYVRHZakyoO1iTpwpFRWfL8cstMyu7lW8v6zQ8h3wFD1FYJR5u/2Tz/xxKYtfHkv/CZ2iqlsfS8JdG85cvO2KU7mEV4=
+	t=1774937662; cv=none; b=QW900jKqDjXzuVO834UAx5dIBfSXvrch9pxRJ7EyXaw8wHvYAYmZiVjLjr/P7JsZLY2vwUTcQj38BujckBerpwwC5Ze+YhxI1qd9VWPB7VGHmkCR4N+vZe3ReJacnadMQsuXl7cxPn/dchCa643+8n81YAnsIxmGUSnujlvYM+I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774886524; c=relaxed/simple;
-	bh=KWI5mXlfyYk0noy8RLgcmeEBzXZ3IDQg9QTiPYEqbmA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=d8Qk+oVNAu7ygP0bWsCIijadGo/tiA9rqUvAOiWFLS9+2NA2apa18PVIiCGAlLL3cQCoaYZFp+dsEFa/BCBXq1JXiU/7cm9tn8gifXtmiQKw6PVARsIP6gnyk1mZhIk2RCAbka8itv5yb1KObpoGnD4/V75V0E7DUiigri+WDls=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Tc60gduN; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774937662; c=relaxed/simple;
+	bh=jUfWV5yAI3EAt25n1XzK3t/1tif6YWMIXLxxQVq6Umk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=KpZt6fXyiE5ckxjALTttst0BQvFW9EsJZ1YHpksY4EK6uho4uHNnFn2C2wd/+HMxd/inrBC0/jImL2ASzh/IDjDPqeRUo88MO9686sUoRvilT6UuMfas9dngEDf3al+vb9fVGQiIkqA+Njv1IeC9mMjhMixcycMJEDv9oVlKQec=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HRbE69MW; arc=none smtp.client-ip=192.198.163.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Tc60gduN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15586C4CEF7;
-	Mon, 30 Mar 2026 16:02:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774886524;
-	bh=KWI5mXlfyYk0noy8RLgcmeEBzXZ3IDQg9QTiPYEqbmA=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=Tc60gduNn2iOae0PiGEeeXogO7Aebrc2H+Dzn9m/fHuw/PNgPdw1EB+erERB1ou4D
-	 ZRDVLHe5Gd47vH3KgzcEn6eGqjwUbxcWZg82QWt8N8zyvlSN6ksC1wTcFEqwbA1BNn
-	 4RjaORFwVCLd3Iwpbn8VnsdKIHJNJx4k/tj2bK8X3SjHRpB+qy42HYbsIFZeUziaib
-	 6AlQagKNVNb57XLtYI5tVwI7KlkDlPBv2tzq7U9ph7u7P90e3HZsp0w81wg1MnjuU4
-	 NgPTrV7J5EAMxFi7HvZl80zL4KtpBww/zdOe4MFJbmsGoxLIylRLQorrn2xn2Dbhwc
-	 wGItXiHC6m+Iw==
-From: Bjorn Andersson <andersson@kernel.org>
-To: Loic Poulain <loic.poulain@oss.qualcomm.com>,
-	Robert Foss <rfoss@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Konrad Dybcio <konradybcio@kernel.org>,
-	Luca Weiss <luca.weiss@fairphone.com>
-Cc: ~postmarketos/upstreaming@lists.sr.ht,
-	phone-devel@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
-	Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
-Subject: Re: (subset) [PATCH v2 0/3] Add CCI support for Milos, enable on Fairphone (Gen. 6)
-Date: Mon, 30 Mar 2026 11:01:23 -0500
-Message-ID: <177488647774.633011.12866863736782433840.b4-ty@kernel.org>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260320-milos-cci-v2-0-1947fc83f756@fairphone.com>
-References: <20260320-milos-cci-v2-0-1947fc83f756@fairphone.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HRbE69MW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1774937659; x=1806473659;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=jUfWV5yAI3EAt25n1XzK3t/1tif6YWMIXLxxQVq6Umk=;
+  b=HRbE69MWUZMBc3QB+SgeFExf76fRhaWqeDB+aB4DVsa8eHQ6IrpjKavw
+   oabQRB8X55t07jkgoFPjQVOwuaU4VJzuPH7Nz3fcCr1weNN+YQR/mhFRp
+   1HAOd/kpskUWed5G+huESJKFkF2zCfAGhbJGZY+o4WfPrx5nX+VLv7Ieb
+   lkr2+ooTOG7ImjYZ3klbyrEZmH6rSgNt3qvXLrWjeQh5uvmv2lCzrnvl/
+   G6Z5H2QVoHyH9sMEgDFsDZ7I9NWzJQlzzcN1+7qDCbSLr+Bs4G28cRilu
+   vNoVaU79dQ5/hqohm7rpCCgeLxk3BxjTThmtlgDxSWqahUzDvk59NQzoy
+   g==;
+X-CSE-ConnectionGUID: 1vBzA5qLT5mmxvobRq3e1w==
+X-CSE-MsgGUID: 0k3ib5hMQf6y5NSmw/yGCQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11744"; a="101397822"
+X-IronPort-AV: E=Sophos;i="6.23,151,1770624000"; 
+   d="scan'208";a="101397822"
+Received: from fmviesa004.fm.intel.com ([10.60.135.144])
+  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Mar 2026 23:14:18 -0700
+X-CSE-ConnectionGUID: UVPdt9mLSE6u4cpV/i95Cg==
+X-CSE-MsgGUID: 7BsiN1+kSPeqPYVM1PM73A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,151,1770624000"; 
+   d="scan'208";a="227885558"
+Received: from lkp-server01.sh.intel.com (HELO 283bf2e1b94a) ([10.239.97.150])
+  by fmviesa004.fm.intel.com with ESMTP; 30 Mar 2026 23:14:17 -0700
+Received: from kbuild by 283bf2e1b94a with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1w7SMg-000000002In-25qD;
+	Tue, 31 Mar 2026 06:14:14 +0000
+Date: Tue, 31 Mar 2026 14:14:10 +0800
+From: kernel test robot <lkp@intel.com>
+To: Jovin Basil <jovin555@gmail.com>
+Cc: oe-kbuild-all@lists.linux.dev, jovin555@gmail.com,
+	Wolfram Sang <wsa-dev@sang-engineering.com>,
+	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: gpio: replace printk with dev_err in probe
+Message-ID: <202603311422.LqU7rVlM-lkp@intel.com>
+References: <20260320122656.430939-1-jovin555@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260320122656.430939-1-jovin555@gmail.com>
+
+Hi Jovin,
+
+kernel test robot noticed the following build errors:
+
+[auto build test ERROR on andi-shyti/i2c/i2c-host]
+[also build test ERROR on wsa/i2c/for-next linus/master v7.0-rc6 next-20260330]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Jovin-Basil/i2c-gpio-replace-printk-with-dev_err-in-probe/20260322-133522
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git i2c/i2c-host
+patch link:    https://lore.kernel.org/r/20260320122656.430939-1-jovin555%40gmail.com
+patch subject: [PATCH] i2c: gpio: replace printk with dev_err in probe
+config: x86_64-randconfig-078-20250816-CONFIG_SENSORS_LM75 (https://download.01.org/0day-ci/archive/20260331/202603311422.LqU7rVlM-lkp@intel.com/config)
+compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260331/202603311422.LqU7rVlM-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202603311422.LqU7rVlM-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   In file included from include/linux/device.h:15,
+                    from include/linux/acpi.h:15,
+                    from include/linux/i2c.h:13,
+                    from include/linux/i2c-algo-bit.h:13,
+                    from drivers/i2c/busses/i2c-gpio.c:11:
+   drivers/i2c/busses/i2c-gpio.c: In function 'i2c_gpio_init':
+>> drivers/i2c/busses/i2c-gpio.c:493:26: error: 'pdev' undeclared (first use in this function); did you mean 'cdev'?
+     493 |                 dev_err(&pdev->dev, "probe failed :%d\n",ret);
+         |                          ^~~~
+   include/linux/dev_printk.h:110:25: note: in definition of macro 'dev_printk_index_wrap'
+     110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
+         |                         ^~~
+   drivers/i2c/busses/i2c-gpio.c:493:17: note: in expansion of macro 'dev_err'
+     493 |                 dev_err(&pdev->dev, "probe failed :%d\n",ret);
+         |                 ^~~~~~~
+   drivers/i2c/busses/i2c-gpio.c:493:26: note: each undeclared identifier is reported only once for each function it appears in
+     493 |                 dev_err(&pdev->dev, "probe failed :%d\n",ret);
+         |                          ^~~~
+   include/linux/dev_printk.h:110:25: note: in definition of macro 'dev_printk_index_wrap'
+     110 |                 _p_func(dev, fmt, ##__VA_ARGS__);                       \
+         |                         ^~~
+   drivers/i2c/busses/i2c-gpio.c:493:17: note: in expansion of macro 'dev_err'
+     493 |                 dev_err(&pdev->dev, "probe failed :%d\n",ret);
+         |                 ^~~~~~~
 
 
-On Fri, 20 Mar 2026 09:09:48 +0100, Luca Weiss wrote:
-> Add the compatible strings for the CCI busses on Milos, and the EEPROMs
-> found on the Fairphone (Gen. 6) camera modules, and add them to the
-> milos dtsi and device dts.
-> 
-> This series soft-depends on https://lore.kernel.org/linux-arm-msm/20260116-milos-camcc-icc-v1-0-400b7fcd156a@fairphone.com/T/
-> 
-> The patches can be applied without the dependency, but the final dts
-> patches should probably only land once the other series has been fully
-> applied, otherwise the CCI busses cannot actually be used (unless some
-> other component turns on the mmss_noc) and you get a kernel warning like
-> the following:
-> 
-> [...]
+vim +493 drivers/i2c/busses/i2c-gpio.c
 
-Applied, thanks!
+   486	
+   487	static int __init i2c_gpio_init(void)
+   488	{
+   489		int ret;
+   490	
+   491		ret = platform_driver_register(&i2c_gpio_driver);
+   492		if (ret)
+ > 493			dev_err(&pdev->dev, "probe failed :%d\n",ret);
+   494	
+   495		return ret;
+   496	}
+   497	subsys_initcall(i2c_gpio_init);
+   498	
 
-[2/3] arm64: dts: qcom: milos: Add CCI busses
-      commit: e9e75b3e622bccefe3ccc7e167e36f58369a388d
-[3/3] arm64: dts: qcom: milos-fairphone-fp6: Add camera EEPROMs on CCI busses
-      commit: 924d734960062b0665d551c82489ad2cb4d96e80
-
-Best regards,
 -- 
-Bjorn Andersson <andersson@kernel.org>
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
