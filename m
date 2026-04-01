@@ -1,37 +1,37 @@
 Received: from layka.disroot.org (layka.disroot.org [178.21.23.139])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CB3F317167;
-	Wed,  1 Apr 2026 18:07:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C9C931A7F6;
+	Wed,  1 Apr 2026 18:07:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.21.23.139
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775066847; cv=none; b=Mx1q8Y3M0sMRc2PPyp1HeftvRhuH7lEmr9ukqnoD/QXT9ElSjog0aLu23sY5SF3hEGTNCcUn0mFd02p6vaia7Ix7qjkze/qk5Jzy9gRtIOBysc2MKL+v9dZZTbqomvBUGxReEZsESy3sfl/vW3plRHRp3i68ykxdU40k1F43kZY=
+	t=1775066850; cv=none; b=sURjaqs/enoj9aOyF4MO+p9R83nBPox8dk00SXe4my4bXdSWk4kr5PPcc9FxtJR0FHELWs8pFwA2fC34tt1gwqM6dmRiM3m0yIaLuPmjwoh7hREz5Yhqj5vtVYVNQlCj4hfo06D9/uDeYQQVZFh+tfbDhKSIQ/EZ33O3x5YHXHY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775066847; c=relaxed/simple;
-	bh=X+qgtO8/Y8FfhUV+KCWr/dOG6ar4xzqbD/lzeFBfq5I=;
+	s=arc-20240116; t=1775066850; c=relaxed/simple;
+	bh=hvgnFd6i8bH5mUG8809MkRlOdbcEZRveaBCGMvPKUaQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Gu3GAWwEFUq1McsRqw/uVbRMDIpdQY1ClXca9qk9mhACFcs+3Qnei5X/Ae+jA+XEtZFTKq5dcfWk1fez0iLgqhiPMPQHlE10bnt/fQGMpXfSEIjQBPHBCaFY7lxrSHWUPflr0SiKADQ3Neg5WKIIHi8aWNRxhyGXEvFBX76fG/Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=JMpaNzhB; arc=none smtp.client-ip=178.21.23.139
+	 MIME-Version; b=WS3UFhVT3DXhSfApGmLcT5oDnRWBcsECrq3Ml6P4XwFLzhy/73ExwdmxC9agKwt7uHdfNESUWFt7nuxTaQNnk3CPNSFCVl/JEA/VE8mXk5dr+R+KbOQ8OqJThG81JoQN61P4jsjqUQLjfULN+SmwMta2xa8XlSijwZj33wXdZbE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org; spf=pass smtp.mailfrom=disroot.org; dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b=Jzuisael; arc=none smtp.client-ip=178.21.23.139
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=disroot.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=disroot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="JMpaNzhB"
+	dkim=pass (2048-bit key) header.d=disroot.org header.i=@disroot.org header.b="Jzuisael"
 Received: from [127.0.0.1] (localhost [127.0.0.1])
-	by disroot.org (Postfix) with ESMTP id 4D75E2672F;
-	Wed,  1 Apr 2026 20:07:25 +0200 (CEST)
+	by disroot.org (Postfix) with ESMTP id E8D9926998;
+	Wed,  1 Apr 2026 20:07:27 +0200 (CEST)
 X-Virus-Scanned: SPAM Filter at disroot.org
 Received: from layka.disroot.org ([127.0.0.1])
  by localhost (disroot.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id fkr8TPSXwzpx; Wed,  1 Apr 2026 20:07:24 +0200 (CEST)
+ id 7H1EtqIRHM_l; Wed,  1 Apr 2026 20:07:27 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=disroot.org; s=mail;
-	t=1775066844; bh=X+qgtO8/Y8FfhUV+KCWr/dOG6ar4xzqbD/lzeFBfq5I=;
+	t=1775066847; bh=hvgnFd6i8bH5mUG8809MkRlOdbcEZRveaBCGMvPKUaQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=JMpaNzhBCV6NfaOMGiQcJGJxh5ymoMo8QHEP6BVxFvoZsUFm5O5+EyM2dwmTr5a61
-	 hWz754UUG/ou98tf9QIXSg/uT6IeaZkyicFXBqdyB02CgVSChmogNpLOreLIQYc1uL
-	 Gwx99j6h/jgWAoe/DzoO//rUFOQwHrVBuU3CerYhIdYAfQB7JS6v8hGslHdU8DlFC8
-	 NkhzznioL7VkyxjcWZFhXH6u2IrMjqrJhmEip+FSp5GDW6b8frb//9yI1fowkj+K2k
-	 T3/Xu6OohELBnxwUxZCUlWdaYYNqZatNRgjwjAQafP1lF/YnfAzfkCqFmxTxvxiTij
-	 z/U1srSOnFkoA==
+	b=JzuisaelndXusVeeGvqhZNQjEym7Oz+UPCpqNuYkysEYgW1ciF8wGSOmrO8n6SAGm
+	 2c/vjnfXbSJZ4pbNYtKv56vc8XS+ZIsm5QxPxu10RMaFPb0tDjrQrSDjd4+8ldxX4R
+	 C5rHhAJpGIVBSfK37b8mPTxyYVZKjvlzuPmZkI0VUBzNSWcBw7JfbDJbP/T9fgmu00
+	 UxolhfkcqjrHQ4i+lpIcIzqD7Z0c0h8fF2AhswKrJGvmRmNBnK5dGs1SQcEz2N8+wd
+	 Tu8KBOguHBR/7vXf0kB45g60NM9I82CxZz8az+cpM3MpolX4FqdOwljNuaULa7LSuR
+	 //xO5k63P9tOA==
 From: Rustam Adilov <adilov@disroot.org>
 To: Chris Packham <chris.packham@alliedtelesis.co.nz>,
 	Andi Shyti <andi.shyti@kernel.org>,
@@ -41,11 +41,10 @@ To: Chris Packham <chris.packham@alliedtelesis.co.nz>,
 	linux-i2c@vger.kernel.org,
 	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Cc: Rustam Adilov <adilov@disroot.org>,
-	Conor Dooley <conor.dooley@microchip.com>
-Subject: [PATCH v6 5/8] dt-bindings: i2c: realtek,rtl9301-i2c: extend for clocks and RTL9607C support
-Date: Wed,  1 Apr 2026 23:06:45 +0500
-Message-ID: <20260401180648.337834-6-adilov@disroot.org>
+Cc: Rustam Adilov <adilov@disroot.org>
+Subject: [PATCH v6 6/8] i2c: rtl9300: introduce clk struct for upcoming rtl9607 support
+Date: Wed,  1 Apr 2026 23:06:46 +0500
+Message-ID: <20260401180648.337834-7-adilov@disroot.org>
 In-Reply-To: <20260401180648.337834-1-adilov@disroot.org>
 References: <20260401180648.337834-1-adilov@disroot.org>
 Precedence: bulk
@@ -56,73 +55,71 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add the "realtek,rtl9607-i2c" compatible for i2c controller on the
-RTL9607C SoC series.
+In RTL9607C i2c controller, there is 10 bit CLK_DIV field for
+setting the clock of i2c interface which depends on the rate
+of i2c clk (which seems be fixed to 62.5MHz according to Realtek SDK).
 
-Add a clocks property to the properties to describe the i2c reference
-clock and make it available for all the compatibles. This i2c reference
-clock is assumed to be coming from switchcore region via Lexra bus as
-the other SoC peripherals.
+Introduce the clk struct and the respective F_CLK_DIV and clk_div
+which are going to be used in the upcoming patch for rtl9607c i2c
+controller support addition.
 
-According to the info available about the existing devices, they also
-have the i2c master controller clocks.
+devm_clk_get_optional_enabled() function was used for cleaner code
+as it automatically returns NULL if the clk is not present, which is
+going to be the case for RTL9300 and RTL9310 i2c controllers.
 
-RTL9607C requires the "realtek,scl" and "clocks" to be specified
-and so handle it under separate if check for "realtek,rtl9607-i2c".
-
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
 Signed-off-by: Rustam Adilov <adilov@disroot.org>
 ---
- .../bindings/i2c/realtek,rtl9301-i2c.yaml         | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/i2c/busses/i2c-rtl9300.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/realtek,rtl9301-i2c.yaml b/Documentation/devicetree/bindings/i2c/realtek,rtl9301-i2c.yaml
-index f9a449fee2b0..5873cfdc5b3e 100644
---- a/Documentation/devicetree/bindings/i2c/realtek,rtl9301-i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/realtek,rtl9301-i2c.yaml
-@@ -15,6 +15,8 @@ description:
-   assigned to either I2C controller.
-   RTL9310 SoCs have equal capabilities but support 12 common SDA lines which
-   can be assigned to either I2C controller.
-+  RTL9607C SoCs have equal capabilities but each controller only supports 1
-+  SCL/SDA line.
+diff --git a/drivers/i2c/busses/i2c-rtl9300.c b/drivers/i2c/busses/i2c-rtl9300.c
+index ffbc6c52861b..16af49ccd1dd 100644
+--- a/drivers/i2c/busses/i2c-rtl9300.c
++++ b/drivers/i2c/busses/i2c-rtl9300.c
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: GPL-2.0-only
  
- properties:
-   compatible:
-@@ -34,6 +36,7 @@ properties:
-       - enum:
-           - realtek,rtl9301-i2c
-           - realtek,rtl9310-i2c
-+          - realtek,rtl9607-i2c
+ #include <linux/bits.h>
++#include <linux/clk.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-mux.h>
+ #include <linux/mod_devicetable.h>
+@@ -28,6 +29,7 @@ struct rtl9300_i2c_chan {
+ 	struct rtl9300_i2c *i2c;
+ 	enum rtl9300_bus_freq bus_freq;
+ 	u8 sda_num;
++	u32 clk_div;
+ };
  
-   reg:
-     items:
-@@ -51,6 +54,9 @@ properties:
-       The SCL line number of this I2C controller.
-     enum: [ 0, 1 ]
+ enum rtl9300_i2c_reg_scope {
+@@ -54,6 +56,7 @@ enum rtl9300_i2c_reg_fields {
+ 	F_SDA_OUT_SEL,
+ 	F_SDA_SEL,
+ 	F_BUSY,
++	F_CLK_DIV,
  
-+  clocks:
-+    maxItems: 1
+ 	/* keep last */
+ 	F_NUM_FIELDS
+@@ -85,6 +88,7 @@ struct rtl9300_i2c {
+ 	u8 scl_num;
+ 	u8 sda_num;
+ 	struct mutex lock;
++	struct clk *clk;
+ };
+ 
+ DEFINE_GUARD(rtl9300_i2c, struct rtl9300_i2c *, mutex_lock(&_T->lock), mutex_unlock(&_T->lock))
+@@ -432,6 +436,10 @@ static int rtl9300_i2c_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		return ret;
+ 
++	i2c->clk = devm_clk_get_optional_enabled(dev, NULL);
++	if (IS_ERR(i2c->clk))
++		return dev_err_probe(dev, PTR_ERR(i2c->clk), "Failed to enable i2c clock\n");
 +
- patternProperties:
-   '^i2c@[0-9ab]$':
-     $ref: /schemas/i2c/i2c-controller.yaml
-@@ -81,6 +87,15 @@ allOf:
-     then:
-       patternProperties:
-         '^i2c@[89ab]$': false
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            const: realtek,rtl9607-i2c
-+    then:
-+      required:
-+        - realtek,scl
-+        - clocks
- 
- required:
-   - compatible
+ 	i = 0;
+ 	for_each_child_of_node_scoped(dev->of_node, child) {
+ 		struct rtl9300_i2c_chan *chan = &i2c->chans[i];
 -- 
 2.53.0
 
