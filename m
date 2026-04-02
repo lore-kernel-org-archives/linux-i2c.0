@@ -1,167 +1,99 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from courrier.aliel.fr (courrier.aliel.fr [65.21.61.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D43B73E557D
-	for <linux-i2c@vger.kernel.org>; Thu,  2 Apr 2026 14:19:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 321523DC4A5;
+	Thu,  2 Apr 2026 14:27:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.21.61.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775139583; cv=none; b=XIbZUQaf0j7gnWlJiQj2PonGWOqw/zOprZ9PranzIEXPu9mrtdfQgglscXSbT4BgJCWVwxlo57CRdKoOo1qypTvqrUmLKM3DKgNGCHpAdBrURfX1z8fa1+0VAsTLhykcTdtIP/3rD/w67udjL2QEph4FplYSFnLlhTHfnekNmNM=
+	t=1775140062; cv=none; b=qp8dSIEDOHIwD+zBP9NGlVsxMHfBQeim8VADpDRyth7xmpJYXhCLSbIfws0ZV1yRpSke1Sm2QgnLeW8GM44zvYgSZDbEEl2J49S5s50oBdqfTtrvx7m2cG10dL+zBghcywwTXbdACDysEaNSBGVMCnFPSp0/27rdfsjAnOv8LKM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775139583; c=relaxed/simple;
-	bh=hv8aKq6tnJn92KN1qhwijTP8v+9TkOIfCNGREGBiFLo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=arhf7fCxbkjPiR5fpw590yLOLMlOSaY6B1VGa2QJY+lNFydM4YMa/Y2taN+TG913VAdHn0fwcXrC1tNoRm4RdyaBm+piAiggkn+DOWU7QyZQ0x/uA3vugiNDnYxHv1I1pVK0kjw6ZJi9Vi4Rda73FYSqwtvSNqn0LyuXrJoyQhA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YTrE7kjv; arc=none smtp.client-ip=209.85.216.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1775140062; c=relaxed/simple;
+	bh=/fmGQFbRzxXF36D4HUeJ6hELpl1p69vINpfqcmw5ok0=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=GWMrKSdMby2Sn59ouYWGi4EEFJoW0Pv/u+yFgQ2zi6vHl3kxnqyKMJUuRFYtUCGUX0a0gKgiLBAoSx9v4wa/eWwEu00ENpX1YoDzt6Mec0vRt3AP8FUQtS45zBuOK6JCUV1G6HLV91+uPvXzhhnLxnILHXYipE+UVwhj9AYhf/8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=aliel.fr; spf=pass smtp.mailfrom=aliel.fr; dkim=pass (1024-bit key) header.d=aliel.fr header.i=@aliel.fr header.b=tLdRH7kS; arc=none smtp.client-ip=65.21.61.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=aliel.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aliel.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YTrE7kjv"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-35c1a131946so1269415a91.0
-        for <linux-i2c@vger.kernel.org>; Thu, 02 Apr 2026 07:19:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775139581; x=1775744381; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Zz1zlRSiKHlMJZnEUctS28g6FTYx8BEHRWatZco+c68=;
-        b=YTrE7kjvGZ+8MOV2wscXSKn+dCH9L6Bs296XS0aG4U28ZeEQ8NRKifgfNfi3fKHytF
-         60yd7k0eXwFHQBhdvv1thJJzWw4NWCrt6gmZzADS5+k0CKbwgrAxagKWkEY3p3XX+9EM
-         V5AWUsNq3GS35WG2QnNKDOMOAPjBNK/yWJr/e6j7dJ61P3W0Oy3PIZRsiAmzEZIFtjOo
-         kf1+9BXpGQ3rL518SIkrfAbRuM2El31e5Mm5xyKl+9zpELu1lVpDKUcmGpWsLKCr6oCy
-         ilC5EhgU2x7BDyojFLvj8TwC9EcNKUp8s6zDkthHcUCUEmYhs5/DuJYua8k/Po7URzea
-         ErWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775139581; x=1775744381;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Zz1zlRSiKHlMJZnEUctS28g6FTYx8BEHRWatZco+c68=;
-        b=LuolWukBLBLNe5C+kkqZ/YqiAaPepja97sVH297fwpg/LZkkeStwXfED3OAQEZZBlV
-         LHmAcrnlOAp55s5TKY0Jy3Yft/TRGjSxVXkXqSPeO9O5CmROxkzazF2Yiwf+Mt4ZJgIV
-         65R/GVVPDG+tHEw2s7MmCDLhMCWN7GgfJD1VUR/s+JPkT7t2j+0jCBfgvlGhFjD5w5M2
-         CeAKu5ESeKHyB3xTDjseIpduSGhHE7mbNzzMmh0foDP4r64WSmmj9jymSv/0TvPUxKlO
-         2OVhowpvB2X820eCPdVtWSAg36nzM/B6XkJRGm3D+9atdPdT8LetE2ZBEc1S3LIN4eGu
-         LiNg==
-X-Forwarded-Encrypted: i=1; AJvYcCXcHjxA0mlTHa7TAGqO7AelV0v/DkNHQSzTUwXWrZvtNz7kS+c/qpsuv/u3gEM6/pEjZLMmnkx4Bv4=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzKlhsVNX82H9jhog5VhFIb7bobXTw/4MgRjsqQpZQzPgah2uMR
-	JlZfqsA89EwtDu7xc83AChV9SGWuoxA09Xzr3Sj0ZdrJhLceCTHJJgGV
-X-Gm-Gg: AeBDiev/CNdhUcRtyUILRfW2Dm3hUTq0RJbZE0M2/89dUpiog6zfI/QPplm9BEQpk31
-	rc5mWeOozAIJnJ+929HeTYemj8YLNuk/Xu7LpHei5mIB1cJcUrYEW2HcK2xaQPhn+ZEWLpaKNvH
-	3Saioq+hcx9OZJVKuwnHvtlBisTzJpxLAcgf5Yfp9hpDlnS/TFruaJmZ5ZmLDWfXF5WN4BwwRD2
-	VjAyQIhPiKL0osDaMKOmNiCI0uu1Q55clAzAUprcnnDOEmb5OCHgXtPZwHJTMQOdBLZikZ/ij9R
-	SkcJBq99i93WfjEL0JgGUlybS8OJq/x7F3XaZ2e/ws6YS654E+40SH+cEPGyKGPXzR/oR4jhAX6
-	mweSqlMl7/y5VrFkSasJrB6lxggNw13NpZenoDw7wMCfj//wu0IWDwkUkB874queKVagrGT1VNw
-	bVEYjr6Ji9/P8nD+po0Uqb
-X-Received: by 2002:a17:90b:314b:b0:35a:2ed:9b6f with SMTP id 98e67ed59e1d1-35dd65b05e0mr2598226a91.0.1775139581041;
-        Thu, 02 Apr 2026 07:19:41 -0700 (PDT)
-Received: from rockpi-5b ([45.112.0.200])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35dbe9377b7sm10959123a91.10.2026.04.02.07.19.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2026 07:19:40 -0700 (PDT)
-From: Anand Moon <linux.amoon@gmail.com>
-To: Heiko Stuebner <heiko@sntech.de>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	linux-arm-kernel@lists.infradead.org (moderated list:ARM/Rockchip SoC support),
-	linux-rockchip@lists.infradead.org (open list:ARM/Rockchip SoC support),
-	linux-i2c@vger.kernel.org (open list:I2C SUBSYSTEM HOST DRIVERS),
-	linux-kernel@vger.kernel.org (open list)
-Cc: Anand Moon <linux.amoon@gmail.com>
-Subject: [PATCH v3 2/2] i2c: rk3x: Fix deadlock by splitting rk3x_i2c_adapt_div into locked/unlocked variants
-Date: Thu,  2 Apr 2026 19:49:23 +0530
-Message-ID: <20260402141927.7216-2-linux.amoon@gmail.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20260402141927.7216-1-linux.amoon@gmail.com>
-References: <20260402141927.7216-1-linux.amoon@gmail.com>
+	dkim=pass (1024-bit key) header.d=aliel.fr header.i=@aliel.fr header.b="tLdRH7kS"
+From: Ronald Claveau <linux-kernel-dev@aliel.fr>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aliel.fr;
+	s=courrier-s1; t=1775140054;
+	bh=/fmGQFbRzxXF36D4HUeJ6hELpl1p69vINpfqcmw5ok0=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=tLdRH7kSxa3HP44uhfEknVm15T0gIlNxjESGH0cAmTBX7EkYy0lTqZ6H/FcLHN/jC
+	 B9R7SU/lHQLzY5OxENQB/SSF2yuVS2FQpPDt5H+Kjzag78GK5jj1MRjVxpyaRralp4
+	 ro170MNssUfnQhOmljr9F4ty+papk70LiOP3Xghc=
+Date: Thu, 02 Apr 2026 16:27:02 +0200
+Subject: [PATCH 2/8] dt-bindings: i2c: amlogic: Add compatible for T7 SOC
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260402-add-mcu-fan-khadas-vim4-v1-2-2b12eb4ac7b0@aliel.fr>
+References: <20260402-add-mcu-fan-khadas-vim4-v1-0-2b12eb4ac7b0@aliel.fr>
+In-Reply-To: <20260402-add-mcu-fan-khadas-vim4-v1-0-2b12eb4ac7b0@aliel.fr>
+To: Neil Armstrong <neil.armstrong@linaro.org>, Lee Jones <lee@kernel.org>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+ Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, 
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>, 
+ Beniamino Galvani <b.galvani@gmail.com>, 
+ "Rafael J. Wysocki" <rafael@kernel.org>, 
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
+ Lukasz Luba <lukasz.luba@arm.com>, Liam Girdwood <lgirdwood@gmail.com>, 
+ Mark Brown <broonie@kernel.org>
+Cc: linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org, 
+ Ronald Claveau <linux-kernel-dev@aliel.fr>
+X-Mailer: b4 0.14.3
+X-Developer-Signature: v=1; a=openssh-sha256; t=1775140049; l=1221;
+ i=linux-kernel-dev@aliel.fr; s=id_ed25519; h=from:subject:message-id;
+ bh=/fmGQFbRzxXF36D4HUeJ6hELpl1p69vINpfqcmw5ok0=;
+ b=U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgMGec55oxeeisqykQiUedekMYyOnR9
+ BG9E/7rDWyqdNoAAAAGcGF0YXR0AAAAAAAAAAZzaGE1MTIAAABTAAAAC3NzaC1lZDI1NTE5AAAA
+ QPyTNUP4Nt6jyGT9Oby1/TaKZlI9pCKDP6UFTK7qrNBA5J2OufsBqRdi3n9biF5H0IvMUHwNHsJ
+ cNpvKnm6R1Qc=
+X-Developer-Key: i=linux-kernel-dev@aliel.fr; a=openssh;
+ fpr=SHA256:kch4osYZ6A1BrPps5AUs6KnfdE2wm4ocMtyTc8TmZMs
 
-Introduce __rk3x_i2c_adapt_div() function as a locked-only helper to
-handle core timing calculations and register updates. This restructuring
-allows these operations to be safely called from contexts where i2c->lock
-is already held—such as during error recovery in rk3x_i2c_xfer_common
-avoiding recursive locking or deadlocks.
+Add the T7 SOC compatible which fallback to AXG compatible.
 
-Signed-off-by: Anand Moon <linux.amoon@gmail.com>
+Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
 ---
-v3: new patch to avoid deadlock.
----
- drivers/i2c/busses/i2c-rk3x.c | 25 +++++++++++++++----------
- 1 file changed, 15 insertions(+), 10 deletions(-)
+ .../devicetree/bindings/i2c/amlogic,meson6-i2c.yaml         | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
-index 06a77780cf82..2556a3d8b2a1 100644
---- a/drivers/i2c/busses/i2c-rk3x.c
-+++ b/drivers/i2c/busses/i2c-rk3x.c
-@@ -880,22 +880,18 @@ static int rk3x_i2c_v1_calc_timings(unsigned long clk_rate,
- 	return ret;
- }
+diff --git a/Documentation/devicetree/bindings/i2c/amlogic,meson6-i2c.yaml b/Documentation/devicetree/bindings/i2c/amlogic,meson6-i2c.yaml
+index c4cc8af182807..7b59b60b62e5b 100644
+--- a/Documentation/devicetree/bindings/i2c/amlogic,meson6-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/amlogic,meson6-i2c.yaml
+@@ -16,10 +16,15 @@ allOf:
  
--static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
-+static void __rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
- {
- 	struct i2c_timings *t = &i2c->t;
- 	struct rk3x_i2c_calced_timings calc;
- 	unsigned long period, time_hold = (WAIT_TIMEOUT / 2) * 1000000;
- 	u64 t_low_ns, t_high_ns;
--	unsigned long flags;
- 	u32 val;
- 	int ret;
+ properties:
+   compatible:
+-    enum:
+-      - amlogic,meson6-i2c # Meson6, Meson8 and compatible SoCs
+-      - amlogic,meson-gxbb-i2c # GXBB and compatible SoCs
+-      - amlogic,meson-axg-i2c # AXG and compatible SoCs
++    oneOf:
++      - items:
++          - enum:
++              - amlogic,t7-i2c
++          - const: amlogic,meson-axg-i2c
++      - enum:
++          - amlogic,meson6-i2c # Meson6, Meson8 and compatible SoCs
++          - amlogic,meson-gxbb-i2c # GXBB and compatible SoCs
++          - amlogic,meson-axg-i2c # AXG and compatible SoCs
  
- 	ret = i2c->soc_data->calc_timings(clk_rate, t, &calc);
- 	WARN_ONCE(ret != 0, "Could not reach SCL freq %u", t->bus_freq_hz);
- 
--	clk_enable(i2c->pclk);
--
--	spin_lock_irqsave(&i2c->lock, flags);
- 	val = i2c_readl(i2c, REG_CON);
- 	val &= ~REG_CON_TUNING_MASK;
- 	val |= calc.tuning;
-@@ -909,10 +905,6 @@ static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
- 		i2c_writel(i2c, val, REG_SCL_OE_DB);
- 	}
- 
--	spin_unlock_irqrestore(&i2c->lock, flags);
--
--	clk_disable(i2c->pclk);
--
- 	t_low_ns = div_u64(8ULL * HZ_PER_GHZ * (calc.div_low + 1), clk_rate);
- 	t_high_ns = div_u64(8ULL * HZ_PER_GHZ * (calc.div_high + 1), clk_rate);
- 	dev_dbg(i2c->dev,
-@@ -922,6 +914,19 @@ static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
- 		t_low_ns, t_high_ns);
- }
- 
-+static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
-+{
-+	unsigned long flags;
-+
-+	clk_enable(i2c->pclk);
-+
-+	spin_lock_irqsave(&i2c->lock, flags);
-+	__rk3x_i2c_adapt_div(i2c, clk_rate);
-+	spin_unlock_irqrestore(&i2c->lock, flags);
-+
-+	clk_disable(i2c->pclk);
-+}
-+
- /**
-  * rk3x_i2c_clk_notifier_cb - Clock rate change callback
-  * @nb:		Pointer to notifier block
-@@ -1152,7 +1157,7 @@ static int rk3x_i2c_xfer_common(struct i2c_adapter *adap,
- 	if (ret == -ETIMEDOUT && i2c->soc_data->has_scl_oe_debounce) {
- 		if (ipd & REG_INT_SLV_HDSCL) {
- 			dev_err(i2c->dev, "SCL hold by slave detected, resetting timings.\n");
--			rk3x_i2c_adapt_div(i2c, clk_get_rate(i2c->clk));
-+			__rk3x_i2c_adapt_div(i2c, clk_get_rate(i2c->clk));
- 		}
- 	}
- 
+   reg:
+     maxItems: 1
+
 -- 
-2.50.1
+2.49.0
 
