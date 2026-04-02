@@ -1,135 +1,234 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f53.google.com (mail-oo1-f53.google.com [209.85.161.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6921037DE88;
-	Thu,  2 Apr 2026 10:18:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775125096; cv=none; b=MBgblD9MuO9X/ij3mx+pxB2W0t9XBGR5bNwo3pPocwVon6/Ep2XQ3Ci83zAgeNMUy5w8dtK1inXnBp86QVb05XgyUwipm0h64gWVv4XDgaHfJfe4cOAM6vcl9AnDNRvvewDKtetgXY6aP5gWPNJyCv4QfJ3qJV911SwtH+j9z3s=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775125096; c=relaxed/simple;
-	bh=AjC6TvKZdSpRQFYiPOgB4EGh9Nbxnm+ag/nHMpLE8ig=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=EHl6IwrD/H1GNQKCP03Z2DcAl7ejy2xdjnwWS9Xh41Io6x5L0gLPnBboD9Fh0IiN5dBR4a3Pahm6Q1UhkER1/dbHty/p60cuqkExMWRHulNZB2jsBiz7nVzZvOc4/waDWpktMVfP97iYdPW9eBdhdcXnEUex3pwNrR/DcxO182E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IVzgGSRH; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED3D53BB9EF
+	for <linux-i2c@vger.kernel.org>; Thu,  2 Apr 2026 11:06:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.53
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775127987; cv=pass; b=qoqA0hOPBXg5Fzafm9tEXJJ8zUUn3UsBp0SiEXjOQepfs2uIZ6amaPivoXhfsAKG4/3q73AzCHs2ZCwskKRsp6YFFDWr4upKbz7i4IzhFckvs4HogirvhTFF/qM00/STEJYzAjNhmpMdvk9KEPGZMgncuWcChXoHvI3YFJYGXI0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775127987; c=relaxed/simple;
+	bh=NSh6yIN0BHnkGF7khR3HCZiFXn+Vf6SCCfxbZ/iwsQU=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=CUC93UjlLHKt6YyB5KZfEu81MRJ+DQAH621DnCH7bzWdisVBWB1B/eDQPSgmtB6NRoJi9DEbEihq80XHlGi+BOSrAvdkpPw0uq5eo+/FA8GKtWpAkMkQ3opJd+vyOIKwSahdQyE3MTb7Noue5rdkqA8x7j8HsLKl4y1OdebXAec=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=G6MQaG1p; arc=pass smtp.client-ip=209.85.161.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IVzgGSRH"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92ACEC19423;
-	Thu,  2 Apr 2026 10:18:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775125096;
-	bh=AjC6TvKZdSpRQFYiPOgB4EGh9Nbxnm+ag/nHMpLE8ig=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=IVzgGSRH9OJnFQ5vId5wsdz8T6h2w3jIpcBSCw/g/byNlPhXoPwaghQJzldSYtydK
-	 dQ9FDvL9WkhyWCWbmqH3HoqAS906LMD9LY88/miwAAHgL0KEr3KLUAXtg40K3vDydS
-	 /4MjnOq9MSQ//1zPZS8fUb14RgcdYNiIqcXxjSIbEUH1mcDBf7Snfzqbs4s5FryjT+
-	 O/8ioInkL+XpnSmAm6s6KKfWP/ATGJsPIkj27O3wrCU7d8GMzYQ73FUxj3BdlfGoWb
-	 /3jORwtF/NuoBvIlaqjciDrp3Nz+4s0qo0SAY9T0NQXVNvhb0cMbh7UOnKALOAxebA
-	 8zzTfTsDcF1FQ==
-Message-ID: <82abe4c1-e773-4970-9061-a4b8bd6f710e@kernel.org>
-Date: Thu, 2 Apr 2026 12:18:09 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="G6MQaG1p"
+Received: by mail-oo1-f53.google.com with SMTP id 006d021491bc7-67bb3fe55a5so240165eaf.2
+        for <linux-i2c@vger.kernel.org>; Thu, 02 Apr 2026 04:06:23 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775127982; cv=none;
+        d=google.com; s=arc-20240605;
+        b=VRyaWutNFExj5kBCWKbmhTjOhMrazsfS27HMx4evqWXymXULcP0mn14kQN7ZpBa5je
+         ig+R8j9m0aMuDNBy2Br8WI3XBKlhvu/Vwsy6nX/BQFNKBrno/g3PZHLLO0/7qXLC6Otp
+         w/TzbE9Rwodk7Clt16ZNfOTzhbROAaLWFFVnCSINcXzVZF0VdoZxDNKvqjUF0Dq9Oxm8
+         2smjz8FIuBRprKAyN5btAttHe/67oyuyUn2SVi4RLqd9XSW6oU2KuSfHGUrzLArId+7y
+         XKksce+Q2AAP/CCVgGoKHMwWZraucQ4DgdzO05nC0D+3PpKjrHiNxLTxlORADbWj63Oi
+         h3cw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:dkim-signature;
+        bh=rWCiKiJiKUSTMQNR96CjMBWL+6C7IlDR052GDEapvx4=;
+        fh=Xq6RRb9M3aHxcP3JXJsOxF302/V4FDVhjnoKYC9vUfg=;
+        b=QJSXXPXT1qWWAKm9+x5liwz/I2v3s27m3oYFjYDr+vfpsDl1Dh2zBekLXPsmEGBYIS
+         YsHTwCvXx/8bZqmzXyRnUNDBT6cLHLDSlhFCjZ//KERcPkGmUqUzEr4sAPUgQ0BE/Af7
+         1yMDeMWvo5wNZMgJOhJdMh6xtqjpFiJ8A/KKogr3s8LtrVkgGSiAQZFglQiEEjDi9Tot
+         Ixms8jETF8HmbCV44G3uM/dk3IbirBY9Q6jZjXOD9dPpwfIy4UwBACyJIzoxqq+yNb+M
+         KpkkRBWuHLrBdUsAzeh/Aur83fX2BEbismsTvwLcT1f8PbaGOUl0chVmQbzYtXQPZXgs
+         CHzg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775127982; x=1775732782; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=rWCiKiJiKUSTMQNR96CjMBWL+6C7IlDR052GDEapvx4=;
+        b=G6MQaG1pURHpLku9X7N2Ohznho2Qoa6O+BeWvYtmnWYUnFaBnggWNMMGP1/tIaJvje
+         ShvveJNoJxJ+DkyTd0oIcpUY/0RFH/+6EePX0YoJD0j5CLBAzWwZNm6C9arPvg3uI659
+         hsUmGf/X9LCSJ32+I9c58Mh5f/c3sLi0Ao53UJONi4fD0fPJG307cewWfVUPtxr2uvjW
+         AmTxx1p7xGaUVbdPG7zkGpnmG0anPtuiWbbWxR15Ef8M22Xa3NcYQqRp62EQjh0MOQDy
+         7NtkNOyMaNqibSX2CJjt7v9xilgb+K4flwud3Up0W0mrdyNG0XyutJiuPmtMGGXywFmH
+         zHaA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775127982; x=1775732782;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rWCiKiJiKUSTMQNR96CjMBWL+6C7IlDR052GDEapvx4=;
+        b=DPUhjHAjW+rUnK7vwHfL9GFYz5cI33PgzYaNz1VDxrOGsgISPWMVeVeRhBJ2xyCs00
+         maNj8vIYyNfhXmoZ0DowiphQ890U/0WMcWICOz/IOMA0HWMGb8Iy37wrjPtsaKzT297u
+         d7oShpQVvoX9gCYWuGO0AKRFSGWzdPA3YIWRqEvOwFGSgQTRqkSsval2df7/u5MytUWc
+         RXITqF4jbiIGLDZzAjxTLvPg/NEAgSMX4xbIDGtFFxDJZcu0iWWnWwUl9CP7xRFBzkjN
+         t1l6ty02WyURd7MJAtdyiCnrig6qBTaX6I1EZyNmM3x+n8AOoED9FyrqRIEnLkfso7FX
+         6OaQ==
+X-Gm-Message-State: AOJu0Yyc3JbjbbBRHxzBOmBrDgxD1fMpB8Xb3Sd+Ui/oQUTpE0fgpT6+
+	WVoBOCKo2EOCerTFgL+NBundLNfhHzXQfrsxBB4lHTIy/HgibZI3Z20hUgvIiqaV6Pho1/97tpg
+	uLI1Iz0HDU/erNiDfqjLg4uE3yHaOoDOzr/+I
+X-Gm-Gg: ATEYQzwTnKLx+pUHUkOVOnwigNJ+Cnt+LdccVzdpIeYNuLVU1DsU7iss7rpaVFmeTki
+	8oYByouIlDoUlHpc3MvnTUq5k2xSHhdiY+n7YQPnLw7dvKHCcVARTVJeARx8mOAngxp/HmtvyDN
+	YV/U9rLP2aS31pfojb03suw7i9zzGTYelLeM/blF5laZ+UK/AJgRKUcZjyvXjDDtGqc8syDF+L8
+	5qCkECRn9n6ln2B4OkjdicVRomAPhBcey9knB/r2IDDQyrxniK9jxiEfggeicv6q6AqYXI7u3E9
+	t8b2dck=
+X-Received: by 2002:a05:6820:3083:b0:67e:1be2:59e1 with SMTP id
+ 006d021491bc7-680a5edb59amr1590758eaf.18.1775127982160; Thu, 02 Apr 2026
+ 04:06:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 00/13] Enable I2C on SA8255p Qualcomm platforms
-To: Andi Shyti <andi.shyti@kernel.org>,
- Praveen Talari <praveen.talari@oss.qualcomm.com>
-Cc: Mattijs Korpershoek <mkorpershoek@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>,
- Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
- Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
- Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, linux-arm-msm@vger.kernel.org,
- linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, bjorn.andersson@oss.qualcomm.com,
- dmitry.baryshkov@oss.qualcomm.com, konrad.dybcio@oss.qualcomm.com,
- prasad.sodagudi@oss.qualcomm.com, aniket.randive@oss.qualcomm.com,
- chandana.chiluveru@oss.qualcomm.com, jyothi.seerapu@oss.qualcomm.com,
- chiluka.harish@oss.qualcomm.com
-References: <20260227061544.1785978-1-praveen.talari@oss.qualcomm.com>
- <873425m329.fsf@kernel.org>
- <3d3f51e7-02c1-4628-a381-5a1ba67b5bc1@oss.qualcomm.com>
- <ac5BiFn28inwixCi@zenone.zhora.eu>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <ac5BiFn28inwixCi@zenone.zhora.eu>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+From: Chris <elvis.kelly@gmail.com>
+Date: Thu, 2 Apr 2026 12:06:10 +0100
+X-Gm-Features: AQROBzBNDxAuU-KMO-uvc38zCeOJyYWCPXLGXXp1y5prZAlk0AUOvHhXTH1_AcI
+Message-ID: <CAAi5AcpJ6E4cRxQna73VNbJLt9UK58uV5c_EGOZ0a6x3VtLZ0Q@mail.gmail.com>
+Subject: =?UTF-8?Q?=5BBUG=5D_i2c=5Fhid=5Facpi=3A_Synaptics_touchpad_stalls_after_?=
+	=?UTF-8?Q?=7E6_min_idle_=E2=80=94_firmware_sleep_notification_unhandled_=28Dell_?=
+	=?UTF-8?Q?Latitude_7420=29?=
+To: linux-input@vger.kernel.org
+Cc: linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 02/04/2026 12:16, Andi Shyti wrote:
->>> Note that I used a downstream device tree which has both
->>> i2c11 (i2c@a90000) and i2c18(i2c@890000) enabled.
->>>
->>> The sources for that dts can be found here:
->>> https://gitlab.com/mkorpershoek-rh/downstream-dtbs/-/tree/8775-upstream-i2c/qcom?ref_type=heads
->>>
->>> If this is considered useful testing, feel free to add:
->>>
->>> Tested-by: Mattijs Korpershoek <mkorpershoek@kernel.org>
->>
->> Thank you for validation and Tested-by tag.
->>
->> @Andi Shyti, Looking forward to the series being picked up. Feedback is
->> welcome if anything further is needed.
-> 
-> Yes, I can take everything in the i2c branches, but I need
-> Bjorn's ack here for the Qualcomm part.
-> 
+Hi,
 
-Nothing in the cover letter explains that there is any dependency here
-or any merging decision to be solved.
+I'd like to report a reproducible touchpad stall on a Dell Latitude
+7420 that I've traced
+to what appears to be an unhandled firmware sleep notification in the
+i2c_hid_acpi / hid-multitouch
+stack.
 
-Praveen,
-If cover letter is poor and does not explain maintainer needs, then why
-you are pinging? Your patchset gets ignored for example for that reason.
+=3D=3D Hardware =3D=3D
 
-Best regards,
-Krzysztof
+  Machine:  Dell Latitude 7420
+  Touchpad: DELL0A36:00 06CB:CE65 (Synaptics)
+  Bus:      i2c-1 (i2c_designware.1, PCI 00:15.1 =E2=80=94 Intel Tiger Lake=
+ I2C #1)
+  Driver:   i2c_hid_acpi + hid-multitouch
+  Kernel:   6.17.0-19-generic (Ubuntu 24.04, Wayland/GNOME)
+
+=3D=3D Symptom =3D=3D
+
+After approximately 6 minutes of complete idle (no touch or keyboard
+input), the touchpad
+stops responding entirely. The driver remains bound, all three power
+layers stay active/on,
+and no kernel errors are logged. IRQ 162 (intel-gpio 327, DELL0A36:00)
+stops firing.
+Rebinding i2c_hid_acpi recovers the device immediately.
+
+=3D=3D Reproduction =3D=3D
+
+  1. Use the touchpad normally.
+  2. Leave the system completely idle (no keyboard, no touch) for ~6=E2=80=
+=938 minutes.
+  3. Touchpad is unresponsive. IRQ 162 count frozen.
+  4. Recovery: echo i2c-DELL0A36:00 >
+/sys/bus/i2c/drivers/i2c_hid_acpi/unbind && \
+                echo i2c-DELL0A36:00 > /sys/bus/i2c/drivers/i2c_hid_acpi/bi=
+nd
+
+=3D=3D Trace evidence =3D=3D
+
+I captured ftrace i2c events (filtered to adapter 1) across multiple
+stall events.
+The pattern is consistent across all captures:
+
+  1. Normal multitouch packets at ~140 Hz while in use:
+       i2c_reply: i2c-1 a=3D02c l=3D64 [20-00-03-03-<X_lo>-<X_hi>-<Y_lo>-<Y=
+_hi>-...]
+
+  2. After finger lifted, ~30 seconds of silence, then two unusual
+packets fire in
+     quick succession:
+       i2c_reply: i2c-1 a=3D02c l=3D64 [40-00-0c-06-00-00-00-00-00-00-...]
+       i2c_reply: i2c-1 a=3D02c l=3D64 [0f-00-00-00-00-00-00-00-00-00-...]
+
+     The first is a 64-byte report (length field 0x0040) with what appears =
+to be
+     report ID 0x0c and sub-type 0x06. The second is a null/empty packet
+     (length field 0x000f, all-zero payload), consistent with an
+end-of-transfer signal.
+
+  3. No i2c_write from the driver follows these packets.
+
+  4. ~140=E2=80=93380 seconds later, the same two-packet sequence fires aga=
+in.
+
+  5. The IRQ then goes permanently silent =E2=80=94 touchpad stalled.
+
+A representative excerpt from a stall trace (timestamps are kernel
+seconds since boot):
+
+  2565.349  i2c_reply [20-00-03-01-64-02-d1-01-...]  =E2=86=90 last touch
+packet (finger lift)
+                                                      =E2=86=90 30s gap
+  2595.511  i2c_reply [40-00-0c-06-00-00-00-00-...]  =E2=86=90 unknown repo=
+rt
+(sleep notify?)
+  2595.522  i2c_reply [0f-00-00-00-00-00-00-00-...]  =E2=86=90 null packet
+                                                      =E2=86=90 378s gap
+  2973.423  i2c_reply [40-00-0c-06-00-00-00-00-...]  =E2=86=90 same again
+  2973.435  i2c_reply [0f-00-00-00-00-00-00-00-...]
+                                                      =E2=86=90 stall; IRQ =
+162 frozen
+
+The same 0x0c report appears ~6 minutes after each rebind in
+subsequent captures,
+with the stall following within 1=E2=80=933 minutes thereafter.
+
+=3D=3D Hypothesis =3D=3D
+
+The Synaptics firmware appears to send a proprietary power/sleep-state
+notification
+(report ID 0x0c) after a period of inactivity. The i2c_hid_acpi driver
+does not respond
+to this report =E2=80=94 no i2c_write is observed following it. The firmwar=
+e
+may be waiting for
+an acknowledgement or handshake that never arrives, and locks up as a resul=
+t.
+
+This is consistent with:
+  - The stall being time-based (not load or temperature dependent)
+  - Rebinding fully recovering the device (firmware reset via HID RESET com=
+mand)
+  - The IRQ going silent with no kernel errors (driver still considers
+device healthy)
+  - libinput occasionally logging "Touch jump detected" immediately
+prior to a stall
+    (possibly the firmware sending corrupt data as it enters the sleep stat=
+e)
+
+=3D=3D Power management note =3D=3D
+
+The device hierarchy (PCI 00:15.1 =E2=86=92 i2c_designware.1 =E2=86=92
+i2c-DELL0A36:00) must all be
+pinned to runtime_status=3Dactive to avoid a separate (unrelated) class
+of failure where
+the I2C bus autosuspends. That issue is already worked around via udev
+rules. The stall
+described here occurs independently, with all three layers confirmed
+active throughout.
+
+=3D=3D Workaround =3D=3D
+
+Rebind the driver after ~2 minutes of idle via a watchdog script
+monitoring IRQ 162.
+This preempts the firmware before it sends the 0x0c report.
+
+=3D=3D Question for maintainers =3D=3D
+
+Is report ID 0x0c a known Synaptics vendor report that the driver
+should be handling?
+Should i2c_hid be sending a SET_POWER or RESET in response to an
+unsolicited report of
+this type? Any guidance on what the correct driver-side response
+should be would be
+appreciated =E2=80=94 I'm happy to test patches.
+
+Full ftrace dumps available on request.
+
+Thanks,
+
+Chris
