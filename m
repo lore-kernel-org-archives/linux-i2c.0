@@ -1,168 +1,239 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFF553D2FE5;
-	Thu,  2 Apr 2026 11:48:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 619BA21D3F3
+	for <linux-i2c@vger.kernel.org>; Thu,  2 Apr 2026 14:19:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775130515; cv=none; b=UPAStnAxqAPlW01oJdaPtP1QhKbn7cFEbQhNl0b7pnr3uG608mxjytuZI0tmYTPQsNji0LabvCWCai/czl5fQPwl0nSPgl/F+KKhtOvKNwazrktVX3OmdhnYnqeaW4bMxaYU7F2AozB4FqKK5ogSLFer6MZf40CXPNVkDCtlpQU=
+	t=1775139578; cv=none; b=Gw79H+C6Ko8naUbwvfNB+rRAp78FfwP/sNMorV1zIkNsBHgnC23Wca95mXiB8owUyoGB+Amg/x2BHGf1XGcG775Oci8WyoF/KnRx8zFppiCs9cD0HMsTVok3DmhHMgzdhwKnT9Fs4jcGATdZ+90z5MfREw2EiifmVAfnTz28oVQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775130515; c=relaxed/simple;
-	bh=hjsTz94W/FU3W+rxv1wbZe+pKdrTxjn6nGps7v6/69k=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=E3r/AB9qA4VFi2IbzKROXk+K468JdV21nBzwAc5HSrDWJpYxXlyqFMOpORyvdHFCogPKZS5+vtDfy2KlSmyv4QljP2QckCU4/T2WByPevgxXzukxefarZeY02saqVTUOlGaB1wLbeuVNe4lfsWBbrw08AnKxwOKMJMfKfOLlr88=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com; spf=pass smtp.mailfrom=quicinc.com; dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b=W5a1lv0S; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=quicinc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=quicinc.com
+	s=arc-20240116; t=1775139578; c=relaxed/simple;
+	bh=y0KdBtWEhpWDDwoMoFbqEA38DgTVTwsUgIllnO/my3I=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ipQbYKQXTSFsqsrtPpb+LXQaEM6E6AZHN8dXiCtePF+SVE212v0MtrcH9/A6HcF6G007IpF63SKnb9RyJ/TY+twNVCon7Loh+YV1TwoR2bsHViqq65dMDIMCoQ315CtglrTESxkLIOXqc7RFa0O5phWBwL8VWavv3lLN0ebHIsI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HCswU037; arc=none smtp.client-ip=209.85.216.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=quicinc.com header.i=@quicinc.com header.b="W5a1lv0S"
-Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6326kx2h1128979;
-	Thu, 2 Apr 2026 11:48:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	xpG6Cu6x0DLbK2fCQlZY8r8FMGd7+Z5GDMsj5vEk7Fs=; b=W5a1lv0SmlVzi5Y1
-	VgGEK88zsvOdKcDaZUwjI8J8kVj3zFkgmwwflQxF8H/FyCNHWDmuuiVBonJNzQRw
-	cp/QdAGgQDZBPmTijs9HAOFHYPDLQfDaPiFbbip44MCIQbHNK6lMqbwg47guKl/N
-	7mrmKVZhmqNKaOm5MoRDRijIHbLH+bvB9WZZVLgedPuKUapxReM7Uji62+CI7oeE
-	zkVruHevcu/xzr7WDqP4xHUE3z+OLv4aG5Yyws5ea1r30TGNuNPHmFf3KQ6JUE8r
-	1PXCrxgJ6n7/6KPqq7w7aSZ8vjbHO7mYUTz4Y1KksL1t5fqGSCKSNEOc0tDT1PCI
-	u0uJWg==
-Received: from nasanppmta05.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4d96k9bvg3-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 02 Apr 2026 11:48:19 +0000 (GMT)
-Received: from nasanex01c.na.qualcomm.com (nasanex01c.na.qualcomm.com [10.45.79.139])
-	by NASANPPMTA05.qualcomm.com (8.18.1.7/8.18.1.7) with ESMTPS id 632BmIrB028841
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 2 Apr 2026 11:48:18 GMT
-Received: from [10.217.219.207] (10.80.80.8) by nasanex01c.na.qualcomm.com
- (10.45.79.139) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Thu, 2 Apr
- 2026 04:48:13 -0700
-Message-ID: <cd4b91f5-65b6-4506-b14f-735b68e63c37@quicinc.com>
-Date: Thu, 2 Apr 2026 17:18:10 +0530
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HCswU037"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-35c124d2613so500397a91.2
+        for <linux-i2c@vger.kernel.org>; Thu, 02 Apr 2026 07:19:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775139577; x=1775744377; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=wEwVt/TOby91/obLvpEjMbAjKWw/iIZ/j0HIP3lRSWw=;
+        b=HCswU037XxBg9k7D4K86dM+p/PxPsS37/Vrjgc0/QsRC/kaBBaMPRDEsLlqy9AgdWW
+         s9sK7snZdJTmEOYmm3EMo806gzmkpVO3uC9/l4KuMK5+uKiACq0QIcAnDInpT6NZQEAF
+         +TV/RHG1XSaCuyHwSjDzVApXSpcLNaQIqoddmVKXsEWmsB6oRZrg0Sp72zC+8K6pj5Ma
+         bUU3LiKqVdwGYjRbPsmIFC2zQoYl3JLzdFEbOdfnPk2QqiZPuswPD5sARdOo4AKe1SOR
+         bz+Rkr7V7iheZa4CG8g3P0HRU6wNxOpVyn8skuVIxxj6fPwcVC8eZ5yFGPi6SM2wyhUP
+         KGjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775139577; x=1775744377;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=wEwVt/TOby91/obLvpEjMbAjKWw/iIZ/j0HIP3lRSWw=;
+        b=GG8d2SFk8sTNO9d7kv4NRTxP37AeOSc+m/HWfWgUfHzc4Yyz59XjWE6uFuIaM5S1Q2
+         DQ19E9LcoQSaoosQeO0JIXx4sdLy5mJX6c7naxxbpfBuJFMdIUsQbDa91x2yrU4s4Nvj
+         XtNrkrzJkNdxAnKqYBNcuMAyUWsmarQ2KkYp/0h2mBg4z0G95c8NfLy4uzvejrE9+QM2
+         jhYt6WdLcKlKLMb//ezeKOIQmkAs8s+D0Hzr7v2wjoCWyh8pDdNeM7SlQVxK6EuMckmE
+         YbDQyza9TkluCuuXHohK/gLhd0ATNb+AEVEM6G9UBdtDwvJ1HYxy5vV204jObg0LGco4
+         yjLA==
+X-Forwarded-Encrypted: i=1; AJvYcCUM3fh9KTe5UVA4sL2d79ZfKNZJ2JNu7DuaZ+a7NqhrcwtxZqkWqzifPepd5lRwSgRTcTzRTaiDXDo=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx9Uwgx8l3rnP4gXTwh+UItLfHMJf+z2U3PZRsNUpG04e3o4tpm
+	esSHVDYcR1pBpU37X+rrSzN3IqZs1pcVc3W8r5NVWey75Z4xwbyKGC7Z
+X-Gm-Gg: AeBDiesPMKsg43mE9BRemzOT85fEsWWZezpo5dxkTJ3gVfEwcGsDuiyyhEiDqtYoU9+
+	/iljEqdZH1FCcbrDThaCB5uskA/jNsg6Bpt/axNjM8usCcuseobp7Cc/YJISNaGs+coNF00Wn+8
+	tHFqG0jR5KUQQ9VDP0eTL0yo2Xq3cc1C/Sa3ilaL1vJiO1xFGjX+qQBQ4Ff5PxNB66jC3kB9SLk
+	T2sntLtWbLRm9G1WDWw++dI54ZolLQcAFZXM2Ln0n3x2qw0RnLT5DvfsNt8CJMj61t4tm9RkwgK
+	3ixEv55l4wBbRTUfbCLGJApeM4B9iOr5F5jb8JZoJDEEhplNdmPvqwau5zx/8lIcetaT7/VrzvO
+	FfDfAbpg7Pz5QugB94ATPnt7vbns2uhlgojSAIb9+XRC6PVD7Whc0asDxXYF9anb5UaOTvc9D0D
+	qbke0WyX8Y8p+axr0bXaSd
+X-Received: by 2002:a17:90b:3d92:b0:35b:90e7:c453 with SMTP id 98e67ed59e1d1-35dc6e43b12mr7324340a91.6.1775139576619;
+        Thu, 02 Apr 2026 07:19:36 -0700 (PDT)
+Received: from rockpi-5b ([45.112.0.200])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35dbe9377b7sm10959123a91.10.2026.04.02.07.19.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Apr 2026 07:19:35 -0700 (PDT)
+From: Anand Moon <linux.amoon@gmail.com>
+To: Heiko Stuebner <heiko@sntech.de>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	linux-arm-kernel@lists.infradead.org (moderated list:ARM/Rockchip SoC support),
+	linux-rockchip@lists.infradead.org (open list:ARM/Rockchip SoC support),
+	linux-i2c@vger.kernel.org (open list:I2C SUBSYSTEM HOST DRIVERS),
+	linux-kernel@vger.kernel.org (open list)
+Cc: Anand Moon <linux.amoon@gmail.com>,
+	David Wu <david.wu@rock-chips.com>
+Subject: [PATCH v3 1/2] i2c: rk3x: add support for SCL OE debounce and slave hold recovery
+Date: Thu,  2 Apr 2026 19:49:22 +0530
+Message-ID: <20260402141927.7216-1-linux.amoon@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH V2] i2c: qcom-geni: Avoid extra TX DMA TRE for single read
- message in GPI mode
-To: Aniket Randive <aniket.randive@oss.qualcomm.com>,
-        <mukesh.savaliya@oss.qualcomm.com>, <viken.dadhaniya@oss.qualcomm.com>,
-        <andi.shyti@kernel.org>, <sumit.semwal@linaro.org>,
-        <christian.koenig@amd.com>
-CC: <linux-i2c@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <linux-media@vger.kernel.org>,
-        <dri-devel@lists.freedesktop.org>, <linaro-mm-sig@lists.linaro.org>,
-        <naresh.maramaina@oss.qualcomm.com>
-References: <20260401101352.4065798-1-aniket.randive@oss.qualcomm.com>
-Content-Language: en-US
-From: Mukesh Kumar Savaliya <quic_msavaliy@quicinc.com>
-In-Reply-To: <20260401101352.4065798-1-aniket.randive@oss.qualcomm.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nasanex01c.na.qualcomm.com (10.45.79.139)
-X-QCInternal: smtphost
-X-Authority-Analysis: v=2.4 cv=doLWylg4 c=1 sm=1 tr=0 ts=69ce5783 cx=c_pps
- a=JYp8KDb2vCoCEuGobkYCKw==:117 a=JYp8KDb2vCoCEuGobkYCKw==:17
- a=GEpy-HfZoHoA:10 a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_glEPmIy2e8OvE2BGh3C:22
- a=EUspDBNiAAAA:8 a=mJbE5N3llsyo5S9VNswA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: 4k3cJ72lzlLULyTLEjCrCmKTKtrhyLVl
-X-Proofpoint-GUID: 4k3cJ72lzlLULyTLEjCrCmKTKtrhyLVl
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDAyMDEwNSBTYWx0ZWRfX/OxJpWeVtSoM
- u9MvPJlVhrAHHllJ8Q2GY0woVikA7g6IJS0/tSiJ52ZJQ/LdwUDavyDkEawIEAkAOFpIhGH5oLE
- I1rQkCva0+dvHpO6fRpTV0MVX/9HGcmonxd+s2yQf6xg6XLP5/uiCX2vCCnCwKA/ErW6uCa2wzj
- TEQf8X3dDwRyPiyXx8KsXqxuJX9LrzGlLmUfp6onqDPlV2/eZgAj6wtt9+zqn7msIEq83Sdf2Oo
- Uh9qhpCPyS0vIOEK8hqSwlMFzzVoIZ4nEXgsCQTqbWXLCaMyhPpq30e98damxUukCakLYeiZZ1v
- YgHAwX/XLsFbvEMPrd+ACOE2MeuMl+q0VybfUkxwZYtyL5NqSwk6I5unuSSvrerJjOOak+kUG/1
- Wj3zs9R0oWAhYGGfAUJs7zBGJRO+c+Vq4gTwucpUr3sEPlA3t/WYOl3oFBd2YtFlLom2tSwCG4O
- zot/a5W12ezcD/o/CeQ==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-02_01,2026-04-02_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 bulkscore=0 impostorscore=0 spamscore=0 suspectscore=0
- clxscore=1015 lowpriorityscore=0 malwarescore=0 priorityscore=1501
- adultscore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2604020105
+Content-Transfer-Encoding: 8bit
 
+From: David Wu <david.wu@rock-chips.com>
 
+As per the RK3399 and RK35xx datasheet, Rockchip I2C controllers
+feature a SCL_OE_DB register (0x24). This register is used to
+configure the debounce time for the SCL output enable signal,
+which helps prevent glitches and ensures timing compliance during bus
+handover or slave clock stretching.
 
-On 4/1/2026 3:43 PM, Aniket Randive wrote:
-> In GPI mode, the I2C GENI driver programs an extra TX DMA transfer
-> descriptor (TRE) on the TX channel when handling a single read message.
-> This results in an unintended write phase being issued on the I2C bus,
-> even though a read transaction does not require any TX data.
-> 
-> For a single-byte read, the correct hardware sequence consists of the
-> CONFIG and GO commands followed by a single RX DMA TRE. Programming an
-> additional TX DMA TRE is redundant, causes unnecessary DMA buffer
-> mapping on the TX channel, and may lead to incorrect bus behavior.
-> 
-> Update the transfer logic to avoid programming a TX DMA TRE for single
-> read messages in GPI mode.
-> 
-> Co-developed-by: Maramaina Naresh <naresh.maramaina@oss.qualcomm.com>
-> Signed-off-by: Maramaina Naresh <naresh.maramaina@oss.qualcomm.com>
-> Signed-off-by: Aniket Randive <aniket.randive@oss.qualcomm.com>
-> ---
-> 
-> Changes in v2:
->    - Updated the commit message.
-> 
->   drivers/i2c/busses/i2c-qcom-geni.c | 18 +++++++++++++-----
->   1 file changed, 13 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-> index a4acb78fafb6..2706309bbebb 100644
-> --- a/drivers/i2c/busses/i2c-qcom-geni.c
-> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
-> @@ -625,8 +625,8 @@ static int geni_i2c_gpi(struct geni_i2c_dev *gi2c, struct i2c_msg msgs[],
->   {
->   	struct gpi_i2c_config *peripheral;
->   	unsigned int flags;
-> -	void *dma_buf;
-> -	dma_addr_t addr;
-> +	void *dma_buf = NULL;
-> +	dma_addr_t addr = 0;
->   	enum dma_data_direction map_dirn;
->   	enum dma_transfer_direction dma_dirn;
->   	struct dma_async_tx_descriptor *desc;
-> @@ -639,6 +639,11 @@ static int geni_i2c_gpi(struct geni_i2c_dev *gi2c, struct i2c_msg msgs[],
->   	gi2c_gpi_xfer = &gi2c->i2c_multi_desc_config;
->   	msg_idx = gi2c_gpi_xfer->msg_idx_cnt;
->   
-Add an explicit comment explaining this condition.
-e.g. Read message causing write operation. something like that which 
-justifies the condition.
-> +	if (op == I2C_WRITE && msgs[msg_idx].flags & I2C_M_RD) {
-> +		peripheral->multi_msg = true;
-> +		goto skip_dma;
-> +	}
-> +
+Introduce a 'has_scl_oe_debounce' flag to rk3x_i2c_soc_data to
+distinguish between hardware versions. For supported SoCs, calculate
+the debounce counter dynamically based on the current clock rate
+and program it during divider adaptation.
 
-[...]
+Additionally:
+- Implement detection for the REG_INT_SLV_HDSCL (Slave Hold SCL)
+  interrupt bit during transfer timeouts.
+- Capture the Interrupt Pending (IPD) register state before clearing
+  interrupts during a timeout to check for the slave hold condition.
+- Re-apply the clock dividers via rk3x_i2c_adapt_div() if a slave
+  hold is detected on supported SoCs to attempt bus recovery.
+- Initialize the SLV_HDSCL bit in i2c_start for I2C interrupt field.
 
->   err_config:
-> -	dma_unmap_single(gi2c->se.dev->parent, addr,
-> -			 msgs[msg_idx].len, map_dirn);
-> -	i2c_put_dma_safe_msg_buf(dma_buf, &msgs[msg_idx], false);
+The recovery logic is gated by 'has_scl_oe_debounce' to ensure that
+reserved bits on older SoC variants do not trigger false-positive
+recoveries.
 
-same as above
-> +	if (op == I2C_WRITE && (msgs[msg_idx].flags & I2C_M_RD)) {
-> +		dma_unmap_single(gi2c->se.dev->parent, addr,
-> +				 msgs[msg_idx].len, map_dirn);
-> +		i2c_put_dma_safe_msg_buf(dma_buf, &msgs[msg_idx], false);
-> +	}
->   
->   out:
->   	gi2c->err = ret;
+Signed-off-by: David Wu <david.wu@rock-chips.com>
+Signed-off-by: Anand Moon <linux.amoon@gmail.com>
+---
+Changes:
+v3: intialize the SLV_HDSCL bit in in i2c_start for interupt enable
+ v2: https://lore.kernel.org/all/20260321105146.7419-1-linux.amoon@gmail.com/
+v2: Aded the to detect REG_INT_SLV_HDSCL interrupt timeout
+    it was part of origmal commit below.
+    [1] https://github.com/radxa/kernel/commit/006c0b1e7710d471119a69d6bd56917a15a85a0b
+Fix the order of SoB,
+Fix the doc warning reporteed by kernel test robot
+ v1: https://lore.kernel.org/all/20260103052506.6743-1-linux.amoon@gmail.com/
+---
+ drivers/i2c/busses/i2c-rk3x.c | 34 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 33 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index fcede9f6ed54..06a77780cf82 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -36,6 +36,7 @@
+ #define REG_IEN        0x18 /* interrupt enable */
+ #define REG_IPD        0x1c /* interrupt pending */
+ #define REG_FCNT       0x20 /* finished count */
++#define REG_SCL_OE_DB  0x24 /* Slave hold scl debounce */
+ 
+ /* Data buffer offsets */
+ #define TXBUFFER_BASE 0x100
+@@ -74,6 +75,7 @@ enum {
+ #define REG_INT_START     BIT(4) /* START condition generated */
+ #define REG_INT_STOP      BIT(5) /* STOP condition generated */
+ #define REG_INT_NAKRCV    BIT(6) /* NACK received */
++#define REG_INT_SLV_HDSCL BIT(7) /* Slave hold scl interrupt enable */
+ #define REG_INT_ALL       0x7f
+ 
+ /* Constants */
+@@ -161,10 +163,12 @@ enum rk3x_i2c_state {
+ 
+ /**
+  * struct rk3x_i2c_soc_data - SOC-specific data
++ * @has_scl_oe_debounce: Support for slave hold SCL debounce
+  * @grf_offset: offset inside the grf regmap for setting the i2c type
+  * @calc_timings: Callback function for i2c timing information calculated
+  */
+ struct rk3x_i2c_soc_data {
++	bool has_scl_oe_debounce;
+ 	int grf_offset;
+ 	int (*calc_timings)(unsigned long, struct i2c_timings *,
+ 			    struct rk3x_i2c_calced_timings *);
+@@ -248,8 +252,12 @@ static inline void rk3x_i2c_clean_ipd(struct rk3x_i2c *i2c)
+ static void rk3x_i2c_start(struct rk3x_i2c *i2c)
+ {
+ 	u32 val = i2c_readl(i2c, REG_CON) & REG_CON_TUNING_MASK;
++	u32 ien = REG_INT_START;
+ 
+-	i2c_writel(i2c, REG_INT_START, REG_IEN);
++	if (i2c->soc_data->has_scl_oe_debounce)
++		ien |= REG_INT_SLV_HDSCL;
++
++	i2c_writel(i2c, ien, REG_IEN);
+ 
+ 	/* enable adapter with correct mode, send START condition */
+ 	val |= REG_CON_EN | REG_CON_MOD(i2c->mode) | REG_CON_START;
+@@ -876,6 +884,7 @@ static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
+ {
+ 	struct i2c_timings *t = &i2c->t;
+ 	struct rk3x_i2c_calced_timings calc;
++	unsigned long period, time_hold = (WAIT_TIMEOUT / 2) * 1000000;
+ 	u64 t_low_ns, t_high_ns;
+ 	unsigned long flags;
+ 	u32 val;
+@@ -893,6 +902,13 @@ static void rk3x_i2c_adapt_div(struct rk3x_i2c *i2c, unsigned long clk_rate)
+ 	i2c_writel(i2c, val, REG_CON);
+ 	i2c_writel(i2c, (calc.div_high << 16) | (calc.div_low & 0xffff),
+ 		   REG_CLKDIV);
++
++	if (i2c->soc_data->has_scl_oe_debounce) {
++		period = DIV_ROUND_UP(1000000000, clk_rate);
++		val = DIV_ROUND_UP(time_hold, period);
++		i2c_writel(i2c, val, REG_SCL_OE_DB);
++	}
++
+ 	spin_unlock_irqrestore(&i2c->lock, flags);
+ 
+ 	clk_disable(i2c->pclk);
+@@ -1063,6 +1079,7 @@ static int rk3x_i2c_xfer_common(struct i2c_adapter *adap,
+ 	unsigned long flags;
+ 	long time_left;
+ 	u32 val;
++	u32 ipd = 0; /* To store interrupt pending status for timeout analysis */
+ 	int ret = 0;
+ 	int i;
+ 
+@@ -1107,6 +1124,9 @@ static int rk3x_i2c_xfer_common(struct i2c_adapter *adap,
+ 		spin_lock_irqsave(&i2c->lock, flags);
+ 
+ 		if (time_left == 0) {
++			/* Read IPD before clearing to check for Slave Hold SCL */
++			ipd = i2c_readl(i2c, REG_IPD);
++
+ 			/* Force a STOP condition without interrupt */
+ 			i2c_writel(i2c, 0, REG_IEN);
+ 			val = i2c_readl(i2c, REG_CON) & REG_CON_TUNING_MASK;
+@@ -1125,6 +1145,17 @@ static int rk3x_i2c_xfer_common(struct i2c_adapter *adap,
+ 		}
+ 	}
+ 
++	/*
++	 * If a timeout occurred and the slave is holding SCL,
++	 * re-apply the timings/dividers to attempt recovery.
++	 */
++	if (ret == -ETIMEDOUT && i2c->soc_data->has_scl_oe_debounce) {
++		if (ipd & REG_INT_SLV_HDSCL) {
++			dev_err(i2c->dev, "SCL hold by slave detected, resetting timings.\n");
++			rk3x_i2c_adapt_div(i2c, clk_get_rate(i2c->clk));
++		}
++	}
++
+ 	clk_disable(i2c->pclk);
+ 	clk_disable(i2c->clk);
+ 
+@@ -1198,6 +1229,7 @@ static const struct rk3x_i2c_soc_data rk3288_soc_data = {
+ static const struct rk3x_i2c_soc_data rk3399_soc_data = {
+ 	.grf_offset = -1,
+ 	.calc_timings = rk3x_i2c_v1_calc_timings,
++	.has_scl_oe_debounce = true,
+ };
+ 
+ static const struct of_device_id rk3x_i2c_match[] = {
+
+base-commit: 9147566d801602c9e7fc7f85e989735735bf38ba
+-- 
+2.50.1
 
