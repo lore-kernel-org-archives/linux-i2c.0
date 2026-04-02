@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AFBDD35958;
-	Thu,  2 Apr 2026 10:16:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6921037DE88;
+	Thu,  2 Apr 2026 10:18:16 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775125007; cv=none; b=POHLtN7yKlcYSpDnIHAx/6I+FA28YR4czMSc6XTi4S+HzCDpXVR95XBAzJ8Ix1hnj1HAryB+l9ODZ6hCPjWkFA/Cl++71YCFTSobyC0CuU0TgSf45Wjrd9E6Fg1KXSaEO5tYsucaTh3oYWFZXLW1EbpqlWLZHOSySBJOtZ2tRY0=
+	t=1775125096; cv=none; b=MBgblD9MuO9X/ij3mx+pxB2W0t9XBGR5bNwo3pPocwVon6/Ep2XQ3Ci83zAgeNMUy5w8dtK1inXnBp86QVb05XgyUwipm0h64gWVv4XDgaHfJfe4cOAM6vcl9AnDNRvvewDKtetgXY6aP5gWPNJyCv4QfJ3qJV911SwtH+j9z3s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775125007; c=relaxed/simple;
-	bh=w15GgcaSSaWhZzZjDYpyIsq89Y//Lfc/4XG3/4+7XZA=;
+	s=arc-20240116; t=1775125096; c=relaxed/simple;
+	bh=AjC6TvKZdSpRQFYiPOgB4EGh9Nbxnm+ag/nHMpLE8ig=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TUeF3ngto7MAuwSljFKhGW/wUNCIQceWVYPTAOzw7+Fmtb83Al0ehnyy70VvqT2GFf4Se80i+EchyGlXcl6UjJFUUAXzY2IB/s1b+KsoVJF6iy5Kt30LzPkPosHI6ZFPsb6yOsikgtDvGFJvF/FLc0L1c9RYPNS6PCvCptzRM70=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Fh3IBDIW; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=EHl6IwrD/H1GNQKCP03Z2DcAl7ejy2xdjnwWS9Xh41Io6x5L0gLPnBboD9Fh0IiN5dBR4a3Pahm6Q1UhkER1/dbHty/p60cuqkExMWRHulNZB2jsBiz7nVzZvOc4/waDWpktMVfP97iYdPW9eBdhdcXnEUex3pwNrR/DcxO182E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IVzgGSRH; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Fh3IBDIW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC3DFC2BC9E;
-	Thu,  2 Apr 2026 10:16:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IVzgGSRH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92ACEC19423;
+	Thu,  2 Apr 2026 10:18:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775125007;
-	bh=w15GgcaSSaWhZzZjDYpyIsq89Y//Lfc/4XG3/4+7XZA=;
+	s=k20201202; t=1775125096;
+	bh=AjC6TvKZdSpRQFYiPOgB4EGh9Nbxnm+ag/nHMpLE8ig=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=Fh3IBDIWn/ktQAwb15P8PBX8lWm6S4RmErlge2UEFi8yRzIBQ1ziEj6r25T8Eq+0B
-	 9SuPWgEohf2llSkPMe9y2DULaG9P92Yp81tANINgFTgUej0HCqTp3rLY2Llo4CGjNE
-	 t+i9dTQcrsVZtDqsJGIO5+tQsQc7R/huZ5JwxuaS++DdRjwBeNRUeiz9HzO+q8zBwK
-	 iO4ogtQTVBP7VGeDApohusXk8mOAgekrYKww+u0a0hdT5eU6DYleFkyoDGWvgunFbY
-	 dCIm7u6IrPDTcmeLL8AS6xspZFeC8sElLqFzkrH966/Fwk/m81mL7dejc8cAshIUKO
-	 YO51m7NFV4hcg==
-Message-ID: <d897cd97-d6cd-4c3c-9df9-6541fcec7441@kernel.org>
-Date: Thu, 2 Apr 2026 12:16:40 +0200
+	b=IVzgGSRH9OJnFQ5vId5wsdz8T6h2w3jIpcBSCw/g/byNlPhXoPwaghQJzldSYtydK
+	 dQ9FDvL9WkhyWCWbmqH3HoqAS906LMD9LY88/miwAAHgL0KEr3KLUAXtg40K3vDydS
+	 /4MjnOq9MSQ//1zPZS8fUb14RgcdYNiIqcXxjSIbEUH1mcDBf7Snfzqbs4s5FryjT+
+	 O/8ioInkL+XpnSmAm6s6KKfWP/ATGJsPIkj27O3wrCU7d8GMzYQ73FUxj3BdlfGoWb
+	 /3jORwtF/NuoBvIlaqjciDrp3Nz+4s0qo0SAY9T0NQXVNvhb0cMbh7UOnKALOAxebA
+	 8zzTfTsDcF1FQ==
+Message-ID: <82abe4c1-e773-4970-9061-a4b8bd6f710e@kernel.org>
+Date: Thu, 2 Apr 2026 12:18:09 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -36,24 +36,25 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v6 00/13] Enable I2C on SA8255p Qualcomm platforms
-To: Praveen Talari <praveen.talari@oss.qualcomm.com>,
- Mattijs Korpershoek <mkorpershoek@kernel.org>,
- Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>,
+To: Andi Shyti <andi.shyti@kernel.org>,
+ Praveen Talari <praveen.talari@oss.qualcomm.com>
+Cc: Mattijs Korpershoek <mkorpershoek@kernel.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
  Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
  Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
  Bjorn Andersson <andersson@kernel.org>,
  Konrad Dybcio <konradybcio@kernel.org>, linux-arm-msm@vger.kernel.org,
  linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
  linux-kernel@vger.kernel.org, bjorn.andersson@oss.qualcomm.com,
- dmitry.baryshkov@oss.qualcomm.com, konrad.dybcio@oss.qualcomm.com
-Cc: prasad.sodagudi@oss.qualcomm.com, aniket.randive@oss.qualcomm.com,
+ dmitry.baryshkov@oss.qualcomm.com, konrad.dybcio@oss.qualcomm.com,
+ prasad.sodagudi@oss.qualcomm.com, aniket.randive@oss.qualcomm.com,
  chandana.chiluveru@oss.qualcomm.com, jyothi.seerapu@oss.qualcomm.com,
  chiluka.harish@oss.qualcomm.com
 References: <20260227061544.1785978-1-praveen.talari@oss.qualcomm.com>
  <873425m329.fsf@kernel.org>
  <3d3f51e7-02c1-4628-a381-5a1ba67b5bc1@oss.qualcomm.com>
+ <ac5BiFn28inwixCi@zenone.zhora.eu>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -99,26 +100,36 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
  zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
  XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <3d3f51e7-02c1-4628-a381-5a1ba67b5bc1@oss.qualcomm.com>
+In-Reply-To: <ac5BiFn28inwixCi@zenone.zhora.eu>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 27/03/2026 11:57, Praveen Talari wrote:
->> https://gitlab.com/mkorpershoek-rh/downstream-dtbs/-/tree/8775-upstream-i2c/qcom?ref_type=heads
+On 02/04/2026 12:16, Andi Shyti wrote:
+>>> Note that I used a downstream device tree which has both
+>>> i2c11 (i2c@a90000) and i2c18(i2c@890000) enabled.
+>>>
+>>> The sources for that dts can be found here:
+>>> https://gitlab.com/mkorpershoek-rh/downstream-dtbs/-/tree/8775-upstream-i2c/qcom?ref_type=heads
+>>>
+>>> If this is considered useful testing, feel free to add:
+>>>
+>>> Tested-by: Mattijs Korpershoek <mkorpershoek@kernel.org>
 >>
->> If this is considered useful testing, feel free to add:
+>> Thank you for validation and Tested-by tag.
 >>
->> Tested-by: Mattijs Korpershoek <mkorpershoek@kernel.org>
+>> @Andi Shyti, Looking forward to the series being picked up. Feedback is
+>> welcome if anything further is needed.
 > 
-> Thank you for validation and Tested-by tag.
+> Yes, I can take everything in the i2c branches, but I need
+> Bjorn's ack here for the Qualcomm part.
 > 
-> @Andi Shyti, Looking forward to the series being picked up. Feedback is 
-> welcome if anything further is needed.
 
-Heh, no, don't ping needlessly Andi, but solve the his problems first -
-is this acked for I2C? No. And Konrad's review, since he always reviews
-patches picked up by Bjorn, is not explicit enough to tell that this can
-go via I2C.
+Nothing in the cover letter explains that there is any dependency here
+or any merging decision to be solved.
+
+Praveen,
+If cover letter is poor and does not explain maintainer needs, then why
+you are pinging? Your patchset gets ignored for example for that reason.
 
 Best regards,
 Krzysztof
