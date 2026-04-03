@@ -1,141 +1,78 @@
-Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com [209.85.128.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D520358372
-	for <linux-i2c@vger.kernel.org>; Fri,  3 Apr 2026 04:46:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.182
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775191563; cv=pass; b=pKQW3BtvPYROUvFOTrjdkcFc5luBbOuZdWlBXMMkYRS224HODn1YOME8zW+Y6E2B8/YbbF49LlO8nG8ACCqTH/UTVfSiM5IIwjJxefpPWYMPOBf0Wb6rDrO74BGBT6znRnD8Rqa/NcINav0BiwyMMpmD5UlXzmKZ3ZsgoZ+caWM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775191563; c=relaxed/simple;
-	bh=groc3VAnH15CVUVhNhE5OtlEsDNXM/uA7VeW8vaOMTY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ACKaTnYAYBS/uu9YyUTU+ecdfLe7YBKDq3PjSyb2EROa0xzcLAq3phmJ13Nq6Pxux0f45eHXaOf3kHY3vG/nauUOxQ5vrO9PmQzMHvDfTPFboLV+v9GxpMopFBdHxozB+H5EvvWu/whn4l+13uYk2nLQeF7pB7ejVcEXaej8I5s=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DidQGWOK; arc=pass smtp.client-ip=209.85.128.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8625030FF33;
+	Fri,  3 Apr 2026 06:21:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775197272; cv=none; b=FWVsSS3jaYofbZN5tTIDxNKVA8vKJgmGiuIJ9+KvxQKvodIrDV2k68XXZyTdS4WO7Ehqe4bwzfWjfXWzWJl4HjCUEgOiIhuRMHAw/1wPafYMeMp8UZeoqFkIjJVgOFLJshguYsuG1VWUP6LbG21LrkWT9A7X3beKjEPyw1AYXLQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775197272; c=relaxed/simple;
+	bh=K8oeJDGJgKwCw/imZxnFtBFV9/YbnaYrRBrp4HEV4Zk=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=O1xkOp8uMCBJfKTHeRLbSOmZtUUeFx7QSX5xzQnjh6UXFTiF9ed9qmkXPqZEvB/fGXpABEHx027w73FWUDmZ0/unY4Qmt3hdrxQ0bCWCF0VFhHRPisZiDquweT0hhkwfw7qvBsD8LL+bt03gu9jAvAKvOKEgXRoOHdPYrJXJPfM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MRJKmXtP; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DidQGWOK"
-Received: by mail-yw1-f182.google.com with SMTP id 00721157ae682-78fc4425b6bso15626507b3.1
-        for <linux-i2c@vger.kernel.org>; Thu, 02 Apr 2026 21:46:02 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775191561; cv=none;
-        d=google.com; s=arc-20240605;
-        b=ICmrcvTLGTZYWFcA1ZUQUztOYx4ms3/RAnHoqpYvlQGzG72mztNR6Tg2aGvQW1mn0P
-         XB02/71CPEE/t3vddrtK2EHpCYzavgjp06A7l3q3jNw3Pol0eCjRrynJIqTHSehTCiKf
-         Z1Q46AwHPMVVVLD2PAm/pXZ6QQjH+iypU7sl4L65OC3EOw9GdvmSqoKuw9g3hxVYJSxa
-         50ymK67LMprMoLvMZld5MjRnQK45VPzeqZbN9MWqmOIshpb19HcMwIcBqCjB/+dxmnBx
-         kwVpwYAdGacoP33hHlY5NclFBQE7gFiwHyVYzWpb4Z0eIPV32Zg0F468cFy5w0eXb4gu
-         4VEg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=udWmikDfTPoYOznLAWVnBq6+fVtMa2LFJrslNkdcn48=;
-        fh=LYT1ZkWMcuH65+n8gQhrFiyYo6OLK0tz30y1599OChQ=;
-        b=LF8RHA8gqzYDvlYZr/Y0/sCJETkibtuwWhPlq0kLtA+hdOWkcUerOKi/OeguClNGUo
-         g6nwzBEc4nCHpiwTc3/uHbkYJst+ErVSpk6b9FSNHQGI1EE1Nht7VxHjfG1DkGsyyFII
-         4BQs+Gr3rSP+/YO9P1Kuh7Q7dJcfOZClmm50ct6uigDjNzhK0zbxjjGGj/kSSvx9Na9x
-         FqNhLHDZ+paHuQZiW89Zux+0ZHJ+iJjuYkIJTE7aeD4u5kxmuCUTWAAUIjlYPzZVD27T
-         nVEgTA8vLX5iZ/j7KSb0ibgCO7rqXGR/QnJTo9o5sw+FiOwNb4vid8b+wZpOncUQblaa
-         eC8g==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775191561; x=1775796361; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=udWmikDfTPoYOznLAWVnBq6+fVtMa2LFJrslNkdcn48=;
-        b=DidQGWOKrm72zYGNfTnKQ9IcnJWZNioKN73o236MElVFzyQKQ8qb/l+soctZqFpFYR
-         KhdKkKO4KWfPBZssLoFqJJaoQDXfr0ubxMRtcYnbkp4Aw6n+hEGhzMD/e6M1vs9Vctn7
-         F7uzUA9y1Hc8Am0AiyTcsudzX2bQmqDVaIRAHRwR1H1Mdwqeulzb+nkNolrXNE6n+lnA
-         5zZ6mhLg+931xo6+ZY56HBf57G3FpKAkbPbK1guAlEH/oool84UFse8KKG4/MulU3zjW
-         kOZ0D+JZfXdmrH7t4ojZVoyu6NPL6R7//xVc/4ow33xoSCayriKVfXDNF+A2xeU4fM2L
-         OvxA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775191561; x=1775796361;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=udWmikDfTPoYOznLAWVnBq6+fVtMa2LFJrslNkdcn48=;
-        b=GnGtT/YlI9mKz6a1xXBRPYFNRD82bvncGsrrt/+bL+3FGCdaIAOJUFXY06WCLX/M8+
-         HY/Afr3I9hDqTKEe83h4wNh/ly3OchMrc6F9Ui0G+K8kABw54HACzCSVgP9th2xoHAkp
-         0TZtUqC26zO4x6jKeKNqcrXRCWCLqHobuMswKWt8PKUQfmt7qxs0r1eETP8irJWovZP1
-         iNp9/UjV21mXlDkKauutojR5+p0BfT9k/dafjBRbbDiJeIBKQolODX1XDUes6Vl3ZjjK
-         460KpBZaNK5iMTZBoxY1NIfZwZGkKsmmwehP6eI7sMlZTN/VLSsKS42G+aXkHyqtFGX8
-         7EWQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV+L/qpXyn8u5D48kq/xDsRIOkHOk1ByBsTmB5VR40zgk/GrwDlSR7BYXUh+0uwpt0eWhutnHxVJeo=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx+U0QgyVAZTqK1OpKTH1S7T2J58eagkN/ANr8qjSTXBLnCDMWM
-	oJnMJxZxUiaw2+QAasse6adphY47Mf7LzFh4ZaD58/l4sq6/6jXquYSlWjHdW5hnDCIZfxIIqkO
-	9yUDmJpRcHpRxPGnVpeQpg0NukcpRk2I=
-X-Gm-Gg: AeBDievIN51JgOEwArGKzsbo09THirEpdrWtUJGZAH55Adm4eQAi0xlj/d9wfJwgNXD
-	7lfTIP8tqfhJF5qg8pQx7bgHsH57sxpwv8+rTKdNCoWZkcB2peiswKoQsBcE56duJWu0dQSv/th
-	MTZVpwwAJtOHFiBl9RLuqWj5c5GpmTNkS4KWecpaPNttwHwxH0894id9E+h5Vp/SMxa3nw2NFhQ
-	pvEW/OlqF1ZONrrIt9fN9DajCLWej99RE4H4xwTcbUsb4+I8Zb6dQRXbP5dZK8IGh8m9EAcQLTn
-	sKazHQ==
-X-Received: by 2002:a05:690c:6987:b0:799:198d:8c5a with SMTP id
- 00721157ae682-7a4d585f69dmr19958067b3.34.1775191561252; Thu, 02 Apr 2026
- 21:46:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MRJKmXtP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66BDEC4CEF7;
+	Fri,  3 Apr 2026 06:21:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1775197271;
+	bh=K8oeJDGJgKwCw/imZxnFtBFV9/YbnaYrRBrp4HEV4Zk=;
+	h=Date:From:To:Cc:Subject:From;
+	b=MRJKmXtPouFgRJkUHjPBhMQSl0AcuC4UORK2yrPPNEjL+QI3YjIO9sifMe6OaITXL
+	 KXi4fsN1zlBkNHqs3vvrGYeieJSI3bfYyWVwOB5gnsyBjqvj/45ZJRVH2C9bUdJCiX
+	 HHLdXrAhWY+6UzGh+1uMMFliHm+kAuxOuURNrp5ECdBDI8llRpzBsfc1/fkn1AoddZ
+	 Kapa6dZwtxQhUrEIHmzhfjUG4CRTJQiewl4nF0RZsgl0e13+P/5cSX6gZUqUmv2/9G
+	 zISewfHts4dnKJiWQP/9rZ0DSF4wysvANjB6+awWKADSqPIxJKCr7zrtPV7oEzC3ku
+	 rjtz+/l0ghk2g==
+Date: Fri, 3 Apr 2026 08:21:07 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, 
+	linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>
+Subject: [GIT PULL] i2c-host-fixes for v7.0-rc7
+Message-ID: <ac9aokZYJOTAW22a@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260402051442.1426672-1-a0282524688@gmail.com>
- <20260402051442.1426672-3-a0282524688@gmail.com> <20260402-warping-chameleon-of-prowess-9df780-mkl@pengutronix.de>
-In-Reply-To: <20260402-warping-chameleon-of-prowess-9df780-mkl@pengutronix.de>
-From: Ming Yu <a0282524688@gmail.com>
-Date: Fri, 3 Apr 2026 12:46:22 +0800
-X-Gm-Features: AQROBzC_c6Pz91vTEwJZ5AXR_5dXzfojiP7V5Wmo6LnqG_6F9RBzJL09w08myjU
-Message-ID: <CAOoeyxVp2dY=XrujkCbWHjX4bVu4-H2=k0JHxL6akC6KwY+rVA@mail.gmail.com>
-Subject: Re: [PATCH v1 2/2] mfd: Add Host Interface (HIF) support for Nuvoton NCT6694
-To: Marc Kleine-Budde <mkl@pengutronix.de>
-Cc: tmyu0@nuvoton.com, linusw@kernel.org, brgl@kernel.org, linux@roeck-us.net, 
-	andi.shyti@kernel.org, lee@kernel.org, mailhol@kernel.org, 
-	alexandre.belloni@bootlin.com, wim@linux-watchdog.org, 
-	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-can@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-watchdog@vger.kernel.org, linux-hwmon@vger.kernel.org, 
-	linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Dear Marc,
+Hi Wolfram,
 
-Thanks for the review.
+here is the fixes pull request for v7.0-rc7.
 
-Marc Kleine-Budde <mkl@pengutronix.de> =E6=96=BC 2026=E5=B9=B44=E6=9C=882=
-=E6=97=A5=E9=80=B1=E5=9B=9B =E4=B8=8B=E5=8D=887:05=E5=AF=AB=E9=81=93=EF=BC=
-=9A
->
-> > +struct nct6694_sio_data {
-> > +     enum nct6694_chips chip;
-> > +     int sioreg;     /* Super-I/O index port */
-> > +
-> > +     /* Super-I/O access functions */
-> > +     int (*sio_enter)(struct nct6694_sio_data *sio_data);
-> > +     void (*sio_exit)(struct nct6694_sio_data *sio_data);
-> > +     void (*sio_select)(struct nct6694_sio_data *sio_data, int ld);
-> > +     int (*sio_inb)(struct nct6694_sio_data *sio_data, int reg);
-> > +     int (*sio_inw)(struct nct6694_sio_data *sio_data, int reg);
-> > +     void (*sio_outb)(struct nct6694_sio_data *sio_data, int reg, int =
-val);
->
-> The signatures of the function look a bit strange. I expect functions
-> reading/writing bytes use u8 not int, register offsets should probably
-> be an unsigned int.
->
-> Why do you have pointers to the access functions? Why not use them
-> directly?
->
+It contains a small fix to avoid using uninitialized fields
+in dma_slave_config, triggered somewhere deep in the fsl edma
+driver.
 
-These helpers were originally meant to be used by sub-drivers for SIO
-access, but the implementation later converged so that all SIO access
-is done in the MFD driver itself. In the next version, I will remove
-the function pointers and simplify the interface accordingly.
+Thanks and I wish you and all the community a appy Easter,
+Andi
 
-I will also adjust the types as suggested.
+The following changes since commit 7aaa8047eafd0bd628065b15757d9b48c5f9c07d:
 
+  Linux 7.0-rc6 (2026-03-29 15:40:00 -0700)
 
-Regards,
-Ming
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-host-fixes-7.0-rc7
+
+for you to fetch changes up to 39ed7d89b973329cc5c764b65ba6302b17b1907e:
+
+  i2c: imx: zero-initialize dma_slave_config for eDMA (2026-04-02 01:22:46 +0200)
+
+----------------------------------------------------------------
+i2c-fixes for v7.0-rc7
+
+imx: set dma_slave_config to 0 and avoid uninitialized fields
+
+----------------------------------------------------------------
+Anthony Pighin (1):
+      i2c: imx: zero-initialize dma_slave_config for eDMA
+
+ drivers/i2c/busses/i2c-imx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
