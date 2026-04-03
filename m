@@ -1,189 +1,141 @@
-Received: from courrier.aliel.fr (courrier.aliel.fr [65.21.61.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f182.google.com (mail-yw1-f182.google.com [209.85.128.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CCB913FEE;
-	Thu,  2 Apr 2026 17:01:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.21.61.41
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775149271; cv=none; b=IslpCJwrEvxZ3/Fhh+nXg11TFjS2/8tuffwNwxPtmhOIrHftuw4252YChOEZVZUp8lTYB3sQ4ZRc8DkV8mBpynYlxhnzjphggzz6vHYEce77to7OmS9I788HRvQ/pbhVn8IKFvaMzDo7nFcVaoQte1fMoTZV7BUmykniCRLJ7YA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775149271; c=relaxed/simple;
-	bh=2OWqMG9cAvyIiZhUJJh6c3apSC/Ro+i93PaoDjc2ohY=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=TKVkkptBl7UoziHuALmVE7O/18gqh2LaTi7FRbUA/hLWgUqaidMshL48VB2rKkbgx0Rz13lolK+4t1V1zpHbjTcsFKGE72m4D1dF5wgfF8t4PoQiKoeoFeihMR2SAxgKfB4QEkK3WQlElVHTJdW4hqbAUzYU/pmGQw+r4B6Szcg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=aliel.fr; spf=pass smtp.mailfrom=aliel.fr; dkim=pass (1024-bit key) header.d=aliel.fr header.i=@aliel.fr header.b=TyDduWOp; arc=none smtp.client-ip=65.21.61.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=aliel.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aliel.fr
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D520358372
+	for <linux-i2c@vger.kernel.org>; Fri,  3 Apr 2026 04:46:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.182
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775191563; cv=pass; b=pKQW3BtvPYROUvFOTrjdkcFc5luBbOuZdWlBXMMkYRS224HODn1YOME8zW+Y6E2B8/YbbF49LlO8nG8ACCqTH/UTVfSiM5IIwjJxefpPWYMPOBf0Wb6rDrO74BGBT6znRnD8Rqa/NcINav0BiwyMMpmD5UlXzmKZ3ZsgoZ+caWM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775191563; c=relaxed/simple;
+	bh=groc3VAnH15CVUVhNhE5OtlEsDNXM/uA7VeW8vaOMTY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ACKaTnYAYBS/uu9YyUTU+ecdfLe7YBKDq3PjSyb2EROa0xzcLAq3phmJ13Nq6Pxux0f45eHXaOf3kHY3vG/nauUOxQ5vrO9PmQzMHvDfTPFboLV+v9GxpMopFBdHxozB+H5EvvWu/whn4l+13uYk2nLQeF7pB7ejVcEXaej8I5s=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DidQGWOK; arc=pass smtp.client-ip=209.85.128.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=aliel.fr header.i=@aliel.fr header.b="TyDduWOp"
-Message-ID: <d0d17d65-893d-44c8-a929-92ba5b71d7f6@aliel.fr>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aliel.fr;
-	s=courrier-s1; t=1775149257;
-	bh=2OWqMG9cAvyIiZhUJJh6c3apSC/Ro+i93PaoDjc2ohY=;
-	h=Date:From:Subject:To:Cc:References:In-Reply-To;
-	b=TyDduWOpNvxQeMWOJLRKd7O4x57VGwm/FtjFB4aCLFl7jth9inkleHxhtz7dfmZpO
-	 ainHsiv56YhFZcMxmPC6M0wdfV/f5bNz9T4fDyPLaFgxbBcKiYU+Tt4hIw74Jodnmh
-	 wBAzw0LIaUuYcMk2fb2yJxzZTEAN/qFAlVGgh+tQ=
-Date: Thu, 2 Apr 2026 19:00:55 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DidQGWOK"
+Received: by mail-yw1-f182.google.com with SMTP id 00721157ae682-78fc4425b6bso15626507b3.1
+        for <linux-i2c@vger.kernel.org>; Thu, 02 Apr 2026 21:46:02 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775191561; cv=none;
+        d=google.com; s=arc-20240605;
+        b=ICmrcvTLGTZYWFcA1ZUQUztOYx4ms3/RAnHoqpYvlQGzG72mztNR6Tg2aGvQW1mn0P
+         XB02/71CPEE/t3vddrtK2EHpCYzavgjp06A7l3q3jNw3Pol0eCjRrynJIqTHSehTCiKf
+         Z1Q46AwHPMVVVLD2PAm/pXZ6QQjH+iypU7sl4L65OC3EOw9GdvmSqoKuw9g3hxVYJSxa
+         50ymK67LMprMoLvMZld5MjRnQK45VPzeqZbN9MWqmOIshpb19HcMwIcBqCjB/+dxmnBx
+         kwVpwYAdGacoP33hHlY5NclFBQE7gFiwHyVYzWpb4Z0eIPV32Zg0F468cFy5w0eXb4gu
+         4VEg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=udWmikDfTPoYOznLAWVnBq6+fVtMa2LFJrslNkdcn48=;
+        fh=LYT1ZkWMcuH65+n8gQhrFiyYo6OLK0tz30y1599OChQ=;
+        b=LF8RHA8gqzYDvlYZr/Y0/sCJETkibtuwWhPlq0kLtA+hdOWkcUerOKi/OeguClNGUo
+         g6nwzBEc4nCHpiwTc3/uHbkYJst+ErVSpk6b9FSNHQGI1EE1Nht7VxHjfG1DkGsyyFII
+         4BQs+Gr3rSP+/YO9P1Kuh7Q7dJcfOZClmm50ct6uigDjNzhK0zbxjjGGj/kSSvx9Na9x
+         FqNhLHDZ+paHuQZiW89Zux+0ZHJ+iJjuYkIJTE7aeD4u5kxmuCUTWAAUIjlYPzZVD27T
+         nVEgTA8vLX5iZ/j7KSb0ibgCO7rqXGR/QnJTo9o5sw+FiOwNb4vid8b+wZpOncUQblaa
+         eC8g==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775191561; x=1775796361; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=udWmikDfTPoYOznLAWVnBq6+fVtMa2LFJrslNkdcn48=;
+        b=DidQGWOKrm72zYGNfTnKQ9IcnJWZNioKN73o236MElVFzyQKQ8qb/l+soctZqFpFYR
+         KhdKkKO4KWfPBZssLoFqJJaoQDXfr0ubxMRtcYnbkp4Aw6n+hEGhzMD/e6M1vs9Vctn7
+         F7uzUA9y1Hc8Am0AiyTcsudzX2bQmqDVaIRAHRwR1H1Mdwqeulzb+nkNolrXNE6n+lnA
+         5zZ6mhLg+931xo6+ZY56HBf57G3FpKAkbPbK1guAlEH/oool84UFse8KKG4/MulU3zjW
+         kOZ0D+JZfXdmrH7t4ojZVoyu6NPL6R7//xVc/4ow33xoSCayriKVfXDNF+A2xeU4fM2L
+         OvxA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775191561; x=1775796361;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=udWmikDfTPoYOznLAWVnBq6+fVtMa2LFJrslNkdcn48=;
+        b=GnGtT/YlI9mKz6a1xXBRPYFNRD82bvncGsrrt/+bL+3FGCdaIAOJUFXY06WCLX/M8+
+         HY/Afr3I9hDqTKEe83h4wNh/ly3OchMrc6F9Ui0G+K8kABw54HACzCSVgP9th2xoHAkp
+         0TZtUqC26zO4x6jKeKNqcrXRCWCLqHobuMswKWt8PKUQfmt7qxs0r1eETP8irJWovZP1
+         iNp9/UjV21mXlDkKauutojR5+p0BfT9k/dafjBRbbDiJeIBKQolODX1XDUes6Vl3ZjjK
+         460KpBZaNK5iMTZBoxY1NIfZwZGkKsmmwehP6eI7sMlZTN/VLSsKS42G+aXkHyqtFGX8
+         7EWQ==
+X-Forwarded-Encrypted: i=1; AJvYcCV+L/qpXyn8u5D48kq/xDsRIOkHOk1ByBsTmB5VR40zgk/GrwDlSR7BYXUh+0uwpt0eWhutnHxVJeo=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx+U0QgyVAZTqK1OpKTH1S7T2J58eagkN/ANr8qjSTXBLnCDMWM
+	oJnMJxZxUiaw2+QAasse6adphY47Mf7LzFh4ZaD58/l4sq6/6jXquYSlWjHdW5hnDCIZfxIIqkO
+	9yUDmJpRcHpRxPGnVpeQpg0NukcpRk2I=
+X-Gm-Gg: AeBDievIN51JgOEwArGKzsbo09THirEpdrWtUJGZAH55Adm4eQAi0xlj/d9wfJwgNXD
+	7lfTIP8tqfhJF5qg8pQx7bgHsH57sxpwv8+rTKdNCoWZkcB2peiswKoQsBcE56duJWu0dQSv/th
+	MTZVpwwAJtOHFiBl9RLuqWj5c5GpmTNkS4KWecpaPNttwHwxH0894id9E+h5Vp/SMxa3nw2NFhQ
+	pvEW/OlqF1ZONrrIt9fN9DajCLWej99RE4H4xwTcbUsb4+I8Zb6dQRXbP5dZK8IGh8m9EAcQLTn
+	sKazHQ==
+X-Received: by 2002:a05:690c:6987:b0:799:198d:8c5a with SMTP id
+ 00721157ae682-7a4d585f69dmr19958067b3.34.1775191561252; Thu, 02 Apr 2026
+ 21:46:01 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird Beta
-From: Ronald Claveau <linux-kernel-dev@aliel.fr>
-Subject: Re: [PATCH 5/8] thermal: khadas-mcu-fan: Add fan config from platform
- data Add regulator support
-To: Neil Armstrong <neil.armstrong@linaro.org>, Lee Jones <lee@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
- Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>,
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
- Beniamino Galvani <b.galvani@gmail.com>,
- "Rafael J. Wysocki" <rafael@kernel.org>,
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
- Lukasz Luba <lukasz.luba@arm.com>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>
-Cc: linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
-References: <20260402-add-mcu-fan-khadas-vim4-v1-0-2b12eb4ac7b0@aliel.fr>
- <20260402-add-mcu-fan-khadas-vim4-v1-5-2b12eb4ac7b0@aliel.fr>
- <5e3e8684-f893-4fb0-879e-9661820f72dd@linaro.org>
-Content-Language: en-US
-In-Reply-To: <5e3e8684-f893-4fb0-879e-9661820f72dd@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20260402051442.1426672-1-a0282524688@gmail.com>
+ <20260402051442.1426672-3-a0282524688@gmail.com> <20260402-warping-chameleon-of-prowess-9df780-mkl@pengutronix.de>
+In-Reply-To: <20260402-warping-chameleon-of-prowess-9df780-mkl@pengutronix.de>
+From: Ming Yu <a0282524688@gmail.com>
+Date: Fri, 3 Apr 2026 12:46:22 +0800
+X-Gm-Features: AQROBzC_c6Pz91vTEwJZ5AXR_5dXzfojiP7V5Wmo6LnqG_6F9RBzJL09w08myjU
+Message-ID: <CAOoeyxVp2dY=XrujkCbWHjX4bVu4-H2=k0JHxL6akC6KwY+rVA@mail.gmail.com>
+Subject: Re: [PATCH v1 2/2] mfd: Add Host Interface (HIF) support for Nuvoton NCT6694
+To: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: tmyu0@nuvoton.com, linusw@kernel.org, brgl@kernel.org, linux@roeck-us.net, 
+	andi.shyti@kernel.org, lee@kernel.org, mailhol@kernel.org, 
+	alexandre.belloni@bootlin.com, wim@linux-watchdog.org, 
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-can@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-watchdog@vger.kernel.org, linux-hwmon@vger.kernel.org, 
+	linux-rtc@vger.kernel.org, linux-usb@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 4/2/26 5:39 PM, Neil Armstrong wrote:
-> On 4/2/26 16:27, Ronald Claveau wrote:
->> Replace the hardcoded MAX_LEVEL constant and fan register
->> with values read from platform_data (fan_reg, max_level),
->> as new MCUs need different values.
->>
->> Optionally acquire and enable a "fan" regulator supply
->> at probe time and on resume,
->> so boards that gate fan power through a regulator are handled.
->>
->> Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
->> ---
->>   drivers/thermal/khadas_mcu_fan.c | 43 ++++++++++++++++++++++++++++++
->> ++++------
->>   1 file changed, 37 insertions(+), 6 deletions(-)
->>
->> diff --git a/drivers/thermal/khadas_mcu_fan.c b/drivers/thermal/
->> khadas_mcu_fan.c
->> index d35e5313bea41..55b496625e3bd 100644
->> --- a/drivers/thermal/khadas_mcu_fan.c
->> +++ b/drivers/thermal/khadas_mcu_fan.c
->> @@ -13,13 +13,15 @@
->>   #include <linux/regmap.h>
->>   #include <linux/sysfs.h>
->>   #include <linux/thermal.h>
->> -
->> -#define MAX_LEVEL 3
->> +#include <linux/regulator/consumer.h>
->>     struct khadas_mcu_fan_ctx {
->>       struct khadas_mcu *mcu;
->> +    unsigned int fan_reg;
->>       unsigned int level;
->> +    unsigned int max_level;
->>       struct thermal_cooling_device *cdev;
->> +    struct regulator *power;
->>   };
->>     static int khadas_mcu_fan_set_level(struct khadas_mcu_fan_ctx *ctx,
->> @@ -27,8 +29,7 @@ static int khadas_mcu_fan_set_level(struct
->> khadas_mcu_fan_ctx *ctx,
->>   {
->>       int ret;
->>   -    ret = regmap_write(ctx->mcu->regmap,
->> KHADAS_MCU_CMD_FAN_STATUS_CTRL_REG,
->> -               level);
->> +    ret = regmap_write(ctx->mcu->regmap, ctx->fan_reg, level);
->>       if (ret)
->>           return ret;
->>   @@ -40,7 +41,9 @@ static int khadas_mcu_fan_set_level(struct
->> khadas_mcu_fan_ctx *ctx,
->>   static int khadas_mcu_fan_get_max_state(struct
->> thermal_cooling_device *cdev,
->>                       unsigned long *state)
->>   {
->> -    *state = MAX_LEVEL;
->> +    struct khadas_mcu_fan_ctx *ctx = cdev->devdata;
->> +
->> +    *state = ctx->max_level;
->>         return 0;
->>   }
->> @@ -61,7 +64,7 @@ khadas_mcu_fan_set_cur_state(struct
->> thermal_cooling_device *cdev,
->>   {
->>       struct khadas_mcu_fan_ctx *ctx = cdev->devdata;
->>   -    if (state > MAX_LEVEL)
->> +    if (state > ctx->max_level)
->>           return -EINVAL;
->>         if (state == ctx->level)
->> @@ -83,11 +86,32 @@ static int khadas_mcu_fan_probe(struct
->> platform_device *pdev)
->>       struct device *dev = &pdev->dev;
->>       struct khadas_mcu_fan_ctx *ctx;
->>       int ret;
->> +    const struct khadas_mcu_fan_pdata *pdata =
->> dev_get_platdata(&pdev->dev);
->>         ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
->>       if (!ctx)
->>           return -ENOMEM;
->> +
->>       ctx->mcu = mcu;
->> +    ctx->fan_reg   = pdata->fan_reg;
->> +    ctx->max_level = pdata->max_level;
->> +
->> +    ctx->power = devm_regulator_get_optional(dev->parent, "fan");
->> +    if (IS_ERR(ctx->power)) {
->> +        if (PTR_ERR(ctx->power) == -ENODEV)
->> +            ctx->power = NULL;
->> +        else
->> +            return PTR_ERR(ctx->power);
->> +    }
->> +
->> +    if (ctx->power) {
->> +        ret = regulator_enable(ctx->power);
->> +        if (ret) {
->> +            dev_err(dev, "Failed to enable fan power supply: %d\n",
->> ret);
->> +            return ret;
->> +        }
->> +    }
->> +
->>       platform_set_drvdata(pdev, ctx);
->>         cdev = devm_thermal_of_cooling_device_register(dev->parent,
->> @@ -130,6 +154,13 @@ static int khadas_mcu_fan_suspend(struct device
->> *dev)
->>   static int khadas_mcu_fan_resume(struct device *dev)
->>   {
->>       struct khadas_mcu_fan_ctx *ctx = dev_get_drvdata(dev);
->> +    int ret;
->> +
->> +    if (ctx->power) {
->> +        ret = regulator_enable(ctx->power);
-> 
-> Seems you're missing a regulator_disable() on suspend.
-> 
-> Neil
-> 
+Dear Marc,
 
-You right, I will add the regulator_disable on suspend for next version.
-Thanks for your feedback.
+Thanks for the review.
 
->> +        if (ret)
->> +            return ret;
->> +    }
->>         return khadas_mcu_fan_set_level(ctx, ctx->level);
->>   }
->>
-> 
+Marc Kleine-Budde <mkl@pengutronix.de> =E6=96=BC 2026=E5=B9=B44=E6=9C=882=
+=E6=97=A5=E9=80=B1=E5=9B=9B =E4=B8=8B=E5=8D=887:05=E5=AF=AB=E9=81=93=EF=BC=
+=9A
+>
+> > +struct nct6694_sio_data {
+> > +     enum nct6694_chips chip;
+> > +     int sioreg;     /* Super-I/O index port */
+> > +
+> > +     /* Super-I/O access functions */
+> > +     int (*sio_enter)(struct nct6694_sio_data *sio_data);
+> > +     void (*sio_exit)(struct nct6694_sio_data *sio_data);
+> > +     void (*sio_select)(struct nct6694_sio_data *sio_data, int ld);
+> > +     int (*sio_inb)(struct nct6694_sio_data *sio_data, int reg);
+> > +     int (*sio_inw)(struct nct6694_sio_data *sio_data, int reg);
+> > +     void (*sio_outb)(struct nct6694_sio_data *sio_data, int reg, int =
+val);
+>
+> The signatures of the function look a bit strange. I expect functions
+> reading/writing bytes use u8 not int, register offsets should probably
+> be an unsigned int.
+>
+> Why do you have pointers to the access functions? Why not use them
+> directly?
+>
+
+These helpers were originally meant to be used by sub-drivers for SIO
+access, but the implementation later converged so that all SIO access
+is done in the MFD driver itself. In the next version, I will remove
+the function pointers and simplify the interface accordingly.
+
+I will also adjust the types as suggested.
 
 
--- 
-Best regards,
-Ronald
+Regards,
+Ming
