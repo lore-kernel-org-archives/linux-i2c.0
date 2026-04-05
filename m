@@ -1,91 +1,111 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A84E218872A
-	for <linux-i2c@vger.kernel.org>; Sat,  4 Apr 2026 10:03:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A90A224AFA
+	for <linux-i2c@vger.kernel.org>; Sun,  5 Apr 2026 03:27:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775297044; cv=none; b=n3GX7Tic3CbdGe4nDfnJXIBzhy/vMP+dyFjkXOXMWT7boGkkNFw0cjEk/Djv4FTDh62AlxS4+2xjcxwoJNxW6HB1ZQMjCDhD4+f/l05aJ2F+I+8uj4QjSlotHF3iYvvZQzzcXv4K1LVzzWitWIhN5We36U8DqWd4RjYmQg5Iq0U=
+	t=1775359650; cv=none; b=uS4rUroEmU83exY2eHl1rmcNyQrGB25rDH85svltCa9lqaqJPW2wJRsSHqNSYXKOdkwLxdzF5yUIdsuAeEmJtbOp0itEEGA1j6DD1r9FZlISAOYOnghCqp393eZjjKOMhYGc6vIj2FSoaJxkRNx4di11wA1PpI87CoeH+5vQRNw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775297044; c=relaxed/simple;
-	bh=Ex8q/1V1bYKx69c6c/wyQqDZmVCyXLbIUlVEXA7sWqI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=M1dxdqv/zsRX1xGEHWoPIO2d6OXlK5AgPBG/aMAOmo1RjXs4FMdCSQde9vfg8fFRV24Y+m4eW9pkg5EMy2vJia3nykhjBX1EsuNYhVj+Q5T5JYFwOH/c8VcPRRupYMbGyec8bVIU8Flf5u4cUgoFrR6E1uRUTyMZTqs817MmKOE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=L1RdO680; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1775359650; c=relaxed/simple;
+	bh=DDLHQlFyINNey4rl+Xmr5SI5EPgFf5EE9HdWMzB/WYc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YzDndujlrPjmt6u1fobXtzk8mJaA2wQBSxtQ3BgILgyckb4D40oFuGfr9/vC897UY2EvhSx528K1cXamepIIi7gJgjBWOWCOyc9qOVnt4e7r8oRdlf6eanmOQy0TmAboxuhj81myms/DOqON/Eua+vxY7NPaQwZcrbsbCFI3HGw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ls1ooABk; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="L1RdO680"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=Ex8q
-	/1V1bYKx69c6c/wyQqDZmVCyXLbIUlVEXA7sWqI=; b=L1RdO6808eoBezqqAm6M
-	p+4lZf+K4Gron72LtyGy/digVaicYxWO50nj8rKxClI2VEBkXciUPD0x1YtznMeZ
-	dAL47NzK4jQg7PSKSWCCQPSB++xvd+Mf5EKGhWOVaQMEuYfX2xEc7APwmNlCnTem
-	7USD22g5yD1sDmGff9ocANxnS0DKdUCFu6k8qLUPez0YC3Z1CZhJ/6ry9dTviPv0
-	Ugn3fRfHuPCTxlUHw1gBoPk1P55wPmmk7ZtpqbdUDr1a96U0PFw9ub4uck8Fv+mm
-	3/XO04MDoGbtc6x1tnHj0TWatT7A5ZD4OEeEnIQ1En9hG951Q1wil6Dqdq5wttUj
-	ig==
-Received: (qmail 3189581 invoked from network); 4 Apr 2026 12:03:52 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 Apr 2026 12:03:52 +0200
-X-UD-Smtp-Session: l3s3148p1@87TyjJ9OLscujntF
-Date: Sat, 4 Apr 2026 12:03:50 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-	linux-i2c <linux-i2c@vger.kernel.org>
-Subject: Re: [GIT PULL] i2c-host-fixes for v7.0-rc7
-Message-ID: <adDiBkAMqHlrGcTZ@shikoro>
-References: <ac9aokZYJOTAW22a@zenone.zhora.eu>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ls1ooABk"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2b25cf1b5f0so18308685ad.3
+        for <linux-i2c@vger.kernel.org>; Sat, 04 Apr 2026 20:27:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775359649; x=1775964449; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=//rBlaMcln0/hNGUeQZiaCEO2voM0gCEJk+aW3TsCHE=;
+        b=ls1ooABkRLRdJzcZqyCJPQb3W6pgYF/Y5cG2ZUGUNMh9HX+xn9d5GQ9KrfKviSDd2R
+         YJWv49mlN8qdVvR+xr759UTsxzFefwLeWKtWVNpOkkMG3a7FiZ2T9cm3tWXaaS9zDnPZ
+         z22HWeI4tLd9VkbZu0uLYwBcpzRYTWCyzmFTUcYmitcbJq9uxotI0N2v4I1HNq7RZuT5
+         143ToQI/6wWgfHBNL7YMX+geSl6/awLjt/sITZuL9BoHdsEqVPgUCkaIQN/vxXWhAGBG
+         EwT7NxJl3OTak5G73AXdGN0AYZpJ8rEMaE7QoZPI1Z+yyEpGQI1NolvFCCNIM8J6zHc/
+         yrYg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775359649; x=1775964449;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=//rBlaMcln0/hNGUeQZiaCEO2voM0gCEJk+aW3TsCHE=;
+        b=pmPwnJE58MNd/1e7yJhe5b+zqfMtOG5SSlhqDKmvG0TvauAJzoM1ZKNK0XXNMcTBfd
+         Z8i2VcV9ZCuE0hFopXupF9Mvg8TtozfKs7y0KuwiCWlmszStn17j2dS6VIyFySAJQL53
+         xlaBRj0jRiKBz9Y+oxLi5FNwBSAAgyU0WqACnqxQRL91Ri9f2HfmWiR7reFSuM5jmULs
+         s9/MWmy9WtjTQpZYFQ50wogQMW9TueOkfeSgnIFX/iRhN375hti/gdBn71wNgAl8htyi
+         K7PuJUxCIoB/cNmjSnej70fapTmCH5wlmShp2WQZ5/NOkhyskeMZfsxjB3cI2vGaTc07
+         UCEQ==
+X-Gm-Message-State: AOJu0Yymv2JDoIoa3XzjGZMT2v2TJgWfavOfcSXFg/ahL/Dlj1rMbzeK
+	o1WWn+jv4QoIq6imihayOLIdbqiW7n/cAslJva0xr8gqIN61WAZCvTjs0IZCRXxoKG8=
+X-Gm-Gg: AeBDietJ6n2WMUtOKNe9wzyNvVPq+27X0ZQpTHmkUNl48MGadqnrtWcGFyJE9sgluo6
+	Shc97eZ14+JJEHNZpLv6A3tQdv36tWfGF3EtziyR1QodpYJ3OKk7NAhZIr3pZLteMGdOBFJQWLL
+	FXGK9USOF/JQI16WNGxiSz9aVzluMQLTEcRAfdMiGoHIkNHFiwTQX5sJ2NAyFFlv9TaMil6bMPO
+	yRvXLMhO6XUgnLX9R64R9bCFOzaoe1c5jvf/565yqyovT87i6txtMR6nd49Wdwa5E3u8nXpN/oc
+	pdynxkqQ1CklncGtdH/1r7wMzdw2YCqqgkhzUYBZN4PhpCGA2d+dXe25HDTxTXHBSQc9ktTwT09
+	t8G2DHOtgMoWYCW0gdaASBQwDv2BcEooXelm6IX2e86ZAIoXPJ3CwWkHZFnWfxLd2qVQq3xQyoa
+	x2QHXUGSz6rfS/lFSVf0HIIDmk4bR6tr/2YSKzId6TNpn99Kuwz0Dqnc3RCuVhd0FacLcuhMzLd
+	1fAtnv3FfnYNlQIuqElCkM=
+X-Received: by 2002:a17:903:2acc:b0:2ae:826f:2c50 with SMTP id d9443c01a7336-2b281679199mr91098725ad.12.1775359648552;
+        Sat, 04 Apr 2026 20:27:28 -0700 (PDT)
+Received: from adeel-linux.ad.umanitoba.ca (nat-243-cc-130-179-243-228.umanitoba.ca. [130.179.243.228])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b2747530e4sm102527085ad.18.2026.04.04.20.27.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 04 Apr 2026 20:27:28 -0700 (PDT)
+From: Adeel Zahid <adeel.m.zahid@gmail.com>
+To: Peter Rosin <peda@axentia.se>
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Adeel Zahid <adeel.m.zahid@gmail.com>
+Subject: [PATCH] i2c: muxes: i2c-mux-reg: use dev_err_probe() for deferred probe
+Date: Sat,  4 Apr 2026 22:27:24 -0500
+Message-ID: <20260405032724.10085-1-adeel.m.zahid@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="SsjT4T7xmRJ0XgYO"
-Content-Disposition: inline
-In-Reply-To: <ac9aokZYJOTAW22a@zenone.zhora.eu>
+Content-Transfer-Encoding: 8bit
 
+Use dev_err_probe() when the parent I2C adapter is not yet available.
 
---SsjT4T7xmRJ0XgYO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+This keeps deferred probe handling and logging consistent with the rest of the driver.
 
-On Fri, Apr 03, 2026 at 08:21:07AM +0200, Andi Shyti wrote:
-> Hi Wolfram,
->=20
-> here is the fixes pull request for v7.0-rc7.
->=20
-> It contains a small fix to avoid using uninitialized fields
-> in dma_slave_config, triggered somewhere deep in the fsl edma
-> driver.
->=20
-> Thanks and I wish you and all the community a appy Easter,
+Signed-off-by: Adeel Zahid <adeel.m.zahid@gmail.com>
+---
+ drivers/i2c/muxes/i2c-mux-reg.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Same to you, thank you! Pulled.
+diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/i2c-mux-reg.c
+index 1e566ea92bc9..bff1b3783723 100644
+--- a/drivers/i2c/muxes/i2c-mux-reg.c
++++ b/drivers/i2c/muxes/i2c-mux-reg.c
+@@ -97,7 +97,8 @@ static int i2c_mux_reg_probe_dt(struct regmux *mux,
+ 	adapter = of_find_i2c_adapter_by_node(adapter_np);
+ 	of_node_put(adapter_np);
+ 	if (!adapter)
+-		return -EPROBE_DEFER;
++		return dev_err_probe(&pdev->dev, -EPROBE_DEFER,
++				     "failed to get parent adapter\n");
+ 
+ 	mux->data.parent = i2c_adapter_id(adapter);
+ 	put_device(&adapter->dev);
+@@ -177,7 +178,8 @@ static int i2c_mux_reg_probe(struct platform_device *pdev)
+ 
+ 	parent = i2c_get_adapter(mux->data.parent);
+ 	if (!parent)
+-		return -EPROBE_DEFER;
++		return dev_err_probe(&pdev->dev, -EPROBE_DEFER,
++				     "failed to get parent adapter\n");
+ 
+ 	if (!mux->data.reg) {
+ 		dev_info(&pdev->dev,
+-- 
+2.43.0
 
-
---SsjT4T7xmRJ0XgYO
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmnQ4gIACgkQFA3kzBSg
-KbaxLw/+NNFBhaXnSY2m9PnvScUR09J8CNSajwrIiKOR/PsSeID6vrYQSp1a/FHI
-MNLobbhTwD0It1/WuarPgnlYKEzfGSHa7lqM8mUW6bMt+6yIpcx6m+RbLEXA4YOn
-QCTf21X/JZV6l0npR3jwWGMuN7vRy0xnnzePcFVwFHtmioZ3Q3wuzD/kYuO6oSmL
-5yyIEqaWVEQZaqiFOWbkQ4aZsOEY6GjUlLK+WN9yBH/m4f/NXhuvw01swy33Rbsp
-H5n9vW1j6xUgZDT+nt6SVzLsB/r/tqT2nOB8QL2RC87tl1o5jdxpBYPTkBzgJKhg
-jF/hnYeQ5JfeHgKmG0M33D+6GtXiZPsdk+MUmw6slA9ra4Cm56jlN4MYznFob/MZ
-AYvWZ+oSEDwGOZpIZUPa1QAk/1iq9/2uGW8tkiWHiCreQaoC/RpGrP84PRTHOYF7
-LBnQWEUYKgbXFzH2tlhMvBZLWc1S3c7ZtLM0ADzjqAhaWp+WCiKvzhXF4967yh+a
-O4cfYGVWg4nxxy7osYZLwW6fXTpzicjchrta4MISIWnuRR5nUxn6Zn1l18Opneab
-RVQaLIWspMoArlkGuq8EbfvcpRovEKb8+4iWj5eqeVVs4cFeENM+aF490akzfhy0
-bgBAmIhd6ptJoN5DJVp5IW5zJIGH0nMjpabdL6mJ+Bz/0/H2mvQ=
-=jLrZ
------END PGP SIGNATURE-----
-
---SsjT4T7xmRJ0XgYO--
