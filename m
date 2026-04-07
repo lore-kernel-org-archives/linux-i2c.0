@@ -1,51 +1,41 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 590BD391E45;
-	Tue,  7 Apr 2026 16:10:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E86A833D503;
+	Tue,  7 Apr 2026 16:46:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775578207; cv=none; b=C6R4CoNCPBZrQhiqfamJtsz6oWwNZ6eoWMyJpPyddq2l43l4l1qgj9cLznLUDHO2i/nsFe5Imscn8/Ti485RLkxzck3znbJyvWWwJN3RVxa1VV9NEey3PwzQG5cbm1LgY4ND984916Zz+3P2zipGCEi1NvKmS6aQN/zdSv4QmeM=
+	t=1775580381; cv=none; b=O7L+7YYiCtHt3VtboRz3HNP6Z8eK0jJJEIEzl9PJn9u3clA0g+YIzInOpREz0rVwFtoundUMJvJVdz3QwwntFlPPvGT2qyaCCKk0bOaXQze7p4OKacrpzWhmdeqvE7AeEfFQbT0ZXZc+mhCzIQp7+Mxe+Ioj7Ub8GvOCPpI86LQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775578207; c=relaxed/simple;
-	bh=+LzdHSeVHiMH4ZZcTEUvseGkknSG0WWsqny03v1gLto=;
+	s=arc-20240116; t=1775580381; c=relaxed/simple;
+	bh=jfLmHt1jktt0gZSNnRJIWqA9vOHoNxlluJSTbjHBDRo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=CsSH3xhF0egHAEZL5Vbg34NCj458qzczm7eCwRqIQO1P/VwygffIpEVWP2Zh5AaOHmH9VepfcQAzELQTHcq6XtUBDpnLIF/u1KmcpTMjN2ULK7fUN0NKogO6QxjQffVfSodC6Y6E+ABu09zc7gTbnzsgonwynYBpYA56hY11OHc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eNUbY+H5; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=CYd7iocOHF7y7YkUedGjh2+yTlhsiJb39qFshvzQy2XUrNEV+pLJKP5dusaTgz+3gad2gixA2955mA5/3qa8o0xk3cF4Fmtrs8SQ0xvpoPO3Y5EYPZu855kRjkjTAj/a0Ztx/Y1pnj0dC7H6qe4ohch7yKxcWnIWruchmjJKEJM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h6wO7jZc; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eNUbY+H5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67838C116C6;
-	Tue,  7 Apr 2026 16:10:05 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h6wO7jZc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9DDEC2BC9E;
+	Tue,  7 Apr 2026 16:46:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775578205;
-	bh=+LzdHSeVHiMH4ZZcTEUvseGkknSG0WWsqny03v1gLto=;
+	s=k20201202; t=1775580380;
+	bh=jfLmHt1jktt0gZSNnRJIWqA9vOHoNxlluJSTbjHBDRo=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=eNUbY+H53sWRWGY+ZkRJU0Pngf2NVkOSP1tMr1Fht6gdcC9vtciJYT6kEcS5ZXTcK
-	 aaCdOc/QX/dmIWkNcaGmy9F6iR4TJ8GqO2UTNlakS6NwKu68o716Enl2CRClzOPvXa
-	 z9SwM3QZ7eZpCcdE46XlhpLz8yjevDOAl9lwR0iRhaN0YhKlU59PbHiDT1PnoRMJYP
-	 bnwTU0Yr7LV6LkcIAROPhjOpCFMuv3SKZW2E2IG3QD1Y8HzJasypv7/7kiewMJ51v7
-	 Tnoij7H3XA3707V/hILVc4egCWKZ8MtubR0p5y5/6c5yv0qlsdrbKRYJIMBEwsI6uo
-	 AIHAoBwN39D4A==
-Date: Tue, 7 Apr 2026 11:10:03 -0500
-From: "Rob Herring (Arm)" <robh@kernel.org>
-To: Janne Grunau <j@jannau.net>
-Cc: devicetree@vger.kernel.org, Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	linux-watchdog@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-	asahi@lists.linux.dev, Guenter Roeck <linux@roeck-us.net>,
-	Neal Gompa <neal@gompa.dev>, Andi Shyti <andi.shyti@kernel.org>,
-	linux-gpio@vger.kernel.org, Conor Dooley <conor+dt@kernel.org>,
-	Mark Kettenis <kettenis@openbsd.org>,
-	Sasha Finkelstein <fnkl.kernel@gmail.com>,
-	Uwe =?iso-8859-1?Q?Kleine-K=F6nig?= <ukleinek@kernel.org>,
-	Sven Peter <sven@kernel.org>, Linus Walleij <linusw@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-pwm@vger.kernel.org
-Subject: Re: [PATCH 8/9] dt-bindings: arm: apple: Add M3 based devices
-Message-ID: <177557820303.2666031.1709190779045353584.robh@kernel.org>
-References: <20260320-apple-m3-initial-devicetrees-v1-0-5842e1e393a8@jannau.net>
- <20260320-apple-m3-initial-devicetrees-v1-8-5842e1e393a8@jannau.net>
+	b=h6wO7jZcg4aNPOQrWHOhNLdbekoQktYJqWUNQsp+GDUo4DidxnxTBevcZPrYNSkQm
+	 b0Zpscj7pEN/dyg8at9pYhpnElDP/lZzfb2mFmuf7RLkc5s/FTa2+KyiXPU+0l2esV
+	 zvT4Mrw1ilWm6WHArGNOhTZmg9pENuM14mNB2FPrM0xZ/lvE9P35K8HTm5iYeOHukE
+	 vKyyuyd1roocRtmi5p4O/78y3ylnOwgc/GhhgHBJRw273s09JfxXU3CrWO/GIynztB
+	 Ox6JmzGuOBpC6oiBWcnmwM8Y+x3IBJywAri1bRBJCst5Zrebbmes/Kb3uQ3Aq74j3H
+	 r2PKXY2OSgY5A==
+Date: Tue, 7 Apr 2026 11:46:18 -0500
+From: Rob Herring <robh@kernel.org>
+To: Shi Hao <i.shihao.999@gmail.com>
+Cc: krzk+dt@kernel.org, andi.shyti@kernel.org, conor+dt@kernel.org,
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org, daniel.baluta@nxp.com,
+	simona.toaca@nxp.com, d-gole@ti.com, m-chawdhry@ti.com
+Subject: Re: [PATCH] dt-bindings: i2c: cnxt,cx92755-i2c: Convert to DT schema
+Message-ID: <20260407164618.GA2903702-robh@kernel.org>
+References: <20260323174236.147507-1-i.shihao.999@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -54,21 +44,73 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260320-apple-m3-initial-devicetrees-v1-8-5842e1e393a8@jannau.net>
+In-Reply-To: <20260323174236.147507-1-i.shihao.999@gmail.com>
 
-
-On Fri, 20 Mar 2026 13:23:26 +0100, Janne Grunau wrote:
-> The Apple devices with the t8122 SoC (M3) are very similar to their M1
-> and M2 predecessors.
-> Only the 13-inch Macbook Pro is replaced by a 14-inch version based on
-> the design of the 14-inch Macbook Pro with (M1/M2 Pro/Max). The Mac mini
-> was not offered with M3.
+On Mon, Mar 23, 2026 at 11:12:36PM +0530, Shi Hao wrote:
+> Convert the Conexant Digicolor I2C bindings to DT schema.
 > 
-> Signed-off-by: Janne Grunau <j@jannau.net>
+> Signed-off-by: Shi Hao <i.shihao.999@gmail.com>
 > ---
->  Documentation/devicetree/bindings/arm/apple.yaml | 18 ++++++++++++++++++
->  1 file changed, 18 insertions(+)
 > 
+> Note:
+> This patch is part of the GSoC2026 application process for device tree
+> bindings conversions https://github.com/LinuxFoundationGSoC/ProjectIde
+> as/wiki/GSoC-2026-Device-Tree-Bindings
+> ---
+>  .../bindings/i2c/cnxt,cx92755-i2c.yaml        | 51 +++++++++++++++++++
+>  .../devicetree/bindings/i2c/i2c-digicolor.txt | 25 ---------
+>  2 files changed, 51 insertions(+), 25 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/cnxt,cx92755-i2c.yaml
+>  delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-digicolor.txt
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/cnxt,cx92755-i2c.yaml b/Documentation/devicetree/bindings/i2c/cnxt,cx92755-i2c.yaml
+> new file mode 100644
+> index 000000000000..669397bbc571
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/cnxt,cx92755-i2c.yaml
+> @@ -0,0 +1,51 @@
+> +# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/i2c/cnxt,cx92755-i2c.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Conexant Digicolor I2C controller
+> +
+> +allOf:
+> +  - $ref: /schemas/i2c/i2c-controller.yaml#
+> +
+> +maintainers:
+> +  - Baruch Siach <baruch@tkos.co.il>
+> +
+> +properties:
+> +  compatible:
+> +    const: cnxt,cx92755-i2c
+> +
+> +  reg:
+> +    maxItems: 1
+> +
+> +  interrupts:
+> +    maxItems: 1
+> +
+> +  clocks:
+> +    maxItems: 1
+> +
+> +  clock-frequency:
+> +    default: 100000
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - interrupts
+> +  - clocks
 
-Acked-by: Rob Herring (Arm) <robh@kernel.org>
+> +  - '#address-cells'
+> +  - '#size-cells'
 
+These 2 are required by i2c-controller.yaml already, so you can drop 
+them. Otherwise, I don't know what issue Krzysztof sees either.
+
+With that,
+
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
