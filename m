@@ -1,117 +1,206 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from alln-iport-3.cisco.com (alln-iport-3.cisco.com [173.37.142.90])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB770379EF2;
-	Tue,  7 Apr 2026 20:44:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5569333F394;
+	Tue,  7 Apr 2026 23:40:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=173.37.142.90
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775594645; cv=none; b=ouskxI0tTTZTFyVxCWTBrZ3uT1Is+lkGi2iiX10sAhGOzZfUP2J5/wJT1wCrpu3bCn+CGL5IwUtr7PB/jHIuKfvtmM2Ugcf58ta25LgltipdHkRMovAL1dtrZtpHrF/1h06y7mKzu4tTg5F5iU3w/jkDsVKyXWGZrEiQwF2BYXk=
+	t=1775605245; cv=none; b=qpCnB3cZZTzA322eIJPdB0ogjCUGPi4jKDrg6oQbeDHjZDv+Y8Nkk7ffwnAgstMdXSpc3sSou/67qU206EdKVNV8FoZPYpWIpGghwZQfGEhEBNmwpQrNsSf2H9QXKndlLtbtWjW6e7NTehsWkLL6ry+Hj5UcI/idBjetDHz05DI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775594645; c=relaxed/simple;
-	bh=ds5g5d0oS4MQyIT0BsNumaIh8fLF8x9rw6OQMpQU+uY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bLbSMO9d+HBxTVxviyN2ZFvK9l4Z5lket1LiRDJDdtfRc/Btf7wpJU/Qw74PeI1Mv7WfpNCpoqy1yWpQs5V5ydo7rxfhkMxY4hdv/6OiFNpdugMSkW01Y+P9Yb0ejulFEs1peaimNmdw7fPw9eOnKIHPTee4h3/L01vhcj03uig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uHhCe4tP; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775605245; c=relaxed/simple;
+	bh=4Zxzv9bU3lk0ATs2+10/KKxB+S6qASBhD0OYMLyGryc=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=NaQ0s3kCB65adu8G9GVACKFYwTX8sO7khJA/AWBAaw80N988y6NAT5mUXOdirIURgDjO5vNYfNKNXKR1K4GQDfquyLyk5vNv4B8SMhdTI39VmhaSdI6olKgEpQQtcGV7QhZ2YrSYamxgI90dgX+GJCeIwV4+XTSjEhVDuY8qkqk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cisco.com; spf=pass smtp.mailfrom=cisco.com; dkim=pass (2048-bit key) header.d=cisco.com header.i=@cisco.com header.b=gohyotHw; arc=none smtp.client-ip=173.37.142.90
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cisco.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cisco.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uHhCe4tP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12689C116C6;
-	Tue,  7 Apr 2026 20:44:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775594645;
-	bh=ds5g5d0oS4MQyIT0BsNumaIh8fLF8x9rw6OQMpQU+uY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=uHhCe4tPmGbkZTpZN9Rrs8D9dJOiIv2+bHWFiMZ05TIVDwiWNoTVOdsISivUCHNdY
-	 uCuf/fSBK6RrsOStoyi2Okr5nk4MOznSQj10P3JNd/6irEulWYqNBPnKslaDUQIJ3f
-	 Hj+V7I+uJcQFzJAgHHV+lrK9Gb8PQDExW7z4fv93cQW++Ewq9qBpP2QPRoWGq0l6Et
-	 /r7HB6hAI23z8VWUxp+IfNQ/IyUTqRyP1I0y1UyTHm5Jv28gWGNiAAO2XFgdEKBAc0
-	 y5vUDrgnoN632A0GrlK152WVlrb87NPl6IEJCSqpqS1eBli2miQHa6Za+VbO/ZGA8h
-	 fBG0bbMHEtcfQ==
-Date: Tue, 7 Apr 2026 15:44:02 -0500
-From: Rob Herring <robh@kernel.org>
-To: Ryan Chen <ryan_chen@aspeedtech.com>
-Cc: Jeremy Kerr <jk@codeconstruct.com.au>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	"andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Joel Stanley <joel@jms.id.au>,
-	Andrew Jeffery <andrew@codeconstruct.com.au>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
-	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
-	"linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>,
-	"linux-aspeed@lists.ozlabs.org" <linux-aspeed@lists.ozlabs.org>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"openbmc@lists.ozlabs.org" <openbmc@lists.ozlabs.org>
-Subject: Re: [PATCH v28 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add
- global-regs and enable-dma properties
-Message-ID: <20260407204402.GA3641251-robh@kernel.org>
-References: <20260330-upstream_i2c-v28-0-17bdae39c5cb@aspeedtech.com>
- <20260330-upstream_i2c-v28-2-17bdae39c5cb@aspeedtech.com>
- <20260331-fanatic-certain-bustard-fb13bc@quoll>
- <TY2PPF5CB9A1BE6F267C60EEC34B6A75400F253A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
- <09cbc12bea5707f794e139ea1bfafac82c2d2c12.camel@codeconstruct.com.au>
- <TY2PPF5CB9A1BE6EA5BABE55EB8A7003D22F253A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
- <72517fcf99a7453841ee75243dc54e735c10238f.camel@codeconstruct.com.au>
- <TY2PPF5CB9A1BE64B7988CD85A7189164E1F253A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
+	dkim=pass (2048-bit key) header.d=cisco.com header.i=@cisco.com header.b="gohyotHw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=cisco.com; i=@cisco.com; l=4154; q=dns/txt;
+  s=iport01; t=1775605243; x=1776814843;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=Nufn5pIW58IKxrRWnt8EV/auxiPJjdzFzrAlDceL2Ak=;
+  b=gohyotHwXzPaI0Ac5qLeJl2XGsc4SYuYh8eAaybhZGhxlgy7vsIvEk6x
+   omm2dkSyBnoUUTD+Hb69+1m78XPHGeRD7FGVcWGHgtM7xGVVtaw72qEdC
+   67Uv2E01PusDXPrEEQo4WGSWppezyAv9uI2ZMntLEYUJnT8yHMhr1we5r
+   ++YnwXA6aJ9G1QkPlzj9sL8n3LFF53sD6f+F8M0CeN7Bs09Car/003Qlz
+   gIWLnQzmVYUunHQoAo2op/TSVlkeSH9IjtuJAzQUNlSMh6cJi6qoY3BQN
+   S84+Xc0ot28BY4Ta/sRUcZ2vF3P6KF8x2PAtxZk6I3MSQfPOpUkTB6eKY
+   A==;
+X-CSE-ConnectionGUID: bxwX4TF3QcW4IUbG6PGbEQ==
+X-CSE-MsgGUID: qx6haSvjSx+jO/GN4IUaLQ==
+X-IPAS-Result: =?us-ascii?q?A0BFAgASldVp/5L/Ja1aHgEBCxIMgWsQDwuCU4FQQkmWS?=
+ =?us-ascii?q?4EWnQeBfw8BAQEPUQQBAYUHAo0qAiY0CQ4BAgQBAQEBAwIDAQEBAQEBAQEBA?=
+ =?us-ascii?q?QEBCgEBBQEBAQIBBwWBDhOGXIZbAgEDJwsBRhBRKysZgwKCdAIBsl+BeTOBA?=
+ =?us-ascii?q?bgggWQBCxWBOI1adIR6JxUGgUlEgRWCcnaLBwSDMINaBoJlgzEBhilIgR4DW?=
+ =?us-ascii?q?SwBVRMNCgsHBYFmAzUSKhVuMh2BIz4XgQwbBwWBS4Y0dG2BE4N3cwMLGA1IE?=
+ =?us-ascii?q?Sw3FBsEPm4HiyMngUVSIAEsThOCLwEBDh4MPZJgkkaBNZ9ZhCahWBozhASUF?=
+ =?us-ascii?q?ZJSLodlkHOkWYRogWg8gVkzGggbFYMiUhkPjioDFhzKAiM1PgEHAgcOAoFzk?=
+ =?us-ascii?q?X0BAQ?=
+IronPort-Data: A9a23:NcuH4q7p5UsXZXWeq9i28gxRtAzGchMFZxGqfqrLsTDasY5as4F+v
+ mIZXGiFM/uMZTD3Ko1xb4Ti8UkBvcLXmNMwTVFkpCxmZn8b8sCt6fZ1gavT04J+CuWZESqLO
+ u1HMoGowPgcFyGa+1H1dOSx8xGQ7InQLpLkEunIJyttcgFtTSYlmHpLlvUw6mJSqYDR7zil5
+ 5Wo+KUzBHf/g2Qqaj5MtPrfwP9SlK2aVA0w7wRWic9j5Dcyp1FNZLoDKKe4KWfPQ4U8NoZWk
+ M6akdlVVkuAl/scIovNfoTTKyXmcZaOVeS6sUe6boD56vR0SoPe5Y5gXBYUQR8/ZzxkBLmdw
+ v0V3XC7YV9B0qEhBI3xXjEAexySM5Gq95fNMWeP7fC9lHTNTCfN/v9BUnkZN6Ahr7Mf7WFmr
+ ZT0KRgXZRyFwubzy7WhR6w014IoLdLgO8UUvXQIITPxVKl9B8ucBf+XuJkBgGlYasNmRZ4yY
+ +IfaCF0ZRHYajVEO0wcD9Q1m+LAanzXLGcI9QvN//tri4TV5BVhjrjkC8TXQczJR+ISsWDEh
+ 1/P212sV3n2M/Tak1Jp6EmEj/XJkQvyQoQeHvu0+5ZCikecwkQZBxEbSx2jpZGRgFS5XNReJ
+ mQX9zAooKx081akJvHnVhOxrXqsvRMGXddUVeog52mlxbDZ7AWZLmwFSCNRZts7ssM/WT0t0
+ BmOhdyBLThutqCFDHPH/Z+Koj6ofysYN2kPYWkDVwRty93ippwjyxHCVNBuFIargdDvXzL92
+ TaHqG45nbp7sCIQ/7+w8VaCh3enoYLEC1ZkoA7WRWmiqAh+YeZJerCV1LQS1t4YRK7xc7VLl
+ CFsdxS2hAzWMaywqQ==
+IronPort-HdrOrdr: A9a23:MK6tXa264n8z6TH3yIF2GQqjBJAkLtp133Aq2lEZdPWaSKOlfq
+ eV7ZMmPHDP6Qr5NEtMpTnEAtjjfZq+z+8Q3WBuB9eftWDd0QPCRr2Kr7GSpgEIcBeRygcy78
+ tdmtBFeb7NJGk/q9rm6w+lFNtl6tyG/Ke0wdr69R5WPGdXg2UK1XYANu5deXcGPTV7OQ==
+X-Talos-CUID: =?us-ascii?q?9a23=3APr13SGjZNBSo7FmJpRqEg9fAkTJueG3C/CvsDRS?=
+ =?us-ascii?q?BAlk1aYCfZgGo16lJqp87?=
+X-Talos-MUID: 9a23:7ptt9gYvbMh00OBTri+yhDhZKsVT8+esLwcit8knhsCgDHkl
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-AV: E=Sophos;i="6.23,166,1770595200"; 
+   d="scan'208";a="728510294"
+Received: from rcdn-l-core-09.cisco.com ([173.37.255.146])
+  by alln-iport-3.cisco.com with ESMTP/TLS/TLS_AES_256_GCM_SHA384; 07 Apr 2026 23:39:34 +0000
+Received: from sjc-ads-2636.cisco.com (sjc-ads-2636.cisco.com [171.70.32.71])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by rcdn-l-core-09.cisco.com (Postfix) with ESMTPS id 80FA8180004A8;
+	Tue,  7 Apr 2026 23:39:34 +0000 (GMT)
+Received: by sjc-ads-2636.cisco.com (Postfix, from userid 470863)
+	id 27872CBEF83; Tue,  7 Apr 2026 16:39:34 -0700 (PDT)
+From: Nishanth Sampath Kumar <nissampa@cisco.com>
+To: broonie@kernel.org
+Cc: brgl@bgdev.pl,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	gregkh@linuxfoundation.org,
+	rafael@kernel.org,
+	arnd@arndb.de,
+	Nishanth Sampath Kumar <nissampa@cisco.com>
+Subject: [PATCH v2] regmap-i2c: add SMBus byte/word reg16 bus for adapters lacking I2C_FUNC_I2C
+Date: Tue,  7 Apr 2026 16:39:27 -0700
+Message-Id: <20260407233927.498932-1-nissampa@cisco.com>
+X-Mailer: git-send-email 2.35.6
+In-Reply-To: <20260404021920.359902-1-nissampa@cisco.com>
+References: <20260404021920.359902-1-nissampa@cisco.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <TY2PPF5CB9A1BE64B7988CD85A7189164E1F253A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
+Content-Transfer-Encoding: 8bit
+X-Outbound-Client-TLS: ANONYMOUS;sjc-ads-2636.cisco.com [171.70.32.71];TLSv1.3;TLS_AES_256_GCM_SHA384;256
+X-Outbound-SMTP-Client: 171.70.32.71, sjc-ads-2636.cisco.com
+X-Outbound-Node: rcdn-l-core-09.cisco.com
 
-On Tue, Mar 31, 2026 at 07:30:58AM +0000, Ryan Chen wrote:
-> > Subject: Re: [PATCH v28 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add global-regs
-> > and enable-dma properties
-> > 
-> > Hi Ryan,
-> > 
-> > > > Sounds reasonable, but before you do so, how are you planning to
-> > > > manage the allocation of DMA channels across multiple i2c peripherals?
-> > > >
-> > > The AST2600 I2C hardware has only one can use DMA at a time.
-> > > To avoid the complexity of managing DMA channel contention, I plan to
-> > > use buffer mode by default for all controllers, which still provides
-> > > better performance than byte mode without requiring DMA channel
-> > allocation.
-> > 
-> > OK, but your wording there ("by default") implies that DMA is still selectable
-> > for one controller peripheral. In which case: you still have the problem of
-> > managing DMA channel contention, but now it's at runtime instead.
-> > 
-> > So my question still stands: how are you planning to enforce that DMA is only
-> > enabled for one controller?
-> > 
-> > Or are you planning to disable I2C DMA entirely on AST2600?
-> Yes, This is my intent to do.
-> Disable I2C DMA entirely on AST2600.
-> If I remove DMA, should can I keep byte and buffer for sysfs? 
+AMD PIIX4 SMBus adapters, present on AMD SP5/EPYC-based platforms
+(including Cisco 8000 series routers), support SMBUS_BYTE_DATA and
+SMBUS_WORD_DATA but lack I2C_FUNC_I2C and I2C_FUNC_SMBUS_I2C_BLOCK.
 
-28 versions and it's still not clear when you need what mode. Sigh. The 
-only thing better about sysfs then it's not my problem, but that really 
-doesn't sound much better.
+When at24 (or any driver) requests a regmap with reg_bits=16 and
+val_bits=8 on such an adapter, regmap_get_i2c_bus() finds no matching
+bus and returns -ENOTSUPP.  The existing regmap_i2c_smbus_i2c_block_reg16
+bus type already implements 16-bit addressed reads using only
+write_byte_data() + read_byte() primitives, but its selection is gated
+on I2C_FUNC_SMBUS_I2C_BLOCK which these adapters lack.
 
-DMA is only going to be useful for transfers above a certain size. If 
-you are doing the typical SMBus style register accesses, then DMA is 
-completely useless. The setup DMA overhead is going to be greater than 
-just directly reading/writing the I2C controller FIFOs. What's the size 
-that makes DMA useful? 16, 32, 64 bytes? Something greater than the max 
-size in buffer mode probably. Really, provide some data that DMA gives 
-better performance and/or less CPU usage. If you set some minimum size 
-and request DMA only above that size, is there really that much 
-contention? If there's some specific device that really needs DMA, then 
-make that device's driver request it and reserve it. 
+Add a new regmap_smbus_byte_word_reg16 bus that:
 
-For byte mode, there's not a clear need nor description of why. Someone 
-once long ago asked for it... Who cares, if they really want it, then 
-the issue needs to be described. If a certain device requires certain 
-timing that byte mode provides, then that should be some property the 
-driver for the device communicates to the controller. No need for DT 
-nor sysfs in that case.
+  READ:  reuses regmap_i2c_smbus_i2c_read_reg16() -- sets the 16-bit
+         address via write_byte_data(addr_lo, addr_hi), then reads
+         bytes sequentially via read_byte() (EEPROM auto-increments).
+         Requires only SMBUS_BYTE_DATA.
 
-Rob
+  WRITE: uses write_word_data(addr_hi, (data << 8) | addr_lo) to
+         encode one data byte per SMBus WORD transaction.
+         Requires only SMBUS_WORD_DATA.  Single-byte writes only.
+
+The new bus is selected in regmap_get_i2c_bus() when reg_bits=16,
+val_bits=8, and the adapter has SMBUS_BYTE_DATA | SMBUS_WORD_DATA but
+not I2C_FUNC_I2C or SMBUS_I2C_BLOCK.  The branch is placed after the
+existing I2C_BLOCK_reg16 check so adapters with full block support
+continue to use the faster path.
+
+This fixes at24 EEPROM probe failures on PIIX4:
+  at24 3-0055: probe with driver at24 failed with error -524
+
+No driver changes are required -- at24 already passes reg_bits=16 to
+devm_regmap_init_i2c(), which now succeeds.
+
+Signed-off-by: Nishanth Sampath Kumar <nissampa@cisco.com>
+---
+v1 -> v2: Moved fix from at24 driver into regmap-i2c core per review
+          feedback from Bartosz Golaszewski and Mark Brown.
+
+ drivers/base/regmap/regmap-i2c.c | 49 ++++++++++++++++++++++++++++++++
+ 1 file changed, 49 insertions(+)
+
+--- a/drivers/base/regmap/regmap-i2c.c
++++ b/drivers/base/regmap/regmap-i2c.c
+@@ -303,6 +303,50 @@
+ 	.max_raw_write = I2C_SMBUS_BLOCK_MAX - 2,
+ };
+ 
++/*
++ * SMBus byte/word reg16 support for adapters that have SMBUS_BYTE_DATA
++ * and SMBUS_WORD_DATA but lack I2C_FUNC_I2C and I2C_FUNC_SMBUS_I2C_BLOCK,
++ * such as the AMD PIIX4.
++ *
++ * READ:  set 16-bit EEPROM address via write_byte_data(addr_lo, addr_hi),
++ *        then sequentially read bytes via read_byte() (EEPROM auto-
++ *        increments the address pointer).  Same as the I2C-block reg16
++ *        read path above.
++ *
++ * WRITE: encode the low address byte and data into a word transaction:
++ *        write_word_data(addr_hi, (data_byte << 8) | addr_lo).
++ *        Only single-byte writes are supported (one value per transaction).
++ */
++static int regmap_smbus_word_write_reg16(void *context, const void *data,
++					 size_t count)
++{
++	struct device *dev = context;
++	struct i2c_client *i2c = to_i2c_client(dev);
++	u8 addr_hi, addr_lo, val;
++
++	/*
++	 * data layout: [addr_hi, addr_lo, val0, val1, ...].
++	 * Only single-byte value writes are supported; multi-byte would
++	 * require raw I2C (or repeated word writes with incrementing address).
++	 */
++	if (count != 3)
++		return -EINVAL;
++
++	addr_hi = ((u8 *)data)[0];
++	addr_lo = ((u8 *)data)[1];
++	val = ((u8 *)data)[2];
++
++	return i2c_smbus_write_word_data(i2c, addr_hi,
++					 cpu_to_le16(((u16)val << 8) | addr_lo));
++}
++
++static const struct regmap_bus regmap_smbus_byte_word_reg16 = {
++	.write = regmap_smbus_word_write_reg16,
++	.read = regmap_i2c_smbus_i2c_read_reg16,
++	.max_raw_read = I2C_SMBUS_BLOCK_MAX - 2,
++	.max_raw_write = 1,
++};
++
+ static const struct regmap_bus *regmap_get_i2c_bus(struct i2c_client *i2c,
+ 					const struct regmap_config *config)
+ {
+@@ -321,6 +365,11 @@
+ 		i2c_check_functionality(i2c->adapter,
+ 					I2C_FUNC_SMBUS_I2C_BLOCK))
+ 		bus = &regmap_i2c_smbus_i2c_block_reg16;
++	else if (config->val_bits == 8 && config->reg_bits == 16 &&
++		 i2c_check_functionality(i2c->adapter,
++					I2C_FUNC_SMBUS_BYTE_DATA |
++					I2C_FUNC_SMBUS_WORD_DATA))
++		bus = &regmap_smbus_byte_word_reg16;
+ 	else if (config->val_bits == 16 && config->reg_bits == 8 &&
+ 		 i2c_check_functionality(i2c->adapter,
+ 					 I2C_FUNC_SMBUS_WORD_DATA))
