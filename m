@@ -1,126 +1,127 @@
-Received: from smtpbgeu1.qq.com (smtpbgeu1.qq.com [52.59.177.22])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9B8718EFD1;
-	Wed,  8 Apr 2026 02:49:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.59.177.22
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC6AD2FFF99
+	for <linux-i2c@vger.kernel.org>; Wed,  8 Apr 2026 05:30:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775616597; cv=none; b=qrevyvaMdJzL7VyHiY97aCQja0R2+ZAxFkyzrtx7moO8JXQnTxO8MY3eMbxp/tUIiSiQfHAKrAM7eN2XZHAqML5lBNj5jIntk1hWYMAJpu/l2o7m/kbbuPuYZ720rbhGzxovetRZkOgqZcIvfkNECYqUSz/8kMxh0bsV4L2dYf4=
+	t=1775626257; cv=none; b=O1Ze4Kj5V9CD72Miflj1/RLR8MX37caaIcrw1JzoAIt2bEy+czoqP6VowhG5V9PvfBY84IzkczJEkY5VUraOqcZ07js3yVvrZYeZMhXq5Or6VtvuVqNG2OCjiCt7pHiM1+i/pDciX2GHFZmoF0ViiciaJ9Ue/zLc3WiOq2IHsOs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775616597; c=relaxed/simple;
-	bh=+UuM4q1vgiatpeERAXklQJO9UrZQ54OE+RX5pK9GpGw=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
-	 References:In-Reply-To; b=q3/wgpdw/mAKr5hLfMTSd2NLINlAHgd/qPx3F++XcuqXwFhFUey7YP+7nbNByNP++Y8yh/dzt3IvwMoshXMBHls0qJNEGy4f1RHq/xhuMozr/DLTbd+lsmusDgi/NhsAceDZVmzaBccOAcG1jRNI0CDC1MbYaK0OkwPFONp5qEc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com; spf=none smtp.mailfrom=linux.spacemit.com; dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b=atl3iZzk; arc=none smtp.client-ip=52.59.177.22
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.spacemit.com
+	s=arc-20240116; t=1775626257; c=relaxed/simple;
+	bh=2bvutzs7rtzWgmeamR13PJ6ItU9+5Cs+DqdG83Mabhw=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=bv3Z57GdrzFlTmVhWMCvz8XZvptaN7buLxP5jG8y83Y+O0m1NJcqvHExagEN1om7+J45fzbCXYfP6I3oNgML0jZUPrXRBTlK4ukWEn9UGVwnPRQx/CNWi5FMDusGzfKoQbxxKhmtMx6VZgwldm/Mt23o4d3/bcSMp6lbf7dvEnY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=V8ZWPWMq; arc=none smtp.client-ip=209.85.214.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b="atl3iZzk"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.spacemit.com;
-	s=mxsw2412; t=1775616502;
-	bh=yidXhTBb2zJgYkyCk0CYWabO2JRCWHqEgQlmxubluYo=;
-	h=Mime-Version:Date:Message-Id:Subject:From:To;
-	b=atl3iZzki/j71RL0gSmeLB+ZGLs6QOJDHAzrbfmcNL5awRN+UokYdbdjqL+PBttms
-	 EeHqSySVR+D+7rannCfXEUEUfU1t3WOvuZiR3dyDLxl0YLIKhAblIt7gvFVkOT6vAy
-	 KI8u84YCQbYDVGFhBkxDtwle+hKirFTOvWV0Skcw=
-X-QQ-mid: zesmtpsz4t1775616493t5df3e19c
-X-QQ-Originating-IP: UWGoQnXfI+aa6PWQBmbxd+UL7yVcZdzn5VqUhKeqiMo=
-Received: from = ( [120.237.158.181])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Wed, 08 Apr 2026 10:48:11 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 0
-X-BIZMAIL-ID: 8140302945074531097
-EX-QQ-RecipientCnt: 11
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="V8ZWPWMq"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2ab39b111b9so25186805ad.1
+        for <linux-i2c@vger.kernel.org>; Tue, 07 Apr 2026 22:30:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775626255; x=1776231055; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=G261iPgwxdDm9fBlFNsCEO8KxZODyeiwStlQ3uz07JM=;
+        b=V8ZWPWMqIM0a1pIwCeYyr7S7yp7Dco1DstdcGm8g9rxA29Efde1Roj1i5rcE4iBJPn
+         fsHLZhnXE8c5cggjmHM42eT3uoMXlTw9pZqUvlB3J4qUmJGuMa8PihJgxOtHA7TJKbWq
+         iczR2H/A2QgWbT1TY4Px2AKvigew9sNEWySTDTHoYPFVuKUmjdfKRNzOoAee4afwiNHW
+         p2NCoIgnkBIC9MQKNROYRzF+hy7M35Rt4B4StKYoRWTerL4bCioqceGnedGlFVb1zLiy
+         RA1vi4luuCyS44b25VMz0M6Q1tLapccjDStg10ebjYnZvPar3u5zqJ6xshcsqGpBIk6e
+         8Lzw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775626255; x=1776231055;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=G261iPgwxdDm9fBlFNsCEO8KxZODyeiwStlQ3uz07JM=;
+        b=m0BEYkiS37w4wH6Ee09lg4pqTkt6FQUzKfe42nQRReKV+BxOxxr/C+ANFPpH5IIJhl
+         zq3/LvkExR60TeEA3dQ7v67cig3dqMQ2YbDvJik5lWG4ujzcrrwskk4pNJHl8Swpizs4
+         8HijO7Zf4WOrOdU7GXkEueARhmwp1ZgYqU/w5Gk+dE/sPpEH3bv8eppx99Cr9yPWbgVn
+         MHMjAZ3VqOCuCsHpglWdROFFcaUNNgxbmjSJSTCkbHZih/0K87EDniZEig95nV4VmVuG
+         q/loFXLUoYGfjQLr3O4GYkJQrJ9d9F14Jphdo/B57au3syayjgpOgnNsmiAy/TjLHa21
+         jN2A==
+X-Forwarded-Encrypted: i=1; AJvYcCVCmx7Up+sBzgGp5WBytQmao4/HCt/NVWHj/NPssDFCHkTIOQNXBVYW3Ltro7DQb5SB02ZNAfws2gY=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzy6FH5gRuxun7qx4KJ73qmG1b6wjtToC3rcLGp3UTz2t0W4d3m
+	0npx6Ca4AJAtOWhhb930MQhNY4irF+sigbRn7n2mfr11ncaJGvJnryHH
+X-Gm-Gg: AeBDietwNWPRwt0PVa1VkKf9WWy84xsmmJaueWa+GrVHFWbDZco7lX2RKN6VUc93hzu
+	eLLeQRify8K7XMQbbOU0og8rQDAbmPdgGoHXrDCzzyQQxpWWRmMeMQJhkkvJI0pFe7bifpkcNb2
+	AeTgsR0BTQXQnKEM2FCIKDC/LCOxlHfvxSVRem6X695XhIDuyEgOkB1skQlC8TQr6GyjnVQzTDJ
+	x5NRJWGgKXUG9k0P2vHGkxdUUzNKbuwWIy3DIKylJxQczEbiJHcA8SLP3qYPqjIhQfoccSNPlpG
+	qd/MvRbN1Q9dfxnKzVIZ722INA++I6AuFYh/QfIAe1YCQDR7TZ4+qc0RNEaif2VIRsh+FRCfnfA
+	5+EhmOwaeniFt7pic0I4xu4QW2WEBMnx6A2NcDLsMBqH80CeTBPDnay6f4FBA6rK4T+cGVu0xM8
+	GH/K4xIi7hBEG5lhLaHg1wxM5S4Q17PcDBmsYD21/ZgvSw2A7t5yNwRjEsdVxLfrtgoDoYYQifm
+	fls
+X-Received: by 2002:a17:902:e78b:b0:2b2:57df:264d with SMTP id d9443c01a7336-2b28178c3b7mr208603985ad.33.1775626255168;
+        Tue, 07 Apr 2026 22:30:55 -0700 (PDT)
+Received: from hcdev-d520mt2.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b27472d098sm181673475ad.13.2026.04.07.22.30.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Apr 2026 22:30:54 -0700 (PDT)
+From: a0282524688@gmail.com
+To: tmyu0@nuvoton.com,
+	linusw@kernel.org,
+	brgl@kernel.org,
+	linux@roeck-us.net,
+	andi.shyti@kernel.org,
+	lee@kernel.org,
+	mkl@pengutronix.de,
+	mailhol@kernel.org,
+	alexandre.belloni@bootlin.com,
+	wim@linux-watchdog.org
+Cc: linux-kernel@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-can@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	Ming Yu <a0282524688@gmail.com>
+Subject: [PATCH v2 0/2] mfd: nct6694: Refactor transport layer and add HIF (eSPI) support
+Date: Wed,  8 Apr 2026 13:30:35 +0800
+Message-Id: <20260408053037.1867092-1-a0282524688@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 08 Apr 2026 10:48:11 +0800
-Message-Id: <DHNFIJBTZQI8.C1RI1XWDRL3Q@linux.spacemit.com>
-Subject: Re: [RESEND][PATCH v5] mfd: simple-mfd-i2c: add a reboot cell for
- the SpacemiT P1 chip
-From: "Troy Mitchell" <troy.mitchell@linux.spacemit.com>
-To: "Vincent Legoll" <legoll@online.fr>, <linux-kernel@vger.kernel.org>,
- "Lee Jones" <lee@kernel.org>, "Yixun Lan" <dlan@kernel.org>,
- <linux-riscv@lists.infradead.org>, <spacemit@lists.linux.dev>
-Cc: "Troy Mitchell" <troy.mitchell@linux.spacemit.com>, "Andi Shyti"
- <andi.shyti@kernel.org>, "Yixun Lan" <dlan@gentoo.org>,
- <linux-i2c@vger.kernel.org>, "Aurelien Jarno" <aurelien@aurel32.net>
-X-Mailer: aerc 0.21.0-0-g5549850facc2
-References: <20260401165437.1048786-3-aurelien@aurel32.net>
- <b7e182f9-8bd8-40e6-acaa-dc6e556f2a53@online.fr>
- <adPUTRAlzGBs2wQG@aurel32.net>
- <bbd2e57f-3107-46cc-a8a7-ee717e577d6e@online.fr>
-In-Reply-To: <bbd2e57f-3107-46cc-a8a7-ee717e577d6e@online.fr>
-X-QQ-SENDSIZE: 520
-Feedback-ID: zesmtpsz:linux.spacemit.com:qybglogicsvrgz:qybglogicsvrgz3a-0
-X-QQ-XMAILINFO: MXdazUCb/CBOkLJDmIC8M8bgAvWpoDUUVwSBSDgEz8pGQhMdR25Q2gZN
-	X492gJrHD4HOyPINe/n+qPincr25l65Z/vtZbQ/XQA/1Jeb7mIE+Rm51JYJ7K2co9IOqI3S
-	lSMmIpJh4WWRrmv7AN1fkZ9IfItmVccXaAXDPgHVsJeNqn2G1QM11JbicweYhPhWHNUX5NP
-	AhwI1o8yuxBgKEmc+ZlhjGBAXyXLOC+QWbeqp5cMIfKjwDWSAR+SYoQ6jN5w/Xzfb/AgEMd
-	Zuic+v0npbf9pD3K9/qa3u+5FqP8DdVc7QJSOaMo7JPYY3P6ubL94r6otFwQsJ1pBC8r4Io
-	3PKB7TuA37S43JG/1K5gV1roM01/+vsI3eluNfPNbiQdtOaIu13CVcSkJqHHEyqOluXyO4V
-	GiQVbYFzt+KS0+JROdI0dmsPHENSya1sRifZ0gicDRnhR0g4imN02Cuu2CjvTZxLbcMs0hh
-	eLSn8bmJ22c8Ko6B8/vvreL3lUWedAq1YBzop+LPD5iFmnd1p6v1/J84lufW3o2nLnwomQF
-	egFSw+vg/Tuw1MKqfn1UuspYFaY1lwxBsgLbNxP9YMPby/to3aJLZtUM6bxs7x5g00/VQNq
-	c1C6+1tYYH/C5YcynNWTiNnBmb+PwQ4e66LkyzZlEMr4XYjUVut1MPKRtN4S6XyHq6Ei7X4
-	bt0G83eDUB2O6E1ahqXkTTA97EobVHFZXF67BDat+Ui1HO5bTUm6preW3dqAjI5Y+Q/D7bO
-	rwE0rrgprxD4tPFdnOam8ALoX82+TrX5OQBebsTemLtVxXLDb/UCQpz+2M8FbuYEgKZ4qoJ
-	MxWmco3ZrBfF9Fgeubnwh6R8KPYVoJSJ9oLd5XbLFEhmrfxi+mLJJgR/z4EiO4if9rZqx1n
-	fKkTduRhaYC7zjjMqTpUnKSSVk3e121A9sJhT7uvzyudzKVVvRe1EZOw2GQVqIIp8hBTYwy
-	CfyVcKg9WrrjTRpo6R5H2eoiawG+GtxUjaEYhKA0VRU+LjmE8855aNMx55Y1VzVquDxH2qI
-	yYqFr5cnsZEjzYwUAGUz0/O7I6YfJlm12oUQ7aGH/+V7ULvxfvJGQu2BBlsSDyr7yv3IiYp
-	+wlVrSzw+wKZlrzfrNOTAq6vzYOouMpB8n3WCcEsM05h/5/U6WuCrZ8Vo3aMppjTg==
-X-QQ-XMRINFO: Nq+8W0+stu50tPAe92KXseR0ZZmBTk3gLg==
-X-QQ-RECHKSPAM: 0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-On Tue Apr 7, 2026 at 5:55 AM CST, Vincent Legoll wrote:
-> Hi Aurelien,
->
-> On 4/6/26 17:42, Aurelien Jarno wrote:
->> On 2026-04-06 11:46, Vincent Legoll wrote:
->>> Tell me if there's a new iteration to test, and/or if you want me testi=
-ng it
->>> in a different way.
->> Yes, as written in the original mail, this patchset depends on PIO
->> support in the spacemit I2C driver:
->> https://lore.kernel.org/lkml/20260207-b4-k3-i2c-pio-v7-2-626942d94d91@li=
-nux.spacemit.com/
->>
->> Without it, you might get this warning message and reboot is not 100%
->> reliable. I still believe it's better than no reboot support at all.
->
->
-> OK, I tested a new stack: next-20260406, PIO patchset, reset=C2=A0patchse=
-t=C2=A0&=20
-> USB=C2=A0patchset:
->
->
-> $ git log --oneline
-> 5030369b32c4 (HEAD -> opirv2-pio-reset-usb) riscv: dts: spacemit: Enable=
-=20
-> USB3.0/PCIe on OrangePi RV2
-> 73274ce37441 riscv: dts: spacemit: Define the P1 PMIC regulators for=20
-> OrangePi RV2
-> cda12b8bdbfe riscv: dts: spacemit: Enable i2c8 adapter for OrangePi RV2
-> 68ce409351c6 (opirv2-pio-reset) mfd: simple-mfd-i2c: add a reboot cell=20
-> for the SpacemiT P1 chip
-> 245e0b8e8a91 i2c: spacemit: introduce pio for k1
-> a588d756621d i2c: spacemit: move i2c_xfer_msg()
-> 816f193dd0d9 (tag: next-20260406, next/master, next/HEAD) Add linux-next=
-=20
-> specific files for 20260406
->
-> This boots and reset properly without the previous WARN.
->
-> So if any of those those series need added T-Bs, then here's mine:
->
-> Tested-by: Vincent Legoll<legoll@online.fr> # OrangePi-RV2
-I'll take this tag to my PIO patchset. Thanks!
+From: Ming Yu <a0282524688@gmail.com>
 
-                                - Troy
+The Nuvoton NCT6694 is a peripheral expander that provides GPIO, I2C,
+CAN-FD, Watchdog, HWMON, PWM, and RTC sub-devices. Currently, the
+driver only supports USB as the host transport interface.
+
+This series refactors the NCT6694 MFD core to support multiple transport
+backends and adds a new Host Interface (HIF) transport driver that
+communicates over eSPI using Super-I/O shared memory.
+
+Changes since version 1:
+- Reworked the Super-I/O access helpers.
+
+Ming Yu (2):
+  mfd: nct6694: Switch to devm_mfd_add_devices() and drop IDA
+  mfd: Add Host Interface (HIF) support for Nuvoton NCT6694
+
+ MAINTAINERS                         |   1 +
+ drivers/gpio/gpio-nct6694.c         |  26 +-
+ drivers/hwmon/nct6694-hwmon.c       |  21 -
+ drivers/i2c/busses/i2c-nct6694.c    |  26 +-
+ drivers/mfd/Kconfig                 |  47 ++-
+ drivers/mfd/Makefile                |   3 +-
+ drivers/mfd/nct6694-hif.c           | 634 ++++++++++++++++++++++++++++
+ drivers/mfd/nct6694.c               | 180 ++++----
+ drivers/net/can/usb/nct6694_canfd.c |  18 +-
+ drivers/rtc/rtc-nct6694.c           |   7 -
+ drivers/watchdog/nct6694_wdt.c      |  27 +-
+ include/linux/mfd/nct6694.h         |  57 ++-
+ 12 files changed, 814 insertions(+), 233 deletions(-)
+ create mode 100644 drivers/mfd/nct6694-hif.c
+
+-- 
+2.34.1
+
