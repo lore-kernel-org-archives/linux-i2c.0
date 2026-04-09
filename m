@@ -1,42 +1,40 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E7102D2496;
-	Thu,  9 Apr 2026 16:29:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8F3A8BE9;
+	Thu,  9 Apr 2026 16:36:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775752167; cv=none; b=TPUGnbfRd3K9/2QJiaNC2upknedjFx6zcH6zcXbTJ4YTjnbx2D2+DO+UIQR2jnh777IqXhnh0Rr9KK0pOwwLTF7YNrW7GldlXYGUTFnq3ix5HZkAniB9BON5P2wXELKjtNfKofZSbALcXj0WJxe6oZzmHH1eXt9WYjbz2LV7dQI=
+	t=1775752619; cv=none; b=tph5bD37gFnZLn0TdETSoVjEi/F5rf2V7SPp3OxgXV+0beuuvWx+MvddHbjpRIM1A6xJdVazD3OybdtbWViokqI2CAjJuyqM1jhqmCpONXBeGIDo7ZSZzCxfBXAgu+6hB2p1MbWP1JB/czw8RS463gFJvH/VY3Z2RRl3Ms6b57M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775752167; c=relaxed/simple;
-	bh=0PYLzHiQW4t3ziI2iibnh/BE/gLcKoKFZi9FCjfOoYE=;
+	s=arc-20240116; t=1775752619; c=relaxed/simple;
+	bh=KOqlFVVDPA8Z6Cqw5fEN1sKBxBwUNHbyg8QMlZBZyrA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Bm9dbuIDFuN+lmtBlTiQJwnVivbHx0Y7+6yh36HiDCpc2yDY+v0j+6GYvjiYn0nrRtbuO82DlpuiRerC0tg1Q7UTD1ZvAqwcLDDRfAswmtz+sYiUSeM0Dsn1l2GtftquI8pBse5pnzqRTYQg5Arjz1MDWR4wWXX8UQbozEfLqks=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rrKuwMii; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=lp1oTYtcRdKWgqkIugFGYQgX+9GctOXBovO9EoAjMi+cr1TR9lOqjc2boUEbg7PpX0pZ2Ei8A7hVrWJJt4MoBoExtLTNays49k0z8fim32mXHRh9ufBnuDoNEE6kEVgITK9Re9nystSsMODjTtjAQuo6sGZr0mdqlLkfOsWgCHg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=tO3ctKOr; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rrKuwMii"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 989BDC4CEF7;
-	Thu,  9 Apr 2026 16:29:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="tO3ctKOr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F558C4CEF7;
+	Thu,  9 Apr 2026 16:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775752167;
-	bh=0PYLzHiQW4t3ziI2iibnh/BE/gLcKoKFZi9FCjfOoYE=;
+	s=k20201202; t=1775752619;
+	bh=KOqlFVVDPA8Z6Cqw5fEN1sKBxBwUNHbyg8QMlZBZyrA=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=rrKuwMiiVK0wH2SSeSYHrFn8Cc6LXHpns6aSQLfsAWCUahBmAgLkoHmMwTJp30APz
-	 zF+/SkrRQGbLMF9pKSgOgQfKjFwCPENVUgIDvT2IJyvcs06Hgz3/5ZtX3TkzKqJnzJ
-	 batiAo9M9Fd1F8sAJ0yNluNfOMnRu3reGJEtDBRN5cCgLlWqfCv/JpznEJ9GwjD9Pn
-	 QwbPKqva2q0LdwAoL8+0MXq/5pAJ6ubY0KSBLfrfek75i/onxcbzBxOhmvfK1TJX/G
-	 JneiE1qSu5t/6M6JZyO0xRfQ4eDCdJluX+9oXB1ehhGlYtnjgoUvHbBuAvqoqD7XF9
-	 yvysEfg0FVAAw==
-Date: Thu, 9 Apr 2026 18:29:22 +0200
+	b=tO3ctKOrVZJRL2kFL4/4QiCi7kgQpYRH8DHsDAjExEVG0fet21rxehQ7U/a013N79
+	 txPwkC0SXW/3sECmTbpGrFJWXhE6UkSQ+sdCLl/Ex2orjqw/sGnQsWBXSrnI0DW1DI
+	 zEUX820CBJKJOTJwmTGavTqwDwKaZr0atzyIMqHt3GKy3wp+OgK6g++w3Y5ysEby+K
+	 eDYsNJlF6F0ZxGEKoUcDgnn0AilzsGZoJKiR3Gfi/KwSBxvpdXfnO+fqFRgmdxnIVu
+	 w9C5JZLKcrIiJC4cGiu1FgBXMaRW4wOq73cVlzB1i2nTRB+Bmv9O9lhwavEoJMPf61
+	 U40a0PcHRSnNw==
+Date: Thu, 9 Apr 2026 18:36:55 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Rosen Penev <rosenp@gmail.com>
-Cc: linux-i2c@vger.kernel.org, 
-	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, Kees Cook <kees@kernel.org>, 
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>, open list <linux-kernel@vger.kernel.org>, 
-	"open list:KERNEL HARDENING (not covered by other areas):Keyword:b__counted_by(_le|_be)?b" <linux-hardening@vger.kernel.org>
-Subject: Re: [PATCH] i2c: atr: use kzalloc_flex
-Message-ID: <adfTdfty7q0nygeo@zenone.zhora.eu>
-References: <20260327030310.8502-1-rosenp@gmail.com>
+To: Troy Mitchell <troy.mitchell@linux.spacemit.com>
+Cc: Yixun Lan <dlan@gentoo.org>, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-riscv@lists.infradead.org, spacemit@lists.linux.dev, 
+	Aurelien Jarno <aurelien@aurel32.net>, Alex Elder <elder@riscstar.com>
+Subject: Re: [PATCH v7 0/2] i2c: spacemit: introduce pio for k1
+Message-ID: <adfVk82OC1c3Zn8a@zenone.zhora.eu>
+References: <20260207-b4-k3-i2c-pio-v7-0-626942d94d91@linux.spacemit.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -45,40 +43,15 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260327030310.8502-1-rosenp@gmail.com>
+In-Reply-To: <20260207-b4-k3-i2c-pio-v7-0-626942d94d91@linux.spacemit.com>
 
-Hi Rosen,
+Hi Troy,
 
-along with Luca's comments, I will ask you for one more change:
+> Troy Mitchell (2):
+>       i2c: spacemit: move i2c_xfer_msg()
+>       i2c: spacemit: introduce pio for k1
 
-...
-
->  	/* Protects aliases and use_mask */
->  	spinlock_t lock;
-> -	u16 *aliases;
->  	unsigned long *use_mask;
-> +	u16 aliases[] __counted_by(size);
-
-...
-
-> -	alias_pool = kzalloc_obj(*alias_pool);
-> +	alias_pool = kzalloc_flex(*alias_pool, aliases, num_aliases);
->  	if (!alias_pool)
->  		return ERR_PTR(-ENOMEM);
->  
->  	alias_pool->size = num_aliases;
-
-this line is not needed anymore because kzalloc_flex will resolve
-to alias_pool size and will set it tu num_aliases.
-
-We can remove it.
+merged to i2c/i2c-host.
 
 Thanks,
 Andi
-
-> -	alias_pool->aliases = kcalloc(num_aliases, sizeof(*alias_pool->aliases), GFP_KERNEL);
-> -	if (!alias_pool->aliases) {
-> -		ret = -ENOMEM;
-> -		goto err_free_alias_pool;
-> -	}
-> -
