@@ -1,62 +1,84 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-174.mta1.migadu.com (out-174.mta1.migadu.com [95.215.58.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96C909443;
-	Thu,  9 Apr 2026 18:33:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1D7617A2EA
+	for <linux-i2c@vger.kernel.org>; Thu,  9 Apr 2026 19:12:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775759624; cv=none; b=MKzmhk5Udro6JtLgSHSz462U3PS26RrlgxyrbG13sMuchKL2YoiZiUDN3o4SvA4aTBnH0Bn+4nqj7grfjrpxq5A0PiIMgdLbCoeUT39m1rGkCq9AWFzkrroJxf85CiFJv0ZBPLnmroVyPfQm1rsOtwWexFTenlqB1mCv9Yih+fk=
+	t=1775761924; cv=none; b=eqJCt8J5xJca5pUFJJYOgA4EiilqySEQ7qN/fGcTq0CzBEjbjDFl6siQhY+q33y/oVfgnqqg1jV3SPQ5eB+Udk8xXy1yOG5H3Q9VdYpHpYjVPLwTfXEFlJsQB7sOyO+E+1l/B5zKr4YWAawOfGUj3IirotqzGcqHm27NNvlqSiQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775759624; c=relaxed/simple;
-	bh=VKrAtMk/rBKFIyq1PebyO4kZsd6r9RHsUyaniD1TvlU=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=Hnyh0u7FvIi5NvTt9/9KvPvltSktUt6NuRgUDWAYAqKq/TAs7ZC3+C1sUtC9blK8SH0sifxGPDYADc7ik/AtcmSbgj8s3MvX8Y7FlUWAEeVPV7dtHMZcN1KkQCcnMnlsoTDVOf75zNpio7XdI+WKZnVjfE641Uvsob332SDTAtY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZopG6yEw; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775761924; c=relaxed/simple;
+	bh=n3noWi5XebMwrJuYQOTMStuhRUIPxLzPyjj2Nj+ZddQ=;
+	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=OtLca6mx+4pGhKkLwFV9rlfwXMUJ1VET++bzVFKnS+2RrEVoskYhH1PKKUAvzA45qAtt3akrotZdQ0PtquuipBFJZlITtB1pYEbSwD5gLW0MaKj3+yfiggibwdb9HwSVbJ6r5Q8Lt4HsHVtLTEqbqI0Rsn1xvv+cVET5gNYzU5c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=un3WREqT; arc=none smtp.client-ip=95.215.58.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZopG6yEw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D14E2C4CEF7;
-	Thu,  9 Apr 2026 18:33:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775759624;
-	bh=VKrAtMk/rBKFIyq1PebyO4kZsd6r9RHsUyaniD1TvlU=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=ZopG6yEwEbzJP46334Y4yTvl1fonBxQLtY0Q8i9VfDTXfdHzp6yMVmEXq3v2/Sg6a
-	 NWzs7VcpE47P0GuH9NAKCO7d/YrH/R/+VZHX3OZhTAmObgSzfxWRv0vnQImdgmS6Rb
-	 eMxg4Yn6dG8loDLArrt9kbOcwFMalO4kFkLDWJ6a3tqQxgjn/maMXXsCu/Wrnb9mfK
-	 Hw++OJUvGdNARvW8wsKmqsrW4IjMEt9jMW2+VxKACOj9h/pK08K/Ss/oyOmZAOO7FH
-	 88DJEz6srRoM5dMkwtADqmCnm5vgNg2Dpd2vFRuDrn460v11DHzlD5VH91hdtVgLPQ
-	 +fZm5dUbzgAig==
-Date: Thu, 9 Apr 2026 20:33:41 +0200 (CEST)
-From: Jiri Kosina <jikos@kernel.org>
-To: Sebastian Josue Alba Vives <sebasjosue84@gmail.com>
-cc: gupt21@gmail.com, bentiss@kernel.org, linux-i2c@vger.kernel.org, 
-    linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-    stable@vger.kernel.org
-Subject: Re: [PATCH v2] HID: mcp2221: validate report size in raw_event
- handler
-In-Reply-To: <20260324170606.5407-1-sebasjosue84@gmail.com>
-Message-ID: <465o88s0-2241-810o-0r60-34o7r2qqror0@xreary.bet>
-References: <20260324062403.341855-1-sebasjosue84@gmail.com> <20260324170606.5407-1-sebasjosue84@gmail.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="un3WREqT"
+Message-ID: <3f459ba1-3d03-4c44-a8f1-5ec939f9c0e5@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1775761910;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=g3vBca7wH1omGwKGYb7bsyXleBVMMZTmsn+rmVAChtg=;
+	b=un3WREqTnCSfOmffWju+JkwWa4hFOawfUqsY5U850u8HQPpFuJgLF07yHXjac1GgSBC/Kv
+	BZxua+dDmWog7rlYgfF5tEKevu9rjjWSRlW+M2bBrZrH9uhY1jrLSm08ZFdCJz+BX0HK6L
+	aKKziVgEca6iAGwgE2sGguWuMfcM2GU=
+Date: Thu, 9 Apr 2026 20:11:18 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Language: en-US
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>, lkml
+ <linux-kernel@vger.kernel.org>, rust-for-linux@vger.kernel.org,
+ Danilo Krummrich <dakr@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>,
+ Miguel Ojeda <ojeda@kernel.org>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Igor Korotin <igor.korotin@linux.dev>
+Subject: [GIT PULL] rust-i2c-next for v8.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-On Tue, 24 Mar 2026, Sebastian Josue Alba Vives wrote:
+Hi Wolfram,
 
-> MCP2221 devices use 64-byte HID reports. 
-> Add a check at the top of the handler to reject any report shorter than 
-> expected, and log a warning to aid debugging.
+As discussed, here's the first pull request from rust-i2c subsystem tree
 
-Similarly to ft260 -- where is the claim that the device can't send 
-shorter reports coming from, please?
+Thank you.
 
-Thanks,
+Igor
 
--- 
-Jiri Kosina
-SUSE Labs
+The following changes since commit 8fc326e15895c9f0403e6243dd4ad468b10aab3d:
 
+   Merge branch 'i2c/for-current' into i2c/for-next (2026-04-04 12:03:01 
++0200)
+
+are available in the Git repository at:
+
+   https://github.com/ikrtn/linux.git tags/rust-i2c-for-v8.0
+
+for you to fetch changes up to b388d1f9a51d3e1ad48e1d98bfe2ca5d022e0a83:
+
+   MAINTAINERS: add Rust I2C tree and update Igor Korotin's email 
+(2026-04-09 19:41:00 +0100)
+
+----------------------------------------------------------------
+Add Rust I2C subsystem tree and update maintainer email
+
+- Add Rust I2C git tree entry to MAINTAINERS for collecting patches
+   to be submitted upstream via the I2C tree
+- Update Igor Korotin's email from igor.korotin.linux@gmail.com
+   to igor.korotin@linux.dev in MAINTAINERS and .mailmap
+
+----------------------------------------------------------------
+Igor Korotin (1):
+       MAINTAINERS: add Rust I2C tree and update Igor Korotin's email
+
+  .mailmap    | 1 +
+  MAINTAINERS | 3 ++-
+  2 files changed, 3 insertions(+), 1 deletion(-)
