@@ -1,90 +1,146 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f179.google.com (mail-pf1-f179.google.com [209.85.210.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2143D28D8DA;
-	Thu,  9 Apr 2026 13:19:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33B3D3BFE3C
+	for <linux-i2c@vger.kernel.org>; Thu,  9 Apr 2026 15:02:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775740779; cv=none; b=kTPgoHTgQzsob94ZrTqtcVm0M+5lQNejQqKjHiwf3vkotPn/ZpGKheOjLRUWgnsAOoSy7YwTLJGAYD/CYotYnacbhvBNTNSy8xGywu9InoFzztXW3TTblYpzzn9kcKjaxsZcURcuNUq2BrlciLlJuqpGgaE5CmhCYzsxThauluU=
+	t=1775746942; cv=none; b=WJpuI2NLJ2xBp/KkFK/PqA7se4Hn9H1NHGHC+MmcB3zFH7D+ZSXViUTeRLfSfPqz540CO++hu8NlZnRJkDmzefpuDjcnX0Iqobr3vfm8vKaNWFyszVxW2Uv/dIEXBq7SiPYeVjT/18rza9H4EYCN/usc6L4xjy45W8YcWrypi40=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775740779; c=relaxed/simple;
-	bh=6pT3nf54En6QIJ70bqQFJhTpUjDiHsfC62lwNpSsImQ=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=X4TdWQlsM+id15KG61X5KKgQiNnjCG8L6mlCFliViig9JC/D4lTGBQp9Xmeth56cE8F7B37R99FEzytPW/71De1m/MIcW19CTNJJ16d6jPW1lIiAF+k8GxroM6CnVPJJ+H9jFgRaRcuUaAJE7/nG/oMZRDDBbHFZ5PnHScX28Q4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=haSyy/CU; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775746942; c=relaxed/simple;
+	bh=fXGBxwt49z7XnZX6d8Vyp0KPby/Zgq/bU0dkrOszvHQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=R2ihPjNtnhVgI0MdaxQFuUB9ICQFhBQ5vAA72juXVtIJKoE4iWAmEfWJfSzjq8+pq/+64ETH3ygBvvFY+5fDBqY1yEhbSGLOsMR2M6qvr9wAWDDd7DBt+3nY0Q07tgPOD+xquvjn4RptLYmkXrAUn+P18OHpZ33nU3D5AB/WNQY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fiKuX1Db; arc=none smtp.client-ip=209.85.210.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="haSyy/CU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E279C4CEF7;
-	Thu,  9 Apr 2026 13:19:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775740779;
-	bh=6pT3nf54En6QIJ70bqQFJhTpUjDiHsfC62lwNpSsImQ=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-	b=haSyy/CUItG2kPHoXwUw5/2YSU83RZoBl2z5Om+7/LZOCAvj/+26uHucssEMpCkiK
-	 ofaFTt49wSwSWpEievhbeaEvA17sRags39RgAx1svuLQrDs0EM9e9PQy0dm8PHURgg
-	 203fL4ST+OsFh9x/h6IaFaX4TLqw4BmB7NebHt18Ti0elg54Yl2ha5y7Loh9OSLSF+
-	 xMpGicvBVhwb41ra3hDISdsbWFleNMWItI24tJcMYJZH8IbGdLZuc6tweu8dqv0E/Y
-	 uahCvJQYRzrKTUdr81l2Zdvptb+vVJwyUvDwGjMt3bijVerwSgpIjz5I3lq7BDeE/y
-	 SJsazz4qsTjSQ==
-From: Mark Brown <broonie@kernel.org>
-To: Nishanth Sampath Kumar <nissampa@cisco.com>
-Cc: brgl@bgdev.pl, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
- gregkh@linuxfoundation.org, rafael@kernel.org, arnd@arndb.de
-In-Reply-To: <20260407233927.498932-1-nissampa@cisco.com>
-References: <20260407233927.498932-1-nissampa@cisco.com>
-Subject: Re: [PATCH v2] regmap-i2c: add SMBus byte/word reg16 bus for
- adapters lacking I2C_FUNC_I2C
-Message-Id: <177567169064.101848.12605250361585331832.b4-ty@b4>
-Date: Wed, 08 Apr 2026 19:08:10 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fiKuX1Db"
+Received: by mail-pf1-f179.google.com with SMTP id d2e1a72fcca58-82d029fd52eso675593b3a.2
+        for <linux-i2c@vger.kernel.org>; Thu, 09 Apr 2026 08:02:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775746940; x=1776351740; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=EhXtNcfXFczFC0TvlssSpcRPxwc314v0ehuoW5MZUg4=;
+        b=fiKuX1DbGyVtnp7dtcMjI+Pt8AwCt5ayp3fzcVj1n0sMtW3SjpwHQmCK4yMqKykGA1
+         8V6Y0SG6u8YZAOcu9Lh7USRxhYl6cZDdT6f1nkAwP9m0E7iJJKrhKKlGIH6ISyRB6vt9
+         7tzfy0Qh18KnyeOH0+4Vwu21mhzWQ6ZbsVq9s2qP+UurCKK8ITSdZZzOnxjcC2NvFEz1
+         dm41rYavFY9eeVFqqZYv1aWiBYmt/C/XXd0qHOQrdm0y9yY+0l0hbvv9CUZo0VsoJxv+
+         7h/xAh5UkPu/zJR3IqTrNhf0PVG5IoXoAZLYq/VTZqfT2T0sFVkYbEs6R58rTu8HAt9u
+         RYZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775746940; x=1776351740;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=EhXtNcfXFczFC0TvlssSpcRPxwc314v0ehuoW5MZUg4=;
+        b=ZkSOPA5+MpxINXzML8Smx7cCZF15QIdbuRt3IujjGenKuEVK4kMolTOFEthc7R3dbE
+         cJqWFz8ENYOKGa+4eOy7bD/u7tsUUsb8U4eeDmc1hsd9hfltFI15OAYOqK3PtnJsn/CZ
+         8+q6VTqWDUYu3B4h6CpyLLz5xc/eZjTNKWCTBXunS/48MDtekCvSwyhxRIeXA2bKH4aQ
+         yQ6+/KydD3EGYCnyB7pwHRzm1YYoon1SrgZB3DHFMt7AxoJrfowj+KKSJGIBQRLM057/
+         vwPONFZspNxA3wKcMwiKwupOiEsrrswwSrZFQgTxUi/5A2uUH1W9fARQ/a6Kh56jfEBK
+         2JHw==
+X-Forwarded-Encrypted: i=1; AJvYcCUYdk0ZvuMCnQyH8yokISdRr4Y4/0zG7kXRGEZRK9SNfbMXdgdGeG+qXYOLhm60Vcnw1hKoysQ5hCs=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxVPYhTJSvaDOpYEYTclodET6oiZFt01Os5GhCUONKhJX2pSi8T
+	aNSTFCoJwQkOyTXI4W2NDejjxqTSUo2O7pQ4RcB84pvEmyOqa0E6JYWV
+X-Gm-Gg: AeBDiesuyXuSNdw85/nmxkbrZZVa/L3NpBLJiipYMmkCI350yaZEHGd9hNqB1jr1MD+
+	Bftm1mT/BS7tqthGGWJePLfwjoaiRY8f9sMPC4KcFZ52/42mnYrLh6j+hj95l7zSdCxPIROSlPg
+	DED/k01qu2IwERg861EQFz4cTm8PlRy3P6fbGoB0rgLOsZU4EMM6/zisEXYDNMmZXRD/Wm6h01X
+	Vzo0slCeOefJSTMIQglqMPkmhUDmuPw6ouVI1sOxqfIFuNSx3vG4O+YkW+utc3VmoosM14gNaxQ
+	IfYeVFnCv47rC2y4yRupFySOwYZV4SYTleqr087w+Z0MhB/P3PpAMromz43S5jM4fvx31G9icC8
+	/LeKbANh78HjSahmLaeUbONSUzXh7iyKaUoW+HsyRY9eiRU3tbnHX5DMy9dveHcAxPinMIWBp5Z
+	FDAasNKLs9UjC4pToIqEe7dzNLgmT9iM1PsBXqm6PnUitJ7z3aGRPSeAWil2PbhGyjr/U4o/t4v
+	cbot5L6Dig=
+X-Received: by 2002:a05:6a00:4397:b0:823:9c6:1985 with SMTP id d2e1a72fcca58-82d0da8a9bbmr26784425b3a.16.1775746940074;
+        Thu, 09 Apr 2026 08:02:20 -0700 (PDT)
+Received: from ?IPV6:2401:4900:8f4f:f496:a1bd:e74b:4413:84f8? ([2401:4900:8f4f:f496:a1bd:e74b:4413:84f8])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82cf9b261b6sm29782954b3a.3.2026.04.09.08.02.15
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 09 Apr 2026 08:02:19 -0700 (PDT)
+Message-ID: <7930789e-6930-45b9-997b-0e5c850db194@gmail.com>
+Date: Thu, 9 Apr 2026 20:32:12 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] dt-bindings: i2c: nxp,pca9564: convert to DT schema
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Peter Rosin <peda@axentia.se>,
+ linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260408-i2c-nxp-v1-1-8276ccbd95fb@gmail.com>
+ <20260409-rampant-swinging-wolf-51ab4e@quoll>
+Content-Language: en-US
+From: Akhila YS <akhilayalmati@gmail.com>
+In-Reply-To: <20260409-rampant-swinging-wolf-51ab4e@quoll>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.16-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1179; i=broonie@kernel.org;
- h=from:subject:message-id; bh=6pT3nf54En6QIJ70bqQFJhTpUjDiHsfC62lwNpSsImQ=;
- b=owEBbQGS/pANAwAKASTWi3JdVIfQAcsmYgBp16dok7CQARPP5AoWs5zkUBcFVelKGCZOGTNA/
- IcHGxwunmGJATMEAAEKAB0WIQSt5miqZ1cYtZ/in+ok1otyXVSH0AUCadenaAAKCRAk1otyXVSH
- 0LWkB/9i6gebEUiPrFGHWUrP7hcUH+dp20+tL1pv4d8AVa4txXps3QRzbE28gFC3oVyF6il4Lvv
- oeccZ9lM2qccy0BkRyaC5dx479scwtlYK/DwZFonvow3vyHkSYz07CJU04rZtns4z99lMopMjbT
- +WaUFKNsp7ElC/dpwOjkO6weheqaqm9jrMBbcbt08/Ift8pdRHxsgb2rOq8MnY3PguB7LMkvjno
- kZwDD0XRiAEDkls6iOKSkf8J7AmNe0lbuEJbaPuHnaflCAX49D8H05jT8GNy8yD+wwJlXLDGmn0
- qGeOXxJobJ1OLOOWKCPeUqL4sOcJUBYwNPb1xLGvYeHbw+jo
-X-Developer-Key: i=broonie@kernel.org; a=openpgp;
- fpr=3F2568AAC26998F9E813A1C5C3F436CA30F5D8EB
 
-On Tue, 07 Apr 2026 16:39:27 -0700, Nishanth Sampath Kumar wrote:
-> regmap-i2c: add SMBus byte/word reg16 bus for adapters lacking I2C_FUNC_I2C
 
-Applied to
+On 09-04-2026 13:56, Krzysztof Kozlowski wrote:
+> On Wed, Apr 08, 2026 at 08:23:31AM +0000, Akhila YS wrote:
+>> Convert NXP PCA PCA9564/PCA9665 I2C controller to YAML format.
+> DT schema, not YAML format. Look at your subject.
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regmap.git for-7.1
 
-Thanks!
+Okay, i will change it.
 
-[1/1] regmap-i2c: add SMBus byte/word reg16 bus for adapters lacking I2C_FUNC_I2C
-      https://git.kernel.org/broonie/sound/c/f7b242428c6c
+>
+> ...
+>
+>> +  reg:
+>> +    maxItems: 1
+>> +
+>> +  "#address-cells":
+>> +    const: 1
+>> +
+>> +  "#size-cells":
+>> +    const: 0
+>> +
+>> +  interrupts:
+>> +    maxItems: 1
+>> +
+>> +  reset-gpios:
+>> +    maxItems: 1
+>> +
+>> +  clock-frequency:
+>> +    default: 100000
+>> +
+>> +required:
+>> +  - compatible
+>> +  - reg
+>> +
+>> +additionalProperties: false
+> And if you tested any DTS with this, you would see this cannot work.
+> Look at other bindings - you miss ref to i2c-controller and
+> unevaluatedProps. But the problem is that you are doing something which
+> would never work, so I have doubts that you know what you are doing. One
+> thing is to make a mistake, other thing is to post something can never
+> work thus putting quite noticeable requirements on review.
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.
 
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
+You are right, i missed referencing the common i2c controller schema and
+did not handle unevaluated properties correctly,which makes binding invalid.
 
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
+>
+> Please first learn how DTS and DT bindings work, before you post new
+> patches.
 
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
 
-Thanks,
-Mark
+Thank you for the review, i will work on it.
+
+> Best regards,
+> Krzysztof
+>
+-- 
+Best Regards,
+Akhila.
 
