@@ -1,139 +1,194 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
+Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 993CA3B9D99
-	for <linux-i2c@vger.kernel.org>; Thu,  9 Apr 2026 16:37:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C23F3250C06
+	for <linux-i2c@vger.kernel.org>; Thu,  9 Apr 2026 18:25:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.54
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775752641; cv=pass; b=D52Mf3g5TVR4VXre53t17RH/Kd3wKyCyFdZyCzx4F3dOMai+Bgq0Cr/reXBEeOQHST6Mx4+YIYCKQ3iJx/oqOMcfp1paAF7usHSPv60bun9uj+XzFihldkLFZM9hVZbiRbxaE3fvImLYd4sCS+aLqxQMK/ZBmVs37ijThKND6eI=
+	t=1775759114; cv=pass; b=bEjXU8KNqPOphvvW3zgGATE/8SkALvh7YH/EHBRuEPKQ/XRoal9XPhKLV7gF7nBTIoXcCj+jfOk/p1Xwcz4XQjTWBFXWIhQTvKYn2z6A+alQCx3yIJR0X4PdiRs0ePYw5mNdjaWxqOJUt9a4CpoqxnU2lQD3AudIZ+6F1kMRjo4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775752641; c=relaxed/simple;
-	bh=0/YeY69ktax7xAvFlmlWRIB5ZF6q0vZYsf5nGL0qfHE=;
+	s=arc-20240116; t=1775759114; c=relaxed/simple;
+	bh=uRIpHIXY1Jgv/tUqLrduouxc+mc9S9SHsVuyZmzj/QA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=D6rDs+tW9IUBUvVd/Ddb/fj2uTmM4UvOV0WowusaATn4Uy87p4n4lgKtJorAIH31mGJ4pGN93V33YtRhzHhq5kIwuoFcMIoSQ8vdDPH9RnF7YRNWrJ1xV2Fbh4sDWvYUUYOpFIk4WjvowrJOsWSARvQDcC1UjuXBPHyCHr9ufp8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=g2WlRB04; arc=pass smtp.client-ip=209.85.208.47
+	 To:Cc:Content-Type; b=FbNMKsX14X3BWeYDyBvnYGJ/+v3QrgD9gOhXU04cngbUcgrM08urWeSAZ0XvKH4xs5HcsU7ZWT/Qc3AmtveWinjcKTrmhFP7gCht6ZYsXaxi7OA9Vvy90hfnzL8GyB0YtLDkdg+JO00QxtCn/NWgt+dfFYqLRq8Q2oScC5/RuGA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LzLxomTq; arc=pass smtp.client-ip=209.85.208.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="g2WlRB04"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-66bb4d4fcb4so2206672a12.2
-        for <linux-i2c@vger.kernel.org>; Thu, 09 Apr 2026 09:37:19 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775752638; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LzLxomTq"
+Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-66c05fb27e4so2199230a12.2
+        for <linux-i2c@vger.kernel.org>; Thu, 09 Apr 2026 11:25:12 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775759111; cv=none;
         d=google.com; s=arc-20240605;
-        b=SvOW2/qKFzcaKhis8vuyCTvVjFUszzpBLKPiFLH0DSvCQ3T/vcMW6/OMiAnDkfnpRW
-         GB2CF2/Du3eP6EcZLSJmULzHF1HIWaUsCYFKRFV8KGA9TaUSDxfrvtwXU7DRVHTQ7FEY
-         fZNDj5RwRDdXbkhlV9N3jkFdbqRF80EgZJDqLwTapz9kik+K70FAmi8nYpSvZQfaNrFg
-         ahToMZWAR/7+7L8fWgQCneQtROESBLjsJ/7YTdk0qI4R7dEddEEbChvbwSjf6uuIrVOB
-         3Y0xytpVOmgkYtH7cQmOvGIKXIl+LQrerVuATKFLNKcO7F21w6bqWAZZeem5RgqeQ4ym
-         6h2g==
+        b=JxdcKHwwuw2eI34jKybmLS1tgdI5XV2Outn8ivWckHSzbMi7fdpGH5qbCymN4U23BU
+         bhcLQZhI5bkzwfuLn8OylpvKSPpnmT9YxUGa/DzY7r+uaK3FvFZEuVN3re5lwW390gGX
+         Z3gLweqbrgz1j0mpm069d4ihyLgWHS6gdcHheJU3ijs87dbQps6EfqGEI33mqg85fr8y
+         oG3QeJog0TXqI9B9Lcc0uDWeJ31JHB7s7mB6NOLod7la//pVNxQu7ThfO5nksV59P/lo
+         H/b7numuWiUE/AtlqTJ+GOoQfTOqh2cR0IVu6UwwliH/9dq+dy56rxgI/Q2RN1IxgggE
+         elng==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=+UAGY8HPWBNZ5o3qgVOf3XDwl3FBEuhdTjIiA2jewZU=;
-        fh=oHpBUik4DAC14oPnO7Vd6vt0cmg1QfBgdj77jDoP+q8=;
-        b=Wa7BsPv1fmMiID4wJGUAenxf2m67d+mLUTEvhxYUu1/iRdaSBekrOEVGaZJEo5ooWr
-         gU/9s7agsfNI/gdIn6JUJpFpO+FI+rIw1QnJ2u7OZEnSLO1pu7vxK6tECk5r1wktMqGL
-         /gu0Lpm1vkizwM4Ho7o851k/sMIVL+35GlWtyZtdZQGhKXLxLEiyl2KYX2TWnftXaNBe
-         cPpQywjxwRCGOoF6r/S10IDywRXbgomlkP9chZSuDoA460ItECIH8ZgbAKlQ6+MJlD+X
-         DT8Yq1/cvu5+/7o2WYZC2k3w+iIHnW6m8+7Uiud9/sgW//vVVN4NBnuWXt75Op3AYLWz
-         jicQ==;
+        bh=bxi0Dq/1cOaYc6y9Kzzau5RxO3/CNiO8acCYH60FkGo=;
+        fh=7GqoOszeECRSqXzepREz3bG+CkpTi/4PxNEdoNn9WU0=;
+        b=DDTZatCMWo2ySsAuT5Ghk6PAy2EObc0l779q1+cP3Sj8mwQK2orYCr80RF+aOptP+F
+         MKQj0G/Ot9cMVhT81aoxA2GjlWhkF8vINkSeBDRkkOmQEOpdRcQfQq7S9ysV0U/0wQ6R
+         LnndhK+IgaBhx0Ts4RQj4bPfRvmOlWD40TSdlZpUVuApRdDr1aApm0hX1q2kjpJCV9Xc
+         K1YM+JqKMhZn4HE7KDBtquh+haWxkGQatBQV7gjgVXDQ+WJL9VomVwn8scru+abe/mrP
+         CU4OMNfed/vmey6JAgWPVug2ccSiXmzxun108h5IFdJij+k2dclZs91HvB8vGY7sWGSe
+         2Qsw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775752638; x=1776357438; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1775759111; x=1776363911; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=+UAGY8HPWBNZ5o3qgVOf3XDwl3FBEuhdTjIiA2jewZU=;
-        b=g2WlRB04I9NdWkCI5EIbZgKgPbH/UuxOCaCaK72rSr6QXHsHO04AmcsSfnEs4pQTgD
-         HGXbor73gWk8C6pjFpCSgs6zfWktmElumo53unQsfyYUMP0njx3OJzzpzARfX0HJ+QkU
-         DbpNetQvGkTbvQ8pF572zXdtECBTHHowIprd5QMLsPEcMUmLEeNuqTRSJv9eeOMKruTd
-         FbdBqnxHBlPpvOIYBlHefFP9x9OTmdMzODChGbVZcmZYR1BPIMBBCpHkYPAejUpI1SNb
-         EJXukkPSfnYQj3Eqi+Vqb0Ak7bkiBZGLXEztPsSdomNtbI7C6Ff8FVvIIdJrLdTGpe+p
-         tV/A==
+        bh=bxi0Dq/1cOaYc6y9Kzzau5RxO3/CNiO8acCYH60FkGo=;
+        b=LzLxomTqu3hI303cqh2kQu4o2QnX1b75nZh+6sCJ14WZQWRlau3rNtsEsjvR8ReWl4
+         P5xC3YMB1IhHq1kdyBqUhi2nCBOXRxuHWNcvMIXZyADz281HJsOEBMIAhEbVLPuXaj7J
+         ndczERAsnqnzXca/SLqO1WOQjw4VQ/7YKEkd22YnM6sYbeRUXQaUnNyqN0w7Lcn2ONgO
+         9Opx+SCMutnon9umjt7iexP3KFc5RVv8ATMueCPD8aQA7XrarOswzjrs1YW9Uqa7YAFb
+         Pf5B0nrRwGHlRmvI0+M/4f8iueNgVYY+xRf+APnq7COAdYqymyaDyL+0WTbNtiDuuvu8
+         JF1A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775752638; x=1776357438;
+        d=1e100.net; s=20251104; t=1775759111; x=1776363911;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=+UAGY8HPWBNZ5o3qgVOf3XDwl3FBEuhdTjIiA2jewZU=;
-        b=LGoNnCYF6tctjoKCWvBe/gFIKtybXiAC4+7DeR0WMeT94iOHlsLHr6GZliywg4Her3
-         xxzbu9hkLVVYLLHtlDz7sFK/pPCg+WWRkFTdgiLv765nS/c8gnMu7Qp0WlQvxTklQQyk
-         3n30Rb9BfRnUZjn2tLPPPzm18g9SVIJwiOpZ367bF33RQe1iWs4MmOqyWxDT6umnKqS8
-         Wdq+kKFYFlLIRukdCmKkUAWZQFbzMo+m4JLGTqkdJeRR2ETvKcODSQ3/V1Au0nMWID4w
-         lexNhYbweLQ3Hwf1DcByx5bdp6+sxSnN/eIfmBOXIA1z1G1bXlBxD1ULcWmnxsfsZ1FB
-         Omtw==
-X-Gm-Message-State: AOJu0Yz7xQRFuHfeVBb3Av92hQjIgMJYXCjNbFrTI7V6qtJY88AbCQXU
-	T6MSIV0tXSwnIdYqWABeX9x+j8O9o+EZJbt6gKq1JA0fDDjcRGX6mn0vouD3abPtnLx/JIMa+9v
-	Z6YtZMQa17gdHk8c+wJxfdAGfTpQvDy0=
-X-Gm-Gg: AeBDiesQF00R/7DSyGYadEFIao9IpKD/0ppsf2j4n1JuJlMj7BNa8/kmiVncEZ+XW9K
-	15D6CZh8+ZduozzG3ML2qRzxaikOUPnOq2lo+TH5Og0m1KJRkZlsfRfnJ8SXXdUXnRu1KsEVn9a
-	fuJg1DJQvD1OTyAdVwaizwiPts4BVPeMyTZoawjprTMg98pUwbebQP5RZoBlSuIAs1wcMM0cs/B
-	k9MJg6+KQnTVwzzJK9w0AMSPAc96RFXjQjMo4iXKbZdhpCLUx2YgwNRg0NpoKTk8WZYu/Ze4/jZ
-	ULwJiJVW8z2GWIo7Wuji21ZDAh2wWJMmpoZlxWPPP0fpdrhKs6LPMvuNp2AqA9vbl630pULlPPX
-	CvSM1SA==
-X-Received: by 2002:a17:907:a2c5:b0:b98:427e:218d with SMTP id
- a640c23a62f3a-b9c67957b5dmr1371549366b.25.1775752637713; Thu, 09 Apr 2026
- 09:37:17 -0700 (PDT)
+        bh=bxi0Dq/1cOaYc6y9Kzzau5RxO3/CNiO8acCYH60FkGo=;
+        b=XomQ0vHj5aFq1AXjRfCE4ZHCTjqO2LEsLYXvV5U3ilGl4IFwKUtvutC0oenWZms6nM
+         vr/VLp7z3c8D+GPucrSVhGYQ8I75Ze91E4PNjr9QXVmzThHa4T9qdsNCPlA9Nq2d87D7
+         mByG+Fos6Hq6FS3lVX4TRBxyetwHwXDcNOsK2ABL0dP1sH+1Du3Kmm87T0frB+mvZezE
+         GNS9aBwB7HWqAuyUlrZCq+YT87AMEarDDoB10y6N21mqNMctu9v5NndGDpMO3i7DXdoM
+         iuZl6+t3QBxOJoy+eiagz4PyKh5ISrC2HZnYkcpX9fQ23tcbY7Q9k4qW68jNtNDPaOF8
+         xiZQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUKMOsyxZ0EACAnTHIRGhQp2WxYyfxJygPNqZqyd9dzooO6ft+skWvSOHdiRUehcMdwiIFLz9yLpS0=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzPZsOBkBqmZ9LemUF9/L6oVtFuxVGXNOMTlt1ChbfyC7oGnyD9
+	6Cf+fOeODc8Zql10hZsKZ/+9CXEUqxh3GC1KATRNgapF0cMWE/Q825+SmeLDepyqZukJxJY07Y/
+	vFzefJpigMPtqHJbhBolJIkkxFOg6sMsAWN8m
+X-Gm-Gg: AeBDiev+6seL571jywqRbnQs9wuDk0Mh0EM1pR+LV8UhYMZAm+cZFQbQlNtuBr3HWZn
+	wcsU4xNQI05X+E6Zf99ZgzCkPif52GAjaBbGLUs1ow19ZPWW2oAcrUYXrVBrdCU81MAPhvVzydP
+	dPTPUqSSoux6S/2OaXayHaeoBZAFhQEMxOQ/WeKUp4hjt1f5neeSOjsOX77JFTEEpfxCL2ZMexs
+	F41ekNBtJFuPiNZGgNNMNxL7u0IH/xf+4xjwUxWRUx6Ht9S4UnslQwPDd5BtyRP/Ew36vp0T/9Q
+	6+oEaYY=
+X-Received: by 2002:a05:6402:358e:b0:66e:f4c0:c348 with SMTP id
+ 4fb4d7f45d1cf-66ef4c0c5a1mr8652002a12.7.1775759110757; Thu, 09 Apr 2026
+ 11:25:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260327030310.8502-1-rosenp@gmail.com> <adfTdfty7q0nygeo@zenone.zhora.eu>
-In-Reply-To: <adfTdfty7q0nygeo@zenone.zhora.eu>
-From: Rosen Penev <rosenp@gmail.com>
-Date: Thu, 9 Apr 2026 09:37:05 -0700
-X-Gm-Features: AQROBzAopIFp8uM7IAtQmj1wGMGJ-yWga8r_OUIuPCkKpKHali845xMLuNe82Bk
-Message-ID: <CAKxU2N9tkjDeE6Zz6diMEMT4uNzYg4D36gow0BTbaC=AyAeT3A@mail.gmail.com>
-Subject: Re: [PATCH] i2c: atr: use kzalloc_flex
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org, 
-	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, Kees Cook <kees@kernel.org>, 
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>, open list <linux-kernel@vger.kernel.org>, 
-	"open list:KERNEL HARDENING (not covered by other areas):Keyword:b__counted_by(_le|_be)?b" <linux-hardening@vger.kernel.org>
+References: <20260324173527.11321-1-sebasjosue84@gmail.com>
+ <20260324201858.46591-1-sebasjosue84@gmail.com> <2o8np813-n9n6-32sn-922p-6qnrq45s7rs7@xreary.bet>
+In-Reply-To: <2o8np813-n9n6-32sn-922p-6qnrq45s7rs7@xreary.bet>
+From: Michael Zaidman <michael.zaidman@gmail.com>
+Date: Thu, 9 Apr 2026 21:24:59 +0300
+X-Gm-Features: AQROBzD5ryy57P3iGUvqLsmBCdxSK-kLXMP5Y7ZvC8lV482_vL8uUBuQIdBTpOA
+Message-ID: <CAPnwWgPhb+owa69-pTADpqk=KMWH71EUT6cxwCeT5KGnBWk+Xg@mail.gmail.com>
+Subject: Re: [PATCH v2] HID: ft260: validate report size and payload length in raw_event
+To: Jiri Kosina <jikos@kernel.org>
+Cc: Sebastian Josue Alba Vives <sebasjosue84@gmail.com>, Benjamin Tissoires <bentiss@kernel.org>, 
+	linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Apr 9, 2026 at 9:29=E2=80=AFAM Andi Shyti <andi.shyti@kernel.org> w=
-rote:
+On Thu, Apr 9, 2026 at 6:50=E2=80=AFPM Jiri Kosina <jikos@kernel.org> wrote=
+:
 >
-> Hi Rosen,
+> On Tue, 24 Mar 2026, Sebastian Josue Alba Vives wrote:
 >
-> along with Luca's comments, I will ask you for one more change:
->
-> ...
->
-> >       /* Protects aliases and use_mask */
-> >       spinlock_t lock;
-> > -     u16 *aliases;
-> >       unsigned long *use_mask;
-> > +     u16 aliases[] __counted_by(size);
->
-> ...
->
-> > -     alias_pool =3D kzalloc_obj(*alias_pool);
-> > +     alias_pool =3D kzalloc_flex(*alias_pool, aliases, num_aliases);
-> >       if (!alias_pool)
-> >               return ERR_PTR(-ENOMEM);
+> > ft260_raw_event() casts the raw data buffer to a
+> > ft260_i2c_input_report struct and accesses its fields without
+> > validating the size parameter. Since __hid_input_report() invokes
+> > the driver's raw_event callback before hid_report_raw_event()
+> > performs its own report-size validation, a device sending a
+> > truncated HID report can cause out-of-bounds heap reads.
 > >
-> >       alias_pool->size =3D num_aliases;
+> > Additionally, even with a full-sized report, a corrupted
+> > xfer->length field can cause memcpy to read beyond the report
+> > buffer. The existing check only validates against the destination
+> > buffer size, not the source data available in the report.
+> >
+> > Add two checks: reject reports shorter than FT260_REPORT_MAX_LENGTH,
+> > and verify that xfer->length does not exceed the actual data
+> > available in the report. Log warnings to aid debugging.
+> >
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Sebastian Josue Alba Vives <sebasjosue84@gmail.com>
+> > ---
+> >  drivers/hid/hid-ft260.c | 11 +++++++++++
+> >  1 file changed, 11 insertions(+)
+> >
+> > diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+> > index 333341e80..68008a423 100644
+> > --- a/drivers/hid/hid-ft260.c
+> > +++ b/drivers/hid/hid-ft260.c
+> > @@ -1068,6 +1068,17 @@ static int ft260_raw_event(struct hid_device *hd=
+ev, struct hid_report *report,
+> >       struct ft260_device *dev =3D hid_get_drvdata(hdev);
+> >       struct ft260_i2c_input_report *xfer =3D (void *)data;
+> >
+> > +     if (size < FT260_REPORT_MAX_LENGTH) {
+> > +             hid_warn(hdev, "short report: %d\n", size);
+> > +             return 0;
 >
-> this line is not needed anymore because kzalloc_flex will resolve
-> to alias_pool size and will set it tu num_aliases.
-I believe that only works with GCC15 and above.
->
-> We can remove it.
+> Michael, can you please confirm whether the device can never legitimately
+> send shorter than FT260_REPORT_MAX_LENGTH reports?
 >
 > Thanks,
-> Andi
 >
-> > -     alias_pool->aliases =3D kcalloc(num_aliases, sizeof(*alias_pool->=
-aliases), GFP_KERNEL);
-> > -     if (!alias_pool->aliases) {
-> > -             ret =3D -ENOMEM;
-> > -             goto err_free_alias_pool;
-> > -     }
-> > -
+> --
+> Jiri Kosina
+> SUSE Labs
+>
+
+Hi Jiri,
+
+The FT260 uses different report IDs (0xD0 through 0xDE) for different paylo=
+ad
+lengths, with each report ID defining a different report size in the HID
+descriptor. So yes, the device can legitimately send reports shorter than
+FT260_REPORT_MAX_LENGTH, and a blanket size < 64 check would break valid
+short transfers.
+
+Looking at __hid_input_report(), the HID core could validate size against
+hid_compute_report_size(report) before the raw_event call - essentially
+moving the check that hid_report_raw_event() already does to happen earlier=
+.
+That would handle truncated reports generically for all HID drivers. Howeve=
+r,
+such a change would affect all HID drivers and require broad testing, so th=
+at
+is your call.
+
+What the HID core cannot validate is driver-specific payload semantics. In
+ft260, the I2C input report has a length field at byte 1 that indicates the
+payload size, and the driver uses it as the memcpy length without checking
+it against the actual report size or against the expected data capacity for
+the specific report ID.
+
+I will submit a per-driver fix with two checks, both essential:
+First, a minimum size check before accessing any header fields. Currently,
+the HID core does not validate report size before calling raw_event, so a
+1-byte report would cause an OOB read just from accessing the length field
+at byte 1. This check is necessary regardless of the second check.
+
+Second, a validation of xfer->length against the expected data capacity for
+the given report ID. Each I2C input report ID defines a specific data capac=
+ity
+(report 0xD0 holds up to 4 bytes, 0xDE up to 60 bytes). A corrupted length
+field exceeding this capacity would cause an OOB read from the source buffe=
+r
+during memcpy, even if the report itself is full-sized. Only the driver kno=
+ws
+these per-report-ID limits.
+
+I have the hardware to test this change. I will credit Sebastian with
+Reported-by for identifying the issue.
+
+Thanks,
+Michael
