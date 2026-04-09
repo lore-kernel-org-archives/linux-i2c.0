@@ -1,92 +1,79 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8DB5A379973;
-	Thu,  9 Apr 2026 08:26:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DD51378D89
+	for <linux-i2c@vger.kernel.org>; Thu,  9 Apr 2026 08:28:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775723205; cv=none; b=KgHewfTPeoDdv96Tj70dACzAjaawVoypMKvYrEdmRHu2yifHcDuA3Mnk5Q0q0MyjP4rPQjRc10UmB9cIYi3rUF5EJsyDfyEPxjgtGctKw/LvWY0ybdNAQfyO4CmNTl6J3+KNQY6F/DxSi+e7Sm74lcNqa+DBFlHQWo59WJXE2pM=
+	t=1775723286; cv=none; b=KHsbcbLDjEz58vUAQY3UcvwV4rqcAJvc130ZPNOVM/Mjixe5vW6mZaEcyEd9KVNT4MftWhBgEMKsDLieDhptCyqVOpt/0Mu2lROoAYcZv9hhwtjFzf7rA5h1agKGtLspJNHw0S0+gbl5I/NBea9fiA6iOviYPb1j4gqistdSYFw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775723205; c=relaxed/simple;
-	bh=8/p0/JoX4mpTggNx+ro1HSf4ExybGVw4dbDv5SxQ9Ls=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Z2C2AjMhANePeNiunWsJqtMibhdL5fsJxnzx+KgALUpCzsDZscRqjy0F254fITD0dakziw5zFOSVW9RZklP007KWZTV9PSmhbe9wC6+3LdDbF8vk9H1HE+c7VVjm6qQlYJtHzzLmGh0VCee3cOX7Xf5KEyvHQkPjiIKuZcCXess=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=un86jXMh; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775723286; c=relaxed/simple;
+	bh=aTaUCr1A2I+1wqTvl3TKv6QTLEetojWJo60VzPZFc+A=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=LqmEz6KXgQMsZZoB3RzIGW3nC9FvqCEW1m3k2scYqsF40f35IuH4LlokoXU4dKABgaDj8e7IfA5s6pymhB1vMSMQItuCz6ZeR0Ck+rFmL3C4z7c+SAfxF/htMZoqrvw9WPNtfJLoT458mNGR7svXa1ogssvRqwjv0smHxg7H5rU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hFmWyjvj; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="un86jXMh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0A38C4CEF7;
-	Thu,  9 Apr 2026 08:26:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hFmWyjvj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53016C2BCB7
+	for <linux-i2c@vger.kernel.org>; Thu,  9 Apr 2026 08:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775723205;
-	bh=8/p0/JoX4mpTggNx+ro1HSf4ExybGVw4dbDv5SxQ9Ls=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=un86jXMhKEIvgpyIsyN99nNalun0WzvLnGha2x0PTCUIBVuVzgqe9Haipvw4PQHti
-	 omCjMy99Vw8H9lGokllG/ucElDP9bVQxUKn3Yjpussz830+dSG+87j3Q91R/F5On6N
-	 J1UFEfxiu+E/KSkHc82ii0xGVYzAE7tbpbLbQGIN/N6ZFKo98z/8lI2zaMhoZJeipq
-	 4ji0KKAu0cD3Yf3VBNePoFwp8sF9upHuGuUqpMp6D/OP1rpE59xxz78QAhkajMg/6E
-	 5Q/YkrLitZo/mbZ7WJDTEtIkQbTyFuSySk/891tGkivTW9k/Jl0Hl2PYGPog2uWy3I
-	 HYvH3oDX0gVYw==
-Date: Thu, 9 Apr 2026 10:26:42 +0200
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Akhila YS <akhilayalmati@gmail.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Peter Rosin <peda@axentia.se>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dt-bindings: i2c: nxp,pca9564: convert to DT schema
-Message-ID: <20260409-rampant-swinging-wolf-51ab4e@quoll>
-References: <20260408-i2c-nxp-v1-1-8276ccbd95fb@gmail.com>
+	s=k20201202; t=1775723286;
+	bh=aTaUCr1A2I+1wqTvl3TKv6QTLEetojWJo60VzPZFc+A=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+	b=hFmWyjvjjainN0waFI5SgxxVEcVbJNwNrL0mx+XuPVAsRyyMkxghRurUAIU+4uiOf
+	 fXljosaAod1JlDrJMGbseZ9MuWHidtbqP+d6gC5EYv2oJ8BKH0kdy/rebKAbU0ShkJ
+	 ANEHl4nDw5Wfvrm27lOHVgA84IclOfaZ7z5Wr5XkxQtFCNzpbRADM9pBYskD/2rVQh
+	 RV7WryA3gluS5oyR8WvDWPPq0YicpANCGngJcqdFAOAd3bVB4Po+JJse43tdThFCEj
+	 23BvfTpLx0m7cN62ig1JkvJJZTB+ysqsXcPoVJnTO7lWAiOOhqrW7PQCrE9fP7ptz2
+	 VJhgVubw101hA==
+Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-797ab169454so7719397b3.3
+        for <linux-i2c@vger.kernel.org>; Thu, 09 Apr 2026 01:28:06 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCWyyzhRSN6llI6Qhe0Q0xJHn+jhMFkmvzbpqTghEAvW33bpnxCEabLg+EA/P0RAUraD/GfzcN7vghs=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz8Ugjuk82gap3RgKQ/GXExV4c1b0O5RyfRc/Z945/hkRCEtWlA
+	5TU40sfYnHDa1t6v8z8xQIdmGeK1mUz5yeM4n0SKNjEJpujZwyM6DH+e3aWLKB2h9EJkxApM6HD
+	4lFg+iHx7odNPrQ79ybrMfcy697Dc1Jc=
+X-Received: by 2002:a05:690c:86:b0:79f:b903:88be with SMTP id
+ 00721157ae682-7adf1f63befmr26878747b3.16.1775723285630; Thu, 09 Apr 2026
+ 01:28:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260408-i2c-nxp-v1-1-8276ccbd95fb@gmail.com>
+References: <20260320-apple-m3-initial-devicetrees-v1-0-5842e1e393a8@jannau.net>
+ <20260320-apple-m3-initial-devicetrees-v1-5-5842e1e393a8@jannau.net>
+In-Reply-To: <20260320-apple-m3-initial-devicetrees-v1-5-5842e1e393a8@jannau.net>
+From: Linus Walleij <linusw@kernel.org>
+Date: Thu, 9 Apr 2026 10:27:54 +0200
+X-Gmail-Original-Message-ID: <CAD++jLkcoSyt4ag=Vtf0HW+UhnvXAQH=RqdiZ0LB17UdURjTCg@mail.gmail.com>
+X-Gm-Features: AQROBzCBPK9j1p1wyGlpXng0vuJPY67DBxyZqUb3UmeFzFxdcTXTQHWBijmLSC0
+Message-ID: <CAD++jLkcoSyt4ag=Vtf0HW+UhnvXAQH=RqdiZ0LB17UdURjTCg@mail.gmail.com>
+Subject: Re: [PATCH 5/9] dt-bindings: pinctrl: apple,pinctrl: Add t8122 compatible
+To: Janne Grunau <j@jannau.net>
+Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Lorenzo Pieralisi <lpieralisi@kernel.org>, 
+	Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>, 
+	Wim Van Sebroeck <wim@linux-watchdog.org>, Guenter Roeck <linux@roeck-us.net>, 
+	Mark Kettenis <kettenis@openbsd.org>, Andi Shyti <andi.shyti@kernel.org>, 
+	=?UTF-8?Q?Uwe_Kleine=2DK=C3=B6nig?= <ukleinek@kernel.org>, 
+	Sasha Finkelstein <fnkl.kernel@gmail.com>, devicetree@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, asahi@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-watchdog@vger.kernel.org, 
+	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linux-pwm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 08, 2026 at 08:23:31AM +0000, Akhila YS wrote:
-> Convert NXP PCA PCA9564/PCA9665 I2C controller to YAML format.
+On Fri, Mar 20, 2026 at 1:23=E2=80=AFPM Janne Grunau <j@jannau.net> wrote:
 
-DT schema, not YAML format. Look at your subject.
+> The pin controller on the Apple silicon t8122 (M3) SoC is compatible
+> with the existing driver. Add "apple,t8122-pinctrl" as SoC specific
+> compatible under "apple,t8103-pinctrl" used by the driver.
+>
+> Signed-off-by: Janne Grunau <j@jannau.net>
 
-...
+This patch applied to the pinctrl tree for v7.1.
 
-> +  reg:
-> +    maxItems: 1
-> +
-> +  "#address-cells":
-> +    const: 1
-> +
-> +  "#size-cells":
-> +    const: 0
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +  reset-gpios:
-> +    maxItems: 1
-> +
-> +  clock-frequency:
-> +    default: 100000
-> +
-> +required:
-> +  - compatible
-> +  - reg
-> +
-> +additionalProperties: false
-
-And if you tested any DTS with this, you would see this cannot work.
-Look at other bindings - you miss ref to i2c-controller and
-unevaluatedProps. But the problem is that you are doing something which
-would never work, so I have doubts that you know what you are doing. One
-thing is to make a mistake, other thing is to post something can never
-work thus putting quite noticeable requirements on review.
-
-Please first learn how DTS and DT bindings work, before you post new
-patches.
-
-Best regards,
-Krzysztof
-
+Yours,
+Linus Walleij
