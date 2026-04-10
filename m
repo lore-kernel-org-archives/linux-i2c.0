@@ -1,116 +1,131 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 154D93AD518;
-	Fri, 10 Apr 2026 08:20:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67EF133E351
+	for <linux-i2c@vger.kernel.org>; Fri, 10 Apr 2026 09:41:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775809259; cv=none; b=Hf2jKH6kTbazl0qEUlx4xRudxqhpxiWgi8+Pknnd3Iw0taDciTQEOX9mLiJ97I9S84K8cEFg0qSAESfNQFs6vXIfaNPdvbPTOHB6hfwNF2if38HPLQmk7PVylL/AjOm3Liz2VlDM6I9tXgRq7HK7RvD6JejZ4nCRmADdnMugzyg=
+	t=1775814091; cv=none; b=f6QkRNCK55QrkGY3geE3Q6jElMqeZ3ns4CtSFdY0+UWHVE2nz4QJK0v0Ze95By/yPMb4UGrbXcTLQdaMqQl8OzZO5J3vEUq8hpAe466msncU5sFvvNd3gbe539qleQsnZL2kqzKdJmxhQpyZxWPRJcLA//9eJU7HuCdGhxNIgfc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775809259; c=relaxed/simple;
-	bh=OFHEx486+doBb6U2ENiOcMTUx2zJFUWYJ5DRPbM5rb0=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=IJdXLKU22WC41Pd12PSF4/s/3MxqTHtJRAfi2mmY7C5oEA+DBYaCfhDzxvyP0W2kVdoo2SLfv25kjWBA4gKYRtEM4tFv1KmGjVb+B/QUcYVZSYyFkte4o2HFgcEb4vsfNbGjOuhsiOf2kv0BDD+z0GG5nSfAzrzWD3pseinYKeU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.101])
-	by gateway (Coremail) with SMTP id _____8BxWcLmsthpeOwjAA--.34410S3;
-	Fri, 10 Apr 2026 16:20:54 +0800 (CST)
-Received: from [10.20.42.101] (unknown [10.20.42.101])
-	by front1 (Coremail) with SMTP id qMiowJCxHOHlsthp9zhqAA--.5473S3;
-	Fri, 10 Apr 2026 16:20:53 +0800 (CST)
-Subject: Re: [PATCH v1 1/2] dt-bindings: i2c: ls2x-i2c: Add clock- related
- properties
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Binbin Zhou <zhoubinbin@loongson.cn>, Andi Shyti <andi.shyti@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, linux-i2c@vger.kernel.org,
- devicetree@vger.kernel.org, loongarch@lists.linux.dev
-References: <20260325011852.19079-1-wanghongliang@loongson.cn>
- <20260325011852.19079-2-wanghongliang@loongson.cn>
- <20260325-outstanding-weasel-of-fruition-89db37@quoll>
- <1b5283d8-294c-86de-c3d8-bf205ac24216@loongson.cn>
- <0d7dfe5b-5e2d-4850-8922-16eb6bd9bcae@kernel.org>
- <900dc1a4-66ab-411f-8a32-4c6cf339e8ec@kernel.org>
- <bc22bad4-9825-829d-1df0-a801ebd933d6@loongson.cn>
- <ca984be0-e7a6-4897-bf9f-db9465942c6e@kernel.org>
- <ac62e280-1099-c0bc-f322-ba8b65307053@loongson.cn>
- <2388acbc-a927-4727-a23c-5ecd7c33a926@kernel.org>
- <a08ac3f9-a770-df48-a95b-4b07cd2c0d58@loongson.cn>
- <e10017ce-cda0-5b5e-8cd8-3488aef4cdb0@loongson.cn>
- <dc1c0b6d-b6e6-4a88-8e50-e8316e3dcf5e@kernel.org>
- <0f560e80-3fbb-c24f-51f9-b4425db17867@loongson.cn>
- <3c57275e-0574-46e5-9893-053ae5cc22cb@kernel.org>
-From: Hongliang Wang <wanghongliang@loongson.cn>
-Message-ID: <991204c6-6710-e62c-69ab-d7db91325013@loongson.cn>
-Date: Fri, 10 Apr 2026 16:20:42 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+	s=arc-20240116; t=1775814091; c=relaxed/simple;
+	bh=eJX1yP3ycMOp+GPfJFr/Kg0BrgivZYOEuF4zUzf1F8Y=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Y4yVQOfv9qNvfUYF6SgufOchY2QttOEpOM8FUeTTZBxItLelw4kEw7WlfKqMWKMPOo3x4q7X4txge+ks/yffF4gZTetAX7pSAgsOPgWliKcubF9R8GOeV7FEbMpRulKKvhz8Mqb8ewtQYoyC/F8QL9AMCpsthG4cyu6jBvqT/ko=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aKismof+; arc=none smtp.client-ip=209.85.128.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aKismof+"
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-4888375f735so17944555e9.3
+        for <linux-i2c@vger.kernel.org>; Fri, 10 Apr 2026 02:41:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775814089; x=1776418889; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bMDf5kG47sSh3LquTWW3lJq958x7ZFKaEtVYrO12TpQ=;
+        b=aKismof+eqTr2porbxa1qlFO/qfy6vxpyckEJTsZBHd2xo3GlfaoLm0Owjo5hhmhAA
+         0Ki7SDvPX3VL9FyXLRkEbxRrD73HkuZY31Tib1BuHrlBm1gcooHeDFtIj19+R/JrNuh+
+         VfUSMhDD1xZxSA+LUwn5PHjIxi9Om/3iUlx11dtO3YgJ0DhkpPLDAWkkQDyh2M+eWLMw
+         1FPc66ZYpEfhZ76kILn3360no+rfTgHukCnmH2wCj3zDKMSFMxDM1/4ewiZR7rMct2Cw
+         ZXBC/qjax54a5+gdlES/51UOAmwQcNLyrSGb3ea6ac2e5x6v1wL/khGyx8trEDYYGdLF
+         BlCw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775814089; x=1776418889;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=bMDf5kG47sSh3LquTWW3lJq958x7ZFKaEtVYrO12TpQ=;
+        b=aBanb6wr/0Cy39c4h5JFjAX3J0aKdfA/aCG9WuuxOdB17fhGuRdjpL2x48JZrfu6cP
+         UuFS0Yd9NNBQh8yuKv6PAbzNKtWlI6FxZniLTk0wgwWfm+r2nUB14e2cpveGdXrwl1t/
+         k6X/29FGo9EXbR+1TGXhRkPRY5WfKn64AM2L9sJnUK2/pwK2iDZ3noKgzFi8U1FIjEq9
+         RPabBg2nazK0Q96uiOyTtiKa5MzgMOpdECPf03dYLhwAMMZqZI878U2o225V6hV80d/O
+         8y6NTGw9BVRZ2iFJz8eLe9DY+jTGVRxpwuvdxNKic4R9UIdsimaXiRR7n+jM7mgVf29t
+         fwZQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUsbbEPKMiBPI2kDIy+CkN9gFKhUZsUPuQASqh8wiH3T+kT4IgAVUqVrwYGGdKcjaVlGUl+AcDHAQk=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwZ3S9edIZKGPBkvDupGus/fdmTsI7vr7zVGVqDAc3rP+9Uchw1
+	PZeG1DFN7Soayac3GkwZxvCh/b7nbLfVi3NoCs+oMapqepAP7HH1Ic1Yx+BajS7R
+X-Gm-Gg: AeBDietHG+jZCy5FobboJFkoATkDLnLvfkuwWeXyR4A1N14YpohH/g7ohlj31Z7ocFt
+	C5WMvsIjOFSQ6RVAiSEApXW4BeeAF9wvUJwWG0Qk4jpJBLywNwoBpzb5fR4gytyFihUfx3y1kvC
+	/fPrjKR2/ynLLu6HX26EztKbB1B6hdlBXGrauPW1wAy/rsR3PNrQFFCS+72lIbtAV+T0bW/Wyfj
+	qpqej2C4TyAcrzQQ3YXJ9+v7PesbWjdScIrqeTTIkxulfABRux2fS+p3kC6gGcOilmpPeQIKhmV
+	XtJ/BlgC77yPYOJWQ0t5RKza44FRjWRGPyAMB/XXoTe5bRURaRD3rR9CavX3m5MDC9cTk81Wsmt
+	m9ndrMU2XVkjL2HmTAETlysEarloIbZU9q48xIJcd5lrnOC1RamZ3v6aQ6s43iqUUmzfMgyiI8V
+	3iz6cuERFVsn5CN067MeLB/NPE/5K4k9GFnxILFSmRmRbYt/0mccsFu7eCmsqcq55+Zr6m
+X-Received: by 2002:a05:600c:8b6b:b0:488:be21:54b9 with SMTP id 5b1f17b1804b1-488d67ce792mr29808725e9.8.1775814088482;
+        Fri, 10 Apr 2026 02:41:28 -0700 (PDT)
+Received: from x2-evb57.xsight.ent (genie03-172-158.inter.net.il. [213.8.172.158])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488d5df2062sm18102255e9.12.2026.04.10.02.41.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 10 Apr 2026 02:41:28 -0700 (PDT)
+From: Michael Zaidman <michael.zaidman@gmail.com>
+To: Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: =?UTF-8?q?Sebasti=C3=A1n=20Josu=C3=A9=20Alba=20Vives?= <sebasjosue84@gmail.com>,
+	linux-i2c@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Michael Zaidman <michael.zaidman@gmail.com>
+Subject: [PATCH] HID: ft260: validate i2c input report length
+Date: Fri, 10 Apr 2026 12:41:15 +0300
+Message-Id: <20260410094115.229188-1-michael.zaidman@gmail.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <CAPnwWgPhb+owa69-pTADpqk=KMWH71EUT6cxwCeT5KGnBWk+Xg@mail.gmail.com>
+References: <CAPnwWgPhb+owa69-pTADpqk=KMWH71EUT6cxwCeT5KGnBWk+Xg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <3c57275e-0574-46e5-9893-053ae5cc22cb@kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-CM-TRANSID:qMiowJCxHOHlsthp9zhqAA--.5473S3
-X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
-X-Coremail-Antispam: 1Uk129KBj93XoW7Kw4rWFy5Wr1fXr1DXw4UWrX_yoW8Wr13pF
-	Z3KF1qyrZ8Aryvv397Kw1xZr1Yyws8Cr4rJry8KryUZw45ZryrtF1fArZ5Wr9Y9r1fA3yj
-	va1kGa4DurZxZagCm3ZEXasCq-sJn29KB7ZKAUJUUUU8529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUvIb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
-	xVW8Jr0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
-	1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r106r15McIj6I8E87Iv
-	67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07
-	AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02
-	F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GF
-	ylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7Cj
-	xVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r
-	1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07jU
-	sqXUUUUU=
 
+Validate xfer->length against the actual HID report size in
+ft260_raw_event() before using it as the memcpy length. A malicious
+or malfunctioning device could send a report with xfer->length
+exceeding the data actually present in the HID report, causing an
+out-of-bounds read.
 
-On 2026/4/10 下午2:42, Krzysztof Kozlowski wrote:
-> On 10/04/2026 05:04, Hongliang Wang wrote:
->> Hi, Krzysztof
->>
->> On 2026/4/9 下午8:11, Krzysztof Kozlowski wrote:
->>> On 09/04/2026 14:03, Hongliang Wang wrote:
->>>> I have a question, the input clock of i2c controller can be described by
->>>> "clocks",
->>>> but there is no existing attribute can describe the divisor of the input
->>>> clock,
->>>> Can I define a new attribute named "clock-div" to describe it in DT
->>>> bindings?
->>>> or do you have any standard solutions for the divisor problem? Thank you.
->>>>
->>> You should determine/calculate the divisor in the driver code, depending
->>> on clocks and bus frequencies. You don't need a property for that, usually.
->> Not only clocks and bus frequencies, but also a third property is required.
->>
->> The frequency divison calculation formula of i2c is
->> Prcescale = clock_a/(clock_div*clock_s)-1
->>
->> There is three parameters in this formula:
->> clock_a represents the input clock, which is described by "clocks",
->> clock_s represents the i2c bus frequency, which is described by
->> "clock-frequency",
->> but there is no existing property to describe clock_div, which has
->> different value
->> on different platform (for example, it is 5 on 7a1000/7a2000, 4 on
->> 2K1000/2K2000,
->> 5.5 on 2K3000.), So I need a property to describe clock_div in this formula.
-> So it is fixed per compatible? Then you do not need.
->
-OK, I will fix the clock_div based on per compatible. thank you.
-> Best regards,
-> Krzysztof
-Best regards,
-Hongliang Wang
+Each I2C data report ID (0xD0 through 0xDE) defines a different
+report size in the HID descriptor, so the available payload varies
+per report. Validate against the actual received report size rather
+than a fixed maximum to avoid breaking valid short transfers.
+
+Reported-by: Sebastián Josué Alba Vives <sebasjosue84@gmail.com>
+Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
+---
+Tested on FT260 with I2C-attached EEPROM (24c02) behind PCA9548
+mux switches. Verified short reads (1-4 bytes, report ID 0xD0)
+and multi-report reads with debug tracing enabled, confirming
+xfer->length is correctly validated against the HID report size
+for each report ID.
+---
+ drivers/hid/hid-ft260.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+index 333341e80b0e..b31c43353249 100644
+--- a/drivers/hid/hid-ft260.c
++++ b/drivers/hid/hid-ft260.c
+@@ -1070,8 +1070,15 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 
+ 	if (xfer->report >= FT260_I2C_REPORT_MIN &&
+ 	    xfer->report <= FT260_I2C_REPORT_MAX) {
+-		ft260_dbg("i2c resp: rep %#02x len %d\n", xfer->report,
+-			  xfer->length);
++		ft260_dbg("i2c resp: rep %#02x len %d size %d\n",
++			  xfer->report, xfer->length, size);
++
++		if (xfer->length > size -
++		    offsetof(struct ft260_i2c_input_report, data)) {
++			hid_err(hdev, "report %#02x: length %d exceeds HID report size\n",
++				xfer->report, xfer->length);
++			return -1;
++		}
+ 
+ 		if ((dev->read_buf == NULL) ||
+ 		    (xfer->length > dev->read_len - dev->read_idx)) {
+-- 
+2.25.1
 
