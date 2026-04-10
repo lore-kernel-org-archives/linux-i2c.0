@@ -1,101 +1,86 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D81391DD877;
-	Fri, 10 Apr 2026 12:48:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 540F63CC9FE;
+	Fri, 10 Apr 2026 14:17:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775825319; cv=none; b=hGoBj8olhxgCYbSSpZui+xQockhZ3V6tZZlWFUvOojhTjfvUx7+ms23bc1BWiaz0QZyWXe5/kktGJdw6x6n4CM+MCaXzG/kdb+jCUoyAWTTiBKVDTwhFBpsVPvUoMAXRIHbPv6Q250NIRlYtzNQqYvwcYhq55+mJCy+YNpRkTYM=
+	t=1775830653; cv=none; b=N/h5VRR6yRofjpNdjV5yUxx1ME4ut9jNMvNugGmSvU8GoAK89JDQw0DBX/bjq/qozfp7ihjQ1m3f5Owb3djlHZAIeU5OKO/Kks8cLJWg4RctVXXFO1IluC3kMmBZLqvbdnwHoMMOr3YQu3Vl4J2MwucM2o0qWFl2UyqM7eGsUxs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775825319; c=relaxed/simple;
-	bh=1UbclgnxCjQXB9DtAVUDAGQ14aIXZcqP00v7bAK2vMM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=umlOd7bJdjRslnlhBfYM0HTe7BvyV1Rlv4aMMM2SR1/gdq23+IJh1jlmweekfxjbMqCBC37x/WqmIof6NSbXxKccGXUj7kSQ8+zwEhLpxFXMfpOuRL7M28oUFLUxkMQnqqmLr53oTXuToKuf5zApiqkD2VypCMRvHZgi515waws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=bxX1OL7F; arc=none smtp.client-ip=198.175.65.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1775830653; c=relaxed/simple;
+	bh=sl+FzIBXVMlSZ/nJpC8urkN/gHCP6oH2evLkc1/HUSY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=l1zzM1MLUD2YycF1WWlfiHDNUJgcAHAKkg9bntwftNNCBzINm+OFptUZXs4OFV9eZSvLJs8SuI8w/GKJUOomlWXIQb+vnJ5tcWo+N2SPUrItNAQzRostUg8c/Rh8+iLthSSqr+2EpS78xegR6G9jXcnQC99ZnWCgariUUQfquX4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=JbCzY+C4; arc=none smtp.client-ip=198.175.65.9
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="bxX1OL7F"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="JbCzY+C4"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1775825318; x=1807361318;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=1UbclgnxCjQXB9DtAVUDAGQ14aIXZcqP00v7bAK2vMM=;
-  b=bxX1OL7FSkuIa/GaoWnTh7XxFahsvYmNcVpDkEJ09XepRlirW+4jnMQF
-   P6KaQ25KWgJRqhxc/jK9j0hGua78nBEYBAk6MrsD0PO82XGmT2/CjGhUj
-   8lZItGQ0TZ1J8Lu4NnCG/iS2qj9GIz12eGGZRGOaZuu/ssH7iy8BYg6NA
-   KtxohyopLhF3r7/FRco6E/F0Z90aMr9hGmFuNMmx0oPyoBSto0EiQduQD
-   PATu7UyKWEOUGUmoK0xGTS7aNI6Ge/KkHrDlKD5RT7WbviuP9tYQBzRXy
-   quVfJ0WqJI4ysApQfHoUPz3c0pine80yZMG/aQgBA9cC4T6fMcaX57Wgo
-   Q==;
-X-CSE-ConnectionGUID: 1xQvIubdQyuR67vRG8YDmA==
-X-CSE-MsgGUID: svTGt7F8Sle5Wcpb8nWWsQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11754"; a="80704000"
+  t=1775830651; x=1807366651;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=sl+FzIBXVMlSZ/nJpC8urkN/gHCP6oH2evLkc1/HUSY=;
+  b=JbCzY+C47hJWNucZFyv3q6cNuN9U68ElPUVDH8napKwkXmLy1KUtK3z7
+   Y2qxRevbb/x1xQ9gLQBd63a+WSaRNQdkXALvvwxt4k1AvQWQ7LfOrKNo9
+   goJeoogqvU017KifbJxf03vOlEyjxQshIirJNKLNoUHVnJ++bsGel3yRV
+   JFRexQSgYVFN5eXqmGEdEhg5n1KOkoEPlbhP8gKiAGwG6G38ld9+GHjBM
+   syPsgQwDCE5cfJ+FYby79S0LXk0heqTrAMIkvieF6Tuf7/m99TDCreef3
+   Wj1cGhQxxREf6JI/1PUnawtF6Ls1JDym6dPXqed7N4Xu1aXGQxsrmPIAD
+   A==;
+X-CSE-ConnectionGUID: YTgk/oPyTbWYsLdyLO4pMw==
+X-CSE-MsgGUID: ckep2zyAR12uICjcVJ9SSg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11755"; a="99487765"
 X-IronPort-AV: E=Sophos;i="6.23,171,1770624000"; 
-   d="scan'208";a="80704000"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2026 05:48:38 -0700
-X-CSE-ConnectionGUID: Bo7Q8UbvS82MPo8IjzKT4A==
-X-CSE-MsgGUID: kwqaAPOmT5ip/lEUdCW20Q==
+   d="scan'208";a="99487765"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2026 07:17:16 -0700
+X-CSE-ConnectionGUID: IGxInb5JSEWBZwiGrz8Sxg==
+X-CSE-MsgGUID: l82WWPJLS/yaqMUwl/eXZA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.23,171,1770624000"; 
-   d="scan'208";a="225919873"
-Received: from dalessan-mobl3.ger.corp.intel.com (HELO kekkonen.fi.intel.com) ([10.245.244.73])
-  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Apr 2026 05:48:35 -0700
-Received: from kekkonen.localdomain (localhost [IPv6:::1])
-	by kekkonen.fi.intel.com (Postfix) with SMTP id 6AE9711FA4F;
-	Fri, 10 Apr 2026 15:48:50 +0300 (EEST)
-Date: Fri, 10 Apr 2026 15:48:50 +0300
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6 krs, Bertel Jungin Aukio 5, 02600 Espoo
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
-To: Arun T <arun.t@intel.com>
-Cc: israel.a.cepeda.lopez@intel.com, hansg@kernel.org,
-	andi.shyti@kernel.org, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, miguel.vadillo@intel.com
-Subject: Re: [PATCH 2/2] i2c: usbio: Add ACPI device-id for NVL platforms
-Message-ID: <adjxslosYBIgjano@kekkonen.localdomain>
-References: <20260410080408.562311-1-arun.t@intel.com>
+   d="scan'208";a="229016066"
+Received: from intel-nuc8i7beh.iind.intel.com ([10.223.163.35])
+  by orviesa008.jf.intel.com with ESMTP; 10 Apr 2026 07:17:14 -0700
+From: Arun T <arun.t@intel.com>
+To: israel.a.cepeda.lopez@intel.com,
+	hansg@kernel.org,
+	andi.shyti@kernel.org
+Cc: sakari.ailus@linux.intel.com,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	arun.t@intel.com,
+	miguel.vadillo@intel.com
+Subject: [PATCH v2 0/2] Add Nova Lake (NVL) ACPI device IDs to the usbio GPIO and I2C drivers.
+Date: Fri, 10 Apr 2026 19:40:37 +0530
+Message-ID: <20260410141038.585760-1-arun.t@intel.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260410080408.562311-1-arun.t@intel.com>
+Content-Transfer-Encoding: 8bit
 
-Hi Arun,
+This patch series add NVL ACPI device ID to USBIO gpio and i2c drivers.
 
-On Fri, Apr 10, 2026 at 01:34:08PM +0530, Arun T wrote:
-> Add device IDs of Nova Lake into i2c-usbio support list
+Changes in v2:
+	- Updated commit message sentence end.
+	- Added Reviewed-by tag from Sakari Ailus to patch 1/2
 
-Same here; sentences end in a period.
+Suggested by Sakari:
+	- Add sentences end in a period.
+	- Add Reviewed-by tag. 
 
-Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Arun T (2):
+  gpio: usbio: Add ACPI device-id for NVL platforms
+  i2c: usbio: Add ACPI device-id for NVL platforms
 
-> 
-> Signed-off-by: Arun T <arun.t@intel.com>
-> Reviewed-by: Vadillo Miguel <miguel.vadillo@intel.com>
-> ---
->  drivers/i2c/busses/i2c-usbio.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-usbio.c b/drivers/i2c/busses/i2c-usbio.c
-> index e7799abf6787..259754e5fd05 100644
-> --- a/drivers/i2c/busses/i2c-usbio.c
-> +++ b/drivers/i2c/busses/i2c-usbio.c
-> @@ -29,6 +29,7 @@ static const struct acpi_device_id usbio_i2c_acpi_hids[] = {
->  	{ "INTC10B6" }, /* LNL */
->  	{ "INTC10D2" }, /* MTL-CVF */
->  	{ "INTC10E3" }, /* PTL */
-> +	{ "INTC1118" }, /* NVL */
->  	{ }
->  };
->  
+ drivers/gpio/gpio-usbio.c      | 1 +
+ drivers/i2c/busses/i2c-usbio.c | 1 +
+ 2 files changed, 2 insertions(+)
 
 -- 
-Regards,
+2.43.0
 
-Sakari Ailus
