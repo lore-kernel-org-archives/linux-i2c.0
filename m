@@ -1,31 +1,50 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 24979A932;
-	Fri, 10 Apr 2026 03:06:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDBA127CB02;
+	Fri, 10 Apr 2026 06:42:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775790380; cv=none; b=m9c7NHZmyEawj9BpmFWshbyeI+Zd2zXidnF9knP9HPkEzxxaPhEVnyhj/0ojHbRThkbRJe5bl2qZkt0pO11y/8Imlqmz8LlgHjOpIk7XAjSztPctWpKyRtbsZWsczHNTUUQL46V1RJzPjE8vhHiU+lJs7/ZqmRW+LK7JnwJzJu8=
+	t=1775803358; cv=none; b=OhF09kqoiX2fc3V9Zq4zboJg2a8qf/tg0TQGfipbfrDvV7zqocj181uBMEgpY1P93wZwp8TjNrdZe/d7vtWyYzJndBBEqGLkUlxRJ/IDNPdlaNNBVDjfiJEJjCIjfIRpK4770/O7SkJl9R8weGTQzSHjTrGYlgqOiHXNoCMeq+k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775790380; c=relaxed/simple;
-	bh=Ta1dGj9Uk90qAxgKt8w/tcpneI6cqiDPS95714G+5yw=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=U9tRGGhk1VK5Bx3B3aUaP1Lx3cBUdtzX14ynPet2xf0Lma2lg8MnVgQSDfW/lfOb/0EECjiUve3fwhXFi3bc9dIXyG1Q5UTxPr0u4btxF13Lwdm3TB+VXC2UcfsLwAvThdpkRNkDtAU0bATHPlBRGr1OGiEmrX3spp51muw/a/w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.101])
-	by gateway (Coremail) with SMTP id _____8CxKMInadhpydojAA--.1001S3;
-	Fri, 10 Apr 2026 11:06:15 +0800 (CST)
-Received: from [10.20.42.101] (unknown [10.20.42.101])
-	by front1 (Coremail) with SMTP id qMiowJAxXcImadhp+xBqAA--.2537S3;
-	Fri, 10 Apr 2026 11:06:14 +0800 (CST)
+	s=arc-20240116; t=1775803358; c=relaxed/simple;
+	bh=ExP5iXPCuPkzUAktsanQk4yh+OIzhkbhOeospQVTklo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=QhbBNZb4utwbUJg6/2M9DLlXMVgJWyRMfXaT/lg+YOLqiOk6uvM5+nhS7giDweI7SsVgHKsCJ4094lO/KqI2xqJX6Ky5gn7POF8oO7oRdUwATZHSyt+JSqWMBlDPONZOkKVGz9V/2OZnvkmEpLmLxOInil3fpe/2MdsWfRKatOI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GpBB+v52; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GpBB+v52"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60703C2BCAF;
+	Fri, 10 Apr 2026 06:42:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1775803358;
+	bh=ExP5iXPCuPkzUAktsanQk4yh+OIzhkbhOeospQVTklo=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=GpBB+v52wHv6pnVOrEy7VUhesQqeQpIwCBiFmFVHF8b1WPyMttGH/gWjGM5bzf99y
+	 +onPiDoVmCxXsGH9LWZGzx6M5LUTuq5r3OPu9ZQa1oveMHvDLnaNLGB3/VdrcCgM2m
+	 ZmMtonRKKKnODWEZqrKw0Wnxa0C7zgrnRGnuPfYv8MC+hA5gTRtfXcnFcV8rvqMB/D
+	 RpG59gn05m/c2Tf6R39RbaAo1s/2+xHKdJAS1yIYiLBs1iBLComo68K80MnIPyN+CP
+	 HRcBAnoXd9OnNmamnC3B/Suf6s2zBHa3B2OHR7oroPGarK9+BlPLMw/DAjZXs0NbjD
+	 XvMeBOZ39c7EQ==
+Message-ID: <3c57275e-0574-46e5-9893-053ae5cc22cb@kernel.org>
+Date: Fri, 10 Apr 2026 08:42:34 +0200
+Precedence: bulk
+X-Mailing-List: linux-i2c@vger.kernel.org
+List-Id: <linux-i2c.vger.kernel.org>
+List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
+List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v1 1/2] dt-bindings: i2c: ls2x-i2c: Add clock- related
  properties
-To: Yao Zi <me@ziyao.cc>, Krzysztof Kozlowski <krzk@kernel.org>
+To: Hongliang Wang <wanghongliang@loongson.cn>
 Cc: Binbin Zhou <zhoubinbin@loongson.cn>, Andi Shyti <andi.shyti@kernel.org>,
  Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
  Conor Dooley <conor+dt@kernel.org>, linux-i2c@vger.kernel.org,
  devicetree@vger.kernel.org, loongarch@lists.linux.dev
-References: <20260325-outstanding-weasel-of-fruition-89db37@quoll>
+References: <20260325011852.19079-1-wanghongliang@loongson.cn>
+ <20260325011852.19079-2-wanghongliang@loongson.cn>
+ <20260325-outstanding-weasel-of-fruition-89db37@quoll>
  <1b5283d8-294c-86de-c3d8-bf205ac24216@loongson.cn>
  <0d7dfe5b-5e2d-4850-8922-16eb6bd9bcae@kernel.org>
  <900dc1a4-66ab-411f-8a32-4c6cf339e8ec@kernel.org>
@@ -34,139 +53,91 @@ References: <20260325-outstanding-weasel-of-fruition-89db37@quoll>
  <ac62e280-1099-c0bc-f322-ba8b65307053@loongson.cn>
  <2388acbc-a927-4727-a23c-5ecd7c33a926@kernel.org>
  <a08ac3f9-a770-df48-a95b-4b07cd2c0d58@loongson.cn>
- <e10017ce-cda0-5b5e-8cd8-3488aef4cdb0@loongson.cn> <adfF4y8_GhtExZMf@pie>
-From: Hongliang Wang <wanghongliang@loongson.cn>
-Message-ID: <815c5f0f-5dbb-677a-9fb2-9cf49d71408f@loongson.cn>
-Date: Fri, 10 Apr 2026 11:06:02 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
-Precedence: bulk
-X-Mailing-List: linux-i2c@vger.kernel.org
-List-Id: <linux-i2c.vger.kernel.org>
-List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
-List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-In-Reply-To: <adfF4y8_GhtExZMf@pie>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+ <e10017ce-cda0-5b5e-8cd8-3488aef4cdb0@loongson.cn>
+ <dc1c0b6d-b6e6-4a88-8e50-e8316e3dcf5e@kernel.org>
+ <0f560e80-3fbb-c24f-51f9-b4425db17867@loongson.cn>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
-X-CM-TRANSID:qMiowJAxXcImadhp+xBqAA--.2537S3
-X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxWF18WF47Jw13CFW7XF4fZwc_yoWrXr15pF
-	Z3KF97JFWDJr1Svr1Iqw1xXF1jva15JF45Xry8Wr13Wws0vw1SvF1fJrWUWFyDWr15C3yj
-	yF1Uta97ZrW7ZagCm3ZEXasCq-sJn29KB7ZKAUJUUUU8529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUU92b4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
-	6r4j6r4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07AIYIkI8VC2zVCFFI0UMc
-	02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUAVWUtwAv7VC2z280aVAF
-	wI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMxk0xIA0c2IEe2xFo4
-	CEbIxvr21l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1l4IxYO2xFxVAF
-	wI0_JF0_Jw1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zV
-	AF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4l
-	IxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCw
-	CI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBIdaVF
-	xhVjvjDU0xZFpf9x07j83kZUUUUU=
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <0f560e80-3fbb-c24f-51f9-b4425db17867@loongson.cn>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hi, Yao Zi
-
-On 2026/4/9 下午11:29, Yao Zi wrote:
-> On Thu, Apr 09, 2026 at 08:03:47PM +0800, Hongliang Wang wrote:
->> Hi, Krzysztof
->>
->> On 2026/3/31 下午3:11, Hongliang Wang wrote:
->>> On 2026/3/30 下午3:23, Krzysztof Kozlowski wrote:
->>>> On 30/03/2026 09:18, Hongliang Wang wrote:
->>>>> On 2026/3/27 下午2:39, Krzysztof Kozlowski wrote:
->>>>>> On 27/03/2026 04:09, Hongliang Wang wrote:
->>>>>>> The initial idea was that this patch could be used for
->>>>>>> both ACPI and DTS.
->>>>>>>>>> The i2c-ls2x driver is compatible with both Loongson 2K and 3A+7A
->>>>>>>>>> platform, parse
->>>>>>>>>> the same parameters regardless of dts or
->>>>>>>>>> acpi parameter passing, So
->>>>>>>>>> clock-input
->>>>>>>>>> and clock-div attributes are defined to
->>>>>>>>>> describe input clock of i2c
->>>>>>>>>> controller and
->>>>>>>>>> divisor of input clock. It can be used on
->>>>>>>>>> both 2K and 3A+7A platform.
->>>>>>>>> And you cannot use them in DTS.
->>>>>>> OK
->>>>>>>> I need to keep guessing what you want to achieve,
->>>>>>>> because neither your
->>>>>>>> message nor commit text was explicit
->>>>>>> What I want to achieve is to describe the input clock
->>>>>>> and divisor of I2C
->>>>>>> controller
->>>>>> Input clocks are defined as clock inputs obviously in DT, not as
->>>>>> integers. Bindings need to describe the hardware, so start with that.
->>>>> I can describe the hardware in loongson,ls2x-i2c.yaml, and I
->>>>> would like to
->>>>> confirm with you what final implementation plan you agree to? clock
->>>>> framework
->>>>> or custom clock-input an clock-div attributes? if clock framework, how
->>>>> can it
->>>>> also be used for ACPI?
->>>> And you ask DT maintainer for that? It's not relevant. You sent DT
->>>> bindings patch, so this patch must be correct and we discuss this patch
->>>> here.
->>> I don't. My idea is that if the clock input attribute can't be used for
->>> both
->>> dts and acpi, then clock framework will be used for dts and new define
->>> attribute
->>> will be used for acpi. I will first implement the hardware description
->>> and clock
->>> framework in Bindings.
->>>> Best regards,
->>>> Krzysztof
->>> Best regards,
->>> Hongliang Wang
+On 10/04/2026 05:04, Hongliang Wang wrote:
+> Hi, Krzysztof
+> 
+> On 2026/4/9 下午8:11, Krzysztof Kozlowski wrote:
+>> On 09/04/2026 14:03, Hongliang Wang wrote:
+>>> I have a question, the input clock of i2c controller can be described by
+>>> "clocks",
+>>> but there is no existing attribute can describe the divisor of the input
+>>> clock,
+>>> Can I define a new attribute named "clock-div" to describe it in DT
+>>> bindings?
+>>> or do you have any standard solutions for the divisor problem? Thank you.
 >>>
->> I have a question, the input clock of i2c controller can be described by
->> "clocks",
->> but there is no existing attribute can describe the divisor of the input
->> clock,
->  From the description of 7A1000's user manual (section 2.3
-> "时钟功能描述"), it seems the divider isn't part of the I2C controller,
-> but instead is an on-chip divider with fixed 1/2 factor, feeding both
-> "MISC" block (including I2C) and SPI.
->
->> Can I define a new attribute named "clock-div" to describe it in DT
->> bindings?
->> or do you have any standard solutions for the divisor problem? Thank you.
-> If these devicetree-based Loongson platforms follow a similar pattern as
-> the bridge chip, then the divisor shouldn't be described in the I2C
-> controller node. You may want to include a "fixed-factor-clock" node to
-> match the hardware.
->
-Sorry, I didn't describe it clearly, The divisor I described doesn't 
-refer to
-the fixed 1/2 factor feeding MISC block(including I2C). What I have 
-described
-is included in the formula in section 10.2 of the 7a1000 user manual.
+>> You should determine/calculate the divisor in the driver code, depending
+>> on clocks and bus frequencies. You don't need a property for that, usually.
+> 
+> Not only clocks and bus frequencies, but also a third property is required.
+> 
+> The frequency divison calculation formula of i2c is
+> Prcescale = clock_a/(clock_div*clock_s)-1
+> 
+> There is three parameters in this formula:
+> clock_a represents the input clock, which is described by "clocks",
+> clock_s represents the i2c bus frequency, which is described by 
+> "clock-frequency",
+> but there is no existing property to describe clock_div, which has 
+> different value
+> on different platform (for example, it is 5 on 7a1000/7a2000, 4 on 
+> 2K1000/2K2000,
+> 5.5 on 2K3000.), So I need a property to describe clock_div in this formula.
 
-Prcescale = clock_a/(clock_div*clock_s)-1
+So it is fixed per compatible? Then you do not need.
 
-clock_a represents the input clock(it is the fixed 1/2 factor feeding 
-MISC block
-(including I2C), 50M on 7a1000), which is described by "clocks",
-clock_s represents the i2c bus frequency, which is described by 
-"clock-frequency",
-The divisor I described is clock_div in formula. which has different 
-value on
-different platform. for example, it is 5 on 7a1000/7a2000, 4 on 
-2K1000/2K2000,
-5.5 on 2K3000. I need a property to describe clock_div in this formula.
->> Best regards,
->> Hongliang Wang
->>
->>
->>
-> Regards,
-> Yao Zi
+
 Best regards,
-Hongliang Wang
-
+Krzysztof
