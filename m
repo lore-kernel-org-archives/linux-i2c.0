@@ -1,99 +1,63 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32C6E175A9C;
-	Sat, 11 Apr 2026 21:20:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCF701E8332;
+	Sun, 12 Apr 2026 00:24:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775942410; cv=none; b=uo4oXsiayOEBoBMzpq4qRiDIUNc82vuiC0jBCLCYT2zrDH2cQoQwlAhS+oaLRbEjukEcvrslZRSROnPFciUIV1M+YOZ+Kxq2VA40VNVPkBO28u2noZ87/94sePSPR0q1BFaQ/IXvbsVLszC+60cBcaw4O33+YNnQC05HBdvQtYw=
+	t=1775953455; cv=none; b=TjlNDOTDZkkl5u+QqajepK4m5Dl8Epvo65YVCGa5NOFNsIAqxpq8cU595iU3ib5XNpOgVNsEIxnmw1j1hJtcQ7++3DamMwYxkTFBT4Wjtl4U9raELDM9oUbEtLE7X6NyGjjrU4WeytcXAFqe2AHuOPC4tT3LGoq405L09UdFjFk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775942410; c=relaxed/simple;
-	bh=khg5OlrBGMzuzNw5mb+76XVjw/gMBrwl1x9IkhYgc5I=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=ocRaKbgK7/IynQlccNlmkUyWzNXY1JE9fxDzjJ+zThPhxupSgJG3+dl2USusmb/Ir7ufsZY+ohPGyyC2HI7I8LjLjRc0c7IR0HKzn4pz+vOcdWzwR04JFJYQf2NEiGb09USq7preqE1Mq20BWFoC/DtCRd1H2GP++8+kUXTPE+0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ihHpvY/u; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775953455; c=relaxed/simple;
+	bh=0abYpplRh3fZB7u5KOhFZovEmzEJx45VJR/88nTxh6Q=;
+	h=Subject:From:In-Reply-To:References:Message-Id:Date:To:Cc; b=fpCF0OLmVau+xwrLyyT5cwEIF139W2rp+D+2uzKNuYUHrTTMJYFuu9UU2yQ69Ntt2TMVJQXKwqt1ISXBRmZ50bDIcUDolxKcPl0nR4YE6dbOLm22bXIR2zfbJDDDZsa5h9OfwYYXNOdh+lNSX+KbvNB02vfk+AgQjD17dMN3dBo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V7LIYkFT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ihHpvY/u"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C32BC116C6;
-	Sat, 11 Apr 2026 21:20:08 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V7LIYkFT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE782C116C6;
+	Sun, 12 Apr 2026 00:24:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775942409;
-	bh=khg5OlrBGMzuzNw5mb+76XVjw/gMBrwl1x9IkhYgc5I=;
-	h=Date:From:To:Cc:Subject:From;
-	b=ihHpvY/uZWhC7SUvQbx3VjMY1X29Pe15Jh03PsSj7xjWkA08XPyZ0ospYiGHoa5lw
-	 ickLPc3AYYaVm3OFTrbGqhAo+j3CkinX/fEPjVY0UQp27VfAy3TDLqWA202QjJv0Tq
-	 k2K3ihEkRFHx/HS2Xt0ehIeQDTncum0rQaxeqQKHS8z/bloX5kjQKxIVRsDnYYXM0i
-	 a2e0m6I4tf69o5wqdtKgJKXxNFALNbQfS8JhY7ZX6rzyHUPZxx9kMweDfhpLXUFde5
-	 y7F1KHag9rYenqsF+PwvSjuzJbiXyKpUoCp+6aCNw0abebtwYJ1uBpIHQxzGJX3uFa
-	 cVMdGYmLQGcJA==
-Date: Sat, 11 Apr 2026 23:20:05 +0200
-From: Wolfram Sang <wsa@kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>
-Subject: [PULL REQUEST] i2c-for-7.0-final
-Message-ID: <adq7BYaP1_uGqYBp@shikoro>
+	s=k20201202; t=1775953454;
+	bh=0abYpplRh3fZB7u5KOhFZovEmzEJx45VJR/88nTxh6Q=;
+	h=Subject:From:In-Reply-To:References:Date:To:Cc:From;
+	b=V7LIYkFTY0T9jBmV89RS/AWuhMhSxNUj+BPpP5A2dXWQZbhhr9wf19507VYd78FGg
+	 cEXAICRwX/b4mYE4OKvT1Fl4FILnKZpHS13hv4+TmtNm8SryR9vkLR5ajH7mAc5fX+
+	 di/i0Nz+lB3wZGZreo5oM+tpjdD8qplmzDyHD1sSqURkmnFR8z4avm7E+aSCaoXkBj
+	 fOxeG2jCujYJI41ZqfIPwNDxRwu3gjvQc1OEJ6EULx2o5Uhzx2FWyCZ/jf+cXWTYna
+	 zjvqy3qAjLPGEgPSEztwDcJWjGN+Zvhl0UUJIvZIuwmhPSS9EcV3U4/O13fFDVtWRc
+	 aTOALGoWxzvNg==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 4005F3809A8B;
+	Sun, 12 Apr 2026 00:23:49 +0000 (UTC)
+Subject: Re: [PULL REQUEST] i2c-for-7.0-final
+From: pr-tracker-bot@kernel.org
+In-Reply-To: <adq7BYaP1_uGqYBp@shikoro>
+References: <adq7BYaP1_uGqYBp@shikoro>
+X-PR-Tracked-List-Id: <linux-i2c.vger.kernel.org>
+X-PR-Tracked-Message-Id: <adq7BYaP1_uGqYBp@shikoro>
+X-PR-Tracked-Remote: git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-7.0-final
+X-PR-Tracked-Commit-Id: 0637a3086b4fc4165460b21c12b845be6be71be7
+X-PR-Merge-Tree: torvalds/linux.git
+X-PR-Merge-Refname: refs/heads/master
+X-PR-Merge-Commit-Id: f5459048c38a00fc583658d6dcd0f894aff6df8f
+Message-Id: <177595342784.3120865.13440020499690052336.pr-tracker-bot@kernel.org>
+Date: Sun, 12 Apr 2026 00:23:47 +0000
+To: Wolfram Sang <wsa@kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Bartosz Golaszewski <brgl@bgdev.pl>, Andi Shyti <andi.shyti@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="5qaW1XMb2F0zU85e"
-Content-Disposition: inline
 
+The pull request you sent on Sat, 11 Apr 2026 23:20:05 +0200:
 
---5qaW1XMb2F0zU85e
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-7.0-final
 
-The following changes since commit 7aaa8047eafd0bd628065b15757d9b48c5f9c07d:
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/f5459048c38a00fc583658d6dcd0f894aff6df8f
 
-  Linux 7.0-rc6 (2026-03-29 15:40:00 -0700)
+Thank you!
 
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-7.0-final
-
-for you to fetch changes up to 0637a3086b4fc4165460b21c12b845be6be71be7:
-
-  Merge tag 'i2c-host-fixes-7.0-rc7' of git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux into i2c/for-current (2026-04-04 12:02:20 +0200)
-
-----------------------------------------------------------------
-i2c-for-7.0-final
-
-imx: set dma_slave_config to 0 and avoid uninitialized fields
-
-----------------------------------------------------------------
-Anthony Pighin (1):
-      i2c: imx: zero-initialize dma_slave_config for eDMA
-
-Wolfram Sang (1):
-      Merge tag 'i2c-host-fixes-7.0-rc7' of git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux into i2c/for-current
-
- drivers/i2c/busses/i2c-imx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---5qaW1XMb2F0zU85e
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmnauwUACgkQFA3kzBSg
-KbbsnA//UHo9otW/Z2j00cA3omc8MZoMCEdz1HSkLUPTpELLhcDDswUkRUbndXwZ
-cog0YL1epsg71XEMvlM661kb/ivHVYgFtg3dEg8v0068k+rJbRRSJ3OEMaDz8Dnj
-GPI/hvhgP1/l36f7CnLbDP5z5mzekVwbciMRLusNW0IUBXDYziu68ECP7o/8MidO
-irDJJHH/dIP9W2EoC7TBQK0K3/Kz487JP/ukRZsh82r+ExUgzlslOb2jS6HA8ehg
-VlN+uaV6UJRPJdg+LKrAlWBCCnmbTVxXSYwW2ECz+YFjwzd8fETVYoIHa2oJRepW
-uoprdlgLufonGh56eZ5pKYVvWBQIu0V4UYCBoBX/u2WTUuJ+ANFNEscvOs8QyH8z
-fxtHiPh9NCwn76tjb73ihpt3v7gtwM5eKZwn0ZTOUgRdGaX5ppHEGD00GyEP7+xv
-L8CQDI59U6U7ITFHGwd5cbtPj9bo3R8j0WrFz3iAFa/71TI9DsB2DOeBUUnRRFsl
-xJeox8XWQuAEDsp66plk6i5xA6uYjzSeygahQV2TfTSAo2XOhPhrUae/kSB5YCQT
-CToz/SOMw0+XHB4bUa1dUvCTikUW77thb/eAUdjfm7DWQi4Mf+OR0u4td6f7Epn+
-Xw2C+2ql9dpQSUqy3u7DbONF/Yb02LBC9rcLeeLSXrSB50XL9+s=
-=rMwf
------END PGP SIGNATURE-----
-
---5qaW1XMb2F0zU85e--
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/prtracker.html
