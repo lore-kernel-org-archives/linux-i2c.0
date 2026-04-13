@@ -1,185 +1,124 @@
-Received: from SEYPR02CU001.outbound.protection.outlook.com (mail-koreacentralazon11023117.outbound.protection.outlook.com [40.107.44.117])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10ED328E00;
-	Mon, 13 Apr 2026 01:57:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.44.117
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776045473; cv=fail; b=Lyyu0Wpg28g8+iT6OPUZ80V9PaZenNO4E8JoL9HsHW7rvici1EzArrrennK4mMVm1KCQvCP3+e+Or82Wl30+ScApp6jHp4feTMY8zY6HY8+5FcctEIdnyJQ2rSt/3qIkXTnf4M0QSb/QN0XVvkWzUCpnca8jD4wYKz67+XzfK7k=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776045473; c=relaxed/simple;
-	bh=NxMIA335Kx5utnu1B5+E72rSIBe3vrlT2Mk6fidITiw=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=NxrsTwM4IpUxOgwGVoc6ZB9LDIKY8Z69jbRsApEzH+mb7VGkQyjX1YPxwC1CNgNSrCoduTZM+9AZQHYFqJZ8Bi2l+MsVf3apgd0rcQWybN8eGITNEP2JqfCwgTCMuNE4HzV9p2+D9TjSYdUS/qtOi1VDUr7Dtx73K2HC9pc3Ab8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com; spf=pass smtp.mailfrom=aspeedtech.com; dkim=pass (2048-bit key) header.d=aspeedtech.com header.i=@aspeedtech.com header.b=YHf0Xelv; arc=fail smtp.client-ip=40.107.44.117
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aspeedtech.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5070439EF12
+	for <linux-i2c@vger.kernel.org>; Mon, 13 Apr 2026 07:45:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.42
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776066338; cv=none; b=WG+IsS2j4bFgu8hoE3uRKvxnfnGf7dsmYW2e+0ir3hxeXUepyrLSc0/vFHWY+2Zn7FzYXaKoLK6hXNNeZA/GW1xIwaNVKNtLp6IMfz23Bmspvv3PE/MoQj+iMcQUyucIOGf0FsX/ezvsr5mjdkmLBtVMoO9qXJkZ0Y+9F9Ec4jk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776066338; c=relaxed/simple;
+	bh=GQQ3SBHociFPwcQlzwIosHskRYiXTXq/HoT2kxRNfeM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bv5H3iZBcKBMZAPVkSdhQA5PVNFwcvtWa/2ztVwbxRuvhPFaWg4uV+8d87Sfq/3oyNzBuR3Fe1e/f3jMckUpBKLq10W3K58qJpQiAspz9HEOIGyHmX6/MzZ0jk7PGnmxuMmctBQlvaxtz5+CibIpVN36GYjcnrkhUpbtR8PLKsA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a4W5WVBL; arc=none smtp.client-ip=209.85.167.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=aspeedtech.com header.i=@aspeedtech.com header.b="YHf0Xelv"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=QC9VOhNWbT5Y7V+NIDHjlgkCqppjR5tefnWWVO1+kQbUljtB9PfsUAAMfexoqASPre8hUJE7gr0dFwnvYuG9ycuZq/9RkQmDbCY+5SHwYGhxBUIdmBU4Jxk51LWs6Djwg0Y8y14lPed41gCLAFCnC4ISyOlZmB5Wpx2oe5IyeO/u8WjU9r9lb/dJzmva5uYnBiUs1kNYloZ3C4sljFPd5oTTJ0kmO07HI2fSV8it5lPo8rzrpj+4VK1jRxak5XUEh2On2ph34EOds0Ff29dJcdlYpWO96i9ahDQKyrqN+qa8lGbn/pHu1bbpmF/FhSnbHJECA0PKReCvt0RWAKtmhQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=NxMIA335Kx5utnu1B5+E72rSIBe3vrlT2Mk6fidITiw=;
- b=GKuMVGMZCfr09/8KH6pwVpkeFJMAlrKNiOm0WQAdF+s2B76aZod7grLBjNxUWpZNinb560L6gjKXSmVYTfykjOCUrnZJ2gFtXnjp0egYlWO52Gu1EdZYqpbBEt9FFg81WzlGZeItuUqpf2vqV2v5N/Hzq3J+zbbNNqM6/kQuoIC+HOh5PZRj7xtT0Eo+6mdrFA6N7PlGps7luNvGnNQBEjjJaRW23IOVpkI9R5Pqi5w9eki6NlkkyhrUUna/xWIWjivkPugdk0uu4C3uExkCajZeY8SpWSDTSE58pPml7ehsm9ZMEuK/gYaa6LKHwyuUbjaV3qP5lCss7FYHNEUYDg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=aspeedtech.com; dmarc=pass action=none
- header.from=aspeedtech.com; dkim=pass header.d=aspeedtech.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aspeedtech.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=NxMIA335Kx5utnu1B5+E72rSIBe3vrlT2Mk6fidITiw=;
- b=YHf0XelvKCTaOwcbRieRn1CkeLtb0FSlMfim2KsTiV6UMOr4G6GKjOorlUJ3DojnnANPb8TWeLf6jur3LQX416vg8rCv2Y3QTIQS/B9J3fHViypJpshPLzKZvZkLYYQ5mbmJxNVM6LiKLQdcz3T4XWXDM/XL4VXbBc+KJEiIlBb2mPZJIuSSZVns7ufCk4aMbo7q1vGqzxu/GzSdFu+dxty/qzwU68c2rvmvUAKXJ8OHtFw0cKf1rXwT06p7T/1ZVLwuSTra0zPln49gYtDOSWSAe+7+5/fpT2MhV63oP8+o/Xz3sHSL4r5gGRcUVgJEuFJxMBYwAhE1qqIh3DH/Uw==
-Received: from TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com (2603:1096:408::791)
- by SE3PR06MB8200.apcprd06.prod.outlook.com (2603:1096:101:2ee::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.48; Mon, 13 Apr
- 2026 01:57:46 +0000
-Received: from TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com
- ([fe80::8c70:cb01:78fb:d9c0]) by TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com
- ([fe80::8c70:cb01:78fb:d9c0%6]) with mapi id 15.20.9769.015; Mon, 13 Apr 2026
- 01:57:46 +0000
-From: Ryan Chen <ryan_chen@aspeedtech.com>
-To: Ryan Chen <ryan_chen@aspeedtech.com>, Jeremy Kerr
-	<jk@codeconstruct.com.au>, Krzysztof Kozlowski <krzk@kernel.org>
-CC: "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>,
-	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof
- Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Joel
- Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>, Philipp Zabel
-	<p.zabel@pengutronix.de>, "linux-i2c@vger.kernel.org"
-	<linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org"
-	<devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
-	<linux-arm-kernel@lists.infradead.org>, "linux-aspeed@lists.ozlabs.org"
-	<linux-aspeed@lists.ozlabs.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "openbmc@lists.ozlabs.org"
-	<openbmc@lists.ozlabs.org>
-Subject: RE: [PATCH v28 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add
- global-regs and enable-dma properties
-Thread-Topic: [PATCH v28 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add
- global-regs and enable-dma properties
-Thread-Index:
- AQHcwB5Ez31FCAF2H06H/moL1lfWeLXINCEAgAABqPCAAAIpgIAAAW0AgAADQQCAAAMycIAUEY9g
-Date: Mon, 13 Apr 2026 01:57:46 +0000
-Message-ID:
- <TY2PPF5CB9A1BE6B6C124B8DE265562A722F2242@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
-References: <20260330-upstream_i2c-v28-0-17bdae39c5cb@aspeedtech.com>
-	 <20260330-upstream_i2c-v28-2-17bdae39c5cb@aspeedtech.com>
-	 <20260331-fanatic-certain-bustard-fb13bc@quoll>
-	 <TY2PPF5CB9A1BE6F267C60EEC34B6A75400F253A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
-	 <09cbc12bea5707f794e139ea1bfafac82c2d2c12.camel@codeconstruct.com.au>
-	 <TY2PPF5CB9A1BE6EA5BABE55EB8A7003D22F253A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
- <72517fcf99a7453841ee75243dc54e735c10238f.camel@codeconstruct.com.au>
- <TY2PPF5CB9A1BE64B7988CD85A7189164E1F253A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
-In-Reply-To:
- <TY2PPF5CB9A1BE64B7988CD85A7189164E1F253A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
-Accept-Language: zh-TW, en-US
-Content-Language: zh-TW
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=aspeedtech.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: TY2PPF5CB9A1BE6:EE_|SE3PR06MB8200:EE_
-x-ms-office365-filtering-correlation-id: 712aad48-bc31-46e4-a65c-08de99000ee2
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|7416014|376014|366016|1800799024|38070700021|18002099003|22082099003|56012099003;
-x-microsoft-antispam-message-info:
- ZpdAzHBwTBzgikItf1bdZACnbmREhmKE0o74T7UrfLLkSg85I5K+VrF8T8eY0x7D+lVTotohPqSbfWEfShIfQ3dGfaMDelezPo9VBmV4EWxsIGX6iQYbcXNWlIqMP3H/Ut/QbaFeiAb0IvEWWFIgBj8D94yAIHTEc8pFhY5tmZAlo0uBTncMYc8hrbmhRRVqeE1eXMbusmLA+4442Dr5ZIvhouHXz34wKZ2GiDT+1yt22m2FfOCW8+muGqSHsYtafpC0u3ibsQdyeVVCezJGpwlMOnLFlC50qLNozkhw7DyZBgaw+M2TPnainYo+QczkGYNUKqU8+hmHkQJtLi1+6rLRoh3LBNIWes4UgRD8fJN5JQHqrvwpuoSQnLKQHYUX4VAn+t3EuAMpRoSgb4GaD5vQTSgLLEIPU+mDHssKFw3E2hY3Onr0fxBqxBIaZFF2bcgSPZBYwsCmOdyIq3rsDMi0RXO1ifrVRMlTKwUnWjAcFbCrCOc43eMLl3/ICDhkeacmeyWx4mINJbT0h0ckE+ZfJRbWSlGPxZL9Ip67J6zUAS+O1W/tzJvpw7wmvfPXYYn4OVoQZBw2TMWFMht2+vjwT61aKA1d6kVJ9JZkmvLu7sWvT9O0MTS2P7EpQxIA+DLNE8n3e8mzm6G/TteskQXL4uCp/iZbd23J4O9NLfiMKo9e14hMfZtMKZdF+JD6XfK0NxbssDH80d/WvPUev+OUtF3kM1SuNBGURIc/7sPJob2C+MZDYIKZsEXsVhVYe7OsH8dbcb+djm1npAiNPnah5b0edMDOPusV6tRCUeQ=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:zh-tw;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024)(38070700021)(18002099003)(22082099003)(56012099003);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?utf-8?B?SFh5Wk9qMmpWREtadTlTaGo2dkJHM3hwclNuWDJRVk9ET3J1MHUyU240QVZU?=
- =?utf-8?B?Y0hCbnFGbUIvQ3drcWlaTkZUN3NhbjFUVXBPVnNlK2ZnbzZaSER5NjljdFJn?=
- =?utf-8?B?SkRORlY4NkRSMG5vR2pXTWxNM0RjWUtVSDlmajBRWi9pbXArd0o0NnJzRm9h?=
- =?utf-8?B?MVdxNlQzck5JV0FkTHdvakJabGZyZzhkbVo3RlNBOHBxOVd1RUFrZWpBQ0FT?=
- =?utf-8?B?UzBPaDArbTRQS0l3WnBIWE9WNUpraHFqdGROTTFVcm9SeU0vclI5b09aOVNl?=
- =?utf-8?B?dkkvZk1vYVg5OHh2aVlaVUh4WTJvYVorQzMyZGlyRjAyK29PbEY5VXBrVEtD?=
- =?utf-8?B?b0t4WjF5NE4wb3R5T3RxY1J5QXBlSSt4Unc4Y2dId1BuMVBuelE3ME9MK21G?=
- =?utf-8?B?RlZ3MHdVeHJWb2hDYnlDcDFTYlhnU2xraFhIczFYWmJxcE1Oa0lFZmpzbytP?=
- =?utf-8?B?OXJPSFZneFdKTWxiZmtIN0d0YnFTVVNyRWdnTVRFSVo0Q21SNCs2eVBvWE1O?=
- =?utf-8?B?Wm1qNGRoWTZodHRWaDRRenVxM3BMc2pOK1hRb3ZHZEdDSjRSUkc1aWNSNzZw?=
- =?utf-8?B?WHVxcm1pQ2Fhd1FsdGl6K3JoMUlDanU5SzhwV2wvVExoZFhzdElaNE1XYTRl?=
- =?utf-8?B?Wmc2aGpYL1VjV2dYMzgreEY4d3ZnQnNTcDBwNmdvU2VHVmtZWHdoaHBYcGZG?=
- =?utf-8?B?VGxGT2Rhc0ZNZHNQTHM0ZE5xQTNoNkpCRVY1V2VEejdpL3FZaVh5cGYrc1RC?=
- =?utf-8?B?MjNTRXVWd2owSFgzMzZzNW4vanRXNlJBaGtWTVpDNGxIeFlGMmNWK0JVVE9T?=
- =?utf-8?B?bDRma3N5RTFHd0Z5ZjdDYmUzeUpFUVMzMno5MFJHR1hSY2dEa0hGdW1yaWxi?=
- =?utf-8?B?dWlQcmFrVFM2aS9YZjI4aWF6ZTBnYWNHYnNrd09GSnoyYlQyTFJDbWdwOUVw?=
- =?utf-8?B?c01mUE1aRTVDZ01JNlhwR2VKdnE3ajJacXpndThnMFhKU0hxaUtmTS9sVldi?=
- =?utf-8?B?eHhyZThWbzlXbys4UjY0bWR0TlZFNUg1R05QZitFQXZDc0xIeUpwYy95MHpl?=
- =?utf-8?B?cEhESWtNRnBpWnl6SG9rR0Zqd1I5QnRrZkJha1NXOTJRM09meWk0QUVReHdB?=
- =?utf-8?B?am9uTWtkNW43YWNrMlQ2NmlJWW9pRGhqdkhrOWp3aHJiRUlUQmlXY0ZXZ3A5?=
- =?utf-8?B?a2tmUmxYYXVwQmxBWlBDRy9zMi9qd0Z3K0FBUVhPb1BjVkVtYlNoNlFtWkFX?=
- =?utf-8?B?MEhPRk1jRWlVOEhsNytXQTFNSFdXRk5aRXJWRDdoWHJJUS9BRzdpaVgxcGdG?=
- =?utf-8?B?amFySFdQeFpCU3ZEc2JubFQvRHNYcFdSSWNkQ2U0OVBuUFo3dlBaUWZENk5D?=
- =?utf-8?B?cFZVeWozYlZBV05xZWVRUVhjdytBRjd4Q2JOQnVlT0cyZmc1OVViak40Wk10?=
- =?utf-8?B?SjdGYWpXRkQ1dStHZ1A5Z0FWcUI1aUhWOVhxWXlnTHQwTUpqU3F1MXEzUGR1?=
- =?utf-8?B?YTJ2dSsrRmYvNWZzcjBXcGN4NmRyWUorNjdYdE9URm9uLzByRndwM25NTGFV?=
- =?utf-8?B?UkkxK1ZhSWpPdW9VSURvS0ZwL2hHVTlUQnV0SWxpenhhdUhKYWdhYnVrTlNF?=
- =?utf-8?B?ZEpVeFZ4U0xIZGpqR09wZWorbWJ6M2tUT29JMUZJNjVSYmJjeVZPMkpQSEFV?=
- =?utf-8?B?TWdWdWZGRzRtQ2lscVYzakpnU1MwUHlBUzJWVXRIUHkrOVRIMFFSblZWeWYz?=
- =?utf-8?B?WUZHK2QrTHg2UkI5dWRoVFlmYkpZaUFvT3VETFJYekRkRnkxaW5aSVpzU1lh?=
- =?utf-8?B?enZiQzFnS3hUdFhVZFJUQlpWMEhSeXYxY0RGS2RYZEJTOVpuajlpMHczZEZE?=
- =?utf-8?B?elJsRTZ0dkEwVW9iclNGK2daelhZNGJUUlBjTUtZQzF3LzBCQS9vNkQ0UGVw?=
- =?utf-8?B?bjg4K2RlenRMdVBiY280bXcvVHcwejlDYnJ3ZWtqZnRIZVFCM3ZaUzljU3Vt?=
- =?utf-8?B?MTdFVW5OdlduYmtUN1NEcjkyclNOUEYyTit1VWwyMHRTTzdOYloyNjF6emVP?=
- =?utf-8?B?OGxuWERxVHl4T00rdXZ2RmZJYXFNRTBCL2pERVp6Tm9ldWJJK2pReU9YVEpv?=
- =?utf-8?B?aWkyNXM2UnpKQ2JpUHFFV240YkZ4VzU2YnZXek5hdnZYWFJNbWRQOU1nQXgx?=
- =?utf-8?B?QW1OWG9EVEtJMDZyTHFKY2NBd1pQVFZxd3VibVRwd0NYL3FHdlBrbDBEWEo3?=
- =?utf-8?B?ZGt5Tk9DSUxMVnhzNFp2MDcrUmNUTzg2ZFV2dUxWeXhCU2hQUFVtUVIxOGlO?=
- =?utf-8?B?UDJUdTJReHZSMC9uUHhxc29BN1dtendSSW5jYm5NZnUrVUVORkkrZz09?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a4W5WVBL"
+Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-5a2b636b944so4605897e87.1
+        for <linux-i2c@vger.kernel.org>; Mon, 13 Apr 2026 00:45:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1776066335; x=1776671135; darn=vger.kernel.org;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=CPGB450BgNYljKUDXZxUQRXQWnX1iFE/RTDC2ASOQ6g=;
+        b=a4W5WVBLrpBnH52QBpsgk0d/359LK2DVpB2rzUfvawfHCtZPELivaki9g3JguFLXV7
+         iPikxold/n3ZO4NhygMBpsAIO/nLtT8wzEH1EQJOfnVkay7tD/AjmHs4qZ5MX1krCa1M
+         hOb6Qo+2JhRnMQQSZRDxH1IdKNmL4d/9/WsxsC9wSqvWOyYtepmIgYskjljnJxKF0yj6
+         RwVJPQkDwd/4FZhmL8LL4vLWHOwa6U6a7NitzTh+y3W3fSFgJUxGxvZCZcxMZMwlPnBc
+         2Gm+752pQhUmM8wt4AwCGVfSrPPMyLaV8Hqf0kHsocQr/V+eDh5XDesHpTXcgUFRrDVc
+         lk8A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776066335; x=1776671135;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=CPGB450BgNYljKUDXZxUQRXQWnX1iFE/RTDC2ASOQ6g=;
+        b=D3J00++FVAIstoO7bwC7Ai5Z1ObSNh2xM1DZrdg6SwhQhJiKkfc2BIP9jeux/GMeVR
+         1rLCbLhoxArvKY2dR1n/m0GAQh7LbKenXjGypgol4JamLnNNltoUAf27mEllgolgJsTJ
+         j/ZnKtjilViXfzkIzPrfMP90/RuFahhBrgutjaoGexhi0m3ZDl6DhboW5+O7TApFwr/Q
+         54f+zyYDerzm3JwWAFZgjIcziazLOS9yRvg1g4CFeZ52a8+tqlitSn2y37wKCo1oOPcF
+         xVVo7nuUrpT/RsxfQRcP4UDWMN+HEouUv3t7TVCx1UZVURklc+PSM1PfqUb5w3tmgnnG
+         pfFw==
+X-Gm-Message-State: AOJu0YyVzgobE8wJJRbBl6bSsPdrFkLsdjRbnlYFsr3PjGt35WR71PQl
+	Y7y7Qq2iDaCU41+IxQSZiYR4RhK1e3PjRVI6wSuIQKDbFY1CvCKHJfFz
+X-Gm-Gg: AeBDiev01HN5V0uXVmNhuRKX199ELZBfAR5a8lGk5NDb60pWGqv0WXiPLxnEOp57zJs
+	frJL1aol5p3DCLPfqOkDYXea1b8739eyrvMg1XmO7TJc01PVPLbNU2m+8LZhuNGPmrYvfy0Lfn+
+	HdCZXCTbO+5Cso0pCwecI9Gu0KeDM1mYkvbC9hGvzHAAmAmVd3ReG3h3PBDXjK+dpkSPixQLOy9
+	ZKPIKwjmT//c478v9lNwgYg9kSn6u+u9EKwj8MrUVtjmALKm19ipAxDHkpElNmEf9hfywvsYFZx
+	qDw1GsN9MMfrC4WJXL7Lui9WneIwbOJ5UVCBSe8kCJoJ1Tsjs1RERfwO6Com3I9pXG2VQeArzU1
+	InLwI6vjdeGozVWnuGYn745kFQzlMpULyiISTCzMZh4T8vd2YloBaNhunIXVnmNN51Rd1TSBC7n
+	VOe7mxnON2+qOONJERxGsjvOlVPgNJ09FzUMstc6ixNvQx3caIdlbzGURkoiLS
+X-Received: by 2002:a05:6512:3c87:b0:5a2:cacf:5b2 with SMTP id 2adb3069b0e04-5a3efb299demr4803771e87.22.1776066335061;
+        Mon, 13 Apr 2026 00:45:35 -0700 (PDT)
+Received: from gmail.com (83-233-6-197.cust.bredband2.com. [83.233.6.197])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a3eeefb849sm2411855e87.60.2026.04.13.00.45.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Apr 2026 00:45:34 -0700 (PDT)
+Date: Mon, 13 Apr 2026 09:45:31 +0200
+From: Marcus Folkesson <marcus.folkesson@gmail.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Peter Rosin <peda@axentia.se>,
+	Michael Hennerich <michael.hennerich@analog.com>,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@intel.com>,
+	Bartosz Golaszewski <brgl@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH v9 0/5] I2C Mux per channel bus speed
+Message-ID: <adyfG1jckNp3Sv2_@gmail.com>
+References: <20260324-i2c-mux-v9-0-5292b0608243@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-OriginatorOrg: aspeedtech.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 712aad48-bc31-46e4-a65c-08de99000ee2
-X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Apr 2026 01:57:46.1831
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 43d4aa98-e35b-4575-8939-080e90d5a249
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: WSB5yaEs9xQ2mNBVcbOhdi711SsPe5ntcwNIfiR8pErS5LuEBGucQS0X5c2TiNBOd/Xv6D0AiHJTR9wke3/R7gncDr9iBX5QAtjA9cp7hsA=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SE3PR06MB8200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20260324-i2c-mux-v9-0-5292b0608243@gmail.com>
 
-PiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggdjI4IDIvNF0gZHQtYmluZGluZ3M6IGkyYzogYXN0MjYw
-MC1pMmMueWFtbDogQWRkDQo+ID4gZ2xvYmFsLXJlZ3MgYW5kIGVuYWJsZS1kbWEgcHJvcGVydGll
-cw0KPiA+DQo+ID4gSGkgUnlhbiwNCj4gPg0KPiA+ID4gPiBTb3VuZHMgcmVhc29uYWJsZSwgYnV0
-IGJlZm9yZSB5b3UgZG8gc28sIGhvdyBhcmUgeW91IHBsYW5uaW5nIHRvDQo+ID4gPiA+IG1hbmFn
-ZSB0aGUgYWxsb2NhdGlvbiBvZiBETUEgY2hhbm5lbHMgYWNyb3NzIG11bHRpcGxlIGkyYyBwZXJp
-cGhlcmFscz8NCj4gPiA+ID4NCj4gPiA+IFRoZSBBU1QyNjAwIEkyQyBoYXJkd2FyZSBoYXMgb25s
-eSBvbmUgY2FuIHVzZSBETUEgYXQgYSB0aW1lLg0KPiA+ID4gVG8gYXZvaWQgdGhlIGNvbXBsZXhp
-dHkgb2YgbWFuYWdpbmcgRE1BIGNoYW5uZWwgY29udGVudGlvbiwgSSBwbGFuDQo+ID4gPiB0byB1
-c2UgYnVmZmVyIG1vZGUgYnkgZGVmYXVsdCBmb3IgYWxsIGNvbnRyb2xsZXJzLCB3aGljaCBzdGls
-bA0KPiA+ID4gcHJvdmlkZXMgYmV0dGVyIHBlcmZvcm1hbmNlIHRoYW4gYnl0ZSBtb2RlIHdpdGhv
-dXQgcmVxdWlyaW5nIERNQQ0KPiA+ID4gY2hhbm5lbA0KPiA+IGFsbG9jYXRpb24uDQo+ID4NCj4g
-PiBPSywgYnV0IHlvdXIgd29yZGluZyB0aGVyZSAoImJ5IGRlZmF1bHQiKSBpbXBsaWVzIHRoYXQg
-RE1BIGlzIHN0aWxsDQo+ID4gc2VsZWN0YWJsZSBmb3Igb25lIGNvbnRyb2xsZXIgcGVyaXBoZXJh
-bC4gSW4gd2hpY2ggY2FzZTogeW91IHN0aWxsDQo+ID4gaGF2ZSB0aGUgcHJvYmxlbSBvZiBtYW5h
-Z2luZyBETUEgY2hhbm5lbCBjb250ZW50aW9uLCBidXQgbm93IGl0J3MgYXQNCj4gcnVudGltZSBp
-bnN0ZWFkLg0KPiA+DQo+ID4gU28gbXkgcXVlc3Rpb24gc3RpbGwgc3RhbmRzOiBob3cgYXJlIHlv
-dSBwbGFubmluZyB0byBlbmZvcmNlIHRoYXQgRE1BDQo+ID4gaXMgb25seSBlbmFibGVkIGZvciBv
-bmUgY29udHJvbGxlcj8NCj4gPg0KPiA+IE9yIGFyZSB5b3UgcGxhbm5pbmcgdG8gZGlzYWJsZSBJ
-MkMgRE1BIGVudGlyZWx5IG9uIEFTVDI2MDA/DQo+IFllcywgVGhpcyBpcyBteSBpbnRlbnQgdG8g
-ZG8uDQo+IERpc2FibGUgSTJDIERNQSBlbnRpcmVseSBvbiBBU1QyNjAwLg0KPiBJZiBJIHJlbW92
-ZSBETUEsIHNob3VsZCBjYW4gSSBrZWVwIGJ5dGUgYW5kIGJ1ZmZlciBmb3Igc3lzZnM/DQoNCkhl
-bGxvIFJvYiwNCg0KT24gdGhlIEFTVDI2MDAsIHdlIGhhdmUgYSBzaW5nbGUtY2hhbm5lbCBjb25z
-dHJhaW50LCB3aGljaCBtYWtlcyBETUENCnN1cHBvcnQgYWNyb3NzIGFsbCBjb250cm9sbGVycyBk
-aWZmaWN1bHQgdG8gaW1wbGVtZW50IHdpdGhvdXQgc29tZSBraW5kIG9mDQpwcmVkZWZpbmVkIGNv
-bmZpZ3VyYXRpb24uIFRoYXQgd291bGQgYmUgYSBiaXQgb2YgYSBtaXN1c2Ugb2YgYSBEVCBwcm9w
-ZXJ0eS4NCg0KRm9yIGZ1dHVyZSBwbGF0Zm9ybXMgc3VjaCBhcyB0aGUgQVNUMjcwMCwgRE1BIHN1
-cHBvcnQgc2hvdWxkIGJlIG11Y2gNCm1vcmUgc3RyYWlnaHRmb3J3YXJkLiBETUEgY2FwYWJpbGl0
-eSBjYW4gYmUgaW5mZXJyZWQgZnJvbSB0aGUgY29tcGF0aWJsZQ0Kc3RyaW5nLg0KDQpVbmxlc3Mg
-dGhlcmUgYXJlIGFueSBvYmplY3Rpb25zLCBJIHdpbGwgcmV3b3JrIHRoaXMgc2VyaWVzIHRvIHVz
-ZSBidWZmZXIgbW9kZQ0Kb25seSBvbiB0aGUgQVNUMjYwMCwgYW5kIGFkZCBBU1QyNzAwIERNQSBz
-dXBwb3J0IHNlcGFyYXRlbHkuDQoNClJ5YW4NCg==
+On Tue, Mar 24, 2026 at 02:54:14PM +0100, Marcus Folkesson wrote:
+> This was a RFC on how to implement a feature to have different bus
+> speeds on different channels with an I2C multiplexer/switch.
+> As no major complaints on the design came up during the review, I
+> decided to submit the series without the RFC tag.
+>=20
+> The benefit with this feature is that you may group devices after
+> the fastest bus speed they can handle.
+> A real-world example is that you could have e.g. a display running @400kHz
+> and a smart battery running @100kHz using the same I2C controller.
+>=20
+> There are many corner cases where this may cause a problem for some
+> hardware topologies. I've tried to describe those I could think of
+> in the documentation, see Patch #5.
+>=20
+> E.g. one risk is that if the mux driver does not disconnect channels
+> when Idle, this may cause a higher frequency to "leak" through to
+> devices that are supposed to run at lower bus speed.
+> This is not only a "problem" for changing bus speed but could also be
+> an issue for potential address conflicts.
+>=20
+> This patchset has been used and tested heavily the last months
+> on a custom board based on a da850 (DaVinci) platform.
+>=20
+> The implementation is split up into several patches:
+>=20
+> Patch #1 Introduce a callback for the i2c controller to set bus speed
+> Patch #2 Introduce functionality to adjust bus speed depending on mux
+>          channel.
+> Patch #3 Cleanup i2c-davinci driver a bit to prepare it for set_clk_freq
+> Parch #4 Implement set_clk_freq for the i2c-davinci driver
+> Parch #5 Update documentation with this feature
+>=20
+> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+> ---
+
+Any more feedback on this patchset is very welcome.
+
+Thank you in advance,
+Marcus
