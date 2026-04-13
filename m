@@ -1,124 +1,125 @@
-Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com [209.85.167.42])
+Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5070439EF12
-	for <linux-i2c@vger.kernel.org>; Mon, 13 Apr 2026 07:45:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.42
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776066338; cv=none; b=WG+IsS2j4bFgu8hoE3uRKvxnfnGf7dsmYW2e+0ir3hxeXUepyrLSc0/vFHWY+2Zn7FzYXaKoLK6hXNNeZA/GW1xIwaNVKNtLp6IMfz23Bmspvv3PE/MoQj+iMcQUyucIOGf0FsX/ezvsr5mjdkmLBtVMoO9qXJkZ0Y+9F9Ec4jk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776066338; c=relaxed/simple;
-	bh=GQQ3SBHociFPwcQlzwIosHskRYiXTXq/HoT2kxRNfeM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bv5H3iZBcKBMZAPVkSdhQA5PVNFwcvtWa/2ztVwbxRuvhPFaWg4uV+8d87Sfq/3oyNzBuR3Fe1e/f3jMckUpBKLq10W3K58qJpQiAspz9HEOIGyHmX6/MzZ0jk7PGnmxuMmctBQlvaxtz5+CibIpVN36GYjcnrkhUpbtR8PLKsA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=a4W5WVBL; arc=none smtp.client-ip=209.85.167.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D822D21FF21
+	for <linux-i2c@vger.kernel.org>; Mon, 13 Apr 2026 07:52:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.49
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776066777; cv=pass; b=QbynxHBqVArpghlWYM4wlBkL2xaymgxmAoHBVMqXH+6heAVUMfAniI5RS750HcoPfIXAdP1ecNr8/j2Rrmm/bScWuxb44aOWWHRSbXX9rgEFqPSZEFdLHufLEt+yogAKhjoxA89d+WYVI8fAYSWqIVsX8GuzvFXYhF/rWMJF/Yk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776066777; c=relaxed/simple;
+	bh=8i76hr8Gj+RtGUBroSxVsQfLVKIuEs9W7G61OYrNzFg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=FxPQtIjUK/+2v7P0WTbGmnWtxocjo8oPPBtbVWl460zoR4Taoa5UHxCIGUWdUpXWbpg6ngur31bZAnjZxptdI4fIpfQ3Kzmk74bwCvBVmkvL3x0RgWFTVb5SFRQrGd1koqN7Dymg/B4DrmsAVSAAByCGhss3UxD/eVpvW/S6F74=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EB/+J5fu; arc=pass smtp.client-ip=209.85.218.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="a4W5WVBL"
-Received: by mail-lf1-f42.google.com with SMTP id 2adb3069b0e04-5a2b636b944so4605897e87.1
-        for <linux-i2c@vger.kernel.org>; Mon, 13 Apr 2026 00:45:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EB/+J5fu"
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-b9825ba7f9dso586822566b.0
+        for <linux-i2c@vger.kernel.org>; Mon, 13 Apr 2026 00:52:55 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1776066774; cv=none;
+        d=google.com; s=arc-20240605;
+        b=fZFFQy8RwdfXNWs40mVVZNTszx1+GjrrMpFHYAdnwQH5lCbE6jz4Oql+oP13NXIeNr
+         DKu5G+iCGG516fYoEwOfdeDXv96fh5L4ytIwp7t3lcrthMJCE8baTWqFjd49niHL6NvE
+         VXrAndJsRSo2Eqljxn0mMVGouoCLLQN04iAOuUcvc+mfGfjwPpY4kI2sRZ3c8FWUfNQU
+         nSt3DN3OM2EUZLMQeyK09hGAMyTNqTehgHMsXQ3FQC1cSsrvZfnmXL/9Q6CIdCLBUycA
+         wyLMBNZgExcSe7NeMLle32xcm1G/aHt91Mx9fcXIjnscftVGoXLmmkJlcNCmA8lYrLE1
+         x1Ug==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=sTeLoPuL69qtHikGrHVR6h29M/vzfp4S7SUKcSWz2wU=;
+        fh=76qyl2j2E+uc+rXDrKPGCLnHR0tZdRSupKiU8i+6GEk=;
+        b=RJ6kCJcH4jrBUXMzxCSWUPOBSrqEyg7ayt34pIyBCBva1kppf4MNJwgIYTWirgHWgN
+         EB9DkrmnLwFeCpMUuE4Tgkyxu2PQ94m8k/phvXUH7lLxIMAAO8ponhFiNg18s15E0JAz
+         Ft+64NPnFZ/x5X6VBF7K3I9jRmBRXtg+umJz3Tg4tiekLwlTuh/MY5hAuA0xU1gtZlmC
+         NafnWFH8Z2wenRkN0KxuE7xwvzLoOK3cobKsiV8LTEiPHUZlEJZeW/BeNSGqkDyszKRc
+         Qj8xXhWJUV4UWHDublbiYl2Gkrs04u/dhHlGaDwpLDnY5cMDAg0/Ozerv7jZxY/DD2/X
+         Y20g==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776066335; x=1776671135; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=CPGB450BgNYljKUDXZxUQRXQWnX1iFE/RTDC2ASOQ6g=;
-        b=a4W5WVBLrpBnH52QBpsgk0d/359LK2DVpB2rzUfvawfHCtZPELivaki9g3JguFLXV7
-         iPikxold/n3ZO4NhygMBpsAIO/nLtT8wzEH1EQJOfnVkay7tD/AjmHs4qZ5MX1krCa1M
-         hOb6Qo+2JhRnMQQSZRDxH1IdKNmL4d/9/WsxsC9wSqvWOyYtepmIgYskjljnJxKF0yj6
-         RwVJPQkDwd/4FZhmL8LL4vLWHOwa6U6a7NitzTh+y3W3fSFgJUxGxvZCZcxMZMwlPnBc
-         2Gm+752pQhUmM8wt4AwCGVfSrPPMyLaV8Hqf0kHsocQr/V+eDh5XDesHpTXcgUFRrDVc
-         lk8A==
+        d=gmail.com; s=20251104; t=1776066774; x=1776671574; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=sTeLoPuL69qtHikGrHVR6h29M/vzfp4S7SUKcSWz2wU=;
+        b=EB/+J5fujPLcNsgzTuRVpKGVkkNM38PYAGDlDvm3P/R02BQ4yxtw7cNpjBT4LzK+7Z
+         7tMTAh6PEx+Pi1i/XJM9fFoxKm+MwBG/QnZ+gnT3F0uEciUzMDzW1cWpwj2Kx7v3nCoM
+         f5NG2o0D8UtUV406I7K/80ol3+N2JRKHCrHjDG+ZKxeOH84V1iXoYrcAJNhumTqJTQ4F
+         QSTVQQgqrXwq4qWKRAQY2qJgcrAogxLTL+Ox+o+gmiOb/BmJ7rq1S+I2EV8RSz1vPgax
+         v/O7Zi74khPejszE1K5d5mLgrqFiZ3PvQGrWT/PKG7Rc2YhVrHT0iCTQkuCtK3Rxql+I
+         k3Ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776066335; x=1776671135;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=CPGB450BgNYljKUDXZxUQRXQWnX1iFE/RTDC2ASOQ6g=;
-        b=D3J00++FVAIstoO7bwC7Ai5Z1ObSNh2xM1DZrdg6SwhQhJiKkfc2BIP9jeux/GMeVR
-         1rLCbLhoxArvKY2dR1n/m0GAQh7LbKenXjGypgol4JamLnNNltoUAf27mEllgolgJsTJ
-         j/ZnKtjilViXfzkIzPrfMP90/RuFahhBrgutjaoGexhi0m3ZDl6DhboW5+O7TApFwr/Q
-         54f+zyYDerzm3JwWAFZgjIcziazLOS9yRvg1g4CFeZ52a8+tqlitSn2y37wKCo1oOPcF
-         xVVo7nuUrpT/RsxfQRcP4UDWMN+HEouUv3t7TVCx1UZVURklc+PSM1PfqUb5w3tmgnnG
-         pfFw==
-X-Gm-Message-State: AOJu0YyVzgobE8wJJRbBl6bSsPdrFkLsdjRbnlYFsr3PjGt35WR71PQl
-	Y7y7Qq2iDaCU41+IxQSZiYR4RhK1e3PjRVI6wSuIQKDbFY1CvCKHJfFz
-X-Gm-Gg: AeBDiev01HN5V0uXVmNhuRKX199ELZBfAR5a8lGk5NDb60pWGqv0WXiPLxnEOp57zJs
-	frJL1aol5p3DCLPfqOkDYXea1b8739eyrvMg1XmO7TJc01PVPLbNU2m+8LZhuNGPmrYvfy0Lfn+
-	HdCZXCTbO+5Cso0pCwecI9Gu0KeDM1mYkvbC9hGvzHAAmAmVd3ReG3h3PBDXjK+dpkSPixQLOy9
-	ZKPIKwjmT//c478v9lNwgYg9kSn6u+u9EKwj8MrUVtjmALKm19ipAxDHkpElNmEf9hfywvsYFZx
-	qDw1GsN9MMfrC4WJXL7Lui9WneIwbOJ5UVCBSe8kCJoJ1Tsjs1RERfwO6Com3I9pXG2VQeArzU1
-	InLwI6vjdeGozVWnuGYn745kFQzlMpULyiISTCzMZh4T8vd2YloBaNhunIXVnmNN51Rd1TSBC7n
-	VOe7mxnON2+qOONJERxGsjvOlVPgNJ09FzUMstc6ixNvQx3caIdlbzGURkoiLS
-X-Received: by 2002:a05:6512:3c87:b0:5a2:cacf:5b2 with SMTP id 2adb3069b0e04-5a3efb299demr4803771e87.22.1776066335061;
-        Mon, 13 Apr 2026 00:45:35 -0700 (PDT)
-Received: from gmail.com (83-233-6-197.cust.bredband2.com. [83.233.6.197])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a3eeefb849sm2411855e87.60.2026.04.13.00.45.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Apr 2026 00:45:34 -0700 (PDT)
-Date: Mon, 13 Apr 2026 09:45:31 +0200
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Peter Rosin <peda@axentia.se>,
-	Michael Hennerich <michael.hennerich@analog.com>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@intel.com>,
-	Bartosz Golaszewski <brgl@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v9 0/5] I2C Mux per channel bus speed
-Message-ID: <adyfG1jckNp3Sv2_@gmail.com>
-References: <20260324-i2c-mux-v9-0-5292b0608243@gmail.com>
+        d=1e100.net; s=20251104; t=1776066774; x=1776671574;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=sTeLoPuL69qtHikGrHVR6h29M/vzfp4S7SUKcSWz2wU=;
+        b=HvPfhAufvazi4sy6FX1TfWKZMsZHIizy+kMpP/7pDPxATE+MjBWCQlK0hfafQPf4CL
+         xnbY1jKi4lKVgKy0M30Nc3jBy3i/TOKGiMO7DR0fkhV2EabQRORqwpOo6Mj2bWHEzwrB
+         Y+rnfR5BeYmFQIju4adpG6Ghfqc1yz67kzgAbM8yWdkQ7IenI6OuIAYNcoISCgfCBcXi
+         3sII9HZSX5PeRXMfZC424wxs924APqFAjTEqnIl3ifozYzA43WeNKr1Esnhj88JcczDi
+         WAWQe4wYatPVhEoUOi865aplAt8piBpk+G3ON2wZCPXDLi7ZIxuN3axiH6VY+a78V03j
+         HrdQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+3/Phvir4V3la1pa6xk4AUw4Zk6O/Wx0ILmRwYUvhU/MJ++jHD3uDYaMv4Kg/VRkzwF8AQuKbm9dU=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzNys4iY+gH8cn4ChXJaqLRYJmFJTyVCxkHz+RQtC5NCEKQi/Qr
+	B+kCeJI9Nx8iPB46+1Yzkb4NLJFMnccqR19SaniwzB5jqNmgPy42dnqsEHOASUVQfaDK0b1DbRW
+	w0MLNAXbpz40DJikDGY8HblqyR+1vWWs=
+X-Gm-Gg: AeBDies5q1LMgI8HxQH4lVCnPVZ4IDIwNmvFdLk/OZYjs1/lWgfkNq7pQfAWipniskd
+	XHeyg7Yo9aDjBpbRdX0YA0vWBnO5IlGyK04UfsLEOQfu2iDyuRDEB3OiyWtC43wIQn4Mil4ZX5k
+	9VhFKbkyPqFduT2BNQKFZTrzqtPO/MloqlaUQ7OrGp4blJC5Zv8Uv/UN41oBiJ3lu1qJqpKqnz+
+	6UktdiVMYR2SvmitxUheIU0RwsPs1mk538aZkSMPs2lYMPft05dFy0Eviw0jfRcKUwrh8kH3vDM
+	xejFnsDtZRGJibrkcAvlgwpyjM35TADvDg61NqYeVTkE7it69k8ydmIeGu82NMp1FjPdOgIEBC4
+	SLnPqtLs=
+X-Received: by 2002:a17:907:3da8:b0:b9b:3b90:1047 with SMTP id
+ a640c23a62f3a-b9d46381020mr686807966b.30.1776066773845; Mon, 13 Apr 2026
+ 00:52:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <cover.1775900045.git.zhoubinbin@loongson.cn>
+In-Reply-To: <cover.1775900045.git.zhoubinbin@loongson.cn>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Mon, 13 Apr 2026 10:52:17 +0300
+X-Gm-Features: AQROBzDd7oISg4nKnjr8XlrN-YmlCPDBGxSBhjMNA29ixq3SfKpY3ltSGMuX2Jc
+Message-ID: <CAHp75Ve59GPAFvKM6yOkPmr=kmHBjVL-Vz78X0WDikiWd+2arQ@mail.gmail.com>
+Subject: Re: [PATCH v7 0/2] i2c: Add Loongson-2K0300 I2C controller support
+To: Binbin Zhou <zhoubinbin@loongson.cn>
+Cc: Binbin Zhou <zhoubb.aaron@gmail.com>, Huacai Chen <chenhuacai@loongson.cn>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Andi Shyti <andi.shyti@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, 
+	Andy Shevchenko <andy@kernel.org>, linux-i2c@vger.kernel.org, 
+	Huacai Chen <chenhuacai@kernel.org>, Xuerui Wang <kernel@xen0n.name>, loongarch@lists.linux.dev, 
+	devicetree@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20260324-i2c-mux-v9-0-5292b0608243@gmail.com>
 
-On Tue, Mar 24, 2026 at 02:54:14PM +0100, Marcus Folkesson wrote:
-> This was a RFC on how to implement a feature to have different bus
-> speeds on different channels with an I2C multiplexer/switch.
-> As no major complaints on the design came up during the review, I
-> decided to submit the series without the RFC tag.
->=20
-> The benefit with this feature is that you may group devices after
-> the fastest bus speed they can handle.
-> A real-world example is that you could have e.g. a display running @400kHz
-> and a smart battery running @100kHz using the same I2C controller.
->=20
-> There are many corner cases where this may cause a problem for some
-> hardware topologies. I've tried to describe those I could think of
-> in the documentation, see Patch #5.
->=20
-> E.g. one risk is that if the mux driver does not disconnect channels
-> when Idle, this may cause a higher frequency to "leak" through to
-> devices that are supposed to run at lower bus speed.
-> This is not only a "problem" for changing bus speed but could also be
-> an issue for potential address conflicts.
->=20
-> This patchset has been used and tested heavily the last months
-> on a custom board based on a da850 (DaVinci) platform.
->=20
-> The implementation is split up into several patches:
->=20
-> Patch #1 Introduce a callback for the i2c controller to set bus speed
-> Patch #2 Introduce functionality to adjust bus speed depending on mux
->          channel.
-> Patch #3 Cleanup i2c-davinci driver a bit to prepare it for set_clk_freq
-> Parch #4 Implement set_clk_freq for the i2c-davinci driver
-> Parch #5 Update documentation with this feature
->=20
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
-> ---
+On Sat, Apr 11, 2026 at 12:58=E2=80=AFPM Binbin Zhou <zhoubinbin@loongson.c=
+n> wrote:
 
-Any more feedback on this patchset is very welcome.
+> This patch set describes the I2C controller integrated the
+> Loongson-2K0300 chip.
+>
+> It has a significantly different design from the previous I2C
+> controller(i2c-ls2x), such as support for master-slave transfer mode,
+> and  DMA transfers (implementation in progress), etc. Therefore, we try
+> to name it i2c-ls2x-v2.
 
-Thank you in advance,
-Marcus
+...
+
+>  - parent_rate_MHz -> parent_rate_mhz to avoid CamelCase.
+
+Was it a special requirement from maintainers?
+
+Note, the physical units are special. The m and M have quite a
+different multiplier value. So, even if asked by somebody I think it's
+still arguably should be kept as MHz.
+
+--=20
+With Best Regards,
+Andy Shevchenko
