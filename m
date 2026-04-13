@@ -1,185 +1,185 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from SEYPR02CU001.outbound.protection.outlook.com (mail-koreacentralazon11023117.outbound.protection.outlook.com [40.107.44.117])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29EB41E8332;
-	Sun, 12 Apr 2026 01:43:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775958225; cv=none; b=R6wj+JbgAzNTdWZPyCsUX/JDwLD6kZCGZ5Unyh0G0NgnUxC7Sug3LE6XLKCGosBGaEknXy6b3/Zo5uz+X6ipWcQQ+hmG4j8Nir4NooP5FSop5o9JpkpecAKlWbQE/yH1QfgmkErG6BMt+F27/nozz/FgtWcinq9wAIstS4VAeeg=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775958225; c=relaxed/simple;
-	bh=75aEW26gyOTDP50JbtZpTir1rn/21wqfzHoiMEVRIO8=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=PfLbYred44i6dOPPAeEUf5bB82+Rk9F2IOTTy+Gyi0H+JsjWi1MgVNgAY00cwcSfVKiOQwbmOteqW4Dtmfj4VlSFy1N7C4WBEzlHXdmBz6ZnnJRlys7F+ZIR0wPAUMo6C3iTJnQJnq8DAmGqcK90KfbFEICLio2Uz8R+hryZxMU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SxC9KvN/; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10ED328E00;
+	Mon, 13 Apr 2026 01:57:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.44.117
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776045473; cv=fail; b=Lyyu0Wpg28g8+iT6OPUZ80V9PaZenNO4E8JoL9HsHW7rvici1EzArrrennK4mMVm1KCQvCP3+e+Or82Wl30+ScApp6jHp4feTMY8zY6HY8+5FcctEIdnyJQ2rSt/3qIkXTnf4M0QSb/QN0XVvkWzUCpnca8jD4wYKz67+XzfK7k=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776045473; c=relaxed/simple;
+	bh=NxMIA335Kx5utnu1B5+E72rSIBe3vrlT2Mk6fidITiw=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=NxrsTwM4IpUxOgwGVoc6ZB9LDIKY8Z69jbRsApEzH+mb7VGkQyjX1YPxwC1CNgNSrCoduTZM+9AZQHYFqJZ8Bi2l+MsVf3apgd0rcQWybN8eGITNEP2JqfCwgTCMuNE4HzV9p2+D9TjSYdUS/qtOi1VDUr7Dtx73K2HC9pc3Ab8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com; spf=pass smtp.mailfrom=aspeedtech.com; dkim=pass (2048-bit key) header.d=aspeedtech.com header.i=@aspeedtech.com header.b=YHf0Xelv; arc=fail smtp.client-ip=40.107.44.117
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aspeedtech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SxC9KvN/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AACA0C116C6;
-	Sun, 12 Apr 2026 01:43:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775958224;
-	bh=75aEW26gyOTDP50JbtZpTir1rn/21wqfzHoiMEVRIO8=;
-	h=Date:From:To:Cc:Subject:From;
-	b=SxC9KvN/yICM4bW85Tj1dGAXbHR5d6YAfkDwxUf7bYtrTuJTbPd+RnvOH4HmsTY/w
-	 U63nYNK07Tt330SwfE/b0X8v12puXlpYHA6ai3eKJ2kv/3WqiyJmdCNTI5NyOZ1U3N
-	 JWp2J34v0v/44KwFjVMPKcUzsYMSrxvGxtfh6y1LLZjC1+mUzEbW9FZnxBm0Og0mrH
-	 UixclXrrVz1l6immnidjMNCfqy7OlXantdo1/nhXkDn2MUQiRnaJNbjkh0LEoF010K
-	 H4nctFQtuWTQC1U7xttHMKaYLU1c2rQ7h6Xyly2ZDQ8ujyFY7rKheN/+5CYndJF0NS
-	 +hEikZqtOujuA==
-Date: Sun, 12 Apr 2026 03:43:40 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, 
-	linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>
-Subject: [GIT PULL] i2c-host for v7.1, part 1
-Message-ID: <adr2UAyCWpT8VwB8@zenone.zhora.eu>
+	dkim=pass (2048-bit key) header.d=aspeedtech.com header.i=@aspeedtech.com header.b="YHf0Xelv"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=QC9VOhNWbT5Y7V+NIDHjlgkCqppjR5tefnWWVO1+kQbUljtB9PfsUAAMfexoqASPre8hUJE7gr0dFwnvYuG9ycuZq/9RkQmDbCY+5SHwYGhxBUIdmBU4Jxk51LWs6Djwg0Y8y14lPed41gCLAFCnC4ISyOlZmB5Wpx2oe5IyeO/u8WjU9r9lb/dJzmva5uYnBiUs1kNYloZ3C4sljFPd5oTTJ0kmO07HI2fSV8it5lPo8rzrpj+4VK1jRxak5XUEh2On2ph34EOds0Ff29dJcdlYpWO96i9ahDQKyrqN+qa8lGbn/pHu1bbpmF/FhSnbHJECA0PKReCvt0RWAKtmhQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=NxMIA335Kx5utnu1B5+E72rSIBe3vrlT2Mk6fidITiw=;
+ b=GKuMVGMZCfr09/8KH6pwVpkeFJMAlrKNiOm0WQAdF+s2B76aZod7grLBjNxUWpZNinb560L6gjKXSmVYTfykjOCUrnZJ2gFtXnjp0egYlWO52Gu1EdZYqpbBEt9FFg81WzlGZeItuUqpf2vqV2v5N/Hzq3J+zbbNNqM6/kQuoIC+HOh5PZRj7xtT0Eo+6mdrFA6N7PlGps7luNvGnNQBEjjJaRW23IOVpkI9R5Pqi5w9eki6NlkkyhrUUna/xWIWjivkPugdk0uu4C3uExkCajZeY8SpWSDTSE58pPml7ehsm9ZMEuK/gYaa6LKHwyuUbjaV3qP5lCss7FYHNEUYDg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=aspeedtech.com; dmarc=pass action=none
+ header.from=aspeedtech.com; dkim=pass header.d=aspeedtech.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=aspeedtech.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=NxMIA335Kx5utnu1B5+E72rSIBe3vrlT2Mk6fidITiw=;
+ b=YHf0XelvKCTaOwcbRieRn1CkeLtb0FSlMfim2KsTiV6UMOr4G6GKjOorlUJ3DojnnANPb8TWeLf6jur3LQX416vg8rCv2Y3QTIQS/B9J3fHViypJpshPLzKZvZkLYYQ5mbmJxNVM6LiKLQdcz3T4XWXDM/XL4VXbBc+KJEiIlBb2mPZJIuSSZVns7ufCk4aMbo7q1vGqzxu/GzSdFu+dxty/qzwU68c2rvmvUAKXJ8OHtFw0cKf1rXwT06p7T/1ZVLwuSTra0zPln49gYtDOSWSAe+7+5/fpT2MhV63oP8+o/Xz3sHSL4r5gGRcUVgJEuFJxMBYwAhE1qqIh3DH/Uw==
+Received: from TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com (2603:1096:408::791)
+ by SE3PR06MB8200.apcprd06.prod.outlook.com (2603:1096:101:2ee::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.48; Mon, 13 Apr
+ 2026 01:57:46 +0000
+Received: from TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com
+ ([fe80::8c70:cb01:78fb:d9c0]) by TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com
+ ([fe80::8c70:cb01:78fb:d9c0%6]) with mapi id 15.20.9769.015; Mon, 13 Apr 2026
+ 01:57:46 +0000
+From: Ryan Chen <ryan_chen@aspeedtech.com>
+To: Ryan Chen <ryan_chen@aspeedtech.com>, Jeremy Kerr
+	<jk@codeconstruct.com.au>, Krzysztof Kozlowski <krzk@kernel.org>
+CC: "andriy.shevchenko@linux.intel.com" <andriy.shevchenko@linux.intel.com>,
+	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof
+ Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Joel
+ Stanley <joel@jms.id.au>, Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>, Philipp Zabel
+	<p.zabel@pengutronix.de>, "linux-i2c@vger.kernel.org"
+	<linux-i2c@vger.kernel.org>, "devicetree@vger.kernel.org"
+	<devicetree@vger.kernel.org>, "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, "linux-aspeed@lists.ozlabs.org"
+	<linux-aspeed@lists.ozlabs.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "openbmc@lists.ozlabs.org"
+	<openbmc@lists.ozlabs.org>
+Subject: RE: [PATCH v28 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add
+ global-regs and enable-dma properties
+Thread-Topic: [PATCH v28 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add
+ global-regs and enable-dma properties
+Thread-Index:
+ AQHcwB5Ez31FCAF2H06H/moL1lfWeLXINCEAgAABqPCAAAIpgIAAAW0AgAADQQCAAAMycIAUEY9g
+Date: Mon, 13 Apr 2026 01:57:46 +0000
+Message-ID:
+ <TY2PPF5CB9A1BE6B6C124B8DE265562A722F2242@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
+References: <20260330-upstream_i2c-v28-0-17bdae39c5cb@aspeedtech.com>
+	 <20260330-upstream_i2c-v28-2-17bdae39c5cb@aspeedtech.com>
+	 <20260331-fanatic-certain-bustard-fb13bc@quoll>
+	 <TY2PPF5CB9A1BE6F267C60EEC34B6A75400F253A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
+	 <09cbc12bea5707f794e139ea1bfafac82c2d2c12.camel@codeconstruct.com.au>
+	 <TY2PPF5CB9A1BE6EA5BABE55EB8A7003D22F253A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
+ <72517fcf99a7453841ee75243dc54e735c10238f.camel@codeconstruct.com.au>
+ <TY2PPF5CB9A1BE64B7988CD85A7189164E1F253A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
+In-Reply-To:
+ <TY2PPF5CB9A1BE64B7988CD85A7189164E1F253A@TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com>
+Accept-Language: zh-TW, en-US
+Content-Language: zh-TW
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=aspeedtech.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: TY2PPF5CB9A1BE6:EE_|SE3PR06MB8200:EE_
+x-ms-office365-filtering-correlation-id: 712aad48-bc31-46e4-a65c-08de99000ee2
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|7416014|376014|366016|1800799024|38070700021|18002099003|22082099003|56012099003;
+x-microsoft-antispam-message-info:
+ ZpdAzHBwTBzgikItf1bdZACnbmREhmKE0o74T7UrfLLkSg85I5K+VrF8T8eY0x7D+lVTotohPqSbfWEfShIfQ3dGfaMDelezPo9VBmV4EWxsIGX6iQYbcXNWlIqMP3H/Ut/QbaFeiAb0IvEWWFIgBj8D94yAIHTEc8pFhY5tmZAlo0uBTncMYc8hrbmhRRVqeE1eXMbusmLA+4442Dr5ZIvhouHXz34wKZ2GiDT+1yt22m2FfOCW8+muGqSHsYtafpC0u3ibsQdyeVVCezJGpwlMOnLFlC50qLNozkhw7DyZBgaw+M2TPnainYo+QczkGYNUKqU8+hmHkQJtLi1+6rLRoh3LBNIWes4UgRD8fJN5JQHqrvwpuoSQnLKQHYUX4VAn+t3EuAMpRoSgb4GaD5vQTSgLLEIPU+mDHssKFw3E2hY3Onr0fxBqxBIaZFF2bcgSPZBYwsCmOdyIq3rsDMi0RXO1ifrVRMlTKwUnWjAcFbCrCOc43eMLl3/ICDhkeacmeyWx4mINJbT0h0ckE+ZfJRbWSlGPxZL9Ip67J6zUAS+O1W/tzJvpw7wmvfPXYYn4OVoQZBw2TMWFMht2+vjwT61aKA1d6kVJ9JZkmvLu7sWvT9O0MTS2P7EpQxIA+DLNE8n3e8mzm6G/TteskQXL4uCp/iZbd23J4O9NLfiMKo9e14hMfZtMKZdF+JD6XfK0NxbssDH80d/WvPUev+OUtF3kM1SuNBGURIc/7sPJob2C+MZDYIKZsEXsVhVYe7OsH8dbcb+djm1npAiNPnah5b0edMDOPusV6tRCUeQ=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:zh-tw;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024)(38070700021)(18002099003)(22082099003)(56012099003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?utf-8?B?SFh5Wk9qMmpWREtadTlTaGo2dkJHM3hwclNuWDJRVk9ET3J1MHUyU240QVZU?=
+ =?utf-8?B?Y0hCbnFGbUIvQ3drcWlaTkZUN3NhbjFUVXBPVnNlK2ZnbzZaSER5NjljdFJn?=
+ =?utf-8?B?SkRORlY4NkRSMG5vR2pXTWxNM0RjWUtVSDlmajBRWi9pbXArd0o0NnJzRm9h?=
+ =?utf-8?B?MVdxNlQzck5JV0FkTHdvakJabGZyZzhkbVo3RlNBOHBxOVd1RUFrZWpBQ0FT?=
+ =?utf-8?B?UzBPaDArbTRQS0l3WnBIWE9WNUpraHFqdGROTTFVcm9SeU0vclI5b09aOVNl?=
+ =?utf-8?B?dkkvZk1vYVg5OHh2aVlaVUh4WTJvYVorQzMyZGlyRjAyK29PbEY5VXBrVEtD?=
+ =?utf-8?B?b0t4WjF5NE4wb3R5T3RxY1J5QXBlSSt4Unc4Y2dId1BuMVBuelE3ME9MK21G?=
+ =?utf-8?B?RlZ3MHdVeHJWb2hDYnlDcDFTYlhnU2xraFhIczFYWmJxcE1Oa0lFZmpzbytP?=
+ =?utf-8?B?OXJPSFZneFdKTWxiZmtIN0d0YnFTVVNyRWdnTVRFSVo0Q21SNCs2eVBvWE1O?=
+ =?utf-8?B?Wm1qNGRoWTZodHRWaDRRenVxM3BMc2pOK1hRb3ZHZEdDSjRSUkc1aWNSNzZw?=
+ =?utf-8?B?WHVxcm1pQ2Fhd1FsdGl6K3JoMUlDanU5SzhwV2wvVExoZFhzdElaNE1XYTRl?=
+ =?utf-8?B?Wmc2aGpYL1VjV2dYMzgreEY4d3ZnQnNTcDBwNmdvU2VHVmtZWHdoaHBYcGZG?=
+ =?utf-8?B?VGxGT2Rhc0ZNZHNQTHM0ZE5xQTNoNkpCRVY1V2VEejdpL3FZaVh5cGYrc1RC?=
+ =?utf-8?B?MjNTRXVWd2owSFgzMzZzNW4vanRXNlJBaGtWTVpDNGxIeFlGMmNWK0JVVE9T?=
+ =?utf-8?B?bDRma3N5RTFHd0Z5ZjdDYmUzeUpFUVMzMno5MFJHR1hSY2dEa0hGdW1yaWxi?=
+ =?utf-8?B?dWlQcmFrVFM2aS9YZjI4aWF6ZTBnYWNHYnNrd09GSnoyYlQyTFJDbWdwOUVw?=
+ =?utf-8?B?c01mUE1aRTVDZ01JNlhwR2VKdnE3ajJacXpndThnMFhKU0hxaUtmTS9sVldi?=
+ =?utf-8?B?eHhyZThWbzlXbys4UjY0bWR0TlZFNUg1R05QZitFQXZDc0xIeUpwYy95MHpl?=
+ =?utf-8?B?cEhESWtNRnBpWnl6SG9rR0Zqd1I5QnRrZkJha1NXOTJRM09meWk0QUVReHdB?=
+ =?utf-8?B?am9uTWtkNW43YWNrMlQ2NmlJWW9pRGhqdkhrOWp3aHJiRUlUQmlXY0ZXZ3A5?=
+ =?utf-8?B?a2tmUmxYYXVwQmxBWlBDRy9zMi9qd0Z3K0FBUVhPb1BjVkVtYlNoNlFtWkFX?=
+ =?utf-8?B?MEhPRk1jRWlVOEhsNytXQTFNSFdXRk5aRXJWRDdoWHJJUS9BRzdpaVgxcGdG?=
+ =?utf-8?B?amFySFdQeFpCU3ZEc2JubFQvRHNYcFdSSWNkQ2U0OVBuUFo3dlBaUWZENk5D?=
+ =?utf-8?B?cFZVeWozYlZBV05xZWVRUVhjdytBRjd4Q2JOQnVlT0cyZmc1OVViak40Wk10?=
+ =?utf-8?B?SjdGYWpXRkQ1dStHZ1A5Z0FWcUI1aUhWOVhxWXlnTHQwTUpqU3F1MXEzUGR1?=
+ =?utf-8?B?YTJ2dSsrRmYvNWZzcjBXcGN4NmRyWUorNjdYdE9URm9uLzByRndwM25NTGFV?=
+ =?utf-8?B?UkkxK1ZhSWpPdW9VSURvS0ZwL2hHVTlUQnV0SWxpenhhdUhKYWdhYnVrTlNF?=
+ =?utf-8?B?ZEpVeFZ4U0xIZGpqR09wZWorbWJ6M2tUT29JMUZJNjVSYmJjeVZPMkpQSEFV?=
+ =?utf-8?B?TWdWdWZGRzRtQ2lscVYzakpnU1MwUHlBUzJWVXRIUHkrOVRIMFFSblZWeWYz?=
+ =?utf-8?B?WUZHK2QrTHg2UkI5dWRoVFlmYkpZaUFvT3VETFJYekRkRnkxaW5aSVpzU1lh?=
+ =?utf-8?B?enZiQzFnS3hUdFhVZFJUQlpWMEhSeXYxY0RGS2RYZEJTOVpuajlpMHczZEZE?=
+ =?utf-8?B?elJsRTZ0dkEwVW9iclNGK2daelhZNGJUUlBjTUtZQzF3LzBCQS9vNkQ0UGVw?=
+ =?utf-8?B?bjg4K2RlenRMdVBiY280bXcvVHcwejlDYnJ3ZWtqZnRIZVFCM3ZaUzljU3Vt?=
+ =?utf-8?B?MTdFVW5OdlduYmtUN1NEcjkyclNOUEYyTit1VWwyMHRTTzdOYloyNjF6emVP?=
+ =?utf-8?B?OGxuWERxVHl4T00rdXZ2RmZJYXFNRTBCL2pERVp6Tm9ldWJJK2pReU9YVEpv?=
+ =?utf-8?B?aWkyNXM2UnpKQ2JpUHFFV240YkZ4VzU2YnZXek5hdnZYWFJNbWRQOU1nQXgx?=
+ =?utf-8?B?QW1OWG9EVEtJMDZyTHFKY2NBd1pQVFZxd3VibVRwd0NYL3FHdlBrbDBEWEo3?=
+ =?utf-8?B?ZGt5Tk9DSUxMVnhzNFp2MDcrUmNUTzg2ZFV2dUxWeXhCU2hQUFVtUVIxOGlO?=
+ =?utf-8?B?UDJUdTJReHZSMC9uUHhxc29BN1dtendSSW5jYm5NZnUrVUVORkkrZz09?=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-OriginatorOrg: aspeedtech.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: TY2PPF5CB9A1BE6.apcprd06.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 712aad48-bc31-46e4-a65c-08de99000ee2
+X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Apr 2026 01:57:46.1831
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43d4aa98-e35b-4575-8939-080e90d5a249
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: WSB5yaEs9xQ2mNBVcbOhdi711SsPe5ntcwNIfiR8pErS5LuEBGucQS0X5c2TiNBOd/Xv6D0AiHJTR9wke3/R7gncDr9iBX5QAtjA9cp7hsA=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SE3PR06MB8200
 
-Hi Wolfram,
-
-here's the first part of the merge window pull request.
-
-It has the usual refactoring, cleanups and updates, with no big
-surprises. There is also some new hardware support. The main
-chunks this time are the xiic and rtl9300 work.
-
-One patch is already queued for part 2, as it needed some
-dependencies first and I will keep collecting patches with no
-major impact.
-
-Thanks and enjoy the rest of the weekend,
-Andi
-
-The following changes since commit 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f:
-
-  Linux 7.0-rc1 (2026-02-22 13:18:59 -0800)
-
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-host-7.1-part1
-
-for you to fetch changes up to e43f2df330a1b87c97235e4faade860d15787735:
-
-  i2c: usbio: Add ACPI device-id for NVL platforms (2026-04-10 23:08:42 +0200)
-
-----------------------------------------------------------------
-i2c-host for v7.1, part 1
-
-- generic cleanups in npcm7xx, qcom-cci, xiic and designware DT
-  bindings
-
-- atr: use kzalloc_flex for alias pool allocation
-- ixp4xx: convert bindings to DT schema
-- ocores: use read_poll_timeout_atomic() for polling waits
-- qcom-geni: skip extra TX DMA TRE for single read messages
-- s3c24xx: validate SMBus block length before using it
-- spacemit: refactor xfer path and add K1 PIO support
-- tegra: identify DVC and VI with SoC data variants
-- tegra: support SoC-specific register offsets
-- xiic: switch to devres and generic fw properties
-- xiic: skip input clock setup on non-OF systems
-
-rtl9300:
-- add per-SoC callbacks and clock support for RTL9607C
-- add support for new 50 kHz and 2.5 MHz bus speeds
-- general refactoring in preparation for RTL9607C support
-
-New support:
-- DesignWare GOOG5000 (ACPI HID)
-- Intel Nova Lake (ACPI ID)
-- Realtek RTL9607C
-- SpacemiT K3 binding
-- Tegra410 register layout support
-
-----------------------------------------------------------------
-Abdurrahman Hussain (7):
-      i2c: xiic: switch to devres managed APIs
-      i2c: xiic: remove duplicate error message
-      i2c: xiic: switch to generic device property accessors
-      i2c: xiic: cosmetic cleanup
-      i2c: xiic: cosmetic: use resource format specifier in debug log
-      i2c: xiic: use numbered adapter registration
-      i2c: xiic: skip input clock setup on non-OF systems
-
-Andy Shevchenko (1):
-      dt-bindings: i2c: dw: Remove unused bindings
-
-Aniket Randive (1):
-      i2c: qcom-geni: Avoid extra TX DMA TRE for single read message in GPI mode
-
-Arun T (1):
-      i2c: usbio: Add ACPI device-id for NVL platforms
-
-Greg Kroah-Hartman (1):
-      i2c: s3c24xx: check the size of the SMBUS message before using it
-
-Jan Kantert (1):
-      i2c: rtl9300: add support for 50 kHz and 2.5 MHz bus speeds
-
-Kartik Rajput (3):
-      i2c: tegra: Introduce tegra_i2c_variant to identify DVC and VI
-      i2c: tegra: Add logic to support different register offsets
-      i2c: tegra: Add support for Tegra410
-
-Krzysztof Kozlowski (1):
-      i2c: npcm7xx: Use NULL instead of 0 for pointer
-
-Martin Aberer (1):
-      i2c: ocores: Use read_poll_timeout_atomic to avoid false poll timeouts
-
-Moritz Fischer (1):
-      i2c: designware: Add a new ACPI HID for GOOG5000 I2C controller
-
-Rosen Penev (1):
-      i2c: atr: use kzalloc_flex
-
-Rustam Adilov (8):
-      i2c: rtl9300: split data_reg into read and write reg
-      i2c: rtl9300: introduce max length property to driver data
-      i2c: rtl9300: introduce F_BUSY to the reg_fields struct
-      i2c: rtl9300: introduce a property for 8 bit width reg address
-      dt-bindings: i2c: realtek,rtl9301-i2c: extend for clocks and RTL9607C support
-      i2c: rtl9300: introduce clk struct for upcoming rtl9607 support
-      i2c: rtl9300: introduce new function properties to driver data
-      i2c: rtl9300: add RTL9607C i2c controller support
-
-Shi Hao (1):
-      dt-bindings: i2c: intel,ixp4xx-i2c: Convert to DT schema
-
-Troy Mitchell (2):
-      i2c: spacemit: move i2c_xfer_msg()
-      i2c: spacemit: introduce pio for k1
-
-Vladimir Zapolskiy (1):
-      i2c: qcom-cci: Remove unused CCI_RES_MAX macro definition
-
-Yixun Lan (1):
-      dt-bindings: i2c: spacemit: k3: Add compatible
-
- .../devicetree/bindings/i2c/i2c-iop3xx.txt         |  20 -
- .../devicetree/bindings/i2c/intel,ixp4xx-i2c.yaml  |  41 ++
- .../bindings/i2c/realtek,rtl9301-i2c.yaml          |  15 +
- .../bindings/i2c/snps,designware-i2c.yaml          |   2 -
- .../devicetree/bindings/i2c/spacemit,k1-i2c.yaml   |   6 +-
- drivers/i2c/busses/i2c-designware-platdrv.c        |   1 +
- drivers/i2c/busses/i2c-k1.c                        | 316 +++++++++---
- drivers/i2c/busses/i2c-npcm7xx.c                   |   2 +-
- drivers/i2c/busses/i2c-ocores.c                    |  24 +-
- drivers/i2c/busses/i2c-qcom-cci.c                  |   3 -
- drivers/i2c/busses/i2c-qcom-geni.c                 |  24 +-
- drivers/i2c/busses/i2c-rtl9300.c                   | 195 ++++++--
- drivers/i2c/busses/i2c-s3c2410.c                   |   7 +-
- drivers/i2c/busses/i2c-tegra.c                     | 534 +++++++++++++++------
- drivers/i2c/busses/i2c-usbio.c                     |   1 +
- drivers/i2c/busses/i2c-xiic.c                      |  97 ++--
- drivers/i2c/i2c-atr.c                              |  17 +-
- 17 files changed, 939 insertions(+), 366 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-iop3xx.txt
- create mode 100644 Documentation/devicetree/bindings/i2c/intel,ixp4xx-i2c.yaml
+PiA+IFN1YmplY3Q6IFJlOiBbUEFUQ0ggdjI4IDIvNF0gZHQtYmluZGluZ3M6IGkyYzogYXN0MjYw
+MC1pMmMueWFtbDogQWRkDQo+ID4gZ2xvYmFsLXJlZ3MgYW5kIGVuYWJsZS1kbWEgcHJvcGVydGll
+cw0KPiA+DQo+ID4gSGkgUnlhbiwNCj4gPg0KPiA+ID4gPiBTb3VuZHMgcmVhc29uYWJsZSwgYnV0
+IGJlZm9yZSB5b3UgZG8gc28sIGhvdyBhcmUgeW91IHBsYW5uaW5nIHRvDQo+ID4gPiA+IG1hbmFn
+ZSB0aGUgYWxsb2NhdGlvbiBvZiBETUEgY2hhbm5lbHMgYWNyb3NzIG11bHRpcGxlIGkyYyBwZXJp
+cGhlcmFscz8NCj4gPiA+ID4NCj4gPiA+IFRoZSBBU1QyNjAwIEkyQyBoYXJkd2FyZSBoYXMgb25s
+eSBvbmUgY2FuIHVzZSBETUEgYXQgYSB0aW1lLg0KPiA+ID4gVG8gYXZvaWQgdGhlIGNvbXBsZXhp
+dHkgb2YgbWFuYWdpbmcgRE1BIGNoYW5uZWwgY29udGVudGlvbiwgSSBwbGFuDQo+ID4gPiB0byB1
+c2UgYnVmZmVyIG1vZGUgYnkgZGVmYXVsdCBmb3IgYWxsIGNvbnRyb2xsZXJzLCB3aGljaCBzdGls
+bA0KPiA+ID4gcHJvdmlkZXMgYmV0dGVyIHBlcmZvcm1hbmNlIHRoYW4gYnl0ZSBtb2RlIHdpdGhv
+dXQgcmVxdWlyaW5nIERNQQ0KPiA+ID4gY2hhbm5lbA0KPiA+IGFsbG9jYXRpb24uDQo+ID4NCj4g
+PiBPSywgYnV0IHlvdXIgd29yZGluZyB0aGVyZSAoImJ5IGRlZmF1bHQiKSBpbXBsaWVzIHRoYXQg
+RE1BIGlzIHN0aWxsDQo+ID4gc2VsZWN0YWJsZSBmb3Igb25lIGNvbnRyb2xsZXIgcGVyaXBoZXJh
+bC4gSW4gd2hpY2ggY2FzZTogeW91IHN0aWxsDQo+ID4gaGF2ZSB0aGUgcHJvYmxlbSBvZiBtYW5h
+Z2luZyBETUEgY2hhbm5lbCBjb250ZW50aW9uLCBidXQgbm93IGl0J3MgYXQNCj4gcnVudGltZSBp
+bnN0ZWFkLg0KPiA+DQo+ID4gU28gbXkgcXVlc3Rpb24gc3RpbGwgc3RhbmRzOiBob3cgYXJlIHlv
+dSBwbGFubmluZyB0byBlbmZvcmNlIHRoYXQgRE1BDQo+ID4gaXMgb25seSBlbmFibGVkIGZvciBv
+bmUgY29udHJvbGxlcj8NCj4gPg0KPiA+IE9yIGFyZSB5b3UgcGxhbm5pbmcgdG8gZGlzYWJsZSBJ
+MkMgRE1BIGVudGlyZWx5IG9uIEFTVDI2MDA/DQo+IFllcywgVGhpcyBpcyBteSBpbnRlbnQgdG8g
+ZG8uDQo+IERpc2FibGUgSTJDIERNQSBlbnRpcmVseSBvbiBBU1QyNjAwLg0KPiBJZiBJIHJlbW92
+ZSBETUEsIHNob3VsZCBjYW4gSSBrZWVwIGJ5dGUgYW5kIGJ1ZmZlciBmb3Igc3lzZnM/DQoNCkhl
+bGxvIFJvYiwNCg0KT24gdGhlIEFTVDI2MDAsIHdlIGhhdmUgYSBzaW5nbGUtY2hhbm5lbCBjb25z
+dHJhaW50LCB3aGljaCBtYWtlcyBETUENCnN1cHBvcnQgYWNyb3NzIGFsbCBjb250cm9sbGVycyBk
+aWZmaWN1bHQgdG8gaW1wbGVtZW50IHdpdGhvdXQgc29tZSBraW5kIG9mDQpwcmVkZWZpbmVkIGNv
+bmZpZ3VyYXRpb24uIFRoYXQgd291bGQgYmUgYSBiaXQgb2YgYSBtaXN1c2Ugb2YgYSBEVCBwcm9w
+ZXJ0eS4NCg0KRm9yIGZ1dHVyZSBwbGF0Zm9ybXMgc3VjaCBhcyB0aGUgQVNUMjcwMCwgRE1BIHN1
+cHBvcnQgc2hvdWxkIGJlIG11Y2gNCm1vcmUgc3RyYWlnaHRmb3J3YXJkLiBETUEgY2FwYWJpbGl0
+eSBjYW4gYmUgaW5mZXJyZWQgZnJvbSB0aGUgY29tcGF0aWJsZQ0Kc3RyaW5nLg0KDQpVbmxlc3Mg
+dGhlcmUgYXJlIGFueSBvYmplY3Rpb25zLCBJIHdpbGwgcmV3b3JrIHRoaXMgc2VyaWVzIHRvIHVz
+ZSBidWZmZXIgbW9kZQ0Kb25seSBvbiB0aGUgQVNUMjYwMCwgYW5kIGFkZCBBU1QyNzAwIERNQSBz
+dXBwb3J0IHNlcGFyYXRlbHkuDQoNClJ5YW4NCg==
