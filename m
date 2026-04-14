@@ -1,41 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 382401DF74F;
-	Tue, 14 Apr 2026 22:26:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4B8326159E;
+	Tue, 14 Apr 2026 22:31:06 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776205591; cv=none; b=FX5thbbTdSBSqBW1ILqHK7tnpz9ymHRM0+nFwmqHK7+w2MrD/EEz/xqh/nhbyz+3MpIHuZa1UP2x5nIt/VqxmSCJShyiWF/LuyqiggrVg1JvPom9dOb4m9+fONlQBKkGSwYIchRMEBNFD2YEURfxSk30Ojn2oAhlv4qaAV0cS/8=
+	t=1776205866; cv=none; b=YojvMPIFSQsPEmf7zogJc9WjtX6nrvt/E6B86Y8NUwnFXc8FxujtR4vOsp7pdyxVrgtV5tKAD5QFc7eY2yVWl0eeKsAzHCDyTs9Cqx9xRYid9Dlge3GHoIt1GQqzG0q25O00zbPmugURpM2lZhhxBdh36VlyYN1h68kEEKRXA4Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776205591; c=relaxed/simple;
-	bh=EuGh4i6XBBqw0PE7x/hX5ss56WtaEarQUaP6BZTpvEQ=;
+	s=arc-20240116; t=1776205866; c=relaxed/simple;
+	bh=AkRX6lFvw+vBbWM+Ue7xbI60L8oEbK8fmEUWgjj7nGw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gtFhZu1VF0WIgqYIreqVaxf1JXDDja9rxEQ+r1/nYadmQkn5zs9AxkoKqH/nyVxBbAm77De+dm1Eg95DkiOvxB2dbrFFi02FE5MyYRcRCq3gHcWX66vrURshSwfwVqKn8yKDlvh8MXmI9sx7BRcZVOseMHvsES9nlmMS56+dPsc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FUNkEnwW; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=cprW06adlwbrVoDk65INQgRZ0ohci0J3AbK7VzqOO9Sv9k9sZN8pbQIFYA/snZ2y3Dk4hK8IuWil0Oc8cKdtWlJwQEFUGxgkwxqlHTY7SHLuem0Gox311Gz58Wa6O5Ddskwn7STFNhtWjCTN/2GPbAss5AlCEcPqlX295EXTxu4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Gt56wbkj; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FUNkEnwW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43371C19425;
-	Tue, 14 Apr 2026 22:26:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Gt56wbkj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1430C19425;
+	Tue, 14 Apr 2026 22:31:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776205590;
-	bh=EuGh4i6XBBqw0PE7x/hX5ss56WtaEarQUaP6BZTpvEQ=;
+	s=k20201202; t=1776205866;
+	bh=AkRX6lFvw+vBbWM+Ue7xbI60L8oEbK8fmEUWgjj7nGw=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=FUNkEnwWLi+KAL90b6P+77mdHcVnyIJJPaKFL3YSzoCWbv5xvZZPNZHKms6h7ppdu
-	 kMVS2rShB0kp9BTttJJTP64xAq3yFF44uNYi/TN+MXdykmfIIMWjgQb6j8ss1kLCbE
-	 h/rgdt6dcBfQfDJO/L7/wqWbYr69i0AtMZiQy/Gac3yS4I/T72JLgUwUiMS+fi36SH
-	 KCJXXY0tfd7UKblwOuFiE20lxOKqcJAesfFD+tU11fPLbl5e3v3f7YiKSraVJk+lG2
-	 YfV6j42RHcHvzlxePors+VW2rYLFZl69UgQHJHZ7GWnhNXAUkdsuDM14xj9CFNltk0
-	 +pdBzw5sFK4UQ==
-Date: Wed, 15 Apr 2026 00:26:27 +0200
+	b=Gt56wbkjnHSZqxV2hfGHifPQAp5RV9SbIlLrZo+8c3syYMaP9W1xCPrPXZX4UEAoK
+	 kzvNRa6oAKsLN55uVq8eJ69ENsqq2SfxVdAqkrXdna+R4SYWYcKl7WdCsQsMpaeNnT
+	 A16eDlEyffeBlrmEsk2r0NwKdrMwgc31f2Q3pDWTWi8AjegATFnLCPIPWk/POv35n6
+	 zLAGwahTO4Vq5MrfrR00g9CuYTsiznD0aoFJeXDy7TL5iq5Hcu/0Fd3ACYLskhJ50v
+	 N42ssAVaPddtoUv400O9JwUHlr5i5q/1tWkuRMvBQvGE4hDUPKcpC2n656/zOtyZS2
+	 zx+Tvfwz8FsOg==
+Date: Wed, 15 Apr 2026 00:31:03 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Arun T <arun.t@intel.com>
-Cc: israel.a.cepeda.lopez@intel.com, hansg@kernel.org, 
-	sakari.ailus@linux.intel.com, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	miguel.vadillo@intel.com
-Subject: Re: [PATCH v2 2/2] i2c: usbio: Add ACPI device-id for NVL platforms
-Message-ID: <ad6-8dSL2UFSkusr@zenone.zhora.eu>
-References: <20260410141038.585760-1-arun.t@intel.com>
- <20260410141038.585760-2-arun.t@intel.com>
+To: Binbin Zhou <zhoubinbin@loongson.cn>
+Cc: Binbin Zhou <zhoubb.aaron@gmail.com>, 
+	Huacai Chen <chenhuacai@loongson.cn>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Wolfram Sang <wsa+renesas@sang-engineering.com>, Andy Shevchenko <andy@kernel.org>, linux-i2c@vger.kernel.org, 
+	Huacai Chen <chenhuacai@kernel.org>, Xuerui Wang <kernel@xen0n.name>, loongarch@lists.linux.dev, 
+	devicetree@vger.kernel.org
+Subject: Re: [PATCH v8 0/2] i2c: Add Loongson-2K0300 I2C controller support
+Message-ID: <ad6_-5NQv_Q6vxAE@zenone.zhora.eu>
+References: <cover.1776135865.git.zhoubinbin@loongson.cn>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -44,17 +46,15 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260410141038.585760-2-arun.t@intel.com>
+In-Reply-To: <cover.1776135865.git.zhoubinbin@loongson.cn>
 
-Hi Arun,
+Hi Binbin,
 
-On Fri, Apr 10, 2026 at 07:40:38PM +0530, Arun T wrote:
-> Add device IDs of Nova Lake into i2c-usbio support list.
-> 
-> Signed-off-by: Arun T <arun.t@intel.com>
-> Reviewed-by: Vadillo Miguel <miguel.vadillo@intel.com>
-> Reviewed-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+> Binbin Zhou (2):
+>   dt-bindings: i2c: loongson,ls2x: Add ls2k0300-i2c compatible
+>   i2c: ls2x-v2: Add driver for Loongson-2K0300 I2C controller
 
-This patch has already been merged.
+merged to i2c/i2c-host-v7.1
 
+Thanks,
 Andi
