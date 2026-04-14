@@ -1,143 +1,93 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB9CC1E9B3D
-	for <linux-i2c@vger.kernel.org>; Tue, 14 Apr 2026 17:24:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BE23238166
+	for <linux-i2c@vger.kernel.org>; Tue, 14 Apr 2026 19:49:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776187462; cv=none; b=lYWqZOez08zLS42onw6+ig4g5U6KgURiNwlwQj0VhwwIJymnYXYM2FFTU9GsSh2qZH7MTokUzCLw/gzxOQKE2P3Sx/c39XPVGQMo45Kw1KeL9eQUumH2QQPrnbk9X635zPPea6S6aR3Mq40SxhN4ElpyGGkx0UxcHWIDJK/dSdU=
+	t=1776196191; cv=none; b=uNfd9ffA7iuCqIoqEQjNGNtZbOPuL6ulAabdVkcZVv39DdI/9efT0PuhEQCu2D7DqOcKKvYCZ5fU+Yl8WjVPLQmih7SKjlwrvXyiq+JAetDgnZupWM9gHN5c5xEDIRfxxWQn+gi8EdJ6fCRpydzNuZ99DPJ72fff5In3tYsHmDE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776187462; c=relaxed/simple;
-	bh=rXdExhuzmqjUhosf8Tul2Oo7GyTQzGMYQZgtXLhxzsE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=cnK9CpUFV4xnhgpFYj3mwRmdVgNruIpDAjjnfJqafeNH6++K4PI4b3kPKBk6AxqcEjoQRi1zT0DH1Qo0vQxOmL5Cko1fLPWQ7M9XpCnHe6O43CHQNiBAtQYD9TR/EuWe+cgX6KeIMSVF3+xkovNHRVIbxhsxqXSyJWLhP8DFaCU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cJ5fLkQ+; arc=none smtp.client-ip=209.85.214.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1776196191; c=relaxed/simple;
+	bh=tuwTBMZDQLqPzPX3DvOqNAjwkKgb3FTW+LcVC30oye0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=g4ap0HEQ6WA7UWCeim/VtYzHOE2pi2ZS/NacYzoowWZaxnAVZzwbzju0MSsR+VoQoYFSPkBTHfgIbThJEeReaUaSrqhazcOMUlX9T3+zRlmzF9Wdd1SjNKg00c/fK8++sZNQ7UYH+LtsRRvmxms22mXe/kiZ7VPq3uxNYHIMmW0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=gkMk2spf; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cJ5fLkQ+"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2ad9516a653so29316205ad.0
-        for <linux-i2c@vger.kernel.org>; Tue, 14 Apr 2026 10:24:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776187460; x=1776792260; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=OVMfubLs9rXzKVCrgJsmrbmGSp8TzTIvAiDj5WtSBp0=;
-        b=cJ5fLkQ+aZazX0HyVYqtuC5kRvnIIIbrFbwI+/DKKzXWG7l8DSIN90MlqSmtiySXfK
-         UlcenTur/efgMqXNWdJjWPw5Tl5QFQxz6/uKZ2me35ZPGvYq/f4XFn8EDxH9gEcHuxiE
-         Bkml9CA6w+k1INfb2QeY//4xS3E9NOna5uP9KpBt3/RgDI56YqW+qvA0nIIzY7J3abdA
-         bni8Fv9wp/hbkLOGu/8Yh5JHfA/9RhgusHaKfNK+238+/9LbRsV8WnweHmjeg3783qxz
-         aNW9/3bt8Xgj61COcQTua6261KQmlLj8pYOOGpWy/v7mpSGpwyqN2M2qNLsSwlzJUIn4
-         8rjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776187460; x=1776792260;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OVMfubLs9rXzKVCrgJsmrbmGSp8TzTIvAiDj5WtSBp0=;
-        b=O2/rgX2sxyUP6q4f6lIZomHGLmgoLY603wgfV1vHdNbpOnlV7sab4ZMy1AfkETN8sU
-         JLd5Cm1knk1upOr9k8wDTtMP6KLxFf+w1/qJaqcpHLlKVW5Jaux25tMPUSpdu33XAUqF
-         n4tVtz5D8nRsyv8M0qJi2/0K1OxiAfc63qtdIMQVhpRger39nIq0lYwQtov35rVAOhXf
-         peS9ucVO6xOqyF8ZqrNo1MjjEQt21L4Xb4u2FV9yoIISfmP1u0rI6Fq72qQ4kQMmgMc4
-         tdahCM+1fWHexY5L/DKU9zKmeed7F0vqVme6P72X3ufpatV5wdUv8b3L+cwgFnwjMdT2
-         jnHA==
-X-Gm-Message-State: AOJu0YwHUV4URLxkoKCxswcO9zGcctAWVZYlws3tj8PxSDr8BJwoFHhz
-	sdmQ4Uigj5o+1S69JFgPa/ub5x05bhS+FyZlzgx2fOCUE1aGbIzKmba5
-X-Gm-Gg: AeBDievwpSnHIwzC06ZjO+TK2z2pL1C8a8koP2ISfVNtlAg1AVPW+Ml1cgORZuD8gC9
-	lpq7YPRjadhX8eoqrnSo6xc/y9FIJWwbYtGwJQFURmoXFZsKk5LWHwwWFByLrQG1ThRuyIyYRId
-	7nATv9cl+HVG2scgl60iDkHmWsoR8xo+v99P+ypMscVaObdcm1AZlNf6BmqJ0Az4+vBIa4tepQV
-	cXRlZOYIFEDN+fRkhfEI9wXdU2q83cVLSfeMapHmi7TqSSaQdkqFbGxRQoco1Tj3MJHu/4QQOm4
-	Gt4GavKBWXzcGd8JE38V/WT4Yk9muaYPR5NjLbt4Nv2vnMqH6/Oo9BEx1gOYK4WS8Zpj0Hsl1Be
-	TYn/IQTC3bg0wr6XgaMHXhsKpIzK6YcNToFwjYdGfnSyVvpOlxD5Qb/HxNT6tXVdYi8xpxwCNJk
-	kH6SpMlWcDWdaviu/yauNJ/F1sfb9JZhys8ezpJ0D7taYz2bNTfM/APNjb9KUrH5fkNAIR2qgLX
-	LdAQFFvnPhD
-X-Received: by 2002:a17:902:7b94:b0:2b2:9f9f:fe6b with SMTP id d9443c01a7336-2b2d5a5f92fmr117805295ad.40.1776187460089;
-        Tue, 14 Apr 2026 10:24:20 -0700 (PDT)
-Received: from SLSGDTSWING002.tail0ac356.ts.net ([129.126.109.177])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b2d4f3b299sm189034725ad.73.2026.04.14.10.24.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Apr 2026 10:24:19 -0700 (PDT)
-From: Weiming Shi <bestswngs@gmail.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Jean Delvare <jdelvare@suse.com>
-Cc: linux-i2c@vger.kernel.org,
-	Xiang Mei <xmei5@asu.edu>,
-	Weiming Shi <bestswngs@gmail.com>
-Subject: [PATCH v2] i2c: stub: Reject I2C block transfers with invalid length
-Date: Wed, 15 Apr 2026 01:23:39 +0800
-Message-ID: <20260414172338.110830-2-bestswngs@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="gkMk2spf"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=tuwT
+	BMZDQLqPzPX3DvOqNAjwkKgb3FTW+LcVC30oye0=; b=gkMk2spfjRyGX2KrBO7d
+	6wCKGvmkggGkihg8lqEwwEcgsngAww9YkHz8rTh2lQGx4Kz6ke4tznfGqWi9bFRq
+	bPwPBjFRxzJORdHnscPacC6KaoHfDwBpo0ipprhhP7ldZjARsJ8YfyrteNMWptFQ
+	KIyX4sDLF6j2onxESBihjG2bNnjiBooCl/l1lpSJmAV5d7sVKF6N4haGhu+bvC3X
+	gLPVwOQzqlG3zWTtjDezCacYjPN16bBmqExj2FBf3ZiXF0atJh5Fznx4ZnuUgd1b
+	AiavuzofqKaONCMRQ59EvTpYytwb69okJk9fzdvbl3r6SkCXF5m4ILBqnh+yZf2/
+	Hw==
+Received: (qmail 2847502 invoked from network); 14 Apr 2026 21:49:44 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 14 Apr 2026 21:49:44 +0200
+X-UD-Smtp-Session: l3s3148p1@4V2a5nBPmJEujntG
+Date: Tue, 14 Apr 2026 21:49:42 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+	linux-i2c <linux-i2c@vger.kernel.org>
+Subject: Re: [GIT PULL] i2c-host for v7.1, part 1
+Message-ID: <ad6aVj-hRpA_vaRP@shikoro>
+References: <adr2UAyCWpT8VwB8@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="JFIFBDGQf2nh/ETz"
+Content-Disposition: inline
+In-Reply-To: <adr2UAyCWpT8VwB8@zenone.zhora.eu>
 
-The I2C_SMBUS_I2C_BLOCK_DATA case in stub_xfer() uses data->block[0]
-as the transfer length. The existing check only clamps it to avoid
-overrunning the chip->words[256] register array, but does not validate
-it against I2C_SMBUS_BLOCK_MAX (32), which is the limit of the union
-i2c_smbus_data.block buffer (34 bytes total). The driver is a
-development/test tool (CONFIG_I2C_STUB=m, not built by default)
-that must be loaded with a chip_addr= parameter.
 
-A local user with access to /dev/i2c-* can issue an I2C_SMBUS ioctl
-with I2C_SMBUS_I2C_BLOCK_DATA and data->block[0] > 32, causing
-stub_xfer() to read or write past the end of the union
-i2c_smbus_data.block buffer:
+--JFIFBDGQf2nh/ETz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- BUG: KASAN: stack-out-of-bounds in stub_xfer (drivers/i2c/i2c-stub.c:223)
- Read of size 1 at addr ffff88800abcfd92 by task exploit/81
- Call Trace:
-  <TASK>
-  stub_xfer (drivers/i2c/i2c-stub.c:223)
-  __i2c_smbus_xfer (drivers/i2c/i2c-core-smbus.c:593)
-  i2c_smbus_xfer (drivers/i2c/i2c-core-smbus.c:536)
-  i2cdev_ioctl_smbus (drivers/i2c/i2c-dev.c:391)
-  i2cdev_ioctl (drivers/i2c/i2c-dev.c:478)
-  __x64_sys_ioctl (fs/ioctl.c:583)
-  do_syscall_64 (arch/x86/entry/syscall_64.c:94)
-  entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:130)
-  </TASK>
+On Sun, Apr 12, 2026 at 03:43:40AM +0200, Andi Shyti wrote:
+> Hi Wolfram,
+>=20
+> here's the first part of the merge window pull request.
+>=20
+> It has the usual refactoring, cleanups and updates, with no big
+> surprises. There is also some new hardware support. The main
+> chunks this time are the xiic and rtl9300 work.
+>=20
+> One patch is already queued for part 2, as it needed some
+> dependencies first and I will keep collecting patches with no
+> major impact.
 
-The bug exists because i2c-stub implements .smbus_xfer directly,
-bypassing the I2C_SMBUS_BLOCK_MAX validation in
-i2c_smbus_xfer_emulated(). The I2C_SMBUS_BLOCK_DATA case in the same
-function correctly validates against I2C_SMBUS_BLOCK_MAX, but the
-I2C_SMBUS_I2C_BLOCK_DATA case does not.
+Thanks, pulled!
 
-Fix by rejecting transfers with data->block[0] == 0 or
-data->block[0] > I2C_SMBUS_BLOCK_MAX with -EINVAL, consistent with
-both the I2C_SMBUS_BLOCK_DATA case in the same function and the
-I2C_SMBUS_I2C_BLOCK_DATA validation in i2c_smbus_xfer_emulated().
 
-Fixes: 4710317891e4 ("i2c-stub: Implement I2C block support")
-Reported-by: Xiang Mei <xmei5@asu.edu>
-Signed-off-by: Weiming Shi <bestswngs@gmail.com>
----
-v2:
- - Also reject data->block[0] == 0 (suggested by Jean Delvare).
+--JFIFBDGQf2nh/ETz
+Content-Type: application/pgp-signature; name="signature.asc"
 
- drivers/i2c/i2c-stub.c | 5 +++++
- 1 file changed, 5 insertions(+)
+-----BEGIN PGP SIGNATURE-----
 
-diff --git a/drivers/i2c/i2c-stub.c b/drivers/i2c/i2c-stub.c
-index fbb0db41b10e1..04314e3ed24c9 100644
---- a/drivers/i2c/i2c-stub.c
-+++ b/drivers/i2c/i2c-stub.c
-@@ -214,6 +214,11 @@ static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
- 		 * We ignore banks here, because banked chips don't use I2C
- 		 * block transfers
- 		 */
-+		if (data->block[0] == 0 ||
-+		    data->block[0] > I2C_SMBUS_BLOCK_MAX) {
-+			ret = -EINVAL;
-+			break;
-+		}
- 		if (data->block[0] > 256 - command)	/* Avoid overrun */
- 			data->block[0] = 256 - command;
- 		len = data->block[0];
--- 
-2.43.0
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmnemlMACgkQFA3kzBSg
+KbZkqA/+LHEwI8RvqL2hhmoRZQVlo3qayFZ8L7AXetmpFGL1jIUbflkxOnaJk9Dt
+owKOjfyLwnAh0rzrTgWEhe8yRlxpkWTi3KdLFia+X68pvjDAXWh9hSY1+MJ8Q5PH
+791OPabY9sqzC5AnzO5zqf6lmDCA/NcA0bHNAII4gSoPuRs4755F645EhueQJs6q
+J5rYfWZveQXfUyo0QWA5FmgMINZdclzAK9PnCpIV3k+9qxAG8QkxCvR5nDSWw6e0
+103+3y1044S8nH2fG7vw/OyaZA83twmQZN3f4ZxJ3PaqOR4zYhmTI7DLUi8F8IKO
+2cTJSyQbBnYE2cODMzhmOMlYl6M+1lxnYrMq88Vl9PzMKo+CENhfdEZy5l1ood6N
+UOA+08pvvVlY8EYgPS1SLaMjI+LXPyfCHliPdmCo2JcY+tSvZJBOZmprUi4JgEex
+FjbmDR5ZbdgrFvF97/BoXsQrlFd67LoDDxc85COzfqbV0jAhV2/wvlx/wywBbFen
+bKmCjLHmsdefA27ORa1u2jZ1872sP0S3FjBBUvO+gYgoVcKBRyd/wHMjX6e+4FdS
+nfQeXuGW3ppNJmPx/LgcuhargTdd4qol64nu8vuSrlySly+3+q1HEXb18Q80pDS8
+G4ck3LOc+zt5VAsm0dXiiYzQJmmO7wqjuaXb1/vPy+fNPL7jYek=
+=ZPL6
+-----END PGP SIGNATURE-----
 
+--JFIFBDGQf2nh/ETz--
