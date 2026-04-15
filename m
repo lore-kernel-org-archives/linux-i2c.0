@@ -1,144 +1,80 @@
-Received: from mail-wm1-f73.google.com (mail-wm1-f73.google.com [209.85.128.73])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailgw01.mediatek.com (unknown [60.244.123.138])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D49237A488
-	for <linux-i2c@vger.kernel.org>; Wed, 15 Apr 2026 11:48:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7843E37C0E5;
+	Wed, 15 Apr 2026 12:58:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=60.244.123.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776253685; cv=none; b=T/rD6LuLviYoLeEwdlVTDLTlixHYZErbKJ0vDRvHpmgIm8y36fd8BNJe9oyf9f3BwCUBkyoaC98VgAOl/RDsX3SZUHrwgU/y2+D/6fKwphQVZp6vKPcrJKRpzb2g1NV1wJS8MGdrYRK3vG70/NxJXVlbNRKDzd3RfAPX26OAxqA=
+	t=1776257932; cv=none; b=UwoexN4SYKUySC0FIPjxWiNOVaRh9W80QnxalOT4FOFMTD58jJpxkWR+vTwhuTDtG1fF7JnIbUeGIOkj1fKy9epO8e3rSL7wFMumhqiagJ8kKu3eKmJqVTDodoBEvzxMDYL7LTjE605Uqdv6IAgYnotTctNiCK8F3bzHojKdopk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776253685; c=relaxed/simple;
-	bh=wYBYWS0U3wn+JrPKpLtSjLr8wl2VYLOC3vTu/H5RgJ0=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=jVVh5b1h7aIxZAxKW3F54LDb/ULKLGnj3+ZcC7kDcn4j7Kg30LU6caqZ4TxHfiMC3gBB6sgikgO75bDhHhXKjfjGAjuhgFNECnEOxQ2jV5DnTeFoGl9fayGXf67umIR7YfwhxWLgGUa63/03AFrcymsSNETJ7D9gaQVMus+Cjlg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--bsevens.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=pzzQ0EgW; arc=none smtp.client-ip=209.85.128.73
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--bsevens.bounces.google.com
+	s=arc-20240116; t=1776257932; c=relaxed/simple;
+	bh=MQYgVFhYG/avcSqZoRiPFb57/f6xcQJ69RySC7jdhVQ=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=SQaZHms510ubcbODZKFuFFOf91VC/xZKUz5bmqn6srvvS72bXKsesuSd3T3Wq8NyU4l7OCiQkiAFolvPMd4ts00gJcUcZZYdN3Im387b6NStLWPhuoQKwJWd2yJher0P0nOTPB1+dqB2BTeketQv+9c/KPA/QqW+RXTRwHwRTAg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com; spf=pass smtp.mailfrom=mediatek.com; dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b=CfI+CMqJ; arc=none smtp.client-ip=60.244.123.138
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mediatek.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="pzzQ0EgW"
-Received: by mail-wm1-f73.google.com with SMTP id 5b1f17b1804b1-488bd1ee9e7so40660005e9.1
-        for <linux-i2c@vger.kernel.org>; Wed, 15 Apr 2026 04:48:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1776253682; x=1776858482; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=lP3RjDHSPzb1NPTjUWSB2m8qqv8z9lgjkWSUnxmWGgM=;
-        b=pzzQ0EgWxtT2kR2LjQW2dsV2LoCAh+7SLcufSfzCtuhYqvGqVCwLQIQGjnjL6YvCeZ
-         HDMCKrvnK2RjLCI4m0X6OqSIFM0G/Ugv8JQHmR3ZOcz3ScEJ75h1I+lYsPWLlc2tbMip
-         MxXKEzEma/hZml6vSi8q6P650WssvpSV8FWlagxMX6w2y+/Ae5UYMN6NJ2uLscXxXh6w
-         LuqisoL0EuoU27iv59Vsoh86//jZKZEcWV2h9F28i3VKDiPfSxhvk+Zs9qzmLCRugtvh
-         IZoPoT/iR9BProX8ytShB8mbKWBAbQSKKTjQWvenWtJ0SjFcvl5IZD94aOFf1F+pg2sW
-         koaQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776253682; x=1776858482;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=lP3RjDHSPzb1NPTjUWSB2m8qqv8z9lgjkWSUnxmWGgM=;
-        b=UZdW2kIq9ImyKuydi18t7GTYbRFZQvNIWb72BPKm7VYsRL9gahcuI8szdTx/MqHvwm
-         jEUf8lieABSPs9gV4+0vqd4ri1Ge3jUMkdDGDPi1W9A6E5j6Ahr2IP7jWwBaOUqscVKN
-         +5tmPRnLMw76971+vWm/pmYGbnJqH+LsURFoFrZ13Cg2vDsAur+zAZ3qxpbDcZQtnm1q
-         nPTi/vxvoY4Q75blgf7ngOopw0S2h5ac7Mm4OEstOkt7kAB/rj1DJ6Wo6OuMVopdY08+
-         zlZSJgrNveAcYx2Lmf5gy+oH+KsXPax7KtCfq0/8OqbOyQzb8+gnHil0DoOZpZvOjT9i
-         DqbQ==
-X-Gm-Message-State: AOJu0YzBP81lD8biV80UEWHT1HNsU2xDJ2zR7SjlZX/5dnw6fVckaU8Y
-	Xz8pq8DyV8NQcMcGhrpp5+Hp2PavOYxgoTMB4N3jwNaMr6BqS/FIutsAtPe/LDgpPEtjFLr+lHe
-	QUzzxmJOmsA==
-X-Received: from wmpz8.prod.google.com ([2002:a05:600c:a08:b0:485:3a2f:2f7e])
- (user=bsevens job=prod-delivery.src-stubby-dispatcher) by 2002:a05:600c:3acf:b0:485:35a4:939f
- with SMTP id 5b1f17b1804b1-488d68a8275mr254811245e9.28.1776253681593; Wed, 15
- Apr 2026 04:48:01 -0700 (PDT)
-Date: Wed, 15 Apr 2026 11:47:51 +0000
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="CfI+CMqJ"
+X-UUID: cfb2de9e38ca11f1ae70033691e9ac7d-20260415
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+	h=Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=MQYgVFhYG/avcSqZoRiPFb57/f6xcQJ69RySC7jdhVQ=;
+	b=CfI+CMqJw0u4NY2RulnJwfFwk+jcyRy6ZN/zg44N/rokGaLx3fAn0Q4lbbl2N7hf5IBQILqr7oh711+t56H/q01wU9SabDyj0Mt91EOWONYYy4H48Vi3kjApN9zAjADA/VsDyYFQVGRtX3sOiOxEzvNib21hnaactdO3g1JnEdc=;
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.12,REQID:0df25f3e-5b90-438a-b26e-13d892e9983d,IP:0,U
+	RL:0,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:-5
+X-CID-META: VersionHash:e7bac3a,CLOUDID:9022758f-6df4-4a3d-a7a4-fbdc42d669ce,B
+	ulkID:nil,BulkQuantity:0,Recheck:0,SF:83|102|836|865|888|898,TC:-5,Content
+	:0|15|50,EDM:40,IP:nil,URL:0,File:130,RT:0,Bulk:nil,QS:nil,BEC:-1,COL:0,OS
+	I:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: cfb2de9e38ca11f1ae70033691e9ac7d-20260415
+Received: from mtkmbs11n1.mediatek.inc [(172.21.101.185)] by mailgw01.mediatek.com
+	(envelope-from <adlavinitha.reddy@mediatek.com>)
+	(Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+	with ESMTP id 1739490256; Wed, 15 Apr 2026 20:58:34 +0800
+Received: from mtkmbs11n1.mediatek.inc (172.21.101.185) by
+ MTKMBS09N1.mediatek.inc (172.21.101.35) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.29; Wed, 15 Apr 2026 20:58:33 +0800
+Received: from mtksitap99.mediatek.inc (10.233.130.16) by
+ mtkmbs11n1.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
+ 15.2.2562.29 via Frontend Transport; Wed, 15 Apr 2026 20:58:33 +0800
+From: adlavinitha reddy <adlavinitha.reddy@mediatek.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+CC: Qii Wang <qii.wang@mediatek.com>, Matthias Brugger
+	<matthias.bgg@gmail.com>, AngeloGioacchino Del Regno
+	<angelogioacchino.delregno@collabora.com>, <linux-i2c@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
+	<linux-mediatek@lists.infradead.org>,
+	<Project_Global_Chrome_Upstream_Group@mediatek.com>
+Subject: Re: [PATCH v1 1/1] i2c: mediatek: add bus regulator control for power saving
+Date: Wed, 15 Apr 2026 20:58:32 +0800
+Message-ID: <20260415125833.2579133-1-adlavinitha.reddy@mediatek.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.54.0.rc0.605.g598a273b03-goog
-Message-ID: <20260415114752.1181079-1-bsevens@google.com>
-Subject: [PATCH] HID: mcp2221: Fix heap buffer overflow in mcp2221_raw_event()
-From: Benoit Sevens <bsevens@google.com>
-To: Rishi Gupta <gupt21@gmail.com>, Jiri Kosina <jikos@kernel.org>, 
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, 
-	"=?UTF-8?q?Beno=C3=AEt=20Sevens?=" <bsevens@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-MTK: N
 
-From: Beno=C3=AEt Sevens <bsevens@google.com>
+Hi Andi Shyti,
 
-A heap buffer overflow can occur in the mcp2221_raw_event() function
-when handling I2C read responses. The driver failed to check if the
-total incoming data length fits within the originally allocated buffer
-`mcp->rxbuf`.
+Thank you for your guidance on formatting and submission rules. I will study
+the documentation carefully and ensure I properly send patches in the future.
 
-Fix this by introducing `rxbuf_len` to `struct mcp2221` to keep track
-of the allocated buffer size. Initialize it in `mcp_i2c_smbus_read()`
-and `mcp_smbus_xfer()`, and ensure the copied data length combined with
-the current index does not exceed this length in `mcp2221_raw_event()`.
+Regarding the multiple submissions, I sincerely apologize for the confusion.
+As an intern here, I encountered some unexpected internal email permission
+issues when trying to send the patch. In an attempt to double-check whether
+the email successfully went through the server, I mistakenly re-sent it a
+couple of times. I will be much more careful next time.
 
-Signed-off-by: Beno=C3=AEt Sevens <bsevens@google.com>
----
- drivers/hid/hid-mcp2221.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index ef3b5c77c38e..744561e65079 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -119,6 +119,7 @@ struct mcp2221 {
- 	struct completion wait_in_report;
- 	struct delayed_work init_work;
- 	u8 *rxbuf;
-+	int rxbuf_len;
- 	u8 txbuf[64];
- 	int rxbuf_idx;
- 	int status;
-@@ -323,12 +324,14 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
- 		mcp->txbuf[3] =3D (u8)(msg->addr << 1);
- 		total_len =3D msg->len;
- 		mcp->rxbuf =3D msg->buf;
-+		mcp->rxbuf_len =3D msg->len;
- 	} else {
- 		mcp->txbuf[1] =3D smbus_len;
- 		mcp->txbuf[2] =3D 0;
- 		mcp->txbuf[3] =3D (u8)(smbus_addr << 1);
- 		total_len =3D smbus_len;
- 		mcp->rxbuf =3D smbus_buf;
-+		mcp->rxbuf_len =3D smbus_len;
- 	}
-=20
- 	ret =3D mcp_send_data_req_status(mcp, mcp->txbuf, 4);
-@@ -538,6 +541,7 @@ static int mcp_smbus_xfer(struct i2c_adapter *adapter, =
-u16 addr,
-=20
- 			mcp->rxbuf_idx =3D 0;
- 			mcp->rxbuf =3D data->block;
-+			mcp->rxbuf_len =3D sizeof(data->block);
- 			mcp->txbuf[0] =3D MCP2221_I2C_GET_DATA;
- 			ret =3D mcp_send_data_req_status(mcp, mcp->txbuf, 1);
- 			if (ret)
-@@ -561,6 +565,7 @@ static int mcp_smbus_xfer(struct i2c_adapter *adapter, =
-u16 addr,
-=20
- 			mcp->rxbuf_idx =3D 0;
- 			mcp->rxbuf =3D data->block;
-+			mcp->rxbuf_len =3D sizeof(data->block);
- 			mcp->txbuf[0] =3D MCP2221_I2C_GET_DATA;
- 			ret =3D mcp_send_data_req_status(mcp, mcp->txbuf, 1);
- 			if (ret)
-@@ -908,7 +913,9 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 			}
- 			if (data[2] =3D=3D MCP2221_I2C_READ_COMPL ||
- 			    data[2] =3D=3D MCP2221_I2C_READ_PARTIAL) {
--				if (!mcp->rxbuf || mcp->rxbuf_idx < 0 || data[3] > 60) {
-+				if (!mcp->rxbuf || mcp->rxbuf_idx < 0 ||
-+				    data[3] > 60 ||
-+				    mcp->rxbuf_idx + data[3] > mcp->rxbuf_len) {
- 					mcp->status =3D -EINVAL;
- 					break;
- 				}
---=20
-2.54.0.rc0.605.g598a273b03-goog
-
+Thank you,
+Adlavinitha Reddy
