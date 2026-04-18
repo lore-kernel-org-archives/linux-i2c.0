@@ -1,100 +1,107 @@
-Received: from courrier.aliel.fr (courrier.aliel.fr [65.21.61.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f41.google.com (mail-wm1-f41.google.com [209.85.128.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1FE13B8BCD;
-	Fri, 17 Apr 2026 16:37:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.21.61.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8390133C528
+	for <linux-i2c@vger.kernel.org>; Sat, 18 Apr 2026 05:37:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776443831; cv=none; b=Re4bx4pK714MVZQ3etRkriTg4aP7bxQ9P7uQ+wiOyxzwm8y7KFg9KIgshg/8Fm8P2lFEicXbak+pAzQpH0iU5vRhWdfAhdKG0aJjKmdSclJQdiGkAytzYSDZQ7fmIwoKe7mUczlLs5ETadRHli6rC3spcq9/D/d92ibBRATck7k=
+	t=1776490669; cv=none; b=PmOUt/c8uacBfS4TjEs0O4MCRsywQHbhLzAIXl3qpflrjE5yZJtXT+l1sTpNdsCltpGgfUxDC1QpRVjuk6Q5MMC/ynw+UBF5YpN3zAqZEvORGZy+Dblqvp4sSCSqgvEol7mTH56KbB5wfILRUpCJGC8kkGNxBo4JPlnZ71+YFno=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776443831; c=relaxed/simple;
-	bh=tWFcpje6b/UPuUaynpp5o+HzSsytJcZL6uVNyAgG8qQ=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=Id0/socXHYSvOgOcL3xcrnH97nfDJ9lFjeE5ZAdiAGwySkva4kL3sEXwQa9r9lQebS7EFabhlzZR/j9GLUvx/eDrn24QJJyh+N3ZU5BnuP3l3oCqFg1pU7A7STdITy4A28eALX15LFq7PZ1W/1VRpzOPy4M5TE8yGwsmz7U6Tm0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=aliel.fr; spf=pass smtp.mailfrom=aliel.fr; dkim=pass (1024-bit key) header.d=aliel.fr header.i=@aliel.fr header.b=UKyaeMjW; arc=none smtp.client-ip=65.21.61.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=aliel.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aliel.fr
+	s=arc-20240116; t=1776490669; c=relaxed/simple;
+	bh=prW9Ym1vKl2hLBI+UbuMXxxNt2Sy1yJhvMrFoNFpczQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Om/vYM+K5FHyWQFoGRZAt75ETjvdmjRt/LP5hdpMqzEPa46xAlnu/OzREVtEvvRWlsNxYJg4n59k+i2GTjfOOa5at3/vNujpFe/8FgaWAxWTDXpGXfa91Bw6zKiqj4WXBaAJDS10rf9uHQS8NnhpQieAwKSKXHJC1HmfXf04nCQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dKu7uAtK; arc=none smtp.client-ip=209.85.128.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=aliel.fr header.i=@aliel.fr header.b="UKyaeMjW"
-From: Ronald Claveau <linux-kernel-dev@aliel.fr>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aliel.fr;
-	s=courrier-s1; t=1776443828;
-	bh=tWFcpje6b/UPuUaynpp5o+HzSsytJcZL6uVNyAgG8qQ=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=UKyaeMjWUcKnD9zAv8zJPBSrnqk2n1SMU4oVAjw9yGbs0yL6FDVhoo0Ric2waZGe4
-	 hU+M+CY4LNI23hIXLtuDmxtraU8btUsAvPfa/ZYQbvn2BYSliD+8DZYPg9+RiUAD6z
-	 IbSm8Gw5L8PY1mio8dSEBIoojMvYTcvZ9Xj0kaPw=
-Date: Fri, 17 Apr 2026 18:27:24 +0200
-Subject: [PATCH v3 8/8] arm64: dts: amlogic: t7: khadas-vim4: Add i2c MCU
- fan node
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dKu7uAtK"
+Received: by mail-wm1-f41.google.com with SMTP id 5b1f17b1804b1-48371104ffdso1704775e9.1
+        for <linux-i2c@vger.kernel.org>; Fri, 17 Apr 2026 22:37:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1776490667; x=1777095467; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=IohdsypP3r+7DTKppzdm/+A74a+kqBF/x1lFwg/446s=;
+        b=dKu7uAtKFFytQssDpzNJhgHxbwTUeDoBN34lwDqpd9U00+S+q9Tvl2PwcNqqmVk3dh
+         4U3wdLOpet8OBsFJSfW6aRFlSb7LzdpfTM3J/zPJ3n0xCx5cn60WbTS+U8F9orKNQe9a
+         t9z4CdsGNQgPTNrbugsIr7SIZ2qDad6yr1e4r7S6sN18ZkvfrkS//IMSb4m6AobLW+0o
+         2LaijCyGDQX0PailV36tcH10dnN4WPeAGMvMw541Co90nqE59R6KiMM5yEclLNzI4N3E
+         ft37dDX41Avmvql5XyqJi2wE5eq5a68oP63zKTi5OEt4t5PlAgUvb39vC2Yhi087ukm9
+         mCTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776490667; x=1777095467;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=IohdsypP3r+7DTKppzdm/+A74a+kqBF/x1lFwg/446s=;
+        b=TU+jHXrQKpYxVPemiO0PdaeQn9BqX+7bgd3vurXoZ2lAPQu+iEbrw6w4vR9guHFhNr
+         DB7g91fYYST9yqPl25fBvI1W84D6UswTh4atW9/eGtkKKYDtAo17inqlk9w2MdISC21t
+         e0NIZ2ArI70MLV4OSktsglKBLO++RebQN0dKyungM1TVduDLJHvQo7iUGUWgKlJflp4g
+         /NHya6y5b/S9dTi+oPiNlbEeaWH7wywbgh5UGCuWeFiIiR6M5+QD1ntnaNELFrKCsIz/
+         BE90iL+vdi6VqCftuytDYA2H86+wPrCKYT+iSizwPuCTOM6UcrNWXd/PxEfOdaBKAgHx
+         s/ow==
+X-Forwarded-Encrypted: i=1; AFNElJ+OQNBDKdKwN0IIByOVvryVR4Ai+DWAGR0gkfh086v8rOvVi+ARiKlpHLBZ5W360rm3g6D/xXw/Tvc=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyx+8Q8fn0Bvn5sJxsPiWWmec0hGWm3w4jYdZgUrLwXNBg0W3Sk
+	58QkhM04pVusHF0GYc8XXO9KIRpZHRDuhtl3WSQyaGB993Fmx+7oSEUa
+X-Gm-Gg: AeBDies0VsiWh18d81txVUyRxgn2jTkive7ixl3kBcAKk2uD584uyiXQYklBtRt1Y+F
+	xr4A3hoyV6GO+/E71++kgkAvl5eSjfnzCzh2Tf5kQZcQPqTPPkr9b429T3yRFee9u6Kbg3rY0Lg
+	4iHOlGJWFnXTt+rvk8zlPwssKLxwA+pDZCNuERDdHSL041A+ibEHmVPNL8ApI2gl4w2Qyy1kRwE
+	o3+JhJ975mBb+jS/8l0FmVhKhCyFTKuomb3Ps5lfWpYjc6kaI6jGGGN2lk5JT+OAFrV4sJ+EPAw
+	HjknOAJk4CTPlGeBR23op6sIb92CE7+7LHYw3N2VKsfT7oXO52C1+ZUGr41oNUgGxpLXp3ZylQT
+	rtNuVaRRWxcCE22sQAdc9JaZ1BUtWO4yt88F9yebK7oFr2XPkgC2y5+V1bLOD2mBS3Jqe1u3WG9
+	XsLHCeS8x/Pvi6C8YTzadX9tBkydtuj5mS+DxCL4CXz/77zp3pssj4N7jXX4icQTNNCp4iDTCLQ
+	g==
+X-Received: by 2002:a05:600c:3b85:b0:488:a39a:24c2 with SMTP id 5b1f17b1804b1-488fb73e120mr45995315e9.1.1776490666619;
+        Fri, 17 Apr 2026 22:37:46 -0700 (PDT)
+Received: from thinkpad-cachy (adsl-178-39-113-125.adslplus.ch. [178.39.113.125])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488fb74c7a2sm33871755e9.1.2026.04.17.22.37.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Apr 2026 22:37:46 -0700 (PDT)
+From: Niels Franke <nielsfranke@gmail.com>
+To: westeri@kernel.org
+Cc: wsa+renesas@sang-engineering.com,
+	linux-i2c@vger.kernel.org,
+	linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Niels Franke <nielsfranke@gmail.com>
+Subject: [PATCH] i2c: acpi: Add ELAN0678 to i2c_acpi_force_100khz_device_ids
+Date: Sat, 18 Apr 2026 07:37:19 +0200
+Message-ID: <20260418053719.15766-1-nielsfranke@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260417-add-mcu-fan-khadas-vim4-v3-8-a6a7f570b11b@aliel.fr>
-References: <20260417-add-mcu-fan-khadas-vim4-v3-0-a6a7f570b11b@aliel.fr>
-In-Reply-To: <20260417-add-mcu-fan-khadas-vim4-v3-0-a6a7f570b11b@aliel.fr>
-To: Neil Armstrong <neil.armstrong@linaro.org>, Lee Jones <lee@kernel.org>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
- Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, 
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>, 
- Beniamino Galvani <b.galvani@gmail.com>, 
- "Rafael J. Wysocki" <rafael@kernel.org>, 
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
- Lukasz Luba <lukasz.luba@arm.com>, Liam Girdwood <lgirdwood@gmail.com>, 
- Mark Brown <broonie@kernel.org>
-Cc: linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org, 
- Ronald Claveau <linux-kernel-dev@aliel.fr>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openssh-sha256; t=1776443818; l=969;
- i=linux-kernel-dev@aliel.fr; s=id_ed25519; h=from:subject:message-id;
- bh=tWFcpje6b/UPuUaynpp5o+HzSsytJcZL6uVNyAgG8qQ=;
- b=U1NIU0lHAAAAAQAAADMAAAALc3NoLWVkMjU1MTkAAAAgMGec55oxeeisqykQiUedekMYyOnR9
- BG9E/7rDWyqdNoAAAAGcGF0YXR0AAAAAAAAAAZzaGE1MTIAAABTAAAAC3NzaC1lZDI1NTE5AAAA
- QN/dYkD2B0h67pd/skbXv2YwanXlJWZMFNrSgKAnH7oN6KvpXQkf4z2/bVVV+yiQemeyiyg6rem
- mlbNijAs0cwo=
-X-Developer-Key: i=linux-kernel-dev@aliel.fr; a=openssh;
- fpr=SHA256:kch4osYZ6A1BrPps5AUs6KnfdE2wm4ocMtyTc8TmZMs
+Content-Transfer-Encoding: 8bit
 
-Enable and configure i2c MCU node to get fan working on Khadas VIM4.
+The ELAN0678 touchpad (04F3:3195) found in the Lenovo ThinkPad X13
+exhibits excessive smoothing when the I2C bus runs at 400KHz, making
+the touchpad feel sluggish when plugged into AC power. This is the
+same issue previously fixed for ELAN06FA.
 
-Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
+The device's ACPI table (Lenovo TP-R22) specifies 0x00061A80 (400KHz)
+for the I2cSerialBusV2 descriptor. Forcing the bus to 100KHz eliminates
+the sluggish behavior.
+
+Signed-off-by: Niels Franke <nielsfranke@gmail.com>
 ---
- .../boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts      | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/i2c/i2c-core-acpi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts b/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts
-index 69d6118ba57e7..5d7f5390f3a66 100644
---- a/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts
-+++ b/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts
-@@ -157,6 +157,19 @@ wifi32k: wifi32k {
- 	};
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 2cbd31f77..96d339df0 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -372,6 +372,7 @@ static const struct acpi_device_id i2c_acpi_force_100khz_device_ids[] = {
+ 	 */
+ 	{ "DLL0945", 0 },
+ 	{ "ELAN06FA", 0 },
++	{ "ELAN0678", 0 },
+ 	{}
  };
  
-+&i2c_m_ao_a {
-+	status = "okay";
-+	pinctrl-0 = <&i2c0_ao_d_pins>;
-+	pinctrl-names = "default";
-+
-+	khadas_mcu: system-controller@18 {
-+		compatible = "khadas,vim4-mcu";
-+		reg = <0x18>;
-+		fan-supply = <&vcc5v>;
-+		#cooling-cells = <2>;
-+	};
-+};
-+
- &pwm_ab {
- 	status = "okay";
- 	pinctrl-0 = <&pwm_a_pins>;
-
 -- 
-2.49.0
+2.53.0
 
