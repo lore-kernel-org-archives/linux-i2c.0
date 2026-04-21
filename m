@@ -1,113 +1,140 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx.nabladev.com (mx.nabladev.com [178.251.229.89])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C04CB3A8732;
-	Tue, 21 Apr 2026 11:50:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6153E3D7D8A;
+	Tue, 21 Apr 2026 14:08:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.251.229.89
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776772222; cv=none; b=uv2H7cLu5dUy1VDtN5mTMU6+XlpH02Bupi54n6H6E3+fwqcwglInQd8Zoe3GgNOjapTnfnPJwxm7ec8uPQITuYufJ01Vq9VLp4x+F2BpyY6gOYh2YXD2nD7hhdFMI50mnEuiYj1GN0cww8U03YCItXHSnod+oC9Nl0vxtTHD+QY=
+	t=1776780489; cv=none; b=QChikO2MgPJrfBx+LYJ+BvzOd7uzZSfpVz6kIQ9YzmEun8wp3Gie03wiJ2U1fFsHYBzk5YV+Cqm57UTBBaL2XTDkQLdDn5NJctkYABc+kmul8yNW6aY21sQ1Iywe5jUFRByFK8bdo/8Ul6zO5ql2VGC8M6IHw4zUuDBvQch39Xg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776772222; c=relaxed/simple;
-	bh=XddkVT31/XC/ioaRn+/smsT9FYSpgPK0znWOqQA+3iY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=pNJmJAwyM49u0zkn0UJW9I8nKJ7R+6G8oPEW/hAnZGma67VtxBFpgixHVkZsetddPNBT1INA5NvCfHTQN2OEPMtWQGGszIDxW38vEfoB/N6hf8dmaJesEstAqOiErs4qUhmfQkGhrIC31EzAX9yhQ0QxBNBGIPSTVQCN43JF+P0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YouC8vXn; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1776780489; c=relaxed/simple;
+	bh=U3S/azcYtoK8lqyCMrjeJ/KYEZqdHpjzdHxJ59k4dfM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=bTy2xQSItL8pwUlqY+fV2qaJkIXJcZu93yNvuvukwZxrz7Hps4o4A0PaaReCXg07oDczsnxdWS5qU0r02QBPYAytK+8zAycjIE6ddSz0nbCaddzb0msQShXGpP3VFfOiGKCAPPz50Dr+j99/xznFVD093BrGyEM6FFdkxcNgTws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com; spf=pass smtp.mailfrom=nabladev.com; dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b=SKXpzINo; arc=none smtp.client-ip=178.251.229.89
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabladev.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YouC8vXn"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 871F4C2BCC4;
-	Tue, 21 Apr 2026 11:50:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776772222;
-	bh=XddkVT31/XC/ioaRn+/smsT9FYSpgPK0znWOqQA+3iY=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=YouC8vXnbDTY+xLHUTOMD8zwUrLiitR7oeYhpXmrbm1HF2qQoy4s9TjbjF3e1RraS
-	 sItfNGX4O3QGO4/BG6kVUXF5T/nlNIZvNqlswKkcu/7FH52rA2ehgXuRdDHYbCNDBf
-	 VyGGZDVYeAynZvIQvadaAb9Yy0DAP8GgTHijZx1lN3+E2sOPxLTTL/7dIZkpnsD7bP
-	 QZC1qyn/DVdAMXed4KUyZXChauY0J6Ywpb3HwxQwztcFxmXZiQimwtc2jQiilpQFZr
-	 dgpr4hfWlQ0/2AySIxfCsePMral4ZXGsX74YF+WsbybUf0fetq2kmXXrs93eUEJ5Pd
-	 /Yn+9O7Fc+W9w==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E5B2F8FA66;
-	Tue, 21 Apr 2026 11:50:22 +0000 (UTC)
-From: Ronald Claveau via B4 Relay <devnull+linux-kernel-dev.aliel.fr@kernel.org>
-Date: Tue, 21 Apr 2026 13:49:25 +0200
-Subject: [PATCH v4 8/8] arm64: dts: amlogic: t7: khadas-vim4: Add i2c MCU
- fan node
+	dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b="SKXpzINo"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 855D61147FA;
+	Tue, 21 Apr 2026 16:07:57 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nabladev.com;
+	s=dkim; t=1776780478; h=from:subject:date:message-id:to:cc:mime-version:
+	 content-transfer-encoding; bh=ONHip1GbFzvZ4cejM52KSuI+49tZZL0UydKXrafRDOQ=;
+	b=SKXpzINoETov8u3ksehh8NnLGkKRkat+0/W/iCk6kpxpKqDThTVnyISyVYkZOvY3SBS8Pv
+	3tyV/6VCbGZ2GKw5DC4TW1wPLX5N3OPVgIoWAhESfDaeC1fAunBSAK3Nde8vufCTbu7xLI
+	/r8dF46xPERu2Cu6s/jU0JFCNYCUdMLXZHq0y5nq9th70APWZY52ZdEYUmhz/jq9aM3WBh
+	+bKHpqXhCCsjI5wHuUq8MVlvxbFgup1CDI47hhBWr4T2Vvh8gmNLjbi/pc99vzX1hO7Gqh
+	KIvYzBhDRA7CukSE1+hylC1wCtrTvYaPeolxWjh2v9wn0EHl9s7S2phgzmSOJg==
+From: Marek Vasut <marex@nabladev.com>
+To: linux-i2c@vger.kernel.org
+Cc: Marek Vasut <marex@nabladev.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Srinivas Kandagatla <srini@kernel.org>,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] nvmem: core: eeprom: at24: Handle EEPROM with both read-only and wp-gpios
+Date: Tue, 21 Apr 2026 16:06:49 +0200
+Message-ID: <20260421140755.54222-1-marex@nabladev.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260421-add-mcu-fan-khadas-vim4-v4-8-447114a28f2d@aliel.fr>
-References: <20260421-add-mcu-fan-khadas-vim4-v4-0-447114a28f2d@aliel.fr>
-In-Reply-To: <20260421-add-mcu-fan-khadas-vim4-v4-0-447114a28f2d@aliel.fr>
-To: Neil Armstrong <neil.armstrong@linaro.org>, Lee Jones <lee@kernel.org>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
- Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, 
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>, 
- Beniamino Galvani <b.galvani@gmail.com>, 
- "Rafael J. Wysocki" <rafael@kernel.org>, 
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
- Lukasz Luba <lukasz.luba@arm.com>, Liam Girdwood <lgirdwood@gmail.com>, 
- Mark Brown <broonie@kernel.org>
-Cc: linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org, 
- Ronald Claveau <linux-kernel-dev@aliel.fr>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=969;
- i=linux-kernel-dev@aliel.fr; h=from:subject:message-id;
- bh=tWFcpje6b/UPuUaynpp5o+HzSsytJcZL6uVNyAgG8qQ=;
- b=owGbwMvMwCWm1SvKXP3cUInxtFoSQ+bzlGrOqQsFRScd93G08Hmn2V+TM9X8gF2q1/WNHh/U/
- zhYWO/sKGVhEONikBVTZOmfa3ni3eWjZ77uUU+BmcPKBDKEgYtTACbiO43hr0jjMc8dC2ud/ldu
- OMr4Oa160uf0hDs74paIntq3WMKq6yEjwyQNsfC1PP23Fr0RNhNfqLwz57blNbsfzfl9MY/Xycq
- tZgcA
-X-Developer-Key: i=linux-kernel-dev@aliel.fr; a=openpgp;
- fpr=DFD863F61375BF917F0012173953305EF1D0EC3E
-X-Endpoint-Received: by B4 Relay for linux-kernel-dev@aliel.fr/default with
- auth_id=744
-X-Original-From: Ronald Claveau <linux-kernel-dev@aliel.fr>
-Reply-To: linux-kernel-dev@aliel.fr
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-From: Ronald Claveau <linux-kernel-dev@aliel.fr>
+Handle special-case of AT24 EEPROM described in DT, which contains both
+"read-only" and "wp-gpios" properties. Interpret this configuration as
+default read-only, but with the possibility of unlock via force_ro sysfs
+attribute.
 
-Enable and configure i2c MCU node to get fan working on Khadas VIM4.
+For this to work, the nvmem core must keep the "nvmem" sysfs bin attr as
+read-write, any writes into the bin attr which occur while the device is
+read-only are blocked in bin_attr_nvmem_write(). The AT24 EEPROM driver
+must not mark the EEPROM as read-only if both "read-only" and "wp-gpios"
+DT properties are present.
 
-Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
+The updated behavior can be tested as follows:
+
+Current content:
+"
+$ hexdump -C /sys/bus/nvmem/devices/logging7/nvmem
+00000000  66 6f 6f 0a ff ff ff ff
+"
+
+Write into default-read-only device:
+"
+$ echo bar > /sys/bus/nvmem/devices/logging7/nvmem
+bash: echo: write error: Operation not permitted
+$ cat /sys/bus/nvmem/devices/logging7/force_ro
+1
+"
+
+Unlock and write into device:
+"
+$ echo 0 > /sys/bus/nvmem/devices/logging7/force_ro
+$ cat /sys/bus/nvmem/devices/logging7/force_ro
+0
+
+$ echo bar > /sys/bus/nvmem/devices/logging7/nvmem
+$ hexdump -C /sys/bus/nvmem/devices/logging7/nvmem
+00000000  62 61 72 0a ff ff ff ff
+"
+
+Relock and write into device, fails because device is read-only again:
+"
+$ echo 1 > /sys/bus/nvmem/devices/logging7/force_ro
+$ echo baz > /sys/bus/nvmem/devices/logging7/nvmem
+bash: echo: write error: Operation not permitted
+
+$ hexdump -C /sys/bus/nvmem/devices/logging7/nvmem
+00000000  62 61 72 0a ff ff ff ff
+"
+
+Signed-off-by: Marek Vasut <marex@nabladev.com>
 ---
- .../boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts      | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Bartosz Golaszewski <brgl@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Srinivas Kandagatla <srini@kernel.org>
+Cc: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
+ drivers/misc/eeprom/at24.c | 3 ++-
+ drivers/nvmem/core.c       | 3 +++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts b/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts
-index 69d6118ba57e7..5d7f5390f3a66 100644
---- a/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts
-+++ b/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts
-@@ -157,6 +157,19 @@ wifi32k: wifi32k {
- 	};
- };
+diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
+index 0200288d3a7ab..9ef00b0ce83d2 100644
+--- a/drivers/misc/eeprom/at24.c
++++ b/drivers/misc/eeprom/at24.c
+@@ -627,7 +627,8 @@ static int at24_probe(struct i2c_client *client)
+ 		page_size = 1;
  
-+&i2c_m_ao_a {
-+	status = "okay";
-+	pinctrl-0 = <&i2c0_ao_d_pins>;
-+	pinctrl-names = "default";
+ 	flags = cdata->flags;
+-	if (device_property_present(dev, "read-only"))
++	if (device_property_present(dev, "read-only") &&
++	    !device_property_present(dev, "wp-gpios"))
+ 		flags |= AT24_FLAG_READONLY;
+ 	if (device_property_present(dev, "no-read-rollover"))
+ 		flags |= AT24_FLAG_NO_RDROL;
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index 311cb2e5a5c02..c0eedfe8d706c 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -282,6 +282,9 @@ static umode_t nvmem_bin_attr_get_umode(struct nvmem_device *nvmem)
+ 	if (!nvmem->root_only)
+ 		mode |= 0044;
+ 
++	if (nvmem->read_only && nvmem->reg_write)
++		mode |= 0200;
 +
-+	khadas_mcu: system-controller@18 {
-+		compatible = "khadas,vim4-mcu";
-+		reg = <0x18>;
-+		fan-supply = <&vcc5v>;
-+		#cooling-cells = <2>;
-+	};
-+};
-+
- &pwm_ab {
- 	status = "okay";
- 	pinctrl-0 = <&pwm_a_pins>;
-
+ 	if (!nvmem->read_only)
+ 		mode |= 0200;
+ 
 -- 
-2.49.0
-
+2.53.0
 
