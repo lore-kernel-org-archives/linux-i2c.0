@@ -1,140 +1,69 @@
-Received: from mx.nabladev.com (mx.nabladev.com [178.251.229.89])
+Received: from out-188.mta0.migadu.com (out-188.mta0.migadu.com [91.218.175.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6153E3D7D8A;
-	Tue, 21 Apr 2026 14:08:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.251.229.89
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 573DA1AF0BB
+	for <linux-i2c@vger.kernel.org>; Tue, 21 Apr 2026 16:16:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.188
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776780489; cv=none; b=QChikO2MgPJrfBx+LYJ+BvzOd7uzZSfpVz6kIQ9YzmEun8wp3Gie03wiJ2U1fFsHYBzk5YV+Cqm57UTBBaL2XTDkQLdDn5NJctkYABc+kmul8yNW6aY21sQ1Iywe5jUFRByFK8bdo/8Ul6zO5ql2VGC8M6IHw4zUuDBvQch39Xg=
+	t=1776788203; cv=none; b=NlaWV5f76kZmYgQv8OzS7vZdBqsvfdlkum6+92CP8rrcoeV3hVnf5rCrzCZJG/6zw6PnrHpU3QLFRrjV8NImt3HDZerMbh3w9Cvbj1oXAv/5ovBhnsRt8VXYb/PCCD6ixB3kQ4Thh3IWHui/lYgcSJsMFvybtU4NC/4Fa/vMd+c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776780489; c=relaxed/simple;
-	bh=U3S/azcYtoK8lqyCMrjeJ/KYEZqdHpjzdHxJ59k4dfM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=bTy2xQSItL8pwUlqY+fV2qaJkIXJcZu93yNvuvukwZxrz7Hps4o4A0PaaReCXg07oDczsnxdWS5qU0r02QBPYAytK+8zAycjIE6ddSz0nbCaddzb0msQShXGpP3VFfOiGKCAPPz50Dr+j99/xznFVD093BrGyEM6FFdkxcNgTws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com; spf=pass smtp.mailfrom=nabladev.com; dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b=SKXpzINo; arc=none smtp.client-ip=178.251.229.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabladev.com
+	s=arc-20240116; t=1776788203; c=relaxed/simple;
+	bh=/fQxde6GwWzc9iNzwFqwm+1/SSmHBFT0PkWwBa4Erlk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Pg64eLNOkBZcmg5xQcPcDP8+tHU4xmZdWT3ArtA9R+17zDz9N13+eyERWCgWedaaJk7EgGICb/sUX1ivWtB8ouuZNRAYF527bRRoXVMknt1KmDzpIG+IDI0rmtFWS0NFLNIUG/r9dnsG+xrYD9xHzXAoo2tMQe5lXZsND2ZKE50=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Lr8rHzVF; arc=none smtp.client-ip=91.218.175.188
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b="SKXpzINo"
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 855D61147FA;
-	Tue, 21 Apr 2026 16:07:57 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nabladev.com;
-	s=dkim; t=1776780478; h=from:subject:date:message-id:to:cc:mime-version:
-	 content-transfer-encoding; bh=ONHip1GbFzvZ4cejM52KSuI+49tZZL0UydKXrafRDOQ=;
-	b=SKXpzINoETov8u3ksehh8NnLGkKRkat+0/W/iCk6kpxpKqDThTVnyISyVYkZOvY3SBS8Pv
-	3tyV/6VCbGZ2GKw5DC4TW1wPLX5N3OPVgIoWAhESfDaeC1fAunBSAK3Nde8vufCTbu7xLI
-	/r8dF46xPERu2Cu6s/jU0JFCNYCUdMLXZHq0y5nq9th70APWZY52ZdEYUmhz/jq9aM3WBh
-	+bKHpqXhCCsjI5wHuUq8MVlvxbFgup1CDI47hhBWr4T2Vvh8gmNLjbi/pc99vzX1hO7Gqh
-	KIvYzBhDRA7CukSE1+hylC1wCtrTvYaPeolxWjh2v9wn0EHl9s7S2phgzmSOJg==
-From: Marek Vasut <marex@nabladev.com>
-To: linux-i2c@vger.kernel.org
-Cc: Marek Vasut <marex@nabladev.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Bartosz Golaszewski <brgl@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Srinivas Kandagatla <srini@kernel.org>,
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Lr8rHzVF"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1776788199;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=KTRrIi7tM0u21ks32XbxVIleTJ84Vy5LeGCOm55VgAY=;
+	b=Lr8rHzVFgjxHV2qgECS5wucppIKiKt3k3qHNochn/I6pcnu+YuUDPWiVirWHR+tVR+4R1p
+	g8TTf+zaa5SEJItyEb8kAMY6mimwBnM3c1/X7ZxVaG/nT7po2lrPWiabFa2EA/7N7cUUet
+	VvKh60hZ0A9W2/zd+fno6eJEjztSkVY=
+From: Thorsten Blum <thorsten.blum@linux.dev>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Thorsten Blum <thorsten.blum@linux.dev>,
+	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH] nvmem: core: eeprom: at24: Handle EEPROM with both read-only and wp-gpios
-Date: Tue, 21 Apr 2026 16:06:49 +0200
-Message-ID: <20260421140755.54222-1-marex@nabladev.com>
-X-Mailer: git-send-email 2.53.0
+Subject: [PATCH RESEND] i2c: change return type to bool for i2c_check_functionality
+Date: Tue, 21 Apr 2026 18:16:09 +0200
+Message-ID: <20260421161607.61314-3-thorsten.blum@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-Developer-Signature: v=1; a=openpgp-sha256; l=921; i=thorsten.blum@linux.dev; h=from:subject; bh=/fQxde6GwWzc9iNzwFqwm+1/SSmHBFT0PkWwBa4Erlk=; b=owGbwMvMwCUWt7pQ4caZUj3G02pJDJnPFx3/aaTqHBal99pi7q6VO6+zXpnGv/L5gndO9/9P3 3Z8y8SGRR2lLAxiXAyyYoosD2b9mOFbWlO5ySRiJ8wcViaQIQxcnAIwEbP3DH+l7sREca9feu/C FjfzySH7V+yIKyngDEwqY73RFXh/Le8Mhn9qLNlaDrrfM8+x7q58qqaTqpfi+bVWoXf9zkZJz+a NjjwA
+X-Developer-Key: i=thorsten.blum@linux.dev; a=openpgp; fpr=1D60735E8AEF3BE473B69D84733678FD8DFEEAD4
 Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+X-Migadu-Flow: FLOW_OUT
 
-Handle special-case of AT24 EEPROM described in DT, which contains both
-"read-only" and "wp-gpios" properties. Interpret this configuration as
-default read-only, but with the possibility of unlock via force_ro sysfs
-attribute.
+i2c_check_functionality() returns a bool - change the return type from
+int to bool and update the comment accordingly.
 
-For this to work, the nvmem core must keep the "nvmem" sysfs bin attr as
-read-write, any writes into the bin attr which occur while the device is
-read-only are blocked in bin_attr_nvmem_write(). The AT24 EEPROM driver
-must not mark the EEPROM as read-only if both "read-only" and "wp-gpios"
-DT properties are present.
-
-The updated behavior can be tested as follows:
-
-Current content:
-"
-$ hexdump -C /sys/bus/nvmem/devices/logging7/nvmem
-00000000  66 6f 6f 0a ff ff ff ff
-"
-
-Write into default-read-only device:
-"
-$ echo bar > /sys/bus/nvmem/devices/logging7/nvmem
-bash: echo: write error: Operation not permitted
-$ cat /sys/bus/nvmem/devices/logging7/force_ro
-1
-"
-
-Unlock and write into device:
-"
-$ echo 0 > /sys/bus/nvmem/devices/logging7/force_ro
-$ cat /sys/bus/nvmem/devices/logging7/force_ro
-0
-
-$ echo bar > /sys/bus/nvmem/devices/logging7/nvmem
-$ hexdump -C /sys/bus/nvmem/devices/logging7/nvmem
-00000000  62 61 72 0a ff ff ff ff
-"
-
-Relock and write into device, fails because device is read-only again:
-"
-$ echo 1 > /sys/bus/nvmem/devices/logging7/force_ro
-$ echo baz > /sys/bus/nvmem/devices/logging7/nvmem
-bash: echo: write error: Operation not permitted
-
-$ hexdump -C /sys/bus/nvmem/devices/logging7/nvmem
-00000000  62 61 72 0a ff ff ff ff
-"
-
-Signed-off-by: Marek Vasut <marex@nabladev.com>
+Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
 ---
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Bartosz Golaszewski <brgl@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Srinivas Kandagatla <srini@kernel.org>
-Cc: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
- drivers/misc/eeprom/at24.c | 3 ++-
- drivers/nvmem/core.c       | 3 +++
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ include/linux/i2c.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 0200288d3a7ab..9ef00b0ce83d2 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -627,7 +627,8 @@ static int at24_probe(struct i2c_client *client)
- 		page_size = 1;
+diff --git a/include/linux/i2c.h b/include/linux/i2c.h
+index 20fd41b51d5c..6737bcbc5d7a 100644
+--- a/include/linux/i2c.h
++++ b/include/linux/i2c.h
+@@ -919,8 +919,8 @@ static inline u32 i2c_get_functionality(struct i2c_adapter *adap)
+ 	return adap->algo->functionality(adap);
+ }
  
- 	flags = cdata->flags;
--	if (device_property_present(dev, "read-only"))
-+	if (device_property_present(dev, "read-only") &&
-+	    !device_property_present(dev, "wp-gpios"))
- 		flags |= AT24_FLAG_READONLY;
- 	if (device_property_present(dev, "no-read-rollover"))
- 		flags |= AT24_FLAG_NO_RDROL;
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 311cb2e5a5c02..c0eedfe8d706c 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -282,6 +282,9 @@ static umode_t nvmem_bin_attr_get_umode(struct nvmem_device *nvmem)
- 	if (!nvmem->root_only)
- 		mode |= 0044;
- 
-+	if (nvmem->read_only && nvmem->reg_write)
-+		mode |= 0200;
-+
- 	if (!nvmem->read_only)
- 		mode |= 0200;
- 
--- 
-2.53.0
-
+-/* Return 1 if adapter supports everything we need, 0 if not. */
+-static inline int i2c_check_functionality(struct i2c_adapter *adap, u32 func)
++/* Return true if adapter supports everything we need, false if not. */
++static inline bool i2c_check_functionality(struct i2c_adapter *adap, u32 func)
+ {
+ 	return (func & i2c_get_functionality(adap)) == func;
+ }
