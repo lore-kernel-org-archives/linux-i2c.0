@@ -1,162 +1,163 @@
-Received: from mail-ej1-f46.google.com (mail-ej1-f46.google.com [209.85.218.46])
+Received: from mail-ot1-f77.google.com (mail-ot1-f77.google.com [209.85.210.77])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C143F26299
-	for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 19:41:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FE722D73B9
+	for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 20:31:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.77
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776886914; cv=none; b=PF9Us/EvIvqUKEP3MQNivA4e3aHM16W75B4NRE/CZRuhJM/pQE+CizKROfOm9x4Bq4kM/7KECdX5Mh8tWPJAh036rISO1vv89AdJReVIujRZgvLrl0SaMW0gca3ZLpToH84vRypAV+AIsZOQgraCzMhUhUhMQDvNMFmvr72sQvE=
+	t=1776889895; cv=none; b=rtuMuGGr3YMePVrMm42RvSBrEeQYfW72WAMlm4X2srKYZd3MMkjvFdONHN903g0CNljUk69/DpJuLhN8nMeEusxxCZdF+DEk6S/V/XNyBpCKCpOGxxmc4fnQHHOPDd2xjXUI9w9Eyj/1C0GWsuxqiHT0BHDU9q2GtJ3JP4Jb0aI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776886914; c=relaxed/simple;
-	bh=1jDHS3//SVF2/A/vC8oT6/lwq+kdzpM3dPjKRF+cWNI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=dLZpWhmKSQLQbkxnsGOcwtkRhNICnCY5lwcdbKUZyte0LLhCzbS1nOw7oudGGf+3H8W4tD8iLsnYocwnAH88WIAdkaiqbwAUXrvGBnv+V3WSNOsQ4QE0ZpFwnVPkiBaiwGn/Uy+FgSR7L9q0mGiR+snFGEwSSbfL4MAU0htEcEs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=U3aT7Vb9; arc=none smtp.client-ip=209.85.218.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="U3aT7Vb9"
-Received: by mail-ej1-f46.google.com with SMTP id a640c23a62f3a-b936331786dso762367066b.3
-        for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 12:41:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1776886911; x=1777491711; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=A8JHz3Efp15Ndyc9pOP3Ax7qZyPD4IXnQM3cK5pq58E=;
-        b=U3aT7Vb98Lz8VE8YP8B4RfEmiuRakVNOfRB7NHV9X5AiP7l4zS/sibLutYsw7zc8iB
-         wOrBNBE33ZDlSna+xieWJQJqkgafD0jnmxRUz+gO2EKRwm8MgJSPBa6/MHFIZU3y5CcR
-         9pfCAvLcZGN6WKHzwySHOOkH1zPaOY4Ui7kaA=
+	s=arc-20240116; t=1776889895; c=relaxed/simple;
+	bh=TMkocFJLWJm4Sroh7iQUBFb49UB/GkdQivU9pH4FNj0=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=h4R1o/OcgzGVfLM7/+uL2vCHPaCI3cHLloh7h4ruvB8dLOLQhCxdLAf7HIjcv0wJ+hpUyuEppCWeuh/HeH8UF6qTPTAEY6llXCe4GS9ztXfegB4tTw4SxPbCTw+pa4/HHyZsNdWA2mSCaZ2JYeVoqSFPHaeyADhUUcCGNhyGHFQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.210.77
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-ot1-f77.google.com with SMTP id 46e09a7af769-7dcc59fe0d8so4320908a34.2
+        for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 13:31:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776886911; x=1777491711;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=A8JHz3Efp15Ndyc9pOP3Ax7qZyPD4IXnQM3cK5pq58E=;
-        b=R614HdFm9nmla911DHnOxGpX9oFL4zO/dyGn3ZysBjtnRuZBrDJmOXoGDjlCBUY0jX
-         wMSv3KLfFL4EUM1mvcNmF4AiSJku7O3jNEPDaGt3n7G3iykhYsB3Oj1nlV/j9ymSpBTb
-         BBPJhwTYqipwLLhGD2htMLxM99uSAix+iEje3zVC1WDAmd2S6PKgvluLbwm136AIW0YH
-         +inFqTf1oZ9OD2p2flGKXmBKe3juZ8yCMyFRFYD1n9Uf+PugsXL1Xln7CIZZQpkj9lBd
-         qZjtadbaQgpqoVwvKKjN52PglSzkkHCwgJpf2YNFL1OARjp3G6xIZX+H2lRxrPwuGJPV
-         GswQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9yTJsbbFay41DGZszCEYTKdsJA7MrDN3KIXw5ceu8COhH2FTgdH8YsRnK/Q5pp4FSaFUjOmIo9qnI=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yye8J085JnWl0hhzH70QqfPOAaADR6Jepwtvc4ezoS3wzYK8C91
-	QIA0bZVOT16cHRE2A1AwwYHZeHvGIdD/9em5POHR/QqMvdrAZr4/u7CVHGGF1b9jZNxrM6w+eJ3
-	Bof8ndi5D
-X-Gm-Gg: AeBDietsJC7LFXl0UM2zIpqw5erJ5TG8+gJo32gn5oT50eLvo76Q+6YrUbThq4G512h
-	iq6qvPBk4FvdhXBqW4gxoyuUY3AJKCPB0ry6VPB3CTQd2tQ8Qu88SM1EQQY/HDwaoyIszrALtLd
-	63OHwoIWrqH4lfPL6LoAc2QMxfUBXsuOJPHRku9NFSbkGaKqYLwVDRkYuNB4hTukMJnxibcvPyX
-	9rLecBB833+/ZKWYukIPpL20J5RhMvWIZ1/Pd6HDAe2suQoLeS3IIS0tD5Y1dpJV9Jw5In5uRI+
-	Ygl4L2cfb//W+XTf3Ol9GW/gmqX64pbDhEf1d8yZsLa6UcuYd2/Y+V9GCtJAMGLz/RaP/u4ymB4
-	pKz4vza79JjcdRn7z8J7DZyC4SASv0xs0x/4GIxgyo8yHJfPNfxmPJKChCSOffyZYeVl1cJRpkP
-	Fmh6+J/Coy+EKon283tAbOjl8fkrFxQpyk2A9cIXLiVaRW2Q8Nxz4K6BWa3OMTkWBzeB6OiJmt
-X-Received: by 2002:a17:907:8dc3:b0:ba6:e69d:f50e with SMTP id a640c23a62f3a-ba6e69e2371mr813365866b.22.1776886910697;
-        Wed, 22 Apr 2026 12:41:50 -0700 (PDT)
-Received: from mail-ej1-f52.google.com (mail-ej1-f52.google.com. [209.85.218.52])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ba538429115sm532339966b.15.2026.04.22.12.41.50
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 22 Apr 2026 12:41:50 -0700 (PDT)
-Received: by mail-ej1-f52.google.com with SMTP id a640c23a62f3a-ba61a0a2d26so666366166b.2
-        for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 12:41:50 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ8f1hI4RQdl8CMbW5m7TFLGOCI1WpGuagbny5wHEjeQlA4wtWs1EIGF1TRiYrNvUahsO+trcOdC4pA=@vger.kernel.org
-X-Received: by 2002:a05:600c:4714:b0:48a:5574:3a5b with SMTP id
- 5b1f17b1804b1-48a55743d05mr122645615e9.27.1776886533988; Wed, 22 Apr 2026
- 12:35:33 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1776889892; x=1777494692;
+        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=aEVE3nzbOZ9dSmZW3nzsp2ytFpj2hTepm3SE40jPxNY=;
+        b=Gu43NeJ+o3qZ1WS0AFziXzc13YtajWWWRgYDuoIpGS5RjnrGnLsXr3uW60kpb9FOaW
+         H9aYOrsxpVvfYfJ/8KkNUL9fmi97V+s6RaJQ10xAkLw6ThsU8dnCaatlBVFf4R6sXY5e
+         +Bo+X6CMiwTVeZ6uYchTpP+rHXwMHR/HIlQXRCRO2Bwrj5PZS/JX+lSHLAGIFBiCFY70
+         0NNDv/vclokWXzj3slcJwtPNUleVOQHdKcv0eMZe0q/Q8m3XZZYdM2C0VmzOHAaPSVgE
+         76DInOBIU85Alq22Ogzyhm7sz9hXDt+IEQIAbKrZRzoyDmmGXUS9i44z9cLrerGnb37R
+         2+Hw==
+X-Gm-Message-State: AOJu0YxeWfsMt3DjdFwTOsQkTlFDdNbNvKOS9QEWd9MNN48rxsIIYhhF
+	pgS5pnJTtdflHSRFqs53NXh/8U+dYumKB2N9K1zN1jIvzMIiafZv65IE6n8acgbAPcprJ8IEm6I
+	zYhlQV9NUIWr2uG3BNh6RusoaoKqvZ1txlwQygWXe/DLyZPJWZCEMQ+IyK2A6cw==
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260325143555.451852-1-herve.codina@bootlin.com>
- <20260325143555.451852-3-herve.codina@bootlin.com> <CAMuHMdU7x7LWFkD9xiq+wyOqnn0bdzr+JLfvbBexoiWyv8kftA@mail.gmail.com>
- <CAD=FV=UK3NQKQN7FXyG4nGdDKO=LQYhnL4ZweomQ_4R9-EAYag@mail.gmail.com> <aekg_IELc65BFrWp@ashevche-desk.local>
-In-Reply-To: <aekg_IELc65BFrWp@ashevche-desk.local>
-From: Doug Anderson <dianders@chromium.org>
-Date: Wed, 22 Apr 2026 12:35:22 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=XTvvq11y7kxmrfBe3dZsKro7N9=i-Hj9aqsLBay2Q9Rw@mail.gmail.com>
-X-Gm-Features: AQROBzBA2DSdR2HBaIYSKp4MrG-iWYSiPDxUw6OYCOPyJYNxN20LzPXgyZNheJI
-Message-ID: <CAD=FV=XTvvq11y7kxmrfBe3dZsKro7N9=i-Hj9aqsLBay2Q9Rw@mail.gmail.com>
-Subject: Re: [PATCH v6 02/27] of: dynamic: Fix overlayed devices not probing
- because of fw_devlink
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Herve Codina <herve.codina@bootlin.com>, 
-	Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Kalle Niemi <kaleposti@gmail.com>, Matti Vaittinen <mazziesaccount@gmail.com>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Danilo Krummrich <dakr@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
-	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
-	Fabio Estevam <festevam@gmail.com>, Michael Turquette <mturquette@baylibre.com>, 
-	Stephen Boyd <sboyd@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, Peter Rosin <peda@axentia.se>, 
-	Arnd Bergmann <arnd@arndb.de>, Saravana Kannan <saravanak@kernel.org>, 
-	Bjorn Helgaas <bhelgaas@google.com>, Charles Keepax <ckeepax@opensource.cirrus.com>, 
-	Richard Fitzgerald <rf@opensource.cirrus.com>, David Rhodes <david.rhodes@cirrus.com>, 
-	Linus Walleij <linusw@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, 
-	Mark Brown <broonie@kernel.org>, Len Brown <lenb@kernel.org>, 
-	Daniel Scally <djrscally@gmail.com>, Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
-	Davidlohr Bueso <dave@stgolabs.net>, Jonathan Cameron <jonathan.cameron@huawei.com>, 
-	Dave Jiang <dave.jiang@intel.com>, Alison Schofield <alison.schofield@intel.com>, 
-	Vishal Verma <vishal.l.verma@intel.com>, Ira Weiny <ira.weiny@intel.com>, 
-	Shawn Guo <shawnguo@kernel.org>, Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org, 
-	driver-core@lists.linux.dev, imx@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
-	patches@opensource.cirrus.com, linux-gpio@vger.kernel.org, 
-	linux-pm@vger.kernel.org, linux-spi@vger.kernel.org, 
-	linux-acpi@vger.kernel.org, linux-cxl@vger.kernel.org, 
-	Allan Nielsen <allan.nielsen@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>, 
-	Steen Hegelund <steen.hegelund@microchip.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+X-Received: by 2002:a05:6820:f010:b0:696:1882:dd04 with SMTP id
+ 006d021491bc7-6961882ddc3mr168743eaf.52.1776889892544; Wed, 22 Apr 2026
+ 13:31:32 -0700 (PDT)
+Date: Wed, 22 Apr 2026 13:31:32 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <69e93024.a00a0220.17a17.0031.GAE@google.com>
+Subject: [syzbot] [i2c?] WARNING: refcount bug in i2c_get_adapter (2)
+From: syzbot <syzbot+c0291c8c9aaa473c7721@syzkaller.appspotmail.com>
+To: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	syzkaller-bugs@googlegroups.com, wsa+renesas@sang-engineering.com
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Hi,
+Hello,
 
-On Wed, Apr 22, 2026 at 12:27=E2=80=AFPM Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
->
-> On Wed, Apr 22, 2026 at 11:51:36AM -0700, Doug Anderson wrote:
-> > On Wed, Apr 22, 2026 at 10:44=E2=80=AFAM Geert Uytterhoeven
-> > <geert@linux-m68k.org> wrote:
-> > > On Wed, 25 Mar 2026 at 15:36, Herve Codina <herve.codina@bootlin.com>=
- wrote:
->
-> ...
->
-> > > > +               if (fwnode->flags & FWNODE_FLAG_NOT_DEVICE)
-> > >
-> > > After commit f72e77c33e4b5657 ("device property: Make modifications
-> > > of fwnode "flags" thread safe"), this must be changed to:
-> > >
-> > >     if (fwnode_test_flag(fwnode, FWNODE_FLAG_NOT_DEVICE))
-> > >
-> > > With this change my DT overlays are working again.
-> > >
-> > > I guess keeping the FWNODE_FLAG_* names, but changing their values
-> > > from bit masks to bit numbers was probably not such a good idea,
-> > > as it fails to catch missing conversions...
-> >
-> > Crud, I should have thought about that. :( Do you think it's worth it
-> > to do a rename at this point to catch future problems?
->
-> You can try locally with allyesconfig / allmodconfig and see the outcome.
-> If there are missed cases, and their amount reasonably low, I won't bothe=
-r
-> in this case.
+syzbot found the following issue on:
 
-I believe I caught all of them at the time of my CL, but the problem
-is in-flight stuff, right? I think the problem Geert is pointing out
-isn't something I missed in my original patch but rather an
-interaction between my patch and this in-flight patch.
+HEAD commit:    e753c16cb3dd Merge tag 'spi-fix-v7.0-rc7' of git://git.ker..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=127f9106580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=45cb3c58fd963c27
+dashboard link: https://syzkaller.appspot.com/bug?extid=c0291c8c9aaa473c7721
+compiler:       Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
 
-> But for the future it's kinda rule of thumb to rename when
-> semantics changed.
+Unfortunately, I don't have any reproducer for this issue yet.
 
-Noted. I've certainly done that before, but I didn't think about it in
-this case.
+Downloadable assets:
+disk image: https://storage.googleapis.com/syzbot-assets/5ae80002fa8a/disk-e753c16c.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/6ef912fb95e2/vmlinux-e753c16c.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/b5b121be2ebf/bzImage-e753c16c.xz
 
--Doug
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+c0291c8c9aaa473c7721@syzkaller.appspotmail.com
+
+------------[ cut here ]------------
+refcount_t: addition on 0; use-after-free.
+WARNING: lib/refcount.c:25 at refcount_warn_saturate+0x9f/0x110 lib/refcount.c:25, CPU#0: syz.1.506/7352
+Modules linked in:
+CPU: 0 UID: 0 PID: 7352 Comm: syz.1.506 Tainted: G             L      syzkaller #0 PREEMPT_{RT,(full)} 
+Tainted: [L]=SOFTLOCKUP
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 03/18/2026
+RIP: 0010:refcount_warn_saturate+0x9f/0x110 lib/refcount.c:25
+Code: eb 66 85 db 74 3e 83 fb 01 75 4c e8 bb d6 25 fd 48 8d 3d 84 01 d6 0a 67 48 0f b9 3a eb 4a e8 a8 d6 25 fd 48 8d 3d 81 01 d6 0a <67> 48 0f b9 3a eb 37 e8 95 d6 25 fd 48 8d 3d 7e 01 d6 0a 67 48 0f
+RSP: 0018:ffffc9001ca9f6d8 EFLAGS: 00010283
+RAX: ffffffff849eaa68 RBX: 0000000000000002 RCX: 0000000000080000
+RDX: ffffc90006421000 RSI: 00000000000006c7 RDI: ffffffff8f74abf0
+RBP: 0000000000000000 R08: ffff888020331e80 R09: 0000000000000005
+R10: 0000000000000100 R11: 0000000000000004 R12: ffffffff8c04a688
+R13: dffffc0000000000 R14: ffff88803b531188 R15: dffffc0000000000
+FS:  00007f9769ca66c0(0000) GS:ffff888126332000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f6df4ab1d80 CR3: 00000000348d0000 CR4: 00000000003526f0
+Call Trace:
+ <TASK>
+ __refcount_add include/linux/refcount.h:-1 [inline]
+ __refcount_inc include/linux/refcount.h:366 [inline]
+ refcount_inc include/linux/refcount.h:383 [inline]
+ kref_get include/linux/kref.h:45 [inline]
+ kobject_get+0xfa/0x120 lib/kobject.c:643
+ i2c_get_adapter+0x6d/0xa0 drivers/i2c/i2c-core-base.c:2612
+ i2cdev_open+0x48/0x190 drivers/i2c/i2c-dev.c:603
+ chrdev_open+0x4d0/0x5f0 fs/char_dev.c:411
+ do_dentry_open+0x83d/0x13e0 fs/open.c:949
+ vfs_open+0x3b/0x350 fs/open.c:1081
+ do_open fs/namei.c:4677 [inline]
+ path_openat+0x2e43/0x38a0 fs/namei.c:4836
+ do_file_open+0x23e/0x4a0 fs/namei.c:4865
+ do_sys_openat2+0x113/0x200 fs/open.c:1366
+ do_sys_open fs/open.c:1372 [inline]
+ __do_sys_openat fs/open.c:1388 [inline]
+ __se_sys_openat fs/open.c:1383 [inline]
+ __x64_sys_openat+0x138/0x170 fs/open.c:1383
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0x14d/0xf80 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f976ba0d04e
+Code: 08 0f 85 a5 a8 ff ff 49 89 fb 48 89 f0 48 89 d7 48 89 ce 4c 89 c2 4d 89 ca 4c 8b 44 24 08 4c 8b 4c 24 10 4c 89 5c 24 08 0f 05 <c3> 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 80 00 00 00 00 48 83 ec 08
+RSP: 002b:00007f9769ca5b28 EFLAGS: 00000246 ORIG_RAX: 0000000000000101
+RAX: ffffffffffffffda RBX: 00007f9769ca66c0 RCX: 00007f976ba0d04e
+RDX: 0000000000000402 RSI: 00007f9769ca5c00 RDI: ffffffffffffff9c
+RBP: 00007f9769ca5c00 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: cccccccccccccccd
+R13: 00007f976bcc6038 R14: 00007f976bcc5fa0 R15: 00007fffc400e638
+ </TASK>
+----------------
+Code disassembly (best guess):
+   0:	eb 66                	jmp    0x68
+   2:	85 db                	test   %ebx,%ebx
+   4:	74 3e                	je     0x44
+   6:	83 fb 01             	cmp    $0x1,%ebx
+   9:	75 4c                	jne    0x57
+   b:	e8 bb d6 25 fd       	call   0xfd25d6cb
+  10:	48 8d 3d 84 01 d6 0a 	lea    0xad60184(%rip),%rdi        # 0xad6019b
+  17:	67 48 0f b9 3a       	ud1    (%edx),%rdi
+  1c:	eb 4a                	jmp    0x68
+  1e:	e8 a8 d6 25 fd       	call   0xfd25d6cb
+  23:	48 8d 3d 81 01 d6 0a 	lea    0xad60181(%rip),%rdi        # 0xad601ab
+* 2a:	67 48 0f b9 3a       	ud1    (%edx),%rdi <-- trapping instruction
+  2f:	eb 37                	jmp    0x68
+  31:	e8 95 d6 25 fd       	call   0xfd25d6cb
+  36:	48 8d 3d 7e 01 d6 0a 	lea    0xad6017e(%rip),%rdi        # 0xad601bb
+  3d:	67                   	addr32
+  3e:	48                   	rex.W
+  3f:	0f                   	.byte 0xf
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
