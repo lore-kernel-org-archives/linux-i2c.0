@@ -1,99 +1,199 @@
-Received: from mx.nabladev.com (mx.nabladev.com [178.251.229.89])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com [209.85.167.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0679D17DE36;
-	Wed, 22 Apr 2026 17:01:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.251.229.89
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C33FF397E75
+	for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 17:43:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776877306; cv=none; b=ONkmLoUNwqb1XkdWkEV1u70wzk4zpM5VfF7DsIucHqNlODj3sCPPJMxgDCZlHzbna9BVsBVrJ38Oarz2JIXDt0BQHkqg04Ug+9ukXmsTw2gZ7gZh6HdzcAgAw6UzgM3G9v52JRGgHeYWh3PDA1w3IFOQLPHg583bsIYcvXKaIw0=
+	t=1776879828; cv=none; b=NH+ikcR2THZvk1d0fuNxj/FUCDk5NfrFSZjlTP7F0WHT7ZeLgbUmKnKCWabrMVpnPtV9n0mNREGN4P981kZx5muyQNipB9J6PnqLBve+Q/K+83de9JDQHpWxZ722ni+GyAKID5i2gYlgF8gdtOmsd256VvNEEhO8NJW06TmgRS0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776877306; c=relaxed/simple;
-	bh=zCAQyDnoDjTRLs97PQNQuco7Ndshntfn+BBJPKrSWtk=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=Qj+Cmd+YWquTHjVMQevZvVRIK56jSsnA5Bu3YQxwoM4DAuLBMsQmr3BvlwKxIX4nNe/LNZn5iEkIHxh3j1VOSCfxiACiREk3QBwG625MZLPXgtfh3OlCT7xUUGHPK2UuD8E2u0vn1893li0OqQBtgFV4F6k0DVcLBFtheqRoQBs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com; spf=pass smtp.mailfrom=nabladev.com; dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b=ZKANe1kF; arc=none smtp.client-ip=178.251.229.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabladev.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b="ZKANe1kF"
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 4982D114A8F;
-	Wed, 22 Apr 2026 19:01:41 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nabladev.com;
-	s=dkim; t=1776877302;
-	h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:content-language:in-reply-to:references;
-	bh=WIWMHVN1WP9qGUnpYBdTuFjk9vviDRD+CjgNIh5iSDc=;
-	b=ZKANe1kFmtR8oJSL3SCaR2e/vYrqiitEF9+IwhwQSD+2Neql2PZ0uj9eEPA8nPdfkGfUYX
-	V4AORktfsfMzFCtVDxEUoS/2OI9ZgjNXytbeUarzeCTEx1IZWvjlBX0Qn6hLPO1JVR/83x
-	PG5q8hFRO0ZY9zIUiPmwORYTdRJUWIPKQ2IfQpzYAHDWBnbuGipoFZDC4W4YsEGuASUvrZ
-	N4OlF+yxssJzub4mRDON0kB9HtEJ0Ln+G8oTB2kVb/p3K7uIcdah2IHBXWDLX9PjQIIoN3
-	jB9OBALHRER60/XHzwvjqvE7jqGY4lrTYKEKrPOs5ncLIzJoUwTuACiNjMBFeQ==
-Message-ID: <24649001-4d21-4ddf-a171-842b0e7782e4@nabladev.com>
-Date: Wed, 22 Apr 2026 19:01:40 +0200
+	s=arc-20240116; t=1776879828; c=relaxed/simple;
+	bh=PEC67Z72ISCMHUutb9qe1/Y1CIJmRcte33AN4p2R2vs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Tx5hvAyP5N6DgoFaWcYMYKR9KlhrH9ueSG2PfDaxMqmOAOcNl0hf6aF/hTiZpK3/WEUkCFx6BRcQXhH5XFe9cjBGHT1+PNVWgU/l8bOPBekSmuxeip0UWJuYuVxW27U2VorQbBa1Qaaywsn+YQ1C20zSbNj0QJootKbAdrJm60w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.167.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-5a1307438ddso5278303e87.1
+        for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 10:43:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776879825; x=1777484625;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=XycB5P8XTGXaeVGqnVmOVfspQ1laZv9fkJpPGtynpSA=;
+        b=P581IUqiju5CMQJ+PPc4zbo4vpb5aei+tiLyfdo7RTBw7P0MxHDxP+o9wA0Du0Axnm
+         +n4PAGF9K6YFv0R280a7+tCXt+45GxbWNri0uXD1zICaowzFywq/i8sNGOlbMrMwAu2Y
+         1h92vjJLXVCdVlrAOvotr2E5kfrPiDRn+fK0G6pK5EMgxLECmjLQwJkgg13cwBoP6d7T
+         dQW+caZwTfJFcSBj8t/YnQY2/mWRNAT3e/Gf2B6xHcEp+T4oo5yJJvezZHc8Rj9YWG3G
+         MAQCEw4uuRJUnCrpbtYDzIfdSrYl8zKKz5XCkp3rUSK/VokYM+FSTHJVeaEdHXtdvdny
+         W0Lw==
+X-Forwarded-Encrypted: i=1; AFNElJ+/98kefakwI7mpTHWSzsJS7odRJt+8Z7qLNMVlrWJRaf9YzBOpbPyoT9bT5XIoGap8DY5KQeKUHtM=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx16XjiJlsUYbxT7KfqbYp5Gy3sVMmHd13gZRDalpE87A7soCVO
+	Wik8F6ADXJyZr8/uyAqBTapnpb6+40ES12VA4K7ydUWlH3TB0AGpwQPZmY5vNibQhRU=
+X-Gm-Gg: AeBDieuVoi1gnc6keChU0dYzetGEpJAwVNvRkOtMpMVGJmRqTrR+t3pS58gFRCM6zaB
+	zMqIoqvTgsaoTlihOgE5d85qiLyr6eEvbZYhXe01D7W4ldNNxmRXDzN08B3ltwFvYk+896xCWLl
+	NIb4flHea0bMB0Ka1Kj3hFpLQ/PiOx/FaVgrSP5yJHDbpgXcrBU/8XVhFF6JtmV/5wj9hulJD7h
+	ZCt7Pe510e2XdTOXp32HrLKfAh3Zgh3gwpprM2M/EOEiOKAYBiVR4phWadPIhwE10iL6QhbIdZp
+	TmZAVTRsychdZF1iUQPQ2rCUF599/COXqlw3KHUYotaz728EqOszINHUs/n19zpH6EG4PlrF0Da
+	enzwmVDHeIG62uenp0HGL7dnZjGa0mvwyEb138IXyEYc8m3GSced4wIwux8TLgUrFmqA98CDDZ5
+	yj0mLAgMB3yEkjWeBK4IjXIrKiYCj0l1aEiW2P3+YpqxfTjJmtVkpZuXaXdhiSwamIH7UiAKg=
+X-Received: by 2002:a05:6512:692:b0:5a2:c742:7a76 with SMTP id 2adb3069b0e04-5a4172f289dmr10108286e87.44.1776879824706;
+        Wed, 22 Apr 2026 10:43:44 -0700 (PDT)
+Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com. [209.85.167.44])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a4187ebe31sm4529183e87.75.2026.04.22.10.43.44
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 22 Apr 2026 10:43:44 -0700 (PDT)
+Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5a1307438ddso5278286e87.1
+        for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 10:43:44 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ/+ekITT8Wz3tnm5JSoMoBD3a+RIMHYPeVK2jmF/Q52y9BbWuUtS24Tb9GfI8qNqjKZ2NZYWAAa4UM=@vger.kernel.org
+X-Received: by 2002:a17:907:7295:b0:ba7:3d21:c136 with SMTP id
+ a640c23a62f3a-ba73d3108d8mr812474966b.18.1776879429078; Wed, 22 Apr 2026
+ 10:37:09 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] nvmem: core: eeprom: at24: Handle EEPROM with both
- read-only and wp-gpios
-From: Marek Vasut <marex@nabladev.com>
-To: Bartosz Golaszewski <brgl@kernel.org>
-Cc: linux-i2c@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Srinivas Kandagatla <srini@kernel.org>, linux-kernel@vger.kernel.org
-References: <20260421140755.54222-1-marex@nabladev.com>
- <CAMRc=Mcxport3yb28Bbf5OM5VGCerfvLnCZQvLncpUO5--vbYw@mail.gmail.com>
- <210b41ca-28be-42ca-819b-de5f17dddec7@nabladev.com>
-Content-Language: en-US
-In-Reply-To: <210b41ca-28be-42ca-819b-de5f17dddec7@nabladev.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+References: <20260325143555.451852-1-herve.codina@bootlin.com> <20260325143555.451852-3-herve.codina@bootlin.com>
+In-Reply-To: <20260325143555.451852-3-herve.codina@bootlin.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Wed, 22 Apr 2026 19:36:55 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdU7x7LWFkD9xiq+wyOqnn0bdzr+JLfvbBexoiWyv8kftA@mail.gmail.com>
+X-Gm-Features: AQROBzDRSuCo9KZmmr5oDnyHv4O1KWNwiPD4Dqbl5BIkN4nUOYnL3G8AwjYfgqE
+Message-ID: <CAMuHMdU7x7LWFkD9xiq+wyOqnn0bdzr+JLfvbBexoiWyv8kftA@mail.gmail.com>
+Subject: Re: [PATCH v6 02/27] of: dynamic: Fix overlayed devices not probing
+ because of fw_devlink
+To: Herve Codina <herve.codina@bootlin.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Kalle Niemi <kaleposti@gmail.com>, Matti Vaittinen <mazziesaccount@gmail.com>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+	Danilo Krummrich <dakr@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
+	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
+	Fabio Estevam <festevam@gmail.com>, Michael Turquette <mturquette@baylibre.com>, 
+	Stephen Boyd <sboyd@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+	Wolfram Sang <wsa+renesas@sang-engineering.com>, Peter Rosin <peda@axentia.se>, 
+	Arnd Bergmann <arnd@arndb.de>, Saravana Kannan <saravanak@kernel.org>, 
+	Bjorn Helgaas <bhelgaas@google.com>, Charles Keepax <ckeepax@opensource.cirrus.com>, 
+	Richard Fitzgerald <rf@opensource.cirrus.com>, David Rhodes <david.rhodes@cirrus.com>, 
+	Linus Walleij <linusw@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, 
+	Mark Brown <broonie@kernel.org>, Len Brown <lenb@kernel.org>, 
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Daniel Scally <djrscally@gmail.com>, 
+	Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
+	Sakari Ailus <sakari.ailus@linux.intel.com>, Davidlohr Bueso <dave@stgolabs.net>, 
+	Jonathan Cameron <jonathan.cameron@huawei.com>, Dave Jiang <dave.jiang@intel.com>, 
+	Alison Schofield <alison.schofield@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, 
+	Ira Weiny <ira.weiny@intel.com>, Dan Williams <dan.j.williams@intel.com>, 
+	Shawn Guo <shawnguo@kernel.org>, Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org, 
+	driver-core@lists.linux.dev, imx@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
+	patches@opensource.cirrus.com, linux-gpio@vger.kernel.org, 
+	linux-pm@vger.kernel.org, linux-spi@vger.kernel.org, 
+	linux-acpi@vger.kernel.org, linux-cxl@vger.kernel.org, 
+	Allan Nielsen <allan.nielsen@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>, 
+	Steen Hegelund <steen.hegelund@microchip.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Saravana Kannan <saravanak@google.com>, 
+	Douglas Anderson <dianders@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 4/22/26 1:33 PM, Marek Vasut wrote:
-> On 4/22/26 11:07 AM, Bartosz Golaszewski wrote:
->> On Tue, Apr 21, 2026 at 4:08 PM Marek Vasut <marex@nabladev.com> wrote:
->>>
->>> Handle special-case of AT24 EEPROM described in DT, which contains both
->>> "read-only" and "wp-gpios" properties. Interpret this configuration as
->>> default read-only, but with the possibility of unlock via force_ro sysfs
->>> attribute.
->>>
->>
->> Patch looks ok code-wise but does this really make sense? If an EEPROM
->> is read-only, we should forbid writes in the kernel. Which board uses
->> it? Can we simply remove the read-only flag from DT?
-> 
-> Currently I am not aware of any upstream users, I plan to introduce one 
-> once this patch or some for of it lands.
+Hi Herv=C3=A9,
 
-I have to amend my statement, I would also like to adjust an already 
-upstream DT to make use of this default-read-only functionality now.
+CC Douglas
 
-I would however like to get go/no-go on this patch before I roll out the 
-DT patches.
+On Wed, 25 Mar 2026 at 15:36, Herve Codina <herve.codina@bootlin.com> wrote=
+:
+> From: Saravana Kannan <saravanak@google.com>
+>
+> When an overlay is applied, if the target device has already probed
+> successfully and bound to a device, then some of the fw_devlink logic
+> that ran when the device was probed needs to be rerun. This allows newly
+> created dangling consumers of the overlayed device tree nodes to be
+> moved to become consumers of the target device.
+>
+> Fixes: 1a50d9403fb9 ("treewide: Fix probing of devices in DT overlays")
+> Reported-by: Herve Codina <herve.codina@bootlin.com>
+> Closes: https://lore.kernel.org/lkml/CAMuHMdXEnSD4rRJ-o90x4OprUacN_rJgyo8=
+x6=3D9F9rZ+-KzjOg@mail.gmail.com/
+> Closes: https://lore.kernel.org/all/20240221095137.616d2aaa@bootlin.com/
+> Closes: https://lore.kernel.org/lkml/20240312151835.29ef62a0@bootlin.com/
+> Signed-off-by: Saravana Kannan <saravanak@google.com>
+> Link: https://lore.kernel.org/lkml/20240411235623.1260061-3-saravanak@goo=
+gle.com/
+> [Herve: Rebase on top of recent kernel]
+> [Herve: Add the call to driver_deferred_probe_trigger()]
+> Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+> Tested-by: Kalle Niemi <kaleposti@gmail.com>
+> Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
 
-> I have is an ID EEPROM which I would like to be able to program under 
-> special circumstances (hence the wp-gpios control) , but it should be by 
-> default read-only .
-> 
-> If I remove the read-only, then by default the EEPROM is read-write, 
-> which is undesired. If I remote wp-gpios then I loose access to the 
-> force_ro attribute which controls the nWP GPIO from userspace, which is 
-> undesired.
-> 
-> So I think defining this special-case where wp-gpios and read-only are 
-> used together as default-read-only is sensible.
-> 
->> Admittedly: the DT bindings do allow it as read-only and wp-gpios are
->> not mutually exclusive but I think it's more of an accidental omission
->> than a planned feature.
-> I think it is currently an undefined behavior, and this patch defines it.
+> --- a/drivers/base/core.c
+> +++ b/drivers/base/core.c
+> @@ -235,6 +235,79 @@ static void __fw_devlink_pickup_dangling_consumers(s=
+truct fwnode_handle *fwnode,
+>                 __fw_devlink_pickup_dangling_consumers(child, new_sup);
+>  }
+>
+> +static void fw_devlink_pickup_dangling_consumers(struct device *dev)
+> +{
+> +       struct fwnode_handle *child;
+> +
+> +       guard(mutex)(&fwnode_link_lock);
+> +
+> +       fwnode_for_each_available_child_node(dev->fwnode, child)
+> +               __fw_devlink_pickup_dangling_consumers(child, dev->fwnode=
+);
+> +       __fw_devlink_link_to_consumers(dev);
+> +}
+> +
+> +/**
+> + * fw_devlink_refresh_fwnode - Recheck the tree under this firmware node
+> + * @fwnode: The fwnode under which the fwnode tree has changed
+> + *
+> + * This function is mainly meant to adjust the supplier/consumer depende=
+ncies
+> + * after a fwnode tree overlay has occurred.
+> + */
+> +void fw_devlink_refresh_fwnode(struct fwnode_handle *fwnode)
+> +{
+> +       struct device *dev;
+> +
+> +       /*
+> +        * Find the closest ancestor fwnode that has been converted to a =
+device
+> +        * that can bind to a driver (bus device).
+> +        */
+> +       fwnode_handle_get(fwnode);
+> +       do {
+> +               if (fwnode->flags & FWNODE_FLAG_NOT_DEVICE)
 
-Also, this default-read-only behavior is effectively the same behavior 
-like the eMMC HW BOOT partitions have, they are also default read-only, 
-but can be switched and written to by setting their force_ro sysfs 
-attribute.
+After commit f72e77c33e4b5657 ("device property: Make modifications
+of fwnode "flags" thread safe"), this must be changed to:
+
+    if (fwnode_test_flag(fwnode, FWNODE_FLAG_NOT_DEVICE))
+
+With this change my DT overlays are working again.
+
+I guess keeping the FWNODE_FLAG_* names, but changing their values
+from bit masks to bit numbers was probably not such a good idea,
+as it fails to catch missing conversions...
+
+> +                       continue;
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+--=20
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k=
+.org
+
+In personal conversations with technical people, I call myself a hacker. Bu=
+t
+when I'm talking to journalists I just say "programmer" or something like t=
+hat.
+                                -- Linus Torvalds
