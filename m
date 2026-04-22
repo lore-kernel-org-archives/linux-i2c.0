@@ -1,160 +1,209 @@
-Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com [209.85.218.41])
+Received: from mail-ej1-f49.google.com (mail-ej1-f49.google.com [209.85.218.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 137164414
-	for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 18:47:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.41
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776883648; cv=pass; b=lEvNJiXcyxIKObwWINkZ3THemNQd+zgrOH+PhJ7AFK1NSLmhtwMpeZfXU9ZTrsYYyjVdIzUOe/51q/7fRM7rxyP0OgWMQI3HvJntJLneexRv9pqTfScwN15Nzfl4y91jeEtf7POOPGmaqfwZCP/zsRjQDY837AW5vDDOHM06nTM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776883648; c=relaxed/simple;
-	bh=koO1gTzJVerY/oBMbjuuST5CEbfWNHXW583XAUNa55Y=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 532303EF669
+	for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 18:57:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.49
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776884292; cv=none; b=nBOIFb4f1Kaord3yTmIB3KykoZMitfQj9zHlxToVHB9BD9VWqu4TqmVpoK6iOCvfSPkDWwwVvsbvNWHsny3798sXWCfNIZZ/whh/ZEdgH604hL8tghnluLEb+OnwwCaO1S8oHjPJApJa4Mz0iv+ijNaOjWQs2AhTqRU6AH3PBzY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776884292; c=relaxed/simple;
+	bh=W3gJGhETv1i99hgZ4Qzxlq7+a/rqAi15n3RaJvZubfA=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WAHPlApnLzr2AyArx1Q0Zw4J+O/juQTkSUP9er8ix5CNHnULJbCsIV52hZ9diSDvKqewzS+Jbr4D6vSdfBPkDgt/FUou1qDBGKX64M4v5NoTBzfULHrVvtXW/oaT0mUxhpPZ4ByfqJ+mSbkMSfzr5l4Mc8U5BlH4nkxpxG55uX4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BjpyRkox; arc=pass smtp.client-ip=209.85.218.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=BDM5UdPAUHxScpvpcrloS5vxulFj0LjSiMmqTkdlXA6meRE2YqsYl2/snTA6B6gE9X6cIU1fVGYOdnTz9CsbBU+4I2M7iQpEBsQEJMkfvW8ZrB0smJ1ySD+Tq+5IGncE5OOblcIoAUWLD25qLfhrGhgY2smdgOdsBDPmC9Odd3Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=EWqE7mpO; arc=none smtp.client-ip=209.85.218.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BjpyRkox"
-Received: by mail-ej1-f41.google.com with SMTP id a640c23a62f3a-ba5b107eaa2so369211266b.3
-        for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 11:47:26 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1776883645; cv=none;
-        d=google.com; s=arc-20240605;
-        b=YK0AGPJq7eY1OTidWhO+BphqisCkEnTiwfBU2rc5+Jv2IVyDq9Ivj/M7KKJN6I0eEk
-         O1VSV31I63QWgTS5NIiL750cVJ2nm56lOA2SaH4TdP3uZNRuRRfhgU6IiZLmrM486MgP
-         VAlqxcUqmJjFlRayKNAZK4Lf25LPvqyDkvl6fJ60VABGL8H0f2Zt6iCJI0oXkIWeYqTL
-         KbblKqVpzOsTx56cXdpTbxX9K4j4Q7HQiV/KdFv1xfhq44BjG1Sq2SeYgXNPuO0Q6sOe
-         bbS+3/XEna8RogfUCevQjofN/HhdIZ7oZWfPdzMibPSg3+zJL0mC+TP5MPRJpMTxRYZK
-         NdPg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=a4tbV3vnwAWI1orS7bjpXKGapwTuCv+wj00co1PEd0U=;
-        fh=9G27kY4gL9/9GKI6uDt7KH4cNyWltY9kyDtOEklYibk=;
-        b=E7dNlJlhbWhh9iigb5U1zIHOp9AnU5mE0i1+doTvdi6ZvhTIMvM2sYTfI41qUtTp3s
-         m6k2Y6mWB+3TdM/0RYEb6i2Xtlz/pyYCQV2xU1xGCtnGSZA8MThU0gWODDLXfFaGbxXO
-         QgOeb8XpsZlluoT6Zm6rjVyjP5VaKI0ePoSloUmCxeZMetU9SzEV+s0dyuksUuNezKXe
-         3njd47St706dNoBcbPaGtBYJdlQ/DK+ffQE9fQewKz2FDebEGjF5SYi1DZaFwI89D7YH
-         cXP8SbFIgixWqK0WskXX5KVerqofno8DumvltQtDdIy33rhm6nCAjoGT9cAg8u28viBW
-         PmIQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="EWqE7mpO"
+Received: by mail-ej1-f49.google.com with SMTP id a640c23a62f3a-b9c9d03524cso803657266b.3
+        for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 11:57:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776883645; x=1777488445; darn=vger.kernel.org;
+        d=chromium.org; s=google; t=1776884275; x=1777489075; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=a4tbV3vnwAWI1orS7bjpXKGapwTuCv+wj00co1PEd0U=;
-        b=BjpyRkoxTEP7pMYuUq3XWTKQFJeerQ9pGmGo4Ns+SPEvAhZBepfcNw/5n2hUgamtnz
-         fMMsYRoMwxFi7YlkSD2VJ3/JdAiNSWi4svOUYJ2BDWZXFYaFM0lInUolSYt23EN5PrHQ
-         lCQlaJoZI1HF4j+kThPWs6AJCbuDuGUZ4XhiGorSGMsR5pi4HpoWvht4RsqoQaM/zbuz
-         uTzxeYo9Re8ew8h0J1gadmA9TgVXOzeGticFkhmvO3+G1FYTgbRYOnagMz+L4MHbTKjH
-         4k1jmx7/3SZXPehEaCzm7FO6omFFG4LedpGInmSpUx71tQvZFssKT8Hz4XZ5UtH9PN+x
-         dQOg==
+        bh=R4vBmmJ5gC2QCrFlTLiSjZ3SPsY2SAKP5dBxbzswxUI=;
+        b=EWqE7mpOT5Dzeel5Qhvs0qv64YRtUSnfMgIZFwsr1Y/3ekg3DE9uDQwzmM4SKvqEVc
+         RcPUizn59NPg/lmvXGr3V1tGr93nqIgAA5/QjKf4ubsIP30tPqHfWMRR3SvD6EE7oR9p
+         EcDvR6N/vKWC3E3YG3jCVFdha0iInr1fMeqQM=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776883645; x=1777488445;
+        d=1e100.net; s=20251104; t=1776884275; x=1777489075;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=a4tbV3vnwAWI1orS7bjpXKGapwTuCv+wj00co1PEd0U=;
-        b=c5DaSojxS7j7qnQWTC9S0JeN8PtdILe9uyD+Miog8s8265IrIM/0jMmCpJ7JoPGtHY
-         u8K0xGf9HomsUcSaR7PcDJhqnV0RElGc+OrluNbR2Jk/W0FqxCVHtZD/fNV9fvLWHNSz
-         H82X73/pct5fJNsMlk4Ton4LlZ5zAzT9hzujkQsF5j/iicgM0kmLftmD+oy517/wSJei
-         D+iUjW3o4L0yr9gnZxWyaMIxHNnxfaDkVSKEWuqotONQCRye6rMyPdU0c9DEhZ5MJ8Ck
-         gWIA32vFAvlrHnm+jbepmHnv+SQ8nezxTwJD8Xesm6d3c+A4dgJc/27NArHN8Kx+LiqX
-         OUeg==
-X-Gm-Message-State: AOJu0YxLkNqJF9A8ed4mG6bRoOdEcr2VYODVDWAiOzVEd2kyCqK1Dd09
-	GR74vIzAzN2n+TYwX6VXwpznDVkC27VJ7PWX1RmE/P43Xa9ctE4/4mFtShdrYUH14XujeP3kyju
-	V4bbHImket/15CyHScWlnZIJS0U+cWM4Si4Sz
-X-Gm-Gg: AeBDievtHdNLJJRkUf30NVEknbLOfKyLGoON1x5A8TgbXS9hyuTAzgMCEljei2/6stE
-	bSF+Tv7Kg7IYXCq2RVcug3f9NdQcjZF1bPyCNswi0CD2bSWkvNBG5vMo345I/u0m3I7SAiUs6sL
-	ke+SHLGauDpg9OhLsJ7FrvQgSmUsS6Nq0WxL2rzsw5YlUUlW1Ct7n8qJpiDxDU4i+m7Piqk6eym
-	hDgIPHVpMPpuJzv+xJ1D3xC0g63UbO+KWqpara56jBNTM5Y087Q5oQTDVxjqWZdcalBo/2EEfDR
-	oA7i6franEP3/jMy20xF
-X-Received: by 2002:a17:907:3f12:b0:ba7:f5fd:ede0 with SMTP id
- a640c23a62f3a-ba7f5fdf234mr730503066b.6.1776883645234; Wed, 22 Apr 2026
- 11:47:25 -0700 (PDT)
+        bh=R4vBmmJ5gC2QCrFlTLiSjZ3SPsY2SAKP5dBxbzswxUI=;
+        b=egqQQhhfvA4bLAZqVQ3KBuelCI/zGdn/Ir3T1zBEIJfkWngi0xq30uKFgx4YIUPqRa
+         C/VfzDpTw4QGE++TLtL62Reg4gt2oiqKwhzcRk1fAKmHmhlskuDwWlxPf6moBF7tpgKG
+         pY3JSsrlCta9VEcg9exxiF9obCfoRTAsMrvVsW9PAgClQfAe9fa/iUsZCVxMKERlk4ON
+         1PReetGlngUaL7Ci4Pl4Nn0yP3k6RFFWbmcJmOX9tK6fta+qAJOZw2JvkX2UjEowoMAN
+         +gRORDxdpM01JUmBO+FeuDf7TjxjTo6fSII6GgUjZ66rJVKcyyv7YQRniYOek8qFnDo5
+         o/0w==
+X-Forwarded-Encrypted: i=1; AFNElJ/aDESkHJhQCg3V9dtEZZj1D1fUpcK8QtRedoRiEbinuql36fg+amDa64R+bFLdiPdI27041EshdmA=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx87VEdaRpYmHfWQtXaPMKS6I0X7TLAjhJMDlb4mG6mQpBqFYkb
+	RmkRUTkVfnK53zgzqcpxrTFsKbdna1pKG1lpsuX8ThQimO89VmyjUAyue+IRDh2ahUptuxi8Z3b
+	kak29NpJF
+X-Gm-Gg: AeBDieukh6nIEsf6m3ZqFsBlRyOkH17jG9k8FoYrKsX119oIJesadKb3tPxpk8B0q1k
+	aVynCGY4IC6CMHHybaFJ/rNSNnYSd/mqZfR5tr+5U46kaxUTLmSOk+mr8vsFyJX+vs+SDNMOzTb
+	XLy/xQAWbTMd1le7UQWhKfzDwswzd9Erte9J/dTxr9g2M2U46qbYVWF2zi4b8P5heLPVchA+dR2
+	S8JR8PwyeZdYSmaEA+ANvavIqj50i/DTYTlEQKvugjW+UrZSfZnauYw6ycL3vEQMEE86+d1zt0o
+	lXAAo1ZOfZrI00sEkj/+3duNOD25QHstgZ6bBNwNyMz08a3lw2aWcY0LtmYnCLo+7VkyclJszFe
+	ZLT4aDt22RJS3FE577PPxvwesOwoIJxGIx9af2waE/xCgxCfja3XWdNeKsR73TStURD0mwUXrh6
+	AorVUvTiR6MU4IOMuUMs//JXddnKBL7b57djRcHJegzb7gpTfvMi7x9CfhHQQOceSTKd2QxQe0
+X-Received: by 2002:a17:907:9449:b0:ba7:f5fd:edd2 with SMTP id a640c23a62f3a-ba7f5fdf17amr784507066b.42.1776884274874;
+        Wed, 22 Apr 2026 11:57:54 -0700 (PDT)
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com. [209.85.208.42])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ba45553980csm578316866b.58.2026.04.22.11.57.54
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 22 Apr 2026 11:57:54 -0700 (PDT)
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-676d8582a13so2909808a12.0
+        for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 11:57:54 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ9S59Tcnm5b57HIy3jCfuj1Il6CmX+lIwxTFg5krrLO17l4NCc2AYRtVsbakh1IsBG2+rpiTdIXjN8=@vger.kernel.org
+X-Received: by 2002:a05:6000:2f8a:b0:43d:7a08:a5e6 with SMTP id
+ ffacd0b85a97d-43fe3e073c9mr39087653f8f.29.1776883909243; Wed, 22 Apr 2026
+ 11:51:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <CAD++jLnk_5KG_q1aCtpOrTCbhtK-FxXH6BhPFSwukyt2F4uxmQ@mail.gmail.com>
- <20260201111812.18945-1-jie.i.li@nokia.com>
-In-Reply-To: <20260201111812.18945-1-jie.i.li@nokia.com>
-From: =?UTF-8?B?5p2O5p2w?= <lj29312931@gmail.com>
-Date: Wed, 22 Apr 2026 20:47:13 +0200
-X-Gm-Features: AQROBzCdqKXfgmKgxFT-Yi_N4yfa0Tzd0YRSe3TdEhbBeGIcCvxPNLhWMlBLtbM
-Message-ID: <CAO3NRJjHRoEpSE2YRCN3XFC+oF4w-heCfpQStKQEkgZhO61oxA@mail.gmail.com>
-Subject: Re: [PATCH v3 0/2] i2c: improve bus recovery for single-ended GPIOs
-To: wsa@kernel.org, linusw@kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Jie Li <jie.i.li@nokia.com>
+References: <20260325143555.451852-1-herve.codina@bootlin.com>
+ <20260325143555.451852-3-herve.codina@bootlin.com> <CAMuHMdU7x7LWFkD9xiq+wyOqnn0bdzr+JLfvbBexoiWyv8kftA@mail.gmail.com>
+In-Reply-To: <CAMuHMdU7x7LWFkD9xiq+wyOqnn0bdzr+JLfvbBexoiWyv8kftA@mail.gmail.com>
+From: Doug Anderson <dianders@chromium.org>
+Date: Wed, 22 Apr 2026 11:51:36 -0700
+X-Gmail-Original-Message-ID: <CAD=FV=UK3NQKQN7FXyG4nGdDKO=LQYhnL4ZweomQ_4R9-EAYag@mail.gmail.com>
+X-Gm-Features: AQROBzAV3w_CPq4qi5veiP_uOv4VWrOsaTYpBbypDAKqTbu6jiZzeNsnLIn0Vds
+Message-ID: <CAD=FV=UK3NQKQN7FXyG4nGdDKO=LQYhnL4ZweomQ_4R9-EAYag@mail.gmail.com>
+Subject: Re: [PATCH v6 02/27] of: dynamic: Fix overlayed devices not probing
+ because of fw_devlink
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Herve Codina <herve.codina@bootlin.com>, Andrew Lunn <andrew@lunn.ch>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Kalle Niemi <kaleposti@gmail.com>, Matti Vaittinen <mazziesaccount@gmail.com>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+	Danilo Krummrich <dakr@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
+	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
+	Fabio Estevam <festevam@gmail.com>, Michael Turquette <mturquette@baylibre.com>, 
+	Stephen Boyd <sboyd@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+	Wolfram Sang <wsa+renesas@sang-engineering.com>, Peter Rosin <peda@axentia.se>, 
+	Arnd Bergmann <arnd@arndb.de>, Saravana Kannan <saravanak@kernel.org>, 
+	Bjorn Helgaas <bhelgaas@google.com>, Charles Keepax <ckeepax@opensource.cirrus.com>, 
+	Richard Fitzgerald <rf@opensource.cirrus.com>, David Rhodes <david.rhodes@cirrus.com>, 
+	Linus Walleij <linusw@kernel.org>, Ulf Hansson <ulf.hansson@linaro.org>, 
+	Mark Brown <broonie@kernel.org>, Len Brown <lenb@kernel.org>, 
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Daniel Scally <djrscally@gmail.com>, 
+	Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
+	Sakari Ailus <sakari.ailus@linux.intel.com>, Davidlohr Bueso <dave@stgolabs.net>, 
+	Jonathan Cameron <jonathan.cameron@huawei.com>, Dave Jiang <dave.jiang@intel.com>, 
+	Alison Schofield <alison.schofield@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, 
+	Ira Weiny <ira.weiny@intel.com>, Dan Williams <dan.j.williams@intel.com>, 
+	Shawn Guo <shawnguo@kernel.org>, Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org, 
+	driver-core@lists.linux.dev, imx@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
+	linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
+	patches@opensource.cirrus.com, linux-gpio@vger.kernel.org, 
+	linux-pm@vger.kernel.org, linux-spi@vger.kernel.org, 
+	linux-acpi@vger.kernel.org, linux-cxl@vger.kernel.org, 
+	Allan Nielsen <allan.nielsen@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>, 
+	Steen Hegelund <steen.hegelund@microchip.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>, Saravana Kannan <saravanak@google.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Hi Wolfram,
+Hi,
 
-I'm just gently pinging this patch series to see if you have any
-further comments or if it's ready to be picked up for the I2C tree.
+On Wed, Apr 22, 2026 at 10:44=E2=80=AFAM Geert Uytterhoeven
+<geert@linux-m68k.org> wrote:
+>
+> Hi Herv=C3=A9,
+>
+> CC Douglas
+>
+> On Wed, 25 Mar 2026 at 15:36, Herve Codina <herve.codina@bootlin.com> wro=
+te:
+> > From: Saravana Kannan <saravanak@google.com>
+> >
+> > When an overlay is applied, if the target device has already probed
+> > successfully and bound to a device, then some of the fw_devlink logic
+> > that ran when the device was probed needs to be rerun. This allows newl=
+y
+> > created dangling consumers of the overlayed device tree nodes to be
+> > moved to become consumers of the target device.
+> >
+> > Fixes: 1a50d9403fb9 ("treewide: Fix probing of devices in DT overlays")
+> > Reported-by: Herve Codina <herve.codina@bootlin.com>
+> > Closes: https://lore.kernel.org/lkml/CAMuHMdXEnSD4rRJ-o90x4OprUacN_rJgy=
+o8x6=3D9F9rZ+-KzjOg@mail.gmail.com/
+> > Closes: https://lore.kernel.org/all/20240221095137.616d2aaa@bootlin.com=
+/
+> > Closes: https://lore.kernel.org/lkml/20240312151835.29ef62a0@bootlin.co=
+m/
+> > Signed-off-by: Saravana Kannan <saravanak@google.com>
+> > Link: https://lore.kernel.org/lkml/20240411235623.1260061-3-saravanak@g=
+oogle.com/
+> > [Herve: Rebase on top of recent kernel]
+> > [Herve: Add the call to driver_deferred_probe_trigger()]
+> > Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+> > Tested-by: Kalle Niemi <kaleposti@gmail.com>
+> > Tested-by: Geert Uytterhoeven <geert+renesas@glider.be>
+>
+> > --- a/drivers/base/core.c
+> > +++ b/drivers/base/core.c
+> > @@ -235,6 +235,79 @@ static void __fw_devlink_pickup_dangling_consumers=
+(struct fwnode_handle *fwnode,
+> >                 __fw_devlink_pickup_dangling_consumers(child, new_sup);
+> >  }
+> >
+> > +static void fw_devlink_pickup_dangling_consumers(struct device *dev)
+> > +{
+> > +       struct fwnode_handle *child;
+> > +
+> > +       guard(mutex)(&fwnode_link_lock);
+> > +
+> > +       fwnode_for_each_available_child_node(dev->fwnode, child)
+> > +               __fw_devlink_pickup_dangling_consumers(child, dev->fwno=
+de);
+> > +       __fw_devlink_link_to_consumers(dev);
+> > +}
+> > +
+> > +/**
+> > + * fw_devlink_refresh_fwnode - Recheck the tree under this firmware no=
+de
+> > + * @fwnode: The fwnode under which the fwnode tree has changed
+> > + *
+> > + * This function is mainly meant to adjust the supplier/consumer depen=
+dencies
+> > + * after a fwnode tree overlay has occurred.
+> > + */
+> > +void fw_devlink_refresh_fwnode(struct fwnode_handle *fwnode)
+> > +{
+> > +       struct device *dev;
+> > +
+> > +       /*
+> > +        * Find the closest ancestor fwnode that has been converted to =
+a device
+> > +        * that can bind to a driver (bus device).
+> > +        */
+> > +       fwnode_handle_get(fwnode);
+> > +       do {
+> > +               if (fwnode->flags & FWNODE_FLAG_NOT_DEVICE)
+>
+> After commit f72e77c33e4b5657 ("device property: Make modifications
+> of fwnode "flags" thread safe"), this must be changed to:
+>
+>     if (fwnode_test_flag(fwnode, FWNODE_FLAG_NOT_DEVICE))
+>
+> With this change my DT overlays are working again.
+>
+> I guess keeping the FWNODE_FLAG_* names, but changing their values
+> from bit masks to bit numbers was probably not such a good idea,
+> as it fails to catch missing conversions...
 
-This v3 series already includes the Reviewed-by tags from Linus
-Walleij for both patches.
+Crud, I should have thought about that. :( Do you think it's worth it
+to do a rename at this point to catch future problems?
 
-Thanks for your time!
-
-Best regards,
-Jie Li
-
-On Sun, Feb 1, 2026 at 12:18=E2=80=AFPM Jie Li <lj29312931@gmail.com> wrote=
-:
->
-> Greetings,
->
-> Apologies for the delay in responding.
->
-> Thank you very much for your review and the specific guidance regarding
-> the return types. I really appreciate your patience and time spent
-> guiding me through my first contribution to the kernel.
->
-> This series (v3) updates the helper function to use the 'bool' type as
-> suggested and includes the Reviewed-by tags.
->
-> This series addresses a limitation in the I2C bus recovery mechanism wher=
-e
-> certain open-drain GPIOs are incorrectly identified as input-only,
-> preventing the recovery logic from functioning.
->
-> Following the suggestion from Linus Walleij, this version drops the
-> previously proposed "force-set-sda" DT property. Instead, it
-> introduces a generic helper in the GPIO subsystem to identify
-> single-ended configurations. This allows the I2C core to reliably
-> enable recovery for open-drain lines regardless of the
-> instantaneous hardware direction reporting.
->
-> Changes in v3:
-> - Patch 1:
->   - Changed return type of gpiod_is_single_ended() from int to bool.
->   - Updated return values from 0/1 to false/true.
->   - Added Reviewed-by: Linus Walleij.
-> - Patch 2:
->   - Added Reviewed-by: Linus Walleij.
->
-> Changes in v2:
-> - Replaced DT-based "force-set-sda" with a gpiolib helper.
-> - Added gpiod_is_single_ended() to drivers/gpio/gpiolib.c.
-> - Updated i2c-core-base.c to use the new helper.
->
-> Jie Li (2):
->   gpiolib: add gpiod_is_single_ended() helper
->   i2c: core: support recovery for single-ended GPIOs
->
->  drivers/gpio/gpiolib.c        | 22 ++++++++++++++++++++++
->  drivers/i2c/i2c-core-base.c   |  3 ++-
->  include/linux/gpio/consumer.h |  5 +++++
->  3 files changed, 29 insertions(+), 1 deletion(-)
->
-> --
-> 2.43.0
->
+-Doug
