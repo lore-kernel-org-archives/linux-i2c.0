@@ -1,163 +1,268 @@
-Received: from mail-ot1-f77.google.com (mail-ot1-f77.google.com [209.85.210.77])
+Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FE722D73B9
-	for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 20:31:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.77
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51B8A1E9906
+	for <linux-i2c@vger.kernel.org>; Thu, 23 Apr 2026 00:28:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776889895; cv=none; b=rtuMuGGr3YMePVrMm42RvSBrEeQYfW72WAMlm4X2srKYZd3MMkjvFdONHN903g0CNljUk69/DpJuLhN8nMeEusxxCZdF+DEk6S/V/XNyBpCKCpOGxxmc4fnQHHOPDd2xjXUI9w9Eyj/1C0GWsuxqiHT0BHDU9q2GtJ3JP4Jb0aI=
+	t=1776904126; cv=none; b=J7CdwnH8uE16bpm+RMzSWFc4a7HTfSvQUW505Uh13TnaEiewwEmEf++VVN4wSHd3Sz7hDteiVqkK2sFCYixIy2P0gqvxg48hWJLyuj+GN+HZbVV8M4h8zXnbM4ZPiMtXrRx1LKIo1iiAhv+Ak5tnM2fhkYWgn807SgZYiYZRSng=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776889895; c=relaxed/simple;
-	bh=TMkocFJLWJm4Sroh7iQUBFb49UB/GkdQivU9pH4FNj0=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=h4R1o/OcgzGVfLM7/+uL2vCHPaCI3cHLloh7h4ruvB8dLOLQhCxdLAf7HIjcv0wJ+hpUyuEppCWeuh/HeH8UF6qTPTAEY6llXCe4GS9ztXfegB4tTw4SxPbCTw+pa4/HHyZsNdWA2mSCaZ2JYeVoqSFPHaeyADhUUcCGNhyGHFQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.210.77
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-ot1-f77.google.com with SMTP id 46e09a7af769-7dcc59fe0d8so4320908a34.2
-        for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 13:31:33 -0700 (PDT)
+	s=arc-20240116; t=1776904126; c=relaxed/simple;
+	bh=fLuh2yYCliD3/tO4zPDbjuOR6Zrc8covuDSXJPtOtGE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PMW7BtlUKr6vGimHM3hvlFoH4Rl5IG+v5Qf5IWwmykxA0THNv1NL6/r+iihU60cMHX3ThHZBRgAXq8KJ1owoZlCUyDBN7pmuIUb+UlvxAelrRIslMmhlv3AJJwZlwL5B4tKQrH6L89hRCyeaOyfC1uPL6nPyNb7NVaO1X0n0uOM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wkennington.com; spf=none smtp.mailfrom=wkennington.com; dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b=qwEMjfR8; arc=none smtp.client-ip=74.125.82.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wkennington.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=wkennington.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b="qwEMjfR8"
+Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-2e622a9da9cso7124752eec.0
+        for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 17:28:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=wkennington-com.20251104.gappssmtp.com; s=20251104; t=1776904124; x=1777508924; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Q8Zq/XP2zPjzoG7Ee7KkAJncAAl85yYbm00SL2RgdzU=;
+        b=qwEMjfR8bJ86el3SwemWZsa2zhM9t0AY8OsDuKiHD1F/UHyP/Fn4us8oCmw9I0mhZ9
+         hT1qHChA8edPyUOMOrlTcf1IHCE8M3HWnh1fy0l0h/hWzKQDYksQrNFRacsZdHQHGWtk
+         miXeqqEmqMuImCK5+7EJQkY/A1h/425tkDrt4J7WzknF544vwePebK0K+17FREOmbMG/
+         0AcV4I12hpKOwb5VQz9oPgr2hIB8QDlyaa9z4NtknfDFHe89cU+GbrzSLT1uU9dKGnDN
+         Wfb0YaVnxJDuvacmjgDcPseRPu4GyZROwNHgNE0wDFll+iLmL8HjL+N5UHdV+H2OsJP+
+         90ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776889892; x=1777494692;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=aEVE3nzbOZ9dSmZW3nzsp2ytFpj2hTepm3SE40jPxNY=;
-        b=Gu43NeJ+o3qZ1WS0AFziXzc13YtajWWWRgYDuoIpGS5RjnrGnLsXr3uW60kpb9FOaW
-         H9aYOrsxpVvfYfJ/8KkNUL9fmi97V+s6RaJQ10xAkLw6ThsU8dnCaatlBVFf4R6sXY5e
-         +Bo+X6CMiwTVeZ6uYchTpP+rHXwMHR/HIlQXRCRO2Bwrj5PZS/JX+lSHLAGIFBiCFY70
-         0NNDv/vclokWXzj3slcJwtPNUleVOQHdKcv0eMZe0q/Q8m3XZZYdM2C0VmzOHAaPSVgE
-         76DInOBIU85Alq22Ogzyhm7sz9hXDt+IEQIAbKrZRzoyDmmGXUS9i44z9cLrerGnb37R
-         2+Hw==
-X-Gm-Message-State: AOJu0YxeWfsMt3DjdFwTOsQkTlFDdNbNvKOS9QEWd9MNN48rxsIIYhhF
-	pgS5pnJTtdflHSRFqs53NXh/8U+dYumKB2N9K1zN1jIvzMIiafZv65IE6n8acgbAPcprJ8IEm6I
-	zYhlQV9NUIWr2uG3BNh6RusoaoKqvZ1txlwQygWXe/DLyZPJWZCEMQ+IyK2A6cw==
+        d=1e100.net; s=20251104; t=1776904124; x=1777508924;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Q8Zq/XP2zPjzoG7Ee7KkAJncAAl85yYbm00SL2RgdzU=;
+        b=EOvdJuoiywwkpdAetfYrAS45pGzvcaWlEZ5fXlqd4cnc5i95CuBhxE4L6FjiABLOcn
+         W5KhDW6gi4AocW0fs/lHfhLyB6HvAMgkF/SDWMagqAy2PYt8Vatu3LmSG/sDsDfX5TEQ
+         I7jowXEtBNhNMPJF18kDkRWHvMSw/X3Qi0m/cUMXb1XPNM4lUg5cXKCRSBzMNHnJuOql
+         a8jdv74bvteNsBCs3ZCl4No6yJbCWGIyHPyDpnIxysx532w7vFTt/2eY50HgoOFijKFF
+         NzLdfpuQAGkAyoFPqwUGGRJ+59yqBx/B1/M7dzvIcaL/HKX+XXBCn0NJ4kw0xZDswCAx
+         c9mg==
+X-Forwarded-Encrypted: i=1; AFNElJ/rbpZrb1cvyUql2Kwc0/SRfsWJvRKYie6uci3+MEMSux4K98qHABEO+Wrxwh9kUfpxYkNQ/0OShOc=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzysAMfNIldyFmUjQsOElJKaz8OSkUswZONQeT626P6Bxj46i+W
+	QRzFVJffU/FLIyi9g5ZJNnSS5Wl4pQ8KZ6jJf1Pi0BHoegZexCLh3v6BHEwjzTx90rTDxMFcHEd
+	Te7sksWE4sA==
+X-Gm-Gg: AeBDietW8zMTP9y9l+yXK5nHYRVDiorX8fnac+ZUWGn+2PSxx/Cyx+W9VasyFRs1TKK
+	dF23yAcZIDoAK0gAHkpJW9c9KIRUo+E7Rzl7qEruXOdWsV2VZpT+Vnq3a6lYU7v3CcAWumRw+fO
+	Aj9enNgLUtZP6Qw9Ryu6jTsCZ+Y7vBKqepm8nM7loTAyH1BSySQoqxLjIfyx7ozDzQ0himgRIwc
+	50zYwE3x49gPK80/Rcy2sxckfCfzTrgTf2bZUpHNra7FzJwbjiRNRgTF4khAjpnqjVVUtXLDnnY
+	VXQ36/nS7jK6s/vEoiyJD2u0nS34Tl+dQ5hK/+GpOqAcW361OxCtyjIHv+ImDxafagWqj2+w1bg
+	1HdbBfpB96b6ai1ZTJZby/ONFxSWywZ3loFeSmChaf5C8GEaTVykOQkyKsw89s/fydB72WYiE7+
+	7Q8mwGI4ZXZpihH9QA5HW/dFUM8XNKmAQu8dgB3qgoF/nNOuNKnM9hSFQduBR4Ih5bJQOYQ/7VW
+	bKUbQgrnNr3U4tOCDv4EvKaFg==
+X-Received: by 2002:a05:7300:2203:b0:2d9:7bc4:9578 with SMTP id 5a478bee46e88-2e47951a762mr18055125eec.28.1776904124283;
+        Wed, 22 Apr 2026 17:28:44 -0700 (PDT)
+Received: from wak-linux.svl.corp.google.com ([2a00:79e0:2ed2:c:c318:833d:66c6:43a0])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2e53d4bdaf7sm24632628eec.25.2026.04.22.17.28.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Apr 2026 17:28:43 -0700 (PDT)
+From: "William A. Kennington III" <william@wkennington.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Jan Dabros <jsd@semihalf.com>,
+	Andi Shyti <andi.shyti@kernel.org>
+Cc: "William A. Kennington III" <wak@google.com>,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] i2c: designware: Handle active slave and shutdown cleanly
+Date: Wed, 22 Apr 2026 17:28:36 -0700
+Message-ID: <20260423002838.83171-1-william@wkennington.com>
+X-Mailer: git-send-email 2.54.0.545.g6539524ca2-goog
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:f010:b0:696:1882:dd04 with SMTP id
- 006d021491bc7-6961882ddc3mr168743eaf.52.1776889892544; Wed, 22 Apr 2026
- 13:31:32 -0700 (PDT)
-Date: Wed, 22 Apr 2026 13:31:32 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <69e93024.a00a0220.17a17.0031.GAE@google.com>
-Subject: [syzbot] [i2c?] WARNING: refcount bug in i2c_get_adapter (2)
-From: syzbot <syzbot+c0291c8c9aaa473c7721@syzkaller.appspotmail.com>
-To: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com, wsa+renesas@sang-engineering.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hello,
+From: "William A. Kennington III" <wak@google.com>
 
-syzbot found the following issue on:
+When the I2C master attempts a new transaction while the slave
+controller is shutting down or restarting, it can lead to bus lockups
+and system bootloops if the hardware enters an inconsistent state.
 
-HEAD commit:    e753c16cb3dd Merge tag 'spi-fix-v7.0-rc7' of git://git.ker..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=127f9106580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=45cb3c58fd963c27
-dashboard link: https://syzkaller.appspot.com/bug?extid=c0291c8c9aaa473c7721
-compiler:       Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
+Address this by ensuring that the internal state machines are properly
+cleared when disabling the controller if slave activity is detected.
 
-Unfortunately, I don't have any reproducer for this issue yet.
+Additionally, add a shutdown hook that gracefully sets the slave
+disable bit before disabling the controller. This guarantees that any
+incoming requests from the master are immediately NACKed during
+shutdown, preventing the bus from hanging.
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/5ae80002fa8a/disk-e753c16c.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/6ef912fb95e2/vmlinux-e753c16c.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/b5b121be2ebf/bzImage-e753c16c.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+c0291c8c9aaa473c7721@syzkaller.appspotmail.com
-
-------------[ cut here ]------------
-refcount_t: addition on 0; use-after-free.
-WARNING: lib/refcount.c:25 at refcount_warn_saturate+0x9f/0x110 lib/refcount.c:25, CPU#0: syz.1.506/7352
-Modules linked in:
-CPU: 0 UID: 0 PID: 7352 Comm: syz.1.506 Tainted: G             L      syzkaller #0 PREEMPT_{RT,(full)} 
-Tainted: [L]=SOFTLOCKUP
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 03/18/2026
-RIP: 0010:refcount_warn_saturate+0x9f/0x110 lib/refcount.c:25
-Code: eb 66 85 db 74 3e 83 fb 01 75 4c e8 bb d6 25 fd 48 8d 3d 84 01 d6 0a 67 48 0f b9 3a eb 4a e8 a8 d6 25 fd 48 8d 3d 81 01 d6 0a <67> 48 0f b9 3a eb 37 e8 95 d6 25 fd 48 8d 3d 7e 01 d6 0a 67 48 0f
-RSP: 0018:ffffc9001ca9f6d8 EFLAGS: 00010283
-RAX: ffffffff849eaa68 RBX: 0000000000000002 RCX: 0000000000080000
-RDX: ffffc90006421000 RSI: 00000000000006c7 RDI: ffffffff8f74abf0
-RBP: 0000000000000000 R08: ffff888020331e80 R09: 0000000000000005
-R10: 0000000000000100 R11: 0000000000000004 R12: ffffffff8c04a688
-R13: dffffc0000000000 R14: ffff88803b531188 R15: dffffc0000000000
-FS:  00007f9769ca66c0(0000) GS:ffff888126332000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f6df4ab1d80 CR3: 00000000348d0000 CR4: 00000000003526f0
-Call Trace:
- <TASK>
- __refcount_add include/linux/refcount.h:-1 [inline]
- __refcount_inc include/linux/refcount.h:366 [inline]
- refcount_inc include/linux/refcount.h:383 [inline]
- kref_get include/linux/kref.h:45 [inline]
- kobject_get+0xfa/0x120 lib/kobject.c:643
- i2c_get_adapter+0x6d/0xa0 drivers/i2c/i2c-core-base.c:2612
- i2cdev_open+0x48/0x190 drivers/i2c/i2c-dev.c:603
- chrdev_open+0x4d0/0x5f0 fs/char_dev.c:411
- do_dentry_open+0x83d/0x13e0 fs/open.c:949
- vfs_open+0x3b/0x350 fs/open.c:1081
- do_open fs/namei.c:4677 [inline]
- path_openat+0x2e43/0x38a0 fs/namei.c:4836
- do_file_open+0x23e/0x4a0 fs/namei.c:4865
- do_sys_openat2+0x113/0x200 fs/open.c:1366
- do_sys_open fs/open.c:1372 [inline]
- __do_sys_openat fs/open.c:1388 [inline]
- __se_sys_openat fs/open.c:1383 [inline]
- __x64_sys_openat+0x138/0x170 fs/open.c:1383
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0x14d/0xf80 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7f976ba0d04e
-Code: 08 0f 85 a5 a8 ff ff 49 89 fb 48 89 f0 48 89 d7 48 89 ce 4c 89 c2 4d 89 ca 4c 8b 44 24 08 4c 8b 4c 24 10 4c 89 5c 24 08 0f 05 <c3> 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 80 00 00 00 00 48 83 ec 08
-RSP: 002b:00007f9769ca5b28 EFLAGS: 00000246 ORIG_RAX: 0000000000000101
-RAX: ffffffffffffffda RBX: 00007f9769ca66c0 RCX: 00007f976ba0d04e
-RDX: 0000000000000402 RSI: 00007f9769ca5c00 RDI: ffffffffffffff9c
-RBP: 00007f9769ca5c00 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: cccccccccccccccd
-R13: 00007f976bcc6038 R14: 00007f976bcc5fa0 R15: 00007fffc400e638
- </TASK>
-----------------
-Code disassembly (best guess):
-   0:	eb 66                	jmp    0x68
-   2:	85 db                	test   %ebx,%ebx
-   4:	74 3e                	je     0x44
-   6:	83 fb 01             	cmp    $0x1,%ebx
-   9:	75 4c                	jne    0x57
-   b:	e8 bb d6 25 fd       	call   0xfd25d6cb
-  10:	48 8d 3d 84 01 d6 0a 	lea    0xad60184(%rip),%rdi        # 0xad6019b
-  17:	67 48 0f b9 3a       	ud1    (%edx),%rdi
-  1c:	eb 4a                	jmp    0x68
-  1e:	e8 a8 d6 25 fd       	call   0xfd25d6cb
-  23:	48 8d 3d 81 01 d6 0a 	lea    0xad60181(%rip),%rdi        # 0xad601ab
-* 2a:	67 48 0f b9 3a       	ud1    (%edx),%rdi <-- trapping instruction
-  2f:	eb 37                	jmp    0x68
-  31:	e8 95 d6 25 fd       	call   0xfd25d6cb
-  36:	48 8d 3d 7e 01 d6 0a 	lea    0xad6017e(%rip),%rdi        # 0xad601bb
-  3d:	67                   	addr32
-  3e:	48                   	rex.W
-  3f:	0f                   	.byte 0xf
-
-
+Signed-off-by: William A. Kennington III <wak@google.com>
+(cherry picked from src/hw/icebreaker commit 2e825fbffc3b20b5148dde046cb56346ffbe301b)
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+ drivers/i2c/busses/i2c-designware-common.c  | 32 +++++++++++++++++++++
+ drivers/i2c/busses/i2c-designware-core.h    |  1 +
+ drivers/i2c/busses/i2c-designware-master.c  | 32 ++++++++++++---------
+ drivers/i2c/busses/i2c-designware-pcidrv.c  | 15 +++++++++-
+ drivers/i2c/busses/i2c-designware-platdrv.c | 13 +++++++++
+ 5 files changed, 79 insertions(+), 14 deletions(-)
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+index 4dc57fd56170..31394d8fe612 100644
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -633,6 +633,14 @@ void __i2c_dw_disable(struct dw_i2c_dev *dev)
+ 
+ 	abort_needed = (raw_intr_stats & DW_IC_INTR_MST_ON_HOLD) ||
+ 			(ic_stats & DW_IC_STATUS_MASTER_HOLD_TX_FIFO_EMPTY);
++
++	/*
++	 * If we are in slave mode and there is activity, we should also
++	 * trigger an abort to clear the internal state machines.
++	 */
++	if (dev->mode == DW_IC_SLAVE && (ic_stats & DW_IC_STATUS_SLAVE_ACTIVITY))
++		abort_needed = true;
++
+ 	if (abort_needed) {
+ 		if (!(enable & DW_IC_ENABLE_ENABLE)) {
+ 			regmap_write(dev->map, DW_IC_ENABLE, DW_IC_ENABLE_ENABLE);
+@@ -1028,5 +1036,29 @@ EXPORT_GPL_DEV_PM_OPS(i2c_dw_dev_pm_ops) = {
+ 	RUNTIME_PM_OPS(i2c_dw_runtime_suspend, i2c_dw_runtime_resume, NULL)
+ };
+ 
++void i2c_dw_shutdown(struct dw_i2c_dev *dev)
++{
++	unsigned int con;
++
++	/*
++	 * We only need to handle shutdown for slave mode to ensure
++	 * we NACK any incoming master requests. Master mode cleanup
++	 * is handled after each transfer in i2c_dw_xfer.
++	 */
++	if (dev->mode != DW_IC_SLAVE)
++		return;
++
++	/*
++	 * To quickly NACK the master during shutdown, we set the slave
++	 * disable bit while the controller is still enabled.
++	 */
++	regmap_read(dev->map, DW_IC_CON, &con);
++	con |= DW_IC_CON_SLAVE_DISABLE;
++	regmap_write(dev->map, DW_IC_CON, con);
++
++	i2c_dw_disable(dev);
++}
++EXPORT_SYMBOL_GPL(i2c_dw_shutdown);
++
+ MODULE_DESCRIPTION("Synopsys DesignWare I2C bus adapter core");
+ MODULE_LICENSE("GPL");
+diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
+index 9d8d104cc391..8b422249acbd 100644
+--- a/drivers/i2c/busses/i2c-designware-core.h
++++ b/drivers/i2c/busses/i2c-designware-core.h
+@@ -393,6 +393,7 @@ static inline void __i2c_dw_read_intr_mask(struct dw_i2c_dev *dev,
+ 
+ void __i2c_dw_disable(struct dw_i2c_dev *dev);
+ void i2c_dw_disable(struct dw_i2c_dev *dev);
++void i2c_dw_shutdown(struct dw_i2c_dev *dev);
+ 
+ extern void i2c_dw_configure_master(struct dw_i2c_dev *dev);
+ extern int i2c_dw_probe_master(struct dw_i2c_dev *dev);
+diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
+index de929b91d5ea..5b3505faa352 100644
+--- a/drivers/i2c/busses/i2c-designware-master.c
++++ b/drivers/i2c/busses/i2c-designware-master.c
+@@ -785,19 +785,25 @@ __i2c_dw_xfer_one_part(struct dw_i2c_dev *dev, struct i2c_msg *msgs, size_t num)
+ 	 * IC_RAW_INTR_STAT.MASTER_ON_HOLD holding SCL low. Check if
+ 	 * controller is still ACTIVE before disabling I2C.
+ 	 */
+-	if (i2c_dw_is_controller_active(dev))
+-		dev_err(dev->dev, "controller active\n");
+-
+-	/*
+-	 * We must disable the adapter before returning and signaling the end
+-	 * of the current transfer. Otherwise the hardware might continue
+-	 * generating interrupts which in turn causes a race condition with
+-	 * the following transfer. Needs some more investigation if the
+-	 * additional interrupts are a hardware bug or this driver doesn't
+-	 * handle them correctly yet.
+-	 */
+-	__i2c_dw_disable_nowait(dev);
+-
++	if (i2c_dw_is_controller_active(dev)) {
++		/*
++		 * If the controller is still active after the timeout, attempt a
++		 * bus recovery to clear any potentially locked state.
++		 */
++		dev_err(dev->dev, "controller active after xfer, recovering\n");
++		i2c_recover_bus(&dev->adapter);
++		i2c_dw_init(dev);
++	} else {
++		/*
++		 * We must disable the adapter before returning and signaling the end
++		 * of the current transfer. Otherwise the hardware might continue
++		 * generating interrupts which in turn causes a race condition with
++		 * the following transfer. Needs some more investigation if the
++		 * additional interrupts are a hardware bug or this driver doesn't
++		 * handle them correctly yet.
++		 */
++		__i2c_dw_disable_nowait(dev);
++	}
+ 	if (dev->msg_err)
+ 		return dev->msg_err;
+ 
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index f21f9877c040..87074655c0e7 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -356,11 +356,24 @@ static const struct pci_device_id i2c_designware_pci_ids[] = {
+ };
+ MODULE_DEVICE_TABLE(pci, i2c_designware_pci_ids);
+ 
++static void i2c_dw_pci_shutdown(struct pci_dev *pdev)
++{
++	struct dw_i2c_dev *i_dev = pci_get_drvdata(pdev);
++
++	if (!i_dev)
++		return;
++
++	pm_runtime_disable(&pdev->dev);
++	if (!pm_runtime_status_suspended(&pdev->dev))
++		i2c_dw_shutdown(i_dev);
++}
++
+ static struct pci_driver dw_i2c_driver = {
+ 	.name		= DRIVER_NAME,
+ 	.probe		= i2c_dw_pci_probe,
+ 	.remove		= i2c_dw_pci_remove,
+-	.driver         = {
++	.shutdown	= i2c_dw_pci_shutdown,
++	.driver		= {
+ 		.pm	= pm_ptr(&i2c_dw_dev_pm_ops),
+ 	},
+ 	.id_table	= i2c_designware_pci_ids,
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 3351c4a9ef11..7ff7c1631e64 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -289,9 +289,22 @@ static const struct platform_device_id dw_i2c_platform_ids[] = {
+ };
+ MODULE_DEVICE_TABLE(platform, dw_i2c_platform_ids);
+ 
++static void dw_i2c_plat_shutdown(struct platform_device *pdev)
++{
++	struct dw_i2c_dev *i_dev = platform_get_drvdata(pdev);
++
++	if (!i_dev)
++		return;
++
++	pm_runtime_disable(&pdev->dev);
++	if (!pm_runtime_status_suspended(&pdev->dev))
++		i2c_dw_shutdown(i_dev);
++}
++
+ static struct platform_driver dw_i2c_driver = {
+ 	.probe = dw_i2c_plat_probe,
+ 	.remove = dw_i2c_plat_remove,
++	.shutdown = dw_i2c_plat_shutdown,
+ 	.driver		= {
+ 		.name	= "i2c_designware",
+ 		.of_match_table = dw_i2c_of_match,
+-- 
+2.54.0.545.g6539524ca2-goog
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
-
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
-
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
-
-If you want to undo deduplication, reply with:
-#syz undup
