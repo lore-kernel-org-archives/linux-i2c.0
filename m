@@ -1,102 +1,137 @@
-Received: from mx.nabladev.com (mx.nabladev.com [178.251.229.89])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9413628AAEB;
-	Thu, 23 Apr 2026 19:15:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.251.229.89
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 980EC2472B6;
+	Thu, 23 Apr 2026 20:50:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776971749; cv=none; b=ghFVVjs8MnhblLb8eASrJo9NcxSCt4pB+ND0chNCzWmVy79oSqnNfb+/P/X1LTO6sD8vzlvlvLDF5v846Rf0HSgBfmFoN48ffU/fbsvwkRIDaVgToBbG6hU1NXyJpvRtN5cFcJulq629YOJzE/uS0VtjfJ6dZjhO7duj4VJQEek=
+	t=1776977428; cv=none; b=W7CJ+IIFFf4jHv8/zcZ47h2qulFuxit2PcHzP+c9dBs9NwdFb05kp9MUxEn6/xo5Ou/SgT+AlxnKDGh/PkIZ7YdRboVDpPUeg5Hgvl3EnifteGZFcV3A0li2h3AX84cyuQ7RGn+s55TS9MZQl9lHNJJ6Nc2RmZnCATO0DfZ3wtg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776971749; c=relaxed/simple;
-	bh=qiwwxf9yhhHO8ZYoPylORcn7HC3ao+V5tI/uFOshm3w=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=edQ7OSS33/graSiaEEm/13sK2UznRM8iG3+/UgO1bq/OHpfaMl5Z9n9fRNt7NSpfsXmNnbO8/gyF6jbscgMxnqE9rjiXMDQYNX7hAzU16FDjNGbGeKNyPogudvnjcXgJyXOsv67CYpStkVT1TJie7RyDQK+WYn4hD3c5t40SVMc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com; spf=pass smtp.mailfrom=nabladev.com; dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b=QRcokavF; arc=none smtp.client-ip=178.251.229.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabladev.com
+	s=arc-20240116; t=1776977428; c=relaxed/simple;
+	bh=KVCjW1rnn20O99r4TV4uIEDL25OrkXYiU8MmSCY3Ucc=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=HAJRWGPjTEKNG2a249Q0OIfK2qur4ihtdCuN1bhCsoVUsO9v1v0cTRA6AXJhmMVGthXbAS3jw0NqqJkfD8TAuS9Utlx/cYIhNT7KT+UpiOZB6UNk8cEhIgs4eBuDz1LfiHdJltW2P07ksyfDk0o/gUmmrlh47KZ5BFa7qA3evU8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lVKrZIpm; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b="QRcokavF"
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 530021133AA;
-	Thu, 23 Apr 2026 21:15:38 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nabladev.com;
-	s=dkim; t=1776971739;
-	h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:content-language:in-reply-to:references;
-	bh=TJ2rCpjIbZOghBXli83/mp337qVhjpWNhUQPZsMkTLE=;
-	b=QRcokavFUoi8C+quE6NbPZSe6Kutf4xWvZrBq2/o21IQbk0ogjcPUb5eR+7sGRiAkt0iDb
-	r5Cpr/npGQYGhOaU7Aief2dwSQhmbJJE3Xhwm9rT77T/JeTrd5XhRJWBShUguCnQbo+g0P
-	8lhfYIXVWtWxld0OzFbZgqvNxNDFQzhmBZd6akHhA0ElxVZu2x2DPCz62ymET+GLQl1sxp
-	KYaowsnAQ0lNFs0mu5n796R90iMoY5wpGu5tEe4NqsN/XKGJ9kBXkNkXkVRINprYoLdug3
-	ZqyP4D6QCjP2BW5aqghuLeBuJ/NgzfxMXNiSP4dsS56Uht9cH4gGz0dYNd1Lgg==
-Message-ID: <4a6c6822-28e1-4838-9262-f7b758f92736@nabladev.com>
-Date: Thu, 23 Apr 2026 21:15:37 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lVKrZIpm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 914A8C2BCAF;
+	Thu, 23 Apr 2026 20:50:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1776977428;
+	bh=KVCjW1rnn20O99r4TV4uIEDL25OrkXYiU8MmSCY3Ucc=;
+	h=Date:From:To:Cc:Subject:From;
+	b=lVKrZIpmkYlzR7gtJ1PFMupeX3Zl4Wy3TGrsPI3iNcyXKuNYI1Olj6FeCljE9sn+h
+	 Eionw7XBzjTFNLhq2k8TfkOlok50HU7U3bqyCXQ3A/9FkuJijPDG42n4/8Rzdntn6m
+	 OE1+l6Z1mGdv+FWsTYLN2vxxEjznF+r1DT1fPMqwbZpc0/jOF38RilFOK3dY3CoqoD
+	 RLmKwTbqdPhZF256TCj92Ux4RP0n7oNaZVoCcyNuX0MvedEbLRP5f/xDTqIY+V1sqQ
+	 YxrMseix/03KOZPQiVHrLtsHfk8E3s7d69yc+Vv6KGddn590HgIMa8C+GUvzwcuyPq
+	 SAVO/rR76kTvw==
+Date: Thu, 23 Apr 2026 22:50:24 +0200
+From: Wolfram Sang <wsa@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Igor Korotin <igor.korotin@linux.dev>
+Subject: [PULL REQUEST] i2c-for-7.1-rc1-part2
+Message-ID: <aeqGEIItM7yUkTgQ@shikoro>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] nvmem: core: eeprom: at24: Handle EEPROM with both
- read-only and wp-gpios
-To: Bartosz Golaszewski <brgl@kernel.org>
-Cc: linux-i2c@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- Srinivas Kandagatla <srini@kernel.org>, linux-kernel@vger.kernel.org
-References: <20260421140755.54222-1-marex@nabladev.com>
- <CAMRc=Mcxport3yb28Bbf5OM5VGCerfvLnCZQvLncpUO5--vbYw@mail.gmail.com>
- <210b41ca-28be-42ca-819b-de5f17dddec7@nabladev.com>
- <24649001-4d21-4ddf-a171-842b0e7782e4@nabladev.com>
- <CAMRc=MdqzeyvGD=typRApK0fKbpWoVT96_vAE-2yNymnjJxpAw@mail.gmail.com>
- <faba330b-f98a-4e52-a180-d62cdb9a24eb@nabladev.com>
- <CAMRc=Mfam_wONk+chgEi_hefBj+2+zhcSfbo0=Lxr_vOnvL1MA@mail.gmail.com>
- <bcbcc7b6-dede-4918-b229-bf546fb1742c@nabladev.com>
- <CAMRc=MeFktvZ0x8L_-53Oi2Y4pFYng4B3BivwafdZ40Wz75ycQ@mail.gmail.com>
-Content-Language: en-US
-From: Marek Vasut <marex@nabladev.com>
-In-Reply-To: <CAMRc=MeFktvZ0x8L_-53Oi2Y4pFYng4B3BivwafdZ40Wz75ycQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="QjpCanfv3ROjwHUC"
+Content-Disposition: inline
 
-On 4/23/26 4:19 PM, Bartosz Golaszewski wrote:
-> On Thu, Apr 23, 2026 at 4:06 PM Marek Vasut <marex@nabladev.com> wrote:
->>
->> On 4/23/26 2:17 PM, Bartosz Golaszewski wrote:
->>> On Thu, Apr 23, 2026 at 2:04 PM Marek Vasut <marex@nabladev.com> wrote:
->>>>
->>>>>
->>>>> I see. Ok, please send a v2.
->>>> Does this patch require any changes ?
->>>>
->>>> I will be sending the DT changes separately.
->>>
->>> Sashiko is saying this:
->>> https://sashiko.dev/#/patchset/20260421140755.54222-1-marex%40nabladev.com
->>
->> What does this mean ?
->>
->>> Shouldn't we report the device as read-only in sysfs unless it was
->>> "unlocked" with force_ro?
->> This would be ideal, but I did not find a way to toggle the "nvmem" bin
->> attr permissions at runtime. Is that even possible ?
-> 
-> Right, it seems like it's set once and can't be changed (Greg: correct
-> me if I'm wrong).
-> 
-> Ok, nevermind the comment then. Maybe just split the changes into
-> nvmem and at24 changes and I can take both with an Ack from Srini.
-I have two more ideas I would like to run past you ... how about either:
 
-- If wp-gpios is present, set the device as default RO after boot, and
-   let force_ro sysfs attribute toggle the protection of the device back
-   and forth afterward. This would however change the userspace facing
-   behavior slightly, because right now, with wp-gpios present in DT, the
-   device is default RW.
+--QjpCanfv3ROjwHUC
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-- Introduce new DT property, wp-gpios-default-read-only or
-   default-read-only or some such, to indicate the device should be in
-   read-only mode by default. That would mitigate the downside of the
-   aforementioned point, but would require a new DT property.
+The following changes since commit c1f49dea2b8f335813d3b348fd39117fb8efb428:
 
-Thoughts ?
+  Merge tag 'mm-hotfixes-stable-2026-04-19-00-14' of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm (2026-04-19 14:45:37 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-7.1-rc1-part2
+
+for you to fetch changes up to 79fc229e8a471356ddfea225f42e02f4fb73c469:
+
+  MAINTAINERS: add Rust I2C tree and update Igor Korotin's email (2026-04-20 00:05:35 +0200)
+
+----------------------------------------------------------------
+i2c-for-7.1-rc1-part2
+
+- cx92755: convert I2C bindings to DT schema
+- mediatek: add optional bus power management during transfers
+- pxa: handle early bus busy condition
+- MAINTAINERS: update I2C RUST entry
+
+----------------------------------------------------------------
+Adlavinitha Reddy (1):
+      i2c: mediatek: add bus regulator control for power saving
+
+Gabor Juhos (1):
+      i2c: pxa: handle 'Early Bus Busy' condition on Armada 3700
+
+Igor Korotin (1):
+      MAINTAINERS: add Rust I2C tree and update Igor Korotin's email
+
+Shi Hao (1):
+      dt-bindings: i2c: cnxt,cx92755-i2c: Convert to DT schema
+
+Wolfram Sang (1):
+      Merge tag 'i2c-host-7.1-part2' of git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux into i2c/for-mergewindow
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Chen-Yu Tsai (1):
+      (Rev.) i2c: mediatek: add bus regulator control for power saving
+
+Imre Kaloz (1):
+      (Rev.) i2c: pxa: handle 'Early Bus Busy' condition on Armada 3700
+
+Linus Walleij (1):
+      (Rev.) i2c: pxa: handle 'Early Bus Busy' condition on Armada 3700
+
+Rob Herring (Arm) (1):
+      (Rev.) dt-bindings: i2c: cnxt,cx92755-i2c: Convert to DT schema
+
+Robert Marko (1):
+      (Test) i2c: pxa: handle 'Early Bus Busy' condition on Armada 3700
+
+ .mailmap                                           |  1 +
+ .../devicetree/bindings/i2c/cnxt,cx92755-i2c.yaml  | 49 ++++++++++++++++++++++
+ .../devicetree/bindings/i2c/i2c-digicolor.txt      | 25 -----------
+ MAINTAINERS                                        |  3 +-
+ drivers/i2c/busses/i2c-mt65xx.c                    | 13 +++++-
+ drivers/i2c/busses/i2c-pxa.c                       | 18 +++++---
+ 6 files changed, 76 insertions(+), 33 deletions(-)
+ create mode 100644 Documentation/devicetree/bindings/i2c/cnxt,cx92755-i2c.yaml
+ delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-digicolor.txt
+
+--QjpCanfv3ROjwHUC
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmnqhhAACgkQFA3kzBSg
+KbaLZw/9FgWmm6EJ/DOI7IoemqrAlkPx7SqrAvLF3YnVtMTuoK1XNIMeey175Gg7
+ZD11MrFn05wfZsNWm6UiYIwTXx3VyD5xpnoW/74HXu3O0JRX0DutqwkilM6BwqjB
+qVpQuGh7s+xsjmX+vuBE4O/DvXHAC0CHuLRV/ESCwrj61roWsp8gHZtkMxMvMosA
+NBNHqr1wCS9RX0F4pcUKA8YUkhSFmsCTqEJ3yyALogCP3xxFI5S0EuP+fo4wkXOI
+dGhQh6vhmOZSkVHIaW62c2u2WxH6I9pzpHMOSSbt5tV6VEBudEeQlHEu5cM/rvYY
+PvUzISJP9+gBImfHBgFxjuXsSi1MHj5qTFnp39f77MZhnVB5V+/zV1YCLOy2qjmE
+L0OlZp5cFFLiQexNc9rRHIJT4d9FKFI3k8+wHhlil8Vot93rIVL7JK8KdVCOt1Rh
+oWEyhp3w5fAwl1jgGvLoTb/WUvvzjkylkNVDzXtsgswjmzi5kZv6qFetIYJhMtPy
+in50nxFmuinHiUGDexEcngYKv2zijx9Xp/ot+9wDQTqUvxXOJohLMGEss+3AoY7s
+LzV74PV1RG/++0GFImAcaEbJSedzbcDgzKQ+mEYaJXo0puREDsvpr1ZU09EvqyrF
+MIrNbWZqUliweBZykvHh2gjj+lYFd3AJ9B2pKrmi8OgQg6YJTWI=
+=staL
+-----END PGP SIGNATURE-----
+
+--QjpCanfv3ROjwHUC--
