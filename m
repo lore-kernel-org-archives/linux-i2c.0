@@ -1,75 +1,78 @@
-Received: from mail-dy1-f181.google.com (mail-dy1-f181.google.com [74.125.82.181])
+Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com [74.125.82.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51B8A1E9906
-	for <linux-i2c@vger.kernel.org>; Thu, 23 Apr 2026 00:28:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A8B61A239A
+	for <linux-i2c@vger.kernel.org>; Thu, 23 Apr 2026 00:52:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776904126; cv=none; b=J7CdwnH8uE16bpm+RMzSWFc4a7HTfSvQUW505Uh13TnaEiewwEmEf++VVN4wSHd3Sz7hDteiVqkK2sFCYixIy2P0gqvxg48hWJLyuj+GN+HZbVV8M4h8zXnbM4ZPiMtXrRx1LKIo1iiAhv+Ak5tnM2fhkYWgn807SgZYiYZRSng=
+	t=1776905568; cv=none; b=uoBM65Prd4QO0/mQsxWTm8JlC9OJYKh23xfNmRwMcKR7TbTqJ2kRvjl8qbxM3PXWei5/3cNgEttDrytMuVmXLJ4ptBd31IKi1ZWQxO2LttFwtva9IOgbrUwKFbqAGT9VQJtC+N9xqICZ7jHQlrIFN3T0d7wKBR7SF8mu4jaAzSw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776904126; c=relaxed/simple;
-	bh=fLuh2yYCliD3/tO4zPDbjuOR6Zrc8covuDSXJPtOtGE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PMW7BtlUKr6vGimHM3hvlFoH4Rl5IG+v5Qf5IWwmykxA0THNv1NL6/r+iihU60cMHX3ThHZBRgAXq8KJ1owoZlCUyDBN7pmuIUb+UlvxAelrRIslMmhlv3AJJwZlwL5B4tKQrH6L89hRCyeaOyfC1uPL6nPyNb7NVaO1X0n0uOM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wkennington.com; spf=none smtp.mailfrom=wkennington.com; dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b=qwEMjfR8; arc=none smtp.client-ip=74.125.82.181
+	s=arc-20240116; t=1776905568; c=relaxed/simple;
+	bh=4HN/ZYFi+2HufjcFzqZH57HWeOHKbnG4l5nDjw72cE0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=eDrmo4hxitZVt2J9kGwZ9iHyu/6ztQp4d1b3iB3cBhcUelXzvNB1/Cy13KPiGA30JJs7Nb5Ay7qLbWUX8UDSqDwxjWYyRs3nu4QLVdfPsQ4yvd0h3qYYUfWxhZz50YE4oxmgFd34xeWMpCuDoq96j9CSUQdxiX5elmfqrYnplxw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wkennington.com; spf=none smtp.mailfrom=wkennington.com; dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b=jENFxHlz; arc=none smtp.client-ip=74.125.82.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wkennington.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=wkennington.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b="qwEMjfR8"
-Received: by mail-dy1-f181.google.com with SMTP id 5a478bee46e88-2e622a9da9cso7124752eec.0
-        for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 17:28:45 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b="jENFxHlz"
+Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-12c7212836bso16011821c88.0
+        for <linux-i2c@vger.kernel.org>; Wed, 22 Apr 2026 17:52:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=wkennington-com.20251104.gappssmtp.com; s=20251104; t=1776904124; x=1777508924; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Q8Zq/XP2zPjzoG7Ee7KkAJncAAl85yYbm00SL2RgdzU=;
-        b=qwEMjfR8bJ86el3SwemWZsa2zhM9t0AY8OsDuKiHD1F/UHyP/Fn4us8oCmw9I0mhZ9
-         hT1qHChA8edPyUOMOrlTcf1IHCE8M3HWnh1fy0l0h/hWzKQDYksQrNFRacsZdHQHGWtk
-         miXeqqEmqMuImCK5+7EJQkY/A1h/425tkDrt4J7WzknF544vwePebK0K+17FREOmbMG/
-         0AcV4I12hpKOwb5VQz9oPgr2hIB8QDlyaa9z4NtknfDFHe89cU+GbrzSLT1uU9dKGnDN
-         Wfb0YaVnxJDuvacmjgDcPseRPu4GyZROwNHgNE0wDFll+iLmL8HjL+N5UHdV+H2OsJP+
-         90ww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776904124; x=1777508924;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=wkennington-com.20251104.gappssmtp.com; s=20251104; t=1776905566; x=1777510366; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Q8Zq/XP2zPjzoG7Ee7KkAJncAAl85yYbm00SL2RgdzU=;
-        b=EOvdJuoiywwkpdAetfYrAS45pGzvcaWlEZ5fXlqd4cnc5i95CuBhxE4L6FjiABLOcn
-         W5KhDW6gi4AocW0fs/lHfhLyB6HvAMgkF/SDWMagqAy2PYt8Vatu3LmSG/sDsDfX5TEQ
-         I7jowXEtBNhNMPJF18kDkRWHvMSw/X3Qi0m/cUMXb1XPNM4lUg5cXKCRSBzMNHnJuOql
-         a8jdv74bvteNsBCs3ZCl4No6yJbCWGIyHPyDpnIxysx532w7vFTt/2eY50HgoOFijKFF
-         NzLdfpuQAGkAyoFPqwUGGRJ+59yqBx/B1/M7dzvIcaL/HKX+XXBCn0NJ4kw0xZDswCAx
-         c9mg==
-X-Forwarded-Encrypted: i=1; AFNElJ/rbpZrb1cvyUql2Kwc0/SRfsWJvRKYie6uci3+MEMSux4K98qHABEO+Wrxwh9kUfpxYkNQ/0OShOc=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzysAMfNIldyFmUjQsOElJKaz8OSkUswZONQeT626P6Bxj46i+W
-	QRzFVJffU/FLIyi9g5ZJNnSS5Wl4pQ8KZ6jJf1Pi0BHoegZexCLh3v6BHEwjzTx90rTDxMFcHEd
-	Te7sksWE4sA==
-X-Gm-Gg: AeBDietW8zMTP9y9l+yXK5nHYRVDiorX8fnac+ZUWGn+2PSxx/Cyx+W9VasyFRs1TKK
-	dF23yAcZIDoAK0gAHkpJW9c9KIRUo+E7Rzl7qEruXOdWsV2VZpT+Vnq3a6lYU7v3CcAWumRw+fO
-	Aj9enNgLUtZP6Qw9Ryu6jTsCZ+Y7vBKqepm8nM7loTAyH1BSySQoqxLjIfyx7ozDzQ0himgRIwc
-	50zYwE3x49gPK80/Rcy2sxckfCfzTrgTf2bZUpHNra7FzJwbjiRNRgTF4khAjpnqjVVUtXLDnnY
-	VXQ36/nS7jK6s/vEoiyJD2u0nS34Tl+dQ5hK/+GpOqAcW361OxCtyjIHv+ImDxafagWqj2+w1bg
-	1HdbBfpB96b6ai1ZTJZby/ONFxSWywZ3loFeSmChaf5C8GEaTVykOQkyKsw89s/fydB72WYiE7+
-	7Q8mwGI4ZXZpihH9QA5HW/dFUM8XNKmAQu8dgB3qgoF/nNOuNKnM9hSFQduBR4Ih5bJQOYQ/7VW
-	bKUbQgrnNr3U4tOCDv4EvKaFg==
-X-Received: by 2002:a05:7300:2203:b0:2d9:7bc4:9578 with SMTP id 5a478bee46e88-2e47951a762mr18055125eec.28.1776904124283;
-        Wed, 22 Apr 2026 17:28:44 -0700 (PDT)
+        bh=YL5uV0/k35OGHfrt+bWZEtJfKssUFFLJXG7HXn5YnTU=;
+        b=jENFxHlzQhQMIbxeJBmtiJQZneZknVaeogmUQDYhX/phPAeM53/Fq7oMhGfG7JfCuF
+         UM4KD/eEOCQyqTjS6tMAi50B11hSzZobcLTCAcbNy/TghH/+2yGhyh/tGh5bV0lJg0j1
+         q/Ryme38xLPGtvKSN8QavZGHLRFSnA1GPRfpwDkvkR+62fvAzPHnaXUTUYI3dRv0ezAY
+         +ABUe9AsW0CLVSt2DA+XpVJAfGsAIQa+ADHNzHoZ47/0V1DDXBg5hB4Bp0RH6fioSNI8
+         +ZSELTS989GkeWU53JyQfDqvt52L8aRu2E+rWiuEWqp00ONvzNB8wI+KEZvuW+u4/IIO
+         bJ+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776905566; x=1777510366;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=YL5uV0/k35OGHfrt+bWZEtJfKssUFFLJXG7HXn5YnTU=;
+        b=CGuv88i1ddBARDB8xt46VPdxSMhQe7nn817nhhdO5zzq3IQDtgCS4gFamHI1k5UxQw
+         YbCyZwhslT7PR3NYZSnKS01iSlMMgEWLxhv21dmlOjNFjJevzGrFfdCZNCKHe+kTGBps
+         Lg6b70dg0o7rkAcQwF9y8h4KBn/dC66WpXKXj0BBu3xiNC7oxc++dPlTOViWjq8CBQuX
+         ZDyi2NPCA3b90a/FfLL7K3JZRB6thlj5kmEfLpJ9oDrviA+ACJEp+CtnP9xfPfKHfEfr
+         sehqsL/OaoVotjFSqnCB5iLxftcwxd4KADT16UFZlt8RAZHAhZbXi4o3MvGk7sTLH7h/
+         XfRA==
+X-Forwarded-Encrypted: i=1; AFNElJ/e8YUPKxAs8/cTr9iW3by78WrnUgr78+9GJtUuWd+0MKJUKM6AUaMf7muCC3eR4jWTuiWTaZpyPc0=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyGPhIAoETcFDdoY+6isNuYwdTrXX+U7MEsYtA+cIjB0/YYWqNW
+	MJMxvjecNo4eFAWpM3vTjiQazTd931eqUqfq1Kf0+2iCyLKWdnhFmbM5cKrDMtdMDG0=
+X-Gm-Gg: AeBDieuxgL6qV2uSHlEh4ft9Wh6TQEa9W4QV7Vp/v6YhpwRqEBO5tOE+DOH5UGIQi03
+	zWT5b2B+bNkFRmK4uayzk5Yl5CPyDw/4NDlmByxJLFj0pbFRkDGP5IRetr1geGIZvFAgsxO/EWj
+	iHJSftMkd09PzAJHJyT5m97CczwL8ArXUzUGjtbcovz1GFWo8lkmUD0X2XJ0pnWPsFtCVljHdUQ
+	P9O2RC8Na6jS7+GbeTMpcclEL6ncWI+WvbjZgXU33NnPQxeWKtBbFNDHuxsQeoNDTZKZX6ZpO9A
+	YrZbBB8sZTnz6mooYpI2JB2KMiRGwlMpNA1KRXfOs2fQrKvOyTRLPduPd1FeErfoBDAh0Xw5XSW
+	m+xF21NxNQuEVdXbWW0FmH1o9fnjeHZ72sOlBkZchVP5w7vRuQkm0YE8/wK2O5fdk5+sYVL8o+g
+	IdGJmB21s/j3kEhkRPUbfaCIQKfXXP9tQeFIIKkPpX086x5dOGFB8MNVdoMxwHtTR20RUztetWx
+	oTAUvM/GQrhpyXHFFGdMF9pbQ==
+X-Received: by 2002:a05:693c:2b04:b0:2be:6f30:f2f9 with SMTP id 5a478bee46e88-2e479215120mr14232258eec.26.1776905565557;
+        Wed, 22 Apr 2026 17:52:45 -0700 (PDT)
 Received: from wak-linux.svl.corp.google.com ([2a00:79e0:2ed2:c:c318:833d:66c6:43a0])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2e53d4bdaf7sm24632628eec.25.2026.04.22.17.28.43
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2e53ac84c38sm26139970eec.13.2026.04.22.17.52.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Apr 2026 17:28:43 -0700 (PDT)
+        Wed, 22 Apr 2026 17:52:45 -0700 (PDT)
 From: "William A. Kennington III" <william@wkennington.com>
 To: Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
 	Jan Dabros <jsd@semihalf.com>,
 	Andi Shyti <andi.shyti@kernel.org>
-Cc: "William A. Kennington III" <wak@google.com>,
+Cc: "William A. Kennington III" <william@wkennington.com>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH] i2c: designware: Handle active slave and shutdown cleanly
-Date: Wed, 22 Apr 2026 17:28:36 -0700
-Message-ID: <20260423002838.83171-1-william@wkennington.com>
+Subject: [PATCH v2] i2c: designware: Handle active slave and shutdown cleanly
+Date: Wed, 22 Apr 2026 17:51:05 -0700
+Message-ID: <20260423005241.89054-1-william@wkennington.com>
 X-Mailer: git-send-email 2.54.0.545.g6539524ca2-goog
+In-Reply-To: <20260423002838.83171-1-william@wkennington.com>
+References: <20260423002838.83171-1-william@wkennington.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -77,8 +80,6 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-
-From: "William A. Kennington III" <wak@google.com>
 
 When the I2C master attempts a new transaction while the slave
 controller is shutting down or restarting, it can lead to bus lockups
@@ -92,9 +93,12 @@ disable bit before disabling the controller. This guarantees that any
 incoming requests from the master are immediately NACKed during
 shutdown, preventing the bus from hanging.
 
-Signed-off-by: William A. Kennington III <wak@google.com>
-(cherry picked from src/hw/icebreaker commit 2e825fbffc3b20b5148dde046cb56346ffbe301b)
+Signed-off-by: William A. Kennington III <william@wkennington.com>
 ---
+Changes since V1:
+  - Fix description footers
+  - Fix emails
+
  drivers/i2c/busses/i2c-designware-common.c  | 32 +++++++++++++++++++++
  drivers/i2c/busses/i2c-designware-core.h    |  1 +
  drivers/i2c/busses/i2c-designware-master.c  | 32 ++++++++++++---------
