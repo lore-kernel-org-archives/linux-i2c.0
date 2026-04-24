@@ -1,96 +1,214 @@
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
+Received: from courrier.aliel.fr (courrier.aliel.fr [65.21.61.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 979C13CEBA6
-	for <linux-i2c@vger.kernel.org>; Fri, 24 Apr 2026 12:37:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.167.242.64
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4F503BED0C;
+	Fri, 24 Apr 2026 14:00:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.21.61.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777034239; cv=none; b=iHMexJW1J7c6U2OA8J7L+HB1MTOImTlSNk3VVH7pSwlSU3lHkUeSaAUMkhnt1Kvf1187mDd63tRqwmQ4bdYNn67JoySLVu5YGD0FOCpComEYQxhipm1sISpQE+bH2UKfpIMEv6Z09A+uQeQylvuKaBN1bdf/txQ22e7zTIeCFVs=
+	t=1777039260; cv=none; b=ggnDITDaTPszaIuLZOvr/PGy4YM/GSA4CdJzHqV4yKLqgBTqMNHZVlo8Q8riEoTLTl8oYlLCQyJYKCNdVB9IU626A6aUJCHG/V46BQW/G/1tSMP0RHKOOyFc8ceSTZC9PDLUgBV+r5euXIQWH9vB+6/MG39YvcX1m3NLeQyEx9k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777034239; c=relaxed/simple;
-	bh=WNOfl9TMJAgdQRS+Wl9stY3RrXYZyI6/gxecvU1FULI=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=bJMvIEF3pNAqXVGxiy4vmKHx7sKvwc/TzGrDCYdHqo6LHdodOWKvww7W0B7MOoPDPX8j8wzwrMnx2eBs3x5AwnTxO8dOLwRBtUMJSJYUco3VaVuMfCYDliSEifJ+i0SjSphh4dkqIvg4AqM8r12jIHDl3ffHQiqPYbMIW2pU3iQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com; spf=pass smtp.mailfrom=ideasonboard.com; dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b=t/y1yHCB; arc=none smtp.client-ip=213.167.242.64
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ideasonboard.com
+	s=arc-20240116; t=1777039260; c=relaxed/simple;
+	bh=9pUhrKJcwFra8E+jfRhvbHF2LOR340gxwUJUdLIfuIs=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=GRavqqSLgvR7vEo90xbw1vC5lret7xMH+8UfLot0OhtMlfJI+lAr7PmgcvR5NvKrP/9SNuKX5VMidzMTkm5WH0JmuVQBySpy4rky67jOqDcJIRiJ7oi4SNqkIUkf/M2I5It1UIAmZ23MQBeP+3SmZnqKgD7CyvNFhb7NHktsIOc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aliel.fr; spf=pass smtp.mailfrom=aliel.fr; dkim=pass (1024-bit key) header.d=aliel.fr header.i=@aliel.fr header.b=ZpHkUmLd; arc=none smtp.client-ip=65.21.61.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aliel.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aliel.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b="t/y1yHCB"
-Received: from [127.0.1.1] (chfd-03-b2-v4wan-176392-cust229.vm15.cable.virginm.net [82.19.20.230])
-	by perceval.ideasonboard.com (Postfix) with ESMTPSA id 86EDD19A8;
-	Fri, 24 Apr 2026 14:35:23 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-	s=mail; t=1777034124;
-	bh=WNOfl9TMJAgdQRS+Wl9stY3RrXYZyI6/gxecvU1FULI=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=t/y1yHCBELV34W5QxOrNf+WxZZnZbLlYZrKOZ1YknODDpEpAxEXqKSt98NYNAPY6V
-	 PdhF60jzifFQU+6IXfE+gFthQ8dNmdVixKK0W5T/IY1FFA/UO18d0rGnN6rdvT3v+3
-	 R1n+YjQ7u96RGL+t/afHfiDTGnKc4a1cjLZaANO8=
-From: Daniel Scally <dan.scally@ideasonboard.com>
-Date: Fri, 24 Apr 2026 13:36:47 +0100
-Subject: [PATCH v2 2/2] i2c: imx: Retry failed transfers 3 times
+	dkim=pass (1024-bit key) header.d=aliel.fr header.i=@aliel.fr header.b="ZpHkUmLd"
+Message-ID: <d81b706e-e703-46fd-b560-08b04fa49f98@aliel.fr>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aliel.fr;
+	s=courrier-s1; t=1777039255;
+	bh=9pUhrKJcwFra8E+jfRhvbHF2LOR340gxwUJUdLIfuIs=;
+	h=Date:From:Subject:To:Cc:References:In-Reply-To;
+	b=ZpHkUmLdcMXDWY338GnmSfmcP+yIFuCYhyVpFLFW0EVRCADz2r2F6I3gxWK7n2F94
+	 zf3VQC/HKYFmdwULy3kXCe27kGQu19amfQL+y/nOJa3hT+jY1wC9lykgSdv1C/vd8T
+	 VEGWxpuHPTqTqnnZjx0vylRhNyF1VyoaWN4KRrB8=
+Date: Fri, 24 Apr 2026 16:00:53 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260424-i2c-imx-fixes-v2-2-34fb9504aaeb@ideasonboard.com>
-References: <20260424-i2c-imx-fixes-v2-0-34fb9504aaeb@ideasonboard.com>
-In-Reply-To: <20260424-i2c-imx-fixes-v2-0-34fb9504aaeb@ideasonboard.com>
-To: Oleksij Rempel <o.rempel@pengutronix.de>, 
- Pengutronix Kernel Team <kernel@pengutronix.de>, 
- Andi Shyti <andi.shyti@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
- Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
- Gao Pan <b54642@freescale.com>, Fugang Duan <B38611@freescale.com>, 
- Wolfram Sang <wsa@kernel.org>
-Cc: linux-i2c@vger.kernel.org, imx@lists.linux.dev, 
- linux-arm-kernel@lists.infradead.org, 
- Daniel Scally <dan.scally@ideasonboard.com>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=941;
- i=dan.scally@ideasonboard.com; h=from:subject:message-id;
- bh=WNOfl9TMJAgdQRS+Wl9stY3RrXYZyI6/gxecvU1FULI=;
- b=owEBbQKS/ZANAwAKAchJV3psRXUyAcsmYgBp62PtXN02sS6E4D45jdY5YmHKbzszWjA9vdl+1
- JErMzAIA8OJAjMEAAEKAB0WIQQqyuwyDnZdb+mxmm/ISVd6bEV1MgUCaetj7QAKCRDISVd6bEV1
- MtNrD/9Lgn0kR7oa/zXMFfKfupm9ABSsN51NPAQpnkTCY2La2De4R7O0JnAAS7lH6R78erTaq6U
- 5pfv/DTr+bnBTZp5NxmkhDGWYrq+F+Ri4r2bjsfZZgAadxjfqO+MtK+Y+MAkaKiDsF2M1w/jhPe
- +f9rvykIGB9dBRKvLjYSO0OWnJkZ1SqSrIJPZUiM6grOpIsJvaWEv3UXVG3Dq/DpzWBbG71ey7u
- fgt1rpOR1vRSF94lT07m5gT6BPPz+OBjAV08evmR+lotp8GLVQbDwBZskHC4SkRzocHEULuJ29+
- /EgkQQFSgwL6lGirCb4GBI2e91HiQ6yQ3SnK8P2cGtBjhNkEgbolqP3X22ty+72eV3zOSPQRmeM
- E/MSTXfMcrIIShVRErM962IlJqMaPvV9lDwBPu9vOtEF6ksZtDKgXrKkP/iNdxiSnNFynAfbGmK
- tXJY5IfIrms5qK11OoUHkjTZQKyIxk3T82Xcz5ynfeegOpbAh8sRFowZIoUdCIUMZB/RyCu4ExX
- SJGOcYfW1OTi2FiC+BYONVMcO+xKqlcOef+QXfSamnmBLY913sGGnXLx8F7b4MnivaphOnyTtdu
- XrDvlSZvbKyqhtb1pZj3qPbpKPQvbMxtHQAHrke58VKybqXEqOFPm83MsbRg5vUkBznsrKLF7bJ
- Cvp4jwLqwaq5ntw==
-X-Developer-Key: i=dan.scally@ideasonboard.com; a=openpgp;
- fpr=EEC699ACA1B7CB5D31330C0BBD501C2A3546CCF6
+User-Agent: Mozilla Thunderbird Beta
+From: linux-kernel-dev@aliel.fr
+Subject: Re: [PATCH v4 5/8] thermal: khadas-mcu-fan: Add fan config from
+ platform data Add regulator support
+To: Neil Armstrong <neil.armstrong@linaro.org>
+Cc: linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+ linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
+ Lee Jones <lee@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>,
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+ Beniamino Galvani <b.galvani@gmail.com>,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ Lukasz Luba <lukasz.luba@arm.com>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>
+References: <20260421-add-mcu-fan-khadas-vim4-v4-0-447114a28f2d@aliel.fr>
+ <20260421-add-mcu-fan-khadas-vim4-v4-5-447114a28f2d@aliel.fr>
+ <f057dbd9-5fa7-414f-98f4-1bbb691e2fc7@linaro.org>
+Content-Language: en-US
+In-Reply-To: <f057dbd9-5fa7-414f-98f4-1bbb691e2fc7@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Set the retries member of the i2c_adapter to 3, which will cause the
-i2c-core code to retry transfers that lose arbitration 3 times before
-giving up.
+Thanks for your review.
 
-Reviewed-by: Frank Li <Frank.Li@nxp.com>
-Signed-off-by: Daniel Scally <dan.scally@ideasonboard.com>
----
- drivers/i2c/busses/i2c-imx.c | 1 +
- 1 file changed, 1 insertion(+)
+On 4/24/26 12:00 PM, Neil Armstrong wrote:
+> On 4/21/26 13:49, Ronald Claveau via B4 Relay wrote:
+>> From: Ronald Claveau <linux-kernel-dev@aliel.fr>
+>>
+>> Replace the hardcoded MAX_LEVEL constant and fan register
+>> with values read from platform_data (fan_reg, max_level),
+>> as new MCUs need different values.
+>>
+>> Optionally acquire and enable a "fan" regulator supply
+>> at probe time and on resume,
+>> so boards that gate fan power through a regulator are handled.
+>>
+>> Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
+>> ---
+>>   drivers/thermal/khadas_mcu_fan.c | 49 ++++++++++++++++++++++++++++++
+>> +++++-----
+>>   1 file changed, 43 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/drivers/thermal/khadas_mcu_fan.c b/drivers/thermal/
+>> khadas_mcu_fan.c
+>> index d35e5313bea41..24559bf65de46 100644
+>> --- a/drivers/thermal/khadas_mcu_fan.c
+>> +++ b/drivers/thermal/khadas_mcu_fan.c
+>> @@ -13,13 +13,15 @@
+>>   #include <linux/regmap.h>
+>>   #include <linux/sysfs.h>
+>>   #include <linux/thermal.h>
+>> -
+>> -#define MAX_LEVEL 3
+>> +#include <linux/regulator/consumer.h>
+>>     struct khadas_mcu_fan_ctx {
+>>       struct khadas_mcu *mcu;
+>> +    unsigned int fan_reg;
+>>       unsigned int level;
+>> +    unsigned int max_level;
+>>       struct thermal_cooling_device *cdev;
+>> +    struct regulator *power;
+>>   };
+>>     static int khadas_mcu_fan_set_level(struct khadas_mcu_fan_ctx *ctx,
+>> @@ -27,8 +29,7 @@ static int khadas_mcu_fan_set_level(struct
+>> khadas_mcu_fan_ctx *ctx,
+>>   {
+>>       int ret;
+>>   -    ret = regmap_write(ctx->mcu->regmap,
+>> KHADAS_MCU_CMD_FAN_STATUS_CTRL_REG,
+>> -               level);
+>> +    ret = regmap_write(ctx->mcu->regmap, ctx->fan_reg, level);
+>>       if (ret)
+>>           return ret;
+>>   @@ -40,7 +41,9 @@ static int khadas_mcu_fan_set_level(struct
+>> khadas_mcu_fan_ctx *ctx,
+>>   static int khadas_mcu_fan_get_max_state(struct
+>> thermal_cooling_device *cdev,
+>>                       unsigned long *state)
+>>   {
+>> -    *state = MAX_LEVEL;
+>> +    struct khadas_mcu_fan_ctx *ctx = cdev->devdata;
+>> +
+>> +    *state = ctx->max_level;
+>>         return 0;
+>>   }
+>> @@ -61,7 +64,7 @@ khadas_mcu_fan_set_cur_state(struct
+>> thermal_cooling_device *cdev,
+>>   {
+>>       struct khadas_mcu_fan_ctx *ctx = cdev->devdata;
+>>   -    if (state > MAX_LEVEL)
+>> +    if (state > ctx->max_level)
+>>           return -EINVAL;
+>>         if (state == ctx->level)
+>> @@ -83,11 +86,32 @@ static int khadas_mcu_fan_probe(struct
+>> platform_device *pdev)
+>>       struct device *dev = &pdev->dev;
+>>       struct khadas_mcu_fan_ctx *ctx;
+>>       int ret;
+>> +    const struct khadas_mcu_fan_pdata *pdata =
+>> dev_get_platdata(&pdev->dev);
+> 
+> Move this on top to respect reverse christmas ordering.
+> 
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index b68a0f7105682006bbcfee52891c9a9c2d8c009e..e70e64cc633ff1e13dc61920c0c7960fb6a02622 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1749,6 +1749,7 @@ static int i2c_imx_probe(struct platform_device *pdev)
- 	i2c_imx->adapter.dev.parent	= &pdev->dev;
- 	i2c_imx->adapter.nr		= pdev->id;
- 	i2c_imx->adapter.dev.of_node	= pdev->dev.of_node;
-+	i2c_imx->adapter.retries	= 3;
- 	i2c_imx->base			= base;
- 	ACPI_COMPANION_SET(&i2c_imx->adapter.dev, ACPI_COMPANION(&pdev->dev));
- 
+Ok I will do that.
+
+>>         ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
+>>       if (!ctx)
+>>           return -ENOMEM;
+>> +
+>>       ctx->mcu = mcu;
+>> +    ctx->fan_reg   = pdata->fan_reg;
+>> +    ctx->max_level = pdata->max_level;
+>> +
+>> +    ctx->power = devm_regulator_get_optional(dev->parent, "fan");
+>> +    if (IS_ERR(ctx->power)) {
+>> +        if (PTR_ERR(ctx->power) == -ENODEV)
+>> +            ctx->power = NULL;
+>> +        else
+>> +            return PTR_ERR(ctx->power);
+>> +    }
+>> +
+>> +    if (ctx->power) {
+>> +        ret = regulator_enable(ctx->power);
+>> +        if (ret) {
+>> +            dev_err(dev, "Failed to enable fan power supply: %d\n",
+>> ret);
+>> +            return ret; +        }
+>> +    }
+> 
+> Or you can request with devm_regulator_get(dev->parent, "fan"); which will
+> return a dummy regulator, and then you can just call regulator_enable &
+> disable
+> and remove all those checks.
+> 
+
+Make sense, I'm on it.
+
+>> +
+>>       platform_set_drvdata(pdev, ctx);
+>>         cdev = devm_thermal_of_cooling_device_register(dev->parent,
+>> @@ -124,12 +148,25 @@ static int khadas_mcu_fan_suspend(struct device
+>> *dev)
+>>         ctx->level = level_save;
+>>   +    if (ctx->power) {
+>> +        ret = regulator_disable(ctx->power);
+>> +        if (ret)
+>> +            return ret;
+>> +    }
+> 
+> if (ctx->power)
+>     return regulator_disable(ctx->power);
+> 
+>> +
+>>       return 0;
+>>   }
+>>     static int khadas_mcu_fan_resume(struct device *dev)
+>>   {
+>>       struct khadas_mcu_fan_ctx *ctx = dev_get_drvdata(dev);
+>> +    int ret;
+>> +
+>> +    if (ctx->power) {
+>> +        ret = regulator_enable(ctx->power);
+>> +        if (ret)
+>> +            return ret;
+>> +    }
+>>         return khadas_mcu_fan_set_level(ctx, ctx->level);
+>>   }
+>>
+> 
+> Thanks,
+> Neil
+
 
 -- 
-2.43.0
-
+Best regards,
+Ronald
