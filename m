@@ -1,241 +1,235 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AE15288C3D
-	for <linux-i2c@vger.kernel.org>; Fri, 24 Apr 2026 15:12:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBF8F2FD69A;
+	Sat, 25 Apr 2026 21:44:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777043563; cv=none; b=ADGBb7zK8rABx+KPEYkWyGV6EalqdGGzXwRQTqPpCLAheSXIsBi0MFHUwi6/6tJKfYK5CBH8l/Vw28VfOK+BJRWEYdjm9d2THbOfIkNzxWWy0fN2VAh4ULRupFfrj5q7lVOCymWPIQcxzOXjBOHTHVNhO7r/UrB0KsGRC35yqTk=
+	t=1777153453; cv=none; b=Hl+cKE820snqFeUHBRb9wSBA9/VC6iDxVB3mRjVwbJFaU2nNO0tWDUh59BtVuqVQngYSaSmTRid6eXvP7dolgt42SB3i9gY6a1WAAEoVzoJZp/Tz9nW8QWGQIcdeEbU4NRcSWB1N4TFIp+oTgs31VaBcptZ7V7CVqiMWlKtD/Vw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777043563; c=relaxed/simple;
-	bh=5XDKAxu8Xq1TVY6QbxiDtMURF8o8Sc8i5C25fq9XWJ4=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=rqPAJG2GM1a1uoxkep1rDO2aNeZgqVSIwy4HMrMn3mI9ELRrbKRUMq1LhW02ek+JGrO4FgN8KkgwnoRuWWAKyHAZ6jy+9qkaHz+r07MpQ1k/wrFcmWRsT6R+VXJfGVmDHT+ovnev3vXuciJ6dttiPzSXb1NIdkE5hFcLy8bsCjE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=F4qoZJqq; arc=none smtp.client-ip=209.85.128.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1777153453; c=relaxed/simple;
+	bh=BinSz+dpgzFd+Gd7aU/bCkYxTnxk4dLRzzBQ/4mNaPE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=RZ91ju+lm4DluZwOS626h/GR0pe/TzgAKE/KcV5+y7m6/MMytJ52d/g88itk5q67XqgQ0EXid4I0svbYUNTN/jyPWNFVkO3iKwgagiTdixgLpwyO4+E/4rtmal+5VRSghefVf4JZgW0ABNUrc8t79SC6ztChL4hwElOWTu2r/W0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hKvXuyo2; arc=none smtp.client-ip=198.175.65.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="F4qoZJqq"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-488b0e1b870so130611845e9.2
-        for <linux-i2c@vger.kernel.org>; Fri, 24 Apr 2026 08:12:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1777043560; x=1777648360; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:references:cc:to:subject:reply-to:from:user-agent
-         :mime-version:date:message-id:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=JlPy3eW0kbNMua8eHVUnVBy11sqyRv1hpFqPENpVf9I=;
-        b=F4qoZJqqmUrs2GX+PhdaDhKCnKPgXYiqVW0zFoZLGGcvZ/mjoM0XN8PlXRgzVick2D
-         mRMoG7AeM6gF9D2ZBPt2x+6ICp5i7KFR2Zi2d+TT/RER9bOF491cYVuutkZOVx8PUYR0
-         dYPmD3ss0MVLnhiQ8h9DhQAo7zP/JZHH/QZMtxc/8sj9zBaR82UVMmhxuC0sdpEVEsAE
-         84wl87TiFxlUVlNbfDhJSuo4sw4D0yq09u0KjpFJTh4Uzw+pnHxlzZ0wvuOuN2aKXtRS
-         FzDZc6qipjfnN92ZpHbXkHnWDI6uK7FZVjui/NCH6ISK0mTuuAgrCv3S3gKLGnN13FiJ
-         ZBLQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777043560; x=1777648360;
-        h=content-transfer-encoding:in-reply-to:organization:autocrypt
-         :content-language:references:cc:to:subject:reply-to:from:user-agent
-         :mime-version:date:message-id:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JlPy3eW0kbNMua8eHVUnVBy11sqyRv1hpFqPENpVf9I=;
-        b=Si7wbhIKV6x8Lmq3gnn1CC5Sw1iCaplAMp+0PX1EwBaeNGr65U6s/Wqic0L8ETOicg
-         x6UzZ3T94/Luoqs+KXO7GTfj0nuQUo8hkMcEUnTzXT33cZ53hqEjsVj0l1ef8TlVkp7N
-         OIInD8zsMRtG99vzGcr0M8R8HTV2yQgaknZFWs58vn8x1nFLAuOU2hg/bzpXOMq+R90+
-         UCK/qecdBv7flyDkq3MI5qHmaY0QDOgnvi3VvH55YfJV6YMVO91oZK4MWZNkx/AhrroZ
-         x5IvZ2bgiWeqk35suYb5q/OTZbE0xln4jUSRi1TYr4nWdmnoYrOjW/wnrPG81zIt0XP0
-         2ryA==
-X-Forwarded-Encrypted: i=1; AFNElJ+mxl/83X+XvgQA1BnvtfeWf1hDwuawA9TAndg2nEqggI4HT7W69nlXj3QhXU4LjD7gdBiZynpfkbM=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx3b0qY/ofy3I3kWqV9v3K2e7Cn4PWwE47OOtPD2yMAHnS201WG
-	Btzk5u3hquYqIOrqi11LNrvXZCBIR7RN+WsSsjZlImY6dR/tE5dBEvawTl8S9EC3E8o=
-X-Gm-Gg: AeBDieuWNwV8Cr85jlmUbFpdV0bCAK8nGz5u2zYxHAC0lofbkG9U3o3wRY46g7oU0aW
-	ftguQM++eyBD3OKm9naj56gm8oeSkWkwR80DHvjdtYkLpGHyRzfEXLHNWGATnYjGLe+9F/D915p
-	pF3mNgnR2uNIwXWU3lqYjmVTQG7BhgdnenHQITlhGqu6quikyrWHN0EanhVASeuE+vty6LwViWx
-	nAcg5yfPuhGpDyFRcDSZ+jGfsGbPWcWYIFf4/C3osDpMatXNae73/oTvy1XhJbAqFiMDCjN8+cZ
-	QT5sUr0xZX9P4Ei0g2jvjAsjHq7B6eSKMr34iSIoDDmWBkFW9W8dP97iTfyt7CgGGC+XiK94w6d
-	gDZ7escDAlxD3ij7gN+xOv3B03F0ynmPUB0uzjUSks49PkVj29035M7YDUKPn3lKmppH/kmkItf
-	D6YGPYXuyqPcNJdvcwO7jw1nooWFTNhm/K/7BjJPZYLYHxVLki3FAgk4CxkLRRf3UDdA/NSnn/P
-	uK9t52UKq6bxlvkAA==
-X-Received: by 2002:a05:600d:16:b0:489:19e9:b139 with SMTP id 5b1f17b1804b1-48919e9b29fmr249420635e9.1.1777043559595;
-        Fri, 24 Apr 2026 08:12:39 -0700 (PDT)
-Received: from ?IPV6:2a01:e0a:106d:1080:608c:c052:cffc:495b? ([2a01:e0a:106d:1080:608c:c052:cffc:495b])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4412150a071sm25224946f8f.21.2026.04.24.08.12.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 24 Apr 2026 08:12:39 -0700 (PDT)
-Message-ID: <cfee3aa2-e22b-4868-9ccd-f5016abe84b5@linaro.org>
-Date: Fri, 24 Apr 2026 17:12:38 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hKvXuyo2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1777153452; x=1808689452;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=BinSz+dpgzFd+Gd7aU/bCkYxTnxk4dLRzzBQ/4mNaPE=;
+  b=hKvXuyo2FRnuBtVOd3chG+ZndvAS3rKfCBp8l5k+5026BDmWw/KXee9D
+   DHcoLp4jAwTYUvMVVUCtTEe5PuvVKaSScWcUlmn9XK6PKUsAI7I+WQaU2
+   s6rmNvm2N+XEwEd9kjQYl2rDN2I74aY6VzzO6Ik35s6tHlkvpg4aWEVO0
+   ETsnIDjdZZ5W3PExsUl+mLmwzoMw08o5YMlWHSAATBziu1xgq6OhrEt9/
+   J3LCNdgHFoO6dQAHm5UpYHTm3fIkqtwwiUSvElSZh+OFQlBO+RQ2EcCiV
+   OicnTqPoH9qE8AhQMSYU0M+njFJ2WLlEAWVlS5cSEevYLhWW77y2f1jan
+   w==;
+X-CSE-ConnectionGUID: 79iz4yalSryoMq7BtLdxtQ==
+X-CSE-MsgGUID: W2Q9hMYBToSjxxa33dcu9g==
+X-IronPort-AV: E=McAfee;i="6800,10657,11767"; a="77800907"
+X-IronPort-AV: E=Sophos;i="6.23,199,1770624000"; 
+   d="scan'208";a="77800907"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Apr 2026 14:44:11 -0700
+X-CSE-ConnectionGUID: Jtu4vt9aTYCQqY80EMs5JA==
+X-CSE-MsgGUID: rSSPdI5YSFyLQQ9RpJQcKA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,199,1770624000"; 
+   d="scan'208";a="256569331"
+Received: from arjan-box.jf.intel.com ([10.88.27.153])
+  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Apr 2026 14:44:11 -0700
+From: Arjan van de Ven <arjan@linux.intel.com>
+To: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	syzkaller-bugs@googlegroups.com,
+	wsa+renesas@sang-engineering.com,
+	syzbot+c0291c8c9aaa473c7721@syzkaller.appspotmail.com
+Subject: Re: [syzbot] [i2c?] WARNING: refcount bug in i2c_get_adapter (2)
+Date: Sat, 25 Apr 2026 14:45:15 -0700
+Message-ID: <20260425214530.424398-1-arjan@linux.intel.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <69e93024.a00a0220.17a17.0031.GAE@google.com>
+References: <69e93024.a00a0220.17a17.0031.GAE@google.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Neil Armstrong <neil.armstrong@linaro.org>
-Reply-To: Neil Armstrong <neil.armstrong@linaro.org>
-Subject: Re: [PATCH v5 5/8] thermal: khadas-mcu-fan: Add fan config from
- platform data Add regulator support
-To: linux-kernel-dev@aliel.fr, Lee Jones <lee@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
- Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>,
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
- Beniamino Galvani <b.galvani@gmail.com>,
- "Rafael J. Wysocki" <rafael@kernel.org>,
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
- Lukasz Luba <lukasz.luba@arm.com>, Liam Girdwood <lgirdwood@gmail.com>,
- Mark Brown <broonie@kernel.org>
-Cc: linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
-References: <20260424-add-mcu-fan-khadas-vim4-v5-0-afcfa7157b23@aliel.fr>
- <20260424-add-mcu-fan-khadas-vim4-v5-5-afcfa7157b23@aliel.fr>
-Content-Language: en-US, fr
-Autocrypt: addr=neil.armstrong@linaro.org; keydata=
- xsBNBE1ZBs8BCAD78xVLsXPwV/2qQx2FaO/7mhWL0Qodw8UcQJnkrWmgTFRobtTWxuRx8WWP
- GTjuhvbleoQ5Cxjr+v+1ARGCH46MxFP5DwauzPekwJUD5QKZlaw/bURTLmS2id5wWi3lqVH4
- BVF2WzvGyyeV1o4RTCYDnZ9VLLylJ9bneEaIs/7cjCEbipGGFlfIML3sfqnIvMAxIMZrvcl9
- qPV2k+KQ7q+aXavU5W+yLNn7QtXUB530Zlk/d2ETgzQ5FLYYnUDAaRl+8JUTjc0CNOTpCeik
- 80TZcE6f8M76Xa6yU8VcNko94Ck7iB4vj70q76P/J7kt98hklrr85/3NU3oti3nrIHmHABEB
- AAHNKk5laWwgQXJtc3Ryb25nIDxuZWlsLmFybXN0cm9uZ0BsaW5hcm8ub3JnPsLAkQQTAQoA
- OwIbIwULCQgHAwUVCgkICwUWAgMBAAIeAQIXgBYhBInsPQWERiF0UPIoSBaat7Gkz/iuBQJk
- Q5wSAhkBAAoJEBaat7Gkz/iuyhMIANiD94qDtUTJRfEW6GwXmtKWwl/mvqQtaTtZID2dos04
- YqBbshiJbejgVJjy+HODcNUIKBB3PSLaln4ltdsV73SBcwUNdzebfKspAQunCM22Mn6FBIxQ
- GizsMLcP/0FX4en9NaKGfK6ZdKK6kN1GR9YffMJd2P08EO8mHowmSRe/ExAODhAs9W7XXExw
- UNCY4pVJyRPpEhv373vvff60bHxc1k/FF9WaPscMt7hlkbFLUs85kHtQAmr8pV5Hy9ezsSRa
- GzJmiVclkPc2BY592IGBXRDQ38urXeM4nfhhvqA50b/nAEXc6FzqgXqDkEIwR66/Gbp0t3+r
- yQzpKRyQif3OwE0ETVkGzwEIALyKDN/OGURaHBVzwjgYq+ZtifvekdrSNl8TIDH8g1xicBYp
- QTbPn6bbSZbdvfeQPNCcD4/EhXZuhQXMcoJsQQQnO4vwVULmPGgtGf8PVc7dxKOeta+qUh6+
- SRh3vIcAUFHDT3f/Zdspz+e2E0hPV2hiSvICLk11qO6cyJE13zeNFoeY3ggrKY+IzbFomIZY
- 4yG6xI99NIPEVE9lNBXBKIlewIyVlkOaYvJWSV+p5gdJXOvScNN1epm5YHmf9aE2ZjnqZGoM
- Mtsyw18YoX9BqMFInxqYQQ3j/HpVgTSvmo5ea5qQDDUaCsaTf8UeDcwYOtgI8iL4oHcsGtUX
- oUk33HEAEQEAAcLAXwQYAQIACQUCTVkGzwIbDAAKCRAWmrexpM/4rrXiB/sGbkQ6itMrAIfn
- M7IbRuiSZS1unlySUVYu3SD6YBYnNi3G5EpbwfBNuT3H8//rVvtOFK4OD8cRYkxXRQmTvqa3
- 3eDIHu/zr1HMKErm+2SD6PO9umRef8V82o2oaCLvf4WeIssFjwB0b6a12opuRP7yo3E3gTCS
- KmbUuLv1CtxKQF+fUV1cVaTPMyT25Od+RC1K+iOR0F54oUJvJeq7fUzbn/KdlhA8XPGzwGRy
- 4zcsPWvwnXgfe5tk680fEKZVwOZKIEuJC3v+/yZpQzDvGYJvbyix0lHnrCzq43WefRHI5XTT
- QbM0WUIBIcGmq38+OgUsMYu4NzLu7uZFAcmp6h8g
-Organization: Linaro
-In-Reply-To: <20260424-add-mcu-fan-khadas-vim4-v5-5-afcfa7157b23@aliel.fr>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 4/24/26 16:17, Ronald Claveau via B4 Relay wrote:
-> From: Ronald Claveau <linux-kernel-dev@aliel.fr>
-> 
-> Replace the hardcoded MAX_LEVEL constant and fan register
-> with values read from platform_data (fan_reg, max_level),
-> as new MCUs need different values.
-> 
-> Optionally acquire and enable a "fan" regulator supply
-> at probe time and on resume,
-> so boards that gate fan power through a regulator are handled.
-> 
-> Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
-> ---
->   drivers/thermal/khadas_mcu_fan.c | 37 ++++++++++++++++++++++++++++++-------
->   1 file changed, 30 insertions(+), 7 deletions(-)
-> 
-> diff --git a/drivers/thermal/khadas_mcu_fan.c b/drivers/thermal/khadas_mcu_fan.c
-> index d35e5313bea41..5603fa099a858 100644
-> --- a/drivers/thermal/khadas_mcu_fan.c
-> +++ b/drivers/thermal/khadas_mcu_fan.c
-> @@ -13,13 +13,15 @@
->   #include <linux/regmap.h>
->   #include <linux/sysfs.h>
->   #include <linux/thermal.h>
-> -
-> -#define MAX_LEVEL 3
-> +#include <linux/regulator/consumer.h>
->   
->   struct khadas_mcu_fan_ctx {
->   	struct khadas_mcu *mcu;
-> +	unsigned int fan_reg;
->   	unsigned int level;
-> +	unsigned int max_level;
->   	struct thermal_cooling_device *cdev;
-> +	struct regulator *power;
->   };
->   
->   static int khadas_mcu_fan_set_level(struct khadas_mcu_fan_ctx *ctx,
-> @@ -27,8 +29,7 @@ static int khadas_mcu_fan_set_level(struct khadas_mcu_fan_ctx *ctx,
->   {
->   	int ret;
->   
-> -	ret = regmap_write(ctx->mcu->regmap, KHADAS_MCU_CMD_FAN_STATUS_CTRL_REG,
-> -			   level);
-> +	ret = regmap_write(ctx->mcu->regmap, ctx->fan_reg, level);
->   	if (ret)
->   		return ret;
->   
-> @@ -40,7 +41,9 @@ static int khadas_mcu_fan_set_level(struct khadas_mcu_fan_ctx *ctx,
->   static int khadas_mcu_fan_get_max_state(struct thermal_cooling_device *cdev,
->   					unsigned long *state)
->   {
-> -	*state = MAX_LEVEL;
-> +	struct khadas_mcu_fan_ctx *ctx = cdev->devdata;
-> +
-> +	*state = ctx->max_level;
->   
->   	return 0;
->   }
-> @@ -61,7 +64,7 @@ khadas_mcu_fan_set_cur_state(struct thermal_cooling_device *cdev,
->   {
->   	struct khadas_mcu_fan_ctx *ctx = cdev->devdata;
->   
-> -	if (state > MAX_LEVEL)
-> +	if (state > ctx->max_level)
->   		return -EINVAL;
->   
->   	if (state == ctx->level)
-> @@ -78,6 +81,7 @@ static const struct thermal_cooling_device_ops khadas_mcu_fan_cooling_ops = {
->   
->   static int khadas_mcu_fan_probe(struct platform_device *pdev)
->   {
-> +	const struct khadas_mcu_fan_pdata *pdata = dev_get_platdata(&pdev->dev);
->   	struct khadas_mcu *mcu = dev_get_drvdata(pdev->dev.parent);
->   	struct thermal_cooling_device *cdev;
->   	struct device *dev = &pdev->dev;
-> @@ -87,7 +91,21 @@ static int khadas_mcu_fan_probe(struct platform_device *pdev)
->   	ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
->   	if (!ctx)
->   		return -ENOMEM;
-> +
->   	ctx->mcu = mcu;
-> +	ctx->fan_reg   = pdata->fan_reg;
-> +	ctx->max_level = pdata->max_level;
-> +
-> +	ctx->power = devm_regulator_get(dev->parent, "fan");
-> +	if (IS_ERR(ctx->power))
-> +		return PTR_ERR(ctx->power);
-> +
-> +	ret = regulator_enable(ctx->power);
-> +	if (ret) {
-> +		dev_err(dev, "Failed to enable fan power supply: %d\n", ret);
-> +		return ret;
-> +	}
-> +
->   	platform_set_drvdata(pdev, ctx);
->   
->   	cdev = devm_thermal_of_cooling_device_register(dev->parent,
-> @@ -124,12 +142,17 @@ static int khadas_mcu_fan_suspend(struct device *dev)
->   
->   	ctx->level = level_save;
->   
-> -	return 0;
-> +	return regulator_disable(ctx->power);
->   }
->   
->   static int khadas_mcu_fan_resume(struct device *dev)
->   {
->   	struct khadas_mcu_fan_ctx *ctx = dev_get_drvdata(dev);
-> +	int ret;
-> +
-> +	ret = regulator_enable(ctx->power);
-> +	if (ret)
-> +		return ret;
->   
->   	return khadas_mcu_fan_set_level(ctx, ctx->level);
->   }
-> 
+This email is created by automation to help kernel developers
+deal with a large volume of AI generated bug reports by decoding
+oopses into more actionable information.
 
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+
+Decoded Backtrace
+
+0. refcount_warn_saturate -- lib/refcount.c:25 (crash site)
+
+    11  #define REFCOUNT_WARN(str) WARN_ONCE(1, "refcount_t: " str ".\n")
+    12
+    13  void refcount_warn_saturate(refcount_t *r,
+    13                               enum refcount_saturation_type t)
+    14  {
+    15      refcount_set(r, REFCOUNT_SATURATED);
+    16
+    17      switch (t) {
+    18      case REFCOUNT_ADD_NOT_ZERO_OVF:
+    19      case REFCOUNT_ADD_OVF:
+    20          REFCOUNT_WARN("saturated; leaking memory");
+    21          break;
+    22      case REFCOUNT_ADD_UAF:
+    23      case REFCOUNT_SUB_UAF:
+->  25          REFCOUNT_WARN("addition on 0; use-after-free");
+    25          break;
+    26      case REFCOUNT_DEC_LEAK:
+    27          REFCOUNT_WARN("decrement hit 0; leaking memory");
+    28          break;
+    29      default:
+    30          REFCOUNT_WARN("unknown saturation event!?");
+    31      }
+    32  }
+
+RBX = 0x2 = REFCOUNT_ADD_UAF, confirming the switch branch taken.
+
+
+5. kobject_get -- lib/kobject.c:643
+
+   636  struct kobject *kobject_get(struct kobject *kobj)
+   637  {
+   638      if (kobj) {
+   639          if (!kobj->state_initialized)
+   640              WARN(1, KERN_WARNING
+   641                  "kobject: '%s' (%p): is not initialized, "
+   641                  "yet kobject_get() is being called.\n",
+   642               kobject_name(kobj), kobj);
+-> 643          kref_get(&kobj->kref);   /* unconditional increment */
+   644      }
+   645      return kobj;
+   646  }
+
+kobject_get_unless_zero() (line 649) checks for zero first via
+kref_get_unless_zero, but is not used here.
+
+
+6. i2c_get_adapter -- drivers/i2c/i2c-core-base.c:2612
+
+  2602  struct i2c_adapter *i2c_get_adapter(int nr)
+  2603  {
+  2604      struct i2c_adapter *adapter;
+  2605
+  2606      mutex_lock(&core_lock);
+  2607      adapter = idr_find(&i2c_adapter_idr, nr);
+  2608      if (!adapter)
+  2609          goto exit;
+  2610
+  2611      if (try_module_get(adapter->owner))
+->2612          get_device(&adapter->dev);   /* crash: dev refcount == 0 */
+  2613      else
+  2614          adapter = NULL;
+  2615
+  2616   exit:
+  2617      mutex_unlock(&core_lock);
+  2618      return adapter;
+  2619  }
+
+
+7. i2cdev_open -- drivers/i2c/i2c-dev.c:603
+
+   597  static int i2cdev_open(struct inode *inode, struct file *file)
+   598  {
+   599      unsigned int minor = iminor(inode);
+   600      struct i2c_client *client;
+   601      struct i2c_adapter *adap;
+   602
+-> 603      adap = i2c_get_adapter(minor);
+   604      if (!adap)
+   605          return -ENODEV;
+   ...
+   618  }
+
+
+Tentative Analysis
+
+The crash is a "refcount_t: addition on 0; use-after-free" WARNING in
+refcount_warn_saturate(), triggered when get_device() is called on an
+I2C adapter whose struct device refcount has already reached zero.
+
+The sequence of events:
+
+1. A task opens /dev/i2c-N, which calls i2cdev_open(), which calls
+   i2c_get_adapter(minor).
+
+2. i2c_get_adapter() takes core_lock, calls idr_find(), and finds the
+   adapter in the IDR (non-NULL).  try_module_get() succeeds.
+   get_device(&adapter->dev) is then called.
+
+3. Concurrently, i2c_del_adapter() has already called
+   device_unregister(&adap->dev), which drops the device refcount to
+   zero.  At this point the adapter is still in the IDR: idr_remove()
+   is not called until after wait_for_completion() returns.
+
+4. There is therefore a window where i2c_get_adapter() can find the
+   adapter in the IDR and attempt get_device() on an object whose
+   kobject refcount is already 0, triggering the WARNING.
+
+The race exists because i2c_del_adapter() removes the adapter from
+the IDR only *after* wait_for_completion(), which itself is called
+after device_unregister() (which drops the device refcount to zero
+when there is only one reference).  i2c_get_adapter() holds core_lock
+for its entire body including the get_device() call, but
+i2c_del_adapter() releases core_lock before calling
+device_unregister(), so the two can execute concurrently.
+
+The bug was introduced by commit 611e12ea0f12 ("i2c: core: manage i2c
+bus device refcount in i2c_[get|put]_adapter", 2015), which added
+get_device() to i2c_get_adapter() without reordering the idr_remove()
+call in i2c_del_adapter().  Before that commit only try_module_get()
+was called, so the idr_remove() ordering was inconsequential.
+
+
+Potential Solution
+
+Move the idr_remove() call in i2c_del_adapter() to before the
+device_unregister() call, still under core_lock.  Once the adapter is
+removed from the IDR, any concurrent i2c_get_adapter() call will
+receive NULL from idr_find() and return -ENODEV.  Callers that already
+obtained a device reference before the idr_remove() hold a legitimate
+reference; wait_for_completion() will correctly wait for them to
+release it via i2c_put_adapter().
+
+Rough patch (against e753c16cb3dd):
+
+  --- a/drivers/i2c/i2c-core-base.c
+  +++ b/drivers/i2c/i2c-core-base.c
+  @@ i2c_del_adapter
+  +    /* Remove from IDR before device_unregister() to prevent a
+  +     * concurrent i2c_get_adapter() from calling get_device() on a
+  +     * kobject whose refcount has already reached zero.
+  +     */
+  +    mutex_lock(&core_lock);
+  +    idr_remove(&i2c_adapter_idr, adap->nr);
+  +    mutex_unlock(&core_lock);
+  +
+       /* wait until all references to the device are gone ... */
+       init_completion(&adap->dev_released);
+       device_unregister(&adap->dev);
+       wait_for_completion(&adap->dev_released);
+   
+  -    /* free bus id */
+  -    mutex_lock(&core_lock);
+  -    idr_remove(&i2c_adapter_idr, adap->nr);
+  -    mutex_unlock(&core_lock);
+  -
+
+
+More information
+
+Oops-Analysis: http://oops.fenrus.org/reports/lkml/69e93024.a00a0220.17a17.0031.GAE_google.com/
+Assisted-by: GitHub Copilot linux-kernel-oops-x86.
