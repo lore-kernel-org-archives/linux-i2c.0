@@ -1,85 +1,97 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC37530CDB6
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Apr 2026 08:06:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 227BD39D6F0;
+	Tue, 28 Apr 2026 09:30:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777363611; cv=none; b=K7wWxNFQF9TTOBip3ngKmRfS7KgiU2SZvmijkjHYv8C6wjQDe9ig9/sj9yay2cpm7aIiQGcS5cKIo/J4nWAsKD0hpnx0piBWLAx5HEt9angk4GCTNZDBgxdweCWa/iRqZa6gOmQzIm6VhG3Py6sWieTM5r7Dv2BrRY3qkTuRgzg=
+	t=1777368658; cv=none; b=AzYVoncoLLvStEfgqSATgjb3l1l1wbMbGL+RLx2IqgDLSd1OaQXdMHyQ5e1xGqLd/woxXVqUz4CIV4ZK2YFkfOJNEzDfH1DHmmSRuVuZGUqOZ6lnui4borpn609O3PQpXDZKI9sp3HFmM/i7uN1XT/sF3T5fhKL2E0v7/kIHJoU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777363611; c=relaxed/simple;
-	bh=ZDA8d3gNgiUtPzMmZx/qyYCLHLlMH5wOeZ/Eg7ZY/tw=;
-	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=hXa9IDpxA+b8zOmRYse/w28iNIeEvEeUWZ3ILBlMimFV5e5sExUBtCJ3PhW/tmp+ljyIog+wkZ3QvPJPZ+zpjrL00Pv1L9Yo/EiZJ9cyXDl8CFeCy3aZ0vNYmPDDzphJdORDnpljPXYslV5ZNPA4iYB/J2xWc8S5L/DAQWBmYrI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VDxq41bk; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777368658; c=relaxed/simple;
+	bh=am9YONt3yjiE7heGEnBc4/rFsCshQT9IJQZzeBKGEEs=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:Cc:To:From:
+	 References:In-Reply-To; b=S2dEMGxabCObGRwb9T5jiPIhRSgg0bL3mRZVMq9QXpNF5AAs5I4ll0+l+HfZNmmfB2hMrixoHk1CfIykbfUzXOuS1RgeJ1jpD+HS3AxxxtAvCGzqvUHTfdjnTDwrQ9SVzWl2/CHsCEtP0q3PjO2lYZ5uSwsnAn+3HOWgokpS9Ms=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=SXZMM+Cp; arc=none smtp.client-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VDxq41bk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F8AEC2BCB8
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Apr 2026 08:06:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777363611;
-	bh=ZDA8d3gNgiUtPzMmZx/qyYCLHLlMH5wOeZ/Eg7ZY/tw=;
-	h=From:In-Reply-To:References:Date:Subject:To:Cc:From;
-	b=VDxq41bk+5oz4SvrdXxS/FV1BTMazSlqDzOkLC1U2ZkXHQXB9BEpwQJojtd0/XFOA
-	 FwrAWOvOzkmw40zCTpvCHJljeO/NWR4+Sz3/J1U2DyyJkscPy6uCuUFAt1WBKTkWAQ
-	 Y7JH22mN3HglGogOZkRllqHiAsJtKMHSiK0vyw2IB/r16CTyY9josgK5+m9lrE/Ahy
-	 UvHpyyPMRoGYjXYvzzsvPypdVlGrJT0l0lfsK5OM3VWa5wBawIP50r9SR2YC/6z7Wf
-	 yjiP5qPM5+9noyvd3+NHAMH4fRmUWPN/uaRI/cuyaeWq/sFPObOHY2BuErJsO2LUiI
-	 ZRMxMqMjsAAuQ==
-Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5a3be187ffbso10959258e87.0
-        for <linux-i2c@vger.kernel.org>; Tue, 28 Apr 2026 01:06:51 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ/an0NSfg4kMaifv1HlqmJPCA31V6GYIsEZwp16aUc1Nh+tCFK3ZKGPquXW8Q9ucd1eA9jjFTlRlGY=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwAfcOWfhEZdqky+H96ca+jg6Sr0Wh7megUx8s6NUzW+BlBkipD
-	cav6fuIIkvh5vImHrqvG7TpxDGakqQqQYa/L2ovCP5RAvdPp2p3q/3d78QevwehtAqwS/gXLpVg
-	BSF8ZM8DiPdx8MBk2P26NhYhy+5fFDnbDrsdw9SzE7g==
-X-Received: by 2002:a05:6512:1247:b0:5a1:1de6:bc66 with SMTP id
- 2adb3069b0e04-5a7471287d0mr528462e87.18.1777363610049; Tue, 28 Apr 2026
- 01:06:50 -0700 (PDT)
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Tue, 28 Apr 2026 01:06:49 -0700
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Tue, 28 Apr 2026 01:06:49 -0700
-From: Bartosz Golaszewski <brgl@kernel.org>
-In-Reply-To: <20260427152003.26778-1-marex@nabladev.com>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="SXZMM+Cp"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id A76A14E42B61;
+	Tue, 28 Apr 2026 09:30:54 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 77996601D0;
+	Tue, 28 Apr 2026 09:30:54 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 7A1481072867D;
+	Tue, 28 Apr 2026 11:29:53 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1777368594; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=fMEkzBNocMsiKjy40VQmGNZYwSqKkfQGiWV9CJVgQMY=;
+	b=SXZMM+CpPlXMUS5xlLXexylGODvdLs/jzZuaJ294zqEnvQUjJtYA3c+nhgt8J6ePKhIiyk
+	vlzfQd3nEKAcFC3K1UgzYzoDLqgCK1pqNoVT/asddHCH7Js4RJrJ3AmkwlDERlWxn1+OCo
+	CPUzNMKe2Pe8kMTYGhoqEoiMUi4cTydKMQPobnc9BIJ5mItU6aTJhvx78tUyl+PafpS1bY
+	3NB/6ASDVymZl2XbDTagUlShyxxY0L81P+BfSxncybRx+IpFxZxa5+ZOgc5jX/lu+z42Xv
+	7PP4INwhqGhZYMO1GpIsBLffIf8nLDVFLYmCCirOzTBkwd7rA1zhW58Z+qxEMA==
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260427152003.26778-1-marex@nabladev.com>
-Date: Tue, 28 Apr 2026 01:06:49 -0700
-X-Gmail-Original-Message-ID: <CAMRc=Mcq0OX87jwRVtq5vrnWvt-DC5trY0uSAL329SJENwhu8Q@mail.gmail.com>
-X-Gm-Features: AVHnY4KaOfkQP59M7p91oxim5tZnU_qREt-VIP5EikFBQrbvUZuWOPqd6MgOtQI
-Message-ID: <CAMRc=Mcq0OX87jwRVtq5vrnWvt-DC5trY0uSAL329SJENwhu8Q@mail.gmail.com>
-Subject: Re: [PATCH v3] nvmem: core: Default to read-only if wp-gpios present
-To: Marek Vasut <marex@nabladev.com>
-Cc: Arnd Bergmann <arnd@arndb.de>, Bartosz Golaszewski <brgl@kernel.org>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Srinivas Kandagatla <srini@kernel.org>, 
-	linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 28 Apr 2026 11:29:52 +0200
+Message-Id: <DI4OKZA3428E.5TJAYEV50JH2@bootlin.com>
+Subject: Re: [PATCH] i2c: atr: annotate i2c_atr_adap_desc->aliases with
+ __counted_by_ptr
+Cc: <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+ <linux-hardening@vger.kernel.org>, "Romain Gantois"
+ <romain.gantois@bootlin.com>, "Rosen Penev" <rosenp@gmail.com>
+To: "Thorsten Blum" <thorsten.blum@linux.dev>, "Tomi Valkeinen"
+ <tomi.valkeinen@ideasonboard.com>, "Kees Cook" <kees@kernel.org>, "Gustavo
+ A. R. Silva" <gustavoars@kernel.org>
+From: "Luca Ceresoli" <luca.ceresoli@bootlin.com>
+X-Mailer: aerc 0.20.1
+References: <20260427172817.417614-3-thorsten.blum@linux.dev>
+In-Reply-To: <20260427172817.417614-3-thorsten.blum@linux.dev>
+X-Last-TLS-Session-Version: TLSv1.3
 
-On Mon, 27 Apr 2026 17:19:29 +0200, Marek Vasut <marex@nabladev.com> said:
-> In case the nvmem DT node contains "wp-gpios" DT property, the device
-> currently defaults to read-write and the force_ro sysfs attribute reads
-> 0. Switch to the default read-only, which is both safer, and aligned
-> with eMMC HW BOOT partition force_ro sysfs attribute behavior, which
-> also defaults to read-only.
+Hello Thorsten,
+
++Cc Romain, author of the involved code
++Cc Rosen, author of a similar patch elsewhere in i2c-atr [0]
+
+[0] https://lore.kernel.org/linux-i2c/20260327030310.8502-1-rosenp@gmail.co=
+m/
+
+On Mon Apr 27, 2026 at 7:28 PM CEST, Thorsten Blum wrote:
+> Add the __counted_by_ptr() compiler attribute to ->aliases to improve
+> bounds checking via CONFIG_UBSAN_BOUNDS and CONFIG_FORTIFY_SOURCE.
 >
-> The adjustment of nvmem->read_only value to read-only in case wp-gpios
-> DT property is present must be done only after the device_add() got
-> called because device_add() does internally call nvmem_bin_attr_get_umode(),
-> which configures the permissions of 'nvmem' bin attr based on the value
-> of nvmem->read_only that is only parsed from DT property 'read-only',
-> without any adjustment. This way, if DT property 'read-only' is present,
-> the 'nvmem' attribute is always read-only. Otherwise, if the device is
-> writeable, then 'nvmem' attribute is writeable, and nvmem->read_only
-> defaults to read-only, but can be switched to read-write at runtime via
-> the 'force_ro' attribute.
+> Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
+> ---
+>  include/linux/i2c-atr.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/include/linux/i2c-atr.h b/include/linux/i2c-atr.h
+> index 2bb54dc87c8e..b52a7b9ec536 100644
+> --- a/include/linux/i2c-atr.h
+> +++ b/include/linux/i2c-atr.h
+> @@ -71,7 +71,7 @@ struct i2c_atr_adap_desc {
+>  	struct device *parent;
+>  	struct fwnode_handle *bus_handle;
+>  	size_t num_aliases;
+> -	u16 *aliases;
+> +	u16 *aliases __counted_by_ptr(num_aliases);
 
-This slightly changes the behavior for user-space but I'm willing to give it
-a go and see if anyone complains.
+I'm not fully proficient about all counted_by things, but the patch looks
+OK to me, and definitely @num_aliases is the number of items @aliases must
+have, so:
 
-Reviewed-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Reviewed-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
 
-Bart
+--
+Luca Ceresoli, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
