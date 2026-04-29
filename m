@@ -1,146 +1,116 @@
-Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtpbguseast3.qq.com (smtpbguseast3.qq.com [54.243.244.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75D8D3264DD
-	for <linux-i2c@vger.kernel.org>; Tue, 28 Apr 2026 20:27:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777408070; cv=pass; b=mnjTtgJEd8n9rRp9WW1iK804Z0NuQGxlgmEMurptujQ+XwLTmAoE66V6UAfvjOYJQCJ/F6IbIZj2ouHAqZjI7D/EuXOBXp1Xu5AZA0UlR2+ISWvFIBusBMG0OnfdKLpWVTO6VeTim+2wyizOK8Lz13W4jtOrP/yFMDgTsex4BUk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777408070; c=relaxed/simple;
-	bh=8pZqDLVXGdKS4vEGYY/DHdErCtozb81IbFmeZdDnZOk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QMKR6dL47dKRJaGqbM7WLXq9/HGocUE5n/bZxK6MI+wq38Lt7xpub3rsB8ztgT6Jfpq2JTw06fyIwipTfAPyhrvJ2z8C7KMjiXvyRmaoizUf85WgPQA8iR0sFq3u/idZVL1RBq++TKg0H3KUTm/IUXYUB8go6YuPmnOZcHz+Lgw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bYgXDGyj; arc=pass smtp.client-ip=209.85.208.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B309224A07C;
+	Wed, 29 Apr 2026 07:49:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.243.244.52
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777449001; cv=none; b=T/HBvjce1oB6AVGIDebkhHN0giIeQRzWSTet1rBZ/mQiq/m+lHICk6IytvBHlcSTWKOsB+EHVtKuiSIoaT6q31ZzCds0zORpLudeDgCcxOuM5fWNHeIwZnHbC9ZV8/UY3lcJttKOYbv5WRbuS6Jn812beEPm2V9a9BhGroQLDKs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777449001; c=relaxed/simple;
+	bh=hDCWhYWY81WE1DOC2pdOZCxy/P/R4TtpNWVhDuds9fY=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=G16zgqVkgFhebtALg7poZcNHsRVFlAUkuVupMBubfKzsNPvcah6hIRlsipiDhrbGIBzOd6Bqp/sz1qovFZ+1ZD7y2L8De8cVkEbQsWYdMRJnZvWPWdrvpj4hptvnj80Kk8zVFyGlUGHM9a1JzQCaJI+3BTJQdndfNauMFpa9UUI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com; spf=none smtp.mailfrom=linux.spacemit.com; dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b=q9n/FFIK; arc=none smtp.client-ip=54.243.244.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.spacemit.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bYgXDGyj"
-Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-678a1642a81so7295730a12.0
-        for <linux-i2c@vger.kernel.org>; Tue, 28 Apr 2026 13:27:48 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1777408067; cv=none;
-        d=google.com; s=arc-20240605;
-        b=fQeym7Sqb3gXQ2SuFJQ1HQDk6hbB4n9qvk2xhZDLg3dfjoqZkThJltJkWB4RulnCh+
-         ylFhpnnqIQG6nLjpKjajz4tdjYwby3QYUYLA2Ubk+87i9mm4m56OnsKsj9ryZbbPhxb1
-         dj9qnbTGiFkn4SqMRAH+Zel1TcSTql+1M49cENhPEfM/fB+xYT7YohEtI+FIaUd5mBCh
-         2sQzP5mwEUznoKN1TptbjDKZBUh2a5Yf+zZSOkQAmkWCHsSOY60WFPGpUM10Spu5z3Jb
-         yCl9iHZsyDvKmXbYWiGimZZ8426E0a8aKOGegjI14vzBcDfStHERUYUPuCO74oqu12bz
-         u3gA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=1ep7cTthGT0TRjukvSCw1U5zbGWRlXkdi2Yh6rincrk=;
-        fh=1HlMTb7X1TtQ6tfIYutf8/StXEJCk5l3KgE/wImccI8=;
-        b=Njg48nY4e4UIIzipU9CLcMH77ETXTSkbTuacrAruojQt1lmv+USVcOy3F2Xm57oB6Q
-         lAIaNkb7UF4lgjl60qRjuJY7DwDZ77WfbVJGHTpgXa1WmU30k5p/sTe8FRj7E5Tfbi6F
-         FgF+lMHmgT4z9f4oY4YEfxELBLewxz1cF4t1hm9OQTK2yGst4jCG5qrPgV64IETz6uSH
-         O3EEDMpKNOPHNQ2n0rnxVjdVx5SkERk3A3+RkGdh3ZKYcsXdbQswOSAl7XSsge11u7So
-         MTDlOYtrTec+NH9Fnw5L03/fx4816lMCRpwoEblIYJlt/Vx7T0pcxm+YUOXaVVzpUV44
-         fDXg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777408067; x=1778012867; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1ep7cTthGT0TRjukvSCw1U5zbGWRlXkdi2Yh6rincrk=;
-        b=bYgXDGyjWJZMsmVGWhGSIGIDyj+PqD7RHshfyw5CpKA7Bmpmd+5MiKTD6lCsFczOzT
-         A+D/orHAHFm9JaklPGvS43eftIPkAWtL48QGRim2+VPFumuCfQTaD5m69qbC7tlGIHbe
-         5I9l+DRten1uo+GqZjHoUSqIDo5DwOcTSL+2GsdSn6F088TZ4av5OSUw3RjEf2xKsZMk
-         BY0+FZm/9pduSozg9lr4fH6MwuF/uuNFq45Xbx5gRj0rpI7CUB9IgQx7vH/zBBGOQqnh
-         WZ2fxj298x1Lw231rn3OS8hwxWDw0gp+BYMXxw8B0ixV/fGf8UmogmROz53QftGYpKyM
-         S8eA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777408067; x=1778012867;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=1ep7cTthGT0TRjukvSCw1U5zbGWRlXkdi2Yh6rincrk=;
-        b=UsBaapoDDekp3Rml2wPCojuW56vU9r7kcb5xVIokauoz+cLrYjhmUfdyBkc2NcnGw+
-         fqEcbyW10Rtv6RIXkbOf5X/hWk9xwGXxcQjJJfx8drvGEkuE2pAnLLLUYgHs0eZWQyov
-         twB0VbvzR0/YdOOVyZn//QQtgDDeeYoFiMqbJB9c3zNZMSffwXDBkzc9ywpjP28d6H0P
-         eSzwkih6odcvBwxuPg8/Qot5tyhlzl/wqyGM15/toSR4hPLUxcJ8nypbnbRUZnNHF4hw
-         6OMMPrCOT6hj0Fc6KNpgpDEflFELzi3r7nOvA3Wy+i7qpMg62ZRzp2HGv+szV2zvj6mG
-         0ZJg==
-X-Forwarded-Encrypted: i=1; AFNElJ8O0S4qp7+dQmBFFpZ97m/W7O+C/HhDINWZYBJplImE5J8nRyTWGgXqXcQBfftDxzniDuJ6S2zhijA=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyROCYVCTw8KgYAFlMAeD+4Uo9SiM/hhLP8QH3EVlpvrQ4A1C9i
-	TcgGa9CJ88TFCFp/h3rBML9hsq3lTLEYclZmDtKdE26pLY7X9vhPDqAngj9w2c+ay2Wfd014Zr7
-	n0BWWn0xKPSubQ1hjHEC8Cr5qokDucbg=
-X-Gm-Gg: AeBDievkjkn4hEppcLWoC1clYwqLf8ZF6acCHOURB2EP6KAMt9idGnrorc/WFiJJs93
-	UY1IlbRbdR/5SVYZjRF5wU+ydsOclSIj24oNC0g3XPh2xeh/jDJXtYq2APYlg0OyMWUFmBt+WB9
-	mWb7NHINwbTC+qXHI9lLTUfxfEiaf2Lc/ke/qCh38Sz+RTESowcA/eP5ieGbOxSqUZI3PtO8zlT
-	Kwkk7tHd9scg6o3hD/KjYc09XDgoOif9tsHh+xHSSwktIMS9Ui9bfYj13MG4+EKrFUlmZ01VnlD
-	kwNLrdMkAU4toDNPKtleeyxP/BlIrvVe/EYq6a08XJmEZPSnn8DrK8s7Gp0WcPkHRKZaHFNAmrW
-	1HPRJLGGj7L0qLoV2hUU6DepM4Q27yeT1orI2DzBqsAKoVfj9s0qANu2f93k=
-X-Received: by 2002:a05:6402:e94:b0:66d:d2f9:520c with SMTP id
- 4fb4d7f45d1cf-679bb0982efmr2165877a12.19.1777408066633; Tue, 28 Apr 2026
- 13:27:46 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b="q9n/FFIK"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.spacemit.com;
+	s=mxsw2412; t=1777448946;
+	bh=i5Jd6q2ASwBOX37+hgiBc/0XfTbXNhw+dHB7po+Ag/M=;
+	h=From:Subject:Date:Message-Id:MIME-Version:To;
+	b=q9n/FFIKo6IqGDEh36Jaqp82CegygeVCEIngvx3VxwfOvv2h6JMk004Pu5B2ZRd5T
+	 o5DNDPcvk8WDnaSa2TV3oF4JcJKUlrs6IPYk/NKbY1gbSH67lPS1fbFFSru1l2q1h5
+	 SvrBTmVhL+0L0vcGT0sxRT3lurUD20Cj6GnsFYuI=
+X-QQ-mid: esmtpgz16t1777448939t3b8dbfe6
+X-QQ-Originating-IP: jMIil5oH0Xt1rs2bXU/3HVr3dTF360HXTq1uWmc4p5o=
+Received: from = ( [120.237.158.181])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Wed, 29 Apr 2026 15:48:57 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 0
+X-BIZMAIL-ID: 17083034700479194089
+EX-QQ-RecipientCnt: 8
+From: Troy Mitchell <troy.mitchell@linux.spacemit.com>
+Subject: [PATCH v6 0/2] i2c: spacemit: improve clock handling and cleanups
+Date: Wed, 29 Apr 2026 15:48:55 +0800
+Message-Id: <20260429-k1-i2c-ilcr-v6-0-1c7a5a5a8b24@linux.spacemit.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260427172817.417614-3-thorsten.blum@linux.dev> <DI4OKZA3428E.5TJAYEV50JH2@bootlin.com>
-In-Reply-To: <DI4OKZA3428E.5TJAYEV50JH2@bootlin.com>
-From: Rosen Penev <rosenp@gmail.com>
-Date: Tue, 28 Apr 2026 13:27:34 -0700
-X-Gm-Features: AVHnY4Jkk0RBV4cH1i-ipNNk5Jr5JuI7AhhHwp3PjTVZY3bKpVhsokcMSgzE7Yc
-Message-ID: <CAKxU2N8OUcsTxG4XDH=cbROz4954-V5ximN-XHQ5RrPagTfUjQ@mail.gmail.com>
-Subject: Re: [PATCH] i2c: atr: annotate i2c_atr_adap_desc->aliases with __counted_by_ptr
-To: Luca Ceresoli <luca.ceresoli@bootlin.com>
-Cc: Thorsten Blum <thorsten.blum@linux.dev>, 
-	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, Kees Cook <kees@kernel.org>, 
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org, 
-	Romain Gantois <romain.gantois@bootlin.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/23MSw6CMBSF4a2Yjr2krZSCI/dhHEB7kRt5pcUGQ
+ 9i7hYkxYfif5HwL8+gIPbueFuYwkKehj5GdT8w0Zf9EIBubSS6V4ELDSwBJA9QaB6aQuVUcU65
+ rFh+jw5rmXbs/Yjfkp8F9djyk23rshBQEINq04Bc0tipuLfXvOfFjabCjKTFDxzYwqB8iZfaPK
+ OBQqZzrSlvLMTtE1nX9AuDi+Uv0AAAA
+X-Change-ID: 20251017-k1-i2c-ilcr-c928d50e407f
+To: Andi Shyti <andi.shyti@kernel.org>, Alex Elder <elder@riscstar.com>, 
+ Yixun Lan <dlan@kernel.org>, Yixun Lan <dlan@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-riscv@lists.infradead.org, spacemit@lists.linux.dev, 
+ Troy Mitchell <troy.mitchell@linux.spacemit.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1777448937; l=1169;
+ i=troy.mitchell@linux.spacemit.com; s=20250710; h=from:subject:message-id;
+ bh=hDCWhYWY81WE1DOC2pdOZCxy/P/R4TtpNWVhDuds9fY=;
+ b=flWdhu1/sWNRwPBAsLvj7zNWqxB+JMGIKbSHYsYI6mE9NZIkiVlpNk2wQiarc2hHWN52nh2un
+ oJ+7UCskgf/DKdRyzcR0xQvE6V3FlYw5I+6K4QDGuNsMRq3PdtSmFu2
+X-Developer-Key: i=troy.mitchell@linux.spacemit.com; a=ed25519;
+ pk=lQa7BzLrq8DfZnChqmwJ5qQk8fP2USmY/4xZ2/MSsXc=
+X-QQ-SENDSIZE: 520
+Feedback-ID: esmtpgz:linux.spacemit.com:qybglogicsvrgz:qybglogicsvrgz3a-0
+X-QQ-XMAILINFO: NFN0Qhrj1+QEl6Lvv2KLtnXlYEIEJ0SFpTOn3qOOgsLIG4Rs9bN3sgNc
+	XLnTVvGK9RcVEbWZcjJtT7vaBMKN/fz1KomdlF2Prlb3+KFx0n3HzMdr9smWrBbmn+GJ4fY
+	AZRUwzRHtAZDrUTWvb/P8bbAetRSsSMh8h32hwGVU9Muowo2L8lr1awsyAPyyR58FrIQQ4Y
+	oBXANDCPyyMrD/yh95eyHcyzFJpPCIc/dAssB8fJE4F4gcO3RUAwMzOXAmavKx/T9RfIpym
+	NHpBxxMEu8SD7PK+gLVPaYvN/1mJ15tWgQfy1jMOqhrIqpC8FRE0SkqZfC3lVbdemVNynGa
+	wP5Wnj78ojd7rgl5EGhXonGsrLnVFYSduG0uiimFZ51nDkcFn8pIuPprI+B5eIY71Gptx9y
+	4h0PPkgr3pa5O78XncuJ9p1sevR7d7eS0w0JnSkUHsog4i+Ry+oAxLEQFo+nPIg2NvFQGyJ
+	lFgkINfS2MnL2thV4YXBY6ywwEjssbRkvHK2OEk3WbEGvDPcWfFoDtD8TmUKZee0Ragbblx
+	VskDTlQ9FDf4hxiTg/VtnMX74dntsZkzEmU96/zPaxRBWA3sP05f7QYaYH1UW4/UqXadDFv
+	SsnI+tY5lBrIRwB6iTHBEuJpaPietexBySbAj2+Smh8R1U9QPsYmzg8diyC9x7H7LUwEBEa
+	kkc8adejWGV+sK+xoOsXU/Bumd+CChtwmz/CODBnWW6Q5PWfL+2JpsFNXsO17Tuj3LPmQwh
+	qwFCv6aCHPq0HsoFyMMywbRj7/tQxDgfnX9l5VgTIVpfrBHwG81CJwEuh1mhwkW+Jf/+9Qw
+	sOtkEi9T9DYgsLa9rvmpay3wMKhhNJ+DiAmTx2cnd8WFumuUO22yoRVj3CSmh0tsBylB85s
+	jNotpBcRgd3Bp+0kDGUISCBeV2SAOld1Ser3jPUE/9IqwbKopA5kfG7VPLDXuWKESMHE4PB
+	wITA7fug9sIv29KU6yQEDmAMOz8vIM4UCL7hXQKBoj+42OpNsRmNcOXds9UdwGVzav6JDg0
+	ZaEGbj8vjSzBTqco6JfoFV7sSTCFb0IImp6MKu5Uai5TQ11ZHpZoNqqV9ziRkqzzoCikBiu
+	2C0MpLuWImsrykO+JeOMg4F+Y1CfNcZBVDZ7Zb3BmmJ
+X-QQ-XMRINFO: MSVp+SPm3vtSI1QTLgDHQqIV1w2oNKDqfg==
+X-QQ-RECHKSPAM: 0
 
-On Tue, Apr 28, 2026 at 2:30=E2=80=AFAM Luca Ceresoli <luca.ceresoli@bootli=
-n.com> wrote:
->
-> Hello Thorsten,
->
-> +Cc Romain, author of the involved code
-> +Cc Rosen, author of a similar patch elsewhere in i2c-atr [0]
->
-> [0] https://lore.kernel.org/linux-i2c/20260327030310.8502-1-rosenp@gmail.=
-com/
->
-> On Mon Apr 27, 2026 at 7:28 PM CEST, Thorsten Blum wrote:
-> > Add the __counted_by_ptr() compiler attribute to ->aliases to improve
-> > bounds checking via CONFIG_UBSAN_BOUNDS and CONFIG_FORTIFY_SOURCE.
-> >
-> > Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
-> > ---
-> >  include/linux/i2c-atr.h | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/include/linux/i2c-atr.h b/include/linux/i2c-atr.h
-> > index 2bb54dc87c8e..b52a7b9ec536 100644
-> > --- a/include/linux/i2c-atr.h
-> > +++ b/include/linux/i2c-atr.h
-> > @@ -71,7 +71,7 @@ struct i2c_atr_adap_desc {
-> >       struct device *parent;
-> >       struct fwnode_handle *bus_handle;
-> >       size_t num_aliases;
-> > -     u16 *aliases;
-> > +     u16 *aliases __counted_by_ptr(num_aliases);
->
-> I'm not fully proficient about all counted_by things, but the patch looks
-> OK to me, and definitely @num_aliases is the number of items @aliases mus=
-t
-> have, so:
-I prefer my patch.
+This patch series contains a set of small improvements and cleanups for
+the SpacemiT I2C controller driver.
 
-__counted_by is supported by more versions of GCC/Clang than __counted_by_p=
-tr.
->
-> Reviewed-by: Luca Ceresoli <luca.ceresoli@bootlin.com>
->
-> --
-> Luca Ceresoli, Bootlin
-> Embedded Linux and Kernel engineering
-> https://bootlin.com
+The main change in this series is to improve SCL frequency accuracy by
+configuring the ILCR register based on the requested clock rate, rather
+than relying on the hardware reset defaults.
+
+The ILCR is exposed as a managed clock via the Common Clock Framework,
+allowing the driver to program appropriate divider values for standard
+and fast modes.
+
+In addition, the series removes a spurious warning when the optional
+clock-frequency DT property is absent.
+
+Signed-off-by: Troy Mitchell <troy.mitchell@linux.spacemit.com>
+---
+Troy Mitchell (2):
+      i2c: spacemit: configure ILCR/IWCR for accurate SCL frequency
+      i2c: spacemit: drop warning when clock-frequency property is absent
+
+ drivers/i2c/busses/Kconfig  |   2 +-
+ drivers/i2c/busses/i2c-k1.c | 164 +++++++++++++++++++++++++++++++++++++++++---
+ 2 files changed, 154 insertions(+), 12 deletions(-)
+---
+base-commit: 9b45dba17a6b3cede80706d287d8d2fb9087bfa9
+change-id: 20251017-k1-i2c-ilcr-c928d50e407f
+
+Best regards,
+--  
+Troy Mitchell <troy.mitchell@linux.spacemit.com>
+
