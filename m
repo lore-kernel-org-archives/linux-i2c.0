@@ -1,126 +1,117 @@
-Received: from smtpbguseast3.qq.com (smtpbguseast3.qq.com [54.243.244.52])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 014DB3921C6;
-	Wed, 29 Apr 2026 07:49:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.243.244.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 895CA3EB7F0
+	for <linux-i2c@vger.kernel.org>; Wed, 29 Apr 2026 10:39:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777449002; cv=none; b=S+Ved8uN4wDuiMEnip6JfizqLtXAvUx/0Drg1372aPv7TxtkQp2tYVCtamr8Xn4IaMJU3HJHhyrWFovZNUh1EJqGmeXle5AxPhICzwc68aq9n80ZbIubz0E/FtE2LXA89+ZmKJBTKpj0YnuqzxprJ7WFerB0nZv70QmbgUqbwOM=
+	t=1777459149; cv=none; b=EnEA3CgQINSABl+v5VjtNKeVbicMQq9sqUsENpixdQNFQQaNqtyo8GeJqF7ixMzuMSWw4mZD5CiYkNlaZgnf1aHyWQszHhGsyvz+PJErU4FfsCY7CfjabngJ6Efh+JDT788HlmstevgTgQse6eef4PrsRdiKIlyKRBy4axs+rco=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777449002; c=relaxed/simple;
-	bh=mCQayAr9RouaadceLxaNioH49sLgj8dEFAMiyWvUNLc=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=sA8PRcZh+hd2HajFp+S21T0ayXD2a0XVA/PRrRUAPX9MpGDEXXoEmjfimuq+7xhvDRoOcWYjrrJQbFeKKbAyjd9veJATGJ11bGuyc5FlZBAFzum6W9PsvcoA+Hr6GLZyYlhqOBbd+rXhya+8qXpcvwQP3SFxeoc6dsn1V9etw14=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com; spf=none smtp.mailfrom=linux.spacemit.com; dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b=MhMe4Uf7; arc=none smtp.client-ip=54.243.244.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.spacemit.com
+	s=arc-20240116; t=1777459149; c=relaxed/simple;
+	bh=1uTp2m3hRyqw2vgEzaJvoRJiP6wDxwtKbsGX6NG8d1A=;
+	h=Mime-Version:Content-Type:Date:Message-Id:From:Subject:Cc:To:
+	 References:In-Reply-To; b=f15MGQYvwuYegPlxfYyCGHy6kOzoZtXaFPXj2dcdKRyB/Rhl9eBfroapjLS8iP3NtKUye7fKCOiNeBpbffTCy4Xmz/uxazcK4cO+tnOHhBMPX/Ayy1u1eKB8Yy5adCOtE01+MqDImrV+mBFH9t0D9ALGTIXxPXkjXCAjR8NSv3g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=IA/BnTJ4; arc=none smtp.client-ip=185.246.85.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b="MhMe4Uf7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.spacemit.com;
-	s=mxsw2412; t=1777448952;
-	bh=/XBLU/2EPMf5LiPhya2jhRX0WZEvv8umzim0o1th8vo=;
-	h=From:Date:Subject:MIME-Version:Message-Id:To;
-	b=MhMe4Uf7IiKX9v0zyN3tM8f9+7jaUaWsUJeOlgy0fMdHYxucpaqtw7T6iMvHx0RTL
-	 Ujz3UK5PbjQMDMjv4e2bdECMAqlib/z0QGzuOrsZhBX78kD4q8VKGzkk791hbTW9bj
-	 D8IU6VO134Gml0d53I2GWbJp8bS5bKcQmrEDqqfQ=
-X-QQ-mid: zesmtpgz9t1777448946t7992dc9f
-X-QQ-Originating-IP: NIGDpNr5nns6isGhGyKxzyKT90BztXn9N5xiG1xN5EI=
-Received: from = ( [120.237.158.181])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Wed, 29 Apr 2026 15:49:04 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 0
-X-BIZMAIL-ID: 14935581430065835113
-EX-QQ-RecipientCnt: 8
-From: Troy Mitchell <troy.mitchell@linux.spacemit.com>
-Date: Wed, 29 Apr 2026 15:48:57 +0800
-Subject: [PATCH v6 2/2] i2c: spacemit: drop warning when clock-frequency
- property is absent
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="IA/BnTJ4"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-03.galae.net (Postfix) with ESMTPS id F07534E42AED;
+	Wed, 29 Apr 2026 10:39:04 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id BC049601DF;
+	Wed, 29 Apr 2026 10:39:04 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id D6B3310729B78;
+	Wed, 29 Apr 2026 12:39:01 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1777459144; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=F46FXIWxuy64BJjl6FJEP9svjx1JZ3C/wAGuF07+1LQ=;
+	b=IA/BnTJ4B1LhojnHq3PSzm7UGR6KJ5zO8VOtksAELVl9hEXjiOzN9W3AH3rm8ozaJBkgxc
+	pbs1Knb6a4fusWUxDRZiIWNRdfUoZTwB2kmf0Y7vrF5Z93dUrSAxEfxixykfRaBFWME+Qc
+	RS1Oo3qYhAAME5IqnzsIQ1Fr7GoS65Oe4TEkldN27Q/fOZj6OsWmhf6gWIPEYeqJ5eO7jx
+	9vzmdNaO7rNSsNSgjNIcvriqbzQrS7BbI7FbZzbGLr7qJre3pzmkwFSCotPa/+dmBNYUYF
+	LMcYPvENaVqVRXHKvObhxg5Ws8RW9a+dPSmjdK165fCUWe/GAqxGY26Xh1rhAQ==
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260429-k1-i2c-ilcr-v6-2-1c7a5a5a8b24@linux.spacemit.com>
-References: <20260429-k1-i2c-ilcr-v6-0-1c7a5a5a8b24@linux.spacemit.com>
-In-Reply-To: <20260429-k1-i2c-ilcr-v6-0-1c7a5a5a8b24@linux.spacemit.com>
-To: Andi Shyti <andi.shyti@kernel.org>, Alex Elder <elder@riscstar.com>, 
- Yixun Lan <dlan@kernel.org>, Yixun Lan <dlan@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
- linux-riscv@lists.infradead.org, spacemit@lists.linux.dev, 
- Troy Mitchell <troy.mitchell@linux.spacemit.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1777448937; l=1770;
- i=troy.mitchell@linux.spacemit.com; s=20250710; h=from:subject:message-id;
- bh=mCQayAr9RouaadceLxaNioH49sLgj8dEFAMiyWvUNLc=;
- b=6XoYLdtoh1REnJ/XnCtZ6jKyFHHng6mH2yjpbp0UYn/RazkzBbdN44yZKhVE2FeyR4yjwF7nl
- /emkxihAbwJAmIItQvo+5FUsweTpM3PjXyvopUvvbfYjrGin1xHSCnt
-X-Developer-Key: i=troy.mitchell@linux.spacemit.com; a=ed25519;
- pk=lQa7BzLrq8DfZnChqmwJ5qQk8fP2USmY/4xZ2/MSsXc=
-X-QQ-SENDSIZE: 520
-Feedback-ID: zesmtpgz:linux.spacemit.com:qybglogicsvrgz:qybglogicsvrgz3a-0
-X-QQ-XMAILINFO: MeriHi1OVszfSpOBSOeiYDAaFgQrWVj3qNROv/xAg8aYIb/pKXdlZShN
-	NX4AP3Plx+MZx0MHfr30AVBKVeOMOxcfkB8VuGmwBo5FOi2vJ5ifPodPM/e96gE+82sCq/v
-	V6yQy7lullCr0HSbB2XjXCkkncy9ZQQqVSySoIEo+3bBXuB6IzT7mTZ7zxB5XNaThG08Z4K
-	hr+BRHhGdxWTTUdJ8MhZN9ui79V0F/o8RTQgssQFIcmHyH1ma85jv/PzpZOpeuSOzyUw71y
-	h2zSOs7ftTyRp3VGJTPyf8ZgHAk5nkvrHntO/2f9pTIARBJyjvvz+xd3+gDCRKcFcyKv+f+
-	acL7Vzl3ACbWa20300jLi1R2SxMHT2KV4Cyn7CKNgpEPzEtvkaw2SixY/ViZ7svLPANAYL/
-	6RhtEmmBasAbvAnzN12YD9Pg7eppqLdqLz+3mBVmGOwOKFcOtoqcXSqUJosmhafD6Ttwgnm
-	caMbSV32bhH4+0iIYlUDZm0HCCYFw2Ln7MigmU2uQVuvlzDWOhcxZ2bxLoxh3BcUD3xLCT4
-	8Rmgp6Gnsfzxx/bgDiFuhthabQG9z/GD6wiQ1aXRHjfH0/MezF5XwudD+6qUou/kzOB7Olo
-	O7MRYIrpSiugSAAsiE4zob9JoO18b/yqKORhbplgGNDmRh+EfrZEOanGEOI3gcVTSoys2KV
-	kRW9hi3IBFCoZtIBgLagKHBjG12ZfkDXSooPuSpFxx6J+dXp+LSuGEtJWfN6mggwHAEHXa6
-	t1kr1msaTHOO8eBQo94zznNJK10UF3JbOW0B7ArReb4ADnjociR4KA4NYeqx4vv6YtTIgh6
-	DlNWq1djZh3kRBF1QkaSa75tvl/5hDlksC5HCWMQB5ZXLXte2sR+JR/s7vkNEFDxgHcSG3x
-	JR716LO0ElioYRJ9/rZI13+xmrDX0EBGr2xg+aCFOalnZG9g4js8zI22ioIS65H4i10MzTt
-	Hy8fcuaU5QbTpwxUHl4iUi0aWpvrd4xAmTyqUFHnxWIjq0cp7KDFy+NF/gbMbYVw8bmjxcL
-	tuyPuYXnaEtjpjdsWwqhZVVj8LtbHwEf8ekvZzoDfm+v3wOggT322EprzJNFR7SJBN4s7ag
-	fokI1rQjZQpqUOfa0NDuEqfmpznq4KP7TO3s/Ow611iZ2labTwuw40=
-X-QQ-XMRINFO: Nq+8W0+stu50tPAe92KXseR0ZZmBTk3gLg==
-X-QQ-RECHKSPAM: 0
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 29 Apr 2026 12:39:00 +0200
+Message-Id: <DI5KOGI4TE9X.20PGGVLRJCJHF@bootlin.com>
+From: "Luca Ceresoli" <luca.ceresoli@bootlin.com>
+Subject: Re: [PATCH] i2c: atr: annotate i2c_atr_adap_desc->aliases with
+ __counted_by_ptr
+Cc: "Thorsten Blum" <thorsten.blum@linux.dev>, "Tomi Valkeinen"
+ <tomi.valkeinen@ideasonboard.com>, "Kees Cook" <kees@kernel.org>, "Gustavo
+ A. R. Silva" <gustavoars@kernel.org>, <linux-i2c@vger.kernel.org>,
+ <linux-kernel@vger.kernel.org>, <linux-hardening@vger.kernel.org>, "Romain
+ Gantois" <romain.gantois@bootlin.com>
+To: "Rosen Penev" <rosenp@gmail.com>
+X-Mailer: aerc 0.20.1
+References: <20260427172817.417614-3-thorsten.blum@linux.dev>
+ <DI4OKZA3428E.5TJAYEV50JH2@bootlin.com>
+ <CAKxU2N8OUcsTxG4XDH=cbROz4954-V5ximN-XHQ5RrPagTfUjQ@mail.gmail.com>
+In-Reply-To: <CAKxU2N8OUcsTxG4XDH=cbROz4954-V5ximN-XHQ5RrPagTfUjQ@mail.gmail.com>
+X-Last-TLS-Session-Version: TLSv1.3
 
-The clock-frequency property is optional according to the DT binding.
-Do not emit a warning when the property is missing and fall back to the
-default frequency instead.
+On Tue Apr 28, 2026 at 10:27 PM CEST, Rosen Penev wrote:
+> On Tue, Apr 28, 2026 at 2:30=E2=80=AFAM Luca Ceresoli <luca.ceresoli@boot=
+lin.com> wrote:
+>>
+>> Hello Thorsten,
+>>
+>> +Cc Romain, author of the involved code
+>> +Cc Rosen, author of a similar patch elsewhere in i2c-atr [0]
+>>
+>> [0] https://lore.kernel.org/linux-i2c/20260327030310.8502-1-rosenp@gmail=
+.com/
+>>
+>> On Mon Apr 27, 2026 at 7:28 PM CEST, Thorsten Blum wrote:
+>> > Add the __counted_by_ptr() compiler attribute to ->aliases to improve
+>> > bounds checking via CONFIG_UBSAN_BOUNDS and CONFIG_FORTIFY_SOURCE.
+>> >
+>> > Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
+>> > ---
+>> >  include/linux/i2c-atr.h | 2 +-
+>> >  1 file changed, 1 insertion(+), 1 deletion(-)
+>> >
+>> > diff --git a/include/linux/i2c-atr.h b/include/linux/i2c-atr.h
+>> > index 2bb54dc87c8e..b52a7b9ec536 100644
+>> > --- a/include/linux/i2c-atr.h
+>> > +++ b/include/linux/i2c-atr.h
+>> > @@ -71,7 +71,7 @@ struct i2c_atr_adap_desc {
+>> >       struct device *parent;
+>> >       struct fwnode_handle *bus_handle;
+>> >       size_t num_aliases;
+>> > -     u16 *aliases;
+>> > +     u16 *aliases __counted_by_ptr(num_aliases);
+>>
+>> I'm not fully proficient about all counted_by things, but the patch look=
+s
+>> OK to me, and definitely @num_aliases is the number of items @aliases mu=
+st
+>> have, so:
+> I prefer my patch.
+>
+> __counted_by is supported by more versions of GCC/Clang than __counted_by=
+_ptr.
 
-Signed-off-by: Troy Mitchell <troy.mitchell@linux.spacemit.com>
----
-Changelog in v6:
-- drop Fixes tag per maintainer feedback (this is not a bug fix)
-- change dev_warn to dev_info when clock-frequency is absent (it is optional)
-- Link to v5: https://lore.kernel.org/r/20251226-k1-i2c-ilcr-v5-0-b5807b7dd0e6@linux.spacemit.com
----
- drivers/i2c/busses/i2c-k1.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+At a quick grep check, they seem to be different things: __counted_by for
+arrays embedded in structs, __counted_by_ptr for pointers in structs for
+dynamically allocated arrays. I wish this were documented, though,
+especially as their implementation is currently identical. :-/
 
-diff --git a/drivers/i2c/busses/i2c-k1.c b/drivers/i2c/busses/i2c-k1.c
-index fad6a20bb43d..8b0a215dfb29 100644
---- a/drivers/i2c/busses/i2c-k1.c
-+++ b/drivers/i2c/busses/i2c-k1.c
-@@ -823,9 +823,7 @@ static int spacemit_i2c_probe(struct platform_device *pdev)
- 	if (!i2c)
- 		return -ENOMEM;
- 
--	ret = of_property_read_u32(of_node, "clock-frequency", &i2c->clock_freq);
--	if (ret && ret != -EINVAL)
--		dev_warn(dev, "failed to read clock-frequency property: %d\n", ret);
-+	of_property_read_u32(of_node, "clock-frequency", &i2c->clock_freq);
- 
- 	/* For now, this driver doesn't support high-speed. */
- 	if (i2c->clock_freq > SPACEMIT_I2C_MAX_STANDARD_MODE_FREQ &&
-@@ -834,7 +832,7 @@ static int spacemit_i2c_probe(struct platform_device *pdev)
- 	} else if (i2c->clock_freq && i2c->clock_freq <= SPACEMIT_I2C_MAX_STANDARD_MODE_FREQ) {
- 		i2c->mode = SPACEMIT_MODE_STANDARD;
- 	} else {
--		dev_warn(i2c->dev, "invalid clock-frequency, fallback to fast mode");
-+		dev_info(dev, "clock-frequency not set or out of range, using fast mode\n");
- 		i2c->mode = SPACEMIT_MODE_FAST;
- 		i2c->clock_freq = SPACEMIT_I2C_MAX_FAST_MODE_FREQ;
- 	}
+Based on this, I think both Rosen's and Thorsten's changes are OK, using
+different macros for different members.
 
--- 
-2.54.0
+Luca
 
+--
+Luca Ceresoli, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
