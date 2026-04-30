@@ -1,481 +1,261 @@
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from OSPPR02CU001.outbound.protection.outlook.com (mail-norwayeastazon11023080.outbound.protection.outlook.com [40.107.159.80])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C6273D9DCC
-	for <linux-i2c@vger.kernel.org>; Wed, 29 Apr 2026 12:40:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777466439; cv=none; b=eK3OD+rRDVt8L/+UjdhuY0M8L6kIhPkCJePQ+FncBzJYmCXYYbUI4vz/KYbKwxVZSUqBwPOBuDN6yHjLdJRE5lT/iUb20iM3E/eZ9LqL5OLFuFZKzxYz/FCpquVvt2TcGsvy8Lw7gwllh+N+AeQv4saMrZ9WZsQ2b6G9OJG3OG0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777466439; c=relaxed/simple;
-	bh=p9LfLbt2CL3xYkF61MZ4SKP6qKcnUY29kAaezTs/DYs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=RelPr7oxpoUF1klmzzCJDb5I45YH3c7krjB51ySSvrNSMCk5zUgah6HCCeR064xzIysgz6dj0YueYXBUyrtIRRDE5Gh1havAPQgU/aCdqqhyX/XYNxHiXM86f8R/cvOGAUuWjpnEXJQXJhvAjjC6wlzOxerCRIJrRimjJzKP/WM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=riscstar.com; spf=pass smtp.mailfrom=riscstar.com; dkim=pass (2048-bit key) header.d=riscstar-com.20251104.gappssmtp.com header.i=@riscstar-com.20251104.gappssmtp.com header.b=LnhepYIA; arc=none smtp.client-ip=209.85.222.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=riscstar.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=riscstar.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A1CF34EF05;
+	Thu, 30 Apr 2026 04:10:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.159.80
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777522211; cv=fail; b=cT9qldYiHfnlhpQmtZLAQW4BWCbBV52mSEkHhOj7+hckBUtKFxBWQG/RFC6tcYVng8JIqlVz8PxdH69A/vGyjZVZzEQ/Tf8lEVK0MPf7PdTlW0n/1gyM9MH6KVK+KMQKQGYMu0tMiU4FOfRTd/NJTvUuN5GZjwW7lnC4fd8Uco0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777522211; c=relaxed/simple;
+	bh=DsTFaquaP7+x3aJEvXSvBlbu4dcNzxtka19TDzQLj0M=;
+	h=Message-ID:Date:To:Cc:From:Subject:Content-Type:MIME-Version; b=Av54QrykRb8Y6ARRKw2H2UZyq5jSQRBmDzb56Bk5INCBsJDEYV4B278L7s/rcW7Lpm9HqU48Lr6+xXT1qxUWEYO1cTHytjrtBBOhykMhxK5KkmEuRNVZt6W51KEPcpP9Xn8vGJuWMF3YcGAcdp5Q4MOXx5nLuisnc9NcZqCt7FM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=axentia.se; spf=pass smtp.mailfrom=axentia.se; dkim=pass (1024-bit key) header.d=axentia.se header.i=@axentia.se header.b=EpEmHwGi; arc=fail smtp.client-ip=40.107.159.80
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=axentia.se
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=axentia.se
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=riscstar-com.20251104.gappssmtp.com header.i=@riscstar-com.20251104.gappssmtp.com header.b="LnhepYIA"
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-8ea8563c693so1158771385a.2
-        for <linux-i2c@vger.kernel.org>; Wed, 29 Apr 2026 05:40:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=riscstar-com.20251104.gappssmtp.com; s=20251104; t=1777466435; x=1778071235; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=6AQ5XP6I4G+z1uJQPPD0WQCwIgKJzLp5z1uFbOhgID4=;
-        b=LnhepYIAzyJZkhW62hqrdIPUNRa6ghIvFewNHz1pgvdzjMXOQLEoVFXjscdO5ZyDXp
-         pwRpx9GWYvMBri3+82up23uA2FGZUOvtWN54lGT7AGckkeGhw2r02qGmGA0Nz8D2Exls
-         eV2a34UUUlx3NS+heDEqY6COijS7EOXxDwa9stV0oUy2vlb5RlKYKCfVB8ztOgKM6JdW
-         GM89XPOEvDXlEFfitDZ+Dl0EEVeLsN5j+P1aQBojfmOW/QOQziPBkM3idboQfFFzilgA
-         dBJzv+CzYE/R8v8ITPGwYCw996ZYJqeq2uRjDSBxox+IKUreBvbqhJPN5oSSEpg9JpSW
-         G2JA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777466435; x=1778071235;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=6AQ5XP6I4G+z1uJQPPD0WQCwIgKJzLp5z1uFbOhgID4=;
-        b=UGPGKQ6RczJ5IWISqtyHMoESl9mo0uOpteI0Ap/k1J2waA3AMUYNk/DjCYVd5ztryC
-         9sWChgkfFjGt44P0mLEeIC9Vjcu37CtAKkwlggvBXXgzRDt40AJ1G8/SoEIGxi0L8qBM
-         uzFFAIHOwU8xN0SFdwYDJF2sz/9ebn8Lez6effB6WqEO7JXlxa1Bcup4XIZ9+wq8bmLV
-         +gWmE6bN+vAcHXZxIHYgSeaW6u1UXJG6tKYPYOpAihrPT5gfU3UPNWH4hyebr5tePKLF
-         QzU9WOtB62xDbKqOraWa10cb3lZE3D6ifOLxA0d+vyZIwe2eSylWBqDUVzLrqLF3X0gt
-         P/+w==
-X-Gm-Message-State: AOJu0YzNXAqE0H1a++tk2HBt5M0q3SOBx9h/qi/AwpS61j/Ws6RjD86a
-	5dvyZa9VxQvggkHSkDqvpPEiKkkV3q6/Ek0rcazlOXoab28mP+DIdd8Q28lScQV8JcM=
-X-Gm-Gg: AeBDiespNw2bJZwOIWgxpB6IbKaVTQ6Hflwj/p7UF3ciH9oIhoet5pOoQo1Jzd9RLgm
-	xWjo1QNw8PW7B+czXUAitbWGjwt8s8aSaKs6K5v+CTgB4DeV+U/uCHiuln3hPu21r2eIkrD3qWn
-	auiK4LG0JYgHFcALa/+7FPyyOOqfqd50uvz09JG3VpG28pj9VzANl7Nmv6kq8DyfHAm1+jEXWyE
-	+dSZleIrjcppupeu8p1gts6O+r/xyQmcQLz+VbpGHnrik2hKh3NfQKpIBp4PO+oWV9u7HfidPQW
-	GF0jgybwlQvQfn3CDBNpsnIUpMG8BHKTdTu29uwMhhQ4GpAg7Vn3e+IhrfwShTg5p3RckyHw/72
-	iFQeXWn138EmVwJajbssZCm93pwX72PjHHm4VybVCfjIAnuIpLv958IFBosOmUqQLp5ups4MQfF
-	J9+m/unl+DI+e389L/uk9INxeD9jgvzCWCB+LUu3w3cGiw58rAietvlgxtd6BfU0tL+xRL1NTl4
-	g==
-X-Received: by 2002:a05:620a:698a:b0:8ea:f0e0:26dc with SMTP id af79cd13be357-8f8f44e442bmr540124185a.24.1777466434853;
-        Wed, 29 Apr 2026 05:40:34 -0700 (PDT)
-Received: from [172.22.22.28] (c-75-72-117-212.hsd1.mn.comcast.net. [75.72.117.212])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8f93d0f6eccsm167392885a.20.2026.04.29.05.40.33
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 29 Apr 2026 05:40:34 -0700 (PDT)
-Message-ID: <01278362-ae7c-424a-838b-4add1718e7f6@riscstar.com>
-Date: Wed, 29 Apr 2026 07:40:33 -0500
+	dkim=pass (1024-bit key) header.d=axentia.se header.i=@axentia.se header.b="EpEmHwGi"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=WzForAEZGbIYgmR7RSzIzzWk1wtQLgQVE8ft3FEZYoEqmVkVaXBh2UEqzwf+Vu9gQd1vKL0BHyUQ0IjUNLic9Fvi8qRstMGHtCB9kLuw17YYroOwNFAYpZQKnqPZ6sQ7LuUNT6Qiw9Yqy72tGdXDtpp5UQlp5lxTwIvvIGielTYMbhsUje/HUM/V2gB20kyV65ukLTUXmeBOcQUe5ebE7Bt32EOHBc67GhWUgzh4JQx0S+4itKfdXj5BePuSNm+GudEdAB2osnxH9npe610e4Si0H1oCo6TfweRgGQAK6ZGDlsUjJD8DREtfA7+54TTlbY8ASiXUzsY+WORrV+Nriw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=krMphM2NAxVYMF/9OniqCuGV4f5a7Pz6HMQ37ozz1aw=;
+ b=aZFCae0Tn6VyKapietUoenoNrLWNNPm5kwUT9UhjWT1aPzPRlfJ1K9IoWrgJH3nuLE30I0GuAGQspg0osWMRF0IJ5Sb/jEV/BlZlPGx4RqUd8XDDGncAYDfQHOa3zwVxs4Yr+FAia27C2zGN1VVvmq/X5l01axNPvxu0akww05zPiUB72d95PlMwF2IWp9xc1Kx9qGfbGAhYJ1UDM6hoTwNbXIJk6IL9UqGN2Kt9Kua3rVk4X9h4kQuWUFMZzQ5PU3ruL3irHLsoxY9RetlNMSk1Y/jR1NaWSMtqHg90+U7qLtDpGSMaoLPZWKhgQzCK1qfAWPXo69JgfFkSTTmP8Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=axentia.se; dmarc=pass action=none header.from=axentia.se;
+ dkim=pass header.d=axentia.se; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=axentia.se;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=krMphM2NAxVYMF/9OniqCuGV4f5a7Pz6HMQ37ozz1aw=;
+ b=EpEmHwGi0O3bVCJCGmHsLThdJZs4iFiXTsHEqWN8vbYZZDgUadUH2VwZYgD0uht4Fo8rRCK5tLbhA0/Ns70StBDV//y0TbuOdOh3g/Bp72Xy9yb5OpLo0AnPPrS36iJqNsZ37UiplxRY2gfXaJCYbCbswU0Rz1rP1/zKJNOKChM=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=axentia.se;
+Received: from AS8PR02MB9235.eurprd02.prod.outlook.com (2603:10a6:20b:5c1::5)
+ by GVXPR02MB10967.eurprd02.prod.outlook.com (2603:10a6:150:226::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9870.20; Thu, 30 Apr
+ 2026 04:10:02 +0000
+Received: from AS8PR02MB9235.eurprd02.prod.outlook.com
+ ([fe80::32a9:a9e6:ded:5714]) by AS8PR02MB9235.eurprd02.prod.outlook.com
+ ([fe80::32a9:a9e6:ded:5714%6]) with mapi id 15.20.9870.020; Thu, 30 Apr 2026
+ 04:10:02 +0000
+Message-ID: <7ddc5b09-b6c9-99f9-d951-6b3ef96f8c1f@axentia.se>
+Date: Thu, 30 Apr 2026 06:09:58 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Content-Language: sv-SE
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ LKML <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@kernel.org>,
+ Jonathan Cameron <jic23@kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>,
+ "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+ "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
+ Peter Rosin <peda@lysator.liu.se>
+From: Peter Rosin <peda@axentia.se>
+Subject: [PATCH] MAINTAINERS: Update mail for Peter Rosin
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: GVZP280CA0097.SWEP280.PROD.OUTLOOK.COM
+ (2603:10a6:150:275::11) To AS8PR02MB9235.eurprd02.prod.outlook.com
+ (2603:10a6:20b:5c1::5)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 1/2] i2c: spacemit: configure ILCR/IWCR for accurate
- SCL frequency
-To: Troy Mitchell <troy.mitchell@linux.spacemit.com>,
- Andi Shyti <andi.shyti@kernel.org>, Yixun Lan <dlan@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-riscv@lists.infradead.org, spacemit@lists.linux.dev
-References: <20260429-k1-i2c-ilcr-v6-0-1c7a5a5a8b24@linux.spacemit.com>
- <20260429-k1-i2c-ilcr-v6-1-1c7a5a5a8b24@linux.spacemit.com>
-Content-Language: en-US
-From: Alex Elder <elder@riscstar.com>
-In-Reply-To: <20260429-k1-i2c-ilcr-v6-1-1c7a5a5a8b24@linux.spacemit.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AS8PR02MB9235:EE_|GVXPR02MB10967:EE_
+X-MS-Office365-Filtering-Correlation-Id: cbf83293-c382-461b-7096-08dea66e5a1f
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|376014|366016|18002099003|56012099003;
+X-Microsoft-Antispam-Message-Info:
+	O0ty+WFvNRKX0aq95752uhQ8Zwyhvd7Z28cNxsfkNv7Vc9+HaD+mkzXK6Sl9U+EINiLfongxJ2pHIUKJbWLQ1fy4xlqlsQTOiiQDMbPiz6bQDQBLiUAjlGc/AEaD11D5H8bsWEgrly80DGuuFLISjJKdJipj3DbBhUD8Iw3E/aXvdtI0/u9ESqxiA465/8e+W46fdMWJfwNdueTd/MxlGUQ7bqPYlA3fsIHiBLKV3/zldCSWEqIKfgT1lFo43GXC144iFzIKNWaEnCtWZPaDf5pgbV7kRVLk0qdafVpHMVHKZfotxq8TnQjum4fCtPGtd9nwJybL+dwJ239DMuFMIy5oj8IkRovAa0902AadX5Kl3hyr6SIjkCuU5OPN3PFwKrv3zW5LDjEeleg8c9WGec4QUxO88vIFLpMc8vSLpjTauiFhyYNI0ADdQlWQrxPo40SJmUHMAHaN9A1RjR82IctEkDnzhiUnjyc+FDUFTw2ElG9baAJq//UphxDkJHIDXWpmQdbPcX9o0+5aWAA5uIrlwKedNtGxR0+ydztfmJ8DFQIe83M3ED0x9KtS+NuTQwmmfuqS0uvdhO7T4dpm9DcJz6l3f7aSGGR5OeK3aNTmt64z25iTlDp6gdgdpSWHvyvjXCcI0825GgBz87MxzYF5Oz36iskAz6FiOq0WU4Z1ZLOHTABYqyJtDVQc+Wc0Oiu3F96hz0TrPmW5BvIB8RVMHY08qcn0h2B9XqnIUTY=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS8PR02MB9235.eurprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016)(18002099003)(56012099003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?NEtWME55VUcrNjhFUUFYQU5DRUxOMjBxYWlwdnE4elFmaFhCclVsWk9LaU5u?=
+ =?utf-8?B?bEN0dElKdCtJcS80cTNIOHhYd0lCYmg3enI4VXJxa2p0bk55bTcvOUN0Z1g2?=
+ =?utf-8?B?MjBjaUNVaHlTYWVNMEc3My9PMlJrTkp3WHpuNGwwT2EwZ1hDcWNJUHhGV1NV?=
+ =?utf-8?B?cHNSMkR5QUJZM0llRkdzN1lOTHVVTE1qVS9LWFlkbG5EQllHUjFkTVJHTmF0?=
+ =?utf-8?B?QVg0SmFXUE0vc2s3aFB1TlhRRTUwYlM0VWJ0NHlXc2YrdS9La01RdDF2R3JE?=
+ =?utf-8?B?R0JmVnpaSVFJdnlSeVRiczV3SzFCa2ZUYkhJL0dMMDl0ZzkwbkNjT1BLL3JF?=
+ =?utf-8?B?R09BYnhNRXRldHJ5cHpSTzA2aFlIWWQ2Z0FCcUFheERHK28wRlJMOE8rOWxW?=
+ =?utf-8?B?LzNJcWlISUUzenZGWGRnM3ZzMGpWcVJVY0dBZHlON0g1VEFhUHpRd3ZhMDNE?=
+ =?utf-8?B?dDI0UHNKRlZmQ2puVjR3Y21zaU11NnBEazhyUm5aeFUxZzJtL0drR1drZ1hN?=
+ =?utf-8?B?U0ZNTytRZFVMUlVvcTJrQXFueC9hbVVUbUxVK3dTMlFqdGI5MFNnRTNLY0Y1?=
+ =?utf-8?B?RFBUSG1zRFZ3bUQvcGIxWXVIZDdnV0V2UlpoSlFDYnJBWXJXN1J0RldDTGs0?=
+ =?utf-8?B?SXkzY2ZPMHhGeGhkQklsVUR5VSsvZXBRbnBVaXpzUzltYlg2Q3RNQmx6WUpq?=
+ =?utf-8?B?LzBNZnAyY1p1VHc0K01qUjZtcTJreTNlbmdmcXJ2VVpEL2pRSkxYVGZZUHpB?=
+ =?utf-8?B?eTlpaDVxcFYzTWFObGlYdWN4alA1eXQ5TThsQkh6RnNFYjF6bmtqbTg1Nk9u?=
+ =?utf-8?B?NlpRUll1MUpWaXVBdWJlUGJMK2wrTFVSTkMycXJENFNPc2o1dzdqVEE1cmR6?=
+ =?utf-8?B?ZGp3QUtpR09wZ2lPMzhnUFZjRmtuVDduNGsxQ1hhNktMSUNJSnVBNU41YWkr?=
+ =?utf-8?B?WUpCUXN5dWZ3OXdpQWdiay9tWVJ4M243UVIxTTdpVDdWK1hjTVd5dENGcS9O?=
+ =?utf-8?B?M2xSUHg2TFgzWE5CUlFtQStCcmZISzlYeHhXL2dyRjlmaGl5cDVWelpiZnNE?=
+ =?utf-8?B?eGFKSEVwSVE0aFNhU1p4NGVZMnk2M2pEUEYyZ2pXYmJLUXdiUHNMUjUvUEJN?=
+ =?utf-8?B?cUFUWjRjaXJLS0dML21STzhmOXFlbElMVkIwcktEZEpnVmxuV09aL1Bndk8z?=
+ =?utf-8?B?NlJUVjFLOGRkLzVadkoxcjAzdjJJMHdtT0l6SWhjcm5PMDlXcVU2eXdZZzll?=
+ =?utf-8?B?cTNBTjZTNFErbm9zL3ZPT1d2akkvNnlETzZqRzVDYnViLzFyYlVXQ29saUxx?=
+ =?utf-8?B?Zm5lNUZueEFhRWtSdGVhOWV0SVgwcTZXU0p5V0VoREJEV3pnZXBEZXE5WFFZ?=
+ =?utf-8?B?UXlQazZHbWhYZEJORGZudHFTMlVTWm83NEZhRTdJQUw4bG1tZlB5UFZPV2s5?=
+ =?utf-8?B?R09pZTIraGUxcVQxRlZpSzVPbUFMVWVHSEJTOWJqZjFkNG9IeDNIVmNMd0Ju?=
+ =?utf-8?B?N29UOTBZVW9yaFJZVk1mdWRWK1dHVlhUNWxVQmQyWHNkRzRkRWNnKzA5ZXhP?=
+ =?utf-8?B?L2N2TTVadEZ3cC83a0l5OGN3dlI0SGQ5YWFLdlpWM3A0ZEQ5bDhHK0h2VXFq?=
+ =?utf-8?B?NURxMnF3Rlc5dHJVNEwyNGNxeTNGWGYybzF5Q3A0bDJlc3l6bDBSYm9aUGhz?=
+ =?utf-8?B?eEdMZmtwOUlVN05YWkhOazZKRUJnTGgrRDJFd21FRnhIMlpMQ2pPQWpDL2sz?=
+ =?utf-8?B?T2dnNFJZMUFvUERINVpOZktmQmtJRUpMQjNmeDhuUytqcmJweS9RTGFRamtF?=
+ =?utf-8?B?a0NhWTh4QUhqYytmMFZTbzFsSVQvSzBlMmdJdlAybzJWa1h3NHppWDZmd2VM?=
+ =?utf-8?B?dSs1UEk0QzRaWWpJd2Nxdy9zMXE4U3pxa2crUFFJSk9PRW1aclFESC9QMFcv?=
+ =?utf-8?B?OEl4N0dXYjZSUG02UXlyVmdtN3lhaUx5Z1BGV1pwd2VNOFZ3Tm9Va0kxdHZi?=
+ =?utf-8?B?ZzByaFhBenNkVE45cC9lRW1lb2R6bGFrSGdLczJJUDNzL3dSNTZYVXVaT2I5?=
+ =?utf-8?B?ekR6dnZwWWVERXlWOUhkb0ZIZk9CZm1ENHpETkVKVGRYSlJyVVdzM2R6Qy9t?=
+ =?utf-8?B?b3p6ZWhETllvdXU1Mko2MzZYT2gyeHFPQ2xSRVhDbDBwWk92c21wN2JzSWs5?=
+ =?utf-8?B?d2F4ZzNaRkM3UVJjbmlFTDdLSHVyWDZnSkNyanU5ME5vL1dHcE5YM3B5OExG?=
+ =?utf-8?B?dHJvRy82UDBWTUl4UWphREF0YmU3bWtHUjF5V2g5NWowRjFxZktlanVpY09Y?=
+ =?utf-8?Q?6u+PYwy+MODwrY7mD0?=
+X-OriginatorOrg: axentia.se
+X-MS-Exchange-CrossTenant-Network-Message-Id: cbf83293-c382-461b-7096-08dea66e5a1f
+X-MS-Exchange-CrossTenant-AuthSource: AS8PR02MB9235.eurprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Apr 2026 04:10:02.2843
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4ee68585-03e1-4785-942a-df9c1871a234
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: fcVczs1b3P4aJLAXVH4tGB8mb3YnWHyrs5291hCo/VmX3R/LfKHWHiJInifUrFzO
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: GVXPR02MB10967
 
-On 4/29/26 2:48 AM, Troy Mitchell wrote:
-> The SpacemiT I2C controller's SCL (Serial Clock Line) frequency for
-> master mode operations is determined by the ILCR (I2C Load Count Register).
-> Previously, the driver relied on the hardware's reset default
-> values for this register.
-> 
-> The hardware's default ILCR values (SLV=0x156, FLV=0x5d) yield SCL
-> frequencies lower than intended. For example, with the default
-> 31.5 MHz input clock, these default settings result in an SCL
-> frequency of approximately 93 kHz (standard mode) when targeting 100 kHz,
-> and approximately 338 kHz (fast mode) when targeting 400 kHz.
-> These frequencies are below the 100 kHz/400 kHz nominal speeds.
-> 
-> This patch integrates the SCL frequency management into
-> the Common Clock Framework (CCF). Specifically, the ILCR register,
-> which acts as a frequency divider for the SCL clock, is now registered
-> as a managed clock (scl_clk) within the CCF.
-> 
-> The actual hardware timing formulas are:
-> - standard mode: SCL = FCLK / (2 * SLV + 8)
-> - fast mode:     SCL = FCLK / (2 * FLV + 10)
-> 
-> These formulas are only valid when the IWCR (Wait Count Register) is
-> programmed to 0x142A, a value specified by the I2C IP designer. The
-> driver now initializes IWCR to this value during controller init.
-> 
-> Reviewed-by: Yixun Lan <dlan@gentoo.org>
-> Signed-off-by: Troy Mitchell <troy.mitchell@linux.spacemit.com>
+I'm resigning from my position at Axentia.
 
-I have a couple "I keep thinking the same thing when I see this"
-comments...  But in summary, I make three suggestions below:
-- Consider defining the magic SPACEMIT_IWCR_INIT_VALUE value
-   based on the values in its fields
-- Have your clk_set_rate() and clk_determine_rate() functions
-   call a common helper, to eliminate some duplication of code.
-- Use devm_clk_hw_register() and devm_clk_get_enabled() rather
-   than the deprecated devm_clk_register() and rolling your own
-   managed prepare-enable function.
+Signed-off-by: Peter Rosin <peda@axentia.se>
+---
+ .mailmap    |  1 +
+ MAINTAINERS | 24 +++++++++++-------------
+ 2 files changed, 12 insertions(+), 13 deletions(-)
 
-> ---
-> Changelog in v6:
-> - fix SCL frequency calculation to match hardware timing formulas
->    (SCL = FCLK / (2*SLV+8) for standard, FCLK / (2*FLV+10) for fast)
-> - initialize IWCR to 0x142A during init(required by I2C IP for
->    correct SCL timing)
-> - use DIV_ROUND_CLOSEST() instead of DIV_ROUND_UP() for more accurate frequency
-> - use field_prep() instead of manual bit shift for ILCR register programming
-> - replace .round_rate with .determine_rate (round_rate was removed from clk_ops)
-> - remove _MAX_VALUE macros (no longer needed after removing max_lv validation)
-> - remove redundant max_lv validation in set_rate (determine_rate guarantees valid values)
-> - simplify scl_clk_disable_unprepare callback to take clk pointer directly
-> - remove unused parent parameter from spacemit_i2c_register_scl_clk()
-> - remove stale description about whitespace cleanup from commit message
-> - Link to v5: https://lore.kernel.org/r/20251226-k1-i2c-ilcr-v5-0-b5807b7dd0e6@linux.spacemit.com
-> 
-> Changelog in v5:
-> - use __ffs() instead of *_SHIFT
-> - remove useless *_SHIFT
-> - check return value when scl clk name array is truncated
-> - rebase to v6.19-rc1
-> - Link to v3: https://lore.kernel.org/all/20251017-k1-i2c-ilcr-v4-1-eed4903ecdb9@linux.spacemit.com/
-> 
-> Changelog in v4:
-> - initialize clk_init_data with {} so that init.flags is implicitly set to 0
-> - minor cleanup and style fixes for better readability
-> - remove unused spacemit_i2c_scl_clk_exclusive_put() cleanup callback
-> - replace clk_set_rate_exclusive()/clk_rate_exclusive_put() pair with clk_set_rate()
-> - simplify LCR LV field macros by using FIELD_GET/FIELD_MAX helpers
-> - Link to v3: https://lore.kernel.org/all/20250814-k1-i2c-ilcr-v3-1-317723e74bcd@linux.spacemit.com/
-> 
-> Changelog in v3:
-> - use MASK macro in `recalc_rate` function
-> - rename clock name
-> - Link to v2: https://lore.kernel.org/r/20250718-k1-i2c-ilcr-v2-1-b4c68f13dcb1@linux.spacemit.com
-> 
-> Changelog in v2:
-> - Align line breaks.
-> - Check `lv` in `clk_set_rate` function.
-> - Force fast mode when SCL frequency is illegal or unavailable.
-> - Change "linux/bits.h" to <linux/bits.h>
-> - Kconfig: Add dependency on CCF.
-> - Link to v1: https://lore.kernel.org/all/20250710-k1-i2c-ilcr-v1-1-188d1f460c7d@linux.spacemit.com/
-> ---
->   drivers/i2c/busses/Kconfig  |   2 +-
->   drivers/i2c/busses/i2c-k1.c | 160 +++++++++++++++++++++++++++++++++++++++++---
->   2 files changed, 153 insertions(+), 9 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 8c935f867a37..89898fff1967 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -793,7 +793,7 @@ config I2C_JZ4780
->   config I2C_K1
->   	tristate "SpacemiT K1 I2C adapter"
->   	depends on ARCH_SPACEMIT || COMPILE_TEST
-> -	depends on OF
-> +	depends on OF && COMMON_CLK
->   	help
->   	  This option enables support for the I2C interface on the SpacemiT K1
->   	  platform.
-> diff --git a/drivers/i2c/busses/i2c-k1.c b/drivers/i2c/busses/i2c-k1.c
-> index 9152cf436bea..fad6a20bb43d 100644
-> --- a/drivers/i2c/busses/i2c-k1.c
-> +++ b/drivers/i2c/busses/i2c-k1.c
-> @@ -4,7 +4,9 @@
->    */
->   
->   #include <linux/bitfield.h>
-> +#include <linux/bits.h>
->   #include <linux/clk.h>
-> +#include <linux/clk-provider.h>
->   #include <linux/i2c.h>
->   #include <linux/iopoll.h>
->   #include <linux/module.h>
-> @@ -17,6 +19,8 @@
->   #define SPACEMIT_ISR		 0x4		/* Status register */
->   #define SPACEMIT_IDBR		 0xc		/* Data buffer register */
->   #define SPACEMIT_IRCR		 0x18		/* Reset cycle counter */
-> +#define SPACEMIT_ILCR		 0x10		/* Load Count Register */
-> +#define SPACEMIT_IWCR		 0x14		/* Wait Count Register */
->   #define SPACEMIT_IBMR		 0x1c		/* Bus monitor register */
->   
->   /* SPACEMIT_ICR register fields */
-> @@ -88,6 +92,12 @@
->   #define SPACEMIT_BMR_SDA         BIT(0)		/* SDA line level */
->   #define SPACEMIT_BMR_SCL         BIT(1)		/* SCL line level */
->   
-> +#define SPACEMIT_LCR_LV_STANDARD_MASK		GENMASK(8, 0)
-> +#define SPACEMIT_LCR_LV_FAST_MASK		GENMASK(17, 9)
-> +
-> +/* Required by I2C IP for correct SCL timing */
-> +#define SPACEMIT_IWCR_INIT_VALUE		0x142A
-
-Even if it's just used to "do the right thing", I still think it's
-useful to break this numeric value into what it *represents*.  The
-register is defined this way:
-COUNT		GENMASK(4:0)
-HS_COUNT1	GENMASK(9:5)
-HS_COUNT2	GENMASK(14:10)
-(the rest is reserved)
-
-So 0x142a represents:
-COUNT		10	33 MHz I2C functional clock (versus 66 MHz)
-HS_COUNT1	2	Count defining start bit setup/hold times
-HS_COUNT2	3	Count defining stop bit setup/hold times
-
-The first one in particular *could* be managed in your clock
-to support even more accurate clock rates.  But even if you
-don't change its value I think it's meaningful to know what
-the value represents.
-
-That said--what I suggest won't change what the code does,
-it just helps the reader understand what it's doing.
-
-> +
->   /* i2c bus recover timeout: us */
->   #define SPACEMIT_I2C_BUS_BUSY_TIMEOUT		100000
->   
-> @@ -109,11 +119,20 @@ enum spacemit_i2c_state {
->   	SPACEMIT_STATE_WRITE,
->   };
->   
-> +enum spacemit_i2c_mode {
-> +	SPACEMIT_MODE_STANDARD,
-> +	SPACEMIT_MODE_FAST
-> +};
-
-I have a consistent reaction to this--why not use a Boolean?
-But I know the answer is that there are other modes that will
-be supported, so the enum is the right thing to do...
-
-> +
->   /* i2c-spacemit driver's main struct */
->   struct spacemit_i2c_dev {
->   	struct device *dev;
->   	struct i2c_adapter adapt;
->   
-> +	struct clk_hw scl_clk_hw;
-> +	struct clk *scl_clk;
-> +	enum spacemit_i2c_mode mode;
-> +
->   	/* hardware resources */
->   	void __iomem *base;
->   	int irq;
-> @@ -135,6 +154,82 @@ struct spacemit_i2c_dev {
->   	u32 status;
->   };
->   
-> +static void spacemit_i2c_scl_clk_disable_unprepare(void *data)
-> +{
-> +	clk_disable_unprepare(data);
-> +}
-
-I have a consistent reaction to this, too, but I saw that it's
-a devm action (which also explains the void pointer argument).
-
-> +
-> +static int spacemit_i2c_clk_set_rate(struct clk_hw *hw, unsigned long rate,
-> +				     unsigned long parent_rate)
-> +{
-> +	struct spacemit_i2c_dev *i2c = container_of(hw, struct spacemit_i2c_dev, scl_clk_hw);
-> +	u32 lv, lcr, mask, denom;
-> +
-> +	/*
-> +	 * Hardware timing formulas:
-> +	 * - standard mode: SCL = FCLK / (2 * SLV + 8)
-> +	 * - fast mode:     SCL = FCLK / (2 * FLV + 10)
-> +	 */
-> +	denom = DIV_ROUND_CLOSEST(parent_rate, rate);
-> +
-> +	if (i2c->mode == SPACEMIT_MODE_STANDARD) {
-> +		mask = SPACEMIT_LCR_LV_STANDARD_MASK;
-> +		lv = (denom <= 8) ? 0 : DIV_ROUND_CLOSEST(denom - 8, 2);
-> +	} else {
-> +		mask = SPACEMIT_LCR_LV_FAST_MASK;
-> +		lv = (denom <= 10) ? 0 : DIV_ROUND_CLOSEST(denom - 10, 2);
-> +	}
-> +
-> +	lcr = readl(i2c->base + SPACEMIT_ILCR);
-> +	lcr &= ~mask;
-> +	lcr |= field_prep(mask, lv);
-> +	writel(lcr, i2c->base + SPACEMIT_ILCR);
-> +
-> +	return 0;
-> +}
-> +
-> +static int spacemit_i2c_clk_determine_rate(struct clk_hw *hw,
-> +					   struct clk_rate_request *req)
-> +{
-> +	struct spacemit_i2c_dev *i2c = container_of(hw, struct spacemit_i2c_dev, scl_clk_hw);
-> +	u32 lv, denom;
-
-Can you have clk_set_rate() call clk_determine_rate(), or at
-least have them both share a helper that does these (duplicated)
-calculations?
-
-> +
-> +	denom = DIV_ROUND_CLOSEST(req->best_parent_rate, req->rate);
-> +
-> +	if (i2c->mode == SPACEMIT_MODE_STANDARD) {
-> +		lv = (denom <= 8) ? 0 : DIV_ROUND_CLOSEST(denom - 8, 2);
-> +		req->rate = DIV_ROUND_CLOSEST(req->best_parent_rate, lv * 2 + 8);
-> +	} else {
-> +		lv = (denom <= 10) ? 0 : DIV_ROUND_CLOSEST(denom - 10, 2);
-> +		req->rate = DIV_ROUND_CLOSEST(req->best_parent_rate, lv * 2 + 10);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static unsigned long spacemit_i2c_clk_recalc_rate(struct clk_hw *hw,
-> +						  unsigned long parent_rate)
-> +{
-> +	struct spacemit_i2c_dev *i2c = container_of(hw, struct spacemit_i2c_dev, scl_clk_hw);
-> +	u32 lcr, lv = 0;
-> +
-> +	lcr = readl(i2c->base + SPACEMIT_ILCR);
-> +
-> +	if (i2c->mode == SPACEMIT_MODE_STANDARD) {
-> +		lv = FIELD_GET(SPACEMIT_LCR_LV_STANDARD_MASK, lcr);
-> +		return DIV_ROUND_CLOSEST(parent_rate, lv * 2 + 8);
-> +	}
-> +
-> +	lv = FIELD_GET(SPACEMIT_LCR_LV_FAST_MASK, lcr);
-> +	return DIV_ROUND_CLOSEST(parent_rate, lv * 2 + 10);
-> +}
-> +
-> +static const struct clk_ops spacemit_i2c_clk_ops = {
-> +	.set_rate = spacemit_i2c_clk_set_rate,
-> +	.determine_rate = spacemit_i2c_clk_determine_rate,
-> +	.recalc_rate = spacemit_i2c_clk_recalc_rate,
-> +};
-> +
->   static void spacemit_i2c_enable(struct spacemit_i2c_dev *i2c)
->   {
->   	u32 val;
-> @@ -153,6 +248,28 @@ static void spacemit_i2c_disable(struct spacemit_i2c_dev *i2c)
->   	writel(val, i2c->base + SPACEMIT_ICR);
->   }
->   
-> +static struct clk *spacemit_i2c_register_scl_clk(struct spacemit_i2c_dev *i2c)
-> +{
-> +	struct clk_init_data init = {};
-> +	char name[64];
-> +	int ret;
-> +
-> +	ret = snprintf(name, sizeof(name), "%s_scl_clk", dev_name(i2c->dev));
-> +	if (ret >= ARRAY_SIZE(name))
-> +		dev_warn(i2c->dev, "scl clock name truncated");
-> +
-> +	init.name = name;
-> +	init.ops = &spacemit_i2c_clk_ops;
-> +	init.parent_data = (struct clk_parent_data[]) {
-> +		{ .fw_name = "func" },
-> +	};
-> +	init.num_parents = 1;
-> +
-> +	i2c->scl_clk_hw.init = &init;
-> +
-> +	return devm_clk_register(i2c->dev, &i2c->scl_clk_hw);
-
-The comments above clk_register() indicate that this is a deprecated
-interface, and you should use a form of clk_hw_register() instead.
-devm_clk_hw_register() exists and takes the same arguments, but
-returns an int rather than the clock pointer.  But I think then you
-can call devm_clk_get_enabled() in the caller (spacemit_i2c_probe()).
-That would allow you to get rid of your clk_disable_unprepare()
-wrapper too.
-
-					-Alex
-
-> +}
-> +
->   static void spacemit_i2c_reset(struct spacemit_i2c_dev *i2c)
->   {
->   	writel(SPACEMIT_CR_UR, i2c->base + SPACEMIT_ICR);
-> @@ -286,7 +403,7 @@ static void spacemit_i2c_init(struct spacemit_i2c_dev *i2c)
->   		val |= SPACEMIT_CR_MSDIE;
->   	}
->   
-> -	if (i2c->clock_freq == SPACEMIT_I2C_MAX_FAST_MODE_FREQ)
-> +	if (i2c->mode == SPACEMIT_MODE_FAST)
->   		val |= SPACEMIT_CR_MODE_FAST;
->   
->   	/* disable response to general call */
-> @@ -309,6 +426,14 @@ static void spacemit_i2c_init(struct spacemit_i2c_dev *i2c)
->   	writel(val, i2c->base + SPACEMIT_IRCR);
->   
->   	spacemit_i2c_clear_int_status(i2c, SPACEMIT_I2C_INT_STATUS_MASK);
-> +
-> +	/*
-> +	 * Initialize IWCR to the value specified by the I2C IP designer.
-> +	 * The SCL frequency formulas (SCL = FCLK / (2*SLV+8) for standard
-> +	 * mode, SCL = FCLK / (2*FLV+10) for fast mode) are only valid when
-> +	 * IWCR contains this specific value.
-> +	 */
-> +	writel(SPACEMIT_IWCR_INIT_VALUE, i2c->base + SPACEMIT_IWCR);
->   }
->   
->   static void spacemit_i2c_start(struct spacemit_i2c_dev *i2c)
-> @@ -703,14 +828,15 @@ static int spacemit_i2c_probe(struct platform_device *pdev)
->   		dev_warn(dev, "failed to read clock-frequency property: %d\n", ret);
->   
->   	/* For now, this driver doesn't support high-speed. */
-> -	if (!i2c->clock_freq || i2c->clock_freq > SPACEMIT_I2C_MAX_FAST_MODE_FREQ) {
-> -		dev_warn(dev, "unsupported clock frequency %u; using %u\n",
-> -			 i2c->clock_freq, SPACEMIT_I2C_MAX_FAST_MODE_FREQ);
-> +	if (i2c->clock_freq > SPACEMIT_I2C_MAX_STANDARD_MODE_FREQ &&
-> +	    i2c->clock_freq <= SPACEMIT_I2C_MAX_FAST_MODE_FREQ) {
-> +		i2c->mode = SPACEMIT_MODE_FAST;
-> +	} else if (i2c->clock_freq && i2c->clock_freq <= SPACEMIT_I2C_MAX_STANDARD_MODE_FREQ) {
-> +		i2c->mode = SPACEMIT_MODE_STANDARD;
-> +	} else {
-> +		dev_warn(i2c->dev, "invalid clock-frequency, fallback to fast mode");
-> +		i2c->mode = SPACEMIT_MODE_FAST;
->   		i2c->clock_freq = SPACEMIT_I2C_MAX_FAST_MODE_FREQ;
-> -	} else if (i2c->clock_freq < SPACEMIT_I2C_MAX_STANDARD_MODE_FREQ) {
-> -		dev_warn(dev, "unsupported clock frequency %u; using %u\n",
-> -			 i2c->clock_freq,  SPACEMIT_I2C_MAX_STANDARD_MODE_FREQ);
-> -		i2c->clock_freq = SPACEMIT_I2C_MAX_STANDARD_MODE_FREQ;
->   	}
->   
->   	i2c->dev = &pdev->dev;
-> @@ -732,6 +858,11 @@ static int spacemit_i2c_probe(struct platform_device *pdev)
->   	if (IS_ERR(clk))
->   		return dev_err_probe(dev, PTR_ERR(clk), "failed to enable func clock");
->   
-> +	i2c->scl_clk = spacemit_i2c_register_scl_clk(i2c);
-> +	if (IS_ERR(i2c->scl_clk))
-> +		return dev_err_probe(&pdev->dev, PTR_ERR(i2c->scl_clk),
-> +				     "failed to register scl clock\n");
-> +
->   	clk = devm_clk_get_enabled(dev, "bus");
->   	if (IS_ERR(clk))
->   		return dev_err_probe(dev, PTR_ERR(clk), "failed to enable bus clock");
-> @@ -741,6 +872,19 @@ static int spacemit_i2c_probe(struct platform_device *pdev)
->   		return dev_err_probe(dev, PTR_ERR(rst),
->   				     "failed to acquire deasserted reset\n");
->   
-> +	ret = clk_set_rate(i2c->scl_clk, i2c->clock_freq);
-> +	if (ret)
-> +		return dev_err_probe(&pdev->dev, ret, "failed to set rate for SCL clock");
-> +
-> +	ret = clk_prepare_enable(i2c->scl_clk);
-> +	if (ret)
-> +		return dev_err_probe(&pdev->dev, ret, "failed to prepare and enable clock");
-> +
-> +	ret = devm_add_action_or_reset(dev, spacemit_i2c_scl_clk_disable_unprepare,
-> +				       i2c->scl_clk);
-> +	if (ret)
-> +		return ret;
-> +
->   	spacemit_i2c_reset(i2c);
->   
->   	i2c_set_adapdata(&i2c->adapt, i2c);
-> 
+diff --git a/.mailmap b/.mailmap
+index 34acd34bbf9b..7cc01b61aa0a 100644
+--- a/.mailmap
++++ b/.mailmap
+@@ -677,6 +677,7 @@ Peter A Jonsson <pj@ludd.ltu.se>
+ Peter Hilber <peter.hilber@oss.qualcomm.com> <quic_philber@quicinc.com>
+ Peter Oruba <peter.oruba@amd.com>
+ Peter Oruba <peter@oruba.de>
++Peter Rosin <peda@lysator.liu.se> <peda@axentia.se>
+ Pierre-Louis Bossart <pierre-louis.bossart@linux.dev> <pierre-louis.bossart@linux.intel.com>
+ Pratyush Anand <pratyush.anand@gmail.com> <pratyush.anand@st.com>
+ Pratyush Yadav <pratyush@kernel.org> <ptyadav@amazon.de>
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 2fb1c75afd16..75ea85732e15 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -4299,18 +4299,16 @@ F:	Documentation/devicetree/bindings/leds/backlight/awinic,aw99706.yaml
+ F:	drivers/video/backlight/aw99706.c
+ 
+ AXENTIA ARM DEVICES
+-M:	Peter Rosin <peda@axentia.se>
+ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+-S:	Maintained
++S:	Orphan
+ F:	arch/arm/boot/dts/microchip/at91-linea.dtsi
+ F:	arch/arm/boot/dts/microchip/at91-natte.dtsi
+ F:	arch/arm/boot/dts/microchip/at91-nattis-2-natte-2.dts
+ F:	arch/arm/boot/dts/microchip/at91-tse850-3.dts
+ 
+ AXENTIA ASOC DRIVERS
+-M:	Peter Rosin <peda@axentia.se>
+ L:	linux-sound@vger.kernel.org
+-S:	Maintained
++S:	Orphan
+ F:	Documentation/devicetree/bindings/sound/axentia,*
+ F:	sound/soc/atmel/tse850-pcm5142.c
+ 
+@@ -12046,7 +12044,7 @@ F:	Documentation/i2c/busses/i2c-nvidia-gpu.rst
+ F:	drivers/i2c/busses/i2c-nvidia-gpu.c
+ 
+ I2C MUXES
+-M:	Peter Rosin <peda@axentia.se>
++M:	Peter Rosin <peda@lysator.liu.se>
+ L:	linux-i2c@vger.kernel.org
+ S:	Maintained
+ F:	Documentation/devicetree/bindings/i2c/i2c-arb*
+@@ -12447,7 +12445,7 @@ F:	drivers/iio/industrialio-backend.c
+ F:	include/linux/iio/backend.h
+ 
+ IIO DIGITAL POTENTIOMETER DAC
+-M:	Peter Rosin <peda@axentia.se>
++M:	Peter Rosin <peda@lysator.liu.se>
+ L:	linux-iio@vger.kernel.org
+ S:	Maintained
+ F:	Documentation/ABI/testing/sysfs-bus-iio-dac-dpot-dac
+@@ -12455,7 +12453,7 @@ F:	Documentation/devicetree/bindings/iio/dac/dpot-dac.yaml
+ F:	drivers/iio/dac/dpot-dac.c
+ 
+ IIO ENVELOPE DETECTOR
+-M:	Peter Rosin <peda@axentia.se>
++M:	Peter Rosin <peda@lysator.liu.se>
+ L:	linux-iio@vger.kernel.org
+ S:	Maintained
+ F:	Documentation/ABI/testing/sysfs-bus-iio-adc-envelope-detector
+@@ -12471,7 +12469,7 @@ F:	include/linux/iio/iio-gts-helper.h
+ F:	drivers/iio/test/iio-test-gts.c
+ 
+ IIO MULTIPLEXER
+-M:	Peter Rosin <peda@axentia.se>
++M:	Peter Rosin <peda@lysator.liu.se>
+ L:	linux-iio@vger.kernel.org
+ S:	Maintained
+ F:	Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.yaml
+@@ -12502,7 +12500,7 @@ F:	include/linux/iio/
+ F:	tools/iio/
+ 
+ IIO UNIT CONVERTER
+-M:	Peter Rosin <peda@axentia.se>
++M:	Peter Rosin <peda@lysator.liu.se>
+ L:	linux-iio@vger.kernel.org
+ S:	Maintained
+ F:	Documentation/devicetree/bindings/iio/afe/current-sense-amplifier.yaml
+@@ -15719,7 +15717,7 @@ F:	Documentation/devicetree/bindings/media/i2c/maxim,max96717.yaml
+ F:	drivers/media/i2c/max96717.c
+ 
+ MAX9860 MONO AUDIO VOICE CODEC DRIVER
+-M:	Peter Rosin <peda@axentia.se>
++M:	Peter Rosin <peda@lysator.liu.se>
+ L:	linux-sound@vger.kernel.org
+ S:	Maintained
+ F:	Documentation/devicetree/bindings/sound/max9860.txt
+@@ -15934,7 +15932,7 @@ F:	Documentation/devicetree/bindings/net/can/microchip,mcp251xfd.yaml
+ F:	drivers/net/can/spi/mcp251xfd/
+ 
+ MCP4018 AND MCP4531 MICROCHIP DIGITAL POTENTIOMETER DRIVERS
+-M:	Peter Rosin <peda@axentia.se>
++M:	Peter Rosin <peda@lysator.liu.se>
+ L:	linux-iio@vger.kernel.org
+ S:	Maintained
+ F:	Documentation/ABI/testing/sysfs-bus-iio-potentiometer-mcp4531
+@@ -18238,7 +18236,7 @@ F:	include/linux/mmc/
+ F:	include/uapi/linux/mmc/
+ 
+ MULTIPLEXER SUBSYSTEM
+-M:	Peter Rosin <peda@axentia.se>
++M:	Peter Rosin <peda@lysator.liu.se>
+ S:	Odd Fixes
+ F:	Documentation/ABI/testing/sysfs-class-mux*
+ F:	Documentation/devicetree/bindings/mux/
+@@ -19314,7 +19312,7 @@ F:	include/dt-bindings/display/tda998x.h
+ K:	"nxp,tda998x"
+ 
+ NXP TFA9879 DRIVER
+-M:	Peter Rosin <peda@axentia.se>
++M:	Peter Rosin <peda@lysator.liu.se>
+ L:	linux-sound@vger.kernel.org
+ S:	Maintained
+ F:	Documentation/devicetree/bindings/sound/trivial-codec.yaml
+-- 
+2.20.1
 
