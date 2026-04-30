@@ -1,261 +1,175 @@
-Received: from OSPPR02CU001.outbound.protection.outlook.com (mail-norwayeastazon11023080.outbound.protection.outlook.com [40.107.159.80])
+Received: from MW6PR02CU001.outbound.protection.outlook.com (mail-westus2azon11012063.outbound.protection.outlook.com [52.101.48.63])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A1CF34EF05;
-	Thu, 30 Apr 2026 04:10:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.159.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E4B654652;
+	Thu, 30 Apr 2026 05:31:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.48.63
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777522211; cv=fail; b=cT9qldYiHfnlhpQmtZLAQW4BWCbBV52mSEkHhOj7+hckBUtKFxBWQG/RFC6tcYVng8JIqlVz8PxdH69A/vGyjZVZzEQ/Tf8lEVK0MPf7PdTlW0n/1gyM9MH6KVK+KMQKQGYMu0tMiU4FOfRTd/NJTvUuN5GZjwW7lnC4fd8Uco0=
+	t=1777527110; cv=fail; b=rX6suTL+199Gk7disUoVDIiBruF0FD+y8PqHSMIY+85a9nwnxqVyerNOlm6Z+hSPZ5RAqetBvfHbrNNE6ceQYjYwbCsDspBsweWrrte8DMTvxHkMXm633Xx9KMmbAxh5cGzu5+3FOD2uibVt7AI4K788jCZgLd1tGheTaOfk+Hg=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777522211; c=relaxed/simple;
-	bh=DsTFaquaP7+x3aJEvXSvBlbu4dcNzxtka19TDzQLj0M=;
-	h=Message-ID:Date:To:Cc:From:Subject:Content-Type:MIME-Version; b=Av54QrykRb8Y6ARRKw2H2UZyq5jSQRBmDzb56Bk5INCBsJDEYV4B278L7s/rcW7Lpm9HqU48Lr6+xXT1qxUWEYO1cTHytjrtBBOhykMhxK5KkmEuRNVZt6W51KEPcpP9Xn8vGJuWMF3YcGAcdp5Q4MOXx5nLuisnc9NcZqCt7FM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=axentia.se; spf=pass smtp.mailfrom=axentia.se; dkim=pass (1024-bit key) header.d=axentia.se header.i=@axentia.se header.b=EpEmHwGi; arc=fail smtp.client-ip=40.107.159.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=axentia.se
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=axentia.se
+	s=arc-20240116; t=1777527110; c=relaxed/simple;
+	bh=NjGrIu41rlmWyDWUEPep2wv42EfiLfjyJGRCGNKNZXg=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=hz3U9b5dWG9JArviXEJyZYKuPjzfdv20pFAjd6FPsQm/zzE4fOEKimKUetTmo10nI6Sl8Ggq4LmYCsmucnX+du9UFfj6aea5c/vmkFmeWjE3xxDWH0M1/hsmqlFLZptyI2WTR1tl0iUxO3ms8GdK8fq/IPpPfmeKzQG/T1dQWeQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=O+ZV8co5; arc=fail smtp.client-ip=52.101.48.63
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=axentia.se header.i=@axentia.se header.b="EpEmHwGi"
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="O+ZV8co5"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=WzForAEZGbIYgmR7RSzIzzWk1wtQLgQVE8ft3FEZYoEqmVkVaXBh2UEqzwf+Vu9gQd1vKL0BHyUQ0IjUNLic9Fvi8qRstMGHtCB9kLuw17YYroOwNFAYpZQKnqPZ6sQ7LuUNT6Qiw9Yqy72tGdXDtpp5UQlp5lxTwIvvIGielTYMbhsUje/HUM/V2gB20kyV65ukLTUXmeBOcQUe5ebE7Bt32EOHBc67GhWUgzh4JQx0S+4itKfdXj5BePuSNm+GudEdAB2osnxH9npe610e4Si0H1oCo6TfweRgGQAK6ZGDlsUjJD8DREtfA7+54TTlbY8ASiXUzsY+WORrV+Nriw==
+ b=EdtTQQ1y9mUzOoR6sdSiee4EWOm2yVeRuOBQwDCzGjxLu6ZLe9qkrqLdAe2Rpt7N+eob2psyaRV9dfbFa6dcubRD1EYU2yJQwM3Us4AklBUedqEPx7EVG6Qg7UoqvdUfm37mJboUosBy1TP/fipVHMWcNTP+pmfE8umxLDr3wGNPWFcbRWwasCn4Wev97089BrkhK8XSSD612H4TQVOdBOv0g3DjlWn0ca2AaPUvaYScVYdfHK7gZVTJL9gQJfuHqO8Oe6SljP6z9de2/pHyzqSSbYR/9Iswm9XkgjEEIfX0lR0YA6rp+fUb0pY1zHXtRpgKuZHE0F5xOTxbjLpHDw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=krMphM2NAxVYMF/9OniqCuGV4f5a7Pz6HMQ37ozz1aw=;
- b=aZFCae0Tn6VyKapietUoenoNrLWNNPm5kwUT9UhjWT1aPzPRlfJ1K9IoWrgJH3nuLE30I0GuAGQspg0osWMRF0IJ5Sb/jEV/BlZlPGx4RqUd8XDDGncAYDfQHOa3zwVxs4Yr+FAia27C2zGN1VVvmq/X5l01axNPvxu0akww05zPiUB72d95PlMwF2IWp9xc1Kx9qGfbGAhYJ1UDM6hoTwNbXIJk6IL9UqGN2Kt9Kua3rVk4X9h4kQuWUFMZzQ5PU3ruL3irHLsoxY9RetlNMSk1Y/jR1NaWSMtqHg90+U7qLtDpGSMaoLPZWKhgQzCK1qfAWPXo69JgfFkSTTmP8Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=axentia.se; dmarc=pass action=none header.from=axentia.se;
- dkim=pass header.d=axentia.se; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=axentia.se;
- s=selector2;
+ bh=ZacdwEi1zCXlvIYO0WMJRY7arDvmN0Z9YQhm+IOSPF8=;
+ b=nh4Ve6sqQclvW0cjsIFVWTpXtNSj/4X6IpEC0w4Gfbb1805kD4RUPPDqp+6JCIPjlFuA22xptqeGIugyf+6DdaqzYafpqHUHa7Wjh894iAvBHF854ptVzB+esNyOMblolo36wUcrdLdY7RRaXzqIV90KLPXQ0FW7EejouTrSDMwN4cxmX3ABTOw1vflWMjU8zhfiVRoLkm+dzr4cMn3MGHnYrY1tRnTPGy0pKdR37sG+c8ZPoPFSJkY3l0R5uZ7DX2BFJdAfa6QQEcy0xEBP6NcKU24nOxvrufITJcJMjVkJjFLipVzXbB4Q8ZC6BY5YW7BWLVKLoN1lzJ4UXFwcCQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=kernel.org smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=krMphM2NAxVYMF/9OniqCuGV4f5a7Pz6HMQ37ozz1aw=;
- b=EpEmHwGi0O3bVCJCGmHsLThdJZs4iFiXTsHEqWN8vbYZZDgUadUH2VwZYgD0uht4Fo8rRCK5tLbhA0/Ns70StBDV//y0TbuOdOh3g/Bp72Xy9yb5OpLo0AnPPrS36iJqNsZ37UiplxRY2gfXaJCYbCbswU0Rz1rP1/zKJNOKChM=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=axentia.se;
-Received: from AS8PR02MB9235.eurprd02.prod.outlook.com (2603:10a6:20b:5c1::5)
- by GVXPR02MB10967.eurprd02.prod.outlook.com (2603:10a6:150:226::22) with
+ bh=ZacdwEi1zCXlvIYO0WMJRY7arDvmN0Z9YQhm+IOSPF8=;
+ b=O+ZV8co5TwEKZSsLQKCDhbk5xvII5m30G0OEK2nq4yh5VAUYXlrXOktmLO7JzJFbbnFpNupvGbscgib4nT619zHyzCFTx89YdNvDN/Til/h2LVbVjJJLDLeSuc146lR4dzZ4fEfsUsm/pMvVtyjjbhJqMT7OxSCeaGMr7IVfjPA=
+Received: from CH2PR03CA0029.namprd03.prod.outlook.com (2603:10b6:610:59::39)
+ by LV2PR12MB5918.namprd12.prod.outlook.com (2603:10b6:408:174::21) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9870.20; Thu, 30 Apr
- 2026 04:10:02 +0000
-Received: from AS8PR02MB9235.eurprd02.prod.outlook.com
- ([fe80::32a9:a9e6:ded:5714]) by AS8PR02MB9235.eurprd02.prod.outlook.com
- ([fe80::32a9:a9e6:ded:5714%6]) with mapi id 15.20.9870.020; Thu, 30 Apr 2026
- 04:10:02 +0000
-Message-ID: <7ddc5b09-b6c9-99f9-d951-6b3ef96f8c1f@axentia.se>
-Date: Thu, 30 Apr 2026 06:09:58 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Content-Language: sv-SE
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- LKML <linux-kernel@vger.kernel.org>, Wolfram Sang <wsa@kernel.org>,
- Jonathan Cameron <jic23@kernel.org>, Linux I2C <linux-i2c@vger.kernel.org>,
- "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
- "linux-iio@vger.kernel.org" <linux-iio@vger.kernel.org>,
- Peter Rosin <peda@lysator.liu.se>
-From: Peter Rosin <peda@axentia.se>
-Subject: [PATCH] MAINTAINERS: Update mail for Peter Rosin
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: GVZP280CA0097.SWEP280.PROD.OUTLOOK.COM
- (2603:10a6:150:275::11) To AS8PR02MB9235.eurprd02.prod.outlook.com
- (2603:10a6:20b:5c1::5)
+ 2026 05:31:42 +0000
+Received: from CH3PEPF00000015.namprd21.prod.outlook.com
+ (2603:10b6:610:59:cafe::65) by CH2PR03CA0029.outlook.office365.com
+ (2603:10b6:610:59::39) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9846.28 via Frontend Transport; Thu,
+ 30 Apr 2026 05:31:42 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=satlexmb08.amd.com; pr=C
+Received: from satlexmb08.amd.com (165.204.84.17) by
+ CH3PEPF00000015.mail.protection.outlook.com (10.167.244.120) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9891.0 via Frontend Transport; Thu, 30 Apr 2026 05:31:42 +0000
+Received: from SATLEXMB03.amd.com (10.181.40.144) by satlexmb08.amd.com
+ (10.181.42.217) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.17; Thu, 30 Apr
+ 2026 00:31:25 -0500
+Received: from satlexmb07.amd.com (10.181.42.216) by SATLEXMB03.amd.com
+ (10.181.40.144) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.39; Thu, 30 Apr
+ 2026 00:31:12 -0500
+Received: from xhdsivadur40.xilinx.com (10.180.168.240) by satlexmb07.amd.com
+ (10.181.42.216) with Microsoft SMTP Server id 15.2.2562.17 via Frontend
+ Transport; Thu, 30 Apr 2026 00:31:10 -0500
+From: Ajay Neeli <ajay.neeli@amd.com>
+To: <git@amd.com>, <andi.shyti@kernel.org>,
+	<linux-arm-kernel@lists.infradead.org>, <linux-i2c@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>
+CC: <michal.simek@amd.com>, <srinivas.goud@amd.com>,
+	<radhey.shyam.pandey@amd.com>, Ajay Neeli <ajay.neeli@amd.com>
+Subject: [PATCH v4] i2c: cadence: Add shutdown handler
+Date: Thu, 30 Apr 2026 11:00:50 +0530
+Message-ID: <20260430053050.3590173-1-ajay.neeli@amd.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+Received-SPF: None (SATLEXMB03.amd.com: ajay.neeli@amd.com does not designate
+ permitted sender hosts)
+X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AS8PR02MB9235:EE_|GVXPR02MB10967:EE_
-X-MS-Office365-Filtering-Correlation-Id: cbf83293-c382-461b-7096-08dea66e5a1f
+X-MS-TrafficTypeDiagnostic: CH3PEPF00000015:EE_|LV2PR12MB5918:EE_
+X-MS-Office365-Filtering-Correlation-Id: 9e5079a6-59bd-47bc-3178-08dea679c2bc
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|376014|366016|18002099003|56012099003;
+	BCL:0;ARA:13230040|82310400026|36860700016|1800799024|376014|18002099003|56012099003;
 X-Microsoft-Antispam-Message-Info:
-	O0ty+WFvNRKX0aq95752uhQ8Zwyhvd7Z28cNxsfkNv7Vc9+HaD+mkzXK6Sl9U+EINiLfongxJ2pHIUKJbWLQ1fy4xlqlsQTOiiQDMbPiz6bQDQBLiUAjlGc/AEaD11D5H8bsWEgrly80DGuuFLISjJKdJipj3DbBhUD8Iw3E/aXvdtI0/u9ESqxiA465/8e+W46fdMWJfwNdueTd/MxlGUQ7bqPYlA3fsIHiBLKV3/zldCSWEqIKfgT1lFo43GXC144iFzIKNWaEnCtWZPaDf5pgbV7kRVLk0qdafVpHMVHKZfotxq8TnQjum4fCtPGtd9nwJybL+dwJ239DMuFMIy5oj8IkRovAa0902AadX5Kl3hyr6SIjkCuU5OPN3PFwKrv3zW5LDjEeleg8c9WGec4QUxO88vIFLpMc8vSLpjTauiFhyYNI0ADdQlWQrxPo40SJmUHMAHaN9A1RjR82IctEkDnzhiUnjyc+FDUFTw2ElG9baAJq//UphxDkJHIDXWpmQdbPcX9o0+5aWAA5uIrlwKedNtGxR0+ydztfmJ8DFQIe83M3ED0x9KtS+NuTQwmmfuqS0uvdhO7T4dpm9DcJz6l3f7aSGGR5OeK3aNTmt64z25iTlDp6gdgdpSWHvyvjXCcI0825GgBz87MxzYF5Oz36iskAz6FiOq0WU4Z1ZLOHTABYqyJtDVQc+Wc0Oiu3F96hz0TrPmW5BvIB8RVMHY08qcn0h2B9XqnIUTY=
+	52cYAAIsu/XqQvPPhVVbtIqteMoT+oQn/f3Xg5qoW3K/0q6AUxFAvULPcT5imC7pCbTYmK/300g55EA5bkK0qTtqcz78sDjVupGKZFMHVId+q9KX+p29r6plKNIQpji1q0NuqLxuSnHABMa5jsCDPfXXVentA/iP0pIjamu7lq0gbV6/kPJIqFqdfnmMxKSgjK9uFmFQ+Z+SD6oqxdyI+RKeFE0qtU+aQtFb6/35B70D0zduVT962mq47LzkI3+4C0eHKV2Mzpc0tX8j6u/lx4j7fXNSpkiS965uE4oFpU/uUTaJ3FAexChLcl/O92qfnz3JPrpdjvcep0Sx5Q0rSoU3mOTHNzGsHpyKO7PDPN4RaP6bLEv4rqbp1xw1NZa8ceON9rlFGH9PcVCMHzWIX2CIvbtLOt54TRoFPbJUKVU26uDy4UdZqLCeOXn03bLoiL4ozhGmsnRA1V4sTmfXdYL3WjaoG1Q3UNnB9kgtg3Bv00CyTmNio5RCv/wYCeJoX/1eJBnVeOZORvPb4AHzmIVdvrSxleZc4bFWyZVeUIJo3Uoh5hbITay4Ctf64QlI/wchDcRAOGhyiBzRARk1ERQT6/5vfuLKHiuM7xrtW78nbOf5tDSz7YCeBc8Z/i0jQ4dtPHGlDwoucFq3wGle/GA2jtUZcuj1Gdb1dMk9JLICZpl5raK/f6o2CzN8SP4/lgf4IrewUkwCjm6I1NPJ6JDfQwivLdczO8oAZCVbuWLwsVgGJ5lh3ibhsdzv/BazFSLWHVbXJztzmtFmIFviWw==
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AS8PR02MB9235.eurprd02.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(366016)(18002099003)(56012099003);DIR:OUT;SFP:1102;
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb08.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(36860700016)(1800799024)(376014)(18002099003)(56012099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?NEtWME55VUcrNjhFUUFYQU5DRUxOMjBxYWlwdnE4elFmaFhCclVsWk9LaU5u?=
- =?utf-8?B?bEN0dElKdCtJcS80cTNIOHhYd0lCYmg3enI4VXJxa2p0bk55bTcvOUN0Z1g2?=
- =?utf-8?B?MjBjaUNVaHlTYWVNMEc3My9PMlJrTkp3WHpuNGwwT2EwZ1hDcWNJUHhGV1NV?=
- =?utf-8?B?cHNSMkR5QUJZM0llRkdzN1lOTHVVTE1qVS9LWFlkbG5EQllHUjFkTVJHTmF0?=
- =?utf-8?B?QVg0SmFXUE0vc2s3aFB1TlhRRTUwYlM0VWJ0NHlXc2YrdS9La01RdDF2R3JE?=
- =?utf-8?B?R0JmVnpaSVFJdnlSeVRiczV3SzFCa2ZUYkhJL0dMMDl0ZzkwbkNjT1BLL3JF?=
- =?utf-8?B?R09BYnhNRXRldHJ5cHpSTzA2aFlIWWQ2Z0FCcUFheERHK28wRlJMOE8rOWxW?=
- =?utf-8?B?LzNJcWlISUUzenZGWGRnM3ZzMGpWcVJVY0dBZHlON0g1VEFhUHpRd3ZhMDNE?=
- =?utf-8?B?dDI0UHNKRlZmQ2puVjR3Y21zaU11NnBEazhyUm5aeFUxZzJtL0drR1drZ1hN?=
- =?utf-8?B?U0ZNTytRZFVMUlVvcTJrQXFueC9hbVVUbUxVK3dTMlFqdGI5MFNnRTNLY0Y1?=
- =?utf-8?B?RFBUSG1zRFZ3bUQvcGIxWXVIZDdnV0V2UlpoSlFDYnJBWXJXN1J0RldDTGs0?=
- =?utf-8?B?SXkzY2ZPMHhGeGhkQklsVUR5VSsvZXBRbnBVaXpzUzltYlg2Q3RNQmx6WUpq?=
- =?utf-8?B?LzBNZnAyY1p1VHc0K01qUjZtcTJreTNlbmdmcXJ2VVpEL2pRSkxYVGZZUHpB?=
- =?utf-8?B?eTlpaDVxcFYzTWFObGlYdWN4alA1eXQ5TThsQkh6RnNFYjF6bmtqbTg1Nk9u?=
- =?utf-8?B?NlpRUll1MUpWaXVBdWJlUGJMK2wrTFVSTkMycXJENFNPc2o1dzdqVEE1cmR6?=
- =?utf-8?B?ZGp3QUtpR09wZ2lPMzhnUFZjRmtuVDduNGsxQ1hhNktMSUNJSnVBNU41YWkr?=
- =?utf-8?B?WUpCUXN5dWZ3OXdpQWdiay9tWVJ4M243UVIxTTdpVDdWK1hjTVd5dENGcS9O?=
- =?utf-8?B?M2xSUHg2TFgzWE5CUlFtQStCcmZISzlYeHhXL2dyRjlmaGl5cDVWelpiZnNE?=
- =?utf-8?B?eGFKSEVwSVE0aFNhU1p4NGVZMnk2M2pEUEYyZ2pXYmJLUXdiUHNMUjUvUEJN?=
- =?utf-8?B?cUFUWjRjaXJLS0dML21STzhmOXFlbElMVkIwcktEZEpnVmxuV09aL1Bndk8z?=
- =?utf-8?B?NlJUVjFLOGRkLzVadkoxcjAzdjJJMHdtT0l6SWhjcm5PMDlXcVU2eXdZZzll?=
- =?utf-8?B?cTNBTjZTNFErbm9zL3ZPT1d2akkvNnlETzZqRzVDYnViLzFyYlVXQ29saUxx?=
- =?utf-8?B?Zm5lNUZueEFhRWtSdGVhOWV0SVgwcTZXU0p5V0VoREJEV3pnZXBEZXE5WFFZ?=
- =?utf-8?B?UXlQazZHbWhYZEJORGZudHFTMlVTWm83NEZhRTdJQUw4bG1tZlB5UFZPV2s5?=
- =?utf-8?B?R09pZTIraGUxcVQxRlZpSzVPbUFMVWVHSEJTOWJqZjFkNG9IeDNIVmNMd0Ju?=
- =?utf-8?B?N29UOTBZVW9yaFJZVk1mdWRWK1dHVlhUNWxVQmQyWHNkRzRkRWNnKzA5ZXhP?=
- =?utf-8?B?L2N2TTVadEZ3cC83a0l5OGN3dlI0SGQ5YWFLdlpWM3A0ZEQ5bDhHK0h2VXFq?=
- =?utf-8?B?NURxMnF3Rlc5dHJVNEwyNGNxeTNGWGYybzF5Q3A0bDJlc3l6bDBSYm9aUGhz?=
- =?utf-8?B?eEdMZmtwOUlVN05YWkhOazZKRUJnTGgrRDJFd21FRnhIMlpMQ2pPQWpDL2sz?=
- =?utf-8?B?T2dnNFJZMUFvUERINVpOZktmQmtJRUpMQjNmeDhuUytqcmJweS9RTGFRamtF?=
- =?utf-8?B?a0NhWTh4QUhqYytmMFZTbzFsSVQvSzBlMmdJdlAybzJWa1h3NHppWDZmd2VM?=
- =?utf-8?B?dSs1UEk0QzRaWWpJd2Nxdy9zMXE4U3pxa2crUFFJSk9PRW1aclFESC9QMFcv?=
- =?utf-8?B?OEl4N0dXYjZSUG02UXlyVmdtN3lhaUx5Z1BGV1pwd2VNOFZ3Tm9Va0kxdHZi?=
- =?utf-8?B?ZzByaFhBenNkVE45cC9lRW1lb2R6bGFrSGdLczJJUDNzL3dSNTZYVXVaT2I5?=
- =?utf-8?B?ekR6dnZwWWVERXlWOUhkb0ZIZk9CZm1ENHpETkVKVGRYSlJyVVdzM2R6Qy9t?=
- =?utf-8?B?b3p6ZWhETllvdXU1Mko2MzZYT2gyeHFPQ2xSRVhDbDBwWk92c21wN2JzSWs5?=
- =?utf-8?B?d2F4ZzNaRkM3UVJjbmlFTDdLSHVyWDZnSkNyanU5ME5vL1dHcE5YM3B5OExG?=
- =?utf-8?B?dHJvRy82UDBWTUl4UWphREF0YmU3bWtHUjF5V2g5NWowRjFxZktlanVpY09Y?=
- =?utf-8?Q?6u+PYwy+MODwrY7mD0?=
-X-OriginatorOrg: axentia.se
-X-MS-Exchange-CrossTenant-Network-Message-Id: cbf83293-c382-461b-7096-08dea66e5a1f
-X-MS-Exchange-CrossTenant-AuthSource: AS8PR02MB9235.eurprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Apr 2026 04:10:02.2843
+	l6RW30fqTSPFRTk7gmuUTO2HIPyH0ZWmDpyn9zHzhPRze/ykqvAN1/k8HuEHmhXtBgAFxVecYj8wpg51wTkfWmUqE69B9VO2L1ZyXi6c33cblEPESJMP8X4uxXbTQg2uZVsA7/YZpwMqiPetur2fmLjn7tGF6m0fEl5LvggPZJOMAd/JT1lcl5pf1+lQ6Zrkht8hpqgZ4esG+g0lXxf8nYnqtHXoSNjoad0TLQUGm6H9ypu8AymvqZWcWvMHIiXeoykHYbkLjLy4r4pIj65hjPeE6aId+wyq6fmjqmtT2qa/oziMU5g12vZm8+hK7zHfVyEnVjCPCYmcoKYbqnaT3ya2LmSZecujOMcmZALfT24v9R9UoXKDRsdAtzpx+7TpWs66BgdmtbyDrlt51LMiojmHfNkI87QbERdc5yO7iwudDgAATWvQ/IZSKjRIsHB+
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Apr 2026 05:31:42.1010
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 4ee68585-03e1-4785-942a-df9c1871a234
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: fcVczs1b3P4aJLAXVH4tGB8mb3YnWHyrs5291hCo/VmX3R/LfKHWHiJInifUrFzO
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: GVXPR02MB10967
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9e5079a6-59bd-47bc-3178-08dea679c2bc
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb08.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CH3PEPF00000015.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV2PR12MB5918
 
-I'm resigning from my position at Axentia.
+During system reboot or kexec, in-flight I2C transfers can cause
+spurious interrupts or leave the bus in an undefined state. Add a
+shutdown handler that marks the adapter suspended and resets the
+controller, ensuring a clean handoff.
 
-Signed-off-by: Peter Rosin <peda@axentia.se>
+Signed-off-by: Ajay Neeli <ajay.neeli@amd.com>
 ---
- .mailmap    |  1 +
- MAINTAINERS | 24 +++++++++++-------------
- 2 files changed, 12 insertions(+), 13 deletions(-)
+Link: https://lore.kernel.org/linux-i2c/20250730122907.18909-1-ajay.neeli@amd.com/
 
-diff --git a/.mailmap b/.mailmap
-index 34acd34bbf9b..7cc01b61aa0a 100644
---- a/.mailmap
-+++ b/.mailmap
-@@ -677,6 +677,7 @@ Peter A Jonsson <pj@ludd.ltu.se>
- Peter Hilber <peter.hilber@oss.qualcomm.com> <quic_philber@quicinc.com>
- Peter Oruba <peter.oruba@amd.com>
- Peter Oruba <peter@oruba.de>
-+Peter Rosin <peda@lysator.liu.se> <peda@axentia.se>
- Pierre-Louis Bossart <pierre-louis.bossart@linux.dev> <pierre-louis.bossart@linux.intel.com>
- Pratyush Anand <pratyush.anand@gmail.com> <pratyush.anand@st.com>
- Pratyush Yadav <pratyush@kernel.org> <ptyadav@amazon.de>
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 2fb1c75afd16..75ea85732e15 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -4299,18 +4299,16 @@ F:	Documentation/devicetree/bindings/leds/backlight/awinic,aw99706.yaml
- F:	drivers/video/backlight/aw99706.c
+Changes v3->v4:
+- Replaced disable_irq() with cdns_i2c_master_reset() to avoid
+  potential deadlocks during shutdown
+- Added pm_runtime_status_suspended() check to skip register access
+  when clocks are disabled
+
+Changes v2->v3:
+Corrected a typo that caused a build error in v2
+
+Changes in v1->v2:
+Disable interrupts
+---
+ drivers/i2c/busses/i2c-cadence.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
+index 0fb728ade92e..da8770182a18 100644
+--- a/drivers/i2c/busses/i2c-cadence.c
++++ b/drivers/i2c/busses/i2c-cadence.c
+@@ -1635,6 +1635,25 @@ static void cdns_i2c_remove(struct platform_device *pdev)
+ 	reset_control_assert(id->reset);
+ }
  
- AXENTIA ARM DEVICES
--M:	Peter Rosin <peda@axentia.se>
- L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
--S:	Maintained
-+S:	Orphan
- F:	arch/arm/boot/dts/microchip/at91-linea.dtsi
- F:	arch/arm/boot/dts/microchip/at91-natte.dtsi
- F:	arch/arm/boot/dts/microchip/at91-nattis-2-natte-2.dts
- F:	arch/arm/boot/dts/microchip/at91-tse850-3.dts
++/**
++ * cdns_i2c_shutdown - Prepare I2C controller for system shutdown
++ * @pdev:	Handle to the platform device structure
++ *
++ * Mark the adapter as suspended and reset the controller to ensure a clean
++ * handoff during system reboot or kexec.
++ */
++static void cdns_i2c_shutdown(struct platform_device *pdev)
++{
++	struct cdns_i2c *id = platform_get_drvdata(pdev);
++
++	/* Mark the adapter as suspended to prevent further I2C transfers */
++	i2c_mark_adapter_suspended(&id->adap);
++
++	/* Reset the controller state if active - clocks are disabled when suspended */
++	if (!pm_runtime_status_suspended(&pdev->dev))
++		cdns_i2c_master_reset(&id->adap);
++}
++
+ static struct platform_driver cdns_i2c_drv = {
+ 	.driver = {
+ 		.name  = DRIVER_NAME,
+@@ -1643,6 +1662,7 @@ static struct platform_driver cdns_i2c_drv = {
+ 	},
+ 	.probe  = cdns_i2c_probe,
+ 	.remove = cdns_i2c_remove,
++	.shutdown = cdns_i2c_shutdown,
+ };
  
- AXENTIA ASOC DRIVERS
--M:	Peter Rosin <peda@axentia.se>
- L:	linux-sound@vger.kernel.org
--S:	Maintained
-+S:	Orphan
- F:	Documentation/devicetree/bindings/sound/axentia,*
- F:	sound/soc/atmel/tse850-pcm5142.c
- 
-@@ -12046,7 +12044,7 @@ F:	Documentation/i2c/busses/i2c-nvidia-gpu.rst
- F:	drivers/i2c/busses/i2c-nvidia-gpu.c
- 
- I2C MUXES
--M:	Peter Rosin <peda@axentia.se>
-+M:	Peter Rosin <peda@lysator.liu.se>
- L:	linux-i2c@vger.kernel.org
- S:	Maintained
- F:	Documentation/devicetree/bindings/i2c/i2c-arb*
-@@ -12447,7 +12445,7 @@ F:	drivers/iio/industrialio-backend.c
- F:	include/linux/iio/backend.h
- 
- IIO DIGITAL POTENTIOMETER DAC
--M:	Peter Rosin <peda@axentia.se>
-+M:	Peter Rosin <peda@lysator.liu.se>
- L:	linux-iio@vger.kernel.org
- S:	Maintained
- F:	Documentation/ABI/testing/sysfs-bus-iio-dac-dpot-dac
-@@ -12455,7 +12453,7 @@ F:	Documentation/devicetree/bindings/iio/dac/dpot-dac.yaml
- F:	drivers/iio/dac/dpot-dac.c
- 
- IIO ENVELOPE DETECTOR
--M:	Peter Rosin <peda@axentia.se>
-+M:	Peter Rosin <peda@lysator.liu.se>
- L:	linux-iio@vger.kernel.org
- S:	Maintained
- F:	Documentation/ABI/testing/sysfs-bus-iio-adc-envelope-detector
-@@ -12471,7 +12469,7 @@ F:	include/linux/iio/iio-gts-helper.h
- F:	drivers/iio/test/iio-test-gts.c
- 
- IIO MULTIPLEXER
--M:	Peter Rosin <peda@axentia.se>
-+M:	Peter Rosin <peda@lysator.liu.se>
- L:	linux-iio@vger.kernel.org
- S:	Maintained
- F:	Documentation/devicetree/bindings/iio/multiplexer/io-channel-mux.yaml
-@@ -12502,7 +12500,7 @@ F:	include/linux/iio/
- F:	tools/iio/
- 
- IIO UNIT CONVERTER
--M:	Peter Rosin <peda@axentia.se>
-+M:	Peter Rosin <peda@lysator.liu.se>
- L:	linux-iio@vger.kernel.org
- S:	Maintained
- F:	Documentation/devicetree/bindings/iio/afe/current-sense-amplifier.yaml
-@@ -15719,7 +15717,7 @@ F:	Documentation/devicetree/bindings/media/i2c/maxim,max96717.yaml
- F:	drivers/media/i2c/max96717.c
- 
- MAX9860 MONO AUDIO VOICE CODEC DRIVER
--M:	Peter Rosin <peda@axentia.se>
-+M:	Peter Rosin <peda@lysator.liu.se>
- L:	linux-sound@vger.kernel.org
- S:	Maintained
- F:	Documentation/devicetree/bindings/sound/max9860.txt
-@@ -15934,7 +15932,7 @@ F:	Documentation/devicetree/bindings/net/can/microchip,mcp251xfd.yaml
- F:	drivers/net/can/spi/mcp251xfd/
- 
- MCP4018 AND MCP4531 MICROCHIP DIGITAL POTENTIOMETER DRIVERS
--M:	Peter Rosin <peda@axentia.se>
-+M:	Peter Rosin <peda@lysator.liu.se>
- L:	linux-iio@vger.kernel.org
- S:	Maintained
- F:	Documentation/ABI/testing/sysfs-bus-iio-potentiometer-mcp4531
-@@ -18238,7 +18236,7 @@ F:	include/linux/mmc/
- F:	include/uapi/linux/mmc/
- 
- MULTIPLEXER SUBSYSTEM
--M:	Peter Rosin <peda@axentia.se>
-+M:	Peter Rosin <peda@lysator.liu.se>
- S:	Odd Fixes
- F:	Documentation/ABI/testing/sysfs-class-mux*
- F:	Documentation/devicetree/bindings/mux/
-@@ -19314,7 +19312,7 @@ F:	include/dt-bindings/display/tda998x.h
- K:	"nxp,tda998x"
- 
- NXP TFA9879 DRIVER
--M:	Peter Rosin <peda@axentia.se>
-+M:	Peter Rosin <peda@lysator.liu.se>
- L:	linux-sound@vger.kernel.org
- S:	Maintained
- F:	Documentation/devicetree/bindings/sound/trivial-codec.yaml
+ module_platform_driver(cdns_i2c_drv);
 -- 
-2.20.1
+2.43.0
 
