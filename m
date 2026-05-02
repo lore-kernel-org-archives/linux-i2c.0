@@ -1,83 +1,45 @@
-Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx.nabladev.com (mx.nabladev.com [178.251.229.89])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F14E04219E7
-	for <linux-i2c@vger.kernel.org>; Fri,  1 May 2026 20:30:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0898D2C21F2;
+	Sat,  2 May 2026 15:32:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.251.229.89
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777667444; cv=none; b=qiW51sxckbOGhfapX/qly4gXg1WcVCUjzyPMirlcpUOtaimDuAuNIxQY8pktUD+p7NOhHuwCIUqQkpS7r/Sn6K0y86sVAlDtPPJPFNId8ITzWMudbvt07yHwvhBLJ22PeIHzLzkoBksweBMyunPxxDcubyQhPRHa9irgAMtQ4og=
+	t=1777735954; cv=none; b=A60knHPQmXjTazw4rnR3Dy1wGbxidRGRaL2zBQ4rF9BLvsM4oUYgS4LSb+Wzgfha9TOKgCwzNeW+SpWIIxg2w/k9OcKFqDfKp05ZsjVViTyZhF8d84sHsfxGas8dAM31i3rvt6gmDcVhkqjZOmYuMSXVXcUnh3E/rHUVI4QR+G0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777667444; c=relaxed/simple;
-	bh=v5qF9oUjFKKNNHiaZ/cDzrCvSYhthuRxEl4ePROAuGI=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=etSHOdF3E7KTaR2+5Jx3aUBylv65ptgR0m7kQ5QSegZIfcvcxQN31RGOhF+PAe2Wgv1jf3eMA/jLeDE/yGP5Qo2hFBIZnG+3SxjiqTl6hZXEjBkQkRh0syeuMg26Wzj5FATNMNFD4WVnJYheyOns+FWtW1UwWZ2+UPqxm6sFvAc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FGO+jCXH; arc=none smtp.client-ip=209.85.210.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1777735954; c=relaxed/simple;
+	bh=5N4j7dqp3wXHijrMRaccB7RFI8HYwGLQKs9hGzmNDcw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=H7hiZeJ8mjddY7qVN8mvUKlMql7ePrgU3sx45ApkGAl0wzwJiYuzYT0nWFyviXmpK23MfrNqcqRzQ1AxUcoK0eoe7VtIWlUWabNlfmI4p+IRNEJ9deTkkmFVdNtWElYSquTNOTPgPkb26TSZ/fqYcSBWmSAv/MTV4A68/YyNegI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com; spf=pass smtp.mailfrom=nabladev.com; dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b=Hq2oZqmf; arc=none smtp.client-ip=178.251.229.89
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabladev.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FGO+jCXH"
-Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-82f8b60e485so1065610b3a.0
-        for <linux-i2c@vger.kernel.org>; Fri, 01 May 2026 13:30:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777667442; x=1778272242; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=qVBnu6Q/tQcYvEy05j8zTeFYSonQvouDAQt7Xng1rGU=;
-        b=FGO+jCXHSKDpIfZTzi+KqeQj1n2RE+xbiek+qNmJE4PdwTd714zf5EQvYG57oIi6Oi
-         tZ9UxnPr/9Xbpud32rn/Z1BnaaZ/sKZELwdT2oRc/N8Ha/vE28DQfIsPHwy4xqyOguWT
-         L3l7oGbbQukeSzast7sN4t8wVpyQrESwJStsqRuHp6NTwdZ+mXvFNE/SroyTjrI9QPjD
-         y5NzCZAikmvok/G26FdM8VeGryxnBvexH065x/hW399eHtojC+sON90MlK5c4SmeOggK
-         slhFI51+7FhLP68Yhn/L5Q+/YbC0OKAYGLLdmOt2T5TwR51z5Jtqu4MKAAf6/a34N2vS
-         n6eg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777667442; x=1778272242;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=qVBnu6Q/tQcYvEy05j8zTeFYSonQvouDAQt7Xng1rGU=;
-        b=GjkuXQHSJiC/FH1vayFGBtLOHmW7juWGNqNyGTTffVTXCCyfY0vXpYToUn2SZ+hSqX
-         4Q5NeiPbLsgx8jNQ1ru6jaKtNssyiN6YQtYJMlpJbWGqsF+0f3m/JwGwKAI/jcQFa/z3
-         eGS4CH6c+XtvWxE/Z8UsJr3eNt0QgUrk9f9AhQKbu4+Q+zSDWAhkU7Q5tjpQ0b68Q81q
-         YDAsKxe7UpFLFXOImXhhq5b+znpi5B3IXWezdyLfzc26bVlUNhNZfoqxy8o8/urrEMeQ
-         NisAf5agritYLjp4ST3OgghpMhGe93FJHzz3GQ8REK4HIBk2u5rBy9eNKUDbWSuQkYdX
-         q0vA==
-X-Forwarded-Encrypted: i=1; AFNElJ8nApwGTrtbYPKm3VMji4uLRNnnsO483eMQoZIApYMsBsBu9EU47ZXIAjtAQZib4PMVrUDzcH8A+BY=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz8/iiEBuvaWj9wxoRLHXNNPDK+Acdy4f93hlzpu03kVfKZN7tZ
-	T2hqwzTDOEpuL7nWkERNhQCjhK3WB2HBXcRzmD9louVibo9XDeCDuvNd
-X-Gm-Gg: AeBDietEsHGmQV9TysjZB4AKVEJ3a7X+lxD3wnwPBRk0hRW6U8AReWVGdRp0xtmuWw1
-	mIgLQTBVXWo/KBw3hfMOO0VDlpdQytdw9DXIeGXGHZllKD4irdAEgSx3ez/Aa0dIgf/8J/BESbe
-	FrceOJftCfLYcpq9lmkbG6MKsDcn7elCA2jk/XEkTW0DrkhRjoSKFHUrmUD0sJxGDzqlLZCc4J4
-	AXo5hUx8mOegXso17yYcZFWdKUoZLfvUpYpoUVf1JWHZqSIXa+p/RhCQ1roFbC0TAYxqyB5DGfD
-	p2FiVJIsBLQ+wOkTxzm1PZQ2/JttjRJU/pvA3jAhG7sahmq48hdtkoMQmh9Ai297sZ8TOX783Dp
-	vvo8kwHah+C+yHvJlWncGSRpBAqHbqenUsx4rIIqOOuMQEUnMRa5xDxPVUY1fZ7Mvffppa4rnMA
-	6JCJa8qtRUB0f0rIHH88y6CtDZ3Q8pP0vAHwbvbiYQsLqG7A/U0j9kekHlGYcH5unGlVHhx7Xx
-X-Received: by 2002:a05:6a00:330b:b0:827:4343:4c1 with SMTP id d2e1a72fcca58-8352d20b2a9mr661002b3a.29.1777667442262;
-        Fri, 01 May 2026 13:30:42 -0700 (PDT)
-Received: from localhost.localdomain ([115.110.225.242])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-83515b84aedsm3230595b3a.57.2026.05.01.13.30.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 01 May 2026 13:30:41 -0700 (PDT)
-From: Shitalkumar Gandhi <shital.gandhi45@gmail.com>
-X-Google-Original-From: Shitalkumar Gandhi <shitalkumar.gandhi@cambiumnetworks.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Wolfram Sang <wsa@kernel.org>,
-	Chen-Yu Tsai <wens@kernel.org>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Samuel Holland <samuel@sholland.org>,
-	Felix Gu <ustc.gu@gmail.com>,
-	linux-i2c@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b="Hq2oZqmf"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id D205D112877;
+	Sat,  2 May 2026 17:32:20 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nabladev.com;
+	s=dkim; t=1777735944; h=from:subject:date:message-id:to:cc:mime-version:
+	 content-transfer-encoding; bh=1Ji4o/UKh5s3iYAgum24fW1ttfWjMxe2zCp2y0o6sCg=;
+	b=Hq2oZqmfzGYQ/21alyh41Hi/ZBlWkeDrmW6/VbJiHP8dLV0mska06rVLmpVN9VEtln9Jmh
+	6EdvO9PtCahkjrCKRB2AOicrdvK9Lcxf0kBCoXeapjzM38empUchYBlqx4/X+gQ15aed6i
+	ep8GvpYJMHENQuOGrPjh2OFUj4DE5gtghEF7nlztujBGVJJERJBQbp/d2kYk9elanswqC8
+	hY38US03Y94gHVOgP4S7nfzKrKVTWRRGhDfM0MUkI+DQ0PPH54zDgEkPo5e4byXIgSgaP1
+	w4jz7e7sirOQNlQmpMwqACaIggv1ELxVFr6kflPJloNbHohmF9MMl9byOw8dFQ==
+From: Marek Vasut <marex@nabladev.com>
+To: linux-i2c@vger.kernel.org
+Cc: Marek Vasut <marex@nabladev.com>,
+	Alain Volmat <alain.volmat@foss.st.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
 	linux-arm-kernel@lists.infradead.org,
-	linux-sunxi@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	Shitalkumar Gandhi <shitalkumar.gandhi@cambiumnetworks.com>
-Subject: [PATCH v2] i2c: sun6i-p2wi: fix of_node reference leak in probe
-Date: Sat,  2 May 2026 02:00:02 +0530
-Message-Id: <20260501203002.3382428-1-shitalkumar.gandhi@cambiumnetworks.com>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20260201-p2wi-v1-1-e0ec9cda82b3@gmail.com>
-References: <20260201-p2wi-v1-1-e0ec9cda82b3@gmail.com>
+	linux-stm32@st-md-mailman.stormreply.com
+Subject: [PATCH] i2c: stm32f7: Move reinit_completion() to stm32f7_i2c_xfer_core()
+Date: Sat,  2 May 2026 17:31:54 +0200
+Message-ID: <20260502153218.56142-1-marex@nabladev.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -85,57 +47,78 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-of_get_next_available_child() returns a device_node pointer with an
-incremented reference count.  The reference taken in p2wi_probe() for
-the optional child node was dropped on neither the early return when
-the "reg" property is missing/invalid nor on the success path, so a
-reference is leaked once on every successful probe and twice on every
-failed one.
+Currently, the driver may repeatedly call reinit_completion() during
+transfer which contains multiple messages, while another thread is
+waiting for the completion.
 
-Use the scoped __free(device_node) cleanup helper at the point of
-acquisition so the reference is dropped automatically on every exit
-path.
+This happens during transfer with more than 1 message, invoked via
+stm32f7_i2c_xfer_core() -> stm32f7_i2c_xfer_msg(). After invoking the
+stm32f7_i2c_xfer_msg() to start transfer, stm32f7_i2c_xfer_core()
+calls wait_for_completion_timeout() to wait for completion of the
+transfer of all messages. When the first message transfer completes,
+the hard IRQ handler triggers, and detects transfer completion, which
+leads to stm32f7_i2c_isr_event_thread() IRQ thread being started. The
+stm32f7_i2c_isr_event_thread() calls stm32f7_i2c_xfer_msg() in case
+there are more messages.
 
-Suggested-by: Felix Gu <ustc.gu@gmail.com>
-Link: https://lore.kernel.org/linux-i2c/20260201-p2wi-v1-1-e0ec9cda82b3@gmail.com/
-Fixes: 3e833490fae5 ("i2c: sunxi: add P2WI (Push/Pull 2 Wire Interface) controller support")
+Without this change, the second and later stm32f7_i2c_xfer_msg() would
+call reinit_completion() on the completion which is still being waited
+for in stm32f7_i2c_xfer_core(). Fix this by moving the reinit_completion()
+into stm32f7_i2c_xfer_core(), together with wait_for_completion_timeout().
 
-Signed-off-by: Shitalkumar Gandhi <shitalkumar.gandhi@cambiumnetworks.com>
+Since stm32f7_i2c_xfer_core() now waits for completion of the entire
+transfer, increase the default timeout. This fixes sporadic transfer
+timeouts on STM32MP25xx during kernel boot.
+
+Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
+Signed-off-by: Marek Vasut <marex@nabladev.com>
 ---
-Changes since v1 (Felix Gu, https://lore.kernel.org/linux-i2c/20260201-p2wi-v1-1-e0ec9cda82b3@gmail.com/):
-  - Reword the commit message to make explicit that the leak is of an
-    of_node *reference*, not of an allocation.
-  - checkpatch --strict --codespell: clean.
-  - Build-tested: x86_64 allmodconfig (CONFIG_I2C_SUN6I_P2WI=m via
-    COMPILE_TEST) and arm sunxi_defconfig.  No new warnings.
-  - Runtime test: not performed; no Allwinner A31 hardware available.
+Cc: Alain Volmat <alain.volmat@foss.st.com>
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>
+Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
+Cc: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-i2c@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-stm32@st-md-mailman.stormreply.com
+---
+ drivers/i2c/busses/i2c-stm32f7.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
- drivers/i2c/busses/i2c-sun6i-p2wi.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-sun6i-p2wi.c b/drivers/i2c/busses/i2c-sun6i-p2wi.c
-index fb5280b8cf7f..652b37b57159 100644
---- a/drivers/i2c/busses/i2c-sun6i-p2wi.c
-+++ b/drivers/i2c/busses/i2c-sun6i-p2wi.c
-@@ -184,7 +184,6 @@ static int p2wi_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
- 	struct device_node *np = dev->of_node;
--	struct device_node *childnp;
- 	unsigned long parent_clk_freq;
- 	u32 clk_freq = I2C_MAX_STANDARD_MODE_FREQ;
- 	struct p2wi *p2wi;
-@@ -223,7 +222,8 @@ static int p2wi_probe(struct platform_device *pdev)
- 	 * In this case the target_addr is set to -1 and won't be checked when
- 	 * launching a P2WI transfer.
- 	 */
--	childnp = of_get_next_available_child(np, NULL);
-+	struct device_node *childnp __free(device_node) =
-+		of_get_next_available_child(np, NULL);
- 	if (childnp) {
- 		ret = of_property_read_u32(childnp, "reg", &target_addr);
- 		if (ret) {
+diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+index 70cb5822bf17b..53d9df70ebe4d 100644
+--- a/drivers/i2c/busses/i2c-stm32f7.c
++++ b/drivers/i2c/busses/i2c-stm32f7.c
+@@ -895,8 +895,6 @@ static void stm32f7_i2c_xfer_msg(struct stm32f7_i2c_dev *i2c_dev,
+ 	f7_msg->result = 0;
+ 	f7_msg->stop = (i2c_dev->msg_id >= i2c_dev->msg_num - 1);
+ 
+-	reinit_completion(&i2c_dev->complete);
+-
+ 	cr1 = readl_relaxed(base + STM32F7_I2C_CR1);
+ 	cr2 = readl_relaxed(base + STM32F7_I2C_CR2);
+ 
+@@ -1728,6 +1726,8 @@ static int stm32f7_i2c_xfer_core(struct i2c_adapter *i2c_adap,
+ 	if (ret)
+ 		goto pm_free;
+ 
++	reinit_completion(&i2c_dev->complete);
++
+ 	stm32f7_i2c_xfer_msg(i2c_dev, msgs);
+ 
+ 	if (!i2c_dev->atomic)
+@@ -2253,7 +2253,7 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
+ 	snprintf(adap->name, sizeof(adap->name), "STM32F7 I2C(%pa)",
+ 		 &res->start);
+ 	adap->owner = THIS_MODULE;
+-	adap->timeout = 2 * HZ;
++	adap->timeout = 8 * HZ;
+ 	adap->retries = 3;
+ 	adap->algo = &stm32f7_i2c_algo;
+ 	adap->dev.parent = &pdev->dev;
 -- 
-2.25.1
+2.53.0
 
