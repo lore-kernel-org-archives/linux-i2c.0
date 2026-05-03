@@ -1,45 +1,74 @@
-Received: from mx.nabladev.com (mx.nabladev.com [178.251.229.89])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0898D2C21F2;
-	Sat,  2 May 2026 15:32:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.251.229.89
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 173863CF05F
+	for <linux-i2c@vger.kernel.org>; Sun,  3 May 2026 18:00:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777735954; cv=none; b=A60knHPQmXjTazw4rnR3Dy1wGbxidRGRaL2zBQ4rF9BLvsM4oUYgS4LSb+Wzgfha9TOKgCwzNeW+SpWIIxg2w/k9OcKFqDfKp05ZsjVViTyZhF8d84sHsfxGas8dAM31i3rvt6gmDcVhkqjZOmYuMSXVXcUnh3E/rHUVI4QR+G0=
+	t=1777831221; cv=none; b=M7imBIxb5Bno/82l2uEBnprW4qVViXDWZvNCaJnT0nX5S7Xi6ltQhoJxaAML021WdbU5yAr3yS3kLZCSUrOXbNaQgU6XWNU5Y9K8oQ2d/vL6g7k28JyZTROwLlRQcA9vlr2HIEx/ivIlCSnbBc3dx6jMi+d+l7o/6SFpeMVHEmc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777735954; c=relaxed/simple;
-	bh=5N4j7dqp3wXHijrMRaccB7RFI8HYwGLQKs9hGzmNDcw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=H7hiZeJ8mjddY7qVN8mvUKlMql7ePrgU3sx45ApkGAl0wzwJiYuzYT0nWFyviXmpK23MfrNqcqRzQ1AxUcoK0eoe7VtIWlUWabNlfmI4p+IRNEJ9deTkkmFVdNtWElYSquTNOTPgPkb26TSZ/fqYcSBWmSAv/MTV4A68/YyNegI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com; spf=pass smtp.mailfrom=nabladev.com; dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b=Hq2oZqmf; arc=none smtp.client-ip=178.251.229.89
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nabladev.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nabladev.com
+	s=arc-20240116; t=1777831221; c=relaxed/simple;
+	bh=+cHiJOGyps4tP874tIrcNGCbxetNmnQg9UStX/QIs/I=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Mnl6YdIN3OTZwN+frgQrfXaMg7A68oEUJ4gDGGSIO2JXrL6KRN4EX5imMJqpfZmOIt6y77ppHa+l6AW2UmTw7YemHqQGhryrxuJegn/BXwFah2TVTpNTRA6/Bgs19+wR1PNcD4JCxbPREMWfBD1GtKl6Gcnn2jBSulHm8ekILf4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OWbey4rC; arc=none smtp.client-ip=209.85.128.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nabladev.com header.i=@nabladev.com header.b="Hq2oZqmf"
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id D205D112877;
-	Sat,  2 May 2026 17:32:20 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nabladev.com;
-	s=dkim; t=1777735944; h=from:subject:date:message-id:to:cc:mime-version:
-	 content-transfer-encoding; bh=1Ji4o/UKh5s3iYAgum24fW1ttfWjMxe2zCp2y0o6sCg=;
-	b=Hq2oZqmfzGYQ/21alyh41Hi/ZBlWkeDrmW6/VbJiHP8dLV0mska06rVLmpVN9VEtln9Jmh
-	6EdvO9PtCahkjrCKRB2AOicrdvK9Lcxf0kBCoXeapjzM38empUchYBlqx4/X+gQ15aed6i
-	ep8GvpYJMHENQuOGrPjh2OFUj4DE5gtghEF7nlztujBGVJJERJBQbp/d2kYk9elanswqC8
-	hY38US03Y94gHVOgP4S7nfzKrKVTWRRGhDfM0MUkI+DQ0PPH54zDgEkPo5e4byXIgSgaP1
-	w4jz7e7sirOQNlQmpMwqACaIggv1ELxVFr6kflPJloNbHohmF9MMl9byOw8dFQ==
-From: Marek Vasut <marex@nabladev.com>
-To: linux-i2c@vger.kernel.org
-Cc: Marek Vasut <marex@nabladev.com>,
-	Alain Volmat <alain.volmat@foss.st.com>,
-	Alexandre Torgue <alexandre.torgue@foss.st.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
-	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
-	linux-arm-kernel@lists.infradead.org,
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OWbey4rC"
+Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4836fc075d2so3099525e9.0
+        for <linux-i2c@vger.kernel.org>; Sun, 03 May 2026 11:00:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777831215; x=1778436015; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=hd7o6sxV5jy46yv8SLZalxFTVSZ+c2N5QIlGo7fccME=;
+        b=OWbey4rCwNVa8lzF2ratHKsaCk/kEqThA7SpAWI2b8nVg+qF94IhHQU+JzeA/bMgxJ
+         sDoHN+wnfddP8RaMvumgcJQVoYY13HwPDvVK4tKuYsfRLB9d3219khqtoarfmDzS46dn
+         3Gw4KePQm5a7mhUmXkE+Mj41lH4Lxk1rGJ7dwb9KsjDoxvaymtE4oV72kax9g99mSI6B
+         dQDu5Ib+54MaRo0oTyNxIwtwS/9dYUC8geA+R3brIyCaxNuZ9HB29cknakai+NRZjOdT
+         QzJS1SLnK46Ul7Qz+v+U12VZ4Z1BAJFQn7825qaokjs+8DMqMXNLs2O0xDKjmqJa+AMv
+         7nXA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777831215; x=1778436015;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=hd7o6sxV5jy46yv8SLZalxFTVSZ+c2N5QIlGo7fccME=;
+        b=g9vxps1K2maLVN/JtP0M0vqpNnm9C26MyBPB+FeM9cdpxjXQ4CHCxQOJf5b1nq6mQ2
+         BFfffH9p3TtNn77NBkpg84JT6urKjitdDf9jv2F+1hMdnPYxwHlwT3+Gsld4Fpn20Eet
+         TWyKjIDhCyvJ/zdGT+0FMraxfMlxf/XpWmDsqpr/ywuqYug6ZfuPPGAskf6PcNawDaGP
+         tatozzgODTObM0Z5MqnF95C/YQkbTC6nb0wZyWWNVgclR351ZhXTcGgNGGmjHoTRNyPW
+         o8U8aWKaPseh1q9TfgkELXmO7UdfYRTPk6teivF/KD0dXpWl44kso7mjBm7s7WO1NEIp
+         +ZVA==
+X-Forwarded-Encrypted: i=1; AFNElJ+xc3gZFYt8YwXdGEujeXSkFUO9J3Lowk6KFP1RWdtFClUTS286bJvA/iRK/e9Wu9nS+sF9/lR+M2Y=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxJ8CPRTM1WLVlTgbzRp8EGMTpuZ90kVEk3ku37l0kvGzfcCrox
+	QptXnBInDwJgOpwNY9Krbe/tFo32qnDCiRuIWxykGeek/nl5WYHEx7sGfzlFHDFBDwyc0Q==
+X-Gm-Gg: AeBDietdo8t3K6pzPH5P0Q822CmZzdmzrgcCTHyavLnc9c/Ed43n51XadLcsdj5w+Wx
+	76agROOEqLRl++JRobRxmRlX06iHgh5VOWB9OJOctF5vN+byRnoJNC27yf8pw05hmLfdj92IG11
+	TKyIVOKQuyk6cAgQMGkh+o1fWK1dsguGFU19xWrl7E0XOutVyXmh5+QpSRek98LUqcFge05PAUv
+	tW2fFEP3/fUjscCtv6GgvVAnS36bygJdTIpn4LXopVtxT94CDIxUw5c1Vj/KrDNYewE6UEq5T6h
+	eX23J+igSvAvG/1sp0Oeoe35eCG1CfeNhO+6PRiEEwXUS9SjN07KrVF40V/knrlGr7h07S6U2KZ
+	HQFidRJDYQ743rJQ8H9P2AYOrczrCSoOFQSU/Xu/C8PcWgYDujFc84MNKxaE7suS0Bs5H/El9Wm
+	bwnsBy3gAm++iWoDyDRd1g8BI4I5lfxh4+lgRNZhRajzYiFtwSab7K9tKhGr1NeWYcpg==
+X-Received: by 2002:a05:600c:46c6:b0:48a:5302:8ed9 with SMTP id 5b1f17b1804b1-48a980fb90fmr53190105e9.0.1777831215421;
+        Sun, 03 May 2026 11:00:15 -0700 (PDT)
+Received: from localhost.localdomain ([82.215.118.79])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a8eb75fe8sm214960305e9.8.2026.05.03.11.00.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 03 May 2026 11:00:15 -0700 (PDT)
+From: Stepan Ionichev <sozdayvek@gmail.com>
+To: andi.shyti@kernel.org
+Cc: florian.fainelli@broadcom.com,
+	rjui@broadcom.com,
+	sbranden@broadcom.com,
+	bcm-kernel-feedback-list@broadcom.com,
+	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	linux-stm32@st-md-mailman.stormreply.com
-Subject: [PATCH] i2c: stm32f7: Move reinit_completion() to stm32f7_i2c_xfer_core()
-Date: Sat,  2 May 2026 17:31:54 +0200
-Message-ID: <20260502153218.56142-1-marex@nabladev.com>
-X-Mailer: git-send-email 2.53.0
+	Stepan Ionichev <sozdayvek@gmail.com>
+Subject: [PATCH] i2c: bcm-kona: fix spelling mistake in timeout-check comment
+Date: Sun,  3 May 2026 21:59:25 +0500
+Message-Id: <20260503165925.1738-1-sozdayvek@gmail.com>
+X-Mailer: git-send-email 2.33.0.windows.2
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -47,78 +76,29 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
 
-Currently, the driver may repeatedly call reinit_completion() during
-transfer which contains multiple messages, while another thread is
-waiting for the completion.
+Fix a spelling mistake in the timeout-check comment.
 
-This happens during transfer with more than 1 message, invoked via
-stm32f7_i2c_xfer_core() -> stm32f7_i2c_xfer_msg(). After invoking the
-stm32f7_i2c_xfer_msg() to start transfer, stm32f7_i2c_xfer_core()
-calls wait_for_completion_timeout() to wait for completion of the
-transfer of all messages. When the first message transfer completes,
-the hard IRQ handler triggers, and detects transfer completion, which
-leads to stm32f7_i2c_isr_event_thread() IRQ thread being started. The
-stm32f7_i2c_isr_event_thread() calls stm32f7_i2c_xfer_msg() in case
-there are more messages.
+No functional change.
 
-Without this change, the second and later stm32f7_i2c_xfer_msg() would
-call reinit_completion() on the completion which is still being waited
-for in stm32f7_i2c_xfer_core(). Fix this by moving the reinit_completion()
-into stm32f7_i2c_xfer_core(), together with wait_for_completion_timeout().
-
-Since stm32f7_i2c_xfer_core() now waits for completion of the entire
-transfer, increase the default timeout. This fixes sporadic transfer
-timeouts on STM32MP25xx during kernel boot.
-
-Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
-Signed-off-by: Marek Vasut <marex@nabladev.com>
+Signed-off-by: Stepan Ionichev <sozdayvek@gmail.com>
 ---
-Cc: Alain Volmat <alain.volmat@foss.st.com>
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>
-Cc: Maxime Coquelin <mcoquelin.stm32@gmail.com>
-Cc: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-i2c@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-stm32@st-md-mailman.stormreply.com
----
- drivers/i2c/busses/i2c-stm32f7.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-bcm-kona.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
-index 70cb5822bf17b..53d9df70ebe4d 100644
---- a/drivers/i2c/busses/i2c-stm32f7.c
-+++ b/drivers/i2c/busses/i2c-stm32f7.c
-@@ -895,8 +895,6 @@ static void stm32f7_i2c_xfer_msg(struct stm32f7_i2c_dev *i2c_dev,
- 	f7_msg->result = 0;
- 	f7_msg->stop = (i2c_dev->msg_id >= i2c_dev->msg_num - 1);
+diff --git a/drivers/i2c/busses/i2c-bcm-kona.c b/drivers/i2c/busses/i2c-bcm-kona.c
+index 9d8838bbd..d4f287b31 100644
+--- a/drivers/i2c/busses/i2c-bcm-kona.c
++++ b/drivers/i2c/busses/i2c-bcm-kona.c
+@@ -427,7 +427,7 @@ static int bcm_kona_i2c_write_fifo_single(struct bcm_kona_i2c_dev *dev,
+ 		return -EREMOTEIO;
+ 	}
  
--	reinit_completion(&i2c_dev->complete);
--
- 	cr1 = readl_relaxed(base + STM32F7_I2C_CR1);
- 	cr2 = readl_relaxed(base + STM32F7_I2C_CR2);
- 
-@@ -1728,6 +1726,8 @@ static int stm32f7_i2c_xfer_core(struct i2c_adapter *i2c_adap,
- 	if (ret)
- 		goto pm_free;
- 
-+	reinit_completion(&i2c_dev->complete);
-+
- 	stm32f7_i2c_xfer_msg(i2c_dev, msgs);
- 
- 	if (!i2c_dev->atomic)
-@@ -2253,7 +2253,7 @@ static int stm32f7_i2c_probe(struct platform_device *pdev)
- 	snprintf(adap->name, sizeof(adap->name), "STM32F7 I2C(%pa)",
- 		 &res->start);
- 	adap->owner = THIS_MODULE;
--	adap->timeout = 2 * HZ;
-+	adap->timeout = 8 * HZ;
- 	adap->retries = 3;
- 	adap->algo = &stm32f7_i2c_algo;
- 	adap->dev.parent = &pdev->dev;
+-	/* Check if a timeout occured */
++	/* Check if a timeout occurred */
+ 	if (!time_left) {
+ 		dev_err(dev->device, "completion timed out\n");
+ 		return -EREMOTEIO;
 -- 
-2.53.0
+2.33.0.windows.2
 
