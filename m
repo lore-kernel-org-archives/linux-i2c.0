@@ -1,178 +1,227 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fhigh-a3-smtp.messagingengine.com (fhigh-a3-smtp.messagingengine.com [103.168.172.154])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6B2530DEB0
-	for <linux-i2c@vger.kernel.org>; Mon,  4 May 2026 20:15:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D2DF36214C;
+	Mon,  4 May 2026 21:42:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.154
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777925709; cv=none; b=uIufCgF2OTtOtHDhos6/CW06mo/19TxGCJcwwtbmiRxv778MLhkMSfr4yoU01lCzE8etKX1amSlEUOBlNZPLXRMA9RDcpTi4CNs713mjWwJ7tBup+AmTe1FIme+t3YEo3DmDgsOZchzVVYxhUJkNzKbS99FZl6MT4v4p/HpBoFU=
+	t=1777930946; cv=none; b=lUp5QE3UNWqyKo5dS5VC9S+ccOXxNYdD88oBnmXW2jltbYIyp806E2D4y3aO6S4VJKsBbMUmft1L385GKSgZlLHoMo5HQ5TOzOV1vm0xEmuseh16TV9GzzwPOuTccrQbhmdfdJUuS4O6qYwLSiLhr4AtuKtefUO4RBAABC4aq00=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777925709; c=relaxed/simple;
-	bh=T0R/JRPSIi4l6iZ8HhDvk/mxhiX1g/sSVAs1BzrrMLM=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=C/UbzMyFnTuN64aEXNewjdJI5A7e9R1uxfOD3mGzwHimpFlNWCi55fQPSRm2FSIJquJNpMGHnoJfYmFxuGFTtyw7zrzsDC/wQAPFaQdAiyAdCZfWW+aI7bitIalHZ8pnK5QV/Yv2OMJCklLayQ+RRpEZOAJp4qsL6Um2Jm1fTYM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wkennington.com; spf=none smtp.mailfrom=wkennington.com; dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b=CLITdPNy; arc=none smtp.client-ip=209.85.216.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wkennington.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=wkennington.com
+	s=arc-20240116; t=1777930946; c=relaxed/simple;
+	bh=uV2LmGNonj6F8+bt5LSgDRzIMe9qH7jsnmiv54M1DG8=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=Td4mbGdKC4hua3viKisNewdIHVchtm1amWZCu9HlZuszFq7iyM64NVmikM5n0HZmtbfV89/HbTDaCLikgCe6/iUt0DlJUS3YphGacDq6B76hNfe9zexq2gWm/6gq6Ft9/yMWozY91rgXLeVXUJytZw+2o+pdHrvT8aIk3J1ICmU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=squebb.ca; spf=pass smtp.mailfrom=squebb.ca; dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b=OAfPhbyS; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=YU583foF; arc=none smtp.client-ip=103.168.172.154
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=squebb.ca
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=squebb.ca
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b="CLITdPNy"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-356337f058aso2869422a91.2
-        for <linux-i2c@vger.kernel.org>; Mon, 04 May 2026 13:15:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=wkennington-com.20251104.gappssmtp.com; s=20251104; t=1777925707; x=1778530507; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=qgxSZwGgCRa1NejRL1TMSL6Pe1HA8DjUPmozziT+PDM=;
-        b=CLITdPNyDt/qDbNsAGSd55st+7asWryawkz3HawcWyyC3Wuyg3jEqGwTIGfkqvsQz+
-         poaYwxwMqlQt0t2yA1X1VzrmXwkuwWc4ZxyuOOtbuYJjrHVDCMmkD5TFI+G5SUUW8eEO
-         EwqIW4r0BxLph19cPHAfTStW9gaeQKp1wlyYg8wpBdTbIE0uQ85a6hnBlz8ZP8vrP5IA
-         SuMBxqm9VuGDV3lkJzaW7fhOfMUoUyngTWdNkTrKEv24uQ6k1kGvuZvPv+paPD7zYCPv
-         zyKkDLGK0AgyBztTpaUaVVetvB/lsqxVjE1tE3hDdJPqhkl+2lTV4LMrzcxAnI0Q7yMD
-         8+NA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777925707; x=1778530507;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=qgxSZwGgCRa1NejRL1TMSL6Pe1HA8DjUPmozziT+PDM=;
-        b=goaV1l6HMBatnSpm4J9lF3CRB1s1pfCRuMNJGDnG/P4RaLdFGUwqnJPXfxFVtkQF6G
-         sC924tYGTBVoAL5KyJyXHRDE9mLmMWGl9Q/SrTLO6eAD66/6JkPKsUWI28RD/sHIOoUP
-         YsbLUrmLbvry1KBCRMGm109szAFRcfkKkZcU8/DnPs4s33Hg64BxuKoKiWw5xYVTMkjc
-         So3ax0gRKe+9UWVUu3diWtXbe9wl3nZi7N+eIOq9aJI2IwX6r6liQgvnXX3n/Eo8qbVQ
-         WjHRW0LIW3e6yrAoTZN7vaUA8lAq0pfA5AiS/gL+uqI/STgteX0tEXH4yPPoIMyR0SP1
-         vfYg==
-X-Gm-Message-State: AOJu0YyRqDihhMGGCG3Jy6RRvLzDYjUFJuCpyVHgTDfsWuYSefaRijbt
-	hYFnAfGyvdpJ608N5k7QWmwUArcLesY5GcizNoMb77WWTS4yi5KEHFr74TCF0t9AH3k=
-X-Gm-Gg: AeBDievU2ZMDW+yZ+MBJAUyvbZLua+1Le77PoRQrOuE2TLvT2SBSas/i3SkarFMtWa4
-	fZOrIGnxI4oTALSwaJFtcrYprL2ScCeFIB1wGCcqxAhjcQmeWCg13BJdZeIqfQ1e9ir7ObtHgOi
-	r8+iVr69Gpn0MtAxdS0Td6lpg1je++Pjc+ewQMzTgvE77TdzsA9AK+p6/K6Ca7HNIrssfjzkUGd
-	ZKA6AT6KOCg13oU+H2CH/Lj3VPwe8TmcbEE/1o7uR+KRE1E//XyNCwErBzjlmgIpJHZ1pLO+14f
-	dqy22BuW8Hy2I02HZtbBZUShiAYO0DgLVX3X/uTobhYi/zt5tmADWx/ckQlPzpzurMb96IfA3IN
-	mImefDZd2cprZ44PcuoGbUruASrHF6ijvj+exKmIB0lSUHy4f9/bFyWxvzHCjsvAcr6KB4Gkkrl
-	Akc4C0BwaHAVJikjbID59FCi4xO9en3i0o6S4SAVbDF61pO3ZYO/DNCe0ZC4SYXzCATg6f8wqdk
-	c7YvmcwCrE7NoYlWGD3j5ye4A==
-X-Received: by 2002:a17:90a:e7cd:b0:359:fdc0:4621 with SMTP id 98e67ed59e1d1-3650cdb883dmr10970435a91.11.1777925707166;
-        Mon, 04 May 2026 13:15:07 -0700 (PDT)
-Received: from wakbuild.c.googlers.com (123.143.125.34.bc.googleusercontent.com. [34.125.143.123])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-364bdf2aa41sm20568593a91.4.2026.05.04.13.15.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 May 2026 13:15:06 -0700 (PDT)
-From: "William A. Kennington III" <william@wkennington.com>
-Date: Mon, 04 May 2026 20:15:05 +0000
-Subject: [PATCH v3 4/4] i2c: designware: Handle active slave cleanly
+	dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b="OAfPhbyS";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="YU583foF"
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 11F3514000EC;
+	Mon,  4 May 2026 17:42:24 -0400 (EDT)
+Received: from phl-imap-08 ([10.202.2.84])
+  by phl-compute-02.internal (MEProxy); Mon, 04 May 2026 17:42:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=squebb.ca; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1777930944;
+	 x=1778017344; bh=jGCUO9ChlC6SFajnQCDMepIm9tnZTgY0QhnZxW5P1Vw=; b=
+	OAfPhbyScE1+CkWPIELjt0JWGtWhkSNIl9lyqdRH9VTITO/6qc6G4beti9GvTMM/
+	9+0LPdSVrU+8MfD29DKsEqWGFDnLwkzlBCFGnZ3wsdH5EM8yJCtcYM3sAbSk1q+o
+	l/x7mhlo++eSXDcy2jLLQVay2SQcB2hpTkSjXEbCAebdKDS/Z4KQ+rN8CdrT/g+N
+	6xbcwi37d2i2gV8Xx+wPA20DJ7fBkYoF6G1ACjTcRZktJJCBvb+y51OY2nqv8LYa
+	4K36rpiqHrYZN2CmScdA7b9o7s7uBt4dxwZYRgu9tKE2H2pTF3cghDpEo2GC6Vdy
+	uMmEsQelkGeBI++mdJcCLg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1777930944; x=
+	1778017344; bh=jGCUO9ChlC6SFajnQCDMepIm9tnZTgY0QhnZxW5P1Vw=; b=Y
+	U583foFrz89WZztB0JVVreAPww0ZqQiShQ5dRjVaDi0s6FyTfbP47x128mRoOKYt
+	GtFfWcBkgSlyuIx8ikg9cBazZ7IYud4Hd5+yqqP8pDbE8a4s0UPmxijXy07eZA78
+	ZEUr0sf0kmB9dywmx1zXickbhnRn37lpbtQPBIXDu7JU40e5iRPMZkqe/7PzDyhP
+	C6qnElxFscW2JWXYbYe3rPCPzvAy9L+6AY1dnJIrKgZV0V5Gs/ecTa0OrjR4ScAm
+	DKLbmnmOouAUxKbSePbOhpg33zyytFCXGV0W5y9C/ES4HuAv8vQJKjyp3V4EMooU
+	0xq+1Fgn36FDuTumKtkVg==
+X-ME-Sender: <xms:vxL5aVatKGzO5Lm-3ZPQBy5xwIcJslqjz_abUl_xakf3bia7rjmLzQ>
+    <xme:vxL5aXPl49MpKjTcQ4UvR4gmY8RaqoWFVmtp5oIIR4F4D0X1B6Al-kFs_Sl6yQaSI
+    4TfU4BU8-GDFWm55hB3eDpSwgOMns2nVCY-kykrxVd8hCkC8kNpEE4>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdelleelhecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
+    hrpefoggffhffvvefkjghfufgtgfesthhqredtredtjeenucfhrhhomhepfdforghrkhcu
+    rfgvrghrshhonhdfuceomhhpvggrrhhsohhnsehsqhhuvggssgdrtggrqeenucggtffrrg
+    htthgvrhhnpeeijefhleejkeejkeetffehieduueevgfdvgeejleegjedvvdejffdvvdek
+    keegieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    hmphgvrghrshhonhesshhquhgvsggsrdgtrgdpnhgspghrtghpthhtohepiedpmhhouggv
+    pehsmhhtphhouhhtpdhrtghpthhtohepthhinhhsrggvthgruggvshhsvgdvtdduheesgh
+    hmrghilhdrtghomhdprhgtphhtthhopegrnhguihdrshhhhihtiheskhgvrhhnvghlrdho
+    rhhgpdhrtghpthhtohepfihsrgdorhgvnhgvshgrshesshgrnhhgqdgvnhhgihhnvggvrh
+    hinhhgrdgtohhmpdhrtghpthhtohepjhguvghlvhgrrhgvsehsuhhsvgdrtghomhdprhgt
+    phhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpth
+    htoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhg
+X-ME-Proxy: <xmx:vxL5aWaBwh8XipMb8105SX2A4C2H-1KabPpSuMYtk85pRYnkOFFQAw>
+    <xmx:vxL5aUXbSpPzsFSoU0MoP5dodpN0dgRG1HIz_AVRjSeoBXyZxqy73A>
+    <xmx:vxL5af_Qg_-d7JUdDORz3CU8b2pqtXCwj6zycShS2yhK4lM4ZtqJeA>
+    <xmx:vxL5ad8axwSJuC5qnVfIsvwAdpNOjcwj04Cmyo9O7zHS8Zowk4IiRg>
+    <xmx:wBL5aTmYFlqzJWyIDtbdW5kBcZF7mS9MmepDieYa6dwGfGTMvtgSJ_2o>
+Feedback-ID: ic2b14614:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 982842CE0072; Mon,  4 May 2026 17:42:23 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260504-dw-i2c-v3-4-57e56135d602@wkennington.com>
-References: <20260504-dw-i2c-v3-0-57e56135d602@wkennington.com>
-In-Reply-To: <20260504-dw-i2c-v3-0-57e56135d602@wkennington.com>
-To: Mika Westerberg <mika.westerberg@linux.intel.com>, 
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
- Jan Dabros <jsd@semihalf.com>, Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
- "William A. Kennington III" <william@wkennington.com>
-X-Mailer: b4 0.14.3
+X-ThreadId: AzstPrEaVVm-
+Date: Mon, 04 May 2026 17:41:19 -0400
+From: "Mark Pearson" <mpearson@squebb.ca>
+To: "TINSAE TADESSE" <tinsaetadesse2015@gmail.com>
+Cc: "Wolfram Sang" <wsa+renesas@sang-engineering.com>,
+ "Jean Delvare" <jdelvare@suse.com>, "Andi Shyti" <andi.shyti@kernel.org>,
+ linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Message-Id: <0586d251-3601-4655-99cb-ab257e00b489@app.fastmail.com>
+In-Reply-To: 
+ <CAJ12PfONdP2joTduNuA-A5HQRCtE-7jUO_wHOWuQBRb_HtVm2w@mail.gmail.com>
+References: <20260205102942.28745-1-tinsaetadesse2015@gmail.com>
+ <CAJ12PfPdkQD6VNROdSGYRWvHGf0FZ61Y-vF2uMB+vsnV1-KNNg@mail.gmail.com>
+ <371b0658-7cbb-400e-b48b-5d7b46cf150d@app.fastmail.com>
+ <CAJ12PfONdP2joTduNuA-A5HQRCtE-7jUO_wHOWuQBRb_HtVm2w@mail.gmail.com>
+Subject: Re: [PATCH 0/2] i2c: i801: Detect SPD Write Disable and expose as adapter
+ quirk
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-When the I2C master attempts a new transaction while the slave
-controller is shutting down or restarting, it can lead to bus lockups
-and system bootloops if the hardware enters an inconsistent state.
+Hi Tinsae
 
-Address this by ensuring that the internal state machines are properly
-cleared when disabling the controller if slave activity is detected.
+Sorry for the long delay in reply
 
-If the controller remains active after disabling, perform a bus recovery
-to reset it to a known good state.
+On Thu, Apr 23, 2026, at 7:21 AM, TINSAE TADESSE wrote:
+> On Tue, Apr 21, 2026 at 8:56=E2=80=AFPM Mark Pearson <mpearson@squebb.=
+ca> wrote:
+>>
+>> Hi Tinsae,
+>>
+>> On Sat, Feb 21, 2026, at 4:57 AM, TINSAE TADESSE wrote:
+>> > On Thu, Feb 5, 2026 at 1:29=E2=80=AFPM Tinsae Tadesse
+>> > <tinsaetadesse2015@gmail.com> wrote:
+>> >>
+>> >> Hi I2C and HWMON maintainers,
+>> >>
+>> >> Intel i801 SMBus controllers feature a "SPD Write Disable" bit
+>> >> in the SMBHSTCFG register. When set by firmware, the hardware
+>> >> silently blocks all write transactions to the SPD EEPROM
+>> >> address range (0x50-0x57) while allowing reads to succeed.
+>> >>
+>> >> This creates a significant issue for the spd5118 hwmon driver.
+>> >> The SPD5118 requires write access for switching between
+>> >> register pages to read temperature data, and for cache
+>> >> synchronization during suspend/resume. When SPD Write Disable
+>> >> is set and the spd5118 driver attempts write transactions, the
+>> >> bus will generate a storm of SMBus DEV_ERR messages.
+>> >>
+>> >> This patch series proposes a generic solution by:
+>> >> 1. Introducing a new adapter quirk flag in include/linux/i2c.h
+>> >> to communicate this hardware restriction.
+>> >> 2. Modifying drivers/i2c/i2c-i801.c to detect the SPD Write
+>> >> Disable bit and set the quirk flag.
+>> >> 3. Modifying drivers/hwmon/spd5118.c to check for this quirk
+>> >> during probe and fail cleanly, as write access is mandatory.
+>> >>
+>> >> By using this mechanism, we avoid embedding device-specific
+>> >> policies in the controller driver and provide client drivers
+>> >> with the necessary information to make an informed decision.
+>> >>
+>> >> Tinsae Tadesse (2):
+>> >>   i2c: i801: Detect SPD Write Disable and expose as adapter quirk
+>> >>   hwmon: spd5118: Fail probe if SPD writes are disabled
+>> >>
+>> >>  drivers/hwmon/spd5118.c       | 15 +++++++++++++++
+>> >>  drivers/i2c/busses/i2c-i801.c | 16 +++++++++++++++-
+>> >>  include/linux/i2c.h           |  3 +++
+>> >>  3 files changed, 33 insertions(+), 1 deletion(-)
+>> >>
+>> >> --
+>> >> 2.52.0
+>> >>
+>> >
+>>
+>> I'm hitting a very similar problem on all the Lenovo 2026 Linux certi=
+fied platforms.
+>> Your patch is great, and I wanted to add a tested-by tag to say it fi=
+xed the issue for me, but it doesn't quite unfortunately.
+>>
+>> I added this change (hack?) in i2c-smbus.c to take advantage of your =
+changes and fix the issue that I'm seeing:
+>>
+>>  void i2c_register_spd_write_enable(struct i2c_adapter *adap)
+>>  {
+>> -       i2c_register_spd(adap, false);
+>> +       if (adap->quirks && adap->quirks->flags & I2C_AQ_SPD_WRITE_DI=
+SABLED)
+>> +               i2c_register_spd(adap, true);
+>> +       else
+>> +               i2c_register_spd(adap, false);
+>>  }
+>>
+>> What do you think? Any side effects or impacts you can foresee based =
+on your testing?
+>>
+>> Maintainers - would love your opinion too. I suspect this may become =
+a common issue.
+>>
+>> Mark
+>
+> Hi Mark,
+>
+> Thank you for suggesting this fix, and I apologize for the delayed res=
+ponse :)
+>
+>> What do you think? Any side effects or impacts you can foresee based =
+on your testing?
+>
+> I think that fix looks okay; however, it would be helpful to know whic=
+h kernel
+> driver was the source of your error. Additionally, having the kernel
+> debug logs would help pinpoint the exact place of the problem.
+>
 
-Signed-off-by: William A. Kennington III <william@wkennington.com>
----
- drivers/i2c/busses/i2c-designware-common.c |  8 ++++++++
- drivers/i2c/busses/i2c-designware-core.h   |  4 ++--
- drivers/i2c/busses/i2c-designware-master.c | 31 ++++++++++++++++++------------
- 3 files changed, 29 insertions(+), 14 deletions(-)
+It was on 7.0, built from Linus's tree.
+I can pull up logs - but it's just when reading the DDR SPD get's trigge=
+red so not terribly useful.
+For me it gets triggered from i801_probe_optional_targets
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 0703fb29038c..31394d8fe612 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -633,6 +633,14 @@ void __i2c_dw_disable(struct dw_i2c_dev *dev)
- 
- 	abort_needed = (raw_intr_stats & DW_IC_INTR_MST_ON_HOLD) ||
- 			(ic_stats & DW_IC_STATUS_MASTER_HOLD_TX_FIFO_EMPTY);
-+
-+	/*
-+	 * If we are in slave mode and there is activity, we should also
-+	 * trigger an abort to clear the internal state machines.
-+	 */
-+	if (dev->mode == DW_IC_SLAVE && (ic_stats & DW_IC_STATUS_SLAVE_ACTIVITY))
-+		abort_needed = true;
-+
- 	if (abort_needed) {
- 		if (!(enable & DW_IC_ENABLE_ENABLE)) {
- 			regmap_write(dev->map, DW_IC_ENABLE, DW_IC_ENABLE_ENABLE);
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 8b422249acbd..259b7ce16d0c 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -129,8 +129,8 @@
- #define DW_IC_STATUS_ACTIVITY			BIT(0)
- #define DW_IC_STATUS_TFE			BIT(2)
- #define DW_IC_STATUS_RFNE			BIT(3)
--#define DW_IC_STATUS_MASTER_ACTIVITY		BIT(5)
--#define DW_IC_STATUS_SLAVE_ACTIVITY		BIT(6)
-+#define DW_IC_STATUS_MASTER_ACTIVITY	BIT(5)
-+#define DW_IC_STATUS_SLAVE_ACTIVITY	BIT(6)
- #define DW_IC_STATUS_MASTER_HOLD_TX_FIFO_EMPTY	BIT(7)
- 
- #define DW_IC_SDA_HOLD_RX_SHIFT			16
-diff --git a/drivers/i2c/busses/i2c-designware-master.c b/drivers/i2c/busses/i2c-designware-master.c
-index de929b91d5ea..7a301c8b604e 100644
---- a/drivers/i2c/busses/i2c-designware-master.c
-+++ b/drivers/i2c/busses/i2c-designware-master.c
-@@ -785,18 +785,25 @@ __i2c_dw_xfer_one_part(struct dw_i2c_dev *dev, struct i2c_msg *msgs, size_t num)
- 	 * IC_RAW_INTR_STAT.MASTER_ON_HOLD holding SCL low. Check if
- 	 * controller is still ACTIVE before disabling I2C.
- 	 */
--	if (i2c_dw_is_controller_active(dev))
--		dev_err(dev->dev, "controller active\n");
--
--	/*
--	 * We must disable the adapter before returning and signaling the end
--	 * of the current transfer. Otherwise the hardware might continue
--	 * generating interrupts which in turn causes a race condition with
--	 * the following transfer. Needs some more investigation if the
--	 * additional interrupts are a hardware bug or this driver doesn't
--	 * handle them correctly yet.
--	 */
--	__i2c_dw_disable_nowait(dev);
-+	if (i2c_dw_is_controller_active(dev)) {
-+		/*
-+		 * If the controller is still active after the timeout, attempt a
-+		 * bus recovery to clear any potentially locked state.
-+		 */
-+		dev_err(dev->dev, "controller active after xfer, recovering\n");
-+		i2c_recover_bus(&dev->adapter);
-+		i2c_dw_init(dev);
-+	} else {
-+		/*
-+		 * We must disable the adapter before returning and signaling the end
-+		 * of the current transfer. Otherwise the hardware might continue
-+		 * generating interrupts which in turn causes a race condition with
-+		 * the following transfer. Needs some more investigation if the
-+		 * additional interrupts are a hardware bug or this driver doesn't
-+		 * handle them correctly yet.
-+		 */
-+		__i2c_dw_disable_nowait(dev);
-+	}
- 
- 	if (dev->msg_err)
- 		return dev->msg_err;
+>> I added this change (hack?) in i2c-smbus.c to take advantage of your =
+changes and fix the issue that I'm seeing.
+>
+> The goal of this patch series, as you can see from the RFC, was to
+> "avoid embedding device-specific policies in the controller driver and
+> provide client driver with the necessary information to make an inform=
+ed
+> decision on whether it can operate or not under SPD Write Disable."
+> Therefore, I would rather have this check in the client driver's probe=
+ function,
+> rather than in the SMBus controller driver.
+>
 
--- 
-2.54.0.545.g6539524ca2-goog
+Fair enough.
 
+What about having it in the i2c-i801 driver? Something like:
+
+-               i2c_register_spd_write_enable(&priv->adapter);
++               if (priv->adapter.quirks && priv->adapter.quirks->flags =
+& I2C_AQ_SPD_WRITE_DISABLED)
++                       i2c_register_spd_write_disable(&priv->adapter);
++               else
++                       i2c_register_spd_write_enable(&priv->adapter);
+
+Would that be better? (there are two places in that file where this chan=
+ge is needed)
+I confirmed this did fix it for me :)
+
+Mark
