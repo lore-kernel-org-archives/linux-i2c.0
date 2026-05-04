@@ -1,74 +1,121 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f53.google.com (mail-lf1-f53.google.com [209.85.167.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DC9B33B96B
-	for <linux-i2c@vger.kernel.org>; Mon,  4 May 2026 08:30:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777883423; cv=none; b=dpSj5Pc4CI9K+eCOULpPonLeDW5lBa8uy7Mk3CN8lxeoRKdzcF18b1/+4XQUYgG7jzTVtapvlhDZAlXSuEoXUnpunhQdlyxqjsOYVf2YYgcXfClVN73/4GYiMRk55uh7GeJGXf7SRy93QbzhRFaLX+2A2L8/XNuuuC8K2SpRf30=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777883423; c=relaxed/simple;
-	bh=JMujZUDEuc3YNk3EbWd6e8TbepwSK0dwVKPhpxfhgxY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MqyKIgRTMlxO5b0CNeV51rRQxpHUHFYAY5PEC4MCpX8PwoRU19BYFUW4S0NJwdO55B18Zt6k/bG8KVjQsdVTZJp1ET2D1oCqxv4abbqfjxRbV77UdlNX0o88frbW9LIG5y4ZWyAo03+1WO1HDLlpb4oGnIDJ142CcTauqfPnD1Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=L0LY+0ZK; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67BDF33FE1F
+	for <linux-i2c@vger.kernel.org>; Mon,  4 May 2026 08:31:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.53
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777883466; cv=pass; b=AtrQg0bgJrg0nPU7dXtomYwRA0HiF1e4I78jtRIiGMg/CPyVFVOFaVo0OgVllNcRGMvowDg14qv70zt6WNschqNZYts34GhEBTLLVizU3N4p5v8G7TNXWs0wSBygdnSpsEWSx8AYUT4Xkr5mZtJ8rKNxk39xrMYalSh2PkgaQLE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777883466; c=relaxed/simple;
+	bh=h2ln3jz2XSiQPlSzizSSg4UuUtOl6OzqKXpUrWbUC0c=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EYEmKYORLwdNQLrstgYXI7Ojy8zaBc7D8qkk4YTsTn7uDxEq4tNwgeJ7d+wGH+NniimbHyfEhTpKLrVkRAdMMea4i+l5LzQ3vY+Od33OEpDBHQD0bernmrdjNG/ps8+bnnvnMUTTaVW2/0uKngiRdvnThEgoy2NGQ5nbem5yCes=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=K8iKDb3n; arc=pass smtp.client-ip=209.85.167.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="L0LY+0ZK"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=eTSd
-	DPwWW4/ZWzbZYVwv6UgySSpuqfzPBisnZyolzFg=; b=L0LY+0ZKpGp1YN9pVpMW
-	YLJxnvPaC+/Tvf3Wjy2FILZZQ3KP/OKnI4y9ILEPNUFtlIDFOeZDZa+KFBM3OSIo
-	IHzU4NWS4Z6rsozRkhL3FFH/1lAb6VBCQhFVgTyb8hBF/IVhnQ0YrTAm0Gu/bmMc
-	VKQwCXogLBB5dkEcfvZUGGosM53Z/D9c5c85ikTIGg/XyGmHOi5l9o9oYu0Skgcy
-	REYwjGNYu4AhTxYZ85kAZefqbvwOAI00HKlfSU+XapOOJDzlN2qv00McvDtVf6bo
-	t1meY0cIKIr2aWMMpY8UTrlsW++R6xD3Ok688WLvBwnUDAbnapSq8J4j+jFu80lV
-	cA==
-Received: (qmail 2104411 invoked from network); 4 May 2026 10:30:19 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 May 2026 10:30:19 +0200
-X-UD-Smtp-Session: l3s3148p1@X9uhvflQBM8ujnvR
-Date: Mon, 4 May 2026 10:30:18 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Janne Grunau <j@jannau.net>
-Cc: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	Sven Peter <sven@kernel.org>, Neal Gompa <neal@gompa.dev>,
-	Wim Van Sebroeck <wim@linux-watchdog.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Linus Walleij <linusw@kernel.org>,
-	Mark Kettenis <kettenis@openbsd.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <ukleinek@kernel.org>,
-	Sasha Finkelstein <fnkl.kernel@gmail.com>,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-pwm@vger.kernel.org
-Subject: Re: [PATCH 6/9] dt-bindings: i2c: apple,i2c: Add t8122 compatible
-Message-ID: <afhZGnc9vATRDH9d@ninjato>
-References: <20260320-apple-m3-initial-devicetrees-v1-0-5842e1e393a8@jannau.net>
- <20260320-apple-m3-initial-devicetrees-v1-6-5842e1e393a8@jannau.net>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="K8iKDb3n"
+Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5a74ac8b40aso4177885e87.1
+        for <linux-i2c@vger.kernel.org>; Mon, 04 May 2026 01:31:05 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1777883463; cv=none;
+        d=google.com; s=arc-20240605;
+        b=iVv1QJU7bS4jTP3wCfo3a9V2/5ZU7mj48PD++UgzndbrLcov55gNLb5wwRirpmWmhh
+         UZyraU7qUFXXzk5YgwRTUOKQbu8PrjYkrhCHxiLWS8YN5UW59Ne5G/lPjQLsZ0vHGOoS
+         //Ype3JCnT8CH2MsvseGtv4AOENkOJ04yaTB1OSY7hqGdKZ8KKYrBuFVWBcY8slLi1ac
+         RopnFpWu5XXH2r4VMMD9cgUfUS+qkOK9JbXDsIloaIfjBK0wlNY+xX7v1xCXlBrQRbBr
+         7NCOJgFTXHi5iJ2Lity+rI9lMew8wzhkXO9Dj+OWpLKXugI39/NfDxmNGwL9ZaW0ry6x
+         qXkA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=h2ln3jz2XSiQPlSzizSSg4UuUtOl6OzqKXpUrWbUC0c=;
+        fh=drZvLor/eDgQ0W8wggu62veXqg/IX+lrNazxsoV72DM=;
+        b=A+cEumBHrsNPx/tmWi21o6szJlaQtZZeV8YaVjPVm+AeLzkj4xCtXPwbinTNhSbIqS
+         sJn7d0tJqsCg9o9ktWdfDte+QoX2hrafzRF/9/3r47rBVDYIZ2oSW3/DvEs3cclIHLu6
+         JtL/muqpmW/v+6kUrruUMoN9sGQqzaWt17GNEAANTiknPHkRpjmrAlHNdltnR+tf2LMA
+         v2pCzFggcfN7Y+v4UyCDBpLVd72RVIfpwjNsZwTgGo1hbU1FrYutshOh2sMsZ8MCrgos
+         7iVfzG7Z4ADtrX7CRVPSKSiMYqV5xV2iXpPgPdRHKfb/vmk1haFAplcdF5kIS6CZj51Q
+         /Trw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1777883463; x=1778488263; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=h2ln3jz2XSiQPlSzizSSg4UuUtOl6OzqKXpUrWbUC0c=;
+        b=K8iKDb3nFLuVPPBdTWW3jwN3cY1R+jmKtciiEIUzE2gHnlgUjJaIM+uEKVijxaBCZC
+         Kh1yRrAhOiOoVKomMpGz3ndi+tY+F4lT8GJKdbZqgZXo88hMMyY8nZXTNta+Wmy7q5JT
+         93H6d/uxJ0ejVvoDHabFptE36WT8MGuS3edlybZidaw5V5/mL+MzP7xeSdkBMQvIFd9F
+         coI0U7JAGu3NWo7Rr8K3D4CR3LfAEQfX9Dg2sBUzzozuV64rSrZ66MQlSMoPPAORjj8V
+         qbt1HmzhiIpNCf/iEGJdLp6zQ0OlKt+41kizqbNDxacQYlT3lfBdftubkVgtHDpsqxEK
+         DXqQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777883463; x=1778488263;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=h2ln3jz2XSiQPlSzizSSg4UuUtOl6OzqKXpUrWbUC0c=;
+        b=qU0LugMZO1rP5A71tYFUUF4jf5VfW903DT2UGKZtS/H5HCKBlP0OU36EJPvYUybesd
+         TG28VYHGqCpXAD5U2Mk/qk6FoxRsBJGU3SM7wieCDchqqiX429MQ9HzcgKw28ZuS7v6Q
+         qfA8BVs4F8RTgjSyghS1oUAvYK3bS6K46rcEPmwCoMxMKvKh1MnyKwpCvbaIobFaz8NV
+         EMU/sX+tWk0IAcBvFYlJD5mtxHVxpAWsb8B4nZLO7lYKGloI/AWW0bJAHhVKyJY1Sq7u
+         8XY0ouOjotrDWUHN/ixj9lWCJYnnEtVt7yZoq6WVXChRyYKNhUWZAWibgDynthi7XVA8
+         Ajmg==
+X-Forwarded-Encrypted: i=1; AFNElJ9LzH39xNjpvMBlqI4JIL7zPdcwOdLSuiSG9sX7qD8mVVYZzDQHxUwD9aXplWJztc7uWDylvd9EtLE=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwbQmb5q1knnyDhiUE2NY9rbABc3piFKpqmRZiNaTMFb3MsnHgP
+	gEr3r4gaQgTOOCtbT8oEs2x2ymMdoukdiCyBbaF0fxbYoTGUELUhfI6032mg7jqTZ7/fjBZzmMH
+	FgRfX64hFctpin9hcv7a+SHqmxqxbip+4wc7lGcM2Kw==
+X-Gm-Gg: AeBDieuvbXHOhEO77s8qEIfO2AyOWl8iXijwzPQ8XvxvRDWhYvr7qfcjpMeFdetKKj/
+	OWb/XstyZIC2PXW7ZD7j8z5S0WElC1ecQC6UlRwWN5O+i/1DVim9jdy+RZvSnUWfFfn7sRXtAwy
+	r/aC6FUbhhMS0rugpV4+OL94Js2FAN/ExZKPJDMbWOKlC3eotd7pedcjVSED0YNsFCHOHNuss+M
+	q+LeaHPuDdwkgnXRGwsgHszFO+mhLW1z+QsN6wi7Inkq4egHlQ4C7vkmxPKlSG7U7C7hNPp4dHt
+	J4p+QLXdoeN9XdaVv2P+vGPOruJzQYfqK1IW81QK+cXSt0pKpKQq28ofyiYR5w==
+X-Received: by 2002:a05:6512:2310:b0:5a8:757b:80ee with SMTP id
+ 2adb3069b0e04-5a8757b8206mr414306e87.17.1777883463576; Mon, 04 May 2026
+ 01:31:03 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260320-apple-m3-initial-devicetrees-v1-6-5842e1e393a8@jannau.net>
+References: <20260430090810.109232-1-marco.crivellari@suse.com> <afhTvm8OmSpj633b@ninjato>
+In-Reply-To: <afhTvm8OmSpj633b@ninjato>
+From: Marco Crivellari <marco.crivellari@suse.com>
+Date: Mon, 4 May 2026 10:30:52 +0200
+X-Gm-Features: AVHnY4JDuzMghB2w1R2IKo_b71kWBn6jzRW6HZf_PqAW0hXQwr_ovS78SjIZ65w
+Message-ID: <CAAofZF4H89S=eA5GF3b2MKscij0yxj_bREWq7LMxi2L95vR7Sw@mail.gmail.com>
+Subject: Re: [RFC PATCH] i2c: testunit: Replace system_long_wq with system_dfl_long_wq
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>, 
+	Frederic Weisbecker <frederic@kernel.org>, Sebastian Andrzej Siewior <bigeasy@linutronix.de>, 
+	Michal Hocko <mhocko@suse.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 20, 2026 at 01:23:24PM +0100, Janne Grunau wrote:
-> The i2c block on the Apple silicon t8122 (M3) SoC is compatible with the
-> existing driver. Add "apple,t8122-i2c" as SoC specific compatible under
-> "apple,t8103-i2c" used by the deriver.
-> 
-> Signed-off-by: Janne Grunau <j@jannau.net>
-> Acked-by: Andi Shyti <andi.shyti@kernel.org>
-> Acked-by: Rob Herring (Arm) <robh@kernel.org>
+On Mon, May 4, 2026 at 10:07=E2=80=AFAM Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
+> [..]
+> Applied to for-current, thanks!
 
-Applied to for-current, thanks!
+Many thanks, Wolfram!
+I completely missed the FIXME on top.
 
+>
+> BTW, what does _dfl_ stand for?
+>
+
+ "dfl" stands for "default". We're keeping the same naming convention
+used for the
+unbound workqueue, system_dfl_wq.
+
+Thanks!
+
+--=20
+
+Marco Crivellari
+
+SUSE Labs
