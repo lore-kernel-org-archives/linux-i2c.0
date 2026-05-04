@@ -1,104 +1,134 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 173863CF05F
-	for <linux-i2c@vger.kernel.org>; Sun,  3 May 2026 18:00:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BA0E317142
+	for <linux-i2c@vger.kernel.org>; Mon,  4 May 2026 08:07:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777831221; cv=none; b=M7imBIxb5Bno/82l2uEBnprW4qVViXDWZvNCaJnT0nX5S7Xi6ltQhoJxaAML021WdbU5yAr3yS3kLZCSUrOXbNaQgU6XWNU5Y9K8oQ2d/vL6g7k28JyZTROwLlRQcA9vlr2HIEx/ivIlCSnbBc3dx6jMi+d+l7o/6SFpeMVHEmc=
+	t=1777882056; cv=none; b=dMI2+jD+x80ovqp19AwnRUYKI7tn9/l+Kcs59R3fkX70Wby0Tzw1HC4Au4x0KinuHFtvkWYhvZoKwxwTQN3IpJTsN3VHcNdUrEVZWVkhNaFvGR+Ik32zwEYaMaIv+xr5+EcJolEU7uaxsPWEHtPMKg+uZtjkNZ2wiiFcZQg9PCg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777831221; c=relaxed/simple;
-	bh=+cHiJOGyps4tP874tIrcNGCbxetNmnQg9UStX/QIs/I=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Mnl6YdIN3OTZwN+frgQrfXaMg7A68oEUJ4gDGGSIO2JXrL6KRN4EX5imMJqpfZmOIt6y77ppHa+l6AW2UmTw7YemHqQGhryrxuJegn/BXwFah2TVTpNTRA6/Bgs19+wR1PNcD4JCxbPREMWfBD1GtKl6Gcnn2jBSulHm8ekILf4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OWbey4rC; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1777882056; c=relaxed/simple;
+	bh=6nX3v3Px87Ducl5a8oyQxwCLPTE9qc6pu0ldnKIqw1U=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dK85uXSKFZb/ahcw/bM36xiEtlQMi72aNsQLBcHDi1pDkU5AHkVAsMy3e+JvQtjsT2K0Mikj6IfsOa1jzuqIQ7dTcmOF8h1iRv5Qms+6sB3mJ7NZPaGTLgIkFcAjPMMLRG+jX5OHzWfRwPpFSIYgrCJD64Yr7qGmcjhQLDKmyFY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=OvOXCt+t; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OWbey4rC"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4836fc075d2so3099525e9.0
-        for <linux-i2c@vger.kernel.org>; Sun, 03 May 2026 11:00:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777831215; x=1778436015; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=hd7o6sxV5jy46yv8SLZalxFTVSZ+c2N5QIlGo7fccME=;
-        b=OWbey4rCwNVa8lzF2ratHKsaCk/kEqThA7SpAWI2b8nVg+qF94IhHQU+JzeA/bMgxJ
-         sDoHN+wnfddP8RaMvumgcJQVoYY13HwPDvVK4tKuYsfRLB9d3219khqtoarfmDzS46dn
-         3Gw4KePQm5a7mhUmXkE+Mj41lH4Lxk1rGJ7dwb9KsjDoxvaymtE4oV72kax9g99mSI6B
-         dQDu5Ib+54MaRo0oTyNxIwtwS/9dYUC8geA+R3brIyCaxNuZ9HB29cknakai+NRZjOdT
-         QzJS1SLnK46Ul7Qz+v+U12VZ4Z1BAJFQn7825qaokjs+8DMqMXNLs2O0xDKjmqJa+AMv
-         7nXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777831215; x=1778436015;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=hd7o6sxV5jy46yv8SLZalxFTVSZ+c2N5QIlGo7fccME=;
-        b=g9vxps1K2maLVN/JtP0M0vqpNnm9C26MyBPB+FeM9cdpxjXQ4CHCxQOJf5b1nq6mQ2
-         BFfffH9p3TtNn77NBkpg84JT6urKjitdDf9jv2F+1hMdnPYxwHlwT3+Gsld4Fpn20Eet
-         TWyKjIDhCyvJ/zdGT+0FMraxfMlxf/XpWmDsqpr/ywuqYug6ZfuPPGAskf6PcNawDaGP
-         tatozzgODTObM0Z5MqnF95C/YQkbTC6nb0wZyWWNVgclR351ZhXTcGgNGGmjHoTRNyPW
-         o8U8aWKaPseh1q9TfgkELXmO7UdfYRTPk6teivF/KD0dXpWl44kso7mjBm7s7WO1NEIp
-         +ZVA==
-X-Forwarded-Encrypted: i=1; AFNElJ+xc3gZFYt8YwXdGEujeXSkFUO9J3Lowk6KFP1RWdtFClUTS286bJvA/iRK/e9Wu9nS+sF9/lR+M2Y=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxJ8CPRTM1WLVlTgbzRp8EGMTpuZ90kVEk3ku37l0kvGzfcCrox
-	QptXnBInDwJgOpwNY9Krbe/tFo32qnDCiRuIWxykGeek/nl5WYHEx7sGfzlFHDFBDwyc0Q==
-X-Gm-Gg: AeBDietdo8t3K6pzPH5P0Q822CmZzdmzrgcCTHyavLnc9c/Ed43n51XadLcsdj5w+Wx
-	76agROOEqLRl++JRobRxmRlX06iHgh5VOWB9OJOctF5vN+byRnoJNC27yf8pw05hmLfdj92IG11
-	TKyIVOKQuyk6cAgQMGkh+o1fWK1dsguGFU19xWrl7E0XOutVyXmh5+QpSRek98LUqcFge05PAUv
-	tW2fFEP3/fUjscCtv6GgvVAnS36bygJdTIpn4LXopVtxT94CDIxUw5c1Vj/KrDNYewE6UEq5T6h
-	eX23J+igSvAvG/1sp0Oeoe35eCG1CfeNhO+6PRiEEwXUS9SjN07KrVF40V/knrlGr7h07S6U2KZ
-	HQFidRJDYQ743rJQ8H9P2AYOrczrCSoOFQSU/Xu/C8PcWgYDujFc84MNKxaE7suS0Bs5H/El9Wm
-	bwnsBy3gAm++iWoDyDRd1g8BI4I5lfxh4+lgRNZhRajzYiFtwSab7K9tKhGr1NeWYcpg==
-X-Received: by 2002:a05:600c:46c6:b0:48a:5302:8ed9 with SMTP id 5b1f17b1804b1-48a980fb90fmr53190105e9.0.1777831215421;
-        Sun, 03 May 2026 11:00:15 -0700 (PDT)
-Received: from localhost.localdomain ([82.215.118.79])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a8eb75fe8sm214960305e9.8.2026.05.03.11.00.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 03 May 2026 11:00:15 -0700 (PDT)
-From: Stepan Ionichev <sozdayvek@gmail.com>
-To: andi.shyti@kernel.org
-Cc: florian.fainelli@broadcom.com,
-	rjui@broadcom.com,
-	sbranden@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Stepan Ionichev <sozdayvek@gmail.com>
-Subject: [PATCH] i2c: bcm-kona: fix spelling mistake in timeout-check comment
-Date: Sun,  3 May 2026 21:59:25 +0500
-Message-Id: <20260503165925.1738-1-sozdayvek@gmail.com>
-X-Mailer: git-send-email 2.33.0.windows.2
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="OvOXCt+t"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=QaY8
+	vthKHk+w1zbdFTwwMDU2Q2SgmE8fAYteZe7tLVQ=; b=OvOXCt+tyznVunzBNtsb
+	t3AzQFDzvakHHQIvLv9Sv0Ncu4lu7IDGGxHGNvhx+qrWT98J3piVDjNBzNUts+sr
+	LoK01DnK8Cemee03LkA69EI7RwhgeVCDgS/peQsfMeEIEdgNfDCCcIoABOG4acb6
+	XErPehfAoMZJIbL4E+IUVVzVcIXuE5PB8TQI/Tla7SsNA/dpdRewYXRs+avq+2LU
+	sHm9eeP5vvUKNXtjyjjhwQKuxkXiaOYRDnG1pMY5v8v07VIXhrpdrbKMZtomZbnE
+	ZMOTOl+F0d3sSAB3iBxMhojxpYCzroP6TWLcx/Da3VCQBt7DBP+e2RmdD2O51l2R
+	pA==
+Received: (qmail 2095580 invoked from network); 4 May 2026 10:07:26 +0200
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 May 2026 10:07:26 +0200
+X-UD-Smtp-Session: l3s3148p1@//rXa/lQgL0ujnvR
+Date: Mon, 4 May 2026 10:07:26 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Marco Crivellari <marco.crivellari@suse.com>
+Cc: linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
+	Tejun Heo <tj@kernel.org>, Lai Jiangshan <jiangshanlai@gmail.com>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+	Michal Hocko <mhocko@suse.com>
+Subject: Re: [RFC PATCH] i2c: testunit: Replace system_long_wq with
+ system_dfl_long_wq
+Message-ID: <afhTvm8OmSpj633b@ninjato>
+References: <20260430090810.109232-1-marco.crivellari@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="Ml+rf6EXNXYFNKMn"
+Content-Disposition: inline
+In-Reply-To: <20260430090810.109232-1-marco.crivellari@suse.com>
 
-Fix a spelling mistake in the timeout-check comment.
 
-No functional change.
+--Ml+rf6EXNXYFNKMn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Stepan Ionichev <sozdayvek@gmail.com>
----
- drivers/i2c/busses/i2c-bcm-kona.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Thu, Apr 30, 2026 at 11:08:10AM +0200, Marco Crivellari wrote:
+> Currently the code enqueue work items using {queue|mod}_delayed_work(),
+> using system_long_wq. This workqueue should be used when long works are
+> expected, but it is a per-cpu workqueue.
+>=20
+> This is important because queue_delayed_work() queue the work using:
+>=20
+>    queue_delayed_work_on(WORK_CPU_UNBOUND, ...);
+>=20
+> Note that WORK_CPU_UNBOUND =3D NR_CPUS.
+>=20
+> This would end up calling __queue_delayed_work() that does:
+>=20
+>     if (housekeeping_enabled(HK_TYPE_TIMER)) {
+>     //      [....]
+>     } else {
+>             if (likely(cpu =3D=3D WORK_CPU_UNBOUND))
+>                     add_timer_global(timer);
+>             else
+>                     add_timer_on(timer, cpu);
+>     }
+>=20
+> So when cpu =3D=3D WORK_CPU_UNBOUND the timer is global and is
+> not using a specific CPU. Later, when __queue_work() is called:
+>=20
+>     if (req_cpu =3D=3D WORK_CPU_UNBOUND) {
+>             if (wq->flags & WQ_UNBOUND)
+>                     cpu =3D wq_select_unbound_cpu(raw_smp_processor_id());
+>             else
+>                     cpu =3D raw_smp_processor_id();
+>     }
+>=20
+> Because the wq is not unbound, it takes the CPU where the timer
+> fired and enqueue the work on that CPU.
+> The consequence of all of this is that the work can run anywhere,
+> depending on where the timer fired.
+>=20
+> Recently, a new unbound workqueue specific for long running work has
+> been added:
+>=20
+>     c116737e972e ("workqueue: Add system_dfl_long_wq for long unbound wor=
+ks")
+>=20
+> So change system_long_wq with system_dfl_long_wq so that the work may
+> benefit from scheduler task placement.
+>=20
+> Signed-off-by: Marco Crivellari <marco.crivellari@suse.com>
 
-diff --git a/drivers/i2c/busses/i2c-bcm-kona.c b/drivers/i2c/busses/i2c-bcm-kona.c
-index 9d8838bbd..d4f287b31 100644
---- a/drivers/i2c/busses/i2c-bcm-kona.c
-+++ b/drivers/i2c/busses/i2c-bcm-kona.c
-@@ -427,7 +427,7 @@ static int bcm_kona_i2c_write_fifo_single(struct bcm_kona_i2c_dev *dev,
- 		return -EREMOTEIO;
- 	}
- 
--	/* Check if a timeout occured */
-+	/* Check if a timeout occurred */
- 	if (!time_left) {
- 		dev_err(dev->device, "completion timed out\n");
- 		return -EREMOTEIO;
--- 
-2.33.0.windows.2
+Applied to for-current, thanks!
 
+BTW, what does _dfl_ stand for?
+
+
+--Ml+rf6EXNXYFNKMn
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmn4U74ACgkQFA3kzBSg
+KbbPtw//fawRp0QiFR7gUmKeKMBNjQcqFj3W6c8ZjqhF4aC8iUyeH+mbxiLepeqg
+3vPMVFoRawM2Bf2gevmmimHDP3cpHjhs5obGcPJA1+v9MQA2Jj6rxGlj4ATemNIt
+xQHSg/ODI0+OC3oJO0bJHp6bAK5z2WtqvqxpyD0gABJ097YUPZi21soHq4ykDhJC
+wduLwx0aH0G7mtzg0gFF0EZmn3S2bZ95y6LtfLkpiteteX4d8Qd9haz1PrUS7niJ
+B0ewnuPtC7LYFjH19V4BdI/x047IJ+SeOx5pik6qkjESk1MzU74Jdx8tGCEetCDK
+TF07qJxLZ/wnuSdeGs39pl2XNPFpuagKmpm0jioTpLB3eNjfuNzIyhWbrJCfzqPm
+6GoVvAu3HqlWIa70Cl6qfTP3pNrZoIcCI/6jLlsgQtPROi9dsQUPsYXg+oYHZcj/
+iYsOD2NnhQS3uQOMClrWzHuxdJVWLo8fE8v9CgayoDYYOmbJ59CeJsqv0mnMfSqD
+F5/sgU3IIWDtlDk/x/0ksGzTlIbRahx9jpDC0oAXOzFX4sbi+eN2kju10qYxTvmg
+3fEZ8KvbV6OQpsyxEUs1pJ5dihB/TAd4ANPGQkTxvt48IDzO6AAfCFIEx8LUoEdu
+AXpYUIyZnirjrjdjjDhrM4B/tTbv3ahtKdrtSIwEExgOhmPQgo8=
+=EdiP
+-----END PGP SIGNATURE-----
+
+--Ml+rf6EXNXYFNKMn--
