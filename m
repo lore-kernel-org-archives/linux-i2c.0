@@ -1,43 +1,45 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E08A33CAE6A
-	for <linux-i2c@vger.kernel.org>; Mon,  4 May 2026 12:02:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D47A3B9600
+	for <linux-i2c@vger.kernel.org>; Mon,  4 May 2026 12:14:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777896170; cv=none; b=JJeEsFA/ocb09uBgLXvuaqd1a/qhfHjG9G7w5aANcCOGSz9UpkzP5BnAQKQJjZtdhm6hk5b3NjNd79ceERz2gsd+fFVqhU5Qn8r8J3P8QR4tzUznHBHBSZiStF4yyuttcI0gLuIvQ2blp0AQkq32lYKv2R+BtQPGGqe/9K6cMGA=
+	t=1777896883; cv=none; b=L/unxacMhljQwVTSfHAdPORhm/GSAqF/PLyqea2csnfZvc0GqgmOGlXV79CCXBrmD8Qp1mU332k9erIb+u1sdaVHBdQAlsbf6Gj0Que7Onqv4EC+lYSOCsfuF2kVDWMcqyYIj71OY6uiksP7O/qjc+mqcU4AvBTF7z197DqhhDc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777896170; c=relaxed/simple;
-	bh=olCbkCWISbkFgW2JM8v+xUYNgHLBzLcDRxs8yUm3/p0=;
+	s=arc-20240116; t=1777896883; c=relaxed/simple;
+	bh=V43NDWQJfNhkba06oW7pz5YbD7jCUWGuzgCwLqDeyDk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ab6u5HaQHdxirwLnyU7RHjb2Ry0HfrRqZo70gMCN3ywsxpM9xjnzzYuX+0SmIh/P8j9IWero6XVFfCuKHjbug6VE/eNCpB8o/0sYNiffR6aI5qo7uSn6ybunGwj4551NMS41RgVrFVGPba4EfiJ/p5rWg+DLeTcQIH+mJXMZTgg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=Y6cd8qRS; arc=none smtp.client-ip=194.117.254.33
+	 Content-Type:Content-Disposition:In-Reply-To; b=N/wG8HjnFNw30jPGDKycCeASilVyddW/aVGaW0VFZc8v0EtaFMP2JCJEzzxAh4WuyoBzn1PvVMNyTh6DDkMKiFGC+87YXZrC/l6VP6H0RKRND47y3I+W+0QjmpX8TA/QxZte0Qc3071K2gwz7RZhlBUitcMXMUK76ve0zhZyt7I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=h/qyICzb; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Y6cd8qRS"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="h/qyICzb"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=rnzE
-	3fagmRQ4MynxdSY2IA23lAMp8yjSa1dYK89grj0=; b=Y6cd8qRS7qfD2QlarjE9
-	nZebitcDfoml2x4gEpe31NN6N9DU9R0EdkGqpTtAOmaS9G+OiJ0Gpvd0upXwzLS7
-	xS7Kg5P4gbfhiwdyRicsXlG+hZNgpH+nbKqvZtTqymkhTmKxi4/KOGomDD/LkYcg
-	puG9gLchoaih7ytzbLimb9u1XqYdF91fCmfCHKxugRqeFSfiLdy5ut8hD032Fvfj
-	U08zRtG79A9V+RUZnnal7wDNFPoT3fXnyKTfq+QQFM/DcSBIJztqGlgOVkBsJXT6
-	JHjwiBCUdHu3y/O5JaXLrzyhZ6JaxBfzAu8ovp/vYxax4BirK6f8NN0wHgyfWSjf
-	TA==
-Received: (qmail 2187862 invoked from network); 4 May 2026 14:02:44 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 May 2026 14:02:44 +0200
-X-UD-Smtp-Session: l3s3148p1@NqpMtfxQytUujnvR
-Date: Mon, 4 May 2026 14:02:43 +0200
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=cExE
+	XsEPVndDKl7vKpaLCbJmZNKx9WX5GaDjz0mY23M=; b=h/qyICzbURpq85SvPEAa
+	Gx71fJYXSLGD1nZv3YKrTXX+hVo2waDWAryLnU1jh9dUn6UKsAEoBd2Tv7CFC25N
+	8OMjqE3XpjWKxOOmG0ZIZCuP1dQ8LS3ubdv9+pyQvMZqrrj5PBNhDDa/v4Pj2hvT
+	QjC4Et88XdJhIdwlh7izLJSnpSnWCAO8/CfFvD147bZWfcaWzftm/myfkqPx2EWR
+	5zUnKPxwQiU7gIB764F7ezpcR4K4jEok5HebOoPPuMCgFjXI3JwqWZOU7I8fI8xN
+	U7P+rrejxgBlhVNm2rfRhxom6AohLggX8e1/IAXyPDWRJxD51uSsXJYNRFa2I+cq
+	/A==
+Received: (qmail 2193008 invoked from network); 4 May 2026 14:14:39 +0200
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 May 2026 14:14:39 +0200
+X-UD-Smtp-Session: l3s3148p1@ePnx3/xQctoujnvR
+Date: Mon, 4 May 2026 14:14:38 +0200
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Weiming Shi <bestswngs@gmail.com>
-Cc: Xiang Mei <xmei5@asu.edu>, linux-i2c@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: smbus: reject oversized block transfers in the
- common path
-Message-ID: <afiK49_aMEZYDQAg@ninjato>
-References: <20260330042622.2608889-1-bestswngs@gmail.com>
+To: Jie Li <lj29312931@gmail.com>
+Cc: wsa@kernel.org, linusw@kernel.org, linux-i2c@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Jie Li <jie.i.li@nokia.com>
+Subject: Re: [PATCH v3 2/2] i2c: core: support recovery for single-ended GPIOs
+Message-ID: <afiNrr4Llm0LWw-5@ninjato>
+References: <CAD++jLnk_5KG_q1aCtpOrTCbhtK-FxXH6BhPFSwukyt2F4uxmQ@mail.gmail.com>
+ <20260201111812.18945-1-jie.i.li@nokia.com>
+ <20260201111812.18945-3-jie.i.li@nokia.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -45,50 +47,67 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="eMUX46Q21S3g+g0m"
+	protocol="application/pgp-signature"; boundary="gHtIaBqlpccL2SEm"
 Content-Disposition: inline
-In-Reply-To: <20260330042622.2608889-1-bestswngs@gmail.com>
+In-Reply-To: <20260201111812.18945-3-jie.i.li@nokia.com>
 
 
---eMUX46Q21S3g+g0m
+--gHtIaBqlpccL2SEm
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+Hi all,
 
-thank you for fixing this issue!
+On Sun, Feb 01, 2026 at 12:18:12PM +0100, Jie Li wrote:
+> Currently, i2c_init_recovery() only assigns the set_sda/set_scl
+> hooks if gpiod_get_direction() returns 0 (output).
+>=20
+> This logic fails on certain SoC controllers where open-drain lines
+> in a high-impedance state are physically reported as inputs. This
+> leads to a "deadlock" where the I2C core refuses to assign the
+> recovery hooks because it incorrectly assumes the pins are
+> input-only, even though they are fully capable of driving the bus
+> low for recovery.
+>=20
+> Update the recovery initialization to use the new
+> gpiod_is_single_ended() helper. If a GPIO is configured as
+> open-drain or open-source in the firmware, it is safe to assume
+> it can be used for bus recovery, even if the current hardware
+> direction is reported as input.
+>=20
+> Signed-off-by: Jie Li <jie.i.li@nokia.com>
+> Reviewed-by: Linus Walleij <linusw@kernel.org>
 
-> +	if (data && (protocol == I2C_SMBUS_BLOCK_DATA ||
-> +		     protocol == I2C_SMBUS_BLOCK_PROC_CALL ||
-> +		     protocol == I2C_SMBUS_I2C_BLOCK_DATA) &&
-> +	    data->block[0] > I2C_SMBUS_BLOCK_MAX)
-> +		return -EINVAL;
+I think this should go via the GPIO tree? If so:
 
-Like with your other patch, we should also reject if the length is 0.
+Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Happy hacking,
+This probably needs a respin, though, because I will push out a patch
+today which will use the new GPIO_LINE_DIRECTION_OUT macro instead of 0.
+
+Thanks and happy hacking,
 
    Wolfram
 
-
---eMUX46Q21S3g+g0m
+--gHtIaBqlpccL2SEm
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmn4it8ACgkQFA3kzBSg
-KbYpRhAAqpSlOB8BKuT/yHV9fk64YKylspo+CilLrT6J7NXoRaCTj7jLTZAtCrQa
-tryXCryDrIXvRyEL4MNMRdBNVY1FssbxENzT90jY/uNHTY+IIZyYiiuPsPZ/ntxI
-KOrt+m9kIGO6SMF9HwlaUQmXKqzhev+qEoo3jVZgmSPx2rwxcht+ZUKvVBw3NOUf
-eVPToDCxPrF/SaxA+TcOUWlyYmqT+5I9XJW6l19X+p3yZw580F3jNyCzTgUqZdgT
-1naTEZkwkS3HmLnnSiKwavDW1KqsKTRHxvpwggO8r03R05Z584eEnDf3kt/hjm6D
-sgEmyfJunDoMV/nVvc2lRdavU9W5isS2pTCVpMweayg+NWEElf6ARB3/NRHZPJIq
-YWi7ySyKkeJdzm11pUHQ+Bw87rBQbDoLZIkqmhG0utSSE07Pie1YpBvEMPyFwuaI
-nZSBdG9WgYF3zFVgclkpT8aFG1B0R5CJFk8K4aOkRmRUXax8Hvj39uaYL+vkx9N7
-w6p7Ljcm/I9efwXw0Eqar00M3Qbs76LdWqb3BTxXX5zHc1219X6DTRmqYrrjSfiv
-fRSLk0Wqp1jYc6eD4gGb2viGaTTZRF70/dBn02W/vu+/+miDF+jnab1kcULhv4+l
-DD+PBg+3TWa+GLPuYxizUzv/3LDY3pmYdZf/wi1cVSgs1/COPy4=
-=gtKk
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmn4ja4ACgkQFA3kzBSg
+KbbbMw/+PeEdw/KewCYEixRlnGmM6RT4sC8HuBLSUDlj4vb/vzh9ApMW679HjqW6
+bBRTOnuc38v8nvMjp+z951GIp31hj6+okDKI2SJy5X14cN70mU3jSBqfbp6IxMJX
+mffDPEe9OhRmpKOjsh4Q9YWTlEPofOod3eVmTUiHmzl24LF1+I1d6x4pfG0omjXo
+KEE//MD+TlD4CcNifP4XMJ9PAbt9LWuJuDRsi2FDHXuRx8SjTwScDd6ti/amf2rZ
+cELdBQwFDoROvWbEDxzcxwrNws2ymEyirwUVeTjLcEElEJKNG7QoMtk03aQLOvS2
+l6sOMnS7cyN6GHwzqjJzpBCumjY5qzBebiU4y7hQmbTfg/17hL+HlQtuBsEdk22o
+UeSG1Xh5dKHm2KnI/UVb8+tXLj00Tyc1oHfastmKbeIKB5UlxaRubuSXOTN259f/
++6RPxfFsXZImMK3fV7fd62jR71i8nkJaT7M+EnMkQHFOwsmZ9SyG5ohBxncpAE7M
+J+LfIYDWjzigE6ouomD6Z1jtnDz2CTs9YZxn8o3cf78UKddjDLtyrQ5W2Wa6CA+W
+U71sMrO8cMMt3WxuVMiw4Mb4R2q5YJZqf1ITzvhLNt5ggeVHwq2uFPxLUZef59UO
+n5hJzf7TuSkFB7XVKR/5AfbkGh0q8voc1AcuY62TSY2STEiS99o=
+=FS/3
 -----END PGP SIGNATURE-----
 
---eMUX46Q21S3g+g0m--
+--gHtIaBqlpccL2SEm--
