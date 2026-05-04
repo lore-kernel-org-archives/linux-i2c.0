@@ -1,59 +1,48 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48BEC31987D
-	for <linux-i2c@vger.kernel.org>; Mon,  4 May 2026 08:14:51 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C49B2DEA9B
+	for <linux-i2c@vger.kernel.org>; Mon,  4 May 2026 08:25:30 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777882492; cv=none; b=qcLHyoljqHRv6wktdvbc37/JWQOMtepSde4mvJC7Eb0RovVOFSGcjs5QBN6DPVOgVQt5aet/6WRwMTzUjym6RE7aY48wgsxfLEbm6kj8OTppPAWha40aaA9nc1BI7ATSPhdreelsViq6jaAjioj9IayifL2yja1J27ZJ4RXXWWk=
+	t=1777883131; cv=none; b=oCB0Z4/O8QF5lHlc8tFSPJFx8Ml8iJWXhJIr8m0MvffnTvyOTw+7enFpVURxpb3pKdNuUVSEeHyt41n9mXA6LteW2ys/LQf5qXBovmkAN28nZsD4Qzv9t2lllYVYWkMTuFiw/nfqan1uA6QNvR1FzkkyjgsCFsXxEXS13ABjG8Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777882492; c=relaxed/simple;
-	bh=nJGRI4A9ewklJIIthuAAUh2rLQmjoOyuyca4mqU6DT4=;
+	s=arc-20240116; t=1777883131; c=relaxed/simple;
+	bh=fYEreH4tV67pPT5Re5xMRgGqjBmpXFF4UFvyb5OI6Ws=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TsjnZynoPoC/J1m+O5fQxvBK/bn5m5QBxpxATwtjfQFSwgoJIIK4WA4ewSPFeM4MJg47BKBBHAbQNFYtPn/kQB57cAh2j6+BMHTa8hS9A0yiuHxvpZqlU+1Mqrivqd0UOtEVIxuxqlS/kH3Wqz80vqjrJwxt/KIjfnO/PtibDBY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=igzrGHO2; arc=none smtp.client-ip=194.117.254.33
+	 Content-Type:Content-Disposition:In-Reply-To; b=JxJnhehl5tSxZYueoC+/q5C/EgsD7x6wauL+FC0Zb/dXzZmnKPUVgCEQhVugoq+ZXx++lK1Gx5H5Mk49Zxet7bIL3GxEiei/DBk95XawPgQWQBeC40DPWYQGiT8rKHko6LJiCfQBJNyZxhZB29BjqSa+1GeViMpzInxbYhnH1gs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=mD/zbGAP; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="igzrGHO2"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="mD/zbGAP"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=oho0
-	sC1jSrwodOAVxU/5tmS21hFCt2D3tgPiKyJNKTM=; b=igzrGHO24jzc/UsTN0zg
-	k6cmg1FvLo8lJ3A8miK+pZaAKKpQ6uu19CAO5iy6lHLUinLwxeyCfVe5rDMlcWnF
-	/s++sfHoy01OHEpo/r0RxwncmAj8bEieyUC8XQkD46/L+iMfdzXAHXKFoSn+CIFm
-	NtYPBYc4veraWVbhILTzpEvTAp8RDkh61btSRLCkJnzpYs8lLudJxFVJxyL9lXu/
-	wF1mqDfHgSKgTaXbj0aq4E3+LNKqGYPg1LtPXRJA1IERYVO69lBnaFa+FFZ1BRJW
-	YZXDOwxaO2KRtXfbOlhAk4wxuISVDWtZuuW7j7jw8oQfr62f+2JzhocJI6wOH4tU
-	ow==
-Received: (qmail 2098934 invoked from network); 4 May 2026 10:14:48 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 May 2026 10:14:48 +0200
-X-UD-Smtp-Session: l3s3148p1@lQYthvlQEIsujnvR
-Date: Mon, 4 May 2026 10:14:48 +0200
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=69yL
+	hlBI16XoVN9bn+X224Mok/47DWhaQAjx6HzSTTc=; b=mD/zbGAP2702YJM1OPmA
+	ub40M6Ut4DpN0w3RYqDDcsh29QDSXY0wM/vRVTbX0NA54uOKr4Jmry/szvORS14o
+	FFBX/ozRpyki7PoKTe7eLJcKX76Y558PbSZKvcGRVuugNtLQZSvCz8eK7CkVCFGW
+	43l8hbVWYFEwby8OeP8ETvg6pWyd/5ij4neBkuEu+YV5ZwfXIAdjQcieN4Cafpfy
+	e2Ue3Ndw2B84JuiaKEGxUkDvY5NHyqaR1t4nt9Zcs9Zhyq/yIXq0SRhOKOQ8Xlv8
+	EoMHbpxFYI++ZYwWfA7ozfIVSfLir6TYYUA9dfQdwceeuVzEyv8Xmij7TJ58tBF5
+	nQ==
+Received: (qmail 2102619 invoked from network); 4 May 2026 10:25:28 +0200
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 May 2026 10:25:28 +0200
+X-UD-Smtp-Session: l3s3148p1@hdhNrPlQZrcujnvR
+Date: Mon, 4 May 2026 10:25:27 +0200
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: linux-kernel-dev@aliel.fr
-Cc: Neil Armstrong <neil.armstrong@linaro.org>, Lee Jones <lee@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
+To: Marek Vasut <marex@nabladev.com>
+Cc: linux-i2c@vger.kernel.org, Alain Volmat <alain.volmat@foss.st.com>,
+	Alexandre Torgue <alexandre.torgue@foss.st.com>,
 	Andi Shyti <andi.shyti@kernel.org>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Jerome Brunet <jbrunet@baylibre.com>,
-	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-	Beniamino Galvani <b.galvani@gmail.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>, linux-amlogic@lists.infradead.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-pm@vger.kernel.org
-Subject: Re: [PATCH v5 2/8] dt-bindings: i2c: amlogic: Add compatible for T7
- SOC
-Message-ID: <afhVeP3Y8D4pfkAt@ninjato>
-References: <20260424-add-mcu-fan-khadas-vim4-v5-0-afcfa7157b23@aliel.fr>
- <20260424-add-mcu-fan-khadas-vim4-v5-2-afcfa7157b23@aliel.fr>
+	Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+	Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	linux-stm32@st-md-mailman.stormreply.com
+Subject: Re: [PATCH] i2c: stm32f7: Move reinit_completion() to
+ stm32f7_i2c_xfer_core()
+Message-ID: <afhX9z20oxSZxM6L@ninjato>
+References: <20260502153218.56142-1-marex@nabladev.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -62,15 +51,34 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260424-add-mcu-fan-khadas-vim4-v5-2-afcfa7157b23@aliel.fr>
+In-Reply-To: <20260502153218.56142-1-marex@nabladev.com>
 
-On Fri, Apr 24, 2026 at 04:17:33PM +0200, Ronald Claveau via B4 Relay wrote:
-> From: Ronald Claveau <linux-kernel-dev@aliel.fr>
+On Sat, May 02, 2026 at 05:31:54PM +0200, Marek Vasut wrote:
+> Currently, the driver may repeatedly call reinit_completion() during
+> transfer which contains multiple messages, while another thread is
+> waiting for the completion.
 > 
-> Add the T7 SOC compatible which fallback to AXG compatible.
+> This happens during transfer with more than 1 message, invoked via
+> stm32f7_i2c_xfer_core() -> stm32f7_i2c_xfer_msg(). After invoking the
+> stm32f7_i2c_xfer_msg() to start transfer, stm32f7_i2c_xfer_core()
+> calls wait_for_completion_timeout() to wait for completion of the
+> transfer of all messages. When the first message transfer completes,
+> the hard IRQ handler triggers, and detects transfer completion, which
+> leads to stm32f7_i2c_isr_event_thread() IRQ thread being started. The
+> stm32f7_i2c_isr_event_thread() calls stm32f7_i2c_xfer_msg() in case
+> there are more messages.
 > 
-> Acked-by: Rob Herring (Arm) <robh@kernel.org>
-> Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
+> Without this change, the second and later stm32f7_i2c_xfer_msg() would
+> call reinit_completion() on the completion which is still being waited
+> for in stm32f7_i2c_xfer_core(). Fix this by moving the reinit_completion()
+> into stm32f7_i2c_xfer_core(), together with wait_for_completion_timeout().
+> 
+> Since stm32f7_i2c_xfer_core() now waits for completion of the entire
+> transfer, increase the default timeout. This fixes sporadic transfer
+> timeouts on STM32MP25xx during kernel boot.
+> 
+> Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
+> Signed-off-by: Marek Vasut <marex@nabladev.com>
 
-Applied to for-current, thanks!
+Reworded $subject a little and applied to for-current, thanks!
 
