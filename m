@@ -1,217 +1,135 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazon11010024.outbound.protection.outlook.com [40.93.198.24])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B7F630C637
-	for <linux-i2c@vger.kernel.org>; Tue,  5 May 2026 10:26:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777976811; cv=none; b=iSov2q0nXKue0JCUXiTawwSoR6ojuRnAUC2GRCGDilQZim5JDggsRhBHkYBEE3syKw/fU0TP9xUVdhUi75pF4PmtRMpxcZWQ+zbm5vHB+FYPChl3SV6EjTBuJ3yjBvsJTLTsuJus8bhBABrDm93AxdHiRkyGI36tg6RCWEztAGw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777976811; c=relaxed/simple;
-	bh=BNQcmIUcI/sLEEdMaIwi95O/OjrcePYCPJrqUygwTgw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=AOCcS5LU2PNEW5W8CKrYe8hF+ufTcfB3rLs8Oz/wXIoNzMUin+gj8Te1pIQsszDLfcYNgxQ3iqI3kIIxvlffnCMCzK42IsbN0EEo9XqvuJqii6gkS2+H2iKkQTb1nmoh/UedRBg9zPcBPfnqDFYt1ULXCM87hTEVSHJxD3VczH0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PoIciCMU; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18EEF38237E;
+	Tue,  5 May 2026 10:59:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.198.24
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777978800; cv=fail; b=hahyACZHhvg3V5jNlJ+pPUoS3toKvIBoSzptch+o4/yr0UsuB3LAx7YB7DNASkL8zuJMx1EldnTW2CypK3msdeYpMsGJEBgzSWb/ZSmHEdpgyMxJEFlL+XIAERnPBAepEQ68Lf9rRpZ9ze69qlWNoCaFOSKdetINdIuoHAVQmRo=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777978800; c=relaxed/simple;
+	bh=pkn0IyN8aT5BsHFF0qhlgqI0677qIGWkPAI18Njt4VI=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=lOe8KKLzO6FDbMq3GrSXp5uDmaTDJxUCrutqwjSvoyg3qcUnNdEpyoxbRYF2Csp1TRKk2He7Ua6r3SnXr9RJMeJRzeo+crgsaf22xGwHs4mEOiIAD1fIAzjS0mjtfkUbw+xdHj3sN6ij80UTEmjR9o/MfBtGYKXT6iA41fAox28=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=bFZ5bXaQ; arc=fail smtp.client-ip=40.93.198.24
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PoIciCMU"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-365212191f6so1859095a91.3
-        for <linux-i2c@vger.kernel.org>; Tue, 05 May 2026 03:26:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777976810; x=1778581610; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=9jtWi+BJEmMiKBLc81hfsFIIWmO6WhR/hALIJ9C45EQ=;
-        b=PoIciCMU4+3rlBr1aA3HOCoZw20/6NqJxj0nH2SYo6WYNeuIu0bXFSWkyadVedznbI
-         Qk7Iaq2fZkWYsbVigcOwXbMo3e7q0pwGoV42wduyuZvRbe5ixRS/JrpLlb1QoUVgLFIE
-         e5mwNhZj9ICaL3GK63wtouS6JgXlseCtuMYr7cC19E/4znTxYf9DFm51FtYR0Q5WPA7N
-         NF29Ob8JZyBQQwEumZXEHPUPcaeGdYaFV5Cf4FVJziUlq1tuM9A8C2ZfBLyVfBji3BG+
-         bvtytKHFJ6uEiIRpIgXN8zZpxur1KNZm+IvXkeUcFJNga6LF0aEMhGgc0tcYrgokTr30
-         JGVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777976810; x=1778581610;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9jtWi+BJEmMiKBLc81hfsFIIWmO6WhR/hALIJ9C45EQ=;
-        b=NLW7iDjOOzWCSPn6yA8UgwmzUtVtXWIyjdf4M57JnA7F5+KYpLN5OZqdMCrrHaA5OE
-         KMZIoeavQqXfoyNwRFjo3uH94XQqxBe+c5hGbczf7aYYeJ1DFSee3MnTCNcN1qjCdpuo
-         uQ+NN6E4HDG9yMaYAJN75oWgJzYjLCFzDKllYUz8q0fu1+wMDQ3seYxnb6TPjLDA0cMe
-         BbvgYEMGSkKLFGjB2dabZwIHli/XTcDEf940pi5QUAMZXolTXBvNea257f9TUg6fLzQ7
-         j4u5tpMfJEDmO/5jqFp4OJHT3pC4oahvzSAa57LL7PHKu6zgESuaKmYXFUe5BHJjSn0L
-         1RoA==
-X-Forwarded-Encrypted: i=1; AFNElJ8URrxWyxsl5r4O4IQXYFAaNFWVZ2RBQkDe7rZ2no+tRFNCk4QWPtNL/wzngIVeiSXDzWqKBZ+HlzE=@vger.kernel.org
-X-Gm-Message-State: AOJu0YybISPZ6VIFQjGhUyHIP2MZJWlV/TutWwKhd6K/TFYcDhZrAsr4
-	h33MtgRJ/u4pQ7M6qvv/3+DXXetkfawf5VWGZAtJR3mU291LerAz/K8u
-X-Gm-Gg: AeBDietOfEiowVbAHzBXpEJEobbJB1Fott0T9qh6hmcIjHs5VQBcSl+GQI1mfRk6WC3
-	jvojzky5fvSHaTPzr6qcJpZ/RG1w7esE+tiuZFxZ1q/j6pm2rDvlKyF2s0c+Ykn4HdSPMUD1X8c
-	sNP0xlKaRJCI5iHLsKuB8v9Lkz639dS8TyNmMnFb5TwNXk6r/tqSkL/WdWlUkbXx+SPkbKOlrjI
-	ds7iVGY1wAfxMKfEEZIGUOttroY7sJuVeI1BqeV+h3VEJ7K66OjFizOyCFeQW2DAtkHx6JWOafS
-	ajEpEzqUgPM1US5mpg3vTZxiqzaJviaCJNyVRYNiFyabGzSPRGT6jzgzZ3Qn34p+SqSTXr/dYKa
-	LywhIR7yCfYAc3gz7IO5xmCYk6eh/RWpmB6GknKjWUo+BVmyBpjAyUqVq/JgfJQGtnL8jvpDVkN
-	lPDYm6bXB6hrdqD076FMF2ilXVyFzOyAS3Vpk2MevR6NbMxL6n368jOsxQwBGdjHcSUQ8rQhNgD
-	iOxjRAezLM=
-X-Received: by 2002:a17:90b:53c3:b0:33b:b078:d6d3 with SMTP id 98e67ed59e1d1-365774d3260mr2619605a91.23.1777976808405;
-        Tue, 05 May 2026 03:26:48 -0700 (PDT)
-Received: from chaitanya-virtualbox.. ([103.249.241.52])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-364ec00ad4dsm18983102a91.11.2026.05.05.03.26.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 05 May 2026 03:26:48 -0700 (PDT)
-From: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-To: andi.shyti@kernel.org,
-	wsa@kernel.org
-Cc: robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-Subject: [PATCH] dt-bindings: i2c: convert davinci i2c to dt-schema
-Date: Tue,  5 May 2026 15:56:26 +0530
-Message-ID: <20260505102626.5726-1-chaitanya.msabnis@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="bFZ5bXaQ"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Q5e7IXrBzg8JjoUe4ruu8iF9zDe2qASbENQD5+o3xW+1dwgY7edGYN07dbhf05yZfi/gkc3GKLdRBHPOftZXjHf5na9ekN7rqG7H40YGCzwgZquHQbIojZIcs3eG0D99GyHKS0H3nDSjaxfVbDKEjSu1LVceLQgNhkEL/TEpEcMY1jj0TQ9wCA2RjZmK5fwng3DqCpnyFibLiOSGER1RSj4dRuY0mtDElHBv2DH4IxtB34XllaF9fKGQVkcRxKt9ufJSmfAkHXznpRCwDX70FnfnvsnQEF5TiGZ9I6PF3OFk69JO2nZ7agbBOm1cAbHBKeHUuw1LXquePNQ4uKCdKw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ql0xWRkDUR2oYHQ9vLBnjEjDfm76NQO8iEU7icYgLww=;
+ b=TkW6+YNoeLu51CGZH2usTyeMUzbp58piQTbTaFuTTkhwqMjTmacrRl7jmNKt92a9JM2Y41RWv/ieJHCSYX0JgMvmksYsGuk2vbLh5qtKjJ7iViN8T668HSoKuUzXdAWKkUPHHvk5b+KmtC8vKyqt01/kHatkbi8FQQZ7q3kparJPTVGXYuaH57/ZVUP6S88ZmCSE2Z6ZXaW9weZ7to3biW1G9dCd5MdV0fOW0TN3fgjdWRigUB/VJT4hj/IPLgCeUI6kHA72HLtemZ68wikqf3lzIUS6n2xPKMkz+/Fia3BVWMsvh8cikk5+9IsDiVnaknXhv8UkDL504g0b7iHUGA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=gmail.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ql0xWRkDUR2oYHQ9vLBnjEjDfm76NQO8iEU7icYgLww=;
+ b=bFZ5bXaQBVnIE1TFG0r5fA+vRMnNIj93KL6P8fSUb9efl6J5sFnuSthvJrZFpTLOObpArvSlR//UOVORe9ocF+u09mXJa4a5srW0M6LajQra8su+eol0MwsMwV8ohWexTpEUddqPlVQfDOYePXYOK5rUcGKlifRVFERnW2mf9DIsxRtVFLhu4QAEKINTDC8XW0u8Wr0U5bI8LBBcHgwG/XpeycNJzzEyIcQUxKYUxVs2Am+HbldUGciV/81gzdmFZsR0/xLA/9fThMNhTEjrvcJNro/oIFCQWyTEXZKPJHHE5wf1+75SIsX5Z9aJshQ1serLir9pffgr78z72sYaTA==
+Received: from MN2PR07CA0012.namprd07.prod.outlook.com (2603:10b6:208:1a0::22)
+ by DM6PR12MB4250.namprd12.prod.outlook.com (2603:10b6:5:21a::9) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9870.25; Tue, 5 May
+ 2026 10:59:53 +0000
+Received: from BL02EPF00021F6F.namprd02.prod.outlook.com
+ (2603:10b6:208:1a0:cafe::6b) by MN2PR07CA0012.outlook.office365.com
+ (2603:10b6:208:1a0::22) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9870.25 via Frontend Transport; Tue,
+ 5 May 2026 10:59:53 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ BL02EPF00021F6F.mail.protection.outlook.com (10.167.249.11) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9891.9 via Frontend Transport; Tue, 5 May 2026 10:59:53 +0000
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Tue, 5 May
+ 2026 03:59:41 -0700
+Received: from rnnvmail205.nvidia.com (10.129.68.10) by rnnvmail205.nvidia.com
+ (10.129.68.10) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Tue, 5 May
+ 2026 03:59:40 -0700
+Received: from BUILDSERVER-IO-L4T.nvidia.com (10.127.8.9) by mail.nvidia.com
+ (10.129.68.10) with Microsoft SMTP Server id 15.2.2562.20 via Frontend
+ Transport; Tue, 5 May 2026 03:59:37 -0700
+From: Akhil R <akhilrajeev@nvidia.com>
+To: Laxman Dewangan <ldewangan@nvidia.com>, Dmitry Osipenko
+	<digetx@gmail.com>, Andi Shyti <andi.shyti@kernel.org>, Thierry Reding
+	<thierry.reding@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, "Kartik
+ Rajput" <kkartik@nvidia.com>, Wolfram Sang <wsa@kernel.org>,
+	<linux-i2c@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>
+CC: <mochs@nvidia.com>, Akhil R <akhilrajeev@nvidia.com>
+Subject: [PATCH 0/4] i2c: tegra: Improve DMA mapping, latency, and power management
+Date: Tue, 5 May 2026 16:29:24 +0530
+Message-ID: <20260505105928.38457-1-akhilrajeev@nvidia.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-NVConfidentiality: public
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BL02EPF00021F6F:EE_|DM6PR12MB4250:EE_
+X-MS-Office365-Filtering-Correlation-Id: 978381c7-ea1c-41b3-14ad-08deaa956f93
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|82310400026|36860700016|376014|1800799024|18002099003|921020|56012099003;
+X-Microsoft-Antispam-Message-Info:
+	j//gSIj2GJ7TQNEEqMvl3Rz5Ou7XxhjW9aLrvwacXzzhMiKWiPT4WnWjyGt8XyZDABbtR13y+LZNfuaeHOM77UMPDYOIcSNtEvS+Zq35ldcDqMXWYjvrVIZlGaDZ0j5ecuh61yOTO3uDa71co1+GGKWV1B/6EPHGaHni6CN5RhBMaE+3BdZ2AWFYe3AoZi0Hx6BQEoAbXJxedSsc1ybEfR1XeJ4A4hRahn5PpTD86QazOl0nbvzU/LGgeWOBnxrlBswxNGs7yRM9zvs1e7rc3ftju61iuFaUz9Qn+5Z+WJlS7Svk73WldFAzT7/21TsvSFcokBgLmEM9abA3KIs2bvVZwGSEgnd3ugicLVnotiOssctG1OC1l7stb5EpD8b60ogHqFAgRLm5Xs1L/kx9X0DD3SL7Y9Hh8nmgr/9BlD+3hUXdxwRvpHlZkBmiZ9VbRHj37MII7s9Jf8c/wx8eI1l/R4uzsMPEbcblRFoHGki//d6JKjXOuGKVgD9R4ZDVqQUUEIELvpEAITsCBnlFXnoBE9zOuaarwruYjWCaf7w+Vg89v6EsUcvgYOxbrqR1yJULezjVrdwyhF8xhPFXp4WRZiSe4F3HxG6Nt03u33tze21m9/I3WOHxZQCksV42udHDkenhkz0pGvSCB++uq8N4vYCT4Osjtaj+AmQATgYdH+q8cI39b/JqhL6Iw1gYSm+jZI7GyRt172PPVU2VFPj6SCSMAt7Fx+97C5wZZgy/pq4oyuPRGHipv8sd9kQOzM5VnD7DwfJP/lpeoQjkTQ==
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(36860700016)(376014)(1800799024)(18002099003)(921020)(56012099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	S/cHRqpZAS3j2x8YHAsDveelaUsDpVF40JME2fWn6Lyo3nIusLGgVF0noTZX7vgIDX3LNSsX8S0zUgMf3KiejmWY5CmA/hDf2VOLw3/kOgWysN8HvJjEmvUxUiBNZEwr7CIgVC8DSykC151m7Kl5wqKw1YKmpbPCrDCmiMKNpPgq1RLxxAKgX477sQVwz8y9dOB5OpRCJv81eyxq+mVI7ApGj5Hov40w5WLMQCVq4gxWhlzwcH197o7AuMOXVIuopYUxesmOtUXiTEUfylwbZnp++3MaikTnuprk4jt/KhogoQDyqwZ7gUl9rkuYlwkZOuhewpMt+IQ7luG5cd1ZgghYUDYp4PGNUVar3b2qumbqf5Ubexq8A4JeA4LrNMB85T669P+3LLtEhVQc07JUXaZKX7TN0H9eVd8PUjjXaDbaMIzeFXDewmFghtCbG1jV
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 May 2026 10:59:53.0120
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 978381c7-ea1c-41b3-14ad-08deaa956f93
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	BL02EPF00021F6F.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR12MB4250
 
-Convert the Texas Instruments DaVinci and Keystone I2C controller
-bindings from legacy text format to modern dt-schema (YAML).
+This series addresses several aspects of the Tegra I2C driver:
 
-During the conversion, the `interrupts` property was made required
-to match the strict requirement in the driver probe function. The
-custom `ti,has-pfunc` and `power-domains` properties were also
-properly defined to match SoC-specific hardware features.
+- DMA mapping: Use the proper DMA device for buffer allocation to
+  ensure correct DMA address translation.
+- Transfer latency: Disable fair arbitration on non-MCTP buses to
+  reduce transfer latency.
+- Timing parameters: Update I2C timing values for Tegra410.
+- Power management: Keep the controller available during noirq
+  suspend/resume phases for system dependencies.
 
-Signed-off-by: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
----
- .../devicetree/bindings/i2c/i2c-davinci.txt   | 43 -------------
- .../bindings/i2c/ti,davinci-i2c.yaml          | 62 +++++++++++++++++++
- 2 files changed, 62 insertions(+), 43 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-davinci.txt
- create mode 100644 Documentation/devicetree/bindings/i2c/ti,davinci-i2c.yaml
+Akhil R (4):
+  i2c: tegra: use dmaengine_get_dma_device() for DMA buffer allocation
+  i2c: tegra: Disable fair arbitration for non-MCTP buses
+  i2c: tegra: Update Tegra410 I2C timing parameters
+  i2c: tegra: Fix NOIRQ suspend/resume
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-davinci.txt b/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-deleted file mode 100644
-index 6590501c53d4..000000000000
---- a/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-+++ /dev/null
-@@ -1,43 +0,0 @@
--* Texas Instruments Davinci/Keystone I2C
--
--This file provides information, what the device node for the
--davinci/keystone i2c interface contains.
--
--Required properties:
--- compatible: "ti,davinci-i2c" or "ti,keystone-i2c";
--- reg : Offset and length of the register set for the device
--- clocks: I2C functional clock phandle.
--	  For 66AK2G this property should be set per binding,
--	  Documentation/devicetree/bindings/clock/ti,sci-clk.yaml
--
--SoC-specific Required Properties:
--
--The following are mandatory properties for Keystone 2 66AK2G SoCs only:
--
--- power-domains:	Should contain a phandle to a PM domain provider node
--			and an args specifier containing the I2C device id
--			value. This property is as per the binding,
--			Documentation/devicetree/bindings/soc/ti/sci-pm-domain.yaml
--
--Recommended properties :
--- interrupts : standard interrupt property.
--- clock-frequency : desired I2C bus clock frequency in Hz.
--- ti,has-pfunc: boolean; if defined, it indicates that SoC supports PFUNC
--	registers. PFUNC registers allow to switch I2C pins to function as
--	GPIOs, so they can be toggled manually.
--
--Example (enbw_cmc board):
--	i2c@1c22000 {
--		compatible = "ti,davinci-i2c";
--		reg = <0x22000 0x1000>;
--		clock-frequency = <100000>;
--		interrupts = <15>;
--		interrupt-parent = <&intc>;
--		#address-cells = <1>;
--		#size-cells = <0>;
--
--		dtt@48 {
--			compatible = "national,lm75";
--			reg = <0x48>;
--		};
--	};
-diff --git a/Documentation/devicetree/bindings/i2c/ti,davinci-i2c.yaml b/Documentation/devicetree/bindings/i2c/ti,davinci-i2c.yaml
-new file mode 100644
-index 000000000000..89c639d023a3
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/ti,davinci-i2c.yaml
-@@ -0,0 +1,62 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/i2c/ti,davinci-i2c.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Texas Instruments DaVinci/Keystone I2C
-+
-+maintainers:
-+  - Chaitanya Sabnis <chaitanya.msabni@gmail.com>
-+
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - ti,davinci-i2c
-+      - ti,keystone-i2c
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+  power-domains:
-+    maxItems: 1
-+
-+  ti,has-pfunc:
-+    description:
-+      Indicates that the SoC supports PFUNC registers, allowing I2C pins 
-+      to function as GPIOs for manual toggling.
-+    type: boolean
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - clocks
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    i2c@1c22000 {
-+        compatible = "ti,davinci-i2c";
-+        reg = <0x01c22000 0x1000>;
-+        clocks = <&i2c_clk>;
-+        clock-frequency = <100000>;
-+        interrupts = <15>;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        sensor@48 {
-+            compatible = "national,lm75";
-+            reg = <0x48>;
-+        };
-+    };
+ drivers/i2c/busses/i2c-tegra.c | 86 +++++++++++++++++++++++-----------
+ 1 file changed, 58 insertions(+), 28 deletions(-)
+
 -- 
-2.43.0
+2.50.1
 
