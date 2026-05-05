@@ -1,81 +1,181 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1301C38BF81;
-	Tue,  5 May 2026 16:25:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50CE336EA8A
+	for <linux-i2c@vger.kernel.org>; Tue,  5 May 2026 17:56:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777998322; cv=none; b=hJmknESBinOTpgIudhC1vx8ETcO3JWAQN6cO3wouNB2QLDEXbpvVTnEh/bZ/McmhArOr4w0yjclWrLoESWLEK1j4NKda1g7/Phabu93L1h5MSznUcOQyP2JYC4pbSLi9YOXtDUQHpAywN5IJyYSHsqrsXRrMeKyiDyDqgVOD5n4=
+	t=1778003761; cv=none; b=UnUbx4HxCyY01YsiwBna/czdsvvXxNnrlb8K3WKgJ+9vBGx4fNDfly5CcTBj9fgEs+RvTdefSND9geJRfY4iVXh57alo7WRl9uem6FFm0kJTxsqELpSHQv2ZAt2NBarzbx+oZ2JnTRmMPsBC4pEYH2QK19IzlZ0DUAByXRQMc7g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777998322; c=relaxed/simple;
-	bh=P3PUsEhxiyv0MVCPjH1f+nJYAM60mYlApLVeqBXtLlk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tXqVhSPwoaGfxD/W7GLKngt/SGJ/OKotq1A53k65vV8GvkL9oV1lgNdAntJUfS/JFESilleA0Fz60BLrgGRO7YGhYhkvYXtkzDviPS5PX2/s6r3cMxlNkms6DV+WjnVUoDE3p8ZAEnnTWAxbRsmoNYbnB6C6YZMG1FdxQI7br6E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YsdVYyQY; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778003761; c=relaxed/simple;
+	bh=NxW9I3BhNiO+2+AGW6hS9Oeq4rZDxWVX3/T3h0T7XBo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=J2v2KJt5D61uBv8+eHmWjRfM6qCAaFohXY/5ETESmm7/XZqlky4/XgrmYHNdVGeQXcPJ4Cpx7SS28Le+xPUKojSrpS7h4CqgEVc8I/nN9U+NHon1MdoQxCtULmQnLQdk0YeFlUc+lxgb0vxiUWIvZs31pnrp/7frXcRVlf68Acs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PO2CdVYH; arc=none smtp.client-ip=209.85.215.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YsdVYyQY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80061C2BCF5;
-	Tue,  5 May 2026 16:25:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777998321;
-	bh=P3PUsEhxiyv0MVCPjH1f+nJYAM60mYlApLVeqBXtLlk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=YsdVYyQYtQM6np3dFH11uwV6G7629W81Acc5Aa/jC1laJ6HtyxornDPLKpkz9n3tn
-	 l6cbWBKdb+G3t3/1e+z1tQe14bofctaiuYfofAoDjqGwiM9HypyyqJaz42CHpnTBa+
-	 0eHDpDylvC69XTPGQFs4YpI+VXvbZGs1nzqan7bNuWMJ3aivvv67msnJiNqU+rh/Uj
-	 a5Tf91KZwbqx1NAcjiGCohb96ITlBifSdW9PXAqjy81Eg7k8bQzRSEFHWCVcfRMY6s
-	 WjxVWSZFZkpmhynV2imqu3dGE39tRL4ECs13/wwfSML9WDM16wP62i6k3FHGQzZig3
-	 RJI22RucIcCSA==
-Date: Tue, 5 May 2026 17:25:17 +0100
-From: Conor Dooley <conor@kernel.org>
-To: Swark Yang <syang@axiado.com>
-Cc: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	openbmc@lists.ozlabs.org
-Subject: Re: [PATCH 1/2] dt-bindings: i2c: cadence: Add Axiado AX3000
-Message-ID: <20260505-eggplant-little-87b6134a95ba@spud>
-References: <20260504-axiado-ax3000-cadence-i2c-support-v1-0-97ed2fdc0b7b@axiado.com>
- <20260504-axiado-ax3000-cadence-i2c-support-v1-1-97ed2fdc0b7b@axiado.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PO2CdVYH"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-c70c112cb61so3414101a12.0
+        for <linux-i2c@vger.kernel.org>; Tue, 05 May 2026 10:56:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778003760; x=1778608560; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Tx4i6Txgy6DoPF46xtQdVqhEuZCvacl8wPfj2s4kHQ8=;
+        b=PO2CdVYH2nIRGDWkMlw6mQ3NSfdsbJZ/Ly075xIzugYzJIhaEkzbYGFsqsdzn8ztJb
+         a269uFz3AUEDUP2HZ41rMJN/rqxDUk+pe5GZwbptPdGil8eHDn/sZEtlhAUkiUyS5NvS
+         coL3yvFMGrsZnltuEx6UucsgNjnRt4AOwUtcuFHAUT17OQj3l0WSkfqIp58QcO82TRTu
+         0qKmjrmZWikPdsMeX1dK9a2Nra6JvRxjcc8m7Z3NW/PKiKU/RI4MRNS700AyxwBGWO8k
+         fna2lcjjC8aaLHZwJxUKaNuyX+rui2aIdAuBpJsIgV3961tWLkiXk1t1pTJGHZ6cTFMn
+         GMNg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778003760; x=1778608560;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Tx4i6Txgy6DoPF46xtQdVqhEuZCvacl8wPfj2s4kHQ8=;
+        b=nYZadSqqqNp9kR9/JrE0vGhY/0C7mU6yqtmoL8xetpmVWXrsf/wRskDsKbzWICl3JN
+         TLIn7/Y6LqBxQp7sxbzhS6g1SnGLehZsT5cZbceHMCIxr57ddMkQXXnczn2BNhnkgTWq
+         8a/Y5PrqZZBW2PUEHnNZfSSSbfOoj1MPqqNXegUf9RoZnSMIN7gNayUuodDM5PTOgzdd
+         Z92WtJ8msobWq9942kk3DxjuUVkjfnyxsZtszDnz32aizcJ+JVDEbzflAeeBo3C84J40
+         UNyeD3cwaFHsAlmQ6zE7ne9YtQi70BSycOD1memyLgyzavrVZ+gpm0NzcJ0niAdPcOsm
+         QvGQ==
+X-Gm-Message-State: AOJu0Yw6HyJb2awyflerLKRHPX5BEZmliJwJchuWxVHkgTNrwHwfQ7ds
+	NZvAigTfC0JEkuSRRi7iNGWWEowwkPTAeAaNII1iWQynNArQgfCYhqdRzpocgLsFphQ=
+X-Gm-Gg: AeBDiesa0/ADEVGhwm7lk9mszCpxxgkpBAfVynuIzOwBgdweLLxF9btkS7ayT7CQGsG
+	C9MV4Iu3MO0SURXlPn+iMbrEsvOwfJ44UHdmOqcYEyXY/XSmF+1z42EZDSeRa78YAR+fqsj9/+u
+	hiPfjaCxc70Sbq7xAiuo1N5EDtB1/MCuq/3MCg0FDoor714aZIC2sfWjxo1xCkqmMoLAguVdYGV
+	f0UGEhBWUuu16BYrD/iS+N50y+efW1Z/3AQnu+LEZgoHXLXEmtzxwdM+ct+RwQpuqxIm3fqsaxc
+	HasZ5f+/7cIncGPUnwLmFz4bJ8L4LpwalzF4c3u4ZVCijOKej63XATOAPJ+zo9QvwWsIuG0hEk3
+	+f7wX2vRh6SG+Zmdz8LcqUE6lFTN5+tOGwusOmm1cOBz7WHy4Nl1yMCCIx328Jxbp22F9kQukuR
+	azcwXLqaA8mIZbbL9Om1AMwL1GbWk6gyFD7s/VYKB3EN8xu/EXQksgHYjsTVBgNocyxitYGcWNM
+	++jq8ii8zda4IZ/3o9Wx44=
+X-Received: by 2002:a05:6a20:1592:b0:3a2:f2b1:1ac with SMTP id adf61e73a8af0-3a7f1fb6640mr16655349637.44.1778003759641;
+        Tue, 05 May 2026 10:55:59 -0700 (PDT)
+Received: from SLSGDTSWING002.tail0ac356.ts.net ([129.126.109.177])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c7ffbba635dsm13531169a12.3.2026.05.05.10.55.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 05 May 2026 10:55:58 -0700 (PDT)
+From: Weiming Shi <bestswngs@gmail.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Xiang Mei <xmei5@asu.edu>,
+	Weiming Shi <bestswngs@gmail.com>
+Subject: [PATCH v3] i2c: smbus: reject oversized block transfers in the common path
+Date: Wed,  6 May 2026 01:55:11 +0800
+Message-ID: <20260505175510.1403736-2-bestswngs@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="SnZyNtcB4rZeJFCl"
-Content-Disposition: inline
-In-Reply-To: <20260504-axiado-ax3000-cadence-i2c-support-v1-1-97ed2fdc0b7b@axiado.com>
+Content-Transfer-Encoding: 8bit
 
+The SMBus block transfer length data->block[0] is validated in
+i2c_smbus_xfer_emulated() but that check runs too late for tracepoints
+and is skipped entirely when the adapter provides a native smbus_xfer
+implementation. This allows user-controlled oversized block lengths to
+reach tracepoint memcpy calls and driver callbacks unchecked.
 
---SnZyNtcB4rZeJFCl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Add an early validation in __i2c_smbus_xfer() that rejects block
+transfers whose caller-supplied length is zero or exceeds
+I2C_SMBUS_BLOCK_MAX before any tracepoint fires or driver callback
+runs. data->block[0] is filled in by the device on SMBus block reads,
+so the check is scoped to operations where the length is actually
+supplied by the caller. This is consistent with the existing -EINVAL
+convention in the emulated path and protects all downstream consumers
+at once: the smbus_write tracepoint, all native smbus_xfer driver
+implementations, and the emulated path.
 
-On Mon, May 04, 2026 at 11:26:43PM -0700, Swark Yang wrote:
-> The Axiado AX3000 SoC integrates the Cadence I2C controller.
-> Add a specific compatible string "axiado,ax3000-i2c" to support
-> its hardware features, including SMBus Quick command capability.
->=20
-> Signed-off-by: Swark Yang <syang@axiado.com>
+Two distinct bugs are fixed by this change:
 
-Acked-by: Conor Dooley <conor.dooley@microchip.com>
-pw-bot: not-applicable
+Bug 1: smbus_write tracepoint OOB (include/trace/events/smbus.h)
+  trace_smbus_write() fires before any validation and copies
+  data->block[0]+1 bytes into a 34-byte event buffer. With
+  block[0]=0xfe the tracepoint copies 255 bytes, overflowing by 221.
 
---SnZyNtcB4rZeJFCl
-Content-Type: application/pgp-signature; name="signature.asc"
+ BUG: KASAN: stack-out-of-bounds in trace_event_raw_event_smbus_write+0x27c/0x530
+ Read of size 255 at addr ffff88800d98fcf8 by task poc_smbus/91
+ Call Trace:
+  <TASK>
+  __asan_memcpy+0x23/0x80
+  trace_event_raw_event_smbus_write+0x27c/0x530
+  __i2c_smbus_xfer+0x43a/0xa40
+  i2c_smbus_xfer+0x19e/0x340
+  i2cdev_ioctl_smbus+0x38f/0x7f0
+  i2cdev_ioctl+0x35e/0x680
+  __x64_sys_ioctl+0x147/0x1e0
+  do_syscall_64+0xcf/0x15a0
+  entry_SYSCALL_64_after_hwframe+0x76/0x7e
+  </TASK>
 
------BEGIN PGP SIGNATURE-----
+Bug 2: i2c-stub I2C_SMBUS_I2C_BLOCK_DATA OOB (drivers/i2c/i2c-stub.c)
+  stub_xfer() implements .smbus_xfer directly and only clamps
+  block[0] against 256-command, not I2C_SMBUS_BLOCK_MAX. With
+  block[0]=0xff and command=0 the loop accesses block[1+i] for
+  i up to 254, far past the 34-byte union.
 
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCafoZ7QAKCRB4tDGHoIJi
-0rlUAQD+nb4X/sN7660Y9aXpeiu8qfjC2cP3Djl/gh68JLcFswD9G966+as4y2ZW
-WY7GCArjHENU9Xu82cwWyEnS+8g6WQA=
-=eHFt
------END PGP SIGNATURE-----
+ UBSAN: array-index-out-of-bounds in drivers/i2c/i2c-stub.c:223:44
+ index 34 is out of range for type '__u8 [34]'
+ Call Trace:
+  <TASK>
+  __ubsan_handle_out_of_bounds+0xd7/0x120
+  stub_xfer+0x1971/0x198f [i2c_stub]
+  __i2c_smbus_xfer+0x306/0xa40
+  i2c_smbus_xfer+0x19e/0x340
+  i2cdev_ioctl_smbus+0x38f/0x7f0
+  i2cdev_ioctl+0x35e/0x680
+  __x64_sys_ioctl+0x147/0x1e0
+  do_syscall_64+0xcf/0x15a0
+  entry_SYSCALL_64_after_hwframe+0x76/0x7e
+  </TASK>
 
---SnZyNtcB4rZeJFCl--
+Both traces reproduced on v7.0-rc6+i2c/for-current with KASAN+UBSAN.
+
+Fixes: 8a325997d95d ("i2c: Add message transfer tracepoints for SMBUS [ver #2]")
+Fixes: 4710317891e4 ("i2c-stub: Implement I2C block support")
+Reported-by: Xiang Mei <xmei5@asu.edu>
+Signed-off-by: Weiming Shi <bestswngs@gmail.com>
+---
+v3:
+- Also reject data->block[0] == 0 (Wolfram Sang); scoped so that
+  SMBus BLOCK_DATA reads still work, since block[0] there is
+  filled in by the device, not the caller.
+v2:
+- Moved the check from stub_xfer() into __i2c_smbus_xfer() so it
+  covers all callers, not just i2c-stub. This also fixes a separate
+  OOB in the smbus_write tracepoint that hits the same missing
+  validation from a different angle.
+
+ drivers/i2c/i2c-core-smbus.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/drivers/i2c/i2c-core-smbus.c b/drivers/i2c/i2c-core-smbus.c
+index 71eb1ef56f0c3..ad6acb5ebadc3 100644
+--- a/drivers/i2c/i2c-core-smbus.c
++++ b/drivers/i2c/i2c-core-smbus.c
+@@ -566,6 +566,18 @@ s32 __i2c_smbus_xfer(struct i2c_adapter *adapter, u16 addr,
+ 	if (res)
+ 		return res;
+ 
++	/* Reject invalid caller-supplied block lengths before any
++	 * tracepoint or native smbus_xfer callback runs.
++	 */
++	if (data &&
++	    (protocol == I2C_SMBUS_I2C_BLOCK_DATA ||
++	     protocol == I2C_SMBUS_BLOCK_PROC_CALL ||
++	     (protocol == I2C_SMBUS_BLOCK_DATA &&
++	      read_write == I2C_SMBUS_WRITE)) &&
++	    (data->block[0] == 0 ||
++	     data->block[0] > I2C_SMBUS_BLOCK_MAX))
++		return -EINVAL;
++
+ 	/* If enabled, the following two tracepoints are conditional on
+ 	 * read_write and protocol.
+ 	 */
+-- 
+2.43.0
+
