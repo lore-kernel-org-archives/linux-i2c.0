@@ -1,227 +1,117 @@
-Received: from fhigh-a3-smtp.messagingengine.com (fhigh-a3-smtp.messagingengine.com [103.168.172.154])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D2DF36214C;
-	Mon,  4 May 2026 21:42:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.154
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B304346E46
+	for <linux-i2c@vger.kernel.org>; Tue,  5 May 2026 04:32:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777930946; cv=none; b=lUp5QE3UNWqyKo5dS5VC9S+ccOXxNYdD88oBnmXW2jltbYIyp806E2D4y3aO6S4VJKsBbMUmft1L385GKSgZlLHoMo5HQ5TOzOV1vm0xEmuseh16TV9GzzwPOuTccrQbhmdfdJUuS4O6qYwLSiLhr4AtuKtefUO4RBAABC4aq00=
+	t=1777955523; cv=none; b=fkyAhAuDuvJVB23dBS0XOZlOOFY0R9uFcFN+ZfqRQyI0Gnk5uPQgR1cgdbkqUGXCgMRnUty3gz/WFYPiwkHsm3IUOgaOR/+y7UbX3O4/f92cjWLn2MOr1PsdLzStq1ePmag2+pWFYGzm+xAReciKiqjesA3wYJXwPuNaYXDC4sc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777930946; c=relaxed/simple;
-	bh=uV2LmGNonj6F8+bt5LSgDRzIMe9qH7jsnmiv54M1DG8=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=Td4mbGdKC4hua3viKisNewdIHVchtm1amWZCu9HlZuszFq7iyM64NVmikM5n0HZmtbfV89/HbTDaCLikgCe6/iUt0DlJUS3YphGacDq6B76hNfe9zexq2gWm/6gq6Ft9/yMWozY91rgXLeVXUJytZw+2o+pdHrvT8aIk3J1ICmU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=squebb.ca; spf=pass smtp.mailfrom=squebb.ca; dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b=OAfPhbyS; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=YU583foF; arc=none smtp.client-ip=103.168.172.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=squebb.ca
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=squebb.ca
+	s=arc-20240116; t=1777955523; c=relaxed/simple;
+	bh=Vd+UmJAJmUt4NDw+SGQsSaSmOgFFI1R1bOsuuDv/ML4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KiQoyG3Vj9mavkWBO+TJVVvVlRx0LdqjurU9Br5FbE3B0E/b2GC56OhJqnyfgBkeJfLKwOZKWdC7GiqIirzvk0Om8y6kyKzDx0gwZAH7G6RNcVQ2/i+MQpFsTADEbxhZsLYriY5mtuzhEqTbTNAc0sFm1AJ18XLvUIcQpopX2ms=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BOuLlcUA; arc=none smtp.client-ip=209.85.216.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=squebb.ca header.i=@squebb.ca header.b="OAfPhbyS";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="YU583foF"
-Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id 11F3514000EC;
-	Mon,  4 May 2026 17:42:24 -0400 (EDT)
-Received: from phl-imap-08 ([10.202.2.84])
-  by phl-compute-02.internal (MEProxy); Mon, 04 May 2026 17:42:24 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=squebb.ca; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1777930944;
-	 x=1778017344; bh=jGCUO9ChlC6SFajnQCDMepIm9tnZTgY0QhnZxW5P1Vw=; b=
-	OAfPhbyScE1+CkWPIELjt0JWGtWhkSNIl9lyqdRH9VTITO/6qc6G4beti9GvTMM/
-	9+0LPdSVrU+8MfD29DKsEqWGFDnLwkzlBCFGnZ3wsdH5EM8yJCtcYM3sAbSk1q+o
-	l/x7mhlo++eSXDcy2jLLQVay2SQcB2hpTkSjXEbCAebdKDS/Z4KQ+rN8CdrT/g+N
-	6xbcwi37d2i2gV8Xx+wPA20DJ7fBkYoF6G1ACjTcRZktJJCBvb+y51OY2nqv8LYa
-	4K36rpiqHrYZN2CmScdA7b9o7s7uBt4dxwZYRgu9tKE2H2pTF3cghDpEo2GC6Vdy
-	uMmEsQelkGeBI++mdJcCLg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1777930944; x=
-	1778017344; bh=jGCUO9ChlC6SFajnQCDMepIm9tnZTgY0QhnZxW5P1Vw=; b=Y
-	U583foFrz89WZztB0JVVreAPww0ZqQiShQ5dRjVaDi0s6FyTfbP47x128mRoOKYt
-	GtFfWcBkgSlyuIx8ikg9cBazZ7IYud4Hd5+yqqP8pDbE8a4s0UPmxijXy07eZA78
-	ZEUr0sf0kmB9dywmx1zXickbhnRn37lpbtQPBIXDu7JU40e5iRPMZkqe/7PzDyhP
-	C6qnElxFscW2JWXYbYe3rPCPzvAy9L+6AY1dnJIrKgZV0V5Gs/ecTa0OrjR4ScAm
-	DKLbmnmOouAUxKbSePbOhpg33zyytFCXGV0W5y9C/ES4HuAv8vQJKjyp3V4EMooU
-	0xq+1Fgn36FDuTumKtkVg==
-X-ME-Sender: <xms:vxL5aVatKGzO5Lm-3ZPQBy5xwIcJslqjz_abUl_xakf3bia7rjmLzQ>
-    <xme:vxL5aXPl49MpKjTcQ4UvR4gmY8RaqoWFVmtp5oIIR4F4D0X1B6Al-kFs_Sl6yQaSI
-    4TfU4BU8-GDFWm55hB3eDpSwgOMns2nVCY-kykrxVd8hCkC8kNpEE4>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdelleelhecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpefoggffhffvvefkjghfufgtgfesthhqredtredtjeenucfhrhhomhepfdforghrkhcu
-    rfgvrghrshhonhdfuceomhhpvggrrhhsohhnsehsqhhuvggssgdrtggrqeenucggtffrrg
-    htthgvrhhnpeeijefhleejkeejkeetffehieduueevgfdvgeejleegjedvvdejffdvvdek
-    keegieenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    hmphgvrghrshhonhesshhquhgvsggsrdgtrgdpnhgspghrtghpthhtohepiedpmhhouggv
-    pehsmhhtphhouhhtpdhrtghpthhtohepthhinhhsrggvthgruggvshhsvgdvtdduheesgh
-    hmrghilhdrtghomhdprhgtphhtthhopegrnhguihdrshhhhihtiheskhgvrhhnvghlrdho
-    rhhgpdhrtghpthhtohepfihsrgdorhgvnhgvshgrshesshgrnhhgqdgvnhhgihhnvggvrh
-    hinhhgrdgtohhmpdhrtghpthhtohepjhguvghlvhgrrhgvsehsuhhsvgdrtghomhdprhgt
-    phhtthhopehlihhnuhigqdhivdgtsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpth
-    htoheplhhinhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:vxL5aWaBwh8XipMb8105SX2A4C2H-1KabPpSuMYtk85pRYnkOFFQAw>
-    <xmx:vxL5aUXbSpPzsFSoU0MoP5dodpN0dgRG1HIz_AVRjSeoBXyZxqy73A>
-    <xmx:vxL5af_Qg_-d7JUdDORz3CU8b2pqtXCwj6zycShS2yhK4lM4ZtqJeA>
-    <xmx:vxL5ad8axwSJuC5qnVfIsvwAdpNOjcwj04Cmyo9O7zHS8Zowk4IiRg>
-    <xmx:wBL5aTmYFlqzJWyIDtbdW5kBcZF7mS9MmepDieYa6dwGfGTMvtgSJ_2o>
-Feedback-ID: ic2b14614:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 982842CE0072; Mon,  4 May 2026 17:42:23 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BOuLlcUA"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-3650453fb28so1944154a91.2
+        for <linux-i2c@vger.kernel.org>; Mon, 04 May 2026 21:32:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777955521; x=1778560321; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=OYApqTlxYKzBrVSawdUtYeR0lCLKGPypg3kECv7jaXg=;
+        b=BOuLlcUAnvZ0VQdrI9qkM9u8+i9ZRBoa+RC3/sDjuKTi/50BOD0AD4CNqypbF/Y1HC
+         +huGVOD7USI1Gjc/UYTFejuYRt+azA6OC5qUONDJky/A/uQI+F87AFHmyE5TU8EiXWRy
+         CaTbEIQSzLUGoLuD132ILUI/uurkve6oxhGjtHULrNf9JloLMyZPokKT+YQqZpeaXZao
+         Tr9TSr3Sg0sziVcibw2/TJvyK6nCHluE0uGXfKJszcxF+L8KXrFeqWvBBIpqwZQL8hxK
+         L0rTteW3wRKxyPpOwUx4AgvDTUkXaUPbcDMLXJehdR4KSvZGJpRwh1xlhN7GpxOvUSW/
+         8HUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777955521; x=1778560321;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=OYApqTlxYKzBrVSawdUtYeR0lCLKGPypg3kECv7jaXg=;
+        b=Gnx5xvvPu1LAiU97lEf6p+qhIvo7AEi/A8HbbrWdpUquovuQVdml5Op9ksLtCkiCvQ
+         JItg6bYmUuZlggMI2Xa6UR8xKPxkMi03y0Yw8LMiPYRzsWvuN6TjWbBU5O6DQ7u5dcSR
+         lekeqSOHtTAmQeWF6bKqNtrdsJ9sp7XtE3meAQy8Iyq/cOyFtiTPuLXj7oKGzdTCcYnF
+         o1PlE3SEmVz4o+EQuJvSlGoS7qoh1IpoLjQKj3A1dn5m35bdxl26qBsRvTaXRP+Yhw2I
+         YDR6xT9RuLSICrzYM8w2ufDuPdwn67HL3V3egZ7maBawBmps7t0qqD5idRcEqVgDYsd2
+         f1gQ==
+X-Gm-Message-State: AOJu0YwGRE1ZHrtUpulmvqqauMKVEzZblandglddGfka9S8Wbna1VVko
+	qa4+hFv75NmFvUO6IzFWGMchc8poGWQMidvk+vHcY+++QzWxIXxHveAe
+X-Gm-Gg: AeBDiett8EoBSsv2Esb+M5uDENFoKGiu/Xg1IavIicNYZa9DLgI3ZzJAzg0lu0aZMYu
+	5Rd7xHLWXkyW72TdxlIpg2lHdMjFnCYFvRExbL/ksRCDJDCN3p8Ak0EJU+cBw15CzNIXHRr1NXh
+	CSBDpMElhe0yfb3+Kfy0ETe5Pj/JnSB2+SHS7XT4HiG9e3BR9WwgBCmD/Uwd0k1X1mQgO7RMexX
+	k+U3RkeP1hY1oIj2txoWepBdTjzLI3iUL7HzvBiNdS30327wKuYwH0C/Cz4f5gEp6a4f8K+c6NQ
+	oArLiyw45qqnpOIYZ3xoclvSDnyzbPQqw10i1f34CSx2LfQwXG0wqI/lqC5EeG7pKqJ8RuFXko6
+	vIlzQqzHSaS/ryQNqWYFRvlM6yXXKQFSYhmqiLA81jCfQUs79pPdlhNLbP7K3dqjhV7Mgp7+uvv
+	HJciIW+mkYHMzBgROS8LKE2I1OE6kr0q5GoodYJdmin/S7LvGGPEbWba3eSf8gRGh+6LDE
+X-Received: by 2002:a17:90b:3a91:b0:364:534b:a898 with SMTP id 98e67ed59e1d1-365773ba4f7mr1571320a91.8.1777955521275;
+        Mon, 04 May 2026 21:32:01 -0700 (PDT)
+Received: from phuc-desktop.. ([183.91.15.56])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-364bdf2ac19sm20343585a91.3.2026.05.04.21.31.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 04 May 2026 21:32:01 -0700 (PDT)
+From: phucduc.bui@gmail.com
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	bui duc phuc <phucduc.bui@gmail.com>
+Subject: [PATCH] i2c: core: Use of_property_present() for wakeup-source
+Date: Tue,  5 May 2026 11:31:45 +0700
+Message-ID: <20260505043145.33284-1-phucduc.bui@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: AzstPrEaVVm-
-Date: Mon, 04 May 2026 17:41:19 -0400
-From: "Mark Pearson" <mpearson@squebb.ca>
-To: "TINSAE TADESSE" <tinsaetadesse2015@gmail.com>
-Cc: "Wolfram Sang" <wsa+renesas@sang-engineering.com>,
- "Jean Delvare" <jdelvare@suse.com>, "Andi Shyti" <andi.shyti@kernel.org>,
- linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Message-Id: <0586d251-3601-4655-99cb-ab257e00b489@app.fastmail.com>
-In-Reply-To: 
- <CAJ12PfONdP2joTduNuA-A5HQRCtE-7jUO_wHOWuQBRb_HtVm2w@mail.gmail.com>
-References: <20260205102942.28745-1-tinsaetadesse2015@gmail.com>
- <CAJ12PfPdkQD6VNROdSGYRWvHGf0FZ61Y-vF2uMB+vsnV1-KNNg@mail.gmail.com>
- <371b0658-7cbb-400e-b48b-5d7b46cf150d@app.fastmail.com>
- <CAJ12PfONdP2joTduNuA-A5HQRCtE-7jUO_wHOWuQBRb_HtVm2w@mail.gmail.com>
-Subject: Re: [PATCH 0/2] i2c: i801: Detect SPD Write Disable and expose as adapter
- quirk
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi Tinsae
+From: bui duc phuc <phucduc.bui@gmail.com>
 
-Sorry for the long delay in reply
+The code currently uses of_property_read_bool() to check for the presence
+of the 'wakeup-source' property.
 
-On Thu, Apr 23, 2026, at 7:21 AM, TINSAE TADESSE wrote:
-> On Tue, Apr 21, 2026 at 8:56=E2=80=AFPM Mark Pearson <mpearson@squebb.=
-ca> wrote:
->>
->> Hi Tinsae,
->>
->> On Sat, Feb 21, 2026, at 4:57 AM, TINSAE TADESSE wrote:
->> > On Thu, Feb 5, 2026 at 1:29=E2=80=AFPM Tinsae Tadesse
->> > <tinsaetadesse2015@gmail.com> wrote:
->> >>
->> >> Hi I2C and HWMON maintainers,
->> >>
->> >> Intel i801 SMBus controllers feature a "SPD Write Disable" bit
->> >> in the SMBHSTCFG register. When set by firmware, the hardware
->> >> silently blocks all write transactions to the SPD EEPROM
->> >> address range (0x50-0x57) while allowing reads to succeed.
->> >>
->> >> This creates a significant issue for the spd5118 hwmon driver.
->> >> The SPD5118 requires write access for switching between
->> >> register pages to read temperature data, and for cache
->> >> synchronization during suspend/resume. When SPD Write Disable
->> >> is set and the spd5118 driver attempts write transactions, the
->> >> bus will generate a storm of SMBus DEV_ERR messages.
->> >>
->> >> This patch series proposes a generic solution by:
->> >> 1. Introducing a new adapter quirk flag in include/linux/i2c.h
->> >> to communicate this hardware restriction.
->> >> 2. Modifying drivers/i2c/i2c-i801.c to detect the SPD Write
->> >> Disable bit and set the quirk flag.
->> >> 3. Modifying drivers/hwmon/spd5118.c to check for this quirk
->> >> during probe and fail cleanly, as write access is mandatory.
->> >>
->> >> By using this mechanism, we avoid embedding device-specific
->> >> policies in the controller driver and provide client drivers
->> >> with the necessary information to make an informed decision.
->> >>
->> >> Tinsae Tadesse (2):
->> >>   i2c: i801: Detect SPD Write Disable and expose as adapter quirk
->> >>   hwmon: spd5118: Fail probe if SPD writes are disabled
->> >>
->> >>  drivers/hwmon/spd5118.c       | 15 +++++++++++++++
->> >>  drivers/i2c/busses/i2c-i801.c | 16 +++++++++++++++-
->> >>  include/linux/i2c.h           |  3 +++
->> >>  3 files changed, 33 insertions(+), 1 deletion(-)
->> >>
->> >> --
->> >> 2.52.0
->> >>
->> >
->>
->> I'm hitting a very similar problem on all the Lenovo 2026 Linux certi=
-fied platforms.
->> Your patch is great, and I wanted to add a tested-by tag to say it fi=
-xed the issue for me, but it doesn't quite unfortunately.
->>
->> I added this change (hack?) in i2c-smbus.c to take advantage of your =
-changes and fix the issue that I'm seeing:
->>
->>  void i2c_register_spd_write_enable(struct i2c_adapter *adap)
->>  {
->> -       i2c_register_spd(adap, false);
->> +       if (adap->quirks && adap->quirks->flags & I2C_AQ_SPD_WRITE_DI=
-SABLED)
->> +               i2c_register_spd(adap, true);
->> +       else
->> +               i2c_register_spd(adap, false);
->>  }
->>
->> What do you think? Any side effects or impacts you can foresee based =
-on your testing?
->>
->> Maintainers - would love your opinion too. I suspect this may become =
-a common issue.
->>
->> Mark
->
-> Hi Mark,
->
-> Thank you for suggesting this fix, and I apologize for the delayed res=
-ponse :)
->
->> What do you think? Any side effects or impacts you can foresee based =
-on your testing?
->
-> I think that fix looks okay; however, it would be helpful to know whic=
-h kernel
-> driver was the source of your error. Additionally, having the kernel
-> debug logs would help pinpoint the exact place of the problem.
->
+However, of_property_read_bool() is intended for boolean properties, and
+its usage on non-boolean types is deprecated. The 'wakeup-source' property
+may be defined either as a boolean or as a phandle-array, depending on the
+binding.
 
-It was on 7.0, built from Linus's tree.
-I can pull up logs - but it's just when reading the DDR SPD get's trigge=
-red so not terribly useful.
-For me it gets triggered from i801_probe_optional_targets
+Switch to of_property_present() to check only for the presence of the
+property, avoiding any type assumptions about its type.
 
->> I added this change (hack?) in i2c-smbus.c to take advantage of your =
-changes and fix the issue that I'm seeing.
->
-> The goal of this patch series, as you can see from the RFC, was to
-> "avoid embedding device-specific policies in the controller driver and
-> provide client driver with the necessary information to make an inform=
-ed
-> decision on whether it can operate or not under SPD Write Disable."
-> Therefore, I would rather have this check in the client driver's probe=
- function,
-> rather than in the SMBus controller driver.
->
+Also apply the same change to 'host-notify' for consistency.
 
-Fair enough.
+Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
+---
 
-What about having it in the i2c-i801 driver? Something like:
+Verified with st1232 touchscreen on Armadillo-800EVA (R8A7740).
 
--               i2c_register_spd_write_enable(&priv->adapter);
-+               if (priv->adapter.quirks && priv->adapter.quirks->flags =
-& I2C_AQ_SPD_WRITE_DISABLED)
-+                       i2c_register_spd_write_disable(&priv->adapter);
-+               else
-+                       i2c_register_spd_write_enable(&priv->adapter);
+ drivers/i2c/i2c-core-of.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Would that be better? (there are two places in that file where this chan=
-ge is needed)
-I confirmed this did fix it for me :)
+diff --git a/drivers/i2c/i2c-core-of.c b/drivers/i2c/i2c-core-of.c
+index 354a88d0599e..b45d39da9208 100644
+--- a/drivers/i2c/i2c-core-of.c
++++ b/drivers/i2c/i2c-core-of.c
+@@ -51,10 +51,10 @@ int of_i2c_get_board_info(struct device *dev, struct device_node *node,
+ 	info->addr = addr;
+ 	info->fwnode = of_fwnode_handle(node);
+ 
+-	if (of_property_read_bool(node, "host-notify"))
++	if (of_property_present(node, "host-notify"))
+ 		info->flags |= I2C_CLIENT_HOST_NOTIFY;
+ 
+-	if (of_property_read_bool(node, "wakeup-source"))
++	if (of_property_present(node, "wakeup-source"))
+ 		info->flags |= I2C_CLIENT_WAKE;
+ 
+ 	return 0;
+-- 
+2.43.0
 
-Mark
