@@ -1,160 +1,130 @@
-Received: from SN4PR0501CU005.outbound.protection.outlook.com (mail-southcentralusazon11021139.outbound.protection.outlook.com [40.93.194.139])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2A9D3C6A27;
-	Tue,  5 May 2026 06:36:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.194.139
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777962982; cv=fail; b=bi/zS4uBkjnLIVwt2wy56S00VU3fuB4AmfYV89T7R7PMMQhFNuuJBiaYoavDy2r27C+SCXp1wZSso9IwL1XQ8n8qa1ip2coXCPJKoO3bqt9L+ctbueYRyxe4plG5IlFwm253Z8pAJjTpzInIxXijL+S33niR6ECyUbxFD68/Ew4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777962982; c=relaxed/simple;
-	bh=w4ac4Qg1lZhwimGfZE2ipoFsuKvVXSLnNmXVnH7NO7k=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=AUHkQVM1wddgd2ymRB4bYvHDRnmUOo/VvKrun5m/xEfQAjnXO03hq5FvKHgM83513jDrl4FROZgyFogs95R6QLpDiRBIQ9VxKsjgVVHRzYDLQdVgxyIpHMPYxVeqDuPa+n5+WKvXSOiQX2/8G/Yb7UDm5ZOO5jW5v92b4KZ6Dao=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=axiado.com; spf=pass smtp.mailfrom=axiado.com; dkim=pass (2048-bit key) header.d=axiado.com header.i=@axiado.com header.b=if9Mz3LR; arc=fail smtp.client-ip=40.93.194.139
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=axiado.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=axiado.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29C013E0C40;
+	Tue,  5 May 2026 07:30:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.11
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777966204; cv=none; b=us57cbTZZP5MvL52eA1NQaiTwp41Qa7U44GY4+xIGRT+Q7cADjZC4u0qXqYuFiL/R0lz1JjunmCqfn6N7w0vZyKuPeErSRsXzdUbUEiH3vOfLqqAHBumMDSoTRnw8fuen3adckakvNdc4K8oso1SSNdKHlEiNhUvE9ge7FLCtFU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777966204; c=relaxed/simple;
+	bh=j1do+cG5ijaASZ4mv7JBa8AIx1exmnG6lOCG43n88SM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oSiIxpeb0KUeIiKf77bAQlzRVG1GVbA83WUBuyeTBnzQrfsgI5i3NO/VTIryE4Mb3IKaul/JBNX7mxzPzNGq7rpdZDkxNLUbesllxhtu6PX0HyaYSdyhNHEOUXq7/UBxiRwSXano/Z/hcgimuCDGfUfy8Njb7QC3cBrvFSx2mgc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ccbInH87; arc=none smtp.client-ip=192.198.163.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=axiado.com header.i=@axiado.com header.b="if9Mz3LR"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=cL9Q70JkoxYXAE0IRJhyX2ezOEy2nB8wLpgzgQJb4dYshXAbRfBwd1sOeLLWzJV9TEQbTlLFfKPkTotwDJYUh4et6sKUJgWgzPGqkZoHaZ4vFlBdhmKHIWEm/Z+20F3IxWXrUKx6eDtdgQ05l67A1i8CJdK+4P9Wkw8kv+IzQbsJfFEA14vym+F9462bKcC8xI2rJRYlx/JQ1y/AyAcquYQZIVy43Q+yFRPzA4KV59AH2sdvGWprZGMt6VIQ669ylWMTKQgWumjng1eOsj56TrqPDCOKzKwhYApAo3SAFnSBvxQR8MCmO1k4+S0cXIKCAH4itjXSoUY1QuRW0H6zHQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=TO7harvlkx6xP/Qrmd/2D7wgtT2ZW5k4xysYSHgf9x4=;
- b=o3qPmTMCGBAU6eHs4/1ojpWZyp8CJwCvo9Kds9B9hcIYBd49Z3PIb23Vw8cD89m9gQ5EEdum8qXEvKox+KA0tAmrmOybVDItglNQ0XrofGB/yg2EqXgpdFe25mSFcSqwNzEo1L5rTGl9wgfn+RjeM/s5twt/gOLqtVscLiwFbZUCEjKI6fhcvLuiZDafNgShupj0PNkuQ9cFO8hY+dKw2Vssgl9b943dAGkycgYTaGYR3wzr9FFoWC/eDBBv9Xv9jQ23BWAEvoD/kB3KIfjgmLRtvBJzQiwByQbKE88AW3hpL6ua0QHYUsbZXRjBtV8fsE7cUdCVvWRl8ahtYEyYMw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=fail (sender ip is
- 64.62.143.114) smtp.rcpttodomain=amd.com smtp.mailfrom=axiado.com; dmarc=none
- action=none header.from=axiado.com; dkim=none (message not signed); arc=none
- (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=axiado.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=TO7harvlkx6xP/Qrmd/2D7wgtT2ZW5k4xysYSHgf9x4=;
- b=if9Mz3LRqDrafUR3EJ5E9WemsHShe7WMXCxsHYNC04qTr+V4tG/6cHm+Wsu+V6uEQp8dJtvsk1sTUYWLy9JpYhWzS5tQCjuszng04jX6b540Jt09ccQnRyeRckdD2fzYsJqwKutMadPKhIcLBZOPBvDY2ZmY5d8GhMSfN/859OlKdIrcuP7+/n45Zo/kSpbR8JvTMbHbxquqTtXvJ/fnoKnQdsZx2uysmrsQOTGxgZ9yamI4+Vx/ntutjSEPNpTv+6QS+PGFQcXVYfXBbd1P37R4qk3Nh8ScO7X6Ugi1/34au4Q7OCcjBoq/uvsPUzIAE/JMhYkq8fOXF5RpHMQoHg==
-Received: from SJ0PR03CA0279.namprd03.prod.outlook.com (2603:10b6:a03:39e::14)
- by CH3PR18MB5572.namprd18.prod.outlook.com (2603:10b6:610:1a7::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9870.25; Tue, 5 May
- 2026 06:36:15 +0000
-Received: from SJ5PEPF000001CD.namprd05.prod.outlook.com
- (2603:10b6:a03:39e:cafe::6) by SJ0PR03CA0279.outlook.office365.com
- (2603:10b6:a03:39e::14) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9870.25 via Frontend Transport; Tue,
- 5 May 2026 06:36:15 +0000
-X-MS-Exchange-Authentication-Results: spf=fail (sender IP is 64.62.143.114)
- smtp.mailfrom=axiado.com; dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=axiado.com;
-Received-SPF: Fail (protection.outlook.com: domain of axiado.com does not
- designate 64.62.143.114 as permitted sender) receiver=protection.outlook.com;
- client-ip=64.62.143.114; helo=smtp.corp.axiado.com;
-Received: from smtp.corp.axiado.com (64.62.143.114) by
- SJ5PEPF000001CD.mail.protection.outlook.com (10.167.242.42) with Microsoft
- SMTP Server (version=TLS1_3, cipher=TLS_AES_256_GCM_SHA384) id 15.20.9891.9
- via Frontend Transport; Tue, 5 May 2026 06:36:14 +0000
-Received: from [127.0.0.1] (vm-swbuild01.axiadoRD [10.4.1.181])
-	by smtp.corp.axiado.com (Postfix) with ESMTPS id BD7214186B51;
-	Mon,  4 May 2026 23:34:17 -0700 (PDT)
-From: Swark Yang <syang@axiado.com>
-Subject: [PATCH 0/2] i2c: cadence: Add support for Axiado AX3000
-Date: Mon, 04 May 2026 23:26:42 -0700
-Message-Id: <20260504-axiado-ax3000-cadence-i2c-support-v1-0-97ed2fdc0b7b@axiado.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ccbInH87"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1777966202; x=1809502202;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=j1do+cG5ijaASZ4mv7JBa8AIx1exmnG6lOCG43n88SM=;
+  b=ccbInH87kIZO6KfsiTDWVMZ1uxRW2GRchbr/rA9H40GAdndiz27Hsv4P
+   7HQ0W25gBk5vrzXugzn8ApkOygpFuwDbwOmgp6qApJfS9BXkQvBMvNUvS
+   eofr/ETdB3uEr+J/sM5TDW/7YBnm8hdBn2+YijMPCafSzaLk8+RWemwv3
+   F/vCFqwLJWChAd069CF/AkZVYuQKZSI+Er/ldYBytOIIJglbOSOw6sP7b
+   Ou805yg2PuFnT19N3Yzek3Rv1g5LrebXpFW1DEx6BJMRI6USPwJ8DqRRH
+   eR/I50f9yDq9JoCL3hDJTIxmoSJy6UOzjgDUjXGcXOX5GymeFHjv3Pkgz
+   g==;
+X-CSE-ConnectionGUID: ZSzEqy9zQbO/RAwQKi+cQg==
+X-CSE-MsgGUID: 9Cbvd1mLSs2WGYNaa07O5g==
+X-IronPort-AV: E=McAfee;i="6800,10657,11776"; a="89419216"
+X-IronPort-AV: E=Sophos;i="6.23,217,1770624000"; 
+   d="scan'208";a="89419216"
+Received: from fmviesa007.fm.intel.com ([10.60.135.147])
+  by fmvoesa105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 May 2026 00:30:01 -0700
+X-CSE-ConnectionGUID: m547XodqShyJ69ex9FbfmA==
+X-CSE-MsgGUID: TabeMojlTleXEelDxqFyvQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,217,1770624000"; 
+   d="scan'208";a="232603469"
+Received: from vpanait-mobl.ger.corp.intel.com (HELO localhost) ([10.245.244.5])
+  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 May 2026 00:29:59 -0700
+Date: Tue, 5 May 2026 10:29:57 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: "William A. Kennington III" <william@wkennington.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jan Dabros <jsd@semihalf.com>, Andi Shyti <andi.shyti@kernel.org>,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 1/4] i2c: designware: Introduce shutdown exported
+ function
+Message-ID: <afmcdXJt9X0Y3mw3@ashevche-desk.local>
+References: <20260504-dw-i2c-v3-0-57e56135d602@wkennington.com>
+ <20260504-dw-i2c-v3-1-57e56135d602@wkennington.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAKKN+WkC/x2NQQrDMAwEvxJ0rkBy0gb6ldKDIyutLrax2xAI+
- XtFT8PAsHtA12ba4T4c0HSzbiW78GUAecf8UrTkDoHCjZgZ424xFcdIRCgxaRaPgmD/1lraB6+
- jCvO8LDRP4Du16Wr7/+PxPM8fxiO0lnMAAAA=
-X-Change-ID: 20260111-axiado-ax3000-cadence-i2c-support-53ec117bb074
-To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
- openbmc@lists.ozlabs.org, Swark Yang <syang@axiado.com>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1745; i=syang@axiado.com;
- h=from:subject:message-id; bh=w4ac4Qg1lZhwimGfZE2ipoFsuKvVXSLnNmXVnH7NO7k=;
- b=owGbwMvMwCHWlWK8+EozbyzjabUkhsyf/TceGzzyPtESnPztglzG05nz9DXer/A448RdsfIX/
- wGODTN2d5SyMIhxMMiKKbJ81fmWfzJX+17n3pWlMHNYmUCGMHBxCsBEVscx/JXrTjsSKH6pf9VF
- 3umnIozW3LrQqntsSUPoCmOp9YXPc+cz/NONUdxyT0PpT1hHTmLsyji2ielBt/7ZRtrs3tWhav6
- 3lwEA
-X-Developer-Key: i=syang@axiado.com; a=openpgp;
- fpr=F52CF66FC96D2BDE89BDA9758A6433A3D4830D5D
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ5PEPF000001CD:EE_|CH3PR18MB5572:EE_
-X-MS-Office365-Filtering-Correlation-Id: 61d2896b-53c0-4489-83c7-08deaa709b28
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|1800799024|376014|34020700016|82310400026|36860700016|56012099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	3jmOZ+M/QBRgBVBOQ0qGyT3lzcKlkSHqpG+X8rYq1ye5L6WlECudC/qTK0JW2oQ02PwMpKxv48BkRuUJ5psNhMuW3Iz561BzZWxyL++1X9JkrePdYjAN/2kyPgDM4IGkXiYwetV8zjLBC6diXv6cnIhsSwiXvA2OB2W39fH5jXkaDoCoRqZj8nsfgrAkRrOkkkQkE6ZBXYwSptumTPJxA8cE9q9JOhM2KDVg7Kec54qYonHMYeg14AzMFJqJ+ZevVzGFDegpI5CVwe86U3S2jgFA01TjLRCUIkAQOxNKnbHAB31Z19Ya65HbwjgXTcAeawdVazZyY/fGliu9zCSo4zJyQztbqZREASsrheUneS4yvawWiDggfmU/T8/ihVcMlYcsOKpYRs5FunEQudqCuSNgVfI7Xnsq2e+0MvPQl7LFzwllZWfMO+QcuCxyLpwrCkqX1YOqhHkD4/E/LqHXFXJXlwb/1tpASDviE0WyzSHmOR3MStxnUefo3ibsvZzNcvJBtAFz+mKUi/W+eMEJ7B6vg1jciK3dhPD/aJTJXhfAD7GW/pHe04aG4IL09sqQeu6zcibzEIbbCmk+gTaamj5pTz3TRClbj3YMxtD594as8gwX75Qaq3aBWW146rzFUg4bDR5F/stnNMZVUe3Mbheeo3czdR1uNnfXc5352Yt2ayhzFWlc9yFh1Rj1eNVL0CPOou4uUNYInKaFw9/1HQKzS9XaTtterHTT4P7FlJg=
-X-Forefront-Antispam-Report:
-	CIP:64.62.143.114;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:smtp.corp.axiado.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(7416014)(1800799024)(376014)(34020700016)(82310400026)(36860700016)(56012099003)(18002099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	pZ7nuFoPbVrk6Pl1CPync5muh/mLYFX2fMvDdk8SN+okguA1BwDvYK+wJgxxHhCx3rX6Gm+Cv8s/++YVJm1nPkI6nseP9wz9wfmnWvLRlnhc12P8SwycD5x5ixWV194TBoYb6Q8YfeSJPYGoTDxSmVq3tkp4Qm7/Ipk/OEKOFxp2157hsPd/HdMtjPXThxLBkvDhiv4jDvBGkSKFLI9K2pW8CHj8t6eiTQyc6T2WGkiK2O66FDJzRzQfGhlJDnTd6Vc8xMDJq2EEtX+ABzH/DcbZiTSWR4OFjL6RpN6OzB0XVr3kBZX0lpdNFkPkEXn4KaOREfGfL48XwNY35VXDM59A5E9F1TxQVZe+ISebGskM5L8A3OL5fOV6ZinXyeES58G5QmyhArC8VSAcNQxSCAmCBkcXhtq4HsJPjEuXZ9ptpXCr/iRnTWuTqkLDvgyk
-X-OriginatorOrg: axiado.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 May 2026 06:36:14.8835
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 61d2896b-53c0-4489-83c7-08deaa709b28
-X-MS-Exchange-CrossTenant-Id: ff2db17c-4338-408e-9036-2dee8e3e17d7
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=ff2db17c-4338-408e-9036-2dee8e3e17d7;Ip=[64.62.143.114];Helo=[smtp.corp.axiado.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SJ5PEPF000001CD.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR18MB5572
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260504-dw-i2c-v3-1-57e56135d602@wkennington.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-This patch series adds support for the Cadence I2C controller
-integrated into the Axiado AX3000 SoC and enables SMBus Quick
-command functionality.
+On Mon, May 04, 2026 at 08:15:02PM +0000, William A. Kennington III wrote:
+> Introduce an exported shutdown function to safely shutdown the
+> DesignWare I2C controller.
+> 
+> This shutdown hook gracefully sets the slave disable bit before disabling
+> the controller. This guarantees that any incoming requests from the master
+> are immediately NACKed during shutdown, preventing the bus from hanging.
 
-The Axiado AX3000 utilizes the Cadence I2C IP core (version r1p14).
-While it is largely compatible with the existing i2c-cadence
-driver logic, the AX3000 hardware specifically supports SMBus Quick
-commands. This feature is currently disabled by default in the
-i2c-cadence driver (masked out from I2C_FUNC_SMBUS_EMUL).
+...
 
-To enable this functionality, this series introduces a new
-platform-specific quirk (CDNS_I2C_QUIRK_SMBUS_QUICK) and uses driver
-match data for the "axiado,ax3000-i2c" compatible string. This allows
-tools like 'i2cdetect' to properly scan the bus using quick write
-commands.
+> +void i2c_dw_shutdown(struct dw_i2c_dev *dev)
+> +{
+> +	unsigned int con;
+> +
+> +	/*
+> +	 * We only need to handle shutdown for slave mode to ensure
+> +	 * we NACK any incoming master requests. Master mode cleanup
+> +	 * is handled after each transfer in i2c_dw_xfer.
 
-The DT binding update follows the recommended fallback structure,
-referencing the 'cdns,i2c-r1p14' fallback to ensure compatibility with
-older kernels while allowing the new quirk to be enabled on AX3000.
+i2c_dw_xfer()
 
-Patch breakdown:
+> +	 */
 
-Patch 1: dt-bindings: i2c: cadence: Add Axiado AX3000
-Patch 2: i2c: cadence: Add support for Axiado AX3000
+Since it's a newly added comment, can you switch to use inclusive language?
+Same for the whole series related to the commit messages, comments, and
+documentation.
 
-These patches are expected to go via the I2C subsystem tree.
+> +	if (dev->mode != DW_IC_SLAVE)
+> +		return;
+> +
+> +	/*
+> +	 * To quickly NACK the master during shutdown, we set the slave
+> +	 * disable bit while the controller is still enabled.
+> +	 */
+> +	regmap_read(dev->map, DW_IC_CON, &con);
+> +	con |= DW_IC_CON_SLAVE_DISABLE;
+> +	regmap_write(dev->map, DW_IC_CON, con);
+> +
+> +	i2c_dw_disable(dev);
+> +}
 
-Feedback is welcome.
+> +EXPORT_SYMBOL_GPL(i2c_dw_shutdown);
 
-Signed-off-by: Swark Yang <syang@axiado.com>
----
-Swark Yang (2):
-      dt-bindings: i2c: cadence: Add Axiado AX3000
-      i2c: cadence: Add support for Axiado AX3000
+Can we use namespace?
 
- Documentation/devicetree/bindings/i2c/cdns,i2c-r1p10.yaml | 10 +++++++---
- drivers/i2c/busses/i2c-cadence.c                          | 10 ++++++++++
- 2 files changed, 17 insertions(+), 3 deletions(-)
----
-base-commit: 63804fed149a6750ffd28610c5c1c98cce6bd377
-change-id: 20260111-axiado-ax3000-cadence-i2c-support-53ec117bb074
+...
 
-Best regards,
+>  void __i2c_dw_disable(struct dw_i2c_dev *dev);
+>  void i2c_dw_disable(struct dw_i2c_dev *dev);
+
+> +void i2c_dw_shutdown(struct dw_i2c_dev *dev);
+
+Isn't more tighten to the probe/remove than this?
+
+>  extern void i2c_dw_configure_master(struct dw_i2c_dev *dev);
+>  extern int i2c_dw_probe_master(struct dw_i2c_dev *dev);
+
 -- 
-Swark Yang <syang@axiado.com>
+With Best Regards,
+Andy Shevchenko
+
 
