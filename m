@@ -1,58 +1,44 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9741A3DFC8C;
-	Wed,  6 May 2026 10:36:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91320270540;
+	Wed,  6 May 2026 12:27:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778063771; cv=none; b=UOjweNfWZobCHH5tOSFcSf1wAwKtzx/3EuB4k5kr2fuqoqW80VFAKMtmt8H4N8poiuMctC/WtOfDy28Q1t321n5BB9C2OxYIYNymAvk/ksiBCHtkAozO12E0LCqYBp1BxvCbhsyHv23em6hfHJwwJQivoJfLRxe5CxvM1boou0s=
+	t=1778070454; cv=none; b=TwmPz1EXjov77na56cgbz/AXW1uyFMottBxLJXvo13iDhEEJqeVEhhXvTHci8cPByDtXf07vdiwwJc4T9Y9OLlkT++rR1d48+OEYeWku5PmOWSSab6yDSNb3Uv3jjVBuSrK47LwepmgJrihRIgZ2t0KXReWeJEVzncrd9nMZBq4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778063771; c=relaxed/simple;
-	bh=OGT9ZQtGWO9hWl+j36aXgJQfN13asm3rVno0BsZVOes=;
+	s=arc-20240116; t=1778070454; c=relaxed/simple;
+	bh=tKWJWblkI9qX1sppogZuqjBQOVIpnFXXs9qstseDqig=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MS3gHx1okfyGMtXetvTo2Yfk3Rtc3lAHlarsKod/aAJNdehtRzaPa6os+VbE845Ll6dT8in0vrG1vIJqPPQPNNRaTzsgl0AV3nDqIIlTGx7hF44nb7KbBRxQZJ3Z6zPuvTtAaeAO6YlWr1zNend3yEw2FoWMB/GJeJE+aOfDqeU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=T0Eo6X1W; arc=none smtp.client-ip=192.198.163.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=mqa0/bnAhrKHa0URVXgeVbB9qHuOlK0U7Mf2ylmrnZDyFco272DdvK9tlYWq2BbK+XfElA0H/fM/Qsi+gCp5xWWuYk4Ibt5b3B/Z4rFLGCI9OZPIiOkHOxY20W9DwiJCwRqrSqKZVho1yNA0B1DO1v034+lVx0w6311yjU+OW8M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=r1FTydVA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="T0Eo6X1W"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1778063770; x=1809599770;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=OGT9ZQtGWO9hWl+j36aXgJQfN13asm3rVno0BsZVOes=;
-  b=T0Eo6X1WFDV8eF2pOskQT73ksK0rINtcTzVhB6G7vBUR59hISbw7FV+L
-   KFlXn4uFfsa3acPB4NMre+vjPx2eKtNQQfvx/wE8oDADoQtwfyHCH+5KV
-   /XiBgbIT3DRteAWu6Zo4FfJqJ8sQ3Ap2eMglEeFCzD9OG3aLNrg0SIvad
-   pVfOX5V2i1+m5h0pnZb4mhsDOAihZqpujfghvhhfS8QH0bmIZoMs/NWo/
-   5dSjJr01DkngZdzqGDuMbhGjG2aJ+7mhLG7OUCKYeoLYXqx2F8igFLY3a
-   wBXHL4s1d9JVQIfh9uuHZAGIhLgBQu+w7N99YB4THuY+iex+Purd8fH6d
-   Q==;
-X-CSE-ConnectionGUID: VkxwYXMgShuSstrNTKaGeg==
-X-CSE-MsgGUID: kGeAR7qVRLiYkVO/l6tKoQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11777"; a="82833948"
-X-IronPort-AV: E=Sophos;i="6.23,219,1770624000"; 
-   d="scan'208";a="82833948"
-Received: from fmviesa003.fm.intel.com ([10.60.135.143])
-  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 May 2026 03:36:09 -0700
-X-CSE-ConnectionGUID: o9J5gNAMQ1y0tDEi0ORVWQ==
-X-CSE-MsgGUID: v2F6PJKnREq5l7Zjg32Pnw==
-X-ExtLoop1: 1
-Received: from abityuts-desk.ger.corp.intel.com (HELO localhost) ([10.245.244.183])
-  by fmviesa003-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 May 2026 03:36:07 -0700
-Date: Wed, 6 May 2026 13:36:05 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: David CARLIER <devnexen@gmail.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	Binbin Zhou <zhoubinbin@loongson.cn>,
-	Huacai Chen <chenhuacai@loongson.cn>, linux-i2c@vger.kernel.org,
-	"open list:SCHEDULER" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i2c: ls2x-v2: return IRQ_HANDLED after servicing an error
-Message-ID: <afsZlXm61ktTAa9U@ashevche-desk.local>
-References: <20260506044818.19842-1-devnexen@gmail.com>
- <afsF2y0_oe2IloXT@ashevche-desk.local>
- <CA+XhMqw=WCkAn66X=P29ojx=wOVezfjnwvDbxYnZ1FOK=4Z8ng@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="r1FTydVA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D559C2BCB8;
+	Wed,  6 May 2026 12:27:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778070454;
+	bh=tKWJWblkI9qX1sppogZuqjBQOVIpnFXXs9qstseDqig=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=r1FTydVAbOcOOmW2KKhG+vrmFTJvME9MKUip9b+zXaPv8QTFuaUYQrb6JC6yi5ooJ
+	 KQWTZKkP6FxXn31T5pI4KMogBMSKvreDTBzeCo44EZpNT3upIUqNCFDFssovZnDnr9
+	 wsqpM8FLT77zQgczcGce9UOVpnVgIW310s77yBEDZoQZok7gZOIvK5d2FpCk9zhbE7
+	 nv0aloBHmWLbTjJqoQkvcwQCeCN2iM6qGXSPebJv37d+Zc3YJ69aqYDm8irRzRmnUS
+	 0UWOLac3peOBNRFI6V64jDrXlcIpHg2BA/6SK7XT8lP99h05FBWE+obZ/3HveZpRRr
+	 /dyHtUKcUae2g==
+Received: from johan by xi.lan with local (Exim 4.98.2)
+	(envelope-from <johan@kernel.org>)
+	id 1wKbLf-00000000mJA-2yAn;
+	Wed, 06 May 2026 14:27:31 +0200
+Date: Wed, 6 May 2026 14:27:31 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5/8] i2c: core: fix adapter registration race
+Message-ID: <afszs9k8cgo87JzB@hovoldconsulting.com>
+References: <20260505142547.795054-1-johan@kernel.org>
+ <20260505142547.795054-6-johan@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -61,28 +47,42 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CA+XhMqw=WCkAn66X=P29ojx=wOVezfjnwvDbxYnZ1FOK=4Z8ng@mail.gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+In-Reply-To: <20260505142547.795054-6-johan@kernel.org>
 
-On Wed, May 06, 2026 at 11:26:14AM +0100, David CARLIER wrote:
-> On Wed, 6 May 2026, 10:12 Andy Shevchenko, <andriy.shevchenko@intel.com>
-> wrote:
-> > On Wed, May 06, 2026 at 05:48:18AM +0100, David Carlier wrote:
+On Tue, May 05, 2026 at 04:25:44PM +0200, Johan Hovold wrote:
+> Adapters can be looked up based on their id using i2c_get_adapter()
+> which takes a reference to the embedded struct device.
+> 
+> Make sure that the adapter (including its struct device) has been
+> initialised before adding it to the IDR to avoid accessing uninitialised
+> data which could, for example, lead to NULL-pointer dereferences or
+> use-after-free.
+> 
+> Fixes: 6e13e6418418 ("i2c: Add i2c_add_numbered_adapter()")
+> Cc: stable@vger.kernel.org	# 2.6.22
+> Signed-off-by: Johan Hovold <johan@kernel.org>
+> ---
+>  drivers/i2c/i2c-core-base.c | 8 ++++++--
+>  1 file changed, 6 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+> index 31f7d43e4ab5..be909d6bc776 100644
+> --- a/drivers/i2c/i2c-core-base.c
+> +++ b/drivers/i2c/i2c-core-base.c
+> @@ -1587,6 +1587,10 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+>  	if (res)
+>  		goto out_reg;
+>  
+> +	mutex_lock(&core_lock);
+> +	idr_replace(&i2c_adapter_idr, adap, adap->nr);
+> +	mutex_unlock(&core_lock);
 
-...
+Sashiko points out that this needs to go before registering the adapter
+(for now) as i2c-dev registers the chardev from a bus notifier callback.
 
-> > Is the analysis and/or commit message AI assisted?
-> >
-> No h w but I Vs seen the pattern in another driver but I used codex to
-> write commit message so I ll send a V2 later then. Cheers
+> +
+>  	dev_dbg(&adap->dev, "adapter [%s] registered\n", adap->name);
+>  
+>  	/* create pre-declared device nodes */
 
-Don't forget to mention any AI assistance. There is a special tag
-Assisted-by: IIRC, but dunno if it's for reports and/or code analysis.
-
-
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+Johan
