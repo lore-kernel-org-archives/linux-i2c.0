@@ -1,96 +1,125 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB4052D63F8;
-	Wed,  6 May 2026 15:01:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 077EC3ED13C
+	for <linux-i2c@vger.kernel.org>; Wed,  6 May 2026 15:40:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778079692; cv=none; b=lu+rreDymeFiC7OUdvoTMAXC6hdtJPW+bqfgRJL4LIyZ3/9b3Wz/bYh8vkzZ/Xd8IwzRZoHXB2+rwZT9OexS5Ac5ZaXSQrDPGy0RHBbE0iJH5HL4WzvcYxxr6Q7h88qK+JMuKfF+c49vKz766mVl/AberWTXODy2aDdDfnbTZX8=
+	t=1778082029; cv=none; b=O5LWCJ6Ju1m6T2R3a2kq9JnuKlIXIy2bxabGnAjGT7bPb9OAedf4JaaZ6XQLrNXo2F7oUwc4aEXpkkC6HguzP5sJ7ztHRgrn8rbol/7/QifbqvxbEMC8apMajHPqFiAjCxR5gSl/0qo11Im2nWUb0dOtgsYmH5GrerCoMFkTULU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778079692; c=relaxed/simple;
-	bh=cFFUvqeRzdVAF53P+FY0tMvu3ZsPrzg7MR4phUeI/p8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=i2KMBqBlUwMQ8qpkndbudyuRD11DTctZN1qQ7xnSlwZJb+CnJMuxg4djtowl3mdpOHjZuN4+u9qFNd4VD5WENHHVlo1OGZoz+Zhkaz1nlmrUTdufsQMfEHkiybFyWct70t5XTG8KyS8uH2UD7fnZHTF+Mk3OQKyiC36IYQfn4Zs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZepbDB8o; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778082029; c=relaxed/simple;
+	bh=Iy6xIoZJS/4rNve+6RpwCwCKlBFAVTlcXJRyE7jwUdE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=r7e8j9ZyFJoMlhH+Xb5zMayWv9fSx6n3F5Ph1QWLyDRyZsK0Bt7HfkdsiDux4tryXaQ2Kgp2l+oEzGZ3FNtUk/hPV0PVuyfu2wAC7UKzu1eODEqf11pwbMibT1gCs264Eq3IGVV1xhwzqz9pBrWQvvjlb2UB09y5CeS76GVBrvs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ar0qceqr; arc=none smtp.client-ip=209.85.221.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZepbDB8o"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 501CAC2BCB0;
-	Wed,  6 May 2026 15:01:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778079692;
-	bh=cFFUvqeRzdVAF53P+FY0tMvu3ZsPrzg7MR4phUeI/p8=;
-	h=From:To:Cc:Subject:Date:From;
-	b=ZepbDB8oiJxu928tS3KgTQu3ily3bzyQs5QIvr7IeEmg3DzBHnGdee2CIC9wji45b
-	 Ugbyyc2nuMBoYeciYOU3kT0sRAmib/BL1i+ePjHHndAk4JO8G5EUHkrKlyujpgrNVF
-	 xChJ0Y2rI8sQWajRKjAiXKxhKrkbJD+ftOIjfax8EQF/Xn+bt/4lnrU8bxDuZQo7jI
-	 GyvlCUMA/h6XQjsRRdAda4ibviwsr85PsvCOxqETiDE6oKKvvevKHnNlVo8ebpTl+F
-	 5GCQ7y8+jbgBpeOWni7eHwoTEwNmwMZHePeS+5vpuFg2LbQ61CS130lqpmH8IiLvfb
-	 sSyy9W/bIw3iQ==
-From: Conor Dooley <conor@kernel.org>
-To: linux-i2c@vger.kernel.org
-Cc: conor@kernel.org,
-	Conor Dooley <conor.dooley@microchip.com>,
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
-	Daire McNamara <daire.mcnamara@microchip.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	linux-riscv@lists.infradead.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2] dt-bindings: i2c: microchip,corei2c: permit resets
-Date: Wed,  6 May 2026 16:00:46 +0100
-Message-ID: <20260506-bronchial-kitten-e3697fb66ba7@spud>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ar0qceqr"
+Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-44a74032ff8so3750717f8f.1
+        for <linux-i2c@vger.kernel.org>; Wed, 06 May 2026 08:40:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778082019; x=1778686819; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=neJP9/VPuuvU9YGwwVGKB/vSqGk8DVOZs8jLqr4GjWc=;
+        b=Ar0qceqrZL3nSJd6ph9HT4KDHb1HjBV3gonD4NCynCsisjDndMzuHOAjz8Zd357Bi/
+         ZyWVrCwXIJbH9oOzsnZGcmEnq0XtWn7S+UoTz8CrL2ptKvTU0Qm1GVM7Z/ozDIoZJynF
+         DurEClLXJ1vDZRgcP/DNIoqCNtZkFudykdSABh0qWog9gegrh1s2yPZh2sE9/wb/1ccj
+         SahWuvDBUi4MTmss08g+qubufP/+B2v68slD1TI0DorXjH2GTq2cRk888tSDpR3MxVp1
+         vievxN9QXoctBUpX/A3Xm1Z0+0bM3arAc62QJOt4hSrgJaRI5YuxRt5dkxYUJoAB7U8+
+         ymAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778082019; x=1778686819;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=neJP9/VPuuvU9YGwwVGKB/vSqGk8DVOZs8jLqr4GjWc=;
+        b=JPNIN2baSDzYd+Pz2hGdrIXzV7dC9hvLp4Xj+LxqAgiQ4rqLqCHc/jmFuAKo5KwEYX
+         3E33plDkzEbZfFRnGvlPtwmHZaQHpHYtM7LZLazJVbUsLSGeyN0ubNlstQTkSWTCvAYL
+         pZHAs3vSgKSLI2Fi8MpLr6GVold3w2qCBVSRiXAQzhhR+TwODs+YXJ/aIkhL5YQeee0V
+         p7fBdFRzC2UhicWsu6uMAltsS1UBiWg14ECI735a9AQvDvlGJXufGVvYrlu82fLKB97z
+         YjDRjrlQa9yaoq/Xa9pps+wTLaYF2xl9nKzTWoivPQHzkxrHeIE2A89Bti0psXvTbsqo
+         QoEw==
+X-Forwarded-Encrypted: i=1; AFNElJ+GGJ95exYSkX38VbqgLhA5EiLj2L3gMh3E/ZKryrUHUrJMsh8ZmGmQuz6BTFTo6HMssNTgnqM0ACw=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxx0LVtzt43u2vp32JU4NSOX0BPCq8HxJtZqQTcd4NH5ReffD9n
+	sQovsRF4f0YxHRo6q0n2WbyiJvtgIHd9JL0pfnFJ/YXeZYbE+MAx1LZu
+X-Gm-Gg: AeBDietAiK+xnMIJhl/0ugNKZ62xgDtogcdqliWwnOHtTlVQVyxZ0io0+3vZVdLdK3A
+	rNG3igIfjHtGn1CtwjeEXYpEz/5YvrMk9z1xQ9ePd4SvePshp4NpjdbdBH1pHCyt9wJtDxCBlY/
+	dvWDgdCXZmZQLApyUd0K5qSTSOl/Vz06gAYyjyfuwLRFusmhe3MQKiETmzxgHyLmDOqrfNPhfnu
+	p1mitdP/HtknMLN6wB7oLdHp6UgXK7q5L1izTIkQTXEyeEBQkGMiKnIiezdAH71Lk3Kj07njLTu
+	a6/feucrrQO9rrnTq7E+QM2txMstxf7zk1z0caWK7DDU3uKKgIl4XPbtJ2eYX1cQOddAVcU2iRX
+	82u2C/Nyn3wRPs5+7FQKsvzWLAYQh349NfMpAhe7rLtJfb0r1zudB8gZcA9MBVc/glxbC8msWo7
+	EZBOXEj63mkovtxWoRzmoHWcKQjThBV5oPEb+v+hiOcMcUJLal/ebccVPeBU9jm/EA9zBrx0T1b
+	kEKCAzLu01sK5gklXrK4w==
+X-Received: by 2002:a05:6000:2c05:b0:43d:7868:21f0 with SMTP id ffacd0b85a97d-4515b056a7dmr7290655f8f.9.1778082018952;
+        Wed, 06 May 2026 08:40:18 -0700 (PDT)
+Received: from dohko.chello.ie (188-141-5-72.dynamic.upc.ie. [188.141.5.72])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4511d8cd160sm8696929f8f.8.2026.05.06.08.40.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 May 2026 08:40:18 -0700 (PDT)
+From: David Carlier <devnexen@gmail.com>
+To: zhoubinbin@loongson.cn
+Cc: andi.shyti@kernel.org,
+	chenhuacai@kernel.org,
+	andriy.shevchenko@linux.intel.com,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	David Carlier <devnexen@gmail.com>
+Subject: [PATCH v2] i2c: ls2x-v2: return IRQ_HANDLED after servicing an error
+Date: Wed,  6 May 2026 16:40:15 +0100
+Message-ID: <20260506154015.94815-1-devnexen@gmail.com>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260506044818.19842-1-devnexen@gmail.com>
+References: <20260506044818.19842-1-devnexen@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1604; i=conor.dooley@microchip.com; h=from:subject:message-id; bh=otxeDgA2oPBHhrscDgp3nywgBv6J4dr1+5G8SaJTbE4=; b=owGbwMvMwCVWscWwfUFT0iXG02pJDJm/w+d+/a952ywrfHlcsNLjk5smn2ypl1BkfCyWIm+kW aB04d3ujlIWBjEuBlkxRZbE230tUuv/uOxw7nkLM4eVCWQIAxenAEzkmB0jw3nRC+rr/p4Lk1Rg Pm1ieOzVlxO1brslnu7/XGqvasJvOp2RYaGSR+m6tjNTHt2Z++kj96Vaq9LDLPYXXZcbyK11KNl 9gBkA
-X-Developer-Key: i=conor.dooley@microchip.com; a=openpgp; fpr=F9ECA03CF54F12CD01F1655722E2C55B37CF380C
 Content-Transfer-Encoding: 8bit
 
-From: Conor Dooley <conor.dooley@microchip.com>
+The event ISR reads SR1 and, when an error flag (ARLO/AF/BERR) is set,
+calls loongson2_i2c_isr_error() which clears the offending flag, issues
+STOP for the AF case, records msg->result, masks every CR2 interrupt
+enable and completes the waiter. The handler then returns IRQ_NONE,
+declaring to the IRQ core that the device did not interrupt.
 
-Both CoreI2C and the hardened versions of it on mpfs and pic64gx have a
-reset pin. For the former, usually this is wired to a common fabric
-reset not managed by software and for the latter two the platform
-firmware takes them out of reset on first-party boards (or those using
-modified versions of the vendor firmware), but not all boards may take
-this approach. Permit providing a reset in devicetree for Linux, or
-other devicetree-consuming software, to use.
+That report is wrong. The device did interrupt and the handler fully
+serviced it. Because the IRQ is requested with IRQF_SHARED, the genirq
+spurious-IRQ tracker counts each error as unhandled. A bus that emits
+sporadic NACKs, arbitration losses or bus errors will therefore march
+toward the spurious-IRQ threshold and the line can end up disabled,
+wedging the controller.
 
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Return IRQ_HANDLED on this path. The other IRQ_NONE site, taken when
+neither an event nor an error bit is set, remains correct.
+
+Fixes: 6d1b0785f6d5 ("i2c: ls2x-v2: Add driver for Loongson-2K0300 I2C controller")
+Assisted-by: Codex:GPT-5.5
+Signed-off-by: David Carlier <devnexen@gmail.com>
 ---
-CC: Conor Dooley <conor.dooley@microchip.com>
-CC: Daire McNamara <daire.mcnamara@microchip.com>
-CC: Andi Shyti <andi.shyti@kernel.org>
-CC: Rob Herring <robh@kernel.org>
-CC: Krzysztof Kozlowski <krzk+dt@kernel.org>
-CC: linux-riscv@lists.infradead.org
-CC: linux-i2c@vger.kernel.org
-CC: devicetree@vger.kernel.org
-CC: linux-kernel@vger.kernel.org
----
- Documentation/devicetree/bindings/i2c/microchip,corei2c.yaml | 3 +++
- 1 file changed, 3 insertions(+)
+v2:
+ - Add Assisted-by: Codex:GPT-5.5 trailer (no code change).
 
-diff --git a/Documentation/devicetree/bindings/i2c/microchip,corei2c.yaml b/Documentation/devicetree/bindings/i2c/microchip,corei2c.yaml
-index 6ff58b64d4962..bd63c70aac6bc 100644
---- a/Documentation/devicetree/bindings/i2c/microchip,corei2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/microchip,corei2c.yaml
-@@ -37,6 +37,9 @@ properties:
-       modes are supported, possible values are 100000 and 400000.
-     enum: [100000, 400000]
+ drivers/i2c/busses/i2c-ls2x-v2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-ls2x-v2.c b/drivers/i2c/busses/i2c-ls2x-v2.c
+index 517760d70169..9df73557ecc4 100644
+--- a/drivers/i2c/busses/i2c-ls2x-v2.c
++++ b/drivers/i2c/busses/i2c-ls2x-v2.c
+@@ -304,7 +304,7 @@ static irqreturn_t loongson2_i2c_isr_event(int irq, void *data)
+ 	regmap_read(priv->regmap, LOONGSON2_I2C_SR1, &status);
+ 	if (status & LOONGSON2_I2C_SR1_ITERREN_MASK) {
+ 		loongson2_i2c_isr_error(status, data);
+-		return IRQ_NONE;
++		return IRQ_HANDLED;
+ 	}
  
-+  resets:
-+    maxItems: 1
-+
- required:
-   - compatible
-   - reg
+ 	regmap_read(priv->regmap, LOONGSON2_I2C_CR2, &cr2);
 -- 
 2.53.0
 
