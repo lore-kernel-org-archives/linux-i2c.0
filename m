@@ -1,123 +1,113 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8CBB3E92BB
-	for <linux-i2c@vger.kernel.org>; Wed,  6 May 2026 08:57:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 783201946DA;
+	Wed,  6 May 2026 09:12:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778057857; cv=none; b=DXEMTS9JPwPJO1dtFWumSiTGPDqy3StGR2j7rFs08GuJuN4Q2+V+k/zxSFlftIIxhplS+1CMuOAc3BmPH4QMCcDkgnW8qOYz6S+V7BbsJHvtGYD7jNPCWecZkbHus7NBx47MwO34MbvAlN27Ki62QKC2H8kMSZc7axueHLZ6O4s=
+	t=1778058722; cv=none; b=TMWhtj1JCzcYj2/sw/KkU1h4ZrRis3RPFHfhh1ugveXVmQi0wZ08j5IwTHruQiea7YyYa+sbh6i/eFOWzSMdR7kCoeTv1VwZqnXCjvzXVtmqU4Y4Va8wsqH7/SBdZzC+RcJ6QJw0y8ETzqNm8TvsCn1TcRX5soQuhXncWqchSGE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778057857; c=relaxed/simple;
-	bh=ghKgikf9+FI2uIKUB+DxE37613tP/i8t3PKEeTpoFk8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=NjOVetKF5rH40B61A4xXHa1o/sLHm9JQ4S71k59mkpUfqOaU+l1LhJQCmc2kF+Loi1zvxTRFhGQ7ELPY1U/cTJO0FnC0CAJ0E/ZRsvi8xHj14yAMtbZWJwV6tDLsHlwZlQio90bGm2j9zE1KnYZsMz++sriiGK7egawdoYd/jag=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=LIz3zfKA; arc=none smtp.client-ip=185.246.85.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1778058722; c=relaxed/simple;
+	bh=k/9nC1Oh9B1Vz5BNPYgltV2a5XRrsgqGv3XuyqCaGQk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=YDgLguCkvBQCOGLCd333AFVChycYi7mXetwco2t05Li8W1Rpaxz7Z9gPd7AmE0tSzZV1R5g8Y6p++KJQ9zMw/3ys4o2fuQDPU6R0W1QAc77BWaLDU0N4x1o8cDirxOWDcTrkJBAuevN3dp9muemM95cKUGEXHbym54hF5es18n4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=MchCgeLu; arc=none smtp.client-ip=192.198.163.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="LIz3zfKA"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 4DF9E4E42C09;
-	Wed,  6 May 2026 08:57:26 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 0C5FA6053C;
-	Wed,  6 May 2026 08:57:26 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 009E1102F18EA;
-	Wed,  6 May 2026 10:57:19 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1778057844; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=5azX23DuBfnxlcEFATCyyUTMag7iBvCtncTNyxC9FS4=;
-	b=LIz3zfKAiHFEx3s9r4HNm0+csIL4V4gRdb1esYK4Iy/K0aOKqV32F/UEfCXllr8oCFd3oD
-	2VBpG2TMMl5qLakMBzb8VuG2uGcWOyJyLOENjLY8SAh219PPbHkiz32J0FRO08brlr/FRA
-	+mtbMgoTMHwsoTwCPwuM6+FUAoGxUB0CgYxaS16XgVcooLcZdKDSjjwRuqKOsNauL8Y+QN
-	X7XPrpNQxBBrALwzLtX/QsKxPCu2uz4MYjiT0tBAZzevT6+npw/VechDMMc1t2+fw2cMqx
-	9BX3rXWkICcVk8CA3Lheh1S+XC2NF1/aX+UxuaV4XCPXIxYorlpTKgDlYZ781g==
-From: =?UTF-8?B?QmVub8OudA==?= Monin <benoit.monin@bootlin.com>
-To: David LaPorte <dalaport@amazon.com>
-Cc: andi.shyti@kernel.org, andriy.shevchenko@linux.intel.com,
- bala.senthil@intel.com, bigeasy@linutronix.de, clrkwllms@kernel.org,
- dmitry.guzman@mobileye.com, gregory.clement@bootlin.com,
- jarkko.nikula@linux.intel.com, jsd@semihalf.com, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-rt-devel@lists.linux.dev,
- mika.westerberg@linux.intel.com, rostedt@goodmis.org, tamal.saha@intel.com,
- tawfik.bayouk@mobileye.com, theo.lebrun@bootlin.com,
- thomas.petazzoni@bootlin.com, vladimir.kondratiev@mobileye.com,
- wsa@kernel.org, dgj@amazon.com, gunnarku@amazon.com
-Subject:
- Re: [PATCH v6 3/3] i2c: designware: Support of controller with
- IC_EMPTYFIFO_HOLD_MASTER disabled
-Date: Wed, 06 May 2026 10:57:19 +0200
-Message-ID: <4KD0mYZGRSm8xhs1ywPcFA@bootlin.com>
-In-Reply-To: <20260505232244.71807-1-dalaport@amazon.com>
-References:
- <20260130-i2c-dw-v6-3-08ca1e9ece07@bootlin.com>
- <20260505232244.71807-1-dalaport@amazon.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="MchCgeLu"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1778058720; x=1809594720;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=k/9nC1Oh9B1Vz5BNPYgltV2a5XRrsgqGv3XuyqCaGQk=;
+  b=MchCgeLura1zPOmQUQklDeugZlQsfNnfpxE4YgHPMoaPHma5/rUgu+XJ
+   MsrwzNs3QEH/MWWGmtTdzwHPgubC+ZADV3hkLqYcSw7bYts/pwQCup+WO
+   UZMRkcGcK2+bZ/UB4Vz3XimwuDFsOIsRTggyZOZBjSYRBmMWvJgoCmduo
+   a72hC2LUZZ+urYnHrW5zLlD89nRImRYjjFSEXLH6DSacc4AM3u+JpmGEa
+   JmrsavgTqqfprxLwVOPgWtYKlAierHkDsGzbnVnnEhUHeLV4vGlboe3yw
+   X3Sa11VCHbIoQaheB5gk9t2kwI9MrpOixuqQF3U3llEf5T1VZQSUAluKW
+   w==;
+X-CSE-ConnectionGUID: OhEsLx+9RxSQy8Gu4i0obA==
+X-CSE-MsgGUID: MZctEVg0SQe4RRR5j1RVsQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11777"; a="79031436"
+X-IronPort-AV: E=Sophos;i="6.23,219,1770624000"; 
+   d="scan'208";a="79031436"
+Received: from orviesa010.jf.intel.com ([10.64.159.150])
+  by fmvoesa108.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 May 2026 02:11:59 -0700
+X-CSE-ConnectionGUID: Im+XSyRZQ72lQKQe6NrWSA==
+X-CSE-MsgGUID: /aWWs2tkTNiiOTTqysH8FA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,219,1770624000"; 
+   d="scan'208";a="235247650"
+Received: from abityuts-desk.ger.corp.intel.com (HELO localhost) ([10.245.244.183])
+  by orviesa010-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 May 2026 02:11:58 -0700
+Date: Wed, 6 May 2026 12:11:55 +0300
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: David Carlier <devnexen@gmail.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Binbin Zhou <zhoubinbin@loongson.cn>,
+	Huacai Chen <chenhuacai@loongson.cn>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: ls2x-v2: return IRQ_HANDLED after servicing an error
+Message-ID: <afsF2y0_oe2IloXT@ashevche-desk.local>
+References: <20260506044818.19842-1-devnexen@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="utf-8"
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260506044818.19842-1-devnexen@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Hi David,
+On Wed, May 06, 2026 at 05:48:18AM +0100, David Carlier wrote:
+> The event ISR reads SR1 and, when an error flag (ARLO/AF/BERR) is set,
+> calls loongson2_i2c_isr_error() which clears the offending flag, issues
+> STOP for the AF case, records msg->result, masks every CR2 interrupt
+> enable and completes the waiter. The handler then returns IRQ_NONE,
+> declaring to the IRQ core that the device did not interrupt.
+> 
+> That report is wrong. The device did interrupt and the handler fully
+> serviced it. Because the IRQ is requested with IRQF_SHARED, the genirq
+> spurious-IRQ tracker counts each error as unhandled. A bus that emits
+> sporadic NACKs, arbitration losses or bus errors will therefore march
+> toward the spurious-IRQ threshold and the line can end up disabled,
+> wedging the controller.
 
-On Wednesday, 6 May 2026 at 01:22:42 CEST, David LaPorte wrote:
-> Hi all,
->=20
-> I don't have Keem Bay hardware, but reviewing this against the existing d=
-river I think this hunk may regress the multi-master support added by commi=
-t f4e0ba52a89f ("i2c: designware: Do not complete i2c read without RX_FULL =
-interrupt"):
->=20
-> /* Abort if we detect a STOP in the middle of a read or a write */
-> if ((stat & DW_IC_INTR_STOP_DET) &&
->     (dev->status & (STATUS_READ_IN_PROGRESS | STATUS_WRITE_IN_PROGRESS)))=
- {
->     dev_err(dev->dev, "spurious STOP detected\n");
->     dev->rx_outstanding =3D 0;
->     dev->msg_err =3D -EIO;
-> }
->=20
-> That commit handles the case where STOP_DET is observed before the final =
-RX_FULL. The new check aborts on that intermediate state.
->=20
-> The sibling TX-side underrun check in i2c_dw_xfer_msg() is gated on !empt=
-yfifo_hold_master; this one isn't. I couldn't find discussion of the intera=
-ction in the v1=E2=80=93v6 review history so flagging in case it was an ove=
-rsight.
->=20
-> A minimal fix matching the TX-side gating:
->=20
-> - /* Abort if we detect a STOP in the middle of a read or a write */
-> - if ((stat & DW_IC_INTR_STOP_DET) &&
-> + /*
-> +  * Abort if we detect a STOP in the middle of a read or a write on
-> +  * controllers that do not hold SCL on FIFO underrun.
-> +  */
-> + if (!dev->emptyfifo_hold_master &&
-> +     (stat & DW_IC_INTR_STOP_DET) &&
->       (dev->status & (STATUS_READ_IN_PROGRESS | STATUS_WRITE_IN_PROGRESS)=
-)) {
->     dev_err(dev->dev, "spurious STOP detected\n");
->     dev->rx_outstanding =3D 0;
->=20
-> Happy to send as a proper patch if that's the right direction, or to be c=
-orrected.
->=20
-So Keem Bay hardware can get a STOP_DET interrupt while a read is in
-progress? If that's the case then yes it is not a spurious STOP and
-limiting the check to controllers that don't hold SCL on Tx FIFO underrun
-should fix that.
+Have you exhibited this on a real HW?
 
-Best regards,
-=2D-=20
-Beno=C3=AEt Monin, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+> Return IRQ_HANDLED on this path. The other IRQ_NONE site, taken when
+> neither an event nor an error bit is set, remains correct.
 
+Hmm... This sounds logical, but we need the Loongson folks to confirm as this
+is sensitive code and changes like this may affect existing work flows.
+
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-ls2x-v2.c b/drivers/i2c/busses/i2c-ls2x-v2.c
+> index 517760d70169..9df73557ecc4 100644
+> --- a/drivers/i2c/busses/i2c-ls2x-v2.c
+> +++ b/drivers/i2c/busses/i2c-ls2x-v2.c
+> @@ -304,7 +304,7 @@ static irqreturn_t loongson2_i2c_isr_event(int irq, void *data)
+>  	regmap_read(priv->regmap, LOONGSON2_I2C_SR1, &status);
+>  	if (status & LOONGSON2_I2C_SR1_ITERREN_MASK) {
+>  		loongson2_i2c_isr_error(status, data);
+> -		return IRQ_NONE;
+> +		return IRQ_HANDLED;
+>  	}
+>  
+>  	regmap_read(priv->regmap, LOONGSON2_I2C_CR2, &cr2);
+
+P.S.
+Is the analysis and/or commit message AI assisted?
+
+-- 
+With Best Regards,
+Andy Shevchenko
 
 
