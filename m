@@ -1,93 +1,134 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+Received: from pdx-out-006.esa.us-west-2.outbound.mail-perimeter.amazon.com (pdx-out-006.esa.us-west-2.outbound.mail-perimeter.amazon.com [52.26.1.71])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 467F7375ABE;
-	Wed,  6 May 2026 15:48:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 540D126D4F7;
+	Wed,  6 May 2026 19:54:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.26.1.71
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778082528; cv=none; b=Tfht6oP6SG9Y0Ajqb1/TFvD62VotT57GkMdtRVZT7Iq7Tx1KKEONwi5vKhcSQGEK5TiG/FVXCRbDxyJlPjIqxLkN+zanaUDB34znsfehsB0rOFQNvRpZgcVKsf10S2fZWM208IElKJ385fel807em1cFP5pU7IYX2Mx1gibKPmY=
+	t=1778097281; cv=none; b=qR2VblPJrgf9kPH/fagxIOKsbCfjzv4bqzwu/buUacykwYmMtoyzo6SKjJy4FTHfYAPe6cb5QSd+OA6lzGV4hrpu89RWa/4h9WuniXJJeILtlStD1yO2yeW6OZWdudFFTq8wbVu23dAX4N3zv5P+hK40trcQl50OwJovVettRvU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778082528; c=relaxed/simple;
-	bh=xtbhPhxYrIGs/SE6qryYPiEu0pqnkTbLizziUK6pfuo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=evotfPxlhpK6XWQfygoJjKE27RJ2pBqzptAZ87Szkhe7qsbFP26KKOfwRi68D5/K6K3W95TRDgNSdz7CiC4q/bHrFbGLBAHNuPU3++3oUBEPh2DK0vTCWMwdAfAEaiVJD6dLICmtfwF5H2sruDLhWNWqJhD6f+uDtFPPkTW4raw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=NAFH+WCu; arc=none smtp.client-ip=198.175.65.9
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1778097281; c=relaxed/simple;
+	bh=4n+0fGUAb/dEj+5phkMmlnkd8FXDOzoewOZqP6eQGJo=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=jAIBSOStpTjDWDUAzVJB239wUoYhhRhfai2wIC/xpz8HMz7IBD/PNqmrf3t7BC5vN7nnL45ur8qrPe4e1ZsxkseEGBLXYrvR06kvjvr9N1NOSkA85PE49Gf5qeCdTFKB+n0A2VmUkuOW6joncOtKpZTabeO6YmGqm1JV8+uwOQU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com; spf=pass smtp.mailfrom=amazon.de; dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b=MvjJhaVj; arc=none smtp.client-ip=52.26.1.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amazon.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=amazon.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="NAFH+WCu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1778082528; x=1809618528;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=xtbhPhxYrIGs/SE6qryYPiEu0pqnkTbLizziUK6pfuo=;
-  b=NAFH+WCuaaQ5n57X8Yn1JX5dNbOsubjBlg81duwJEOYVhZTMz/T1srs4
-   emOuiZYCGZxnDyg1JzZXPp4d2tbRYB4kTZQg2PnCE87hXjYsrXq0aPEZ4
-   QEbtV1RgwSvABVy6rY213qrq/2rhdC8oqKYIXZFNUuVVZqHDO9Ysqfi4b
-   MjY9phxvVmUkXYTcGoKZRx5Il/QpliVNRl6I45Tvptnd5IeOAf3u2ylOk
-   VfCCWy8fYaFFkA47UjFi6qoENAX+2XWRMmbUwt4al0NpKvwtZ8pWeI18x
-   WVSwy0R/eJXSTtDukyApflSxMixnpdwLl00tDZjytb9WfBA2pP2B+Brjz
-   A==;
-X-CSE-ConnectionGUID: Diu3knHBSb2VOKlfWeADeQ==
-X-CSE-MsgGUID: ZGrJ/9LtTMKiQl4eXcq6Ow==
-X-IronPort-AV: E=McAfee;i="6800,10657,11778"; a="101694915"
-X-IronPort-AV: E=Sophos;i="6.23,219,1770624000"; 
-   d="scan'208";a="101694915"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 May 2026 08:48:47 -0700
-X-CSE-ConnectionGUID: aU0RvqRRRFWBp7FJyo8NCQ==
-X-CSE-MsgGUID: faEnLLtSTSqy9wR1dEULWw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,219,1770624000"; 
-   d="scan'208";a="274310828"
-Received: from abityuts-desk.ger.corp.intel.com (HELO localhost) ([10.245.244.183])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 May 2026 08:48:45 -0700
-Date: Wed, 6 May 2026 18:48:42 +0300
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: David Carlier <devnexen@gmail.com>
-Cc: zhoubinbin@loongson.cn, andi.shyti@kernel.org, chenhuacai@kernel.org,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: ls2x-v2: return IRQ_HANDLED after servicing an
- error
-Message-ID: <afti2mWZ5_qoTqZX@ashevche-desk.local>
-References: <20260506044818.19842-1-devnexen@gmail.com>
- <20260506154015.94815-1-devnexen@gmail.com>
+	dkim=pass (2048-bit key) header.d=amazon.com header.i=@amazon.com header.b="MvjJhaVj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazoncorp2;
+  t=1778097280; x=1809633280;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=IDa//TTZOLGYJkS4DJ5IkrB1TtKWbO9xChjF6ob/Vag=;
+  b=MvjJhaVjfIyz2ghj5LA3RSPahaxQjSkenGHO3hT5D+JjfuST809xdKpO
+   dGJbIQssh4gfxRiYVlmPQoj43QdprjwVM3ig1HsXIJzgyXH2LS1c9cn8o
+   GnOAqCYbyeDlVa3dq1vR8mPjl3MRuRyPA7+lBs9EZuHNTL15ef8hOc3Ky
+   qTU+S5NxreTSYgopDMyHtI7uA6lg13tl2Qisbm7PY4GBAwknSaOLEa1vi
+   Yqe4fS2f23vPesVFvVGXoTmPUfpY2gzZ7aDkYrmdKvbkFMMKmHPHfi+v7
+   2fv096HcGZyB4kv/YTjIo8qddSs7iQQIrE3L+u0jqsmjtxl2/FmwzyFCz
+   w==;
+X-CSE-ConnectionGUID: ztkExzERQbGlHYrz1RfIkw==
+X-CSE-MsgGUID: SnOSoO2/RFmALpVJ3hswkg==
+X-IronPort-AV: E=Sophos;i="6.23,220,1770595200"; 
+   d="scan'208";a="19052473"
+Received: from ip-10-5-0-115.us-west-2.compute.internal (HELO smtpout.naws.us-west-2.prod.farcaster.email.amazon.dev) ([10.5.0.115])
+  by internal-pdx-out-006.esa.us-west-2.outbound.mail-perimeter.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 May 2026 19:54:37 +0000
+Received: from EX19MTAUWA002.ant.amazon.com [205.251.233.178:29785]
+ by smtpin.naws.us-west-2.prod.farcaster.email.amazon.dev [10.0.37.224:2525] with esmtp (Farcaster)
+ id f90c5e39-243d-4a8b-bc6e-4e1f75dfcfe0; Wed, 6 May 2026 19:54:37 +0000 (UTC)
+X-Farcaster-Flow-ID: f90c5e39-243d-4a8b-bc6e-4e1f75dfcfe0
+Received: from EX19D001UWA001.ant.amazon.com (10.13.138.214) by
+ EX19MTAUWA002.ant.amazon.com (10.250.64.202) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37;
+ Wed, 6 May 2026 19:54:36 +0000
+Received: from dev-dsk-sauravsc-1a-8777b848.eu-west-1.amazon.com
+ (172.19.118.34) by EX19D001UWA001.ant.amazon.com (10.13.138.214) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.2562.37; Wed, 6 May 2026
+ 19:54:34 +0000
+From: Saurav Sachidanand <sauravsc@amazon.com>
+To: <wsa+renesas@sang-engineering.com>
+CC: Saurav Sachidanand <sauravsc@amazon.com>, Laxman Dewangan
+	<ldewangan@nvidia.com>, Dmitry Osipenko <digetx@gmail.com>, Andi Shyti
+	<andi.shyti@kernel.org>, Thierry Reding <thierry.reding@kernel.org>,
+	"Jonathan Hunter" <jonathanh@nvidia.com>, Kartik Rajput <kkartik@nvidia.com>,
+	Akhil R <akhilrajeev@nvidia.com>, <linux-i2c@vger.kernel.org>,
+	<linux-tegra@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/1] i2c: tegra: fix error handling in tegra_i2c_xfer()
+Date: Wed, 6 May 2026 19:53:18 +0000
+Message-ID: <20260506195319.44810-1-sauravsc@amazon.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260506154015.94815-1-devnexen@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: EX19D038UWC004.ant.amazon.com (10.13.139.229) To
+ EX19D001UWA001.ant.amazon.com (10.13.138.214)
 
-On Wed, May 06, 2026 at 04:40:15PM +0100, David Carlier wrote:
-> The event ISR reads SR1 and, when an error flag (ARLO/AF/BERR) is set,
-> calls loongson2_i2c_isr_error() which clears the offending flag, issues
-> STOP for the AF case, records msg->result, masks every CR2 interrupt
-> enable and completes the waiter. The handler then returns IRQ_NONE,
-> declaring to the IRQ core that the device did not interrupt.
-> 
-> That report is wrong. The device did interrupt and the handler fully
-> serviced it. Because the IRQ is requested with IRQF_SHARED, the genirq
-> spurious-IRQ tracker counts each error as unhandled. A bus that emits
-> sporadic NACKs, arbitration losses or bus errors will therefore march
-> toward the spurious-IRQ threshold and the line can end up disabled,
-> wedging the controller.
-> 
-> Return IRQ_HANDLED on this path. The other IRQ_NONE site, taken when
-> neither an event nor an error bit is set, remains correct.
+Fix two bugs in the SW mutex path introduced by commit 6077cfd716fb
+("i2c: tegra: Add support for SW mutex register"):
 
-From the analysis and code sounds legit,
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-but my tag applies only after Loongson people confirm this is correct change.
+1. If tegra_i2c_mutex_lock() fails, the function returns without calling
+   pm_runtime_put(), leaking the runtime PM reference acquired by the
+   preceding pm_runtime_get_sync(). Add the missing pm_runtime_put()
+   before returning.
 
+2. tegra_i2c_mutex_unlock() unconditionally overwrites ret, which may
+   already hold a transfer error from tegra_i2c_xfer_msg(). If the
+   transfer failed but the unlock succeeds, the error is silently lost
+   and the function incorrectly reports success. Use a separate variable
+   for the unlock return value and preserve error priority:
+   transfer error > unlock error > message count.
+
+Fixes: 6077cfd716fb ("i2c: tegra: Add support for SW mutex register")
+Signed-off-by: Saurav Sachidanand <sauravsc@amazon.com>
+---
+ drivers/i2c/busses/i2c-tegra.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
+index 9fd5ade774a0b..704942d10d69d 100644
+--- a/drivers/i2c/busses/i2c-tegra.c
++++ b/drivers/i2c/busses/i2c-tegra.c
+@@ -1656,7 +1656,7 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+ 			  int num)
+ {
+ 	struct tegra_i2c_dev *i2c_dev = i2c_get_adapdata(adap);
+-	int i, ret;
++	int i, ret, ret2;
+ 
+ 	ret = pm_runtime_get_sync(i2c_dev->dev);
+ 	if (ret < 0) {
+@@ -1666,8 +1666,10 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+ 	}
+ 
+ 	ret = tegra_i2c_mutex_lock(i2c_dev);
+-	if (ret)
++	if (ret) {
++		pm_runtime_put(i2c_dev->dev);
+ 		return ret;
++	}
+ 
+ 	for (i = 0; i < num; i++) {
+ 		enum msg_end_type end_type = MSG_END_STOP;
+@@ -1698,10 +1700,10 @@ static int tegra_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msgs[],
+ 			break;
+ 	}
+ 
+-	ret = tegra_i2c_mutex_unlock(i2c_dev);
++	ret2 = tegra_i2c_mutex_unlock(i2c_dev);
+ 	pm_runtime_put(i2c_dev->dev);
+ 
+-	return ret ?: i;
++	return ret ?: ret2 ?: i;
+ }
+ 
+ static int tegra_i2c_xfer_atomic(struct i2c_adapter *adap,
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.47.3
 
