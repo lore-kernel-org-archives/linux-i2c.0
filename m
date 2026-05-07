@@ -1,71 +1,119 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1697A30171A;
-	Thu,  7 May 2026 12:53:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03B57451069;
+	Thu,  7 May 2026 17:29:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778158428; cv=none; b=RtTcKk6UrdwFiqW8eNlq7bRWvGBiHY/1qOjff4wRDHSIh1MvNga5a2OiH4Hd84wr8LDNCOzvjCwrmIdDjSBeWLBBBJfP0ntLsBEyzT6Kl1Tm8iEW6lzW4RukphHSNZahpO1BazdmMev5LRnB/zdf36WC3omv3E4lvZR47VM8fGE=
+	t=1778174980; cv=none; b=AlQVZJHjo2TN64jCmaIlIbGiZV8gm4JeH/aizRvAhmzKgal6gdSN1bt1xn6mqFx6FRqdJ2e7LLUKlaRByy3Sd1iX5N3sQNV4gf/y47t0UjJRdRSQ41mUIvE0DrvQNpZgycjdzgXLCZ2WgXPSPXwUtWE7spIqz7bJ9v2JM3nv+Bc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778158428; c=relaxed/simple;
-	bh=NDq1yRkDTD9n1Z9MRjKoR/KHoPrasWXZhi/Utqu0UcA=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=HB9622b7HrJEwE5CiH974/O2x+aJ6cEuXAXu3EH5577VOZfL23q+DsUct9hvR9+bmNuWX0deLTBkBACPgfEYnYXhZ5nOSwWXAG8ka1tUp7NZyjQVE5ejclOXaK2YlXUII8V8tKv6MJ+kam+KKyAG5Q8/OyH1NbJuzK2ewaZLUn0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N1jGAtff; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778174980; c=relaxed/simple;
+	bh=HwcUWd5Z347Rn8ztkGok7XGUDgbVHQKaR/odO55H61o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=OZTyE8NVMWgZLTkiGw9DjoDRfDIlSXOvV+1Cjn7+iclm2sQQWV+ra5HEXX2m6S1tn+uBSHFZEl0xVvJN4/AG/tZuq423wQ8ODPmvjbk9BU1TuKw22otYtKzBHM7THBTUt5SYftqgLX+d8LyqDzjDa8WwVoaGp1Pm2C4WPIRxBDA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MDVWgYcs; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N1jGAtff"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0272BC2BCB2;
-	Thu,  7 May 2026 12:53:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MDVWgYcs"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98489C2BCB2;
+	Thu,  7 May 2026 17:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778158427;
-	bh=NDq1yRkDTD9n1Z9MRjKoR/KHoPrasWXZhi/Utqu0UcA=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-	b=N1jGAtff4iiwWK8TKDqlW/GLbEyNu3o3HVgehLHfvadTuXxf0BrWwQYQlSTGU0kWc
-	 NRSJH4ZQ9uNyjB5ig8ciNzDaG6IDvDP2IoCHLirfjtUhdGxA03Pwwj6F9mSmDUz5LV
-	 +Ll2TquOmBdV1ZWPAFpUHRQ6158JRSd6XZ4VYB2vvsDzZnHCUimBCuFLIUad5x+BaT
-	 nbN9iG1eXcXzbe8UKNtLfDju67QwMZ3r2a24adutuhe9CDmdlOYdx9TZJ6JQOT7Cbq
-	 3H2ETgluYKH8BwEQW2QtaDyPMzqkMdnE6NZkWsA8omTUdQfmtZdnl6aIDq46kZWVZ6
-	 nzmsj+38KEQYg==
-From: Lee Jones <lee@kernel.org>
-To: Neil Armstrong <neil.armstrong@linaro.org>, Lee Jones <lee@kernel.org>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
- Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, 
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>, 
- Beniamino Galvani <b.galvani@gmail.com>, 
- "Rafael J. Wysocki" <rafael@kernel.org>, 
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
- Lukasz Luba <lukasz.luba@arm.com>, Liam Girdwood <lgirdwood@gmail.com>, 
- Mark Brown <broonie@kernel.org>, Ronald Claveau <linux-kernel-dev@aliel.fr>
-Cc: linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org
-In-Reply-To: <20260421-add-mcu-fan-khadas-vim4-v4-1-447114a28f2d@aliel.fr>
-References: <20260421-add-mcu-fan-khadas-vim4-v4-1-447114a28f2d@aliel.fr>
-Subject: Re: (subset) [PATCH v4 1/8] dt-bindings: mfd: khadas: Add new
- compatible for Khadas VIM4 MCU
-Message-Id: <177815842272.1844364.17432398965217021542.b4-ty@b4>
-Date: Thu, 07 May 2026 13:53:42 +0100
+	s=k20201202; t=1778174979;
+	bh=HwcUWd5Z347Rn8ztkGok7XGUDgbVHQKaR/odO55H61o=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=MDVWgYcsBH0SS+oNaKZbb9Krk4sPdRcUCA8wrSLD4A/UHXrObYWGHj9bOMIs0XeDs
+	 n78w1HNrABrWLYbXVGe+yrFh4IFKY+mc4iw+gU+Udsw6x47CG6Ybb0oVjRggBbtkBl
+	 wyqONQKUx4xtD6ORHX+ZDmsnjDVeJD3HpsJHlaS8FwzSrC0BF8K4H+feUETcxyshJC
+	 kVT2rDdS0CPQYJuMsePHtirp5p2JRbCS02yKaiv7OVBZ6of3H+o+JvX4013eDLDmQ0
+	 00MUumEHKkuro/wlaQzOLsnCp222DPSKkEzlhE2SawInpELnSVrnlUFvkyz2gwz9+X
+	 /JbXekgDsBDgQ==
+Date: Thu, 7 May 2026 18:29:35 +0100
+From: Conor Dooley <conor@kernel.org>
+To: Hongliang Wang <wanghongliang@loongson.cn>
+Cc: Binbin Zhou <zhoubinbin@loongson.cn>,
+	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+	loongarch@lists.linux.dev
+Subject: Re: [PATCH v2] dt-bindings: i2c: ls2x-i2c: Add clocks and
+ clock-frequency properties
+Message-ID: <20260507-idealize-occultist-916fd07fc235@spud>
+References: <20260507081010.12810-1-wanghongliang@loongson.cn>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-Mailer: b4 0.16-dev-ad80c
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="HSgsAmc7yUE2rqAQ"
+Content-Disposition: inline
+In-Reply-To: <20260507081010.12810-1-wanghongliang@loongson.cn>
 
-On Tue, 21 Apr 2026 13:49:18 +0200, Ronald Claveau wrote:
-> The Khadas VIM4 MCU register is slightly different
-> from previous boards' MCU.
-> This board also features a switchable power source for its fan.
 
-Applied, thanks!
+--HSgsAmc7yUE2rqAQ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-[1/8] dt-bindings: mfd: khadas: Add new compatible for Khadas VIM4 MCU
-      commit: a10878e699567d88267200afdb165107567e0287
+On Thu, May 07, 2026 at 04:10:09PM +0800, Hongliang Wang wrote:
+> From: wanghongliang <wanghongliang@loongson.cn>
+>=20
+> clocks property describes the i2c bus reference clock from APB clock.
+> clock-frequency property describes i2c bus speed.
+>=20
+> Signed-off-by: wanghongliang <wanghongliang@loongson.cn>
+> ---
+>  Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml | 3 +++
+>  1 file changed, 3 insertions(+)
+>=20
+> diff --git a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml=
+ b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+> index ee09c6d9c5f0..4bf89bb97e7d 100644
+> --- a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+> +++ b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+> @@ -38,10 +38,13 @@ unevaluatedProperties: false
+>  examples:
+>    - |
+>      #include <dt-bindings/interrupt-controller/irq.h>
+> +    #include <dt-bindings/clock/loongson,ls2k-clk.h>
+> =20
+>      i2c0: i2c@1fe21000 {
+>          compatible =3D "loongson,ls2k-i2c";
+>          reg =3D <0x1fe21000 0x8>;
+> +        clock-frequency =3D <100000>;
+> +        clocks =3D <&clk LOONGSON2_APB_CLK>;
 
---
-Lee Jones [李琼斯]
+/stuff/linux-dt/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.exa=
+mple.dtb: i2c@1fe21000 (loongson,ls2k-i2c): Unevaluated properties are not =
+allowed ('clocks' was unexpected)
+	from schema $id: http://devicetree.org/schemas/i2c/loongson,ls2x-i2c.yaml
 
+
+Please test your patches before sending them.
+
+Does this device actually have a clock or not?
+
+Cheers,
+Conor.
+
+>          interrupt-parent =3D <&extioiic>;
+>          interrupts =3D <22 IRQ_TYPE_LEVEL_LOW>;
+>          #address-cells =3D <1>;
+> --=20
+> 2.47.2
+>=20
+
+--HSgsAmc7yUE2rqAQ
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCafzL/wAKCRB4tDGHoIJi
+0qB6AP9db4UG3vb1kSPxyMgugIqmMYBQjY2RD9X7BU/0j17MVAEA0f5IO+ppIza/
+FGsjkIhn+fgNB8jTqIZHdlxvNJ2AOwU=
+=O/Kh
+-----END PGP SIGNATURE-----
+
+--HSgsAmc7yUE2rqAQ--
