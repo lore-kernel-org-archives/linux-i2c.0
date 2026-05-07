@@ -1,155 +1,144 @@
-Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78D973537F1;
-	Thu,  7 May 2026 07:23:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D501736D500
+	for <linux-i2c@vger.kernel.org>; Thu,  7 May 2026 07:56:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778138638; cv=none; b=d42dtdxyfajBuKMlL4kpG7YWqjFgvHhqeK1JH5oYf6MOr8O3xcWV3/odBcWGDigDkU9VVOOkoT1YSDj9xJjAT+1PaffH84n0ASGPkYG0CU5RYsbbThrxh6wGGEMJSW1lfAMcrtck2oSalHJUtFJEEJWGroWNRD3Vgk559azAP+w=
+	t=1778140614; cv=none; b=pbsvRR2EEatIBzNWN4aDcdzX2lR16GHD8+rgARjqgLYHzsX7X/V+24SEHY2SMK790Gejl/DO7emXe+HbIWpDx2eF57LkEYRcx/OyRbcqZoDPJdBaQkTbXX3X+mL4OdPnmrxidVOYB1q/cPtS+mG26tVQ+r3JRU17hiFN9YX6g/I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778138638; c=relaxed/simple;
-	bh=ag2e4rubDHljcUbsB2BC/MHj9ZFXFOBLhTjLy6JSlhk=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Kjzk/66yqjtWd3q+3Oy03Ub3KoFO1lt39ivhrMzshUXwRIUHb+sGyoz3OIpqfhD5MVY6j2udwhY3xZB1Xyv086MfNaZm63QwVEjvNETFa9sAayuk+Oeml9zNDhjF54SjaKdLCqjMrhSI4gYWi26wuKDrD+jGwgU3nn6cKLFqwe0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=ZLJf7HFo; arc=none smtp.client-ip=185.171.202.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1778140614; c=relaxed/simple;
+	bh=TlR/xsfN/SsPRQlJrt9edJEjZ/kU37wAuFHlT5eEPJ0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ik+2hqw9uPxB7zL872bBvJ+3s8z7sLRAjEGD1kCQjzdvAMdPT0OCDgSoGYmCka1St9BB8yR8YA+jFqWur+X3JzjZlbdLvyQ2W8+V4S0Rxcl/ZA7FZLUKgkRKzIC5Oe1s12Ft6jhHUfLPPmXsY67uB65pNQNkBTP+UfKb68Luuwc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wkennington.com; spf=none smtp.mailfrom=wkennington.com; dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b=FCdL3ZFP; arc=none smtp.client-ip=74.125.82.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wkennington.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=wkennington.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="ZLJf7HFo"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-04.galae.net (Postfix) with ESMTPS id 48A98C5DC58;
-	Thu,  7 May 2026 07:24:41 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 90CF6605D0;
-	Thu,  7 May 2026 07:23:53 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 4F651107F1B9F;
-	Thu,  7 May 2026 09:23:28 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1778138630; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:in-reply-to:references;
-	bh=KuHg3bpGpRy0j8zZGsR4xMbCeq+40KQNwSqwL73wrxg=;
-	b=ZLJf7HFoaWrA+QvjHT5Gh6TZeRPeQK7D9TRFNzAxGhp0EWNliZg4AwN/3MS8qxZ+WzAXXq
-	T6wrHBfmoxlIOCE0LR6qB6nNclEBnM62oa0qHR1b3eIxeSfrgMTMIlcTQI7nqZge15D0l+
-	sLj9R0qfJuv9VoGTvaYtmVXHcV/7jHrAKRNpo7q2YNgBW2BMI67agx51RlZqky+pM/DE/w
-	2FWDjIij6E4LO6ldmdu10VRhQ1jdNnY1LWBRw2nfeTqWN3+DsPlyj7HsjlEMWCYQvoebbU
-	LgYPnGZiAHv/HKhw9qbr3lFn7WqvriiVxW4qqE4OwbN85ifqMP1iikrTMszpLg==
-Date: Thu, 7 May 2026 09:23:26 +0200
-From: Herve Codina <herve.codina@bootlin.com>
-To: Linus Walleij <linusw@kernel.org>
-Cc: Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh@kernel.org>, Krzysztof
- Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Geert
- Uytterhoeven <geert+renesas@glider.be>, Kalle Niemi <kaleposti@gmail.com>,
- Matti Vaittinen <mazziesaccount@gmail.com>, Greg Kroah-Hartman
- <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
- Danilo Krummrich <dakr@kernel.org>, Frank Li <Frank.Li@nxp.com>, Sascha
- Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team
- <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, Michael
- Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, Andi
- Shyti <andi.shyti@kernel.org>, Wolfram Sang
- <wsa+renesas@sang-engineering.com>, Peter Rosin <peda@axentia.se>, Arnd
- Bergmann <arnd@arndb.de>, Saravana Kannan <saravanak@kernel.org>, Bjorn
- Helgaas <bhelgaas@google.com>, Charles Keepax
- <ckeepax@opensource.cirrus.com>, Richard Fitzgerald
- <rf@opensource.cirrus.com>, David Rhodes <david.rhodes@cirrus.com>, Ulf
- Hansson <ulf.hansson@linaro.org>, Mark Brown <broonie@kernel.org>, Len
- Brown <lenb@kernel.org>, Andy Shevchenko
- <andriy.shevchenko@linux.intel.com>, Daniel Scally <djrscally@gmail.com>,
- Heikki Krogerus <heikki.krogerus@linux.intel.com>, Sakari Ailus
- <sakari.ailus@linux.intel.com>, Davidlohr Bueso <dave@stgolabs.net>,
- Jonathan Cameron <jonathan.cameron@huawei.com>, Dave Jiang
- <dave.jiang@intel.com>, Alison Schofield <alison.schofield@intel.com>,
- Vishal Verma <vishal.l.verma@intel.com>, Ira Weiny <ira.weiny@intel.com>,
- Dan Williams <dan.j.williams@intel.com>, Shawn Guo <shawnguo@kernel.org>,
- Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org,
- driver-core@lists.linux.dev, imx@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org,
- linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
- linux-pci@vger.kernel.org, linux-sound@vger.kernel.org,
- patches@opensource.cirrus.com, linux-gpio@vger.kernel.org,
- linux-pm@vger.kernel.org, linux-spi@vger.kernel.org,
- linux-acpi@vger.kernel.org, linux-cxl@vger.kernel.org, Allan Nielsen
- <allan.nielsen@microchip.com>, Horatiu Vultur
- <horatiu.vultur@microchip.com>, Steen Hegelund
- <steen.hegelund@microchip.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>,
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Subject: Re: [PATCH v6 20/27] misc: lan966x_pci: Fix dtso nodes ordering
-Message-ID: <20260507092326.2f8e3b47@bootlin.com>
-In-Reply-To: <CAD++jLkFu+Z22QBFiaa9S+Epeh=RJZOYX8BOLVDFw4bhEoYF1Q@mail.gmail.com>
-References: <20260325143555.451852-1-herve.codina@bootlin.com>
-	<20260325143555.451852-21-herve.codina@bootlin.com>
-	<CAD++jLkFu+Z22QBFiaa9S+Epeh=RJZOYX8BOLVDFw4bhEoYF1Q@mail.gmail.com>
-Organization: Bootlin
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
+	dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b="FCdL3ZFP"
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-2f36da5c8fbso521916eec.0
+        for <linux-i2c@vger.kernel.org>; Thu, 07 May 2026 00:56:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=wkennington-com.20251104.gappssmtp.com; s=20251104; t=1778140612; x=1778745412; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=UAC2r2pIGYK6BoP8vASKjfj1y1PElzocW+Rdg94M4Ug=;
+        b=FCdL3ZFPWlYBtEdMmX3aqfIrvBsYBVicXkNsb/3BK6mBeFN70zrcSWtHVsngsGTpwW
+         XMVV8PaNMvmEdbzJm3IAUDlXjNvgg6Ozv8sJvLHFZ0jdrs4tCYqJjmT1RcwTTimedUvo
+         9pnDVubkLx/kLDMXpTysUCItcPZZe+003EuoNlyG+xBsVAz4ebAxOEZ04WA4FEblT6N+
+         4rR/RI4oFAS52YEt42QIFBbsgQ3yzM9MrHaawTLYhxlvqIBhlZF6YMtO4r1C31fMOQA0
+         soC0p1yKmFnYh3543V+2TsPH3bI6Wi1hSLRClrQZwKIcTWPGjak1R0nwNapgfDc0/ipO
+         dw1g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778140612; x=1778745412;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=UAC2r2pIGYK6BoP8vASKjfj1y1PElzocW+Rdg94M4Ug=;
+        b=rRGkG7UVBPSDmmRf5gL2Lnjc7b/2q+qTs+s4o8smZ0Wk4iATmo/xFBPoPQoV+Eg5bc
+         pPZap6a9ZTsZuIfcKb3ex1IEj1zpf5NRkfFcyXxwh4eZ8PItJKdbbNZUkliiphyydJ2J
+         w+HB6P9Fg+lZY2Ku57MfiB0XvIB7YoNqCbb2CkHB/oefJJOat5XP1cLaj4R7eL346PiY
+         R4h0kCuykJcBAcTXSP/ym8mgS6QsC164gdDHHOzzbuYP7iQbsZ42ZLQSYJ9pwjJgqice
+         4RhX4MqDs/BQ2V+F93CsijN/8G9eiea8jKN2YcQBVuAp2ptRotPAvEZ+5jtBHuJ7Xjjc
+         M+3A==
+X-Forwarded-Encrypted: i=1; AFNElJ9VGUlZfZuLxZP55JkVDywAsfv25WlFfI2tmPWyMDTVxH76gEJJtveoaj9Li6R+L79C0p647MrVueU=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzqnbHbvikrEM2kCcMLFu6rbS9DpTB4uHRMBiq4VYLdg6P2ZmQU
+	8rlAGg7Jrq/chy7NKJogZk1M+2DnFjZKa0/k/8CDJRJ9Xvm2unemXKi5IQOrB6ksE10=
+X-Gm-Gg: AeBDieu0L205qwnKModwNxLdh3brmzsbxKPa0/UTaCPOoQxEynCBoPFVXnAd+9jUpLu
+	E/7PVab1ykimQ1IrLRmNZBnIs2eK3RPLe/Y92NHAuHlcjEfiLt/TpTaM9KrLKpD27J7Dm8kOlOb
+	80ir1VgwZKJ/6iZCm8qyxv5QgiAkWuyIVn6fg8HUJ7cENoiXu4sNb9++RXdUnwderbX7Qa5RL9g
+	J9EWqeEWKHqaIlPB5oPXlShNOqostJSZCT0tZ5dir/41YvXE0jCiDe2Mfrxz+c5FiJKxjn/acxA
+	eQ7YQ4ZMG0EmwhCmqanEqBo2HF3Jn45/Quq+yhU2JDa73b8NtUNrULak16iTW5+FYLE/vn82Epo
+	nI0IL9z7kV6JIUDU/jFGfjS43lzvLgGHlqQ/Vc2W2Qls7u0iXOYhhZK2bAN9FSc3FcquWIBePgw
+	r4bNouHwBKOAf5XZPGzWEPFS1bC+BYNpG2HssmXj5wltU1bgZ/9KzjUjji9aexpwr37oyD+7RK4
+	mrV7HJqrTK1VRbSd9iN0vVwqA==
+X-Received: by 2002:a05:7300:72d1:b0:2ea:ed7c:8064 with SMTP id 5a478bee46e88-2f548895145mr3507115eec.3.1778140611874;
+        Thu, 07 May 2026 00:56:51 -0700 (PDT)
+Received: from ?IPV6:2600:1700:5ae0:228c:e58:7bff:fe94:34ed? ([2600:1700:5ae0:228c:e58:7bff:fe94:34ed])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f57038b096sm6269848eec.27.2026.05.07.00.56.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 07 May 2026 00:56:51 -0700 (PDT)
+Message-ID: <471722ab-a6f2-4e21-9b68-ef2050ec4e65@wkennington.com>
+Date: Thu, 7 May 2026 00:56:50 -0700
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 1/4] i2c: designware: Introduce shutdown exported
+ function
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
+ Jan Dabros <jsd@semihalf.com>, Andi Shyti <andi.shyti@kernel.org>,
+ linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260504-dw-i2c-v3-0-57e56135d602@wkennington.com>
+ <20260504-dw-i2c-v3-1-57e56135d602@wkennington.com>
+ <afmcdXJt9X0Y3mw3@ashevche-desk.local>
+Content-Language: en-US
+From: "William A. Kennington III" <william@wkennington.com>
+In-Reply-To: <afmcdXJt9X0Y3mw3@ashevche-desk.local>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Last-TLS-Session-Version: TLSv1.3
 
-Hi Linus,
+On 5/5/26 00:29, Andy Shevchenko wrote:
 
-On Thu, 26 Mar 2026 11:33:19 +0100
-Linus Walleij <linusw@kernel.org> wrote:
+> On Mon, May 04, 2026 at 08:15:02PM +0000, William A. Kennington III wrote:
+>> Introduce an exported shutdown function to safely shutdown the
+>> DesignWare I2C controller.
+>>
+>> This shutdown hook gracefully sets the slave disable bit before disabling
+>> the controller. This guarantees that any incoming requests from the master
+>> are immediately NACKed during shutdown, preventing the bus from hanging.
+> ...
+Is this just language correction?
+>
+>> +void i2c_dw_shutdown(struct dw_i2c_dev *dev)
+>> +{
+>> +	unsigned int con;
+>> +
+>> +	/*
+>> +	 * We only need to handle shutdown for slave mode to ensure
+>> +	 * we NACK any incoming master requests. Master mode cleanup
+>> +	 * is handled after each transfer in i2c_dw_xfer.
+> i2c_dw_xfer()
+>
+>> +	 */
+> Since it's a newly added comment, can you switch to use inclusive language?
+> Same for the whole series related to the commit messages, comments, and
+> documentation.
+>
+>> +	if (dev->mode != DW_IC_SLAVE)
+>> +		return;
+>> +
+>> +	/*
+>> +	 * To quickly NACK the master during shutdown, we set the slave
+>> +	 * disable bit while the controller is still enabled.
+>> +	 */
+>> +	regmap_read(dev->map, DW_IC_CON, &con);
+>> +	con |= DW_IC_CON_SLAVE_DISABLE;
+>> +	regmap_write(dev->map, DW_IC_CON, con);
+>> +
+>> +	i2c_dw_disable(dev);
+>> +}
+>> +EXPORT_SYMBOL_GPL(i2c_dw_shutdown);
+> Can we use namespace?
 
-> Hi Herve,
-> 
-> this is nitpicking, but if you respin the series consider the following:
-> 
-> On Wed, Mar 25, 2026 at 3:42 PM Herve Codina <herve.codina@bootlin.com> wrote:
-> >
-> > Nodes available in the dtso are not ordered by their unit address.
-> >
-> > Fix that re-ordering them according to their unit address.
-> >
-> > Signed-off-by: Herve Codina <herve.codina@bootlin.com>  
-> (...)
-> > +                               switch: switch@e0000000 {  
-> 
-> Recommended practice is:
-> 
-> ethernet-switch@...
-> 
-> > +                                       compatible = "microchip,lan966x-switch";
-> > +                                       reg = <0xe0000000 0x0100000>,
-> > +                                             <0xe2000000 0x0800000>;
-> > +                                       reg-names = "cpu", "gcb";
-> > +
-> > +                                       interrupt-parent = <&oic>;
-> > +                                       interrupts = <12 IRQ_TYPE_LEVEL_HIGH>,
-> > +                                                    <9 IRQ_TYPE_LEVEL_HIGH>;
-> > +                                       interrupt-names = "xtr", "ana";
-> > +
-> > +                                       resets = <&reset 0>;
-> > +                                       reset-names = "switch";
-> > +
-> > +                                       pinctrl-names = "default";
-> > +                                       pinctrl-0 = <&tod_pins>;
-> > +
-> > +                                       ethernet-ports {
-> > +                                               #address-cells = <1>;
-> > +                                               #size-cells = <0>;
-> > +
-> > +                                               port0: port@0 {  
-> 
-> Recommended practice is:
-> ethernet-port@...
-> 
+It already does use namespaces with
 
-Yes, it should be but the DT binding [0] says "switch" and "port".
+`#define DEFAULT_SYMBOL_NAMESPACE    "I2C_DW_COMMON"`
 
-Those node names have to follow the DT binding even if this binding doesn't
-follow recommended practice.
+I assume I should just keep it consistent as-is?
 
-[0] https://elixir.bootlin.com/linux/v7.0/source/Documentation/devicetree/bindings/net/microchip,lan966x-switch.yaml
-
-Best regards,
-Hervé
-
--- 
-Hervé Codina, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+> ...
+>
+>>   void __i2c_dw_disable(struct dw_i2c_dev *dev);
+>>   void i2c_dw_disable(struct dw_i2c_dev *dev);
+>> +void i2c_dw_shutdown(struct dw_i2c_dev *dev);
+> Isn't more tighten to the probe/remove than this?
+Yes, can move it
+>>   extern void i2c_dw_configure_master(struct dw_i2c_dev *dev);
+>>   extern int i2c_dw_probe_master(struct dw_i2c_dev *dev);
