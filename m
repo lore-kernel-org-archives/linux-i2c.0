@@ -1,110 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E9BD3C2770
-	for <linux-i2c@vger.kernel.org>; Thu,  7 May 2026 09:27:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 956FE3BC673;
+	Thu,  7 May 2026 10:04:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778146053; cv=none; b=RapPg+63/pMyUOe4ETDRW1Rf1z+Iy2BE4SqdQ+sILfHaLZMZHzYUU6rF73FHezqewgzBKTI9qfwzqBHPRvNV5DCEGY41FN4wo3eUllEI1ZeFMKlU49MKJU4tKbx/6yhgHs/oVrgTPcLCCR9FjvwklUunih9YM9AzUjh8Zpdtd/k=
+	t=1778148268; cv=none; b=MUzE5zlgjmvOSbjLOpVFWjTSbzAdkyJ2Lxf66sZOGJlVS4PrDcENbMbBezbMMTF+/qVEsqdpOWZ3NcXvbJjeH67sJ4enBkZbwATMWmYmlWRudHUq+dRz+q/cQt+E/FrX74QxsLyzqVYySW+FmVj6vPQsmLguwgkoQ1oDC175WHA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778146053; c=relaxed/simple;
-	bh=x/JAxKHI7Ael5G6MScPlk2H+HssAyXfZZlY70tK9iiU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=JeJnYEXcJrGn4XDQWpz9AFKbzCHtKmOZipOcz3ditdt6LWZQYkd93VA1AZiJniuUznWXa7+xc4f4IBY5aACs0HZONq4mHTvP45FpELSUzZKWA8FveKuJe2n9ZmZ2lnCAz69yuGL2t28X0yuv0iEd5fluDOFC5AIRG1Sslw2xW6c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jLY+b/JI; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778148268; c=relaxed/simple;
+	bh=4PwmtKc9rXVYpjCQBH6PZpSV/qmCalDqSouPSwZ6xtQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=j0DBuvvnv240HlNJRrHrgFRNa9UgMFdd1WOacIjLiS+YO3ki1H9GMGDKVAEvxh9g7WewbnUqxaBZa+ETb6T8Gk07OLAQEWI90+pkiMDCLkT4BYncdVapVpMgXiJxJsm3dvk3HUqdvcJ86F7e6FZkoYRJNCWuRqEuSGP3bl6tWFw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TRfFQVvh; arc=none smtp.client-ip=198.175.65.18
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jLY+b/JI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1563FC4AF0B
-	for <linux-i2c@vger.kernel.org>; Thu,  7 May 2026 09:27:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778146053;
-	bh=x/JAxKHI7Ael5G6MScPlk2H+HssAyXfZZlY70tK9iiU=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=jLY+b/JIweUhyC9EQbHXXX5+lUmjtPDCTb6CEWbCjVfCRDxJBarnaFFJzSN6Bzlh0
-	 uCBEKbVBx4QScxOyjQPbqKFL3Bu6RuD9bKJUAFyBz9J0FA4byC/YJXb0wVoxMsuReK
-	 3soKa5myCMdJejcLC2ivtOETqwzlHbP/ylHLwfkBHUJ9fLLxa/2mrtE2/52uncMt46
-	 UWtjOequ1q4un2go6HLe4u7eZZBLme1CZGfxagu1HpXGQOM+6JNistT2nFPmP0ex1D
-	 O7uWqQ49MgQjufgzK4+sdpbdDl6D0F/yZLKJyhL5sY3st+r4VSd5aLvszlIYA702LH
-	 Fc383SH2bck0Q==
-Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-59dea72099eso578180e87.0
-        for <linux-i2c@vger.kernel.org>; Thu, 07 May 2026 02:27:33 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ/r3x5h/xSphKci1Wi1Yv0SPZR2wxPvyMrVcZ/hDOjzdL021paRZPzppqzSp7TL4SEjbYiriqtu0eE=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxDAMXzzGmbFt3dieEtmeGpPVWzRHZMgsmIu7QwAxFnPUuOmdtJ
-	guLYgMBxfFg14zopK1AcFg72c8BljHTpHAAcfPqPAtEG0+2Zf/3vwcL5B+IFceBPWfaAd9L3lcE
-	9EU/YMDXsy4pk1DAKCpPDEJ8fmLsHma0=
-X-Received: by 2002:a05:6512:3ba7:b0:5a4:d34:5b38 with SMTP id
- 2adb3069b0e04-5a887ada944mr2206033e87.2.1778146051005; Thu, 07 May 2026
- 02:27:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TRfFQVvh"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1778148266; x=1809684266;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=4PwmtKc9rXVYpjCQBH6PZpSV/qmCalDqSouPSwZ6xtQ=;
+  b=TRfFQVvh/6LgMENWMlWP4dxBvm1X1NNsoDPY/S2iQsvsSQWA5KIy7eZS
+   shXYdsA9DfHQH80EH3UrHUdZIsBlmCKOrqXd8H02uVPQUE2M39uDmBsZj
+   uFYcwJ269oFz9Kg6NTYxjWK13qvmn6whXxrKHUrLBPLHibUbx4K4xiK67
+   a366d6pxvzB5nvuWhBq1HLRzV8ooO7J25+QBKS9ErzEVFBJpG3JV2/BvU
+   xoDkpGk/gl7qRUetUEFN8F9nqZY/lijOhmoZn9U5aQY1s7OWrrDjFOMpF
+   rniOrM6Lis34RYceVyQgZvb1KOh+40P37c6iguVhgcmXw2mTfrrxvXFoP
+   A==;
+X-CSE-ConnectionGUID: e4oj+GMRQWmDWzh25UHbDQ==
+X-CSE-MsgGUID: SfuJ99f6QgigIViHYCmAHw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11778"; a="79111644"
+X-IronPort-AV: E=Sophos;i="6.23,221,1770624000"; 
+   d="scan'208";a="79111644"
+Received: from fmviesa007.fm.intel.com ([10.60.135.147])
+  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 May 2026 03:04:25 -0700
+X-CSE-ConnectionGUID: hYQ6tYeMS0iJiGrftaoKug==
+X-CSE-MsgGUID: HbigTnPkRm27hIbHUp3sWg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,221,1770624000"; 
+   d="scan'208";a="233335359"
+Received: from vpanait-mobl.ger.corp.intel.com (HELO localhost) ([10.245.245.149])
+  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 May 2026 03:04:23 -0700
+Date: Thu, 7 May 2026 13:04:20 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: "William A. Kennington III" <william@wkennington.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jan Dabros <jsd@semihalf.com>, Andi Shyti <andi.shyti@kernel.org>,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 1/4] i2c: designware: Introduce shutdown exported
+ function
+Message-ID: <afxjpG8Gvh7FyC5z@ashevche-desk.local>
+References: <20260504-dw-i2c-v3-0-57e56135d602@wkennington.com>
+ <20260504-dw-i2c-v3-1-57e56135d602@wkennington.com>
+ <afmcdXJt9X0Y3mw3@ashevche-desk.local>
+ <471722ab-a6f2-4e21-9b68-ef2050ec4e65@wkennington.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260325143555.451852-1-herve.codina@bootlin.com>
- <20260325143555.451852-21-herve.codina@bootlin.com> <CAD++jLkFu+Z22QBFiaa9S+Epeh=RJZOYX8BOLVDFw4bhEoYF1Q@mail.gmail.com>
- <20260507092326.2f8e3b47@bootlin.com>
-In-Reply-To: <20260507092326.2f8e3b47@bootlin.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Thu, 7 May 2026 11:27:19 +0200
-X-Gmail-Original-Message-ID: <CAD++jLmsaddK4MLYhfK+1OkK263QqJfMZ3HF=L0Y7QdDsgX4XQ@mail.gmail.com>
-X-Gm-Features: AVHnY4J4kpHKlWyF60L1gEgZ_kRiVmUaWPxnRdg2mF7S7on9qK93oGWvqiVfuCU
-Message-ID: <CAD++jLmsaddK4MLYhfK+1OkK263QqJfMZ3HF=L0Y7QdDsgX4XQ@mail.gmail.com>
-Subject: Re: [PATCH v6 20/27] misc: lan966x_pci: Fix dtso nodes ordering
-To: Herve Codina <herve.codina@bootlin.com>
-Cc: Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Geert Uytterhoeven <geert+renesas@glider.be>, Kalle Niemi <kaleposti@gmail.com>, 
-	Matti Vaittinen <mazziesaccount@gmail.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	"Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
-	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
-	Fabio Estevam <festevam@gmail.com>, Michael Turquette <mturquette@baylibre.com>, 
-	Stephen Boyd <sboyd@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, Peter Rosin <peda@axentia.se>, 
-	Arnd Bergmann <arnd@arndb.de>, Saravana Kannan <saravanak@kernel.org>, 
-	Bjorn Helgaas <bhelgaas@google.com>, Charles Keepax <ckeepax@opensource.cirrus.com>, 
-	Richard Fitzgerald <rf@opensource.cirrus.com>, David Rhodes <david.rhodes@cirrus.com>, 
-	Ulf Hansson <ulf.hansson@linaro.org>, Mark Brown <broonie@kernel.org>, Len Brown <lenb@kernel.org>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Daniel Scally <djrscally@gmail.com>, 
-	Heikki Krogerus <heikki.krogerus@linux.intel.com>, 
-	Sakari Ailus <sakari.ailus@linux.intel.com>, Davidlohr Bueso <dave@stgolabs.net>, 
-	Jonathan Cameron <jonathan.cameron@huawei.com>, Dave Jiang <dave.jiang@intel.com>, 
-	Alison Schofield <alison.schofield@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, 
-	Ira Weiny <ira.weiny@intel.com>, Dan Williams <dan.j.williams@intel.com>, 
-	Shawn Guo <shawnguo@kernel.org>, Wolfram Sang <wsa@kernel.org>, linux-kernel@vger.kernel.org, 
-	driver-core@lists.linux.dev, imx@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, linux-clk@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-pci@vger.kernel.org, linux-sound@vger.kernel.org, 
-	patches@opensource.cirrus.com, linux-gpio@vger.kernel.org, 
-	linux-pm@vger.kernel.org, linux-spi@vger.kernel.org, 
-	linux-acpi@vger.kernel.org, linux-cxl@vger.kernel.org, 
-	Allan Nielsen <allan.nielsen@microchip.com>, Horatiu Vultur <horatiu.vultur@microchip.com>, 
-	Steen Hegelund <steen.hegelund@microchip.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>, 
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <471722ab-a6f2-4e21-9b68-ef2050ec4e65@wkennington.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Thu, May 7, 2026 at 9:23=E2=80=AFAM Herve Codina <herve.codina@bootlin.c=
-om> wrote:
+On Thu, May 07, 2026 at 12:56:50AM -0700, William A. Kennington III wrote:
+> On 5/5/26 00:29, Andy Shevchenko wrote:
+> > On Mon, May 04, 2026 at 08:15:02PM +0000, William A. Kennington III wrote:
+> > > Introduce an exported shutdown function to safely shutdown the
+> > > DesignWare I2C controller.
+> > > 
+> > > This shutdown hook gracefully sets the slave disable bit before disabling
+> > > the controller. This guarantees that any incoming requests from the master
+> > > are immediately NACKed during shutdown, preventing the bus from hanging.
+...
 
-> > Recommended practice is:
-> >
-> > ethernet-switch@...
-(...)
-> > Recommended practice is:
-> > ethernet-port@...
->
-> Yes, it should be but the DT binding [0] says "switch" and "port".
-(...)
-> Those node names have to follow the DT binding even if this binding doesn=
-'t
-> follow recommended practice.
+> Is this just language correction?
 
-Aha this binding is not referencing the standard ethernet-switch.yaml,
-that's why I got confused.
+I have asked for replacing 'slave'/'master' terminology to a new,
+inclusive one.
 
-OK let's just fix it then, I sent a patch.
+...
 
-Yours,
-Linus Walleij
+
+> > > +	/*
+> > > +	 * We only need to handle shutdown for slave mode to ensure
+> > > +	 * we NACK any incoming master requests. Master mode cleanup
+> > > +	 * is handled after each transfer in i2c_dw_xfer.
+> > i2c_dw_xfer()
+> > 
+> > > +	 */
+> > Since it's a newly added comment, can you switch to use inclusive language?
+> > Same for the whole series related to the commit messages, comments, and
+> > documentation.
+
+Same here and...
+
+> > > +	/*
+> > > +	 * To quickly NACK the master during shutdown, we set the slave
+> > > +	 * disable bit while the controller is still enabled.
+> > > +	 */
+
+...here.
+
+...
+
+> > > +EXPORT_SYMBOL_GPL(i2c_dw_shutdown);
+> > Can we use namespace?
+> 
+> It already does use namespaces with
+> 
+> `#define DEFAULT_SYMBOL_NAMESPACE    "I2C_DW_COMMON"`
+> 
+> I assume I should just keep it consistent as-is?
+
+Yep, thanks for pointing that out!
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
