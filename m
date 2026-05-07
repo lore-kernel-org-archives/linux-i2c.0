@@ -1,183 +1,150 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 672D9224F3;
-	Thu,  7 May 2026 08:11:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 800563A4512
+	for <linux-i2c@vger.kernel.org>; Thu,  7 May 2026 09:02:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778141497; cv=none; b=ImbgaB+ngN00aCUWLKzKMz5OVjT2x9+2JROQjZKxk8QhF5s6LLWj3BVf6TUM1FmMmHlemGgIHHBhEgAkZyzCgiq00nEUKoqZisAf2eMMO0DzusZoeO2tzQUGyvGyfNQ5b2CRptARqD8JpVY0DhzFh7WnbkYw9iB/uJR3MuYM7yw=
+	t=1778144583; cv=none; b=Qi/6l96tLGLSvDHUKI3uelmcRwS22RNosLq/d2qSZY5CmkcLVYLYZ6+B7mBTtDhDZJ/i5cQ51Ed9orm6eHOhUv0HxFIpsyrud03rWXnNdg+xmxBERw62LS5AkZZy8BxNw7ShljM24xA27ki7rZx8CiaGUCa9SOlMZpq5/FZ5ILM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778141497; c=relaxed/simple;
-	bh=QqOG+YJLMq4Z0Ohnpeg7klTdc2gzVyUaA7a15v/HyKM=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=EnLx/vMKabEGkNCYPVr6JHLeEQbMSAYHp7hCX5ig4WmKX4tbp2nYu2zwSD24fkXXurxzGhA7xmoodR1iN2DnHyvhPAiUbAq1BOqdT5DAPYE3uM/xvINeSi63+kzlSQOGwZnBXVMINsHxFztktmMQtUCEhy6FpP87VUsz8RWlZog=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.101])
-	by gateway (Coremail) with SMTP id _____8DxhukqSfxpzGkHAA--.23984S3;
-	Thu, 07 May 2026 16:11:22 +0800 (CST)
-Received: from loongson-pc.loongson.cn (unknown [10.20.42.101])
-	by front1 (Coremail) with SMTP id qMiowJBxSeAkSfxpvyd8AA--.39544S3;
-	Thu, 07 May 2026 16:11:21 +0800 (CST)
-From: Hongliang Wang <wanghongliang@loongson.cn>
-To: Binbin Zhou <zhoubinbin@loongson.cn>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Hongliang Wang <wanghongliang@loongson.cn>
-Cc: linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	loongarch@lists.linux.dev
-Subject: [PATCH v2] i2c: ls2x: Add clocks property parsing and adjust bus speed
-Date: Thu,  7 May 2026 16:10:10 +0800
-Message-Id: <20260507081010.12810-2-wanghongliang@loongson.cn>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20260507081010.12810-1-wanghongliang@loongson.cn>
-References: <20260507081010.12810-1-wanghongliang@loongson.cn>
+	s=arc-20240116; t=1778144583; c=relaxed/simple;
+	bh=lzGAXpz5VVwRm6k9RC+Er0oVi9WNpDTR6j8dEsP4iC8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZQu0NalQcY9+V7uoyvsEbqbW+nzYPWBmtP5uKnJoiM4pCteFgIGHWNLK0e00Swtfq4Vrv95wVn/gZbD+i6YNwpA/o2cks2euYslc3sy87Hrd1W8sHscWbZM/oulXQTg39ZlgEmkA0iMxkYMmDN4cb1XHP3LwkQyALT6n4FfHb2w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=KeHo31qB; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="KeHo31qB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=TuMh
+	tI+hXthBehxVA73OjNQaI5K8KyhPJ5Dxtrx3thM=; b=KeHo31qBT9EYVyVE88rY
+	uy/AStlbmjt7x5hS/rslGfRpF9Ri/wZmDX7WrX1YG+ZLzh49F/pReTJJog/eGwe4
+	9RQGy7Mu3RR7vWwPCtSkt5woc1WZp9Vz0TcygDDNGiJ56JiUa2M4WOgp4klfPxmR
+	Enn+Gjugp++zW6psrj9oSNAkge0emP/KzfpdHG1fWkEyXCl199cuTWjDAXZr70//
+	Wl9VCccBsUGla3Hecx8aXx70Z5PmDIOK/xhV1K2OivZ+Da9zavmle1DfofP32iLD
+	BrZWeuQFJPQ+Q2xmZsw+QmiT/pEBn7cK5zXyWjRERZX3yydgGHkYO8d0A3uZQugu
+	jw==
+Received: (qmail 1041669 invoked from network); 7 May 2026 11:02:46 +0200
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 7 May 2026 11:02:46 +0200
+X-UD-Smtp-Session: l3s3148p1@N/Y9izZR6rMujnuP
+Date: Thu, 7 May 2026 11:02:46 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Weiming Shi <bestswngs@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Xiang Mei <xmei5@asu.edu>
+Subject: Re: [PATCH v3] i2c: smbus: reject oversized block transfers in the
+ common path
+Message-ID: <afxVNh1wopdfZdy1@ninjato>
+References: <20260505175510.1403736-2-bestswngs@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJBxSeAkSfxpvyd8AA--.39544S3
-X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxJFW8Ar4xJF1DCF1rKrWkZrc_yoWrWr13pF
-	WDCFZ5Gr4jqF12grnIqw17ZFyYvws5JFZ7tr4xtw1xK3Z3Wr1DZ3Wftrn0kF1kGF97u3y8
-	Xayqgr45uayDZrcCm3ZEXasCq-sJn29KB7ZKAUJUUUUr529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUBIb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
-	xVW8Jr0_Cr1UM2kKe7AKxVWUXVWUAwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07
-	AIYIkI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
-	AVWUtwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
-	AKI48JMxkF7I0En4kS14v26r126r1DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY
-	6r1j6r4UMxCIbckI1I0E14v26r1Y6r17MI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7
-	xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xII
-	jxv20xvE14v26r1I6r4UMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw2
-	0EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aVCY1x02
-	67AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU8HKZJUUUUU==
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="/MkjF3vi9J28Fh+c"
+Content-Disposition: inline
+In-Reply-To: <20260505175510.1403736-2-bestswngs@gmail.com>
 
-From: wanghongliang <wanghongliang@loongson.cn>
 
-The i2c-ls2x driver supports dts and acpi parameter passing.
-In dts, uses clock framework, by parsing clocks property to
-get i2c bus reference clock, and define factor by device data.
-In acpi, by passing clocks property to describe i2c bus reference
-clock and clock-div property to describe factor.
-Based on i2c bus reference clock(clock_a), i2c bus speed(clock_s)
-and factor, calculate the prcescale of i2c divider register.
-The calculation formula is
-prcescale = clock_a/(factor*clock_s)-1
+--/MkjF3vi9J28Fh+c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: wanghongliang <wanghongliang@loongson.cn>
----
- drivers/i2c/busses/i2c-ls2x.c | 42 ++++++++++++++++++++++++++++++++---
- 1 file changed, 39 insertions(+), 3 deletions(-)
+On Wed, May 06, 2026 at 01:55:11AM +0800, Weiming Shi wrote:
+> The SMBus block transfer length data->block[0] is validated in
+> i2c_smbus_xfer_emulated() but that check runs too late for tracepoints
+> and is skipped entirely when the adapter provides a native smbus_xfer
+> implementation. This allows user-controlled oversized block lengths to
+> reach tracepoint memcpy calls and driver callbacks unchecked.
+>=20
+> Add an early validation in __i2c_smbus_xfer() that rejects block
+> transfers whose caller-supplied length is zero or exceeds
+> I2C_SMBUS_BLOCK_MAX before any tracepoint fires or driver callback
+> runs. data->block[0] is filled in by the device on SMBus block reads,
+> so the check is scoped to operations where the length is actually
+> supplied by the caller. This is consistent with the existing -EINVAL
+> convention in the emulated path and protects all downstream consumers
+> at once: the smbus_write tracepoint, all native smbus_xfer driver
+> implementations, and the emulated path.
+>=20
+> Two distinct bugs are fixed by this change:
+>=20
+> Bug 1: smbus_write tracepoint OOB (include/trace/events/smbus.h)
+>   trace_smbus_write() fires before any validation and copies
+>   data->block[0]+1 bytes into a 34-byte event buffer. With
+>   block[0]=3D0xfe the tracepoint copies 255 bytes, overflowing by 221.
+>=20
+>  BUG: KASAN: stack-out-of-bounds in trace_event_raw_event_smbus_write+0x2=
+7c/0x530
+>  Read of size 255 at addr ffff88800d98fcf8 by task poc_smbus/91
+>  Call Trace:
+>   <TASK>
+>   __asan_memcpy+0x23/0x80
+>   trace_event_raw_event_smbus_write+0x27c/0x530
+>   __i2c_smbus_xfer+0x43a/0xa40
+>   i2c_smbus_xfer+0x19e/0x340
+>   i2cdev_ioctl_smbus+0x38f/0x7f0
+>   i2cdev_ioctl+0x35e/0x680
+>   __x64_sys_ioctl+0x147/0x1e0
+>   do_syscall_64+0xcf/0x15a0
+>   entry_SYSCALL_64_after_hwframe+0x76/0x7e
+>   </TASK>
+>=20
+> Bug 2: i2c-stub I2C_SMBUS_I2C_BLOCK_DATA OOB (drivers/i2c/i2c-stub.c)
+>   stub_xfer() implements .smbus_xfer directly and only clamps
+>   block[0] against 256-command, not I2C_SMBUS_BLOCK_MAX. With
+>   block[0]=3D0xff and command=3D0 the loop accesses block[1+i] for
+>   i up to 254, far past the 34-byte union.
+>=20
+>  UBSAN: array-index-out-of-bounds in drivers/i2c/i2c-stub.c:223:44
+>  index 34 is out of range for type '__u8 [34]'
+>  Call Trace:
+>   <TASK>
+>   __ubsan_handle_out_of_bounds+0xd7/0x120
+>   stub_xfer+0x1971/0x198f [i2c_stub]
+>   __i2c_smbus_xfer+0x306/0xa40
+>   i2c_smbus_xfer+0x19e/0x340
+>   i2cdev_ioctl_smbus+0x38f/0x7f0
+>   i2cdev_ioctl+0x35e/0x680
+>   __x64_sys_ioctl+0x147/0x1e0
+>   do_syscall_64+0xcf/0x15a0
+>   entry_SYSCALL_64_after_hwframe+0x76/0x7e
+>   </TASK>
+>=20
+> Both traces reproduced on v7.0-rc6+i2c/for-current with KASAN+UBSAN.
+>=20
+> Fixes: 8a325997d95d ("i2c: Add message transfer tracepoints for SMBUS [ve=
+r #2]")
+> Fixes: 4710317891e4 ("i2c-stub: Implement I2C block support")
+> Reported-by: Xiang Mei <xmei5@asu.edu>
+> Signed-off-by: Weiming Shi <bestswngs@gmail.com>
 
-diff --git a/drivers/i2c/busses/i2c-ls2x.c b/drivers/i2c/busses/i2c-ls2x.c
-index b475dd27b7af..7db91e7a5d78 100644
---- a/drivers/i2c/busses/i2c-ls2x.c
-+++ b/drivers/i2c/busses/i2c-ls2x.c
-@@ -13,6 +13,7 @@
- #include <linux/bitfield.h>
- #include <linux/bits.h>
- #include <linux/completion.h>
-+#include <linux/clk.h>
- #include <linux/device.h>
- #include <linux/iopoll.h>
- #include <linux/i2c.h>
-@@ -63,11 +64,16 @@
- /* The default bus frequency, which is an empirical value */
- #define LS2X_I2C_FREQ_STD	(33 * HZ_PER_KHZ)
- 
-+struct ls2x_i2c_chip_data {
-+	unsigned int	factor;
-+};
-+
- struct ls2x_i2c_priv {
- 	struct i2c_adapter	adapter;
- 	void __iomem		*base;
- 	struct i2c_timings	i2c_t;
- 	struct completion	cmd_complete;
-+	const struct ls2x_i2c_chip_data	*chip_data;
- };
- 
- /*
-@@ -96,6 +102,8 @@ static irqreturn_t ls2x_i2c_isr(int this_irq, void *dev_id)
- static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
- {
- 	u16 val;
-+	u32 pclk, factor;
-+	struct clk *clk;
- 	struct i2c_timings *t = &priv->i2c_t;
- 	struct device *dev = priv->adapter.dev.parent;
- 	u32 acpi_speed = i2c_acpi_find_bus_speed(dev);
-@@ -107,12 +115,30 @@ static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
- 	else
- 		t->bus_freq_hz = LS2X_I2C_FREQ_STD;
- 
-+	if (dev_of_node(dev)) {
-+		clk = devm_clk_get_optional_enabled(dev, NULL);
-+		if (IS_ERR(clk) || !clk)
-+			pclk = LS2X_I2C_PCLK_FREQ;
-+		else
-+			pclk = clk_get_rate(clk);
-+
-+		factor = priv->chip_data->factor;
-+
-+		val = (pclk * 10) / (factor * t->bus_freq_hz) - 1;
-+	} else {
-+		if (!device_property_read_u32(dev, "clocks", &pclk) &&
-+		    !device_property_read_u32(dev, "clock-div", &factor) &&
-+		    factor != 0)
-+			val = (pclk * 10) / (factor * t->bus_freq_hz) - 1;
-+		else
-+			val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
-+	}
-+
- 	/*
- 	 * According to the chip manual, we can only access the registers as bytes,
- 	 * otherwise the high bits will be truncated.
- 	 * So set the I2C frequency with a sequential writeb() instead of writew().
- 	 */
--	val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
- 	writeb(FIELD_GET(GENMASK(7, 0), val), priv->base + I2C_LS2X_PRER_LO);
- 	writeb(FIELD_GET(GENMASK(15, 8), val), priv->base + I2C_LS2X_PRER_HI);
- }
-@@ -295,6 +321,8 @@ static int ls2x_i2c_probe(struct platform_device *pdev)
- 	if (!priv)
- 		return -ENOMEM;
- 
-+	priv->chip_data = device_get_match_data(dev);
-+
- 	/* Map hardware registers */
- 	priv->base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(priv->base))
-@@ -348,9 +376,17 @@ static int ls2x_i2c_resume(struct device *dev)
- static DEFINE_RUNTIME_DEV_PM_OPS(ls2x_i2c_pm_ops,
- 				 ls2x_i2c_suspend, ls2x_i2c_resume, NULL);
- 
-+static const struct ls2x_i2c_chip_data ls2x_i2c_2k_data = {
-+	.factor = 4,
-+};
-+
-+static const struct ls2x_i2c_chip_data ls2x_i2c_7a_data = {
-+	.factor = 5,
-+};
-+
- static const struct of_device_id ls2x_i2c_id_table[] = {
--	{ .compatible = "loongson,ls2k-i2c" },
--	{ .compatible = "loongson,ls7a-i2c" },
-+	{ .compatible = "loongson,ls2k-i2c", .data = &ls2x_i2c_2k_data, },
-+	{ .compatible = "loongson,ls7a-i2c", .data = &ls2x_i2c_7a_data, },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, ls2x_i2c_id_table);
--- 
-2.47.2
+Applied to for-current, thanks!
 
+
+--/MkjF3vi9J28Fh+c
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmn8VTYACgkQFA3kzBSg
+KbacaA//cl9fSH4LzevzTuva1b5C5YkZqyLCR8Qk/xwxchJm8ScZRfhvVNuvzdFB
+NQ0xA22wxqncxvKsR87leNAv0GX17fLbewhDBJk2MEPNarAO4ezuwigbo3ht2Fs4
+oq7oKOFH58qEy7aeBkoRiNGYmh06R3u3PMHhpfFVloKT+cyiYiYBiKIh03g0M0zD
+4ej/tI/07AlzR1wrO7bmiHMJIQHAlpfA/DjOM5RR56IzZGdVFrsJtJHgyH8gtbaK
+zPgU2WRSVtGjlWTG7beoFSY/JeCWJ1oRcoBj7JChVJ+Kd8C/L7KDhV5p8GgEXGO0
+ziltsP3AwdBRFEPcm/oci/eAqKAs8lX4ek06TT9yHWAvmYoGnFv4OZj2tIEukHaI
+T1OJzZK/Oy75A3HqIytYOCpqv5QrUhwcBmK7LtyLeLo64o0UJvlqis6P1ml0WV42
+CFckuilgbCzfwIMLjUHOMZ07Ebir/EuvNOxF0h5HgohcOE51r8j0aIrNHiV1jeL9
+LJAuHHMXwKUZUwFPxMAF8O3vnL+zyC8KGTaE5YV+tUitUtpWv0DT5ew0QfZPbN8Z
+faqB566Fnngopoo5pxq+6OoVBNoa0FC5UTPLPt/2kpZpDMaip2YQCT2vtsRnr/BM
+606X3eB8q5bHVPvCbiU9MIZQe6fvDnTmzyC5DiRnjD7jJe89pFU=
+=oz8X
+-----END PGP SIGNATURE-----
+
+--/MkjF3vi9J28Fh+c--
