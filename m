@@ -1,128 +1,109 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 956FE3BC673;
-	Thu,  7 May 2026 10:04:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27FFC306B3B;
+	Thu,  7 May 2026 11:44:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778148268; cv=none; b=MUzE5zlgjmvOSbjLOpVFWjTSbzAdkyJ2Lxf66sZOGJlVS4PrDcENbMbBezbMMTF+/qVEsqdpOWZ3NcXvbJjeH67sJ4enBkZbwATMWmYmlWRudHUq+dRz+q/cQt+E/FrX74QxsLyzqVYySW+FmVj6vPQsmLguwgkoQ1oDC175WHA=
+	t=1778154275; cv=none; b=DgfArKxATnJwlhGxNCpHUPSwg8RbWuHInxfoXTfKLTrDyPLkslvrDLtPgvLRRlwIKgJL19jZJGZveDfy0QuIVMQ4A8q6bCQirxLT11fnnLJyVnYKuqbMta0tRDQGnC4AcF1qUNii2kxdw9ug1f4xXBGpEuOmPhobJUN/m89/GV8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778148268; c=relaxed/simple;
-	bh=4PwmtKc9rXVYpjCQBH6PZpSV/qmCalDqSouPSwZ6xtQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=j0DBuvvnv240HlNJRrHrgFRNa9UgMFdd1WOacIjLiS+YO3ki1H9GMGDKVAEvxh9g7WewbnUqxaBZa+ETb6T8Gk07OLAQEWI90+pkiMDCLkT4BYncdVapVpMgXiJxJsm3dvk3HUqdvcJ86F7e6FZkoYRJNCWuRqEuSGP3bl6tWFw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TRfFQVvh; arc=none smtp.client-ip=198.175.65.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1778154275; c=relaxed/simple;
+	bh=BsLfyVKiXZWs+0cP61T3ZcSRufjoAGgnxI6JbJKm+Js=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=aChU3d8IfjXcXg8XxCD6KPK79GNlaM+ELuE+mkQVJqKLjN5WPLfDUy4MVyx2Gt97l8w8uA+8CgSusqwP6SmtUaYlWcVOd+TO8p1A0IJ8C/ApcC3VRYQRolqs6uK8e35Zx6iofF1iL9EzA+zHvbA+MHYwzp7zOmuNT809I2vsMWc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=LrZiShSw; arc=none smtp.client-ip=220.197.31.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TRfFQVvh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1778148266; x=1809684266;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=4PwmtKc9rXVYpjCQBH6PZpSV/qmCalDqSouPSwZ6xtQ=;
-  b=TRfFQVvh/6LgMENWMlWP4dxBvm1X1NNsoDPY/S2iQsvsSQWA5KIy7eZS
-   shXYdsA9DfHQH80EH3UrHUdZIsBlmCKOrqXd8H02uVPQUE2M39uDmBsZj
-   uFYcwJ269oFz9Kg6NTYxjWK13qvmn6whXxrKHUrLBPLHibUbx4K4xiK67
-   a366d6pxvzB5nvuWhBq1HLRzV8ooO7J25+QBKS9ErzEVFBJpG3JV2/BvU
-   xoDkpGk/gl7qRUetUEFN8F9nqZY/lijOhmoZn9U5aQY1s7OWrrDjFOMpF
-   rniOrM6Lis34RYceVyQgZvb1KOh+40P37c6iguVhgcmXw2mTfrrxvXFoP
-   A==;
-X-CSE-ConnectionGUID: e4oj+GMRQWmDWzh25UHbDQ==
-X-CSE-MsgGUID: SfuJ99f6QgigIViHYCmAHw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11778"; a="79111644"
-X-IronPort-AV: E=Sophos;i="6.23,221,1770624000"; 
-   d="scan'208";a="79111644"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 May 2026 03:04:25 -0700
-X-CSE-ConnectionGUID: hYQ6tYeMS0iJiGrftaoKug==
-X-CSE-MsgGUID: HbigTnPkRm27hIbHUp3sWg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,221,1770624000"; 
-   d="scan'208";a="233335359"
-Received: from vpanait-mobl.ger.corp.intel.com (HELO localhost) ([10.245.245.149])
-  by fmviesa007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 May 2026 03:04:23 -0700
-Date: Thu, 7 May 2026 13:04:20 +0300
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: "William A. Kennington III" <william@wkennington.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Jan Dabros <jsd@semihalf.com>, Andi Shyti <andi.shyti@kernel.org>,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/4] i2c: designware: Introduce shutdown exported
- function
-Message-ID: <afxjpG8Gvh7FyC5z@ashevche-desk.local>
-References: <20260504-dw-i2c-v3-0-57e56135d602@wkennington.com>
- <20260504-dw-i2c-v3-1-57e56135d602@wkennington.com>
- <afmcdXJt9X0Y3mw3@ashevche-desk.local>
- <471722ab-a6f2-4e21-9b68-ef2050ec4e65@wkennington.com>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="LrZiShSw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=cI
+	OxVggy/oGtIdJWD5TzWsr9gfJewY+4jEEYfMvLs3s=; b=LrZiShSwNmolVlh/WC
+	TNhm1lqvLkPE3BT5tNWmWb1xeyK1T/UTnBD6wOmK1Z4bjQUd1xf7q9vZN9Yx7X1N
+	AxdxQoeV9N+iIqFPm/8VkE7itphPW24UgXfG3WxcFZsYOQtyoNcCxIkaOLg9nJpX
+	qz2jh3oK/fXM5qnPisgMJ/rYg=
+Received: from wmy.localdomain (unknown [])
+	by gzga-smtp-mtada-g1-0 (Coremail) with SMTP id _____wC3VeUAe_xpiCAKAA--.4229S2;
+	Thu, 07 May 2026 19:44:11 +0800 (CST)
+From: w15303746062@163.com
+To: jdelvare@suse.com,
+	andi.shyti@kernel.org
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Mingyu Wang <25181214217@stu.xidian.edu.cn>
+Subject: [PATCH] i2c: i801: fix hardware state machine corruption in error path
+Date: Thu,  7 May 2026 19:43:56 +0800
+Message-Id: <20260507114356.247525-1-w15303746062@163.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <471722ab-a6f2-4e21-9b68-ef2050ec4e65@wkennington.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+X-CM-TRANSID:_____wC3VeUAe_xpiCAKAA--.4229S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxJrW8Jry8uryDWFWrtw1UWrg_yoW8KFWDpa
+	17KrZ0yryDt3Wj9Fn8Ar47uFyrua1fGFWakFykK3Wjva13J3W8ZryftFyYvFykA3s3Z3ya
+	qFyvqasruF4q9r7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07j7GYLUUUUU=
+X-CM-SenderInfo: jzrvjiatxuliiws6il2tof0z/xtbC4wt6Xmn8ewsHUAAA3+
 
-On Thu, May 07, 2026 at 12:56:50AM -0700, William A. Kennington III wrote:
-> On 5/5/26 00:29, Andy Shevchenko wrote:
-> > On Mon, May 04, 2026 at 08:15:02PM +0000, William A. Kennington III wrote:
-> > > Introduce an exported shutdown function to safely shutdown the
-> > > DesignWare I2C controller.
-> > > 
-> > > This shutdown hook gracefully sets the slave disable bit before disabling
-> > > the controller. This guarantees that any incoming requests from the master
-> > > are immediately NACKed during shutdown, preventing the bus from hanging.
-...
+From: Mingyu Wang <25181214217@stu.xidian.edu.cn>
 
-> Is this just language correction?
+A severe livelock and subsequent Hung Task panic were observed in the
+i2c-i801 driver during concurrent Fuzzing. The crash is caused by an
+unconditional hardware register cleanup in the error handling path of
+i801_access().
 
-I have asked for replacing 'slave'/'master' terminology to a new,
-inclusive one.
+When i801_check_pre() fails (e.g., returning -EBUSY because the SMBus
+controller is actively used by BIOS/ACPI or another thread), the kernel
+does not actually acquire the hardware ownership. However, the code jumps
+to the 'out' label and executes:
 
-...
+    iowrite8(SMBHSTSTS_INUSE_STS | STATUS_FLAGS, SMBHSTSTS(priv));
 
+This forcefully clears the INUSE_STS lock and resets the hardware status
+flags without owning the controller. Doing so interrupts ongoing BIOS/ACPI
+transactions and totally corrupts the SMBus hardware state machine.
 
-> > > +	/*
-> > > +	 * We only need to handle shutdown for slave mode to ensure
-> > > +	 * we NACK any incoming master requests. Master mode cleanup
-> > > +	 * is handled after each transfer in i2c_dw_xfer.
-> > i2c_dw_xfer()
-> > 
-> > > +	 */
-> > Since it's a newly added comment, can you switch to use inclusive language?
-> > Same for the whole series related to the commit messages, comments, and
-> > documentation.
+Consequently, all subsequent i801_access() calls fail at the pre-check
+stage, triggering an endless stream of "SMBus is busy, can't use it!"
+error logs. Over a slow serial console, this printk flood monopolizes
+the CPU (Console Livelock), starving other processes trying to acquire
+the mmap_lock down_read semaphore, ultimately triggering the hung task
+watchdog.
 
-Same here and...
+Fix this by introducing an 'out_err' label. If i801_check_pre() fails,
+we safely bypass the hardware register cleanup and only release the
+software locks (pm_runtime and mutex), strictly adhering to the rule of
+not releasing resources that were never acquired.
 
-> > > +	/*
-> > > +	 * To quickly NACK the master during shutdown, we set the slave
-> > > +	 * disable bit while the controller is still enabled.
-> > > +	 */
+Signed-off-by: Mingyu Wang <25181214217@stu.xidian.edu.cn>
+---
+ drivers/i2c/busses/i2c-i801.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-...here.
-
-...
-
-> > > +EXPORT_SYMBOL_GPL(i2c_dw_shutdown);
-> > Can we use namespace?
-> 
-> It already does use namespaces with
-> 
-> `#define DEFAULT_SYMBOL_NAMESPACE    "I2C_DW_COMMON"`
-> 
-> I assume I should just keep it consistent as-is?
-
-Yep, thanks for pointing that out!
-
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 32a3cef02c7b..068b9ffb234f 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -905,7 +905,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+ 
+ 	ret = i801_check_pre(priv);
+ 	if (ret)
+-		goto out;
++		goto out_err;
+ 
+ 	hwpec = (priv->features & FEATURE_SMBUS_PEC) && (flags & I2C_CLIENT_PEC)
+ 		&& size != I2C_SMBUS_QUICK
+@@ -938,6 +938,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+ 	 */
+ 	iowrite8(SMBHSTSTS_INUSE_STS | STATUS_FLAGS, SMBHSTSTS(priv));
+ 
++out_err:
+ 	pm_runtime_put_autosuspend(&priv->pci_dev->dev);
+ 	mutex_unlock(&priv->acpi_lock);
+ 	return ret;
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.34.1
 
