@@ -1,109 +1,68 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27FFC306B3B;
-	Thu,  7 May 2026 11:44:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95E1535F8C5;
+	Thu,  7 May 2026 11:58:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778154275; cv=none; b=DgfArKxATnJwlhGxNCpHUPSwg8RbWuHInxfoXTfKLTrDyPLkslvrDLtPgvLRRlwIKgJL19jZJGZveDfy0QuIVMQ4A8q6bCQirxLT11fnnLJyVnYKuqbMta0tRDQGnC4AcF1qUNii2kxdw9ug1f4xXBGpEuOmPhobJUN/m89/GV8=
+	t=1778155125; cv=none; b=tVMm8VFximKe73yPQBOHUq+9e+IUmDQYJYGkorl4IlkOi1cvipEOcKDaTUBvw6wx6DD6JPYtr/e3wEA3NV6pvsG6MV3ojdXlb+uUpPM1uiVUY4ZlYRloaLq4/pM/fWhjCCb+MKWg0HvM9iy/touMTTRlhWHJn78XAs2lYoSUlAE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778154275; c=relaxed/simple;
-	bh=BsLfyVKiXZWs+0cP61T3ZcSRufjoAGgnxI6JbJKm+Js=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=aChU3d8IfjXcXg8XxCD6KPK79GNlaM+ELuE+mkQVJqKLjN5WPLfDUy4MVyx2Gt97l8w8uA+8CgSusqwP6SmtUaYlWcVOd+TO8p1A0IJ8C/ApcC3VRYQRolqs6uK8e35Zx6iofF1iL9EzA+zHvbA+MHYwzp7zOmuNT809I2vsMWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=LrZiShSw; arc=none smtp.client-ip=220.197.31.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1778155125; c=relaxed/simple;
+	bh=vUIsPIYMAJAOvlRzXuXapUvmiBeujdGmTnJXfJmTsq8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Jw8WPT/dvCYYp8kJGrk3fkKg79aiAUZawbmfAz0mn56bj2EOsRlpBr7xSJcX3zcpjtLlfm2mkZ90TMTMqZFYcvSTJcvezka0NvirxNfV9zBUKx0uNKbOFkvkZ/x8eDC75SSy1Yo52qiUCXkLJMHQhBqKy0a3YBUC6JuUWiikNLE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aK84PsMD; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="LrZiShSw"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=cI
-	OxVggy/oGtIdJWD5TzWsr9gfJewY+4jEEYfMvLs3s=; b=LrZiShSwNmolVlh/WC
-	TNhm1lqvLkPE3BT5tNWmWb1xeyK1T/UTnBD6wOmK1Z4bjQUd1xf7q9vZN9Yx7X1N
-	AxdxQoeV9N+iIqFPm/8VkE7itphPW24UgXfG3WxcFZsYOQtyoNcCxIkaOLg9nJpX
-	qz2jh3oK/fXM5qnPisgMJ/rYg=
-Received: from wmy.localdomain (unknown [])
-	by gzga-smtp-mtada-g1-0 (Coremail) with SMTP id _____wC3VeUAe_xpiCAKAA--.4229S2;
-	Thu, 07 May 2026 19:44:11 +0800 (CST)
-From: w15303746062@163.com
-To: jdelvare@suse.com,
-	andi.shyti@kernel.org
-Cc: linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Mingyu Wang <25181214217@stu.xidian.edu.cn>
-Subject: [PATCH] i2c: i801: fix hardware state machine corruption in error path
-Date: Thu,  7 May 2026 19:43:56 +0800
-Message-Id: <20260507114356.247525-1-w15303746062@163.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aK84PsMD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4030CC2BCB2;
+	Thu,  7 May 2026 11:58:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778155125;
+	bh=vUIsPIYMAJAOvlRzXuXapUvmiBeujdGmTnJXfJmTsq8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=aK84PsMD1OrE/h4S28KeZWVduIJoJq3YHDnh30OO+WoguHh2GGwRTrtwFij048hSX
+	 BNkGkIIQUp4Kto5o1+/uRtgjS7tpOxm0NdXhShGEzvsEHH+G1h/38SnKWt02447Vov
+	 qbRb2IVKIxHtICvnSLy9LfnBo6WLAsShGQBXYidbD+5vo2nD+i4rHG9zZ8m+6x2ILL
+	 ze2Tt9OGyR6X5TwDe/psLcYvE8lLY8imOc+q6pvjgaXqe9dGhY/jQzPTHS6qdvWjnw
+	 rjEpVyqhMOXiaC8CDgIH4r4b77dJV50o+WIKhMOiwsIyahGrPi22DlQc4mVwsxYUaU
+	 4Lx3X5wCUxOOQ==
+Date: Thu, 7 May 2026 06:58:43 -0500
+From: "Rob Herring (Arm)" <robh@kernel.org>
+To: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
+Cc: conor+dt@kernel.org, linux-kernel@vger.kernel.org,
+	thor.thayer@linux.intel.com, wsa@kernel.org,
+	devicetree@vger.kernel.org, krzk+dt@kernel.org,
+	linux-i2c@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: i2c: convert altera i2c to dt-schema
+Message-ID: <177815512250.1119572.9279436421990255678.robh@kernel.org>
+References: <20260505053201.5795-1-chaitanya.msabnis@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wC3VeUAe_xpiCAKAA--.4229S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWxJrW8Jry8uryDWFWrtw1UWrg_yoW8KFWDpa
-	17KrZ0yryDt3Wj9Fn8Ar47uFyrua1fGFWakFykK3Wjva13J3W8ZryftFyYvFykA3s3Z3ya
-	qFyvqasruF4q9r7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07j7GYLUUUUU=
-X-CM-SenderInfo: jzrvjiatxuliiws6il2tof0z/xtbC4wt6Xmn8ewsHUAAA3+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260505053201.5795-1-chaitanya.msabnis@gmail.com>
 
-From: Mingyu Wang <25181214217@stu.xidian.edu.cn>
 
-A severe livelock and subsequent Hung Task panic were observed in the
-i2c-i801 driver during concurrent Fuzzing. The crash is caused by an
-unconditional hardware register cleanup in the error handling path of
-i801_access().
+On Tue, 05 May 2026 11:02:01 +0530, Chaitanya Sabnis wrote:
+> Convert the Altera SoftIP I2C Controller bindings from legacy text
+> format to modern dt-schema (YAML).
+> 
+> The hardware constraints and properties remain identical. The example
+> node was updated to use a standard 32-bit address space to clear
+> compilation warnings.
+> 
+> Signed-off-by: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
+> ---
+>  .../bindings/i2c/altr,softip-i2c-v1.0.yaml    | 62 +++++++++++++++++++
+>  .../devicetree/bindings/i2c/i2c-altera.txt    | 39 ------------
+>  2 files changed, 62 insertions(+), 39 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/altr,softip-i2c-v1.0.yaml
+>  delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-altera.txt
+> 
 
-When i801_check_pre() fails (e.g., returning -EBUSY because the SMBus
-controller is actively used by BIOS/ACPI or another thread), the kernel
-does not actually acquire the hardware ownership. However, the code jumps
-to the 'out' label and executes:
-
-    iowrite8(SMBHSTSTS_INUSE_STS | STATUS_FLAGS, SMBHSTSTS(priv));
-
-This forcefully clears the INUSE_STS lock and resets the hardware status
-flags without owning the controller. Doing so interrupts ongoing BIOS/ACPI
-transactions and totally corrupts the SMBus hardware state machine.
-
-Consequently, all subsequent i801_access() calls fail at the pre-check
-stage, triggering an endless stream of "SMBus is busy, can't use it!"
-error logs. Over a slow serial console, this printk flood monopolizes
-the CPU (Console Livelock), starving other processes trying to acquire
-the mmap_lock down_read semaphore, ultimately triggering the hung task
-watchdog.
-
-Fix this by introducing an 'out_err' label. If i801_check_pre() fails,
-we safely bypass the hardware register cleanup and only release the
-software locks (pm_runtime and mutex), strictly adhering to the rule of
-not releasing resources that were never acquired.
-
-Signed-off-by: Mingyu Wang <25181214217@stu.xidian.edu.cn>
----
- drivers/i2c/busses/i2c-i801.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 32a3cef02c7b..068b9ffb234f 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -905,7 +905,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 
- 	ret = i801_check_pre(priv);
- 	if (ret)
--		goto out;
-+		goto out_err;
- 
- 	hwpec = (priv->features & FEATURE_SMBUS_PEC) && (flags & I2C_CLIENT_PEC)
- 		&& size != I2C_SMBUS_QUICK
-@@ -938,6 +938,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
- 	 */
- 	iowrite8(SMBHSTSTS_INUSE_STS | STATUS_FLAGS, SMBHSTSTS(priv));
- 
-+out_err:
- 	pm_runtime_put_autosuspend(&priv->pci_dev->dev);
- 	mutex_unlock(&priv->acpi_lock);
- 	return ret;
--- 
-2.34.1
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 
