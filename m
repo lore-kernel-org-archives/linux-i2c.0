@@ -1,67 +1,67 @@
-Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
+Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A364E35E950
-	for <linux-i2c@vger.kernel.org>; Thu,  7 May 2026 20:05:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AEA13644A4
+	for <linux-i2c@vger.kernel.org>; Thu,  7 May 2026 20:05:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778184325; cv=none; b=c+i+s8+kOW9q6i70soeEZB99HdSvf1wpD2TaR6UfHBJlcwky74D5DShk9R5RndMlzvYDENwtUXPvHrFRQ2M76khf5CWrURbmnIC8qcLBaTkHjOvhue7TsAZGP7mis+XbvxC0J4kEAv+c6FR0aiT7Y3u6wFLlDtJ/sibSQmRbtEY=
+	t=1778184326; cv=none; b=UOIN339ZZT7eAEljgB58Wb1hgbWoHNSNDeAbwxBjgHzQRZPToRXhNhMub4MEIKTeErIwF9RyiWmUm4lOFsu1tuWTxEx/34MZW+QEwirVNp4X9TxURYh8jBJq6BUPcEER8GIgut6zWGAf2AwhVwK7xKA3Snf8A1CDfXxHOL50yI4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778184325; c=relaxed/simple;
-	bh=xdMaato8TzQhG7sEcha36250OMNuC2a38m+gB16kRFU=;
+	s=arc-20240116; t=1778184326; c=relaxed/simple;
+	bh=Oc5uAz/uYSFLgaMHLuonmdBsOam9MFJorSalJ6/K7XY=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=F3KqDnbRlisQRy+POOV5indS7jGPxM+PFbpSsgpt92T8B6dW/ParonAkZ4uo0DlbhfrzpghPbzLxjm/OVMaJyx9k03fkwGb/at8akp8ctALIXV7iPzp9egfPYTBp+YSj5yCBWAIYh+l3tDnCZD1V5r5R/MtaiAktFvvQLlQKlig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wkennington.com; spf=none smtp.mailfrom=wkennington.com; dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b=S2f3MXYk; arc=none smtp.client-ip=209.85.215.171
+	 In-Reply-To:To:Cc; b=ZsB/akD8ELTrWuWkdaajep1fClF00FbFif0cOZGOHrdQDnibzMlyS+GVXAT2LAcdB76imiRC0kd620UBmbWmVRTvsaTxGdQ7gFSReKsUjM5jCTcHiOZr5mKYWof0YythnEtZ7wAEdJQTZXB9neVZWcR/h6hg97L+4d43d1LwZG8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wkennington.com; spf=none smtp.mailfrom=wkennington.com; dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b=BcaUe7C4; arc=none smtp.client-ip=209.85.215.169
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wkennington.com
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=wkennington.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b="S2f3MXYk"
-Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-c80291e6237so925148a12.0
-        for <linux-i2c@vger.kernel.org>; Thu, 07 May 2026 13:05:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b="BcaUe7C4"
+Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-c8026aa4d53so797002a12.3
+        for <linux-i2c@vger.kernel.org>; Thu, 07 May 2026 13:05:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=wkennington-com.20251104.gappssmtp.com; s=20251104; t=1778184324; x=1778789124; darn=vger.kernel.org;
+        d=wkennington-com.20251104.gappssmtp.com; s=20251104; t=1778184325; x=1778789125; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Dbh8YwmHjgZJuVNCq9Cmjprrm6eEx/Q8kVEN8sLgRu4=;
-        b=S2f3MXYkmsULTzHHrDWjRXAQe57gPyh+CxofFXbwX5F3xigvl8lacDyDy/HaAolYu8
-         yYb93yqwLL2CV6OUgBUqX4Vx/nIaNVQH0jI+csXVBdK0JaPKhtebirOhwAfV03x+o9OS
-         Cf6Fvpf/qaftpAFfsvsdcyH9C0XLaiV/9n/CsH9EhhCkp1c1dz3HVK2FKTcMDGZM0gMg
-         d0fI+B4Zl20sWzVJj+vXeaCgVyc/5DpRWd8z8XbjJHk6mysh2wNhvqWN0/xvpP/BZ8oi
-         bmjdC+Wyjpwt7l5EsEDlZunK1S9Sj5K9bs9cjoDHzFXG2RW+0zdEfLMgvhI2230o5bH0
-         wQUg==
+        bh=ak/jJ3kjPdO09tXdhAf8w2E2HP3MFaM+RhiEMxW3OfY=;
+        b=BcaUe7C4cHEChkVAkBNZ53xvVCUmGa8iT2Tdh9k7jgXR4WHj+FQ9brIdAHSPyTt2W5
+         QNelk+lAlo3Dq7xlrPTeuG8RySaOvEhS8sut6y57brdsDOsKKZ7M4KwgFRV/B9J3GksL
+         FwYXUxjt5CXhlMCxpuyG5GFfREc8yXxjCkzOcaXpnjbCoaLONSrMpE4hnebt3Qz3GqSn
+         OoGVY90csKNiEp0sqth/RWTRnprZEz3+tSWp1dUKxFYp0U9piAFxXq+AzDovGF5K+Z/c
+         YeCp+ZbMU7h2qX7/eyTC+2yMcw04mHmM68CKFuDFAIaaDrXRotSz1ruoq38Jt7b+o6Of
+         cwLQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778184324; x=1778789124;
+        d=1e100.net; s=20251104; t=1778184325; x=1778789125;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=Dbh8YwmHjgZJuVNCq9Cmjprrm6eEx/Q8kVEN8sLgRu4=;
-        b=ZXnfVrJmrpyg/5FM4SzPvQBD7n1gYpCfJ3j5H6nakY6FpRuMREyuHR85/b4+p90DpX
-         Sg99PfD8ocU+4RngKQGMAtzs9I/BuCN65d2A8Hm4bcLyLIdx2NMxZUV3k7lHx/x+4Tfk
-         2stgtt/hfqb4Tl+0/+jpT1wvpex167sKrT0zsre5C3Y7xpkD1WpSLMSZWYDup/T8u9H6
-         ZSpofZnDGFLpMCetsTd4fr8nXDwPcaV9iDa+/htphiU64SnWjANTaTXtKxKL+65Sk+LD
-         f9flyO3Bjz3HRY0uzcDTUJkQXNsi127sudSWp/WWJh/UnDMrgxz4yu9QhqykXEQsNb9t
-         llkA==
-X-Gm-Message-State: AOJu0YzIY5u8ETGKHSgdCmUaz7lm45IYpKnx+YOVRom/KUIeZQ6dH6n4
-	niINWHapaHk6uGfS2W9rpT3VrBAMUF+CXWQUk9koiE+yqW3iIL/Q8i52WDk28ivEkyE=
-X-Gm-Gg: AeBDiesmoIMz/2SQVb0M2JJZQAmhBgCIE5hae6uesfuCwN5XcjX8m4FXmCxO7UAc/Iw
-	0EiR4QHQLyNtui9OiyXrQ14HtCoAEtIvCdnOWo5dI4NeJKSZkBuNgCRXFxjjtvmETt4gtfyeI3X
-	uje4hrGy4OF1qd+/X5xHIlk3SbYYvmq33FeRT+Haj8fEswIb62Fw4WeyzbNjBZUGf7ZPXQzmmps
-	OBVtfpvI2OPDaWzTvmQvriuEZbhi1gpljhyqQcy3EJ+qcuUrGmL9QNHv9+mEFMbYxlAg541lyl9
-	7eCo534nodOICluG4k0Vfcp5RqFo/C0xil54JjkjztLQWZB9KaINj/vf1VxpMq7VcRSKq6V2nPg
-	nfBX4H/S2amDkRdspwux5qib5pZTdyatTsgxgW6yb3RCQpSguN4n6czPRYiWQGy3rc2MBlfODRu
-	FB/Uhk7MGPrj5IbnzGzOchRn/FxOCsdbcK2hrZZNZTkZl0XJ8ScpehGCYePfIpPDneTgx9SaHRR
-	UF2T5hEUfZNiao=
-X-Received: by 2002:a05:6a21:6d88:b0:39f:3efb:e888 with SMTP id adf61e73a8af0-3aa5a983571mr10254508637.25.1778184323838;
-        Thu, 07 May 2026 13:05:23 -0700 (PDT)
+        bh=ak/jJ3kjPdO09tXdhAf8w2E2HP3MFaM+RhiEMxW3OfY=;
+        b=p0ZR7PPO14djPSrtSGJqCtamHsHd//KztFwS8gxfxN24dLbx+akP4qKE7tSn28IvHV
+         TzieWdFINK2WCR0SlYjP6kKbu329kdFMTv3wzI2lIJVUFNc1wgE3/s+1/szVa40AYu/g
+         bQle4ojmG3+a0QX2qGZwznDpyxEbKfm6irgfYMX404SJmfsJG56OGXVk07RAb9Kk66Bb
+         hPWs1kxhVUfi/jzVFxDPAo3HDB0Swc1aP/0SUqPHEunruI1z3cAR94DDoNNS8g1zJggd
+         kkppKcjwYmfmutGg9htYc6V2B86gvFwzQR0A44GO1a2wBIHlchIm8n8y7mn1fkw1Vd/G
+         uXbA==
+X-Gm-Message-State: AOJu0Yzhbt4E31n80qe0AVwWQj9SUQRIm68SsYzA2eNPOnLbcIUHPF1S
+	eSLEp52ltnFFaO0+AxsRt6nDFXOAXA4MpUoSXOtEUoKxkZs/H++Ym+TZ9Uqi+V31NuU=
+X-Gm-Gg: AeBDieu2/tyqPGa2zEJr4B+OyIc7iwWOf4LG2piUcsk6kCcmxIcisuDllktgeAUVT1N
+	Rk05XPp31qG6fkB/vCgYy3CbErHbVJVTrADF+TtszoaRaBrvVe9uLzYQtA94cWyIQNXOkmRp9Fa
+	4JRHdQBh5Wanav1bHKiukjvGOIg78BjRR72M/n/3xg+Qy2egT16DOt5Rjhb20QiNLCgLXknUbE2
+	k7fEO4ENU87nwYgj6vcRMqcNjujF8duD3yqRxzBEcfaFDmrQFundGvJpo8Dok9h0oQVdARZpRk0
+	cpuXeUBr+tTqDXdnK1odI7I+mW/pko0YVQG7yVcvt9CrP6Lza++shVSqfJQCCl5I67mvqCfVHBW
+	G+7o8FtTxD6qrVVVDKrf54GWOD415TPQvGS3pfM8X9eBzqgOz1WVKX5D3XhyE2uypP2jml+Eazw
+	diXMQJ4QDgYbJrJBLnfs028NKh7II1HVzG8py5p6B+YSVz4m9dA0MJhqEX612Kt2luESoYvpayU
+	ssVz3TMFrV7tHk=
+X-Received: by 2002:a05:6a20:3941:b0:3a2:9c28:9c3c with SMTP id adf61e73a8af0-3aa5a831d73mr10599771637.11.1778184324647;
+        Thu, 07 May 2026 13:05:24 -0700 (PDT)
 Received: from wakbuild.c.googlers.com (123.143.125.34.bc.googleusercontent.com. [34.125.143.123])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c8263ff29c2sm443200a12.12.2026.05.07.13.05.23
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c8263ff29c2sm443200a12.12.2026.05.07.13.05.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 May 2026 13:05:23 -0700 (PDT)
+        Thu, 07 May 2026 13:05:24 -0700 (PDT)
 From: "William A. Kennington III" <william@wkennington.com>
-Date: Thu, 07 May 2026 20:05:15 +0000
-Subject: [PATCH v4 1/4] i2c: designware: Introduce shutdown exported
- function
+Date: Thu, 07 May 2026 20:05:16 +0000
+Subject: [PATCH v4 2/4] i2c: designware: Convert PCI driver to use shutdown
+ hook
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -70,7 +70,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260507-dw-i2c-v4-1-9a447b23bfdf@wkennington.com>
+Message-Id: <20260507-dw-i2c-v4-2-9a447b23bfdf@wkennington.com>
 References: <20260507-dw-i2c-v4-0-9a447b23bfdf@wkennington.com>
 In-Reply-To: <20260507-dw-i2c-v4-0-9a447b23bfdf@wkennington.com>
 To: Mika Westerberg <mika.westerberg@linux.intel.com>, 
@@ -80,66 +80,43 @@ Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
  "William A. Kennington III" <william@wkennington.com>
 X-Mailer: b4 0.14.3
 
-Introduce an exported shutdown function to safely shutdown the
-DesignWare I2C controller.
-
-This shutdown hook gracefully sets the target disable bit before disabling
-the controller. This guarantees that any incoming requests from the
-controller are immediately NACKed during shutdown, preventing the bus from
-hanging.
+Convert the PCI driver to use the new i2c_dw_shutdown() hook, allowing
+the controller to gracefully NACK master requests during system shutdown.
 
 Signed-off-by: William A. Kennington III <william@wkennington.com>
 ---
- drivers/i2c/busses/i2c-designware-common.c | 24 ++++++++++++++++++++++++
- drivers/i2c/busses/i2c-designware-core.h   |  1 +
- 2 files changed, 25 insertions(+)
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
-index 4dc57fd56170..886f4dad166a 100644
---- a/drivers/i2c/busses/i2c-designware-common.c
-+++ b/drivers/i2c/busses/i2c-designware-common.c
-@@ -1028,5 +1028,29 @@ EXPORT_GPL_DEV_PM_OPS(i2c_dw_dev_pm_ops) = {
- 	RUNTIME_PM_OPS(i2c_dw_runtime_suspend, i2c_dw_runtime_resume, NULL)
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index f21f9877c040..ab21d4414681 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -356,10 +356,24 @@ static const struct pci_device_id i2c_designware_pci_ids[] = {
  };
+ MODULE_DEVICE_TABLE(pci, i2c_designware_pci_ids);
  
-+void i2c_dw_shutdown(struct dw_i2c_dev *dev)
++static void i2c_dw_pci_shutdown(struct pci_dev *pdev)
 +{
-+	unsigned int con;
++	struct dw_i2c_dev *i_dev;
 +
-+	/*
-+	 * We only need to handle shutdown for target mode to ensure
-+	 * we NACK any incoming controller requests. Master mode cleanup
-+	 * is handled after each transfer in i2c_dw_xfer().
-+	 */
-+	if (dev->mode != DW_IC_SLAVE)
++	i_dev = pci_get_drvdata(pdev);
++	if (!i_dev)
 +		return;
 +
-+	/*
-+	 * To quickly NACK the controller during shutdown, we set the target
-+	 * disable bit while the controller is still enabled.
-+	 */
-+	regmap_read(dev->map, DW_IC_CON, &con);
-+	con |= DW_IC_CON_SLAVE_DISABLE;
-+	regmap_write(dev->map, DW_IC_CON, con);
-+
-+	i2c_dw_disable(dev);
++	pm_runtime_disable(&pdev->dev);
++	if (!pm_runtime_status_suspended(&pdev->dev))
++		i2c_dw_shutdown(i_dev);
 +}
-+EXPORT_SYMBOL_GPL(i2c_dw_shutdown);
 +
- MODULE_DESCRIPTION("Synopsys DesignWare I2C bus adapter core");
- MODULE_LICENSE("GPL");
-diff --git a/drivers/i2c/busses/i2c-designware-core.h b/drivers/i2c/busses/i2c-designware-core.h
-index 9d8d104cc391..c71aa2dd368d 100644
---- a/drivers/i2c/busses/i2c-designware-core.h
-+++ b/drivers/i2c/busses/i2c-designware-core.h
-@@ -417,6 +417,7 @@ static inline void i2c_dw_configure(struct dw_i2c_dev *dev)
- 
- int i2c_dw_probe(struct dw_i2c_dev *dev);
- int i2c_dw_init(struct dw_i2c_dev *dev);
-+void i2c_dw_shutdown(struct dw_i2c_dev *dev);
- void i2c_dw_set_mode(struct dw_i2c_dev *dev, int mode);
- 
- #if IS_ENABLED(CONFIG_I2C_DESIGNWARE_BAYTRAIL)
+ static struct pci_driver dw_i2c_driver = {
+ 	.name		= DRIVER_NAME,
+ 	.probe		= i2c_dw_pci_probe,
+ 	.remove		= i2c_dw_pci_remove,
++	.shutdown	= i2c_dw_pci_shutdown,
+ 	.driver         = {
+ 		.pm	= pm_ptr(&i2c_dw_dev_pm_ops),
+ 	},
 
 -- 
 2.54.0.563.g4f69b47b94-goog
