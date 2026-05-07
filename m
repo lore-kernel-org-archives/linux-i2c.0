@@ -1,144 +1,92 @@
-Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D501736D500
-	for <linux-i2c@vger.kernel.org>; Thu,  7 May 2026 07:56:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 9646E33B6F4;
+	Thu,  7 May 2026 08:11:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778140614; cv=none; b=pbsvRR2EEatIBzNWN4aDcdzX2lR16GHD8+rgARjqgLYHzsX7X/V+24SEHY2SMK790Gejl/DO7emXe+HbIWpDx2eF57LkEYRcx/OyRbcqZoDPJdBaQkTbXX3X+mL4OdPnmrxidVOYB1q/cPtS+mG26tVQ+r3JRU17hiFN9YX6g/I=
+	t=1778141495; cv=none; b=MsFBqZctxcffZBsuOGBck06r352b4Vh+KwRCucXNhDuuuingTCB5zxUA1VHRXOSg1V6B//3fwP9HxP3KomMBwew+MXDTm38+wFHdikjgiqxpUWIOmtqbz08X69OdrOtsmcVpOIqOE4VYF7TwAx7KXx2oOqCh2SgzrBhDKNWBs0U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778140614; c=relaxed/simple;
-	bh=TlR/xsfN/SsPRQlJrt9edJEjZ/kU37wAuFHlT5eEPJ0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ik+2hqw9uPxB7zL872bBvJ+3s8z7sLRAjEGD1kCQjzdvAMdPT0OCDgSoGYmCka1St9BB8yR8YA+jFqWur+X3JzjZlbdLvyQ2W8+V4S0Rxcl/ZA7FZLUKgkRKzIC5Oe1s12Ft6jhHUfLPPmXsY67uB65pNQNkBTP+UfKb68Luuwc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wkennington.com; spf=none smtp.mailfrom=wkennington.com; dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b=FCdL3ZFP; arc=none smtp.client-ip=74.125.82.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=wkennington.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=wkennington.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=wkennington-com.20251104.gappssmtp.com header.i=@wkennington-com.20251104.gappssmtp.com header.b="FCdL3ZFP"
-Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-2f36da5c8fbso521916eec.0
-        for <linux-i2c@vger.kernel.org>; Thu, 07 May 2026 00:56:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=wkennington-com.20251104.gappssmtp.com; s=20251104; t=1778140612; x=1778745412; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=UAC2r2pIGYK6BoP8vASKjfj1y1PElzocW+Rdg94M4Ug=;
-        b=FCdL3ZFPWlYBtEdMmX3aqfIrvBsYBVicXkNsb/3BK6mBeFN70zrcSWtHVsngsGTpwW
-         XMVV8PaNMvmEdbzJm3IAUDlXjNvgg6Ozv8sJvLHFZ0jdrs4tCYqJjmT1RcwTTimedUvo
-         9pnDVubkLx/kLDMXpTysUCItcPZZe+003EuoNlyG+xBsVAz4ebAxOEZ04WA4FEblT6N+
-         4rR/RI4oFAS52YEt42QIFBbsgQ3yzM9MrHaawTLYhxlvqIBhlZF6YMtO4r1C31fMOQA0
-         soC0p1yKmFnYh3543V+2TsPH3bI6Wi1hSLRClrQZwKIcTWPGjak1R0nwNapgfDc0/ipO
-         dw1g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778140612; x=1778745412;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=UAC2r2pIGYK6BoP8vASKjfj1y1PElzocW+Rdg94M4Ug=;
-        b=rRGkG7UVBPSDmmRf5gL2Lnjc7b/2q+qTs+s4o8smZ0Wk4iATmo/xFBPoPQoV+Eg5bc
-         pPZap6a9ZTsZuIfcKb3ex1IEj1zpf5NRkfFcyXxwh4eZ8PItJKdbbNZUkliiphyydJ2J
-         w+HB6P9Fg+lZY2Ku57MfiB0XvIB7YoNqCbb2CkHB/oefJJOat5XP1cLaj4R7eL346PiY
-         R4h0kCuykJcBAcTXSP/ym8mgS6QsC164gdDHHOzzbuYP7iQbsZ42ZLQSYJ9pwjJgqice
-         4RhX4MqDs/BQ2V+F93CsijN/8G9eiea8jKN2YcQBVuAp2ptRotPAvEZ+5jtBHuJ7Xjjc
-         M+3A==
-X-Forwarded-Encrypted: i=1; AFNElJ9VGUlZfZuLxZP55JkVDywAsfv25WlFfI2tmPWyMDTVxH76gEJJtveoaj9Li6R+L79C0p647MrVueU=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzqnbHbvikrEM2kCcMLFu6rbS9DpTB4uHRMBiq4VYLdg6P2ZmQU
-	8rlAGg7Jrq/chy7NKJogZk1M+2DnFjZKa0/k/8CDJRJ9Xvm2unemXKi5IQOrB6ksE10=
-X-Gm-Gg: AeBDieu0L205qwnKModwNxLdh3brmzsbxKPa0/UTaCPOoQxEynCBoPFVXnAd+9jUpLu
-	E/7PVab1ykimQ1IrLRmNZBnIs2eK3RPLe/Y92NHAuHlcjEfiLt/TpTaM9KrLKpD27J7Dm8kOlOb
-	80ir1VgwZKJ/6iZCm8qyxv5QgiAkWuyIVn6fg8HUJ7cENoiXu4sNb9++RXdUnwderbX7Qa5RL9g
-	J9EWqeEWKHqaIlPB5oPXlShNOqostJSZCT0tZ5dir/41YvXE0jCiDe2Mfrxz+c5FiJKxjn/acxA
-	eQ7YQ4ZMG0EmwhCmqanEqBo2HF3Jn45/Quq+yhU2JDa73b8NtUNrULak16iTW5+FYLE/vn82Epo
-	nI0IL9z7kV6JIUDU/jFGfjS43lzvLgGHlqQ/Vc2W2Qls7u0iXOYhhZK2bAN9FSc3FcquWIBePgw
-	r4bNouHwBKOAf5XZPGzWEPFS1bC+BYNpG2HssmXj5wltU1bgZ/9KzjUjji9aexpwr37oyD+7RK4
-	mrV7HJqrTK1VRbSd9iN0vVwqA==
-X-Received: by 2002:a05:7300:72d1:b0:2ea:ed7c:8064 with SMTP id 5a478bee46e88-2f548895145mr3507115eec.3.1778140611874;
-        Thu, 07 May 2026 00:56:51 -0700 (PDT)
-Received: from ?IPV6:2600:1700:5ae0:228c:e58:7bff:fe94:34ed? ([2600:1700:5ae0:228c:e58:7bff:fe94:34ed])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f57038b096sm6269848eec.27.2026.05.07.00.56.51
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 07 May 2026 00:56:51 -0700 (PDT)
-Message-ID: <471722ab-a6f2-4e21-9b68-ef2050ec4e65@wkennington.com>
-Date: Thu, 7 May 2026 00:56:50 -0700
+	s=arc-20240116; t=1778141495; c=relaxed/simple;
+	bh=iat2BungkSJorLGPQ6vTXR2vubaLdM7rlijKwZgCRfs=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=pwvznraIMsqLshkZme1H/JaaBBdKIdSFz7r7OanH345LuCvKAfcsXxYBoTKW+0wrh35K/7yUVPdXbx02yvsQcgGlVryQbfqKv6muVlTsp/gO82EfCgaLZ0/eLbupsTucD8YaQQGAL/aD3ZrVoG/Awb53Qw/9ZHmYC+xS36A3FPw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.101])
+	by gateway (Coremail) with SMTP id _____8BxzeknSfxpyGkHAA--.22206S3;
+	Thu, 07 May 2026 16:11:19 +0800 (CST)
+Received: from loongson-pc.loongson.cn (unknown [10.20.42.101])
+	by front1 (Coremail) with SMTP id qMiowJBxSeAkSfxpvyd8AA--.39544S2;
+	Thu, 07 May 2026 16:11:17 +0800 (CST)
+From: Hongliang Wang <wanghongliang@loongson.cn>
+To: Binbin Zhou <zhoubinbin@loongson.cn>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Hongliang Wang <wanghongliang@loongson.cn>
+Cc: linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	loongarch@lists.linux.dev
+Subject: [PATCH v2] dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
+Date: Thu,  7 May 2026 16:10:09 +0800
+Message-Id: <20260507081010.12810-1-wanghongliang@loongson.cn>
+X-Mailer: git-send-email 2.20.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 1/4] i2c: designware: Introduce shutdown exported
- function
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
- Jan Dabros <jsd@semihalf.com>, Andi Shyti <andi.shyti@kernel.org>,
- linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260504-dw-i2c-v3-0-57e56135d602@wkennington.com>
- <20260504-dw-i2c-v3-1-57e56135d602@wkennington.com>
- <afmcdXJt9X0Y3mw3@ashevche-desk.local>
-Content-Language: en-US
-From: "William A. Kennington III" <william@wkennington.com>
-In-Reply-To: <afmcdXJt9X0Y3mw3@ashevche-desk.local>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJBxSeAkSfxpvyd8AA--.39544S2
+X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
+X-Coremail-Antispam: 1Uk129KBj9xXoW7GrWDZrWrZFy7Cw15Zr4UKFX_yoWkurX_Aa
+	4xAr18GrnxAF1Fg34qvF4xArW3Xa42ya1kC3W7AF10ya4jyw13GF97J343Ar4rur43u3Wr
+	uF4kKrZIva17KosvyTuYvTs0mTUanT9S1TB71UUUUUDqnTZGkaVYY2UrUUUUj1kv1TuYvT
+	s0mT0YCTnIWjqI5I8CrVACY4xI64kE6c02F40Ex7xfYxn0WfASr-VFAUDa7-sFnT9fnUUI
+	cSsGvfJTRUUUbIxYFVCjjxCrM7AC8VAFwI0_Jr0_Gr1l1xkIjI8I6I8E6xAIw20EY4v20x
+	vaj40_Wr0E3s1l1IIY67AEw4v_Jrv_JF1l8cAvFVAK0II2c7xJM28CjxkF64kEwVA0rcxS
+	w2x7M28EF7xvwVC0I7IYx2IY67AKxVWUJVWUCwA2z4x0Y4vE2Ix0cI8IcVCY1x0267AKxV
+	WUJVW8JwA2z4x0Y4vEx4A2jsIE14v26r4UJVWxJr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+	6r4UJVWxJr1le2I262IYc4CY6c8Ij28IcVAaY2xG8wAqjxCEc2xF0cIa020Ex4CE44I27w
+	Aqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_Jrv_JF1lYx0Ex4A2jsIE
+	14v26r1j6r4UMcvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCY1x0262kKe7
+	AKxVWUAVWUtwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02
+	F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GF
+	ylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7Cj
+	xVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r
+	1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8aZ
+	X5UUUUU==
 
-On 5/5/26 00:29, Andy Shevchenko wrote:
+From: wanghongliang <wanghongliang@loongson.cn>
 
-> On Mon, May 04, 2026 at 08:15:02PM +0000, William A. Kennington III wrote:
->> Introduce an exported shutdown function to safely shutdown the
->> DesignWare I2C controller.
->>
->> This shutdown hook gracefully sets the slave disable bit before disabling
->> the controller. This guarantees that any incoming requests from the master
->> are immediately NACKed during shutdown, preventing the bus from hanging.
-> ...
-Is this just language correction?
->
->> +void i2c_dw_shutdown(struct dw_i2c_dev *dev)
->> +{
->> +	unsigned int con;
->> +
->> +	/*
->> +	 * We only need to handle shutdown for slave mode to ensure
->> +	 * we NACK any incoming master requests. Master mode cleanup
->> +	 * is handled after each transfer in i2c_dw_xfer.
-> i2c_dw_xfer()
->
->> +	 */
-> Since it's a newly added comment, can you switch to use inclusive language?
-> Same for the whole series related to the commit messages, comments, and
-> documentation.
->
->> +	if (dev->mode != DW_IC_SLAVE)
->> +		return;
->> +
->> +	/*
->> +	 * To quickly NACK the master during shutdown, we set the slave
->> +	 * disable bit while the controller is still enabled.
->> +	 */
->> +	regmap_read(dev->map, DW_IC_CON, &con);
->> +	con |= DW_IC_CON_SLAVE_DISABLE;
->> +	regmap_write(dev->map, DW_IC_CON, con);
->> +
->> +	i2c_dw_disable(dev);
->> +}
->> +EXPORT_SYMBOL_GPL(i2c_dw_shutdown);
-> Can we use namespace?
+clocks property describes the i2c bus reference clock from APB clock.
+clock-frequency property describes i2c bus speed.
 
-It already does use namespaces with
+Signed-off-by: wanghongliang <wanghongliang@loongson.cn>
+---
+ Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml | 3 +++
+ 1 file changed, 3 insertions(+)
 
-`#define DEFAULT_SYMBOL_NAMESPACE    "I2C_DW_COMMON"`
+diff --git a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+index ee09c6d9c5f0..4bf89bb97e7d 100644
+--- a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
++++ b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
+@@ -38,10 +38,13 @@ unevaluatedProperties: false
+ examples:
+   - |
+     #include <dt-bindings/interrupt-controller/irq.h>
++    #include <dt-bindings/clock/loongson,ls2k-clk.h>
+ 
+     i2c0: i2c@1fe21000 {
+         compatible = "loongson,ls2k-i2c";
+         reg = <0x1fe21000 0x8>;
++        clock-frequency = <100000>;
++        clocks = <&clk LOONGSON2_APB_CLK>;
+         interrupt-parent = <&extioiic>;
+         interrupts = <22 IRQ_TYPE_LEVEL_LOW>;
+         #address-cells = <1>;
+-- 
+2.47.2
 
-I assume I should just keep it consistent as-is?
-
-> ...
->
->>   void __i2c_dw_disable(struct dw_i2c_dev *dev);
->>   void i2c_dw_disable(struct dw_i2c_dev *dev);
->> +void i2c_dw_shutdown(struct dw_i2c_dev *dev);
-> Isn't more tighten to the probe/remove than this?
-Yes, can move it
->>   extern void i2c_dw_configure_master(struct dw_i2c_dev *dev);
->>   extern int i2c_dw_probe_master(struct dw_i2c_dev *dev);
