@@ -1,98 +1,96 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26ABD3CCA11;
-	Fri,  8 May 2026 10:24:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C8413CA487
+	for <linux-i2c@vger.kernel.org>; Fri,  8 May 2026 10:35:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778235877; cv=none; b=oLtrVtAfepcD1HVY8/LoN1mGYRTkhDzQVTT+QK3NR6y1y/KlJMsfDRFT21uqar/eYIApUCWiwnW4+34F81Q3BzRAyIvO37OjMNtbhjWkjvxwrqxMxnQAFOgqZQSSdmlc575+HCshCAxdBOhHJ0yi6YP7X7Pmsj1HV1SG6kSgm5U=
+	t=1778236557; cv=none; b=UXeZXZ/0Kk8+y15GnXlT3L7Wg/e+CHIU5SxSrILgQITE8TPbVDiItX3Vp5vc95NV0luCcnxA3DxXWy2SXceH2kKloRvGKmBR9kECfmYgwzoUiS9fGqorsMAH45C+pUIrDYN+ZnQlo4AlAaQAfhkqVfISZmSG10p6Qk+uYW9kC5w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778235877; c=relaxed/simple;
-	bh=ZrmXcwK6NoeXzcPjGAuxnjjl9o5HFUIxXDwc0uFI3iY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=tsuOCSxR3rYRdnGekQVR0fINKMkeanrdAvIs7r4HZ7GJ+Za+rLgQueG+7XjkwO3V9okh6c23gwf77u3rEZSRTh0XlQHk4LKQdecTboJ5h1Sz2OqxMWdauWtNaVuS3kLLyIqF4+1HSfYLDWqqlrVglTtacBugWwJVN7ny0SCIZew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=i2QAgu6G; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778236557; c=relaxed/simple;
+	bh=ykShdcSdw3pSLW+Cdb1R7J4InfpOohrBj5R4WSdASRQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
+	 Content-Type:References; b=LsjD/SpRx4WHSphHGGR3po3KFaIaD5I3QM6GUTBhwifJwi5ylSO82wbNPN5/5IsL7ZTVeF7zT9InW6bsb6FzTbBvyq7v4B5sBlhaNoSOfr6UWASbaJRUKIu9kjfq3Z9i0TYxo0WcwYaelPRbxoAUNpyOOxM5Cu0cWJsyJyD8EYE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=VO/xYliv; arc=none smtp.client-ip=210.118.77.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="i2QAgu6G"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38AE7C2BCB0;
-	Fri,  8 May 2026 10:24:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778235876;
-	bh=ZrmXcwK6NoeXzcPjGAuxnjjl9o5HFUIxXDwc0uFI3iY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=i2QAgu6G1pEoE8R5ifG8pXAC5Z+bOxIPTs7piI+PN9i19XmuAfKgGndVHoDAvA7zs
-	 HzR+R7H83pCzif6DQv8vk0U+1fi8n1K/8GEJv0jVxym4yL5V2+wv4C/Zoc6GGrS136
-	 BtILp6YDvWocQBAhrvWjgTCx8VJ509uSv1zI5vJStnYk+F0wUJ8uF4l22404YBeyzc
-	 xMZZxM8Nijr1xBRfKKSqDiW0ezg4dLiyY4Qois1LGc+nUERQHNXbDHx/7GofPi/YEK
-	 4Km+GY9Q0NOIPr3PRJlXitT/T0x3faXF/gFKBL5vnufRdcXNicqEb5no4ZHGfTnp7q
-	 pjV6xCKhEGv+w==
-Date: Fri, 8 May 2026 12:24:33 +0200
-From: Thierry Reding <thierry.reding@kernel.org>
-To: Saurav Sachidanand <sauravsc@amazon.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Akhil R <akhilrajeev@nvidia.com>, Kartik Rajput <kkartik@nvidia.com>, 
-	Thierry Reding <treding@nvidia.com>, Jon Hunter <jonathanh@nvidia.com>, linux-i2c@vger.kernel.org, 
-	linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] i2c: tegra: fix pm_runtime leak on mutex_lock
- failure
-Message-ID: <af25yiUXoxiWFcIU@orome>
-References: <20260506195319.44810-1-sauravsc@amazon.com>
- <20260507221145.62183-1-sauravsc@amazon.com>
- <20260507221145.62183-2-sauravsc@amazon.com>
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="VO/xYliv"
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20260508103553euoutp0122e7237f9b74dc410ec071102e0ace2e~tkLlMM6FD1006810068euoutp01u
+	for <linux-i2c@vger.kernel.org>; Fri,  8 May 2026 10:35:53 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20260508103553euoutp0122e7237f9b74dc410ec071102e0ace2e~tkLlMM6FD1006810068euoutp01u
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1778236553;
+	bh=OthmlCJqVOrXiTd9GppK5AZE866ugCyan5Tjw8Qfhv4=;
+	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+	b=VO/xYliv1mrEqF/ECggepNLkK4yf1tyoaXU/5n7UrEN6z/sW4ICl/cm2BVBMn509u
+	 GegnHX0yksh1fzvKvICtYHXGXb8qC+dFVs+q6wFarAWQKdlgSL6aEQ3s9qbVAUWSgi
+	 Q+op4csq+5peLVGPBdEzw/ZPqIMS7Zh/bv5uRBOw=
+Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+	20260508103552eucas1p1bad592e514d538e3d40c7d1d9a55a795~tkLkNw1qA1602316023eucas1p10;
+	Fri,  8 May 2026 10:35:52 +0000 (GMT)
+Received: from [106.210.134.192] (unknown [106.210.134.192]) by
+	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
+	20260508103551eusmtip2bbdccee79eae6df2ad6f7bd3c02bfd65~tkLjkg8x_1733917339eusmtip2Y;
+	Fri,  8 May 2026 10:35:51 +0000 (GMT)
+Message-ID: <dbacd56b-2914-40ce-9139-78b819a81c13@samsung.com>
+Date: Fri, 8 May 2026 12:35:51 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="wfkyon33mwz4s2b3"
-Content-Disposition: inline
-In-Reply-To: <20260507221145.62183-2-sauravsc@amazon.com>
+User-Agent: Betterbird (Windows)
+Subject: Re: [BUG] exynos5_i2c_xfer_atomic() can sleep.
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Waiman
+	Long <longman@redhat.com>, linux-rt-devel@lists.linux.dev, Andi Shyti
+	<andi.shyti@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Alim Akhtar
+	<alim.akhtar@samsung.com>
+Content-Language: en-US
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+In-Reply-To: <20260508100910.nxRkt3mA@linutronix.de>
+Content-Transfer-Encoding: 8bit
+X-CMS-MailID: 20260508103552eucas1p1bad592e514d538e3d40c7d1d9a55a795
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20260506065541eucas1p2f986355d0a06ac1f72aa00e8d3148ad0
+X-EPHeader: CA
+X-CMS-RootMailID: 20260506065541eucas1p2f986355d0a06ac1f72aa00e8d3148ad0
+References: <CGME20260506065541eucas1p2f986355d0a06ac1f72aa00e8d3148ad0@eucas1p2.samsung.com>
+	<20260506065110.sY3jKS7G@linutronix.de>
+	<03c06142-12eb-45b7-8d22-ce12fab6e132@samsung.com>
+	<20260508100910.nxRkt3mA@linutronix.de>
 
+On 08.05.2026 12:09, Sebastian Andrzej Siewior wrote:
+> On 2026-05-08 11:45:15 [+0200], Marek Szyprowski wrote:
+>> On 06.05.2026 08:51, Sebastian Andrzej Siewior wrote:
+>>> While looking into the xfer_atomic i2c thingy, I've been looking at the
+>>> exynos5_i2c_xfer_atomic() function and noticed that it has a
+>>> disable_irq() invocation. Given that i2c_algorithm::xfer_atomic is
+>>> called from atomic context (with either preemption or interrupts
+>>> disabled) the might_sleep() in disable_irq() must lead to splat here.
+>> Its me, who added that code, commit 445094c8a9fb1. I've tested that in
+>> the reboot/shutdown path and I'm quite sure that I've copied that
+>> irq_disable/enable from some other driver. I also cannot locate that
+>> might_sleep() in disable_irq(), where exactly it is?
+> kernel/irq/manage.c:
+> | void disable_irq(unsigned int irq)
+> | {
+> |         might_sleep();
+> |         if (!__disable_irq_nosync(irq))
+> ^^
+> |                 synchronize_irq(irq);
+> | }
+> | EXPORT_SYMBOL(disable_irq);
 
---wfkyon33mwz4s2b3
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v2 1/2] i2c: tegra: fix pm_runtime leak on mutex_lock
- failure
-MIME-Version: 1.0
+Ah, it looks that I've checked irq_disable() code, so that's why I didn't find might_sleep() call. In the case of exynos5_i2c driver, probably switching to disable_irq_nosync() will be enough. I assume that all previous transfers have to be finished to start this atomic one, so waiting for interrupts to finish is not needed.
 
-On Thu, May 07, 2026 at 10:11:44PM +0000, Saurav Sachidanand wrote:
-> If tegra_i2c_mutex_lock() fails, the function returns without calling
-> pm_runtime_put(), leaking the runtime PM reference acquired by the
-> preceding pm_runtime_get_sync(). This prevents the device from ever
-> entering runtime suspend.
->=20
-> Add the missing pm_runtime_put() before returning on lock failure.
->=20
-> Fixes: 6077cfd716fb ("i2c: tegra: Add support for SW mutex register")
-> Signed-off-by: Saurav Sachidanand <sauravsc@amazon.com>
-> ---
->  drivers/i2c/busses/i2c-tegra.c | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
 
-Acked-by: Thierry Reding <treding@nvidia.com>
-
---wfkyon33mwz4s2b3
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmn9ueEACgkQ3SOs138+
-s6EI8w//Q425l2AeGmqHjL8Z1rWbjoOiczIm5dDMAR8ivBVfO7emQL7oHJA5vsHJ
-ZTHT0/cs0VBESpFIDiCMMXhJXujmzf0fc78sG+ILuyxKGnvoUy/J4r5IKoHtMrQF
-QfJuA2I5jliE8fuIQkVfbnj7vy8OkmNNZngNWoufPorwH37J2crt1ZHercaHnwGd
-XONYXGEUKqRl8AFBPSJw8YQnAIS6zQ4mO5be6sq4Zn6YmQlM03ASeCV3DUXPEl/P
-BFjAltUl3E0Fn5UMuMB6BBHOOtlu53j0drMGn1KUCMk8JmjkKU90+Q6vZvDrHchA
-eOU+qkIerddBUuFdb5tOwMv2yB+MpkrlpDfTZZPkgWQXssht3ofm/XQ00Ng5k4NX
-nhfrYWz+QAYOVnxzBdGo2a69bJknUU6z4zu+r2IkxmRcSDy6Vo6qpRgN1GEoEc5p
-JbMSsdfOzO2jabAUx7tQVHTwnNNdr6QmeV7V8tcI36MtHX91/CYCtmqWgkPBMOcc
-vPOaTxM8qA2UBBVQq1ULdzsYuqVvoS9es/hcO3ZspPOkpIGSVcmNKQUVImeeoLeZ
-A1f14Oh0E2lSURnu88kcczjJrJe/k5PLicve0jIyDIdzc2HcpEzhU3f5PGrKNegw
-PEW+2uJWNSmv2jr9peXQtYqTxAuyIjGplFCNAGLzRyvTaxH20X4=
-=gfD2
------END PGP SIGNATURE-----
-
---wfkyon33mwz4s2b3--
