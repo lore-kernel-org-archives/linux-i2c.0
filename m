@@ -1,87 +1,85 @@
-Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CEDB37D12D
-	for <linux-i2c@vger.kernel.org>; Fri,  8 May 2026 09:45:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E5623BED74;
+	Fri,  8 May 2026 10:01:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778233525; cv=none; b=SfjeNqgoTHHS5nTiA8wmEXkQ4jk0UuAzq8cLCwGbtBhO/Jt/mmD5RBnhJUBXbsbilWDGQ6QPjY+La4TLAtMG/qRLHakC2A62rEOG/Gj3WoEMmTNh0T6D13zD5kDS3l6W4SY8DgboetPCidY7Chp4KvWvYfOMODAYvhayw1IkC+M=
+	t=1778234477; cv=none; b=H9+SHs17t6InOKiAUT+bJyR+VL4UaCRkTJYXRnL5HW7C2eakBDbhiOkqKdH9hM1LcYd0/pe5BFFXYQP/40UVQw/mTYly0IQIf1icAYx73mJm/J1vGBdbIia/uhKtppdjxIgdulWnaQEQ0ig0k3jPqcvV/jPJs/2xJz5MGExgwj0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778233525; c=relaxed/simple;
-	bh=7o0a2ooTOrXhr6IHzg8WgMkQFz+9SrmX8Gzqe2tcSac=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
-	 Content-Type:References; b=LssLkVtpduoDoaM5KIQrQij87XvZcpDzhI5eFHRUIH/U8sufs2ZRJOehLa2PAOLNbfz8/FycSa03i1fqvJQL06alpkOyzVhqjNQKwJ2bjIKy8vEZhlc40JFmo+lYoFpJ6kp8yWOEawa2dhKOkM53cMVlrXN/6y59lW+G9yzWlHI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=Ppwsqxgt; arc=none smtp.client-ip=210.118.77.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1778234477; c=relaxed/simple;
+	bh=8HCo33/8Hy8gbBhHnyR03Be0YBNlC1qJpgZDySmMpLQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LFXBSFVkqOKaQAqTIWJkn4Kvmq6H9Df7hdUZqp0usx5t1/obH8GdcPiZA1W63Du9iYTgj+Kl+1uckFrN7w2vHH01fG6fzel976xaa0JSDoGUO+fgFDG+4/JWONriwk0diDj/eL7NhVILy/3HRxW0NyaKpOA7AcVv3Pxq1v65cUY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ltvljKWL; arc=none smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="Ppwsqxgt"
-Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
-	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20260508094517euoutp01d36bbdaf6f62f60bf762b080407e00d5~tjfZi2_Sf1890418904euoutp01G
-	for <linux-i2c@vger.kernel.org>; Fri,  8 May 2026 09:45:17 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20260508094517euoutp01d36bbdaf6f62f60bf762b080407e00d5~tjfZi2_Sf1890418904euoutp01G
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1778233517;
-	bh=gxQW6IaAVHIWOFCSuA1dtUKpx2jMGyN8kHb9f+xDjA8=;
-	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-	b=PpwsqxgtPS4xIJ6UqzgNJm1b+SOz83XG3y61EIlXZ57T5+1O63GTCLsc5K9why5sr
-	 sdoqjTELGFZvD2y9Ki6kO2gg0K4m3haPKniTa+zMSuPx3GdOib3IJKM1giG2rpyAjY
-	 PfoB3dqPmljqeslV1Q4oNkw7qWXQXn8ARH7tt9AE=
-Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
-	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
-	20260508094516eucas1p1b1e6d7218fc5c399092e59e32cbc7b63~tjfZMcr7v2446824468eucas1p1T;
-	Fri,  8 May 2026 09:45:16 +0000 (GMT)
-Received: from [106.210.134.192] (unknown [106.210.134.192]) by
-	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
-	20260508094516eusmtip258e3387552835438b345118010637fb6~tjfYvEdtp2070420704eusmtip2F;
-	Fri,  8 May 2026 09:45:16 +0000 (GMT)
-Message-ID: <03c06142-12eb-45b7-8d22-ce12fab6e132@samsung.com>
-Date: Fri, 8 May 2026 11:45:15 +0200
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ltvljKWL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1778234477; x=1809770477;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=8HCo33/8Hy8gbBhHnyR03Be0YBNlC1qJpgZDySmMpLQ=;
+  b=ltvljKWLiGqnyhUGlx5MfjbcVM45Tsvl/0CMlBgGzPawcCskuOhl2oqS
+   +g6+lWaN1SgmZkcr5mPFvESyul+xwfg4kJuk4sW3OVu/r1sbaRAHoN6jR
+   ZPwnq6hIcVZQOh/lreM0rvfKQJmIyyX0CkWhwLtx2gkhvOjjP8rq3YU2N
+   t9caMoe5eS8NxyrOtIRFeZvw4HNQcZTg4SnJEKcY8sIc+MgEwytaFEwDd
+   KJ9wpbSjoNU+EvFs+dDtccg5XzsqnJLS3Fqa+P0E0bOfpyAVQDIUv1Cvk
+   1ig/g/J4OT3Arsb3o2M7tJyX4HcL8lCmqNU3DSoQNaupHsdyUsLrQ6iDX
+   w==;
+X-CSE-ConnectionGUID: MgZBC/AnTPa7jPgwl2PyLQ==
+X-CSE-MsgGUID: iTgafKaQSTm3USkUOEPRgg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11779"; a="89509630"
+X-IronPort-AV: E=Sophos;i="6.23,223,1770624000"; 
+   d="scan'208";a="89509630"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 May 2026 03:01:16 -0700
+X-CSE-ConnectionGUID: gDc8kJAdQhOWYRXnmX9hqA==
+X-CSE-MsgGUID: m9i2ZSqyRmmCLYB0R0QP+A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,223,1770624000"; 
+   d="scan'208";a="230331175"
+Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.237])
+  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 May 2026 03:01:14 -0700
+Date: Fri, 8 May 2026 13:01:11 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: "William A. Kennington III" <william@wkennington.com>
+Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Jan Dabros <jsd@semihalf.com>, Andi Shyti <andi.shyti@kernel.org>,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v4 4/4] i2c: designware: Handle active target cleanly
+Message-ID: <af20Z54nj0x21Ybz@ashevche-desk.local>
+References: <20260507-dw-i2c-v4-0-9a447b23bfdf@wkennington.com>
+ <20260507-dw-i2c-v4-4-9a447b23bfdf@wkennington.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Betterbird (Windows)
-Subject: Re: [BUG] exynos5_i2c_xfer_atomic() can sleep.
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	linux-i2c@vger.kernel.org, linux-samsung-soc@vger.kernel.org
-Cc: Waiman Long <longman@redhat.com>, linux-rt-devel@lists.linux.dev, Andi
-	Shyti <andi.shyti@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Alim
-	Akhtar <alim.akhtar@samsung.com>
-Content-Language: en-US
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-In-Reply-To: <20260506065110.sY3jKS7G@linutronix.de>
-Content-Transfer-Encoding: 8bit
-X-CMS-MailID: 20260508094516eucas1p1b1e6d7218fc5c399092e59e32cbc7b63
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20260506065541eucas1p2f986355d0a06ac1f72aa00e8d3148ad0
-X-EPHeader: CA
-X-CMS-RootMailID: 20260506065541eucas1p2f986355d0a06ac1f72aa00e8d3148ad0
-References: <CGME20260506065541eucas1p2f986355d0a06ac1f72aa00e8d3148ad0@eucas1p2.samsung.com>
-	<20260506065110.sY3jKS7G@linutronix.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260507-dw-i2c-v4-4-9a447b23bfdf@wkennington.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On 06.05.2026 08:51, Sebastian Andrzej Siewior wrote:
-> While looking into the xfer_atomic i2c thingy, I've been looking at the
-> exynos5_i2c_xfer_atomic() function and noticed that it has a
-> disable_irq() invocation. Given that i2c_algorithm::xfer_atomic is
-> called from atomic context (with either preemption or interrupts
-> disabled) the might_sleep() in disable_irq() must lead to splat here.
+On Thu, May 07, 2026 at 08:05:18PM +0000, William A. Kennington III wrote:
+> When the I2C controller attempts a new transaction while the target
+> controller is shutting down or restarting, it can lead to bus lockups
+> and system bootloops if the hardware enters an inconsistent state.
+> 
+> Address this by ensuring that the internal state machines are properly
+> cleared when disabling the controller if target activity is detected.
+> 
+> If the controller remains active after disabling, perform a bus recovery
+> to reset it to a known good state.
 
-Its me, who added that code, commit 445094c8a9fb1. I've tested that in the reboot/shutdown path and I'm quite sure that I've copied that irq_disable/enable from some other driver. I also cannot locate that might_sleep() in disable_irq(), where exactly it is?
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-
-> This looks very light tested because exynos5_i2c_poll_irqs_timeout()
-> which should be invoked from atomic context has usleep_range(). This
-> will schedule from atomic context is not good. I *think* this gets back
-> with enabled interrupts.
-
-Indeed this should be replaced with udelay.
-
-Best regards
 -- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+With Best Regards,
+Andy Shevchenko
+
 
