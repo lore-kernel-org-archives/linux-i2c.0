@@ -1,210 +1,208 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtpbguseast3.qq.com (smtpbguseast3.qq.com [54.243.244.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01EEC293B75
-	for <linux-i2c@vger.kernel.org>; Fri,  8 May 2026 03:06:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ECDF7261C;
+	Fri,  8 May 2026 06:38:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.243.244.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778209603; cv=none; b=hMS6UxPGkBjailxFpr/1tvOMMABrnolGxUp8rhJ8KxGj7VOlxZU7bLmE72usX56jMYZxnFotHqJ2WvSbHGNysKYTSBz2Mvo86xse7GYLV8QZiQE5/oVS4V/53Yjlfk4MF8mt9xAF/meWWZMVvlaY9A/vBjVLr51dZB7ZaGPUqQM=
+	t=1778222302; cv=none; b=oLJkyWBulXnv53eolEBRKfeKEzzwHunp3IONo5uEa9VgOpoEadxmUT+caaC1fhMVzGuPCqL6GFQiBCBaR3ZKZGptWlPW+8E7g4nhBpFO6WZZJNoM2zBjcn+Nubk2DLjpLQDI0Fp9h1VUM8VHHCychKZR/2Wkw8qxDW12HzeFMG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778209603; c=relaxed/simple;
-	bh=HOaLBVwOi2SeNx/rpT5yplhV+BCsdrhoEmKfmE8GNP0=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PjG3R4BgxITcmNZDrIxeDE11RzqSm1XWDAe/3Bhq4BtTyFPXlkbd45EnKwknvfZJlB0EkZHsQcstTfI+WsXt5t55rwnqiLGuODAi+mmzOYvi1Bdjufg4foLZ/gQUs9Tzj2YaSdviT/NHX7LcmkGb3q3fxfkh4ddpF1ntHuOVUD8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O+8xwZry; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778222302; c=relaxed/simple;
+	bh=jUNTNksXf1a4WzCOPfsBigv1Fqr11+Wd0EF0+pdo7Ig=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
+	 References:In-Reply-To; b=FCSrgrrpHvtBZJMrmVJHoI4cWN38HpYPDyNJtCOQ3b72vfjGtMXR21gabNtBE+kh/07aX2aoSJXR7T3EMb3XgpHspzfFl77OimdZSNFvoMC/RF1PNsStZxTTjvllJ/8OjIHnIfpJll/capXXCYSqMtCKd+pndV8cBHaZrpDrIbY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com; spf=none smtp.mailfrom=linux.spacemit.com; dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b=UTcaQbXQ; arc=none smtp.client-ip=54.243.244.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.spacemit.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O+8xwZry"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C127CC2BCFB
-	for <linux-i2c@vger.kernel.org>; Fri,  8 May 2026 03:06:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778209602;
-	bh=HOaLBVwOi2SeNx/rpT5yplhV+BCsdrhoEmKfmE8GNP0=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=O+8xwZryG4b8MwVM4FROcBwwzUmjbTd0s6mA2lFZZss2Wck1yvTmHLiQa1GjBGqDz
-	 lKZ7ntYMBEpDixBGpNFLETAyW9EXD0hMXzfCc3sP6ed2pNBfjU2U/bzoxssJZBsR1+
-	 x3MusTroJqb9FsDaAP/DScmeV4m4zlNMxCJ1lms412OEX/cqU71iLpu+9Yw4LoHy3p
-	 rCg4h5D9VoPDMsFRVnQH3rEXYxbcB1KAjizpLSd8+ZacaiM8aFxcURRTByQMx8sVVg
-	 qPN+jjbsxXii5T2pTYCyxWRWZiz/srnkm3wpb2kvsLGlOaIqAPkY3BebaWf5zjBcXw
-	 bFsbDfPltGKlA==
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-bc177ebda91so292113566b.3
-        for <linux-i2c@vger.kernel.org>; Thu, 07 May 2026 20:06:42 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ/PaSsjKN/GuCHDmRwjAYqDA+PpuNVPPl8ca39aeEa0WXyYrmRZDA7Q+XiOEGhBsVVNqHGqLZreMJA=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz/m00WAlWJt2WMM+xmJfgF0kem61qH9B6QA4mNZNPtZEFKFDd3
-	gyvNXkMvDQqr/bZu/rUiQGXtLsAsZYrzLtr8uXZorVnujPHoU+h3B5XQirssQWVAWR1f4wLgYhZ
-	jR+nb7yPAjPa/7OgMfK2+ATEjTMF9PV8=
-X-Received: by 2002:a17:906:5187:10b0:bc4:9acf:f53 with SMTP id
- a640c23a62f3a-bc56c62c6d8mr554913966b.20.1778209601248; Thu, 07 May 2026
- 20:06:41 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b="UTcaQbXQ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.spacemit.com;
+	s=mxsw2412; t=1778222245;
+	bh=8JEEYGi3KIhC5hASnjM+XwuYNJ31pZv1KHpSN+PB1g0=;
+	h=Mime-Version:Date:Message-Id:Subject:From:To;
+	b=UTcaQbXQPU4WAgAPqUC5ZvcTLQSZGCn37LAcRNBSY5aeFYnJhijrH/I+9Lkf+86O3
+	 xMcN3i2Zl8h4N86Tb/FMWyV14W3v0wY25UjcFoUvCG69kp+O210vQndo/myozYe1yb
+	 jIrVRjIvCvs/VMUpAF0UGnea345woL491br1EhI4=
+X-QQ-mid: esmtpsz10t1778222238t9023b831
+X-QQ-Originating-IP: /HYZdUY2KNZVeYoHWNpv7D+eFSQ2gIKlhmT7/A5s2ik=
+Received: from = ( [27.42.96.100])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Fri, 08 May 2026 14:37:16 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 0
+X-BIZMAIL-ID: 11761350832640437751
+EX-QQ-RecipientCnt: 8
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-References: <20260507081010.12810-1-wanghongliang@loongson.cn> <20260507081010.12810-2-wanghongliang@loongson.cn>
-In-Reply-To: <20260507081010.12810-2-wanghongliang@loongson.cn>
-From: Huacai Chen <chenhuacai@kernel.org>
-Date: Fri, 8 May 2026 11:06:29 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H46sOPPAoH31DijWYK+v5fEzgq7ZVucCuoyRTwTgUHYxA@mail.gmail.com>
-X-Gm-Features: AVHnY4J_-aYxSREAluBXlm9Bi9SsaJaacOWMVK_KUGdF5m_vVZ-0b_vQKA1iI84
-Message-ID: <CAAhV-H46sOPPAoH31DijWYK+v5fEzgq7ZVucCuoyRTwTgUHYxA@mail.gmail.com>
-Subject: Re: [PATCH v2] i2c: ls2x: Add clocks property parsing and adjust bus speed
-To: Hongliang Wang <wanghongliang@loongson.cn>
-Cc: Binbin Zhou <zhoubinbin@loongson.cn>, Andi Shyti <andi.shyti@kernel.org>, 
-	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, 
-	devicetree@vger.kernel.org, loongarch@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 08 May 2026 14:37:14 +0800
+Message-Id: <DID36992GF2G.229YAG9BSQ3VZ@linux.spacemit.com>
+Subject: Re: [PATCH v6 1/2] i2c: spacemit: configure ILCR/IWCR for accurate
+ SCL frequency
+From: "Troy Mitchell" <troy.mitchell@linux.spacemit.com>
+To: "Alex Elder" <elder@riscstar.com>, "Troy Mitchell"
+ <troy.mitchell@linux.spacemit.com>, "Andi Shyti" <andi.shyti@kernel.org>,
+ "Yixun Lan" <dlan@kernel.org>
+Cc: <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+ <linux-riscv@lists.infradead.org>, <spacemit@lists.linux.dev>
+X-Mailer: aerc 0.21.0-0-g5549850facc2
+References: <20260429-k1-i2c-ilcr-v6-0-1c7a5a5a8b24@linux.spacemit.com>
+ <20260429-k1-i2c-ilcr-v6-1-1c7a5a5a8b24@linux.spacemit.com>
+ <01278362-ae7c-424a-838b-4add1718e7f6@riscstar.com>
+In-Reply-To: <01278362-ae7c-424a-838b-4add1718e7f6@riscstar.com>
+X-QQ-SENDSIZE: 520
+Feedback-ID: esmtpsz:linux.spacemit.com:qybglogicsvrgz:qybglogicsvrgz3a-0
+X-QQ-XMAILINFO: MMKL56urm3zQV7YJ/4+hEDQDhDqRuSm0rVJAUOxlSg9Qa65SepnVx6/0
+	OsyBJRlydIF2swX9SWpWR4R0iLrURbJPw/HC5gXE+nN2igVmvkjKFB05rSHKhJ3MPKTLvFu
+	umlULDEs2yJBuFh47XmsJWFzz5fLL9kBbj/5VBUzQ8VVDmktS10AFAf/uxtgBwLWcRYurNv
+	oKdTy9CU4x9hT4z3aeznijyPw3CSCiFilg7AK3Pek7ObwnKDgsOHDtf2LpfgOEKrILYJjAL
+	yFoFR9kqXmWhwYyK4XlbEsM2CwMbBeLN047bpngQO20+YlfMUgOhEHS7TsAKpJ8QW4Nvaj5
+	6OUdJkFu86/dEy4fuTqkIeJh1eXq0WL7BsfjtnRDEwiRTyIxNnXX87CEsMovtHefNrKVX+g
+	pUy5a+2V9GAD+OdTHDDqc4Pez7j/PHa0uhlCRx0ZVSIZjwQBtcpwsvMFh2GSmk1AE32LIv3
+	ZcxM74JYIGcuxYlxcFU20ndg6MR9XA+6G8nMUthYUPod7fVmU553RCFRCerwxZiaJYuCic0
+	P2NLo7xOi+ceneI5wiqL2f6DpbtDYMWi0GW2RTn0GWuuIzl3XpCLnw+WhqKa7qtNNZ+w1F/
+	67NV6odHMvV4RegWa8nvOSSFa5wBtuvi2K9vOmCdmJ8bRobO2ibZVpgt2g0EkAVRBLC4QHp
+	97H6OlRBgEKRg0FyIzjaTn/uuUVcMGfq1+lClg94VB/EZiYMAiXBSZOf3dyCNeIc3w3UpFs
+	k0qBtMSJgGSYiEhrv7/UgIcBkm3bCLcFOz4dqnOuGWRW0XjXMGRNBChbyfY8J1g0bjR9xtC
+	2/ENNiiXdMRHJ3FGfTyhdulSqTK1XmKPD+2oxICNVocNaf+qMDGIHdDICTEp4E5AUcYg/9G
+	nAtdiJLWzJexCSkxg1fPO4hy/FUlW+k4DM0tYw4Y3kYIRlmDHdP7pRc3ukzwGrsB7pIrcdc
+	o7a5nbe8w6DOzJ3sjf3Ywyvnk5FsORSUIgw63NSJCnOmLTN1KhFC2h0ckEQTytST1gdY0zZ
+	SKq80qOU6FpK6Ej/aJbKuZ1KcPvoz816f1TvszZtIyBY6CTDe1hpFnbqvdQ4apXxXZNKsP2
+	w==
+X-QQ-XMRINFO: Nq+8W0+stu50tPAe92KXseR0ZZmBTk3gLg==
+X-QQ-RECHKSPAM: 0
 
-Hi, Hongliang,
+On Wed Apr 29, 2026 at 8:40 PM CST, Alex Elder wrote:
+> On 4/29/26 2:48 AM, Troy Mitchell wrote:
 
-On Thu, May 7, 2026 at 4:11=E2=80=AFPM Hongliang Wang <wanghongliang@loongs=
-on.cn> wrote:
->
-> From: wanghongliang <wanghongliang@loongson.cn>
->
-> The i2c-ls2x driver supports dts and acpi parameter passing.
-> In dts, uses clock framework, by parsing clocks property to
-> get i2c bus reference clock, and define factor by device data.
-> In acpi, by passing clocks property to describe i2c bus reference
-> clock and clock-div property to describe factor.
-> Based on i2c bus reference clock(clock_a), i2c bus speed(clock_s)
-> and factor, calculate the prcescale of i2c divider register.
-> The calculation formula is
-> prcescale =3D clock_a/(factor*clock_s)-1
->
-> Signed-off-by: wanghongliang <wanghongliang@loongson.cn>
-> ---
->  drivers/i2c/busses/i2c-ls2x.c | 42 ++++++++++++++++++++++++++++++++---
->  1 file changed, 39 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/i2c/busses/i2c-ls2x.c b/drivers/i2c/busses/i2c-ls2x.=
-c
-> index b475dd27b7af..7db91e7a5d78 100644
-> --- a/drivers/i2c/busses/i2c-ls2x.c
-> +++ b/drivers/i2c/busses/i2c-ls2x.c
-> @@ -13,6 +13,7 @@
->  #include <linux/bitfield.h>
->  #include <linux/bits.h>
->  #include <linux/completion.h>
-> +#include <linux/clk.h>
-This should be before completion.h.
+[...]
 
->  #include <linux/device.h>
->  #include <linux/iopoll.h>
->  #include <linux/i2c.h>
-> @@ -63,11 +64,16 @@
->  /* The default bus frequency, which is an empirical value */
->  #define LS2X_I2C_FREQ_STD      (33 * HZ_PER_KHZ)
+>>   #define SPACEMIT_ISR		 0x4		/* Status register */
+>>   #define SPACEMIT_IDBR		 0xc		/* Data buffer register */
+>>   #define SPACEMIT_IRCR		 0x18		/* Reset cycle counter */
+>> +#define SPACEMIT_ILCR		 0x10		/* Load Count Register */
+>> +#define SPACEMIT_IWCR		 0x14		/* Wait Count Register */
+>>   #define SPACEMIT_IBMR		 0x1c		/* Bus monitor register */
+>>  =20
+>>   /* SPACEMIT_ICR register fields */
+>> @@ -88,6 +92,12 @@
+>>   #define SPACEMIT_BMR_SDA         BIT(0)		/* SDA line level */
+>>   #define SPACEMIT_BMR_SCL         BIT(1)		/* SCL line level */
+>>  =20
+>> +#define SPACEMIT_LCR_LV_STANDARD_MASK		GENMASK(8, 0)
+>> +#define SPACEMIT_LCR_LV_FAST_MASK		GENMASK(17, 9)
+>> +
+>> +/* Required by I2C IP for correct SCL timing */
+>> +#define SPACEMIT_IWCR_INIT_VALUE		0x142A
 >
-> +struct ls2x_i2c_chip_data {
-> +       unsigned int    factor;
-> +};
-> +
->  struct ls2x_i2c_priv {
->         struct i2c_adapter      adapter;
->         void __iomem            *base;
->         struct i2c_timings      i2c_t;
->         struct completion       cmd_complete;
-> +       const struct ls2x_i2c_chip_data *chip_data;
-Use "unsigned int    factor" directly?
-
->  };
+> Even if it's just used to "do the right thing", I still think it's
+> useful to break this numeric value into what it *represents*.  The
+> register is defined this way:
+> COUNT		GENMASK(4:0)
+> HS_COUNT1	GENMASK(9:5)
+> HS_COUNT2	GENMASK(14:10)
+> (the rest is reserved)
 >
->  /*
-> @@ -96,6 +102,8 @@ static irqreturn_t ls2x_i2c_isr(int this_irq, void *de=
-v_id)
->  static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
->  {
->         u16 val;
-> +       u32 pclk, factor;
-factor or div? If factor is better, then rename clock-div to
-clock-factor; if div is better, then rename factor to div.
-
-> +       struct clk *clk;
->         struct i2c_timings *t =3D &priv->i2c_t;
->         struct device *dev =3D priv->adapter.dev.parent;
->         u32 acpi_speed =3D i2c_acpi_find_bus_speed(dev);
-> @@ -107,12 +115,30 @@ static void ls2x_i2c_adjust_bus_speed(struct ls2x_i=
-2c_priv *priv)
->         else
->                 t->bus_freq_hz =3D LS2X_I2C_FREQ_STD;
+> So 0x142a represents:
+> COUNT		10	33 MHz I2C functional clock (versus 66 MHz)
+> HS_COUNT1	2	Count defining start bit setup/hold times
+> HS_COUNT2	3	Count defining stop bit setup/hold times
 >
-> +       if (dev_of_node(dev)) {
-> +               clk =3D devm_clk_get_optional_enabled(dev, NULL);
-> +               if (IS_ERR(clk) || !clk)
-> +                       pclk =3D LS2X_I2C_PCLK_FREQ;
-> +               else
-> +                       pclk =3D clk_get_rate(clk);
-Reverse the "if & else" so the default case will be the last one, this
-is also the same as the ACPI case below.
-
-Huacai
-
-> +
-> +               factor =3D priv->chip_data->factor;
-> +
-> +               val =3D (pclk * 10) / (factor * t->bus_freq_hz) - 1;
-> +       } else {
-> +               if (!device_property_read_u32(dev, "clocks", &pclk) &&
-> +                   !device_property_read_u32(dev, "clock-div", &factor) =
-&&
-> +                   factor !=3D 0)
-> +                       val =3D (pclk * 10) / (factor * t->bus_freq_hz) -=
- 1;
-> +               else
-> +                       val =3D LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz)=
- - 1;
-> +       }
-> +
->         /*
->          * According to the chip manual, we can only access the registers=
- as bytes,
->          * otherwise the high bits will be truncated.
->          * So set the I2C frequency with a sequential writeb() instead of=
- writew().
->          */
-> -       val =3D LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
->         writeb(FIELD_GET(GENMASK(7, 0), val), priv->base + I2C_LS2X_PRER_=
-LO);
->         writeb(FIELD_GET(GENMASK(15, 8), val), priv->base + I2C_LS2X_PRER=
-_HI);
->  }
-> @@ -295,6 +321,8 @@ static int ls2x_i2c_probe(struct platform_device *pde=
-v)
->         if (!priv)
->                 return -ENOMEM;
+> The first one in particular *could* be managed in your clock
+> to support even more accurate clock rates.  But even if you
+> don't change its value I think it's meaningful to know what
+> the value represents.
 >
-> +       priv->chip_data =3D device_get_match_data(dev);
-> +
->         /* Map hardware registers */
->         priv->base =3D devm_platform_ioremap_resource(pdev, 0);
->         if (IS_ERR(priv->base))
-> @@ -348,9 +376,17 @@ static int ls2x_i2c_resume(struct device *dev)
->  static DEFINE_RUNTIME_DEV_PM_OPS(ls2x_i2c_pm_ops,
->                                  ls2x_i2c_suspend, ls2x_i2c_resume, NULL)=
+> That said--what I suggest won't change what the code does,
+> it just helps the reader understand what it's doing.
+Thanks for the suggestion.
+I've broken SPACEMIT_IWCR_INIT_VALUE into its constituent fields
+using FIELD_PREP. One small correction: 0x142A actually decodes
+to COUNT=3D10, HS_COUNT1=3D1, HS_COUNT2=3D5 (not 2 and 3).
+>
+>> +
+>>   /* i2c bus recover timeout: us */
+>>   #define SPACEMIT_I2C_BUS_BUSY_TIMEOUT		100000
+>>  =20
+>>
+[...]
+
+>> +
+>> +static int spacemit_i2c_clk_determine_rate(struct clk_hw *hw,
+>> +					   struct clk_rate_request *req)
+>> +{
+>> +	struct spacemit_i2c_dev *i2c =3D container_of(hw, struct spacemit_i2c_=
+dev, scl_clk_hw);
+>> +	u32 lv, denom;
+>
+> Can you have clk_set_rate() call clk_determine_rate(), or at
+> least have them both share a helper that does these (duplicated)
+> calculations?
+Done. Extracted spacemit_i2c_calc_lv() as a shared helper used
+by both set_rate and determine_rate.
+
+>
+>> +
+>> +	denom =3D DIV_ROUND_CLOSEST(req->best_parent_rate, req->rate);
+>> +
+>> +	if (i2c->mode =3D=3D SPACEMIT_MODE_STANDARD) {
+>> +		lv =3D (denom <=3D 8) ? 0 : DIV_ROUND_CLOSEST(denom - 8, 2);
+>> +		req->rate =3D DIV_ROUND_CLOSEST(req->best_parent_rate, lv * 2 + 8);
+>> +	} else {
+>> +		lv =3D (denom <=3D 10) ? 0 : DIV_ROUND_CLOSEST(denom - 10, 2);
+>> +		req->rate =3D DIV_ROUND_CLOSEST(req->best_parent_rate, lv * 2 + 10);
+>> +	}
+>> +
+>> +	return 0;
+>> +}
+>> +
+
+[...]
+
+>>  =20
+>> +static struct clk *spacemit_i2c_register_scl_clk(struct spacemit_i2c_de=
+v *i2c)
+>> +{
+>> +	struct clk_init_data init =3D {};
+>> +	char name[64];
+>> +	int ret;
+>> +
+>> +	ret =3D snprintf(name, sizeof(name), "%s_scl_clk", dev_name(i2c->dev))=
 ;
+>> +	if (ret >=3D ARRAY_SIZE(name))
+>> +		dev_warn(i2c->dev, "scl clock name truncated");
+>> +
+>> +	init.name =3D name;
+>> +	init.ops =3D &spacemit_i2c_clk_ops;
+>> +	init.parent_data =3D (struct clk_parent_data[]) {
+>> +		{ .fw_name =3D "func" },
+>> +	};
+>> +	init.num_parents =3D 1;
+>> +
+>> +	i2c->scl_clk_hw.init =3D &init;
+>> +
+>> +	return devm_clk_register(i2c->dev, &i2c->scl_clk_hw);
 >
-> +static const struct ls2x_i2c_chip_data ls2x_i2c_2k_data =3D {
-> +       .factor =3D 4,
-> +};
-> +
-> +static const struct ls2x_i2c_chip_data ls2x_i2c_7a_data =3D {
-> +       .factor =3D 5,
-> +};
-> +
->  static const struct of_device_id ls2x_i2c_id_table[] =3D {
-> -       { .compatible =3D "loongson,ls2k-i2c" },
-> -       { .compatible =3D "loongson,ls7a-i2c" },
-> +       { .compatible =3D "loongson,ls2k-i2c", .data =3D &ls2x_i2c_2k_dat=
-a, },
-> +       { .compatible =3D "loongson,ls7a-i2c", .data =3D &ls2x_i2c_7a_dat=
-a, },
->         { /* sentinel */ }
->  };
->  MODULE_DEVICE_TABLE(of, ls2x_i2c_id_table);
-> --
-> 2.47.2
->
->
+> The comments above clk_register() indicate that this is a deprecated
+> interface, and you should use a form of clk_hw_register() instead.
+> devm_clk_hw_register() exists and takes the same arguments, but
+> returns an int rather than the clock pointer.  But I think then you
+> can call devm_clk_get_enabled() in the caller (spacemit_i2c_probe()).
+> That would allow you to get rid of your clk_disable_unprepare()
+> wrapper too.
+I've switched to devm_clk_hw_register() as suggested. However,
+devm_clk_get_enabled() isn't applicable here because the SCL clock is
+registered internally by the driver rather than being described in the
+Device Tree. Since devm_clk_get_enabled() relies on clk_get(),
+it would fail to find the clock without a DT entry or a clkdev lookup.
+
+Instead, I'm using devm_clk_hw_get_clk() to retrieve the struct clk
+directly from the clk_hw, followed by a manual clk_prepare_enable()
+with a devm action for automated cleanup.
+
+                            - Troy
