@@ -1,193 +1,201 @@
-Received: from mail-lf1-f46.google.com (mail-lf1-f46.google.com [209.85.167.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEF953E277D
-	for <linux-i2c@vger.kernel.org>; Fri,  8 May 2026 13:14:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 692B43E3C7E;
+	Fri,  8 May 2026 13:18:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778246077; cv=none; b=QF/1FWG13ucwZzJw2xNQJb0S2ugsu0w5BexjgX//3dLTHOrALVtKotC8/ghDpjJHOALhRX3OnTL1yg3BYrVEc2hvxawYzeDXMwSi+YK3GilPwEk9KMVDl0mq8fJXy5VPiKdoZnW9o96kO2/nkz7o8JcB6GE1IW2QXXswP8/HaLU=
+	t=1778246312; cv=none; b=WTzqhSrZ5rRbc0QmN/z0mZBrouLNVpTjYWJIeCPJ/0YoJBHdBZq3KVC12COwhbEDa9joeD/0O1/zZUF8OLXi9ndVpHLZ9s9vajbjDyQvuQVSA7gzOLl+534xQvdu6Ilmk6nHmT6iH1+1EkMT4krZdFOG0v7OR06gVatzJ++EO6U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778246077; c=relaxed/simple;
-	bh=s9Z0tLT8SzOsO7em8Q3C4bP32B+Hxk35n24bYsnKKDE=;
+	s=arc-20240116; t=1778246312; c=relaxed/simple;
+	bh=4A2WQnaiS1Hr1zNPnbmkjNHkmfFlXFpTe5CbGC48RwE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JEDz5K29PGKvtnzRCY9UKRSBJ0EaSmufJuIpu4sf/495WHtG6KOUMMQdn89hWpsd8bg/EtubHA5jK8E/LUGJNp8gLJ9EAbZ6CHTYgppORVk/F8Xwaar2FSBzozgqQYqjgkpXB+GCoBfAyGN2jFrMynI9GLN8bFbpZTAkaq/odrU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ChueBdVn; arc=none smtp.client-ip=209.85.167.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Rvz8JG6VOvFhqKgKoXkLfNUVm7FJn+Jyjyg31YTWMJ2O7SWX5ZO/i7KKdRZLiPo8DVy872bIgROU7Sb1Cf1J3qX+urnQWcZ9Auo4Olkz5K8gaC0fxLnGbR806h01gaEyWjaCfWe2NKHSahkabSaP1yl1TcpO4YTc0DTUe+2xp1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ARqzHxkf; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ChueBdVn"
-Received: by mail-lf1-f46.google.com with SMTP id 2adb3069b0e04-5a87edf88b3so1603851e87.0
-        for <linux-i2c@vger.kernel.org>; Fri, 08 May 2026 06:14:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778246074; x=1778850874; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=5Jyuo4pdqxp+5k2cLL5SvSNM1ufmKJNN793e/W3zYnw=;
-        b=ChueBdVnZk7zm0eIwf+OzuyZ7CiQ3VRnriDS37L46hYXoXocN3NJwJI4vTv/D3wNL9
-         Djx5EOvNVRR0NQY43MnqitLuMuziU83QBtAKko8obj/4lmWTlqFOfGQfTPJdwSQisC0N
-         lZIpaCcyfBKZwBiVKgmwENHi6gn+4uIkWfF0wM37JPxVzRCYZtzW1sZjQ/MY9Rm0+qO3
-         EBNUeYhsKnN6rkIqScxfvpGHQBvEYxfOy3EQQ+JKeQGoM9qVjFO68VaaBaUiuLYBzaIq
-         nqlD7KvX8ogswCdeoPtAP9niIIJMYDjulm5Ib8lM9fohfn3o2CQY/gDjLUO7jj8sToWw
-         dXFg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778246074; x=1778850874;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=5Jyuo4pdqxp+5k2cLL5SvSNM1ufmKJNN793e/W3zYnw=;
-        b=OwomKzpntfyxdTUd5MhadiBAKSqZqfoNdnSEoU5vOkDaZSQVU6B5moRqZM14zNkWwp
-         acr4nrIq+2RKs5qFTA2N/zX57M1Ave7J+s+yLaaWc69sRGlspEspZcS7I0S0yegZEAfI
-         dPA03k4FHdQkji+xHl3+En8Fhjx8LZMP00tzErC2e5mImJ/kTJ+FxIn7u9NGym08vzSK
-         DXjbBNaJ6mvEMlz01o0Ya596RoZbt8wURv/NZoMwjfMD7uamAeJoN0qYEsdEYusVzkcV
-         bCczvOVsji/ejUii7gsBTTyimZCKOFKD9vfTaTec2h7nfWS3gXA6IqtkEDJyaMnEMODW
-         h1sA==
-X-Gm-Message-State: AOJu0Yw+rX6MKNCEonZvPZMl8U8Z+ZJFsLXQbLtnVTBvqeLHzB2umCho
-	tj/lJGp859Fg6Atrk+p1h7XjED/Eh8lhKWGGTcx3mzjlmLsiS50PTmFI
-X-Gm-Gg: Acq92OEJ8HpZq5u092nft9AcHIgE3EmR+7iPU3wZjx8ODCSpN0SgxmuwjItPNqy79NM
-	svrgkZoDLGIVRgKebQWygesgzu+yAHxgUg2gNF/sFrvrj1ggdxRZcdg9qzfBCD1ozvMPKm1nsrL
-	53JnxVbnAqjWzDVVMHgZNxJKh+h7OLNiFyHDskLBSBhngi1uGxZtrftZLNSQAhQ6FG+iII/qVWP
-	bzgSvzdOBJO8DSkqa4IR8ss6UeOYLLZmu5yk1L8VZm3B87Xh7624/omlWzYipI9JLt/TgrWjgtd
-	kwJa35/XJK8ihvLkTK4VvsNs70M6KsRBEldZ05soihoffQCKVY1PZGiFbjdrGNqtOC5Zsaa1xGt
-	eNnTABLB5lhbkohWgQ5lxGiQ6n+lFwjfGzL0T5H4NAWLDqUyupKRulIo1Y1jPVU9+fi6Vkxn/GV
-	lTuWSZmt9DFS3C09fXQRsIXUU/yp6WAVfLmmJbxtaDjrvP2S3bnIvG2JTcb+HG
-X-Received: by 2002:a05:6512:2345:b0:5a8:891f:388 with SMTP id 2adb3069b0e04-5a8891f03dfmr4959267e87.29.1778246073843;
-        Fri, 08 May 2026 06:14:33 -0700 (PDT)
-Received: from gmail.com (83-233-6-197.cust.bredband2.com. [83.233.6.197])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a8a951cfb4sm502098e87.20.2026.05.08.06.14.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 May 2026 06:14:33 -0700 (PDT)
-Date: Fri, 8 May 2026 15:14:31 +0200
-From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Peter Rosin <peda@axentia.se>,
-	Michael Hennerich <michael.hennerich@analog.com>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@intel.com>,
-	Bartosz Golaszewski <brgl@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v9 0/5] I2C Mux per channel bus speed
-Message-ID: <af3ht8OX_VUYVAgg@gmail.com>
-References: <20260324-i2c-mux-v9-0-5292b0608243@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ARqzHxkf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CFE7C4AF0B;
+	Fri,  8 May 2026 13:18:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778246312;
+	bh=4A2WQnaiS1Hr1zNPnbmkjNHkmfFlXFpTe5CbGC48RwE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=ARqzHxkfmnyPnB8nbCb9GWJocI9w1muYDgkKNEA50heEZYRRORI/koNfbkff1fP3B
+	 zgz6Rs22h7Z23uZoE9a/i6rFY9BUB9nrcrLNISwSqOWsv3KUhXOxQFLWNe+KUdgRT1
+	 UaFQRR2bImFV9GEakwNCiJ64mip3Ke3NEVk3t+lmiSqbjO0Rk9p4PT2ElwVA+cdtpw
+	 BJJR77nputlDVo0e0KDBlfJUk8Vijkm2DiVlXqBfWZU96B6I/Lli0CskiardCr0wtx
+	 6Oe0v+Cnz9q2PdFlPS/SxLadQo3HfJhmkst8u3Hkoo19ItdjUpHd0IaGbeC/wdcIMr
+	 SU6mhCM78Q2NQ==
+Date: Fri, 8 May 2026 08:18:30 -0500
+From: Rob Herring <robh@kernel.org>
+To: Markus Stockhausen <markus.stockhausen@gmx.de>
+Cc: andi.shyti@kernel.org, krzk+dt@kernel.org, conor+dt@kernel.org,
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org
+Subject: Re: [PATCH 1/2] dt-bindings: i2c: Add i2c-shared-gpio
+Message-ID: <20260508131830.GA1135235-robh@kernel.org>
+References: <20260507181711.2696783-1-markus.stockhausen@gmx.de>
+ <20260507181711.2696783-2-markus.stockhausen@gmx.de>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <20260324-i2c-mux-v9-0-5292b0608243@gmail.com>
+In-Reply-To: <20260507181711.2696783-2-markus.stockhausen@gmx.de>
 
-On Tue, Mar 24, 2026 at 02:54:14PM +0100, Marcus Folkesson wrote:
-> This was a RFC on how to implement a feature to have different bus
-> speeds on different channels with an I2C multiplexer/switch.
-> As no major complaints on the design came up during the review, I
-> decided to submit the series without the RFC tag.
->=20
-> The benefit with this feature is that you may group devices after
-> the fastest bus speed they can handle.
-> A real-world example is that you could have e.g. a display running @400kHz
-> and a smart battery running @100kHz using the same I2C controller.
->=20
-> There are many corner cases where this may cause a problem for some
-> hardware topologies. I've tried to describe those I could think of
-> in the documentation, see Patch #5.
->=20
-> E.g. one risk is that if the mux driver does not disconnect channels
-> when Idle, this may cause a higher frequency to "leak" through to
-> devices that are supposed to run at lower bus speed.
-> This is not only a "problem" for changing bus speed but could also be
-> an issue for potential address conflicts.
->=20
-> This patchset has been used and tested heavily the last months
-> on a custom board based on a da850 (DaVinci) platform.
->=20
-> The implementation is split up into several patches:
->=20
-> Patch #1 Introduce a callback for the i2c controller to set bus speed
-> Patch #2 Introduce functionality to adjust bus speed depending on mux
->          channel.
-> Patch #3 Cleanup i2c-davinci driver a bit to prepare it for set_clk_freq
-> Parch #4 Implement set_clk_freq for the i2c-davinci driver
-> Parch #5 Update documentation with this feature
->=20
-> Signed-off-by: Marcus Folkesson <marcus.folkesson@gmail.com>
+On Thu, May 07, 2026 at 08:17:10PM +0200, Markus Stockhausen wrote:
+> Document the driver for bitbanged gpio I2C busses
+> with shared SCL lines.
+> 
+> Signed-off-by: Markus Stockhausen <markus.stockhausen@gmx.de>
 > ---
-> Changes in v9:
-> - Fix stray blank line
-> - Link to v8: https://lore.kernel.org/r/20260314-i2c-mux-v8-0-fb1738a4df0=
-a@gmail.com
->=20
-> Changes in v8:
-> - Fix gramatics and change %d to %u were appropriate
-> - Link to v7: https://lore.kernel.org/r/20260223-i2c-mux-v7-0-ec75b214718=
-a@gmail.com
->=20
-> Changes in v7:
-> - Remove code for finding first mux-locked ancestor
-> - Introduce a unlocked (i2c_adapter_set_clk_freq) and unlocked
->   (__i2c_adapter_set_clk_freq) variant
-> - Let the locking be handled in __i2c_adapter_set_clk_freq
-> - Use I2C_MAX_STANDARD_MODE_FREQ instead of magic numbers where
->   appropriate=20
-> - Link to v6: https://lore.kernel.org/r/20260216-i2c-mux-v6-0-9be28ecfd7e=
-3@gmail.com
->=20
-> Changes in v6:
-> - Change logic to find which ancestor to lock with I2C_LOCK_ROOT_ADAPTER
->   It now find the first mux-locked ancestor and then lock its parent.
->=20
-> - Remove bus_freq_hz in i2c-davinci and only use clock_hz instead
-> - Mention in commit message that clock_hz can be used to store frequency =
-in an uniform way
->=20
-> - Swap order for change freq/deselect to keep symmetry
-> - Only allow bus frequency to be lowered in select()
->   This to not allow an intermediate frequency to be set when it is not
->   supposed to
->=20
-> - check if(ret) instead of ret(<0) where appropriate
-> - Fix typos in documentation
-> - Change i2c_adapter.clock_hz from int to u32
-> - Simplify i2c_adapter_set_clk_freq() by removing 'ret'
-> - Link to v5: https://lore.kernel.org/r/20260213-i2c-mux-v5-0-fb2cbf9979b=
-3@gmail.com
->=20
-> Changes in v5:
-> - Take the lock of the top-most mutex locked mux to make sure that the
->   root is locked
-> - Link to v4: https://lore.kernel.org/r/20260128-i2c-mux-v4-0-dee49ce276c=
-0@gmail.com
->=20
-> Changes in v4:
-> - Rebase on master
-> - Swap order for printing warning about "channel %u is slower than
->   parent on a non parent-locked mux\n"
-> - Fix typo in comment, adaper->adapter
-> - Link to v3: https://lore.kernel.org/r/20251020-i2c-mux-v3-0-908ac5cf922=
-3@gmail.com
->=20
-> Changes in v3:
-> - Return -EINVAL if channel is faster than parent (kernel test robot)
-> - Link to v2: https://lore.kernel.org/r/20251002-i2c-mux-v2-0-b698564cd95=
-6@gmail.com
->=20
-> Changes in v2:
-> - Changed bus_freq field to bus_freq_hz in davinci_i2c_dev (Bartosz Golas=
-zewski)
-> - Removed idle_state from mux core (Peter Rosin)
-> - Link to v1: https://lore.kernel.org/r/20250922-i2c-mux-v1-0-28c94a61093=
-0@gmail.com
->=20
-> ---
+>  .../bindings/i2c/i2c-gpio-shared.yaml         | 115 ++++++++++++++++++
+>  1 file changed, 115 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-gpio-shared.yaml
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-gpio-shared.yaml b/Documentation/devicetree/bindings/i2c/i2c-gpio-shared.yaml
+> new file mode 100644
+> index 000000000000..7db344821e2f
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-gpio-shared.yaml
+> @@ -0,0 +1,115 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/i2c/i2c-gpio-shared.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +title: Multiple GPIO bitbanged I2C buses with shared SCL
+> +
+> +maintainers:
+> +  - Markus Stockhausen <markus.stockhausen@gmx.de>
+> +
+> +description:
+> +  Bitbanging I2C bus driver that supports multiple independent I2C buses
+> +  sharing a single SCL line. Each child node represents one I2C bus with
+> +  its own SDA line. The shared SCL line is driven by the parent node.
+> +  A mutex serializes access so that only one bus transfers at a time.
 
-Friendly ping on this series.
+Unless it's a h/w mutex, that doesn't belong in the binding. Just define 
+the requirement, not how it might be implemented.
 
-Thanks,
+This is basically a mux, so you should leverage i2c-mux.yaml. Maybe 
+there is driver infrastructure you can leverage too.
 
-Med v=E4nliga h=E4lsningar / Best regards
-Marcus Folkesson
+> +
+> +select:
+> +  properties:
+> +    compatible:
+> +      contains:
+> +        const: i2c-gpio-shared
+> +  required:
+> +    - compatible
+
+You don't need 'select'.
+
+> +
+> +properties:
+> +  compatible:
+> +    const: i2c-gpio-shared
+> +
+> +  scl-gpios:
+> +    maxItems: 1
+> +    description:
+> +      GPIO used for the shared SCL signal. Must be configured as
+> +      open-drain. All child buses share this single clock line.
+> +
+> +  i2c-gpio-shared,scl-output-only:
+> +    type: boolean
+> +    description:
+> +      If present, SCL is treated as output only and clock stretching
+> +      by devices is not supported.
+> +
+> +  i2c-gpio-shared,timeout-ms:
+> +    description:
+> +      Bus timeout in milliseconds. If not specified, defaults to 100 ms.
+
+These 2 properties don't appear to be specific in any way to this 
+particular h/w.
+
+> +
+> +  "#address-cells":
+> +    const: 1
+> +
+> +  "#size-cells":
+> +    const: 0
+> +
+> +patternProperties:
+> +  "^i2c@[0-9a-f]+$":
+> +    $ref: /schemas/i2c/i2c-controller.yaml#
+> +    unevaluatedProperties: false
+> +
+> +    properties:
+> +      reg:
+> +        maxItems: 1
+> +        description:
+> +          Bus index used to identify this child bus. Must be unique among
+> +          siblings and match the node unit address.
+> +
+> +      sda-gpios:
+> +        maxItems: 1
+> +        description:
+> +          GPIO used for the SDA signal of this I2C bus. Must be
+> +          configured as open-drain.
+
+I would move this to the parent and make it multiple entries. 
+
+> +
+> +      i2c-gpio-shared,delay-us:
+> +        default: 5
+> +        description:
+> +          Delay in microseconds between signal transitions for this bus.
+> +          Controls the I2C clock frequency. Defaults to 5 us (~100 kHz).
+
+We already have 'clock-frequency' to define the bus freq.
+
+> +
+> +      i2c-gpio-shared,sda-output-only:
+> +        type: boolean
+> +        description:
+> +          If present, SDA is treated as output only. No acknowledgment
+> +          or read data from devices can be received on this bus.
+> +
+> +    required:
+> +      - reg
+> +      - sda-gpios
+> +
+> +required:
+> +  - compatible
+> +  - scl-gpios
+> +  - "#address-cells"
+> +  - "#size-cells"
+> +
+> +additionalProperties: false
+> +
+> +examples:
+> +  - |
+> +    #include <dt-bindings/gpio/gpio.h>
+> +
+> +    i2c-gpio-shared {
+> +        compatible = "i2c-gpio-shared";
+> +        scl-gpios = <&gpio1 31 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+> +        #address-cells = <1>;
+> +        #size-cells = <0>;
+> +
+> +        i2c@0 {
+> +            reg = <0>;
+> +            sda-gpios = <&gpio1 6 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+> +            i2c-gpio-shared,delay-us = <2>;
+> +        };
+> +
+> +        i2c@1 {
+> +            reg = <1>;
+> +            sda-gpios = <&gpio1 7 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
+> +            i2c-gpio-shared,delay-us = <2>;
+> +        };
+> +    };
+> -- 
+> 2.54.0
+> 
