@@ -1,131 +1,109 @@
-Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com [209.85.128.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1BD522301
-	for <linux-i2c@vger.kernel.org>; Sat,  9 May 2026 09:46:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A91E39A071
+	for <linux-i2c@vger.kernel.org>; Sat,  9 May 2026 10:10:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778319973; cv=none; b=RMKjfoNnjCTVbh9UOqpn7vFjvn+jnw+Lu34VdeNWAQzYeMUYlDRvnqKfBaDHcfbx3DJ4yFljbRYuxkXs4ggnDc+ZlmNiI4LeV1dex4R8kwL1wSMAJribLDBQnEJGVgcH34JCO5dqEydM7qq1vA79J0BFWZJUuBfhNYeOCTCSR2E=
+	t=1778321423; cv=none; b=SAYb8LMqwPwCpxmKZnKhIXv/SGq0DzlmVQSCXecCVu/fxS21DfLyFUBfOLMjjvCQFURgOPLuc5z1bIdEJNx3uY7KfU6fLrrSTRjQsTAdB49jHqwLULxyHXoy+uBBqw296BMOT1wfjrO6bkjVfakrFd7022EbMaPhrWA4ScRDrSk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778319973; c=relaxed/simple;
-	bh=6hSvrC6JqtJ3Ll+ikYPnEBdS7T/Rm4O1cnmAAUY5IGo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ipWCFmnw2wNTsZ10GVnDITnJFeMVJ6eWe9lrymEJKYBcfsUQl5TVuJyFu9fEP7eLcDMDkmr9J8SSG4cA1jXL0Wo4edOVfb6QE3YPfIB+fYGEopjVH244YmssKBaloB/A2Gonl16hsXU2CkZhCgmX9JeF6tSwtSIc4duvXpnT6NY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=h+FuX61f; arc=none smtp.client-ip=209.85.128.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778321423; c=relaxed/simple;
+	bh=3gfaW6z+27O2pq1WoI5WtBCb0KMJI/xVJJaRoAwfJ98=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=N3JkvCAzs5izath6rF9QrFHEpzdhsCwiHkxdQukIX3lvTPfz1fbB4IWhusSIzTyOkVvGK2sI7/QL00Rt5xtbgDWMUQoXd44N0ExL6U06+a8ZncQ+BIy1B2k5IxcFJ1oZESKk3jtE104yshZN59KJuORePvTY3ok9+yXIl029ooM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=Q4iRFV4L; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="h+FuX61f"
-Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-48a3e9862f0so18149095e9.1
-        for <linux-i2c@vger.kernel.org>; Sat, 09 May 2026 02:46:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778319970; x=1778924770; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=P7U/T5gN+6tbPfvjxQ18soHxdaMsEpG40WbKeR8e5d4=;
-        b=h+FuX61fPQHt0vJlFlHoj9721+CKDqKOPvCSDgwm5GhtigYjQ/tphPAeIQbM0tCcj7
-         rYPD1unMBX82/TPlEzKrxb9IjjGaSXejSEIk175fA3Hi+38CEVK+LIqLMFLFBlEIWXiB
-         xtlp3veZ+rbjJg0UsLspwnLoalvxb1PToxAFFaqshdwFBz9JGaRHS3TNEpRBpd2WZ+Zi
-         GMcFRrdZq/Gw7F2+xTMX/1A1xv7HP89y6cefCy4kEumi8blGgLtuSa6sTQ1Cv1HKyE6y
-         WnY/1IYj9g2z9tWcGsYuuVS//wio47fYeFowdup4crSSntNLikrB2gwNo+8MY4u3eRw2
-         4Ojg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778319970; x=1778924770;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=P7U/T5gN+6tbPfvjxQ18soHxdaMsEpG40WbKeR8e5d4=;
-        b=aj5LvpVNnksjwFdSQ1bE+yCFlBku3yfBiO4G5ieDz+WoQdc1cO8YIXLZsGab55k4df
-         1+KEgvWKjxPK6DncrIk8KQ5vm0Ge15tkR3nU2x/28bjjpkMXUkeSs4vxHOdtNrs4oTs4
-         tCYa6CdFodqL4ZGR0dni017A3dI7Hb9iDkkYuGmxd4qNmBmcUiqJuQCnsa1qy//Kov01
-         IW1M0/vdLuodJRM6M5zelzwjyrgXoSaNhsa/Jh6DgDScfjEXemNY4BLIg/a8gZ/9j1KE
-         JJh+2o0x/RgYZYPyN12tzt49IxfK42fu+WljA/Kt+hA69tTIVCdWDp3j6zPFruUB3IWy
-         FHxw==
-X-Gm-Message-State: AOJu0YyB5zXkG3PQ+Y2ST/w7Elb+wwjl2WhD9Yl1R+WkfyRasLXOKOlq
-	FeAumDX88Jp/NAh1zNVjXOG3q7dzvpcRy2APdMfnrOrC9bQ+k5FwdU50
-X-Gm-Gg: Acq92OG5tJpR9RLAgq/gME5jKwxT25nOC0XSKPktTOSFdUND6uHE0IvEy9jJa2lGmj8
-	P4NOOSH586p1Q9+dcZ5PAtZOvs4LknDIXaB/Aq10SqJqeYZCXkxPB/dNp5I1jMe6bZaRnZc3w6W
-	8tzQTHbivczduw+K3LLbMmKU+f7e4GY1t1iNwtFOUMIdK6feETaYObMJeGUruK+KD9S3mpC05jd
-	lTB3OdHpSMPn7w/M0ZMUCKac6ynOTGJs9CAF+4rEjNTXhWsfrG2LsaOAWgojWtWN26BlFuu1ghs
-	9Y3XLl/WZOYmrTM2bPch+jQPGutk8YHj4hISf6I0OhqgmZSfhF1NUzMF9zhwWw5KAhBbWCMUgBK
-	lTScJNEzsCrTKThXzXrnj6pJYs4nD41PcoO37q/FO+Q8HM/S8BnhXFd6wnY+gls8lvI1cv0Skao
-	YKehtu8YypCw==
-X-Received: by 2002:a05:600c:2219:b0:48a:5ee0:7781 with SMTP id 5b1f17b1804b1-48e5e007218mr123817685e9.16.1778319969794;
-        Sat, 09 May 2026 02:46:09 -0700 (PDT)
-Received: from ns3242901.. ([2001:41d0:a04:2e00::])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45491ca2fd6sm11224669f8f.30.2026.05.09.02.46.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 May 2026 02:46:09 -0700 (PDT)
-From: Florian Pradines <florian.pradines@gmail.com>
-To: gupt21@gmail.com,
-	jikos@kernel.org,
-	bentiss@kernel.org
-Cc: linux-i2c@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	Florian Pradines <florian.pradines@gmail.com>
-Subject: [PATCH] HID: mcp2221: fix OOB write in mcp2221_raw_event()
-Date: Sat,  9 May 2026 09:45:17 +0000
-Message-ID: <20260509094517.2691246-1-florian.pradines@gmail.com>
-X-Mailer: git-send-email 2.47.3
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Q4iRFV4L"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=3gfa
+	W6z+27O2pq1WoI5WtBCb0KMJI/xVJJaRoAwfJ98=; b=Q4iRFV4LpX3jUtadLEul
+	kgAn73zyLMqw1HzyT2hZdglqCzrIAgZMWbzfc0Vsx9xOC/JpQbRvB75qZATC6RyX
+	Dw7XyFgpHzcKvDflSYNLXGz2l7RXSA9cxTh+0qeiW1FR8gpWTRvcoAud85LStsAj
+	ryS6dNrnAHklEQDt2zBiIIQ/QUYBGST5jhGT0bRl/aQM8IeecPSkLrmi+MdIzuao
+	7wF7mftQzRGfFKWv2BrJXACKn0fdkoNCokumzvOFIkBWSW2s0cdaY4UxiN4VEar5
+	tLTeva2WsBZqiJ4d9wlaybQQZLu8E5EvzAkMN8W7S9UJoj1bmV5qyZJ0hkfjqlc7
+	vQ==
+Received: (qmail 1850297 invoked from network); 9 May 2026 12:10:16 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 9 May 2026 12:10:16 +0200
+X-UD-Smtp-Session: l3s3148p1@zApLuF9RcuoujnuR
+Date: Sat, 9 May 2026 12:10:15 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Jie Li <lj29312931@gmail.com>, Linus Walleij <linusw@kernel.org>
+Cc: wsa@kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Jie Li <jie.i.li@nokia.com>
+Subject: Re: [PATCH v4 2/2] i2c: core: support recovery for single-ended GPIOs
+Message-ID: <af8IB46ST70lXVsk@shikoro>
+References: <afiNrr4Llm0LWw-5@ninjato>
+ <20260509091208.18346-1-jie.i.li@nokia.com>
+ <20260509091208.18346-3-jie.i.li@nokia.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="bTGURmmXIWhrNSvw"
+Content-Disposition: inline
+In-Reply-To: <20260509091208.18346-3-jie.i.li@nokia.com>
 
-mcp2221_raw_event() copies device-supplied data into mcp->rxbuf at
-offset rxbuf_idx without checking that the copy fits within the
-destination buffer. A device responding with up to 60 bytes to a
-small I2C/SMBus read can overflow the buffer.
 
-Add a rxbuf_size field to struct mcp2221, set it alongside rxbuf in
-mcp_i2c_smbus_read(), and check rxbuf_idx + data[3] <= rxbuf_size
-before the memcpy.
+--bTGURmmXIWhrNSvw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: Florian Pradines <florian.pradines@gmail.com>
----
- drivers/hid/hid-mcp2221.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+On Sat, May 09, 2026 at 11:12:08AM +0200, Jie Li wrote:
+> Currently, i2c_init_recovery() only assigns the set_sda/set_scl
+> hooks if gpiod_get_direction() returns GPIO_LINE_DIRECTION_OUT.
+>=20
+> This logic fails on certain SoC controllers where open-drain lines
+> in a high-impedance state are physically reported as inputs. This
+> leads to a "deadlock" where the I2C core refuses to assign the
+> recovery hooks because it incorrectly assumes the pins are
+> input-only, even though they are fully capable of driving the bus
+> low for recovery.
+>=20
+> Update the recovery initialization to use the new
+> gpiod_is_single_ended() helper. If a GPIO is configured as
+> open-drain or open-source in the firmware, it is safe to assume
+> it can be used for bus recovery, even if the current hardware
+> direction is reported as input.
+>=20
+> Signed-off-by: Jie Li <jie.i.li@nokia.com>
+> Reviewed-by: Linus Walleij <linusw@kernel.org>
+> Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index be80970ab48e..e4ddd8e9293b 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -128,6 +128,7 @@ struct mcp2221 {
- 	u8 *rxbuf;
- 	u8 txbuf[64];
- 	int rxbuf_idx;
-+	int rxbuf_size;
- 	int status;
- 	u8 cur_i2c_clk_div;
- 	struct gpio_chip *gc;
-@@ -330,12 +331,14 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
- 		mcp->txbuf[3] = (u8)(msg->addr << 1);
- 		total_len = msg->len;
- 		mcp->rxbuf = msg->buf;
-+		mcp->rxbuf_size = msg->len;
- 	} else {
- 		mcp->txbuf[1] = smbus_len;
- 		mcp->txbuf[2] = 0;
- 		mcp->txbuf[3] = (u8)(smbus_addr << 1);
- 		total_len = smbus_len;
- 		mcp->rxbuf = smbus_buf;
-+		mcp->rxbuf_size = smbus_len;
- 	}
- 
- 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 4);
-@@ -919,6 +922,10 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 					mcp->status = -EINVAL;
- 					break;
- 				}
-+				if (mcp->rxbuf_idx + data[3] > mcp->rxbuf_size) {
-+					mcp->status = -EINVAL;
-+					break;
-+				}
- 				buf = mcp->rxbuf;
- 				memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
- 				mcp->rxbuf_idx = mcp->rxbuf_idx + data[3];
--- 
-2.47.3
+I overlooked that the change with GPIO_LINE_DIRECTION_OUT I suggested
+for this patch is at the same location as commit[1]. I already pushed
+out said commit for -rc3 and it is, thus, already in -next, too. No big
+harm, but there will be a little conflict when applying. Sorry, Linus!
 
+[1] b47bc7c022dd ("i2c: Compare the return value of gpiod_get_direction aga=
+inst GPIO_LINE_DIRECTION_OUT")
+
+
+--bTGURmmXIWhrNSvw
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmn/CAMACgkQFA3kzBSg
+KbZfmRAAkZrdO/RKmct/mhLX++dozRsfY62Jip2X4CHkUfSmC9KCWs0zj5CWZ686
+CJfyJq8HXH/kDysoouxxnKybzdRNiVbP5XBrbCGt9x1LU16Tea6EHSFgRWfgrohx
+Biaw/EUfsbOaz7S1gj0uU9+YxqPQ/EZRa2f7mVKanoCrccpnwaFLauQelv4ryygh
+D3uV7NJkRTfmbXYLySauTujv5USY3twM/izWCq5zxRXw23vozU9/z1fhcnlO6gyV
+/6lY4zGDthiU8soqigBzxhVzr4CCJfZ7rMYz2eXOuCA9qYnYl5KUZwfETOtY1soo
+wK9s9dnt1FkBAFG4YG0+GA5sW5MP5k1M/T/7rdLzBd4pl1BSf2KtZpr9PK9ipHy9
+9ui/LbSS5a1l1/TXN0V6sfwQFsnH+t40v0hBu65rqb8wL43K8AL89+N+GNaSng0m
+RTtsJRkMmZxvb0K90A7w/hXcymQEole4/F3y/NwM3DXjtlG9lLEIdF6FPEHoygCY
+4GQ0S9ySq8TKrCMYepBIepiITAaDVhjg0NvtYnm0tD9ZeTDJlPfsfrImr/YM08tG
+Ich7tNpZd+s483egItHXfPbu6v/AIIaUx7ZQye/l+0V5S367XxN2Qj4RWVNLIDFB
+HyCod8shaQez7K9wlaTF1q+QtdDK9SciCUvdt36//X7yYNq9FHA=
+=QGMA
+-----END PGP SIGNATURE-----
+
+--bTGURmmXIWhrNSvw--
