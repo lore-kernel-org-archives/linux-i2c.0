@@ -1,209 +1,141 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id AD2C028C037;
-	Sat,  9 May 2026 03:07:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF9A11E1DE5;
+	Sat,  9 May 2026 06:12:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778296050; cv=none; b=PyeyrEKI+0Xld4uIioPCeTQlLmEVAmwwE6kUnBxR1cjHvxaJf9+1kdVpOHTOXpo2UZpHD1eeStNaVihub9JtPSca2uCpXPJOkFtGoxsa+3TWrhtOqy1tRWsg7GwdmzphlkFKFlgVxorAHCQuFEhBFZGvca8tFdd0maTzJCeclDc=
+	t=1778307129; cv=none; b=FNruYT6jPFIILhMiK2nx/wpsE527u5FlyiaSRXtmGQXSxAKvg0nxJUyjNmF3rRjeYJREa0TaKBiRuJ5Sxbs5e4JC/KSRIrhhUItAxwzotBzmxkzpGnuPXBMCNc7H8ZvJ1lOPfYA/xefwGr6mZxelo+L8dE+8ABfxcyOhBpZXA8k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778296050; c=relaxed/simple;
-	bh=lR9p275Ck8plWCYXsNKeLqev36Uhe2gbnt1Be/AHsA4=;
-	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=dwWZfPN1dxGOEsgwtBLScG0Ey1zwX4mVz+wBjUuQk+xM7W10CZjEF1s+mrLHplTGmIGqPtU79tRpINbDZJiGtz1b0wkxYDTdMHUKQWc8ZPP06g748ckTU3cOROylfDSINJ9ohy7E3TeEw4jfqYBx8iS9NLPSMQn1x021hTvxhdI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.101])
-	by gateway (Coremail) with SMTP id _____8BxzsDspP5pdhsIAA--.1932S3;
-	Sat, 09 May 2026 11:07:24 +0800 (CST)
-Received: from [10.20.42.101] (unknown [10.20.42.101])
-	by front1 (Coremail) with SMTP id qMiowJBx78LopP5pxFJ9AA--.42505S3;
-	Sat, 09 May 2026 11:07:23 +0800 (CST)
-Subject: Re: [PATCH v2] i2c: ls2x: Add clocks property parsing and adjust bus
- speed
-To: Huacai Chen <chenhuacai@kernel.org>
-Cc: Binbin Zhou <zhoubinbin@loongson.cn>, Andi Shyti <andi.shyti@kernel.org>,
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
- Conor Dooley <conor+dt@kernel.org>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org,
- devicetree@vger.kernel.org, loongarch@lists.linux.dev
-References: <20260507081010.12810-1-wanghongliang@loongson.cn>
- <20260507081010.12810-2-wanghongliang@loongson.cn>
- <CAAhV-H46sOPPAoH31DijWYK+v5fEzgq7ZVucCuoyRTwTgUHYxA@mail.gmail.com>
-From: Hongliang Wang <wanghongliang@loongson.cn>
-Message-ID: <e1a77c4d-b347-e378-ead8-b641560d8bc7@loongson.cn>
-Date: Sat, 9 May 2026 11:06:22 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+	s=arc-20240116; t=1778307129; c=relaxed/simple;
+	bh=MweMaBMBWCNpZAQjgPNpQq2yrFk6hKEc1Gm+qqM/ylw=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=uJU+OJ80PBwi3WeHKEbEQpFZfmSVbiOWkXXiiSWeu4KGkwJtnNfxvQPUjcWDSicrTR3Ln0JhY17OzAbmS/xocoJyLplUILHTqKWjQn5JJiOjjPL1UGz6QRCR8WbhWXyw5N/ekohsG4gsK8fK/r2h3pfwZxxv8ie8dWLVvKK+7EY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZXzyR+Et; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZXzyR+Et"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5D9DC2BCB2;
+	Sat,  9 May 2026 06:12:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778307129;
+	bh=MweMaBMBWCNpZAQjgPNpQq2yrFk6hKEc1Gm+qqM/ylw=;
+	h=Date:From:To:Cc:Subject:From;
+	b=ZXzyR+EtjYr7i1ZBCB5hYZDKhIy5fqu989nCu6jnI0thYq/w1F/o5Ll5G27Z1fnN6
+	 I5XUeijwA0KqP1U2OKpW/oWVb7CPoXcs2TDh4okn81bB40FzQfUFEgbVQYgXFP7pUb
+	 dWO/MgeryueAyfUIVMHJIsQkmj+sKbHVJ1bkdTjIc6TG+s6wHXsbjM/5uqNPUz6AQF
+	 KLvliaz30A7SOzir+/FeqnRowOgcK+cayECYpvcPlemCao7eCwMKQCkOYiSyqQ1OKT
+	 nzQ+tDKz8XcH8OsN43AZKzVjkI2NMEU+/aPdGIS5eeHVfKzjxKPbll4CnstFkIm1M6
+	 kbdCDj1FX1bfw==
+Date: Sat, 9 May 2026 08:12:05 +0200
+From: Wolfram Sang <wsa@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>
+Subject: [PULL REQUEST] i2c-for-7.1-rc3
+Message-ID: <af7QNdBvNvwQSuYI@shikoro>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <CAAhV-H46sOPPAoH31DijWYK+v5fEzgq7ZVucCuoyRTwTgUHYxA@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-CM-TRANSID:qMiowJBx78LopP5pxFJ9AA--.42505S3
-X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxCFykCF4xXrWrKFy5KFyUArc_yoW7Jry5pF
-	WDCF4rGF4qqF12qrnIqw17ZFyYvws5JFZ2yr47t3WxK3sa9r1DZa1ftr90kF1kCFW8u3yx
-	Xa1qgrsxuFyqvrgCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUv0b4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
-	Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx1l5I
-	8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AK
-	xVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07AlzV
-	AYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E
-	14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIx
-	kGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAF
-	wI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r
-	4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8zwZ7UU
-	UUU==
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="9WOs7vt6FxJKfDiy"
+Content-Disposition: inline
 
-Hi, Huacai,
 
-On 2026/5/8 上午11:06, Huacai Chen wrote:
-> Hi, Hongliang,
->
-> On Thu, May 7, 2026 at 4:11 PM Hongliang Wang <wanghongliang@loongson.cn> wrote:
->> From: wanghongliang <wanghongliang@loongson.cn>
->>
->> The i2c-ls2x driver supports dts and acpi parameter passing.
->> In dts, uses clock framework, by parsing clocks property to
->> get i2c bus reference clock, and define factor by device data.
->> In acpi, by passing clocks property to describe i2c bus reference
->> clock and clock-div property to describe factor.
->> Based on i2c bus reference clock(clock_a), i2c bus speed(clock_s)
->> and factor, calculate the prcescale of i2c divider register.
->> The calculation formula is
->> prcescale = clock_a/(factor*clock_s)-1
->>
->> Signed-off-by: wanghongliang <wanghongliang@loongson.cn>
->> ---
->>   drivers/i2c/busses/i2c-ls2x.c | 42 ++++++++++++++++++++++++++++++++---
->>   1 file changed, 39 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-ls2x.c b/drivers/i2c/busses/i2c-ls2x.c
->> index b475dd27b7af..7db91e7a5d78 100644
->> --- a/drivers/i2c/busses/i2c-ls2x.c
->> +++ b/drivers/i2c/busses/i2c-ls2x.c
->> @@ -13,6 +13,7 @@
->>   #include <linux/bitfield.h>
->>   #include <linux/bits.h>
->>   #include <linux/completion.h>
->> +#include <linux/clk.h>
-> This should be before completion.h.
->
-OK.
->>   #include <linux/device.h>
->>   #include <linux/iopoll.h>
->>   #include <linux/i2c.h>
->> @@ -63,11 +64,16 @@
->>   /* The default bus frequency, which is an empirical value */
->>   #define LS2X_I2C_FREQ_STD      (33 * HZ_PER_KHZ)
->>
->> +struct ls2x_i2c_chip_data {
->> +       unsigned int    factor;
->> +};
->> +
->>   struct ls2x_i2c_priv {
->>          struct i2c_adapter      adapter;
->>          void __iomem            *base;
->>          struct i2c_timings      i2c_t;
->>          struct completion       cmd_complete;
->> +       const struct ls2x_i2c_chip_data *chip_data;
-> Use "unsigned int    factor" directly?
->
-OK,  I will adjust it
->>   };
->>
->>   /*
->> @@ -96,6 +102,8 @@ static irqreturn_t ls2x_i2c_isr(int this_irq, void *dev_id)
->>   static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
->>   {
->>          u16 val;
->> +       u32 pclk, factor;
-> factor or div? If factor is better, then rename clock-div to
-> clock-factor; if div is better, then rename factor to div.
-div is better,  I will adjust it
->> +       struct clk *clk;
->>          struct i2c_timings *t = &priv->i2c_t;
->>          struct device *dev = priv->adapter.dev.parent;
->>          u32 acpi_speed = i2c_acpi_find_bus_speed(dev);
->> @@ -107,12 +115,30 @@ static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
->>          else
->>                  t->bus_freq_hz = LS2X_I2C_FREQ_STD;
->>
->> +       if (dev_of_node(dev)) {
->> +               clk = devm_clk_get_optional_enabled(dev, NULL);
->> +               if (IS_ERR(clk) || !clk)
->> +                       pclk = LS2X_I2C_PCLK_FREQ;
->> +               else
->> +                       pclk = clk_get_rate(clk);
-> Reverse the "if & else" so the default case will be the last one, this
-> is also the same as the ACPI case below.
-OK
-> Huacai
->
->> +
->> +               factor = priv->chip_data->factor;
->> +
->> +               val = (pclk * 10) / (factor * t->bus_freq_hz) - 1;
->> +       } else {
->> +               if (!device_property_read_u32(dev, "clocks", &pclk) &&
->> +                   !device_property_read_u32(dev, "clock-div", &factor) &&
->> +                   factor != 0)
->> +                       val = (pclk * 10) / (factor * t->bus_freq_hz) - 1;
->> +               else
->> +                       val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
->> +       }
->> +
->>          /*
->>           * According to the chip manual, we can only access the registers as bytes,
->>           * otherwise the high bits will be truncated.
->>           * So set the I2C frequency with a sequential writeb() instead of writew().
->>           */
->> -       val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
->>          writeb(FIELD_GET(GENMASK(7, 0), val), priv->base + I2C_LS2X_PRER_LO);
->>          writeb(FIELD_GET(GENMASK(15, 8), val), priv->base + I2C_LS2X_PRER_HI);
->>   }
->> @@ -295,6 +321,8 @@ static int ls2x_i2c_probe(struct platform_device *pdev)
->>          if (!priv)
->>                  return -ENOMEM;
->>
->> +       priv->chip_data = device_get_match_data(dev);
->> +
->>          /* Map hardware registers */
->>          priv->base = devm_platform_ioremap_resource(pdev, 0);
->>          if (IS_ERR(priv->base))
->> @@ -348,9 +376,17 @@ static int ls2x_i2c_resume(struct device *dev)
->>   static DEFINE_RUNTIME_DEV_PM_OPS(ls2x_i2c_pm_ops,
->>                                   ls2x_i2c_suspend, ls2x_i2c_resume, NULL);
->>
->> +static const struct ls2x_i2c_chip_data ls2x_i2c_2k_data = {
->> +       .factor = 4,
->> +};
->> +
->> +static const struct ls2x_i2c_chip_data ls2x_i2c_7a_data = {
->> +       .factor = 5,
->> +};
->> +
->>   static const struct of_device_id ls2x_i2c_id_table[] = {
->> -       { .compatible = "loongson,ls2k-i2c" },
->> -       { .compatible = "loongson,ls7a-i2c" },
->> +       { .compatible = "loongson,ls2k-i2c", .data = &ls2x_i2c_2k_data, },
->> +       { .compatible = "loongson,ls7a-i2c", .data = &ls2x_i2c_7a_data, },
->>          { /* sentinel */ }
->>   };
->>   MODULE_DEVICE_TABLE(of, ls2x_i2c_id_table);
->> --
->> 2.47.2
->>
->>
-Best regards,
-Hongliang Wang
+--9WOs7vt6FxJKfDiy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
+The following changes since commit 7fd2df204f342fc17d1a0bfcd474b24232fb0f32:
+
+  Linux 7.1-rc2 (2026-05-03 14:21:25 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-7.1-rc3
+
+for you to fetch changes up to 3051cd060fa496df42954291fa2306ed2eab4ecc:
+
+  i2c: smbus: reject oversized block transfers in the common path (2026-05-07 10:59:07 +0200)
+
+----------------------------------------------------------------
+i2c-for-7.1-rc3
+
+- sanitize more input parameters in the core (found by syzkaller)
+- usual set of driver fixes (proper completion handling, applying
+  quirks, correct workqueue selection...)
+- ID additions to simplify dependency handling
+- new email address for Peter Rosin
+
+----------------------------------------------------------------
+Janne Grunau (1):
+      dt-bindings: i2c: apple,i2c: Add t8122 compatible
+
+Marco Crivellari (1):
+      i2c: testunit: Replace system_long_wq with system_dfl_long_wq
+
+Marek Vasut (1):
+      i2c: stm32f7: reinit_completion() per transfer not per msg
+
+Mingyu Wang (1):
+      i2c: dev: prevent integer overflow in I2C_TIMEOUT ioctl
+
+Niels Franke (1):
+      i2c: acpi: Add ELAN0678 to i2c_acpi_force_100khz_device_ids
+
+Nikola Z. Ivanov (1):
+      i2c: Compare the return value of gpiod_get_direction against GPIO_LINE_DIRECTION_OUT
+
+Peter Rosin (1):
+      MAINTAINERS: Update mail for Peter Rosin
+
+Ronald Claveau (1):
+      dt-bindings: i2c: amlogic: Add compatible for T7 SOC
+
+Weiming Shi (2):
+      i2c: stub: Reject I2C block transfers with invalid length
+      i2c: smbus: reject oversized block transfers in the common path
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Jean Delvare (1):
+      (Rev.) i2c: stub: Reject I2C block transfers with invalid length
+
+ .mailmap                                           |  1 +
+ .../bindings/i2c/amlogic,meson6-i2c.yaml           | 13 ++++++++----
+ .../devicetree/bindings/i2c/apple,i2c.yaml         |  4 +++-
+ MAINTAINERS                                        | 24 ++++++++++------------
+ drivers/i2c/busses/i2c-stm32f7.c                   |  6 +++---
+ drivers/i2c/i2c-core-acpi.c                        |  1 +
+ drivers/i2c/i2c-core-base.c                        |  3 +--
+ drivers/i2c/i2c-core-smbus.c                       | 12 +++++++++++
+ drivers/i2c/i2c-dev.c                              |  9 ++++----
+ drivers/i2c/i2c-slave-testunit.c                   |  4 ++--
+ drivers/i2c/i2c-stub.c                             |  5 +++++
+ 11 files changed, 53 insertions(+), 29 deletions(-)
+
+--9WOs7vt6FxJKfDiy
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmn+0DUACgkQFA3kzBSg
+KbYzvQ/7BWe+SVWXbbLck8vsGVv6kUP6C+o/JBCYVsDthzmpeNraabqqPDradxQi
+jtvhXOI6sKfcEJlhEsBJg/JL+oQZ8tZSWhbG7w+iyybvb/95aXP8RVo+wZ3XiKLM
+8FVGrlaj05rwROKIE+AkNeor9Wwr9UKgEbd2PDXZ93VyOyaDh1WNNRX6QwJicndf
+0YEMfiN5MjKVOqC0fZmlCyVo8LQaOjcGFPyghvEI0PuGXmd9BlcyRvtCLbQximhv
+1CAxTZmvdk3o+cdK8WdkykaMXpp+heUocB/jTu3Ex/mQ6a+0K91uYnrlQEYlsopJ
+gZLw8BOne7eiD2udsxQUosTaAnhvxgedYd2iz92o6hK5X+nfLMwrzhs2ID974BaD
+jMZvxvo63xWIP9Eq+RJP14hpaeaVFnd77PpU1DWveQHToqujjf227Fy11IlBifi1
+l4K3FWvy3E5Z7aiy3xLWxxQAPr42gPnM0CCfKCIQFQpvyN7muv64HW8ZRoOq8bKz
+l0b/19kBwtGDE2Qn/YWCEvTpR9y86uL0nKIaJppCsnTSHSPulzMKKEkKl8wxxKz6
+GSo7YSuTW0GkLfySwUzwjBCskBP1rniWwD1VirBbalA8C0D2SZCSjF2yLm5gnVPt
+9WvvEgrXN0dn5HAugvY3FoUkZuNvlia+WLzVY0xGNQfo5vjxIms=
+=DHxp
+-----END PGP SIGNATURE-----
+
+--9WOs7vt6FxJKfDiy--
