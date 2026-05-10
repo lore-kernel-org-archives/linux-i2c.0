@@ -1,239 +1,88 @@
-Received: from mail-dy1-f195.google.com (mail-dy1-f195.google.com [74.125.82.195])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E17CB25FA05
-	for <linux-i2c@vger.kernel.org>; Sun, 10 May 2026 03:11:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0A90332ED0
+	for <linux-i2c@vger.kernel.org>; Sun, 10 May 2026 20:59:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778382673; cv=none; b=U7kE4LD/ezrNWHgNar2kFvynGqrMdIuiU0VlekJ75avkXN+DCtk31g4GYigpfrpOj4hcVTY5r3vWdi/lPfuXuax/TVcVFAJ8EFV88ia+DA1bsU14869Av4YF9yED/fDk/nRCFWmXgGz96ErwhMpt/P5Aq66tFVtlxf4LxexpVUg=
+	t=1778446760; cv=none; b=FFTOCVCj6Qh74UaKxm1SfKkwMB1KlCzsDQ/nmpw0gI+CpoyfXuGyeMPqB6DM5XWgR0hd1DRT6d73RYUwqTQMvfTK7AZvyQK+JOiv8k48ububhFFhHkl22y2B2/xMdo2eZV7DtBGSuW3Mw5jNBkNTinLuEoXTxVN3vptYtYKY50M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778382673; c=relaxed/simple;
-	bh=gQA4Z0I4dAD3lpM3WcSiD7Z4kubZPjVnKPmZMkhI4ag=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=IWY/xZ3mXn7jubz5egOfYz8qGknwdPuTWljk8qI/nWPaqTZankK6aOmVk+1KAPvzXEUeZsJB6JCuefIimK++1hmdAV1Lo3rdgt85I1uJJveDjNJ1O1VeAqXNVPvcpaHP/Ihrx3FvVeTxH8A+QRYy0dwh5HnDb6TB85FVUbA3gr8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=n1nf/1s/; arc=none smtp.client-ip=74.125.82.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778446760; c=relaxed/simple;
+	bh=b54LreJQbh/LiOryVCaRggTjB4exiPbbSbBQu6ZAD+k=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=VhdzpdwuWiXrWxpdWRwjD5YnFqIuY+LMONDdnEKLbd2BfRSeoSUvxHgsIJg0wkB5iH5+egpEPku+AnENHMkhGZ6wq4s+HUUMDjhspurOjZ9+ClZ2ZrBOf5qe7kaQHf4OdZhbRDrR8fB1J/6W6KzrVWOcWBFsHq8GhmzbDk+I4Ds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=GTydepoJ; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="n1nf/1s/"
-Received: by mail-dy1-f195.google.com with SMTP id 5a478bee46e88-2f7ca62a3c4so2868335eec.0
-        for <linux-i2c@vger.kernel.org>; Sat, 09 May 2026 20:11:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778382671; x=1778987471; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=Fk9eeAKn3FhBbqVLjcl9tAfYozaTPwOkZxBuF5GgNhQ=;
-        b=n1nf/1s/mmOfVkB99s2fuIwoBaOBAhPFqdR1w8kElU8IlrnF7QZQxLf0HBuu4iC8Gi
-         DGdtnEzOe1PcJBiz+ijnoOZzpxIOpgqh8KOq8UlRxQsSjnZGkEQuLYRdaQu9y+unlq/s
-         ThopCnq2h1dDW5+fWQQrgCP2xD+x4Fmw+wMS7fJaofkgfeQNAw7KFDYscrhpAO4RRArR
-         56XEGFXzjd6unfVJYv+mHx9gGNw0p5dMCaVQyZwztflXvK02e8uHbFsQRXDJfx9qAmts
-         QqDq2Mdr0i159/CTYGooGsS558V23XUyxWezosfU9KaTW8xgDzktzFRVPrFu/0z/msC1
-         X1zA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778382671; x=1778987471;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Fk9eeAKn3FhBbqVLjcl9tAfYozaTPwOkZxBuF5GgNhQ=;
-        b=kOAZbOd4UawhdSBUCR80jx0IKDRNFty7SRYDZNxbNZEYccR3+09/RGG/DhcMhSuP2p
-         HQbEfdoluJgS+D3PZ229EySXStrxcHJnj8g+j8v9cKVWdIE71WAD9zs2PGA2r8qY4u7K
-         dn1Jvi5or+X3eR88XsQJAz/85Roxj/gMFLXgKufsNtBltgtO2jNJAASOeVTMneFx3oBp
-         98zy4ljDNYp5HeQvABG8XJpfejJn/UlSMNjDdQc6Pu/zGpmwlGTFsJlk7GUtzyG7redY
-         ow1i3WQzFwpDV3EJ6nj6Bn4iTx4GtVsSdU7+8o0KAnz21d8A+M8M23w0TftYjZ3QxQCf
-         KzAg==
-X-Forwarded-Encrypted: i=1; AFNElJ/MZRF2lGzDVGl3ddTszMU5Xg+CG5nFboKoCRCK6Xt1QTKWeefhfOi3U57aOAAKjCyGhPxQ2RiwMco=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx1LiZXkS8bOwUPcB9kjFg5LeORj89AoOfHJPJijPXIrMYhQxyO
-	UWqohdEp+5KXOGu73DN2ZUaFFvnBUlQn0Fmgxshx91YqMDj4gP2XqyNG
-X-Gm-Gg: Acq92OEhUklt12eXDaVRJjbdO+c5xTsxh7bvtIa/WH0q7WXbqObuwUy2zmyB1SALwXP
-	YswsVCwoLkfez77GBMO2c6leVT+Vd32GBu2VEfV+7YETLtslZO7gAZdTn57DCUjEpD4+MXPNVSV
-	94EpUOW8HJ3GWdh2Ikz2SSvUxNavCSJty3x9QVW5fdKltwVGIo6SIg4s/kAlHmBeWMAsJ0h9tHL
-	Caf5Jo86W1ug++FCF1eszY3UUufuMfderFZodNGDap97u2VEjKp8Z7X9kqxcgEDxKClL504iXNb
-	vme2PF8EDe/UVmjCJLLzxcNAMs+S13npZRu3NXIiuTTPamI37zXLdTXi1YLm8aB89wjV1lxlMTV
-	+KFeHMIyR4xKfsJGKk58G4iM4iNTDG06JRkehp3bu4fHi3qe27uYxors752WRyDB+93TGbq80Q4
-	7PE7MPOYr4s+MMloZbx9wAh63z4yyvrEF4S9ngMNLJ8mYAQ+N0QD7hjyiw2g2PYVg5f5KK23Bri
-	zAO8Lo0/QQeIvW0xQ0AbP2+kg/Dcts4g0kF585+b/n+Msj/kzrp1VKoFQcELnuv3/mZW6Zked0m
-	MJHiGqmMdMtWrWABRQ==
-X-Received: by 2002:a05:7300:a987:b0:2df:c5bb:3720 with SMTP id 5a478bee46e88-2f54c587faemr9231006eec.15.1778382670966;
-        Sat, 09 May 2026 20:11:10 -0700 (PDT)
-Received: from ethan-latitude5420.. (host-127-24.cafrjco.fresno.ca.us.clients.pavlovmedia.net. [68.180.127.24])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f888c469b6sm8433793eec.24.2026.05.09.20.11.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 May 2026 20:11:10 -0700 (PDT)
-From: Ethan Nelson-Moore <enelsonmoore@gmail.com>
-To: linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-fbdev@vger.kernel.org
-Cc: Russell King <linux@armlinux.org.uk>,
-	Ethan Nelson-Moore <enelsonmoore@gmail.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Helge Deller <deller@gmx.de>,
-	Kees Cook <kees@kernel.org>
-Subject: [PATCH] ARM: move Risc PC-specific <asm/hardware/iomd.h> header into mach-rpc
-Date: Sat,  9 May 2026 20:10:36 -0700
-Message-ID: <20260510031100.255248-1-enelsonmoore@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="GTydepoJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=b54L
+	reJQbh/LiOryVCaRggTjB4exiPbbSbBQu6ZAD+k=; b=GTydepoJPSFlR/T/3U0p
+	dPJVrc2WttPooM3pkdRX3/e4/AiL14y030bV2igf2HR/xttsafAHJycxJ3qjrDhW
+	Aig1RMQyih7PK/sFEiVO+ltl1UAYlDLc5xCwMvPHQqs0dKuwBhrB+6V177SDlveK
+	TX7rvp7yIofNAFFLBTTeiS/VwdpElOSPo96popv77b29wLzj3lK1VooHgo2lXjHX
+	Qd6YmH0+MKRDC+jvD4nEcU1bkg/I7vOf3tsXOAjBHfFv6NR95q8uwWG5vHDGxlWM
+	UMM9RbatZfSdj/1kbhRJ5ZpjRG+wcjk7aHqU9ILJVyk0s5Duj9Ml/H+r9L57svz+
+	hg==
+Received: (qmail 2323697 invoked from network); 10 May 2026 22:59:08 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 10 May 2026 22:59:08 +0200
+X-UD-Smtp-Session: l3s3148p1@aJGr5nxRgsAujntN
+Date: Sun, 10 May 2026 22:59:07 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: "Rob Herring (Arm)" <robh@kernel.org>
+Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+	Peter Rosin <peda@axentia.se>, Andi Shyti <andi.shyti@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>
+Subject: Re: [PATCH] dt-bindings: i2c: mux-gpio: remove Wolfram Sang as
+ maintainer
+Message-ID: <agDxmyIA4-tLDKgX@shikoro>
+References: <20260509171354.12263-2-wsa+renesas@sang-engineering.com>
+ <177835197844.785566.9553774802925952117.robh@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="W7BpdNc6fcL8jLyf"
+Content-Disposition: inline
+In-Reply-To: <177835197844.785566.9553774802925952117.robh@kernel.org>
 
-The <asm/hardware/iomd.h> header is specific to the IOMD chip used on
-the Risc PC. Move it into mach-rpc to avoid polluting asm/hardware/
-with machine-specific headers.
 
-Also take the opportunity to remove a comment with the file path from
-the header, which is bad style.
+--W7BpdNc6fcL8jLyf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Ethan Nelson-Moore <enelsonmoore@gmail.com>
----
- MAINTAINERS                                                     | 1 -
- arch/arm/mach-rpc/dma.c                                         | 2 +-
- arch/arm/{include/asm/hardware => mach-rpc/include/mach}/iomd.h | 2 --
- arch/arm/mach-rpc/irq.c                                         | 2 +-
- arch/arm/mach-rpc/riscpc.c                                      | 2 +-
- arch/arm/mach-rpc/time.c                                        | 2 +-
- drivers/i2c/busses/i2c-acorn.c                                  | 2 +-
- drivers/input/mouse/rpcmouse.c                                  | 2 +-
- drivers/input/serio/rpckbd.c                                    | 2 +-
- drivers/video/fbdev/acornfb.h                                   | 2 +-
- 10 files changed, 8 insertions(+), 11 deletions(-)
- rename arch/arm/{include/asm/hardware => mach-rpc/include/mach}/iomd.h (98%)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 211cc683e25b..6a1da8903c04 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -3398,7 +3398,6 @@ M:	Russell King <linux@armlinux.org.uk>
- L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
- S:	Maintained
- W:	http://www.armlinux.org.uk/
--F:	arch/arm/include/asm/hardware/iomd.h
- F:	arch/arm/mach-rpc/
- F:	drivers/net/ethernet/8390/etherh.c
- F:	drivers/net/ethernet/i825xx/ether1*
-diff --git a/arch/arm/mach-rpc/dma.c b/arch/arm/mach-rpc/dma.c
-index 50e0f97afd75..717a81475670 100644
---- a/arch/arm/mach-rpc/dma.c
-+++ b/arch/arm/mach-rpc/dma.c
-@@ -20,7 +20,7 @@
- #include <linux/uaccess.h>
- 
- #include <asm/mach/dma.h>
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
- 
- struct iomd_dma {
- 	struct dma_struct	dma;
-diff --git a/arch/arm/include/asm/hardware/iomd.h b/arch/arm/mach-rpc/include/mach/iomd.h
-similarity index 98%
-rename from arch/arm/include/asm/hardware/iomd.h
-rename to arch/arm/mach-rpc/include/mach/iomd.h
-index e3f130345ebc..2a3f4a5f3fd9 100644
---- a/arch/arm/include/asm/hardware/iomd.h
-+++ b/arch/arm/mach-rpc/include/mach/iomd.h
-@@ -1,7 +1,5 @@
- /* SPDX-License-Identifier: GPL-2.0-only */
- /*
-- *  arch/arm/include/asm/hardware/iomd.h
-- *
-  *  Copyright (C) 1999 Russell King
-  *
-  *  This file contains information out the IOMD ASIC used in the
-diff --git a/arch/arm/mach-rpc/irq.c b/arch/arm/mach-rpc/irq.c
-index e924c9b813ab..649d81874c86 100644
---- a/arch/arm/mach-rpc/irq.c
-+++ b/arch/arm/mach-rpc/irq.c
-@@ -4,7 +4,7 @@
- #include <linux/io.h>
- 
- #include <asm/mach/irq.h>
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
- #include <asm/irq.h>
- #include <asm/fiq.h>
- 
-diff --git a/arch/arm/mach-rpc/riscpc.c b/arch/arm/mach-rpc/riscpc.c
-index f70fb9c4b0cb..d068f5e4873d 100644
---- a/arch/arm/mach-rpc/riscpc.c
-+++ b/arch/arm/mach-rpc/riscpc.c
-@@ -22,7 +22,7 @@
- #include <asm/elf.h>
- #include <asm/mach-types.h>
- #include <mach/hardware.h>
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
- #include <asm/page.h>
- #include <asm/domain.h>
- #include <asm/setup.h>
-diff --git a/arch/arm/mach-rpc/time.c b/arch/arm/mach-rpc/time.c
-index ad93c4dfafcd..566113f9774f 100644
---- a/arch/arm/mach-rpc/time.c
-+++ b/arch/arm/mach-rpc/time.c
-@@ -17,7 +17,7 @@
- #include <linux/io.h>
- 
- #include <mach/hardware.h>
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
- 
- #include <asm/mach/time.h>
- 
-diff --git a/drivers/i2c/busses/i2c-acorn.c b/drivers/i2c/busses/i2c-acorn.c
-index 99b6b1c3fd9e..703b4a42f466 100644
---- a/drivers/i2c/busses/i2c-acorn.c
-+++ b/drivers/i2c/busses/i2c-acorn.c
-@@ -13,7 +13,7 @@
- #include <linux/io.h>
- 
- #include <mach/hardware.h>
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
- 
- #define FORCE_ONES	0xdc
- #define SCL		0x02
-diff --git a/drivers/input/mouse/rpcmouse.c b/drivers/input/mouse/rpcmouse.c
-index 6774029e0a1a..475c3ca22fd4 100644
---- a/drivers/input/mouse/rpcmouse.c
-+++ b/drivers/input/mouse/rpcmouse.c
-@@ -23,7 +23,7 @@
- 
- #include <mach/hardware.h>
- #include <asm/irq.h>
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
- 
- MODULE_AUTHOR("Vojtech Pavlik, Russell King");
- MODULE_DESCRIPTION("Acorn RiscPC mouse driver");
-diff --git a/drivers/input/serio/rpckbd.c b/drivers/input/serio/rpckbd.c
-index 4d817850ba3b..e452ad07e2fa 100644
---- a/drivers/input/serio/rpckbd.c
-+++ b/drivers/input/serio/rpckbd.c
-@@ -17,7 +17,7 @@
- #include <linux/slab.h>
- 
- #include <mach/hardware.h>
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
- 
- MODULE_AUTHOR("Vojtech Pavlik, Russell King");
- MODULE_DESCRIPTION("Acorn RiscPC PS/2 keyboard controller driver");
-diff --git a/drivers/video/fbdev/acornfb.h b/drivers/video/fbdev/acornfb.h
-index f8df4ecb4fd7..e65388587f80 100644
---- a/drivers/video/fbdev/acornfb.h
-+++ b/drivers/video/fbdev/acornfb.h
-@@ -7,7 +7,7 @@
-  *  Frame buffer code for Acorn platforms
-  */
- #if defined(HAS_VIDC20)
--#include <asm/hardware/iomd.h>
-+#include <mach/iomd.h>
- #define VIDC_PALETTE_SIZE	256
- #define VIDC_NAME		"VIDC20"
- #endif
--- 
-2.43.0
+> dtschema/dtc warnings/errors:
+> /builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/i2c/i2c-mux-gpio.yaml: 'maintainers' is a required property
 
+I know. But as I was added as maintainer without my consent, I think it
+is okay to remove myself.
+
+
+--W7BpdNc6fcL8jLyf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoA8ZgACgkQFA3kzBSg
+KbY3lQ/+IpbRxoehRKXImbk46ApmouvjRrgVrLl+hWjpf83LTfxkjmJq/u0P0I7w
+RTabaRrdmcGT4GeNyg+myMP8KM/5qGZ3GmfXM6J91Ojz36gQ3xYdHvEKmvqLXKup
+J9Oa4azVUCbkD9tDJkOj/wIqzICAGChM73d9UOP3LKlTr8iFiC3NyM+fMHK1aDfo
+8Wv1C2TSKl74Q60lfo5z9hWrfTDnmRSnLBFTL42h3G20Xx15jONrEZZPvi503lvV
+l+cOdZqBOXinYXg+FQWYPgr9qhZqIsp+AvgndYTs4SZoH8o2x7ZACe3aI2Zd20M5
+2Z9aIfTIXdlNgDuwE//7izz6nHiHO4cmqk7TNDNOc54Y7gOC4wEch1tiVYghGMVO
+EN635DbUiOW3r0AwfvkPIMy7g3yTZFJbq8sbMs9m7GILG00W9T/RHgI/zMOr3cdz
+bt1uumNy6t0iMNWYsEWrixb/Qfdv2hbA53H/JPd4VGAW2ip07HPlG95O/SP56QIF
+KgeON6PhNjeGBCn/7W23HamzC1znAl4VFhWnST4a7qU1/e6odIQelDBDy5S7EYYC
+3bfmUTUzSM/RYeZgFW/CYmn4YvCQDrtOLtZ81rlwJZ29V/EOj1/CLF3Hw0VcS7YF
+er8SVhttUYlZEFkm0K/sZXGAj1Nj1j60WXdGLS/QB5V4tKACSLQ=
+=uDYH
+-----END PGP SIGNATURE-----
+
+--W7BpdNc6fcL8jLyf--
