@@ -1,38 +1,37 @@
-Received: from mout.gmx.net (mout.gmx.net [212.227.15.19])
+Received: from mout.gmx.net (mout.gmx.net [212.227.15.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9AD313D3D10;
-	Mon, 11 May 2026 16:25:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 861C03D410D;
+	Mon, 11 May 2026 16:25:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778516742; cv=none; b=D0W4Zh245mnhTsReG7JSzzFOt5t0IPaiG93CJfmhmqCM6Z7aJ1/wfYhnTS7z0RbZ7GY8yfyEjqtm562kxbT/0I4i9qYAwkFT8NcKTeS5mXCsnUF7P79LzSEWhxLE041JFl6WBTZm5SQkRYK9i6v+pj9qT94Hp4lP0wUF8FtmnHc=
+	t=1778516746; cv=none; b=cvAPiQykE2PWAM89INlpYwPvEMWECE4t4t1RlpVSw2MMFwWzeUA2MfYn5xitNuUFg/xeAHMnWjBQT3ykiS8yHE8Nga88A4OKBT6GxiQQwLELNB0RDHydI4rXJvNj/N7z+WarMwcnOO6CF0Dp7WFB3w+uIopHhHIjOr+k3pMrVIo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778516742; c=relaxed/simple;
-	bh=6zVhcCmXAaRpPDMOMkSqrn7iVkJc6K80ulZiga1PAzk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=j/y+x7cWiwiYRXEuCn0+uqV7P8sjXGp3La2gHFCkbM1CLRztkgtTaUqpp1h5kdNRAqvFNgYnFMg2gkhlLYNpHwxIjeTBGsZ33QmxdQX9DoB6LqzXQwv7GGSbttpk0As6pqinL3jRCjvonvYCs8bt/aC4BgMImacer8bExfvEE6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=markus.stockhausen@gmx.de header.b=lkY0+iY9; arc=none smtp.client-ip=212.227.15.19
+	s=arc-20240116; t=1778516746; c=relaxed/simple;
+	bh=a1BYN4pHtAlEXiCkg2+kWP78KUPHsGhUWUBtyyRfcRk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ihxGfIv/1m5KTUVIjzkBn/07jnr30GmyM6V64JqJzPlWMY4QueQ1K2O7lDISGYImibuc/9qjl+BIFhwllxxd1UuWyv/i3F6sTJ0/o7GNRXsTsA3KnzDku7LuB/eZD8PWD/AI6exWzlYVlYrDR4mpX42rx3LuvIU+PfPQcOtvx90=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=markus.stockhausen@gmx.de header.b=HV4VzsTe; arc=none smtp.client-ip=212.227.15.15
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.de header.i=markus.stockhausen@gmx.de header.b="lkY0+iY9"
+	dkim=pass (2048-bit key) header.d=gmx.de header.i=markus.stockhausen@gmx.de header.b="HV4VzsTe"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.de;
-	s=s31663417; t=1778516739; x=1779121539;
+	s=s31663417; t=1778516738; x=1779121538;
 	i=markus.stockhausen@gmx.de;
-	bh=5yJitR742OK+5j3KFoCDib2+9MoGOjRGcpRfh/YBKaY=;
-	h=X-UI-Sender-Class:From:To:Cc:Subject:Date:Message-ID:In-Reply-To:
-	 References:MIME-Version:Content-Transfer-Encoding:cc:
+	bh=XoczE/pNNJWE3nHYLnZ4Ck1QTSBWY6V0YgQ9A/s0OL0=;
+	h=X-UI-Sender-Class:From:To:Cc:Subject:Date:Message-ID:
+	 MIME-Version:Content-Transfer-Encoding:cc:
 	 content-transfer-encoding:content-type:date:from:message-id:
 	 mime-version:reply-to:subject:to;
-	b=lkY0+iY9nepvCE6Jge64LMsuYfJUiNo+NPcP8cd1sVMK+/af8/zOowQ0cTtDxKVv
-	 0ZV+c7L3DLjOCxBeWfKz8klKiOitMHPvgxeBYFtD9DNTYEfNuU0xpw//5O3lnD1Qk
-	 TVe7xOV1bTGINcKOrOH4JXVlas+gcgD6pH/sLZiMPL3JWLYtenTu76EwkyZ59J+CP
-	 05ROp7u9PHYSM6wBPCoJs8Dxcv+EbE+/LvIL8Whtp3t7QJMwPuPVORhQU95zqpe4P
-	 Eh/F1e9ivnrw4uYjRsPPppbWRmzJMHf2ZIMTmfWKSY0tHnAFM3OSTJAluAYOcUnmW
-	 C2rjKVR1OeCNpxj57g==
+	b=HV4VzsTebRLLW3JTStqHildf+WCcVnd9VYo1MK6myh8DkFIVEMpC2/lVw9ILev+b
+	 hYlUd8pKqGL57S1OzBAkO0acirSsnseMxeNoMga8aP8lC0TZWubCGgggrrX16q8j/
+	 BjHNBWQguv/iibm3fKiV5c6uoCe6vPL1nrczdnmX5lr+WXwORuf3qQCg/FZUB7kRX
+	 TpZfBihCDBckKxN9i9fgE+KMNiy9xNF27koDtwdr4AS3GWx4mTVpcaWDmMUSnJRmM
+	 //WWGwK224UF2bGpDQP0O4/kxpHmr+n4D7B4IpTzqFfIJPXQroB2ZS06FTzF3zbPI
+	 wCa4MQxF05JQpWDNsg==
 X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
 Received: from client.hidden.invalid by mail.gmx.net (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1Mk0Ne-1x6qte3Qoy-00cohG; Mon, 11
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1Mqs0R-1x9Knz2MUb-00ekdX; Mon, 11
  May 2026 18:25:38 +0200
 From: Markus Stockhausen <markus.stockhausen@gmx.de>
 To: brgl@kernel.org,
@@ -44,12 +43,10 @@ To: brgl@kernel.org,
 	linux-i2c@vger.kernel.org,
 	devicetree@vger.kernel.org
 Cc: Markus Stockhausen <markus.stockhausen@gmx.de>
-Subject: [PATCH v2 1/2] dt-bindings: i2c: Add i2c-shared-gpio
-Date: Mon, 11 May 2026 18:25:27 +0200
-Message-ID: <20260511162528.84508-2-markus.stockhausen@gmx.de>
+Subject: [PATCH v2 0/2] i2c: Add i2c-shared-gpio driver
+Date: Mon, 11 May 2026 18:25:26 +0200
+Message-ID: <20260511162528.84508-1-markus.stockhausen@gmx.de>
 X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260511162528.84508-1-markus.stockhausen@gmx.de>
-References: <20260511162528.84508-1-markus.stockhausen@gmx.de>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -57,216 +54,126 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:8FHSYY3et/dwiBrN7T0JiZT63A4WWnbuemE99lqUDMQpHpKUD6e
- 0LK9L8ERW47nMZxoE0EDpsiPjxJ5ciuzh5uc/QpTmyp1f6zzHPyfChCl9R2rFNOuoEsjW/K
- JCvA6vVSefpQWvnoOtLFhpRyfKOUW1OvDQDSuoFC0e/iicWsc7HbMZO3JXYTrccDvOFhTWE
- EF/3GEq9c/ZASRQsYMs9g==
+X-Provags-ID: V03:K1:AO3OVtPsQHRTpRnCqBv/ZZIZE4ytVeDP8bw7JUXWznyJbjwsy0D
+ yKdKhLL250McFY9soreYS99NPCRXvc46hgTlXWfF84P3fZWivKvR6KZRUiyZotvSGPLz14w
+ 4Jo7GolCbrHv2Ns7/wVw7bdLT3U7XA1hwUFxOFjd34t3/c9/hpEQN7oFQ9KV63McsXUg5E3
+ 6euIMQlqjQz6hkW2JhfKQ==
 X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:DYQGMWoORi0=;HLvSl8AfKcHb7uxLhaStyZtjqb6
- 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
- DntoAQ==
+UI-OutboundReport: notjunk:1;M01:P0:lz00IaO1hDA=;jLtVS0QNQOjtjoP+9cWPh/klDtP
+ 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
 
-Document the driver for bitbanged gpio I2C busses
-with shared SCL lines.
+This series adds support for hardware designs where multiple I2C
+gpio based busses are realized with dedicated SDA lines and a
+shared SCL line. This way N busses can be realized with N+1 gpios.
+
+Currently there are several Realtek switches that make use of=20
+this design. Samples are:
+
+HPE 1920-48G
+Linksys LGS310C
+Zyxel GS1920-24
+Engenius EWS2910
+D-Link DGS-1250
+
+While at first glance this might be a usecase for the new shared=20
+gpio architecture, discussion and testing shows that this is not=20
+trivial at all. A shared gpio is handled by a voting system. If=20
+there at least one user that votes for the GPIO to be "high",=20
+it stays high.
+
+So the implementation manages several classic bitbang buses with
+locking/unlocking in the pre_xfer/post_xfer handlers.
 
 Signed-off-by: Markus Stockhausen <markus.stockhausen@gmx.de>
-=2D--
- .../bindings/i2c/i2c-gpio-shared.yaml         | 105 ++++++++++++++++++
- 1 file changed, 105 insertions(+)
- create mode 100644 Documentation/devicetree/bindings/i2c/i2c-gpio-shared.=
-yaml
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-gpio-shared.yaml b/=
-Documentation/devicetree/bindings/i2c/i2c-gpio-shared.yaml
-new file mode 100644
-index 000000000000..4a21638bd842
-=2D-- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/i2c-gpio-shared.yaml
-@@ -0,0 +1,105 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/i2c/i2c-gpio-shared.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: Multiple GPIO bitbanged I2C buses with shared SCL
-+
-+maintainers:
-+  - Markus Stockhausen <markus.stockhausen@gmx.de>
-+
-+description:
-+  Bitbanging I2C bus driver that supports multiple independent I2C buses
-+  sharing a single SCL line. Each child node represents one I2C bus with
-+  its own SDA line. The index of each entry in the parent's sda-gpios
-+  property must match the reg value of the corresponding child bus node.
-+
-+properties:
-+  compatible:
-+    const: i2c-gpio-shared
-+
-+  scl-gpios:
-+    maxItems: 1
-+    description:
-+      GPIO used for the shared SCL signal. Must be configured as open-dra=
-in.
-+
-+  sda-gpios:
-+    minItems: 2
-+    maxItems: 32
-+    description:
-+      GPIOs used for the SDA signals of the individual I2C buses. The ind=
-ex
-+      of the GPIO in this list corresponds to the 'reg' property of the
-+      child bus nodes (e.g., the first GPIO is for the child with reg =3D=
- <0>).
-+      Must be configured as open-drain.
-+
-+  "#address-cells":
-+    const: 1
-+
-+  "#size-cells":
-+    const: 0
-+
-+required:
-+  - compatible
-+  - scl-gpios
-+  - sda-gpios
-+  - "#address-cells"
-+  - "#size-cells"
-+
-+patternProperties:
-+  "^i2c@[0-9a-f]+$":
-+    type: object
-+    $ref: /schemas/i2c/i2c-controller.yaml#
-+    unevaluatedProperties: false
-+
-+    properties:
-+      reg:
-+        items:
-+          - minimum: 0
-+            maximum: 31
-+        description:
-+          Index into the sda-gpios array used by this specific bus.
-+
-+      clock-frequency:
-+        minimum: 1
-+        maximum: 400000
-+        default: 100000
-+        description:
-+          Desired I2C bus clock frequency in Hz.
-+
-+    required:
-+      - reg
-+
-+additionalProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/gpio/gpio.h>
-+
-+    i2c {
-+        compatible =3D "i2c-gpio-shared";
-+        scl-gpios =3D <&gpio1 31 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-+        sda-gpios =3D <&gpio1 6 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>,
-+                    <&gpio1 7 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-+        #address-cells =3D <1>;
-+        #size-cells =3D <0>;
-+
-+        i2c@0 {
-+            reg =3D <0>;
-+            clock-frequency =3D <100000>;
-+            #address-cells =3D <1>;
-+            #size-cells =3D <0>;
-+
-+            eeprom@50 {
-+                compatible =3D "atmel,24c02";
-+                reg =3D <0x50>;
-+            };
-+        };
-+
-+        i2c@1 {
-+            reg =3D <1>;
-+            clock-frequency =3D <400000>;
-+            #address-cells =3D <1>;
-+            #size-cells =3D <0>;
-+        };
-+    };
-=2D-=20
-2.54.0
+=2D--
+
+v1 -> v2:
+ - Adapted the dts so that all SDA/SCL gpios are defined in the=20
+   parent node. This way the i2c child nodes are kept clean.=20
+   Their <reg> property is used as an index into the parent SDA=20
+   list.
+ - Adapted the driver to make use of the new dts structure.
+ - Hardened the driver by adding multiple consistency checks
+   during probing (number of busses, duplicate dts nodes, ...).
+ - Added recovery handlers that are synchronized via the central
+   mutex like normal bus transfers.
+v1: https://lore.kernel.org/linux-i2c/20260507181711.2696783-1-markus.stoc=
+khausen@gmx.de/
+
 
