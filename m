@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CB9F3FE67E;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0CA913FE67D;
 	Mon, 11 May 2026 14:37:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778510245; cv=none; b=NaEyckNlXc9+mkt38AOv03QoyuNW0CGAJicFj+vB57gvmyF/wA+EnLgc/af1mmEAh9CCDebe+1moVu2Tdo1HeEpl0s1m+CV3zUlybT2he3fsmCK8mYjUU8SYGhSyj0zZ6piD6xzJTSr3gC+jFHi75NBgx4L/uZb5NITsiw0m06U=
+	t=1778510245; cv=none; b=nPMc38bzhrNCbljuNcewYDcrzjFjZjEErUhEeUDhlusfGIDHXl78FiI4NnkZI5B0WVlPr0KmyoPZgO8rywhWPieLALFqPBGY+RQ+nPR23mTFx72rtUO/6Js+h3vw5mn8JvbWOB172lXTaZXzbqhd4uNMaWFqR1lQn//Wtx7tymo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1778510245; c=relaxed/simple;
-	bh=Syz9agCjo0v7ek7ZUl8IDRv5CIYKzs5t99pAAWh8o7Q=;
+	bh=OjZv5/6+fk5Ts0lD7IC3u7oqHAa9DUHrxfnaatocV+s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=a11lgylY7ozmqth5iUcD0+wboY16FZoc0G+0PVaGFzAihbiGNI4TTD0Qj8BSyEOZfSyXo08Qxv6AN5vYeLpKGKuTzj/kML2gT+xcXLOqjuY/E4ok5Zk6fR/21SfA25mdIa7fJTd8MwVal/+H/RHaTSTY4MwQ/Wj9eUT0/AwS8lA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iJgBLbhC; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=bKg7aJLD6SaP3PbYDqDBsVliIEnJjpnVLFzbcScfVWiiEgmXUwnJCUSLd413mzDX280FDg4wdNUgpUsphNV7xM/2WCG5G/B1uIkznAiuId/+2Wbp99w0BYiVejLvxgf6PlJ8I7yy69UguR66HNExvXMTEoCYHuMzPkITLaNq6EE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cj0wraeL; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iJgBLbhC"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BD34C4AF0B;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cj0wraeL"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B208DC4AF0E;
 	Mon, 11 May 2026 14:37:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1778510244;
-	bh=Syz9agCjo0v7ek7ZUl8IDRv5CIYKzs5t99pAAWh8o7Q=;
+	bh=OjZv5/6+fk5Ts0lD7IC3u7oqHAa9DUHrxfnaatocV+s=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=iJgBLbhCrwBKgY2hvKQvF238S4Zu3IsuatUk/oA1J//26H3DodD048y4pTQtCqry7
-	 p3reXAdUmgSTcBIzCylZaez5P6PL0KXDHTRxZP8+keH1K1xYws0vqIupd4Ds9NRu8L
-	 3jsAO3Wvik3ouQbrc66iVMDthdFiNUDFrFXgr05K0DIrS2spu/JhVKWx0+Z7JENA7h
-	 1AjGNyQbKtIe9UYqjn9rMCA9mVK2tDT8nsZZ/MND7Xxbl5b9CXDgFExzwGMxOc25x/
-	 gRABapJILGgm7JGvWOqy+J1eaeeNKElw+HJYz9utGQJEPqD85aenaXtkxGw9roKmxH
-	 P5gkpUnZ5ItHQ==
+	b=Cj0wraeLLT4bHNE7cUnVjqdwhVNU0uKRzKruIaw68FCf+BnqA1Gisb89MwjgmxPXu
+	 yXT63CGLRG/UDA7GoRGAKjuY9VOTJpzM5/4UGmyr9PCznmr5WnjWIlT0Vv9hLLRNdk
+	 IXyXvhB2LSkQwnjilddHuns/DhQSLD3xwtrV02B7l+ZRzBUUgA18pM1Hch8jWKk4Nn
+	 RElMC25gXl46UQwpSRcGc2tSDt7f+1u4Tk+WF/ZK50a/jBz5J/2r/M8aisfhHHLNfb
+	 LnFkbGRX3FzUxn6MWLNluA3YIGweZNvyBNOt6xfePiJmLSrYGd+IN84nksg1HhDxRz
+	 9x7Dd6c5TevwQ==
 Received: from johan by xi.lan with local (Exim 4.98.2)
 	(envelope-from <johan@kernel.org>)
-	id 1wMRl4-000000033q7-0cpH;
+	id 1wMRl4-000000033qB-0jqv;
 	Mon, 11 May 2026 16:37:22 +0200
 From: Johan Hovold <johan@kernel.org>
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
@@ -37,10 +37,10 @@ Cc: Andi Shyti <andi.shyti@kernel.org>,
 	linux-kernel@vger.kernel.org,
 	Johan Hovold <johan@kernel.org>,
 	stable@vger.kernel.org,
-	Benjamin Tissoires <bentiss@kernel.org>
-Subject: [PATCH v3 01/10] i2c: core: fix irq domain leak on adapter registration failure
-Date: Mon, 11 May 2026 16:37:06 +0200
-Message-ID: <20260511143715.729714-2-johan@kernel.org>
+	Joe Hattori <joe@pf.is.s.u-tokyo.ac.jp>
+Subject: [PATCH v3 03/10] i2c: core: fix NULL-deref on adapter registration failure
+Date: Mon, 11 May 2026 16:37:08 +0200
+Message-ID: <20260511143715.729714-4-johan@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260511143715.729714-1-johan@kernel.org>
 References: <20260511143715.729714-1-johan@kernel.org>
@@ -52,42 +52,50 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Make sure to tear down the host notify irq domain on adapter
-registration failure to avoid leaking it.
+If adapter registration ever fails the release callback would trigger a
+NULL-pointer dereference as the completion struct has not been
+initialised.
 
-This issue was flagged by Sashiko when reviewing another adapter
-registration fix.
+Note that before the offending commit this would instead have resulted
+in a minor memory leak of the adapter name.
 
-Fixes: 4d5538f5882a ("i2c: use an IRQ to report Host Notify events, not alert")
-Cc: stable@vger.kernel.org	# 4.10
-Cc: Benjamin Tissoires <bentiss@kernel.org>
+Fixes: 3f8c4f5e9a57 ("i2c: core: fix reference leak in i2c_register_adapter()")
+Cc: stable@vger.kernel.org
+Cc: Joe Hattori <joe@pf.is.s.u-tokyo.ac.jp>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/i2c/i2c-core-base.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/i2c-core-base.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 9c46147e3506..abe8341c1d6e 100644
+index e42851a10098..fa9db415e219 100644
 --- a/drivers/i2c/i2c-core-base.c
 +++ b/drivers/i2c/i2c-core-base.c
-@@ -1574,7 +1574,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+@@ -1574,8 +1574,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+ 	res = device_add(&adap->dev);
  	if (res) {
  		pr_err("adapter '%s': can't register device (%d)\n", adap->name, res);
- 		put_device(&adap->dev);
--		goto out_list;
-+		goto err_remove_irq_domain;
+-		put_device(&adap->dev);
+-		goto err_remove_irq_domain;
++		goto err_put_adap;
  	}
  
  	adap->debugfs = debugfs_create_dir(dev_name(&adap->dev), i2c_debugfs_root);
-@@ -1609,6 +1609,8 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+@@ -1608,10 +1607,12 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+ out_reg:
+ 	i2c_deregister_clients(adap);
+ 	debugfs_remove_recursive(adap->debugfs);
++	device_del(&adap->dev);
++err_put_adap:
  	init_completion(&adap->dev_released);
- 	device_unregister(&adap->dev);
+-	device_unregister(&adap->dev);
++	put_device(&adap->dev);
  	wait_for_completion(&adap->dev_released);
-+err_remove_irq_domain:
-+	i2c_host_notify_irq_teardown(adap);
+-err_remove_irq_domain:
++
+ 	i2c_host_notify_irq_teardown(adap);
  out_list:
  	mutex_lock(&core_lock);
- 	idr_remove(&i2c_adapter_idr, adap->nr);
 -- 
 2.53.0
 
