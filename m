@@ -1,46 +1,44 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6E3F3FE373;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6F9B3FE37B;
 	Mon, 11 May 2026 14:37:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778510244; cv=none; b=qgRF5rxRy9uXhBwEg0KsQxrfDPuAbu4SX1LE1ZKqZDsibRrg07O2cxsq7mvYGbZ93wQbcZlFhEdtaIBqXzGdoHUchwD8AuCyP6cPyIlx1Ld1QuXTwvSEENKLZ4JX4qlGrhgG3SQ8r3UroyOzH2R0PAk/UFMlaugraiYR0G0Msug=
+	t=1778510244; cv=none; b=mdtjNsGbsQK0J+YiL9fDflYjz1zBGN6TDEitWHc0IdCWFvVKxUNivnFILDnTtj9SHuyhqIHXTJZi1hosYRlvAyhCqGYzLDNa+JFA1oMxOjfy00Ee6nsR8UmGJ8rLagEi1HTMtqK0i+Vu1gpcz4sRVm4PPrCXZYlXR5Gl63wx/OA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1778510244; c=relaxed/simple;
-	bh=oaJ1fIHI4x87EvSRfZxR+ViJYFD68Ek/0RZ9v3HJYrw=;
+	bh=b94tPEnD6maJKXICVqXB7tFOvSmpC6EOT8BuhpCgtgE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ShZQbMOTksH8PuwLqlCAgDV12sIHx0QIJsug3zph7nheIdf95qBAbmISFqTHHN8LK9AgHqR1XZmwP1gTfXm78ezUl4KP+0bzqD2SrnABba/aVzQ6DxP48ITuvKUMUBp985GpSKCcAgypLiVJeJqhFnRyGjivSsunrwowYEGpJKI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YtFfAwCu; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version; b=DGgBfUkyONIRRQgVykIy1/eM5XFrueRflz1+wSX+rdEPsCdpLuP6tJoOe780YfJ0Qhg/JvoWUJF3ndxxsC2os+Hw2rprgLiZCflL85+lFUri95xKnZupD+94UxvL3a27D1dOekCWyysy5l3v06LP54EIrPn0dBNs2PdNgiJyFu8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fdJRGHpy; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YtFfAwCu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9732FC2BCF7;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fdJRGHpy"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94831C2BCFA;
 	Mon, 11 May 2026 14:37:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1778510244;
-	bh=oaJ1fIHI4x87EvSRfZxR+ViJYFD68Ek/0RZ9v3HJYrw=;
+	bh=b94tPEnD6maJKXICVqXB7tFOvSmpC6EOT8BuhpCgtgE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=YtFfAwCubGBMWV36ZzHJPXjvK00xCSwlQsoD5hOUSz14PmhDGh4SD5+uMZ5wC+USv
-	 +Jg/No9SEw5/KpD3L03+LQlsPKlPDyCAXs2U2IACxiMsrZTs9XjF3PMMN5pYFvRwHG
-	 PwU5eRPw4XCpHtUij1hB3UTi+4cVbaRFzVwJ1uK3fFcvE9LVumrNMdo3LV0KCuwoAh
-	 k8K+m2ljip5RJnSQ/279J6mg7V5l5yy90aLWwjxZbtCzOrfUGOL1wob6Xko6VXs5cP
-	 Z6Mj0nFT4MdPZovMW1PFEGLrp03vEmCXZD63Fei1+ZHF02kCKqBsD2Yt7ZORqfWj7q
-	 bY9G0euTToX/g==
+	b=fdJRGHpylu0t2fSVXW9buUFmD6IDAUh6Cuk5eEafpil1GejTRk0LKtUYbr3PthSgC
+	 B2q4PHB2QGAvhl5GUipAjT4Qp29xD/u7gPaxBdVLKSEWncFaQabk28nlu1VlfFJsxB
+	 cP2N6+d7nkafCKIRKoIseFOL/hRw4LHgiFcJSzsMSV1QMji9eCOybmglEBAabszVn9
+	 1/jjvbt3VIcp/tguT47ZYA0pZeOG9PgwgOKmxxoVwoCzaq/bx+83+yj/O1+6pcmz/p
+	 l/gKw5C7LGXI5ELovyCzefdzdzs4oB6AcqqGXa7tgvjeBFiDp0yyerQ8TZBNE5nwuR
+	 7x9NV6LTmhYIw==
 Received: from johan by xi.lan with local (Exim 4.98.2)
 	(envelope-from <johan@kernel.org>)
-	id 1wMRl4-000000033qL-10gS;
+	id 1wMRl4-000000033qP-17a1;
 	Mon, 11 May 2026 16:37:22 +0200
 From: Johan Hovold <johan@kernel.org>
 To: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc: Andi Shyti <andi.shyti@kernel.org>,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Johan Hovold <johan@kernel.org>,
-	stable@vger.kernel.org,
-	Jean Delvare <khali@linux-fr.org>
-Subject: [PATCH v3 08/10] i2c: core: fix adapter deregistration race
-Date: Mon, 11 May 2026 16:37:13 +0200
-Message-ID: <20260511143715.729714-9-johan@kernel.org>
+	Johan Hovold <johan@kernel.org>
+Subject: [PATCH v3 10/10] i2c: core: clean up adapter registration error label
+Date: Mon, 11 May 2026 16:37:15 +0200
+Message-ID: <20260511143715.729714-11-johan@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260511143715.729714-1-johan@kernel.org>
 References: <20260511143715.729714-1-johan@kernel.org>
@@ -52,55 +50,36 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Adapters can be looked up by their id using i2c_get_adapter() which
-takes a reference to the embedded struct device.
+Clean up the adapter registration error labels by making sure that also
+the last one is named after what it does.
 
-Remove the adapter from the IDR before tearing it down during
-deregistration (and on registration failure) to make sure its resources
-are not accessed after having been freed (e.g. the device name).
-
-Fixes: 35fc37f81881 ("i2c: Limit core locking to the necessary sections")
-Cc: stable@vger.kernel.org	# 2.6.31
-Cc: Jean Delvare <khali@linux-fr.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/i2c/i2c-core-base.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core-base.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 01a984d3ca0e..38f425aecef8 100644
+index 2cd384433d83..5ddd985dfccb 100644
 --- a/drivers/i2c/i2c-core-base.c
 +++ b/drivers/i2c/i2c-core-base.c
-@@ -1587,7 +1587,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
- 	res = device_add(&adap->dev);
- 	if (res) {
- 		pr_err("adapter '%s': can't register device (%d)\n", adap->name, res);
--		goto err_remove_debugfs;
-+		goto err_replace_id;
- 	}
+@@ -1621,7 +1621,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
  
  	res = i2c_setup_smbus_alert(adap);
-@@ -1614,7 +1614,10 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
- out_reg:
+ 	if (res)
+-		goto out_reg;
++		goto err_deregister_clients;
+ 
+ 	dev_dbg(&adap->dev, "adapter [%s] registered\n", adap->name);
+ 
+@@ -1640,7 +1640,7 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+ 
+ 	return 0;
+ 
+-out_reg:
++err_deregister_clients:
  	i2c_deregister_clients(adap);
  	device_del(&adap->dev);
--err_remove_debugfs:
-+err_replace_id:
-+	mutex_lock(&core_lock);
-+	idr_replace(&i2c_adapter_idr, NULL, adap->nr);
-+	mutex_unlock(&core_lock);
- 	debugfs_remove_recursive(adap->debugfs);
- 	pm_runtime_disable(&adap->dev);
- err_put_adap:
-@@ -1804,6 +1807,8 @@ void i2c_del_adapter(struct i2c_adapter *adap)
- 	/* First make sure that this adapter was ever added */
- 	mutex_lock(&core_lock);
- 	found = idr_find(&i2c_adapter_idr, adap->nr);
-+	if (found == adap)
-+		idr_replace(&i2c_adapter_idr, NULL, adap->nr);
- 	mutex_unlock(&core_lock);
- 	if (found != adap) {
- 		pr_debug("attempting to delete unregistered adapter [%s]\n", adap->name);
+ err_replace_id:
 -- 
 2.53.0
 
