@@ -1,85 +1,86 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50ED84508FC;
-	Mon, 11 May 2026 17:37:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBB5146AED8;
+	Mon, 11 May 2026 17:49:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778521021; cv=none; b=XBrDqdlQ0rY1lKYg2hS9AfA2c7OZnamx7Z/y3FaMqXcYZhkEbrw9BTV7QxXDkxpYhGPIwWBEzOK67xbzVsrUillF5fkYXHYB6FXi235Oj34Lr5UNxyQqhHnIUMpYdO7G285IPUqIolFsdn8ga6rajdaMzvK6XnVi8IyIa5jVscU=
+	t=1778521762; cv=none; b=lsU6KhrgzwWd0StoOBJfZNS6F3NRY80ze2LuV8yacFhghAdN6f5ymDjM5TJSb/XW5YeQLbc/hq08vRxD+X3ekT0CCrMUZvDORo7tSXdQ1sEqk3ycHT/iEdO5FEcwHDkSWz7c1SiaB0CVxgfpUT2kBH056zRH4Dp+DiAmkwWuhYo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778521021; c=relaxed/simple;
-	bh=VcOf6WSKT8uto3OOizIhoS3aC3hlK7uxX+e86+wrvSE=;
-	h=Date:Content-Type:MIME-Version:From:Cc:To:In-Reply-To:References:
-	 Message-Id:Subject; b=qgFjzt2ZAlo7lIeOZwuX4AC8bA0uThw//6V/cap60KDdvN7fYpTI5yeI4aI5R3Yls2NymHoGS/Eo9UpnGmtKqzW+VebDI09lCpmTeNyXGj0IcB9fsIdMUtiBCOJx5mIGfzk1U8bCIOMO+YRKuHudYwgxDqU4BtT3tngHUqkHtiw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PClwj9Bh; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778521762; c=relaxed/simple;
+	bh=/1oWzYg67N/ufz4D1PqHRWljC6l7edXuX/1L0zHiv00=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=c98JjJ+AvlvUm59fl2pfUx34Nh2mT4MqUCmk8aUP8yyf+GkdIofAuTOwxFp6X0trFfPp+5OfgzOUcdbBgyKZqPs4cHJNsJ8nsD9IGWH0KaJ8uQ+H0QtglbAQY5JWGz/Tx8orzmDcKQk/KWBdgLdh/FZaXI970yoVximCr7fKuvw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LqQ8mu8K; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PClwj9Bh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC0CCC2BCC9;
-	Mon, 11 May 2026 17:37:00 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LqQ8mu8K"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71148C2BCB0;
+	Mon, 11 May 2026 17:49:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778521020;
-	bh=VcOf6WSKT8uto3OOizIhoS3aC3hlK7uxX+e86+wrvSE=;
-	h=Date:From:Cc:To:In-Reply-To:References:Subject:From;
-	b=PClwj9Bhr9Vf5+gIq3+a4D4N2jn5F4TQ4eE3UuVK5BuHVwySeD6qmG7OGaH2DeUda
-	 hIJuw9JGJNXfNT+VWPinruIHiLpFghtWCUk+RTSf4CwmsIhIMSmtzAxVlfC6uJ7w/4
-	 QZDU/tQY50mFqlMsryyrfWXpEAFDHYSU7KRvCm5NB3jEis8xPi52YY8dFlnC2egz2U
-	 db4F2kwPZZR1s1LWXGKs0v4L50P+3lkZJFZ/UotAwlqEiZuhcV3mslkH8zpJJZzLGR
-	 kEg9EUVv4YaIzBm2uW+PO/nmtboHy7JrTG6Xy/1T5zwBzwiKPuYi69QfKdLL0kChZs
-	 8WGF8/5qXIPmw==
-Date: Mon, 11 May 2026 12:36:58 -0500
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	s=k20201202; t=1778521762;
+	bh=/1oWzYg67N/ufz4D1PqHRWljC6l7edXuX/1L0zHiv00=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=LqQ8mu8KK9OYD2NQYma1LT38JZu03UnQNNdoyeBqK5EwBjCLqf06AqqIst9lEMioM
+	 qjnpeR1XPYxSgoXDLwytt8XGH3qbl+JM77oyirXXiTOnWz7z1TgKkehffnuNsO5zkQ
+	 /8VO0upsF8kaFJTV6XzZqjYGZQKbI4vJ9rcEyLRh/6KaWd/iFOQd2wqWW6EHSjdKSQ
+	 BwsTE453pWWYVeIggn2PJcnugTVMHk1fk6Xj8D7vNL5Uxz0jkuzGx3x/SvodeOTY5w
+	 FDj089XCJonj9J835HLIggJjKKUR6vY/SN2XQQMQ2Fd8h1dxihCzC63zqmEACUzUTz
+	 8E9ltJ2pW8xzg==
+Received: from johan by xi.lan with local (Exim 4.98.2)
+	(envelope-from <johan@kernel.org>)
+	id 1wMUkq-00000003N7k-10RE;
+	Mon, 11 May 2026 19:49:20 +0200
+Date: Mon, 11 May 2026 19:49:20 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 00/10] i2c: core: adapter registration fixes
+Message-ID: <agIWoD88sI9teD3B@hovoldconsulting.com>
+References: <20260511143715.729714-1-johan@kernel.org>
+ <agIFROehUpkosUkz@ninjato>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: linux-i2c@vger.kernel.org, brgl@kernel.org, devicetree@vger.kernel.org, 
- krzk+dt@kernel.org, wsa+renesas@sang-engineering.com, andi.shyti@kernel.org, 
- conor+dt@kernel.org
-To: Markus Stockhausen <markus.stockhausen@gmx.de>
-In-Reply-To: <20260511162528.84508-2-markus.stockhausen@gmx.de>
-References: <20260511162528.84508-1-markus.stockhausen@gmx.de>
- <20260511162528.84508-2-markus.stockhausen@gmx.de>
-Message-Id: <177852101859.2925549.3640378519742547152.robh@kernel.org>
-Subject: Re: [PATCH v2 1/2] dt-bindings: i2c: Add i2c-shared-gpio
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="GuiUyweRpUbDAMiX"
+Content-Disposition: inline
+In-Reply-To: <agIFROehUpkosUkz@ninjato>
 
 
-On Mon, 11 May 2026 18:25:27 +0200, Markus Stockhausen wrote:
-> Document the driver for bitbanged gpio I2C busses
-> with shared SCL lines.
-> 
-> Signed-off-by: Markus Stockhausen <markus.stockhausen@gmx.de>
-> ---
->  .../bindings/i2c/i2c-gpio-shared.yaml         | 105 ++++++++++++++++++
->  1 file changed, 105 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/i2c-gpio-shared.yaml
-> 
+--GuiUyweRpUbDAMiX
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-My bot found errors running 'make dt_binding_check' on your patch:
+On Mon, May 11, 2026 at 06:35:16PM +0200, Wolfram Sang wrote:
+> On Mon, May 11, 2026 at 04:37:05PM +0200, Johan Hovold wrote:
+> > This series fixes a number of bugs related to adapter registration found
+> > through inspection (when looking into addressing i2c lifetime issues).
+>=20
+> I intend to review the series. I wonder if it makes sense to wait until
+> you don't see any valuable input from Sashiko anymore. Otherwise a
+> reworked series X+1 will be sent while I am still looking at series X.
 
-yamllint warnings/errors:
+You can always wait a few hours until the Sashiko output is available if
+you're worried about that, but I don't expect there to be any further
+revisions of this series.
 
-dtschema/dtc warnings/errors:
-/builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/i2c/i2c-gpio-shared.example.dtb: i2c (i2c-gpio-shared): sda-gpios: [[4294967295, 6, 6], [4294967295, 7, 6]] is too long
-	from schema $id: http://devicetree.org/schemas/i2c/i2c-controller.yaml
+Johan
 
-doc reference errors (make refcheckdocs):
+--GuiUyweRpUbDAMiX
+Content-Type: application/pgp-signature; name=signature.asc
 
-See https://patchwork.kernel.org/project/devicetree/patch/20260511162528.84508-2-markus.stockhausen@gmx.de
+-----BEGIN PGP SIGNATURE-----
 
-The base for the series is generally the latest rc1. A different dependency
-should be noted in *this* patch.
+iJEEABYKADkWIQQHbPq+cpGvN/peuzMLxc3C7H1lCAUCagIWnBsUgAAAAAAEAA5t
+YW51MiwyLjUrMS4xMiwyLDIACgkQC8XNwux9ZQjopgEA1cAkYcNmViCo7Nxu/LB/
+T9FhxjMuZjqktlm3aKlZOUEBAIVaQRxFMA/hS5/6KQ2VBFVSkAyJLcGh3Lli+N6+
+d6oN
+=fi/w
+-----END PGP SIGNATURE-----
 
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit after running the above command yourself. Note
-that DT_SCHEMA_FILES can be set to your schema file to speed up checking
-your schema. However, it must be unset to test all examples with your schema.
-
+--GuiUyweRpUbDAMiX--
