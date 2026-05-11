@@ -1,155 +1,210 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE58D39C645
-	for <linux-i2c@vger.kernel.org>; Mon, 11 May 2026 12:43:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6EFE3FE374;
+	Mon, 11 May 2026 14:37:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778503417; cv=none; b=H3GvaqPZp7FgrMcDCh8m8k2nBobuHfX5pj6JEWfMTVv1gPgDOs2o7PSLPpflTZlbF8owl65NXxoKk5LSUUKjE3BxYJgqtab6VB/StjKs0wzkMin7SPRn0H17jJrSRg5sdK/+kFbdw60ilAiuXHm/Z9+GouK9L1C/MZ+ljscF4Mo=
+	t=1778510244; cv=none; b=Jce8x2iKFVAWjYLwiF2KlYP8e61EQWhUI+1iCk63EDgfI2s1Z6aZyaeSQENL3Yqwy/T16qu0e4zNdntBJC72dq96OINHxryFJ0rgruvmKZYQ7foSTC3qMCi0x1XmBgutlTvLm/s2EP+RWC5vYW+ioez9BzGN2749J8KL13fY1JM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778503417; c=relaxed/simple;
-	bh=8jKbrIxS79LQlDqKsfLebs92J/1T0XANiXEs6ZL4sEQ=;
-	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=iDvhaZzgHNFkn75NFAxyRZml6IarOBj2x2UILsVrVS+lneq6bJ3b8Cj/CPp2UD6YPL3Rk27IPGPZ024QzmanEx2va3yisq3JnicW3A5rDawWW2FzebRL8R01L7XJz6L/V+332mFmUoeSUVNENmV0VMpVZXioyQc7f2YcLVRA9Qg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fBAh0Az+; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778510244; c=relaxed/simple;
+	bh=eihvSdYvDEAsiJ1gC2UmX+JrpysYRhv4c4ZhELH2oFE=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=oCSFi2ePQaRnvlZAYfZBCzJpcj0w+TourAzSJJp6Ia10bxCMlbsMksLuAui7wONYmd5dyHgD/+6FgAXV5xlDYzOTjLvmnMYLxiDDy4p8f1PQTrVz6u+ipeCScu7hWoTiMqOVX3Fv4PwIjCACuswH2Y4AcI/uqZ780FxSkBvpN5w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DyFxaBQQ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fBAh0Az+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DC39C2BCB0
-	for <linux-i2c@vger.kernel.org>; Mon, 11 May 2026 12:43:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DyFxaBQQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DDEFC2BCB0;
+	Mon, 11 May 2026 14:37:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778503417;
-	bh=8jKbrIxS79LQlDqKsfLebs92J/1T0XANiXEs6ZL4sEQ=;
-	h=From:In-Reply-To:References:Date:Subject:To:Cc:From;
-	b=fBAh0Az+HWJZ563YZrguZlSi/cvHLiwcivJ60iqDLeNoih71PfSRxFMlYXOUh2Xyn
-	 +0JYLho61ok6M4XuQd+GAijRml23oj0MRAlV5rBoAMJinQiB3TyOzkeq7vUuYLK718
-	 kz61+5cYliq/o8/+oul0q9wUx1/KA1Aq8Dwarh6Yqh+zoZU/uY41iNC+w7a2hAQLsA
-	 7a5hLTD624gJ/7NJs2LKQnQOOuSqx+r87XU777q45ZZZQWuh9CyyQXj/h0OzeGnxX9
-	 C2vdNU1zGQv8bUaXS59A6pOJ0OEk07gsIaFlA+S+HWhl3oCLinvAsr9eZ19PXbKNyp
-	 IihUb859JGVNw==
-Received: by mail-lf1-f52.google.com with SMTP id 2adb3069b0e04-5a860667fabso3843787e87.0
-        for <linux-i2c@vger.kernel.org>; Mon, 11 May 2026 05:43:37 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ8hSTz49Of3uW+ZMRGMjeyNi1HhHv8cwFdsMDodIxXfKSN5rdjpOTR7sPPpyHANMRIuHJDGZRyjGFg=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzSIH1yfJmKkCQACR5XnRlUsJyG1i/fk6huvojf/KAjT0jKFgh3
-	LZOHCrjXIN+qJvZq6agqBBpXotbHFnmPxiVvyXedF6Qw1842j6SnAgU07dlkpLFPMKI2+Z6bC13
-	gnwpo57louyVmCqvb14nRVB/aienr1WQR9t/drAUWZg==
-X-Received: by 2002:a05:6512:8013:20b0:5a8:9909:50a3 with SMTP id
- 2adb3069b0e04-5a8a94c1fc3mr3083121e87.32.1778503416021; Mon, 11 May 2026
- 05:43:36 -0700 (PDT)
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 11 May 2026 05:43:34 -0700
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 11 May 2026 05:43:34 -0700
-From: Bartosz Golaszewski <brgl@kernel.org>
-In-Reply-To: <00ef01dcdff4$42318c70$c694a550$@gmx.de>
+	s=k20201202; t=1778510244;
+	bh=eihvSdYvDEAsiJ1gC2UmX+JrpysYRhv4c4ZhELH2oFE=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=DyFxaBQQ5zsgZLcSdXevXVELWJZPDA4A62EFrf3G7Qm/t3icPpXHcuGM4m5WHmlN4
+	 ZAStR07MncXtv9e9pCAIwQ1MIk+6ltJSQjGGHD9QAuCktNuCBZsb8SzYHr4fw/4nmx
+	 x5ndwSXHE/nUAmqbXV90e0rGsaydVJMyC3ISY0k1fi3BO4rN7kJwBO59KiHoDc1Grn
+	 ygQHwjywkTGMhtOpvdMm/vzr7MIE6x1AA02KUuTm/c75Or0QuhgPnM39fgNNI31Jzk
+	 +/coZMeZ9zCqqhGxjvGJcuvQeey41hKfgnT/FRMQNAADXJYW3oRu7aynWGiH8AaZ7J
+	 327/N5aiBUgwQ==
+Received: from johan by xi.lan with local (Exim 4.98.2)
+	(envelope-from <johan@kernel.org>)
+	id 1wMRl4-000000033qN-14K4;
+	Mon, 11 May 2026 16:37:22 +0200
+From: Johan Hovold <johan@kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Johan Hovold <johan@kernel.org>
+Subject: [PATCH v3 09/10] i2c: core: clean up bus id allocation
+Date: Mon, 11 May 2026 16:37:14 +0200
+Message-ID: <20260511143715.729714-10-johan@kernel.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260511143715.729714-1-johan@kernel.org>
+References: <20260511143715.729714-1-johan@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260507181711.2696783-1-markus.stockhausen@gmx.de>
- <20260507181711.2696783-2-markus.stockhausen@gmx.de> <20260508131830.GA1135235-robh@kernel.org>
- <007a01dcdef9$05ba7140$112f53c0$@gmx.de> <af9xGlIWG_OmREzX@shikoro> <00ef01dcdff4$42318c70$c694a550$@gmx.de>
-Date: Mon, 11 May 2026 05:43:34 -0700
-X-Gmail-Original-Message-ID: <CAMRc=MfN=jNiPRp_fS9T-39s7c366ak4MC6DWGFreonCZM92FA@mail.gmail.com>
-X-Gm-Features: AVHnY4I08Z498qLDXux_zayzjHSKAhqd_PvGE-539uIUMGVNm4fKBeSHuHxXmVU
-Message-ID: <CAMRc=MfN=jNiPRp_fS9T-39s7c366ak4MC6DWGFreonCZM92FA@mail.gmail.com>
-Subject: Re: AW: [PATCH 1/2] dt-bindings: i2c: Add i2c-shared-gpio
-To: markus.stockhausen@gmx.de
-Cc: andi.shyti@kernel.org, linux-i2c@vger.kernel.org, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, Bartosz Golaszewski <brgl@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-On Sat, 9 May 2026 22:41:48 +0200, <markus.stockhausen@gmx.de> said:
->> Von: Wolfram Sang <wsa+renesas@sang-engineering.com>
->> Gesendet: Samstag, 9. Mai 2026 19:39
->> An: markus.stockhausen@gmx.de; Bartosz Golaszewski <brgl@kernel.org>
->> Cc: 'Rob Herring' <robh@kernel.org>; andi.shyti@kernel.org;
-> linux-i2c@vger.kernel.org
->> Betreff: Re: AW: [PATCH 1/2] dt-bindings: i2c: Add i2c-shared-gpio
->>...
->>
->> Now, the GPIO subsystem since recently allows for shared GPIOs[1]. This
->> sounds like the proper approach to me. Sadly, I can't help much because
->> I have not used this API so far. So, it seems you rather need a GPIO
->> expert... CCing Bart.
->>
+Clean up bus id allocation by using a common helper and deferring it
+until it is needed during adapter registration.
 
-There's no new API TBH. The GPIO shared proxy just mediates the usage of shared
-GPIOs without the drivers knowing.
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/i2c/i2c-core-base.c | 89 +++++++++++++++++++------------------
+ 1 file changed, 45 insertions(+), 44 deletions(-)
 
->> @Bart: is it possible to share a GPIO so that multiple i2c-gpio
->> instances can use the same GPIO as SCL? Use case is explained in the
->> cover letter[2].
->
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 38f425aecef8..2cd384433d83 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1517,23 +1517,48 @@ int i2c_handle_smbus_host_notify(struct i2c_adapter *adap, unsigned short addr)
+ }
+ EXPORT_SYMBOL_GPL(i2c_handle_smbus_host_notify);
+ 
++static int i2c_allocate_adapter_id(struct i2c_adapter *adap)
++{
++	int id, start, end;
++
++	if (adap->nr == -1) {
++		start = __i2c_first_dynamic_bus_num;
++		end = 0;
++	} else {
++		start = adap->nr;
++		end = adap->nr + 1;
++	}
++
++	mutex_lock(&core_lock);
++	id = idr_alloc(&i2c_adapter_idr, NULL, start, end, GFP_KERNEL);
++	mutex_unlock(&core_lock);
++	if (id < 0) {
++		if (adap->nr != -1 && id == -ENOSPC)
++			id = -EBUSY;
++		pr_err("adapter '%s': failed to allocate id: %d\n", adap->name, id);
++		return id;
++	}
++
++	adap->nr = id;
++
++	return 0;
++}
++
+ static int i2c_register_adapter(struct i2c_adapter *adap)
+ {
+-	int res = -EINVAL;
++	int res;
+ 
+ 	/* Can't register until after driver model init */
+-	if (WARN_ON(!is_registered)) {
+-		res = -EAGAIN;
+-		goto out_list;
+-	}
++	if (WARN_ON(!is_registered))
++		return -EAGAIN;
+ 
+ 	/* Sanity checks */
+ 	if (WARN(!adap->name[0], "i2c adapter has no name"))
+-		goto out_list;
++		return -EINVAL;
+ 
+ 	if (!adap->algo) {
+ 		pr_err("adapter '%s': no algo supplied!\n", adap->name);
+-		goto out_list;
++		return -EINVAL;
+ 	}
+ 
+ 	if (!adap->lock_ops)
+@@ -1554,13 +1579,17 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+ 	if (res) {
+ 		pr_err("adapter '%s': can't create Host Notify IRQs (%d)\n",
+ 		       adap->name, res);
+-		goto out_list;
++		return res;
+ 	}
+ 
+-	res = dev_set_name(&adap->dev, "i2c-%d", adap->nr);
++	res = i2c_allocate_adapter_id(adap);
+ 	if (res)
+ 		goto err_remove_irq_domain;
+ 
++	res = dev_set_name(&adap->dev, "i2c-%d", adap->nr);
++	if (res)
++		goto err_free_id;
++
+ 	adap->dev.bus = &i2c_bus_type;
+ 	adap->dev.type = &i2c_adapter_type;
+ 	device_initialize(&adap->dev);
+@@ -1624,33 +1653,14 @@ static int i2c_register_adapter(struct i2c_adapter *adap)
+ 	init_completion(&adap->dev_released);
+ 	put_device(&adap->dev);
+ 	wait_for_completion(&adap->dev_released);
+-err_remove_irq_domain:
+-	i2c_host_notify_irq_teardown(adap);
+-out_list:
++err_free_id:
+ 	mutex_lock(&core_lock);
+ 	idr_remove(&i2c_adapter_idr, adap->nr);
+ 	mutex_unlock(&core_lock);
+-	return res;
+-}
+-
+-/**
+- * __i2c_add_numbered_adapter - i2c_add_numbered_adapter where nr is never -1
+- * @adap: the adapter to register (with adap->nr initialized)
+- * Context: can sleep
+- *
+- * See i2c_add_numbered_adapter() for details.
+- */
+-static int __i2c_add_numbered_adapter(struct i2c_adapter *adap)
+-{
+-	int id;
+-
+-	mutex_lock(&core_lock);
+-	id = idr_alloc(&i2c_adapter_idr, NULL, adap->nr, adap->nr + 1, GFP_KERNEL);
+-	mutex_unlock(&core_lock);
+-	if (WARN(id < 0, "couldn't get idr"))
+-		return id == -ENOSPC ? -EBUSY : id;
++err_remove_irq_domain:
++	i2c_host_notify_irq_teardown(adap);
+ 
+-	return i2c_register_adapter(adap);
++	return res;
+ }
+ 
+ /**
+@@ -1673,17 +1683,8 @@ int i2c_add_adapter(struct i2c_adapter *adapter)
+ 	int id;
+ 
+ 	id = of_alias_get_id(dev->of_node, "i2c");
+-	if (id >= 0) {
+-		adapter->nr = id;
+-		return __i2c_add_numbered_adapter(adapter);
+-	}
+-
+-	mutex_lock(&core_lock);
+-	id = idr_alloc(&i2c_adapter_idr, NULL,
+-		       __i2c_first_dynamic_bus_num, 0, GFP_KERNEL);
+-	mutex_unlock(&core_lock);
+-	if (WARN(id < 0, "couldn't get idr"))
+-		return id;
++	if (id < 0)
++		id = -1;
+ 
+ 	adapter->nr = id;
+ 
+@@ -1719,7 +1720,7 @@ int i2c_add_numbered_adapter(struct i2c_adapter *adap)
+ 	if (adap->nr == -1) /* -1 means dynamically assign bus id */
+ 		return i2c_add_adapter(adap);
+ 
+-	return __i2c_add_numbered_adapter(adap);
++	return i2c_register_adapter(adap);
+ }
+ EXPORT_SYMBOL_GPL(i2c_add_numbered_adapter);
+ 
+-- 
+2.53.0
 
-The way it works is with a kind of a voting system. As long as there's at
-least one user that votes for the GPIO to be "high", it stays high. Is this
-behavior fine for the recovery use-case?
-
-> Thanks fort he hint. That looks partly promising. I gave this a quick try
-> on Kernel 6.18 in OpenWrt. Set the target to HAVE_SHARED_GPIOS.
-> Finally added several backports (deadlock stalled the boot). Now it at
-> least starts.
->
-> This dts:
->
-> 	i2c0: i2c-sfp0 {
->                 compatible = "i2c-gpio";
->                 #address-cells = <1>;
->                 #size-cells = <0>;
->
->                 scl-gpios = <&gpio1 31 (GPIO_ACTIVE_HIGH |
-> GPIO_OPEN_DRAIN)>;
->                 sda-gpios = <&gpio1 6 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-> 	};
->
-> 	i2c1: i2c-sfp1 {
->                 compatible = "i2c-gpio";
->                 #address-cells = <1>;
->                 #size-cells = <0>;
->
->                 scl-gpios = <&gpio1 31 (GPIO_ACTIVE_HIGH |
-> GPIO_OPEN_DRAIN)>;
->                 sda-gpios = <&gpio1 7 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
-> 	};
->
-> Gives these messages:
->
-> [    2.048352] i2c-gpio i2c-sfp0: Slow GPIO pins might wreak havoc into
-> I2C/SMBus bus timing
-> [    2.058333] i2c-gpio i2c-sfp0: using lines 542 (SDA) and 573 (SCL)
-> [    2.066139] i2c-gpio i2c-sfp1: Slow GPIO pins might wreak havoc into
-> I2C/SMBus bus timing
-> [    2.076333] i2c-gpio i2c-sfp1: using lines 543 (SDA) and 574 (SCL)
-> [    2.084817] sfp sfp-p9: Host maximum power 1.0W
-> [    2.091419] sfp sfp-p10: Host maximum power 1.0W
-> [    2.200954] In rtldsa_vlan_setup
-> [    2.397223] gpio-574 (scl): gpio_set_open_drain_value_commit: Error in
-> set_value for open drain err -1
-> [    2.407907] gpio-574 (scl): gpio_set_open_drain_value_commit: Error in
-> set_value for open drain err -1
-> [    2.418605] gpio-574 (scl): gpio_set_open_drain_value_commit: Error in
-> set_value for open drain err -1
-> [    2.429275] gpio-574 (scl): gpio_set_open_drain_value_commit: Error in
-> set_value for open drain err -1
-> [    2.439937] gpio-574 (scl): gpio_set_open_drain_value_commit: Error in
-> set_value for open drain err -1
-> [    2.450584] gpio-574 (scl): gpio_set_open_drain_value_commit: Error in
-> set_value for open drain err -1
-> [    2.461223] gpio-574 (scl): gpio_set_open_drain_value_commit: Error in
-> set_value for open drain err -1
-> [    2.471875] gpio-574 (scl): gpio_set_open_drain_value_commit: Error in
-> set_value for open drain err -1
-> [    2.482539] gpio-574 (scl): gpio_set_open_drain_value_commit: Error in
-> set_value for open drain err -1
->
-> I assume I must dig deeper here.
->
-> Markus
->
->
-
-Can you enable CONFIG_DEBUG_GPIO and see what it says in the kernel log?
-
-Bart
