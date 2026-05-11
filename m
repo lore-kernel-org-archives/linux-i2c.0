@@ -1,43 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B7C2F4DBD99;
-	Mon, 11 May 2026 22:19:45 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E1264DB560;
+	Mon, 11 May 2026 22:20:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778537985; cv=none; b=A6Q32ADZEg/Wp6j31AugTIpddXH1thJCz3Si1VV4zcS4ZmL64zIdxvKWfk88mlSw+QjfWfC3SPhtMrtEMiypxfu77aw+PgLQfbhWvmj8vfyfdFk7FWU9HCzcgtXUpDzrEZAismmfe/Y9vAygTbGZWUesM0YY9pr77JtEuprUbyA=
+	t=1778538010; cv=none; b=ewJzM/q6DWHWHkELq87gA8FiUx9OX3ZrXuEvzOshseGvBrSzUFBaArHDGyWZq800j6wmMpqqQzgw1XxDwu/7AMPLHo8SWxxfQZyXdA4tQo5Q0cAEa1KCnTjeOYCF4KfNeojacfXNo2suTM4OyD/8Y6VuffMEoz9ZNmUxuxanqmQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778537985; c=relaxed/simple;
-	bh=kQiQktG49jtjh0yrsuVGLJX+d30nIFRsfE8tZ53RrL4=;
+	s=arc-20240116; t=1778538010; c=relaxed/simple;
+	bh=pP8iVAxF1FoMXalCFIkZlnb3QWBe+RsA4kTO38lVTnk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=TO0x1Uz/XJQbwWAyPfUoUzfM7rW0vtPAKpyRSzCw/bRuyeDiNSF/uElmZorzt6qRK3KqDJjjX6djT349HeIW1GgsWDILfQYMNv1WQddnOnwRu/B1ehbMqQ/4N5FsyrZFlMr0tCTd/bvV2G5QUrSLQi5UkAxceXrbcjmDyvRlUDY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KHEpnIZ1; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=pj6C90I5vDw8ds4WJ7vl7r46SP9z4N66pX1XMZ/YK7s1LuyY7Jfi70iKEzZp2R947d7pb245Q4pRzG9MKKpsV2E71dmYI64Jnmv/CRRmY+FNR2+p6CIY72ndkRLa0RoFGAy9oIIlMv3J8KDKAV6ScXe0nKJIlr96dv8YVjFOTXI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fDjTXQgi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KHEpnIZ1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A645AC2BCF7;
-	Mon, 11 May 2026 22:19:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fDjTXQgi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0058CC2BCFB;
+	Mon, 11 May 2026 22:20:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778537985;
-	bh=kQiQktG49jtjh0yrsuVGLJX+d30nIFRsfE8tZ53RrL4=;
+	s=k20201202; t=1778538010;
+	bh=pP8iVAxF1FoMXalCFIkZlnb3QWBe+RsA4kTO38lVTnk=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=KHEpnIZ1jZwFooN/yavGA0vXeLlZCNO2D2mtS8VMC/G4XA9J6gwHaq4vLM157N0ZU
-	 R/M5gGmda0Dj9wlbF8wsGwJqw61KkuLfE0xFI8ksDfddnm+ouuWpdnrmlAGWrA841T
-	 +bNztyZJ4H67nrP6WDBDvwVmRzhRGHz5f50FWRsI0DxCyzezZvBuJdTVkLJL/hf1u6
-	 jYFHFeqtLilxJF/3gHIVs/yMZujZYjrSCYbHGAriW48F8y6rZuJmO+e9Gd1ibJLVFG
-	 qsCpsAPQIz/eLhgo57goZoDjT0ugK6OgU1e78MhnMQVJsSkO2BD3IaW+SaCli9IplJ
-	 Ft44PRL43YX5w==
+	b=fDjTXQgiVsLQN2umBM4iqidqhE64mx5qtWDlKxrFXIqo45MX+9APBg8fWwjKzhdkd
+	 jcB+rmwP3qdhf+koN0OmJr1UKSb7JhY4gyMiFCooUS4zMuD1nS/S4jbb9RFFzeA/yx
+	 uuyjXv7HxRTfsRRon7HI5J18AFQi8cNCwoNsCPUUQgbFlJz06WPhdyX9P6mbeCd/ue
+	 IEAo2YSDL2j/7syZJa4PhKrE+OAUyb1zMT+zjCSUB/2wXoiD5rEvWxqGcWH018j6EZ
+	 7j5hzGStRdr4gV8J367pzRknKpL4dlDaFCb+JPmSuJ6L3fAqJuXj8VGJfMjEfWIcJ0
+	 HrQ4AB6BNitpA==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Mingyu Wang <25181214217@stu.xidian.edu.cn>,
+Cc: Niels Franke <nielsfranke@gmail.com>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
 	Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	Sasha Levin <sashal@kernel.org>,
 	wsa@kernel.org,
 	linux-i2c@vger.kernel.org,
+	linux-acpi@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 7.0-5.10] i2c: dev: prevent integer overflow in I2C_TIMEOUT ioctl
-Date: Mon, 11 May 2026 18:19:08 -0400
-Message-ID: <20260511221931.2370053-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 7.0-5.10] i2c: acpi: Add ELAN0678 to i2c_acpi_force_100khz_device_ids
+Date: Mon, 11 May 2026 18:19:25 -0400
+Message-ID: <20260511221931.2370053-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260511221931.2370053-1-sashal@kernel.org>
 References: <20260511221931.2370053-1-sashal@kernel.org>
@@ -50,256 +52,282 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 X-stable-base: Linux 7.0.6
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Mingyu Wang <25181214217@stu.xidian.edu.cn>
+From: Niels Franke <nielsfranke@gmail.com>
 
-[ Upstream commit 617eb7c0961a8dfcfc811844a6396e406b2923ea ]
+[ Upstream commit 9998e388be9930c106eb5904c23ecf2162407527 ]
 
-While fuzzing with Syzkaller, a persistent `schedule_timeout: wrong
-timeout value` warning was observed, accompanied by SMBus controller
-state machine corruption.
+The ELAN0678 touchpad (04F3:3195) found in the Lenovo ThinkPad X13
+exhibits excessive smoothing when the I2C bus runs at 400KHz, making
+the touchpad feel sluggish when plugged into AC power. This is the
+same issue previously fixed for ELAN06FA.
 
-The I2C_TIMEOUT ioctl accepts a user-provided timeout in multiples of
-10 ms. The user argument is checked against INT_MAX, but it is
-subsequently multiplied by 10 before being passed to msecs_to_jiffies().
+The device's ACPI table (Lenovo TP-R22) specifies 0x00061A80 (400KHz)
+for the I2cSerialBusV2 descriptor. Forcing the bus to 100KHz eliminates
+the sluggish behavior.
 
-A malicious user can pass a large value (e.g., 429496729) that passes
-the `arg > INT_MAX` check but overflows when multiplied by 10. This
-results in a truncated 32-bit unsigned value that bypasses the
-internal `(int)m < 0` check in `msecs_to_jiffies()`.
-
-The truncated value is then assigned to `client->adapter->timeout`
-(a signed 32-bit int), which is reinterpreted as a negative number.
-When passed to wait_for_completion_timeout(), this negative value
-undergoes sign extension to a 64-bit unsigned long, triggering the
-`schedule_timeout` warning and causing premature returns. This leaves
-the SMBus state machine in an unrecoverable state, constituting a
-local Denial of Service (DoS).
-
-Fix this by bounding the user argument to `INT_MAX / 10`.
-
-Signed-off-by: Mingyu Wang <25181214217@stu.xidian.edu.cn>
-[wsa: move the comment as well]
+Signed-off-by: Niels Franke <nielsfranke@gmail.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+[wsa: kept the sorting]
 Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-## Phase Walkthrough
+## Phase 1: Commit Message Forensics
 
-### Phase 1: Commit Message Forensics
-Step 1.1 Record: Subsystem `i2c: dev`; action verb `prevent`; intent is
-to prevent integer overflow in the userspace `I2C_TIMEOUT` ioctl.
+Step 1.1 - Subject:
+Record: Subsystem `i2c: acpi`; action verb `Add`; intent is to add ACPI
+HID `ELAN0678` to the existing 100 kHz forced-speed quirk table.
 
-Step 1.2 Record: Tags are `Signed-off-by: Mingyu Wang
-<25181214217@stu.xidian.edu.cn>` and `Signed-off-by: Wolfram Sang
-<wsa+renesas@sang-engineering.com>` with maintainer edit note `[wsa:
-move the comment as well]`. No `Fixes:`, `Reported-by:`, `Tested-by:`,
-`Reviewed-by:`, `Link:`, or `Cc: stable` tags were present.
+Step 1.2 - Tags:
+Record: `Signed-off-by: Niels Franke <nielsfranke@gmail.com>`; `Acked-
+by: Mika Westerberg <mika.westerberg@linux.intel.com>`; maintainer note
+`[wsa: kept the sorting]`; `Signed-off-by: Wolfram Sang
+<wsa+renesas@sang-engineering.com>`. No `Fixes:`, `Reported-by:`,
+`Tested-by:`, `Link:`, or `Cc: stable@vger.kernel.org` tags.
 
-Step 1.3 Record: The body describes a Syzkaller-found `schedule_timeout:
-wrong timeout value` warning and SMBus state machine corruption after a
-large userspace timeout causes overflow/truncation before storing into
-signed `adapter->timeout`. Symptom is local DoS through bad timeout
-behavior; root cause is validating `arg` before multiplying by 10.
+Step 1.3 - Body:
+Record: The bug is real hardware misbehavior: ELAN0678 touchpad
+`04F3:3195` on Lenovo ThinkPad X13 becomes sluggish/excessively smoothed
+when ACPI-described I2C speed is 400 kHz. The commit says forcing 100
+kHz eliminates it. Root cause is a bad/not-working speed choice for this
+device, matching the earlier ELAN06FA workaround.
 
-Step 1.4 Record: This is not hidden cleanup; it is an explicit integer
-overflow and local DoS fix.
+Step 1.4 - Hidden bug fix:
+Record: Yes. Although phrased as “Add”, this is a hardware
+workaround/quirk for a user-visible input-device malfunction, not new
+feature work.
 
-### Phase 2: Diff Analysis
-Step 2.1 Record: One file changed, `drivers/i2c/i2c-dev.c`; committed
-diff is 5 insertions and 4 deletions due comment movement. Modified
-function: `i2cdev_ioctl()`. Scope: single-file surgical fix.
+## Phase 2: Diff Analysis
 
-Step 2.2 Record: Before, `I2C_TIMEOUT` accepted any `arg <= INT_MAX`,
-then used `msecs_to_jiffies(arg * 10)`. After, it accepts only `arg <=
-INT_MAX / 10`, so the 10 ms unit conversion cannot exceed signed 32-bit
-range before assignment to `adapter->timeout`.
+Step 2.1 - Inventory:
+Record: One file changed: `drivers/i2c/i2c-core-acpi.c`, `+1/-0`. It
+adds `{ "ELAN0678", 0 }` to `i2c_acpi_force_100khz_device_ids`. Scope is
+a single-file, one-line hardware quirk.
 
-Step 2.3 Record: Bug category is integer overflow/truncation and type-
-range validation. Broken mechanism: userspace-controlled timeout is
-range-checked before scaling, but stored in `struct
-i2c_adapter.timeout`, which is `int`.
+Step 2.2 - Code flow:
+Record: Before, ELAN0678 used the normal ACPI/min-speed path and could
+run at the 400 kHz speed from firmware. After, when
+`i2c_acpi_lookup_speed()` sees an ACPI device matching `ELAN0678`, it
+sets `lookup->force_speed = I2C_MAX_STANDARD_MODE_FREQ`, causing
+`i2c_acpi_find_bus_speed()` to return 100 kHz.
 
-Step 2.4 Record: Fix quality is high: one validation bound change, no
-new API, no refactor. Regression risk is low; it rejects only extreme
-timeout values that cannot be represented safely after the documented 10
-ms scaling.
+Step 2.3 - Bug mechanism:
+Record: Hardware workaround. The broken condition is a known-not-working
+I2C bus speed for a specific ACPI HID. The fix reuses the existing
+forced-100-kHz mechanism.
 
-### Phase 3: Git History Investigation
-Step 3.1 Record: `git blame` shows the existing `arg > INT_MAX` guard
-came from `6ebec961d59b` and the `arg * 10` timeout assignment/comment
-came from `cd97f39b7cdf`. `git describe` places them at
-`v5.0-rc2~14^2~1` and `v2.6.29-rc7~62^2~2`, respectively.
+Step 2.4 - Fix quality:
+Record: Obviously correct and minimal. It only affects machines exposing
+ACPI HID `ELAN0678`. Regression risk is very low: affected devices will
+run slower I2C, intentionally matching the verified workaround; all
+other devices are unchanged.
 
-Step 3.2 Record: No `Fixes:` tag, so no tagged introducing commit to
-follow. I still inspected `6ebec961d59b`, which originally fixed
-negative retry/timeout values and was itself stable-tagged.
+## Phase 3: Git History
 
-Step 3.3 Record: Recent upstream `drivers/i2c/i2c-dev.c` history shows
-this candidate plus unrelated cleanup/fix commits; no prerequisite
-series was identified.
+Step 3.1 - Blame:
+Record: `git blame` on `origin/master` shows the new line is commit
+`9998e388be993`; the 100 kHz table and `ELAN06FA` handling came from
+`bfd74cd1fbc026`, first contained around `v6.14-rc1`; `DLL0945` came
+from `0b7c9528facdb5`, first contained around `v6.17-rc1`.
 
-Step 3.4 Record: `Mingyu Wang` has this one upstream `drivers/i2c`
-commit in the checked history. Wolfram Sang committed it and is the I2C
-maintainer in the patch flow.
+Step 3.2 - Fixes tag:
+Record: Not applicable; no `Fixes:` tag is present.
 
-Step 3.5 Record: No dependent commit found. The patch assumes the long-
-existing `I2C_TIMEOUT` case and applies cleanly to the current `v7.0.5`
-checkout.
+Step 3.3 - File history:
+Record: Recent file history shows related quirks `ELAN06FA` and
+`DLL0945`, plus unrelated treewide allocation conversions. No
+prerequisite structural change is needed where the 100 kHz table already
+exists.
 
-### Phase 4: Mailing List And External Research
-Step 4.1 Record: `b4 dig -c 617eb7c0961a8` found the original submission
-at `https://patch.msgid.link/20260427025745.1100768-1-
-25181214217@stu.xidian.edu.cn`. `b4 dig -a` found only v1. The submitted
-patch was a one-line bound change; the committed version is the
-maintainer-adjusted version with comment movement.
+Step 3.4 - Author context:
+Record: Local history shows Niels Franke has this one I2C commit on
+`origin/master`. The patch was acked by Mika Westerberg, listed in
+`MAINTAINERS` as I2C ACPI maintainer, and committed by Wolfram Sang.
 
-Step 4.2 Record: `b4 dig -w` shows recipients: Mingyu Wang, Wolfram
-Sang, `linux-i2c@vger.kernel.org`, and `linux-kernel@vger.kernel.org`.
+Step 3.5 - Dependencies:
+Record: Standalone for stable branches that already have
+`i2c_acpi_force_100khz_device_ids`. For branches lacking the table, it
+depends on the earlier ELAN06FA forced-100-kHz infrastructure.
 
-Step 4.3 Record: No `Link:` or `Reported-by:` tag exists. Public web
-searches did not find a syzkaller bug page for this exact issue; the
-Syzkaller finding is verified only from the commit/patch text.
+## Phase 4: Mailing List And External Research
 
-Step 4.4 Record: No multi-patch series found; standalone patch.
+Step 4.1 - Original discussion:
+Record: `b4 dig -c 9998e388be993` found the original submission at
+`https://patch.msgid.link/20260418053719.15766-1-nielsfranke@gmail.com`.
+The mirror thread shows v1 only, Mika Westerberg acked it, and Wolfram
+Sang applied it to `for-current` while keeping sort order. No objections
+or NAKs found.
 
-Step 4.5 Record: Stable-list WebFetch was blocked by lore Anubis, and
-web search did not find stable-specific discussion. No evidence of
-objections or NAKs was found in the b4-fetched mbox.
+Step 4.2 - Reviewers/recipients:
+Record: `b4 dig -w` shows recipients included Niels Franke,
+`westeri@kernel.org`, Wolfram Sang, `linux-i2c`, `linux-acpi`, and
+`linux-kernel`. This reached the relevant I2C ACPI maintainer and lists.
 
-### Phase 5: Code Semantic Analysis
-Step 5.1 Record: Modified function: `i2cdev_ioctl()`.
+Step 4.3 - Bug report:
+Record: No separate `Reported-by` or bug tracker link in the commit. The
+commit message itself documents affected hardware, ACPI table speed, and
+the tested workaround. Web search also found unrelated ELAN0678 user
+reports, but I did not rely on those for the final decision.
 
-Step 5.2 Record: Call path is userspace ioctl on `/dev/i2c-*` through
-`i2cdev_fops.unlocked_ioctl = i2cdev_ioctl`; compat ioctls fall back to
-`i2cdev_ioctl()` for commands not handled specially, including
-`I2C_TIMEOUT`.
+Step 4.4 - Series context:
+Record: `b4 dig -a` shows a single v1 patch, not a multi-patch series.
 
-Step 5.3 Record: Key callee is `msecs_to_jiffies()`, whose runtime
-helper treats negative `unsigned int` values as infinite timeout. The
-result is assigned to `struct i2c_adapter.timeout`, verified as `int`.
+Step 4.5 - Stable discussion:
+Record: Direct lore stable fetch was blocked by Anubis; web search found
+no specific stable-list discussion for ELAN0678. Stable branch git logs
+sampled do not yet contain ELAN0678.
 
-Step 5.4 Record: Buggy path is reachable from userspace with access to
-an i2c-dev node. The corrupted timeout is then used by core retry loops
-and many bus drivers, including paths using
-`wait_for_completion_timeout()`.
+## Phase 5: Code Semantic Analysis
 
-Step 5.5 Record: Similar timeout use is widespread in `drivers/i2c`, but
-this specific unchecked userspace scaling pattern was found in
-`i2c-dev`.
+Step 5.1 - Key functions:
+Record: The diff changes only the ACPI ID table, but behavior flows
+through `i2c_acpi_lookup_speed()` and `i2c_acpi_find_bus_speed()`.
 
-### Phase 6: Stable Tree Analysis
-Step 6.1 Record: Checked `v5.15`, `v6.1`, `v6.6`, `v6.12`, `v6.19`, and
-`v7.0`; all contain the vulnerable `arg > INT_MAX` plus
-`msecs_to_jiffies(arg * 10)` pattern.
+Step 5.2 - Callers:
+Record: `i2c_acpi_find_bus_speed()` is called by multiple I2C bus
+drivers, including DesignWare, USBIO, SynQuacer, LS2X, Zhaoxin, and AMD
+MP2. For DesignWare, `dw_i2c_plat_probe()` and PCI probe paths call
+`i2c_dw_fw_parse_and_configure()`, which calls the ACPI speed lookup
+during controller setup.
 
-Step 6.2 Record: Expected backport difficulty is clean or trivial. `git
-apply --check` succeeded on current `v7.0.5`; checked stable snippets
-have matching context.
+Step 5.3 - Callees:
+Record: The relevant code calls `acpi_walk_namespace()`,
+`i2c_acpi_do_lookup()`, and `acpi_match_device_ids()`; if matched, it
+returns the forced speed to bus-driver timing configuration.
 
-Step 6.3 Record: No alternate stable fix found by subject/phrase
-searches in local git history.
+Step 5.4 - Reachability:
+Record: Reachable during I2C adapter/controller initialization on ACPI
+systems. On affected Lenovo hardware, this path controls the bus speed
+used for the touchpad.
 
-### Phase 7: Subsystem Context
-Step 7.1 Record: Subsystem is I2C userspace character-device interface,
-`drivers/i2c/i2c-dev.c`. Criticality: important, because it exposes bus
-control to userspace and affects any system using `i2c-dev`.
+Step 5.5 - Similar patterns:
+Record: Verified sibling quirks `ELAN06FA` and `DLL0945` in the same
+table, both addressing touchpad sluggishness at higher I2C speed.
 
-Step 7.2 Record: Subsystem is mature but actively maintained. The
-affected ioctl path is long-standing.
+## Phase 6: Stable Tree Analysis
 
-### Phase 8: Impact And Risk
-Step 8.1 Record: Affected users are systems exposing `/dev/i2c-*` to
-userspace, including embedded, hardware-management, and sensor-control
-systems.
+Step 6.1 - Buggy code in stable:
+Record: Sampled stable branches `5.10.y`, `5.15.y`, `6.6.y`, `6.12.y`,
+`6.15.y` through `7.0.y` already contain the 100 kHz quirk table with
+`ELAN06FA`/`DLL0945`, but not `ELAN0678`. `5.4.y` has ACPI speed lookup
+but not the forced-100-kHz table in the sampled state.
 
-Step 8.2 Record: Trigger is setting `I2C_TIMEOUT` to a large value
-through ioctl, then using affected I2C/SMBus transfer paths. It requires
-access to the device node; no capability check is present in the ioctl
-path itself.
+Step 6.2 - Backport difficulty:
+Record: Clean or trivial for branches with both `DLL0945` and `ELAN06FA`
+adjacent. Branches lacking `DLL0945` or the table may need a trivial
+context adjustment or dependency backport.
 
-Step 8.3 Record: Failure mode is at least a kernel `schedule_timeout:
-wrong timeout value` warning and broken timeout behavior; commit text
-reports SMBus controller state machine corruption and local DoS.
-Severity: HIGH.
+Step 6.3 - Related fixes already stable:
+Record: Stable branches sampled already carry related ELAN06FA/DLL0945
+quirks, but no ELAN0678 equivalent.
 
-Step 8.4 Record: Benefit is high because it blocks a fuzzed, userspace-
-reachable DoS class bug in maintained stable trees. Risk is very low
-because the patch is one range check in one ioctl case.
+## Phase 7: Subsystem Context
 
-### Phase 9: Final Synthesis
-Step 9.1 Record: Evidence for backporting: real integer overflow,
-Syzkaller-reported in commit text, userspace-reachable with i2c-dev
-access, high-severity timeout corruption/DoS, tiny fix, maintainer-
-applied, vulnerable code present in checked stable trees, clean apply to
-`v7.0.5`. Evidence against: no public syzkaller link, no `Reported-
-by`/`Tested-by`, and exact SMBus unrecoverable-state details were not
-independently reproduced.
+Step 7.1 - Subsystem:
+Record: `drivers/i2c/i2c-core-acpi.c`, I2C ACPI support. Criticality is
+important for affected ACPI laptop hardware, but not universal/core.
 
-Step 9.2 Record: Stable rules: obviously correct yes; fixes real bug
-yes; important issue yes, local DoS/bad kernel timeout path; small and
-contained yes; no new features/APIs yes; stable applicability yes for
-checked trees.
+Step 7.2 - Activity:
+Record: File history shows active maintenance and recent hardware quirk
+additions. The patch was accepted through the I2C maintainer path.
 
-Step 9.3 Record: No exception category needed; this is a normal bug fix,
-not device ID/quirk/DT/build/doc.
+## Phase 8: Impact And Risk
 
-Step 9.4 Record: The technical merits strongly support stable
-backporting.
+Step 8.1 - Affected users:
+Record: Users of systems exposing the ELAN0678 ACPI touchpad,
+specifically verified by commit message for Lenovo ThinkPad X13.
+
+Step 8.2 - Trigger:
+Record: Triggered when the I2C bus is configured at 400 kHz for this
+device, including via the Lenovo TP-R22 ACPI `I2cSerialBusV2`
+descriptor. This is normal boot/device setup, not an obscure manual
+path.
+
+Step 8.3 - Severity:
+Record: Medium severity user-visible hardware malfunction: sluggish
+touchpad/input behavior. Not a crash, security issue, or data
+corruption.
+
+Step 8.4 - Risk-benefit:
+Record: Benefit is high for affected laptops because it restores usable
+touchpad behavior. Risk is very low because it is a one-line ACPI HID-
+specific quirk using existing logic.
+
+## Phase 9: Final Synthesis
+
+Step 9.1 - Evidence:
+Record: For backporting: real hardware bug, existing quirk mechanism,
+one-line scoped change, maintainer ack, accepted by I2C maintainer,
+stable branches already carry analogous quirks. Against backporting: no
+explicit stable tag, no separate bug report link, not a critical
+crash/security fix. Unresolved: exact applicability to every older
+stable branch; `5.4.y` would need more than this one-line context.
+
+Step 9.2 - Stable rules:
+Record: Obviously correct: yes. Tested: commit states forcing 100 kHz
+eliminates the issue, though no `Tested-by` tag. Real bug: yes, touchpad
+sluggishness. Important enough: yes under hardware quirk/workaround
+practice. Small/contained: yes, one line. No new APIs/features: yes.
+Applies to stable: yes for branches with the existing table; trivial
+adjustment/dependency for older divergent branches.
+
+Step 9.3 - Exception:
+Record: This falls squarely under the stable hardware quirk/workaround
+exception.
+
+Step 9.4 - Decision:
+Record: Backport. The risk is tiny and the fix is exactly the sort of
+targeted hardware workaround stable trees routinely carry.
 
 ## Verification
-- Phase 1: Parsed `git show 617eb7c0961a8`; confirmed tags and absence
-  of `Fixes:`, `Reported-by:`, `Link:`, and stable tag.
-- Phase 2: Inspected committed diff; confirmed one-file change in
-  `i2cdev_ioctl()`.
-- Phase 3: `git blame` identified `6ebec961d59b` and `cd97f39b7cdf`;
-  `git describe` placed them before all checked maintained stable trees.
-- Phase 3: `git show 6ebec961d59b` confirmed prior timeout/retry
-  negative-value fix and stable nomination.
-- Phase 4: `b4 dig`, `b4 dig -a`, `b4 dig -w`, and mbox read found one
-  v1 patch, proper I2C recipients, and no visible objections.
-- Phase 4: WebFetch of lore was blocked by Anubis; stable-list
-  discussion and public syzkaller report remain unverified.
-- Phase 5: `rg` and file reads confirmed ioctl file operations, compat
-  fallback, `msecs_to_jiffies()`, `adapter->timeout` as `int`, and
-  downstream timeout uses.
-- Phase 6: Checked `v5.15`, `v6.1`, `v6.6`, `v6.12`, `v6.19`, and `v7.0`
-  snippets; all contain the vulnerable pattern.
-- Phase 6: `git apply --check` confirmed the upstream diff applies to
-  current `v7.0.5`.
-- Phase 8: `schedule_timeout()` source confirms negative timeout emits
-  `wrong timeout value` and returns 0.
+
+- Phase 1: Parsed `git show --format=fuller --stat --patch
+  9998e388be993`; confirmed subject, body, tags, and one-line diff.
+- Phase 2: Read `drivers/i2c/i2c-core-acpi.c`; confirmed
+  `i2c_acpi_force_100khz_device_ids` is checked by
+  `i2c_acpi_lookup_speed()` and returns 100 kHz through
+  `i2c_acpi_find_bus_speed()`.
+- Phase 3: Ran `git blame` on the relevant lines; confirmed commits for
+  `ELAN06FA`, `DLL0945`, and `ELAN0678`.
+- Phase 3: Ran `git describe --contains`; confirmed first-containing
+  release positions for related mainline commits.
+- Phase 4: Ran `b4 dig -c`, `b4 dig -a`, and `b4 dig -w`; found original
+  v1 submission, no later revisions, and relevant recipients.
+- Phase 4: Fetched the public mirror thread; confirmed Mika Westerberg’s
+  ack and Wolfram Sang’s application note.
+- Phase 5: Used semantic search, `rg`, and file reads; confirmed
+  DesignWare and other I2C bus drivers call `i2c_acpi_find_bus_speed()`.
+- Phase 6: Used `git grep` and stable branch logs; confirmed sampled
+  stable branches contain related forced-speed quirks but not ELAN0678.
+- Phase 8: Failure mode is verified from the commit message and lore
+  thread: sluggish/excessively smoothed touchpad at 400 kHz, fixed by
+  100 kHz.
+- UNVERIFIED: Direct `lore.kernel.org/stable` content was blocked by
+  Anubis, so I could not independently inspect stable-list discussion
+  there.
 
 **YES**
 
- drivers/i2c/i2c-dev.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/i2c/i2c-core-acpi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 7bbe0263411eb..ccaac5e29f906 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -487,12 +487,13 @@ static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 		client->adapter->retries = arg;
- 		break;
- 	case I2C_TIMEOUT:
--		if (arg > INT_MAX)
-+		/*
-+		 * For historical reasons, user-space sets the timeout value in
-+		 * units of 10 ms.
-+		 */
-+		if (arg > INT_MAX / 10)
- 			return -EINVAL;
- 
--		/* For historical reasons, user-space sets the timeout
--		 * value in units of 10 ms.
--		 */
- 		client->adapter->timeout = msecs_to_jiffies(arg * 10);
- 		break;
- 	default:
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 2cbd31f77667a..28c0e4884a7f2 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -371,6 +371,7 @@ static const struct acpi_device_id i2c_acpi_force_100khz_device_ids[] = {
+ 	 * a 400KHz frequency. The root cause of the issue is not known.
+ 	 */
+ 	{ "DLL0945", 0 },
++	{ "ELAN0678", 0 },
+ 	{ "ELAN06FA", 0 },
+ 	{}
+ };
 -- 
 2.53.0
 
