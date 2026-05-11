@@ -1,38 +1,38 @@
-Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
+Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A37DC402BA0
-	for <linux-i2c@vger.kernel.org>; Mon, 11 May 2026 16:01:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9AA0425CC3
+	for <linux-i2c@vger.kernel.org>; Mon, 11 May 2026 16:01:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778515267; cv=none; b=IkVh3QYIGQQ8s1FqsXzJ+K88O5LWJX3h959oXR3oNfSlZ3oae5olaZsMuqXqoI2smzVDq8YLr1BvOQ3HamXke/NXJ51NUh+ktLzlOiylqpoH7GQrgTdMfq5HrM/clz2tAQBMJwQ9WVsaZ2zW+Kh/yvv8XlFh4F3htGtry9Fy94M=
+	t=1778515270; cv=none; b=dh+sYefoH0kxUnzw0eSEB1W5D4AhSVlTuVva+/GtqseWtvi7oYTqnEOXjcMWNQFvhwoIsuFIA+H7GjvhorWZr1v8Imy8yBQgUw8RFkNIi47DPrnCR9+icBYjOqT1FvOCBwemQwipP1uaJ5DjSqaU11az4wm6jr9XQbYXPJejXpI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778515267; c=relaxed/simple;
-	bh=VE4Q1ZCwZKf4fv9nouGr+jDAoRVmu5G1nUzA/KgWMV0=;
+	s=arc-20240116; t=1778515270; c=relaxed/simple;
+	bh=AWzsAlFki5r8/Nzxjbdv5ewKshsRLiRR79F5oNS5n7U=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hfmmrHlaV94O+3hT5nj8SSgePFlzDA2I9o78riMPfrrzXy1asqcOZb3Ve48E+jBrzHMiOuin5g+qifxU4eKWch1X0iaz1sGHCianI396Ou2IjOBJzZrTsuLuJTmOhc3FLQuyR2jAoYx2q2Bkdrxi9qVx/Fm2UtFmcJL8v8U7aMU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=QZhZGqDI; arc=none smtp.client-ip=185.246.84.56
+	 MIME-Version; b=MaGfLsrHYKoY1QXq320N1QxmlUh7cOFb4iOet5sX0RD0C4OknXJg4BNAu0BOx146ztCmFzm4+K8gQpsTV4o1kg8mTVvmrxLgGARBX4EX2e0pFEYj1xvHtCVXJP/u2SF7/0w8SkXiaqY/7r6mj2S0YH8bdba2nMTnrKIA1jOcuNA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=K9wkb9/q; arc=none smtp.client-ip=185.246.85.4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="QZhZGqDI"
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="K9wkb9/q"
 Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-02.galae.net (Postfix) with ESMTPS id 726471A1DD5;
-	Mon, 11 May 2026 16:01:05 +0000 (UTC)
+	by smtpout-03.galae.net (Postfix) with ESMTPS id 865EE4E42BF4;
+	Mon, 11 May 2026 16:01:07 +0000 (UTC)
 Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 45B0D60646;
-	Mon, 11 May 2026 16:01:05 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 0A2A211AF9F2B;
-	Mon, 11 May 2026 18:01:00 +0200 (CEST)
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 5B22060646;
+	Mon, 11 May 2026 16:01:07 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B826211AF9F2C;
+	Mon, 11 May 2026 18:01:04 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1778515262; h=from:subject:date:message-id:to:cc:mime-version:
+	t=1778515266; h=from:subject:date:message-id:to:cc:mime-version:
 	 content-transfer-encoding:in-reply-to:references;
-	bh=HbCCxTz9cn4uJyApC9R5AwO+H7RfGmQna7LBbuaMc5s=;
-	b=QZhZGqDIETFQCP9Ud/9yGnt8M4zlCu5hFmlBdbHBWLiJ3AivdMDwOIOjmHO6Sfz1u2DNpv
-	oT+1lFpOjDVmK7iM5eK+QPOht1+84hN8Z3LuR6y2XEzH6zIhuzXHndE0aHyZaTA007P6bm
-	c22qnUt0HogEZTsMlerJlNafHUGlL9w0XVjipHB8NFrTL0MxPh7KGmMaMAb5UGSC5hfJ76
-	9W8u35+reWOnKVCScvG9xlDyebbiO5kUo7WNL67llRcHFIYCGim7DXOdXpZcBZ95mdoSPG
-	s3MhpfkFKzlGCME7v0AYoaENYiUsv0oNsSQPDLfHfogfl+2GlweLNbSMYZoZ+w==
+	bh=qeSVgRzzcRZSwyW0NgN4yrI69j7Xls5GCIYU5hWpnG0=;
+	b=K9wkb9/q9fuU2uczvMj+HYG1Pdwj1oVvky70rRYoqwkeSgNBPN51NV5QcjyLeeL8ZZmvfB
+	3oN4TauBhir9N7dTS6A/CiGIq/4WqycUj+pRoKICpeuIUFLTqzEVz5VN5n3wpKWi1EcrKg
+	Inuoi5B3+Qy8ZWwK9IJcniHNiyahIlobudya4zL+tuzx26ubJmLNaiik65nn/EiNS3gHpG
+	b9+drRtF75W1NtZspMvtpwUELzwpQ+jp9kYS4dCpFKEPkiKqcUiWWbDq+Z5Df6ddeDRO45
+	292BiMOIUVeq+jJbcJeKbYGB/I+wj6VGnfHJ8rZaeQinyLwwUfXoPI4rAGDbRg==
 From: Herve Codina <herve.codina@bootlin.com>
 To: Andrew Lunn <andrew@lunn.ch>,
 	Rob Herring <robh@kernel.org>,
@@ -49,9 +49,9 @@ Cc: linux-i2c@vger.kernel.org,
 	Luca Ceresoli <luca.ceresoli@bootlin.com>,
 	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
 	Herve Codina <herve.codina@bootlin.com>
-Subject: [PATCH v7 1/3] i2c: core: Introduce i2c_get_adapter_physdev()
-Date: Mon, 11 May 2026 18:00:48 +0200
-Message-ID: <20260511160051.34700-2-herve.codina@bootlin.com>
+Subject: [PATCH v7 2/3] i2c: mux: Set adapter physical device
+Date: Mon, 11 May 2026 18:00:49 +0200
+Message-ID: <20260511160051.34700-3-herve.codina@bootlin.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260511160051.34700-1-herve.codina@bootlin.com>
 References: <20260511160051.34700-1-herve.codina@bootlin.com>
@@ -64,75 +64,32 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Last-TLS-Session-Version: TLSv1.3
 
-The physical device providing an I2C adapter is the device that calls
-i2c_add_adapter() or variants and i2c_del_adapter().
+For i2c muxes, the parent of the mux adapter device is the adapter
+device the mux is connected to.
 
-Most of the time this physical device is the parent of the adapter
-device.
+This parent is not the physical device related to the mux adapter.
+Indeed, the physical device of the mux adapter is the mux device itself.
 
-Exceptions exist with i2c muxes. Indeed, in case of i2c muxes, the
-parent of the mux adapter device points to the adapter device the mux is
-connected to instead of the physical of this mux adapter.
-
-Introduce i2c_get_adapter_physdev() and a new physdev field in the
-adapter structure in order to ease the adapter physical device
-retrieval.
+Fill the adap.physdev with the mux device.
 
 Signed-off-by: Herve Codina <herve.codina@bootlin.com>
 Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
 ---
- drivers/i2c/i2c-core-base.c | 16 ++++++++++++++++
- include/linux/i2c.h         |  3 +++
- 2 files changed, 19 insertions(+)
+ drivers/i2c/i2c-mux.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
-index 9c46147e3506..59214f0c84ec 100644
---- a/drivers/i2c/i2c-core-base.c
-+++ b/drivers/i2c/i2c-core-base.c
-@@ -1919,6 +1919,22 @@ struct i2c_adapter *i2c_get_adapter_by_fwnode(struct fwnode_handle *fwnode)
- }
- EXPORT_SYMBOL(i2c_get_adapter_by_fwnode);
- 
-+/**
-+ * i2c_get_adapter_physdev() - Get the physical device of an adapter
-+ * @adapter: the adapter to get the physical device from
-+ *
-+ * Return:
-+ * Look up and return the &struct device corresponding to the device supplying
-+ * this @adapter.
-+ *
-+ * The user must call put_device() once done with the physical device returned.
-+ */
-+struct device *i2c_get_adapter_physdev(struct i2c_adapter *adapter)
-+{
-+	return get_device(adapter->physdev ?: adapter->dev.parent);
-+}
-+EXPORT_SYMBOL(i2c_get_adapter_physdev);
-+
- static void i2c_parse_timing(struct device *dev, char *prop_name, u32 *cur_val_p,
- 			    u32 def_val, bool use_def)
- {
-diff --git a/include/linux/i2c.h b/include/linux/i2c.h
-index 20fd41b51d5c..dff04d20cafe 100644
---- a/include/linux/i2c.h
-+++ b/include/linux/i2c.h
-@@ -744,6 +744,7 @@ struct i2c_adapter {
- 	int timeout;			/* in jiffies */
- 	int retries;
- 	struct device dev;		/* the adapter device */
-+	struct device *physdev;		/* the physical device */
- 	unsigned long locked_flags;	/* owned by the I2C core */
- #define I2C_ALF_IS_SUSPENDED		0
- #define I2C_ALF_SUSPEND_REPORTED	1
-@@ -911,6 +912,8 @@ struct i2c_adapter *i2c_get_adapter(int nr);
- void i2c_put_adapter(struct i2c_adapter *adap);
- unsigned int i2c_adapter_depth(struct i2c_adapter *adapter);
- 
-+struct device *i2c_get_adapter_physdev(struct i2c_adapter *adap);
-+
- void i2c_parse_fw_timings(struct device *dev, struct i2c_timings *t, bool use_defaults);
- 
- /* Return the functionality mask */
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index 681a201c239b..f4e73e7a0e33 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -315,6 +315,7 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+ 	priv->adap.algo = &priv->algo;
+ 	priv->adap.algo_data = priv;
+ 	priv->adap.dev.parent = &parent->dev;
++	priv->adap.physdev = muxc->dev;
+ 	priv->adap.retries = parent->retries;
+ 	priv->adap.timeout = parent->timeout;
+ 	priv->adap.quirks = parent->quirks;
 -- 
 2.54.0
 
