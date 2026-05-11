@@ -1,129 +1,165 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31BA3402BBD
-	for <linux-i2c@vger.kernel.org>; Mon, 11 May 2026 15:43:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E448B41C31A;
+	Mon, 11 May 2026 15:58:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778514187; cv=none; b=hcqxwhnXr4FlRxlaGPOc+xl8dNR6yx38FkO3cNZyJUg2aYMZsDu6r7qGhpTg0wx4k04ZWb37eDMvd4P1TEjRmQUMY2VvhZZzQIRKkkm2VKGM3QsvrMSHVP3IL9BWzOsVVxW+xETzhexUxwV3+FrQnB5houp4oB62IQT1KhMb76E=
+	t=1778515109; cv=none; b=uoThvtFdrl86J5E/jNzDVJuLhO3gxIjYfOZenNHjy5D4N4fByAcdJxsFhFfx4HykY4egU6Vs8QvGRAUIPGlo6OmssTN/RcgDeKQ1IawdKivccAvvGmH7iAyHKq6Vd7jiGS4h+Osg21iB4APQIdqE8jd5xcyIdo7+LtWCtwL5rDc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778514187; c=relaxed/simple;
-	bh=XWv4iooXM+kZV542ynD7PIkUs+GMb+r0XpgE3uv/HbU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=L5vq5JsXDyWYObMfvpss9vbIjhyfQRTFvbcTwmNWygjhi8PHGS4mnjD4AtwgNeq+GUdAOkP20/gRdiGZ81TlVKIH0CAdYk+6LF1Frtp8z7mOI3ZRFsATQK2mmzEw91sicZvPEEaz+ghaOpvOkJHZ+7CGWfCHfNptIhZvEFNt588=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=VudydDlp; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1778515109; c=relaxed/simple;
+	bh=faV48x66qT9Y451ucIdOMrXgpUrUv733nxGN+U0gWIA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=jkmU8aPdPVhZZkVGBDqwgPLaCc8Q8Hqwr3FpXlpH5T1FZuefK8tHgF7J0AkGxdRamXULE613VOIYEz60f2PKaJvAR/g8NSS1ea1rbnBoqz18SnK8FHbusc9vE+d/3whyFk47cIKMtXMuA5kiBWdqrGdrkSHJEp/ZQnhHaTDKuEQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=jYe5/IyV; arc=none smtp.client-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="VudydDlp"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=DPY+
-	hoF/sOYbmyB24QB0NWidccjogborPML2UWBBho0=; b=VudydDlpEZts65HdQ+Rz
-	451TuuxkgUR0VpmkBHN/yKWQpMkKdAGppi85NzeBaamhOTLRa2MEvTfKjlwlEPeS
-	wTnSR5T3u4nUC2NQvYUDSQOWY+LDb0AlZQ0LBV/i5XxV5Gv30jnwgxH/82Aqhse5
-	rDRVmHEKsEAssgDuC/YigvuaPkebRQC1PT6tHCv9TtSuPTwameV/w87lTIj1MKdz
-	WOnf32wRkSIPVO6K8uZcJkziekGukGWDGVM2OlZ4abj+mmrbvJszxYLhU1Eza0PX
-	G/eLyvrNVHLKr9eLLHL690gVV/4fz/Zk8aOyF3uaLigppbuuarDFFvT9wZHMSHoN
-	hQ==
-Received: (qmail 2643739 invoked from network); 11 May 2026 17:43:02 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 11 May 2026 17:43:02 +0200
-X-UD-Smtp-Session: l3s3148p1@NEMSmoxResoujnue
-Date: Mon, 11 May 2026 17:43:01 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
-	Andi Shyti <andi.shyti@kernel.org>
-Cc: Bartosz Golaszewski <brgl@kernel.org>,
-	Linus Walleij <linusw@kernel.org>, Wolfram Sang <wsa@kernel.org>,
-	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Jie Li <jie.i.li@nokia.com>
-Subject: Re: [GIT PULL] Immutable branch between the GPIO and I2C trees for
- v7.2-rc1
-Message-ID: <agH5BU4-9Y0lgi-2@ninjato>
-References: <20260511123042.64315-1-bartosz.golaszewski@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="jYe5/IyV"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-04.galae.net (Postfix) with ESMTPS id D7818C5E14B;
+	Mon, 11 May 2026 15:59:13 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 3184760646;
+	Mon, 11 May 2026 15:58:24 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 0FFCD11AF9F17;
+	Mon, 11 May 2026 17:58:09 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1778515102; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding; bh=6PvZiJbdFgg6CfVXI3ZnA/W5wMYdblVvpzZVyQN69HA=;
+	b=jYe5/IyV4+QQoPJhoH7kASCQK5hWPxqcsQRvqBqCShiZy80aw0NHrK/bRUrBiV5WbDCiry
+	/8JLDvNB6TNUw2z1KYOuG43u+dnPBL+j6KyU20SWwuuGIoIL5/ZMss7RWIzfc5fEfQogdg
+	91P65zTkGl/3A8bCLa9FlGNWKPYfQa/+wZyNiB1SHEXeKDXurNSCCJMEgXABD+4FfSoyfH
+	s0DXPDs0iJXUUlljvxnUT2JX0EVBicPQHfIgDilYiACGtiqQkfba7QGiIL/DJViqR86wdY
+	ZPlO2RSX+fQp9jT8ff+AbeAyzZPKUEqiD2ypxBO1MjuQe4+VmR9cAexa5Vtf8Q==
+From: Herve Codina <herve.codina@bootlin.com>
+To: Andrew Lunn <andrew@lunn.ch>,
+	Rob Herring <robh@kernel.org>,
+	Saravana Kannan <saravanak@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Kalle Niemi <kaleposti@gmail.com>,
+	Matti Vaittinen <mazziesaccount@gmail.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Mark Brown <broonie@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Daniel Scally <djrscally@gmail.com>,
+	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Len Brown <lenb@kernel.org>,
+	Shawn Guo <shawnguo@kernel.org>
+Cc: Wolfram Sang <wsa@kernel.org>,
+	driver-core@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-spi@vger.kernel.org,
+	linux-acpi@vger.kernel.org,
+	Allan Nielsen <allan.nielsen@microchip.com>,
+	Horatiu Vultur <horatiu.vultur@microchip.com>,
+	Daniel Machon <daniel.machon@microchip.com>,
+	Steen Hegelund <steen.hegelund@microchip.com>,
+	Luca Ceresoli <luca.ceresoli@bootlin.com>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+	Herve Codina <herve.codina@bootlin.com>
+Subject: [PATCH v7 0/3] lan966x pci device: Add support for SFPs, core part
+Date: Mon, 11 May 2026 17:57:47 +0200
+Message-ID: <20260511155755.34428-1-herve.codina@bootlin.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="m0j7MFLm2//8bEfW"
-Content-Disposition: inline
-In-Reply-To: <20260511123042.64315-1-bartosz.golaszewski@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
+Hi,
 
---m0j7MFLm2//8bEfW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Previously, I sent a big picture series adding support for SFP ports
+available on the LAN966x PCI device [0].
 
-On Mon, May 11, 2026 at 02:30:42PM +0200, Bartosz Golaszewski wrote:
-> Wolfram,
+In this series patches touch several parts and sub-system in the kernel.
+Reviews have be done and it makes sense to split the series and send
+parts separately.
 
-Forwarding it to Andi who will take over I2C maintainership from 7.2
-onwards...
+This current series is the extraction of patches related to driver core
+subsystem. It fixes devlink issues when a device-tree overlay is applied
+and avoid a warning when a device is removed.
 
-Andi, you will need to merge this branch, so you can then apply
+It has to be seen as a continuation of the big picture series but
+related to this specific core part.
 
-https://patchwork.ozlabs.org/project/linux-i2c/patch/20260511113726.49041-3=
--jie.i.li@nokia.com/
+Patches 1 and 2 fixes fw_devlink when it is used with overlay. Those
+patches were previously sent by Saravana [1].
 
-on top of it.
+I rebased them on top of v7.1-rc1 and I added a call to
+driver_deferred_probe_trigger() in Saravana's patch (patch 2) to ensure
+that probes are retried after the modification performed on the dangling
+consumers. This allows to fix issues reported by Matti and Geert [2]
+with the previous iteration patches.
 
->=20
-> Please pull the following changes adding the gpiod_is_single_ended() help=
-er
-> for v7.2-rc1.
->=20
-> Thanks,
-> Bartosz
->=20
-> The following changes since commit 254f49634ee16a731174d2ae34bc50bd5f45e7=
-31:
->=20
->   Linux 7.1-rc1 (2026-04-26 14:19:00 -0700)
->=20
-> are available in the Git repository at:
->=20
->   git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git tags/ib-gp=
-io-add-gpiod-is-single-ended-for-v7.2
->=20
-> for you to fetch changes up to b5fafa01bdaade5253bd39317f5455d13e6efc7d:
->=20
->   gpiolib: add gpiod_is_single_ended() helper (2026-05-11 14:25:25 +0200)
->=20
-> ----------------------------------------------------------------
-> Immutable branch betweeb the GPIO and I2C trees for v7.2-rc1
->=20
-> - add the gpiod_is_single_ended() helper function
->=20
-> ----------------------------------------------------------------
-> Jie Li (1):
->       gpiolib: add gpiod_is_single_ended() helper
->=20
->  drivers/gpio/gpiolib.c        | 22 ++++++++++++++++++++++
->  include/linux/gpio/consumer.h |  5 +++++
->  2 files changed, 27 insertions(+)
+Patch 3 avoids a warning on device removal.
 
---m0j7MFLm2//8bEfW
-Content-Type: application/pgp-signature; name="signature.asc"
+Those 3 patches seem ready to land and so having them extracted in this
+current series will help having them applied.
 
------BEGIN PGP SIGNATURE-----
+[0] https://lore.kernel.org/all/20260325143555.451852-1-herve.codina@bootlin.com/
+[1] https://lore.kernel.org/lkml/20240411235623.1260061-1-saravanak@google.com/
+[2] https://lore.kernel.org/all/072dde7c-a53c-4525-83ac-57ea38edc0b5@gmail.com/
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoB+QUACgkQFA3kzBSg
-KbajWg//aLttIzl1KTr0NYb2C8Bp16ii2jOHJI6jlJcrMpVCN7ybVXToTcGVGQI7
-gn5WskFnrRwxkT/b40EVN56Fqj1Z5/djQINQwEwARsjTdcClSA8Wn3TxcyiOtI2z
-vkKufIEuyDO2/whK3wutImI6nQnkCGIwqqowAmQsPKKQLXtV0N90vqYwKr20XJDN
-wWaNA94qmH9V8o0MymdaNb0ub/N+k7dM6QkDsfK/E7BlnXL7oN4Qwf+RKsuxz1tz
-E40k3zK/T8+Awye268dxYyt0SZU3hLhy9xoWNsJaivNRBcZrZWb3BGDXMNqZ3fo6
-nH4iM+KZ8k5T/SQz8xokHupGhIHStG6ZN5xvamojf0Et26AadH8A7MCkmDtNG1ny
-S7O7gtFVyCkwU2DO+otxLjD+U5RSnFBcPR/PVC6AnzrdzFOSRAu8Y+S8ua9TTZTe
-N9Q/wCDa0mQEfQWol6XeRsjCoiHy8w81PCqJ1gy4A85Lq/aTar3YeuiFQvWzPSBZ
-U+puaEcmoamQ5F9OIN5FbSPd6rpMxu76+m/UFG2soSqui4Fzp9bMTXz+OZwSB5TJ
-uflu4p2WiSxLz5kS4/16z1UaVovuI9BWrcTETmXqDD+Do1nUY8pmEfs75BR+dKwu
-4du59f+BPGqo6fCo6F5LEV9h6mi5NmQ9F5nSVlMcHkTLlRMEZI8=
-=Dc3Q
------END PGP SIGNATURE-----
+Best regards,
+Hervé
 
---m0j7MFLm2//8bEfW--
+Changes:
+
+v6 -> v7
+
+  Rebase on top v7.1-rc1
+
+  - Patch 1
+    Fix conflict due to commit f72e77c33e4b ("device property: Make
+    modifications of fwnode "flags" thread safe")
+    Add 'Acked-by: Rob Herring'
+
+  - Patch 2
+    Use fwnode_test_flag() to test fwnode flags value
+    Add 'Acked-by: Rob Herring'
+
+  - Patche 3
+    No changes
+
+Older iterations:
+  Patches 1 to 3 in the big picture series
+  https://lore.kernel.org/all/20260325143555.451852-1-herve.codina@bootlin.com/
+
+Herve Codina (1):
+  driver core: Avoid warning when removing a device while its supplier
+    is unbinding
+
+Saravana Kannan (2):
+  Revert "treewide: Fix probing of devices in DT overlays"
+  of: dynamic: Fix overlayed devices not probing because of fw_devlink
+
+ drivers/base/core.c       | 86 ++++++++++++++++++++++++++++++++++-----
+ drivers/bus/imx-weim.c    |  6 ---
+ drivers/i2c/i2c-core-of.c |  5 ---
+ drivers/of/dynamic.c      |  1 -
+ drivers/of/overlay.c      | 15 +++++++
+ drivers/of/platform.c     |  5 ---
+ drivers/spi/spi.c         |  5 ---
+ include/linux/fwnode.h    |  1 +
+ 8 files changed, 92 insertions(+), 32 deletions(-)
+
+-- 
+2.54.0
+
