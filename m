@@ -1,287 +1,167 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from CO1PR03CU002.outbound.protection.outlook.com (mail-westus2azon11010020.outbound.protection.outlook.com [52.101.46.20])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 575D83B100A
-	for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 12:51:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778590264; cv=none; b=hu1UjeM9Z5tADPwaPBtIa9oho67GA/U1LC2KzJtclkftgpvJ5YK4pelJLwM+P7Z2PktYiPs67Y4mXNYjKb/JR8gkBAuP9Ly1CiXHSIhtjX6q60D2a6EaeqLcbQBfuSX6GGbeGN6XEDW7enGa451WSKoIlFI0riiv6ggH76jbZYc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778590264; c=relaxed/simple;
-	bh=e+0U4Ow7rWGlilnutj2I8USKJonMlmpsu+TEZ98N0Lw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=o2dR3TwBDIbjUv/ObMcX68C4qmii11d68cTegR+UnC8eLM9Ubx9Ek5tq21+lvg16i2tybWlOHWG0wBuea8kQRx3AFZCbSww/MAK2bDhXJgc6hNO5QyzBln016oS2u1Z2/PIDiGWPiSwFeVYmbH3GMr9X7VFRe20aQ+6xZIQOcig=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20251104.gappssmtp.com header.i=@baylibre-com.20251104.gappssmtp.com header.b=X6pkgjSM; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22463394EA0;
+	Tue, 12 May 2026 13:52:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.46.20
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778593952; cv=fail; b=N01yEjzXF4xyN52HGbrtQCIj7Q4ZOnnKmVmjcbAys5D80twbiit0Ex7CmjjQTmGk9rbECbtt2DkjeqM7FD2bI0+KmtegkdYBTwySEt5BLRvDfuVh0vjHGAISA9IJ81HNN/++8MzX3eugFswWcxl+SZuyfhM8L8AmKyVOu76Ul14=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778593952; c=relaxed/simple;
+	bh=5s+ZrN521/BUeYxZT1dQ0REnCk2ze+EYhn8BuPSDg+I=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=WAZP4H3IKVvlGkwsWD/7NfpAnmTBuDHj4VYjOV+R8lyj50Vf3nRys8UEUqjd/XVkPf1zT1GdgEM9T+G6+TZ4oiwwBaKx6edoBGKX6W6b9I3yi6n5HMiEwiva/8yqhrv3lAmIgbLf3i4mlgrwJ6Ick+HJ/prRd1MuP5kR7FGkgg8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=eKmIrJVZ; arc=fail smtp.client-ip=52.101.46.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre-com.20251104.gappssmtp.com header.i=@baylibre-com.20251104.gappssmtp.com header.b="X6pkgjSM"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-488af96f6b2so65893045e9.0
-        for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 05:51:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre-com.20251104.gappssmtp.com; s=20251104; t=1778590259; x=1779195059; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=jEiJ1p0MysT9uZ6t0AF7Y/l/BfCwqdbT2A7/EO2I6Ac=;
-        b=X6pkgjSM0NWXxf4ZGk3BTdhnDZHRhZA5c8FML4WEQb0FEt1KzLETg0XCXKW2iQawl2
-         hfLPZ9k82Rw/R4B3Dq5wV0Ja1yU9tepDZDnDdQXINQxAiMsvt0mGYUIuJRJBJmcya0hE
-         SSo0+nGijSFFC7RRw6VNVl6PP0STgq0iNCf+RShR9t7su0xGFyVcm7C1ulXdqS6UWRTl
-         ulPFQ/PFikSAN09fYjBU2Qy4BPI98orWJv6tVgO3mzN+YkZvZrKoz+GU8IPUDGssyUyf
-         ZWtZaCt47gxIdAV370R+wwwmezBIYmy7GwUPQDhh1CDBoROpHoJ2W7Mq6sP6sgRvOARv
-         wn/A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778590259; x=1779195059;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jEiJ1p0MysT9uZ6t0AF7Y/l/BfCwqdbT2A7/EO2I6Ac=;
-        b=Ps8d2OAScTn8j8NAuB6dEfN1DpwJqVFXEi9jV3VjqWyN+hoT3JZ9g5VZfDCmx+ys0L
-         ETH8kleIwJCDNk0oDDLH+nAfIM8IR2Hqrat1FOgpYiY/UxVLnVMGkKqIf1Ae2KCqF7B5
-         WOHdLa1AGJUN7WpLDGkI17/ctwdF/sM8reb4pupL77SxNhY/r4KQRNx3ScnNiVaLCplY
-         pLO/g+X5Nr8v1TFjll2fQaF8HmmlZC04oFOAmHHLuF2EAmcpqAtrjUEawC7tRs+4cG9r
-         dHn7bHngcBRCwq8IDSEgPqzbQtbJX8KbE/xHQCu4DLwh1M7Kmm3TDEejGLWreR0ksZUG
-         5rig==
-X-Forwarded-Encrypted: i=1; AFNElJ/eLSSOOvm14sdp5uH1Bnzl5TurZP/k+BFrm/R4d00xAaWxmwKKONXRSKwi6d09NiWH65pm9EZRsX0=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxhghyVz/bNQYYPzn+QUPH8ynkkbZ+lM+F4+pFp6Ea21iN67F5q
-	xO4NbHsc7WVM9oh1tZGpXqChoX6stRBwCueS61HpV2tkZjEaBRVkV5rdaVwAlarZLYA=
-X-Gm-Gg: Acq92OEMY1/GT/20ruXY9EPvAwlWK4RJWSrVZfAWHcYHr3cvvPkLyf1z/G8kg47mO0C
-	lk/JgTtc2Gs5ebLibZ5F586cT94AAPVz2efDdZ/6WParZU5ag+ubzCE5hwIVrJAzOJe4XGPhogq
-	WrG7owszpFUb4vV62jxjK71GCdAG5zkDpequqw/znNoRtE0HR5nzTwRcnxIqU4QXEP+bDOwSKyF
-	6kholl3Io3K1/QHBLF0ntKdj+gCFVmc0ubizUV6qKRO2VKNNKG3R1DNuwRjmw1oVarjc9uP7ema
-	m+twkLjMCulzy4uql5vmSQnph7VwZwn0sT3+kLEUyHlNIhkJIbzucfCXfIkf4Ek3cBbDm1Qd9Hv
-	uKvSg8arF32kpqc13GbJRuNC9OnGG3J1IQV/kefnP5jnVkAj2fj8rBXRR4V+5dMXSQo4HPgmEwg
-	dHjiRy5MRj3vPvbyu6I8MYUUhtumvwFzkiBxf8ld9DyjEVDYLFj6nJ59vZWDbNdaRQW4rOlyryp
-	2zFtFuRQmfFVQo=
-X-Received: by 2002:a05:600c:4695:b0:48e:5d91:cffb with SMTP id 5b1f17b1804b1-48e706c0662mr216301545e9.10.1778590259434;
-        Tue, 12 May 2026 05:50:59 -0700 (PDT)
-Received: from localhost (p200300f65f114e08229f8c404acd2182.dip0.t-ipconnect.de. [2003:f6:5f11:4e08:229f:8c40:4acd:2182])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-48e913469besm11310355e9.14.2026.05.12.05.50.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 05:50:58 -0700 (PDT)
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
-To: Jonathan Cameron <jic23@kernel.org>
-Cc: Matteo Martelli <matteomartelli3@gmail.com>,
-	David Lechner <dlechner@baylibre.com>,
-	=?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	Mikael Gonella-Bolduc <m.gonella.bolduc@gmail.com>,
-	Linus Walleij <linusw@kernel.org>,
-	Sakari Ailus <sakari.ailus@linux.intel.com>,
-	linux-iio@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Lars-Peter Clausen <lars@metafoo.de>,
-	Michael Hennerich <Michael.Hennerich@analog.com>,
-	Puranjay Mohan <puranjay@kernel.org>,
-	Marcelo Schmitt <marcelo.schmitt@analog.com>,
-	Antoniu Miclaus <antoniu.miclaus@analog.com>,
-	Ramona Gradinariu <ramona.gradinariu@analog.com>,
-	Ariana Lazar <ariana.lazar@microchip.com>,
-	Alex Lanzano <lanzano.alex@gmail.com>,
-	Jean-Baptiste Maneyrol <jean-baptiste.maneyrol@tdk.com>,
-	Remi Buisson <remi.buisson@tdk.com>,
-	Lorenzo Bianconi <lorenzo@kernel.org>,
-	Christian Eggers <ceggers@arri.de>,
-	Tomasz Duszynski <tduszyns@gmail.com>,
-	Javier Carrasco <javier.carrasco.cruz@gmail.com>,
-	Andreas Klinger <ak@it-klinger.de>,
-	Waqar Hameed <waqar.hameed@axis.com>,
-	Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-	Gustavo Vaz <gustavo.vaz@usp.br>,
-	Dixit Parmar <dixitparmar19@gmail.com>,
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Chuang Zhu <git@chuang.cz>,
-	Kyle Hsieh <kylehsieh1995@gmail.com>,
-	Oleksij Rempel <o.rempel@pengutronix.de>,
-	Sander Vanheule <sander@svanheule.net>,
-	Romain Gantois <romain.gantois@bootlin.com>,
-	David Jander <david@protonic.nl>,
-	Kurt Borja <kuurtb@gmail.com>,
-	Tomas Borquez <tomasborquez13@gmail.com>,
-	Matti Vaittinen <mazziesaccount@gmail.com>,
-	chuguangqing <chuguangqing@inspur.com>,
-	Shi Hao <i.shihao.999@gmail.com>,
-	Erikas Bitovtas <xerikasxx@gmail.com>,
-	Marcus Folkesson <marcus.folkesson@gmail.com>
-Subject: [PATCH v1 0/2] iio: Rework i2c_device_id initialisation
-Date: Tue, 12 May 2026 14:50:33 +0200
-Message-ID: <cover.1778582187.git.u.kleine-koenig@baylibre.com>
-X-Mailer: git-send-email 2.47.3
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="eKmIrJVZ"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=AXMY9x60oqeO6YTS2mUUtNvjyWxkEW7ZQFdb1RvbbvfvmJO4S/RFK/jfYWychREZCEpzFU1C3b6tayEVSvqMct5tppnq1Snlaoy8Xz40or/SR8c4hwhC/RdTgdEFqj3zeIx+R4RzRKiSAjOWY9meiEwFsBi0SjO3Trv6oni+tiIWB0wrd68TqAa+V8qMEa74snWXakySZw8N7dhEK/1QeDlKqt/Q+KRlolUGzIM9HgE2GG6ADH/yOSSOXsRZ8xq7nWo2/M62pfjMuF84E5dVv2pPKEtstDOu9CATprTWvViFvPX9MwZyVAr/+UBLiqz2kG6fH+jiJ79QjpJnjuknJQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ffPuKSs764WvuYOKN9VnLHjHXoDcx2/2G9SjxMnuers=;
+ b=GXtGgzbgjk581Ljp8FufVOgm0zzwG8RUh6A4/Z4GULBRjoB4TJlk8SpdudUgnKOPf0RzB8UPKesw+h4t5nYwjtauA+x6zvGkw2JMCZyWkPGio5OXB2k8kgdUnnqwMTBhDFodDPyIiU7OcwTXcb6bRnXxO8CCtwGX2XIaXRQr2vY6f912Jm1nzoqDTwkHpbrGgPECMIG5HF2MAI0/qMighQIua+7qvb/5I9KMKvEpp01THkePYqHnAhxRk+LUD2oHgfWDbgsihmIxa6atFTrtpgaUNXwPz7JnOrrnzwy651MKSNUMsmOTTEkb7L7I54kOOE7El/hMLB/WxOCD5NfWjg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ffPuKSs764WvuYOKN9VnLHjHXoDcx2/2G9SjxMnuers=;
+ b=eKmIrJVZuu0oRVOY4iARCpmPp42c4ZA19EcZvRnj27jDe5g1sjFxlM1fgYTdfSzRMcvRQUrE/lI78/4pFEWYhVoAzDnhH9xb/5GlCrdBm6c+JnvAi9kMMWrii3uxyXdATSCgW4ZqbnXB0Xcj+kPYOhyWo3uVBvfZ3dTaX4OGBCmgVcVbXhGKj0gv/SXUr0+qF8DFkF+MSe8+q36vDhKk6SdVet9WpuxQ1UxBK87ol9CB8XtelUg2Zaes8RK72SRVaUqb1AOpM5gVVbl0eypg41yv3aexsiLxaK7CZl3QQ3xRPUX0MLQAdhhd/p9OGVO6rkFtjlKc/rGatgPhI1zNyg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from DS2PR12MB9750.namprd12.prod.outlook.com (2603:10b6:8:2b0::12)
+ by SJ2PR12MB8829.namprd12.prod.outlook.com (2603:10b6:a03:4d0::7) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9891.21; Tue, 12 May
+ 2026 13:52:24 +0000
+Received: from DS2PR12MB9750.namprd12.prod.outlook.com
+ ([fe80::56a8:d6bf:e24c:b391]) by DS2PR12MB9750.namprd12.prod.outlook.com
+ ([fe80::56a8:d6bf:e24c:b391%6]) with mapi id 15.20.9913.009; Tue, 12 May 2026
+ 13:52:24 +0000
+Message-ID: <4b80c7c5-c499-4a64-bba2-c5a1ffe48780@nvidia.com>
+Date: Tue, 12 May 2026 14:52:19 +0100
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/4] i2c: tegra: Improve DMA mapping, latency, and power
+ management
+To: Akhil R <akhilrajeev@nvidia.com>, Laxman Dewangan <ldewangan@nvidia.com>,
+ Dmitry Osipenko <digetx@gmail.com>, Andi Shyti <andi.shyti@kernel.org>,
+ Thierry Reding <thierry.reding@kernel.org>,
+ Kartik Rajput <kkartik@nvidia.com>, Wolfram Sang <wsa@kernel.org>,
+ linux-i2c@vger.kernel.org, linux-tegra@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+Cc: mochs@nvidia.com
+References: <20260505105928.38457-1-akhilrajeev@nvidia.com>
+From: Jon Hunter <jonathanh@nvidia.com>
+Content-Language: en-US
+In-Reply-To: <20260505105928.38457-1-akhilrajeev@nvidia.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: PR3P191CA0048.EURP191.PROD.OUTLOOK.COM
+ (2603:10a6:102:55::23) To DS2PR12MB9750.namprd12.prod.outlook.com
+ (2603:10b6:8:2b0::12)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=7872; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=e+0U4Ow7rWGlilnutj2I8USKJonMlmpsu+TEZ98N0Lw=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqAyIaHIJhL34l/xZ10sUuWqdyK6ckYL2FsWnSQ cOmanf7aKmJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCagMiGgAKCRCPgPtYfRL+ TjJFB/4tuRMynJJAARN0BaR+DHNuP0k5SF64zGTxv+U40Xh80b3MiA/be/U58deQayNQcF9ad97 1F3DuR2TJXqG/+XsuVagLJOZQeUaC2gX9pKPRWu34ty1nXbJa6HVzVfoR/UwMLSvNBhG4uJIWXO 1teXjY3WK+jtMQzzKMUk5xv7TINgntk26GgA4QtJ8RGcH749BhZbNXFP80kVsTo7Xe8oe/llY2f U5SOhBUVkagE+eqSFoGd0L/CzPHWFnA/+f9oz1SvILuKyztSBI8rc8aqEfX/8KdYY8ZDmZWu7sJ 32+JqibNQfZkIp64n+mV8n0Ds9CRMO924LDJ+R0Pw9rg+dJw
-X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
-Content-Transfer-Encoding: 8bit
-
-Hello,
-
-this series is a preparation for 
-
-	diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-	index 23ff24080dfd..aebd3a5e90af 100644
-	--- a/include/linux/mod_devicetable.h
-	+++ b/include/linux/mod_devicetable.h
-	@@ -477,7 +477,11 @@ struct rpmsg_device_id {
-	 
-	 struct i2c_device_id {
-		char name[I2C_NAME_SIZE];
-	-	kernel_ulong_t driver_data;	/* Data private to the driver */
-	+	union {
-	+		/* Data private to the driver */
-	+		kernel_ulong_t driver_data;
-	+		const void *driver_data_ptr;
-	+	};
-	 };
-
-and this requires that .driver_data is assigned via a named initializer
-for static data. This requirement isn't a bad one because named
-initializers are also much better readable than list initializers.
-
-Once the union is in place, this allows changes like:
- 
-	diff --git a/drivers/iio/accel/kxcjk-1013.c b/drivers/iio/accel/kxcjk-1013.c
-	index 8a082ff034dd..b2aac7348d22 100644
-	--- a/drivers/iio/accel/kxcjk-1013.c
-	+++ b/drivers/iio/accel/kxcjk-1013.c
-	@@ -1429,7 +1429,7 @@ static int kxcjk1013_probe(struct i2c_client *client)
-	 
-		if (id) {
-			name = id->name;
-	-		data->info = (const struct kx_chipset_info *)(id->driver_data);
-	+		data->info = id->driver_data_ptr;
-		} else {
-			name = iio_get_acpi_device_name_and_data(&client->dev, &ddata);
-			data->info = ddata;
-	@@ -1630,11 +1630,11 @@ static const struct dev_pm_ops kxcjk1013_pm_ops = {
-	 };
-	 
-	 static const struct i2c_device_id kxcjk1013_id[] = {
-	-	{ .name = "kxcjk1013", .driver_data = (kernel_ulong_t)&kxcjk1013_info },
-	-	{ .name = "kxcj91008", .driver_data = (kernel_ulong_t)&kxcj91008_info },
-	-	{ .name = "kxtj21009", .driver_data = (kernel_ulong_t)&kxtj21009_info },
-	-	{ .name = "kxtf9", .driver_data = (kernel_ulong_t)&kxtf9_info },
-	-	{ .name = "kx023-1025", .driver_data = (kernel_ulong_t)&kx0231025_info },
-	+	{ .name = "kxcjk1013", .driver_data_ptr = &kxcjk1013_info },
-	+	{ .name = "kxcj91008", .driver_data_ptr = &kxcj91008_info },
-	+	{ .name = "kxtj21009", .driver_data_ptr = &kxtj21009_info },
-	+	{ .name = "kxtf9", .driver_data_ptr = &kxtf9_info },
-	+	{ .name = "kx023-1025", .driver_data_ptr = &kx0231025_info },
-		{ }
-	 };
-	 MODULE_DEVICE_TABLE(i2c, kxcjk1013_id);
-
-that is an improvement for readability (again!) and it keeps some
-properties of the pointers (here: being const) without having to pay
-attention for that. (I didn't spot a driver that doesn't have that const
-on casting back in drivers/iio, but other subsystems will benefit here,
-too.)
-
-My additional motivation for this effort is CHERI[1]. This is a hardware
-extension that uses 128 bit pointers but unsigned long is still 64 bit.
-So with CHERI you cannot store pointers in unsigned long variables.
-
-The first patch drops a few unused assignments to .driver_data (which is
-still better than assigning the values by name) and the second converts
-all iio drivers with driver_data to use named initializers.
-
-Best regards
-Uwe
-
-[1] https://cheri-alliance.org/discover-cheri/
-    https://lwn.net/Articles/1037974/
-
-Uwe Kleine-König (The Capable Hub) (2):
-  iio: Drop unused driver_data in four i2c drivers
-  iio: Initialize i2c_device_id arrays using member names
-
- drivers/iio/accel/adxl345_i2c.c               |  4 +-
- drivers/iio/accel/adxl355_i2c.c               |  4 +-
- drivers/iio/accel/adxl372_i2c.c               |  4 +-
- drivers/iio/accel/adxl380_i2c.c               |  8 +-
- drivers/iio/accel/bma180.c                    | 10 +-
- drivers/iio/accel/bmc150-accel-i2c.c          | 20 ++--
- drivers/iio/accel/bmi088-accel-i2c.c          |  6 +-
- drivers/iio/accel/da280.c                     |  6 +-
- drivers/iio/accel/fxls8962af-i2c.c            |  8 +-
- drivers/iio/accel/kxcjk-1013.c                | 10 +-
- drivers/iio/accel/mc3230.c                    |  4 +-
- drivers/iio/accel/mma8452.c                   | 12 +--
- drivers/iio/adc/ad7091r5.c                    |  2 +-
- drivers/iio/adc/ad799x.c                      | 16 ++--
- drivers/iio/adc/ina2xx-adc.c                  | 12 +--
- drivers/iio/adc/ltc2309.c                     |  4 +-
- drivers/iio/adc/ltc2471.c                     |  4 +-
- drivers/iio/adc/ltc2497.c                     |  4 +-
- drivers/iio/adc/max34408.c                    |  4 +-
- drivers/iio/adc/mcp3422.c                     | 16 ++--
- drivers/iio/adc/pac1921.c                     |  2 +-
- drivers/iio/adc/ti-adc081c.c                  |  6 +-
- drivers/iio/adc/ti-ads1015.c                  |  6 +-
- drivers/iio/adc/ti-ads7138.c                  |  4 +-
- drivers/iio/cdc/ad7150.c                      |  6 +-
- drivers/iio/cdc/ad7746.c                      |  6 +-
- drivers/iio/chemical/atlas-ezo-sensor.c       |  6 +-
- drivers/iio/chemical/atlas-sensor.c           | 10 +-
- drivers/iio/chemical/sgp30.c                  |  4 +-
- drivers/iio/chemical/vz89x.c                  |  4 +-
- drivers/iio/dac/ad5064.c                      | 94 +++++++++----------
- drivers/iio/dac/ad5380.c                      | 32 +++----
- drivers/iio/dac/ad5446-i2c.c                  | 12 +--
- drivers/iio/dac/ad5696-i2c.c                  | 32 +++----
- drivers/iio/dac/ds4424.c                      |  8 +-
- drivers/iio/dac/max517.c                      | 10 +-
- drivers/iio/dac/max5821.c                     |  2 +-
- drivers/iio/dac/mcp4725.c                     |  4 +-
- drivers/iio/dac/mcp47feb02.c                  | 48 +++++-----
- drivers/iio/dac/ti-dac5571.c                  | 22 ++---
- drivers/iio/health/max30102.c                 |  6 +-
- drivers/iio/humidity/ens210.c                 | 12 +--
- drivers/iio/humidity/htu21.c                  |  4 +-
- drivers/iio/imu/bmi270/bmi270_i2c.c           |  4 +-
- .../iio/imu/inv_icm42600/inv_icm42600_i2c.c   | 14 +--
- .../iio/imu/inv_icm45600/inv_icm45600_i2c.c   | 16 ++--
- drivers/iio/imu/inv_mpu6050/inv_mpu_i2c.c     | 36 +++----
- drivers/iio/imu/st_lsm6dsx/st_lsm6dsx_i2c.c   | 48 +++++-----
- drivers/iio/light/apds9160.c                  |  2 +-
- drivers/iio/light/as73211.c                   |  4 +-
- drivers/iio/light/bh1750.c                    | 10 +-
- drivers/iio/light/isl29018.c                  |  6 +-
- drivers/iio/light/ltr501.c                    |  8 +-
- drivers/iio/light/opt3001.c                   |  4 +-
- drivers/iio/light/opt4001.c                   |  4 +-
- drivers/iio/light/si1145.c                    | 14 +--
- drivers/iio/light/tsl2563.c                   |  8 +-
- drivers/iio/light/tsl2583.c                   |  6 +-
- drivers/iio/light/tsl2772.c                   | 22 ++---
- drivers/iio/light/vcnl4000.c                  | 14 +--
- drivers/iio/light/veml6030.c                  |  6 +-
- drivers/iio/magnetometer/ak8975.c             | 14 +--
- drivers/iio/magnetometer/hmc5843_i2c.c        |  8 +-
- drivers/iio/magnetometer/yamaha-yas530.c      |  8 +-
- drivers/iio/potentiometer/ad5272.c            | 10 +-
- drivers/iio/potentiometer/ds1803.c            |  8 +-
- drivers/iio/potentiometer/tpl0102.c           |  8 +-
- drivers/iio/pressure/abp060mg.c               | 90 +++++++++++-------
- drivers/iio/pressure/bmp280-i2c.c             | 12 +--
- drivers/iio/pressure/dlhl60d.c                |  4 +-
- drivers/iio/pressure/ms5611_i2c.c             |  4 +-
- drivers/iio/pressure/ms5637.c                 |  8 +-
- drivers/iio/pressure/st_pressure_i2c.c        | 16 ++--
- drivers/iio/proximity/aw96103.c               |  4 +-
- drivers/iio/proximity/srf08.c                 |  6 +-
- drivers/iio/proximity/sx9310.c                |  4 +-
- drivers/iio/proximity/sx9324.c                |  2 +-
- drivers/iio/proximity/sx9360.c                |  2 +-
- drivers/iio/temperature/tmp117.c              |  4 +-
- 79 files changed, 479 insertions(+), 457 deletions(-)
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS2PR12MB9750:EE_|SJ2PR12MB8829:EE_
+X-MS-Office365-Filtering-Correlation-Id: eb785a3a-742a-482a-2bf9-08deb02db22c
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|366016|376014|921020|11063799003|3023799003|56012099003|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	ZjDCPnYBQEktQsfqLSerdMqCE4X+ZGDI9PfIVPKpPVjLpwfVfnTPTifdJkuGvLRXpcYvDwKwQRUxLCeg/ule5e50c4feMF0CBMni2lIgPqx1pmM4IZGyt2iOp0vCt+Kva2jEmiaXWQFfGPhxPK0+Rj8gnIO7pDXceHhS1Qhu/U+ApTcRuejWhMJlg+2HBNJW1QkyAK9ri9nRNwTSwwpNGB8NRADVeo8Gf8hRh/KqPLn8XHkF4mx5PgXhzFyRu+cPC0MYwL2RYrCTbNUUhrlF/5oMRA1PDG5dMYyDhz7PsWeiQ8AoSIFf4qXizGLHlMjTx2We4TdinDDT4x0Jjak6F8bOpsmpw3TEhlLbxls9QtDItDOMnc+N3/cmBruZW0eV3pkUFhU/5elNLsptt6yuygZlV0Fxx8F59358vgh3EE34z+O9A+idXkryeNo8jUTQmlcodxJR7FbegWOrPYE0vvY7ZGAMDblVDI39iIxt0HnL2C/w1b65k20k6p1AVP0Oylnm7YqOoCLi0kEngtIfsldR7k0cyU05dqxB6PjuymEpbePB1jFhYF7h3r3IpiE7AOuaDwdgRqutQ83BkPU8AF3weL8BoEeOQbwrv/fVAjuMCVcKOb/eg+VC2WiUiA5YbENxNWSjleovRM+VaI00dXqRai34BMLsWxY2J9TSA3KB3WQ70bepuZdWNS/nJbh6WxQjaOfvinZnFgqnQ/I7CwSu5bS/j3VMK1yg+o7fsXY=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS2PR12MB9750.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(921020)(11063799003)(3023799003)(56012099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?aUhEQWR3SGovMHBMVnpNUTdxRCtGb2NtV21xSEFMaDNyOXFLaThYcmU3OXZa?=
+ =?utf-8?B?SUl2cFA2OEhnSkJ5ZHY2anhnUXM2WVBMTjhnY09QZWZWWFAzbEZyU1VtRjhL?=
+ =?utf-8?B?M1RxOE9oK2ltWlhMc2xiS3hLRGdrSEkrU05SNGRieEttZ0hIWnp3RTlxUklM?=
+ =?utf-8?B?TGxCU0xmWGlJSVdveFdKNFJOT01ZRThSVjJZdVRhZFcrTVVOODZIbkJVVDZH?=
+ =?utf-8?B?MEY2SStiUm4xOU5SK0o4V1BaM1R5RmZqUGZ4em1CejZ0VWtaZTdua1R0K0Vp?=
+ =?utf-8?B?eEpiLytGY1VnS0grQkE2QkQ3ZzVPWEVTT1V3dnlXSTFjYWdhR0dWN0NWVGJG?=
+ =?utf-8?B?MEIzalMxOVJwc2d2cVF2RnVWL0dNMzZML0FEeU1JcEY1OGpRL3A4VDAwNkZT?=
+ =?utf-8?B?R3lKU2Z5bjNYM2x5M2tBalZQMlpQa3FicDB5Z0lrc0pyak5vUjhtS3d4cnZQ?=
+ =?utf-8?B?YW54VW9SK29uZnowZ0prcXo2TkVFRGgwWmdzb0cyV0NIMzNwNXgrU0Foby9Q?=
+ =?utf-8?B?SmVNRUtMcW5RbitVZkpCM1dRMmxpVUc0UE41Q0FickFidXFSdnFYNjJSR21X?=
+ =?utf-8?B?NHl4WTZDRkpnbGg4eStMY2VEZFBGNFlxeWl0RGtDTWFpTmNlVHllUTE1bDJo?=
+ =?utf-8?B?M2pSWWhUeVNFQ0JxSCtmeituemV2WTFXMGh5ajZVc3E3dDl4SkZQNjNiWEND?=
+ =?utf-8?B?RjJoNHVzZVlPR1RZUzByOGgwTTJvTjVCb2c5UVI1TmkzQXB3Y0RPTzRKRGR3?=
+ =?utf-8?B?cVV6TENuVkovdzJUbGd5UzN5b1hWbFAxaHAxc2RZUmdaL0pDN0VNV25lMTdS?=
+ =?utf-8?B?RzVjdzNxYUVUVVRSTmh6aU5vcHJYRTVMdExWZERRS01SWDQ3T3ZVdWthM05s?=
+ =?utf-8?B?ZHdOV2pyd0JvM2xxaWFRM0RvUEVPWjdRZ2g0ZjNXcWYrVUswZzJzZ3FTSVZL?=
+ =?utf-8?B?aEs4ckVtaEpodldCd2I3b3c1aEF6K1g4YURoT1U5dC85UDhnNHB3cDBnZ01x?=
+ =?utf-8?B?UTI0K3Z2YlFrMXliR21ncFhlR3Zvd25jam11MGJoQXNhbEt0QWFGZFV5UUNP?=
+ =?utf-8?B?T1A4NkVCK205YXZldThDM2s0Z0Q4N2hYRC9nNUdsaWxjbXVMc3ZjZ1pqNVRj?=
+ =?utf-8?B?VGs5NWtQbzBHRnlqalVNRTR4QWxlR04rN215Z2xnbE9LV2VCNkNyamt1bzdo?=
+ =?utf-8?B?c1E0U3RqNVdyZ2xMQk1vTWxJbkNuM2VmL0k4WnRJVFRYOUxIbzhyZkh2alJp?=
+ =?utf-8?B?OWFBWkNKcmpuVENwRUpTQTJ4anFsR3hKQnYwZjNCWFkwdFFZU2orUjlZbmsx?=
+ =?utf-8?B?TktUQjhDL0l1ZG10VDRhUWZxTWx1Yzh2ajl4WHBYMHlteDlOSDJrcUFTTXVv?=
+ =?utf-8?B?bmV0aHNZTExNZUxmUEhGb21XWXI4dE85ZjRYc0tJWVVDbkJDV2hjYStNWlBx?=
+ =?utf-8?B?UXlrK3pzUUlLRS94YjN0QjROZVlpNmN4SlExSGlKMEhzUTdscWdKeWtYNUUv?=
+ =?utf-8?B?d2NRTEVXRDlaZVBqWWxuemt6b3J1eksvc1pUVVBBcTh3UTVGZ3FxLzM4NWRJ?=
+ =?utf-8?B?dFRTSVFNNHluY3ljY0NpUC9vOEtHSHZlSEdkVFNabStGMGYya1YrTTVuL2NG?=
+ =?utf-8?B?a3M0bk05SE5DYW1ESmRYNjd1M3pPWmJOVmVEMkdkaHBpbzVyQUhjTFRIZUU1?=
+ =?utf-8?B?Y3FvbE00b205Slo3UkxuUXV5aTBOMlNJcEJlRkF2TVNiOWxUd2JDenFWZXNQ?=
+ =?utf-8?B?T1p4YmdwNlFVU2hEaFBhd1ROZHQvN2ZHdHVWQVJxbHZzMlQ0Smoxam1wZTZF?=
+ =?utf-8?B?eTlrVTJrZzZBdy8rODdubVFlZkFSOWMyUEw3eHVHUVB6WlNSMFdob2dYU1JR?=
+ =?utf-8?B?VWhtM2V5VUxhMENUd1JWa2N0d01oeTlMbWVQWXFuYldpNW5YcDBjWFJwRk4z?=
+ =?utf-8?B?RWsyM0dBWm5CeEMxWXZ6NVptL1drV1liTko3dCtGWUZBL2dPZFRsSHJOOFg1?=
+ =?utf-8?B?SUxRZ1p3QXNXd1dRc1JEdUp3NFZRZlN0dHlUeWMycUNXQWtuWFg3ZEpScStW?=
+ =?utf-8?B?QzhydUNOUVYvSlNmYjBFclR1K1pkYVowOCsxMUhseFl3dks5engxQWpoaWhI?=
+ =?utf-8?B?UnQ1UUQ3RktxcUFPUm9LSDB0ZFE3bDNyeE9nM1hBQjFRZVNUbTU0eEhjeGxR?=
+ =?utf-8?B?K2drSWRjZVVLZm5TRFVJYlBia0Y4U3ovTXNoaG16YUZyK1VOcDZ4MGRBRUZ6?=
+ =?utf-8?B?RVBFdXE0ODMwTUJVWEFRZ1VvalMvSlVldGFGdk9EcjBKRi9iVTFTWHBERWJw?=
+ =?utf-8?B?ZjJSaE4ybUlvZ3laVDM2elIvU3U3RS9jZjRkU0JTOG1lMXRvRkh0UT09?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: eb785a3a-742a-482a-2bf9-08deb02db22c
+X-MS-Exchange-CrossTenant-AuthSource: DS2PR12MB9750.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 May 2026 13:52:24.3727
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: XEkpjb2/2Fj0mnbBHPlbSwSi1z+L8/WKd42jkPNL+ERpG4+Xx+xgH0ztNCkpSBJre9jYe88wUJrmigCnKIV59A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB8829
 
 
-base-commit: 254f49634ee16a731174d2ae34bc50bd5f45e731
+On 05/05/2026 11:59, Akhil R wrote:
+> This series addresses several aspects of the Tegra I2C driver:
+> 
+> - DMA mapping: Use the proper DMA device for buffer allocation to
+>    ensure correct DMA address translation.
+> - Transfer latency: Disable fair arbitration on non-MCTP buses to
+>    reduce transfer latency.
+> - Timing parameters: Update I2C timing values for Tegra410.
+> - Power management: Keep the controller available during noirq
+>    suspend/resume phases for system dependencies.
+> 
+> Akhil R (4):
+>    i2c: tegra: use dmaengine_get_dma_device() for DMA buffer allocation
+>    i2c: tegra: Disable fair arbitration for non-MCTP buses
+>    i2c: tegra: Update Tegra410 I2C timing parameters
+>    i2c: tegra: Fix NOIRQ suspend/resume
+> 
+>   drivers/i2c/busses/i2c-tegra.c | 86 +++++++++++++++++++++++-----------
+>   1 file changed, 58 insertions(+), 28 deletions(-)
+> 
+
+For the series ...
+
+Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
+
+Thanks!
+Jon
+
 -- 
-2.47.3
+nvpublic
 
