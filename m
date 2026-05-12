@@ -1,110 +1,236 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97F3336404B;
-	Mon, 11 May 2026 23:42:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28B48378D7F
+	for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 02:49:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778542940; cv=none; b=AnOduxT9+OOjdbbz5nTIOWtpdCrn3aDAPWm4ONptpKfEi+kM6HxblqxMlGJH9xgjLHiOys6zcxpKimfZr7aGOdcpiuLJIfB1iJCd+khrHxDu3dwwZ3VN+3R71nkt7XKCtO+wY84lhsGo5Y1jMZ2kKFT8wiv8jC6RKwGQXUaXl/g=
+	t=1778554155; cv=none; b=cDge49R3j5za4thCQBFFXBHuMHxlYhO+urRn332k+oeuC94FtJGsOvezAOc8h+8eCsmh9tMfsZr/QhERCC54+7HwSSlHXEYqzsE0o/lgobWvFbJ7YLIau5KJOmkkh3rprbUV6x3WtXWVKc/RRSbIwvbOdF6YcOwzrNk2v5GnYh8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778542940; c=relaxed/simple;
-	bh=laBEYaNKfM7jgcWqjWGUNtWf8onOxjtzyhlXSvrloco=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GcnR+cMIpSokCiQz+vBCPH8LKBMW+rMyjpTiKcciJYMAWBJ2Tyw/PRS7L6edA9300GWYHxOFBK5ORfLRXDm98OqZA4iXtl/+h83v1rbX8G+EwafD0c+MGoKUyDt3YVTF9EatMAgVZTNkRDUv4rKEd+23xWdMkzKpcVoUt8GLkgQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=b9EBkTTl; arc=none smtp.client-ip=198.175.65.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1778554155; c=relaxed/simple;
+	bh=3beTMaNbdoR+54hqmfREYHI0p3HG8qixhJD98uWeMDA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Z8RtAALgsHu48I84MvyLEmjZ+PZQN/Eoc7eH7lT8unZEujjjTkj2DtquF+kAFlUCY45ew+P6huhzdRqq3zZj/q9dIVSYihpR37Qzj/j63ZvpzEUTPTu2GiWfAIB5TVFGItHCVywPV3wf7Q/6fzdMJz26RuOB0exc4UhOPlc1Auk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d9J7f9fJ; arc=none smtp.client-ip=209.85.216.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="b9EBkTTl"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1778542939; x=1810078939;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=laBEYaNKfM7jgcWqjWGUNtWf8onOxjtzyhlXSvrloco=;
-  b=b9EBkTTlLbAt89kFsEvLgh4Br1tMAG+KAalsmreC6daDEW7JFtpiP4nW
-   WGhHQZE50pZd0PMoj84vY4/eQhPpdtNFAV6xvdNqo25gksoV6/NHVXOSW
-   Y0NlFdPbQH8W6EAFONgzCXRQqhJoGkqm4Rmp+H+EnOpN4OBRJ6rXKf7Ap
-   eh74xFMeltIL5V4ALq2KRbG6kkN+APmVhmTRcyYL/BegNbmOBzNs7t2La
-   bgNDEh3KCiRq0fupO1AUNbpou8y0dIwaFvJiUyH03dYC31wRB/iPAT7/J
-   TYS8D+t4SdiWjnS4bzqh2hWqBDgtqt6jdoaihaLCwnFH9w1rgRhj+xjZn
-   g==;
-X-CSE-ConnectionGUID: 8ym2PMmARjaQkR8Yx+Sf3w==
-X-CSE-MsgGUID: XN7o/TAJTT6b7EzlkWoP6g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11783"; a="83314825"
-X-IronPort-AV: E=Sophos;i="6.23,229,1770624000"; 
-   d="scan'208";a="83314825"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 11 May 2026 16:42:18 -0700
-X-CSE-ConnectionGUID: UWL9er0pR9Sy4KW+D1NhHQ==
-X-CSE-MsgGUID: rYl2DJKyTL2duLg31f8TVg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,229,1770624000"; 
-   d="scan'208";a="233278432"
-Received: from igk-lkp-server01.igk.intel.com (HELO bdf09bfdbd5f) ([10.211.93.152])
-  by fmviesa010.fm.intel.com with ESMTP; 11 May 2026 16:42:16 -0700
-Received: from kbuild by bdf09bfdbd5f with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wMaGM-0000000085Z-02oO;
-	Mon, 11 May 2026 23:42:14 +0000
-Date: Tue, 12 May 2026 01:42:09 +0200
-From: kernel test robot <lkp@intel.com>
-To: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>, andi.shyti@kernel.org,
-	wsa@kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, robh@kernel.org, krzk+dt@kernel.org,
-	conor+dt@kernel.org, linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-Subject: Re: [PATCH] dt-bindings: i2c: convert davinci i2c to dt-schema
-Message-ID: <202605120133.lQ1F3qlY-lkp@intel.com>
-References: <20260505102626.5726-1-chaitanya.msabnis@gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d9J7f9fJ"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-368763a1bdfso1091972a91.2
+        for <linux-i2c@vger.kernel.org>; Mon, 11 May 2026 19:49:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778554153; x=1779158953; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=zPHa6Agzy1CClNZP307eBIa+jAOQbdPXd+dwL+YOTPg=;
+        b=d9J7f9fJf1CZ0yaPYVRAicmXTYfCDnI/xX0PH4l3SMF3LYaygqKIRZvMWJgEfcYhoo
+         1rebz736r4Yz+1GQ6mfygDONfrDWOjNt4Xx+reaF8A3cUkpQwr6n5mBh8X20dSsJB9/G
+         gz2i9+ckqt0L1NrI7zzl+/543XQY1OEkpqPst5F4fUiiQ39888SthNyAxOOGI2zsai2S
+         p+ntBk6E84nAQMx42HbBRSgzYJCJXUfod3/xHUuFy2Mq7cT8KRE9aT7DhVntMuzaoIaE
+         0PcGBlPGe/sIqUNGCH3Z9kzyNYomXeiZ0sdrOraafrZarxydrCaifw67XZT22b3P/CPF
+         oEMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778554153; x=1779158953;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zPHa6Agzy1CClNZP307eBIa+jAOQbdPXd+dwL+YOTPg=;
+        b=nAgED+mHD/CbSRDAd2X8GiU9PeYv4GSt5hL6/BPqmodJQ5EySSWJtlVWLq4jSOt/Tq
+         5bYyBIYMuUMjeMUdAlR8e20WHUjOaWBmaQBIidmHaRBWxyl2MQIyPej5rBRbB1Jk507r
+         QJClYlQoqh/Qrin47BNz2U/J+L2Vm7ILlng5oFSXG1MnS8ewnHY2hMMcTpJpBli45PtU
+         TwWTLJBvIG3eCiTF31Lj08x1nQuwxe1jRr7hkSJ/Y7ZEaFnCPK6lnkbQZLsZA98Nm+5p
+         Jcw6IgaJDv3a7dziqxoW8ja9//AEU99x8KsmAbSS+yaIQkvDGRwXZDDuW2q1VqTd5J5+
+         NkPg==
+X-Gm-Message-State: AOJu0YxtA8QWRMx4Aax+6f5X83WZ1c1NusCs7w0MV8nCAtGxgRTBYFor
+	+hjuVPU7ISgpFUngP8AiBc/CSeX1SGd3i+SLFGvgssK2lJb6Qj1IYbgr
+X-Gm-Gg: Acq92OFOVa8bN0OnImrFUXYuhY/KtwkzfWX/TI2t/93ynKN2D0g4dMBG98971ZfcqiW
+	YLsVeSr8WLfXwh3912kB64HiHNlkmYKlg/Fmx7rRBfGPc6vPEOWLitTyYMgk0+smu2ZYbG10QUU
+	7nMTpD0CwI7YIc5+1birWKOGi8cF3D42WjN3ADmRekxOczUJfRJ9y1GgtHDyXQ5X2bE4TdAL7Ky
+	g66I5zaqUVtu0HaHHJmVu/atcyUS5Q0GdOFGRuYhUArIfQL0bPziD5m60ImZKwgiRoiyrbVfNgo
+	Ol4m+hCrpi5Vk6UBUj72jiw9W3kvf8NDEdK5tB8uVKuU+ptF82UwQnPkYqduUm2HV4m16oPIxyz
+	1fRhKIdLhxBXcHzyG6JFO0LeIP0b+pxTe1FSrF7gGhejkvHr5cXttrY0oJTWrd08fly9RoNGPCe
+	/yMoTu6EIu7pd0nZr92pSoFnVI07lncC3zyEunptrnnH5cVBBXT3cpqLhtv51TWKdTIJ10kw1K
+X-Received: by 2002:a17:90a:1001:b0:368:78da:803 with SMTP id 98e67ed59e1d1-36878da159fmr3395240a91.12.1778554153407;
+        Mon, 11 May 2026 19:49:13 -0700 (PDT)
+Received: from chaitanya-virtualbox.. ([103.249.241.52])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2baf1e690c4sm118619185ad.57.2026.05.11.19.49.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 May 2026 19:49:12 -0700 (PDT)
+From: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
+To: andi.shyti@kernel.org,
+	robh@kernel.org,
+	krzk+dt@kernel.org,
+	conor+dt@kernel.org,
+	brgl@kernel.org
+Cc: linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	Chaitanya Sabnis <chaitanya.msabnis@gmail.com>,
+	kernel test robot <lkp@intel.com>
+Subject: [PATCH v2] dt-bindings: i2c: convert davinci i2c to dt-schema
+Date: Tue, 12 May 2026 08:18:51 +0530
+Message-ID: <20260512024851.4792-1-chaitanya.msabnis@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260505102626.5726-1-chaitanya.msabnis@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-Hi Chaitanya,
+Convert the Texas Instruments DaVinci and Keystone I2C controller
+bindings from legacy text format to modern dt-schema (YAML).
 
-kernel test robot noticed the following build warnings:
+During the conversion, the `interrupts` property was made required
+to match the strict requirement in the driver probe function. The
+custom `ti,has-pfunc` and `power-domains` properties were also
+properly defined to match SoC-specific hardware features.
 
-[auto build test WARNING on andi-shyti/i2c/i2c-host]
-[also build test WARNING on brgl/gpio/for-next robh/for-next linus/master v7.1-rc3 next-20260508]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Signed-off-by: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202605120133.lQ1F3qlY-lkp@intel.com/
+---
+Changes in v2:
+- Updated MAINTAINERS file to point to the new ti,davinci-i2c.yaml file instead of the deleted .txt file.
+ .../devicetree/bindings/i2c/i2c-davinci.txt   | 43 -------------
+ .../bindings/i2c/ti,davinci-i2c.yaml          | 62 +++++++++++++++++++
+ MAINTAINERS                                   |  2 +-
+ 3 files changed, 63 insertions(+), 44 deletions(-)
+ delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-davinci.txt
+ create mode 100644 Documentation/devicetree/bindings/i2c/ti,davinci-i2c.yaml
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Chaitanya-Sabnis/dt-bindings-i2c-convert-davinci-i2c-to-dt-schema/20260511-231255
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git i2c/i2c-host
-patch link:    https://lore.kernel.org/r/20260505102626.5726-1-chaitanya.msabnis%40gmail.com
-patch subject: [PATCH] dt-bindings: i2c: convert davinci i2c to dt-schema
-compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
-docutils: docutils (Docutils 0.21.2, Python 3.13.5, on linux)
-reproduce: (https://download.01.org/0day-ci/archive/20260512/202605120133.lQ1F3qlY-lkp@intel.com/reproduce)
+diff --git a/Documentation/devicetree/bindings/i2c/i2c-davinci.txt b/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
+deleted file mode 100644
+index 6590501c53d4..000000000000
+--- a/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
++++ /dev/null
+@@ -1,43 +0,0 @@
+-* Texas Instruments Davinci/Keystone I2C
+-
+-This file provides information, what the device node for the
+-davinci/keystone i2c interface contains.
+-
+-Required properties:
+-- compatible: "ti,davinci-i2c" or "ti,keystone-i2c";
+-- reg : Offset and length of the register set for the device
+-- clocks: I2C functional clock phandle.
+-	  For 66AK2G this property should be set per binding,
+-	  Documentation/devicetree/bindings/clock/ti,sci-clk.yaml
+-
+-SoC-specific Required Properties:
+-
+-The following are mandatory properties for Keystone 2 66AK2G SoCs only:
+-
+-- power-domains:	Should contain a phandle to a PM domain provider node
+-			and an args specifier containing the I2C device id
+-			value. This property is as per the binding,
+-			Documentation/devicetree/bindings/soc/ti/sci-pm-domain.yaml
+-
+-Recommended properties :
+-- interrupts : standard interrupt property.
+-- clock-frequency : desired I2C bus clock frequency in Hz.
+-- ti,has-pfunc: boolean; if defined, it indicates that SoC supports PFUNC
+-	registers. PFUNC registers allow to switch I2C pins to function as
+-	GPIOs, so they can be toggled manually.
+-
+-Example (enbw_cmc board):
+-	i2c@1c22000 {
+-		compatible = "ti,davinci-i2c";
+-		reg = <0x22000 0x1000>;
+-		clock-frequency = <100000>;
+-		interrupts = <15>;
+-		interrupt-parent = <&intc>;
+-		#address-cells = <1>;
+-		#size-cells = <0>;
+-
+-		dtt@48 {
+-			compatible = "national,lm75";
+-			reg = <0x48>;
+-		};
+-	};
+diff --git a/Documentation/devicetree/bindings/i2c/ti,davinci-i2c.yaml b/Documentation/devicetree/bindings/i2c/ti,davinci-i2c.yaml
+new file mode 100644
+index 000000000000..89c639d023a3
+--- /dev/null
++++ b/Documentation/devicetree/bindings/i2c/ti,davinci-i2c.yaml
+@@ -0,0 +1,62 @@
++# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
++%YAML 1.2
++---
++$id: http://devicetree.org/schemas/i2c/ti,davinci-i2c.yaml#
++$schema: http://devicetree.org/meta-schemas/core.yaml#
++
++title: Texas Instruments DaVinci/Keystone I2C
++
++maintainers:
++  - Chaitanya Sabnis <chaitanya.msabni@gmail.com>
++
++allOf:
++  - $ref: /schemas/i2c/i2c-controller.yaml#
++
++properties:
++  compatible:
++    enum:
++      - ti,davinci-i2c
++      - ti,keystone-i2c
++
++  reg:
++    maxItems: 1
++
++  interrupts:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  power-domains:
++    maxItems: 1
++
++  ti,has-pfunc:
++    description:
++      Indicates that the SoC supports PFUNC registers, allowing I2C pins 
++      to function as GPIOs for manual toggling.
++    type: boolean
++
++required:
++  - compatible
++  - reg
++  - interrupts
++  - clocks
++
++unevaluatedProperties: false
++
++examples:
++  - |
++    i2c@1c22000 {
++        compatible = "ti,davinci-i2c";
++        reg = <0x01c22000 0x1000>;
++        clocks = <&i2c_clk>;
++        clock-frequency = <100000>;
++        interrupts = <15>;
++        #address-cells = <1>;
++        #size-cells = <0>;
++
++        sensor@48 {
++            compatible = "national,lm75";
++            reg = <0x48>;
++        };
++    };
+diff --git a/MAINTAINERS b/MAINTAINERS
+index bc3bcc641663..50a11a8d71a2 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -26396,7 +26396,7 @@ M:	Bartosz Golaszewski <brgl@kernel.org>
+ L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
+ S:	Maintained
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git
+-F:	Documentation/devicetree/bindings/i2c/i2c-davinci.txt
++F:	Documentation/devicetree/bindings/i2c/ti,davinci-i2c.yaml
+ F:	arch/arm/boot/dts/ti/davinci/
+ F:	arch/arm/mach-davinci/
+ F:	drivers/i2c/busses/i2c-davinci.c
+-- 
+2.43.0
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202605120133.lQ1F3qlY-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
-   Warning: Documentation/translations/zh_CN/how-to.rst references a file that doesn't exist: Documentation/xxx/xxx.rst
-   Warning: Documentation/translations/zh_CN/networking/xfrm_proc.rst references a file that doesn't exist: Documentation/networking/xfrm_proc.rst
-   Warning: Documentation/translations/zh_CN/scsi/scsi_mid_low_api.rst references a file that doesn't exist: Documentation/Configure.help
-   Warning: MAINTAINERS references a file that doesn't exist: Documentation/ABI/testing/sysfs-platform-ayaneo
-   Warning: MAINTAINERS references a file that doesn't exist: Documentation/devicetree/bindings/display/bridge/megachips-stdpxxxx-ge-b850v3-fw.txt
->> Warning: MAINTAINERS references a file that doesn't exist: Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-   Warning: arch/powerpc/sysdev/mpic.c references a file that doesn't exist: Documentation/devicetree/bindings/powerpc/fsl/mpic.txt
-   Warning: drivers/net/ethernet/smsc/Kconfig references a file that doesn't exist: file:Documentation/networking/device_drivers/ethernet/smsc/smc9.rst
-   Warning: rust/kernel/sync/atomic/ordering.rs references a file that doesn't exist: srctree/tools/memory-model/Documentation/explanation.txt
-   Warning: tools/docs/documentation-file-ref-check references a file that doesn't exist: Documentation/virtual/lguest/lguest.c
-   Warning: tools/docs/documentation-file-ref-check references a file that doesn't exist: m,\b(\S*)(Documentation/[A-Za-z0-9
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
