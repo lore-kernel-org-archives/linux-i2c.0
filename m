@@ -1,72 +1,76 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAD473148A7
-	for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 07:32:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD8013FF88D
+	for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 07:32:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778571149; cv=none; b=XS3kdN+UWonTHl0fYumhLGlz/rTDFYMmEFVtxjwWMmRn5zPdA8Rj2DazrIjrUpxGhkxTM+vRNPMp4B5qSmYlrzEhfbyccECV7e78EvE4olNfs0jIJ0vAmKtpt8AMFIs3VFoaIigVAlSah/AvcAhPfHSjog9zdtrC0vKV/o6XxzA=
+	t=1778571152; cv=none; b=jQw0H7VDKoCn4+dOTMhh19QhNNBwnMIBFbOPcwSjK/lTxEMRIqeqBPYmxC4BFLBRBgkB2rX3YJtSM+O66zy8muzogGXKQ9rj8ll7hfIdmdEKaZMJiA9bGTsJM3JDaB7vJFjZ0GufggfN1tE2t3jrbP94pGn5p5CeaEoy7Xsk3Ds=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778571149; c=relaxed/simple;
-	bh=GTUlPVx0YMPbfLUzBxXLhjPR/mqY9lD53Qc8zk3/i4M=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GhtikpmDulkgxFuOBvcW1n7YT3r26PXL2ejJT9eBaZsJUgwwxyQvkDXToKUnbMbRxrkBAQuMf/WLF0mXAQz0kU4QwNvfzsxZJpdUw/ReqkGtn6JGUlW3BU6yHMJUHzjMZKt5G9rY6d3UXCVv5Ke5Sem1W0qt4GoI2paLjoXGKpc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rf1gJy6j; arc=none smtp.client-ip=209.85.216.47
+	s=arc-20240116; t=1778571152; c=relaxed/simple;
+	bh=pdYvF+Sk+5Qtm7MPxsJdTzM7WXs+BtD0PbNzj9oHtYo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Go53Cc7jhtRyq2grj51U5NxJ9yHBoP4w5TyAJic0D6YzyKL2eR9vSRaiUn0oEsjE7p9gxn5pBxj0BFruvCnvDVFwq/9X4ac+EHKLcFfX4L2KOdDcKeNva+Vw6HaKrULPXp8I547HQNrwgVTFd0L7wE5zY2HxMG5LkZNb8oGwbCk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IWf8Sw4K; arc=none smtp.client-ip=209.85.216.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rf1gJy6j"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-366375c43c2so2954595a91.2
-        for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 00:32:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IWf8Sw4K"
+Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-366be8040a9so1759316a91.3
+        for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 00:32:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778571147; x=1779175947; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=n9/d2mQMSHOXQXBgiHyinooMXc2bmST//VHdITCznnc=;
-        b=rf1gJy6jEY2cxpt57+pHrqH7+cUSs2c5Bc9EP1Ce2aTUnq2T4CjIVEBwHIGZlf3Yko
-         5sKXicnKqFueK7KOjSN5ULjq4wpO5Uu/IHG6wDtjMjx3HtZrrOY1IJ1+m8T7ShnbO8mQ
-         d9VE5qeMCyILQp2b0Ju4Tmb8d4f95agN84vvme1q/y8znbNE+KLhyq3tY0dES+7Qo766
-         7UNS7ph5aDnHE76M42HjFb1aYgwOcG+lhUVNPDlCXCX6gM8WAjxwJkcJZZ0F/hC3Jjit
-         +FpXao7+L/kFMRnGEiNLgHyNkguVoaLH0n0o2xF03bj+iIEBJhnxHBdVuCErB1x45QTs
-         P1Ig==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778571147; x=1779175947;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1778571150; x=1779175950; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=n9/d2mQMSHOXQXBgiHyinooMXc2bmST//VHdITCznnc=;
-        b=OiItij2XelYcCPsJnrT74kRcSMHRNOawycr/9VIw6Xzxdk8ZnnDvpoFCf2sahxaJKU
-         OvmS0ZsSNu16LeFwZ2dEZmPV3XzDnE+JU5CtgFn/FfJZJwGCIfhPgCvWD0kA1ms1pnBo
-         ZMTf2YE3lh7nEU3tsNytp4MhHF2gv3ZGEHCWj3mlU+SIeut8qZSKFsojuECwMiFST+LA
-         p2fRyTRujRwamyex0HWjOYNmdvpk+s+Z6ixSB1EybHW8RGzScbAKi2hJJqkmm7fCld0/
-         eHLx+ETOYs0m1MbsIV7BP8SkQJxDxWFv2DjmqJ/vlGWVJwhNqJLA495VIue7RGINiFJG
-         Kwcw==
-X-Forwarded-Encrypted: i=1; AFNElJ89zSHOtyLzcy+3m4+Omz2ywBhE1lzIIqb3G7CrAj3EXzy0twYdP9FLX4zOqaGikC3dv9rE5zoS8zs=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyvBWMXIYHbsGrkGeLaCGYtsBskYggOeg9LjAg7qhUZgqhMciiK
-	ngKjD3YN6vDCbiijdVqWmf9jyKXoJ4OvEHIRfxBRCOhwSdKsjqNxNSPonIUcbIAOPd0=
-X-Gm-Gg: Acq92OEC4noqJ1D7J4qSjS1M5Juoo6rOd5WxkvEDcODMSOcOEZXhnYQ+23JScFoCSWX
-	w1dHU/HR+c53o+kS2mrfNWnbC4AFJMQm7avTbEzwhd33ljFV/Rj4cQMa7f9hu2otHd1Iii2BKjK
-	MUyNvXthWfr84f+CvqkS1tR+7po2BXDH7wnXysYuJWUSX/QFEkwgBTs4+SzmHzLYOzwdWVVrtqn
-	mPSrI04oCDFYKd7jQ5nanK3vGYsi4NdNhAAX24P6NQD8Zymp0jWeq9wMMw2a2c0njuFAujDTko0
-	Dce2C9GOvELrXGPKMs6xeuTOSRwnDW2Yazn/OpJy0qLyKSRFSrzzokZVYmRyLvOkXI4r2SCE50x
-	p8iQsLhYsjkYEMC4ARmfFcEebiHj7zT/dL2VXukOuGm9l6UUqvVWzJgef5M9ProG0FiOpB0WQKY
-	+81hJUgbLhUjl22+rDkeN1CWKdZdCHySRJ4Kp3CgTwWqSKKCObQ/U3e7NSDCN8kz7Yg0OvZrGk6
-	pepOAIxTobp9Hx965d1fonrZoF9mWgM1qWjfc44e1Pz4J5a4owD8zw8N0VxhY4=
-X-Received: by 2002:a17:90a:2c86:b0:368:2289:42cc with SMTP id 98e67ed59e1d1-3682289a92dmr6128980a91.24.1778571147028;
-        Tue, 12 May 2026 00:32:27 -0700 (PDT)
+        bh=F1U7TBG5kHM139IR5XJ/vRZGZx3+E8rlZI9Ha1Id3g8=;
+        b=IWf8Sw4Kb4XjUldznu7+Af+m72gvTy0kln8NBrBTxBZTlwIvhbb+lHGn8jKyYMuoP9
+         prmPZYtw47StqRqkXE7LusBkk+Whwn/W+5dF2zPwP6sqklXBy6VmLOlSFdzTlv6prxLD
+         +z5O1pkjnNZOOc9jcsV8hZxpumL3B/z3o79tOU427yYxPFr6VW5x95eAZiq4FNZ7rVqN
+         uO7Wu5wiPOb/GoyFEBNt2I4fIHkJ5ehxhlZlGZf5zEUatVW+L++4Ij3MsipWF14a9Dp5
+         UqUnIxU3eIns63SAMe/hJVE9BatDrlzqOQsty203EwEItBaz4E7P4Zs17iSfCz/QVpcS
+         K6OA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778571150; x=1779175950;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=F1U7TBG5kHM139IR5XJ/vRZGZx3+E8rlZI9Ha1Id3g8=;
+        b=OF9cA+p9EhDWVHAAFKmA40YNL6nUxE44T0KTlDXOqzLi79wrFHcpBQMK2/ArRm7kNn
+         436WC/hQyUoCuxl3meLehix2fNNPbQhIAPlZHFmyowim3Yn/piHVYxbdshPiyCg9kx+n
+         kMmKAsBe2SEq9Iz+wbFdPMcroizmT6DdrvNdYQOw4EXeSj042eiCKa2gA14KbhsSkPKQ
+         sJ/jbWkLkUwhC8xDwoOeXXYB88b3v/yFlH5+0TuYdLrUwOZF6JeUEjWGW21UY5QqFhs1
+         sXV2QH18nNlUK2ZI83pZQcXtl4zWYQ6DsOgKJWH+QVS+Sdqn9O8jIwGzp0YSIIeijfDF
+         u/Lw==
+X-Forwarded-Encrypted: i=1; AFNElJ+SgZWhf7WAhcHtzWZy7KErDCv7lfZ1lFoTJJXT/VHWdf3GTjaguqR4TF+OZMPKGljk2CRRT6Su1s0=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwScyXkTiradFJiy6nWC2ydXH32zIUYTOMnk9IieEpp9opnB1uU
+	4ZlaeJvF0Qf/i6D3WPj4Ej390X9W4AGTTjP5AeZhNsr7W9rW/h1KSe+i
+X-Gm-Gg: Acq92OF/e1KJpT5s11EF72Zmh0GRrfyLCtC+FZFSLq8FlfrpjF+aasTOdI3UZ/3DCS5
+	H76j5GCqGggrL5TSHndVy6FQGpseVBCryFx30jfkuNQJhWq6VI5R1ri1zpZCgfDjOVANacX4e4r
+	oWhwxQxa16BQEFKymJh9qxUMCeK7WwmKMktQ3LxbhrESK61GeDTv7mbYoAIZqKfgFfwpQ5rPnfH
+	VOcI7C0W1sIuXiNq9BJtEkA5/GIoXSVipIo8Q6o/frkj3ZoLmfxp/5BYVr6QOA0QHmeM1LHt+JC
+	MqBmL5ty1moj0JcaB5bkVwneGtgK2gnVW0wZ5MnJGj5d21I+opmwORiMg1iaN9YJBZ2D7qUN+pQ
+	E6QKKPV3AhobcTtXMLnYAUf11V71a6IqKdW79fl/CzIZQWbLH1UPWyO9EoT4I5lWyQUtxmOWcuh
+	/qO4KslY6+UuyoeACnnwNNaYvvhUODeuEWsjXEVoZXPh23h3ZoaiQymiWH2pOtWtizrsSMlDJFl
+	GfwtqJVKwuWbti6FHTavQ9ZnL9ugajTFdFPYmEytRPkH1QKvypt1uTuOpnuFlk=
+X-Received: by 2002:a17:90b:2710:b0:368:6a6e:94dd with SMTP id 98e67ed59e1d1-368b2726528mr2224622a91.24.1778571150068;
+        Tue, 12 May 2026 00:32:30 -0700 (PDT)
 Received: from hardik-yoga ([2401:4900:1c23:32d:3989:a15e:2491:59ba])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-367d63bad27sm12420410a91.10.2026.05.12.00.32.24
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-367d63bad27sm12420410a91.10.2026.05.12.00.32.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 00:32:26 -0700 (PDT)
+        Tue, 12 May 2026 00:32:29 -0700 (PDT)
 From: Hardik Prakash <hardikprakash.official@gmail.com>
 To: linux-gpio@vger.kernel.org,
 	linux-i2c@vger.kernel.org
 Cc: linus.walleij@linaro.org,
 	wsa@kernel.org,
 	Hardik Prakash <hardikprakash.official@gmail.com>
-Subject: [PATCH 0/2] Fix WACF2200 touchscreen on Lenovo Yoga 7 14AGP11
-Date: Tue, 12 May 2026 13:01:37 +0530
-Message-ID: <20260512073139.16343-1-hardikprakash.official@gmail.com>
+Subject: [PATCH 1/2] pinctrl-amd: enable IRQ for WACF2200 touchscreen on Lenovo Yoga 7 14AGP11
+Date: Tue, 12 May 2026 13:01:38 +0530
+Message-ID: <20260512073139.16343-2-hardikprakash.official@gmail.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260512073139.16343-1-hardikprakash.official@gmail.com>
+References: <20260512073139.16343-1-hardikprakash.official@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -75,46 +79,81 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The Wacom WACF2200 touchscreen on the Lenovo Yoga 7 14AGP11 (83TD) is
-completely non-functional on Linux. The I2C bus (AMDI0010:02) fails with
-repeated lost arbitration errors at boot before any driver can probe the
-device. The touchscreen works correctly in UEFI and Windows.
+On Lenovo Yoga 7 14AGP11 (83TD), the WACF2200 touchscreen controller
+is wired via I2C2 (AMDI0010:02) with its interrupt on GPIO pin 157
+(confirmed via ACPI _CRS GpioInt decode). After amd_gpio_irq_init()
+clears all GPIO interrupts at boot, pin 157 is never re-enabled,
+preventing the touchscreen from signalling the driver.
 
-Investigation using ACPI _CRS decode and Windows/Linux GPIO register
-comparison identified two bugs:
+Windows keeps GPIO 157 INTERRUPT_ENABLE (bit 11) and INTERRUPT_MASK
+(bit 12) set after initialisation. Add a DMI quirk to restore these
+bits after amd_gpio_irq_init() on this hardware.
 
-1. GPIO 157 (WACF2200 GpioInt per ACPI _CRS) has INTERRUPT_ENABLE and
-   INTERRUPT_MASK cleared by amd_gpio_irq_init() and never restored,
-   preventing the device from signalling the driver. Windows keeps both
-   bits set after initialisation.
+Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
+---
+ drivers/pinctrl/pinctrl-amd.c | 35 +++++++++++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
 
-2. i2c_designware probes AMDI0010:02 before pinctrl-amd's probe
-   completes. The existing dw_i2c_amd_gpio_defer_dmi quirk for this
-   hardware checks gpio_dev->driver which is set before probe finishes,
-   so the deferral does not actually enforce ordering.
-
-Patch 1 adds a DMI quirk in pinctrl-amd to restore GPIO 157 interrupt
-bits after amd_gpio_irq_init().
-
-Patch 2 fixes the existing broken deferral in i2c-designware-platdrv to
-use device_is_bound() under device_lock(), which correctly waits for
-pinctrl-amd probe to complete before AMDI0010:02 is probed.
-
-Both patches tested on Lenovo Yoga 7 14AGP11 (83TD), Fedora 44, kernel
-7.1.0-rc2+. Touch and stylus fully functional after applying both patches.
-
-Kernel bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=221494
-Related: https://bugzilla.kernel.org/show_bug.cgi?id=221454
-
-Hardik Prakash (2):
-  pinctrl-amd: enable IRQ for WACF2200 touchscreen on Lenovo Yoga 7
-    14AGP11
-  i2c: designware: fix probe ordering for AMD GPIO on Lenovo Yoga 7
-    14AGP11
-
- drivers/i2c/busses/i2c-designware-platdrv.c | 81 +++++++++++++++++++++
- drivers/pinctrl/pinctrl-amd.c               | 35 +++++++++
- 2 files changed, 116 insertions(+)
-
+diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
+index e3128b0045d22..64315b0edf2a6 100644
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -26,6 +26,7 @@
+ #include <linux/interrupt.h>
+ #include <linux/bitops.h>
+ #include <linux/pinctrl/pinconf.h>
++#include <linux/dmi.h>
+ #include <linux/pinctrl/pinconf-generic.h>
+ #include <linux/pinctrl/pinmux.h>
+ #include <linux/string_choices.h>
+@@ -39,6 +40,39 @@
+ static struct amd_gpio *pinctrl_dev;
+ #endif
+ 
++static const struct dmi_system_id amd_gpio_quirk_yoga7_14agp11[] = {
++	{
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "83TD"),
++			DMI_MATCH(DMI_BOARD_NAME, "LNVNB161216"),
++		},
++	},
++	{ }
++};
++
++static void amd_gpio_apply_quirks(struct amd_gpio *gpio_dev)
++{
++	const unsigned int pin = 157; /* WACF2200 GpioInt per ACPI _CRS */
++	unsigned long flags;
++	u32 reg;
++
++	if (!dmi_check_system(amd_gpio_quirk_yoga7_14agp11))
++		return;
++	if (pin >= gpio_dev->gc.ngpio)
++		return;
++
++	raw_spin_lock_irqsave(&gpio_dev->lock, flags);
++	reg = readl(gpio_dev->base + pin * 4);
++	reg |= BIT(INTERRUPT_ENABLE_OFF) | BIT(INTERRUPT_MASK_OFF);
++	writel(reg, gpio_dev->base + pin * 4);
++	raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
++
++	dev_info(&gpio_dev->pdev->dev,
++		 "Enabled IRQ for GPIO %u (Yoga 7 14AGP11 touchscreen)\n",
++		 pin);
++}
++
+ static int amd_gpio_get_direction(struct gpio_chip *gc, unsigned offset)
+ {
+ 	unsigned long flags;
+@@ -1219,6 +1253,7 @@ static int amd_gpio_probe(struct platform_device *pdev)
+ 
+ 	/* Disable and mask interrupts */
+ 	amd_gpio_irq_init(gpio_dev);
++	amd_gpio_apply_quirks(gpio_dev);
+ 
+ 	girq = &gpio_dev->gc.irq;
+ 	gpio_irq_chip_set_chip(girq, &amd_gpio_irqchip);
 -- 
 2.54.0
+
