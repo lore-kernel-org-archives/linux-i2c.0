@@ -1,76 +1,39 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72615367F4A
-	for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 03:00:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0947B30E84B;
+	Tue, 12 May 2026 05:03:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778554852; cv=none; b=o3F++rY7SuWI4bxj8ffxEveRqxEnCcz6aKvbiXJhW2i19CONG0jaxJvnod3L3krJ9eBSFjq+GM8mkwl0+TryZHpq2zP4Ifz30USS8kPt6CkzOwNCsil48WlL0aIpXLo8lwnNkAYZLV3N+hBn0qg688emoQbKDIGithrB+ltstkg=
+	t=1778562204; cv=none; b=XJ1d3Y7Nry0My+bVNuEFEDV6neGdUEsahnpPgdnpWyFLTpLJQTSV982em0hN3Kaf7sJU6AF5idqRISSh26DXqqXPyslS3CLv9usFn7IAEHARDxk5+hAraGSbmqwB+wLefbYouzaV/ZV1AnU++vF8p6XFAJAJ9R63r+ReT/qf9G4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778554852; c=relaxed/simple;
-	bh=qPqo0/5DPCayBXh3zokgKkLJCpGWJDttXd9AsNB9jx8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kl9YqAL2fel0kr3DJ2Ir6Dbm3k79CBVoO7a4g8ltbYlT/pZdK4b2NCWGRKkdEI/0KZALn+LbuxjtivUx/dzCRGqTCfRajzcQ+o3T+28ebTJUg9/L9Zad3f0wh78h3rjcuhGPhy3CSGDFsoF5ZL2qH7EUNfRvyRguYvx9JY1Dt7M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Bp94ZPTb; arc=none smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778562204; c=relaxed/simple;
+	bh=7+FFgnpOt3jNy3r0aXcq52cj7T6afalXBzi6Cboo0wc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=dosMb/Szcct4x3B/C+Wm/7ejqhHxk1SrvAm34dW0y4jxENLaLxFWOFjYTvJWgUSlshSrtafOHKPY6VmpGMezaoWHueoBlcg9VhIvt8HJbj/pEXlPptXtp0JjVTxkMrdLU2lFqbGa0DMLsi8O/j7gjsVQwb+3ukrw5ktjov+Ap60=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=RDtFRyvk; arc=none smtp.client-ip=117.135.210.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Bp94ZPTb"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2adff872068so26697265ad.1
-        for <linux-i2c@vger.kernel.org>; Mon, 11 May 2026 20:00:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778554851; x=1779159651; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=uLRtpcQHtK0F1OIYFcfZ8eOOu6S/PxCXSiUviagPQbc=;
-        b=Bp94ZPTbCn42VtJVAh4poKnv4StO7UeYQMVWftNRgYHvEkd0otBYjr3eWySz0rpPNN
-         HKMWGm+Lk4/DJeeBGurgma5Kb0DCu+X4/YNKiGxjashy3CeljWvsICWaykbR1Jis+3IA
-         6UexhJuOC8f7id1ZOosDLBYeKiUO35l9tV5mB/G4UzaA/4910o8rm+UZuyhZZ2Spru2W
-         a6aOrjLy3C619Vt77ijwBP8i3WHr6D4nUUzGMMvjPR/S4zI+UdUwYn9w4k6Na6/vwqNB
-         JaGjpZaGs+cMF+ZBMf9LMk3D7J5aphQ6Uxc4W/cB5Q6SJw1zFDASDBNctj+snUfac7ws
-         YhVA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778554851; x=1779159651;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=uLRtpcQHtK0F1OIYFcfZ8eOOu6S/PxCXSiUviagPQbc=;
-        b=rj/LI+Zd/I/XApiVQBy5aQYWoQqnWa8yBe27ERN2UIOOaH3rBWoq+OVzbPpvqhGx3z
-         mUHXSzN/rZuvuhc5p7xTC5DtDd+pnKodnAu94Oaem8pu7DMoffTGTxQEkzG7vDN868q1
-         efVAQaHdjZc1JisOVAjviBvPYfdc8nQt2okfIr2FEUtTL2bNVTKAKCnBG4gWT7pl2zBF
-         enpi+FZKzapkO0q+wwVaV2JGSSMJB1WoN6pZ1nXXNrliDYxT8OXhWtfpncgSpE6OEzDj
-         5bgJbk5LLHDE3pRfo0AwfsBbD/TNbeiaY5i2mVHvVZPfwGhh8QeTMrbJueHS9HlgFptb
-         cUHg==
-X-Gm-Message-State: AOJu0Yx9k7m51UGgMA15bApv+MwurVdFPTm9rZpioA0uKZsVFzaReE9t
-	06cZWCw62Eq1iEmW6g+nB7teEyZ7zAiPLHP9Mht2ndEbeOnP2qS9iiqn
-X-Gm-Gg: Acq92OFDwpE9SKxV0C3uKVlm7WzqmBaYS0HIwz4E99afXGMTTpZhBe/U/563+FiVG4a
-	0uzvPSwUHuO/4xn3Qz5/vuJ+xBsCy8GtiH/UMFLarUHeTzhqZl0rqZlqY6MyhL/e1g58mWx5p2r
-	8Z3dbQK68H6M/r9HdQTHzr6Cy6cHslVU2Mt3QAYDSnAD6FbP7yXuNTpCBJ+9j+2Klh/BNQC9zEm
-	AKZwvxLrBP4YMW9TGQ2OaaVsUdQHWp322Dn75UemICBZ5sMJE+R1J6Gn70LQXvSEXnyzNCTxwBI
-	CRQjPG4Y9RSDDbDZVfRCciTOebMzQGzLMaKSAO23BNUiEuLA7HuHMU3ycN2y62GN8HlXjsYXQth
-	uftrEEXRHwB6EA0NlTC/F6bVLMBSg7SD1bnJ19mKW1yCfvxzK9VJLl6EZjp3fs7CvXceLDCgMaR
-	Y5SSwvkDmGlLqOMhrX1E2v57D1vSyT69s6lf8Jj5h1Cht0P5KKUB8RkotsRY4BBI0z3jtE1xXF
-X-Received: by 2002:a17:903:2ac5:b0:2b2:5597:bad4 with SMTP id d9443c01a7336-2bd012ad28dmr13565195ad.30.1778554850610;
-        Mon, 11 May 2026 20:00:50 -0700 (PDT)
-Received: from chaitanya-virtualbox.. ([103.249.241.52])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2baf1e35eb3sm119851355ad.41.2026.05.11.20.00.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 20:00:50 -0700 (PDT)
-From: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-To: andi.shyti@kernel.org,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	brgl@kernel.org
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="RDtFRyvk"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=lU
+	JiW1yZT6Aa0Hf0r1vf/SGuaFBBHudzxuphwzlz0GY=; b=RDtFRyvkgnGfaNAkw8
+	1QO/MfxrJJupYk6aClSOfsGlpf+vblqrS40bhC2if+P2LE7sp/3p62hWTqyLAHeU
+	ez/iKlIi3aTdlrYX4lZSD29JVQDXadZZwb19yvGURnWbpFdaeva3pLg1HFIpi/rg
+	g/Y36CTJVXIL9iUOAt4rDDwuU=
+Received: from wmy.localdomain (unknown [])
+	by gzga-smtp-mtada-g1-4 (Coremail) with SMTP id _____wBX1xBitAJqk9HhAw--.21411S2;
+	Tue, 12 May 2026 13:02:35 +0800 (CST)
+From: <w15303746062@163.com>
+To: jdelvare@suse.com,
+	andi.shyti@kernel.org
 Cc: linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	Chaitanya Sabnis <chaitanya.msabnis@gmail.com>,
-	kernel test robot <lkp@intel.com>
-Subject: [PATCH v3] dt-bindings: i2c: convert davinci i2c to dt-schema
-Date: Tue, 12 May 2026 08:30:32 +0530
-Message-ID: <20260512030032.5006-1-chaitanya.msabnis@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	Mingyu Wang <25181214217@stu.xidian.edu.cn>
+Subject: [PATCH v2] i2c: i801: Fix kernel stack buffer overflow in i801_block_transaction_byte_by_byte
+Date: Tue, 12 May 2026 13:02:24 +0800
+Message-Id: <20260512050224.347734-1-w15303746062@163.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -78,163 +41,70 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wBX1xBitAJqk9HhAw--.21411S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxZw48Kw4kZry3Jw1UZr1kXwb_yoW5Jw1rpr
+	Wak39Ik34DJFsF9rnrAayxuF97Zan7trWUGFyqgrn8uay3t34Ik3WrKryS9a1v939akF17
+	Xw1jv34xCFyqy3DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07j7GYLUUUUU=
+X-CM-SenderInfo: jzrvjiatxuliiws6il2tof0z/xtbC-wtiRmoCtGtl3wAA3d
 
-Convert the Texas Instruments DaVinci and Keystone I2C controller
-bindings from legacy text format to modern dt-schema (YAML).
+From: Mingyu Wang <25181214217@stu.xidian.edu.cn>
 
-During the conversion, the `interrupts` property was made required
-to match the strict requirement in the driver probe function. The
-custom `ti,has-pfunc` and `power-domains` properties were also
-properly defined to match SoC-specific hardware features.
+A kernel stack buffer overflow exists in the
+i801_block_transaction_byte_by_byte() function due to a missing bounds
+check on the user-provided block length.
 
-Signed-off-by: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Closes: https://lore.kernel.org/oe-kbuild-all/202605120133.lQ1F3qlY-lkp@intel.com/
+When userspace executes an ioctl(I2C_SMBUS) with the
+I2C_SMBUS_I2C_BLOCK_DATA command, the user data is copied into a local
+stack variable `union i2c_smbus_data temp` (which is approximately 34
+bytes) in i2cdev_ioctl_smbus(). This data is then passed unmodified
+through i2c_smbus_xfer() and i801_access() directly into
+i801_block_transaction_byte_by_byte().
+
+The length of the transaction is blindly extracted from
+`data->block[0]`. If a malicious user provides a maliciously large
+length (e.g., 255), the subsequent `for (i = 1; i <= len; i++)` loop
+will drive `ioread8()` to continuously read from the hardware and
+write out-of-bounds into the `data->block` array. This completely
+overwrites the 34-byte `temp` stack variable in i2cdev_ioctl_smbus(),
+clobbering the kernel stack's return address and leading to control
+flow hijacking (e.g., jumping to NX-protected pages).
+
+Fix this by strictly validating that the length does not exceed
+I2C_SMBUS_BLOCK_MAX before entering the read/write loop, while
+exempting the special SMBUS_LEN_SENTINEL value used by the driver.
+
+Signed-off-by: Mingyu Wang <25181214217@stu.xidian.edu.cn>
 ---
-Changes in v3:
-- Fixed a typo in the author's email address within the YAML maintainers block.
-
 Changes in v2:
-- Updated MAINTAINERS file to point to the new ti,davinci-i2c.yaml file instead of the deleted .txt file.
+ - Added an exemption for SMBUS_LEN_SENTINEL to prevent breaking
+   legitimate SMBus Block Read transactions where the length is
+   initially unknown.
+ - Removed duplicated paragraph in the commit message.
 
- .../devicetree/bindings/i2c/i2c-davinci.txt   | 43 -------------
- .../bindings/i2c/ti,davinci-i2c.yaml          | 62 +++++++++++++++++++
- MAINTAINERS                                   |  2 +-
- 3 files changed, 63 insertions(+), 44 deletions(-)
- delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-davinci.txt
- create mode 100644 Documentation/devicetree/bindings/i2c/ti,davinci-i2c.yaml
+ drivers/i2c/busses/i2c-i801.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/i2c/i2c-davinci.txt b/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-deleted file mode 100644
-index 6590501c53d4..000000000000
---- a/Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-+++ /dev/null
-@@ -1,43 +0,0 @@
--* Texas Instruments Davinci/Keystone I2C
--
--This file provides information, what the device node for the
--davinci/keystone i2c interface contains.
--
--Required properties:
--- compatible: "ti,davinci-i2c" or "ti,keystone-i2c";
--- reg : Offset and length of the register set for the device
--- clocks: I2C functional clock phandle.
--	  For 66AK2G this property should be set per binding,
--	  Documentation/devicetree/bindings/clock/ti,sci-clk.yaml
--
--SoC-specific Required Properties:
--
--The following are mandatory properties for Keystone 2 66AK2G SoCs only:
--
--- power-domains:	Should contain a phandle to a PM domain provider node
--			and an args specifier containing the I2C device id
--			value. This property is as per the binding,
--			Documentation/devicetree/bindings/soc/ti/sci-pm-domain.yaml
--
--Recommended properties :
--- interrupts : standard interrupt property.
--- clock-frequency : desired I2C bus clock frequency in Hz.
--- ti,has-pfunc: boolean; if defined, it indicates that SoC supports PFUNC
--	registers. PFUNC registers allow to switch I2C pins to function as
--	GPIOs, so they can be toggled manually.
--
--Example (enbw_cmc board):
--	i2c@1c22000 {
--		compatible = "ti,davinci-i2c";
--		reg = <0x22000 0x1000>;
--		clock-frequency = <100000>;
--		interrupts = <15>;
--		interrupt-parent = <&intc>;
--		#address-cells = <1>;
--		#size-cells = <0>;
--
--		dtt@48 {
--			compatible = "national,lm75";
--			reg = <0x48>;
--		};
--	};
-diff --git a/Documentation/devicetree/bindings/i2c/ti,davinci-i2c.yaml b/Documentation/devicetree/bindings/i2c/ti,davinci-i2c.yaml
-new file mode 100644
-index 000000000000..e8064bd1fcf7
---- /dev/null
-+++ b/Documentation/devicetree/bindings/i2c/ti,davinci-i2c.yaml
-@@ -0,0 +1,62 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/i2c/ti,davinci-i2c.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 32a3cef02c7b..4dd3ae5f49af 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -684,6 +684,15 @@ static int i801_block_transaction_byte_by_byte(struct i801_priv *priv,
+ 
+ 	len = data->block[0];
+ 
++	/*
++	 * Prevent kernel stack buffer overflow.
++	 * The user-provided length must not exceed the maximum SMBus block size.
++	 * We must allow SMBUS_LEN_SENTINEL, which is used by the driver to
++	 * indicate an unknown length for SMBus Block Read.
++	 */
++	if (len < 1 || (len > I2C_SMBUS_BLOCK_MAX && len != SMBUS_LEN_SENTINEL))
++		return -EINVAL;
 +
-+title: Texas Instruments DaVinci/Keystone I2C
-+
-+maintainers:
-+  - Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-+
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - ti,davinci-i2c
-+      - ti,keystone-i2c
-+
-+  reg:
-+    maxItems: 1
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+  power-domains:
-+    maxItems: 1
-+
-+  ti,has-pfunc:
-+    description:
-+      Indicates that the SoC supports PFUNC registers, allowing I2C pins 
-+      to function as GPIOs for manual toggling.
-+    type: boolean
-+
-+required:
-+  - compatible
-+  - reg
-+  - interrupts
-+  - clocks
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    i2c@1c22000 {
-+        compatible = "ti,davinci-i2c";
-+        reg = <0x01c22000 0x1000>;
-+        clocks = <&i2c_clk>;
-+        clock-frequency = <100000>;
-+        interrupts = <15>;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+
-+        sensor@48 {
-+            compatible = "national,lm75";
-+            reg = <0x48>;
-+        };
-+    };
-diff --git a/MAINTAINERS b/MAINTAINERS
-index bc3bcc641663..50a11a8d71a2 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -26396,7 +26396,7 @@ M:	Bartosz Golaszewski <brgl@kernel.org>
- L:	linux-arm-kernel@lists.infradead.org (moderated for non-subscribers)
- S:	Maintained
- T:	git git://git.kernel.org/pub/scm/linux/kernel/git/brgl/linux.git
--F:	Documentation/devicetree/bindings/i2c/i2c-davinci.txt
-+F:	Documentation/devicetree/bindings/i2c/ti,davinci-i2c.yaml
- F:	arch/arm/boot/dts/ti/davinci/
- F:	arch/arm/mach-davinci/
- F:	drivers/i2c/busses/i2c-davinci.c
+ 	if (read_write == I2C_SMBUS_WRITE) {
+ 		iowrite8(len, SMBHSTDAT0(priv));
+ 		iowrite8(data->block[1], SMBBLKDAT(priv));
 -- 
-2.43.0
+2.34.1
 
