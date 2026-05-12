@@ -1,85 +1,98 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 106E5395AE0;
-	Tue, 12 May 2026 10:27:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6B88395ADF;
+	Tue, 12 May 2026 10:46:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778581633; cv=none; b=EfdUwzCCHQx2vm0bouyTJBs7yXK8tuZPiSKGC3mxn+34zG/fOmpcXd0OfiZTpl7MR1TZvjKMMeVeRHeXXud/de7x2+kNMrqO6ZF0m12lxd+9pJe9KnU1ySsan/nWRzFTYUwsVvYVSgK8DnSCyPBfJSHmTh8ZrBLZNoubEWcfQcw=
+	t=1778582807; cv=none; b=SfMDrr97m13zw5/zhY1PxAL1tKL9TvBs3gPOSAsWl+Vfj+f4LYqfwp4my2pZfHTKnBR07lYS8Bdn9RH1g5+jF9ERGk+vqRN0JMz5XJ8MfDlgI3KRXGJ5QCkYqmO8AVkQrGuPd/O87viWKa88vEMHfqszzpshnqg1Od43nq2DzK4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778581633; c=relaxed/simple;
-	bh=NsVB3395UrLbQDg3g74ZbT/NL4JbTwBv898Lkciwh9U=;
+	s=arc-20240116; t=1778582807; c=relaxed/simple;
+	bh=H9XSHXhq4GIMgp5MFuz1d355CE4/dyY6Pg07HZklfe4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hipbY55Wb8z96XYccyL5CtGJtEYJx5yIe/yNdtm6noeAeSWCouleCWSQj5vzBrCmgE+Q1TSMNHKl6fF0ziH8NvQfT0DOAJQ7x1Hu6iu1eZVcZyz31u9fPM+nCOnEKmyIicuIREWfYjc91rUhHkn/66l2yFzZT8qlBRi/2WNQLwE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=gmQuS3+a; arc=none smtp.client-ip=192.198.163.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=RZtpaTOBeqNS3X0y7vJFSsXXRnepFetjHbDB7QwiIeC0SXBzf8zVrsFatBkLds68UKyWpgXYKLAs/rylwF5X3ePnizQQdLHF+XuY4T8iZ9inqe3s603Mn5YT0wPtnRM2l8eUz+KRrFRYBay65IjhTHd+y5RYAsewqS4vFjWsPYY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=WGpYCruI; arc=none smtp.client-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="gmQuS3+a"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="WGpYCruI"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1778581631; x=1810117631;
+  t=1778582806; x=1810118806;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=NsVB3395UrLbQDg3g74ZbT/NL4JbTwBv898Lkciwh9U=;
-  b=gmQuS3+aZ5GnQhi3vvMtHE05nFmtLveHmZ7un3zgPK0bkGqZZVEOPV7M
-   oSHqrBBKbmMXfPpQqeewpby1llFKBG9LMTbH8ShGWBl78HW9ZZD8JUxV1
-   OrpwP7bztMPYAorWBfw2qCIYYdLYE8D8IqCbhoyLIVLC42p/XjPoeT3Ca
-   pgcYraKa2NrIQsHxOIrdsfhmAVJ9V7uO1/hUvng9bKTupjrjZSYtRtAGp
-   uA2dLdeZNnIgwuiJ77fCde8CGwTGvY57eTkNWgemkFKxo0Kvlea3nc7kn
-   KJFYxNZJmUsX784fvfoQIOgGW0L82xn0wXn53Wf73s6bNaC70H98od/1u
-   w==;
-X-CSE-ConnectionGUID: ia7m1ZKqTM6e6bqZtljk3g==
-X-CSE-MsgGUID: kF5M7KUwSaaC7/WaHFxtmQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11783"; a="78517891"
+  bh=H9XSHXhq4GIMgp5MFuz1d355CE4/dyY6Pg07HZklfe4=;
+  b=WGpYCruImV/u/2YF+PkKAB5oqRuWGQMavyRThfZV0KK2FYi82T7n5/vi
+   jkRxxr0Q0ei1Tkh0B42eEXtX0gBN3TFrjC/LL9kSxuz/xHCl5NfseYdRy
+   0pJVKqKoEG6GAcUxXPDoQyAa1RrrtMOQWLsoEX6Taa63Frulmtbq1dpFn
+   tYfwmyMXN1Boskv5IJPnY3mAlgtN3VZSP7gYtYq9nNUr1ghwETJ7ZUTH3
+   mqZZqW7QHvTRqyuGHFnIVzu56IjKnrEdMKxFfLO071jsn0PSJKJIhmA7F
+   dZKIzzKrfe2U6H9Igk0ewcq+MJ1AnVKpY7wUSx13rt346MBx3EFKD3w/T
+   Q==;
+X-CSE-ConnectionGUID: hlcAfhvsTKu+JFIG4r8+rg==
+X-CSE-MsgGUID: 2Mw4cU4ST4GmPDgt7hmzVQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11783"; a="83341907"
 X-IronPort-AV: E=Sophos;i="6.23,230,1770624000"; 
-   d="scan'208";a="78517891"
-Received: from orviesa006.jf.intel.com ([10.64.159.146])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2026 03:27:10 -0700
-X-CSE-ConnectionGUID: HAzY45c2QoC7/MSKHq9lpQ==
-X-CSE-MsgGUID: MWoIPCUdRzKp15csvO9tIw==
+   d="scan'208";a="83341907"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 May 2026 03:46:45 -0700
+X-CSE-ConnectionGUID: +5xFiu4gTVWnzFVUCCJSrQ==
+X-CSE-MsgGUID: HJI8pr10Qlyg1MFjJKs7Ww==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.23,230,1770624000"; 
-   d="scan'208";a="236744029"
+   d="scan'208";a="233257185"
 Received: from black.igk.intel.com ([10.91.253.5])
-  by orviesa006.jf.intel.com with ESMTP; 12 May 2026 03:27:08 -0700
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id 553C398; Tue, 12 May 2026 12:27:07 +0200 (CEST)
-Date: Tue, 12 May 2026 12:27:07 +0200
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: "William A. Kennington III" <william@wkennington.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Jan Dabros <jsd@semihalf.com>, Andi Shyti <andi.shyti@kernel.org>,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v5 0/4] i2c: designware: Improve device disable handling
-Message-ID: <20260512102707.GA84797@black.igk.intel.com>
-References: <20260511-dw-i2c-v5-0-6c382e1b5de6@wkennington.com>
+  by fmviesa006.fm.intel.com with ESMTP; 12 May 2026 03:46:44 -0700
+Received: by black.igk.intel.com (Postfix, from userid 1003)
+	id B84CF99; Tue, 12 May 2026 12:46:42 +0200 (CEST)
+Date: Tue, 12 May 2026 12:46:42 +0200
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Hardik Prakash <hardikprakash.official@gmail.com>
+Cc: linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linus.walleij@linaro.org, wsa@kernel.org
+Subject: Re: [PATCH 1/2] pinctrl-amd: enable IRQ for WACF2200 touchscreen on
+ Lenovo Yoga 7 14AGP11
+Message-ID: <agMFEkXd4raagQ08@black.igk.intel.com>
+References: <20260512073139.16343-1-hardikprakash.official@gmail.com>
+ <20260512073139.16343-2-hardikprakash.official@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260511-dw-i2c-v5-0-6c382e1b5de6@wkennington.com>
+In-Reply-To: <20260512073139.16343-2-hardikprakash.official@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 
-On Mon, May 11, 2026 at 08:06:25PM +0000, William A. Kennington III wrote:
-> When the I2C controller attempts a new transaction while the target
-> controller is shutting down or restarting, it can lead to bus lockups
-> and system bootloops if the hardware enters an inconsistent state.
+On Tue, May 12, 2026 at 01:01:38PM +0530, Hardik Prakash wrote:
+> On Lenovo Yoga 7 14AGP11 (83TD), the WACF2200 touchscreen controller
+> is wired via I2C2 (AMDI0010:02) with its interrupt on GPIO pin 157
+> (confirmed via ACPI _CRS GpioInt decode). After amd_gpio_irq_init()
+> clears all GPIO interrupts at boot, pin 157 is never re-enabled,
+> preventing the touchscreen from signalling the driver.
 > 
-> This patch series addresses this by ensuring that the internal state
-> machines are properly cleared when disabling the controller if target
-> activity is detected.
-> 
-> Additionally, it adds a shutdown hook that gracefully sets the target
-> disable bit before disabling the controller. This guarantees that any
-> incoming requests from the controller are immediately NACKed during
-> shutdown, preventing the bus from hanging.
-> 
-> Signed-off-by: William A. Kennington III <william@wkennington.com>
+> Windows keeps GPIO 157 INTERRUPT_ENABLE (bit 11) and INTERRUPT_MASK
+> (bit 12) set after initialisation. Add a DMI quirk to restore these
+> bits after amd_gpio_irq_init() on this hardware.
 
-All look good to me,
+Acked-by: Andy Shevchenko <andriy.shevchenko@intel.com>
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+...
+
+>  	/* Disable and mask interrupts */
+>  	amd_gpio_irq_init(gpio_dev);
+
+Ideally this should be done as a GPIO driver callback (we have something
+like .init_hw() IIRC). But since it's an original code, it may be an exercise
+for another day.
+
+> +	amd_gpio_apply_quirks(gpio_dev);
+
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
