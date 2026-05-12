@@ -1,71 +1,169 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AB0A4DA527;
-	Tue, 12 May 2026 12:13:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CD613B101C
+	for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 12:51:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778587993; cv=none; b=FUvvkxhqEj4OI5CXkph0WD88I+Sy2S3VEdvVyS1A1VDY5Bm49Yrl/4WUpu8wCZIT6VfgAlS3GhVmAw5VEuoYe0JarRE7WqdnFkbTG341AVBl9CShZa6gHa8xoWYzmPvL+EXo4lmSPjYme0Gj11SN7p6ztwg63m2e5Rk4OD0P6ns=
+	t=1778590263; cv=none; b=hsmRkxrPc1d2lkOLEefNc5wfDS9//Ru9meW+Jt8wgZBSrzOvRv58WgXD69HdqItApzS3qMznownMfc8M4Y1iqRko/kMWvxFIYYa7CRJUfHdgS8L8CY5qOpgoqwoYRTTTCNjd71J8sLm3s1yzSw5fYbPD6RQ5w3HhdkTJPi499y0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778587993; c=relaxed/simple;
-	bh=U7PDfCE27rw3KiR7xbbhGbXblc8BOb+O8LbMMqGsb7w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UsvZcRz3MgfOzZoxeP/GdTtYfCma276N5oM8kGtOxLrVSNdIei+dkSHeFCAHgC9ZaV77fJJ2be1gDej7NxRzg8+gCVY703UpSOc6xiURtRfHNNh7Q9tTLK1Hpekt+q/jdyMvUg7NtXjaK9ytrB23E5+BWZ4i0xzjnMHqZSmghdQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AwgxJyRR; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778590263; c=relaxed/simple;
+	bh=P6WJBWVk/AYGVD2iDvgFs9VxHbByPo/vw8XkLrthBzI=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=La5eUfTgEyEsA2fJTCQ+VO7DooNJ7QyFugRqkowsLTA/v0q4Gfbb5QI2k7aXQCfbc0uZKOJPPtbXeHdjiwIWVg9KcM4rGn/8f2f88fd8q4xv6HWmeZM1MC7X44DhcWSoFDTtdTEcxJFfdRGCrioLt49Hrc31wMNGDzBuR5kFRIE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20251104.gappssmtp.com header.i=@baylibre-com.20251104.gappssmtp.com header.b=kN2vWzIl; arc=none smtp.client-ip=209.85.128.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AwgxJyRR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A51B7C2BCF6;
-	Tue, 12 May 2026 12:13:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778587992;
-	bh=U7PDfCE27rw3KiR7xbbhGbXblc8BOb+O8LbMMqGsb7w=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=AwgxJyRRwXIQJP50dSXsosDOkbV/+MnRrqyegEtLkbkLZFw+k+kL3FUwv6/z6SaPR
-	 BI95C+aM+JuLzk+darTvtOAtvER3qXkHXeEiVXin/vyQT5cpgMmz0NeuCPKm79uApx
-	 PZB49oI4tM132AJO57zw9+QfAbOwXhOa/z0thgF6R3Zx06260JTFh869P4YgLjMrcJ
-	 CrHEFQ30xwBMhNUuPn+1irlo2WGuVSjVPMQeMnjmMU/NZPiN4NwW2FkKx7sQzLSNfK
-	 GmRagjgBH0A4Du0Uc4rT0KYHca81fJ0cD2leSu4SoTAKCv9+/OaB/7D827kWk/Z6Tk
-	 yJ3kTh3SD1HrQ==
-Date: Tue, 12 May 2026 07:11:25 -0500
-From: Rob Herring <robh@kernel.org>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-	Peter Rosin <peda@axentia.se>, Andi Shyti <andi.shyti@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>
-Subject: Re: [PATCH] dt-bindings: i2c: mux-gpio: remove Wolfram Sang as
- maintainer
-Message-ID: <20260512121125.GA1318921-robh@kernel.org>
-References: <20260509171354.12263-2-wsa+renesas@sang-engineering.com>
- <177835197844.785566.9553774802925952117.robh@kernel.org>
- <agDxmyIA4-tLDKgX@shikoro>
+	dkim=pass (2048-bit key) header.d=baylibre-com.20251104.gappssmtp.com header.i=@baylibre-com.20251104.gappssmtp.com header.b="kN2vWzIl"
+Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-488d2079582so58402405e9.2
+        for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 05:51:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre-com.20251104.gappssmtp.com; s=20251104; t=1778590261; x=1779195061; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=K6u6ckoYuRTe6EuUn2jyVBOE8hQkJls/nvi7cB3Wx+c=;
+        b=kN2vWzIlk1V4MZiXNwbNYVQGyBf8KgoqRUfAA/fwZdMLI0upkY712frkgxdgDsmpIr
+         Q4z5zaioFGhJIxhWF5Dl8qF32HkZlHTGpYLzJEue7NT5rr1dovx1m3oCt7PcUlptOlGA
+         LhW9jmP6nAOs8h0lzzJr2b2zwZSKR1X6gfOx+JBbQn7Iwc/w7PXCWJnkyX8++HTLwtwY
+         AS0NoL04MFXne07upQg1lh7WRkTYg8jB/34r0QmA8vrKJc+2vCiYeyZcV750WLkmpUx0
+         hfIfjfkULDJVpq4eH+W4dnGvHL7NYza4HwmcydfhIFCgH8S/8Eckuxw5+nwiyBXDLSNs
+         KWCw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778590261; x=1779195061;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=K6u6ckoYuRTe6EuUn2jyVBOE8hQkJls/nvi7cB3Wx+c=;
+        b=QQPmffAxPywwCOqBFa6pI3vqdKqE5DCDwTSHSP7K7c7lFG5yBLtWaC5sLDm2hOZBpp
+         7MThRV4fdkyC4UIKeXJRdcwvZB8T6dyJYSsv8Sy+uRqlCvyfRG3kLiCirNP97sSRdkl5
+         IWjxjlyaGb8qO/o73xuhVe0yB6wL69h6VzWigGEYqIQjRd5UesdrTyt2qgEYIhaxjgFi
+         GQkmFdfHjidhMeT+VSHW6MyHxlD1ax/cPK+lV43UnLC1rlq0gz8hrx9F1kkwfd/9DAAK
+         sJPhd7FF7NTqxDyjYh+WBDAmWhsbd4Le5b7gQhmIoAVu5gjwct6ToJdaa6wFJc7ENx86
+         PEFw==
+X-Forwarded-Encrypted: i=1; AFNElJ+pSRgHckcXw/cB0W3srSO5x7SdXeW09kxE5kJkvAeG2Ajmz6kBBgg5VrbLfx9akYB8y082bcDSm9o=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw4g9WyVWfiLNgPFtv7MHIkEXD+/gZ3jaXviT4VLjF/pkic7254
+	S3EdBsLpYt6AhpDtPM+K9xarl4QPy9aeaGLJtYLZtlwnvdIDrKfltxTWGiLNLVosFSU=
+X-Gm-Gg: Acq92OHj8xahdl22zOFXYgFTjxxj8F4yJYatDx2tbSgc5EdIIwLJN8M826ipPZYy4MZ
+	WMSZiim/9cSg5T/ZVCU57iC1R0eq4ms9ox3Y9+fmzhNGllNa+38LWyJBUxBWskb3HECFWtZWyLR
+	Lm6zP/hgsOwbJFWcbDc/hG99dPbHKHZ5/HtnXSmbNl9a/s5Vkl2GOvWD0EuhXqhWAYjWu6+kkAD
+	QVs1pGzEUSczD33wV80mYj7jYyK3H01i37EWfEitLYFNmm4gY84oaFSIJuv2NvgSYujFEjAI93T
+	qR7mhZSbl2urSZ/dcpIdlX+bhZ0deKTzeqWo1eI/wB+HupU9XL2GFoTGWKzF3foJ9/Lvq63NR4i
+	G6MGpU947+qF+GQLvAJirYPj6b37YyCsxVVS19Wl9sM/Z72RgJTjuq2VMBXgOOx3B2/ZeI9kARX
+	0OXFnXAz6ZqjGbBEX8z1nGkkGGNHCZtex10jzwrUqeHg512wV80EbRsnAjZrmPlLOZZ4t7GVCI+
+	QbzKBRXzI5arR8lsO62YN3lBw==
+X-Received: by 2002:a05:600c:1da8:b0:48e:635a:18d7 with SMTP id 5b1f17b1804b1-48e635a1ba0mr344990135e9.0.1778590260593;
+        Tue, 12 May 2026 05:51:00 -0700 (PDT)
+Received: from localhost (p200300f65f114e08229f8c404acd2182.dip0.t-ipconnect.de. [2003:f6:5f11:4e08:229f:8c40:4acd:2182])
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-48e8f4247fasm23789615e9.9.2026.05.12.05.51.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 12 May 2026 05:51:00 -0700 (PDT)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
+To: Jonathan Cameron <jic23@kernel.org>
+Cc: Matteo Martelli <matteomartelli3@gmail.com>,
+	David Lechner <dlechner@baylibre.com>,
+	=?utf-8?q?Nuno_S=C3=A1?= <nuno.sa@analog.com>,
+	Andy Shevchenko <andy@kernel.org>,
+	Mikael Gonella-Bolduc <m.gonella.bolduc@gmail.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	linux-iio@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v1 1/2] iio: Drop unused driver_data in four i2c drivers
+Date: Tue, 12 May 2026 14:50:34 +0200
+Message-ID:  <8e07be10e69b5699bba7ef70533a0d49f8cc1eb1.1778582187.git.u.kleine-koenig@baylibre.com>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <cover.1778582187.git.u.kleine-koenig@baylibre.com>
+References: <cover.1778582187.git.u.kleine-koenig@baylibre.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <agDxmyIA4-tLDKgX@shikoro>
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2587; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=P6WJBWVk/AYGVD2iDvgFs9VxHbByPo/vw8XkLrthBzI=; b=kA0DAAoBj4D7WH0S/k4ByyZiAGoDIiag3ikHOYMUNjITtTt/34mGswbo4deXbITCPAZn1lICm 4kBMwQAAQoAHRYhBD+BrGk6eh5Zia3+04+A+1h9Ev5OBQJqAyImAAoJEI+A+1h9Ev5O7vsH/1An kru0+YfKBezqAbNphrMAivBP2g9kUFYHkfsCwO3/T6kc2bhfPt/JuSuI9Qt090ggINKyl+LPAkp wSNW0rzP0wpBEOTs/kWfyPh4lMjYtj30EoSEVjP5HJaJ3sMVIzSZB6mqO96y3VeR+xK22GHYj4f BVDxydvGG/330OFHHe/XQVC9G0EqmviTXbbraUS6DCgh6WfTU61yPpWln6hErpo3IbIOAuvYGWy If8/dugJi0doPQHaSspFKJYFebWaOvooLAf4cMyYqkVzME6uf17JMN4B7vdsXZr7CGhpdom7Oa+ VvupPQw4fXXrfcqr33GB96QOBrjzPD4ELhGaBhM=
+X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Transfer-Encoding: 8bit
 
-On Sun, May 10, 2026 at 10:59:07PM +0200, Wolfram Sang wrote:
-> 
-> > dtschema/dtc warnings/errors:
-> > /builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/i2c/i2c-mux-gpio.yaml: 'maintainers' is a required property
-> 
-> I know. But as I was added as maintainer without my consent, I think it
-> is okay to remove myself.
+For the four drivers the .driver_data member of i2c_device_id is
+write-only. Drop the explicit assignment.
 
-I suppose it should be Peter:
+While touching these arrays use a named initializer to assign the .name
+member, which is easier to parse for a human.
 
-GENERIC GPIO I2C MULTIPLEXER DRIVER
-M:      Peter Korsgaard <peter.korsgaard@barco.com>
-L:      linux-i2c@vger.kernel.org
-S:      Supported
-F:      Documentation/i2c/muxes/i2c-mux-gpio.rst
-F:      drivers/i2c/muxes/i2c-mux-gpio.c
-F:      include/linux/platform_data/i2c-mux-gpio.h
+Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
+---
+ drivers/iio/adc/pac1921.c    | 2 +-
+ drivers/iio/light/apds9160.c | 2 +-
+ drivers/iio/light/tsl2563.c  | 8 ++++----
+ drivers/iio/light/tsl2583.c  | 6 +++---
+ 4 files changed, 9 insertions(+), 9 deletions(-)
 
-
+diff --git a/drivers/iio/adc/pac1921.c b/drivers/iio/adc/pac1921.c
+index bce7185953ec..68bdd2f30bad 100644
+--- a/drivers/iio/adc/pac1921.c
++++ b/drivers/iio/adc/pac1921.c
+@@ -1310,7 +1310,7 @@ static int pac1921_probe(struct i2c_client *client)
+ }
+ 
+ static const struct i2c_device_id pac1921_id[] = {
+-	{ .name = "pac1921", 0 },
++	{ .name = "pac1921" },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, pac1921_id);
+diff --git a/drivers/iio/light/apds9160.c b/drivers/iio/light/apds9160.c
+index 3da0bdac04cf..8dacb1730429 100644
+--- a/drivers/iio/light/apds9160.c
++++ b/drivers/iio/light/apds9160.c
+@@ -1572,7 +1572,7 @@ static const struct of_device_id apds9160_of_match[] = {
+ MODULE_DEVICE_TABLE(of, apds9160_of_match);
+ 
+ static const struct i2c_device_id apds9160_id[] = {
+-	{ "apds9160", 0 },
++	{ .name = "apds9160" },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, apds9160_id);
+diff --git a/drivers/iio/light/tsl2563.c b/drivers/iio/light/tsl2563.c
+index f2af1cd7c2d1..7e277bc6a8b1 100644
+--- a/drivers/iio/light/tsl2563.c
++++ b/drivers/iio/light/tsl2563.c
+@@ -839,10 +839,10 @@ static DEFINE_SIMPLE_DEV_PM_OPS(tsl2563_pm_ops, tsl2563_suspend,
+ 				tsl2563_resume);
+ 
+ static const struct i2c_device_id tsl2563_id[] = {
+-	{ "tsl2560", 0 },
+-	{ "tsl2561", 1 },
+-	{ "tsl2562", 2 },
+-	{ "tsl2563", 3 },
++	{ .name = "tsl2560" },
++	{ .name = "tsl2561" },
++	{ .name = "tsl2562" },
++	{ .name = "tsl2563" },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, tsl2563_id);
+diff --git a/drivers/iio/light/tsl2583.c b/drivers/iio/light/tsl2583.c
+index 8801a491de77..a0dd122af2cf 100644
+--- a/drivers/iio/light/tsl2583.c
++++ b/drivers/iio/light/tsl2583.c
+@@ -913,9 +913,9 @@ static DEFINE_RUNTIME_DEV_PM_OPS(tsl2583_pm_ops, tsl2583_suspend,
+ 				 tsl2583_resume, NULL);
+ 
+ static const struct i2c_device_id tsl2583_idtable[] = {
+-	{ "tsl2580", 0 },
+-	{ "tsl2581", 1 },
+-	{ "tsl2583", 2 },
++	{ .name = "tsl2580" },
++	{ .name = "tsl2581" },
++	{ .name = "tsl2583" },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, tsl2583_idtable);
+-- 
+2.47.3
 
