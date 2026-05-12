@@ -1,116 +1,191 @@
-Received: from zg8tmtyylji0my4xnjqumte4.icoremail.net (zg8tmtyylji0my4xnjqumte4.icoremail.net [162.243.164.118])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 53E8D3AEF58;
-	Tue, 12 May 2026 09:13:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.164.118
+Received: from mail-dy1-f173.google.com (mail-dy1-f173.google.com [74.125.82.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 499FF3A6411
+	for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 09:34:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778577211; cv=none; b=a6sfordIa8vvXrfEzzrkoxZzcYub41wF/7sT04LYc2Xe+P5e/3qpmCN4+ETfoEPFO32A8M02Dgoo0ogKVF+eYf5Ia5lLVvLvQbGC30izEIImuDn3NPAsEyBR6O0SU6ec9D5dQpJEr/4zELjpFlYmwZNj2sLKyLGcDivqW1FStaI=
+	t=1778578485; cv=none; b=m/3yuel9DHuTQ4uufFSty4qTQZM1t6i8MoePjetHsHWty3vYevjANU1qqerIIpfHqo+CahmRUYefrhmgIKnJB5wLDNq3L7IiJsBGeDBjC/tWBUP4e5KSvuWR0Zhi2nLhwttP0T+PRnYz6lX6IYIE9YJsLZGHDL+mO0tKHoiKVag=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778577211; c=relaxed/simple;
-	bh=klFGdSIa+T6QYv5LTo9fKHJej8D8m5uGk+gTKxE9iq8=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=iiyxKq0LGEgOXAw95uYyDJcIsEkouXORjxElMVQftT82lbzfTWxhnchZp01NjJXRNlVx27tb0DBC1xssZcrF07Cyy8gc7vJ7EAlH+MuRVXxnY5FdYLUMnDqNZKNqLvImh/GCpEDdofjYcYpInJmCxDBhYRGMZA6D03OWcv8WwpA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=stu.xidian.edu.cn; spf=pass smtp.mailfrom=stu.xidian.edu.cn; dkim=fail (0-bit key) header.d=stu.xidian.edu.cn header.i=@stu.xidian.edu.cn header.b=IuNz6ANo reason="key not found in DNS"; arc=none smtp.client-ip=162.243.164.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=stu.xidian.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=stu.xidian.edu.cn
+	s=arc-20240116; t=1778578485; c=relaxed/simple;
+	bh=RLXaDuMnAOgj7DffKute+j5a4bUQyT98lWmpj5fWoLA=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
+	 References:In-Reply-To; b=G+5g3uNJb+XAFOg6nin6897sGjVs7oYgVeFmMzBzzv0jnoOMBN6um8njkxE0+WGyXzz4ug8zT2MJuCQaeng1lvHo9uK8XQI1Aq5RUnPUkI/TjDdruG02fCV3OYL5Fp/CxSkSz3ksjTsjiuFrvXDXqtHxnGccvfVWH8BmiW/KRvc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=VlZ406x9; arc=none smtp.client-ip=74.125.82.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=stu.xidian.edu.cn header.i=@stu.xidian.edu.cn header.b="IuNz6ANo"
+	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="VlZ406x9"
+Received: by mail-dy1-f173.google.com with SMTP id 5a478bee46e88-2f7020a928eso7315569eec.1
+        for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 02:34:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=stu.xidian.edu.cn; s=dkim; h=Received:Date:From:To:Cc:Subject:
-	In-Reply-To:References:Content-Transfer-Encoding:Content-Type:
-	MIME-Version:Message-ID; bh=r1LhsHJn6+rpmX0/aTDRxAgoL+ciVbQfvxL5
-	bz/f7gY=; b=IuNz6ANo2W8Ew/IBbdZQGHGNRoMq0i6kZiiMblZD88k9SLPpLEoQ
-	tGhdZEI9sTA7Kr4GeW+Dm2/OYTlqoXQO/foa4fiMomKbj4foMhR8ZLc2eqLCDcOy
-	2EYqt6M6bOa715UjP+QETSCB98tGCpeKOhw0F0oZGoqpNbsVPkXwtvo=
-Received: from 25181214217$stu.xidian.edu.cn ( [113.200.174.80] ) by
- ajax-webmail-hzbj-edu-front-4.icoremail.net (Coremail) ; Tue, 12 May 2026
- 17:13:03 +0800 (GMT+08:00)
-Date: Tue, 12 May 2026 17:13:03 +0800 (GMT+08:00)
-X-CM-HeaderCharset: UTF-8
-From: =?UTF-8?B?546L5piO54Wc?= <25181214217@stu.xidian.edu.cn>
-To: "Jean Delvare" <jdelvare@suse.de>
-Cc: w15303746062@163.com, andi.shyti@kernel.org, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: Re: [PATCH] i2c: i801: Fix kernel stack buffer overflow in
- i801_block_transaction_byte_by_byte
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2024.3-cmXT6 build
- 20250410(2f5ccd7f) Copyright (c) 2002-2026 www.mailtech.cn
- mispb-8dfce572-2f24-404d-b59d-0dd2e304114c-icoremail.cn
-In-Reply-To: <20260512092822.6b403fd5@endymion>
-References: <20260511150005.305818-1-w15303746062@163.com>
- <20260512092822.6b403fd5@endymion>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
+        d=nexthop.ai; s=google; t=1778578480; x=1779183280; darn=vger.kernel.org;
+        h=in-reply-to:references:cc:to:from:subject:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=EvccDdzgaBL7gkenW4WwoZl3iLgl46TscHBK94VPRTQ=;
+        b=VlZ406x9kaJDkYjXMXVXtYms7vyxY11GF6Xsm5mU8OhEqZqFlCWKjjQ4KVD1sAp1qN
+         nrwbh2K7woE1c5DL6qGRfpSo3pWo4edp4drYP3Km+bMTEdjIl3yN80Jy72yY0I8UKzZO
+         uQjkUx5b7iSrD5HNeCLSRw5pKGa3GaWUWb6SaRKVnyBunFaoyf3YXhwlARGOzxt9eyDP
+         /lnotFETb3NVfr5zyVtg5Q0URVsSWkvPMEoS4czXtt5FYp9N3F9cfEX2uZEtws3ZyeUp
+         wu39QtuWJnWsVX38G+EM9SLW+JxIH3/aL/qAaAl/PVjBns9Sfgg9v5MXcEQUR87zJikY
+         5K7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778578480; x=1779183280;
+        h=in-reply-to:references:cc:to:from:subject:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=EvccDdzgaBL7gkenW4WwoZl3iLgl46TscHBK94VPRTQ=;
+        b=LUTwk7PWHyilj8Mk1Boh/V2O+yi1VgoWeV/yGIrjm2jxc6u2ToVeGA8dQjcPELj3/7
+         YvalY2ygxGYD3VavJQhT5AwT2a3aYsaOOZDHCI0t/KvVsNxiAdL8HsXqxMofQiCsvAql
+         scppO2niokvsFKBzY/dXttI1a+4Ou+oy4+cLZMw63zyc6I8y43KZyC3/WyMOSlxGb0Fa
+         EO7OoeBCHqBaGjkCqLjdwoEAWdvomUIrHgIs+ypFm2/2dn1IgbulDfHhN+wbsl+cHEXI
+         GZR93uBUoufmUldjV8JCFw4RE7bID80KiLMLl75ojD0ewbws03MD5vHl7vrrCqncDYKs
+         St9Q==
+X-Forwarded-Encrypted: i=1; AFNElJ+bLcupZzNy3ZpkvXqsy1gtx4vfREfDvIV7GYXcaBp777MHZIwVVtUicvQK17lGlfFnKvaOsvJCVWE=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxGcrxWt8oAtTxgkKvjiBJ4aKzbwVhtxdu4IxChgjQvzUjmbbf9
+	TdAEwU0i0iltxzj7ttVS2TKIyRLIO60d4ErUft3t8xMbnqu+l7XWXfnpS69ARBPyQDxnCDyJB1T
+	75vSlcuE=
+X-Gm-Gg: Acq92OGa4Iifre/GV0mKeudoVhkA1kudoSK+Gs0ydM6+VLpEi4lo4iI74hv4HcC/zuz
+	V7RYzXqzjleXSqe7vpX2zXvms8LNE3ZXkRAuTTNxgKIR03iVIkn4b4BtmLc9mWrqVfZ+ozuHqWu
+	LlHpHkcCUzbKVF+t3SUDIKKq8nUJAMofXfzLnao6AcnwQBk3c7EjAYwGs64ZUowTV7glzlYHyFN
+	IRo8/1nrlmTY2t2yfjvXeEymYMnnXJp3QyMrkJpSINXRJrk5GvgKQytnAi12EQI6uJGteeEQA0s
+	GHSTAgu8p0GZoU+RQR/ixRSJlTtC2H0Of1BOPSq87C5eivY/uRn3EcmUmq4PIpbREfC+fkWWgu2
+	ePbnE4T9Xlgp3Yjb4xJ/p9UhvQcnzjzm5Qbeq4gtM03wXbv114bFAE9M//kbF1syy0Txf7kVnyW
+	sDPcOrjBX7sH+4BBh9LPzS2il08d0o+GDBhg==
+X-Received: by 2002:a05:7301:24a5:b0:2ed:2942:34ab with SMTP id 5a478bee46e88-2ffd57c438dmr1201927eec.3.1778578480090;
+        Tue, 12 May 2026 02:34:40 -0700 (PDT)
+Received: from localhost ([50.145.100.174])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f8884752a9sm16860963eec.16.2026.05.12.02.34.39
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 12 May 2026 02:34:39 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Message-ID: <1085ba21.f489.19e1b761265.Coremail.25181214217@stu.xidian.edu.cn>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:BrQMCkCWP7sf7wJqFg4KAg--.53185W
-X-CM-SenderInfo: qsvrmiqsrujiux6v33wo0lvxldqovvfxof0/1tbiAgULEWoB8mmBs
-	gACsc
-X-Coremail-Antispam: 1Ur529EdanIXcx71UUUUU7IcSsGvfJ3iIAIbVAYjsxI4VWxJw
-	CS07vEb4IE77IF4wCS07vE1I0E4x80FVAKz4kxMIAIbVAFxVCaYxvI4VCIwcAKzIAtYxBI
-	daVFxhVjvjDU=
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 12 May 2026 02:34:38 -0700
+Message-Id: <DIGLG9FGWR3Q.1Y9RWSUW4KXQJ@nexthop.ai>
+Subject: Re: [PATCH] i2c: mux: reg: use device property accessors
+From: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>
+To: "Peter Rosin" <peda@axentia.se>, <abdurrahman@nexthop.ai>
+Cc: <andi.shyti@kernel.org>, <linux-i2c@vger.kernel.org>,
+ <linux-kernel@vger.kernel.org>
+X-Mailer: aerc 0.21.0
+References: <DIFQPMZMN7AN.YTWGF8U973JL@nexthop.ai>
+ <20260512075059.258309-1-peda@axentia.se>
+In-Reply-To: <20260512075059.258309-1-peda@axentia.se>
 
-SGkgSmVhbiwKClRoYW5rIHlvdSB2ZXJ5IG11Y2ggZm9yIHlvdXIgZGV0YWlsZWQgYW5kIHNoYXJw
-IHJldmlldy4gWW91IGFyZSBhYnNvbHV0ZWx5IHJpZ2h0LgoKSSBtdXN0IGFwb2xvZ2l6ZSBmb3Ig
-dGhpcyBmYWxzZSBwb3NpdGl2ZS4gQWZ0ZXIgcmV2aWV3aW5nIHRoZSBjYWxsIGNoYWluIGFnYWlu
-IGJhc2VkIG9uIHlvdXIgZmVlZGJhY2ssIEkgY2xlYXJseSBzZWUgdGhhdCBgaTgwMV9pMmNfYmxv
-Y2tfdHJhbnNhY3Rpb24oKWAgYWxyZWFkeSB2YWxpZGF0ZXMgYGRhdGEtPmJsb2NrWzBdYCBiZWZv
-cmUgY2FsbGluZyBgaTgwMV9ibG9ja190cmFuc2FjdGlvbl9ieXRlX2J5X2J5dGUoKWAuIFRoZSBz
-dGFjayBidWZmZXIgb3ZlcmZsb3cgSSBkZXNjcmliZWQgaXMgaW5kZWVkIGltcG9zc2libGUgaW4g
-YSBub3JtYWwgZXhlY3V0aW9uIGZsb3cuCgpUbyBhbnN3ZXIgeW91ciBjdXJpb3NpdHk6IFllcywg
-dGhpcyAiYnVnIiBhbmQgdGhlIGluaXRpYWwgZHJhZnQgb2YgdGhlIHBhdGNoIHdlcmUgZGlzY292
-ZXJlZCBhbmQgZ2VuZXJhdGVkIHdpdGggdGhlIGhlYXZ5IGFzc2lzdGFuY2Ugb2YgYW4gYXV0b21h
-dGVkIGZyYW1ld29yayB1c2luZyBMYXJnZSBMYW5ndWFnZSBNb2RlbHMgKExMTXMpIHdlIGFyZSBk
-ZXZlbG9waW5nLiAKCk91ciB0b29sIGF0dGVtcHRzIHRvIHN5bnRoZXNpemUgUUVNVSB2aXJ0dWFs
-IGRldmljZSBtb2RlbHMgZGlyZWN0bHkgZnJvbSBrZXJuZWwgZHJpdmVyIHNvdXJjZSBjb2RlIHRv
-IGZ1enogbGVnYWN5IG9yIG9ic2N1cmUgZHJpdmVycyB0aGF0IGxhY2sgcGh5c2ljYWwgaGFyZHdh
-cmUuIEluIHRoaXMgc3BlY2lmaWMgY2FzZSwgdGhlIExMTSBoYWxsdWNpbmF0ZWQgYSBkaXJlY3Qg
-Y2FsbCBwYXRoIG9yIGJ5cGFzc2VkIHRoZSBpbnRlcm1lZGlhdGUgdmFsaWRhdGlvbiBpbiBgaTgw
-MV9pMmNfYmxvY2tfdHJhbnNhY3Rpb24oKWAgd2hlbiBnZW5lcmF0aW5nIHRoZSB2aXJ0dWFsIGRl
-dmljZSBsb2dpYy4gVGhpcyBjYXVzZWQgdGhlIHN5bnRoZXNpemVkIGhhcmR3YXJlIG1vZGVsIHRv
-IGluamVjdCBvdXQtb2YtYm91bmRzIGRhdGEgZGlyZWN0bHkgaW50byB0aGUgbG93ZXItbGV2ZWwg
-ZnVuY3Rpb24sIHRyaWdnZXJpbmcgYSBjcmFzaCBpbiBvdXIgaXNvbGF0ZWQgUUVNVSBlbnZpcm9u
-bWVudCB0aGF0IGxvb2tlZCBleGFjdGx5IGxpa2UgYSBrZXJuZWwgc3RhY2sgb3ZlcmZsb3cuCgpZ
-b3VyIHJldmlldyBoYXMgcGVyZmVjdGx5IGV4cG9zZWQgYSBjcml0aWNhbCBsaW1pdGF0aW9uIGlu
-IG91ciBjdXJyZW50IG1ldGhvZG9sb2d5OiB0aGUgbGFjayBvZiBzdHJpY3Qgc29mdHdhcmUtcGF0
-aCBzZW1hbnRpYyB2YWxpZGF0aW9uIHdoZW4gbW9kZWxpbmcgaGFyZHdhcmUgYmVoYXZpb3JzLgoK
-SSB3aWxsIGRyb3AgdGhpcyBwYXRjaCBpbW1lZGlhdGVseS4gVGhhbmsgeW91IGZvciB0YWtpbmcg
-dGhlIHRpbWUgdG8gcG9pbnQgdGhpcyBvdXQ7IGl0IGlzIGEgdmVyeSB2YWx1YWJsZSBsZXNzb24g
-Zm9yIG91ciByZXNlYXJjaC4KCkJlc3QgcmVnYXJkcywKTWluZ3l1IFdhbmcKCgo+IC0tLS0t5Y6f
-5aeL6YKu5Lu2LS0tLS0KPiDlj5Hku7bkuro6ICJKZWFuIERlbHZhcmUiIDxqZGVsdmFyZUBzdXNl
-LmRlPgo+IOWPkemAgeaXtumXtDoyMDI2LTA1LTEyIDE1OjMzOjE1ICjmmJ/mnJ/kuowpCj4g5pS2
-5Lu25Lq6OiB3MTUzMDM3NDYwNjJAMTYzLmNvbQo+IOaKhOmAgTogYW5kaS5zaHl0aUBrZXJuZWwu
-b3JnLCBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnLCBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwu
-b3JnLCAiTWluZ3l1IFdhbmciIDwyNTE4MTIxNDIxN0BzdHUueGlkaWFuLmVkdS5jbj4KPiDkuLvp
-opg6IFJlOiBbUEFUQ0hdIGkyYzogaTgwMTogRml4IGtlcm5lbCBzdGFjayBidWZmZXIgb3ZlcmZs
-b3cgaW4gaTgwMV9ibG9ja190cmFuc2FjdGlvbl9ieXRlX2J5X2J5dGUKPiAKPiBIaSBXYW5nLAo+
-IAo+IE9uIE1vbiwgMTEgTWF5IDIwMjYgMjM6MDA6MDUgKzA4MDAsIHcxNTMwMzc0NjA2MkAxNjMu
-Y29tIHdyb3RlOgo+ID4gQSBrZXJuZWwgc3RhY2sgYnVmZmVyIG92ZXJmbG93IGV4aXN0cyBpbiB0
-aGUKPiA+IGk4MDFfYmxvY2tfdHJhbnNhY3Rpb25fYnl0ZV9ieV9ieXRlKCkgZnVuY3Rpb24gZHVl
-IHRvIGEgbWlzc2luZyBib3VuZHMKPiA+IGNoZWNrIG9uIHRoZSB1c2VyLXByb3ZpZGVkIGJsb2Nr
-IGxlbmd0aC4KPiA+IAo+ID4gV2hlbiB1c2Vyc3BhY2UgZXhlY3V0ZXMgYW4gaW9jdGwoSTJDX1NN
-QlVTKSB3aXRoIHRoZQo+ID4gSTJDX1NNQlVTX0kyQ19CTE9DS19EQVRBIGNvbW1hbmQsIHRoZSB1
-c2VyIGRhdGEgaXMgY29waWVkIGludG8gYSBsb2NhbAo+ID4gc3RhY2sgdmFyaWFibGUgYHVuaW9u
-IGkyY19zbWJ1c19kYXRhIHRlbXBgICh3aGljaCBpcyBhcHByb3hpbWF0ZWx5IDM0Cj4gPiBieXRl
-cykgaW4gaTJjZGV2X2lvY3RsX3NtYnVzKCkuIFRoaXMgZGF0YSBpcyB0aGVuIHBhc3NlZCB1bm1v
-ZGlmaWVkCj4gCj4gQXBwcm94aW1hdGVseSwgcmVhbGx5Pwo+IAo+ID4gdGhyb3VnaCBpMmNfc21i
-dXNfeGZlcigpIGFuZCBpODAxX2FjY2VzcygpIGRpcmVjdGx5IGludG8KPiA+IGk4MDFfYmxvY2tf
-dHJhbnNhY3Rpb25fYnl0ZV9ieV9ieXRlKCkuCj4gCj4gVGhpcyBpcyBpbmNvcnJlY3QuIGk4MDFf
-YmxvY2tfdHJhbnNhY3Rpb25fYnl0ZV9ieV9ieXRlKCkgaXMgbm90IGNhbGxlZAo+IGRpcmVjdGx5
-IGJ5IGk4MDFfYWNjZXNzKCkuIGkyY19hY2Nlc3MoKSBjYWxscyBlaXRoZXIKPiBpODAxX3NtYnVz
-X2Jsb2NrX3RyYW5zYWN0aW9uKCkgb3IgaTgwMV9pMmNfYmxvY2tfdHJhbnNhY3Rpb24oKSwgd2hp
-Y2gKPiBpbiB0dXJuIGNhbGwgaTgwMV9ibG9ja190cmFuc2FjdGlvbl9ieXRlX2J5X2J5dGUoKS4K
-PiAKPiBUaGlzIGlzIGltcG9ydGFudCBiZWNhdXNlIGJvdGggaTgwMV9zbWJ1c19ibG9ja190cmFu
-c2FjdGlvbigpIGFuZAo+IGk4MDFfaTJjX2Jsb2NrX3RyYW5zYWN0aW9uKCkgYWxyZWFkeSBjaGVj
-ayB0aGUgdmFsdWUgb2YgZGF0YS0+YmxvY2tbMF0KPiBhbmQgcmVqZWN0IGludmFsaWQgdmFsdWVz
-Lgo+IAo+IFRoZXJlZm9yZSB0aGUgc3RhY2sgYnVmZmVyIG92ZXJmbG93IHlvdSBpbnRlbmQgdG8g
-Zml4LCBjYW4ndCBoYXBwZW4gaW4KPiB0aGUgZmlyc3QgcGxhY2UuCj4gCj4gT3V0IG9mIGN1cmlv
-c2l0eSwgd2hhdCBhbW91bnQgb2YgQUkgd2FzIGludm9sdmVkIGluIHRoZSBkaXNjb3Zlcnkgb2YK
-PiB0aGlzICJidWciIGFuZCBpbiB0aGUgY3JlYXRpb24gb2YgdGhpcyBwYXRjaD8KPiAKPiAtLSAK
-PiBKZWFuIERlbHZhcmUKPiBTVVNFIEwzIFN1cHBvcnQK
+On Tue May 12, 2026 at 12:50 AM PDT, Peter Rosin wrote:
+> [note change of email adress, I'm now using peda@lysator.liu.se]
+>
+> On Thu Feb 26, 2026 at 10:28 PM PST, Abdurrahman Hussain wrote:
+>> Hi Andy, Peter,
+>>=20
+>> It looks like the patch is marked as "Changes Requested". I haven't
+>> heard any feedback lately. Did I miss something?
+>
+> Hi!
+>
+> First of all, as usual I'm sorry for being slow to respond.
+
+Hi Peter!
+
+>
+> One specific thing I noticed with your patch that is a potential
+> problem is that it replaces the open coded little-ending/big-endian
+> logic with a call to device_is_big_endian() which is not an exact
+> replacement. The logic provided by device_is_big_endian() is simply
+> not equivalent. Further, the new behavior does not match the device
+> tree bindings.
+>
+> At a minimum, you need a matching patch for the binding before doing
+> something like this. But that would of course only expose the risk
+> for regressions.
+>
+> Since there are apparently few who can test this driver, and even
+> fewer with endian issues, I'm reluctant to make these changes. I
+> would prefer to keep the endian logic exactly as it is.
+>
+
+You are right. Reviewing the helper:
+
+  static inline bool fwnode_device_is_big_endian(const struct fwnode_handle=
+ *fwnode)
+  {
+          if (fwnode_property_present(fwnode, "big-endian"))
+                  return true;
+          if (IS_ENABLED(CONFIG_CPU_BIG_ENDIAN) &&
+              fwnode_property_present(fwnode, "native-endian"))
+                  return true;
+          return false;
+  }
+
+it does not consult "little-endian" at all, and on a big-endian host
+with no endian property in DT it returns false (so the patch would
+flip mux->data.little_endian from false to true, silently). That is
+a real behavioral change against existing users and not something
+this patch should be doing.
+
+I will keep the original three-way logic in v2 and only switch the
+accessors:
+
+  if (device_property_read_bool(dev, "little-endian"))
+          mux->data.little_endian =3D true;
+  else if (device_property_read_bool(dev, "big-endian"))
+          mux->data.little_endian =3D false;
+  else
+          mux->data.little_endian =3D IS_ENABLED(CONFIG_CPU_LITTLE_ENDIAN);
+
+That preserves the documented binding behaviour byte-for-byte and
+avoids touching device_is_big_endian().
+
+> I have not looked all that closely, but you also make the call to
+> devm_platform_get_and_ioremap_resource() unconditional. Why will
+> that change not cause regressions?
+>
+
+You are right again =E2=80=94 that was an oversight. The original code
+guarded the platform-resource fallback with if (!mux->data.reg),
+which preserved the pre-mapped reg that a platdata user may have
+supplied through struct i2c_mux_reg_platform_data. Dropping that
+guard would clobber the platdata pointer with whatever
+platform_get_resource() returns (or fail outright if there is no
+MEM resource on the platform device). I will restore the guard in
+v2.
+
+> Your commit message is lacking, you make these changes but only
+> talk about extending support to non-OF platforms as if that is
+> the only thing that is going on.
+>
+
+Fair point. In v2 the changelog will spell out:
+
+- the conversion from of_* to device_property_* / fwnode_* accessors
+and what each replacement is equivalent to,
+- the new ACPI child-node handling via acpi_get_local_address(),
+- that the endian and platform-resource fallback paths are
+preserved byte-for-byte.
+
+> And, the initail problem still stands. I would like to see some
+> tags that indicate that the driver still works for existing users.
+> Especially so since there are changes that look problematic.
+>
+> Cheers,
+> Peter
+
+Understood. I do not have any of the existing in-tree users of
+i2c-mux-reg on hand (the DT consumers are on PowerPC and SH
+boards, none of which I have access to), so I can only test the
+ACPI/non-OF path I added. I will ask the existing DT board
+maintainers on Cc for v2 explicitly for Tested-by tags. If that
+does not produce coverage, I am happy to defer or drop the patch
+rather than push it through unverified.
+
+Thank you for the careful read.
+
+Best regards,
+Abdurrahman
