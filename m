@@ -1,81 +1,116 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D5D23845DA
-	for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 08:47:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from zg8tmtyylji0my4xnjqumte4.icoremail.net (zg8tmtyylji0my4xnjqumte4.icoremail.net [162.243.164.118])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 53E8D3AEF58;
+	Tue, 12 May 2026 09:13:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.164.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778575668; cv=none; b=D1LeiRFJDEjuzVhsQeW2Mk+U+WNh6Ufb/8As007F8IelHG+e0sO4AJ9Whrc6NA83tGEvF4zMmzBut/Lxn9zOyMlmo6Oo/z1FtvmN8I7HoRdx1+oXxptZgDC+KXFuKUm8VJJgijkVB1LfW6Y5FmuH1mRwnHKK4OPzdJSsv/6YC4Y=
+	t=1778577211; cv=none; b=a6sfordIa8vvXrfEzzrkoxZzcYub41wF/7sT04LYc2Xe+P5e/3qpmCN4+ETfoEPFO32A8M02Dgoo0ogKVF+eYf5Ia5lLVvLvQbGC30izEIImuDn3NPAsEyBR6O0SU6ec9D5dQpJEr/4zELjpFlYmwZNj2sLKyLGcDivqW1FStaI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778575668; c=relaxed/simple;
-	bh=w98VA95s3t3DWWPos/TgmDMCypg9HnmJFWLQI1FRGPI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GeNQNU0Dubp0ATFeIbYYncwGefnOcybSrKA86/kDWPXwWTpJHEBfXMrNk0WnSi8UVAQjjHA4jqySFesBP+QBhIjfMmrt1uh4Lcs3lq7tBUfos6zt+tCjJ70WMk7B6Mp13SdivzivPfWaLTussjs1PDmVkVaJTjQ0TahhwvV68pg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Wqh45Cju; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778577211; c=relaxed/simple;
+	bh=klFGdSIa+T6QYv5LTo9fKHJej8D8m5uGk+gTKxE9iq8=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
+	 MIME-Version:Message-ID; b=iiyxKq0LGEgOXAw95uYyDJcIsEkouXORjxElMVQftT82lbzfTWxhnchZp01NjJXRNlVx27tb0DBC1xssZcrF07Cyy8gc7vJ7EAlH+MuRVXxnY5FdYLUMnDqNZKNqLvImh/GCpEDdofjYcYpInJmCxDBhYRGMZA6D03OWcv8WwpA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=stu.xidian.edu.cn; spf=pass smtp.mailfrom=stu.xidian.edu.cn; dkim=fail (0-bit key) header.d=stu.xidian.edu.cn header.i=@stu.xidian.edu.cn header.b=IuNz6ANo reason="key not found in DNS"; arc=none smtp.client-ip=162.243.164.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=stu.xidian.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=stu.xidian.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Wqh45Cju"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BEE7C2BCB8
-	for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 08:47:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778575667;
-	bh=w98VA95s3t3DWWPos/TgmDMCypg9HnmJFWLQI1FRGPI=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=Wqh45Cju6dGkq63BFa2qd6NT8EdgHDZv+704HehEBmhGLvvHXd4E0dbrGdmDNDWWG
-	 Bb9JN7u+gW5L1A5+WJL4ToTULguswxJN4uLyv93Ecm9T/Mlcp6ZlSVTywCyCR+FTXX
-	 6jyXUqxnNvDYm2AcZwWl6Os6yYsnXlPAnXpe/jS9ti+NdiFXnPuHOPpxuioXcOfcL1
-	 xZUfRyEJ2I9Y3ari5vOy4T1hcKUhRHqOcTRoWJuFwBYbttJmP8SM4r1LYE1Ys+vkGM
-	 bpKT07jRk16JtAlDXnQT6vkof2Z0UkAWPUxeHG5UHI1qMBmCFJvmzzYvWjS0AbDwDH
-	 R3aNMkTivSVzg==
-Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-59dea72099eso5365096e87.0
-        for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 01:47:46 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ+JyPiAm1KWGbG2/CVvpB1Ww1qW/CamNuGPh7TSWi1uAW0XdLcq8iHEJaNbqtbE62fnNKqHbq7hnIs=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzTFFNaiVQ5pPOCWC229AhZWE9wXi5oi7xvRdCk0POPyg4FjVAV
-	HuZarPriF6eQ0FdlPQ4/ItLwDJZOQUFHiqc5lyTAg+cx/b6wufwILmFEXEn+DMaIOeJ5fftXidj
-	aEu5Hfajq+V/ZUgT4QfvwoHazBncrfTM=
-X-Received: by 2002:ac2:4c50:0:b0:5a8:89c5:2c0f with SMTP id
- 2adb3069b0e04-5a8e31e0f40mr536289e87.25.1778575665775; Tue, 12 May 2026
- 01:47:45 -0700 (PDT)
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=stu.xidian.edu.cn header.i=@stu.xidian.edu.cn header.b="IuNz6ANo"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=stu.xidian.edu.cn; s=dkim; h=Received:Date:From:To:Cc:Subject:
+	In-Reply-To:References:Content-Transfer-Encoding:Content-Type:
+	MIME-Version:Message-ID; bh=r1LhsHJn6+rpmX0/aTDRxAgoL+ciVbQfvxL5
+	bz/f7gY=; b=IuNz6ANo2W8Ew/IBbdZQGHGNRoMq0i6kZiiMblZD88k9SLPpLEoQ
+	tGhdZEI9sTA7Kr4GeW+Dm2/OYTlqoXQO/foa4fiMomKbj4foMhR8ZLc2eqLCDcOy
+	2EYqt6M6bOa715UjP+QETSCB98tGCpeKOhw0F0oZGoqpNbsVPkXwtvo=
+Received: from 25181214217$stu.xidian.edu.cn ( [113.200.174.80] ) by
+ ajax-webmail-hzbj-edu-front-4.icoremail.net (Coremail) ; Tue, 12 May 2026
+ 17:13:03 +0800 (GMT+08:00)
+Date: Tue, 12 May 2026 17:13:03 +0800 (GMT+08:00)
+X-CM-HeaderCharset: UTF-8
+From: =?UTF-8?B?546L5piO54Wc?= <25181214217@stu.xidian.edu.cn>
+To: "Jean Delvare" <jdelvare@suse.de>
+Cc: w15303746062@163.com, andi.shyti@kernel.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: Re: [PATCH] i2c: i801: Fix kernel stack buffer overflow in
+ i801_block_transaction_byte_by_byte
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version 2024.3-cmXT6 build
+ 20250410(2f5ccd7f) Copyright (c) 2002-2026 www.mailtech.cn
+ mispb-8dfce572-2f24-404d-b59d-0dd2e304114c-icoremail.cn
+In-Reply-To: <20260512092822.6b403fd5@endymion>
+References: <20260511150005.305818-1-w15303746062@163.com>
+ <20260512092822.6b403fd5@endymion>
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260512073139.16343-1-hardikprakash.official@gmail.com> <20260512073139.16343-2-hardikprakash.official@gmail.com>
-In-Reply-To: <20260512073139.16343-2-hardikprakash.official@gmail.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Tue, 12 May 2026 10:47:34 +0200
-X-Gmail-Original-Message-ID: <CAD++jLmqaz326e5TmmgYr_xFjKbb6izFydnzuYn0Mc2-B1jG+Q@mail.gmail.com>
-X-Gm-Features: AVHnY4JyxuA878_17Zsh5MWnJ4LW4ymphqteA4V3eeDrDkxjpOiQJxQuRYpq9Rs
-Message-ID: <CAD++jLmqaz326e5TmmgYr_xFjKbb6izFydnzuYn0Mc2-B1jG+Q@mail.gmail.com>
-Subject: Re: [PATCH 1/2] pinctrl-amd: enable IRQ for WACF2200 touchscreen on
- Lenovo Yoga 7 14AGP11
-To: Hardik Prakash <hardikprakash.official@gmail.com>, Andy Shevchenko <andy@kernel.org>, 
-	"Rafael J. Wysocki" <rafael@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>
-Cc: linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linus.walleij@linaro.org, wsa@kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Message-ID: <1085ba21.f489.19e1b761265.Coremail.25181214217@stu.xidian.edu.cn>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID:BrQMCkCWP7sf7wJqFg4KAg--.53185W
+X-CM-SenderInfo: qsvrmiqsrujiux6v33wo0lvxldqovvfxof0/1tbiAgULEWoB8mmBs
+	gACsc
+X-Coremail-Antispam: 1Ur529EdanIXcx71UUUUU7IcSsGvfJ3iIAIbVAYjsxI4VWxJw
+	CS07vEb4IE77IF4wCS07vE1I0E4x80FVAKz4kxMIAIbVAFxVCaYxvI4VCIwcAKzIAtYxBI
+	daVFxhVjvjDU=
 
-On Tue, May 12, 2026 at 9:32=E2=80=AFAM Hardik Prakash
-<hardikprakash.official@gmail.com> wrote:
-
-> On Lenovo Yoga 7 14AGP11 (83TD), the WACF2200 touchscreen controller
-> is wired via I2C2 (AMDI0010:02) with its interrupt on GPIO pin 157
-> (confirmed via ACPI _CRS GpioInt decode). After amd_gpio_irq_init()
-> clears all GPIO interrupts at boot, pin 157 is never re-enabled,
-> preventing the touchscreen from signalling the driver.
->
-> Windows keeps GPIO 157 INTERRUPT_ENABLE (bit 11) and INTERRUPT_MASK
-> (bit 12) set after initialisation. Add a DMI quirk to restore these
-> bits after amd_gpio_irq_init() on this hardware.
->
-> Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
-
-I don't understand DMI quirks.
-
-Andy, Rafael or Mika has to ACK this if I should merge it, otherwise it
-looks superficially good.
-
-Yours,
-Linus Walleij
+SGkgSmVhbiwKClRoYW5rIHlvdSB2ZXJ5IG11Y2ggZm9yIHlvdXIgZGV0YWlsZWQgYW5kIHNoYXJw
+IHJldmlldy4gWW91IGFyZSBhYnNvbHV0ZWx5IHJpZ2h0LgoKSSBtdXN0IGFwb2xvZ2l6ZSBmb3Ig
+dGhpcyBmYWxzZSBwb3NpdGl2ZS4gQWZ0ZXIgcmV2aWV3aW5nIHRoZSBjYWxsIGNoYWluIGFnYWlu
+IGJhc2VkIG9uIHlvdXIgZmVlZGJhY2ssIEkgY2xlYXJseSBzZWUgdGhhdCBgaTgwMV9pMmNfYmxv
+Y2tfdHJhbnNhY3Rpb24oKWAgYWxyZWFkeSB2YWxpZGF0ZXMgYGRhdGEtPmJsb2NrWzBdYCBiZWZv
+cmUgY2FsbGluZyBgaTgwMV9ibG9ja190cmFuc2FjdGlvbl9ieXRlX2J5X2J5dGUoKWAuIFRoZSBz
+dGFjayBidWZmZXIgb3ZlcmZsb3cgSSBkZXNjcmliZWQgaXMgaW5kZWVkIGltcG9zc2libGUgaW4g
+YSBub3JtYWwgZXhlY3V0aW9uIGZsb3cuCgpUbyBhbnN3ZXIgeW91ciBjdXJpb3NpdHk6IFllcywg
+dGhpcyAiYnVnIiBhbmQgdGhlIGluaXRpYWwgZHJhZnQgb2YgdGhlIHBhdGNoIHdlcmUgZGlzY292
+ZXJlZCBhbmQgZ2VuZXJhdGVkIHdpdGggdGhlIGhlYXZ5IGFzc2lzdGFuY2Ugb2YgYW4gYXV0b21h
+dGVkIGZyYW1ld29yayB1c2luZyBMYXJnZSBMYW5ndWFnZSBNb2RlbHMgKExMTXMpIHdlIGFyZSBk
+ZXZlbG9waW5nLiAKCk91ciB0b29sIGF0dGVtcHRzIHRvIHN5bnRoZXNpemUgUUVNVSB2aXJ0dWFs
+IGRldmljZSBtb2RlbHMgZGlyZWN0bHkgZnJvbSBrZXJuZWwgZHJpdmVyIHNvdXJjZSBjb2RlIHRv
+IGZ1enogbGVnYWN5IG9yIG9ic2N1cmUgZHJpdmVycyB0aGF0IGxhY2sgcGh5c2ljYWwgaGFyZHdh
+cmUuIEluIHRoaXMgc3BlY2lmaWMgY2FzZSwgdGhlIExMTSBoYWxsdWNpbmF0ZWQgYSBkaXJlY3Qg
+Y2FsbCBwYXRoIG9yIGJ5cGFzc2VkIHRoZSBpbnRlcm1lZGlhdGUgdmFsaWRhdGlvbiBpbiBgaTgw
+MV9pMmNfYmxvY2tfdHJhbnNhY3Rpb24oKWAgd2hlbiBnZW5lcmF0aW5nIHRoZSB2aXJ0dWFsIGRl
+dmljZSBsb2dpYy4gVGhpcyBjYXVzZWQgdGhlIHN5bnRoZXNpemVkIGhhcmR3YXJlIG1vZGVsIHRv
+IGluamVjdCBvdXQtb2YtYm91bmRzIGRhdGEgZGlyZWN0bHkgaW50byB0aGUgbG93ZXItbGV2ZWwg
+ZnVuY3Rpb24sIHRyaWdnZXJpbmcgYSBjcmFzaCBpbiBvdXIgaXNvbGF0ZWQgUUVNVSBlbnZpcm9u
+bWVudCB0aGF0IGxvb2tlZCBleGFjdGx5IGxpa2UgYSBrZXJuZWwgc3RhY2sgb3ZlcmZsb3cuCgpZ
+b3VyIHJldmlldyBoYXMgcGVyZmVjdGx5IGV4cG9zZWQgYSBjcml0aWNhbCBsaW1pdGF0aW9uIGlu
+IG91ciBjdXJyZW50IG1ldGhvZG9sb2d5OiB0aGUgbGFjayBvZiBzdHJpY3Qgc29mdHdhcmUtcGF0
+aCBzZW1hbnRpYyB2YWxpZGF0aW9uIHdoZW4gbW9kZWxpbmcgaGFyZHdhcmUgYmVoYXZpb3JzLgoK
+SSB3aWxsIGRyb3AgdGhpcyBwYXRjaCBpbW1lZGlhdGVseS4gVGhhbmsgeW91IGZvciB0YWtpbmcg
+dGhlIHRpbWUgdG8gcG9pbnQgdGhpcyBvdXQ7IGl0IGlzIGEgdmVyeSB2YWx1YWJsZSBsZXNzb24g
+Zm9yIG91ciByZXNlYXJjaC4KCkJlc3QgcmVnYXJkcywKTWluZ3l1IFdhbmcKCgo+IC0tLS0t5Y6f
+5aeL6YKu5Lu2LS0tLS0KPiDlj5Hku7bkuro6ICJKZWFuIERlbHZhcmUiIDxqZGVsdmFyZUBzdXNl
+LmRlPgo+IOWPkemAgeaXtumXtDoyMDI2LTA1LTEyIDE1OjMzOjE1ICjmmJ/mnJ/kuowpCj4g5pS2
+5Lu25Lq6OiB3MTUzMDM3NDYwNjJAMTYzLmNvbQo+IOaKhOmAgTogYW5kaS5zaHl0aUBrZXJuZWwu
+b3JnLCBsaW51eC1pMmNAdmdlci5rZXJuZWwub3JnLCBsaW51eC1rZXJuZWxAdmdlci5rZXJuZWwu
+b3JnLCAiTWluZ3l1IFdhbmciIDwyNTE4MTIxNDIxN0BzdHUueGlkaWFuLmVkdS5jbj4KPiDkuLvp
+opg6IFJlOiBbUEFUQ0hdIGkyYzogaTgwMTogRml4IGtlcm5lbCBzdGFjayBidWZmZXIgb3ZlcmZs
+b3cgaW4gaTgwMV9ibG9ja190cmFuc2FjdGlvbl9ieXRlX2J5X2J5dGUKPiAKPiBIaSBXYW5nLAo+
+IAo+IE9uIE1vbiwgMTEgTWF5IDIwMjYgMjM6MDA6MDUgKzA4MDAsIHcxNTMwMzc0NjA2MkAxNjMu
+Y29tIHdyb3RlOgo+ID4gQSBrZXJuZWwgc3RhY2sgYnVmZmVyIG92ZXJmbG93IGV4aXN0cyBpbiB0
+aGUKPiA+IGk4MDFfYmxvY2tfdHJhbnNhY3Rpb25fYnl0ZV9ieV9ieXRlKCkgZnVuY3Rpb24gZHVl
+IHRvIGEgbWlzc2luZyBib3VuZHMKPiA+IGNoZWNrIG9uIHRoZSB1c2VyLXByb3ZpZGVkIGJsb2Nr
+IGxlbmd0aC4KPiA+IAo+ID4gV2hlbiB1c2Vyc3BhY2UgZXhlY3V0ZXMgYW4gaW9jdGwoSTJDX1NN
+QlVTKSB3aXRoIHRoZQo+ID4gSTJDX1NNQlVTX0kyQ19CTE9DS19EQVRBIGNvbW1hbmQsIHRoZSB1
+c2VyIGRhdGEgaXMgY29waWVkIGludG8gYSBsb2NhbAo+ID4gc3RhY2sgdmFyaWFibGUgYHVuaW9u
+IGkyY19zbWJ1c19kYXRhIHRlbXBgICh3aGljaCBpcyBhcHByb3hpbWF0ZWx5IDM0Cj4gPiBieXRl
+cykgaW4gaTJjZGV2X2lvY3RsX3NtYnVzKCkuIFRoaXMgZGF0YSBpcyB0aGVuIHBhc3NlZCB1bm1v
+ZGlmaWVkCj4gCj4gQXBwcm94aW1hdGVseSwgcmVhbGx5Pwo+IAo+ID4gdGhyb3VnaCBpMmNfc21i
+dXNfeGZlcigpIGFuZCBpODAxX2FjY2VzcygpIGRpcmVjdGx5IGludG8KPiA+IGk4MDFfYmxvY2tf
+dHJhbnNhY3Rpb25fYnl0ZV9ieV9ieXRlKCkuCj4gCj4gVGhpcyBpcyBpbmNvcnJlY3QuIGk4MDFf
+YmxvY2tfdHJhbnNhY3Rpb25fYnl0ZV9ieV9ieXRlKCkgaXMgbm90IGNhbGxlZAo+IGRpcmVjdGx5
+IGJ5IGk4MDFfYWNjZXNzKCkuIGkyY19hY2Nlc3MoKSBjYWxscyBlaXRoZXIKPiBpODAxX3NtYnVz
+X2Jsb2NrX3RyYW5zYWN0aW9uKCkgb3IgaTgwMV9pMmNfYmxvY2tfdHJhbnNhY3Rpb24oKSwgd2hp
+Y2gKPiBpbiB0dXJuIGNhbGwgaTgwMV9ibG9ja190cmFuc2FjdGlvbl9ieXRlX2J5X2J5dGUoKS4K
+PiAKPiBUaGlzIGlzIGltcG9ydGFudCBiZWNhdXNlIGJvdGggaTgwMV9zbWJ1c19ibG9ja190cmFu
+c2FjdGlvbigpIGFuZAo+IGk4MDFfaTJjX2Jsb2NrX3RyYW5zYWN0aW9uKCkgYWxyZWFkeSBjaGVj
+ayB0aGUgdmFsdWUgb2YgZGF0YS0+YmxvY2tbMF0KPiBhbmQgcmVqZWN0IGludmFsaWQgdmFsdWVz
+Lgo+IAo+IFRoZXJlZm9yZSB0aGUgc3RhY2sgYnVmZmVyIG92ZXJmbG93IHlvdSBpbnRlbmQgdG8g
+Zml4LCBjYW4ndCBoYXBwZW4gaW4KPiB0aGUgZmlyc3QgcGxhY2UuCj4gCj4gT3V0IG9mIGN1cmlv
+c2l0eSwgd2hhdCBhbW91bnQgb2YgQUkgd2FzIGludm9sdmVkIGluIHRoZSBkaXNjb3Zlcnkgb2YK
+PiB0aGlzICJidWciIGFuZCBpbiB0aGUgY3JlYXRpb24gb2YgdGhpcyBwYXRjaD8KPiAKPiAtLSAK
+PiBKZWFuIERlbHZhcmUKPiBTVVNFIEwzIFN1cHBvcnQK
