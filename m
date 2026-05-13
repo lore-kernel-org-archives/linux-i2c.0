@@ -1,112 +1,99 @@
-Received: from out-188.mta0.migadu.com (out-188.mta0.migadu.com [91.218.175.188])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A2372BE7D1
-	for <linux-i2c@vger.kernel.org>; Tue, 12 May 2026 21:36:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.188
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B52D338886F
+	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 04:50:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778621806; cv=none; b=YndsWih9vFJLoDfdkKgP+0norh9MEBnkDTYTVIyBBTqfIh3DsB7sP/xKIVTOPX2RUL/IxJzX0XCIDpe86Ilnq+gXEw6kK02KsP0O6Y4gnpEHNRul9w41nsYH/wU/VOUlSRVSz7+VRUfIvdasIblrgLAUfD3YsXxJrD/GAvmNM9Q=
+	t=1778647860; cv=none; b=mKsnZOUfeBIKE0SJ6Ff0qcUn78PJxFk/GotCIAtu0Rggx2Bf/xC8bv0P/a28GFSjtJErUTgvi5vkzsGm/ewFGW1PlJ6qQUPv+dtKx71/PE9pxUEvyp6TyE7wNLImuI4KOkays6+iihsQSTXLHt9KQ1Sbd3Kezgtjt7P5d5zm52Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778621806; c=relaxed/simple;
-	bh=0vAP28fh1vXeuE2/nJrsMQ+1H1ysW38QAL3eoe9zj44=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PNNh3Gwa7cToCfqHfEQz2hXDETPqAivOpEnwM8oCk2B+u8LOS1CqZlhJIZeD5vui95dGhqZ0fcC1FfyaoF1zy+f7QB1x25Ee0kuHmbQutH+YXBZzR3NCmFpY9zgWJ81dAJkrzBOdBG3MQx9cxs90T0NgoVSCHcsSob7RTsku39Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=flipperpa.ws; spf=pass smtp.mailfrom=flipperpa.ws; dkim=pass (2048-bit key) header.d=flipperpa.ws header.i=@flipperpa.ws header.b=5G8IDFcC; arc=none smtp.client-ip=91.218.175.188
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=flipperpa.ws
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flipperpa.ws
+	s=arc-20240116; t=1778647860; c=relaxed/simple;
+	bh=41f5Pqxk/tEuzvRIFPNV0Mr//0X8y8j2ZbayFb3p7cY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=OvTsIUzG4hGLNNx0dhyfJBeslH76/Obm9XVUtoQ67Ptrtpz2cQcruzFHSTyS22lVQXmlCXsF8fi33dk/mhvfevZMjF3Mwf4Ra47bNmOQXKEyDhwuQgDsWGl+7cI8LUamgR2Nk0a5GikNwus/eOnWkCZKu6b7kZvjm2pGzznkhgg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=SiCqEB9u; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=flipperpa.ws header.i=@flipperpa.ws header.b="5G8IDFcC"
-Message-ID: <1453fe0d-230c-4655-93ad-3f685b8ab713@flipperpa.ws>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=flipperpa.ws;
-	s=key1; t=1778621792;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=FreEy+Htd1nD+3U09B1yurSwA28R+OhBDx0gjRFjvC0=;
-	b=5G8IDFcCrb8yzddOb8HveaXflZMc6dpbiNumgTkuKGTGk1LSKsL+Rku6+2X1+Zore/pCOK
-	3KORjC3Ouw8t17XUm57/isSQBuEKCtvPLrKXykcEIAzH0VB+r/iqSZpIkHpV4HWyNuI4sM
-	y9omTq9SLGJNGJ/GLfz+BJ3b0k1C4O2V0lV0Q2+Gf4aEmOtNpWuKX5z05ACrQliKqjt52f
-	TrxnJOQWb8TLsk7kOFxezLDo6c2YVgoAgBhVJ2TBqMEbX3frEaexDQZkuh9iWBnMpfMV3+
-	QAHvEtjucSPiCr7CY0cpobCY7YENqk+UFi76oSiOY3vGGw4CZvuvG5fUbuHijQ==
-Date: Tue, 12 May 2026 23:36:26 +0200
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="SiCqEB9u"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=dLTu
+	nY8KrgPLjCZuvNRDardUCjFD+q3zOAnvYqiBvNQ=; b=SiCqEB9uQXb9h8BglpV7
+	V4ZC3oNiu5SNxVkg7ei7MjOdRoB5u2pHKWuaZvcMvKQax/46kqYkQyWYwenf9BBt
+	fwUnYqJSDv9MBY3TkqIsupAp2EbZAFRrYtQoxIeBEHNtQCTGRjLFdZ4mGyo5SzW/
+	FcjwxokKoYA4IzV/XecuXTQf65o99eNrY7km0mb7xckpNvz0OJjEW523so5U6VFP
+	xmnrDwuMvp/rCLWrzNuAJ3wDlvMG4a0l5dVsEYk6ehHrAd3kdDhfXgue+Zf7BHMk
+	fpcOkz+KGrbUBQ6YfRhkEU4gJ0wq05ZoRLpvhacqpsAclbwIFifaSaVJq0LterPh
+	xA==
+Received: (qmail 3273995 invoked from network); 13 May 2026 06:50:53 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 13 May 2026 06:50:53 +0200
+X-UD-Smtp-Session: l3s3148p1@K2t6uatRyOwujnsX
+Date: Wed, 13 May 2026 06:50:52 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Odoben <odoben@flipperpa.ws>
+Cc: Niels Franke <nielsfranke@gmail.com>, westeri@kernel.org,
+	linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: acpi: Add ELAN0678 to
+ i2c_acpi_force_100khz_device_ids
+Message-ID: <agQDLAXhJO-u26oI@shikoro>
+References: <20260418053719.15766-1-nielsfranke@gmail.com>
+ <afhkiGREdd50vYNN@ninjato>
+ <1453fe0d-230c-4655-93ad-3f685b8ab713@flipperpa.ws>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Subject: Re: [PATCH] i2c: acpi: Add ELAN0678 to
- i2c_acpi_force_100khz_device_ids
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
- Niels Franke <nielsfranke@gmail.com>
-Cc: westeri@kernel.org, linux-i2c@vger.kernel.org,
- linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260418053719.15766-1-nielsfranke@gmail.com>
- <afhkiGREdd50vYNN@ninjato>
-Content-Language: en-US, en-GB
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Odoben <odoben@flipperpa.ws>
-In-Reply-To: <afhkiGREdd50vYNN@ninjato>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="OqcfH1uCUtg8dJh8"
+Content-Disposition: inline
+In-Reply-To: <1453fe0d-230c-4655-93ad-3f685b8ab713@flipperpa.ws>
+
+
+--OqcfH1uCUtg8dJh8
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
 Hi,
 
-I have what appears to be the same issue on a ThinkPad X13 Gen 2 with 
-Intel i5-1145G7, but with ACPI HID ELAN0676 instead of ELAN0678.
+> I have what appears to be the same issue on a ThinkPad X13 Gen 2 with
+> Intel=C2=A0i5-1145G7, but with ACPI HID ELAN0676 instead of ELAN0678.
 
-The touchpad is:
+=2E..
 
-ELAN0676:00 04F3:3195 Touchpad
+> Would it make sense to include ELAN0676 in the
+> same=C2=A0i2c_acpi_force_100khz_device_ids quirk?
 
-libinput reports:
+Sounds much like it. Can you create such a patch? Or can you test such
+a patch if we provide you one?
 
-Id: i2c:04f3:3195
+Happy hacking,
 
-dmesg shows:
+   Wolfram
 
-i2c_designware.0 -> i2c-ELAN0676:00 -> hid-multitouch
 
-The ACPI table contains:
+--OqcfH1uCUtg8dJh8
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Package (0x06)
-{
-0x04F3,
-0x3195,
-0x15,
-One,
-One,
-"ELAN0676"
-}
+-----BEGIN PGP SIGNATURE-----
 
-and the surrounding firmware logic maps the fifth field to speed:
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoEAygACgkQFA3kzBSg
+KbaBIA/6AkUUiLJC85/0nc6aL+w6RvITg9GKWAefYmISbCQ45gG5wrUZ6rx7zjXW
+LH1QiNrTJ2vtaWe6H/94+GHUMIA4DMUZ55Wi/0JCCfeNLatUZ+NDgPeiNbuU11Dx
+34HEkXoYgU/hdkMicQV5T4FjEBZPH7BVUQFkYWL7SCuX2ahmuFGAewtMWEtnxd62
+evb1iGSj7rEiV5eWBmiTtwAqsvQWFzDxNQEayk2NDgaoHL72GwFjk1akK8VCj+55
+sgnQ92MctzkRJqF6++PvUvz+eN26wAtes5x5trroeBWiEZOVnGZsRLYXDu1EWehu
+zlaKGJxn7tWByXOczW1yaaXDFRj0Bt8FhBtzy/2ZBZMvDIto9NWXp5byOwDPEoUs
+YHovGsnQdrUPmxML60yWQ4lqmlDZOFf1jJ3I1o//J2akIHWYlYteWUpo4O6lMA4p
+HcLL/p/6rcTb1LRvZd5e+iRWepBXq85UDjRiGXB9eDERzi33Y6Jt+t5w1oqtdDSU
+cvKYY61J34hBknGcoqO7IUC/WWzXBEbZAhkS0BMuZ00au0Mjm6u38YynksWy3CL2
+QK1zEv68AUtzEBVvLRsKsbzGCRh9ECZtY7A2X2Sb1TxWya5JmHU79ntLR7xBwtLp
+yJQHZEUDZtbf0fnUP9DHnWKfox11nu+Xjn+Xxq5tmCZbWhDtfhk=
+=594j
+-----END PGP SIGNATURE-----
 
-Local5 == Zero -> SPED = 0x000186A0 = 100 kHz
-Local5 == One -> SPED = 0x00061A80 = 400 kHz
-
-So this machine also configures the 04F3:3195 ELAN touchpad at 400 
-kHz. The symptom is very frequent rubbery/sluggish pointer movement, 
-consistent with the excessive smoothing described for ELAN0678.
-
-Would it make sense to include ELAN0676 in the 
-same i2c_acpi_force_100khz_device_ids quirk?
-
-Thanks,
-Odoben
-
-On 2026-05-04 11:19, Wolfram Sang wrote:
-> On Sat, Apr 18, 2026 at 07:37:19AM +0200, Niels Franke wrote:
->> The ELAN0678 touchpad (04F3:3195) found in the Lenovo ThinkPad X13
->> exhibits excessive smoothing when the I2C bus runs at 400KHz, making
->> the touchpad feel sluggish when plugged into AC power. This is the
->> same issue previously fixed for ELAN06FA.
->>
->> The device's ACPI table (Lenovo TP-R22) specifies 0x00061A80 (400KHz)
->> for the I2cSerialBusV2 descriptor. Forcing the bus to 100KHz eliminates
->> the sluggish behavior.
->>
->> Signed-off-by: Niels Franke <nielsfranke@gmail.com>
-> Kept the sorting (alphanumeric) and applied to for-current, thanks!
->
+--OqcfH1uCUtg8dJh8--
