@@ -1,50 +1,50 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66A4B30DD1B;
-	Wed, 13 May 2026 17:05:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4A7A389DF0;
+	Wed, 13 May 2026 17:05:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778691910; cv=none; b=bXGNa+ybiHfZWbf/r6SLzvfgqbeHp3OdZgrB3Tnk0JiGavPBfpqOibkKNSYMYWKV01U+uRmB8biiuRlTp3qVJY7ePSlw3FEQF6maWNGp8odSyvqwLTbgaTapiWVrm/zJME8tFj3KF0UTK82WX5O+6lDKQgN9hgJo8I96AWEEFhQ=
+	t=1778691924; cv=none; b=uGSZ17w1Wqs5by7oEFvLjnVWYpyZZqYnOV42K3v5EtD9qBM72qUsrqD8c4qwM4i6t/VdzuVMXs/qh60F5FxG92nGD6Ju7S+3JOQKk/ZyUsoGvNhVpGG1GNe0GhbrX/KiKOsFHlrGv8hDa/1ohmeQG2mG1/nwnayrUaHceRASHt8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778691910; c=relaxed/simple;
-	bh=pD2y133+MNgkoNr3quTW76FGiTi0U6sd84qgVAoBu1g=;
+	s=arc-20240116; t=1778691924; c=relaxed/simple;
+	bh=B+Lh2COB90j5rStyv1o/M72otL7lieSerd5T2ErAozg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Zu8IiskgP2BzqV0St1OpKkxxvuD0tcP6GMir/C0gmOFMC+UJN8wwu/4ddkGMeyZaCQsmIOknEeEnutMUKu4jHd54U6tv3cLJXPcEcoHALwtuVenHMZBmbicEB08EnNM6/eSPY9sNd04Jk0/ZZm+G0cGFDDsCH09xQFt62C1FjSA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oY1+9yFw; arc=none smtp.client-ip=10.30.226.201
+	 Content-Type:Content-Disposition:In-Reply-To; b=VNC8civX2TbViOaXuBSLRTaxPKa4HovZOC474NRr1bX+a89lhubz90sA6XAVNILS2Xm5nuD2vVm6OmscEFxcWrl4xHn99HyNqZ/YZM43nzVJOKlkoACoplA/zvySEhhv4GX+rBPQShIYzsraqRwtLKoYIQFrElREgy32dJnESKE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=j86+vXxl; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oY1+9yFw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE86DC19425;
-	Wed, 13 May 2026 17:05:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="j86+vXxl"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DB7BC19425;
+	Wed, 13 May 2026 17:05:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778691910;
-	bh=pD2y133+MNgkoNr3quTW76FGiTi0U6sd84qgVAoBu1g=;
+	s=k20201202; t=1778691924;
+	bh=B+Lh2COB90j5rStyv1o/M72otL7lieSerd5T2ErAozg=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=oY1+9yFwysb+cDH0n/dgzJTvyWmbhvdAQhddqS44JEXn5L8gVbWcMAo7qTJYusa4X
-	 r/3sh6MeRxRbb/ykQhqT4ZMaCHIeI1r2WB8oSPZDj2DkIIaYIUq8w6Xpo4eZfdR6NU
-	 dPkcRlY3Sj6KmLLcKIrTTC/L/NZLfQOJ5z+JFeT2B4OpPWRM5W6Y+EsgfqcXkOi+qp
-	 fRIe9Qk4lcQ/ACRc02mPTgtwdkh+KllvoFxthMJ31n8R4rWhD/zlyUeM1Aq2LmJAtb
-	 dKIBsqe2M+NDEi0415Laq+bwL1YUqa8kKG2NRSxMWc1Tsq6562u7+CR7a9CuZyBTOy
-	 WxK16Cg4W+B0Q==
-Date: Wed, 13 May 2026 12:05:07 -0500
+	b=j86+vXxlfjczGFOX+pw2QWVO1pf7gG8Ju7jVRxZImVlHVOOmieIPBv8VtlTlUwy5n
+	 gDZpvo7NyLdRH4IErvy6qc+UU5lujjiqdj/vGO0eFEkM63ttPt3OG94BV806Y8/VOu
+	 jVNFhKC5UCoNC44JizcJAPLx0nLutrMdbwaRBbIx6zUf8H6J1fcYajOd9DCA5fXXof
+	 76ZRDXkzXOJhed34Y6tGycA8tcZCQ4q+76SYASz5PP0MbYM/U5uW76Ta5e3ZU4XKNb
+	 A3j11fRn+cVfE12gfrklOiJNfb2lRbNV15GCWecFNWTNcHKXUijb9k58ZkoTRGQ64w
+	 F//GpFcw4fqvw==
+Date: Wed, 13 May 2026 12:05:22 -0500
 From: "Rob Herring (Arm)" <robh@kernel.org>
 To: Ryan Chen <ryan_chen@aspeedtech.com>
-Cc: Joel Stanley <joel@jms.id.au>, openbmc@lists.ozlabs.org,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	Rayn Chen <rayn_chen@aspeedtech.com>, linux-i2c@vger.kernel.org,
-	Andrew Jeffery <andrew@codeconstruct.com.au>,
-	Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org,
-	linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+Cc: Joel Stanley <joel@jms.id.au>, devicetree@vger.kernel.org,
 	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Philipp Zabel <p.zabel@pengutronix.de>, jk@codeconstruct.com.au,
-	andriy.shevchenko@linux.intel.com,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	jk@codeconstruct.com.au, Andi Shyti <andi.shyti@kernel.org>,
+	linux-i2c@vger.kernel.org, Conor Dooley <conor+dt@kernel.org>,
 	linux-arm-kernel@lists.infradead.org,
-	Andi Shyti <andi.shyti@kernel.org>
-Subject: Re: [PATCH RESEND v29 1/4] dt-bindings: i2c: Split AST2600 binding
- into a new YAML
-Message-ID: <177869190656.1316879.13816659240778800181.robh@kernel.org>
+	Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Rayn Chen <rayn_chen@aspeedtech.com>, openbmc@lists.ozlabs.org,
+	linux-kernel@vger.kernel.org,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	linux-aspeed@lists.ozlabs.org, andriy.shevchenko@linux.intel.com
+Subject: Re: [PATCH RESEND v29 2/4] dt-bindings: i2c: ast2600-i2c.yaml: Add
+ global-regs properties
+Message-ID: <177869192135.1318285.16876434297246564335.robh@kernel.org>
 References: <20260513-upstream_i2c-v29-0-fe9926964d55@aspeedtech.com>
- <20260513-upstream_i2c-v29-1-fe9926964d55@aspeedtech.com>
+ <20260513-upstream_i2c-v29-2-fe9926964d55@aspeedtech.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -53,35 +53,33 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260513-upstream_i2c-v29-1-fe9926964d55@aspeedtech.com>
+In-Reply-To: <20260513-upstream_i2c-v29-2-fe9926964d55@aspeedtech.com>
 
 
-On Wed, 13 May 2026 13:32:00 +0800, Ryan Chen wrote:
-> The AST2600 I2C controller introduces a completely new register layout
-> with separate controller and target register blocks, unlike the mixed
-> register layout used by AST2400/AST2500.
+On Wed, 13 May 2026 13:32:01 +0800, Ryan Chen wrote:
+> Add the aspeed,global-regs phandle to reference the AST2600 global
+> registers syscon node, containing the SoC-common I2C register set.
 > 
-> Move AST2600 I2C binding from aspeed,i2c.yaml to a dedicated
-> aspeed,ast2600-i2c.yaml schema.
-> 
-> Besides the split, this also adjusts for AST2600-specific requirements.
-> - require two reg regions (controller register block + buffer block)
-> - use clock-frequency for bus speed description
-> - interrupts are required on AST2600
-> - use correct DTS coding style in example
-> 
-> No compatible strings are changed.
+> These properties apply only to the AST2600 binding. Legacy DTs remain
+> unchanged.
 > 
 > Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
 > ---
-> Changes in v26:
-> - commit message: include details of changes from original binding
-> - fix example property ordering to follow DTS coding style
-> - use consistent "AST2600" naming
+> Changes in v29:
+> - remove aspeed,enable-dma properties.
+> 
+> Changes in v28:
+> - update commit message correspond with aspeed,enable-dma.
+> - remove aspeed,transfer-mode and add aspeed,enable-dma property and
+>   description.
+> - Fix aspeed,enable-dma description to reflect hardware capability rather
+>   than software behavior
+> 
+> Changes in v27:
+> - change aspeed,transfer-mode to aspeed,enable-dma.
 > ---
->  .../bindings/i2c/aspeed,ast2600-i2c.yaml           | 62 ++++++++++++++++++++++
->  .../devicetree/bindings/i2c/aspeed,i2c.yaml        |  3 +-
->  2 files changed, 63 insertions(+), 2 deletions(-)
+>  Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml | 7 +++++++
+>  1 file changed, 7 insertions(+)
 > 
 
 Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
