@@ -1,77 +1,80 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 649BB2C032C
-	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 13:37:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC7EC3451D9
+	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 16:21:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778679440; cv=none; b=mTsfOXzNdE/GY3HGc6bvkspsq5YycJ2yurQbw1WyKUBMkD+i8pD4GSd9lEaHG69n4xLcaUdrHx+s6XmOsoXO0jQ6LNhHlBme1+1gAciNMwZb/ALFRo/57FP3YW6C7u3uBsSoiW3dW1Xq8BrVyX/pf0dLOgSNjNaKsmv1F+pcL40=
+	t=1778689300; cv=none; b=OV4BeIio4XN7zSg8YBEf1EiO3VgWofRw6HSEZUScJsnQ+R0L4NmwVZqU+hEYPyEkGPX4+EAqLtl/JA1/QQhq9szWvhO4E9cMWDMW+TWGfZRwkYPmTp/u+gvWelSxI0wn++Wtrs+8bo97X+G4cevffriukjHZ8fYQc793br9+1yg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778679440; c=relaxed/simple;
-	bh=K2K0ZIDmDouzIYjOgQrDHa+obDFg7JDm6ArC3vxrn58=;
+	s=arc-20240116; t=1778689300; c=relaxed/simple;
+	bh=rTffjdrOryhDwlxQuRa+2TakfdxqX1o9E9VA79LUOOU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=jk5rTkj3rQIJW0j0eVTSOZKiHXsA5lKiqmqPooicVVv9sFRssEJ25Ex3N8RtKlxcG3DqahYFEPaMaOD7h0WjckAg2zocI2bJRFrVanfAlxRr3iUWSkpgT3iU8zP7Dp6W1euPuUFizy0P2eh/6KLqLEwGt5ESCVk/So0qITG8u4o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=p1mkykF1; arc=none smtp.client-ip=10.30.226.201
+	 To:Cc:Content-Type; b=J7IaR2kHZEkPYEr9WvkmTQSho9CXSxV1I2rs9BTXUrkC2bAk3wJ2q5paCH+1ZOmw2wtmNqnggUj9Kx/zrZGh9ZLxJzYQuIfyfNHwVDOHdksIi2PEFD+U3IURcg4bJk2pFDMOhJa0/ttQWENloTAIF0pGBVUXFpidG8JzhEUkHn8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sUaJn3KI; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="p1mkykF1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26BF0C2BCB8
-	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 13:37:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sUaJn3KI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36BC4C2BCC6
+	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 16:21:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778679440;
-	bh=K2K0ZIDmDouzIYjOgQrDHa+obDFg7JDm6ArC3vxrn58=;
+	s=k20201202; t=1778689300;
+	bh=rTffjdrOryhDwlxQuRa+2TakfdxqX1o9E9VA79LUOOU=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=p1mkykF10sGMcnkI4zGd8+MrvAv07Rpfsg7wnzLYvADPoJxCSZcVKZ9hfsZPAbdOp
-	 aOaS0+HYEjjm72bGvt/08o4tg553smMoX86Y4IvYRTHuZ/waEgOET7tXGYrim4xjGF
-	 UJ9OYJBBNoiA7jvVe0ToHrH+vm3y4zcYzu6Z3EweI/SQ40ntFkFWgfZ1Pkhf/2anmw
-	 BNJR2+sA/h4iaJximBT7QNEOJcIsxDk3/MH0EIM1Uyu1dTSTb4V55q070M/zmHtXPE
-	 ncEgoJAMZLZu4Zlv8tSxCDfDOJP4NFgrYEug+dUn/HiK8HAynR4zVOxmGaR4p/exiW
-	 hvrfa13vSpqBQ==
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5a742b8b72eso6759553e87.1
-        for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 06:37:20 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ8vHKcPHg8RbW6+oqsE9Wv3Cpt5DnOHPyNtYbpCwJ8/ZpmhKMCxSF8ATVSxHy1gv0ELQ/l3RsyOzKc=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyHukA8b/NllIq5nlVHpArcMdvDs778HjAlJeW7/C8kUykmai/h
-	Koyp0H70bMIHRR33Dx/VglFFXzYqEfXsjQnkt9vUZU2kT9OxGIfImI8gIPuiIj9+n0PKNlZEmHi
-	rXaF8ZepQG8r/AiqhOsSZSdHBJapyJXAmAvlZcVG8rg==
-X-Received: by 2002:a05:6512:224b:b0:5a8:b8bf:f742 with SMTP id
- 2adb3069b0e04-5a8ef987a62mr1294266e87.20.1778679438834; Wed, 13 May 2026
- 06:37:18 -0700 (PDT)
+	b=sUaJn3KIPEG9L0YSX/h4eolohFZqQNZAvvMQNzPLprlF7CGtb5iqgkEq9nC5OUnsW
+	 B77Jb0LNZf3h/bKlZp4/75kkyBXIqT5QK02FfW5bTLKGLXNzphCvVyWkRIIYGg4Dgh
+	 SnSDBHRrgsBHUnCwaob6A09vDQxFr9GmaKRxaCaeeb2Yv746nEKye5tpxObsl5uaNo
+	 N4K5v6a9lwWvc9klXvxSEW64vGBXKQ3sKkbt2Ic6gcbWzJgOFb7JXB2NyUa6/HrhKJ
+	 H2qM0j8nBIY3WK6d3gpl41N5i9rCbVhplQsMRYJ9dAFyswAyW5nw0+dk0aYDmMWnhp
+	 zE8e0oZF14fCw==
+Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-bd11a3729e8so493096366b.0
+        for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 09:21:40 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ/kYGxeP9gTe8QEKCkMqu7heqfS5cfR5Y/wUCBf8x7GV1+MuCOolnWFPubFO++lnKfihKVjk64/vfg=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxx3zQnqzYh07mA4h+HtdwuT/2/sIjcgwCLoEhH9wgLeoBwmIiv
+	2cny6r9Kg/ZvY9S4IKdOfAw6aVWVpm04E2PIeR1OrE3PsnJ5KCDGev0H4fHQJK+/Z9Pkg3vahrA
+	kVDuWvKRrn3t6r08OWa1uhvfe2hzGVw==
+X-Received: by 2002:a17:907:6eab:b0:bcd:695d:2845 with SMTP id
+ a640c23a62f3a-bd3c1834a6dmr282224466b.38.1778689298864; Wed, 13 May 2026
+ 09:21:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260513123758.4955-1-chaitanya.msabnis@gmail.com>
-In-Reply-To: <20260513123758.4955-1-chaitanya.msabnis@gmail.com>
-From: Bartosz Golaszewski <brgl@kernel.org>
-Date: Wed, 13 May 2026 15:37:06 +0200
-X-Gmail-Original-Message-ID: <CAMRc=Mc=kcWv1Eo=Z5j8C+O49skeLfsBOB+rEZBF=Gy-VwLC4w@mail.gmail.com>
-X-Gm-Features: AVHnY4IFyN40KMvyDcVQAeiIe3pL67V2UuNqra_cNWQHkSdc-tBvVbPq0awIgIc
-Message-ID: <CAMRc=Mc=kcWv1Eo=Z5j8C+O49skeLfsBOB+rEZBF=Gy-VwLC4w@mail.gmail.com>
-Subject: Re: [PATCH v4] dt-bindings: i2c: convert davinci i2c to dt-schema
-To: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-Cc: andi.shyti@kernel.org, robh@kernel.org, krzk+dt@kernel.org, 
-	conor+dt@kernel.org, bartosz.golaszewski@oss.qualcomm.com, 
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+References: <20260507181711.2696783-1-markus.stockhausen@gmx.de>
+ <20260507181711.2696783-2-markus.stockhausen@gmx.de> <20260508131830.GA1135235-robh@kernel.org>
+ <007a01dcdef9$05ba7140$112f53c0$@gmx.de> <af9xGlIWG_OmREzX@shikoro>
+In-Reply-To: <af9xGlIWG_OmREzX@shikoro>
+From: Rob Herring <robh@kernel.org>
+Date: Wed, 13 May 2026 11:21:27 -0500
+X-Gmail-Original-Message-ID: <CAL_Jsq+RyLno6kojsULC9M-Db+h1N+aoyJZgYs8nXtY4J+zEFw@mail.gmail.com>
+X-Gm-Features: AVHnY4LRjPtG3bGLykpE4bLmsSMmJsiDORRAI9IDDt5dLqMF_Yt0_ZgVin2JNIY
+Message-ID: <CAL_Jsq+RyLno6kojsULC9M-Db+h1N+aoyJZgYs8nXtY4J+zEFw@mail.gmail.com>
+Subject: Re: AW: [PATCH 1/2] dt-bindings: i2c: Add i2c-shared-gpio
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: markus.stockhausen@gmx.de, Bartosz Golaszewski <brgl@kernel.org>, andi.shyti@kernel.org, 
+	linux-i2c@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 13, 2026 at 2:38=E2=80=AFPM Chaitanya Sabnis
-<chaitanya.msabnis@gmail.com> wrote:
+On Sat, May 9, 2026 at 12:38=E2=80=AFPM Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
 >
-> Convert the Texas Instruments DaVinci and Keystone I2C controller
-> bindings from legacy text format to modern dt-schema (YAML).
+> Hi all,
 >
-> During the conversion, the `interrupts` property was made required
-> to match the strict requirement in the driver probe function. The
-> custom `ti,has-pfunc` and `power-domains` properties were also
-> properly defined to match SoC-specific hardware features.
+> > Thats what I broke my head about the most. From testing and
+> > my little knowledge I came to the conclusion
+> >
+> > - two native i2c-gpio based busses can not share the same SCL
+> > - so mux infrastructure cannot build on top of that
+> >
+> > But maybe some I2C expert can advise.
 >
-> Signed-off-by: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-> Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
-> ---
+> I am not sure i2c-mux is the right approach here. Because every SDA is
+> already wired, there is no need to select/deselect something. It is only
+> that SCL is shared, right?
 
-I left my Ack under v3. Please keep tags when resending.
+There's no physical select, but it's still only 1 active at any time
+just like a mux.
 
-Acked-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Rob
