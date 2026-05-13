@@ -1,56 +1,50 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 122E243C044;
-	Wed, 13 May 2026 17:04:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66A4B30DD1B;
+	Wed, 13 May 2026 17:05:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778691856; cv=none; b=Im+dfXr02twQJnNcs7DJ7/X51ALog/xkU4lL8iwKp4mjTG5Fl4Uj9imjJ05zY/PSSfTYUN32XMes7+lo07Oms+JZuH4IYLeQfl7EaPKRJCI9KamN3509TENie2bkRJWbSpsdKHXrG7s+VJlhl+bPtsKQW61NZC6qrgRK9pvxgqQ=
+	t=1778691910; cv=none; b=bXGNa+ybiHfZWbf/r6SLzvfgqbeHp3OdZgrB3Tnk0JiGavPBfpqOibkKNSYMYWKV01U+uRmB8biiuRlTp3qVJY7ePSlw3FEQF6maWNGp8odSyvqwLTbgaTapiWVrm/zJME8tFj3KF0UTK82WX5O+6lDKQgN9hgJo8I96AWEEFhQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778691856; c=relaxed/simple;
-	bh=eV4VkmjOZBflvrQ7ayx8vbnB1g8ily4ftcd/ohNLm+g=;
+	s=arc-20240116; t=1778691910; c=relaxed/simple;
+	bh=pD2y133+MNgkoNr3quTW76FGiTi0U6sd84qgVAoBu1g=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Fls7nxHxZ5gNef8uFnaV2QKD7KfssfeO0GO8SBaFnyIuX3RSgn0NxXznjLdjLxjxdrHBMj6Ox1dW7KV7Hhz1oYR25YHJclXmWNA+uAbcTk3o2jjjKXZORDdWHBN0sPPqR39XWg+cV4uv3LP9jSFruZzdxVHG1P7mdvLKVn3TAWg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=dYdWMa7O; arc=none smtp.client-ip=198.175.65.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Zu8IiskgP2BzqV0St1OpKkxxvuD0tcP6GMir/C0gmOFMC+UJN8wwu/4ddkGMeyZaCQsmIOknEeEnutMUKu4jHd54U6tv3cLJXPcEcoHALwtuVenHMZBmbicEB08EnNM6/eSPY9sNd04Jk0/ZZm+G0cGFDDsCH09xQFt62C1FjSA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oY1+9yFw; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="dYdWMa7O"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1778691851; x=1810227851;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=eV4VkmjOZBflvrQ7ayx8vbnB1g8ily4ftcd/ohNLm+g=;
-  b=dYdWMa7O55rI3c8eoblzqFm/1f6GfrrBk9b3sonah6fN38o64UGYlZ/2
-   pfS4NjADww8kzUEaSIz6CFgiYrTYXD1G5luqIj3t05XXghXRmKBEWMghT
-   X+Gcrf6Np+8iZK1ZsDaMoZGUMra8CSZHREZIkfQNX9PxUMIFWv0d4lk37
-   oTsBRnkOzYfu0VheQzSohTshrpbklv2GuuwoQzhQqP4KhO6QvCjjCvrgo
-   B6Zi1YLcExuES+tYVds4FX4+LvQICljLnfFsMrODiV9YvmmrI1eufAMkL
-   M4xXx5A4DVUGeHG3+JJXCtrtB2hUqInAvE1Sh74AD0O08pCqCkj4p3Eex
-   g==;
-X-CSE-ConnectionGUID: X7pTtD96RiqMdPpQvlwcqg==
-X-CSE-MsgGUID: dqmQE1ZKTJSS2zc4FNAljg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11785"; a="97052473"
-X-IronPort-AV: E=Sophos;i="6.23,233,1770624000"; 
-   d="scan'208";a="97052473"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2026 10:04:10 -0700
-X-CSE-ConnectionGUID: mnJZyVevTUKapPf4Gfn8iw==
-X-CSE-MsgGUID: FT39LlDGSNyoOmzXTnCVlA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,233,1770624000"; 
-   d="scan'208";a="233870116"
-Received: from slindbla-desk.ger.corp.intel.com (HELO localhost) ([10.245.244.106])
-  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2026 10:03:56 -0700
-Date: Wed, 13 May 2026 20:03:54 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Hardik Prakash <hardikprakash.official@gmail.com>
-Cc: linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
-	linus.walleij@linaro.org, wsa@kernel.org
-Subject: Re: [PATCH v2 0/2] Fix WACF2200 touchscreen on Lenovo Yoga 7 14AGP11
-Message-ID: <agSu-jGOuhMscg9A@ashevche-desk.local>
-References: <20260513061338.9348-1-hardikprakash.official@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oY1+9yFw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE86DC19425;
+	Wed, 13 May 2026 17:05:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778691910;
+	bh=pD2y133+MNgkoNr3quTW76FGiTi0U6sd84qgVAoBu1g=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=oY1+9yFwysb+cDH0n/dgzJTvyWmbhvdAQhddqS44JEXn5L8gVbWcMAo7qTJYusa4X
+	 r/3sh6MeRxRbb/ykQhqT4ZMaCHIeI1r2WB8oSPZDj2DkIIaYIUq8w6Xpo4eZfdR6NU
+	 dPkcRlY3Sj6KmLLcKIrTTC/L/NZLfQOJ5z+JFeT2B4OpPWRM5W6Y+EsgfqcXkOi+qp
+	 fRIe9Qk4lcQ/ACRc02mPTgtwdkh+KllvoFxthMJ31n8R4rWhD/zlyUeM1Aq2LmJAtb
+	 dKIBsqe2M+NDEi0415Laq+bwL1YUqa8kKG2NRSxMWc1Tsq6562u7+CR7a9CuZyBTOy
+	 WxK16Cg4W+B0Q==
+Date: Wed, 13 May 2026 12:05:07 -0500
+From: "Rob Herring (Arm)" <robh@kernel.org>
+To: Ryan Chen <ryan_chen@aspeedtech.com>
+Cc: Joel Stanley <joel@jms.id.au>, openbmc@lists.ozlabs.org,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Rayn Chen <rayn_chen@aspeedtech.com>, linux-i2c@vger.kernel.org,
+	Andrew Jeffery <andrew@codeconstruct.com.au>,
+	Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org,
+	linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Philipp Zabel <p.zabel@pengutronix.de>, jk@codeconstruct.com.au,
+	andriy.shevchenko@linux.intel.com,
+	linux-arm-kernel@lists.infradead.org,
+	Andi Shyti <andi.shyti@kernel.org>
+Subject: Re: [PATCH RESEND v29 1/4] dt-bindings: i2c: Split AST2600 binding
+ into a new YAML
+Message-ID: <177869190656.1316879.13816659240778800181.robh@kernel.org>
+References: <20260513-upstream_i2c-v29-0-fe9926964d55@aspeedtech.com>
+ <20260513-upstream_i2c-v29-1-fe9926964d55@aspeedtech.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -59,53 +53,36 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260513061338.9348-1-hardikprakash.official@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+In-Reply-To: <20260513-upstream_i2c-v29-1-fe9926964d55@aspeedtech.com>
 
-On Wed, May 13, 2026 at 11:43:36AM +0530, Hardik Prakash wrote:
-> The Wacom WACF2200 touchscreen on the Lenovo Yoga 7 14AGP11 (83TD) is
-> completely non-functional on Linux. The I2C bus (AMDI0010:02) fails with
-> repeated lost arbitration errors at boot before any driver can probe the
-> device. The touchscreen works correctly in UEFI and Windows.
+
+On Wed, 13 May 2026 13:32:00 +0800, Ryan Chen wrote:
+> The AST2600 I2C controller introduces a completely new register layout
+> with separate controller and target register blocks, unlike the mixed
+> register layout used by AST2400/AST2500.
 > 
-> Investigation using ACPI _CRS decode and Windows/Linux GPIO register
-> comparison identified two bugs:
+> Move AST2600 I2C binding from aspeed,i2c.yaml to a dedicated
+> aspeed,ast2600-i2c.yaml schema.
 > 
-> 1. GPIO 157 (WACF2200 GpioInt per ACPI _CRS) has INTERRUPT_ENABLE and
->    INTERRUPT_MASK cleared by amd_gpio_irq_init() and never restored,
->    preventing the device from signalling the driver. Windows keeps both
->    bits set after initialisation.
+> Besides the split, this also adjusts for AST2600-specific requirements.
+> - require two reg regions (controller register block + buffer block)
+> - use clock-frequency for bus speed description
+> - interrupts are required on AST2600
+> - use correct DTS coding style in example
 > 
-> 2. i2c_designware probes AMDI0010:02 before pinctrl-amd's probe
->    completes. A DMI-matched deferral is added to correctly enforce
->    ordering using device_is_bound() under device_lock().
+> No compatible strings are changed.
 > 
-> Patch 1 adds a DMI quirk in pinctrl-amd to restore GPIO 157 interrupt
-> bits after amd_gpio_irq_init().
+> Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
+> ---
+> Changes in v26:
+> - commit message: include details of changes from original binding
+> - fix example property ordering to follow DTS coding style
+> - use consistent "AST2600" naming
+> ---
+>  .../bindings/i2c/aspeed,ast2600-i2c.yaml           | 62 ++++++++++++++++++++++
+>  .../devicetree/bindings/i2c/aspeed,i2c.yaml        |  3 +-
+>  2 files changed, 63 insertions(+), 2 deletions(-)
 > 
-> Patch 2 adds a probe deferral in i2c-designware-platdrv that correctly
-> waits for pinctrl-amd to fully complete before AMDI0010:02 is probed,
-> using acpi_dev_get_first_match_dev() and acpi_get_first_physical_node()
-> for robust device lookup.
-> 
-> Both patches tested on Lenovo Yoga 7 14AGP11 (83TD), Fedora 44, kernel
-> 7.1.0-rc2+. Touch and stylus fully functional across 4 stable reboots.
 
-The Subject in the patches misses versioning, use
-
-	git format-patch -v<N> --cover-letter ...
-
-where <N> is the version, to get proper format in the Subject.
-
-Also link to the bugzilla makes sense as BugLink tag in the patch(es):
-
-BugLink: $URL
-
-Or simple Link.
-
--- 
-With Best Regards,
-Andy Shevchenko
-
+Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 
