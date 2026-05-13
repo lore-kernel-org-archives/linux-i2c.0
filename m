@@ -1,80 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC7EC3451D9
-	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 16:21:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 122E243C044;
+	Wed, 13 May 2026 17:04:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778689300; cv=none; b=OV4BeIio4XN7zSg8YBEf1EiO3VgWofRw6HSEZUScJsnQ+R0L4NmwVZqU+hEYPyEkGPX4+EAqLtl/JA1/QQhq9szWvhO4E9cMWDMW+TWGfZRwkYPmTp/u+gvWelSxI0wn++Wtrs+8bo97X+G4cevffriukjHZ8fYQc793br9+1yg=
+	t=1778691856; cv=none; b=Im+dfXr02twQJnNcs7DJ7/X51ALog/xkU4lL8iwKp4mjTG5Fl4Uj9imjJ05zY/PSSfTYUN32XMes7+lo07Oms+JZuH4IYLeQfl7EaPKRJCI9KamN3509TENie2bkRJWbSpsdKHXrG7s+VJlhl+bPtsKQW61NZC6qrgRK9pvxgqQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778689300; c=relaxed/simple;
-	bh=rTffjdrOryhDwlxQuRa+2TakfdxqX1o9E9VA79LUOOU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=J7IaR2kHZEkPYEr9WvkmTQSho9CXSxV1I2rs9BTXUrkC2bAk3wJ2q5paCH+1ZOmw2wtmNqnggUj9Kx/zrZGh9ZLxJzYQuIfyfNHwVDOHdksIi2PEFD+U3IURcg4bJk2pFDMOhJa0/ttQWENloTAIF0pGBVUXFpidG8JzhEUkHn8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sUaJn3KI; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778691856; c=relaxed/simple;
+	bh=eV4VkmjOZBflvrQ7ayx8vbnB1g8ily4ftcd/ohNLm+g=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Fls7nxHxZ5gNef8uFnaV2QKD7KfssfeO0GO8SBaFnyIuX3RSgn0NxXznjLdjLxjxdrHBMj6Ox1dW7KV7Hhz1oYR25YHJclXmWNA+uAbcTk3o2jjjKXZORDdWHBN0sPPqR39XWg+cV4uv3LP9jSFruZzdxVHG1P7mdvLKVn3TAWg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=dYdWMa7O; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sUaJn3KI"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36BC4C2BCC6
-	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 16:21:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778689300;
-	bh=rTffjdrOryhDwlxQuRa+2TakfdxqX1o9E9VA79LUOOU=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=sUaJn3KIPEG9L0YSX/h4eolohFZqQNZAvvMQNzPLprlF7CGtb5iqgkEq9nC5OUnsW
-	 B77Jb0LNZf3h/bKlZp4/75kkyBXIqT5QK02FfW5bTLKGLXNzphCvVyWkRIIYGg4Dgh
-	 SnSDBHRrgsBHUnCwaob6A09vDQxFr9GmaKRxaCaeeb2Yv746nEKye5tpxObsl5uaNo
-	 N4K5v6a9lwWvc9klXvxSEW64vGBXKQ3sKkbt2Ic6gcbWzJgOFb7JXB2NyUa6/HrhKJ
-	 H2qM0j8nBIY3WK6d3gpl41N5i9rCbVhplQsMRYJ9dAFyswAyW5nw0+dk0aYDmMWnhp
-	 zE8e0oZF14fCw==
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-bd11a3729e8so493096366b.0
-        for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 09:21:40 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ/kYGxeP9gTe8QEKCkMqu7heqfS5cfR5Y/wUCBf8x7GV1+MuCOolnWFPubFO++lnKfihKVjk64/vfg=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxx3zQnqzYh07mA4h+HtdwuT/2/sIjcgwCLoEhH9wgLeoBwmIiv
-	2cny6r9Kg/ZvY9S4IKdOfAw6aVWVpm04E2PIeR1OrE3PsnJ5KCDGev0H4fHQJK+/Z9Pkg3vahrA
-	kVDuWvKRrn3t6r08OWa1uhvfe2hzGVw==
-X-Received: by 2002:a17:907:6eab:b0:bcd:695d:2845 with SMTP id
- a640c23a62f3a-bd3c1834a6dmr282224466b.38.1778689298864; Wed, 13 May 2026
- 09:21:38 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="dYdWMa7O"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1778691851; x=1810227851;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=eV4VkmjOZBflvrQ7ayx8vbnB1g8ily4ftcd/ohNLm+g=;
+  b=dYdWMa7O55rI3c8eoblzqFm/1f6GfrrBk9b3sonah6fN38o64UGYlZ/2
+   pfS4NjADww8kzUEaSIz6CFgiYrTYXD1G5luqIj3t05XXghXRmKBEWMghT
+   X+Gcrf6Np+8iZK1ZsDaMoZGUMra8CSZHREZIkfQNX9PxUMIFWv0d4lk37
+   oTsBRnkOzYfu0VheQzSohTshrpbklv2GuuwoQzhQqP4KhO6QvCjjCvrgo
+   B6Zi1YLcExuES+tYVds4FX4+LvQICljLnfFsMrODiV9YvmmrI1eufAMkL
+   M4xXx5A4DVUGeHG3+JJXCtrtB2hUqInAvE1Sh74AD0O08pCqCkj4p3Eex
+   g==;
+X-CSE-ConnectionGUID: X7pTtD96RiqMdPpQvlwcqg==
+X-CSE-MsgGUID: dqmQE1ZKTJSS2zc4FNAljg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11785"; a="97052473"
+X-IronPort-AV: E=Sophos;i="6.23,233,1770624000"; 
+   d="scan'208";a="97052473"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2026 10:04:10 -0700
+X-CSE-ConnectionGUID: mnJZyVevTUKapPf4Gfn8iw==
+X-CSE-MsgGUID: FT39LlDGSNyoOmzXTnCVlA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,233,1770624000"; 
+   d="scan'208";a="233870116"
+Received: from slindbla-desk.ger.corp.intel.com (HELO localhost) ([10.245.244.106])
+  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 May 2026 10:03:56 -0700
+Date: Wed, 13 May 2026 20:03:54 +0300
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Hardik Prakash <hardikprakash.official@gmail.com>
+Cc: linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linus.walleij@linaro.org, wsa@kernel.org
+Subject: Re: [PATCH v2 0/2] Fix WACF2200 touchscreen on Lenovo Yoga 7 14AGP11
+Message-ID: <agSu-jGOuhMscg9A@ashevche-desk.local>
+References: <20260513061338.9348-1-hardikprakash.official@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260507181711.2696783-1-markus.stockhausen@gmx.de>
- <20260507181711.2696783-2-markus.stockhausen@gmx.de> <20260508131830.GA1135235-robh@kernel.org>
- <007a01dcdef9$05ba7140$112f53c0$@gmx.de> <af9xGlIWG_OmREzX@shikoro>
-In-Reply-To: <af9xGlIWG_OmREzX@shikoro>
-From: Rob Herring <robh@kernel.org>
-Date: Wed, 13 May 2026 11:21:27 -0500
-X-Gmail-Original-Message-ID: <CAL_Jsq+RyLno6kojsULC9M-Db+h1N+aoyJZgYs8nXtY4J+zEFw@mail.gmail.com>
-X-Gm-Features: AVHnY4LRjPtG3bGLykpE4bLmsSMmJsiDORRAI9IDDt5dLqMF_Yt0_ZgVin2JNIY
-Message-ID: <CAL_Jsq+RyLno6kojsULC9M-Db+h1N+aoyJZgYs8nXtY4J+zEFw@mail.gmail.com>
-Subject: Re: AW: [PATCH 1/2] dt-bindings: i2c: Add i2c-shared-gpio
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: markus.stockhausen@gmx.de, Bartosz Golaszewski <brgl@kernel.org>, andi.shyti@kernel.org, 
-	linux-i2c@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260513061338.9348-1-hardikprakash.official@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Sat, May 9, 2026 at 12:38=E2=80=AFPM Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
->
-> Hi all,
->
-> > Thats what I broke my head about the most. From testing and
-> > my little knowledge I came to the conclusion
-> >
-> > - two native i2c-gpio based busses can not share the same SCL
-> > - so mux infrastructure cannot build on top of that
-> >
-> > But maybe some I2C expert can advise.
->
-> I am not sure i2c-mux is the right approach here. Because every SDA is
-> already wired, there is no need to select/deselect something. It is only
-> that SCL is shared, right?
+On Wed, May 13, 2026 at 11:43:36AM +0530, Hardik Prakash wrote:
+> The Wacom WACF2200 touchscreen on the Lenovo Yoga 7 14AGP11 (83TD) is
+> completely non-functional on Linux. The I2C bus (AMDI0010:02) fails with
+> repeated lost arbitration errors at boot before any driver can probe the
+> device. The touchscreen works correctly in UEFI and Windows.
+> 
+> Investigation using ACPI _CRS decode and Windows/Linux GPIO register
+> comparison identified two bugs:
+> 
+> 1. GPIO 157 (WACF2200 GpioInt per ACPI _CRS) has INTERRUPT_ENABLE and
+>    INTERRUPT_MASK cleared by amd_gpio_irq_init() and never restored,
+>    preventing the device from signalling the driver. Windows keeps both
+>    bits set after initialisation.
+> 
+> 2. i2c_designware probes AMDI0010:02 before pinctrl-amd's probe
+>    completes. A DMI-matched deferral is added to correctly enforce
+>    ordering using device_is_bound() under device_lock().
+> 
+> Patch 1 adds a DMI quirk in pinctrl-amd to restore GPIO 157 interrupt
+> bits after amd_gpio_irq_init().
+> 
+> Patch 2 adds a probe deferral in i2c-designware-platdrv that correctly
+> waits for pinctrl-amd to fully complete before AMDI0010:02 is probed,
+> using acpi_dev_get_first_match_dev() and acpi_get_first_physical_node()
+> for robust device lookup.
+> 
+> Both patches tested on Lenovo Yoga 7 14AGP11 (83TD), Fedora 44, kernel
+> 7.1.0-rc2+. Touch and stylus fully functional across 4 stable reboots.
 
-There's no physical select, but it's still only 1 active at any time
-just like a mux.
+The Subject in the patches misses versioning, use
 
-Rob
+	git format-patch -v<N> --cover-letter ...
+
+where <N> is the version, to get proper format in the Subject.
+
+Also link to the bugzilla makes sense as BugLink tag in the patch(es):
+
+BugLink: $URL
+
+Or simple Link.
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
