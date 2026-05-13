@@ -1,67 +1,67 @@
-Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
+Received: from mail-dl1-f47.google.com (mail-dl1-f47.google.com [74.125.82.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC39E3932E2
-	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 10:09:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 522A73939D7
+	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 10:09:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778666980; cv=none; b=LxWHduW26YdfLtfbWsRuDMvzd0f7G/kv2cbgtu2P4zWVAmzTn1AzSSk5jbqqvGxH8TQiI93KGGH5YzuFEPsShdaMGi3KmiFF6xTn4v2DjOLzDoENEoGx0LMJr14+IrvOpwStrQ3998hJB+2R3mOUIHBPORRSgIDx0EQsKBrbdqE=
+	t=1778666982; cv=none; b=AtuHeXQJ9qHGeDnsX4NhvWjBFoc7GNPlh8UsgjhD/9H6Vq0Kz+nmJv8r444rAeRM2Dc/OlqnX9ps/b7xlg2MeAdxnLl/WeIBqbS1XfsdqJdtQiMi1esWgkcBV+9J+oeetVsL4XXer+2aRUab5qydIhXf3UhhPzxh70tXA0QdcY0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778666980; c=relaxed/simple;
-	bh=IcTTcY79qLYulJ6DtpHIU8j/lmilEm/EM7tnCfD/M8w=;
+	s=arc-20240116; t=1778666982; c=relaxed/simple;
+	bh=WXSe6TYxSA7cz0PPKHt43EUa98Bkkw8i7qMhYy8i0xs=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=PQGKx29Cr+Ihl747wG8n6xI4QvtaiYWDpOf4Nv5X/05n11Vl9lGWMR0O4QDlEKLIfbjo43wtR7YPsb4EwJfSn9yVmiC8yQyoTC9p8XDWNhCHmzw4D0vYAC1IzFkAeQvlm8qUE24PAOig5OYuk5yHU5aKPz0T7xHNSH4MviD1rrc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=AO/z7VQL; arc=none smtp.client-ip=74.125.82.52
+	 In-Reply-To:To:Cc; b=FRrIsm9pZjNe40YOz63T/OjBAGqJN37UJDnFmqtwDzNrsaUAC4axJ1B7oNjktBNLtosKZb35GIoAm3MNMQ86RFlba417DetjfvFW68VXB0sbPBOUGEPKRPX3OLwBooKMRDGMDxNqveDbZNpdn8zU/Z8FNu/E59xpAlmR0RHhB6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=lEfbOyct; arc=none smtp.client-ip=74.125.82.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="AO/z7VQL"
-Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-1329507c387so4386384c88.1
-        for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 03:09:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="lEfbOyct"
+Received: by mail-dl1-f47.google.com with SMTP id a92af1059eb24-12c1a170a50so8970418c88.0
+        for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 03:09:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1778666967; x=1779271767; darn=vger.kernel.org;
+        d=nexthop.ai; s=google; t=1778666968; x=1779271768; darn=vger.kernel.org;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=tMy1R3v8/cknJGc/Ns+zpumuALOM+zMl+dD92JAI70U=;
-        b=AO/z7VQLoF5Ai3klzgi+FIjvtnULOh9mlYAP7q8PIAUX7RcrZrpaA/8s8pxhfQXEA5
-         oBC49e9rGrEwLuaagoZsjIX4m/kSlmIlnkjXMNgsIu0OblWmj6MbD63p4MPJRk+j+Z3L
-         NJsWhDaoUta6b4Hm3+JgJS6tRoDJe0oNbJpuThi3liuDNH8b1m5l6ZZ8l1kPt1v3YoCS
-         FHwM0fS43UxCAY4Hljz9umgXsfOkc6jfJcYkpnu1F3JSnoCNK21l9gfy/Qywqm8VHcLj
-         83atKQiox+MVRYAl/IXociBKQbamECNAMXtUZrf8tmxSGDSRXTx7qko75/jNpUmg+ug5
-         PkjQ==
+        bh=w8Lg0hsn02D6K83qdccj9lMg9u6Gq5mDY/7w097Ma/I=;
+        b=lEfbOyctJ0RpVtHm7BMAMnR65q/sSl2sURS+aH/dziXNYI6Y1Qxgl4/8MqOvrOzxD4
+         I+KJWCvINiLvxifkx/uSPvJwGDtHVqKpN6A0u1PM0bQ6wAUvtSsQNQC6eVmncstK+m5Y
+         vQIIYj30C3730Rh7rkU8L+F1HJivfbWMnzg24FKavU6dalljuHAj6hsk2fAMOBuKbDjQ
+         BZ9s2CIbvptXguq1yoZ3ZyVCJRRFozRMaGFJJH/9rDHa5n1wTpvTsKEcLy5zcWsOC234
+         rPoKsqRqXHy3lWzHfT/bJygStSJTqoo0oeeQ251Ak1Y5DYoPKqrI2kHMm424jPFoPh0/
+         FeWQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778666967; x=1779271767;
+        d=1e100.net; s=20251104; t=1778666968; x=1779271768;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=tMy1R3v8/cknJGc/Ns+zpumuALOM+zMl+dD92JAI70U=;
-        b=S66klWcZFVryUYTIKYCfJ5JfGGlMpJO67lfVphe10rvyK10BIzxGLqDdszTCOG3LMz
-         F/avxgHZ1Hc3PHUpA3S/Wbg4De5oSFv8SOUM1As/1fC7j9TrXcb9//Ll0RyVByT1vHcP
-         w3PprCynOxOqb2b1Ipcz1L5Y7gRlgZaEoP1YVkDeAw4OuT/6RDqtxesPXBudXFh2yY4k
-         8VvzPAdX64L03kuTAn+B4kuMQkaIoWb7qTzyi1PHPrSO2oeP+jV1O5eST4ZJyVjtHSu7
-         fU+Myfu5ljNB17DPWYsMh3z84iFHpItwhrxPAE9xajUYMXohJKFfePEUFUXl9dTDxNZH
-         AZTg==
-X-Forwarded-Encrypted: i=1; AFNElJ9KUGwg5lxPS0WVOYnf3gzN1kk6tQZjva3fW3v++l4Tl7lH8GLT8F9VktGhTM19G51Ex2RYsa2ge/I=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyiiUSh9qnRkVbJy19ag8iSC/H3wqaTa5D1diQ+BU2IGNZ7pjib
-	Zef7p/k+8MBBKhzXvuaLziE2gy7FVIl8RaYfPAq7DZEn1KUHcOLLGP05ChWxk+ueCBQ=
-X-Gm-Gg: Acq92OHO2FjVcwxUOkq2yg2PNNIiqpqjdOXwtZAd7KfYsbO1ITgbRRy5ef6UD6TCHYk
-	C8jUzcsWNUSjwxjH50qeZQL+gI82DM72hIWKmSEo57aSwOjZOsONJXX4W1XZGmuRgLVor8yKI7j
-	bRxzbTq3JKtme+HMH/HWKMril7e9tOocaSVH88p6d3tXsk0uLUacaemYgLETdxZkikQeHByBeuz
-	Fxpo0ZCTVI1B4GtESCeYIZ0W7tJ+DkSCtkPQORFK9dQmTPbspjcQs2yLgqnlRHlf1ISktxPKa/4
-	sQoVnWfHnh0bD0+t9fMf+fqzB75QnFmxawls4cnXbT3RJznpZxK91Kcul2Cm0yrWshcqV/GhWDo
-	PwIIWAb3JY5nva2a2XpKGEO91VJqjRJenAj3DTsQdh0g0z5Of3MBSMRM2bBVYl55qG2sir1yNxZ
-	ISUeC1XzEvO71zCU3hTuxPxckdog==
-X-Received: by 2002:a05:7022:221a:b0:11b:1c7e:27d0 with SMTP id a92af1059eb24-1349a1371cbmr1363410c88.0.1778666966786;
-        Wed, 13 May 2026 03:09:26 -0700 (PDT)
+        bh=w8Lg0hsn02D6K83qdccj9lMg9u6Gq5mDY/7w097Ma/I=;
+        b=AAX3h2OHPWSKUY6rMAikbR7lBtOoYdUsRctMsg/DMn5nSjGQ7uENbYlEHI+AaK6vUl
+         wEycF2Q8SYo1AvNL2MdeABjUBTP5x+vbhioMyqzZae80Nnh4I7HgxfVxllItTVqb33D5
+         tRnaCz8LQJ0jOeSzzXktAMiK4HAJpm+WhicmKEnKY+1ztcVSspWVgdVplRoTRAxxkZe/
+         swKxwoX2pQgrcDUHGw5v07XfI1V7CPwQD52pwsdoz65w2/OB/WyAopcb1gEPb+vXiOR1
+         wkItFfx3IEEWy4bqjyrS4vs+30WeNcq8+n8rGYdKQ6BkF7dMbHa1pzKCsdsKKn5j0/Et
+         4yuw==
+X-Forwarded-Encrypted: i=1; AFNElJ9IWTfg05fqPIFK7TFL/jyMxs+VrJCLY44ogeiY3oJQRC1UcSFNZFiILtvKvIxnmTj9Nd7kXmmj5L4=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw5uSJ4BCbUhEZMOwr6hFJoHgADLEVykEQZV/o6j2ashMmo1nGV
+	8xqPrdYXKOYy3AovzUVGtebLW4aA2Ua3qY9StwkSUsq/K9S9jcdMJtZSBP0SujEahw4=
+X-Gm-Gg: Acq92OGQEgurCdajKExQhTj7Kcd8Iakbc8Q4dSbsl9gf/Ydbf8ZDfbUD17WzQ6ipHCW
+	Sqk2T8nV0rMyrSRUXNR0RGsb2psBOHkuZKPPJFyxLqBjQ+4jDZuRbGCtipUKX0RA6wGzHNcBDCF
+	ez14yiT1t9GmuWPbDHDRVJg8nJoGi0+0XMI/lGpeqZrT6WzQujtsAQYf7+815/IfinBp5l7k2EB
+	jA61zv8shUYU5SYcDd55+95ux9RB7VNusQAwL1KE6FpW0MdzIEfplXqNJ6UX1H7ZJ1Pu/2GiCNA
+	UlkG5efhToXZhcI1cQQgEIqeGwB9AX1MtBOt/gx+k0nIOqgi9jk+KnEWBSKCMUgeieZ9blSMQWg
+	Rqwa9+joUX/5DmTMhmg//cCKsctHeVh2UwPDeNz+GYEPo5wx8UBwbOs2+2RT0ZZUj+18tlYLFic
+	PyGdeMOZl9bY/8KGV8kyCWzFNtPA==
+X-Received: by 2002:a05:7022:6708:b0:12a:6c4b:9cf0 with SMTP id a92af1059eb24-1349a703b16mr1350615c88.3.1778666967710;
+        Wed, 13 May 2026 03:09:27 -0700 (PDT)
 Received: from [127.0.0.2] ([50.145.100.174])
         by smtp.gmail.com with ESMTPSA id a92af1059eb24-132787673ffsm29430265c88.15.2026.05.13.03.09.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2026 03:09:26 -0700 (PDT)
+        Wed, 13 May 2026 03:09:27 -0700 (PDT)
 From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-Date: Wed, 13 May 2026 03:09:23 -0700
-Subject: [PATCH v3 2/3] i2c: xiic: defer RX_FULL until all trailing bytes
- are in FIFO
+Date: Wed, 13 May 2026 03:09:24 -0700
+Subject: [PATCH v3 3/3] i2c: xiic: don't clobber msg->len to signal
+ block-read completion
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -70,80 +70,74 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260513-i2c-xiic-v3-2-ccb3cf70ba03@nexthop.ai>
+Message-Id: <20260513-i2c-xiic-v3-3-ccb3cf70ba03@nexthop.ai>
 References: <20260513-i2c-xiic-v3-0-ccb3cf70ba03@nexthop.ai>
 In-Reply-To: <20260513-i2c-xiic-v3-0-ccb3cf70ba03@nexthop.ai>
 To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>
 Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
  linux-kernel@vger.kernel.org, Abdurrahman Hussain <abdurrahman@nexthop.ai>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1778666964; l=2850;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1778666964; l=2230;
  i=abdurrahman@nexthop.ai; s=20260510; h=from:subject:message-id;
- bh=IcTTcY79qLYulJ6DtpHIU8j/lmilEm/EM7tnCfD/M8w=;
- b=8UzUUME/YlH55KnDDiPY7DoH5eRhIrJtdDWJN+ZdsYZdmJv2TNw+RDEb56gmi96+eB4cGHrvn
- NcNUmEzIP1QCKmqoa4Ww1l2y7NtSLi/b4E649DTiFNOGaoW5qwoQjrC
+ bh=WXSe6TYxSA7cz0PPKHt43EUa98Bkkw8i7qMhYy8i0xs=;
+ b=WGfE3HlylYu1y1xmIHtQZzvpw9th09pMwA0Y4vyVl8BGkwjAtyUp96PqN67x0uuiupEKbK6oz
+ R0jz1Y0juSGBFyB35Ui/ugENU02Y5ivWGOV0+/Ggo071jjetC7yVmGJ
 X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
  pk=omTm9cCAbO0ZhS32aKfJDKue0W3sQGpG9ub5eYHif8I=
 
-For the normal path of xiic_smbus_block_read_setup() (rxmsg_len less
-than IIC_RX_FIFO_DEPTH), RFD was programmed to rxmsg_len - 2, which
-fires the RX_FULL interrupt while the last payload byte is still in
-flight. xiic_read_rx()'s bytes_rem == 1 branch then sets NACK on that
-byte still on the wire, truncating the read in the PEC-enabled case.
+At the end of a SMBus block read the BNB handler force-set
+tx_msg->len = 1 to push xiic_tx_space() to zero so the STATE_DONE
+branch would fire. Two problems:
 
-Raise the threshold so RX_FULL fires only once every remaining byte
-(payload plus optional PEC) is already buffered in the FIFO. That
-routes the drain through xiic_read_rx()'s bytes_rem == 0 path, which
-reads everything out and emits the stop cleanly. For the non-PEC path
-the full payload is still read out through the same bytes_rem == 0
-branch; the only user-visible change is that the controller waits one
-extra byte-time before servicing the interrupt.
+1. tx_msg and rx_msg alias the same i2c_msg struct during a receive
+   (see xiic_start_recv), so overwriting tx_msg->len also changes
+   rx_msg->len. The i2c core's i2c_smbus_check_pec() then reads the
+   PEC from the wrong offset -- buf[0] instead of buf[rxmsg_len + 1]
+   -- and either mis-validates or returns -EBADMSG.
 
-The deferred-fire formula is rxmsg_len + pec_len - 1, and the RFD
-register at XIIC_RFD_REG_OFFSET is a 4-bit field. Widen the
-chunk-vs-defer guard to (rxmsg_len + pec_len > IIC_RX_FIFO_DEPTH) so
-the boundary case rxmsg_len == IIC_RX_FIFO_DEPTH with PEC enabled
-cannot write 16 into that 4-bit register; it routes through the
-chunked drain instead, which already caps RFD at IIC_RX_FIFO_DEPTH - 1.
+2. xiic_start_recv sets tx_pos = msg->len (typically 2 when PEC is
+   enabled). xiic_tx_space() is unsigned msg->len - tx_pos, so
+   setting msg->len = 1 with tx_pos = 2 underflows to 0xFFFFFFFF and
+   xiic_tx_space() never compares equal to 0 -- the STATE_DONE check
+   falls through to STATE_ERROR, giving -EIO.
+
+Instead, advance tx_pos up to msg->len. That drives tx_space to 0
+without touching msg->len, preserving the buffer length that
+xiic_smbus_block_read_setup() already grew to cover the length byte,
+the payload and the optional PEC byte.
+
+Also clear smbus_actual_len here so a subsequent non-SMBus transfer
+does not see a stale trim value from this completed block read.
 
 Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
 ---
- drivers/i2c/busses/i2c-xiic.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
-index d4308716d461..2bdba6c0931f 100644
+index 2bdba6c0931f..8eaa411411c1 100644
 --- a/drivers/i2c/busses/i2c-xiic.c
 +++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -548,10 +548,11 @@ static void xiic_smbus_block_read_setup(struct xiic_i2c *i2c)
- 		unsigned int pec_len = i2c->rx_msg->len - 1;
+@@ -889,8 +889,17 @@ static irqreturn_t xiic_process(int irq, void *dev_id)
  
- 		/* Set Receive fifo depth */
--		if (rxmsg_len > IIC_RX_FIFO_DEPTH) {
-+		if (rxmsg_len + pec_len > IIC_RX_FIFO_DEPTH) {
- 			/*
--			 * When Rx msg len greater than or equal to Rx fifo capacity
--			 * Receive fifo depth should set to Rx fifo capacity minus 1
-+			 * Trailing payload (data + optional PEC) exceeds Rx FIFO
-+			 * capacity; drain in chunks. Fire RX_FULL when the FIFO is
-+			 * full and let the ISR re-arm for the remainder.
- 			 */
- 			rfd_set = IIC_RX_FIFO_DEPTH - 1;
- 			i2c->rx_msg->len = rxmsg_len + 1 + pec_len;
-@@ -572,11 +573,8 @@ static void xiic_smbus_block_read_setup(struct xiic_i2c *i2c)
- 			i2c->rx_msg->len = SMBUS_BLOCK_READ_MIN_LEN;
- 			i2c->smbus_actual_len = 1 + rxmsg_len + pec_len;
- 		} else {
--			/*
--			 * When Rx msg len less than Rx fifo capacity
--			 * Receive fifo depth should set to Rx msg len minus 2
--			 */
--			rfd_set = rxmsg_len - 2;
-+			/* Defer RX_FULL until all trailing bytes are in FIFO. */
-+			rfd_set = rxmsg_len + pec_len - 1;
- 			i2c->rx_msg->len = rxmsg_len + 1 + pec_len;
+ 		if (i2c->tx_msg && i2c->smbus_block_read) {
+ 			i2c->smbus_block_read = false;
+-			/* Set requested message len=1 to indicate STATE_DONE */
+-			i2c->tx_msg->len = 1;
++			/*
++			 * Defensive: reset the per-transfer trim state in case
++			 * the rx phase completed via an error path that
++			 * skipped the trim site in the RX_FULL branch above.
++			 */
++			i2c->smbus_actual_len = 0;
++			/*
++			 * Drive xiic_tx_space() to 0 to signal STATE_DONE
++			 * without truncating the rx_msg length.
++			 */
++			i2c->tx_pos = i2c->tx_msg->len;
  		}
- 		xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, rfd_set);
+ 
+ 		if (!i2c->tx_msg)
 
 -- 
 2.53.0
