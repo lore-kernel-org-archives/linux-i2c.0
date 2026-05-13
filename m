@@ -1,82 +1,103 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB8493A7837
-	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 07:36:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2B49298CA3
+	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 07:47:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778657787; cv=none; b=eOG/uTJ57uQn8RyJg8EdLulvzDvp0C7umHuRwVPUB4C5LKW05ln/hzoKD6/C9w47RCZ/TibxwfZlh3V0YjuV8UJOdVqmGnyAmRKzkwVGE0tptxE+aoKxoL4UPZRcelBrgeU9+Qs6e+JarLXrSBUKuwAPud0yZVmz2JtHFW4m+Rw=
+	t=1778658474; cv=none; b=eZKt8Yh7CnkJwRAWXrl1UQuo9iGfH2raERPa8vF5PWZ8tL7DxOEEy/f2hCKo0g0K3SFm+huQ/HP9eBNosXREIcJdNz9DgPmIg011jG87/KRAjJtDnioghOMGlGH6a64KM4kYaRNgQeUIOYeue1IdrgUBIqnMsnRviVZoBJjLzqM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778657787; c=relaxed/simple;
-	bh=96ytaBIvoVox2cv7ds6H6bYbxRBwuO8y2v9kZvcQ6Ro=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=XC3Z6Oqn7BUCbNpc1bpA+S894wIEwwRQ56ioTeKQFGZKXh8HkuU92ORGBHL2R2ZOzQ06uuJ7MOwND1g7EFkJjGPFWeFzkLDjFuQeGFwbpkEsjX6lPvtqu+pM7Lp0JLiX+ughik0W9snzPyBDOnIiHNW6H8c/VvVmeLjkPbIsiUY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hbi/KOBR; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778658474; c=relaxed/simple;
+	bh=la07t7G22tUTJn6yhkaAdXSSftEzlXTdmijnmx9bsig=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZDWTjaUnzYB9+FIYZuTiX724RnRWyyOca3iLTKrJ9aadVNZ7/r/wIQiA8AUQbfNW9uUk1q0w1YhGeLsOQgZSomuSdatUyRxaL9sKgImUsz53MZCik7ud9XJmcNYTlYJ4vJrnkk5SUPgiYXXluK2SWosB2ABgiy7JHubPEsQY070=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=bvBXyesd; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hbi/KOBR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89A55C2BCFB
-	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 07:36:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778657787;
-	bh=96ytaBIvoVox2cv7ds6H6bYbxRBwuO8y2v9kZvcQ6Ro=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=hbi/KOBRswqmxPSU22NITm/BbpELvqomCzCSF9vW4bRlNrm+yVq2YcR5iIar/w8py
-	 I86xuObfMj1u3Ebjl/p235lWYqlcU6+Q0IbmwtTkc1sSohH68/FbH50uHhvGUqqmoZ
-	 d8Kt0bj/j/AvcqqLxIwOINYljkhJ0hLzFm9KxTDpvevJmclCgrIWlwhLaotjwBQvoc
-	 cm1nylTpEsKvTkeR8IF6Ra3J1F+XDMYs9qfTykVR/vId3prH+Rjn7f2h3fv581p1Zy
-	 dxJ3vTqXfuhiVl6sUe7GbB/Q5GAmljlVtogyejGuUpgD6IeD7utiyy3bGpWwf+N0GZ
-	 yIk14Uj/Eu6ug==
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-5a8d1f43432so4519653e87.3
-        for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 00:36:27 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ/zSS3DpcUINOjSn/8ZnQuyrwAMu1bk4tCBi+uEOwwSA0pvQthaqqIZ/Z6uQU7tmyLGqZRO+/IfkKU=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw+WV+5SHaxmY6b2D7io3L4CFbjy9KbSxh4IQdjpop3YnpPpvAG
-	q7Xq4107t+enegFwYSSuL6/HeW5/2qneuuOI4sVuHevrBSaitvwd5ZOn/d+JneXIeKsfRhkwUgk
-	jahWzTbT/qPNQZODRGb3uZZ7Vg1CR95s=
-X-Received: by 2002:ac2:4e10:0:b0:5a4:6f5:6c4e with SMTP id
- 2adb3069b0e04-5a8f39c5f4bmr554701e87.19.1778657786283; Wed, 13 May 2026
- 00:36:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="bvBXyesd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=cXna
+	x59z4Hqvl7eRjKVhrobircdl42kkDxMES6CStf8=; b=bvBXyesdRyCj8pGuinn0
+	Re1KxHFKzOiEgy4qXUSFTq0vjbsiaceuFgMdN0wC6h6MqwKXUByZIQT4L55zw3lb
+	NbmCPpseWZfU1wUjOu4NgAQiRUd77ZuFbbx2djLbJHOBkMUKhyqdA3Yot+Nkfl0v
+	lr0yUbGKOhJs7ByPHQXDyqMfbbNQ4RbeMBXtO6EBzDPocc0iEpNrmtx/IeltSWrj
+	v8wFpiWoWLVfAF9rYDpZvjz3CpcEJ8K5abluduK+70ywyk7pC34c0nB9fws24ET1
+	B3MGO1lWAKkD+hdqyGPCNnry7GyzOdp8BnT9ji1n1fktA/u5wea/6UjD/S6OYmhs
+	oA==
+Received: (qmail 3331290 invoked from network); 13 May 2026 09:47:50 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 13 May 2026 09:47:50 +0200
+X-UD-Smtp-Session: l3s3148p1@G9dNMq5RZI0ujnsX
+Date: Wed, 13 May 2026 09:47:50 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Bartosz Golaszewski <brgl@kernel.org>
+Cc: markus.stockhausen@gmx.de, andi.shyti@kernel.org, robh@kernel.org,
+	krzk+dt@kernel.org, conor+dt@kernel.org, linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	Marek Vasut <marek.vasut+renesas@gmail.com>
+Subject: Re: AW: [PATCH v2 0/2] i2c: Add i2c-shared-gpio driver
+Message-ID: <agQspjVCkbmVDnt_@shikoro>
+References: <20260511162528.84508-1-markus.stockhausen@gmx.de>
+ <CAMRc=Mc-EbMu3eUrMA5UDCEp-xzbyndy8_U8OjfcTDJcATThQg@mail.gmail.com>
+ <004c01dce29a$0e44e7b0$2aceb710$@gmx.de>
+ <agQkbnSHblUNz-IZ@shikoro>
+ <CAMRc=MddGonpdukfZ_eHa8C4ysdCTqhYva6yVRue06LVkyubxg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260513061338.9348-1-hardikprakash.official@gmail.com> <20260513061338.9348-2-hardikprakash.official@gmail.com>
-In-Reply-To: <20260513061338.9348-2-hardikprakash.official@gmail.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Wed, 13 May 2026 09:36:14 +0200
-X-Gmail-Original-Message-ID: <CAD++jL=vG4fO_30jLF1GrwDsfYVH=odMQV0xD4OX2cuqSmb+Bw@mail.gmail.com>
-X-Gm-Features: AVHnY4JVEsXYloe7nVkhuKP3kiNaHShoTMM0NI9LbGDzes7tcrop1eWqa0XxReU
-Message-ID: <CAD++jL=vG4fO_30jLF1GrwDsfYVH=odMQV0xD4OX2cuqSmb+Bw@mail.gmail.com>
-Subject: Re: [PATCH 1/2] pinctrl-amd: enable IRQ for WACF2200 touchscreen on
- Lenovo Yoga 7 14AGP11
-To: Hardik Prakash <hardikprakash.official@gmail.com>
-Cc: linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linus.walleij@linaro.org, wsa@kernel.org, andriy.shevchenko@intel.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="RCwWtzau7mu9P3K0"
+Content-Disposition: inline
+In-Reply-To: <CAMRc=MddGonpdukfZ_eHa8C4ysdCTqhYva6yVRue06LVkyubxg@mail.gmail.com>
 
-On Wed, May 13, 2026 at 8:14=E2=80=AFAM Hardik Prakash
-<hardikprakash.official@gmail.com> wrote:
 
-> On Lenovo Yoga 7 14AGP11 (83TD), the WACF2200 touchscreen controller
-> is wired via I2C2 (AMDI0010:02) with its interrupt on GPIO pin 157
-> (confirmed via ACPI _CRS GpioInt decode). After amd_gpio_irq_init()
-> clears all GPIO interrupts at boot, pin 157 is never re-enabled,
-> preventing the touchscreen from signalling the driver.
->
-> Windows keeps GPIO 157 INTERRUPT_ENABLE (bit 11) and INTERRUPT_MASK
-> (bit 12) set after initialisation. Add a DMI quirk to restore these
-> bits after amd_gpio_irq_init() on this hardware.
->
-> Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
-> Assisted-by: Claude:claude-sonnet-4-6
-> Assisted-by: GPT-Codex:gpt-5.2-codex
+--RCwWtzau7mu9P3K0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-You forgot to carry over Andy's ACK!
+Hi Bart,
 
-I see that the only real change was the addition of the two AI tags so I
-just added these to the commit already in my tree.
+> Yes, in that case it seems to me it needs a separate virtual device
+> driving it. In general, the idea Markus presented is fine but it must
+> not be described in DT. Instead, you need to create an auxiliary
+> device from subsystem code.
 
-Yours,
-Linus Walleij
+Okay, I get it that it should not be described in DT. DT should only
+have standard i2c-gpio busses and the OS needs to figure the details,
+right?
+
+I wonder about the subsystem involvement, though. The I2C core doesn't
+care about the scl-gpios property (except for GPIO recovery which is
+moot with the i2c-gpio driver). So, maybe this should be handled in the
+i2c-gpio driver instead?
+
+All the best,
+
+   Wolfram
+
+
+--RCwWtzau7mu9P3K0
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoELKEACgkQFA3kzBSg
+Kbbc6xAArLHuJ8wOUWhc4LHdLbBefnKvXGuf/n75CKfctd3pi8lLKovrT4kko1X1
+/QGbyuWt0KiEHF6CzJkfQdJXeBOE90C288wDoiBN8vj8ZHpJN++sXK4ZFDZUOLYy
+8yr09mjZPbtclsw5YOc0hpv2/fr1zKn15gSltJpsiNjbV0+vE6+qafrzdPFCJH3m
+E4Q5sP0JKrFIH6De74Tcm0zKIYdKS3kTBVwnUYOLzM1odCCIUWevw4n8Gk7r0yp9
+ONCwPl6sMRA/nBJmojFRnaT8dDqWU3UASM+GXAZIO6d8IZkDmhZDyO4qcuuUTlU5
+cMKewq7eW1y90WYhXlofxEpj9Xghm5YlqEw/2SbQRwpS890mmds3WkBwx7M71414
+wieM2FTq69l4OFy/WKjRvt0MJ7o4IMJy4K50J++bGST6H/u4DcZn7zwVIyO/3Je7
+11kEGyXZ6EHfYQFRmtSQkrBKheENPrqB9SljDIjXP7v5Fo+EYflRHmdOFGpKhc1v
+Pt0SNMPTVYriGHOlAxNvhkgnQnX+vsCRPw8pesbHuhACb9L88AujQPyt8uW2+0aW
+DBcfgHHLce1SKkThYDKWsuFTfRRmkqjE0FPwg9lZP7t+AfvzxaEplAH/q3ZYB1Eb
+RuRywAwgickRMz4jL6tnb0QBjjNSllu5AqROb8Mibiu9R9YGWQA=
+=er50
+-----END PGP SIGNATURE-----
+
+--RCwWtzau7mu9P3K0--
