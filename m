@@ -1,186 +1,126 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB9A33FFAB7;
-	Wed, 13 May 2026 17:28:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FE903AE196
+	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 21:34:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778693332; cv=none; b=rBFFJXs5bebvl2ScSQ3aThmybFYf08E5BPu8b4VEJqbRqLglbchpcvqsZRikKnx/t3hb2gQvYQfZpAGhxVLP7xuQrCke/sBf1S/c/AZbzVbxGcqAu6q92YTS1FbRJsuG7jHXwybk/NzLUKBe//kMOOfMMJvf3IHvOpuNd7UGBgg=
+	t=1778708070; cv=none; b=hTWdyPSQCZIZzRrLCS7AwZ7pM8eesfIO3dLErQAacsNCoX7ehpXfZS90DRm0HNVqd1RerFwZhRTLwJFeKJRizuKBqQPzCXmAjdLK3xV2nOuBLAF0XpHcljEMtGGXMWoIsCub7rDZM5+lUOIyev2uvgA0ZdnJoYbLTPED7ktFQew=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778693332; c=relaxed/simple;
-	bh=pxj0jepxEIQGRJkSwjh5KN9T4OX/Z7pdEPs63eCxJRw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=cxRxzLjCNc1RHVj0Sk+LwaWrYJsA+bsFWr7e54d3r3+5RGtEF5iA4XAPVOdhBjJKcT9DN9hp1aeXVu/oE7gxuSXBTos9YBT6uR8By02kd1mtAf6WXNHSfKXwO3T6dHW7eryNQzi4gXmC08R0u2+beWvpVtBH0S5FwJTyyVci4HU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=P/x2fWjA; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778708070; c=relaxed/simple;
+	bh=iT+/QPHVcHlecNMd5It7pqkC3hVv/s24hIydGjYZxHQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rSP5XO8/vIsiTJTiy+Tx4h9T/RNYxi8BwqKokV08Hthm2JG1gQI4q4h/Y7QRy1yPeO20n2gJqLfrNZ3+Kgz8hG6Y3D8+2xXvZU9CbU0QolIB3gxF9xomV401wpdNzh9ETk4X9qy4kyDrO3KeCaoFld9PR0QTvwubzWiv/k4vsMc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=N0fPE7P4; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="P/x2fWjA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2658DC19425;
-	Wed, 13 May 2026 17:28:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778693332;
-	bh=pxj0jepxEIQGRJkSwjh5KN9T4OX/Z7pdEPs63eCxJRw=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=P/x2fWjABzQtH6PNeviTB2Yija+SFdqs+6ZZ/Fk6XdkkWOEdqADWzytH5Y23N6QAw
-	 0g1kU045Oiyvlb5IM50oUbj8gwD3VbHY8LXE3y2EsJXnm4xZOww4lgtK0EqK9tO9we
-	 9HJcYLV+HJcLM7JObbrMYX/Zyy+VmouWuhTwCztqroXJtMK0KLdkmJP7e3e2lNZ5sC
-	 UOtEUNnJ2uvCMH2xXaP5vig3F3jH0QvhLMU2jsluULam8jfN89w3JD5uGr3rLGMQde
-	 Nd9IZHim05AA1CJni0xziy7wk+cbJemDetdMMltAhS/J1nDorA/BRY0MX4tB2eKtr7
-	 J00LqATey+wBQ==
-Message-ID: <705ef2f4-3bdf-4e7c-be9c-980cc0a21544@kernel.org>
-Date: Wed, 13 May 2026 12:28:50 -0500
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="N0fPE7P4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=RcAE
+	0lJGCwpijpOwUA4sY+aEmjEb1isYlzggOdNNR/g=; b=N0fPE7P4AtyttLRp0pbB
+	Qzr2tz8BvMXYF1Ypn02X9PsAh8cAmFfDCCvm2eleIt+z92OiC9BN4K6hShWpyoV6
+	X0BwzxAeG44aNqnnYybQGHo4FXYPE71KOUrqTavnvhX/rLjo9JWST13zNGoeNjyY
+	BcCfQeP3SReLfYEGKx+qllemvQ1Isz3tehYluyn95l7QKTedeRldnQLbMaQ8M09D
+	wn3ml1bowtC56c0ArFQNV7WFI83SsI/q0loLXVE4LDlymgnAMVUwO70w7z3puUee
+	GqtIy8PLtYcdGLO3gp4bKwrYp1xKYnS5OIQ/CMNUO23LGqZ72Ox1GGdbIugr4sz0
+	kg==
+Received: (qmail 3580323 invoked from network); 13 May 2026 23:34:16 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 13 May 2026 23:34:16 +0200
+X-UD-Smtp-Session: l3s3148p1@GrHUvblRMrMujnsX
+Date: Wed, 13 May 2026 23:34:15 +0200
+From: 'Wolfram Sang' <wsa+renesas@sang-engineering.com>
+To: markus.stockhausen@gmx.de
+Cc: 'Rob Herring' <robh@kernel.org>,
+	'Bartosz Golaszewski' <brgl@kernel.org>, andi.shyti@kernel.org,
+	linux-i2c@vger.kernel.org
+Subject: Re: AW: AW: [PATCH 1/2] dt-bindings: i2c: Add i2c-shared-gpio
+Message-ID: <agTuVxMAhttk9sX-@shikoro>
+References: <20260507181711.2696783-1-markus.stockhausen@gmx.de>
+ <20260507181711.2696783-2-markus.stockhausen@gmx.de>
+ <20260508131830.GA1135235-robh@kernel.org>
+ <007a01dcdef9$05ba7140$112f53c0$@gmx.de>
+ <af9xGlIWG_OmREzX@shikoro>
+ <CAL_Jsq+RyLno6kojsULC9M-Db+h1N+aoyJZgYs8nXtY4J+zEFw@mail.gmail.com>
+ <05b601dce2fc$9c82dc50$d58894f0$@gmx.de>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] i2c: designware: fix probe ordering for AMD GPIO on
- Lenovo Yoga 7 14AGP11
-Content-Language: en-US
-To: Andy Shevchenko <andriy.shevchenko@intel.com>,
- Hardik Prakash <hardikprakash.official@gmail.com>,
- Bartosz Golaszewski <brgl@kernel.org>
-Cc: linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
- linus.walleij@linaro.org, wsa@kernel.org,
- "Natikar, Basavaraj" <basavaraj.natikar@amd.com>
-References: <20260513061338.9348-1-hardikprakash.official@gmail.com>
- <20260513061338.9348-3-hardikprakash.official@gmail.com>
- <agSw-Y_jjliO1gaE@ashevche-desk.local>
-From: Mario Limonciello <superm1@kernel.org>
-In-Reply-To: <agSw-Y_jjliO1gaE@ashevche-desk.local>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="bCUDLevkwMqEYaF5"
+Content-Disposition: inline
+In-Reply-To: <05b601dce2fc$9c82dc50$d58894f0$@gmx.de>
 
-++
 
-On 5/13/26 12:12, Andy Shevchenko wrote:
-> Please, Cc AMD people on the AMD related stuff.
-> +Cc: Mario
-> 
-> +Cc: Bart
-> (the GPIO enumeration and checks, smells like it might be done differently).
+--bCUDLevkwMqEYaF5
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yeah; I tend to think doing this with a quirk is hiding a bug.
+Hi Markus,
 
-Are you sure this isn't a case of two masters on the bus?
+> While working around this challenge my POV is as follows:
+>=20
+> - See each SDA/SCL combination as an always hardwired bus=20
+> - There is no muxing of the bus as a whole.
+> - It is only a question at what time access is allowed
+> - Why not expose each bus as simple as possible?
 
-[    2.286838] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost 
-arbitration
-[    2.286887] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost 
-arbitration
-[    2.286923] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost 
-arbitration
-[    2.286964] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost 
-arbitration
-[    2.287521] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost 
-arbitration
-[    2.287569] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost 
-arbitration
-[    2.287616] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost 
-arbitration
-[    2.287658] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost 
-arbitration
+I agree and it matches the idea of DT being for HW description only...
 
-I saw something really similar on a Dell platform last year; but around S4.
+> Coming back to my offer about the new I2C bus that only=20
+> switches from compatible "i2c-gpio" to "i2c-gpio-shared".=20
 
-It ended up being a situation that the EC had way to act as I2C master 
-and until the right method from I2C-HID was called it thought it was 
-still I2C master.
+=2E.. even so far that I don't think we should use "i2c-gpio-shared" but
+only "i2c-gpio". The DT part (HW description only) is this compatible
+with SCL and SDA described. It is up to the OS to decide how to handle
+multiple SCLs using the same pin...
 
-https://git.kernel.org/torvalds/c/7d62beb102d6f
+> This should be achievable in the driver as follows:
+>=20
+> - add each SDA to the individual bus
+> - build up a shared SCL list for all buses
+> - link each bus to the required SCL
 
-Could this be something similar that really calling the _DSM is the 
-missing link?
+=2E.. which should mean for Linux that the i2c-gpio driver recognizes an
+already selected pin and reuses it by some reference.
 
-> 
-> On Wed, May 13, 2026 at 11:43:38AM +0530, Hardik Prakash wrote:
->> On Lenovo Yoga 7 14AGP11 (83TD), the WACF2200 touchscreen fails with
->> lost arbitration errors on AMDI0010:02 at boot. The root cause is a
->> probe ordering issue: i2c_designware probes AMDI0010:02 before
->> pinctrl-amd has finished initialising, so the GPIO 157 interrupt
->> needed by the touchscreen is not yet enabled.
->>
->> Add a DMI-matched deferral in dw_i2c_plat_probe() that uses
->> device_is_bound() under device_lock() to correctly wait until
->> pinctrl-amd's probe has fully completed. Use acpi_dev_get_first_match_dev()
->> for robust HID/UID-based GPIO controller lookup instead of string
->> name matching.
-> 
-> ...
-> 
->> +static bool dw_i2c_needs_amd_gpio_dep(struct device *device)
->> +{
->> +	struct acpi_device *adev = ACPI_COMPANION(device);
-> 
-> Split hard-to-maintain definition and assignment that's going to be validated.
-> 
->> +	if (!dmi_check_system(dw_i2c_amd_gpio_defer_dmi))
->> +		return false;
->> +	if (!adev)
->> +		return false;
-> 
-> 	struct acpi_device *adev;
-> 
-> 	if (!dmi_check_system(dw_i2c_amd_gpio_defer_dmi))
-> 		return false;
-> 
-> 	adev = ACPI_COMPANION(device);
-> 	if (!adev)
-> 		return false;
-> 
->> +	return acpi_dev_hid_uid_match(adev, "AMDI0010", "2");
->> +}
-> 
-> ...
-> 
->> +static int dw_i2c_defer_for_amd_gpio(struct device *device)
->> +{
->> +	struct acpi_device *gpio_adev;
->> +	struct device *gpio_dev;
->> +
->> +	if (!dw_i2c_needs_amd_gpio_dep(device))
->> +		return 0;
->> +
->> +	/*
->> +	 * Find the AMD GPIO controller by HID/UID and get its physical
->> +	 * platform device. We need the platform device (not the ACPI device)
->> +	 * because that is what gets bound by the amd_gpio driver.
->> +	 */
->> +	gpio_adev = acpi_dev_get_first_match_dev("AMDI0030", "0", -1);
->> +	if (!gpio_adev)
->> +		return -EPROBE_DEFER;
-> 
-> Hmm... This is interesting case, smells like something similar to what we had
-> with x86 Android quirk driver. Cc'ed to Bart to briefly look at this.
-> 
->> +	gpio_dev = acpi_get_first_physical_node(gpio_adev);
->> +	acpi_dev_put(gpio_adev);
->> +	if (!gpio_dev)
->> +		return -EPROBE_DEFER;
->> +
->> +	/*
->> +	 * Check that amd_gpio probe has fully completed, not just that the
->> +	 * driver pointer is set. The driver pointer is assigned before probe
->> +	 * finishes, so checking it would allow i2c_designware to probe before
->> +	 * the GPIO IRQ quirk in amd_gpio_probe() has run.
->> +	 */
->> +	device_lock(gpio_dev);
->> +	if (!device_is_bound(gpio_dev)) {
->> +		device_unlock(gpio_dev);
->> +		return -EPROBE_DEFER;
->> +	}
->> +	device_unlock(gpio_dev);
->> +
->> +	/*
->> +	 * Create a device link so the driver core enforces probe/remove
->> +	 * ordering between this I2C controller and the GPIO controller.
->> +	 */
->> +	if (!device_link_add(device, gpio_dev, DL_FLAG_AUTOREMOVE_CONSUMER))
->> +		dev_warn(device, "failed to add device link to %s\n",
->> +			 dev_name(gpio_dev));
->> +
->> +	return 0;
->> +}
-> 
+> That will need no shared gpio features. Managing the list=20
+> should add ~100 lines and the rest of the driver can be=20
+> reused/adapted.
 
+I think we are aligned. It would require no DT updates, only extra
+handling in the i2c-gpio driver.
+
+Bart, what do you think?
+
+All the best,
+
+   Wolfram
+
+
+--bCUDLevkwMqEYaF5
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoE7lMACgkQFA3kzBSg
+KbbZMRAArotBofvb4b/alr9cF5Lp+gTTV9YtK0077D10qu5ECfJ6ahhuIxUHolaS
+NgiseXOAtpTMUPqXVoQ7gw6uVC0j1g859NWnxWhlmSeRj3N+/gqFUQsHGiUc78mV
+hSGVrkuQ0QNG3WYSnnbueqYKhNtboJDusCAJNTVWxZZHBk86lXoik5SGXTed1gs0
+t1yWd5AV/J1xr8vdF4ep5rNdUUzCk2QhSgpWuKMdiVxwZuGgtbX3AVPkqC+86SBs
+lhpXNqZnIUFWGLKuOPdbEvkhJn52TzY2jbjig+JYHf1JVH8IpYIe0aUV8g1UESpO
++ngiRln7HxykTpkJ2NuZbnE/gDpT1Kn/phPMXJYLK0Fi5oe7imD3mFkiLUIQb45q
++095vbkwOPSRpEH1tw9HsMjnKt/Ds0iDTcwEJWTB9yFu6qYDMmrEJjZAUrVkml7b
+0lf911OI+ft4GPb7GjZtD4vtIc2r2sjNzakh9rLsYlAvmTEimUnT65qITFzPCPdR
+P68XdueOWpg3hudlvY36hqCgUGJCjwpbQNFuLg/q/eAwa5k/brSSxMV5TG0WtiJ8
+yIl3Ktedoeg2MKv4UY+Pfh8LhxfGaW46e+nuq4VYl856of4UE6SJ9icFg5eyYpBm
+PVKuc8KTZmuaqSN8vlFZwLnqluNfW9CrDvRlJE82f3oVdKEzkyU=
+=umRh
+-----END PGP SIGNATURE-----
+
+--bCUDLevkwMqEYaF5--
