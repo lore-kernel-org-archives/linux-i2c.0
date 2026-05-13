@@ -1,85 +1,150 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f52.google.com (mail-dl1-f52.google.com [74.125.82.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 519B6367298
-	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 07:50:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC39E3932E2
+	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 10:09:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778658659; cv=none; b=LZFmsDIVQhy0OjqU4FCYj0VZ44r1LMK6blHG0zk0W0AewcRysatO9AD4ytDdgN0G8v+hrdKaIRO1NXh+GJuDIXMrEAN2VODaVInPZdfuQAaD+DEO6CSPZkHWSFvSzns+L1EKeikWHD6zDqixlam7SD+0lA9Jk4VPXG3yi7qEppQ=
+	t=1778666980; cv=none; b=LxWHduW26YdfLtfbWsRuDMvzd0f7G/kv2cbgtu2P4zWVAmzTn1AzSSk5jbqqvGxH8TQiI93KGGH5YzuFEPsShdaMGi3KmiFF6xTn4v2DjOLzDoENEoGx0LMJr14+IrvOpwStrQ3998hJB+2R3mOUIHBPORRSgIDx0EQsKBrbdqE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778658659; c=relaxed/simple;
-	bh=p9Ohp9WPIQd1AoIgFc6IB/L4M72lF1cObc3C1yrOMLc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sSkD03R7aBmWAuo1ooDmF3amKpjwkneEmLpyHwlvm9hITEUiiupqBmuxjokyUP7rsMImbUoRaNW3h1XNkO8uuG2CW9UGqLSgtijR0sZoxXF+NOnG5qN2m50OrqYJFB9psqETibMoRIw6PU+OWaSXpFUsiz4uJ5/OtNTCbzoIEro=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mfPnF7cu; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778666980; c=relaxed/simple;
+	bh=IcTTcY79qLYulJ6DtpHIU8j/lmilEm/EM7tnCfD/M8w=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=PQGKx29Cr+Ihl747wG8n6xI4QvtaiYWDpOf4Nv5X/05n11Vl9lGWMR0O4QDlEKLIfbjo43wtR7YPsb4EwJfSn9yVmiC8yQyoTC9p8XDWNhCHmzw4D0vYAC1IzFkAeQvlm8qUE24PAOig5OYuk5yHU5aKPz0T7xHNSH4MviD1rrc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=AO/z7VQL; arc=none smtp.client-ip=74.125.82.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mfPnF7cu"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 059BAC4AF0B
-	for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 07:50:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1778658659;
-	bh=p9Ohp9WPIQd1AoIgFc6IB/L4M72lF1cObc3C1yrOMLc=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=mfPnF7cuAC6ib+IP35I89v+FxHX9d9TGeyxhLDNRmV2ceO8hqM8AnhASQRxg1NiwK
-	 uT7AJ6Q2XdLMy+Ff26XOhstvUETfIt49a31fCede2QDCXQHZeO3AXEGGRMuluAOOys
-	 spekrfjetnhtlK+0+XddAcszOscScHGVVCPIxK1+36XWLmkL+rhfb1YhipNmFINeO8
-	 EciNAb1MKFw2YVFkOcYpUGo8IYWA3HXn1QlD/fM+BxYjcsWclbhN4ylwPsXx9KIoCW
-	 J1cL4irCpL68IB5le61VQTMfbr9y5aX0AacOgrwuxow4tX1fATtC3g2OKm/8VBt3Nq
-	 sx6ADxv+PDQEQ==
-Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-393c40246afso67196581fa.1
-        for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 00:50:58 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ+PXsecmGADrP4lCHC/eqq1mrHex6uq9cKqTXCeskmi8Iul6nEcx4P5WaZqZGJPC4QfID9qJhoGDIw=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxwbd4p774zR246J7s006pXnchynybMEQnxfuAgr3d6XFTT6JD+
-	VtOMJeESHxcTPGeD4pRaohNiwxeCGYn/J6ojm8YQDdq/afqT9cwcrRWJA9B6FsVZoRlkrWynMg2
-	nQ6U03u7zwCYi8NTN6gX4PyYNcbSHdIFcn4KLLXPk5Q==
-X-Received: by 2002:a2e:ae18:0:10b0:38d:e744:8663 with SMTP id
- 38308e7fff4ca-3944b60bb79mr4560581fa.26.1778658657667; Wed, 13 May 2026
- 00:50:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="AO/z7VQL"
+Received: by mail-dl1-f52.google.com with SMTP id a92af1059eb24-1329507c387so4386384c88.1
+        for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 03:09:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=nexthop.ai; s=google; t=1778666967; x=1779271767; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=tMy1R3v8/cknJGc/Ns+zpumuALOM+zMl+dD92JAI70U=;
+        b=AO/z7VQLoF5Ai3klzgi+FIjvtnULOh9mlYAP7q8PIAUX7RcrZrpaA/8s8pxhfQXEA5
+         oBC49e9rGrEwLuaagoZsjIX4m/kSlmIlnkjXMNgsIu0OblWmj6MbD63p4MPJRk+j+Z3L
+         NJsWhDaoUta6b4Hm3+JgJS6tRoDJe0oNbJpuThi3liuDNH8b1m5l6ZZ8l1kPt1v3YoCS
+         FHwM0fS43UxCAY4Hljz9umgXsfOkc6jfJcYkpnu1F3JSnoCNK21l9gfy/Qywqm8VHcLj
+         83atKQiox+MVRYAl/IXociBKQbamECNAMXtUZrf8tmxSGDSRXTx7qko75/jNpUmg+ug5
+         PkjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778666967; x=1779271767;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=tMy1R3v8/cknJGc/Ns+zpumuALOM+zMl+dD92JAI70U=;
+        b=S66klWcZFVryUYTIKYCfJ5JfGGlMpJO67lfVphe10rvyK10BIzxGLqDdszTCOG3LMz
+         F/avxgHZ1Hc3PHUpA3S/Wbg4De5oSFv8SOUM1As/1fC7j9TrXcb9//Ll0RyVByT1vHcP
+         w3PprCynOxOqb2b1Ipcz1L5Y7gRlgZaEoP1YVkDeAw4OuT/6RDqtxesPXBudXFh2yY4k
+         8VvzPAdX64L03kuTAn+B4kuMQkaIoWb7qTzyi1PHPrSO2oeP+jV1O5eST4ZJyVjtHSu7
+         fU+Myfu5ljNB17DPWYsMh3z84iFHpItwhrxPAE9xajUYMXohJKFfePEUFUXl9dTDxNZH
+         AZTg==
+X-Forwarded-Encrypted: i=1; AFNElJ9KUGwg5lxPS0WVOYnf3gzN1kk6tQZjva3fW3v++l4Tl7lH8GLT8F9VktGhTM19G51Ex2RYsa2ge/I=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyiiUSh9qnRkVbJy19ag8iSC/H3wqaTa5D1diQ+BU2IGNZ7pjib
+	Zef7p/k+8MBBKhzXvuaLziE2gy7FVIl8RaYfPAq7DZEn1KUHcOLLGP05ChWxk+ueCBQ=
+X-Gm-Gg: Acq92OHO2FjVcwxUOkq2yg2PNNIiqpqjdOXwtZAd7KfYsbO1ITgbRRy5ef6UD6TCHYk
+	C8jUzcsWNUSjwxjH50qeZQL+gI82DM72hIWKmSEo57aSwOjZOsONJXX4W1XZGmuRgLVor8yKI7j
+	bRxzbTq3JKtme+HMH/HWKMril7e9tOocaSVH88p6d3tXsk0uLUacaemYgLETdxZkikQeHByBeuz
+	Fxpo0ZCTVI1B4GtESCeYIZ0W7tJ+DkSCtkPQORFK9dQmTPbspjcQs2yLgqnlRHlf1ISktxPKa/4
+	sQoVnWfHnh0bD0+t9fMf+fqzB75QnFmxawls4cnXbT3RJznpZxK91Kcul2Cm0yrWshcqV/GhWDo
+	PwIIWAb3JY5nva2a2XpKGEO91VJqjRJenAj3DTsQdh0g0z5Of3MBSMRM2bBVYl55qG2sir1yNxZ
+	ISUeC1XzEvO71zCU3hTuxPxckdog==
+X-Received: by 2002:a05:7022:221a:b0:11b:1c7e:27d0 with SMTP id a92af1059eb24-1349a1371cbmr1363410c88.0.1778666966786;
+        Wed, 13 May 2026 03:09:26 -0700 (PDT)
+Received: from [127.0.0.2] ([50.145.100.174])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-132787673ffsm29430265c88.15.2026.05.13.03.09.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 May 2026 03:09:26 -0700 (PDT)
+From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Date: Wed, 13 May 2026 03:09:23 -0700
+Subject: [PATCH v3 2/3] i2c: xiic: defer RX_FULL until all trailing bytes
+ are in FIFO
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260511162528.84508-1-markus.stockhausen@gmx.de>
- <CAMRc=Mc-EbMu3eUrMA5UDCEp-xzbyndy8_U8OjfcTDJcATThQg@mail.gmail.com>
- <004c01dce29a$0e44e7b0$2aceb710$@gmx.de> <agQkbnSHblUNz-IZ@shikoro>
- <CAMRc=MddGonpdukfZ_eHa8C4ysdCTqhYva6yVRue06LVkyubxg@mail.gmail.com> <agQspjVCkbmVDnt_@shikoro>
-In-Reply-To: <agQspjVCkbmVDnt_@shikoro>
-From: Bartosz Golaszewski <brgl@kernel.org>
-Date: Wed, 13 May 2026 09:50:44 +0200
-X-Gmail-Original-Message-ID: <CAMRc=Mf9j9Y3nFaDD1t1nqhd8ogH6TVceKA=vtM-u5dY6_ptrw@mail.gmail.com>
-X-Gm-Features: AVHnY4J7mArgZfFLDspRetTPfaw6yjD5xgcHAlbljH1t9z5KbSl0zlXC_WKFXlw
-Message-ID: <CAMRc=Mf9j9Y3nFaDD1t1nqhd8ogH6TVceKA=vtM-u5dY6_ptrw@mail.gmail.com>
-Subject: Re: AW: [PATCH v2 0/2] i2c: Add i2c-shared-gpio driver
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: markus.stockhausen@gmx.de, andi.shyti@kernel.org, robh@kernel.org, 
-	krzk+dt@kernel.org, conor+dt@kernel.org, linux-i2c@vger.kernel.org, 
-	devicetree@vger.kernel.org, Marek Vasut <marek.vasut+renesas@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260513-i2c-xiic-v3-2-ccb3cf70ba03@nexthop.ai>
+References: <20260513-i2c-xiic-v3-0-ccb3cf70ba03@nexthop.ai>
+In-Reply-To: <20260513-i2c-xiic-v3-0-ccb3cf70ba03@nexthop.ai>
+To: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Abdurrahman Hussain <abdurrahman@nexthop.ai>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1778666964; l=2850;
+ i=abdurrahman@nexthop.ai; s=20260510; h=from:subject:message-id;
+ bh=IcTTcY79qLYulJ6DtpHIU8j/lmilEm/EM7tnCfD/M8w=;
+ b=8UzUUME/YlH55KnDDiPY7DoH5eRhIrJtdDWJN+ZdsYZdmJv2TNw+RDEb56gmi96+eB4cGHrvn
+ NcNUmEzIP1QCKmqoa4Ww1l2y7NtSLi/b4E649DTiFNOGaoW5qwoQjrC
+X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
+ pk=omTm9cCAbO0ZhS32aKfJDKue0W3sQGpG9ub5eYHif8I=
 
-On Wed, May 13, 2026 at 9:47=E2=80=AFAM Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
->
-> Hi Bart,
->
-> > Yes, in that case it seems to me it needs a separate virtual device
-> > driving it. In general, the idea Markus presented is fine but it must
-> > not be described in DT. Instead, you need to create an auxiliary
-> > device from subsystem code.
->
-> Okay, I get it that it should not be described in DT. DT should only
-> have standard i2c-gpio busses and the OS needs to figure the details,
-> right?
->
-> I wonder about the subsystem involvement, though. The I2C core doesn't
-> care about the scl-gpios property (except for GPIO recovery which is
-> moot with the i2c-gpio driver). So, maybe this should be handled in the
-> i2c-gpio driver instead?
->
+For the normal path of xiic_smbus_block_read_setup() (rxmsg_len less
+than IIC_RX_FIFO_DEPTH), RFD was programmed to rxmsg_len - 2, which
+fires the RX_FULL interrupt while the last payload byte is still in
+flight. xiic_read_rx()'s bytes_rem == 1 branch then sets NACK on that
+byte still on the wire, truncating the read in the PEC-enabled case.
 
-Sure, the driver can live under drivers/gpio/ and still be
-instantiated in i2c core, no problem with that.
+Raise the threshold so RX_FULL fires only once every remaining byte
+(payload plus optional PEC) is already buffered in the FIFO. That
+routes the drain through xiic_read_rx()'s bytes_rem == 0 path, which
+reads everything out and emits the stop cleanly. For the non-PEC path
+the full payload is still read out through the same bytes_rem == 0
+branch; the only user-visible change is that the controller waits one
+extra byte-time before servicing the interrupt.
 
-Bartosz
+The deferred-fire formula is rxmsg_len + pec_len - 1, and the RFD
+register at XIIC_RFD_REG_OFFSET is a 4-bit field. Widen the
+chunk-vs-defer guard to (rxmsg_len + pec_len > IIC_RX_FIFO_DEPTH) so
+the boundary case rxmsg_len == IIC_RX_FIFO_DEPTH with PEC enabled
+cannot write 16 into that 4-bit register; it routes through the
+chunked drain instead, which already caps RFD at IIC_RX_FIFO_DEPTH - 1.
+
+Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+---
+ drivers/i2c/busses/i2c-xiic.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-xiic.c b/drivers/i2c/busses/i2c-xiic.c
+index d4308716d461..2bdba6c0931f 100644
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -548,10 +548,11 @@ static void xiic_smbus_block_read_setup(struct xiic_i2c *i2c)
+ 		unsigned int pec_len = i2c->rx_msg->len - 1;
+ 
+ 		/* Set Receive fifo depth */
+-		if (rxmsg_len > IIC_RX_FIFO_DEPTH) {
++		if (rxmsg_len + pec_len > IIC_RX_FIFO_DEPTH) {
+ 			/*
+-			 * When Rx msg len greater than or equal to Rx fifo capacity
+-			 * Receive fifo depth should set to Rx fifo capacity minus 1
++			 * Trailing payload (data + optional PEC) exceeds Rx FIFO
++			 * capacity; drain in chunks. Fire RX_FULL when the FIFO is
++			 * full and let the ISR re-arm for the remainder.
+ 			 */
+ 			rfd_set = IIC_RX_FIFO_DEPTH - 1;
+ 			i2c->rx_msg->len = rxmsg_len + 1 + pec_len;
+@@ -572,11 +573,8 @@ static void xiic_smbus_block_read_setup(struct xiic_i2c *i2c)
+ 			i2c->rx_msg->len = SMBUS_BLOCK_READ_MIN_LEN;
+ 			i2c->smbus_actual_len = 1 + rxmsg_len + pec_len;
+ 		} else {
+-			/*
+-			 * When Rx msg len less than Rx fifo capacity
+-			 * Receive fifo depth should set to Rx msg len minus 2
+-			 */
+-			rfd_set = rxmsg_len - 2;
++			/* Defer RX_FULL until all trailing bytes are in FIFO. */
++			rfd_set = rxmsg_len + pec_len - 1;
+ 			i2c->rx_msg->len = rxmsg_len + 1 + pec_len;
+ 		}
+ 		xiic_setreg8(i2c, XIIC_RFD_REG_OFFSET, rfd_set);
+
+-- 
+2.53.0
+
