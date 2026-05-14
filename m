@@ -1,157 +1,262 @@
-Received: from CHN02-BJS-obe.outbound.protection.partner.outlook.cn (mail-bjschn02on2118.outbound.protection.partner.outlook.cn [139.219.17.118])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f43.google.com (mail-yx1-f43.google.com [74.125.224.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86F823A6F1C;
-	Thu, 14 May 2026 03:58:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=139.219.17.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09EDA36A36C
+	for <linux-i2c@vger.kernel.org>; Thu, 14 May 2026 05:13:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.43
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778731111; cv=fail; b=eQBAAbwddpR9/4dJOTSNBiHoLsj6S/wS/HavxZpaTexH6V+XNBxVeQEEP7681Hl3TUWMlLSjsPnbOJDQAOlMaGgz3hJs6nZUjbppQvtf3ov5oVzfXvgQBgLDv/pWMF+ehjRJsZQXzikXWKg7EwbnDgazeDZYPr/Jj88SWJ1CBe0=
+	t=1778735584; cv=pass; b=I8TsWZl4nbxRmkEclg9jSHv96bvXsQHCXvxtEhjMrPB0O+WsZBfhs/1DGKrR5+VLmWKL/0m2RQh+wI2rPZKSAOfROIqvf7+oeq8zo1ziGL1L4qaDVYbOX956Lxi3F7nIcDCOk9iNesAtFrxmHURyN03pXE1ksN7BED4niMhA0i4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778731111; c=relaxed/simple;
-	bh=DMFSGvmzjB22HGsQklKUpqo0BMrqae3id+XHJzI5/Yo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=UJNtVEE3KV/mTpGKo3mFCy+wYDlf4/GAfmyYC5nP6a5TB4K+s+Z4f76LtGe8/NZS5vd00vY50F+78f+58AUg7Nk3WoyXcflZ28mQN30JGJzMSVwGEN25hfk0m5SLYKbvtM5BHAIBMyvIL2YAamHuUhCAy3uCx1yaVVXDxeeIAOs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lecomputing.com; spf=pass smtp.mailfrom=lecomputing.com; arc=fail smtp.client-ip=139.219.17.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lecomputing.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lecomputing.com
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=Fc9qapATVSNDBMc1tqepb+Frp+yEbM0WyrBl/zqGtuZlfR6ztfDra4OQ8PcNEHXICjy0fDPLhb0xRLcHkZXi3eaByVfjg4RugjA/F5KeMH66A9qPGWc9gd9Q5fBwRhpF6xsQ0WIN5nSJt6cje0MseYIP3/nXHZTMmOm0gJYPQJj4eRAzPOEM/+rrtERA7Dp0XjxGmda6j8e+FFI5WnVTYnisJHhCvFauZxmMK4BsWQeT7mYGyyDVTFPnxzFfKz73bZZ981oKGZeF3mz5mqmO7X2zFYA4mx25VeHlqev0C/pjdreuvDdesio9iaOlmyDrjvjdAHqRRs/6CIc0BvWQqQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=fjFmoGtxp1015bXAb5lhGlLRx5FGNB5vqi4MAYCLRIU=;
- b=OSjkvsb0ztRFHEKp3La38AZ6/Q9uUrdv6lwygfohUXnJu8/e20mn7U0DuC0pNr7jtRgRkdyOzKz8iRFvETHNk79rCsHGIuzlRSI73wNb7V5PLD55QrHZ8btvuXx9r3uJizYmnkA0FxGHqymscRz1panYmuWxvl4pU3DxmGze3lhsk3vgTC1o63Sce4H9NqW0Sms/7qas18hC0TJoX8idNADaJGrCPWedsXpSm/Hu6ghLfd0r5xHp+Qp4C03N9Loq+RYqS2/qULkFer9jX5rt8CgOSfiMFLOqAdCqkC8gICevbzi6eqN+CfBPClhuexgvs1JRw4CjOOFH5q5AXXnycw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=lecomputing.com; dmarc=pass action=none
- header.from=lecomputing.com; dkim=pass header.d=lecomputing.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=lecomputing.com;
-Received: from BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
- (2406:e500:c211:1f::17) by BJSPR01MB0515.CHNPR01.prod.partner.outlook.cn
- (2406:e500:c211:d::15) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.25.18; Thu, 14 May
- 2026 03:43:31 +0000
-Received: from BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
- ([fe80::1c61:86e3:3a75:155d]) by
- BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn ([fe80::1c61:86e3:3a75:155d%4])
- with mapi id 15.20.9818.023; Thu, 14 May 2026 03:43:31 +0000
-From: thomas <thomas_lin@lecomputing.com>
-To: rafael@kernel.org,
-	lenb@kernel.org,
-	hoan@os.amperecomputing.com,
-	linusw@kernel.org,
-	brgl@kernel.org,
-	mika.westerberg@linux.intel.com,
-	andriy.shevchenko@linux.intel.com,
-	jsd@semihalf.com,
-	andi.shyti@kernel.org,
-	broonie@kernel.org
-Cc: linux-acpi@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-spi@vger.kernel.org,
-	lucas_hao@lecomputing.com,
-	puntar_liu@lecomputing.com,
-	jihua_tao@lecomputing.com,
-	stan_xu@lecomputing.com,
-	lumin_liu@lecomputing.com,
-	notics_zhang@lecomputing.com,
-	braden_zhang@lecomputing.com,
-	harold_wu@lecomputing.com,
-	will_zhang@lecomputing.com,
-	aurora_jiang@lecomputing.com,
-	ryen_lin@lecomputing.com,
-	andy_jiang@lecomputing.com,
-	thomas <thomas_lin@lecomputing.com>
-Subject: [PATCH 1/3] Add ACPI ID "LECA0001" for LECARC SoCs that use the DesignWare GPIO controller with V1 register offsets.
-Date: Thu, 14 May 2026 11:43:15 +0800
-Message-ID: <20260514034319.3507315-2-thomas_lin@lecomputing.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260514034319.3507315-1-thomas_lin@lecomputing.com>
-References: <20260514034319.3507315-1-thomas_lin@lecomputing.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BJXPR01CA0067.CHNPR01.prod.partner.outlook.cn
- (2406:e500:c211:12::34) To BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
- (2406:e500:c211:1f::17)
+	s=arc-20240116; t=1778735584; c=relaxed/simple;
+	bh=OkdlTxJrIffafZLYBsN0a4k4dqZ5V+Hvm+XCe9BmCs8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ebR6KeLXeA++0wCKNNNHIm3qntpK4StfiR5WfB29u3t9sbEFrVY/Y5mXGKwVeUr34puNjZO9HQpjiPwiFa606sEWCFhoAvUTS0jExUjv4P210ukWv1fknFVUPXO703Hkp9Uu/d/uj+gQFGcujcHm2Rpg14nnUEoT6X2+JhmI5aY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hiS5p4go; arc=pass smtp.client-ip=74.125.224.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hiS5p4go"
+Received: by mail-yx1-f43.google.com with SMTP id 956f58d0204a3-651b4d09141so8660697d50.1
+        for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 22:13:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778735581; cv=none;
+        d=google.com; s=arc-20240605;
+        b=eKz1Ic3XJpamFfe4Uv20w6nNDpQaD3wCJrgM2KudHIL8vq4GhQZHOeklsK2slcH4rc
+         GJTVtWQ9/RrFnwRJLVCYbY1V6p5n3P+UnOdwOpP3Fx8OvahjonjHAMI9zlVicMpCUbhY
+         Nk8ePQJcy9adKoIO9nTv6a6+mByC9fHrzA1BllqBP07bDuTRGLHgS3Gv/zZYLn5P3/aC
+         0SfMH7AVxBqPKgwkdZ0Z+F5RIKJNSY9lHaMKNLT3Os1Q5cWJ1kiEvh2x84Oh82u80xp+
+         msdTV/i3QPuqLKETrnSBFm5lP8XaK83aXrTtmyzsYt1EM35wXeyga+Yf2Q+DMFGuuCTA
+         UmwA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=ldXGxXqstB4z6UJeQWyN/wPMyI1frnajQ+WrbjoPiwc=;
+        fh=NHx6HyAfsMljKU6Pn/r3uNPQgm2ugsq/nE1+c1c+bWw=;
+        b=YMDJiitUp7QbzEAwpv3VwXDG6bLZULZzGkl/sJwgQrZeH/F5QSeQwAiXxfajzsyqz/
+         GI4rBdD5jv+E+prBEDwEAP8mdnKrmZt0x4C1+45tFf5MbWWZRC/r6xB1h8GInqcyWKrs
+         WVtr6HHcGTwrwOCOyyW3b6QliaVOHHbqVk1A/Ia2DXZDAHYRvksEgUa7uKu7Q6bi/seW
+         KSE14nskIrczwHwieufASfnCo4HccnZpoY3edOIIoMqBBe2+cHrcWg9QC76S1au+/jn9
+         UA/ojEKxvuH6WKL1OSZqt2p+KPV2ofKa9qyMQeA1L1hbniEc5cRYISZb7yLENaQn/Okc
+         8n3A==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778735581; x=1779340381; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ldXGxXqstB4z6UJeQWyN/wPMyI1frnajQ+WrbjoPiwc=;
+        b=hiS5p4goMt0l4WxvMvVZGaeSq1tky4CAXXrr59q1P/T+nMpvacmOHtMOSUqbAQxa7m
+         wmu+o6FjMMaDd82J+jLaOZMO0gb4bF8hKWEGZrnXeuhEIvJoYUTu1klA/g0FRfrxemJn
+         pB+FLEmQp0cf9jVPbECGLPAmLD0KWmjYmrWta2iKqj+cRypLjEORJeGA4J2dcGA8rlRf
+         IIi8xuFdI48ZdA2r5dJ7BMQRPO/eup/NG5QU1fv3QV9VjLF6MTgQrBw2eZD47kCPIq/E
+         AOZZ4OUcs+zsI0dcDEq9hTRg476jaRRwvZtW121lUFpNgFyAuw2d7h+Re8Njru69+BDD
+         y57Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778735581; x=1779340381;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=ldXGxXqstB4z6UJeQWyN/wPMyI1frnajQ+WrbjoPiwc=;
+        b=h4/N7As24xJ3eUCQ9Ng0Ev4klOK1TZbcuJ+Ent9mHJGtpG1o+oZYWOdREXMblkZrzh
+         gppYfgZmesllRZ03YIbl7r4godPBk9XAWW0oxUh0CqD4PFrbDHcqkndgLWt3wV8z1Ofz
+         oW3H0uYDMl9LjEN5AXQarXXJZS+xiONLTxN1ZqGXGCL312RjlHsHTgSNuuGFpOcWA+Ks
+         VGwfvhgbQL6Cdb5niT4eBFaskakn44cYSxzZzI8DTlYO/rT2Ed3v5P3i2eP8tGrbO0xe
+         bhC48oZn0BFtNJV13GLQcz6jZFDPLLbZDgXT8AXQgVEu1m79xp6UOqMRCRnZV8zDsXUx
+         w46A==
+X-Forwarded-Encrypted: i=1; AFNElJ+FULIUTrp9cAIXbuut8HTh9v0+3vaG0h2x9RViFJ23ecxnbQX9IVg26lG/avUJ55paQWS5lPr3NXU=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxUAeA7Sc/XsW+zmxX0rHk/KLUguwnZRevPmAiUhYWFKr0LfcbO
+	At9YEi09sokIsHAQwHdxHiN5avNYERL9CppJ/1td7Yhz+t3TdfM0q93y2fUn36jVrLfENPsPIF3
+	M2YjRRYlNwXMB1/qGc82tt4syl7ITzr83/UYNcsDibw==
+X-Gm-Gg: Acq92OEKqOmUiR00rJpEFrD1/PJK4I0htDQ3+zbWkiYVu6yAQqbfj0rcIAL2DGB5par
+	0dTuY+qUfcm4q3E3PDzoDQCNiBMoN10Fui0AVzR9mkEOYaBEuChq2nYsIcBURuP+RMW/YMsVY7e
+	T2JdiYKzzpWnF1TARJorFfI2OPKmfcLG7MNWFwKGdLYvKQOMsWUzoIXL2qa+HPxiLw3YSO7cBAd
+	YHv4oECMo15rbUvuQKPBy6FPc9Gz67SxBRnZBPE4CdnHQNT0mY1F0DQTEXT+u8xsA2usFLiLbwT
+	hA/Cir5isfEcH4BFJXMvCmjKQ1Gq8OqZ3vEeB0Ce1+N1UWd2Tukmm+fJzhenJ0dGHM7QUzkKxLJ
+	mQ5FoXq5cem/OX67/63mDSpdl1D45aGGL2aDP8liHDB5rNLHuJs1LonpZwzfX9Lh+hHgua8Kshj
+	MQSviJ
+X-Received: by 2002:a05:690c:c4e8:b0:7bf:1433:8f92 with SMTP id
+ 00721157ae682-7c7e5d9034amr20480207b3.7.1778735580968; Wed, 13 May 2026
+ 22:13:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BJSPR01MB0707:EE_|BJSPR01MB0515:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2c181c39-b1ca-44df-d4d3-08deb16af79d
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|7416014|52116014|376014|366016|921020|38350700014|18002099003|22082099003|56012099003;
-X-Microsoft-Antispam-Message-Info:
-	BzUH7+S24b00rRuHKWqiF8hn9SHm6+LfZFDpQxpWKma5DJ0DQtugj/JMc1fcOu5NeDR5ilGrUNvzVr2anWUPOqFctBz62u96PtPXBOigZGM0vUeBSnQWsh2+8ct3eFV80Hx8R11TJDJ7lKhlgww5kkr2yk8m8n2Ohi0QzAq9JZUj1INwab1oGyQzz5cq9oup/4r+DUYEEDg+9+R1WJlSb9H+GzA36XFfSJyz+hBczlVlMMZNodtptGi1RHOtYhKdxtpX8W1txHfnNaWwc5wSl+aEvpg9G2SBul9mROVhhlSiZWxpaKAJPI9Kq3RZJ9advgXP0Hx/d7JvPZWaVJic882CXPZU7scT5DWAsU33j+9nqqgY9ErBoa5r7MUP+oQODu89/FkALV++2qlV4OcG+2qXltg7Mv75kbOu5mPrlPX4B6UaLI+8eG1IOLpkqXCivWXF1AXUD7xoKgphHzhyU7+SZ5R5Kbm/80yRVarw6DwTTMF+8G8hnslSN0JimYPtgtTFD1qqihDhW0+2WNgFA+yjDXJhx9jNQpDOfOCq0WerYM57ox/yRCVCDlPA1Cwv4wEdgw1XKxnclCpBwQJzAA==
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(52116014)(376014)(366016)(921020)(38350700014)(18002099003)(22082099003)(56012099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?ol1+C2oB/CvDTiAxua6kOV+XccAT3n8jinkd3RTPpp1DAL1UKjLepY79Gh3u?=
- =?us-ascii?Q?KbQ4nYRZdSgHlv+WTCcXthlCynzgkP/TIbh4q5ZCXcM1jZSw4+sDOANBv79+?=
- =?us-ascii?Q?cVwwAF/f45ZNGCW1NaL/Ghcnmc6c4SbK0sA3lmE4iQZ6+2j4BXG5ZyBVgYDd?=
- =?us-ascii?Q?4kOaAgs6emZYFpGhO8btWxux4REjGy5KhZpxUdGm0mtIuOdZWszsEOSKRk6h?=
- =?us-ascii?Q?3FQwJiAKP1p8yRiuNhwa+vdPy+P9NnnnVdnj8+qRf3j1izaGRQkMdDpVYZJ3?=
- =?us-ascii?Q?sbUCm0hRw0xHz6UYgMYiXmW7P4T4XXMyD8cTRTVrZm8GvG95Xxhgx44h1m6P?=
- =?us-ascii?Q?p+Ymv40+hUYtNY8yjW0kSgjAX/1pwwoL2VrpnVxAY1mHmoLXR4odqZTe1dP4?=
- =?us-ascii?Q?OUKET4B3On1/m/E6L4rZuY1jLVfK8ErlxyLX8SrGFc9Kud38G/YcW8q9VZxS?=
- =?us-ascii?Q?P9snjUq0CeiyVpGEl8jAveseyFQRS6J8lMLqNnAA5D5tY/MCCEcDgZVqSqqr?=
- =?us-ascii?Q?AUg/HHBoYvn9J2pq24DIrgPWUnk5M9N6wJGXY8voe/brruy8K6pZ5xU/DgA8?=
- =?us-ascii?Q?nqg94gmYaQ9eVRKx++1Gy5g75kyzhdS9uX2CUDqZCca/MLRWZxPyTbJJ0wjj?=
- =?us-ascii?Q?Qc5Yh7yguTB226lUaZ0xzV+gelklsib6srw301RaqsvOBtvBIFKx5K+FKBLc?=
- =?us-ascii?Q?boJTaL6pK05+uXrROFGCBZgjSf/mSNmLfhwBT/R1Iea1pvHMYYnoFG3cMSYz?=
- =?us-ascii?Q?TcOJU/7RVl7h626MALTt0qYQBKltwE5vknSUT1hgR2fCQLFLt1kAL+8lzYND?=
- =?us-ascii?Q?eP0qSmMsTV41aqeurD5kou6G5enAnHw3kGJj9o4XZVHcKsD1XMBOBj3zkOaj?=
- =?us-ascii?Q?cWDSvF1QJ67g1MZH/4BDWBpKN1sJNLH6ovqTlaYq0jqw7cCXZItvvWifIcfc?=
- =?us-ascii?Q?RGMyexcEY6G2No98psfHfRK0GPhMTIwlTX98IYR5h43BwOlWbzTGFE2aQDTf?=
- =?us-ascii?Q?9okg76e/41ojB0l5MbHUVVrMeuBylX7JgCKMvcO/QmtGIeRdKA/TVFA1aocd?=
- =?us-ascii?Q?gWyaD6IyqP4+OU6ATNVRVgN79j4MudNZfNHWmGU9y5G5Pz/CByarM5YaXoBx?=
- =?us-ascii?Q?6ouhisaVTmDywEhFdq0HqaESzJJT2o8O3yPCeuPRcSkSdtvaMFu3K0NnU7vy?=
- =?us-ascii?Q?qQKlOJLp/5fUIIxUlpRGgsEVCFaeD7duBDoFF3spVjzVyqNUJ3i83h5qs5iy?=
- =?us-ascii?Q?f2ZzRsOiM3Wrr2g36vuQHq4VT9IatZrAal9PqQ4gS5dhHi/G/72VYx2Fx83V?=
- =?us-ascii?Q?otgjotCzzbKp6OUBhmryqatgO/ZuCx0fIbOpgSmt+Rmq2lZpYgPKSO17jnLC?=
- =?us-ascii?Q?VTbZ1lq3K3W6g8PHnu1Dx+3uy5TgKZKeldpHrt7x3vVPLa/Vttg/Fz8KX1PW?=
- =?us-ascii?Q?KoYGIAoOgJubH7xf2JWWPz8oVMrlhzzgv5QYoFRyI53QpJzhnLeuBhTakont?=
- =?us-ascii?Q?MQpwbwFtFvqa98MB1UTdLfp9LLJDPqGNYrHYKGOLsx8fMwlfbQuGkWnLz2n2?=
- =?us-ascii?Q?Yvbu/mzd7MiFsGPLgpCNaS9KW2fb+qrMHDfbfSLp7pRXgpPcoGkGoktYCPwy?=
- =?us-ascii?Q?biEJBsn/eZRMo8rQBF+iO/pqzclTcP69ImhjBOFuBggEXJfG2r7tYTO7tjZu?=
- =?us-ascii?Q?ei/UxTC5TFbQa1IW9KdNEG9M25auWCh/ELCJToegxSE5+ctAhJrrqVdfJcZy?=
- =?us-ascii?Q?n8+y8hIMLKemTOsuLuHNGLJQl6U+2fs=3D?=
-X-OriginatorOrg: lecomputing.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2c181c39-b1ca-44df-d4d3-08deb16af79d
-X-MS-Exchange-CrossTenant-AuthSource: BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 May 2026 03:43:31.4387
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3591a018-3909-4ea2-aee8-843d5abaed8d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: AwDq9q7FqWQUv2k1F7LkyDimCdVyHKsZsDFFot3U61K04Pvl8U7YrzVqc4P5D2zMS6YuhP7KIXK5TcBcG+hiow82Qw3LjHLrEgLkGrpIUY8=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BJSPR01MB0515
+References: <20260513061338.9348-1-hardikprakash.official@gmail.com>
+ <20260513061338.9348-2-hardikprakash.official@gmail.com> <dcd84a44-d52b-4810-a1a8-5865f80db1ba@kernel.org>
+ <CANTFpSUr7KWMA5D7wh48f5-Ty9hDo7U7Ydsob32YZuZ83dRiiw@mail.gmail.com>
+In-Reply-To: <CANTFpSUr7KWMA5D7wh48f5-Ty9hDo7U7Ydsob32YZuZ83dRiiw@mail.gmail.com>
+From: Hardik Prakash <hardikprakash.official@gmail.com>
+Date: Thu, 14 May 2026 10:42:48 +0530
+X-Gm-Features: AVHnY4IUclQrg64HYPwoPct4FtYH8ADNAzz1IlmeFEwXBPHV-KJB5t6DYYtuh7k
+Message-ID: <CANTFpSWty5VGoaM2cq6-nn=eJJDy5r9NozGNyB4ryY4+TaODbg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] pinctrl-amd: enable IRQ for WACF2200 touchscreen on
+ Lenovo Yoga 7 14AGP11
+To: Mario Limonciello <superm1@kernel.org>, linux-gpio@vger.kernel.org, 
+	linux-i2c@vger.kernel.org
+Cc: Andy Shevchenko <andriy.shevchenko@intel.com>, wsa@kernel.org, linus.walleij@linaro.org, 
+	basavaraj.natikar@amd.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Signed-off-by: thomas <thomas_lin@lecomputing.com>
----
- drivers/gpio/gpio-dwapb.c | 1 +
- 1 file changed, 1 insertion(+)
+(Resending with full Cc list =E2=80=94 apologies for the missed recipients.=
+)
 
-diff --git a/drivers/gpio/gpio-dwapb.c b/drivers/gpio/gpio-dwapb.c
-index 15cebc8b5d66..c1f3d83a67c1 100644
---- a/drivers/gpio/gpio-dwapb.c
-+++ b/drivers/gpio/gpio-dwapb.c
-@@ -694,6 +694,7 @@ static const struct acpi_device_id dwapb_acpi_match[] = {
- 	{"APMC0D07", GPIO_REG_OFFSET_V1},
- 	{"APMC0D81", GPIO_REG_OFFSET_V2},
- 	{"FUJI200A", GPIO_REG_OFFSET_V1},
-+	{"LECA0001", GPIO_REG_OFFSET_V1},
- 	{ }
- };
- MODULE_DEVICE_TABLE(acpi, dwapb_acpi_match);
--- 
-2.43.0
+On Wed, May 13, 2026 at 22:53, Mario Limonciello wrote:
+> I don't understand.  Our design is that the interrupt is disabled
+> initially when driver loads (we don't trust state of the GPIO
+> configuration pre-boot), and then when i2c-hid loads later it is
+> re-enabled via amd_gpio_irq_enable().
+>
+> Why isn't that flow working on this system?
 
+The flow breaks because i2c-hid never gets to probe. The lost
+arbitration errors happen on AMDI0010:02 at ~2.3s after boot, before
+any driver reaches the HID layer. Without the probe ordering fix,
+i2c_designware probes the bus while pinctrl-amd is still initialising
+and GPIO 157 (the WACF2200 GpioInt per ACPI _CRS) has its interrupt
+bits cleared. The bus transaction fails immediately, the device never
+appears in /sys/bus/hid/devices/, and i2c-hid has nothing to bind to.
+
+With patch 1 alone (GPIO IRQ fix), the interrupt is enabled but the
+probe ordering race still causes arbitration failures. With both patches
+applied, the bus comes up cleanly and i2c-hid probes successfully.
+
+However, see my reply on the 2/2 thread =E2=80=94 there may be a deeper cau=
+se
+related to _DSM.
+
+Thanks,
+Hardik
+
+
+On Thu, 14 May 2026 at 10:36, Hardik Prakash
+<hardikprakash.official@gmail.com> wrote:
+>
+> On Wed, May 13, 2026 at 22:53, Mario Limonciello wrote:
+> > I don't understand.  Our design is that the interrupt is disabled
+> > initially when driver loads (we don't trust state of the GPIO
+> > configuration pre-boot), and then when i2c-hid loads later it is
+> > re-enabled via amd_gpio_irq_enable().
+> >
+> > Why isn't that flow working on this system?
+>
+> The flow breaks because i2c-hid never gets to probe. The lost
+> arbitration errors happen on AMDI0010:02 at ~2.3s after boot, before
+> any driver reaches the HID layer. Without the probe ordering fix,
+> i2c_designware probes the bus while pinctrl-amd is still initialising
+> and GPIO 157 (the WACF2200 GpioInt per ACPI _CRS) has its interrupt
+> bits cleared. The bus transaction fails immediately, the device never
+> appears in /sys/bus/hid/devices/, and i2c-hid has nothing to bind to.
+>
+> With patch 1 alone (GPIO IRQ fix), the interrupt is enabled but the
+> probe ordering race still causes arbitration failures. With both patches
+> applied, the bus comes up cleanly and i2c-hid probes successfully.
+>
+> However, see my reply on the 2/2 thread =E2=80=94 there may be a deeper c=
+ause
+> related to _DSM.
+>
+> Thanks,
+> Hardik
+>
+> On Wed, 13 May 2026 at 22:53, Mario Limonciello <superm1@kernel.org> wrot=
+e:
+> >
+> > ++
+> >
+> > On 5/13/26 01:13, Hardik Prakash wrote:
+> > > On Lenovo Yoga 7 14AGP11 (83TD), the WACF2200 touchscreen controller
+> > > is wired via I2C2 (AMDI0010:02) with its interrupt on GPIO pin 157
+> > > (confirmed via ACPI _CRS GpioInt decode). After amd_gpio_irq_init()
+> > > clears all GPIO interrupts at boot, pin 157 is never re-enabled,
+> > > preventing the touchscreen from signalling the driver.
+> > >
+> > > Windows keeps GPIO 157 INTERRUPT_ENABLE (bit 11) and INTERRUPT_MASK
+> > > (bit 12) set after initialisation. Add a DMI quirk to restore these
+> > > bits after amd_gpio_irq_init() on this hardware.
+> > >
+> > > Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
+> > > Assisted-by: Claude:claude-sonnet-4-6
+> > > Assisted-by: GPT-Codex:gpt-5.2-codex
+> > > ---
+> > >   drivers/pinctrl/pinctrl-amd.c | 35 ++++++++++++++++++++++++++++++++=
++++
+> > >   1 file changed, 35 insertions(+)
+> > >
+> > > diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-=
+amd.c
+> > > index e3128b0045d22..64315b0edf2a6 100644
+> > > --- a/drivers/pinctrl/pinctrl-amd.c
+> > > +++ b/drivers/pinctrl/pinctrl-amd.c
+> > > @@ -26,6 +26,7 @@
+> > >   #include <linux/interrupt.h>
+> > >   #include <linux/bitops.h>
+> > >   #include <linux/pinctrl/pinconf.h>
+> > > +#include <linux/dmi.h>
+> > >   #include <linux/pinctrl/pinconf-generic.h>
+> > >   #include <linux/pinctrl/pinmux.h>
+> > >   #include <linux/string_choices.h>
+> > > @@ -39,6 +40,39 @@
+> > >   static struct amd_gpio *pinctrl_dev;
+> > >   #endif
+> > >
+> > > +static const struct dmi_system_id amd_gpio_quirk_yoga7_14agp11[] =3D=
+ {
+> > > +     {
+> > > +             .matches =3D {
+> > > +                     DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+> > > +                     DMI_MATCH(DMI_PRODUCT_NAME, "83TD"),
+> > > +                     DMI_MATCH(DMI_BOARD_NAME, "LNVNB161216"),
+> > > +             },
+> > > +     },
+> > > +     { }
+> > > +};
+> > > +
+> > > +static void amd_gpio_apply_quirks(struct amd_gpio *gpio_dev)
+> > > +{
+> > > +     const unsigned int pin =3D 157; /* WACF2200 GpioInt per ACPI _C=
+RS */
+> > > +     unsigned long flags;
+> > > +     u32 reg;
+> > > +
+> > > +     if (!dmi_check_system(amd_gpio_quirk_yoga7_14agp11))
+> > > +             return;
+> > > +     if (pin >=3D gpio_dev->gc.ngpio)
+> > > +             return;
+> > > +
+> > > +     raw_spin_lock_irqsave(&gpio_dev->lock, flags);
+> > > +     reg =3D readl(gpio_dev->base + pin * 4);
+> > > +     reg |=3D BIT(INTERRUPT_ENABLE_OFF) | BIT(INTERRUPT_MASK_OFF);
+> > > +     writel(reg, gpio_dev->base + pin * 4);
+> > > +     raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
+> > > +
+> > > +     dev_info(&gpio_dev->pdev->dev,
+> > > +              "Enabled IRQ for GPIO %u (Yoga 7 14AGP11 touchscreen)\=
+n",
+> > > +              pin);
+> >
+> > I don't understand.  Our design is that the interrupt is disabled
+> > initially when driver loads (we don't trust state of the GPIO
+> > configuration pre-boot), and then when i2c-hid loads later it is
+> > re-enabled via amd_gpio_irq_enable().
+> >
+> > Why isn't that flow working on this system?
+> >
+> > > +}
+> > > +
+> > >   static int amd_gpio_get_direction(struct gpio_chip *gc, unsigned of=
+fset)
+> > >   {
+> > >       unsigned long flags;
+> > > @@ -1219,6 +1253,7 @@ static int amd_gpio_probe(struct platform_devic=
+e *pdev)
+> > >
+> > >       /* Disable and mask interrupts */
+> > >       amd_gpio_irq_init(gpio_dev);
+> > > +     amd_gpio_apply_quirks(gpio_dev);
+> > >
+> > >       girq =3D &gpio_dev->gc.irq;
+> > >       gpio_irq_chip_set_chip(girq, &amd_gpio_irqchip);
+> >
