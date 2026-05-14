@@ -1,82 +1,81 @@
-Received: from mail-yx1-f43.google.com (mail-yx1-f43.google.com [74.125.224.43])
+Received: from mail-yx1-f50.google.com (mail-yx1-f50.google.com [74.125.224.50])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09EDA36A36C
-	for <linux-i2c@vger.kernel.org>; Thu, 14 May 2026 05:13:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A7BFD531
+	for <linux-i2c@vger.kernel.org>; Thu, 14 May 2026 05:14:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.50
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778735584; cv=pass; b=I8TsWZl4nbxRmkEclg9jSHv96bvXsQHCXvxtEhjMrPB0O+WsZBfhs/1DGKrR5+VLmWKL/0m2RQh+wI2rPZKSAOfROIqvf7+oeq8zo1ziGL1L4qaDVYbOX956Lxi3F7nIcDCOk9iNesAtFrxmHURyN03pXE1ksN7BED4niMhA0i4=
+	t=1778735701; cv=pass; b=djB4/JK7pIUZ0Dm3Zpw0aZ9MCWolklK2S+rH4IYOHMParzf/wTh1mZLvU5bSg65QPrOkdFSany+9goirpknfk1TtKvq+0FkrtGZw7Mr8+vnK6kBN2WYlQBomD89L2/aHDOf4jteTZdYVn/BcMCsn6WTxJP3Ild1/hgmS9FKyoWk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778735584; c=relaxed/simple;
-	bh=OkdlTxJrIffafZLYBsN0a4k4dqZ5V+Hvm+XCe9BmCs8=;
+	s=arc-20240116; t=1778735701; c=relaxed/simple;
+	bh=Esa6aMxHc3lqCK14T6SUOgeyDUdsfbMrcCgZll//QZE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ebR6KeLXeA++0wCKNNNHIm3qntpK4StfiR5WfB29u3t9sbEFrVY/Y5mXGKwVeUr34puNjZO9HQpjiPwiFa606sEWCFhoAvUTS0jExUjv4P210ukWv1fknFVUPXO703Hkp9Uu/d/uj+gQFGcujcHm2Rpg14nnUEoT6X2+JhmI5aY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hiS5p4go; arc=pass smtp.client-ip=74.125.224.43
+	 To:Cc:Content-Type; b=bWeHzifMLUkcpnhBZeG5qBfpvoG7xyMEnY52ZVrSduWJy9hxYYxfMp2zxAa1WXm6x3Li9Al00g0AL6lJ8fTkqrUEViv9Ey4cl66MYkJ7NUezA8eUYoM3vVux9IAQSTF1fgfQBCzQSrIxx3kZgLgy1oznI/CyG6Q2+9WJz5o/OMs=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CBvMmITC; arc=pass smtp.client-ip=74.125.224.50
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hiS5p4go"
-Received: by mail-yx1-f43.google.com with SMTP id 956f58d0204a3-651b4d09141so8660697d50.1
-        for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 22:13:01 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778735581; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CBvMmITC"
+Received: by mail-yx1-f50.google.com with SMTP id 956f58d0204a3-65c5361142fso8846336d50.0
+        for <linux-i2c@vger.kernel.org>; Wed, 13 May 2026 22:14:59 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778735699; cv=none;
         d=google.com; s=arc-20240605;
-        b=eKz1Ic3XJpamFfe4Uv20w6nNDpQaD3wCJrgM2KudHIL8vq4GhQZHOeklsK2slcH4rc
-         GJTVtWQ9/RrFnwRJLVCYbY1V6p5n3P+UnOdwOpP3Fx8OvahjonjHAMI9zlVicMpCUbhY
-         Nk8ePQJcy9adKoIO9nTv6a6+mByC9fHrzA1BllqBP07bDuTRGLHgS3Gv/zZYLn5P3/aC
-         0SfMH7AVxBqPKgwkdZ0Z+F5RIKJNSY9lHaMKNLT3Os1Q5cWJ1kiEvh2x84Oh82u80xp+
-         msdTV/i3QPuqLKETrnSBFm5lP8XaK83aXrTtmyzsYt1EM35wXeyga+Yf2Q+DMFGuuCTA
-         UmwA==
+        b=h2es6f+t3ET6+mkOv7BSkb0B329VaahNcj0jCREUpnEY/kFJKdBToG35WyFto415eB
+         zLJUFQLuQYUU/0YdN+VAQ0WV01REoGD7UKppiw51nUeQrpGOEaS5Bpg5Ac45MQJt+vAN
+         bIckAIO3WPw0HAh+5xVPmubpEsOmDEFPQmkq+ETQZSa94PHLaqEktj8wJ5HCnONIqHoW
+         fDZsdq21keasHYUsyLoeoQBCerNEbcnt/It6L9ABn9gu+/V3yXSS2ZfSFIX+afX8G1Ip
+         BozfmBphS3k49UIM835kuaNCIClbPKADeweFCJ3DXtwDI/ruzMmTiq1NveC9uF3Uugxe
+         xfiQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=ldXGxXqstB4z6UJeQWyN/wPMyI1frnajQ+WrbjoPiwc=;
-        fh=NHx6HyAfsMljKU6Pn/r3uNPQgm2ugsq/nE1+c1c+bWw=;
-        b=YMDJiitUp7QbzEAwpv3VwXDG6bLZULZzGkl/sJwgQrZeH/F5QSeQwAiXxfajzsyqz/
-         GI4rBdD5jv+E+prBEDwEAP8mdnKrmZt0x4C1+45tFf5MbWWZRC/r6xB1h8GInqcyWKrs
-         WVtr6HHcGTwrwOCOyyW3b6QliaVOHHbqVk1A/Ia2DXZDAHYRvksEgUa7uKu7Q6bi/seW
-         KSE14nskIrczwHwieufASfnCo4HccnZpoY3edOIIoMqBBe2+cHrcWg9QC76S1au+/jn9
-         UA/ojEKxvuH6WKL1OSZqt2p+KPV2ofKa9qyMQeA1L1hbniEc5cRYISZb7yLENaQn/Okc
-         8n3A==;
+        bh=rNR/KRKvO9xK0+jIcZNTqxkNkqR2qZPifnFqEZLSgko=;
+        fh=OCtp78J1oFejKwYnhgBqfY3/OOsJsOiMlRLXw+APUYY=;
+        b=dlLIdbysWxhA/2qnQS4lKnYvHoautL2h9wETa+h5J7Z7LSa1Yt7exOSLSrXkyANnUr
+         0pzIcLRdnygcZ8kYbVmbAFnJshwUciLOdwLXUltB2v9nzpkfeVr/D+hnJqpywHKzRYgm
+         WuXVBO7JcLolUTRcPNhtz5wGOAOANRwRaYpbLcMQAEy1BhcetyZlCpCgkK2aOBk/9XzE
+         YH67e6GCCRvpQ7gmdseeRQF0Pc2NdZKxcS/iPdLd/gPMrsedlMCbEYH80hpdXE5kCMto
+         V1wztF6/NfPfmKJoDfFAEyTzh3STk+2/5lX37RyAJP9sPpvvXgocoyehNq+9iQbrw1br
+         X4uA==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778735581; x=1779340381; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1778735699; x=1779340499; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ldXGxXqstB4z6UJeQWyN/wPMyI1frnajQ+WrbjoPiwc=;
-        b=hiS5p4goMt0l4WxvMvVZGaeSq1tky4CAXXrr59q1P/T+nMpvacmOHtMOSUqbAQxa7m
-         wmu+o6FjMMaDd82J+jLaOZMO0gb4bF8hKWEGZrnXeuhEIvJoYUTu1klA/g0FRfrxemJn
-         pB+FLEmQp0cf9jVPbECGLPAmLD0KWmjYmrWta2iKqj+cRypLjEORJeGA4J2dcGA8rlRf
-         IIi8xuFdI48ZdA2r5dJ7BMQRPO/eup/NG5QU1fv3QV9VjLF6MTgQrBw2eZD47kCPIq/E
-         AOZZ4OUcs+zsI0dcDEq9hTRg476jaRRwvZtW121lUFpNgFyAuw2d7h+Re8Njru69+BDD
-         y57Q==
+        bh=rNR/KRKvO9xK0+jIcZNTqxkNkqR2qZPifnFqEZLSgko=;
+        b=CBvMmITC/CQ9nf4WSprwi2cUlk4W/fstP7Jr0F99Xqafrgu2dJpX6kbSZolGD2if0n
+         7eLW/RfAI5f4i9nypEyLGx0rTnMD/fdYlenKqSyEJIipD+dHPKau0selJ5l/zT/zDkqk
+         M6l/lnEVCL+rVxPsOQZITGaTXLDSp6CC7DwcyHoLddJTuymIlbx6Wxunoh0QCG+yCiHZ
+         U9mxWk/NnYvuY7XfZJuKUVtRlMjKJe0CVp8hdNdnzT78dX65rtIHJXFTKIwMTQ/I6OsU
+         1kXGzJ4GdxHod5l1rpSZBQWtzvoT2kFPfoi14sMsaWUdvSQFyUvLcWsReVF3RYc9+6aw
+         82sQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778735581; x=1779340381;
+        d=1e100.net; s=20251104; t=1778735699; x=1779340499;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=ldXGxXqstB4z6UJeQWyN/wPMyI1frnajQ+WrbjoPiwc=;
-        b=h4/N7As24xJ3eUCQ9Ng0Ev4klOK1TZbcuJ+Ent9mHJGtpG1o+oZYWOdREXMblkZrzh
-         gppYfgZmesllRZ03YIbl7r4godPBk9XAWW0oxUh0CqD4PFrbDHcqkndgLWt3wV8z1Ofz
-         oW3H0uYDMl9LjEN5AXQarXXJZS+xiONLTxN1ZqGXGCL312RjlHsHTgSNuuGFpOcWA+Ks
-         VGwfvhgbQL6Cdb5niT4eBFaskakn44cYSxzZzI8DTlYO/rT2Ed3v5P3i2eP8tGrbO0xe
-         bhC48oZn0BFtNJV13GLQcz6jZFDPLLbZDgXT8AXQgVEu1m79xp6UOqMRCRnZV8zDsXUx
-         w46A==
-X-Forwarded-Encrypted: i=1; AFNElJ+FULIUTrp9cAIXbuut8HTh9v0+3vaG0h2x9RViFJ23ecxnbQX9IVg26lG/avUJ55paQWS5lPr3NXU=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxUAeA7Sc/XsW+zmxX0rHk/KLUguwnZRevPmAiUhYWFKr0LfcbO
-	At9YEi09sokIsHAQwHdxHiN5avNYERL9CppJ/1td7Yhz+t3TdfM0q93y2fUn36jVrLfENPsPIF3
-	M2YjRRYlNwXMB1/qGc82tt4syl7ITzr83/UYNcsDibw==
-X-Gm-Gg: Acq92OEKqOmUiR00rJpEFrD1/PJK4I0htDQ3+zbWkiYVu6yAQqbfj0rcIAL2DGB5par
-	0dTuY+qUfcm4q3E3PDzoDQCNiBMoN10Fui0AVzR9mkEOYaBEuChq2nYsIcBURuP+RMW/YMsVY7e
-	T2JdiYKzzpWnF1TARJorFfI2OPKmfcLG7MNWFwKGdLYvKQOMsWUzoIXL2qa+HPxiLw3YSO7cBAd
-	YHv4oECMo15rbUvuQKPBy6FPc9Gz67SxBRnZBPE4CdnHQNT0mY1F0DQTEXT+u8xsA2usFLiLbwT
-	hA/Cir5isfEcH4BFJXMvCmjKQ1Gq8OqZ3vEeB0Ce1+N1UWd2Tukmm+fJzhenJ0dGHM7QUzkKxLJ
-	mQ5FoXq5cem/OX67/63mDSpdl1D45aGGL2aDP8liHDB5rNLHuJs1LonpZwzfX9Lh+hHgua8Kshj
-	MQSviJ
-X-Received: by 2002:a05:690c:c4e8:b0:7bf:1433:8f92 with SMTP id
- 00721157ae682-7c7e5d9034amr20480207b3.7.1778735580968; Wed, 13 May 2026
- 22:13:00 -0700 (PDT)
+        bh=rNR/KRKvO9xK0+jIcZNTqxkNkqR2qZPifnFqEZLSgko=;
+        b=OoJhbzDnRRoQzE7LQuJ60QU74XaH6KZO0mdO7eOY/mf/AgoUD9WUaJ6fDdxosb3xHO
+         dwpXH3N+v6Xf5A0aAuEoLsI1IjSWrYI2+pTFd3EY13bLCLQTAUZRkqXzEakj5sQY8QA5
+         SyFqEg3+FQh3d3QC7OG5CDQRJaQMIRekskFN8ALWDkcDeA5OWf265FvPikJ+p9sEz4yZ
+         arszAeLcELxvVRPE7zw9Pu0R9N9v2rq+TgKBbRM50vntSox9nc2sVHUWrgaudHIFbXcP
+         YRafhplazDe5zr9WcKAJJU0he6ssCyaiuX5gmJAopoio0+Z3yc6gUlLjovBDkd3iEcRh
+         5jkA==
+X-Forwarded-Encrypted: i=1; AFNElJ9OYuaoSQGcZ+XCoISjY/efoc0K4r6XyN9yf7ihaH1fnNzuEau8TEYUnvGSson750TpXg2nUyIKHeU=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwfzYIC4Q8EnU/8nciuY3DvLhNDstq+iCFbDRa6YlWIClwTWJGj
+	vZWwT3nNDG2LMUrnTGEytYkA2E74QetETm/W5tCZd0UCZePk0Q9etY/9E11Ov/rrM1C85UMLf3c
+	7HWgz/+O8aP1zYVVTIjQ3QQR2qdeOrz4=
+X-Gm-Gg: Acq92OG0l+Wkp1lFjAn/Qzl2qhXKhtEP19OZ29U0OmJbeeSrt5VLA0o65eqMnM+LxF1
+	9IoxpSA2ts4QAU7TkhBAh1cSx8+27DQ59/eZ1OxnpC6VHVUAnj72eIilwTMR7/hy1OZabJ3NVAd
+	eC1IBo27eD4ztJCvnX7m3zDPqZ5Xf2O3nSaCD2thJ+rmkjqg5YB4/68mXjuvvX0UL1NkcH+wKnk
+	HvLdphCjdbct2wVCKciVC1yH1Hv5f+7FdwnkgAYGXrkhfC2sWsnCZbiDa6QF2fxcXhNNJbT7+9z
+	kcNswrHH2clCOr/qDh38wmChU3LoXn8na7ON7FlxsW1hxrOJr+QQ35fpA1sRXUO7sJota4qeXwz
+	SYivY6RwiIp4uWXnwBLTO3rtQ+J6nAs3Nt1cr/SixYSUlbHIOIIeswslzquDVPem4ZyQMmg==
+X-Received: by 2002:a05:690e:1404:b0:653:3d0:f2b2 with SMTP id
+ 956f58d0204a3-65df6231b18mr6271191d50.20.1778735698888; Wed, 13 May 2026
+ 22:14:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -84,179 +83,236 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20260513061338.9348-1-hardikprakash.official@gmail.com>
- <20260513061338.9348-2-hardikprakash.official@gmail.com> <dcd84a44-d52b-4810-a1a8-5865f80db1ba@kernel.org>
- <CANTFpSUr7KWMA5D7wh48f5-Ty9hDo7U7Ydsob32YZuZ83dRiiw@mail.gmail.com>
-In-Reply-To: <CANTFpSUr7KWMA5D7wh48f5-Ty9hDo7U7Ydsob32YZuZ83dRiiw@mail.gmail.com>
+ <20260513061338.9348-3-hardikprakash.official@gmail.com> <agSw-Y_jjliO1gaE@ashevche-desk.local>
+ <705ef2f4-3bdf-4e7c-be9c-980cc0a21544@kernel.org> <CANTFpSU=94RuX1uFf4UitRyzLPvu=cTF_S5khjjJNQUU1T_PtA@mail.gmail.com>
+In-Reply-To: <CANTFpSU=94RuX1uFf4UitRyzLPvu=cTF_S5khjjJNQUU1T_PtA@mail.gmail.com>
 From: Hardik Prakash <hardikprakash.official@gmail.com>
-Date: Thu, 14 May 2026 10:42:48 +0530
-X-Gm-Features: AVHnY4IUclQrg64HYPwoPct4FtYH8ADNAzz1IlmeFEwXBPHV-KJB5t6DYYtuh7k
-Message-ID: <CANTFpSWty5VGoaM2cq6-nn=eJJDy5r9NozGNyB4ryY4+TaODbg@mail.gmail.com>
-Subject: Re: [PATCH 1/2] pinctrl-amd: enable IRQ for WACF2200 touchscreen on
+Date: Thu, 14 May 2026 10:44:47 +0530
+X-Gm-Features: AVHnY4I4_ClSXDmZ88nPOZOPNVNTwSxsM3n99Z3_DfzSd8a_608FgZvdDAFMfjY
+Message-ID: <CANTFpSXBoiebqZEsZA644KukzFceYK1Ogvmioxv+Lqswy_OThw@mail.gmail.com>
+Subject: Re: [PATCH 2/2] i2c: designware: fix probe ordering for AMD GPIO on
  Lenovo Yoga 7 14AGP11
-To: Mario Limonciello <superm1@kernel.org>, linux-gpio@vger.kernel.org, 
-	linux-i2c@vger.kernel.org
-Cc: Andy Shevchenko <andriy.shevchenko@intel.com>, wsa@kernel.org, linus.walleij@linaro.org, 
-	basavaraj.natikar@amd.com
+To: Mario Limonciello <superm1@kernel.org>, Andy Shevchenko <andriy.shevchenko@intel.com>, brgl@kernel.org
+Cc: linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	linus.walleij@linaro.org, wsa@kernel.org, basavaraj.natikar@amd.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
 (Resending with full Cc list =E2=80=94 apologies for the missed recipients.=
 )
 
-On Wed, May 13, 2026 at 22:53, Mario Limonciello wrote:
-> I don't understand.  Our design is that the interrupt is disabled
-> initially when driver loads (we don't trust state of the GPIO
-> configuration pre-boot), and then when i2c-hid loads later it is
-> re-enabled via amd_gpio_irq_enable().
+On Wed, May 13, 2026 at 22:58, Mario Limonciello wrote:
+> Yeah; I tend to think doing this with a quirk is hiding a bug.
 >
-> Why isn't that flow working on this system?
+> Are you sure this isn't a case of two masters on the bus?
 
-The flow breaks because i2c-hid never gets to probe. The lost
-arbitration errors happen on AMDI0010:02 at ~2.3s after boot, before
-any driver reaches the HID layer. Without the probe ordering fix,
-i2c_designware probes the bus while pinctrl-amd is still initialising
-and GPIO 157 (the WACF2200 GpioInt per ACPI _CRS) has its interrupt
-bits cleared. The bus transaction fails immediately, the device never
-appears in /sys/bus/hid/devices/, and i2c-hid has nothing to bind to.
+I looked into this after your email. The DSDT for TPNL (WACF2200) does
+have a _DSM with UUID 3cdff6f7-4267-4555-ad05-b30a3d8938de (HID I2C
+Device). So yes =E2=80=94 this could be the same mechanism you saw on Dell.
 
-With patch 1 alone (GPIO IRQ fix), the interrupt is enabled but the
-probe ordering race still causes arbitration failures. With both patches
-applied, the bus comes up cleanly and i2c-hid probes successfully.
+> Could this be something similar that really calling the _DSM is the
+> missing link?
 
-However, see my reply on the 2/2 thread =E2=80=94 there may be a deeper cau=
-se
-related to _DSM.
+Possibly. With my current patches applied, the probe ordering fix
+ensures i2c_designware initialises AMDI0010:02 cleanly, i2c-hid
+subsequently probes, and presumably calls the _DSM at that point =E2=80=94
+which may be what finally releases the bus. Without the patches,
+i2c-hid never gets that far.
+
+The question I can't answer yet is whether the _DSM needs to be called
+*before* the first I2C bus transaction attempt, rather than at i2c-hid
+probe time. If the firmware is acting as I2C master until the _DSM is
+called, then the arbitration errors at 2.3s would be explained entirely
+by the missing _DSM call, independent of the GPIO IRQ state.
+
+I'm investigating the _DSM content further. If you believe the correct
+fix is an earlier _DSM call (similar to what 7d62beb did for S4), I'm
+happy to test a patch for that approach and report back.
 
 Thanks,
 Hardik
 
-
-On Thu, 14 May 2026 at 10:36, Hardik Prakash
+On Thu, 14 May 2026 at 10:37, Hardik Prakash
 <hardikprakash.official@gmail.com> wrote:
 >
-> On Wed, May 13, 2026 at 22:53, Mario Limonciello wrote:
-> > I don't understand.  Our design is that the interrupt is disabled
-> > initially when driver loads (we don't trust state of the GPIO
-> > configuration pre-boot), and then when i2c-hid loads later it is
-> > re-enabled via amd_gpio_irq_enable().
+> On Wed, May 13, 2026 at 22:58, Mario Limonciello wrote:
+> > Yeah; I tend to think doing this with a quirk is hiding a bug.
 > >
-> > Why isn't that flow working on this system?
+> > Are you sure this isn't a case of two masters on the bus?
 >
-> The flow breaks because i2c-hid never gets to probe. The lost
-> arbitration errors happen on AMDI0010:02 at ~2.3s after boot, before
-> any driver reaches the HID layer. Without the probe ordering fix,
-> i2c_designware probes the bus while pinctrl-amd is still initialising
-> and GPIO 157 (the WACF2200 GpioInt per ACPI _CRS) has its interrupt
-> bits cleared. The bus transaction fails immediately, the device never
-> appears in /sys/bus/hid/devices/, and i2c-hid has nothing to bind to.
+> I looked into this after your email. The DSDT for TPNL (WACF2200) does
+> have a _DSM with UUID 3cdff6f7-4267-4555-ad05-b30a3d8938de (HID I2C
+> Device). So yes =E2=80=94 this could be the same mechanism you saw on Del=
+l.
 >
-> With patch 1 alone (GPIO IRQ fix), the interrupt is enabled but the
-> probe ordering race still causes arbitration failures. With both patches
-> applied, the bus comes up cleanly and i2c-hid probes successfully.
+> > Could this be something similar that really calling the _DSM is the
+> > missing link?
 >
-> However, see my reply on the 2/2 thread =E2=80=94 there may be a deeper c=
-ause
-> related to _DSM.
+> Possibly. With my current patches applied, the probe ordering fix
+> ensures i2c_designware initialises AMDI0010:02 cleanly, i2c-hid
+> subsequently probes, and presumably calls the _DSM at that point =E2=80=
+=94
+> which may be what finally releases the bus. Without the patches,
+> i2c-hid never gets that far.
+>
+> The question I can't answer yet is whether the _DSM needs to be called
+> *before* the first I2C bus transaction attempt, rather than at i2c-hid
+> probe time. If the firmware is acting as I2C master until the _DSM is
+> called, then the arbitration errors at 2.3s would be explained entirely
+> by the missing _DSM call, independent of the GPIO IRQ state.
+>
+> I'm investigating the _DSM content further. If you believe the correct
+> fix is an earlier _DSM call (similar to what 7d62beb did for S4), I'm
+> happy to test a patch for that approach and report back.
 >
 > Thanks,
 > Hardik
 >
-> On Wed, 13 May 2026 at 22:53, Mario Limonciello <superm1@kernel.org> wrot=
+> On Wed, 13 May 2026 at 22:58, Mario Limonciello <superm1@kernel.org> wrot=
 e:
 > >
 > > ++
 > >
-> > On 5/13/26 01:13, Hardik Prakash wrote:
-> > > On Lenovo Yoga 7 14AGP11 (83TD), the WACF2200 touchscreen controller
-> > > is wired via I2C2 (AMDI0010:02) with its interrupt on GPIO pin 157
-> > > (confirmed via ACPI _CRS GpioInt decode). After amd_gpio_irq_init()
-> > > clears all GPIO interrupts at boot, pin 157 is never re-enabled,
-> > > preventing the touchscreen from signalling the driver.
+> > On 5/13/26 12:12, Andy Shevchenko wrote:
+> > > Please, Cc AMD people on the AMD related stuff.
+> > > +Cc: Mario
 > > >
-> > > Windows keeps GPIO 157 INTERRUPT_ENABLE (bit 11) and INTERRUPT_MASK
-> > > (bit 12) set after initialisation. Add a DMI quirk to restore these
-> > > bits after amd_gpio_irq_init() on this hardware.
-> > >
-> > > Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
-> > > Assisted-by: Claude:claude-sonnet-4-6
-> > > Assisted-by: GPT-Codex:gpt-5.2-codex
-> > > ---
-> > >   drivers/pinctrl/pinctrl-amd.c | 35 ++++++++++++++++++++++++++++++++=
-+++
-> > >   1 file changed, 35 insertions(+)
-> > >
-> > > diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-=
-amd.c
-> > > index e3128b0045d22..64315b0edf2a6 100644
-> > > --- a/drivers/pinctrl/pinctrl-amd.c
-> > > +++ b/drivers/pinctrl/pinctrl-amd.c
-> > > @@ -26,6 +26,7 @@
-> > >   #include <linux/interrupt.h>
-> > >   #include <linux/bitops.h>
-> > >   #include <linux/pinctrl/pinconf.h>
-> > > +#include <linux/dmi.h>
-> > >   #include <linux/pinctrl/pinconf-generic.h>
-> > >   #include <linux/pinctrl/pinmux.h>
-> > >   #include <linux/string_choices.h>
-> > > @@ -39,6 +40,39 @@
-> > >   static struct amd_gpio *pinctrl_dev;
-> > >   #endif
-> > >
-> > > +static const struct dmi_system_id amd_gpio_quirk_yoga7_14agp11[] =3D=
- {
-> > > +     {
-> > > +             .matches =3D {
-> > > +                     DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-> > > +                     DMI_MATCH(DMI_PRODUCT_NAME, "83TD"),
-> > > +                     DMI_MATCH(DMI_BOARD_NAME, "LNVNB161216"),
-> > > +             },
-> > > +     },
-> > > +     { }
-> > > +};
-> > > +
-> > > +static void amd_gpio_apply_quirks(struct amd_gpio *gpio_dev)
-> > > +{
-> > > +     const unsigned int pin =3D 157; /* WACF2200 GpioInt per ACPI _C=
-RS */
-> > > +     unsigned long flags;
-> > > +     u32 reg;
-> > > +
-> > > +     if (!dmi_check_system(amd_gpio_quirk_yoga7_14agp11))
-> > > +             return;
-> > > +     if (pin >=3D gpio_dev->gc.ngpio)
-> > > +             return;
-> > > +
-> > > +     raw_spin_lock_irqsave(&gpio_dev->lock, flags);
-> > > +     reg =3D readl(gpio_dev->base + pin * 4);
-> > > +     reg |=3D BIT(INTERRUPT_ENABLE_OFF) | BIT(INTERRUPT_MASK_OFF);
-> > > +     writel(reg, gpio_dev->base + pin * 4);
-> > > +     raw_spin_unlock_irqrestore(&gpio_dev->lock, flags);
-> > > +
-> > > +     dev_info(&gpio_dev->pdev->dev,
-> > > +              "Enabled IRQ for GPIO %u (Yoga 7 14AGP11 touchscreen)\=
-n",
-> > > +              pin);
+> > > +Cc: Bart
+> > > (the GPIO enumeration and checks, smells like it might be done differ=
+ently).
 > >
-> > I don't understand.  Our design is that the interrupt is disabled
-> > initially when driver loads (we don't trust state of the GPIO
-> > configuration pre-boot), and then when i2c-hid loads later it is
-> > re-enabled via amd_gpio_irq_enable().
+> > Yeah; I tend to think doing this with a quirk is hiding a bug.
 > >
-> > Why isn't that flow working on this system?
+> > Are you sure this isn't a case of two masters on the bus?
 > >
-> > > +}
-> > > +
-> > >   static int amd_gpio_get_direction(struct gpio_chip *gc, unsigned of=
-fset)
-> > >   {
-> > >       unsigned long flags;
-> > > @@ -1219,6 +1253,7 @@ static int amd_gpio_probe(struct platform_devic=
-e *pdev)
+> > [    2.286838] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost
+> > arbitration
+> > [    2.286887] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost
+> > arbitration
+> > [    2.286923] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost
+> > arbitration
+> > [    2.286964] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost
+> > arbitration
+> > [    2.287521] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost
+> > arbitration
+> > [    2.287569] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost
+> > arbitration
+> > [    2.287616] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost
+> > arbitration
+> > [    2.287658] i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost
+> > arbitration
+> >
+> > I saw something really similar on a Dell platform last year; but around=
+ S4.
+> >
+> > It ended up being a situation that the EC had way to act as I2C master
+> > and until the right method from I2C-HID was called it thought it was
+> > still I2C master.
+> >
+> > https://git.kernel.org/torvalds/c/7d62beb102d6f
+> >
+> > Could this be something similar that really calling the _DSM is the
+> > missing link?
+> >
 > > >
-> > >       /* Disable and mask interrupts */
-> > >       amd_gpio_irq_init(gpio_dev);
-> > > +     amd_gpio_apply_quirks(gpio_dev);
+> > > On Wed, May 13, 2026 at 11:43:38AM +0530, Hardik Prakash wrote:
+> > >> On Lenovo Yoga 7 14AGP11 (83TD), the WACF2200 touchscreen fails with
+> > >> lost arbitration errors on AMDI0010:02 at boot. The root cause is a
+> > >> probe ordering issue: i2c_designware probes AMDI0010:02 before
+> > >> pinctrl-amd has finished initialising, so the GPIO 157 interrupt
+> > >> needed by the touchscreen is not yet enabled.
+> > >>
+> > >> Add a DMI-matched deferral in dw_i2c_plat_probe() that uses
+> > >> device_is_bound() under device_lock() to correctly wait until
+> > >> pinctrl-amd's probe has fully completed. Use acpi_dev_get_first_matc=
+h_dev()
+> > >> for robust HID/UID-based GPIO controller lookup instead of string
+> > >> name matching.
 > > >
-> > >       girq =3D &gpio_dev->gc.irq;
-> > >       gpio_irq_chip_set_chip(girq, &amd_gpio_irqchip);
+> > > ...
+> > >
+> > >> +static bool dw_i2c_needs_amd_gpio_dep(struct device *device)
+> > >> +{
+> > >> +    struct acpi_device *adev =3D ACPI_COMPANION(device);
+> > >
+> > > Split hard-to-maintain definition and assignment that's going to be v=
+alidated.
+> > >
+> > >> +    if (!dmi_check_system(dw_i2c_amd_gpio_defer_dmi))
+> > >> +            return false;
+> > >> +    if (!adev)
+> > >> +            return false;
+> > >
+> > >       struct acpi_device *adev;
+> > >
+> > >       if (!dmi_check_system(dw_i2c_amd_gpio_defer_dmi))
+> > >               return false;
+> > >
+> > >       adev =3D ACPI_COMPANION(device);
+> > >       if (!adev)
+> > >               return false;
+> > >
+> > >> +    return acpi_dev_hid_uid_match(adev, "AMDI0010", "2");
+> > >> +}
+> > >
+> > > ...
+> > >
+> > >> +static int dw_i2c_defer_for_amd_gpio(struct device *device)
+> > >> +{
+> > >> +    struct acpi_device *gpio_adev;
+> > >> +    struct device *gpio_dev;
+> > >> +
+> > >> +    if (!dw_i2c_needs_amd_gpio_dep(device))
+> > >> +            return 0;
+> > >> +
+> > >> +    /*
+> > >> +     * Find the AMD GPIO controller by HID/UID and get its physical
+> > >> +     * platform device. We need the platform device (not the ACPI d=
+evice)
+> > >> +     * because that is what gets bound by the amd_gpio driver.
+> > >> +     */
+> > >> +    gpio_adev =3D acpi_dev_get_first_match_dev("AMDI0030", "0", -1)=
+;
+> > >> +    if (!gpio_adev)
+> > >> +            return -EPROBE_DEFER;
+> > >
+> > > Hmm... This is interesting case, smells like something similar to wha=
+t we had
+> > > with x86 Android quirk driver. Cc'ed to Bart to briefly look at this.
+> > >
+> > >> +    gpio_dev =3D acpi_get_first_physical_node(gpio_adev);
+> > >> +    acpi_dev_put(gpio_adev);
+> > >> +    if (!gpio_dev)
+> > >> +            return -EPROBE_DEFER;
+> > >> +
+> > >> +    /*
+> > >> +     * Check that amd_gpio probe has fully completed, not just that=
+ the
+> > >> +     * driver pointer is set. The driver pointer is assigned before=
+ probe
+> > >> +     * finishes, so checking it would allow i2c_designware to probe=
+ before
+> > >> +     * the GPIO IRQ quirk in amd_gpio_probe() has run.
+> > >> +     */
+> > >> +    device_lock(gpio_dev);
+> > >> +    if (!device_is_bound(gpio_dev)) {
+> > >> +            device_unlock(gpio_dev);
+> > >> +            return -EPROBE_DEFER;
+> > >> +    }
+> > >> +    device_unlock(gpio_dev);
+> > >> +
+> > >> +    /*
+> > >> +     * Create a device link so the driver core enforces probe/remov=
+e
+> > >> +     * ordering between this I2C controller and the GPIO controller=
+.
+> > >> +     */
+> > >> +    if (!device_link_add(device, gpio_dev, DL_FLAG_AUTOREMOVE_CONSU=
+MER))
+> > >> +            dev_warn(device, "failed to add device link to %s\n",
+> > >> +                     dev_name(gpio_dev));
+> > >> +
+> > >> +    return 0;
+> > >> +}
+> > >
 > >
