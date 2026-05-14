@@ -1,118 +1,262 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B8FF38237C
-	for <linux-i2c@vger.kernel.org>; Thu, 14 May 2026 10:37:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2CB038F248;
+	Thu, 14 May 2026 10:55:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778755080; cv=none; b=ojJBkgap8+Myhqf5cH3h1moxrJqkPj/f97LgKD8ksEXQI1p9s+XE1R8tU4wqKKcZDUdkwiQ5fJT937819Yegf2Hhd/e5IwEkhxkah0HiU+/pet+Mc/9j4OFKzhKjZuLToDTBBqK7RNyr60q5WjliHunbq7D49m+8e6XMARWMrf0=
+	t=1778756107; cv=none; b=L6NQ5zdNlZiNJJNjSnk6djvK/W/rtxDvjwMPgUyLkG1mnWUOwv0EGNvB47rwaiVvZdwC3g7NW2ZLIY+Y/XJ25el3qzlSZ8aoSUlOX9s8o6ZBC3TqHqMKpii4auoyZAlPN8mysu8agnJUohQPJsy0Q3GWaumC0kGofCrN2V+7KYQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778755080; c=relaxed/simple;
-	bh=4mJmvtE5Y9rt0p2kmIR0I1IFeafTBCzZc6ipf8jcL24=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oFOobTLy3qIIT2rttGAyUHTK817vxxpATblS5HO+95EBzcF123TlMId8rXagQo5PCo5LMFHZg7SIPN+5h2jkw3K5HoUqr5DuvhQ659c00wYKQ97DhEYg1pDz5osLDhc7R4CX2GSAlekHEC3opzKUY7j8Riuss0Y8GSUVMfPxX+E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nGRZOJes; arc=none smtp.client-ip=209.85.216.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778756107; c=relaxed/simple;
+	bh=XkhZz83lofA4mVraY0m0AcH0UuZ/4Xb3/CeHB5IJ4/4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ajynQZzBapadboPUNdd71BuzdZByrA+blHJsSAQoDNr931+Fb2WyNr1AZhoLogK8ReTg1zOl5qjHmSUfrIk2F3gggvmUzANk2GGtpT935g85cR1pihSaeuX9cCipXx51RezwCOY3/iFa/tn+Xdo3Ky57IQehltfoDJUAfTmr1Ws=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nYMYg1OE; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nGRZOJes"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-368977e33b1so2640672a91.1
-        for <linux-i2c@vger.kernel.org>; Thu, 14 May 2026 03:37:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778755079; x=1779359879; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=docZu46gG++Kf1XBSX2+6MGhAZFNy07C3ni4sJC8Jrc=;
-        b=nGRZOJestqdVCB7IAJk8zuAkbOrpMginTUVSCn8G6ONCICq9uXGf86X7gvlGOVk4Lp
-         3+TMEGhAcxAe6Wi026wJhe4cyBlDQAXJooiWKB5jQ6xUJz8hdOO/kDoSyFO5PJ+2vOFg
-         QIPwDcjgUNSdnPmQ0h4K+cA1+xD2acB9nT8qqIPsjaI7DKU/OUNfEpdPcoDelYEwzCsp
-         +nZApUH5a/XO/7Cs8W47y/PYedMnGFCcLNcspBxt0CJ0NPA6GpH4hmnBurRYmKdDMK+x
-         cxB5pkAMgYxyCXXEUZSN/AORFHxje6ZQ6hy9BgmkZpQwjgNAHTLKDoLG9VcUHH1EkpFj
-         6pXA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778755079; x=1779359879;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=docZu46gG++Kf1XBSX2+6MGhAZFNy07C3ni4sJC8Jrc=;
-        b=Z9CIWBNz/TxGDlIcElcU6/OrjUvExLbL24Z+lDOsahRUIld6S0Xili60vOUftusps5
-         9SOLuCJmTS+7hEJUhBDLKDFvjhmGCtDs/LNy4SRwCK6MtWZku3gXlOx8/lTh99PWorfJ
-         5+QMZq4NHpgTUBY84tTD92IsjOcWLf4ujP7bUNAqWOzHJBy0IUCim22yfMn7jXwtp0Zh
-         V8LV5vu3fT7PT1S9Vn8n5BLCjvlwMO9tc7WS70EhJaX5qTWs2Oi/uia+9RsOrJXoOdks
-         RSOAqOmRiRRQTgrx8omICPZyDCcXpe6pJytpK8KEuvc+uG7NmpbI7sICPT4yjrEJ3boH
-         Jk2Q==
-X-Forwarded-Encrypted: i=1; AFNElJ+uhCWySFtf8AVKoSx6s0MKAs8qE4FTz6/aCdp+fiZAj/Bg++6D6Dn8FNoD4n9PPVL3vqBGy81PLi8=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzTDKJEANY/9lTON5gBIjrlDF1vci09Jt/4ystAdHL9jOXeQI5j
-	JOjfWsStP7OmXWdpQPV9HPDZZ3FGtPy+FCS7UJGfArFy4n1dnU3NRs7G
-X-Gm-Gg: Acq92OEWxTIAZRHYCz/98eNqebQ8YIgpk0XEdGU2gfpGVZchS1qM9A2hUXxe1msog7D
-	vQmISzKJQRn8a3Q1qgLe1kDEJ0lm6ov+km9DS5oqsuvOMyhajm0C25H7TuQKZUNi6u3Hu7lh6r4
-	jr/WwLKasHJhur3eIRGROGf/Np8femTg0pOXWX6fuhAzRhrYG6WZqJlZunRjis7PM4CxE0cje03
-	SlOkexR8tb50PJf3RWc0hz0kPbjSmautj66HajnVwV95zABuC3PBTH2QMEhs6Tirohp2Rjy4iCj
-	+ghplcQJGb8BqUe2m0ZbOkvI8v58z777gLBmPmcJhAbdK250trS7wHQ1+lr7iouQBUsqJR6uvbC
-	ajEr90EQ+UPOEAiUWnVDpXijQEhNVaaQIgYcYMBZdbSrHjGlgkZ5ZwR6rwjcHoL0MLT5Dchktpw
-	Xcwq0l0QPvYgfStQbFejXmajGBdbqBHLzQkSteR6OwhIGvZBnPuHwL+J364Yu6ntB3ltE77hWZ
-X-Received: by 2002:a17:90b:3c85:b0:368:12f3:fa4a with SMTP id 98e67ed59e1d1-368f3d4400dmr7945009a91.23.1778755078444;
-        Thu, 14 May 2026 03:37:58 -0700 (PDT)
-Received: from chaitanya-virtualbox.. ([103.249.241.52])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-3692f4a038esm3164644a91.15.2026.05.14.03.37.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 May 2026 03:37:58 -0700 (PDT)
-From: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-To: brgl@kernel.org,
-	andi.shyti@kernel.org
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Chaitanya Sabnis <chaitanya.msabnis@gmail.com>,
-	Sashiko <sashiko-bot@kernel.org>
-Subject: [PATCH] i2c: davinci: fix division by zero on missing clock-frequency
-Date: Thu, 14 May 2026 16:07:40 +0530
-Message-ID: <20260514103740.5416-1-chaitanya.msabnis@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nYMYg1OE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A484C2BCB3;
+	Thu, 14 May 2026 10:55:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778756106;
+	bh=XkhZz83lofA4mVraY0m0AcH0UuZ/4Xb3/CeHB5IJ4/4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=nYMYg1OEtYIi4/xJe4YkZh3xhaqx+qcobMMsNok9nKritLvV7xMMsjyA2aP/vCIE1
+	 w738kCB5f3PWpnTTQtkGN7PnNZo27uGMDKFtkpizx9sSH951tH2896jBeTTtnuQtA9
+	 MoyqrxDGSVpx2YadIc1HvYsMt12vHkD5iQMQPkODuO0PnrdaoJPOAK1/oxkNjR8v+v
+	 83WwT5ikPIYt7VM2BLQINMX1KQIH4Z/0Xkbd7nBOxykZDJtEpCSyGLIsXAgSizbdX9
+	 qXcwLa5+1vajdXGsjQQxul06yl3+PMXCkCepl2zzOwpG6ef5Ih04DMQf6BfeYwNPbD
+	 4vw/3EbIj9Y0Q==
+Date: Thu, 14 May 2026 11:54:59 +0100
+From: Lee Jones <lee@kernel.org>
+To: Ronald Claveau via B4 Relay <devnull+linux-kernel-dev.aliel.fr@kernel.org>
+Cc: Neil Armstrong <neil.armstrong@linaro.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Kevin Hilman <khilman@baylibre.com>,
+	Jerome Brunet <jbrunet@baylibre.com>,
+	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+	Beniamino Galvani <b.galvani@gmail.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Mark Brown <broonie@kernel.org>, linux-amlogic@lists.infradead.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+	linux-pm@vger.kernel.org,
+	Ronald Claveau <linux-kernel-dev@aliel.fr>
+Subject: Re: [PATCH v5 4/8] mfd: khadas-mcu: Add support for VIM4 MCU variant
+Message-ID: <20260514105459.GJ305027@google.com>
+References: <20260424-add-mcu-fan-khadas-vim4-v5-0-afcfa7157b23@aliel.fr>
+ <20260424-add-mcu-fan-khadas-vim4-v5-4-afcfa7157b23@aliel.fr>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260424-add-mcu-fan-khadas-vim4-v5-4-afcfa7157b23@aliel.fr>
 
-When the 'clock-frequency' property is missing from the device tree,
-the driver falls back to DAVINCI_I2C_DEFAULT_BUS_FREQ. However, this
-macro is defined in kHz (100), whereas the device tree property is
-expected in Hz.
+On Fri, 24 Apr 2026, Ronald Claveau via B4 Relay wrote:
 
-The probe function blindly divided the fallback value by 1000, causing
-integer truncation that resulted in dev->bus_freq = 0. This triggered
-a deterministic division-by-zero kernel panic when calculating clock
-dividers later in the probe sequence.
+> From: Ronald Claveau <linux-kernel-dev@aliel.fr>
+> 
+> Refactor probe() to use per-variant khadas_mcu_data
+> instead of hardcoded globals.
+> 
+> Add dedicated regmap configuration and device data for the VIM4 MCU,
+> with its own volatile/writeable registers.
+> 
+> Add the fan control register
+> (0–100 levels vs 0–3 for previous supported boards).
+> 
+> Add a new compatible string "khadas,vim4-mcu".
+> 
+> Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+> Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
+> ---
+>  drivers/mfd/khadas-mcu.c | 106 ++++++++++++++++++++++++++++++++++++++++++-----
+>  1 file changed, 95 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/mfd/khadas-mcu.c b/drivers/mfd/khadas-mcu.c
+> index ba981a7886921..b36b3b3ab73c0 100644
+> --- a/drivers/mfd/khadas-mcu.c
+> +++ b/drivers/mfd/khadas-mcu.c
+> @@ -75,15 +75,91 @@ static const struct regmap_config khadas_mcu_regmap_config = {
+>  	.cache_type	= REGCACHE_MAPLE,
+>  };
+>  
+> +static const struct khadas_mcu_fan_pdata khadas_mcu_fan_pdata = {
+> +	.fan_reg	= KHADAS_MCU_CMD_FAN_STATUS_CTRL_REG,
+> +	.max_level	= 3,
+> +};
 
-Fix this by isolating the division so it only applies to the Hz value
-read from the device tree, cleanly assigning the kHz default otherwise.
+What is 3?
 
-Reported-by: Sashiko <sashiko-bot@kernel.org>
-Closes: https://lore.kernel.org/all/20260514044726.57297C2BCB7@smtp.kernel.org/
-Signed-off-by: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
----
- drivers/i2c/busses/i2c-davinci.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+> +
+>  static struct mfd_cell khadas_mcu_fan_cells[] = {
+>  	/* VIM1/2 Rev13+ and VIM3 only */
+> -	{ .name = "khadas-mcu-fan-ctrl", },
+> +	{
+> +		.name = "khadas-mcu-fan-ctrl",
+> +		.platform_data = &khadas_mcu_fan_pdata,
+> +		.pdata_size    = sizeof(khadas_mcu_fan_pdata),
+> +	},
+>  };
 
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index a773ba082321..bd0754abdcb7 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -760,9 +760,9 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- 
- 	r = device_property_read_u32(&pdev->dev, "clock-frequency", &prop);
- 	if (r)
--		prop = DAVINCI_I2C_DEFAULT_BUS_FREQ;
--
--	dev->bus_freq = prop / 1000;
-+		dev->bus_freq = DAVINCI_I2C_DEFAULT_BUS_FREQ;
-+	else
-+		dev->bus_freq = prop / 1000;
- 
- 	dev->has_pfunc = device_property_present(&pdev->dev, "ti,has-pfunc");
- 
--- 
-2.43.0
+Worth making this const at one point.
 
+>  
+>  static struct mfd_cell khadas_mcu_cells[] = {
+>  	{ .name = "khadas-mcu-user-mem", },
+>  };
+>  
+> +static const struct khadas_mcu_data khadas_mcu_data = {
+> +	.regmap_config	= &khadas_mcu_regmap_config,
+> +	.cells		= khadas_mcu_cells,
+> +	.ncells		= ARRAY_SIZE(khadas_mcu_cells),
+> +	.fan_cells	= khadas_mcu_fan_cells,
+> +	.nfan_cells	= ARRAY_SIZE(khadas_mcu_fan_cells),
+> +};
+
+This is a red flag!
+
+> +static bool khadas_mcu_vim4_reg_volatile(struct device *dev, unsigned int reg)
+> +{
+> +	switch (reg) {
+> +	case KHADAS_MCU_PWR_OFF_CMD_REG:
+> +	case KHADAS_MCU_VIM4_REST_CONF_REG:
+> +	case KHADAS_MCU_WOL_INIT_START_REG:
+> +	case KHADAS_MCU_VIM4_LED_ON_RAM_REG:
+> +	case KHADAS_MCU_VIM4_FAN_CTRL_REG:
+> +	case KHADAS_MCU_VIM4_WDT_EN_REG:
+> +	case KHADAS_MCU_VIM4_SYS_RST_REG:
+> +		return true;
+> +	default:
+> +		return false;
+> +	}
+> +}
+> +
+> +static bool khadas_mcu_vim4_reg_writeable(struct device *dev, unsigned int reg)
+> +{
+> +	switch (reg) {
+> +	case KHADAS_MCU_VERSION_0_REG:
+> +	case KHADAS_MCU_VERSION_1_REG:
+> +	case KHADAS_MCU_SHUTDOWN_NORMAL_STATUS_REG:
+> +		return false;
+> +	default:
+> +		return true;
+> +	}
+> +}
+> +
+> +static const struct regmap_config khadas_mcu_vim4_regmap_config = {
+> +	.reg_bits	= 8,
+> +	.reg_stride	= 1,
+> +	.val_bits	= 8,
+> +	.max_register	= KHADAS_MCU_VIM4_SYS_RST_REG,
+> +	.volatile_reg	= khadas_mcu_vim4_reg_volatile,
+> +	.writeable_reg	= khadas_mcu_vim4_reg_writeable,
+> +	.cache_type	= REGCACHE_MAPLE,
+> +};
+> +
+> +static const struct khadas_mcu_fan_pdata khadas_vim4_fan_pdata = {
+> +	.fan_reg	= KHADAS_MCU_VIM4_FAN_CTRL_REG,
+> +	.max_level	= 0x64,
+> +};
+> +
+> +static const struct mfd_cell khadas_mcu_vim4_cells[] = {
+> +	{
+> +		.name		= "khadas-mcu-fan-ctrl",
+> +		.platform_data	= &khadas_vim4_fan_pdata,
+> +		.pdata_size	= sizeof(khadas_vim4_fan_pdata),
+> +	},
+> +};
+> +
+> +static const struct khadas_mcu_data khadas_vim4_mcu_data = {
+> +	.regmap_config	= &khadas_mcu_vim4_regmap_config,
+> +	.cells		= NULL,
+> +	.ncells		= 0,
+> +	.fan_cells	= khadas_mcu_vim4_cells,
+> +	.nfan_cells	= ARRAY_SIZE(khadas_mcu_vim4_cells),
+> +};
+> +
+>  static int khadas_mcu_probe(struct i2c_client *client)
+>  {
+>  	struct device *dev = &client->dev;
+> @@ -94,28 +170,35 @@ static int khadas_mcu_probe(struct i2c_client *client)
+>  	if (!ddata)
+>  		return -ENOMEM;
+>  
+> +	ddata->data = i2c_get_match_data(client);
+> +	if (!ddata->data)
+> +		return -EINVAL;
+
+Shouldn't this be -ENODEV?
+
+>  	i2c_set_clientdata(client, ddata);
+>  
+>  	ddata->dev = dev;
+>  
+> -	ddata->regmap = devm_regmap_init_i2c(client, &khadas_mcu_regmap_config);
+> +	ddata->regmap = devm_regmap_init_i2c(client,
+> +					     ddata->data->regmap_config);
+
+Use up to 100-chars to prevent this kind of wrapping.
+
+>  	if (IS_ERR(ddata->regmap)) {
+>  		ret = PTR_ERR(ddata->regmap);
+>  		dev_err(dev, "Failed to allocate register map: %d\n", ret);
+>  		return ret;
+>  	}
+
+Maybe convert this to dev_err_probe() at one point.
+
+> -	ret = devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
+> -				   khadas_mcu_cells,
+> -				   ARRAY_SIZE(khadas_mcu_cells),
+> -				   NULL, 0, NULL);
+> -	if (ret)
+> -		return ret;
+> +	if (ddata->data->cells && ddata->data->ncells) {
+> +		ret = devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
+> +					   ddata->data->cells,
+> +					   ddata->data->ncells,
+> +					   NULL, 0, NULL);
+> +		if (ret)
+> +			return ret;
+> +	}
+>  
+>  	if (of_property_present(dev->of_node, "#cooling-cells"))
+>  		return devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
+> -					    khadas_mcu_fan_cells,
+> -					    ARRAY_SIZE(khadas_mcu_fan_cells),
+> +					    ddata->data->fan_cells,
+> +					    ddata->data->nfan_cells,
+>  					    NULL, 0, NULL);
+>  
+>  	return 0;
+> @@ -123,7 +206,8 @@ static int khadas_mcu_probe(struct i2c_client *client)
+>  
+>  #ifdef CONFIG_OF
+>  static const struct of_device_id khadas_mcu_of_match[] = {
+> -	{ .compatible = "khadas,mcu", },
+> +	{ .compatible = "khadas,mcu", .data = &khadas_mcu_data },
+> +	{ .compatible = "khadas,vim4-mcu", .data = &khadas_vim4_mcu_data },
+
+We don't allow data from one registration API (MFD) to be shoved through
+another (DT).  Pass a value to match on instead, then use a switch()
+statement or similar to populate or register the devices.
+
+>  	{},
+>  };
+>  MODULE_DEVICE_TABLE(of, khadas_mcu_of_match);
+> 
+> -- 
+> 2.49.0
+> 
+>
