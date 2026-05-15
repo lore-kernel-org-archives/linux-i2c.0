@@ -1,165 +1,123 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 727BE4C043A
-	for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 16:06:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D14533FBB45
+	for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 16:15:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778861176; cv=none; b=QHgDBq2s6Sxcjpf1weqq86YLssHfoRCNWH0PTp8Nr7nvp5L+bn5jvIcE5TVrvwSEWotKVV8+ZaDPCzu3hnLy6JOxvTMf4KhhBcZ3d0dQj+EYmFiGRsvwftjPg11CV4d9dfQHJ069YpXxm4reYFlVq+eDXT55xylz2q3TVP847xY=
+	t=1778861759; cv=none; b=XFZvlBZGNzPMKEGqcG5TX7fKlQNMQgP0qCi25KUMkIXHe5LV+SivWaX3PpiFrxaGM3+xB7Iwr/DsoS6dlonJNm18wSIEhziWYV3O8P41vE8cxyd3rJHghy/xRHxwH+xpprLYkBY5UoZ3hh2Aa1Gu2hfdS8c/Uq4r48crDGCbEBE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778861176; c=relaxed/simple;
-	bh=Has4ss4k1lj4VClif8P2Lo72o6dHquvJA7zVIUbAgDw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VcUg4AZb3LZzUIpUi/hUO2QotQbDByB4cyOcxUZNKCJnsni4HlZgAeXI2jMHd6evvtkFc69inqGLHcNHdXiowvEjjOp23+qfW0yHaQab8IevuL4zUreSf1YSqvoP3AiMmx6PLJgZvvZB/bxbDpNKgJpL80vGX5ZY9nrkmbrUntg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=grhWynM5; arc=none smtp.client-ip=198.175.65.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1778861759; c=relaxed/simple;
+	bh=qSZuFzawdmmgI0kkp8axChRwnn8vKGfKmospa+AK43U=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jba/pLhfvfQB3Cs2KcF9s+NQ9XCDD60SYIhGG8gP/CepIPjey0ofn23Q6+28oUMCG7HNFwVyCRGLKf1nta/bjV6lhOCAz8pMd2WGDeMSGOCcvoj/y6SM5Nq8Q5M6Gh05qZ3zsHmqmFN+ayQC3ng2znYLt9DD5QMfBT1GKcN5x74=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Fin0sNQn; arc=none smtp.client-ip=209.85.215.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="grhWynM5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1778861176; x=1810397176;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Has4ss4k1lj4VClif8P2Lo72o6dHquvJA7zVIUbAgDw=;
-  b=grhWynM5IrFEWgNF5jw4FiN0hq4sIe5ODy3CPVTvyap+2l20C9EUPoDU
-   oMMStby53CFZMsmnwmLG1FdYWWhkV0y5YKzdisqg4CaxBqTFb9qrlVnJn
-   GFLjHsYnHf8AUqqlDqR1qlv3d6BoEk+Bao3wE2cUgSBzLwE0EYs9SpSKH
-   IdvxAe21PqoEYH9J9f7AmtQf2AfsNr6/CPM0wl+qHqxNWAcpJ6rtpYEX5
-   8vPwgw+8Lel+2G+EFaIIK7OEORwwK6w0mKinbP/Rn0x/E8JGbu591hx0W
-   Bz2aRppBluy4UQHtmuauRmjMeyixnJLlb54qoCGVQqR0s7ctBQZ+bHkph
-   Q==;
-X-CSE-ConnectionGUID: GIGzyYzMRzip2w26SytSZg==
-X-CSE-MsgGUID: Gk2gtLUTSgCXrg9T5cuyJg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11787"; a="79989194"
-X-IronPort-AV: E=Sophos;i="6.23,236,1770624000"; 
-   d="scan'208";a="79989194"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 May 2026 09:06:16 -0700
-X-CSE-ConnectionGUID: OGxksiCJTI2I/LCBm9autA==
-X-CSE-MsgGUID: VU0JTttNTZS/dAzdNhRVeQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,236,1770624000"; 
-   d="scan'208";a="237868331"
-Received: from igk-lkp-server01.igk.intel.com (HELO bdf09bfdbd5f) ([10.211.93.152])
-  by orviesa010.jf.intel.com with ESMTP; 15 May 2026 09:06:13 -0700
-Received: from kbuild by bdf09bfdbd5f with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wNv3D-00000000933-0GiA;
-	Fri, 15 May 2026 16:06:11 +0000
-Date: Fri, 15 May 2026 18:05:55 +0200
-From: kernel test robot <lkp@intel.com>
-To: Peter Bohner <peter@bohner.me>,
-	Wolfram Sang <wsa-dev@sang-engineering.com>,
-	Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	Peter Bohner <peter@bohner.me>
-Subject: Re: [PATCH] i2c: i2c-stub: support for I2C_FUNC_I2C
-Message-ID: <202605151757.fT8a2zYC-lkp@intel.com>
-References: <20260514081100.381043-1-peter@bohner.me>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Fin0sNQn"
+Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-c80170db7d6so3859018a12.0
+        for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 09:15:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778861757; x=1779466557; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=BQRqiVHWya/5y61dQcIpX563d/hPABwmTEr+JCzBtB8=;
+        b=Fin0sNQnp4YoQvUENVyHSmRHWKX0+dsd08QGUzTEeNySl2QQYISkCFSrMn2VV9jY29
+         Ytr2t2mV8qsZ5mBXf00IgN9XXsHlbC+AVJnYkPXvl7MinPhB42z18OF7XOXG92eQghqE
+         fJNY9HI477Mou1enAe+52ZKO7JXn2LG0jksUEo6sdDNlAkVH2+XSn7byXibtqr33Ug3D
+         Oon9bEohS2U2t9IRKrXf11QSDJffp5NY6YssyWwILau6uT2oWO+D2T9xWZu3hNY9bIXo
+         Weoy+qPiTWiVL3XV5+1+UtqbG3DFmfhGcc/rlThM2oOeYE/rpTgR98dkI82hmn85O5g9
+         tlYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778861757; x=1779466557;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BQRqiVHWya/5y61dQcIpX563d/hPABwmTEr+JCzBtB8=;
+        b=MWttmGRtzbPzeXm7bfi/ZnoFsngcNUXRDcUiCnLVjY1yuFc4ZEq4yhAM2TeOSUwp7K
+         W6pSv8YFYYBKCSYDEIafGmLm4IsDSvGvUsyLRA6QJBYimqmS2iAqdtZOiz0lxh9BNU0o
+         tiXM9c9zA9O6NRthps2t2YMJQM+jzPf3kdq4WuEei+dWh3fF+CFDR7vCwVxeRAgLD8Hq
+         5O7Y1GIlIgJYIdXVGgOGLm7CZCGjBQw14/8NvQKOmqeGwoctt78O8uu8VS55ioYsvmdU
+         Fj3SV/alRGLiFEjl3lmkO6cNPTNtXy85gq3U7VVl9vgcsIgKARNsjIHkYbqKhsC3wUz6
+         yX4A==
+X-Gm-Message-State: AOJu0YyPFjlTVRDRfCdz5Lmth8O65jWur9VFqZSj1Lverh0Qs9QVafLq
+	21dbn4JV0Pj63YD2XIj4NLgMWrF8hcNCdESqLq90sgWzYa3xBwd9CL2RolT57RAu
+X-Gm-Gg: Acq92OFlQjiXGERFpNVfimcGrAXnuCsGpx/4DhzEHnQzdxiF96/lasqR+DC444wi/4a
+	05IngW5nFgKMyLTlJ/Ze22nb5KUR+SlAaG3+b35nbIVWe3SOTLb15IVaPKBVFCMKnXv1x3FaO8T
+	8Cywo4eV/tiNCtxPsKHIz/3hX0NwToJkcVexr8aS+nlTBX/Xt23WfBydx2aZhDou6SiH+GY4M++
+	6p7qN+pC1WuVCUu/SeLV40xA34rjwEVX7MFhMHE6xrx8Kosfd97fBv4bvyPjvmOve5ZB3PKhEcq
+	68UisnOLgr54QmSamAd/vkaevapspYs0KmdqcUa+B303dykrBhPwB8FbxOu7QbFZza1ZMCufqLL
+	L4bOCNeu6FUJqDDwcKw1l4myDoQheRhV4Uszfh/c8MaLXw25lbNJHgUEMdU1t7T+HL3yGUKqGc9
+	T6zLmAA50Tz1wZ3te+vYl2lb/d+0evX4b0ihiz2slqwp7U8AYRhY6aUpHMQxktVKydeIlaxE5p8
+	PdI8DYM2IcLF8Nb+ZC5wTk5Tic/BjyP7nlMdjnr9dlgW8mKkVM+dMBrlqEWUEBY
+X-Received: by 2002:a05:6a20:7fa0:b0:398:9e47:f5ff with SMTP id adf61e73a8af0-3b22e67bbb4mr5826867637.2.1778861756709;
+        Fri, 15 May 2026 09:15:56 -0700 (PDT)
+Received: from hardik-yoga ([2401:4900:1c64:ff18:3fa8:7855:804e:9f49])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c82bb062a2bsm7699036a12.7.2026.05.15.09.15.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 May 2026 09:15:56 -0700 (PDT)
+From: Hardik Prakash <hardikprakash.official@gmail.com>
+To: linux-i2c@vger.kernel.org
+Cc: linux-gpio@vger.kernel.org,
+	wsa@kernel.org,
+	andriy.shevchenko@intel.com,
+	mario.limonciello@amd.com,
+	brgl@bgdev.pl,
+	basavaraj.natikar@amd.com,
+	linus.walleij@linaro.org,
+	Hardik Prakash <hardikprakash.official@gmail.com>
+Subject: [PATCH v3 0/1] i2c: designware: fix probe ordering for AMD GPIO on Lenovo Yoga 7 14AGP11
+Date: Fri, 15 May 2026 21:45:15 +0530
+Message-ID: <20260515161516.10474-1-hardikprakash.official@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260514081100.381043-1-peter@bohner.me>
+Content-Transfer-Encoding: 8bit
 
-Hi Peter,
+The Wacom WACF2200 touchscreen on the Lenovo Yoga 7 14AGP11 (83TD) is
+non-functional on Linux due to two bugs. Patch 1 (pinctrl-amd GPIO IRQ
+fix) has already been taken into Linus Walleij's tree. This v3 resend
+covers patch 2 only, addressing Andy Shevchenko's formatting feedback.
 
-kernel test robot noticed the following build errors:
+Root cause: i2c_designware probes AMDI0010:02 before pinctrl-amd's
+probe completes, so GPIO 157 (WACF2200 GpioInt per ACPI _CRS) has its
+interrupt bits cleared when the first I2C transaction is attempted,
+causing lost arbitration errors. The udev rebind workaround (which
+works because pinctrl-amd has finished by userspace time) confirms
+probe ordering as the root cause.
 
-[auto build test ERROR on wsa/i2c/for-next]
-[also build test ERROR on linus/master v7.1-rc3 next-20260508]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+Note: the dual-master hypothesis raised by Mario Limonciello was
+investigated. TPNL's _DSM (UUID 3cdff6f7-4267-4555-ad05-b30a3d8938de)
+is a pure query method returning a constant HID descriptor address with
+no side effects, making firmware acting as secondary I2C master unlikely
+on this hardware. Awaiting Mario and Bart's technical verdict before
+any further approach changes.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Peter-Bohner/i2c-i2c-stub-support-for-I2C_FUNC_I2C/20260515-113705
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
-patch link:    https://lore.kernel.org/r/20260514081100.381043-1-peter%40bohner.me
-patch subject: [PATCH] i2c: i2c-stub: support for I2C_FUNC_I2C
-config: x86_64-rhel-9.4-rust (https://download.01.org/0day-ci/archive/20260515/202605151757.fT8a2zYC-lkp@intel.com/config)
-compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
-rustc: rustc 1.88.0 (6b00bc388 2025-06-23)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260515/202605151757.fT8a2zYC-lkp@intel.com/reproduce)
+v3:
+ - Patch 2 only (patch 1 already in Linus Walleij's tree)
+ - Fix variable declaration style in dw_i2c_needs_amd_gpio_dep (Andy Shevchenko)
+ - Add BugLink tag (Andy Shevchenko)
+ - Add -v3 subject versioning (Andy Shevchenko)
+ - CC AMD engineers (Andy Shevchenko)
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202605151757.fT8a2zYC-lkp@intel.com/
+v2:
+ - Replace custom HID/UID lookup with acpi_dev_get_first_match_dev() (Andy Shevchenko)
+ - Use acpi_get_first_physical_node() for platform device lookup
+ - Use device_is_bound() under device_lock() with explanatory comments
+ - Fix dev_warn to use dev_name() instead of hardcoded suffix
+ - Fix commit message (removed incorrect "existing" reference)
+ - Add Assisted-by tags per coding-assistants.rst
 
-All errors (new ones prefixed by >>):
+Kernel bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=221494
+Related: https://bugzilla.kernel.org/show_bug.cgi?id=221454
 
->> drivers/i2c/i2c-stub.c:157:5: error: call to undeclared function 'krelloc_array'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-     157 |                                 krelloc_array(chip->i2c_rw_data, msg->len, 1,
-         |                                 ^
->> drivers/i2c/i2c-stub.c:156:15: error: incompatible integer to pointer conversion assigning to 'u8 *' (aka 'unsigned char *') from 'int' [-Wint-conversion]
-     156 |                         new_rw_mem =
-         |                                    ^
-     157 |                                 krelloc_array(chip->i2c_rw_data, msg->len, 1,
-         |                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-     158 |                                               GFP_KERNEL | __GFP_ZERO);
-         |                                               ~~~~~~~~~~~~~~~~~~~~~~~~
-   2 errors generated.
+Hardik Prakash (1):
+  i2c: designware: fix probe ordering for AMD GPIO on Lenovo Yoga 7
+    14AGP11
 
-
-vim +/krelloc_array +157 drivers/i2c/i2c-stub.c
-
-   140	
-   141	static s32 stub_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-   142	{
-   143		int i;
-   144		u8 *new_rw_mem;
-   145		struct stub_chip *chip = NULL;
-   146		struct i2c_msg *msg;
-   147	
-   148		for (i = 0; i < num; i++) {
-   149			msg = msgs + i;
-   150			chip = stub_addr_to_chip(msg->addr);
-   151			if (!chip)
-   152				return -ENODEV;
-   153	
-   154			/* len is guaranteed to be <= 8192 by i2cdev_ioctl_rdwr */
-   155			if (chip->i2c_rw_size < msg->len) {
- > 156				new_rw_mem =
- > 157					krelloc_array(chip->i2c_rw_data, msg->len, 1,
-   158						      GFP_KERNEL | __GFP_ZERO);
-   159				if (!new_rw_mem)
-   160					return -ENOMEM;
-   161				chip->i2c_rw_data = new_rw_mem;
-   162				chip->i2c_rw_size = msg->len;
-   163			}
-   164	
-   165			/* read, size determined by slave */
-   166			if ((msg->flags & I2C_M_RD) && (msg->flags & I2C_M_RECV_LEN)) {
-   167				/* i2cdev_ioctl_rdwr expects this as a maximum, even
-   168				 * though 0xff would be the theoretically possible
-   169				 */
-   170				msg->len = min(chip->i2c_rw_size, I2C_SMBUS_BLOCK_MAX);
-   171				msg->buf[0] = msg->len - 1;
-   172				dev_dbg(&adap->dev,
-   173					"i2c read with RECV_LEN - addr 0x%02x, read %u bytes\n",
-   174					msg->addr, msg->len);
-   175				memcpy(msg->buf + 1, chip->i2c_rw_data, msg->len - 1);
-   176			} else if (msg->flags & I2C_M_RD) {
-   177				dev_dbg(&adap->dev,
-   178					"i2c read - addr 0x%02x, read %u bytes\n",
-   179					msg->addr, msg->len);
-   180				memcpy(msg->buf, chip->i2c_rw_data, msg->len);
-   181			} else {
-   182				dev_dbg(&adap->dev,
-   183					"i2c write - addr 0x%02x, wrote %u bytes\n",
-   184					msg->addr, msg->len);
-   185				memcpy(chip->i2c_rw_data, msg->buf, msg->len);
-   186			}
-   187		}
-   188		return num;
-   189	}
-   190	
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+ drivers/i2c/busses/i2c-designware-platdrv.c | 77 +++++++++++++++++++++
+ 1 file changed, 77 insertions(+)
