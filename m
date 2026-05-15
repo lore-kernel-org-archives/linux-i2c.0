@@ -1,136 +1,136 @@
-Received: from mail-yx1-f46.google.com (mail-yx1-f46.google.com [74.125.224.46])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17F3F368D53
-	for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 08:42:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.46
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778834575; cv=pass; b=b/XCytGQXcEdiq9STETyLzHGNknvLUhddlUiYBdUFXfybbpvMxtvVglshhldDfQQn3xuD2wVU65LxeURDozfayvjiJLjz9+UoYkJon62rxj3BGGvmpaCEZb5J99j1ztXsUVYpjGNpG8G0/496EsIUJqHdcjMyTKf/FjmMzffH7U=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778834575; c=relaxed/simple;
-	bh=kIVb7Rn0DBrbR/tdHs0st8zFiQDcqlEHGS5Y7M4/1hA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=u+uDQUTQXRsoO/0dEO1ceOLmvWd7DkXUZtBb5jo9iqYo5xOjBRMIhXx5Bwoos21t6zq1PWxYL8QGKqgsuxhRkdIYlAzDFp9jhA9Wf9tgWJT5kVYFes5vFkhJxmArWtMUWagttZxOqQr3EvLPVbkI5Np+/AM9F2LDdo30VE3i0P8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DMyhv8+N; arc=pass smtp.client-ip=74.125.224.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82D4A4266B0
+	for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 08:58:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778835485; cv=none; b=dWIJubEK/0YzQioeUHeAxSR6i3Il+XvZ4/ZBaPZadidhA/nZXSdbqdbQRtfhXVd6o6botrj3y2i8aArJzqyFnSwBftFTYbLbpRHdPLCQ6P1AsuIozU5JP0/7+zgG8weK13F3PkrRtlfKc+nIlfZFxFQhTMfcmdOdPIpK65XQJeY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778835485; c=relaxed/simple;
+	bh=dyP4n9uPfOXLtZxIOJmI/uU/nI5UYjP6DCnh6DbN2Hc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=XC8qy5UeiehWCfCWFXdu3KDKEOzl5sUP0GvLxRI6IFuLoTXnJVZjosVY1ic+yjaAa2muGVGrMxMnVzefD2Vi7hI3uSbBUjHNDo6oQYw4lbxF1GymAcEn8tUORc+Drms1xUAY5RSNOjsE+MiKU6r99cyZkBc25jn2X8nRlLgVaTo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IwdJwuu3; arc=none smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DMyhv8+N"
-Received: by mail-yx1-f46.google.com with SMTP id 956f58d0204a3-651bc83e74aso11711054d50.2
-        for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 01:42:53 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778834573; cv=none;
-        d=google.com; s=arc-20240605;
-        b=C6v1szFTrkQI7AJVdDt35Evequ+PLLsiGsvRq/dH+B2nDof+tYogE0B/Dyu55/XjFp
-         WBxi+6br2yvZA4D/2q4Zm0yL/1DJj8YRtmEQ/vWJE7QoP/9olQBDixawZtlKM4l95LtG
-         TrPcDQrqt2yORakvcsPaGx+wptXRib6PwEIBcfi5j+EHXvmeimeu7nOkodvKfsfETySP
-         xrRkRyTrGnY3ijR7eJZxb3oCSxuc9uMKKT2j8Q40ZtArTrfmeTWp+Wvzy5QgKki7rNon
-         uEZlKFOKodojffnHn3qf1luEK6EIOzCara4Id57smwBNOba1+jhtbpyLHz0+rA40q8R+
-         VAZw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=NqerFP1ZN9krhO+NQgHUFbrEHV8W7RtHQhpONw2B/SM=;
-        fh=mm06Js9TpXQ1uSruY8tX2v/KeNWle5zAvdhqUfRSGKs=;
-        b=afLvL9J0GpfsqjRyJj4mcz/HA8RAAmPxyfv+Yox8gYTq/smDyx8Mb7O2ETK0ap7TTW
-         dETcyXKO8SryDcPkhIOX4xf/oCQSfCPmx1d51Qy8bP82ZFqyuibeK8iAkQunlLSOgnn0
-         LASl6LiD7Smqi3ahW0PGxJwm09tNyqQFTYxRtAyEqZJIfcJFqMrtx7gv816C0T0A1H6W
-         Bn3ttvQxlAi6yehQpF4jOXcvMp6TXIpKuVXkzhCdxeGWq6DT++gJJ5erfBP4C4X0KW/K
-         xgG2rSdOVBxfEO1VA5Kb/EqOP3wLLQ3g4NNyylrq/wH3BhNIMofv5D3hx6sfUDf3gRwF
-         +XIg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IwdJwuu3"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2ba21d32776so61019355ad.2
+        for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 01:58:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778834573; x=1779439373; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=NqerFP1ZN9krhO+NQgHUFbrEHV8W7RtHQhpONw2B/SM=;
-        b=DMyhv8+NqZmAS9c0tgeQXxCsr2Its1wNsE0Us8L5HYAlbrfKKjl/CIl4sUP+2TnrKK
-         MJ0oEuONrncFrJhUa1xo+o9tFfBcYycnZ/cJzrumTJorg5S3qy7uwBWRJ4iF4Fhle53u
-         /FzjiizeJOFRH4VfD5uUop6a6dydU2TtwsLvdAtkG13Ad+gBKf/YQPQL4jBfS2NQHQ9m
-         fciRDG3YeJcllrdMHKHy5zb3aRLd3Md+RIoBA71DmY21At3SzkNNYZvmzR0ykoa0feys
-         QURfXUFDH9/pBoHvJfChP5HZd5Dlcctr/IJUhlmzo8lSWZfX2gpTEfPV9WZrZKVwgpCc
-         rDoA==
+        d=gmail.com; s=20251104; t=1778835483; x=1779440283; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=JI5rbOuDA7OsqPK6rS6KZm2RpgqeyURJ5czLB7dxhv4=;
+        b=IwdJwuu3fbspKY4M46qwfE07A8WvFOSz4mMgl34oOxhRdGNhwzqBAkAzgmDJONgcWO
+         /rfrYcNtRiGEnyAdrmqYH84LLCQeREjdpE0zwj5994JUXOoj/DAkMppV2j5NZuXIPy/Z
+         CAFd7/E9sd+mjo+k5Nh9NvOcNjYIuF/OZ+Fisj83doFwXoSObViUphY97xLhYncQSPUL
+         VVtx2JdUsemqY9xKlxSj8mwZz7fPIlHoJFxZea9sY4qW5mhQiYPX7IhVOIB7DpFKo0sY
+         igrikZblRT7S9fnn8mpMayBfG/pL35ZYWfBObHkmDZ5RJKXklCdxeH9Bg0OAftjaCVKH
+         F+lA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778834573; x=1779439373;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=NqerFP1ZN9krhO+NQgHUFbrEHV8W7RtHQhpONw2B/SM=;
-        b=NUClGmrKC+3KtyubbW39UReNQOlV3IMSH7FzzUfIB5VEWjekAAtuhRS4yABe7TT5z7
-         gjSygp0Bw1wk23A8vvqz0gCMdoNhIN18Ezudxor5653Nx7IG8f44THK6tB3ELgWXUglG
-         2yXlot0XsC/dlSmsOrK3HXsmbcAcYAJeIEOQOizazHEy7vSphCKj1S8bmT8LBWckFiWh
-         34FPT0c73QvfaGCTgJYhJEILvXfs5EeghQzzeZ50vWyPNUlbnhlnwWhMzNe+WtqlniBh
-         kB4Xnen+784eRdUlrCkMf9xFUjYMx0fQg0s+/HJPW2MUBWUOiS11FHkZaDFylwLZntVT
-         8IWQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/vYPaJGY0r6N/rpfT84UAFO/XG5tcLgnJtBJ+By6Moi2ZM3TOVOmi5s6OxvzxgtZOIqAqz9VBMdik=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyreLcKMEiA1ulTAUUfFrrhZK/SlAew68dSCMKpP7XacjCIt9GU
-	Ec+6QfVmHj90KoWuoqJwxPagz6vEIUaB1+M5aIl3odfYRp2Om3PDoHBokgVHflU1F3Q/i7WWgQp
-	AdwNP0YECMJUDLU10X74rwcbd9VyiEzsj3OjbyYlWuA==
-X-Gm-Gg: Acq92OGqO1DtxF/lZgz53J32ed+tcMkI/zrV9ZYYQhf3g/dSmS8Rou0b5Rk3/4JIz1T
-	OXQEX/OYmtR/eD9LZmlOmSS/4mbdwPFJ9qjdCAUGupmnhzb5GEvcTb3SG7sg3AAKVYaXkbb9+0z
-	SbYl2EvH/wbKlOQ9wrhjdNY5vXxiY4IrOBG9EXIjQeSizvPARrBAJenZtZyNhCx5XftRVbMg4bk
-	LBItH7sTvpSK6AFA6FdMIlp7PzZtmwK7M7bbGfwyKYAClkfSfyOCQAC8ewldyTXKS+5RQO9XH+N
-	ypauBzLFd6RgPwh5oTc=
-X-Received: by 2002:a05:690e:11c1:b0:65c:4b93:4261 with SMTP id
- 956f58d0204a3-65e228e2050mr2929469d50.64.1778834573102; Fri, 15 May 2026
- 01:42:53 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1778835483; x=1779440283;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JI5rbOuDA7OsqPK6rS6KZm2RpgqeyURJ5czLB7dxhv4=;
+        b=Vs7kuBFg9kdZGj4gw5PrTQlEOTnRAOvNID+FMoO8HEd56bWItLL/VfEHpMClbOTopi
+         QMxiQaU7L5GdhPovf+I6fRkYaKIigIDk9vWxI2sU1Dih4ANob13Dsv9wc0qJiAqS9IW/
+         +ptX38P+UK45Un3PN7C20+qHzT3Arl7mguRYkUczf3LBWenVQPo+koybcwjxyBUoXir0
+         L+qGqwoTulmsc83WZUaicqq8mrVvru0Kc59bvM/qnrUFxC0hJPwpcYTagNiqte7cKTTP
+         08lHknRSv5iGsyUgF51uc6CUqV8Fhn3VGt03oDAJi1kgSbf/6+unK7r15VASmvxhtyVy
+         52sg==
+X-Forwarded-Encrypted: i=1; AFNElJ+Oo0S8sdcCUd/W+KRKuV3YRH6VKJoi8cFGHdp+dGA5eu3Cf37Fh8FYtBXarnlGBqOmI63HA8zHmXY=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx2IfAI6dKoYvhI1maNhVS1e49CWpd2Fb4qkt2plvXMI4Wp6qKZ
+	w6+DXilrhQ/GYashvJvEg1ssJNK/sa7bcD9YF/dgaTGdIdJRcOGMgr5N
+X-Gm-Gg: Acq92OFxAOHBVBPjwHp6/CzTXd+5P98xxEVOgOLyWXVvX7N5JLVdJPydax4y+GN/bcP
+	wPQJ4h3o0/ZPpjI4EjFpQeNXbYU9qdzq2Dz5MlEu2IjzXfKvErqRym3TehH8WQMPef3xlAzpEBG
+	kUG0dgzyrau4nkuVIDtHW/N6/icTZHjjnbpHZnJo0tTfpOqIUayGtVbbmM/DzWfBNSt8G+6mto6
+	bRSa/pDDtyWkw6ZcL6iz2H0qLfVeZiHVH+QCeThrmIQ1I7eVbxG2A6M3/PStuwaCI4TtZWs+n9B
+	827muwER60n8Ktd8mrOOrIx1AEZaMiB+fKw/9WSb7H4uBNvG1K8km6P/d6s28bjgak/ojfm+8o+
+	MOmLnEIwGxHDReWU5mDkUOEZm7ku+zDZ1/157paopUzh/NysPZsO1t//HMYQwvTbchxy1s5HAZ5
+	EqezrY56NBNg9od306O/TwGJ+hhKjT8SSew368XsaWDIApGewTiV43SAvj5nkOFW9rMA==
+X-Received: by 2002:a17:903:390b:b0:2bd:1903:6ced with SMTP id d9443c01a7336-2bd7e93cf74mr34268585ad.41.1778835482629;
+        Fri, 15 May 2026 01:58:02 -0700 (PDT)
+Received: from hcdev-d520mt2.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bd5cfe6512sm52249325ad.52.2026.05.15.01.57.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 May 2026 01:58:02 -0700 (PDT)
+From: a0282524688@gmail.com
+To: tmyu0@nuvoton.com,
+	linusw@kernel.org,
+	brgl@kernel.org,
+	linux@roeck-us.net,
+	andi.shyti@kernel.org,
+	lee@kernel.org,
+	mkl@pengutronix.de,
+	mailhol@kernel.org,
+	alexandre.belloni@bootlin.com,
+	wim@linux-watchdog.org
+Cc: linux-kernel@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-can@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-watchdog@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	Ming Yu <a0282524688@gmail.com>
+Subject: [PATCH v4 0/1] mfd: nct6694: Refactor transport layer and add HIF (eSPI) support
+Date: Fri, 15 May 2026 16:57:45 +0800
+Message-Id: <20260515085746.114361-1-a0282524688@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260514103740.5416-1-chaitanya.msabnis@gmail.com> <1ce483f8-1d9a-40c3-a45e-6ca536010b20@lunn.ch>
-In-Reply-To: <1ce483f8-1d9a-40c3-a45e-6ca536010b20@lunn.ch>
-From: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-Date: Fri, 15 May 2026 14:12:43 +0530
-X-Gm-Features: AVHnY4JEjymFDabfng7P110Y37cdzsT70TLrv5QMB__FOlUHUuBPsZy2L1nMErY
-Message-ID: <CABjkosFHLErOziCrYhJJxtpMg01t36LqAfr-zz1wE4HSZhfzFA@mail.gmail.com>
-Subject: Re: [PATCH] i2c: davinci: fix division by zero on missing clock-frequency
-To: Andrew Lunn <andrew@lunn.ch>
-Cc: brgl@kernel.org, andi.shyti@kernel.org, 
-	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-Hi Andrew,
+From: Ming Yu <a0282524688@gmail.com>
 
-That makes complete sense. Updating the macro to Hz is a much cleaner
-approach and aligns perfectly with the expected unit of the device
-tree property.
+The Nuvoton NCT6694 is a peripheral expander that provides GPIO, I2C,
+CAN-FD, Watchdog, HWMON, PWM, and RTC sub-devices. Currently, the
+driver only supports USB as the host transport interface.
 
-I have track down the original commit for the Fixes: tag and send out a v2.
+This series refactors the NCT6694 MFD core to support multiple transport
+backends and adds a new Host Interface (HIF) transport driver that
+communicates over eSPI using Super-I/O shared memory.
 
-Thanks for the review!
-Chaitanya
+Changes since version 3:
+- Remove redundant module type macro definitions from sub-device drivers
+  that are now provided by the shared header <linux/mfd/nct6694.h>,
+  fixing -Wmacro-redefined warnings.
 
+Changes since version 2:
+- Restore per-device IDA and mfd_add_hotplug_devices()/PLATFORM_DEVID_AUTO
+  to avoid child device ID conflicts with multiple NCT6694 chips.
+- Validate irq_find_mapping() return value before dispatching IRQs.
+- Check superio_enter() return value in nct6694_irq_init().
 
-On Thu, May 14, 2026 at 5:46=E2=80=AFPM Andrew Lunn <andrew@lunn.ch> wrote:
->
-> On Thu, May 14, 2026 at 04:07:40PM +0530, Chaitanya Sabnis wrote:
-> > When the 'clock-frequency' property is missing from the device tree,
-> > the driver falls back to DAVINCI_I2C_DEFAULT_BUS_FREQ. However, this
-> > macro is defined in kHz (100), whereas the device tree property is
-> > expected in Hz.
-> >
-> > The probe function blindly divided the fallback value by 1000, causing
-> > integer truncation that resulted in dev->bus_freq =3D 0. This triggered
-> > a deterministic division-by-zero kernel panic when calculating clock
-> > dividers later in the probe sequence.
-> >
-> > Fix this by isolating the division so it only applies to the Hz value
-> > read from the device tree, cleanly assigning the kHz default otherwise.
->
-> Why not keep the patch simple and just change the value of
-> DAVINCI_I2C_DEFAULT_BUS_FREQ to Hz?
->
-> > Reported-by: Sashiko <sashiko-bot@kernel.org>
-> > Closes: https://lore.kernel.org/all/20260514044726.57297C2BCB7@smtp.ker=
-nel.org/
-> > Signed-off-by: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
->
-> Please also added a Fixes: tag.
->
->        Andrew
+Changes since version 1:
+- Reworked the Super-I/O access helpers.
+
+Ming Yu (1):
+  mfd: Add Host Interface (HIF) support for Nuvoton NCT6694
+
+ MAINTAINERS                         |   1 +
+ drivers/gpio/gpio-nct6694.c         |   7 -
+ drivers/hwmon/nct6694-hwmon.c       |  21 -
+ drivers/i2c/busses/i2c-nct6694.c    |   7 -
+ drivers/mfd/Kconfig                 |  47 +-
+ drivers/mfd/Makefile                |   3 +-
+ drivers/mfd/nct6694-hif.c           | 663 ++++++++++++++++++++++++++++
+ drivers/mfd/nct6694.c               | 111 +++--
+ drivers/net/can/usb/nct6694_canfd.c |   6 -
+ drivers/rtc/rtc-nct6694.c           |   7 -
+ drivers/watchdog/nct6694_wdt.c      |   7 -
+ include/linux/mfd/nct6694.h         |  54 ++-
+ 12 files changed, 813 insertions(+), 121 deletions(-)
+ create mode 100644 drivers/mfd/nct6694-hif.c
+
+-- 
+2.34.1
+
