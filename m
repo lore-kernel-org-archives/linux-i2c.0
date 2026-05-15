@@ -1,160 +1,179 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E141D266581
-	for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 12:54:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24B383264C8
+	for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 13:05:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778849653; cv=none; b=k60VI3Gv6HaHD0sZwj5O+Z1j6v/Xom8wjhzRtt8sLwVFAuyCt0mg6qEuToZiF+V8vlTHtZ7KwjtN2fFJPX/EEmfgcAZx8ATByMy5KzouYr0G8LFmOCwovJM1AKlnxM5njE2G0RphiIcMFkY5uJdIe6APnop4pbFJ3IH2w7Ombio=
+	t=1778850359; cv=none; b=Dc4tVzUbgITOjg0TeHGIf8VuespB5XBdnVAQtRX8AVLjVrFu59OHhBD3GdrdoHPLf0ukzK0eGdGMhEcdL0sgAv6Dx3ijWQAVLCSYa1nJ/xIFNT9JfwMHZjIg0SM3nS0hXaYMAysQXwidpBf0fkSddLfZxAPVWHaRsFZhjSZ9pqk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778849653; c=relaxed/simple;
-	bh=lf4nQpl2lugu/5vox4NgWs4bDh/LZjVUxiKgsvwxyqY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=L3EYj1ImTWN10pDf0qJ2Bz5D5+6aA2TGxisCzJg7opDCtdlPWzTYTuH0AC39EriuFEdJ/1SvnFPMc7rcoRuPH7+09/7D0a9U5rt5LDUaNNuUk5Fkujx7CMp9RRYsaswm+fzDN0K9Om7KeBRzu9dq6sKBeu0zjPHyE43a5OrYAI4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=DbwNMu1U; arc=none smtp.client-ip=198.175.65.19
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1778850359; c=relaxed/simple;
+	bh=iWY+q9sLtnNig3SzAMNoTAy7uLEwPsn7zXPcA9ddAwU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VeAdtWCHrBozR8t8i6m1ShrKE9eZQJbRDlsiukY+HGUl02Jn0erjbpHiCU1GUbidrW4nvElVKqfDJCv4ME4epo37KFu/s3Y7NLj5l7qyeyTsZFGr5CBe5upuIn3V5BKf/Z5TYvhES6OBBtSznF6vqU3E07fAXVBjyjwYgHINnQo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jPwPsFQb; arc=none smtp.client-ip=209.85.214.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="DbwNMu1U"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1778849652; x=1810385652;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=lf4nQpl2lugu/5vox4NgWs4bDh/LZjVUxiKgsvwxyqY=;
-  b=DbwNMu1UGwqajeFTj0fEi4GVAe0opjdnV0TfX7uUolAZDCjSg0yO/fL1
-   Oy1Pn2vKx7IfTu6sUvnY7dFUwLK0xs/aKsv1ob4RZFhK/008GcXnVBmiX
-   5QbiYAy65px0erbtwZymIa7GfngfvfuvtHNfF8c231ofYjmZMlrctBSgs
-   Jv51kuQBWuIAsj09b5t6HV5z4kssUvAlpG9+z93D4k1DwXi4qujR4VAGD
-   wNDC37pQuFVYbA/8Yx1uaXMl3x2U360aEDZINqO+sHqRZITnPmuPsP5qp
-   GKIW6AgZ0ELHQu85++5xNBJkdoVTPH9DSaTIcO/8GsXaz7ww0ahr/35sB
-   Q==;
-X-CSE-ConnectionGUID: Kdy6AfsfQ9OKvhdcnsBlBQ==
-X-CSE-MsgGUID: scWbWRJRQ5Gk2O/2LgMynQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11787"; a="79764298"
-X-IronPort-AV: E=Sophos;i="6.23,236,1770624000"; 
-   d="scan'208";a="79764298"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 May 2026 05:54:11 -0700
-X-CSE-ConnectionGUID: YCyjl2a7T+63kW7QuH0xTA==
-X-CSE-MsgGUID: y19sN5l6QOu1ozfMev332w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,236,1770624000"; 
-   d="scan'208";a="232286734"
-Received: from igk-lkp-server01.igk.intel.com (HELO bdf09bfdbd5f) ([10.211.93.152])
-  by fmviesa009.fm.intel.com with ESMTP; 15 May 2026 05:54:10 -0700
-Received: from kbuild by bdf09bfdbd5f with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wNs3L-000000008zh-3gST;
-	Fri, 15 May 2026 12:54:07 +0000
-Date: Fri, 15 May 2026 14:53:28 +0200
-From: kernel test robot <lkp@intel.com>
-To: Peter Bohner <peter@bohner.me>,
-	Wolfram Sang <wsa-dev@sang-engineering.com>,
-	Jean Delvare <jdelvare@suse.com>, linux-i2c@vger.kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, Peter Bohner <peter@bohner.me>
-Subject: Re: [PATCH] i2c: i2c-stub: support for I2C_FUNC_I2C
-Message-ID: <202605151418.JKwPcs0v-lkp@intel.com>
-References: <20260514081100.381043-1-peter@bohner.me>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jPwPsFQb"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2bd80b3aa13so6365635ad.0
+        for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 06:05:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778850354; x=1779455154; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=yQMFhBzx5aVGgtqoPDMmCR48uTyf1EP0ur/Np06OS/8=;
+        b=jPwPsFQb+s6t2c0rKm1YZgMBc/bEsp3RGYvMYGe8g/c5DqXJsttt3TUDiYxYjk/jqC
+         eWTV2cMJ8zj6xFtgNTHPTsv2zD69hALwTuhEAP/cFS+LG0J7katkLyuDfD3hG6QfQ3YS
+         Bm6wsZvI4hDj8RcaYsO5iLCzTCNIWIifPzpPZfeCKE3qasRLYFpzrju4x9ADsVo97+7g
+         vG2BA0hCVw1nbQHn5tmZmCdpZL0/IKPR9N4ElsVFteEGwo6wUPqsG1LeN9dU45nWWNxA
+         kA5Sib1DuWoqYt6STaStgmF22krs9BO/jy9J8JVsSvCh1D0GD5HlJCTbdQB5UC0RD6yr
+         w5Ew==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778850354; x=1779455154;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yQMFhBzx5aVGgtqoPDMmCR48uTyf1EP0ur/Np06OS/8=;
+        b=cUNGyKln1wcwjMqXS0mvi/RG4Zt4y5Vr6/DC9BhIGwWw7J9H6HMIN2Efrx2dt/mDND
+         vMSGmdWqlZNhNRfJnfzf2bPn/sVAzdfMglK3sBUlS3vs7yemSnKJ2VdrgXQmVkP7Pl0H
+         ArGhD8s1bpEd83bEgceYrCTz8mJzVoI9M2f2H48GJ8JuU3Cqgpc36q9b2/hZUuWW9v2u
+         wlH3jzD3lOaoSKTg8kz7nhiET4/u3gEP4P+bExcN49lFPeIrCcsM8qy1Unhzf/6dpd5T
+         8EKo020sLJhmAUF+FfkoV4D6d3a2zWKyKA9s8VQCBp0fWSd82cHwMupLg7StMiSAgYDN
+         ePrQ==
+X-Forwarded-Encrypted: i=1; AFNElJ9wuP9h/EhHhn6aCdRrGG0msqr7VBQu8QqLKSdxBgkNTPkjGYw8iCZYASrl/Ugayo/g4RnTneW0wLk=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzRc1MgvNJwizSeI+8Y5unndTvlYOS2WWwU3NazjzNsdiUYXzch
+	lqKvNXINC/QwEntEq/q3MVtGeuVHmRdi2u8QQ8T20C9mk3AJRrIHBZRn6+9oN50=
+X-Gm-Gg: Acq92OG+pD4HD1Q3Wh0buJQ4eZcujKm4wThNxkRv1v/PddezX0ltqvdIoh8kgd+uTFt
+	PGeQ3gN7J6/aaOg+CHzDz70qNdfumhdG/06tvd2fQWm/zDDpluCkx0luxsS6a+U4g6a3EWfsOxX
+	TFYTY5snb4jrmFZfTfFnuG0VEVZ5PZkOq909IV2NqQAY8dF+KX3zju17KKYZ6SBGAWaoX64Gk7t
+	TXksX/o70RNPNIfCPFG0NZlNGw+eWnEVrcCidNtOvddWlffoZP2TmV4u8yINk3EYKf/+wlr5+WZ
+	t7mqC8ddqtT45ADqH+1FqEKCWVW/LDSAGDWx2sEBVocAA43ZDPE5sqgbjpYBUsOOrgwRS/91WN+
+	ob5I/boEthub1N5ofjHHzgoNs0pgJ59XfXR959q3ZuuTKRJJmkUM1R2UWyyt8Ces1uv/f5ItOPT
+	llD5oSAUaAQGhWKOlKXaK5tsCiRSPUgpx6eZA9ujeVe+oZYnIsOSF/7GE96e0=
+X-Received: by 2002:a17:903:b45:b0:2b9:cd2d:6f13 with SMTP id d9443c01a7336-2bd7e7d88e8mr49950205ad.10.1778850353958;
+        Fri, 15 May 2026 06:05:53 -0700 (PDT)
+Received: from mi-ThinkStation-K.mioffice.cn ([43.224.245.228])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bd5d0fbc05sm60630605ad.57.2026.05.15.06.05.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 May 2026 06:05:53 -0700 (PDT)
+From: Xinhao Lv <lvxinhao.dev@gmail.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Xinhao Lv <lvxinhao3@xiaomi.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	syzkaller@googlegroups.com
+Subject: [PATCH v2] i2c: dev: cap msg length against allocated buffer in i2cdev_ioctl_rdwr
+Date: Fri, 15 May 2026 21:05:23 +0800
+Message-ID: <20260515130545.991714-1-lvxinhao.dev@gmail.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260514081100.381043-1-peter@bohner.me>
+Content-Transfer-Encoding: 8bit
 
-Hi Peter,
+From: Xinhao Lv <lvxinhao3@xiaomi.com>
 
-kernel test robot noticed the following build errors:
+In i2cdev_ioctl_rdwr(), the buffer for each I2C message is allocated
+via memdup_user() using the user-supplied msgs[i].len. However, the
+underlying I2C adapter driver may modify msgs[i].len during
+i2c_transfer() (e.g., for I2C_M_RECV_LEN messages where the actual
+length is determined by the slave device).
 
-[auto build test ERROR on wsa/i2c/for-next]
-[also build test ERROR on linus/master v6.16-rc1 next-20260508]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch#_base_tree_information]
+After i2c_transfer() returns, copy_to_user() uses the potentially
+modified msgs[i].len without verifying it still fits within the
+originally allocated buffer. If an adapter driver sets msgs[i].len to a
+value larger than the allocation, this results in an out-of-bounds read
+from the SLUB object, which CONFIG_HARDENED_USERCOPY detects as a
+kernel memory exposure attempt:
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Peter-Bohner/i2c-i2c-stub-support-for-I2C_FUNC_I2C/20260515-113705
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-next
-patch link:    https://lore.kernel.org/r/20260514081100.381043-1-peter%40bohner.me
-patch subject: [PATCH] i2c: i2c-stub: support for I2C_FUNC_I2C
-config: x86_64-rhel-9.4 (https://download.01.org/0day-ci/archive/20260515/202605151418.JKwPcs0v-lkp@intel.com/config)
-compiler: gcc-14 (Debian 14.2.0-19) 14.2.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260515/202605151418.JKwPcs0v-lkp@intel.com/reproduce)
+  usercopy: Kernel memory exposure attempt detected from SLUB object
+  'kmalloc-128' (offset 0, size 271)!
 
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202605151418.JKwPcs0v-lkp@intel.com/
+  Call trace:
+   usercopy_abort+0xe0/0xe4
+   __check_heap_object+0xd0/0xf0
+   __check_object_size+0x398/0x4a0
+   i2cdev_ioctl_rdwr+0x298/0x3f0
+   i2cdev_ioctl+0x160/0x5a0
+   __arm64_sys_ioctl+0x114/0x170
 
-All errors (new ones prefixed by >>):
+Fix this by saving each message's original allocation length before
+calling i2c_transfer(), and capping msgs[i].len to that saved length
+before copy_to_user(). This ensures we never copy more bytes than were
+actually allocated, regardless of what the adapter driver does to the
+length field.
 
-   drivers/i2c/i2c-stub.c: In function 'stub_xfer':
->> drivers/i2c/i2c-stub.c:157:33: error: implicit declaration of function 'krelloc_array'; did you mean 'krealloc_array'? [-Wimplicit-function-declaration]
-     157 |                                 krelloc_array(chip->i2c_rw_data, msg->len, 1,
-         |                                 ^~~~~~~~~~~~~
-         |                                 krealloc_array
->> drivers/i2c/i2c-stub.c:156:36: error: assignment to 'u8 *' {aka 'unsigned char *'} from 'int' makes pointer from integer without a cast [-Wint-conversion]
-     156 |                         new_rw_mem =
-         |                                    ^
+Found by syzkaller on an ARM64 platform.
 
+Signed-off-by: Xinhao Lv <lvxinhao3@xiaomi.com>
+---
+v1 -> v2: resend with git-send-email to fix formatting (v1 was mangled
+by Outlook, leading whitespace in diff was stripped)
 
-vim +157 drivers/i2c/i2c-stub.c
+ drivers/i2c/i2c-dev.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-   140	
-   141	static s32 stub_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-   142	{
-   143		int i;
-   144		u8 *new_rw_mem;
-   145		struct stub_chip *chip = NULL;
-   146		struct i2c_msg *msg;
-   147	
-   148		for (i = 0; i < num; i++) {
-   149			msg = msgs + i;
-   150			chip = stub_addr_to_chip(msg->addr);
-   151			if (!chip)
-   152				return -ENODEV;
-   153	
-   154			/* len is guaranteed to be <= 8192 by i2cdev_ioctl_rdwr */
-   155			if (chip->i2c_rw_size < msg->len) {
- > 156				new_rw_mem =
- > 157					krelloc_array(chip->i2c_rw_data, msg->len, 1,
-   158						      GFP_KERNEL | __GFP_ZERO);
-   159				if (!new_rw_mem)
-   160					return -ENOMEM;
-   161				chip->i2c_rw_data = new_rw_mem;
-   162				chip->i2c_rw_size = msg->len;
-   163			}
-   164	
-   165			/* read, size determined by slave */
-   166			if ((msg->flags & I2C_M_RD) && (msg->flags & I2C_M_RECV_LEN)) {
-   167				/* i2cdev_ioctl_rdwr expects this as a maximum, even
-   168				 * though 0xff would be the theoretically possible
-   169				 */
-   170				msg->len = min(chip->i2c_rw_size, I2C_SMBUS_BLOCK_MAX);
-   171				msg->buf[0] = msg->len - 1;
-   172				dev_dbg(&adap->dev,
-   173					"i2c read with RECV_LEN - addr 0x%02x, read %u bytes\n",
-   174					msg->addr, msg->len);
-   175				memcpy(msg->buf + 1, chip->i2c_rw_data, msg->len - 1);
-   176			} else if (msg->flags & I2C_M_RD) {
-   177				dev_dbg(&adap->dev,
-   178					"i2c read - addr 0x%02x, read %u bytes\n",
-   179					msg->addr, msg->len);
-   180				memcpy(msg->buf, chip->i2c_rw_data, msg->len);
-   181			} else {
-   182				dev_dbg(&adap->dev,
-   183					"i2c write - addr 0x%02x, wrote %u bytes\n",
-   184					msg->addr, msg->len);
-   185				memcpy(chip->i2c_rw_data, msg->buf, msg->len);
-   186			}
-   187		}
-   188		return num;
-   189	}
-   190	
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index ccaac5e..af5b0a7 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -244,6 +244,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 		unsigned nmsgs, struct i2c_msg *msgs)
+ {
+ 	u8 __user **data_ptrs;
++	u16 *orig_lens;
+ 	int i, res;
+ 
+ 	/* Adapter must support I2C transfers */
+@@ -254,6 +255,12 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 	if (!data_ptrs)
+ 		return -ENOMEM;
+ 
++	orig_lens = kmalloc_array(nmsgs, sizeof(u16), GFP_KERNEL);
++	if (!orig_lens) {
++		kfree(data_ptrs);
++		return -ENOMEM;
++	}
++
+ 	res = 0;
+ 	for (i = 0; i < nmsgs; i++) {
+ 		/* Limit the size of the message to a sane amount */
+@@ -268,6 +275,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 			res = PTR_ERR(msgs[i].buf);
+ 			break;
+ 		}
++		orig_lens[i] = msgs[i].len;
+ 		/* memdup_user allocates with GFP_KERNEL, so DMA is ok */
+ 		msgs[i].flags |= I2C_M_DMA_SAFE;
+ 
+@@ -300,12 +308,15 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 		for (j = 0; j < i; ++j)
+ 			kfree(msgs[j].buf);
+ 		kfree(data_ptrs);
++		kfree(orig_lens);
+ 		return res;
+ 	}
+ 
+ 	res = i2c_transfer(client->adapter, msgs, nmsgs);
+ 	while (i-- > 0) {
+ 		if (res >= 0 && (msgs[i].flags & I2C_M_RD)) {
++			if (msgs[i].len > orig_lens[i])
++				msgs[i].len = orig_lens[i];
+ 			if (copy_to_user(data_ptrs[i], msgs[i].buf,
+ 					 msgs[i].len))
+ 				res = -EFAULT;
+@@ -313,6 +324,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
+ 		kfree(msgs[i].buf);
+ 	}
+ 	kfree(data_ptrs);
++	kfree(orig_lens);
+ 	return res;
+ }
+ 
+-- 
+2.50.1
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
