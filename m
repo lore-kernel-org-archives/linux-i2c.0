@@ -1,65 +1,157 @@
-Received: from vps0.lunn.ch (vps0.lunn.ch [156.67.10.101])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2AB232C937;
-	Fri, 15 May 2026 13:16:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=156.67.10.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B119648BD30
+	for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 14:04:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778850969; cv=none; b=A/Nyyk7soz0dOR9DZz7rbLDV+6MNR4pEpu4+Ygt/jHFHMfrtC8YMnvhgec6MkIWPu4dT5PYowQ6nldPQ81jVU+XxWF4sLEu9FeSmcFJJBfDJnGjmb3sDqF0mGROXz4QLlRldDKZcD2i1Isl4Kqc2+rSeVZXEicGN180Bhe+H+E8=
+	t=1778853871; cv=none; b=aUGABGqj5JWAA7WR0oTP65jzechSycS1N5c+eHiEblw+VJavl2D2CUb/mR496U8JDIjhf5Bp6Mr0Ez7139wQrO/FhvsSAd+sCU4dVKEjrsWBmlG8ajFofC5qlDjsAN4JO7IqnLv/PcGesX21kItO7wqSIo8TqM7CCpffRyay7HQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778850969; c=relaxed/simple;
-	bh=2c7uG52xy9qH22gNYh5OhP1yr5biXMZnwZHATqsD++c=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=amIqqtOSdgdslU8jGysG3rqfwWH2XV5i4uRqeog0C9tkJH4P0WMwHqetw4VefY+gH2c9fteL9BpwGZi9u+vQJm32Cn7rOa6ophBqSMqSXqwCRpGzTXijBCOeEYgWNjAVQaJQfdtGU3EcTQ/Jn3YGYakMlwDoaTKqvaTN8+90FU0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch; spf=pass smtp.mailfrom=lunn.ch; dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b=TCaEaAwc; arc=none smtp.client-ip=156.67.10.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lunn.ch
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lunn.ch
+	s=arc-20240116; t=1778853871; c=relaxed/simple;
+	bh=GG46pSh5d0vn9yBp53h1hxap4udjkrgURZeJc5+2YyE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=rtu+kNEC39Z6UKanntFR2YYEh2xovVLi/R6TwlVZWyBqE3l1EHNUCl0ZUlrzYuxYUSpcdp9zz7iktzWOXzb/c5d87uDDoPRA55GjbuPCamFpAoQ9yAOhqtBrqI6oIQ46ndIN+UHkJFDEEIxaAdFeVh4cK9C57CM6gI+Ht3X7p8g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qrgqacc3; arc=none smtp.client-ip=74.125.82.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=roeck-us.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=lunn.ch header.i=@lunn.ch header.b="TCaEaAwc"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=lunn.ch;
-	s=20171124; h=In-Reply-To:Content-Disposition:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:From:Sender:Reply-To:Subject:
-	Date:Message-ID:To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
-	Content-ID:Content-Description:Content-Disposition:In-Reply-To:References;
-	bh=VyTIEquFqFfuHxV6IhHCBxuRdbr+JpQQcmqbOA5i2Bk=; b=TCaEaAwc38dS3dOtMX+BczGYmw
-	ikIewtgHwAGnezJbSgCwQygvwisD0pC84V8Akm9onuj/OrlgpTlsx3ImF/Yoef30zPM+56a0KtKXC
-	KnJVXABGqTfkNTHodAXPwli4hSUUQlCYSz/u07Zb3e5bn3aiuTEYcwZqDC+AjzLjq+gE=;
-Received: from andrew by vps0.lunn.ch with local (Exim 4.94.2)
-	(envelope-from <andrew@lunn.ch>)
-	id 1wNsOb-0034By-9m; Fri, 15 May 2026 15:16:05 +0200
-Date: Fri, 15 May 2026 15:16:05 +0200
-From: Andrew Lunn <andrew@lunn.ch>
-To: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-Cc: brgl@kernel.org, andi.shyti@kernel.org,
-	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>
-Subject: Re: [PATCH] i2c: davinci: fix division by zero on missing
- clock-frequency
-Message-ID: <c67aa3e3-b995-47b8-958a-d655447b59ec@lunn.ch>
-References: <20260514103740.5416-1-chaitanya.msabnis@gmail.com>
- <1ce483f8-1d9a-40c3-a45e-6ca536010b20@lunn.ch>
- <CABjkosFHLErOziCrYhJJxtpMg01t36LqAfr-zz1wE4HSZhfzFA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qrgqacc3"
+Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-2c15849aa2cso12513226eec.0
+        for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 07:04:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778853866; x=1779458666; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:from:to:cc:subject:date:message-id:reply-to;
+        bh=1xq8W0xM16bA8z+e9ItjmHiUZEnug/7oVf/JqPTdq4Q=;
+        b=qrgqacc3bN3q4/aMGMXmyVsjVbYFnMF9yaTqR6tKQj5sKos+LG9K/Oj951Ijhy33lp
+         Ouy2EjLVatPBLFLFDFfiuXJRllLrfHu40dvyogEkuH+BBvq7/7FqQhSdKe693raoDdmD
+         LsP7sP4ILMGFejpioDq6dE0rBH5tHSQL/TgCzbmhLAQ5DNSCdAzmlec+nf91zE9aRW16
+         EwzisdEzHwLx2Vo+81XlG9ZkghK/ASdD6SoOL6mpOCwYH3/2Ha+07fgHqVxQbdPOMN0B
+         9Dat3cUb6sS4DkY6BG7ssnWcExPZHSGUVvJkbY46BYTBMX9vP7NzKYPKPpyDCWik6PPV
+         3lSw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778853866; x=1779458666;
+        h=content-transfer-encoding:in-reply-to:autocrypt:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:sender:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=1xq8W0xM16bA8z+e9ItjmHiUZEnug/7oVf/JqPTdq4Q=;
+        b=HhZ9a2Si7Nj+Nzv3+0/4fV1q0HszGkC6RoJLFo0FBcXbSo0neogfoUGo4PpkqPYlvB
+         2LWjOgI1WnIDIowMjM3UmXsTHBHNf4l3c9reGxb6RsSd//V8aq9dUwAHuLv/Fv0ZetX8
+         OZ64U0U/DdhlyhYASLDjZ7Cdqvjbqx1Xay8X15s6pa0eXJbLgkSlmGUavATIlnlLOLa/
+         0KWFJwJoIMoKDQq2QI20g6NwVOOfOQJQ9OEVWJlczNxE61AQ4zVbCiZvW0rvagWAF+nN
+         C9MY3vKp85s2HQR6BB2hmImVPp81iG013M+3ayFW9O1N/zGO3iSANJ8Tf/vlG2Pk95NA
+         JNig==
+X-Forwarded-Encrypted: i=1; AFNElJ+YvNz3OhHr3HcgfW2ixPvxnKYkNQWRjf/z5zIFjksB7Itzlz53au4HNjHJDGw+LG6Rx2C12GFPZ3M=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yzse+r309xdtDi4eelqHRaGQ6FIDlYNGxhWiNR5NgYKx5I0zPsg
+	w1xjFYs98anPxCaPR/bhjoULT+Y4BE8H0eX6FqA4AcxopyXK2Gbv/EEO
+X-Gm-Gg: Acq92OGRlItJa7aoX75QCZPetQ2ItKD4QHDcC+3IFnJO7zc4EIpLApCaVCAauPFzfCs
+	+IT2458ZJ1XgkJz78X+UB7umS3dXoPRwAIJ2ZJNl9sfCCR8L/FbVs3tA5WjxRMeaOGTNqLVm1IS
+	Ek4GL5tD7jOXJt173vnZ/nHhHfr3vJk4v0vBYnbVyEIOVL9Y/QtsbiqeC+HbL97vMKRqrC50U9m
+	eSZbN3TOBBXkjM+15Feq2qQLPvHc4q8GXv0c35jscITnpu8c5Jk+B5i98kIvXFHria8gBNRnfip
+	hZLBbCXe11qL+upCv+RsSz5BYqblAuC8L4T1GSJfLRdzYSz7+V+e/dckKOeABEYJ2yEBW+t6tXO
+	UvLq0blrmgeFt4AgWUfk2kT7ptqVXUgvXi3PjxcTQghYd9T2dck6XaUrCpCC/nBYznneheF8i5d
+	aITSPy3xeUSpgzOzV42W3GsJNs0ak8l0D0IHpYd3WvucUF7NyzKhVy3S4WVFOvkaX0K0IFrPL4
+X-Received: by 2002:a05:7301:6448:b0:2da:a813:a5fd with SMTP id 5a478bee46e88-3039867fa16mr2160782eec.22.1778853864553;
+        Fri, 15 May 2026 07:04:24 -0700 (PDT)
+Received: from ?IPV6:2600:1700:e321:62f0:da43:aeff:fecc:bfd5? ([2600:1700:e321:62f0:da43:aeff:fecc:bfd5])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-302977a9474sm7099623eec.25.2026.05.15.07.04.23
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 15 May 2026 07:04:24 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <17828a1b-86c7-4ad6-a93b-3f91c6b2c24f@roeck-us.net>
+Date: Fri, 15 May 2026 07:04:22 -0700
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CABjkosFHLErOziCrYhJJxtpMg01t36LqAfr-zz1wE4HSZhfzFA@mail.gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 1/1] mfd: Add Host Interface (HIF) support for Nuvoton
+ NCT6694
+To: Andrew Lunn <andrew@lunn.ch>, a0282524688@gmail.com
+Cc: tmyu0@nuvoton.com, linusw@kernel.org, brgl@kernel.org,
+ andi.shyti@kernel.org, lee@kernel.org, mkl@pengutronix.de,
+ mailhol@kernel.org, alexandre.belloni@bootlin.com, wim@linux-watchdog.org,
+ linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+ linux-i2c@vger.kernel.org, linux-can@vger.kernel.org,
+ netdev@vger.kernel.org, linux-watchdog@vger.kernel.org,
+ linux-hwmon@vger.kernel.org, linux-rtc@vger.kernel.org,
+ linux-usb@vger.kernel.org
+References: <20260515085746.114361-1-a0282524688@gmail.com>
+ <20260515085746.114361-2-a0282524688@gmail.com>
+ <ef9449dc-ef2a-415e-8acc-a15f349bac24@lunn.ch>
+Content-Language: en-US
+From: Guenter Roeck <linux@roeck-us.net>
+Autocrypt: addr=linux@roeck-us.net; keydata=
+ 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
+ np3900V20aS7eD9K8GTU0TGC1pyz6IVJwIE=
+In-Reply-To: <ef9449dc-ef2a-415e-8acc-a15f349bac24@lunn.ch>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, May 15, 2026 at 02:12:43PM +0530, Chaitanya Sabnis wrote:
-> Hi Andrew,
+On 5/15/26 05:41, Andrew Lunn wrote:
+>>   MAINTAINERS                         |   1 +
+>>   drivers/gpio/gpio-nct6694.c         |   7 -
+>>   drivers/hwmon/nct6694-hwmon.c       |  21 -
+>>   drivers/i2c/busses/i2c-nct6694.c    |   7 -
+>>   drivers/mfd/Kconfig                 |  47 +-
+>>   drivers/mfd/Makefile                |   3 +-
+>>   drivers/mfd/nct6694-hif.c           | 663 ++++++++++++++++++++++++++++
+>>   drivers/mfd/nct6694.c               | 111 +++--
+>>   drivers/net/can/usb/nct6694_canfd.c |   6 -
 > 
-> That makes complete sense. Updating the macro to Hz is a much cleaner
-> approach and aligns perfectly with the expected unit of the device
-> tree property.
+> The networking change here is very small, so my influence as a
+> networking Maintainer should be considered small.
 > 
-> I have track down the original commit for the Fixes: tag and send out a v2.
+> However, i would say this patch is too big, does too many different
+> things at once, making it harder to review. Please could you break it
+> up into lots of small patches, each with good commit messages, and
+> being obviously correct.
 > 
-> Thanks for the review!
+Add my influence as hardware monitoring maintainer. I very much agree.
 
-Please don't top post on mailing lists.
+Guenter
 
-       Andrew
