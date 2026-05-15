@@ -1,63 +1,64 @@
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
+Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3130F492190
-	for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 15:20:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3472048C8D7
+	for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 15:20:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778858411; cv=none; b=S1sdTp4M0zQPpBdXVddE30e/o++GzewNTegvtJzVeKJKpMaIoDDxMJ3ADmSFqoxHpij28LsK15m2bW9M5z7FpgfO6v5j0Jg2d3wI7ZWJcKL+5eBnnQTWVC0+tpqVtlwcHNRSt/lI3yc12MXSq1AKnqJ41KnzHbLT1VxH23kucfU=
+	t=1778858412; cv=none; b=p3RLYXUMiwYCRNM64s3MjRseTDxCBpc5BkkamO6CZLE6ePKOHXbJQtOKdMZ68QE6xHQdRAN4x2qLpfHn+rINtJXfbbJ1TibaboIkngsFNKyK4qJEviG4U9MD9RazD8zLG6juUUKzLdrXaiuIyTtlDeOtF2SUuOLJ7wjE9dDDqYM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778858411; c=relaxed/simple;
-	bh=cg1EGpE+tZLsxSw7/5908IsKJBY1Wp5HHzb3pF7yEJ0=;
+	s=arc-20240116; t=1778858412; c=relaxed/simple;
+	bh=aw//OWk7ekdLqz6+NXAqRiETHV/evtXwY9fM3TOle1Q=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=N2hYFk2fq9alghEq4hFgxR+9TZ74wo4EFL+677ZiIyCfL0U7lAWoM4UXjOeURNVymbPbQD5TN+2SP/xedfoalQReDm9uh2gdoNfX5/V5nRo9uE1a4AtN7JLYnCp2bsd3vi9lEdhSu3XjSpXwxiARi2Q8QpthNr0FQamiCAX5jzk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=R/x3oGK8; arc=none smtp.client-ip=209.85.167.44
+	 MIME-Version; b=H2enDQSpEijoWETCS7kQikM1TgOyUH1aF2+OIbhgEn9zFnqjpr51xJpowQNW6UXmMbyu5KCEa9e30IrHiUN5ZMbmIkI7RxeTcEWBwr+nE1VIwQ7X148sxr4V5zTL4IYLj+xDsT5eD6DQKyMgN4Y2Uo2ztHrpnKYmk9BPtcUf3Yk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=G8mGfBh4; arc=none smtp.client-ip=209.85.167.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="R/x3oGK8"
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5a8e3849de7so546077e87.1
-        for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 08:20:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="G8mGfBh4"
+Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-5a8e387baaaso364255e87.2
+        for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 08:20:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1778858406; x=1779463206; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1778858407; x=1779463207; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=gO8zlppoftXaEUDbpITntu0HDlDbn0tIr9/mYNTg0Z0=;
-        b=R/x3oGK8p3Dkez9P0VvQG7OChZU69k9Imb4RpnbE/PAQ3t3OQ0GCqnqnUgP1kcKuAG
-         FdlTMX3PFehCiM9W3+cS7nw5S/NGM37GkItDyLMrs/Xee0RU8bAM3XLrzkKaWwXYlV9K
-         EnmI68pT5a3nkOACXs1LWPaBYIei4w4Bmq3AgFh62Fl8Lr3s0WUxsaw4JpeAvcdQXUB9
-         o/gJhZ/JOwarZxCDuYwG99/c0CIT805JhM11YU8HqB1JHejSrH/U3sxkLs57MQU0mq5i
-         PwgWSI6ODS5FKSipwDz3nF7U0PoN3xWfJV/95Hl6NYAoTPUi8qKOdUMSk9ceRnbMeUDz
-         RfVA==
+        bh=+Y5rcd8ol/OODf2w+e7bAV3jzDI3zj+SkdCDhFbr/Ws=;
+        b=G8mGfBh42HfbS3e+GzglYgRjH3oiGbEHsUeERP1PNRtGWfANbQTkEqHx4q/Hkx5zMR
+         EXGEL7pCPUc74jGJVb8VWe0VLMVvX/TQn5NDopGTkeE7NA8bFEWUJLobKbANB9YyDEvw
+         6MNq41dn8vI0YeTA1NMwCdKx97yoBFff0/vVbA2netgPywXe+fYJAX8+0+bmelNhmyCR
+         8GC8kzS2Ku17WGrxSsUfRXsTGpZHb9vt6Mi6o+djUA+8y+Gh3p7jrOcCgPNTKWoM6aQi
+         akBek8BJ0oeW3XOUEoP0TJrkHraWDP2tvZ0emYehqSsJ6jTwsbGaH9uUqeSv1vOec/GJ
+         OAKg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778858406; x=1779463206;
+        d=1e100.net; s=20251104; t=1778858407; x=1779463207;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=gO8zlppoftXaEUDbpITntu0HDlDbn0tIr9/mYNTg0Z0=;
-        b=Bwz3wLkcJIJKh3TZRPOhUniCIYWEQ1Gh5Z2AmS9fEW6Owxz6IxEqQ8OzIe1+QLHQyA
-         1P8DxS3XT+I3n4DxQICxXADiKXiBDXPaSrhZGVUMzpiyz7mCfJYz5ansdhuWKPSNyhnA
-         OvlchPOHFrGclTVINU+GuhQCQYx9dJZAoqKmjTP0cwNU0sup8YKeliW7VzImuhg1Zidt
-         MWAEC6zkoJfpCEiKaAEzBoSmg5XoREIujWlTcqj+KybI4EzGJex2+NPjYtfxOs+attKy
-         VxfuwYkibmh7dPdz85Ckw6tNS9FSkOXTbT5dIbUA4+tgfZowio8XE3Mh704mxt1D8oOC
-         Tsag==
-X-Forwarded-Encrypted: i=1; AFNElJ80TBBoZTFlTMPr/uoeWYnOcdAXyjIIAPyzB31NznyhewLdueMsnRTjyExrN2kTrQvk8KgQ8bc4d/g=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwSXVvd4SYZ51zkozA7wbnPq+O9koalgB6+vAl2SOKi7RQ2U29u
-	WXa25ckwwvme2j7qbc+nXEiugeX6/HRn2XR082KzS7YScLnfFdcCv3oeqEr0HqAmCVA=
-X-Gm-Gg: Acq92OFGat+0O4sPbGvjTwVVrNxRadRyxP/X4vq3Yg7b76M58euGNKzOoQUVhPrOkND
-	MpkG+Psn9GAJtA/rMXbMQYrm50GDht3OlF+juexTfejxZoUp7Hxj7BtgwxWOVQRS1KnL/eVCADI
-	EUrQJEGZtacfY6FBeJJzea/gWBCubmMDxyaAou6N/o7NciBqJ8RxY3W5kVvhSXSYbGzVlhkNiLd
-	JBxA/BHvNpEt7AVK5y6u2PQV4qfwMFhl1MpFQkIO/3npJvCtphSvX7oXOVwVZQuMm1wRlm3KfOq
-	DDAk0QSBB7G8bOur8cuo373JP5Ibd5f+3u1cb2yrxLP0+x2s87V4ipPNIj3kz5dSFUcDPtg1Arh
-	ahHAvLDqDO7N6a4PWH4ZYplKla43aCPxCCkCFPatIrOMoNU7OQs8PpLVR9PBxOrkw+iqoA/ZTjR
-	1iCenHZtmAbD65uUoePxtpe6skpE/y250dCS7CeCPWAbuMf+H1qT7rdjDAd9Ongt2bjA==
-X-Received: by 2002:a05:6512:693:b0:5a1:30ec:427c with SMTP id 2adb3069b0e04-5aa0e74299cmr608491e87.6.1778858406006;
+        bh=+Y5rcd8ol/OODf2w+e7bAV3jzDI3zj+SkdCDhFbr/Ws=;
+        b=sWHV7+F22eXaIirJ9++jU8TWzaqWu1dcVrH7NixctEf5crIx0DGUAHG8iIj12Zp0MX
+         gnu0+xLFk7iA8Ve4J+kUJs5UygAtQzrAVMh/IcuMzJF9OpmTz8rGKVJcNUWlBF3UVcEk
+         XwJHlPg+R42G77fDNBmARj9hZC+vVT+imd/cvzB2Z4D9W7JaJjAxcb5qv11Yk3t7Ntlc
+         GoSwQg4DmaBxFxFrsChLyPlv3X+ATFx/boSuwpqXimg7buZpus7FfjXzs6igXUiy1pz4
+         e6bjPQzj2nlbTUiDV7HU5gjzTEP/2UIQ/WkQVxpSKvAMt9IDowRphZ3ynHjhKRt88krw
+         KC3w==
+X-Forwarded-Encrypted: i=1; AFNElJ9yfFInCva5TE5RexxTgG+m2b6Pt3TaqVVYH0PPpGQfgGk79bVwAqY/QLL2avb7KHnO7sCTP4XzqoI=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxVx4hTs2dsEJQW6sLY8no/sO9EiOvQHRnwXQNJT6GQU+09L1S7
+	7rTyr8W8ALj3iJU+Ri2AQ48CktIATJwsoe73YMuX4gkiHpXoR1w0BjYBiHvNal7cNsg=
+X-Gm-Gg: Acq92OHmHjXsF7KNbXz2Aou3VkWRLjF7IR87iFY6k9hoQmQRW17jqAqAXkNjGaLov1n
+	quZZzWgABS2e15WDokk+M86POMeLGO4mXzI/faHUIJDQp7/1m83tijeXra7a9B9CLa5NkZ5ryqR
+	Vn1JxtKp3d5MAxtQ2e2t+lW/X/Sagw/KofHk7CD+lOEzVN8z/Gi+yn1mayWcrz3g9xEJbB56B36
+	OwsZrvB//wpz1sF8kqn0bjrRSL43WXrsRfJ6xOgbxRxA+yUwpNi0OPxhaT9gnxbsLHpBHBlj4Pi
+	UGxpjHd8fZ1TORoK87NZq9E1scspe7p+m7kyQpfYOxUMbkVzZ0vNKTkvPJjcn4CBHlJpOpP98xt
+	6WGyjlm7eC7RoANk9whQ5AV8OkaDSNmfhAryLL2tHd2nvqzXNLn/B/p869tN/aIBH9H2rwK53gx
+	h3K/RWqMiq6/5I09nbmwvTjhI+5SV4cZRnrDAJK4YPQ3h3eo7YdDx5jcDMhNb+TevjCWCdfV738
+	L1+
+X-Received: by 2002:a05:6512:1249:b0:5a4:a4c:6595 with SMTP id 2adb3069b0e04-5aa0e74584fmr853988e87.4.1778858406883;
         Fri, 15 May 2026 08:20:06 -0700 (PDT)
 Received: from thyme.. (91-159-24-186.elisa-laajakaista.fi. [91.159.24.186])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a9164bc20fsm1392418e87.43.2026.05.15.08.20.05
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a9164bc20fsm1392418e87.43.2026.05.15.08.20.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 May 2026 08:20:05 -0700 (PDT)
+        Fri, 15 May 2026 08:20:06 -0700 (PDT)
 From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 To: Loic Poulain <loic.poulain@oss.qualcomm.com>,
 	Robert Foss <rfoss@kernel.org>,
@@ -65,9 +66,9 @@ To: Loic Poulain <loic.poulain@oss.qualcomm.com>,
 Cc: Bjorn Andersson <andersson@kernel.org>,
 	linux-i2c@vger.kernel.org,
 	linux-arm-msm@vger.kernel.org
-Subject: [PATCH 1/4] i2c: qcom-cci: Fix NULL pointer dereference in cci_remove()
-Date: Fri, 15 May 2026 18:20:00 +0300
-Message-ID: <20260515152003.1604187-2-vladimir.zapolskiy@linaro.org>
+Subject: [PATCH 2/4] i2c: qcom-cci: Do not check return value of cci_init()
+Date: Fri, 15 May 2026 18:20:01 +0300
+Message-ID: <20260515152003.1604187-3-vladimir.zapolskiy@linaro.org>
 X-Mailer: git-send-email 2.49.0
 In-Reply-To: <20260515152003.1604187-1-vladimir.zapolskiy@linaro.org>
 References: <20260515152003.1604187-1-vladimir.zapolskiy@linaro.org>
@@ -79,49 +80,47 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-On all modern platforms Qualcomm CCI controller provides two I2C masters,
-and on particular boards only one I2C master may be initialized, and in
-such cases the device unbinding or driver removal causes a NULL pointer
-dereference, because cci_halt() is called for all I2C masters regardless
-of its enabled and initialized state:
+The cci_init() function is not supposed to fail, and it never returns
+a non-zero, so it'd make sense to convert its signature to void.
 
-    % rmmod i2c-qcom-cci
-    Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-    <snip>
-    Call trace:
-    __wait_for_common+0x194/0x1a8 (P)
-    wait_for_completion_timeout+0x20/0x2c
-    cci_remove+0xc4/0x138 [i2c_qcom_cci]
-    platform_remove+0x20/0x30
-    device_remove+0x4c/0x80
-    device_release_driver_internal+0x1c8/0x224
-    driver_detach+0x50/0x98
-    bus_remove_driver+0x6c/0xbc
-    driver_unregister+0x30/0x60
-    platform_driver_unregister+0x14/0x20
-    qcom_cci_driver_exit+0x18/0x1008 [i2c_qcom_cci]
-    ....
-
-Fixes: e517526195de ("i2c: Add Qualcomm CCI I2C driver")
 Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 ---
- drivers/i2c/busses/i2c-qcom-cci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-qcom-cci.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
-index f3ccfbbc4bea..01e440b6585d 100644
+index 01e440b6585d..be41a53e30c6 100644
 --- a/drivers/i2c/busses/i2c-qcom-cci.c
 +++ b/drivers/i2c/busses/i2c-qcom-cci.c
-@@ -660,8 +660,8 @@ static void cci_remove(struct platform_device *pdev)
- 		if (cci->master[i].cci) {
- 			i2c_del_adapter(&cci->master[i].adap);
- 			of_node_put(cci->master[i].adap.dev.of_node);
-+			cci_halt(cci, i);
- 		}
--		cci_halt(cci, i);
- 	}
+@@ -243,7 +243,7 @@ static int cci_reset(struct cci *cci)
+ 	return 0;
+ }
  
- 	disable_irq(cci->irq);
+-static int cci_init(struct cci *cci)
++static void cci_init(struct cci *cci)
+ {
+ 	u32 val = CCI_IRQ_MASK_0_I2C_M0_RD_DONE |
+ 			CCI_IRQ_MASK_0_I2C_M0_Q0_REPORT |
+@@ -284,8 +284,6 @@ static int cci_init(struct cci *cci)
+ 		val = hw->scl_stretch_en << 8 | hw->trdhld << 4 | hw->tsp;
+ 		writel(val, cci->base + CCI_I2C_Mm_MISC_CTL(i));
+ 	}
+-
+-	return 0;
+ }
+ 
+ static int cci_run_queue(struct cci *cci, u8 master, u8 queue)
+@@ -611,9 +609,7 @@ static int cci_probe(struct platform_device *pdev)
+ 	if (ret < 0)
+ 		goto error;
+ 
+-	ret = cci_init(cci);
+-	if (ret < 0)
+-		goto error;
++	cci_init(cci);
+ 
+ 	pm_runtime_set_autosuspend_delay(dev, MSEC_PER_SEC);
+ 	pm_runtime_use_autosuspend(dev);
 -- 
 2.49.0
 
