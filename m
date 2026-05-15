@@ -1,61 +1,61 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B46EE341AAE;
-	Thu, 14 May 2026 16:40:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13B091A682E;
+	Fri, 15 May 2026 01:11:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.19
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778776812; cv=none; b=jUWAraLc6JXn0js5lzmaTVvRSWEIIoNjaPuczM5qZ+9KnZccAjdq5zjKxhUdv3MmCX3a4cePSR6nFTeHI+PY6A5VdF06jZYlipwJFFu2XpR4V36MTZIL+ZiHtjPNBl5fqZXrZGO2qsZpgHrYsUKqkAPumcsTmP05KONbh5uOGUE=
+	t=1778807506; cv=none; b=DFL204wULDnvxzQVMDFBNeBS0euPVqGvslBPml9yLFVirUiydQSIYz2VRBKb694jhIHUGrm2Dtai35X3SuYhHtA1fS9Lfj346EoogRgjf/O7hts+ZTRLufXzKfDFOu0w1cxa7FStotm9vbO0v/3Zwe0Rl9xHItm0h9GzhRg18Uc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778776812; c=relaxed/simple;
-	bh=DZCS7RS/zZX6M7EQpJ9yUp6Bwd0V7zfuy9SAXOfMTts=;
+	s=arc-20240116; t=1778807506; c=relaxed/simple;
+	bh=2Ep3W60mHhmYSuhahrCqVqoyCeU7AD4+P5ivdqcV0s8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kTWYVhaF2lNzlVPlxXlaa0t3MxYASibeUjSW7vYk/lW33xMRyIV/ZcEGDjiPvpHqv97Gec5NsfDtp3IXVHwPtjzBVHTQ1YZfS5r1cF3mznuO1Dm/1OZ77ggrmQKds+0HcwE7dbIZR1KfEwTk38pKgatwBoHoLUsl0TPL2CDUjss=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ABQkKMWq; arc=none smtp.client-ip=192.198.163.9
+	 Content-Type:Content-Disposition:In-Reply-To; b=QXV/xQCLSaYl+16cfhwFlo4lfJOtD0TP+pRkHrugQFY+eon7ANt1kzTscNuqDfWxzOsBQgf5hDTC0uFWiXoSDMER+VVDlZzoPxH2zaAqmN1UKrmLq7qJCsK/pNrdXw7/KnOnLay8xaDew/imNUPqdE5nwXqrP5zeQ9Il65XuLII=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mfEXqONT; arc=none smtp.client-ip=198.175.65.19
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ABQkKMWq"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mfEXqONT"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1778776811; x=1810312811;
+  t=1778807503; x=1810343503;
   h=date:from:to:cc:subject:message-id:references:
    mime-version:in-reply-to;
-  bh=DZCS7RS/zZX6M7EQpJ9yUp6Bwd0V7zfuy9SAXOfMTts=;
-  b=ABQkKMWqqOxIXcKkGMn62eOww8WUiCX0F+Kf0xBLMLhKzXAD9PEh2So/
-   HfEIy16NyHoY4lSWdWcNXMRlIGZMR1Fy2gKDP393BDmwuGpyo7dtCzhNY
-   JcklBcNIGsI04JpijPYAO9cDqX+b8mb+uFNMRM45cAe6Tb9b57DbffBgE
-   eX9Mv/x/turk2zrscGeeDh8XbzeEMVCs4u8cejQ6U+YoR5foiD4+/Jzra
-   mtlpHLeoVJCacmGOK/X5DCUWmxaGBJIbLHgezGovNzMny8LFAWPm22byM
-   D0xmDkFigH0bxrs83me8CLh6/q7aiw6VTXvkWjd9X1p6FYMFYBuVA092x
+  bh=2Ep3W60mHhmYSuhahrCqVqoyCeU7AD4+P5ivdqcV0s8=;
+  b=mfEXqONTFBcXsPetmvh884g6U74bbp8Ug002nV4wZmyHEVXAT7JV46ot
+   QCp4f8Iox594tcks2hyEF6D0Iz1F3IH6KcUnfz55dkH2IdQ9W4kQqS7D0
+   0yKBiBZYSme5wfg23ZB4ccuiFATG4a1+RBa/2nYofZBqbPQkrKKPw18B0
+   bgw+jto/QyT535VaWBorxM3h2P8F003/ghgMzwaTgQ6Hpr4e16pHh+wZq
+   4ZgMHYpF7qPvjzs5JEaUiGJdD4oBdjljpR6YBbxZ6l5Y+02kOX0jwdmno
+   fe317hl5/ZRwgF+1TeEOVBUS7ZeYky23YWTBCnaYF0iucRCx9sMFc8lNP
    w==;
-X-CSE-ConnectionGUID: J29AlqcOQT2PTibLrlOwFg==
-X-CSE-MsgGUID: sBYNmZn4RoiLsp7dE8BTGA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11786"; a="90417421"
-X-IronPort-AV: E=Sophos;i="6.23,234,1770624000"; 
-   d="scan'208";a="90417421"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 May 2026 09:40:08 -0700
-X-CSE-ConnectionGUID: JNzrmP12RKSd5baCukAgog==
-X-CSE-MsgGUID: iP0ozFZrRt25d7a+eQYB/Q==
+X-CSE-ConnectionGUID: w2B7RadURZKwQsgHCku2vQ==
+X-CSE-MsgGUID: bemoTsOtQR6oySaFbcZIcA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11786"; a="79717709"
+X-IronPort-AV: E=Sophos;i="6.23,235,1770624000"; 
+   d="scan'208";a="79717709"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by orvoesa111.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 May 2026 18:11:43 -0700
+X-CSE-ConnectionGUID: pkO8VmqkTLynUmFPRZYBWQ==
+X-CSE-MsgGUID: /YqF+AY4QaeVXnmt7X2mKQ==
 X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,234,1770624000"; 
-   d="scan'208";a="238534954"
-Received: from lkp-server01.sh.intel.com (HELO dca79079c3eb) ([10.239.97.150])
-  by orviesa009.jf.intel.com with ESMTP; 14 May 2026 09:40:05 -0700
-Received: from kbuild by dca79079c3eb with local (Exim 4.98.2)
+X-IronPort-AV: E=Sophos;i="6.23,235,1770624000"; 
+   d="scan'208";a="268892620"
+Received: from lkp-server02.sh.intel.com (HELO 7a33ad3e7d27) ([10.239.97.151])
+  by orviesa002.jf.intel.com with ESMTP; 14 May 2026 18:11:41 -0700
+Received: from kbuild by 7a33ad3e7d27 with local (Exim 4.98.2)
 	(envelope-from <lkp@intel.com>)
-	id 1wNZ6Q-000000006mp-3hfi;
-	Thu, 14 May 2026 16:40:02 +0000
-Date: Fri, 15 May 2026 00:39:51 +0800
+	id 1wNh5V-000000000WT-3vRQ;
+	Fri, 15 May 2026 01:11:37 +0000
+Date: Fri, 15 May 2026 09:08:38 +0800
 From: kernel test robot <lkp@intel.com>
 To: w15303746062@163.com, jdelvare@suse.com, andi.shyti@kernel.org
-Cc: oe-kbuild-all@lists.linux.dev, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
 	Mingyu Wang <25181214217@stu.xidian.edu.cn>
 Subject: Re: [PATCH] i2c: i801: fix hardware state machine corruption in
  error path
-Message-ID: <202605150012.iDZZ7jFf-lkp@intel.com>
+Message-ID: <202605150921.HPErQGU3-lkp@intel.com>
 References: <20260507114356.247525-1-w15303746062@163.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -81,21 +81,21 @@ url:    https://github.com/intel-lab-lkp/linux/commits/w15303746062-163-com/i2c-
 base:   https://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git i2c/i2c-host
 patch link:    https://lore.kernel.org/r/20260507114356.247525-1-w15303746062%40163.com
 patch subject: [PATCH] i2c: i801: fix hardware state machine corruption in error path
-config: powerpc-randconfig-001-20260514 (https://download.01.org/0day-ci/archive/20260515/202605150012.iDZZ7jFf-lkp@intel.com/config)
-compiler: powerpc-linux-gcc (GCC) 8.5.0
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260515/202605150012.iDZZ7jFf-lkp@intel.com/reproduce)
+config: loongarch-randconfig-002-20260514 (https://download.01.org/0day-ci/archive/20260515/202605150921.HPErQGU3-lkp@intel.com/config)
+compiler: clang version 23.0.0git (https://github.com/llvm/llvm-project 5bac06718f502014fade905512f1d26d578a18f3)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260515/202605150921.HPErQGU3-lkp@intel.com/reproduce)
 
 If you fix the issue in a separate patch/commit (i.e. not just a new version of
 the same patch/commit), kindly add following tags
 | Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202605150012.iDZZ7jFf-lkp@intel.com/
+| Closes: https://lore.kernel.org/oe-kbuild-all/202605150921.HPErQGU3-lkp@intel.com/
 
 All warnings (new ones prefixed by >>):
 
-   drivers/i2c/busses/i2c-i801.c: In function 'i801_access':
->> drivers/i2c/busses/i2c-i801.c:934:1: warning: label 'out' defined but not used [-Wunused-label]
-    out:
-    ^~~
+>> drivers/i2c/busses/i2c-i801.c:934:1: warning: unused label 'out' [-Wunused-label]
+     934 | out:
+         | ^~~~
+   1 warning generated.
 
 
 vim +/out +934 drivers/i2c/busses/i2c-i801.c
