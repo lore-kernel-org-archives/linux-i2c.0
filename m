@@ -1,127 +1,113 @@
-Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E02839E19A
-	for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 09:25:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41908401489;
+	Fri, 15 May 2026 09:34:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778837156; cv=none; b=RZwYnlwzfdfKU4gWvgNmlVGxFM/KsmG2ltzDl9zbB8hV9+Gh93HU4knwAdx3QO/8sHYCjWWXJdi3p6dcPCAMnNEnavOQ0q22jd4rORV7FreM0X9i2H/LJfnVeLCa33z+Pkkow7KqTUtU73ri5/SoZksu2kJ3g6kO2gwKfEMhJXU=
+	t=1778837668; cv=none; b=tmWt0jffzNJSuEAp9Omk3ht4QOazaxdBt5hjT4H/nLvwKwiIlOjYsHwMQgviR0CvJfE+bhYMkLATxQ4oqyNnObCqZc6WhSVM12/zYGfhDEoveDjA/96SUBlqlZADa4jJCHohMTvc0agAw3ZWjI5TmSBmP1d1CHce77rltahTC84=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778837156; c=relaxed/simple;
-	bh=OQSmcdMGLcht6LgFbXJblFwpoEU39TYz6Vwkm8EsCTg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HpSUgHf70pf4yv2hG877/fgWN5x+45Y4SABsWpdJOGQMQtDez7qIVH5B56bWoqNWXz0lOJJZkK3AEYaW8tQDNYFK/LqO6FC3Lfdfmebg6ks+w1Z+AJfWAkpE5FbBV0ez5vDBnFdZ0hPsBWBkYtKdSGrZ/ODZj8tpxjnOPRC6hzY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A3g8DV11; arc=none smtp.client-ip=209.85.210.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778837668; c=relaxed/simple;
+	bh=HnWWIdvb1tx14H5OxFyttFQM8slsQGnOefYn/wt07h0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=lkzIOLqfByuNWhZM+oIZavOKreCrjrqHn0MkaEiRJ5vjK2xnp0qQCdINb3mDOsdMf/ABGghhKCQmwo6dGGHJoiEc3d6TZ2C40nyGU5RpcgYwprxCWG2jO/iDRJr8fhfCU9ytqGBli+JFNmuy2V8FrWhM6+q3YlE/G1+AHP9ItTE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=c+e93sCw; arc=none smtp.client-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A3g8DV11"
-Received: by mail-pf1-f180.google.com with SMTP id d2e1a72fcca58-83ec36a13e9so3292059b3a.0
-        for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 02:25:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778837155; x=1779441955; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=h187CLLtKoMiP+2/X+09HRYFjKBZCzb1UldAVYewGlw=;
-        b=A3g8DV11mhghB8920NSvUlb7Arae/UyKtz2erAKrMXNnxeaNMHLW5uG902M72edm9e
-         6i4MOjDTiWNm0EfpocogTbPJOBXUO38rTY3nn5xY69ProOMhvINItuTIPp4URseKupV3
-         xFRAayOX7oACC0wkFA7YlRNQjKUwfITorVwHbHfRhKWwrEpClchMeE1cfG0xx2MwVy04
-         y5XffG+a7yM84PIqqBaky3deh6x+eabNFbrNilOOQk80stkTy7IyoBEAg0Ldv+81g0IB
-         YkRrv5WmsXnW/03+dwL+bLGj/ekYXkv3WSnrufPP4pjz2QdYziDIQfHEoUsNLEW/Om0L
-         CiUg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778837155; x=1779441955;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=h187CLLtKoMiP+2/X+09HRYFjKBZCzb1UldAVYewGlw=;
-        b=fxbcFxs8koj0CQcHy462zAB91DzeY8INURZm5be5KDpGXphVOWOHcRSJKpKxp15/4P
-         ivg6oNp7hRPfvZHcdYRwfRgx/WetRvVpwUOAoLqQzxceqtfZe9+3r9RXMuBWW9WOtZ3T
-         ghf6kRnZlAd6mR5r69U6Gj9JzJ2Z8rak53Jh1YBi1QLpjzNWSBaJXLif0IHtKJB/SXWd
-         UuBjnJXMOg27nSZJPXL9Sf3X2DhzRvgzVaPx5nR3dK+QPNkMSdkZchJd2ZWScHiTDwKt
-         M0XzUIHX++mSYtmjoUhBEnJegsMTwaf1pKfxbaoFmw6Bb8dUloScxmVJF35E0GPcA+zK
-         MHCA==
-X-Forwarded-Encrypted: i=1; AFNElJ+bu0JKnNjV8f7DN+h4roCWhwbNoaNGGYebsg9qiELxjyJi462cJ3hyBORpEMU4OjFW+C4U6tXglNI=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzabTlr3Pn8UJOyb4lj1dVHN2/bhkhQoDAz0ASkkE+tSLQjA+ac
-	29XDpNbBvvSrJxHH+2Mb1eBIvN3hTr2xHplke3f97MpZ0XKKdnTXlJUP
-X-Gm-Gg: Acq92OGYaxY24PFHlsd9Rq/Pehi0nr+OevmUrTrgEOF+oErQxNXlSFj5x0S2aBEtKtL
-	q+Jx/JlZz4Zow7rw2LdbX7cVvxl+eHBeS0ElniCczkNUEbKigXBQvOZfiz8hhnyzBGuaMaDzC5Q
-	E5BGQThnfUWzXBFPREZwFL1HUApTQ3utMSNkiVEVUQYwQ4cVhB8OJwI03Q+NneQMWiE1Ex2HfKG
-	cZx3mpbobSZk1i7ui2CFaEymPD7R/uVX7PbVJTvn3NKvMpHCVwwPL2OTpdjt1wBJcFiLWe7yEKc
-	ru9ldSneT6R+BmPguiCsci3bF4F1bYRVEeia6C4rtJ6+ImS4Y4LJb2ybLOLdLa7ZBay0byo0u6D
-	IVPHjb9AXBqjs4Qp87zOlsayK/fOLy2S5tPkhSKDRji5gBMmlg2tzlp6/4YpbWgV6dPbwNwphdB
-	YymSMgWbaJ2To4Mk2iTxXsv4eUTsrm+Vzp/qkVZfUPTdo7zBlfGPZjd41jguIV1wzmxUXyuRv1O
-	nAQwd/5WJs=
-X-Received: by 2002:a05:6a00:2394:b0:83e:c76c:d720 with SMTP id d2e1a72fcca58-83f33c60de3mr3457647b3a.30.1778837154576;
-        Fri, 15 May 2026 02:25:54 -0700 (PDT)
-Received: from chaitanya-virtualbox.. ([103.249.241.55])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-83f2b9bec8fsm3829097b3a.33.2026.05.15.02.25.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 May 2026 02:25:54 -0700 (PDT)
-From: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-To: brgl@kernel.org,
-	andi.shyti@kernel.org
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Chaitanya Sabnis <chaitanya.msabnis@gmail.com>,
-	Sashiko <sashiko-bot@kernel.org>
-Subject: [PATCH v3] i2c: davinci: fix division by zero on missing clock-frequency
-Date: Fri, 15 May 2026 14:55:20 +0530
-Message-ID: <20260515092520.9006-1-chaitanya.msabnis@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="c+e93sCw"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1778837667; x=1810373667;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=HnWWIdvb1tx14H5OxFyttFQM8slsQGnOefYn/wt07h0=;
+  b=c+e93sCwZqPdfHZsRWRCVp3QzFeRK/bKAXHZnQITj4wu20eUQLdLD41y
+   lK+/FJaeKdVXTTzKuuO/fNolMVg4XVNNExaoe5uDzWmTc25h4doZbRWPJ
+   dQ+L1izLrPvm2iu3BMToEYY8c0oP5YI9ZIHU7DOu/FNf+/o+z0Di48wxo
+   I6E9LO17JmSec7rfwb6sbxksmVRSXzIBU+7CcETOJhd5QbCFKuaImr8UE
+   frnIt65DcgnwlsaPkKMHvG3Qdm50QLKqj10anfe8KdPL/6GZndINLwfcd
+   WYzGiJASPn0CZjLQb/Zyxm6f0dR0bJGJFl+GUhJQSnIEI60wBnqSAodQ0
+   Q==;
+X-CSE-ConnectionGUID: 5MwWrlgQT+uYnGU18toGxA==
+X-CSE-MsgGUID: cSy3WDYvRyKDyT5NTmP4tw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11786"; a="83646722"
+X-IronPort-AV: E=Sophos;i="6.23,236,1770624000"; 
+   d="scan'208";a="83646722"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 May 2026 02:34:26 -0700
+X-CSE-ConnectionGUID: S9W6yTTYRiO5QoHLzCyFTg==
+X-CSE-MsgGUID: 4A/IikBIQEWuafcqoW/syQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,236,1770624000"; 
+   d="scan'208";a="237661813"
+Received: from vpanait-mobl.ger.corp.intel.com (HELO localhost) ([10.245.245.33])
+  by orviesa006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 May 2026 02:32:34 -0700
+Date: Fri, 15 May 2026 12:32:32 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: thomas <thomas_lin@lecomputing.com>
+Cc: rafael@kernel.org, lenb@kernel.org, hoan@os.amperecomputing.com,
+	linusw@kernel.org, brgl@kernel.org, mika.westerberg@linux.intel.com,
+	jsd@semihalf.com, andi.shyti@kernel.org, broonie@kernel.org,
+	linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-spi@vger.kernel.org, lucas_hao@lecomputing.com,
+	puntar_liu@lecomputing.com, jihua_tao@lecomputing.com,
+	stan_xu@lecomputing.com, lumin_liu@lecomputing.com,
+	notics_zhang@lecomputing.com, braden_zhang@lecomputing.com,
+	harold_wu@lecomputing.com, will_zhang@lecomputing.com,
+	aurora_jiang@lecomputing.com, ryen_lin@lecomputing.com,
+	andy_jiang@lecomputing.com
+Subject: Re: [PATCH 2/3] spi: dw-mmio: Add LECARC ACPI ID and init hook
+Message-ID: <agboMC07Xojt5x2c@ashevche-desk.local>
+References: <20260514024014.3376511-1-thomas_lin@lecomputing.com>
+ <20260514024014.3376511-3-thomas_lin@lecomputing.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260514024014.3376511-3-thomas_lin@lecomputing.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-When the 'clock-frequency' property is missing from the device tree,
-the driver falls back to DAVINCI_I2C_DEFAULT_BUS_FREQ. However, this
-macro was defined in kHz (100), whereas the device tree property is
-expected in Hz.
+On Thu, May 14, 2026 at 10:40:11AM +0800, thomas wrote:
+> Add ACPI ID "LECA0002" for LECARC SoCs. This ID requires a custom
+> initialization function dw_spi_lecarc_init() that sets dws->dws.ip
+> to DW_HSSI_ID.
+> 
+> Also add corresponding ACPI description in acpi_apd.c.
 
-The probe function divided the fallback value by 1000, causing
-integer truncation that resulted in dev->bus_freq = 0. This triggered
-a deterministic division-by-zero kernel panic when calculating clock
-dividers later in the probe sequence.
+...
 
-Fix this by redefining DAVINCI_I2C_DEFAULT_BUS_FREQ in Hz (100000)
-to match the expected device tree property unit, allowing the existing
-division logic to work correctly for both cases.
+>  	{ "HISI02A3", APD_ADDR(hip08_lite_i2c_desc) },
+>  	{ "HISI0173", APD_ADDR(hip08_spi_desc) },
+>  	{ "NXP0001", APD_ADDR(nxp_i2c_desc) },
+> +	{ "LECA0002", APD_ADDR(leca_spi_desc) },
 
-Fixes: b04ce6385979 ("i2c: davinci: kill platform data")
-Reported-by: Sashiko <sashiko-bot@kernel.org>
-Closes: https://lore.kernel.org/all/20260514044726.57297C2BCB7@smtp.kernel.org/
-Signed-off-by: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
----
- drivers/i2c/busses/i2c-davinci.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+Keep them ordered or close enough to be ordered. Id est in this case
+locate it before NXP.
 
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index a773ba082321..a264a480dc3c 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -117,7 +117,7 @@
- /* timeout for pm runtime autosuspend */
- #define DAVINCI_I2C_PM_TIMEOUT	1000	/* ms */
- 
--#define DAVINCI_I2C_DEFAULT_BUS_FREQ	100
-+#define DAVINCI_I2C_DEFAULT_BUS_FREQ	100000
- 
- struct davinci_i2c_dev {
- 	struct device           *dev;
-@@ -761,9 +761,7 @@ static int davinci_i2c_probe(struct platform_device *pdev)
- 	r = device_property_read_u32(&pdev->dev, "clock-frequency", &prop);
- 	if (r)
- 		prop = DAVINCI_I2C_DEFAULT_BUS_FREQ;
--
- 	dev->bus_freq = prop / 1000;
--
- 	dev->has_pfunc = device_property_present(&pdev->dev, "ti,has-pfunc");
- 
- 	dev->clk = devm_clk_get(&pdev->dev, NULL);
+...
+
+> +static int dw_spi_lecarc_init(struct platform_device *pdev,
+> +			     struct dw_spi_mmio *dwsmmio)
+> +{
+> +	dwsmmio->dws.ip = DW_HSSI_ID;
+> +
+> +	return 0;
+> +}
+
+dw_spi_intel_init() is the same, why not reusing it?
+
+Note, if uncomfortable with the name, make a patch to rename it to something like
+dw_spi_hssi_no_dma_init().
+
 -- 
-2.43.0
+With Best Regards,
+Andy Shevchenko
+
 
