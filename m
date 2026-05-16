@@ -1,124 +1,209 @@
-Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
+Received: from mail-yx1-f51.google.com (mail-yx1-f51.google.com [74.125.224.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61B893F8EC3
-	for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 23:41:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778888494; cv=none; b=TT5i+8FHkK2Lur9GOdR1lT3D/j7ipPlDaNKVWT1obSGta24xPBQXjdn1kikCLAg+WbGJrWt7llwrmJcvd6XjITLlehhFhZN4bGGq3xrQulW/WXN+3XbN1BN3FNH5sih21qiW9AioiaswKICQGybaC9aE+wsdtNIEZdg1qX3DHLc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778888494; c=relaxed/simple;
-	bh=C+qF5H05m+lMwqOx/0QVVROjNJSEOi/BBdhavGVTfi4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iU+new/JTuiAso4GRAhlVFfONKIUgrglTK64B4aDvXb44+ZRQy1uw5H6TJfHm9OdwdLOSJCBiUDL4t7qcBlciUR8246Iac1Z6Qa9BgwEp1biB1RnSBqhokf15gHkAoTA+CrnevyF5lUMPcipOAnjj7v5w8riDXPzuumo4wxmXqE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=WoDUEDRt; arc=none smtp.client-ip=209.85.167.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 033231F4611
+	for <linux-i2c@vger.kernel.org>; Sat, 16 May 2026 01:27:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.51
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778894857; cv=pass; b=fRRVR5RiQ+u95sdS0JnniDA9IhSwkh30tJc76rvIdWpiUfXz9PNCjbaj6f9NtXN7FlHk8IJn1j1KvLdUMpjZlPqMGpHgWAclI1VGjbybtknROL7O0tgqqtaZZX6uDiP6u6hj932R6yP5M0S5R9QQihGjyDzp0qp3pu3rfkZDkEM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778894857; c=relaxed/simple;
+	bh=bW7QzCTqcRsx/T9yD6fdRoLOs7bmToMIW9FFX1/ogbo=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=I7b6exU15DEi+DVuDXK0XexC6HL3K8mzDOiq4Sdb21SiDvJfZc7VJR7dEAsomxU/kLX0Ol2SVHoiXw0Y9+yHAfx+RXG0cJCeyoWkepJ/7f66ii76nevGry/OcPJ6pKym84j6ZqbSn/Hsagl3Ns5zwwMjZumZOgKcTLO7AuRnRe4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LWcbzqZd; arc=pass smtp.client-ip=74.125.224.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="WoDUEDRt"
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-5a875ca312eso40448e87.3
-        for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 16:41:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LWcbzqZd"
+Received: by mail-yx1-f51.google.com with SMTP id 956f58d0204a3-651c366f7efso767436d50.1
+        for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 18:27:35 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778894855; cv=none;
+        d=google.com; s=arc-20240605;
+        b=WF0PrMvW3QVFasMIpLk/tlnz68/UFtOJ6BqPz510M2j5KV/KDpwx2rBikG0RTb3q9y
+         A+urxKidzxqQSTAe2cul+dukjWiovxvqYuevMmPDkQd9qQD4hCTz/hKpzGTmz9XkxiDf
+         ANQ6SfWR94WvhT+dtqUYJguWAC+h0dKYqn/ThgeCG5xz3bY1k5H9rrizd6XYK3sk8Ie5
+         Lu4gZno29rX2ki4tgAUhP/sq0zXalmquSEf2m4w7K2UZKHIjLVH9ddF5so280lRUpJv+
+         M2C4nOtl7o3QKuLMRSYAuP8JMPOdm5F7RJYmi1zzX8CdsxOzigJnmYBb4DxWYkUtnisC
+         JqGQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=L9FZebPfxjmKa8vSCx4bP2RNfwPyM+VKakDWUr1Bhyk=;
+        fh=Gv7utp19iUjMHFEYvlFmcYbAdz6qZYG/Sn53CSQwps8=;
+        b=akIUFO0Xeoxa9fnhODbSP84bwUMKrbIi9wpnVgZCbodzs5ii7hoIKEsPes3ONEzals
+         SBGIQ8uXPc2SymWfEOSkTq0DB5ACqu3HQ6mWRLAMiz+Xf6k22xQ06wdJUrQaHNywtdGk
+         TrHZK+nVf0PeRCl8YF0p4EJAjstYm3ahgRVQbkuutsH9XP8bOR9ceRfNFIOiWj/NJluq
+         za5qEUaXCTzExxjtdezEPWjU30PY/PrCE+wIuEcVKMajMzZYDDa77mNCt3vr0JYSNXyR
+         G1BwxlFh8P1kQXPrzecLNBdEvR32LWisVVX+MqXIkjAPP6HJWYDwp/1PCUOuExJeocjU
+         7Jyg==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1778888492; x=1779493292; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1778894855; x=1779499655; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=9dfTgLeE5mGQ13g3PRCIVRX0SnrFeZ5bvGsKRjJIG5Q=;
-        b=WoDUEDRtzMtlMHlNR98zjQcyVL/nLji1foFO3kNwl+nwqRsp1wbz2HiafpS16V7C04
-         IeBZuadgkyRoz7Zf5QUABAbUJ6hXZc9edCxDfYJyKRel9NCU0HhehBETz20/twfR3LzZ
-         FCoqWQxi3mjVLiVZ8eGfMh4zu8I9+cPW2CyocEr6L9FOQOiju4K6k5SqAneVGeFt8zC8
-         S3UyrhbFqyCAyw5BOZNl4IihC5d2pD9c8vTudBkNQCwjIVjXlAQQns123/YTi6h2IwuK
-         9eZicbSsAaIhWfekP91dKL+iSY/lsdfLgLEOkg783BJaVyyZnLWv/mRyjJblGf7RDCCy
-         RaIg==
+        bh=L9FZebPfxjmKa8vSCx4bP2RNfwPyM+VKakDWUr1Bhyk=;
+        b=LWcbzqZd/ovl4FjDDMeathj9xRY2PX2MuSg5fhkGp9BjmSiVp6ReTrHPqdsIeuyWNF
+         ZZwU+n/icY/by9OZY6l7VnzDEexmXz3IusKOPtyMTPMC4UAQIKDSIowBbT5CLr+5xsrO
+         +yN6vYzuLCnMpgnhuR47reycdF9IrfOQ28P6wor5jFZhccyu67Sb1ZR8GpAa0Sm6pXvL
+         WAfUQ3mXegfD4mXHhXaiRpxVScLSQPVKaSgsC2wNTPsZM+QmC3nflT7xRWUYmdA1Ixk1
+         bfalYICFv/315dhs1sK4yh7oaylMEH46OV6r4Bhro7fDzMWcewJb8nI4AOYhVpuy1o3V
+         d63w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778888492; x=1779493292;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1778894855; x=1779499655;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=9dfTgLeE5mGQ13g3PRCIVRX0SnrFeZ5bvGsKRjJIG5Q=;
-        b=Le1z59QEo2zPhtaA1yuUj0ocefKmAYXqbpgRey8lb3+VO3pU9bQvFDh08NBt9h4dua
-         m+HqvNO76fsQqIIzKJofgdd+yVRigKr7g00pcX8X7rLN8Mc+DYxHI/8HCO6EUHOYTs95
-         Y7OJt6J1qwW6fnPN5spCGo3csIhntwg9RVV6/y6QHKla2+/X35k3Kr5aKx0/yAJShTs1
-         KnaR2WgbQVkokYHq/zqnMeP/zB0zpcBGUmWdD9ZYI11oNR/xBJx7QOjYneo+Pd+DpuNd
-         KFYXULJODYUegCHLaFwMz0oBdIVBN3oDZNDiA7GCEFJR9cXQw8e74x7j7RBS3T5X0RQF
-         gX2Q==
-X-Forwarded-Encrypted: i=1; AFNElJ/qks2h8fKr2F7d6+MS7qKuatrm1eGilqtYfVtnPkiObxSIh32Q9rwpyawhOLFzy1U7IgbFYbx3w3w=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwzKQ++2xWpmk3oQ94NB+SJUeWBqbUDL4X+XQeuoRteU788IBzR
-	0uzPPwr0/yKW0aGAOPnl4ByffRxPwWPX863vZW371wFAT5uLz0/7Fb9Lco8tHBaxRiY=
-X-Gm-Gg: Acq92OHc275eZCvqNRFnlYzI/S+2SI0ZECUqAjeAWd5cy2gEMab3ZpRvvuQ24QR/srZ
-	xu4l3h3FQCxR/oKidUqWvED7xYf9qVnWSboa8a+jW01Ea+ggHdO4xpsxJziBbKHqNA3ZUDP3LJK
-	vk1wM6TWps+zG2CT7akB1KOwmFskiGaNgn6zM17bE7UxjkNxAYWJgtbWTv6wnIMzRWki83sDMYc
-	q2lgSRjTDLySnZqJAPQYa/n12TmY4ddxhu17/QN6himWXcb2HHeCDpwrXDeVx4NaQ4LKpMK8iRL
-	/SC0+WrdOSCVL0XffwitAYQZvCnPAFAdj86xrZaGjLYz83BSMTV6serOUX2l8Cj1BsxOMP/f8jQ
-	xRLz4sLbfVDE9n+GGzaG9kYjaMQKGhtkPdxVl+LD7wlxJNA1NEHNaeauG5lICyN4dKHOneoMpaF
-	CC51DhdNroaCev/WxrGL245TsHIu50DsUTz1WP65ko/ZFzUm1P6fimrz8k2uzkL6ifWQ==
-X-Received: by 2002:a05:6512:31c4:b0:5a8:98b7:b69a with SMTP id 2adb3069b0e04-5aa0e76b273mr967880e87.1.1778888491634;
-        Fri, 15 May 2026 16:41:31 -0700 (PDT)
-Received: from thyme.. (91-159-24-186.elisa-laajakaista.fi. [91.159.24.186])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5a90f10c710sm1631384e87.7.2026.05.15.16.41.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 May 2026 16:41:31 -0700 (PDT)
-From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-To: Loic Poulain <loic.poulain@oss.qualcomm.com>,
-	Robert Foss <rfoss@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>
-Cc: Bjorn Andersson <andersson@kernel.org>,
-	linux-i2c@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org
-Subject: [PATCH v2 4/4] i2c: qcom-cci: Remove overcautious disable_irq() calls
-Date: Sat, 16 May 2026 02:41:21 +0300
-Message-ID: <20260515234121.1607425-5-vladimir.zapolskiy@linaro.org>
-X-Mailer: git-send-email 2.49.0
-In-Reply-To: <20260515234121.1607425-1-vladimir.zapolskiy@linaro.org>
-References: <20260515234121.1607425-1-vladimir.zapolskiy@linaro.org>
+        bh=L9FZebPfxjmKa8vSCx4bP2RNfwPyM+VKakDWUr1Bhyk=;
+        b=Hk3o1fbDKpUyp7WXAs/nfDluxqc4ZiqA28pOMXPQoVSk/ZYFPpf0OscSle+aegnsAT
+         zhw+qzYVRmF0ezRVyMGXhzEV5PSnmE7RFdWHFQIXxHr6OA0ht9rAUOtxAO1yiiE0Ihs4
+         X4nV4w27asUGYfdqH2ur9GNXE1knJ9LDnFbzAuPswPWue+tdMu/9vloKejLKmbIqMltU
+         n58NhsJx1JGFOrM5lSyLQIwTh3jxlmUst/7hRF3AHQZhWiWwqviX8f3PXNIexlQ2uQXE
+         lSLWFeT5k8X7YGsa5eoC7GujklRfW9TqPu92wga6Y5fcHrwEIhUZ6HEXsiUyXdUazY7X
+         PUFQ==
+X-Gm-Message-State: AOJu0YxLRMQLZrNGvE8fUcEvpLTxwB7z3kAkqQzId8FZ1ia1wSajgB/5
+	7j41HFPuXRQkGOfEWh0ZQOUX4SGciOReBkh9cIr+qTd9xYZooDmwoL9U6AhDwdPoluXyWLrUdCX
+	Gqqm1e4qJ9zWhn+MfPDH27Z4YUMaYdqM=
+X-Gm-Gg: Acq92OE47fwTqvGAXQws0EVbXsKlJb3c6CuUFlYVBLDvkfZ3bldhC+77PcBnVRlZ58c
+	NqjrV+tmBeIa+jL6Dm57eIKXcfZfuyGOOYWTFQEtNNw7LOygTAv6P15c4UA+ZmjkOpf+SpxmmKt
+	HuHjTmvI0fgPQeMlhz0yt9/mPENKLB5ZCZ8vVY/klDb6fS4dlooFUP/67CMNFAJtaoMtBw99qJ2
+	YXk03Ud6OwFm00BTZoqAOUd08NX40qCh2HgZyz+zXMWnk+rVY/LPmvhvXjUqfF2urs/nG01m73/
+	dNKP5B5sjrMw+OG8M4GQc2iK6u6287T5LxtMRm1X3mN4MmPz5cR8Sn3aJdh+YGYkh0ZoO+6x4i6
+	LbG8H584t73TMHJJaeLH6LV6yoJU9oyHj7rBA5Tcbx0Vm6VJ5f0YoSUaqhp0=
+X-Received: by 2002:a53:c05b:0:10b0:65d:5702:3373 with SMTP id
+ 956f58d0204a3-65e228469f1mr5969955d50.33.1778894854916; Fri, 15 May 2026
+ 18:27:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260515161516.10474-1-hardikprakash.official@gmail.com> <32e96be9-a987-4847-b02d-d288f3fbeeb2@amd.com>
+In-Reply-To: <32e96be9-a987-4847-b02d-d288f3fbeeb2@amd.com>
+From: Hardik Prakash <hardikprakash.official@gmail.com>
+Date: Sat, 16 May 2026 06:57:23 +0530
+X-Gm-Features: AVHnY4KJPM6i6_WJQA-9eYv2Vf-xc3JrjXWgEPVFiQ1CaIVYdKqcVVMtCjHedSs
+Message-ID: <CANTFpSV91DjxSFSmc5gCQ5YTy+Oubg11+55V3z-Xg2nM8TKvpA@mail.gmail.com>
+Subject: Re: [PATCH v3 0/1] i2c: designware: fix probe ordering for AMD GPIO
+ on Lenovo Yoga 7 14AGP11
+To: Mario Limonciello <mario.limonciello@amd.com>
+Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org, 
+	andriy.shevchenko@intel.com, brgl@bgdev.pl, basavaraj.natikar@amd.com, 
+	linus.walleij@linaro.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-In cci_probe() the controller's interrupt is requested using a devres
-managed API, and in cci_probe() error path and cci_remove() it'd be
-safe to rely on devres mechanism to free and shutdown the interrupt,
-thus explicit disable_irq() calls can be removed as unnecessary ones.
+On Fri, May 15, 2026 at 23:04, Mario Limonciello wrote:
+> I have another idea.  Why don't we just move pinctrl-amd to initialize
+> earlier?  That should avoid the problem without more quirks I think.
 
-Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
----
- drivers/i2c/busses/i2c-qcom-cci.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+I tested this. Here are the results across four combinations on my
+machine (Lenovo Yoga 7 14AGP11 (83TD)):
 
-diff --git a/drivers/i2c/busses/i2c-qcom-cci.c b/drivers/i2c/busses/i2c-qcom-cci.c
-index 2d73903f14d3..4d64895a9e9e 100644
---- a/drivers/i2c/busses/i2c-qcom-cci.c
-+++ b/drivers/i2c/busses/i2c-qcom-cci.c
-@@ -608,7 +608,7 @@ static int cci_probe(struct platform_device *pdev)
- 
- 	ret = cci_reset(cci);
- 	if (ret < 0)
--		goto error;
-+		goto disable_clocks;
- 
- 	pm_runtime_set_autosuspend_delay(dev, MSEC_PER_SEC);
- 	pm_runtime_use_autosuspend(dev);
-@@ -638,8 +638,6 @@ static int cci_probe(struct platform_device *pdev)
- 			of_node_put(cci->master[i].adap.dev.of_node);
- 		}
- 	}
--error:
--	disable_irq(cci->irq);
- disable_clocks:
- 	cci_disable_clocks(cci);
- 
-@@ -659,7 +657,6 @@ static void cci_remove(struct platform_device *pdev)
- 		}
- 	}
- 
--	disable_irq(cci->irq);
- 	pm_runtime_disable(&pdev->dev);
- 	pm_runtime_set_suspended(&pdev->dev);
- }
--- 
-2.49.0
+  subsys_initcall alone:            arbitration errors, WACF2200 does not p=
+robe
+  subsys_initcall + patch 1:        arbitration errors persist
+  patch 1 alone:                    arbitration errors persist
+  patch 1 + patch 2 (v3):          clean boot, touchscreen fully functional
 
+The subsys_initcall promotion does not seem to resolve the race on
+this hardware,
+i2c_designware is still probing AMDI0010:02 before pinctrl-amd finishes
+regardless of the earlier initcall level. The explicit device_is_bound()
+deferral in patch 2 appears to be necessary to enforce the ordering.
+
+I can provide the full dmesg for any combination, if it is useful.
+
+Thanks,
+Hardik
+
+On Fri, 15 May 2026 at 23:04, Mario Limonciello
+<mario.limonciello@amd.com> wrote:
+>
+>
+>
+> On 5/15/26 11:15, Hardik Prakash wrote:
+> > The Wacom WACF2200 touchscreen on the Lenovo Yoga 7 14AGP11 (83TD) is
+> > non-functional on Linux due to two bugs. Patch 1 (pinctrl-amd GPIO IRQ
+> > fix) has already been taken into Linus Walleij's tree. This v3 resend
+> > covers patch 2 only, addressing Andy Shevchenko's formatting feedback.
+> >
+> > Root cause: i2c_designware probes AMDI0010:02 before pinctrl-amd's
+> > probe completes, so GPIO 157 (WACF2200 GpioInt per ACPI _CRS) has its
+> > interrupt bits cleared when the first I2C transaction is attempted,
+> > causing lost arbitration errors. The udev rebind workaround (which
+> > works because pinctrl-amd has finished by userspace time) confirms
+> > probe ordering as the root cause.
+> >
+> > Note: the dual-master hypothesis raised by Mario Limonciello was
+> > investigated. TPNL's _DSM (UUID 3cdff6f7-4267-4555-ad05-b30a3d8938de)
+> > is a pure query method returning a constant HID descriptor address with
+> > no side effects, making firmware acting as secondary I2C master unlikel=
+y
+> > on this hardware. Awaiting Mario and Bart's technical verdict before
+> > any further approach changes.
+> >
+> > v3:
+> >   - Patch 2 only (patch 1 already in Linus Walleij's tree)
+> >   - Fix variable declaration style in dw_i2c_needs_amd_gpio_dep (Andy S=
+hevchenko)
+> >   - Add BugLink tag (Andy Shevchenko)
+> >   - Add -v3 subject versioning (Andy Shevchenko)
+> >   - CC AMD engineers (Andy Shevchenko)
+> >
+> > v2:
+> >   - Replace custom HID/UID lookup with acpi_dev_get_first_match_dev() (=
+Andy Shevchenko)
+> >   - Use acpi_get_first_physical_node() for platform device lookup
+> >   - Use device_is_bound() under device_lock() with explanatory comments
+> >   - Fix dev_warn to use dev_name() instead of hardcoded suffix
+> >   - Fix commit message (removed incorrect "existing" reference)
+> >   - Add Assisted-by tags per coding-assistants.rst
+> >
+> > Kernel bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=3D221494
+> > Related: https://bugzilla.kernel.org/show_bug.cgi?id=3D221454
+> >
+> > Hardik Prakash (1):
+> >    i2c: designware: fix probe ordering for AMD GPIO on Lenovo Yoga 7
+> >      14AGP11
+> >
+> >   drivers/i2c/busses/i2c-designware-platdrv.c | 77 ++++++++++++++++++++=
++
+> >   1 file changed, 77 insertions(+)
+>
+> I have another idea.  Why don't we just move pinctrl-amd to initialize
+> earlier?  That should avoid the problem without more quirks I think.
+>
+> Something like this:
+>
+> =E2=95=B0=E2=94=80=E2=9D=AF git diff
+> diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.=
+c
+> index e3128b0045d22..56a189082351b 100644
+> --- a/drivers/pinctrl/pinctrl-amd.c
+> +++ b/drivers/pinctrl/pinctrl-amd.c
+> @@ -1292,7 +1292,18 @@ static struct platform_driver amd_gpio_driver =3D =
+{
+>          .remove         =3D amd_gpio_remove,
+>   };
+>
+> -module_platform_driver(amd_gpio_driver);
+> +static int __init amd_gpio_init(void)
+> +{
+> +       return platform_driver_register(&amd_gpio_driver);
+> +}
+> +subsys_initcall(amd_gpio_init);
+> +
+> +static void __exit amd_gpio_exit(void)
+> +{
+> +       platform_driver_unregister(&amd_gpio_driver);
+> +}
+> +module_exit(amd_gpio_exit);
+>
+>   MODULE_AUTHOR("Ken Xue <Ken.Xue@amd.com>, Jeff Wu <Jeff.Wu@amd.com>");
+>   MODULE_DESCRIPTION("AMD GPIO pinctrl driver");
+> +MODULE_LICENSE("GPL");
+>
