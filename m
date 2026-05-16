@@ -1,255 +1,286 @@
-Received: from mout-p-103.mailbox.org (mout-p-103.mailbox.org [80.241.56.161])
+Received: from courrier.aliel.fr (courrier.aliel.fr [65.21.61.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2AA3405C22
-	for <linux-i2c@vger.kernel.org>; Sat, 16 May 2026 09:52:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.161
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D640405C3A;
+	Sat, 16 May 2026 15:17:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.21.61.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778925157; cv=none; b=Fvh8Tm39eQlKl+7/VbzUnTd1ODcKw2U+kj31r1HgrrTBaGXa8+sXpnHqpBo2yj/yvUAAT/eX7mxgWGzxoFqRkuyv2jCiXuHCmgLtb1ezWDaO9ROq6z7tSJxSzRzwnc/dPBNkP83u0bM/DU47n0LCfh9KsLJc5n5dL7sP27QnQRE=
+	t=1778944646; cv=none; b=L2I4UGBRynfKsMPmGZ/dQWLTKa2G8QcnuFz574RKaHiUqBKARZOOrzHSbeygOhP7Ubu+TFJ2ONaSmAXgMhtM5SpTFIIPQARqFoIY8jWHoGok1pIrGYZYK+rvhlxfNtzWrWIAmcuHGscB5skYKlaFNC1/UC71LMlmN7CDAJZ3I/Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778925157; c=relaxed/simple;
-	bh=6R86EKotdJguqux4SL05cbGW9ZvVft72UJWoCkZ2BQQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=j+Adf5BxxTPxv0vsm0QYkwB8D/9M7srIg17b2jMyvlAzrIxtZ/loF+lRSex3GuB/9QhxWPqKPg8TjPl/t6z7euprWQp8uNUO8ZMur7yonnxMNFfRftzztfc7l2kY4yi7+4iLbgmvk/D/uzO+rKvCdvEsDrc73SAkRzQ9fsCJmYg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=bohner.me; spf=pass smtp.mailfrom=bohner.me; dkim=pass (2048-bit key) header.d=bohner.me header.i=@bohner.me header.b=VYLEd9h8; arc=none smtp.client-ip=80.241.56.161
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=bohner.me
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bohner.me
+	s=arc-20240116; t=1778944646; c=relaxed/simple;
+	bh=O7wIGuzhX4RxL35efQuwMtvJrnGNwx9gEjo3jv3h1co=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=OLq3SoK1Oo+Td7sF0Q1TnsLXC45MjZl4Qp5dHeHSJZwRsWtwWqfU3V+uyzKaBjyBEJJLlBMRaWiLIxGeDHZwQHz3gybwhcCbFLP7srCuzFBlpTyVJmzc/CWn8mfJOKDex7SPBiU8bz8R3dFGJentSbYmNvnjvzU6brBGwd9FBuo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aliel.fr; spf=pass smtp.mailfrom=aliel.fr; dkim=pass (1024-bit key) header.d=aliel.fr header.i=@aliel.fr header.b=id/Chqy0; arc=none smtp.client-ip=65.21.61.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aliel.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aliel.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bohner.me header.i=@bohner.me header.b="VYLEd9h8"
-Received: from smtp1.mailbox.org (smtp1.mailbox.org [IPv6:2001:67c:2050:b231:465::1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-103.mailbox.org (Postfix) with ESMTPS id 4gHfVs5nqtz9tt9;
-	Sat, 16 May 2026 11:52:21 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bohner.me; s=MBO0001;
-	t=1778925141;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=6SHfwhLV/+hl9UNq1+/IC15UwC5DcJEWhxzCu95hEl0=;
-	b=VYLEd9h8HOgzXnZjez58lNWZKLjq+C+u4YQVdhXRAMIn1py3s9k+2SAmpbi15V+yMKMGkr
-	jeVShsVay9NmGk4AVwBDz3ZSLFIgkquQw/oFyrNuaK8vChfnJ08FRjrteAkoPzftgz/nTi
-	3lOxtrhgxI9ABCoFamWgnJaR1iNR4xf5Gzo8qvc50RTHEZGBMhuwO96zOKZWq0WHeBdQ2H
-	E7pwaOHt47TxxB83pjbaEue7UhwPgP7rI4Lz+aHxdFfY3OxJhzePxH18UE8WjATGTuZkOr
-	xECcPENE/qPhWelBVso01k70c8PwXrV0F9e8m4wGo/fcFNjiEwaQr5ls2H4pqw==
-Authentication-Results: outgoing_mbo_mout;
-	dkim=none;
-	spf=pass (outgoing_mbo_mout: domain of peter@bohner.me designates 2001:67c:2050:b231:465::1 as permitted sender) smtp.mailfrom=peter@bohner.me
-From: Peter Bohner <peter@bohner.me>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Jean Delvare <jdelvare@suse.com>,
-	linux-i2c@vger.kernel.org
-Cc: Peter Bohner <peter@bohner.me>
-Subject: [PATCH v2] i2c: i2c-stub: support for I2C_FUNC_I2C
-Date: Sat, 16 May 2026 11:43:51 +0200
-Message-ID: <20260516095215.861174-1-peter@bohner.me>
+	dkim=pass (1024-bit key) header.d=aliel.fr header.i=@aliel.fr header.b="id/Chqy0"
+Message-ID: <4d4fa560-6115-4065-8472-50f8acb14436@aliel.fr>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aliel.fr;
+	s=courrier-s1; t=1778944635;
+	bh=O7wIGuzhX4RxL35efQuwMtvJrnGNwx9gEjo3jv3h1co=;
+	h=Date:From:Subject:To:Cc:References:In-Reply-To;
+	b=id/Chqy0k/nRhbaLSSTVUYtMeD+KkJ2cgtpTaX/+PHGM1VvcaZN/3pfG1ONuTLKgp
+	 muWK9a7rdDl6d7mWWPruD+VVaBLx8nrThnQ9A6jGF7Q+dH4mibJ4vSCn3VQfvgH6o/
+	 88odJvyRsoPC0NdrbdlF8wt7MVBnjQyHHW/jH5J0=
+Date: Sat, 16 May 2026 17:17:12 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird Beta
+From: Ronald Claveau <linux-kernel-dev@aliel.fr>
+Subject: Re: [PATCH v5 4/8] mfd: khadas-mcu: Add support for VIM4 MCU variant
+To: Lee Jones <lee@kernel.org>
+Cc: Neil Armstrong <neil.armstrong@linaro.org>, Rob Herring
+ <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>,
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+ Beniamino Galvani <b.galvani@gmail.com>,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ Lukasz Luba <lukasz.luba@arm.com>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, linux-amlogic@lists.infradead.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-pm@vger.kernel.org
+References: <20260424-add-mcu-fan-khadas-vim4-v5-0-afcfa7157b23@aliel.fr>
+ <20260424-add-mcu-fan-khadas-vim4-v5-4-afcfa7157b23@aliel.fr>
+ <20260514105459.GJ305027@google.com>
+Content-Language: en-US
+In-Reply-To: <20260514105459.GJ305027@google.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Queue-Id: 4gHfVs5nqtz9tt9
+
+Thanks for your review Lee.
+
+On 5/14/26 12:54 PM, Lee Jones wrote:
+> On Fri, 24 Apr 2026, Ronald Claveau via B4 Relay wrote:
+> 
+>> From: Ronald Claveau <linux-kernel-dev@aliel.fr>
+>>
+>> Refactor probe() to use per-variant khadas_mcu_data
+>> instead of hardcoded globals.
+>>
+>> Add dedicated regmap configuration and device data for the VIM4 MCU,
+>> with its own volatile/writeable registers.
+>>
+>> Add the fan control register
+>> (0–100 levels vs 0–3 for previous supported boards).
+>>
+>> Add a new compatible string "khadas,vim4-mcu".
+>>
+>> Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+>> Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
+>> ---
+>>  drivers/mfd/khadas-mcu.c | 106 ++++++++++++++++++++++++++++++++++++++++++-----
+>>  1 file changed, 95 insertions(+), 11 deletions(-)
+>>
+>> diff --git a/drivers/mfd/khadas-mcu.c b/drivers/mfd/khadas-mcu.c
+>> index ba981a7886921..b36b3b3ab73c0 100644
+>> --- a/drivers/mfd/khadas-mcu.c
+>> +++ b/drivers/mfd/khadas-mcu.c
+>> @@ -75,15 +75,91 @@ static const struct regmap_config khadas_mcu_regmap_config = {
+>>  	.cache_type	= REGCACHE_MAPLE,
+>>  };
+>>  
+>> +static const struct khadas_mcu_fan_pdata khadas_mcu_fan_pdata = {
+>> +	.fan_reg	= KHADAS_MCU_CMD_FAN_STATUS_CTRL_REG,
+>> +	.max_level	= 3,
+>> +};
+> 
+> What is 3?
+> 
+
+This is the max fan speed level as defined in the MCU register.
+I will add it as a comment.
+/* Fan speed: 0 = off, 1 = low, 2 = medium, 3 = high */
+
+>> +
+>>  static struct mfd_cell khadas_mcu_fan_cells[] = {
+>>  	/* VIM1/2 Rev13+ and VIM3 only */
+>> -	{ .name = "khadas-mcu-fan-ctrl", },
+>> +	{
+>> +		.name = "khadas-mcu-fan-ctrl",
+>> +		.platform_data = &khadas_mcu_fan_pdata,
+>> +		.pdata_size    = sizeof(khadas_mcu_fan_pdata),
+>> +	},
+>>  };
+> 
+> Worth making this const at one point.
+> 
+
+Yes I will.
+>>  
+>>  static struct mfd_cell khadas_mcu_cells[] = {
+>>  	{ .name = "khadas-mcu-user-mem", },
+>>  };
+>>  
+
+I will for that one too.
+
+>> +static const struct khadas_mcu_data khadas_mcu_data = {
+>> +	.regmap_config	= &khadas_mcu_regmap_config,
+>> +	.cells		= khadas_mcu_cells,
+>> +	.ncells		= ARRAY_SIZE(khadas_mcu_cells),
+>> +	.fan_cells	= khadas_mcu_fan_cells,
+>> +	.nfan_cells	= ARRAY_SIZE(khadas_mcu_fan_cells),
+>> +};
+> 
+> This is a red flag!
+> 
+>> +static bool khadas_mcu_vim4_reg_volatile(struct device *dev, unsigned int reg)
+>> +{
+>> +	switch (reg) {
+>> +	case KHADAS_MCU_PWR_OFF_CMD_REG:
+>> +	case KHADAS_MCU_VIM4_REST_CONF_REG:
+>> +	case KHADAS_MCU_WOL_INIT_START_REG:
+>> +	case KHADAS_MCU_VIM4_LED_ON_RAM_REG:
+>> +	case KHADAS_MCU_VIM4_FAN_CTRL_REG:
+>> +	case KHADAS_MCU_VIM4_WDT_EN_REG:
+>> +	case KHADAS_MCU_VIM4_SYS_RST_REG:
+>> +		return true;
+>> +	default:
+>> +		return false;
+>> +	}
+>> +}
+>> +
+>> +static bool khadas_mcu_vim4_reg_writeable(struct device *dev, unsigned int reg)
+>> +{
+>> +	switch (reg) {
+>> +	case KHADAS_MCU_VERSION_0_REG:
+>> +	case KHADAS_MCU_VERSION_1_REG:
+>> +	case KHADAS_MCU_SHUTDOWN_NORMAL_STATUS_REG:
+>> +		return false;
+>> +	default:
+>> +		return true;
+>> +	}
+>> +}
+>> +
+>> +static const struct regmap_config khadas_mcu_vim4_regmap_config = {
+>> +	.reg_bits	= 8,
+>> +	.reg_stride	= 1,
+>> +	.val_bits	= 8,
+>> +	.max_register	= KHADAS_MCU_VIM4_SYS_RST_REG,
+>> +	.volatile_reg	= khadas_mcu_vim4_reg_volatile,
+>> +	.writeable_reg	= khadas_mcu_vim4_reg_writeable,
+>> +	.cache_type	= REGCACHE_MAPLE,
+>> +};
+>> +
+>> +static const struct khadas_mcu_fan_pdata khadas_vim4_fan_pdata = {
+>> +	.fan_reg	= KHADAS_MCU_VIM4_FAN_CTRL_REG,
+>> +	.max_level	= 0x64,
+>> +};
+>> +
+>> +static const struct mfd_cell khadas_mcu_vim4_cells[] = {
+>> +	{
+>> +		.name		= "khadas-mcu-fan-ctrl",
+>> +		.platform_data	= &khadas_vim4_fan_pdata,
+>> +		.pdata_size	= sizeof(khadas_vim4_fan_pdata),
+>> +	},
+>> +};
+>> +
+>> +static const struct khadas_mcu_data khadas_vim4_mcu_data = {
+>> +	.regmap_config	= &khadas_mcu_vim4_regmap_config,
+>> +	.cells		= NULL,
+>> +	.ncells		= 0,
+>> +	.fan_cells	= khadas_mcu_vim4_cells,
+>> +	.nfan_cells	= ARRAY_SIZE(khadas_mcu_vim4_cells),
+>> +};
+>> +
+>>  static int khadas_mcu_probe(struct i2c_client *client)
+>>  {
+>>  	struct device *dev = &client->dev;
+>> @@ -94,28 +170,35 @@ static int khadas_mcu_probe(struct i2c_client *client)
+>>  	if (!ddata)
+>>  		return -ENOMEM;
+>>  
+>> +	ddata->data = i2c_get_match_data(client);
+>> +	if (!ddata->data)
+>> +		return -EINVAL;
+> 
+> Shouldn't this be -ENODEV?
+> 
+
+I will change to -ENODEV for the switch default.
+
+>>  	i2c_set_clientdata(client, ddata);
+>>  
+>>  	ddata->dev = dev;
+>>  
+>> -	ddata->regmap = devm_regmap_init_i2c(client, &khadas_mcu_regmap_config);
+>> +	ddata->regmap = devm_regmap_init_i2c(client,
+>> +					     ddata->data->regmap_config);
+> 
+> Use up to 100-chars to prevent this kind of wrapping.
+> 
+
+Ok will do, is it a general rule or depends on maintainer ?
+
+>>  	if (IS_ERR(ddata->regmap)) {
+>>  		ret = PTR_ERR(ddata->regmap);
+>>  		dev_err(dev, "Failed to allocate register map: %d\n", ret);
+>>  		return ret;
+>>  	}
+> 
+> Maybe convert this to dev_err_probe() at one point.
+> 
+
+Ok I change that.
+
+>> -	ret = devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
+>> -				   khadas_mcu_cells,
+>> -				   ARRAY_SIZE(khadas_mcu_cells),
+>> -				   NULL, 0, NULL);
+>> -	if (ret)
+>> -		return ret;
+>> +	if (ddata->data->cells && ddata->data->ncells) {
+>> +		ret = devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
+>> +					   ddata->data->cells,
+>> +					   ddata->data->ncells,
+>> +					   NULL, 0, NULL);
+>> +		if (ret)
+>> +			return ret;
+>> +	}
+>>  
+>>  	if (of_property_present(dev->of_node, "#cooling-cells"))
+>>  		return devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
+>> -					    khadas_mcu_fan_cells,
+>> -					    ARRAY_SIZE(khadas_mcu_fan_cells),
+>> +					    ddata->data->fan_cells,
+>> +					    ddata->data->nfan_cells,
+>>  					    NULL, 0, NULL);
+>>  
+>>  	return 0;
+>> @@ -123,7 +206,8 @@ static int khadas_mcu_probe(struct i2c_client *client)
+>>  
+>>  #ifdef CONFIG_OF
+>>  static const struct of_device_id khadas_mcu_of_match[] = {
+>> -	{ .compatible = "khadas,mcu", },
+>> +	{ .compatible = "khadas,mcu", .data = &khadas_mcu_data },
+>> +	{ .compatible = "khadas,vim4-mcu", .data = &khadas_vim4_mcu_data },
+> 
+> We don't allow data from one registration API (MFD) to be shoved through
+> another (DT).  Pass a value to match on instead, then use a switch()
+> statement or similar to populate or register the devices.
+> 
+
+Thanks I'm on it.
+
+>>  	{},
+>>  };
+>>  MODULE_DEVICE_TABLE(of, khadas_mcu_of_match);
+>>
+>> -- 
+>> 2.49.0
+>>
+>>
 
 
-Make the i2c-stub driver optionally minimal support I2C transactions, when
-enabling I2C_FUNC_I2C.
-I2C reads/writes act on a dynamically expanded buffer that is separate
-from the data of the SMBus commands.
-
-Link to v1: https://lore.kernel.org/linux-i2c/202605151757.fT8a2zYC-lkp@intel.com/T/#t
-Changes from v1:
-- fix single-character typo introduced by me being to incompetent to
-  format the patch in my editor.
-
-This patch was tested on kernels 6.18.26, 6.19.11, and built against master.
-
-Signed-off-by: Peter Bohner <peter@bohner.me>
----
- Documentation/i2c/i2c-stub.rst |  8 ++-
- drivers/i2c/i2c-stub.c         | 90 +++++++++++++++++++++++++++++-----
- 2 files changed, 85 insertions(+), 13 deletions(-)
-
-diff --git a/Documentation/i2c/i2c-stub.rst b/Documentation/i2c/i2c-stub.rst
-index a6fc6916d6bc..8b427a9579dd 100644
---- a/Documentation/i2c/i2c-stub.rst
-+++ b/Documentation/i2c/i2c-stub.rst
-@@ -7,7 +7,8 @@ Description
- 
- This module is a very simple fake I2C/SMBus driver.  It implements six
- types of SMBus commands: write quick, (r/w) byte, (r/w) byte data, (r/w)
--word data, (r/w) I2C block data, and (r/w) SMBus block data.
-+word data, (r/w) I2C block data, and (r/w) SMBus block data, as-well as
-+I2C transactions.
- 
- You need to provide chip addresses as a module parameter when loading this
- driver, which will then only react to SMBus commands to these addresses.
-@@ -30,6 +31,11 @@ SMBus block commands must be written to configure an SMBus command for
- SMBus block operations. Writes can be partial. Block read commands always
- return the number of bytes selected with the largest write so far.
- 
-+Support for I2C transactions using the I2C_RDWR ioctl must also be explicitly
-+enabled by setting I2C_FUNC_I2C (0x00000001) in the functionality parameter.
-+When enabled, the message data is written to and read from the beginning of a
-+buffer, that is separate from the SMBus commands.
-+
- The typical use-case is like this:
- 
- 	1. load this module
-diff --git a/drivers/i2c/i2c-stub.c b/drivers/i2c/i2c-stub.c
-index 04314e3ed24c..a2cb9cbb05a4 100644
---- a/drivers/i2c/i2c-stub.c
-+++ b/drivers/i2c/i2c-stub.c
-@@ -4,7 +4,7 @@
- 
-     Copyright (c) 2004 Mark M. Hoffman <mhoffman@lightlink.com>
-     Copyright (C) 2007-2014 Jean Delvare <jdelvare@suse.de>
--
-+    Copyright (c) 2026 Peter Bohner <peter@bohner.me>
- */
- 
- #define pr_fmt(fmt) "i2c-stub: " fmt
-@@ -23,6 +23,7 @@
-  * Support for I2C_FUNC_SMBUS_BLOCK_DATA is disabled by default and must
-  * be enabled explicitly by setting the I2C_FUNC_SMBUS_BLOCK_DATA bits
-  * in the 'functionality' module parameter.
-+ * The same applies to I2C_FUNC_I2C.
-  */
- #define STUB_FUNC_DEFAULT \
- 		(I2C_FUNC_SMBUS_QUICK | I2C_FUNC_SMBUS_BYTE | \
-@@ -30,7 +31,7 @@
- 		 I2C_FUNC_SMBUS_I2C_BLOCK)
- 
- #define STUB_FUNC_ALL \
--		(STUB_FUNC_DEFAULT | I2C_FUNC_SMBUS_BLOCK_DATA)
-+		(STUB_FUNC_DEFAULT | I2C_FUNC_SMBUS_BLOCK_DATA | I2C_FUNC_I2C)
- 
- static unsigned short chip_addr[MAX_CHIPS];
- module_param_array(chip_addr, ushort, NULL, S_IRUGO);
-@@ -81,6 +82,9 @@ struct stub_chip {
- 	u8 bank_end;
- 	u16 bank_size;
- 	u16 *bank_words;	/* Room for bank_mask * bank_size registers */
-+
-+	u8 *i2c_rw_data;
-+	u16 i2c_rw_size;
- };
- 
- static struct stub_chip *stub_chips;
-@@ -119,23 +123,82 @@ static u16 *stub_get_wordp(struct stub_chip *chip, u8 offset)
- 		return chip->words + offset;
- }
- 
--/* Return negative errno on error. */
--static s32 stub_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
--	char read_write, u8 command, int size, union i2c_smbus_data *data)
-+static struct stub_chip *stub_addr_to_chip(u16 addr)
- {
--	s32 ret;
--	int i, len;
-+	int i;
- 	struct stub_chip *chip = NULL;
--	struct smbus_block_data *b;
--	u16 *wordp;
- 
--	/* Search for the right chip */
- 	for (i = 0; i < stub_chips_nr; i++) {
-+		/* we do not need to handle I2C_FUNC_10BIT_ADDR explicitly */
- 		if (addr == chip_addr[i]) {
- 			chip = stub_chips + i;
- 			break;
- 		}
- 	}
-+	return chip;
-+}
-+
-+static s32 stub_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-+{
-+	int i;
-+	u8 *new_rw_mem;
-+	struct stub_chip *chip = NULL;
-+	struct i2c_msg *msg;
-+
-+	for (i = 0; i < num; i++) {
-+		msg = msgs + i;
-+		chip = stub_addr_to_chip(msg->addr);
-+		if (!chip)
-+			return -ENODEV;
-+
-+		/* len is guaranteed to be <= 8192 by i2cdev_ioctl_rdwr */
-+		if (chip->i2c_rw_size < msg->len) {
-+			new_rw_mem =
-+				krealloc_array(chip->i2c_rw_data, msg->len, 1,
-+					       GFP_KERNEL | __GFP_ZERO);
-+			if (!new_rw_mem)
-+				return -ENOMEM;
-+			chip->i2c_rw_data = new_rw_mem;
-+			chip->i2c_rw_size = msg->len;
-+		}
-+
-+		/* read, size determined by slave */
-+		if ((msg->flags & I2C_M_RD) && (msg->flags & I2C_M_RECV_LEN)) {
-+			/* i2cdev_ioctl_rdwr expects this as a maximum, even
-+			 * though 0xff would be the theoretically possible
-+			 */
-+			msg->len = min(chip->i2c_rw_size, I2C_SMBUS_BLOCK_MAX);
-+			msg->buf[0] = msg->len - 1;
-+			dev_dbg(&adap->dev,
-+				"i2c read with RECV_LEN - addr 0x%02x, read %u bytes\n",
-+				msg->addr, msg->len);
-+			memcpy(msg->buf + 1, chip->i2c_rw_data, msg->len - 1);
-+		} else if (msg->flags & I2C_M_RD) {
-+			dev_dbg(&adap->dev,
-+				"i2c read - addr 0x%02x, read %u bytes\n",
-+				msg->addr, msg->len);
-+			memcpy(msg->buf, chip->i2c_rw_data, msg->len);
-+		} else {
-+			dev_dbg(&adap->dev,
-+				"i2c write - addr 0x%02x, wrote %u bytes\n",
-+				msg->addr, msg->len);
-+			memcpy(chip->i2c_rw_data, msg->buf, msg->len);
-+		}
-+	}
-+	return num;
-+}
-+
-+/* Return negative errno on error. */
-+static s32 stub_smbus_xfer(struct i2c_adapter *adap, u16 addr, unsigned short flags,
-+			   char read_write, u8 command, int size, union i2c_smbus_data *data)
-+{
-+	s32 ret;
-+	int i, len;
-+	struct stub_chip *chip;
-+	struct smbus_block_data *b;
-+	u16 *wordp;
-+
-+	chip = stub_addr_to_chip(addr);
- 	if (!chip)
- 		return -ENODEV;
- 
-@@ -308,7 +371,8 @@ static u32 stub_func(struct i2c_adapter *adapter)
- 
- static const struct i2c_algorithm smbus_algorithm = {
- 	.functionality	= stub_func,
--	.smbus_xfer	= stub_xfer,
-+	.smbus_xfer	= stub_smbus_xfer,
-+	.xfer           = stub_xfer,
- };
- 
- static struct i2c_adapter stub_adapter = {
-@@ -351,8 +415,10 @@ static void i2c_stub_free(void)
- {
- 	int i;
- 
--	for (i = 0; i < stub_chips_nr; i++)
-+	for (i = 0; i < stub_chips_nr; i++) {
- 		kfree(stub_chips[i].bank_words);
-+		kfree(stub_chips[i].i2c_rw_data);
-+	}
- 	kfree(stub_chips);
- }
- 
 -- 
-2.54.0
-
+Best regards,
+Ronald
