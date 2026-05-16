@@ -1,209 +1,158 @@
-Received: from mail-yx1-f51.google.com (mail-yx1-f51.google.com [74.125.224.51])
+Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 033231F4611
-	for <linux-i2c@vger.kernel.org>; Sat, 16 May 2026 01:27:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.51
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778894857; cv=pass; b=fRRVR5RiQ+u95sdS0JnniDA9IhSwkh30tJc76rvIdWpiUfXz9PNCjbaj6f9NtXN7FlHk8IJn1j1KvLdUMpjZlPqMGpHgWAclI1VGjbybtknROL7O0tgqqtaZZX6uDiP6u6hj932R6yP5M0S5R9QQihGjyDzp0qp3pu3rfkZDkEM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778894857; c=relaxed/simple;
-	bh=bW7QzCTqcRsx/T9yD6fdRoLOs7bmToMIW9FFX1/ogbo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=I7b6exU15DEi+DVuDXK0XexC6HL3K8mzDOiq4Sdb21SiDvJfZc7VJR7dEAsomxU/kLX0Ol2SVHoiXw0Y9+yHAfx+RXG0cJCeyoWkepJ/7f66ii76nevGry/OcPJ6pKym84j6ZqbSn/Hsagl3Ns5zwwMjZumZOgKcTLO7AuRnRe4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LWcbzqZd; arc=pass smtp.client-ip=74.125.224.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EB8F364022
+	for <linux-i2c@vger.kernel.org>; Sat, 16 May 2026 06:12:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778911932; cv=none; b=XXveMk+7SsQe1D2vsQIIgajIJqKhXFqAI/sUOh+igipcD6qse6LiGTi5GfcBnuifuJdtCU7sdTAGMUfXTBOWSHym3RHHIWSXPek7Vl/fNU70jnVYiWn9QjQuear0bu+0UwdvL68ZWTEaHsmYwo9aaHwajorBB60ScvQUC34ft5c=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778911932; c=relaxed/simple;
+	bh=4yYhdbMRVR+CRAUgoSq49OIwIUWB/tSKLi036gr3kHI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=YDqw+MjTWm5KrcK5TBfM/+i6ImldrdkBdpBx7+Sh6FhQiy5FrLAYRItlwP9JkAdp74ym8Seb+Qx8f93PG4LSkUa9El+L29edWIXySDt4G1UJ/bhAiuzjQnsBdtfkELJ6hE0n5ojh+KRKqfktclsWFWt+h0CXG1vSZVP5+GwfV0k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre-com.20251104.gappssmtp.com header.i=@baylibre-com.20251104.gappssmtp.com header.b=cKod9z8A; arc=none smtp.client-ip=209.85.221.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LWcbzqZd"
-Received: by mail-yx1-f51.google.com with SMTP id 956f58d0204a3-651c366f7efso767436d50.1
-        for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 18:27:35 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778894855; cv=none;
-        d=google.com; s=arc-20240605;
-        b=WF0PrMvW3QVFasMIpLk/tlnz68/UFtOJ6BqPz510M2j5KV/KDpwx2rBikG0RTb3q9y
-         A+urxKidzxqQSTAe2cul+dukjWiovxvqYuevMmPDkQd9qQD4hCTz/hKpzGTmz9XkxiDf
-         ANQ6SfWR94WvhT+dtqUYJguWAC+h0dKYqn/ThgeCG5xz3bY1k5H9rrizd6XYK3sk8Ie5
-         Lu4gZno29rX2ki4tgAUhP/sq0zXalmquSEf2m4w7K2UZKHIjLVH9ddF5so280lRUpJv+
-         M2C4nOtl7o3QKuLMRSYAuP8JMPOdm5F7RJYmi1zzX8CdsxOzigJnmYBb4DxWYkUtnisC
-         JqGQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=L9FZebPfxjmKa8vSCx4bP2RNfwPyM+VKakDWUr1Bhyk=;
-        fh=Gv7utp19iUjMHFEYvlFmcYbAdz6qZYG/Sn53CSQwps8=;
-        b=akIUFO0Xeoxa9fnhODbSP84bwUMKrbIi9wpnVgZCbodzs5ii7hoIKEsPes3ONEzals
-         SBGIQ8uXPc2SymWfEOSkTq0DB5ACqu3HQ6mWRLAMiz+Xf6k22xQ06wdJUrQaHNywtdGk
-         TrHZK+nVf0PeRCl8YF0p4EJAjstYm3ahgRVQbkuutsH9XP8bOR9ceRfNFIOiWj/NJluq
-         za5qEUaXCTzExxjtdezEPWjU30PY/PrCE+wIuEcVKMajMzZYDDa77mNCt3vr0JYSNXyR
-         G1BwxlFh8P1kQXPrzecLNBdEvR32LWisVVX+MqXIkjAPP6HJWYDwp/1PCUOuExJeocjU
-         7Jyg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=baylibre-com.20251104.gappssmtp.com header.i=@baylibre-com.20251104.gappssmtp.com header.b="cKod9z8A"
+Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-44a044cb827so286470f8f.0
+        for <linux-i2c@vger.kernel.org>; Fri, 15 May 2026 23:12:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778894855; x=1779499655; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=L9FZebPfxjmKa8vSCx4bP2RNfwPyM+VKakDWUr1Bhyk=;
-        b=LWcbzqZd/ovl4FjDDMeathj9xRY2PX2MuSg5fhkGp9BjmSiVp6ReTrHPqdsIeuyWNF
-         ZZwU+n/icY/by9OZY6l7VnzDEexmXz3IusKOPtyMTPMC4UAQIKDSIowBbT5CLr+5xsrO
-         +yN6vYzuLCnMpgnhuR47reycdF9IrfOQ28P6wor5jFZhccyu67Sb1ZR8GpAa0Sm6pXvL
-         WAfUQ3mXegfD4mXHhXaiRpxVScLSQPVKaSgsC2wNTPsZM+QmC3nflT7xRWUYmdA1Ixk1
-         bfalYICFv/315dhs1sK4yh7oaylMEH46OV6r4Bhro7fDzMWcewJb8nI4AOYhVpuy1o3V
-         d63w==
+        d=baylibre-com.20251104.gappssmtp.com; s=20251104; t=1778911929; x=1779516729; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=0HSemYvAyg7oF7KkWKvgahNXBgqxEPfiGmMTx54Opx8=;
+        b=cKod9z8AXyIautmjXjmiORXxfKBzHs+Qx2mB0x3G+6ZRy9wbi7+gG6UTfMzQbBhukj
+         cCZVgiIVfLlV676Wb0nuU2gvmD191MatnYdDrTi9s4EEUj8z6dX3I9FEtl78ZoxXQPlQ
+         ixbGqTzzNTtTcjqS26wDMWO+NrtgO27g2kd/lNy7bdJMD/z1e4EhZUAWMeGXkwt1OmQW
+         nC0cBKKVvdFtqZ328PUw6c/FmsZs07HyyTrOBsnHn4lHN1RwT2tZ/FghZcbHSDeUv+3l
+         bZdYx5mmWOiihFRMlERNWfAE/Sr3nkrlTQDeUms+7wjfT29rElJ9ofYLtgrmQSFlhJ51
+         SBww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778894855; x=1779499655;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=L9FZebPfxjmKa8vSCx4bP2RNfwPyM+VKakDWUr1Bhyk=;
-        b=Hk3o1fbDKpUyp7WXAs/nfDluxqc4ZiqA28pOMXPQoVSk/ZYFPpf0OscSle+aegnsAT
-         zhw+qzYVRmF0ezRVyMGXhzEV5PSnmE7RFdWHFQIXxHr6OA0ht9rAUOtxAO1yiiE0Ihs4
-         X4nV4w27asUGYfdqH2ur9GNXE1knJ9LDnFbzAuPswPWue+tdMu/9vloKejLKmbIqMltU
-         n58NhsJx1JGFOrM5lSyLQIwTh3jxlmUst/7hRF3AHQZhWiWwqviX8f3PXNIexlQ2uQXE
-         lSLWFeT5k8X7YGsa5eoC7GujklRfW9TqPu92wga6Y5fcHrwEIhUZ6HEXsiUyXdUazY7X
-         PUFQ==
-X-Gm-Message-State: AOJu0YxLRMQLZrNGvE8fUcEvpLTxwB7z3kAkqQzId8FZ1ia1wSajgB/5
-	7j41HFPuXRQkGOfEWh0ZQOUX4SGciOReBkh9cIr+qTd9xYZooDmwoL9U6AhDwdPoluXyWLrUdCX
-	Gqqm1e4qJ9zWhn+MfPDH27Z4YUMaYdqM=
-X-Gm-Gg: Acq92OE47fwTqvGAXQws0EVbXsKlJb3c6CuUFlYVBLDvkfZ3bldhC+77PcBnVRlZ58c
-	NqjrV+tmBeIa+jL6Dm57eIKXcfZfuyGOOYWTFQEtNNw7LOygTAv6P15c4UA+ZmjkOpf+SpxmmKt
-	HuHjTmvI0fgPQeMlhz0yt9/mPENKLB5ZCZ8vVY/klDb6fS4dlooFUP/67CMNFAJtaoMtBw99qJ2
-	YXk03Ud6OwFm00BTZoqAOUd08NX40qCh2HgZyz+zXMWnk+rVY/LPmvhvXjUqfF2urs/nG01m73/
-	dNKP5B5sjrMw+OG8M4GQc2iK6u6287T5LxtMRm1X3mN4MmPz5cR8Sn3aJdh+YGYkh0ZoO+6x4i6
-	LbG8H584t73TMHJJaeLH6LV6yoJU9oyHj7rBA5Tcbx0Vm6VJ5f0YoSUaqhp0=
-X-Received: by 2002:a53:c05b:0:10b0:65d:5702:3373 with SMTP id
- 956f58d0204a3-65e228469f1mr5969955d50.33.1778894854916; Fri, 15 May 2026
- 18:27:34 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1778911929; x=1779516729;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=0HSemYvAyg7oF7KkWKvgahNXBgqxEPfiGmMTx54Opx8=;
+        b=MMXsZijZds/SrHTzuzlHfB4d1E3+zfX7ujdJByW3sw73hDfcghKWX6PZyhdncLKspf
+         jbcXKh7lWYf8P5DMNR1gsNl1MNhoPPevdTO0F+VE+9dG4rzABQIerDph0sehtfFTnIXK
+         hBTspj9fnG+N9VFU63U0eY4r3RtBzxJsJmSf6IaU+xxBSRTETrBYfoCgajpSb5LQ/tV7
+         LvcIcI0719PtcBUcXOu508YSOhwUnjzYlpbBNOYegYfZtP3XW4U6Kuo6b83ep4lx1Nlo
+         CKR0n4lRqWrN/DSVmbIu85ixMc7TZJ5e7NCzG89bExplL8Bl0tEoX/qQ0ZPS6W93uC3C
+         MUAA==
+X-Forwarded-Encrypted: i=1; AFNElJ9MyHot81MceYU+EtEeV09JOtoac6x7KLrAcqNSgRcoGObU2nm8ownybWoDPtXDHw0KC3SXWzUSsOQ=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyEH68ESAiwSRS1zr0Fx3XV86b0NZhJkwT6N5HhZjHm5OaYu6aI
+	FVjtFPOdCWnTtJFJWrZfluOlo4VwBxTTpslDzIWr0RrsNNnXfiMe9rxbZkgBcNexrSM=
+X-Gm-Gg: Acq92OFWXrmD1VG4GL+DgOmfFZNobe6UHpu+KEABG6z5EDderTweZmT6Z8mVNic6WlH
+	XhB9EuVihPmjYn2Vzsosn1bu5cKg8SIwU9lyD7H28oP9VubQnwWgvP2Fre8yy8kU6QKr9dWBuhT
+	S8v0gzUDxBH01QEVKyv6pw0OiUEvI3FjLn93/TjhUgK7F7DsmaYqif08PQ78SkzF0S7UyVbfNPm
+	tkGgAd4GlMtYO302iuOYHHGKvvAj1LDCA6OoyIO663qaIlT/ZNxGD3inuKfFtJguJDswvM8J/vf
+	9cVVm+YQO4DP227b4T7y1q0FYxb2VWfx67BEAPPPOo4tChxVCUP18hwI0UtVXCEAlfnfH6aB2sf
+	sZrEWBA0qvnOvp9khgR4rDlLLN3/1lIhOWxOl21/3e5uXBh14ZoM+bf27xZ3gHUK1xTFjegADCE
+	s2MjvFGbjjuYh7RsYohS41hajYcMhPr23v/xvdfmU=
+X-Received: by 2002:a05:6000:1ac7:b0:43f:e272:edff with SMTP id ffacd0b85a97d-45e5c57d308mr9641215f8f.4.1778911928801;
+        Fri, 15 May 2026 23:12:08 -0700 (PDT)
+Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-45d9ed2f738sm19944411f8f.16.2026.05.15.23.12.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 May 2026 23:12:08 -0700 (PDT)
+Date: Sat, 16 May 2026 08:12:06 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
+To: Lee Jones <lee@kernel.org>
+Cc: Markus Schneider-Pargmann <msp@baylibre.com>, 
+	Michael Hennerich <michael.hennerich@analog.com>, Chen-Yu Tsai <wens@kernel.org>, 
+	Marek Vasut <marek.vasut+renesas@gmail.com>, James Ogletree <jogletre@opensource.cirrus.com>, 
+	Fred Treven <fred.treven@cirrus.com>, Ben Bright <ben.bright@cirrus.com>, 
+	Support Opensource <support.opensource@diasemi.com>, Andy Shevchenko <andy@kernel.org>, 
+	Charles Keepax <ckeepax@opensource.cirrus.com>, Richard Fitzgerald <rf@opensource.cirrus.com>, 
+	Chanwoo Choi <cw00.choi@samsung.com>, Krzysztof Kozlowski <krzk@kernel.org>, 
+	=?utf-8?B?QW5kcsOp?= Draszik <andre.draszik@linaro.org>, Aaro Koskinen <aaro.koskinen@iki.fi>, 
+	Andreas Kemnade <andreas@kemnade.info>, Kevin Hilman <khilman@baylibre.com>, 
+	Roger Quadros <rogerq@kernel.org>, Tony Lindgren <tony@atomide.com>, 
+	Samuel Kayode <samkay014@gmail.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
+	Alexandre Torgue <alexandre.torgue@foss.st.com>, linux-kernel@vger.kernel.org, linux-renesas-soc@vger.kernel.org, 
+	linux-sound@vger.kernel.org, linux-omap@vger.kernel.org, imx@lists.linux.dev, 
+	linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org
+Subject: Re: [PATCH v1] mfd: Use named initializers for arrays of
+ i2c_device_data
+Message-ID: <aggJiZk8Kp-309q7@monoceros>
+References: <20260515095839.4005460-2-u.kleine-koenig@baylibre.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260515161516.10474-1-hardikprakash.official@gmail.com> <32e96be9-a987-4847-b02d-d288f3fbeeb2@amd.com>
-In-Reply-To: <32e96be9-a987-4847-b02d-d288f3fbeeb2@amd.com>
-From: Hardik Prakash <hardikprakash.official@gmail.com>
-Date: Sat, 16 May 2026 06:57:23 +0530
-X-Gm-Features: AVHnY4KJPM6i6_WJQA-9eYv2Vf-xc3JrjXWgEPVFiQ1CaIVYdKqcVVMtCjHedSs
-Message-ID: <CANTFpSV91DjxSFSmc5gCQ5YTy+Oubg11+55V3z-Xg2nM8TKvpA@mail.gmail.com>
-Subject: Re: [PATCH v3 0/1] i2c: designware: fix probe ordering for AMD GPIO
- on Lenovo Yoga 7 14AGP11
-To: Mario Limonciello <mario.limonciello@amd.com>
-Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org, 
-	andriy.shevchenko@intel.com, brgl@bgdev.pl, basavaraj.natikar@amd.com, 
-	linus.walleij@linaro.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="2sdvcea3fsfmjq6y"
+Content-Disposition: inline
+In-Reply-To: <20260515095839.4005460-2-u.kleine-koenig@baylibre.com>
+
+
+--2sdvcea3fsfmjq6y
+Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v1] mfd: Use named initializers for arrays of
+ i2c_device_data
+MIME-Version: 1.0
 
-On Fri, May 15, 2026 at 23:04, Mario Limonciello wrote:
-> I have another idea.  Why don't we just move pinctrl-amd to initialize
-> earlier?  That should avoid the problem without more quirks I think.
+On Fri, May 15, 2026 at 11:58:39AM +0200, Uwe Kleine-K=F6nig (The Capable H=
+ub) wrote:
+> diff --git a/drivers/mfd/tps65910.c b/drivers/mfd/tps65910.c
+> index 6a7b7a697fb7..fb23d5ed1f26 100644
+> --- a/drivers/mfd/tps65910.c
+> +++ b/drivers/mfd/tps65910.c
+> @@ -518,8 +518,8 @@ static int tps65910_i2c_probe(struct i2c_client *i2c)
+>  }
+> =20
+>  static const struct i2c_device_id tps65910_i2c_id[] =3D {
+> -       { "tps65910", TPS65910 },
+> -       { "tps65911", TPS65911 },
+> +       { .name =3D "tps65910", .driver_data =3D TPS65910 },
+> +       { .name =3D "tps65911", .driver_data =3D TPS65911 },
+>         { }
+>  };
+> =20
 
-I tested this. Here are the results across four combinations on my
-machine (Lenovo Yoga 7 14AGP11 (83TD)):
+The indention in this hunk uses spaces instead of tabs (both with and
+without my patch). I fixed that in my tree, so if it comes to a v2 the
+indention will be fixed there.
 
-  subsys_initcall alone:            arbitration errors, WACF2200 does not p=
-robe
-  subsys_initcall + patch 1:        arbitration errors persist
-  patch 1 alone:                    arbitration errors persist
-  patch 1 + patch 2 (v3):          clean boot, touchscreen fully functional
+> [...]
+> diff --git a/drivers/mfd/wm8400-core.c b/drivers/mfd/wm8400-core.c
+> index 8ecfe878a5ba..1c0ba450ef9b 100644
+> --- a/drivers/mfd/wm8400-core.c
+> +++ b/drivers/mfd/wm8400-core.c
+> @@ -135,7 +135,7 @@ static int wm8400_i2c_probe(struct i2c_client *i2c)
+>  }
+> =20
+>  static const struct i2c_device_id wm8400_i2c_id[] =3D {
+> -       { "wm8400" },
+> +       { .name =3D "wm8400" },
+>         { }
+>  };
+> =20
 
-The subsys_initcall promotion does not seem to resolve the race on
-this hardware,
-i2c_designware is still probing AMDI0010:02 before pinctrl-amd finishes
-regardless of the earlier initcall level. The explicit device_is_bound()
-deferral in patch 2 appears to be necessary to enforce the ordering.
+ditto.
 
-I can provide the full dmesg for any combination, if it is useful.
+Best regards
+Uwe
 
-Thanks,
-Hardik
+--2sdvcea3fsfmjq6y
+Content-Type: application/pgp-signature; name="signature.asc"
 
-On Fri, 15 May 2026 at 23:04, Mario Limonciello
-<mario.limonciello@amd.com> wrote:
->
->
->
-> On 5/15/26 11:15, Hardik Prakash wrote:
-> > The Wacom WACF2200 touchscreen on the Lenovo Yoga 7 14AGP11 (83TD) is
-> > non-functional on Linux due to two bugs. Patch 1 (pinctrl-amd GPIO IRQ
-> > fix) has already been taken into Linus Walleij's tree. This v3 resend
-> > covers patch 2 only, addressing Andy Shevchenko's formatting feedback.
-> >
-> > Root cause: i2c_designware probes AMDI0010:02 before pinctrl-amd's
-> > probe completes, so GPIO 157 (WACF2200 GpioInt per ACPI _CRS) has its
-> > interrupt bits cleared when the first I2C transaction is attempted,
-> > causing lost arbitration errors. The udev rebind workaround (which
-> > works because pinctrl-amd has finished by userspace time) confirms
-> > probe ordering as the root cause.
-> >
-> > Note: the dual-master hypothesis raised by Mario Limonciello was
-> > investigated. TPNL's _DSM (UUID 3cdff6f7-4267-4555-ad05-b30a3d8938de)
-> > is a pure query method returning a constant HID descriptor address with
-> > no side effects, making firmware acting as secondary I2C master unlikel=
-y
-> > on this hardware. Awaiting Mario and Bart's technical verdict before
-> > any further approach changes.
-> >
-> > v3:
-> >   - Patch 2 only (patch 1 already in Linus Walleij's tree)
-> >   - Fix variable declaration style in dw_i2c_needs_amd_gpio_dep (Andy S=
-hevchenko)
-> >   - Add BugLink tag (Andy Shevchenko)
-> >   - Add -v3 subject versioning (Andy Shevchenko)
-> >   - CC AMD engineers (Andy Shevchenko)
-> >
-> > v2:
-> >   - Replace custom HID/UID lookup with acpi_dev_get_first_match_dev() (=
-Andy Shevchenko)
-> >   - Use acpi_get_first_physical_node() for platform device lookup
-> >   - Use device_is_bound() under device_lock() with explanatory comments
-> >   - Fix dev_warn to use dev_name() instead of hardcoded suffix
-> >   - Fix commit message (removed incorrect "existing" reference)
-> >   - Add Assisted-by tags per coding-assistants.rst
-> >
-> > Kernel bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=3D221494
-> > Related: https://bugzilla.kernel.org/show_bug.cgi?id=3D221454
-> >
-> > Hardik Prakash (1):
-> >    i2c: designware: fix probe ordering for AMD GPIO on Lenovo Yoga 7
-> >      14AGP11
-> >
-> >   drivers/i2c/busses/i2c-designware-platdrv.c | 77 ++++++++++++++++++++=
-+
-> >   1 file changed, 77 insertions(+)
->
-> I have another idea.  Why don't we just move pinctrl-amd to initialize
-> earlier?  That should avoid the problem without more quirks I think.
->
-> Something like this:
->
-> =E2=95=B0=E2=94=80=E2=9D=AF git diff
-> diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.=
-c
-> index e3128b0045d22..56a189082351b 100644
-> --- a/drivers/pinctrl/pinctrl-amd.c
-> +++ b/drivers/pinctrl/pinctrl-amd.c
-> @@ -1292,7 +1292,18 @@ static struct platform_driver amd_gpio_driver =3D =
-{
->          .remove         =3D amd_gpio_remove,
->   };
->
-> -module_platform_driver(amd_gpio_driver);
-> +static int __init amd_gpio_init(void)
-> +{
-> +       return platform_driver_register(&amd_gpio_driver);
-> +}
-> +subsys_initcall(amd_gpio_init);
-> +
-> +static void __exit amd_gpio_exit(void)
-> +{
-> +       platform_driver_unregister(&amd_gpio_driver);
-> +}
-> +module_exit(amd_gpio_exit);
->
->   MODULE_AUTHOR("Ken Xue <Ken.Xue@amd.com>, Jeff Wu <Jeff.Wu@amd.com>");
->   MODULE_DESCRIPTION("AMD GPIO pinctrl driver");
-> +MODULE_LICENSE("GPL");
->
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmoICrIACgkQj4D7WH0S
+/k7niwf+L8OYV1m8gjYa2gWHbcQnsCJgzdFKCpbXliu2T5EWq+pQK9qpV9Z1VizU
+c2aUOPFJ5EiekEJu5DCu2EP0hYSk7XVsIzj1X6S2yAUDcUn5KFqmgkRAQsZKxRUN
+To4/9O43tr+/WYuyUT/kM1mZFYHw3kubucsATq5rprulQ8SwNsFWG1hADna3KAHe
+VE+iBDWGgcWuextWGVmh9DL+KyuYXcHSYZ6jwMkUkzdTGE6XIJeZ4AgCXM5X6wl/
+9G5OpBfgo0IXSCrfxQRCx2Rq617B5x7i9u3851/XC/G8l04/lZOsk8vW92H4tVvR
+IqdTaRQtvMJ/Itv6B4DadpEPZbkW2g==
+=AyjU
+-----END PGP SIGNATURE-----
+
+--2sdvcea3fsfmjq6y--
