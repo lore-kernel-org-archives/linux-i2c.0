@@ -1,159 +1,94 @@
-Received: from mail-dl1-f54.google.com (mail-dl1-f54.google.com [74.125.82.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F6F81FECCD
-	for <linux-i2c@vger.kernel.org>; Sun, 17 May 2026 01:28:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.54
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778981322; cv=none; b=hMbtUpi3L0yUoa3GiVca6TgAkXxVjohoWq2fWlJbgjN8PvF2MenGlvWC8OjvE5gUH7vbNRIs4hftBQbKI7SS3owZeFV9wedUzTkUqhsyHQLYPyYYQSoWSv6PpC0EOdm7rAEcPPUYODXMNjrua3rBqqDXCd5MLLlx0/6djjihuzk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778981322; c=relaxed/simple;
-	bh=cu9Zky6li4tk2Xlj3OFkZViXL7TFqJC66jyQATVm4PM=;
-	h=Mime-Version:Content-Type:Date:Message-Id:From:To:Cc:Subject:
-	 References:In-Reply-To; b=kJQVBbVJAGADwES33QBhZTUObIk7/fLWeZ+ahnxw0/U0LkAjENFUPiKAL9nmYi8wPIStjYFaoDzoBnD+NFbB66uzMtEoU1k6I6dQL/vI6plM3w/cqezrkJrhDQu6XJ1BLOREFf/wcobl7tyshJEILrvN2gnd8oftFo/P0MHTRGA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=B5Lp9e+0; arc=none smtp.client-ip=74.125.82.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F9552D0292;
+	Sun, 17 May 2026 04:33:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778992405; cv=pass; b=GmA+M3/5FwYy0MmRz+ViKKknG8xpMlUpgelKADX/0ZvfcrHsYg35jGGtQtGru4MxnTe++pjIEZ7b5efyh6pL0m8lwSJR2qgtEfi/Iedrr6koiHQGngQyx/V0Gl2XVgJkEk1sD+bUHlV2PViXgzogxO5hX/JEmYvxuqvTYOlBLzk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778992405; c=relaxed/simple;
+	bh=ZL8CbwP2c1JXLJIt/TXg9xpQCitcZJ1JEWa4++759wk=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:Subject:MIME-Version:
+	 Content-Type; b=P0FI1B5gJrq4FWD3QQYxxitCTrJRMFtUGaAIfgsw7DMagJXC6VeQerKxy17F/sD72fhULekEZOYcmol9KPdR0ir+izdM2TIfDuOEddCYxkyUbSoLS/H8VFFCYdCBXHWDdm96Lnc9PNGvmPuQ/QMW9hCGlQjZBti0rBlJvc/l/lo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dennisfoster.us; spf=pass smtp.mailfrom=dennisfoster.us; dkim=pass (1024-bit key) header.d=dennisfoster.us header.i=mail@dennisfoster.us header.b=DxZeT1Op; arc=pass smtp.client-ip=136.143.188.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dennisfoster.us
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dennisfoster.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="B5Lp9e+0"
-Received: by mail-dl1-f54.google.com with SMTP id a92af1059eb24-133466cf955so5042049c88.0
-        for <linux-i2c@vger.kernel.org>; Sat, 16 May 2026 18:28:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1778981320; x=1779586120; darn=vger.kernel.org;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5ijbrgH3b8D533VQ6EqJABWk50CO0cbZFk7FFN+l0dY=;
-        b=B5Lp9e+0XjvfYpbXDpgq2mGkkpRG11gRuKdI1nfw8/V1UGLjmMJi8e7GyovpLHlj75
-         5FNuVv9VjnQ9R+0cqEgNA4IpwbYyXpLpEYW2y4FriPdhWa/OaBjLWsmuhlDfEaDLtyo0
-         DKLTXbqzvO4nxsc+r8xvop1sIOjkuout+TKb6aDzfufnJYvJtN9qWppT0BgCvBEic7Es
-         bE/iFUgKsEDdCfUzuJVq6FHtf5i3TWUge8xQj2F+6/1iSV/25HT9OGEsTVH+vS3UOcNS
-         hF2y3KLrbelHFzaaSdAGt+Tl032sxzHY7irNx318wqO251MMDVNtygW4nJUjHzhbygss
-         WDgw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778981320; x=1779586120;
-        h=in-reply-to:references:subject:cc:to:from:message-id:date
-         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=5ijbrgH3b8D533VQ6EqJABWk50CO0cbZFk7FFN+l0dY=;
-        b=rEw0rTIlVfqibuQTzq9i6K+hNlpJ/Uhh/Qs8qv05z02ZZ0x83Cwd6UkNzDFrWz1U3B
-         Rkhwp7Ge/uFzqtVVHOXRPLZ0Yhd/dI6CMHiWTH4c1kMDKoI44ZC4q/pkxJZ3r8wq0t6E
-         EsiRUIqYtv1aSpknBNOtYnWe03jDKBrdx9GAU8EKaRdAHR7RlYVPbjJgEHftENNEsY66
-         Q1EtdvOb1p1BT3XWw8zfzpYs9eWKM7O++O7r5iJsiP3n5tRT/rohgQAnvZRwnYnobyG0
-         Q9KuUzhY6JvmqGJ1oVNTY84FvT9IR9D+T/e3SHe6rjXVMVI0r71HCKDkAbrNUON+MQ6N
-         n63Q==
-X-Forwarded-Encrypted: i=1; AFNElJ/t08pcU3pl4kiB2CUZR7jYLEV3WexhL/YJFdPsZb4L+aHtQMc4p6x9RJo0ERMjeVFefgjtaaiL6lM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwgmWls4Y1X4v2lmBeRC2H1sGMubrQGnkBnBrso6T8QezRdNNf9
-	OwoDhr/XwGDX3DUuy9v95xX6HW6vW/aXT0Yxq6cTaDhAKC7bUoeQybpRPq8Qe+41L/zzjZi0wzP
-	3BwROg7Y=
-X-Gm-Gg: Acq92OH/rj1EWg1BJ6d1h3i4xbpGP5Wb78aLYO8M7Uq+8rG7C1RWWF2JRM+I7pkHxX5
-	GuAUe5xHB7Ck/V8ffZy3CVvSCnDJcSblWgYhod3e/LmaQ2xJ0BtZRSHCwh1hDBAXuK6TnF3SmON
-	46lepKz9XgIvcgGxainWn/oe6mEaqvkm4QQ7fw4QisH539aqBiQ7GzJ3Q0pFyZGU0NVUFq8g02L
-	r9Nby6hjgx/H+R8bwftL2q5JgNSOjQ+7MomJlCZWgOYYacXFROcQG3Cy3WyHw2YMU47cuVhkxuf
-	UHu7iUEiNwQKjU/mS2kc3EQu61bldmHao3iyQI+1ToAgeual++0l7nyny0WYGCDmW9C8OH2dInT
-	thI2tygKkuh2YBDx16+PcSkLpRbF4q6ioWU5WvLRT8iNOl9obkMIpoJdhYDQ6PORsOiNcYkXh0j
-	QnZvstZ1yFPGLXh4lRFSktAiM=
-X-Received: by 2002:a05:7022:3d14:b0:12c:6a24:a24f with SMTP id a92af1059eb24-13504952278mr4237401c88.33.1778981319661;
-        Sat, 16 May 2026 18:28:39 -0700 (PDT)
-Received: from localhost ([50.145.100.174])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-134cc2352f2sm15503968c88.10.2026.05.16.18.28.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 16 May 2026 18:28:39 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=dennisfoster.us header.i=mail@dennisfoster.us header.b="DxZeT1Op"
+ARC-Seal: i=1; a=rsa-sha256; t=1778992400; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=Vpj9QSVNq5kfg7sqQqffYOcpomldmq8UQBc/7WDhA7ar+YAqNrJQP92KxG6aPlLYwJ/w641V5iIwlsB7xhhtqtQ5oLwY9I2onzq9cNpRkLkxHh0t9vQPBjEWEnlSZi9mz8MZI2Dg+PlYkLvKzPqy/cCVG1054+eMaINIwwgW1KM=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1778992400; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=dUlRtNPNglnRzx8VYnkqHSWrCDJb6x0BQ6x2vmJa+D8=; 
+	b=iIH4tQJtGzf6/G32gZCBpiSQdeU8nqWCU2wuhfs7OFqFPR2FDrFgv4BQ8JZLR3nOuk2a9tJtclt50Lg6zp3HgIHfWDPygEvG1pzQbei11e47h5+jTkiZQhg5lo7lLs0255F7475ESZekyJC7usJoBBwaZ2Cfuc603bKJV09zSGQ=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=dennisfoster.us;
+	spf=pass  smtp.mailfrom=mail@dennisfoster.us;
+	dmarc=pass header.from=<mail@dennisfoster.us>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1778992400;
+	s=zmail; d=dennisfoster.us; i=mail@dennisfoster.us;
+	h=Date:Date:From:From:To:To:Cc:Cc:Message-ID:In-Reply-To:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=dUlRtNPNglnRzx8VYnkqHSWrCDJb6x0BQ6x2vmJa+D8=;
+	b=DxZeT1Op1/xU9TJ8DkRlanMgRW/XLgweBp0HVgZ6ZLXBTpBHNIpZcq/EdF0XhvdX
+	nr+kC8p9aJ24O3L319aL0TsWpEYBy7tO1ZHbbHghx6qfXaqmgTEsRREtQgG77H6d6EK
+	5byHZmde78HmLzD4BEOgq93bvi5GgpcFtKHg39Zs=
+Received: from mail.zoho.com by mx.zohomail.com
+	with SMTP id 1778992398392282.67181596166824; Sat, 16 May 2026 21:33:18 -0700 (PDT)
+Date: Sun, 17 May 2026 00:33:18 -0400
+From: Dennis Foster <mail@dennisfoster.us>
+To: "linux-input" <linux-input@vger.kernel.org>
+Cc: "linux-i2c" <linux-i2c@vger.kernel.org>,
+	"benjamintissoires" <benjamin.tissoires@gmail.com>,
+	"jikos" <jikos@kernel.org>
+Message-ID: <19e3435bff9.5159b6ff3377555.4429246136901518864@dennisfoster.us>
+In-Reply-To: 
+Subject: i2c_hid_acpi: ELAN2514 touchscreen causes IRQ flood on HP Omnibook
+ X 14 (Lunar Lake)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Sat, 16 May 2026 18:28:38 -0700
-Message-Id: <DIKK8VG304IK.3UYPZDTKL2S04@nexthop.ai>
-From: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>
-To: "Peter Rosin" <peda@axentia.se>, <abdurrahman@nexthop.ai>
-Cc: <andi.shyti@kernel.org>, <linux-i2c@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] i2c: mux: reg: use device property accessors
-X-Mailer: aerc 0.21.0
-References: <DIFQPMZMN7AN.YTWGF8U973JL@nexthop.ai>
- <20260512075059.258309-1-peda@axentia.se>
-In-Reply-To: <20260512075059.258309-1-peda@axentia.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Importance: Medium
+User-Agent: Zoho Mail
+X-Mailer: Zoho Mail
 
-On Tue May 12, 2026 at 12:50 AM PDT, Peter Rosin wrote:
-> [note change of email adress, I'm now using peda@lysator.liu.se]
->
-> On Thu Feb 26, 2026 at 10:28 PM PST, Abdurrahman Hussain wrote:
->> Hi Andy, Peter,
->>=20
->> It looks like the patch is marked as "Changes Requested". I haven't
->> heard any feedback lately. Did I miss something?
->
-> Hi!
->
-> First of all, as usual I'm sorry for being slow to respond.
->
-> One specific thing I noticed with your patch that is a potential
-> problem is that it replaces the open coded little-ending/big-endian
-> logic with a call to device_is_big_endian() which is not an exact
-> replacement. The logic provided by device_is_big_endian() is simply
-> not equivalent. Further, the new behavior does not match the device
-> tree bindings.
->
-> At a minimum, you need a matching patch for the binding before doing
-> something like this. But that would of course only expose the risk
-> for regressions.
->
-> Since there are apparently few who can test this driver, and even
-> fewer with endian issues, I'm reluctant to make these changes. I
-> would prefer to keep the endian logic exactly as it is.
->
-> I have not looked all that closely, but you also make the call to
-> devm_platform_get_and_ioremap_resource() unconditional. Why will
-> that change not cause regressions?
->
-> Your commit message is lacking, you make these changes but only
-> talk about extending support to non-OF platforms as if that is
-> the only thing that is going on.
->
-> And, the initail problem still stands. I would like to see some
-> tags that indicate that the driver still works for existing users.
-> Especially so since there are changes that look problematic.
->
-> Cheers,
-> Peter
+Hi,
 
-Hi Peter,
+I'm seeing a continuous IRQ flood from the ELAN2514 touchscreen on an HP Omnibook X 14 (Intel Core Ultra 5 226V, Lunar Lake). With the driver bound, IRQ 20 fires non-stop and keeps one CPU core at ~30% load with the machine otherwise idle.
 
-A gentle ping on v3 [1] -- just checking whether you've had a
-chance to take another look.
+Kernel: 7.0.8-arch1-1
+Machine: HP Omnibook X 14, Intel Core Ultra 5 226V
+Touchscreen: ELAN2514, 04F3:43F4, ACPI \_SB_.PC00.I2C4.TPL1
+Controller: i2c_designware.2 on IRQ 20 (IR-IO-APIC 20-fasteoi)
 
-The conversion was reworked deliberately across v2 and v3 to keep
-existing OF users behaviour-identical:
+At boot, i2c_hid_acpi logs this once during probe (rate-limited):
 
-  - The three-way endian fallback ("little-endian" wins, then
-    "big-endian", else the compile-time byte order via the original
-    __BYTE_ORDER preprocessor block) is preserved verbatim.
-    device_is_big_endian() is deliberately *not* used here because
-    it ignores "little-endian" and introduces "native-endian"
-    semantics that would diverge from the binding.
+[    5.042325] i2c_hid_acpi i2c-ELAN2514:00: i2c_hid_get_input: IRQ triggered but there's no data
 
-  - The "if (!mux->data.reg)" guard around
-    devm_platform_get_and_ioremap_resource() is preserved so a
-    platdata caller's pre-ioremapped reg from
-    struct i2c_mux_reg_platform_data is not clobbered.
+The device registers successfully after that, but the interrupt line never deasserts. The counter on CPU5 climbs without bound:
 
-  - The dev_err_probe() wrapper at the probe_fw() call site is
-    kept so the helper's silent error paths still produce a dmesg
-    line on failure.
+    20:    0    0    0    0    0    19537    0    0   IR-IO-APIC   20-fasteoi   i2c_designware.2
 
-Tested on ACPI hardware (two of our switches).  The OF-only
-in-tree users are on PowerPC/SH so I couldn't bench them, but I'd
-appreciate a maintainer read to confirm I haven't missed anything
-binding-visible.  Happy to respin if you'd like anything tweaked.
+Also worth noting - the device registers an unusual set of input nodes, including several labeled UNKNOWN:
 
-[1] https://lore.kernel.org/r/20260513-i2c-mux-reg-v3-1-0fa7242605bc@nextho=
-p.ai
+ELAN2514:00 04F3:43F4 Touchscreen
+ELAN2514:00 04F3:43F4 Stylus
+ELAN2514:00 04F3:43F4 Keyboard
+ELAN2514:00 04F3:43F4 Mouse
+ELAN2514:00 04F3:43F4 UNKNOWN  (x5)
 
-Thanks,
-Abdurrahman
+As a workaround I'm unbinding the driver via udev immediately after probe completes:
 
+ACTION=="bind", DRIVER=="i2c_hid_acpi", KERNEL=="i2c-ELAN2514:00", \
+    RUN+="/bin/sh -c 'echo i2c-ELAN2514:00 > /sys/bus/i2c/drivers/i2c_hid_acpi/unbind'"
+
+This stops the flood but obviously leaves the touchscreen non-functional.
+
+--
+Dennis
