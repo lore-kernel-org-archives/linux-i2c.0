@@ -1,94 +1,89 @@
-Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F9552D0292;
-	Sun, 17 May 2026 04:33:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778992405; cv=pass; b=GmA+M3/5FwYy0MmRz+ViKKknG8xpMlUpgelKADX/0ZvfcrHsYg35jGGtQtGru4MxnTe++pjIEZ7b5efyh6pL0m8lwSJR2qgtEfi/Iedrr6koiHQGngQyx/V0Gl2XVgJkEk1sD+bUHlV2PViXgzogxO5hX/JEmYvxuqvTYOlBLzk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778992405; c=relaxed/simple;
-	bh=ZL8CbwP2c1JXLJIt/TXg9xpQCitcZJ1JEWa4++759wk=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:Subject:MIME-Version:
-	 Content-Type; b=P0FI1B5gJrq4FWD3QQYxxitCTrJRMFtUGaAIfgsw7DMagJXC6VeQerKxy17F/sD72fhULekEZOYcmol9KPdR0ir+izdM2TIfDuOEddCYxkyUbSoLS/H8VFFCYdCBXHWDdm96Lnc9PNGvmPuQ/QMW9hCGlQjZBti0rBlJvc/l/lo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dennisfoster.us; spf=pass smtp.mailfrom=dennisfoster.us; dkim=pass (1024-bit key) header.d=dennisfoster.us header.i=mail@dennisfoster.us header.b=DxZeT1Op; arc=pass smtp.client-ip=136.143.188.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dennisfoster.us
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dennisfoster.us
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAF6C26FA7A;
+	Sun, 17 May 2026 08:11:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779005519; cv=none; b=pXOFRnkBgXzU6DaGVfi4Vead66AB07K/2Q1eP+GeuPFzvzllxLNLr5lPO0iJil8M6aaFP86VcFno9PXgnikisyN5R3voX4J5eqTx64EoEHo4aZtEyj75gcWv/2mVSQTM1rfk/kNQGe4UiL4woaXL5XQjd7JgCBr+zQPSg6iWPRE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779005519; c=relaxed/simple;
+	bh=R8QSWBUhn8ehatazqRlzsq+Lwyp9VIk9GLj2mLVG5UY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Twx8fh1JW1ml85I1tSufGvDULIz6kIOT8e1hHQwJjf7YuWnbXFCOqroMZ1QY6RFmOX14xaQaWQYnPBgkGjoXe3FDPRFEoOBn8Ffa3X2Z0jVKOnY3Re48Lch3JqgySkPZ/CKGq1FyTOeZnBEv5165jl3tMJpsk+EjAx5w3lbJyfs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=EqwPZzU5; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=dennisfoster.us header.i=mail@dennisfoster.us header.b="DxZeT1Op"
-ARC-Seal: i=1; a=rsa-sha256; t=1778992400; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=Vpj9QSVNq5kfg7sqQqffYOcpomldmq8UQBc/7WDhA7ar+YAqNrJQP92KxG6aPlLYwJ/w641V5iIwlsB7xhhtqtQ5oLwY9I2onzq9cNpRkLkxHh0t9vQPBjEWEnlSZi9mz8MZI2Dg+PlYkLvKzPqy/cCVG1054+eMaINIwwgW1KM=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1778992400; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=dUlRtNPNglnRzx8VYnkqHSWrCDJb6x0BQ6x2vmJa+D8=; 
-	b=iIH4tQJtGzf6/G32gZCBpiSQdeU8nqWCU2wuhfs7OFqFPR2FDrFgv4BQ8JZLR3nOuk2a9tJtclt50Lg6zp3HgIHfWDPygEvG1pzQbei11e47h5+jTkiZQhg5lo7lLs0255F7475ESZekyJC7usJoBBwaZ2Cfuc603bKJV09zSGQ=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=dennisfoster.us;
-	spf=pass  smtp.mailfrom=mail@dennisfoster.us;
-	dmarc=pass header.from=<mail@dennisfoster.us>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1778992400;
-	s=zmail; d=dennisfoster.us; i=mail@dennisfoster.us;
-	h=Date:Date:From:From:To:To:Cc:Cc:Message-ID:In-Reply-To:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=dUlRtNPNglnRzx8VYnkqHSWrCDJb6x0BQ6x2vmJa+D8=;
-	b=DxZeT1Op1/xU9TJ8DkRlanMgRW/XLgweBp0HVgZ6ZLXBTpBHNIpZcq/EdF0XhvdX
-	nr+kC8p9aJ24O3L319aL0TsWpEYBy7tO1ZHbbHghx6qfXaqmgTEsRREtQgG77H6d6EK
-	5byHZmde78HmLzD4BEOgq93bvi5GgpcFtKHg39Zs=
-Received: from mail.zoho.com by mx.zohomail.com
-	with SMTP id 1778992398392282.67181596166824; Sat, 16 May 2026 21:33:18 -0700 (PDT)
-Date: Sun, 17 May 2026 00:33:18 -0400
-From: Dennis Foster <mail@dennisfoster.us>
-To: "linux-input" <linux-input@vger.kernel.org>
-Cc: "linux-i2c" <linux-i2c@vger.kernel.org>,
-	"benjamintissoires" <benjamin.tissoires@gmail.com>,
-	"jikos" <jikos@kernel.org>
-Message-ID: <19e3435bff9.5159b6ff3377555.4429246136901518864@dennisfoster.us>
-In-Reply-To: 
-Subject: i2c_hid_acpi: ELAN2514 touchscreen causes IRQ flood on HP Omnibook
- X 14 (Lunar Lake)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="EqwPZzU5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1779005518; x=1810541518;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=R8QSWBUhn8ehatazqRlzsq+Lwyp9VIk9GLj2mLVG5UY=;
+  b=EqwPZzU5U3752ZtRzKVajETbBG+rL0Ja3AaXFFBl6dAdJZFpGfJzipAY
+   v7MCQEqXVzpo0AmRb5fCo2mevA3LdVeDjDj90Jt/tKCkywiqFWVWysU7Y
+   leGKpHaJpuR1u4GULR8WTjSS0gyZ1u29bZhETxaO1DWUYFYewYfEpp7JT
+   QQvF8M+J2ngEdyTqQiGxyBdQUtQL4SOOEparAz1wx5kVZLeYmnmfQr0mR
+   szM8UgdSrtefTmJXg1pbUXJ49hjKRB9loP0vB5spfGHLI2JTIiBgxdpMG
+   1Uw7yrkuhTvqNh99lbFiLuImcnaBVMlYCBiq5QmPU12zDpu8wUxhVD+ko
+   w==;
+X-CSE-ConnectionGUID: fv9arcRqTKSe9JCbO/qpkQ==
+X-CSE-MsgGUID: b+wmwB/rTW6KAa4LqXxo5Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11788"; a="91351142"
+X-IronPort-AV: E=Sophos;i="6.23,239,1770624000"; 
+   d="scan'208";a="91351142"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 May 2026 01:11:57 -0700
+X-CSE-ConnectionGUID: Hb/dy0HBQ06MAf186pp1MA==
+X-CSE-MsgGUID: I98qXi/8QlaThW1H3+YVgg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,239,1770624000"; 
+   d="scan'208";a="244091510"
+Received: from slindbla-desk.ger.corp.intel.com (HELO localhost) ([10.245.245.182])
+  by fmviesa005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 May 2026 01:11:51 -0700
+Date: Sun, 17 May 2026 11:11:49 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Thomas Lin <thomas_lin@lecomputing.com>
+Cc: rafael@kernel.org, lenb@kernel.org, hoan@os.amperecomputing.com,
+	linusw@kernel.org, brgl@kernel.org, mika.westerberg@linux.intel.com,
+	jsd@semihalf.com, andi.shyti@kernel.org, broonie@kernel.org,
+	linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-spi@vger.kernel.org, lucas_hao@lecomputing.com,
+	puntar_liu@lecomputing.com, jihua_tao@lecomputing.com,
+	stan_xu@lecomputing.com, lumin_liu@lecomputing.com,
+	notics_zhang@lecomputing.com, braden_zhang@lecomputing.com,
+	harold_wu@lecomputing.com, will_zhang@lecomputing.com,
+	aurora_jiang@lecomputing.com, ryen_lin@lecomputing.com,
+	andy_jiang@lecomputing.com
+Subject: Re: [PATCH v2 1/3] gpio: dwapb: Add ACPI ID LECA0001 for LECARC SoCs
+Message-ID: <agl4RXIp0f8yZfzL@ashevche-desk.local>
+References: <20260514034319.3507315-1-thomas_lin@lecomputing.com>
+ <20260515110322.2883310-1-thomas_lin@lecomputing.com>
+ <20260515110322.2883310-2-thomas_lin@lecomputing.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Importance: Medium
-User-Agent: Zoho Mail
-X-Mailer: Zoho Mail
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260515110322.2883310-2-thomas_lin@lecomputing.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Hi,
+On Fri, May 15, 2026 at 07:03:18PM +0800, Thomas Lin wrote:
+> Add ACPI ID "LECA0001" for LECARC SoCs that use the DesignWare GPIO controller with V1 register offsets.
 
-I'm seeing a continuous IRQ flood from the ELAN2514 touchscreen on an HP Omnibook X 14 (Intel Core Ultra 5 226V, Lunar Lake). With the driver bound, IRQ 20 fires non-stop and keeps one CPU core at ~30% load with the machine otherwise idle.
+It's way too long line, please wrap around 72 characters.
+With that done, you may add
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-Kernel: 7.0.8-arch1-1
-Machine: HP Omnibook X 14, Intel Core Ultra 5 226V
-Touchscreen: ELAN2514, 04F3:43F4, ACPI \_SB_.PC00.I2C4.TPL1
-Controller: i2c_designware.2 on IRQ 20 (IR-IO-APIC 20-fasteoi)
+-- 
+With Best Regards,
+Andy Shevchenko
 
-At boot, i2c_hid_acpi logs this once during probe (rate-limited):
 
-[    5.042325] i2c_hid_acpi i2c-ELAN2514:00: i2c_hid_get_input: IRQ triggered but there's no data
-
-The device registers successfully after that, but the interrupt line never deasserts. The counter on CPU5 climbs without bound:
-
-    20:    0    0    0    0    0    19537    0    0   IR-IO-APIC   20-fasteoi   i2c_designware.2
-
-Also worth noting - the device registers an unusual set of input nodes, including several labeled UNKNOWN:
-
-ELAN2514:00 04F3:43F4 Touchscreen
-ELAN2514:00 04F3:43F4 Stylus
-ELAN2514:00 04F3:43F4 Keyboard
-ELAN2514:00 04F3:43F4 Mouse
-ELAN2514:00 04F3:43F4 UNKNOWN  (x5)
-
-As a workaround I'm unbinding the driver via udev immediately after probe completes:
-
-ACTION=="bind", DRIVER=="i2c_hid_acpi", KERNEL=="i2c-ELAN2514:00", \
-    RUN+="/bin/sh -c 'echo i2c-ELAN2514:00 > /sys/bus/i2c/drivers/i2c_hid_acpi/unbind'"
-
-This stops the flood but obviously leaves the touchscreen non-functional.
-
---
-Dennis
