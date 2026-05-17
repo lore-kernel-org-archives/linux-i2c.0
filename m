@@ -1,148 +1,111 @@
-Received: from mail-yw1-f174.google.com (mail-yw1-f174.google.com [209.85.128.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55B1733F5AB
-	for <linux-i2c@vger.kernel.org>; Sun, 17 May 2026 17:09:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 113933164AA;
+	Sun, 17 May 2026 23:49:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779037751; cv=pass; b=Ovvc1BhMN+oNhM7K3/2zYkzhM83OxIQ7Ao7rWhZhj4fvIJc0TQUo2Gf3su0RjfojPlEIPXQ54tuB4/nSaZnlDr8BF4zps5dOCesul2+TWkjW567e5lbdXol0edh5VZVwHkNdM2V19fm0mMLFvdbn1OU4l2HH9JuMnx2IsYq1Gnw=
+	t=1779061789; cv=pass; b=QyDmO9KAyjOGgHot79ZtonnxAwWembMIFyGxJnfkg8JxuRqbzwaZOeGz8sKhT8lJhS3i2XDTA/Ml2ylSab/+wCCDVa2WqVtZO9WXkL6oEcMbHMqOnbVsQJbPXS6pSCor0sbSoKKLfbviPr4jJfORfclBsisY9dST65DQmLAiBH8=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779037751; c=relaxed/simple;
-	bh=gR7yXaMbFYnlgjumf6OzkaSf/fm5FQpc728TaerBcYI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ENcGKhVWSaaXtGjO8WIhdT1YBhNH1Oq0R5Sbc13JBwoA1mJZK9qxQkHmYKJxMzf0HizaOfg87ikVgnnI1LzaxDv7qlwgf1fZ4g9hocpl1YWzhGxHBKx5IlnnYG+0pD/EfdYr4g9cTES9RIsWrLTWRDaPmTNMxPfPpW0qOnTbatI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=F7ZYzflP; arc=pass smtp.client-ip=209.85.128.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779061789; c=relaxed/simple;
+	bh=N0tSIAuobHoHCWLjqVW5DUoKpRN6POk0hnMoTjT1dhc=;
+	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
+	 MIME-Version:Content-Type; b=TV2MIXqLdXcaegnGk/PuOixLu2ha1//BvGMN0uwj/DVjV+mOTfLdEokE9foHRslHggbBPnOz5J67+ed5RoCQdj5oVfrMFQMHn/bR6h4SI8dNeWPephQFNHpnTGHTIWljj0WdcRJrf5g3nUNc5hgbRqke+Du72a6d9Nm8Ig0W4Lg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dennisfoster.us; spf=pass smtp.mailfrom=dennisfoster.us; dkim=pass (1024-bit key) header.d=dennisfoster.us header.i=mail@dennisfoster.us header.b=Q1ed3MfJ; arc=pass smtp.client-ip=136.143.188.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=dennisfoster.us
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=dennisfoster.us
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="F7ZYzflP"
-Received: by mail-yw1-f174.google.com with SMTP id 00721157ae682-7bf02533706so8427987b3.0
-        for <linux-i2c@vger.kernel.org>; Sun, 17 May 2026 10:09:10 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779037749; cv=none;
-        d=google.com; s=arc-20240605;
-        b=lJAAhRi9M7Jo8oyG/m2bQ5Bw9bRZAegJf7S29VXi73gxeK3V6uKWjEMq3+dBKV2lNP
-         5MOrBkh8s2CjQImiTrrUVdZCb4n5vH5vY5KMBacVsf7nswO2ylUtYUGsXvqoPPrxKGjJ
-         vJGP5WvsxNtz9tKqVhgfbpY9z32DfcBDpIOmigtWET0GFdf90+ITAyxzbMx6EgciU/jq
-         5zes0+vrrHwCPsUm6BrBZ2KU7YJc07RAfLgjscaNiAIw+DDnFPNjLCuF+t4hBHeNGzg+
-         ByhfXH9PlFRQ0ANmL3kuCXwrMu/eymWpZ/gwQyl6ngD6gu9dzMmsOYXmfCzJ18Y+eyOk
-         hqqA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=R2WC/h6pAzuRmbcYX3EI1ehtvQRlSkP72sx7+fUup/0=;
-        fh=rQRgqW1Vy4FSJmed0EXb0sZeDGDt0y8JP+9lcx/MRNw=;
-        b=Rx2BPfaFlqKpfLDPDgeeCztXdNK5H4WhKs3BzG5KavOwJP0uU67BRED1nxHhCiAOV/
-         Ci90bDQmOAefSjbm3Ab3vyuprCFulCMKOJbSHCI+lXFFGwNdccCuYPCYZoGCfQfbiiCC
-         jd31q+1l054uI09o6UpE2JlyHdGXlXdHslMQqw8akkex6QsptZs78sv6zKmvc6PZNdI3
-         zl6dLBYKMGggShzP3p6H6NFP1saAAQZpvvOV3UNwcHv/2OoBNktTcYjS9N1WzAEQaUod
-         DrByk36OgAZchuroupz30y/u/ilnqbZGgh406qjfBUD8BcWArB3BiiPeXx1BBMzObsT7
-         2+kw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779037749; x=1779642549; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=R2WC/h6pAzuRmbcYX3EI1ehtvQRlSkP72sx7+fUup/0=;
-        b=F7ZYzflPmc5/sMLk5hNRCa6zuxOmGTYYhlVJ6TtAdFMNyDrZWIUYz57zRL/utm9M5P
-         d0HGhfa6GH1Smz0D6/QKq8rCxmL4JbfV68t5t4FZO0dhjr/ZxchyGqn9/XFcRZxyIyK0
-         O0Js8o99w1N5eR722lGjdDxDvRjUaY/+w2wEdGAZbKGsw0T3P4fLqaILbTuGBVFg7rJ9
-         ATDpGrn+Dstm8sD0xi1wRwuyaGuToTKM8sCrGzSQXv+Vz04dZ6lQI0ZY1fEmqb5rjG59
-         Xh9W2sPVQFsRJAOnRSEP82Hy7cA1kTlS+/rh8Ef9nhKcgl4AmaNKBoldxC+W7uvHK3yW
-         zJBw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779037749; x=1779642549;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=R2WC/h6pAzuRmbcYX3EI1ehtvQRlSkP72sx7+fUup/0=;
-        b=hiMcOfBOVzpzw4J3O2nDfV1LEWb+F7oHZUtBwLcZOWQ4kba6/2CWmrzfaFnFYlP/pc
-         r5X+/7AQAzltouiDNlul8vfTOfa/WgrgrDsM8HvVfybLGuU+fJ3NLaHGwhz16PkU6X4w
-         0ZvBjQoGWdpVk0Z33xhDvY3VINZ/vXeTSjjUJBUotwd8mHo5tZbwz5/I7YPjZPgazigx
-         USDs68/4VLSN4DNsdgEmDCMvxKXrVN1+vZQcSAsmnRSZTtb5Q13SztRc3bUwMfI2NQCL
-         m1QYYDb2HChbI2gO3BNeaMilNoD7ei4i0tA7Xv471gWAxTUIbl1QctBfWC/+gOZOyXjb
-         6Gcg==
-X-Gm-Message-State: AOJu0YwRm+7KdpWqaPSMnSMHGcEy46j+DKMypN8cSY4RzZMQnOKbrril
-	KT7/GomVR/jkbx1Buh5Gwjr49XBCbq/Mhtc0k/QvcN7E6nlnjL/DCAhc89aHZDCXQOdHcaswIkB
-	5D2/+wx0uZKkHGfyIJpEC4ywH4gBIhyA=
-X-Gm-Gg: Acq92OE/umygkKtRcA/SNaw3fAQYAZt9EMlsaJLJ05noVl+dZSaCfu78H0gtSZTAjnE
-	nwuEM/pTdmDkAJJS4p8timZSBLu5yqJBwAFV3OZASCzvooUEuzsfp5Cbbv6ORODIdWj9/HO9rla
-	gVGqvoaO/E11dD+HyM8fM76eRUOWgVP45zB02jALnNKpEOo5EWjfy55VUvKHHL8dxsubJKKFMKt
-	jdoZwyrorBFAbpEGGePbkek71UdaX1ukratwFOY5CV9nSw0lh9TbF9zooIQqWEKycX5+ENqVMPG
-	y0ooMiNLSw0Rrxh6WEnuBlZh2DVJL0o3Xbrflwl0hiWSq7shmKx68R5cUDR6uIBS2IrWLE5QVUy
-	CwrXavaa9q5QCn4ELRjTeKQttpOCTHQgdeRa4LFOKj/x3NViEOn27ULWKhyC5/lUJ4s7w3w==
-X-Received: by 2002:a05:690c:60c7:b0:7b8:5f91:65b8 with SMTP id
- 00721157ae682-7c9594b35aemr118510287b3.9.1779037749285; Sun, 17 May 2026
- 10:09:09 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=dennisfoster.us header.i=mail@dennisfoster.us header.b="Q1ed3MfJ"
+ARC-Seal: i=1; a=rsa-sha256; t=1779061783; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=HGqCQ+vFUBGvyXMT5wR2QVpq9PAW7/yHH2Bp3Bvk9eIWSDRGoW8zpcRSagTqKRYy4U+Xqx8wA3g/U51ZPRf+viVjJFkEaQktToQVb3P8IbaxIh/n8U0GjJS2Q7lgr8/tCb+Sn1Fw7ftemOZz7Z/xSMCLF4jnLmne7gnc7XHB9iw=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1779061783; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=sf3iiHEVS+Ttm0eJ0DGiaLQDocg3QwOjCMBwwzrVTOI=; 
+	b=OKiBxsgpc488ATZHWeIsAjObzK89vXt/xygPndhWDpNw5cMWYk5lq7Ll0gxFOiwhc3RcjBv+pm2ttk9gCVywnGZeWNlftouCoowQwlQVXmIpuv0LbUiHpAL3tUfGRqYy5spAELKRS78itM43KqPaZSbzJ518n4ShKqSVnjH50ZM=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=dennisfoster.us;
+	spf=pass  smtp.mailfrom=mail@dennisfoster.us;
+	dmarc=pass header.from=<mail@dennisfoster.us>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1779061783;
+	s=zmail; d=dennisfoster.us; i=mail@dennisfoster.us;
+	h=Date:Date:From:From:To:To:Cc:Cc:Message-ID:In-Reply-To:References:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=sf3iiHEVS+Ttm0eJ0DGiaLQDocg3QwOjCMBwwzrVTOI=;
+	b=Q1ed3MfJznDn8HSwofwDM47ZeoBNhVM0SdPS+/3AnE5ZXXN4iKwENFDeb650vBEI
+	zQYcb8PwHpXx0WeWGQbFUhElr7xNMK6R1IGNpoDkWMVtB8Qf5tZnkZfzNVeJxO9sM0t
+	lC1NBEI879d0HlyjRx+RIjD+VZHPHER9/BpVsbs4=
+Received: from mail.zoho.com by mx.zohomail.com
+	with SMTP id 1779061781918969.0391407459689; Sun, 17 May 2026 16:49:41 -0700 (PDT)
+Date: Sun, 17 May 2026 19:49:41 -0400
+From: Dennis Foster <mail@dennisfoster.us>
+To: "linux-input" <linux-input@vger.kernel.org>
+Cc: "linux-i2c" <linux-i2c@vger.kernel.org>,
+	"benjamintissoires" <benjamin.tissoires@gmail.com>,
+	"jikos" <jikos@kernel.org>
+Message-ID: <19e3858758e.779469783489550.85756750264043334@dennisfoster.us>
+In-Reply-To: <19e3435bff9.5159b6ff3377555.4429246136901518864@dennisfoster.us>
+References: <19e3435bff9.5159b6ff3377555.4429246136901518864@dennisfoster.us>
+Subject: Re:i2c_hid_acpi: ELAN2514 touchscreen causes IRQ flood on HP
+ Omnibook X 14 (Lunar Lake)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260515161516.10474-1-hardikprakash.official@gmail.com> <agmPrF0IClOpDYlR@ashevche-desk.local>
-In-Reply-To: <agmPrF0IClOpDYlR@ashevche-desk.local>
-From: Hardik Prakash <hardikprakash.official@gmail.com>
-Date: Sun, 17 May 2026 22:38:57 +0530
-X-Gm-Features: AVHnY4KTSGZpReqSZufyItdUPFDwVE4MyKIswJsHjhtLSg9CO2F4KFhunkJduvo
-Message-ID: <CANTFpSWMjz-V_oOsP+7Ww57vhdDVwq0nJ0icQnp3qSq7-=yFRQ@mail.gmail.com>
-Subject: Re: [PATCH v3 0/1] i2c: designware: fix probe ordering for AMD GPIO
- on Lenovo Yoga 7 14AGP11
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org, 
-	mario.limonciello@amd.com, brgl@bgdev.pl, basavaraj.natikar@amd.com, 
-	linus.walleij@linaro.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Importance: Medium
+User-Agent: Zoho Mail
+X-Mailer: Zoho Mail
 
-On Sat, May 17, 2026 at 15:21, Andy Shevchenko wrote:
-> On Fri, May 15, 2026 at 09:45:15PM +0530, Hardik Prakash wrote:
-> > v3:
-> >  - Patch 2 only (patch 1 already in Linus Walleij's tree)
->
-> The patch numbering is broken. Where did 2/2 come from?
+Couple of corrections.
 
-Both patches are committed in my local tree. git format-patch counted
-both commits and numbered this 2/2. I excluded the 0001 file from the
-git send-email call since patch 1 is already in Linus Walleij's tree,
-but the numbering carried over from the two-commit series.
+The machine is actually an HP OmniBook X Flip 16, not the
+"Omnibook X 14" I wrote in the original - my mistake. Also bumped to
+kernel 7.0.9 today; same behavior. BIOS is HP F.11
+(03/04/2026), board 8DA1.
 
-Apologies for the confusion. If preferred I can resend with 1/1
-numbering by dropping patch 1 from my local branch before running
-format-patch.
+I disabled the udev workaround briefly to get an actual rate. With the
+driver bound for ~40 seconds, /proc/interrupts went from 18,811 to
+1,778,374 on IRQ 20, i.e. roughly 42,900/s pinned on CPU5. Kernel
+never marks the line bad - no "nobody cared", no "disabling IRQ", it
+just keeps fasteoi'ing.
 
-Thanks,
-Hardik
+One thing I missed in the DSDT that might be relevant: TPL1's
+interrupt isn't a GpioInt() resource, it's a regular Interrupt()
+template with the vector patched in at _INI:
 
-On Sun, 17 May 2026 at 15:21, Andy Shevchenko
-<andriy.shevchenko@intel.com> wrote:
->
-> On Fri, May 15, 2026 at 09:45:15PM +0530, Hardik Prakash wrote:
-> > The Wacom WACF2200 touchscreen on the Lenovo Yoga 7 14AGP11 (83TD) is
-> > non-functional on Linux due to two bugs. Patch 1 (pinctrl-amd GPIO IRQ
-> > fix) has already been taken into Linus Walleij's tree. This v3 resend
-> > covers patch 2 only, addressing Andy Shevchenko's formatting feedback.
-> >
-> > Root cause: i2c_designware probes AMDI0010:02 before pinctrl-amd's
-> > probe completes, so GPIO 157 (WACF2200 GpioInt per ACPI _CRS) has its
-> > interrupt bits cleared when the first I2C transaction is attempted,
-> > causing lost arbitration errors. The udev rebind workaround (which
-> > works because pinctrl-amd has finished by userspace time) confirms
-> > probe ordering as the root cause.
-> >
-> > Note: the dual-master hypothesis raised by Mario Limonciello was
-> > investigated. TPNL's _DSM (UUID 3cdff6f7-4267-4555-ad05-b30a3d8938de)
-> > is a pure query method returning a constant HID descriptor address with
-> > no side effects, making firmware acting as secondary I2C master unlikely
-> > on this hardware. Awaiting Mario and Bart's technical verdict before
-> > any further approach changes.
-> >
-> > v3:
-> >  - Patch 2 only (patch 1 already in Linus Walleij's tree)
->
-> The patch numbering is broken. Where did 2/2 come from?
->
-> --
-> With Best Regards,
-> Andy Shevchenko
->
->
+    Name (SBFI, ResourceTemplate ()
+    {
+        Interrupt (ResourceConsumer, Level, ActiveLow, Exclusive, ,, _Y4F)
+        { 0x00000000, }
+    })
+
+    Method (_INI, ...)
+    {
+        ...
+        INT2 = INUM (GPLI)
+        ...
+    }
+
+That's why it surfaces as IR-IO-APIC 20-fasteoi rather than something
+gpiolib-backed. _CRS picks between this template and a G_IN()/GpioInt
+template based on the BIOS variable TPLM, and this firmware ships
+with TPLM != 0 so we end up on the APIC path. I don't see a setup
+option to flip it.
+
+Probably unrelated but in the same area of the DSDT - this prints
+once at boot:
+
+    ACPI BIOS Error (bug): Could not resolve symbol
+        [\_SB.PC00.I2C5.TPL1], AE_NOT_FOUND
+
+I2C5 has no TPL1 in this firmware (the touchscreen is on I2C4).
+
+Happy to send the full decompiled DSDT/SSDTs, a fuller dmesg with
+i2c_hid dyndbg enabled, or test patches.
+
+--
+Dennis
+
