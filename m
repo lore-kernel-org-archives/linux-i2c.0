@@ -1,188 +1,143 @@
-Received: from mail-dy1-f175.google.com (mail-dy1-f175.google.com [74.125.82.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61961395DA9
-	for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 20:59:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F2C2396D19;
+	Mon, 18 May 2026 21:14:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779137968; cv=none; b=h0s9vN+RVnaiO3pX1q5Oh0qp4wlP2Z5dFqcxFzKHxZbwzt66dfs7Nzut0Z4XxGO1ymNxtK8jzL6btAAT1TVOaMKRcuCXtiKYi6l5I6DNH2ouRyKByETOnjHf4LW5oPXSEdGlyM4nsdT4bqTqofCpS3vyYw7hFhz/CO0+X8Gwg3c=
+	t=1779138893; cv=none; b=UmqkQxvlzoWvrGLwOb3JMXPObvaQP852YWAg6dEQvwvDyyGbyrgRqqMuk0K88xBXRbJzWlM3NawufFuRDToweC/vDiQwpzawIvzREr5xqTLtkGU+i6amaUSz7fNRLN/o7Xi22kDZvbDEbveHrrzplxUXwMQIrrus4iGIxwSuNDc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779137968; c=relaxed/simple;
-	bh=nr+t1doD2CUBE3bFv8CLDzRSbdfYN9E47Pi8sfYRR1s=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:From:To:Cc:
-	 References:In-Reply-To; b=RiGMvXjBPI6CHb0OJYzLOhDssGlpeCEszYGjen/ivladrJDAexJdALQix4qMdVMRcQkrWeEQJqW33rHlTT+iEa1I4AFxkTHfgIInye7WTYpo/eUpzfPx4tJSw3ttZBH+WMkeEClirrgi0I5Nx7d4PfaUmljSJ7dTlDn79hy3IiE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=dyg8CyiG; arc=none smtp.client-ip=74.125.82.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
+	s=arc-20240116; t=1779138893; c=relaxed/simple;
+	bh=0NTob/lmSZJbtlL/Sfc01Q1tUC/xdilTB1xZMP6pz/M=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZPLGYdOuxeIe5uc+TASIlYVwWmLQFpEWlSgbEg7D1fuaNCI52KHrvo4CAbTKc1oE6yIWiK4rv2PkZMJmUmTV2VUtdgtJlPSfDtyp9JmFHwEcQnPFbgxERgtbHgqE61OUH1EKQOrgyjwdmAuisfq1rw4cKBoU99AJkGeiz8ZsXos=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=aa+cmDCI; arc=none smtp.client-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="dyg8CyiG"
-Received: by mail-dy1-f175.google.com with SMTP id 5a478bee46e88-2f36da5c8fbso2522986eec.0
-        for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 13:59:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1779137966; x=1779742766; darn=vger.kernel.org;
-        h=in-reply-to:references:cc:to:from:subject:message-id:date
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SC7LwadeZIJzGWSw3EwsmpwE/9tZMQSerDjTwBwBFWo=;
-        b=dyg8CyiG/VlbC8sQRcH/JjZXEm5u1XUoiIqxbkpLrehrqPHg0iK1hzgn4NTt7kX4d0
-         WPDVmlMYp3hvN3fu7FrGeEE4gaaNPs989pSDCbe1a6VQahMmTdvZphWer5eMvTwiggy8
-         HSEhZglqvOVqge5oDlApG6QDaGWGmUNUcziTLdV+9KVjwbL8LYqYET0bbAq+nX4u7P++
-         PIkJvWO52iROzOAwXTbFTS4l2EUEPo+Ixenz5VHLE7+3tTZsDwNUqsFMoewFiYiVDAsj
-         jFygJp7bmMPsByOq52/0QTK4jj3YXcr2ltcgkCzBOeAu/encTZD/Wsl2rxHz21kf27oM
-         Tkiw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779137966; x=1779742766;
-        h=in-reply-to:references:cc:to:from:subject:message-id:date
-         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=SC7LwadeZIJzGWSw3EwsmpwE/9tZMQSerDjTwBwBFWo=;
-        b=fuAKif4SnDN6/KAc473FQX3ArbAJwQrUtehN/tIlzG7hNqHJxrFUpbaSpNwGeo1Dmc
-         NWzkFV8AYzunqXp6AAtBum3oMaNIY8jxev/XQR54Ph62AwctOGp1pNJc5e7e4PZWp55Z
-         NyKLbAotF5HG+bgm8d3v+JOZXsf8YMxaG3NMGw2xbh7FoQGhYb6BDNeOG6ofrsUdBXMn
-         4b8cyhDQF5GZ34EVYUb9IF/rp90WJTArzS1cj+sAbuNxj/+M0zojpM2FiFrlzXmjv0mU
-         Fgm1rwqQxzlnlwUV9yFXDR48P4tkMsPCNqTACFI0xGGT2G40ILdBGJn8dqH8F72rOFfu
-         BMNA==
-X-Gm-Message-State: AOJu0Yw8BY8JiS2IaH07UIe9a7oVdiJZE7z5UNBoCWylBiTOguPDT9Vi
-	ImBKOwbwDkzdqKchRWYoU5sxRxZxKWlzuae3ptp0R1pw/6TGH/YTZ7jvUMlykx5qDvM=
-X-Gm-Gg: Acq92OHWfbmMeKQSPzW9MR+eq0pnx4N5UwNj8gnsq1SXR1GLk1To/XI6wBtxyRBAAdL
-	RsUqwVUnZo80mz/020vKcaMJN5aqeyhEsfBUfGp95hj4tTLs8RsLzRA+niYowcBt4CDmhWvxTCs
-	GkUZitHf/ulmo3XO0xlmgUHwT7U5lqCDBvMeZ1O1kpn/FQKcKtowgAUX/Jwjx2dFBhpJL/ZE9Ob
-	zFB+Vm8vkg6Sjf8Nkxkfit9v2J0OMjvsq3Vgzx4FwawKLyeU8z9WpDoAzAOp+m5pFWOU5oJBDzv
-	E25UThhrVpH84iz4z7AuEh0tPVzjf3QI6xSZVH9vXIEWf1kWS9wENIC5qwzjFRisj9+k8XN9TKz
-	GQWR2eLMpuahv7DcdtWtLLvk5ufeSusXBm8qHpFYeeg1GReqk1v58HktPsAy2nCDvHfD4YQi4cv
-	eu3IZiNFplGp5PmCJyBnlYa/A=
-X-Received: by 2002:a05:7300:dc8e:b0:2f2:5c68:5074 with SMTP id 5a478bee46e88-3039818af8fmr7531363eec.13.1779137966208;
-        Mon, 18 May 2026 13:59:26 -0700 (PDT)
-Received: from localhost ([50.145.100.174])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30296dcb6f6sm18597898eec.17.2026.05.18.13.59.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 18 May 2026 13:59:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="aa+cmDCI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1779138892; x=1810674892;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=0NTob/lmSZJbtlL/Sfc01Q1tUC/xdilTB1xZMP6pz/M=;
+  b=aa+cmDCIu2Y6Ed8AW+N+yn7x0lXFXAx0hkXvwxRcIIv1RJent1Zhq+WB
+   JTgYjJpydZG2gu8MfeW7wjorS/n1PAL1Oy/EvH22mZ9SG6TwRraxZ6jGI
+   YD5w+A/U3ZI//P8Dn0II41AnI1gWNj5LzoHVkAVbOYqsWFC6rzBrAZtjq
+   APvRfD7LRYHFb7MTfj46lfTFBDFT26h2mqbd/Mx0gce0gzMEnNf1HgANU
+   c8Eu/cIoqfW79++mzEgF0o186k/48me16ScAOccCqpIRVLlmhAps8lBCy
+   1RldhnoLtmCYhRH/WJkRsssTIVugi2qr8J80KmgycTx+8ENk0telUq5J7
+   w==;
+X-CSE-ConnectionGUID: jTd32rfOT+OQsoeKo6qN4A==
+X-CSE-MsgGUID: tFrTlzHlTtqRqxGahTaBsQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11790"; a="79855891"
+X-IronPort-AV: E=Sophos;i="6.23,242,1770624000"; 
+   d="scan'208";a="79855891"
+Received: from orviesa006.jf.intel.com ([10.64.159.146])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 May 2026 14:14:51 -0700
+X-CSE-ConnectionGUID: gOI2WDYHTZOe4tQgDM2Wug==
+X-CSE-MsgGUID: 9yqvd5RKR5W2zGcF14wJAg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,242,1770624000"; 
+   d="scan'208";a="238565917"
+Received: from lkp-server01.sh.intel.com (HELO d94e5e629b2d) ([10.239.97.150])
+  by orviesa006.jf.intel.com with ESMTP; 18 May 2026 14:14:48 -0700
+Received: from kbuild by d94e5e629b2d with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wP5IU-000000003PK-04b1;
+	Mon, 18 May 2026 21:14:46 +0000
+Date: Tue, 19 May 2026 05:14:41 +0800
+From: kernel test robot <lkp@intel.com>
+To: Markus Stockhausen <markus.stockhausen@gmx.de>,
+	wsa+renesas@sang-engineering.com, andi.shyti@kernel.org,
+	linusw@kernel.org, brgl@kernel.org, linux-i2c@vger.kernel.org,
+	linux-gpio@vger.kernel.org
+Cc: oe-kbuild-all@lists.linux.dev,
+	Markus Stockhausen <markus.stockhausen@gmx.de>
+Subject: Re: [PATCH v2] i2c: i2c-gpio: Enhance driver for buses with shared
+ SCL
+Message-ID: <202605190550.05JVXXRd-lkp@intel.com>
+References: <20260518161013.900504-1-markus.stockhausen@gmx.de>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 18 May 2026 13:59:25 -0700
-Message-Id: <DIM3RTVTMA0P.1081TMP4M5RNX@nexthop.ai>
-Subject: Re: [PATCH v3] i2c: mux: reg: use device property accessors
-From: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>
-To: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>, "Peter Rosin"
- <peda@lysator.liu.se>
-Cc: <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-Mailer: aerc 0.21.0
-References: <20260513-i2c-mux-reg-v3-1-0fa7242605bc@nexthop.ai>
- <f2688bbf-ab8a-484d-98d4-2a502f2ee36a@lysator.liu.se>
- <DIM2U4HC70GE.1B3CO1IS8AJV@nexthop.ai>
-In-Reply-To: <DIM2U4HC70GE.1B3CO1IS8AJV@nexthop.ai>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260518161013.900504-1-markus.stockhausen@gmx.de>
 
-On Mon May 18, 2026 at 1:15 PM PDT, Abdurrahman Hussain wrote:
-> On Mon May 18, 2026 at 6:59 AM PDT, Peter Rosin wrote:
->>
->> Hi!
->>
->> After reading v2/v3, I finally got why you removed if (!mux->data.reg).
->> I.e., since you removed the io-remapping from i2c_mux_reg_probe_fw()
->> that part can now be unconditional in i2c_mux_reg_probe(). But,
->> keeping the if just to accomodate potential out-of-tree code that uses
->> the platform data hooking is not needed so v1 feels better than v2/v3.
->> Sorry for being dense. However, see below.
->>
->
-> Agreed -- v4 will drop the guard and make
-> devm_platform_get_and_ioremap_resource() unconditional.
->
-> Follow-up question while we're pruning the platdata path: with the
-> guard gone, the .reg and .reg_size fields in
-> struct i2c_mux_reg_platform_data are functionally dead (any value a
-> platdata user supplied through them is overwritten by
-> devm_platform_get_and_ioremap_resource()).  Should I drop those two
-> fields from the struct in the same patch, or leave them as silent
-> no-ops in the public header?  Happy either way.
->
+Hi Markus,
 
-Scratch that, sorry -- right after sending I noticed
-drivers/platform/mellanox/mlx-platform.c is an in-tree platdata
-user.  It registers i2c-mux-reg platform_devices via
-platform_device_register_resndata(..., res=3DNULL, num_res=3D0, ...)
-and supplies a pre-set .reg (a (void __iomem *) cast of an LPC
-register address) and .reg_size=3D1 through the platdata struct
-(mlxplat_default_mux_data[] and friends around line 474).
+kernel test robot noticed the following build errors:
 
-Without the if (!mux->data.reg) guard,
-devm_platform_get_and_ioremap_resource() would run unconditionally,
-fail because the pdev carries no memory resource, and break
-mlx-platform's mux probe.  v4 will therefore keep the guard, and
-the .reg / .reg_size fields stay in the public platdata struct.
+[auto build test ERROR on linux-review/Markus-Stockhausen/dt-bindings-i2c-Add-i2c-shared-gpio/20260515-102710]
 
-The other two changes stand:
+url:    https://github.com/intel-lab-lkp/linux/commits/Markus-Stockhausen/i2c-i2c-gpio-Enhance-driver-for-buses-with-shared-SCL/20260519-005100
+base:   https://github.com/intel-lab-lkp/linux Markus-Stockhausen/dt-bindings-i2c-Add-i2c-shared-gpio/20260515-102710
+patch link:    https://lore.kernel.org/r/20260518161013.900504-1-markus.stockhausen%40gmx.de
+patch subject: [PATCH v2] i2c: i2c-gpio: Enhance driver for buses with shared SCL
+config: sparc-randconfig-r073-20260519 (https://download.01.org/0day-ci/archive/20260519/202605190550.05JVXXRd-lkp@intel.com/config)
+compiler: sparc64-linux-gcc (GCC) 8.5.0
+smatch: v0.5.0-9185-gbcc58b9c
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260519/202605190550.05JVXXRd-lkp@intel.com/reproduce)
 
-  - i2c_get_adapter_by_fwnode() -> i2c_find_adapter_by_fwnode() +
-    put_device() in probe_fw(), matching the OF original.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202605190550.05JVXXRd-lkp@intel.com/
 
-  - In probe(), move the if (!mux->data.reg) ioremap block --
-    together with the reg_size validation that depends on it --
-    above the i2c_get_adapter() call.  fwnode users get back the
-    master-side ordering of "ioremap before parent-adapter get";
-    platdata users see the size check run a bit earlier, but
-    mux->data.reg_size is set from platdata by then, so it's
-    order-neutral for them.
+All errors (new ones prefixed by >>):
 
-Cheers,
-Abdurrahman
+   In file included from include/linux/spinlock.h:63,
+                    from include/linux/swait.h:7,
+                    from include/linux/completion.h:12,
+                    from drivers/i2c/busses/i2c-gpio.c:7:
+   drivers/i2c/busses/i2c-gpio.c: In function 'i2c_gpio_create_scl':
+>> include/linux/lockdep.h:158:31: error: 'struct rt_mutex_base' has no member named 'dep_map'
+     lockdep_init_map_type(&(lock)->dep_map, #key, key, 0, \
+                                  ^~
+   drivers/i2c/busses/i2c-gpio.c:426:2: note: in expansion of macro 'lockdep_set_class'
+     lockdep_set_class(&scl->lock.rtmutex, &i2c_gpio_scl_lock_key);
+     ^~~~~~~~~~~~~~~~~
+   include/linux/lockdep.h:159:16: error: 'struct rt_mutex_base' has no member named 'dep_map'
+             (lock)->dep_map.wait_type_inner, \
+                   ^~
+   drivers/i2c/busses/i2c-gpio.c:426:2: note: in expansion of macro 'lockdep_set_class'
+     lockdep_set_class(&scl->lock.rtmutex, &i2c_gpio_scl_lock_key);
+     ^~~~~~~~~~~~~~~~~
+   include/linux/lockdep.h:160:16: error: 'struct rt_mutex_base' has no member named 'dep_map'
+             (lock)->dep_map.wait_type_outer, \
+                   ^~
+   drivers/i2c/busses/i2c-gpio.c:426:2: note: in expansion of macro 'lockdep_set_class'
+     lockdep_set_class(&scl->lock.rtmutex, &i2c_gpio_scl_lock_key);
+     ^~~~~~~~~~~~~~~~~
+   include/linux/lockdep.h:161:16: error: 'struct rt_mutex_base' has no member named 'dep_map'
+             (lock)->dep_map.lock_type)
+                   ^~
+   drivers/i2c/busses/i2c-gpio.c:426:2: note: in expansion of macro 'lockdep_set_class'
+     lockdep_set_class(&scl->lock.rtmutex, &i2c_gpio_scl_lock_key);
+     ^~~~~~~~~~~~~~~~~
 
->>> -	adapter =3D of_find_i2c_adapter_by_node(adapter_np);
->>> -	of_node_put(adapter_np);
->>> +
->>> +	adapter =3D i2c_get_adapter_by_fwnode(fwnode);
->>> +	fwnode_handle_put(fwnode);
->>
->> Why did you not change to i2c_find_adapter_by_fwnode()? It would be
->> closer to the original, but maybe that doesn't work for ACPI for some
->> reason?
->>
->
-> It works for ACPI -- both _find and _get bottom out in
-> i2c_find_adapter_by_fwnode().  My reason for picking the _get
-> variant was simply that it does try_module_get(adapter->owner) on
-> top.  But i2c_get_adapter() further down in probe() already does
-> the same try_module_get() and -EPROBE_DEFERs on failure, so the
-> extra acquire-then-immediately-release in probe_fw() isn't earning
-> us anything.  v4 will switch to i2c_find_adapter_by_fwnode() +
-> put_device(), matching the OF original more closely.
->
->>> -	/* map address from "reg" if exists */
->>> -	if (of_address_to_resource(np, 0, &res) =3D=3D 0) {
->>> -		mux->data.reg_size =3D resource_size(&res);
->>> -		mux->data.reg =3D devm_ioremap_resource(&pdev->dev, &res);
->>> -		if (IS_ERR(mux->data.reg))
->>> -			return PTR_ERR(mux->data.reg);
->>> -	}
->>> -
->>
->> By not doing the io-remapping here, the ordering is now subtly altered.
->> Previously we had io-remapping before the call to i2c_get_adapter().
->> With this change we instead have the call to i2c_get_adapter() before
->> the io-remapping.
->>
->> Since it is apparently difficult the get this patch tested for the
->> existing use cases, we should avoid as many of these innocent looking
->> but subtle changes as possible.
->>
->> Cheers,
->> Peter
->>
->
-> Will fix that in v4 by reordering probe() so the
-> devm_platform_get_and_ioremap_resource() call comes before
-> i2c_get_adapter(), matching the master sequence.  No need to push
-> the ioremap back into probe_fw() -- the helper signature stays
-> cleaner if probe() owns the call.
->
-> Thanks for the careful re-read.
->
-> Cheers,
-> Abdurrahman
 
+vim +158 include/linux/lockdep.h
+
+fbb9ce9530fd9b Ingo Molnar    2006-07-03  150  
+fbb9ce9530fd9b Ingo Molnar    2006-07-03  151  /*
+fbb9ce9530fd9b Ingo Molnar    2006-07-03  152   * Reinitialize a lock key - for cases where there is special locking or
+fbb9ce9530fd9b Ingo Molnar    2006-07-03  153   * special initialization of locks so that the validator gets the scope
+fbb9ce9530fd9b Ingo Molnar    2006-07-03  154   * of dependencies wrong: they are either too broad (they need a class-split)
+fbb9ce9530fd9b Ingo Molnar    2006-07-03  155   * or they are too narrow (they suffer from a false class-split):
+fbb9ce9530fd9b Ingo Molnar    2006-07-03  156   */
+fbb9ce9530fd9b Ingo Molnar    2006-07-03  157  #define lockdep_set_class(lock, key)				\
+eae6d58d67d973 Peter Zijlstra 2022-06-17 @158  	lockdep_init_map_type(&(lock)->dep_map, #key, key, 0,	\
+de8f5e4f2dc1f0 Peter Zijlstra 2020-03-21  159  			      (lock)->dep_map.wait_type_inner,	\
+eae6d58d67d973 Peter Zijlstra 2022-06-17  160  			      (lock)->dep_map.wait_type_outer,	\
+eae6d58d67d973 Peter Zijlstra 2022-06-17  161  			      (lock)->dep_map.lock_type)
+de8f5e4f2dc1f0 Peter Zijlstra 2020-03-21  162  
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
