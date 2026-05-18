@@ -1,136 +1,155 @@
-Received: from mta-64-138.flowmailer.net (mta-64-138.flowmailer.net [185.136.64.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f182.google.com (mail-dy1-f182.google.com [74.125.82.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A399138AC9A
-	for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 18:05:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.136.64.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 227C9381B0A
+	for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 20:15:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779127507; cv=none; b=FagBCWunIizH6SsHchK2DdUEgSIDCY33Tr5jb5drOHsHepJW3sGWVBIeExVvQx3gfr4TkqIY3VAxwYtjX3l1zD9ogqQnXsR9NU3a+IANUau0uL66h3YecyZzvWtg8tLjdRLH0knNJD8N2iYsDGLr9BCdGhD+0TFlTSBYrotH+cw=
+	t=1779135327; cv=none; b=nQKPEICrisRlm+hlbdWvT0H9f0zGgNW156UvQV7pqmGgDDmtm2kS9kURF0V7Tj7l5hZtJeTaB/0NnhJGijgIzLrjC8nNdgqgguarGuT8HbONQXRTJAwicq49UeWEjDy6Ds+PiniKTKwo7epCjihX+yMeJWvrTrH9ACgvRkqphGk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779127507; c=relaxed/simple;
-	bh=+rYo9RwlleK8Myvw5KVXSvl5djJdJZXOJbD7irbefyc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VBYrkp8Mk4dj4cpX9HxxPWJRkUIhUVVYm6vGfbQ0ro54nUdrnZpnki6v6gU3bFC4PUGYj2JeOhXq66TUso80La7MfiZZEUwbxda1PQe5gtCBfWl2qqA6CFkSaKAvIjEOFccIe9w0yfwxfmeSkN9v/l1rIM05T4YncN4JNoyR0Ro=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens-energy.com; spf=pass smtp.mailfrom=errorhandling.siemens-energy.com; dkim=pass (1024-bit key) header.d=flowmailer.net header.i=@flowmailer.net header.b=oOv4FfQQ; dkim=pass (2048-bit key) header.d=siemens-energy.com header.i=schuster.simon@siemens-energy.com header.b=dI1aE97G; arc=none smtp.client-ip=185.136.64.138
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens-energy.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=errorhandling.siemens-energy.com
+	s=arc-20240116; t=1779135327; c=relaxed/simple;
+	bh=ngdPnO1Cyjc/vJTeh8/x1Lz51F/x2nhH32sn1fzppwI=;
+	h=Content-Type:Date:Message-Id:Cc:Subject:From:To:Mime-Version:
+	 References:In-Reply-To; b=NmxWacOziYsnL2yHIDaBUKLKn2vJJPsoWY9t+Vrf6BQJTHS6abQDY8u1pMo4ymbWai1BZ9mzaDdKsUoE6yAaKrXmmcMpb9XKnkBGpabH86/PMeVVkvInR0iyJXqW/dGVN5+1ba89OHQqgd0O83nREHT1Y0yjoF+ZOHVgflHpd80=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=LfzqjN5z; arc=none smtp.client-ip=74.125.82.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=flowmailer.net header.i=@flowmailer.net header.b="oOv4FfQQ";
-	dkim=pass (2048-bit key) header.d=siemens-energy.com header.i=schuster.simon@siemens-energy.com header.b="dI1aE97G"
-Received: by mta-64-138.flowmailer.net with ESMTPSA id 202605181724465d97fa9eca0019fda8
-        for <linux-i2c@vger.kernel.org>;
-        Mon, 18 May 2026 19:24:47 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=s1;
- d=flowmailer.net;
- h=from:from:sender:to:to:cc:cc:subject:subject:content-type:content-type:content-transfer-encoding:References:In-Reply-To:Date:Message-ID:MIME-Version;
- bh=/xBoFD2ZNsbMOTky3B3enP8bn+W9UZXo1Hl2aVCLXos=;
- b=oOv4FfQQlHtS5BCboX78gqtA1vOdIzc2Bde3Q6JtaXyf67I3yyl6ut16FqBNN9+Yj9rq9Z
- nyDRk4mSBg/XXlSyTrgBcXgDhCrmwyDzEj+K3hddaJfeuwolNJkOXXJ8o46GUX+ljc6wR96d
- SFujsYOnihqEglQ5vlocmhDkHNiKg=;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm3;
- d=siemens-energy.com; i=schuster.simon@siemens-energy.com;
- h=from:from:sender:to:to:cc:cc:subject:subject:content-type:content-type:content-transfer-encoding:References:In-Reply-To:Date:Message-ID:MIME-Version;
- bh=/xBoFD2ZNsbMOTky3B3enP8bn+W9UZXo1Hl2aVCLXos=;
- b=dI1aE97GXW4w7iNDnE322TQwRLqhXPJ7u7OOtHXqPwbH7I8b7QZPUcsZ5dpM3aKOX+wuYT
- LPsjcYlVTxPExZ5kMJNCcDWODnTNTrGp6pV8qtNcwDcVLy69NW0vpvbVMGwrINlSJJ+x3xuE
- 8IjsHXj0AnDwTdczWEYMyN3ZXAMnYVljNLinrYheZqc9sCRB5uWpiqfkBE0KYz9ZVSj4gXWO
- W3XtjKRwxfg4DG16B+5mpyk1TGNVwWG+Fbcs2a0kj3mxu3xIuWEGyaVHCYP7ptwU5BzA0nrO
- 6VN6z+VVxxOzsIQ5H6Xp7Kj7GVjsxvKu6BvSATf/LyzOGeeNKmSh+lOw==;
-Date: Mon, 18 May 2026 19:24:44 +0200
-From: Simon Schuster <schuster.simon@siemens-energy.com>
-To: Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>,
-	Ethan Nelson-Moore <enelsonmoore@gmail.com>,
-	Dinh Nguyen <dinguyen@kernel.org>
-Cc: linux-doc@vger.kernel.org, devicetree@vger.kernel.org,
- workflows@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>,
- dmaengine@vger.kernel.org, linux-i2c@vger.kernel.org,
- linux-iio@vger.kernel.org, Netdev <netdev@vger.kernel.org>,
- linux-pci@vger.kernel.org, linux-pwm@vger.kernel.org,
- linux-hardening@vger.kernel.org, linux-kbuild@vger.kernel.org,
- "linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, Jonathan Corbet
- <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, Rob Herring
- <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas
- Gleixner <tglx@kernel.org>, Alex Shi <alexs@kernel.org>, Yanteng Si
- <si.yanteng@linux.dev>, Dongliang Mu <dzm91@hust.edu.cn>, Hu Haowen
- <2023002089@link.tyut.edu.cn>, Kees Cook <kees@kernel.org>, Oleg Nesterov
- <oleg@redhat.com>, Will Deacon <will@kernel.org>, "Aneesh Kumar K.V (Arm)"
- <aneesh.kumar@kernel.org>, Andrew Morton <akpm@linux-foundation.org>,
- Nicholas Piggin <npiggin@gmail.com>, Vinod Koul <vkoul@kernel.org>, Frank
- Li <Frank.Li@kernel.org>, Dave Penkler <dpenkler@gmail.com>, Andi Shyti
- <andi.shyti@kernel.org>, Jonathan Cameron <jic23@kernel.org>, David Lechner
- <dlechner@baylibre.com>, =?ISO-8859-1?Q?Nuno_S=E1?= <nuno.sa@analog.com>,
- Andy Shevchenko <andy@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S . Miller" <davem@davemloft.net>, Eric Dumazet
- <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
- <pabeni@redhat.com>, Lorenzo Pieralisi <lpieralisi@kernel.org>, Krzysztof
- WilczyDski <kwilczynski@kernel.org>, Andreas Oetken
- <andreas.oetken@siemens-energy.com>
-Subject: Re: [PATCH] nios2: remove the architecture
-Message-ID: <20260518172444.zyd47mcagrcwu7wt@dev-vm-schuster>
-References: <20260518042833.272221-1-enelsonmoore@gmail.com>
- <d40b1e80-37fc-4c88-9d7f-dae6458efe6c@app.fastmail.com>
- <20260518105735.GW3126523@noisy.programming.kicks-ass.net>
+	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="LfzqjN5z"
+Received: by mail-dy1-f182.google.com with SMTP id 5a478bee46e88-2c156c4a9efso3512885eec.1
+        for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 13:15:25 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=nexthop.ai; s=google; t=1779135325; x=1779740125; darn=vger.kernel.org;
+        h=in-reply-to:references:content-transfer-encoding:mime-version:to
+         :from:subject:cc:message-id:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=xiFAZvz3hwO0i2u3Qu3Y6dXTODQg/m869IwtOfJVETM=;
+        b=LfzqjN5zUD2TKK93TRSRnN8lEFPt4N3k3Ayz8o3KJkuU2hclLQ4/anChji4QBR7xlA
+         JM/hv9pLsxvaKNKYMgA3LSfCKfEeiTGGYQDc+Va3uztBVirokdFRyMhVFybk88VQwwzD
+         XSYKTia8VIJiO/mhxxeB01LqCypxkoDuVSRwnhWcFM5EIMElNefK7gb9oGN9ff/SdSnp
+         P5T6sBWy9szsMN+PDM5rslFBw1pNR69mWZV1etQaBIC/0N2NVCo01xdUyFshXm29qw+z
+         LfKbDMTBmTojzZlT1lzRpKzF5rK7+Y0xXAIw/a0FngcJNmSHwpkVTdOn/qrXOGjR0JIH
+         y4cQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779135325; x=1779740125;
+        h=in-reply-to:references:content-transfer-encoding:mime-version:to
+         :from:subject:cc:message-id:date:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=xiFAZvz3hwO0i2u3Qu3Y6dXTODQg/m869IwtOfJVETM=;
+        b=QLTJuSkI9P/gjiYut7N9gRxLP+wM6AgrFuefGEenR+BsxVWvlEsNZHcQPqPuXAsCy3
+         YYsGufYRpR70fDhXSoJRhlGBjVT8z6zQRuzhCUzrfBwyXTrMPmjoTLw5zvBKeFDWADfa
+         hiod3L+z/ryG1IOe7Hy7lYpis8XVIzjFzdSBOBuwIQngNPM1kkMB5BqODgu2lYL9/Ct7
+         AwJ7QuxlHv10ORhXfrtkQxMtUZkCFkPwESFjTOpKP3KfSFS5lP+RgSlr20H+R0n9tZNJ
+         tRk4AvsCuKlaX3vpdY3io4jE92fUW3J7glRqGQehEfspW95RCnjj9Q3Rku/EeCCN4V+1
+         8W5A==
+X-Gm-Message-State: AOJu0Yxw4T+icWZRAI3jHRu3fygFx8O7wsicUY7nerax/jW5TvdyAVvo
+	eHHQu22H2L/BemscSu3FTxuf9jpWgHLNMCv17PSzENqnquHAYEoH4+3baYvWKRSlpuuM9fNaj2U
+	xjzRQdPg=
+X-Gm-Gg: Acq92OFjNM0l7ibFW8A7Zdvpj09h6vl3AeerMOP2K1RYwGqz1YYMw6/E3XtC+pmkYqF
+	yARb9vHnn8gq+3H0zEsd1+e193dgPG1ocnoXFNuvZ81HD6QBeCMt4z4LwFoha0bsdIQU7g5rTVZ
+	27tznJttV5QQWtHJB5iLvdE8LLssr6z+EBo3os7BKUPzAGleT6zOevqemX7sWU6pleR97qyt2nf
+	evUReYDENILm+ywRRSavYKr5CPBl81pJsqGbQPrF24Sv9SSa99LY8pne6ELBwq9Zd12JEPn3m3e
+	fyMUpGwfzg0Og8m/+5Y1jsDsd38pB6bH7OZyxz+QpPHrFNCcrIb9xyEvl/MNtXIhuQC8Lv5GlFd
+	DprrOjaYT0icmXcnbnjDeFi60Ns07IaNp7PWJ8wESchG5wUAjuJb/yxG/QHBze421y7tM5mg80b
+	ooP+7qor0A+ogf9ojpLveO7uw=
+X-Received: by 2002:a05:7300:a146:b0:2e2:27bb:a48c with SMTP id 5a478bee46e88-3039816db2amr7491742eec.14.1779135324993;
+        Mon, 18 May 2026 13:15:24 -0700 (PDT)
+Received: from localhost ([50.145.100.174])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-302978ad18asm14388520eec.26.2026.05.18.13.15.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 18 May 2026 13:15:24 -0700 (PDT)
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 18 May 2026 13:15:23 -0700
+Message-Id: <DIM2U4HC70GE.1B3CO1IS8AJV@nexthop.ai>
+Cc: <linux-i2c@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH v3] i2c: mux: reg: use device property accessors
+From: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>
+To: "Peter Rosin" <peda@lysator.liu.se>, "Abdurrahman Hussain"
+ <abdurrahman@nexthop.ai>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260518105735.GW3126523@noisy.programming.kicks-ass.net>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Mailer: aerc 0.21.0
+References: <20260513-i2c-mux-reg-v3-1-0fa7242605bc@nexthop.ai>
+ <f2688bbf-ab8a-484d-98d4-2a502f2ee36a@lysator.liu.se>
+In-Reply-To: <f2688bbf-ab8a-484d-98d4-2a502f2ee36a@lysator.liu.se>
 
-Hi Ethan, Arnd, Peter and Dinh,
+On Mon May 18, 2026 at 6:59 AM PDT, Peter Rosin wrote:
+>
+> Hi!
+>
+> After reading v2/v3, I finally got why you removed if (!mux->data.reg).
+> I.e., since you removed the io-remapping from i2c_mux_reg_probe_fw()
+> that part can now be unconditional in i2c_mux_reg_probe(). But,
+> keeping the if just to accomodate potential out-of-tree code that uses
+> the platform data hooking is not needed so v1 feels better than v2/v3.
+> Sorry for being dense. However, see below.
+>
 
-On Mon, May 18, 2026 at 11:29:48AM +0200, Arnd Bergmann wrote:
-> We last discussed this a year ago when Simon Schuster mentioned[1]
-> that Siemens Energy is still using NIOS-2 in production and would
-> prefer to have this still included in Linux for at least another
-> few years until the obligation for kernel updates ends.
+Agreed -- v4 will drop the guard and make
+devm_platform_get_and_ioremap_resource() unconditional.
 
-First off, thank you, Arnd, for remembering us as this patch series came
-up and also to Dinh for his maintenance of the architecture!
+Follow-up question while we're pruning the platdata path: with the
+guard gone, the .reg and .reg_size fields in
+struct i2c_mux_reg_platform_data are functionally dead (any value a
+platdata user supplied through them is overwritten by
+devm_platform_get_and_ioremap_resource()).  Should I drop those two
+fields from the struct in the same patch, or leave them as silent
+no-ops in the public header?  Happy either way.
 
-Regarding our status in relation to nios2, Arnd's response already gives
-you the gist:
+>> -	adapter =3D of_find_i2c_adapter_by_node(adapter_np);
+>> -	of_node_put(adapter_np);
+>> +
+>> +	adapter =3D i2c_get_adapter_by_fwnode(fwnode);
+>> +	fwnode_handle_put(fwnode);
+>
+> Why did you not change to i2c_find_adapter_by_fwnode()? It would be
+> closer to the original, but maybe that doesn't work for ACPI for some
+> reason?
+>
 
-We are well aware that the architecture was deprecated by Intel and are
-therefore phasing it out in favour of more contemporary hardware.
-I'm also fully aware of the uncertain future of 32-bit architectures as
-a whole [0] and that this fate will come to nios2 sooner or later.
-But as of now, the mainline support is still in very good shape.
+It works for ACPI -- both _find and _get bottom out in
+i2c_find_adapter_by_fwnode().  My reason for picking the _get
+variant was simply that it does try_module_get(adapter->owner) on
+top.  But i2c_get_adapter() further down in probe() already does
+the same try_module_get() and -EPROBE_DEFERs on failure, so the
+extra acquire-then-immediately-release in probe_fw() isn't earning
+us anything.  v4 will switch to i2c_find_adapter_by_fwnode() +
+put_device(), matching the OF original more closely.
 
-On Mon, May 18, 2026 at 12:57:35PM +0200, Peter Zijlstra wrote:
-> Isn't that what we have LTS branches for?
+>> -	/* map address from "reg" if exists */
+>> -	if (of_address_to_resource(np, 0, &res) =3D=3D 0) {
+>> -		mux->data.reg_size =3D resource_size(&res);
+>> -		mux->data.reg =3D devm_ioremap_resource(&pdev->dev, &res);
+>> -		if (IS_ERR(mux->data.reg))
+>> -			return PTR_ERR(mux->data.reg);
+>> -	}
+>> -
+>
+> By not doing the io-remapping here, the ordering is now subtly altered.
+> Previously we had io-remapping before the call to i2c_get_adapter().
+> With this change we instead have the call to i2c_get_adapter() before
+> the io-remapping.
+>
+> Since it is apparently difficult the get this patch tested for the
+> existing use cases, we should avoid as many of these innocent looking
+> but subtle changes as possible.
+>
+> Cheers,
+> Peter
+>
 
-Unfortunately, as we are an infrastructure provider for civil energy
-infrastructure, the refurbishment cycle is a bit slower than for
-traditional consumer systems. This implies that the traditional LTS
-support duration (max. Dec 2028 as of writing [1]) is rather short, and
-we would be glad if we could keep the architecture in mainline for at
-least 5 years and only then "decay" to LTS.
+Will fix that in v4 by reordering probe() so the
+devm_platform_get_and_ioremap_resource() call comes before
+i2c_get_adapter(), matching the master sequence.  No need to push
+the ioremap back into probe_fw() -- the helper signature stays
+cleaner if probe() owns the call.
 
-On Mon, May 18, 2026 at 11:29:48AM +0200, Arnd Bergmann wrote:
-> My feeling is that the maintenance burden of keeping nios2 is
-> relatively low. On the other hand, maintaining it out of tree
-> as a patch set is also something that should not be all that
-> hard if it does get removed.
+Thanks for the careful re-read.
 
-Judging from the architecture's git history, it seems that it's
-currently mainly touched by treewide refactors, which are extremely
-helpful as we therefore do not have to piece these changes together 
-downstream. In other respects, we try to be good citizens and contribute
-bugfixes as well as required cleanups (such as implementing clone3 [2]
-and fixing its flag behaviour on 32-bit architectures) as they come up.
-
-If desired, we also would be happy to intensify our support regarding
-reviews or testing to share the maintnance burden if it helps to keep
-nios2 in mainline a bit longer.
-
-Best regards,
-Simon
- 
-0: https://lwn.net/Articles/1035727/
-1: https://www.kernel.org/category/releases.html
-2: https://lore.kernel.org/lkml/20250821-nios2-implement-clone3-v1-0-1bb24017376a@siemens-energy.com/
+Cheers,
+Abdurrahman
