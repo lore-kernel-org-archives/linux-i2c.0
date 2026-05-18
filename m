@@ -1,158 +1,182 @@
-Received: from mail-yw1-f169.google.com (mail-yw1-f169.google.com [209.85.128.169])
+Received: from mail-yw1-f171.google.com (mail-yw1-f171.google.com [209.85.128.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA5FD40314F
-	for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 14:22:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5645481258
+	for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 14:23:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.171
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779114157; cv=pass; b=myq6IJhEj1r3VkhL8ytw5KLQr2YKyekU7/G8r5kQcn9/8sZjzrNhP0iD2MtAChnSAnI6NUPB3cSzHc2nOiRxHNII29AHP4tKWl0vn2QTRqadhixdYgDKNNImkOL4I7gS4KVruc+ow00WiUYsvNXT5VASgmWVaqkLt1DNJB0yecg=
+	t=1779114228; cv=pass; b=J1EiwnJ1nctPK2VbW9kYcK8bYDvTvcO0/m+zVo9iCh9CIETpqTWjVWoTYvxaWZKfbeRlXwTwBRvMtXuem9jKNVcfBOA0bDXSf/272cJj9cUzC/WwP8v4+b0/pzfJXBAeGsM02br1cl0KwBlAJhFb3tIyMjIGka/kYju8q8S0P60=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779114157; c=relaxed/simple;
-	bh=6ZDQEOUD14QAFjatdvICgJqIwJxBsV7gED7tBhKefgQ=;
+	s=arc-20240116; t=1779114228; c=relaxed/simple;
+	bh=pRa8rdrYaF2vrezDpKgAG2aDR45R8YIMuW2Emlay42w=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BG1RlZK5Ian6IJQMhcyzrwxg7nKKFGSLylLPD11eEckYv7ftA5zvjvLe8HWN2GS38pIfKiOaCj1ESThGROnhUBHdFlpCScuX3nCTXhw2pcjUhNJA+vJPpReC0jL3RnYq3vIQjLCZPlS8YvNJ8NnIvFdqIhPhtwktWlrvXPX9ZE4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gSgVCrvg; arc=pass smtp.client-ip=209.85.128.169
+	 To:Cc:Content-Type; b=jIArxP3sr9eXyOqX4hd/g9jgsJREGUFhZFdagT1iDeHQzKR+4W8hhFPegDUTl34RWEQ0PxxTiIkU9mcKZJ/nyUpPsWLPhw8jZQxQrWEdTIQo1FDh2Eow+AhybD9cOlRknwYUi9vPXlb7IMVjT0nN+p4nq7uS/uf0KYBIg6nGmQc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CQPJfBLH; arc=pass smtp.client-ip=209.85.128.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gSgVCrvg"
-Received: by mail-yw1-f169.google.com with SMTP id 00721157ae682-7bf0b47d2f1so16284807b3.3
-        for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 07:22:33 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779114152; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CQPJfBLH"
+Received: by mail-yw1-f171.google.com with SMTP id 00721157ae682-7c04749d739so13289667b3.3
+        for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 07:23:42 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779114221; cv=none;
         d=google.com; s=arc-20240605;
-        b=SQ+87aWXJ954Cb4BjN8trE8KnYNlGsQJN+MrTxMrAqVr2yHPytwnav5EkYFAFbwDqO
-         TYLsiFIcZ78aQC5+69342A5/nMk+DOAxNgrEtP5kRSL+UwWoJuv0GoJxU7Rw1ylmvila
-         RpTLVSNgGn9Dvr+vtzgQxolMTOHD8K77Pj6Fzqqy5Sq+uYw30bo5QZVRXYNg1Gjh3NN7
-         ur/JAI2yfjq1eWqI3lQJLqahqkhtlyHpVeT6LP2jnB7/fdWh5P2VH/qjqt50YqiCcIN6
-         z5/4EMJSn7rEV6CvX1chIuC4j+UjLfzKUfZLXw3/zojqtCcNWxhVRnx45ubxPrjPojpv
-         5iYw==
+        b=KHVIwl81cIYIW1FnrRT2zy7yHkgAjicAKA0ZZMeItDDaEFSthzT/2LX/UdyXHTYnl1
+         I2vrjI5s26hU4BWzHGUmJda4VVaaeU8P5945ZtDWuZdkfqSP4ssCQu9TO5cTYVGvzjDv
+         D1MNjA22nkHTOBzKO0GqAwFfXHxfPo8S8fUIFpdBwSw99SpZCbLhcrnx7JQ72EBJ7Eyy
+         05tUNeF787Yz3guFijhqQIH9/0TZhrFYTE0/bYBdsva4w2DUP1vZfwnwt5NsVfFHY0wQ
+         93V/oBzLCtm1dPkS4oA+02gHt9jGOx0mag8feMHaGfizDlUAfC1IQe8ZIYABbM+Z5fpo
+         qtxA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=6ZDQEOUD14QAFjatdvICgJqIwJxBsV7gED7tBhKefgQ=;
-        fh=jPPtUpoNiRBImFa0WGLq0C5ZXTQfhySd9btdfiznfaA=;
-        b=cLOs5fyj9R+dFgTkcsMcvsySstYCyDWLXntVCRRdQd5ZBtlH3hVzab2pfnhwfUgFkc
-         MbG9LU+rDwKrhGm1cpYly+lJOpM09liCh9wq1Bh4dXcH1DgvNq/y6TNT0V2GPeqHS0aw
-         So1LMxsMj86WaFWXmwcEJyVpH7XHv+KKVfEj82CsV16b4rY2vL9tkxV0ZA/9ywizimL6
-         qza1uZJzRXM+FDE9RxLlq1DOu4CCQJIKRPUCwdAGW9QBn/FGk4p96SOerGnKN+1pbxa/
-         QwX7orN+W9Nu0FCGINAvjOZvw8zQ+mkZ+z5d5L+K3VtC7OSxURn2chepjU5QZ51R7CxL
-         nC5A==;
+        bh=y7z4OfB0gXheG5q1/GRQdWvILLOvJq0pnsazkpZHrUw=;
+        fh=gbSSWOIaIUpN9euLWs+iU4VignF5bY6s7Lh4nZZrm18=;
+        b=I+yExWFMZpDv/vFGvZ1rEkWd/ec4dMYg4cIL9DnNfQWAdOWXu/Tfa7OZjHhGfJWgi1
+         rTYNFMWopxf65KaKsfeHjgwAlxNqW45JX/T/o1rmBi2VXDB9uuqMKxNY4nnztrfAh9jg
+         Z/cXDFSzZbMKQBeh6vcaCAlS7XZPv7o0QRDb5dN+Qn+wYlC2/I7YNEsi5l7mKesQs0Yq
+         zeGVjIysX100KOhhg/p1VCTvu7qXRtqjKhOOEMT/oS+l/+CJq+KpNJ2l1k/H9HGz8h1P
+         FxDfOcZ563nfoEpcy1G+ZG1Kluj2RNjjf1rW5gNoURTs5pCU7YG85U8A2wzmt5vf1qNi
+         eUrw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779114152; x=1779718952; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779114221; x=1779719021; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6ZDQEOUD14QAFjatdvICgJqIwJxBsV7gED7tBhKefgQ=;
-        b=gSgVCrvgutC40EhKc9Tc6XyY9CyO11CHN7W/iEzyXY6ihrLbeLa4RaFgqN56Sty5Xt
-         s0A08DBqfjVAoZGHuUqgGD2vfOIZdDSrz2wxrmrl3K6awKaDLo9+Pi0SGKjbzxOD1k37
-         Cs4+MGame0kXgoYPRdQGtvqKDBNR7OEiJIg13id6jsg/Qt6wAyZcSDqSf7AuuyDI726w
-         961lAAiTpf1r8Q7uAk2nDUXGkuTxl+3CuoKOuSR2cSDiLXSJZl/WhE10lWzWqFyhdRwj
-         v2x0YwKrMa0g770RqaSgZ4zTsM8nrHb3508FL0R96ku8auDId1fyxKjjuqhSXUwYCiF/
-         XwAQ==
+        bh=y7z4OfB0gXheG5q1/GRQdWvILLOvJq0pnsazkpZHrUw=;
+        b=CQPJfBLHXAJjf8TttrV20WUaU39UrSaKmKbHflVKLYTujynjwhiyOaKdoFBZvwXhEh
+         iHpfTUwEnb2RlWcIoke3A+JWos/s6sBLDmf7nYEQyoBVMFbL8ivjOH78Fl0dTQjsXXNY
+         5Dg2DnWwDBf0WRFdNGqALK0fsNQgBuKA6FpC2zvxzDckvOT56tDkaE7ComedDSFqCEcQ
+         4MwKOQoQl8eTYJI8+PEUAltpK1ZS/gSQlq6rKaWwUiuCUz30Jto3beFz6Ug2C5/KMf6r
+         3vqa12okvhEEWHpABJfl5dtZl3kFiUFS64JJ0lsQRSRRpZ1IKRFktm4YS1wfpPSJxYhz
+         dIiw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779114152; x=1779718952;
+        d=1e100.net; s=20251104; t=1779114221; x=1779719021;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=6ZDQEOUD14QAFjatdvICgJqIwJxBsV7gED7tBhKefgQ=;
-        b=PRjwvHztGCmyl1Yl7nqY8Xn+aaLOxFBAOdyQFQfPALtFhp1aEt1Zt6eznUktsGkvEh
-         87/Uip0+eDGQ3/MwrPfvjpKZAylBAOhsqHYgpdUuAOy+Bm+x0fykxt38KLXBXqUsPWYz
-         2vFoUQ+6c4fC78p9pKKPRCMZP2relM8/7xFznCmpq/0/gQ5OEywLTFiRmR9REdTziZyQ
-         sM7KmflvgDGYflx1BhhV4kOe3dz21IuPv6KZiS1v3nv1JpIjr2OIGXpH7XkgpA6trQty
-         cGNPRZNemH6h7xk1K9+Acw/rMVK+vtQaUflgIKaTvpWAvjRYpljOVcsi4SOEn9YYrZj9
-         ibNw==
-X-Forwarded-Encrypted: i=1; AFNElJ9ONwVZtFOtQUBZz/M0Tps6ACWCqb3XT4hoABRP0Lnl+YKh1rzVuGsMXCp3IANMIoc/QjtH37C7W3A=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxCArQZ9i4XN86iwmJ9h2Ogk15YKkU8rNGGYDWDn1bbrnDz4P54
-	Q4LfKRLnMI/qBlj5lr9yv5ZFyx64VhnbGPQ81bbAdqzBRwviXN6BowKjQZUhLuCWC9cuVsjRhjN
-	MhQHtE2XuQHrPx7I7icw9wifHz+yUICc=
-X-Gm-Gg: Acq92OEU96vvvpkZhEl/ei7GvF0/PPGthFpbUysNcndavvWD1BgCeJPjWCj4EAUf21X
-	cZpNbfEe3xMdXq+NYQj0KOD2NL0AjgqHWWte0DMXwJt528ar4dyormK0mstLPK324/aJxUsCEn3
-	6TgqC2atWDdC7DnSV/cqihGbY7ed262llgaPVLxrVzHslVMFt3kYfGLKAI8N86bjsMA740Aw4AD
-	bj87kPs9qrwCp6fb6ydoPKD4XpIeotTnVTuZBZwVSyBKgLVWafV8IDBXjiv38m4ZKxD3JiJR5R7
-	BIEwiUyWhZvfaUKR+rvsO9intq7Gmre6gErIh8C/MQ3X9rYYJOyP6aLtUpeB+rNAQ4t1zMQuqfh
-	yuEoVrfMkt6Q+ZPcUUO0itwrCZGLSCV+hEaVZhXfGSqMY7EYN552aolDw+t4=
-X-Received: by 2002:a05:690e:169e:b0:650:36e6:2ace with SMTP id
- 956f58d0204a3-65e227cffebmr15679127d50.31.1779114152259; Mon, 18 May 2026
- 07:22:32 -0700 (PDT)
+        bh=y7z4OfB0gXheG5q1/GRQdWvILLOvJq0pnsazkpZHrUw=;
+        b=rMPQvZkzgi2ygv5DHz/d+hGXgZ9TTFZLIr9UmC2Q5vMNW1MVuPxWAxEnTw+msP3fv9
+         Wnm0s4d3HmUUEnsxnznCsax4s7POhtT4qyXCtqzBnmti50icA9eSDgCgo5JQ5FnxVvxL
+         ogS6Y9XxUVhXOPIZVjBFf6OiD6py0HNtHizv0zlDqD2i3r5y8GBY2DUgOKyS7OqBsSek
+         YEwuOxUzi2CGxPEpbuRKXUEECL6+iQSrLxmIu4bfaOaPnIPQqC3YL1KUnfXpWnPu5/yQ
+         fPmNeodLXzu3oaYAwrh3QmtcMI9MBy5JThn+vErE81Xf4V6jx/Xi7yyspFM6yQOvvRIX
+         LUBQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8vqfFEDuiKVuwwSTHT3iRuiWD3Fetm5g8V0Snjbq7995TcN0tit2WTU0AaA6Q/+ub+F55lK51S2tY=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzaDc1Hmc0Nw4NKKTpi8mahWqCws91eM0nn9R/YzLAkhLgkViQW
+	trYPBHc/xZSbnn6t2tMAYGQFQmMIERW9xpAgicqG6bpfipNeDtB/jtCcvdpfh2JMqfyvsWZ75/9
+	jdfgvd2Y/sjPwSQjaKSyLYWS4jQbWRRU=
+X-Gm-Gg: Acq92OFJzDwCt/EQiOzwFCpVcobdKRMda5segwniiBiJt1YpLI0h8aLKxWVxKfe5Hh+
+	e6LzVh5Jl5pTrkAkteZPADIsYwjr8KmBOhxdhGarDwqaI4embnO2Yg6X2AhMH/eakyxAdSKeHe9
+	t920xFwLRtDLqukSnhzMBpmNJc1Mlv1+8PfHZN8qK9tAlUm6aOTIYRVwBSBlmq2BNZw76M2g9H2
+	660ieYAvQ0yw9VQkokRuMkan1UUpqg1HAvZfqJnaiK6xKTVG1u4gGpbB9oY5Yrw+Roz6sZMxpCN
+	PVFZ4ok31syOOAp2TCrgyrLmY+1GnYuTekHK7UmDJTstYuj/AeERTqG/xx8mL/kpo9WNIpWeb1K
+	VmcriNfTmHqExJfcxj3fNFh6znlTka/cGe76aR7hX+0DgC1DWKc1OF6IxMco=
+X-Received: by 2002:a05:690c:f08:b0:7bd:9899:f906 with SMTP id
+ 00721157ae682-7c958eca6a4mr171352837b3.7.1779114220494; Mon, 18 May 2026
+ 07:23:40 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260518071816.26629-1-hardikprakash.official@gmail.com>
- <20260518071816.26629-2-hardikprakash.official@gmail.com> <CAMRc=Me8ieVzXojZ=eNhBPvjjmT5gc6hJXnpC8Bc6WofDbXP4A@mail.gmail.com>
- <CANTFpSU_Ba1c_R9wbjSSqnc1+_vBMAOKDvD=EVtct8hWU+Dxqw@mail.gmail.com> <agsc0NoznnVtclk0@ashevche-desk.local>
-In-Reply-To: <agsc0NoznnVtclk0@ashevche-desk.local>
+References: <20260518122814.8975-1-hardikprakash.official@gmail.com>
+ <d57dd297-6be1-43a9-a38d-e40c8949e23a@amd.com> <CANTFpSWGC7GsAY-3UvPtBZzqjNek-T5haiDb59QYRoRgwuQf1w@mail.gmail.com>
+ <7d0f0cf9-1936-4cf6-a425-228a37f83137@amd.com> <CAMRc=MdS_BVKb=FQLhky=8dpghBSoHeBhUk0LM5hROFxmJeyGQ@mail.gmail.com>
+ <9d5da93e-bbe0-4359-9f17-e3c6b3a5cb34@amd.com> <CAMRc=MfT_WVMxPnYZW=mg52PHew0O4VQMGFrfo6G9vxZDDoArw@mail.gmail.com>
+In-Reply-To: <CAMRc=MfT_WVMxPnYZW=mg52PHew0O4VQMGFrfo6G9vxZDDoArw@mail.gmail.com>
 From: Hardik Prakash <hardikprakash.official@gmail.com>
-Date: Mon, 18 May 2026 19:52:21 +0530
-X-Gm-Features: AVHnY4IGC6Vo6EpyWksUrgKqCXj97Ps2EclQ1nL4YrIUR0jWruOH719GOkgZe4c
-Message-ID: <CANTFpSVJ73_j6NqDYXPX8Db4+KN74qJvo8MgdsFAy5HhZ3xScw@mail.gmail.com>
-Subject: Re: [PATCH v4 1/1] i2c: designware: fix probe ordering for AMD GPIO
+Date: Mon, 18 May 2026 19:53:28 +0530
+X-Gm-Features: AVHnY4Ig35hP0cTA_r9SZS40mbG-rzLU3zT8q7iMy-UtxbbZdOTsMqBJJ1iVRcU
+Message-ID: <CANTFpSUX5rYhuTQH3dTTvzW+_yhW8Gs0U=A1t_8LDzKz4dzzAw@mail.gmail.com>
+Subject: Re: [PATCH v5 0/1] i2c: designware: fix probe ordering for AMD GPIO
  on Lenovo Yoga 7 14AGP11
-To: Andy Shevchenko <andriy.shevchenko@intel.com>
-Cc: Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, 
-	wsa@kernel.org, mario.limonciello@amd.com, basavaraj.natikar@amd.com, 
-	linus.walleij@linaro.org
+To: Bartosz Golaszewski <brgl@kernel.org>
+Cc: Mario Limonciello <mario.limonciello@amd.com>, linux-i2c@vger.kernel.org, 
+	linux-gpio@vger.kernel.org, wsa@kernel.org, andriy.shevchenko@intel.com, 
+	basavaraj.natikar@amd.com, linus.walleij@linaro.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 18, 2026 at 19:36, Andy Shevchenko wrote:
-> Don't we have already force and ignore lists for _DEP somewhere in the
-> drivers/acpi/?
+On Mon, May 18, 2026 at 19:35, Bartosz Golaszewski wrote:
+> What is blocking the pinctrl driver from probing? Does it return
+> -EPROBE_DEFER for some reason? Pin control core is ready at
+> core_initcall() so it should work in theory.
 
-Yes =E2=80=94 I found acpi_honor_dep_ids and acpi_ignore_dep_ids in
-drivers/acpi/scan.c, and an arch_acpi_add_auto_dep() weak hook that
-RISC-V already uses to synthesize dependencies not present in the DSDT.
+On Mon, May 18, 2026 at 19:16, Mario Limonciello wrote:
+> Please try arch_initcall instead.
 
-However, the DSDT has no _DEP object on AMDI0010:02 at all, so adding
-AMDI0030 to acpi_honor_dep_ids would not help =E2=80=94 there is nothing to
-honor. The arch_acpi_add_auto_dep() hook could synthesize the
-dependency for x86, similar to how RISC-V uses it for IRQ routing, but
-it would still require DMI-based hardware identification to avoid
-affecting other machines. That is a different location for the quirk,
-not the elimination of one.
+Tested arch_initcall + patch 1. GPIO 157 now fires at 0.255s (earlier
+than any previous boot), but arbitration errors still occur at 2.309s:
 
-Unless I am missing something, the driver-level deferral in patch 2
-remains the least-invasive approach given the missing _DEP.
+  subsys_initcall + patch 1:   GPIO 157 at ~0.310s, arbitration errors
+  arch_initcall + patch 1:     GPIO 157 at ~0.255s, arbitration errors
+  patch 1 + patch 2 (v5):     no arbitration errors, touchscreen works
+
+The driver is not returning -EPROBE_DEFER. The problem is that
+amd_gpio_probe() hasn't completed by the time i2c_designware fires,
+even with arch_initcall. Promoting the initcall level gets the driver
+registered earlier, but probe itself takes time, and i2c_designware
+catches it mid-probe regardless of registration timing.
+
+This is why device_is_bound() works where initcall promotion does not
+=E2=80=94 it waits for probe completion, not just driver registration.
 
 Thanks,
 Hardik
 
-On Mon, 18 May 2026 at 19:36, Andy Shevchenko
-<andriy.shevchenko@intel.com> wrote:
+On Mon, 18 May 2026 at 19:41, Bartosz Golaszewski <brgl@kernel.org> wrote:
 >
-> On Mon, May 18, 2026 at 05:55:02PM +0530, Hardik Prakash wrote:
-> > On Mon, May 18, 2026 at 16:24, Bartosz Golaszewski wrote:
-> > > The patch looks fine but I too would prefer this to be handled at a
-> > > higher-level. If we know which ACPI devices we're waiting for and wha=
+> On Mon, May 18, 2026 at 4:08=E2=80=AFPM Mario Limonciello
+> <mario.limonciello@amd.com> wrote:
+> >
+> >
+> >
+> > On 5/18/26 09:05, Bartosz Golaszewski wrote:
+> > > On Mon, May 18, 2026 at 3:46=E2=80=AFPM Mario Limonciello
+> > > <mario.limonciello@amd.com> wrote:
+> > >>
+> > >>
+> > >>
+> > >> On 5/18/26 08:40, Hardik Prakash wrote:
+> > >>> On Mon, May 18, 2026 at 18:17, Mario Limonciello wrote:
+> > >>>> I'd still like to avoid a quirk if we can.
+> > >>>>
+> > >>>> I know my proposed patch to try to probe at an earlier stage didn'=
 t
-> > > the ordering should be - is it possible to somehow setup the devlink
-> > > for the platform devices that will be the children of these ACPI
-> > > devices?
+> > >>>> work, but could you perhaps try pulling pinctrl-amd even earlier?
+> > >>>>
+> > >>>> Maybe fs_initcall()?
+> > >>>
+> > >>> Tested. fs_initcall + patch 1 still produces the same arbitration
+> > >>> errors:
+> > >>>
+> > >>>     subsys_initcall + patch 1:   arbitration errors persist
+> > >>>     fs_initcall + patch 1:       arbitration errors persist
+> > >>>     patch 1 + patch 2 (v5):     clean boot, touchscreen fully funct=
+ional
+> > >>>
+> > >>> The initcall level does not appear to be the determining factor on
+> > >>> this hardware. i2c_designware is still probing AMDI0010:02 before
+> > >>> pinctrl-amd finishes regardless of how early pinctrl-amd registers.
+> > >>> The explicit device_is_bound() deferral in patch 2 is the only
+> > >>> approach that has worked.
+> > >>
+> > >> Please try arch_initcall instead.
+> > >>
 > > >
-> > > If that can't be done, I'm fine with this as a workaround.
+> > > What is blocking the pinctrl driver from probing? Does it return
+> > > -EPROBE_DEFER for some reason? Pin control core is ready at
+> > > core_initcall() so it should work in theory.
+> > >
+> > > Bart
 > >
-> > I checked the DSDT and the kernel's ACPI dependency mechanisms. The
-> > DSDT has no _DEP object linking AMDI0010:02 to AMDI0030:00, so there
-> > is nothing for fw_devlink to act on. The GpioInt resource is on the
-> > touchscreen device (TPNL/WACF2200), not on the I2C controller itself.
+> > Currently it's module_platform_driver() IE device_initcall().
 > >
-> > Setting this up at the ACPI layer would require either a firmware
-> > change to add _DEP, or a DMI quirk in the ACPI scan path to synthesize
-> > the dependency =E2=80=94 which would be equally quirk-based as the curr=
-ent
-> > approach, just in a different driver.
+> > That's why I think we "should" be able to move it a lot earlier.
 >
-> Don't we have already force and ignore lists for _DEP somewhere in the
-> drivers/acpi/?
+> I mean with fs_initcall() change - what's blocking it now?
 >
-> > I'll send v5 with your two style fixes applied.
->
-> --
-> With Best Regards,
-> Andy Shevchenko
->
->
+> Bart
