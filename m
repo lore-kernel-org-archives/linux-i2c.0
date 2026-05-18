@@ -1,107 +1,93 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BF972FE579
-	for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 09:04:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FB793E5A05
+	for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 09:30:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779095047; cv=none; b=tx+egDgD9xENwjJDXy90VAVMdbdBMgWsyuK50pbV+cj5hA+1uzkHWR6EgJL2/6ACyUC1UdAH+wFvJ7qDI8SOEq+WQ68ZiiTssWQ0344u252A5oyd1tjNvyYsXVx0vk80utowF6m1TLQf7fQI1suhyA2SxlFw0UkLnGAgrYegHZw=
+	t=1779096636; cv=none; b=k8ZeMl9/kJR5MIJpXMHXBTD7EHUac7LNBGo7UWrsuBn9xC7XL1josUxdsn4LykIpvTd+nHzZfNNw6GbcvztxIujGprcZ+fN/Ldx6UFWH90RUqd1bZLFwt9JK+m3Olw0sRfe2+wdc9LO1Va2o6IqXPBh3fsuGlqWu58QZ5xXqRv0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779095047; c=relaxed/simple;
-	bh=oA1Lu5bvhUDP97/5bGpjX/QJjh/8fGgII/+u1ebhvAU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=sAlyJubF+qIKJOXDtJQUmPGenbI28EZbYvepOYuuGf7xmkUPM765caattvVl1nsQBBq7Ru/nYqlUJlONDC47iFdJI6MBU24HnEP6hzx8jo/B/GC2rkzbxgCTKyDnhqNGTcFis8/ouXFaybqpfoD6mQoSTg5LTEx+D18QRODilFI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ry0Cqm9b; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1779096636; c=relaxed/simple;
+	bh=QM17c+bUkULd48PHCB/KHIH3TXWiCxsqNwKCusGE01s=;
+	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Wy9dheBd31URUqR9eViViOsCyDK6UTd5jSTjEe74IsJ+nriwER79O6Hq3yfDeIaZWGJVLBjFJ493FESBbUzt+YAPAoSQrkmgHFqX7r7v5gTS8+r4OqKhDhzCsyo4VVGZgKVZw+hM5BKFcrFdjxVMswKpmFHMwrdWHkB768W6aVM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UQ9SqbDZ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ry0Cqm9b"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14A8EC2BCF5
-	for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 09:04:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UQ9SqbDZ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2F57C4AF0B
+	for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 09:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1779095047;
-	bh=oA1Lu5bvhUDP97/5bGpjX/QJjh/8fGgII/+u1ebhvAU=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=ry0Cqm9br+ntG6gURjff6grfILaTOLv+FICW2Y8UPkmwBj9Hodus3Cq3Bw1OyZZoS
-	 OzY4pgx7+rsrNCBJkWzt8JIxrIJHnM/E2+JgIaS+jr1W/674YYExoQYcFwS6ODx9XF
-	 SH5WzSRKTOehf7e2K1dO9aFqiaf/giuvvfCXr9BiU3u6gM9WHIGA7n36XeKE4IlxFl
-	 Q4XNFyxfHUdYeEnZ8JpYgZTZOnp71tq3obxpu1WFUJ8H15m+EZ1OXUDVy4665Xbjzl
-	 v/QKbPxNAK7lSx2XsgiHEGUt3Jt3sBFOgZC5DyAdz8i6gsaTdZpCXNWLAdjjS0z2CZ
-	 RuKXv57NK1X7g==
-Received: by mail-lf1-f48.google.com with SMTP id 2adb3069b0e04-5a8e33556c0so2638909e87.0
-        for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 02:04:06 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ9zlL/Yky6v68WclvkPcz4koajPWcIsVAE6jGCYyKjJkVnGT1ZnVOLyO6UIw6Kzzt+k3tO545bGfcc=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzLdy5pMQdn5XaTOhBGok97zBf/t5oaCpydC9u3NRF+UNrXH63v
-	8BeDy/aBYNAEfGQy8FCMT28rF7Fjw+oxsD6Yj09wEm4kybr1W8mOOoXh7G4VYw8JoEn82P/dHcr
-	QWE+YOTTCwGfF5B+UAnykJr8gtQCH4XCEOyyLeop19A==
-X-Received: by 2002:a05:6512:138a:b0:5a8:73c2:c90b with SMTP id
- 2adb3069b0e04-5aa0e09fb0dmr3501664e87.20.1779095045745; Mon, 18 May 2026
- 02:04:05 -0700 (PDT)
+	s=k20201202; t=1779096635;
+	bh=QM17c+bUkULd48PHCB/KHIH3TXWiCxsqNwKCusGE01s=;
+	h=From:In-Reply-To:References:Date:Subject:To:Cc:From;
+	b=UQ9SqbDZEoCmDvix1sToAPHJ1w2TwMlQQqhplo5J7fsKPsMASQ2pYam0u3uym4KSz
+	 Px8+ADHedW2p73cgMdGktuzi622fpiqKTFhk1feR3JFvfWK9YWFNX3o41bzp0h8/fy
+	 vB2fxY9G/dixGCXdO57l4EpgNqo6eAecjQ27Kiafz6rc0Gs94AJB1VT32UXQXV99vo
+	 BhnU5cNWR7BYhU4+py93+hSvZXfMGa6xXycOSqGycP3Nqb78iecn/3NzpwQbjWDpCY
+	 GTW+cpl7QLygjamrTCLBz2S5S545k89fA7OWrk1yE/mJ8omk+JzyKFOs3TKktzuF5P
+	 ITcbW1usfiyFA==
+Received: by mail-lj1-f169.google.com with SMTP id 38308e7fff4ca-393c93a01abso20482791fa.1
+        for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 02:30:35 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ8IahxAHYj2oVnLA+LvFqTezbGZSrB1kf2OT6TxhELpukgUmLE05rTnSVLZ3dJ8OLw7K1v9ZHo4sc0=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxs2JkLKfd5mdhluoncmNwIG4gdKIx7SK469G9DTUdbFsJxIheh
+	k6Hy+mlvBWQj6SVGMbi1T8V0dR2T0E85cRcLZp+opH7VMrprW6ib7u5FXln9nVYfa+NTXMWZAnR
+	h9BLLzYqnZz6jVQ8wMKHKpuIa2eU6IV8F+BhKPr6fWg==
+X-Received: by 2002:a2e:a886:0:b0:393:bc85:8d80 with SMTP id
+ 38308e7fff4ca-39561ed27d4mr45903341fa.12.1779096634415; Mon, 18 May 2026
+ 02:30:34 -0700 (PDT)
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Mon, 18 May 2026 05:30:32 -0400
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Mon, 18 May 2026 05:30:32 -0400
+From: Bartosz Golaszewski <brgl@kernel.org>
+In-Reply-To: <20260514092042.3265986-1-markus.stockhausen@gmx.de>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260514034319.3507315-1-thomas_lin@lecomputing.com>
- <20260518024937.453714-1-thomas_lin@lecomputing.com> <20260518024937.453714-2-thomas_lin@lecomputing.com>
-In-Reply-To: <20260518024937.453714-2-thomas_lin@lecomputing.com>
-From: Bartosz Golaszewski <brgl@kernel.org>
-Date: Mon, 18 May 2026 11:03:52 +0200
-X-Gmail-Original-Message-ID: <CAMRc=Mf9YZJS4HyT=CfgXqoAZM=6CZLXc_M6xBHVGEUFbeey-g@mail.gmail.com>
-X-Gm-Features: AVHnY4L99cuF1ZGuHXCO-ALnBTKrGIXkrITVhG5W_BkFB71OFXk93IVOayE1Inc
-Message-ID: <CAMRc=Mf9YZJS4HyT=CfgXqoAZM=6CZLXc_M6xBHVGEUFbeey-g@mail.gmail.com>
-Subject: Re: [PATCH v3 1/3] gpio: dwapb: Add ACPI ID LECA0001 for LECARC SoCs
-To: Thomas Lin <thomas_lin@lecomputing.com>
-Cc: rafael@kernel.org, lenb@kernel.org, hoan@os.amperecomputing.com, 
-	linusw@kernel.org, mika.westerberg@linux.intel.com, 
-	andriy.shevchenko@linux.intel.com, jsd@semihalf.com, andi.shyti@kernel.org, 
-	broonie@kernel.org, linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-spi@vger.kernel.org, lucas_hao@lecomputing.com, 
-	puntar_liu@lecomputing.com, jihua_tao@lecomputing.com, 
-	stan_xu@lecomputing.com, lumin_liu@lecomputing.com, 
-	notics_zhang@lecomputing.com, braden_zhang@lecomputing.com, 
-	harold_wu@lecomputing.com, will_zhang@lecomputing.com, 
-	aurora_jiang@lecomputing.com, ryen_lin@lecomputing.com, 
-	andy_jiang@lecomputing.com
+References: <20260514092042.3265986-1-markus.stockhausen@gmx.de>
+Date: Mon, 18 May 2026 05:30:32 -0400
+X-Gmail-Original-Message-ID: <CAMRc=MebY=brURj=D7=73LH_EkjwOVAYC4=5h8MX0=SVR23RCA@mail.gmail.com>
+X-Gm-Features: AVHnY4IH5lLQIuQG6vJqqr1gpy8qL_XpilxDrUM00W1cR4OImTYuUWBZgWp0TcI
+Message-ID: <CAMRc=MebY=brURj=D7=73LH_EkjwOVAYC4=5h8MX0=SVR23RCA@mail.gmail.com>
+Subject: Re: [RFC PATCH] i2c: i2c-gpio Enhance driver for buses with shared SCL
+To: Markus Stockhausen <markus.stockhausen@gmx.de>
+Cc: wsa+renesas@sang-engineering.com, andi.shyti@kernel.org, linusw@kernel.org, 
+	brgl@kernel.org, linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 18, 2026 at 4:50=E2=80=AFAM Thomas Lin <thomas_lin@lecomputing.=
-com> wrote:
+On Thu, 14 May 2026 11:20:42 +0200, Markus Stockhausen
+<markus.stockhausen@gmx.de> said:
+> Preface: I'm neither an I2C nor a GPIO expert. Instead of writing
+> a minimalistic driver for a special use case I was asked to enhance
+> an existing one. That might have many use cases I'm not aware of.
+> Feedback with clear directions is appreciated.
 >
-> Add ACPI ID "LECA0001" for LECARC SoCs that use the DesignWare
-> GPIO controller with V1 register offsets.
+> Some lower end hardware (especially Realtek based switches) are
+> designed with multiple I2C busses that share a single clock line.
+> E.g. the D-Link DGS-1250-28X realizes 4 I2C SFP busses with 5 gpios.
 >
-> Signed-off-by: Thomas Lin <thomas_lin@lecomputing.com>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> Enhance the i2c-gpio driver so it can handle such hardware designs.
+>
+> - Detect GPIOs that are used by multiple I2C busses in the dts
+>   by using a unique identifier for each managed SCL.
+>
+> - The first probing instance allocates and requests the shared SCL
+>   GPIO plus an associated mutex. Subsequent instances detect the
+>   existing entry via the unique ID and increment a reference count
+>   to reuse the descriptor.
+>
+> - All data transfers are synchronized with the mutex before and
+>   after transmission.
+>
+> Signed-off-by: Markus Stockhausen <markus.stockhausen@gmx.de>
+>
 > ---
->  drivers/gpio/gpio-dwapb.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/gpio/gpio-dwapb.c b/drivers/gpio/gpio-dwapb.c
-> index 15cebc8b5d66..c1f3d83a67c1 100644
-> --- a/drivers/gpio/gpio-dwapb.c
-> +++ b/drivers/gpio/gpio-dwapb.c
-> @@ -694,6 +694,7 @@ static const struct acpi_device_id dwapb_acpi_match[]=
- =3D {
->         {"APMC0D07", GPIO_REG_OFFSET_V1},
->         {"APMC0D81", GPIO_REG_OFFSET_V2},
->         {"FUJI200A", GPIO_REG_OFFSET_V1},
-> +       {"LECA0001", GPIO_REG_OFFSET_V1},
->         { }
->  };
->  MODULE_DEVICE_TABLE(acpi, dwapb_acpi_match);
-> --
-> 2.43.0
->
 
-Don't send patches in response to other patches or sub-messages in a
-patch thread, b4 can't deal with this. Please start a new thread for
-each revision.
+The general approach looks sane to me but could you make sure this does not
+interact in some weird ways if you enable HAVE_SHARED_GPIOS enabled on your
+platform?
 
-Preferably use b4[1] for managing series and it'll avoid you all these prob=
-lems.
-
-Bart
-
-[1] https://b4.docs.kernel.org/en/latest/
+Bartosz
