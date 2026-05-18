@@ -1,229 +1,267 @@
-Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazon11011003.outbound.protection.outlook.com [52.101.52.3])
+Received: from mail.lysator.liu.se (mail.lysator.liu.se [130.236.254.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 208648634C;
-	Mon, 18 May 2026 13:46:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.52.3
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779111967; cv=fail; b=gbdgH6+aPJNNJOeDUsi2sc9bw2R89XIwMpViUSE1bgq1H6G+2WF7rTCkFc9HxztXhyqNdhN+iowqLClxAfdXW5CpIDak0fFyTXTa214aw6eu4Bx1flc6r2TuDvfy9hRMDVnYUhdVKzQnP/kebUaSf8fi0mDaYPirU3hGsXdXz+s=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779111967; c=relaxed/simple;
-	bh=km4NvlAWaZD1UTYq1G3RKD7m/4f8BOSZuIOtJct8tes=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=Ppkng0+98QCl53cbkGm3NS8s6pkSVc69muAQ/2lViQFu2dC1dAMevjBFpcL6sZYwiAdEJXn3ZGitb9cLvoXfkoMMS4eebc/D/8pfvJa6vV1psaYQIQe2DUT9pTpAqESjh2s1yeQUOL6jqRf1UsRQ0JTTnuMpufUNuwpkcokabEo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=GoJIDc4Z; arc=fail smtp.client-ip=52.101.52.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="GoJIDc4Z"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Ey4Vtbc1tUabc/A5unKeJx/Hbefe+faPuSxzMl4RRKbzKpkEn0AxFnneQ7doia4VzpH7EWH88OOqUze6cTGaxLQmtsLBDpbZdx3qfSafcbCjg+1izNfYfx8s5x7iVYCfPxhD6TJh0iJRp80U5PhwLSj0Qxqmyq2fV5yFD7d4AQoUXJCmW9lbvRRpdFZIdalQrB9TEH3fMQiRQpNd9A0tj06/pQP7iz/X7nzTqZ0GdIFsSoeMGobwrI/6bwDp5mMnmPJbhGTQotPXNPraKU7VzLWQ6Bd/c+M+XoFEmabMIBqaUkzreWBO2cI+tr6OH86+E4xgmVCIvYIpJBUr+HuUFg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=lOkY352e1hurluxa3VPL7nX8DLwuiCC+3iZeYZh7qJ8=;
- b=mVagAb5Jk52MvoRLACIqNZnaSDk0PHAiY5ZQHm08o8bd4oEMaRMO+fRKAFIwMp4GXkJ70hC1ABV2fttYNox5UXRYvnQawX7wrFlRagLoGpbzXpCqhsaTrRYgkIp3/Se63Ds1Ulmsbh1p0xeJc6thBbiKUTGHsnnplcQMDWEAew6zGpQK2+4RxqmWuLZPiUBY0PuU8JA10/bztszt8whZ6ixr/S6waAtFpclhYJ2hIkEn35C/yTrOf0l3cqikWzRCgxZw/L+k8H4cevTJ4hrh/I2Z+M2qPgM6nm6aarq/rVc7XWNsnrV3EXRPx0YWb0iW44//PHkSsR9nLUG6E5EC0A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=lOkY352e1hurluxa3VPL7nX8DLwuiCC+3iZeYZh7qJ8=;
- b=GoJIDc4ZoyMHRFmTK9Xo8v2L5EbRAAPb4YvLOdzNNsF1DAcSG3Ut8/71J4pfelZtkOUOLczbjs1UQ+3pGJlbblPLGvxjaxWiNc4vSE5RJbw8JFCFFgs0cRU5mV/YDiAq6eTcTDdVQ5iGikbCK7UA+kGKybClFwxtxLrcZdx3MB8=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from DSVPR12MB999147.namprd12.prod.outlook.com (2603:10b6:8:38b::11)
- by IA0PR12MB7579.namprd12.prod.outlook.com (2603:10b6:208:43c::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.25.23; Mon, 18 May
- 2026 13:46:01 +0000
-Received: from DSVPR12MB999147.namprd12.prod.outlook.com
- ([fe80::98c5:8206:6a4:c445]) by DSVPR12MB999147.namprd12.prod.outlook.com
- ([fe80::98c5:8206:6a4:c445%3]) with mapi id 15.20.9870.023; Mon, 18 May 2026
- 13:46:00 +0000
-Message-ID: <7d0f0cf9-1936-4cf6-a425-228a37f83137@amd.com>
-Date: Mon, 18 May 2026 08:45:57 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 0/1] i2c: designware: fix probe ordering for AMD GPIO
- on Lenovo Yoga 7 14AGP11
-Content-Language: en-US
-To: Hardik Prakash <hardikprakash.official@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org,
- andriy.shevchenko@intel.com, brgl@bgdev.pl, basavaraj.natikar@amd.com,
- linus.walleij@linaro.org
-References: <20260518122814.8975-1-hardikprakash.official@gmail.com>
- <d57dd297-6be1-43a9-a38d-e40c8949e23a@amd.com>
- <CANTFpSWGC7GsAY-3UvPtBZzqjNek-T5haiDb59QYRoRgwuQf1w@mail.gmail.com>
-From: Mario Limonciello <mario.limonciello@amd.com>
-In-Reply-To: <CANTFpSWGC7GsAY-3UvPtBZzqjNek-T5haiDb59QYRoRgwuQf1w@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: BN0PR07CA0013.namprd07.prod.outlook.com
- (2603:10b6:408:141::19) To DSVPR12MB999147.namprd12.prod.outlook.com
- (2603:10b6:8:38b::11)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97C3248A2B6;
+	Mon, 18 May 2026 13:59:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.236.254.3
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779112763; cv=none; b=RLQ3E4+nMrSu4MjHGV2nCLWUJqaPGP2ggHXjGh7yeKp7o0YD3btRe+cgOwBJdK5MHuiKmzL3n47+arM30oSaU18ihgj5/Un4MNctNEf+IsVXX4ORqtNcJVBOdzFUsdnqE6DyRxFDbvLBBqwSJeJ/+Ot/Bkf2TmLtoa49lxg7gFQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779112763; c=relaxed/simple;
+	bh=EhIC93euX0nYoZUnw4fyaCXfXwt6ACo9oWEAQL0WEz4=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=HBUp0Gpk7sbkC1ggSqbqs/2EIYmkf0/Et+oNdHmbX2LIAkucG305FgbE80fBUPY5Btpe/HOVp9cb5FePwCdfCXTOqpf3phEEtJXYRIo3ORsONQGfcJC5ytK1YEVazLAquKv6Nxb2Vfxddfuqy0e87PfotVt386IGrzKWqcRGBNE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se; spf=pass smtp.mailfrom=lysator.liu.se; arc=none smtp.client-ip=130.236.254.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lysator.liu.se
+Received: from mail.lysator.liu.se (localhost [127.0.0.1])
+	by mail.lysator.liu.se (Postfix) with ESMTP id 24F7024D01;
+	Mon, 18 May 2026 15:59:12 +0200 (CEST)
+Received: by mail.lysator.liu.se (Postfix, from userid 1004)
+	id 18CBA24CBF; Mon, 18 May 2026 15:59:12 +0200 (CEST)
+X-Spam-Level: 
+X-Spam-Score: -1.0
+Received: from [192.168.2.172] (81-225-28-11-no2391.tbcn.telia.com [81.225.28.11])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
+	(No client certificate requested)
+	by mail.lysator.liu.se (Postfix) with ESMTPSA id 4E4DC24B7F;
+	Mon, 18 May 2026 15:59:09 +0200 (CEST)
+Message-ID: <f2688bbf-ab8a-484d-98d4-2a502f2ee36a@lysator.liu.se>
+Date: Mon, 18 May 2026 15:59:08 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DSVPR12MB999147:EE_|IA0PR12MB7579:EE_
-X-MS-Office365-Filtering-Correlation-Id: 93cce79b-cc9b-4676-edbb-08deb4e3cbb5
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|1800799024|376014|18002099003|22082099003|56012099003|11063799003|4143699003;
-X-Microsoft-Antispam-Message-Info:
-	ojvpTP3hQaEP3CHezEx4UpqgYmx/r8Pgy+LsSCRJmwqybsRnpgFAzs3cEQ6H/395PxcNqkApSPjAyJa9tZxMehHyaXWgsInhhM/qrgfA7p2LEOFzDqYcXyHuLpcdSHfEUan5mFNbraaQkyKFPuKtpYNBo5hgl0ou8rTufn7BxFXK85GLNTuIBOYfGshMikR9q2c68IdWd+jFxqG3//KW91oVuld9wyjuKAz5ErSvo9aD9qTYGSqxZ1koIon0YOOL++L5NnRZFBe2iYcsO0Z6EPvxDxdz4E/cNIoy/58k7sUd2AYlGIvRFYny6rlZoOWAtamirgx9bL2CDjCtBXGUnXqkLG3TCvL79eGGzb51dhzFSKGOfEBq+3w1CJ093oY7tYbptgJ5pD6gGMR2ssZEblW3xXMiJeh4Jz/rTZ0XiT5wKrfR9G3hj+BnlVnMLjc2HQ6yN+VGb5rugP1ueL0J7JPjkjH0Hw6GKAlajuiGgfy/d4PKVllvC8AS0oBI67Mp50vUXowQevfOOfkLaubkjfGpeY7Kvcxpt3KtcJSMzU61Qgh55/PPxrLdsf+1K+9/L1NKBiX2LqhrYiAUaQ6iGpHbARFS3redQ11H86UEoMKfZRhtwVC1e+Ygtt1mnd9B12E2egHIFmoQ7wqJp3ZFw9Zt34Q7xW1j+DDGKJKPBCkT7ffQ0fFjeZELefe1Tqws
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DSVPR12MB999147.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(18002099003)(22082099003)(56012099003)(11063799003)(4143699003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?QzVHMERsMGUxbG1pVmNUTFhaNjhaTit0MEF0QWgrWnFic25BdklBRkFFV09C?=
- =?utf-8?B?by8ycTlsTmIwUFhTbjRzNXdGbUMrWi9KV2tpWU9OTlh2cDIxNmJJbFNQbUJv?=
- =?utf-8?B?N3lub1AxSU5sNVhXWE16VzJsdWVrNmZCejdsSFZTQ0ZMV2NiSUpaZ1oyWGN6?=
- =?utf-8?B?aTUydFlpelFUeVF2SDlIOGlvMTlrV0paR1FXR0gwd3ZoazhvdFpKQ3pWLzNN?=
- =?utf-8?B?ZnNhcmZHUEZCZEtxemQ3Qnk4ZXlhcm9JR0JHWTJ4NTg1NTdwRlBBV3R2TmJR?=
- =?utf-8?B?clRHcjBrbmpvZGRtazkwWGtERUhuQi9qZUpWSDBRcC9KM1JUcGpNNW1yNFZZ?=
- =?utf-8?B?Ny9nV1lVZXlHT0ducWJ3M3NycWpyNktKWnJQWTZ5MkZ5aFZhMVlsVXBid0Fy?=
- =?utf-8?B?YmRyK2puNFExZDEveHZmVjg2SWxxUU1LamNpaXFGZU5ISGFSRzZabWRGOElX?=
- =?utf-8?B?ZDJOUUJrVGxwdytaSGxmT3NTaVd2bGJkSkZjK2srbzVhMStXNnBXQjdObnJ3?=
- =?utf-8?B?MmxmcnRiMFRMcWwwL2VEQ0xVaWw0V2hydmZZeUdtelVVTUlHd0lYMEFPYlFN?=
- =?utf-8?B?WEorZEY1QVhEd2lsN2hGUWlxSDBHTkRBQm9iZDcwYTh4ZnlqN1ZxRnVvMXJP?=
- =?utf-8?B?d21YRlFTSTg3dlRKeGRBWGx2MVlwZzh3dWZ4Q2MzN05jaWNzWjQ3ZlBHZEc0?=
- =?utf-8?B?SDRwR0VtZ0oyVFNKUGlrNHo2VTl2cVVDYWxxUkpqcTZ3dXJTOWNtMDF4c2lY?=
- =?utf-8?B?UlR4UlRQL0F2UWFsNlZObk1Dblpaa2trUGlDZGZGZWMxSzFIUHpXUGdJOU1I?=
- =?utf-8?B?OUh4YVFPeEhKWDdXWFBRYTBWenNkcEN3QVR2WEpzTFUwT21IMnBtTDl3RUhx?=
- =?utf-8?B?TGZxbXNlbUlRY3h0NHpPMWpudmRzTjFod2grTjZ1WEZWSE50QSswdnpON0NL?=
- =?utf-8?B?RUswYXNBaFlyRUNnTExEWW1rUlUweXJXcFp4Q0hyb0xOY1RneWUwdit5c3RH?=
- =?utf-8?B?d1FNZGhjVU1nQ2NPS29WMUVYNjF5SDMvbHRCM1RERGEvZGNOS004M3RPd2My?=
- =?utf-8?B?SDJjRGVESDN1RWRMZEJVRTZDYVVwRGpBSTJWbTNUdmVBNkVxVy9TVVZBQkR1?=
- =?utf-8?B?dC9FNzJMdk5MZE9aR25nRWJsUjdGZ3c3TnBidk5NZTF6VlIyRm5hWkVoZ2cv?=
- =?utf-8?B?NGdIdk5weEhRS0ZyUjBXUjZ1UXc4S1FJeVp4ZEhEcjlNU0l5bHVUNHlsd05B?=
- =?utf-8?B?ckswbWlpNzNDWTlER0taKzIrTDNBU3VpczFDMExLc3UyZWFLNDZJZkxxSngz?=
- =?utf-8?B?SG9HalBBR25sb0hDWW0vWVlnUlNITTUxdmpLV0FhTVY1eFpVTjNwVzArY3Q2?=
- =?utf-8?B?bENmODNLY0Uxd1NFN0VLdTZNcGNXcU5IZG5hcWxNZk03SWhlVWZ1Rkl5Yzkz?=
- =?utf-8?B?WmdsZUN2VUw1cUc3SFlGaDd1Wk9ZVkEzdi9PZ1diczlJck03dXVqZ2NOQXJo?=
- =?utf-8?B?NjRWbWFPTzRsRkpUZDlmbElTbTkvWmJpYzZzNmFSN3FUcThmT0cyeUluWVll?=
- =?utf-8?B?TEhMUnpYdmJ3cnFXY0NLYXVRdzYwZ2VsbU9BM1ZkRUo4Rk9sRHNGbk1sbjZ5?=
- =?utf-8?B?V09nVXFwNmltZDgvRGE1Y0ozclc2bG5UanZac2M0Zm5QN0xoRlgyd2JQQTBp?=
- =?utf-8?B?UWJocHVncyt4cC9xUkRFQnRZSUt3SEFmZXhDUnpwY3ViTExHYWtjaVZQZkN6?=
- =?utf-8?B?SlMrWWhoeW9qbjJBUVZxZUFTVWhUY0xUU3VZTmlUdERDK1RqTjc0SXJoQzNH?=
- =?utf-8?B?djl1WHhYVXZrdTRYZnlHcWhvSVJMZkpVZE9CU3BRVWxLZHlPSGZEZ2NoOWFt?=
- =?utf-8?B?OWpZWXBSK2JKbTU2SzJsR3BhOVpVaEozWXZmWWM0clFPQkpFKzc0c1gwem1z?=
- =?utf-8?B?cHAvNmxuNXF6RHl5Q2dBbEFtS3B0UHN2N3VTaXZob296NEhuNkgxRWlIdmpq?=
- =?utf-8?B?OXRJTSs0b1l0SHhwbGQvWFQ4bWZUWTRpMW81bWJVZGVwd3I3R2tyWnpLbkdm?=
- =?utf-8?B?Sm9pK3dKVmtoQ1hoN2o3NGhIdkw3VU9NdnV0Z0NuZ0JvTlpYNWp6VnMyL1BO?=
- =?utf-8?B?LzFiTlBsZUlvbTdIYUQ3MTBmc1BubGNtWkdJN0JlbTJyNHRzaFY1K0FtMUdH?=
- =?utf-8?B?c0kzOVBqRmlmK1BsTWg3c3BzNVdTU0R1eTY1cUhsOW1JQUZUc0dISWxaVXRV?=
- =?utf-8?B?anFqZXI3ZnI2NzJVQXhSYWFmQ3VscFFuTlhJcXBpbUZLMVRvdGgwdXhaZ3lj?=
- =?utf-8?Q?KK6WAQLhMVtLgbWmiK?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 93cce79b-cc9b-4676-edbb-08deb4e3cbb5
-X-MS-Exchange-CrossTenant-AuthSource: DSVPR12MB999147.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 May 2026 13:46:00.6531
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: sF60vLobt82sP344TBwBju/Z405KW+dFG/+mKhRCbAL8wrxr0TCg1+84JVCAmYhJdENEZS/aNrguZCnTYyuE/w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PR12MB7579
+User-Agent: Mozilla Thunderbird
+From: Peter Rosin <peda@lysator.liu.se>
+Subject: Re: [PATCH v3] i2c: mux: reg: use device property accessors
+To: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20260513-i2c-mux-reg-v3-1-0fa7242605bc@nexthop.ai>
+Content-Language: en-US, sv-SE
+In-Reply-To: <20260513-i2c-mux-reg-v3-1-0fa7242605bc@nexthop.ai>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Virus-Scanned: ClamAV using ClamSMTP
 
+[retrying the change to peda@lysator.liu.se]
 
-
-On 5/18/26 08:40, Hardik Prakash wrote:
-> On Mon, May 18, 2026 at 18:17, Mario Limonciello wrote:
->> I'd still like to avoid a quirk if we can.
->>
->> I know my proposed patch to try to probe at an earlier stage didn't
->> work, but could you perhaps try pulling pinctrl-amd even earlier?
->>
->> Maybe fs_initcall()?
+On 2026-05-14 02:54, Abdurrahman Hussain wrote:
+> Convert the device-tree parsing path to the generic fwnode/device
+> property accessors so the driver can be probed on ACPI and swnode
+> platforms as well as OF. The helper is renamed from
+> i2c_mux_reg_probe_dt() to i2c_mux_reg_probe_fw() to reflect that.
 > 
-> Tested. fs_initcall + patch 1 still produces the same arbitration
-> errors:
+> Accessor translation:
 > 
->    subsys_initcall + patch 1:   arbitration errors persist
->    fs_initcall + patch 1:       arbitration errors persist
->    patch 1 + patch 2 (v5):     clean boot, touchscreen fully functional
+>    of_parse_phandle("i2c-parent") +
+>      of_find_i2c_adapter_by_node()    -> fwnode_find_reference() +
+>                                           i2c_get_adapter_by_fwnode()
+>    of_get_child_count()               -> device_get_child_node_count()
+>    of_property_read_bool()            -> device_property_read_bool()
+>    for_each_child_of_node()           -> device_for_each_child_node()
+>      of_property_read_u32("reg")        on OF:   fwnode_property_read_u32()
+>                                         on ACPI: acpi_get_local_address()
+>    of_property_read_u32("idle-state") -> device_property_read_u32()
 > 
-> The initcall level does not appear to be the determining factor on
-> this hardware. i2c_designware is still probing AMDI0010:02 before
-> pinctrl-amd finishes regardless of how early pinctrl-amd registers.
-> The explicit device_is_bound() deferral in patch 2 is the only
-> approach that has worked.
+> Behavioural preservations (deliberate, to avoid regressing existing
+> users):
+> 
+>    - The three-way endian fallback is kept verbatim: an explicit
+>      "little-endian" property wins, then "big-endian", and otherwise
+>      the host's compile-time byte order. device_is_big_endian() is
+>      not used here because it ignores "little-endian" and introduces
+>      "native-endian" semantics, which would diverge from the binding.
+> 
+>    - The platform-resource fallback for an un-mapped reg keeps its
+>      "if (!mux->data.reg)" guard so a platdata user that supplies a
+>      pre-ioremapped reg through struct i2c_mux_reg_platform_data is
+>      not clobbered.
 
-Please try arch_initcall instead.
+Hi!
 
-> 
-> Thanks,
-> Hardik
-> 
-> On Mon, 18 May 2026 at 18:17, Mario Limonciello
-> <mario.limonciello@amd.com> wrote:
->>
->>
->>
->> On 5/18/26 07:28, Hardik Prakash wrote:
->>> Patch 1/2 (pinctrl-amd GPIO IRQ fix) is already in Linus Walleij's
->>> tree. This series contains only the i2c-designware probe ordering fix,
->>> based on top of that commit.
->>>
->>> The root cause: i2c_designware probes AMDI0010:02 before pinctrl-amd
->>> completes, so GPIO 157 (WACF2200 GpioInt per ACPI _CRS) has its
->>> interrupt bits cleared when the first I2C transaction is attempted,
->>> causing lost arbitration errors.
->>>
->>> A higher-level ACPI devlink approach was investigated in response to
->>> Bartosz Golaszewski's suggestion. The DSDT has no _DEP object linking
->>> AMDI0010:02 to AMDI0030:00, so fw_devlink has nothing to act on.
->>> Setting this up at the ACPI layer would require either a firmware
->>> change to add _DEP, or a DMI quirk in the ACPI scan path — equally
->>> quirk-based as the current approach.
->>
->> I'd still like to avoid a quirk if we can.
->>
->> I know my proposed patch to try to probe at an earlier stage didn't
->> work, but could you perhaps try pulling pinctrl-amd even earlier?
->>
->> Maybe fs_initcall()?
->>
->>>
->>> v5:
->>>    - Add blank line before #include <linux/acpi.h> (Bartosz Golaszewski)
->>>    - Use scoped_guard(device, gpio_dev) (Bartosz Golaszewski)
->>>
->>> v4:
->>>    - Rebase onto Linus Walleij's tree (patch 1 already there)
->>>    - Use --base so series is correctly 1/1 (Andy Shevchenko)
->>>    - Add subsys_initcall test results (Mario Limonciello)
->>>
->>> v3:
->>>    - Fix variable declaration style in dw_i2c_needs_amd_gpio_dep (Andy Shevchenko)
->>>    - Add BugLink tag (Andy Shevchenko)
->>>    - Add -v3 subject versioning (Andy Shevchenko)
->>>    - CC AMD engineers (Andy Shevchenko)
->>>
->>> v2:
->>>    - Replace custom HID/UID lookup with acpi_dev_get_first_match_dev() (Andy Shevchenko)
->>>    - Use acpi_get_first_physical_node() for platform device lookup
->>>    - Use device_is_bound() under device_lock() with explanatory comments
->>>    - Fix dev_warn to use dev_name() instead of hardcoded suffix
->>>    - Fix commit message (removed incorrect "existing" reference)
->>>    - Add Assisted-by tags per coding-assistants.rst
->>>
->>> Kernel bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=221494
->>> Related: https://bugzilla.kernel.org/show_bug.cgi?id=221454
->>>
->>> Hardik Prakash (1):
->>>     i2c: designware: fix probe ordering for AMD GPIO on Lenovo Yoga 7
->>>       14AGP11
->>>
->>>    drivers/i2c/busses/i2c-designware-platdrv.c | 76 +++++++++++++++++++++
->>>    1 file changed, 76 insertions(+)
->>>
->>> base-commit: 3812a9e84265a5cdd90d29fe8d97a023e91fb945
->>
+After reading v2/v3, I finally got why you removed if (!mux->data.reg).
+I.e., since you removed the io-remapping from i2c_mux_reg_probe_fw()
+that part can now be unconditional in i2c_mux_reg_probe(). But,
+keeping the if just to accomodate potential out-of-tree code that uses
+the platform data hooking is not needed so v1 feels better than v2/v3.
+Sorry for being dense. However, see below.
 
+> The OF-only of_address_to_resource() translation in the old
+> probe_dt() is dropped because the same address is available from
+> the platform_device resource table on both OF and ACPI, and the
+> existing fallback in probe() ioremaps it.
+> 
+> Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+> ---
+>   drivers/i2c/muxes/i2c-mux-reg.c | 75 ++++++++++++++++++-----------------------
+>   1 file changed, 32 insertions(+), 43 deletions(-)
+> 
+> diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/i2c-mux-reg.c
+> index 1e566ea92bc9..8b35a50e2841 100644
+> --- a/drivers/i2c/muxes/i2c-mux-reg.c
+> +++ b/drivers/i2c/muxes/i2c-mux-reg.c
+> @@ -11,7 +11,6 @@
+>   #include <linux/init.h>
+>   #include <linux/io.h>
+>   #include <linux/module.h>
+> -#include <linux/of_address.h>
+>   #include <linux/platform_data/i2c-mux-reg.h>
+>   #include <linux/platform_device.h>
+>   #include <linux/slab.h>
+> @@ -75,37 +74,34 @@ static int i2c_mux_reg_deselect(struct i2c_mux_core *muxc, u32 chan)
+>   	return 0;
+>   }
+>   
+> -#ifdef CONFIG_OF
+> -static int i2c_mux_reg_probe_dt(struct regmux *mux,
+> -				struct platform_device *pdev)
+> +static int i2c_mux_reg_probe_fw(struct regmux *mux, struct device *dev)
+>   {
+> -	struct device_node *np = pdev->dev.of_node;
+> -	struct device_node *adapter_np, *child;
+> +	struct fwnode_handle *fwnode, *child;
+>   	struct i2c_adapter *adapter;
+> -	struct resource res;
+>   	unsigned *values;
+> -	int i = 0;
+> +	int ret, i = 0;
+>   
+> -	if (!np)
+> +	if (!dev_fwnode(dev))
+>   		return -ENODEV;
+>   
+> -	adapter_np = of_parse_phandle(np, "i2c-parent", 0);
+> -	if (!adapter_np) {
+> -		dev_err(&pdev->dev, "Cannot parse i2c-parent\n");
+> +	fwnode = fwnode_find_reference(dev_fwnode(dev), "i2c-parent", 0);
+> +	if (IS_ERR(fwnode)) {
+> +		dev_err(dev, "missing 'i2c-parent' property\n");
+>   		return -ENODEV;
+>   	}
+> -	adapter = of_find_i2c_adapter_by_node(adapter_np);
+> -	of_node_put(adapter_np);
+> +
+> +	adapter = i2c_get_adapter_by_fwnode(fwnode);
+> +	fwnode_handle_put(fwnode);
+
+Why did you not change to i2c_find_adapter_by_fwnode()? It would be
+closer to the original, but maybe that doesn't work for ACPI for some
+reason?
+
+>   	if (!adapter)
+>   		return -EPROBE_DEFER;
+>   
+>   	mux->data.parent = i2c_adapter_id(adapter);
+> -	put_device(&adapter->dev);
+> +	i2c_put_adapter(adapter);
+>   
+> -	mux->data.n_values = of_get_child_count(np);
+> -	if (of_property_read_bool(np, "little-endian")) {
+> +	mux->data.n_values = device_get_child_node_count(dev);
+> +	if (device_property_read_bool(dev, "little-endian")) {
+>   		mux->data.little_endian = true;
+> -	} else if (of_property_read_bool(np, "big-endian")) {
+> +	} else if (device_property_read_bool(dev, "big-endian")) {
+>   		mux->data.little_endian = false;
+>   	} else {
+>   #if defined(__BYTE_ORDER) ? __BYTE_ORDER == __LITTLE_ENDIAN : \
+> @@ -118,40 +114,35 @@ static int i2c_mux_reg_probe_dt(struct regmux *mux,
+>   #error Endianness not defined?
+>   #endif
+>   	}
+> -	mux->data.write_only = of_property_read_bool(np, "write-only");
+> +	mux->data.write_only = device_property_read_bool(dev, "write-only");
+>   
+> -	values = devm_kcalloc(&pdev->dev,
+> -			      mux->data.n_values, sizeof(*mux->data.values),
+> +	values = devm_kcalloc(dev, mux->data.n_values, sizeof(*mux->data.values),
+>   			      GFP_KERNEL);
+>   	if (!values)
+>   		return -ENOMEM;
+>   
+> -	for_each_child_of_node(np, child) {
+> -		of_property_read_u32(child, "reg", values + i);
+> +	device_for_each_child_node(dev, child) {
+> +		if (is_acpi_node(child)) {
+> +			ret = acpi_get_local_address(ACPI_HANDLE_FWNODE(child),
+> +						     &values[i]);
+> +			if (ret) {
+> +				fwnode_handle_put(child);
+> +				return dev_err_probe(dev, ret,
+> +						     "Cannot get address\n");
+> +			}
+> +		} else {
+> +			fwnode_property_read_u32(child, "reg", &values[i]);
+> +		}
+> +
+>   		i++;
+>   	}
+>   	mux->data.values = values;
+>   
+> -	if (!of_property_read_u32(np, "idle-state", &mux->data.idle))
+> +	if (!device_property_read_u32(dev, "idle-state", &mux->data.idle))
+>   		mux->data.idle_in_use = true;
+>   
+> -	/* map address from "reg" if exists */
+> -	if (of_address_to_resource(np, 0, &res) == 0) {
+> -		mux->data.reg_size = resource_size(&res);
+> -		mux->data.reg = devm_ioremap_resource(&pdev->dev, &res);
+> -		if (IS_ERR(mux->data.reg))
+> -			return PTR_ERR(mux->data.reg);
+> -	}
+> -
+
+By not doing the io-remapping here, the ordering is now subtly altered.
+Previously we had io-remapping before the call to i2c_get_adapter().
+With this change we instead have the call to i2c_get_adapter() before
+the io-remapping.
+
+Since it is apparently difficult the get this patch tested for the
+existing use cases, we should avoid as many of these innocent looking
+but subtle changes as possible.
+
+Cheers,
+Peter
+
+>   	return 0;
+>   }
+> -#else
+> -static int i2c_mux_reg_probe_dt(struct regmux *mux,
+> -				struct platform_device *pdev)
+> -{
+> -	return 0;
+> -}
+> -#endif
+>   
+>   static int i2c_mux_reg_probe(struct platform_device *pdev)
+>   {
+> @@ -169,10 +160,10 @@ static int i2c_mux_reg_probe(struct platform_device *pdev)
+>   		memcpy(&mux->data, dev_get_platdata(&pdev->dev),
+>   			sizeof(mux->data));
+>   	} else {
+> -		ret = i2c_mux_reg_probe_dt(mux, pdev);
+> +		ret = i2c_mux_reg_probe_fw(mux, &pdev->dev);
+>   		if (ret < 0)
+>   			return dev_err_probe(&pdev->dev, ret,
+> -					     "Error parsing device tree");
+> +					     "Error parsing firmware description\n");
+>   	}
+>   
+>   	parent = i2c_get_adapter(mux->data.parent);
+> @@ -180,8 +171,6 @@ static int i2c_mux_reg_probe(struct platform_device *pdev)
+>   		return -EPROBE_DEFER;
+>   
+>   	if (!mux->data.reg) {
+> -		dev_info(&pdev->dev,
+> -			"Register not set, using platform resource\n");
+>   		mux->data.reg = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+>   		if (IS_ERR(mux->data.reg)) {
+>   			ret = PTR_ERR(mux->data.reg);
+> 
+> ---
+> base-commit: 254f49634ee16a731174d2ae34bc50bd5f45e731
+> change-id: 20260305-i2c-mux-reg-552203da8564
