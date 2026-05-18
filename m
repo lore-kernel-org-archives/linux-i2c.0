@@ -1,230 +1,123 @@
-Received: from SJ2PR03CU001.outbound.protection.outlook.com (mail-westusazon11012041.outbound.protection.outlook.com [52.101.43.41])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f50.google.com (mail-yx1-f50.google.com [74.125.224.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3DAE3F6C55;
-	Mon, 18 May 2026 11:41:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.43.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0F844048BF
+	for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 12:25:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.50
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779104469; cv=fail; b=B/qZsD6a8d+nl64CWLawPKXYizhuam0qHypEJlLArpUTxBB+PTvd+iORENwo4AFVd9XwSYHmzq42B/LFcIsATZYQ4CVkY8fDHxVDeflP699t6+LIsHeO3Y0mEpgBpsCscptpQ6Dj9jedOERjgI9XNP6aY29TOdRjl2FAFki6edY=
+	t=1779107116; cv=pass; b=b0/eSLBwgKe6VE8JCFa72qOMBYjD5TXjGw8Po2330A5dTG23yc1h8SvE1qCftSiSA3gDlDVTiZesEtGG0xsw/4M2RxsfYj+G6l0Iw4kkpKq2JUNH3TOj5A7dyrrfQKGCwcu8SgxLVmyy8+XWxrH8i7sbb3MBrQyNG5rMVsj40VI=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779104469; c=relaxed/simple;
-	bh=nSpaOhp7JQo37Ppr+8YZAKaei5HEaI1GyAUNACQluRA=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=XM3lWNRS1hIlL02ASUqfQTV3k1o59drH9CqlxwjRcc/eBno+/b49U6AInHLFniO3vHpZZnLBhyNrTFEmYrAr0QH68zUhH5n1/Wp1aZc5Os2FejffSMp31WRc1f8ZzZ5pgSXUkWPIAwj2L4mjbiCzB+WIC9CquSeJ1rABn+vym+A=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Cd727YRQ; arc=fail smtp.client-ip=52.101.43.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	s=arc-20240116; t=1779107116; c=relaxed/simple;
+	bh=0hqzCRIw6eHbGaqGb1/qhmAHcg9W6fExRxkcWr0itBg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=PX5QpG8VY+uOfKYPE6HOd24yUBhRhAgGZXf+EdY7xP11K/XtuD541lw9D8rNA+7iqsWg9OX3a/oDFrGRbPBmIUVICcQiGFVJc+F+oASGG7b0xNWPFahSk2tyCVDSRlnRKGwIdkujL7K3iNE5gXwlukz8dvLqclQxHygg7i3rgHE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JYyj1y55; arc=pass smtp.client-ip=74.125.224.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Cd727YRQ"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=dQJa5bnxHacIdHLQZjnMXe8q+zRCLFhtBxUjDS/RyEQiX1Hz68AnfwCIBk3Wl1nCLxuciUSiA0tsSabm+yUieQArVUZB2Amt58uph9tk5XnrWhNbe/oe3VlLXOgBTDl+PkkwwSzeLK6KZVa+PeGmI4ZahJ3L7VjaOKLuO3YgdD4Fd7kPt9SMh7yk07tv2XL6TEA6/9wM9qnhxlkTpbpn5o+8pXzAfTT4AHekHFxgOcHbnnjcDzPrEQcE/g2ruRUVJv231GbUOm704xxfUgSam/8VPCLrxQnpDNWNnsD/+WA860WGkvmIEOMz16fdi9XP942PALWEEiRpDUPO/P/uqg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=VFawLTOj2bgZ5Q52p6jwRTREsDJuLNRWERHKeTBWKwg=;
- b=irP62OpJJ8gJiPXhnDWzAaCrtUH7r1LkLKXkAa+Z0KLTcF75yTuzYBnuOHVaQnQEMvb4v8WY6iWRJdJXT/227GxyzDgCHoMFq7JD4O4vu5fnBgdisPkuJXoODoSBcegZh9RFe9iR0IKD9VHpnYZm438a7h63V7ObLS9JW1TWNYnkxu/7JnBm+PLcL513gAqIu8Z2tnE4evT3JHCKQrRkOIJ/sGoWorUrllnKvHm3ddNxXn5hFPgwLIsBUMwcgqZjevy6+A82Wb0NQYp/LdBiuO063L+8Ywin9wryX7Kv2QBe802SN9ighvu9ltq4mcri6BQcNQ6G/dlfdvhgcxEEKw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.118.232) smtp.rcpttodomain=gmail.com smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=VFawLTOj2bgZ5Q52p6jwRTREsDJuLNRWERHKeTBWKwg=;
- b=Cd727YRQqMpYt97GpT4FJy/I8GRLeNhb+VWlqjEt//p13aYhILpKuJ1jhtK9ETEnOFVTk4/ZM1/ZauwT3GYSLGZ/ftJpXA/xOA2Fhp7e+Wh5QQcXIKylDZEnDF5kbwJrHMNvj5+nR7sZvSl/gqz5cBSbFBo8+ymYbSJGCKH8IEnSuvMy9i3wmnP2vO9wMmGH3OyqdnoTz0UnnBiVFsU46h6LvOxPeaUNw/RQaPdnjsMpuKeQU3cOrbMTD/d3tycUmdBeX8nNtUnWTuBm+lFom1wS2cyVuLph5yGwnpRIjijaLhfyjml6+zqu6GkMd028A/1jiPTiOe065ijlkkmgeA==
-Received: from SJ0PR03CA0019.namprd03.prod.outlook.com (2603:10b6:a03:33a::24)
- by DS0PR12MB7897.namprd12.prod.outlook.com (2603:10b6:8:146::13) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.25.24; Mon, 18 May
- 2026 11:40:54 +0000
-Received: from SJ1PEPF000023D8.namprd21.prod.outlook.com
- (2603:10b6:a03:33a:cafe::c6) by SJ0PR03CA0019.outlook.office365.com
- (2603:10b6:a03:33a::24) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.25.23 via Frontend Transport; Mon, 18
- May 2026 11:40:54 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.118.232) by
- SJ1PEPF000023D8.mail.protection.outlook.com (10.167.244.73) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.71.0 via Frontend Transport; Mon, 18 May 2026 11:40:54 +0000
-Received: from drhqmail202.nvidia.com (10.126.190.181) by mail.nvidia.com
- (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 18 May
- 2026 04:40:45 -0700
-Received: from drhqmail201.nvidia.com (10.126.190.180) by
- drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.20; Mon, 18 May 2026 04:40:43 -0700
-Received: from BUILDSERVER-IO-L4T.nvidia.com (10.127.8.9) by mail.nvidia.com
- (10.126.190.180) with Microsoft SMTP Server id 15.2.2562.20 via Frontend
- Transport; Mon, 18 May 2026 04:40:40 -0700
-From: Akhil R <akhilrajeev@nvidia.com>
-To: Laxman Dewangan <ldewangan@nvidia.com>, Dmitry Osipenko
-	<digetx@gmail.com>, Andi Shyti <andi.shyti@kernel.org>, Thierry Reding
-	<thierry.reding@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, "Kartik
- Rajput" <kkartik@nvidia.com>, Wolfram Sang <wsa@kernel.org>,
-	<linux-i2c@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>
-CC: Akhil R <akhilrajeev@nvidia.com>
-Subject: [PATCH v2 4/4] i2c: tegra: Fix NOIRQ suspend/resume
-Date: Mon, 18 May 2026 17:10:13 +0530
-Message-ID: <20260518114013.62065-5-akhilrajeev@nvidia.com>
-X-Mailer: git-send-email 2.50.1
-In-Reply-To: <20260518114013.62065-1-akhilrajeev@nvidia.com>
-References: <20260518114013.62065-1-akhilrajeev@nvidia.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JYyj1y55"
+Received: by mail-yx1-f50.google.com with SMTP id 956f58d0204a3-65dbe04fc1bso2269802d50.1
+        for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 05:25:14 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779107114; cv=none;
+        d=google.com; s=arc-20240605;
+        b=XplFsNpGrFdspwfqF88eqUUgVtxxZDwkauSlj1cCEqKPtwytd9PWullWV8tttK6aZD
+         aaIdOpa8D82o+RYi9UXdoSvDAV8v143/Lm+1Ub3HBaMLzApwvPsJXJ0RDqmgJ9vhdQOv
+         zi9xEGJ9xfsXxX+v8dU+jL4+LC1RAmMaitLtDHrTRvMRSkzSeGPNIAwP4X0LRwtUey4r
+         YbbV441Dgu06YCfn804g2SxVo32dAC2TEQIptwbMO0jBLXpqq9tcxDgODgYachJ8QpQ/
+         uaXFScjMeSeQizygslJS/izI19Czv22xt8khR5zIoIVYJcS4AuocWO7GztIKuhOPwtCI
+         zlnQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=0hqzCRIw6eHbGaqGb1/qhmAHcg9W6fExRxkcWr0itBg=;
+        fh=v/FXibnCO0wu+TSmjWwk9QsPsverxGuSLgbr5YxQSkQ=;
+        b=LOThUl0RGImA0wAQbEUPcS2+nryLM4XmlJ+O9NMXs1NtXLeOGXExGA5cvdU5nN7Q/T
+         TQK3oZpBoW7iacyXAS193/A8n5M3n7ZjzsTtYzIF2Ha9pXJVHC4MYeW3MPaEm+X0v04S
+         BXOlY3AL6hhnacFSU0EMXyjzGQiWwWtRENhas/uLJGRFjSifZbzpnAMiLW+GtyUdSL1+
+         9m2IRXJbt1HhAEEkPWzhB4zOE4YSWcjDL1i4Ci0cKfWe/HQaDAPtZri0gy7Z/quMPca0
+         n/dP/Fie79tfua3GFBcjluUzUQ/limy4AsnSKqsv/qh87O6WZsDc5vsHM81B2P7vItEt
+         IQYA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779107114; x=1779711914; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=0hqzCRIw6eHbGaqGb1/qhmAHcg9W6fExRxkcWr0itBg=;
+        b=JYyj1y55zWx1Das1Htts6mnj7UweswfFIxetCyA9yi9PDl0K2FW/1LSrXE2L0cfr8R
+         bWDc/kuYNGg2VZ/exuI7cExyW97/Nik3Xi70SKL8GVUWo0eDOPHEksxMlaS2nOplnLzn
+         GmK6ZPvFeMG6jaenvZnuhzHf/unTSC4smbVZoI5K6WZ3Mbl274wsqtyZ3qpOeh8lVe1W
+         3FK9yyroB9/QlAUHK2qG4GA+siOlIX2iOyofLwDfFW4e6QePlNFGe3IGhlOdmodqZWHY
+         LL4t5Rr9dkahSAT4OIUSZnYnd84kcwp8pT2SnW/NUzzRfRzx+rInRfkQUc3daseDzVeU
+         9orQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779107114; x=1779711914;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=0hqzCRIw6eHbGaqGb1/qhmAHcg9W6fExRxkcWr0itBg=;
+        b=WJLuVbhTJwuAGhyUuVSnGzfKSYj4OhuU7zl3G2YhijnwPugHWGXgonKrsxKANpMfSp
+         CzRXH88velY+g5eNcnzZYei6FeO86V8eHEttO597j7XLWYVGvuw1TJlNSJg1J6yPw2HT
+         LFUycmCtvqCGinu1yMCYkaD8aapUHI9mm4DCM2x1tE5WeGIvjBneJGGulKbikciIo4v7
+         zu6CetH9wperRZc3TlxO3IWetDTWo22hVtYW2GSk2wziO3dYZ83WtGK6hIaU9BvzV2/x
+         dW6360CDcG71WwQpyQCksaWVg/JklVWmLas9vHw1lnXZ16NpbhHHnWfy6LlfLxHWmeJl
+         S3VQ==
+X-Gm-Message-State: AOJu0Yw+mRsKA30vbieTQT2QwHrgAFMLzxYPa7u8IPWYKPFnk2yv56gD
+	Y7ZNDaIyMwHc9PU4p0ACeCYhjl03KSnJ/Ch2WKtXC398URabouNaE1L03f+6z9aaO9EKUN8a1Xx
+	18eEUCcAl5WvX18/ylEfZwT6zyb4BqraxTg0hME0eZw==
+X-Gm-Gg: Acq92OGmQRZs00d13dEJL/9ZvkjbX2oQIDBD2sAKD52KKjbQ/yy2HmBGqe4a3JNaYxj
+	FNS+mD7PZqdpK+Uv1pR8i0zljt0cNpxk1SxzPy+cff8zjNkzspSeBKFthKyNgE64p6eqHY2iJjg
+	/acp4J5Ia6kxYIgZJMy+XJISRRP2P33wf8RChTPKKDal416XXc0N0x/KnThRGoN1gwRkZcHTCn8
+	eoLVRh+8Vp73XCI3hLBPgLtVBt6Qj956wJnspCtzlm7kwdD7wwjAjw7XWn1ngKqwOK3/+/kPhyc
+	XFBDlZW+2RRfznb3RpNi0+P2iNaz17MndkcQgdHahGr32LORHxwu7pn8qn2DzCFR2NekE/itd0I
+	j2CP+/HQ4mrvy2Vg3yq9emGapQeU1DGb1O8f+Psb5T+WjsZftg+MfjSFS7WNl3aUroKYvpd3kby
+	nJSZ/b
+X-Received: by 2002:a05:690e:191b:b0:65e:c81:3a6c with SMTP id
+ 956f58d0204a3-65e226dcb9dmr14933711d50.15.1779107113719; Mon, 18 May 2026
+ 05:25:13 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-NVConfidentiality: public
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ1PEPF000023D8:EE_|DS0PR12MB7897:EE_
-X-MS-Office365-Filtering-Correlation-Id: 42f861b7-9731-4873-c5a3-08deb4d251d3
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|82310400026|36860700016|376014|18002099003|22082099003|56012099003|921020|11063799003;
-X-Microsoft-Antispam-Message-Info:
-	W/jLs6G4l838A8a6T9+aOcd+wwuJrIVZGQdrzN1VSaZFadG0wqjJz4eMJ99CNO3la3DcLNzWGDQdD95PQLjB+7S4ecq3dB+z4XD8XWWFh7Y08X35VD5baz31RbwDWuHG0WK+Vq4aJhHBLm7otgLD1RfCOvqN7+72YMzpZanKeWeDix+CyhE8YPDTo2va4ZALg//LPHHXgvW4xR1ZJQK7//3uYTody1IsnIp6xiSKkcx/TyMWmaTlWrKAYfFTeaEr5JBK8T0XXn4bO8Fmkf/WdO3h3PpUurwog2eJPXiVePcYTHaiOqp7BEB+GSKxzLl6nosfUNYh0k8Zxe30rXkEy98w09lBglg6KCXWuNcM8M3J58Zv9evqmi0kA4qBvZNEf+8SYA0eh77NorjQX7xUaPln2485CTxNGXniR03pxTZ71nShVLpjhbzozQHQOrO3FM/Z/yfNfg+yfFLzJgdBviHFfbwbN33rypbMZKpGXoj2J4UaFRPtCwLOduS1BB9IAKMaK62FjJj8vWdo86RZZ9Mlb6aA4FicGmi0X1B+BSDX28rrnny4BjKWuGtCCJ+y463Zx39gvOyNTJgTpDzc8Xel6lw2qBEFLLaArYzubuVM2OctFJ+Y7dWWV68LZgWFsr1EVMPkWyd97JpoHFX/i8Q1r839p3lqzNuEYOzSpMiq0/OvGV5To8BoYLCt3IEmFAxZKOsWLTUUTCQpGZGwUldOTqPjJi6i6iBcZGD2AQFNlkDs3BfJJCetoGGNE1AZRpQPrSqqso323GoDaADB5Q==
-X-Forefront-Antispam-Report:
-	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(36860700016)(376014)(18002099003)(22082099003)(56012099003)(921020)(11063799003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	wIXjfRUXUzBR6+SiN+622pBnfomxRTcSyzSHpmE3Dv/0ASrrcke+jtMf2Mfz8oVVZvNbTlYmgJHARfFt4Hbw7SHkptgKrmU/5mKZJ7BvFdO8QN+57mFbPvLuRyZNAzVjF/VkTK9msc7lmGID8r/eJqaxAmkcPPeOyTP8PdqjTCKCJb3GKAMB1jaFmU7xGq1E6XOi/PSO/XDXcPAfwb1YF1SOAaUcZdyJKAOLDpEmx3Q2GnXMZwaf6EP38IS+glsuh70ZgFy9xTOR6gKBtdnGdAe+Mh1YIjDiBiG8XLhAgJq2ubF90rEnRkkQKqnyHIAdq5hTw6o5yi/Xwj2t5c8vmrfUZUYk6UHPnKsmC8J2/Jd1R7t1qz8Ew2c5ARhE55MjK8DmjgySmqP0yj5BFoyFV8VejP9+fl7Bm2XkFwJOj4rjQ0Zjt2qx2pyMK+5z9gGp
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 May 2026 11:40:54.1935
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 42f861b7-9731-4873-c5a3-08deb4d251d3
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	SJ1PEPF000023D8.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB7897
+References: <20260518071816.26629-1-hardikprakash.official@gmail.com>
+ <20260518071816.26629-2-hardikprakash.official@gmail.com> <CAMRc=Me8ieVzXojZ=eNhBPvjjmT5gc6hJXnpC8Bc6WofDbXP4A@mail.gmail.com>
+In-Reply-To: <CAMRc=Me8ieVzXojZ=eNhBPvjjmT5gc6hJXnpC8Bc6WofDbXP4A@mail.gmail.com>
+From: Hardik Prakash <hardikprakash.official@gmail.com>
+Date: Mon, 18 May 2026 17:55:02 +0530
+X-Gm-Features: AVHnY4Jzaa6fZJ1A-ABz9gfnbZXIeHp2ygD2-Qv9xk6fes24nlc7tQzjR2wEdcs
+Message-ID: <CANTFpSU_Ba1c_R9wbjSSqnc1+_vBMAOKDvD=EVtct8hWU+Dxqw@mail.gmail.com>
+Subject: Re: [PATCH v4 1/1] i2c: designware: fix probe ordering for AMD GPIO
+ on Lenovo Yoga 7 14AGP11
+To: Bartosz Golaszewski <brgl@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org, 
+	andriy.shevchenko@intel.com, mario.limonciello@amd.com, 
+	basavaraj.natikar@amd.com, linus.walleij@linaro.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The Tegra I2C driver relies on runtime PM to wake up the controller before
-each transfer. However, runtime PM is disabled between the system suspend
-and NOIRQ suspend. If an I2C device initiates a transfer during this
-window, the I2C controller fails to wake up and the transfer fails. To
-handle this, the controller must be kept available for this period to
-allow transfers.
+On Mon, May 18, 2026 at 16:24, Bartosz Golaszewski wrote:
+> The patch looks fine but I too would prefer this to be handled at a
+> higher-level. If we know which ACPI devices we're waiting for and what
+> the ordering should be - is it possible to somehow setup the devlink
+> for the platform devices that will be the children of these ACPI
+> devices?
+>
+> If that can't be done, I'm fine with this as a workaround.
 
-Rework the I2C controller's system PM callbacks such that the controller
-is resumed from runtime suspend during system suspend and it stays
-RPM_ACTIVE throughout the suspend-resume cycle until it is runtime
-suspended back in the system resume. The clocks are disabled in NOIRQ
-suspend and enabled back in NOIRQ resume by calling the controller's
-runtime PM functions directly.
+I checked the DSDT and the kernel's ACPI dependency mechanisms. The
+DSDT has no _DEP object linking AMDI0010:02 to AMDI0030:00, so there
+is nothing for fw_devlink to act on. The GpioInt resource is on the
+touchscreen device (TPNL/WACF2200), not on the I2C controller itself.
 
-Fixes: 8ebf15e9c869 ("i2c: tegra: Move suspend handling to NOIRQ phase")
-Assisted-by: Cursor:claude-4.6-opus
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Akhil R <akhilrajeev@nvidia.com>
----
- drivers/i2c/busses/i2c-tegra.c | 53 +++++++++++++++++++---------------
- 1 file changed, 30 insertions(+), 23 deletions(-)
+Setting this up at the ACPI layer would require either a firmware
+change to add _DEP, or a DMI quirk in the ACPI scan path to synthesize
+the dependency =E2=80=94 which would be equally quirk-based as the current
+approach, just in a different driver.
 
-diff --git a/drivers/i2c/busses/i2c-tegra.c b/drivers/i2c/busses/i2c-tegra.c
-index 93677bd2d3b1..a24b6ef26dbe 100644
---- a/drivers/i2c/busses/i2c-tegra.c
-+++ b/drivers/i2c/busses/i2c-tegra.c
-@@ -2426,29 +2426,38 @@ static int __maybe_unused tegra_i2c_runtime_suspend(struct device *dev)
- }
- 
- static int __maybe_unused tegra_i2c_suspend(struct device *dev)
-+{
-+	/*
-+	 * Bring the controller up and hold a usage count so it stays
-+	 * available until the noirq phase.
-+	 */
-+	return pm_runtime_resume_and_get(dev);
-+}
-+
-+static int __maybe_unused tegra_i2c_suspend_noirq(struct device *dev)
- {
- 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
--	int err;
- 
- 	i2c_mark_adapter_suspended(&i2c_dev->adapter);
- 
--	if (!pm_runtime_status_suspended(dev)) {
--		err = tegra_i2c_runtime_suspend(dev);
--		if (err)
--			return err;
--	}
--
--	return 0;
-+	/*
-+	 * Runtime PM is already disabled at this point, so invoke the
-+	 * runtime_suspend callback directly to put the controller down.
-+	 */
-+	return tegra_i2c_runtime_suspend(dev);
- }
- 
--static int __maybe_unused tegra_i2c_resume(struct device *dev)
-+static int __maybe_unused tegra_i2c_resume_noirq(struct device *dev)
- {
- 	struct tegra_i2c_dev *i2c_dev = dev_get_drvdata(dev);
- 	int err;
- 
- 	/*
--	 * We need to ensure that clocks are enabled so that registers can be
--	 * restored in tegra_i2c_init().
-+	 * Runtime PM is still disabled at this point, so invoke the
-+	 * runtime_resume callback directly to bring the controller back up
-+	 * before re-initializing the hardware. The adapter is then marked
-+	 * resumed so that consumers can issue transfers from their own
-+	 * resume_noirq() handlers and onwards.
- 	 */
- 	err = tegra_i2c_runtime_resume(dev);
- 	if (err)
-@@ -2458,24 +2467,22 @@ static int __maybe_unused tegra_i2c_resume(struct device *dev)
- 	if (err)
- 		return err;
- 
--	/*
--	 * In case we are runtime suspended, disable clocks again so that we
--	 * don't unbalance the clock reference counts during the next runtime
--	 * resume transition.
--	 */
--	if (pm_runtime_status_suspended(dev)) {
--		err = tegra_i2c_runtime_suspend(dev);
--		if (err)
--			return err;
--	}
--
- 	i2c_mark_adapter_resumed(&i2c_dev->adapter);
- 
- 	return 0;
- }
- 
-+static int __maybe_unused tegra_i2c_resume(struct device *dev)
-+{
-+	pm_runtime_put(dev);
-+
-+	return 0;
-+}
-+
- static const struct dev_pm_ops tegra_i2c_pm = {
--	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(tegra_i2c_suspend, tegra_i2c_resume)
-+	SET_SYSTEM_SLEEP_PM_OPS(tegra_i2c_suspend, tegra_i2c_resume)
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(tegra_i2c_suspend_noirq,
-+				      tegra_i2c_resume_noirq)
- 	SET_RUNTIME_PM_OPS(tegra_i2c_runtime_suspend, tegra_i2c_runtime_resume,
- 			   NULL)
- };
--- 
-2.50.1
+I'll send v5 with your two style fixes applied.
 
+Thanks,
+Hardik
