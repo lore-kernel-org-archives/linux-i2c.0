@@ -1,548 +1,327 @@
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.22])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 479D336D50D;
-	Mon, 18 May 2026 16:10:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.22
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67B6535DA56
+	for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 16:45:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779120640; cv=none; b=plk43GNaL30sn81OsbuwCS8m9sDUSgYSkCE9BV/PIsNnZbgRS93PsnGnrC+mFojiK85lHqRmj3/FP9HvZ1isaYsouAvs1+joL06u3VZmjjFv2MaTgi1B8KXuu5XIVzl1Z05C8u+Jc1aK2I/y/3ce9oF2TIxPMBxKIlVc+a4MxI8=
+	t=1779122722; cv=none; b=d0kfvHK03QBbPd9muSOCOVxN2T4Q81//TnfQPQ5mNbS9wGDst+VMyhLls2Zuqs0fF+ysDw9KnlD7cxhBx4AqhSH5OQMzEN2eX7uVQLjITnwQN2TUOoU6GWvYdlJY/9ap9r23Gb0Ah5mfxRWitSrRdKT3/7PWDk9PO/klUqAS+pQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779120640; c=relaxed/simple;
-	bh=UDJI2f7wAkcp2aUH4BwWMgLHg1X0+V6jUsm3l703ZSM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=aPpV8D4jtMO9rEXM4GiJkAO6iUGWFnJuS2RVvTubcxapgJY2lRfy7pBZ//n6W492o2r/Xm3wkF55hnvclgR6mooVR6ckVn2d7F54nrgJ65p0w/nK5+dg/S6DGS8fbCzNrD+pf08t4NsXRlKS1h2WZDrQ6+Kc/wb+lP6wvvv8144=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=markus.stockhausen@gmx.de header.b=SqzswYZP; arc=none smtp.client-ip=212.227.17.22
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.de
+	s=arc-20240116; t=1779122722; c=relaxed/simple;
+	bh=lCH/RQ3ab4WHRokQ/M9DUnB00sh46GAiobF+8oiI4Vc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=aC66PSQdcvKXNiTJpciwgNkFeiAIcnC9RMI5YWnQ0K6xqxg9rR4NCLejc/OPcf+hil0fH5riEWw/0RlUZZT+IEKw0KIVtISISV+IdFP/03AzqRI9Jb+TpDM//cQp51bsmw+U9Mg2rE9E32NoKNJj4zfzj+7cBjmay7JMMLAD+ks=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=Waw7m/Gn; arc=none smtp.client-ip=209.85.128.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmx.de header.i=markus.stockhausen@gmx.de header.b="SqzswYZP"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.de;
-	s=s31663417; t=1779120628; x=1779725428;
-	i=markus.stockhausen@gmx.de;
-	bh=he1xB3agKtaf1kPy697W0NQZ6xeULsDyRPDAuo6dXWg=;
-	h=X-UI-Sender-Class:From:To:Cc:Subject:Date:Message-ID:
-	 MIME-Version:Content-Transfer-Encoding:cc:
-	 content-transfer-encoding:content-type:date:from:message-id:
-	 mime-version:reply-to:subject:to;
-	b=SqzswYZP5Jxgx9uQvFNivP8BCNTyNQ8Bv2ZvEEAPuGVN1Jt9lfoWEP5szqtMtJKJ
-	 fPI9bJZzbglyA/6NYWNsLw5lY2GNFfH6ZSB48QYjK/gSPmDZrs7D4e5uKvW89+Q9A
-	 YF5qDQ4XYhiyqhs/FdP4aExB7BGN55yaNnXyEdszJj+X6WtDLmqYheNiJKCGknRj0
-	 GB+vCrb3dXarhaVYV+F6psUPJKp0tfOvGVFBDiLBA+DDQ3KR6zOb5k5aH4AhepgqR
-	 a138sL3PZl2V5HnjhYDtrsqEk6n0kb9BAW4sEkBKIjp3PuiiGQgVbK7EK/A5QabSI
-	 WctwYau8fkgkYjrF9g==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from client.hidden.invalid by mail.gmx.net (mrgmx105
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1Mqs0X-1xBDJy3XkX-00kCpc; Mon, 18
- May 2026 18:10:27 +0200
-From: Markus Stockhausen <markus.stockhausen@gmx.de>
-To: wsa+renesas@sang-engineering.com,
-	andi.shyti@kernel.org,
-	linusw@kernel.org,
-	brgl@kernel.org,
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="Waw7m/Gn"
+Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-488b150559bso19804385e9.1
+        for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 09:45:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1779122718; x=1779727518; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=e4uoJqOZQPI2cVHQzOQoRk6wrV7n9yA1ivdWcQg27mc=;
+        b=Waw7m/GnMONd5p2mErNWBYQyHzIuR1amS9drXSQGgPbtodgZEyfMGI4GCY3b4G7KYO
+         kaHm5lU0EZLA6rDHlUIyfj6bkWOh9aAaiN2b9fw0sBGLik4de9lUnvuUEMZ2TCB5DE2W
+         xMa0WMU1qC0VB2iH3qWuWZSUO+iAUwgyFLLG7xKKNwcF2geuowW4zdaztHzQhJLyvj1v
+         rBXub16ptGB3h0VeLdnhSn+lpiK+Q/ltOl477huDY3I3SDTuC6Jsdhi/Y+fM01p2zdTg
+         y98Xzy2btIHBUGATCywU1ReBUZEF2B8apzGCyY14vj8HfJ3TsU9DE8oOScj7h4Eq8U+k
+         pCZA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779122718; x=1779727518;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=e4uoJqOZQPI2cVHQzOQoRk6wrV7n9yA1ivdWcQg27mc=;
+        b=oaxz7Wtk1yuZ8zWFPs5LCRFU9H0A1d6Vmbw9dGZT9DWMjyelX57t/1GpoKt9vy2Bj2
+         VBE0dF3JSFCCJZmzX+vg56TH1AaZZAODqQn0J0WWgMkUcYqeyG7oJ0biNd7QMXewYRqj
+         +Wb7OWf+aNTMJjojLDJ5uq1GZg0p3K96dSYv+AByqVzkXpgaxb8K1z3Y+qLLMLChDSNa
+         AzeiGZKdw/C+8WcW5OiIHsAf5ddTneG+lWi2pS51fLdqfxO5nAYk4eivsUm/5wj5ZJ/p
+         MlOmdN4a5EU8izfjg3UCihp4gWPU0m2WUR0bUZwKaRcqhpAIoAnb6AugBRKXZK1Z0opz
+         9VXA==
+X-Forwarded-Encrypted: i=1; AFNElJ8UN2gRFSKRXjltNsIDTw/598vwlPXQeAQdprcCGOHrMm0S0LalQouV1AVtqKCnbJinpPqi+y2jT10=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yyr+aJIrt2misB4ztthYTfz4FtyXwOG9oO0jt4/QhOKiZCrDHXN
+	gWr0h588rXko+aOUdGclbXZg9/Pl16WcMeQiN+GzQKZpZsEeFw1i+lzx4kr9kMMH/mM2j7AQOBq
+	wugbMDRo=
+X-Gm-Gg: Acq92OFhdwveuoaZjA1a96FYtpHnz8TS0PCPjnwsw587ZwShCAQxgW5pLCuBRXvxeYD
+	VFP6t+rW5cGYeASdzV+rrJ5S+ncDHwJer1eqT0UGeCDi/pjHi5UsJfKuLrQGNnvKfr29sBoOJCG
+	OQsoFYAMV4T5+6QEajM7KjUTZudz740VxvLRGGkaUKd2Ix29+GuOhUhD+1K5poebzGYY1gVL+zW
+	BFaJnhKbhwW5dPp0raZJ+FykufMb5Ze1ijiAdY2PzSLVo5Nq3dr83lBbal21q73aLA7yZFbFrI0
+	UCanQ1cJaHmuxsMemc8NKTp/6rtC04WQQxQXZhXFx7S9KkOv/6jeicW+EtJindDKB/DAT254mXr
+	UQF5XMWRfRX3okxYwCaY2QJXL9+sSqnN1gVJzC8Gve1b/xDGOWytkIqu7Oc0dT3mW2pxEXtSUzP
+	mxBHwtKJATluLjuEkfcxLhNE1QbUP5j0OygizBaMYppvcLiCfv2j1uqopQvwYJlcB0oVfpxiukc
+	tTMLgntm+hxjR4lhg4oxoJE
+X-Received: by 2002:a05:600c:181b:b0:48f:e230:2a1d with SMTP id 5b1f17b1804b1-48fec369d0fmr142735965e9.32.1779122717763;
+        Mon, 18 May 2026 09:45:17 -0700 (PDT)
+Received: from localhost (p200300f65f47db041bee4d0e08e9609b.dip0.t-ipconnect.de. [2003:f6:5f47:db04:1bee:4d0e:8e9:609b])
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-48fe5ab3977sm290714205e9.9.2026.05.18.09.45.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 18 May 2026 09:45:17 -0700 (PDT)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Peter Rosin <peda@axentia.se>
+Cc: Michael Hennerich <michael.hennerich@analog.com>,
 	linux-i2c@vger.kernel.org,
-	linux-gpio@vger.kernel.org
-Cc: Markus Stockhausen <markus.stockhausen@gmx.de>
-Subject: [PATCH v2] i2c: i2c-gpio: Enhance driver for buses with shared SCL
-Date: Mon, 18 May 2026 18:10:13 +0200
-Message-ID: <20260518161013.900504-1-markus.stockhausen@gmx.de>
-X-Mailer: git-send-email 2.54.0
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v1] i2c: Use named initializers for arrays of i2c_device_data
+Date: Mon, 18 May 2026 18:45:09 +0200
+Message-ID: <20260518164510.805502-2-u.kleine-koenig@baylibre.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:R+7U+VmTZjPEwyYwUWZLh92kZNetyNiRGoebwCGSX9zDrQP0+rU
- CNkq+/zUylZuF+gHRpSwUO7nd8dgAtjk4sIKCxhovhhh6N9cBZRX/Sr6hC3j8nmPKG90v0k
- zVgCH3dOqF/empcRy3dz45rii+AQT/3g0d2AM+NRnZQnNDe66MW82SFV3n6mS4LHkNuwXII
- ms5j8sdR8/SOyOWj8XwbA==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:/YUrUesYyYo=;OlivL68ikIOAur9aCXasASO/d8a
- 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
- iATgD1mxUwwro1AngQbh97QJFWoz2YjlcUkkqZs
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=10046; i=u.kleine-koenig@baylibre.com; h=from:subject; bh=lCH/RQ3ab4WHRokQ/M9DUnB00sh46GAiobF+8oiI4Vc=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqC0IWKD1anbKMQT5x3rIuO8tRTfVyYIG6F45vD vXmFuLqvm6JATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCagtCFgAKCRCPgPtYfRL+ TgPRB/4tYpmhpRNIIafzwyzih7JRor42G48nsBsAJm0vqj1u8+T3mLpTscaBJtP4AT76+dhv3HS 8i+j5qVenK9XBR+h9xLo5xiqS4GTvwvy22X6UtC/JtiHVL07TcR5R3ERjJ0gMutxU40tKzGMBEc NTqRgYAuALE8G6Txzvwlh2wIMP8Tz0mrG0fuqxxX1cZa+C+rH1IovVj9WJvviDQ40sGNqMKquez CnJO+Nn73HIyjVizZmh9uJzaCVSDzf4wPr9pWJizWZMkP9ZtN9sz1ppOGnwDBvjqM/thAn5uaar uO7K84h7dNyNy9PnMZB0W1q67JCKnc2bjttCbew/9b5LnBZo
+X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Transfer-Encoding: 8bit
 
-Some lower end hardware (especially Realtek based switches) are
-designed with multiple I2C buses that share a single clock line.
-E.g. the D-Link DGS-1250-28X realizes 4 I2C SFP busses with 5 gpios.
+While being less compact, using named initializers allows to more easily
+see which members of the structs are assigned which value without having
+to lookup the declaration of the struct. And it's also more robust
+against changes to the struct definition.
 
-Enhance the i2c-gpio driver so it can handle such hardware designs.
+The mentioned robustness is relevant for a planned change to struct
+i2c_device_id that replaces .driver_data by an anonymous union.
 
-- Detect GPIOs that are used by multiple I2C buses in the dts by
-  using a unique identifier for each managed SCL.
+While touching all these arrays, unify usage of whitespace in the list
+terminator.
 
-- The first probing instance allocates and requests the shared SCL
-  GPIO plus an associated rt_mutex. Subsequent instances detect the
-  existing entry via the identifier and increment a reference count
-  to reuse the descriptor.
+This patch doesn't modify the compiled arrays, only their representation
+in source form benefits. The former was confirmed with x86 and arm64
+builds.
 
-- All data transfers are serialized via custom lock_ops that handle
-  both the standard adapter bus lock and the shared SCL mutex. This
-  ensures mutual exclusion across adapters sharing the clock line.
+Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
+Forwarded: id:20260518134035.644762-2-u.kleine-koenig@baylibre.com
+---
+Hello,
 
-This patch was successfully tested on Linksys LGS310C that has two
-SFP slots with two GPIO based I2C buses that share a sinlge SCL.
-Test environment: OpenWrt snapshot ported to kernel 6.19.14
-including CONFIG_GPIO_SHARED=3Dy and CONFIG_GPIO_SHARED_PROXY=3Dy.
+the mentioned change to i2c_device_id is the following:
 
-Signed-off-by: Markus Stockhausen <markus.stockhausen@gmx.de>
+	diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
+	index 23ff24080dfd..aebd3a5e90af 100644
+	--- a/include/linux/mod_devicetable.h
+	+++ b/include/linux/mod_devicetable.h
+	@@ -477,7 +477,11 @@ struct rpmsg_device_id {
 
-=2D--
+	 struct i2c_device_id {
+		char name[I2C_NAME_SIZE];
+	-	kernel_ulong_t driver_data;	/* Data private to the driver */
+	+	union {
+	+		/* Data private to the driver */
+	+		kernel_ulong_t driver_data;
+	+		const void *driver_data_ptr;
+	+	};
+	 };
 
-v1 -> v2
-  - Convert fault injector to scl->gpio (reported by test robot)
-  - Use rt_mutex and i2c_lock_operations instead of pre/post_xfer
-    (logic taken from i2c-cht-wc.c and enhanced)
-  - i2c_gpio_lookup_scl()
-    - Improve list control flow
-    - Improve comment
-    - Carve out SCL node comparison into i2c_gpio_scl_matches()
-  - Drop "valid" attribute and directly check gpiod instead
-  - Improve fwnode args check for #gpio-cells=3D1 case
-  - Add sda/scl cleanup during probe failures
-  - Replace dev_info() with dev_dbg()
-  - Reflect changed locking in commmit message
-  - Tested with config option GPIO_SHARED/CONFIG_GPIO_SHARED_PROXY
-    as requested by Bartosz
-v1: https://lore.kernel.org/linux-i2c/20260514092042.3265986-1-markus.stoc=
-khausen@gmx.de/
+	 /* pci_epf */
 
-v0 -> v1
-  - Initially this enhancement was submitted as a new driver with
-    a new devicetree structure. After some discussion Wolfram
-    advised to make only an enhancement to the i2c-gpio driver.
-v0: https://lore.kernel.org/linux-i2c/20260511162528.84508-1-markus.stockh=
-ausen@gmx.de/
-=2D--
- drivers/i2c/busses/i2c-gpio.c | 208 +++++++++++++++++++++++++++++++---
- 1 file changed, 194 insertions(+), 14 deletions(-)
+and this requires that .driver_data is assigned via a named initializer
+for static data. This requirement isn't a bad one because named
+initializers are also much better readable than list initializers.
 
-diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-index f4355b17bfbf..5362ab9f47bd 100644
-=2D-- a/drivers/i2c/busses/i2c-gpio.c
-+++ b/drivers/i2c/busses/i2c-gpio.c
-@@ -18,9 +18,23 @@
- #include <linux/property.h>
- #include <linux/slab.h>
-=20
-+static LIST_HEAD(i2c_gpio_scl_list);
-+static DEFINE_MUTEX(i2c_gpio_scl_list_lock);
-+static struct lock_class_key i2c_gpio_scl_lock_key;
-+
-+struct i2c_gpio_scl_data {
-+	struct fwnode_handle *fw_node;
-+	u32 fw_pin;
-+	u32 fw_flags;
-+	struct gpio_desc *gpio;
-+	struct rt_mutex lock;
-+	refcount_t ref;
-+	struct list_head list;
-+};
-+
- struct i2c_gpio_private_data {
- 	struct gpio_desc *sda;
--	struct gpio_desc *scl;
-+	struct i2c_gpio_scl_data *scl;
- 	struct i2c_adapter adap;
- 	struct i2c_algo_bit_data bit_data;
- 	struct i2c_gpio_platform_data pdata;
-@@ -31,6 +45,11 @@ struct i2c_gpio_private_data {
- #endif
+The union added to struct i2c_device_id enables further cleanups like:
+
+	diff --git a/drivers/regulator/ad5398.c b/drivers/regulator/ad5398.c
+	index 0123ca8157a8..dfb0b07500a7 100644
+	--- a/drivers/regulator/ad5398.c
+	+++ b/drivers/regulator/ad5398.c
+	@@ -207,8 +207,8 @@ struct ad5398_current_data_format {
+	 static const struct ad5398_current_data_format df_10_4_120 = {10, 4, 0, 120000};
+
+	 static const struct i2c_device_id ad5398_id[] = {
+	-	{ .name = "ad5398", .driver_data = (kernel_ulong_t)&df_10_4_120 },
+	-	{ .name = "ad5821", .driver_data = (kernel_ulong_t)&df_10_4_120 },
+	+	{ .name = "ad5398", .driver_data_ptr = &df_10_4_120 },
+	+	{ .name = "ad5821", .driver_data_ptr = &df_10_4_120 },
+	 	{ }
+	 };
+	 MODULE_DEVICE_TABLE(i2c, ad5398_id);
+	@@ -219,8 +219,7 @@ static int ad5398_probe(struct i2c_client *client)
+	 	struct regulator_init_data *init_data = dev_get_platdata(&client->dev);
+	 	struct regulator_config config = { };
+	 	struct ad5398_chip_info *chip;
+	-	const struct ad5398_current_data_format *df =
+	-	                (struct ad5398_current_data_format *)id->driver_data;
+	+	const struct ad5398_current_data_format *df = id->driver_data;
+
+	 	chip = devm_kzalloc(&client->dev, sizeof(*chip), GFP_KERNEL);
+	 	if (!chip)
+
+that are an improvement for readability (again!) and it keeps some
+properties of the pointers (here: being const) without having to pay
+attention for that. (I didn't find an i2c driver that benefits, so this
+is "only" a regulator driver example.)
+
+My additional motivation for this effort is CHERI[1]. This is a hardware
+extension that uses 128 bit pointers but unsigned long is still 64 bit.
+So with CHERI you cannot store pointers in unsigned long variables.
+
+Best regards
+Uwe
+
+[1] https://cheri-alliance.org/discover-cheri/
+    https://lwn.net/Articles/1037974/
+
+ drivers/i2c/i2c-core-base.c         |  4 ++--
+ drivers/i2c/i2c-slave-eeprom.c      | 16 ++++++-------
+ drivers/i2c/i2c-slave-testunit.c    |  2 +-
+ drivers/i2c/i2c-smbus.c             |  2 +-
+ drivers/i2c/muxes/i2c-mux-ltc4306.c |  4 ++--
+ drivers/i2c/muxes/i2c-mux-pca9541.c |  4 ++--
+ drivers/i2c/muxes/i2c-mux-pca954x.c | 36 ++++++++++++++---------------
+ 7 files changed, 34 insertions(+), 34 deletions(-)
+
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index 9c46147e3506..7e4b7adffd6e 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1107,8 +1107,8 @@ EXPORT_SYMBOL(i2c_find_device_by_fwnode);
+ 
+ 
+ static const struct i2c_device_id dummy_id[] = {
+-	{ "dummy", },
+-	{ "smbus_host_notify", },
++	{ .name = "dummy" },
++	{ .name = "smbus_host_notify" },
+ 	{ }
  };
-=20
-+static inline struct i2c_gpio_private_data *adap_to_priv(struct i2c_adapt=
-er *adap)
-+{
-+	return container_of(adap, struct i2c_gpio_private_data, adap);
-+}
-+
- /*
-  * Toggle SDA by changing the output value of the pin. This is only
-  * valid for pins configured as open drain (i.e. setting the value
-@@ -53,7 +72,7 @@ static void i2c_gpio_setscl_val(void *data, int state)
- {
- 	struct i2c_gpio_private_data *priv =3D data;
-=20
--	gpiod_set_value_cansleep(priv->scl, state);
-+	gpiod_set_value_cansleep(priv->scl->gpio, state);
+ 
+diff --git a/drivers/i2c/i2c-slave-eeprom.c b/drivers/i2c/i2c-slave-eeprom.c
+index 6bc2ef650a74..226d722af662 100644
+--- a/drivers/i2c/i2c-slave-eeprom.c
++++ b/drivers/i2c/i2c-slave-eeprom.c
+@@ -191,14 +191,14 @@ static void i2c_slave_eeprom_remove(struct i2c_client *client)
  }
-=20
- static int i2c_gpio_getsda(void *data)
-@@ -67,9 +86,41 @@ static int i2c_gpio_getscl(void *data)
- {
- 	struct i2c_gpio_private_data *priv =3D data;
-=20
--	return gpiod_get_value_cansleep(priv->scl);
-+	return gpiod_get_value_cansleep(priv->scl->gpio);
-+}
-+
-+static void i2c_gpio_lock_bus(struct i2c_adapter *adap, unsigned int flag=
-s)
-+{
-+	/* Take care about adapter lock. See i2c_adapter_lock_bus() and others. =
-*/
-+	rt_mutex_lock_nested(&adap->bus_lock, i2c_adapter_depth(adap));
-+	rt_mutex_lock(&adap_to_priv(adap)->scl->lock);
-+}
-+
-+static int i2c_gpio_trylock_bus(struct i2c_adapter *adap, unsigned int fl=
-ags)
-+{
-+	if (!rt_mutex_trylock(&adap->bus_lock))
-+		return 0;
-+
-+	if (!rt_mutex_trylock(&adap_to_priv(adap)->scl->lock)) {
-+		rt_mutex_unlock(&adap->bus_lock);
-+		return 0;
-+	}
-+
-+	return 1;
-+}
-+
-+static void i2c_gpio_unlock_bus(struct i2c_adapter *adap, unsigned int fl=
-ags)
-+{
-+	rt_mutex_unlock(&adap_to_priv(adap)->scl->lock);
-+	rt_mutex_unlock(&adap->bus_lock);
+ 
+ static const struct i2c_device_id i2c_slave_eeprom_id[] = {
+-	{ "slave-24c02", I2C_SLAVE_DEVICE_MAGIC(2048 / 8,  0) },
+-	{ "slave-24c02ro", I2C_SLAVE_DEVICE_MAGIC(2048 / 8,  I2C_SLAVE_FLAG_RO) },
+-	{ "slave-24c32", I2C_SLAVE_DEVICE_MAGIC(32768 / 8, I2C_SLAVE_FLAG_ADDR16) },
+-	{ "slave-24c32ro", I2C_SLAVE_DEVICE_MAGIC(32768 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
+-	{ "slave-24c64", I2C_SLAVE_DEVICE_MAGIC(65536 / 8, I2C_SLAVE_FLAG_ADDR16) },
+-	{ "slave-24c64ro", I2C_SLAVE_DEVICE_MAGIC(65536 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
+-	{ "slave-24c512", I2C_SLAVE_DEVICE_MAGIC(524288 / 8, I2C_SLAVE_FLAG_ADDR16) },
+-	{ "slave-24c512ro", I2C_SLAVE_DEVICE_MAGIC(524288 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
++	{ .name = "slave-24c02", .driver_data = I2C_SLAVE_DEVICE_MAGIC(2048 / 8,  0) },
++	{ .name = "slave-24c02ro", .driver_data = I2C_SLAVE_DEVICE_MAGIC(2048 / 8,  I2C_SLAVE_FLAG_RO) },
++	{ .name = "slave-24c32", .driver_data = I2C_SLAVE_DEVICE_MAGIC(32768 / 8, I2C_SLAVE_FLAG_ADDR16) },
++	{ .name = "slave-24c32ro", .driver_data = I2C_SLAVE_DEVICE_MAGIC(32768 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
++	{ .name = "slave-24c64", .driver_data = I2C_SLAVE_DEVICE_MAGIC(65536 / 8, I2C_SLAVE_FLAG_ADDR16) },
++	{ .name = "slave-24c64ro", .driver_data = I2C_SLAVE_DEVICE_MAGIC(65536 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
++	{ .name = "slave-24c512", .driver_data = I2C_SLAVE_DEVICE_MAGIC(524288 / 8, I2C_SLAVE_FLAG_ADDR16) },
++	{ .name = "slave-24c512ro", .driver_data = I2C_SLAVE_DEVICE_MAGIC(524288 / 8, I2C_SLAVE_FLAG_ADDR16 | I2C_SLAVE_FLAG_RO) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, i2c_slave_eeprom_id);
+diff --git a/drivers/i2c/i2c-slave-testunit.c b/drivers/i2c/i2c-slave-testunit.c
+index 6de4307050dd..68a07d957113 100644
+--- a/drivers/i2c/i2c-slave-testunit.c
++++ b/drivers/i2c/i2c-slave-testunit.c
+@@ -270,7 +270,7 @@ static void i2c_slave_testunit_remove(struct i2c_client *client)
  }
-=20
-+static const struct i2c_lock_operations i2c_gpio_lock_ops =3D {
-+	.lock_bus =3D i2c_gpio_lock_bus,
-+	.trylock_bus =3D i2c_gpio_trylock_bus,
-+	.unlock_bus =3D i2c_gpio_unlock_bus,
-+};
-+
- #ifdef CONFIG_I2C_GPIO_FAULT_INJECTOR
-=20
- #define setsda(bd, val)	((bd)->setsda((bd)->data, val))
-@@ -165,14 +216,14 @@ DEFINE_DEBUGFS_ATTRIBUTE(fops_incomplete_write_byte,=
- NULL, fops_incomplete_write
- static int i2c_gpio_fi_act_on_scl_irq(struct i2c_gpio_private_data *priv,
- 				       irqreturn_t handler(int, void*))
- {
--	int ret, irq =3D gpiod_to_irq(priv->scl);
-+	int ret, irq =3D gpiod_to_irq(priv->scl->gpio);
-=20
- 	if (irq < 0)
- 		return irq;
-=20
- 	i2c_lock_bus(&priv->adap, I2C_LOCK_ROOT_ADAPTER);
-=20
--	ret =3D gpiod_direction_input(priv->scl);
-+	ret =3D gpiod_direction_input(priv->scl->gpio);
- 	if (ret)
- 		goto unlock;
-=20
-@@ -187,7 +238,7 @@ static int i2c_gpio_fi_act_on_scl_irq(struct i2c_gpio_=
-private_data *priv,
-=20
- 	free_irq(irq, priv);
-  output:
--	ret =3D gpiod_direction_output(priv->scl, 1) ?: ret;
-+	ret =3D gpiod_direction_output(priv->scl->gpio, 1) ?: ret;
-  unlock:
- 	i2c_unlock_bus(&priv->adap, I2C_LOCK_ROOT_ADAPTER);
-=20
-@@ -308,13 +359,17 @@ static struct gpio_desc *i2c_gpio_get_desc(struct de=
-vice *dev,
- 	struct gpio_desc *retdesc;
- 	int ret;
-=20
--	retdesc =3D devm_gpiod_get(dev, con_id, gflags);
-+	/*
-+	 * Don't use resource-managed functions. SCL may be shared across adapte=
-rs and has
-+	 * its own lifetime management. SDA uses the same path for consistency.
-+	 */
-+	retdesc =3D gpiod_get(dev, con_id, gflags);
- 	if (!IS_ERR(retdesc)) {
- 		dev_dbg(dev, "got GPIO from name %s\n", con_id);
- 		return retdesc;
- 	}
-=20
--	retdesc =3D devm_gpiod_get_index(dev, NULL, index, gflags);
-+	retdesc =3D gpiod_get_index(dev, NULL, index, gflags);
- 	if (!IS_ERR(retdesc)) {
- 		dev_dbg(dev, "got GPIO from index %u\n", index);
- 		return retdesc;
-@@ -336,6 +391,118 @@ static struct gpio_desc *i2c_gpio_get_desc(struct de=
-vice *dev,
- 	return retdesc;
+ 
+ static const struct i2c_device_id i2c_slave_testunit_id[] = {
+-	{ "slave-testunit" },
++	{ .name = "slave-testunit" },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, i2c_slave_testunit_id);
+diff --git a/drivers/i2c/i2c-smbus.c b/drivers/i2c/i2c-smbus.c
+index bc7bd55e6370..069f08f68bc1 100644
+--- a/drivers/i2c/i2c-smbus.c
++++ b/drivers/i2c/i2c-smbus.c
+@@ -220,7 +220,7 @@ static void smbalert_remove(struct i2c_client *ara)
  }
-=20
-+static struct i2c_gpio_scl_data *i2c_gpio_create_scl(struct fwnode_handle=
- *fwnode)
-+{
-+	struct fwnode_reference_args args;
-+	struct i2c_gpio_scl_data *scl;
-+	int ret;
-+
-+	ret =3D fwnode_property_get_reference_args(fwnode, "scl-gpios",
-+						 "#gpio-cells", 0, 0, &args);
-+	if (ret)
-+		/* try the ancient way */
-+		ret =3D fwnode_property_get_reference_args(fwnode, "gpios",
-+							 "#gpio-cells", 0, 1, &args);
-+	if (ret)
-+		return ERR_PTR(ret);
-+
-+	if (args.nargs < 1) {
-+		fwnode_handle_put(args.fwnode);
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	scl =3D kzalloc(sizeof(*scl), GFP_KERNEL);
-+	if (!scl) {
-+		fwnode_handle_put(args.fwnode);
-+		return ERR_PTR(-ENOMEM);
-+	}
-+
-+	/* The unique identification from the SCL GPIO reference in the device t=
-ree */
-+	scl->fw_node =3D args.fwnode;
-+	scl->fw_pin =3D args.args[0];
-+	scl->fw_flags =3D (args.nargs >=3D 2) ? args.args[1] : 0;
-+
-+	rt_mutex_init(&scl->lock);
-+	lockdep_set_class(&scl->lock.rtmutex, &i2c_gpio_scl_lock_key);
-+	refcount_set(&scl->ref, 1);
-+
-+	return scl;
-+}
-+
-+static void i2c_gpio_free_scl(struct i2c_gpio_scl_data *scl)
-+{
-+	fwnode_handle_put(scl->fw_node);
-+	kfree(scl);
-+}
-+
-+static bool i2c_gpio_scl_matches(struct i2c_gpio_scl_data *a, struct i2c_=
-gpio_scl_data *b)
-+{
-+    return a->fw_node =3D=3D b->fw_node && a->fw_pin =3D=3D b->fw_pin && =
-a->fw_flags =3D=3D b->fw_flags;
-+}
-+
-+/*
-+ * Look up an existing or create a new shared SCL structure described by =
-the device's fwnode.
-+ * Optimistic setup sequence always creates and tries to add a new entry =
-to the list. This uses
-+ * minimum locking and afterwards requests the GPIO without a lock held. =
-Concurrent probes for
-+ * the same SCL pin see the entry and do not race into a second gpiod_get=
-(). Until everything
-+ * is setup they terminate with -EPROBE_DEFER.
-+ */
-+static struct i2c_gpio_scl_data *i2c_gpio_lookup_scl(struct device *dev, =
-enum gpiod_flags gflags)
-+{
-+	struct i2c_gpio_scl_data *scl, *new_scl;
-+	struct gpio_desc *gpio;
-+
-+	new_scl =3D i2c_gpio_create_scl(dev_fwnode(dev));
-+	if (IS_ERR(new_scl))
-+		return new_scl;
-+
-+	scoped_guard(mutex, &i2c_gpio_scl_list_lock) {
-+		list_for_each_entry(scl, &i2c_gpio_scl_list, list) {
-+			if (!i2c_gpio_scl_matches(scl, new_scl))
-+				continue;
-+
-+			i2c_gpio_free_scl(new_scl);
-+			if (!scl->gpio)
-+				return ERR_PTR(-EPROBE_DEFER);
-+
-+			refcount_inc(&scl->ref);
-+			dev_dbg(dev, "reusing shared SCL (%pfwP, pin %u)\n",
-+				scl->fw_node, scl->fw_pin);
-+
-+			return scl;
-+		}
-+		list_add(&new_scl->list, &i2c_gpio_scl_list);
-+	}
-+
-+	gpio =3D i2c_gpio_get_desc(dev, "scl", 1, gflags);
-+	if (IS_ERR(gpio)) {
-+		scoped_guard(mutex, &i2c_gpio_scl_list_lock)
-+			list_del(&new_scl->list);
-+		i2c_gpio_free_scl(new_scl);
-+
-+		return ERR_CAST(gpio);
-+	}
-+
-+	scoped_guard(mutex, &i2c_gpio_scl_list_lock)
-+		new_scl->gpio =3D gpio;
-+
-+	dev_dbg(dev, "registered shared SCL (%pfwP, pin %u)\n",
-+		new_scl->fw_node, new_scl->fw_pin);
-+
-+	return new_scl;
-+}
-+
-+static void i2c_gpio_cleanup_scl(struct i2c_gpio_scl_data *scl)
-+{
-+	if (!refcount_dec_and_mutex_lock(&scl->ref, &i2c_gpio_scl_list_lock))
-+		return;
-+
-+	list_del(&scl->list);
-+	mutex_unlock(&i2c_gpio_scl_list_lock);
-+	gpiod_put(scl->gpio);
-+	i2c_gpio_free_scl(scl);
-+}
-+
- static int i2c_gpio_probe(struct platform_device *pdev)
- {
- 	struct i2c_gpio_private_data *priv;
-@@ -386,11 +553,13 @@ static int i2c_gpio_probe(struct platform_device *pd=
-ev)
- 		gflags =3D GPIOD_OUT_HIGH;
- 	else
- 		gflags =3D GPIOD_OUT_HIGH_OPEN_DRAIN;
--	priv->scl =3D i2c_gpio_get_desc(dev, "scl", 1, gflags);
--	if (IS_ERR(priv->scl))
--		return PTR_ERR(priv->scl);
-+	priv->scl =3D i2c_gpio_lookup_scl(dev, gflags);
-+	if (IS_ERR(priv->scl)) {
-+		ret =3D PTR_ERR(priv->scl);
-+		goto err_cleanup_sda;
-+	}
-=20
--	if (gpiod_cansleep(priv->sda) || gpiod_cansleep(priv->scl))
-+	if (gpiod_cansleep(priv->sda) || gpiod_cansleep(priv->scl->gpio))
- 		dev_warn(dev, "Slow GPIO pins might wreak havoc into I2C/SMBus bus timi=
-ng");
- 	else
- 		bit_data->can_do_atomic =3D true;
-@@ -423,6 +592,8 @@ static int i2c_gpio_probe(struct platform_device *pdev=
-)
- 	else
- 		snprintf(adap->name, sizeof(adap->name), "i2c-gpio%d", pdev->id);
-=20
-+	/* Always use shared SCL aware locking */
-+	adap->lock_ops =3D &i2c_gpio_lock_ops;
- 	adap->algo_data =3D bit_data;
- 	adap->class =3D I2C_CLASS_HWMON;
- 	adap->dev.parent =3D dev;
-@@ -431,7 +602,7 @@ static int i2c_gpio_probe(struct platform_device *pdev=
-)
- 	adap->nr =3D pdev->id;
- 	ret =3D i2c_bit_add_numbered_bus(adap);
- 	if (ret)
--		return ret;
-+		goto err_cleanup_scl;
-=20
- 	platform_set_drvdata(pdev, priv);
-=20
-@@ -441,13 +612,20 @@ static int i2c_gpio_probe(struct platform_device *pd=
-ev)
- 	 * from the descriptor, then provide that instead.
- 	 */
- 	dev_info(dev, "using lines %u (SDA) and %u (SCL%s)\n",
--		 desc_to_gpio(priv->sda), desc_to_gpio(priv->scl),
-+		 desc_to_gpio(priv->sda), desc_to_gpio(priv->scl->gpio),
- 		 pdata->scl_is_output_only
- 		 ? ", no clock stretching" : "");
-=20
- 	i2c_gpio_fault_injector_init(pdev);
-=20
- 	return 0;
-+
-+err_cleanup_scl:
-+	i2c_gpio_cleanup_scl(priv->scl);
-+err_cleanup_sda:
-+	gpiod_put(priv->sda);
-+
-+	return ret;
+ 
+ static const struct i2c_device_id smbalert_ids[] = {
+-	{ "smbus_alert" },
++	{ .name = "smbus_alert" },
+ 	{ /* LIST END */ }
+ };
+ MODULE_DEVICE_TABLE(i2c, smbalert_ids);
+diff --git a/drivers/i2c/muxes/i2c-mux-ltc4306.c b/drivers/i2c/muxes/i2c-mux-ltc4306.c
+index 50fbc0d06e62..18228f5b80e8 100644
+--- a/drivers/i2c/muxes/i2c-mux-ltc4306.c
++++ b/drivers/i2c/muxes/i2c-mux-ltc4306.c
+@@ -191,8 +191,8 @@ static int ltc4306_deselect_mux(struct i2c_mux_core *muxc, u32 chan)
  }
-=20
- static void i2c_gpio_remove(struct platform_device *pdev)
-@@ -459,6 +637,8 @@ static void i2c_gpio_remove(struct platform_device *pd=
-ev)
- 	adap =3D &priv->adap;
-=20
- 	i2c_del_adapter(adap);
-+	i2c_gpio_cleanup_scl(priv->scl);
-+	gpiod_put(priv->sda);
- }
-=20
- static const struct of_device_id i2c_gpio_dt_ids[] =3D {
-=2D-=20
-2.54.0
+ 
+ static const struct i2c_device_id ltc4306_id[] = {
+-	{ "ltc4305", ltc_4305 },
+-	{ "ltc4306", ltc_4306 },
++	{ .name = "ltc4305", .driver_data = ltc_4305 },
++	{ .name = "ltc4306", .driver_data = ltc_4306 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, ltc4306_id);
+diff --git a/drivers/i2c/muxes/i2c-mux-pca9541.c b/drivers/i2c/muxes/i2c-mux-pca9541.c
+index 3d8002caf703..9a59129bc50f 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca9541.c
++++ b/drivers/i2c/muxes/i2c-mux-pca9541.c
+@@ -74,8 +74,8 @@ struct pca9541 {
+ };
+ 
+ static const struct i2c_device_id pca9541_id[] = {
+-	{ "pca9541" },
+-	{}
++	{ .name = "pca9541" },
++	{ }
+ };
+ 
+ MODULE_DEVICE_TABLE(i2c, pca9541_id);
+diff --git a/drivers/i2c/muxes/i2c-mux-pca954x.c b/drivers/i2c/muxes/i2c-mux-pca954x.c
+index b9f370c9f018..8fca709ed279 100644
+--- a/drivers/i2c/muxes/i2c-mux-pca954x.c
++++ b/drivers/i2c/muxes/i2c-mux-pca954x.c
+@@ -250,24 +250,24 @@ static const struct chip_desc chips[] = {
+ };
+ 
+ static const struct i2c_device_id pca954x_id[] = {
+-	{ "max7356", max_7356 },
+-	{ "max7357", max_7357 },
+-	{ "max7358", max_7358 },
+-	{ "max7367", max_7367 },
+-	{ "max7368", max_7368 },
+-	{ "max7369", max_7369 },
+-	{ "pca9540", pca_9540 },
+-	{ "pca9542", pca_9542 },
+-	{ "pca9543", pca_9543 },
+-	{ "pca9544", pca_9544 },
+-	{ "pca9545", pca_9545 },
+-	{ "pca9546", pca_9546 },
+-	{ "pca9547", pca_9547 },
+-	{ "pca9548", pca_9548 },
+-	{ "pca9846", pca_9846 },
+-	{ "pca9847", pca_9847 },
+-	{ "pca9848", pca_9848 },
+-	{ "pca9849", pca_9849 },
++	{ .name = "max7356", .driver_data = max_7356 },
++	{ .name = "max7357", .driver_data = max_7357 },
++	{ .name = "max7358", .driver_data = max_7358 },
++	{ .name = "max7367", .driver_data = max_7367 },
++	{ .name = "max7368", .driver_data = max_7368 },
++	{ .name = "max7369", .driver_data = max_7369 },
++	{ .name = "pca9540", .driver_data = pca_9540 },
++	{ .name = "pca9542", .driver_data = pca_9542 },
++	{ .name = "pca9543", .driver_data = pca_9543 },
++	{ .name = "pca9544", .driver_data = pca_9544 },
++	{ .name = "pca9545", .driver_data = pca_9545 },
++	{ .name = "pca9546", .driver_data = pca_9546 },
++	{ .name = "pca9547", .driver_data = pca_9547 },
++	{ .name = "pca9548", .driver_data = pca_9548 },
++	{ .name = "pca9846", .driver_data = pca_9846 },
++	{ .name = "pca9847", .driver_data = pca_9847 },
++	{ .name = "pca9848", .driver_data = pca_9848 },
++	{ .name = "pca9849", .driver_data = pca_9849 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(i2c, pca954x_id);
+
+base-commit: 254f49634ee16a731174d2ae34bc50bd5f45e731
+-- 
+2.47.3
 
