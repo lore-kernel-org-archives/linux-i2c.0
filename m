@@ -1,166 +1,164 @@
-Received: from mail-qt1-f195.google.com (mail-qt1-f195.google.com [209.85.160.195])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9F6572622
-	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 00:14:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.195
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779149651; cv=pass; b=pOP5ARE7glDgpG5HFolDEjNcsiorLZCznpk5z0EWA65sKQM/MrZD3i+M44MZPYI6Cuko6pxkpKB6likghHiiqqUBAReG2Lxjm7kR0xMmb3OY0F7Lesbpkrluy9EmLtkXvwjt3lGrLSQL/HPeyQ8AzBlPbcGtJU4uhcfGaFuwTns=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779149651; c=relaxed/simple;
-	bh=LPwsRaL3/VhQKGJMHLIVfCwqYVCTUXR7opK9047JBWk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=TO4rv0ZmDgwtf/X3u+bgNYl8NnGyi2bM9eJNazdUgYTQrcnEFKOd+KIAWYUwEYjO6/FdSd9IuVTOvjLDJEq1GWKM/xXRXrozF8oYTAl/DZ3knFp4X/C1XvCpT3UIrFLyhvmdplXqc22W7Di5rLQVReHwaHZ/ejSnvYhg6W8wGhQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d59lwcl8; arc=pass smtp.client-ip=209.85.160.195
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3A52E2BD022;
+	Tue, 19 May 2026 02:13:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779156796; cv=none; b=F3/+biJodMWUsHtLwXLOPVYQ7/Pb9umJCalXvl6RCksp5VjWlQmXsDZzv2UY+RaTZnsfp/FErenWoCKP6In6WRrTSkcUj7dereKmu2Y+TM0ynWGX42uio69acE31guNyVw2P9DrpRIhmwqUdmXe5H4yvlagFw97I8D8PesMN8Os=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779156796; c=relaxed/simple;
+	bh=YUmCsavKOtlk398DgQKYiDZ0NI/JX7vUuEM2/VVHOK0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=NjO63kevRTm5220s4aLi2u3hE6dQEdPqx7W7ehONiYpkqEa5VqLy7Vj4yqkqYByXDurHvJpTVgyiWpaWMIqJb0Pky4fUGg8aCbJuYi8KtPL7GH+cT1LkinTIikliCxYDGtJKFpXgeJ8BtvKN191+i+5Piw+ceXvQ/QMV5bSr134=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=UUzdj70j; arc=none smtp.client-ip=192.198.163.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d59lwcl8"
-Received: by mail-qt1-f195.google.com with SMTP id d75a77b69052e-50fb4a7d704so27523041cf.1
-        for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 17:14:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779149649; cv=none;
-        d=google.com; s=arc-20240605;
-        b=bsgpakT1SPsMk0i/6dzvwjpu6PHSoJDEU07ta9tDdIyso8FnpnAfFJeIGSr/hIHC6x
-         S51La1imBTS7ERuMOA7WAZaumx1LttczzvVlDYGpFV7LtGnXY9CbLq3miz12gmXSgd7E
-         lWraA+KoLxsw+BfthSMABFT78Xgwvtzqfr1G7uuXFEWSmc3RMQmJWFwWdLMED5FtglRQ
-         +K/u1ImkR3E14KdR7LgDvHVj9CHbNb+jOL/Xf4fMq8qb9xaYcvMd99lNdZ3tiCCr4Y/x
-         sCt6YE0bTl/HgtedoV5Gk3BCT66V6Nee/Bd2G35bcqgRQorb8jQTmgwIEPgpLfZl/OBv
-         Bqbg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=LPwsRaL3/VhQKGJMHLIVfCwqYVCTUXR7opK9047JBWk=;
-        fh=Qp2W26M7rLIuyoj0pSNftQwQfMwhwyOg5pdgecxJUpM=;
-        b=jl4arR3EY/ASAbxpNeXJUGZRWkMQWC6jJz3WZ+VWGn/xPWFLWftDS/vNHp9TrTJr6t
-         b5P+16+5G4iS3B5yX+SMzvf7M9j5WQog+5g8N+7CrRstRIb3apQRKQGvB4ApgcJK+qIU
-         pmKbNE5aQ+X5KeeW489ZyPZI8KEatj5EaF0u1tQUG+DS1lleDgBfd7M+dDTTMIaA4c3L
-         jCG5PApUZl+Jo/9IsG2TVlQnQMq1Hb/AptWb0HSkIDEilLfR/kvul0ildZCPg74PQenL
-         NTiNaZbWJeneLPd9wI6NfnIEZzhGeL9uY2aFqC44XgHzrBLT5xdcx6J7VOYwgE1iYfe3
-         t1qQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779149649; x=1779754449; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=LPwsRaL3/VhQKGJMHLIVfCwqYVCTUXR7opK9047JBWk=;
-        b=d59lwcl8NvuOHlMwJ/jtLfvIVKwSl887jI0zUq+n+MokZhIz5kSNG+Q7m83cRRj++o
-         7S3rzqts7N4yutIkInkFXV9kygWG7yxiMPc0JWryBnFhkU7pGX5375FZhqllLsu46QxD
-         yqRXefPbKqpNqDqlvNkmKy9NH53MH/MzNhs5i0t6EGN/qbHwnG3z9w6y+vTpWbbm4ui8
-         +Y/emkK8/ZzUeQNXSb3F20EcO2qGGKw0KLfo5yfAg9tQxjLb8ir1PQn5DJpL6n74Uv7I
-         Kzy/KgWqFZU9F5z3/y0h3xh8lwac6mtJi6nFuR/ealUBmYZWKM9xgcZKuPtDs3lS0PL6
-         E+cw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779149649; x=1779754449;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=LPwsRaL3/VhQKGJMHLIVfCwqYVCTUXR7opK9047JBWk=;
-        b=Yv8MM60Av4LLJquXp+OSke5wKbe27Bo1G43Of3yomkXr/Yax3wKVzYp75cF2F2Qlin
-         itBSy0jmLpVh5b0QbN2qSgGZr7rzrREg9FKiuD8phqtTL+hOj4K02uA2FYU9ugH3Sr1/
-         u+vwwn5as/ORn9lsDdWm5WnI5sk0vncP8DOuER0jWBiOsMg4B1FIjfmrlTiJoGC68tlj
-         CdE14dV8oCTBY2QFXgGGa7mGL0a4S19ce4v3DDnZDEewUrhKmqVW+3w3o4bwR5njdPCb
-         Efk/jBu0BxcX118ZTmcAYjjDStzkgSdLigwfzpcAsNLT2Yf/7mZH3eo2vLaS0FX75SIX
-         3FhA==
-X-Forwarded-Encrypted: i=1; AFNElJ9yZSgpz93xeRBS0kh01gIFxGnGcanNv95gugQP0u+f0bMrJF0kb+lq+sQsfYGj2GGt0IZI8lrO1Yc=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy4nhyFfFEY2CC+K2ZYplZqlycogrYvlgsnG8HvUDgCdq5DSVVB
-	uc+VJcG8bU3oQh5vUXZhEjqN//4JxlgzTkboG/rx+WcU0omMoIaKr4b0+0g5VMDKQMuNHAmYEo4
-	AhyUK2fwlJdN/54yqf3o0LEu4B5U7aeo=
-X-Gm-Gg: Acq92OGtdjydF4RnDiSeYqjUuF7lLNJbFnlOffhnN5Ma1auNSKYe5/Gg39LXrKyWe+E
-	CIVIhQ8PXVQ62ofNfmfyWh5hfOzB0seCB6sj4YKS5PFSkjCOp+dJ11Qy64B/nMBFIISHnbHomjG
-	JQkwvZUed1knpsyf5e/l+bkhEcyuwW2CXpBKYN05xUlc8TnCCvW4bWB/HnaPCRVB5It1s31QWb6
-	sZlDhGm2zpPqpCgTBTk0yubXf9p03oahz+hfomVTtwHqzLy5EdY/gt0LKYAm8gmmC3fsDn2VEJC
-	K0iw9yK7v9vuKta3v3+IQguox/4BHZE5W15XoaB8h1ovWSe2TJAHqbfPjc87f9Zuw/XjhOOqtGX
-	XKqY=
-X-Received: by 2002:a05:622a:d0e:b0:516:707a:cf8 with SMTP id
- d75a77b69052e-516707a0e9amr149948671cf.44.1779149648695; Mon, 18 May 2026
- 17:14:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="UUzdj70j"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1779156795; x=1810692795;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=YUmCsavKOtlk398DgQKYiDZ0NI/JX7vUuEM2/VVHOK0=;
+  b=UUzdj70jvhBu5goDE0aE3gLhlHCNxKAN3p8uIR2qF4vLft/1npFYv1gx
+   OqDXUiYn+gEA31JNiXAmRdl9xPvC9rmvLyBqFfYKIsN4QeiOU2zVtMpJn
+   b0tDAoCQQCt0X84RnbejOGOxVB8LefAYxBpd04k/9Wz4KN3dgFtWE91RB
+   T1QWyD+eACpqu425jmNV7wQhNpO3Vnm48se9z3MuDW2w6Iz2XSXaAp0/1
+   g5HZBznbm4u7uHqTxZ9dPr1tCcJPpLyaTVnYBKrFS5IV9URSf0cpzV1Fn
+   Cs47H1mNSRaFp8icTPEd6iLFQJvkE2W3TxgvVvFbcG/BzfrAUJVo902Ph
+   A==;
+X-CSE-ConnectionGUID: 7qb+xokyQ5OxKPY9MqVlTw==
+X-CSE-MsgGUID: iPOf2RCTTzuYNQWTQYo90Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11790"; a="67553783"
+X-IronPort-AV: E=Sophos;i="6.23,243,1770624000"; 
+   d="scan'208";a="67553783"
+Received: from orviesa009.jf.intel.com ([10.64.159.149])
+  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 May 2026 19:13:14 -0700
+X-CSE-ConnectionGUID: VH/HwBksT7mZa7qATCvodA==
+X-CSE-MsgGUID: nDQMIyvaRIWtd4uEyuRzqg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,243,1770624000"; 
+   d="scan'208";a="239684783"
+Received: from lkp-server02.sh.intel.com (HELO 30e86e9c1927) ([10.239.97.151])
+  by orviesa009.jf.intel.com with ESMTP; 18 May 2026 19:13:13 -0700
+Received: from kbuild by 30e86e9c1927 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wP9xF-00000000015-46vW;
+	Tue, 19 May 2026 02:13:09 +0000
+Date: Tue, 19 May 2026 06:42:39 +0800
+From: kernel test robot <lkp@intel.com>
+To: Markus Stockhausen <markus.stockhausen@gmx.de>,
+	wsa+renesas@sang-engineering.com, andi.shyti@kernel.org,
+	linusw@kernel.org, brgl@kernel.org, linux-i2c@vger.kernel.org,
+	linux-gpio@vger.kernel.org
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	Markus Stockhausen <markus.stockhausen@gmx.de>
+Subject: Re: [PATCH v2] i2c: i2c-gpio: Enhance driver for buses with shared
+ SCL
+Message-ID: <202605190501.z5y2mZnV-lkp@intel.com>
+References: <20260518161013.900504-1-markus.stockhausen@gmx.de>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260518042833.272221-1-enelsonmoore@gmail.com>
- <d40b1e80-37fc-4c88-9d7f-dae6458efe6c@app.fastmail.com> <20260518105735.GW3126523@noisy.programming.kicks-ass.net>
- <20260518172444.zyd47mcagrcwu7wt@dev-vm-schuster>
-In-Reply-To: <20260518172444.zyd47mcagrcwu7wt@dev-vm-schuster>
-From: Ethan Nelson-Moore <enelsonmoore@gmail.com>
-Date: Mon, 18 May 2026 17:13:58 -0700
-X-Gm-Features: AVHnY4ICd7H9-70Xucdx9uJAfA9u6BhUaXyRyteuNE6Jo8mNtePRuTvmeSFjqyQ
-Message-ID: <CADkSEUjhq6HSdg4ignzbuJiN5uXATsTdxFbRJ3BMxs5=WUWLDg@mail.gmail.com>
-Subject: Re: [PATCH] nios2: remove the architecture
-To: Simon Schuster <schuster.simon@siemens-energy.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, 
-	Dinh Nguyen <dinguyen@kernel.org>, linux-doc@vger.kernel.org, devicetree@vger.kernel.org, 
-	workflows@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>, 
-	dmaengine@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-iio@vger.kernel.org, Netdev <netdev@vger.kernel.org>, 
-	linux-pci@vger.kernel.org, linux-pwm@vger.kernel.org, 
-	linux-hardening@vger.kernel.org, linux-kbuild@vger.kernel.org, 
-	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
-	Shuah Khan <skhan@linuxfoundation.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>, Alex Shi <alexs@kernel.org>, 
-	Yanteng Si <si.yanteng@linux.dev>, Dongliang Mu <dzm91@hust.edu.cn>, 
-	Hu Haowen <2023002089@link.tyut.edu.cn>, Kees Cook <kees@kernel.org>, 
-	Oleg Nesterov <oleg@redhat.com>, Will Deacon <will@kernel.org>, 
-	"Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, 
-	Nicholas Piggin <npiggin@gmail.com>, Vinod Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>, 
-	Dave Penkler <dpenkler@gmail.com>, Andi Shyti <andi.shyti@kernel.org>, 
-	Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>, 
-	=?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
-	Andy Shevchenko <andy@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	"David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Lorenzo Pieralisi <lpieralisi@kernel.org>, Krzysztof WilczyDski <kwilczynski@kernel.org>, 
-	Andreas Oetken <andreas.oetken@siemens-energy.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260518161013.900504-1-markus.stockhausen@gmx.de>
 
-Hi, Simon,
+Hi Markus,
 
-Thank you for notifying us of your continued use of the Nios II architectur=
-e.
+kernel test robot noticed the following build errors:
 
-On Mon, May 18, 2026 at 10:24=E2=80=AFAM Simon Schuster
-<schuster.simon@siemens-energy.com> wrote:
-> Unfortunately, as we are an infrastructure provider for civil energy
-> infrastructure, the refurbishment cycle is a bit slower than for
-> traditional consumer systems. This implies that the traditional LTS
-> support duration (max. Dec 2028 as of writing [1]) is rather short, and
-> we would be glad if we could keep the architecture in mainline for at
-> least 5 years and only then "decay" to LTS.
+[auto build test ERROR on linux-review/Markus-Stockhausen/dt-bindings-i2c-Add-i2c-shared-gpio/20260515-102710]
 
-Your reasoning makes complete sense. However, there is an alternative
-to maintaining the architecture in mainline.
+url:    https://github.com/intel-lab-lkp/linux/commits/Markus-Stockhausen/i2c-i2c-gpio-Enhance-driver-for-buses-with-shared-SCL/20260519-005100
+base:   https://github.com/intel-lab-lkp/linux Markus-Stockhausen/dt-bindings-i2c-Add-i2c-shared-gpio/20260515-102710
+patch link:    https://lore.kernel.org/r/20260518161013.900504-1-markus.stockhausen%40gmx.de
+patch subject: [PATCH v2] i2c: i2c-gpio: Enhance driver for buses with shared SCL
+config: hexagon-randconfig-001-20260519 (https://download.01.org/0day-ci/archive/20260519/202605190501.z5y2mZnV-lkp@intel.com/config)
+compiler: clang version 23.0.0git (https://github.com/llvm/llvm-project 5bac06718f502014fade905512f1d26d578a18f3)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260519/202605190501.z5y2mZnV-lkp@intel.com/reproduce)
 
-The Civil Infrastructure Platform project maintains super-LTS kernels
-(and a set of base Debian packages) for 10 years. They are intended to
-be used for exactly these kinds of devices.
-See here: https://wiki.linuxfoundation.org/civilinfrastructureplatform/star=
-t#kernel_maintainership
-and here: https://cip-project.org/about/linux-kernel-core-packages
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202605190501.z5y2mZnV-lkp@intel.com/
 
-CIP will maintain kernel 6.12 until 2035. Is this long enough for your
-lifecycle? What kernel are you currently using? If it's newer than
-6.12, we can easily wait until the next CIP SLTS release to remove
-Nios II support to avoid a downgrade.
+All errors (new ones prefixed by >>):
 
-One important thing to note is that the default CIP kernel branches
-are not equivalent to standard LTS branches and include new hardware
-support, which has a higher likelihood of introducing regressions.
-However, the -st branches do not include these changes and follow the
-same patch acceptance rules as standard LTS, so they are likely a
-better fit for your use case.
+>> drivers/i2c/busses/i2c-gpio.c:426:2: error: no member named 'dep_map' in 'struct rt_mutex_base'
+     426 |         lockdep_set_class(&scl->lock.rtmutex, &i2c_gpio_scl_lock_key);
+         |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/linux/lockdep.h:158:33: note: expanded from macro 'lockdep_set_class'
+     158 |         lockdep_init_map_type(&(lock)->dep_map, #key, key, 0,   \
+         |                                ~~~~~~  ^
+>> drivers/i2c/busses/i2c-gpio.c:426:2: error: no member named 'dep_map' in 'struct rt_mutex_base'
+     426 |         lockdep_set_class(&scl->lock.rtmutex, &i2c_gpio_scl_lock_key);
+         |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/linux/lockdep.h:159:18: note: expanded from macro 'lockdep_set_class'
+     159 |                               (lock)->dep_map.wait_type_inner,  \
+         |                               ~~~~~~  ^
+>> drivers/i2c/busses/i2c-gpio.c:426:2: error: no member named 'dep_map' in 'struct rt_mutex_base'
+     426 |         lockdep_set_class(&scl->lock.rtmutex, &i2c_gpio_scl_lock_key);
+         |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/linux/lockdep.h:160:18: note: expanded from macro 'lockdep_set_class'
+     160 |                               (lock)->dep_map.wait_type_outer,  \
+         |                               ~~~~~~  ^
+>> drivers/i2c/busses/i2c-gpio.c:426:2: error: no member named 'dep_map' in 'struct rt_mutex_base'
+     426 |         lockdep_set_class(&scl->lock.rtmutex, &i2c_gpio_scl_lock_key);
+         |         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   include/linux/lockdep.h:161:18: note: expanded from macro 'lockdep_set_class'
+     161 |                               (lock)->dep_map.lock_type)
+         |                               ~~~~~~  ^
+   4 errors generated.
 
-Also, CIP focuses on architectures used by CIP members - currently I
-think they are x86 (32 and 64-bit), ARM (32 and 64-bit) and RISC-V.
-Since Siemens is already a CIP member, you can simply ask them to add
-Nios II to the list, and you can assist them with testing and directly
-submit patches to them once the standard 6.12 LTS period ends.
 
-I hope this information helps you decide on the best course of action.
+vim +426 drivers/i2c/busses/i2c-gpio.c
 
-Ethan
+   393	
+   394	static struct i2c_gpio_scl_data *i2c_gpio_create_scl(struct fwnode_handle *fwnode)
+   395	{
+   396		struct fwnode_reference_args args;
+   397		struct i2c_gpio_scl_data *scl;
+   398		int ret;
+   399	
+   400		ret = fwnode_property_get_reference_args(fwnode, "scl-gpios",
+   401							 "#gpio-cells", 0, 0, &args);
+   402		if (ret)
+   403			/* try the ancient way */
+   404			ret = fwnode_property_get_reference_args(fwnode, "gpios",
+   405								 "#gpio-cells", 0, 1, &args);
+   406		if (ret)
+   407			return ERR_PTR(ret);
+   408	
+   409		if (args.nargs < 1) {
+   410			fwnode_handle_put(args.fwnode);
+   411			return ERR_PTR(-EINVAL);
+   412		}
+   413	
+   414		scl = kzalloc(sizeof(*scl), GFP_KERNEL);
+   415		if (!scl) {
+   416			fwnode_handle_put(args.fwnode);
+   417			return ERR_PTR(-ENOMEM);
+   418		}
+   419	
+   420		/* The unique identification from the SCL GPIO reference in the device tree */
+   421		scl->fw_node = args.fwnode;
+   422		scl->fw_pin = args.args[0];
+   423		scl->fw_flags = (args.nargs >= 2) ? args.args[1] : 0;
+   424	
+   425		rt_mutex_init(&scl->lock);
+ > 426		lockdep_set_class(&scl->lock.rtmutex, &i2c_gpio_scl_lock_key);
+   427		refcount_set(&scl->ref, 1);
+   428	
+   429		return scl;
+   430	}
+   431	
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
