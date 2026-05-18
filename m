@@ -1,149 +1,96 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.18])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A5D3E332615;
-	Mon, 18 May 2026 14:28:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AE153F076F;
+	Mon, 18 May 2026 15:29:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779114482; cv=none; b=Q2mgP3kNPRv3bdyjg7OMtSLrhigqaIkIeCcZrCusjvOKMTIJuMN7In53WId0vtnPUr/h5BCvNZ1nNjnwLFeaoh5Yklm1fWMoQoPcth4MiCITxJwIbC+rANgXbHkRqsOQJJgaVpbtsVvYEc70vT0otT44jvL9DF76GILBjt6pyYQ=
+	t=1779118183; cv=none; b=exknd1zBqcU6Ne6V/wzA1Go+FmSdZWGiw7CVS6AY780tlOqy8D16kyfjVg9KfGdB7JM1bWPZo9LumJ84yEWtjWUOKJnf50OqYhsneU7i5eEZWlK6PPFYkZONsoP4R07jOqS9WIQW2XMbqZlzQmzuUUSLdHVNYYAQQZ3AO8o4IrA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779114482; c=relaxed/simple;
-	bh=0bx3o3+vpBpa60JgaKzfKh3XfYsWOTddwsaMmYG6x7w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=BlynLNfOnOLpOzZjVp9lDxeblmla22dHx6kRI3bcK3IQ7Ld2EUCjZJ1IOk3ut+Ga800JhWNfbfckfrvLkpDqV0NwlCYr1ov6rvIx94Q+Yn7IkPggxaYHPpCDppnj0hvmlmZFQwiePEsb/0E9T8rWik2sfP61j2ZJeLcPgOoMMhA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=LNKXW1sp; arc=none smtp.client-ip=192.198.163.18
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1779118183; c=relaxed/simple;
+	bh=sG79W+MkJg5APZjQ0IZO8BppN8H3r5aAnNzI61jDF3c=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=GpvCWr+J1D5vOwsL9P8R+ucqn97HHCe1Fdo4XbTDXNNbP6w0V+Bu5Baq8H9gBN9jiarB6R5zjhXTtd9ESTjr0rRzw8Hwh9UEuuwjeVq5Z7ffbQ+MetDLcovvw1xComT42x7SJEEmE9EE2GaC+AIH7ijGXJcomZH8XpifgKImJsY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DwZqROts; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="LNKXW1sp"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1779114480; x=1810650480;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=0bx3o3+vpBpa60JgaKzfKh3XfYsWOTddwsaMmYG6x7w=;
-  b=LNKXW1sp7H0aTWPEMArmg6nxiSMu45hmEwwHKghBaYUK5h8sKEnL6Huh
-   eYcbNdK6sqOnLErvJETvHe7HYBu82ue+79nu9fXKMKmOWS8T4kEPRVtb3
-   JkP63/Wa+Zt+zt+76zf9M0q9/zqWDDS8gHdFDikm+qcl9qgOMGXktDkh+
-   c0MIodkUM2ttPvnO1ed2O9CfNpqTdLhdAiAe7+mR/8Eol9mS3y4NB6s6A
-   QEmXTAQRCnQEApankFiHWCQT6KAXevhAK/EzH+ROZMFUnUqAxSwOOPiNy
-   Xwp7I51UDzq034ctkUl4hoJOwo/uvEyEyO46B7Z44ZhgY9w5oW9RfZ7+t
-   Q==;
-X-CSE-ConnectionGUID: EC0n82cPTeuP8DyJPREJMQ==
-X-CSE-MsgGUID: /pnSe6oZT7eX5C3+xWoM3g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11790"; a="79106931"
-X-IronPort-AV: E=Sophos;i="6.23,242,1770624000"; 
-   d="scan'208";a="79106931"
-Received: from fmviesa008.fm.intel.com ([10.60.135.148])
-  by fmvoesa112.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 May 2026 07:28:00 -0700
-X-CSE-ConnectionGUID: a5A8CawHS9uyE0ScX1ZBtw==
-X-CSE-MsgGUID: Q20CDUz3QMC0C1mYZ64JdA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,242,1770624000"; 
-   d="scan'208";a="236812387"
-Received: from fpallare-mobl4.ger.corp.intel.com (HELO localhost) ([10.245.244.3])
-  by fmviesa008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 May 2026 07:27:58 -0700
-Date: Mon, 18 May 2026 17:27:55 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Hardik Prakash <hardikprakash.official@gmail.com>
-Cc: Bartosz Golaszewski <brgl@kernel.org>,
-	Mario Limonciello <mario.limonciello@amd.com>,
-	linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
-	wsa@kernel.org, basavaraj.natikar@amd.com, linus.walleij@linaro.org
-Subject: Re: [PATCH v5 0/1] i2c: designware: fix probe ordering for AMD GPIO
- on Lenovo Yoga 7 14AGP11
-Message-ID: <agsh652HlC4rg1_1@ashevche-desk.local>
-References: <20260518122814.8975-1-hardikprakash.official@gmail.com>
- <d57dd297-6be1-43a9-a38d-e40c8949e23a@amd.com>
- <CANTFpSWGC7GsAY-3UvPtBZzqjNek-T5haiDb59QYRoRgwuQf1w@mail.gmail.com>
- <7d0f0cf9-1936-4cf6-a425-228a37f83137@amd.com>
- <CAMRc=MdS_BVKb=FQLhky=8dpghBSoHeBhUk0LM5hROFxmJeyGQ@mail.gmail.com>
- <9d5da93e-bbe0-4359-9f17-e3c6b3a5cb34@amd.com>
- <CAMRc=MfT_WVMxPnYZW=mg52PHew0O4VQMGFrfo6G9vxZDDoArw@mail.gmail.com>
- <CANTFpSUX5rYhuTQH3dTTvzW+_yhW8Gs0U=A1t_8LDzKz4dzzAw@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DwZqROts"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 022C5C2BCB8;
+	Mon, 18 May 2026 15:29:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1779118182;
+	bh=sG79W+MkJg5APZjQ0IZO8BppN8H3r5aAnNzI61jDF3c=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=DwZqROts39mMfmYdvXCT4HPiFfhe7pphuh2eDKH6Wk1FhbfIuLFoJAzIV1w6dNRkv
+	 gS8cb8Xmb9xkOCt1qVIvLGgvmZE6oe/kQRj9Y6tOcK3J7+SZnfUwT+d+1JQHBnsM7k
+	 y3T2EZLmM1+zyp9NgHNPRUHvt0LY1DRZbWBLEBpI5BZTxG52678vBTHhYBIh0DFCr2
+	 oQc7xvwwanHA8iVLjTvBSa4aPqcGU3EOVTPRsiGop7Ajz+J42dwFVmK6swcGn2j3CX
+	 P6VUm6NFcP5DRUG3+5LkZrUBKtbe441Fuid0F7nbIj+YzyFabtEFqfwvMKgxkES4aO
+	 fEdY++PK5+AOg==
+Date: Mon, 18 May 2026 16:29:21 +0100
+From: Jonathan Cameron <jic23@kernel.org>
+To: Ethan Nelson-Moore <enelsonmoore@gmail.com>
+Cc: linux-doc@vger.kernel.org, devicetree@vger.kernel.org,
+ workflows@vger.kernel.org, linux-arch@vger.kernel.org,
+ dmaengine@vger.kernel.org, linux-i2c@vger.kernel.org,
+ linux-iio@vger.kernel.org, netdev@vger.kernel.org,
+ linux-pci@vger.kernel.org, linux-pwm@vger.kernel.org,
+ linux-hardening@vger.kernel.org, linux-kbuild@vger.kernel.org,
+ linux-csky@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Shuah Khan
+ <skhan@linuxfoundation.org>, Rob Herring <robh@kernel.org>, Krzysztof
+ Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Daniel
+ Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
+ Alex Shi <alexs@kernel.org>, Yanteng Si <si.yanteng@linux.dev>, Dongliang
+ Mu <dzm91@hust.edu.cn>, Hu Haowen <2023002089@link.tyut.edu.cn>, Dinh
+ Nguyen <dinguyen@kernel.org>, Kees Cook <kees@kernel.org>, Oleg Nesterov
+ <oleg@redhat.com>, Will Deacon <will@kernel.org>, "Aneesh Kumar K.V"
+ <aneesh.kumar@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Nick
+ Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>, Vinod
+ Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>, Dave Penkler
+ <dpenkler@gmail.com>, Andi Shyti <andi.shyti@kernel.org>, David Lechner
+ <dlechner@baylibre.com>, Nuno =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>, Andy
+ Shevchenko <andy@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>, "David
+ S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub
+ Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Lorenzo
+ Pieralisi <lpieralisi@kernel.org>, Krzysztof =?UTF-8?B?V2lsY3p5xYRza2k=?=
+ <kwilczynski@kernel.org>
+Subject: Re: [PATCH] nios2: remove the architecture
+Message-ID: <20260518162921.73e7c3aa@jic23-huawei>
+In-Reply-To: <20260518042833.272221-1-enelsonmoore@gmail.com>
+References: <20260518042833.272221-1-enelsonmoore@gmail.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CANTFpSUX5rYhuTQH3dTTvzW+_yhW8Gs0U=A1t_8LDzKz4dzzAw@mail.gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Mon, May 18, 2026 at 07:53:28PM +0530, Hardik Prakash wrote:
-> On Mon, May 18, 2026 at 19:35, Bartosz Golaszewski wrote:
-> > What is blocking the pinctrl driver from probing? Does it return
-> > -EPROBE_DEFER for some reason? Pin control core is ready at
-> > core_initcall() so it should work in theory.
+On Sun, 17 May 2026 21:28:33 -0700
+Ethan Nelson-Moore <enelsonmoore@gmail.com> wrote:
+
+> The Nios II architecture is a soft-core architecture developed by
+> Altera (since acquired by Intel) and intended to run on their FPGAs.
 > 
-> On Mon, May 18, 2026 at 19:16, Mario Limonciello wrote:
-> > Please try arch_initcall instead.
+> Licenses for the architecture have not been available for purchase
+> since 2024 [1], and support for it has been removed from GCC 15 [2],
+> Buildroot [3], and QEMU [4].
 > 
-> Tested arch_initcall + patch 1. GPIO 157 now fires at 0.255s (earlier
-> than any previous boot), but arbitration errors still occur at 2.309s:
+> Given all of these factors, it is time to remove Nios II support from
+> the kernel. The maintainer stated in 2024 that they were planning to do
+> so soon [5], but this did not come to pass.
 > 
->   subsys_initcall + patch 1:   GPIO 157 at ~0.310s, arbitration errors
->   arch_initcall + patch 1:     GPIO 157 at ~0.255s, arbitration errors
->   patch 1 + patch 2 (v5):     no arbitration errors, touchscreen works
+> Remove Nios II support from the kernel and move the former maintainer
+> to CREDITS. Thank you, Dinh Nguyen, for maintaining Nios II support!
 > 
-> The driver is not returning -EPROBE_DEFER. The problem is that
-> amd_gpio_probe() hasn't completed by the time i2c_designware fires,
-> even with arch_initcall. Promoting the initcall level gets the driver
-> registered earlier, but probe itself takes time, and i2c_designware
-> catches it mid-probe regardless of registration timing.
+> References:
+> [1] https://docs.altera.com/v/u/docs/781327/is-discontinuing-ip-ordering-codes-listed-in-pdn2312-for-nios-ii-ip
+> [2] https://gcc.gnu.org/git/?p=gcc.git;a=commitdiff;h=e876acab6cdd84bb2b32c98fc69fb0ba29c81153
+> [3] https://github.com/buildroot/buildroot/commit/6775ccc5a199d574ad70b5f79ec58cce97a07c6f
+> [4] https://github.com/qemu/qemu/commit/6c3014858c4c0024dd0560f08a6eda0f92f658d6
+> [5] https://sourceware.org/pipermail/newlib/2024/021083.html
 > 
-> This is why device_is_bound() works where initcall promotion does not
-> — it waits for probe completion, not just driver registration.
-
-The alternative solution is to have a registered notifier for the device in
-question. But not sure if it will be less-invasive than given solution.
-
-> On Mon, 18 May 2026 at 19:41, Bartosz Golaszewski <brgl@kernel.org> wrote:
-> > On Mon, May 18, 2026 at 4:08 PM Mario Limonciello
-> > <mario.limonciello@amd.com> wrote:
-> > > On 5/18/26 09:05, Bartosz Golaszewski wrote:
-> > > > On Mon, May 18, 2026 at 3:46 PM Mario Limonciello
-> > > > <mario.limonciello@amd.com> wrote:
-> > > >> On 5/18/26 08:40, Hardik Prakash wrote:
-> > > >>> On Mon, May 18, 2026 at 18:17, Mario Limonciello wrote:
-> > > >>>> I'd still like to avoid a quirk if we can.
-> > > >>>>
-> > > >>>> I know my proposed patch to try to probe at an earlier stage didn't
-> > > >>>> work, but could you perhaps try pulling pinctrl-amd even earlier?
-> > > >>>>
-> > > >>>> Maybe fs_initcall()?
-> > > >>>
-> > > >>> Tested. fs_initcall + patch 1 still produces the same arbitration
-> > > >>> errors:
-> > > >>>
-> > > >>>     subsys_initcall + patch 1:   arbitration errors persist
-> > > >>>     fs_initcall + patch 1:       arbitration errors persist
-> > > >>>     patch 1 + patch 2 (v5):     clean boot, touchscreen fully functional
-> > > >>>
-> > > >>> The initcall level does not appear to be the determining factor on
-> > > >>> this hardware. i2c_designware is still probing AMDI0010:02 before
-> > > >>> pinctrl-amd finishes regardless of how early pinctrl-amd registers.
-> > > >>> The explicit device_is_bound() deferral in patch 2 is the only
-> > > >>> approach that has worked.
-> > > >>
-> > > >> Please try arch_initcall instead.
-> > > >
-> > > > What is blocking the pinctrl driver from probing? Does it return
-> > > > -EPROBE_DEFER for some reason? Pin control core is ready at
-> > > > core_initcall() so it should work in theory.
-> > >
-> > > Currently it's module_platform_driver() IE device_initcall().
-> > >
-> > > That's why I think we "should" be able to move it a lot earlier.
-> >
-> > I mean with fs_initcall() change - what's blocking it now?
-
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+> Signed-off-by: Ethan Nelson-Moore <enelsonmoore@gmail.com>
+If it goes for IIO trivial changes.
+Acked-by: Jonathan Cameron <jic23@kernel.org>
