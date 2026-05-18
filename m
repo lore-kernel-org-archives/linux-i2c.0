@@ -1,212 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4F3D3264FA
-	for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 10:54:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 656CE3CF680;
+	Mon, 18 May 2026 10:58:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779101676; cv=none; b=IqW4wgGdEOcG6yCaPrUfTlCk1jIBdgk369+lN/TVcQH/AY7D2A9+ksxA6/6vWEXy8u1zcN5yH//i/HXvvNcloA8VVn7TGuRsJO0dS4s58RPKtOQacRXf6Z/8aKW/QmTnBlgqjZeCSw+w5LvrP0CNIYWLRFA9H90Ew3T/hWIzMNU=
+	t=1779101889; cv=none; b=TfgvuwzCEI0Seko26+ALIdBTcUATqeXfkIXLgb0KWPLgJNBeGXTGZpEw59BLiZCEjaK50sSj+D3eDNj72cSBBOWolZzng+WbRKFg9gGUKBzZoqhwumwABprqW45LrQhZNtmW+qcqTvKgacInIMJOT+IEHre0xRAOQ8kF1zEc088=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779101676; c=relaxed/simple;
-	bh=Q8LrmUclmwWiK0NYnu+pIWzuuuv3Ss27M2IBPzIuAOI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=P5OoQg8RY7h5VdMmH65bZaHsTCl9C2OWW7r8SpAMwJDY99SGbQf8rXZI3aQSKPe/wxch1FTBR3NxsSuSaPP9W2ciM4JbcLs5FXB2xuM3OBUaIb6KuDwW9swYMg3tGGZbBt3FHxTLmy/x1B2E5Oo2bvVtN0ouumNSwQKMjThrccM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=l9QZwoIT; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1779101889; c=relaxed/simple;
+	bh=CeJdp63t5M3yrMI58BNBOA4lTzNvLQlOWbKDErRCEaI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=cyowQN+JroVJfEIo2v/kygpXyNFrxcLkEdvf9zACXdBok4tMEaurZAj43IF1E6TKbcvbr4FjZV7LLKmGMAuL8SnlqYtAzdZ8ov7vQohfKuRS9OeVuAEhfOroxeuQO8nTHYzsszEOVbevAejd+s4viFjla2y8ISDASuVzFPIwvzg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=oaydknFL; arc=none smtp.client-ip=90.155.92.199
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="l9QZwoIT"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26A10C2BCB7
-	for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 10:54:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1779101676;
-	bh=Q8LrmUclmwWiK0NYnu+pIWzuuuv3Ss27M2IBPzIuAOI=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=l9QZwoITt5hxVQ6NR+fU4AGntK2HZS5pmzxq9WY/VtnD6PcZWGl7qKWFVNojD0pFD
-	 y191roGalj10jDaFRc6kPInAqM2imReao3pQZ72nbYiGandHjXoAysQuQ69MAFaDmY
-	 sa/3AV7Neg+CwxJDfCZsk3PCq7r0Q7+ARDxqjwzM3piZ4kSK8afZGiVLipvhe0Y1Eu
-	 a3y1Z5DsGvgIvWg/WdDuUsvLyPdtalehII9GfX/228Km2Tnj+/6MEDUu07FiU9qq1Y
-	 yFyEj9aokYBtaqItPZoGF5ds8NwyVPZsaRrtEhi9WRc7nAqYKl0OhnQW7x0pE93jox
-	 PbZ2gE1lrwX5Q==
-Received: by mail-lf1-f43.google.com with SMTP id 2adb3069b0e04-5a40cfab24dso2739050e87.2
-        for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 03:54:36 -0700 (PDT)
-X-Gm-Message-State: AOJu0Yx2w/hzs/DqZ4aqwZmoiXDzngIH7kM+34YKpMWKeOJdMnIZ4R16
-	tG1azfWX/wo07Xf00ozC1py37AU5RUmWfChHNJBcprL9azHVTUAxnMVN6PcbyCassEVmiWmCQgr
-	Z1NOyFVG+fsN02aVk4yIadIP+WjTtFymkG8tYuUP53Q==
-X-Received: by 2002:a05:6512:33d2:b0:5a8:afc8:c37 with SMTP id
- 2adb3069b0e04-5aa0e60128emr4147185e87.4.1779101674772; Mon, 18 May 2026
- 03:54:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="oaydknFL"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=jBVg5PAElT/VJaPv+0RYYYnJBg28cPCXxION0Y0Lv4k=; b=oaydknFLp/ZK1dYVkG8aeaicn4
+	tL8zn5YeFiI4wR8LwtlU5+J57P84vdG88LIZgwZyUqoBwsb6cJCKJ5KZGd2c/3AGzOVPXCLF2kmB8
+	8U7N0P6tDEQs90979e5/EUmvwWH7J/OrNiRpwUskUsse4lGRaVrJ2pu1fF6GcR7aSJwbY7pWs06hA
+	7t4sBerD3jWTQMAGXm1LSXYETXKuukJY1ngImNn+ebXj4m4P/onLMBfLQnxqWYf6zRvehFm8Z8fbu
+	+0nTRjXX3PqW1knekPfczMPT+Sd3qcdNc9JzLFcqjNsA0kMe4HgIx/hWZJDOQ5cM0fR7S8w8GURIp
+	RMQ12bOw==;
+Received: from 2001-1c00-8d85-4b00-266e-96ff-fe07-7dcc.cable.dynamic.v6.ziggo.nl ([2001:1c00:8d85:4b00:266e:96ff:fe07:7dcc] helo=noisy.programming.kicks-ass.net)
+	by desiato.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wOvfE-0000000AqRU-2NAG;
+	Mon, 18 May 2026 10:57:40 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 730F53007A4; Mon, 18 May 2026 12:57:35 +0200 (CEST)
+Date: Mon, 18 May 2026 12:57:35 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Ethan Nelson-Moore <enelsonmoore@gmail.com>, linux-doc@vger.kernel.org,
+	devicetree@vger.kernel.org, workflows@vger.kernel.org,
+	Linux-Arch <linux-arch@vger.kernel.org>, dmaengine@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org,
+	Netdev <netdev@vger.kernel.org>, linux-pci@vger.kernel.org,
+	linux-pwm@vger.kernel.org, linux-hardening@vger.kernel.org,
+	linux-kbuild@vger.kernel.org,
+	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>, Alex Shi <alexs@kernel.org>,
+	Yanteng Si <si.yanteng@linux.dev>, Dongliang Mu <dzm91@hust.edu.cn>,
+	Hu Haowen <2023002089@link.tyut.edu.cn>,
+	Dinh Nguyen <dinguyen@kernel.org>, Kees Cook <kees@kernel.org>,
+	Oleg Nesterov <oleg@redhat.com>, Will Deacon <will@kernel.org>,
+	"Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Nicholas Piggin <npiggin@gmail.com>, Vinod Koul <vkoul@kernel.org>,
+	Frank Li <Frank.Li@kernel.org>, Dave Penkler <dpenkler@gmail.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	David Lechner <dlechner@baylibre.com>,
+	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
+	Andy Shevchenko <andy@kernel.org>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Lorenzo Pieralisi <lpieralisi@kernel.org>,
+	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
+	Simon Schuster <schuster.simon@siemens-energy.com>,
+	Andreas Oetken <andreas.oetken@siemens-energy.com>
+Subject: Re: [PATCH] nios2: remove the architecture
+Message-ID: <20260518105735.GW3126523@noisy.programming.kicks-ass.net>
+References: <20260518042833.272221-1-enelsonmoore@gmail.com>
+ <d40b1e80-37fc-4c88-9d7f-dae6458efe6c@app.fastmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260518071816.26629-1-hardikprakash.official@gmail.com> <20260518071816.26629-2-hardikprakash.official@gmail.com>
-In-Reply-To: <20260518071816.26629-2-hardikprakash.official@gmail.com>
-From: Bartosz Golaszewski <brgl@kernel.org>
-Date: Mon, 18 May 2026 12:54:21 +0200
-X-Gmail-Original-Message-ID: <CAMRc=Me8ieVzXojZ=eNhBPvjjmT5gc6hJXnpC8Bc6WofDbXP4A@mail.gmail.com>
-X-Gm-Features: AVHnY4KenI_ZMg_L6AupGxRtux76NG-iMnv9PJwA8-64qEH2Kfpx85-qn1tZU2Q
-Message-ID: <CAMRc=Me8ieVzXojZ=eNhBPvjjmT5gc6hJXnpC8Bc6WofDbXP4A@mail.gmail.com>
-Subject: Re: [PATCH v4 1/1] i2c: designware: fix probe ordering for AMD GPIO
- on Lenovo Yoga 7 14AGP11
-To: Hardik Prakash <hardikprakash.official@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org, 
-	andriy.shevchenko@intel.com, mario.limonciello@amd.com, 
-	basavaraj.natikar@amd.com, linus.walleij@linaro.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d40b1e80-37fc-4c88-9d7f-dae6458efe6c@app.fastmail.com>
 
-On Mon, May 18, 2026 at 9:19=E2=80=AFAM Hardik Prakash
-<hardikprakash.official@gmail.com> wrote:
->
-> On Lenovo Yoga 7 14AGP11 (83TD), the WACF2200 touchscreen fails with
-> lost arbitration errors on AMDI0010:02 at boot. The root cause is a
-> probe ordering issue: i2c_designware probes AMDI0010:02 before
-> pinctrl-amd has finished initialising, so the GPIO 157 interrupt
-> needed by the touchscreen is not yet enabled.
->
-> Add a DMI-matched deferral in dw_i2c_plat_probe() that uses
-> device_is_bound() under device_lock() to correctly wait until
-> pinctrl-amd's probe has fully completed. Use acpi_dev_get_first_match_dev=
-()
-> for robust HID/UID-based GPIO controller lookup instead of string
-> name matching.
->
-> Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
-> Assisted-by: Claude:claude-sonnet-4-6
-> Assisted-by: GPT-Codex:gpt-5.2-codex
-> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=3D221494
-> ---
->  drivers/i2c/busses/i2c-designware-platdrv.c | 77 +++++++++++++++++++++
->  1 file changed, 77 insertions(+)
->
-> diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/bu=
-sses/i2c-designware-platdrv.c
-> index 3351c4a9ef118..3ffc3d757fbd1 100644
-> --- a/drivers/i2c/busses/i2c-designware-platdrv.c
-> +++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-> @@ -8,6 +8,7 @@
->   * Copyright (C) 2007 MontaVista Software Inc.
->   * Copyright (C) 2009 Provigent Ltd.
->   */
+On Mon, May 18, 2026 at 11:29:48AM +0200, Arnd Bergmann wrote:
+> On Mon, May 18, 2026, at 06:28, Ethan Nelson-Moore wrote:
+> > The Nios II architecture is a soft-core architecture developed by
+> > Altera (since acquired by Intel) and intended to run on their FPGAs.
+> >
+> > Licenses for the architecture have not been available for purchase
+> > since 2024 [1], and support for it has been removed from GCC 15 [2],
+> > Buildroot [3], and QEMU [4].
+> >
+> > Given all of these factors, it is time to remove Nios II support from
+> > the kernel. The maintainer stated in 2024 that they were planning to do
+> > so soon [5], but this did not come to pass.
+> >
+> > Remove Nios II support from the kernel and move the former maintainer
+> > to CREDITS. Thank you, Dinh Nguyen, for maintaining Nios II support!
+> 
+> Hi Ethan,
+> 
+> We last discussed this a year ago when Simon Schuster mentioned[1]
+> that Siemens Energy is still using NIOS-2 in production and would
+> prefer to have this still included in Linux for at least another
+> few years until the obligation for kernel updates ends.
 
-Maybe add a newline here if you're at it.
-
-> +#include <linux/acpi.h>
->  #include <linux/clk-provider.h>
->  #include <linux/clk.h>
->  #include <linux/delay.h>
-> @@ -86,6 +87,78 @@ static const struct dmi_system_id dw_i2c_hwmon_class_d=
-mi[] =3D {
->         { } /* terminate list */
->  };
->
-> +static const struct dmi_system_id dw_i2c_amd_gpio_defer_dmi[] =3D {
-> +       {
-> +               .ident =3D "Lenovo Yoga 7 14AGP11",
-> +               .matches =3D {
-> +                       DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-> +                       DMI_MATCH(DMI_PRODUCT_NAME, "83TD"),
-> +                       DMI_MATCH(DMI_BOARD_NAME, "LNVNB161216"),
-> +               },
-> +       },
-> +       { } /* terminate list */
-> +};
-> +
-> +static bool dw_i2c_needs_amd_gpio_dep(struct device *device)
-> +{
-> +       struct acpi_device *adev;
-> +
-> +       if (!dmi_check_system(dw_i2c_amd_gpio_defer_dmi))
-> +               return false;
-> +
-> +       adev =3D ACPI_COMPANION(device);
-> +       if (!adev)
-> +               return false;
-> +
-> +       return acpi_dev_hid_uid_match(adev, "AMDI0010", "2");
-> +}
-> +
-> +static int dw_i2c_defer_for_amd_gpio(struct device *device)
-> +{
-> +       struct acpi_device *gpio_adev;
-> +       struct device *gpio_dev;
-> +
-> +       if (!dw_i2c_needs_amd_gpio_dep(device))
-> +               return 0;
-> +
-> +       /*
-> +        * Find the AMD GPIO controller by HID/UID and get its physical
-> +        * platform device. We need the platform device (not the ACPI dev=
-ice)
-> +        * because that is what gets bound by the amd_gpio driver.
-> +        */
-> +       gpio_adev =3D acpi_dev_get_first_match_dev("AMDI0030", "0", -1);
-> +       if (!gpio_adev)
-> +               return -EPROBE_DEFER;
-> +
-> +       gpio_dev =3D acpi_get_first_physical_node(gpio_adev);
-> +       acpi_dev_put(gpio_adev);
-> +       if (!gpio_dev)
-> +               return -EPROBE_DEFER;
-> +
-> +       /*
-> +        * Check that amd_gpio probe has fully completed, not just that t=
-he
-> +        * driver pointer is set. The driver pointer is assigned before p=
-robe
-> +        * finishes, so checking it would allow i2c_designware to probe b=
-efore
-> +        * the GPIO IRQ quirk in amd_gpio_probe() has run.
-> +        */
-> +       device_lock(gpio_dev);
-
-You can use scoped_guard(device, gpio_dev) here.
-
-> +       if (!device_is_bound(gpio_dev)) {
-> +               device_unlock(gpio_dev);
-> +               return -EPROBE_DEFER;
-> +       }
-> +       device_unlock(gpio_dev);
-> +
-> +       /*
-> +        * Create a device link so the driver core enforces probe/remove
-> +        * ordering between this I2C controller and the GPIO controller.
-> +        */
-> +       if (!device_link_add(device, gpio_dev, DL_FLAG_AUTOREMOVE_CONSUME=
-R))
-> +               dev_warn(device, "failed to add device link to %s\n",
-> +                        dev_name(gpio_dev));
-> +
-> +       return 0;
-> +}
-> +
->  static const struct i2c_dw_semaphore_callbacks i2c_dw_semaphore_cb_table=
-[] =3D {
->  #ifdef CONFIG_I2C_DESIGNWARE_BAYTRAIL
->         {
-> @@ -138,6 +211,10 @@ static int dw_i2c_plat_probe(struct platform_device =
-*pdev)
->         struct dw_i2c_dev *dev;
->         int irq, ret;
->
-> +       ret =3D dw_i2c_defer_for_amd_gpio(device);
-> +       if (ret)
-> +               return ret;
-> +
->         irq =3D platform_get_irq_optional(pdev, 0);
->         if (irq =3D=3D -ENXIO)
->                 flags |=3D ACCESS_POLLING;
-> --
-> 2.54.0
->
-
-The patch looks fine but I too would prefer this to be handled at a
-higher-level. If we know which ACPI devices we're waiting for and what
-the ordering should be - is it possible to somehow setup the devlink
-for the platform devices that will be the children of these ACPI
-devices?
-
-If that can't be done, I'm fine with this as a workaround.
-
-Bartosz
+Isn't that what we have LTS branches for?
