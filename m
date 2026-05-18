@@ -1,111 +1,138 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from CY3PR05CU001.outbound.protection.outlook.com (mail-westcentralusazon11013002.outbound.protection.outlook.com [40.93.201.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 656CE3CF680;
-	Mon, 18 May 2026 10:58:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779101889; cv=none; b=TfgvuwzCEI0Seko26+ALIdBTcUATqeXfkIXLgb0KWPLgJNBeGXTGZpEw59BLiZCEjaK50sSj+D3eDNj72cSBBOWolZzng+WbRKFg9gGUKBzZoqhwumwABprqW45LrQhZNtmW+qcqTvKgacInIMJOT+IEHre0xRAOQ8kF1zEc088=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779101889; c=relaxed/simple;
-	bh=CeJdp63t5M3yrMI58BNBOA4lTzNvLQlOWbKDErRCEaI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cyowQN+JroVJfEIo2v/kygpXyNFrxcLkEdvf9zACXdBok4tMEaurZAj43IF1E6TKbcvbr4FjZV7LLKmGMAuL8SnlqYtAzdZ8ov7vQohfKuRS9OeVuAEhfOroxeuQO8nTHYzsszEOVbevAejd+s4viFjla2y8ISDASuVzFPIwvzg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=oaydknFL; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 125DA3246F8;
+	Mon, 18 May 2026 11:40:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.201.2
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779104454; cv=fail; b=jcVF0Rj2WTQaY6e5zvHqB22jucmj5hkp/EuGjndvljqw54juLUo/siB+49OPeyxbWQib/OZK2721FOE6fWyUvnXAXN4SPR6vfyPCTIjNnqtdQ/70tx1czh8ZeNI+kZtyzONRWo8/6rHUKOcw/giRpsxc/H07DjFzNxLetZFun4M=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779104454; c=relaxed/simple;
+	bh=eUhe2nZpU82CFKcjTiYxV7IzNNh8kfk1hQU3OMgUIeA=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=DZM6ce367vPOodfomMWHQsdrdTb0xTVDbDcMSke3hDh49NVrX7R7ROvqqHHBcImk2dyqJ+0w0IUXe8xnvP+c56qILnvCKP3xmzQNBMzAl+XOK/e7jP4FAat5tzANXOpw1gJrB8JrJGFrHw0hT8SU8ee9qLaT/k1KRMOdiO/7A+M=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=h14q6XVH; arc=fail smtp.client-ip=40.93.201.2
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="oaydknFL"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=jBVg5PAElT/VJaPv+0RYYYnJBg28cPCXxION0Y0Lv4k=; b=oaydknFLp/ZK1dYVkG8aeaicn4
-	tL8zn5YeFiI4wR8LwtlU5+J57P84vdG88LIZgwZyUqoBwsb6cJCKJ5KZGd2c/3AGzOVPXCLF2kmB8
-	8U7N0P6tDEQs90979e5/EUmvwWH7J/OrNiRpwUskUsse4lGRaVrJ2pu1fF6GcR7aSJwbY7pWs06hA
-	7t4sBerD3jWTQMAGXm1LSXYETXKuukJY1ngImNn+ebXj4m4P/onLMBfLQnxqWYf6zRvehFm8Z8fbu
-	+0nTRjXX3PqW1knekPfczMPT+Sd3qcdNc9JzLFcqjNsA0kMe4HgIx/hWZJDOQ5cM0fR7S8w8GURIp
-	RMQ12bOw==;
-Received: from 2001-1c00-8d85-4b00-266e-96ff-fe07-7dcc.cable.dynamic.v6.ziggo.nl ([2001:1c00:8d85:4b00:266e:96ff:fe07:7dcc] helo=noisy.programming.kicks-ass.net)
-	by desiato.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wOvfE-0000000AqRU-2NAG;
-	Mon, 18 May 2026 10:57:40 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 730F53007A4; Mon, 18 May 2026 12:57:35 +0200 (CEST)
-Date: Mon, 18 May 2026 12:57:35 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Ethan Nelson-Moore <enelsonmoore@gmail.com>, linux-doc@vger.kernel.org,
-	devicetree@vger.kernel.org, workflows@vger.kernel.org,
-	Linux-Arch <linux-arch@vger.kernel.org>, dmaengine@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org,
-	Netdev <netdev@vger.kernel.org>, linux-pci@vger.kernel.org,
-	linux-pwm@vger.kernel.org, linux-hardening@vger.kernel.org,
-	linux-kbuild@vger.kernel.org,
-	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
-	Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>, Alex Shi <alexs@kernel.org>,
-	Yanteng Si <si.yanteng@linux.dev>, Dongliang Mu <dzm91@hust.edu.cn>,
-	Hu Haowen <2023002089@link.tyut.edu.cn>,
-	Dinh Nguyen <dinguyen@kernel.org>, Kees Cook <kees@kernel.org>,
-	Oleg Nesterov <oleg@redhat.com>, Will Deacon <will@kernel.org>,
-	"Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Nicholas Piggin <npiggin@gmail.com>, Vinod Koul <vkoul@kernel.org>,
-	Frank Li <Frank.Li@kernel.org>, Dave Penkler <dpenkler@gmail.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Jonathan Cameron <jic23@kernel.org>,
-	David Lechner <dlechner@baylibre.com>,
-	Nuno =?iso-8859-1?Q?S=E1?= <nuno.sa@analog.com>,
-	Andy Shevchenko <andy@kernel.org>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Lorenzo Pieralisi <lpieralisi@kernel.org>,
-	Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kwilczynski@kernel.org>,
-	Simon Schuster <schuster.simon@siemens-energy.com>,
-	Andreas Oetken <andreas.oetken@siemens-energy.com>
-Subject: Re: [PATCH] nios2: remove the architecture
-Message-ID: <20260518105735.GW3126523@noisy.programming.kicks-ass.net>
-References: <20260518042833.272221-1-enelsonmoore@gmail.com>
- <d40b1e80-37fc-4c88-9d7f-dae6458efe6c@app.fastmail.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="h14q6XVH"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=XkvqW/PekkADvKGZf1bdZmSvAhA07a9eyLS2vsFbnCezn8auJajBCVblTBAalj392jXlvdnFBf9crddgfiz7DJJYbHect1Y5zHHD/w/CtvVWYOKnLirvUZ2J6T9kAXs5JELLEGa8P0Qmo0jvlO2KWriIiQ7On0wmDzgMvSPx5novHxBEpNs1WrjfWttzOCJ6w3UC0r+LLwJEp4CUuK9MjiGgRdvxLFu/m7HWyufSqYTi2Qbo30ebvl8skX2Yg9cEOuZrX1RLPqrEDUSMRLSBMQUU6GH9DbYFMdiWR67ABiLhOVdzSVYCYjf0h5tfOSQZp+Nm2ibh75yEzZmrg3lwBQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=h54fNV91XBHvL8vAbvuH+idCDjj9xKbk2xa95Y3Jofo=;
+ b=fKFGflJGAj/AFJ6hQSFmOnBMvGVsDyrha/ojxACEmHQ7oSJywZZ9JpmhbOrcpo4B457hBJbXpcS+RbMn8xFJ6+cy1sQMX056Frr4m6C1py79Amzhu5XYUeASld0x1/Xrux3ApPppIbMo+F5QDy+JpxbdYpQexqLgCV8psSXFwgnM26cyhhIYn58oZ22f16Og7eXp9p3CZ2Ni9VBge/YxUfVGb5uYSEI2F5o2egyXlYDA28dNXozZnNc+MY09qHnjWIhFgWuKA5nfY3lBPiV5M5GNlzMtQ/r0OfYS/AZSQ22F7A8qC40oVowSlXH3lbXPc+H6nG+TIHuY7ZpwOLKqWw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.232) smtp.rcpttodomain=gmail.com smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=h54fNV91XBHvL8vAbvuH+idCDjj9xKbk2xa95Y3Jofo=;
+ b=h14q6XVHN15+s6MNBnoDNR77I2SuZ6+Upq/dKoRNq32eSikbxQB1IZbjRXecDaIUeSO1wlNntwVitgyVcXV3h4PJ2H+Fteje/Qsk69P/YJIe3l2seVojeKK7lto+NxXrWptAkqo1JsA7zW15aJRhaAud0L6KtDQ4Aej30ZJoeAZF0M1bdfplsdu8jPnCzIou2rb0Fz7WbbvD25+UYIS0z8C51M1BII1g2ICTEWyhkDV+LBpVYyWXYZLQfHrRhYSCiYF4rTanVzRpPwy3OkxUSoClACefhrvof6/w2dmq/gpV/tGPJPOsP882HHPg4/fRRAt2z0ROlumCo5bet3NWQg==
+Received: from SJ0PR03CA0247.namprd03.prod.outlook.com (2603:10b6:a03:3a0::12)
+ by SJ2PR12MB9139.namprd12.prod.outlook.com (2603:10b6:a03:564::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.25.23; Mon, 18 May
+ 2026 11:40:39 +0000
+Received: from SJ1PEPF000023D9.namprd21.prod.outlook.com
+ (2603:10b6:a03:3a0:cafe::5c) by SJ0PR03CA0247.outlook.office365.com
+ (2603:10b6:a03:3a0::12) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.25.23 via Frontend Transport; Mon, 18
+ May 2026 11:40:39 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.232)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.232 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.232; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.232) by
+ SJ1PEPF000023D9.mail.protection.outlook.com (10.167.244.74) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.71.0 via Frontend Transport; Mon, 18 May 2026 11:40:39 +0000
+Received: from drhqmail202.nvidia.com (10.126.190.181) by mail.nvidia.com
+ (10.127.129.5) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 18 May
+ 2026 04:40:22 -0700
+Received: from drhqmail201.nvidia.com (10.126.190.180) by
+ drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.20; Mon, 18 May 2026 04:40:21 -0700
+Received: from BUILDSERVER-IO-L4T.nvidia.com (10.127.8.9) by mail.nvidia.com
+ (10.126.190.180) with Microsoft SMTP Server id 15.2.2562.20 via Frontend
+ Transport; Mon, 18 May 2026 04:40:18 -0700
+From: Akhil R <akhilrajeev@nvidia.com>
+To: Laxman Dewangan <ldewangan@nvidia.com>, Dmitry Osipenko
+	<digetx@gmail.com>, Andi Shyti <andi.shyti@kernel.org>, Thierry Reding
+	<thierry.reding@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, "Kartik
+ Rajput" <kkartik@nvidia.com>, Wolfram Sang <wsa@kernel.org>,
+	<linux-i2c@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>
+CC: Akhil R <akhilrajeev@nvidia.com>
+Subject: [PATCH v2 0/4] i2c: tegra: Improve DMA mapping, latency, and power management
+Date: Mon, 18 May 2026 17:10:09 +0530
+Message-ID: <20260518114013.62065-1-akhilrajeev@nvidia.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d40b1e80-37fc-4c88-9d7f-dae6458efe6c@app.fastmail.com>
+X-NVConfidentiality: public
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SJ1PEPF000023D9:EE_|SJ2PR12MB9139:EE_
+X-MS-Office365-Filtering-Correlation-Id: eb536bd4-f64c-4412-505e-08deb4d24929
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|82310400026|376014|1800799024|36860700016|11063799003|18002099003|56012099003|3023799003|921020;
+X-Microsoft-Antispam-Message-Info:
+	CYsnFFW81ogt+q28w62jj76A5tBTH3YQlkc/dimr9LvbyjD6SAqXmz+c/RVNUQW7p+6TyNiwgA1ySNZyEE920B2PB/IJS6DDXMm9Hfddv9ksJJqHbqrYE/1Kpemoo3bK99jTUf/M7AMmF3hrOJzMrCzoZT7iIs1tyJcxka0n/HkgeQZez5HJj12xQyZN/fGl2WtUxOlsxuwk8RZcsxc6ZDcsAd7txENJWNmZi95AlMVV0hYDYor5wj9CjkeYqxF5BZJTUv6o422DiCCEL9W6qWm5BmjnN/MnWgZ1BPorIc/llyHz7yr6f66CiJFaSvcHo46FzQxx+xxiQRYkkVXQBPdWsGDBypEHNusQVg/TIWT25ril8gaLjypqifZtp2vErgb5v6UeW4wuE0px2/u2wTOLSTjKLfGWZ9q3y9Ek/z9OmptQ5db6g/vYpfK5fd5fgOQrl/I7xTlZfQPNrs8zQxKw5nA8LVclAtkVE8Twia42cz4xN5RHzsbgakcsJFUzx41BDzFIFeJG+e+EeHYb2JGoIbgG9eFPaRMwQvgvhB5eBk/nvLcmrbZXceUSg57AgRRqFMELaCw7bogCeEWA/1Hf/8D1ODEBngiwsJ5llCVWHSfgnOs2qYWDlo3s/CiyiMCAAqpxhReO73POG6cp2oJxWaXNdwWlbzsoMj/5F1o66NLfZOiZwtXV5ohD9T52BlN/wnRrIpjfvmFQ0nlVMfi+gY9aVIhrXjVi9V8UJKhhLMGFB+DDm47QjHwGkq1D5H2WeQyhjQZhZVg7F3KB8A==
+X-Forefront-Antispam-Report:
+	CIP:216.228.118.232;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge1.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(376014)(1800799024)(36860700016)(11063799003)(18002099003)(56012099003)(3023799003)(921020);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	WVvFd3DiyafFl9cidUO4G/SwkZevP+Dinr9oXKcjk0HnnE5hNwbjpklhtOsxrpFvwRo6+hDEhP+7XiOS7KBe0ofqRS/ZfNa63as8pzFwOcc5K7JHFD8aPRKyT01Ae8DJEHsJJaX8mtCNdswpGYc/cfcaF3oTqPWQej04YO53Qtke15PdwwCq7usU8tJCkmifDTEpDG0nULey704pwS5UmvC4UMNz7CReSMfqlmYV5EEIeA1DRwvo4D6ZrDr5QhAdt3k1FM0e+0/J207Sgl/AAVC7ARwZ6+zQvN8JrpwI3Dm4vRRplIoibFTEUYBP5z4vto89LxNBenfr+H1iJEJnzGvhDWaX3ziT/lL+g1Tchs4JRKupD6xLgW2w4LeOO6MunBD27pGWRE2W8+qI5B3o/9xDpWGA/hVxnrHwdSOiP2kWjVfPCY6Y4o3/FVG0C39y
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 May 2026 11:40:39.6594
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: eb536bd4-f64c-4412-505e-08deb4d24929
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.232];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SJ1PEPF000023D9.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB9139
 
-On Mon, May 18, 2026 at 11:29:48AM +0200, Arnd Bergmann wrote:
-> On Mon, May 18, 2026, at 06:28, Ethan Nelson-Moore wrote:
-> > The Nios II architecture is a soft-core architecture developed by
-> > Altera (since acquired by Intel) and intended to run on their FPGAs.
-> >
-> > Licenses for the architecture have not been available for purchase
-> > since 2024 [1], and support for it has been removed from GCC 15 [2],
-> > Buildroot [3], and QEMU [4].
-> >
-> > Given all of these factors, it is time to remove Nios II support from
-> > the kernel. The maintainer stated in 2024 that they were planning to do
-> > so soon [5], but this did not come to pass.
-> >
-> > Remove Nios II support from the kernel and move the former maintainer
-> > to CREDITS. Thank you, Dinh Nguyen, for maintaining Nios II support!
-> 
-> Hi Ethan,
-> 
-> We last discussed this a year ago when Simon Schuster mentioned[1]
-> that Siemens Energy is still using NIOS-2 in production and would
-> prefer to have this still included in Linux for at least another
-> few years until the obligation for kernel updates ends.
+This series addresses several aspects of the Tegra I2C driver:
 
-Isn't that what we have LTS branches for?
+- DMA mapping: Use the proper DMA device for buffer allocation to
+  ensure correct DMA address translation.
+- Transfer latency: Disable fair arbitration on non-MCTP buses to
+  reduce transfer latency.
+- Timing parameters: Update I2C timing values for Tegra410.
+- Power management: Keep the controller available during noirq
+  suspend/resume phases for system dependencies.
+
+v1->v2:
+  * Add description for is_mctp in the struct
+
+Akhil R (4):
+  i2c: tegra: use dmaengine_get_dma_device() for DMA buffer allocation
+  i2c: tegra: Disable fair arbitration for non-MCTP buses
+  i2c: tegra: Update Tegra410 I2C timing parameters
+  i2c: tegra: Fix NOIRQ suspend/resume
+
+ drivers/i2c/busses/i2c-tegra.c | 87 +++++++++++++++++++++++-----------
+ 1 file changed, 59 insertions(+), 28 deletions(-)
+
+-- 
+2.50.1
+
