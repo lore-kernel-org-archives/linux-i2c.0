@@ -1,140 +1,108 @@
-Received: from mail-dy1-f171.google.com (mail-dy1-f171.google.com [74.125.82.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70393480DE6
-	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 11:08:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.171
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779188883; cv=pass; b=VfZwAZea6M4N8lEm+OB5seqspq63I1gmdKh/oliE9+gKRnFCQ1RiLsiDsr8MZ+Ti542NBQ8dRluc505p+7dtfcuO2EADrW22unltowg+j5SSVU82xB82D0aJK2+RwtN6kK8X7RAD34G2vHR3sslFZjq8Otjd1qa8eZt+Gv27SiU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779188883; c=relaxed/simple;
-	bh=nhTmhA7EtvBhVzOtpkjubbcdCBekT90z9FnlkG56Nt4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=n++nOzoGyz+X77yBHlW8Ed338LnseXCMAaKHIDD3Ar2Rf/kDWCxGP15hVx78K/3ILEGm13LNC8nGXJGyOyoDcvLwC50rZf7KR8v+UitmbJxadxArYcuNtspn5KSc0QE3Q99H7I2mhiMtvwWHEvr/CBjIY9N+0SVhsKLor/U2qm4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NkzOT8mX; arc=pass smtp.client-ip=74.125.82.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD3B0480340;
+	Tue, 19 May 2026 11:08:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779188917; cv=none; b=M2kC+xz1GEXOtu/0Y8n9K82t/XlNlaQaeNJMVmXU1Vr3dKC/4Htw08UHhyKa8eefBO3xE8goWPleztiZEd7Z1rD+pIkmr1Gp5y0u+ryZugerfyZ9i9VSyoq4B85GkR8xWt6OrFNtuH3ebFYoNz4hnEC2XoomYt49g90XPLpwmjs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779188917; c=relaxed/simple;
+	bh=ifJJXAeLAe3zMy7V0PXPb3/XJ7lyTDwoaXHc5ZMOaHU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QBHdEILQROtxgu5ehs7ya9+kmUCk8wsPlQPLOgt3Ehwczdh/ex4d0QT/0m0CvqvMJgZWnBnFC6JLw5tTQ6+lb78l7bz4T6AEaJ6k7UKH1+YQYeG6gSwGrhX4dhboukYU7tHlsTf4ICKYwaGa0IkBA+1tto12noe/MOq4D8Wd5D4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=i5Rgy6YW; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NkzOT8mX"
-Received: by mail-dy1-f171.google.com with SMTP id 5a478bee46e88-2f24905306dso284652eec.2
-        for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 04:08:00 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779188879; cv=none;
-        d=google.com; s=arc-20240605;
-        b=FESUdPvSDSyeNosnFUPZKXAgKkw4gIdF6JwM7SWP0xQnkLRrc1n/1Guje4CqyJ4y3f
-         Ac6EN1ZVDTcvQ5tKHAD566YJPMl+Ftf+WlgKNrDPvtngnKgpIXuq88EBYn2LJYEm2v+N
-         TUfnHc5AGi8VzmZTWbqCJRPyd2hHb8OoHLFN7yI2IXtyJq4cQxCpI20UyeF/3exZ72If
-         A2qLajanXwMijLmBwREchxucUQrm0KL/r74F7CjULW2VJYnncAP2vXOOwgdcSXzzPDKo
-         i1IoMkdBWZ0LUcfMtHT5S7aXgNWh0xM11LD7O7DTHDNYBQEb4c3iJT44nkjgSceAQNm8
-         sVrA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=nhTmhA7EtvBhVzOtpkjubbcdCBekT90z9FnlkG56Nt4=;
-        fh=o5OJkic6Dal8yrdliWXyiQBnIDysZiAvZHKnnVfl9tg=;
-        b=X1GPtfp9ASxGheUDrqe7ybPaO0NWeR6m1Hd25J3C7+rfLEuDnquqSVxaGSre/9Vu4Y
-         bupVYcijXqmy+WqYJsuu7ns2+wlIR0WpUMZ27cFN7FXBQbxXaGJORVBsHvbpuf/4uTOO
-         meJGda1hX6XZ6vzo7oM99XAfKzL1JvPoonTyxLCCRycVnvSyKywvIarpujATsd6uip8O
-         YR7bCVlZS3tq05HtDBEfTPLVFFgT73veOpajshV9a4zgvz6zCdlCt731HydxOB0FmFnJ
-         wZBXAGbJ/bZEvXxzqWM5JL2gUIK9kpYXx7XP5jWIbf5WwpfR9PQ293Jpas6gIMUCKe16
-         tRPw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779188879; x=1779793679; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=nhTmhA7EtvBhVzOtpkjubbcdCBekT90z9FnlkG56Nt4=;
-        b=NkzOT8mXh6bXhnJvqEtApaE4S4veNhy2u4ev1hghBlqH6x0n92yVBDsJ2dVI/ZJivu
-         9A8hpggl+UV+EG+gZ3coLNVauocffm06kPS6Vsilr4oCfGSd+pU0V/7UWBN7MJ69Qwj4
-         R1O1gypG77mvtOgIEZmtoiOoxIxx/0pznmMVmWyQ4agGZcSLDIFoxyo9RDUI+MxRlN+5
-         IdgW+epOIw+p0gT6dT9gkmNG7DD8Tr7Gq7TAph8w2yFKfIgDr2gJ4ppcyT6UkCIFCNyf
-         8Jw0CWqYMJEIAQUcdMZMca1DkDroniAfLQjNSAqdcZYDK/d8nqv1CAJ1GQZJXX93ZFJ9
-         eCEQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779188879; x=1779793679;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=nhTmhA7EtvBhVzOtpkjubbcdCBekT90z9FnlkG56Nt4=;
-        b=nED3LvDHTyDK1EMm2tQHBbEeZAZ3eL1LYGk0PpsR+TTHLLP9L9HpRZuABpMEPA6DgI
-         0c6fy7GFka9teZ4a4HU/tCrFTmW9zOssvBpw+xoZW5GLzFq+FaCqdRIWnVdLf9Qqb1VV
-         QyXZfj6FziL+O1jCWRDu0thseyBDASGyh9q+UfGSz4kk5umKQff5gILIcUbQP44XqQta
-         10bJvx/3efk8oUpleHSCXBa2pleZ5flq6a3DiI5u/90//YEu5emgzydoYEM9RQ740pg9
-         l0Hw4pNsH9YPKzRQzNK9iLqCmEPRDwjhZA8USRC6MBkFg7IsltFWZIqMFCRx/n0MZGPb
-         wRyQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/HjRweQXQ9Z3uXrnZNCd5AhvImukbV45VcqmBLeHix6/t+m3fy/0hJ/ORlQ1YqpO7NT+swgSd5KR0=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzeayuW3o0rNZZ7eAhRfB603/jWatDKFBi0Eppj7O/at/DPmOfx
-	ZRR7zjoGgUVbqfA7XiZLhCOOYcrukk8AmhezhOnENligr5KlahmBrt84xhsIm0ypHw8FlLWcbTc
-	oxaB7FPirAZx539Tzkwzp3bbasL9ZNHE=
-X-Gm-Gg: Acq92OECRtZ7l6ZXpE2QA6RVkXFVVhlpAGQLOLpQiyWD5Zh6Qi2HWqaV5fDH46CYkEW
-	uLQbfXOrkMnidnHUAAndVmsL67ootx+3VSJW09XmNvXMdJGT7JkYa6K38K5swZDIxEHHgyXOdT9
-	zjSUAi9uPt1jTy3q/xkI6pNHzryecEpXrhsT4SzenuNn+kwQnUEGOqqH4KA19lMuhW8yF+RUmuu
-	avYAWhd0r9Kfux1lYn8RkXMoQrOX0XiWczUtNETmtzANDgfH/b+E+zV/uACRCBtKYfxAOLjI/3k
-	FMOdQeBgk5vHuzEMSEKfwJJnj4bNY2yrWpCuhWZXUSJWKoTaXZ795O9j73TRSkLWYmKJpgQQxAy
-	Lq7jzDW1rnFcWM6CJ+8R4oio=
-X-Received: by 2002:a05:7301:6785:b0:2f3:3835:2010 with SMTP id
- 5a478bee46e88-3039870650cmr4323491eec.6.1779188879399; Tue, 19 May 2026
- 04:07:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="i5Rgy6YW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1779188914; x=1810724914;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=ifJJXAeLAe3zMy7V0PXPb3/XJ7lyTDwoaXHc5ZMOaHU=;
+  b=i5Rgy6YWIEeFmtNjZwWK5NEFhREo8U7b6fKKt7po6/Tkiz2pZVqzGmYJ
+   MMe/++nqEM8yH05u3+ewXTLW8elsWDRKHy67e/ZmVHHJmcQez1z08zOwr
+   Kob+Ljw5Qv5BL9dsXrgLMKOK4kuDNLn58JrBM5JQfqFV+g9ZPF/ZQbgV5
+   YsJSC8zwdXFyYdLolYH3pZOhD6tOwloNr2T5OJxKf4KkCI3d+RM6/mdE4
+   /xrGI+4EShZNm/piNzKzNoJ6QgXJ7ifBjwapBSBjPlTF0vFry6FmWr33D
+   Mmn6ewW/dYTMGhwjfy6HNAGOJuJx0ajUnXCNfWvabQCDMnnKuuuRXW+5i
+   w==;
+X-CSE-ConnectionGUID: fe5MZ03eQdmJjeoZdi/7ow==
+X-CSE-MsgGUID: 41+1g/Z5QmCA0PV69y2MFw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11790"; a="97497042"
+X-IronPort-AV: E=Sophos;i="6.23,243,1770624000"; 
+   d="scan'208";a="97497042"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2026 04:08:33 -0700
+X-CSE-ConnectionGUID: cFXXX3eAQeOXZINHfepTtg==
+X-CSE-MsgGUID: Fnf6jETUSUiXXIlt/mTSZg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,243,1770624000"; 
+   d="scan'208";a="239604216"
+Received: from ettammin-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.244.150])
+  by orviesa008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2026 04:08:32 -0700
+Date: Tue, 19 May 2026 14:08:29 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Jacob Bazata <jacobbazata@gmail.com>, wsa+renesas@sang-engineering.com,
+	westeri@kernel.org, linux-i2c@vger.kernel.org,
+	linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: acpi: Add VEN_04F3 to
+ i2c_acpi_force_100khz_device_ids
+Message-ID: <agxErb9VB_T7SLCA@ashevche-desk.local>
+References: <20260519052424.7591-1-jacobbazata@gmail.com>
+ <20260519100529.GA8580@black.igk.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260518042833.272221-1-enelsonmoore@gmail.com>
- <d40b1e80-37fc-4c88-9d7f-dae6458efe6c@app.fastmail.com> <20260518105735.GW3126523@noisy.programming.kicks-ass.net>
- <20260518172444.zyd47mcagrcwu7wt@dev-vm-schuster> <CADkSEUjhq6HSdg4ignzbuJiN5uXATsTdxFbRJ3BMxs5=WUWLDg@mail.gmail.com>
- <20260519103012.blot4bssgiqfer6p@dev-vm-schuster>
-In-Reply-To: <20260519103012.blot4bssgiqfer6p@dev-vm-schuster>
-From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date: Tue, 19 May 2026 13:07:46 +0200
-X-Gm-Features: AVHnY4KWOiWEY77zuE66kq3xKsBRyVSkUGj1e6jCXaPb6QA3ygej9CY3aqSmM8c
-Message-ID: <CANiq72=6oYtHf0Q1NaLXZ+25uQyYbej2xnvUhtgpHyvozhP7_Q@mail.gmail.com>
-Subject: Re: [PATCH] nios2: remove the architecture
-To: Simon Schuster <schuster.simon@siemens-energy.com>
-Cc: Ethan Nelson-Moore <enelsonmoore@gmail.com>, Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>, Dinh Nguyen <dinguyen@kernel.org>, 
-	linux-doc@vger.kernel.org, devicetree@vger.kernel.org, 
-	workflows@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>, 
-	dmaengine@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-iio@vger.kernel.org, Netdev <netdev@vger.kernel.org>, 
-	linux-pci@vger.kernel.org, linux-pwm@vger.kernel.org, 
-	linux-hardening@vger.kernel.org, linux-kbuild@vger.kernel.org, 
-	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, 
-	Shuah Khan <skhan@linuxfoundation.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>, Alex Shi <alexs@kernel.org>, 
-	Yanteng Si <si.yanteng@linux.dev>, Dongliang Mu <dzm91@hust.edu.cn>, 
-	Hu Haowen <2023002089@link.tyut.edu.cn>, Kees Cook <kees@kernel.org>, 
-	Oleg Nesterov <oleg@redhat.com>, Will Deacon <will@kernel.org>, 
-	"Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, 
-	Nicholas Piggin <npiggin@gmail.com>, Vinod Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>, 
-	Dave Penkler <dpenkler@gmail.com>, Andi Shyti <andi.shyti@kernel.org>, 
-	Jonathan Cameron <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>, 
-	=?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
-	Andy Shevchenko <andy@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	"David S . Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Lorenzo Pieralisi <lpieralisi@kernel.org>, Krzysztof WilczyDski <kwilczynski@kernel.org>, 
-	Andreas Oetken <andreas.oetken@siemens-energy.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260519100529.GA8580@black.igk.intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Tue, May 19, 2026 at 12:41=E2=80=AFPM Simon Schuster
-<schuster.simon@siemens-energy.com> wrote:
->
-> Sure, I'd be glad to do so, but so far I refrained from it as I was a bit
-> unsure about the netiquette (can I simply do so by self-proclamation? At
-> least the git history seems to suggest so...).
+On Tue, May 19, 2026 at 12:05:29PM +0200, Mika Westerberg wrote:
+> On Tue, May 19, 2026 at 01:24:24AM -0400, Jacob Bazata wrote:
+> > This model trackpad (04F3:32AA), found on various Dell XPS models
+> > from 2023 including XPS 9500, 9510, 9520 and 9530 is well documented to,
+> > at random, exhibit excessive smoothing with no obvious cause, similar
+> > to other trackpad devices listed in the i2c_acpi_force_100khz_device
+> > _ids struct.
+> > 
+> > Forcing the bus to 100KHz eliminates this behavior.
 
-Up to the existing maintainer, in general.
+...
 
-I would also suggest changing the support level to "Supported",
-instead of "Maintained" -- that would help justify keeping it in
-mainline.
+> > +	{ "VEN_04F3", 0 },
+> 
+> This is interesting ACPI ID. Adding Andy just in case he has any comments
+> on it.
 
-I hope that helps a bit...
+Yes, it's simply bogus and not following the ACPI specification [0]. We might
+add the bogus IDs, but that has to be justified in the commit message:
 
-Cheers,
-Miguel
+- Is the device available on a wild market?
+- If no, drop the patch, fix the firmware (I'm here to help with ACPI process bits)
+- If yes, provide the Device name, model, year, et cetera to unique distinguish it,
+  provide an excerpt from DSDT to show how this device is described there
+- Also browse the MS catalog [1], duckduckgo, google for the ID to see if it
+appears in some respectful sources
+- Additionally, try to submit a bug report to the vendor of the device to point
+out that this is bogus ID and must be fixed  (in a new BIOSes)
+
+The more information you find and provide the better. (But distinguish the
+important from secondary info,)
+
+[0]: https://uefi.org/specs/ACPI/6.6/06_Device_Configuration.html#hid-hardware-id
+[1]: https://www.catalog.update.microsoft.com/Search.aspx?q=ven_04f3
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
+
