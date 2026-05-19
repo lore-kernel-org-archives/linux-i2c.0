@@ -1,97 +1,111 @@
-Received: from pokefinder.org (pokefinder.org [135.181.139.117])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1AFE23ACEF3;
-	Tue, 19 May 2026 10:53:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=135.181.139.117
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A010D37AA94
+	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 10:55:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779188024; cv=none; b=SNFAlcvsQhD402/b/4JdKpqSOYLm1KHvoR9BIqDOKtoQ7n5A5O89zrdcU9sN4uvVABbO1yKsTl5UD/3hHGXZrPDbvUNfKoZ7vIHq/jgN53V/UOzhqGA4wnRXaGoyi5qUc1I6E9smbYBhQbgWuQPg2zb1bPKYGJDTmMdK0yui7vg=
+	t=1779188144; cv=none; b=u8C2xKGvqUtTQRdKRnxcsPbsqydV2Dzy2xu1bC/9Y5hl4OsBm2GkQj5i3K2OOYnb3X5PB78amaT4CNsLnz6n88+dXX0zVwFwDmdGVnIpDdYOZ0qJbwIhBZ4Ex52xSyj0eagBO5MasE3GwDgo3sZsV/kfXd56VXb8ircBM5ZlGPQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779188024; c=relaxed/simple;
-	bh=ksMT1KM+FqniW5A/seZ1vubTTiUVBj73UT6iYLn3irU=;
+	s=arc-20240116; t=1779188144; c=relaxed/simple;
+	bh=epm/rDej+X6xivgo3qDkqkpt7/nAmMLgz6CdD6F1VS8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=L+JQdMHLL0fVa8shPMYo5o9l3lUZ2JD8LZtimJj2YYLE63VZcxIl7VJ7950ywXcqql/w40JtEsjrK53ghxwL+kQcsPFQxRi3wcsLdGSh7zmBVmlNaH65OdkfUhf6AG2D3DGf/uxWwe0yJB01WvxH3bOg2jPcho5v2zIrzmVL0Bo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=the-dreams.de; spf=pass smtp.mailfrom=the-dreams.de; arc=none smtp.client-ip=135.181.139.117
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=the-dreams.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=the-dreams.de
-Received: from localhost (p54b3371a.dip0.t-ipconnect.de [84.179.55.26])
-	by pokefinder.org (Postfix) with ESMTPSA id 426C0D63AA3;
-	Tue, 19 May 2026 12:46:52 +0200 (CEST)
-Date: Tue, 19 May 2026 12:46:51 +0200
-From: Wolfram Sang <wsa@the-dreams.de>
-To: Wenwen Wang <wang6495@umn.edu>
-Cc: Kangjie Lu <kjlu@umn.edu>,
-	"open list:I2C SUBSYSTEM" <linux-i2c@vger.kernel.org>,
-	open list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v2 1/2] i2c: core-smbus: fix a potential uninitialization
- bug
-Message-ID: <agw_mywR1xwbVPTa@shikoro>
-References: <1525525030-9805-1-git-send-email-wang6495@umn.edu>
+	 Content-Type:Content-Disposition:In-Reply-To; b=HhqefY9yHxJgpc1ihp5Vzks1Y50VrSBLx/aj+SUffo4EbkM7BSrBUZ/FsJrGpNHOWwqaZUZ6MYgb7O2CdXQ2+uNzSQmAGO9MB8g2uiL6nLdHg5BZwCvbdnIhq7tx6IrnPKtpeFbEN2mg3I7FP694eHP8M8JMkoet9K2D1g/MTRk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=JZuc7r6s; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="JZuc7r6s"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=ofMu
+	xF8bxqlikw5Ek2X0UdXIpwNSL1SykTjDOTUnzDg=; b=JZuc7r6sNKpv5+G4eKdZ
+	6LTJGSD96jwpZFGVxfF8Sk94OZAnm4AScbYH1RSQcKFu0SlPL6yD2lMGQ+JlrBAe
+	77wZTXDbpz0y1UQ7Gnkkm1XyX8GcHvPLPIBUMSlKEyfC0Z5rGJa+mfOe1WOFwl/X
+	84A7vrtDhpwegqZo9785QoiyIaGL5VqYDzVrDyHsCgYUqL3bn/aDcI+IIQXlEJZ/
+	tija1Beh0DHaoQ0fumfywDN6WCprvbxEeRlEpI5K3bsTGql/lRi4zDBWTA9wraF/
+	5EkYK/G9nBrL73L6PZIfSR46Wy3kihyHna5iGU30C/9IGOEaglcswGNETSxw+/9E
+	5Q==
+Received: (qmail 233840 invoked from network); 19 May 2026 12:55:38 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 19 May 2026 12:55:38 +0200
+X-UD-Smtp-Session: l3s3148p1@jaz1hClS+JlUszca
+Date: Tue, 19 May 2026 12:55:37 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Simon Schuster <schuster.simon@siemens-energy.com>
+Cc: Ethan Nelson-Moore <enelsonmoore@gmail.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Arnd Bergmann <arnd@arndb.de>, Dinh Nguyen <dinguyen@kernel.org>,
+	linux-doc@vger.kernel.org, devicetree@vger.kernel.org,
+	workflows@vger.kernel.org, Linux-Arch <linux-arch@vger.kernel.org>,
+	dmaengine@vger.kernel.org, linux-i2c@vger.kernel.org,
+	linux-iio@vger.kernel.org, Netdev <netdev@vger.kernel.org>,
+	linux-pci@vger.kernel.org, linux-pwm@vger.kernel.org,
+	linux-hardening@vger.kernel.org, linux-kbuild@vger.kernel.org,
+	"linux-csky@vger.kernel.org" <linux-csky@vger.kernel.org>,
+	Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>, Alex Shi <alexs@kernel.org>,
+	Yanteng Si <si.yanteng@linux.dev>, Dongliang Mu <dzm91@hust.edu.cn>,
+	Hu Haowen <2023002089@link.tyut.edu.cn>,
+	Kees Cook <kees@kernel.org>, Oleg Nesterov <oleg@redhat.com>,
+	Will Deacon <will@kernel.org>,
+	"Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Nicholas Piggin <npiggin@gmail.com>, Vinod Koul <vkoul@kernel.org>,
+	Frank Li <Frank.Li@kernel.org>, Dave Penkler <dpenkler@gmail.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Jonathan Cameron <jic23@kernel.org>,
+	David Lechner <dlechner@baylibre.com>,
+	Nuno =?utf-8?B?U8Oh?= <nuno.sa@analog.com>,
+	Andy Shevchenko <andy@kernel.org>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Lorenzo Pieralisi <lpieralisi@kernel.org>,
+	Krzysztof WilczyDski <kwilczynski@kernel.org>,
+	Andreas Oetken <andreas.oetken@siemens-energy.com>
+Subject: Re: [PATCH] nios2: remove the architecture
+Message-ID: <agxBqd-ubOL2_i-j@shikoro>
+References: <20260518042833.272221-1-enelsonmoore@gmail.com>
+ <d40b1e80-37fc-4c88-9d7f-dae6458efe6c@app.fastmail.com>
+ <20260518105735.GW3126523@noisy.programming.kicks-ass.net>
+ <20260518172444.zyd47mcagrcwu7wt@dev-vm-schuster>
+ <CADkSEUjhq6HSdg4ignzbuJiN5uXATsTdxFbRJ3BMxs5=WUWLDg@mail.gmail.com>
+ <20260519103012.blot4bssgiqfer6p@dev-vm-schuster>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="d3EIFAQZgCAmzUsP"
-Content-Disposition: inline
-In-Reply-To: <1525525030-9805-1-git-send-email-wang6495@umn.edu>
-
-
---d3EIFAQZgCAmzUsP
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20260519103012.blot4bssgiqfer6p@dev-vm-schuster>
 
-On Sat, May 05, 2018 at 07:57:10AM -0500, Wenwen Wang wrote:
-> In i2c_smbus_xfer_emulated(), there are two buffers: msgbuf0 and msgbuf1,
-> which are used to save a series of messages, as mentioned in the comment.
-> According to the value of the variable 'size', msgbuf0 is initialized to
-> various values. In contrast, msgbuf1 is left uninitialized until the
-> function i2c_transfer() is invoked. However, msgbuf1 is not always
-> initialized on all possible execution paths (implementation) of
-> i2c_transfer(). Thus, it is possible that msgbuf1 may still be
-> uninitialized even after the invocation of the function i2c_transfer(),
-> especially when the return value of ic2_transfer() is not checked properl=
-y.
-> In the following execution, the uninitialized msgbuf1 will be used, such =
-as
-> for security checks. Since uninitialized values can be random and
-> arbitrary, this will cause undefined behaviors or even check bypass. For
-> example, it is expected that if the value of 'size' is
-> I2C_SMBUS_BLOCK_PROC_CALL, the value of data->block[0] should not be larg=
-er
-> than I2C_SMBUS_BLOCK_MAX. But, at the end of i2c_smbus_xfer_emulated(), t=
-he
-> value read from msgbuf1 is assigned to data->block[0], which can
-> potentially lead to invalid block write size, as demonstrated in the error
-> message.
->=20
-> This patch initializes the first byte of msgbuf1 with 0 to avoid such
-> undefined behaviors or security issues.
->=20
-> Signed-off-by: Wenwen Wang <wang6495@umn.edu>
+Hi Simon,
 
-Applied to for-current with commit message a little reworded, thanks!
+> > ... but given this, you might want to get added in MAINTAINERS as
+> > reviewer (or even maintainer) for nios2? Besides that your efforts are
+> > already worth it in my book, it would also ensure you get CCed on
+> > patches like this. Then, you are not depending on people like Arnd
+> > putting you in the loop manually.
+> 
+> Sure, I'd be glad to do so, but so far I refrained from it as I was a bit
+> unsure about the netiquette (can I simply do so by self-proclamation? At
+> least the git history seems to suggest so...).
 
+In your case, you can do so, I'd say. You explained your very reasonable
+interest in the architecture and have already shown efforts to keep it,
+as we can see from the git history. The final call will be done by Dinh
+Nguyen obviously with whom you probably need to sort out details. But I
+can't imagine your offer for help will be rejected, quite the contrary.
 
---d3EIFAQZgCAmzUsP
-Content-Type: application/pgp-signature; name="signature.asc"
+Happy hacking,
 
------BEGIN PGP SIGNATURE-----
+   Wolfram
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoMP5oACgkQFA3kzBSg
-KbYGsA//YONgFxVrGVGR62Mu4dCaIAltwkqjqDjiVSV5VShz/iXFUM+2P0eZUZR2
-q8vreLQczCu2gvv78em+07aD7I7lZfeEJhnz74R+uZEP2ZA7KzqhefkE//feXWhv
-IPie7daFNk6YU1OOW39UbZvyRQtnLplJGdApskCJGaD9vsL96aLgy3/gCf0+R4Cv
-D+tNx2y6HzT24q0l+km9WmPk87yVW5H3eB/2GbzqxKQqRagt8d8tNmlX8c7khw3K
-ciqI+lJbx/3OQAIiCexGFCglKrpGKOsV9YxWhheS60afnJY7qdi1aDdDRgnJv1CG
-q+dFPnqn4bPEXB/UOIBLauBOXt+THzFa0YmPExo5SrVKe7Ejhp1nejbd0a/U+3OC
-ozNGfIJhTgTAxqkOVIa2ImxE1LaR1N7M6tqC1OjwAyXvjCBsRQDENW/88tYUiRwm
-A8GUnWoWSmen1IJTjW3MYBvH6L29/fyPm2UChc0jFwujv+pe9opWid9TiZ5WoI5u
-5c/heoxkgjCU/yzqouf2RLebSAFx1N0q7Ua/wk1pMxhI1G2px3c0+HrGMXd35A6Z
-nmKlZ4Zz7E3bsRQpNzrt6rFnZeMeIF9u/Dxy41s05+6mkFQMXDatCG3lKpDsokVH
-mMoBo1vTvR+5UGdEc8/j1sIocRujjiiN7y4MKcShz38aodpaa5A=
-=c/xK
------END PGP SIGNATURE-----
-
---d3EIFAQZgCAmzUsP--
