@@ -1,199 +1,381 @@
-Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010031.outbound.protection.outlook.com [52.101.201.31])
+Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazon11011052.outbound.protection.outlook.com [52.101.52.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0DD2376A04;
-	Tue, 19 May 2026 14:48:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.31
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 382DF352008
+	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 17:44:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.52.52
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779202107; cv=fail; b=CxVEHDhCwk5/n89JW6XvwQh51Aw5QVX9Eu6Co4L7yuyOfIUTvd/LjfT7X39Jcy67/bvyRnHudKoL1Md8n9L5I8l/qRMbjNrLFmiRm3Suo/GPD6OXO12hZOtn88/P82oaiNyercknrFFOzSmlWt6tIisl34RQldzDmFtEYtNJjDM=
+	t=1779212644; cv=fail; b=nZ42UfaYA32CLqWgKyQ80cQx5GQ5rJnVytXPLnyycvht2IPSsxnyxCB9JvPFBi3bt7aSz/cJMCbwfWkqHjXDCA7fdokz8oGSRUvUhOeEPsaMRSkY4EzKTeYDieXihD0aGoelIqSLl6dS6vIseVHzNV4+9C9mgjam8Vq7W9B035o=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779202107; c=relaxed/simple;
-	bh=soOlzUpkWwPqM0fSmeghiAb9cFfuMZKWDcEBwZT7CaQ=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=MaRBtpst+5tZ9yDygNT+fggCFD/o8AehWJkLqc9b1xn8XNgG//KqInsGtslva2gQfF+ETBS67VrGiTCaNpeY9midCpsnkj6o5OpVOcdJG8kmrsrCdhhAOqfx5ps7+YnO8LkxSxGOE2AmssKJrqI/JoFBpC/wVEl8ZBWkOXzxPeE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=h/uA/9R2; arc=fail smtp.client-ip=52.101.201.31
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	s=arc-20240116; t=1779212644; c=relaxed/simple;
+	bh=aqq/iIQHZVkhqyZZLe7dwuSZBakcIFVdpP1OCNeIOi8=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=YS7eLJXz1zUOw9NzvS0IkyzlA+mAH1xgUtYM4auwEkrD/z9z10aN01x0ysPx4eAgfSBK/W0beqrViYkGY8oLJlIa47aT4lS81vas6DolSocmo8eFT3mwg/MtNY/srB1Dpo49OXOXkdQ7RbXQwl+n/wdZ3u4d0Mcf3HVPgBMZD+A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=mvOUYzYP; arc=fail smtp.client-ip=52.101.52.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="h/uA/9R2"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="mvOUYzYP"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=QzAIOoYT1a4T8ChDpci7B2RpkdrylkOOk6yd4HPwUdAec4xE1gpEd0u5cFNauvgliqRsFFxMUgTgZs8hAvQNJgtXbyDx4x1uixcGpEejDJEpMSYRxD2nLozQoYW+d/Out50G0VuFfK8mLBFTam/HavVhQ7QApQmNVvDjmXKskvSrGuAqbMbrgO4ZbSGP0fWA7EK+bIrX575LFI0wpULQUs87QDozgYVERKPfMc6rPWECmsVwOaBk+niBSNBrIb10NS1Likc79XX33ZKrp6BvxeeU3i+U9h2JAYd4o6Fm9bIlxZ2ctJHqIZz3jO3b/v+wi7Yrj3Sc8wcRj9+gs8G5Bg==
+ b=IoDPrCnoLGBMA5a9GCJ3dxqq8rpR7Mi/lsm+pP7UyEqyX8yREmlc7yBpEWSeX1mMDAvaLsOCBKe0Z/qMqKrOsx6gC9qlBj7Va3xH0Qg3ucy4NOtlpXZHHDh8JPtqdQZ0uaykTjzbwPE4pnVuR3bL2pdeZcuctTRKeQ4e3UoCR6TXDna5HKnge76mjYsQ3kFO6n9KwDSsc5OSfBAvVBfJIYPISfHpVC1WGslgRO2jx8wAYK3GXBWEbLnnRtFbzVBoKibAlzJr03He8GW1nPdutei49F4M0XUp7HyvK95zcLQ0zTSQZi8538Km67KXDY18Vuc5rQ51rTEI7Cpu6LBlMQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=W56RIIPOwz5bPsIJYVxDjp63m1A4YoJCOWu0DFbLRyM=;
- b=eejfEt218aZGhCTWUQGafro2D6vgmF67HkNCvIzxPNOuSc5QKI+BT2rrwEtqUdS8TbJTB92Y4YRQyzX5Jg5O7K014ojhkAh1z8SFHuticdv9CNfwViw/R8aTVX282d9cVRHZWATaS4RvXQ/VloLx4iYFcxkd1wMSZXd8m2Zx9FCuKxfLgIp4Omkn8MZD0XXi0o8xq+mVxX7cx964u6U3KrZZZDK5zasa2DLI99ptXvzDyR7sqsDmQtzSmHgY9usFQU2/dupNQzJmZ3BRTw4JNFzb9YDzjU2Cif6jCvyt26+5aKdOsOMKwWh+ofLblaI83Xp9RD/tFsseWi+4G461ag==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ bh=zvgUerGc+hn3fDC/B7WfEVypQQQn1i/6qR7Iiss2dDc=;
+ b=k6DsVqVWh2KqpL3h2xyaav9g4I7i8PlU2vD9Izq3F2X6Kwz9bhqOfG8nhqi99HXbmH/2312H+Q7MOGoZusgMItKac5UuuuphPuc461wvp0/9ciC+SexBc0ACx9LsnBCNkjdjteZYmlQ0egBnlo4SLdw8LFN6HUe3xKSKpaAkVdjhjdiTtdvW84Z6tjMZZA7rR8lnGWxB+x8A2dWxkJIe9lNeVzgkzwPEIVIZws0DZFBPTPTKaTTAJGRgZeWCC8Pk0aXRyta9PrFdCxL9t3LBstUnW6yCCFTAtdumGVh6wUgoawJP35i/o8TqC7x20KN+YQ3ks22ddUMhehCxHiEetA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=lysator.liu.se smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=W56RIIPOwz5bPsIJYVxDjp63m1A4YoJCOWu0DFbLRyM=;
- b=h/uA/9R2OAJ2yZfObV7QxsGYC7EZEe7RJlgayIKEstuwwYbMI4hyLr7Ac5/Z6d+3Ztg1D120ltQRvdtQQ68CnUMTAxgX7R6m3+qDY72Xq7XUL2WGiBkC7nt+ANgv9uvvMH0UIjuvJ2YPNk2GomAIPrFZyFakpecAjkEhfLwgA/4=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from DSVPR12MB999147.namprd12.prod.outlook.com (2603:10b6:8:38b::11)
- by SN7PR12MB6671.namprd12.prod.outlook.com (2603:10b6:806:26d::12) with
+ bh=zvgUerGc+hn3fDC/B7WfEVypQQQn1i/6qR7Iiss2dDc=;
+ b=mvOUYzYPiYbnc1JRce3OeHVXq8VdbLw0O7qlACqAzVDBqheRjt9mF/S4pYMZ6qxRcwImXsVYLJjs0IUCPgBPsVnHJOecQtu87jc4fhYxDOFMWAwXHSpFEi+FZossoKKLPepqZa9nJRybpabWKh3AoiZ4qdB8JqZ38t3e9b8KEwis5HeBChr3/YmInmyIkJZn2mgO4GAOs8FPT43gUYFZO8hj910RddhgxRb0bgTDtyXUhIxxpaDsAXgFbw7dw7WMPdxoaHQ58VAtvQV4azvq4ApMTh5h3/IQL5LeEyKGnkSXL6pZ4I+OyydnyPLlkeKhZ9OqbBNwUAiodwXg3jsh5g==
+Received: from DS7PR05CA0045.namprd05.prod.outlook.com (2603:10b6:8:2f::7) by
+ IA1PR12MB7613.namprd12.prod.outlook.com (2603:10b6:208:42a::19) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.25.24; Tue, 19 May
- 2026 14:48:21 +0000
-Received: from DSVPR12MB999147.namprd12.prod.outlook.com
- ([fe80::98c5:8206:6a4:c445]) by DSVPR12MB999147.namprd12.prod.outlook.com
- ([fe80::98c5:8206:6a4:c445%3]) with mapi id 15.20.9870.023; Tue, 19 May 2026
- 14:48:21 +0000
-Message-ID: <498bad3f-6a0c-4da8-b645-1cc837ba1836@amd.com>
-Date: Tue, 19 May 2026 09:48:14 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 0/1] i2c: designware: fix probe ordering for AMD GPIO
- on Lenovo Yoga 7 14AGP11
-Content-Language: en-US
-To: Bartosz Golaszewski <brgl@kernel.org>
-Cc: Hardik Prakash <hardikprakash.official@gmail.com>,
- Andy Shevchenko <andriy.shevchenko@intel.com>, linux-i2c@vger.kernel.org,
- linux-gpio@vger.kernel.org, wsa@kernel.org, basavaraj.natikar@amd.com,
- linus.walleij@linaro.org
-References: <20260518122814.8975-1-hardikprakash.official@gmail.com>
- <d57dd297-6be1-43a9-a38d-e40c8949e23a@amd.com>
- <CANTFpSWGC7GsAY-3UvPtBZzqjNek-T5haiDb59QYRoRgwuQf1w@mail.gmail.com>
- <7d0f0cf9-1936-4cf6-a425-228a37f83137@amd.com>
- <CAMRc=MdS_BVKb=FQLhky=8dpghBSoHeBhUk0LM5hROFxmJeyGQ@mail.gmail.com>
- <9d5da93e-bbe0-4359-9f17-e3c6b3a5cb34@amd.com>
- <CAMRc=MfT_WVMxPnYZW=mg52PHew0O4VQMGFrfo6G9vxZDDoArw@mail.gmail.com>
- <CANTFpSUX5rYhuTQH3dTTvzW+_yhW8Gs0U=A1t_8LDzKz4dzzAw@mail.gmail.com>
- <agsh652HlC4rg1_1@ashevche-desk.local>
- <CANTFpSU7XaNKwe_FPsTCkxQYeq78Tqusr-nsB-Ww0_teuiWdEA@mail.gmail.com>
- <f0ee2722-1e56-41b1-b70c-5503a2495853@amd.com>
- <CANTFpSWT+cR8Yxyr5jrB2MUidqKteWuPjHOyK_rpSkDUN6SWQQ@mail.gmail.com>
- <c4993bce-5d39-416f-90ed-d870f4ac9254@amd.com>
- <CAMRc=McSLEF_nrkRdJJu9=Bc_KmPWYKDHd6tOD9tJqs0fksv0w@mail.gmail.com>
-From: Mario Limonciello <mario.limonciello@amd.com>
-In-Reply-To: <CAMRc=McSLEF_nrkRdJJu9=Bc_KmPWYKDHd6tOD9tJqs0fksv0w@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SA0PR11CA0166.namprd11.prod.outlook.com
- (2603:10b6:806:1bb::21) To DSVPR12MB999147.namprd12.prod.outlook.com
- (2603:10b6:8:38b::11)
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.25.18; Tue, 19 May
+ 2026 17:43:53 +0000
+Received: from DM2PEPF00003FC6.namprd04.prod.outlook.com
+ (2603:10b6:8:2f:cafe::6) by DS7PR05CA0045.outlook.office365.com
+ (2603:10b6:8:2f::7) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.48.14 via Frontend Transport; Tue, 19
+ May 2026 17:43:53 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ DM2PEPF00003FC6.mail.protection.outlook.com (10.167.23.25) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.48.11 via Frontend Transport; Tue, 19 May 2026 17:43:52 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Tue, 19 May
+ 2026 10:43:32 -0700
+Received: from r-build-bsp-06.mtr.labs.mlnx (10.126.231.37) by
+ rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.20; Tue, 19 May 2026 10:43:30 -0700
+From: Vadim Pasternak <vadimp@nvidia.com>
+To: <peda@lysator.liu.se>
+CC: <wsa@the-dreams.de>, <linux-i2c@vger.kernel.org>, Vadim Pasternak
+	<vadimp@nvidia.com>
+Subject: [PATCH i2c-mux next 1/1] i2c: mux: Add register map based mux driver
+Date: Tue, 19 May 2026 20:43:10 +0300
+Message-ID: <20260519174310.1128423-1-vadimp@nvidia.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DSVPR12MB999147:EE_|SN7PR12MB6671:EE_
-X-MS-Office365-Filtering-Correlation-Id: ec881d78-2ed4-41c2-ecd3-08deb5b5abf1
+X-MS-TrafficTypeDiagnostic: DM2PEPF00003FC6:EE_|IA1PR12MB7613:EE_
+X-MS-Office365-Filtering-Correlation-Id: bb8c88d3-edf0-4b8b-95a1-08deb5ce3116
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|366016|1800799024|22082099003|18002099003|56012099003|11063799006|4143699003;
+	BCL:0;ARA:13230040|36860700016|1800799024|82310400026|376014|11063799006|13003099007|5023799004|3023799007|18002099003|56012099003;
 X-Microsoft-Antispam-Message-Info:
-	/I6832HVSMfF8wTiLD9dt4BSMz3HG6BA3+qF8TOpLNnPvHmj9v7HYkjmA201VDCUEZ5dmhwx/rXqG+uOgpx8qAPajMNA38B3/bG7PmzEEjGrs+nOZeBy8NA56YtVbWzG6WZrhmDpsT7JTEanYjNct+CJXs11vQtzMS7LAZ9BsLpCSbSBQWw1W6oZM6rwZDvdvWNiiTcVjf30lw0SJJJDdDifKMWhOxkNiA3GmL36xTp1ZPvv4iUrBsj53PbmKDamahxTpKg88ZTdIutp74w/faPgpsXdxYchXllzADY4moHWmeAPbWtpN9cbae10VGlP7txjoFAKA/DaM4NrVsmO/vAHRr/cHjotDDid58xvFutKa/aWPPnoYpJliCtJmIMpsF/qSOlxhIyATihHlpFnP5/cXn8pqKMuEda2iuatOQoEomf2B9q9tSavmPRk5228aMRiMaGMo6S+eIMfBMlmQgwXcRHTnEFFD82rnDF3UVGAsZdnmjBxe7m8aMBghwQC16VvFGZmscj7kc5Vkrf2rrMpKHbSuD8CbpW+sa6YpHxQYSChRmSMr/wnTmvHtoa25XTsys9SLpDI0bsSPLdEud0RdMCQjC182qjnqR5MaJUE0fBVbhV8Fw2iLGtfpKuieqbKwW4/EDH08LGFl2cWzoPC/3UCOAkQDTxNywNasxde+ioBuMVdT/nP3WPop98n
+	23u3ucbyZYMyYpsI1o6CmWlcFpA3YixupBypnUnUDQbv/27S/IXIoNV95wi6XlsadjHdnwJNLvOcMGWa2PgvTade+psRRl8N3sQLOUDozleHzfzqMUIFF6CUnas9cgeS81/GiYfC+OOH6doyZ1I4WHiELI0pSx8MYTEPK9GyC2k1XoUx3g7MwVNDtxRqLpImO2xqSjnyv9Mmc2j56zqxfRNmsVzWyATTITdzN26GtYg5EQDoMZw/FLKqqH9ScMXFyDaVGF8dS4xl/hKCPdOSqBXnpFGLldErIzjenk0Ui/AZoib4xPhHgo1y6YAgVt5bwmgVYCQP0tms5HEtnxUX2XH2bY0PV2S3SiD37GTxFk7lWA61dZ9iPAHO6mEwuo1X3xye8f4+yq2IDwVa+FxfgfYM6zdzhgQM+Xl+JWH0cDOcNrJgW+H5UXpygweuL9mYLZVwSAd0ktwE5CB9v06kbKTvVvQbzX8iFttsHMF70g2u8hVwPD7ng2jWpI92WO5VFZU7VZQwX9Kvk5h4M5uOQKN2A32CNaKrP2lculQVFh0z8jCJLxHSuY19oRnso6x2voa5KdyEQMoSuWB4GX2jJoNRd+ySSQKr73xz324AzolS8LKhUMvauLV/rn5vUReP+X7yWGRFQY6s2zhekW0FO4gGeBDaUpeJWjdQkBCobpWMHOz60gkbX5ms+1a5sHCV/KGLY46n3jXlhEr9EbK6a5GREdpmM7kFiw8IbUcifKs=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DSVPR12MB999147.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(366016)(1800799024)(22082099003)(18002099003)(56012099003)(11063799006)(4143699003);DIR:OUT;SFP:1101;
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(36860700016)(1800799024)(82310400026)(376014)(11063799006)(13003099007)(5023799004)(3023799007)(18002099003)(56012099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?TFIrUGVXamJHTStiZWVuUG1ycTNNYWd2K2tpYmVHQzMrdnJFdGtoSzB4NlZi?=
- =?utf-8?B?S0Vub0JkUlRBMTcyRFRZbGZaWjlMc0NlU3NkZklaUFovL0dmeDYrU3krR0tZ?=
- =?utf-8?B?bzhYWWpORDJWNExPak1CRDZFWW05a21uNm8rUlNvd1VRWW5TM2tWbXNmR0Yw?=
- =?utf-8?B?MDA5SmNuR0NlcjluZnZnS3Ewblp4STJEa2d0UVFvNTdUaVhKSERXUlZuOFFS?=
- =?utf-8?B?NERtRHJoN2ViM0hldkZsVlQvSitxSlpVcDFPU0ExT1lYWkVjVWhPMnZLT0Q1?=
- =?utf-8?B?dTVtNVVPdWRsNmZ5ZkU0aklNSlY2L1JLYXV5OHg4MlhsN05BbGpFTHVJNHIr?=
- =?utf-8?B?SEtsZmpSanZ4alptK1FUNjlFNUw2S0hVVFp6YUowZnYySUdtVVFrN1RCaXpL?=
- =?utf-8?B?dFBPV3UzVWhEVkswS2dTbVZXbFByMjFFelN0T2wxdEJOcE9qVEZ1QWNyYXVv?=
- =?utf-8?B?NSt0ZStOYnFGZEN2aTdYQTNIclhZVVYwaGhDMHlYYWZWYlpSRTZDVXpsdDM0?=
- =?utf-8?B?NGV6NnFsN0ZLVDZWczlrNXNGODJGSmxiaWNVK3NITnRudHB4ajlKR3R2NTJK?=
- =?utf-8?B?Vm1MdFFxNUo4WDR6c2J6RGlSTmxNeFQ0Q2ZHaHFRS240SElTajNqNFBHd2FH?=
- =?utf-8?B?OXIxOFNPMHpHTVE1WWhjTzZlb1gycWtkaUpMVVEvbEJEd29LdVc5MnByQnFo?=
- =?utf-8?B?cjVnRERjWWZBcUt3NjZaZmE3dWgxTmE3amU2T29qcGpXZjhLbHpsd0RGZndq?=
- =?utf-8?B?dXp6M05UOWRiRHRwbW12NWpsa2hzRkMrWVpQRWc4YjJleCtkVDJVTDh5NVRT?=
- =?utf-8?B?elFHUlRJaHhoQVlhbDFscHhlVjRFcDZyUWhZSUsxVDk0KzI5emZNRmZCMWhI?=
- =?utf-8?B?Sm9kbTNBbWE3MGJ0bCtjdGVxNEdWSG5KNDBlcnNueW9JeTloRVBJK0JwemRJ?=
- =?utf-8?B?Z2R0UUYwTEJmdFFFUTJNdzM0L2MrZnNrTkFXcEdwSUhtR3RiZUdkdGNuNDVn?=
- =?utf-8?B?aC9CN2ZXRVRBZE1PNlNXNHd3NVpMMXpuV0NyczAvSkQ5bGlCem5CVGd5Tmo1?=
- =?utf-8?B?YTdTRkNNOW9jL3gvZDZHeTUxbS9PWGtaTFZ6U3ZpV0FneWVCd0ViZXZ0c1Vh?=
- =?utf-8?B?UTN1ODRMYTRVSkJRVGhYT05LSTM4bHpMYWtCaDkyM0FJSnRkcmx5TVdLbzdP?=
- =?utf-8?B?dGlCV2xVN1YvOC94VjZlRVA5SW5zNG5JTjdxOUdzM2FXUUcyUVJER1hIZmRk?=
- =?utf-8?B?RWk2QTIxSVc5cHo1bldvSjBUWDR1US9pRUxrc3FDV093d1dHeDB5eXM3ekYy?=
- =?utf-8?B?STB0MWFFUTB4eGxCVWw1T0pxOFhneEF4bGVZdnZnYjNMK2NnTmdYWkVFRzhG?=
- =?utf-8?B?enNrSFd4VEgzanUySUZFOXFxdDhOOU90Y1FVVktsbTZoZy9UdHYwRzlkb2hj?=
- =?utf-8?B?cUxXaEZ0dkNFMHcrNCtjU2w1WlZGYlpwVDdBaUN2LzFCRUNlMHpUU0gyUUNu?=
- =?utf-8?B?WDQ2ZnlqRjNXTERJcEFUNitwYnpYalA2NEIrUWZoL3IvZm90MnhLSk5JSFF4?=
- =?utf-8?B?RGFSUGdXODBpZmhVMlM2RXk3MCtzckxOOFBJNmpodjlvNWwwdzkwZkF2Vytz?=
- =?utf-8?B?NlFTYjZXZlBuMkFWendZUkRxQW8rZ2RXWTJsbzVqbkRiQ2FXWGJ4KzArSExy?=
- =?utf-8?B?MkxmclI5SlgyUFJkZVdnNEZ6KzdqZEpNTENEVmU4clZIbllaTTdpSFFZRUFn?=
- =?utf-8?B?U25LMUZHYUwwd0dIZlFCOEIvdzVZVy9ZS0I1YzlRVGF1ekJVdkNRRjhyclZv?=
- =?utf-8?B?c3YyeTl6RHhaaXdyTXd1clRyZmhPcTIvVzJaMzAzemZpalptTXRROEJIeTd6?=
- =?utf-8?B?a0pHNVpTNWY1cW5KSzhac3Mrb3NuTmVOaFpOOTAvQ0VMelFLQTZLVkdRcjhJ?=
- =?utf-8?B?czlJOGVodGRuYy9XSlhDVmVvMGp3a1JTZDY3WTVkK09neEozenF4anZseHFN?=
- =?utf-8?B?eFcyb1pIMXhzL2VnQTI3Tzg1OHRaK3hlYW9vZXBTb29UbEVGL2RmaUdDRTBM?=
- =?utf-8?B?YkF1TDRKaEhyNWZtTER2dkUrdzV0MU9wMU5uTEtHQUZBMmYxZkYrbU03eTZS?=
- =?utf-8?B?SDdIREpxcEZFU3hWY3ptczV4Qll2aUM1L2x0WTlFOFh0R2pFK1RzUEZMNmZG?=
- =?utf-8?B?elRnSTNRbHNGZ2Y5T2ZQZXcydW92dS84L3VKbnJqOGNMc0V0YjJFSEhLT3Ix?=
- =?utf-8?B?N0JaZkM3M2J6NzkxT3hMSnZNU0hiNUxIcm1qUEZYNjJnaTBHVXNwZ1dRT0tS?=
- =?utf-8?Q?bsn77MWsSWKDybtzhm?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ec881d78-2ed4-41c2-ecd3-08deb5b5abf1
-X-MS-Exchange-CrossTenant-AuthSource: DSVPR12MB999147.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 May 2026 14:48:21.4228
+	GRXwiMu87ULnnJ7behxKXBId30ioKdcyQ8S1HqqVeETAimPvzlYMG8k7OREN7ol+hlshHpi+N+GG8eQuzZmrv9xFhHZZhIdDKgJnDsmJC7UcGeCO6nddUrnK5EzKNlEwYdQ/Wxujd73KSHIIylKjtM6QDH8H5PVglsW4qWB09iLtgpgJttoHtBlbf6XRxMbJHZWdwIZG2maACPe96lU/+sSYhS31WEy+fo9fXdkXEptjgCB4x7XVpvpwMPI5s+KwoTfVklxCl7in2/UFqrYoXM8IWLhNYj458Q/pOPFh0kVKqBeqkI4fjxEOhRMDXRp8TjlRhG7kTZ7g+txIEnS9NTL60SPXEacygt3D4WB9BydPhZultqCo608XjXegdxqbaLiQDprmzux2FYKNRDX8xkOr01Q+aoGJvvW8EEOl1ntW7Gp1C9pmIlu1pzn3HO+t
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 May 2026 17:43:52.3119
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: P3sOAYN750kqMRKqUo3VZpRSEgxFZtXQ4dJRsG4G+ceqdk/31h2PQ1dwF4996+V7Zvt5yz/ScqR2IiPV5GwM6g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB6671
+X-MS-Exchange-CrossTenant-Network-Message-Id: bb8c88d3-edf0-4b8b-95a1-08deb5ce3116
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	DM2PEPF00003FC6.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB7613
 
+Add 'regmap' mux driver to allow virtual bus switching by setting a
+single selector register.
+The 'regmap' is supposed to be passed to driver within a platform data
+by parent platform driver.
 
+Unlike i2c-mux-reg, this driver relies on regmap abstraction
+instead of direct MMIO access, allowing the mux selector register
+to be accessed through arbitrary transport mechanisms supported
+by regmap callbacks, including indirect PCIe-to-SPI and PCIe-to-LPC
+transactions.
 
-On 5/19/26 09:39, Bartosz Golaszewski wrote:
-> On Tue, May 19, 2026 at 4:28 PM Mario Limonciello
-> <mario.limonciello@amd.com> wrote:
->>
->>>
->>> gpiochip_add_data() at 0.285952 makes the GPIO chip visible to the
->>> system before amd_gpio_probe() has finished. AMDI0010:02 starts probing
->>> at 0.301454 while amd_gpio_probe() is still completing. This is why
->>> device_is_bound() works and initcall promotion does not -- it waits for
->>> probe completion, not just gpiochip registration.
->>
->> What is the boot time impact to adding device_is_bound() check?
->>
->> Bartosz, thoughts?
->>
-> 
-> My thoughts are that ACPI could use some fw_devlink. :) It's not a new
-> problem, we've fixed it for OF systems.
-> 
-> Could we modify gpiolib-acpi.c to return -EPROBE_DEFER if the parent
-> device of the GPIO chip is not bound yet instead? When resolving the
-> reference to the remote GPIO controller we have an address of the
-> struct acpi_device. I suppose there's a platform device that is its
-> child and then the logical GPIO controller device, is that correct?
-> Can we check if the platform device in question is bound at the
-> subsystem level?
-> 
-> Bart
+The register may reside on any bus type or mapped memory, supported by
+'regmap' infrastructure.
 
-I like this idea.  I guess something like this:
+Motivation is to support mux selector registers accessed indirectly
+through transport-specific protocols.
 
-diff --git a/drivers/gpio/gpiolib-acpi-core.c 
-b/drivers/gpio/gpiolib-acpi-core.c
-index eb8a40cfb7a98..e3511398b1f84 100644
---- a/drivers/gpio/gpiolib-acpi-core.c
-+++ b/drivers/gpio/gpiolib-acpi-core.c
-@@ -142,6 +142,13 @@ static struct gpio_desc *acpi_get_gpiod(char *path, 
-unsigned int pin)
-         if (!gdev)
-                 return ERR_PTR(-EPROBE_DEFER);
+For example, an FPGA connected through PCIe may expose SPI or LPC
+bridges used to access downstream CPLDs or secondary FPGAs located on
+another board. In such configurations the mux selector register is not
+directly memory-mapped and access is performed through regmap
+reg_read()/reg_write() callbacks implementing the required indirect
+transaction protocol.
 
-+       if (gdev->dev.parent) {
-+               scoped_guard(device, gdev->dev.parent) {
-+                       if (!device_is_bound(gdev->dev.parent))
-+                               return ERR_PTR(-EPROBE_DEFER);
-+               }
-+       }
+Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+---
+Note:
+Originally proposed in 2023:
+https://patchwork.ozlabs.org/project/linux-i2c/patch/20230823155332.48648-2-vadimp@nvidia.com/
+Reworked against current upstream.
+---
+ drivers/i2c/muxes/Kconfig                    |  12 ++
+ drivers/i2c/muxes/Makefile                   |   1 +
+ drivers/i2c/muxes/i2c-mux-regmap.c           | 150 +++++++++++++++++++
+ include/linux/platform_data/i2c-mux-regmap.h |  37 +++++
+ 4 files changed, 200 insertions(+)
+ create mode 100644 drivers/i2c/muxes/i2c-mux-regmap.c
+ create mode 100644 include/linux/platform_data/i2c-mux-regmap.h
+
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index 6d2f66810cdc..9b5e5258917a 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -99,6 +99,18 @@ config I2C_MUX_REG
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-mux-reg.
+ 
++config I2C_MUX_REGMAP
++	tristate "Register map based I2C multiplexer"
++	depends on REGMAP
++	help
++	  If you say yes to this option, support will be included for a
++	  register map based I2C multiplexer. This driver provides access to
++	  I2C busses connected through a MUX, which is controlled
++	  by a single register through the regmap.
 +
-         /*
-          * FIXME: keep track of the reference to the GPIO device somehow
-          * instead of putting it here.
++	  This driver can also be built as a module. If so, the module
++	  will be called i2c-mux-regmap.
++
+ config I2C_DEMUX_PINCTRL
+ 	tristate "pinctrl-based I2C demultiplexer"
+ 	depends on PINCTRL && OF
+diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
+index 4b24f49515a7..edecfc593df7 100644
+--- a/drivers/i2c/muxes/Makefile
++++ b/drivers/i2c/muxes/Makefile
+@@ -15,5 +15,6 @@ obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
+ obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
+ obj-$(CONFIG_I2C_MUX_PINCTRL)	+= i2c-mux-pinctrl.o
+ obj-$(CONFIG_I2C_MUX_REG)	+= i2c-mux-reg.o
++obj-$(CONFIG_I2C_MUX_REGMAP)	+= i2c-mux-regmap.o
+ 
+ ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
+diff --git a/drivers/i2c/muxes/i2c-mux-regmap.c b/drivers/i2c/muxes/i2c-mux-regmap.c
+new file mode 100644
+index 000000000000..485f275baeb5
+--- /dev/null
++++ b/drivers/i2c/muxes/i2c-mux-regmap.c
+@@ -0,0 +1,150 @@
++// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
++/*
++ * Regmap i2c mux driver
++ *
++ * Copyright (C) 2026 Nvidia Technologies Ltd.
++ */
++
++#include <linux/device.h>
++#include <linux/i2c.h>
++#include <linux/i2c-mux.h>
++#include <linux/io.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/platform_data/i2c-mux-regmap.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++#include <linux/slab.h>
++
++/* i2c_mux_regmap - mux control structure:
++ * @last_val - last selected register value or -1 if mux deselected;
++ * @pdata: platform data;
++ */
++struct i2c_mux_regmap {
++	int last_val;
++	struct i2c_mux_regmap_platform_data pdata;
++};
++
++static int i2c_mux_regmap_select_chan(struct i2c_mux_core *muxc, u32 chan)
++{
++	struct i2c_mux_regmap *mux = i2c_mux_priv(muxc);
++	int err = 0;
++
++	/* Only select the channel if its different from the last channel */
++	if (mux->last_val != chan) {
++		err = regmap_write(mux->pdata.regmap, mux->pdata.sel_reg_addr, chan);
++		mux->last_val = err < 0 ? -1 : chan;
++	}
++
++	return err;
++}
++
++static int i2c_mux_regmap_deselect(struct i2c_mux_core *muxc, u32 chan)
++{
++	struct i2c_mux_regmap *mux = i2c_mux_priv(muxc);
++
++	/* Deselect active channel */
++	mux->last_val = -1;
++
++	return regmap_write(mux->pdata.regmap, mux->pdata.sel_reg_addr, 0);
++}
++
++static void i2c_mux_regmap_notify_probe_abandon(struct platform_device *pdev,
++						struct i2c_mux_regmap *mux,
++						struct i2c_mux_core *muxc,
++						struct i2c_adapter *parent,
++						int err, bool user_notify_called)
++{
++	const struct i2c_mux_regmap_platform_data *pd;
++
++	if (user_notify_called || err == -EPROBE_DEFER)
++		return;
++	pd = mux ? &mux->pdata : dev_get_platdata(&pdev->dev);
++	if (!pd || !pd->completion_notify || !pd->handle)
++		return;
++	pd->completion_notify(pd->handle, muxc ? muxc->parent : parent, NULL);
++}
++
++/* Probe/remove functions */
++static int i2c_mux_regmap_probe(struct platform_device *pdev)
++{
++	struct i2c_mux_regmap_platform_data *pdata = dev_get_platdata(&pdev->dev);
++	struct i2c_mux_regmap *mux;
++	struct i2c_adapter *parent;
++	struct i2c_mux_core *muxc = NULL;
++	bool user_notify_called = false;
++	int num, ret;
++
++	if (!pdata)
++		return -EINVAL;
++
++	parent = i2c_get_adapter(pdata->parent);
++	if (!parent)
++		return -EPROBE_DEFER;
++
++	muxc = i2c_mux_alloc(parent, &pdev->dev, pdata->num_adaps, sizeof(*mux), 0,
++			     i2c_mux_regmap_select_chan, i2c_mux_regmap_deselect);
++	if (!muxc) {
++		ret = -ENOMEM;
++		goto err_put_parent;
++	}
++
++	mux = i2c_mux_priv(muxc);
++	memcpy(&mux->pdata, pdata, sizeof(*pdata));
++	platform_set_drvdata(pdev, muxc);
++	mux->last_val = -1; /* force the first selection */
++
++	/* Create an adapter for each channel. */
++	for (num = 0; num < pdata->num_adaps; num++) {
++		ret = i2c_mux_add_adapter(muxc, 0, pdata->chan_ids[num]);
++		if (ret)
++			goto err_i2c_mux_add_adapter;
++	}
++
++	/* Notify caller when all channels' adapters are created. */
++	if (pdata->completion_notify) {
++		ret = pdata->completion_notify(pdata->handle, muxc->parent,
++					       muxc->adapter);
++		user_notify_called = true;
++		if (ret)
++			goto err_i2c_mux_add_adapter;
++	}
++
++	return 0;
++
++err_i2c_mux_add_adapter:
++	i2c_mux_regmap_notify_probe_abandon(pdev, mux, muxc, parent, ret,
++					    user_notify_called);
++	i2c_mux_del_adapters(muxc);
++	goto put_parent;
++err_put_parent:
++	i2c_mux_regmap_notify_probe_abandon(pdev, mux, muxc, parent, ret,
++					    user_notify_called);
++put_parent:
++	i2c_put_adapter(parent);
++
++	return ret;
++}
++
++static void i2c_mux_regmap_remove(struct platform_device *pdev)
++{
++	struct i2c_mux_core *muxc = platform_get_drvdata(pdev);
++
++	i2c_mux_del_adapters(muxc);
++	i2c_put_adapter(muxc->parent);
++}
++
++static struct platform_driver i2c_mux_regmap_driver = {
++	.driver = {
++		.name = "i2c-mux-regmap",
++	},
++	.probe = i2c_mux_regmap_probe,
++	.remove = i2c_mux_regmap_remove,
++};
++
++module_platform_driver(i2c_mux_regmap_driver);
++
++MODULE_AUTHOR("Vadim Pasternak (vadimp@nvidia.com)");
++MODULE_DESCRIPTION("Regmap I2C multiplexer driver");
++MODULE_LICENSE("Dual BSD/GPL");
++MODULE_ALIAS("platform:i2c-mux-regmap");
+diff --git a/include/linux/platform_data/i2c-mux-regmap.h b/include/linux/platform_data/i2c-mux-regmap.h
+new file mode 100644
+index 000000000000..0015d5a905d9
+--- /dev/null
++++ b/include/linux/platform_data/i2c-mux-regmap.h
+@@ -0,0 +1,37 @@
++/* SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0 */
++/*
++ * Regmap i2c mux driver
++ *
++ * Copyright (C) 2026 Nvidia Technologies Ltd.
++ */
++
++#ifndef __LINUX_PLATFORM_DATA_I2C_MUX_REGMAP_H
++#define __LINUX_PLATFORM_DATA_I2C_MUX_REGMAP_H
++
++/**
++ * struct i2c_mux_regmap_platform_data - Platform-dependent data for i2c-mux-regmap
++ * @regmap: register map of parent device;
++ * @parent: Parent I2C bus adapter number
++ * @chan_ids: channels array
++ * @num_adaps: number of adapters
++ * @sel_reg_addr: mux select register offset in CPLD/FPGA space
++ * @handle: handle to be passed by callback
++ * @completion_notify: callback invoked after all child adapters are
++ *	created. May also be invoked once with @adapters set to NULL if
++ *	probe fails after parent adapter acquisition, so waiters can
++ *	unblock.
++ *	The adapters array is owned by mux core, remains valid until mux
++ *	removal, and contains @num_adaps entries.
++ */
++struct i2c_mux_regmap_platform_data {
++	struct regmap *regmap;
++	int parent;
++	const unsigned int *chan_ids;
++	int num_adaps;
++	int sel_reg_addr;
++	void *handle;
++	int (*completion_notify)(void *handle, struct i2c_adapter *parent,
++				 struct i2c_adapter *adapters[]);
++};
++
++#endif	/* __LINUX_PLATFORM_DATA_I2C_MUX_REGMAP_H */
+-- 
+2.34.1
 
