@@ -1,152 +1,195 @@
-Received: from mta-65-133.flowmailer.net (mta-65-133.flowmailer.net [185.136.65.133])
+Received: from GVXPR05CU001.outbound.protection.outlook.com (mail-swedencentralazon11013010.outbound.protection.outlook.com [52.101.83.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3482F233954
-	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 10:30:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.136.65.133
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779186622; cv=none; b=iYl24obbJBepLY4mKXSmUnQv1NrwE2wVscpcbMOkHxQxL2pY53WUvQpDj4I/eEwo7zzSr1ZauNhAdZPIwpF0iXgDN6u/hVlz0901jMNNs1pnkThyxAyj2OZ4Drlp/0giZUw1/8+kxWxHOA/mGZh0qb79UTffkqWkA1Rui6mpA94=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779186622; c=relaxed/simple;
-	bh=FMylFNF2LBIsDQTt92IHLCTEBM4Uc4LrYwy7HvJjx8M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cqZG83RNVUghJTCbT5aB1yFpSgo+hPvnXuYbk1fd2VlmUPR+GIbXwu0dkDzxp24B/Gcd7zIAz5TscWG3BzovT5lgBSLy39XiUIuqdiC+yHLdN/jL6Dzzus8kikWuGs8s6GxctkTt6saXJwR25ZIRtNlWQq2Vi0yj1X7oYOU3zsg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens-energy.com; spf=pass smtp.mailfrom=errorhandling.siemens-energy.com; dkim=pass (1024-bit key) header.d=flowmailer.net header.i=@flowmailer.net header.b=EZaazZKd; dkim=pass (2048-bit key) header.d=siemens-energy.com header.i=schuster.simon@siemens-energy.com header.b=Te2jAfZD; arc=none smtp.client-ip=185.136.65.133
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens-energy.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=errorhandling.siemens-energy.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF9A6352033;
+	Tue, 19 May 2026 10:36:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.83.10
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779186979; cv=fail; b=UvU9Eri3yLRugOakXEvtNPhOjGd10/i1GbC2RcYYPdvl7LtjDwSI6gci00k8rnfS6AR+JQKS3e29egERNTqNc5YxA4gpIqfNieGLPsRMZWH9kAdbNB4AbUf1YZhdCk3WrEC+5qHDqU97sCVrAlQyw23jsXTdGAF7Vo/kgRnxdxs=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779186979; c=relaxed/simple;
+	bh=Mw6ct51/FBjFeRJsOv+cNNBU9PYrzmG+GVW/GKYtmQY=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=LOc+5ydIGCyObPhTdBgXdQvINm2oLqmHJk/bxR8xH5uS0X5Y5k556ReZHRmYPBrhOCXy77jsPW/zupG/FKOD5W1c/0lp9xYUJKC0UO4Pgaai2hp6AbN2+MuZfZIVmbHQQmI6TuCj0bh2cl8qXbNZ10ANnaGKw4XfMO5Nnp53gtg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=xS/ryIf2; arc=fail smtp.client-ip=52.101.83.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=flowmailer.net header.i=@flowmailer.net header.b="EZaazZKd";
-	dkim=pass (2048-bit key) header.d=siemens-energy.com header.i=schuster.simon@siemens-energy.com header.b="Te2jAfZD"
-Received: by mta-65-133.flowmailer.net with ESMTPSA id 202605191030157a6dd3a4a70019fd54
-        for <linux-i2c@vger.kernel.org>;
-        Tue, 19 May 2026 12:30:15 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=s1;
- d=flowmailer.net;
- h=from:from:sender:to:to:cc:cc:subject:subject:content-type:content-type:content-transfer-encoding:References:In-Reply-To:Date:Message-ID:MIME-Version;
- bh=VQcumpK/VH7AMVe3D9QfBdm875bqYNSA1S/WhQcMd50=;
- b=EZaazZKd3ZONXRq4GpMzuNQLKWTjDM3BCDcJN1Zro5Jf4shP6ldQEZRd/JpK1AZ4rlK0YF
- /Aa7cioXIloqt5aLEMZp2zhOmX1/9l/6y1VhiFuSN27YZpJ0WrZoxkmuTSB8KOR9mJccLgIF
- U5YZLq88tEC65edr76mfk0J41cOEg=;
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm3;
- d=siemens-energy.com; i=schuster.simon@siemens-energy.com;
- h=from:from:sender:to:to:cc:cc:subject:subject:content-type:content-type:content-transfer-encoding:References:In-Reply-To:Date:Message-ID:MIME-Version;
- bh=VQcumpK/VH7AMVe3D9QfBdm875bqYNSA1S/WhQcMd50=;
- b=Te2jAfZD7hDN23NQ3+54hePl7vopCgSM3JMxLh/fm7xcDVL3oowG/1GukwfDalvkw/93pk
- r1edcvtKHS8aMq6NRNiOadutVoT+ObgjmyLqPfqBF0IzKI4s/3l4Ljo3Ns0e8129/XbiB/f0
- eILgqZumYF4wXN2RrKqjT6iJT48jJyha8qiB1Ms2c7YCYUsoOaUZYeqchP96MjjkD2jP9Tnp
- Bup5ZCH2E2PIWkx0GqjYc7NY1+ofQc4JMbJbK42rmOgM8diRAjnGGhXNzlSI65tykwA8DWj2
- tjMUFpTA0awNupV3gXQUmo6aF83iBjTdaCqUN4ZyrwUBouDMkjB7zheA==;
-Date: Tue, 19 May 2026 12:30:12 +0200
-From: Simon Schuster <schuster.simon@siemens-energy.com>
-To: Ethan Nelson-Moore <enelsonmoore@gmail.com>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Arnd Bergmann <arnd@arndb.de>,
- Dinh Nguyen <dinguyen@kernel.org>, linux-doc@vger.kernel.org,
- devicetree@vger.kernel.org, workflows@vger.kernel.org, Linux-Arch
- <linux-arch@vger.kernel.org>, dmaengine@vger.kernel.org,
- linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org, Netdev
- <netdev@vger.kernel.org>, linux-pci@vger.kernel.org,
- linux-pwm@vger.kernel.org, linux-hardening@vger.kernel.org,
- linux-kbuild@vger.kernel.org, "linux-csky@vger.kernel.org"
- <linux-csky@vger.kernel.org>, Jonathan Corbet <corbet@lwn.net>, Shuah Khan
- <skhan@linuxfoundation.org>, Rob Herring <robh@kernel.org>, Krzysztof
- Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Daniel
- Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
- Alex Shi <alexs@kernel.org>, Yanteng Si <si.yanteng@linux.dev>, Dongliang
- Mu <dzm91@hust.edu.cn>, Hu Haowen <2023002089@link.tyut.edu.cn>, Kees Cook
- <kees@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Will Deacon
- <will@kernel.org>, "Aneesh Kumar K.V (Arm)" <aneesh.kumar@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>, Nicholas Piggin
- <npiggin@gmail.com>, Vinod Koul <vkoul@kernel.org>, Frank Li
- <Frank.Li@kernel.org>, Dave Penkler <dpenkler@gmail.com>, Andi Shyti
- <andi.shyti@kernel.org>, Jonathan Cameron <jic23@kernel.org>, David Lechner
- <dlechner@baylibre.com>, =?ISO-8859-1?Q?Nuno_S=E1?= <nuno.sa@analog.com>,
- Andy Shevchenko <andy@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>,
- "David S . Miller" <davem@davemloft.net>, Eric Dumazet
- <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
- <pabeni@redhat.com>, Lorenzo Pieralisi <lpieralisi@kernel.org>, Krzysztof
- WilczyDski <kwilczynski@kernel.org>, Andreas Oetken
- <andreas.oetken@siemens-energy.com>
-Subject: Re: [PATCH] nios2: remove the architecture
-Message-ID: <20260519103012.blot4bssgiqfer6p@dev-vm-schuster>
-References: <20260518042833.272221-1-enelsonmoore@gmail.com>
- <d40b1e80-37fc-4c88-9d7f-dae6458efe6c@app.fastmail.com>
- <20260518105735.GW3126523@noisy.programming.kicks-ass.net>
- <20260518172444.zyd47mcagrcwu7wt@dev-vm-schuster>
- <CADkSEUjhq6HSdg4ignzbuJiN5uXATsTdxFbRJ3BMxs5=WUWLDg@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="xS/ryIf2"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=r2mG5ecBwlb0pmDNtf7hFrUwmn/pPmAfIt0pA/lVBNi5e1aoBJ2EoRwK2k1qLiuJh6+gNixsu88lDQ4BWSDe/sgDHR3zvVjRqiInRPCA4rK5ByS18EWMuuzF7C+1mASK2wPLHCC/7VqyDx5yn3ufmN5tHufWn0Q0T+XG78PmwG7mCMi8pXmZETZ80fcHtuP/zQIPJl4vpy36UN7g6+2+muIA6SkinyR0mi3wrYqeaJ049WBb1twpF8xaEtZOcDmaVY+/2Vx5T5ZCqqbV0HtmnswsN2C99H0/srWlhOLD8Nc2MIKtzv+y7K1+mB5AHFqs1fhM429KOlCaxPQIfpiZhw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=tF9Q1PEQPHzIP5zIlZRB1mj7+T4VfHMs95W00a6V1ZM=;
+ b=QVQOSOJaKL6KbxcGUP0hnl10U5fy/VseGxs8kEyyEUmG7/kbsIf/mwDz1fpsTlioCNz6uhRrS4AfVev7kOQljSYwLKGQg7E2miysg0dCr9OCASH8yUq+6SYlaDkhMnJ4AR/uYVoqhiQ246o+CASrVKUhsbEUOreL3+3T1lemNejrE0ENmO3oqJQrxpGiyvpEHltR0/StigwBEqA0Dd1bYXsNg3wZPhijkWE08wpCkOiT4byC48KqbC/c8hvembxLE9yeLlEoxOKMDdjL4TqAMI3Z+sUJcMyqQ2l1LzRbLUrntFqcONCXRQIUIbY5KLZAQpEoyDsTkDONUj0QoBozeQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector1-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=tF9Q1PEQPHzIP5zIlZRB1mj7+T4VfHMs95W00a6V1ZM=;
+ b=xS/ryIf28m92SI6+fZy0CNtaNdfv4MYAYdM//UIM7zwfIHYwLYIDs19jrmgBjHux8APzRslLRB/6tWJQc3MJbaVWEBqILY+Y5fSoH8vQKszXeb3ML33XDatO2JOD40n9deQLWpNfaH4cDqPkzrut4wiH4mc8dzoTGOZDbT9orXlKwgSRulpkfRF84iv0bThqz9CDJnpLcjUhtxTIeavorQWXFRBaNnFtvxS9XJJliOT+VVGswrnQ+Oje/ds+y8rAqOGcQzUMQuiaMqv/A3PWJtz8AVVX3bT1VZfief6IWHGDhNkcpdlQj8sY3d6yTC+9dpkQ88JuR3aMcPdfXksp8A==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from AM0PR04MB6802.eurprd04.prod.outlook.com (2603:10a6:208:184::17)
+ by DBBPR04MB7946.eurprd04.prod.outlook.com (2603:10a6:10:1ec::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.25.23; Tue, 19 May
+ 2026 10:36:11 +0000
+Received: from AM0PR04MB6802.eurprd04.prod.outlook.com
+ ([fe80::dc36:17b6:e5b1:fa51]) by AM0PR04MB6802.eurprd04.prod.outlook.com
+ ([fe80::dc36:17b6:e5b1:fa51%4]) with mapi id 15.21.0025.023; Tue, 19 May 2026
+ 10:36:10 +0000
+From: "Carlos Song (OSS)" <carlos.song@oss.nxp.com>
+To: o.rempel@pengutronix.de,
+	kernel@pengutronix.de,
+	andi.shyti@kernel.org,
+	Frank.Li@nxp.com,
+	s.hauer@pengutronix.de,
+	festevam@gmail.com,
+	carlos.song@nxp.com,
+	haibo.chen@nxp.com
+Cc: linux-i2c@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH] i2c: imx: mark I2C adapter when hardware is powered down
+Date: Tue, 19 May 2026 18:38:15 +0800
+Message-ID: <20260519103815.2793953-1-carlos.song@oss.nxp.com>
+X-Mailer: git-send-email 2.43.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: AM8P251CA0021.EURP251.PROD.OUTLOOK.COM
+ (2603:10a6:20b:21b::26) To AM0PR04MB6802.eurprd04.prod.outlook.com
+ (2603:10a6:208:184::17)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CADkSEUjhq6HSdg4ignzbuJiN5uXATsTdxFbRJ3BMxs5=WUWLDg@mail.gmail.com>
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AM0PR04MB6802:EE_|DBBPR04MB7946:EE_
+X-MS-Office365-Filtering-Correlation-Id: 0b9b5fec-de92-4f5a-037d-08deb592715b
+X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|52116014|376014|19092799006|1800799024|366016|56012099003|18002099003|11063799006|38350700014;
+X-Microsoft-Antispam-Message-Info:
+	xmXLCUdwtvZPOPfja9JFgxuItFepnAs+2IDXoKnG9kFdAaIez/h4TKXro6Ei/F7PL/ES5WnWFcyJTByg9CPhVytn0IF4YyVgUWwhsWe4aam532THxTfKm54BBF2lrto+5ZdNRiUiTFnRSHJoLIqlSB+wfgokoj4bCS1O48fJi7MFwpfpD7af3z8fz5G2GCO4xQS2xsk8NVHxZ5JJhYoSBmk3Iv4flgfweyyAymQG57iUkf05YKq03rPdxDSR83shdHSdeqa8nXxKV+pRd+bSBrSihdfSppwjus6/XYVP0aSQNJ6hrhV8cDF4uLJJSjkCcTuTUc7UJPdhnso8X8JTQsLikzGordcRBNuh2uLBXtEb7aobNjdX89nVN0Kv7wBHzNQOw8e4w0z9LpBjtd8ue+xyMHs+8Hi8GNhM+qH0EBkqNh9fmr76djP/EMQTDx6UMUnrxkoUWR2OA31LDa8golSz6YrpdjQrgz+UM+RNbcsQmaurFjJz486zWtLvPNlkUklpBvXZPOtrjrqXVZdboCc/FVJbHX6KHwOXzc+8Xlbr5lk4gcSqGfl91DU8q7Tu3zVhNxQjUk/ygwe4VlrQSjsRxeza0KhHxMzg0OE6scwX8yl2sk20amlaaWeQh9GjWPen2kCi5IIuypx9urUxjjQ/ZHqeSV8ufGElkDW/ujZy9I74Dc3wYAT+abci63HONBf6GPBp9t1DsZ18fWRDDtY5LKJoejlqAFBr+QPWkrWWwSlEfGff4gS0/u59ph5M
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR04MB6802.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(52116014)(376014)(19092799006)(1800799024)(366016)(56012099003)(18002099003)(11063799006)(38350700014);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?dGcSqyU953l4OFlcj0CWXWxD9Jv035450PalfgnC6/e4qiMdwsjOI0aAn92l?=
+ =?us-ascii?Q?/7N79hcBhFMqGgIkjxTdclylNH5zk0ElBvksG8P1NfUTgiJ4uNmSffkF/CPy?=
+ =?us-ascii?Q?YUh8khPwrL6CWHt7CSS8XbRbD3BlLtit+FxLiIDSVDlV28axHjLuZ9K29IoY?=
+ =?us-ascii?Q?rjN1ELd3ho3FAxvRVUF6/iYeYtmhshLGg+KHwYwu0rUkM2g5068+1niKhXcE?=
+ =?us-ascii?Q?yHRLqKjOi6SEMP4aI0kPVmfrwJ2sQ2UboVzWJ6pmsvPbxpnB2NPehkGzS19C?=
+ =?us-ascii?Q?Om21EhGX7McrrD6eH6g2YmjcfSEqRAEXDMLDaE++5zc1MqzdZ11LPvQkAneN?=
+ =?us-ascii?Q?8KGn3hrDwUpqO8tzbgnOaD0YzuqTfyqwWkChXshkmifdUeE+CiMhhyRoUpnd?=
+ =?us-ascii?Q?ZSRXXDcCYmOs+r5pSQUrnSil/l6Fy8SHSJfBvVg8ezlYRjp+nYnng8rdgqix?=
+ =?us-ascii?Q?RNpi31Rh449l2unRkW16lZMaB90XGxyN1uEIit7mq/IILsoely2KiDdO7F+J?=
+ =?us-ascii?Q?d8bdhyDGEV33EVkDH8d4pqXGspN6fItJEMcb+7SR16lFY1KUfKa0AIrTpP9S?=
+ =?us-ascii?Q?bdaJ80HbgRuU/JajuCVDQWoMnvn0OKxxFczTlBWbCvlWu6bOyivUn4U6xUDh?=
+ =?us-ascii?Q?ufS0yaUz+drK+EG4gFrNK75TsU3yWANbS7IkJ4sR43OoLkuKdbOFrqnICVfF?=
+ =?us-ascii?Q?9HQJzmLrK6aZVOFsh0aUSa3V62Drz0goRwMl6beIYjukWPcm+oTq1g1OM60E?=
+ =?us-ascii?Q?RbOX4Lop5Lhb2Eo6Mdvfog7XGsn2VWvvWMztZnlcMMk75+mbjVJxqDlnDX/7?=
+ =?us-ascii?Q?JWQf1t4Hg0n0/ww4K4VZQ7X0gI+L8o7NXky/rc+SXis9uyM/2rJxUk7ISEMC?=
+ =?us-ascii?Q?8++QuFiFcVmVC0e9C4eFR2fLbAR12Wp75HVTPnwbO0yZn0gCAD7uT2kCfrRh?=
+ =?us-ascii?Q?eGLuk59FVJyh9Qk69uPrsHuJL4V6DaB7XnZOs8OlSKAaWocV/RJ2rBySTEwt?=
+ =?us-ascii?Q?83+grMC7q13a4/SjmEYv7O6zZjurrEjkGxqsDygm2ZCAB0PW+1R8GtPtSXyd?=
+ =?us-ascii?Q?XZkF82Akl4EEWPXcCc+tYyZfWgBp8sAhlf2K6vd9j0iGfo4EAMlKnj6Xq04C?=
+ =?us-ascii?Q?HSPl9GogPB+qnNfa/fE6G2zCjmq2DfgcL/HjS6UbtdLkRWsfUAac0c0WU4Pl?=
+ =?us-ascii?Q?4mzihJcCwsTAxqyuv9x1SjldWwKGqS71f5IBJfKKcn3yyEdqdrsebFKqehKu?=
+ =?us-ascii?Q?py5ix7vSrFLpHbquriNINEgThzmKWe76N4gWHyeJihrfKoexPbMsEb26+QM7?=
+ =?us-ascii?Q?o1AoJEDb6YIl/NHTuuJufRzFBjk84UjN8ah29IOllO9cA3rH5H1RYDSXBlE1?=
+ =?us-ascii?Q?QjCRsGn2Omz4wpVYKfY6EIN8GCjSeej1Qw9svxwmnIctrl6+M3crGdgIiwLp?=
+ =?us-ascii?Q?0N4efOlBdNFZ0aTxx0i8WNCxB4eT1pH9T2ePpPdeoNicRtPrZSfUTBah3ikA?=
+ =?us-ascii?Q?fwFtRCg20z48GF8lS626jo2DzOFYUsJjKVYoKNwSom4BijUPt9pyHbarYksS?=
+ =?us-ascii?Q?LE6upN4yVwuGt9Hh9ueHJHuns2DA8huEOIMeHDEstqGJWcV1/YEIMXDfhOVW?=
+ =?us-ascii?Q?UPC6HG1TGomHv4ZATsGFYHFj8g+1q5VoW0dJpuJrF5QlfwQ5x3xxIh6Su84Y?=
+ =?us-ascii?Q?7vg/2HvXyiK4qe8haef/RkBfralmCT+o8bUK7r7GiV8NJESo7jVMoVgdgCk7?=
+ =?us-ascii?Q?f3AUUEm/Tw=3D=3D?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0b9b5fec-de92-4f5a-037d-08deb592715b
+X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB6802.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 May 2026 10:36:10.9154
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: Gmp8p5tBjpGi8LMQYB0oGQskf87Xb8Ip/EWfhS9EMtmGAuBY0jxHsD7muQ/QP8zvrBMsGTN/lCEnSF1qSySb+A==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DBBPR04MB7946
 
-Hi Ethan, hi Wolfram,
+From: Carlos Song <carlos.song@nxp.com>
 
-Thank you for your thoughtful responses.
+Mark the I2C adapter as suspended during system suspend to block further
+transfers, and resume it on system resume. This prevents potential hangs
+when the hardware is powered down but clients still attempt I2C transfers.
 
-On Mon, May 18, 2026 at 05:13:58PM -0700, Ethan Nelson-Moore wrote:
-> Your reasoning makes complete sense. However, there is an alternative
-> to maintaining the architecture in mainline.
-> 
-> The Civil Infrastructure Platform project maintains super-LTS kernels
-> (and a set of base Debian packages) for 10 years. They are intended to
-> be used for exactly these kinds of devices.
-> See here: https://wiki.linuxfoundation.org/civilinfrastructureplatform/start#kernel_maintainership
-> and here: https://cip-project.org/about/linux-kernel-core-packages
-> 
-> CIP will maintain kernel 6.12 until 2035. Is this long enough for your
-> lifecycle? What kernel are you currently using? If it's newer than
-> 6.12, we can easily wait until the next CIP SLTS release to remove
-> Nios II support to avoid a downgrade.
+Fixes: 358025ac091e ("i2c: imx: make controller available until system suspend_noirq() and from resume_noirq()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Carlos Song <carlos.song@nxp.com>
+---
+ drivers/i2c/busses/i2c-imx.c | 32 ++++++++++++++++++++++++++++++--
+ 1 file changed, 30 insertions(+), 2 deletions(-)
 
-This depends. For released/maintained firmware revisions we already
-track CIP SLTS versions (candidates) to be prepared, the majority of which
-is currently still running 6.1.x with 6.12.x up-and-coming.
-But for the reasons outlined by you regarding architectural and feature
-support in CIP SLTS, we do not, however, use the extended support duration
-SLTS releases in production, and instead upgrade with the kernel.org LTS
-branch release schedule and track these internally alongside mainline
-to prevent major obstacles during version jumps.
-2035 is still a rather tight timeframe for our typical support/phase-out
-period (we would hope to get close to 2040 with the SLTS extensions),
-which is also the reason for our targeted 'lifetime extension' for the
-nios2 architecture for approximately 5 years, or more precisely ~2-3
-SLTS kernels assuming the usual cadence of 2 years between SLTS versions
-(+ some safety margin).
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index a208fefd3c3b..3b19d4a424ca 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1913,6 +1913,34 @@ static int i2c_imx_runtime_resume(struct device *dev)
+ 	return ret;
+ }
+ 
++static int __maybe_unused i2c_imx_suspend_noirq(struct device *dev)
++{
++	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
++	int ret;
++
++	ret = pm_runtime_force_suspend(dev);
++	if (ret)
++		return ret;
++
++	i2c_mark_adapter_suspended(&i2c_imx->adapter);
++
++	return 0;
++}
++
++static int __maybe_unused i2c_imx_resume_noirq(struct device *dev)
++{
++	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
++	int ret;
++
++	ret = pm_runtime_force_resume(dev);
++	if (ret)
++		return ret;
++
++	i2c_mark_adapter_resumed(&i2c_imx->adapter);
++
++	return 0;
++}
++
+ static int i2c_imx_suspend(struct device *dev)
+ {
+ 	/*
+@@ -1946,8 +1974,8 @@ static int i2c_imx_resume(struct device *dev)
+ }
+ 
+ static const struct dev_pm_ops i2c_imx_pm_ops = {
+-	NOIRQ_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
+-				  pm_runtime_force_resume)
++	NOIRQ_SYSTEM_SLEEP_PM_OPS(i2c_imx_suspend_noirq,
++				  i2c_imx_resume_noirq)
+ 	SYSTEM_SLEEP_PM_OPS(i2c_imx_suspend, i2c_imx_resume)
+ 	RUNTIME_PM_OPS(i2c_imx_runtime_suspend, i2c_imx_runtime_resume, NULL)
+ };
+-- 
+2.43.0
 
-> Also, CIP focuses on architectures used by CIP members - currently I
-> think they are x86 (32 and 64-bit), ARM (32 and 64-bit) and RISC-V.
-> Since Siemens is already a CIP member, you can simply ask them to add
-> Nios II to the list, and you can assist them with testing and directly
-> submit patches to them once the standard 6.12 LTS period ends.
-
-We have already been in contact with the CIP team (even though the
-contact has unfortunately lapsed a bit, mostly our fault), but adding an
-additional architecture seemed to be a more substantial effort.
-N.B.: Due to past circumstances, we are a completely distinct business
-entity from Siemens AG that merely shares the trademark and a common
-history; but of course this should not hinder us from getting directly
-involved in CIP (quite the opposite!). But this also requires some setup
-time.
-
-On Mon, May 18, 2026 at 10:46:55PM +0200, Wolfram Sang wrote:
-> > If desired, we also would be happy to intensify our support regarding
-> > reviews or testing to share the maintnance burden if it helps to keep
-> > nios2 in mainline a bit longer.
-> 
-> ... but given this, you might want to get added in MAINTAINERS as
-> reviewer (or even maintainer) for nios2? Besides that your efforts are
-> already worth it in my book, it would also ensure you get CCed on
-> patches like this. Then, you are not depending on people like Arnd
-> putting you in the loop manually.
-
-Sure, I'd be glad to do so, but so far I refrained from it as I was a bit
-unsure about the netiquette (can I simply do so by self-proclamation? At
-least the git history seems to suggest so...).
-
-Best regards,
-Simon
