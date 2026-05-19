@@ -1,70 +1,70 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BBB22F4A18
-	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 05:11:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E7492475E3
+	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 05:24:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779167463; cv=none; b=h7lHN4HT3Qwa29tvVw0tnq55pVaQP73y4DT5xoJiwPljSgXhbvfhY/3CQytz9v87yGVeJBG09L35X7p+PWOmQPOd6YvnTZwDg1U89NA1CPeOmUxkXRPPEwtNC44r4rYeH7JTPR+j4WvDguL0ZJWdECw2c6g6PHmTOsIBFY1CdqY=
+	t=1779168275; cv=none; b=JasDK1NxtHTmfepZFpn2Vp8tkL9N9sdxxekNp8CW5V4E0bUJ9XfvcxVpce3x17AUN4ZLATVh9gHaG4pbvkcC7+haa0A7uxOJWA1+fiQT3vScCZbGBcGYg3K1dm8/WFrOd3e1zWL3z1/qfS5vRVYOxCPH940VvLx0IQI+U6yFDF8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779167463; c=relaxed/simple;
+	s=arc-20240116; t=1779168275; c=relaxed/simple;
 	bh=lhtTz6r9h3gam08PpROtwyqAJ6lm3HQYUI3xZrXDqkg=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UWMtbw3iYEPkwsOMcrYFxYNtaBfJboxKAMVqD90HpuylJmj+b5SoLmkNnweBpDiyOBAPmEDdBzc+x61iaH1BvYc+A9Zgp9MckVzx4Bi+l3nN5Gk7bsRnTyvSgoJYc/A2B6kII/fjEVrlKznUpOKkMjjpSHKHis+P6a8EGiMsO+g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=R/ItlpCq; arc=none smtp.client-ip=209.85.222.177
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FmqqlDWflh3FCT1SPfNtgb0gssn8WlsgdCW3+OjCP6cxCOUmIdmObjOsxxm7D3/K48mEsHj5PsK3Iqk9iwrhp2PfTR8L8cDKcYFWML85IWY7TTrmMZjshPtUiTXyBwbNNnP4Dbu5/tHzbl4qoznAUz25RJ06J5oCGFHIpeybe7M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BuMpEM/J; arc=none smtp.client-ip=209.85.160.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="R/ItlpCq"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-911dfc86903so376172785a.3
-        for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 22:11:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BuMpEM/J"
+Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-50d6ab4476eso36932571cf.2
+        for <linux-i2c@vger.kernel.org>; Mon, 18 May 2026 22:24:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779167461; x=1779772261; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1779168272; x=1779773072; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
         bh=HlSbwvOjgwkLSIAC4sw+jiTYmv44YqHx2Q9LfFfV2q4=;
-        b=R/ItlpCq4oLyEFoxZdE23eqeQvJPpHM19VZ9Ty1WzV72lSKqPS//wMPtu97L+CnRdU
-         e/iRj4/N4K2pAmZiliMU83AHOohTJsxYwRlvdfiV0Mlh5T17qrXjNp5tNG5VbCmrn7sY
-         mSl387ENfGU6bHcY5m/JvpXylBA31RTQGNY23f/C9vXuelOuESUlZK0uyUHAHFlwHw2H
-         UT82Yn1de0Af/VNSMauIjuLmfD6sPwS9lHHeXYCCp1+A4ZVyowpblsrLb9zofHGfYnX4
-         YbPP+de8KxJE7QNcd/fkxjqNDZOQqiDZYGGMYbHeCe6pVXMHU0fVyXXd7aHsTTU7mQs5
-         mwpw==
+        b=BuMpEM/Ji2NNQGRz9lcBiY5cu2OvBHGUvoaTdvSDLh2jbEgmPq5rfW3GKrtFVirNIm
+         HgPJ0QJfKDj7E3WA1KwXSGFNrC1kXnXUB55rfhxDVLkWalXbGZ58l9tenghUPz9tsJ1M
+         Fhhsn1Bp1B+UsxotnVevlJiqAsp7ynQLlo90VD/P7DxQr+j1LjiBDW48AVXwjd90WimX
+         PhB89HlGv+GcDwUPXadODJMpeV+WMSTTIyVMXqU6HZPGD7BOilHc05S8nAxvqP/ZWGK4
+         d4zam+PCP90O8BMmzdWcTWHxu1t2dlDj4g+vPdz8xCUutLT0YCLW4DBMidsYU+2HL1XI
+         jRew==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779167461; x=1779772261;
+        d=1e100.net; s=20251104; t=1779168272; x=1779773072;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
         bh=HlSbwvOjgwkLSIAC4sw+jiTYmv44YqHx2Q9LfFfV2q4=;
-        b=QZIiQWMu4kC1Yd5WwISvLakOf05+LrkTjxthFQzR4+QWaS+bhKeIYQe1P/ILH8ngEW
-         aB7YBDH5XiGstDZ4F0/Sqc8buMAU4Jo9FKhC5vp4lLdVbSF2s1aDCqradJtIKDLqPHFU
-         n/Ao5ez/RFNmZxM7HmcimHW3zeEUHrmAYJODAdtLQCLPYxZmNqHdT8i0XmSpS1s91ZuN
-         s23GBOInlMb+Y4EdXt5qo7iEeH7gD/3xOFxpbPyddVImty1lvDvOZe9mzcJzgoJPGuse
-         dLgw9bNd7i4TCFw4SaB1HNZ/D/je5mhrpeNQllmGqAQviqgjfCloicVSYtEdj/MJsAl+
-         Zlkw==
-X-Gm-Message-State: AOJu0YyzhfBhTiEJakypSYe/ec36Sp8lLdVcbreyJbddjOEwNsI1Zzso
-	F7LzLuhLDqK3G6/KTLHIdIL9hf4/TF9WguDlx+Gj1m25V6hIxVe9X1utlIlF3yoJ
-X-Gm-Gg: Acq92OHXMlFLIJEMgZ7ETYc9GMrz78Bi4zQ64tZBLLxRSE69nFhjRJHo5Pt5h5hABmq
-	lC285sQ/tqFJRVmzv6i/s5BacWlL1+AgL4TKTUfYUZTNiWA2ixpedFcBG4AoUEDnkSyl+m9tXIZ
-	MPoDZGFCL7UkKgRtDypX8YR28lJtc5DUIWYwa++0COlQ/QsYHWjmmxiNsKFE+A++Xrq76O6/mIu
-	ISbyH2b3dIIMxkGm9iyxRT1B3t0Ssjri0u19MxWdbgxUNxKCl5+q1qunJprlzaBCeDwOrbP/OX7
-	wGKO2pvY2R+qFEvZIBxELx3his7uGqJywCLl8uadakF5DW2FAyFQdikhhf3ImYDXT2yla44XeyZ
-	dYsnu6IFHsoahghh2JUzJoFHTFYMC/rZCowq6Tp2tmKSss/uciSC7IZiPABDlMKyjiMc3GXb5Ro
-	aOem4hYIk0uQgE9A1LYm2cDl3EEhyi9AqTis5mwAEcrsSUw2NSZwhnOdmOmg==
-X-Received: by 2002:a05:620a:4713:b0:910:87f4:9a05 with SMTP id af79cd13be357-911cda50b31mr2665504885a.1.1779167461141;
-        Mon, 18 May 2026 22:11:01 -0700 (PDT)
+        b=fc5w/vc5lf7nCDG1dg4Dp3aZvy84OrOeyVvMHm1AEHjimvKBsjJgUJfoRi4W3ddvsp
+         OtPtXHwW6iPrwTZ5QOruViTOWprdFkpQiGFMCvnvcbLi8AAMAh0ZoIY+yO6w+H0CWZUc
+         lOULERn3JXueS7o/pN6xpmyySiw2VA7ZHEJzkjj/R441o9udCJjjZbX3wrdDjZnm6KeW
+         jWWV095AIX/kpknmpr+sxg0GhRxKysNclocRYpYcp2UBlsrmK7929ErqlvlY9zAPiw3B
+         le7z+wKoUApS+mwc1wZW5VAvP1zcTNGSHRhjp65rZrip5c15pZBBhC72N/kzxx86IcM2
+         LUzQ==
+X-Gm-Message-State: AOJu0YxzwG1WjiOVWyFyhVjgReus/r1bRdPiSKqzMM06WtYwzPaU2M4t
+	RS3/lo5xc9BwxIkoDTFJad4csvC7jDlaGrj1tu+EIaiNAsgaxoK5yr3Jy30v71yk
+X-Gm-Gg: Acq92OHZm0L5o6VvY6Fb1k6n/hZu5EUzcd04/W8kLB6J3pUYQxjP3ZF9mQRCdOpor6B
+	2nMPaKbiayxT37jvALVhqUJdIIH4QkMzE1EHopwvCDvfUAKhqhYWIQnzPnGZsi+NgAF5jY+yMWf
+	IEQixD2zbKf9qi3b1+AINRYbsPob93pOfBrvscL0FrcfW5pFG4yiwx6CILMbWxPdALMxyMNfkuE
+	eOUyyAvyRFGCbon6D9WoxIINJ9hEDepy7yEyYTT8nXlfd/p5DRnI8ho8rkQ4RJzLMQovzySbrpi
+	WpH/cgTxthCVWXYb/XeK/EQoL7dXPRYi6QSSWktDNE3Wh8D/Oz80CsQ2+N9nERY/yKcelGdZc6h
+	Iq8dmaeA5x85wZowBE9Sd9w6TURtbX8gFybUm9kCkdC9pJPaY1XQhEoViH9KvmwFO7v08WgjbZL
+	CraIAYFV+B7eZlv2WsjAHPlnsq1Qf5vf3T42kmXXTg99Yg1w9Zruo6iaDURA==
+X-Received: by 2002:ac8:588a:0:b0:50e:defb:77d9 with SMTP id d75a77b69052e-5165a22032fmr243600281cf.46.1779168272348;
+        Mon, 18 May 2026 22:24:32 -0700 (PDT)
 Received: from xps (ool-45718bcd.dyn.optonline.net. [69.113.139.205])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-910ba463814sm1708612785a.5.2026.05.18.22.11.00
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ca36086ac6sm81286726d6.7.2026.05.18.22.24.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 18 May 2026 22:11:00 -0700 (PDT)
+        Mon, 18 May 2026 22:24:31 -0700 (PDT)
 From: Jacob Bazata <jacobbazata@gmail.com>
 To: wsa+renesas@sang-engineering.com,
 	westeri@kernel.org
 Cc: linux-i2c@vger.kernel.org,
 	linux-acpi@vger.kernel.org,
-	inux-kernel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
 	Jacob Bazata <jacobbazata@gmail.com>
 Subject: [PATCH] i2c: acpi: Add VEN_04F3 to i2c_acpi_force_100khz_device_ids
-Date: Tue, 19 May 2026 01:10:31 -0400
-Message-ID: <20260519051031.6660-1-jacobbazata@gmail.com>
+Date: Tue, 19 May 2026 01:24:24 -0400
+Message-ID: <20260519052424.7591-1-jacobbazata@gmail.com>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
