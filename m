@@ -1,121 +1,104 @@
-Received: from mail-oa1-f49.google.com (mail-oa1-f49.google.com [209.85.160.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9478540757A
-	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 09:49:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F69B480DEC;
+	Tue, 19 May 2026 10:05:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779184184; cv=none; b=aVQRVE0XHXXPiIBc1XqUGfdSscwOksFMW2u1pWdTn0emRdofBtzmWiB+LJO29H1o/z2BAlv/YKhSJDXhjAPOinAcWW0BVBiY66r1D+l6ALZxRlNmzXU0V9EkmKfjhb3yN9LZlc3XDXE6DlcpWcOqgpwUXIiKHDRQpWDCYyZlej8=
+	t=1779185134; cv=none; b=g9i5bsxzcAEOKsslCbV0TCm+ARMCxm/lxVnafOP/QjJD9QIXSeQO78x6URRM2BEBUuSQQu7tY2oGmppLrpK9u/xIMdfEITKLxQAI9l9lpOaZOJOXeH0wY/LOWwaR+qZh9lMr27Xwzfn66fW21ib70TfAjhunSlD+olgvmDxqatA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779184184; c=relaxed/simple;
-	bh=VV0WQeCgbPqBTi7yab+uEYQeq6u9LFtTUX4clbsM2Vw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=mfC44cB8rlc1ev02/qJba3UlMTOtTUqj2hwimtxo7qIE70jqQyRk1aoO6La0n+lC2O6agtH7l/M8sm7XlrgWUzQnnOnztxEkKnw8fwwOaHM1BwwUQH9u3jIGFwsD4EEffnmbOovM2VNSk/hsIB3u59tsQBq/R6o8Be0yH+4+cQM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.160.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-oa1-f49.google.com with SMTP id 586e51a60fabf-4042905015cso2865446fac.0
-        for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 02:49:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779184181; x=1779788981;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=T+2SZGl9spcuw3ZVraVsNeWL62/l5e6HnqNdDh6fCso=;
-        b=HXxMJSMJ5F90Q1cLu5UUNV8tm5v6DblRaKRcbknzSihXOhegLIeN9YLflGh4cpdqgV
-         YA3/zA315OJitYZpeuxFNoT8WlXa+f6eohOtvxa2rqVQNqyTF0l+4C/G3puR0iSCLolC
-         9Y4CFgvAgaVsFNDoIZcENYrceBpmqGr8Vo6khNYSI7J/3Kk9y2oMGrycptEOS+h394YN
-         KOm9qSPl6RSny7AGdDnIwSgIm6SiJOj3oRg0VL5H8BLHpMftLNGPENIpg/UXHKICDLRt
-         54DQRSiwLFDfs8Fa/S1Zd1n+c/o3UYF3zvRv1J5hXanL3/6+S1bh4lpfn7iS85DAHEqO
-         crHg==
-X-Forwarded-Encrypted: i=1; AFNElJ+y7KIave4Dj5Sr/Kemj8BozoNfY5EBhBdHwuRrGbj9Xqj19ROSpwBRRCSPAVLQgktWfsoRjngIXfA=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yyi0rnyhtCMIw2G4S1vyV0+VczGrG0nzk9Gw33uDCZkhUDnVHwT
-	ZVz/DoE/OJ79Ri7gO3zMQV5Ozf7onX5N9sYMJgxNH7W8y7t3mMNUqIdD4rpqpgbR
-X-Gm-Gg: Acq92OFC4rOQqfbhbt9/vn3yHc4MXLpEFRDy9r0YLhXP/epoBOAk+oT+v0yqCZEbrdp
-	SSasAFdj/x3rGt/88PUrijs9hyGNngHloZojQR/8JZs7rBtJ26LXGFLinBPnPKxdRftQhC/ug8o
-	7fO6gGs9ZI07DwyNYdiMJDziadWW3PtUweSC4cyIttlG1qaNZKvY/BU9fMjuTaDcMJmkXuMKZoS
-	oCc6Eee6UWuz2lKKZ9rvKB8Mfdg6kN3r/wq67N0hWKCiMerqY2uhSY5m8bbvM/wmXsJBQHK3guO
-	8xkjrBpAIrTO8rMuoLpcGAJrcjkRs7CIUJ29GUkzLRf33We9BUnCzXVJk8eSxNgsm00NNgHLJ1U
-	hfwbjVNjqxl5oD9i5gm8XrkmjWQadqkIdZTMsp/OM7rhLjLSBckY4RlhQzf2Ks/mTmecpYKid16
-	giW/RUkax5f2ouyRiW2CFC01N2Ktqsm9wUFQ6oDONRzu9SCnbDNQwXrDQdvvxXVDrXSq14Dpw=
-X-Received: by 2002:a05:6871:2ee0:b0:417:3421:13ff with SMTP id 586e51a60fabf-43a2dd89218mr12493478fac.29.1779184181306;
-        Tue, 19 May 2026 02:49:41 -0700 (PDT)
-Received: from mail-oo1-f44.google.com (mail-oo1-f44.google.com. [209.85.161.44])
-        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-43a956f4957sm6950624fac.12.2026.05.19.02.49.40
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 19 May 2026 02:49:40 -0700 (PDT)
-Received: by mail-oo1-f44.google.com with SMTP id 006d021491bc7-6841e6a5e51so1567871eaf.3
-        for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 02:49:40 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ8TX0FgbG4x7SM40jk9pmgHlljkxnj9kKc19xAu8iArmlbkb+HsUpvIiVFbhuTuswIo2SrDtb+65WQ=@vger.kernel.org
-X-Received: by 2002:a05:6102:511f:b0:634:d42d:15e2 with SMTP id
- ada2fe7eead31-63a403ac9a2mr7077474137.26.1779183821499; Tue, 19 May 2026
- 02:43:41 -0700 (PDT)
+	s=arc-20240116; t=1779185134; c=relaxed/simple;
+	bh=JfHxkiYYYsRZk/sQ8UDVFTOv9W9E8MI4MSUnUR+6nQE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ZgbHQ5TBP3IRDZogp30moj4DmVhkkrMgoCM39GezmWaKZ580JdTCx9rzN1z4PLiuqHYHKQRv077ApI1Bm2BayJrQWjawsaGhPJKkPAvF67cLYAskM8fxfTjiJ9I3wUQE+C8cKRz/jb0kd0/fnSKcWMp73OsWfHqF6xrHcozvveg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=UfTaMXs3; arc=none smtp.client-ip=198.175.65.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="UfTaMXs3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1779185133; x=1810721133;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=JfHxkiYYYsRZk/sQ8UDVFTOv9W9E8MI4MSUnUR+6nQE=;
+  b=UfTaMXs3TX6/uRvMYT2WO+5gUY48f2zlnsT5/AXvN9WgsknIPKRHUTwY
+   XZClMemRV++Kg7A6IEn+uxVZzjlRTGzvVmqs9AAhlu1Xsuip46uSSqsDH
+   IkmjMWcMtLSVh9k8accyU3r4OeXKod55WrznkdocddUqKVuSuMq0mvAnP
+   omh0/L76KcrhTFmVkVAFhgrSBW1RXJ9eX4bSr073Bl32c2Fj86OCD+MDI
+   IWQdj61EhINXYGkUD7KS5S7r4/PEye5jUFw3k8OlmHUY+Jmp17/I2U6BL
+   StmMsL2S2lt5XeYXKqNb0uGbfDYyUDdc6hOrC2rOgL9B3cmvNhs3e9W1+
+   Q==;
+X-CSE-ConnectionGUID: /wBrlr+uTJerJq6KG8Up7Q==
+X-CSE-MsgGUID: hBi9yKnZSZORN25fdjur5Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11790"; a="79959210"
+X-IronPort-AV: E=Sophos;i="6.23,243,1770624000"; 
+   d="scan'208";a="79959210"
+Received: from fmviesa005.fm.intel.com ([10.60.135.145])
+  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 May 2026 03:05:32 -0700
+X-CSE-ConnectionGUID: 3vtqKRjZQiGb3zoXjJ9+IA==
+X-CSE-MsgGUID: X/trvKl+Tj2ryzVUEMbRPQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,243,1770624000"; 
+   d="scan'208";a="244714976"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by fmviesa005.fm.intel.com with ESMTP; 19 May 2026 03:05:30 -0700
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id 1F83E95; Tue, 19 May 2026 12:05:29 +0200 (CEST)
+Date: Tue, 19 May 2026 12:05:29 +0200
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Jacob Bazata <jacobbazata@gmail.com>
+Cc: wsa+renesas@sang-engineering.com, westeri@kernel.org,
+	linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] i2c: acpi: Add VEN_04F3 to
+ i2c_acpi_force_100khz_device_ids
+Message-ID: <20260519100529.GA8580@black.igk.intel.com>
+References: <20260519052424.7591-1-jacobbazata@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260518042833.272221-1-enelsonmoore@gmail.com> <20260519094820.1f05ab8e@pumpkin>
-In-Reply-To: <20260519094820.1f05ab8e@pumpkin>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Tue, 19 May 2026 11:43:30 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdVw349EBZUuYZAns3FnTndx0A=PHbznxarYuAQr8nbqDQ@mail.gmail.com>
-X-Gm-Features: AVHnY4Lfn8Mcrjf-CZtgFTL8ilhwbGlXFwz-O3Z8xcIZpla9SRL4d3C994HiNs4
-Message-ID: <CAMuHMdVw349EBZUuYZAns3FnTndx0A=PHbznxarYuAQr8nbqDQ@mail.gmail.com>
-Subject: Re: [PATCH] nios2: remove the architecture
-To: David Laight <david.laight.linux@gmail.com>
-Cc: Ethan Nelson-Moore <enelsonmoore@gmail.com>, linux-doc@vger.kernel.org, 
-	devicetree@vger.kernel.org, workflows@vger.kernel.org, 
-	linux-arch@vger.kernel.org, dmaengine@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-iio@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-pci@vger.kernel.org, linux-pwm@vger.kernel.org, 
-	linux-hardening@vger.kernel.org, linux-kbuild@vger.kernel.org, 
-	linux-csky@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, 
-	Shuah Khan <skhan@linuxfoundation.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>, Alex Shi <alexs@kernel.org>, 
-	Yanteng Si <si.yanteng@linux.dev>, Dongliang Mu <dzm91@hust.edu.cn>, 
-	Hu Haowen <2023002089@link.tyut.edu.cn>, Dinh Nguyen <dinguyen@kernel.org>, 
-	Kees Cook <kees@kernel.org>, Oleg Nesterov <oleg@redhat.com>, Will Deacon <will@kernel.org>, 
-	"Aneesh Kumar K.V" <aneesh.kumar@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, 
-	Nick Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>, Vinod Koul <vkoul@kernel.org>, 
-	Frank Li <Frank.Li@kernel.org>, Dave Penkler <dpenkler@gmail.com>, 
-	Andi Shyti <andi.shyti@kernel.org>, Jonathan Cameron <jic23@kernel.org>, 
-	David Lechner <dlechner@baylibre.com>, =?UTF-8?B?TnVubyBTw6E=?= <nuno.sa@analog.com>, 
-	Andy Shevchenko <andy@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Lorenzo Pieralisi <lpieralisi@kernel.org>, =?UTF-8?Q?Krzysztof_Wilczy=C5=84ski?= <kwilczynski@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260519052424.7591-1-jacobbazata@gmail.com>
 
-Hi David,
+Hi,
 
-On Tue, 19 May 2026 at 10:55, David Laight <david.laight.linux@gmail.com> wrote:
-> The company I used to work for used 4 NIOS II inside an fpga.
-> The instruction timing for one is pretty critical, it has some code that
-> has to complete in 122 clocks (worst case).
-> Our solution was to spend a few man-weeks writing a compatible cpu!
-> I think it came out with fewer pipeline stalls (in particular it 'lost'
-> the one for a (predicted) taken branch).
-> The maximum clock frequency might be lower; but it is ok at 62.5MHz and the
-> higher 125MHz in just impossible for all sorts of reasons.
->
-> OTOH I really wouldn't run Linux on it!
+On Tue, May 19, 2026 at 01:24:24AM -0400, Jacob Bazata wrote:
+> This model trackpad (04F3:32AA), found on various Dell XPS models
+> from 2023 including XPS 9500, 9510, 9520 and 9530 is well documented to,
+> at random, exhibit excessive smoothing with no obvious cause, similar
+> to other trackpad devices listed in the i2c_acpi_force_100khz_device
+> _ids struct.
+> 
+> Forcing the bus to 100KHz eliminates this behavior.
+> 
+> Signed-off-by: Jacob Bazata <jacobbazata@gmail.com>
+> ---
+>  drivers/i2c/i2c-core-acpi.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+> index 28c0e4884..512ebdfcc 100644
+> --- a/drivers/i2c/i2c-core-acpi.c
+> +++ b/drivers/i2c/i2c-core-acpi.c
+> @@ -373,6 +373,7 @@ static const struct acpi_device_id i2c_acpi_force_100khz_device_ids[] = {
+>  	{ "DLL0945", 0 },
+>  	{ "ELAN0678", 0 },
+>  	{ "ELAN06FA", 0 },
+> +	{ "VEN_04F3", 0 },
 
-Sounds similar to what CoreSemi is doing with J2 (nommu, also for
-predictable latency), but their products do run Linux.
-See the video from the LPC session at
-https://lpc.events/event/19/contributions/2097/
+This is interesting ACPI ID. Adding Andy just in case he has any comments
+on it.
 
-Gr{oetje,eeting}s,
+I'm fine with this.
 
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+>  	{}
+>  };
+>  
+> -- 
+> 2.54.0
