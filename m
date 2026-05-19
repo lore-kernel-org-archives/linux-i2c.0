@@ -1,139 +1,132 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from fhigh-b2-smtp.messagingengine.com (fhigh-b2-smtp.messagingengine.com [202.12.124.153])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAEDC45BD4B
-	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 09:43:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F2EC4657EA;
+	Tue, 19 May 2026 09:46:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.153
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779183830; cv=none; b=hHPbzZ5m+VIneo4qE79GCVf0T123SKP0xcISstVu4kXk6K6Hfz9iYXCq+yh07jhPArlB+JNZkgSLpdXraQdFykw+4JAMnz5sjZXp3g8vOHHuhr9dv5aVLKOjuJIhyNOSxpudtNyPUoiSIspvM3zos+wXCqAD92HvOXXBLHnaSSw=
+	t=1779183976; cv=none; b=NUy1xSWUw+GhnHb52rtMPBv/gc57/HwCdUpde2KPpyRA2bjLSyhGcbggZn9zh7HwNj3JVgPF5AKwAaI/lFhsES/SDDkvDde31ubcb79arWKLC5kUMQ5/yX5dN4qaQfcmobzA9chg17lfOubSKAlITP5WLhUbTetXlIRtUjwXzF0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779183830; c=relaxed/simple;
-	bh=0INAwGT8fLvknS2YIWK1zRXAZ0x1HB3qJKNf+7nEtXM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Ib2ZCexev+jDVqG42Dr+xMBHjZdDirWClTPo4CgwFBTjEUhff5Tm7AJs5WsclIrOMqNK8HVIAh6YjwlwU0w3OZzCLfoILpTEGOxUqmEHmgLQhfgnGwYPAQMwRsVX7Js193gRsH5JnGZ2EiMVu0H9i+Awi3mV7oWYP7rWqkBgZto=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=DEUbr+42; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1779183976; c=relaxed/simple;
+	bh=alnlxJEWfcCNP6agE6eJCFXxzGbsOsuuHQuE44l8pq4=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=CeSC3gw4z4WM45dgsYegDuzUOWkgPHKH4wADslnlV/NsjMpUJOsSbp53Vy/jdQr1mClDOoPBByGcbKFI9aipzKAN/nEt/Rxq09Uk97DSrJUgMPP3xxFHgPZSP4kNW5k+YqXftZA/BNuVC9WRcwKeHwdFukvLXqeuvnWB7kqMGtw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=YBWK14Zu; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=klEyFxNZ; arc=none smtp.client-ip=202.12.124.153
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="DEUbr+42"
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="YBWK14Zu";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="klEyFxNZ"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfhigh.stl.internal (Postfix) with ESMTP id BC2817A0148;
+	Tue, 19 May 2026 05:46:13 -0400 (EDT)
+Received: from phl-imap-05 ([10.202.2.95])
+  by phl-compute-04.internal (MEProxy); Tue, 19 May 2026 05:46:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1779183973;
+	 x=1779270373; bh=lwCz8Pd04rjc2RorchdOSNBHTq4t4Q6Yacpc/1GSmio=; b=
+	YBWK14ZuTrXgcfu1/M/a99oyPZqNiJdt7ug4ooc6bSAXAdTMmUvSQFQ2FThQak6y
+	KdhhY/wDBw40Gq2ddp0wvzqiAS+MEhCf23zEal7Jyb6U9TKNjTVPIk3ABwlijnHy
+	60JtjdNrWEMzqpbIb68OC55vewyTtACkROIbkt1/ow50a53aaGNEElGtp/TH9hIi
+	24kHxoHzsNKoz/wz6GnWltoJGHX8po28/zlKJ5bckLu4Nzzo9UF5Q4b1gOxtYAYR
+	s7io1U8+u60iM8BWibilRHTPptHM2HcCShRlreFlWwFCnLePEcKzdNVoYHSn8tyO
+	qoE4ao1r+/BnhjF+nRFxYQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=qwHt
-	/k/M9wDvjOKDF5wywv6g/VitFR+hRN8iRxYXca8=; b=DEUbr+423Zmp7QzKjVei
-	FBJe2aYeRTHW8/m1BIdIHoBdDRHtEG7lqynGa7m0WLjNpovsbg9srPB6NWQXFFuI
-	cwEMEdiaF1VhG8zWWWn4dox0SmhMSr4fP9UwQYmH2cHtBgtR+n7gy80SKNjUYvf8
-	2gqtlBrI55d4AOJpGbeuSdbfBEkcDlzHlOD3OwDMRhnC/4/doDKUR0Fnw96wG9Be
-	PZWdx13MvwfFJylShDbYlZ/8gI5ihWv2wv4jjAkEXoUp0bdi4Ae2uVtNgTYVpjiR
-	hSBPg4oHnx5M1nfmbjzOLuPQSi1tabtOlx4bD03IkZxtJndaiQPg2VDUXAYbJKuR
-	lQ==
-Received: (qmail 209164 invoked from network); 19 May 2026 11:43:46 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 19 May 2026 11:43:46 +0200
-X-UD-Smtp-Session: l3s3148p1@wO34gyhSvtNUszca
-Date: Tue, 19 May 2026 11:43:46 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Edward Adam Davis <eadavis@qq.com>
-Cc: syzbot+64ca69977b37604cd6d9@syzkaller.appspotmail.com,
-	bentiss@kernel.org, jikos@kernel.org, linux-i2c@vger.kernel.org,
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
-	michael.zaidman@gmail.com, syzkaller-bugs@googlegroups.com
-Subject: Re: [PATCH] i2c: add sanity check for input SMBus data length
-Message-ID: <agww0q1p3VZ5h9iv@shikoro>
-References: <696eedec.a00a0220.203946.0001.GAE@google.com>
- <tencent_9443A8C45A37693763A6D7D3658367896405@qq.com>
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1779183973; x=
+	1779270373; bh=lwCz8Pd04rjc2RorchdOSNBHTq4t4Q6Yacpc/1GSmio=; b=k
+	lEyFxNZJir6dWzbTxY183xpa3/0N3eURlkVWmCtWSG0EcoTAVItlJxuzA35gOTvE
+	5asoiYGJaBB8Nv3H5ejE+ZtJHLPiJGd56mnyu2otNVUNyjtlpe5dxYN0vWMVpSxa
+	7ANXE0Qwx2hq3lb9GeacFyH0BhzZChM4ijrhfz5pktva21cLb5XP/knAa865neH7
+	qFWqlxeXt6BzApfUePSgtxNw3Z9hHZoJtxdzNXnZ/EgBodnw4T415BrXoZXC7HqX
+	upIQ4eOD6FFrY/qFnxb8U7cjGsltbGjoHtzD0keEFNtOug4s6XBSnOnpUtBqeTq2
+	/BOpnnlQEy1n5v0rvsMpw==
+X-ME-Sender: <xms:ZDEMalrLUhYk4q7MN18oddGOMHec6bZRpBFGfaevSRxK24DY3BYEHg>
+    <xme:ZDEMaidFekK9GkctEiAUtprCF3JlsyjQwmivAV-RjvtF6uYvw03miI8P81txTS1yj
+    pj8cwVAY3uuhvvyOc6J4QI07TTVoD9kd7iNjBRfoSlWC6d6IcInMXM>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgddugedugedvucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepofggfffhvfevkfgjfhfutgfgsehtqhertdertdejnecuhfhrohhmpedftehrnhgu
+    uceuvghrghhmrghnnhdfuceorghrnhgusegrrhhnuggsrdguvgeqnecuggftrfgrthhtvg
+    hrnhepkedvuefhiedtueeijeevtdeiieejfeelvefffeelkeeiteejffdvkefgteeuhffg
+    necuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtne
+    curfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnugesrghrnhgusgdruggvpdhnsggprhgt
+    phhtthhopedufedpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtoheprghkshhhrgihrd
+    hguhhpthgrsegrmhgurdgtohhmpdhrtghpthhtohepnhgrvhgvvghnkhhrihhshhhnrgdr
+    tghhrghtrhgrughhihesrghmugdrtghomhdprhgtphhtthhopehurdhklhgvihhnvgdqkh
+    hovghnihhgsegsrgihlhhisghrvgdrtghomhdprhgtphhtthhopegrsggurdhmrghsrghl
+    khhhihesghhmrghilhdrtghomhdprhgtphhtthhopehnihgthhgvnhesihhstggrshdrrg
+    gtrdgtnhdprhgtphhtthhopegsrhhglheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohep
+    khgvvghssehkvghrnhgvlhdrohhrghdprhgtphhtthhopehgrhgvghhkhheslhhinhhugi
+    hfohhunhgurghtihhonhdrohhrghdprhgtphhtthhopehlihhnuhigsehrohgvtghkqdhu
+    shdrnhgvth
+X-ME-Proxy: <xmx:ZDEMatZtCaAB-7L7uYoGq3wkI8qC20ecI7nhU0XWIAKg-freidHndA>
+    <xmx:ZDEMaoH7vw_OHta7kd16Di2UtLJ6aobTMpj6QCe-YqXG7AFQRLIAQA>
+    <xmx:ZDEMaolJF7GNOokMaB_yEg14-mvXLO98rA0jg1kSdC3w9zUwX5z5ZQ>
+    <xmx:ZDEMatCsxxtyxjgVyN33Hv_A7pJYKYNybAZjXsiIHppohVZED2ghNA>
+    <xmx:ZTEMahghc4FiuCpxig6shVzsc6C7HHlm-4FpZ9eX9yGniwpT_2Fnvvro>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id A7CF3182007A; Tue, 19 May 2026 05:46:12 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="4DEtacso/rj3ZKrm"
-Content-Disposition: inline
-In-Reply-To: <tencent_9443A8C45A37693763A6D7D3658367896405@qq.com>
-
-
---4DEtacso/rj3ZKrm
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-ThreadId: ACQzdJwokzWs
+Date: Tue, 19 May 2026 11:45:49 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: =?UTF-8?Q?Uwe_Kleine-K=C3=B6nig?= <u.kleine-koenig@baylibre.com>,
+ "Bartosz Golaszewski" <brgl@kernel.org>,
+ "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
+Cc: "Eric Piel" <eric.piel@tremplin-utc.net>,
+ "Naveen Krishna Chatradhi" <naveenkrishna.chatradhi@amd.com>,
+ "Akshay Gupta" <Akshay.Gupta@amd.com>, "Guenter Roeck" <linux@roeck-us.net>,
+ "Abd-Alrhman Masalkhi" <abd.masalkhi@gmail.com>,
+ "Chen Ni" <nichen@iscas.ac.cn>, "Kees Cook" <kees@kernel.org>,
+ =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org
+Message-Id: <e1149cee-3b7c-421c-91ab-fd3fe94f3c0a@app.fastmail.com>
+In-Reply-To: <agwvkt_iWF9UUR-t@monoceros>
+References: <20260515162734.469327-2-u.kleine-koenig@baylibre.com>
+ <CAMRc=MfxgY77TozGqUsWrjsTmBKnZLm0dziAn1JAiTok67RXnw@mail.gmail.com>
+ <agwvkt_iWF9UUR-t@monoceros>
+Subject: Re: [PATCH v1] misc: Use named initializers for arrays of i2c_device_data
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
+On Tue, May 19, 2026, at 11:40, Uwe Kleine-K=C3=B6nig (The Capable Hub) =
+wrote:
+> On Mon, May 18, 2026 at 09:53:08AM +0200, Bartosz Golaszewski wrote:
+>> On Fri, May 15, 2026 at 6:27=E2=80=AFPM Uwe Kleine-K=C3=B6nig (The Ca=
+pable Hub)
+>> <u.kleine-koenig@baylibre.com> wrote:
+>> >  drivers/misc/eeprom/at24.c             |  62 +++++++-------
+>>=20
+>> This drivers lives under drivers/misc/ but I maintain it separately
+>> and send PRs to Wolfram so they go through the i2c tree (historical
+>> reasons really and maybe we should move it under drivers/nvmem/?). Can
+>> you send this separately?
+>
+> Done
+> (https://lore.kernel.org/linux-i2c/20260519093806.1567914-2-u.kleine-k=
+oenig@baylibre.com).
+>
+> @Arnd + @Greg: Should I split off still more or is a single patch for
+> the remainder of drivers/misc fine?
 
-thanks for your patch!
+I think a single patch for drivers/misc/ (minus the eeprom ones)
+makes most sense here, since it's really the same change across
+all drivers. My rule of thumb for my own patches is that if
+multiple files have the same change and the same patch
+description, they should be a combined patch.
 
-On Tue, Jan 20, 2026 at 09:47:02PM +0800, Edward Adam Davis wrote:
-> The value passed to block[0] in the user-constructed data is too large,
-> exceeding the length that data for SMBus messages can accommodate. This
-> triggered the out-of-bounds access reported by syzbot [1].
->=20
-> Adding relevant data size checks in the smbus ioctl can prevent this
-> out-of-bounds access.
->=20
-> [1]
-> BUG: KASAN: stack-out-of-bounds in ft260_smbus_write+0x19b/0x2f0 drivers/=
-hid/hid-ft260.c:486
-> Read of size 42 at addr ffffc90003427d81 by task syz.2.65/6119
-> Call Trace:
->  ft260_smbus_write+0x19b/0x2f0 drivers/hid/hid-ft260.c:486
->  ft260_smbus_xfer+0x22c/0x640 drivers/hid/hid-ft260.c:736
->=20
-
-Did you look for a suitable Fixes tag?
-
-> Reported-by: syzbot+64ca69977b37604cd6d9@syzkaller.appspotmail.com
-> Closes: https://syzkaller.appspot.com/bug?extid=3D64ca69977b37604cd6d9
-> Signed-off-by: Edward Adam Davis <eadavis@qq.com>
-> ---
->  drivers/i2c/i2c-dev.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
->=20
-> diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-> index e9577f920286..6725a49d6921 100644
-> --- a/drivers/i2c/i2c-dev.c
-> +++ b/drivers/i2c/i2c-dev.c
-> @@ -378,6 +378,14 @@ static noinline int i2cdev_ioctl_smbus(struct i2c_cl=
-ient *client,
->  	    (read_write =3D=3D I2C_SMBUS_WRITE)) {
->  		if (copy_from_user(&temp, data, datasize))
->  			return -EFAULT;
-> +
-> +		if (temp.block[0] > datasize) {
-> +			dev_dbg(&client->adapter->dev,
-> +				"user input data size (%u) is too big "
-> +				"in ioctl I2C_SMBUS.\n",
-
-Strings stay in one line, please, even if they break the line length.
-
-> +				temp.block[0]);
-> +			return -EINVAL;
-> +		}
->  	}
->  	if (size =3D=3D I2C_SMBUS_I2C_BLOCK_BROKEN) {
->  		/* Convert old I2C block commands to the new
-
-Happy hacking,
-
-   Wolfram
-
-
---4DEtacso/rj3ZKrm
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoMMNIACgkQFA3kzBSg
-KbaUMg/+J7HCylAZwxM3wXeuGt5P6vf/vpg/pl7VO5nPrusIeNKD4cwZ+kR5gMtQ
-xr4rmrnnXftu/8f7Ivwh4LYOO/bPscbZGgyU4SgiqbCo7kzxLZuR2J8JygRzE67J
-76qfhpX0kSNwLFpVpiLdPA8GOyzCSiOMgEXJoWVYKoM0Gj21L23szXQWyvkCjbkT
-vYt0JIlcOjgsRLYkxmwhbS92b6FTEDfrW4v8mm9H8sxOJgF1NsHlz7HvybsuXCd+
-yU2mpYUfjay6QAzQURg9/Rv89WcZ1sS1NJchPUSRMXfyD2+HS1XKhejV0+BpzFir
-nuc9TH8W+3Od/+dW3gTw0BBQUURwPG6/E8XGUkVVzDW3mIaG4Ylh/aY1ACAidXtJ
-++4zqBkusFjrn4aNCDxFgtQkSLw5xJ0neXyuIZ2Fvurq3iRURHsCzQRn8tsdxvXT
-Cm4abQSdZ/s2ky/mtyMAe/wcnhkJYFFJBIdmTHEP8RR0qgyS3e+g6bwzlAyCgXmz
-COgb8eNXw1Kw63DLcxK1pdEn0K5GbLRj53uamWdw1y8afpyC66xZODXagrXZ4n3d
-5XSKo18mJN8TY06ndVsdw5+NkGRCmKShuur8bkHRWdn/yZf5Q4reXEmE7grNRtid
-qsSyuRseGZ1hfSogmp6BUu/rJR3+2etWRZZ+iw9Xijd3UyfxuFA=
-=7ok1
------END PGP SIGNATURE-----
-
---4DEtacso/rj3ZKrm--
+       Arnd
