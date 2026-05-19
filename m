@@ -1,106 +1,103 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAFC83EFD3E
-	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 08:55:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95B9B3EFD28
+	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 09:22:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779180913; cv=none; b=lSNYTS/fKeiYYhYduGHbE1E6jpAObbmoLgSfF62a8JTigFLDpXI2amZuOQsvmVv86DSlRbZC3HvsuCXRVIhGhaNRUW41Zke968mJxDExXGsxIyL+RAJsPR50TFVeFXKYuzn8twVEzLWGNrExg3HefuY5cqA7cPqlKAM6dqyFVYA=
+	t=1779182550; cv=none; b=apAg6uUOGLyoqiDH1vm44kZ/95vESeogRbdyG+q73RFr4ZRt/L6GBJWJEfZfWqozqxn6Lx97psSo9ABAJta0JQZHuOjMOq7X02yHdD2n+NRgc/NoGKJJ3Hb+gYOWRXWcdEVA+3lhSKLdICY156YJ1IBkNDElHra4Mms5/uuG3Zc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779180913; c=relaxed/simple;
-	bh=5pCDtqwAbdqVxC2BWIdV4EfWWQAoZ4nexXRTWSu0VrM=;
+	s=arc-20240116; t=1779182550; c=relaxed/simple;
+	bh=EUMqPpjTIOg/UVJTA4J5F4Cm6Dd1SRM+qi6ZkJ7HX7M=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cRwVd8OwiAtShezvNwTCi/qqMNF7TTTt0xmAWoxVzVgnd8lZMacB07Z0XG5fZwjvEcTF2YSPK/48l/SI35+yOqmBe15CgZ3kZWiQ8QgH5GKbwDK5ljggn8xaawxw57TCldyAPb78WvlOIC0TtZWFONlnM9lBK89go1WwHFt/Bfo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=BtyWsXDa; arc=none smtp.client-ip=194.117.254.33
+	 Content-Type:Content-Disposition:In-Reply-To; b=M705Yn9u09mIDDc3vd6V0ALAigiKAOJ6W3CfBeOnsmlwWLXOmbT+krme43nDgdKakxwQkKqfhLcRgZAp4LNPYxt5pp/o+cAFRrQ4ZyrLryqSfAMH92qStp1wkwe/1HfNl1HVQX7mdEcOtfzxHgV0BJ5dhO+i/wiwfvdUy2Qpfbw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=K16NRXKG; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="BtyWsXDa"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="K16NRXKG"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=5pCD
-	tqwAbdqVxC2BWIdV4EfWWQAoZ4nexXRTWSu0VrM=; b=BtyWsXDaC0mZ7nwaiL8O
-	+YMlpb7hiWMayqroIYCwBFDj0UGWG+ME7Su3htk5McT8+iJOGNMWiUR34z9UpsRo
-	cMYtGYziXHNIub8r4KwJEREMkZopfYMdQLkife6UlKNcvBuAvSDrdwQOxj4UItcg
-	NjRUe5G/A3Xf+2CptZvr8lZh/whrUEcIt8R1AYEHxio7alpa+uRDK7ck4dO/TAer
-	VhzHJsBWfipZ5/NBVazpkcKDYP/yioxQRZSznKTW9DYv/+WNGGSJQ6H8BaXvlwev
-	cnMehwxbs7XLqcabr20h/nKYFJunZF4nGJmsNMWI4L1bD2ue6G5rcJHfvZj+46q1
-	3A==
-Received: (qmail 191920 invoked from network); 19 May 2026 10:55:07 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 19 May 2026 10:55:07 +0200
-X-UD-Smtp-Session: l3s3148p1@+pju1SdS7nlUszca
-Date: Tue, 19 May 2026 10:55:06 +0200
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=vDiw
+	cUS7KKcAuA9zQ93RHRaPkFaMupzoLqaQVImJgAo=; b=K16NRXKGWgwSp/DERPis
+	kGb8sfRsH6tY2Iax1PPnAlDP7JGg1DqyIPCp1pkacciz63ayYD+1LpAiMM9PbTZC
+	rNce/Vodq9K6BDhsrKjaZB9TlXWMgQygCcpMPEQv6GSp+kCm+ijVAhxTcsExRv5p
+	H8LgtA3WLNPvphIMfh7yi+M+JOocr4frblYKNwr4OT4IWvxRX6OiFBUW0UxjpBiY
+	PYnJ3ymCxCCIMGzACtEVqo/4uFArp/FsMkj4ztaSvAk02qjGmtAQyEwFWECM3E2A
+	dsoXQOBFtLhK6XPs1rKFXggtmvK6b5TL8+aJppapbUlV/KU1H+xWZnMbNK0nXDGV
+	Jg==
+Received: (qmail 201991 invoked from network); 19 May 2026 11:22:25 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 19 May 2026 11:22:25 +0200
+X-UD-Smtp-Session: l3s3148p1@TtmWNyhSU4tUszca
+Date: Tue, 19 May 2026 11:22:24 +0200
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>,
-	Andi Shyti <andi.shyti@kernel.org>
-Cc: Peter Rosin <peda@axentia.se>,
-	Michael Hennerich <michael.hennerich@analog.com>,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1] i2c: Use named initializers for arrays of
- i2c_device_data
-Message-ID: <agwlagmrvKLSbrSn@shikoro>
-References: <20260518164510.805502-2-u.kleine-koenig@baylibre.com>
+To: Herve Codina <herve.codina@bootlin.com>
+Cc: Andrew Lunn <andrew@lunn.ch>, Rob Herring <robh@kernel.org>,
+	Saravana Kannan <saravanak@kernel.org>,
+	Geert Uytterhoeven <geert+renesas@glider.be>,
+	Kalle Niemi <kaleposti@gmail.com>,
+	Matti Vaittinen <mazziesaccount@gmail.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>, Mark Brown <broonie@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Daniel Scally <djrscally@gmail.com>,
+	Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Len Brown <lenb@kernel.org>, Shawn Guo <shawnguo@kernel.org>,
+	Wolfram Sang <wsa@kernel.org>, driver-core@lists.linux.dev,
+	linux-kernel@vger.kernel.org, imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-spi@vger.kernel.org,
+	linux-acpi@vger.kernel.org,
+	Allan Nielsen <allan.nielsen@microchip.com>,
+	Horatiu Vultur <horatiu.vultur@microchip.com>,
+	Daniel Machon <daniel.machon@microchip.com>,
+	Steen Hegelund <steen.hegelund@microchip.com>,
+	Luca Ceresoli <luca.ceresoli@bootlin.com>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+	Saravana Kannan <saravanak@google.com>
+Subject: Re: [PATCH v7 1/3] Revert "treewide: Fix probing of devices in DT
+ overlays"
+Message-ID: <agwr0BE3EdYx70XA@shikoro>
+References: <20260511155755.34428-1-herve.codina@bootlin.com>
+ <20260511155755.34428-2-herve.codina@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="W9IKEd7McofY8XNn"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260518164510.805502-2-u.kleine-koenig@baylibre.com>
+In-Reply-To: <20260511155755.34428-2-herve.codina@bootlin.com>
 
+On Mon, May 11, 2026 at 05:57:48PM +0200, Herve Codina wrote:
+> From: Saravana Kannan <saravanak@google.com>
+> 
+> This reverts commit 1a50d9403fb90cbe4dea0ec9fd0351d2ecbd8924.
+> 
+> While the commit fixed fw_devlink overlay handling for one case, it
+> broke it for another case. So revert it and redo the fix in a separate
+> patch.
+> 
+> Fixes: 1a50d9403fb9 ("treewide: Fix probing of devices in DT overlays")
+> Reported-by: Herve Codina <herve.codina@bootlin.com>
+> Closes: https://lore.kernel.org/lkml/CAMuHMdXEnSD4rRJ-o90x4OprUacN_rJgyo8x6=9F9rZ+-KzjOg@mail.gmail.com/
+> Closes: https://lore.kernel.org/all/20240221095137.616d2aaa@bootlin.com/
+> Closes: https://lore.kernel.org/lkml/20240312151835.29ef62a0@bootlin.com/
+> Signed-off-by: Saravana Kannan <saravanak@google.com>
+> Link: https://lore.kernel.org/lkml/20240411235623.1260061-2-saravanak@google.com/
+> 
+> [Herve: Fix conflicts due to f72e77c33e4b ("device property: Make
+> modifications of fwnode "flags" thread safe")]
+> 
+> Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+> Acked-by: Mark Brown <broonie@kernel.org>
+> Acked-by: Rob Herring (Arm) <robh@kernel.org>
 
---W9IKEd7McofY8XNn
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com> # for I2C
 
-On Mon, May 18, 2026 at 06:45:09PM +0200, Uwe Kleine-K=C3=B6nig (The Capabl=
-e Hub) wrote:
-> While being less compact, using named initializers allows to more easily
-> see which members of the structs are assigned which value without having
-> to lookup the declaration of the struct. And it's also more robust
-> against changes to the struct definition.
->=20
-> The mentioned robustness is relevant for a planned change to struct
-> i2c_device_id that replaces .driver_data by an anonymous union.
->=20
-> While touching all these arrays, unify usage of whitespace in the list
-> terminator.
->=20
-> This patch doesn't modify the compiled arrays, only their representation
-> in source form benefits. The former was confirmed with x86 and arm64
-> builds.
->=20
-> Signed-off-by: Uwe Kleine-K=C3=B6nig (The Capable Hub) <u.kleine-koenig@b=
-aylibre.com>
-> Forwarded: id:20260518134035.644762-2-u.kleine-koenig@baylibre.com
-
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-Andi, you might want to apply it early to simplify merge conflicts.
-
-
---W9IKEd7McofY8XNn
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoMJWoACgkQFA3kzBSg
-KbZSwBAAjnWJPK7L4VmC5SbPY5KzV9Foc78oUBc6LgoeQ83Z0yavdd5wV0xd9JEK
-s2ZNy6jlF7P9ScZlxhwFL6vi+MhtkqOCqBswjjTj1nPuQzFBMU8jXosBq45knQ/l
-T/YAJyQVELeDPOv1IpfcrVT3SK3601XdGN3HXWrsOHyLKZmfaUk2KximtmxrjWIN
-nxe2KG3RFvKPwGe2x/t0eUpVXjiIILvhZABluV4EoHAskikf8aieAUvbXl0xwpAA
-Zqfgb4O0k+cB6zZJZJEfX02Ituhr+jb2NOhVBTIWTmgIXOIXD40NCcFGfSVX/8cU
-uOMVYYu/WwsCBJLEoLNZCJBvKIl3yrWgTr3Q7mnG4F7s4Ye9qnMFma8ncNcxxkdB
-r3jWP9eBaCKe00ntmOvY5sxxXMwpEzptgx3DuhNqU0VoYkAwwkqlFEbbYLemHS2l
-ztJIhmaY7rsWB6FXyWkYTXtfFqP1Vl0ddlH9CZdcO/eGlbrcLvaMmG/KCEVxNpbs
-MbpgaQ+m0WJyQflrK2w61k1ihsvyibdAIzQU+rLjrZ+oao4B9miqXoTPewd7aL1X
-VJ6s/wWI6pD+yGKXIKYFz4i+8XS655ptx1NspSFMCIBqwdkuNRxF5DORHdpkXmkF
-Y+MG2MM71Wx0peXPxKN9uOj+VWkofGCyrNj1AluTfEVegLP69FI=
-=W6Pr
------END PGP SIGNATURE-----
-
---W9IKEd7McofY8XNn--
