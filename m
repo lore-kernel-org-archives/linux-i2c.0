@@ -1,165 +1,190 @@
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f41.google.com (mail-yx1-f41.google.com [74.125.224.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C6BD345CAF
-	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 18:32:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.167.242.64
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779215554; cv=none; b=TJRVX3uTE6V5hjpA7iGjfrLi4WCdjW/RSk8G0OT2lcCG9RFgP1PxVJVFt7TgVLOp+Ixk+heOwfIl0/SLaFpzKoB/IsVs868hvMcIpL/fpDUgfv7MUfrNZ/66NvggF+9fmuxpCuy+JoHUWaeE8K3Cmf8K1Wcte0YqdqS45FE/ae8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779215554; c=relaxed/simple;
-	bh=T4hekEV2c5uSIfEUMcWz5S2sRGsE5FBfHI4tPckgKoY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QYs7cSi0R+GqjZVravLs+6VSynrLULCZe/rKlIsfjP+0pdZTYyt2kqEg5Blsy1qoqAFrgdWX+58FGXTKrW9i8+gabiOST5I9Rszp2gioUCBdGx9rEtetQ7wHOaot8CH5uNaZazuL/etA1IUX+QPt7AfMV4pcX0IZ0L5xNjFBNJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com; spf=pass smtp.mailfrom=ideasonboard.com; dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b=XNSKxXCe; arc=none smtp.client-ip=213.167.242.64
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ideasonboard.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B85FF372B26
+	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 19:07:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.41
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779217651; cv=pass; b=Sdv/7xoopVl/6bJtzS/UtnYEAGiLUZwku2/DQmV4mBtTQCnD6Y9jCrncGtZYcru0f1zRYAseQzLQFOgXR2tMc5sPzwjU37Ch6fYx5H2W/jV9d97rA5FzOxjvjrFQpp9TvznOO4PqjBNYmuDsVg+oZ72W7oCtO1dKjC8ebb0r/jY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779217651; c=relaxed/simple;
+	bh=Z+OAyukKoZU4RGHbotX4DJNahNNzuKMHL9tY24/Bsfc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=YEwjeC8zI1Ne0bwjOrqHk/oklWrk2vPO8VuFUuXFFTF6raVB0bL8m5UFXwKY3sPR9pSTmGTKe33ZedvvjsjPA/AfmbDJlsx4byVZJO3yiTVzxsCC9oZN6Jo1o1EyGc3BUY5ni2neQIeeqgXz+F6j/iTe9MKHUhEWnlr9lbywnjA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Rfa8mWyv; arc=pass smtp.client-ip=74.125.224.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b="XNSKxXCe"
-Received: from [IPV6:2a01:cb1d:8f2:800:bc20:34e7:b335:ce8c] (unknown [IPv6:2a01:cb1d:8f2:800:bc20:34e7:b335:ce8c])
-	by perceval.ideasonboard.com (Postfix) with ESMTPSA id 2C734558;
-	Tue, 19 May 2026 20:32:16 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-	s=mail; t=1779215536;
-	bh=T4hekEV2c5uSIfEUMcWz5S2sRGsE5FBfHI4tPckgKoY=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=XNSKxXCeGPHC0YUy6awL40KvTPJPEML0+KYqwuTbWXUJLk33gBxBM4rkfrPdu50BH
-	 tARjC9z8TP612v4tgM9BrnyFynTblA1nDM9KlLHUBOhPfeCVuBKopjOeWYnQTMkflK
-	 2JO8s8zylye/COG49eTjVGtCQAY2i3b8tfwttR6s=
-Message-ID: <7d25ef23-652d-49d2-b9cb-c8747e68ddba@ideasonboard.com>
-Date: Tue, 19 May 2026 20:32:26 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rfa8mWyv"
+Received: by mail-yx1-f41.google.com with SMTP id 956f58d0204a3-65d071aac6eso3327107d50.0
+        for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 12:07:29 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779217649; cv=none;
+        d=google.com; s=arc-20240605;
+        b=LMf5xnMEIeodYLspq5IGyg8oNDV/ixWcu+73vTmI/BMTxsK4k7UpZ760bF88l2kUQL
+         L6Wr2xjMWA74PL11fQ7M3ENqQ0oOoEsyN2Kj766YaNegeq7Wi6SA4qiOfBVWzJ9F23Rp
+         x9T/8+vXYpJdWKmdB/ct8ZT5hiL2eLsLEJwkp7j7XxrfWjWE9hgHZE+RVdE5mzXOcAWB
+         peBH1QDSINSSY5c6vYhJFC/mMdgDYr1C/mfQ7mglUCQy+/B4i1MActIMNxI7jn/R5rV5
+         bFxm3oTZ1nfhNxJ6MvmVEwiV4TUbAMKUApQ51XCyBd16Cz8/G+ImoC2empxNHaioSqtK
+         BSpQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=6k2pw07xoUFAncnGMxOpwBVGQh1ig9EOyCZMb029UtA=;
+        fh=PDLJQJrCCdg/1f7lAsAl1kEhJDjgLlTd0r43St3t7Lw=;
+        b=CXYHh1kFsu4upHpXNmEk80Nz9I9qTheUWSyIn2sqn3h5X7udPRYyl8JXW6w4R3R10J
+         zh0dmBj5UA9FB1ezBrdoNnGadjztolaR1kSMfxwxFtoF2bG4zHKvaDR9h8d2cqGBt0Q5
+         TkpPdTsm8fY9sBHbUMmaK6LnIagAFecxcPxOtSI4Y8aDBJuUDXYRhQxd/ep4oB8KSpaP
+         MLFCm82UABb74+mGlB0PrPhesfMeL1w7Xg7FybbYnzk0yQIazc6Q7B7c3gnODCoAI4A0
+         poch1l2UdyCoGFcVErMTe9N75BIu0tmL+dbw6WxN/VYKtzCJXaLCEembJVuheq+r03n/
+         QUlw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779217649; x=1779822449; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6k2pw07xoUFAncnGMxOpwBVGQh1ig9EOyCZMb029UtA=;
+        b=Rfa8mWyvc2x6u5VgMMaZwid3jZ6C8+xuY1VU/9nn/BQfvhfnUwd6hbn1p/uBSa0AT/
+         Ybl0cPIfWNSe+mGKbxL4aZqJU5IY7av6rALsjN1WtOKg208yvLZOViyKbP51PNJ4qz+3
+         NmnaQH9WeEEDkQR1odEUf2b74SPfwdqeQHPIfwXGsguCQhYvBZ8A+VMIQDGtd6UBnRm3
+         GLmx2h66cd7bRC0lUKWsrIexIkV8e5msOMzTDbPBUf3Y3Sl8bb/rrZU6DkRVsvnfJYdz
+         fCGTYJo9AmRF544f8h9LCPbUH6Up3fFlCjtjJzHKmXRuNkWzqMDfRF9C9/pbDLkyN6pi
+         CWQA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779217649; x=1779822449;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=6k2pw07xoUFAncnGMxOpwBVGQh1ig9EOyCZMb029UtA=;
+        b=XvdEdNjtlKcd/CXr5x2g6rGNWtELPl/ttksFQdcmUdo5DZ79BCMNC8VcTZ9PVDjB1v
+         Jxrf1ug4Cap+roherVRtkYf8x29d/RCVLJoqveDdSy/h7IMB2hi28KejnftzZDqbFd5/
+         ONTFDONveB/48Oul3nFWwTGlQS9RYnuwbzuMooNwTEOuIf9L0tfE2Jmja/uzJOLBp6B2
+         lD7hKxa7HLI0OAR8m0lLBqW8BtbOV+cHXRhqbx7DpFCapxTL04gR6MNEjGUxt6z5flw2
+         Qnqtx3OQmTAhf8L4PELspw/h00+ACD6I5lVX/uMlmrvwRz15636Ick7iAVCiKkv1ZNZO
+         6A5A==
+X-Forwarded-Encrypted: i=1; AFNElJ/7MGFRkh/7dM71yOwOEoW6SLdDD6HY04HStd5DbaIYiE3XplCvlwvoExvjd0McB6rAomn6k8IYjSA=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzQ5Qas8iM4vRAwEETSAfGXn6m4oVRG0SjA/ZFNTlZxe1rf/K3X
+	no/T4k0BwqLaQOaRTdhhwfAaQg2OJUnEvPN/jzX9bxTWaHy+aKON1pedvqZOwx/Pn1Hi3gdivJh
+	5zGR5tamFM3Hs5gND5hoPLoWRUEMQai0=
+X-Gm-Gg: Acq92OFQAldfNtCOkZ4k6IYbkxJJKXot417jnGN1muVgBKHK3BH5o55pi7XAuRxwdFN
+	OwVd8/Wq6nMP7Vm0ekIQVpA1bi7c/7Eh/+osQUx/UKGtkRxMOW+QNqpM2XcPejUUX7eZM2SvZMl
+	wk0uotTN/TczYxSr2ii/T3k/A7O2Pcm2iBIacJbz1FuOeGkTVzf+3d15139oVwUdYONGzuzzyhz
+	TpuOb+emwwyR4aLfBqnTtLZG4tbJz8IddKKWdKXIjEjJSzKxQYJeZ0olBKLT1ev8eYdvpQMYNY2
+	tVEOTsNgHkkKMXL5sNIyK9jNvkpUGrX6F8HTybiO/iRHUEuxZyIIVxflNwtyrs2SsJ+A70NeBvC
+	JcVTqGbSGkqmrSU1XFOsHINEMjii289zPgS2sWe5SqXniI0jN59aJdwNZIE4UStWJZBGKB93eQ1
+	tFLAo=
+X-Received: by 2002:a05:690e:d47:b0:651:be50:af09 with SMTP id
+ 956f58d0204a3-65e2267428cmr17622134d50.3.1779217648729; Tue, 19 May 2026
+ 12:07:28 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/2] i2c: imx: Don't recover bus when arbitration lost
-To: "Carlos Song (OSS)" <carlos.song@oss.nxp.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
- "imx@lists.linux.dev" <imx@lists.linux.dev>,
- "linux-arm-kernel@lists.infradead.org"
- <linux-arm-kernel@lists.infradead.org>, Andi Shyti <andi.shyti@kernel.org>,
- Frank Li <frank.li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>, Gao Pan <b54642@freescale.com>,
- Fugang Duan <B38611@freescale.com>, Wolfram Sang <wsa@kernel.org>,
- Oleksij Rempel <o.rempel@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>
-References: <20260424-i2c-imx-fixes-v2-0-34fb9504aaeb@ideasonboard.com>
- <20260424-i2c-imx-fixes-v2-1-34fb9504aaeb@ideasonboard.com>
- <aa1a6931-1a98-4f72-b8fc-ae05df28f931@ideasonboard.com>
- <AM0PR04MB680225F01902AD7990E4B6E5E8002@AM0PR04MB6802.eurprd04.prod.outlook.com>
-Content-Language: en-US
-From: Dan Scally <dan.scally@ideasonboard.com>
-In-Reply-To: <AM0PR04MB680225F01902AD7990E4B6E5E8002@AM0PR04MB6802.eurprd04.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20260518122814.8975-1-hardikprakash.official@gmail.com>
+ <d57dd297-6be1-43a9-a38d-e40c8949e23a@amd.com> <CANTFpSWGC7GsAY-3UvPtBZzqjNek-T5haiDb59QYRoRgwuQf1w@mail.gmail.com>
+ <7d0f0cf9-1936-4cf6-a425-228a37f83137@amd.com> <CAMRc=MdS_BVKb=FQLhky=8dpghBSoHeBhUk0LM5hROFxmJeyGQ@mail.gmail.com>
+ <9d5da93e-bbe0-4359-9f17-e3c6b3a5cb34@amd.com> <CAMRc=MfT_WVMxPnYZW=mg52PHew0O4VQMGFrfo6G9vxZDDoArw@mail.gmail.com>
+ <CANTFpSUX5rYhuTQH3dTTvzW+_yhW8Gs0U=A1t_8LDzKz4dzzAw@mail.gmail.com>
+ <agsh652HlC4rg1_1@ashevche-desk.local> <CANTFpSU7XaNKwe_FPsTCkxQYeq78Tqusr-nsB-Ww0_teuiWdEA@mail.gmail.com>
+ <f0ee2722-1e56-41b1-b70c-5503a2495853@amd.com> <CANTFpSWT+cR8Yxyr5jrB2MUidqKteWuPjHOyK_rpSkDUN6SWQQ@mail.gmail.com>
+ <c4993bce-5d39-416f-90ed-d870f4ac9254@amd.com> <CAMRc=McSLEF_nrkRdJJu9=Bc_KmPWYKDHd6tOD9tJqs0fksv0w@mail.gmail.com>
+ <498bad3f-6a0c-4da8-b645-1cc837ba1836@amd.com>
+In-Reply-To: <498bad3f-6a0c-4da8-b645-1cc837ba1836@amd.com>
+From: Hardik Prakash <hardikprakash.official@gmail.com>
+Date: Wed, 20 May 2026 00:37:17 +0530
+X-Gm-Features: AVHnY4JLPLREjlFQlvgLENpmGP3E8pQd4KIJLbfBlcZiF8utheggWRXZeetRwws
+Message-ID: <CANTFpSWB6Fb3mo9sUtxo2Aaa-Ryx-YqUw-tqT-y1RpurJfq57A@mail.gmail.com>
+Subject: Re: [PATCH v5 0/1] i2c: designware: fix probe ordering for AMD GPIO
+ on Lenovo Yoga 7 14AGP11
+To: Mario Limonciello <mario.limonciello@amd.com>
+Cc: Bartosz Golaszewski <brgl@kernel.org>, Andy Shevchenko <andriy.shevchenko@intel.com>, 
+	linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org, 
+	basavaraj.natikar@amd.com, linus.walleij@linaro.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi Carlos
+On Tue, May 19, 2026 at 19:58, Mario Limonciello wrote:
+> You add a debug statement to amd_gpio_irq_enable() too right? Can you
+> please share your debugging messages patch and full log?
 
-On 19/05/2026 11:29, Carlos Song (OSS) wrote:
-> 
-> 
->> -----Original Message-----
->> From: Dan Scally <dan.scally@ideasonboard.com>
->> Sent: Tuesday, May 19, 2026 4:42 PM
->> To: Oleksij Rempel <o.rempel@pengutronix.de>; Pengutronix Kernel Team
->> <kernel@pengutronix.de>
->> Cc: linux-i2c@vger.kernel.org; imx@lists.linux.dev;
->> linux-arm-kernel@lists.infradead.org; Andi Shyti <andi.shyti@kernel.org>; Frank
->> Li <frank.li@nxp.com>; Sascha Hauer <s.hauer@pengutronix.de>; Fabio
->> Estevam <festevam@gmail.com>; Gao Pan <b54642@freescale.com>; Fugang
->> Duan <B38611@freescale.com>; Wolfram Sang <wsa@kernel.org>
->> Subject: Re: [PATCH v2 1/2] i2c: imx: Don't recover bus when arbitration lost
->>
->> [You don't often get email from dan.scally@ideasonboard.com. Learn why this is
->> important at https://aka.ms/LearnAboutSenderIdentification ]
->>
->> Hello Oleksij / all
->>
->> On 24/04/2026 13:36, Daniel Scally wrote:
->>> In i2c_imx_xfer_common(), the driver attempts bus recovery whenever
->>> i2c_imx_start() fails. One of the failure modes for i2c_imx_start() is
->>> an arbitration-lost signal which results when a second I2C master on
->>> the bus tries to control the bus simultaneously, which is a normal and
->>> expected behaviour.
->>>
->>> Bus recovery is not the right response for this case. Add a check for
->>> the -EAGAIN return code to avoid running the bus recovery.
->>>
->>> Fixes: 1c4b6c3bcf30d ("i2c: imx: implement bus recovery")
->>> Signed-off-by: Daniel Scally <dan.scally@ideasonboard.com>
->>> ---
->>
->> I raised this patch after we had issues with one of the i2c controllers on imx8mp.
->> In that case, the bus had multiple masters that were causing the SoC's i2c
->> controller to lose arbitration. The result was that the framework attempted to
->> run i2c_generic_scl_recovery() and regularly hit the "SCL is stuck low, exit
->> recovery" message [1] because the bus was busy rather than stuck.
->>
->> I'm now experiencing a different issue with the imx8mp in which a different
->> controller - which isn't on a multiple-masters bus - starts transacting fine early in
->> boot, but then seems to get stuck - any attempt to start a transaction by either
->> a driver or i2ctransfer results in the IAL bit in I2C_I2SR being set and so the
->> driver reports that it's lost arbitration [2]. In this case, the bus recovery is
->> needed to fix the problem, and so this commit hurts things rather than helps
->> them. This problem isn't consistent - I get it on maybe 10% of boots.
->>
-> Hi Dan,
-> 
-> This is the RM shows:
-> 
-> Arbitration lost. Set by hardware in the following circumstances (IAL must be cleared by software by
-> writing a "0" to it at the start of the interrupt service routine):
-> * I2Cn_SDA input samples low when the master drives high during an address or data-transmit cycle.
-> * I2Cn_SDA input samples low when the master drives high during the acknowledge bit of a datareceive
-> cycle.
-> For the above two cases, the bit is set at the falling edge of the ninth I2Cn_SCL clock during the ACK
-> cycle.
-> * A Start cycle is attempted when the bus is busy.
-> * A Repeated Start cycle is requested in Slave mode.
-> * A Stop condition is detected when the master did not request it.
-> NOTE: Software cannot set the bit.
-> 0 No arbitration lost.
-> 1 Arbitration is lost.
-> 
->  From my understanding:
-> The IAL (Arbitration Lost) bit is set not only when true arbitration is lost, but also in several other conditions:
-> 
-> - SDA is sampled low when the master drives it high (during address/data or ACK phase)
-> - A START is attempted while the bus is busy
-> - A STOP condition is detected unexpectedly
-> - A repeated START occurs in slave mode
-> 
-> So in practice, IAL can be asserted not only by real arbitration loss, but also when the controller detects abnormal bus conditions.
-> 
-> Since your system is single-master, this is unlikely to be a true arbitration scenario. Instead, it is more likely caused by signal integrity or timing-related issues, such as:
-> - weak pull-up / slow rising edges
-> - noise or glitches on SDA
-> - timing violations from the slave device
-> - others
-> 
-> As a workaround, you can enable the 'single-master' property to disable arbitration checks in single-master systems, for example:
-> 
-> &i2c1 {
->      clock-frequency = <400000>;
->      pinctrl-names = "default", "gpio";
->      pinctrl-0 = <&pinctrl_i2c1>;
->      pinctrl-1 = <&pinctrl_i2c1_gpio>;
->      scl-gpios = <&gpio5 14 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
->      sda-gpios = <&gpio5 15 (GPIO_ACTIVE_HIGH | GPIO_OPEN_DRAIN)>;
->      single-master;
->      status = "okay";
-> };
+I did not add debug to amd_gpio_irq_enable() - the statements were
+only in amd_gpio_probe() and dw_i2c_plat_probe(). I can add one there
+if useful, but given Bart's suggestion below I'll hold off unless
+needed.
 
-Thanks! I'm away from the hardware at the moment but I'll give it a try next week and see if that 
-fixes the issue.
+> What is the boot time impact to adding device_is_bound() check?
 
-Dan
+I haven't measured this explicitly. The deferral only fires on DMI-
+matched hardware (Lenovo 83TD), so on other machines dw_i2c_defer_for_
+amd_gpio() returns 0 immediately with no overhead.
 
-> 
-> Hope it will help some.
-> 
-> Carlos
+On Tue, May 19, 2026 at 20:18, Mario Limonciello wrote:
+> I like this idea.
 
+I'll test this patch, and let you know how it goes.
+
+Thanks,
+Hardik
+
+On Tue, 19 May 2026 at 20:18, Mario Limonciello
+<mario.limonciello@amd.com> wrote:
+>
+>
+>
+> On 5/19/26 09:39, Bartosz Golaszewski wrote:
+> > On Tue, May 19, 2026 at 4:28=E2=80=AFPM Mario Limonciello
+> > <mario.limonciello@amd.com> wrote:
+> >>
+> >>>
+> >>> gpiochip_add_data() at 0.285952 makes the GPIO chip visible to the
+> >>> system before amd_gpio_probe() has finished. AMDI0010:02 starts probi=
+ng
+> >>> at 0.301454 while amd_gpio_probe() is still completing. This is why
+> >>> device_is_bound() works and initcall promotion does not -- it waits f=
+or
+> >>> probe completion, not just gpiochip registration.
+> >>
+> >> What is the boot time impact to adding device_is_bound() check?
+> >>
+> >> Bartosz, thoughts?
+> >>
+> >
+> > My thoughts are that ACPI could use some fw_devlink. :) It's not a new
+> > problem, we've fixed it for OF systems.
+> >
+> > Could we modify gpiolib-acpi.c to return -EPROBE_DEFER if the parent
+> > device of the GPIO chip is not bound yet instead? When resolving the
+> > reference to the remote GPIO controller we have an address of the
+> > struct acpi_device. I suppose there's a platform device that is its
+> > child and then the logical GPIO controller device, is that correct?
+> > Can we check if the platform device in question is bound at the
+> > subsystem level?
+> >
+> > Bart
+>
+> I like this idea.  I guess something like this:
+>
+> diff --git a/drivers/gpio/gpiolib-acpi-core.c
+> b/drivers/gpio/gpiolib-acpi-core.c
+> index eb8a40cfb7a98..e3511398b1f84 100644
+> --- a/drivers/gpio/gpiolib-acpi-core.c
+> +++ b/drivers/gpio/gpiolib-acpi-core.c
+> @@ -142,6 +142,13 @@ static struct gpio_desc *acpi_get_gpiod(char *path,
+> unsigned int pin)
+>          if (!gdev)
+>                  return ERR_PTR(-EPROBE_DEFER);
+>
+> +       if (gdev->dev.parent) {
+> +               scoped_guard(device, gdev->dev.parent) {
+> +                       if (!device_is_bound(gdev->dev.parent))
+> +                               return ERR_PTR(-EPROBE_DEFER);
+> +               }
+> +       }
+> +
+>          /*
+>           * FIXME: keep track of the reference to the GPIO device somehow
+>           * instead of putting it here.
+>
