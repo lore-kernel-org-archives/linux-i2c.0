@@ -1,139 +1,155 @@
-Received: from perceval.ideasonboard.com (perceval.ideasonboard.com [213.167.242.64])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com [209.85.128.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A0AD3E559F
-	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 08:42:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=213.167.242.64
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 831693EEADE
+	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 08:48:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779180148; cv=none; b=WvuzvXL+KhBVesxBhiJEIeIoOF34ax7zUDnpiOmUnxkQ4WVYA7xYJnecw7ZrH+M/JjPk8zgtB/fkPt7ZsAEdwmXYXguuNEiqKLOPp0p3dq7tDUGhKfFRw/ZljotC+H5yi6YQpWGn6CPAP12HyQPRQyENPQkZy6ZK41MPTwrGlcM=
+	t=1779180506; cv=none; b=YCL6bEMn3BspdZnWe4qauPJSfDsvF8InKHRKBV6RxBpbsRRvW+J5sg8bWeO48HLu9V2sEYH2LA1NLA88mgMX8/oS14JTpVe0815qH/Ft83xRNE/TQ4uo6SPVIMGmgbjA4PzuYxtUk0NxtmSrl+ZzCG63X+BqQobfhY4KK1xLGSo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779180148; c=relaxed/simple;
-	bh=uAg7yvTbG/5q1gosYB1549ltiBRHNpEsmfMFqy3jHOg=;
-	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
-	 In-Reply-To:Content-Type; b=FEt0GXtmE44D/Iv7+buv2RsDM1DcT8P2QCH+WUVaCZtlFQdtHIP8NrQ5usuA/fIgJiOZC4smdMApHp5b3wyxrxTv9ZZqmWRO1yGkvon3czJmFv/dzsryj3N+h5AnpRdZvQU6smbvJwSGX//+eK6fSBg/NSSkNuwT0RGmNLP/A+g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com; spf=pass smtp.mailfrom=ideasonboard.com; dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b=qSRHcn+l; arc=none smtp.client-ip=213.167.242.64
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ideasonboard.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ideasonboard.com
+	s=arc-20240116; t=1779180506; c=relaxed/simple;
+	bh=Hyx9uiXztVttxLdo9VjcbHUiP6qvqHfhOZr9vbJAYdk=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=lMXGTadC4SR3CHIttANFrRQmQbg+xiHG7Ja5Xf99HQQwOL2pD57npxrps8wikpb0nUKv1JCYCtPtzfjGVrfFSN1SNmdqz8+x2AR/D5n4bhKxflDSDe2zKi9gNtQHjwyuOWPIiafJ2Iynr0u0ViG9KjvRS5Ot/CaL580SxkuHyqU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eKm0WEKT; arc=none smtp.client-ip=209.85.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ideasonboard.com header.i=@ideasonboard.com header.b="qSRHcn+l"
-Received: from [IPV6:2a01:cb1d:8f2:800:77df:2bd9:9512:fa38] (unknown [IPv6:2a01:cb1d:8f2:800:77df:2bd9:9512:fa38])
-	by perceval.ideasonboard.com (Postfix) with ESMTPSA id DAEA37CA;
-	Tue, 19 May 2026 10:42:11 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
-	s=mail; t=1779180132;
-	bh=uAg7yvTbG/5q1gosYB1549ltiBRHNpEsmfMFqy3jHOg=;
-	h=Date:From:Subject:To:Cc:References:In-Reply-To:From;
-	b=qSRHcn+lzeu6fDeaUcxPlTE3lkBrWPG/abpXHks6LmGtSBYVq6A6ioTC24EZ8hlYT
-	 DUro/YUHjsAAGZdWm2/44hI/tbarw4K7F2eb2oeZ09i78pk9i1P0U4VIZZ5GqHs/fV
-	 nvSVgujyz7x03K+oG+L/y2nYX5sVY6mJK5f8pcYo=
-Message-ID: <aa1a6931-1a98-4f72-b8fc-ae05df28f931@ideasonboard.com>
-Date: Tue, 19 May 2026 10:42:21 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eKm0WEKT"
+Received: by mail-wm1-f51.google.com with SMTP id 5b1f17b1804b1-4896c22fcbaso27587995e9.0
+        for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 01:48:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779180503; x=1779785303; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8U8k5KUlWmxiDre3dDf6j/8PHyhhwOqohUrC9tjzC3Y=;
+        b=eKm0WEKT3mVDrwy7IMshOn0GT2kwmWUNussjaxGEyv482mBKvskG0hs7pJ5k+AfXcN
+         l7Rjpy9iZzrpocdayWNqfQdXtH/nwyhXHiZOuGC5I7B98fO16ELapo992aMvVW7NErxJ
+         Dom6oCaQBG4n0rJrkSsLMhnHP63zTKUiw5KuKnT6p7IvYNK+2mRBlfzqpifVUT/esNd3
+         vlhe3vAPa4t8awQvJiHD5JpieSz9o9c/NHG55x2xnbEgyrkqQ4UwvMthmyx0XIjO0dD8
+         Ds9+nZuBWp3o5j4Qfh95443MbvDyxxMyRCOg8xUEL3EtMFxko1g7WSrXeeWqy5p4Vy/L
+         m4TQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779180503; x=1779785303;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=8U8k5KUlWmxiDre3dDf6j/8PHyhhwOqohUrC9tjzC3Y=;
+        b=ZYmLTp7EDBFg9nvM4nQtSpECeXSufU0Jm/DG9jr5N64L5s/ky5pXrTV+SB4dKobsrm
+         U50WEagsphM2vjJLnQT19CO5oXVlGatQOrXD1G4Y8dqJ8yk3mdhe36WLfaA9fRN8ZRru
+         E5Xl+Y0zTgtKPC48zHPW5XpY6Xv3enU+tcexQFWYwzQMcd1NjfITld7MGdw+SM1TSqfJ
+         KTvQaCPW1/SYGbs0wRyguC4J+BLe3eoFFSSOxl/XaghIB0+QUTmFq9yHuakVh4ftW27c
+         0tlBWE2g+CZKlbY4DwGYFP5coGSVb71f4FsZRi1UI6C9crMeX24tvTWCOTixkqwhVxYC
+         +vvA==
+X-Forwarded-Encrypted: i=1; AFNElJ85kwpMFUQ13Fl+hBqy60QwNzBFOiBlUtqDyepOWq5Z8A5BlxCN2YTmFN+FlNmpZdrYiY5NI6XUC4U=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz2+Pywf7efKwdFGBji2hNJf3mQ3o63HDoWVEY4P3OdH8oh1Lw7
+	f7JkRJP8Sm92PfnuePNVAXOD1DC5BxiR+TWBPdqWfyCuO1+v0tZThmtP
+X-Gm-Gg: Acq92OExttGavs2VyLGYTq2hde1MKDc8KUEHqg1j29pEZARux2g04uXJTBqGRiGOq5O
+	1zHYKevVCv2v54mZgYZCEdnpTS+2v1qE2ATtkFb1NcYp/lzoyoVjev5fb81AALqHYJCpI8wcDex
+	PQgy/D3YYxYNS5S3cRgEjUJNXkAPmABgWH4PhIgVT/445IBy+nOVfFQp8k4r4YJ6nU3pVHyqIOd
+	9/HGT9R1Ny6rygbUqcCyaF1x4Emh4CQh56ILb1CitmoAOrd+MsOW9rpuMdaoEz0yU8Jz4lbA2Vk
+	ckotn5V8eOdFYvCbabB8XsCmjzRt1ZNdgWHVgAsGT1GEuatuR9+Vein15VnV4PpOUdAlP7ypnKG
+	T4wpJVy5z0EePhhEzG4j0NoVIl+3VIuKPU2CoQMNsnhep4iTdxKWPJbqLK+HkxGHrHSK4bXS/o0
+	JPIckV455MIJtGVwFReK8ezi00h2b1AoPP6DCbcwOxkYZxsL6GQCMp2c+pD9xxfHkB
+X-Received: by 2002:a05:600c:3e1b:b0:48a:8905:a500 with SMTP id 5b1f17b1804b1-48fe60da647mr311906705e9.12.1779180502860;
+        Tue, 19 May 2026 01:48:22 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48fe4c8344asm530004325e9.1.2026.05.19.01.48.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 May 2026 01:48:22 -0700 (PDT)
+Date: Tue, 19 May 2026 09:48:20 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Ethan Nelson-Moore <enelsonmoore@gmail.com>
+Cc: linux-doc@vger.kernel.org, devicetree@vger.kernel.org,
+ workflows@vger.kernel.org, linux-arch@vger.kernel.org,
+ dmaengine@vger.kernel.org, linux-i2c@vger.kernel.org,
+ linux-iio@vger.kernel.org, netdev@vger.kernel.org,
+ linux-pci@vger.kernel.org, linux-pwm@vger.kernel.org,
+ linux-hardening@vger.kernel.org, linux-kbuild@vger.kernel.org,
+ linux-csky@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Shuah Khan
+ <skhan@linuxfoundation.org>, Rob Herring <robh@kernel.org>, Krzysztof
+ Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Daniel
+ Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
+ Alex Shi <alexs@kernel.org>, Yanteng Si <si.yanteng@linux.dev>, Dongliang
+ Mu <dzm91@hust.edu.cn>, Hu Haowen <2023002089@link.tyut.edu.cn>, Dinh
+ Nguyen <dinguyen@kernel.org>, Kees Cook <kees@kernel.org>, Oleg Nesterov
+ <oleg@redhat.com>, Will Deacon <will@kernel.org>, "Aneesh Kumar K.V"
+ <aneesh.kumar@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Nick
+ Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>, Vinod
+ Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>, Dave Penkler
+ <dpenkler@gmail.com>, Andi Shyti <andi.shyti@kernel.org>, Jonathan Cameron
+ <jic23@kernel.org>, David Lechner <dlechner@baylibre.com>, Nuno
+ =?UTF-8?B?U8Oh?= <nuno.sa@analog.com>, Andy Shevchenko <andy@kernel.org>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, Jakub Kicinski
+ <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Lorenzo Pieralisi
+ <lpieralisi@kernel.org>, Krzysztof =?UTF-8?B?V2lsY3p5xYRza2k=?=
+ <kwilczynski@kernel.org>
+Subject: Re: [PATCH] nios2: remove the architecture
+Message-ID: <20260519094820.1f05ab8e@pumpkin>
+In-Reply-To: <20260518042833.272221-1-enelsonmoore@gmail.com>
+References: <20260518042833.272221-1-enelsonmoore@gmail.com>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-From: Dan Scally <dan.scally@ideasonboard.com>
-Subject: Re: [PATCH v2 1/2] i2c: imx: Don't recover bus when arbitration lost
-To: Oleksij Rempel <o.rempel@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: linux-i2c@vger.kernel.org, imx@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org, Andi Shyti <andi.shyti@kernel.org>,
- Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>, Gao Pan <b54642@freescale.com>,
- Fugang Duan <B38611@freescale.com>, Wolfram Sang <wsa@kernel.org>
-References: <20260424-i2c-imx-fixes-v2-0-34fb9504aaeb@ideasonboard.com>
- <20260424-i2c-imx-fixes-v2-1-34fb9504aaeb@ideasonboard.com>
-Content-Language: en-US
-In-Reply-To: <20260424-i2c-imx-fixes-v2-1-34fb9504aaeb@ideasonboard.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-Hello Oleksij / all
+On Sun, 17 May 2026 21:28:33 -0700
+Ethan Nelson-Moore <enelsonmoore@gmail.com> wrote:
 
-On 24/04/2026 13:36, Daniel Scally wrote:
-> In i2c_imx_xfer_common(), the driver attempts bus recovery whenever
-> i2c_imx_start() fails. One of the failure modes for i2c_imx_start()
-> is an arbitration-lost signal which results when a second I2C master
-> on the bus tries to control the bus simultaneously, which is a normal
-> and expected behaviour.
+> The Nios II architecture is a soft-core architecture developed by
+> Altera (since acquired by Intel) and intended to run on their FPGAs.
 > 
-> Bus recovery is not the right response for this case. Add a check for
-> the -EAGAIN return code to avoid running the bus recovery.
+> Licenses for the architecture have not been available for purchase
+> since 2024 [1],
+
+Except I think they got 'beaten up' by some telcos.
+The Nios II gets used inside fpga for small cpu doing things that it would
+be far to difficult to do in VHDL.
+(I believe some mobile base stations fgpa embed a lot of them.)
+These will have a small amount of code (maybe 4k - 64k) and a similarly
+small amount of data memory along with access to fpga peripheral registers
+and (optionally) host memory vie PCIe. No MMU, no cache (or rather the code/data
+is in the cache memory but it isn't backed by anything), no branch predictor
+(guaranteed cycle times), etc.
+Intel suggested that RISCV could be used instead, but it isn't the same beast.
+They didn't document the instruction timings nor how to add custom instructions.
+
+The company I used to work for used 4 NIOS II inside an fpga.
+The instruction timing for one is pretty critical, it has some code that
+has to complete in 122 clocks (worst case).
+Our solution was to spend a few man-weeks writing a compatible cpu!
+I think it came out with fewer pipeline stalls (in particular it 'lost'
+the one for a (predicted) taken branch).
+The maximum clock frequency might be lower; but it is ok at 62.5MHz and the
+higher 125MHz in just impossible for all sorts of reasons.
+
+OTOH I really wouldn't run Linux on it!
+
+-- David
+
+> and support for it has been removed from GCC 15 [2],
+> Buildroot [3], and QEMU [4].
 > 
-> Fixes: 1c4b6c3bcf30d ("i2c: imx: implement bus recovery")
-> Signed-off-by: Daniel Scally <dan.scally@ideasonboard.com>
-> ---
-
-I raised this patch after we had issues with one of the i2c controllers on imx8mp. In that case, the 
-bus had multiple masters that were causing the SoC's i2c controller to lose arbitration. The result 
-was that the framework attempted to run i2c_generic_scl_recovery() and regularly hit the "SCL is 
-stuck low, exit recovery" message [1] because the bus was busy rather than stuck.
-
-I'm now experiencing a different issue with the imx8mp in which a different controller - which isn't 
-on a multiple-masters bus - starts transacting fine early in boot, but then seems to get stuck - any 
-attempt to start a transaction by either a driver or i2ctransfer results in the IAL bit in I2C_I2SR 
-being set and so the driver reports that it's lost arbitration [2]. In this case, the bus recovery 
-is needed to fix the problem, and so this commit hurts things rather than helps them. This problem 
-isn't consistent - I get it on maybe 10% of boots.
-
-I'm trying to find a way to handle the two problems together. I can move the retries into the 
-i2x-imx driver like below, and that works so far:
-
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index a208fefd3c3b3..cee333236646a 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1551,7 +1551,20 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
-         int use_dma = 0;
-
-         /* Start I2C transfer */
--       result = i2c_imx_start(i2c_imx, atomic);
-+       for (unsigned int try = 0; try <= 3; try++) {
-+               result = i2c_imx_start(i2c_imx, atomic);
-+               if (result == -EAGAIN) {
-+                       i2c_imx_stop(i2c_imx, atomic);
-+
-+                       if (i2c_imx->slave)
-+                               i2c_imx_slave_init(i2c_imx);
-+
-+                       continue;
-+               }
-+
-+               break;
-+       }
-+
-         if (result) {
-                 /*
-                  * Bus recovery uses gpiod_get_value_cansleep() which is not
-
-That way it retries 3 times if i2c_bus_busy() reports -EAGAIN from lost arbitration, but then gives 
-up and runs the bus recovery if none of the retries works. I do wonder why the i2c controller is 
-setting the IAL bit though given there's no other master on the bus. If I use a logic analyser to 
-track traffic on the bus I can't see anything anomalous, so I thought I'd check whether anyone has 
-experienced something similar before.
-
-
-[1] https://elixir.bootlin.com/linux/v7.0.1/source/drivers/i2c/i2c-core-base.c#L254
-[2] https://elixir.bootlin.com/linux/v7.0.1/source/drivers/i2c/busses/i2c-imx.c#L548
-
->   drivers/i2c/busses/i2c-imx.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
+> Given all of these factors, it is time to remove Nios II support from
+> the kernel. The maintainer stated in 2024 that they were planning to do
+> so soon [5], but this did not come to pass.
 > 
-> diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index a208fefd3c3b35672a00eda8448f24859aaa793a..b68a0f7105682006bbcfee52891c9a9c2d8c009e 100644
-> --- a/drivers/i2c/busses/i2c-imx.c
-> +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -1552,7 +1552,7 @@ static int i2c_imx_xfer_common(struct i2c_adapter *adapter,
->   
->   	/* Start I2C transfer */
->   	result = i2c_imx_start(i2c_imx, atomic);
-> -	if (result) {
-> +	if (result && result != -EAGAIN) {
->   		/*
->   		 * Bus recovery uses gpiod_get_value_cansleep() which is not
->   		 * allowed within atomic context.
+> Remove Nios II support from the kernel and move the former maintainer
+> to CREDITS. Thank you, Dinh Nguyen, for maintaining Nios II support!
 > 
+> References:
+> [1] https://docs.altera.com/v/u/docs/781327/is-discontinuing-ip-ordering-codes-listed-in-pdn2312-for-nios-ii-ip
+> [2] https://gcc.gnu.org/git/?p=gcc.git;a=commitdiff;h=e876acab6cdd84bb2b32c98fc69fb0ba29c81153
+> [3] https://github.com/buildroot/buildroot/commit/6775ccc5a199d574ad70b5f79ec58cce97a07c6f
+> [4] https://github.com/qemu/qemu/commit/6c3014858c4c0024dd0560f08a6eda0f92f658d6
+> [5] https://sourceware.org/pipermail/newlib/2024/021083.html
+> 
+> Signed-off-by: Ethan Nelson-Moore <enelsonmoore@gmail.com>
 
