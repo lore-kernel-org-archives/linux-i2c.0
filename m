@@ -1,381 +1,426 @@
-Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazon11011052.outbound.protection.outlook.com [52.101.52.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f178.google.com (mail-dy1-f178.google.com [74.125.82.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 382DF352008
-	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 17:44:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.52.52
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779212644; cv=fail; b=nZ42UfaYA32CLqWgKyQ80cQx5GQ5rJnVytXPLnyycvht2IPSsxnyxCB9JvPFBi3bt7aSz/cJMCbwfWkqHjXDCA7fdokz8oGSRUvUhOeEPsaMRSkY4EzKTeYDieXihD0aGoelIqSLl6dS6vIseVHzNV4+9C9mgjam8Vq7W9B035o=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779212644; c=relaxed/simple;
-	bh=aqq/iIQHZVkhqyZZLe7dwuSZBakcIFVdpP1OCNeIOi8=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=YS7eLJXz1zUOw9NzvS0IkyzlA+mAH1xgUtYM4auwEkrD/z9z10aN01x0ysPx4eAgfSBK/W0beqrViYkGY8oLJlIa47aT4lS81vas6DolSocmo8eFT3mwg/MtNY/srB1Dpo49OXOXkdQ7RbXQwl+n/wdZ3u4d0Mcf3HVPgBMZD+A=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=mvOUYzYP; arc=fail smtp.client-ip=52.101.52.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E915635A3B1
+	for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 18:19:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.178
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779214785; cv=none; b=eQzgiGdNiEfb7zoHiiPcHaySkDah5GQ2W03pgSwDpZFpYMTjwPLR0C8JEXp6rDTdlryvw7stYFwEx+CfssoYF6rDKxR03HG/5soJk83mjq8oIxROAexCf/VsM4Qzyz7Z2ACZmMI+weveyOAn6l/dMXlfohTyDUFJg1pnRt23wFc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779214785; c=relaxed/simple;
+	bh=011c6Jh4xWmSqAqrzi85Yq5JgEYpNeoBlg3EZSAIjgA=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=tfCoxDTgDtFpXrel/YbWRXuEnZu3pgCHZEMbvrquYQGvQtsJU1Qe0HsbHvo2yiQllj2TMLYWLMMb0uTIUcAbp+KjhwfS4qc5LwENQv+AruoNKX3rz2Q8dW3wiBSlrp/Ou5uHMO+IcvdRPGIupCP1K/6usbJ4432r1tGWY/22T0k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=C/EhWX2/; arc=none smtp.client-ip=74.125.82.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="mvOUYzYP"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=IoDPrCnoLGBMA5a9GCJ3dxqq8rpR7Mi/lsm+pP7UyEqyX8yREmlc7yBpEWSeX1mMDAvaLsOCBKe0Z/qMqKrOsx6gC9qlBj7Va3xH0Qg3ucy4NOtlpXZHHDh8JPtqdQZ0uaykTjzbwPE4pnVuR3bL2pdeZcuctTRKeQ4e3UoCR6TXDna5HKnge76mjYsQ3kFO6n9KwDSsc5OSfBAvVBfJIYPISfHpVC1WGslgRO2jx8wAYK3GXBWEbLnnRtFbzVBoKibAlzJr03He8GW1nPdutei49F4M0XUp7HyvK95zcLQ0zTSQZi8538Km67KXDY18Vuc5rQ51rTEI7Cpu6LBlMQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=zvgUerGc+hn3fDC/B7WfEVypQQQn1i/6qR7Iiss2dDc=;
- b=k6DsVqVWh2KqpL3h2xyaav9g4I7i8PlU2vD9Izq3F2X6Kwz9bhqOfG8nhqi99HXbmH/2312H+Q7MOGoZusgMItKac5UuuuphPuc461wvp0/9ciC+SexBc0ACx9LsnBCNkjdjteZYmlQ0egBnlo4SLdw8LFN6HUe3xKSKpaAkVdjhjdiTtdvW84Z6tjMZZA7rR8lnGWxB+x8A2dWxkJIe9lNeVzgkzwPEIVIZws0DZFBPTPTKaTTAJGRgZeWCC8Pk0aXRyta9PrFdCxL9t3LBstUnW6yCCFTAtdumGVh6wUgoawJP35i/o8TqC7x20KN+YQ3ks22ddUMhehCxHiEetA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=lysator.liu.se smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=zvgUerGc+hn3fDC/B7WfEVypQQQn1i/6qR7Iiss2dDc=;
- b=mvOUYzYPiYbnc1JRce3OeHVXq8VdbLw0O7qlACqAzVDBqheRjt9mF/S4pYMZ6qxRcwImXsVYLJjs0IUCPgBPsVnHJOecQtu87jc4fhYxDOFMWAwXHSpFEi+FZossoKKLPepqZa9nJRybpabWKh3AoiZ4qdB8JqZ38t3e9b8KEwis5HeBChr3/YmInmyIkJZn2mgO4GAOs8FPT43gUYFZO8hj910RddhgxRb0bgTDtyXUhIxxpaDsAXgFbw7dw7WMPdxoaHQ58VAtvQV4azvq4ApMTh5h3/IQL5LeEyKGnkSXL6pZ4I+OyydnyPLlkeKhZ9OqbBNwUAiodwXg3jsh5g==
-Received: from DS7PR05CA0045.namprd05.prod.outlook.com (2603:10b6:8:2f::7) by
- IA1PR12MB7613.namprd12.prod.outlook.com (2603:10b6:208:42a::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.25.18; Tue, 19 May
- 2026 17:43:53 +0000
-Received: from DM2PEPF00003FC6.namprd04.prod.outlook.com
- (2603:10b6:8:2f:cafe::6) by DS7PR05CA0045.outlook.office365.com
- (2603:10b6:8:2f::7) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.48.14 via Frontend Transport; Tue, 19
- May 2026 17:43:53 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- DM2PEPF00003FC6.mail.protection.outlook.com (10.167.23.25) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.48.11 via Frontend Transport; Tue, 19 May 2026 17:43:52 +0000
-Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Tue, 19 May
- 2026 10:43:32 -0700
-Received: from r-build-bsp-06.mtr.labs.mlnx (10.126.231.37) by
- rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.20; Tue, 19 May 2026 10:43:30 -0700
-From: Vadim Pasternak <vadimp@nvidia.com>
-To: <peda@lysator.liu.se>
-CC: <wsa@the-dreams.de>, <linux-i2c@vger.kernel.org>, Vadim Pasternak
-	<vadimp@nvidia.com>
-Subject: [PATCH i2c-mux next 1/1] i2c: mux: Add register map based mux driver
-Date: Tue, 19 May 2026 20:43:10 +0300
-Message-ID: <20260519174310.1128423-1-vadimp@nvidia.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="C/EhWX2/"
+Received: by mail-dy1-f178.google.com with SMTP id 5a478bee46e88-2f3c623322bso366683eec.0
+        for <linux-i2c@vger.kernel.org>; Tue, 19 May 2026 11:19:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=nexthop.ai; s=google; t=1779214781; x=1779819581; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=MQJW3WCfJKOz/Cwke2nbE8MPA/u27zOGB07cr3akkaw=;
+        b=C/EhWX2/yJ6JTl5SGc99EBjNJ4ycc0h/pDrOxMpdH97LLB9loTURk5VJvp8VgYUMTJ
+         C1x8yq+oLsS5+DjmDjGHMLwgO/h1cDE2rBFYccf4reHRuAHtfH3m/7eOCDvL5hnM4IAY
+         10BkEAj5PGK9cLLDELxX7MH2XW0QGeiKe4FTLW188md8UvK1CF2yMAu4gbQ72k39KQER
+         DZz0FzRq0lY/lXbGKyFgIykJkSc+bdPWUKVVR+vr6Jxz5dpXTtMmW3YjmzH/qoIpUKpc
+         tdEIYZTELjrQ0oW1EccydfsM6RBp4JGTE18mG9EHWZbyKUYm5Hhroa1yf/TpQiSmvQdw
+         /U0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779214781; x=1779819581;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=MQJW3WCfJKOz/Cwke2nbE8MPA/u27zOGB07cr3akkaw=;
+        b=RBfqXoHy7t6elepAwXsupsmlPrJfCTLrKWr1dGOjcKfZVc6PTmkN6caFWSzmvA03wj
+         DkealvH71WYTdW22NfMY5WALUR8205kNc01H7c7g+6xjAwPUgXGvV2rdrSiRxcf/wSbf
+         4hc8Cn/niSCrln4JrbkTANd940zvfzu4TC3C9g62q63AYxwPlSTUVbtqtt+aLZWFnjT0
+         +Pv3Pa7VXQvQvfdKn5guhNURuLOyNO8HDi6h9TX57mClZmLcNdp5aA4vLX9VjnG2IIUv
+         83NnfSrAh7kkM7rsgEiOgg8auI8REb9FQOjThrmthgxCLKnfXCG3fzkDXxZQl2BkWugA
+         xW8Q==
+X-Gm-Message-State: AOJu0YxwjKR+PO9jBLINJckRpp6+RO07S7c/rX9YBUeEixYoTdTb2iMY
+	lkKylNGutnclKtJALtBu4PluaYtxjA2GzzGy0sFJw2Acww/tzlxCO/9cWKA9IS85rbA5yk7oqWI
+	wo03ea7o=
+X-Gm-Gg: Acq92OGEgIDPQdXanpXsdsI1gXZMonYXqSRcMMLqPbKSMNJExdv4wrq6fvFa1fwcJSg
+	gW7+Mh8MIYmTF0YvzsOsU4rTPQ/f89ZApIFbG1aV9i5KqrbnHtcNqc7oya702KKNb4hJWHQzn46
+	A6kUJl/vixqKtGS0wgl3d5+Gf5oVncMdK3TcQPjnZ8Q/mK5EHG4C2ZKzSeA3BWWV9RfaVdN5YZk
+	F5xvrKBi1Lg9ttvQIfCY+LQyeGkEdH01oV1EVlYBaS26yRKLLqbvBSR3FSRjMss2ZPclb5gHpjY
+	Ql5Tbhhw+bMm2drxeMCI595n6DamIpVoNmlpBeFRC44ampu29weXVVCAMDHi73cKOFhtYVzAOeT
+	PqKmeseGAZ/GmIJ/vrZ0o3aEtpZwxIg7GnqbdpvYhCAOod+Xk3nHAapXNJo319tksRp3wtsNibe
+	KcN0u7djjnsPzsDVAp0n/iP2guZA==
+X-Received: by 2002:a05:7301:1001:b0:2e5:5bf4:8869 with SMTP id 5a478bee46e88-303986771bcmr9519703eec.21.1779214780728;
+        Tue, 19 May 2026 11:19:40 -0700 (PDT)
+Received: from [127.0.0.2] ([50.145.100.174])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30293e2e686sm20039144eec.5.2026.05.19.11.19.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 May 2026 11:19:40 -0700 (PDT)
+From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Date: Tue, 19 May 2026 11:19:36 -0700
+Subject: [PATCH v5] i2c: mux: reg: use device property accessors
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: rnnvmail201.nvidia.com (10.129.68.8) To
- rnnvmail201.nvidia.com (10.129.68.8)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DM2PEPF00003FC6:EE_|IA1PR12MB7613:EE_
-X-MS-Office365-Filtering-Correlation-Id: bb8c88d3-edf0-4b8b-95a1-08deb5ce3116
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|36860700016|1800799024|82310400026|376014|11063799006|13003099007|5023799004|3023799007|18002099003|56012099003;
-X-Microsoft-Antispam-Message-Info:
-	23u3ucbyZYMyYpsI1o6CmWlcFpA3YixupBypnUnUDQbv/27S/IXIoNV95wi6XlsadjHdnwJNLvOcMGWa2PgvTade+psRRl8N3sQLOUDozleHzfzqMUIFF6CUnas9cgeS81/GiYfC+OOH6doyZ1I4WHiELI0pSx8MYTEPK9GyC2k1XoUx3g7MwVNDtxRqLpImO2xqSjnyv9Mmc2j56zqxfRNmsVzWyATTITdzN26GtYg5EQDoMZw/FLKqqH9ScMXFyDaVGF8dS4xl/hKCPdOSqBXnpFGLldErIzjenk0Ui/AZoib4xPhHgo1y6YAgVt5bwmgVYCQP0tms5HEtnxUX2XH2bY0PV2S3SiD37GTxFk7lWA61dZ9iPAHO6mEwuo1X3xye8f4+yq2IDwVa+FxfgfYM6zdzhgQM+Xl+JWH0cDOcNrJgW+H5UXpygweuL9mYLZVwSAd0ktwE5CB9v06kbKTvVvQbzX8iFttsHMF70g2u8hVwPD7ng2jWpI92WO5VFZU7VZQwX9Kvk5h4M5uOQKN2A32CNaKrP2lculQVFh0z8jCJLxHSuY19oRnso6x2voa5KdyEQMoSuWB4GX2jJoNRd+ySSQKr73xz324AzolS8LKhUMvauLV/rn5vUReP+X7yWGRFQY6s2zhekW0FO4gGeBDaUpeJWjdQkBCobpWMHOz60gkbX5ms+1a5sHCV/KGLY46n3jXlhEr9EbK6a5GREdpmM7kFiw8IbUcifKs=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(36860700016)(1800799024)(82310400026)(376014)(11063799006)(13003099007)(5023799004)(3023799007)(18002099003)(56012099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	GRXwiMu87ULnnJ7behxKXBId30ioKdcyQ8S1HqqVeETAimPvzlYMG8k7OREN7ol+hlshHpi+N+GG8eQuzZmrv9xFhHZZhIdDKgJnDsmJC7UcGeCO6nddUrnK5EzKNlEwYdQ/Wxujd73KSHIIylKjtM6QDH8H5PVglsW4qWB09iLtgpgJttoHtBlbf6XRxMbJHZWdwIZG2maACPe96lU/+sSYhS31WEy+fo9fXdkXEptjgCB4x7XVpvpwMPI5s+KwoTfVklxCl7in2/UFqrYoXM8IWLhNYj458Q/pOPFh0kVKqBeqkI4fjxEOhRMDXRp8TjlRhG7kTZ7g+txIEnS9NTL60SPXEacygt3D4WB9BydPhZultqCo608XjXegdxqbaLiQDprmzux2FYKNRDX8xkOr01Q+aoGJvvW8EEOl1ntW7Gp1C9pmIlu1pzn3HO+t
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 May 2026 17:43:52.3119
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: bb8c88d3-edf0-4b8b-95a1-08deb5ce3116
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	DM2PEPF00003FC6.namprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB7613
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260519-i2c-mux-reg-v5-1-7af068f255cd@nexthop.ai>
+X-B4-Tracking: v=1; b=H4sIALepDGoC/2XOTY7CMAyG4augrAlynB8KK+6BWJjGJVm0RWmpi
+ lDvPgmzmFaz/GQ9r/wRA6fIgzjvPiLxFIfYd3nY/U7UgboHy+jzFgjoQIOVEWvZvmaZ+CGtRQT
+ tqbLOiCyeiZs4f2vXW95N6ls5hsT011DKAmiL+oDOOZBK0t2/UqLQUnfpeB5D/zxQLL0Qh7FP7
+ +9zE5bqb8Mq3PwxYc5UwKQ8mdoDrTvlkUmvsd5inTE0dERTrvf6HzZrXG2xKVgZfVJHZYyHDV6
+ W5Qcz62xcYQEAAA==
+X-Change-ID: 20260305-i2c-mux-reg-552203da8564
+To: Peter Rosin <peda@lysator.liu.se>, Peter Rosin <peda@lysator.liu.se>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Abdurrahman Hussain <abdurrahman@nexthop.ai>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1779214780; l=13412;
+ i=abdurrahman@nexthop.ai; s=20260510; h=from:subject:message-id;
+ bh=011c6Jh4xWmSqAqrzi85Yq5JgEYpNeoBlg3EZSAIjgA=;
+ b=wh1yoidfpXl6VoNGYXPAVCBb3wRro/3Vcos42wiGyBNnr3cRr8k0vWjUvxYstv51MbP9Piaws
+ fLF9eY72B7uBNpaGPcR1P/oItzvqQwkV6gw172cGS9bSKF7E38GfOfw
+X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
+ pk=omTm9cCAbO0ZhS32aKfJDKue0W3sQGpG9ub5eYHif8I=
 
-Add 'regmap' mux driver to allow virtual bus switching by setting a
-single selector register.
-The 'regmap' is supposed to be passed to driver within a platform data
-by parent platform driver.
+Convert the device-tree parsing path to the generic fwnode/device
+property accessors so the driver can be probed on ACPI and swnode
+platforms as well as OF. The helper is renamed from
+i2c_mux_reg_probe_dt() to i2c_mux_reg_probe_fw() to reflect that.
 
-Unlike i2c-mux-reg, this driver relies on regmap abstraction
-instead of direct MMIO access, allowing the mux selector register
-to be accessed through arbitrary transport mechanisms supported
-by regmap callbacks, including indirect PCIe-to-SPI and PCIe-to-LPC
-transactions.
+Accessor translation:
 
-The register may reside on any bus type or mapped memory, supported by
-'regmap' infrastructure.
+  of_parse_phandle("i2c-parent") +
+    of_find_i2c_adapter_by_node()    -> fwnode_find_reference() +
+                                         i2c_find_adapter_by_fwnode()
+  of_get_child_count()               -> device_get_child_node_count()
+  of_property_read_bool()            -> device_property_read_bool()
+  for_each_child_of_node()           -> device_for_each_child_node()
+    of_property_read_u32("reg")        on ACPI device nodes:
+                                         acpi_get_local_address()
+                                       everything else (OF, swnode,
+                                       ACPI data nodes):
+                                         fwnode_property_read_u32()
+  of_property_read_u32("idle-state") -> device_property_read_u32()
 
-Motivation is to support mux selector registers accessed indirectly
-through transport-specific protocols.
+The child-node branch uses is_acpi_device_node() rather than
+is_acpi_node(): the latter also matches ACPI data nodes (the
+_DSD hierarchical-property children used by PRP0001-style
+firmware), which have no ACPI handle and would make
+acpi_get_local_address() fall back to evaluating _ADR against the
+root namespace and return -ENODATA.  Routing data nodes through
+fwnode_property_read_u32() instead lets them resolve the "reg"
+property the same way OF and swnode children do.
 
-For example, an FPGA connected through PCIe may expose SPI or LPC
-bridges used to access downstream CPLDs or secondary FPGAs located on
-another board. In such configurations the mux selector register is not
-directly memory-mapped and access is performed through regmap
-reg_read()/reg_write() callbacks implementing the required indirect
-transaction protocol.
+Behavioural preservations (deliberate, to avoid regressing existing
+users):
 
-Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+  - The three-way endian fallback is kept verbatim: an explicit
+    "little-endian" property wins, then "big-endian", and otherwise
+    the host's compile-time byte order. device_is_big_endian() is
+    not used here because it ignores "little-endian" and introduces
+    "native-endian" semantics, which would diverge from the binding.
+
+  - The "if (!mux->data.reg)" guard around
+    devm_platform_get_and_ioremap_resource() in probe() is kept.
+    drivers/platform/mellanox/mlx-platform.c registers i2c-mux-reg
+    platform_devices with no memory resource and supplies a
+    pre-set .reg / .reg_size through struct
+    i2c_mux_reg_platform_data; without the guard those
+    registrations would fail in probe().
+
+  - The "if (!mux->data.reg)" ioremap block (and the paired
+    reg_size validation that depends on it) is hoisted above
+    i2c_get_adapter(mux->data.parent), so the fwnode path
+    preserves master's ordering of "ioremap before parent-adapter
+    get".  For platdata users the validation runs from a slightly
+    earlier position, but mux->data.reg_size is already set from
+    platdata by then, so the order is functionally neutral.
+
+The OF-only of_address_to_resource() translation in the old
+probe_dt() is dropped because the same address is available from
+the platform_device resource table on OF as well as ACPI, and the
+existing fallback in probe() ioremaps it.
+
+Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
 ---
-Note:
-Originally proposed in 2023:
-https://patchwork.ozlabs.org/project/linux-i2c/patch/20230823155332.48648-2-vadimp@nvidia.com/
-Reworked against current upstream.
----
- drivers/i2c/muxes/Kconfig                    |  12 ++
- drivers/i2c/muxes/Makefile                   |   1 +
- drivers/i2c/muxes/i2c-mux-regmap.c           | 150 +++++++++++++++++++
- include/linux/platform_data/i2c-mux-regmap.h |  37 +++++
- 4 files changed, 200 insertions(+)
- create mode 100644 drivers/i2c/muxes/i2c-mux-regmap.c
- create mode 100644 include/linux/platform_data/i2c-mux-regmap.h
+- Discriminate ACPI children with is_acpi_device_node() instead of
+  is_acpi_node().  v4 routed every is_acpi_node() child to
+  acpi_get_local_address(), which is wrong for ACPI data nodes
+  (the _DSD hierarchical-property children PRP0001-style firmware
+  uses): data nodes have no ACPI handle, so ACPI_HANDLE_FWNODE()
+  returns NULL, acpi_get_local_address() falls back to evaluating
+  _ADR against the root namespace, and the probe fails with
+  -ENODATA.  is_acpi_device_node() narrows the match to ACPI
+  device nodes (which do carry an _ADR), and the else-branch now
+  resolves "reg" via fwnode_property_read_u32() for OF, swnode,
+  and ACPI data nodes alike.  Flagged by Sashiko on v4.
 
-diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
-index 6d2f66810cdc..9b5e5258917a 100644
---- a/drivers/i2c/muxes/Kconfig
-+++ b/drivers/i2c/muxes/Kconfig
-@@ -99,6 +99,18 @@ config I2C_MUX_REG
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called i2c-mux-reg.
+- Patch description: extend the accessor-translation table to show
+  the new ACPI-device-node vs everything-else split, plus a short
+  paragraph explaining why is_acpi_device_node() is the right
+  predicate.
+
+- Link to v4: https://patch.msgid.link/20260518-i2c-mux-reg-v4-1-0143917144d0@nexthop.ai
+
+Changes in v4 (per Peter's review of v3):
+
+- Switch the parent-adapter lookup back from
+  i2c_get_adapter_by_fwnode() to i2c_find_adapter_by_fwnode() +
+  put_device(), matching the OF original's
+  of_find_i2c_adapter_by_node() semantics (device ref only, no
+  module ref).  probe()'s subsequent i2c_get_adapter() does its
+  own try_module_get() and -EPROBE_DEFERs on failure, so the
+  brief acquire-then-release in probe_fw() wasn't earning
+  anything.
+
+- In probe(), hoist the "if (!mux->data.reg)" ioremap block
+  (together with the paired reg_size validation) above the
+  i2c_get_adapter() call, restoring master's "ioremap before
+  parent-adapter get" ordering on the fwnode path.
+
+- Patch description: name drivers/platform/mellanox/mlx-platform.c
+  as the concrete in-tree platdata user that motivates keeping
+  the "if (!mux->data.reg)" guard around the platform-resource
+  ioremap path.  No code change.
+
+- Link to v3: https://patch.msgid.link/20260513-i2c-mux-reg-v3-1-0fa7242605bc@nexthop.ai
+
+Changes in v3:
+
+- Restore the original __BYTE_ORDER preprocessor check for the
+  endian-property fallback. v2 replaced it with
+  IS_ENABLED(CONFIG_CPU_LITTLE_ENDIAN), but that Kconfig symbol is
+  only defined on architectures with configurable endianness (arm,
+  arm64, mips, ppc, sh, xtensa, microblaze). On architectures where
+  endianness is fixed (x86, RISC-V, ...), the symbol is undefined,
+  IS_ENABLED() silently evaluates to false, and the mux defaults to
+  big-endian register writes. On a little-endian host that turns any
+  non-zero channel selection into garbage and quietly breaks every
+  slave behind the mux.
+
+- Replace put_device(&adapter->dev) with i2c_put_adapter(adapter).
+  v1 switched from of_find_i2c_adapter_by_node() to
+  i2c_get_adapter_by_fwnode(); the new helper additionally takes a
+  try_module_get() on the adapter owner that put_device() alone does
+  not release. This leaked a module reference on every successful
+  probe.
+
+- Read swnode child "reg" properties via fwnode_property_read_u32().
+  The previous loop branched on is_of_node()/is_acpi_node() only;
+  software nodes hit neither arm and silently left values[i] = 0,
+  giving every swnode channel index 0 and breaking channel mapping
+  on swnode platforms -- exactly the case the cover claims to add
+  support for.
+
+i2c: mux: reg: use device property accessors
+
+Convert the device-tree parsing path in i2c-mux-reg to the generic
+fwnode/device property accessors so the driver can be probed on ACPI
+and swnode platforms in addition to OF.
+
+Changes in v2 (per Peter's review of v1 [1]):
+
+- Restore the three-way endian-property fallback verbatim. v1 used
+  device_is_big_endian(), which ignores "little-endian" and adds
+  "native-endian" semantics -- a binding-visible behaviour change on
+  big-endian hosts that did not specify the property. v2 keeps the
+  original logic ("little-endian" wins, then "big-endian", else the
+  host's compile-time byte order), expressed via
+  device_property_read_bool() instead of of_property_read_bool().
+
+- Restore the "if (!mux->data.reg)" guard around
+  devm_platform_get_and_ioremap_resource() in probe(). v1 dropped it
+  and would have clobbered the pre-ioremapped reg supplied by a
+  platdata user through struct i2c_mux_reg_platform_data.
+
+- Restore the dev_err_probe() wrapper at the probe_fw() call site so
+  the silent error paths in the helper still produce a dmesg line on
+  failure.
+
+- Rewrite the changelog to enumerate the accessor translations, the
+  new ACPI child-node handling via acpi_get_local_address(), and the
+  behavioural preservations above.
+
+[1] https://lore.kernel.org/r/20260115003523.26660-1-abdurrahman@nexthop.ai
+Link to v2: https://patch.msgid.link/20260512-i2c-mux-reg-v2-1-80ea1da4cd0a@nexthop.ai
+---
+ drivers/i2c/muxes/i2c-mux-reg.c | 90 +++++++++++++++++------------------------
+ 1 file changed, 38 insertions(+), 52 deletions(-)
+
+diff --git a/drivers/i2c/muxes/i2c-mux-reg.c b/drivers/i2c/muxes/i2c-mux-reg.c
+index 1e566ea92bc9..13da757100fe 100644
+--- a/drivers/i2c/muxes/i2c-mux-reg.c
++++ b/drivers/i2c/muxes/i2c-mux-reg.c
+@@ -11,7 +11,6 @@
+ #include <linux/init.h>
+ #include <linux/io.h>
+ #include <linux/module.h>
+-#include <linux/of_address.h>
+ #include <linux/platform_data/i2c-mux-reg.h>
+ #include <linux/platform_device.h>
+ #include <linux/slab.h>
+@@ -75,37 +74,34 @@ static int i2c_mux_reg_deselect(struct i2c_mux_core *muxc, u32 chan)
+ 	return 0;
+ }
  
-+config I2C_MUX_REGMAP
-+	tristate "Register map based I2C multiplexer"
-+	depends on REGMAP
-+	help
-+	  If you say yes to this option, support will be included for a
-+	  register map based I2C multiplexer. This driver provides access to
-+	  I2C busses connected through a MUX, which is controlled
-+	  by a single register through the regmap.
-+
-+	  This driver can also be built as a module. If so, the module
-+	  will be called i2c-mux-regmap.
-+
- config I2C_DEMUX_PINCTRL
- 	tristate "pinctrl-based I2C demultiplexer"
- 	depends on PINCTRL && OF
-diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
-index 4b24f49515a7..edecfc593df7 100644
---- a/drivers/i2c/muxes/Makefile
-+++ b/drivers/i2c/muxes/Makefile
-@@ -15,5 +15,6 @@ obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
- obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
- obj-$(CONFIG_I2C_MUX_PINCTRL)	+= i2c-mux-pinctrl.o
- obj-$(CONFIG_I2C_MUX_REG)	+= i2c-mux-reg.o
-+obj-$(CONFIG_I2C_MUX_REGMAP)	+= i2c-mux-regmap.o
+-#ifdef CONFIG_OF
+-static int i2c_mux_reg_probe_dt(struct regmux *mux,
+-				struct platform_device *pdev)
++static int i2c_mux_reg_probe_fw(struct regmux *mux, struct device *dev)
+ {
+-	struct device_node *np = pdev->dev.of_node;
+-	struct device_node *adapter_np, *child;
++	struct fwnode_handle *fwnode, *child;
+ 	struct i2c_adapter *adapter;
+-	struct resource res;
+ 	unsigned *values;
+-	int i = 0;
++	int ret, i = 0;
  
- ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
-diff --git a/drivers/i2c/muxes/i2c-mux-regmap.c b/drivers/i2c/muxes/i2c-mux-regmap.c
-new file mode 100644
-index 000000000000..485f275baeb5
---- /dev/null
-+++ b/drivers/i2c/muxes/i2c-mux-regmap.c
-@@ -0,0 +1,150 @@
-+// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
-+/*
-+ * Regmap i2c mux driver
-+ *
-+ * Copyright (C) 2026 Nvidia Technologies Ltd.
-+ */
+-	if (!np)
++	if (!dev_fwnode(dev))
+ 		return -ENODEV;
+ 
+-	adapter_np = of_parse_phandle(np, "i2c-parent", 0);
+-	if (!adapter_np) {
+-		dev_err(&pdev->dev, "Cannot parse i2c-parent\n");
++	fwnode = fwnode_find_reference(dev_fwnode(dev), "i2c-parent", 0);
++	if (IS_ERR(fwnode)) {
++		dev_err(dev, "missing 'i2c-parent' property\n");
+ 		return -ENODEV;
+ 	}
+-	adapter = of_find_i2c_adapter_by_node(adapter_np);
+-	of_node_put(adapter_np);
 +
-+#include <linux/device.h>
-+#include <linux/i2c.h>
-+#include <linux/i2c-mux.h>
-+#include <linux/io.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/platform_data/i2c-mux-regmap.h>
-+#include <linux/platform_device.h>
-+#include <linux/regmap.h>
-+#include <linux/slab.h>
++	adapter = i2c_find_adapter_by_fwnode(fwnode);
++	fwnode_handle_put(fwnode);
+ 	if (!adapter)
+ 		return -EPROBE_DEFER;
+ 
+ 	mux->data.parent = i2c_adapter_id(adapter);
+ 	put_device(&adapter->dev);
+ 
+-	mux->data.n_values = of_get_child_count(np);
+-	if (of_property_read_bool(np, "little-endian")) {
++	mux->data.n_values = device_get_child_node_count(dev);
++	if (device_property_read_bool(dev, "little-endian")) {
+ 		mux->data.little_endian = true;
+-	} else if (of_property_read_bool(np, "big-endian")) {
++	} else if (device_property_read_bool(dev, "big-endian")) {
+ 		mux->data.little_endian = false;
+ 	} else {
+ #if defined(__BYTE_ORDER) ? __BYTE_ORDER == __LITTLE_ENDIAN : \
+@@ -118,40 +114,35 @@ static int i2c_mux_reg_probe_dt(struct regmux *mux,
+ #error Endianness not defined?
+ #endif
+ 	}
+-	mux->data.write_only = of_property_read_bool(np, "write-only");
++	mux->data.write_only = device_property_read_bool(dev, "write-only");
+ 
+-	values = devm_kcalloc(&pdev->dev,
+-			      mux->data.n_values, sizeof(*mux->data.values),
++	values = devm_kcalloc(dev, mux->data.n_values, sizeof(*mux->data.values),
+ 			      GFP_KERNEL);
+ 	if (!values)
+ 		return -ENOMEM;
+ 
+-	for_each_child_of_node(np, child) {
+-		of_property_read_u32(child, "reg", values + i);
++	device_for_each_child_node(dev, child) {
++		if (is_acpi_device_node(child)) {
++			ret = acpi_get_local_address(ACPI_HANDLE_FWNODE(child),
++						     &values[i]);
++			if (ret) {
++				fwnode_handle_put(child);
++				return dev_err_probe(dev, ret,
++						     "Cannot get address\n");
++			}
++		} else {
++			fwnode_property_read_u32(child, "reg", &values[i]);
++		}
 +
-+/* i2c_mux_regmap - mux control structure:
-+ * @last_val - last selected register value or -1 if mux deselected;
-+ * @pdata: platform data;
-+ */
-+struct i2c_mux_regmap {
-+	int last_val;
-+	struct i2c_mux_regmap_platform_data pdata;
-+};
-+
-+static int i2c_mux_regmap_select_chan(struct i2c_mux_core *muxc, u32 chan)
-+{
-+	struct i2c_mux_regmap *mux = i2c_mux_priv(muxc);
-+	int err = 0;
-+
-+	/* Only select the channel if its different from the last channel */
-+	if (mux->last_val != chan) {
-+		err = regmap_write(mux->pdata.regmap, mux->pdata.sel_reg_addr, chan);
-+		mux->last_val = err < 0 ? -1 : chan;
-+	}
-+
-+	return err;
-+}
-+
-+static int i2c_mux_regmap_deselect(struct i2c_mux_core *muxc, u32 chan)
-+{
-+	struct i2c_mux_regmap *mux = i2c_mux_priv(muxc);
-+
-+	/* Deselect active channel */
-+	mux->last_val = -1;
-+
-+	return regmap_write(mux->pdata.regmap, mux->pdata.sel_reg_addr, 0);
-+}
-+
-+static void i2c_mux_regmap_notify_probe_abandon(struct platform_device *pdev,
-+						struct i2c_mux_regmap *mux,
-+						struct i2c_mux_core *muxc,
-+						struct i2c_adapter *parent,
-+						int err, bool user_notify_called)
-+{
-+	const struct i2c_mux_regmap_platform_data *pd;
-+
-+	if (user_notify_called || err == -EPROBE_DEFER)
-+		return;
-+	pd = mux ? &mux->pdata : dev_get_platdata(&pdev->dev);
-+	if (!pd || !pd->completion_notify || !pd->handle)
-+		return;
-+	pd->completion_notify(pd->handle, muxc ? muxc->parent : parent, NULL);
-+}
-+
-+/* Probe/remove functions */
-+static int i2c_mux_regmap_probe(struct platform_device *pdev)
-+{
-+	struct i2c_mux_regmap_platform_data *pdata = dev_get_platdata(&pdev->dev);
-+	struct i2c_mux_regmap *mux;
-+	struct i2c_adapter *parent;
-+	struct i2c_mux_core *muxc = NULL;
-+	bool user_notify_called = false;
-+	int num, ret;
-+
-+	if (!pdata)
+ 		i++;
+ 	}
+ 	mux->data.values = values;
+ 
+-	if (!of_property_read_u32(np, "idle-state", &mux->data.idle))
++	if (!device_property_read_u32(dev, "idle-state", &mux->data.idle))
+ 		mux->data.idle_in_use = true;
+ 
+-	/* map address from "reg" if exists */
+-	if (of_address_to_resource(np, 0, &res) == 0) {
+-		mux->data.reg_size = resource_size(&res);
+-		mux->data.reg = devm_ioremap_resource(&pdev->dev, &res);
+-		if (IS_ERR(mux->data.reg))
+-			return PTR_ERR(mux->data.reg);
+-	}
+-
+ 	return 0;
+ }
+-#else
+-static int i2c_mux_reg_probe_dt(struct regmux *mux,
+-				struct platform_device *pdev)
+-{
+-	return 0;
+-}
+-#endif
+ 
+ static int i2c_mux_reg_probe(struct platform_device *pdev)
+ {
+@@ -169,34 +160,29 @@ static int i2c_mux_reg_probe(struct platform_device *pdev)
+ 		memcpy(&mux->data, dev_get_platdata(&pdev->dev),
+ 			sizeof(mux->data));
+ 	} else {
+-		ret = i2c_mux_reg_probe_dt(mux, pdev);
++		ret = i2c_mux_reg_probe_fw(mux, &pdev->dev);
+ 		if (ret < 0)
+ 			return dev_err_probe(&pdev->dev, ret,
+-					     "Error parsing device tree");
++					     "Error parsing firmware description\n");
+ 	}
+ 
+-	parent = i2c_get_adapter(mux->data.parent);
+-	if (!parent)
+-		return -EPROBE_DEFER;
+-
+ 	if (!mux->data.reg) {
+-		dev_info(&pdev->dev,
+-			"Register not set, using platform resource\n");
+ 		mux->data.reg = devm_platform_get_and_ioremap_resource(pdev, 0, &res);
+-		if (IS_ERR(mux->data.reg)) {
+-			ret = PTR_ERR(mux->data.reg);
+-			goto err_put_parent;
+-		}
++		if (IS_ERR(mux->data.reg))
++			return PTR_ERR(mux->data.reg);
+ 		mux->data.reg_size = resource_size(res);
+ 	}
+ 
+ 	if (mux->data.reg_size != 4 && mux->data.reg_size != 2 &&
+ 	    mux->data.reg_size != 1) {
+ 		dev_err(&pdev->dev, "Invalid register size\n");
+-		ret = -EINVAL;
+-		goto err_put_parent;
 +		return -EINVAL;
-+
-+	parent = i2c_get_adapter(pdata->parent);
+ 	}
+ 
++	parent = i2c_get_adapter(mux->data.parent);
 +	if (!parent)
 +		return -EPROBE_DEFER;
 +
-+	muxc = i2c_mux_alloc(parent, &pdev->dev, pdata->num_adaps, sizeof(*mux), 0,
-+			     i2c_mux_regmap_select_chan, i2c_mux_regmap_deselect);
-+	if (!muxc) {
-+		ret = -ENOMEM;
-+		goto err_put_parent;
-+	}
-+
-+	mux = i2c_mux_priv(muxc);
-+	memcpy(&mux->pdata, pdata, sizeof(*pdata));
-+	platform_set_drvdata(pdev, muxc);
-+	mux->last_val = -1; /* force the first selection */
-+
-+	/* Create an adapter for each channel. */
-+	for (num = 0; num < pdata->num_adaps; num++) {
-+		ret = i2c_mux_add_adapter(muxc, 0, pdata->chan_ids[num]);
-+		if (ret)
-+			goto err_i2c_mux_add_adapter;
-+	}
-+
-+	/* Notify caller when all channels' adapters are created. */
-+	if (pdata->completion_notify) {
-+		ret = pdata->completion_notify(pdata->handle, muxc->parent,
-+					       muxc->adapter);
-+		user_notify_called = true;
-+		if (ret)
-+			goto err_i2c_mux_add_adapter;
-+	}
-+
-+	return 0;
-+
-+err_i2c_mux_add_adapter:
-+	i2c_mux_regmap_notify_probe_abandon(pdev, mux, muxc, parent, ret,
-+					    user_notify_called);
-+	i2c_mux_del_adapters(muxc);
-+	goto put_parent;
-+err_put_parent:
-+	i2c_mux_regmap_notify_probe_abandon(pdev, mux, muxc, parent, ret,
-+					    user_notify_called);
-+put_parent:
-+	i2c_put_adapter(parent);
-+
-+	return ret;
-+}
-+
-+static void i2c_mux_regmap_remove(struct platform_device *pdev)
-+{
-+	struct i2c_mux_core *muxc = platform_get_drvdata(pdev);
-+
-+	i2c_mux_del_adapters(muxc);
-+	i2c_put_adapter(muxc->parent);
-+}
-+
-+static struct platform_driver i2c_mux_regmap_driver = {
-+	.driver = {
-+		.name = "i2c-mux-regmap",
-+	},
-+	.probe = i2c_mux_regmap_probe,
-+	.remove = i2c_mux_regmap_remove,
-+};
-+
-+module_platform_driver(i2c_mux_regmap_driver);
-+
-+MODULE_AUTHOR("Vadim Pasternak (vadimp@nvidia.com)");
-+MODULE_DESCRIPTION("Regmap I2C multiplexer driver");
-+MODULE_LICENSE("Dual BSD/GPL");
-+MODULE_ALIAS("platform:i2c-mux-regmap");
-diff --git a/include/linux/platform_data/i2c-mux-regmap.h b/include/linux/platform_data/i2c-mux-regmap.h
-new file mode 100644
-index 000000000000..0015d5a905d9
---- /dev/null
-+++ b/include/linux/platform_data/i2c-mux-regmap.h
-@@ -0,0 +1,37 @@
-+/* SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0 */
-+/*
-+ * Regmap i2c mux driver
-+ *
-+ * Copyright (C) 2026 Nvidia Technologies Ltd.
-+ */
-+
-+#ifndef __LINUX_PLATFORM_DATA_I2C_MUX_REGMAP_H
-+#define __LINUX_PLATFORM_DATA_I2C_MUX_REGMAP_H
-+
-+/**
-+ * struct i2c_mux_regmap_platform_data - Platform-dependent data for i2c-mux-regmap
-+ * @regmap: register map of parent device;
-+ * @parent: Parent I2C bus adapter number
-+ * @chan_ids: channels array
-+ * @num_adaps: number of adapters
-+ * @sel_reg_addr: mux select register offset in CPLD/FPGA space
-+ * @handle: handle to be passed by callback
-+ * @completion_notify: callback invoked after all child adapters are
-+ *	created. May also be invoked once with @adapters set to NULL if
-+ *	probe fails after parent adapter acquisition, so waiters can
-+ *	unblock.
-+ *	The adapters array is owned by mux core, remains valid until mux
-+ *	removal, and contains @num_adaps entries.
-+ */
-+struct i2c_mux_regmap_platform_data {
-+	struct regmap *regmap;
-+	int parent;
-+	const unsigned int *chan_ids;
-+	int num_adaps;
-+	int sel_reg_addr;
-+	void *handle;
-+	int (*completion_notify)(void *handle, struct i2c_adapter *parent,
-+				 struct i2c_adapter *adapters[]);
-+};
-+
-+#endif	/* __LINUX_PLATFORM_DATA_I2C_MUX_REGMAP_H */
--- 
-2.34.1
+ 	muxc = i2c_mux_alloc(parent, &pdev->dev, mux->data.n_values, 0, 0,
+ 			     i2c_mux_reg_select, NULL);
+ 	if (!muxc) {
+
+---
+base-commit: 70eda68668d1476b459b64e69b8f36659fa9dfa8
+change-id: 20260305-i2c-mux-reg-552203da8564
+
+Best regards,
+--  
+Abdurrahman Hussain <abdurrahman@nexthop.ai>
 
