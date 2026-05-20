@@ -1,189 +1,304 @@
-Received: from PA4PR04CU001.outbound.protection.outlook.com (mail-francecentralazon11013061.outbound.protection.outlook.com [40.107.162.61])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 58AA93D9DB5;
-	Wed, 20 May 2026 10:47:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.162.61
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779274071; cv=fail; b=EXLXlxT1XhLulY6rDAX3ZJk7QqHN+qwdmPO8btCY1+ev/KyDFITOMSfx85pW/ndPPrJlwJxow8S//pkpPNctCcmF3O3broPUIBZ1xrJq2fyMriTxD342fZCQIGFn8kdvQ389OX99IKmHwQCQ3D+0TT/PmeP1ebm/AtFcdOM5AnE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779274071; c=relaxed/simple;
-	bh=l8mHSMtu+4tOs47meNnr37w0ctERxsFf2h+j1u+R3LA=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=dF5wrqhtpcp40hqzH3xsTCV0a8kXwF/pW5BGXHrdYaAtVQTRPSQbcqq+0X4Rq32rErWhl5l8xiaQpWuBETfbtHSncNG47HIGbFs1CcKAyOunEeJaXxWW/+goRbVHo4NVE0UsfyVpGGgy3sY9hO+jDOZqfSqu/c9tF7RpdDJv7I4=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=eyRntQOG; arc=fail smtp.client-ip=40.107.162.61
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70E9A3E0254;
+	Wed, 20 May 2026 11:20:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779276019; cv=none; b=DI8S8x7UrU1ixZFvnFuY4nvL34584NwOUQhTVbo9GAdC2DOIEmfRExiMq8CroRIbadacnRZKqs1m+aogehQgLr9MZRmfTivdbE2/tZaAg/ZeooFiKoyyL6mpqPrIgHDXlyIREL7E6NCVaYXqmrbtqZFBxDsgCsT4jwGhsRtb5sE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779276019; c=relaxed/simple;
+	bh=kQiQktG49jtjh0yrsuVGLJX+d30nIFRsfE8tZ53RrL4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=MeaXwF6vAu45K9SLfFEdqLtSyTv17zwmgQEeHasjAM7UpVu7yZorpZVok7NE/SVs8f2t5pzRft/r5YecQR00bD3oAOnQfap5AR1WPUbaprXPs8lDM2Cfwf5OjdM/hT5yt7y6f4QusnGRHwmhlOiK0euC+wK54iZeCmXwpiMriug=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mxX6TLZ5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="eyRntQOG"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=fhsCgLhslpeljjA4T5NH1wnbGJw3CQeJlR/K5pyRjXDfnw3Q9JeltIJhGtFwmNIADDD793ZA7mr0dCi8zzn3uLolJJEqpX3ZVItIo7oKUj71fuIQwNx78/SK+VJ5zoTcb5EwCga+y2BEn1U27MTo/OcQZOTb4RVDGlnAtbmQ5wCAHzuOCkkt2iHibggEQyZ2YzCJ0rYscnNcUAVYwjAA/59CWrjzS3bFLOnGoPulXA7icbEzWDpRI0re0hr/SXe7L8tfRe7a6CrbPgHEn9MdepeLNLthQMZzhFdHbYgPsppTD2iXAnL6IwiUs28v8+ITf/j/5re0zV3vL7NYRJArRg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=4bPkgtBw7pHz1RCyCy8XVIPDe9AAjeZUk8Y64p7ixIw=;
- b=gELbuzs4m/c5OHZ2Yfsi6OcCR+6Tu4v0aaomTwAdkPDZAGhDXrGZN7B0dNSGmb07R+oKE8kqvfj2DaZE06arH40nBBrPqmUuv9lnALg58tavJ4/xF2Yi22Y93qrMeMUe+5huk1sYyFmdKDkauAqAMTrKg8nwXykIBlIiPhJVROMfaCDNZ8wBAS/tW0m71gv6lBZEgZFZtEiAH6LWhQi77yqmFo73EqukTLdVzWHepNRjeGlkufIq2Sv74mIItDNcnPswNTUlaAA3+i7ZzlQJcO/I415xQeADXk9GSpPPwjvmXVJDf4k23isPKg3wdlGu/82cz2sZmf0Xp/UiLugrOQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
- dkim=pass header.d=oss.nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
- s=selector1-NXP1-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4bPkgtBw7pHz1RCyCy8XVIPDe9AAjeZUk8Y64p7ixIw=;
- b=eyRntQOGq8DhP/1B5Gr5e80jiPBvnTKD0cbO41qvQx7jBsA/mDUj8BKK+4UYa4AcaWe76KJXuJOfH0PvJsDojHzv4YgnnkCg9L+F0iYC/I1aFNzJksMObsb2D6EruCK4soY3BFsMaR5hPZrdvz0sgbjwhavFhgOhLvqfmrbbrrfNlPpzEfkASvmi/FA4sGl0ZFCZXRbR/u1SfrxW6sEmw+c4cEqlHxm5AAB5+O9tRcqPMzGkPiAbnHuhXwAEXa242B86mhxpGZltnJj05dK32vWQjHW8C99Eftnm24APJD9viNZMabXeJjwHUpvNTBzY+g0XWFVfQXgcHBicftBXsg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=oss.nxp.com;
-Received: from AM0PR04MB6802.eurprd04.prod.outlook.com (2603:10a6:208:184::17)
- by DU4PR04MB12274.eurprd04.prod.outlook.com (2603:10a6:10:62b::5) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.48.14; Wed, 20 May
- 2026 10:47:47 +0000
-Received: from AM0PR04MB6802.eurprd04.prod.outlook.com
- ([fe80::dc36:17b6:e5b1:fa51]) by AM0PR04MB6802.eurprd04.prod.outlook.com
- ([fe80::dc36:17b6:e5b1:fa51%4]) with mapi id 15.21.0048.013; Wed, 20 May 2026
- 10:47:46 +0000
-From: "Carlos Song (OSS)" <carlos.song@oss.nxp.com>
-To: o.rempel@pengutronix.de,
-	kernel@pengutronix.de,
-	andi.shyti@kernel.org,
-	Frank.Li@nxp.com,
-	s.hauer@pengutronix.de,
-	festevam@gmail.com,
-	carlos.song@nxp.com
-Cc: linux-i2c@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mxX6TLZ5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AC001F000E9;
+	Wed, 20 May 2026 11:20:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779276015;
+	bh=kggCWnZpAHNNZQeOzSoSS4pC4UvCIi90dNDXgNeGc/Q=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=mxX6TLZ5CPYc+j7YiAfFOOw98QO+x4qOjNxT44PmLhbwhGyM4ycC5t0alIkafz2Ba
+	 QBO8fgMZK5Byb+qHDgCa6qMKZk3aJLv31+HncoqDr5LDuxUGMOHU5FW3eBwK0ph/Eh
+	 jQWDC2QihMQSLbYnpofFa2vv81ptCgGuIiW1hHWiSX1tTA0eKAlAoU1UcVi4evUx7W
+	 2WrTMYaRZLsFl7jR3CUxm2lTSxajsOAWRnBeVatOk/MrsWlV2nO0Ps+o5QC7SlwoDN
+	 0GT6Cpz8upEMMwnHtdURQaCE8wGRLx0ECpY/RCAO0YSs0eqaH/HV6GpZcMmVb2Pj93
+	 C+390pLtihELA==
+From: Sasha Levin <sashal@kernel.org>
+To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Subject: [PATCH] i2c: imx: fix clock and pinctrl state inconsistency in runtime PM
-Date: Wed, 20 May 2026 18:49:39 +0800
-Message-ID: <20260520104939.2897110-1-carlos.song@oss.nxp.com>
-X-Mailer: git-send-email 2.43.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: FR2P281CA0097.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:9c::12) To AM0PR04MB6802.eurprd04.prod.outlook.com
- (2603:10a6:208:184::17)
+Cc: Mingyu Wang <25181214217@stu.xidian.edu.cn>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Sasha Levin <sashal@kernel.org>,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH AUTOSEL 7.0-5.10] i2c: dev: prevent integer overflow in I2C_TIMEOUT ioctl
+Date: Wed, 20 May 2026 07:18:53 -0400
+Message-ID: <20260520111944.3424570-21-sashal@kernel.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260520111944.3424570-1-sashal@kernel.org>
+References: <20260520111944.3424570-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM0PR04MB6802:EE_|DU4PR04MB12274:EE_
-X-MS-Office365-Filtering-Correlation-Id: 76e1c3d4-9df7-460f-14c3-08deb65d3a86
-X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|19092799006|376014|52116014|7416014|56012099003|18002099003|38350700014|3023799007|11063799006;
-X-Microsoft-Antispam-Message-Info:
-	iY0+jEYZ0eevQKBWGLzjxd7A20iEONFikJfTDsOkmuMSy/s1/uMcT/tfCq3C3Pqqo/GlfzfpQVzIfxRfSBz5lrVal7mVl1EKUKQ73tbz6u9ysUzc41ljBkYQHKouxR50vIJHzxuPXVevMzq665/jkD6OkTYhfdmaXTYXJmQbassRfdfIErK+ff9PRk/CEW3Pk3GFq9ykREa2vNbBIFxX5M4zBb/nC50OaLa9WHDzdLhMLFKodD8TrrWwypkGOqoKLIXySxRu2f5w1Vrgb9YXnWsvoeXTFu8nsfa7/jhzM/LWCG2v9Go0s9UxXG1nn1gV1eYLOwgd7z0T/5D+7QgiLh5RsNMIIhkuP12diHiK67uwvyxrHov9TGdf5MIZWMDyinFbwbf8srA1RpIY9NRhacjT9l/5vZuekA8xXvxarTiBThNjO7d1c7mGaCPf81cEZLB2szIYQBkk5B1eqe6xFvbcScyEyDfTUVdv7BtujZ9cQavhXGx9hqRPFA7yP2bheD3/tDKBRvFBXtNRpdaKmpkjW1xnOLeSQz7VmDwIEmgo6Q57iaX6kOm2hwygVLhrzam7qnszIwKIEhhX4G0ko6JbpqemsNh3FbmPGBQj8tMgHste119/kTqugYC3w/lRhvd+otLbvZUGJ4pi9HFvFcvzT0yZjDzQs3oCkd+GJ/0kfOqjpmkxMB5bX65KQxOezyZ9HZCaCrlNujOUvn2xZLKTrfqsUYddGBkUQZai4YN19oNwO+8jz4I9KyV/vPeN
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR04MB6802.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(19092799006)(376014)(52116014)(7416014)(56012099003)(18002099003)(38350700014)(3023799007)(11063799006);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?vfikyWLI+a3kcwZs6DfTTvG4qfITv4ooDPPWbZ/Y6M8paOi4b12crZMY8z0W?=
- =?us-ascii?Q?N1Vb4Bo3Lbemu3vf65xkO3f0V+bF96tC74qZlpCPFafGnk7JiP0eGh1XBoDj?=
- =?us-ascii?Q?eeISj+O7JGyf5dNrT/pA5C6vWYvsQeaPzJ3Sq+k5q+PjCp1MCQZX65M7oSbq?=
- =?us-ascii?Q?DQnsPALq/6OGTjwxAGqnMw7DdLWZeMbWw1qkeNPXVSR9XaVDHE5CZs6xz+jd?=
- =?us-ascii?Q?XL73q8w7bsJM+RcWqiIRFa9oDeTkv3UwoJRyXm3benDKgviGP+VDs1v63XO4?=
- =?us-ascii?Q?wn/iJZiSojWWzdVImNhJlZQE4ZMGnUEAm7e8wdONAXkvJD8umAHdGEoY+foZ?=
- =?us-ascii?Q?++TIshk5N/95paulEVYZQ505J1KL3cp+CI/v5CqSsKPXlP91nk/nacipn6HQ?=
- =?us-ascii?Q?cC9HDlP8/vDeDZXiLpzXkbVjQGj+xHIL1ip3zYSuQ6HYHUcj9+R1QeaaVB++?=
- =?us-ascii?Q?m5Vu8Jx4SwRsva4Gb3IfP88JCb+w4kD8lrqsyW0/uC5M7yIOFZNUE7Qf0u6x?=
- =?us-ascii?Q?X/eNkcLNQj9poEPeHMTpAwF+8Lg1rUUYLCDplaK4qRA4Xv/P+tDANwSidX0N?=
- =?us-ascii?Q?rymQW20jOVdT++LvAjollxvyeygJee7auN5z4VPBGpVfX/YrFeVcowFCwpPE?=
- =?us-ascii?Q?xvEeJKs7cqII23AdUxXCpr2GBbP9ZrAtdtBILLhtV1u0B3tdDhtX3vBqiIAA?=
- =?us-ascii?Q?vApbS+ac8Lp9tfJtfNXvY7nx6iHin5RopPE8gTPT6Wt0w0tkGh6OJlMnmOqv?=
- =?us-ascii?Q?Q19/0CFMqnL3oN7uaur0VCt1c1nh5S8mbwELFf1IYKHz+P2XBQmJtCCYpyRz?=
- =?us-ascii?Q?YFgXF0zyVASweAM+9b6BRGRHTUpn6BoLhdAQWsOD8/6l1Olxtgqo/86OodMJ?=
- =?us-ascii?Q?P95DAjXqbeOp5wFW52P5gX4lCygzaObpsnkwf85fjBhUwuHsRTraPlvC6jOl?=
- =?us-ascii?Q?wM0ZSzt4d1smNCgE6L8AcaTinqkDL9gyat5vEZaG5KyroAEkYt/ouIisDY92?=
- =?us-ascii?Q?m8BLJgXHAKsA2XIOYRw2KJJ2AK7OGwsT4jyh2ZfBx/vXx/KD/FYuHNpn6oxf?=
- =?us-ascii?Q?TW+nA3NDT8z+ZnmBujI8Wp14xqUhZCfZysTjbOL71TLiqfVO1PVEyyVCAunT?=
- =?us-ascii?Q?7WlbuCR5w3KMgJHrWHFtGpjGTFYvPePToP4Khy3oyjRD77I4nhvyI9TuKuI2?=
- =?us-ascii?Q?Tbrzpemon5D1zZogn7HRof6b8Xa4o7DCbHhEiHAqNghY7tcTSGuvoilbpkGM?=
- =?us-ascii?Q?30fzyd2qGOkQFt81Nxp8EPZq5dBtWIuk0CKNLerTIdwQiZL6lFmgoZkTClP5?=
- =?us-ascii?Q?HzXoxHS3H655i2j3rHZ5FIhAr6j4RbUu6i2nEt81jnJwIQJx3rK75SLZ+yfi?=
- =?us-ascii?Q?eRpB5HYD2X5tiN7t3GXSqVL8uu2nrm9kE7upI6TavR8lWIrsOlJRDumDGO0n?=
- =?us-ascii?Q?KKVO3RixSzhR5aCS0StNNYva5LqzacZG44X5z/8jW0b3QeYfA9bYGIZ7dok1?=
- =?us-ascii?Q?A+a/Qyk7+KNohFYxP91UbeMt/6hKIpkv8FHOS+D0b0g7RwtUdRT8RPCL6jZh?=
- =?us-ascii?Q?mn4iTh58Qui8Tte+s4Jz6+fC9IOc9rycxtq+Hc0F1FsrEW6E+wCkQZ9d9n2k?=
- =?us-ascii?Q?MvAanV8prHpTFWHZzgUmZ3UZmE2+hxZDA3T2UZVha2GZgjzAFqigAtCJYQhD?=
- =?us-ascii?Q?/Hbz/nWSxpwV6+xAYTxxB6bcj7zbV1z0OH0obPVZg3Rrm4mtirNrlt3aYjoL?=
- =?us-ascii?Q?Q11aJXc/Xw=3D=3D?=
-X-OriginatorOrg: oss.nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 76e1c3d4-9df7-460f-14c3-08deb65d3a86
-X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB6802.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2026 10:47:46.8178
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: zQgsf6k5KyA7bIDUnlFO0refBcQYVItOxXC3E3AxHp7hZFlrzxmBSqPf5HkNsZoyxRJ9G3EGYeXLW2vPcCDpQA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU4PR04MB12274
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 7.0.9
+Content-Transfer-Encoding: 8bit
 
-From: Carlos Song <carlos.song@nxp.com>
+From: Mingyu Wang <25181214217@stu.xidian.edu.cn>
 
-In i2c_imx_runtime_suspend(), the clock is disabled before switching
-the pinctrl state to sleep. If pinctrl_pm_select_sleep_state() fails,
-the runtime suspend is aborted but the clock remains disabled, causing
-a system crash when the hardware is subsequently accessed.
+[ Upstream commit 617eb7c0961a8dfcfc811844a6396e406b2923ea ]
 
-Fix this by switching the pinctrl state before disabling the clock so
-that a pinctrl failure leaves the clock enabled and the hardware
-accessible.
+While fuzzing with Syzkaller, a persistent `schedule_timeout: wrong
+timeout value` warning was observed, accompanied by SMBus controller
+state machine corruption.
 
-In i2c_imx_runtime_resume(), restore the pinctrl state back to sleep
-if clk_enable() fails to keep the two consistent.
+The I2C_TIMEOUT ioctl accepts a user-provided timeout in multiples of
+10 ms. The user argument is checked against INT_MAX, but it is
+subsequently multiplied by 10 before being passed to msecs_to_jiffies().
 
-Fixes: 576eba03c994 ("i2c: imx: switch different pinctrl state in different system power status")
-Cc: stable@vger.kernel.org
-Signed-off-by: Carlos Song <carlos.song@nxp.com>
+A malicious user can pass a large value (e.g., 429496729) that passes
+the `arg > INT_MAX` check but overflows when multiplied by 10. This
+results in a truncated 32-bit unsigned value that bypasses the
+internal `(int)m < 0` check in `msecs_to_jiffies()`.
+
+The truncated value is then assigned to `client->adapter->timeout`
+(a signed 32-bit int), which is reinterpreted as a negative number.
+When passed to wait_for_completion_timeout(), this negative value
+undergoes sign extension to a 64-bit unsigned long, triggering the
+`schedule_timeout` warning and causing premature returns. This leaves
+the SMBus state machine in an unrecoverable state, constituting a
+local Denial of Service (DoS).
+
+Fix this by bounding the user argument to `INT_MAX / 10`.
+
+Signed-off-by: Mingyu Wang <25181214217@stu.xidian.edu.cn>
+[wsa: move the comment as well]
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-imx.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index d651ade86267..54fd5d0e4056 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1892,9 +1892,15 @@ static void i2c_imx_remove(struct platform_device *pdev)
- static int i2c_imx_runtime_suspend(struct device *dev)
- {
- 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
-+	int ret;
-+
-+	ret = pinctrl_pm_select_sleep_state(dev);
-+	if (ret)
-+		return ret;
+LLM Generated explanations, may be completely bogus:
+
+## Phase Walkthrough
+
+### Phase 1: Commit Message Forensics
+Step 1.1 Record: Subsystem `i2c: dev`; action verb `prevent`; intent is
+to prevent integer overflow in the userspace `I2C_TIMEOUT` ioctl.
+
+Step 1.2 Record: Tags are `Signed-off-by: Mingyu Wang
+<25181214217@stu.xidian.edu.cn>` and `Signed-off-by: Wolfram Sang
+<wsa+renesas@sang-engineering.com>` with maintainer edit note `[wsa:
+move the comment as well]`. No `Fixes:`, `Reported-by:`, `Tested-by:`,
+`Reviewed-by:`, `Link:`, or `Cc: stable` tags were present.
+
+Step 1.3 Record: The body describes a Syzkaller-found `schedule_timeout:
+wrong timeout value` warning and SMBus state machine corruption after a
+large userspace timeout causes overflow/truncation before storing into
+signed `adapter->timeout`. Symptom is local DoS through bad timeout
+behavior; root cause is validating `arg` before multiplying by 10.
+
+Step 1.4 Record: This is not hidden cleanup; it is an explicit integer
+overflow and local DoS fix.
+
+### Phase 2: Diff Analysis
+Step 2.1 Record: One file changed, `drivers/i2c/i2c-dev.c`; committed
+diff is 5 insertions and 4 deletions due comment movement. Modified
+function: `i2cdev_ioctl()`. Scope: single-file surgical fix.
+
+Step 2.2 Record: Before, `I2C_TIMEOUT` accepted any `arg <= INT_MAX`,
+then used `msecs_to_jiffies(arg * 10)`. After, it accepts only `arg <=
+INT_MAX / 10`, so the 10 ms unit conversion cannot exceed signed 32-bit
+range before assignment to `adapter->timeout`.
+
+Step 2.3 Record: Bug category is integer overflow/truncation and type-
+range validation. Broken mechanism: userspace-controlled timeout is
+range-checked before scaling, but stored in `struct
+i2c_adapter.timeout`, which is `int`.
+
+Step 2.4 Record: Fix quality is high: one validation bound change, no
+new API, no refactor. Regression risk is low; it rejects only extreme
+timeout values that cannot be represented safely after the documented 10
+ms scaling.
+
+### Phase 3: Git History Investigation
+Step 3.1 Record: `git blame` shows the existing `arg > INT_MAX` guard
+came from `6ebec961d59b` and the `arg * 10` timeout assignment/comment
+came from `cd97f39b7cdf`. `git describe` places them at
+`v5.0-rc2~14^2~1` and `v2.6.29-rc7~62^2~2`, respectively.
+
+Step 3.2 Record: No `Fixes:` tag, so no tagged introducing commit to
+follow. I still inspected `6ebec961d59b`, which originally fixed
+negative retry/timeout values and was itself stable-tagged.
+
+Step 3.3 Record: Recent upstream `drivers/i2c/i2c-dev.c` history shows
+this candidate plus unrelated cleanup/fix commits; no prerequisite
+series was identified.
+
+Step 3.4 Record: `Mingyu Wang` has this one upstream `drivers/i2c`
+commit in the checked history. Wolfram Sang committed it and is the I2C
+maintainer in the patch flow.
+
+Step 3.5 Record: No dependent commit found. The patch assumes the long-
+existing `I2C_TIMEOUT` case and applies cleanly to the current `v7.0.5`
+checkout.
+
+### Phase 4: Mailing List And External Research
+Step 4.1 Record: `b4 dig -c 617eb7c0961a8` found the original submission
+at `https://patch.msgid.link/20260427025745.1100768-1-
+25181214217@stu.xidian.edu.cn`. `b4 dig -a` found only v1. The submitted
+patch was a one-line bound change; the committed version is the
+maintainer-adjusted version with comment movement.
+
+Step 4.2 Record: `b4 dig -w` shows recipients: Mingyu Wang, Wolfram
+Sang, `linux-i2c@vger.kernel.org`, and `linux-kernel@vger.kernel.org`.
+
+Step 4.3 Record: No `Link:` or `Reported-by:` tag exists. Public web
+searches did not find a syzkaller bug page for this exact issue; the
+Syzkaller finding is verified only from the commit/patch text.
+
+Step 4.4 Record: No multi-patch series found; standalone patch.
+
+Step 4.5 Record: Stable-list WebFetch was blocked by lore Anubis, and
+web search did not find stable-specific discussion. No evidence of
+objections or NAKs was found in the b4-fetched mbox.
+
+### Phase 5: Code Semantic Analysis
+Step 5.1 Record: Modified function: `i2cdev_ioctl()`.
+
+Step 5.2 Record: Call path is userspace ioctl on `/dev/i2c-*` through
+`i2cdev_fops.unlocked_ioctl = i2cdev_ioctl`; compat ioctls fall back to
+`i2cdev_ioctl()` for commands not handled specially, including
+`I2C_TIMEOUT`.
+
+Step 5.3 Record: Key callee is `msecs_to_jiffies()`, whose runtime
+helper treats negative `unsigned int` values as infinite timeout. The
+result is assigned to `struct i2c_adapter.timeout`, verified as `int`.
+
+Step 5.4 Record: Buggy path is reachable from userspace with access to
+an i2c-dev node. The corrupted timeout is then used by core retry loops
+and many bus drivers, including paths using
+`wait_for_completion_timeout()`.
+
+Step 5.5 Record: Similar timeout use is widespread in `drivers/i2c`, but
+this specific unchecked userspace scaling pattern was found in
+`i2c-dev`.
+
+### Phase 6: Stable Tree Analysis
+Step 6.1 Record: Checked `v5.15`, `v6.1`, `v6.6`, `v6.12`, `v6.19`, and
+`v7.0`; all contain the vulnerable `arg > INT_MAX` plus
+`msecs_to_jiffies(arg * 10)` pattern.
+
+Step 6.2 Record: Expected backport difficulty is clean or trivial. `git
+apply --check` succeeded on current `v7.0.5`; checked stable snippets
+have matching context.
+
+Step 6.3 Record: No alternate stable fix found by subject/phrase
+searches in local git history.
+
+### Phase 7: Subsystem Context
+Step 7.1 Record: Subsystem is I2C userspace character-device interface,
+`drivers/i2c/i2c-dev.c`. Criticality: important, because it exposes bus
+control to userspace and affects any system using `i2c-dev`.
+
+Step 7.2 Record: Subsystem is mature but actively maintained. The
+affected ioctl path is long-standing.
+
+### Phase 8: Impact And Risk
+Step 8.1 Record: Affected users are systems exposing `/dev/i2c-*` to
+userspace, including embedded, hardware-management, and sensor-control
+systems.
+
+Step 8.2 Record: Trigger is setting `I2C_TIMEOUT` to a large value
+through ioctl, then using affected I2C/SMBus transfer paths. It requires
+access to the device node; no capability check is present in the ioctl
+path itself.
+
+Step 8.3 Record: Failure mode is at least a kernel `schedule_timeout:
+wrong timeout value` warning and broken timeout behavior; commit text
+reports SMBus controller state machine corruption and local DoS.
+Severity: HIGH.
+
+Step 8.4 Record: Benefit is high because it blocks a fuzzed, userspace-
+reachable DoS class bug in maintained stable trees. Risk is very low
+because the patch is one range check in one ioctl case.
+
+### Phase 9: Final Synthesis
+Step 9.1 Record: Evidence for backporting: real integer overflow,
+Syzkaller-reported in commit text, userspace-reachable with i2c-dev
+access, high-severity timeout corruption/DoS, tiny fix, maintainer-
+applied, vulnerable code present in checked stable trees, clean apply to
+`v7.0.5`. Evidence against: no public syzkaller link, no `Reported-
+by`/`Tested-by`, and exact SMBus unrecoverable-state details were not
+independently reproduced.
+
+Step 9.2 Record: Stable rules: obviously correct yes; fixes real bug
+yes; important issue yes, local DoS/bad kernel timeout path; small and
+contained yes; no new features/APIs yes; stable applicability yes for
+checked trees.
+
+Step 9.3 Record: No exception category needed; this is a normal bug fix,
+not device ID/quirk/DT/build/doc.
+
+Step 9.4 Record: The technical merits strongly support stable
+backporting.
+
+## Verification
+- Phase 1: Parsed `git show 617eb7c0961a8`; confirmed tags and absence
+  of `Fixes:`, `Reported-by:`, `Link:`, and stable tag.
+- Phase 2: Inspected committed diff; confirmed one-file change in
+  `i2cdev_ioctl()`.
+- Phase 3: `git blame` identified `6ebec961d59b` and `cd97f39b7cdf`;
+  `git describe` placed them before all checked maintained stable trees.
+- Phase 3: `git show 6ebec961d59b` confirmed prior timeout/retry
+  negative-value fix and stable nomination.
+- Phase 4: `b4 dig`, `b4 dig -a`, `b4 dig -w`, and mbox read found one
+  v1 patch, proper I2C recipients, and no visible objections.
+- Phase 4: WebFetch of lore was blocked by Anubis; stable-list
+  discussion and public syzkaller report remain unverified.
+- Phase 5: `rg` and file reads confirmed ioctl file operations, compat
+  fallback, `msecs_to_jiffies()`, `adapter->timeout` as `int`, and
+  downstream timeout uses.
+- Phase 6: Checked `v5.15`, `v6.1`, `v6.6`, `v6.12`, `v6.19`, and `v7.0`
+  snippets; all contain the vulnerable pattern.
+- Phase 6: `git apply --check` confirmed the upstream diff applies to
+  current `v7.0.5`.
+- Phase 8: `schedule_timeout()` source confirms negative timeout emits
+  `wrong timeout value` and returns 0.
+
+**YES**
+
+ drivers/i2c/i2c-dev.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index 7bbe0263411eb..ccaac5e29f906 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -487,12 +487,13 @@ static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 		client->adapter->retries = arg;
+ 		break;
+ 	case I2C_TIMEOUT:
+-		if (arg > INT_MAX)
++		/*
++		 * For historical reasons, user-space sets the timeout value in
++		 * units of 10 ms.
++		 */
++		if (arg > INT_MAX / 10)
+ 			return -EINVAL;
  
- 	clk_disable(i2c_imx->clk);
--	return pinctrl_pm_select_sleep_state(dev);
-+
-+	return 0;
- }
- 
- static int i2c_imx_runtime_resume(struct device *dev)
-@@ -1907,10 +1913,13 @@ static int i2c_imx_runtime_resume(struct device *dev)
- 		return ret;
- 
- 	ret = clk_enable(i2c_imx->clk);
--	if (ret)
-+	if (ret) {
- 		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);
-+		pinctrl_pm_select_sleep_state(dev);
-+		return ret;
-+	}
- 
--	return ret;
-+	return 0;
- }
- 
- static int __maybe_unused i2c_imx_suspend_noirq(struct device *dev)
+-		/* For historical reasons, user-space sets the timeout
+-		 * value in units of 10 ms.
+-		 */
+ 		client->adapter->timeout = msecs_to_jiffies(arg * 10);
+ 		break;
+ 	default:
 -- 
-2.43.0
+2.53.0
 
