@@ -1,46 +1,45 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E99663F8704;
-	Wed, 20 May 2026 11:21:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7405E3FC5AD;
+	Wed, 20 May 2026 11:21:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779276064; cv=none; b=js7iWQdl1CYHE1bGcl37LHmyjatZAsGisF2H8JTShTTv8ki/ye6X4cV9OfA8GDHuaKLyfrYGmDmiQ9w5TQyMbIF2LD2UKfnhoXLBMJ5Ad84II8K7AEx/EHxxNQDyXYVzgpjZt8Ka9mE8Qrva4DEL9RfHQjZMR8ro/jx8rRjxddQ=
+	t=1779276067; cv=none; b=nR64sgj4kNSdHUMjkw40m2Optl5/YwGAZQ3xzKreaN+fo6jToiNLVp47zeaTDRRx75IHEGnT3rd2Kz56p3No9aXLTchQjKG1l9pMDb0RVQS3rXxWnYdcKxj6bLiz1x8fHwKkxKXEPJa/gdAhwiaNj9uYbJJBLVbz8B27mCdP8Ag=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779276064; c=relaxed/simple;
-	bh=zgftuuOrOu1QIoHJA9BCcsh7S4hA2JEWCcqWkr7fQUM=;
+	s=arc-20240116; t=1779276067; c=relaxed/simple;
+	bh=pP8iVAxF1FoMXalCFIkZlnb3QWBe+RsA4kTO38lVTnk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=gcJh62biHu1fX/Ny3gO0TrAuPNw04a3em1u56AbabJvrSM5cvJjKwhoB88dGPmR71Vd6hQEsUuMeN5wuwEFYh0GzVNUr3Ru5r85LiDUe+L3eW1M/rgCbOhYpo2cSFO0EyMN9O1YUqs8jXK6hNp9sgvqhsY2604o9VQSPoLZhn0U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kkekBnqf; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=l9eP3Ec+QMEZS7ZbDDT5gIJyJMaHmhywbEfbNk3JbVhjYdhrsT6HytCQ9EhOpdXkz6ItytciZ+TgyfaHTkqNXxHdD7aAQi9yv+S3TNosy87HTZWrZJ2SbTz43x2n/qjb2B0ZphMD0jYL6HMryXThKWL1U133ZYlhRTs75kouMFM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EIpc+L2M; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kkekBnqf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 647FB1F00898;
-	Wed, 20 May 2026 11:21:00 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EIpc+L2M"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 558D51F00894;
+	Wed, 20 May 2026 11:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779276061;
-	bh=hHkJbiFO8k9nGuGfZvBqyiBrUzuMUuZIQlM6+XtdsEs=;
+	s=k20260515; t=1779276065;
+	bh=+CoWtz8ztGvbc8ecX5s+vUNsyKplJmYowMl+atQh6mE=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=kkekBnqfa7ace45tMkRos367okR4+PPI9JYXueirA6y5ec47n6z06NH8MK8fCdjBc
-	 GMwD+hYE0gGJKJCX/WX0Xoi9lZHXLgQoWEKJUMlkDAnUnIpk3KI6oRDcmle68zS+0L
-	 IoNxxfLR0ks/daIsmF398PyUPiyOhHSCWPYofl7t8nwOeQ5CYmRYuUr0iAilXWgVWR
-	 OZ4796NMTUKR0yfOtcgzKxxfhNwrbV4igTCiQK+DPEHk9wPHIc8/zc4VaRE9vG7e/0
-	 8n12Id6V6462WQ6NtC5rNOV0xPDw1GPcXfT2V/ofU5IVpt8cWK2pNSj+tv9hZPuXTm
-	 HqeugoTfC3slA==
+	b=EIpc+L2Mo5UWc/qZaYG5siVu8u36TaK9E05H1cwITHSAwdqnx42DdILtyzhcIUa5E
+	 VTSKOZGCjVbwWjHcC+AqIkCSMC+/bueJXp2y1vO369Du6PXyrhcJp4yeUWyMe4p674
+	 +uWAAvegdesuRQQofcOARVs21Drax4kzhdcRVdV7fvQ0C7k3BcVAV92Zae5OmalT+N
+	 NK5RM0ViUs9nV5GIszFZtpjQ6CR/Moet7dfmgmu/L2BiO3qEj1qzS0NDr0/UFofmu+
+	 IXh3X7NScUUBOrpERFxJ7tOQpuKdze2+053RB5t2m3Vf1eGHlLwFG3qB90bSCT51CA
+	 yIPE0qSCRkF7Q==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Michael Zaidman <michael.zaidman@gmail.com>,
-	=?UTF-8?q?Sebasti=C3=A1n=20Josu=C3=A9=20Alba=20Vives?= <sebasjosue84@gmail.com>,
-	Jiri Kosina <jkosina@suse.com>,
+Cc: Niels Franke <nielsfranke@gmail.com>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	Sasha Levin <sashal@kernel.org>,
-	jikos@kernel.org,
-	bentiss@kernel.org,
+	westeri@kernel.org,
 	linux-i2c@vger.kernel.org,
-	linux-input@vger.kernel.org,
+	linux-acpi@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 7.0-5.15] HID: ft260: validate i2c input report length
-Date: Wed, 20 May 2026 07:19:26 -0400
-Message-ID: <20260520111944.3424570-54-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 7.0-5.10] i2c: acpi: Add ELAN0678 to i2c_acpi_force_100khz_device_ids
+Date: Wed, 20 May 2026 07:19:29 -0400
+Message-ID: <20260520111944.3424570-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260520111944.3424570-1-sashal@kernel.org>
 References: <20260520111944.3424570-1-sashal@kernel.org>
@@ -50,275 +49,285 @@ List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 X-stable-base: Linux 7.0.9
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Michael Zaidman <michael.zaidman@gmail.com>
+From: Niels Franke <nielsfranke@gmail.com>
 
-[ Upstream commit 80c4bbb2b38513e9c3d84805fa61a0ee16d79c45 ]
+[ Upstream commit 9998e388be9930c106eb5904c23ecf2162407527 ]
 
-Add two checks to ft260_raw_event() to prevent out-of-bounds reads
-from malicious or malfunctioning devices:
+The ELAN0678 touchpad (04F3:3195) found in the Lenovo ThinkPad X13
+exhibits excessive smoothing when the I2C bus runs at 400KHz, making
+the touchpad feel sluggish when plugged into AC power. This is the
+same issue previously fixed for ELAN06FA.
 
-First, reject reports shorter than the 2-byte header (report ID +
-length fields). Without this, even accessing xfer->length on a
-1-byte report is an OOB read.
+The device's ACPI table (Lenovo TP-R22) specifies 0x00061A80 (400KHz)
+for the I2cSerialBusV2 descriptor. Forcing the bus to 100KHz eliminates
+the sluggish behavior.
 
-Second, validate xfer->length against the actual data capacity of
-the received HID report. Each I2C data report ID (0xD0 through
-0xDE) defines a different report size in the HID descriptor, so the
-available payload varies per report. A corrupted length field could
-cause memcpy to read beyond the report buffer.
-
-Reported-by: Sebastián Josué Alba Vives <sebasjosue84@gmail.com>
-Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.com>
+Signed-off-by: Niels Franke <nielsfranke@gmail.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+[wsa: kept the sorting]
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-## Decision Summary
-This should be backported. It is a small, single-driver HID fix for a
-real out-of-bounds read in `ft260_raw_event()`, reachable from FT260 USB
-HID input reports before HID core report-size validation runs. The
-benefit is high because the failure mode is memory-safety/security
-relevant; the regression risk is low because valid reports are unchanged
-and only malformed reports are rejected.
+## Phase 1: Commit Message Forensics
 
-## Phase Walkthrough
-### Phase 1: Commit Message Forensics
-Record: subsystem `HID: ft260`; action verb `validate`; intent is to
-validate I2C input report length.
+Step 1.1 - Subject:
+Record: Subsystem `i2c: acpi`; action verb `Add`; intent is to add ACPI
+HID `ELAN0678` to the existing 100 kHz forced-speed quirk table.
 
-Record: tags in commit `80c4bbb2b38513e9c3d84805fa61a0ee16d79c45`:
-`Reported-by: Sebastián Josué Alba Vives <sebasjosue84@gmail.com>`,
-`Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>`, `Signed-
-off-by: Jiri Kosina <jkosina@suse.com>`. No `Fixes:`, `Link:`, `Cc:
-stable`, `Tested-by`, `Reviewed-by`, or `Acked-by` in the committed
-message.
+Step 1.2 - Tags:
+Record: `Signed-off-by: Niels Franke <nielsfranke@gmail.com>`; `Acked-
+by: Mika Westerberg <mika.westerberg@linux.intel.com>`; maintainer note
+`[wsa: kept the sorting]`; `Signed-off-by: Wolfram Sang
+<wsa+renesas@sang-engineering.com>`. No `Fixes:`, `Reported-by:`,
+`Tested-by:`, `Link:`, or `Cc: stable@vger.kernel.org` tags.
 
-Record: bug description is explicit: malicious or malfunctioning
-FT260-compatible HID devices can send too-short reports or corrupted
-length fields, causing OOB reads. Symptom/failure mode is OOB heap read
-before/inside `memcpy()`. No affected version listed in commit body.
+Step 1.3 - Body:
+Record: The bug is real hardware misbehavior: ELAN0678 touchpad
+`04F3:3195` on Lenovo ThinkPad X13 becomes sluggish/excessively smoothed
+when ACPI-described I2C speed is 400 kHz. The commit says forcing 100
+kHz eliminates it. Root cause is a bad/not-working speed choice for this
+device, matching the earlier ELAN06FA workaround.
 
-Record: this is not a hidden fix; it is directly described as a memory-
-safety fix.
+Step 1.4 - Hidden bug fix:
+Record: Yes. Although phrased as “Add”, this is a hardware
+workaround/quirk for a user-visible input-device malfunction, not new
+feature work.
 
-### Phase 2: Diff Analysis
-Record: one file changed, `drivers/hid/hid-ft260.c`, `14` insertions and
-`2` deletions. Only `ft260_raw_event()` is modified. Scope is single-
-file surgical.
+## Phase 2: Diff Analysis
 
-Record: before, `ft260_raw_event()` cast `data` to `struct
-ft260_i2c_input_report` and accessed `xfer->report`/`xfer->length`
-without checking `size`; then `memcpy()` used `xfer->length` after
-checking only destination capacity. After, it rejects reports shorter
-than the 2-byte header and rejects `xfer->length > size - offsetof(...,
-data)` before copying.
+Step 2.1 - Inventory:
+Record: One file changed: `drivers/i2c/i2c-core-acpi.c`, `+1/-0`. It
+adds `{ "ELAN0678", 0 }` to `i2c_acpi_force_100khz_device_ids`. Scope is
+a single-file, one-line hardware quirk.
 
-Record: bug category is memory safety: OOB read on truncated input and
-OOB source read on corrupted length. No locking, API, or feature
-behavior changes.
+Step 2.2 - Code flow:
+Record: Before, ELAN0678 used the normal ACPI/min-speed path and could
+run at the 400 kHz speed from firmware. After, when
+`i2c_acpi_lookup_speed()` sees an ACPI device matching `ELAN0678`, it
+sets `lookup->force_speed = I2C_MAX_STANDARD_MODE_FREQ`, causing
+`i2c_acpi_find_bus_speed()` to return 100 kHz.
 
-Record: fix quality is strong: minimal, obvious bounds checks
-immediately before the unsafe accesses/copy. Regression risk is low;
-only malformed reports are rejected. The use of actual `size` avoids the
-earlier reviewed problem of rejecting valid short FT260 report IDs.
+Step 2.3 - Bug mechanism:
+Record: Hardware workaround. The broken condition is a known-not-working
+I2C bus speed for a specific ACPI HID. The fix reuses the existing
+forced-100-kHz mechanism.
 
-### Phase 3: Git History Investigation
-Record: `git blame` shows the vulnerable header access and `memcpy()`
-came from `6a82582d9fa4` (`HID: ft260: add usb hid to i2c host bridge
-driver`, first contained around `v5.13-rc1`). The destination-buffer
-check came from `b7121e3c04440` (`HID: ft260: skip unexpected HID input
-reports`, first contained around `v6.2-rc1`).
+Step 2.4 - Fix quality:
+Record: Obviously correct and minimal. It only affects machines exposing
+ACPI HID `ELAN0678`. Regression risk is very low: affected devices will
+run slower I2C, intentionally matching the verified workaround; all
+other devices are unchanged.
 
-Record: no `Fixes:` tag, so Step 3.2 is not applicable.
+## Phase 3: Git History
 
-Record: recent file history shows related FT260 fixes and enhancements,
-including `b7121e3c04440`, but no prerequisite needed for the new
-source-length/header validation. For older `5.15.y`/`6.1.y`, the exact
-patch context does not apply because `b7121e3c04440` is absent, but the
-fix itself is still conceptually standalone.
+Step 3.1 - Blame:
+Record: `git blame` on `origin/master` shows the new line is commit
+`9998e388be993`; the 100 kHz table and `ELAN06FA` handling came from
+`bfd74cd1fbc026`, first contained around `v6.14-rc1`; `DLL0945` came
+from `0b7c9528facdb5`, first contained around `v6.17-rc1`.
 
-Record: author Michael Zaidman is listed in `MAINTAINERS` as FT260
-maintainer and has a long FT260 commit history. Jiri Kosina committed
-the patch and is listed as HID core maintainer.
+Step 3.2 - Fixes tag:
+Record: Not applicable; no `Fixes:` tag is present.
 
-### Phase 4: Mailing List And External Research
-Record: `b4 dig -c 80c4bbb2b3851` found the matching submission at `http
-s://patch.msgid.link/20260411062437.279838-1-michael.zaidman@gmail.com`.
+Step 3.3 - File history:
+Record: Recent file history shows related quirks `ELAN06FA` and
+`DLL0945`, plus unrelated treewide allocation conversions. No
+prerequisite structural change is needed where the 100 kHz table already
+exists.
 
-Record: `b4 dig -a` showed prior versions/discussion. The original
-reporter’s v1/v2 were Cc’d to stable and had a too-broad `size < 64`
-approach. Review identified that valid FT260 reports can be shorter,
-leading to Michael’s final per-driver fix using the header size and
-actual report size.
+Step 3.4 - Author context:
+Record: Local history shows Niels Franke has this one I2C commit on
+`origin/master`. The patch was acked by Mika Westerberg, listed in
+`MAINTAINERS` as I2C ACPI maintainer, and committed by Wolfram Sang.
 
-Record: `b4 dig -w` showed Michael Zaidman, Jiri Kosina, Benjamin
-Tissoires, linux-input, linux-kernel, and the reporter on the final
-submission.
+Step 3.5 - Dependencies:
+Record: Standalone for stable branches that already have
+`i2c_acpi_force_100khz_device_ids`. For branches lacking the table, it
+depends on the earlier ELAN06FA forced-100-kHz infrastructure.
 
-Record: saved lore mbox shows Jiri applied the final patch to
-`hid.git#for-7.1/upstream-fixes`. The thread also contains Michael’s
-hardware test note: tested on FT260 with I2C-attached EEPROM behind
-PCA9548 muxes, including small and larger reads.
+## Phase 4: Mailing List And External Research
 
-Record: stable-specific history exists in the earlier reporter
-submissions, including `Cc: stable@vger.kernel.org` and explicit
-OOB/security rationale. No NAK remained against the final version.
+Step 4.1 - Original discussion:
+Record: `b4 dig -c 9998e388be993` found the original submission at
+`https://patch.msgid.link/20260418053719.15766-1-nielsfranke@gmail.com`.
+The mirror thread shows v1 only, Mika Westerberg acked it, and Wolfram
+Sang applied it to `for-current` while keeping sort order. No objections
+or NAKs found.
 
-### Phase 5: Code Semantic Analysis
-Record: modified function is `ft260_raw_event()`.
+Step 4.2 - Reviewers/recipients:
+Record: `b4 dig -w` shows recipients included Niels Franke,
+`westeri@kernel.org`, Wolfram Sang, `linux-i2c`, `linux-acpi`, and
+`linux-kernel`. This reached the relevant I2C ACPI maintainer and lists.
 
-Record: callers traced manually: `ft260_raw_event()` is registered as
-`.raw_event`; HID core calls `hdrv->raw_event()` in
-`__hid_input_report()` before `hid_report_raw_event()` performs report-
-size checks. USB HID paths call `hid_input_report()` from
-interrupt/control completion paths.
+Step 4.3 - Bug report:
+Record: No separate `Reported-by` or bug tracker link in the commit. The
+commit message itself documents affected hardware, ACPI table speed, and
+the tested workaround. Web search also found unrelated ELAN0678 user
+reports, but I did not rely on those for the final decision.
 
-Record: callees/side effects: `ft260_raw_event()` copies HID I2C
-response payload into `dev->read_buf`, advances `read_idx`, and
-completes the waiting I2C read when enough data arrives.
+Step 4.4 - Series context:
+Record: `b4 dig -a` shows a single v1 patch, not a multi-patch series.
 
-Record: reachability: normal FT260 I2C reads go through `i2c_adapter`
-operations (`ft260_i2c_xfer()` / `ft260_smbus_xfer()` ->
-`ft260_i2c_read()`), while the malformed input itself is supplied by the
-USB HID device. Userspace reachability depends on system I2C access
-permissions; unprivileged trigger was not verified.
+Step 4.5 - Stable discussion:
+Record: Direct lore stable fetch was blocked by Anubis; web search found
+no specific stable-list discussion for ELAN0678. Stable branch git logs
+sampled do not yet contain ELAN0678.
 
-Record: similar pattern in this function is unique for the FT260 I2C
-input report copy. Related HID OOB fixes exist in recent HID history,
-supporting the general risk class but not required for this patch.
+## Phase 5: Code Semantic Analysis
 
-### Phase 6: Stable Tree Analysis
-Record: `drivers/hid/hid-ft260.c` exists in `stable/linux-5.15.y`,
-`6.1.y`, `6.6.y`, `6.12.y`, and current `v7.0.9` checkout; it does not
-exist in `4.19.y`, `5.4.y`, or `5.10.y`.
+Step 5.1 - Key functions:
+Record: The diff changes only the ACPI ID table, but behavior flows
+through `i2c_acpi_lookup_speed()` and `i2c_acpi_find_bus_speed()`.
 
-Record: the buggy code pattern exists in `5.15.y`, `6.1.y`, `6.6.y`, and
-`6.12.y`; none contain `80c4bbb2b3851`.
+Step 5.2 - Callers:
+Record: `i2c_acpi_find_bus_speed()` is called by multiple I2C bus
+drivers, including DesignWare, USBIO, SynQuacer, LS2X, Zhaoxin, and AMD
+MP2. For DesignWare, `dw_i2c_plat_probe()` and PCI probe paths call
+`i2c_dw_fw_parse_and_configure()`, which calls the ACPI speed lookup
+during controller setup.
 
-Record: patch applies cleanly to `6.6.y`, `6.12.y`, and current `v7.0.9`
-using a temporary index. It does not apply unchanged to `5.15.y` or
-`6.1.y` because those lack `b7121e3c04440` context, so older branches
-need a small manual backport.
+Step 5.3 - Callees:
+Record: The relevant code calls `acpi_walk_namespace()`,
+`i2c_acpi_do_lookup()`, and `acpi_match_device_ids()`; if matched, it
+returns the forced speed to bus-driver timing configuration.
 
-Record: no alternate stable fix for this exact validation was found.
+Step 5.4 - Reachability:
+Record: Reachable during I2C adapter/controller initialization on ACPI
+systems. On affected Lenovo hardware, this path controls the bus speed
+used for the touchpad.
 
-### Phase 7: Subsystem And Maintainer Context
-Record: subsystem is HID driver for an FTDI USB HID-to-I2C bridge.
-Criticality is driver-specific but security-relevant for systems using
-that hardware or exposed USB ports.
+Step 5.5 - Similar patterns:
+Record: Verified sibling quirks `ELAN06FA` and `DLL0945` in the same
+table, both addressing touchpad sluggishness at higher I2C speed.
 
-Record: subsystem/file activity is active; recent HID history includes
-several OOB fixes, and FT260 has ongoing maintenance by Michael Zaidman.
+## Phase 6: Stable Tree Analysis
 
-### Phase 8: Impact And Risk
-Record: affected population is driver/config/hardware-specific: systems
-with `CONFIG_HID_FT260` and FT260 or malicious FT260-emulating USB HID
-devices.
+Step 6.1 - Buggy code in stable:
+Record: Sampled stable branches `5.10.y`, `5.15.y`, `6.6.y`, `6.12.y`,
+`6.15.y` through `7.0.y` already contain the 100 kHz quirk table with
+`ELAN06FA`/`DLL0945`, but not `ELAN0678`. `5.4.y` has ACPI speed lookup
+but not the forced-100-kHz table in the sampled state.
 
-Record: trigger is a malformed HID input report from the device,
-especially during/around I2C read handling. Physical or device-level
-control is required; unprivileged local trigger was not verified.
+Step 6.2 - Backport difficulty:
+Record: Clean or trivial for branches with both `DLL0945` and `ELAN06FA`
+adjacent. Branches lacking `DLL0945` or the table may need a trivial
+context adjustment or dependency backport.
 
-Record: failure mode is OOB heap read, with reporter discussion noting
-possible data exposure through the I2C read buffer. Severity: HIGH,
-security-relevant memory safety.
+Step 6.3 - Related fixes already stable:
+Record: Stable branches sampled already carry related ELAN06FA/DLL0945
+quirks, but no ELAN0678 equivalent.
 
-Record: benefit is high for affected systems; risk is low because the
-patch is small, contained, and only rejects malformed reports.
+## Phase 7: Subsystem Context
 
-### Phase 9: Final Synthesis
-Evidence for backporting: real OOB read; malicious/malfunctioning device
-trigger; HID raw_event is called before HID core size validation;
-maintainer-authored final fix; hardware test notes; one function and one
-file; no new API or feature; applies cleanly to current 7.0 and newer
-stable branches.
+Step 7.1 - Subsystem:
+Record: `drivers/i2c/i2c-core-acpi.c`, I2C ACPI support. Criticality is
+important for affected ACPI laptop hardware, but not universal/core.
 
-Evidence against/backport concerns: older `5.15.y` and `6.1.y` need
-manual context adjustment; `4.19.y`, `5.4.y`, and `5.10.y` lack the
-driver. No `Fixes:` tag, but that is not a negative signal here.
+Step 7.2 - Activity:
+Record: File history shows active maintenance and recent hardware quirk
+additions. The patch was accepted through the I2C maintainer path.
 
-Stable rules checklist: obviously correct and tested: yes, by code
-inspection and submission test notes. Fixes a real bug: yes, OOB reads.
-Important issue: yes, memory safety/security. Small and contained: yes,
-`14+/2-` in one function. No new features/APIs: yes. Can apply to
-stable: yes for 6.6/6.12/7.0; minor backport needed for 5.15/6.1.
+## Phase 8: Impact And Risk
 
-Exception categories: none; this is a direct memory-safety bug fix, not
-a device ID/quirk/build/doc exception.
+Step 8.1 - Affected users:
+Record: Users of systems exposing the ELAN0678 ACPI touchpad,
+specifically verified by commit message for Lenovo ThinkPad X13.
+
+Step 8.2 - Trigger:
+Record: Triggered when the I2C bus is configured at 400 kHz for this
+device, including via the Lenovo TP-R22 ACPI `I2cSerialBusV2`
+descriptor. This is normal boot/device setup, not an obscure manual
+path.
+
+Step 8.3 - Severity:
+Record: Medium severity user-visible hardware malfunction: sluggish
+touchpad/input behavior. Not a crash, security issue, or data
+corruption.
+
+Step 8.4 - Risk-benefit:
+Record: Benefit is high for affected laptops because it restores usable
+touchpad behavior. Risk is very low because it is a one-line ACPI HID-
+specific quirk using existing logic.
+
+## Phase 9: Final Synthesis
+
+Step 9.1 - Evidence:
+Record: For backporting: real hardware bug, existing quirk mechanism,
+one-line scoped change, maintainer ack, accepted by I2C maintainer,
+stable branches already carry analogous quirks. Against backporting: no
+explicit stable tag, no separate bug report link, not a critical
+crash/security fix. Unresolved: exact applicability to every older
+stable branch; `5.4.y` would need more than this one-line context.
+
+Step 9.2 - Stable rules:
+Record: Obviously correct: yes. Tested: commit states forcing 100 kHz
+eliminates the issue, though no `Tested-by` tag. Real bug: yes, touchpad
+sluggishness. Important enough: yes under hardware quirk/workaround
+practice. Small/contained: yes, one line. No new APIs/features: yes.
+Applies to stable: yes for branches with the existing table; trivial
+adjustment/dependency for older divergent branches.
+
+Step 9.3 - Exception:
+Record: This falls squarely under the stable hardware quirk/workaround
+exception.
+
+Step 9.4 - Decision:
+Record: Backport. The risk is tiny and the fix is exactly the sort of
+targeted hardware workaround stable trees routinely carry.
 
 ## Verification
-- [Phase 1] `git show --format=fuller --no-patch 80c4bbb2b3851`:
-  confirmed subject, message, author/committer, and tags.
-- [Phase 2] `git show --function-context 80c4bbb2b3851 --
-  drivers/hid/hid-ft260.c`: confirmed only `ft260_raw_event()` changes
-  and exact bounds checks.
-- [Phase 3] `git blame -L 1065,1085 80c4bbb2b3851^ -- drivers/hid/hid-
-  ft260.c`: confirmed vulnerable lines originated in `6a82582d9fa4` and
-  related destination check in `b7121e3c04440`.
-- [Phase 3] `git show` on `6a82582d9fa4` and `b7121e3c04440`: confirmed
-  driver introduction and related unexpected-report fix.
-- [Phase 4] `b4 dig -c`, `-a`, `-w`, and `-m`: found final lore thread,
-  revisions, recipients, maintainer apply message, and test notes.
-- [Phase 4] WebFetch/Spinics: confirmed earlier stable-cc’d reporter
-  patches and review discussion about avoiding a blanket 64-byte check.
-- [Phase 5] Read `drivers/hid/hid-core.c`: confirmed `raw_event` runs
-  before `hid_report_raw_event()` size validation.
-- [Phase 5] Searched FT260 call paths: confirmed registration as
-  `.raw_event`, USB HID input path, and I2C adapter read paths.
-- [Phase 6] `git ls-tree` and `git grep` against stable branches:
-  confirmed affected code exists in `5.15.y+` branches checked, absent
-  from older listed branches.
-- [Phase 6] Temporary-index `git apply --check`: clean for `6.6.y`,
-  `6.12.y`, and current `v7.0.9`; fails unchanged for `5.15.y`/`6.1.y`,
-  requiring minor backport.
-- [Phase 7] `MAINTAINERS` search: confirmed Michael Zaidman maintains
-  FT260 and Jiri/Benjamin maintain HID core.
-- UNVERIFIED: whether an unprivileged local user can trigger this on a
-  given distro; that depends on USB access, I2C device permissions, and
-  deployment policy.
+
+- Phase 1: Parsed `git show --format=fuller --stat --patch
+  9998e388be993`; confirmed subject, body, tags, and one-line diff.
+- Phase 2: Read `drivers/i2c/i2c-core-acpi.c`; confirmed
+  `i2c_acpi_force_100khz_device_ids` is checked by
+  `i2c_acpi_lookup_speed()` and returns 100 kHz through
+  `i2c_acpi_find_bus_speed()`.
+- Phase 3: Ran `git blame` on the relevant lines; confirmed commits for
+  `ELAN06FA`, `DLL0945`, and `ELAN0678`.
+- Phase 3: Ran `git describe --contains`; confirmed first-containing
+  release positions for related mainline commits.
+- Phase 4: Ran `b4 dig -c`, `b4 dig -a`, and `b4 dig -w`; found original
+  v1 submission, no later revisions, and relevant recipients.
+- Phase 4: Fetched the public mirror thread; confirmed Mika Westerberg’s
+  ack and Wolfram Sang’s application note.
+- Phase 5: Used semantic search, `rg`, and file reads; confirmed
+  DesignWare and other I2C bus drivers call `i2c_acpi_find_bus_speed()`.
+- Phase 6: Used `git grep` and stable branch logs; confirmed sampled
+  stable branches contain related forced-speed quirks but not ELAN0678.
+- Phase 8: Failure mode is verified from the commit message and lore
+  thread: sluggish/excessively smoothed touchpad at 400 kHz, fixed by
+  100 kHz.
+- UNVERIFIED: Direct `lore.kernel.org/stable` content was blocked by
+  Anubis, so I could not independently inspect stable-list discussion
+  there.
 
 **YES**
 
- drivers/hid/hid-ft260.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ drivers/i2c/i2c-core-acpi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index 333341e80b0ec..70e2eedb465af 100644
---- a/drivers/hid/hid-ft260.c
-+++ b/drivers/hid/hid-ft260.c
-@@ -1068,10 +1068,22 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
- 	struct ft260_device *dev = hid_get_drvdata(hdev);
- 	struct ft260_i2c_input_report *xfer = (void *)data;
- 
-+	if (size < offsetof(struct ft260_i2c_input_report, data)) {
-+		hid_err(hdev, "short report %d\n", size);
-+		return -1;
-+	}
-+
- 	if (xfer->report >= FT260_I2C_REPORT_MIN &&
- 	    xfer->report <= FT260_I2C_REPORT_MAX) {
--		ft260_dbg("i2c resp: rep %#02x len %d\n", xfer->report,
--			  xfer->length);
-+		ft260_dbg("i2c resp: rep %#02x len %d size %d\n",
-+			  xfer->report, xfer->length, size);
-+
-+		if (xfer->length > size -
-+		    offsetof(struct ft260_i2c_input_report, data)) {
-+			hid_err(hdev, "report %#02x: length %d exceeds HID report size\n",
-+				xfer->report, xfer->length);
-+			return -1;
-+		}
- 
- 		if ((dev->read_buf == NULL) ||
- 		    (xfer->length > dev->read_len - dev->read_idx)) {
+diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
+index 2cbd31f77667a..28c0e4884a7f2 100644
+--- a/drivers/i2c/i2c-core-acpi.c
++++ b/drivers/i2c/i2c-core-acpi.c
+@@ -371,6 +371,7 @@ static const struct acpi_device_id i2c_acpi_force_100khz_device_ids[] = {
+ 	 * a 400KHz frequency. The root cause of the issue is not known.
+ 	 */
+ 	{ "DLL0945", 0 },
++	{ "ELAN0678", 0 },
+ 	{ "ELAN06FA", 0 },
+ 	{}
+ };
 -- 
 2.53.0
 
