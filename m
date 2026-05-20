@@ -1,125 +1,103 @@
-Received: from mx0b-0046e701.pphosted.com (mx0b-0046e701.pphosted.com [67.231.157.77])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C8B1B37269C;
-	Wed, 20 May 2026 16:29:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.157.77
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50B373FC5B0
+	for <linux-i2c@vger.kernel.org>; Wed, 20 May 2026 17:11:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779294549; cv=none; b=DM+AKTWZfZB6GypFK1L3G9wLtDued3uaAHhReCPf2dOtJpo7svC7bZj6kbL6Yj/G1lFthaqbMkHVaLdNx8hsheuvE2gnzrJfgpDs1tOwejGKTFgVPlDrQ4cQddqYetTuthPG+vd88BSQhLOJMcYD7ce30mx5BnHw88P4Y8Zjn80=
+	t=1779297105; cv=none; b=aSxaRg1dWShRSOdMtckWBCFxdX7lkuSP6X7I5vvNZxu6GWGjRFEae/Q7PRwzj8IIxe9RJAIMsL68hIQ4sKIUMEa2h5ULeYPMxJELwR057JUO6uWHGXoiwu40TZK4txXPjKdIPV9N2Qq3Mpj613sVS/HG05LPlxeo4e/V/EG8Kpg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779294549; c=relaxed/simple;
-	bh=suG8dC6iFbGT01beBy+Or5AFgL4+rw6hkPp79UlPWZY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=IHwEgjyTm+CaDx5aUMsD74sSA120UDmRP952S+RK16d+haGJjPCZko3dcdeUFBinXUDuPZuGRDrDCLxoT5mZGhGylEIoNzI3OBMxyB/HC/JlTLxgqkR9bm6PGHsVMHSFY3dg4OFaeAuDajqdkzb/j1/HHkcbEUHxYo7nz3JIDb4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com; spf=pass smtp.mailfrom=plexus.com; dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b=EblFFYuB; arc=none smtp.client-ip=67.231.157.77
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=plexus.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=plexus.com
+	s=arc-20240116; t=1779297105; c=relaxed/simple;
+	bh=k2Q85aaymmwbOsFUcDfL90XgQNjxC7S86f5E332dBT0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=G2NeGjx2PkvPb5/9KYq1qzaX6N2ZNMpI523u1C8c+KHK8eaAKuRebtxWBIiC/Uhy1zIeccvLQMGUMbtWMAOEckwOhv0Hnk+FBzF42yKnQPuhbcWEmjA/3lAqCOCiSigkI2ffYIZqDcreO9eeNrzM/ruEQtO3OxIr18OxQvJhDsU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=Y296BHC3; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=plexus.com header.i=@plexus.com header.b="EblFFYuB"
-Received: from pps.filterd (m0425993.ppops.net [127.0.0.1])
-	by mx0b-0046e701.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64K5xJkP3281845;
-	Wed, 20 May 2026 11:14:39 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=plexus.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pps1; bh=FDepI
-	XZ2BcoCLxo+ojIJjscBodpAZyDdZeRvgHshr8w=; b=EblFFYuBd/FUA4YgdlDlj
-	VCIrLA4AMBZtDhUregIuPz/kBLzjyR178/o8rlKkJaWkhoFHkfYXu6w8Rzysdhgx
-	aYyLAlxUmeVOk6bcY6TaiK2e/I2k1EJ/3dPpmTzDopc29u9VJDhZyh46pUsa9mPC
-	rnyd6Wtn/qegjdy30dLz6hYvqUDbF9aIxfuDnwIAUO11IaXuVqf3h22YWymqkEYZ
-	mcLY0sXpA4Qk6/DKRoGwPDU2R6AkppJpu4F1mzBy7nzth5XqX2WU4gqygVVEX+rt
-	jrJs0fripUWIT6UB4qBt07Fh4wJGS/ML3vqPmZ+Ecm6vhqNrFrQVlqrEivd0SshW
-	A==
-Received: from intranet-smtp.plexus.com ([64.215.193.254])
-	by mx0b-0046e701.pphosted.com (PPS) with ESMTPS id 4e8tdctk9p-1
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 20 May 2026 11:14:39 -0500 (CDT)
-Received: from LNDCL34533.neenah.na.plexus.com (unknown [10.255.48.203])
-	by intranet-smtp.plexus.com (Postfix) with ESMTP id 704163956B;
-	Wed, 20 May 2026 11:14:38 -0500 (CDT)
-From: Danny Kaehn <danny.kaehn@plexus.com>
-Date: Wed, 20 May 2026 11:13:07 -0500
-Subject: [PATCH v14 2/2] HID: cp2112: Configure I2C bus speed from firmware
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Y296BHC3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=k2Q8
+	5aaymmwbOsFUcDfL90XgQNjxC7S86f5E332dBT0=; b=Y296BHC3Gsjhe5skVNgE
+	H6oDtoQ1RYqb18IlBp1n8AMwTTnD+GRtdGsOsxe6+aajqa+ExVbfiV1lo302IFKi
+	7bIuLzsRRGwy9k8/Hr/oKF/eW8lAMzfluJDri9bDEIsbSKYMZC3NKydy8/hzcJ9/
+	nlZaBKRox7EZrotRdW1dv9HXIAsTXLJVvKugqAw3F0ZU9yW/k94ExoHKfeFCQ2OS
+	PBXD6uN2wGXy7WfOFoxcPODyhMolR/3bdo20ojPcwKrouhJXuu2I+AXmGAwDda9f
+	Qh4u4iYclP8FIRX7DlpjFI0BKqOH9HtmU+vS9ovGA/v0ClNuFzfS8PVXHxWRcxVw
+	fg==
+Received: (qmail 744310 invoked from network); 20 May 2026 19:11:39 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 20 May 2026 19:11:39 +0200
+X-UD-Smtp-Session: l3s3148p1@b8KO40JS3TttKXAe
+Date: Wed, 20 May 2026 19:11:38 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Mark Brown <broonie@kernel.org>
+Cc: Bartosz Golaszewski <brgl@kernel.org>,
+	Thomas Lin <thomas_lin@lecomputing.com>, rafael@kernel.org,
+	lenb@kernel.org, hoan@os.amperecomputing.com, linusw@kernel.org,
+	mika.westerberg@linux.intel.com, andriy.shevchenko@linux.intel.com,
+	jsd@semihalf.com, andi.shyti@kernel.org, linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-spi@vger.kernel.org,
+	lucas_hao@lecomputing.com, puntar_liu@lecomputing.com,
+	jihua_tao@lecomputing.com, stan_xu@lecomputing.com,
+	lumin_liu@lecomputing.com, notics_zhang@lecomputing.com,
+	braden_zhang@lecomputing.com, harold_wu@lecomputing.com,
+	will_zhang@lecomputing.com, aurora_jiang@lecomputing.com,
+	ryen_lin@lecomputing.com, andy_jiang@lecomputing.com
+Subject: Re: [PATCH v4 1/3] gpio: dwapb: Add ACPI ID LECA0001 for LECARC SoCs
+Message-ID: <ag3rSq-gx5bruPNW@shikoro>
+References: <20260520081140.637637-1-thomas_lin@lecomputing.com>
+ <20260520081140.637637-2-thomas_lin@lecomputing.com>
+ <CAMRc=MfM38h=zJU5Uy7zu9pigjb-XBAteBhUmvMAKZRWHGZNKA@mail.gmail.com>
+ <cc8dc59e-fc00-4f7b-9f24-467c670c5615@sirena.org.uk>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260520-cp2112-dt-v14-2-b1b4b6734b6f@plexus.com>
-References: <20260520-cp2112-dt-v14-0-b1b4b6734b6f@plexus.com>
-In-Reply-To: <20260520-cp2112-dt-v14-0-b1b4b6734b6f@plexus.com>
-To: Benjamin Tissoires <bentiss@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Danny Kaehn <danny.kaehn@plexus.com>,
-        Andi Shyti <andi.shyti@kernel.org>, Conor Dooley <conor+dt@kernel.org>
-Cc: Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
-        Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
-        Ting-Kai Chen <tingkaic@nvidia.com>,
-        Bartosz Golaszewski <brgl@kernel.org>
-X-Mailer: b4 0.14-dev-d4707
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1779293611; l=1142;
- i=danny.kaehn@plexus.com; s=20260127; h=from:subject:message-id;
- bh=suG8dC6iFbGT01beBy+Or5AFgL4+rw6hkPp79UlPWZY=;
- b=8Mz/TY76BJOYJis6PzwclggXCF1Nc74G+qHuAII8Fb0XVm6LsE10iltu9CuyE40hkKxSADqNW
- 3cW+j1D3tB3Brs7cugKHubTHS/EmUuhymvXzROr4vARy4pFSilJ5E2a
-X-Developer-Key: i=danny.kaehn@plexus.com; a=ed25519;
- pk=cbcR30mXg2VNyXtpE2SxVSXEDWLYwrxgnPCjJZn6A8s=
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: N-3wVdKoT0WvDFSx_CR9qURGX7aHYcA3
-X-Proofpoint-GUID: RU9o51AxCeYnUBvF5OuRmYZx-9_J8oNP
-X-Authority-Analysis: v=2.4 cv=f5F4wuyM c=1 sm=1 tr=0 ts=6a0dddef cx=c_pps
- a=356DXeqjepxy6lyVU6o3hA==:117 a=356DXeqjepxy6lyVU6o3hA==:17
- a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=SL0Da4cj2IsybHzvybfz:22 a=bWp6hkYQOWa87JmFC6wa:22 a=QyXUC8HyAAAA:8
- a=Y_joWELsAAAA:8 a=5Q0cJInN0W8t8_l8kPkA:9 a=QEXdDO2ut3YA:10
- a=g_BQsM8wYJVSTWLOHH1t:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTIwMDE1NyBTYWx0ZWRfX5Jtpg/Mzdaht
- SgUJyh4SsD1KwSywY7bfIjRKq95TrOf4Rz5kUNgkyZRXGf/HhmMsnTJ+IM6tW7/9YMdGO24CEM/
- 948CxBDGkQpz1tsm6i3oOLF/55LCRm75P3POsG21xaZ90efs+E95ap4ZerwJUfbVD1Ave2DF2ai
- j1qaaA1unGrIQ2oZNXxEh5zvhtP9uGLovJk8VBAbQVX+Ga8f95Pm4MUnniCkvRR5Q45q+rZFx8W
- 5ORkZsaXq+BMK4jnTMxv0T0NvnKGmCZMH752AOyDoGtQ/OKjlVeG9Ya4xZULwS39dFFavh0CSRB
- qqq8bz/8K30GraPRr7Cppw1b1JR1NVoRKiEN/XXJFvFM1MEB1v/AjC7E+i3WRk/MGC6zMzEfCQr
- z1tkYNxDUPeFce5bXamF17FqyWsUo0R4m0jNgLi9GK9SrKF6s4hymlwO3bbTqht9CZiOEJYc9g9
- SqcVrDm/9OTGnj2hdhQ==
-X-Proofpoint-Spam-Reason: orgsafe
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="C43eFg3inUFmpyWE"
+Content-Disposition: inline
+In-Reply-To: <cc8dc59e-fc00-4f7b-9f24-467c670c5615@sirena.org.uk>
 
-Now that the I2C adapter on the CP2112 can have an associated firmware
-node, set the bus speed based on firmware configuration
 
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Danny Kaehn <danny.kaehn@plexus.com>
----
- drivers/hid/hid-cp2112.c | 4 ++++
- 1 file changed, 4 insertions(+)
+--C43eFg3inUFmpyWE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-diff --git a/drivers/hid/hid-cp2112.c b/drivers/hid/hid-cp2112.c
-index e960fc988058..04379db93571 100644
---- a/drivers/hid/hid-cp2112.c
-+++ b/drivers/hid/hid-cp2112.c
-@@ -1223,6 +1223,7 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 	struct fwnode_handle *cp2112_fwnode;
- 	struct fwnode_handle *child;
- 	struct gpio_irq_chip *girq;
-+	struct i2c_timings timings;
- 	u32 addr;
- 	int ret;
- 
-@@ -1308,6 +1309,9 @@ static int cp2112_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		goto err_power_normal;
- 	}
- 
-+	i2c_parse_fw_timings(&dev->adap.dev, &timings, true);
-+
-+	config.clock_speed = cpu_to_be32(timings.bus_freq_hz);
- 	config.retry_time = cpu_to_be16(1);
- 
- 	ret = cp2112_hid_output(hdev, (u8 *)&config, sizeof(config),
+On Wed, May 20, 2026 at 04:24:12PM +0100, Mark Brown wrote:
+> On Wed, May 20, 2026 at 05:15:12PM +0200, Bartosz Golaszewski wrote:
+>=20
+> > I'm not sure about how to interpret the cover letter - is it fine to
+> > take this independently through the GPIO tree for v7.2?
+>=20
+> AFAICT any dependency that exists is runtime only, it's just a bunch of
+> quirks and none of the patches touch header files.
 
--- 
-2.25.1
+Patch 3 depends on patch 2. So, maybe it can go all in via GPIO?
 
+
+--C43eFg3inUFmpyWE
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoN60YACgkQFA3kzBSg
+KbZuWg/7B0Oyzh9DcRFzHGW1LOVv+kxrLl+xW5SlGK4be3TLyZh64SFUzEsyJbCj
+fXK4DX/kR1DKWKdwpmF7DoI/8n3EpVzF/kH52/HU3P0zpcH5PwnudVyHL/Pscg9d
+D9iKbEamsC5F+dPI4/V6xWDqWfjXNgKe5aO/w/SnLHbIo7ClF5BKyAzYulUWqOcE
+9BuSj14mk7uAwok6Y9k9gsr/yNpBU9R3mpp9VvS7JKATH7FWnxv8Q16jWnXNVl77
+V6M+priqzlBg0CeTEdtnpVY+6XwDt66axEtG/TgjAk8FIxSDebTAdTgKuL9Eo+uW
+H/r6+G13vZdP7jQHj8obnlOOLJMLQOsIHUKIfJFiaXMXylStCqSCerVBbh3GATHw
+4rxOnYOc4AXeARWNroecJXTZgwUfhlP01LliWAYeEDGAaj6O4lAbOCvFTBXROxWY
+cDI8O9+je/Pz4RjnIWN6K8Y0YVB8vrEE5dXrvW4z08k+MffDeIB8Kw+rUKx62FSx
+RP0pYTkD6zxZ0QamBA0woPfsWu3FCenPCOU/+h/tLXBBHJDWSoTtTgiDNcqvXn5c
+fONzPtn0rHr+Q1yv8dgozrF0xXMvx+ausJSCWcTV6KaCVs1Z+CckjTdg4pyHcs0A
+X1zzOEefVJIc8+LVcLAa/LB5uY9UTGsQyI9CFWvGWHsemIDVdjw=
+=mm9A
+-----END PGP SIGNATURE-----
+
+--C43eFg3inUFmpyWE--
