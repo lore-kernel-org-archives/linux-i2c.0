@@ -1,333 +1,387 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from CO1PR03CU002.outbound.protection.outlook.com (mail-westus2azon11010012.outbound.protection.outlook.com [52.101.46.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7405E3FC5AD;
-	Wed, 20 May 2026 11:21:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779276067; cv=none; b=nR64sgj4kNSdHUMjkw40m2Optl5/YwGAZQ3xzKreaN+fo6jToiNLVp47zeaTDRRx75IHEGnT3rd2Kz56p3No9aXLTchQjKG1l9pMDb0RVQS3rXxWnYdcKxj6bLiz1x8fHwKkxKXEPJa/gdAhwiaNj9uYbJJBLVbz8B27mCdP8Ag=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779276067; c=relaxed/simple;
-	bh=pP8iVAxF1FoMXalCFIkZlnb3QWBe+RsA4kTO38lVTnk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=l9eP3Ec+QMEZS7ZbDDT5gIJyJMaHmhywbEfbNk3JbVhjYdhrsT6HytCQ9EhOpdXkz6ItytciZ+TgyfaHTkqNXxHdD7aAQi9yv+S3TNosy87HTZWrZJ2SbTz43x2n/qjb2B0ZphMD0jYL6HMryXThKWL1U133ZYlhRTs75kouMFM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EIpc+L2M; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B39323DB301
+	for <linux-i2c@vger.kernel.org>; Wed, 20 May 2026 11:57:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.46.12
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779278234; cv=fail; b=PM6JIQRkKKnE68TZfoGa3e6IitJ0tjrnBsNEUqx6wRopdEOB2ml7UC//4DlM45uYwveGVi03dUqrW9/RXMofoQQetnz2lTAdZRxsH3nFi05sgRLTvO2mBaCRsmpkZ4hiOc+GzdQ6tmJlGKy7sHOuBa8/zSWbszihl+2EY8WeUKU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779278234; c=relaxed/simple;
+	bh=55EJjFbk4FSlqHZdJxIsHVmC0mp/YPDZRxknIJpNUi4=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=baoZjjwhVckr53SnTp+W4fPRik6AJVSjU9Z6pJqWKwgKvSsLPLm+on6s30NQz+g3klcYTtJqOzqEXxcW3c7AVHRcSl3uLSVDynfPf5qPI/+BjAiyqGmlwWePN9iO2V3wgINHby32WemmsMkgHoGbJlJF6/NPq9Gh4n6S3O+UXv8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=uGQ3mJJm; arc=fail smtp.client-ip=52.101.46.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EIpc+L2M"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 558D51F00894;
-	Wed, 20 May 2026 11:21:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779276065;
-	bh=+CoWtz8ztGvbc8ecX5s+vUNsyKplJmYowMl+atQh6mE=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=EIpc+L2Mo5UWc/qZaYG5siVu8u36TaK9E05H1cwITHSAwdqnx42DdILtyzhcIUa5E
-	 VTSKOZGCjVbwWjHcC+AqIkCSMC+/bueJXp2y1vO369Du6PXyrhcJp4yeUWyMe4p674
-	 +uWAAvegdesuRQQofcOARVs21Drax4kzhdcRVdV7fvQ0C7k3BcVAV92Zae5OmalT+N
-	 NK5RM0ViUs9nV5GIszFZtpjQ6CR/Moet7dfmgmu/L2BiO3qEj1qzS0NDr0/UFofmu+
-	 IXh3X7NScUUBOrpERFxJ7tOQpuKdze2+053RB5t2m3Vf1eGHlLwFG3qB90bSCT51CA
-	 yIPE0qSCRkF7Q==
-From: Sasha Levin <sashal@kernel.org>
-To: patches@lists.linux.dev,
-	stable@vger.kernel.org
-Cc: Niels Franke <nielsfranke@gmail.com>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Sasha Levin <sashal@kernel.org>,
-	westeri@kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-acpi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 7.0-5.10] i2c: acpi: Add ELAN0678 to i2c_acpi_force_100khz_device_ids
-Date: Wed, 20 May 2026 07:19:29 -0400
-Message-ID: <20260520111944.3424570-57-sashal@kernel.org>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260520111944.3424570-1-sashal@kernel.org>
-References: <20260520111944.3424570-1-sashal@kernel.org>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="uGQ3mJJm"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Gc3nyBsWMG3S3Dza1doSdJGKCgUKojF2KCEzoieopp5+flhhMkTx7Vi4mZAVZesXTzKMwokVmQsd8BxFlyeKmNXkKXW09UoI6r0/5Mr1ZWIhCzRHQ+P5rdSk7iIQCPdZKukLbf2H6scVtLeQ5U+janIvCMpoRYnAMdweW3Ay/rBPrUI0IRyyk3ygdmjqPzfU7sTHo+FGfUk7eRBRwYx8LHP7f5bKDZf/sT3T0Syql4OGKMoIUIzpEXx7bQ4c4zeiXkLqPshtCoQ5bhzykxLb+vKlYhvix+mzzjnl/vE3ueRe9hxCINVwt+Z1EFY/xCEZ9Pwe8dCJxwQfiNzixsGLWg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=6TMg/IgJynGfaSW4Ig3OYubG/2GtPiDKUEJeVNw48tM=;
+ b=AmICGz/3YVqayAZzZd6N46wbPJm5jM3XGSnWTZU4Y2L0J5p8nvg1T4sXExICwzMxSA4q21uiR3hvCWUYu+RsyNz9m/d5AJVEmsJOn8d84NCUiIo372JN3beedK3BNNo/Q5ghyy58KcP9jAtlOT2CVr/yeCbEnzgLie2Ly0dn+QKlzct/R33osorKZSXpakJ3EpX4FLd8EkB0J2neFmk/IJdtCjJSX60C2k2zpXE/p2HGXL7oRH2iamz2JqjYgZG7GaAU1Ryod6OFcWnG4RbdkDWhlJJSFPgryT7SWhZPCrQnEKPFopsB8KeXZU/AS+bU29N4FSHUSJ9kl2+SGzsYtg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.161) smtp.rcpttodomain=lysator.liu.se smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=6TMg/IgJynGfaSW4Ig3OYubG/2GtPiDKUEJeVNw48tM=;
+ b=uGQ3mJJm5OhctJ6bTdjw8OfIUPEgu7hgjudFhpmTONNK7xljY4GOZoKEd3wGWgOJr8MLbju1pWoTrB0AQx87B0xaq2itMn1OpNAPS7+6IaMga/9ovEQZR716XhVqpXb5nr0988uWBFmXER0o5n4nQzUrV7emBfmbxwVpo5FQ5p19KOSP2FmBj/JHt2qlBGEsnboGDrn7BPkEWJhB4foEPoSn8MPkmBfPFlMhD8nlMK2YST8fm66mGPUN8N+RLy8r5OqzxhH3eYt+RvFNMspAPy90cQTxRhq0GXG4GvYFCgBodzYF+0Vz+maF63GDXYR1SvtJPogdHCplqRAmxEMwfw==
+Received: from SJ0PR05CA0102.namprd05.prod.outlook.com (2603:10b6:a03:334::17)
+ by SN7PR12MB6960.namprd12.prod.outlook.com (2603:10b6:806:260::18) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.48.14; Wed, 20 May
+ 2026 11:57:04 +0000
+Received: from SJ1PEPF000026C3.namprd04.prod.outlook.com
+ (2603:10b6:a03:334:cafe::14) by SJ0PR05CA0102.outlook.office365.com
+ (2603:10b6:a03:334::17) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.25.18 via Frontend Transport; Wed, 20
+ May 2026 11:57:04 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ SJ1PEPF000026C3.mail.protection.outlook.com (10.167.244.100) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.48.11 via Frontend Transport; Wed, 20 May 2026 11:57:03 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Wed, 20 May
+ 2026 04:56:40 -0700
+Received: from r-build-bsp-06.mtr.labs.mlnx (10.126.230.37) by
+ rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.20; Wed, 20 May 2026 04:56:38 -0700
+From: Vadim Pasternak <vadimp@nvidia.com>
+To: <peda@lysator.liu.se>
+CC: <wsa@the-dreams.de>, <linux-i2c@vger.kernel.org>, Vadim Pasternak
+	<vadimp@nvidia.com>
+Subject: [PATCH i2c-mux next v2 1/1] i2c: mux: Add register map based mux driver
+Date: Wed, 20 May 2026 14:56:22 +0300
+Message-ID: <20260520115622.2540593-1-vadimp@nvidia.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-X-stable-base: Linux 7.0.9
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: rnnvmail203.nvidia.com (10.129.68.9) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: SJ1PEPF000026C3:EE_|SN7PR12MB6960:EE_
+X-MS-Office365-Filtering-Correlation-Id: 3ba25899-b297-4fac-f997-08deb666e84e
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|36860700016|376014|82310400026|1800799024|13003099007|3023799007|5023799004|56012099003|11063799006|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	QMKaSQ+Mlm8J6r4n9udASvEP+5q9K1MsYQSF1mxDxSqUNZ+rVLJw8UvFjNVGfL6U53yUFUh/bSFub87MzdfQX+6kHXFfQLoyMTSWdJ5vByqdMOPRTRJntWhGj2P7hVtDLEntGo6kA36GuGP6Gu4oBVZjR0fC+Q4P8u4lIATgEew291MkyN+HsZfKaMMC+pmlpLxQFawHb+CygqvPOVnMcRwyfgS4HMwvz1Q9uweJSs3LP/Xnkxb9sM7LtLaEsZzzNoSB9AAdIQ0qFqwUroVvbEXt+9oPURQbLnHy0axHdkRRP6OAZdmqd/s+0dWkXu3aDMmhHEP50RbsXiH6yuVbkawf3ET1/anTOFpUkIkYsxZAGjHfOv6b+C58LtLFvn/1hDxGuWPZWrZJVCC72qthlBN50miQU/XLMoPRUZiGEW+QiMReX7Rocbo/mfIJVvv7fgeCkvE4/r5qzxMIObHWrJRSfdW+Fv3N1puQOI8Tjfhf/F7yhpzl4WOgt8as6rGGdDZK2OFHBtNZO4gNtRTacArzw7XgwUWWidYE3nW8k4OGD0BB3xDJy7Ep/q+8ZDnUOXFiQFEavUAVKvcLPswNqp5WCEi9qtIFw+ZRO8NknDZBL1xe2Frplf7SJcnITomEFfpGmmqDHIJxwq28bGg+xgfBy/TlpU74dMfVJQGVzPjysySy+SLFhvAfjz1+UC3GYIRcykcZNFzEtlCqXcaSU8vNtgw9X/cuxbI8ijgF8x0=
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(36860700016)(376014)(82310400026)(1800799024)(13003099007)(3023799007)(5023799004)(56012099003)(11063799006)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	0uQNquUKfbhE1+UqqkdbvO5PEP4lbVzsauZ/GpgQWZIAz+d+vdJg6gf9ftk7WYl4Ghg+G977nHHyQ/XelvHzwIxQ+9llK9B6J0AL2M8bEqmQImETl8IyWgiYImLkxdi9KjJE+HF42iRhGBwxKXzVJ6Sar9Yyf0aRSWUALtO633M6J7y7rkx+6NngtQ3HdqcrOFAId67a27uvR/K42lA/GXluM27G9aMUx4ILi1K0VelexbiQGaylMtRGfYgk721Elr+Wm+N/8fva2eU9QtGwFDK3wFJN4DHdd9V3/PYc+2n7A92jENTLtQrt/4kDaKeo0DJc5sALhVzoWHolmY+hrk+WNOovxFaijpHNoRkyilt1n0ugkwxYrKw5jEQIQpglaSETtCyV6eqLdyUstD10PTRTU87A8OjjoeHNb24fVtLmxhyYRiMJUZImjaYYrRIR
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2026 11:57:03.3220
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3ba25899-b297-4fac-f997-08deb666e84e
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	SJ1PEPF000026C3.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB6960
 
-From: Niels Franke <nielsfranke@gmail.com>
+Add 'regmap' mux driver to allow virtual bus switching by setting a
+single selector register.
+The 'regmap' is supposed to be passed to driver within a platform data
+by parent platform driver.
 
-[ Upstream commit 9998e388be9930c106eb5904c23ecf2162407527 ]
+Unlike i2c-mux-reg, this driver relies on regmap abstraction
+instead of direct MMIO access, allowing the mux selector register
+to be accessed through arbitrary transport mechanisms supported
+by regmap callbacks, including indirect PCIe-to-SPI and PCIe-to-LPC
+transactions.
 
-The ELAN0678 touchpad (04F3:3195) found in the Lenovo ThinkPad X13
-exhibits excessive smoothing when the I2C bus runs at 400KHz, making
-the touchpad feel sluggish when plugged into AC power. This is the
-same issue previously fixed for ELAN06FA.
+The regmap instance is expected to be provided through platform data
+by the parent platform driver.
 
-The device's ACPI table (Lenovo TP-R22) specifies 0x00061A80 (400KHz)
-for the I2cSerialBusV2 descriptor. Forcing the bus to 100KHz eliminates
-the sluggish behavior.
+Motivation is to support mux selector registers accessed indirectly
+through transport-specific protocols.
 
-Signed-off-by: Niels Franke <nielsfranke@gmail.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-[wsa: kept the sorting]
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+For example, an FPGA connected through PCIe may expose SPI or LPC
+bridges used to access downstream CPLDs or secondary FPGAs located on
+another board. In such configurations the mux selector register is not
+directly memory-mapped and access is performed through regmap
+reg_read()/reg_write() callbacks implementing the required indirect
+transaction protocol.
+
+Signed-off-by: Vadim Pasternak <vadimp@nvidia.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202605201604.3O39wIat-lkp@intel.com/
 ---
+v2:
+- Initialize mux to NULL to avoid uninitialized warning reported by
+  kernel test robot.
 
-LLM Generated explanations, may be completely bogus:
+Note:
+Originally proposed in 2023:
+https://patchwork.ozlabs.org/project/linux-i2c/patch/20230823155332.48648-2-vadimp@nvidia.com/
+Reworked against current upstream.
+---
+ drivers/i2c/muxes/Kconfig                    |  12 ++
+ drivers/i2c/muxes/Makefile                   |   1 +
+ drivers/i2c/muxes/i2c-mux-regmap.c           | 150 +++++++++++++++++++
+ include/linux/platform_data/i2c-mux-regmap.h |  37 +++++
+ 4 files changed, 200 insertions(+)
+ create mode 100644 drivers/i2c/muxes/i2c-mux-regmap.c
+ create mode 100644 include/linux/platform_data/i2c-mux-regmap.h
 
-## Phase 1: Commit Message Forensics
-
-Step 1.1 - Subject:
-Record: Subsystem `i2c: acpi`; action verb `Add`; intent is to add ACPI
-HID `ELAN0678` to the existing 100 kHz forced-speed quirk table.
-
-Step 1.2 - Tags:
-Record: `Signed-off-by: Niels Franke <nielsfranke@gmail.com>`; `Acked-
-by: Mika Westerberg <mika.westerberg@linux.intel.com>`; maintainer note
-`[wsa: kept the sorting]`; `Signed-off-by: Wolfram Sang
-<wsa+renesas@sang-engineering.com>`. No `Fixes:`, `Reported-by:`,
-`Tested-by:`, `Link:`, or `Cc: stable@vger.kernel.org` tags.
-
-Step 1.3 - Body:
-Record: The bug is real hardware misbehavior: ELAN0678 touchpad
-`04F3:3195` on Lenovo ThinkPad X13 becomes sluggish/excessively smoothed
-when ACPI-described I2C speed is 400 kHz. The commit says forcing 100
-kHz eliminates it. Root cause is a bad/not-working speed choice for this
-device, matching the earlier ELAN06FA workaround.
-
-Step 1.4 - Hidden bug fix:
-Record: Yes. Although phrased as “Add”, this is a hardware
-workaround/quirk for a user-visible input-device malfunction, not new
-feature work.
-
-## Phase 2: Diff Analysis
-
-Step 2.1 - Inventory:
-Record: One file changed: `drivers/i2c/i2c-core-acpi.c`, `+1/-0`. It
-adds `{ "ELAN0678", 0 }` to `i2c_acpi_force_100khz_device_ids`. Scope is
-a single-file, one-line hardware quirk.
-
-Step 2.2 - Code flow:
-Record: Before, ELAN0678 used the normal ACPI/min-speed path and could
-run at the 400 kHz speed from firmware. After, when
-`i2c_acpi_lookup_speed()` sees an ACPI device matching `ELAN0678`, it
-sets `lookup->force_speed = I2C_MAX_STANDARD_MODE_FREQ`, causing
-`i2c_acpi_find_bus_speed()` to return 100 kHz.
-
-Step 2.3 - Bug mechanism:
-Record: Hardware workaround. The broken condition is a known-not-working
-I2C bus speed for a specific ACPI HID. The fix reuses the existing
-forced-100-kHz mechanism.
-
-Step 2.4 - Fix quality:
-Record: Obviously correct and minimal. It only affects machines exposing
-ACPI HID `ELAN0678`. Regression risk is very low: affected devices will
-run slower I2C, intentionally matching the verified workaround; all
-other devices are unchanged.
-
-## Phase 3: Git History
-
-Step 3.1 - Blame:
-Record: `git blame` on `origin/master` shows the new line is commit
-`9998e388be993`; the 100 kHz table and `ELAN06FA` handling came from
-`bfd74cd1fbc026`, first contained around `v6.14-rc1`; `DLL0945` came
-from `0b7c9528facdb5`, first contained around `v6.17-rc1`.
-
-Step 3.2 - Fixes tag:
-Record: Not applicable; no `Fixes:` tag is present.
-
-Step 3.3 - File history:
-Record: Recent file history shows related quirks `ELAN06FA` and
-`DLL0945`, plus unrelated treewide allocation conversions. No
-prerequisite structural change is needed where the 100 kHz table already
-exists.
-
-Step 3.4 - Author context:
-Record: Local history shows Niels Franke has this one I2C commit on
-`origin/master`. The patch was acked by Mika Westerberg, listed in
-`MAINTAINERS` as I2C ACPI maintainer, and committed by Wolfram Sang.
-
-Step 3.5 - Dependencies:
-Record: Standalone for stable branches that already have
-`i2c_acpi_force_100khz_device_ids`. For branches lacking the table, it
-depends on the earlier ELAN06FA forced-100-kHz infrastructure.
-
-## Phase 4: Mailing List And External Research
-
-Step 4.1 - Original discussion:
-Record: `b4 dig -c 9998e388be993` found the original submission at
-`https://patch.msgid.link/20260418053719.15766-1-nielsfranke@gmail.com`.
-The mirror thread shows v1 only, Mika Westerberg acked it, and Wolfram
-Sang applied it to `for-current` while keeping sort order. No objections
-or NAKs found.
-
-Step 4.2 - Reviewers/recipients:
-Record: `b4 dig -w` shows recipients included Niels Franke,
-`westeri@kernel.org`, Wolfram Sang, `linux-i2c`, `linux-acpi`, and
-`linux-kernel`. This reached the relevant I2C ACPI maintainer and lists.
-
-Step 4.3 - Bug report:
-Record: No separate `Reported-by` or bug tracker link in the commit. The
-commit message itself documents affected hardware, ACPI table speed, and
-the tested workaround. Web search also found unrelated ELAN0678 user
-reports, but I did not rely on those for the final decision.
-
-Step 4.4 - Series context:
-Record: `b4 dig -a` shows a single v1 patch, not a multi-patch series.
-
-Step 4.5 - Stable discussion:
-Record: Direct lore stable fetch was blocked by Anubis; web search found
-no specific stable-list discussion for ELAN0678. Stable branch git logs
-sampled do not yet contain ELAN0678.
-
-## Phase 5: Code Semantic Analysis
-
-Step 5.1 - Key functions:
-Record: The diff changes only the ACPI ID table, but behavior flows
-through `i2c_acpi_lookup_speed()` and `i2c_acpi_find_bus_speed()`.
-
-Step 5.2 - Callers:
-Record: `i2c_acpi_find_bus_speed()` is called by multiple I2C bus
-drivers, including DesignWare, USBIO, SynQuacer, LS2X, Zhaoxin, and AMD
-MP2. For DesignWare, `dw_i2c_plat_probe()` and PCI probe paths call
-`i2c_dw_fw_parse_and_configure()`, which calls the ACPI speed lookup
-during controller setup.
-
-Step 5.3 - Callees:
-Record: The relevant code calls `acpi_walk_namespace()`,
-`i2c_acpi_do_lookup()`, and `acpi_match_device_ids()`; if matched, it
-returns the forced speed to bus-driver timing configuration.
-
-Step 5.4 - Reachability:
-Record: Reachable during I2C adapter/controller initialization on ACPI
-systems. On affected Lenovo hardware, this path controls the bus speed
-used for the touchpad.
-
-Step 5.5 - Similar patterns:
-Record: Verified sibling quirks `ELAN06FA` and `DLL0945` in the same
-table, both addressing touchpad sluggishness at higher I2C speed.
-
-## Phase 6: Stable Tree Analysis
-
-Step 6.1 - Buggy code in stable:
-Record: Sampled stable branches `5.10.y`, `5.15.y`, `6.6.y`, `6.12.y`,
-`6.15.y` through `7.0.y` already contain the 100 kHz quirk table with
-`ELAN06FA`/`DLL0945`, but not `ELAN0678`. `5.4.y` has ACPI speed lookup
-but not the forced-100-kHz table in the sampled state.
-
-Step 6.2 - Backport difficulty:
-Record: Clean or trivial for branches with both `DLL0945` and `ELAN06FA`
-adjacent. Branches lacking `DLL0945` or the table may need a trivial
-context adjustment or dependency backport.
-
-Step 6.3 - Related fixes already stable:
-Record: Stable branches sampled already carry related ELAN06FA/DLL0945
-quirks, but no ELAN0678 equivalent.
-
-## Phase 7: Subsystem Context
-
-Step 7.1 - Subsystem:
-Record: `drivers/i2c/i2c-core-acpi.c`, I2C ACPI support. Criticality is
-important for affected ACPI laptop hardware, but not universal/core.
-
-Step 7.2 - Activity:
-Record: File history shows active maintenance and recent hardware quirk
-additions. The patch was accepted through the I2C maintainer path.
-
-## Phase 8: Impact And Risk
-
-Step 8.1 - Affected users:
-Record: Users of systems exposing the ELAN0678 ACPI touchpad,
-specifically verified by commit message for Lenovo ThinkPad X13.
-
-Step 8.2 - Trigger:
-Record: Triggered when the I2C bus is configured at 400 kHz for this
-device, including via the Lenovo TP-R22 ACPI `I2cSerialBusV2`
-descriptor. This is normal boot/device setup, not an obscure manual
-path.
-
-Step 8.3 - Severity:
-Record: Medium severity user-visible hardware malfunction: sluggish
-touchpad/input behavior. Not a crash, security issue, or data
-corruption.
-
-Step 8.4 - Risk-benefit:
-Record: Benefit is high for affected laptops because it restores usable
-touchpad behavior. Risk is very low because it is a one-line ACPI HID-
-specific quirk using existing logic.
-
-## Phase 9: Final Synthesis
-
-Step 9.1 - Evidence:
-Record: For backporting: real hardware bug, existing quirk mechanism,
-one-line scoped change, maintainer ack, accepted by I2C maintainer,
-stable branches already carry analogous quirks. Against backporting: no
-explicit stable tag, no separate bug report link, not a critical
-crash/security fix. Unresolved: exact applicability to every older
-stable branch; `5.4.y` would need more than this one-line context.
-
-Step 9.2 - Stable rules:
-Record: Obviously correct: yes. Tested: commit states forcing 100 kHz
-eliminates the issue, though no `Tested-by` tag. Real bug: yes, touchpad
-sluggishness. Important enough: yes under hardware quirk/workaround
-practice. Small/contained: yes, one line. No new APIs/features: yes.
-Applies to stable: yes for branches with the existing table; trivial
-adjustment/dependency for older divergent branches.
-
-Step 9.3 - Exception:
-Record: This falls squarely under the stable hardware quirk/workaround
-exception.
-
-Step 9.4 - Decision:
-Record: Backport. The risk is tiny and the fix is exactly the sort of
-targeted hardware workaround stable trees routinely carry.
-
-## Verification
-
-- Phase 1: Parsed `git show --format=fuller --stat --patch
-  9998e388be993`; confirmed subject, body, tags, and one-line diff.
-- Phase 2: Read `drivers/i2c/i2c-core-acpi.c`; confirmed
-  `i2c_acpi_force_100khz_device_ids` is checked by
-  `i2c_acpi_lookup_speed()` and returns 100 kHz through
-  `i2c_acpi_find_bus_speed()`.
-- Phase 3: Ran `git blame` on the relevant lines; confirmed commits for
-  `ELAN06FA`, `DLL0945`, and `ELAN0678`.
-- Phase 3: Ran `git describe --contains`; confirmed first-containing
-  release positions for related mainline commits.
-- Phase 4: Ran `b4 dig -c`, `b4 dig -a`, and `b4 dig -w`; found original
-  v1 submission, no later revisions, and relevant recipients.
-- Phase 4: Fetched the public mirror thread; confirmed Mika Westerberg’s
-  ack and Wolfram Sang’s application note.
-- Phase 5: Used semantic search, `rg`, and file reads; confirmed
-  DesignWare and other I2C bus drivers call `i2c_acpi_find_bus_speed()`.
-- Phase 6: Used `git grep` and stable branch logs; confirmed sampled
-  stable branches contain related forced-speed quirks but not ELAN0678.
-- Phase 8: Failure mode is verified from the commit message and lore
-  thread: sluggish/excessively smoothed touchpad at 400 kHz, fixed by
-  100 kHz.
-- UNVERIFIED: Direct `lore.kernel.org/stable` content was blocked by
-  Anubis, so I could not independently inspect stable-list discussion
-  there.
-
-**YES**
-
- drivers/i2c/i2c-core-acpi.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index 2cbd31f77667a..28c0e4884a7f2 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -371,6 +371,7 @@ static const struct acpi_device_id i2c_acpi_force_100khz_device_ids[] = {
- 	 * a 400KHz frequency. The root cause of the issue is not known.
- 	 */
- 	{ "DLL0945", 0 },
-+	{ "ELAN0678", 0 },
- 	{ "ELAN06FA", 0 },
- 	{}
- };
+diff --git a/drivers/i2c/muxes/Kconfig b/drivers/i2c/muxes/Kconfig
+index 6d2f66810cdc..9b5e5258917a 100644
+--- a/drivers/i2c/muxes/Kconfig
++++ b/drivers/i2c/muxes/Kconfig
+@@ -99,6 +99,18 @@ config I2C_MUX_REG
+ 	  This driver can also be built as a module.  If so, the module
+ 	  will be called i2c-mux-reg.
+ 
++config I2C_MUX_REGMAP
++	tristate "Register map based I2C multiplexer"
++	depends on REGMAP
++	help
++	  If you say yes to this option, support will be included for a
++	  register map based I2C multiplexer. This driver provides access to
++	  I2C busses connected through a MUX, which is controlled
++	  by a single register through the regmap.
++
++	  This driver can also be built as a module. If so, the module
++	  will be called i2c-mux-regmap.
++
+ config I2C_DEMUX_PINCTRL
+ 	tristate "pinctrl-based I2C demultiplexer"
+ 	depends on PINCTRL && OF
+diff --git a/drivers/i2c/muxes/Makefile b/drivers/i2c/muxes/Makefile
+index 4b24f49515a7..edecfc593df7 100644
+--- a/drivers/i2c/muxes/Makefile
++++ b/drivers/i2c/muxes/Makefile
+@@ -15,5 +15,6 @@ obj-$(CONFIG_I2C_MUX_PCA9541)	+= i2c-mux-pca9541.o
+ obj-$(CONFIG_I2C_MUX_PCA954x)	+= i2c-mux-pca954x.o
+ obj-$(CONFIG_I2C_MUX_PINCTRL)	+= i2c-mux-pinctrl.o
+ obj-$(CONFIG_I2C_MUX_REG)	+= i2c-mux-reg.o
++obj-$(CONFIG_I2C_MUX_REGMAP)	+= i2c-mux-regmap.o
+ 
+ ccflags-$(CONFIG_I2C_DEBUG_BUS) := -DDEBUG
+diff --git a/drivers/i2c/muxes/i2c-mux-regmap.c b/drivers/i2c/muxes/i2c-mux-regmap.c
+new file mode 100644
+index 000000000000..cbb198e44c2b
+--- /dev/null
++++ b/drivers/i2c/muxes/i2c-mux-regmap.c
+@@ -0,0 +1,150 @@
++// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0
++/*
++ * Regmap i2c mux driver
++ *
++ * Copyright (C) 2026 Nvidia Technologies Ltd.
++ */
++
++#include <linux/device.h>
++#include <linux/i2c.h>
++#include <linux/i2c-mux.h>
++#include <linux/io.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/platform_data/i2c-mux-regmap.h>
++#include <linux/platform_device.h>
++#include <linux/regmap.h>
++#include <linux/slab.h>
++
++/* i2c_mux_regmap - mux control structure:
++ * @last_val - last selected register value or -1 if mux deselected;
++ * @pdata: platform data;
++ */
++struct i2c_mux_regmap {
++	int last_val;
++	struct i2c_mux_regmap_platform_data pdata;
++};
++
++static int i2c_mux_regmap_select_chan(struct i2c_mux_core *muxc, u32 chan)
++{
++	struct i2c_mux_regmap *mux = i2c_mux_priv(muxc);
++	int err = 0;
++
++	/* Only select the channel if its different from the last channel */
++	if (mux->last_val != chan) {
++		err = regmap_write(mux->pdata.regmap, mux->pdata.sel_reg_addr, chan);
++		mux->last_val = err < 0 ? -1 : chan;
++	}
++
++	return err;
++}
++
++static int i2c_mux_regmap_deselect(struct i2c_mux_core *muxc, u32 chan)
++{
++	struct i2c_mux_regmap *mux = i2c_mux_priv(muxc);
++
++	/* Deselect active channel */
++	mux->last_val = -1;
++
++	return regmap_write(mux->pdata.regmap, mux->pdata.sel_reg_addr, 0);
++}
++
++static void i2c_mux_regmap_notify_probe_abandon(struct platform_device *pdev,
++						struct i2c_mux_regmap *mux,
++						struct i2c_mux_core *muxc,
++						struct i2c_adapter *parent,
++						int err, bool user_notify_called)
++{
++	const struct i2c_mux_regmap_platform_data *pd;
++
++	if (user_notify_called || err == -EPROBE_DEFER)
++		return;
++	pd = mux ? &mux->pdata : dev_get_platdata(&pdev->dev);
++	if (!pd || !pd->completion_notify || !pd->handle)
++		return;
++	pd->completion_notify(pd->handle, muxc ? muxc->parent : parent, NULL);
++}
++
++/* Probe/remove functions */
++static int i2c_mux_regmap_probe(struct platform_device *pdev)
++{
++	struct i2c_mux_regmap_platform_data *pdata = dev_get_platdata(&pdev->dev);
++	struct i2c_mux_regmap *mux = NULL;
++	struct i2c_adapter *parent;
++	struct i2c_mux_core *muxc = NULL;
++	bool user_notify_called = false;
++	int num, ret;
++
++	if (!pdata)
++		return -EINVAL;
++
++	parent = i2c_get_adapter(pdata->parent);
++	if (!parent)
++		return -EPROBE_DEFER;
++
++	muxc = i2c_mux_alloc(parent, &pdev->dev, pdata->num_adaps, sizeof(*mux), 0,
++			     i2c_mux_regmap_select_chan, i2c_mux_regmap_deselect);
++	if (!muxc) {
++		ret = -ENOMEM;
++		goto err_put_parent;
++	}
++
++	mux = i2c_mux_priv(muxc);
++	memcpy(&mux->pdata, pdata, sizeof(*pdata));
++	platform_set_drvdata(pdev, muxc);
++	mux->last_val = -1; /* force the first selection */
++
++	/* Create an adapter for each channel. */
++	for (num = 0; num < pdata->num_adaps; num++) {
++		ret = i2c_mux_add_adapter(muxc, 0, pdata->chan_ids[num]);
++		if (ret)
++			goto err_i2c_mux_add_adapter;
++	}
++
++	/* Notify caller when all channels' adapters are created. */
++	if (pdata->completion_notify) {
++		ret = pdata->completion_notify(pdata->handle, muxc->parent,
++					       muxc->adapter);
++		user_notify_called = true;
++		if (ret)
++			goto err_i2c_mux_add_adapter;
++	}
++
++	return 0;
++
++err_i2c_mux_add_adapter:
++	i2c_mux_regmap_notify_probe_abandon(pdev, mux, muxc, parent, ret,
++					    user_notify_called);
++	i2c_mux_del_adapters(muxc);
++	goto put_parent;
++err_put_parent:
++	i2c_mux_regmap_notify_probe_abandon(pdev, mux, muxc, parent, ret,
++					    user_notify_called);
++put_parent:
++	i2c_put_adapter(parent);
++
++	return ret;
++}
++
++static void i2c_mux_regmap_remove(struct platform_device *pdev)
++{
++	struct i2c_mux_core *muxc = platform_get_drvdata(pdev);
++
++	i2c_mux_del_adapters(muxc);
++	i2c_put_adapter(muxc->parent);
++}
++
++static struct platform_driver i2c_mux_regmap_driver = {
++	.driver = {
++		.name = "i2c-mux-regmap",
++	},
++	.probe = i2c_mux_regmap_probe,
++	.remove = i2c_mux_regmap_remove,
++};
++
++module_platform_driver(i2c_mux_regmap_driver);
++
++MODULE_AUTHOR("Vadim Pasternak (vadimp@nvidia.com)");
++MODULE_DESCRIPTION("Regmap I2C multiplexer driver");
++MODULE_LICENSE("Dual BSD/GPL");
++MODULE_ALIAS("platform:i2c-mux-regmap");
+diff --git a/include/linux/platform_data/i2c-mux-regmap.h b/include/linux/platform_data/i2c-mux-regmap.h
+new file mode 100644
+index 000000000000..0015d5a905d9
+--- /dev/null
++++ b/include/linux/platform_data/i2c-mux-regmap.h
+@@ -0,0 +1,37 @@
++/* SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0 */
++/*
++ * Regmap i2c mux driver
++ *
++ * Copyright (C) 2026 Nvidia Technologies Ltd.
++ */
++
++#ifndef __LINUX_PLATFORM_DATA_I2C_MUX_REGMAP_H
++#define __LINUX_PLATFORM_DATA_I2C_MUX_REGMAP_H
++
++/**
++ * struct i2c_mux_regmap_platform_data - Platform-dependent data for i2c-mux-regmap
++ * @regmap: register map of parent device;
++ * @parent: Parent I2C bus adapter number
++ * @chan_ids: channels array
++ * @num_adaps: number of adapters
++ * @sel_reg_addr: mux select register offset in CPLD/FPGA space
++ * @handle: handle to be passed by callback
++ * @completion_notify: callback invoked after all child adapters are
++ *	created. May also be invoked once with @adapters set to NULL if
++ *	probe fails after parent adapter acquisition, so waiters can
++ *	unblock.
++ *	The adapters array is owned by mux core, remains valid until mux
++ *	removal, and contains @num_adaps entries.
++ */
++struct i2c_mux_regmap_platform_data {
++	struct regmap *regmap;
++	int parent;
++	const unsigned int *chan_ids;
++	int num_adaps;
++	int sel_reg_addr;
++	void *handle;
++	int (*completion_notify)(void *handle, struct i2c_adapter *parent,
++				 struct i2c_adapter *adapters[]);
++};
++
++#endif	/* __LINUX_PLATFORM_DATA_I2C_MUX_REGMAP_H */
 -- 
-2.53.0
+2.34.1
 
