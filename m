@@ -1,167 +1,162 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
+Received: from CHN02-BJS-obe.outbound.protection.partner.outlook.cn (mail-bjschn02on2109.outbound.protection.partner.outlook.cn [139.219.17.109])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECA013BAD84
-	for <linux-i2c@vger.kernel.org>; Wed, 20 May 2026 08:35:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779266126; cv=none; b=VIHf+H4G6MNjA4ANPWM9GNQFy9DgitpL0sj8qgmjFc/8QQtXb8jOe3Q3o3xe1lUu4XJmY0LQqFUWOURJGZCiRAlNzg1lMGBROaPQfvsspMspAO1/s0O9XRvpdW2+sWDZTkM9AARWtqUYEYfCILArJpsIEAUuDPvMN0dOCA2KsAU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779266126; c=relaxed/simple;
-	bh=PkzvHbrNTDZ17MXaHSWQaIqklFjFamgd0ik0JLfkS2s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bj1ouaOrvqY9OkYXJbL69Vy3MF09/kDQBRLyk1BVU8ygI6ae09/oRNT4Tv+vN2tSE4d2pOMDpo+yDqgccqDgATdnzPPw4fu5kM4+m9CF73eQcrXm/7Myj+sjAC15hMP0tr59u+RInDT3DaZ9ryNHtnbgwXAconvCSIRzzviYi/Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=b4lTMJUp; arc=none smtp.client-ip=198.175.65.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="b4lTMJUp"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1779266124; x=1810802124;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=PkzvHbrNTDZ17MXaHSWQaIqklFjFamgd0ik0JLfkS2s=;
-  b=b4lTMJUphkq6PV3WIN8C5GYPvbX+ktvuRSjZpes9ANf4xdPTfW1nerE1
-   SqdtwG4GOzmuSzcqXjblpM4gotEB+3nhZg+7pEbnICofKT7tS/uf52QbH
-   cgWB0hO7+aPAtlXWtYNShn17Dd58VAW95u27xTLTKymzokf9GVP9zN3Zc
-   Qawkj+DUFNOKV2V0dt1xtpMFwgslFn7tLy/1taKnALI+7hmsqgpkNvaU5
-   sxvsUzmiiar6wctvARMD1QOheRD3H+/kVXT+9SAiZA4Q86eIkxyioRt6q
-   jbhiDb3vxl5oFep4dWkNAvzsI83hwSFIowemwpwhh/hjOQU3CKOAt4iyK
-   g==;
-X-CSE-ConnectionGUID: xR+HkOWaQPSnWZIo0zbzIg==
-X-CSE-MsgGUID: bZZJa4YeTgG3geXYi29eXw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11791"; a="84040904"
-X-IronPort-AV: E=Sophos;i="6.23,243,1770624000"; 
-   d="scan'208";a="84040904"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 May 2026 01:35:23 -0700
-X-CSE-ConnectionGUID: 9aD/ZDHlSYaHpgW6YSFdZA==
-X-CSE-MsgGUID: uqV8PCUjTRe/54HVv9vCLg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,243,1770624000"; 
-   d="scan'208";a="237091483"
-Received: from lkp-server02.sh.intel.com (HELO 30e86e9c1927) ([10.239.97.151])
-  by fmviesa007.fm.intel.com with ESMTP; 20 May 2026 01:35:21 -0700
-Received: from kbuild by 30e86e9c1927 with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wPcO5-000000002p3-1Tqz;
-	Wed, 20 May 2026 08:34:51 +0000
-Date: Wed, 20 May 2026 16:32:21 +0800
-From: kernel test robot <lkp@intel.com>
-To: Vadim Pasternak <vadimp@nvidia.com>, peda@lysator.liu.se
-Cc: oe-kbuild-all@lists.linux.dev, wsa@the-dreams.de,
-	linux-i2c@vger.kernel.org, Vadim Pasternak <vadimp@nvidia.com>
-Subject: Re: [PATCH i2c-mux next 1/1] i2c: mux: Add register map based mux
- driver
-Message-ID: <202605201604.3O39wIat-lkp@intel.com>
-References: <20260519174310.1128423-1-vadimp@nvidia.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4EE7A36AB49;
+	Wed, 20 May 2026 08:45:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=139.219.17.109
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779266723; cv=fail; b=jOb35hevNRBXPUXhaOpJShCA3nkJcYmrf5Cwx/9ZhG5jlNr3Tpltbll2XLNU9lJ9GTd9obPOIXEpKD5byXXqBuVtbV1dDRyMznFRqtVH+pRzy6BHtUfZisRO3vVCUn1FAJWuT+VIWN0Ev7fcSLCxsCMEIgAxjLDN0ZIu8iwrn5Y=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779266723; c=relaxed/simple;
+	bh=7G1rzda794mJ6nOPSBbreEn6FwFW8IKBQv6/EplPHDM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=j7fxpvuoBzskFqZEjxdnPwto4mJ6oISowPT7ZzdvnhTtmT3awOUSMQFKnmHSIOivXMKI1Tx35qBe+4247KP7nTZvwMBLLhC89mwpDA+sDdepIg7/Vpql0lchP6AYRtPP4U2iFxeCV2izPuA2wreO0dLlvG2sibHSBo71Xjd/sqQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lecomputing.com; spf=pass smtp.mailfrom=lecomputing.com; arc=fail smtp.client-ip=139.219.17.109
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lecomputing.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lecomputing.com
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=QCQ8y1aLUXGHKdjn1ccKytMwjKL3TcZNP9fF1jHO6gihYhnUEgomO2DK91wCUMl9wFof8At17d9CDGEW6La4ADJ90V+gBt+BQP7fPFgJAKY2QJ2liwwPYWzUckdjcj4YP+ovbzmEYXWSEZaq4SNzDRRfqhKA9eJb60j+uG1vmPPRvcECfAjgAVogwuU+0yCoE85jznaneFNn+A88WnGD4MfX77yBv3buyFJKkyLFt4Rnv5JIflT0NEGzd3YQMyKysxAFMioUdwqJxo4PiF/O/6lDcyRjim4DstmhK9totUWWeFzgWFqqaRcPLH9LCp0yOFr85/TwfuNtCX1VP32OMg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=YQjQ2G9e5OQyuaJVeMpWCYgkY1ZibpbOZC9b7XLeN6I=;
+ b=jX7f6tfQYSADyriHNiHR4ai9LmbQewjg+hhVq4mb9f5mJZ7caikMKPlEyztSFWhKYHqlJzLq7pLYP4BLO+EQ7qnwD9FW7jI3RZgZHfdm2PsDtGWj2jKQnQT1GIBpX9F145J2xqpfhJqY/VW5zxi9XcWa/nneXad3r0eYFipUeQ0SUyg9/QM/grTyMSCzCz4NMgIMNEl3qry7TDSZwPWNbZWxq+cHcI2IYBK8oW2pnvV8hxxoFSjK4avt2qnbnQ+zZlI72s8nflpcIKqGVksgPoHikobnTRl9n4ortKniLKCLopG/G4YB4PiVbXXBITcQoL6olzkE5f/U1Q//7Vw/Dw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=lecomputing.com; dmarc=pass action=none
+ header.from=lecomputing.com; dkim=pass header.d=lecomputing.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=lecomputing.com;
+Received: from BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
+ (2406:e500:c211:1f::17) by BJSPR01MB0755.CHNPR01.prod.partner.outlook.cn
+ (2406:e500:c211:1c::18) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.48.15; Wed, 20 May
+ 2026 08:11:54 +0000
+Received: from BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
+ ([fe80::1c61:86e3:3a75:155d]) by
+ BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn ([fe80::1c61:86e3:3a75:155d%4])
+ with mapi id 15.21.0025.023; Wed, 20 May 2026 08:11:54 +0000
+From: Thomas Lin <thomas_lin@lecomputing.com>
+To: rafael@kernel.org,
+	lenb@kernel.org,
+	hoan@os.amperecomputing.com,
+	linusw@kernel.org,
+	brgl@kernel.org,
+	mika.westerberg@linux.intel.com,
+	andriy.shevchenko@linux.intel.com,
+	jsd@semihalf.com,
+	andi.shyti@kernel.org,
+	broonie@kernel.org
+Cc: linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-spi@vger.kernel.org,
+	lucas_hao@lecomputing.com,
+	puntar_liu@lecomputing.com,
+	jihua_tao@lecomputing.com,
+	stan_xu@lecomputing.com,
+	lumin_liu@lecomputing.com,
+	notics_zhang@lecomputing.com,
+	braden_zhang@lecomputing.com,
+	harold_wu@lecomputing.com,
+	will_zhang@lecomputing.com,
+	aurora_jiang@lecomputing.com,
+	ryen_lin@lecomputing.com,
+	andy_jiang@lecomputing.com,
+	Thomas Lin <thomas_lin@lecomputing.com>
+Subject: [PATCH v4 1/3] gpio: dwapb: Add ACPI ID LECA0001 for LECARC SoCs
+Date: Wed, 20 May 2026 16:11:34 +0800
+Message-ID: <20260520081140.637637-2-thomas_lin@lecomputing.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260520081140.637637-1-thomas_lin@lecomputing.com>
+References: <20260520081140.637637-1-thomas_lin@lecomputing.com>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: ZQ0PR01CA0024.CHNPR01.prod.partner.outlook.cn
+ (2406:e500:c550:2::19) To BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
+ (2406:e500:c211:1f::17)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260519174310.1128423-1-vadimp@nvidia.com>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: BJSPR01MB0707:EE_|BJSPR01MB0755:EE_
+X-MS-Office365-Filtering-Correlation-Id: 5bdd58f4-b2a4-41e3-6f31-08deb6477375
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|366016|376014|7416014|52116014|56012099003|22082099003|18002099003|38350700014|921020;
+X-Microsoft-Antispam-Message-Info:
+	a4yKFHHiD7ia0p1QwBGI+hqNQZ3w5MDwZLhXYTQyj82etu4CzEvOh92DIs8hsz/aq6S0CxbTN5+26KLhdK7JXjJ38CcN2ZmDFMHNb0Q2v0Zb8lD4H43mzg08tPJyHqWhvLTk8dP78Pj+O2TSluXxs5QU9WcHp2TkPAE/ydn3wFRCHdHaGWxWjruhxXKm5txZN4SdziliH1WSHVoIhJI2u0S4oSXLkgnb8VkXTd6jPAoS9SXIgLEFVojMY01Fw3gl1Jfq/XcLWlulH7Hvrp27nFtJN8jmqH67MdpeJGvw9YPR3ivNCttK10/NNWv8uDvhNFP7svM4hIprv+WOP1n7d2y3er4BGSKk1T/f03W0KTu5n8h1AMQIRuEaAIUq0Ya9lfmWXqpgfUHzgIY08ZJvrZath/DnFq4/FagCm5PeHrUoPfiG8ogrRwd+ben4z/jYQreogU4pOuIuK37HlppO7FJ2p2JCNZUzFB3peLwBX+OoN5FsB2qgsr6JuSA7D/HGMvwQiTYcGSePMRr0kNr2/VrOZBemDaf+/T5sQ3at1z8blg4dwcC8Sk6IOnqZEoUFU1wCRXZ5QN/xtaM4KKfAqw==
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014)(52116014)(56012099003)(22082099003)(18002099003)(38350700014)(921020);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?1KpOfIlOsCw9aw4iJqw6Fi68BWxdtj48juNuShJW1boRpbdNiASkAqWqYgOy?=
+ =?us-ascii?Q?5CjHaGEuznQNcVnpyD7Yj3r0RKdTKwfwlpWFwozbWp5zwYd2We0lGOcMdGrV?=
+ =?us-ascii?Q?H/mpiFd8t46miN7aMHaOtQgHey2W3HDINTV2TAGYbGF+Q3lh5uJlcJln30v2?=
+ =?us-ascii?Q?k9RHk6mhRvOowJZnStS0kzkgA8M5HMhhDyY88+2Q+5boX3ZVOmQGPSHLKruJ?=
+ =?us-ascii?Q?/0LW3FrwC2fW4fmnGr9xkuKqeO8mqjBEaHteSzYEHyyU4OR1yQS3HKzalmKh?=
+ =?us-ascii?Q?Exjtmltr5HMPEQoKo+TS2po+Z9FhidL/mH7cp9Lvytwjrzi+wGERoo0QjRRU?=
+ =?us-ascii?Q?Nlh8jbkDqUlDbzKm6hb4GNmmYgVTuQuv2v67bXoz7WrEI4Jr9Uk3fq6isTRN?=
+ =?us-ascii?Q?VTY/GyZ0uh7pTA/7jXWAflGyBQL7aTLjF1xOlrvAywoXj9MP05zmjnEhhlyq?=
+ =?us-ascii?Q?EuQ2Vr5Le/ZNn8u7YZ3AcHqPR4BZJTJp39XbAHS15A6r99yks0w551SUPJ8p?=
+ =?us-ascii?Q?VlFRTYq0JkDAqlZ8pXPup4zAi5DpBF7H8RsagHP8p23wwCNyoDGYAVCZ/+gr?=
+ =?us-ascii?Q?6hvSRzhfOXolpmIVB+ac9emcSGAoIuD2p0HcyBZBXvoKEKxcPsB3oHuqQW2L?=
+ =?us-ascii?Q?AkIyKTJrqlXd9SgVd0V893YSTfbV+iMicyJc0cSqd5E4QRIhoIdoE23ucSnF?=
+ =?us-ascii?Q?M0saGaqLTwOg4WxQ698chjM16qm9ACMuAjAtwTvLOTVw5OQsAyvU4RItKn8Y?=
+ =?us-ascii?Q?sosT+cBn5LBytIEEniNPUSEuiMpdl7A91ws4gMvt1ES4dIGNsLJg8IXHKUDK?=
+ =?us-ascii?Q?2pkrls+fPaK7MoUAJl5JSg71/AoXlATNV4kmr8Hd0bABddbGHYBxWlA6+TMX?=
+ =?us-ascii?Q?gUdMkX/VRNDF+hXoXZzBYjBOZixvDLQhoILP2KjyOLuvbAalvVgmq+eIUDdN?=
+ =?us-ascii?Q?nX6XnNEE1jo9rVcwQUxC/q4ZOrzknqvw7nahXFatNT70iR79dXtizdz65jir?=
+ =?us-ascii?Q?LhQt4IcsdiqSircg8JT1wTVTOxQbimUMmLl5soCgv+bZI4sncl2Ym8uUC9ns?=
+ =?us-ascii?Q?Ow3cWX+g600/ntOQ8ctPqeYKjCurHDXgnL/jS5r2RA9y5KYE/yImVDe5P7Qm?=
+ =?us-ascii?Q?Mz6jP/siatUN09gdYAYFPwmnJsa6EZ5w1Uyi+AfQ0zRH93SOA8dwdc8/Alkz?=
+ =?us-ascii?Q?+66sOslgaIPFMCU1Cdg3bc5mqSqV37gji9zC5VSGC7d+kLqQv6lujOthGCsR?=
+ =?us-ascii?Q?qEWa2jy2uQxd+z6d+2/7Qd3Ciw3+qo16aBCOj/TyZppwp3J8g6+uG0qiZsZo?=
+ =?us-ascii?Q?jRPz1FTH+QxybnAxD2pbXdmJRPm36CM0TDkerRI7VYKjW+FJ5jAkdE5WAO7S?=
+ =?us-ascii?Q?pSqZL4lEDpzlxMAEDx18sUPXJvegrDgh1tqJOQmbktY4lRbJEdmVttCyqiQi?=
+ =?us-ascii?Q?xK7EM0VIr9V1i9rXEkhQoe3Lk8GM/2hNgoj6+iWa6wXovw+ZRwzO3jjPIcif?=
+ =?us-ascii?Q?0DWYEXtBUvBrpRQr6ZMO+wcn4AvYTePeFew3uwmTa0uv2fUpdCWBAw6b3pHX?=
+ =?us-ascii?Q?0ede0HvWNCtJDueIN+UsD6FJLnjYq9jgqb8v9mmZvA9DnUG2zc4p/e4LNByg?=
+ =?us-ascii?Q?ZHIKb1Ns75FLCJiWoVcDtqilyXwiARLLdRMdBrpDAPQk3s0HIG7uzW5E6dNk?=
+ =?us-ascii?Q?HVhoEkhbXXm0mvu0IliUhe0CqYXbGseUbhOQd5Z+mXlbOsJmxH4L5GVUBzPa?=
+ =?us-ascii?Q?gDQ3bvY681SYQBfG37TKj9rHkctZ8K8=3D?=
+X-OriginatorOrg: lecomputing.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5bdd58f4-b2a4-41e3-6f31-08deb6477375
+X-MS-Exchange-CrossTenant-AuthSource: BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2026 08:11:53.0961
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3591a018-3909-4ea2-aee8-843d5abaed8d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 3YYxlItRGg1gCxttnqQn8fHrGbCzxY6H6N95C5mTtv6qTr6zGGMSMiv436TXpjK6kjTwI+KifQWFeSQlS6w6kKNzMx8nBz5mEidZfNclDLY=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BJSPR01MB0755
 
-Hi Vadim,
+Add ACPI ID "LECA0001" for LECARC SoCs that use the DesignWare
+GPIO controller with V1 register offsets.
 
-kernel test robot noticed the following build warnings:
+Signed-off-by: Thomas Lin <thomas_lin@lecomputing.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Bartosz Golaszewski <brgl@kernel.org>
+---
+ drivers/gpio/gpio-dwapb.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-[auto build test WARNING on next-20260519]
+diff --git a/drivers/gpio/gpio-dwapb.c b/drivers/gpio/gpio-dwapb.c
+index 15cebc8b5d66..c1f3d83a67c1 100644
+--- a/drivers/gpio/gpio-dwapb.c
++++ b/drivers/gpio/gpio-dwapb.c
+@@ -694,6 +694,7 @@ static const struct acpi_device_id dwapb_acpi_match[] = {
+ 	{"APMC0D07", GPIO_REG_OFFSET_V1},
+ 	{"APMC0D81", GPIO_REG_OFFSET_V2},
+ 	{"FUJI200A", GPIO_REG_OFFSET_V1},
++	{"LECA0001", GPIO_REG_OFFSET_V1},
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(acpi, dwapb_acpi_match);
+-- 
+2.43.0
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Vadim-Pasternak/i2c-mux-Add-register-map-based-mux-driver/20260520-014530
-base:   next-20260519
-patch link:    https://lore.kernel.org/r/20260519174310.1128423-1-vadimp%40nvidia.com
-patch subject: [PATCH i2c-mux next 1/1] i2c: mux: Add register map based mux driver
-config: hexagon-randconfig-r061-20260520 (https://download.01.org/0day-ci/archive/20260520/202605201604.3O39wIat-lkp@intel.com/config)
-compiler: clang version 19.1.7 (https://github.com/llvm/llvm-project cd708029e0b2869e80abe31ddb175f7c35361f90)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260520/202605201604.3O39wIat-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202605201604.3O39wIat-lkp@intel.com/
-
-All warnings (new ones prefixed by >>):
-
->> drivers/i2c/muxes/i2c-mux-regmap.c:121:44: warning: variable 'mux' is uninitialized when used here [-Wuninitialized]
-     121 |         i2c_mux_regmap_notify_probe_abandon(pdev, mux, muxc, parent, ret,
-         |                                                   ^~~
-   drivers/i2c/muxes/i2c-mux-regmap.c:72:28: note: initialize the variable 'mux' to silence this warning
-      72 |         struct i2c_mux_regmap *mux;
-         |                                   ^
-         |                                    = NULL
-   1 warning generated.
-
-
-vim +/mux +121 drivers/i2c/muxes/i2c-mux-regmap.c
-
-    67	
-    68	/* Probe/remove functions */
-    69	static int i2c_mux_regmap_probe(struct platform_device *pdev)
-    70	{
-    71		struct i2c_mux_regmap_platform_data *pdata = dev_get_platdata(&pdev->dev);
-    72		struct i2c_mux_regmap *mux;
-    73		struct i2c_adapter *parent;
-    74		struct i2c_mux_core *muxc = NULL;
-    75		bool user_notify_called = false;
-    76		int num, ret;
-    77	
-    78		if (!pdata)
-    79			return -EINVAL;
-    80	
-    81		parent = i2c_get_adapter(pdata->parent);
-    82		if (!parent)
-    83			return -EPROBE_DEFER;
-    84	
-    85		muxc = i2c_mux_alloc(parent, &pdev->dev, pdata->num_adaps, sizeof(*mux), 0,
-    86				     i2c_mux_regmap_select_chan, i2c_mux_regmap_deselect);
-    87		if (!muxc) {
-    88			ret = -ENOMEM;
-    89			goto err_put_parent;
-    90		}
-    91	
-    92		mux = i2c_mux_priv(muxc);
-    93		memcpy(&mux->pdata, pdata, sizeof(*pdata));
-    94		platform_set_drvdata(pdev, muxc);
-    95		mux->last_val = -1; /* force the first selection */
-    96	
-    97		/* Create an adapter for each channel. */
-    98		for (num = 0; num < pdata->num_adaps; num++) {
-    99			ret = i2c_mux_add_adapter(muxc, 0, pdata->chan_ids[num]);
-   100			if (ret)
-   101				goto err_i2c_mux_add_adapter;
-   102		}
-   103	
-   104		/* Notify caller when all channels' adapters are created. */
-   105		if (pdata->completion_notify) {
-   106			ret = pdata->completion_notify(pdata->handle, muxc->parent,
-   107						       muxc->adapter);
-   108			user_notify_called = true;
-   109			if (ret)
-   110				goto err_i2c_mux_add_adapter;
-   111		}
-   112	
-   113		return 0;
-   114	
-   115	err_i2c_mux_add_adapter:
-   116		i2c_mux_regmap_notify_probe_abandon(pdev, mux, muxc, parent, ret,
-   117						    user_notify_called);
-   118		i2c_mux_del_adapters(muxc);
-   119		goto put_parent;
-   120	err_put_parent:
- > 121		i2c_mux_regmap_notify_probe_abandon(pdev, mux, muxc, parent, ret,
-   122						    user_notify_called);
-   123	put_parent:
-   124		i2c_put_adapter(parent);
-   125	
-   126		return ret;
-   127	}
-   128	
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
