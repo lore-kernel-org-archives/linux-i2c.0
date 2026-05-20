@@ -1,69 +1,77 @@
-Received: from AM0PR02CU008.outbound.protection.outlook.com (mail-westeuropeazon11023118.outbound.protection.outlook.com [52.101.72.118])
+Received: from CHN02-BJS-obe.outbound.protection.partner.outlook.cn (mail-bjschn02on2116.outbound.protection.partner.outlook.cn [139.219.17.116])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D53923A257F;
-	Wed, 20 May 2026 09:41:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.72.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2089A3D16FC;
+	Wed, 20 May 2026 09:46:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=139.219.17.116
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779270112; cv=fail; b=StoYqhUcCnumH13kcP2+pbbF6l8lIvbHYHwKzm1lbs3NLt8YTXRdr0Egbm7v6EHr7wjDBj+fsvba0PmXp+B1biH0wru/A8Xxe+Jj2L9H67iAEzYaHPnLLgU6kcr/Lxl5e1cezdb42EYDPlGlQIsmaFeviDT1fWRk4Yt+wqiZZSU=
+	t=1779270403; cv=fail; b=oAS/sL9F9PllbKC02fOSTwN/Y5B5CJHOSepDUT3sW/b1P0EoN712o55bsvGUaSibl0L5nSPET1vxqHAon/IIToFgl6PYdojtSca4mK0KlUQdP0XKzPkPNTjHky3S052bryI3F3jtJMrRYYbnkrYwTZnHwj3mrNCCOgAXVBLdAhQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779270112; c=relaxed/simple;
-	bh=1mjiAAXouLY2vCMpmEaf568y+dW+u7LyGM+TYr8Obos=;
-	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=nsMUoIY8FNNUruw4W0bSFDmPY6QhuqeOKeAi4r6gTOC6iIV6gsjUSa/JECRYbWFB9ov5AbjCpzCJMNwBJl/GC5ehQjONZYv5zz1qf43VPcvwUO1SCmYBF62HKy/5540S9rVNzxXn6tXU54PtHB9BqEhIlBCWknosQ93TGikShKc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=genexis.eu; spf=pass smtp.mailfrom=genexis.eu; dkim=pass (2048-bit key) header.d=genexis.eu header.i=@genexis.eu header.b=AjlnlBaQ; arc=fail smtp.client-ip=52.101.72.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=genexis.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=genexis.eu
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=genexis.eu header.i=@genexis.eu header.b="AjlnlBaQ"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=bHBK54OOAwWZ53ggtHDoqgcI1qiQrkYGOfyMm8uiREub1gudY25POd3xIxqnGxqaSRFxscgZlLUG0CiVhZDkCIkoTsdTY+Xt7aBvlcOX6r3cH7MCOTqlbJEIFY0ilDTeX2pH/p7LnQs2+UEyvfmd6E8w9R/WHPQxwuAvBl8mFckLnZenA90DwASnp984Pr9rvH60xJ7dcS1JvdZLdzBmjYgqBAn8IIRzVZfQv7hxLhpgnjPRJo7velqo5++xxUnp1+gubj2cqIzSlZMWpdVaQ29URJwhh3EYXs72EfMp8nSp6N+ZQGDk4cAjSzGUP8y1YuiLagoMTMhz+9QtKX9HKQ==
+	s=arc-20240116; t=1779270403; c=relaxed/simple;
+	bh=yH4gugd4chL53NIUS+snnawU5ZZXykbf4HfPBK0hTVY=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=k9KSGDC/GUjzJvYMboYQspIRSMGRamSVNPcWmR8gwKf8XLFvp+tQ/DTl9LykBw+whtuZnIgpwxXnPuG7y2u391uNHmF30YAdyYHBatZgvg3RtFc0N89dWra3zIFQGLm4l+jTo6Gmhjg8Cqut0mNzJRSTQAfRvznXMhMIDcs9QpA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lecomputing.com; spf=pass smtp.mailfrom=lecomputing.com; arc=fail smtp.client-ip=139.219.17.116
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lecomputing.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lecomputing.com
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=JdNBSsNAG+Ocz9DAsM6Ktr45Ke2wcnYm1a3YFVLF0IVYtm3eHxL06x0PV7W+gq3BfQJVrp9Vf4WjMvr/OmxzDxKXiUW0TRGsbXUth1Usc970SJaScxn8uJYNeFO3SkWna78gO4OslQyN0DD180BG+6kE/U6ZO2BDljZtHb7IqiDqQri+a5pz/IJ0IbLm5a1+hKhvwGx7xrNnI9412NCfdWlP+TDu1V26n/O3YlaJoDHWievjJy88jHC2Xyo/GUJl4qYwkboPOyNh71s/VaOvwnGoz8t9Xcuc7UjkkdGjCn2M9hN/KqZPl+AlXxvPqDQH0dqfDz4sITIgI3M9mWnKpw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
+ s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=JuxMmB0HwKq0zRzcHXE/1ckDMXCtQMf/6aapUoEIJbc=;
- b=aZXMCSgdjEvq4bKOP8TCL9Sm9j1OqWVb+7afhDOlw8MpgUZPH/2C+lol260eVfxvNLeh4ZG9rTjyTX5eojQcNm9Uc8GWSTSJuTNSdFDzMD45L/EnACL4Yb1UPQ6/UW0iU1bfua5QRqIM8QFDI72zmxLfNWc8Np7UPmqUeF6jDhGyAw3t2E4zAW+VN+WfuX5g61msda08hKdtH3LuCaC5yGbsjH8xuO07iZQ3Ol1Bs1DFSIqX+mRfw0sj/7amemdUmVSU50SiZqa6CqbWipVWCcansX2gFzkj3tPy77RTDgm9VukKqQIYl2jYvj15j9EmojGOwSF956/2bv68SrKmpA==
+ bh=f8wt02QAEOydDPsuM2zswZdFvvi0kfgobqbVYo+U4JM=;
+ b=kbP+znQq1dq4Ftmcx/YN2N9kdEiAlShtNJSPshNU+ZFBCfmILCjZIH4LQaMpwZNg48gWyJePpoh7p9MaXCBxSkVjve+QtYPrUtk2/U3ooLvTE1AHM5mWw+Wbp0xZAtQjWB0fvuaEP96ihCarvvoTUsXe5YwJ7i9PWY4VNpzh+FvFU1jwIM/taR90yQfEOJO07uNEw3HlE9t0CBoZhkDElbYTdj0GzfAakZoM6mt5f1AxFr1H7Ud/O5511A3oyQ7oEM4t6Y6YWXiP9ECkMUwywImrFWN3BAujA8H4TlixXkL4U40QlgJL1PLdyxz3fxgcz21QsA2vVsXpQB4R1KCnHg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=genexis.eu; dmarc=pass action=none header.from=genexis.eu;
- dkim=pass header.d=genexis.eu; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=genexis.eu;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=JuxMmB0HwKq0zRzcHXE/1ckDMXCtQMf/6aapUoEIJbc=;
- b=AjlnlBaQGINgOlPNAkxNvNXiutNSguRYN4oycr1hyIZK6TjWSvMKw52wVWgC53WhPL+u64oTAPoLFiMNmhRimNJOVG0qT3Uzx/8J99SyCO3SWSGDQW6/upOVVBSbC/GaqktvxAge20ixB67W1wYS/sCPOUzgCRX4RbFwx4oXmqr83gZfzhkKs6LLJGLjtBt96ORGOnskLdf3Qr3vpkulabIpbN4ZAP7b61uMv2YMHfDsfpbI+1+CtDH9Y9i2Zynngm9RIa4DGZBR5LruZjfiujb6SxSh2FRW3HD6SfFZoSzaXSmw96PhvQhLSrgUlrCTS85KvwQ6fRB5wnXrspPL/g==
+ smtp.mailfrom=lecomputing.com; dmarc=pass action=none
+ header.from=lecomputing.com; dkim=pass header.d=lecomputing.com; arc=none
 Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=genexis.eu;
-Received: from DB9PR08MB6697.eurprd08.prod.outlook.com (2603:10a6:10:2ad::14)
- by GV2PR08MB9302.eurprd08.prod.outlook.com (2603:10a6:150:d4::10) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.48.14; Wed, 20 May
- 2026 09:41:34 +0000
-Received: from DB9PR08MB6697.eurprd08.prod.outlook.com
- ([fe80::bdec:3e95:6614:441f]) by DB9PR08MB6697.eurprd08.prod.outlook.com
- ([fe80::bdec:3e95:6614:441f%6]) with mapi id 15.21.0048.013; Wed, 20 May 2026
- 09:41:34 +0000
-Message-ID: <e797ea21-4874-4cd1-b9dd-61514d541f38@genexis.eu>
-Date: Wed, 20 May 2026 11:41:32 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 5/5] i2c: mt7621: make device reset optional
-To: Christian Marangi <ansuelsmth@gmail.com>, Stefan Roese <sr@denx.de>,
- Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-mediatek@lists.infradead.org
-References: <20260519223253.1093-1-ansuelsmth@gmail.com>
- <20260519223253.1093-6-ansuelsmth@gmail.com>
-Content-Language: en-US
-From: Benjamin Larsson <benjamin.larsson@genexis.eu>
-In-Reply-To: <20260519223253.1093-6-ansuelsmth@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+ header.d=none;dmarc=none action=none header.from=lecomputing.com;
+Received: from BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
+ (2406:e500:c211:1f::17) by BJSPR01MB0755.CHNPR01.prod.partner.outlook.cn
+ (2406:e500:c211:1c::18) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.48.15; Wed, 20 May
+ 2026 08:11:51 +0000
+Received: from BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
+ ([fe80::1c61:86e3:3a75:155d]) by
+ BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn ([fe80::1c61:86e3:3a75:155d%4])
+ with mapi id 15.21.0025.023; Wed, 20 May 2026 08:11:51 +0000
+From: Thomas Lin <thomas_lin@lecomputing.com>
+To: rafael@kernel.org,
+	lenb@kernel.org,
+	hoan@os.amperecomputing.com,
+	linusw@kernel.org,
+	brgl@kernel.org,
+	mika.westerberg@linux.intel.com,
+	andriy.shevchenko@linux.intel.com,
+	jsd@semihalf.com,
+	andi.shyti@kernel.org,
+	broonie@kernel.org
+Cc: linux-acpi@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-gpio@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-spi@vger.kernel.org,
+	lucas_hao@lecomputing.com,
+	puntar_liu@lecomputing.com,
+	jihua_tao@lecomputing.com,
+	stan_xu@lecomputing.com,
+	lumin_liu@lecomputing.com,
+	notics_zhang@lecomputing.com,
+	braden_zhang@lecomputing.com,
+	harold_wu@lecomputing.com,
+	will_zhang@lecomputing.com,
+	aurora_jiang@lecomputing.com,
+	ryen_lin@lecomputing.com,
+	andy_jiang@lecomputing.com,
+	Thomas Lin <thomas_lin@lecomputing.com>
+Subject: [PATCH v4 0/3] arm64: Add LECARC ACPI IDs for DesignWare GPIO, SPI, I2C
+Date: Wed, 20 May 2026 16:11:33 +0800
+Message-ID: <20260520081140.637637-1-thomas_lin@lecomputing.com>
+X-Mailer: git-send-email 2.43.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: GVZP280CA0035.SWEP280.PROD.OUTLOOK.COM
- (2603:10a6:150:26f::12) To DB9PR08MB6697.eurprd08.prod.outlook.com
- (2603:10a6:10:2ad::14)
+X-ClientProxiedBy: ZQ0PR01CA0024.CHNPR01.prod.partner.outlook.cn
+ (2406:e500:c550:2::19) To BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
+ (2406:e500:c211:1f::17)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -71,189 +79,119 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DB9PR08MB6697:EE_|GV2PR08MB9302:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4f0ff36f-f03e-4828-6cf7-08deb653fae1
+X-MS-TrafficTypeDiagnostic: BJSPR01MB0707:EE_|BJSPR01MB0755:EE_
+X-MS-Office365-Filtering-Correlation-Id: 7c5c4881-bbaa-4c33-750c-08deb6477251
 X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|10070799003|366016|376014|7416014|921020|56012099003|11063799006|4143699003|18002099003|22082099003;
+	BCL:0;ARA:13230040|1800799024|366016|376014|7416014|52116014|56012099003|18002099003|38350700014|921020|5023799004;
 X-Microsoft-Antispam-Message-Info:
-	hm4lrmAThrloaAKXK9ppiTwDiO1bHrNKVDMPvxrd+/x0NQjFzATWWDyvfg9Txr/F7sHtsK5/nR14+N853SD8il894TETm5FcOrbhCO4JXeGsxQGUTnZN8+Lf1gfpkkDl4oKIum+AR7bySbJqS9XcaDY245tNUOXx98zqgb84n7KBFG1s8ARmLUHgGdufouQDy9uhSItM6CGOK61NFX6VUKVCEHovfCh0ACfIs5t9pq/1N90kPIB7EqC4LAI8DyfrsMP+HrCn17bf/TdhbL0M6p2QtC1fCIltNrbTJNnLkgRK89ZlPOdFoUDRiYVI1dYChOk8sF+t6SzkxdAYM9P4MquWKOkf8YBXO3MVWOa6U0KyzC//3MDzYCUoW137CzMsdmP/1xy8wPFSvmUZD/95Nhri3yXoKaOIDSfpFFbredUC3OF6Mjqv0yaT/ABYLrtV2bEKngZRYJ3cMVFGP+0BCE1M96s/gk2/VlVi7S1+B88XWvErlEzRXuU5/4OyCJjkFOIvD2SfT6TEZolBPpICv1Av0+2NKua9X0xbd2cMpt/sWwG02jPQWQINJOTQ6BtQstICnWHsB+zf4xoWWjaD3HnzO3n30i3zZF3V5IhT5mfYsvq7QY4urqe1fM0vxrChEfLqTZaugJqdvb5l3qgZvf7GOE4//zeQZ3ZZd8alfwmmseryhekLUMmYLAyZa9DDe2NRLPXbzTLG4mXkrC0qE/xv5Kj79ai77LYJZPG4wJl/JK5cTV2UcezugPMiSxjx
+	sKXod2jtZGOhO50GKkoQJQRAvlQVLdC9dSuNIzImCoHWiixUkJEo71RFNAm5wakQYaDBe1SAIBh5Y1IfIG5pil55WjPGikJSXfb4WSbnt2GTWyvEGLbtbyMS3bCq3BQKC2XmKoiL22hYpVuScFlw08ssAZX4Wa7kwU6YNIICqpoFtC4IhLruLHW40hZR5ooo6pmkjaVE+f7bbKOT6sxkm71olxTRoJL/dr1w5Af+6q29ra3osyq39vQoh7OBptZHR6J/uDmZ13KkaG1Wz4ZT37KbSrp2aD9o7HfnnTRozZPzn0k+M+J1RMP2+kx9LHUxMz7HErj1svTupXU5vuM+qJn4ZaWFvP4MRFHqp5q/Hmld5C1QbsN4X4CjhbtH7PIRJXbkONR65LUoVnOldxorkQenDODMLTB2P9P0GKn5qqmSI9+UzrZE0w2CKtY5G28zpS7b3NWER9TgjD9LAqijCIEX6z4MtBAc2tiMkwzb8D8ev1Qa62q5GYv+mJQFpWITgjsQTYkiDD0Z5YXr9uDcfCilNsHx0xz9CUHdbCIwrLyVvahlvXh7saqghKQh/OLeZA/31KR5y718iiolUtSPww==
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB9PR08MB6697.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(10070799003)(366016)(376014)(7416014)(921020)(56012099003)(11063799006)(4143699003)(18002099003)(22082099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 2
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014)(52116014)(56012099003)(18002099003)(38350700014)(921020)(5023799004);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?Z2FsRjdOa0U3cXhjTnFtRG4xa2VRZkNFeWcxZ0R1RGJVTEdnMFhySndlRk90?=
- =?utf-8?B?d3ZOWTQrSWxjSDFWakVFTEpJWnVXb1NodXVjRHlJOVFKWnNJOWdOZis1dGVI?=
- =?utf-8?B?WmZqaG15TXdMWWh0dFgzVEtnQU9RZm5nQm8reHcyamFtZ1ZpL25WNHROT0RD?=
- =?utf-8?B?YWp0a0VxbGw0VWN6KzdaQWhtdWhSRm1HSng5ZmR6emswazAvYnRXODN6REgx?=
- =?utf-8?B?TldRcHplZUJxd1Zzb21WTVBjWUh4dFRPQXFPcUxMK1Vhck8zcFM1cS9iZW90?=
- =?utf-8?B?amNCZVFEUFJMcmtReExzaGtmU2FaTXJCOXh0YVVrUmlRU25OeVJ5YzhTemtu?=
- =?utf-8?B?U2llbmtqZjNDcXZTOVp5NFAvTkRlcHdGV2M2NTZaZVNsSGxnZnRIN29wL3Bv?=
- =?utf-8?B?eTVsZlpZUjkvdXh5dS9uMHNUVm9yaHhaRHU3TTI3OHhuUnRkYm1aZ0NwalB3?=
- =?utf-8?B?YXNtVmxBQ1krSkRoaENKam1WQ3VkZTZsKzluVFBHdlNSeTZQeWZiVFVBT09T?=
- =?utf-8?B?RXBISU1zb244YjJGdDlncHp3K01IWi9MY202Yi9QSEVOeFU4ZGpkVGExdFZa?=
- =?utf-8?B?VXJvcmR6N3RQaUg1RHdIUTY0UGtzQUVKOTYyL1o5OTJCR3JNRndBMzFEeDJh?=
- =?utf-8?B?bHN4RVRBYm5JZEVFM0Y2MC92RU9jZnVRVDVWOGtnK0l2Mll2MFlGejB5VDZ4?=
- =?utf-8?B?NEFqWmg3dngySTV5MGVGbU44eUJ0NS9pQVZRMUdvSW9CMTJ4bWxtUGlnZzBN?=
- =?utf-8?B?aTI0NktwRXE3a0oyZTlQQTcxME1zYXBIVUs4allCeS82RFhrYkxHL3pLQ2Rw?=
- =?utf-8?B?VjR4Mk45ekFGQndZSzhGN1ZVQmxCQ3BTa3krbmhpRkx5SG5XS0hCODlCSlps?=
- =?utf-8?B?VUQvVWNFS0xpcHkzMWVxRmx0QmFFS25WSE9WMmpvRkpWSURvQ0JXbTJXak9F?=
- =?utf-8?B?ek9IS0VmUThpdmlxRTVVM0FhbXd2Y1JLMUJqY1dIdVlNdVNZaE12SnBVcGN0?=
- =?utf-8?B?THluSmFzWmR4NUlpL0FRYkF0aTk4dVVRYmR0emJ2Z25IdUxncUVYSjhPL2x6?=
- =?utf-8?B?K1RtN3ZuU2xtRkw2RVVMT2IyNzdybVhNSXZUektSV3VhY0pPb1BHb2JXc2FN?=
- =?utf-8?B?Rm1rdFlzVGtIcFZNN3UwcTQwQjVLNTN0RTdIYU81aGVNd3BudU8wajRpTmxR?=
- =?utf-8?B?VVJvdXZTcWNwUXh3cFQ5aFZkbndYUkhocFVYdDNqRUsraDQ0d0RoOEF4T2VW?=
- =?utf-8?B?SDdYQ3BML2R6L3plMGNHMmxlOHlhTytSMktXSldkc20wb2NlbzRJMFYzZCtX?=
- =?utf-8?B?YytscjVPcm9sdlpOZ0tyWVNISy95VisxT1QyU1pxNnlNTUYrY3RDZDA0Q29a?=
- =?utf-8?B?YkRYTnd1dlF5b1ZJSmpzQkRMZlpzR2FPbHlVV3JKbTl4NWhsazRqN0NCZWZH?=
- =?utf-8?B?QXNpVVNKeUpXNy9OYzI3aldtUzZYRHdtUy9YZWIvNjdEWlFZRDVaWWNFNThT?=
- =?utf-8?B?UllIQ3p6SGNZSmdRMVhoWEZiRDRKa1lwZXphTEk3bGRUYW52SFgvNUZwWEU1?=
- =?utf-8?B?S094SVdsQ2wwVDIwWnkralpIUGRhY09mbVpCSGQ0bjZEbU1oVXhpbzNrUXpz?=
- =?utf-8?B?bTVETHV0V243aGhqRkk4L1pyZEdLU2s5YTNsaXNLVFh2cmNWRjMycUFOZERL?=
- =?utf-8?B?OWJhL0kyVi9zc1V3UnYvWEZIVjJpajRGQ210OTlTdDdXMVVuOXRFbENKcnFJ?=
- =?utf-8?B?bi9CQ3Ryd1NISERvK1V0ejBQdTVrbnZRRFVVcGNINitkU1AvL1k4a2huMy9y?=
- =?utf-8?B?bmhrNnFrTkpuZkVwcmcvQVh5UXU0cjZyQWRNOFkzeU1zcmN6WUk5MkR2cCtj?=
- =?utf-8?B?M1YzVS80OWdmbnVHK3RGWkoyWEhReVFWd0ZSNTQxVUxHWDZ1bVBVWXVIRmE5?=
- =?utf-8?B?OVIxY2JkWDh6NUZBSlAzVWxLOGxHUnBzbHUwZWE4dW5RV2prU0F5TllwZ1h4?=
- =?utf-8?B?Q044cmptTmQvQzVaLytOTEtWMnIzRk9DQjFydzFYbzZkQTJFVTluVEhlL2Yy?=
- =?utf-8?B?RzlkbWNiRTlJZVhWWEcyZlo2Wll6MXlhZHBTSFZqOWI4M2lSeldmU29jOTZD?=
- =?utf-8?B?eGwwU0ZCVEtJL1hab21MOHFvYVpYazB0NEhsN1RVVjg3bVg4NERydWYwV0hk?=
- =?utf-8?B?N2gxMWY0WGNpbUFYSmZhOHlLZnpwdElwYVl3L2xqK1diWEdyL1F5OVBiVVRn?=
- =?utf-8?B?WjdzdzBnRDBrNGJRZmlJd3hybUJuQzVhdUxwZURNT2pFTVB6TXV0V3NSakdr?=
- =?utf-8?B?VFBLSmk3WWU0UndjNnl1dG5LcXE5RjNiUmVQUVBvTEdvK2lUZHc2cTJDMnc5?=
- =?utf-8?Q?4Tyf8gaPHPyXOnPPm4/u1GbFgjZXpAY+I+3lUZjoWnjsk?=
-X-MS-Exchange-AntiSpam-MessageData-1: 3vqfKWViPUcJxwcddcDSwvDFmaLN1z0aHuA=
-X-OriginatorOrg: genexis.eu
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4f0ff36f-f03e-4828-6cf7-08deb653fae1
-X-MS-Exchange-CrossTenant-AuthSource: DB9PR08MB6697.eurprd08.prod.outlook.com
+	=?utf-8?B?RTVnSVp3bDJVWlJ2TCtTZTNtNE9ZeVBVTG4yT1dUcnB3VC9BbTZWSWxrVnBU?=
+ =?utf-8?B?TkRDTTRHSUt5b09BSTlscm9EYzExQ3M4YkNOa1RaWlI4cUUzMkMxc0FCaHdj?=
+ =?utf-8?B?d1NBUjA2T3ZYQzlEeDc2TkJOMjltZjlXWExnVG41MFhRbURNSXNlT0IrSVhK?=
+ =?utf-8?B?WW9BOUsxSklCQWlqWm1qU1hRdTBEOXYrQkFSS3I4UUx0d1hLbmU0NjhJTTFB?=
+ =?utf-8?B?RE1SMHFkYnFoVzB5YXJ4ay80S0h2MjNUT2FBZFZIYVhWUmlxQ0NDT2hXMlRV?=
+ =?utf-8?B?RXlIQThWeWpJckpxTU1XdGJMV3A1M2pBOU1LQjlUWFBQanI5a0VZZnk3UEtD?=
+ =?utf-8?B?aWlyMnFQeWd1L1NMUHhpTjJSUmNpa0ZYVEswUnFKQzQ0aEJrRnB3d0RYMFZr?=
+ =?utf-8?B?UTVFbG16WnhzRWxuZmZrSWh6b05BZ056QnVMNkpZclYyb2VtVzZMVG5qQkhB?=
+ =?utf-8?B?VFpGWjExcGg0YlIzYzcwMk1OVXdteDF6bkJZcC9hdk9QL0ZrZUdwMXdNUGVJ?=
+ =?utf-8?B?RHczT0hvd0ZMZGtMcXhhN3FidWlPQzlVdUo4M21mMFlBaTBST1N0dkJGV1hZ?=
+ =?utf-8?B?Y0poUFF5NFQvNmxESDhVcjhwd2pFS3FHWmIxV01VMlhPRUV4Z2NaZ21adHFh?=
+ =?utf-8?B?UlNZZytRaUxDbDBIQTRBYmRHcFJMYzc3WGVWYW5ETE1ETXV1dGJybHdNSzRM?=
+ =?utf-8?B?bzd4Z0JEUkd3dkFiM2Nrd0dLQjZGaVQ0U0Z5dnB5Ny9MSEE1WTBZNXBmcFQw?=
+ =?utf-8?B?V1JCUlNocHZNejlQWnE4T0tyd2ZoVUVwVFVmWmcyWnI3eGs0OVNWazRpd0lM?=
+ =?utf-8?B?bU1hSFc0TlFtNmlydW1WUHd0SEVIS3dQTFZwOWFkWTNHY3NKUitmSWQ1Skgz?=
+ =?utf-8?B?SDIxb1NUdk13aEFIeDlKL2wwdDJpZm45Q25ZemVMdjBZc3AvQ2V4REUramNq?=
+ =?utf-8?B?aG9xTnF3cG1mbCs1VnhSU25IenZZL1NNb1BTNnJtQURnaWZ5ekJZY0JSaG5x?=
+ =?utf-8?B?bGN2TFpVVjViZStPRURTMjIwODY1ZUQxRmo4Riswbm9ENDU2aFEwUCt2cHhq?=
+ =?utf-8?B?VUNteWxjdzBOSXQrM0NjTW5iQ1JteFhRUUxES2ZXL3RwQVQraEZOUEF0QUVP?=
+ =?utf-8?B?ZzZ4ZDRWNmhrRkJZdkw2aitPYWJoK1JyWkpsbnljaS9YbVdjL1VCOURoRE91?=
+ =?utf-8?B?dlVIbVlyN3owMkpJNm80bmEvUEl5ejhhOFJqVloxeXZjQnhSQWc5YjAxK2dh?=
+ =?utf-8?B?clN5c2JBUGhiNjJjd3V5eGs5eVduOHZzc3BjdUJUY1p5ZFRUd2hKVHFoZ2ZH?=
+ =?utf-8?B?bks0VmVYZmtiVy8rcTJhenVCR1JFUkdPc2FXZjBnU21XL0I2Wk1UY1JKTlIz?=
+ =?utf-8?B?OXVLbitnMm5RbHZNV3FlUE5RUjg2TkhFY3VhTk51TlNBUDcyRDhhSC9KSHg2?=
+ =?utf-8?B?dVhCd05kSXFNVkJtS0ErRFpWL1BCMHdQbldhbnhFekZJMTAwZThxWjkyT1px?=
+ =?utf-8?B?b2tNNUZubkhOTm1kNmRzK2ZROGwwZ0Y3STNKbkszNWptek5yOUpLc0pzOHRW?=
+ =?utf-8?B?QmlmTENpN0RsYUwvQ0JNWVBHSFo4a1JDZEEyU2Y4YzdNb1lpUnVZdTlGUjZO?=
+ =?utf-8?B?allkdysyOEtGc1JqbkRmNVlLR3o3c3c2cURQc1FuNFIvRllwOE94Mks2R0Vn?=
+ =?utf-8?B?UzdDMWhGYzlqaDB2SnVlMTJFa3R6RFVZSWhYOWlDdTZadnhLY2VzeWdhUzR0?=
+ =?utf-8?B?U3pTM0xCb05TNDdSUGlqN1V6U1EzK0NmYi9Jektacnd2cldiSHFhU1FYTjMv?=
+ =?utf-8?B?S3J2TlFaMHlQL2RYN3NlazZHWFk5SUh0WWx2WVpyOGpZcHVuME1MMmZLNXJy?=
+ =?utf-8?B?c01UMTR5bGZybW1XZEcrSExGaDdjMkx3T1Z1NDgwL29aV2ZYWGFyMG9HZG40?=
+ =?utf-8?B?bXViZUdRQ0MzRVhURWFPRXJtM2RyL0R4U0o4UWFsV1pYcjhEVWdoZ0Zsekth?=
+ =?utf-8?B?R0lIQlZ6VG9IbWF1VU9TWTk3RzdqcWxQUkw1QzVpTFVmKy9DNkJLbXFmdHEx?=
+ =?utf-8?B?SDc2N1dPb0xlcVIzYWp6NFcrUndCWE45ZDZTRTlvUnEyUjBNeHh6VENBcUVE?=
+ =?utf-8?B?L3VVSzc1MTFJMFBHTjBHeCthNGNPUktsVW9UQlpYV1RvbGJDUzNuOVpmZE1F?=
+ =?utf-8?B?OC9KaENhZHNwdGlZLzNHOXI4Qkd2WWozTTZTMTQ3RWFETkVmZ2NrNUhrZ0Yw?=
+ =?utf-8?B?N0NEdE5WRVlPcDZQYnNSVG9MbktETXFEY1ROaS9DbnBvUEVVMjk3YU9XakxZ?=
+ =?utf-8?B?WlA0ejcwQ3hsTGJXWHdDdFl5U2dReGoraktTNk1HS0I2WGtDS3BNY3h4bHVw?=
+ =?utf-8?Q?WQzBlGTg1FnAQE9Y=3D?=
+X-OriginatorOrg: lecomputing.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7c5c4881-bbaa-4c33-750c-08deb6477251
+X-MS-Exchange-CrossTenant-AuthSource: BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2026 09:41:34.3886
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2026 08:11:51.2514
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 8d891be1-7bce-4216-9a99-bee9de02ba58
+X-MS-Exchange-CrossTenant-Id: 3591a018-3909-4ea2-aee8-843d5abaed8d
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: m6q3L/vwb+LIEHi8FM53uut4YUU23OHsHLW6GYwSZUxnGui7SOHfX5jCUf4XLm/AqJ/29ScBRj3ub+L6DoyfWnud/AZtcSJQRDN3akI5bDc=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: GV2PR08MB9302
+X-MS-Exchange-CrossTenant-UserPrincipalName: 2rpoCh4+llJVsIg5yDyN6otvsRMz/IyfhTD/4W1zw9SrDniRwL9SnSGYarg0crh8NJHyO0kVysAzXTbaCUiJ3cbsiiMEAOvqQp55BpoJd9I=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BJSPR01MB0755
 
-Hi.
+This patch series adds ACPI identification for LECARC SoCs that
+integrate Synopsys DesignWare peripherals.
 
-On 5/20/26 00:32, Christian Marangi wrote:
-> Airoha SoC that makes use of the same Mediatek I2C driver/logic doesn't
-> have reset line for I2C so use optional device_reset variant.
->
-> Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
-> ---
->   drivers/i2c/busses/i2c-mt7621.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/i2c/busses/i2c-mt7621.c b/drivers/i2c/busses/i2c-mt7621.c
-> index 3cde43c57a2b..fb9d9701bb10 100644
-> --- a/drivers/i2c/busses/i2c-mt7621.c
-> +++ b/drivers/i2c/busses/i2c-mt7621.c
-> @@ -91,7 +91,7 @@ static void mtk_i2c_reset(struct mtk_i2c *i2c)
->   	u32 reg;
->   	int ret;
->   
-> -	ret = device_reset(i2c->adap.dev.parent);
-> +	ret = device_reset_optional(i2c->adap.dev.parent);
->   	if (ret)
->   		dev_err(i2c->dev, "I2C reset failed!\n");
->   
+LECARC platforms use the following ACPI HIDs:
 
+GPIO: LECA0001 (V1 register offsets)
 
-Can you elaborate on this one? I get this:
+SPI: LECA0002 (requires custom init function)
 
-root@XGX-B-00e092000160:~# devmem 0x1fbf8040
-0x00C7800C
-root@XGX-B-00e092000160:~# devmem 0x1FB00834 32 0x10000
-root@XGX-B-00e092000160:~# devmem 0x1fbf8040
-[  396.658742] pbus timeout interrupt ERR ADDR=1fbf8040
-[  396.663845] CPU: 0 PID: 5622 Comm: sleep Tainted: P  O      5.4.55 #0
-[  396.671117] Hardware name: XGX-B (DT)
-[  396.674884] Call trace:
-[  396.677394]  dump_backtrace+0x0/0x120
-[  396.681111]  show_stack+0x14/0x20
-[  396.684478]  dump_stack+0xac/0xec
-[  396.687900]  bus_timeout_interrupt+0x54/0x70
-[  396.692223]  __handle_irq_event_percpu+0x3c/0x140
-[  396.696978]  handle_irq_event+0x4c/0xec
-[  396.700920]  handle_fasteoi_irq+0xbc/0x21c
-[  396.705069]  __handle_domain_irq+0x6c/0xd0
-[  396.709218]  gic_handle_irq+0x8c/0x190
-[  396.713019]  el1_irq+0xf0/0x1c0
-[  396.716217]  __do_softirq+0x98/0x264
-[  396.719847]  irq_exit+0x98/0xe0
-[  396.723118]  __handle_domain_irq+0x74/0xd0
-[  396.727268]  gic_handle_irq+0x8c/0x190
-[  396.731070]  el1_irq+0xf0/0x1c0
-[  396.734320]  tlb_flush+0xf8/0x260
-[  396.737693]  tlb_finish_mmu+0x48/0xe0
-[  396.741417]  exit_mmap+0xc0/0x170
-[  396.744841]  mmput+0x44/0x120
-[  396.747872]  do_exit+0x2b4/0x8ec
-[  396.751161]  do_group_exit+0x34/0x9c
-[  396.754794]  __wake_up_parent+0x0/0x2c
-[  396.758651]  el0_svc_handler+0x8c/0x150
-[  396.762545]  el0_svc+0x8/0x208
-0xDEADBEEF
-root@XGX-B-00e092000160:~# devmem 0x1FB00834 32 0x00000
-root@XGX-B-00e092000160:~# devmem 0x1fbf8040
-0x0000800C
+I2C: LECA0003
 
+The patches are independent but share a common dependency on the
+ACPI description file (acpi_apd.c) for SPI and I2C. To avoid merge
+conflicts, they are submitted as a single series with the following
+order:
 
-and
+Patch 1: GPIO – add LECA0001 to dwapb_gpio ACPI match table.
+Patch 2: SPI – add LECA0002 and dw_spi_lecarc_init() to spi-dw-mmio,
+plus corresponding entry in acpi_apd.c.
+Patch 3: I2C – add LECA0003 to DesignWare I2C ACPI match table,
+plus corresponding entry in acpi_apd.c.
 
-root@XGX-B-00e092000160:~# devmem 0x1fbf8140
-0x00318013
-root@XGX-B-00e092000160:~# devmem 0x1FB00830 32 0x00040
-root@XGX-B-00e092000160:~# devmem 0x1fbf8140
-[  611.730070] pbus timeout interrupt ERR ADDR=1fbf8140
-[  611.735197] CPU: 0 PID: 2651 Comm: ux-manager Tainted: P    O      
-5.4.55 #0
-[  611.742925] Hardware name: XGX-B (DT)
-[  611.746697] Call trace:
-[  611.749222]  dump_backtrace+0x0/0x120
-[  611.752960]  show_stack+0x14/0x20
-[  611.756424]  dump_stack+0xac/0xec
-[  611.759801]  bus_timeout_interrupt+0x54/0x70
-[  611.764145]  __handle_irq_event_percpu+0x3c/0x140
-[  611.769001]  handle_irq_event+0x4c/0xec
-[  611.772912]  handle_fasteoi_irq+0xbc/0x21c
-[  611.777077]  __handle_domain_irq+0x6c/0xd0
-[  611.781312]  gic_handle_irq+0x8c/0x190
-[  611.785117]  el1_irq+0xf0/0x1c0
-[  611.788335]  __do_softirq+0x98/0x264
-[  611.792032]  irq_exit+0x98/0xe0
-[  611.795249]  __handle_domain_irq+0x74/0xd0
-[  611.799411]  gic_handle_irq+0x8c/0x190
-[  611.803303]  el1_irq+0xf0/0x1c0
-[  611.806518]  bgpio_read32+0x4/0x20
-[  611.809995]  gpiod_get_value_cansleep+0x44/0x100
-[  611.814742]  value_show+0x2c/0x64
-[  611.818114]  dev_attr_show+0x1c/0x54
-[  611.821760]  sysfs_kf_read+0x54/0xc0
-[  611.825396]  kernfs_fop_read+0xac/0x300
-[  611.829355]  __vfs_read+0x18/0x3c
-[  611.832741]  vfs_read+0xc8/0x150
-[  611.836028]  ksys_read+0x58/0xd4
-[  611.839369]  __arm64_sys_read+0x18/0x20
-[  611.843264]  el0_svc_handler+0x8c/0x150
-[  611.847166]  el0_svc+0x8/0x208
-0xDEADBEEF
-root@XGX-B-00e092000160:~# devmem 0x1FB00830 32 0x00000
-root@XGX-B-00e092000160:~# devmem 0x1fbf8140
-0x00008000
+All changes have been tested on LECARC evaluation board with
+kernel v7.0.0-rc7. No regressions observed on existing hardware.
 
-When I look at the current dts:
+Changes since v1:
 
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/arm64/boot/dts/airoha/en7581.dtsi?h=v7.1-rc4#n322
+- Revised subject lines to match subsystem style guidelines
+- No functional changes
+- All the comments from reviews has been fixed
 
-it looks like the resets are just crossed with regards to the nodes.
+Changes since v2:
+- Wrap long commit description lines to 72 columns
+- Fix code indentation in spi-dw-mmio.c: use tabs + spaces for alignment
+- No functional changes
 
+Changes since v3:
+- Start a new thread for each revision
 
-MvH
+Thomas Lin (3):
+  gpio: dwapb: Add ACPI ID LECA0001 for LECARC SoCs
+  spi: dw-mmio: Add ACPI ID LECA0002 for LECARC SoCs
+  i2c: designware: Add ACPI ID LECA0003 for LECARC SoCs
 
-Benjamin Larsson
+ drivers/acpi/acpi_apd.c                     | 13 +++++++++++++
+ drivers/gpio/gpio-dwapb.c                   |  1 +
+ drivers/i2c/busses/i2c-designware-platdrv.c |  1 +
+ drivers/spi/spi-dw-mmio.c                   |  7 ++++---
+ 4 files changed, 19 insertions(+), 3 deletions(-)
 
+-- 
+2.43.0
 
