@@ -1,197 +1,213 @@
-Received: from CHN02-BJS-obe.outbound.protection.partner.outlook.cn (mail-bjschn02on2116.outbound.protection.partner.outlook.cn [139.219.17.116])
+Received: from DUZPR83CU001.outbound.protection.outlook.com (mail-northeuropeazon11012019.outbound.protection.outlook.com [52.101.66.19])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2089A3D16FC;
-	Wed, 20 May 2026 09:46:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=139.219.17.116
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AF613D3CEE;
+	Wed, 20 May 2026 10:13:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.66.19
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779270403; cv=fail; b=oAS/sL9F9PllbKC02fOSTwN/Y5B5CJHOSepDUT3sW/b1P0EoN712o55bsvGUaSibl0L5nSPET1vxqHAon/IIToFgl6PYdojtSca4mK0KlUQdP0XKzPkPNTjHky3S052bryI3F3jtJMrRYYbnkrYwTZnHwj3mrNCCOgAXVBLdAhQ=
+	t=1779271995; cv=fail; b=FvxtaWlSaz7//46EN7gWARqhKTd5iI9rt2SDOcI9xPtKVGAkCN5HWG9iJ2D7MEofvtsZ+6MeOiYgpQyK87bUrvXcwdy0hiMb55qC52bJah1EhOg8npYMFfqbyWHzlEFC1Vn1ABNKsnB7qc+CSv7sN5lHKgn10Hk2Cm26yGbdeaU=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779270403; c=relaxed/simple;
-	bh=yH4gugd4chL53NIUS+snnawU5ZZXykbf4HfPBK0hTVY=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=k9KSGDC/GUjzJvYMboYQspIRSMGRamSVNPcWmR8gwKf8XLFvp+tQ/DTl9LykBw+whtuZnIgpwxXnPuG7y2u391uNHmF30YAdyYHBatZgvg3RtFc0N89dWra3zIFQGLm4l+jTo6Gmhjg8Cqut0mNzJRSTQAfRvznXMhMIDcs9QpA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lecomputing.com; spf=pass smtp.mailfrom=lecomputing.com; arc=fail smtp.client-ip=139.219.17.116
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=lecomputing.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lecomputing.com
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=JdNBSsNAG+Ocz9DAsM6Ktr45Ke2wcnYm1a3YFVLF0IVYtm3eHxL06x0PV7W+gq3BfQJVrp9Vf4WjMvr/OmxzDxKXiUW0TRGsbXUth1Usc970SJaScxn8uJYNeFO3SkWna78gO4OslQyN0DD180BG+6kE/U6ZO2BDljZtHb7IqiDqQri+a5pz/IJ0IbLm5a1+hKhvwGx7xrNnI9412NCfdWlP+TDu1V26n/O3YlaJoDHWievjJy88jHC2Xyo/GUJl4qYwkboPOyNh71s/VaOvwnGoz8t9Xcuc7UjkkdGjCn2M9hN/KqZPl+AlXxvPqDQH0dqfDz4sITIgI3M9mWnKpw==
+	s=arc-20240116; t=1779271995; c=relaxed/simple;
+	bh=kvMnWTyUwDZnPkBfngriN4lDAOMtBe9jb5PlLGiKk2o=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=AWOuwSyDvf7u2Xz/65giw0Xpvbqcul1SbAMQtr9MIJwJX6YAuUFDVBOzLbzlewtyQtOi6ttJ2t3edVKEUJ85c7zZDbp4blfqHKELyDvvs4J/dRu2BJKJIfqW30ZrObIdx61j4sLXtXOICcILVyTDnsb/cDUoewXDWYi6ASsU0kk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=FEUPZOga; arc=fail smtp.client-ip=52.101.66.19
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="FEUPZOga"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=acWBQJH/Rt/qzC98JidIPtedNv7RcHHT29V58zogqBRxGXJQBZ5Uds27tOOjTqqSw+GMGfysAXrfheVVCroscKJDiJZ4RCghqGSKMeP6gSyk+N/s36VGi83bHKIqkvA9v+xlqEHQYz6pRYWt8cHdJR1OYveOUIyhmpBcvHIZnKJAdJ+5g5IczwuZNWwRLTYIFlE3Qrdb2C7PiRR1oZaf0dru6hKJu2xwuVREWNDC+Y7jw0aiJKsO+ASVGNc8uXgxTLOtiqAxBR7jOL6/kZssHq+89oQSvml1jTS8fofbNyDAAHr2LD3UACdGJCUlVbWUMu5+G4dkwfFqwSs+UCUgCA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
+ s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=f8wt02QAEOydDPsuM2zswZdFvvi0kfgobqbVYo+U4JM=;
- b=kbP+znQq1dq4Ftmcx/YN2N9kdEiAlShtNJSPshNU+ZFBCfmILCjZIH4LQaMpwZNg48gWyJePpoh7p9MaXCBxSkVjve+QtYPrUtk2/U3ooLvTE1AHM5mWw+Wbp0xZAtQjWB0fvuaEP96ihCarvvoTUsXe5YwJ7i9PWY4VNpzh+FvFU1jwIM/taR90yQfEOJO07uNEw3HlE9t0CBoZhkDElbYTdj0GzfAakZoM6mt5f1AxFr1H7Ud/O5511A3oyQ7oEM4t6Y6YWXiP9ECkMUwywImrFWN3BAujA8H4TlixXkL4U40QlgJL1PLdyxz3fxgcz21QsA2vVsXpQB4R1KCnHg==
+ bh=IM5aHDmdHUaLMeolZDnNUMi1Lfky8OYfS7KhD0kGMmw=;
+ b=y7uQVS/O/COCAmVZXZ3KqUL+2retTgqorqHH+ElZJA01VQF4VcyTo+Vw2vRUYGOBzBQgBavYorED1H8uA6ep79xYffl04a7Bj8cAVeAu7A66xP7XxGtY1dYHFChGa5lsWXGpgRwJnY9xWQbtc+f9bUDtSprAPwqhKxm7TdJ2FkT9SKIEDN2AC9bAhfQ1RU7zoM7atSTSJFD8FQWJFf1Zh8I+eEG4oVIbj2CUiwwhRVofV2F/+uh1ogXp9RbMXXGmmiNIGoxGflZxx56TNELWhLUUakmRjNr68wP4eQK+ZFr7f+abaQyi0Da54wWP5FLyXw8Db2+lTWYT10PAQ0dHyA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=lecomputing.com; dmarc=pass action=none
- header.from=lecomputing.com; dkim=pass header.d=lecomputing.com; arc=none
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector1-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=IM5aHDmdHUaLMeolZDnNUMi1Lfky8OYfS7KhD0kGMmw=;
+ b=FEUPZOgalJndUhvGPPQzC6Jic+bFT/+LEDdBpBOUMXvhiWI3d+j7at+prKRkWpg9AGPqGTfoo8RM8CLyfuF6XDEz2s8yhy44KPWG34QI7ftKGkYaRbX+5mcvVTBV0xZcajOcWkgfJ33SdStACgr+uh9bqU6qbuOczrNRZy72wZu5h5q3P+aw/fz5Aa7HId96ncsnhPz/aGAPlSf26CXJIoTtg1xuSF6KB+i7/tTl3rLFHbGDOK/uZkjppeJystAIFM+dU70a1GGPS82875un3GWy1pirBo+IYix/+Ek0TohZfAQKh9BriZ9Vg8GXVULVz75ekn5eU+sNS6zFMvv6ZQ==
 Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=lecomputing.com;
-Received: from BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
- (2406:e500:c211:1f::17) by BJSPR01MB0755.CHNPR01.prod.partner.outlook.cn
- (2406:e500:c211:1c::18) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.48.15; Wed, 20 May
- 2026 08:11:51 +0000
-Received: from BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
- ([fe80::1c61:86e3:3a75:155d]) by
- BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn ([fe80::1c61:86e3:3a75:155d%4])
- with mapi id 15.21.0025.023; Wed, 20 May 2026 08:11:51 +0000
-From: Thomas Lin <thomas_lin@lecomputing.com>
-To: rafael@kernel.org,
-	lenb@kernel.org,
-	hoan@os.amperecomputing.com,
-	linusw@kernel.org,
-	brgl@kernel.org,
-	mika.westerberg@linux.intel.com,
-	andriy.shevchenko@linux.intel.com,
-	jsd@semihalf.com,
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from AM0PR04MB6802.eurprd04.prod.outlook.com (2603:10a6:208:184::17)
+ by VI0PR04MB11892.eurprd04.prod.outlook.com (2603:10a6:800:305::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.48.14; Wed, 20 May
+ 2026 10:13:05 +0000
+Received: from AM0PR04MB6802.eurprd04.prod.outlook.com
+ ([fe80::dc36:17b6:e5b1:fa51]) by AM0PR04MB6802.eurprd04.prod.outlook.com
+ ([fe80::dc36:17b6:e5b1:fa51%4]) with mapi id 15.21.0048.013; Wed, 20 May 2026
+ 10:13:05 +0000
+From: "Carlos Song (OSS)" <carlos.song@oss.nxp.com>
+To: o.rempel@pengutronix.de,
+	kernel@pengutronix.de,
 	andi.shyti@kernel.org,
-	broonie@kernel.org
-Cc: linux-acpi@vger.kernel.org,
+	Frank.Li@nxp.com,
+	s.hauer@pengutronix.de,
+	festevam@gmail.com,
+	carlos.song@nxp.com,
+	haibo.chen@nxp.com
+Cc: linux-i2c@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
 	linux-kernel@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-spi@vger.kernel.org,
-	lucas_hao@lecomputing.com,
-	puntar_liu@lecomputing.com,
-	jihua_tao@lecomputing.com,
-	stan_xu@lecomputing.com,
-	lumin_liu@lecomputing.com,
-	notics_zhang@lecomputing.com,
-	braden_zhang@lecomputing.com,
-	harold_wu@lecomputing.com,
-	will_zhang@lecomputing.com,
-	aurora_jiang@lecomputing.com,
-	ryen_lin@lecomputing.com,
-	andy_jiang@lecomputing.com,
-	Thomas Lin <thomas_lin@lecomputing.com>
-Subject: [PATCH v4 0/3] arm64: Add LECARC ACPI IDs for DesignWare GPIO, SPI, I2C
-Date: Wed, 20 May 2026 16:11:33 +0800
-Message-ID: <20260520081140.637637-1-thomas_lin@lecomputing.com>
+	stable@vger.kernel.org
+Subject: [PATCH v3] i2c: imx: mark I2C adapter when hardware is powered down
+Date: Wed, 20 May 2026 18:15:04 +0800
+Message-ID: <20260520101504.2885873-1-carlos.song@oss.nxp.com>
 X-Mailer: git-send-email 2.43.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: ZQ0PR01CA0024.CHNPR01.prod.partner.outlook.cn
- (2406:e500:c550:2::19) To BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
- (2406:e500:c211:1f::17)
+Content-Type: text/plain
+X-ClientProxiedBy: AS4P195CA0013.EURP195.PROD.OUTLOOK.COM
+ (2603:10a6:20b:5e2::16) To AM0PR04MB6802.eurprd04.prod.outlook.com
+ (2603:10a6:208:184::17)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BJSPR01MB0707:EE_|BJSPR01MB0755:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7c5c4881-bbaa-4c33-750c-08deb6477251
+X-MS-TrafficTypeDiagnostic: AM0PR04MB6802:EE_|VI0PR04MB11892:EE_
+X-MS-Office365-Filtering-Correlation-Id: 098f2bf4-90b2-40bf-cb8a-08deb65861e8
+X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
 X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|376014|7416014|52116014|56012099003|18002099003|38350700014|921020|5023799004;
+	BCL:0;ARA:13230040|1800799024|52116014|7416014|376014|19092799006|366016|18002099003|56012099003|11063799006|38350700014;
 X-Microsoft-Antispam-Message-Info:
-	sKXod2jtZGOhO50GKkoQJQRAvlQVLdC9dSuNIzImCoHWiixUkJEo71RFNAm5wakQYaDBe1SAIBh5Y1IfIG5pil55WjPGikJSXfb4WSbnt2GTWyvEGLbtbyMS3bCq3BQKC2XmKoiL22hYpVuScFlw08ssAZX4Wa7kwU6YNIICqpoFtC4IhLruLHW40hZR5ooo6pmkjaVE+f7bbKOT6sxkm71olxTRoJL/dr1w5Af+6q29ra3osyq39vQoh7OBptZHR6J/uDmZ13KkaG1Wz4ZT37KbSrp2aD9o7HfnnTRozZPzn0k+M+J1RMP2+kx9LHUxMz7HErj1svTupXU5vuM+qJn4ZaWFvP4MRFHqp5q/Hmld5C1QbsN4X4CjhbtH7PIRJXbkONR65LUoVnOldxorkQenDODMLTB2P9P0GKn5qqmSI9+UzrZE0w2CKtY5G28zpS7b3NWER9TgjD9LAqijCIEX6z4MtBAc2tiMkwzb8D8ev1Qa62q5GYv+mJQFpWITgjsQTYkiDD0Z5YXr9uDcfCilNsHx0xz9CUHdbCIwrLyVvahlvXh7saqghKQh/OLeZA/31KR5y718iiolUtSPww==
+	dB1aQSjnaQzEKj6XQ6UNTOe37U9cDa+L9UOIRJhyuA4ybEHJrzO2fP1OqZCFUPh1OO2rkyawLGoFW/hIpi3K7YKpPV0HbFpUZZsVck1nWlx3WNrQrLzF/IWeSQ8PtvdrISefL7+kZqH1fVcMuE4RDSbyUEIQassHMY+vmw/42gCt0//IMI/fZOagQfEuLf8jebT92ESSLaF1q9VDPWNagp0Us8Cjt/ggXpUZnXNUmAGY6frVYHfTz9g2MB+Kq1QsnjfqC/DynvnmTw2oA1HDWfLEEVQ/JPm+1rT0iZ1LeT0N62lvasJk0ADG153jlCKAa/f0VppbbZygM8vVKNQc8sYLi5JsMkFcFHlzi54yWV/Zq4xTsnKlx8paRSyX+h+YJ8KnP8XZADCdhxw+sdAq7kX3FhoFJ7SDQY/zSH+56fXkzau2lcdo2b6HzDODHvlct8ztdWPkxNBDsKlWCUub2FivJ+Za+9Vwh28awf6HTWEdZuujtt33SrTSMhkYW1i45nzN8hR8bzfq2w6RQIkWhYjAQrF0GMyOH/qGCKleSa/V9RQ2UyEeXqK22uB4ugZcngi+lvzzVa5oN1xOAxO5f1E3oEU3rAKrl71iFslG91b+F5dbRxFpa8hp7zHERKX1IO1jaRQ6aaRHB4oazlHXbODMyXsqyQf0hTbgcqBvzkyeCuKIzA1fhTCuTRf+CTkqZytyZ3dv2V/2ZmVRF2fE6o4lHb4VOhWNcwU5+X773IkXrwzqdvoF7Sgq35diuPSc
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014)(52116014)(56012099003)(18002099003)(38350700014)(921020)(5023799004);DIR:OUT;SFP:1102;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR04MB6802.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(52116014)(7416014)(376014)(19092799006)(366016)(18002099003)(56012099003)(11063799006)(38350700014);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?RTVnSVp3bDJVWlJ2TCtTZTNtNE9ZeVBVTG4yT1dUcnB3VC9BbTZWSWxrVnBU?=
- =?utf-8?B?TkRDTTRHSUt5b09BSTlscm9EYzExQ3M4YkNOa1RaWlI4cUUzMkMxc0FCaHdj?=
- =?utf-8?B?d1NBUjA2T3ZYQzlEeDc2TkJOMjltZjlXWExnVG41MFhRbURNSXNlT0IrSVhK?=
- =?utf-8?B?WW9BOUsxSklCQWlqWm1qU1hRdTBEOXYrQkFSS3I4UUx0d1hLbmU0NjhJTTFB?=
- =?utf-8?B?RE1SMHFkYnFoVzB5YXJ4ay80S0h2MjNUT2FBZFZIYVhWUmlxQ0NDT2hXMlRV?=
- =?utf-8?B?RXlIQThWeWpJckpxTU1XdGJMV3A1M2pBOU1LQjlUWFBQanI5a0VZZnk3UEtD?=
- =?utf-8?B?aWlyMnFQeWd1L1NMUHhpTjJSUmNpa0ZYVEswUnFKQzQ0aEJrRnB3d0RYMFZr?=
- =?utf-8?B?UTVFbG16WnhzRWxuZmZrSWh6b05BZ056QnVMNkpZclYyb2VtVzZMVG5qQkhB?=
- =?utf-8?B?VFpGWjExcGg0YlIzYzcwMk1OVXdteDF6bkJZcC9hdk9QL0ZrZUdwMXdNUGVJ?=
- =?utf-8?B?RHczT0hvd0ZMZGtMcXhhN3FidWlPQzlVdUo4M21mMFlBaTBST1N0dkJGV1hZ?=
- =?utf-8?B?Y0poUFF5NFQvNmxESDhVcjhwd2pFS3FHWmIxV01VMlhPRUV4Z2NaZ21adHFh?=
- =?utf-8?B?UlNZZytRaUxDbDBIQTRBYmRHcFJMYzc3WGVWYW5ETE1ETXV1dGJybHdNSzRM?=
- =?utf-8?B?bzd4Z0JEUkd3dkFiM2Nrd0dLQjZGaVQ0U0Z5dnB5Ny9MSEE1WTBZNXBmcFQw?=
- =?utf-8?B?V1JCUlNocHZNejlQWnE4T0tyd2ZoVUVwVFVmWmcyWnI3eGs0OVNWazRpd0lM?=
- =?utf-8?B?bU1hSFc0TlFtNmlydW1WUHd0SEVIS3dQTFZwOWFkWTNHY3NKUitmSWQ1Skgz?=
- =?utf-8?B?SDIxb1NUdk13aEFIeDlKL2wwdDJpZm45Q25ZemVMdjBZc3AvQ2V4REUramNq?=
- =?utf-8?B?aG9xTnF3cG1mbCs1VnhSU25IenZZL1NNb1BTNnJtQURnaWZ5ekJZY0JSaG5x?=
- =?utf-8?B?bGN2TFpVVjViZStPRURTMjIwODY1ZUQxRmo4Riswbm9ENDU2aFEwUCt2cHhq?=
- =?utf-8?B?VUNteWxjdzBOSXQrM0NjTW5iQ1JteFhRUUxES2ZXL3RwQVQraEZOUEF0QUVP?=
- =?utf-8?B?ZzZ4ZDRWNmhrRkJZdkw2aitPYWJoK1JyWkpsbnljaS9YbVdjL1VCOURoRE91?=
- =?utf-8?B?dlVIbVlyN3owMkpJNm80bmEvUEl5ejhhOFJqVloxeXZjQnhSQWc5YjAxK2dh?=
- =?utf-8?B?clN5c2JBUGhiNjJjd3V5eGs5eVduOHZzc3BjdUJUY1p5ZFRUd2hKVHFoZ2ZH?=
- =?utf-8?B?bks0VmVYZmtiVy8rcTJhenVCR1JFUkdPc2FXZjBnU21XL0I2Wk1UY1JKTlIz?=
- =?utf-8?B?OXVLbitnMm5RbHZNV3FlUE5RUjg2TkhFY3VhTk51TlNBUDcyRDhhSC9KSHg2?=
- =?utf-8?B?dVhCd05kSXFNVkJtS0ErRFpWL1BCMHdQbldhbnhFekZJMTAwZThxWjkyT1px?=
- =?utf-8?B?b2tNNUZubkhOTm1kNmRzK2ZROGwwZ0Y3STNKbkszNWptek5yOUpLc0pzOHRW?=
- =?utf-8?B?QmlmTENpN0RsYUwvQ0JNWVBHSFo4a1JDZEEyU2Y4YzdNb1lpUnVZdTlGUjZO?=
- =?utf-8?B?allkdysyOEtGc1JqbkRmNVlLR3o3c3c2cURQc1FuNFIvRllwOE94Mks2R0Vn?=
- =?utf-8?B?UzdDMWhGYzlqaDB2SnVlMTJFa3R6RFVZSWhYOWlDdTZadnhLY2VzeWdhUzR0?=
- =?utf-8?B?U3pTM0xCb05TNDdSUGlqN1V6U1EzK0NmYi9Jektacnd2cldiSHFhU1FYTjMv?=
- =?utf-8?B?S3J2TlFaMHlQL2RYN3NlazZHWFk5SUh0WWx2WVpyOGpZcHVuME1MMmZLNXJy?=
- =?utf-8?B?c01UMTR5bGZybW1XZEcrSExGaDdjMkx3T1Z1NDgwL29aV2ZYWGFyMG9HZG40?=
- =?utf-8?B?bXViZUdRQ0MzRVhURWFPRXJtM2RyL0R4U0o4UWFsV1pYcjhEVWdoZ0Zsekth?=
- =?utf-8?B?R0lIQlZ6VG9IbWF1VU9TWTk3RzdqcWxQUkw1QzVpTFVmKy9DNkJLbXFmdHEx?=
- =?utf-8?B?SDc2N1dPb0xlcVIzYWp6NFcrUndCWE45ZDZTRTlvUnEyUjBNeHh6VENBcUVE?=
- =?utf-8?B?L3VVSzc1MTFJMFBHTjBHeCthNGNPUktsVW9UQlpYV1RvbGJDUzNuOVpmZE1F?=
- =?utf-8?B?OC9KaENhZHNwdGlZLzNHOXI4Qkd2WWozTTZTMTQ3RWFETkVmZ2NrNUhrZ0Yw?=
- =?utf-8?B?N0NEdE5WRVlPcDZQYnNSVG9MbktETXFEY1ROaS9DbnBvUEVVMjk3YU9XakxZ?=
- =?utf-8?B?WlA0ejcwQ3hsTGJXWHdDdFl5U2dReGoraktTNk1HS0I2WGtDS3BNY3h4bHVw?=
- =?utf-8?Q?WQzBlGTg1FnAQE9Y=3D?=
-X-OriginatorOrg: lecomputing.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7c5c4881-bbaa-4c33-750c-08deb6477251
-X-MS-Exchange-CrossTenant-AuthSource: BJSPR01MB0707.CHNPR01.prod.partner.outlook.cn
+	=?us-ascii?Q?wI1/SyppS9DFuTvDoiOggamCMRnWcipfBBXQHvGQbUHwlIaxAb/188rYc4Xp?=
+ =?us-ascii?Q?V340zSDEIwxkEd6SQJIVVaGEVNZoZ/fYK+u8KkWRJwUIhWrTy6dIRMJ0/jAH?=
+ =?us-ascii?Q?nzKHy2ScR2v+yAFCvsNfd7CZMoAKUsFOi3AGBZW+mH6W+C88YbgEzcVlPyIv?=
+ =?us-ascii?Q?oJTTLjdPQ0Qxpg0PmSBtBYNB1tK38jDSBA1ocvIJ9L8//togzzH/HEY7Ykq6?=
+ =?us-ascii?Q?8rXUz+hXN8B9XgpSlnhfoMpVXRNdlg4h6Vr0e+tp0vT01BkBrnpvziMs/45i?=
+ =?us-ascii?Q?Zf6912ISELmoGtVn05cpAgQHwhcTQXuiIy7wKEWnHbTixSWDrXRPixKMW6dh?=
+ =?us-ascii?Q?C81iqh/2Pt1nhYTA4U29EaxXrm3PiI+OFgd9yODVUCQNzdJO1SBXWJqCdykP?=
+ =?us-ascii?Q?4z8GRwEFOPCh+JorRx/z2ZEzYEObuQNWPY4yWQ+7MPww5fAxhe44XEu36W5Y?=
+ =?us-ascii?Q?hWYVI+1zhQn2bsiCfXai/2LJAz8n+yWNMtdOfU2ltXFiMOAQuFUvx9xlVkMw?=
+ =?us-ascii?Q?gltJX9rA2PNHSvtP2lzsW1ZlQLoSJFrxMUqjnLD8bpDnxlxHlBzXwObE835o?=
+ =?us-ascii?Q?VTKMYALBojMzsoAI88rXGqosANg9ONG68Rpa4VtNyZzMYOscF7zInkP502lS?=
+ =?us-ascii?Q?0TpSdbFZREoFP3pPQupowjq+iyqFz41Hd7NSq4jRjk+VDniJb0mSQTrCfvSY?=
+ =?us-ascii?Q?PC5eprUJAUy1jbZrBW9wu5LZFLj3E9qpi4zkxInnZAPVgRXqToIvcqpDWq2j?=
+ =?us-ascii?Q?SJnkTEtCvLj7b9h90ykmydDkNxVvDfrlk++ro8DrvMoOzX7uK8YNJv8Q+918?=
+ =?us-ascii?Q?kstpUrnO9uUtooclNq7fGy3jsR33Up4VpF5CfC1cfm5cvYZHcveK9MPF5Rxz?=
+ =?us-ascii?Q?5MIpOv++8YalkSixeZlECLtX1vDvl4uQKHHkK6ZBIXYveYaYkHpCXcFImo5l?=
+ =?us-ascii?Q?6TZs/i5GPmg1iXy/xO8JsxUFlvLufF+7xl+EsMY3FUCff/hglL2AO/gED5DF?=
+ =?us-ascii?Q?vAQlPAqAhAn4x5kn0MYCGnvJ/u1AKtxMKxk1scR0mJUjJGN6pf8CvHRa2Jvb?=
+ =?us-ascii?Q?bdHWffoKcfLVK+gR+uSjn9rRLrskwCSzWyTdUO54EWBET88oWzQvF11WrpMS?=
+ =?us-ascii?Q?n/PGqPU73Ybz2BMlW5yXPbXBiN+p0kndrlqpsgibcXqS7TG+mLLSgjUahKJi?=
+ =?us-ascii?Q?6BZoA0EhJGG0oCzphQMOdFbIhvGp0VbQx05tGa2BQAZOkqFJmo3rxaCJoO5b?=
+ =?us-ascii?Q?vOF5+WL1D0B5ih9O3yKcNkEmB6tnUZmM6N3/63zigaKGClfslFFP7w6M9Q8t?=
+ =?us-ascii?Q?O4vYmlD96uBe6+kZ99y/IHk04EK629bn/V86vZSEesIwhGPrtP+UQ+y0iMic?=
+ =?us-ascii?Q?CspNjdVtaGcOqXpuWhtv9gPYhqqO5OOaKbeIi8uFv+Z53FfNXNZyeqa6VGN8?=
+ =?us-ascii?Q?4Sxi+gPFCLKBRqcL11z8mlDIGbrVlNzEqW7isy2dhrC+QBkcjuEj8UhUUL9I?=
+ =?us-ascii?Q?Hh9oS8y1G73+2Yt9DkGpzqMGKmnQNqs3jpMBUERcNpUpKQFvt6+1ZIpFOejo?=
+ =?us-ascii?Q?hkEldQTEFkqZJh1namqLAV1f/rf9qQsfrq80wzeKfHvXolRLgzLHhj0Yx1sT?=
+ =?us-ascii?Q?uXFRr9Gga9t/IzCyqnBWExD+KuTdEfT8hOIqpnnezVf0NE2uP88JNhW5vXjz?=
+ =?us-ascii?Q?BgUdjX4+xnGJLkRBpNFeCLQBbeEsWOKxQqAkYMzy3eLcF1MA7C+ARMvK++3X?=
+ =?us-ascii?Q?okw7ouZIeg=3D=3D?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 098f2bf4-90b2-40bf-cb8a-08deb65861e8
+X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB6802.eurprd04.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2026 08:11:51.2514
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2026 10:13:05.2953
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3591a018-3909-4ea2-aee8-843d5abaed8d
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 2rpoCh4+llJVsIg5yDyN6otvsRMz/IyfhTD/4W1zw9SrDniRwL9SnSGYarg0crh8NJHyO0kVysAzXTbaCUiJ3cbsiiMEAOvqQp55BpoJd9I=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BJSPR01MB0755
+X-MS-Exchange-CrossTenant-UserPrincipalName: 93sIP7fuGtt7P0xnZvbOXdhcNVybqbEIyYKhHlo9dAfotJlPH4LrTFQa7OHiwfafi2VWoQzd8kMPt7MwjOlvZA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI0PR04MB11892
 
-This patch series adds ACPI identification for LECARC SoCs that
-integrate Synopsys DesignWare peripherals.
+From: Carlos Song <carlos.song@nxp.com>
 
-LECARC platforms use the following ACPI HIDs:
+Mark the I2C adapter as suspended during system suspend to block further
+transfers, and resume it on system resume. This prevents potential hangs
+when the hardware is powered down but clients still attempt I2C transfers.
 
-GPIO: LECA0001 (V1 register offsets)
+Fixes: 358025ac091e ("i2c: imx: make controller available until system suspend_noirq() and from resume_noirq()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Carlos Song <carlos.song@nxp.com>
+---
+Change for v3:
+  - Add hrtimer_cancel in i2c_imx_suspend_noirq to cancel slave_timer for
+    safe suspend in i2c slave mode.
+Change for v2:
+  - Call i2c_mark_adapter_suspended() before pm_runtime_force_suspend()
+    to prevent potential deadlock if a transfer is active during suspend.
+  - Roll back with i2c_mark_adapter_resumed() if pm_runtime_force_suspend()
+    fails.
+---
+ drivers/i2c/busses/i2c-imx.c | 41 ++++++++++++++++++++++++++++++++++--
+ 1 file changed, 39 insertions(+), 2 deletions(-)
 
-SPI: LECA0002 (requires custom init function)
-
-I2C: LECA0003
-
-The patches are independent but share a common dependency on the
-ACPI description file (acpi_apd.c) for SPI and I2C. To avoid merge
-conflicts, they are submitted as a single series with the following
-order:
-
-Patch 1: GPIO – add LECA0001 to dwapb_gpio ACPI match table.
-Patch 2: SPI – add LECA0002 and dw_spi_lecarc_init() to spi-dw-mmio,
-plus corresponding entry in acpi_apd.c.
-Patch 3: I2C – add LECA0003 to DesignWare I2C ACPI match table,
-plus corresponding entry in acpi_apd.c.
-
-All changes have been tested on LECARC evaluation board with
-kernel v7.0.0-rc7. No regressions observed on existing hardware.
-
-Changes since v1:
-
-- Revised subject lines to match subsystem style guidelines
-- No functional changes
-- All the comments from reviews has been fixed
-
-Changes since v2:
-- Wrap long commit description lines to 72 columns
-- Fix code indentation in spi-dw-mmio.c: use tabs + spaces for alignment
-- No functional changes
-
-Changes since v3:
-- Start a new thread for each revision
-
-Thomas Lin (3):
-  gpio: dwapb: Add ACPI ID LECA0001 for LECARC SoCs
-  spi: dw-mmio: Add ACPI ID LECA0002 for LECARC SoCs
-  i2c: designware: Add ACPI ID LECA0003 for LECARC SoCs
-
- drivers/acpi/acpi_apd.c                     | 13 +++++++++++++
- drivers/gpio/gpio-dwapb.c                   |  1 +
- drivers/i2c/busses/i2c-designware-platdrv.c |  1 +
- drivers/spi/spi-dw-mmio.c                   |  7 ++++---
- 4 files changed, 19 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index a208fefd3c3b..d651ade86267 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1913,6 +1913,43 @@ static int i2c_imx_runtime_resume(struct device *dev)
+ 	return ret;
+ }
+ 
++static int __maybe_unused i2c_imx_suspend_noirq(struct device *dev)
++{
++	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
++	int ret;
++
++	i2c_mark_adapter_suspended(&i2c_imx->adapter);
++
++	/*
++	 * Cancel the slave timer before powering down to prevent
++	 * i2c_imx_slave_timeout() from accessing hardware registers
++	 * while the clock is disabled.
++	 */
++	hrtimer_cancel(&i2c_imx->slave_timer);
++
++	ret = pm_runtime_force_suspend(dev);
++	if (ret) {
++		i2c_mark_adapter_resumed(&i2c_imx->adapter);
++		return ret;
++	}
++
++	return 0;
++}
++
++static int __maybe_unused i2c_imx_resume_noirq(struct device *dev)
++{
++	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
++	int ret;
++
++	ret = pm_runtime_force_resume(dev);
++	if (ret)
++		return ret;
++
++	i2c_mark_adapter_resumed(&i2c_imx->adapter);
++
++	return 0;
++}
++
+ static int i2c_imx_suspend(struct device *dev)
+ {
+ 	/*
+@@ -1946,8 +1983,8 @@ static int i2c_imx_resume(struct device *dev)
+ }
+ 
+ static const struct dev_pm_ops i2c_imx_pm_ops = {
+-	NOIRQ_SYSTEM_SLEEP_PM_OPS(pm_runtime_force_suspend,
+-				  pm_runtime_force_resume)
++	NOIRQ_SYSTEM_SLEEP_PM_OPS(i2c_imx_suspend_noirq,
++				  i2c_imx_resume_noirq)
+ 	SYSTEM_SLEEP_PM_OPS(i2c_imx_suspend, i2c_imx_resume)
+ 	RUNTIME_PM_OPS(i2c_imx_runtime_suspend, i2c_imx_runtime_resume, NULL)
+ };
 -- 
 2.43.0
 
