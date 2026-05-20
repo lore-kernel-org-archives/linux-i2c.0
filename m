@@ -1,256 +1,259 @@
-Received: from AM0PR02CU008.outbound.protection.outlook.com (mail-westeuropeazon11013003.outbound.protection.outlook.com [52.101.72.3])
+Received: from AM0PR02CU008.outbound.protection.outlook.com (mail-westeuropeazon11023118.outbound.protection.outlook.com [52.101.72.118])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1420E3C7DF5;
-	Wed, 20 May 2026 09:31:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.72.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D53923A257F;
+	Wed, 20 May 2026 09:41:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.72.118
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779269496; cv=fail; b=JkFhpQEalQzs/vA4ywIZA1JyXq66eDZmBebVscBzHtrTvOyat4Mqozflzj1aEcN9pXRY1MfHkYAfepgsfR3pbfifGGwUn+AFf6HEjXcG9ZNh9QkyYF+nYKNV6ljsMVS41P+ygWMMWpCMLNxK4ZH9KP+yEnxt6WjXyg5VYk9IMJs=
+	t=1779270112; cv=fail; b=StoYqhUcCnumH13kcP2+pbbF6l8lIvbHYHwKzm1lbs3NLt8YTXRdr0Egbm7v6EHr7wjDBj+fsvba0PmXp+B1biH0wru/A8Xxe+Jj2L9H67iAEzYaHPnLLgU6kcr/Lxl5e1cezdb42EYDPlGlQIsmaFeviDT1fWRk4Yt+wqiZZSU=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779269496; c=relaxed/simple;
-	bh=yTZVzsM8zTYmNaDSxQUgzJGxNstjeJv6i+RWM0R6q1w=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=RmobwSHl0CbXI5fdYc68npHOV+LMvPjUwawoKr3LHtocM8G3zYfQ6Kx82XFEywd10awx3997OGcdOJeTCefLMyTkaLuuNOpt1pOz1QPZwQfztzeYNDD2hz1CMJgW+wloLdmhN4IREe5pwJ2oNpzl3Bj6me4XQxry+Ep2B3Mkom8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=xZj9CjsK; arc=fail smtp.client-ip=52.101.72.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
+	s=arc-20240116; t=1779270112; c=relaxed/simple;
+	bh=1mjiAAXouLY2vCMpmEaf568y+dW+u7LyGM+TYr8Obos=;
+	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=nsMUoIY8FNNUruw4W0bSFDmPY6QhuqeOKeAi4r6gTOC6iIV6gsjUSa/JECRYbWFB9ov5AbjCpzCJMNwBJl/GC5ehQjONZYv5zz1qf43VPcvwUO1SCmYBF62HKy/5540S9rVNzxXn6tXU54PtHB9BqEhIlBCWknosQ93TGikShKc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=genexis.eu; spf=pass smtp.mailfrom=genexis.eu; dkim=pass (2048-bit key) header.d=genexis.eu header.i=@genexis.eu header.b=AjlnlBaQ; arc=fail smtp.client-ip=52.101.72.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=genexis.eu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=genexis.eu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="xZj9CjsK"
+	dkim=pass (2048-bit key) header.d=genexis.eu header.i=@genexis.eu header.b="AjlnlBaQ"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=quiRwEV4TgEyMFcdYG+yi5frR4kWRRdu+titKPTrj26iOE/CFzmJQM75CrUSQYE+EhI7uvOPzNk408yFkWp6EKcgCA5MHNEuIan26whNmmYlrEhV6s2Buc7l66lPmmuZbFb2Nx+9BaGqJYyMUTEyE+LT2Fr0GPxTV5l8JSF2o34pSKsJr7eYkuakIjZEgc2WuaMPKIFJ8uRCLvJDXvXD9rFzqKBqcEqOPUmoinnzdgsVJ8rTgs9zYhE7Uu5WARVzKEh65udnBbZzqc4emOqdFSug8bbTwlgjzuNoi+rhTXVtUZ+nvWG7Y2fgAbXdiq+xS3zwNkzWg/r0hETHQWcgbQ==
+ b=bHBK54OOAwWZ53ggtHDoqgcI1qiQrkYGOfyMm8uiREub1gudY25POd3xIxqnGxqaSRFxscgZlLUG0CiVhZDkCIkoTsdTY+Xt7aBvlcOX6r3cH7MCOTqlbJEIFY0ilDTeX2pH/p7LnQs2+UEyvfmd6E8w9R/WHPQxwuAvBl8mFckLnZenA90DwASnp984Pr9rvH60xJ7dcS1JvdZLdzBmjYgqBAn8IIRzVZfQv7hxLhpgnjPRJo7velqo5++xxUnp1+gubj2cqIzSlZMWpdVaQ29URJwhh3EYXs72EfMp8nSp6N+ZQGDk4cAjSzGUP8y1YuiLagoMTMhz+9QtKX9HKQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rgW8k7IBzEovn1bwn07ZQdj6JfXSEsccKXiYS9qA+mI=;
- b=l4SapFN2hQdqFtsFSHsDDxkm2SGNKyid6bGFRQKstBZQiVDHRPVouOXsKXX+UMHgadg15N6k3xiyuwnt6mhRV1MXCvFu6V5Z7Bd9swVYcsX5UA/h+DSHMdVceU2zA4Nw7CsjuJBuqUnEaRnDAPF3UO3lyNq0rlISxJSXe2p0Tcju6Vd79NrW+22F+8VpVECJ2/1D2lff2Bfavc5JFXI3Oqo5h4pSYaxQcb+K6ER5RoSTLRx12Uu4SgL7tpSWu69BVBN6NAqKv7q+TG8XWOBikG6nEBs3N+hFfXRdR9OxRIgJoSOAOcCUornPZjzmr+E7/3N1jnJkpcsCBD9quL5kgg==
+ bh=JuxMmB0HwKq0zRzcHXE/1ckDMXCtQMf/6aapUoEIJbc=;
+ b=aZXMCSgdjEvq4bKOP8TCL9Sm9j1OqWVb+7afhDOlw8MpgUZPH/2C+lol260eVfxvNLeh4ZG9rTjyTX5eojQcNm9Uc8GWSTSJuTNSdFDzMD45L/EnACL4Yb1UPQ6/UW0iU1bfua5QRqIM8QFDI72zmxLfNWc8Np7UPmqUeF6jDhGyAw3t2E4zAW+VN+WfuX5g61msda08hKdtH3LuCaC5yGbsjH8xuO07iZQ3Ol1Bs1DFSIqX+mRfw0sj/7amemdUmVSU50SiZqa6CqbWipVWCcansX2gFzkj3tPy77RTDgm9VukKqQIYl2jYvj15j9EmojGOwSF956/2bv68SrKmpA==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
- dkim=pass header.d=oss.nxp.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
- s=selector1-NXP1-onmicrosoft-com;
+ smtp.mailfrom=genexis.eu; dmarc=pass action=none header.from=genexis.eu;
+ dkim=pass header.d=genexis.eu; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=genexis.eu;
+ s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=rgW8k7IBzEovn1bwn07ZQdj6JfXSEsccKXiYS9qA+mI=;
- b=xZj9CjsKBuSs8iE49GkgYb8Xy5MuuG4GW4c0LUOAPVrvOiWUmZVC99iEMhwBk4ES+j9r4pNW93gmOVqmYFciZeu0UUvD2Dm/OD5WQtIE7XmyR69J07Z4dr3BEUuEYnbr7ZKq1DQFRaY/KrzzXX/bNeMetXlR8GvvHouvGG44FQp2Bk/rt35PZWaH+WeCap2X77HTegBn/amJTlTa0RQ6hXvasJN+9+j/yHDyIQoba58Mi3rUAtwcOFaSOvEjIMLLZwmjU8CIajNFvslX0NwPiHgFZO5ljrEF5CJZUkHjmvOYsnIbcComsDfGkZtyjYkDAh+fZqYClDDyeNE2xinC/A==
+ bh=JuxMmB0HwKq0zRzcHXE/1ckDMXCtQMf/6aapUoEIJbc=;
+ b=AjlnlBaQGINgOlPNAkxNvNXiutNSguRYN4oycr1hyIZK6TjWSvMKw52wVWgC53WhPL+u64oTAPoLFiMNmhRimNJOVG0qT3Uzx/8J99SyCO3SWSGDQW6/upOVVBSbC/GaqktvxAge20ixB67W1wYS/sCPOUzgCRX4RbFwx4oXmqr83gZfzhkKs6LLJGLjtBt96ORGOnskLdf3Qr3vpkulabIpbN4ZAP7b61uMv2YMHfDsfpbI+1+CtDH9Y9i2Zynngm9RIa4DGZBR5LruZjfiujb6SxSh2FRW3HD6SfFZoSzaXSmw96PhvQhLSrgUlrCTS85KvwQ6fRB5wnXrspPL/g==
 Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=oss.nxp.com;
-Received: from AM0PR04MB6802.eurprd04.prod.outlook.com (2603:10a6:208:184::17)
- by DU4PR04MB11077.eurprd04.prod.outlook.com (2603:10a6:10:58a::6) with
+ header.d=none;dmarc=none action=none header.from=genexis.eu;
+Received: from DB9PR08MB6697.eurprd08.prod.outlook.com (2603:10a6:10:2ad::14)
+ by GV2PR08MB9302.eurprd08.prod.outlook.com (2603:10a6:150:d4::10) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.25.24; Wed, 20 May
- 2026 09:31:20 +0000
-Received: from AM0PR04MB6802.eurprd04.prod.outlook.com
- ([fe80::dc36:17b6:e5b1:fa51]) by AM0PR04MB6802.eurprd04.prod.outlook.com
- ([fe80::dc36:17b6:e5b1:fa51%4]) with mapi id 15.21.0048.013; Wed, 20 May 2026
- 09:31:20 +0000
-From: "Carlos Song (OSS)" <carlos.song@oss.nxp.com>
-To: aisheng.dong@nxp.com,
-	andi.shyti@kernel.org,
-	Frank.Li@nxp.com,
-	s.hauer@pengutronix.de,
-	kernel@pengutronix.de,
-	festevam@gmail.com,
-	carlos.song@nxp.com
-Cc: linux-i2c@vger.kernel.org,
-	imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: [PATCH v2] i2c: imx-lpi2c: fix resource leaks switching to devm_dma_request_chan()
-Date: Wed, 20 May 2026 17:33:23 +0800
-Message-ID: <20260520093323.2882070-1-carlos.song@oss.nxp.com>
-X-Mailer: git-send-email 2.43.0
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.48.14; Wed, 20 May
+ 2026 09:41:34 +0000
+Received: from DB9PR08MB6697.eurprd08.prod.outlook.com
+ ([fe80::bdec:3e95:6614:441f]) by DB9PR08MB6697.eurprd08.prod.outlook.com
+ ([fe80::bdec:3e95:6614:441f%6]) with mapi id 15.21.0048.013; Wed, 20 May 2026
+ 09:41:34 +0000
+Message-ID: <e797ea21-4874-4cd1-b9dd-61514d541f38@genexis.eu>
+Date: Wed, 20 May 2026 11:41:32 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 5/5] i2c: mt7621: make device reset optional
+To: Christian Marangi <ansuelsmth@gmail.com>, Stefan Roese <sr@denx.de>,
+ Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
+ <conor+dt@kernel.org>, Matthias Brugger <matthias.bgg@gmail.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-mediatek@lists.infradead.org
+References: <20260519223253.1093-1-ansuelsmth@gmail.com>
+ <20260519223253.1093-6-ansuelsmth@gmail.com>
+Content-Language: en-US
+From: Benjamin Larsson <benjamin.larsson@genexis.eu>
+In-Reply-To: <20260519223253.1093-6-ansuelsmth@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: MA0PR01CA0036.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:a01:81::12) To AM0PR04MB6802.eurprd04.prod.outlook.com
- (2603:10a6:208:184::17)
+X-ClientProxiedBy: GVZP280CA0035.SWEP280.PROD.OUTLOOK.COM
+ (2603:10a6:150:26f::12) To DB9PR08MB6697.eurprd08.prod.outlook.com
+ (2603:10a6:10:2ad::14)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM0PR04MB6802:EE_|DU4PR04MB11077:EE_
-X-MS-Office365-Filtering-Correlation-Id: 054dde03-7140-4b1e-8951-08deb6528c78
-X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
+X-MS-TrafficTypeDiagnostic: DB9PR08MB6697:EE_|GV2PR08MB9302:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4f0ff36f-f03e-4828-6cf7-08deb653fae1
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|19092799006|1800799024|52116014|376014|56012099003|18002099003|38350700014|11063799006;
+	BCL:0;ARA:13230040|1800799024|10070799003|366016|376014|7416014|921020|56012099003|11063799006|4143699003|18002099003|22082099003;
 X-Microsoft-Antispam-Message-Info:
-	Ls0P6ytwYG8YsHWHNg01RzFRa5T3Jn6g7z7ZXBGTscjoHIOJQZkCXavazsn1L1n5XusBwHb7XsTLOAhFXMjYUXHWmD/Vc61HKeaQeBZpqo4QBpwnFjQUIcku7t3yzFS+FIfhq81kBAY0rNvf86zX7cmHSX7b2zKej8zliIj+hqL/Knt8GKydEyyhmsuoE5uu0Ep+M0G5nVQqOULw2/rXJCPSCqhTI20iXsBf3TcCeMw7tDbbA2CstXbHfGPgA7kCQnrH3tC3WUVlVjxnLk6Bkbkn5yd5Qqk7z7r5AowHK973p33E0EVLXitcyutAKmK1LjEHjbR5bTP9x+0cT1AOkUM73AWIjUpp+TQELhSPLMfhUHekW/c7rvdM1uVT/+/7uq9H9MsucLcClegczuP8Q5EDmvvHQHHALCsWndcSi8QEpJleXDHMvG7uKzA37icTbdC2Suu2bfMjbiGVWymOkpQyL7dnEqY/eDv5Gz9aMs0+RT7NAfuD+DZvW0IZatOSDBbJfgRDgALLqoKOezB/leV8JEhNVL0Z1AEGljTrt/3YogMs+55Y1NrWo3kSA6W7G8oPwd0UkPVUEDnHSG43TjHIdR4IeDGos6/ghhm4vm+pw/BhzF9R4kg8T5vSszP7Ioshos3lt/LKT28bUg0MEjy3FtbyiodSQDKjC60OK4A+lmD4y1iyGVYOkpO0Odi1v6hFMYnEdzK55DrhrJPmbK1NKBqZ0z0TmQEJSRCw1/EmfCFuprHglk9t14G8eYRq
+	hm4lrmAThrloaAKXK9ppiTwDiO1bHrNKVDMPvxrd+/x0NQjFzATWWDyvfg9Txr/F7sHtsK5/nR14+N853SD8il894TETm5FcOrbhCO4JXeGsxQGUTnZN8+Lf1gfpkkDl4oKIum+AR7bySbJqS9XcaDY245tNUOXx98zqgb84n7KBFG1s8ARmLUHgGdufouQDy9uhSItM6CGOK61NFX6VUKVCEHovfCh0ACfIs5t9pq/1N90kPIB7EqC4LAI8DyfrsMP+HrCn17bf/TdhbL0M6p2QtC1fCIltNrbTJNnLkgRK89ZlPOdFoUDRiYVI1dYChOk8sF+t6SzkxdAYM9P4MquWKOkf8YBXO3MVWOa6U0KyzC//3MDzYCUoW137CzMsdmP/1xy8wPFSvmUZD/95Nhri3yXoKaOIDSfpFFbredUC3OF6Mjqv0yaT/ABYLrtV2bEKngZRYJ3cMVFGP+0BCE1M96s/gk2/VlVi7S1+B88XWvErlEzRXuU5/4OyCJjkFOIvD2SfT6TEZolBPpICv1Av0+2NKua9X0xbd2cMpt/sWwG02jPQWQINJOTQ6BtQstICnWHsB+zf4xoWWjaD3HnzO3n30i3zZF3V5IhT5mfYsvq7QY4urqe1fM0vxrChEfLqTZaugJqdvb5l3qgZvf7GOE4//zeQZ3ZZd8alfwmmseryhekLUMmYLAyZa9DDe2NRLPXbzTLG4mXkrC0qE/xv5Kj79ai77LYJZPG4wJl/JK5cTV2UcezugPMiSxjx
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR04MB6802.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(19092799006)(1800799024)(52116014)(376014)(56012099003)(18002099003)(38350700014)(11063799006);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DB9PR08MB6697.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(10070799003)(366016)(376014)(7416014)(921020)(56012099003)(11063799006)(4143699003)(18002099003)(22082099003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 2
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?GzpIKwMqXLMMGjsgHYCRmecWDpI8qvOAVBX+5jmawsPC3lHZhvNS9cKuD0gl?=
- =?us-ascii?Q?xNdDdWNpCtIdUhiUJY/mZnf4vU7sEc3aarlu8CuUhr8KZNE8LpdF4ZyLomxT?=
- =?us-ascii?Q?JnlWL7mcaQIjHeaFE5qqg+2bHPzYK9Npwv77DStAhEBqeaseYpZBbSL4aVe0?=
- =?us-ascii?Q?FZc2JNeiiQiigbWCo11y5psYJIjaQMWCd/dFZUWZCFJBnE1YY62wpIVANCO0?=
- =?us-ascii?Q?qo0pkI4Qx6BnUsZnfOc8379u482L+V/7ClfnPztFYB/7m1oKR+Ifzu7/VuRD?=
- =?us-ascii?Q?btamH54Hc7cPMdEKir3Z6Wd7M2SpxTqmgI1NFwYRAMCWXgKr3iAbsAn0X2tD?=
- =?us-ascii?Q?emSzU3xEbeflNiDjHnpfy7fDSDbsZ4jkefX1fUACAL7/T4DiPUqr61nPmNNx?=
- =?us-ascii?Q?NGbu0W+ebopnxZHzQFseIQEUFgYFr8YS72qtNN1SnSdU8YYfdIHi+KTDHpZv?=
- =?us-ascii?Q?VEzivyQPZ4MM6hCSj7rW8xPZHlzRtnEoUZxvdy436PT8fZeubbtZeRXZ+U9W?=
- =?us-ascii?Q?m4xyDH44YuufPlfwfZO6eDcIIl3YZ8sFbAD3Buoa51xdC64yu+Ky0XM6S0vw?=
- =?us-ascii?Q?wYQLNwoZdJeyJAD5/6M48+rQNlH67/V56vrwflkRDrWhcfj2Oxl9+T7cYBF4?=
- =?us-ascii?Q?s/HCh/QTsThVvF1sbBsEPj4ZgoQWBa8a2TgIIXFfDBj41zGyz6dTRBXAtRf+?=
- =?us-ascii?Q?dD1aKIGe6AjNZSp5HYZ5ur9ojodm7/NIo4nqecridtW+jCBkTcVPrR/nA7ru?=
- =?us-ascii?Q?JbuWZpH545ngL1+5Jwp6rJfTn8vhCUu7JFczy6UUKhdM9c81LIreVt8rzAp4?=
- =?us-ascii?Q?5tx5NBGcmwnWH85+kSj5++TbOoFNqancbfuTHyfk43S1h9YA8mOMYOWFdQrj?=
- =?us-ascii?Q?H2AU6UhVJzbHRJkdcwU28M5kl/o3+hONGJV3LTR/L07h9dievCZdvexJtXr+?=
- =?us-ascii?Q?B5zc1LAB31U5CtJU4D2P3BOHwVac5E417Zd4ZdyvXCVl6VhJdbyt03BLYw//?=
- =?us-ascii?Q?F2xX0B1Z0TgeSnl/PX9HYnHdv30vsHI+RdJeoMx2VhUJ0fXuk3kLgRyX3XDo?=
- =?us-ascii?Q?gzfpiiusF+Mwvd7m6BsfOJlNiRC4NwzUkiVpjkjK7OcKUmRHfkbIlGx6r3Jg?=
- =?us-ascii?Q?UDcQq1fPizUuBUxAN+u7J/ss++LKDauwD/yfExEhAdR/VYri8YprcjTF7cEs?=
- =?us-ascii?Q?pZL+mf5qkW9J90KqGc/RwLkx2q/1E/Wmukvi/quGSCwV1gIdLY9feRZ2168j?=
- =?us-ascii?Q?/cmDRfo2+VFEwfe4y37uJnkvfDFhVMs5uXpLZMFj61OckHJUOEzRKwXq3RGE?=
- =?us-ascii?Q?reRM/LpasokmxOakFa7H3rPnj84hFFHwDcVY4lNG4XEmAq6Kxn9tJHBzqpWb?=
- =?us-ascii?Q?JIimDN0nl+kt8I053VtwyjZV24eXL7AcfnMjr0EQh0eL40N7FSZVamB+J2tk?=
- =?us-ascii?Q?GcRlVDz1YtPI0uETnr89qS78yzVi3PTql3Wg3UDfBdbRyTXVJ3x+YHZOZ9Xi?=
- =?us-ascii?Q?Tjp03SywK4Z7pXPpwTf56yQPPC5wK1RsQKkeguFImfgAqS7ym/h5Iss+fS7U?=
- =?us-ascii?Q?h5/06eL4xiac5hp1hxrk9F5mJSl67hc96iMxQULAfbJEhBQUYGqtS5E9w4On?=
- =?us-ascii?Q?jHlBXyZvvLtP1HJB5w76ftN195lo28WP3oS+pd9SV0w/4rDv1A7JwBeUd8so?=
- =?us-ascii?Q?Ex4U7MHhZhUMO8lmGFdHo709+RGOZhmx2BnuCQFOuBwUd8nmAUlXvNDg04HT?=
- =?us-ascii?Q?k7Bj2Zp6dQ=3D=3D?=
-X-OriginatorOrg: oss.nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 054dde03-7140-4b1e-8951-08deb6528c78
-X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB6802.eurprd04.prod.outlook.com
+	=?utf-8?B?Z2FsRjdOa0U3cXhjTnFtRG4xa2VRZkNFeWcxZ0R1RGJVTEdnMFhySndlRk90?=
+ =?utf-8?B?d3ZOWTQrSWxjSDFWakVFTEpJWnVXb1NodXVjRHlJOVFKWnNJOWdOZis1dGVI?=
+ =?utf-8?B?WmZqaG15TXdMWWh0dFgzVEtnQU9RZm5nQm8reHcyamFtZ1ZpL25WNHROT0RD?=
+ =?utf-8?B?YWp0a0VxbGw0VWN6KzdaQWhtdWhSRm1HSng5ZmR6emswazAvYnRXODN6REgx?=
+ =?utf-8?B?TldRcHplZUJxd1Zzb21WTVBjWUh4dFRPQXFPcUxMK1Vhck8zcFM1cS9iZW90?=
+ =?utf-8?B?amNCZVFEUFJMcmtReExzaGtmU2FaTXJCOXh0YVVrUmlRU25OeVJ5YzhTemtu?=
+ =?utf-8?B?U2llbmtqZjNDcXZTOVp5NFAvTkRlcHdGV2M2NTZaZVNsSGxnZnRIN29wL3Bv?=
+ =?utf-8?B?eTVsZlpZUjkvdXh5dS9uMHNUVm9yaHhaRHU3TTI3OHhuUnRkYm1aZ0NwalB3?=
+ =?utf-8?B?YXNtVmxBQ1krSkRoaENKam1WQ3VkZTZsKzluVFBHdlNSeTZQeWZiVFVBT09T?=
+ =?utf-8?B?RXBISU1zb244YjJGdDlncHp3K01IWi9MY202Yi9QSEVOeFU4ZGpkVGExdFZa?=
+ =?utf-8?B?VXJvcmR6N3RQaUg1RHdIUTY0UGtzQUVKOTYyL1o5OTJCR3JNRndBMzFEeDJh?=
+ =?utf-8?B?bHN4RVRBYm5JZEVFM0Y2MC92RU9jZnVRVDVWOGtnK0l2Mll2MFlGejB5VDZ4?=
+ =?utf-8?B?NEFqWmg3dngySTV5MGVGbU44eUJ0NS9pQVZRMUdvSW9CMTJ4bWxtUGlnZzBN?=
+ =?utf-8?B?aTI0NktwRXE3a0oyZTlQQTcxME1zYXBIVUs4allCeS82RFhrYkxHL3pLQ2Rw?=
+ =?utf-8?B?VjR4Mk45ekFGQndZSzhGN1ZVQmxCQ3BTa3krbmhpRkx5SG5XS0hCODlCSlps?=
+ =?utf-8?B?VUQvVWNFS0xpcHkzMWVxRmx0QmFFS25WSE9WMmpvRkpWSURvQ0JXbTJXak9F?=
+ =?utf-8?B?ek9IS0VmUThpdmlxRTVVM0FhbXd2Y1JLMUJqY1dIdVlNdVNZaE12SnBVcGN0?=
+ =?utf-8?B?THluSmFzWmR4NUlpL0FRYkF0aTk4dVVRYmR0emJ2Z25IdUxncUVYSjhPL2x6?=
+ =?utf-8?B?K1RtN3ZuU2xtRkw2RVVMT2IyNzdybVhNSXZUektSV3VhY0pPb1BHb2JXc2FN?=
+ =?utf-8?B?Rm1rdFlzVGtIcFZNN3UwcTQwQjVLNTN0RTdIYU81aGVNd3BudU8wajRpTmxR?=
+ =?utf-8?B?VVJvdXZTcWNwUXh3cFQ5aFZkbndYUkhocFVYdDNqRUsraDQ0d0RoOEF4T2VW?=
+ =?utf-8?B?SDdYQ3BML2R6L3plMGNHMmxlOHlhTytSMktXSldkc20wb2NlbzRJMFYzZCtX?=
+ =?utf-8?B?YytscjVPcm9sdlpOZ0tyWVNISy95VisxT1QyU1pxNnlNTUYrY3RDZDA0Q29a?=
+ =?utf-8?B?YkRYTnd1dlF5b1ZJSmpzQkRMZlpzR2FPbHlVV3JKbTl4NWhsazRqN0NCZWZH?=
+ =?utf-8?B?QXNpVVNKeUpXNy9OYzI3aldtUzZYRHdtUy9YZWIvNjdEWlFZRDVaWWNFNThT?=
+ =?utf-8?B?UllIQ3p6SGNZSmdRMVhoWEZiRDRKa1lwZXphTEk3bGRUYW52SFgvNUZwWEU1?=
+ =?utf-8?B?S094SVdsQ2wwVDIwWnkralpIUGRhY09mbVpCSGQ0bjZEbU1oVXhpbzNrUXpz?=
+ =?utf-8?B?bTVETHV0V243aGhqRkk4L1pyZEdLU2s5YTNsaXNLVFh2cmNWRjMycUFOZERL?=
+ =?utf-8?B?OWJhL0kyVi9zc1V3UnYvWEZIVjJpajRGQ210OTlTdDdXMVVuOXRFbENKcnFJ?=
+ =?utf-8?B?bi9CQ3Ryd1NISERvK1V0ejBQdTVrbnZRRFVVcGNINitkU1AvL1k4a2huMy9y?=
+ =?utf-8?B?bmhrNnFrTkpuZkVwcmcvQVh5UXU0cjZyQWRNOFkzeU1zcmN6WUk5MkR2cCtj?=
+ =?utf-8?B?M1YzVS80OWdmbnVHK3RGWkoyWEhReVFWd0ZSNTQxVUxHWDZ1bVBVWXVIRmE5?=
+ =?utf-8?B?OVIxY2JkWDh6NUZBSlAzVWxLOGxHUnBzbHUwZWE4dW5RV2prU0F5TllwZ1h4?=
+ =?utf-8?B?Q044cmptTmQvQzVaLytOTEtWMnIzRk9DQjFydzFYbzZkQTJFVTluVEhlL2Yy?=
+ =?utf-8?B?RzlkbWNiRTlJZVhWWEcyZlo2Wll6MXlhZHBTSFZqOWI4M2lSeldmU29jOTZD?=
+ =?utf-8?B?eGwwU0ZCVEtJL1hab21MOHFvYVpYazB0NEhsN1RVVjg3bVg4NERydWYwV0hk?=
+ =?utf-8?B?N2gxMWY0WGNpbUFYSmZhOHlLZnpwdElwYVl3L2xqK1diWEdyL1F5OVBiVVRn?=
+ =?utf-8?B?WjdzdzBnRDBrNGJRZmlJd3hybUJuQzVhdUxwZURNT2pFTVB6TXV0V3NSakdr?=
+ =?utf-8?B?VFBLSmk3WWU0UndjNnl1dG5LcXE5RjNiUmVQUVBvTEdvK2lUZHc2cTJDMnc5?=
+ =?utf-8?Q?4Tyf8gaPHPyXOnPPm4/u1GbFgjZXpAY+I+3lUZjoWnjsk?=
+X-MS-Exchange-AntiSpam-MessageData-1: 3vqfKWViPUcJxwcddcDSwvDFmaLN1z0aHuA=
+X-OriginatorOrg: genexis.eu
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4f0ff36f-f03e-4828-6cf7-08deb653fae1
+X-MS-Exchange-CrossTenant-AuthSource: DB9PR08MB6697.eurprd08.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2026 09:31:20.1136
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2026 09:41:34.3886
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-Id: 8d891be1-7bce-4216-9a99-bee9de02ba58
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 1sDS/3EXOBQRHr32Qz22pzFmObdz2kcFJUvYhWmMzg6+iI/x87abA7M7cItj5j9xkwh5cedIZOhsTYIHGxXwEw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU4PR04MB11077
+X-MS-Exchange-CrossTenant-UserPrincipalName: m6q3L/vwb+LIEHi8FM53uut4YUU23OHsHLW6GYwSZUxnGui7SOHfX5jCUf4XLm/AqJ/29ScBRj3ub+L6DoyfWnud/AZtcSJQRDN3akI5bDc=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: GV2PR08MB9302
 
-From: Carlos Song <carlos.song@nxp.com>
+Hi.
 
-The LPI2C driver requests DMA channels using dma_request_chan(), but
-never releases them in lpi2c_imx_remove(), resulting in DMA channel
-leaks every time the driver is unloaded.
+On 5/20/26 00:32, Christian Marangi wrote:
+> Airoha SoC that makes use of the same Mediatek I2C driver/logic doesn't
+> have reset line for I2C so use optional device_reset variant.
+>
+> Signed-off-by: Christian Marangi <ansuelsmth@gmail.com>
+> ---
+>   drivers/i2c/busses/i2c-mt7621.c | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-mt7621.c b/drivers/i2c/busses/i2c-mt7621.c
+> index 3cde43c57a2b..fb9d9701bb10 100644
+> --- a/drivers/i2c/busses/i2c-mt7621.c
+> +++ b/drivers/i2c/busses/i2c-mt7621.c
+> @@ -91,7 +91,7 @@ static void mtk_i2c_reset(struct mtk_i2c *i2c)
+>   	u32 reg;
+>   	int ret;
+>   
+> -	ret = device_reset(i2c->adap.dev.parent);
+> +	ret = device_reset_optional(i2c->adap.dev.parent);
+>   	if (ret)
+>   		dev_err(i2c->dev, "I2C reset failed!\n");
+>   
 
-Additionally, when lpi2c_dma_init() successfully requests the TX DMA
-channel but fails to request the RX DMA channel, the probe falls back
-to PIO mode and completes successfully. Since probe succeeds, the devres
-framework will not trigger any cleanup, leaving the TX DMA channel and
-the memory allocated for the dma structure held for the lifetime of the
-device even though DMA is never used.
 
-Switch to devm_dma_request_chan() to let the device core manage DMA
-channel lifetime automatically. Wrap all allocations within a devres
-group so that devres_release_group() can release all partially acquired
-resources when DMA init fails and probe continues in PIO mode.
+Can you elaborate on this one? I get this:
 
-Fixes: a09c8b3f9047 ("i2c: imx-lpi2c: add eDMA mode support for LPI2C")
-Cc: stable@vger.kernel.org
-Signed-off-by: Carlos Song <carlos.song@nxp.com>
----
-Change for v2:
-  - Wrap all allocations in lpi2c_dma_init() within a devres group so
-    that devres_release_group() releases all partially acquired resources
-    (dma structure memory, TX DMA channel) when DMA init fails and probe
-    continues in PIO mode. Without this, a successful TX channel request
-    followed by a failed RX channel request would leave the TX channel
-    and dma structure held for the lifetime of the device.
----
- drivers/i2c/busses/i2c-imx-lpi2c.c | 53 ++++++++++++++++++------------
- 1 file changed, 32 insertions(+), 21 deletions(-)
+root@XGX-B-00e092000160:~# devmem 0x1fbf8040
+0x00C7800C
+root@XGX-B-00e092000160:~# devmem 0x1FB00834 32 0x10000
+root@XGX-B-00e092000160:~# devmem 0x1fbf8040
+[  396.658742] pbus timeout interrupt ERR ADDR=1fbf8040
+[  396.663845] CPU: 0 PID: 5622 Comm: sleep Tainted: P  O      5.4.55 #0
+[  396.671117] Hardware name: XGX-B (DT)
+[  396.674884] Call trace:
+[  396.677394]  dump_backtrace+0x0/0x120
+[  396.681111]  show_stack+0x14/0x20
+[  396.684478]  dump_stack+0xac/0xec
+[  396.687900]  bus_timeout_interrupt+0x54/0x70
+[  396.692223]  __handle_irq_event_percpu+0x3c/0x140
+[  396.696978]  handle_irq_event+0x4c/0xec
+[  396.700920]  handle_fasteoi_irq+0xbc/0x21c
+[  396.705069]  __handle_domain_irq+0x6c/0xd0
+[  396.709218]  gic_handle_irq+0x8c/0x190
+[  396.713019]  el1_irq+0xf0/0x1c0
+[  396.716217]  __do_softirq+0x98/0x264
+[  396.719847]  irq_exit+0x98/0xe0
+[  396.723118]  __handle_domain_irq+0x74/0xd0
+[  396.727268]  gic_handle_irq+0x8c/0x190
+[  396.731070]  el1_irq+0xf0/0x1c0
+[  396.734320]  tlb_flush+0xf8/0x260
+[  396.737693]  tlb_finish_mmu+0x48/0xe0
+[  396.741417]  exit_mmap+0xc0/0x170
+[  396.744841]  mmput+0x44/0x120
+[  396.747872]  do_exit+0x2b4/0x8ec
+[  396.751161]  do_group_exit+0x34/0x9c
+[  396.754794]  __wake_up_parent+0x0/0x2c
+[  396.758651]  el0_svc_handler+0x8c/0x150
+[  396.762545]  el0_svc+0x8/0x208
+0xDEADBEEF
+root@XGX-B-00e092000160:~# devmem 0x1FB00834 32 0x00000
+root@XGX-B-00e092000160:~# devmem 0x1fbf8040
+0x0000800C
 
-diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
-index 6e298424de5e..dedcc24e63ec 100644
---- a/drivers/i2c/busses/i2c-imx-lpi2c.c
-+++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
-@@ -1383,55 +1383,66 @@ static int lpi2c_imx_init_recovery_info(struct lpi2c_imx_struct *lpi2c_imx,
- 	return 0;
- }
- 
--static void dma_exit(struct device *dev, struct lpi2c_imx_dma *dma)
--{
--	if (dma->chan_rx)
--		dma_release_channel(dma->chan_rx);
--
--	if (dma->chan_tx)
--		dma_release_channel(dma->chan_tx);
--
--	devm_kfree(dev, dma);
--}
--
- static int lpi2c_dma_init(struct device *dev, dma_addr_t phy_addr)
- {
- 	struct lpi2c_imx_struct *lpi2c_imx = dev_get_drvdata(dev);
- 	struct lpi2c_imx_dma *dma;
-+	void *group;
- 	int ret;
- 
--	dma = devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
--	if (!dma)
-+	/*
-+	 * Open a devres group so that all resources allocated within
-+	 * this function can be released together if DMA init fails but
-+	 * probe continues in PIO mode.
-+	 */
-+	group = devres_open_group(dev, NULL, GFP_KERNEL);
-+	if (!group)
- 		return -ENOMEM;
- 
-+	dma = devm_kzalloc(dev, sizeof(*dma), GFP_KERNEL);
-+	if (!dma) {
-+		ret = -ENOMEM;
-+		goto release_group;
-+	}
-+
- 	dma->phy_addr = phy_addr;
- 
- 	/* Prepare for TX DMA: */
--	dma->chan_tx = dma_request_chan(dev, "tx");
-+	dma->chan_tx = devm_dma_request_chan(dev, "tx");
- 	if (IS_ERR(dma->chan_tx)) {
- 		ret = PTR_ERR(dma->chan_tx);
- 		if (ret != -ENODEV && ret != -EPROBE_DEFER)
- 			dev_err(dev, "can't request DMA tx channel (%d)\n", ret);
--		dma->chan_tx = NULL;
--		goto dma_exit;
-+		goto release_group;
- 	}
- 
- 	/* Prepare for RX DMA: */
--	dma->chan_rx = dma_request_chan(dev, "rx");
-+	dma->chan_rx = devm_dma_request_chan(dev, "rx");
- 	if (IS_ERR(dma->chan_rx)) {
- 		ret = PTR_ERR(dma->chan_rx);
- 		if (ret != -ENODEV && ret != -EPROBE_DEFER)
- 			dev_err(dev, "can't request DMA rx channel (%d)\n", ret);
--		dma->chan_rx = NULL;
--		goto dma_exit;
-+		goto release_group;
- 	}
- 
-+	/*
-+	 * DMA init succeeded. Remove the group marker but keep all resources
-+	 * bound to the device, they will be freed at device removal.
-+	 */
-+	devres_remove_group(dev, group);
-+
- 	lpi2c_imx->can_use_dma = true;
- 	lpi2c_imx->dma = dma;
- 	return 0;
- 
--dma_exit:
--	dma_exit(dev, dma);
-+release_group:
-+	/*
-+	 * DMA init failed. Release ALL resources allocated inside this
-+	 * group (dma memory, TX channel if already acquired, etc.) so
-+	 * that a successful PIO-mode probe does not hold unused resources
-+	 * for the entire device lifetime.
-+	 */
-+	devres_release_group(dev, group);
- 	return ret;
- }
- 
--- 
-2.43.0
+
+and
+
+root@XGX-B-00e092000160:~# devmem 0x1fbf8140
+0x00318013
+root@XGX-B-00e092000160:~# devmem 0x1FB00830 32 0x00040
+root@XGX-B-00e092000160:~# devmem 0x1fbf8140
+[  611.730070] pbus timeout interrupt ERR ADDR=1fbf8140
+[  611.735197] CPU: 0 PID: 2651 Comm: ux-manager Tainted: P    O      
+5.4.55 #0
+[  611.742925] Hardware name: XGX-B (DT)
+[  611.746697] Call trace:
+[  611.749222]  dump_backtrace+0x0/0x120
+[  611.752960]  show_stack+0x14/0x20
+[  611.756424]  dump_stack+0xac/0xec
+[  611.759801]  bus_timeout_interrupt+0x54/0x70
+[  611.764145]  __handle_irq_event_percpu+0x3c/0x140
+[  611.769001]  handle_irq_event+0x4c/0xec
+[  611.772912]  handle_fasteoi_irq+0xbc/0x21c
+[  611.777077]  __handle_domain_irq+0x6c/0xd0
+[  611.781312]  gic_handle_irq+0x8c/0x190
+[  611.785117]  el1_irq+0xf0/0x1c0
+[  611.788335]  __do_softirq+0x98/0x264
+[  611.792032]  irq_exit+0x98/0xe0
+[  611.795249]  __handle_domain_irq+0x74/0xd0
+[  611.799411]  gic_handle_irq+0x8c/0x190
+[  611.803303]  el1_irq+0xf0/0x1c0
+[  611.806518]  bgpio_read32+0x4/0x20
+[  611.809995]  gpiod_get_value_cansleep+0x44/0x100
+[  611.814742]  value_show+0x2c/0x64
+[  611.818114]  dev_attr_show+0x1c/0x54
+[  611.821760]  sysfs_kf_read+0x54/0xc0
+[  611.825396]  kernfs_fop_read+0xac/0x300
+[  611.829355]  __vfs_read+0x18/0x3c
+[  611.832741]  vfs_read+0xc8/0x150
+[  611.836028]  ksys_read+0x58/0xd4
+[  611.839369]  __arm64_sys_read+0x18/0x20
+[  611.843264]  el0_svc_handler+0x8c/0x150
+[  611.847166]  el0_svc+0x8/0x208
+0xDEADBEEF
+root@XGX-B-00e092000160:~# devmem 0x1FB00830 32 0x00000
+root@XGX-B-00e092000160:~# devmem 0x1fbf8140
+0x00008000
+
+When I look at the current dts:
+
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/arm64/boot/dts/airoha/en7581.dtsi?h=v7.1-rc4#n322
+
+it looks like the resets are just crossed with regards to the nodes.
+
+
+MvH
+
+Benjamin Larsson
+
 
