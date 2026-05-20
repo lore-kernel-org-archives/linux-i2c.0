@@ -1,105 +1,145 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from AS8PR04CU009.outbound.protection.outlook.com (mail-westeuropeazon11011052.outbound.protection.outlook.com [52.101.70.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A6F53E8358
-	for <linux-i2c@vger.kernel.org>; Wed, 20 May 2026 14:17:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779286669; cv=none; b=nB4d1Yim6o9u9LDh29rjq3XPKEyyKfqrcsVEwc+s6G96eHB4LNCaxHvHS8Yf4esF0xbFwyeUnBEIs4UTUX2Mv2uBcZSSGvkWA99n81TcOX+leBZwt0P6Ugpj4GiO8hlg3On3Z1aXKa/0T8KJT+XIY0p/tsDS2jupzON/AnMC41E=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779286669; c=relaxed/simple;
-	bh=Hfw/AFjC3kG8kqhs6xkmMZZyxsxOrl5KKNoqXah7gzk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uDr1aKPf2MZdfnQQVFKVl78wO3maWOEdJClHPeRLRMLhXaLecadV2dwkoCn/rapaOlqNfIrs3u5hrkzFh9VV58CNEREAKUQeWvkaWnolp1fYtida+KRYlsHrnb2xYE846UlslX4ZOAbBozXmEAEZ9iBX66VTNbYjxR22iWKhEJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=LAFd1jj7; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B2723EAC9B;
+	Wed, 20 May 2026 14:59:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.70.52
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779289167; cv=fail; b=rnyF/pFkvbqDRHlPUkSeRgVHZ6SVnSyRugruocqVRXpqSerFJ2Wi6SAUjl3Jba5L8xrMpvCuGnGngk9EEx4LnxmJN+StE1fMWXDUiQ2Y95nJ7cM/MuC855EF7ewzKN3nq5TBEHW1nrHgRmaHoffTtJn0/kBdH2x5uasfzaXuE+M=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779289167; c=relaxed/simple;
+	bh=gShqvDQ1oh+182dqLMBabKLNUcKknh+YFCnjAhqP2W0=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=uNmkRGYb7M7v+HagMNgnEuR34pbLo1D9+f8vf81sSQTc69rsnrMI4obEV7hzWmj6qcHwplgWAieL0Mxf8bTT/IRR6BGNEY3elZMBEbLVWjxBQO3TZEQC5lt7O6B4SQxpVAcahOlijBe6Xl0xhImmkhqFIBgy+fPnUfKShrLO2jQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=axis.com; spf=pass smtp.mailfrom=axis.com; dkim=pass (1024-bit key) header.d=axis.com header.i=@axis.com header.b=PGdH4Xyn; arc=fail smtp.client-ip=52.101.70.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=axis.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=axis.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="LAFd1jj7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=Hfw/
-	AFjC3kG8kqhs6xkmMZZyxsxOrl5KKNoqXah7gzk=; b=LAFd1jj7NTZ6/3DQrf7Y
-	wXIjs07DZyjAun5Op8D9KTZ5O5zCnHiiiSC5GnN1B1e6CetYO7Ruw0l0RlCGKrmN
-	Cpvy6AuOXETQ1PPIFtQN71zYIkRJHkeztqGp6Vv1haHmcobPfWI5K7dOBaNKMht3
-	x7+p1Q25Nxf5n33Kh1ylW59goTG9KwrkCc1tu369djs1syja88cimvMSHEx9rdZh
-	bDkSJc+olNgmb3g+G+YO3/IQdLXAz9ZiBTmPsy3h02FiSSZJbX2rKKGBUSX4Nyrk
-	wcAF65cBBmpZ3SU0yNKZ9kUKeWXD7seKy3mmNcXv1zFVXA6FKFZVf7c+8It2TS2S
-	7w==
-Received: (qmail 695898 invoked from network); 20 May 2026 16:17:36 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 20 May 2026 16:17:36 +0200
-X-UD-Smtp-Session: l3s3148p1@lbMadUBS+1BtKXOp
-Date: Wed, 20 May 2026 16:17:34 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Thomas Lin <thomas_lin@lecomputing.com>
-Cc: rafael@kernel.org, lenb@kernel.org, hoan@os.amperecomputing.com,
-	linusw@kernel.org, brgl@kernel.org, mika.westerberg@linux.intel.com,
-	andriy.shevchenko@linux.intel.com, jsd@semihalf.com,
-	andi.shyti@kernel.org, broonie@kernel.org,
-	linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-gpio@vger.kernel.org, linux-i2c@vger.kernel.org,
-	linux-spi@vger.kernel.org, lucas_hao@lecomputing.com,
-	puntar_liu@lecomputing.com, jihua_tao@lecomputing.com,
-	stan_xu@lecomputing.com, lumin_liu@lecomputing.com,
-	notics_zhang@lecomputing.com, braden_zhang@lecomputing.com,
-	harold_wu@lecomputing.com, will_zhang@lecomputing.com,
-	aurora_jiang@lecomputing.com, ryen_lin@lecomputing.com,
-	andy_jiang@lecomputing.com
-Subject: Re: [PATCH v4 3/3] i2c: designware: Add ACPI ID LECA0003 for LECARC
- SoCs
-Message-ID: <ag3CfjgXzwFSCsdg@shikoro>
-References: <20260520081140.637637-1-thomas_lin@lecomputing.com>
- <20260520081140.637637-4-thomas_lin@lecomputing.com>
+	dkim=pass (1024-bit key) header.d=axis.com header.i=@axis.com header.b="PGdH4Xyn"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=L4ANExsO9A60R9h69l/YI706mntON0X5wkEuQJFuBCB3OkBEMYpQnT6peMBBzPLv3vpRUoNT8wdwSsVxOaOZ1uB0DtxC5grTgscmrcbgIjgIrRouUO2BNKDFx87P0PhzTz0KJFrDFmTgIVc1/2/8YYZlF3C1XH++MiTX2C4gp1wU2UJnNBLvQefrrGt31VDzWvhs36XLXYQzIC+3SufOCDnCGCCTRpNbvsZfplWaB6GHmzQrRi6S8WuWIOtg/1iyknfjgV6nHVeIxwNcas4gbULF9py34HSIvnrNcmTxm/o3aAaM3NsWeBXm+gQD9/k9cVJSTb0MLhFhQcuI0LNJSw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=dKfy+8VcHBf+3h5f8u/BB4u4lGZJfAgMU8V7HFMlPgM=;
+ b=VSjROkc9UDScUhD/gWYdY91VnfKq6QcFTrj3ax3sf9hHcl9JE4A6kadnmfk2vO8VwYjvtigodY288g4sx7gEG1fr+og8PUP7BxUsvrzmvBgbEU9+DHgWF1nFjt7+XXr1aYHwaMPFVOmdczd+sHAMMVEtOmq2nd7EqNrUUFWPKrm1Fhd+th445rSl3UsbRZiJmtLq2nqWdTod4ZLMyC4JRpc6I6lCgoE/9qqiVdRb3a5QRQxPDXrYEaD4f9w8+12Uj9lidJXOIrtf2YwWjWfWGXzCQdX/gOG8d9SUmlHuoInN3TVRIaAt7YEADRfZlW83LM2Taz7ykKM6hCY/g6F5bA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 195.60.68.100) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=axis.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=axis.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=axis.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=dKfy+8VcHBf+3h5f8u/BB4u4lGZJfAgMU8V7HFMlPgM=;
+ b=PGdH4XynnZM/egx24dZboNJ8KNQYUZpPDJrlYYA4p50DrvYgMTlAA6EbWned17MCmxXZLAgL2GZoCwqPY0W0UQuskq9J4981PWHThIQHumuwjtAw+ggREiOAX47zvICXqP53oxCVpIHObNCeO6x3geNCKKIMm/V+1Bxdt3Lv9vg=
+Received: from AS4P190CA0018.EURP190.PROD.OUTLOOK.COM (2603:10a6:20b:5d0::11)
+ by AS2PR02MB9932.eurprd02.prod.outlook.com (2603:10a6:20b:607::17) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.48.14; Wed, 20 May
+ 2026 14:59:21 +0000
+Received: from AMS1EPF0000008E.eurprd05.prod.outlook.com
+ (2603:10a6:20b:5d0:cafe::96) by AS4P190CA0018.outlook.office365.com
+ (2603:10a6:20b:5d0::11) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.48.16 via Frontend Transport; Wed, 20
+ May 2026 14:59:21 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 195.60.68.100)
+ smtp.mailfrom=axis.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=axis.com;
+Received-SPF: Pass (protection.outlook.com: domain of axis.com designates
+ 195.60.68.100 as permitted sender) receiver=protection.outlook.com;
+ client-ip=195.60.68.100; helo=mail.axis.com; pr=C
+Received: from mail.axis.com (195.60.68.100) by
+ AMS1EPF0000008E.mail.protection.outlook.com (10.167.242.85) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.48.11 via Frontend Transport; Wed, 20 May 2026 14:59:21 +0000
+Received: from pc67007-2609 (10.4.0.13) by se-mail10w.axis.com (10.20.40.10)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1748.39; Wed, 20 May
+ 2026 16:59:20 +0200
+From: Waqar Hameed <waqar.hameed@axis.com>
+To: Peter Rosin <peda@lysator.liu.se>, Andi Shyti <andi.shyti@kernel.org>,
+	Farouk Bouabid <farouk.bouabid@cherry.de>, Wolfram Sang
+	<wsa+renesas@sang-engineering.com>
+CC: <kernel@axis.com>, <linux-i2c@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>
+Subject: [PATCH RESEND v2] i2c: mux-mule: Remove error print for
+ devm_add_action_or_reset()
+User-Agent: a.out
+Date: Wed, 20 May 2026 16:59:19 +0200
+Message-ID: <pndfr3mnn3s.a.out@axis.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="qplaqrBUnUFBPBuF"
-Content-Disposition: inline
-In-Reply-To: <20260520081140.637637-4-thomas_lin@lecomputing.com>
+Content-Type: text/plain
+X-ClientProxiedBy: se-mail10w.axis.com (10.20.40.10) To se-mail10w.axis.com
+ (10.20.40.10)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AMS1EPF0000008E:EE_|AS2PR02MB9932:EE_
+X-MS-Office365-Filtering-Correlation-Id: 204ff43f-0122-49e4-8c60-08deb6805fc3
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|36860700016|82310400026|376014|11063799006|56012099003|13003099007|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	PcCxL9wEx/Wi9Q+sOOjs4ygaLWCDGjO2ZXhd+wgdHFPDK5N4vfDzgp7mwV+AJoYqNnVVzCg8nvrzkjExBahTyLdcQByg+Jz0AIOPuA95vPPB4tPLqthGJSkuK3aoN69rlBeaRRBlwaK3+wRc36PtVrE/OiyYOgPRKKiQqPP6hRqh60vQ2vf8CMg9wcQQvwjR+UCAnyOle0bWF5nUFmU7EcWmUkTYj9YzcKNznRHPa0wXwBkeXeDq9w1PzqnMj2WU6UiW/n3N+qf+IWNaIXpHMwitUTCpEzr5U1d8IJqMXVilOKqnuMNOaBUNupfiRVFK9+CK1pHwU8NIDrV87SHn3//vE4+pjJbYXnTPb8uaAR2jpe/KJntyrKG017q5FPhU8RuAWhra5vU5rePPlPF6kuV/DsjSG9eI+G1He0NgxGg2lXpqojNKNcz/AJ6Lp5d/HFTsFCjNgqKZqxKd+E1VXRIvEYCVA2it2wrrImY8Uc9x5WoHuRQFNYGJdyhEVyBfZQJwr116muCs00/RoFhIsCpwmC5R4ragwPiioqcQI8hbSyWT9zRJ2MNZDM3G6oAGRqJiIZarY1ekHvNxcytfiFKxJUxfSqjRk/pkvItuo8yfhyALjObXnp/G+e9+PUvBObjx9dzbudb9c/1u87LdNEH0HpsARlK2/+bI7yoL3liBh6q1lheI2+zdg70XjSM6
+X-Forefront-Antispam-Report:
+	CIP:195.60.68.100;CTRY:SE;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.axis.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(1800799024)(36860700016)(82310400026)(376014)(11063799006)(56012099003)(13003099007)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	GhjjjLsn73SEuK/piVDeIIE4tDJXUjRSYUTE7PLd+b9jHPWU0W5cd4R6hHxXjxGFwlzKmTEH3i8uQXI7pXRLxQDiNxEE/W7adZ+IHwuvlA/C2iOQwoRBAmvbimC7gIxykSCsuScQT3wTPswhBXoLfEjSt2SOHu0X9cSeoPb79rAGnDX2/qkJD9ZrVgrKi241d59mGv5HgxQmQNumBVdZ+wo5SCT3bMFewAPu5mpUwccg8ClaMeO0yGYDGwU2Ow6aJZFWZcFw4btdtultPs4argIe+/pb1Eb0CqmuEQRyUIa3KB0eWxsHQb2nFttqjtXRwP10t0zi3ti4QShFV/rMVig37OTAjavYV9byr0PDVgyCYQspwusj8V94vM8Mi9QR0ea6tqnzcGe0af5rKCVuqmhh9TdDgYWFbC9kd2PNBK2N+yhbhGnXKRWSMus8XoxT
+X-OriginatorOrg: axis.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2026 14:59:21.1545
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 204ff43f-0122-49e4-8c60-08deb6805fc3
+X-MS-Exchange-CrossTenant-Id: 78703d3c-b907-432f-b066-88f7af9ca3af
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=78703d3c-b907-432f-b066-88f7af9ca3af;Ip=[195.60.68.100];Helo=[mail.axis.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	AMS1EPF0000008E.eurprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS2PR02MB9932
 
+When `devm_add_action_or_reset()` fails, it is due to a failed memory
+allocation and will thus return `-ENOMEM`. `dev_err_probe()` doesn't do
+anything when error is `-ENOMEM`. Therefore, remove the useless call to
+`dev_err_probe()` when `devm_add_action_or_reset()` fails, and just
+return the value instead.
 
---qplaqrBUnUFBPBuF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Waqar Hameed <waqar.hameed@axis.com>
+---
+Changes in v2:
 
-On Wed, May 20, 2026 at 04:11:36PM +0800, Thomas Lin wrote:
-> Add ACPI ID "LECA0003" for LECARC SoCs that integrate
-> the DesignWare I2C controller.
-> Also add corresponding ACPI description in acpi_apd.c.
->=20
-> Signed-off-by: Thomas Lin <thomas_lin@lecomputing.com>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-> Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+* Split the patch to one seperate patch for each sub-system.
 
-Because of the dependency, it should probably go in via GPIO or SPI,
-right? So:
+Link to v1: https://lore.kernel.org/all/pnd7c0s6ji2.fsf@axis.com/
 
-Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Trying a resend since my last ping was unanswered [1]. All other patches
+in the previous patch series v1 has been merged. I have added some more
+people in the "To"-field in hope of a response this time.
 
+[1] https://lore.kernel.org/lkml/pndldlij2va.a.out@axis.com/
 
---qplaqrBUnUFBPBuF
-Content-Type: application/pgp-signature; name="signature.asc"
+ drivers/i2c/muxes/i2c-mux-mule.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
------BEGIN PGP SIGNATURE-----
+diff --git a/drivers/i2c/muxes/i2c-mux-mule.c b/drivers/i2c/muxes/i2c-mux-mule.c
+index d3b32b794172..14c7d3d86853 100644
+--- a/drivers/i2c/muxes/i2c-mux-mule.c
++++ b/drivers/i2c/muxes/i2c-mux-mule.c
+@@ -90,8 +90,7 @@ static int mule_i2c_mux_probe(struct platform_device *pdev)
+ 
+ 	ret = devm_add_action_or_reset(mux_dev, mule_i2c_mux_remove, muxc);
+ 	if (ret)
+-		return dev_err_probe(mux_dev, ret,
+-				     "Failed to register mux remove\n");
++		return ret;
+ 
+ 	/* Create device adapters */
+ 	for_each_child_of_node_scoped(mux_dev->of_node, dev) {
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoNwnoACgkQFA3kzBSg
-KbbIchAAiq7AwlvxqMOYgteUmqjMnZ2oNxEXRW2bDk3Cj0NVy8QrgQ+MD8CJJRxF
-fq6NPSOoTCoRA+3D46v7KnjV/23KwwkZRbMJP05e5rq4JrMqFFDqF++SFR2kgEs7
-ykWMNAaERSdis0iFrhSJTZuEhfME3yuE7xu4yRFWGGrl4VuxdnTVknHUVJH+liin
-eCvqdx1TMrXfzDapSVshLt2VnKQJxn7X6UpzmAbbNDLblGQ2nYelwMCdQyDkHaPr
-Pp0HtoJAvTa1815T1t06npUw5LQBiSUIE17bTxilRi9krJKRestMec3E3h3W4L1j
-hT6SRROTFsMEOc613g+OKaH9C1N91oEtZjGppUZcO44cwiaLEhtIrXEajJhDZGQ2
-sMB9wisdnE9Ciujel3u81MQDIkUgt8y+SZuKkCkxA6jWqf3YKCT4yh20+9za+hV2
-cvaETvn/XfqY7YNlkv2fkf/FpbTb5xPCOlWcwRWNspd2LIesH4c9SZEfr/eE30/j
-wtBqDgmEcWpNBy1EHTx7pm4q/0alMVnbvpoBnWNTpQWON6kVE5DRteHaFaiK+77M
-VPTPqxRwCo565eVtdF2JRPDVSHnYghhVJDtQEs5lnaoU/jrQRJVD9SDiOoSMWboi
-DCLfXY67fIG99g3tWtMHdNlQoyiHUfDy5mdRclyLtfvsnnLRbDk=
-=dNF9
------END PGP SIGNATURE-----
+base-commit: 27fa82620cbaa89a7fc11ac3057701d598813e87
+-- 
+2.43.0
 
---qplaqrBUnUFBPBuF--
