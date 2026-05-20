@@ -1,42 +1,47 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 70E9A3E0254;
-	Wed, 20 May 2026 11:20:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA42B3E5A2F;
+	Wed, 20 May 2026 11:20:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779276019; cv=none; b=DI8S8x7UrU1ixZFvnFuY4nvL34584NwOUQhTVbo9GAdC2DOIEmfRExiMq8CroRIbadacnRZKqs1m+aogehQgLr9MZRmfTivdbE2/tZaAg/ZeooFiKoyyL6mpqPrIgHDXlyIREL7E6NCVaYXqmrbtqZFBxDsgCsT4jwGhsRtb5sE=
+	t=1779276023; cv=none; b=YaemlcNjD4vBQ57hwKmif77QX1dYQa6K+tq6TOAEo9R+V/0lRnA4zojQmU51plwOwPgFN0gm2I5e7lyX3f87ctG5eNHx6wPRUmFnfHvo1XHQlM76RRHSSWsUv8dcCg3uzy5/3faVaQ8k8zXJMfq47tq+Hxt1DWKWNpzrvs8sm1g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779276019; c=relaxed/simple;
-	bh=kQiQktG49jtjh0yrsuVGLJX+d30nIFRsfE8tZ53RrL4=;
+	s=arc-20240116; t=1779276023; c=relaxed/simple;
+	bh=jE/ap6AtQ4rLyz3VGPMSPdQOfMucbwTXULMeXJdwvuk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MeaXwF6vAu45K9SLfFEdqLtSyTv17zwmgQEeHasjAM7UpVu7yZorpZVok7NE/SVs8f2t5pzRft/r5YecQR00bD3oAOnQfap5AR1WPUbaprXPs8lDM2Cfwf5OjdM/hT5yt7y6f4QusnGRHwmhlOiK0euC+wK54iZeCmXwpiMriug=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mxX6TLZ5; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=XHK2J0675Tgn9PtFcRCzYJVxIup/03az0pS4DekUMbTpJ72wS8WKYgCcyGNpdxc6fzr06eO7smZyOVco1D7fFKuaI19jBQD3cURBDKWXHBisGONQHtihZE4ZhdjrUUyp4FKhnizra/ab+/kix2TnQTLSwQr8adBOj/7Ps4AZsMw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B/4weUHP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mxX6TLZ5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AC001F000E9;
-	Wed, 20 May 2026 11:20:14 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B/4weUHP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94A561F0089B;
+	Wed, 20 May 2026 11:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779276015;
-	bh=kggCWnZpAHNNZQeOzSoSS4pC4UvCIi90dNDXgNeGc/Q=;
+	s=k20260515; t=1779276020;
+	bh=nc2srJMlOO6QkJcXkXpQ/gYgy6cnV+CHKhJGFqFNrqQ=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=mxX6TLZ5CPYc+j7YiAfFOOw98QO+x4qOjNxT44PmLhbwhGyM4ycC5t0alIkafz2Ba
-	 QBO8fgMZK5Byb+qHDgCa6qMKZk3aJLv31+HncoqDr5LDuxUGMOHU5FW3eBwK0ph/Eh
-	 jQWDC2QihMQSLbYnpofFa2vv81ptCgGuIiW1hHWiSX1tTA0eKAlAoU1UcVi4evUx7W
-	 2WrTMYaRZLsFl7jR3CUxm2lTSxajsOAWRnBeVatOk/MrsWlV2nO0Ps+o5QC7SlwoDN
-	 0GT6Cpz8upEMMwnHtdURQaCE8wGRLx0ECpY/RCAO0YSs0eqaH/HV6GpZcMmVb2Pj93
-	 C+390pLtihELA==
+	b=B/4weUHPpReSv0OB1ihrkk9lSXMsbhGY0y9ypctV25/gRlQrnpEzJx/D/mQGgOxdY
+	 BV0R6aIOJukhEMHMGpDH52wPge/AulHOeFjKaW1gSWc4Ilv0xgUON6WaUH5Kg2mgtU
+	 stJEX2RAXTwXVZEzQ897R882liCLDA7yp2b4v58dlyQqd1BR/i28XEGrtNHaI0LGX5
+	 ssZJscbnc2tKlM+Rer6S6gk6wxHjUTJ7Eq1pCD1s4Py7fZs9DSJ3gT+0P6h46x9ipq
+	 eMDuICF5914aUfsH9cJKq3s3SUYyjyy3vvlU3TE6SfVn4BF8RL9fJwkJOCtmUQ/tmM
+	 JK3AGJk00cR8g==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Mingyu Wang <25181214217@stu.xidian.edu.cn>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+Cc: Florian Pradines <florian.pradines@gmail.com>,
+	=?UTF-8?q?Beno=C3=AEt=20Sevens?= <bsevens@google.com>,
+	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
+	gupt21@gmail.com,
+	jikos@kernel.org,
+	bentiss@kernel.org,
 	linux-i2c@vger.kernel.org,
+	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 7.0-5.10] i2c: dev: prevent integer overflow in I2C_TIMEOUT ioctl
-Date: Wed, 20 May 2026 07:18:53 -0400
-Message-ID: <20260520111944.3424570-21-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 7.0-5.10] HID: mcp2221: fix OOB write in mcp2221_raw_event()
+Date: Wed, 20 May 2026 07:18:57 -0400
+Message-ID: <20260520111944.3424570-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260520111944.3424570-1-sashal@kernel.org>
 References: <20260520111944.3424570-1-sashal@kernel.org>
@@ -46,259 +51,274 @@ List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 X-stable-base: Linux 7.0.9
 Content-Transfer-Encoding: 8bit
 
-From: Mingyu Wang <25181214217@stu.xidian.edu.cn>
+From: Florian Pradines <florian.pradines@gmail.com>
 
-[ Upstream commit 617eb7c0961a8dfcfc811844a6396e406b2923ea ]
+[ Upstream commit f097d246677b03db814c5862f368cea341b76a00 ]
 
-While fuzzing with Syzkaller, a persistent `schedule_timeout: wrong
-timeout value` warning was observed, accompanied by SMBus controller
-state machine corruption.
+mcp2221_raw_event() copies device-supplied data into mcp->rxbuf at
+offset rxbuf_idx without checking that the copy fits within the
+destination buffer. A device responding with up to 60 bytes to a
+small I2C/SMBus read can overflow the buffer.
 
-The I2C_TIMEOUT ioctl accepts a user-provided timeout in multiples of
-10 ms. The user argument is checked against INT_MAX, but it is
-subsequently multiplied by 10 before being passed to msecs_to_jiffies().
+Add a rxbuf_size field to struct mcp2221, set it alongside rxbuf in
+mcp_i2c_smbus_read(), and check rxbuf_idx + data[3] <= rxbuf_size
+before the memcpy.
 
-A malicious user can pass a large value (e.g., 429496729) that passes
-the `arg > INT_MAX` check but overflows when multiplied by 10. This
-results in a truncated 32-bit unsigned value that bypasses the
-internal `(int)m < 0` check in `msecs_to_jiffies()`.
-
-The truncated value is then assigned to `client->adapter->timeout`
-(a signed 32-bit int), which is reinterpreted as a negative number.
-When passed to wait_for_completion_timeout(), this negative value
-undergoes sign extension to a 64-bit unsigned long, triggering the
-`schedule_timeout` warning and causing premature returns. This leaves
-the SMBus state machine in an unrecoverable state, constituting a
-local Denial of Service (DoS).
-
-Fix this by bounding the user argument to `INT_MAX / 10`.
-
-Signed-off-by: Mingyu Wang <25181214217@stu.xidian.edu.cn>
-[wsa: move the comment as well]
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reported-by: Benoît Sevens <bsevens@google.com>
+Signed-off-by: Florian Pradines <florian.pradines@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-## Phase Walkthrough
+## Phase 1: Commit Message Forensics
+Step 1.1 Record: subsystem `HID: mcp2221`; action verb `fix`; claimed
+intent: prevent an out-of-bounds write in `mcp2221_raw_event()` when
+copying device-supplied I2C read data into `mcp->rxbuf`.
 
-### Phase 1: Commit Message Forensics
-Step 1.1 Record: Subsystem `i2c: dev`; action verb `prevent`; intent is
-to prevent integer overflow in the userspace `I2C_TIMEOUT` ioctl.
+Step 1.2 Record: tags found in upstream commit
+`f097d246677b03db814c5862f368cea341b76a00`: `Reported-by: Benoît Sevens
+<bsevens@google.com>`, `Signed-off-by: Florian Pradines
+<florian.pradines@gmail.com>`, `Signed-off-by: Jiri Kosina
+<jkosina@suse.com>`. No `Fixes:`, no `Cc: stable`, no `Link:` in the
+commit message.
 
-Step 1.2 Record: Tags are `Signed-off-by: Mingyu Wang
-<25181214217@stu.xidian.edu.cn>` and `Signed-off-by: Wolfram Sang
-<wsa+renesas@sang-engineering.com>` with maintainer edit note `[wsa:
-move the comment as well]`. No `Fixes:`, `Reported-by:`, `Tested-by:`,
-`Reviewed-by:`, `Link:`, or `Cc: stable` tags were present.
+Step 1.3 Record: bug description is explicit: `mcp2221_raw_event()`
+copies `data[3]` bytes into `mcp->rxbuf + rxbuf_idx` without checking
+the destination buffer size. Failure mode is kernel memory corruption
+via OOB write when a device returns up to 60 bytes for a smaller
+requested read.
 
-Step 1.3 Record: The body describes a Syzkaller-found `schedule_timeout:
-wrong timeout value` warning and SMBus state machine corruption after a
-large userspace timeout causes overflow/truncation before storing into
-signed `adapter->timeout`. Symptom is local DoS through bad timeout
-behavior; root cause is validating `arg` before multiplying by 10.
+Step 1.4 Record: not hidden; this is a direct memory-safety fix.
 
-Step 1.4 Record: This is not hidden cleanup; it is an explicit integer
-overflow and local DoS fix.
+## Phase 2: Diff Analysis
+Step 2.1 Record: one file changed, `drivers/hid/hid-mcp2221.c`, 7
+insertions. Modified areas: `struct mcp2221`, `mcp_i2c_smbus_read()`,
+`mcp2221_raw_event()`. Scope: single-file surgical fix.
 
-### Phase 2: Diff Analysis
-Step 2.1 Record: One file changed, `drivers/i2c/i2c-dev.c`; committed
-diff is 5 insertions and 4 deletions due comment movement. Modified
-function: `i2cdev_ioctl()`. Scope: single-file surgical fix.
+Step 2.2 Record: before, the driver tracked `rxbuf` and `rxbuf_idx` but
+not the destination size. After, it stores `rxbuf_size` when setting
+`rxbuf`, and rejects `rxbuf_idx + data[3] > rxbuf_size` before
+`memcpy()`.
 
-Step 2.2 Record: Before, `I2C_TIMEOUT` accepted any `arg <= INT_MAX`,
-then used `msecs_to_jiffies(arg * 10)`. After, it accepts only `arg <=
-INT_MAX / 10`, so the 10 ms unit conversion cannot exceed signed 32-bit
-range before assignment to `adapter->timeout`.
+Step 2.3 Record: bug category is memory safety, specifically OOB write
+from device-controlled length and cumulative receive offset. The earlier
+`data[3] > 60` check only capped a single MCP2221 report, not the
+destination buffer size.
 
-Step 2.3 Record: Bug category is integer overflow/truncation and type-
-range validation. Broken mechanism: userspace-controlled timeout is
-range-checked before scaling, but stored in `struct
-i2c_adapter.timeout`, which is `int`.
+Step 2.4 Record: fix is minimal and locally correct for the upstream
+parent, but direct stable backports need care because older stable
+branches still have two manual `mcp_smbus_xfer()` paths that set
+`mcp->rxbuf` directly.
 
-Step 2.4 Record: Fix quality is high: one validation bound change, no
-new API, no refactor. Regression risk is low; it rejects only extreme
-timeout values that cannot be represented safely after the documented 10
-ms scaling.
+## Phase 3: Git History
+Step 3.1 Record: `git blame` showed `rxbuf`, `rxbuf_idx`,
+`mcp_i2c_smbus_read()`, and the `memcpy()` path originated in
+`67a95c21463d0`, first contained in `v5.7-rc1`. The partial-read
+handling came from `2682468671aa0`, first contained in `v6.8-rc1`. The
+prior per-report `data[3] > 60` guard came from `b56cc41a3ae73`, first
+contained in `v6.17-rc4` and backported to stable equivalents.
 
-### Phase 3: Git History Investigation
-Step 3.1 Record: `git blame` shows the existing `arg > INT_MAX` guard
-came from `6ebec961d59b` and the `arg * 10` timeout assignment/comment
-came from `cd97f39b7cdf`. `git describe` places them at
-`v5.0-rc2~14^2~1` and `v2.6.29-rc7~62^2~2`, respectively.
+Step 3.2 Record: no `Fixes:` tag, so no tagged introducing commit to
+follow.
 
-Step 3.2 Record: No `Fixes:` tag, so no tagged introducing commit to
-follow. I still inspected `6ebec961d59b`, which originally fixed
-negative retry/timeout values and was itself stable-tagged.
+Step 3.3 Record: recent related commits include `b56cc41a3ae73` for the
+60-byte report cap, `e31b556c0ba21` for read-error cancellation, and
+`ab05515757fcb` for using `mcp_i2c_smbus_read()` for block reads.
+`ab05515757fcb` is an important context dependency for the exact
+upstream diff.
 
-Step 3.3 Record: Recent upstream `drivers/i2c/i2c-dev.c` history shows
-this candidate plus unrelated cleanup/fix commits; no prerequisite
-series was identified.
+Step 3.4 Record: author Florian Pradines had no other local commits
+found in `drivers/hid`; Jiri Kosina, the HID maintainer,
+committed/applied the patch.
 
-Step 3.4 Record: `Mingyu Wang` has this one upstream `drivers/i2c`
-commit in the checked history. Wolfram Sang committed it and is the I2C
-maintainer in the patch flow.
+Step 3.5 Record: upstream parent contains `ab05515757fcb`; stable
+branches checked from `5.10.y` through `7.0.y` do not. A stable backport
+should either adapt the patch to set `rxbuf_size` in the two remaining
+manual `mcp_smbus_xfer()` paths or include an appropriate
+prerequisite/backport.
 
-Step 3.5 Record: No dependent commit found. The patch assumes the long-
-existing `I2C_TIMEOUT` case and applies cleanly to the current `v7.0.5`
-checkout.
+## Phase 4: Mailing List / External Research
+Step 4.1 Record: `b4 dig -c f097d246677b03db814c5862f368cea341b76a00`
+found the lore thread: `https://patch.msgid.link/20260509094517.2691246-
+1-florian.pradines@gmail.com`. `b4 dig -a` showed only v1.
 
-### Phase 4: Mailing List And External Research
-Step 4.1 Record: `b4 dig -c 617eb7c0961a8` found the original submission
-at `https://patch.msgid.link/20260427025745.1100768-1-
-25181214217@stu.xidian.edu.cn`. `b4 dig -a` found only v1. The submitted
-patch was a one-line bound change; the committed version is the
-maintainer-adjusted version with comment movement.
+Step 4.2 Record: `b4 dig -w` showed recipients included Florian
+Pradines, Rishi Gupta, Jiri Kosina, Benjamin Tissoires, `linux-i2c`, and
+`linux-input`.
 
-Step 4.2 Record: `b4 dig -w` shows recipients: Mingyu Wang, Wolfram
-Sang, `linux-i2c@vger.kernel.org`, and `linux-kernel@vger.kernel.org`.
+Step 4.3 Record: reporter Benoît Sevens previously submitted a similar
+heap-buffer-overflow patch. Jiri replied that Benoît’s patch was mangled
+and that Florian’s patch would be taken with Benoît added as `Reported-
+by`. Benoît then noted the missing `mcp_smbus_xfer()` assignments, which
+is relevant for older stable bases.
 
-Step 4.3 Record: No `Link:` or `Reported-by:` tag exists. Public web
-searches did not find a syzkaller bug page for this exact issue; the
-Syzkaller finding is verified only from the commit/patch text.
+Step 4.4 Record: not part of a multi-patch series. Related patches exist
+for report-size validation, but Jiri questioned the “MCP2221 always
+sends 64-byte reports” assumption in that separate thread.
 
-Step 4.4 Record: No multi-patch series found; standalone patch.
+Step 4.5 Record: direct lore/stable WebFetch was blocked by Anubis, but
+web search found related stable discussion for prior mcp2221 fixes, not
+an exact stable request for `f097d246677b`.
 
-Step 4.5 Record: Stable-list WebFetch was blocked by lore Anubis, and
-web search did not find stable-specific discussion. No evidence of
-objections or NAKs was found in the b4-fetched mbox.
+## Phase 5: Semantic Analysis
+Step 5.1 Record: changed function is `mcp_i2c_smbus_read()`; changed
+callback is `mcp2221_raw_event()`.
 
-### Phase 5: Code Semantic Analysis
-Step 5.1 Record: Modified function: `i2cdev_ioctl()`.
+Step 5.2 Record: callers of `mcp_i2c_smbus_read()` are `mcp_i2c_xfer()`
+and `mcp_smbus_xfer()`, wired into `mcp_i2c_algo`. `mcp2221_raw_event()`
+is called from HID core before normal raw report processing, via
+`hid_input_report()` / `__hid_input_report()`.
 
-Step 5.2 Record: Call path is userspace ioctl on `/dev/i2c-*` through
-`i2cdev_fops.unlocked_ioctl = i2cdev_ioctl`; compat ioctls fall back to
-`i2cdev_ioctl()` for commands not handled specially, including
-`I2C_TIMEOUT`.
+Step 5.3 Record: affected callees include `mcp_send_data_req_status()`,
+`mcp_send_report()`, `wait_for_completion_timeout()`, and the vulnerable
+`memcpy()`.
 
-Step 5.3 Record: Key callee is `msecs_to_jiffies()`, whose runtime
-helper treats negative `unsigned int` values as infinite timeout. The
-result is assigned to `struct i2c_adapter.timeout`, verified as `int`.
+Step 5.4 Record: reachability is real: USB HID interrupt input reaches
+`mcp2221_raw_event()`, and I2C/SMBus transfers reach
+`mcp_i2c_smbus_read()` through the registered I2C adapter.
+Triggerability by an unprivileged local user was not verified; trigger
+by a malicious or buggy MCP2221-side device response is verified by the
+code path.
 
-Step 5.4 Record: Buggy path is reachable from userspace with access to
-an i2c-dev node. The corrupted timeout is then used by core retry loops
-and many bus drivers, including paths using
-`wait_for_completion_timeout()`.
+Step 5.5 Record: similar pattern found in stable branches: two manual
+`mcp_smbus_xfer()` receive-buffer assignments remain in stable branches
+and must be handled in backports.
 
-Step 5.5 Record: Similar timeout use is widespread in `drivers/i2c`, but
-this specific unchecked userspace scaling pattern was found in
-`i2c-dev`.
+## Phase 6: Stable Tree Analysis
+Step 6.1 Record: the driver was introduced in `v5.7-rc1`; local stable
+refs `5.10.y`, `5.15.y`, `6.1.y`, `6.6.y`, `6.12.y`, `6.18.y`, `6.19.y`,
+and `7.0.y` contain the vulnerable `rxbuf`/`memcpy()` pattern. `5.4.y`
+does not contain the driver.
 
-### Phase 6: Stable Tree Analysis
-Step 6.1 Record: Checked `v5.15`, `v6.1`, `v6.6`, `v6.12`, `v6.19`, and
-`v7.0`; all contain the vulnerable `arg > INT_MAX` plus
-`msecs_to_jiffies(arg * 10)` pattern.
+Step 6.2 Record: `git apply --check` against current
+`stable/linux-7.0.y` succeeds syntactically, but semantic backport work
+is needed because stable lacks `ab05515757fcb`.
 
-Step 6.2 Record: Expected backport difficulty is clean or trivial. `git
-apply --check` succeeded on current `v7.0.5`; checked stable snippets
-have matching context.
+Step 6.3 Record: prior stable branches already contain the earlier
+60-byte cap fix or its backported equivalent, but that does not fix
+cumulative overflow into smaller destination buffers.
 
-Step 6.3 Record: No alternate stable fix found by subject/phrase
-searches in local git history.
+## Phase 7: Subsystem Context
+Step 7.1 Record: subsystem is HID driver for the Microchip MCP2221 USB-
+to-I2C/SMBus bridge. Criticality: driver-specific, but memory corruption
+from USB/HID device input is high severity for affected systems.
 
-### Phase 7: Subsystem Context
-Step 7.1 Record: Subsystem is I2C userspace character-device interface,
-`drivers/i2c/i2c-dev.c`. Criticality: important, because it exposes bus
-control to userspace and affects any system using `i2c-dev`.
+Step 7.2 Record: file history shows active recent maintenance and
+multiple security/correctness fixes in this driver.
 
-Step 7.2 Record: Subsystem is mature but actively maintained. The
-affected ioctl path is long-standing.
+## Phase 8: Impact And Risk
+Step 8.1 Record: affected population is users of MCP2221 hardware or
+systems exposed to such USB HID devices.
 
-### Phase 8: Impact And Risk
-Step 8.1 Record: Affected users are systems exposing `/dev/i2c-*` to
-userspace, including embedded, hardware-management, and sensor-control
-systems.
+Step 8.2 Record: trigger is an I2C/SMBus read where the MCP2221-side
+response reports more bytes than the destination buffer can hold.
+Physical/malicious-device trigger is verified; unprivileged local
+trigger depends on device-node permissions and was not verified.
 
-Step 8.2 Record: Trigger is setting `I2C_TIMEOUT` to a large value
-through ioctl, then using affected I2C/SMBus transfer paths. It requires
-access to the device node; no capability check is present in the ioctl
-path itself.
+Step 8.3 Record: failure mode is OOB write into kernel memory, severity
+HIGH to CRITICAL due to memory corruption/crash/security risk.
 
-Step 8.3 Record: Failure mode is at least a kernel `schedule_timeout:
-wrong timeout value` warning and broken timeout behavior; commit text
-reports SMBus controller state machine corruption and local DoS.
-Severity: HIGH.
+Step 8.4 Record: benefit is high. Risk is low for the upstream parent
+and for correctly adapted stable backports. Risk is medium for blind
+cherry-picks into older stable branches because `rxbuf_size` would not
+be set in all stable receive-buffer paths.
 
-Step 8.4 Record: Benefit is high because it blocks a fuzzed, userspace-
-reachable DoS class bug in maintained stable trees. Risk is very low
-because the patch is one range check in one ioctl case.
+## Phase 9: Final Synthesis
+Evidence for backporting: real OOB write, explicit reporter, small
+patch, maintainer-applied, affects stable-supported code since `5.10.y`,
+fixes a memory-corruption class bug.
 
-### Phase 9: Final Synthesis
-Step 9.1 Record: Evidence for backporting: real integer overflow,
-Syzkaller-reported in commit text, userspace-reachable with i2c-dev
-access, high-severity timeout corruption/DoS, tiny fix, maintainer-
-applied, vulnerable code present in checked stable trees, clean apply to
-`v7.0.5`. Evidence against: no public syzkaller link, no `Reported-
-by`/`Tested-by`, and exact SMBus unrecoverable-state details were not
-independently reproduced.
+Evidence against or concerns: no `Fixes:`/`Cc: stable`; exact upstream
+diff assumes `ab05515757fcb`, absent from checked stable branches; blind
+cherry-pick is not sufficient for older stable trees.
 
-Step 9.2 Record: Stable rules: obviously correct yes; fixes real bug
-yes; important issue yes, local DoS/bad kernel timeout path; small and
-contained yes; no new features/APIs yes; stable applicability yes for
-checked trees.
+Stable rules checklist: obviously correct on its upstream base: yes.
+Fixes a real user-affecting bug: yes. Important issue: yes, kernel
+memory corruption. Small and contained: yes, 7 insertions. No new
+feature/API: yes. Applies to stable: syntactically yes on `7.0.y`, but
+older stable needs a branch-specific backport adjustment.
 
-Step 9.3 Record: No exception category needed; this is a normal bug fix,
-not device ID/quirk/DT/build/doc.
-
-Step 9.4 Record: The technical merits strongly support stable
-backporting.
+Exception category: none; this is a memory-safety fix, not a device
+ID/quirk/doc/build exception.
 
 ## Verification
-- Phase 1: Parsed `git show 617eb7c0961a8`; confirmed tags and absence
-  of `Fixes:`, `Reported-by:`, `Link:`, and stable tag.
-- Phase 2: Inspected committed diff; confirmed one-file change in
-  `i2cdev_ioctl()`.
-- Phase 3: `git blame` identified `6ebec961d59b` and `cd97f39b7cdf`;
-  `git describe` placed them before all checked maintained stable trees.
-- Phase 3: `git show 6ebec961d59b` confirmed prior timeout/retry
-  negative-value fix and stable nomination.
-- Phase 4: `b4 dig`, `b4 dig -a`, `b4 dig -w`, and mbox read found one
-  v1 patch, proper I2C recipients, and no visible objections.
-- Phase 4: WebFetch of lore was blocked by Anubis; stable-list
-  discussion and public syzkaller report remain unverified.
-- Phase 5: `rg` and file reads confirmed ioctl file operations, compat
-  fallback, `msecs_to_jiffies()`, `adapter->timeout` as `int`, and
-  downstream timeout uses.
-- Phase 6: Checked `v5.15`, `v6.1`, `v6.6`, `v6.12`, `v6.19`, and `v7.0`
-  snippets; all contain the vulnerable pattern.
-- Phase 6: `git apply --check` confirmed the upstream diff applies to
-  current `v7.0.5`.
-- Phase 8: `schedule_timeout()` source confirms negative timeout emits
-  `wrong timeout value` and returns 0.
+- Phase 1: fetched and inspected upstream commit
+  `f097d246677b03db814c5862f368cea341b76a00`.
+- Phase 2: verified exact diff is 7 insertions in `drivers/hid/hid-
+  mcp2221.c`.
+- Phase 3: ran `git blame`, `git describe --contains`, and targeted `git
+  log` without `--all`; identified `67a95c21463d0`, `2682468671aa0`,
+  `b56cc41a3ae73`, and `ab05515757fcb`.
+- Phase 4: ran `b4 dig -c`, `b4 dig -a`, `b4 dig -w`, and fetched mboxes
+  with `b4 mbox`; verified Jiri’s “Applied, thanks” and Benoît’s earlier
+  report/backport-relevant concern.
+- Phase 5: used code search and file reads to verify HID and I2C/SMBus
+  call paths.
+- Phase 6: used `git grep` against stable refs to verify vulnerable
+  patterns in `5.10.y` through `7.0.y`, and absence from `5.4.y`.
+- Phase 6: verified exact patch syntactically applies to current
+  `stable/linux-7.0.y`, but `ab05515757fcb` is not an ancestor of
+  checked stable refs.
+- Phase 8: severity is based on verified device-controlled `memcpy()`
+  into kernel buffer without destination-size check.
+- UNVERIFIED: no runtime reproducer was executed; no build test was run;
+  unprivileged local triggerability was not verified.
+
+This should be backported, but stable maintainers should not blindly
+cherry-pick it into pre-`ab05515757fcb` trees without adding
+`rxbuf_size` initialization to every remaining `mcp->rxbuf` assignment.
 
 **YES**
 
- drivers/i2c/i2c-dev.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/hid/hid-mcp2221.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 7bbe0263411eb..ccaac5e29f906 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -487,12 +487,13 @@ static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 		client->adapter->retries = arg;
- 		break;
- 	case I2C_TIMEOUT:
--		if (arg > INT_MAX)
-+		/*
-+		 * For historical reasons, user-space sets the timeout value in
-+		 * units of 10 ms.
-+		 */
-+		if (arg > INT_MAX / 10)
- 			return -EINVAL;
+diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+index ef3b5c77c38e3..badd4958bc12c 100644
+--- a/drivers/hid/hid-mcp2221.c
++++ b/drivers/hid/hid-mcp2221.c
+@@ -121,6 +121,7 @@ struct mcp2221 {
+ 	u8 *rxbuf;
+ 	u8 txbuf[64];
+ 	int rxbuf_idx;
++	int rxbuf_size;
+ 	int status;
+ 	u8 cur_i2c_clk_div;
+ 	struct gpio_chip *gc;
+@@ -323,12 +324,14 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
+ 		mcp->txbuf[3] = (u8)(msg->addr << 1);
+ 		total_len = msg->len;
+ 		mcp->rxbuf = msg->buf;
++		mcp->rxbuf_size = msg->len;
+ 	} else {
+ 		mcp->txbuf[1] = smbus_len;
+ 		mcp->txbuf[2] = 0;
+ 		mcp->txbuf[3] = (u8)(smbus_addr << 1);
+ 		total_len = smbus_len;
+ 		mcp->rxbuf = smbus_buf;
++		mcp->rxbuf_size = smbus_len;
+ 	}
  
--		/* For historical reasons, user-space sets the timeout
--		 * value in units of 10 ms.
--		 */
- 		client->adapter->timeout = msecs_to_jiffies(arg * 10);
- 		break;
- 	default:
+ 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 4);
+@@ -912,6 +915,10 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 					mcp->status = -EINVAL;
+ 					break;
+ 				}
++				if (mcp->rxbuf_idx + data[3] > mcp->rxbuf_size) {
++					mcp->status = -EINVAL;
++					break;
++				}
+ 				buf = mcp->rxbuf;
+ 				memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
+ 				mcp->rxbuf_idx = mcp->rxbuf_idx + data[3];
 -- 
 2.53.0
 
