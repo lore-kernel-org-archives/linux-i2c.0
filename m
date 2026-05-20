@@ -1,47 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA42B3E5A2F;
-	Wed, 20 May 2026 11:20:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E99663F8704;
+	Wed, 20 May 2026 11:21:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779276023; cv=none; b=YaemlcNjD4vBQ57hwKmif77QX1dYQa6K+tq6TOAEo9R+V/0lRnA4zojQmU51plwOwPgFN0gm2I5e7lyX3f87ctG5eNHx6wPRUmFnfHvo1XHQlM76RRHSSWsUv8dcCg3uzy5/3faVaQ8k8zXJMfq47tq+Hxt1DWKWNpzrvs8sm1g=
+	t=1779276064; cv=none; b=js7iWQdl1CYHE1bGcl37LHmyjatZAsGisF2H8JTShTTv8ki/ye6X4cV9OfA8GDHuaKLyfrYGmDmiQ9w5TQyMbIF2LD2UKfnhoXLBMJ5Ad84II8K7AEx/EHxxNQDyXYVzgpjZt8Ka9mE8Qrva4DEL9RfHQjZMR8ro/jx8rRjxddQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779276023; c=relaxed/simple;
-	bh=jE/ap6AtQ4rLyz3VGPMSPdQOfMucbwTXULMeXJdwvuk=;
+	s=arc-20240116; t=1779276064; c=relaxed/simple;
+	bh=zgftuuOrOu1QIoHJA9BCcsh7S4hA2JEWCcqWkr7fQUM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=XHK2J0675Tgn9PtFcRCzYJVxIup/03az0pS4DekUMbTpJ72wS8WKYgCcyGNpdxc6fzr06eO7smZyOVco1D7fFKuaI19jBQD3cURBDKWXHBisGONQHtihZE4ZhdjrUUyp4FKhnizra/ab+/kix2TnQTLSwQr8adBOj/7Ps4AZsMw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B/4weUHP; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=gcJh62biHu1fX/Ny3gO0TrAuPNw04a3em1u56AbabJvrSM5cvJjKwhoB88dGPmR71Vd6hQEsUuMeN5wuwEFYh0GzVNUr3Ru5r85LiDUe+L3eW1M/rgCbOhYpo2cSFO0EyMN9O1YUqs8jXK6hNp9sgvqhsY2604o9VQSPoLZhn0U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kkekBnqf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B/4weUHP"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94A561F0089B;
-	Wed, 20 May 2026 11:20:19 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kkekBnqf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 647FB1F00898;
+	Wed, 20 May 2026 11:21:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779276020;
-	bh=nc2srJMlOO6QkJcXkXpQ/gYgy6cnV+CHKhJGFqFNrqQ=;
+	s=k20260515; t=1779276061;
+	bh=hHkJbiFO8k9nGuGfZvBqyiBrUzuMUuZIQlM6+XtdsEs=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=B/4weUHPpReSv0OB1ihrkk9lSXMsbhGY0y9ypctV25/gRlQrnpEzJx/D/mQGgOxdY
-	 BV0R6aIOJukhEMHMGpDH52wPge/AulHOeFjKaW1gSWc4Ilv0xgUON6WaUH5Kg2mgtU
-	 stJEX2RAXTwXVZEzQ897R882liCLDA7yp2b4v58dlyQqd1BR/i28XEGrtNHaI0LGX5
-	 ssZJscbnc2tKlM+Rer6S6gk6wxHjUTJ7Eq1pCD1s4Py7fZs9DSJ3gT+0P6h46x9ipq
-	 eMDuICF5914aUfsH9cJKq3s3SUYyjyy3vvlU3TE6SfVn4BF8RL9fJwkJOCtmUQ/tmM
-	 JK3AGJk00cR8g==
+	b=kkekBnqfa7ace45tMkRos367okR4+PPI9JYXueirA6y5ec47n6z06NH8MK8fCdjBc
+	 GMwD+hYE0gGJKJCX/WX0Xoi9lZHXLgQoWEKJUMlkDAnUnIpk3KI6oRDcmle68zS+0L
+	 IoNxxfLR0ks/daIsmF398PyUPiyOhHSCWPYofl7t8nwOeQ5CYmRYuUr0iAilXWgVWR
+	 OZ4796NMTUKR0yfOtcgzKxxfhNwrbV4igTCiQK+DPEHk9wPHIc8/zc4VaRE9vG7e/0
+	 8n12Id6V6462WQ6NtC5rNOV0xPDw1GPcXfT2V/ofU5IVpt8cWK2pNSj+tv9hZPuXTm
+	 HqeugoTfC3slA==
 From: Sasha Levin <sashal@kernel.org>
 To: patches@lists.linux.dev,
 	stable@vger.kernel.org
-Cc: Florian Pradines <florian.pradines@gmail.com>,
-	=?UTF-8?q?Beno=C3=AEt=20Sevens?= <bsevens@google.com>,
+Cc: Michael Zaidman <michael.zaidman@gmail.com>,
+	=?UTF-8?q?Sebasti=C3=A1n=20Josu=C3=A9=20Alba=20Vives?= <sebasjosue84@gmail.com>,
 	Jiri Kosina <jkosina@suse.com>,
 	Sasha Levin <sashal@kernel.org>,
-	gupt21@gmail.com,
 	jikos@kernel.org,
 	bentiss@kernel.org,
 	linux-i2c@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 7.0-5.10] HID: mcp2221: fix OOB write in mcp2221_raw_event()
-Date: Wed, 20 May 2026 07:18:57 -0400
-Message-ID: <20260520111944.3424570-25-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 7.0-5.15] HID: ft260: validate i2c input report length
+Date: Wed, 20 May 2026 07:19:26 -0400
+Message-ID: <20260520111944.3424570-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
 In-Reply-To: <20260520111944.3424570-1-sashal@kernel.org>
 References: <20260520111944.3424570-1-sashal@kernel.org>
@@ -57,268 +56,269 @@ X-Patchwork-Hint: Ignore
 X-stable-base: Linux 7.0.9
 Content-Transfer-Encoding: 8bit
 
-From: Florian Pradines <florian.pradines@gmail.com>
+From: Michael Zaidman <michael.zaidman@gmail.com>
 
-[ Upstream commit f097d246677b03db814c5862f368cea341b76a00 ]
+[ Upstream commit 80c4bbb2b38513e9c3d84805fa61a0ee16d79c45 ]
 
-mcp2221_raw_event() copies device-supplied data into mcp->rxbuf at
-offset rxbuf_idx without checking that the copy fits within the
-destination buffer. A device responding with up to 60 bytes to a
-small I2C/SMBus read can overflow the buffer.
+Add two checks to ft260_raw_event() to prevent out-of-bounds reads
+from malicious or malfunctioning devices:
 
-Add a rxbuf_size field to struct mcp2221, set it alongside rxbuf in
-mcp_i2c_smbus_read(), and check rxbuf_idx + data[3] <= rxbuf_size
-before the memcpy.
+First, reject reports shorter than the 2-byte header (report ID +
+length fields). Without this, even accessing xfer->length on a
+1-byte report is an OOB read.
 
-Reported-by: Benoît Sevens <bsevens@google.com>
-Signed-off-by: Florian Pradines <florian.pradines@gmail.com>
+Second, validate xfer->length against the actual data capacity of
+the received HID report. Each I2C data report ID (0xD0 through
+0xDE) defines a different report size in the HID descriptor, so the
+available payload varies per report. A corrupted length field could
+cause memcpy to read beyond the report buffer.
+
+Reported-by: Sebastián Josué Alba Vives <sebasjosue84@gmail.com>
+Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
 
 LLM Generated explanations, may be completely bogus:
 
-## Phase 1: Commit Message Forensics
-Step 1.1 Record: subsystem `HID: mcp2221`; action verb `fix`; claimed
-intent: prevent an out-of-bounds write in `mcp2221_raw_event()` when
-copying device-supplied I2C read data into `mcp->rxbuf`.
+## Decision Summary
+This should be backported. It is a small, single-driver HID fix for a
+real out-of-bounds read in `ft260_raw_event()`, reachable from FT260 USB
+HID input reports before HID core report-size validation runs. The
+benefit is high because the failure mode is memory-safety/security
+relevant; the regression risk is low because valid reports are unchanged
+and only malformed reports are rejected.
 
-Step 1.2 Record: tags found in upstream commit
-`f097d246677b03db814c5862f368cea341b76a00`: `Reported-by: Benoît Sevens
-<bsevens@google.com>`, `Signed-off-by: Florian Pradines
-<florian.pradines@gmail.com>`, `Signed-off-by: Jiri Kosina
-<jkosina@suse.com>`. No `Fixes:`, no `Cc: stable`, no `Link:` in the
-commit message.
+## Phase Walkthrough
+### Phase 1: Commit Message Forensics
+Record: subsystem `HID: ft260`; action verb `validate`; intent is to
+validate I2C input report length.
 
-Step 1.3 Record: bug description is explicit: `mcp2221_raw_event()`
-copies `data[3]` bytes into `mcp->rxbuf + rxbuf_idx` without checking
-the destination buffer size. Failure mode is kernel memory corruption
-via OOB write when a device returns up to 60 bytes for a smaller
-requested read.
+Record: tags in commit `80c4bbb2b38513e9c3d84805fa61a0ee16d79c45`:
+`Reported-by: Sebastián Josué Alba Vives <sebasjosue84@gmail.com>`,
+`Signed-off-by: Michael Zaidman <michael.zaidman@gmail.com>`, `Signed-
+off-by: Jiri Kosina <jkosina@suse.com>`. No `Fixes:`, `Link:`, `Cc:
+stable`, `Tested-by`, `Reviewed-by`, or `Acked-by` in the committed
+message.
 
-Step 1.4 Record: not hidden; this is a direct memory-safety fix.
+Record: bug description is explicit: malicious or malfunctioning
+FT260-compatible HID devices can send too-short reports or corrupted
+length fields, causing OOB reads. Symptom/failure mode is OOB heap read
+before/inside `memcpy()`. No affected version listed in commit body.
 
-## Phase 2: Diff Analysis
-Step 2.1 Record: one file changed, `drivers/hid/hid-mcp2221.c`, 7
-insertions. Modified areas: `struct mcp2221`, `mcp_i2c_smbus_read()`,
-`mcp2221_raw_event()`. Scope: single-file surgical fix.
+Record: this is not a hidden fix; it is directly described as a memory-
+safety fix.
 
-Step 2.2 Record: before, the driver tracked `rxbuf` and `rxbuf_idx` but
-not the destination size. After, it stores `rxbuf_size` when setting
-`rxbuf`, and rejects `rxbuf_idx + data[3] > rxbuf_size` before
-`memcpy()`.
+### Phase 2: Diff Analysis
+Record: one file changed, `drivers/hid/hid-ft260.c`, `14` insertions and
+`2` deletions. Only `ft260_raw_event()` is modified. Scope is single-
+file surgical.
 
-Step 2.3 Record: bug category is memory safety, specifically OOB write
-from device-controlled length and cumulative receive offset. The earlier
-`data[3] > 60` check only capped a single MCP2221 report, not the
-destination buffer size.
+Record: before, `ft260_raw_event()` cast `data` to `struct
+ft260_i2c_input_report` and accessed `xfer->report`/`xfer->length`
+without checking `size`; then `memcpy()` used `xfer->length` after
+checking only destination capacity. After, it rejects reports shorter
+than the 2-byte header and rejects `xfer->length > size - offsetof(...,
+data)` before copying.
 
-Step 2.4 Record: fix is minimal and locally correct for the upstream
-parent, but direct stable backports need care because older stable
-branches still have two manual `mcp_smbus_xfer()` paths that set
-`mcp->rxbuf` directly.
+Record: bug category is memory safety: OOB read on truncated input and
+OOB source read on corrupted length. No locking, API, or feature
+behavior changes.
 
-## Phase 3: Git History
-Step 3.1 Record: `git blame` showed `rxbuf`, `rxbuf_idx`,
-`mcp_i2c_smbus_read()`, and the `memcpy()` path originated in
-`67a95c21463d0`, first contained in `v5.7-rc1`. The partial-read
-handling came from `2682468671aa0`, first contained in `v6.8-rc1`. The
-prior per-report `data[3] > 60` guard came from `b56cc41a3ae73`, first
-contained in `v6.17-rc4` and backported to stable equivalents.
+Record: fix quality is strong: minimal, obvious bounds checks
+immediately before the unsafe accesses/copy. Regression risk is low;
+only malformed reports are rejected. The use of actual `size` avoids the
+earlier reviewed problem of rejecting valid short FT260 report IDs.
 
-Step 3.2 Record: no `Fixes:` tag, so no tagged introducing commit to
-follow.
+### Phase 3: Git History Investigation
+Record: `git blame` shows the vulnerable header access and `memcpy()`
+came from `6a82582d9fa4` (`HID: ft260: add usb hid to i2c host bridge
+driver`, first contained around `v5.13-rc1`). The destination-buffer
+check came from `b7121e3c04440` (`HID: ft260: skip unexpected HID input
+reports`, first contained around `v6.2-rc1`).
 
-Step 3.3 Record: recent related commits include `b56cc41a3ae73` for the
-60-byte report cap, `e31b556c0ba21` for read-error cancellation, and
-`ab05515757fcb` for using `mcp_i2c_smbus_read()` for block reads.
-`ab05515757fcb` is an important context dependency for the exact
-upstream diff.
+Record: no `Fixes:` tag, so Step 3.2 is not applicable.
 
-Step 3.4 Record: author Florian Pradines had no other local commits
-found in `drivers/hid`; Jiri Kosina, the HID maintainer,
-committed/applied the patch.
+Record: recent file history shows related FT260 fixes and enhancements,
+including `b7121e3c04440`, but no prerequisite needed for the new
+source-length/header validation. For older `5.15.y`/`6.1.y`, the exact
+patch context does not apply because `b7121e3c04440` is absent, but the
+fix itself is still conceptually standalone.
 
-Step 3.5 Record: upstream parent contains `ab05515757fcb`; stable
-branches checked from `5.10.y` through `7.0.y` do not. A stable backport
-should either adapt the patch to set `rxbuf_size` in the two remaining
-manual `mcp_smbus_xfer()` paths or include an appropriate
-prerequisite/backport.
+Record: author Michael Zaidman is listed in `MAINTAINERS` as FT260
+maintainer and has a long FT260 commit history. Jiri Kosina committed
+the patch and is listed as HID core maintainer.
 
-## Phase 4: Mailing List / External Research
-Step 4.1 Record: `b4 dig -c f097d246677b03db814c5862f368cea341b76a00`
-found the lore thread: `https://patch.msgid.link/20260509094517.2691246-
-1-florian.pradines@gmail.com`. `b4 dig -a` showed only v1.
+### Phase 4: Mailing List And External Research
+Record: `b4 dig -c 80c4bbb2b3851` found the matching submission at `http
+s://patch.msgid.link/20260411062437.279838-1-michael.zaidman@gmail.com`.
 
-Step 4.2 Record: `b4 dig -w` showed recipients included Florian
-Pradines, Rishi Gupta, Jiri Kosina, Benjamin Tissoires, `linux-i2c`, and
-`linux-input`.
+Record: `b4 dig -a` showed prior versions/discussion. The original
+reporter’s v1/v2 were Cc’d to stable and had a too-broad `size < 64`
+approach. Review identified that valid FT260 reports can be shorter,
+leading to Michael’s final per-driver fix using the header size and
+actual report size.
 
-Step 4.3 Record: reporter Benoît Sevens previously submitted a similar
-heap-buffer-overflow patch. Jiri replied that Benoît’s patch was mangled
-and that Florian’s patch would be taken with Benoît added as `Reported-
-by`. Benoît then noted the missing `mcp_smbus_xfer()` assignments, which
-is relevant for older stable bases.
+Record: `b4 dig -w` showed Michael Zaidman, Jiri Kosina, Benjamin
+Tissoires, linux-input, linux-kernel, and the reporter on the final
+submission.
 
-Step 4.4 Record: not part of a multi-patch series. Related patches exist
-for report-size validation, but Jiri questioned the “MCP2221 always
-sends 64-byte reports” assumption in that separate thread.
+Record: saved lore mbox shows Jiri applied the final patch to
+`hid.git#for-7.1/upstream-fixes`. The thread also contains Michael’s
+hardware test note: tested on FT260 with I2C-attached EEPROM behind
+PCA9548 muxes, including small and larger reads.
 
-Step 4.5 Record: direct lore/stable WebFetch was blocked by Anubis, but
-web search found related stable discussion for prior mcp2221 fixes, not
-an exact stable request for `f097d246677b`.
+Record: stable-specific history exists in the earlier reporter
+submissions, including `Cc: stable@vger.kernel.org` and explicit
+OOB/security rationale. No NAK remained against the final version.
 
-## Phase 5: Semantic Analysis
-Step 5.1 Record: changed function is `mcp_i2c_smbus_read()`; changed
-callback is `mcp2221_raw_event()`.
+### Phase 5: Code Semantic Analysis
+Record: modified function is `ft260_raw_event()`.
 
-Step 5.2 Record: callers of `mcp_i2c_smbus_read()` are `mcp_i2c_xfer()`
-and `mcp_smbus_xfer()`, wired into `mcp_i2c_algo`. `mcp2221_raw_event()`
-is called from HID core before normal raw report processing, via
-`hid_input_report()` / `__hid_input_report()`.
+Record: callers traced manually: `ft260_raw_event()` is registered as
+`.raw_event`; HID core calls `hdrv->raw_event()` in
+`__hid_input_report()` before `hid_report_raw_event()` performs report-
+size checks. USB HID paths call `hid_input_report()` from
+interrupt/control completion paths.
 
-Step 5.3 Record: affected callees include `mcp_send_data_req_status()`,
-`mcp_send_report()`, `wait_for_completion_timeout()`, and the vulnerable
-`memcpy()`.
+Record: callees/side effects: `ft260_raw_event()` copies HID I2C
+response payload into `dev->read_buf`, advances `read_idx`, and
+completes the waiting I2C read when enough data arrives.
 
-Step 5.4 Record: reachability is real: USB HID interrupt input reaches
-`mcp2221_raw_event()`, and I2C/SMBus transfers reach
-`mcp_i2c_smbus_read()` through the registered I2C adapter.
-Triggerability by an unprivileged local user was not verified; trigger
-by a malicious or buggy MCP2221-side device response is verified by the
-code path.
+Record: reachability: normal FT260 I2C reads go through `i2c_adapter`
+operations (`ft260_i2c_xfer()` / `ft260_smbus_xfer()` ->
+`ft260_i2c_read()`), while the malformed input itself is supplied by the
+USB HID device. Userspace reachability depends on system I2C access
+permissions; unprivileged trigger was not verified.
 
-Step 5.5 Record: similar pattern found in stable branches: two manual
-`mcp_smbus_xfer()` receive-buffer assignments remain in stable branches
-and must be handled in backports.
+Record: similar pattern in this function is unique for the FT260 I2C
+input report copy. Related HID OOB fixes exist in recent HID history,
+supporting the general risk class but not required for this patch.
 
-## Phase 6: Stable Tree Analysis
-Step 6.1 Record: the driver was introduced in `v5.7-rc1`; local stable
-refs `5.10.y`, `5.15.y`, `6.1.y`, `6.6.y`, `6.12.y`, `6.18.y`, `6.19.y`,
-and `7.0.y` contain the vulnerable `rxbuf`/`memcpy()` pattern. `5.4.y`
-does not contain the driver.
+### Phase 6: Stable Tree Analysis
+Record: `drivers/hid/hid-ft260.c` exists in `stable/linux-5.15.y`,
+`6.1.y`, `6.6.y`, `6.12.y`, and current `v7.0.9` checkout; it does not
+exist in `4.19.y`, `5.4.y`, or `5.10.y`.
 
-Step 6.2 Record: `git apply --check` against current
-`stable/linux-7.0.y` succeeds syntactically, but semantic backport work
-is needed because stable lacks `ab05515757fcb`.
+Record: the buggy code pattern exists in `5.15.y`, `6.1.y`, `6.6.y`, and
+`6.12.y`; none contain `80c4bbb2b3851`.
 
-Step 6.3 Record: prior stable branches already contain the earlier
-60-byte cap fix or its backported equivalent, but that does not fix
-cumulative overflow into smaller destination buffers.
+Record: patch applies cleanly to `6.6.y`, `6.12.y`, and current `v7.0.9`
+using a temporary index. It does not apply unchanged to `5.15.y` or
+`6.1.y` because those lack `b7121e3c04440` context, so older branches
+need a small manual backport.
 
-## Phase 7: Subsystem Context
-Step 7.1 Record: subsystem is HID driver for the Microchip MCP2221 USB-
-to-I2C/SMBus bridge. Criticality: driver-specific, but memory corruption
-from USB/HID device input is high severity for affected systems.
+Record: no alternate stable fix for this exact validation was found.
 
-Step 7.2 Record: file history shows active recent maintenance and
-multiple security/correctness fixes in this driver.
+### Phase 7: Subsystem And Maintainer Context
+Record: subsystem is HID driver for an FTDI USB HID-to-I2C bridge.
+Criticality is driver-specific but security-relevant for systems using
+that hardware or exposed USB ports.
 
-## Phase 8: Impact And Risk
-Step 8.1 Record: affected population is users of MCP2221 hardware or
-systems exposed to such USB HID devices.
+Record: subsystem/file activity is active; recent HID history includes
+several OOB fixes, and FT260 has ongoing maintenance by Michael Zaidman.
 
-Step 8.2 Record: trigger is an I2C/SMBus read where the MCP2221-side
-response reports more bytes than the destination buffer can hold.
-Physical/malicious-device trigger is verified; unprivileged local
-trigger depends on device-node permissions and was not verified.
+### Phase 8: Impact And Risk
+Record: affected population is driver/config/hardware-specific: systems
+with `CONFIG_HID_FT260` and FT260 or malicious FT260-emulating USB HID
+devices.
 
-Step 8.3 Record: failure mode is OOB write into kernel memory, severity
-HIGH to CRITICAL due to memory corruption/crash/security risk.
+Record: trigger is a malformed HID input report from the device,
+especially during/around I2C read handling. Physical or device-level
+control is required; unprivileged local trigger was not verified.
 
-Step 8.4 Record: benefit is high. Risk is low for the upstream parent
-and for correctly adapted stable backports. Risk is medium for blind
-cherry-picks into older stable branches because `rxbuf_size` would not
-be set in all stable receive-buffer paths.
+Record: failure mode is OOB heap read, with reporter discussion noting
+possible data exposure through the I2C read buffer. Severity: HIGH,
+security-relevant memory safety.
 
-## Phase 9: Final Synthesis
-Evidence for backporting: real OOB write, explicit reporter, small
-patch, maintainer-applied, affects stable-supported code since `5.10.y`,
-fixes a memory-corruption class bug.
+Record: benefit is high for affected systems; risk is low because the
+patch is small, contained, and only rejects malformed reports.
 
-Evidence against or concerns: no `Fixes:`/`Cc: stable`; exact upstream
-diff assumes `ab05515757fcb`, absent from checked stable branches; blind
-cherry-pick is not sufficient for older stable trees.
+### Phase 9: Final Synthesis
+Evidence for backporting: real OOB read; malicious/malfunctioning device
+trigger; HID raw_event is called before HID core size validation;
+maintainer-authored final fix; hardware test notes; one function and one
+file; no new API or feature; applies cleanly to current 7.0 and newer
+stable branches.
 
-Stable rules checklist: obviously correct on its upstream base: yes.
-Fixes a real user-affecting bug: yes. Important issue: yes, kernel
-memory corruption. Small and contained: yes, 7 insertions. No new
-feature/API: yes. Applies to stable: syntactically yes on `7.0.y`, but
-older stable needs a branch-specific backport adjustment.
+Evidence against/backport concerns: older `5.15.y` and `6.1.y` need
+manual context adjustment; `4.19.y`, `5.4.y`, and `5.10.y` lack the
+driver. No `Fixes:` tag, but that is not a negative signal here.
 
-Exception category: none; this is a memory-safety fix, not a device
-ID/quirk/doc/build exception.
+Stable rules checklist: obviously correct and tested: yes, by code
+inspection and submission test notes. Fixes a real bug: yes, OOB reads.
+Important issue: yes, memory safety/security. Small and contained: yes,
+`14+/2-` in one function. No new features/APIs: yes. Can apply to
+stable: yes for 6.6/6.12/7.0; minor backport needed for 5.15/6.1.
+
+Exception categories: none; this is a direct memory-safety bug fix, not
+a device ID/quirk/build/doc exception.
 
 ## Verification
-- Phase 1: fetched and inspected upstream commit
-  `f097d246677b03db814c5862f368cea341b76a00`.
-- Phase 2: verified exact diff is 7 insertions in `drivers/hid/hid-
-  mcp2221.c`.
-- Phase 3: ran `git blame`, `git describe --contains`, and targeted `git
-  log` without `--all`; identified `67a95c21463d0`, `2682468671aa0`,
-  `b56cc41a3ae73`, and `ab05515757fcb`.
-- Phase 4: ran `b4 dig -c`, `b4 dig -a`, `b4 dig -w`, and fetched mboxes
-  with `b4 mbox`; verified Jiri’s “Applied, thanks” and Benoît’s earlier
-  report/backport-relevant concern.
-- Phase 5: used code search and file reads to verify HID and I2C/SMBus
-  call paths.
-- Phase 6: used `git grep` against stable refs to verify vulnerable
-  patterns in `5.10.y` through `7.0.y`, and absence from `5.4.y`.
-- Phase 6: verified exact patch syntactically applies to current
-  `stable/linux-7.0.y`, but `ab05515757fcb` is not an ancestor of
-  checked stable refs.
-- Phase 8: severity is based on verified device-controlled `memcpy()`
-  into kernel buffer without destination-size check.
-- UNVERIFIED: no runtime reproducer was executed; no build test was run;
-  unprivileged local triggerability was not verified.
-
-This should be backported, but stable maintainers should not blindly
-cherry-pick it into pre-`ab05515757fcb` trees without adding
-`rxbuf_size` initialization to every remaining `mcp->rxbuf` assignment.
+- [Phase 1] `git show --format=fuller --no-patch 80c4bbb2b3851`:
+  confirmed subject, message, author/committer, and tags.
+- [Phase 2] `git show --function-context 80c4bbb2b3851 --
+  drivers/hid/hid-ft260.c`: confirmed only `ft260_raw_event()` changes
+  and exact bounds checks.
+- [Phase 3] `git blame -L 1065,1085 80c4bbb2b3851^ -- drivers/hid/hid-
+  ft260.c`: confirmed vulnerable lines originated in `6a82582d9fa4` and
+  related destination check in `b7121e3c04440`.
+- [Phase 3] `git show` on `6a82582d9fa4` and `b7121e3c04440`: confirmed
+  driver introduction and related unexpected-report fix.
+- [Phase 4] `b4 dig -c`, `-a`, `-w`, and `-m`: found final lore thread,
+  revisions, recipients, maintainer apply message, and test notes.
+- [Phase 4] WebFetch/Spinics: confirmed earlier stable-cc’d reporter
+  patches and review discussion about avoiding a blanket 64-byte check.
+- [Phase 5] Read `drivers/hid/hid-core.c`: confirmed `raw_event` runs
+  before `hid_report_raw_event()` size validation.
+- [Phase 5] Searched FT260 call paths: confirmed registration as
+  `.raw_event`, USB HID input path, and I2C adapter read paths.
+- [Phase 6] `git ls-tree` and `git grep` against stable branches:
+  confirmed affected code exists in `5.15.y+` branches checked, absent
+  from older listed branches.
+- [Phase 6] Temporary-index `git apply --check`: clean for `6.6.y`,
+  `6.12.y`, and current `v7.0.9`; fails unchanged for `5.15.y`/`6.1.y`,
+  requiring minor backport.
+- [Phase 7] `MAINTAINERS` search: confirmed Michael Zaidman maintains
+  FT260 and Jiri/Benjamin maintain HID core.
+- UNVERIFIED: whether an unprivileged local user can trigger this on a
+  given distro; that depends on USB access, I2C device permissions, and
+  deployment policy.
 
 **YES**
 
- drivers/hid/hid-mcp2221.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/hid/hid-ft260.c | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index ef3b5c77c38e3..badd4958bc12c 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -121,6 +121,7 @@ struct mcp2221 {
- 	u8 *rxbuf;
- 	u8 txbuf[64];
- 	int rxbuf_idx;
-+	int rxbuf_size;
- 	int status;
- 	u8 cur_i2c_clk_div;
- 	struct gpio_chip *gc;
-@@ -323,12 +324,14 @@ static int mcp_i2c_smbus_read(struct mcp2221 *mcp,
- 		mcp->txbuf[3] = (u8)(msg->addr << 1);
- 		total_len = msg->len;
- 		mcp->rxbuf = msg->buf;
-+		mcp->rxbuf_size = msg->len;
- 	} else {
- 		mcp->txbuf[1] = smbus_len;
- 		mcp->txbuf[2] = 0;
- 		mcp->txbuf[3] = (u8)(smbus_addr << 1);
- 		total_len = smbus_len;
- 		mcp->rxbuf = smbus_buf;
-+		mcp->rxbuf_size = smbus_len;
- 	}
+diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
+index 333341e80b0ec..70e2eedb465af 100644
+--- a/drivers/hid/hid-ft260.c
++++ b/drivers/hid/hid-ft260.c
+@@ -1068,10 +1068,22 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	struct ft260_device *dev = hid_get_drvdata(hdev);
+ 	struct ft260_i2c_input_report *xfer = (void *)data;
  
- 	ret = mcp_send_data_req_status(mcp, mcp->txbuf, 4);
-@@ -912,6 +915,10 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 					mcp->status = -EINVAL;
- 					break;
- 				}
-+				if (mcp->rxbuf_idx + data[3] > mcp->rxbuf_size) {
-+					mcp->status = -EINVAL;
-+					break;
-+				}
- 				buf = mcp->rxbuf;
- 				memcpy(&buf[mcp->rxbuf_idx], &data[4], data[3]);
- 				mcp->rxbuf_idx = mcp->rxbuf_idx + data[3];
++	if (size < offsetof(struct ft260_i2c_input_report, data)) {
++		hid_err(hdev, "short report %d\n", size);
++		return -1;
++	}
++
+ 	if (xfer->report >= FT260_I2C_REPORT_MIN &&
+ 	    xfer->report <= FT260_I2C_REPORT_MAX) {
+-		ft260_dbg("i2c resp: rep %#02x len %d\n", xfer->report,
+-			  xfer->length);
++		ft260_dbg("i2c resp: rep %#02x len %d size %d\n",
++			  xfer->report, xfer->length, size);
++
++		if (xfer->length > size -
++		    offsetof(struct ft260_i2c_input_report, data)) {
++			hid_err(hdev, "report %#02x: length %d exceeds HID report size\n",
++				xfer->report, xfer->length);
++			return -1;
++		}
+ 
+ 		if ((dev->read_buf == NULL) ||
+ 		    (xfer->length > dev->read_len - dev->read_idx)) {
 -- 
 2.53.0
 
