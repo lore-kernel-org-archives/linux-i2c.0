@@ -1,140 +1,193 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+Received: from DU2PR03CU002.outbound.protection.outlook.com (mail-northeuropeazon11011005.outbound.protection.outlook.com [52.101.65.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85A5E352F87;
-	Thu, 21 May 2026 04:55:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779339314; cv=none; b=lMH6kGRYCE83vGp+5ockyoVoxydGEXv/bvM2xRgjQqZeZ0+gAyB+HtxrYabzxCVmP5mLOu8AuFQUFkVhGjzeOnaaVQqcM/nBxq+n3nPeoJiNfzVdwfjqlsOYgoxVv9xdQVYIj0YtxuWGpdJ7HotQQFBkALmlaBAhbWWWISyvbNs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779339314; c=relaxed/simple;
-	bh=a3hTZuYGs4Hx9PRIW8SWWpRBNGI+VN4U3RIM3YaSOjo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Xx2F87A0Wz81Vvw20uPbRBkY4hz2oWWGsoK2NJuHoBSMVnBpi421oX6U7X/YtPLezWPUDuw+eG8sGCWSdQAB/L5u2l7kqpDb0Mvc4q3jt9wPsxuIjmCRjd0n1AKtmbzR0hW2nyRp+CMvBMBmBrcKAhR3ki/Ud+0U6l9F29qqYtU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ftXT+ejr; arc=none smtp.client-ip=192.198.163.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F6A2395AD1;
+	Thu, 21 May 2026 06:48:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.65.5
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779346124; cv=fail; b=apQ2EPxtmgSd3XBB6Z3kuZQpZ4NrSpIXI84lMlfLV82qxRzsHZCPVVApH9b9IQGQYthuknYkLsh9lpG3d5zluP8kPtpkwO+1z39CI7WHHvXpKQ5oEtEhjaitxoWjVy5xjxmPym0vE/fKz/V+zxiNNTOlRG5EHkU5iub2k+8r8y4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779346124; c=relaxed/simple;
+	bh=tuxERLoBmd1oj58GhWOGSDkfGWPQPMKbVAghmFtjCV4=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=XwuCBgIK25O4sbHPxalKX8MCDBntybrcU7mfzSFJhqbW5CRiUQghNguRqGfHW05P3/aVyX3b0zIOTb+FoGWEWbCdfsYaZbt1mI802VGuLS2lOlMkI7uk7i77Xd6ZN11qDQ2lNtmu+8J5qeI7ILW/vesZzESdoLkI8gcmxo0t1E4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=oYAEjE3C; arc=fail smtp.client-ip=52.101.65.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ftXT+ejr"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1779339313; x=1810875313;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=a3hTZuYGs4Hx9PRIW8SWWpRBNGI+VN4U3RIM3YaSOjo=;
-  b=ftXT+ejrdRBvUYW74hL46ciqfun6yu+eE2RtIIFpS2ndlUnN7GV+6iKA
-   C2lnlmN+pxp0e41tS3i9ItGRi5fG73UKYuHCu23Jbb5Hf9Y6eWUpULIFT
-   6UJhJQiSHOSLujg5HJ7zs1xwomf1RVbTURzFQ1O2ukfmVoo0/zZ2OGqNT
-   WL5W1MzmkNv1Gt3rhNlQRColWgALrAg6FbNyMfr7pzJyWwb/09sl2e13w
-   al46/tJjQioh7VbyUEs3aATjkRrHiNwPne9LNET5Km0Ty2IrRwdDxcKsW
-   0P9tRUVVgEqQZ5ZP9o0yu1hP6lWSC6e+Q0QaMbSTXGvSLlxZfQrRNRPkE
-   Q==;
-X-CSE-ConnectionGUID: eN118laYSymrnvUYLX08EA==
-X-CSE-MsgGUID: cQyvL5WzQfWEIGHz8Qwj0Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11792"; a="82830471"
-X-IronPort-AV: E=Sophos;i="6.23,245,1770624000"; 
-   d="scan'208";a="82830471"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 May 2026 21:55:12 -0700
-X-CSE-ConnectionGUID: /hZpi2cqS/qoC2NwbiDQxA==
-X-CSE-MsgGUID: 0BEROaXqTGqSdmgWYCRC+w==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,245,1770624000"; 
-   d="scan'208";a="237393566"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa007.fm.intel.com with ESMTP; 20 May 2026 21:55:09 -0700
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id 8717095; Thu, 21 May 2026 06:55:08 +0200 (CEST)
-Date: Thu, 21 May 2026 06:55:08 +0200
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: "lianfeng.ouyang" <lianfeng.ouyang@starfivetech.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Jan Dabros <jsd@semihalf.com>, linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 0/3] i2c: dwc: Add I2C DWC master/slave support for
- StarFive JHB100
-Message-ID: <20260521045508.GF8580@black.igk.intel.com>
-References: <20260521034340.27837-1-lianfeng.ouyang@starfivetech.com>
+	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="oYAEjE3C"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Q9S3sBXLjhKqqmdiQfvUjyiNCzOp5tTdFi1nrAV+oi0kzzpwms4QWTyWtqyj76EtofmLT6YrQ6HIcqLKRYyu0T4kzpw9JZxSceV4PjVn3Ec+iXN4IMyaqCSxUL0RydGrudoK7pVA3ddirg6IuC4H5REUZ9VMJ7XuJPc6a4k6djGPawgBpVzXbuab4azPekbK8GnCEnjdmJOeSY4NYwtiWQsvMHBToIYvIatlImvpU6FxtJxZDC6KwRkOpqF+bKLBllqFwfIphC47NkjRNNuEX37B99CL0FMrpK41hWiOygxnpzR9vgTRT05FK8RLI8OFkGD5bdt+UniLkgcYxa9WiQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ffkgPYo3RsV00oz9yH4dQclwKr0ZZMPev7A712WO24o=;
+ b=CUnJiVqHEDr7FMxMBJYFSrV7ge18ynCYK91ReFif/9e7Q/kv+JY76tD6QuCh0z3xH15eNa9Mc3Yt1eJMHyoyOZhxqzulwymoxV3jI+igkNdZv/8T00h7OLpm8wgqbS6YtrTTcv8NK1iQB38Ndt4njQ3Il1fQ+YPjPMyeQxAUFtowlnzojQV/E747UPLARK8bcCYyBFLjqbgaTX6bnO80QHyVcjb7f2bwq7cofNIL22FVEgchzlwMZGEgcGtXlzfkvdtozMCqtjZcdH1NsSgQob8Q9JVCi6P+1ol8negdmA10ZkPZjAuRwWCMfCuOYE2UxsFsufLfwIgKQd0lRAvezw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector1-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ffkgPYo3RsV00oz9yH4dQclwKr0ZZMPev7A712WO24o=;
+ b=oYAEjE3CCCRqoS7rLgRNcB72pPU/bgQLKpocnVmmauyAm81fJEGhY8klKOi16KzO9ROry+Hf4CYuYHrLOvfFZ8LYyQz6MtI6Sl6I13oKEgU5YnPoKUaCHDl94N6lrJzBdsjdqxc5+C0OZJT0zX24kCq4FaDvEzneGsPnnyodxPpe5jG7P8blYTXinqK4SXPuvo2a55MRBTLMYAN76JCqN+5upMLXijWcehtutp5Bb+Nl0VOVgze14kTXOQMEQbI8fzD8R6xFoOoxIheJkwZIEQpNTQhaMtIMINAZs23pOORUnDvXBiWiLoUx+LRSN9U56I/PlRe/BkSiadkNXtzsCg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from AM0PR04MB6802.eurprd04.prod.outlook.com (2603:10a6:208:184::17)
+ by DU2PR04MB8661.eurprd04.prod.outlook.com (2603:10a6:10:2dc::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.48.17; Thu, 21 May
+ 2026 06:48:38 +0000
+Received: from AM0PR04MB6802.eurprd04.prod.outlook.com
+ ([fe80::dc36:17b6:e5b1:fa51]) by AM0PR04MB6802.eurprd04.prod.outlook.com
+ ([fe80::dc36:17b6:e5b1:fa51%4]) with mapi id 15.21.0048.016; Thu, 21 May 2026
+ 06:48:38 +0000
+From: "Carlos Song (OSS)" <carlos.song@oss.nxp.com>
+To: o.rempel@pengutronix.de,
+	kernel@pengutronix.de,
+	andi.shyti@kernel.org,
+	Frank.Li@nxp.com,
+	s.hauer@pengutronix.de,
+	festevam@gmail.com,
+	carlos.song@nxp.com
+Cc: linux-i2c@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH v2] i2c: imx: fix clock and pinctrl state inconsistency in runtime PM
+Date: Thu, 21 May 2026 14:50:38 +0800
+Message-ID: <20260521065038.2954998-1-carlos.song@oss.nxp.com>
+X-Mailer: git-send-email 2.43.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: FR4P281CA0011.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:c8::8) To AM0PR04MB6802.eurprd04.prod.outlook.com
+ (2603:10a6:208:184::17)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260521034340.27837-1-lianfeng.ouyang@starfivetech.com>
+X-MS-Exchange-MessageSentRepresentingType: 1
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AM0PR04MB6802:EE_|DU2PR04MB8661:EE_
+X-MS-Office365-Filtering-Correlation-Id: a320cd31-7f51-4867-b459-08deb704fc7a
+X-MS-Exchange-SharedMailbox-RoutingAgent-Processed: True
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|366016|19092799006|376014|52116014|56012099003|18002099003|38350700014|3023799007|11063799006;
+X-Microsoft-Antispam-Message-Info:
+	pPxa+kIlDPHK2mrrJupkVFcrllooZ1EAsZuGpTTnxUZcRoiV57n48FOL2kLGptSquJpy9ggsEUeBa24qGR7o+irvBIpV+GUuAhN7sw7tVUUpfShMMKdXvQr5EPrqh23/poNgtVR5Pqjo3pehleWLFLUXK4zQOlQhzrsuT+AQRpfY9D8K/NhZve+6W/SvIGMuliFtbuOlw3yARhg2URqifK+OKfufLReTWmrPmajklGx3DYt/zKsWlEXHyIie4Xki/de7Cyry+ljegNfA/9fJcL+pWYnG1eSOAqd4LuIajYu+hJnsbbYtS8Q0f3BiceQwP2izWMZ+ekEXkAG3JufhCDSF4cN9jnezmhaM751beItqdB3LXi9C0zdILFuHwWzvNzLwPAL1TRjb+nEg2+MYaZEThGMVz0IP7hG/bH9XYdEuHWLidXwsiFemcv1rtqPhyVMrXne7vB+rytOvENxDGGXM3wK7MW8r9EJZ9aMkOLG1RjYOlQQCV+Oj+seDRlt06qdekRR9cz0JSex91mRYtW8hRxTE4ljVgbuCbEgb53QDIRbPOaCBIEIph8VFJQLZZ2nWFq3ewGTkRiyMBO8GtAlUN0SiqaTPuMsFwKekZx7EB3st1eIr1oXM/BWkW4qfOTp9/Lh5JYvhN4x9i8UlhO1F2MSFJHqxHStn9sixnwY2XhFzL7O17CIikczRzSLtyVPJVvWyXtyuy8ME+9vTBij9o0UIQx0fcOT18vhv073M/IfL+0rf+dR/v3m93NXu
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR04MB6802.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(19092799006)(376014)(52116014)(56012099003)(18002099003)(38350700014)(3023799007)(11063799006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?vMqALD/nwjBxgisygEjfT4IFi3gefwtH8tnvPky4GBfpxSQvz0qWNGznxFqC?=
+ =?us-ascii?Q?hKLcgXLbGjGZ90t0gVOSMVWsLtrx9B/ReEDcNEWWwNPe+qwgEMBlZOpjOc+K?=
+ =?us-ascii?Q?e0ko6i0qzmvYpZDqCD5vlNCSkye8YLy8vszQ+EaDNSGrp00EFl290lS+1aBv?=
+ =?us-ascii?Q?54PQ06dYqCl1VpppsegImCK7giMyiy3S85ifeD65Z5tU6TzCbOgq5Jfj7+I7?=
+ =?us-ascii?Q?//yJmpIjTJUD3wwQOvtV1BoBJ2tzxoHP3JUsA653ldcfCzXlFWb6Fnybpogc?=
+ =?us-ascii?Q?Um+BSLlrF9ivqQh3FBo0v1NXKQ5z6NcX1+FX4Cdp+sL6zQHKqasKcb2DQTXq?=
+ =?us-ascii?Q?MLYVQRu66UL2/16zsfP6Q32eX8YpUrP+GyNu1662dXtpZ0O+Iavzl7peW4X9?=
+ =?us-ascii?Q?tVYu5696CrJQk3FKocMsIL4De4FQp0V8hDH7UfZrR4a3usiQWsIUd4pL8RM/?=
+ =?us-ascii?Q?gWWPGjyRrfA4ofQGLy6KtTtEnWyhtguquo1lxAXL6my8S/ViCt0diKsTVp/w?=
+ =?us-ascii?Q?z8QUHuMOFEW6jbKBevuInvyMcP1+08v0MSeWv7K5ai8Z9xDZg52Xbv7V10sm?=
+ =?us-ascii?Q?QLBKMO/RptgErF5Bmt2Wrpd78vseSPt1POJUy4u+8l5tS/anj4BfEzxWd1nk?=
+ =?us-ascii?Q?a6qVyY7+JedsEbOZy1DHVANw/tnTTKMxmGbVj9FtleaKXPGO7AsCPjfxOzPs?=
+ =?us-ascii?Q?UGKx8Uw29JKREcM/apd+jORDMROxlhTfzpaBypl5tjpzNP4ayRyN4ELsBoCO?=
+ =?us-ascii?Q?Nr48X7yqF4rlMxW6GIWnTRnm2Jh1bS864wBPUT1h+1wqEx2loUCUZOyFe3l6?=
+ =?us-ascii?Q?JunXKrlE6VNJ7/ZBfpXGrnsjQrFfHvH/GBsaxtdultLBobBKQBgtQOPW5bAD?=
+ =?us-ascii?Q?mkeUvgHLhak9jX9oFnHjEUUWCpopiL+QUFojUOKOIJdQpFn0pfZdHfRVrAz+?=
+ =?us-ascii?Q?sLgvph4OYNRUpm+ULwhjVyfHijjCWePKFBmr5Jt8r835X5VpYKmVjIpZdKz4?=
+ =?us-ascii?Q?pI18fJ0K7nUZW6Vg2/spa3gOqLAq681XUQweBF9stZ0y8fkgtwhTMnogmy/T?=
+ =?us-ascii?Q?YGk0IcOFsMoaRL9MsaK6t6iVqPOri29UV7YgpSbV7hdxYQXPBIIYHxhQTkqg?=
+ =?us-ascii?Q?+8DR1jiqFGfD/4G1AzYx2rWrok64+4/E5+AprjFXQUEK1HcFqrtHPR3Ndykc?=
+ =?us-ascii?Q?aqW9F0DhT3g7scBontrAbFjz4SYtW6mDWzQX1ftDLC5IMT2waKeyUZjT1Pwu?=
+ =?us-ascii?Q?LtVw09E/2g47kZ1h8yoXIESs6v5fLz3VctaBiTpCXe7a31x61oO2GPCnrURD?=
+ =?us-ascii?Q?56yGvGi3iCY4PGfJCkSo/7EE5sLlyfbK0+OGkIqyDe3Y6W056nXrEnBK/NUA?=
+ =?us-ascii?Q?DO9qLceCDSDS6w8D4yFwI1L4ErKd+ze5xF1atCGqfDGx/+FPuyR7wuptsqoL?=
+ =?us-ascii?Q?XnXwZpYvJz1NouUrR9+EYzCEwo7VC8iyw6Y6br9R5YqWmUNbVEJ72Hvr/Mxk?=
+ =?us-ascii?Q?rl9iK8b86R0+jcrFnWa62nWW52Y8GP1tHiQ7uZtlj63zlKmB8kSnoom0ueTV?=
+ =?us-ascii?Q?eUaV0NEnAW7TsCufO+TIFkaQcAqqIcs9CtBWoufXRp27U8f0EzdnRUkWjUsd?=
+ =?us-ascii?Q?8ANKW+jZLLGddVQlZ8YQJL5WOpV4iBBaxatCS9CWWnbeib/36AHgXHLhUvKa?=
+ =?us-ascii?Q?Lfz3sKkGKBe+8rtKHc0Zf+9fAbkZu8LbNN88RXjO1LipdsATQwSRbfz1k3Q9?=
+ =?us-ascii?Q?DN06qskf3Q=3D=3D?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: a320cd31-7f51-4867-b459-08deb704fc7a
+X-MS-Exchange-CrossTenant-AuthSource: AM0PR04MB6802.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 May 2026 06:48:38.1239
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: koXeZK4SPCOcUx2I2O8V9d+bswRMlzyfUYxvxhKFhUlyrs0a0beYhXYhHILc9WPd8JgYF/KmiKifrWVVqXv4aw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU2PR04MB8661
 
-Hi,
+From: Carlos Song <carlos.song@nxp.com>
 
-On Thu, May 21, 2026 at 11:43:37AM +0800, lianfeng.ouyang wrote:
-> From: Lianfeng Ouyang <lianfeng.ouyang@starfivetech.com>
-> 
-> The Synopsys DesignWare Core (DWC) I2C controller is a variant of the
-> widely-used DesignWare I2C IP, with a distinct register layout and
-> enhanced features such as SMBus Alert and programmable FIFO depths.
+In i2c_imx_runtime_suspend(), the clock is disabled before switching
+the pinctrl state to sleep. If pinctrl_pm_select_sleep_state() fails,
+the runtime suspend is aborted but the clock remains disabled, causing
+a system crash when the hardware is subsequently accessed.
 
-I wonder why they did shuffle the registers... :(
+Fix this by switching the pinctrl state before disabling the clock so
+that a pinctrl failure leaves the clock enabled and the hardware
+accessible.
 
-> This patch series introduces support for this controller as implemented
-> on the StarFive JHB100 platform, which utilizes it for both master and
-> slave operations (e.g., for MCTP over I2C).
-> 
-> The series is structured as follows:
-> 1.  Adds the device tree binding document for the snps,dwc-i2c compatible.
-> 2.  Prepares the existing i2c-designware-core by exporting and making
->     certain key functions overridable, allowing code reuse.
-> 3.  Introduces the new i2c-dwc-core driver, with separate modules for
->     master and slave functionality, based on the 2023-07 revision of the
->     Synopsys IP manual.
-> 
-> Key differences from the Existing i2c-designware Driver
-> 1.  The DWC IP's offsets for all key registers are redefined. The driver
->     maps to the correct addresses by overriding macros from the core
->     header file in a new header (i2c-dwc-core.h).
+In i2c_imx_runtime_resume(), restore the pinctrl state back to sleep
+if clk_enable() fails to keep the consistent.
 
-Instead of this, can you provide a regmap that internally maps to these
-shuffled registers?
+Fixes: 576eba03c994 ("i2c: imx: switch different pinctrl state in different system power status")
+Cc: stable@vger.kernel.org
+Signed-off-by: Carlos Song <carlos.song@nxp.com>
+Reviewed-by: Frank Li <Frank.Li@nxp.com>
+---
+Change for v2:
+  - Fix commit log to "keep the consistent" according to Frank's
+    suggestion.
+---
+ drivers/i2c/busses/i2c-imx.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-> 2.  The host and slave of DWC IP need to perform probe callbacks
->     separately, so they cannot be directly set through i2c_dew_set_mode
-> 3.  Interrupts are cleared by writing​ to the corresponding bits in the
->     INTR_CLRregister (write-1-to-clear).
-> 4.  The DWC controller's IC_ENABLEregister contains an additional
->     TX_CMD_BLOCKcontrol bit. When enabling the controller, the driver must
->     ensure this bit is cleared. When disabling, only the ENABLEbit is
->     cleared, preserving other configurations.
-> 
-> Lianfeng Ouyang (3):
->   dt-bindings: i2c: snps,dwc-i2c: Add StarFive JHB100 bindings
->   i2c: designware: Export symbols and add __weak for DWC I2C driver
->   i2c: dwc: Add StarFive JHB100 I2C master/slave support
-> 
->  .../devicetree/bindings/i2c/snps,dwc-i2c.yaml | 120 +++++
->  MAINTAINERS                                   |   7 +
->  drivers/i2c/busses/Kconfig                    |  34 ++
->  drivers/i2c/busses/Makefile                   |   3 +
->  drivers/i2c/busses/i2c-designware-common.c    |  57 ++-
->  drivers/i2c/busses/i2c-designware-core.h      |  25 +
->  drivers/i2c/busses/i2c-designware-master.c    |  14 +-
->  drivers/i2c/busses/i2c-designware-platdrv.c   |   6 +
->  drivers/i2c/busses/i2c-designware-slave.c     |   4 +-
->  drivers/i2c/busses/i2c-dwc-core.h             | 192 ++++++++
->  drivers/i2c/busses/i2c-dwc-master.c           | 441 ++++++++++++++++++
->  drivers/i2c/busses/i2c-dwc-slave.c            | 180 +++++++
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index a208fefd3c3b..28313d0fad37 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -1892,9 +1892,15 @@ static void i2c_imx_remove(struct platform_device *pdev)
+ static int i2c_imx_runtime_suspend(struct device *dev)
+ {
+ 	struct imx_i2c_struct *i2c_imx = dev_get_drvdata(dev);
++	int ret;
++
++	ret = pinctrl_pm_select_sleep_state(dev);
++	if (ret)
++		return ret;
+ 
+ 	clk_disable(i2c_imx->clk);
+-	return pinctrl_pm_select_sleep_state(dev);
++
++	return 0;
+ }
+ 
+ static int i2c_imx_runtime_resume(struct device *dev)
+@@ -1907,10 +1913,13 @@ static int i2c_imx_runtime_resume(struct device *dev)
+ 		return ret;
+ 
+ 	ret = clk_enable(i2c_imx->clk);
+-	if (ret)
++	if (ret) {
+ 		dev_err(dev, "can't enable I2C clock, ret=%d\n", ret);
++		pinctrl_pm_select_sleep_state(dev);
++		return ret;
++	}
+ 
+-	return ret;
++	return 0;
+ }
+ 
+ static int i2c_imx_suspend(struct device *dev)
+-- 
+2.43.0
 
-Also the naming is confusing so if you need any glue code I recommend
-calling it i2c-starfive-* instead.
-
->  12 files changed, 1068 insertions(+), 15 deletions(-)
->  create mode 100644 Documentation/devicetree/bindings/i2c/snps,dwc-i2c.yaml
->  create mode 100644 drivers/i2c/busses/i2c-dwc-core.h
->  create mode 100644 drivers/i2c/busses/i2c-dwc-master.c
->  create mode 100644 drivers/i2c/busses/i2c-dwc-slave.c
-> 
-> --
-> 2.43.0
