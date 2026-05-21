@@ -1,211 +1,227 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 855D53CFF73
-	for <linux-i2c@vger.kernel.org>; Thu, 21 May 2026 08:38:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A7F92FFDE1;
+	Thu, 21 May 2026 08:47:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779352705; cv=none; b=UU5AkNRrB4hVdv1EIDjcnHpV6ZAFncEnl2z+MtfmHClyMdMWSZHHXUXHuPQSug+53eu4qhJ73CMWBqXOmCc0PkozUifpMZ1iQsG4sgVv7czOl0wkvM7y+ZPU4hk8SNe9DNy6dBVtfrbgypi9agnfbOMKzqjJ5DxS2hQTU3RwdoM=
+	t=1779353235; cv=none; b=YuszTp32/VWCWMZJLv6aeCD31aJDlAksldcJv6q2r3h177p+teXEWTAi6Y1V/F1+cU7vb7mNMZMepS5hFOvlzA1I3SMRZJvoRNxm5TMnLvo3OEKq4M/aHb+NwQtt3eKY/vnbA/vKzD+YdrxpBxffk/2Vf1LLYaMAd4MwlwiR8iQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779352705; c=relaxed/simple;
-	bh=BQp3BJQMi/G+gQE50h68jsUUyT+B8hxHS7036l8NXls=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=tNXpOZ331s9zQ9R61PT6ieSGdTX8pnePqu6yuYty1pzynuJNEtCrWd3N5YkyMPLBh+XwLwmw9f4yY9lK4LYNS5bDBgwwc8g80uP1Cdu+gsikRgHnA7N7m4SNtGY4WLPwBtxP/da8SRRUBHdSdsYhNJExPiT1EFe0iTIWrUY67Io=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=ETMv0UEz; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Otkh8bus; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1779353235; c=relaxed/simple;
+	bh=4HsFpS1k2c/85J/YnhXRBGpckKnhnSfX/iEZNq8eSXo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=a3qG5t/f/TJM5ZriSQDxy0voy2efQo98SWjMNCqHvz9wf7nn1gPtbthKR6wog8d69e9M9C8x7yb+VB1GtJ9Mi88uLPclTflmAZQUdbcvGvQHvy3GKUDNxHoYluH9bShScIZ+q+ETdPX45VLu3e1IifKOu+scVnGUMkj+i7d7KB0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ak8ClmlO; arc=none smtp.client-ip=192.198.163.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="ETMv0UEz";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Otkh8bus"
-Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64L8VLRM748439
-	for <linux-i2c@vger.kernel.org>; Thu, 21 May 2026 08:38:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	jQm8FjEEV1MO6cIIhFWA2fcDzddol+KMBCUaCkXjjmU=; b=ETMv0UEzGin18yIO
-	zOHyP7x8iY+OlWlx9nKmm444bzrPOPxKwh3b2E+AZUBPwvrz34RnxbQiemMT1XNT
-	Nzaw5W04hcIM3aShKSaFmTXczPUAy1RwkVkuZEhrNUeN0B0utS61B7jMcxDL1MYi
-	dgZ7uJC6QGv2JrzBWVq0ThUYemMcLrNROllJ0Td/q1IjYV23CRsACtchry7AwdpC
-	99JE9KQ7duYxULEWMIr5Sw76zn4qf+i8X/kH6sFyOLBk49gRvkPlBf9UP1qGCU2a
-	QEyls5Pg9lt1s+gyw3fKGWsm6VpskmbS+g6c7huGknaUwlmF4lft0+EyxIMpScFp
-	7tiZLA==
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com [209.85.160.197])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4e9fb6kje9-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Thu, 21 May 2026 08:38:07 +0000 (GMT)
-Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-516ccfa109dso1704251cf.0
-        for <linux-i2c@vger.kernel.org>; Thu, 21 May 2026 01:38:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1779352687; x=1779957487; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=jQm8FjEEV1MO6cIIhFWA2fcDzddol+KMBCUaCkXjjmU=;
-        b=Otkh8buszhLUi4Y4tevtGlI8dYdHpOpe2GwRzAwngpsouynbea3UAef4NoMB3DVpXV
-         QmOMmnAVwgOcsYnynd4pVsNy7GWDp4GjWUswTnovmggfvvFLW0i2l10B4yn625Ers8tB
-         0WIImoJYIe+3cbTPQfzecCX9bQGdjdVG7fVYBVI5RA6sMFhNfkvYJNz/j5h6FEc/teN4
-         h4h94V9UUhMKh6P1jc5i4z9lBye+0jgF9p1ZYEsUkmpzdD2riVRZcxUUE22M11cuaLHd
-         jkth4y7+ygn9ER66cQAuHn+n975iEJmsGG9sNPHliT3tExoujSt9JK4TLSHaG/351Sn+
-         cQ0Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779352687; x=1779957487;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=jQm8FjEEV1MO6cIIhFWA2fcDzddol+KMBCUaCkXjjmU=;
-        b=NCUr+feGOPOspud+fb4cZ8d4KDJeV/r82rtoTFOWot6HT+8wV/AQELAdozpZqIjDYs
-         OknIYkjLkgu10w4hHMeq6WoYjeVm/DyjzfLomtFgmcfjfibK9QXfK2rMj6kwa9O1ZNHk
-         PQqQwI/orAxABi7tBDMcaJYtQrn8ZM4UUikenIYunAKDl7IATPpCEKOxrSdJekPHhK0V
-         7pl16kMjjgYuAtaptrbWRl2fbDB52NM3oOJr87FAuQ8F8bsLMuP7cshSOF4pMJgrPIKc
-         KFc6xGSVoSOELbf3aKkAWVdw+FCupHAsI1pTJ4IJO3kJwgprI5s/2fFoug5trob+ZuAq
-         MzDg==
-X-Forwarded-Encrypted: i=1; AFNElJ/ZO60B4FExLXlFrlvLYdbfnR0+dET6wH1Bwv+R8VFub8tOQF1dMf0Dg+nt8X+or/w4ErWdeHwKTpQ=@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywqm4cz9dyuSGrNxMIz0VcyKL/pG4P4o/nmeoYiaPNRKPdpUsUK
-	BeHf9mmmR0/S4UGvKN2tj6iEVMsuHkLQfVOt5tpafmcV3y4DNsABt3ErhoqHodl5gRWIp1IwIAb
-	kPAHQEIqnJeZV5Zz4ey3kNX8dLQmcHrS3x+yMT6lPsC88Kzaa5fFjsIHFxHExpR0=
-X-Gm-Gg: Acq92OEG8wtWO+doLS0FNxlb5iso319EDTmmX2QLIxNzHd9vAFXiR9keVnQ4BVnOpo9
-	CjSZclselxoLoDVFTKwQ6z6bFdIwq5Y3gaBZfZJVAoUy4LyMw6tEqzctMzdEnFzeyJq6Lh/8rfJ
-	pznSvGHwAf5kzJL3VwU1KGw9vQQupl+UK9dVvdxdD7qfUU0t0PYbNOVPq4ViBm38bdcvB99kFb5
-	T3XmdnPbiI+n4B19Y/97twvQWQICPECXLrAyTnGrIK2EkOM07M1P+twKTDBL3L4h/b6UX/oWufz
-	oPWq+BoycjE+CKBSh/MpgTGnC2h+Z/iOjDJ4XZK9a95ftaDYxceIl0VfZ/rkCgdJkNaEeOe8FeH
-	Ek5eDk8e6bB3Bx4nmoc3nCXcd6QJFAafWfJ9DfTfgMUFaap4SJxs=
-X-Received: by 2002:a05:622a:5986:b0:50f:be4f:465b with SMTP id d75a77b69052e-516c55a0cb2mr25069271cf.33.1779352686657;
-        Thu, 21 May 2026 01:38:06 -0700 (PDT)
-X-Received: by 2002:a05:622a:5986:b0:50f:be4f:465b with SMTP id d75a77b69052e-516c55a0cb2mr25068921cf.33.1779352686206;
-        Thu, 21 May 2026 01:38:06 -0700 (PDT)
-Received: from brgl-qcom.local ([2a01:cb1d:dc:7e00:bb10:ae82:b7c3:d15a])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4903caede9fsm10502405e9.14.2026.05.21.01.38.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 May 2026 01:38:05 -0700 (PDT)
-From: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-Date: Thu, 21 May 2026 10:36:43 +0200
-Subject: [PATCH 20/23] usb: chipidea: use
- platform_device_set_of_node_from_dev()
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ak8ClmlO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1779353233; x=1810889233;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=4HsFpS1k2c/85J/YnhXRBGpckKnhnSfX/iEZNq8eSXo=;
+  b=ak8ClmlOr6Pujn1rkFhIR9/CeFjZKTkhd81Ju2ST9qsGILEwsnwJhLnm
+   5/eLdrL7Gy1qVZ0otYx+DI8K3HKFFs23BOaFGVCI413esOpKFpSDoqqbc
+   XZnKdXb6IHMW1weVgIjBwbV87cdjXyTfS2kkgUH5QBkUQsgo0j2Gkqy7j
+   oLYRmzKcOl1EJbhiH6EvU36U4Kg/Bqu7AJs+9j7lVkaT6EwOgDH36dKCh
+   U3pk4BL5nVasatq3iChUHYObsbQAIuRA+y1ArMN+EQQA3FijEcusBSM7a
+   N0jtPNYOQEOroJhKYTFjF2FGltweNXthOlgOlrNHbnc4kKsT1ACvzY+Q/
+   w==;
+X-CSE-ConnectionGUID: 3kzNyfl9RtavlDU1WiGM7g==
+X-CSE-MsgGUID: CwfbKTKaSxmdEDcXGF1Fng==
+X-IronPort-AV: E=McAfee;i="6800,10657,11792"; a="80388118"
+X-IronPort-AV: E=Sophos;i="6.23,246,1770624000"; 
+   d="scan'208";a="80388118"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by fmvoesa109.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 May 2026 01:47:12 -0700
+X-CSE-ConnectionGUID: 5+WlMUKVQAG1AN7ong6/Dw==
+X-CSE-MsgGUID: bvKlZgfOQ6KcBhgShCNJBA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,246,1770624000"; 
+   d="scan'208";a="240705560"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by orviesa007.jf.intel.com with ESMTP; 21 May 2026 01:47:10 -0700
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id 15D0E95; Thu, 21 May 2026 10:47:09 +0200 (CEST)
+Date: Thu, 21 May 2026 10:47:09 +0200
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Lianfeng Ouyang <lianfeng.ouyang@starfivetech.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Jan Dabros <jsd@semihalf.com>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: =?utf-8?B?5Zue5aSNOiBbUEFUQ0ggdjEgMC8z?= =?utf-8?Q?=5D_i2c?=
+ =?utf-8?Q?=3A?= dwc: Add I2C DWC master/slave support for StarFive JHB100
+Message-ID: <20260521084709.GG8580@black.igk.intel.com>
+References: <20260521034340.27837-1-lianfeng.ouyang@starfivetech.com>
+ <20260521045508.GF8580@black.igk.intel.com>
+ <ZQ0PR01MB1269C16B272683144F824FC5820E2@ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260521-pdev-fwnode-ref-v1-20-88c324a1b8d2@oss.qualcomm.com>
-References: <20260521-pdev-fwnode-ref-v1-0-88c324a1b8d2@oss.qualcomm.com>
-In-Reply-To: <20260521-pdev-fwnode-ref-v1-0-88c324a1b8d2@oss.qualcomm.com>
-To: Lee Jones <lee@kernel.org>,
-        Mark Brown <broonie@opensource.wolfsonmicro.com>,
-        Thierry Reding <thierry.reding@avionic-design.de>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Srinivas Kandagatla <srini@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Vinod Koul <vkoul@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
-        Danilo Krummrich <dakr@kernel.org>, Rob Herring <robh@kernel.org>,
-        Saravana Kannan <saravanak@kernel.org>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <florian.fainelli@broadcom.com>,
-        Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-        Ulf Hansson <ulfh@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        Matthew Brost <matthew.brost@intel.com>,
-        =?utf-8?q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-        Peter Chen <peter.chen@kernel.org>,
-        Paul Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Hans de Goede <hansg@kernel.org>,
-        =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: brgl@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org,
-        driver-core@lists.linux.dev, devicetree@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
-        iommu@lists.linux.dev, linux-pm@vger.kernel.org, imx@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org, intel-xe@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, linux-usb@vger.kernel.org,
-        linux-mips@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=919;
- i=bartosz.golaszewski@oss.qualcomm.com; h=from:subject:message-id;
- bh=BQp3BJQMi/G+gQE50h68jsUUyT+B8hxHS7036l8NXls=;
- b=owEBbQKS/ZANAwAKAQWdLsv/NoTDAcsmYgBqDsQtJH8QMbFPV1dWqzeHalCAZ+RpZK0MKHRiJ
- e2Dnj28kPiJAjMEAAEKAB0WIQSR5RMt5bVGHXuiZfwFnS7L/zaEwwUCag7ELQAKCRAFnS7L/zaE
- w4sFD/43Yx1hMHGpbYfxWKnFqlN/WdgLuFdPU6cY8Np++YZo2rYf3uPGYaOPteE7Q4cL5RynKN9
- tR0Q5pOUhbL/jLv9XdF/FeTDp2Wtb+TtYWM4RNYXfZiLtOcIW1O1RcscMBMDg4SKDXrB9nTsFlJ
- Ets8a398cI+pUsB6ZfjOT2KSJcdnUmMi+G9PftPgIVhNrFawhhoQeIPbZjqlS5xIYc7aoup8q/F
- cHF+pVR8vRKDG1fnQKF7uZujTEhgvA55j3FSZTVCZkxCsBX0/njfg8jh+9GfGikqXOJtpFtrqIB
- YRP/K01aDpXYz4urERxYGVxMrwzGzHwEGh2xWQFo4GyeVir0TahMIMPZogHAdeXd2fwtP0+Lurc
- oF92WGf2yxlTJfSUv88Hf+XvE8g1GANQ6YH6zrRxwkbaYi1lAW7i6pVPyAZsYPHERSHgjP+9t/+
- UJeBVAVjRDPH5bZtRjJSdOzNtuBlEvMbQhzXOo91V7kuzqQjqauwM0s6wHQTd/P0JuKRyXzkBbZ
- 2WgOWEzaNqEGJyVsjDv9LxSCs8TCSw1CnD1brSHk6LTZZWG6G7GUcE6KkvtVssqWUr1hner+mI+
- /oFzTOsTFEXIwdUHSm5mfY+fzKnlCN4a0GHwdRITxW8thNpsdc6uikexiFWnwMcZhAW6Q1lW8wp
- aEsUt3Z9Z/xE1VA==
-X-Developer-Key: i=bartosz.golaszewski@oss.qualcomm.com; a=openpgp;
- fpr=169DEB6C0BC3C46013D2C79F11A72EA01471D772
-X-Authority-Analysis: v=2.4 cv=do/rzVg4 c=1 sm=1 tr=0 ts=6a0ec46f cx=c_pps
- a=EVbN6Ke/fEF3bsl7X48z0g==:117 a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10
- a=NGcC8JguVDcA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=eoimf2acIAo5FJnRuUoq:22 a=EUspDBNiAAAA:8
- a=Jb7EFCjKRuSTjX4XlnwA:9 a=QEXdDO2ut3YA:10 a=a_PwQJl-kcHnX1M80qC6:22
-X-Proofpoint-ORIG-GUID: TbW2HYZmCY5ZtPeOlXgr7ru2nq_NRVx-
-X-Proofpoint-GUID: TbW2HYZmCY5ZtPeOlXgr7ru2nq_NRVx-
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTIxMDA4MyBTYWx0ZWRfXxMRNZXDNTgNA
- xuz5bXuv4TtIfepJPVv1AHEEO6K82LM3MQ6C9Mf6aK3QzJS5DbhqeS3E1cAPiDgUnWEk+YXh8fo
- jpgue1AwYV4gPWfAhZ+MXVKb9WdrHrNgrDcXbXcxp/rki5snFTK9Wf/66I3nJ4zMSTV2GvH+DNk
- lLIaI2OgZNVobtB2UPWP3WmZuPV9SNAzhgYYJVE1E7dSGcjrka4vaFUbkjifeTgfQJiNTX4tyaD
- 8ZBsSBa5RRnkIYrD/wDsSW51sH3LXYAoKKYj5LtX1CaeybddwpJD+2FLs70xt5FskSlYcPCiRKE
- RCBzQx8R1xdNv/aV+u0udqyVBSc6Avg6pa+tlgdNOzpHkaJ+6kv8P1V5qwOuTtmP2QnRd4VjEkS
- CMX7eFOg7e9rGHeRlpl2Xqm4ScKnWgfMkXxMmnBdgl4Nq8bi5cU86Ff2BUGU5j3zjEQAMVJRJfW
- cXC6IhOAknxQqBabc9w==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-21_01,2026-05-18_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- adultscore=0 lowpriorityscore=0 bulkscore=0 suspectscore=0 clxscore=1015
- spamscore=0 malwarescore=0 phishscore=0 priorityscore=1501 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605130000 definitions=main-2605210083
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <ZQ0PR01MB1269C16B272683144F824FC5820E2@ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn>
 
-Ahead of reworking the reference counting logic for platform devices,
-encapsulate the assignment of the OF node from another device for
-dynamically allocated platform devices with the provided helper.
+Hi,
 
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
----
- drivers/usb/chipidea/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On Thu, May 21, 2026 at 07:01:08AM +0000, Lianfeng Ouyang wrote:
+> 
+> Hi, Mika
+> 
+> Thank for the comments
+> 
+> > -----邮件原件-----
+> > 发件人: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > 发送时间: 2026年5月21日 12:55
+> > 收件人: Lianfeng Ouyang <lianfeng.ouyang@starfivetech.com>
+> > 抄送: Andi Shyti <andi.shyti@kernel.org>; Rob Herring <robh@kernel.org>;
+> > Krzysztof Kozlowski <krzk+dt@kernel.org>; Conor Dooley
+> > <conor+dt@kernel.org>; Andy Shevchenko
+> > <andriy.shevchenko@linux.intel.com>; Jan Dabros <jsd@semihalf.com>;
+> > linux-i2c@vger.kernel.org; devicetree@vger.kernel.org;
+> > linux-kernel@vger.kernel.org
+> > 主题: Re: [PATCH v1 0/3] i2c: dwc: Add I2C DWC master/slave support for
+> > StarFive JHB100
+> > 
+> > Hi,
+> > 
+> > On Thu, May 21, 2026 at 11:43:37AM +0800, lianfeng.ouyang wrote:
+> > > From: Lianfeng Ouyang <lianfeng.ouyang@starfivetech.com>
+> > >
+> > > The Synopsys DesignWare Core (DWC) I2C controller is a variant of the
+> > > widely-used DesignWare I2C IP, with a distinct register layout and
+> > > enhanced features such as SMBus Alert and programmable FIFO depths.
+> > 
+> > I wonder why they did shuffle the registers... :(
+> 
+> Let's first discuss using i2c StarFive
+> 
+> the colleague who was responsible for the i2c starfive driver earlier cannot be reached, 
+> so I compared the databook of i2c designware and i2c starfive, and it seems that the versions are different
+> The homepage information of the two databooks is as follows
+> 
+> i2c designware:
+> DesignWare DW_apb_i2c Databook
+> 1.16a
+> October 2011
 
-diff --git a/drivers/usb/chipidea/core.c b/drivers/usb/chipidea/core.c
-index 7cfabb04a4fb80c6db56ccb430d290dbac61b716..5dd415f42fe0dd026e8a1cc162357e42ba8ceaec 100644
---- a/drivers/usb/chipidea/core.c
-+++ b/drivers/usb/chipidea/core.c
-@@ -888,7 +888,7 @@ struct platform_device *ci_hdrc_add_device(struct device *dev,
- 	}
- 
- 	pdev->dev.parent = dev;
--	device_set_of_node_from_dev(&pdev->dev, dev);
-+	platform_device_set_of_node_from_dev(pdev, dev);
- 
- 	ret = platform_device_add_resources(pdev, res, nres);
- 	if (ret)
+This has evolved. My databook is 2.03a which also includes additional
+features such as SMBus alert and the like. I suggest at least to get a
+recent version from Synopsys.
 
--- 
-2.47.3
+> i2c starfive:
+> DesignWare  ®  Cores Advanced I2C/SMBus Controller and Target Device Databook
+> Version 1.01a-lca00
+> July 2023
+> 
+> > 
+> > > This patch series introduces support for this controller as implemented
+> > > on the StarFive JHB100 platform, which utilizes it for both master and
+> > > slave operations (e.g., for MCTP over I2C).
+> > >
+> > > The series is structured as follows:
+> > > 1.  Adds the device tree binding document for the snps,dwc-i2c compatible.
+> > > 2.  Prepares the existing i2c-designware-core by exporting and making
+> > >     certain key functions overridable, allowing code reuse.
+> > > 3.  Introduces the new i2c-dwc-core driver, with separate modules for
+> > >     master and slave functionality, based on the 2023-07 revision of the
+> > >     Synopsys IP manual.
+> > >
+> > > Key differences from the Existing i2c-designware Driver
+> > > 1.  The DWC IP's offsets for all key registers are redefined. The driver
+> > >     maps to the correct addresses by overriding macros from the core
+> > >     header file in a new header (i2c-dwc-core.h).
+> > 
+> > Instead of this, can you provide a regmap that internally maps to these
+> > shuffled registers?
+> 
+> It seems that regmap cannot solve this difference completely, because
+> 1. The i2c designware register and i2c starfive register are not offset by the same amount, and even have different orders, for example
+> 	offset		I2c designware 	i2c starfive
+> DW_IC_DATA_CMD 	0x10 				0x78
+> DW_IC_ENABLE   		0x6c 				0x4
 
+This is fine, internally you should be able to map DW_IC_ENABLE to the
+correct offset.
+
+Of course if the content is different then this may not work.
+
+> ......
+> 
+> 2. I2c starfive has some registers with new bit definitions, which i2c designware does not have,
+> resulting in the inability to directly use i2c designware functions when accessing these registers, such as
+> DW_IC_ENABLE, i2c designware only defines bit0, while i2c starfive defines bit0~bit19
+
+My databook defines DW_IC_ENABLE (offset 0x6c) bits from 0 to 22.
+
+> ......
+> 
+> Difference point 1 should be solved by defining a register conversion table from i2c designware to i2c starfive, 
+> and then using this conversion table for reg_read and regw_write callback. 
+> However, difference point 2 seems to be solved only by overwriting weak functions?
+
+We have regmap for that so if possible at all that should be used instead.
+
+> > 
+> > > 2.  The host and slave of DWC IP need to perform probe callbacks
+> > >     separately, so they cannot be directly set through i2c_dew_set_mode
+> > > 3.  Interrupts are cleared by writing​ to the corresponding bits in the
+> > >     INTR_CLRregister (write-1-to-clear).
+> > > 4.  The DWC controller's IC_ENABLEregister contains an additional
+> > >     TX_CMD_BLOCKcontrol bit. When enabling the controller, the driver
+> > must
+> > >     ensure this bit is cleared. When disabling, only the ENABLEbit is
+> > >     cleared, preserving other configurations.
+> > >
+> > > Lianfeng Ouyang (3):
+> > >   dt-bindings: i2c: snps,dwc-i2c: Add StarFive JHB100 bindings
+> > >   i2c: designware: Export symbols and add __weak for DWC I2C driver
+> > >   i2c: dwc: Add StarFive JHB100 I2C master/slave support
+> > >
+> > >  .../devicetree/bindings/i2c/snps,dwc-i2c.yaml | 120 +++++
+> > >  MAINTAINERS                                   |   7 +
+> > >  drivers/i2c/busses/Kconfig                    |  34 ++
+> > >  drivers/i2c/busses/Makefile                   |   3 +
+> > >  drivers/i2c/busses/i2c-designware-common.c    |  57 ++-
+> > >  drivers/i2c/busses/i2c-designware-core.h      |  25 +
+> > >  drivers/i2c/busses/i2c-designware-master.c    |  14 +-
+> > >  drivers/i2c/busses/i2c-designware-platdrv.c   |   6 +
+> > >  drivers/i2c/busses/i2c-designware-slave.c     |   4 +-
+> > >  drivers/i2c/busses/i2c-dwc-core.h             | 192 ++++++++
+> > >  drivers/i2c/busses/i2c-dwc-master.c           | 441
+> > ++++++++++++++++++
+> > >  drivers/i2c/busses/i2c-dwc-slave.c            | 180 +++++++
+> > 
+> > Also the naming is confusing so if you need any glue code I recommend
+> > calling it i2c-starfive-* instead.
+> 
+> Considering that the IP was designed by Synopsys instead of StarFive, i2c DWC was used. 
+> If there are any requirements, I will change it to i2c StarFive in the next version
+
+Yes but i2c-dwc- is confusing to say the least. If StarFive is the first
+one to use this IMHO this can be called i2c-starfive-platdrv.c which then
+provides that regmap and calls into i2c-designwware- library where needed.
+
+I don't have strong opinnion about this though, just my 2c.
+
+> > 
+> > >  12 files changed, 1068 insertions(+), 15 deletions(-)
+> > >  create mode 100644
+> > Documentation/devicetree/bindings/i2c/snps,dwc-i2c.yaml
+> > >  create mode 100644 drivers/i2c/busses/i2c-dwc-core.h
+> > >  create mode 100644 drivers/i2c/busses/i2c-dwc-master.c
+> > >  create mode 100644 drivers/i2c/busses/i2c-dwc-slave.c
+> > >
+> > > --
+> > > 2.43.0
