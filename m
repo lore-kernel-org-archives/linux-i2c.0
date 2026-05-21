@@ -1,219 +1,183 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E003D2F0673
-	for <linux-i2c@vger.kernel.org>; Thu, 21 May 2026 08:51:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81A7A13D51E
+	for <linux-i2c@vger.kernel.org>; Thu, 21 May 2026 08:59:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779353491; cv=none; b=n94MF3dogE5NQItYP/ZNhB9nbIIZbsu3Thev0LHs6R6XIpFQvO4JOG1hO3VqLebZoVsyLI6iQKnlm1xrakQe4PCCKi9sJsQG4BIJ1F5Ttrd2w2tSVtUSC5pcOLnlFZRrOITr6a/NY/0f6F3EjuUdo32WH0cTHft28rDAdLZRFjs=
+	t=1779353968; cv=none; b=PT4PZ5ADJpbpd10TEzET77Ek2tG8INXslJbHIyb5r9dAnAU6w9DTh1iBb+5LTUEfXXfRUSj2nUCw0Zj0+9/O4rzQntMTa3YBqkPrDNkjGlctL7WDRJsO38pdq/n0e23lfsIS0gLkl0AqOMJ6YbyQndgpM7rPiOggy0uABWa04pA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779353491; c=relaxed/simple;
-	bh=6OXt4TN+oyzNJeMucuDRbXfo0ddns7kCLrcZYoYbhVE=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=RQA/3RBLrH/gu48QvYGfBToZQ3sm/0XAHJDSiSxJ7QMtXjs1u7JISqihnkj882Zk9Fzs+CoXzmXkOOtyn9/FULQHRXX7cKMyik23S7GJ+nQp/a0iKLLeydUL5FDMwq834OfxO5NSO2ykYRoup07shKs9Sdcbw0M9kmY//v+18iM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=i8AqoLjg; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=b0huPML0; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1779353968; c=relaxed/simple;
+	bh=T5U+sHNh9SY1A3DhxmKruyqToYLu8Kmk4BpSzUhgDA8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=mml0h3T45VUBCIshOC5cFAXzdag5sMzKOEDwXxMMwxkLlDYoiaUVGl1z2V9/L3f8fWnhtieO86ULBEyAvrbCCvCxDXzu+oVzKXtJHvzUemnue9eVIqc++yEimCr2PmLy2sPJGBvxHgXD2A1gAQkNYd1wL0xW69mz0a5SvcrKpWM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dCqnDG/3; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="i8AqoLjg";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="b0huPML0"
-Received: from pps.filterd (m0279863.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64L74SPW118977
-	for <linux-i2c@vger.kernel.org>; Thu, 21 May 2026 08:37:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	RXAOBdXd+1ffOftB4RMKqDkV2t2QAsqWzgaXmcfa9Sc=; b=i8AqoLjgiIkq7GcJ
-	lsjiR0I4WtIojYGqtVtwF52fR6iHWOrGT+oCUty/GufZbKg1DhFJDfWVn0vJe+k2
-	ofk30wp/PmTLE2YxNMSy+M499peRN3Ix32hLCyKX2PqL54mJ4UQ4B7BapeUCkf3u
-	oQWGLbTVnQaQhCzmq+IXJuEIC+nlDoW9US9uoJvmozj3/boYnXNd83U+R7S/w8eu
-	SKRCBNmW1k206+0pxOW21bjP2ZUCfreImjrKLvY1IEZhxLn+IDe+EL44FFAr/BDX
-	Q/yvzzbeIQnIWmRf5SYA6WD8oIjvbPeAEmAhwYIQBtz5Y+zD0dr4ThCpzw+Msqui
-	9un7Tg==
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com [209.85.222.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4e9ee8c1dm-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Thu, 21 May 2026 08:37:50 +0000 (GMT)
-Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-914a3e15859so69583685a.0
-        for <linux-i2c@vger.kernel.org>; Thu, 21 May 2026 01:37:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1779352670; x=1779957470; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=RXAOBdXd+1ffOftB4RMKqDkV2t2QAsqWzgaXmcfa9Sc=;
-        b=b0huPML0ejUXEeOGT30C0z1jqNtkKguiyrsaIce4m0WMT3D2+cY01SN2bWRsdWyTR8
-         nwfwvd4i8y6Q1DC1ImVFFDVQwcLZDsHuociLGwFXN4AbhE278z5Ca+qGggoBQ/uCF81j
-         7kjSr6QNz3KjfhPoqrSWKcyTxf6LxuuprA7hhH9BT95BXO220o8Yjfpsh9kpXkk8ts2P
-         9Ufu5dCJPPfVjRD/a78LjoVLWgYvvSO1TzYoEZpCMbwOtBw4u8sU95Ofdo8MEKx9J0mM
-         UMgPQUeKQVA/EqeNRxaWIT2bNykNlVJZ4WR6LFJJZ9t4wzbK/OIPKGQ17scaJaH7qMSw
-         dAqw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779352670; x=1779957470;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=RXAOBdXd+1ffOftB4RMKqDkV2t2QAsqWzgaXmcfa9Sc=;
-        b=Hp3M/IAi4PfHZOGXZjWyA+4GZZmLIfd7ILt+2WqV40OySxAVAjf8dDa6WLHhDKtwYM
-         SrFeICu5qGnwcRMlYF+ZlGKiTzCIIpxRQb8gcVLs9W2Fxx1pBpaB0GMHMCOHYbAKwbJT
-         H4YB4svqa0wquGLt+uzwKvzOOLa4Njr9JnvBfS/yTBPYjNpVd0dKEWDwdvt7AaisgmJ4
-         j0gdXU9aft9VcSY1EYvAIPfuWQjOoaVSnGehLFpRCch5wiLrVWT/1wW/mREXVcejZSAY
-         CiW8nwUWSURlQLwN1M76jsidJYQVWC34k4x1IWjblCUed8WS4nOkzY//cozGKEWAMZNV
-         bPRA==
-X-Forwarded-Encrypted: i=1; AFNElJ+aqkMF+f1Eni05dPS9n2ErUb/ZYilteSPJLHsR4VbSuGYfZfXETzGh6aDAkTBB6I933ZVnXRpivi0=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyqraEokzvDsd+dLnsmsdRGO+KiBfg5l/tPNkqc0NVtDw/YXsnB
-	C3wcLsROx5NTY3IO1OZp2oFBhH75ykfTa6Es4XqY7CbAj0a64lMKK9nTVuQrlfYWnZW07a9yV51
-	VnDzKQTWOTErnM1Y1MFGVk7ShOGvouzM9FNuypgFGilh182VLZfWQVOL5vccT/qg=
-X-Gm-Gg: Acq92OHQGAqmyKD6O2EsIDQMjHkwQGWZLbuYskrH5qQKCWwI+cHXuUipgTKHORIt6gV
-	gmemAphWuqFBEQTpsWfajjUVqKd7PTono1Juq5y6ExBUeDcIldYyhZJLeoAq/xYlmIEgUfwxm9x
-	EWRpHvVdAHWLoJGJ8h7Cg+hJ7vlJtlNsuywYqYxDKMwUcqMqeniD6GNugJ7A2gpqt8aA8nbTKCd
-	nlI8h91C9CymAH/jM/CYLDz5j5zbUEXU1A9UX8YCdCdhCF7Lp8YJWQYsYj8lg7lYA6ZA4WSkxY9
-	tUXHTBgNaJwPhWGgaEbc7ORVXRY9mOVQM6IlYeLSRisuZTiqcCKaNAf/Zw7RTKYsfhAJBZ3Ed8Q
-	uFF5e3mA4DAjGB7U8IhHN9Ak3MZxLcpPmnIQCIT4KOSCEx3sn3OY=
-X-Received: by 2002:ac8:5a95:0:b0:50b:4b3c:7554 with SMTP id d75a77b69052e-516c5489cadmr25665651cf.10.1779352669979;
-        Thu, 21 May 2026 01:37:49 -0700 (PDT)
-X-Received: by 2002:ac8:5a95:0:b0:50b:4b3c:7554 with SMTP id d75a77b69052e-516c5489cadmr25663371cf.10.1779352666534;
-        Thu, 21 May 2026 01:37:46 -0700 (PDT)
-Received: from brgl-qcom.local ([2a01:cb1d:dc:7e00:bb10:ae82:b7c3:d15a])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4903caede9fsm10502405e9.14.2026.05.21.01.37.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 May 2026 01:37:45 -0700 (PDT)
-From: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-Date: Thu, 21 May 2026 10:36:36 +0200
-Subject: [PATCH 13/23] net: bcmgenet: use platform_device_set_of_node()
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dCqnDG/3"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3653C1F00A3C
+	for <linux-i2c@vger.kernel.org>; Thu, 21 May 2026 08:59:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779353967;
+	bh=x85DMC3FN6co4hcBdHKLxdvR9gcuHPSmRt07VBnTAPc=;
+	h=References:In-Reply-To:From:Date:Subject:To:Cc;
+	b=dCqnDG/38TPSTZM7pnxtHCFEBDRqWmkm8LU9Uw/G8OUQaPj8WQ/tWrG5/5ZQgnOD9
+	 R5JsUlUHDiOxi8RbqfUi8unsRhDAOG7ACdZIqlnNcYcI5Vpw3D2QlXjkfK1K5Vntqm
+	 UPz9r7Mdh0RpyxxzW34/OlD2YfQYVQ51/VxL4eqbwfavnNNBV9Mavf5Py9ygXP67DD
+	 vheLRMRh8cwhRfM7VrxS6P0nOx9w/giT/1aSiAzJN9yo/GkMg6wUbhH9MG944GZBDS
+	 TsmMCIRjGZO5Gj7ubdO9EHaYo6dA3dBaDfvSftmKVaE6w9ZuHPcebOEtnlkFG6wBol
+	 atL9FFFlIBQvw==
+Received: by mail-dl1-f54.google.com with SMTP id a92af1059eb24-1331e851faaso3058716c88.1
+        for <linux-i2c@vger.kernel.org>; Thu, 21 May 2026 01:59:27 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ/5yFn+6BfFpeRojtk8gNrRwqkD6yZVp0G0CK1ehNWdDPeK2rR5KAkoOnJrseaS6RX4N7Upnap+5Hw=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxCyIh6Iq67mza7cZ4xibnV/LSdp6eWLlIXSvyXCwbbXZZyCUbi
+	pBCzYvlWBHtduU97YPp7ieCdPIgVSIsf4MlfvDjhHjIRFM9Oop9XHEz9o9hI6GbMFgb/UJHaoGp
+	NS0cQcIoi3MPnxaFUMMZqoyY4SUBHQGXSfM5fiyS83Q==
+X-Received: by 2002:a05:7022:404:b0:12d:c9b6:bbe2 with SMTP id
+ a92af1059eb24-13634938379mr812446c88.2.1779353966611; Thu, 21 May 2026
+ 01:59:26 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260521-pdev-fwnode-ref-v1-13-88c324a1b8d2@oss.qualcomm.com>
-References: <20260521-pdev-fwnode-ref-v1-0-88c324a1b8d2@oss.qualcomm.com>
-In-Reply-To: <20260521-pdev-fwnode-ref-v1-0-88c324a1b8d2@oss.qualcomm.com>
-To: Lee Jones <lee@kernel.org>,
-        Mark Brown <broonie@opensource.wolfsonmicro.com>,
-        Thierry Reding <thierry.reding@avionic-design.de>,
-        Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-        Andrew Lunn <andrew+netdev@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Srinivas Kandagatla <srini@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Vinod Koul <vkoul@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
-        Danilo Krummrich <dakr@kernel.org>, Rob Herring <robh@kernel.org>,
-        Saravana Kannan <saravanak@kernel.org>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-        Robin Murphy <robin.murphy@arm.com>, Doug Berger <opendmb@gmail.com>,
-        Florian Fainelli <florian.fainelli@broadcom.com>,
-        Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-        Ulf Hansson <ulfh@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        Matthew Brost <matthew.brost@intel.com>,
-        =?utf-8?q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-        Peter Chen <peter.chen@kernel.org>,
-        Paul Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        Hans de Goede <hansg@kernel.org>,
-        =?utf-8?q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: brgl@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org,
-        driver-core@lists.linux.dev, devicetree@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
-        iommu@lists.linux.dev, linux-pm@vger.kernel.org, imx@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org, intel-xe@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org, linux-usb@vger.kernel.org,
-        linux-mips@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1245;
- i=bartosz.golaszewski@oss.qualcomm.com; h=from:subject:message-id;
- bh=6OXt4TN+oyzNJeMucuDRbXfo0ddns7kCLrcZYoYbhVE=;
- b=owEBbQKS/ZANAwAKAQWdLsv/NoTDAcsmYgBqDsQptve0VPcHpfn+e8CyDZ9KcfXURx6hUsS4v
- XFGh941uXeJAjMEAAEKAB0WIQSR5RMt5bVGHXuiZfwFnS7L/zaEwwUCag7EKQAKCRAFnS7L/zaE
- wyw5D/42tCVAUl2uN4fynwbhyfyAyJgpscqW776mT+6TzShiQ1UGxlOeIgCoWTORPdoxwAORBgi
- PPFLgP8bYFnocTq4h5weZ5vNP/hv2g/J9Lmb/zt927UW8vXxtOottjnSBfTm0u0U/GJ8rgc88T9
- mpUOe+BfoixY7hzEMo1fIyF3WIaT+57oPDmyTNSED0/c4zBG0NtfjvfR+gbfyw+PuIfqaYcqeJk
- tuNS1ok36qM3GOUcpctRgzg3Gcj1c+Iom9FxP0Bxk1yxox6RfTH4YztKKst7Mak64vyUiHCbs8M
- cE6y1P6VvOYN9ijA/4JECYo7OgRJXtVQi1bQi2sofdLn4SkbV9PZe5fLALG3ChG2z+5CM6DLxnM
- ZTA0eltoOvmsMrE2KZKeX1cvWCqDNo1HP2xCCVBojp0pJ8mz7D3yTBHU0hPu6gxae8kQbUK/6PH
- xu98r6TPU4z+Rqt99oM/SiN9eDH0DJrtNLwXfnG3TvI60P81jYDEL0d3DAeVHomaowjoVNIef+L
- drTrKdaF+coQ6GqegTUdvOp7QizyZZfUuFufo6Io50ykK1jKebxa6rHDPedMyGM5//lsygsV7ZP
- qrz3VtMmHLMLX+azIV7Z/k3f6O6HZOx+2rpYF+AVt8E7wZbqRkNX3nvyQt+iEqoBKw3npAZOhCa
- vgpklhyoZwDkrzw==
-X-Developer-Key: i=bartosz.golaszewski@oss.qualcomm.com; a=openpgp;
- fpr=169DEB6C0BC3C46013D2C79F11A72EA01471D772
-X-Proofpoint-ORIG-GUID: GT7RubRqLIBwFULR7YpC6VaPw8KBoAqh
-X-Authority-Analysis: v=2.4 cv=e5k2j6p/ c=1 sm=1 tr=0 ts=6a0ec45e cx=c_pps
- a=HLyN3IcIa5EE8TELMZ618Q==:117 a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10
- a=NGcC8JguVDcA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=yOCtJkima9RkubShWh1s:22 a=EUspDBNiAAAA:8
- a=_l4veLwUkFW-k-pZneUA:9 a=QEXdDO2ut3YA:10 a=bTQJ7kPSJx9SKPbeHEYW:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTIxMDA4MyBTYWx0ZWRfX4NfXz4ZeZ2m9
- n274yuJohVw9p8tyhJbUUKmPecf4H/TyI56BOqh1nqLAgCQAjP3tedMao+sHXic7NyJdaQZxEED
- MGDfjG8e4rIXh6rYgrllv8Cetx3VYcK16pirm4htb/bkAQbVDVF9vpXltMVN4Wd/aeEKS3LOdyY
- EpXNyTg1aciaBu/bEwnPQnfgHgCznVvq+jnYzxLrcmX3SR5JqXR2R0Cb96UID24inXmCHHuhWKE
- MLTMcQ3L8kGkDFdwZScwGHmoL3oLYIJ+C6RuagZUQ7ty+UB2OPEkEjoDV4pbGsggM+Kx+i16Ea5
- L64fbVVTj5qsrvYdNORnL4BPAiQzf2gBI37nYzLbIXU4TdOtYvQtdpGwNMxWa1H4VWMSOTZDUys
- k6iDF5ZwO/a5vikvP87Xr0QHpJlsrGBMLEd9v4CjQN1JLrbKlaw9IM4TWY64HqwgXJXxNqoYa50
- 3I0EKDf1wu0+qM/UUnQ==
-X-Proofpoint-GUID: GT7RubRqLIBwFULR7YpC6VaPw8KBoAqh
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-21_01,2026-05-18_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 phishscore=0 malwarescore=0 bulkscore=0 lowpriorityscore=0
- adultscore=0 suspectscore=0 priorityscore=1501 clxscore=1015 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605130000 definitions=main-2605210083
+References: <20260520173129.1382489-1-markus.stockhausen@gmx.de>
+In-Reply-To: <20260520173129.1382489-1-markus.stockhausen@gmx.de>
+From: Bartosz Golaszewski <brgl@kernel.org>
+Date: Thu, 21 May 2026 10:59:06 +0200
+X-Gmail-Original-Message-ID: <CAMRc=Mf6EQDF-fSVb+jhmLvMUi2eJ5QhukKC08S-T12HKinibw@mail.gmail.com>
+X-Gm-Features: AVHnY4JpsDyZ1J4AFcHu2FM0JrI0aufZRorn5QAWhoQughYlsq5ZWEu9WPq198g
+Message-ID: <CAMRc=Mf6EQDF-fSVb+jhmLvMUi2eJ5QhukKC08S-T12HKinibw@mail.gmail.com>
+Subject: Re: [PATCH v3] i2c: i2c-gpio: Enhance driver for buses with shared SCL
+To: Markus Stockhausen <markus.stockhausen@gmx.de>
+Cc: wsa+renesas@sang-engineering.com, andi.shyti@kernel.org, linusw@kernel.org, 
+	linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Ahead of reworking the reference counting logic for platform devices,
-encapsulate the assignment of the OF node for dynamically allocated
-platform devices with the provided helper.
+On Wed, May 20, 2026 at 7:31=E2=80=AFPM Markus Stockhausen
+<markus.stockhausen@gmx.de> wrote:
+>
+> Some lower end hardware (especially Realtek based switches) are
+> designed with multiple I2C buses that share a single clock line.
+> E.g. the D-Link DGS-1250-28X realizes 4 I2C SFP busses with 5 gpios.
+>
+> Enhance the i2c-gpio driver so it can handle such hardware designs.
+>
+> - Detect GPIOs that are used by multiple I2C buses in the dts by
+>   using a unique identifier for each managed SCL.
+>
+> - The first probing instance allocates and requests the shared SCL
+>   GPIO plus an associated rt_mutex. Subsequent instances detect the
+>   existing entry via the identifier and increment a reference count
+>   to reuse the descriptor.
+>
+> - All data transfers are serialized via custom lock_ops that handle
+>   both the standard adapter bus lock and the shared SCL mutex. This
+>   ensures mutual exclusion across adapters sharing the clock line.
+>
+> This patch was successfully tested on Linksys LGS310C that has two
+> SFP slots with two GPIO based I2C buses that share a sinlge SCL.
+> Test environment: OpenWrt snapshot ported to kernel 6.19.14
+> including CONFIG_GPIO_SHARED=3Dy and CONFIG_GPIO_SHARED_PROXY=3Dy.
+>
 
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
----
- drivers/net/ethernet/broadcom/genet/bcmmii.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+Thanks for testing!
 
-diff --git a/drivers/net/ethernet/broadcom/genet/bcmmii.c b/drivers/net/ethernet/broadcom/genet/bcmmii.c
-index a4e0d5a682687533a1b034ccf56cdb363d6b7786..451b23a039cebb777f356f64924838230052dc45 100644
---- a/drivers/net/ethernet/broadcom/genet/bcmmii.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmmii.c
-@@ -490,10 +490,14 @@ static int bcmgenet_mii_register(struct bcmgenet_priv *priv)
- 	/* Retain this platform_device pointer for later cleanup */
- 	priv->mii_pdev = ppdev;
- 	ppdev->dev.parent = &pdev->dev;
--	if (dn)
--		ppdev->dev.of_node = bcmgenet_mii_of_find_mdio(priv);
--	else
-+
-+	if (dn) {
-+		struct device_node *np __free(device_node) = bcmgenet_mii_of_find_mdio(priv);
-+
-+		platform_device_set_of_node(ppdev, np);
-+	} else {
- 		ppd.phy_mask = ~0;
-+	}
- 
- 	ret = platform_device_add_resources(ppdev, &res, 1);
- 	if (ret)
+> Signed-off-by: Markus Stockhausen <markus.stockhausen@gmx.de>
+>
+> ---
+>
+> v2 -> v3
+>   - Fix lockdep_set_class() with DEBUG_LOCK_ALLOC=3Dy
+> v2: https://lore.kernel.org/linux-i2c/20260518161013.900504-1-markus.stoc=
+khausen@gmx.de/
+>
+> v1 -> v2
+>   - Convert fault injector to scl->gpio (reported by test robot)
+>   - Use rt_mutex and i2c_lock_operations instead of pre/post_xfer
+>     (logic taken from i2c-cht-wc.c and enhanced)
+>   - i2c_gpio_lookup_scl()
+>     - Improve list control flow
+>     - Improve comment
+>     - Carve out SCL node comparison into i2c_gpio_scl_matches()
+>   - Drop "valid" attribute and directly check gpiod instead
+>   - Improve fwnode args check for #gpio-cells=3D1 case
+>   - Add sda/scl cleanup during probe failures
+>   - Replace dev_info() with dev_dbg()
+>   - Reflect changed locking in commmit message
+>   - Tested with config option GPIO_SHARED/GPIO_SHARED_PROXY
+>     as requested by Bartosz
+> v1: https://lore.kernel.org/linux-i2c/20260514092042.3265986-1-markus.sto=
+ckhausen@gmx.de/
+>
+> v0 -> v1
+>   - Initially this enhancement was submitted as a new driver with
+>     a new devicetree structure. After some discussion Wolfram
+>     advised to make only an enhancement to the i2c-gpio driver.
+> v0: https://lore.kernel.org/linux-i2c/20260511162528.84508-1-markus.stock=
+hausen@gmx.de/
+> ---
+>  drivers/i2c/busses/i2c-gpio.c | 208 +++++++++++++++++++++++++++++++---
+>  1 file changed, 194 insertions(+), 14 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.=
+c
+> index f4355b17bfbf..80e1347ecbac 100644
+> --- a/drivers/i2c/busses/i2c-gpio.c
+> +++ b/drivers/i2c/busses/i2c-gpio.c
+> @@ -18,9 +18,23 @@
+>  #include <linux/property.h>
+>  #include <linux/slab.h>
+>
+> +static LIST_HEAD(i2c_gpio_scl_list);
+> +static DEFINE_MUTEX(i2c_gpio_scl_list_lock);
+> +static struct lock_class_key i2c_gpio_scl_lock_key;
+> +
+> +struct i2c_gpio_scl_data {
+> +       struct fwnode_handle *fw_node;
+> +       u32 fw_pin;
+> +       u32 fw_flags;
+> +       struct gpio_desc *gpio;
+> +       struct rt_mutex lock;
+> +       refcount_t ref;
+> +       struct list_head list;
+> +};
+> +
+>  struct i2c_gpio_private_data {
+>         struct gpio_desc *sda;
+> -       struct gpio_desc *scl;
+> +       struct i2c_gpio_scl_data *scl;
+>         struct i2c_adapter adap;
+>         struct i2c_algo_bit_data bit_data;
+>         struct i2c_gpio_platform_data pdata;
+> @@ -31,6 +45,11 @@ struct i2c_gpio_private_data {
+>  #endif
+>  };
+>
+> +static inline struct i2c_gpio_private_data *adap_to_priv(struct i2c_adap=
+ter *adap)
+> +{
+> +       return container_of(adap, struct i2c_gpio_private_data, adap);
+> +}
+> +
+>  /*
+>   * Toggle SDA by changing the output value of the pin. This is only
+>   * valid for pins configured as open drain (i.e. setting the value
+> @@ -53,7 +72,7 @@ static void i2c_gpio_setscl_val(void *data, int state)
+>  {
+>         struct i2c_gpio_private_data *priv =3D data;
+>
+> -       gpiod_set_value_cansleep(priv->scl, state);
+> +       gpiod_set_value_cansleep(priv->scl->gpio, state);
 
--- 
-2.47.3
+That one bothers me a bit. We're driving a clock line but may end up
+sleeping? That doesn't sound right. We typically do:
 
+setscl();
+udelay();
+
+I know it's been like this before and maybe I'm not understanding the
+whole picture so feel free to disregard the comment.
+
+Reviewed-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
