@@ -1,117 +1,112 @@
-Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D73B2FE057
-	for <linux-i2c@vger.kernel.org>; Fri, 22 May 2026 20:35:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C5252298CC4;
+	Sat, 23 May 2026 02:19:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779482135; cv=none; b=M+2HC+pH7rn1AZFZnR9zIjdQh6T1yLQ571QLVuxLmoqsg3qn+UP6IrJQZ3uNsNmR1ut0XvxJOwMIzRXHpWxBIVFlj8vZakRI8lKo9U+3VI6JLnwbmv9K+7BGPXJa/i48IAYT310hO7Uo4Uf8mF/COLFyCJ4KDO990IZdWjTTyRU=
+	t=1779502795; cv=none; b=nfOSyHCuhIalw0NdHwF/NMf19BVEMLANIjcieZMtbd82ULx36t3P0/KCanS6c3W5UZEICLe12NIYL1nZxrtF88Jf02Mx+RerXntkxawpPsi7b8rmi41O5wk4S3pUAd1/s/xjF5vo2iIp1TghyfYVg1iuDmnbP3ia5BDjk6CM+ps=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779482135; c=relaxed/simple;
-	bh=Q9ZIxPqq+avWubd/LonKxN16U7vM7tUrFVIGXJ359Kw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=SKFma+JxLiBuTZ4dmaDxrKM80AJt/CUp4/UDvHgheK5n+fVW2DqWKC6jcDgmpYyr0RFwqcvwnQMEgiD/ICgBPx7evlexSz9WQ6hWEnpDEsYbuxKpfyXAKfSAVVAjHsvVdgfFsa2nMVOJ2/0Tgu4tk/5G0MPTt65KAu8nPZh1LsU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=VeVEfuIV; arc=none smtp.client-ip=209.85.221.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1779502795; c=relaxed/simple;
+	bh=Jb1cgXT+m6qIvAxiKPlYy7OzW8pI8/acTYwcZKsEHx8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kYrPUf1WgwKdEHqNRF17CybK5emW8FS/NmOsOJEteCpDQotBgQh9yGV7F4jVlz+YSni5aqRDK6XWhw2nL7TF8q0hepV1r2cP3Mg5QijPaQFZyraSx0rOKK9lkkPhDJKPZcz87GHXNh2PAPQI3RnujukUIWlAC/wMtlHH/eV7xBA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZkxAT6Vj; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="VeVEfuIV"
-Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-43d77f6092eso4582797f8f.2
-        for <linux-i2c@vger.kernel.org>; Fri, 22 May 2026 13:35:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1779482132; x=1780086932; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=f2y3T/h7K/6PEJ0HofLl2zEWQ0yuqByR/h59bZrxMAs=;
-        b=VeVEfuIVCGgPIZv61Z5lFYzJ+dE1BlBllFNPg7P2TVy4wxcJU6/QOkKTCGWYQSnVq1
-         LI4jh/WYO0fZQZdhL8ExdzeR/oB3WYvOBg5YyIakqrsH2fluDaOsUdoIlrrwOt/FuIs4
-         ULfSIuju5qG787LmoEI+QxB133cqIvCbI/mPNXQjQ6qgFo3J0YogSpUab5rb/jkIm36+
-         BRMDATM5L7DkLqXsxjLHrxhi5kk9upy3WwcGKxxL888vVuYA9qggr0l38YfJ0ASMjNd/
-         TWxyrTofYDACBbZSen8+RYZw/lWqbkbdsypxgnKO5aWTe0bAYWBykHBlEaM7p31mkeHN
-         YvEg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779482132; x=1780086932;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=f2y3T/h7K/6PEJ0HofLl2zEWQ0yuqByR/h59bZrxMAs=;
-        b=Yez57bjNWA6VortN8gyxJGkL6uGBglB5fRmpV36XhcbVBWn0OFadFMCKB3gaofFZcF
-         +xhGc4lisOpAhYJPTppyACurlOsPBJxFnZmp8n0htnS/CD5l4gVymSr2H53cIj5F1FsY
-         3lzqfsRYHv+y8TVi9hefDn2al5Cj+WzZo6LiFs1FZ7sfb4dmdxCwPFytsOf08IoIDVbt
-         nq42EKIwn6cDSoWVh913Tb2YUgW7SBdCaMvlgjVSSDdFg9+OSI1f2XeVitj10dmus6e0
-         vEbPBYAuI0pJ1iK+/rIjtXQYVtMhdKNlSkJRZD8QjpAGmy+3QynFdY7aDuZ2bE1SYwCi
-         fKgQ==
-X-Gm-Message-State: AOJu0YxCNRkHIqWD010xGHNOcGgW8189bvds88kXzDpiqu4GFiSw8XvR
-	N0N0o5/j51XrzOxLheB8ZBqG+fevAqYDZhGNEikcqO14gX5kfP7bt/5IGvZRntgs7Eg=
-X-Gm-Gg: Acq92OHRorWUz3YMnvpS+K7ZGN1Th0hm+ADxJDhOXMPX9JrdEfskKoovVKMMRk0m0jv
-	4yrbTkvbH7fFLsrqJyqGjSsutel1uEtpQfZoncGxL/axpQxNdTafvI7pXGghb55VRZEjr1Mr9A4
-	1yVATykGmLg8cMY88KQlDHKB2/w97bp+TjPt5J4V5XGdnvzpaf9UaELTWl5190MdmqV18OVbGc8
-	EUvD+uwnYysEhiNv6GfHXRdJHhu1kSq/UtWwh0kvPFYK4/fLkzxrXgEU0kwuu4IhWqgjlNCJQLd
-	uXAAMdk3iTua06EdlouJmPOPtHRwK81+Ws9issP5Vf7DrVbM4UzGvnoIM/OY/z+hOCl6MU/LZtZ
-	+3CIhfIOuMgRbL0pLwOMqg261C588e6L3QbethKoj8uzAttIA31c6385/dL7eEqoVzJSr64/eTU
-	vKYYAjX1IS2a7mCA8QOpfn5NhoCShk
-X-Received: by 2002:a05:6000:1848:b0:43d:733f:aee6 with SMTP id ffacd0b85a97d-45eb3687dedmr8362080f8f.10.1779482132065;
-        Fri, 22 May 2026 13:35:32 -0700 (PDT)
-Received: from localhost ([2a02:8071:56d1:2de0:1d24:d58d:2b65:c291])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-45eb6cd151asm5990419f8f.13.2026.05.22.13.35.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 22 May 2026 13:35:31 -0700 (PDT)
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 2/2] i2c: eg20t: Consistently define pci_device_ids using named initializers
-Date: Fri, 22 May 2026 22:35:14 +0200
-Message-ID:  <41316792102ff2860ec019373293cb07d545a0b0.1779481436.git.u.kleine-koenig@baylibre.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <cover.1779481436.git.u.kleine-koenig@baylibre.com>
-References: <cover.1779481436.git.u.kleine-koenig@baylibre.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZkxAT6Vj"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DD831F000E9;
+	Sat, 23 May 2026 02:19:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779502794;
+	bh=JVGNEIcFBWgqs/FdAqSiZ9HCjBSKwe8iBDty/6CjCCQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=ZkxAT6VjaOhMWRAPlaC4dFNisHa84ZoMZL/gVSC4VI9EF3DDfeNCJPlMN2HMtuSCa
+	 7Ti8SY1qXj0C1qQOyUbYoxkAuR/gyO2qa6AXEIJY8XHP3e1tKxt90OZfLa9sOZtR93
+	 Cq3MbYlAmpf/Q2dWAsa9nWP4vIcE9aspplb3nS8sjdajtxcKnrjr8CNTaZkVCSxwCa
+	 r5c7KGtcvzQhMkZFAzW9bhhfwkUjM9qda5v19JgPGua2lkPFIZY2RyPfsYeg38R+55
+	 /ohGRiSYKyNMZAQaKqk5Xre542IKyG/1jn0sPmQyDz7F+S6oZBE159ydVaG+O//01z
+	 xEfoGypCJXSWg==
+Date: Fri, 22 May 2026 21:19:50 -0500
+From: Bjorn Andersson <andersson@kernel.org>
+To: Praveen Talari <praveen.talari@oss.qualcomm.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>, 
+	Konrad Dybcio <konradybcio@kernel.org>, linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, bjorn.andersson@oss.qualcomm.com, 
+	dmitry.baryshkov@oss.qualcomm.com, konrad.dybcio@oss.qualcomm.com, prasad.sodagudi@oss.qualcomm.com, 
+	aniket.randive@oss.qualcomm.com, chandana.chiluveru@oss.qualcomm.com, 
+	jyothi.seerapu@oss.qualcomm.com, chiluka.harish@oss.qualcomm.com
+Subject: Re: [PATCH v6 00/13] Enable I2C on SA8255p Qualcomm platforms
+Message-ID: <ahEObi9ubGaTEcwK@baldur>
+References: <20260227061544.1785978-1-praveen.talari@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1449; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=Q9ZIxPqq+avWubd/LonKxN16U7vM7tUrFVIGXJ359Kw=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqEL4GxS/C+lP+v+RJzVjXostgzeQlSIU7laJcF lyuZpQXjOCJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCahC+BgAKCRCPgPtYfRL+ TtbjCACehs6et6YO9YlnIwjf+9u/LKci1facCtQV80XlbdTylbWgFTZYexbqV61wLP/fFgQ6Zl9 AqMEqSu7SlEXzyoRtdxQgJehR+HfRC2ug1ZskWe8Jy3X0GurprWK07b80RzyYm+pZgUJrlgZ+nG Zr1Jre0jTA3sngHQIIelEaYYFMTUButjklBfKqOcqZyrVlSlImObehIy8P3a1M3eE/8aJvnGg8D yl9dRWwbvaV806QNljGt7i8SqFxEPipXsfDEk00oeem90Z1dUlQvAKp1rVBATnd8TXnp+WVkfux rXRlb++Qee0XT1xq0sh9fcUYM/OFrGVWsrrpyQ3rxgtP8P2v
-X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260227061544.1785978-1-praveen.talari@oss.qualcomm.com>
 
-The .driver_data member of the struct pci_device_id array were
-initialized by list expressions. This isn't easily readable if you're
-not into PCI. Using named initializers is more explicit and thus easier
-to parse.
+On Fri, Feb 27, 2026 at 11:45:31AM +0530, Praveen Talari wrote:
+> The Qualcomm automotive SA8255p SoC relies on firmware to configure
+> platform resources, including clocks, interconnects and TLMM.
+> The driver requests resources operations over SCMI using power
+> and performance protocols.
+> 
+> The SCMI power protocol enables or disables resources like clocks,
+> interconnect paths, and TLMM (GPIOs) using runtime PM framework APIs,
+> such as resume/suspend, to control power states(on/off).
+> 
+> The SCMI performance protocol manages I2C frequency, with each
+> frequency rate represented by a performance level. The driver uses
+> geni_se_set_perf_opp() API to request the desired frequency rate..
+> 
+> As part of geni_se_set_perf_opp(), the OPP for the requested frequency
+> is obtained using dev_pm_opp_find_freq_floor() and the performance
+> level is set using dev_pm_opp_set_opp().
+> 
 
-This change doesn't introduce changes to the compiled pci_device_id
-arrays. Tested on x86 and arm64.
+@Andi, I've merged the soc-patches through an immutable branch into the
+qcom-tree for 7.2, please find this at:
 
-Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
----
- drivers/i2c/busses/i2c-eg20t.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+  https://git.kernel.org/pub/scm/linux/kernel/git/qcom/linux.git 20260227061544.1785978-1-praveen.talari@oss.qualcomm.com
 
-diff --git a/drivers/i2c/busses/i2c-eg20t.c b/drivers/i2c/busses/i2c-eg20t.c
-index f83238868802..8c67ab4f2aad 100644
---- a/drivers/i2c/busses/i2c-eg20t.c
-+++ b/drivers/i2c/busses/i2c-eg20t.c
-@@ -169,11 +169,11 @@ static DEFINE_MUTEX(pch_mutex);
- #define PCI_DEVICE_ID_ML7831_I2C	0x8817
- 
- static const struct pci_device_id pch_pcidev_id[] = {
--	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_PCH_I2C),   1, },
--	{ PCI_VDEVICE(ROHM, PCI_DEVICE_ID_ML7213_I2C), 2, },
--	{ PCI_VDEVICE(ROHM, PCI_DEVICE_ID_ML7223_I2C), 1, },
--	{ PCI_VDEVICE(ROHM, PCI_DEVICE_ID_ML7831_I2C), 1, },
--	{0,}
-+	{ PCI_VDEVICE(INTEL, PCI_DEVICE_ID_PCH_I2C),   .driver_data = 1 },
-+	{ PCI_VDEVICE(ROHM, PCI_DEVICE_ID_ML7213_I2C), .driver_data = 2 },
-+	{ PCI_VDEVICE(ROHM, PCI_DEVICE_ID_ML7223_I2C), .driver_data = 1 },
-+	{ PCI_VDEVICE(ROHM, PCI_DEVICE_ID_ML7831_I2C), .driver_data = 1 },
-+	{ }
- };
- MODULE_DEVICE_TABLE(pci, pch_pcidev_id);
- 
--- 
-2.47.3
+Regards,
+Bjorn
 
+> Praveen Talari (13):
+>   soc: qcom: geni-se: Refactor geni_icc_get() and make qup-memory ICC
+>     path optional
+>   soc: qcom: geni-se: Add geni_icc_set_bw_ab() function
+>   soc: qcom: geni-se: Introduce helper API for resource initialization
+>   soc: qcom: geni-se: Handle core clk in geni_se_clks_off() and
+>     geni_se_clks_on()
+>   soc: qcom: geni-se: Add resources activation/deactivation helpers
+>   soc: qcom: geni-se: Introduce helper API for attaching power domains
+>   soc: qcom: geni-se: Introduce helper APIs for performance control
+>   dt-bindings: i2c: Describe SA8255p
+>   i2c: qcom-geni: Isolate serial engine setup
+>   i2c: qcom-geni: Move resource initialization to separate function
+>   i2c: qcom-geni: Use resources helper APIs in runtime PM functions
+>   i2c: qcom-geni: Store of_device_id data in driver private struct
+>   i2c: qcom-geni: Enable I2C on SA8255p Qualcomm platforms
+> ---
+> v3->v4
+> - Added a new patch(4/13) to handle core clk as part of
+>   geni_se_clks_off/on().
+> 
+>  .../bindings/i2c/qcom,sa8255p-geni-i2c.yaml   |  64 ++++
+>  drivers/i2c/busses/i2c-qcom-geni.c            | 324 +++++++++---------
+>  drivers/soc/qcom/qcom-geni-se.c               | 270 ++++++++++++++-
+>  include/linux/soc/qcom/geni-se.h              |  19 +
+>  4 files changed, 491 insertions(+), 186 deletions(-)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/qcom,sa8255p-geni-i2c.yaml
+> 
+> 
+> base-commit: 7d6661873f6b54c75195780a40d66bad3d482d8f
+> -- 
+> 2.34.1
+> 
