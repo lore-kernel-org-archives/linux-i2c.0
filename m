@@ -1,317 +1,257 @@
-Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazon11010020.outbound.protection.outlook.com [40.93.198.20])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D016387578;
-	Sat, 23 May 2026 12:43:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.198.20
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779540202; cv=fail; b=sHjKwgAg2ayTRiwti7bv7iKzFNTcmIkEbFcN+Les/hv9zCB+CGSm9BK3ZRv3sp8IPkAkJ2EVYx+Qg9hPXG4Srk6CZHBWYwOQGPXQ5erF+oqEKJYYM9vVOR2b1LZXHPpakUuxQUgbv6AWQeXsamLKTlnhtKCVJSg/rSCi4DRBlEM=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779540202; c=relaxed/simple;
-	bh=UDxw7irPovsyUYijLfkbU+cGiXw/2qjKb15yYLB8Pek=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=Qjuq2H3foKFPDouu2LCrlG1BD59hkSo/wXRkeMHyKVVH0SzQCE/Hp+AbTlclw5aqkHMbEGJL2N9NQ9EZ8SFVs96G4tMaBrF7qiqkt+2AoU/vY8VPb5bPZjqFf040cUCfXu5NfDcVR6SyAoxssJbMPIwwEytehliMxQ84aA/gaPI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=KAsckSbR; arc=fail smtp.client-ip=40.93.198.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="KAsckSbR"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=eqL4cLX8UK/xIlHHC9HwPm15tXCIPlLUhu4r0ZFmWEQ8VPsVEoZTP9rowUnh4AKcX1Kc3wF7CwkNgqaGdefL6PnO8fq4R3raUxPlOlsHb8I46T+JMMkOOWsLZrDMm22xjijmHfW5agsA16XJGs81wRw2hcBe2qRtoxOXvI4nl0xLXszEhW3ohnTg1dZb+LIRaNaoUx2v+leRnsStb/upOh+cd6oRl2YN2c1CrIBTnGixTR4J9mNBsZsNLbNw/k14qzHM2Y05G7tq9NPKkuRnj3f5ulFSLoy9UcIXPmO49m4qatpN0kAxT8rQjKiRy1qEPpzOm6jw6mZbiRyKk5oDfg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=+rbnlfmuSFOGr8OGnZm7NgJ60pxBMXDuXT71znzPI6g=;
- b=ZOJICib5c8EhkKIhddyG1P83o7ZbBu52q1muWWB4YhzuyxAAniqaiK7uwFHkmzrDHRDT64G4s4KVnYY9J6dEHJ779yQsKCroalXK4cv87DfxeMgvNLlueISjqnli0F2yP+Pc+1S94HPygGAwpulJ7jHD+Wz/JDvkeuu4hm73zPC7IUC/W/5x8dDB4d8Fxy9NfmIfsmVbxp8H+l71wmrP1BCMyTnww+x0T4QYgjh6REw3qHVvvontr9YRssD2nRw4qFvWtuGdHMdthAuw7/rUS5/KA9YUKU87ud6EjaeOfe/6/l6yhMODZyqSA1+ii9pL909X3g33zQIMh7GiFifK+A==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=+rbnlfmuSFOGr8OGnZm7NgJ60pxBMXDuXT71znzPI6g=;
- b=KAsckSbRgFVntwbXPtTGiyPspgU9dy4b8G/YL4jB7mNvx5pnXxRhn8gwYqO0oBdPdlc8OksEC30YAgDVUAAWObJrX+VKLw6Agme4SBwKM5g3MIhcG18L2W/2RZ/3xE5z26YJTjITKl0GFTiqXcIXc+FU8GVfVvQV1xdAmW63+O8=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from PH8PR12MB6914.namprd12.prod.outlook.com (2603:10b6:510:1cb::21)
- by BL4PR12MB9534.namprd12.prod.outlook.com (2603:10b6:208:58f::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.48.18; Sat, 23 May
- 2026 12:43:16 +0000
-Received: from PH8PR12MB6914.namprd12.prod.outlook.com
- ([fe80::2893:177a:72b0:6000]) by PH8PR12MB6914.namprd12.prod.outlook.com
- ([fe80::2893:177a:72b0:6000%6]) with mapi id 15.21.0048.016; Sat, 23 May 2026
- 12:43:16 +0000
-Message-ID: <1fe21869-35ac-4363-99bc-7e39451c48b4@amd.com>
-Date: Sat, 23 May 2026 07:43:14 -0500
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 0/1] i2c: designware: fix probe ordering for AMD GPIO
- on Lenovo Yoga 7 14AGP11
-To: Hardik Prakash <hardikprakash.official@gmail.com>
-Cc: Bartosz Golaszewski <brgl@kernel.org>,
- Andy Shevchenko <andriy.shevchenko@intel.com>, linux-i2c@vger.kernel.org,
- linux-gpio@vger.kernel.org, wsa@kernel.org, basavaraj.natikar@amd.com,
- linus.walleij@linaro.org
-References: <20260518122814.8975-1-hardikprakash.official@gmail.com>
- <9d5da93e-bbe0-4359-9f17-e3c6b3a5cb34@amd.com>
- <CAMRc=MfT_WVMxPnYZW=mg52PHew0O4VQMGFrfo6G9vxZDDoArw@mail.gmail.com>
- <CANTFpSUX5rYhuTQH3dTTvzW+_yhW8Gs0U=A1t_8LDzKz4dzzAw@mail.gmail.com>
- <agsh652HlC4rg1_1@ashevche-desk.local>
- <CANTFpSU7XaNKwe_FPsTCkxQYeq78Tqusr-nsB-Ww0_teuiWdEA@mail.gmail.com>
- <f0ee2722-1e56-41b1-b70c-5503a2495853@amd.com>
- <CANTFpSWT+cR8Yxyr5jrB2MUidqKteWuPjHOyK_rpSkDUN6SWQQ@mail.gmail.com>
- <c4993bce-5d39-416f-90ed-d870f4ac9254@amd.com>
- <CAMRc=McSLEF_nrkRdJJu9=Bc_KmPWYKDHd6tOD9tJqs0fksv0w@mail.gmail.com>
- <498bad3f-6a0c-4da8-b645-1cc837ba1836@amd.com>
- <CANTFpSWB6Fb3mo9sUtxo2Aaa-Ryx-YqUw-tqT-y1RpurJfq57A@mail.gmail.com>
- <CANTFpSU+wTQeESDGqV=xizrJeQw_LA8y7stDYMm=H-UrbWXeYQ@mail.gmail.com>
- <e31e28e7-62b0-44a3-b155-57504be09c69@amd.com>
- <CANTFpSVnhst-25KPa-m2e14rR_dqJNq_s6k_ZO-MFazqLa=AEQ@mail.gmail.com>
- <CANTFpSWLUfNZyjJXApgf60MyJ9imWYVKLy9vj=Lin3Lh=qoAMw@mail.gmail.com>
-Content-Language: en-US
-From: Mario Limonciello <mario.limonciello@amd.com>
-In-Reply-To: <CANTFpSWLUfNZyjJXApgf60MyJ9imWYVKLy9vj=Lin3Lh=qoAMw@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SA1P222CA0072.NAMP222.PROD.OUTLOOK.COM
- (2603:10b6:806:2c1::28) To PH8PR12MB6914.namprd12.prod.outlook.com
- (2603:10b6:510:1cb::21)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25A6E3A5E86
+	for <linux-i2c@vger.kernel.org>; Sat, 23 May 2026 14:23:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779546228; cv=none; b=Nav+JvUkUZLwKLT+ZCAb3ZDX4hXya4m8g5AxPvI6oy6kRsDCuFEHODIBqHSFmNcnN9U2unshIfp43Vn6OpzY2Y7Y8MfCZyiTIUb4az5FPMqLpzgOpmTCWn/dxeeTeRAiLbWUZG3zzjxBg3vfMeirDDsAskzsCLfBaA3gsxzWWw4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779546228; c=relaxed/simple;
+	bh=QLj/GX5k7eFyGfeZf3Wtm2oB8X6vtQ/bwHDCPYzJK1A=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=l8JAvtBhCAHAxYaGlxJBHrT8eOzPM2hgYmUV8U9qremKl4v54g75rU0Hphtj8vvoaboIt0NARktgaa/X8DuZBuG2SRnrqHkxPZHWhfA/9R+jKkvFjbx41P4jK0OtpqwLT1tzDTxuZtiQ2SGHM7pHuk7SDlcfgz2WBc+qNMH9RB8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kzalloc.com; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.218.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kzalloc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-bcd99d6eb32so128434466b.3
+        for <linux-i2c@vger.kernel.org>; Sat, 23 May 2026 07:23:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779546225; x=1780151025;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=WuWEfTQYjsCVqVvHObEiNmRNaaJS3/KGoVEjCdjn4Xk=;
+        b=X/OHHkR0z7b38W23PrlcNIOf9qSDRCJk+xX0QWrRB0cTKvBJY89xxdyT6yNAsyBxuC
+         ebgiX4MlAW/UIYzTD7e7YPIxNj+VlfCIJQA72AMDCCxpbCoGnkV7yzNQ5BNQghpxRrlq
+         ukqNcqM2qLA+rqTw9N3dPcs7HR8HRrr97o1CJSrvLv3hwAGCNFW2D2ywKZMDXziGSjzX
+         IBvIlJW83KY1CCXTqA+Ba4A/ou3YGUYWIoXjoR/0NYK83Yo1E7VtW1q7XxiQlHz3o+eB
+         mMWYFMttDy+RQ7gsA7sL3SNFEiYSMns1KEYke/ccjMofzRi6HdtlP+KWVAGKQlO94KIV
+         E0Xg==
+X-Forwarded-Encrypted: i=1; AFNElJ9c26u3opicFzGpok0DtsHLdXMUE3yChuJAJ7lLYOrTBBtssYWRPhmwF8pt5Hfh2LsWKOOtv/V1mDc=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwSTsy12fz6D3OOEjJMPNEX3ZHN6I4j3oJOtKbORh3mdfRwbyTs
+	t9PnRXumx8nHBsISFtnxqGKtY4HRCCtxqpGJW9WrJVasv/vsyQ95x2FdVCfiE7pzFtk=
+X-Gm-Gg: Acq92OHdKPAOu25KWIuTemTSSotK351laC0dTa+/+OBQxiZzHSzzX8o00yilErETAhl
+	hKbNopJ0laaxOnXaupXiwjGxS2aNQmklza1Rv+TgX+E/BaMBO48NM8Ayngq1BHoVis16zqZoA3K
+	5LbmW9y14GBemvAjJp8nfktMtVvGGQGWdve37TlnnbQaTnaG6glwI8W9Xe2j0KiIzknST/5EErh
+	TjtYAM+rs+YQIbsuFr6FKQitQfSCldbFJJrX3dx0Z+wTqvX7JaR8XZdz6fQ1AN2AlpyX5YIobN8
+	Na+yIlcGHA0EjA+G/BJJO9zKQlxmIIU3Qbr5EyXp3rzdDSHElkOY0vfZEDiC2lSXpYBjeWEVJrR
+	MsRDtq/snXMwjjnB/yCk/+dMokJIJAOT/6oajfjlikxKdNaqaKsx3Vr3c/thm3M3Do/Qi+Uc8WN
+	bQUJDWKGnH4mrTjWTM5OiygAleWejekhDPVckiJ0VM1AOghdaoH13UAhwfJFQrufRLj9XuukglI
+	w0YJX632nrv+HS9TzfZgODkiN0kA2XctFsWaYWVP8rj+3/0XvC1GN+7zlf9I8Hm6ExNG1muK/g=
+X-Received: by 2002:a05:6402:4557:b0:66e:448a:31b6 with SMTP id 4fb4d7f45d1cf-6889cc6260fmr1410462a12.8.1779546225243;
+        Sat, 23 May 2026 07:23:45 -0700 (PDT)
+Received: from mail-wm1-f52.google.com (mail-wm1-f52.google.com. [209.85.128.52])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-688baf1eb98sm2003378a12.16.2026.05.23.07.23.44
+        for <linux-i2c@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 23 May 2026 07:23:44 -0700 (PDT)
+Received: by mail-wm1-f52.google.com with SMTP id 5b1f17b1804b1-490402da691so1361045e9.3
+        for <linux-i2c@vger.kernel.org>; Sat, 23 May 2026 07:23:44 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ/ZKy2xFTQk7POLZYO5Rk4V08d4Db//l7fb1xQmhnE/WENIHsZW93q8tXQFhUBcLhCMvqAxTz8BK3k=@vger.kernel.org
+X-Received: by 2002:a05:600c:8484:b0:48a:56d4:7274 with SMTP id
+ 5b1f17b1804b1-490428ce814mr56748215e9.3.1779544847387; Sat, 23 May 2026
+ 07:00:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH8PR12MB6914:EE_|BL4PR12MB9534:EE_
-X-MS-Office365-Filtering-Correlation-Id: dbd86942-5238-499a-f345-08deb8c8dc66
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|376014|22082099003|56012099003|18002099003|4143699003|6133799003|11063799006|5023799004;
-X-Microsoft-Antispam-Message-Info:
-	27qhq8Jl0Lzu6KyRQ1m+hc0rhd7r5rex8zyK5IbOXBuk6U0Gwj2DzCEzWbztG4NLmQMOnRl/6UWOYzdKPJnoMZ8ERaFx0YMIXfWmzwY4T9L+XpUbeh/MtMuW9UcRcSaa9gFPHEcQWN2jQyoUG/XWN9roYQty4aogAmsCoaDB1G+a4AqjuWMMsq0AtIjWCMKCdFQ8TEGZC6X2ELj7FRqtwPuuw2fBz/TIec+3WWunbKiuKaQs6MvuQ7MLq4FjKWQ7eGp9t27ap5/V6nUe0erO4CO+CBaMSL90tUIwx6iesVLebnrN2Hpqmm/M90L4myLzQ5Itn4rxxd637PJK4Aab0QGefjLlCv/hkWagF7mvEMbYdt2/Gcz1WY60o0fbe0ix6SBMlO4JiM95PY/Mh4ZDwgt+Qrxa6SpBIjPIf4GOPRKhaWbZGofWhbSJYSYGq2jK8Qjmx06ux+ZiYCXHjoK5HlJF6ZxDr/pvOAYi2WTlA5WN6DD6AuoeRIxuF5HQ5qVNYMEEX27fdGidMVOWLP7/sf4Jg1CpLtg/AdVG/gRWIqHwJk4xxQyaUQ8DpC/dkR3Q+E8+UY13zzGShXvNzSi7vLyPx4krw4qKwft7Drgx9XkNqxUMxZOJFHxYBi5QX3vTwPNFG+e8x1GC7yWOWPEb3jIyfui9DQ82LB3W4vUx1n30eQN2PdakKKw50LrHS6GR
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH8PR12MB6914.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(22082099003)(56012099003)(18002099003)(4143699003)(6133799003)(11063799006)(5023799004);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?eVdkajhrWWxreEVuVGgwOGIzdUtyMDBFcnd4Z3FDNDhYN3dOVVNLZy9aR3hi?=
- =?utf-8?B?NVJKVTVaVjVvMEptYXo1ckFzdFFSZHB5bTZUcEpaWTBybEZHcUpJOWFabHdZ?=
- =?utf-8?B?RnJON3lHcXJnQUg2MzFKMllmWWt5aDFkV0lJK2N0UGwvdmJyVW5EZlR3ZzNW?=
- =?utf-8?B?cm9LWDBuUTZFN0VhWEphZlh6aWxMZnFLNVNkWGV1RDQ1L1FtRzl1NkU3WURS?=
- =?utf-8?B?cWluRWVrN0Jkblh1dlhkdkV1cTVnZTYyMXo0V2cvaHFRajhhUWZRMHAyTWRJ?=
- =?utf-8?B?Wm1lenZtcGEydHZNaUdyK2VuaUJ0bHEySnNGc29Hb3hjUXJncWpzL2tpS2Qv?=
- =?utf-8?B?RHNncUlTaTBaOXhZMnZaVXVYeXgwZndRUnhYWnlEN0dGa3g2UE15SGd1UWNY?=
- =?utf-8?B?N3krWDZ1ck01U2xVUUMwTkxueVdESHc0VWpCWWFkU0lna0dUYzNnZXIxS2xE?=
- =?utf-8?B?cGlFWEo4NUJrRStoVStOK0lvM2ZFaDlqNWY3ZS9BOEYrc2ppajlGdm1UVHds?=
- =?utf-8?B?TExTYTZYbTlHVnlsbjl1WnRVd1ZacUJVbU5FeU9QNzNnWmlONlFoRUhiTitz?=
- =?utf-8?B?Tmd6a2k5QkxwV1Y5d1I1Uk8vdEZUaUxneEJhUjhUQ3hqY1JlT1QzMGVWdlNW?=
- =?utf-8?B?Z1dJVDY0aURCbjJaa2gwcW5peDNSdmtpL201ckVpbW1HOFdGZmg0UStGM1Ri?=
- =?utf-8?B?WDl4a2ZrbWZEVkZVaFljL3RUdVBMeC8yWSt2NWpUWDl1ZGtydHpPd0VNNis2?=
- =?utf-8?B?dVg5b0Q0QTVBcGRyN2cyRm1YL2VvRjRIdGwrRTlGamg3NHVMa2Z4ZzkzWkdl?=
- =?utf-8?B?VkkxaHRtNllLYmFWM1ZWbnd1ZGFXZ0Y1TGJLQkNCUlVkRG15cTE0cXFWSTU3?=
- =?utf-8?B?SFhhZnFkZW9Gcjh5QmkvZU9Tc2Nsc2RuVERvTlBVQ0hwYVNUbWo1TWt3SStR?=
- =?utf-8?B?c05QZGRvQ1BhN1NYbTByL0tEb3RheVhYS2I5dWxqcms1aUYvTXg4dDhCMVc5?=
- =?utf-8?B?ODgwVm11ZCtXenRqSnd2d0RucE4wZGg5NmtaLzh4Sk9lU2o2WkRrTUl5MmpJ?=
- =?utf-8?B?OGVhS1FoeW0xVS9xbEkxcFNuWERIeUJXQkdUN3FybHM3NDVzc0RVa1BKUm5F?=
- =?utf-8?B?dWo5ci9BbmxkZVNZakNkYy9TdkZKSFZOTjBvQ09TR0xoVWp2SlJydEF1NURK?=
- =?utf-8?B?YnVhVi9Rd2p2WjltVkV6MGJ0WGlVQ1EwMm1Na2NLdGoxN0NuTUd0OFVoaFZh?=
- =?utf-8?B?aDl3OVBMT0NRWlJ6R2pxL1ZhcWFrY05jd0FlU2loeVJBWU1CQmV1Nk12MlVr?=
- =?utf-8?B?VGVQMDFKemxvbmxBRkp2OEc4cmgyMENaVUwyaGMzWVRjNTdtQTNXZHA5K1Zv?=
- =?utf-8?B?TXZCalBXTFpQeXM5by92YWpick4rRnZYa0hLSjUzWTVSeDl2TlRjeXZSMDVi?=
- =?utf-8?B?b0ZGdnNYMytVRGhtb3pIbHg2bnFNaDAxWmRPeDkwYXJxalh3cnR4UlpKT1ZF?=
- =?utf-8?B?U1U0NUROU3d1M1k4VXpGN0p6aVVac2RMMFlqUHJmVVBQYkZoYk84ZmI3L0ZN?=
- =?utf-8?B?QkVySVR1eklJOWNmTUFtNnpWRFROSW50Uy9NZHdxQjkvTmVIcmV5NHl0alhI?=
- =?utf-8?B?Z1h6dklWclo2VXk5NnBaanduRXVwYVlROXVjQzdBWWtNNWxjTnF1Q3N6QUx5?=
- =?utf-8?B?VThmTWRxL2ZCUHVodzFNRUpPclZucDlLOElmYzYrZjZNZjhHeWJWSUIzM1h0?=
- =?utf-8?B?K1J6eTlNYW5rbm5jWGNidWRXQ0pzd1cxS2dPK21jWkNTa3VLeUdIaE9HbFBR?=
- =?utf-8?B?bEttYkhnMXE1bDZZVDRZWUJ2S1ZOOU1pTi95Q1VncDMzNzAwWTY3V1lMY2pw?=
- =?utf-8?B?M0pScmprOHdXZFhGL0xWbHllZFpJYW5CWUZ4ajVQdmZPbzNXV1Y4MElVbTB6?=
- =?utf-8?B?VUllalgvSzh1enZ6SUpacm1Sc0ZBVU1DRDRiWXcrVFkvOXMveElEVlJWWTVN?=
- =?utf-8?B?R0NBakhFTXNFZWtadGhaR1NRM1JlaU9tMGZ2OTRRRUZTTm8xQmw0VDdIKzRv?=
- =?utf-8?B?U3hDdGM0TVphd0FEcHFSVHdrOElBRjlLYXVUQ0RmS0dYKzJUSTlGY1g2dVg0?=
- =?utf-8?B?VTByVnB5SGpmQWpXUzhPMnVldlNwbmdZWW5HOTNpVnJ4RHFjYjFvMTJYejlC?=
- =?utf-8?B?azIxQzdLcE9lZjhXUmRYelBubWNndGk0M2pJVTRkS2hyWlBYZG9xZUxiWG4r?=
- =?utf-8?B?REpra0pRaW9xdkxpaDYyeTNISGNYTTdXN2plUHFhbVFhZnNPSWcva2JQVW8r?=
- =?utf-8?Q?uvlQ+9fN7MhbwNTBtO?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: dbd86942-5238-499a-f345-08deb8c8dc66
-X-MS-Exchange-CrossTenant-AuthSource: PH8PR12MB6914.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 May 2026 12:43:16.5906
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: A++u6xtUP02MG96Cx7cctVy+bI8XSrBcLHOLma4d6cNgwibuF0Sm296KATXWxHJb0SqI/NzA3i30/gCM1TD5RA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL4PR12MB9534
+References: <20251205071855.72743-1-byungchul@sk.com> <6b2a816f-eb3b-4e0c-a024-ee2e3743eb04@kernel.org>
+In-Reply-To: <6b2a816f-eb3b-4e0c-a024-ee2e3743eb04@kernel.org>
+From: Yunseong Kim <ysk@kzalloc.com>
+Date: Sat, 23 May 2026 16:00:36 +0200
+X-Gmail-Original-Message-ID: <CA+7O06GxeDLR9RcKDN2i-Rgc4kgzz6BfF4b0XAH4tFx=A723Nw@mail.gmail.com>
+X-Gm-Features: AVHnY4Jzdbo-RS-M3p-EbMJdQhZ_EyUwot0ge9SpoXayUSqjrmRfCiJZJ7yo4J8
+Message-ID: <CA+7O06GxeDLR9RcKDN2i-Rgc4kgzz6BfF4b0XAH4tFx=A723Nw@mail.gmail.com>
+Subject: Re: DEPT (the dependency tracker) as AI review prompt? (was: DEPT v18)
+To: Harry Yoo <harry@kernel.org>
+Cc: Byungchul Park <byungchul@sk.com>, linux-kernel@vger.kernel.org, kernel_team@skhynix.com, 
+	torvalds@linux-foundation.org, damien.lemoal@opensource.wdc.com, 
+	linux-ide@vger.kernel.org, adilger.kernel@dilger.ca, 
+	linux-ext4@vger.kernel.org, mingo@redhat.com, peterz@infradead.org, 
+	will@kernel.org, tglx@linutronix.de, rostedt@goodmis.org, 
+	joel@joelfernandes.org, sashal@kernel.org, daniel.vetter@ffwll.ch, 
+	duyuyang@gmail.com, johannes.berg@intel.com, tj@kernel.org, tytso@mit.edu, 
+	willy@infradead.org, david@fromorbit.com, amir73il@gmail.com, 
+	gregkh@linuxfoundation.org, kernel-team@lge.com, linux-mm@kvack.org, 
+	akpm@linux-foundation.org, mhocko@kernel.org, minchan@kernel.org, 
+	hannes@cmpxchg.org, vdavydov.dev@gmail.com, sj@kernel.org, jglisse@redhat.com, 
+	dennis@kernel.org, cl@linux.com, penberg@kernel.org, rientjes@google.com, 
+	vbabka@suse.cz, ngupta@vflare.org, linux-block@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, jack@suse.cz, jlayton@kernel.org, 
+	dan.j.williams@intel.com, hch@infradead.org, djwong@kernel.org, 
+	dri-devel@lists.freedesktop.org, rodrigosiqueiramelo@gmail.com, 
+	melissa.srw@gmail.com, hamohammed.sa@gmail.com, harry.yoo@oracle.com, 
+	chris.p.wilson@intel.com, gwan-gyeong.mun@intel.com, 
+	max.byungchul.park@gmail.com, boqun.feng@gmail.com, longman@redhat.com, 
+	yunseong.kim@ericsson.com, ysk@kzalloc.com, yeoreum.yun@arm.com, 
+	netdev@vger.kernel.org, matthew.brost@intel.com, her0gyugyu@gmail.com, 
+	corbet@lwn.net, catalin.marinas@arm.com, bp@alien8.de, x86@kernel.org, 
+	hpa@zytor.com, luto@kernel.org, sumit.semwal@linaro.org, gustavo@padovan.org, 
+	christian.koenig@amd.com, andi.shyti@kernel.org, arnd@arndb.de, 
+	lorenzo.stoakes@oracle.com, Liam.Howlett@oracle.com, rppt@kernel.org, 
+	surenb@google.com, mcgrof@kernel.org, petr.pavlu@suse.com, 
+	da.gomez@kernel.org, samitolvanen@google.com, paulmck@kernel.org, 
+	frederic@kernel.org, neeraj.upadhyay@kernel.org, joelagnelf@nvidia.com, 
+	josh@joshtriplett.org, urezki@gmail.com, mathieu.desnoyers@efficios.com, 
+	jiangshanlai@gmail.com, qiang.zhang@linux.dev, juri.lelli@redhat.com, 
+	vincent.guittot@linaro.org, dietmar.eggemann@arm.com, bsegall@google.com, 
+	mgorman@suse.de, vschneid@redhat.com, chuck.lever@oracle.com, neil@brown.name, 
+	okorniev@redhat.com, Dai.Ngo@oracle.com, tom@talpey.com, trondmy@kernel.org, 
+	anna@kernel.org, kees@kernel.org, bigeasy@linutronix.de, clrkwllms@kernel.org, 
+	mark.rutland@arm.com, ada.coupriediaz@arm.com, kristina.martsenko@arm.com, 
+	wangkefeng.wang@huawei.com, broonie@kernel.org, kevin.brodsky@arm.com, 
+	dwmw@amazon.co.uk, shakeel.butt@linux.dev, ast@kernel.org, ziy@nvidia.com, 
+	yuzhao@google.com, baolin.wang@linux.alibaba.com, usamaarif642@gmail.com, 
+	joel.granados@kernel.org, richard.weiyang@gmail.com, geert+renesas@glider.be, 
+	tim.c.chen@linux.intel.com, linux@treblig.org, 
+	alexander.shishkin@linux.intel.com, lillian@star-ark.net, 
+	chenhuacai@kernel.org, francesco@valla.it, guoweikang.kernel@gmail.com, 
+	link@vivo.com, jpoimboe@kernel.org, masahiroy@kernel.org, brauner@kernel.org, 
+	thomas.weissschuh@linutronix.de, oleg@redhat.com, mjguzik@gmail.com, 
+	andrii@kernel.org, wangfushuai@baidu.com, linux-doc@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org, 
+	linaro-mm-sig@lists.linaro.org, linux-i2c@vger.kernel.org, 
+	linux-arch@vger.kernel.org, linux-modules@vger.kernel.org, 
+	rcu@vger.kernel.org, linux-nfs@vger.kernel.org, 
+	linux-rt-devel@lists.linux.dev, 2407018371@qq.com, dakr@kernel.org, 
+	miguel.ojeda.sandonis@gmail.com, neilb@ownmail.net, bagasdotme@gmail.com, 
+	wsa+renesas@sang-engineering.com, dave.hansen@intel.com, geert@linux-m68k.org, 
+	ojeda@kernel.org, alex.gaynor@gmail.com, gary@garyguo.net, 
+	bjorn3_gh@protonmail.com, lossin@kernel.org, a.hindborg@kernel.org, 
+	aliceryhl@google.com, tmgross@umich.edu, rust-for-linux@vger.kernel.org, 
+	Chris Mason <clm@meta.com>, Roman Gushchin <roman.gushchin@linux.dev>, 
+	Josef Bacik <josef@toxicpanda.com>, Yunseong Kim <yunseong.kim@est.tech>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
+Hi Harry,
 
+On Sat, May 23, 2026 at 2:33=E2=80=AFPM Harry Yoo <harry@kernel.org> wrote:
+>
+> Can we start DEPT as an AI review prompt, by documenting DEPT's
+> dependency tracking model and false positive elimination rules as a
+> carefully crafted prompt?
+>
+> While DEPT can identify deadlock issues beyond lockdep's capabilities,
+> it is hard to enable in automated testing; without fine-grained
+> annotations it can produce a high rate of false positives, and verifying
+> them requires significant human effort.
+>
+> The open source AI Review Prompt has locking.md file [1] that teaches
+> the AI how to review locks and detect misuse.
+>
+> If we can write a review prompt for DEPT in a similar manner and have
+> the AI do the deadlock detection and false positive elimination, I think
+> we could identify those problems more effectively with much less human
+> effort.
+>
+> [1]
+> https://github.com/masoncl/review-prompts/blob/main/kernel/subsystem/lock=
+ing.md
+>
+> --
+> Cheers,
+> Harry / Hyeonggon
 
-On 5/23/26 02:51, Hardik Prakash wrote:
-> On Tue, May 19, 2026 at 02:23, Mario Limonciello wrote:
->> In the same line of thinking - how about something like this instead
->> (AI generated and attached).
-> 
-> I've cleaned up your patch (fixed kzalloc_obj, moved goto outside
-> scoped_guard, wrote a proper commit message) and am planning to submit
-> it as v6 with Co-developed-by and Signed-off-by carrying your name.
-> 
-> Please let me know if you're happy with that, or if you'd prefer to
-> submit it yourself.
+I think this is an excellent idea, Harry.
 
-It was 100% written by the robot, just shared by me for a reference.
-I don't think it needs a S-o-b, you can leave a Suggested by for me at most.
+I've previously experimented with running DEPT alongside syzkaller fuzzing,
+and many hung tasks missed by lockdep are caught by DEPT, but the resulting
+high volume of reports makes it easy for issues to get lost in the massive
+log output. Sorting through that output manually is a huge bottleneck, so
+leveraging a well-crafted AI prompt to triage the warnings and filter out
+the false positives would be incredibly valuable.
 
-Go ahead and drive it forward for discussion.
+Leveraging an AI prompt to triage these warnings would be incredibly valuab=
+le.
+I'd be happy to help translate DEPT's tracking model into specific rules fo=
+r
+reducing false positives and establishing solid filtering patterns.
 
-> 
-> Thanks,
-> Hardik
-> 
-> On Wed, 20 May 2026 at 10:32, Hardik Prakash
-> <hardikprakash.official@gmail.com> wrote:
->>
->> On Tue, May 19, 2026 at 02:23, Mario Limonciello wrote:
->>> In the same line of thinking - how about something like this instead
->>> (AI generated and attached).
->>>
->>> Basically walk through the resources at probe time and make sure they're
->>> all bound.
->>
->> Tested. Works perfectly — clean boot, no arbitration errors, touchscreen
->> and stylus fully functional:
->>
->>    patch 1 + generic GPIO dependency check:   clean boot, touchscreen works
->>
->> The generic approach is better. With this patch, patch 2 (the
->> DMI-specific i2c-designware deferral) is no longer needed.
->>
->> Note: I applied kzalloc(sizeof(*ref), GFP_KERNEL) in place of
->> kzalloc_obj(*ref, GFP_KERNEL), and moved the goto outside the
->> scoped_guard using a local bool. Happy to share the exact diff I tested
->> if useful.
->>
->> Thanks,
->> Hardik
->>
->> On Wed, 20 May 2026 at 02:23, Mario Limonciello
->> <mario.limonciello@amd.com> wrote:
->>>
->>>
->>>
->>> On 5/19/26 14:49, Hardik Prakash wrote:
->>>> On Tue, May 19, 2026 at 20:18, Mario Limonciello wrote:
->>>>> I like this idea. I guess something like this:
->>>>> [gpiolib-acpi-core.c patch]
->>>>
->>>> Tested patch 1 + gpiolib-acpi deferral, without patch 2. Arbitration
->>>> errors persist:
->>>>
->>>>     patch 1 + gpiolib-acpi deferral:   arbitration errors, WACF2200 does not probe
->>>>     patch 1 + patch 2 (v5):           clean boot, touchscreen fully functional
->>>>
->>>> I think the reason is that i2c-designware does not call acpi_get_gpiod()
->>>> during its probe. The GpioInt resource is on the WACF2200 touchscreen
->>>> device (TPNL), not on the I2C controller itself. So the deferral in
->>>> acpi_get_gpiod() never triggers for AMDI0010:02 -- nothing in that probe
->>>> path requests a GPIO descriptor.
->>>>
->>>> The race is between amd_gpio_probe() completing and dw_i2c_plat_probe()
->>>> starting for AMDI0010:02. Without something that explicitly checks
->>>> whether the GPIO controller is fully bound before the I2C controller
->>>> probes, the race remains.
->>>>
->>>
->>> In the same linke of thinking - how about something like this instead
->>> (AI generated and attached).
->>>
->>> Basically walk through the resources at probe time and make sure they're
->>> all bound.
->>>
->>>> Thanks,
->>>> Hardik
->>>>
->>>> On Wed, 20 May 2026 at 00:37, Hardik Prakash
->>>> <hardikprakash.official@gmail.com> wrote:
->>>>>
->>>>> On Tue, May 19, 2026 at 19:58, Mario Limonciello wrote:
->>>>>> You add a debug statement to amd_gpio_irq_enable() too right? Can you
->>>>>> please share your debugging messages patch and full log?
->>>>>
->>>>> I did not add debug to amd_gpio_irq_enable() - the statements were
->>>>> only in amd_gpio_probe() and dw_i2c_plat_probe(). I can add one there
->>>>> if useful, but given Bart's suggestion below I'll hold off unless
->>>>> needed.
->>>>>
->>>>>> What is the boot time impact to adding device_is_bound() check?
->>>>>
->>>>> I haven't measured this explicitly. The deferral only fires on DMI-
->>>>> matched hardware (Lenovo 83TD), so on other machines dw_i2c_defer_for_
->>>>> amd_gpio() returns 0 immediately with no overhead.
->>>>>
->>>>> On Tue, May 19, 2026 at 20:18, Mario Limonciello wrote:
->>>>>> I like this idea.
->>>>>
->>>>> I'll test this patch, and let you know how it goes.
->>>>>
->>>>> Thanks,
->>>>> Hardik
->>>>>
->>>>> On Tue, 19 May 2026 at 20:18, Mario Limonciello
->>>>> <mario.limonciello@amd.com> wrote:
->>>>>>
->>>>>>
->>>>>>
->>>>>> On 5/19/26 09:39, Bartosz Golaszewski wrote:
->>>>>>> On Tue, May 19, 2026 at 4:28 PM Mario Limonciello
->>>>>>> <mario.limonciello@amd.com> wrote:
->>>>>>>>
->>>>>>>>>
->>>>>>>>> gpiochip_add_data() at 0.285952 makes the GPIO chip visible to the
->>>>>>>>> system before amd_gpio_probe() has finished. AMDI0010:02 starts probing
->>>>>>>>> at 0.301454 while amd_gpio_probe() is still completing. This is why
->>>>>>>>> device_is_bound() works and initcall promotion does not -- it waits for
->>>>>>>>> probe completion, not just gpiochip registration.
->>>>>>>>
->>>>>>>> What is the boot time impact to adding device_is_bound() check?
->>>>>>>>
->>>>>>>> Bartosz, thoughts?
->>>>>>>>
->>>>>>>
->>>>>>> My thoughts are that ACPI could use some fw_devlink. :) It's not a new
->>>>>>> problem, we've fixed it for OF systems.
->>>>>>>
->>>>>>> Could we modify gpiolib-acpi.c to return -EPROBE_DEFER if the parent
->>>>>>> device of the GPIO chip is not bound yet instead? When resolving the
->>>>>>> reference to the remote GPIO controller we have an address of the
->>>>>>> struct acpi_device. I suppose there's a platform device that is its
->>>>>>> child and then the logical GPIO controller device, is that correct?
->>>>>>> Can we check if the platform device in question is bound at the
->>>>>>> subsystem level?
->>>>>>>
->>>>>>> Bart
->>>>>>
->>>>>> I like this idea.  I guess something like this:
->>>>>>
->>>>>> diff --git a/drivers/gpio/gpiolib-acpi-core.c
->>>>>> b/drivers/gpio/gpiolib-acpi-core.c
->>>>>> index eb8a40cfb7a98..e3511398b1f84 100644
->>>>>> --- a/drivers/gpio/gpiolib-acpi-core.c
->>>>>> +++ b/drivers/gpio/gpiolib-acpi-core.c
->>>>>> @@ -142,6 +142,13 @@ static struct gpio_desc *acpi_get_gpiod(char *path,
->>>>>> unsigned int pin)
->>>>>>            if (!gdev)
->>>>>>                    return ERR_PTR(-EPROBE_DEFER);
->>>>>>
->>>>>> +       if (gdev->dev.parent) {
->>>>>> +               scoped_guard(device, gdev->dev.parent) {
->>>>>> +                       if (!device_is_bound(gdev->dev.parent))
->>>>>> +                               return ERR_PTR(-EPROBE_DEFER);
->>>>>> +               }
->>>>>> +       }
->>>>>> +
->>>>>>            /*
->>>>>>             * FIXME: keep track of the reference to the GPIO device somehow
->>>>>>             * instead of putting it here.
->>>>>>
+> On 12/5/25 4:18 PM, Byungchul Park wrote:
+> > I'm happy to see that DEPT reported real problems in practice:
+> >
+> >     https://lore.kernel.org/lkml/6383cde5-cf4b-facf-6e07-1378a485657d@I=
+-love.SAKURA.ne.jp/
+> >     https://lore.kernel.org/lkml/1674268856-31807-1-git-send-email-byun=
+gchul.park@lge.com/
+> >     https://lore.kernel.org/all/b6e00e77-4a8c-4e05-ab79-266bf05fcc2d@ig=
+alia.com/
+> >
+> > I=E2=80=99ve added documentation describing DEPT =E2=80=94 this should =
+help you
+> > understand what DEPT is and how it works.  You can use DEPT simply by
+> > enabling CONFIG_DEPT and checking dmesg at runtime.
+> > ---
+> >
+> > Hi Linus and folks,
+> >
+> > I=E2=80=99ve been developing a tool to detect deadlock possibilities by=
+ tracking
+> > waits/events =E2=80=94 rather than lock acquisition order =E2=80=94 to =
+cover all the
+> > synchronization mechanisms.  To summarize the design rationale, startin=
+g
+> > from the problem statement, through analysis, to the solution:
+> >
+> >     CURRENT STATUS
+> >     --------------
+> >     Lockdep tracks lock acquisition order to identify deadlock conditio=
+ns.
+> >     Additionally, it tracks IRQ state changes =E2=80=94 via {en,dis}abl=
+e =E2=80=94 to
+> >     detect cases where locks are acquired unintentionally during
+> >     interrupt handling.
+> >
+> >     PROBLEM
+> >     -------
+> >     Waits and their associated events that are never reachable can
+> >     eventually lead to deadlocks.  However, since Lockdep focuses solel=
+y
+> >     on lock acquisition order, it has inherent limitations when handlin=
+g
+> >     waits and events.
+> >
+> >     Moreover, by tracking only lock acquisition order, Lockdep cannot
+> >     properly handle read locks or cross-event scenarios =E2=80=94 such =
+as
+> >     wait_for_completion() and complete() =E2=80=94 making it increasing=
+ly
+> >     inadequate as a general-purpose deadlock detection tool.
+> >
+> >     SOLUTION
+> >     --------
+> >     Once again, waits and their associated events that are never
+> >     reachable can eventually lead to deadlocks.  The new solution, DEPT=
+,
+> >     focuses directly on waits and events.  DEPT monitors waits and even=
+ts,
+> >     and reports them when any become unreachable.
+> >
+> > DEPT provides:
+> >
+> >     * Correct handling of read locks.
+> >     * Support for general waits and events.
+> >     * Continuous operation, even after multiple reports.
+> >     * Simple, intuitive annotation APIs.
+> >
+> > There are still false positives, and some are already being worked on
+> > for suppression.  Especially splitting the folio class into several
+> > appropriate classes e.g. block device mapping class and regular file
+> > mapping class, is currently under active development by me and Yeoreum
+> > Yun.
+> >> Anyway, these efforts will need to continue for a while, as we=E2=80=
+=99ve seen
+> > with lockdep over two decades.  DEPT is tagged as EXPERIMENTAL in
+> > Kconfig =E2=80=94 meaning it=E2=80=99s not yet suitable for use as an a=
+utomation tool.
+> >
+> > However, for those who are interested in using DEPT to analyze complex
+> > synchronization patterns and extract dependency insights, DEPT would be
+> > a great tool for the purpose.
 
+Best regards,
+Yunseong
