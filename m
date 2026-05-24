@@ -1,164 +1,97 @@
-Received: from mx3.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C99A21CFE0;
-	Sun, 24 May 2026 08:07:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=141.14.17.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4E6E265623;
+	Sun, 24 May 2026 22:07:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779610079; cv=none; b=bO9w9xeiajR4A98XpjC6QFoWDrz9z0jPMcNaIQL7g4yX0iTraReaGOl8Qs3rm3xTl9kqZW1d/GWJwPVMlMQFm2E4GnWXftKnsZYm1PpvDGYtx2LN5XB6aaiDSMia/Hop5HVK0B/iN8u7VglpkeLpqzbLoiuxNUtjY/eo/LaeFA4=
+	t=1779660447; cv=none; b=DsbUwpVxqhycGu1iZIXBJwEKkuzHiCun9BedwXx0Xf8JTTfWhrc/eVb7WM68r6D8bxTzHp39I0mcwog3Y1o1DwldVp+wcG1nTIVp7FUoJ3Xf/p9/PXDLonyo5qHv/zGHYvHRR6FEZ3sYT4jYeu4z6JXRFoDiWKWbtO8CTjB+uH0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779610079; c=relaxed/simple;
-	bh=9siUbjBGjkYz/vb+AEwh+rBA/PDo3PLkuThvpwu1FZY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=jNlhaZuUCzeuKzlLUH8zWsozBbxJjBT0H3hXI441Xw3w309IOOR593Si/2ncDl4ycB3owSQw0+kVU7s70kXr+Kbp+XIZSj+y6R02uAPrv93N71Q9VA+pJibZm6eGQe9qOHE7v044xnZcgR5AHmyc2b4Jh2lmTMpCzO1lz0fOFfs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=molgen.mpg.de; spf=pass smtp.mailfrom=molgen.mpg.de; arc=none smtp.client-ip=141.14.17.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=molgen.mpg.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=molgen.mpg.de
-Received: from abreu.speedport.ip (p5dc553b1.dip0.t-ipconnect.de [93.197.83.177])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: pmenzel)
-	by mx.molgen.mpg.de (Postfix) with ESMTPSA id 8C4044C151324A;
-	Sun, 24 May 2026 10:06:57 +0200 (CEST)
-From: Paul Menzel <pmenzel@molgen.mpg.de>
-To: Bartosz Golaszewski <brgl@kernel.org>,
-	Arnd Bergmann <arnd@arndb.de>,
+	s=arc-20240116; t=1779660447; c=relaxed/simple;
+	bh=rKvMurOqzcM6jN1JCFrw63qcuZKBoJLc4a5ZyGbaPZQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Lps1+fubf7Q8ewyLyKGf7/gys7uMIYAEa4DL4t0cB83/0juBTduhuhk7ppfDioahc4iAGbZBDv4RONX/8YtMpqoxL2mIq6bVOrwKZ8Cj1WRXl4D0exDu1veLVrh9K54OZfhUoLDu+mtcvWYcCj4xpuSADsUT7O1GgsltR5YVzMY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WtnZfh8/; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WtnZfh8/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57A4A1F000E9;
+	Sun, 24 May 2026 22:07:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779660446;
+	bh=rKvMurOqzcM6jN1JCFrw63qcuZKBoJLc4a5ZyGbaPZQ=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=WtnZfh8/+B63C4ETRE4EtdchHICjLmLltzrI8n19dKyemPW0MZ+N4dIMhKamvx2Z0
+	 4Jn3fngpCM91ORwYdNPeo1C1cHBvIrnWqXM+yle4keCED0K0yhxxVCBjlp6L5QxHZY
+	 3621YXuDTg0nHRt6KWmhHUs2/cJ4uwa29aurYOyrblGnW1WPzqEFptUn9BBLq0pDlE
+	 SnEIN+3IOwY/wZeMOA/27YtKrH9NTd7+7jY4PWGF7gO2I9geUP6/sPdqeqU+nuSbwL
+	 4q86Wnp0kEJ4vB4lpP7rVYJQhtTNuZaybnJIyFolIv/Ncz5HuxD1w2rqKtslbi0GTJ
+	 3x3YnvSiFFXvg==
+Received: by traversing.sirena.org.uk (Postfix, from userid 1000)
+	id 54AA8B5B196; Sun, 24 May 2026 23:07:23 +0100 (BST)
+Date: Sun, 24 May 2026 23:07:23 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Paul Menzel <pmenzel@molgen.mpg.de>
+Cc: Bartosz Golaszewski <brgl@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
 	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>
-Cc: Paul Menzel <pmenzel@molgen.mpg.de>,
 	Madhavan Srinivasan <maddy@linux.ibm.com>,
 	Michael Ellerman <mpe@ellerman.id.au>,
-	linuxppc-dev@lists.ozlabs.org,
-	linux-i2c@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH] misc: eeprom: at24: Make VCC supply description requirement optional
-Date: Sun, 24 May 2026 10:05:33 +0200
-Message-ID: <20260524080533.8749-2-pmenzel@molgen.mpg.de>
-X-Mailer: git-send-email 2.53.0
+Subject: Re: [PATCH] misc: eeprom: at24: Make VCC supply description
+ requirement optional
+Message-ID: <ahN2m3kCbyTUNXzZ@sirena.org.uk>
+References: <20260524080533.8749-2-pmenzel@molgen.mpg.de>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="KeG/eBaaLLasNpSH"
+Content-Disposition: inline
+In-Reply-To: <20260524080533.8749-2-pmenzel@molgen.mpg.de>
+X-Cookie: If it heals good, say it.
 
-Some platforms (e.g. IBM Power System S822LC (8335-GCA POWER8)) do not
-describe the EEPROM’s VCC supply in firmware-provided device trees.
-Using `devm_regulator_get()` on such systems falls back to a dummy
-regulator with a kernel warning:
 
-    at24 0-0051: supply vcc not found, using dummy regulator
-    at24 0-0051: 16384 byte 24c128 EEPROM, writable, 1 bytes/write
-    at24 0-0052: supply vcc not found, using dummy regulator
-    at24 0-0052: 256 byte 24c02 EEPROM, writable, 1 bytes/write
-    at24 0-0053: supply vcc not found, using dummy regulator
-    at24 0-0053: 256 byte 24c02 EEPROM, writable, 1 bytes/write
-    at24 0-0054: supply vcc not found, using dummy regulator
-    at24 0-0054: 256 byte 24c02 EEPROM, writable, 1 bytes/write
-    […]
-    at24 12-0050: supply vcc not found, using dummy regulator
-    at24 12-0050: 16384 byte 24c128 EEPROM, writable, 1 bytes/write
-    at24 12-0051: supply vcc not found, using dummy regulator
-    at24 12-0051: 16384 byte 24c128 EEPROM, writable, 1 bytes/write
+--KeG/eBaaLLasNpSH
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Switch to `devm_regulator_get_optional()` and treat -ENODEV as “no
-supply described”. When `vcc_reg` is NULL, skip all
-regulator_enable/disable calls; the hardware is assumed to be always
-powered. Linux now logs:
+On Sun, May 24, 2026 at 10:05:33AM +0200, Paul Menzel wrote:
 
-    at24 0-0051: 16384 byte 24c128 EEPROM, writable, 1 bytes/write
-    at24 0-0052: 256 byte 24c02 EEPROM, writable, 1 bytes/write
-    at24 0-0053: 256 byte 24c02 EEPROM, writable, 1 bytes/write
-    at24 0-0054: 256 byte 24c02 EEPROM, writable, 1 bytes/write
-    at24 0-0055: 256 byte 24c02 EEPROM, writable, 1 bytes/write
-    […]
-    at24 12-0050: 16384 byte 24c128 EEPROM, writable, 1 bytes/write
-    at24 12-0051: 16384 byte 24c128 EEPROM, writable, 1 bytes/write
+> Some platforms (e.g. IBM Power System S822LC (8335-GCA POWER8)) do not
+> describe the EEPROM=E2=80=99s VCC supply in firmware-provided device tree=
+s.
+> Using `devm_regulator_get()` on such systems falls back to a dummy
+> regulator with a kernel warning:
 
-Assisted-by: Claude Sonnet 4.6
-Cc: Madhavan Srinivasan <maddy@linux.ibm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: linuxppc-dev@lists.ozlabs.org
-Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
----
- drivers/misc/eeprom/at24.c | 26 ++++++++++++++++++--------
- 1 file changed, 18 insertions(+), 8 deletions(-)
+> Switch to `devm_regulator_get_optional()` and treat -ENODEV as =E2=80=9Cno
+> supply described=E2=80=9D. When `vcc_reg` is NULL, skip all
+> regulator_enable/disable calls; the hardware is assumed to be always
+> powered. Linux now logs:
 
-diff --git a/drivers/misc/eeprom/at24.c b/drivers/misc/eeprom/at24.c
-index 0200288d3a7a..7e1050f8759a 100644
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -699,9 +699,12 @@ static int at24_probe(struct i2c_client *client)
- 	at24->offset_adj = at24_get_offset_adj(flags, byte_len);
- 	at24->client_regmaps[0] = regmap;
- 
--	at24->vcc_reg = devm_regulator_get(dev, "vcc");
--	if (IS_ERR(at24->vcc_reg))
--		return PTR_ERR(at24->vcc_reg);
-+	at24->vcc_reg = devm_regulator_get_optional(dev, "vcc");
-+	if (IS_ERR(at24->vcc_reg)) {
-+		if (PTR_ERR(at24->vcc_reg) != -ENODEV)
-+			return PTR_ERR(at24->vcc_reg);
-+		at24->vcc_reg = NULL;
-+	}
- 
- 	writable = !(flags & AT24_FLAG_READONLY);
- 	if (writable) {
-@@ -754,9 +757,12 @@ static int at24_probe(struct i2c_client *client)
- 
- 	full_power = acpi_dev_state_d0(&client->dev);
- 	if (full_power) {
--		err = regulator_enable(at24->vcc_reg);
--		if (err)
--			return dev_err_probe(dev, err, "Failed to enable vcc regulator\n");
-+		if (at24->vcc_reg) {
-+			err = regulator_enable(at24->vcc_reg);
-+			if (err) {
-+				return dev_err_probe(dev, err, "Failed to enable vcc regulator\n");
-+			}
-+		}
- 
- 		pm_runtime_set_active(dev);
- 	}
-@@ -771,7 +777,7 @@ static int at24_probe(struct i2c_client *client)
- 		err = at24_read(at24, 0, &test_byte, 1);
- 		if (err) {
- 			pm_runtime_disable(dev);
--			if (!pm_runtime_status_suspended(dev))
-+			if (!pm_runtime_status_suspended(dev) && at24->vcc_reg)
- 				regulator_disable(at24->vcc_reg);
- 			return -ENODEV;
- 		}
-@@ -808,7 +814,7 @@ static void at24_remove(struct i2c_client *client)
- 
- 	pm_runtime_disable(&client->dev);
- 	if (acpi_dev_state_d0(&client->dev)) {
--		if (!pm_runtime_status_suspended(&client->dev))
-+		if (!pm_runtime_status_suspended(&client->dev) && at24->vcc_reg)
- 			regulator_disable(at24->vcc_reg);
- 		pm_runtime_set_suspended(&client->dev);
- 	}
-@@ -819,6 +825,8 @@ static int __maybe_unused at24_suspend(struct device *dev)
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct at24_data *at24 = i2c_get_clientdata(client);
- 
-+	if (!at24->vcc_reg)
-+		return 0;
- 	return regulator_disable(at24->vcc_reg);
- }
- 
-@@ -827,6 +835,8 @@ static int __maybe_unused at24_resume(struct device *dev)
- 	struct i2c_client *client = to_i2c_client(dev);
- 	struct at24_data *at24 = i2c_get_clientdata(client);
- 
-+	if (!at24->vcc_reg)
-+		return 0;
- 	return regulator_enable(at24->vcc_reg);
- }
- 
--- 
-2.53.0
+This is not appropriate unless the device can actually operate without
+power, any driver could be used in a system where the firmware does not
+describe the regultors and it'd obviously be pointless and error prone
+to scatter bodges like this on every single call to a regulator API
+function.
 
+--KeG/eBaaLLasNpSH
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmoTdpoACgkQJNaLcl1U
+h9AQ+gf/U5E4/c2Zku9iNJSh3o/PFohljPgzjkghjbNZ5QVK1QDF28o8gMTU4LLv
+mSj6i2bYMA/wiFrCdy8sO5iLMgnzgD8KGe9evXbxxbI2vrnsr4Hn8F2/EvKtW1wA
+rF0h/DBVoBdOYAuwSYInDgS+Nih6sOeCr5yvBQT0sGAHiwz52wRkTCSCKVVuA3Cj
+h+99OB69R67wvTETIZyQ7hgCSPEX+wu/4KeHv2S8aa3krQt9fNedXH5YsXe7/zIF
+wZCONiRFuQ4i7UEAwpWz/iOK5PGO9Wu3daY7JxGrJNI5q/61gdrkK3aGqqrrcA/x
+VZ4nFfSHEzS1tejk5ehf0A8ofSOKFg==
+=yWr/
+-----END PGP SIGNATURE-----
+
+--KeG/eBaaLLasNpSH--
