@@ -1,161 +1,92 @@
-Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 10FB6320CD9
-	for <linux-i2c@vger.kernel.org>; Mon, 25 May 2026 08:21:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03A4B34F24A;
+	Mon, 25 May 2026 10:33:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779697275; cv=none; b=IyT9FY5XKMfwdotQQCda+vPhM48oKXWgfggMghvMpBbVS5Ehnqx9PxiS112tPZDb4R+gYtg+GiauLiZBhI32RHE3zsbzDs+IlIWQ/ledftBK1353TFfq2RCnzu2P2YyAw7e+HDIq3PgoR9tK2bR79hEinoWbneecvrLnBNlMIc8=
+	t=1779705185; cv=none; b=cmg0MVfmy0yVQWSporlKTS0RpqLs+jWwVk1GQ81m7djGA66L6glY6X5qr/S3AbqdzgNp0wfWjbPwsCyrCcl8ipgQ0wxxzJc7MvLIJnnBB+acAltGOg4b7alA3RFbJCoIjj1b4glNw64qDRQ37wBmRZiwrV8cOX6jMucNglgm2/k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779697275; c=relaxed/simple;
-	bh=cnpeNyrRTMfn71Iw1My7ZiOgcb+W5DMHV+tEtk3Jprw=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=j9p0z2NcpVZ0UwqvKl8Z2xTH6Jz7OM3P987aGXBsTqfFGeDLI4n8NI+rubpKTBBUw28E7rYpTuLrKuiSkJfZ7+NrkDoe9WlSLbDVw8hCyR2jMr/GV0zllTBNDJ7vUrsdLRrAPVe77ZBuPFk8ogpLockEcop/5R/nEjRxNKGpanM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MbdoETWZ; arc=none smtp.client-ip=209.85.214.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779705185; c=relaxed/simple;
+	bh=KAZDuzP9gijbdivs8EV0WW9vXZa0QHchZnHc3UcVfKM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=LmQ3WtjnS5OwKA//uvmbYHs9IhAboHQ/qGfLn/CvJHFjdgmSlfU4lt5/NRSBxapTFVX0Ub861f1IgDd+DtrRnfdbNqFiIV1z/voezqs1d870j6p1a14C1QLlZkOyWgnRCO3oOMXHultePFrHHiTsZ0TZ3AYL0XquWSX3U769BVE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CVkX4JLx; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MbdoETWZ"
-Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2bea7176c72so30508115ad.0
-        for <linux-i2c@vger.kernel.org>; Mon, 25 May 2026 01:21:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779697272; x=1780302072; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=h73HPPR4b8cE2zhlXM66PdYigBOxMozGSruLRQEyEiQ=;
-        b=MbdoETWZnVu54cAdDYI+IcH7dP3KiMFUYIRxUXnG2Ab/xV7Ss0URUFR6Odm+pBRpqf
-         PekTC9McdvzdVJcyapSELOrilu+qAdhIZMQkgfX3bzBJJlSpBT6lOJBe5RnBY06WK+t2
-         XcXOt6hEq2rJaZMJP1daWYE41gC3xYCUUWXRW9vF3PdL7iu5fQyrjtJypt/BqxaRC2nl
-         ltjyta0KdmPnzj7zUjF65Er4+TvQHtZi3QA19E1SbY1lC9pjbtnhxyP5GQQTFBDbLZcw
-         D0wII5njH1rwFNM3iByK1cDPDckSOx6/yR5JW5IADz2NYgTq+koaLTdKR4mlCbSeRsuj
-         1bJw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779697272; x=1780302072;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=h73HPPR4b8cE2zhlXM66PdYigBOxMozGSruLRQEyEiQ=;
-        b=E5tZSRRusVf4Mp0n7Auw0OqzgyF3Lx+xhYnRK66IW5JYlHG5STo4cTJjO8L9YgZD8p
-         R97EPmlkW3sv3gkWOfzScZNuF/ruJYGj11Op2tgLmX9Mmdbe3eHBCacyways/vGWylo0
-         whM0PB1fpV9LAGsednmbqLmczIx/LVVpg3S+vvGo+LTZzp0Hd39pYaOaJzJACPowZM+v
-         dF2L7nENHKeA3pdyel5W+q2QmF73wNaf0EC7aElDXW/q4ct66s82ECYPMQyRUwCpLzwx
-         2GyOXkE7zPntg5dWJL0Eg4xz0O17R9hP4U666YSXnKf8L3hlYnP6iFupbwi3AlFhWVFV
-         Kw/g==
-X-Forwarded-Encrypted: i=1; AFNElJ/y0bjF/KggblwbzwocVyx2NnJbxBSbMMCoboDWKEihf4Fq4wVdOe3L5W0H7DOV8uy7QTFUaNeeaKc=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzn1hvX8sYTBPjr1VZN3ap4lAWBASaZTh44sHxViB7bz+oTc7fZ
-	rbmwjGpwUTb0iZp/GCbo98LUs2gFtMBVuPslx96TTxzV/fcdt+miSXAj
-X-Gm-Gg: Acq92OG9s8nLLn4yp/56Rs6PtL02kPDTFYcCE+9MbGdHoIZ29FOnAU72za7B/vUkW+M
-	p4T7HTTMpnIhtK6j/YkX/3eyhbrFj78YolyAYesp6WnkP/MW9iSETUMRxYx5/c2q0w3YzB+ZCWV
-	1CL55UI7Zgl+D9UECkkmhEsGR+d+xrPFfGswXpHnG12hx363NBv0xoS6CmSNbjitWJqqcwCYI+p
-	csr1Gh3sop0FbAS5sybzmMLMV2QdwgSdmUHcPV6IeqtMu0PoejY6TJygkWArBoW90gvvuuaCGro
-	4mDkltc669qtfBA6+14Fml43yan5mNN2wZQPRb+Sypc1i0TKpxK2ZlrNC/RPs6aseV+LpaPiSFj
-	OMaPsvtq3/sloZHX0CwZtn6zztdD1TWhp8IvnLxDKetqMUiJkkFaWcNOoVHnIIh+SSxPtjkOKIW
-	h4z3beEHWa5NaEclPYPlYa3mnOR2h6/wozZDOBu5JrI9ertEd0APyUvDyS3i+USbvriA==
-X-Received: by 2002:a17:902:e74b:b0:2bc:7d09:dcef with SMTP id d9443c01a7336-2beb06bc155mr153249445ad.29.1779697272248;
-        Mon, 25 May 2026 01:21:12 -0700 (PDT)
-Received: from hcdev-d520mt2.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2beb58b3bb6sm88798165ad.47.2026.05.25.01.21.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 May 2026 01:21:11 -0700 (PDT)
-From: a0282524688@gmail.com
-To: tmyu0@nuvoton.com,
-	linusw@kernel.org,
-	brgl@kernel.org,
-	linux@roeck-us.net,
-	andi.shyti@kernel.org,
-	lee@kernel.org,
-	mkl@pengutronix.de,
-	mailhol@kernel.org,
-	alexandre.belloni@bootlin.com,
-	wim@linux-watchdog.org
-Cc: linux-kernel@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-can@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-watchdog@vger.kernel.org,
-	linux-hwmon@vger.kernel.org,
-	linux-rtc@vger.kernel.org,
-	linux-usb@vger.kernel.org,
-	Ming Yu <a0282524688@gmail.com>
-Subject: [PATCH v5 0/7] mfd: nct6694: Refactor transport layer and add HIF (eSPI) support
-Date: Mon, 25 May 2026 16:20:49 +0800
-Message-Id: <20260525082049.2906283-1-a0282524688@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CVkX4JLx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16EB81F000E9;
+	Mon, 25 May 2026 10:32:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779705183;
+	bh=KAZDuzP9gijbdivs8EV0WW9vXZa0QHchZnHc3UcVfKM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=CVkX4JLxb7HaWjUtQlrnAVuwlF8utsaH7hoDGGQVTbahetlxUakzK3OdbPCKp6I6E
+	 py6FY8lHYeOhdUW5HEweEaWdfm/LK8Wyt9VOBs/2/njR0FjFhHScrv9c/C4ZiboKmN
+	 bWG+SBKd8WA3bLDdt+QnxA28klqmRLuT3/9AbsnAEXjED+RKQ/RORg1PyJCb3B1d7O
+	 khEnTRvtMCT3H/V++iHj4BUizlljIGFY9t+j6csDKKfATUvi5ar4LuhgHRj6fsl9u8
+	 t1t33znDbhcYeOAtWK/npIDpyHwXh59zgfq/wkwsneDtDL+CdpqqzERmR7kivDAgKF
+	 s8QBMbsK1vY9w==
+Date: Mon, 25 May 2026 11:32:55 +0100
+From: Mark Brown <broonie@kernel.org>
+To: Paul Menzel <pmenzel@molgen.mpg.de>
+Cc: Bartosz Golaszewski <brgl@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Liam Girdwood <lgirdwood@gmail.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] misc: eeprom: at24: Make VCC supply description
+ requirement optional
+Message-ID: <e71a9a6e-b6b5-42b6-b7a3-a689aed77faf@sirena.org.uk>
+References: <20260524080533.8749-2-pmenzel@molgen.mpg.de>
+ <ahN2m3kCbyTUNXzZ@sirena.org.uk>
+ <84448a84-1c96-45a9-9ba8-1e058d0bf8a5@molgen.mpg.de>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="jB4dCdALwZLV8nsW"
+Content-Disposition: inline
+In-Reply-To: <84448a84-1c96-45a9-9ba8-1e058d0bf8a5@molgen.mpg.de>
+X-Cookie: Prevent forest fires.
 
-From: Ming Yu <a0282524688@gmail.com>
 
-The Nuvoton NCT6694 is a peripheral expander that provides GPIO, I2C,
-CAN-FD, Watchdog, HWMON, PWM, and RTC sub-devices. Currently, the
-driver only supports USB as the host transport interface.
+--jB4dCdALwZLV8nsW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This series refactors the NCT6694 MFD core to support multiple transport
-backends and adds a new Host Interface (HIF) transport driver that
-communicates over eSPI using Super-I/O shared memory.
+On Mon, May 25, 2026 at 09:07:42AM +0200, Paul Menzel wrote:
+> Am 25.05.26 um 00:07 schrieb Mark Brown:
 
-Changes since version 4:
-- Split the monolithic refactoring and HIF support patch into a series of
-  smaller, logical commits to improve reviewability and adhere to the
-  single logical change principle.
-- Decoupled USB-specific data into a dedicated 'nct6694_usb_data' 
-  structure.
-- Abstracted device I/O operations by introducing 'read_msg' and 
-  'write_msg' function pointers in the core structure.
-- Renamed the existing driver to 'nct6694-usb.c' to strictly identify its
-  transport boundary, alongside Kconfig/Makefile updates.
-- Extracted transport-agnostic device management (IRQ domain setup, IDA
-  initialization, and MFD cell registration) into a standalone
-  'nct6694-core.c' module.
-- Added the 'nct6694-hif' eSPI transport driver clean on top of the new
-  core abstraction.
+> > This is not appropriate unless the device can actually operate without
+> > power, any driver could be used in a system where the firmware does not
+> > describe the regultors and it'd obviously be pointless and error prone
+> > to scatter bodges like this on every single call to a regulator API
+> > function.
 
-Changes since version 3:
-- Remove redundant module type macro definitions from sub-device drivers
-  that are now provided by the shared header <linux/mfd/nct6694.h>,
-  fixing -Wmacro-redefined warnings.
+> How should the warning on the POWER server be addressed then?
 
-Changes since version 2:
-- Restore per-device IDA and mfd_add_hotplug_devices()/PLATFORM_DEVID_AUTO
-  to avoid child device ID conflicts with multiple NCT6694 chips.
-- Validate irq_find_mapping() return value before dispatching IRQs.
-- Check superio_enter() return value in nct6694_irq_init().
+They should fix their DT, or you should arrange some way of identifying
+that for some reason their DT is like this and dummy regulators are the
+expected case.
 
-Changes since version 1:
-- Reworked the Super-I/O access helpers.
+--jB4dCdALwZLV8nsW
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Ming Yu (7):
-  mfd: nct6694: Move module type macros to shared header
-  mfd: nct6694: Refactor USB-specific data into nct6694_usb_data
-  mfd: nct6694: Introduce transport abstraction with function pointers
-  mfd: nct6694: Rename static I/O functions with _usb_ prefix
-  mfd: nct6694: Rename driver to nct6694-usb and update Kconfig
-  mfd: nct6694: Extract core device management into a separate module
-  mfd: nct6694: Add Host Interface (HIF) eSPI transport driver
+-----BEGIN PGP SIGNATURE-----
 
- MAINTAINERS                              |   2 +-
- drivers/gpio/gpio-nct6694.c              |   7 -
- drivers/hwmon/nct6694-hwmon.c            |  21 -
- drivers/i2c/busses/i2c-nct6694.c         |   7 -
- drivers/mfd/Kconfig                      |  38 +-
- drivers/mfd/Makefile                     |   4 +-
- drivers/mfd/nct6694-core.c               | 136 ++++++
- drivers/mfd/nct6694-hif.c                | 529 +++++++++++++++++++++++
- drivers/mfd/{nct6694.c => nct6694-usb.c} | 185 +++-----
- drivers/net/can/usb/nct6694_canfd.c      |   6 -
- drivers/rtc/rtc-nct6694.c                |   7 -
- drivers/watchdog/nct6694_wdt.c           |   7 -
- include/linux/mfd/nct6694.h              |  63 ++-
- 13 files changed, 821 insertions(+), 191 deletions(-)
- create mode 100644 drivers/mfd/nct6694-core.c
- create mode 100644 drivers/mfd/nct6694-hif.c
- rename drivers/mfd/{nct6694.c => nct6694-usb.c} (62%)
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmoUJVYACgkQJNaLcl1U
+h9AREAf/f/v7mAzKhtOmRxOlT4TGjQJtePIPPOm6XiISP/8a1lNhvpCtL2KgDxcr
+Iv7aZOZF8Ob9aM+VcpXShG33QQR8UENGmNQzQTZQGUj+pmaL3J5sgXCTQ4dLAajp
+8v6MqtFBpLqTRXsDM7OWtACOPcfeAxzryWOvmus7dnEIMkzhEyHQ6aTai2hw7PyY
+UjPm1ynrtZW/YuShzDmoFdfsiY3uzI2NBrTv3GoHe5LIOxHxQtTOitwy62xSkFUn
+lh0zFO3elO0qbj3h9yMznmrlp7NLybaH37p1hrJEXZTyUqv2DFyq41WmHuJFK+5y
+r0lUT3Oeeqzp5CYrkcIoShE7zdUx2g==
+=sanc
+-----END PGP SIGNATURE-----
 
--- 
-2.34.1
-
+--jB4dCdALwZLV8nsW--
