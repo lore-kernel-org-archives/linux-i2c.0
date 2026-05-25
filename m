@@ -1,92 +1,92 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp1-g21.free.fr (smtp1-g21.free.fr [212.27.42.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03A4B34F24A;
-	Mon, 25 May 2026 10:33:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 072C437D134;
+	Mon, 25 May 2026 11:24:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.27.42.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779705185; cv=none; b=cmg0MVfmy0yVQWSporlKTS0RpqLs+jWwVk1GQ81m7djGA66L6glY6X5qr/S3AbqdzgNp0wfWjbPwsCyrCcl8ipgQ0wxxzJc7MvLIJnnBB+acAltGOg4b7alA3RFbJCoIjj1b4glNw64qDRQ37wBmRZiwrV8cOX6jMucNglgm2/k=
+	t=1779708280; cv=none; b=ZayDhkYts6OMJ8vNrV9JhV4rX1iI1Z9F9pX2xvMaueDSY8CAn4odPDTeUsc1bXMDW0VSZoo1826ejn8bE53xZeoBp51g7mXHnDp7NFLPRKl107VLcL1sIaixdHpD6U2Ao5vcF+5X48TcvPQTlu+k45Csg+dpVsQnT6SfdB8X+3Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779705185; c=relaxed/simple;
-	bh=KAZDuzP9gijbdivs8EV0WW9vXZa0QHchZnHc3UcVfKM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LmQ3WtjnS5OwKA//uvmbYHs9IhAboHQ/qGfLn/CvJHFjdgmSlfU4lt5/NRSBxapTFVX0Ub861f1IgDd+DtrRnfdbNqFiIV1z/voezqs1d870j6p1a14C1QLlZkOyWgnRCO3oOMXHultePFrHHiTsZ0TZ3AYL0XquWSX3U769BVE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CVkX4JLx; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779708280; c=relaxed/simple;
+	bh=uxLP8IbyUY1c4syNBTYNja87B/Fv7UleF8C+qDT8zMU=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=r6bVbt4EM4hxDTIaXuAdHWoJqHmzi11fTGGaW1NsKjlpBkX+zUsU/G7PWVwNZCOZVmv0r45+uRUazOqxxa4O0/AOCRm8Ue3b+mrSJ7LONB//87Q6YowaNXfQV7BrKYPHG5IRq0b1H+wx80OAzXFQYtLIvtVK0dN5cv/rr/N4JfE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr; spf=pass smtp.mailfrom=free.fr; dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b=jhqCRc/P; arc=none smtp.client-ip=212.27.42.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=free.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CVkX4JLx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16EB81F000E9;
-	Mon, 25 May 2026 10:32:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779705183;
-	bh=KAZDuzP9gijbdivs8EV0WW9vXZa0QHchZnHc3UcVfKM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=CVkX4JLxb7HaWjUtQlrnAVuwlF8utsaH7hoDGGQVTbahetlxUakzK3OdbPCKp6I6E
-	 py6FY8lHYeOhdUW5HEweEaWdfm/LK8Wyt9VOBs/2/njR0FjFhHScrv9c/C4ZiboKmN
-	 bWG+SBKd8WA3bLDdt+QnxA28klqmRLuT3/9AbsnAEXjED+RKQ/RORg1PyJCb3B1d7O
-	 khEnTRvtMCT3H/V++iHj4BUizlljIGFY9t+j6csDKKfATUvi5ar4LuhgHRj6fsl9u8
-	 t1t33znDbhcYeOAtWK/npIDpyHwXh59zgfq/wkwsneDtDL+CdpqqzERmR7kivDAgKF
-	 s8QBMbsK1vY9w==
-Date: Mon, 25 May 2026 11:32:55 +0100
-From: Mark Brown <broonie@kernel.org>
-To: Paul Menzel <pmenzel@molgen.mpg.de>
-Cc: Bartosz Golaszewski <brgl@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] misc: eeprom: at24: Make VCC supply description
- requirement optional
-Message-ID: <e71a9a6e-b6b5-42b6-b7a3-a689aed77faf@sirena.org.uk>
-References: <20260524080533.8749-2-pmenzel@molgen.mpg.de>
- <ahN2m3kCbyTUNXzZ@sirena.org.uk>
- <84448a84-1c96-45a9-9ba8-1e058d0bf8a5@molgen.mpg.de>
+	dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b="jhqCRc/P"
+Received: from [127.0.1.1] (unknown [91.160.0.144])
+	(Authenticated sender: vjardin@free.fr)
+	by smtp1-g21.free.fr (Postfix) with ESMTPSA id 148BBB0051E;
+	Mon, 25 May 2026 13:24:09 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=free.fr;
+	s=smtp-20201208; t=1779708269;
+	bh=uxLP8IbyUY1c4syNBTYNja87B/Fv7UleF8C+qDT8zMU=;
+	h=From:Subject:Date:To:Cc:From;
+	b=jhqCRc/PehNw3nqF2B2O4/2bqBpdPkGXQP35+CUsg0a5EMGjXcVS4aNUkDmWMoip3
+	 SzX5bDpg8g5aHmBCAnAf8dnoTyi0C6xrFnNoKAjerNZJCSRjoQJnd5+jDRMUnzHSMl
+	 UH9Qcijk4KsVswkLjpxe11PfaQK2nJF2YC4x8pu7MxMNv1utSQwg6Fs0YGSUcfh46F
+	 bF/CW2Tce/lhGkCpLxOE9kUaOQj2xGu9BVXHxAy1Fy24rwcPFB2GKxT+RJQywoClKi
+	 yZeA1khX9in+kArfr89M6ejVhttRETJE2T3H1Z2rvXNeMd8Iw3ktx2JqxxfwjEAOHP
+	 AF/iXEaLdxedQ==
+From: Vincent Jardin <vjardin@free.fr>
+Subject: [PATCH 0/2] i2c: imx: fix SMBus block-read of 0 locking the bus
+Date: Mon, 25 May 2026 13:24:01 +0200
+Message-Id: <20260525-for-upstream-i2c-lx2160-fix-v1-v1-0-f30ab53dd97c@free.fr>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="jB4dCdALwZLV8nsW"
-Content-Disposition: inline
-In-Reply-To: <84448a84-1c96-45a9-9ba8-1e058d0bf8a5@molgen.mpg.de>
-X-Cookie: Prevent forest fires.
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAFExFGoC/x2NywqEMAwAf0VyNpBGKuiviIfajbsBX6Qqgvjvl
+ j0OAzM3JDGVBG1xg8mpSdclgysLiL+wfAX1kxmYuCbPHsfV8NjSbhJmVI44XexqwlEvPB1SHAI
+ FoqYSDzmymWTzH3T987wKnwFBcAAAAA==
+To: Oleksij Rempel <o.rempel@pengutronix.de>, 
+ Pengutronix Kernel Team <kernel@pengutronix.de>, 
+ Andi Shyti <andi.shyti@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
+ Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
+ Wolfram Sang <wsa@kernel.org>, 
+ Kaushal Butala <kaushalkernelmailinglist@gmail.com>, 
+ Shawn Guo <shawn.guo@freescale.com>, 
+ Stefan Eichenberger <stefan.eichenberger@toradex.com>
+Cc: linux-i2c@vger.kernel.org, imx@lists.linux.dev, 
+ linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
+ Vincent Jardin <vjardin@free.fr>, stable@vger.kernel.org
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1779708249; l=982;
+ i=vjardin@free.fr; s=20260525; h=from:subject:message-id;
+ bh=uxLP8IbyUY1c4syNBTYNja87B/Fv7UleF8C+qDT8zMU=;
+ b=hkA59lEEOgeOFJ62bM+X3GOA+PH/x5di7iGQBCaVOjxVxUp+FZp9cFCnIJDDQxlkgi9lopr6U
+ iwT9zSFoOLtB2OVKP/wOMpRkBZp/8xxLcR0qu4nvFHYWOHzy3ctSyy9
+X-Developer-Key: i=vjardin@free.fr; a=ed25519;
+ pk=hppgLeFpGpKOi7LNwGEZ4jOYofJCoGd4Jf1ltAabiLw=
 
+i2c-imx rejects a SMBus Block Read byte count of 0 (valid per SMBus 3.1
+6.5.7) and it returns without a NACK+STOP, leaving the target
+holding SDA so the bus is stuck until a power cycle occur.
 
---jB4dCdALwZLV8nsW
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The same bug is occuring with two independently introduced spots, so the
+fix is two patches with their respective Fixes: tags and backport ranges:
 
-On Mon, May 25, 2026 at 09:07:42AM +0200, Paul Menzel wrote:
-> Am 25.05.26 um 00:07 schrieb Mark Brown:
+  1/2  atomic/polling path       Fixes: 8e8782c71595   v3.16+
+  2/2  IRQ-driven state machine  Fixes: 5f5c2d4579ca   v6.13+
 
-> > This is not appropriate unless the device can actually operate without
-> > power, any driver could be used in a system where the firmware does not
-> > describe the regultors and it'd obviously be pointless and error prone
-> > to scatter bodges like this on every single call to a regulator API
-> > function.
+Signed-off-by: Vincent Jardin <vjardin@free.fr>
+---
+Vincent Jardin (2):
+      i2c: imx: fix locked bus on SMBus block-read of 0 (atomic)
+      i2c: imx: fix locked bus on SMBus block-read of 0 (IRQ)
 
-> How should the warning on the POWER server be addressed then?
+ drivers/i2c/busses/i2c-imx.c | 30 ++++++++++++++++++++++++++++--
+ 1 file changed, 28 insertions(+), 2 deletions(-)
+---
+base-commit: 6916d5703ddf9a38f1f6c2cc793381a24ee914c6
+change-id: 20260525-for-upstream-i2c-lx2160-fix-v1-0cba0a0093e5
 
-They should fix their DT, or you should arrange some way of identifying
-that for some reason their DT is like this and dummy regulators are the
-expected case.
+Best regards,
+-- 
+Vincent Jardin <vjardin@free.fr>
 
---jB4dCdALwZLV8nsW
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmoUJVYACgkQJNaLcl1U
-h9AREAf/f/v7mAzKhtOmRxOlT4TGjQJtePIPPOm6XiISP/8a1lNhvpCtL2KgDxcr
-Iv7aZOZF8Ob9aM+VcpXShG33QQR8UENGmNQzQTZQGUj+pmaL3J5sgXCTQ4dLAajp
-8v6MqtFBpLqTRXsDM7OWtACOPcfeAxzryWOvmus7dnEIMkzhEyHQ6aTai2hw7PyY
-UjPm1ynrtZW/YuShzDmoFdfsiY3uzI2NBrTv3GoHe5LIOxHxQtTOitwy62xSkFUn
-lh0zFO3elO0qbj3h9yMznmrlp7NLybaH37p1hrJEXZTyUqv2DFyq41WmHuJFK+5y
-r0lUT3Oeeqzp5CYrkcIoShE7zdUx2g==
-=sanc
------END PGP SIGNATURE-----
-
---jB4dCdALwZLV8nsW--
