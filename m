@@ -1,260 +1,276 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f41.google.com (mail-pj1-f41.google.com [209.85.216.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B00983CE0A1
-	for <linux-i2c@vger.kernel.org>; Mon, 25 May 2026 07:19:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90208329E5A
+	for <linux-i2c@vger.kernel.org>; Mon, 25 May 2026 08:18:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779693595; cv=none; b=B2CDAbB4K1Bs8WTHzsE/U991vR0IEqa0jjGUq2gsn/ZbVFFjv+5D/VeleXOb6gkxLcz+O3sfxAymHJIN0gVW/WjbwAE5bFeg8hvXxTdAUIjJnRXxNbkSeYx3r6LHYMdPuiRo4kq9VuOFTNFEb1vSqeW/+Rt8M04XlFnydAP+UFg=
+	t=1779697085; cv=none; b=M/2zIAIbf041cxHV69dFck9Jx/QjeSjqb/XsZ5dJdEXYEh4mPgcWQ9OFWdc8JG1ihV89WGs/EZNMvROpiplylwfWPNnBcmFvQnD0iUgKTe0CxYeGLp8mvJSWkq4c+wk+5q22hwf/opLmw6jT7tvnghnI1OnVzFa77PH/m0AUr2E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779693595; c=relaxed/simple;
-	bh=a5gc0uCdQe9/5DFJrAShKQrfw81He2Dn2U9WGVp3XB0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=G5b2sLDNJhrIlAw5vfdIHeXk5P4IzC095yzbWDs0mWNv2z0ss+LeLj0yozGeoZQNRDW3tG5pmTD/CDIXwz5ivYRyzRFjJ9SvFj0JNezYKGF9FahnA0EzZVJdUMk2Sb/GavIOhATcyyQOhl6TybmMIURBGOZYTShZxomvFEGve8c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=LxE51Xik; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=bwWsFulM; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1779697085; c=relaxed/simple;
+	bh=2EmRJVOu9kxZujWs9EHUsfBKTk0WixSaolqBsSe+3cw=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=MkoyIeLFI3m0w/V559X8URrLaw9ywVUqeaoJAHjtDb+WrHaEXnqdfvAtqoZghABjtjqTZ69vys9/YTAoMoCG8nD6QeNwCOvAcXhGQn0000RRAnMr3IGzZd7lSkMa7+JbhxvvnqQuMbfy5379wTOz+T/x0YWHcFAuKWFjEyDhhjM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=i2D5s7BR; arc=none smtp.client-ip=209.85.216.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="LxE51Xik";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="bwWsFulM"
-Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64P3Zt4h981344
-	for <linux-i2c@vger.kernel.org>; Mon, 25 May 2026 07:19:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	MxI111Tk2C3/6cjEtvMbYrAZgT7NZnITlSROWVUr89k=; b=LxE51Xik4Aff1NH/
-	sB30QEUnEG/p4C6471ZbfEZJ7FXfCuZGd0xT2GhjgvPHQS6QXTVURoJ0lKhZK95A
-	DtAqqsnSQ5aPZoZCVcel+Z6ZkA4du16hcxsHO4WSPMY40lZIZe8Ten5TfAfhSzlO
-	cVIQaDtGWv2z2diYDRxpVbJnnbnMYrqHE4od/XX7HUA2PTJM9YMaCJJW9P1zPe0v
-	Kq7LKonaHl9x8DHaMWu4/bS8/Ht2jEjH3WDR5ddq3bNxXVO0BMnv+Gkd4tfglzWd
-	YoTuCCZBLbosCDAH7hYGEOcuWBl2qo5R3GjYbLJHm17Mb4vQOmzcomaDnIbvWklw
-	m7A04Q==
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4eb386nr0s-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Mon, 25 May 2026 07:19:52 +0000 (GMT)
-Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2bd6aeb3637so225404185ad.2
-        for <linux-i2c@vger.kernel.org>; Mon, 25 May 2026 00:19:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="i2D5s7BR"
+Received: by mail-pj1-f41.google.com with SMTP id 98e67ed59e1d1-36abfe17c11so1149634a91.0
+        for <linux-i2c@vger.kernel.org>; Mon, 25 May 2026 01:18:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1779693592; x=1780298392; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=MxI111Tk2C3/6cjEtvMbYrAZgT7NZnITlSROWVUr89k=;
-        b=bwWsFulMwiSuCfIq7Og4lqHNNLE3dcbJj+pLNEiINZuqX/lY67YCfuAZvKpWNos6XE
-         ohWNZQplmJi2OP8iSoG59aIZLHCJAc/UZe5X+Iak/hPoC8i470b93d75H+p+PSaYZFJB
-         MUYQ9b+zh2fPP6DHM5KnqUo6i/3zGASZlDTyg+dLsd46HtacSN4snl6z8Aj8Qt0vwQZi
-         DqXX7lJ2qcte3UWNVmOnEUZw+g4m2B1YQJS6If3iadDcC6wIjzTKrIZCKWYTHFkRIMTj
-         jPdOdv3D4xMDkYLXvaDqz1J7XjPblhCdvDZAPNdNSQdy+SrrWKSGB63tRdxOTIzYQaDC
-         u/Lw==
+        d=gmail.com; s=20251104; t=1779697083; x=1780301883; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Dc4O5/kSgHyWkY3Qo5dJGWH4VWfSLL8bPtdDsIJFGxs=;
+        b=i2D5s7BRJpcTb8H4a2tfRzC1PkmLFikC/gQNEOWlJMtpBNxSBiyUstqNqEmoVCC1Rl
+         7bRFbG5vXwxY7+5Ec2TTfYAP2uEm1Swf1kXCoixwkmJjlOBCcRNYQgr740yENfKUEcdh
+         c8VlBxDJbBjThI8SPAh5mDIegj+VHtdrPqer9xqSL3rQLWeTSOMInK7NYcwcuwCvTHLA
+         H+AVxQW/eNLwyR6KJMANVRiuJB7LPiFC9l+7w/gDy6+0asfUNwvXVlWKob2pFBUgv98L
+         4qyfu6R86SVSi2x19VnXw+0nJr9TXspQ2z8XJm63mxMi1AD5cZWKkNuhqWtAQAy5lq7/
+         Es9A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779693592; x=1780298392;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=MxI111Tk2C3/6cjEtvMbYrAZgT7NZnITlSROWVUr89k=;
-        b=o9KPV+jWRFXR1NnGVkC63sDBTawtFi3WBM1t/6yRImjEMmD1anCNMOzca0l04grxo6
-         nyxElIqenfcBj6hEOwj5JFHvKlICISCu348Jfmx+d+q4ZKxZmcpT9cBbDebVtyhDpBYq
-         HXoeqZql5AMzmITnMCCvZH6PED3Ulk4IB76sKdsmGLET0b30fEOr5ZJD4XbqQPNAcIIs
-         AaXt057mm4hvhPz+oesczYO+1ULhvXSwx9K3qPOGvAngrKoF7AoUDfyk7zXmyM/f+ApJ
-         mDS2JyRpgfkhKTcYm6aLt7hf9NbCzCK0sbPf2lpvR2iScs6ErPxs8ZqZgbbe7XwtKiCF
-         I2Kg==
-X-Forwarded-Encrypted: i=1; AFNElJ+IuvQ7UcUhXUQiJ93y2O//9i5HoxlNgKRhTLi4jExLM1sOt1limArGQUQ1otZ0dJE949sIY2d7GlM=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy4xo6b6+lnKmmMmad5zXSmCqL+WXWjqB52xgox+dRKyoIIOlT4
-	eMwLGIFDyk3x63RUZ9tpXGxzfhPYZzYKUr403lG46eSUmgupI+UJugmqCHRloNJCrWIuMU8HST0
-	qNMS0wXAqalyadu9qKoMLU8dWdeFWHRkRuRIJx/TXgUXcWIgxoSQ3Khqj6IKd/hk=
-X-Gm-Gg: Acq92OEkO2o+GRRAxipJOPOP4+OjPdhbHNLEYf4U9l3RGXHHIpjCRG4/HGFXWxNiky9
-	r4HSSssUcgRRdmgYw5YCu4msMwP5sJGt50+ZyAtGLqxm638MlCLGdpHkXw3Y2m/GHIJhivd/g3E
-	iWHrpDXe8CyRZPd1txlmVSZyBK9qDR1CkY1Fcfz3veBV8eENYezBTNyXGb1jp52lHdzK9g7wGAT
-	917sRYFnV0xHvlZXitWkJzhvhR60ODqZfb37OdpBnkrJEXiCb+dsippvKei8j9bdRHJXwXO5+7O
-	h8K1288qdP56MpDodWDyNWELB2BLKkTiYY19XwYsPiIEAenZKDAuVpp2yO/f39ywvpANzzbgVhC
-	UOOSRUrC4IUj66OZFiLS2mhZzeIG7Nzz0IZOiAHwTTByvqFTIiIlgBw==
-X-Received: by 2002:a17:903:1aae:b0:2b9:5d1b:73da with SMTP id d9443c01a7336-2beb0741079mr150386785ad.30.1779693591586;
-        Mon, 25 May 2026 00:19:51 -0700 (PDT)
-X-Received: by 2002:a17:903:1aae:b0:2b9:5d1b:73da with SMTP id d9443c01a7336-2beb0741079mr150386515ad.30.1779693591010;
-        Mon, 25 May 2026 00:19:51 -0700 (PDT)
-Received: from [10.92.183.29] ([202.46.23.19])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2beb5695f54sm87935705ad.10.2026.05.25.00.19.44
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 25 May 2026 00:19:50 -0700 (PDT)
-Message-ID: <fc30805c-b9e0-4fb1-8769-c7b995310556@oss.qualcomm.com>
-Date: Mon, 25 May 2026 12:49:43 +0530
+        d=1e100.net; s=20251104; t=1779697083; x=1780301883;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=Dc4O5/kSgHyWkY3Qo5dJGWH4VWfSLL8bPtdDsIJFGxs=;
+        b=FcNHOI+GvWPTGVYHgdsj+LOAe0qbp0819Lm9BMHBcwKCc5+RFiR82sden8fhFyWuB8
+         MPRLl9IOhgpHmILR+5hmQmoDJZTdAhbQPHXxZIjq8Km1Jjh3QdbgH15RP/Vp3pHJgrRv
+         0Qfl7J8WelzB9m0SSJqUWLdoFbRNKsqC5lPmNFlvcQBFe8iSJaheqqCsO4w9nEeq2htl
+         RB8RQ0Ui9dkcx6um6bjLKfZao4ihIZ4MBeujbE5qVs6quyeqhnUMxKnhMOQp0FthM4bm
+         I0GHgVWVxHC3ck5UQTTxVVNz6DmvdicCQBj0lsDnlunehZuMaZpP/Y2JqXPUj/W07gY4
+         Q8xA==
+X-Forwarded-Encrypted: i=1; AFNElJ/hULwE5SHWcrdZWRqu+BNY0vgHYvIeGAgwiZmM+Q6KL9qcF5KAJPaa4C6tb9yDQlXk5x2SVeSZlVA=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzWkwAtJ71lu780eknzK8MCLYmI/RVA4bFCf5Vo+4LZPwYPbeov
+	TjJgQH3rBHhjljN+ic2Y7NqQg1yyx5f8VCW5GToiwpLosirLirCggEq7
+X-Gm-Gg: Acq92OF7YABoufHRzGsg4o9MCq5k39oUw2YdbSDT8nnwfJ8e3m/59zbtArICD29xd7+
+	gZfPXfyBxGROSJFNpfhgc12vhusTTMyLl5n5OmGZIAUTdPa/HN4mBNI83LGFq8j1I4jyU0tKQud
+	+lO3kGfCZFeXpm0kqm9ejK7nlKZO43O8IyWGtwV3/dyUe1X3+AVMQ65UrXeCm86R1BcTcerue9c
+	e/60mwWGPsvBTZGSj3VHne8UE4nazg5BDd4Ub7zOCMKik3pOTx4mfXMESj14xHWejBcEqmeI9tB
+	zCFZUewTguGlSFUfWm4cJ8f1eQBPCBcIdTDtJxoLiXpqWConjsNu+9Pfja2SVD5wrccHlwe6TTJ
+	vUbsNBXzCaCzOhmDek4rvqEoPCUEdh/Fe2OPdwuWJ468TVTsJ8J4nfEW9LSY9eLKN093Qxko21F
+	xN+wWQHbzIRPaSmfoOHuK3Awjnp1v7FAYadQmUtfVM2h75lv9/XapcgrMVJI2Sy79iY5QwVGQgf
+	gog
+X-Received: by 2002:a17:90b:3a10:b0:369:a359:b192 with SMTP id 98e67ed59e1d1-36a67475b45mr12807202a91.10.1779697082704;
+        Mon, 25 May 2026 01:18:02 -0700 (PDT)
+Received: from hcdev-d520mt2.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36a721c7cf9sm8964102a91.10.2026.05.25.01.17.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 May 2026 01:18:02 -0700 (PDT)
+From: a0282524688@gmail.com
+To: Ming Yu <tmyu0@nuvoton.com>,
+	Linus Walleij <linusw@kernel.org>,
+	Bartosz Golaszewski <brgl@kernel.org>,
+	Guenter Roeck <linux@roeck-us.net>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Marc Kleine-Budde <mkl@pengutronix.de>,
+	Vincent Mailhol <mailhol@kernel.org>,
+	Alexandre Belloni <alexandre.belloni@bootlin.com>,
+	Wim Van Sebroeck <wim@linux-watchdog.org>,
+	Lee Jones <lee@kernel.org>
+Cc: Ming Yu <a0282524688@gmail.com>,
+	linux-gpio@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linux-hwmon@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-can@vger.kernel.org,
+	linux-rtc@vger.kernel.org,
+	linux-watchdog@vger.kernel.org
+Subject: [PATCH v5 1/7] mfd: nct6694: Move module type macros to shared header
+Date: Mon, 25 May 2026 16:17:30 +0800
+Message-Id: <20260525081736.2904310-2-a0282524688@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260525081736.2904310-1-a0282524688@gmail.com>
+References: <20260525081736.2904310-1-a0282524688@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 4/4] i2c: qcom-geni: Support multi-owner controllers in
- GPI mode
-To: Bjorn Andersson <andersson@kernel.org>
-Cc: viken.dadhaniya@oss.qualcomm.com, andi.shyti@kernel.org, robh@kernel.org,
-        krzk+dt@kernel.org, conor+dt@kernel.org, vkoul@kernel.org,
-        Frank.Li@kernel.org, konradybcio@kernel.org,
-        dmitry.baryshkov@oss.qualcomm.com, linmq006@gmail.com,
-        quic_jseerapu@quicinc.com, agross@kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        dmaengine@vger.kernel.org, krzysztof.kozlowski@oss.qualcomm.com,
-        bartosz.golaszewski@oss.qualcomm.com, bjorn.andersson@oss.qualcomm.com,
-        konrad.dybcio@oss.qualcomm.com
-References: <20260423145705.545552-1-mukesh.savaliya@oss.qualcomm.com>
- <20260423145705.545552-5-mukesh.savaliya@oss.qualcomm.com>
- <ag_Ig7aQNNakiry_@baldur>
-Content-Language: en-US
-From: Mukesh Savaliya <mukesh.savaliya@oss.qualcomm.com>
-In-Reply-To: <ag_Ig7aQNNakiry_@baldur>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-ORIG-GUID: KFmp3LyulfYQSiyfVBN_36ir6V7XaSrE
-X-Proofpoint-GUID: KFmp3LyulfYQSiyfVBN_36ir6V7XaSrE
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI1MDA3MSBTYWx0ZWRfX1TwBIhOR7ytd
- 2iOf6BiIdJfeDMPn+0QhQXOrE2MVuYKT7WEHjb6KOCniapo4klLi+kwMrQhfGADR6rXKBKhHcSm
- Fem+6koCX0PXvPbzTEv9dYAOeB1uDeKMQKOMXTmNXRPwp0wtmPYKuA4GXjix0U2mQQ1/Myruf0h
- a8rj7klnzApoMWhwvUIitAzhDivTH313asFhmWxVc2fl179QGgn/gwsGNhAAH6a2g6NeAVAUuI5
- brpK1NwMH1kPZBLMCzbZf9MxbkuoIrbVEcW96soxUztwB8aiyOoz1im6J8jwF2f/yS0bVYmQjzn
- IRla4CRvWMn3xSpxi5hWIjEphdVJAQIkDxPmDD5jOuuBgN5tubVQKHWbb2Jo0b+mz4OxhbeRfDJ
- LSGGBxdKCZKoNmZPj0WVme0oQOh+W4ZZn4a0wQTM6TcCipkzpBw9Ibz2sA5RLoEDCsdaqiRHqFN
- 5MjUpXV//XOGsA+UK1A==
-X-Authority-Analysis: v=2.4 cv=PJY/P/qC c=1 sm=1 tr=0 ts=6a13f818 cx=c_pps
- a=JL+w9abYAAE89/QcEU+0QA==:117 a=j4ogTh8yFefVWWEFDRgCtg==:17
- a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_glEPmIy2e8OvE2BGh3C:22
- a=EUspDBNiAAAA:8 a=7O1uvCrluarMPFSrEYwA:9 a=QEXdDO2ut3YA:10
- a=324X-CrmTo6CU4MGRt3R:22
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-25_02,2026-05-18_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 impostorscore=0 clxscore=1015 priorityscore=1501
- lowpriorityscore=0 bulkscore=0 adultscore=0 suspectscore=0 malwarescore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2605130000
- definitions=main-2605250071
+Content-Transfer-Encoding: 8bit
 
-Thanks for the detailed review, Bjorn.
+From: Ming Yu <a0282524688@gmail.com>
 
-On 5/22/2026 8:45 AM, Bjorn Andersson wrote:
-> On Thu, Apr 23, 2026 at 08:25:51PM +0530, Mukesh Kumar Savaliya wrote:
->> Some platforms use a QUP-based I2C controller in a configuration where the
->> controller is shared with another system processor. In this setup the
->> operating system must not assume exclusive ownership of the controller or
->> its associated pins.
->>
->> Add support for enabling multi-owner operation when DeviceTree specifies
->> qcom,qup-multi-owner. When enabled, mark the underlying serial engine as
->> shared so the common GENI resource handling avoids selecting the "sleep"
->> pinctrl state, which could disrupt transfers initiated by the other
->> processor.
->>
->> For GPI mode transfers, request lock/unlock TRE sequencing from the GPI
-> 
-> "For GPI mode transfers" is there any other form?
-> 
+Move NCT6694_XXX_MOD  macro definitions from individual sub-device
+drivers into the shared header include/linux/mfd/nct6694.h.
 
-Good point. The lock/unlock sequencing is only relevant when the
-controller operates in GPI DMA mode. In FIFO mode the transfer path
-does not go through the GPI engine, so this mechanism does not apply.
+This is a prerequisite for supporting multiple transport interfaces
+(USB, HIF) without duplicating these definitions.
 
-Let me clarify this wording in the commit message to make it explicit.
+No functional change.
 
->> driver by setting a single lock_action selector per message, emitting lock
->> before the first message and unlock after the last message (handling the
->> single-message case as well). This serializes access to the shared
->> controller without requiring message-position flags to be passed into the
->> DMA engine layer.
->>
->> Signed-off-by: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
->> ---
->>   drivers/i2c/busses/i2c-qcom-geni.c | 22 +++++++++++++++++++++-
->>   1 file changed, 21 insertions(+), 1 deletion(-)
->>
->> diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
->> index ae609bdd2ec4..a396ddc7d8f4 100644
->> --- a/drivers/i2c/busses/i2c-qcom-geni.c
->> +++ b/drivers/i2c/busses/i2c-qcom-geni.c
->> @@ -815,6 +815,14 @@ static int geni_i2c_gpi_xfer(struct geni_i2c_dev *gi2c, struct i2c_msg msgs[], i
->>   		if (i < num - 1)
->>   			peripheral.stretch = 1;
->>   
->> +		peripheral.lock_action = GPI_LOCK_NONE;
->> +		if (gi2c->se.multi_owner) {
->> +			if (i == 0)
->> +				peripheral.lock_action = GPI_LOCK_ACQUIRE;
->> +			else if (i == num - 1)
->> +				peripheral.lock_action = GPI_LOCK_RELEASE;
-> 
-> You say above that single-messages case is handled, but if num == 1 then
-> we will hit i == 0, set the acquire, we will not hit else, and then we
-> will exit the loop. What am I missing?
-> 
+Signed-off-by: Ming Yu <a0282524688@gmail.com>
+---
+Changes in v5:
+- Split from the monolithic v4 patch to follow the single logical change principle.
 
-You are right, the current implementation does not handle the
-single-message case correctly. In that case we need both acquire
-and release for the same message.
+ drivers/gpio/gpio-nct6694.c         |  7 -------
+ drivers/hwmon/nct6694-hwmon.c       | 21 ---------------------
+ drivers/i2c/busses/i2c-nct6694.c    |  7 -------
+ drivers/net/can/usb/nct6694_canfd.c |  6 ------
+ drivers/rtc/rtc-nct6694.c           |  7 -------
+ drivers/watchdog/nct6694_wdt.c      |  7 -------
+ include/linux/mfd/nct6694.h         |  9 +++++++++
+ 7 files changed, 9 insertions(+), 55 deletions(-)
 
-I will fix this by explicitly handling the num == 1 case and setting
-both lock and unlock for that transfer.
-
->> +		}
->> +
->>   		peripheral.addr = msgs[i].addr;
->>   		if (i > 0 && (!(msgs[i].flags & I2C_M_RD)))
->>   			peripheral.multi_msg = false;
->> @@ -1014,6 +1022,11 @@ static int geni_i2c_probe(struct platform_device *pdev)
->>   		gi2c->clk_freq_out = I2C_MAX_STANDARD_MODE_FREQ;
->>   	}
->>   
->> +	if (of_property_read_bool(pdev->dev.of_node, "qcom,qup-multi-owner")) {
->> +		gi2c->se.multi_owner = true;
-> 
-> gi2c->se.multi_owner = of_property_read_bool(pdev->dev.of_node, "qcom,qup-multi-owner");
-> 
-
-Agreed, this can be simplified. I will update accordingly.
-
->> +		dev_dbg(&pdev->dev, "I2C controller is shared with another system processor\n");
->> +	}
->> +
->>   	if (has_acpi_companion(dev))
->>   		ACPI_COMPANION_SET(&gi2c->adap.dev, ACPI_COMPANION(dev));
->>   
->> @@ -1089,7 +1102,9 @@ static int geni_i2c_probe(struct platform_device *pdev)
->>   	}
->>   
->>   	if (fifo_disable) {
->> -		/* FIFO is disabled, so we can only use GPI DMA */
->> +		/* FIFO is disabled, so we can only use GPI DMA.
-> 
-> That's not how we format comments outside the network subsystem.
-> 
-
-Ack, I will fix the comment formatting.
-
-> Regards,
-> Bjorn
-> 
->> +		 * SE can be shared in GSI mode between subsystems, each SS owns a GPII.
->> +		 */
->>   		gi2c->gpi_mode = true;
->>   		ret = setup_gpi_dma(gi2c);
->>   		if (ret)
->> @@ -1098,6 +1113,11 @@ static int geni_i2c_probe(struct platform_device *pdev)
->>   		dev_dbg(dev, "Using GPI DMA mode for I2C\n");
->>   	} else {
->>   		gi2c->gpi_mode = false;
->> +
->> +		if (gi2c->se.multi_owner)
->> +			return dev_err_probe(dev, -EINVAL,
->> +					     "I2C sharing not supported in non GSI mode\n");
->> +
->>   		tx_depth = geni_se_get_tx_fifo_depth(&gi2c->se);
->>   
->>   		/* I2C Master Hub Serial Elements doesn't have the HW_PARAM_0 register */
->> -- 
->> 2.43.0
->>
+diff --git a/drivers/gpio/gpio-nct6694.c b/drivers/gpio/gpio-nct6694.c
+index a8607f0d9915..53bfc5983648 100644
+--- a/drivers/gpio/gpio-nct6694.c
++++ b/drivers/gpio/gpio-nct6694.c
+@@ -13,13 +13,6 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ 
+-/*
+- * USB command module type for NCT6694 GPIO controller.
+- * This defines the module type used for communication with the NCT6694
+- * GPIO controller over the USB interface.
+- */
+-#define NCT6694_GPIO_MOD	0xFF
+-
+ #define NCT6694_GPIO_VER	0x90
+ #define NCT6694_GPIO_VALID	0x110
+ #define NCT6694_GPI_DATA	0x120
+diff --git a/drivers/hwmon/nct6694-hwmon.c b/drivers/hwmon/nct6694-hwmon.c
+index 6dcf22ca5018..581451875f2c 100644
+--- a/drivers/hwmon/nct6694-hwmon.c
++++ b/drivers/hwmon/nct6694-hwmon.c
+@@ -15,13 +15,6 @@
+ #include <linux/platform_device.h>
+ #include <linux/slab.h>
+ 
+-/*
+- * USB command module type for NCT6694 report channel
+- * This defines the module type used for communication with the NCT6694
+- * report channel over the USB interface.
+- */
+-#define NCT6694_RPT_MOD			0xFF
+-
+ /* Report channel */
+ /*
+  * The report channel is used to report the status of the hardware monitor
+@@ -38,13 +31,6 @@
+ #define NCT6694_TIN_STS(x)		(0x6A + (x))
+ #define NCT6694_FIN_STS(x)		(0x6E + (x))
+ 
+-/*
+- * USB command module type for NCT6694 HWMON controller.
+- * This defines the module type used for communication with the NCT6694
+- * HWMON controller over the USB interface.
+- */
+-#define NCT6694_HWMON_MOD		0x00
+-
+ /* Command 00h - Hardware Monitor Control */
+ #define NCT6694_HWMON_CONTROL		0x00
+ #define NCT6694_HWMON_CONTROL_SEL	0x00
+@@ -53,13 +39,6 @@
+ #define NCT6694_HWMON_ALARM		0x02
+ #define NCT6694_HWMON_ALARM_SEL		0x00
+ 
+-/*
+- * USB command module type for NCT6694 PWM controller.
+- * This defines the module type used for communication with the NCT6694
+- * PWM controller over the USB interface.
+- */
+-#define NCT6694_PWM_MOD			0x01
+-
+ /* PWM Command - Manual Control */
+ #define NCT6694_PWM_CONTROL		0x01
+ #define NCT6694_PWM_CONTROL_SEL		0x00
+diff --git a/drivers/i2c/busses/i2c-nct6694.c b/drivers/i2c/busses/i2c-nct6694.c
+index 1413ab6f9462..ef3329f34246 100644
+--- a/drivers/i2c/busses/i2c-nct6694.c
++++ b/drivers/i2c/busses/i2c-nct6694.c
+@@ -12,13 +12,6 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ 
+-/*
+- * USB command module type for NCT6694 I2C controller.
+- * This defines the module type used for communication with the NCT6694
+- * I2C controller over the USB interface.
+- */
+-#define NCT6694_I2C_MOD			0x03
+-
+ /* Command 00h - I2C Deliver */
+ #define NCT6694_I2C_DELIVER		0x00
+ #define NCT6694_I2C_DELIVER_SEL		0x00
+diff --git a/drivers/net/can/usb/nct6694_canfd.c b/drivers/net/can/usb/nct6694_canfd.c
+index e5f7f8849a73..262b4c26c9d4 100644
+--- a/drivers/net/can/usb/nct6694_canfd.c
++++ b/drivers/net/can/usb/nct6694_canfd.c
+@@ -18,12 +18,6 @@
+ 
+ #define DEVICE_NAME "nct6694-canfd"
+ 
+-/* USB command module type for NCT6694 CANfd controller.
+- * This defines the module type used for communication with the NCT6694
+- * CANfd controller over the USB interface.
+- */
+-#define NCT6694_CANFD_MOD			0x05
+-
+ /* Command 00h - CAN Setting and Initialization */
+ #define NCT6694_CANFD_SETTING			0x00
+ #define NCT6694_CANFD_SETTING_ACTIVE_CTRL1	BIT(0)
+diff --git a/drivers/rtc/rtc-nct6694.c b/drivers/rtc/rtc-nct6694.c
+index 35401a0d9cf5..c06902f150c9 100644
+--- a/drivers/rtc/rtc-nct6694.c
++++ b/drivers/rtc/rtc-nct6694.c
+@@ -14,13 +14,6 @@
+ #include <linux/rtc.h>
+ #include <linux/slab.h>
+ 
+-/*
+- * USB command module type for NCT6694 RTC controller.
+- * This defines the module type used for communication with the NCT6694
+- * RTC controller over the USB interface.
+- */
+-#define NCT6694_RTC_MOD		0x08
+-
+ /* Command 00h - RTC Time */
+ #define NCT6694_RTC_TIME	0x0000
+ #define NCT6694_RTC_TIME_SEL	0x00
+diff --git a/drivers/watchdog/nct6694_wdt.c b/drivers/watchdog/nct6694_wdt.c
+index bc3689bd4b6b..4c06ac105562 100644
+--- a/drivers/watchdog/nct6694_wdt.c
++++ b/drivers/watchdog/nct6694_wdt.c
+@@ -20,13 +20,6 @@
+ 
+ #define NCT6694_WDT_MAX_DEVS		2
+ 
+-/*
+- * USB command module type for NCT6694 WDT controller.
+- * This defines the module type used for communication with the NCT6694
+- * WDT controller over the USB interface.
+- */
+-#define NCT6694_WDT_MOD			0x07
+-
+ /* Command 00h - WDT Setup */
+ #define NCT6694_WDT_SETUP		0x00
+ #define NCT6694_WDT_SETUP_SEL(idx)	(idx ? 0x01 : 0x00)
+diff --git a/include/linux/mfd/nct6694.h b/include/linux/mfd/nct6694.h
+index 6eb9be2cd4a0..3c683e317aa3 100644
+--- a/include/linux/mfd/nct6694.h
++++ b/include/linux/mfd/nct6694.h
+@@ -8,6 +8,15 @@
+ #ifndef __MFD_NCT6694_H
+ #define __MFD_NCT6694_H
+ 
++#define NCT6694_HWMON_MOD	0x00
++#define NCT6694_PWM_MOD		0x01
++#define NCT6694_I2C_MOD		0x03
++#define NCT6694_CANFD_MOD	0x05
++#define NCT6694_WDT_MOD		0x07
++#define NCT6694_RTC_MOD		0x08
++#define NCT6694_RPT_MOD		0xFF
++#define NCT6694_GPIO_MOD	NCT6694_RPT_MOD
++
+ #define NCT6694_VENDOR_ID	0x0416
+ #define NCT6694_PRODUCT_ID	0x200B
+ #define NCT6694_INT_IN_EP	0x81
+-- 
+2.34.1
 
