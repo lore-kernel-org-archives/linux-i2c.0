@@ -1,128 +1,186 @@
-Received: from smtp1-g21.free.fr (smtp1-g21.free.fr [212.27.42.1])
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.21])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA64333BBD9;
-	Mon, 25 May 2026 11:25:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.27.42.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB3A02F7EE5;
+	Mon, 25 May 2026 16:08:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.17.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779708309; cv=none; b=M/IzAecgJMTHuv4QkG/6m1VjQQwqByrdL43DKmtyykZPEhTOQ4kaFWLLzLE+dREMApCe+O2i32meKNRbRy6F0iQEsWU04EjPW8IbqTWUTgl8DIHzZIh7qpalllzgDR2cGp0NFw+FogMn0pNw+b0xPlN0PoUVhKBEqazG2G0op54=
+	t=1779725284; cv=none; b=SedlIhZL5cHyaN6fswRe8EQtDmSluQjVxpU245ZNz7AlNAgQ4N9Sx5LhoV5o6n1tUrHgu+jrFWgNsk0mGDFUviJOOZdq8ndvsaEvjLGhmWGFZs/QNwwIAJCKAkj/YJwU5dPYUXMmq/pXpymL4WRQMsDGwvXa+Bok0oA2JVoMie0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779708309; c=relaxed/simple;
-	bh=QI+F4s3l2reRW12v8sYKUXXffhbNq76K46I/ps3EMWw=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=A8uAsIqCR0n9mByUDQVhNhUMxSKAT/zvzSb2bzRORRLJ8bxrtCvxSfSYY1EF+PxdSfJsZfnkIdlQv0rNhQG+pxAaUJYuNsbnIv6ajbuNELXRVFU+yk5ngO8nAettXmH9aJ48C8bHvcvcO6UJCZsIxJeVMgxDzgyWSQ6nvupv7kk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr; spf=pass smtp.mailfrom=free.fr; dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b=CTA6+bZG; arc=none smtp.client-ip=212.27.42.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=free.fr
+	s=arc-20240116; t=1779725284; c=relaxed/simple;
+	bh=GbRPHHiQsxD4xUtNT48hfYk8TDSXOmW2yRGzpvs8x60=;
+	h=From:To:Cc:References:In-Reply-To:Subject:Date:Message-ID:
+	 MIME-Version:Content-Type; b=gGwO7h6CafnQocsItrXq3R/cWjj+s32k8Th1bHrM0+n4vamkWa/sPBkZ8PGbg5VonodCrZ40h64D1WcBnOYatlwhTah+vIY6YCsxHtAWXJuLPBZtCFncbMH1BWUfCfNH+jnYXYgse1lxZGld0I0JhRunrO1l6x8N+QJIQDA3aMY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de; spf=pass smtp.mailfrom=gmx.de; dkim=pass (2048-bit key) header.d=gmx.de header.i=markus.stockhausen@gmx.de header.b=AYDeK2nq; arc=none smtp.client-ip=212.227.17.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gmx.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmx.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b="CTA6+bZG"
-Received: from [127.0.1.1] (unknown [91.160.0.144])
-	(Authenticated sender: vjardin@free.fr)
-	by smtp1-g21.free.fr (Postfix) with ESMTPSA id EA1F2B00596;
-	Mon, 25 May 2026 13:24:47 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=free.fr;
-	s=smtp-20201208; t=1779708306;
-	bh=QI+F4s3l2reRW12v8sYKUXXffhbNq76K46I/ps3EMWw=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=CTA6+bZGOui1FpWIZFA65ZS55voHN9neOqzEHsRBiY7XIxXX1DCQyfMMzmf/r4mxL
-	 8F++ywor5VLGprwzyvNPqWF2iPfshkp8yWP2NJ8z6JSgTsF8uOuJ+rSEpjrecy1Hfb
-	 or7A5qUlMfWcS50GJDZu9zzIfnsmGpa0Hr7ttA+yNbAi7bdAbm5okoTGw/6gmZlvkq
-	 vSKnpj7dB63KfCQj3aTtkmWQiVYedDEfv/sSFsIUTLutNiftSguMfvEgX8/kdiEKRr
-	 YCdQ1sbXmesIk+eEpkydm2HXOX/lGOpeeuf7Ega6Aw+zwu8W7tQcgk58JWKJ9hfatm
-	 a63mBfLJ8WNQg==
-From: Vincent Jardin <vjardin@free.fr>
-Date: Mon, 25 May 2026 13:24:03 +0200
-Subject: [PATCH 2/2] i2c: imx: fix locked bus on SMBus block-read of 0
- (IRQ)
+	dkim=pass (2048-bit key) header.d=gmx.de header.i=markus.stockhausen@gmx.de header.b="AYDeK2nq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmx.de;
+	s=s31663417; t=1779725281; x=1780330081;
+	i=markus.stockhausen@gmx.de;
+	bh=XfTJN+KrRLh/FBA8ycnlDczTS79RxLqiDmHuVL8Bm9s=;
+	h=X-UI-Sender-Class:From:To:Cc:References:In-Reply-To:Subject:Date:
+	 Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:cc:
+	 content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=AYDeK2nqHpdtU2IISixaw5oOr3mdPoFh5q+0VTBRYFGNPu/l7p4SfVoZunekeB65
+	 QOUw5DbrCrbc1BUXbdjSxkjkzrM4hZo/QAZhrEhCilpwOovgnrrUKyI1KYSgA1pNk
+	 AvkDs88elD+i6S1vxzCGr53aF7AJ/P6PlCpRXJDsL65jlJ2umD8hq54wA6eAfBAKd
+	 yPeXwW1+mhPP/mAVM9oOVrY4iizdrLGnMMlt8pjCWm6hKCFLJpJBvGz/r1Jb62aB8
+	 wms2ME/n3WduYOM9uMZq1doZY6KFXIBag6w79oJGaxhAtKmVrU2a8GcTyyJwlCWnf
+	 +MlM8W3AZtx9LZwRdA==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from client.hidden.invalid by mail.gmx.net (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1MBUm7-1wcFDS0Lmx-00F6IR; Mon, 25
+ May 2026 18:08:01 +0200
+From: "Markus Stockhausen" <markus.stockhausen@gmx.de>
+To: "'Bartosz Golaszewski'" <brgl@kernel.org>,
+	<wsa+renesas@sang-engineering.com>,
+	<andi.shyti@kernel.org>,
+	<linusw@kernel.org>
+Cc: <linux-i2c@vger.kernel.org>,
+	<linux-gpio@vger.kernel.org>
+References: <20260520173129.1382489-1-markus.stockhausen@gmx.de> <CAMRc=Mf6EQDF-fSVb+jhmLvMUi2eJ5QhukKC08S-T12HKinibw@mail.gmail.com>
+In-Reply-To: <CAMRc=Mf6EQDF-fSVb+jhmLvMUi2eJ5QhukKC08S-T12HKinibw@mail.gmail.com>
+Subject: AW: [PATCH v3] i2c: i2c-gpio: Enhance driver for buses with shared SCL
+Date: Mon, 25 May 2026 18:08:00 +0200
+Message-ID: <00c601dcec60$a9496f90$fbdc4eb0$@gmx.de>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260525-for-upstream-i2c-lx2160-fix-v1-v1-2-f30ab53dd97c@free.fr>
-References: <20260525-for-upstream-i2c-lx2160-fix-v1-v1-0-f30ab53dd97c@free.fr>
-In-Reply-To: <20260525-for-upstream-i2c-lx2160-fix-v1-v1-0-f30ab53dd97c@free.fr>
-To: Oleksij Rempel <o.rempel@pengutronix.de>, 
- Pengutronix Kernel Team <kernel@pengutronix.de>, 
- Andi Shyti <andi.shyti@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
- Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
- Wolfram Sang <wsa@kernel.org>, 
- Kaushal Butala <kaushalkernelmailinglist@gmail.com>, 
- Shawn Guo <shawn.guo@freescale.com>, 
- Stefan Eichenberger <stefan.eichenberger@toradex.com>
-Cc: linux-i2c@vger.kernel.org, imx@lists.linux.dev, 
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
- Vincent Jardin <vjardin@free.fr>, stable@vger.kernel.org
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1779708249; l=2194;
- i=vjardin@free.fr; s=20260525; h=from:subject:message-id;
- bh=QI+F4s3l2reRW12v8sYKUXXffhbNq76K46I/ps3EMWw=;
- b=9E/1geMmLSMLu7ab1ocRO4B32jedOSXKFDbwcYcO46aNg3xmG0FMf6lFwxLHOenQrI+Jz+xBj
- VMUF8FUJxH6CSBh0QyCKGT3mTdU5RCcIIUUL4dx/H61no6SjC3A/29V
-X-Developer-Key: i=vjardin@free.fr; a=ed25519;
- pk=hppgLeFpGpKOi7LNwGEZ4jOYofJCoGd4Jf1ltAabiLw=
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-Mailer: Microsoft Outlook 16.0
+Thread-Index: AQI6zeFKpso+Safsn/FOU0fhx6fKEgKiQYsdtU4SIuA=
+Content-Language: de
+X-Provags-ID: V03:K1:BBeQGrF9YjkFPBSC9oMZKdal3bm1lNGyl0ewk0AKB3v3Aj5LXWh
+ WulInmBBjqX9+iOGs1GDAIGU2nezMJG12bPLS4miLGG+WBsOmpInmBF22YN9foib1NHfXvs
+ a6qCWG0FWbs9w0F6VZ+CEwJuh/HaF7S79AcPY9xqHjzBhBWzvLnUcPJVwMiUtk1AF3T7ddO
+ QvlrSjQQf7Gp2ovY+jB7g==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:X6aICp7Mb9k=;mhrkgOvo5SnaYCctFahJW3aqSZ8
+ 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
+ 3dh0/i4WS0MZjYzoEs=
 
-SMBus 3.1 6.5.7 allows a Block Read byte count of 0, but the
-interrupt-driven block-read state machine rejects it as -EPROTO. Worse,
-it returns without a NACK+STOP: the next receive cycle has already
-started, so the target keeps holding SDA and the bus stays stuck until a
-power cycle of this i2c controller.
+Hi all,
 
-Accept count=0: NACK the in-flight dummy byte (TXAK) and set msg->len to
-2 so i2c_imx_isr_read_continue() emits STOP via its normal last-byte
-path. The dummy byte is discarded; block-read callers only consume
-buf[0..count-1].
+> Von: Bartosz Golaszewski <brgl@kernel.org>=20
+> Gesendet: Donnerstag, 21. Mai 2026 10:59
+> An: Markus Stockhausen <markus.stockhausen@gmx.de>
+> Betreff: Re: [PATCH v3] i2c: i2c-gpio: Enhance driver for buses with =
+shared SCL
+> ...
+> >  /*
+> >   * Toggle SDA by changing the output value of the pin. This is only
+> >   * valid for pins configured as open drain (i.e. setting the value =
+@@=20
+> > -53,7 +72,7 @@ static void i2c_gpio_setscl_val(void *data, int =
+state) =20
+> > {
+> >         struct i2c_gpio_private_data *priv =3D data;
+> >
+> > -       gpiod_set_value_cansleep(priv->scl, state);
+> > +       gpiod_set_value_cansleep(priv->scl->gpio, state);
+>=20
+> That one bothers me a bit. We're driving a clock line but may=20
+> end up sleeping? That doesn't sound right. We typically do:
+>
+> setscl();
+> udelay();
+>
+> I know it's been like this before and maybe I'm not understanding=20
+> the whole picture so feel free to disregard the comment.
 
-While here, return early on the I2C_SMBUS_BLOCK_MAX error path instead
-of falling through and overwriting msg->len/msg->buf with the rejected
-count byte.
+ATM I can only ignore that because I have no idea what this code=20
+is about. Maybe soneone in CC can advise how to handle Bartosz's
+question.
 
-The atomic path regressed earlier (v3.16) and is fixed separately; this
-patch covers only the v6.13 state-machine rework.
+> Reviewed-by: Bartosz Golaszewski =
+<bartosz.golaszewski@oss.qualcomm.com>
 
-Fixes: 5f5c2d4579ca ("i2c: imx: prevent rescheduling in non dma mode")
-Cc: <stable@vger.kernel.org> # v6.13+
-Signed-off-by: Vincent Jardin <vjardin@free.fr>
----
- drivers/i2c/busses/i2c-imx.c | 17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+Thanks for that.
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 0cd4f5892591..8792cb5cb9a8 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1061,11 +1061,26 @@ static inline enum imx_i2c_state i2c_imx_isr_read_continue(struct imx_i2c_struct
- static inline void i2c_imx_isr_read_block_data_len(struct imx_i2c_struct *i2c_imx)
- {
- 	u8 len = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
-+	unsigned int temp;
- 
--	if (len == 0 || len > I2C_SMBUS_BLOCK_MAX) {
-+	if (len > I2C_SMBUS_BLOCK_MAX) {
- 		i2c_imx->isr_result = -EPROTO;
- 		i2c_imx->state = IMX_I2C_STATE_FAILED;
- 		wake_up(&i2c_imx->queue);
-+		return;
-+	}
-+
-+	if (len == 0) {
-+		/*
-+		 * SMBus 3.1 6.5.7 "Block Write/Read": byte count can be 0
-+		 */
-+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+		temp |= I2CR_TXAK;
-+		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-+
-+		i2c_imx->msg->buf[i2c_imx->msg_buf_idx++] = 0;
-+		i2c_imx->msg->len = 2;
-+		return;
- 	}
- 	i2c_imx->msg->len += len;
- 	i2c_imx->msg->buf[i2c_imx->msg_buf_idx++] = len;
-
--- 
-2.43.0
+Markus
 
