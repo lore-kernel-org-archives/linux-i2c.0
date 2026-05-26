@@ -1,130 +1,102 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 570433DD516
-	for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 10:22:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C5053DD50E
+	for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 10:43:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779790973; cv=none; b=WFE0u/AIP3mGJPGBcwz9KN3edQF5l5V4ZjJKeVeM/TCA6IxFI1NLdQ2ywBK+qitNFGdq+3ZGLCk0LEHjmyyGD72MLzL+xeGe/WxJ42aW3w2Poq8bya3ljvZSodJ+fMU1SgPQyPXVd0zvC70EMlhNCvunxeD8kDkRgHAgNUHunVY=
+	t=1779792183; cv=none; b=oeraXDhvhej/BIjVjfX8V/doNht6L8F+ff4VGbPl31dXD8am+9q2w2utyMlG9yKhtHddvGW3+IdhEEFWCSDlQE+alGXWzNJySYdhr1VqOMC2JLS1B83Saec7n4ImlZbzao+X8g/hp6f0EdogdBlEPU7K9EI9Lzm+8Fgusk1MSoY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779790973; c=relaxed/simple;
-	bh=OKtF6eK9AIl/tFnl+6zGmvBcaf2/4kp/RLLsV1dGIS8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PCmmPJuAsqVU6tjuAsGVCzDS28mdn9PUflI9swa9qU5v/m/wfb4SpemYjX/xtSY/J1nZCrDg0TI4psKyOgZGK6cmrovRr6hQ0aYmUVgjcXyOxbXsadMB3N4oMYU8ZzvYtrQ6wh/8y4UGFbe8cmF+mB9UG1rZd2mr3LrYUC2SlBY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EpGu7Szh; arc=none smtp.client-ip=209.85.216.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779792183; c=relaxed/simple;
+	bh=FKw4KIVaPKunvIVR7uNj1OxxI8eIhOoGTXqqL+3fh2I=;
+	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=G21rgEMeuEHG05zTq0+qPPcvuUEYohj5/IJwXynwZWrZ654zOQOBhkjRR50mnncE693xWdDsgsGZ6zORh8qz9SoJP2yzxaUL82hEha+8l2M2xsWZ9KedXe4X85J0yM72Qgo4MEMDVqq8NBaRhPruLNUdYaHBc67yc+pycp/g75I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lp8hqrFq; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EpGu7Szh"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-3680540a6efso5815689a91.2
-        for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 03:22:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779790972; x=1780395772; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=GsMFlu4zMM9QAuZhA61CFIpsfkuzQD+bunJ5hQnI6aw=;
-        b=EpGu7Szh8NoEQkcL2TQkkU4E1kbPGxsFk4bw6zCJL5LNoGiwHSoBEi8CRDj0m6mcSK
-         YpWo50DDsTB6wZ9MCBQAVSD9X8Wu5uJ+jVw0WxcPlTB3N3MPzE7dDg6rzSRq7I8dXC4e
-         6i+ZsUiD3tCpD8mVUbDAa0qoowQ+SmJBMwaBqdwXnCRGLfaT37GHsYLtXl6FgBCI51IF
-         YB13Vh+z2BeZONHp9jko5zCW1N9xVak7AWi686uWS4NVGF30qUk3K0oqCQAZ+VrMtW0z
-         v1tQ3TVKNm2znIBk9tPSYcSKHnAanauoZGypmGvp4kiiVBzgDEZ5pN05i2ciomwm/RdQ
-         vwZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779790972; x=1780395772;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GsMFlu4zMM9QAuZhA61CFIpsfkuzQD+bunJ5hQnI6aw=;
-        b=J2drt2k/I/5tIR6IYUAs3QL2P73c7Aq5zWZ/vQcaUhMqCrYKD9T/2pYEeMg7uO2VOd
-         /t065oLxXtPlDXq5p560kUM4vXpAmDHFRgBQsZi9N0EQgXIlivpjuCTImd0DWCE2J0oH
-         j8gnotVE5qqs30AUdMVfh5CrJcCCWprLNCR/mzj+MGb9SjdATB73x+pJ12Cps+EFSaTG
-         GbaH7jsbc615aVsoL/+lKtvZ2NZVCYv7iOGkP5GKmMdmAtnBonuETDxI5BxsQaBJc/R/
-         3gALG13n5k1o24xloWjg4XAmJVXq+V9tG3mWKbA3obW/fTioie2QSNGFX9D5JwFJYuwm
-         Y6Kg==
-X-Forwarded-Encrypted: i=1; AFNElJ8sja2cUl1pnBHgEzf2D6HHL8mLMrP7/Oc/y/dnmF3/gcoiIhs6musImrP5qDO4sZHn3SEeGof1+/o=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyY0CbcjqvToUCb++EXDYNmYKi3SLwlIyJSjFN8hBPGDzcWO6uL
-	HmORra8xnF7G1q5MJ4szimfP6MlkotH2CEf6KvgDz6bZfOdXZy+WYbtD
-X-Gm-Gg: Acq92OGZ1G1r8tZrXbFxsqRaLPFl8ynRtaWiW6SBgUIzgCi+PADlLCUyzRyf5jRhXMx
-	u26vjmUvzav0hDFuCkS0AgKPDaaM9yEQAEr+HJftbTB989PXpv2RJ69MeeU/qkkxO3OeZsJUa3k
-	sTP09ESt6zZ336Ym2jREyKSXMc1J/HaWm4650KonoZlw8s7TOIuHFF9oAMrZVpZepFtsELZhtAU
-	UDV2hjdgYRqbGIzOBQdPB+zQHcM9cYeQ+b/14D+jCsC6sP+1W/MXBrm+EhwhigLMiv69XzDQ6uk
-	d5PdEs4DgTh2LOLv3RKjLhjrj2KfcpTLh58Hf5G2TIo9QuK9V12mMAsZQX9x5QcYfCVusiCEU5q
-	gEPRD9SADPJCYYarRvOASnbAFN8tT2GPkM6mqNVmnWVXZo2dTHC4E2hlGtEFGZ3U1ReuHEihmWi
-	umg9fK1E/FMYzJlauRZOtBhu4Q56uXj7yoguuNjvA7H9Tt2gcfwg5d1AV8Isgrt2Pj1BJMKQWc
-X-Received: by 2002:a17:90b:42:b0:36a:f382:9f72 with SMTP id 98e67ed59e1d1-36af382a1efmr4718899a91.13.1779790971630;
-        Tue, 26 May 2026 03:22:51 -0700 (PDT)
-Received: from chaitanya-virtualbox.. ([103.249.241.55])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36a71d9416csm16435713a91.3.2026.05.26.03.22.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 May 2026 03:22:51 -0700 (PDT)
-From: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-To: brgl@kernel.org,
-	andi.shyti@kernel.org
-Cc: linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Chaitanya Sabnis <chaitanya.msabnis@gmail.com>,
-	Sashiko <sashiko-bot@kernel.org>,
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-Subject: [PATCH v4] i2c: davinci: fix division by zero on missing clock-frequency
-Date: Tue, 26 May 2026 15:52:40 +0530
-Message-ID: <20260526102240.4949-1-chaitanya.msabnis@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lp8hqrFq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F14441F000E9
+	for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 10:43:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779792182;
+	bh=U0W8nF2/ypbMYzffJd+xeLQKSwkY8cvWdmQ8F+BuG3Y=;
+	h=From:In-Reply-To:References:Date:Subject:To:Cc;
+	b=lp8hqrFqyWFWLZyTZ7yfwc/eDYEdZ4xwPTrxtwov2ipz7NMC1VXV6Y8qkLtWfI207
+	 /fgYxqa/ec7IAnLLBTnQVT/GhboDeFFqfe4BB6Hx8S1YeUonC2sDKtPszaQQ7fckCP
+	 fmB+2lftI7FFn4koar/UTyXN1rAR5YW06umTE4gAt6YiYunCKwL+wsb6DrnNv9A816
+	 ZTQBbwkgL+teO7pRIF1IK4CS14MeEId0isnm8h+BSNqNxsSll1R7tijCEGiFgjal7v
+	 ScHgy3yNaeHg4H1xpbh65vD5ky4C1z1I5Jb4nK4ZwKHHxyvMcWCKWFb3WQA7vrjYzs
+	 jGKAPg7OTGXCA==
+Received: by mail-lj1-f180.google.com with SMTP id 38308e7fff4ca-395f24a5f2cso25195751fa.2
+        for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 03:43:01 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ8bQun8vxkRUEVQPtXESwZGv14UG2sBB7/Vyv9qOHVMIirYKasLt2A1BMD+WV7OFEkv8AqOXgG96+Q=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwLNeeLPDUYW5r2na7P2SNgRlreoP9kPyzLpSWqIoP29hbHSnLR
+	gtenb9CfPOkQ2qWMfpjyWKU9KkCdZIM25ay8UE/V6I23ZD4S/nchFn7RmriiKowKe0Fu9HIVRLg
+	W5GmHmAcYUs3SfmVa/fZOBfxM3ORdIehqQH8gySWm8Q==
+X-Received: by 2002:a05:651c:98b:b0:394:c44:a4d4 with SMTP id
+ 38308e7fff4ca-395d8a1c1ccmr58389311fa.0.1779792180642; Tue, 26 May 2026
+ 03:43:00 -0700 (PDT)
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Tue, 26 May 2026 06:42:58 -0400
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Tue, 26 May 2026 06:42:58 -0400
+From: Bartosz Golaszewski <brgl@kernel.org>
+In-Reply-To: <20260523174440.9629-2-hardikprakash.official@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260523174440.9629-1-hardikprakash.official@gmail.com> <20260523174440.9629-2-hardikprakash.official@gmail.com>
+Date: Tue, 26 May 2026 06:42:58 -0400
+X-Gmail-Original-Message-ID: <CAMRc=Mc7KrsmB4Svjoj4WMRa-=D2xitqURVRJVWhDH9qyzOVhg@mail.gmail.com>
+X-Gm-Features: AVHnY4J-6eVxM0Kye2QkUfNSAbEgrVjqtuY1WAH_wjUho36iw5Qp56N9Vr0HX7c
+Message-ID: <CAMRc=Mc7KrsmB4Svjoj4WMRa-=D2xitqURVRJVWhDH9qyzOVhg@mail.gmail.com>
+Subject: Re: [PATCH v6 1/1] i2c: designware: defer probe if child GpioInt
+ controllers are not bound
+To: Hardik Prakash <hardikprakash.official@gmail.com>
+Cc: linux-gpio@vger.kernel.org, wsa@kernel.org, andriy.shevchenko@intel.com, 
+	mario.limonciello@amd.com, brgl@bgdev.pl, basavaraj.natikar@amd.com, 
+	linus.walleij@linaro.org, linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-When the 'clock-frequency' property is missing from the device tree,
-the driver falls back to DAVINCI_I2C_DEFAULT_BUS_FREQ. However, this
-macro was defined in kHz (100), whereas the device tree property is
-expected in Hz.
+On Sat, 23 May 2026 19:44:40 +0200, Hardik Prakash
+<hardikprakash.official@gmail.com> said:
+> I2C controllers may have child devices with GpioInt resources that
+> depend on GPIO controllers to be fully initialized. If the I2C
+> controller probes and enumerates children before the referenced GPIO
+> controller has completed probe, GPIO interrupts may not be properly
+> configured, leading to device failures.
+>
+> On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
+> AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
+> pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
+> AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
+> occur before the GPIO IRQ quirk in amd_gpio_probe() has run, causing:
+>
+>   i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost arbitration
+>
+> Add a generic dependency check in i2c-designware that walks ACPI child
+> devices, identifies any GpioInt resources, resolves the referenced GPIO
+> controllers, and defers probe if those controllers are not yet bound.
+>
+> This ensures GPIO controllers complete initialization (including IRQ
+> setup and quirks) before I2C child enumeration begins, fixing the race
+> without device-specific quirks or DMI matching.
+>
+> The probe ordering race was confirmed via dynamic debug tracing:
+>
+>   0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
+>   0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
+>   0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
+>   2.348157  lost arbitration
+>
+> Suggested-by: Mario Limonciello <mario.limonciello@amd.com>
+> Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
+> Assisted-by: Claude:claude-sonnet-4-6
+> Assisted-by: GPT-Codex:gpt-5.2-codex
+> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=221494
 
-The probe function divided the fallback value by 1000, causing
-integer truncation that resulted in dev->bus_freq = 0. This triggered
-a deterministic division-by-zero kernel panic when calculating clock
-dividers later in the probe sequence.
+I don't think we use this tag anymore. Just make it Link:
 
-Fix this by redefining DAVINCI_I2C_DEFAULT_BUS_FREQ in Hz (100000)
-to match the expected device tree property unit, allowing the existing
-division logic to work correctly for both cases.
-
-Fixes: b04ce6385979 ("i2c: davinci: kill platform data")
-Reported-by: Sashiko <sashiko-bot@kernel.org>
-Closes: https://lore.kernel.org/all/20260514044726.57297C2BCB7@smtp.kernel.org/
-Signed-off-by: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-Reviewed-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
----
-
-Changes in v4:
-- Restored accidentally removed blank lines (removed ninja changes).
-- Collected Reviewed-by tag.
-
-Changes in v3:
-- Reverted probe function changes and correctly applied the fix to the macro.
-
-Changes in v2:
-- Changed approach: updated macro to Hz instead of dividing in probe.
-- Added Fixes tag.
-
- drivers/i2c/busses/i2c-davinci.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/i2c/busses/i2c-davinci.c b/drivers/i2c/busses/i2c-davinci.c
-index a773ba082321..66c23535656b 100644
---- a/drivers/i2c/busses/i2c-davinci.c
-+++ b/drivers/i2c/busses/i2c-davinci.c
-@@ -117,7 +117,7 @@
- /* timeout for pm runtime autosuspend */
- #define DAVINCI_I2C_PM_TIMEOUT	1000	/* ms */
- 
--#define DAVINCI_I2C_DEFAULT_BUS_FREQ	100
-+#define DAVINCI_I2C_DEFAULT_BUS_FREQ	100000
- 
- struct davinci_i2c_dev {
- 	struct device           *dev;
--- 
-2.43.0
-
+Acked-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
