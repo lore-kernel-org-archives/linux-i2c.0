@@ -1,130 +1,110 @@
-Received: from smtp1-g21.free.fr (smtp1-g21.free.fr [212.27.42.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32EE63F5BC5;
-	Mon, 25 May 2026 16:44:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.27.42.1
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 6DB7D37AA72;
+	Tue, 26 May 2026 03:11:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779727464; cv=none; b=gH/6CynuC1fnVIFueZxP/Ng76jYjDQ+350gRlECJNyeC2zh8drWOsUTNrx0uRmcOJcY6IERxjAmtsEuZAcbYT3WxNz2WKRksvRH2Gl4wUwIBc7Wul0VXSYZasbnRaplc7MO+KrlWBXmn1ymaqtnMn1Gs11Dfuaj2BYlBUf/uTVg=
+	t=1779765098; cv=none; b=K0f6+BAVPb2p7+aPkxQzooTl5CVpNyRzDUvZWgJZBp5iPD1u6+94gvfs///6ZLm4tGqsZBsIUocGZ9H2/B99pRCARIUABNGDxpjA41an1CG4p147mGIseUWcbigQYU2l6jsjuJ+jm4YWajAqqvMIKa2rJrrCEJXSWy++tH3TzO4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779727464; c=relaxed/simple;
-	bh=TCAfUvjhaCsJQTrEtvumpIoh8l6kyRt90adoFjnNFWM=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=IxCTIePcdbvhpFVOM9ZAMbg+JK/HIAQ5SDUgAINm471iyBPiEixurcQfVeHAJ4wJOSbfmOdkLLL0xh87Gohq1IdhY7Dw54OYBGcNEa1OZuU3RryQrqM5317gjn2WB7SPDwpOHQGqNyWQgRQCXD0A2zBN3OfUz9tkHFMvI+5kGJc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr; spf=pass smtp.mailfrom=free.fr; dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b=I9CarSYq; arc=none smtp.client-ip=212.27.42.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=free.fr
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=free.fr
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=free.fr header.i=@free.fr header.b="I9CarSYq"
-Received: from [127.0.1.1] (unknown [91.160.0.144])
-	(Authenticated sender: vjardin@free.fr)
-	by smtp1-g21.free.fr (Postfix) with ESMTPSA id 7ED5DB00583;
-	Mon, 25 May 2026 18:44:03 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=free.fr;
-	s=smtp-20201208; t=1779727462;
-	bh=TCAfUvjhaCsJQTrEtvumpIoh8l6kyRt90adoFjnNFWM=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=I9CarSYqcmzd2yYyH7i0zq6pF9GGeyuQwRNYOhd/xQob2TF69kwI+ImCUNTskjvhq
-	 iLpdbcbFRCZ1nuIGX1rPkBgk4Y5gp7cnapKaoabO6Te/JsvD57o+Ym7XZxg7W0fUQY
-	 Gsg4YZAR72eI1uqqoW5MBJsq9W4mInSHgqbNfMVor1iSHPbMQ54BVx3qLZb7ey4FzQ
-	 poewztBNQxkIb4Yl1FD+rV/DKEY5uEWNnjqsO5SJqqdSff32efcwsF22CwFJ+quFfg
-	 UIoflOsiIqlZ5b9YDIEme68/lbFqTJOZnOYlAy6SlaD49OeP4xwcqFGSJkAWG/OEwK
-	 6nQG0hXzoNvBw==
-From: Vincent Jardin <vjardin@free.fr>
-Date: Mon, 25 May 2026 18:43:16 +0200
-Subject: [PATCH v2 2/2] i2c: imx: fix locked bus on SMBus block-read of 0
- (IRQ)
+	s=arc-20240116; t=1779765098; c=relaxed/simple;
+	bh=HwAYAkN5q4a4hxZ5KpRyQeoqoAo/+cGXM8lMBdq26pc=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=OidD6vRa/F2YpprtPnD4z8q/pr+KwVzoWVC9sx+9laPiBv9TS9ICAm4ayG0XoxUapOt+2tNjxnXkJ6BJSpATBKgMoEdzcMX5IlfsT86EH2iPevTkmEf+ODqvQA0mXwFgsJx9EFM+AnAbw9/kinic5mmzb8fsMhdn7xfln+P58ZY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.101])
+	by gateway (Coremail) with SMTP id _____8CxRXheDxVq10ENAA--.13528S3;
+	Tue, 26 May 2026 11:11:26 +0800 (CST)
+Received: from loongson-pc.loongson.cn (unknown [10.20.42.101])
+	by front1 (Coremail) with SMTP id qMiowJAxXcJaDxVq10SRAA--.10437S2;
+	Tue, 26 May 2026 11:11:23 +0800 (CST)
+From: Hongliang Wang <wanghongliang@loongson.cn>
+To: Binbin Zhou <zhoubinbin@loongson.cn>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Hongliang Wang <wanghongliang@loongson.cn>
+Cc: linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	loongarch@lists.linux.dev
+Subject: [PATCH v4 0/2] i2c: ls2x: Add clock- related properties and parsing
+Date: Tue, 26 May 2026 11:10:19 +0800
+Message-Id: <20260526031021.32662-1-wanghongliang@loongson.cn>
+X-Mailer: git-send-email 2.20.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260525-for-upstream-i2c-lx2160-fix-v1-v2-2-26a3cc8cd055@free.fr>
-References: <20260525-for-upstream-i2c-lx2160-fix-v1-v2-0-26a3cc8cd055@free.fr>
-In-Reply-To: <20260525-for-upstream-i2c-lx2160-fix-v1-v2-0-26a3cc8cd055@free.fr>
-To: Oleksij Rempel <o.rempel@pengutronix.de>, 
- Pengutronix Kernel Team <kernel@pengutronix.de>, 
- Andi Shyti <andi.shyti@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
- Sascha Hauer <s.hauer@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
- Wolfram Sang <wsa@kernel.org>, 
- Kaushal Butala <kaushalkernelmailinglist@gmail.com>, 
- Shawn Guo <shawn.guo@freescale.com>, 
- Stefan Eichenberger <stefan.eichenberger@toradex.com>
-Cc: linux-i2c@vger.kernel.org, imx@lists.linux.dev, 
- linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, 
- Vincent Jardin <vjardin@free.fr>, stable@vger.kernel.org
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1779727406; l=2318;
- i=vjardin@free.fr; s=20260525; h=from:subject:message-id;
- bh=TCAfUvjhaCsJQTrEtvumpIoh8l6kyRt90adoFjnNFWM=;
- b=MUBeVu7lKe21R2tFAurHFC1df7bUtHKMOZ6EGsW6DipVT90oy1nihPhSo2orpgGz8ubZBeVPE
- pbaPh6u7oVvCUMpuW9iszwfnGvUEMEyeYQsW0rLAjTW8cE6J4IDiTVk
-X-Developer-Key: i=vjardin@free.fr; a=ed25519;
- pk=hppgLeFpGpKOi7LNwGEZ4jOYofJCoGd4Jf1ltAabiLw=
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qMiowJAxXcJaDxVq10SRAA--.10437S2
+X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
+X-Coremail-Antispam: 1Uk129KBj93XoW7Cw4UKw1fZr1Dury7Ar47Awc_yoW8Cr1DpF
+	s8CFZ8Gr1Yk3W0grsIq3yI9FyFqws8XrZ7JFyxXw15Zw43Jr1DZF1SkrZ09ryDGrZ2kayU
+	Wws8WFnrKF9xZFXCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUvYb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_
+	Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx1l5I
+	8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AK
+	xVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41lc7CjxVAaw2AFwI
+	0_JF0_Jw1l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG
+	67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MI
+	IYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E
+	14v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJV
+	W8JwCI42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07jnSdgU
+	UUUU=
 
-SMBus 3.1 6.5.7 allows a Block Read byte count of 0, but the
-interrupt-driven block-read state machine rejects it as -EPROTO. Worse,
-it returns without a NACK+STOP: the next receive cycle has already
-started, so the target keeps holding SDA and the bus stays stuck until a
-power cycle of this i2c controller.
+From: wanghongliang <wanghongliang@loongson.cn>
 
-Accept count=0: NACK the in-flight dummy byte (TXAK) and set msg->len to
-2 so i2c_imx_isr_read_continue() emits STOP via its normal last-byte
-path. The dummy byte is discarded; block-read callers only consume
-buf[0..count-1].
+Hi all:
 
-Reading I2DR has likewise already armed the next byte on the
-count > I2C_SMBUS_BLOCK_MAX error path, so NACK it (TXAK) before aborting
-with -EPROTO; otherwise the failing transfer's STOP cannot complete and
-the bus stays held.
+This patch set adds clock related properties and parsing in dts and acpi.
 
-The atomic path regressed earlier (v3.16) and is fixed separately; this
-patch covers only the v6.13 state-machine rework.
+I'm sorry that the PATCH v3 I previously submitted was incomplete, and
+missing changelog and previous patch link. So I resubmit the PATCH v4
+instead of v3 for review.
 
-Fixes: 5f5c2d4579ca ("i2c: imx: prevent rescheduling in non dma mode")
-Cc: <stable@vger.kernel.org> # v6.13+
-Signed-off-by: Vincent Jardin <vjardin@free.fr>
----
- drivers/i2c/busses/i2c-imx.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+Thanks.
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 14107e1ad413..8db8d2e10f5c 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -1061,11 +1061,28 @@ static inline enum imx_i2c_state i2c_imx_isr_read_continue(struct imx_i2c_struct
- static inline void i2c_imx_isr_read_block_data_len(struct imx_i2c_struct *i2c_imx)
- {
- 	u8 len = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
-+	unsigned int temp;
- 
- 	if (len == 0 || len > I2C_SMBUS_BLOCK_MAX) {
-+		/*
-+		 * SMBus 3.1 6.5.7: support count byte of 0.
-+		 * I2C_SMBUS_BLOCK_MAX case should not hold the SDA either.
-+		 * So NACK it (TXAK) to not hold the bus.
-+		 */
-+		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-+		temp |= I2CR_TXAK;
-+		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-+
-+		if (len == 0) {
-+			i2c_imx->msg->buf[i2c_imx->msg_buf_idx++] = 0;
-+			i2c_imx->msg->len = 2;
-+			return;
-+		}
-+
- 		i2c_imx->isr_result = -EPROTO;
- 		i2c_imx->state = IMX_I2C_STATE_FAILED;
- 		wake_up(&i2c_imx->queue);
-+		return;
- 	}
- 	i2c_imx->msg->len += len;
- 	i2c_imx->msg->buf[i2c_imx->msg_buf_idx++] = len;
+======
+V4:
+- Add Acked-by tag from Conor Dooley, thanks.
+Patch (2/2):
+ - Adjust the position of #include <linux/clk.h>;
+ - Remove struct ls2x_i2c_chip_data and use macro to describe div;
+ - Use div instead of factor in ls2x_i2c_adjust_bus_speed;
+ - Reverse the "if & else" code logic in ls2x_i2c_adjust_bus_speed;
+
+Link to V2:
+The PATCH v3 is incomplete, v4 is the replacement of v3, so the previous patch link is v2.
+
+[PATCH v2] dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
+https://lore.kernel.org/all/20260507081010.12810-1-wanghongliang@loongson.cn/
+[PATCH v2] i2c: ls2x: Add clocks property parsing and adjust bus speed
+https://lore.kernel.org/all/20260507081010.12810-2-wanghongliang@loongson.cn/
+
+V2:
+[PATCH v2] dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
+- Remove the custom properties clock-input and clock-div, use clock framework;
+[PATCH v2] i2c: ls2x: Add clocks property parsing and adjust bus speed
+- Use clock framework to obtain the i2c reference clock in dts.
+
+Link to V1:
+https://lore.kernel.org/all/20260325011852.19079-1-wanghongliang@loongson.cn/
+
+wanghongliang (2):
+  dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
+  i2c: ls2x: Add clocks property parsing and adjust bus speed
+
+ .../bindings/i2c/loongson,ls2x-i2c.yaml       |  3 ++
+ drivers/i2c/busses/i2c-ls2x.c                 | 35 +++++++++++++++++--
+ 2 files changed, 35 insertions(+), 3 deletions(-)
 
 -- 
-2.43.0
+2.47.2
 
