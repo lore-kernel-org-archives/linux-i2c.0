@@ -1,69 +1,41 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 520073C65FE;
-	Tue, 26 May 2026 22:23:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78FFE3C6600;
+	Tue, 26 May 2026 23:24:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779834223; cv=none; b=twzb/PKeSlkZDd/NPrDUMixaD9vtXPSafwSs3+oU0MzhiQopIjwKhmCl56rLE5v/NMfZE6lnKJX9c7hEtRlPdNCVTh1JYnD5lPFtcRNq8oYxli45ODKCIU2IovMhRlTUEqDzelbfdhU1ZhTv941/C8SAOIP9CF0XdZYTGOFsbI0=
+	t=1779837869; cv=none; b=LpUZ/2NR+SpY2uPwb/Y8AeMb/IvQiFjOJHKYO4HAdQJm6+uOQWjkCLP8nEBtNu3krWqc8j5MxzZufyEDQQZCO6eU5GnRt5yLvhCphE4HK9IWCZukpKHsrq3/vSpP1Ubla1jcNVBXN+/1owSd0TrQB2eH3lhbDrPjWufi/8S1ZSI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779834223; c=relaxed/simple;
-	bh=PeWkXtVByZaI1HB4gRMRQ14IUpZcVF886iBQEGNYfvg=;
+	s=arc-20240116; t=1779837869; c=relaxed/simple;
+	bh=+c5u7q80dkuT4gPv2heinAcNeboxCdnq7MCC6Zruh+4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=D2AKuyHUKkKVikH6xxXo/QQt+9tI/wHmwm51Ap1knapIrKaKWpOEIsgz+2pUrN2VjE4XPlYITbm7KkFilr7mP7XbxuGgjTAkBiPBzc0Do0OwhrprmCttZkf+EKsr1Po+pU8tPDclfPFL3tRX+7jtXrP/k7XyWeI5wq/PQRkKabM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=e4JALKv9; arc=none smtp.client-ip=198.175.65.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=P8TZEzC+3ugBhybT7TpJaJJ941NByHNIvPh2R8DIFeUd5sLQa4ksnv36+hnqGn9DvO/dqIkiy3Lk2x6ntc6Oi49YNVmcaNew3mILx+HF+7Ki/lVTuXTRXCp/CPCNAqIf4+OhGODaaYEWh+Sd47TXb4qACZ37rKBA1qiHftId1I0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eS4FN6v5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="e4JALKv9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1779834221; x=1811370221;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=PeWkXtVByZaI1HB4gRMRQ14IUpZcVF886iBQEGNYfvg=;
-  b=e4JALKv9l4zOu49Kf11bhIIUyeM91FsAF7HTbErMwiy8pw0Oq35s5XbS
-   We3VmzXGTM73zSMoj9p4oFf6tSIAD5MoFSRdPTTTqUzt98AWHSArSXtE4
-   fB4df1yRMDftZwZHIWMV1LuaDz2fwo/EsP8aYzmOH+scHiZxGgvNjiQFM
-   GuS7gnKq0aXQq0h2LJY/+RedlvH7X+r9jbdjHvfcTQwzM/ybSbPJYuc2z
-   KWka53Vwf5gvsbR9BeZAn3CKups7Uvf8RrILTEX/73+5lAoS+i7Ph1MhM
-   v1Pcmzl1pqK1eXc4iYbVSmciksT1RCDS6CaFf6Qo/Y6i6XH9GoiiWv1p7
-   w==;
-X-CSE-ConnectionGUID: r7+pFPcoRK6Ob5n8PFjOBg==
-X-CSE-MsgGUID: IROPJynYQVauPpzAsXnz7Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11798"; a="80848044"
-X-IronPort-AV: E=Sophos;i="6.24,170,1774335600"; 
-   d="scan'208";a="80848044"
-Received: from orviesa008.jf.intel.com ([10.64.159.148])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 May 2026 15:23:41 -0700
-X-CSE-ConnectionGUID: jXp1pGdtQVWRxKGMFXbOoQ==
-X-CSE-MsgGUID: XwU4YZPvT6+rsx2PIp014g==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,170,1774335600"; 
-   d="scan'208";a="241890275"
-Received: from igk-lkp-server01.igk.intel.com (HELO bdf09bfdbd5f) ([10.211.93.152])
-  by orviesa008.jf.intel.com with ESMTP; 26 May 2026 15:23:37 -0700
-Received: from kbuild by bdf09bfdbd5f with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1wS0BS-00000000CUr-2yTH;
-	Tue, 26 May 2026 22:23:34 +0000
-Date: Wed, 27 May 2026 00:22:41 +0200
-From: kernel test robot <lkp@intel.com>
-To: Frank.Li@oss.nxp.com, Vinod Koul <vkoul@kernel.org>,
-	Dong Aisheng <aisheng.dong@nxp.com>,
-	Andi Shyti <andi.shyti@kernel.org>, Shawn Guo <shawnguo@kernel.org>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>
-Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
-	dmaengine@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-i2c@vger.kernel.org, imx@lists.linux.dev,
-	linux-arm-kernel@lists.infradead.org, carlos.song@nxp.com,
-	Frank Li <Frank.Li@nxp.com>
-Subject: Re: [PATCH v2 2/2] i2c: imx-lpi2c: use dmaengine_prep_submit() to
- simple code
-Message-ID: <202605270007.xFkhAWbC-lkp@intel.com>
-References: <20260522-dma_prep_submit-v2-2-7a87a5a29525@nxp.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eS4FN6v5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B99F1F000E9;
+	Tue, 26 May 2026 23:24:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779837868;
+	bh=Evk5EyspxzR6ZavlVSKWDIaFwkdiVPIwBA4H+nbGGoY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=eS4FN6v5uZF6WQYUBPar9j7uTNCbODjlFVd+n3nx3EOeWEwfxSXhTnUC57RLoJELO
+	 xJoQsD5GkXSt7c9KJRLR173aW/6bzbOtj6G9+AT6Ua3AdySnAXf9tImtIVWrlBuKP+
+	 vFN0AK/ITu3cr15Sxw/jvyWHWGS1HCFENaq9HflT/Qoj3Hu88Sp1zG2xsxID1IE9lF
+	 trcXrtalYMk7KacS7ArR0Wqh2XVMkjK4gPVKvuIVYDS7zxIuVonyHC9xfVujO9JwN5
+	 Io5iKxMUkW4YwPaiWRJ62by6oGvEoa+4vUMFj7vp6xmHLdnKWJBYcTuPUaMIAw91vN
+	 hmgSSA9TtzPYg==
+Date: Wed, 27 May 2026 01:24:23 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
+Cc: brgl@kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>, 
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Subject: Re: [PATCH v4] i2c: davinci: fix division by zero on missing
+ clock-frequency
+Message-ID: <ahYrkrqk4WzA4QNy@zenone.zhora.eu>
+References: <20260526102240.4949-1-chaitanya.msabnis@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -72,74 +44,32 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260522-dma_prep_submit-v2-2-7a87a5a29525@nxp.com>
+In-Reply-To: <20260526102240.4949-1-chaitanya.msabnis@gmail.com>
 
-Hi Frank,
+Hi Chaitanya,
 
-kernel test robot noticed the following build errors:
+On Tue, May 26, 2026 at 03:52:40PM +0530, Chaitanya Sabnis wrote:
+> When the 'clock-frequency' property is missing from the device tree,
+> the driver falls back to DAVINCI_I2C_DEFAULT_BUS_FREQ. However, this
+> macro was defined in kHz (100), whereas the device tree property is
+> expected in Hz.
+> 
+> The probe function divided the fallback value by 1000, causing
+> integer truncation that resulted in dev->bus_freq = 0. This triggered
+> a deterministic division-by-zero kernel panic when calculating clock
+> dividers later in the probe sequence.
+> 
+> Fix this by redefining DAVINCI_I2C_DEFAULT_BUS_FREQ in Hz (100000)
+> to match the expected device tree property unit, allowing the existing
+> division logic to work correctly for both cases.
+> 
+> Fixes: b04ce6385979 ("i2c: davinci: kill platform data")
+> Reported-by: Sashiko <sashiko-bot@kernel.org>
+> Closes: https://lore.kernel.org/all/20260514044726.57297C2BCB7@smtp.kernel.org/
+> Signed-off-by: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
+> Reviewed-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
 
-[auto build test ERROR on 8f0b4cce4481fb22653697cced8d0d04027cb1e8]
+merged to i2c/i2c-host-fixes.
 
-url:    https://github.com/intel-lab-lkp/linux/commits/Frank-Li-oss-nxp-com/dmaengine-Add-helper-dmaengine_prep_submit_slave_single/20260523-041812
-base:   8f0b4cce4481fb22653697cced8d0d04027cb1e8
-patch link:    https://lore.kernel.org/r/20260522-dma_prep_submit-v2-2-7a87a5a29525%40nxp.com
-patch subject: [PATCH v2 2/2] i2c: imx-lpi2c: use dmaengine_prep_submit() to simple code
-config: x86_64-kexec (https://download.01.org/0day-ci/archive/20260527/202605270007.xFkhAWbC-lkp@intel.com/config)
-compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
-reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260527/202605270007.xFkhAWbC-lkp@intel.com/reproduce)
-
-If you fix the issue in a separate patch/commit (i.e. not just a new version of
-the same patch/commit), kindly add following tags
-| Reported-by: kernel test robot <lkp@intel.com>
-| Closes: https://lore.kernel.org/oe-kbuild-all/202605270007.xFkhAWbC-lkp@intel.com/
-
-All errors (new ones prefixed by >>):
-
-   In file included from net/core/dev.c:124:
->> include/linux/dmaengine.h:1588:48: error: expected ')'
-    1588 |                                    dma_async_tx_callback cb, void *cb_param;
-         |                                                                            ^
-   include/linux/dmaengine.h:1587:35: note: to match this '('
-    1587 | dmaengine_prep_submit_slave_single(struct dma_chan *chan,
-         |                                   ^
->> include/linux/dmaengine.h:1587:1: error: conflicting types for 'dmaengine_prep_submit_slave_single'
-    1587 | dmaengine_prep_submit_slave_single(struct dma_chan *chan,
-         | ^
-   include/linux/dmaengine.h:994:1: note: previous declaration is here
-     994 | dmaengine_prep_submit_slave_single(struct dma_chan *chan,
-         | ^
->> include/linux/dmaengine.h:1589:24: error: redefinition of 'size_t' as different kind of symbol
-    1589 |                                    dma_addr_t buf, size_t len,
-         |                                                    ^
-   include/linux/types.h:62:26: note: previous definition is here
-      62 | typedef __kernel_size_t         size_t;
-         |                                 ^
-   In file included from net/core/dev.c:124:
->> include/linux/dmaengine.h:1589:30: error: expected ';' after top level declarator
-    1589 |                                    dma_addr_t buf, size_t len,
-         |                                                          ^
-         |                                                          ;
->> include/linux/dmaengine.h:1592:1: error: expected identifier or '('
-    1592 | {
-         | ^
-   5 errors generated.
-
-
-vim +1588 include/linux/dmaengine.h
-
-  1585	
-  1586	static inline dma_cookie_t
-> 1587	dmaengine_prep_submit_slave_single(struct dma_chan *chan,
-> 1588					   dma_async_tx_callback cb, void *cb_param;
-> 1589					   dma_addr_t buf, size_t len,
-  1590					   enum dma_transfer_direction dir,
-  1591					   unsigned long flags);
-> 1592	{
-  1593		return -ENODEV;
-  1594	}
-  1595	#endif
-  1596	
-
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Thanks,
+Andi
