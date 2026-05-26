@@ -1,112 +1,159 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FB5B40629D;
-	Tue, 26 May 2026 15:08:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD02E3C583E
+	for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 16:38:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779808137; cv=none; b=ZCi/grXKyg241QHtVsaf4velnYmccah8upKffjYh9cSI3k9sECAPIUyjrDZpyuBmluAI2hmVMjvEYm0/PRr5ilInI6Khphcav5T2SYanhpStexPhasrxKsR0xfZdSPQpu+2AIyExfqUH0pc9O6qON5y61eG2Q1xCiSgjjwvEe5s=
+	t=1779813501; cv=none; b=WQreg0KLZoSuSmZLDhIYslydY4XqNLT8Opzd/7Be/9e/rPzKt4exMl6q9DaFk0V81TLDy99T9dqvjZV1uHpulkdxB0Z9PTrctWMtHlqFUD4R0Bm6T5vvxIO52kt6QR8Txu1Cxh07cTaM43wcVHhas+pxrHqgXmgfQzWqThCVTWY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779808137; c=relaxed/simple;
-	bh=dXk3/5u72CKjhzprVz3lCgVq4BqsRCmOtAppcmbLofc=;
+	s=arc-20240116; t=1779813501; c=relaxed/simple;
+	bh=4V0/hRzQM3QPZtd9ciEuGpakZz9BDAJEY1Xq/95IEYA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=n1quOJ2Z6aYZkKpWqHDdQgwvkVfq33lNf2cbaA8efs/3U6IpJ0bqn5jCrpm66H9zGQVOE/7aQwd32CXgVQAzXDev49ML5VtvhzNULgu3bX2/psqlXGWTJaDlOGLU8cnGPHEvAqwMNtGMWU7E17KX0m1wYk7qkMrVGyBYpURLDy8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Hyg4i9n7; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=TP/aL+E9JpF7xMq2OWVWnOWzYgVVSePWr9nbkfZMjvk0EbDHKlEWG+kTv0FvS6gfX2z4VVT7TkggaWqgywPLOEUVu38MD2Yr54iuGTZRJqPLMtplviiHqQ8xcOXrBKGdr2VyvhRtVHZJsl+e6UN1PFYZ5gpDidXRS0ZglkyxHb8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=mk0Bwf5h; arc=none smtp.client-ip=209.85.128.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Hyg4i9n7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A64571F000E9;
-	Tue, 26 May 2026 15:08:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779808136;
-	bh=FKHVkP4pt3/MMLKj9R3/Tx7Le0s7TGMEbB0F5S6E+x0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Hyg4i9n7rcig0U62YcJRp+9nN9QSa70Mw7kQtNs29COkTzOKm3LA58EcN5Lb/zvIy
-	 mmoZjMHOS9Cau/8/mtNVQeZc9PwWIre6JBv5gttHDl8nbkRIOS7KS/P34ImGeBII6m
-	 SuVDaTfcN24Xq14m0F1kUl83x5ayqpM+tjZM+G6/h4eMyY0yEkJxPTpcMKc17AfatC
-	 N1j0WVIGOk5ZvGNqyFPrNygAnrexEikcjCnUgQnRvrBW+802OBaAM6EQIUZ86K+HJP
-	 lFMS+Z/5YhHHdC4PjlHI3Jwq+x1xTbKYl4LHwV3/JxSJ0RtpNlE65u4DYDwuUP5VAk
-	 TH06mPd6qTrbA==
-Date: Tue, 26 May 2026 17:08:53 +0200
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Hongliang Wang <wanghongliang@loongson.cn>
-Cc: Binbin Zhou <zhoubinbin@loongson.cn>, 
-	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	loongarch@lists.linux.dev
-Subject: Re: [PATCH v4 2/2] i2c: ls2x: Add clocks property parsing and adjust
- bus speed
-Message-ID: <20260526-pompous-gopher-of-serendipity-d72f1f@quoll>
-References: <20260526031021.32662-1-wanghongliang@loongson.cn>
- <20260526031021.32662-3-wanghongliang@loongson.cn>
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="mk0Bwf5h"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4905529b933so24545935e9.0
+        for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 09:38:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1779813497; x=1780418297; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=+neT3f/iOdkns4E+8cxUHIEwouFFRC5e7pB2NZRvaQM=;
+        b=mk0Bwf5hXpVXtR8qKrq4eVR8YRH8uAgW243P9LPUcvYHlW/W3CenauBquVI1o3J3Gz
+         ykz9ET95iEHsRPV830hnFjr+E9v6rT8uhO0Iv8U2EVfdIiTHUUuKMxFybKQ5FuNj38bd
+         fdstOAocTCEVIJp/li2MjrH1TtrNYnTy9LFZwGX72Coi2ym25O4/5jgSbT/7y8xXzHEk
+         Fc/IBf27hQDsuVeDJJOKWgwtUeRO5mJq0jJAVfLR97P3J7upjpS4Qdi3HsJ8sYyNyP/o
+         LOkZcOScYuknd4QAmTD+rRr6zgy3tK7XkOL9daYc9jJ12Qq/UI632ZbmKMp5vbeHF0ud
+         rzRg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779813497; x=1780418297;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+neT3f/iOdkns4E+8cxUHIEwouFFRC5e7pB2NZRvaQM=;
+        b=do2H9t9yUFqQjWOpx74R2F6kUvoFD/AKNFTcg17AKrxnsSXyeVIb9OefXMfLuvWgEV
+         NjwP+tUpcmMM34ILh49o98DLuxlfepWN5OCuhKLSZ1mAypwKUXjCX91Fu9Gx29qJAon/
+         IuxyWhN2+h1oAA0fWMc6SA4R5lQDe9SbOsUjKytiuC8lZuqt65eN9sCijXJ/iJsoBmE7
+         yYTBYay280SUakAnlioHOOkHIOhksQ9iEgjZCzLjU2OQ1Y2z9MkQaBcFjHpy3bLJgO/a
+         Aacs1vc7D6Q5AyvdI8wd5jsH0yUWSHbgWfQxW7wQLJRyAifGX4ESSdRqwc+Npi1HGhtn
+         QkuQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8Zz9vnMcUY9evy4+U3T/xgJ6QTN2eWnbe0l2zwTCYbtdDMdPPQ8zxbK1xziZSt3KMa4WHRNjUHdCM=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz1Lm1bkDVl+aMth6HO8/Y2NaQGGL7jRlbwHgJvxvfwOGzPCNPz
+	kRK8Y8YW3LHjKEwQyGyoCkWshpueOA2ShN6fRkUdQqkfeLdDzDdxmyF7atf+pvwwJyg=
+X-Gm-Gg: Acq92OENZht23AT3KYgBscj0FrYqmJPkFkoEyLZhjR1UqV2dt6ufriqZCZVXrSMyZTD
+	mUW0xibtTG0F/iaFXbLyteWydAF2YGIQRBwxBE38/aAirVuu6mp+KU75OzAwxK9jBudBPpjd9T5
+	epxNop/hOcaMlnylnl+6L8gweJgvTGfR7I5Dc7UCmAfPOuc6VTYyGlj+84w6LplkvpZYqPVtf/f
+	n7DPVzVnBuPx3qXh5RwLzrc0EozwGF0XGE1uRpPW2mzrKvYA3fIwq82vzXCJKnKXzj1XXuz4vaq
+	Sftjx4/wGlMrnDUGUdyVA1xETWzHsO8ePZEGY61KAKgipXO4+YF+3sD+RbRp0I2e4J1+n2xddfO
+	ggp/rQrlh2v46qOCOdbgfFT3gILUCyeYUEI/cHmNe+qeDtU68S9Y3jh8SnU2wRZ/CSHQxLCdC5F
+	C/nAxJMLuPSNp3gyV6gtowrkDU/kdYeCOnGnW02LJt3I1zK2i/GNFgPJgwMPEIeadjG9pIBHZwF
+	fbLuZlxk5R8t2g=
+X-Received: by 2002:a05:600c:4ecc:b0:485:4388:3492 with SMTP id 5b1f17b1804b1-490424b25abmr314126765e9.11.1779813497306;
+        Tue, 26 May 2026 09:38:17 -0700 (PDT)
+Received: from localhost (p200300f65f47db04a716d2bdeddb4813.dip0.t-ipconnect.de. [2003:f6:5f47:db04:a716:d2bd:eddb:4813])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-45eb6d493dfsm37901229f8f.23.2026.05.26.09.38.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 May 2026 09:38:16 -0700 (PDT)
+Date: Tue, 26 May 2026 18:38:15 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Damien Le Moal <dlemoal@kernel.org>, Niklas Cassel <cassel@kernel.org>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Thomas Gleixner <tglx@kernel.org>, 
+	Ingo Molnar <mingo@kernel.org>, Max Staudt <max@enpas.org>, Andi Shyti <andi.shyti@kernel.org>, 
+	Helge Deller <deller@gmx.de>, linux-ide@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
+	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, 
+	"Christian A. Ehrhardt" <christian.ehrhardt@codasip.com>, "Christian A. Ehrhardt" <lk@c--e.de>
+Subject: Re: [PATCH v1 0/8] zorro: Improve handling of pointers in
+ zorro_device_id::driver_data
+Message-ID: <ahXMGtBv_pQXM7YS@monoceros>
+References: <cover.1779803053.git.u.kleine-koenig@baylibre.com>
+ <CAMuHMdUVoNg-rSV_hDcvi6KCosmE=SMcxUj2Y8fkoJ=33zMSXw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="26ssrqftvvoyehs2"
 Content-Disposition: inline
-In-Reply-To: <20260526031021.32662-3-wanghongliang@loongson.cn>
+In-Reply-To: <CAMuHMdUVoNg-rSV_hDcvi6KCosmE=SMcxUj2Y8fkoJ=33zMSXw@mail.gmail.com>
 
-On Tue, May 26, 2026 at 11:10:21AM +0800, Hongliang Wang wrote:
->  };
->  
->  /*
-> @@ -96,6 +104,8 @@ static irqreturn_t ls2x_i2c_isr(int this_irq, void *dev_id)
->  static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
->  {
->  	u16 val;
-> +	u32 pclk, div;
-> +	struct clk *clk;
->  	struct i2c_timings *t = &priv->i2c_t;
->  	struct device *dev = priv->adapter.dev.parent;
->  	u32 acpi_speed = i2c_acpi_find_bus_speed(dev);
-> @@ -107,12 +117,29 @@ static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
->  	else
->  		t->bus_freq_hz = LS2X_I2C_FREQ_STD;
->  
-> +	if (dev_of_node(dev)) {
-> +		clk = devm_clk_get_optional_enabled(dev, NULL);
-> +		if (clk && !IS_ERR(clk))
 
-So IS_ERR_OR_NULL?
+--26ssrqftvvoyehs2
+Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v1 0/8] zorro: Improve handling of pointers in
+ zorro_device_id::driver_data
+MIME-Version: 1.0
 
-> +			pclk = clk_get_rate(clk);
-> +		else
-> +			pclk = LS2X_I2C_PCLK_FREQ;
-> +
-> +		div = priv->div;
-> +
-> +		val = (pclk * 10) / (div * t->bus_freq_hz) - 1;
-> +	} else {
-> +		if (!device_property_read_u32(dev, "clocks", &pclk) &&
+On Tue, May 26, 2026 at 05:01:48PM +0200, Geert Uytterhoeven wrote:
+> Hi Uwe,
+>=20
+> On Tue, 26 May 2026 at 16:17, Uwe Kleine-K=F6nig (The Capable Hub)
+> <u.kleine-koenig@baylibre.com> wrote:
+> > this series is about improving the handling of pointers in struct
+> > zorro_device_id's driver_data.
+> >
+> > While it's ok on all current Linux platforms to store a pointer in an
+> > unsigned long variable, it involves casting that loses type information.
+> > This can be nicely seen in patch #7 where after profiting from patch #6
+> > the compiler notices a missing const.
+> >
+> > Preparing for that change, all zorro_device_ids are converted to use
+> > named initializers, which is also a nice cleanup that could stand for
+> > itself, as it improves readability for humans. (That is necessary
+> > because an anonymous union can be initialized by name, but not using a
+> > list initializer.)
+> >
+> > My motivation for this series is the CHERI hardware extension. With that
+> > pointers are bigger than longs and thus you cannot store pointers in
+> > zorro_device_id::driver_data. So this series is also about getting
+> > support for CHERI into the mainline, but I hope the clean up effects
+> > mentioned above are justification enough to accept this series.
+>=20
+> Thanks for your series!
+>=20
+> > The dependencies in this series are as follows:
+> >
+> >  - Patch #5 depends on #1, #2
+>=20
+> s/5/6/?
+>=20
+> >  - Patches #7 and #8 depend on patch #6.
+> >
+> > So if the ata maintainers agreed to merge their patch #1 via scsi, and
+> > Geert agrees to patch #5 and that it's also merged via scsi, patches #1,
+>=20
+> s/5/6/?
 
-Please document here that these are *only* ACPI properties.
+Yes, indeed. And I tried so hard to get all the numbers right :-\
 
-> +		    !device_property_read_u32(dev, "clock-div", &div))
-> +			val = (pclk * 10) / (div * t->bus_freq_hz) - 1;
-> +		else
-> +			val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
-> +	}
-> +
->  	/*
->  	 * According to the chip manual, we can only access the registers as bytes,
->  	 * otherwise the high bits will be truncated.
->  	 * So set the I2C frequency with a sequential writeb() instead of writew().
->  	 */
-> -	val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
->  	writeb(FIELD_GET(GENMASK(7, 0), val), priv->base + I2C_LS2X_PRER_LO);
->  	writeb(FIELD_GET(GENMASK(15, 8), val), priv->base + I2C_LS2X_PRER_HI);
->  }
-> @@ -295,6 +322,8 @@ static int ls2x_i2c_probe(struct platform_device *pdev)
->  	if (!priv)
->  		return -ENOMEM;
->  
-> +	priv->div = (unsigned int)(unsigned long)device_get_match_data(dev);
+Best regards
+Uwe
 
-unsigned int cast should not be necessary, right?
+--26ssrqftvvoyehs2
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Best regards,
-Krzysztof
+-----BEGIN PGP SIGNATURE-----
 
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmoVzHQACgkQj4D7WH0S
+/k4BXggAoAuTCgxPow5/rQYRxSTj+kNc4XmxhIlX39wkjq4KJoBOkfK1zOhQISV1
+4HHCqWa9m9dov4bu6Kg8LwbKa2UChzh7HIDanvg0FuTjuR2DvZAqQ1h3KlZHQj4H
+Dh1fxxwA9H2mAUN8tHgeBxUVZ6qajflOjKFHpsQbdgTyoj2LkR1szY77e5P4QdmS
+0UJbs5rWuTPA+ErMqqdl4SkAygYx8SEw84ch7byHO4yx9rpUCp8zJk95dKJCgAir
+L38wVLJUZNR7sQVkPKakWtv34niUdKWjqIXa8yB4GHOQFX65uFKEzrvodPCyE2J/
+vgh7fbUvdt3OqTL+DpSduQS2l1F1qA==
+=W3Nr
+-----END PGP SIGNATURE-----
+
+--26ssrqftvvoyehs2--
