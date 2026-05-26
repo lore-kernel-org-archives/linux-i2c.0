@@ -1,88 +1,111 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 706833D811A
-	for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 09:42:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779788523; cv=none; b=WyOUtMNyMEfCmmRhzEbTXLxdHD4NK/I6asxrJoybP2GboHGGl1UaIBygMv3EDef2bu0g8TPnC4RpStH4I2y/SQ9iQWoKIqxAj1lJTFAzDst3okxVjYXODNDwwcJ7lCnlwE0sFLISZ2Jj90sJbP56G/Lh4mueXRaGkN/bw1pCKaY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779788523; c=relaxed/simple;
-	bh=lVWG8wpF88rzua31SZfbyLCR0D86gKUBFRS5mdzn6Wg=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6965F3D649A
+	for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 10:06:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779789972; cv=pass; b=j883bU56vJjYViJU2rGuo7PfaJkZB7vV7k7JrKg4UhfxAOVqlYr0f0TVRg3ERkMi0fbXYLhQ7fw2fZ5MUzIEEwPEhRy+0qOirooIvXpe5hAQ2+3EFN88E8Vsfee0EpX2Xwc/txKcKzvft1mI8lZ45AGF+knV1gsY5aCIoKL+Nnc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779789972; c=relaxed/simple;
+	bh=LzC78n/1cSkKY2MkbnFZtdzczAtKa4M13Zh07S4fs9I=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=j5wUr5TkPRg6eV862lJ+kDtm28TSsLPJod3QRQy2YKnbvhW+xahzixJqp/JEjTvtShnhpRm4D0uKKIN7G/dTDXQ/iawjWVQ6l9Ly5L7zxajBtQIsR3z5eMyTo1Km8OS9tZJCEvwTxa5jGCQPFXDsuj0nLOY4ZuxucMY1MAPGK58=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fqy8BI/B; arc=none smtp.client-ip=100.103.45.18
+	 To:Cc:Content-Type; b=of7rszicSQJWZbdLBoVxOj9UO/34WnlkXj0/7Ngnvi7nVM4ZQ0C1ybDiuii5so9g/ULWO5z8eHZ2dzPqoXCEx4Pf55EK3ZmyGCr//1dHLta3izbuREc8uTvypbSNOrmQ20tckqtju3k7npt/lZ+HDqGP4ZwVq2VGAxLXW8u8HOE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GviGtrXf; arc=pass smtp.client-ip=209.85.128.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fqy8BI/B"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 153181F00ADE
-	for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 09:42:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779788522;
-	bh=BDbhs6Nfya6qOCkBAjSW0m3ctJeeRrl6BOwxR3bhJk8=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=fqy8BI/BQ5q0hCT9FQ/GWGBkzS3Ru2+elqjWbvGsy/hmceANfPBtb2EwKvH+Zhgr5
-	 gSEpShJzkBq8fw7eozUzJbaD7xi8nARLjvt86fG99ra76OKqD33cO8vqZGKxO3QrlS
-	 Yc5suOf8U9yKrtC4ufaeE2tBWGbK5F4gz/ZSBpj9fcib1D01PjgVwGU7KHHr9Qd//l
-	 +UVShZglZuNlMY/WQuvvuT5tZE2WRAd5K73rtiE+gLG+qWMsVq1ni/MwGoLPo2dSJh
-	 w+dlKHJIQzwEw+K8o7KGVJa1fGoc1ZG/B4gY/jOofowXE/vukxEKhYmtumcVl2nBqP
-	 9A/f32SqLLvaw==
-Received: by mail-lj1-f172.google.com with SMTP id 38308e7fff4ca-394413a63d3so78521931fa.1
-        for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 02:42:01 -0700 (PDT)
-X-Gm-Message-State: AOJu0YztxDmzUkb2txex1WQUd71N/V8A//FVS6T61z900+YjPQEpF6RV
-	aV9DXwAeXiDVdFC/Eh4hPqjdnDZ2x8c1z5mnfLAoJzpg/NwrhAmsbEGj8YIAwlRp4b6oFQvAOlI
-	f0F6mSBK2Zs4nv7pmZgj3/GI/hYjItTdd6e05hOmv4w==
-X-Received: by 2002:a2e:bc01:0:b0:394:3e27:53d4 with SMTP id
- 38308e7fff4ca-395d8bf3fc7mr61652911fa.7.1779788520626; Tue, 26 May 2026
- 02:42:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GviGtrXf"
+Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-7b41fdf9de2so76109417b3.0
+        for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 03:06:11 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1779789970; cv=none;
+        d=google.com; s=arc-20240605;
+        b=GYnbCM+k7pqi7PX+0pQfzj8GNUKg6iSeliq10sQ+Ssnjezh9W/ARaC6t99VWB3MnAX
+         3mAjx06OosoXc+Tg7KeQUw/1I/L9Y1p21bcU9bpg9CU1jqj8uJNyaoBvlh2a6wf9fFut
+         82MGsArhEUOnDL7qn/sRxed6xHK0UtnBL4mGE60ql4ydg2S8WrgtczHGNMK5GE856msT
+         k7CXWCy5d6y4x9Th2X52xCZe9ApkgK5z7Ib+eERqPDkwNSuH5JYCgLdrJ/5JBdjyLJrI
+         hJma3/S3upDDkMytU0I4S9+fvp1dibBfSkHfLiTVZPYheE9XBoMRFamLXh1JR58PshuU
+         J9cA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=LzC78n/1cSkKY2MkbnFZtdzczAtKa4M13Zh07S4fs9I=;
+        fh=mDqnvL3tfDrNz/2ctQbCN4QYoXDSYRmFSDSacAEpp80=;
+        b=Mq+9+4JLibthERkBIwDQqy32HxUZUW2E4aS1DhMMEIt3vhfZKzPEFgPDiPnKwZSSb5
+         56gDhVnt9uLfVRiMTlyRNxRFkiwuheIeVXnrtLEqQWQkpHya2OMswkAIAGvmvV7QbYaq
+         kJSFO/T3jvnM9heZmjg7F6nVWXW3YxdqFQhPCBe95DduwxNyPKyWwUOh/3PQWZ3W4ZOJ
+         G2CtrLUcmN/DqquwFhl+G6tIfJJvcthaOlMwEMoyfucbvzPxLnEp8gvd+SQVEdy2SvJy
+         3mLDyO5lSnqGsZsUtlOAfcpcUc6LxFz6IXZrUeMjr6OTpO76SwLD5hstP52Zp9K/yuPe
+         bQ6w==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779789970; x=1780394770; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=LzC78n/1cSkKY2MkbnFZtdzczAtKa4M13Zh07S4fs9I=;
+        b=GviGtrXfvT92u/zxcXo9AEpbMCghGOWpWelI8m1Q38JNgID7Xv74MdWp7ZycmrPvB2
+         +2rZFQrMIKmb269qm7Nv+qn71OmYo41zBux8y+AAiRCTbfyxBM7EiBI1mC3SCJ51xvzZ
+         hK6N6Qfbqxzgi7ciQwLT7S7Ux0rJ8HQZfiHUHdUhZ62zyBoJucS4sPnXYGyhCzoJG7O3
+         SQCmlFmq2tgCCEhBQEPLEa6BgB9N8I8UibxDbxwtH3b0tn+bRDTA4sN8sfG+SncpSOQ2
+         lOBrNhMXMpqLvpbNi2qEelxjXf3mc+1vpuC8INQq/CRKNcrpnHPuKpu84BCRRB3NtqdZ
+         Tc7Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779789970; x=1780394770;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=LzC78n/1cSkKY2MkbnFZtdzczAtKa4M13Zh07S4fs9I=;
+        b=CZEAbXs0yigA1inKBCt8efmOd0lsoe8i8LOfOpzXp3C8vhNCbjjW3276RydHd/99Zb
+         LgEwuli+3s5fe6W+Vr/4xrNrM36whHqnNHBAUr43ZLZ53Wc/VP2j6JzLlYup8kH6ofr5
+         gfrRxCEJ9aTzaXQ8bt27x7xQedUqTRSafPZVJ7THzNlRK3xpOcioMG9wD1P5Dmy1BW/v
+         eK4VYf64F7mQgIgDD2MhiHu3iojRhX+CAqQ0PdSBFlO3yLxRH4rL6PsPNIBC8v7NQZfS
+         psxdOmWvLQBVdRiIxbdQ1SmX/FefroSGsCE/sLvQ6RBw9DJ/rOywrmm5yGrwGUxAUOGK
+         vrCg==
+X-Gm-Message-State: AOJu0Yy2CFsrmyjK8Yn+Wr4Y6e6Si7S6OScA54x1URIsJcbB0+Ib0SlI
+	KnLapjEHhGI2dMIg516/WjUlCc4vXSZ9kaOFTxTtNk2BHtBOB/8hM9I7+xapKGjWou1aFX2CZkN
+	jVmqRof+EO0WBsOev+HGm7gSiTzcyOPY=
+X-Gm-Gg: Acq92OFWp5ZE3dpBoIhbZdvQkogoA1z2PaJc+pwzvg+jZ9M7E2bpv+Quki+9i94Nrqc
+	OOJfVRhmjwS+QDDa+wQngPpSRUfcpWaC8pHHUkU+yT4x35YHOAuCrxaL8c9Rxu06Uu4xX7Bg9gF
+	MFFvxQv5+r/QnhMumy7sgZqZvk1XjsyzFiaPKIWKUF6MHL11Ew3ty76qwJSfdfckfx7ArInP/3E
+	TcZEV0q8jhGfML5F2TQcK40PPQQim0JZ2f+QFK3ZVMuzo0f5twtFXhnjQrrzJEqEwrB8PyCEXSb
+	xg0UDBoGl41kpNNuUKyaY9XwbbrnaycSq2YhgmXhNLe3xHA64P4uTEqbhIZbQFFC7llpmmMWCW+
+	njZY7MQsUl1YVIBOofl8SbrCuymoQsDBfRjlyN1W6Rj14V3TzRd4kGlMfyi4=
+X-Received: by 2002:a05:690e:154c:10b0:656:7cd:98e4 with SMTP id
+ 956f58d0204a3-65ec96555b3mr13525257d50.16.1779789970393; Tue, 26 May 2026
+ 03:06:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260523174440.9629-1-hardikprakash.official@gmail.com>
-In-Reply-To: <20260523174440.9629-1-hardikprakash.official@gmail.com>
-From: Bartosz Golaszewski <brgl@kernel.org>
-Date: Tue, 26 May 2026 11:41:48 +0200
-X-Gmail-Original-Message-ID: <CAMRc=McOJ6FoLWYfFGeFgh20CNpFASj0gMtfn0+v25BqNUn5dQ@mail.gmail.com>
-X-Gm-Features: AVHnY4JmpXz7wK0Lzy6vcqPE6O7WehNS7CYNGba0EvE6KOdl0cxDCVDtiIbeGMI
-Message-ID: <CAMRc=McOJ6FoLWYfFGeFgh20CNpFASj0gMtfn0+v25BqNUn5dQ@mail.gmail.com>
+References: <20260523174440.9629-1-hardikprakash.official@gmail.com> <CAMRc=McOJ6FoLWYfFGeFgh20CNpFASj0gMtfn0+v25BqNUn5dQ@mail.gmail.com>
+In-Reply-To: <CAMRc=McOJ6FoLWYfFGeFgh20CNpFASj0gMtfn0+v25BqNUn5dQ@mail.gmail.com>
+From: Hardik Prakash <hardikprakash.official@gmail.com>
+Date: Tue, 26 May 2026 15:35:58 +0530
+X-Gm-Features: AVHnY4Ibft4-GqOxKTXkPI0fDR3Kssg7RiKV0mTuOEbmY3NWYUNxobWViGXQV7k
+Message-ID: <CANTFpSXNLLYs526dGgXUGeOY2fuKcpsbGvqiuv0eE=W2305TKA@mail.gmail.com>
 Subject: Re: [PATCH v6 0/1] i2c: designware: defer probe if child GpioInt
  controllers are not bound
-To: Hardik Prakash <hardikprakash.official@gmail.com>
+To: Bartosz Golaszewski <brgl@kernel.org>
 Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org, 
 	andriy.shevchenko@intel.com, mario.limonciello@amd.com, 
-	basavaraj.natikar@amd.com, linus.walleij@linaro.org
+	basavaraj.natikar@amd.com, linus.walleij@linaro.org, linusw@kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Sat, May 23, 2026 at 7:45=E2=80=AFPM Hardik Prakash
-<hardikprakash.official@gmail.com> wrote:
->
-> Patch 1/2 (pinctrl-amd GPIO IRQ fix) is already in Linus Walleij's
-> tree. This replaces patch 2 with a generic solution suggested by
-> Mario Limonciello.
->
-> The root cause: i2c_designware probes AMDI0010:02 before pinctrl-amd
-> completes. Dynamic debug tracing confirmed the race:
->
->   0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
->   0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
->   0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
->   2.348157  lost arbitration
->
-> Previous attempts to fix this via initcall promotion (subsys_initcall,
-> fs_initcall, arch_initcall) all failed because the race is not about
-> when the driver registers but about when probe completes. The GPIO chip
-> becomes visible to the system via gpiochip_add_data() before
-> amd_gpio_probe() finishes, and i2c-designware probes AMDI0010:02 in
-> that window.
->
-> This patch adds a generic check that walks ACPI child devices, finds
-> any GpioInt resources, and defers probe if the referenced GPIO
-> controllers are not yet fully bound. No DMI matching required.
->
+On Mon, May 26, 2026 at 15:12, Bartosz Golaszewski wrote:
+> What happened to the idea of doing this in subsystem-level GPIO ACPI code?
 
-What happened to the idea of doing this in subsystem-level GPIO ACPI code?
+I tested it and reported back on May 20th in this thread -- it didn't
+work. The deferral in acpi_get_gpiod() never triggers for AMDI0010:02
+because i2c-designware does not call acpi_get_gpiod() during its probe.
+The GpioInt resource is on the WACF2200 touchscreen device (TPNL), not
+on the I2C controller itself. So the gpiolib-acpi path is never
+exercised when AMDI0010:02 probes.
 
-Bart
+The race is between amd_gpio_probe() completing and dw_i2c_plat_probe()
+starting. Nothing in the gpiolib-acpi layer gets called in that window.
+
+Thanks,
+Hardik
