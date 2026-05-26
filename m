@@ -1,159 +1,206 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD02E3C583E
-	for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 16:38:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86455405872
+	for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 17:12:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779813501; cv=none; b=WQreg0KLZoSuSmZLDhIYslydY4XqNLT8Opzd/7Be/9e/rPzKt4exMl6q9DaFk0V81TLDy99T9dqvjZV1uHpulkdxB0Z9PTrctWMtHlqFUD4R0Bm6T5vvxIO52kt6QR8Txu1Cxh07cTaM43wcVHhas+pxrHqgXmgfQzWqThCVTWY=
+	t=1779815580; cv=none; b=OCCkTzmJEZy7dpr3u0cBgbKqwiRwoFjgLUzZ7WrGOBedI81JgoE1W8Vgeu0J9iCkdGzl0ITj1MOuVpl1aWA1QKBCY+whucecm9pQQgZWsrfZ2EKNNpcEcKRTwf5xkiQ7spddc1UIHXZrucNJ5avZLJgKq2aA9y6HwNcKbsGmqJ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779813501; c=relaxed/simple;
-	bh=4V0/hRzQM3QPZtd9ciEuGpakZz9BDAJEY1Xq/95IEYA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TP/aL+E9JpF7xMq2OWVWnOWzYgVVSePWr9nbkfZMjvk0EbDHKlEWG+kTv0FvS6gfX2z4VVT7TkggaWqgywPLOEUVu38MD2Yr54iuGTZRJqPLMtplviiHqQ8xcOXrBKGdr2VyvhRtVHZJsl+e6UN1PFYZ5gpDidXRS0ZglkyxHb8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=mk0Bwf5h; arc=none smtp.client-ip=209.85.128.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1779815580; c=relaxed/simple;
+	bh=z16XuHj1A7vELH7YEt8PGS9A3NivYQGTOASzze0I4ig=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=rItQUSalMxBOrRyBgIKDQrRPmqFiZEepoielq7xaNWmy9ctuTQrJcCAttpGW0q1cQB0GVsiPtyVgxY2ZTi2g+8Mng4SXhHHo8TysYeVWEfyQyktCy15gLGhx8R9FmyEOPDYwExMExAsG7rX4UKL9d5NhjAJQLNasqwYoNKPhBQg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=TFZ5hjAF; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=S9wodx6G; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="mk0Bwf5h"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4905529b933so24545935e9.0
-        for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 09:38:18 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="TFZ5hjAF";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="S9wodx6G"
+Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64QH18iN3086573
+	for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 17:12:57 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=qcppdkim1; bh=Pow14EwOIn0od75ybgcQR4
+	L1r35iLvKxModRsY1OKyI=; b=TFZ5hjAFp43/hPTprCZQ0Gv8xR/rKTIXOujJnz
+	DMVhYAHCyC6omlIDU5q2X7jxeX5ccmj91xfrs/JMGgHOczzgT4n3QEZIyyBCbFjF
+	xZ29ME/hIXH5si0epr/l4zJ8V0e9P2/7+xKyA+ooJAqy9OuYDXjneshXs9S7wS1O
+	Mm1B4HE1Y6BUW4mNkVbpQt20RyLp5xuvEie9kxaUbODIoV2Rv6xVzom7NYNUaUx4
+	3s9xGTKGWpQOAHelvzQgUFrJsQH8oms9YQFSQ0qLbn6wa15vImnJSeeIxnqs5zjm
+	JSHGASxB4caap1TkUIydwonG6KgmwUUvoaLv+RTDJNM5rwbw==
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com [209.85.215.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4edeff0dus-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 17:12:56 +0000 (GMT)
+Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-c8292e18166so5264377a12.3
+        for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 10:12:56 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1779813497; x=1780418297; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=+neT3f/iOdkns4E+8cxUHIEwouFFRC5e7pB2NZRvaQM=;
-        b=mk0Bwf5hXpVXtR8qKrq4eVR8YRH8uAgW243P9LPUcvYHlW/W3CenauBquVI1o3J3Gz
-         ykz9ET95iEHsRPV830hnFjr+E9v6rT8uhO0Iv8U2EVfdIiTHUUuKMxFybKQ5FuNj38bd
-         fdstOAocTCEVIJp/li2MjrH1TtrNYnTy9LFZwGX72Coi2ym25O4/5jgSbT/7y8xXzHEk
-         Fc/IBf27hQDsuVeDJJOKWgwtUeRO5mJq0jJAVfLR97P3J7upjpS4Qdi3HsJ8sYyNyP/o
-         LOkZcOScYuknd4QAmTD+rRr6zgy3tK7XkOL9daYc9jJ12Qq/UI632ZbmKMp5vbeHF0ud
-         rzRg==
+        d=oss.qualcomm.com; s=google; t=1779815576; x=1780420376; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Pow14EwOIn0od75ybgcQR4L1r35iLvKxModRsY1OKyI=;
+        b=S9wodx6GVc7fC09RBtY9FsvTeOjR5+PPPSY94nzW5xiiayhHtTmQnsCY5syAtUfZo5
+         Bslq7MlMVTPat0mnl8ZmYjVXiz9SBht4+o9DIM4Jplnl4sRusLRm36MuEoxW21JNKB68
+         rltxfvrqLGZVwn6I/W4OTevk1dIztAVqVjBW4TajbM1bz8q/wQkgFLNal/jnSuGgaBP2
+         U+f2w8awmY/sBO7VanejddxwzoeRRaYRi9dhb1QVDLldJXfHCYaaJOFBBTCNzeMQQro/
+         CO8QFNSM6i9i0ACMocw0vjQtGAI5zPuJ3KO+QBrzQAkaOVS9lZsRBD8mrwfNyJwhr3jR
+         BoJg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779813497; x=1780418297;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+neT3f/iOdkns4E+8cxUHIEwouFFRC5e7pB2NZRvaQM=;
-        b=do2H9t9yUFqQjWOpx74R2F6kUvoFD/AKNFTcg17AKrxnsSXyeVIb9OefXMfLuvWgEV
-         NjwP+tUpcmMM34ILh49o98DLuxlfepWN5OCuhKLSZ1mAypwKUXjCX91Fu9Gx29qJAon/
-         IuxyWhN2+h1oAA0fWMc6SA4R5lQDe9SbOsUjKytiuC8lZuqt65eN9sCijXJ/iJsoBmE7
-         yYTBYay280SUakAnlioHOOkHIOhksQ9iEgjZCzLjU2OQ1Y2z9MkQaBcFjHpy3bLJgO/a
-         Aacs1vc7D6Q5AyvdI8wd5jsH0yUWSHbgWfQxW7wQLJRyAifGX4ESSdRqwc+Npi1HGhtn
-         QkuQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8Zz9vnMcUY9evy4+U3T/xgJ6QTN2eWnbe0l2zwTCYbtdDMdPPQ8zxbK1xziZSt3KMa4WHRNjUHdCM=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz1Lm1bkDVl+aMth6HO8/Y2NaQGGL7jRlbwHgJvxvfwOGzPCNPz
-	kRK8Y8YW3LHjKEwQyGyoCkWshpueOA2ShN6fRkUdQqkfeLdDzDdxmyF7atf+pvwwJyg=
-X-Gm-Gg: Acq92OENZht23AT3KYgBscj0FrYqmJPkFkoEyLZhjR1UqV2dt6ufriqZCZVXrSMyZTD
-	mUW0xibtTG0F/iaFXbLyteWydAF2YGIQRBwxBE38/aAirVuu6mp+KU75OzAwxK9jBudBPpjd9T5
-	epxNop/hOcaMlnylnl+6L8gweJgvTGfR7I5Dc7UCmAfPOuc6VTYyGlj+84w6LplkvpZYqPVtf/f
-	n7DPVzVnBuPx3qXh5RwLzrc0EozwGF0XGE1uRpPW2mzrKvYA3fIwq82vzXCJKnKXzj1XXuz4vaq
-	Sftjx4/wGlMrnDUGUdyVA1xETWzHsO8ePZEGY61KAKgipXO4+YF+3sD+RbRp0I2e4J1+n2xddfO
-	ggp/rQrlh2v46qOCOdbgfFT3gILUCyeYUEI/cHmNe+qeDtU68S9Y3jh8SnU2wRZ/CSHQxLCdC5F
-	C/nAxJMLuPSNp3gyV6gtowrkDU/kdYeCOnGnW02LJt3I1zK2i/GNFgPJgwMPEIeadjG9pIBHZwF
-	fbLuZlxk5R8t2g=
-X-Received: by 2002:a05:600c:4ecc:b0:485:4388:3492 with SMTP id 5b1f17b1804b1-490424b25abmr314126765e9.11.1779813497306;
-        Tue, 26 May 2026 09:38:17 -0700 (PDT)
-Received: from localhost (p200300f65f47db04a716d2bdeddb4813.dip0.t-ipconnect.de. [2003:f6:5f47:db04:a716:d2bd:eddb:4813])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-45eb6d493dfsm37901229f8f.23.2026.05.26.09.38.16
+        d=1e100.net; s=20251104; t=1779815576; x=1780420376;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Pow14EwOIn0od75ybgcQR4L1r35iLvKxModRsY1OKyI=;
+        b=WdueXyOb5KbIDa6RpG0t6naBcklCjzcoY21UKb8lfzjlACnMvOmpDlff4G3UF9QBgJ
+         TmQUgPKNBtQQ1nHbt3vfx97gjkmqqNVJujN23QpN6JheQMEP8h53rGV/+qkMnOpKoURS
+         tOEF564J829JU7Xj45UQVD3kS5Ismw1Ct7AO3Pe2GZks/OeV+XR17gvN7el7x34w6ATt
+         nzxsNx/lXQp3+JPEkgnnJrA3R2RhD9gixA2Xf6qQbahVfPf9xF8ySpH4+d0C78GBPALR
+         zrTQpAe2zenBk6rZU64vPIbHxUUwL/45nnKyiNpAk+w3mc4Zc4GV9c869QAb3BbYVyjw
+         nZDA==
+X-Forwarded-Encrypted: i=1; AFNElJ9k299nYScFEB7rynonxirGwvlRlEeNKjvPnw1U0oD7lZSwd/EAMBkFa1hVbhlrU0siFpXZydwpEAY=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzN2SwSgI+66z53Ni9+jKJsrjhkfl7KTJFg4FRVVVjoHuMkIXh5
+	8qNtEwqZXvnL799/wirQxzpSgENvrii+yhMfLxlYkHfZGRkIu26z6Q7XLG7m3StHEWwTSUva7+1
+	d4xJdgY7rgSdQLtCMknLh7M8KTHVSBqii10NLL4+uaNqi1w+L93uV7yjvy2MXJDc=
+X-Gm-Gg: Acq92OGJR5xWGSVvqEKfEwVmTb0Q91r2N2VQdYVMZpGBgtC7aLtIBlSXbTQ2kWvcU0U
+	oXqW4Zzac9DFQ8JFwWX9rf379ti7p5tngTRHoirZW1W+FF6jmOHHEBMe8VFrqcP/LWYEkXfb4GA
+	5b1Zdn9YsiEJZHhRTbJMYpsgLhQ/N6VFus/ogUxkEW34Cp20YqzA/AEO73gEykua/u9e9XwemYA
+	gti3URSsvJVQbfdxLUQaXAN7JGkQS5D3GGs0EAN8rOMw7GJC9NflURNhU/k3OW2+cFxlwqTqmd0
+	wi5jvmDP2J1LqIyziVdgC9ehv/dtMMGoTCwZebhH711Fr75iHhtj48yDaS7C8ngSJuxm1n+F1oK
+	0juGRNseiB+IrY6WAIY7D/lwGcDDWsmbH1BmSqd6ys3N3br/Ymy57
+X-Received: by 2002:a05:6a00:124d:b0:835:cc47:6ff8 with SMTP id d2e1a72fcca58-8415f3a54bemr18300631b3a.45.1779815576081;
+        Tue, 26 May 2026 10:12:56 -0700 (PDT)
+X-Received: by 2002:a05:6a00:124d:b0:835:cc47:6ff8 with SMTP id d2e1a72fcca58-8415f3a54bemr18300594b3a.45.1779815575564;
+        Tue, 26 May 2026 10:12:55 -0700 (PDT)
+Received: from hu-nihalkum-hyd.qualcomm.com ([202.46.23.25])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84165009761sm15736235b3a.60.2026.05.26.10.12.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 May 2026 09:38:16 -0700 (PDT)
-Date: Tue, 26 May 2026 18:38:15 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Damien Le Moal <dlemoal@kernel.org>, Niklas Cassel <cassel@kernel.org>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Thomas Gleixner <tglx@kernel.org>, 
-	Ingo Molnar <mingo@kernel.org>, Max Staudt <max@enpas.org>, Andi Shyti <andi.shyti@kernel.org>, 
-	Helge Deller <deller@gmx.de>, linux-ide@vger.kernel.org, linux-m68k@lists.linux-m68k.org, 
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-fbdev@vger.kernel.org, dri-devel@lists.freedesktop.org, 
-	"Christian A. Ehrhardt" <christian.ehrhardt@codasip.com>, "Christian A. Ehrhardt" <lk@c--e.de>
-Subject: Re: [PATCH v1 0/8] zorro: Improve handling of pointers in
- zorro_device_id::driver_data
-Message-ID: <ahXMGtBv_pQXM7YS@monoceros>
-References: <cover.1779803053.git.u.kleine-koenig@baylibre.com>
- <CAMuHMdUVoNg-rSV_hDcvi6KCosmE=SMcxUj2Y8fkoJ=33zMSXw@mail.gmail.com>
+        Tue, 26 May 2026 10:12:54 -0700 (PDT)
+From: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+Subject: [PATCH 0/8] Add CAMSS and IMX577 sensor support for Shikra EVK
+Date: Tue, 26 May 2026 22:42:44 +0530
+Message-Id: <20260526-shikra-camss-review-v1-0-645d2c8c75a7@qti.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="26ssrqftvvoyehs2"
-Content-Disposition: inline
-In-Reply-To: <CAMuHMdUVoNg-rSV_hDcvi6KCosmE=SMcxUj2Y8fkoJ=33zMSXw@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAIzUFWoC/02OWwqDMBQFtyL3uwHzuj62UvyIyU0NRW0Tawvi3
+ ptWCv2cA2eYDRLFQAnaYoNIa0hhnjLwUwF2MNOFWHCZQZQCSy2QpSFco2HWjCmxz4OezHr0iMZ
+ qxB7y8xbJh9fXeu4OjnR/ZPlyjNCbRMzO4xiWtmiM6RXJkmztfZYIgdjImhuhdNVw56Un8lTBf
+ 1RbHEmc/5LcwlylXVMprVBhu0ro9v0NFga5fuIAAAA=
+X-Change-ID: 20260526-shikra-camss-review-cf6f66ac566b
+To: Bryan O'Donoghue <bod@kernel.org>,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Loic Poulain <loic.poulain@oss.qualcomm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>, Robert Foss <rfoss@kernel.org>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>
+Cc: linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, imx@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org,
+        Suresh Vankadara <quic_svankada@quicinc.com>,
+        Vikram Sharma <vikram.sharma@oss.qualcomm.com>,
+        Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>,
+        Prashant Shrotriya <pshrotri@qti.qualcomm.com>
+X-Mailer: b4 0.14.2
+X-Authority-Analysis: v=2.4 cv=ONEXGyaB c=1 sm=1 tr=0 ts=6a15d498 cx=c_pps
+ a=Oh5Dbbf/trHjhBongsHeRQ==:117 a=ZePRamnt/+rB5gQjfz0u9A==:17
+ a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=eoimf2acIAo5FJnRuUoq:22
+ a=EUspDBNiAAAA:8 a=0ARVRLQPdUDne_cnrioA:9 a=QEXdDO2ut3YA:10
+ a=_Vgx9l1VpLgwpw_dHYaR:22
+X-Proofpoint-ORIG-GUID: VI49Lak8Pwrj04sAkNhPAtmeg33CCtgH
+X-Proofpoint-GUID: VI49Lak8Pwrj04sAkNhPAtmeg33CCtgH
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI2MDE0OSBTYWx0ZWRfX8CVXhFbHRZTI
+ HvvrE+lf1F43BUs6Hmc1sI5LA70hMN/YHlNpK8K5IqIY/HjIKKEDIE2ZAfQH3Qb6J1asZj6Ns/S
+ c7cVcrFF/LX/+Z1ndLxjTj+XmEQgNaPjNJ2ZZqLLpXdHTrQuOu3NmTpERbOKkDOgzaS49OJSGkP
+ K4z22mZpsTJ5Mo6A3jIBKayl0Lv+jKutc+2RG+7sINPoaKO/lCUmtAfdBugWtzstx6bQ1TZStet
+ qBQ40LUwsrHUtZaOAbcpYc9jDtohwbJMczCTeB6ZONsT80kLr1lbfnB03PEvxLcjka329K49F62
+ PfHlZSiP7/T5Y81KjoElP/eDTCa1yguWNswXQlm+z9EcfZwlR5IwANd1VyWP2CKsK2plbZEsWVj
+ YvndTRXBt/66QrLvCRgHcZ2pRdzSSIOp0U+v71OWm1pRXFyOgQIesufU8FjuoXI+bz7W9ZKDF5l
+ uN1cBNGm6n4Vy0xDcUw==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-05-26_04,2026-05-26_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 spamscore=0 suspectscore=0 impostorscore=0 adultscore=0
+ priorityscore=1501 malwarescore=0 lowpriorityscore=0 clxscore=1011
+ bulkscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2605130000
+ definitions=main-2605260149
 
+Shikra EVK is based on the Qualcomm Shikra SoC.
+It lacks a camera sensor in its default configuration.
+This series adds CAMSS driver support, CCI definitions and enables
+the 22-pin IMX577 sensor via CSIPHY0 through a device tree overlay.
 
---26ssrqftvvoyehs2
-Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v1 0/8] zorro: Improve handling of pointers in
- zorro_device_id::driver_data
-MIME-Version: 1.0
+We have tested IMX577 Sensor on CCI1 with following commands:
+- media-ctl --reset
+- media-ctl -d /dev/media0 -V '"imx577 1-001a":0[fmt:SRGGB10/4056x3040 field:none]'
+- media-ctl -d /dev/media0 -V '"msm_csiphy1":0[fmt:SRGGB10/4056x3040]'
+- media-ctl -d /dev/media0 -V '"msm_csid0":0[fmt:SRGGB10/4056x3040]'
+- media-ctl -d /dev/media0 -V '"msm_vfe0_rdi0":0[fmt:SRGGB10/4056x3040]'
+- media-ctl -d /dev/media0 -l '"msm_csiphy1":1->"msm_csid0":0[1]'
+- media-ctl -d /dev/media0 -l '"msm_csid0":1->"msm_vfe0_rdi0":0[1]'
+- yavta -B capture-mplane -c -I -n 5 -f SRGGB10P -s 4056x3040 -F /dev/video0
 
-On Tue, May 26, 2026 at 05:01:48PM +0200, Geert Uytterhoeven wrote:
-> Hi Uwe,
->=20
-> On Tue, 26 May 2026 at 16:17, Uwe Kleine-K=F6nig (The Capable Hub)
-> <u.kleine-koenig@baylibre.com> wrote:
-> > this series is about improving the handling of pointers in struct
-> > zorro_device_id's driver_data.
-> >
-> > While it's ok on all current Linux platforms to store a pointer in an
-> > unsigned long variable, it involves casting that loses type information.
-> > This can be nicely seen in patch #7 where after profiting from patch #6
-> > the compiler notices a missing const.
-> >
-> > Preparing for that change, all zorro_device_ids are converted to use
-> > named initializers, which is also a nice cleanup that could stand for
-> > itself, as it improves readability for humans. (That is necessary
-> > because an anonymous union can be initialized by name, but not using a
-> > list initializer.)
-> >
-> > My motivation for this series is the CHERI hardware extension. With that
-> > pointers are bigger than longs and thus you cannot store pointers in
-> > zorro_device_id::driver_data. So this series is also about getting
-> > support for CHERI into the mainline, but I hope the clean up effects
-> > mentioned above are justification enough to accept this series.
->=20
-> Thanks for your series!
->=20
-> > The dependencies in this series are as follows:
-> >
-> >  - Patch #5 depends on #1, #2
->=20
-> s/5/6/?
->=20
-> >  - Patches #7 and #8 depend on patch #6.
-> >
-> > So if the ata maintainers agreed to merge their patch #1 via scsi, and
-> > Geert agrees to patch #5 and that it's also merged via scsi, patches #1,
->=20
-> s/5/6/?
+Used following tools for the sanity check of these changes.
+- make -j32 W=1
+- checkpatch.pl
+- make DT_CHECKER_FLAGS=-m W=1 DT_SCHEMA_FILES=i2c/qcom,i2c-cci.yaml dt_binding_check
+- make DT_CHECKER_FLAGS=-m DT_SCHEMA_FILES=media/qcom,qcm2290-camss.yaml dt_binding_check W=1
+- make CHECK_DTBS=1 W=1 qcom/shikra-cqm-evk-imx577-camera.dtb
+- make CHECK_DTBS=1 W=1 qcom/shikra-iqs-evk-imx577-camera.dtb
+- make CHECK_DTBS=y W=1 dtbs
 
-Yes, indeed. And I tried so hard to get all the numbers right :-\
+Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+---
+Nihal Kumar Gupta (7):
+      dt-bindings: media: qcom: Add Shikra CAMSS compatible
+      dt-bindings: i2c: qcom-cci: Document Shikra compatible
+      arm64: dts: qcom: shikra: Add CAMSS node
+      arm64: dts: qcom: shikra: Add CCI definitions
+      arm64: dts: qcom: shikra: Add pin configuration for mclks
+      arm64: dts: qcom: shikra-cqm-evk-imx577-camera: Add DT overlay
+      arm64: dts: qcom: shikra-iqs-evk-imx577-camera: Add DT overlay
 
-Best regards
-Uwe
+Prashant Shrotriya (1):
+      media: qcom: camss: add support for QCM2390 camss
 
---26ssrqftvvoyehs2
-Content-Type: application/pgp-signature; name="signature.asc"
+ .../devicetree/bindings/i2c/qcom,i2c-cci.yaml      |   2 +
+ .../bindings/media/qcom,qcm2290-camss.yaml         |   6 +-
+ arch/arm64/boot/dts/qcom/Makefile                  |   8 +
+ .../dts/qcom/shikra-cqm-evk-imx577-camera.dtso     |  63 +++++++
+ .../dts/qcom/shikra-iqs-evk-imx577-camera.dtso     |  63 +++++++
+ arch/arm64/boot/dts/qcom/shikra.dtsi               | 197 +++++++++++++++++++++
+ .../platform/qcom/camss/camss-csiphy-3ph-1-0.c     |   2 +
+ drivers/media/platform/qcom/camss/camss-vfe.c      |   1 +
+ drivers/media/platform/qcom/camss/camss.c          |  13 ++
+ drivers/media/platform/qcom/camss/camss.h          |   1 +
+ 10 files changed, 355 insertions(+), 1 deletion(-)
+---
+base-commit: 9aab4e30ec8ffc5622669381a245791df3feefe7
+change-id: 20260526-shikra-camss-review-cf6f66ac566b
+prerequisite-change-id: 20260511-shikra-dt-d75d97454646:v3
+prerequisite-patch-id: 3a689e8dda5fd2755b689d94d095806b3f2e6eed
+prerequisite-patch-id: 2acc300a68ed8c5364fb5f2f7d28fc0d56ab07bf
+prerequisite-patch-id: 391f9dffceaac9f44df7c2daffafb66fa379ca35
+prerequisite-patch-id: 2885f299e711582da312ca9d13983d296a3dd5dc
+prerequisite-patch-id: 7e351b93b3a238145ca642143bd0824bb90e98ce
 
------BEGIN PGP SIGNATURE-----
+Best regards,
+-- 
+Nihal Kumar Gupta <nihalkum@qti.qualcomm.com>
 
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmoVzHQACgkQj4D7WH0S
-/k4BXggAoAuTCgxPow5/rQYRxSTj+kNc4XmxhIlX39wkjq4KJoBOkfK1zOhQISV1
-4HHCqWa9m9dov4bu6Kg8LwbKa2UChzh7HIDanvg0FuTjuR2DvZAqQ1h3KlZHQj4H
-Dh1fxxwA9H2mAUN8tHgeBxUVZ6qajflOjKFHpsQbdgTyoj2LkR1szY77e5P4QdmS
-0UJbs5rWuTPA+ErMqqdl4SkAygYx8SEw84ch7byHO4yx9rpUCp8zJk95dKJCgAir
-L38wVLJUZNR7sQVkPKakWtv34niUdKWjqIXa8yB4GHOQFX65uFKEzrvodPCyE2J/
-vgh7fbUvdt3OqTL+DpSduQS2l1F1qA==
-=W3Nr
------END PGP SIGNATURE-----
-
---26ssrqftvvoyehs2--
