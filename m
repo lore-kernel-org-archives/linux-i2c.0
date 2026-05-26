@@ -1,49 +1,69 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C9D92853F8
-	for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 19:48:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 520073C65FE;
+	Tue, 26 May 2026 22:23:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779824898; cv=none; b=jLYchLkmWmTgSTlTVKffMfMUxgYwaHuAKWU0r8eYQsUZa8x4m08n/4HiqItKHrnZO6Js2V6Kvk9x06V6Fsqij1+7G0hKxX64Y/nCNfibeVS4JVsMk1z1xJ+OMGOYVe80gWWaWM4Ali2dqdkBu5aDYChfUAYvCBCKuXttw/dlEfI=
+	t=1779834223; cv=none; b=twzb/PKeSlkZDd/NPrDUMixaD9vtXPSafwSs3+oU0MzhiQopIjwKhmCl56rLE5v/NMfZE6lnKJX9c7hEtRlPdNCVTh1JYnD5lPFtcRNq8oYxli45ODKCIU2IovMhRlTUEqDzelbfdhU1ZhTv941/C8SAOIP9CF0XdZYTGOFsbI0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779824898; c=relaxed/simple;
-	bh=QD2Y4euWc8sJhTfA/CnILxd65/kGLdlI2wrj77LxXas=;
+	s=arc-20240116; t=1779834223; c=relaxed/simple;
+	bh=PeWkXtVByZaI1HB4gRMRQ14IUpZcVF886iBQEGNYfvg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fhWQYxCQESq8aI2SRyLkOnnJMczdj3c3VAjfrAoaTRRYfvNuptGefFktFlmMrOd3QX0RdXfui8taGYGN/Fweua7c/WrZVuLensQQNdVUfUiSBG8u22iKgciFvsMtsRWDCi67NThGwVTDSaPxG8oXL0iy1ZeFXlrrCXyxUzo98DA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=bbaoKaIh; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=D2AKuyHUKkKVikH6xxXo/QQt+9tI/wHmwm51Ap1knapIrKaKWpOEIsgz+2pUrN2VjE4XPlYITbm7KkFilr7mP7XbxuGgjTAkBiPBzc0Do0OwhrprmCttZkf+EKsr1Po+pU8tPDclfPFL3tRX+7jtXrP/k7XyWeI5wq/PQRkKabM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=e4JALKv9; arc=none smtp.client-ip=198.175.65.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="bbaoKaIh"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=cY7P
-	mbuIO+wL0uJ2uHrRtzrWH+FdbJWbWlM2ezduFew=; b=bbaoKaIhE2stUAQjF+qp
-	e5k+KFnssZaLadQbzBvPrVO+x0Z/lZ4yrLiKyuco2pzoP8GxeQpGq/Faamk/QMlc
-	H49x4g28PQzCLD8Xmf2SPiFs6rM81aBGELe/gGomrOOEz7kp5IZ2QYXtWxaRmg+K
-	W7b+0uR0NcxZGb5rdn/vRLWU9hrOA9pv7+qbQow1wZvpTe+MnOpSeLbBrCpy3JWG
-	nxGKx/TP4XfnyjXnHMnSfOTEDu/PXznTkr4fVivQ/tQL+GEeBkvu4W38BoC64IdY
-	Kwip2QCsLx3mNBxiWjVuoDO6b9AAJdNAqrYXkuq5JOlyi9zMP49HC9DW5tTRKc0o
-	aw==
-Received: (qmail 387701 invoked from network); 26 May 2026 21:48:14 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 26 May 2026 21:48:14 +0200
-X-UD-Smtp-Session: l3s3148p1@QSmTxr1S41OSABpf
-Date: Tue, 26 May 2026 21:48:13 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Marcus Folkesson <marcus.folkesson@gmail.com>
-Cc: Peter Rosin <peda@axentia.se>,
-	Michael Hennerich <michael.hennerich@analog.com>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@intel.com>,
-	Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v9 5/5] docs: i2c: i2c-topology: add section about bus
- speed
-Message-ID: <ahX4_WaqodYt3PmD@shikoro>
-References: <20260324-i2c-mux-v9-0-5292b0608243@gmail.com>
- <20260324-i2c-mux-v9-5-5292b0608243@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="e4JALKv9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1779834221; x=1811370221;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=PeWkXtVByZaI1HB4gRMRQ14IUpZcVF886iBQEGNYfvg=;
+  b=e4JALKv9l4zOu49Kf11bhIIUyeM91FsAF7HTbErMwiy8pw0Oq35s5XbS
+   We3VmzXGTM73zSMoj9p4oFf6tSIAD5MoFSRdPTTTqUzt98AWHSArSXtE4
+   fB4df1yRMDftZwZHIWMV1LuaDz2fwo/EsP8aYzmOH+scHiZxGgvNjiQFM
+   GuS7gnKq0aXQq0h2LJY/+RedlvH7X+r9jbdjHvfcTQwzM/ybSbPJYuc2z
+   KWka53Vwf5gvsbR9BeZAn3CKups7Uvf8RrILTEX/73+5lAoS+i7Ph1MhM
+   v1Pcmzl1pqK1eXc4iYbVSmciksT1RCDS6CaFf6Qo/Y6i6XH9GoiiWv1p7
+   w==;
+X-CSE-ConnectionGUID: r7+pFPcoRK6Ob5n8PFjOBg==
+X-CSE-MsgGUID: IROPJynYQVauPpzAsXnz7Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11798"; a="80848044"
+X-IronPort-AV: E=Sophos;i="6.24,170,1774335600"; 
+   d="scan'208";a="80848044"
+Received: from orviesa008.jf.intel.com ([10.64.159.148])
+  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 May 2026 15:23:41 -0700
+X-CSE-ConnectionGUID: jXp1pGdtQVWRxKGMFXbOoQ==
+X-CSE-MsgGUID: XwU4YZPvT6+rsx2PIp014g==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,170,1774335600"; 
+   d="scan'208";a="241890275"
+Received: from igk-lkp-server01.igk.intel.com (HELO bdf09bfdbd5f) ([10.211.93.152])
+  by orviesa008.jf.intel.com with ESMTP; 26 May 2026 15:23:37 -0700
+Received: from kbuild by bdf09bfdbd5f with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wS0BS-00000000CUr-2yTH;
+	Tue, 26 May 2026 22:23:34 +0000
+Date: Wed, 27 May 2026 00:22:41 +0200
+From: kernel test robot <lkp@intel.com>
+To: Frank.Li@oss.nxp.com, Vinod Koul <vkoul@kernel.org>,
+	Dong Aisheng <aisheng.dong@nxp.com>,
+	Andi Shyti <andi.shyti@kernel.org>, Shawn Guo <shawnguo@kernel.org>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+	dmaengine@vger.kernel.org, linux-kernel@vger.kernel.org,
+	linux-i2c@vger.kernel.org, imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, carlos.song@nxp.com,
+	Frank Li <Frank.Li@nxp.com>
+Subject: Re: [PATCH v2 2/2] i2c: imx-lpi2c: use dmaengine_prep_submit() to
+ simple code
+Message-ID: <202605270007.xFkhAWbC-lkp@intel.com>
+References: <20260522-dma_prep_submit-v2-2-7a87a5a29525@nxp.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -52,91 +72,74 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260324-i2c-mux-v9-5-5292b0608243@gmail.com>
+In-Reply-To: <20260522-dma_prep_submit-v2-2-7a87a5a29525@nxp.com>
+
+Hi Frank,
+
+kernel test robot noticed the following build errors:
+
+[auto build test ERROR on 8f0b4cce4481fb22653697cced8d0d04027cb1e8]
+
+url:    https://github.com/intel-lab-lkp/linux/commits/Frank-Li-oss-nxp-com/dmaengine-Add-helper-dmaengine_prep_submit_slave_single/20260523-041812
+base:   8f0b4cce4481fb22653697cced8d0d04027cb1e8
+patch link:    https://lore.kernel.org/r/20260522-dma_prep_submit-v2-2-7a87a5a29525%40nxp.com
+patch subject: [PATCH v2 2/2] i2c: imx-lpi2c: use dmaengine_prep_submit() to simple code
+config: x86_64-kexec (https://download.01.org/0day-ci/archive/20260527/202605270007.xFkhAWbC-lkp@intel.com/config)
+compiler: clang version 20.1.8 (https://github.com/llvm/llvm-project 87f0227cb60147a26a1eeb4fb06e3b505e9c7261)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260527/202605270007.xFkhAWbC-lkp@intel.com/reproduce)
+
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202605270007.xFkhAWbC-lkp@intel.com/
+
+All errors (new ones prefixed by >>):
+
+   In file included from net/core/dev.c:124:
+>> include/linux/dmaengine.h:1588:48: error: expected ')'
+    1588 |                                    dma_async_tx_callback cb, void *cb_param;
+         |                                                                            ^
+   include/linux/dmaengine.h:1587:35: note: to match this '('
+    1587 | dmaengine_prep_submit_slave_single(struct dma_chan *chan,
+         |                                   ^
+>> include/linux/dmaengine.h:1587:1: error: conflicting types for 'dmaengine_prep_submit_slave_single'
+    1587 | dmaengine_prep_submit_slave_single(struct dma_chan *chan,
+         | ^
+   include/linux/dmaengine.h:994:1: note: previous declaration is here
+     994 | dmaengine_prep_submit_slave_single(struct dma_chan *chan,
+         | ^
+>> include/linux/dmaengine.h:1589:24: error: redefinition of 'size_t' as different kind of symbol
+    1589 |                                    dma_addr_t buf, size_t len,
+         |                                                    ^
+   include/linux/types.h:62:26: note: previous definition is here
+      62 | typedef __kernel_size_t         size_t;
+         |                                 ^
+   In file included from net/core/dev.c:124:
+>> include/linux/dmaengine.h:1589:30: error: expected ';' after top level declarator
+    1589 |                                    dma_addr_t buf, size_t len,
+         |                                                          ^
+         |                                                          ;
+>> include/linux/dmaengine.h:1592:1: error: expected identifier or '('
+    1592 | {
+         | ^
+   5 errors generated.
 
 
-> +Multiple muxes in series
-> +--------------------------
-> +
-> +When multiple muxes are used in series the same rules applies.
-> +
-> +Transfers to D3 may interleave between select-transfer-deselect to D1, which
-> +results that the bus speed to D2 or D3 will be at 100KHz.
-> +
-> +Transfers to D2 may interleave between select-transfer-deselect to D1, which
-> +results in that the bus speed to D1 may be at 400kHz as the transfer to D2
-> +will set the bus speed to before the transfer to D1 starts.
-> +
-> +This is probably a bad topology ::
+vim +1588 include/linux/dmaengine.h
 
-In documentation, we probably shouldn't say "probably" ;)
+  1585	
+  1586	static inline dma_cookie_t
+> 1587	dmaengine_prep_submit_slave_single(struct dma_chan *chan,
+> 1588					   dma_async_tx_callback cb, void *cb_param;
+> 1589					   dma_addr_t buf, size_t len,
+  1590					   enum dma_transfer_direction dir,
+  1591					   unsigned long flags);
+> 1592	{
+  1593		return -ENODEV;
+  1594	}
+  1595	#endif
+  1596	
 
-> +
-> +                     .----------. 400kHz .----------. 100kHz .--------.
-> +    .--------.400kHz |   mux-   |--------|   mux-   |--------| dev D1 |
-> +    |  root  |--+----|  locked  | 400kHz |  locked  |        '--------'
-> +    '--------'  |    |  mux M1  |--.     |  mux M2  |
-> +                |    '----------'  |     '----------'
-> +                |  .--------.      |  .--------.
-> +                '--| dev D3 |      '--| dev D2 |
-> +                   '--------'         '--------'
-
-400kHz leaking to a 100kHz device is bad. I guess we cannot do much
-about it here because the bus speed is a board specific parameter...
-
-> +Idle state
-> +-----------
-> +
-> +Muxes have an idle state, which is the state the channels are put into when no channel
-> +is active. The state is typically one of the following:
-> +
-> +- All channels are disconnected
-> +- The last selected channel is left as-is
-> +- A predefined channel is selected
-> +
-> +Muxes that support an idle state where all channels are disconnected are preferred when using
-> +different bus speeds. Otherwise high bus speeds may "leak" through to devices that
-> +may not support that higher speed.
-> +
-> +Consider the following example: ::
-> +
-> +                          .----------. 100kHz .--------.
-> +        .--------. 400kHz |   mux-   |--------| dev D1 |
-> +        |  root  |--+-----|  locked  |        '--------'
-> +        '--------'  |     |  mux M1  |--. 400kHz .--------.
-> +                    |     '----------'  '--------| dev D2 |
-> +                    |  .--------.                '--------'
-> +                    '--| dev D3 |
-> +                       '--------'
-> +
-> +If the idle state of M1 is:
-> +
-> +- All channels disconnected: No problem, D1 and D2 are not affected by communication
-> +  to D3.
-> +- Last selected channel: Problem if D1 was the last selected channel. High speed
-> +  communication to D3 will be "leaked" to D1.
-> +- Predefined channel: Problem if the predefined channel D1. Set predefined channel
-> +  to D2 as D2 may handle 400kHz.
-
-... unlike here. We have MUX_IDLE_AS_IS and MUX_IDLE_DISCONNECT defined
-already. And I'd think we should only allow bus speed switching for
-MUX_IDLE_DISCONNECT to avoid out-of-spec scenarios. Opinions?
-
-> +Supported controllers
-> +-----------------------
-> +
-> +Not all I2C controllers support setting the bus speed dynamically.
-> +At the time of writing, the following controllers have support:
-> +
-> +============================   =============================================
-> +i2c-davinci                    Supports dynamic bus speed
-> +============================   =============================================
-
-This paragaph is easy to get outdated. We can document that only
-controller drivers with the callback function implemented will work.
-People then can find out if that applies for their driver...
-
-There are some grammar correction in the Sashiko-review[1]. Most of them
-look correct to me. Can you have a look at these, too, please?
-
-[1] https://sashiko.dev/#/patchset/20260324-i2c-mux-v9-0-5292b0608243%40gmail.com
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
