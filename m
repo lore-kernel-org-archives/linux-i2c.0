@@ -1,143 +1,137 @@
-Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com [209.85.128.50])
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2CA04401494
-	for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 14:18:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5159A3FD133
+	for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 14:37:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779805091; cv=none; b=E5r8rjp/vNcP7n+/EzbMsMb/bpEcU+jAWpjCWJdXDEHKkk0qyZ6QiMAR71zByhId0sVAvbGk8HQH/484xAX5qbOixaNhTrnIhsOZ3I9quOYuC8JpP3hYs+Lk3ipvi1rS0OM1aaIlyxOpdyrFLSFqRFFgKtWplzl5U0xaIIVae3M=
+	t=1779806247; cv=none; b=apslKs9bkTvhx493KV2pyil9kp534Kt1iToqecUO74ai7Ccc4FPDZklV2P2xm1LejdeM03kHiI5VSwtM0brM82zhsP0vn+za+HwUbsGXHNeS5KU5qfXULTDMUh5awzKDFyXIeGOaKWssU+JkZ5FrN033TXnAiD4aCqU3XRAkLJU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779805091; c=relaxed/simple;
-	bh=A14j4ivDNBl2yGcg6n5ndH+ByZLqjyYb/4BbZyB+vg8=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=G5WPJ0aX9neCpnrU7Sw96VtZOh/EwZSYBPnsu7OabrYI3D4v0bg4t84zDmCL0BdXlQ96v1VNCfOmlhzg8IZZAbaxFkRR5xuE5sDBtQgk8ApCuzqS+vfLhiUg08r559o7h6D2TGVIgw0wZKDTlaPQaMjb6CLtYBlCXjvjqe1i0w8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=Kr5CR1pu; arc=none smtp.client-ip=209.85.128.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1779806247; c=relaxed/simple;
+	bh=9DguFz/w39N1oZZZDKp+yyOgXvl1xRpIiiz4lRCQx6I=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=czM4Ru5+Fs8Dg5nlowzFSLJrCoUScKF8hXcyrOnl8f+W8SNwBuvAsjbv7XZ4eLK6JiA7iyY3aHbzQYoujj6QeheksDADSSbBAezOaYpw7rGU4xnp0ieAl2XzSM/43iL9cYhjNEzuDA73ORjLkOVpwdlajsluY9QzA4HSSj9lrU8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cGHSWhR3; arc=none smtp.client-ip=209.85.128.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="Kr5CR1pu"
-Received: by mail-wm1-f50.google.com with SMTP id 5b1f17b1804b1-4904fd4f6aeso30332645e9.2
-        for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 07:18:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cGHSWhR3"
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-49048e043e5so31318625e9.1
+        for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 07:37:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1779805085; x=1780409885; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=DWA1rx79U563LTGj65VSgfxyjti8CkpfF8kpzyqUrdk=;
-        b=Kr5CR1puBNaF4clfOgdrSY811kH0XkJYaXu+tVuev20pRHeBFa6PmkgFfS7uPTR2Mj
-         fccEIsQWEhUkWS/CT8WCi3/1a7oZuBvZ0BapIIz3Tp+MeoOcr1VGd0OfwtIMkjbrk1bb
-         S51PVUaLe7Z2+cP8ML/eZy1CDRItho9DvS6wXJJhHCYPnaQRkpWofV8xMl3D+fAmy3L+
-         e8z7ETF1JDJ+fKIfD9mFwX7Xn3lnn0nDGBAeeV/ZNq4TxDc3KDbcEEeWE8PRq1sgwGN/
-         5b2esYUBdADisNNp39HkOaTwLPlCZEXJANrO0FuFsYBD8fAgQRjXET1mdfBqRTJMj+3X
-         x24A==
+        d=gmail.com; s=20251104; t=1779806245; x=1780411045; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=IR7wPi+xk7Q/JeKG+D+3ANr2AQD/gij5HhxCcP8ssCM=;
+        b=cGHSWhR31fpp2tn5oN9sp0RxzFyZR+dvwQHdSn5eLWuIlG8XPwf+TEntaGvDPUD53D
+         SdJMaWiKw85lXBMIl8PKIFoSYcz3pF+Bdis7jOIzLMois13AcH+vP4AjMpaqC/4+7YIi
+         V0Y+PAnH5WPH9T9ZlUTIegF2xyz9w8wnGq9rkSmYdDf5ipD/lhOjtsa5WnQmqjhkaDTv
+         qyEgYEXCAmedXOY5aSu/0PckLAnMrrifA3Sru2gaWtemw/zWUiU94ORc1rBEk7mnQFOm
+         4Rn6kwnAMwWwDCTc+2B1E4WTQCJxcKdv4YDi5eYHKBj/l2b8ot1NEkOQaLUSVO0HMYfD
+         JgoA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779805085; x=1780409885;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=DWA1rx79U563LTGj65VSgfxyjti8CkpfF8kpzyqUrdk=;
-        b=ragZy9ok7lSz/EzSLCbO9CbqJocFnME4MlziqKM0ciZqlVbSLOY80VL/yvfeHqYUWw
-         zvoIAfanndpSZQVa6PtjoNk6cR81drlAMznnx5GnjF2Z+ZYnv6OfMV2tJCuSLndFFx3N
-         T+Mr+EylCcb+qSOD0Wsy0//f1e+b/tzJG6UhTvdP8eAfavN8mOSyK0TYQq+B2MNaSgqB
-         D2/3/fqupRQM84tJKG6orQmcZnzZQib8g5x9qvfikZBVwiwN7gYLoQM3AcekA8gS2eJe
-         ZzE6PbAodXzc0JeMeTlsL0dso9iqVt4Vz/qLKmnX6Uo7SgG/7uL3gJrFXZseRxPuWuy0
-         Rw7Q==
-X-Forwarded-Encrypted: i=1; AFNElJ852UKCjVK+JBFbiNiIElTDiH9PBh7wrJvK7OskPcLzmmIvPTNVxr4IkRpiLuG0SoOPrz6JMGRvx2A=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxu1OxwJFyv9ZFn7is+z5y6ftOmnh9JopaLv1WuC58ZPK00WKgg
-	x7EDRriYrEThGdrJb9XVDeltl4gKbd3I1CIolvSI7nOafI7ydK5AGdwEHGACBy6FxFs=
-X-Gm-Gg: Acq92OEs9vk++mcMINenZtC/8k4iv0dVbsDDQvdiZAXYNldzESjvMQh/R6jjnfKwx3h
-	39Amzckf7o0PVLbEJkcO/wd3IxG9kcZRU3u8ivmFTwrfMYuMP3bIeyVXLRzcJRYE36FHO9JdRv5
-	xlMQYcq5Cp6kfPd/W1tUwt7BrVt9m4KtAX93UVU8c/dF9fxN5uGjg2Hg/i+FQ6sjrffhL1JujAL
-	kSqBdWCzxCaHs24vgMPwAmrqYAhnsD+A0pqh8IIUt2QCny3YGeupYngznlXoxa9nqJVXPZgt1VF
-	ID4ouyi1PNWICBr43H41qh+zRYBfsZ/9v85KQ+dBv76AcyDRd16PGxd7vnDegrrXoCpAxbZWS3q
-	w7b2y/mYZ4OxHi20Fj3OIi014M+V92JpKCPV1/dr5QGHynLctyG9sV+VsVscp2euMUv45lJonDi
-	1m6Rb9fR5tldJJcbOVUH4eTxG1usjG5PV2d7tAwL8CPxtknbev9qsLQqqGoFZ/mKfsqJVFnoM4Q
-	nLPqCL15sGzkMFG+IMnOfWAqQ==
-X-Received: by 2002:a05:600c:4592:b0:490:6237:5213 with SMTP id 5b1f17b1804b1-4906237537cmr145220735e9.23.1779805085104;
-        Tue, 26 May 2026 07:18:05 -0700 (PDT)
-Received: from localhost (p200300f65f47db04a716d2bdeddb4813.dip0.t-ipconnect.de. [2003:f6:5f47:db04:a716:d2bd:eddb:4813])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4904561a160sm379625175e9.9.2026.05.26.07.18.04
+        d=1e100.net; s=20251104; t=1779806245; x=1780411045;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=IR7wPi+xk7Q/JeKG+D+3ANr2AQD/gij5HhxCcP8ssCM=;
+        b=sp7xE9HB37W16UDz6Abe0YiH9DMqbYAqM7OYpzu9CjdAYf4+GybPmXDCiEwy1MQXZ6
+         ITR9sZkXajbJmKJFsMAHRXPTiYmKcD1xEecdxgRLCOYppY7d2DTaBW9HhkhuyS6o6iMT
+         /vkyZEV0v6cBmOOv+pkS+mxG33Bfyysvq8jvuS/8mN+H+Jvch/Rb8ASxtGNItXYAwn28
+         ac0rKR0BcTs7QblaYjQZJ7v0U+VDxRruRtFxYbUqtTQpm+J96Lr2hlHzXL6xdSOuiEdI
+         1HnLCc1fye8mqcueBEAgIgrTlMrnumDTytzxFnzexZm7JWfvs3tNzz/6rmCsrGhFrThY
+         PRYQ==
+X-Gm-Message-State: AOJu0Yw39hKh9DDMBtMHIzB5WQLW3Ti1uXJPqz9x7c4xhufRT0KIW2pj
+	Kdevq8qJVf5XeAe5KBSApJ4vgzjAC6ulpSkT6lfSDhcTjVdsc72R5JnYu6p1hw==
+X-Gm-Gg: Acq92OF+VyLJU/vzBfvyGtLHQtoa4WTvowl39Ix+1o61BYO1qmDpr+TJAYZqmMlbVuy
+	4bKJ2qy/Q5x+KLEni6435o0BGpEDesymgiy2VC8LbXm4qL3YhMSxulJBLPsKK62do95pBwV+2pr
+	B4OhQvxtSEcwBlmOmIvCGBNamEPDXLrbOsrI+k8LM3wAv5j4DXrptEDrtXxUvGamKFh2U5aP/1U
+	6oB+pxBFxWYQNk2A2Ab66r21E8V/Jx2LrNexqma0BZiG1+2n1yW1tAxJoC3sQKceRrc6Aa7GC65
+	P6+97pcddCTgs6hqnVgUDkZBTzgCBFtoEGsxLy4BAFMf4Ntd51FdkuitFX7PNoyr3dQbPz0Y0vu
+	Pb3yUc926gxF9OOUh7gNBrwgiMIEqRD6cIRAKmVC7knAUXqClhlJEqagJt1zezF0/hCNAUOQ4BZ
+	/qS8+vRsRs6Z8td/tR5IfuDvohrmeDiqkN9lsh90P46owv5/A3q3BlmWCi+cL1nxc3+IkhHecqw
+	MM=
+X-Received: by 2002:a05:600c:45ce:b0:490:59cc:999f with SMTP id 5b1f17b1804b1-49059cc9aa2mr183824375e9.4.1779806244414;
+        Tue, 26 May 2026 07:37:24 -0700 (PDT)
+Received: from ipedrosa-thinkpadx1carbongen12.rmtes.csb ([67.218.239.32])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49042ce8722sm111424575e9.34.2026.05.26.07.37.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 May 2026 07:18:04 -0700 (PDT)
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>,
-	Damien Le Moal <dlemoal@kernel.org>,
-	Niklas Cassel <cassel@kernel.org>,
-	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@kernel.org>,
-	Max Staudt <max@enpas.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Helge Deller <deller@gmx.de>
-Cc: linux-m68k@lists.linux-m68k.org,
-	linux-kernel@vger.kernel.org,
-	"Christian A. Ehrhardt" <christian.ehrhardt@codasip.com>,
-	"Christian A. Ehrhardt" <lk@c--e.de>,
-	linux-ide@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-fbdev@vger.kernel.org,
-	dri-devel@lists.freedesktop.org
-Subject: [PATCH v1 6/8] zorro: Simplify storing pointers in device id struct
-Date: Tue, 26 May 2026 16:17:32 +0200
-Message-ID:  <49576a7501128c93ef318566ed7faefce163f1fd.1779803053.git.u.kleine-koenig@baylibre.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <cover.1779803053.git.u.kleine-koenig@baylibre.com>
-References: <cover.1779803053.git.u.kleine-koenig@baylibre.com>
+        Tue, 26 May 2026 07:37:24 -0700 (PDT)
+From: Iker Pedrosa <ikerpedrosam@gmail.com>
+Date: Tue, 26 May 2026 16:36:57 +0200
+Subject: [PATCH] i2c: busses: make K1 driver default for SpacemiT platforms
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1515; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=A14j4ivDNBl2yGcg6n5ndH+ByZLqjyYb/4BbZyB+vg8=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqFauEMCO+XO5wBiq0WLDW9CPIg9uJbXOSVo41d x54C4q2mLiJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCahWrhAAKCRCPgPtYfRL+ TjnnB/9l+SDbdriw4+P0R0QawXzQR6RNcTSEDOsG0Za0QxbkFa85XMb5sLwAO0owuw/Rowx6ky+ QMdsAXUgR3vwvQLdxYJlkEl/VA/XHq/xJJAuw+YZlvI7KLvHFN3YqbmJgo+fHO56QX05JkYBvJ2 Jk9WKvtvJ58lFHkr+5etBSYF3AixiJ+YBuoVcvjao9lM8EjUJ8SyDU/sXtdjUltWSXQmsKSN5Wa cffVeDubVIqpPQNOIDt4M8130VMFMoHEz1nySiOBmpolGD4C9tykhh7r5xGVttivy5+fc/p6kFl 64ZyNUXuXtZrf+NrGcA7ZEOvBZuObVE5B7q9XxMf4MX80c3s
-X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260526-orangepi-sd-card-i2c-v1-1-b92268bfd467@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x2MQQqAMAzAviI9W5hFh/Mr4kG6TntR6UAE8e9Oj
+ wkkN2QxlQxDdYPJqVn3rUBTV8DrvC2CGgsDOfKuI4+7ffZQzBF5tohKjMm13AduKIQeSnqYJL3
+ +7Tg9zwtwn+NDZgAAAA==
+X-Change-ID: 20260526-orangepi-sd-card-i2c-f04c89c12998
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Margherita Milani <margherita.milani@amarulasolutions.com>, 
+ Yixun Lan <dlan@kernel.org>, Iker Pedrosa <ikerpedrosam@gmail.com>
+X-Mailer: b4 0.14.3
 
-Technically it is fine (on all current Linux architectures) to store a
-pointer in an unsigned long variable. However this needs explicit
-casting which is an easy source for type mismatches.
+Enable I2C_K1 by default when ARCH_SPACEMIT is configured to ensure SD
+card functionality works out-of-the-box.
 
-By replacing the plain unsigned long .driver_data in struct
-zorro_device_id by an anonymous union, most of the casting can be
-dropped. There is still some implicit casting involved (between a void *
-and a driver specific pointer type), but that's better than the approach
-to store a pointer in an unsigned long variable as this doesn't lose the
-information that the data being pointed to is const.
+SpacemiT K1 boards use I2C-controlled PMICs (like the P1 chip) to
+provide SD card power supplies. Without the I2C_K1 driver enabled,
+regulators cannot be controlled and SD card detection/operation fails.
 
-All users of struct zorro_device_id are initialized in a way that is
-compatible with the new definition, so no adaptions are needed there.
-
-Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
+Suggested-by: Margherita Milani <margherita.milani@amarulasolutions.com>
+Suggested-by: Yixun Lan <dlan@kernel.org>
+Signed-off-by: Iker Pedrosa <ikerpedrosam@gmail.com>
 ---
- include/linux/mod_devicetable.h | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+This patch addresses a user experience issue where SD card support fails
+on SpacemiT K1 boards due to missing I2C driver dependency.
 
-diff --git a/include/linux/mod_devicetable.h b/include/linux/mod_devicetable.h
-index 3b0c9a251a2e..2673a1bd82c4 100644
---- a/include/linux/mod_devicetable.h
-+++ b/include/linux/mod_devicetable.h
-@@ -640,7 +640,11 @@ struct mdio_device_id {
- 
- struct zorro_device_id {
- 	__u32 id;			/* Device ID or ZORRO_WILDCARD */
--	kernel_ulong_t driver_data;	/* Data private to the driver */
-+	union {
-+		/* Data private to the driver */
-+		kernel_ulong_t driver_data;
-+		const void *driver_data_ptr;
-+	};
- };
- 
- #define ZORRO_WILDCARD			(0xffffffff)	/* not official */
+Background:
+SpacemiT K1 boards use I2C-controlled PMICs (such as the P1 chip) to
+provide SD card power supplies. When CONFIG_MMC_SDHCI_OF_K1 is enabled
+but CONFIG_I2C_K1 is disabled, SD card detection and operation fails
+because the regulator subsystem cannot communicate with the PMIC over
+I2C.
+
+Solution:
+Following discussion in the community, this patch implements Yixun Lan's
+suggested approach of making CONFIG_I2C_K1 default to enabled when
+ARCH_SPACEMIT is configured, rather than adding hard dependencies
+between unrelated subsystems.
+
+This ensures SD card functionality works out-of-the-box while
+maintaining proper subsystem separation and supporting theoretical
+future boards that might use different PMIC interfaces.
+
+Link: https://lore.kernel.org/all/CABdCQ=NFuW-XBK2zrw2TUFrEg0Q1Wf3_qS28zT3v-Hfud8mkew@mail.gmail.com/
+---
+ drivers/i2c/busses/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+index 8c935f867a37..bfe191e50b49 100644
+--- a/drivers/i2c/busses/Kconfig
++++ b/drivers/i2c/busses/Kconfig
+@@ -794,6 +794,7 @@ config I2C_K1
+ 	tristate "SpacemiT K1 I2C adapter"
+ 	depends on ARCH_SPACEMIT || COMPILE_TEST
+ 	depends on OF
++	default ARCH_SPACEMIT
+ 	help
+ 	  This option enables support for the I2C interface on the SpacemiT K1
+ 	  platform.
+
+---
+base-commit: 6edd9a0d32e1ef81133b8cb5b3bb3157a44da4d1
+change-id: 20260526-orangepi-sd-card-i2c-f04c89c12998
+
+Best regards,
 -- 
-2.47.3
+Iker Pedrosa <ikerpedrosam@gmail.com>
 
