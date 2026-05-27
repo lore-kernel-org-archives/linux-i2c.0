@@ -1,56 +1,87 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF23327A916;
-	Wed, 27 May 2026 14:54:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64B7425D215;
+	Wed, 27 May 2026 15:32:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779893672; cv=none; b=tgcvxYx3Hkn00WhDq3TkGsxbveWTE7vwlZLlwkPL9QLMWuYQ+12nYGSXBPZ0HUafdRoVbJEVLjYpCQVmu5rOstImK2l1hSddP+SiBSzoJe1b9FFMjPmFLN2XJX9b/eamSSEqFiSggLOrfPl22W2CFh7FJIKzvsz4hHKzKhxIsNQ=
+	t=1779895925; cv=none; b=mZhEbgAQDQDY0QDKF0ShnfUZx6UoAKUH2ZYgcRA3lSgy0ACZbjyIV2xxWJhsUKkLQRq+00nrp95IktWmbueJ2Yma7qtRDtdlSH6+lVbRxULrRfS2Aqel1UMZMrVZwvODTrggkXC8KrpdrsRZlXRDQc2Uoh9bDYo9H03WMs8JZSM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779893672; c=relaxed/simple;
-	bh=sxqDiryLoBnJ6NFyrS/FmQ8pTRjJ4rHNr4I1qRjbgSc=;
+	s=arc-20240116; t=1779895925; c=relaxed/simple;
+	bh=5nHLKp+sy0tnxXWnqkXfQhkOAjPNcQzLML8Vz6khoVA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZpXBZXT/2v+1beW+IEnpZUk+2fyCpRNUlOhn8YiTuFPA6Zn+okXi5GvwWdjYAUqx5ZHMLFwTDZzgYNjwE/1YQIFalZKVHfqhDcqReAVUD0DdzPjReJRkdxOE3dNRbogpln5azXaq8AcyLvbueUr3cc47EHDbBF70ngbfZKbIpIo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HsfaJKEq; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=XTXi5UEmta7yuvfXdOqKEMut5g7yAR7Pp3JbAEERZGaWzEc4YNYMkSoBLQrEFzbDwVw+V8a5M29LFjRmCu9MpCumuLi2G+aQ3gTMUO+dJYsMHa3CkUbRtjj0ptW3xVhsHVyI8711u4KXO4t1lvyIYV7vGkeh6L30O/jZ1n+JnjI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FaGGD42N; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HsfaJKEq"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 304871F000E9;
-	Wed, 27 May 2026 14:54:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FaGGD42N"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4D1B1F000E9;
+	Wed, 27 May 2026 15:31:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779893670;
-	bh=E6Q8XCy0zXe1xOArUqxZeTNT47K+djAyAvzM5weh5ag=;
+	s=k20260515; t=1779895922;
+	bh=sPB3GQXOChiJjIRbQ0GadVrki7VxeBUCGhJ+IYPxXck=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=HsfaJKEqK2zij9eVrAg/H0mCdwW7f+jPa6VPlEi/OgY18/ICbhaP0TvYh02P8723q
-	 d05/6fhwusJiiPJCqgehDfzasMA+Enbu3dco5olHjA4LRWS0ScqZg6ScRCEOg6NfSX
-	 wlkVeTSJTa6r40HbORDCamwiQ3gsl3jYZvDbcmQCXGETQosWLBuASMMaEvuVjRTWZR
-	 K9syJsgAM43De46p3pd5dp4mgwVBVihbXgRbLDFLuc4PtLOFmk6MuouWeBcjK2A8V+
-	 /QNs9aec1herrWcN95kTc3CezqNwxaCA/ZvmxtZF7NrGEv2brgIxuqmW6Hzttnlm2A
-	 VLP/U1zlNDH7Q==
-Date: Wed, 27 May 2026 15:54:23 +0100
+	b=FaGGD42Nqlqm9Nyx82W2AqDxkvBm80X77FAB3xKsnB+oVYWMGraAhP/mSIhzds8aU
+	 rAdVdkgfpXi0zfoMtLHCnzHMYI8h4wVrNIJvZi0GpukC0Z2xP0WEMx4b6piMpwuxwu
+	 Swrth+betjV7a3t+m6opjKJfj7sE8+8RGsReZVZp3AKobeajhKzNfp8QFh5rFW28c0
+	 6QJjLJdtNa7ndhmgSLFzIHNshPz7tSIbDpSsmNU/Vu7pBO4OR3fw6ioR4bUcHlyQgG
+	 vC11omiC6aVPZvCoxV6Ww88fHKvZdxYEjcPgf6jrBhhFmPTd09gPa3EsJdTZ6SrZ8h
+	 oy6tsLFZtmWSw==
+Date: Wed, 27 May 2026 16:31:48 +0100
 From: Lee Jones <lee@kernel.org>
-To: linux-kernel-dev@aliel.fr
-Cc: Neil Armstrong <neil.armstrong@linaro.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Kevin Hilman <khilman@baylibre.com>,
-	Jerome Brunet <jbrunet@baylibre.com>,
-	Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-	Beniamino Galvani <b.galvani@gmail.com>,
+To: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Cc: Mark Brown <broonie@opensource.wolfsonmicro.com>,
+	Thierry Reding <thierry.reding@avionic-design.de>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Srinivas Kandagatla <srini@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Vinod Koul <vkoul@kernel.org>,
 	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
-	Liam Girdwood <lgirdwood@gmail.com>,
-	Mark Brown <broonie@kernel.org>, linux-amlogic@lists.infradead.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-	linux-pm@vger.kernel.org
-Subject: Re: [PATCH v6 3/8] mfd: khadas-mcu: Add per-variant configuration
- infrastructure and VIM4 support
-Message-ID: <20260527145423.GC671544@google.com>
-References: <20260516-add-mcu-fan-khadas-vim4-v6-0-cccc9b61f465@aliel.fr>
- <20260516-add-mcu-fan-khadas-vim4-v6-3-cccc9b61f465@aliel.fr>
+	Danilo Krummrich <dakr@kernel.org>, Rob Herring <robh@kernel.org>,
+	Saravana Kannan <saravanak@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Doug Berger <opendmb@gmail.com>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Ulf Hansson <ulfh@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Peter Chen <peter.chen@kernel.org>,
+	Paul Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	Maximilian Luz <luzmaximilian@gmail.com>,
+	Hans de Goede <hansg@kernel.org>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>, brgl@kernel.org,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org,
+	driver-core@lists.linux.dev, devicetree@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
+	iommu@lists.linux.dev, linux-pm@vger.kernel.org,
+	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	intel-xe@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+	linux-usb@vger.kernel.org, linux-mips@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org
+Subject: Re: [PATCH 15/23] mfd: tps6586: use platform_device_set_of_node()
+Message-ID: <20260527153148.GC712405@google.com>
+References: <20260521-pdev-fwnode-ref-v1-0-88c324a1b8d2@oss.qualcomm.com>
+ <20260521-pdev-fwnode-ref-v1-15-88c324a1b8d2@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -59,98 +90,38 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260516-add-mcu-fan-khadas-vim4-v6-3-cccc9b61f465@aliel.fr>
+In-Reply-To: <20260521-pdev-fwnode-ref-v1-15-88c324a1b8d2@oss.qualcomm.com>
 
-On Sat, 16 May 2026, Ronald Claveau via B4 Relay wrote:
+On Thu, 21 May 2026, Bartosz Golaszewski wrote:
 
-> From: Ronald Claveau <linux-kernel-dev@aliel.fr>
+> Ahead of reworking the reference counting logic for platform devices,
+> encapsulate the assignment of the OF node for dynamically allocated
+> platform devices with the provided helper.
 > 
-> Introduce a per-variant configuration structure (khadas_mcu_data)
-> holding the regmap config and MFD cells,
-> selected at probe time via the of_device_id match data.
-> This makes adding other variants straightforward.
-> 
-> Add an enum khadas_mcu_type used as value to match.
-> 
-> Also introduce khadas_mcu_fan_pdata to pass fan register address and
-> maximum level to the fan sub-driver, removing the hardcoded constants.
-> 
-> Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-> Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
+> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+
+Acked-by: Lee Jones <lee@kernel.org>
+
 > ---
->  include/linux/mfd/khadas-mcu.h | 44 ++++++++++++++++++++++++++++++++++++++++--
->  1 file changed, 42 insertions(+), 2 deletions(-)
+>  drivers/mfd/tps6586x.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/include/linux/mfd/khadas-mcu.h b/include/linux/mfd/khadas-mcu.h
-> index a99ba2ed0e4e0..88de49b78f5e6 100644
-> --- a/include/linux/mfd/khadas-mcu.h
-> +++ b/include/linux/mfd/khadas-mcu.h
-> @@ -70,6 +70,13 @@
->  #define KHADAS_MCU_WOL_INIT_START_REG		0x87 /* WO */
->  #define KHADAS_MCU_CMD_FAN_STATUS_CTRL_REG	0x88 /* WO */
+> diff --git a/drivers/mfd/tps6586x.c b/drivers/mfd/tps6586x.c
+> index f5f805446603315ba76ce1fc501c908f1cec0d16..3cfd2f02b62f3cc370e0d970ec2643b638fd0fec 100644
+> --- a/drivers/mfd/tps6586x.c
+> +++ b/drivers/mfd/tps6586x.c
+> @@ -397,7 +397,7 @@ static int tps6586x_add_subdevs(struct tps6586x *tps6586x,
 >  
-> +/* VIM4 specific registers */
-> +#define KHADAS_MCU_VIM4_REST_CONF_REG		0x2c /* WO - reset EEPROM */
-> +#define KHADAS_MCU_VIM4_LED_ON_RAM_REG		0x89 /* WO - LED volatile */
-> +#define KHADAS_MCU_VIM4_FAN_CTRL_REG		0x8a /* WO */
-> +#define KHADAS_MCU_VIM4_WDT_EN_REG		0x8b /* WO */
-> +#define KHADAS_MCU_VIM4_SYS_RST_REG		0x91 /* WO */
-> +
->  enum {
->  	KHADAS_BOARD_VIM1 = 0x1,
->  	KHADAS_BOARD_VIM2,
-> @@ -82,10 +89,43 @@ enum {
->   * struct khadas_mcu - Khadas MCU structure
->   * @device:		device reference used for logs
->   * @regmap:		register map
-> + * @data:		pointer to variant-specific config
->   */
->  struct khadas_mcu {
-> -	struct device *dev;
-> -	struct regmap *regmap;
-> +	struct device			*dev;
-> +	struct regmap			*regmap;
-> +	const struct khadas_mcu_data	*data;
-> +};
-> +
-> +/**
-> + * struct khadas_mcu_data - per-variant configuration
-> + * @regmap_config:	regmap configuration
-> + * @cells:		MFD sub-devices
-> + * @ncells:		number of sub-devices
-> + * @fan_cells:		MFD fan sub-devices
-> + * @nfan_cells:		number of fan sub-devices
-> + */
-> +struct khadas_mcu_data {
-> +	const struct regmap_config	*regmap_config;
-> +	const struct mfd_cell		*cells;
-> +	int				ncells;
-> +	const struct mfd_cell		*fan_cells;
-> +	int				nfan_cells;
-> +};
-
-My alarm bells started ringing as soon as I saw this!
-
-> +/**
-> + * struct khadas_mcu_fan_pdata - fan sub-driver configuration
-> + * @fan_reg: register address to write the fan level
-> + * @max_level: maximum fan level
-> + */
-> +struct khadas_mcu_fan_pdata {
-> +	unsigned int fan_reg;
-> +	unsigned int max_level;
-> +};
-> +
-> +enum khadas_mcu_type {
-> +	KHADAS_MCU_GENERIC, /* VIM1/2/3, Edge, Edge-V */
-> +	KHADAS_MCU_VIM4,
->  };
+>  		pdev->dev.parent = tps6586x->dev;
+>  		pdev->dev.platform_data = subdev->platform_data;
+> -		pdev->dev.of_node = of_node_get(subdev->of_node);
+> +		platform_device_set_of_node(pdev, subdev->of_node);
 >  
->  #endif /* MFD_KHADAS_MCU_H */
+>  		ret = platform_device_add(pdev);
+>  		if (ret) {
 > 
 > -- 
-> 2.49.0
-> 
+> 2.47.3
 > 
 
 -- 
