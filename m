@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EF40405C32;
-	Wed, 27 May 2026 13:04:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2772840B6E4;
+	Wed, 27 May 2026 13:07:25 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779887098; cv=none; b=rzlk9Bfpw2RNo8oqslsrYpQrqzHR28flK2VH2w6k9imdD+Na3n+h1zJ4KpyDeZTgb7+SNL8q0e955R1VNy710zkapaLqbrREYLwGeKbwoaKMKDtVT1TOxbAA/2O6LFYESOqOLdQ49JBmwwYgdY4jB2iG+uBx9p7PBBGYxlAq2fc=
+	t=1779887246; cv=none; b=Y6NRe9YDTPvh+hQOJk2Ns76Z6SfviNXb77THiq+R5wjyNpjh7HUZ4nqAqa6KbB+9/HUA1d2XYPHRoISuEpz88c+18iDvPQ14NDgs+1sIAmDuZQ43JrigdvGhznhpXxibwBEd8Wzx+I0+7eeDrZgGW3PnDObox0bIT1KGIHpJhks=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779887098; c=relaxed/simple;
-	bh=1LjsNRksH/mflhz9ID8TlU1o7xvE6o65AWD/3kwf1gI=;
+	s=arc-20240116; t=1779887246; c=relaxed/simple;
+	bh=UZHEOT65OA2+OkVHIElNd+UChpjpWmjk6TudWUcEDMc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NZgyPsHTEjkYnif47G7Bg7RFZwMQ8YouLqcW2p4qFhOtV7DtB+jMG3mm5eBq4M5/nKjVjxrWr1BjSE6vZYIbVZl2EnmsGHNW7XYabnpTf6PV8VuqnHJ0yiE0jWka0OZd4ZLffVH9YXD1Z5+oLmIA3RmiMW2x7x2va0ngTeqHgqQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LJ5WV3bO; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=d5Yqa+ZJ+5YdZyXEKFJJlUK78wJizb7ub4caQC4bQojks3uGR+4fnse3ldlO/F0wsNYuO2ehfC8A9Tz93+g8DtvSupKuMj2cSZbvk3qNBFv4so2WlzdSXbW13mM1fhbEV7c+E+k33qHFokh4tfs2imNZiXkqfNzFOFEDhyhI6pk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CLLneLrR; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LJ5WV3bO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9934D1F00A3A;
-	Wed, 27 May 2026 13:04:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CLLneLrR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2930F1F000E9;
+	Wed, 27 May 2026 13:07:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779887097;
-	bh=tAoX3gZWUi3Mlje0rmmUIESitxNwJe9AScaxGD77fkY=;
+	s=k20260515; t=1779887244;
+	bh=55HiOnX+GUT4QJmR4nYI0Pkn8qfgaD7UAPZyoU9UaVM=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=LJ5WV3bOqmJhbFy1pJTG5XJAF4bOFiD24Hdwb9FXeQr1alNvi8vRj2rFo9Wyimdot
-	 coVY1KFihf7TIwS7ouL7bW/ShmshrEu1bu8mvshxLAZTf4wCgUtNkPDfCzycPU/No8
-	 mN+cZY90iza1MzFcs02iBHAmDVNgD6Uor71GB5H/4Wyl8fS1ffpYj3jwbkqbYDVFyE
-	 AIPbRxUbajOOpJgSZbM9ihL1qBTxR8fGiq38aggwSL1imUMGrnIc8HapEXJO8ppfip
-	 dFsToLBbvP2e7QTxLZTIUhcs96sOJ8Nhy/vuhCZEV24ekXIfUpmbHxk/wDuwD3bZcI
-	 TM1D3PPz2HOGw==
-Message-ID: <0e3bae26-3bc3-43ff-8d66-aba84a6f6677@kernel.org>
-Date: Wed, 27 May 2026 15:04:52 +0200
+	b=CLLneLrRsv8+xs36uXzdiIs7C7uZ+hRFytAf//1msiW99uV7AaIfLFntzedpxJFN7
+	 XgxPVzgGj0P1FfLGWHdkiGTgcfADFVxA3wsaL5OUt5121dn9oGDcKaU3hN852rD66/
+	 oZhe7FZZ9kgjqECO+rIHkF+lCGmsyUhNUcHJWQ1wxSfLu6PAWebujsRCDViLtLoJ9l
+	 fr2crbEhAqeQIoAlFk/29/Rbx9YU+yzxgnVzZhC1JeUTKPTeKlTP70co+z/4E0e/A4
+	 5vUn7FRge3rh5XMfcm7cYB0rrKt/LrTEreTeam235skWokTFEU5w9KscmomQ4aPf58
+	 9zL/wxW3jLDyQ==
+Message-ID: <c1ae50ab-1228-45a3-b910-4564774f4198@kernel.org>
+Date: Wed, 27 May 2026 15:07:19 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -35,7 +35,8 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/3] dt-bindings: i2c: Add StarFive JHB100 I2C
+Subject: Re: [PATCH v2 2/3] i2c: designware: Export symbols and add __weak for
+ Starfive I2C driver
 To: "lianfeng.ouyang" <lianfeng.ouyang@starfivetech.com>,
  Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
  Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
@@ -44,7 +45,7 @@ To: "lianfeng.ouyang" <lianfeng.ouyang@starfivetech.com>,
 Cc: linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
  linux-kernel@vger.kernel.org
 References: <20260527085039.44435-1-lianfeng.ouyang@starfivetech.com>
- <20260527085039.44435-2-lianfeng.ouyang@starfivetech.com>
+ <20260527085039.44435-3-lianfeng.ouyang@starfivetech.com>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -90,131 +91,24 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
  zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
  XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <20260527085039.44435-2-lianfeng.ouyang@starfivetech.com>
+In-Reply-To: <20260527085039.44435-3-lianfeng.ouyang@starfivetech.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 27/05/2026 10:50, lianfeng.ouyang wrote:
-> From: Lianfeng Ouyang <lianfeng.ouyang@starfivetech.com>
-> 
-> Add device tree bindings for the Starfive I2C controller
-> and its implementation
-> 
-> The binding defines two platform-specific compatibles for the StarFive
-> JHB100 implementation:
-> - "starfive,jhb100-i2c-master"
-> - "starfive,jhb100-i2c-slave"
+>  	dev->dev = device;
+>  	dev->irq = irq;
+>  	dev->flags = flags;
+> @@ -255,6 +259,8 @@ static const struct of_device_id dw_i2c_of_match[] = {
+>  	{ .compatible = "mobileye,eyeq6lplus-i2c" },
+>  	{ .compatible = "mscc,ocelot-i2c" },
+>  	{ .compatible = "snps,designware-i2c" },
+> +	{ .compatible = "starfive,jhb100-i2c-master" },
+> +	{ .compatible = "starfive,jhb100-i2c-slave" },
 
-You might get the same questions as v1, till you solve them. Why do you
-add device role to the compatible?
-
-Do not explain  WHAT you did here. Explain the background and why you
-did that way.
-
-Also, use undeprecated naming, not master/slave.
-
-> 
-> The controller supports standard I2C and SMBus protocols, programmable
-> FIFO depths, and optional SMBus Alert routing. The binding documents
-> the necessary clocks, resets, and timing properties.
-> 
-> Signed-off-by: Lianfeng Ouyang <lianfeng.ouyang@starfivetech.com>
-> ---
->  .../bindings/i2c/starfive,jhb100-i2c.yaml     | 128 ++++++++++++++++++
->  1 file changed, 128 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/starfive,jhb100-i2c.yaml
-> 
-> diff --git a/Documentation/devicetree/bindings/i2c/starfive,jhb100-i2c.yaml b/Documentation/devicetree/bindings/i2c/starfive,jhb100-i2c.yaml
-> new file mode 100644
-> index 000000000000..c8631348121c
-> --- /dev/null
-> +++ b/Documentation/devicetree/bindings/i2c/starfive,jhb100-i2c.yaml
-> @@ -0,0 +1,128 @@
-> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-> +# Copyright (C) 2024 StarFive Technology Co., Ltd.
-> +%YAML 1.2
-> +---
-> +$id: http://devicetree.org/schemas/i2c/starfive,jhb100-i2c.yaml#
-> +$schema: http://devicetree.org/meta-schemas/core.yaml#
-> +
-> +title: StarFive jhb100 I2C Controller
-> +
-> +maintainers:
-> +  - Lianfeng Ouyang <lianfeng.ouyang@starfivetech.com>
-> +
-> +allOf:
-> +  - $ref: /schemas/i2c/i2c-controller.yaml#
-> +
-> +properties:
-> +  compatible:
-> +    description: |
-> +      Must be one of:
-> +      - "starfive,jhb100-i2c-master" for master mode controller
-> +      - "starfive,jhb100-i2c-slave" for slave mode controller
-
-Drop description, redundant. Schema tells that.
-
-> +    enum:
-> +      - starfive,jhb100-i2c-master
-> +      - starfive,jhb100-i2c-slave
-> +
-> +  reg:
-> +    maxItems: 1
-> +    description: StarFive I2C controller memory mapped registers
-
-Drop description, redundant.
-
-> +
-> +  interrupts:
-> +    maxItems: 1
-> +
-> +  clocks:
-> +    minItems: 2
-> +    maxItems: 2
-
-Drop both, redundant.
-
-> +    items:
-> +      - description: I2C controller reference clock source
-> +      - description: APB interface clock source
-> +
-> +  clock-names:
-> +    minItems: 2
-> +    maxItems: 2
-
-Same. From where did you take such syntax...
-
-> +    items:
-> +      - const: ref
-> +      - const: pclk
-> +
-> +  resets:
-> +    maxItems: 1
-> +    description: Phandle to the reset controller for the I2C controller
-
-Drop description. Or say something useful.
-
-> +
-> +  clock-frequency:
-> +    description: Desired I2C bus clock frequency in Hz
-> +    enum: [100000, 400000, 1000000, 3400000]
-
-Aren't you duplicating constraints from dtschema?
-
-> +    default: 400000
-> +
-> +  i2c-sda-hold-time-ns:
-
-So you added a generic property - where is it documented? Generic
-properties must be in common schema or dtschema.
-
-And please prove that none of the generic properties are suitable.
-
-> +    $ref: /schemas/types.yaml#/definitions/uint32
-
-I don't think you tested it. And this concludes my review. I finished
-here. Please do not send untested bindings.
-
+So both devices are the same... Or you miss proper entry in ID table.
+Don't sprinkle compatibles around the code - ID table match data is for
+variant customization.
 
 Best regards,
 Krzysztof
