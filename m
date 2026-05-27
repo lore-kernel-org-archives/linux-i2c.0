@@ -1,75 +1,119 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f42.google.com (mail-dl1-f42.google.com [74.125.82.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78FFE3C6600;
-	Tue, 26 May 2026 23:24:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C75CD27FB37
+	for <linux-i2c@vger.kernel.org>; Wed, 27 May 2026 06:09:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779837869; cv=none; b=LpUZ/2NR+SpY2uPwb/Y8AeMb/IvQiFjOJHKYO4HAdQJm6+uOQWjkCLP8nEBtNu3krWqc8j5MxzZufyEDQQZCO6eU5GnRt5yLvhCphE4HK9IWCZukpKHsrq3/vSpP1Ubla1jcNVBXN+/1owSd0TrQB2eH3lhbDrPjWufi/8S1ZSI=
+	t=1779862172; cv=none; b=tQddgw8c/IbOZHLFL5LERiqK2SXNbTW6mhwRAyfoapK+pwdpWsstAppLKQnPdYmY1aAgVb1KCDACEidbJWkndoJfiJ9hNosNbbgQxmxRuV3mnQaewq5uwLXIFkKDYPeFV5v/oII4S0jkVxZEPFeyVLX9a5MRRyOeKjxnsKk7MTg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779837869; c=relaxed/simple;
-	bh=+c5u7q80dkuT4gPv2heinAcNeboxCdnq7MCC6Zruh+4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=P8TZEzC+3ugBhybT7TpJaJJ941NByHNIvPh2R8DIFeUd5sLQa4ksnv36+hnqGn9DvO/dqIkiy3Lk2x6ntc6Oi49YNVmcaNew3mILx+HF+7Ki/lVTuXTRXCp/CPCNAqIf4+OhGODaaYEWh+Sd47TXb4qACZ37rKBA1qiHftId1I0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eS4FN6v5; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779862172; c=relaxed/simple;
+	bh=1oPAEY4P1oAyeLrqjETJkhe6tc2Oh4ssBnp0ZYasgNI=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
+	 References:In-Reply-To; b=fQyj/DtD3xYIVqsi8K7yIQ+x/M6OMlvdLxNUpvcDGSpAnzrHAXoQAwHl14MwdUBUKO7ROHQiCysd+LBTEOgVLMXh4QdQlniEXss7jE54Z9nnzfv5+7TEyeYgbWlLGHToPk/+DC2G+4gV43v9VYkkG8pWKJyoGuUxBt8IBVWo5Uk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com; spf=pass smtp.mailfrom=brighamcampbell.com; dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b=h78+OZNX; arc=none smtp.client-ip=74.125.82.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=brighamcampbell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eS4FN6v5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B99F1F000E9;
-	Tue, 26 May 2026 23:24:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779837868;
-	bh=Evk5EyspxzR6ZavlVSKWDIaFwkdiVPIwBA4H+nbGGoY=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=eS4FN6v5uZF6WQYUBPar9j7uTNCbODjlFVd+n3nx3EOeWEwfxSXhTnUC57RLoJELO
-	 xJoQsD5GkXSt7c9KJRLR173aW/6bzbOtj6G9+AT6Ua3AdySnAXf9tImtIVWrlBuKP+
-	 vFN0AK/ITu3cr15Sxw/jvyWHWGS1HCFENaq9HflT/Qoj3Hu88Sp1zG2xsxID1IE9lF
-	 trcXrtalYMk7KacS7ArR0Wqh2XVMkjK4gPVKvuIVYDS7zxIuVonyHC9xfVujO9JwN5
-	 Io5iKxMUkW4YwPaiWRJ62by6oGvEoa+4vUMFj7vp6xmHLdnKWJBYcTuPUaMIAw91vN
-	 hmgSSA9TtzPYg==
-Date: Wed, 27 May 2026 01:24:23 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-Cc: brgl@kernel.org, linux-arm-kernel@lists.infradead.org, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Sashiko <sashiko-bot@kernel.org>, 
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-Subject: Re: [PATCH v4] i2c: davinci: fix division by zero on missing
- clock-frequency
-Message-ID: <ahYrkrqk4WzA4QNy@zenone.zhora.eu>
-References: <20260526102240.4949-1-chaitanya.msabnis@gmail.com>
+	dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b="h78+OZNX"
+Received: by mail-dl1-f42.google.com with SMTP id a92af1059eb24-132c338a537so7593683c88.0
+        for <linux-i2c@vger.kernel.org>; Tue, 26 May 2026 23:09:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=brighamcampbell.com; s=google; t=1779862170; x=1780466970; darn=vger.kernel.org;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1oPAEY4P1oAyeLrqjETJkhe6tc2Oh4ssBnp0ZYasgNI=;
+        b=h78+OZNX7xbgGq1+UZ+z0W9LAyEs51lub+MbxTboF7mqjy3L1DEMTrR+LM3vlBveRR
+         429/dFZqpPufx1Rl38VXwPINt3TRl72FiyHgdyMHp3kHmXp3UIDsPZUV8MufG/v5Lh1k
+         Oj0vLOm0WrqglfeOGvUWFt5f8qfT0Jv/DGir0EEpTfP3/u4oc3ZFXm7N2jxn6jJjL2Nt
+         xzyIoqjHRBplXCRr+flDCk84lFhEgfBoqEjYMeN7KyiFkQFDqs6fpChGb2ef0QZynpNL
+         SL1mJydJyWTjHhyhufECEFAfRgd4KYalloQPJIUc+SDlavG8mbuD9jxjDiBiIr75xP51
+         Z/FQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779862170; x=1780466970;
+        h=in-reply-to:references:to:from:subject:cc:message-id:date
+         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=1oPAEY4P1oAyeLrqjETJkhe6tc2Oh4ssBnp0ZYasgNI=;
+        b=j3OWk1Q7oZYzqhTqmdOKjEPbEL2Uc4ghN+/jV5nqdsRr8OgtDeb5OyM6+6AaZsGTF7
+         wzJ8Hw2kyMRNR37KPyXRoXGzsCDBOp5k9CjHEFQtLWuHU6LISXwu6ySjsOofTv1mHvDU
+         ic04ZsFgoWVUHeFliZxFtkIn66rLZIhJ5EMEuFNjlK/n+4YRFej9vwM++r8Q3/Cf6zFh
+         aq2DAhSd+1HtJpldZTYWX8cNhCkPmF+rLaMgT20VjpDjzfbDzOCPEij9+6mFHmeK4+5F
+         2qns7evm/7AT0jZcAVnj0iviV8yMBS6h349ZwGBku4kxD0MB1EnMO0ipuO41nWjtvelU
+         DjVw==
+X-Forwarded-Encrypted: i=1; AFNElJ/B2Kjlc+wke2Pny6Z6KuMMqEC9TIam5eF+2BxN6eItGRgOsUKytdH2KRuMne0U6WSWe7eOuywoUsI=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwxMUDTRgvbGxxa0K88hoXpg3eU3370m5J8pQV0fdlPhLaS7IdF
+	/tafn+mc1RQKOrLft1ae2vSP1/0Ru2uK2OL9S3SA0oD4AhRpjecav7Ot6leh6cLmfJ8=
+X-Gm-Gg: Acq92OEEhHRMkbOEzAgo10v/Day14bIxPskTUIOOhrpaOv/89Y/velcDZB30E88qgLU
+	qQFtndmESVZG1R54h+al32LwbxMTunqELa7b3IkqHHYb3RTNpSec86QR0/pTyvBZV6XRkuTVyZU
+	B1FF78+c0TUNgUnd3uUwaWEl3noaZiCJ5jA88lquqdDl+EVa/gw93hKR+yeClPM7q/ocpPp5Xq0
+	5j4RwKvAwWPAlOPNTMDEdJKS6WrpOsw5LTiEDFKbgN87e7PlABXWV0EM2RMIo1a85+d2nFgVT7A
+	1SKngcfO5NdDQrStUX29BM9crOhC6+5zq850gzPl0I0jPk23rAvoML0iCrUVBS8gvUUK7B5yK3S
+	KcI2q4+Qyir9gpW3Oe+tSqj9iunM/7GDpRwzjyj4cl0+yMm5zgfw6cCFoLgc3gOZkS00XpK7oVr
+	GlE+K63a8uxQYpwdY+Pq1IWbuBoT5yMh4Jno06TmA4S0muAeTKHlTH4IqlyvRNWcRHtAApi6B0q
+	fbZ
+X-Received: by 2002:a05:7022:c8e:b0:12d:de3e:86b0 with SMTP id a92af1059eb24-136616e5eaamr4781936c88.19.1779862169570;
+        Tue, 26 May 2026 23:09:29 -0700 (PDT)
+Received: from localhost ([2605:fb40:0:c09:9ca9:e0fd:b7cd:be76])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-1366a2e672asm12454864c88.3.2026.05.26.23.09.28
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 May 2026 23:09:28 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260526102240.4949-1-chaitanya.msabnis@gmail.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 27 May 2026 00:09:40 -0600
+Message-Id: <DIT8HHYY12ME.3IGXT8OU1CGZ8@brighamcampbell.com>
+Cc: "Wolfram Sang" <wsa+renesas@sang-engineering.com>, "Jean Delvare"
+ <jdelvare@suse.de>, <linux-i2c@vger.kernel.org>
+Subject: Re: [PATCH v2] i2c-tools: Allow passing device file paths
+From: "Brigham Campbell" <me@brighamcampbell.com>
+To: =?utf-8?q?Gero_Schw=C3=A4ricke?= <gero.schwaericke@sevenlab.de>,
+ "Brigham Campbell" <me@brighamcampbell.com>
+X-Mailer: aerc 0.21.0-0-g5549850facc2
+References: <20260312081808.347978-1-me@brighamcampbell.com>
+ <DI4RFLES1MXN.31HXMQMGXAXF7@sevenlab.de>
+In-Reply-To: <DI4RFLES1MXN.31HXMQMGXAXF7@sevenlab.de>
 
-Hi Chaitanya,
+Hi Gero,
 
-On Tue, May 26, 2026 at 03:52:40PM +0530, Chaitanya Sabnis wrote:
-> When the 'clock-frequency' property is missing from the device tree,
-> the driver falls back to DAVINCI_I2C_DEFAULT_BUS_FREQ. However, this
-> macro was defined in kHz (100), whereas the device tree property is
-> expected in Hz.
-> 
-> The probe function divided the fallback value by 1000, causing
-> integer truncation that resulted in dev->bus_freq = 0. This triggered
-> a deterministic division-by-zero kernel panic when calculating clock
-> dividers later in the probe sequence.
-> 
-> Fix this by redefining DAVINCI_I2C_DEFAULT_BUS_FREQ in Hz (100000)
-> to match the expected device tree property unit, allowing the existing
-> division logic to work correctly for both cases.
-> 
-> Fixes: b04ce6385979 ("i2c: davinci: kill platform data")
-> Reported-by: Sashiko <sashiko-bot@kernel.org>
-> Closes: https://lore.kernel.org/all/20260514044726.57297C2BCB7@smtp.kernel.org/
-> Signed-off-by: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
-> Reviewed-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+On Tue Apr 28, 2026 at 5:43 AM MDT, Gero Schw=C3=A4ricke wrote:
+> I see that you're struggling to find a good way to pass the device
+> information between lookup_i2c_bus() and open_i2c_dev(). How about we
+> lookup and open the device in one go? Exit paths will have to close the
+> file, but the rest should stay the same. It's worth to take a look at
+> how libgpio does the same, see gpiod_chip_open_lookup().
 
-merged to i2c/i2c-host-fixes.
+I had worried that doing the device path lookup and opening in one go
+would be overly invasive. Of course, if I can make that work, then it
+would address the concerns that I brought up in my previous email. It
+may be worth the extra effort to avoid the ugly variant struct I
+introduced in this v2.
+
+I'll take a look at libgpio. Thanks.
+
+> Also, to keep things backward compatible, we should presumably do the
+> path lookup only after bus number parsing and bus name lookup failed.
+
+This makes sense. In the strange (but totally plausible) case of
+conflicts between bus number, bus name, and bus file/symlink path, the
+order of precedence should be as follows to maintain backwards
+compatibility:
+
+bus number -> bus name -> bus device path
+
+I'll fix this in the next revision.
+
+> Symlink support would be welcome as well.
+
+As a matter of fact, this patch already supports symlinks. Passing
+symlinks generated by udev to i2c{get,set} is the use case I'd like this
+patch to support.
 
 Thanks,
-Andi
+Brigham
