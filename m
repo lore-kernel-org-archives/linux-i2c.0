@@ -1,186 +1,203 @@
-Received: from CHN02-BJS-obe.outbound.protection.partner.outlook.cn (mail-bjschn02on2115.outbound.protection.partner.outlook.cn [139.219.17.115])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E56092F6560;
-	Wed, 27 May 2026 08:50:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=139.219.17.115
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779871861; cv=fail; b=T9eiYZjcAgWLERTmqxkj27Td7hNBZMeC87THERPXIGNfXAx1caTzTl1F84GQvbcpQqFh+D1kofept/QO74R/tAsuwmC0lNuHz4yjAUhNHzQ3eSzvmr3yxN6aop92eNNsnEsnWpbHYZGpf9pKNqesU3qtVsGbOGXkEM8iPmoq2CE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779871861; c=relaxed/simple;
-	bh=oXv4jxfkVoTggzeqeDyhnYCxhrcPRbmdnCmBTxWUn68=;
-	h=From:To:Cc:Subject:Date:Message-Id:Content-Type:MIME-Version; b=KfXmOJnAWovZrwN+5Egqra2zxUNht1TsD36T0IIn1yG7htDd7EK60fBrlDmc3JT52k/DwS4yROWaIb4YVlRe02SGAQ1uWre9rNbG5rATI9JiC/i7MhwqBdUp/T+l9OdHfD9SE1lJO2Me0o1SvsSPYCGOji/sM56esoMbfj3XnPQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=starfivetech.com; spf=pass smtp.mailfrom=starfivetech.com; arc=fail smtp.client-ip=139.219.17.115
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=starfivetech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=starfivetech.com
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=MR9CDQmTs2u+iJ1dU+Qvv2iHvyjEZmJkoZKh3Fd2PGPudx868V+Kr1EBsLGpZX1GxPqEa4bFRfJWcXRk9MTtkltAoQeCuDvhPG8wsulyckxGDmEVy0jYwuIvyIAH+iUmf3HFgeGTwoWUsOxvIcwbbeysIi2JTiVQcuSZGGdD+m4BEX4rlEa8HciPuIOxyI4bU2l3BaCiTht+z5y+5kaqjteRzumFCjjeW97R4rxQvJcA1fk+1C89oh/aYmuM5LHK7GWFbvoWamk7afnHQ4ZRXa5IDKeMVpo9Ei6Y41K8wsAxOcyzIx4tNjLmBv6SHCpr22v8xvz+P0sK4XSziRwT5A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=G4zH7gvgcVzUiEF6rMuXcCvUdgMyX5ebGAhvEoLTKSA=;
- b=N9o6OYAJImgV5zeffQJTqI1w3ozRhO/n2YWwEcy9ekAiKHsT65euRHU9jUHPC+rKlVjtRoxPsZCFg5acHlX6lLI2wQlqoXdwyQkwN/DEIIRasaQ0AyQb19dTQSk9z+XsudKUm5APbi572JQAKl1nVXYcwYGjgQUlYKaVgiQ2NVinjwFBNeeQqQrGsNERf+shFFBhUEUxOGpG3dYumd4OAgEM459AR+BdFgKV7S5NGH3DIZGibPsWld8TQ+vSWHMpdzaxhlBzDxvAF5D0MEStp2pY7osk5oXOnjX97wwM/xVwIwLJ9sMWzFKfaOL5uqMRp/ZrlkhtiIYaoKslKn/cIQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=starfivetech.com; dmarc=pass action=none
- header.from=starfivetech.com; dkim=pass header.d=starfivetech.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=starfivetech.com;
-Received: from ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn
- (2406:e500:c550:18::6) by ZQ0PR01MB1285.CHNPR01.prod.partner.outlook.cn
- (2406:e500:c550:1a::8) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.71.13; Wed, 27 May
- 2026 08:50:46 +0000
-Received: from ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn
- ([fe80::973:272c:ab11:7570]) by ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn
- ([fe80::973:272c:ab11:7570%6]) with mapi id 15.21.0071.011; Wed, 27 May 2026
- 08:50:46 +0000
-From: "lianfeng.ouyang" <lianfeng.ouyang@starfivetech.com>
-To: Andi Shyti <andi.shyti@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Lianfeng Ouyang <lianfeng.ouyang@starfivetech.com>
-Subject: [PATCH v2 0/3] i2c: Add Starfive JHB100 I2C master/slave support
-Date: Wed, 27 May 2026 16:50:36 +0800
-Message-Id: <20260527085039.44435-1-lianfeng.ouyang@starfivetech.com>
-X-Mailer: git-send-email 2.34.1
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: NT0PR01CA0020.CHNPR01.prod.partner.outlook.cn
- (2406:e500:c510:c::16) To ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn
- (2406:e500:c550:18::6)
+Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id C2BD03E3D99;
+	Wed, 27 May 2026 08:55:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779872118; cv=none; b=JL9DObnOqMoJMfX25wxaf13c9rSbh/lGpAH6rGYq75jog0eol5QFeDS5HFONdU8otOzgiPjXRHwRA73cYuAjIcA80u6smCWRL5v2X89FY++5mGal4zvQbPtwNuMUblwImp7zAYbXAgnztcrGbGDdMF7mxansmS2e/vTUea7Wi38=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779872118; c=relaxed/simple;
+	bh=NMCfMzlLpagJzJRq9pz1qMTfTzqkM4CV0skvqOiEnmY=;
+	h=Subject:To:Cc:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=E22Ufwe3Sg8EGdRClyLAz7bPoPNHEnireyVk0ACeB9QqT81OrtEW4/u2pY78ia4NLkfAiUAFG1QPh3Z0NSkcjJ2UXKBAW056Fff3/ieFs5xNvyDZeaoN1pKcsVV6j6ctLvCBzYcd2AJm7Fn0TOdAA3snUlKdDNrVCKYCQ4wBoSg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
+Received: from loongson.cn (unknown [10.20.42.101])
+	by gateway (Coremail) with SMTP id _____8CxhnhzsRZqNbYNAA--.14317S3;
+	Wed, 27 May 2026 16:55:15 +0800 (CST)
+Received: from [10.20.42.101] (unknown [10.20.42.101])
+	by front1 (Coremail) with SMTP id qMiowJCx2+BysRZqopqSAA--.15952S3;
+	Wed, 27 May 2026 16:55:14 +0800 (CST)
+Subject: Re: [PATCH v4 2/2] i2c: ls2x: Add clocks property parsing and adjust
+ bus speed
+To: Huacai Chen <chenhuacai@kernel.org>
+Cc: Binbin Zhou <zhoubinbin@loongson.cn>, Andi Shyti <andi.shyti@kernel.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>,
+ Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org,
+ devicetree@vger.kernel.org, loongarch@lists.linux.dev
+References: <20260526031021.32662-1-wanghongliang@loongson.cn>
+ <20260526031021.32662-3-wanghongliang@loongson.cn>
+ <CAAhV-H71ZiakZaLVKYg2Qvp8ZJiT7hr9P9bAmXCrjWkHg+-vGg@mail.gmail.com>
+From: Hongliang Wang <wanghongliang@loongson.cn>
+Message-ID: <404a35fa-b126-4ae8-b1c6-3a0d524b7138@loongson.cn>
+Date: Wed, 27 May 2026 16:54:14 +0800
+User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: ZQ0PR01MB1269:EE_|ZQ0PR01MB1285:EE_
-X-MS-Office365-Filtering-Correlation-Id: b04053c3-20b4-4068-b238-08debbcd0b52
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|52116014|366016|1800799024|18002099003|38350700014|6133799003|56012099006;
-X-Microsoft-Antispam-Message-Info:
-	WenFDlBDfiedwzL6/0ORb1/VBZbLk9xgG90E4qa924CHN3DMwrrFOIiXrUv0hxJW9XfOx7GUnaL4F7Reu921nb8WeWrS2NVxLQPSH6M8Edqeof6z2bRxkZf/owNoiMEmWy2QkwMP8UGJuW5jzTsaSX7pckJwED15PvlgAMvSXPJ8Wg9PeR/4+YxVqXAOa998NYld9zcB59PBnARmM3E7US4SwD55x1r3ao+oWyC70ARR4S//sNPxMcw2KiyD3zqmesgwUnTHx3IdokungOMaaQviqnYWAfg3EWZqkvR1z2exZxj8lrW40YOvcAAFJpsJaygJPPI3Z8Rl0PfUusw6SMQkRgnZjMT7UMBDuF1RhbsW8XjmSxZ/XlB4lyeZTYraYH6q23OKEOXDOwjx5vuuopoxnjSM9f/wLwcQ5YjbfXQRscyrQWmS0mgheMQJfQ25HPiU5RqwM7HYixbqrDDnc6neAHLvYR8zOa/MyEpyZsgD+akJMQ1e7KMfNCk1tR9qZLLw9W5rgHF9J7eZTJj1e92KiyaGkLsPB8ilUEqLuMtWZo3bvZxIiwc8Vyy2tmFY
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn;PTR:;CAT:NONE;SFS:(13230040)(376014)(52116014)(366016)(1800799024)(18002099003)(38350700014)(6133799003)(56012099006);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?3v2tAbGfXy+dxtq//kyTJ81quegIo1qL68faz2QwBURWRjNSaZzDQPmV2+7j?=
- =?us-ascii?Q?MRIwJl9es1tBZ+VxsyjYKnwwESR3kBDLopSPljzr90reQXnJwAmQVbE83GIo?=
- =?us-ascii?Q?zJV2v9LFvGHRXvHQmNsvmbuLWL2Ne1wG2HXDR7GohVEfCbmiMrjx6eKcgtHa?=
- =?us-ascii?Q?9Knsha9gMomhjaTjFnAZ1TnQYdUCizyQWK+XgsdPNOgufmapCogoV/3S8Y5N?=
- =?us-ascii?Q?SQXdGCEqU6Vjj9sjMWHRbdC5OEU2vOubuSlRqViSivbmbBNC0OSR77Tpe7Pj?=
- =?us-ascii?Q?IefUzfMsvk1oRU+4wa7aLImjjUfvi4I1tcCBSHTxDW2PgB2qbTCPOr88p5y+?=
- =?us-ascii?Q?eRNvh3ODFOCIQgnyGX/MZ9wCZgR1XnNVlVabneXzyHuWS5cyYg7edK1dhP3e?=
- =?us-ascii?Q?wV9M+HhwF9ZsS1d1NyoGU2RHyV4mb7eNjlsI2mcKX4Kuh9BsAfWiF3lHJGEa?=
- =?us-ascii?Q?3/xw7j1MSiGGU5Q4kMt+kt5iTK5I/7Hjji4PLZUbVWwQ+iR1l+WtWadMYtAC?=
- =?us-ascii?Q?YaKMfpgVMCs30Sfl5hq7eAkabF4Ebu2xZM2h3wwXWZmxLn8Aard/8jRIuUPr?=
- =?us-ascii?Q?qK6Xkq/bohcHnEdXZn2eXc749lquObbGw97hAxs7mbkbzDE/EyUmupRcDg5F?=
- =?us-ascii?Q?Iymut16epiowhFNFXmEgM47gOoh2QQ2Q47CYyXskPWcDsawJhDutehM93iQK?=
- =?us-ascii?Q?ypsr81KYVYzBJ39Ssus8UCwZceyOccFC4X7YwMfIb4Klheh0CaNpn/wtD/ZJ?=
- =?us-ascii?Q?Ohkp6fRktdaF7loFvC7aA1746IeO5ja8Y5EIdwfJe2/+MX1kWFfJCTyD/Pb/?=
- =?us-ascii?Q?o2BWzinNs/92U2Rl2jE+I1HTc7PoVaJFUWgsvNJLizojh3q7vgWkjDLT5J+/?=
- =?us-ascii?Q?YhDHN68Ib/RjyMEnl84inY26Y1zZgeiDq44Sb2lKBrO0mXBQeVc8KPoY+h4X?=
- =?us-ascii?Q?ONHjQlgkLMqPez2BLzkVdcEGN08E93j5j4VMzVufDR97v94e8eV05NqzesLN?=
- =?us-ascii?Q?QYT+gn6EJxJAtAfjoiFLb0jYlAsaBPQIKxtvIVZAkrDynG8y643wWylKO1vo?=
- =?us-ascii?Q?x5qZRQbOKgmNDLDweQ0Tw8XWMRSmKWWrsccjX9DRqfWL6oABoNXLhDRaQnTc?=
- =?us-ascii?Q?K1g4tj0gin523p8xCHGHEa7UIYewxzceOi7tlVIFOXCbY2Qr5bndxqNDBEMQ?=
- =?us-ascii?Q?Kzfk7FF6SzNcwHMKel919reoSUpTfj6oqO8Dt63pbItLnf0ewgVPsW+zwrHK?=
- =?us-ascii?Q?MBHXscWJa5TG6dd+8Wnoq3T9CgC4tnhGYvKTfDLuCdZnBJDGaV3kLQg4JXbv?=
- =?us-ascii?Q?2ArCeWovmMhJldIOu2l4QUN6XxiiIK4Z8IppzLH+QgIEJX1GhILcWeCMTIZ/?=
- =?us-ascii?Q?URDjqsVCrniUrg4zK9aKhfm+LogjG5zxUnnrJtMHw0PZNMbMQElz58eDQc68?=
- =?us-ascii?Q?uQP+hiVz13ijltB3+ZvWexx0xmESv2Y+VlC61JmqS6JM2Qe+veHW5JSwU+Bf?=
- =?us-ascii?Q?RvpjGXxjQN/dyfAYzHu09cks0/TL5cxfWizbgPOmxug8hILV0oDWlHhQUtxJ?=
- =?us-ascii?Q?/1zGqpu/VJXqZ2tq7/slgcuNkuqwtPjFB6DAUsTGPnvUxmkJmpfdiOQRnMIP?=
- =?us-ascii?Q?IkioNZVjKVFBf4NM5ef0kHRkGzhvYD6+hyFICveRLCevw8JWsh85ARoY5dV0?=
- =?us-ascii?Q?pbWafBTP+wrPO0Yv9L325jFmTPtV6T7Oli7ZC9S+VoQ/Qxubg9Sku+mcvRve?=
- =?us-ascii?Q?YlYlg5W5tEBg//9xIO5i4/y89bzZd2adOjMC+72/D3Z5d5K4t7Z7?=
-X-OriginatorOrg: starfivetech.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b04053c3-20b4-4068-b238-08debbcd0b52
-X-MS-Exchange-CrossTenant-AuthSource: ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 27 May 2026 08:50:46.6703
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 06fe3fa3-1221-43d3-861b-5a4ee687a85c
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: tfPuwX1srCSR5BdCgRG5vXSPPs2b8kusBZYGw/HAjvDuQ9hyabxkXNvHG0XL1GB6ySfNXORd+FOy9+5DHcIFO2DtI8GlAGJV3cWQr957oP82imiPDOQtVCCtfLsegOOB
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: ZQ0PR01MB1285
+In-Reply-To: <CAAhV-H71ZiakZaLVKYg2Qvp8ZJiT7hr9P9bAmXCrjWkHg+-vGg@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-CM-TRANSID:qMiowJCx2+BysRZqopqSAA--.15952S3
+X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
+X-Coremail-Antispam: 1Uk129KBj93XoWxCFykCF4fZrWkGF17ZF13GFX_yoWruw4xpF
+	WUCFW5KF4qqF12grsIq3W7ZFyYvws5JFW8Cr17t3WxX3Zavrn3Z3WxGrn0kFykuF97u3y8
+	ZayqgrsxuFyqvrgCm3ZEXasCq-sJn29KB7ZKAUJUUUUr529EdanIXcx71UUUUU7KY7ZEXa
+	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
+	0xBIdaVrnRJUUUPIb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVWxJVW8Jr1l84ACjcxK6I8E87Iv6xkF7I0E14v2
+	6r4UJVWxJr1ln4kS14v26r1Y6r17M2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12
+	xvs2x26I8E6xACxx1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r12
+	6r1DMcIj6I8E87Iv67AKxVW8JVWxJwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr4
+	1lc7I2V7IY0VAS07AlzVAYIcxG8wCY1x0262kKe7AKxVWUAVWUtwCF04k20xvY0x0EwIxG
+	rwCFx2IqxVCFs4IE7xkEbVWUJVW8JwCFI7km07C267AKxVWUAVWUtwC20s026c02F40E14
+	v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GFylIxkG
+	c2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCI42IY6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r4j6F4U
+	MIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x07j7BMNUUU
+	UU=
 
-From: Lianfeng Ouyang <lianfeng.ouyang@starfivetech.com>
+Hi, Huacai,
 
-The Starfive JHB100 I2C controller is a variant of the widely-used
-DesignWare I2C IP, with a distinct register layout and enhanced features
-such as SMBus Alert and programmable FIFO depths.
+On 2026/5/27 下午3:05, Huacai Chen wrote:
+> Hi, Hongliang,
+>
+> On Tue, May 26, 2026 at 11:11 AM Hongliang Wang
+> <wanghongliang@loongson.cn> wrote:
+>> From: wanghongliang <wanghongliang@loongson.cn>
+>>
+>> The i2c-ls2x driver supports dts and acpi parameter passing.
+>>
+>> In dts, uses clock framework, by parsing clocks property to
+>> get i2c bus reference clock, and define the div of reference
+>> clock by device data.
+>>
+>> In acpi, by passing clocks property to describe i2c bus reference
+>> clock and clock-div property to describe the div of reference clock.
+>>
+>> Based on i2c bus reference clock(clock_a), i2c bus speed(clock_s)
+>> and div, calculate the prcescale of i2c divider register. The
+>> calculation formula is
+>>
+>> prcescale = (clock_a*10)/(div*clock_s)-1
+>>
+>> Signed-off-by: wanghongliang <wanghongliang@loongson.cn>
+>> ---
+>>   drivers/i2c/busses/i2c-ls2x.c | 35 ++++++++++++++++++++++++++++++++---
+>>   1 file changed, 32 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/i2c/busses/i2c-ls2x.c b/drivers/i2c/busses/i2c-ls2x.c
+>> index b475dd27b7af..6d332e59452d 100644
+>> --- a/drivers/i2c/busses/i2c-ls2x.c
+>> +++ b/drivers/i2c/busses/i2c-ls2x.c
+>> @@ -12,6 +12,7 @@
+>>
+>>   #include <linux/bitfield.h>
+>>   #include <linux/bits.h>
+>> +#include <linux/clk.h>
+>>   #include <linux/completion.h>
+>>   #include <linux/device.h>
+>>   #include <linux/iopoll.h>
+>> @@ -63,11 +64,18 @@
+>>   /* The default bus frequency, which is an empirical value */
+>>   #define LS2X_I2C_FREQ_STD      (33 * HZ_PER_KHZ)
+>>
+>> +/* The div of i2c reference clock on 2K0500/2K1000/2K2000 */
+> Please use "LS2K0500/2K1000/2K2000".
+OK.
+>> +#define LS2X_I2C_2K_CLOCK_DIV  40
+>> +
+>> +/* The div of i2c reference clock on 7A1000/7A2000 */
+> And "LS7A1000/7A2000".
+OK.
+> BTW, I think this series should be CC stable.
+OK, I will add Cc: stable@vger.kernel.org in the next version patch series.
+> Huacai
+>
+>> +#define LS2X_I2C_7A_CLOCK_DIV  50
+>> +
+>>   struct ls2x_i2c_priv {
+>>          struct i2c_adapter      adapter;
+>>          void __iomem            *base;
+>>          struct i2c_timings      i2c_t;
+>>          struct completion       cmd_complete;
+>> +       unsigned int            div;
+>>   };
+>>
+>>   /*
+>> @@ -96,6 +104,8 @@ static irqreturn_t ls2x_i2c_isr(int this_irq, void *dev_id)
+>>   static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
+>>   {
+>>          u16 val;
+>> +       u32 pclk, div;
+>> +       struct clk *clk;
+>>          struct i2c_timings *t = &priv->i2c_t;
+>>          struct device *dev = priv->adapter.dev.parent;
+>>          u32 acpi_speed = i2c_acpi_find_bus_speed(dev);
+>> @@ -107,12 +117,29 @@ static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
+>>          else
+>>                  t->bus_freq_hz = LS2X_I2C_FREQ_STD;
+>>
+>> +       if (dev_of_node(dev)) {
+>> +               clk = devm_clk_get_optional_enabled(dev, NULL);
+>> +               if (clk && !IS_ERR(clk))
+>> +                       pclk = clk_get_rate(clk);
+>> +               else
+>> +                       pclk = LS2X_I2C_PCLK_FREQ;
+>> +
+>> +               div = priv->div;
+>> +
+>> +               val = (pclk * 10) / (div * t->bus_freq_hz) - 1;
+>> +       } else {
+>> +               if (!device_property_read_u32(dev, "clocks", &pclk) &&
+>> +                   !device_property_read_u32(dev, "clock-div", &div))
+>> +                       val = (pclk * 10) / (div * t->bus_freq_hz) - 1;
+>> +               else
+>> +                       val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
+>> +       }
+>> +
+>>          /*
+>>           * According to the chip manual, we can only access the registers as bytes,
+>>           * otherwise the high bits will be truncated.
+>>           * So set the I2C frequency with a sequential writeb() instead of writew().
+>>           */
+>> -       val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
+>>          writeb(FIELD_GET(GENMASK(7, 0), val), priv->base + I2C_LS2X_PRER_LO);
+>>          writeb(FIELD_GET(GENMASK(15, 8), val), priv->base + I2C_LS2X_PRER_HI);
+>>   }
+>> @@ -295,6 +322,8 @@ static int ls2x_i2c_probe(struct platform_device *pdev)
+>>          if (!priv)
+>>                  return -ENOMEM;
+>>
+>> +       priv->div = (unsigned int)(unsigned long)device_get_match_data(dev);
+>> +
+>>          /* Map hardware registers */
+>>          priv->base = devm_platform_ioremap_resource(pdev, 0);
+>>          if (IS_ERR(priv->base))
+>> @@ -349,8 +378,8 @@ static DEFINE_RUNTIME_DEV_PM_OPS(ls2x_i2c_pm_ops,
+>>                                   ls2x_i2c_suspend, ls2x_i2c_resume, NULL);
+>>
+>>   static const struct of_device_id ls2x_i2c_id_table[] = {
+>> -       { .compatible = "loongson,ls2k-i2c" },
+>> -       { .compatible = "loongson,ls7a-i2c" },
+>> +       { .compatible = "loongson,ls2k-i2c", .data = (void *)LS2X_I2C_2K_CLOCK_DIV, },
+>> +       { .compatible = "loongson,ls7a-i2c", .data = (void *)LS2X_I2C_7A_CLOCK_DIV, },
+>>          { /* sentinel */ }
+>>   };
+>>   MODULE_DEVICE_TABLE(of, ls2x_i2c_id_table);
+>> --
+>> 2.47.2
+>>
+>>
 
-The series is structured as follows:
-1.  Adds the device tree binding document for the starfive,jhb100-i2c
-        compatible.
-2.  Prepares the existing i2c-designware-core by exporting and making
-        certain key functions overridable, allowing code reuse.
-3.  Introduces the new i2c-starfive-* driver, with separate modules for
-        master and slave functionality, based on the 2023-07 revision of
-	the Synopsys IP manual.
-
-Currently, due to the following differences, i2c designware cannot be
-fully reused
-1.  For high and low level counting settings at different rates, i2c
-        starfive can use IC_SCL-H/LCNT to set SS, FM, FM+, UFM
-2.  Interrupt clearing is achieved by writing 1 to the corresponding
-        bit of INTR_CLR, while designware reads different clearing
-	registers
-3.  Master and slave require separate probe callbacks and cannot rely
-        solely on the runtime mode switching provided by i2c_dw_set_mode()
-4.  The value of FIFO depth is not obtained through registers, but
-        written through DTS
-
-I have written some poorly styled code to reduce changes to i2c designware
-and reuse its functions by keeping aa always true, for example
-1.  the implementation of i2c-d w_probe_master() differs only for the two
-        IPs in i2c_dw_set_timits_master(). In order to reuse
-	i2c_dw_probe_master(), i2c_dw_set_timits_master is declared as
-	__weak. A better approach is to use a callback function, but using
-	a callback function requires changing more i2c designware files.
-	I don't know what the attitude of the community is
-2.  For the operation of clearing interrupt flags, i2c designware reads
-        and i2c starfive writes. Therefore, in order not to modify the
-	relevant logic of i2c designware, I added a write operation to
-	sf_reg_read()
-So I think this version of the code is not allowed to merge, but I don't
-know how to handle this situation because if i2c designware is not changed
- at all, we will have to write code that is similar to i2c designware.
- Will this type of IP not be allowed to merge?
-
-Lianfeng Ouyang (3):
-  dt-bindings: i2c: Add StarFive JHB100 I2C
-  i2c: designware: Export symbols and add __weak for Starfive I2C driver
-  i2c: starfive: Add StarFive JHB100 I2C master/slave support
-
- .../bindings/i2c/starfive,jhb100-i2c.yaml     | 128 +++++
- MAINTAINERS                                   |   7 +
- drivers/i2c/busses/Kconfig                    |  24 +
- drivers/i2c/busses/Makefile                   |   3 +
- drivers/i2c/busses/i2c-designware-common.c    |  72 ++-
- drivers/i2c/busses/i2c-designware-core.h      |  20 +
- drivers/i2c/busses/i2c-designware-master.c    |   4 +-
- drivers/i2c/busses/i2c-designware-platdrv.c   |   6 +
- drivers/i2c/busses/i2c-designware-slave.c     |   2 +-
- drivers/i2c/busses/i2c-starfive-core.h        | 164 ++++++
- drivers/i2c/busses/i2c-starfive-master.c      | 470 ++++++++++++++++++
- drivers/i2c/busses/i2c-starfive-slave.c       | 180 +++++++
- 12 files changed, 1060 insertions(+), 20 deletions(-)
- create mode 100644 Documentation/devicetree/bindings/i2c/starfive,jhb100-i2c.yaml
- create mode 100644 drivers/i2c/busses/i2c-starfive-core.h
- create mode 100644 drivers/i2c/busses/i2c-starfive-master.c
- create mode 100644 drivers/i2c/busses/i2c-starfive-slave.c
-
---
-2.43.0
+Best regards,
+Hongliang Wang
 
