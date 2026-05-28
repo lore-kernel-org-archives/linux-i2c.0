@@ -1,156 +1,93 @@
-Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18B393546FC
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA0F9366054
 	for <linux-i2c@vger.kernel.org>; Thu, 28 May 2026 21:52:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780005133; cv=none; b=PCHM/Sk5nj7AaJaLAqWinV32Rk2NOVUsR0FizD7vhbkhPm35z4J4xvd8Tfc9t1SvKHVH4crV6CradLPuj2ILCAWUwSWP10waVE+/awxru8JzektFSO28ssMk9qywg15ojXK/wRex8xXisNWu/BmIwKBknsk6qiScl4Q4SaGRgks=
+	t=1780005136; cv=none; b=Yd6oq4s+tAyOfNk114SS97TLFQ9X6UVAOYSFYoHXmupp6sIc4GZuJkETDDt7+KFWCcRZOGrcE0SOLWcWExUQ6a199anHXBRyVyJ09KMEGGKHPzUXQYO1oQ4zd7ajJthmCoI7vzOgbrR1EqXGWaPgPEpARhf5OfUwl1K8riArHvE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780005133; c=relaxed/simple;
-	bh=rVktahZWejU1jR1k85dCfFo7ewd3VS1Hq2MzKmRkeEU=;
-	h=Content-Type:Date:Message-Id:Cc:Subject:From:To:Mime-Version:
-	 References:In-Reply-To; b=OfGrc6fDTjtDpN/XjqB16lc/mznix+av5B2ghbLh1b3Bvf8S2hJAOY8kdiWEdnliJysCUQZ7RFKPSLdtqloHiSlFNbEQnPrC2V+FvyAjMAWzxRkQ8V6ONq2HUQXchETLfsgQCxuXGDyFN15lnvjtNT3CKQt5Gvgo6ONBXO7rXWA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=V19OrR7T; arc=none smtp.client-ip=74.125.82.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
+	s=arc-20240116; t=1780005136; c=relaxed/simple;
+	bh=2F+j0yjjKa5C9dAP9Ns0/QJnSc6q89Sh7XgQRq3vbww=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=E1yyoVGjdgX81hXUyybjmvJCjBCdg6lv8RW4F38e0Qk+9aOcnzafA08Uo31s1tlQ8Oe4+Qt7UfYN+BGxBOvG1uzM7Y43tUUgNEwX48By73rNcU2aJ1jXCMMTV9PDQG0rpRII16KfYz8sZ9ZpxWkeqKe6la8uPfhIUoFMn8mISdc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=F1rHcz29; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="V19OrR7T"
-Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-3045c195251so7128603eec.1
-        for <linux-i2c@vger.kernel.org>; Thu, 28 May 2026 14:52:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1780005131; x=1780609931; darn=vger.kernel.org;
-        h=in-reply-to:references:content-transfer-encoding:mime-version:to
-         :from:subject:cc:message-id:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=J6+d3eci8Gyt+/+AHbnvkVmgmViYggng28h+t9MnxuY=;
-        b=V19OrR7TbL60DBwCk2nLscrIP9Nfrhmi9EAtGTZpmfkKseb1DHRVRSMmOxgvkx5Tfc
-         rD86xnS9Sd3lPtn+UuuQNsY+x2RbqDblAWXembLrqmpf6iBeyZWwopwCVFwJdLqwPZRx
-         eIHmumQjye4pKMuQJN5RO3EffIRC0UDOWhDy3IZ3rCP8cJmciBlA/Gw3UbAr77wD2KCY
-         LT6McIJ0AAFHAYCVy86Un4TzwKuqSfKKlRyP4aSN5Aiyo5Wv4NIeWwu26Kshs8OUZd7H
-         Wc4i7S+asXz5mpAhB/dF1TBNa9Xww3s3RtJs2d1DJfNKPwRPkqj9LiisRXS8peSYfSbF
-         kMsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780005131; x=1780609931;
-        h=in-reply-to:references:content-transfer-encoding:mime-version:to
-         :from:subject:cc:message-id:date:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=J6+d3eci8Gyt+/+AHbnvkVmgmViYggng28h+t9MnxuY=;
-        b=RnpmbT3hc0snf5yd3v2TXfGmEcs1ul+vhckribu0loJy44vHrfQsWNbpdTI/uuXL1S
-         nALgs+JXTlJtbwX6Xhb31TM0P2+s2XuMlu3yrIyUKiIY90mzRYXcWpG0f3N7avEa5HGd
-         6HPBzEgOSMUqrvCmqmoxhFfKTRZwjS51PfOJOmr/F+gC98x3FPBe1KNx+PQ6Z/0Q97e0
-         rPV7k0olfY9cn8KN257dfWIO1CHBHUQxxhahFtqhZaU6xXhs7qAdlM001PU/SlB8y5qF
-         zuLTkR1Ph+NBTOpePXCyjZRdwzjxoRuE7llN/tGb93a65PmnBnGGiC/rEyUuBJxb/B9y
-         m98w==
-X-Forwarded-Encrypted: i=1; AFNElJ9FGXlUnibAawlfUWg0qY22FYBqmbBCHZaqjg2hIzOvn/mNxNEk0s36U4xEu0U/3Ya7Dz4Z+pf+/bk=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzYcn0ZU+IOAifaDaeyQEvAEsahzmGC3sco7khPsF+Ze6bdALKj
-	wPML2Cuqt1f2soq7MMLj2cLZaD16g8FbLcAOaUEvYo8V/nsSv+Zy7R4RCYzN5fkfs88=
-X-Gm-Gg: Acq92OFfIQyxR8drU8kv9sORCI85/m1dKFoDPB67pbtCmP1jr1RztQ+fguk9hw85KBN
-	+7803uNbdTnlPKhFt7abO22bw8qZKAA71M6qxILit0k/5ChuAtDAMSgmxhV8k9Pma7DAh6khSom
-	vu+Otfh6KRM2Moq9VC+PVN/7M6Yv7048vBsOvfN1Z8QbNhQ2LpUIyO7uLghQZmCMsI2uhkO0hLY
-	SVTbHEkySj5S1sODME+5pdutuUzsYNTDEV0VP+tDbpHAji9gZUQUhmNiR+9Es/xkAyD1VjSzV/S
-	/WuGZDNw9h0oEzjU1PjKqNjthXIGMqJ5IK2C77Alot1VnRtCBh6mMIe1sW7TPEwFxESLMULflFx
-	cVswdzeWx1jZA3NKqaOq837oBwQjb6ppkblpqi2KssZdw1NEpJ65Qs3dBEf1e5ceu7QfW5U5VN4
-	p6fuMn3eQioFfPGRHTM+wzySOvAjMx4RmpQw==
-X-Received: by 2002:a05:7300:bc0b:b0:2d9:2b54:ea9c with SMTP id 5a478bee46e88-304eb17e882mr152358eec.18.1780005131067;
-        Thu, 28 May 2026 14:52:11 -0700 (PDT)
-Received: from localhost ([50.145.100.174])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-304ebd25de3sm50575eec.30.2026.05.28.14.52.10
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 28 May 2026 14:52:10 -0700 (PDT)
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 28 May 2026 14:52:09 -0700
-Message-Id: <DIUN5NSLIH1U.1U1TFC7N4CJR@nexthop.ai>
-Cc: "Peter Rosin" <peda@lysator.liu.se>, <linux-i2c@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v6] i2c: mux: reg: use device property accessors
-From: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>
-To: "Wolfram Sang" <wsa+renesas@sang-engineering.com>, "Abdurrahman Hussain"
- <abdurrahman@nexthop.ai>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="F1rHcz29"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=2F+j
+	0yjjKa5C9dAP9Ns0/QJnSc6q89Sh7XgQRq3vbww=; b=F1rHcz29bQNGYtLUU4lT
+	CH3IFtUzM7T/h5JZmpj4vBYIF+5wVc7NQ+Dg3STPX2RJVhLMb2vmRcEwrhAlcS8T
+	8xzGdAo102gJvkZqrdoINUyI9SuAHk7CSG80WNhneOE4ooB9aHHFh9igkhuZWmJK
+	hzzX/dikz6risLe/Lej8yufsD1XnyvigrMR9nMjkYmhdFI0bop5VlrtkJ0mLdb0f
+	D8TqRY+19k+okPoJnJm3D+KOixDgB+VaIP/G+PCKgbmi6lHokm6a85nJ+HdTouJX
+	xjZmLoQlvokF6T/W7FX5ZEQATOEbkrPZg9c8hEdZ+PC8c9AlywOBHDU4zmsnojX+
+	ew==
+Received: (qmail 1173576 invoked from network); 28 May 2026 23:52:09 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 28 May 2026 23:52:09 +0200
+X-UD-Smtp-Session: l3s3148p1@3upmvedS35eSAB9x
+Date: Thu, 28 May 2026 23:52:08 +0200
+From: Wolfram Sang <wsa@sang-engineering.com>
+To: Claudiu Beznea <claudiu.beznea@kernel.org>
+Cc: chris.brandt@renesas.com, andi.shyti@kernel.org,
+	claudiu.beznea@tuxon.dev, linux-renesas-soc@vger.kernel.org,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/4] i2c: riic: Abort the transfer on completion timeout
+Message-ID: <ahi5CC7t_Im4pWfT@shikoro>
+References: <20260520131206.932050-1-claudiu.beznea@kernel.org>
+ <20260520131206.932050-2-claudiu.beznea@kernel.org>
+ <ahhJtz7QG3IxQA0G@shikoro>
+ <88d1db83-1127-462f-9b1a-7c18a7087960@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Mailer: aerc 0.21.0
-References: <20260519-i2c-mux-reg-v6-1-a27ff50dee67@nexthop.ai>
- <ag1a5TLH7L-BSWWp@shikoro>
-In-Reply-To: <ag1a5TLH7L-BSWWp@shikoro>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="nRsRy12VV0keRsmN"
+Content-Disposition: inline
+In-Reply-To: <88d1db83-1127-462f-9b1a-7c18a7087960@kernel.org>
 
-On Tue May 19, 2026 at 11:55 PM PDT, Wolfram Sang wrote:
-> On Tue, May 19, 2026 at 02:18:50PM -0700, Abdurrahman Hussain wrote:
->> Convert the device-tree parsing path to the generic fwnode/device
->> property accessors so the driver can be probed on ACPI and swnode
->> platforms as well as OF. The helper is renamed from
->> i2c_mux_reg_probe_dt() to i2c_mux_reg_probe_fw() to reflect that.
->>=20
->> Accessor translation:
->>=20
->>   of_parse_phandle("i2c-parent") +
->>     of_find_i2c_adapter_by_node()    -> fwnode_find_reference() +
->>                                          i2c_find_adapter_by_fwnode()
->>   of_get_child_count()               -> device_get_child_node_count()
->>   of_property_read_bool()            -> device_property_read_bool()
->>   for_each_child_of_node()           -> device_for_each_child_node()
->>     of_property_read_u32("reg")        on ACPI device nodes:
->>                                          acpi_get_local_address()
->>                                        everything else (OF, swnode,
->>                                        ACPI data nodes):
->>                                          fwnode_property_read_u32()
->>   of_property_read_u32("idle-state") -> device_property_read_u32()
->>=20
->> The child-node branch uses is_acpi_device_node() rather than
->> is_acpi_node(): the latter also matches ACPI data nodes (the
->> _DSD hierarchical-property children used by PRP0001-style
->> firmware), which have no ACPI handle and would make
->> acpi_get_local_address() fall back to evaluating _ADR against the
->> root namespace and return -ENODATA.  Routing data nodes through
->> fwnode_property_read_u32() instead lets them resolve the "reg"
->> property the same way OF and swnode children do.
->>=20
->> Behavioural preservations (deliberate, to avoid regressing existing
->> users):
->>=20
->>   - The three-way endian fallback is kept verbatim: an explicit
->>     "little-endian" property wins, then "big-endian", and otherwise
->>     the host's compile-time byte order. device_is_big_endian() is
->>     not used here because it ignores "little-endian" and introduces
->>     "native-endian" semantics, which would diverge from the binding.
->>=20
->>   - The "if (!mux->data.reg)" guard around
->>     devm_platform_get_and_ioremap_resource() in probe() is kept.
->>     drivers/platform/mellanox/mlx-platform.c registers i2c-mux-reg
->>     platform_devices with no memory resource and supplies a
->>     pre-set .reg / .reg_size through struct
->>     i2c_mux_reg_platform_data; without the guard those
->>     registrations would fail in probe().
->>=20
->>   - The "if (!mux->data.reg)" ioremap block (and the paired
->>     reg_size validation that depends on it) is hoisted above
->>     i2c_get_adapter(mux->data.parent), so the fwnode path
->>     preserves master's ordering of "ioremap before parent-adapter
->>     get".  For platdata users the validation runs from a slightly
->>     earlier position, but mux->data.reg_size is already set from
->>     platdata by then, so the order is functionally neutral.
->>=20
->> The OF-only of_address_to_resource() translation in the old
->> probe_dt() is dropped because the same address is available from
->> the platform_device resource table on OF as well as ACPI, and the
->> existing fallback in probe() ioremaps it.
->>=20
->> Acked-by: Peter Rosin <peda@lysator.liu.se>
->> Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
->> Assisted-by: Claude-Code:claude-opus-4-7
->> Assisted-by: sashiko:gemini-3.1-pro-preview
->
-> Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Hi Wolfram,
+--nRsRy12VV0keRsmN
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-I noticed this patch didn't make it into 7.1-rc5. Is it still under
-review? If not, will it make it during the next merge window?
 
-Best regards,
-Abdurrahman
+> I haven't managed to reproduce it on i2c. I reproduced a similar behavior
+> while working on renesas-i3c driver and decided to implement this on this
+> i2c driver as well.
+
+I think the issue is real, but I am not convinced the solution is
+complete without a verified testcase.
+
+Maybe it is not too hard to test: you could hack the timeout to be lower
+and then write a block of data to an EEPROM. Its erase cycle can trigger
+the timeout then...
+
+
+--nRsRy12VV0keRsmN
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoYuQQACgkQFA3kzBSg
+Kbbkyw/+IcsUjXR8Y/aSpYuTetobIhIAoTvQ6GoX82xQ3c2ywJ1U5moJxEjDTI29
+3N/VUrlzRfr09MeQ1PZLTtiu54mwxQNWRgenRZaNoK4Vtq0M8WjH+TXjSO3omiBc
+SOkPSek2kNOwHOmQI3s0nT4obabCq6ZezOmgXzkcoyACHr9fO7San5h5x9var8Y4
+9NyJS9F39fgRLhTTdSr85fAAh1iz0czTooirvNnSqOHb9DpJyDYim2d0cZMWBqMC
+pERCqIjfznvU5MQNjtLGPePo5XkHwTtU2sZ2F6doWNWbHORKPQuKDX+iZi++Rr2f
+cevfh+fQaWgNtdI5i1eru4L8tWPdU6kUq1bUYuO4ym2AY1byk5W4BXTcYoCC2/Nt
+qiBPPd5ez4jYFH0KEYstHHOjtyCJ1AV89X02Ux9Z43Jplgytv7Ky5CZ72D/LnCCo
+77cgZjT1ffjnC3elKuOBBfhr4v7fup+dJ1W9LEris96xssV6LCDqzUVWY/fDSdDU
+aFHUHR4sq24B2G6JDWLhxmTK43S8Rqskj57Y9OvwC7yWVLb8pKv6r+YqphCcEEts
+rHkzATd2ovPaNvXPLFJATa1jkJAQDCW//rEM7/zREBZ09dA4s9AplWEB+JTljgsj
+ECxpZ6eNUiRrdLQUirkFnicGwqVbqlKAkeyjlP9+1gUw8ALDgWU=
+=qRLb
+-----END PGP SIGNATURE-----
+
+--nRsRy12VV0keRsmN--
