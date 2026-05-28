@@ -1,85 +1,132 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFE1A367282
-	for <linux-i2c@vger.kernel.org>; Thu, 28 May 2026 21:55:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB919260580;
+	Thu, 28 May 2026 22:09:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780005350; cv=none; b=XaX5rt9PiLY/8XsNu67y782Own4Nf9wRHtFyrxmdFVb1fvTuBEYW5S16zvTrdYcqTMboqz+uBEjQ8NuBbaahaBvxzHHFdmVHfrdqecSi/E1YsuoHz79dvT1r7jKWxW40qbsl3ICP+ZBTydbb96iSspyA3GwgBcNvMw+o0BuTOrg=
+	t=1780006143; cv=none; b=n6u+oI9RWZo5wjn56jgYkgFCoBvhCzgfWiVaGAvAgLnZ+jT0NRiIHDC98+6or4xUSwtm+oN451iZDSvdYbwHwxk/YD+cLMR1TLZF7S4e1yAcwlHTzLXa7tgXZEAg9wR+NR/6Mq6yLBbUN6Iunjrfq39yWPPC7RYJptkmMn8S9Yk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780005350; c=relaxed/simple;
-	bh=nMEv6pG00g5snJ0J30/zPBudOyGDJKXqQHYeoBAmKek=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=O7sL76zQUjya1cMbz/WkrDFEXZvWgdL+6j5N1jQXoKGztlJQ/9jbh9ONEZVUmC2uGuLnOTWgFv29qzpQfb7uup22gA8Xib37Lnlpn+R3IAiSA8pEW4+1ooIzH4jvWsag3eMLyZTb0VupA6vBv8ux/HAUNOqxFtQPnPgc5QSO4ok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=Yv4ZKHsQ; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1780006143; c=relaxed/simple;
+	bh=F1eaxcvD7uA18QinLGLVPQXbeBjKb3fky0zy7KMPuuI=;
+	h=MIME-Version:Content-Type:Subject:From:To:Cc:In-Reply-To:
+	 References:Date:Message-Id; b=Fl5+/5EtxWQXijgIDO7wPOXKxaSn5U7ttO6ZNIELqYGBVP0bACuanhavXiZIzhXwGxhmKW4EsHrlb/nKCFar5FdVp6cpb6ZJIa98ONw11j24ytUkmkYvYhu0dO++W5qANl24PxIJRF0G8ippLSMu1TMeQbJEb3iJIHjBTRZ4t5I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SJu+KLmh; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Yv4ZKHsQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=nMEv
-	6pG00g5snJ0J30/zPBudOyGDJKXqQHYeoBAmKek=; b=Yv4ZKHsQy55bN0CP1Din
-	25oAikPAV5At92Zs8UiljoiUMHcuCF47iIpSILTBTxQopt30UVCNomPdinkiFA+Y
-	/SldQvzETEHY+lONq+2hPROOnSAI7NStr+EE6wQCvs7UTw57VUYbvr+n8PCnwJr4
-	oZR11yQ85joGrRSJrArK+qtf+VOG71Ggg+fOHaY/mhsRfhSCyMvFdsbMFht3O4Cr
-	cx81bv7l59Dlz75aenpZOIPJP/V7jypaedTTTIVEx5lkitEbGbalATH4C3PN6BGw
-	pHHWwkjG3+O4qiZ4Ai35nhgJDc25Tm8aM5mnl8xZWIkAFmduLTXtR3bk8ezKLGba
-	jA==
-Received: (qmail 1174536 invoked from network); 28 May 2026 23:55:46 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 28 May 2026 23:55:46 +0200
-X-UD-Smtp-Session: l3s3148p1@SsxgyudS5JeSAB9x
-Date: Thu, 28 May 2026 23:55:46 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Abdurrahman Hussain <abdurrahman@nexthop.ai>
-Cc: Peter Rosin <peda@lysator.liu.se>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v6] i2c: mux: reg: use device property accessors
-Message-ID: <ahi54pXClIW7OENa@shikoro>
-References: <20260519-i2c-mux-reg-v6-1-a27ff50dee67@nexthop.ai>
- <ag1a5TLH7L-BSWWp@shikoro>
- <DIUN5NSLIH1U.1U1TFC7N4CJR@nexthop.ai>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SJu+KLmh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA2CD1F000E9;
+	Thu, 28 May 2026 22:08:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780006142;
+	bh=jJhHDmxLhgZYNTjpWb4+8eqAjhfnb3Kl6RH8rMjYoCE=;
+	h=Subject:From:To:Cc:In-Reply-To:References:Date;
+	b=SJu+KLmh1pUFi2KSYJFnTLU6VVdagMEfRkiULnzSwF/FuOVe7WJNRRb4tthFZiqQp
+	 D2/JrPEtkh7Q1NkKV1eWlPS55kUuyrt6EOJKz0idK748tmBmSGW+glLF3SWQQV3vQ6
+	 P02762ppSco84Yp4PZZTNOdRdkNy7RllS+AEkJNGCeeEDhnbN3hrlh+Z8QYYtNmDD6
+	 a/F75pLP68Jb8NQC6Q3dVC/Ogh06uYaIxEV292fL9Pv9G4JLsNr2M42MvIUB9530jp
+	 HAMGCdk1mK7BQFhee5fbt3KY296UM8cD+AE/s6h2N5mbPpT/eZRNGXirtYus83t/JB
+	 lcD/uUkDkYA1Q==
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="Er/5OP8iqC/z+H6U"
-Content-Disposition: inline
-In-Reply-To: <DIUN5NSLIH1U.1U1TFC7N4CJR@nexthop.ai>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 1/8] dt-bindings: media: qcom: Add Shikra CAMSS
+ compatible
+From: bod@kernel.org
+To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+Cc: Bryan O'Donoghue <bod@kernel.org>, 
+ Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, 
+ Loic Poulain <loic.poulain@oss.qualcomm.com>, 
+ Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Robert Foss <rfoss@kernel.org>, 
+ Andi Shyti <andi.shyti@kernel.org>, 
+ Bryan O'Donoghue <bryan.odonoghue@linaro.org>, 
+ Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konradybcio@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
+ Sascha Hauer <s.hauer@pengutronix.de>, 
+ Pengutronix Kernel Team <kernel@pengutronix.de>, 
+ Fabio Estevam <festevam@gmail.com>, linux-arm-msm@vger.kernel.org, 
+ linux-media@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+ Suresh Vankadara <quic_svankada@quicinc.com>, 
+ Vikram Sharma <vikram.sharma@oss.qualcomm.com>
+In-Reply-To: <20260526-shikra-camss-review-v1-1-645d2c8c75a7@qti.qualcomm.com>
+References: <20260526-shikra-camss-review-v1-0-645d2c8c75a7@qti.qualcomm.com>
+ <20260526-shikra-camss-review-v1-1-645d2c8c75a7@qti.qualcomm.com>
+Date: Thu, 28 May 2026 23:08:52 +0100
+Message-Id: <178000613283.4557.13678881798499721082.b4-reply@b4>
+X-Mailer: b4 0.16-dev-d5d98
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1671; i=bod@kernel.org;
+ h=from:subject:message-id; bh=F1eaxcvD7uA18QinLGLVPQXbeBjKb3fky0zy7KMPuuI=;
+ b=owEBbQKS/ZANAwAKASJxO7Ohjcg6AcsmYgBqGLz3nZSWaVsF8eeq73xKqQ7S8O6ilhGBVDAdf
+ N0AFLdxdVuJAjMEAAEKAB0WIQTmk/sqq6Nt4Rerb7QicTuzoY3IOgUCahi89wAKCRAicTuzoY3I
+ OnilD/0VvN7QiGhRSN9fjcoHbubBHuShxHDOuwn29WlVCrfFCswj6z7u2AuNOBE5E1hYbfN/UtY
+ YBrFWpC16ILLjohfxspa0iQhfiDC5qp8bLSzEawXRugok1P8NwHDXfJDW4jTbYSQcc2dHvTiXvI
+ W7aOD8ykJchl/9O1R9iHM1eN84o8Ayb6xWmeRDgErCz9tE9caA+njm4jCcejvkWz8rR8+By1aXh
+ 9iDDHT4r18hkkM9nWYYGtFM67+B36Ket5pr/mRQEq6jGpSZDT9kvlih+1jfELL5+9svIjD55ESm
+ cotzRA2E6GaoJr0lpX5tzKAt5DOJSgKHmyonr49W9lfFSo82i3uHEe9IZ8z7ipUBiqa6sRX+oyy
+ XUTeAkSp4GuDZ6SMt/Qz2BnCQrEmhwRiPvC96Vfzd54VT90oLvtlgSjXBV91iuE797KOXpsRzmr
+ 1+/903UQdO7VX0Mx/naL8YIo8p0FjJh3NJMHEm0FdTFrcVeyu8SGYI2Cc9rHatXgSSSZEgpOpJr
+ jx4arkCInxKF7R7YGgZNdKlI6QgdE6uksgXCVB9cXDIyTXbjtz5ohuM7nfI+9kJX1DDBa2lSeP6
+ TXaa0F2u1slXqkJruvgyfgmOUu+2EuNAwkozHJnqke8A+QKy6fIW1YXi5Ek40/8Atup3JNv6+5A
+ JuINw11ToJXDjgg==
+X-Developer-Key: i=bod@kernel.org; a=openpgp;
+ fpr=E693FB2AABA36DE117AB6FB422713BB3A18DC83A
 
+On 2026-05-26 22:42 +0530, Nihal Kumar Gupta wrote:
+> Shikra uses the same CAMSS IP as QCM2290. Extend the existing
+> qcom,qcm2290-camss binding to add the qcom,shikra-camss compatible
+> string.
+> 
+> Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+> ---
+>  Documentation/devicetree/bindings/media/qcom,qcm2290-camss.yaml | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/media/qcom,qcm2290-camss.yaml b/Documentation/devicetree/bindings/media/qcom,qcm2290-camss.yaml
+> index 391d0f6f67ef5fdfea31dd3683477561516b1556..7b1469d6a1601413a1a32dc452d7d1fc85aa9eb8 100644
+> --- a/Documentation/devicetree/bindings/media/qcom,qcm2290-camss.yaml
+> +++ b/Documentation/devicetree/bindings/media/qcom,qcm2290-camss.yaml
+> @@ -8,13 +8,16 @@ title: Qualcomm QCM2290 Camera Subsystem (CAMSS)
+>  
+>  maintainers:
+>    - Loic Poulain <loic.poulain@oss.qualcomm.com>
+> +  - Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+>  
+>  description:
+>    The CAMSS IP is a CSI decoder and ISP present on Qualcomm platforms.
+>  
+>  properties:
+>    compatible:
+> -    const: qcom,qcm2290-camss
+> +    enum:
+> +      - qcom,qcm2290-camss
+> +      - qcom,shikra-camss
+>  
+>    reg:
+>      maxItems: 9
+> @@ -76,6 +79,7 @@ properties:
+>        - const: sf_mnoc
+>  
+>    iommus:
+> +    minItems: 1
+>      maxItems: 4
 
---Er/5OP8iqC/z+H6U
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+If it uses the same binding then why does it need minItems:1 ?
 
+Does Shikra have only the one iommus entry - if so why ?
 
-> I noticed this patch didn't make it into 7.1-rc5. Is it still under
-> review? If not, will it make it during the next merge window?
+If not then adding minItems: 1 is nothing to do with adding another
+compatible string.
 
-It is not a bugfix, so its time to go upstream is the next mergewindow.
+Either way this patch isn't right.
 
+---
+bod
 
---Er/5OP8iqC/z+H6U
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoYueIACgkQFA3kzBSg
-KbZp6BAAnT8xYUnsa9Hj/KlcD1UK6LctOzuwPJXk35meQl6y0p5s/rll5Fwl/Tyn
-5Fjjf5W2HFgbBKsL2fZH/f3MNFcUInmYefSAQMvFjqvs/PqEZ99j5iw8YVkA8pjZ
-NEfVh6YV5NshELW5hEsBdL0bcBkV+FvHbTJZaSEJaHFk2fG0rCw0Cf7Rk3/FwsBS
-pjEn5lmuU87XkDGculwIUvFk0mJ41rRatKQzXIQFu3buFBHGQno8hG+5sCpWKI4U
-JTy1wHJZxdc68/pr+JJkNOc6AE/EG+iBxYIWLunKc1XXfa/jMlgwHy6/WmH2WjaR
-ymbpRuQrqgx1WQARp8zsbxBTBucEn/zVqt41nprZzQVm6Cqd0IV8wupP04bjzzQF
-vZQKuSlK+rtoT5iWQetNKBpuHgKsL9zXdTeiAb9MqGtanndDkoHXO9bcJuo2MSAr
-5tbp86mTOj8SuntMyg5RTuvUG5wxLWcxDplmB9k5s4kj9TtToadssdWU78ldViBS
-7x2WBCwrVBJd/wrwXA14Fg7Q/v97kbqf/LxIszqBrWn9h6/z8xvfBKPxs5OBFjfh
-6dBqevBH79uEhhgzuHHPzgNxXHI7SrnRjgL0fwgvZ/qkjTYEbKSoExrWDGbxqrb2
-+53eNllapUdWSsirNoNorppWofb5m718PW6yxeCp/CKyZ8TgWyE=
-=92xm
------END PGP SIGNATURE-----
-
---Er/5OP8iqC/z+H6U--
