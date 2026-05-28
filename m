@@ -1,193 +1,67 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D849A367F23;
-	Thu, 28 May 2026 22:30:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2283624677B;
+	Thu, 28 May 2026 22:35:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780007450; cv=none; b=NTR7JM8LaLFuPNvqOrXSgfOadsp2DpP+xM6C/+blHWKwID1pwO+TAGed6EksCkQN7bPYmen2yTtItGiFTVfsjN12zq09ymgMS7CA/yCHddLzAOX9iG9BKv+P4dlD0xt7JngzBSNTubX0y0k3LzqoBLScrFP3JT3ZAlpWG9NmzNI=
+	t=1780007747; cv=none; b=BugyUuzZ/tESWINviXluENnHOmRebGBZcWc2ZTqM19Hm1ukYe4h+vXOQPFuvc+YX4CibwwCV3XUCsfaP4mIsx682frpFy3qFj2NeCFqeAnZ+RH23YRRrqhQM0Ld5r2V7XBpEVVGoEFZaH4otM81hog1nzbjvVltrtwVKdRcpkX4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780007450; c=relaxed/simple;
-	bh=6gM00ZsipIMswoFFkvvLiDGFT+x/pe9LSDNPgHmgU2c=;
-	h=MIME-Version:Content-Type:Subject:From:To:Cc:In-Reply-To:
-	 References:Date:Message-Id; b=bZeRtmmC7hcH1OvHk45VUwRkHs1pZXRgJgi0hF0WbZcyWw2Woh+RsN2xMiBDSx4pxPqpOpEct/IIt85s8PGH2meAknGuuRDhw2NcjbHquTjK4o29I6+VsudRANBtxRkePuaYBUgyDyLL8JCnS421GcQYgKOpEfkwmgeNh267S8M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dtDxQHxo; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780007747; c=relaxed/simple;
+	bh=L2IXn7tokzDlv8zKzHfT7rQcYMUlHu8dS7WVQ8PiaXQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bo1//NDJRFMcg3pcFZ7Y0dJDOxY0vyP7zMG6l4hA0AzYLyhxBnMiTbn74wuD02pXEyljUfo5uX87qrjuzL1MVcVxdZySXFlzu140Imc5nwL3xPX9JkT+N359TOl/RAfU+z4UZAbmh4hZDCq/v8BDsI+dT05r4rsFuL63uy+Xs1Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SD+52fTb; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dtDxQHxo"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7BF01F00A3A;
-	Thu, 28 May 2026 22:30:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SD+52fTb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C937E1F000E9;
+	Thu, 28 May 2026 22:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780007449;
-	bh=JTC78I7HyeSyWieBpRlXgLzYRKV0E9nhA+7nPJZHDPI=;
-	h=Subject:From:To:Cc:In-Reply-To:References:Date;
-	b=dtDxQHxo989x4MuYetEl28FjQ+wkepDGzLoqkJwRAQzuZQh2FxcsXRnfmzt8rD8tn
-	 XXIia42Bj97lDQJuC9NjQuOdqrRNVNOrxzTexKFb7QpUjPakgO+jqn6sxmszM/CL1b
-	 Q1XNmjnOpWC6xYrdvXn6/1GUWQPZLnh024tARvmHoEb8yqeiwepMqfjPkqv+h1dm7s
-	 GoRdMWEaPaaCIAsaXExuYaQNCfoGJRyCnzr0Oy7HU6511k4SETnuMcSRFz/oBCWY2X
-	 eN4E8GE3qBOOLLd7vEv8Am5A+hxpKoIIGyVh3ekRN4dXt/6mDC13sLpFGS1biyGtcG
-	 8ZqlO6zILGQiQ==
+	s=k20260515; t=1780007745;
+	bh=8kLBx4ckmbM0dMOnHMAVzp6zE5GX3IeNoPhLyXOA4VE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=SD+52fTbEX1WT4tWRpyMhXdSq+n+131KEEtso/qUJM3+jfvE6hrIUbmgHGbMPgUkO
+	 K5deGNGOScSV/bF+pMr4zugPdCj0v4FIg+dc0qqOFalCUhInPDftbpu+h6tGoM0ruK
+	 +WOfEz7fY3taIR8jaIZ24MUj665fyLpCLHLEd6hlaAA/En96IZWt7FiehVGdmD65ve
+	 OMNkHFEuYXDqzdVkEQPP/5VptKA8rZkdO1At43tVcnohFaiM7xqhbAkD6iTZtFsJRZ
+	 Lcy/iK0oWSJnECLnyYUZDN61sM7vxqjGPZl8z48RBCzej5XF8MYtfVuSulWR3PjxMt
+	 AJJBNFi2M0Iqw==
+Date: Fri, 29 May 2026 00:35:35 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Max Staudt <max@enpas.org>, 
+	linux-i2c@vger.kernel.org, linux-m68k@lists.linux-m68k.org, linux-kernel@vger.kernel.org, 
+	"Christian A. Ehrhardt" <christian.ehrhardt@codasip.com>, "Christian A. Ehrhardt" <lk@c--e.de>
+Subject: Re: [PATCH v1 4/8] i2c: icy:pick  Use named initializer for
+ zorro_device_id arrays
+Message-ID: <ahjDIH9UlDicPYLB@zenone.zhora.eu>
+References: <cover.1779803053.git.u.kleine-koenig@baylibre.com>
+ <3d7690c7a8948f977d6c50bd0c8010efb715fbdc.1779803053.git.u.kleine-koenig@baylibre.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Subject: Re: [PATCH 8/8] arm64: dts: qcom: shikra-iqs-evk-imx577-camera:
- Add DT overlay
-From: bod@kernel.org
-To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
-Cc: Bryan O'Donoghue <bod@kernel.org>, 
- Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, 
- Loic Poulain <loic.poulain@oss.qualcomm.com>, 
- Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh@kernel.org>, 
- Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Robert Foss <rfoss@kernel.org>, 
- Andi Shyti <andi.shyti@kernel.org>, 
- Bryan O'Donoghue <bryan.odonoghue@linaro.org>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Konrad Dybcio <konradybcio@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
- Sascha Hauer <s.hauer@pengutronix.de>, 
- Pengutronix Kernel Team <kernel@pengutronix.de>, 
- Fabio Estevam <festevam@gmail.com>, linux-arm-msm@vger.kernel.org, 
- linux-media@vger.kernel.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
- imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
- Suresh Vankadara <quic_svankada@quicinc.com>, 
- Vikram Sharma <vikram.sharma@oss.qualcomm.com>
-In-Reply-To: <20260526-shikra-camss-review-v1-8-645d2c8c75a7@qti.qualcomm.com>
-References: <20260526-shikra-camss-review-v1-0-645d2c8c75a7@qti.qualcomm.com>
- <20260526-shikra-camss-review-v1-8-645d2c8c75a7@qti.qualcomm.com>
-Date: Thu, 28 May 2026 23:30:41 +0100
-Message-Id: <178000744162.4557.14613962845288279527.b4-reply@b4>
-X-Mailer: b4 0.16-dev-d5d98
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3500; i=bod@kernel.org;
- h=from:subject:message-id; bh=6gM00ZsipIMswoFFkvvLiDGFT+x/pe9LSDNPgHmgU2c=;
- b=owEBbQKS/ZANAwAKASJxO7Ohjcg6AcsmYgBqGMITaf4YGJtKzrCQ5wNkqoquixtxXfW2tchE6
- X4fB6QIxOKJAjMEAAEKAB0WIQTmk/sqq6Nt4Rerb7QicTuzoY3IOgUCahjCEwAKCRAicTuzoY3I
- OkS1EACm6OJhIyJkwiAawBePKRoqc8eWD/J4E3aODc4QgOgbkar0E21yOB9gGj7xJTwOwW+lNCQ
- xAL5+Q8UtIHM826BJMKEsHA72AIy4R5irN6DVtdsnngIRO39KVU/vIb+lLMNDdGnKu3qHK/809x
- dQ+N4+ATOnjKDWQiIBHo59Edx0iADyX56xMAMcBrQ37FrKVm8we00ASoLPXyOLFv+IO3rtP2WA4
- Xfsd/JcrAJ/PCi0rsyaBA+Uiypmqzgmt33F+o2CLCgn6QG6TLjTfrdiq0C19yl7eXiS0dw4HEwq
- 4sU6DzdABm98IILZgm9IijQ76uvjVC4Yz5AKSgaPES4/jdKolWNAt7eT3qKQPMY/N1NnycwF9+v
- nW95dgttRlGzIVlZVFxoIQk1TNPeI+7DhEpJW/Q0zX1Y3elcx/0BuchWvss4zI+1KiPWWguGm+N
- bPFJB0K/HQdVem3TjvG5CcnnATFiYmUDDb5fV/v9IxE75Nj6i6griTeuTz7P8aU2sgKyw+rFC4q
- AiPzlPETx0XY8S2QWxkYal9L4TrAr11o4V/oFAf8XMs1IEY/KDYU8TZB5S2GhVEUc8xOi+MaWIL
- X6aCK/nFKdzce6vB9qW4EdlDUKJIJeKBGkhuU/ojUlxp98vupO/B2G8uJ9VtnF/eJ4VSNy4gj5r
- GLHQDN+91MUGNdQ==
-X-Developer-Key: i=bod@kernel.org; a=openpgp;
- fpr=E693FB2AABA36DE117AB6FB422713BB3A18DC83A
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3d7690c7a8948f977d6c50bd0c8010efb715fbdc.1779803053.git.u.kleine-koenig@baylibre.com>
 
-On 2026-05-26 22:42 +0530, Nihal Kumar Gupta wrote:
-> Shikra IQS is an industrial-grade variant using PM8150 PMIC, requiring
-> different CSIPHY and sensor supply rails compared to the retail boards
-> (CQM and CQS) which use PM4125.
+Hi Uwe,
+
+On Tue, May 26, 2026 at 04:17:30PM +0200, Uwe Kleine-König (The Capable Hub) wrote:
+> Using named initializers is more explicit and thus easier to parse for a
+> human.
 > 
-> Add a dedicated overlay for optional IMX577 integration via CSIPHY1.
+> While touching this array, drop explicit zeros from the list terminator.
 > 
-> Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
-> ---
->  arch/arm64/boot/dts/qcom/Makefile                  |  2 +
->  .../dts/qcom/shikra-iqs-evk-imx577-camera.dtso     | 63 ++++++++++++++++++++++
->  2 files changed, 65 insertions(+)
+> This change doesn't introduce changes to the compiled zorro_device_id
+> array.
 > 
-> diff --git a/arch/arm64/boot/dts/qcom/Makefile b/arch/arm64/boot/dts/qcom/Makefile
-> index df41830e18edff82893ca24ca84d7e03065d0ef7..2a728c975a38f700360e317307036efb0968a00f 100644
-> --- a/arch/arm64/boot/dts/qcom/Makefile
-> +++ b/arch/arm64/boot/dts/qcom/Makefile
-> @@ -340,9 +340,11 @@ dtb-$(CONFIG_ARCH_QCOM)	+= shikra-iqs-evk.dtb
->  
->  shikra-cqm-evk-imx577-camera-dtbs	:= shikra-cqm-evk.dtb shikra-cqm-evk-imx577-camera.dtbo
->  shikra-cqs-evk-imx577-camera-dtbs	:= shikra-cqs-evk.dtb shikra-cqm-evk-imx577-camera.dtbo
-> +shikra-iqs-evk-imx577-camera-dtbs	:= shikra-iqs-evk.dtb shikra-iqs-evk-imx577-camera.dtbo
->  
->  dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqm-evk-imx577-camera.dtb
->  dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqs-evk-imx577-camera.dtb
-> +dtb-$(CONFIG_ARCH_QCOM)	+= shikra-iqs-evk-imx577-camera.dtb
->  dtb-$(CONFIG_ARCH_QCOM)	+= sm4250-oneplus-billie2.dtb
->  dtb-$(CONFIG_ARCH_QCOM)	+= sm4450-qrd.dtb
->  dtb-$(CONFIG_ARCH_QCOM)	+= sm6115-fxtec-pro1x.dtb
-> diff --git a/arch/arm64/boot/dts/qcom/shikra-iqs-evk-imx577-camera.dtso b/arch/arm64/boot/dts/qcom/shikra-iqs-evk-imx577-camera.dtso
-> new file mode 100644
-> index 0000000000000000000000000000000000000000..f0423f1ab4e93abdcc7cad8977b39e31b2437e8e
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/qcom/shikra-iqs-evk-imx577-camera.dtso
-> @@ -0,0 +1,63 @@
-> +// SPDX-License-Identifier: BSD-3-Clause
-> +/*
-> + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-> + */
-> +
-> +/dts-v1/;
-> +/plugin/;
-> +
-> +#include <dt-bindings/clock/qcom,shikra-gcc.h>
-> +#include <dt-bindings/gpio/gpio.h>
-> +
-> +&camss {
-> +	vdd-csiphy-1p2-supply = <&pm8150_l11>;
-> +	vdd-csiphy-1p8-supply = <&pm8150_l12>;
-> +
-> +	status = "okay";
-> +
-> +	ports {
-> +		#address-cells = <1>;
-> +		#size-cells = <0>;
-> +
-> +		port@1 {
-> +			reg = <1>;
-> +
-> +			csiphy1_ep: endpoint {
-> +				data-lanes = <0 1 2 3>;
-> +				remote-endpoint = <&imx577_ep1>;
-> +			};
-> +		};
-> +	};
-> +};
-> +
-> +&cci {
-> +	status = "okay";
-> +};
-> +
-> +&cci_i2c1 {
-> +	#address-cells = <1>;
-> +	#size-cells = <0>;
-> +
-> +	camera@1a {
-> +		compatible = "sony,imx577";
-> +		reg = <0x1a>;
-> +
-> +		reset-gpios = <&tlmm 33 GPIO_ACTIVE_LOW>;
-> +		pinctrl-0 = <&mclk1_default>;
-> +		pinctrl-names = "default";
-> +
-> +		clocks = <&gcc GCC_CAMSS_MCLK1_CLK>;
-> +		assigned-clocks = <&gcc GCC_CAMSS_MCLK1_CLK>;
-> +		assigned-clock-rates = <24000000>;
-> +
-> +		dovdd-supply = <&pm8150_l15>;
+> Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
 
-I don't have your schematic BUT where are the rest of the regulators.
+just this patch merged to i2c/i2c-host.
 
-If they are absent or powered by the daughter board, a comment in the patch
-would be warranted.
-
-Same comment for previous patch.
-
-> +		port {
-> +			imx577_ep1: endpoint {
-> +				link-frequencies = /bits/ 64 <600000000>;
-> +				data-lanes = <0 1 2 3>;
-> +				remote-endpoint = <&csiphy1_ep>;
-> +			};
-> +		};
-> +	};
-> +};
-> 
-> -- 
-> 2.34.1
-> 
-> 
-
-
+Thanks,
+Andi
