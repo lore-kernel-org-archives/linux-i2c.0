@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 101931A683F;
-	Thu, 28 May 2026 07:46:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0CD031195C;
+	Thu, 28 May 2026 07:47:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779954395; cv=none; b=OCYE+0SablxyaVh28dWJ7MH6JEEHqyeG6xklW1pN7rvKm4Vh+/9y7zlQjJ4Kjc1Mpn7FdKOulVb8FPPQ7r6q6BM4Ipclb8U/SelHpy4e60v6gobGpcI7Ui1ycH//5jiMQ6Ec7IW5kHe1GzvdYj7+SunO6Yv5FL8H6Z4LUQtuzNc=
+	t=1779954480; cv=none; b=DM50JPRNp7x0C53z/JFHs2LgGWMOKuEEC6r/LRRIciK/8ETTrwc79hgnBjdj7SWpKZ4Ib4OC/zlwSJ9YalA2LZMuZDXB5VDm/9sXJ89WpRuX4Us7buNlBKAYaHpQtOc3k+WWKkOzK6OCTt8hBbjM4r2QRMOjlA8OEB5ZY5Fjq78=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779954395; c=relaxed/simple;
-	bh=e2qOU54Uud2clhbLefTscLmHIv8PKwiwzapjJfE691Y=;
+	s=arc-20240116; t=1779954480; c=relaxed/simple;
+	bh=Tk1EKbdX32+rquhpn9LMamJLlvBU0geYiOxYF0gHtMc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=rt33SmHlT7H/U3Q90V4k1+zJ+SQCDRdEVOMY2ZbY1RVkbdX3MASBS5Ym2uiecUl5dRNTyIZWj1YNa5zY+sXl0LznpZnLXJJPf3/TGx1l+HtUDQ5BpEcHGxcdKkDYb1+x/fTBctTfeHAS/JU2ILouzlL+hM4ElPYdfTWqgS3WpGI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=keZTa3WX; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=kZzLkjqthR/WesTcrpOh6rwMA4EJRBtqLmGDZwAQqOhAy/VnIxi7olACxqgA9teFqhKB1HBdUGj1ZGtjsWKvCvB2ROQ9o8qHwDA3pisiWDo5QpHWwyjR+jGND1Jo/P6Uk6WqFaLPwD3dHXDk9zh+dcccxyTB+iYz2vd+eHrT5v0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AN5gooQ6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="keZTa3WX"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24B861F00A3A;
-	Thu, 28 May 2026 07:46:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AN5gooQ6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E916D1F000E9;
+	Thu, 28 May 2026 07:47:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779954393;
-	bh=aUQR2R2fDd9fa6iwzuH0EYO58byNcfAzSBF7OIOBGVE=;
+	s=k20260515; t=1779954479;
+	bh=kKJOy3F9lQEw5RyMIHk/aWmx2PRhR7PizELq38nstQo=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=keZTa3WXNAHhD5Laj8+8PzZ8NNgmLHzStyjAd9kdY1syOZG3jGSQEOPVLzmPC7XgN
-	 9pNTdzPjVg5VGLDTdgCf31Q8OQO9/BufRfUm9INHeF8IssjeeZtHGiHv0PxUyYiKIM
-	 XJDc7HIfML6yV21YsLtZfAt8QftfYQvbQOSAs2ZuXU3HE/OwnZ+jDS3IafwWaFlUGm
-	 ARuA8W8lTIkS/kW7NXsfo1lTrrGBZHyy22HkAkGibOKIbperpFgl+zVb5qBMPhmxvz
-	 GnDhelUWoZewZf2k/embB4u9dVX0pqt+A+irwErVng3WIjsNlbi4DQYJjBbMswCyIl
-	 rTADJP4kSspJg==
-Message-ID: <d138759d-ec07-4d94-bbce-d34d5bd4fe61@kernel.org>
-Date: Thu, 28 May 2026 09:46:27 +0200
+	b=AN5gooQ6356wxBxfp3uaSdj0ck2/CS/xQJgHh3RoY/JN+L6j9415+fCyYh7RmSIkl
+	 QEZGakM/XvgW9gPqvVbVliMgPQdXB1/VeljX/r+r9lpTudgz44zLrqofsBU/5l0iw+
+	 X7v4l713a675Izqg4/zjUGX18XNGJNNYpUWB7pAqTf6n0BSFfE2KyF+TS+yxBnW6sF
+	 ettaYiHFiPl9OdiSfOLkjmSt1sT3l4tCQRgmggTnDQoilOlOlaTLM2wMa8mSpMzfb+
+	 dTP5ahshsHMDG5uZbcBChAPuu/HOdBHFQKRRIQIGnRcp65MiIYejgWG8yFWOo9NWz2
+	 b2vDpeEs3wrDA==
+Message-ID: <5e68aa84-7ce8-4405-9575-173e0a5834ca@kernel.org>
+Date: Thu, 28 May 2026 09:47:53 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -35,8 +35,8 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: =?UTF-8?B?UmU6IOWbnuWkjTogW1BBVENIIHYyIDIvM10gaTJjOiBkZXNpZ253YXJl?=
- =?UTF-8?Q?=3A_Export_symbols_and_add_=5F=5Fweak_for_Starfive_I2C_driver?=
+Subject: =?UTF-8?B?UmU6IOWbnuWkjTogW1BBVENIIHYyIDEvM10gZHQtYmluZGluZ3M6IGky?=
+ =?UTF-8?Q?c=3A_Add_StarFive_JHB100_I2C?=
 To: Lianfeng Ouyang <lianfeng.ouyang@starfivetech.com>,
  Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
  Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
@@ -46,9 +46,9 @@ Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
  "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
  "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 References: <20260527085039.44435-1-lianfeng.ouyang@starfivetech.com>
- <20260527085039.44435-3-lianfeng.ouyang@starfivetech.com>
- <c1ae50ab-1228-45a3-b910-4564774f4198@kernel.org>
- <ZQ0PR01MB1269B87604C6DE7FC2E6ACCC82092@ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn>
+ <20260527085039.44435-2-lianfeng.ouyang@starfivetech.com>
+ <0e3bae26-3bc3-43ff-8d66-aba84a6f6677@kernel.org>
+ <ZQ0PR01MB12696D9B1AB14D4A3BEAEC2982092@ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -94,33 +94,35 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
  zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
  XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <ZQ0PR01MB1269B87604C6DE7FC2E6ACCC82092@ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn>
+In-Reply-To: <ZQ0PR01MB12696D9B1AB14D4A3BEAEC2982092@ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 
-On 28/05/2026 04:36, Lianfeng Ouyang wrote:
->>>  	{ .compatible = "mobileye,eyeq6lplus-i2c" },
->>>  	{ .compatible = "mscc,ocelot-i2c" },
->>>  	{ .compatible = "snps,designware-i2c" },
->>> +	{ .compatible = "starfive,jhb100-i2c-master" },
->>> +	{ .compatible = "starfive,jhb100-i2c-slave" },
+On 28/05/2026 08:57, Lianfeng Ouyang wrote:
+>>> +    default: 400000
+>>> +
+>>> +  i2c-sda-hold-time-ns:
 >>
->> So both devices are the same... Or you miss proper entry in ID table.
->> Don't sprinkle compatibles around the code - ID table match data is for
->> variant customization.
+>> So you added a generic property - where is it documented? Generic
+>> properties must be in common schema or dtschema.
+>>
+>> And please prove that none of the generic properties are suitable.
+>>
+>>> +    $ref: /schemas/types.yaml#/definitions/uint32
+>>
+>> I don't think you tested it. And this concludes my review. I finished
+>> here. Please do not send untested bindings.
+>>
 >>
 >> Best regards,
 >> Krzysztof
 > 
-> Ok, Master and slave have different base addresses and interrupt numbers, but 
-> the register layout is the same, so in the next version, I will only use the same 
-> compatible ”starfive, jhb100-i2c“, and then add starfive, i2c-slave to the dts node 
-> of the slave to distinguish them
+> Sorry, I didn't know I needed to run dt-binding_check before, but now I have 
 
-You do not need to distinguish same devices usually, but I still do not
-understand why do you need all these different compatibles and your
-commit msgs or binding text do not help, so I don't know what to advise.
-
+Every doc asks that. DTS101 slides or my earlier talks as well... Other
+people talks as well... and you received that request last time at v1.
+Please do not repeat the same mistakes because then we feel like our
+feedback is wasted.
 
 Best regards,
 Krzysztof
