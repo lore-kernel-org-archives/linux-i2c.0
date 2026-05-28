@@ -1,92 +1,195 @@
-Received: from mail-dy1-f176.google.com (mail-dy1-f176.google.com [74.125.82.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D1C22DECBA
-	for <linux-i2c@vger.kernel.org>; Thu, 28 May 2026 22:28:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FF5D2DECBA;
+	Thu, 28 May 2026 22:28:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780007318; cv=none; b=btm6q1krtROqk2GPVCPs59NXP89VEKMaEEkZBZCgh2MqSrHsAyWqyWSJKNiAbFvIvvOs9z57Nx0Kcy82h0rYNSssvAUI0gF5cAJ5p8x21Ld/bBXklgIA2P4FCl7dxEm/HZHAi3tLgxzIIuPt5wQirDrDam9Bi8Wxj1ZEQqIRe/c=
+	t=1780007325; cv=none; b=Pyb2NAZ7fixT5Yp9BcwNaYo2HTZTb+9rveT8/0fEasGrW77d0G5dkSNBmvJAOztGEafgmcmDwHbs91Vkqp3f9owwx4mY45FfqKBvQlJG+I5XpFzbKNzl8gZI4UD9r1wOP6EuC9ShKc1IedfHlWOuCHGt4qXe1JI8TyaiWCrSofM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780007318; c=relaxed/simple;
-	bh=Rq5dQz+PP17L4r1wvU3SlwqtBYvwqWTIGszmzRr5pTE=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=nxt1qcVNSzx1yb4HQ6Q873z3yWvpZfXUbUTqVhrsqJpzj6NQgUN9NLrgZklth/fTTbpMTKdyluNWUaKFbXA6DSS7RPzW75KugnnMw89OH2LfnbDmDqLzjXreFz8P590BQ5RlkW35zqHuxALgI+JdP98YdrDRNPVIEhUgkooIOVI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=ajGmhyFS; arc=none smtp.client-ip=74.125.82.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
+	s=arc-20240116; t=1780007325; c=relaxed/simple;
+	bh=Di+OD3usvgyX6rnjBSUb7kST4EupNSbpYTe/lTj/MJQ=;
+	h=MIME-Version:Content-Type:Subject:From:To:Cc:In-Reply-To:
+	 References:Date:Message-Id; b=j387LdV/80++6je6BEXrsra46fURU6R4NZAfSgSPiWRzW2bbXhGxwHCQK84oO/3eTzP5ohEpVaz6UIvl+pVs9WwvkFl0b3k9nY0UxJTZ6k2kxcpOB3sTMUz/atCO1xpdVoNz9GII+Iu6Zhaaz6uOVW2LHTXO0bWHq6m96D74UGY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ls/LjJfk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="ajGmhyFS"
-Received: by mail-dy1-f176.google.com with SMTP id 5a478bee46e88-3045c195251so7161281eec.1
-        for <linux-i2c@vger.kernel.org>; Thu, 28 May 2026 15:28:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=nexthop.ai; s=google; t=1780007317; x=1780612117; darn=vger.kernel.org;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
-         :content-transfer-encoding:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Rq5dQz+PP17L4r1wvU3SlwqtBYvwqWTIGszmzRr5pTE=;
-        b=ajGmhyFS8i/LluAwIpA3esuSfQWll4BFVQdknkNQa6Lp28vCIQNgiE+TnjMn/Kcbnw
-         ZwLcVkmkNTlzvtLrG/0lIefGqPVrJCAtHSjzcYePyCrnYo3HKFXDqihiITGGmngPrwYf
-         NU9qjGuacw2B626DiaGynO+xBx8x5C4j2PohAazvW8EhDR3TZp2VaZ9UcMoaeWyzIGkV
-         gCzZ3CeKaQOoe0uTOhDe5fTft0WuyWXwDvkHc9zpexsXkPeQNrCMZHlgxc+hRB6v0YWe
-         RBTQXTdS03qz03a7c+y925TAEmYEZDYFtkESKtVqq6V7SDWal466qxqQUAX1Qf1DipY4
-         KxDg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780007317; x=1780612117;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
-         :content-transfer-encoding:mime-version:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Rq5dQz+PP17L4r1wvU3SlwqtBYvwqWTIGszmzRr5pTE=;
-        b=nEivA08Y24XGj2saNhYPXdeQ6GTEuf7nbd/BjLhwIpx2+HEtY9iuEyrHCO3qmGNU4M
-         9z47pppYsbqjvFomKm8uMNp5ZUC4ZNKGsOVCMM/R4gHP64J/dS8Wc5dFyoY4KBXu33uC
-         DMrMHy2VROYTEK45QqkQmytK2PENMAVtyWlSK5og8yjopoKEdUhv40hylojn2U3aFYF2
-         h4JHRpJjiMr0rBcR4EHQsxg+Sny1dASkvLXTJSpvCKvCrq09D8yp03r0HSmmBcWfsENK
-         sPyqS+mS3zBTcRXGGBBXSU8Pf1I0vctFJ+NLd81o4kwKkZzWBi1zIiu89Xf5VXhG6FCw
-         aAyg==
-X-Forwarded-Encrypted: i=1; AFNElJ9EitMaTKStW6qNGFMI55Cor+z0FjAbEzixanE1KZQuFf+fLnl+t8Il9mJdQxEQl0LwzERY8sBXWHU=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwGtd7OO6vZRiDPGSJd88776bG5uvDSvgIyjpm89zsxi9XGSrpv
-	G44RxBl7XOjkW4lLbZpOg2f8e/q44mdgcXwzh1CGTJkgNkaagQcFPIHnRd8amwUtbGmO6cKU1Vj
-	kHIZw
-X-Gm-Gg: Acq92OGjDXLFgGiy21aiAKkeKYkC6pAUoN63RSdwDW3gQ/xT5N5TAS6RrO88XmVjWg2
-	OsAS9JBdd5ZhRFjSIfA2pXNatdNOcZ88ud+XR+1utjA25oLFxhGDeNaN9R98nzNI7MteQ2Rufi9
-	zVNS9paVFdqwwNsQe29Fj2IgklrwcBWAHonsmm33FkeD46ZAeZUiAyvOwCQEb9ys6/X6Gi7ZgfT
-	sHGaSvLJ1SthXGMJ9xqBlK3H4o3Q7/Wzg9PQUUOyLtFON03aRgOMV/3akg38KsG7f4Wks5bsGnI
-	M3DpQ1fThWuEmNco51ggJTpcQWQga5O3CkjqiGiNAvTduDszcHdRx+7zLOL4fTn2BkUWlCwnnTH
-	LTFjZw1OBr4RowY7QuM5KmtD3nL5SkAgtHE++chx9GDvmiP7n05AmzX5eFGKZnxFz3a07LqZHle
-	ff25YB/CssH44HQQftsOK3dr0Q4TtFN5jj3Q==
-X-Received: by 2002:a05:7301:6093:b0:304:8114:8d8f with SMTP id 5a478bee46e88-304eb224aecmr202368eec.31.1780007316751;
-        Thu, 28 May 2026 15:28:36 -0700 (PDT)
-Received: from localhost ([50.145.100.174])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-304eb9cd4e9sm176489eec.8.2026.05.28.15.28.35
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 28 May 2026 15:28:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ls/LjJfk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEBB51F000E9;
+	Thu, 28 May 2026 22:28:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780007324;
+	bh=8zRkG4RWbLH23sLBlro2Oe0wZiV1e2ovm9LtCDLaerI=;
+	h=Subject:From:To:Cc:In-Reply-To:References:Date;
+	b=Ls/LjJfk9xOdQx8Pcfu7HU2S81bI0CWPlLgpyBTQs31isfLwgMacX51ilgQxktsyU
+	 9tqfQQPjROIX+qnn23Sw/PvIcTs3DSko+dworb6ylkbj8fptVjo61C6CFjAmWvS0lj
+	 /N+05viOUMn/CuWGH7+pJZFmjpsUVsb9JpbTgPR0DFTPNSUmGZh2Z0y85L2jvJLX7c
+	 VwVYBRnqP48thdefg5N/G75tTqsabhttbjND/AdsID/OvxCNEbSbRJDcJgvsuhGwaP
+	 1pSJMnJGa9IRyR9Eij69FBxftLLUY4CddBFhQlQR1Y5phDB/QMklnUWb9SaK+tVxl0
+	 yWpGyiD6STr9A==
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 28 May 2026 15:28:35 -0700
-Message-Id: <DIUNXJWCANC2.DI7DZW8G2S85@nexthop.ai>
-Cc: "Peter Rosin" <peda@lysator.liu.se>, <linux-i2c@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH v6] i2c: mux: reg: use device property accessors
-From: "Abdurrahman Hussain" <abdurrahman@nexthop.ai>
-To: "Wolfram Sang" <wsa+renesas@sang-engineering.com>, "Abdurrahman Hussain"
- <abdurrahman@nexthop.ai>
-X-Mailer: aerc 0.21.0
-References: <20260519-i2c-mux-reg-v6-1-a27ff50dee67@nexthop.ai>
- <ag1a5TLH7L-BSWWp@shikoro> <DIUN5NSLIH1U.1U1TFC7N4CJR@nexthop.ai>
- <ahi54pXClIW7OENa@shikoro>
-In-Reply-To: <ahi54pXClIW7OENa@shikoro>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 7/8] arm64: dts: qcom: shikra-cqm-evk-imx577-camera:
+ Add DT overlay
+From: bod@kernel.org
+To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+Cc: Bryan O'Donoghue <bod@kernel.org>, 
+ Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, 
+ Loic Poulain <loic.poulain@oss.qualcomm.com>, 
+ Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh@kernel.org>, 
+ Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, Robert Foss <rfoss@kernel.org>, 
+ Andi Shyti <andi.shyti@kernel.org>, 
+ Bryan O'Donoghue <bryan.odonoghue@linaro.org>, 
+ Bjorn Andersson <andersson@kernel.org>, 
+ Konrad Dybcio <konradybcio@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
+ Sascha Hauer <s.hauer@pengutronix.de>, 
+ Pengutronix Kernel Team <kernel@pengutronix.de>, 
+ Fabio Estevam <festevam@gmail.com>, linux-arm-msm@vger.kernel.org, 
+ linux-media@vger.kernel.org, devicetree@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
+ imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+ Suresh Vankadara <quic_svankada@quicinc.com>, 
+ Vikram Sharma <vikram.sharma@oss.qualcomm.com>
+In-Reply-To: <20260526-shikra-camss-review-v1-7-645d2c8c75a7@qti.qualcomm.com>
+References: <20260526-shikra-camss-review-v1-0-645d2c8c75a7@qti.qualcomm.com>
+ <20260526-shikra-camss-review-v1-7-645d2c8c75a7@qti.qualcomm.com>
+Date: Thu, 28 May 2026 23:28:34 +0100
+Message-Id: <178000731452.4557.8537369407478321842.b4-reply@b4>
+X-Mailer: b4 0.16-dev-d5d98
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3539; i=bod@kernel.org;
+ h=from:subject:message-id; bh=Di+OD3usvgyX6rnjBSUb7kST4EupNSbpYTe/lTj/MJQ=;
+ b=owEBbQKS/ZANAwAKASJxO7Ohjcg6AcsmYgBqGMGURvRRH+JDAyHt5+IyRuwrQMKhRBg3Zmujp
+ PeTeiSWYqWJAjMEAAEKAB0WIQTmk/sqq6Nt4Rerb7QicTuzoY3IOgUCahjBlAAKCRAicTuzoY3I
+ Oq43EACMGAbdNqBuEQM4lsxknuCMZY+IqXEAEy14jJjKMeomeUWcDtoG8YhKYGi7iqvIZjegeIi
+ GOrwW9E4+SWXtz4D6I7NcLlQSFkDMlia1w3bXxCJcFzO2hdh2LfZOkiIyt8ATHPofuTPI66U4mC
+ XcUBt3afisxXjIdfBWh8L2tTVSLcHEgIo3zpTuCirhkwwqJyLfNVR05BES1ulmkhLYLNJDB6A1W
+ pTc1YymVOUOdAKm0PO0bpF6tLLNb3XMW9gE68CgwvbE8yHSnt3S3/Zg3g/x/BcPiFYKMruqoUp5
+ /Bs6byUMvwuqixMVEqAwSUbnAp4BdWUk24EZJd536bKuxf4Y4eY2upWheepyEaW9ctRO4J0MDn+
+ MIEtSZ2j5S/Xtn5H0qNTThJFpXyQ1yzZVRzJhDtUU0YJuWrOv6hLp4Wx0+PsPm6edJRFHGvyLnV
+ 2osJZC8gryJk7u5hC8L9gdGxsivttGrFWbWFGFdk8lxRV/bs/LK2jAzNSxSklSXxum9XxhJWeMs
+ 0ZWTFnJIXG5mDS5M5qiE+rN5yuWI4iyk1nFRa1JUt1eO41ImdgExpcQqX5oKn7gjWRzMnhjyxKC
+ dcEhi66sQrxHjY1DrM2QCyC3Y84Ak3CeUQdCaSQ4tLJx3Pyr4DfSyL3qMOoYhUS4xYyzjnqNZEv
+ KPp6CovBwHsvLTw==
+X-Developer-Key: i=bod@kernel.org; a=openpgp;
+ fpr=E693FB2AABA36DE117AB6FB422713BB3A18DC83A
 
-On Thu May 28, 2026 at 2:55 PM PDT, Wolfram Sang wrote:
->
->> I noticed this patch didn't make it into 7.1-rc5. Is it still under
->> review? If not, will it make it during the next merge window?
->
-> It is not a bugfix, so its time to go upstream is the next mergewindow.
+On 2026-05-26 22:42 +0530, Nihal Kumar Gupta wrote:
+> Shikra CQM and CQS are retail variants sharing the same PM4125 PMIC
+> and identical camera supply rails. The only difference between them
+> is the integrated modem on CQM, which does not affect camera hardware.
+> 
+> Add a shared overlay for optional IMX577 integration via CSIPHY1,
+> used by both CQM and CQS EVK boards.
+> 
+> Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+> ---
+>  arch/arm64/boot/dts/qcom/Makefile                  |  6 +++
+>  .../dts/qcom/shikra-cqm-evk-imx577-camera.dtso     | 63 ++++++++++++++++++++++
+>  2 files changed, 69 insertions(+)
+> 
+> diff --git a/arch/arm64/boot/dts/qcom/Makefile b/arch/arm64/boot/dts/qcom/Makefile
+> index a9e9d829fb962386b3975f345ec006504607130a..df41830e18edff82893ca24ca84d7e03065d0ef7 100644
+> --- a/arch/arm64/boot/dts/qcom/Makefile
+> +++ b/arch/arm64/boot/dts/qcom/Makefile
+> @@ -337,6 +337,12 @@ dtb-$(CONFIG_ARCH_QCOM)	+= sdx75-idp.dtb
+>  dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqm-evk.dtb
+>  dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqs-evk.dtb
+>  dtb-$(CONFIG_ARCH_QCOM)	+= shikra-iqs-evk.dtb
+> +
+> +shikra-cqm-evk-imx577-camera-dtbs	:= shikra-cqm-evk.dtb shikra-cqm-evk-imx577-camera.dtbo
+> +shikra-cqs-evk-imx577-camera-dtbs	:= shikra-cqs-evk.dtb shikra-cqm-evk-imx577-camera.dtbo
+> +
+> +dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqm-evk-imx577-camera.dtb
+> +dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqs-evk-imx577-camera.dtb
+>  dtb-$(CONFIG_ARCH_QCOM)	+= sm4250-oneplus-billie2.dtb
+>  dtb-$(CONFIG_ARCH_QCOM)	+= sm4450-qrd.dtb
+>  dtb-$(CONFIG_ARCH_QCOM)	+= sm6115-fxtec-pro1x.dtb
+> diff --git a/arch/arm64/boot/dts/qcom/shikra-cqm-evk-imx577-camera.dtso b/arch/arm64/boot/dts/qcom/shikra-cqm-evk-imx577-camera.dtso
+> new file mode 100644
+> index 0000000000000000000000000000000000000000..aedcd164810cf687efb425da79ace7ec6453e3a5
+> --- /dev/null
+> +++ b/arch/arm64/boot/dts/qcom/shikra-cqm-evk-imx577-camera.dtso
+> @@ -0,0 +1,63 @@
+> +// SPDX-License-Identifier: BSD-3-Clause
+> +/*
+> + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+> + */
+> +
+> +/dts-v1/;
+> +/plugin/;
+> +
+> +#include <dt-bindings/clock/qcom,shikra-gcc.h>
+> +#include <dt-bindings/gpio/gpio.h>
+> +
+> +&camss {
+> +	vdd-csiphy-1p2-supply = <&pm4125_l5>;
+> +	vdd-csiphy-1p8-supply = <&pm4125_l13>;
+> +
+> +	status = "okay";
+> +
+> +	ports {
+> +		#address-cells = <1>;
+> +		#size-cells = <0>;
+> +
+> +		port@1 {
+> +			reg = <1>;
+> +
+> +			csiphy1_ep: endpoint {
+> +				data-lanes = <0 1 2 3>;
+> +				remote-endpoint = <&imx577_ep1>;
+> +			};
+> +		};
+> +	};
+> +};
+> +
+> +&cci {
+> +	status = "okay";
+> +};
+> +
+> +&cci_i2c1 {
+> +	#address-cells = <1>;
+> +	#size-cells = <0>;
+> +
+> +	camera@1a {
+> +		compatible = "sony,imx577";
+> +		reg = <0x1a>;
+> +
+> +		reset-gpios = <&tlmm 33 GPIO_ACTIVE_LOW>;
+> +		pinctrl-0 = <&mclk1_default>;
+> +		pinctrl-names = "default";
+> +
+> +		clocks = <&gcc GCC_CAMSS_MCLK1_CLK>;
+> +		assigned-clocks = <&gcc GCC_CAMSS_MCLK1_CLK>;
+> +		assigned-clock-rates = <24000000>;
+> +
+> +		dovdd-supply = <&pm4125_l15>;
+> +
+> +		port {
+> +			imx577_ep1: endpoint {
+> +				link-frequencies = /bits/ 64 <600000000>;
+> +				data-lanes = <0 1 2 3>;
+> +				remote-endpoint = <&csiphy1_ep>;
+> +			};
+> +		};
+> +	};
+> +};
+> 
+> -- 
+> 2.34.1
+> 
+> 
 
-Got it, thanks!
+If the overlay is not specific to board then the overlay should have some
+kind of base name shikra-evk-imx577-camera.dtb
+
+This seems like a minor nit-pick and, it is :)
+
+---
+bod
 
