@@ -1,109 +1,145 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45038299A87;
-	Thu, 28 May 2026 10:11:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A28583D3491;
+	Thu, 28 May 2026 11:21:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779963078; cv=none; b=a12HQC2YiMIJ6YLC1tku7VxG6LI0PFLEF5UXFoSR1GnpaxJ0Xk1XKrkUg6Q7qvzSX89J+YzPM8U/Pw/ZkhIDlbGUX0fwCMDK7IP6MEDELcb8ldAWNrKPbIZGtou6amA3lsn7qtj1DYPgn7ZX5WHmOSRieBa6DO/fnnEO+5+uOAQ=
+	t=1779967297; cv=none; b=CZ4nGyfyZ2NTyAMr1p/vAtyRgYMIRfGJzoQx/szoxpOzs4khnvEHUhb3gqaYIFn7zeO/HIEfCZnJODbrmaNjsoW1wl02+so3s/uWF/8X5EM/aWS3GgWxVBfHn8hLZd5VkKeuxntft+svktB6lNWj7447hsBD3GAcgQiUXW0IOww=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779963078; c=relaxed/simple;
-	bh=Z1G2IooUfLdNWTdetd5osB+LagzLa/hv0pvbRV0SEiY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jpluHbpuwj1ZILWSDxZNuv/D80FJYZw7RCH2fd0cyR5RFy8MjHVnPe7xCbRPBi6/Bw6/N2roDMFp+BaoE6BmHKo5INC5UZMXTahY7RHkXAsro7eKbguT/lfrBcWbbfea4aywX94a+t+FU3122hU7VChg3fqZpwpuK4lifjuVitM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=DsyENt/b; arc=none smtp.client-ip=198.175.65.18
+	s=arc-20240116; t=1779967297; c=relaxed/simple;
+	bh=f/lIC4TgmEzyiBDPh2iBCW6oUeY6y5+TmWqzleJFfvY=;
+	h=From:Date:To:cc:Subject:In-Reply-To:Message-ID:References:
+	 MIME-Version:Content-Type; b=bTpRNi9xWi6NAZ9hg0k+E60lA2+4Htrx5oLqKfFJkL0Twj/PB0sg+4xXfYuOEmoHbkcJkie44RshfQQQIQQ0BMlOWdsmbVFcS/WcdIDrcqJ7gdHOwwEKjiK50eD40H/1qf53cbw0kYcCsHBKqRF2xK7IM7S8De1GClnT2ZFE7D8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jVJ+Ngzp; arc=none smtp.client-ip=198.175.65.9
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="DsyENt/b"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jVJ+Ngzp"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1779963078; x=1811499078;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=Z1G2IooUfLdNWTdetd5osB+LagzLa/hv0pvbRV0SEiY=;
-  b=DsyENt/bWfGl53RD0cBngV/nNJ1nPJ6X8TAsvxMXZjzA3E7BkH/rslhj
-   U4tfboNDNb2lfGai2z755i39uECyddvK+iNWBxqlJKXX2eVmDON+l8qBX
-   +N1oJIt8XCFDmeRcrUpakDs5sF7bnbgnbMoJ7PzWd0SPiSWJ7WVl3GlsO
-   eUc2bInndk2fpjXVdqmzGNUL5AveJpkGQJKRny08teclQf9d/YcBA0vr/
-   G3uyPI5TOfxkZidzdwoLuTdailg/BhPKtxwfKQb6jHgZZwR+eEOyVYK0N
-   E/bfyxphe0hQMugbz0Trf6cLqW2mYQGZNQoTyhq5VDp4rxSlghyoCMPIU
-   g==;
-X-CSE-ConnectionGUID: F2Ec5ZX2TgC7FQgMcl0bOA==
-X-CSE-MsgGUID: ZsU/2bNrTYy9UA1HbUDatw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11799"; a="80863020"
+  t=1779967296; x=1811503296;
+  h=from:date:to:cc:subject:in-reply-to:message-id:
+   references:mime-version;
+  bh=f/lIC4TgmEzyiBDPh2iBCW6oUeY6y5+TmWqzleJFfvY=;
+  b=jVJ+NgzpXSONr+RHbU6qtCCrztJa5bqPUWbPogVG670ahHdbLpztMlD2
+   LcExizHgnYSr5uusg/B++Rlg6iY3ewekxdkYBUusP2p7rfcVFPo11YkpY
+   +VPfeJRP2cxwEuYP9iJLhpTG/sB5AoyHqXNf9jJf/vAIxkdRz21sV/edC
+   S4SvSeeFKau7+FmX0jBDqNtAI+YBLoD+aJwH00RMhKjG2olrfHw7UVCXw
+   /K0rmUWzZ/RA5FHPZMUUHeyW6fnweYNoVRYL4PkZQznYCNLx+/O2zcC+6
+   bnY4ieUaHTgOJfFSZDlxPvBgnxsB6LKEZq69H+JmWQLRMLwJYD/qQfdsk
+   A==;
+X-CSE-ConnectionGUID: 81EPxlcyToqpjP3cFLSHKw==
+X-CSE-MsgGUID: sRzTGLwxS6OY/9ZIJEHWLg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11799"; a="103480346"
 X-IronPort-AV: E=Sophos;i="6.24,173,1774335600"; 
-   d="scan'208";a="80863020"
-Received: from fmviesa007.fm.intel.com ([10.60.135.147])
-  by orvoesa110.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 May 2026 03:11:17 -0700
-X-CSE-ConnectionGUID: M2C1Vsc9T2aMHYwp86WjBg==
-X-CSE-MsgGUID: nWDv+cIXQ1ilapZ0GV3p4g==
+   d="scan'208";a="103480346"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 May 2026 04:21:34 -0700
+X-CSE-ConnectionGUID: NhorkxbETOO3yaxAYXvTkQ==
+X-CSE-MsgGUID: vXFsgfpXQNSWfwq2pTGuRg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.24,173,1774335600"; 
-   d="scan'208";a="239504095"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa007.fm.intel.com with ESMTP; 28 May 2026 03:11:15 -0700
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id 99DBF98; Thu, 28 May 2026 12:11:14 +0200 (CEST)
-Date: Thu, 28 May 2026 12:11:14 +0200
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: "William A. Kennington III" <william@wkennington.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Jan Dabros <jsd@semihalf.com>, Andi Shyti <andi.shyti@kernel.org>,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RESEND v5 0/4] i2c: designware: Improve device disable
- handling
-Message-ID: <20260528101114.GG3102@black.igk.intel.com>
-References: <20260527-dw-i2c-v5-0-3483057f8d67@wkennington.com>
+   d="scan'208";a="238337774"
+Received: from ijarvine-mobl1.ger.corp.intel.com (HELO localhost) ([10.245.245.187])
+  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 May 2026 04:21:15 -0700
+From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Date: Thu, 28 May 2026 14:21:11 +0300 (EEST)
+To: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+cc: Lee Jones <lee@kernel.org>, 
+    Mark Brown <broonie@opensource.wolfsonmicro.com>, 
+    Thierry Reding <thierry.reding@avionic-design.de>, 
+    Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, 
+    Andrew Lunn <andrew+netdev@lunn.ch>, 
+    "David S. Miller" <davem@davemloft.net>, 
+    Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+    Paolo Abeni <pabeni@redhat.com>, Srinivas Kandagatla <srini@kernel.org>, 
+    Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+    Vinod Koul <vkoul@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, 
+    Danilo Krummrich <dakr@kernel.org>, Rob Herring <robh@kernel.org>, 
+    Saravana Kannan <saravanak@kernel.org>, 
+    Madhavan Srinivasan <maddy@linux.ibm.com>, 
+    Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
+    "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+    Andi Shyti <andi.shyti@kernel.org>, 
+    Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
+    Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, 
+    Robin Murphy <robin.murphy@arm.com>, Doug Berger <opendmb@gmail.com>, 
+    Florian Fainelli <florian.fainelli@broadcom.com>, 
+    Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+    Ulf Hansson <ulfh@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
+    Sascha Hauer <s.hauer@pengutronix.de>, 
+    Pengutronix Kernel Team <kernel@pengutronix.de>, 
+    Fabio Estevam <festevam@gmail.com>, 
+    Matthew Brost <matthew.brost@intel.com>, 
+    =?ISO-8859-15?Q?Thomas_Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>, 
+    Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@gmail.com>, 
+    Simona Vetter <simona@ffwll.ch>, Peter Chen <peter.chen@kernel.org>, 
+    Paul Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>, 
+    Philipp Zabel <p.zabel@pengutronix.de>, 
+    Maximilian Luz <luzmaximilian@gmail.com>, Hans de Goede <hansg@kernel.org>, 
+    Krzysztof Kozlowski <krzk@kernel.org>, 
+    Benjamin Herrenschmidt <benh@kernel.crashing.org>, brgl@kernel.org, 
+    LKML <linux-kernel@vger.kernel.org>, Netdev <netdev@vger.kernel.org>, 
+    linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org, 
+    driver-core@lists.linux.dev, devicetree@vger.kernel.org, 
+    linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org, 
+    iommu@lists.linux.dev, linux-pm@vger.kernel.org, imx@lists.linux.dev, 
+    linux-arm-kernel@lists.infradead.org, intel-xe@lists.freedesktop.org, 
+    dri-devel@lists.freedesktop.org, linux-usb@vger.kernel.org, 
+    linux-mips@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Subject: Re: [PATCH 19/23] platform/surface: gpe: use
+ platform_device_set_fwnode()
+In-Reply-To: <20260521-pdev-fwnode-ref-v1-19-88c324a1b8d2@oss.qualcomm.com>
+Message-ID: <bfdbc026-b3f9-971b-aaf0-0485434b8411@linux.intel.com>
+References: <20260521-pdev-fwnode-ref-v1-0-88c324a1b8d2@oss.qualcomm.com> <20260521-pdev-fwnode-ref-v1-19-88c324a1b8d2@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="8323328-947565217-1779967271=:1291"
+
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+
+--8323328-947565217-1779967271=:1291
 Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260527-dw-i2c-v5-0-3483057f8d67@wkennington.com>
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 
-Hi,
+On Thu, 21 May 2026, Bartosz Golaszewski wrote:
 
-On Wed, May 27, 2026 at 08:09:48PM +0000, William A. Kennington III wrote:
-> When the I2C controller attempts a new transaction while the target
-> controller is shutting down or restarting, it can lead to bus lockups
-> and system bootloops if the hardware enters an inconsistent state.
-> 
-> This patch series addresses this by ensuring that the internal state
-> machines are properly cleared when disabling the controller if target
-> activity is detected.
-> 
-> Additionally, it adds a shutdown hook that gracefully sets the target
-> disable bit before disabling the controller. This guarantees that any
-> incoming requests from the controller are immediately NACKed during
-> shutdown, preventing the bus from hanging.
-> 
-> Signed-off-by: William A. Kennington III <william@wkennington.com>
+> Ahead of reworking the reference counting logic for platform devices,
+> encapsulate the assignment of the firmware node for dynamically allocated
+> platform devices with the provided helper.
+>=20
+> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
 > ---
-> Changes in v5:
-> - Fixed one last inclusive language mistake
-> - Link to v4: https://lore.kernel.org/r/20260507-dw-i2c-v4-0-9a447b23bfdf@wkennington.com
-> Changes in v4:
-> - Updated language to use inclusive terms
-> - Refactored some minor comment / code nits
-> - Link to v3: https://lore.kernel.org/r/20260504-dw-i2c-v3-0-57e56135d602@wkennington.com
-> Changes in v3:
-> - Split the monolithic patch into 4 logical patches
-> - Reverted stray formatting change in the PCI driver's dw_i2c_driver struct.
-> Changes in v2:
-> - Fix description footers
-> - Fix emails
-> 
-> ---
-> William A. Kennington III (4):
->       i2c: designware: Introduce shutdown exported function
->       i2c: designware: Convert PCI driver to use shutdown hook
->       i2c: designware: Convert platform driver to use shutdown hook
->       i2c: designware: Handle active target cleanly
+>  drivers/platform/surface/surface_gpe.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/platform/surface/surface_gpe.c b/drivers/platform/su=
+rface/surface_gpe.c
+> index b359413903b13c4f8e8b284ef7ae6f6db3f47d72..40896a8544b0a4da4261ea881=
+b1eaed62d93b32b 100644
+> --- a/drivers/platform/surface/surface_gpe.c
+> +++ b/drivers/platform/surface/surface_gpe.c
+> @@ -317,7 +317,7 @@ static int __init surface_gpe_init(void)
+>  =09=09goto err_alloc;
+>  =09}
+> =20
+> -=09pdev->dev.fwnode =3D fwnode;
+> +=09platform_device_set_fwnode(pdev, fwnode);
+> =20
+>  =09status =3D platform_device_add(pdev);
+>  =09if (status)
+>=20
+>=20
 
-For the series,
+Acked-by: Ilpo J=C3=A4rvinen <ilpo.jarvinen@linux.intel.com>
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+--=20
+ i.
+
+--8323328-947565217-1779967271=:1291--
