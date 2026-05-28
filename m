@@ -1,45 +1,44 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A2D526B2AD
-	for <linux-i2c@vger.kernel.org>; Thu, 28 May 2026 14:08:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67FA0282F09
+	for <linux-i2c@vger.kernel.org>; Thu, 28 May 2026 14:09:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779977315; cv=none; b=A2jTVRFp9T/Uk+Gfege5UIwljXoRGAL/C7THk/0vvb1CYWdEMNwCB+F2u/TKf2k8/piZUujV6i58ZG1x23qA2LmrhZy/YdVKvkodIURVdr0SXJwYNGpicbpEr/tI/2S9VZIzVa0a5eYOFQnl1dPWaIVb52jrqP42cdPcidOH620=
+	t=1779977346; cv=none; b=h+Oi5dyPOe4wO0qv2JTLM9Yxph8ItHaaujM5yTvZbbG23qtrhhSHj79mlL+gtgCLwytNXzQWiEDSSYUmeH6HbE+0rnWNOo6DmghhlkVsfbnPl154Pj+k2yR4kHsd5HtogLDl6yIubSrApO3Xa3Gkm685YpIP13glVReBq0EpOiU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779977315; c=relaxed/simple;
-	bh=JLQX38nLH9+O/Bja1gD0Ziz6Bsq3AgjUfSR9QpVq2Kk=;
+	s=arc-20240116; t=1779977346; c=relaxed/simple;
+	bh=vt74SxlAclJ2J0JLmLO6On8pRs0kqz8n43jCkoXkyAY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=uP2DEvT1MzzOAzTrpr1nG0lFbfRvhU6FY6wCFuirevY/SlBElrGk3zT1F0lhRESNLUjKfFehokunYMYYC7mKbkeYQ/cUu/StY5SORHpEm90BM+JxeWRtQWBczJCjJhaeoaBNxIZMou07BV8gSyYGTQZ+4Jdn4FgcLHijMypTULA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=DxUpZ5qg; arc=none smtp.client-ip=194.117.254.33
+	 Content-Type:Content-Disposition:In-Reply-To; b=lc3N0csSvUMrdrhhhWY67SVaJfSw57M/q+x4I7KyxMwEdGz/37/IbTtsGYJSFh9TbZKUzP+8j9UOFO/RKdeYpRU0P7+wDWCxCG5xpISnpYP+E1sb8zTSj+PhQ87Q1ze0lV5HxbOa+HMUl04qLUCEtKkffBTAcPjZ59kFHvvVyjQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=NzKLkYZt; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="DxUpZ5qg"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="NzKLkYZt"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=aN7i
-	LtI4cLYrMvKn+OtCEMn+lpwQ6zI0H0dmRE21XKc=; b=DxUpZ5qgU2zh+vQYFVwl
-	JmDpQ+8kSIPmBQlDZc/IqZtgEsMQqX25AK4kL3LEcoBtQTWZvdAf+w/UY0OuxrR/
-	pbM0uPBxRuoM0Bbd5ZXRZbuJ/aobp5XwKl0eMeSHcWDdaG6v9CuhwcA/iQdC/w4R
-	z4Cq+xQlscqDtRAFfQ5Il4/ApMpcDIgNPr3j7qpI7kDEJnY8P4+MOt0dmO6zAQCP
-	G3VQN8rt6ANUYVkW+YTb2T2ReNqDSNSsIGK7tDPmA/ZmZTCsvLGMQlQqzH+wlC+a
-	ln+XIuk9fE2uCZh6LEGaJ5EUWY02183jRTBweZFmmnc5WWvMdmqZtP/BGbu85gUe
-	IQ==
-Received: (qmail 1062334 invoked from network); 28 May 2026 16:08:32 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 28 May 2026 16:08:32 +0200
-X-UD-Smtp-Session: l3s3148p1@xzReQ+FS5ZKSAB9x
-Date: Thu, 28 May 2026 16:08:31 +0200
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=vt74
+	SxlAclJ2J0JLmLO6On8pRs0kqz8n43jCkoXkyAY=; b=NzKLkYZtn6/VWRUfHlEa
+	AvFMIlskOFPOldUjo43IpG87UI6d66G9XLX6pcVdiCrf6fnIwgXe1o7Y8Grhe7QS
+	LhUFVbv43IFkT5rzlK/tu23Gkqyhms4L67X99OgPqmPlbEZrElytmDXtdGg+AsHi
+	ZQjkViLeTWbbfkten7lmY4psYlArVY676Y9U/oySXe3OiB16Oo/+zleCypG3yKwk
+	I6IeB1++Vu3F5BEUBP7l878qrcNAERQK9htgfLU2OyPYR7noaraZBhDMbgwKMHr0
+	KZK67mSWd+gxNPVpaQAUOdyngV/EwTjrEGELFsmEXaJkTz+ZmurL+VTle1sgg7m4
+	CQ==
+Received: (qmail 1062514 invoked from network); 28 May 2026 16:09:02 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 28 May 2026 16:09:02 +0200
+X-UD-Smtp-Session: l3s3148p1@EYIuReFS55KSAB9x
+Date: Thu, 28 May 2026 16:09:01 +0200
 From: Wolfram Sang <wsa@sang-engineering.com>
 To: Claudiu Beznea <claudiu.beznea@kernel.org>
 Cc: chris.brandt@renesas.com, andi.shyti@kernel.org,
 	claudiu.beznea@tuxon.dev, linux-renesas-soc@vger.kernel.org,
 	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 3/4] i2c: riic: Drop the space in front of the "out" goto
- label
-Message-ID: <ahhMX0hdr43K9eLa@shikoro>
+Subject: Re: [PATCH 4/4] i2c: riic: Drop empty line
+Message-ID: <ahhMfQVvXbyX76-w@shikoro>
 References: <20260520131206.932050-1-claudiu.beznea@kernel.org>
- <20260520131206.932050-4-claudiu.beznea@kernel.org>
+ <20260520131206.932050-5-claudiu.beznea@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -47,48 +46,44 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="ZrU87jUP5POKIU1J"
+	protocol="application/pgp-signature"; boundary="U6PaJa1j5/zFIBoz"
 Content-Disposition: inline
-In-Reply-To: <20260520131206.932050-4-claudiu.beznea@kernel.org>
+In-Reply-To: <20260520131206.932050-5-claudiu.beznea@kernel.org>
 
 
---ZrU87jUP5POKIU1J
+--U6PaJa1j5/zFIBoz
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 20, 2026 at 04:12:05PM +0300, Claudiu Beznea wrote:
+On Wed, May 20, 2026 at 04:12:06PM +0300, Claudiu Beznea wrote:
 > From: Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
 >=20
-> Drop the space in front of the "out" goto label from riic_xfer() to follow
-> the pattern used in tree.
+> Drop empty line to follow the coding style.
+>=20
+> Signed-off-by: Claudiu Beznea <claudiu.beznea.uj@bp.renesas.com>
 
-Time for this quote again :)
-
-> > "> It is generally accepted to indent labels with a single space. This
-> >  > avoids breaking the -p option of diff."
-
-And yeah, I have been bitten by that.
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 
---ZrU87jUP5POKIU1J
+--U6PaJa1j5/zFIBoz
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoYTF8ACgkQFA3kzBSg
-KbaI+xAAq4yMvz5Ztwx8r4X5K7aepIgo/zsxfGcMOlFDb3UO9L9wnucV1H+XQwvq
-F43yMQgsiXM0hUv56tsJ5oKWYL8tlwOCGr5C2YCBqsQfP+35sHyOjC3BG4HxPKUd
-+tJAfH0/ZRAL7jal8pXA5PxirRYm4/THT8UdMR6pFudKN8iP1m+waDEiJa9b8AlN
-s7NUSMynse/TVil0Qb0CmtSsladu18kf54dK1GplL8IwvNH56u6oRwof2aqaqIpq
-ftzw92e8kpflq3vkEPHgo7wceJTZ2MaLYa9fNI5GnG2XAAa8b2tI/zeev2RMIMFn
-FqqPddP9x/YW5EFJu2SZG15UjfqPjTHF8jVsB7S9/M7m6zFxDInR77WKZNnfJj+b
-9pUI209mLaIbZg/T0o7SfaGfSBV5hBT4iF5zuUR8KJz4/iaR/LCNlwAAI+gNGUqW
-RopDzHCWTqIfWHbpwsZ/rHIeCdBvrjWC4XvHYP+aEUKnbScuTQuvNcvCH9/RmVYy
-bS1T/AzJ0aEQsGTEW3HcL3YwBcgtMdW3k6qUILziDdnyzqCcTiK6XZ5Vs6ECtWln
-W/bami4tKXdxRODKITi3wZRq4kqSyNP/z0W3a+XEOMEOqeBoGTXD1l1yVDWnTGuj
-A4aRlK/bNmbfY5a736SP7R50As2SDgrpyqpOKYwZt7d3TWlxBaU=
-=RGnj
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoYTH0ACgkQFA3kzBSg
+KbbK/Q/7Bp0+gkAs6sv5hIpJnquMfizrSIc/iwZ6Yu6a0uPFEhWXPPRXgKoal7vg
+5g2s9T1TBU7WYcj9OyOxSZsGuxbOlZEdLPfqBOVaxVwXNhY0IpwsyIYKzQ0Fqzxk
+mBitJXGmIErjIIHyPJXxlZNWVNyjOzMLOSKsTw3JaWJ5ZnaKDRIrDvetGnd/fVlr
+ng78HLX9DtbzTXVg5Z05EN8J8l6ROR5OdBR1uCGBpAG7MAdriPWHT27qlM/NH4v9
+RQ0yA13HYexSPn5wDy7Um4XLXuCnYhtmuKnYbvEFjcc54IkW2SV9K0JBjhj3tCGF
+GdJ9o2cRbZ/H+2VxalMIOk7cnihBGJYCSVXULCtEKwm3YrXbYtJlj723/LyDdYsn
+a69xpVsZ5rRuYKWS/0bHeIDGJWptHhZmpDCaTY+V4CyLt808Zj/7jLUYB3X9YPu3
+cT/WuemOvKtmNy0euDF/wq95feaIQC6TV5xI/wj4zDjgPtjHmGSFNKVEgqmEKbSM
+R3s3B+SdO9In00H3oyVPGGkjU94e5viw25TZ9YEILZwD8zTW45qGMf/RdJnVKWEA
+ZxPDzmfZLps/3sAFUawHcsuuDEK8foIa+lQ+IvclxcgMGSnW5WbENj4XE1Ikyn1K
+xBdDuVcxfKUAOida0cXd6I912Vn/PIifK+GlbeWQe6E5R5KlsLE=
+=Kil1
 -----END PGP SIGNATURE-----
 
---ZrU87jUP5POKIU1J--
+--U6PaJa1j5/zFIBoz--
