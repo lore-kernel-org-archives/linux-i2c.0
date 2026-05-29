@@ -1,169 +1,108 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DFFFE38F624
-	for <linux-i2c@vger.kernel.org>; Fri, 29 May 2026 17:31:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3B0E357739
+	for <linux-i2c@vger.kernel.org>; Fri, 29 May 2026 19:58:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780075869; cv=none; b=aphQ90y0tT4HKo7WhWarfCW945gluHNmBCdH61TrjHn+UpXcvqggmJpB3A95U5s9DjQpBkSFvWPcEcrzNKT86zAIkhDvfC78Jt9sAIq9OR7wBq4jrg4G3xl2zzKMyFXS2TpNwfID3p3SwLxUHt+4er4Kthj8QdAoCqf2fjuqXoA=
+	t=1780084693; cv=none; b=jqgKwRH959pY0O+MR0Ki2sEXwuTZ1TaP3m8/CRRhIVuAwd+9HKHiYH2jtKo87QUOIqALMPeoFtgGaELuWzHyzfeLm09e/Lad8e9Wy1CRXdxGpqHCNQohSzUEBDf+985OXNIJ8/BdJF3ucL9Pdl7IvRQXKDttqx1bRGoAI7HOn9g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780075869; c=relaxed/simple;
-	bh=6XtuzAYEfFRw+HYYz42AkI11W9apPm76m7J6y3guol0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=jgbc8ebw6gBoOZkHadwAsPN12WZNpjH88yFeEWioUeqtGzkw76wo7Anu0JF8s6iEAbtTfcPuZAnKRNhmev8DT2njzGyD0+J2dRNddfR/7gTL1HwazNIkWBctqR5nYNItKC6KhHn6nGN3IwHgnZiHKzR2qwpV9ASde30KRvRMVrU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=X4esPTDH; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Nrufv9zF; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1780084693; c=relaxed/simple;
+	bh=3nufpehgZAqLneOpjlVJdhJwS3XjJIcDDnmgAXBlG2c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mAXXuS5ZbbPQfDWTC1ji2uNDGptWJngCYO5nyiEea4LWq2PxCocTc/mERYFOn24RHtt5wbF8v6H+Z+drxB3UK19OGI1EnCFLJ4xGxSFxly4yGbduZtdkK6To62obib4w1+pZilMN8l7pUJIIpNeWwD4tyYGgz4ipX/AjvOs0esE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=IOBVgIRi; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="X4esPTDH";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Nrufv9zF"
-Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64TH8VaO375601
-	for <linux-i2c@vger.kernel.org>; Fri, 29 May 2026 17:31:07 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	fJDR0H8V82XJxR0Z1RuppBFcrPl2HmqD7fethUF331U=; b=X4esPTDHlq+Rsv8C
-	XbAcFT9hcaGFg+2OcBQjIPdDp0LQGn9CtGtOcrfjUnQuB0OsJ4FLm5a7uqYd2R/A
-	vviQZtUGLD1Zww5tRizwiuO+5O9eny4ME6bhlPQoEsnHbs2mGGhv9yOd3K/MkUyt
-	no1dFEHBlc21336KaM8+mWwh3RoF7mhff+nlFlO18jFuFoHAmAMvogt9wso9ZZ7V
-	J3rdS3i2lzRxvNslmAh26ZCFT+Pa150ebYXyp79xHtxLIgzZzKz01woDGCwutUIu
-	DJTF0TgnuC5gcTBNHbSy0NE+L4zZAlMM2vOAcW6aXypzOx+S9KnYiKqunG1anTNy
-	5J33Vg==
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4efechgcyp-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Fri, 29 May 2026 17:31:06 +0000 (GMT)
-Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2bf08c2a24bso24126455ad.2
-        for <linux-i2c@vger.kernel.org>; Fri, 29 May 2026 10:31:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1780075866; x=1780680666; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=fJDR0H8V82XJxR0Z1RuppBFcrPl2HmqD7fethUF331U=;
-        b=Nrufv9zF1QfK5xsRcVoSjI33YXOAosHHvXl4KuQXm7x4pUdsF81Xxma2cAjQKapoN4
-         0yigDKkDm08nIJts/kJyBCcQc57MrEIXrQGy14AnRY3MjhWkUJxnVvYdrYE3KV2mZMwB
-         RUJNhHzJJb5ERltg1WpgekVtqcqb48klwOIrcdt5Lxjmnxyswa3abBMdzg4vty9PcWaD
-         mc6ySFj/K4/4Z6gQE5tuil01IhgjnzK6y7nPkZMdc3+ww0Frv4YMjdMdv2cFRWRW6gy9
-         5J5/tX2BNuqfFHJ13wAikO7I0NclVcTStKKA6gXDmR/Bj+MM8plecWpIPFQRIWzLcm17
-         vwIw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780075866; x=1780680666;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=fJDR0H8V82XJxR0Z1RuppBFcrPl2HmqD7fethUF331U=;
-        b=JpRoIYeiHiJJJIFHLoZGxQLtN3Zcp8eaeBB+XUqAevQEi/+MHykk/XuPKx1OIRICC7
-         l3P/MxwFz7QS7ZdZZU+3XqhG7L8b4KtoZu4SF37mt66uBsDdzBxByjH/3BMsYQfWbUXL
-         w56acsDssYUVt3Vt2qM7Dnkzv78TVytipcy741x8JBNEtQhUxmHrbBhaqK9hfXt9SoZF
-         WhQ1TPNO25N1SSI9G3p/7cq9nHZokyurW1S0/wefnvVCjKRULM48C433cPX87zb2D5uS
-         0T+N9yDQb9/66uFGAPyI1vB2RsoA/m70R32nS8ddNPuE9pr473O3tT3NNxa+TswPZyEx
-         jOsQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8KtG1CGQWdq7cZMKdwN4wQAOFpIcqhKP/L04/VaGKluthy22uPTz+eBDs22aTaZMuY7WnH5LKomCc=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy30VxZ97lJSeTgfk3piGeaPg7D/RKh6BBFVhKz4GLAZjSU5Dpg
-	n6Y6OOWDMWmSCvhcF3kAx+JVzkXU9k/vHjWPd0VXvu9hQGTseduMvWjCyyDXq8QOW3R4GI0uA/s
-	RTbXc2dG/sFLWUygTWHGght665AY+sSeqg+5N8iplO9ZzQZFKQIX4SDxpTmO4Yt0=
-X-Gm-Gg: Acq92OG16BZyv8mZm1PPcB0iEyHTVlrGA7ADepgdUoPYoEicgBsFuU+HzgVVsiYMEoA
-	7HiQw9hDBMjg/Em4COK102gWvUxed7xOzWQzDMnx+tOFTUH8Pvy2r0ODCXroOcLpoA7O291n9g3
-	nMVG7jz0kHV0+ZjYZVT8VUL4BPP3S9bBbgdr9gKbTdrWf9Z7eoNTTUTYHFVEe1tpvwbgPs0L1S6
-	jeMk+kbMKEljU3zfsfU2umAmEhHSBSVvFCXJknxCnO/D1NZs+iHMrGyg1Gfl/8YsK8N9yBd9JLG
-	Xgjnkl+oa3oSBCZC7pEy5h/CmTTe3LBeEywdKsWYrlArVQ75oylOkzwxj8oQb5DHWf2XfjlEFPD
-	rC0Lpwcf7KQlcITbtUOk367tG86wF6N/Uq3i8w9X3FOnQaUrGsb3Z4YQRcmOITbA=
-X-Received: by 2002:a17:902:d50f:b0:2bf:2015:5ba4 with SMTP id d9443c01a7336-2bf3682a24bmr9445315ad.24.1780075865568;
-        Fri, 29 May 2026 10:31:05 -0700 (PDT)
-X-Received: by 2002:a17:902:d50f:b0:2bf:2015:5ba4 with SMTP id d9443c01a7336-2bf3682a24bmr9444745ad.24.1780075865095;
-        Fri, 29 May 2026 10:31:05 -0700 (PDT)
-Received: from [192.168.29.115] ([49.43.224.248])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bf239e71cbsm25476575ad.15.2026.05.29.10.30.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 29 May 2026 10:31:04 -0700 (PDT)
-Message-ID: <bc2aecf3-fedd-4b15-8e69-33ca928831d6@oss.qualcomm.com>
-Date: Fri, 29 May 2026 23:00:53 +0530
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="IOBVgIRi"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=LK/v
+	NoZ5TCRaZ6dbks9ug9JwgBDvtxE0RbXnMruAoCo=; b=IOBVgIRiNWK0g20yFzax
+	QyKv2AmI5gdUWztEvBNYd8w9JMpCD8RcqWVrtNCnylAH/IZ4CCjVDjpEXFz75n6D
+	82/ZTEp4QgreepIaRCGURhGmi4aqAx1ZP8b7VBE/BT10llqbmMTP3NYfwzZvEyhZ
+	LItYfOn4nHO8SvugX1DeVdEAHlCgJUL1907b91QziKUyx8obQr2BXf4s+X6TDm7m
+	pAOaAg1k/llAOo3ot5JtBoEGrTiRxGt+uJPQkpiqEXu+nQ9Ipid+2nRCULlo7JNu
+	G7+nzV9N/DpagPq2Zq4eQZiQgRGkSKsB5GDJ+BngnPcWdTxYQFq97ifXRN5QzvKz
+	dg==
+Received: (qmail 1526275 invoked from network); 29 May 2026 21:58:05 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 29 May 2026 21:58:05 +0200
+X-UD-Smtp-Session: l3s3148p1@lPlRQ/pSczVdnheM
+Date: Fri, 29 May 2026 21:58:04 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Brigham Campbell <me@brighamcampbell.com>
+Cc: Gero =?utf-8?Q?Schw=C3=A4ricke?= <gero.schwaericke@sevenlab.de>,
+	Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org
+Subject: Re: [PATCH v2] i2c-tools: Allow passing device file paths
+Message-ID: <ahnvzEQyKqWfXyrS@shikoro>
+References: <20260312081808.347978-1-me@brighamcampbell.com>
+ <DI4RFLES1MXN.31HXMQMGXAXF7@sevenlab.de>
+ <DIT8HHYY12ME.3IGXT8OU1CGZ8@brighamcampbell.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 7/8] arm64: dts: qcom: shikra-cqm-evk-imx577-camera: Add
- DT overlay
-To: bod@kernel.org
-Cc: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Loic Poulain <loic.poulain@oss.qualcomm.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley
- <conor+dt@kernel.org>, Robert Foss <rfoss@kernel.org>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>, linux-arm-msm@vger.kernel.org,
-        linux-media@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
-        imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-        Suresh Vankadara <quic_svankada@quicinc.com>,
-        Vikram Sharma <vikram.sharma@oss.qualcomm.com>
-References: <20260526-shikra-camss-review-v1-0-645d2c8c75a7@qti.qualcomm.com>
- <20260526-shikra-camss-review-v1-7-645d2c8c75a7@qti.qualcomm.com>
- <178000731452.4557.8537369407478321842.b4-reply@b4>
-Content-Language: en-US
-From: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
-In-Reply-To: <178000731452.4557.8537369407478321842.b4-reply@b4>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: XPbP2paE4YCHoUJhDBx-n5rcKqneqr0-
-X-Proofpoint-GUID: XPbP2paE4YCHoUJhDBx-n5rcKqneqr0-
-X-Authority-Analysis: v=2.4 cv=U6Siy+ru c=1 sm=1 tr=0 ts=6a19cd5a cx=c_pps
- a=JL+w9abYAAE89/QcEU+0QA==:117 a=tDSAgCU/rryVExTQDfsVjg==:17
- a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yx91gb_oNiZeI1HMLzn7:22
- a=VwQbUJbxAAAA:8 a=iShi-8OPmrKBgnXoZJYA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=324X-CrmTo6CU4MGRt3R:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTI5MDE3NSBTYWx0ZWRfX994ieLCg2YCZ
- MqpGpQJ7LPN+K8tZO/cJY3TVgFIowfv9DYnFEVqvZ7vCQ6gFjaz64ePDtRsF+xF23Be8ZczQcMj
- vSX9LKyJg6+8fXX6KpR1zSmshjWrw74y8GntYYZzZoKS4jAPTqOoliMD/vDYqJqwDzO5AmVn/3P
- 2GsjRoRDYj7DrrYx5cnW/qlneUVkAMJPoDWHvm6U5a/reuy2vuX+AuStjEeJHUdl5qurD+1/4rt
- 5UDvPqcTU46MYQdXkp8IfKCmky63ePC/02lzEX4RExts+FTnrkPNzMG+0unJCbAAFa6EcHWGMSF
- IsZjcdSv1+EGewe0b17ns9L31iieF6yo6IyPkzAe6v8p9OYQLbWTk8v9jXJjQZggZqlpECptQFJ
- HVp3/48+CTGKB4UbyB9ufojYwO+Ej7qgq4t3GtkfjKti7n29XCLAcCO8AomE72pAYAUECTxmvka
- 82aATE0s5Q7hQaLumSw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-05-29_05,2026-05-28_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- malwarescore=0 priorityscore=1501 lowpriorityscore=0 bulkscore=0 spamscore=0
- clxscore=1015 phishscore=0 impostorscore=0 adultscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2605290175
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="g/zoNCC71Yooft8q"
+Content-Disposition: inline
+In-Reply-To: <DIT8HHYY12ME.3IGXT8OU1CGZ8@brighamcampbell.com>
 
 
+--g/zoNCC71Yooft8q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 29-05-2026 03:58, bod@kernel.org wrote:
-> If the overlay is not specific to board then the overlay should have some
-> kind of base name shikra-evk-imx577-camera.dtb
-> 
-> This seems like a minor nit-pick and, it is 🙂
-Thanks for the review!
+Hi Brigham, Gero,
 
-The overlay is named after CQM because it's shared between CQM and CQS
-both use PM4125 PMIC with identical camera supply rails. The only
-difference between them is the integrated modem on CQM, which does not
-affect camera hardware at all.
+> I had worried that doing the device path lookup and opening in one go
+> would be overly invasive. Of course, if I can make that work, then it
+> would address the concerns that I brought up in my previous email. It
+> may be worth the extra effort to avoid the ugly variant struct I
+> introduced in this v2.
+>=20
+> I'll take a look at libgpio. Thanks.
 
-IQS uses PM8150 with different supply rails, so it needs its own overlay
-and can't share with CQM/CQS. A generic shikra-evk-imx577-camera name 
-would be misleading since IQS is not compatible with this overlay. 
+I think I agree with Gero here and that it is worth getting rid of the
+variant struct.
 
-Happy to rename to shikra-cqm-cqs-evk-imx577-camera if that makes the
-shared scope clearer - open to suggestions.
+> This makes sense. In the strange (but totally plausible) case of
+> conflicts between bus number, bus name, and bus file/symlink path, the
+> order of precedence should be as follows to maintain backwards
+> compatibility:
+>=20
+> bus number -> bus name -> bus device path
+>=20
+> I'll fix this in the next revision.
 
-------
-Regards,
-Nihal
+Sounds good!
+
+Looking forward to v3, happy hacking!
+
+   Wolfram
+
+
+--g/zoNCC71Yooft8q
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoZ78gACgkQFA3kzBSg
+KbaTgA/9EGnLFh1VgvCLaSV4lKg/QTocXRLS8QF9mZ4g+KvJQaoSkG0I3JbGfrQi
+C6AzSzPN7YG08c5z58LG8CB4auvJaWohYuDcfpuzTa2blZw8naLMUJ8n6EMCegs8
+RdMKW++KoBbpFcp0g0lC5f36B/GFuwSVnHpP1OPxdTkZrdzUt2cLDZNMQbBo4SVh
+XpBtKgr0WH2GgluSz8M+Aj0tMph88U2mBF5YN4pVHdnx/w63YHpgorZYkh4pq/dN
+UX3A5N6+irYExKPvfM98d2/dAZsrX0BmEyS7uogkksLm1wLlWHQqukk1LGAtTX4y
+pEx0CUCKIYWjQSgfD6q6ku23PqbLTcQMf6Adui06icSUui0s6rIpzYn3TupLEw5y
+2+jhSzHeLoksEuNiekJlD/ERWXFtqV+4bWzD/XCOL9yd5BQ86Vpu/XmA3JXwfR7x
+xQNHFz/Mz1Zji702NtSZ0AdUZBGFbOft3YkwJ0yrn3JJsEoFG5ZTBa+Y4Mv+nco7
+Bo2myjIklNDWsjtfxCFSwBvLQdzPGXn2g0/ti4Sc7kvjaAzTPNhsnC4ScuOzPGvS
+3HiQWiYPjj7+JtPXZRj0SaNMjjYwhx4SFGT82P+Uer+LMFkVDTSoMqzQZlS7ilRa
+2v8gDwc3ATADJL6Eden323Cddweu5QVZb1IvCtaTJVcnz10236E=
+=V4+0
+-----END PGP SIGNATURE-----
+
+--g/zoNCC71Yooft8q--
