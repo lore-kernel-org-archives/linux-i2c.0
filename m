@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 373643B0AC3;
-	Sat, 30 May 2026 12:25:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41B7A3A3E60;
+	Sat, 30 May 2026 12:27:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780143945; cv=none; b=Chy6ov7LRcPF3GgFdpIE7KLV4OIOdlF7vTL5vJ5zft2yf+1Ba+WRUobtRQwEfPiatJ/eJCATtO2zLXYgyyK6Ti27Rv1fe2B/gojKuJiJzlHIMroZtOKP1oXGwAbmdu+fSkqV1utDqBodadM5R1hGnz+OJi5tsFYn+3AXHUq1CBw=
+	t=1780144033; cv=none; b=rJDsO9AQjokWS/jegMi5k4Nwcja9V6YwBpLswdXeCrPooiCYYHYC3EoAr533flp4cDcGlI5D/RlyUzDZ4WUbOT0gNmAju/iliUCNmPqM7CSW0/H6bDGSi8VyWAtmcCCK/g998aei4slpgpkIWvczrdljmpWR7QR9rC47tldEoGc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780143945; c=relaxed/simple;
-	bh=HzEM3vtoLqD9NlmQx86l7i0cU0WE1JEoFBCcPrdQS7s=;
+	s=arc-20240116; t=1780144033; c=relaxed/simple;
+	bh=9cBTXCaMO5Yt7ub4sxJOpje8YAnpNhHQH/3ibX0gR6o=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cx970+3yVyyB4JZHI/c/j+Q4i7uZroO/n6TmpVDKV5MK1U+fbA4ejoBtLNoyv2JN7O0HX7ounLi2EfcxNpo8/3lo73CHLH1vh52PK5lZMHzsKeqraT+8hgCJbBxIp10pd1MYPvzdoLui7McFiXEPWkzpfffEGJNo49nU27jwwyE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dFHhmvEM; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=eht4jm+0QVk7LJyM9781I1WLw0mqr/6axcK6BWmY5ApHvF3Uqr6zq90dvC4i0EimF8nFnRMfhAq7ZFBdmE+NU0R8CQ15JLkosPmZKiU17SVxNYJoplUuFjlhLfpmzmZQ6+YbZgbTZfdkUDdwiJ4jp5yoCwwklGGCdE01povi6iQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UQDSOBjW; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dFHhmvEM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D3621F00893;
-	Sat, 30 May 2026 12:25:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UQDSOBjW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48AEE1F00893;
+	Sat, 30 May 2026 12:27:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780143943;
-	bh=RlOA3FX/Gdn2PEJwcJZLIsKwlzYCgXya4TfvqliyjpM=;
+	s=k20260515; t=1780144031;
+	bh=QC/a5MUWJ40rRAXloX7W4uyf34uVCenmPEBusDykpZ0=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=dFHhmvEMPfpmtv61i8LFehWVn0RsWcVM9XzW5qQP6rAPvd4DLZe+P5islkOj4akOM
-	 IhS3SvxL2uFpS18F6KyNH79QiUpZzY3nsBroqdYU2XQjhZwlMR6W4Bt/xJKre4uRUP
-	 +928pwwmsZVBIvnlbA024IsXijVwo5D9dHqlG9pICYiflMEQG++4hEVgSRYHJy30fT
-	 UZB7blzeNHXSagbJfkI0AFK3KCJLMAA2ej/R1vo++e3nhnAMPxAnentXD5DlPOe83+
-	 uvdeFGAi61jigN+rWaKP2eGZmmZo4ee2TP0dLdLfRrBhhCtithYTQVdHBWH9mJr/n+
-	 OWuUy/jGGh3ZA==
-Date: Sat, 30 May 2026 14:25:41 +0200
+	b=UQDSOBjW6pdjWl6ThfB03E4r3zQNcufpuMDJtZ8cPi+oGrnKqLh88R+yxiHdRKYkB
+	 kbV5Olnx6E9tiun+OiB6L73Q5ddWtLHHMOuyTE6Wzdq8vRfxQk5T004CmxXlFo3R30
+	 Nm9jWEiQXw2dTCTm4e6vrcjnKR6/gERcUMnX3WDKgfNjY/A8BJpBDy3YfyteydWiFJ
+	 +7GiyPKlmW4mm6xaTfoFpZo+rboYfzozc1gGrTHwTwiCYeoveEFvWa5h4GUlvKoDY1
+	 BeNQ0Kw00v1t/7ainFrB9E4rvWoeMvSzFIz7d7xSQV/hDKhiW/83XqsjqHnv1VBcjB
+	 L/PhuLuljdfdg==
+Date: Sat, 30 May 2026 14:27:09 +0200
 From: Krzysztof Kozlowski <krzk@kernel.org>
 To: Vikram Sharma <vikram.sharma@oss.qualcomm.com>
 Cc: Bryan O'Donoghue <bryan.odonoghue@linaro.org>, 
@@ -37,10 +37,10 @@ Cc: Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
 	Andi Shyti <andi.shyti@kernel.org>, linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org, 
 	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
 	Suresh Vankadara <svankada@qti.qualcomm.com>, Prashant Shrotriya <pshrotri@qti.qualcomm.com>
-Subject: Re: [PATCH 3/6] media: qcom: camss: Add Glymur compatible
-Message-ID: <20260530-imported-petrel-of-influence-59bc6b@quoll>
+Subject: Re: [PATCH 6/6] media: qcom: camss: Enumerate resources for Glymur
+Message-ID: <20260530-efficient-inscrutable-grasshopper-40cd21@quoll>
 References: <20260529-glymur_camss-v1-0-bee535396d22@oss.qualcomm.com>
- <20260529-glymur_camss-v1-3-bee535396d22@oss.qualcomm.com>
+ <20260529-glymur_camss-v1-6-bee535396d22@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -49,24 +49,20 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260529-glymur_camss-v1-3-bee535396d22@oss.qualcomm.com>
+In-Reply-To: <20260529-glymur_camss-v1-6-bee535396d22@oss.qualcomm.com>
 
-On Fri, May 29, 2026 at 08:07:23PM +0530, Vikram Sharma wrote:
+On Fri, May 29, 2026 at 08:07:26PM +0530, Vikram Sharma wrote:
 > From: Prashant Shrotriya <pshrotri@qti.qualcomm.com>
 > 
-> Add CAMSS_GLYMUR enum, Glymur compatible and Glymur camss driver
-> private data, the private data just include some basic information
-> for now, later changes will enumerate with csiphy, tpg, csid and
-> vfe resources.
-> 
-> Signed-off-by: Prashant Shrotriya <pshrotri@qti.qualcomm.com>
-> Signed-off-by: Vikram Sharma <vikram.sharma@oss.qualcomm.com>
-> ---
->  drivers/media/platform/qcom/camss/camss.c | 6 ++++++
->  drivers/media/platform/qcom/camss/camss.h | 1 +
+> Enumerate csiphy, csid vfe and tpg resources for Glymur.
 
-Incomplete. Apply this patch + DTS and tell me if camss is working.
+NAK, this is getting ridicilous. You add incomplete "compatible"
+claiming that such change as adding a compatible is a complete work,
+complete change (as explained in submitting patches).
 
-Best regards,
-Krzysztof
+Then later you add missing description of what that compatible means.
+
+I could not stress more how WRONG this approach is.
+
+Stop inflating your patchcount.
 
