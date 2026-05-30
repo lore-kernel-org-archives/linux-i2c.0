@@ -1,42 +1,44 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C03F2FD1B5
-	for <linux-i2c@vger.kernel.org>; Sat, 30 May 2026 13:52:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EDE683AFAE2
+	for <linux-i2c@vger.kernel.org>; Sat, 30 May 2026 13:56:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780149154; cv=none; b=XnBzKC4e92HCI1qsfLBRxC0UYu+FBSwHpA7jgrCwTlk7kTOfiCCYKgJPR1MFDRPJYqtGZUKv/uJPodLjqpKtudgUH5n6udrzIl1OUPG8IeiEkqO3XYcOAcS/XuB2CL8o8A5KTAOzdbrlafY793h9f9KUTdSI401teU+sRiuGI1Y=
+	t=1780149383; cv=none; b=heOJ0/0pxyPxSCYw9LQFOBDwPoPiXb2FVEg/3/EPIbuWveJbXlpaYlq9UI/164TRl3twlFcVQyI3cbOFG9kAq8zVRex+vdFoa3N1OOyzFatbbgh9dXiXGZK70QQnC8MQ7pb8uJ3wTMz6CbrFhdnWN4HyP84q4pNpf+TgbSc93HY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780149154; c=relaxed/simple;
-	bh=ZRodLq7Zlj77ukTwxdnA0K5wC/oWMV9FnJjR/yRLk9w=;
+	s=arc-20240116; t=1780149383; c=relaxed/simple;
+	bh=YMvgpgeBNQFZf/mfS5MLvMZ3xo+WZclkLGl8IUtEEMM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Og7M1EUZABngrl/+uqTm/2onHAAhupk8j901jbfnM9Tt3Sr3ailgKg9quCIYYmrD1PrlyTAYU9FUL7vh3oWOEjtePJA05zPFzqjOZVL6e7RbLBuzptzJ4QcMAdE1MVPyn8vL1q0PmBQ10ovUvsV+sVulQ0imLrTXO4Mi6e3wNCI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=F+pbUNc7; arc=none smtp.client-ip=194.117.254.33
+	 Content-Type:Content-Disposition:In-Reply-To; b=WfVow9d+6Ec17pwLzB2p48pehdsR5MzIDXqT6xvuY1QjbxQWfn0YEXGtVB54Tbhpg/QF6u5M/utFv3B8uEHCH03RbdVR8DNOWnno/HBYColmfgTZD6yx1ly+0+Ii7W1LYPsr6PSOm/YPlIuNcs8f3UjRkhqHzASS3uTs0/jxUC8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=f7+rYxJL; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="F+pbUNc7"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="f7+rYxJL"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=ZRod
-	Lq7Zlj77ukTwxdnA0K5wC/oWMV9FnJjR/yRLk9w=; b=F+pbUNc7JWGJsAIn4M9E
-	LRJbVOQ8M8euXaaOB+YiKO+xa12GZXmaDHlF8Nt1HzN+2zJrvGeeQKHDwXD/Br0+
-	lBwMh5sYkAgBYItP/a1jxftqZACwPbD7psQ+NG0oE6UCAqGeuKgKQOdIZP3YalIF
-	0hucntptP4zgDR7Kt0+Qo19vq7b42ISWwnfhLRG4jJkNgHb/fgRr26VUC25uGxKu
-	IXc1BU1rJn2M3gxRycrtKXSg8JM6olnEBErZsyugkwEBG2XOkRvXYiGuYp02Mb75
-	9LWrY8ZKgBUYR2oF5Yf2JQ91Qj7fWFXP1wEeaGaLSUmbQRGqiu2dE1iPbyMpyDIc
-	fA==
-Received: (qmail 1760560 invoked from network); 30 May 2026 15:52:31 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 30 May 2026 15:52:31 +0200
-X-UD-Smtp-Session: l3s3148p1@XeLGRQlTvMQqAQ4KEBW5QLbOwWyJKVt/
-Date: Sat, 30 May 2026 15:52:30 +0200
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=YMvg
+	pgeBNQFZf/mfS5MLvMZ3xo+WZclkLGl8IUtEEMM=; b=f7+rYxJLtwA2keuan1TL
+	/UVl7gUppwFel7hmBilvw/viU72F+MgK3t3mKfd/skmMc8P+k4I9lklFyUG1Smhk
+	G3HPHO7j1grf7QiljwWvSJ/mVwMI3M7p4VCIp4AbAT4iRtylAckw/59BoE84gzX+
+	5rufuLdLmt1NDlu9xJZz2ULuEudq/jWtsGF/SgSlil+ZNOH9Utf7nts0E1XNe00o
+	tKKfoBWdJuB31O44TV5l2VwVH5rB6+t+xOPvCpRUAR1nPKL2z2x5PYeQO2Ar8+AW
+	4FhmvsSqiQXD9KUlaD1JWYfivohVzUjcqtzxves6GnurUl4OlYbW27oxfYvqzFnn
+	aA==
+Received: (qmail 1761302 invoked from network); 30 May 2026 15:56:18 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 30 May 2026 15:56:18 +0200
+X-UD-Smtp-Session: l3s3148p1@+FpTUwlTJMEqAQ4KEBW5QLbOwWyJKVt/
+Date: Sat, 30 May 2026 15:56:17 +0200
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-	linux-i2c <linux-i2c@vger.kernel.org>
-Subject: Re: [GIT PULL] i2c-host-fixes for v7.1-rc6
-Message-ID: <ahrrngQ-Iw4v5R-n@shikoro>
-References: <ahpi6WYWZumbtfa5@zenone.zhora.eu>
+To: BouziguesAlexis@johndeere.com
+Cc: Viresh Kumar <viresh.kumar@linaro.org>,
+	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: virtio: mark device ready before registering the
+ adapter
+Message-ID: <ahrsgR99iHrlcRES@shikoro>
+References: <20260529-virtio-i2c-driver-ok-v1-1-ecf2504f6a56@JohnDeere.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -44,47 +46,53 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="cGG/XCj29jLhXw9l"
+	protocol="application/pgp-signature"; boundary="JM/lZ+vA41vYZQH2"
 Content-Disposition: inline
-In-Reply-To: <ahpi6WYWZumbtfa5@zenone.zhora.eu>
+In-Reply-To: <20260529-virtio-i2c-driver-ok-v1-1-ecf2504f6a56@JohnDeere.com>
 
 
---cGG/XCj29jLhXw9l
+--JM/lZ+vA41vYZQH2
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Sat, May 30, 2026 at 06:11:19AM +0200, Andi Shyti wrote:
-> Hi Wolfram,
+On Fri, May 29, 2026 at 09:28:14AM -0500, Alexis Bouzigues via B4 Relay wro=
+te:
+> From: Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
 >=20
-> here's the fixes pull request for v7.1-rc6.
-
-Technically, it isn't there, but I know what should be there ;)
-
-So, thank you, pulled!
-
+> virtio_i2c_probe() synchronously probes child i2c drivers on the bus,
+> but peripherals may use the bus at probe for tasks like reading a chip
+> id. The vhost-user-i2c backend stalls at such probes unless DRIVER_OK
+> is already set before the virtqueue is first kicked.
 >=20
-> Thanks and I wish you a great weekend,
-> Andi
+> Set DRIVER_OK explicitly before i2c_add_adapter(), as done for the
+> same reason in commit f5866db64f34 ("virtio_console: enable VQs
+> early") and commit 71e4b8bf0482 ("virtio_rpmsg: set DRIVER_OK before
+> using device").
+>=20
+> Signed-off-by: Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
 
---cGG/XCj29jLhXw9l
+Applied to for-current, thanks!
+
+
+--JM/lZ+vA41vYZQH2
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoa65oACgkQFA3kzBSg
-KbaraQ//agidFNrDsVMzfjkmH94E0caq2ERvDDrKheEgqJ7Z5Ol+on7izpTsnk6a
-9EJSGfSxfIlfNxiC6SfB8p3iVn6qq9dIQnm4EGKtgCugkxpvjd5pGMogt/KYFMAJ
-0aGgKnOuKb2XQwFizkDzkSfDOR4zZqr1zwpMpAo3I+rIyBBPsK75WSw6h2dl/CJ4
-wXHn5STQdqHpYJJ0FSC9etv13Zq1ZyOQGuS8tA4HJO1XK3Lnf1hg7wp8ZCbzqPjZ
-hZyTNeHt+TiNR2/VCfA1qb4UmWAWX68oLqiLTEwki3F0IEC9wevquGuG9NqlQaP4
-xsVtzMbJPa6faSCV86jwb0r+WJDa9/BRo8kXFZyW4MQ++HmXF73U56VGp2aknsMv
-KEWwY4c6V0P1dynyVv7o3iLKEw45X63phbqWxQ1JxczRk4VGcbp1uICFy7DZfe6q
-iOyShitfuDg/O77ZO17kXMAbk9rVYBUBv56Zg6jijrIimSDS+moXiKiByFmLORUt
-Z2iia6o4OWCUQxNu7VKMxCHc186Hj3uk3be2o2xj7W+PsDNU7+VNO63VPcnJIP7D
-A4k0/mYDQbYZ6vnp4NNqRuEkzYwqREOuaYoNuOhv2LGcdUShjUjq5KEOlecZcTzO
-2o0Zvi6gBVxv//jP+GP0ttAQFQ7fuorYd+5ipRGQePng9hHwVQI=
-=sjVB
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoa7IEACgkQFA3kzBSg
+KbaR7Q/8DkfG3Q2f7HJIF84gSfLeygb8Dc6ZmJSF0SyU4APZlAL5svYMCSlYILVX
+cBppfGzwgrIe/9ECLui81zcX3d3EDwzFsmjxMTDqcU7kyTJ8X+FDJ5alrAUul1Mc
+9579mC2LjgMLYfi305/9/cFO7pivE1naStxR0rNCBp4jVCa2mgRCkR6w15fsfDYV
+ea78rQ4ESyF1MIc+xVkom7YsACo+wZ/tRf8juwrhcd8ejMUQ76mMMvbrY8pj3Fcj
+rbG3gLxfKjH0XT6kt5pZsMVg8AlDRWij4gRqhIRMhf0kltEFJGDrAENH3/YeClUK
+EqCXgmLiFa2EPjtmpLhE8i3eQJLlo4ER+zFnkpW88ABUf4HiCY5+KdYxY9XurYRQ
+w2XESu73ixAFmNX5YWyjrZja/dY4oyXg8Ei7yB6S++KYk4+g0e0hRmkX5zgWX8Xs
+TAKZu8qrnjpv+/dTba8N7NcP74IKA9z2bCPLKsL6ZyfitwZmUohH0lisqLurgArT
+l2OSaf0Bi4L5kY2GNx4RQvoSZCah8yolVIkwfsQOBHLonnKbJkJmJeA3DOYm8wL7
+ZpUbSfi8ySYDKZ/I8l3zuS2eSDDmUrlJ6dYnk72P+PK/XNl20o5fFEM8nd8e9O9Y
+tofLG5wPmL60z3EKYEcwLEPRZaXATeHNvnutFn3nSeecmYMnMdU=
+=jpHC
 -----END PGP SIGNATURE-----
 
---cGG/XCj29jLhXw9l--
+--JM/lZ+vA41vYZQH2--
