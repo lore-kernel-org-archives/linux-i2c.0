@@ -1,68 +1,68 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41B7A3A3E60;
-	Sat, 30 May 2026 12:27:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23C834315F
+	for <linux-i2c@vger.kernel.org>; Sat, 30 May 2026 13:29:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780144033; cv=none; b=rJDsO9AQjokWS/jegMi5k4Nwcja9V6YwBpLswdXeCrPooiCYYHYC3EoAr533flp4cDcGlI5D/RlyUzDZ4WUbOT0gNmAju/iliUCNmPqM7CSW0/H6bDGSi8VyWAtmcCCK/g998aei4slpgpkIWvczrdljmpWR7QR9rC47tldEoGc=
+	t=1780147789; cv=none; b=THJo4kkUfzSf0YO758UCCDn22xwm6wlGOwsaXfU3fY2CQaRn0ShK777q/cW+C3IdKV1ZokwGtj42hsEEKn82C+QvnGMbG9ljfigxrF7NNeORPJHmcF8CAzt5+I4jxn6o59ZDVFEeMHkBA3xcTqPkG7u5o3BSm7aGDBCM3aSYo0o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780144033; c=relaxed/simple;
-	bh=9cBTXCaMO5Yt7ub4sxJOpje8YAnpNhHQH/3ibX0gR6o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eht4jm+0QVk7LJyM9781I1WLw0mqr/6axcK6BWmY5ApHvF3Uqr6zq90dvC4i0EimF8nFnRMfhAq7ZFBdmE+NU0R8CQ15JLkosPmZKiU17SVxNYJoplUuFjlhLfpmzmZQ6+YbZgbTZfdkUDdwiJ4jp5yoCwwklGGCdE01povi6iQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UQDSOBjW; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780147789; c=relaxed/simple;
+	bh=XsVvoWj1wZ2iA0uIOQcCz91YXiMxnLMyrmgIFGuHtfg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=HbC3keE9j+ttwuQ8FgmbTJNl7wz7NhaejH5MGJaAbyJsoiI3PMqC6a7ED7caomsWqnHLjMsupfBbS0XWlZXemVuOp6ogt623WfIm0erEdjXSoTiqB3TRKmTwNojljIo04T9En/yyH7TwDGsslzqQNG7cpflhDlqPAXgzqy8nw2k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=RAAa2E/M; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UQDSOBjW"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48AEE1F00893;
-	Sat, 30 May 2026 12:27:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780144031;
-	bh=QC/a5MUWJ40rRAXloX7W4uyf34uVCenmPEBusDykpZ0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=UQDSOBjW6pdjWl6ThfB03E4r3zQNcufpuMDJtZ8cPi+oGrnKqLh88R+yxiHdRKYkB
-	 kbV5Olnx6E9tiun+OiB6L73Q5ddWtLHHMOuyTE6Wzdq8vRfxQk5T004CmxXlFo3R30
-	 Nm9jWEiQXw2dTCTm4e6vrcjnKR6/gERcUMnX3WDKgfNjY/A8BJpBDy3YfyteydWiFJ
-	 +7GiyPKlmW4mm6xaTfoFpZo+rboYfzozc1gGrTHwTwiCYeoveEFvWa5h4GUlvKoDY1
-	 BeNQ0Kw00v1t/7ainFrB9E4rvWoeMvSzFIz7d7xSQV/hDKhiW/83XqsjqHnv1VBcjB
-	 L/PhuLuljdfdg==
-Date: Sat, 30 May 2026 14:27:09 +0200
-From: Krzysztof Kozlowski <krzk@kernel.org>
-To: Vikram Sharma <vikram.sharma@oss.qualcomm.com>
-Cc: Bryan O'Donoghue <bryan.odonoghue@linaro.org>, 
-	Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, Loic Poulain <loic.poulain@oss.qualcomm.com>, 
-	Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>, Robert Foss <rfoss@kernel.org>, 
-	Andi Shyti <andi.shyti@kernel.org>, linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	Suresh Vankadara <svankada@qti.qualcomm.com>, Prashant Shrotriya <pshrotri@qti.qualcomm.com>
-Subject: Re: [PATCH 6/6] media: qcom: camss: Enumerate resources for Glymur
-Message-ID: <20260530-efficient-inscrutable-grasshopper-40cd21@quoll>
-References: <20260529-glymur_camss-v1-0-bee535396d22@oss.qualcomm.com>
- <20260529-glymur_camss-v1-6-bee535396d22@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="RAAa2E/M"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=from:to:cc:subject:date:message-id
+	:mime-version:content-transfer-encoding; s=k1; bh=hlut9sFSQFfDH0
+	gBMrfHdAWEb1cFpLOqiufv4c4O4ro=; b=RAAa2E/McVBwHg3cI42e3taomRke2Q
+	lSvQY9IMeRuAy2uaepa0DP5WNdb5gxvXqC1xROYqnkef63nfVviWJAieMUZVGHqj
+	WBtzvh+bbgMUchGeas9y0K6SwfQ2KceOqtIjzKycoPqeaYgdvvgEKxhNSP15HhEX
+	hkt20pQyh2cA7HW+lYEewjqoItBPcIChWDkwEznOR4k/FXb0pleu6Z6kVlNCaw7w
+	31KJUQ6nWwJWPii+OU7aisjXgLM7PHh6uvuzO9/H5P+AklkNEemqL10/CG4YJc/T
+	wTduxRc7rzbGdcwyx1Sm0HXpk8Ai6NxEIQK3pSu1IRUi5aGLwLQoD0NA==
+Received: (qmail 1756049 invoked from network); 30 May 2026 15:29:41 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 30 May 2026 15:29:41 +0200
+X-UD-Smtp-Session: l3s3148p1@8rIm9AhT9rgqAQ4KEBW5QLbOwWyJKVt/
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-i2c@vger.kernel.org
+Cc: Jean Delvare <jdelvare@suse.com>,
+	Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH i2c-tools] py-smbus: update outdated link
+Date: Sat, 30 May 2026 15:29:34 +0200
+Message-ID: <20260530132934.2818-1-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260529-glymur_camss-v1-6-bee535396d22@oss.qualcomm.com>
+Content-Transfer-Encoding: 8bit
 
-On Fri, May 29, 2026 at 08:07:26PM +0530, Vikram Sharma wrote:
-> From: Prashant Shrotriya <pshrotri@qti.qualcomm.com>
-> 
-> Enumerate csiphy, csid vfe and tpg resources for Glymur.
+The I2C wiki is stale, point to the git repo.
 
-NAK, this is getting ridicilous. You add incomplete "compatible"
-claiming that such change as adding a compatible is a complete work,
-complete change (as explained in submitting patches).
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ py-smbus/setup.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Then later you add missing description of what that compatible means.
-
-I could not stress more how WRONG this approach is.
-
-Stop inflating your patchcount.
+diff --git a/py-smbus/setup.py b/py-smbus/setup.py
+index 26db33a..59dfa7b 100644
+--- a/py-smbus/setup.py
++++ b/py-smbus/setup.py
+@@ -10,7 +10,7 @@ setup(	name="smbus",
+ 	maintainer="Mark M. Hoffman",
+ 	maintainer_email="linux-i2c@vger.kernel.org",
+ 	license="GPLv2",
+-	url="https://i2c.wiki.kernel.org/index.php/I2C_Tools",
++	url="https://git.kernel.org/pub/scm/utils/i2c-tools/i2c-tools.git/",
+ 	ext_modules=[Extension(
+ 		"smbus",
+ 		["smbusmodule.c"],
+-- 
+2.51.0
 
