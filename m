@@ -1,128 +1,102 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5769C39B947
-	for <linux-i2c@vger.kernel.org>; Sat, 30 May 2026 09:17:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C88726A0D5;
+	Sat, 30 May 2026 11:34:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780132635; cv=none; b=nHxn29qd2NuOQuO2dcOeK2HoSC4XO3UuZ3s+8Brvy32K1W75CvOL/cOPEw7bKCLbNSL63A3dT3P0K6aeFUxAJV7lFCbjQQed9RSSQ54rMeMXuV1ES+fz8RONkHSguu5qw90erXCsanV8eYGBA9mr/NDHm6xwFE9QBkbT+YXRL1A=
+	t=1780140899; cv=none; b=N8CMQ15PemhPOVw6suINE060ebb6GRx+fZ3srN3r0euyrO6pGJ3F8clEffvXAOS6njHzfj7IL7oAreJBQngpNh2c99hkCxtGtkTzthxyqbsFvOjR45CrRvstoS+rMi/YdwvauH1E8MI8VvRXPEneuqHOsAcrlAcxA2voyt3xsdo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780132635; c=relaxed/simple;
-	bh=6pPZWf/ZI+KpbIxcPon8S5FgeqDvzfA0U15hbqnIMUI=;
+	s=arc-20240116; t=1780140899; c=relaxed/simple;
+	bh=Ku/aFaxUgfIGXui8jRwFs/0PTJclzFiBbeu2QzFxa64=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RqcAMyODZlCw5EKsgf8qkOFLW8uk8sanAi+p3YYA04bKw9P9seJuIST8XBqmFuvHiD8JNbLgnIE85QHxKWVcQ7+AacohfagpeUVxV1+6mlaoQgV0XLZcUoQxcX6F+g93KZ0MXnBFOHZLNAFXQ1kbfgxoKIdW7yjVif9jSoAA0Gk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=HcwBzck3; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=WDCRvW4ORcCTZ8MacDPHy9kpCngnJqKBVk5StK4SnMS0tKyBIGIt8f5W2s1pyDVOslh7MYYVjY1Vtas1IdaiRNPaQTx9NVwnC9qq67ZIW10//wt1TMtq8Gwgucz46S9ESt4uFuGiHpwZfmuxYjaCPb4UyFtkk9cTxU9vnKmaknw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=imYG6wHp; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="HcwBzck3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=5Tz7
-	bz6dX9G948lnWkl0CzkG89ZjwO69Hb6Asux763A=; b=HcwBzck3MSSjwprJqLpb
-	D7oSe1xJTw5vsdWcMeKaMqKdFlEj1kEJeN6+7pyPGDPbfq8GgIhIUIAtgo3B83g8
-	BJLkjZM1PmtxjFq/7rlOYZQo/A9Vub3g4YCBY0f1DtBGABRlL9qcTZZxDVBDUkB8
-	crsJwfVH9yvaB/NgwXJenfkROx6JsD/Zu3RuOFDnyA5PaE2fXhJ68XVP7yZipdbY
-	K0+30PQlZc8TP0qtdqsigcjpJI7hXekHeLoL+BYJkN+xQUyev/mqOaGkKG8Zxx2J
-	aH5smIjF9LBRvRrKPLB4C0t7QjH0BZQWkmS8ysJE+7i4ZUYWJg/cs9JeDhf3/z/Q
-	jQ==
-Received: (qmail 1702015 invoked from network); 30 May 2026 11:17:05 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 30 May 2026 11:17:05 +0200
-X-UD-Smtp-Session: l3s3148p1@yyHJbAVT4aKSAB1K
-Date: Sat, 30 May 2026 11:17:05 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Peter Rosin <peda@lysator.liu.se>
-Cc: Marcus Folkesson <marcus.folkesson@gmail.com>,
-	Michael Hennerich <michael.hennerich@analog.com>,
-	Bartosz Golaszewski <brgl@bgdev.pl>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Andy Shevchenko <andriy.shevchenko@intel.com>,
-	Bartosz Golaszewski <brgl@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH v9 5/5] docs: i2c: i2c-topology: add section about bus
- speed
-Message-ID: <ahqrEe_m4K4T7LaC@shikoro>
-References: <20260324-i2c-mux-v9-0-5292b0608243@gmail.com>
- <20260324-i2c-mux-v9-5-5292b0608243@gmail.com>
- <ahX4_WaqodYt3PmD@shikoro>
- <776cefab-fa6c-4092-8b95-236a3eaac729@lysator.liu.se>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="imYG6wHp"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50AE61F00893;
+	Sat, 30 May 2026 11:34:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780140897;
+	bh=r6iJ03g0GN7RPUEqnMX9QzrhnN3t4K3RUDcacgMvbpA=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=imYG6wHpndrIyG2kUXah98OBeOwxAQDxY+wnIJP2tmdT81J8jrlgyC9zjchdYinrp
+	 qrUwgYBT9G5apv8isIO+ZfnGbXbykqDUC1FDnE7Ay5q/2UR5W8EZyOe1i0mxgZPKIy
+	 iIPeqjCEDwKD8nsV8rhLLHL1+Ev5/QAyb3zCLONelalhQa4Lpq9RpJtoRu/3SLYSQ6
+	 UW2ecTI7wyeuNZhHfcKVjz2R1WFhmrbOJVHtcx+VcYPUS6Py/4NsxZwC+CbRiSRC4d
+	 qL01rbpeAjc9gEJmvEQSKpvHrqY+MAWqSYcPSuE7/rMcGqnz1mvNLBj+QYcfzF0z2H
+	 psI/LmsNcVEUQ==
+Date: Sat, 30 May 2026 13:34:55 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+Cc: Bryan O'Donoghue <bod@kernel.org>, 
+	Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, Loic Poulain <loic.poulain@oss.qualcomm.com>, 
+	Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+	Bryan O'Donoghue <bryan.odonoghue@linaro.org>, Bjorn Andersson <andersson@kernel.org>, 
+	Konrad Dybcio <konradybcio@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
+	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
+	Fabio Estevam <festevam@gmail.com>, linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+	Suresh Vankadara <quic_svankada@quicinc.com>, Vikram Sharma <vikram.sharma@oss.qualcomm.com>
+Subject: Re: [PATCH 1/8] dt-bindings: media: qcom: Add Shikra CAMSS compatible
+Message-ID: <20260530-lorikeet-of-strongest-honeydew-fd9b16@quoll>
+References: <20260526-shikra-camss-review-v1-0-645d2c8c75a7@qti.qualcomm.com>
+ <20260526-shikra-camss-review-v1-1-645d2c8c75a7@qti.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <776cefab-fa6c-4092-8b95-236a3eaac729@lysator.liu.se>
+In-Reply-To: <20260526-shikra-camss-review-v1-1-645d2c8c75a7@qti.qualcomm.com>
 
-
-> What makes the topology bad is D2. Without that device, it should
-> be OK. So, the question is which is more important?
-> 1. protect ignorant system designers from creating a topology
->    that includes problematic devices like D2
-> 2. allow multi-level mux-locked muxes with variable bus-speed at all
-
-My take is: as a generic operating system, we should try hard to
-maintain a reliable system. If a device gets stalled and blocks the bus
-because of a too high frequency, this is really bad.
-
-Now, if this is a flaw of the HW design, we can only do so much but not
-more. If the HW design is OK, we should not introduce risks. This is why
-I want to disable this feature for MUX_IDLE_AS_IS. It cannot work in
-this setup, but the bus itself is likely designed OK and would work at
-the lowest speed.
-
-> Checking the rules at run-time feels complicated to me, as devices
-> may come and go. Also, naming people "ignorant" over a mistake such
-> as the above in 1 is perhaps not all that fair. But, it feels sad
-> to disallow things that in fact do work.
-
-Like I said, as a generic OS, we should play safe. If someone wants to
-implement a more risky version, it can be built on top of what we have.
-This is agreeing to "I want this and I know I am on my own now".
-Obviously, it reduces maintenance burden a lot.
-
-> > ... unlike here. We have MUX_IDLE_AS_IS and MUX_IDLE_DISCONNECT defined
-> > already. And I'd think we should only allow bus speed switching for
-> > MUX_IDLE_DISCONNECT to avoid out-of-spec scenarios. Opinions?
+On Tue, May 26, 2026 at 10:42:45PM +0530, Nihal Kumar Gupta wrote:
+> Shikra uses the same CAMSS IP as QCM2290. Extend the existing
+> qcom,qcm2290-camss binding to add the qcom,shikra-camss compatible
+> string.
 > 
-> It is probably not unwise to disallow MUX_IDLE_AS_IS in this context,
-> at least until someone actually needs it. Which does not seem all that
-> likely?
-
-Exactly.
-
-> However, it seems like it should be fairly OK to allow a predefined
-> idle channel, as long as that channel is not lowering the bus speed
-> compared to the parent. But maybe supporting that can also wait for
-> an actual user?
-
-I agree as well. I hope that Marcus' use-case is MUX_IDLE_DISCONNECT.
-
-> > > +Supported controllers
-> > > +-----------------------
-> > > +
-> > > +Not all I2C controllers support setting the bus speed dynamically.
-> > > +At the time of writing, the following controllers have support:
-> > > +
-> > > +============================   =============================================
-> > > +i2c-davinci                    Supports dynamic bus speed
-> > > +============================   =============================================
-> > 
-> > This paragaph is easy to get outdated. We can document that only
-> > controller drivers with the callback function implemented will work.
-> > People then can find out if that applies for their driver...
+> Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+> ---
+>  Documentation/devicetree/bindings/media/qcom,qcm2290-camss.yaml | 6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
 > 
-> There are other such hard-to-maintain lists elsewhere in the text.
-> Not saying that this makes neither those nor this list a good idea,
-> but it is an explanation for adding one more.
+> diff --git a/Documentation/devicetree/bindings/media/qcom,qcm2290-camss.yaml b/Documentation/devicetree/bindings/media/qcom,qcm2290-camss.yaml
+> index 391d0f6f67ef5fdfea31dd3683477561516b1556..7b1469d6a1601413a1a32dc452d7d1fc85aa9eb8 100644
+> --- a/Documentation/devicetree/bindings/media/qcom,qcm2290-camss.yaml
+> +++ b/Documentation/devicetree/bindings/media/qcom,qcm2290-camss.yaml
+> @@ -8,13 +8,16 @@ title: Qualcomm QCM2290 Camera Subsystem (CAMSS)
+>  
+>  maintainers:
+>    - Loic Poulain <loic.poulain@oss.qualcomm.com>
+> +  - Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+>  
+>  description:
+>    The CAMSS IP is a CSI decoder and ISP present on Qualcomm platforms.
+>  
+>  properties:
+>    compatible:
+> -    const: qcom,qcm2290-camss
+> +    enum:
+> +      - qcom,qcm2290-camss
+> +      - qcom,shikra-camss
+>  
+>    reg:
+>      maxItems: 9
+> @@ -76,6 +79,7 @@ properties:
+>        - const: sf_mnoc
+>  
+>    iommus:
+> +    minItems: 1
 
-You mean the list if a driver uses parent-locked or mux-locked. What
-about putting that information into the driver? The core could enforce
-that it is set to a meaningful value and not left uninitialized?
+No. Same feedback as before - you need to describe now the items if you
+claim that there is distinction. I already pointed this out to Qualcomm
+at least two or three times.
 
-Happy hacking everyone,
-
-   Wolfram
+Best regards,
+Krzysztof
 
