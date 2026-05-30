@@ -1,112 +1,130 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4670C2C11E6
-	for <linux-i2c@vger.kernel.org>; Sat, 30 May 2026 20:06:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 364BE1C5F11
+	for <linux-i2c@vger.kernel.org>; Sat, 30 May 2026 20:06:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780171574; cv=none; b=nvaz/KQv1wCTlUig+bEFILGkaH2xJAKvc2fPzaOtETUOEmcXve1pZv7gt00U2/cMElTTQgDJ4I5nWul5lReL4PAdV4b2/oaAqawEJQMM379uHt53hEoKMqY1INz+2oRAR5lLHdvkvvHkjDmYW7lctnwqviFxKLsb3NuqduMRGxQ=
+	t=1780171597; cv=none; b=KYFdU1+qbXePg4ojahlMt1EzBuTftHKf5sx/OtHjKdCpBwnqdyQyv55aP+QeJzMC0QkhmalCDNe6MP+C8TEKmsUHV0jslfW0pfo/fAXYrjRkAzdL4M39dleuUUXMwyWYfwTalObdPWtGCrt8BIOf7e6tFTb3smDQHDuWB13cBJo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780171574; c=relaxed/simple;
-	bh=cm+7oPUGXwscThq8v9br3e4nNphRaCFZBysh2owGR/Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RegEiRfCHGO1xUB1U9zS0pB+ai/tugLePGAvw7FL7Gf/c8E2WAteLHxRZZiYbRJkO7GovfITqX1iplhhyFiYPHl9tl1DXqiHS3t40GcNjWxhnDwtROMth7pDlok9MrellckK/gEbtqDoM1xtc2EEcUEjJSq/pxO/YMpqshwTHuA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=enLLBTZY; arc=none smtp.client-ip=209.85.214.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1780171597; c=relaxed/simple;
+	bh=Dkf3gAZAq4XvP+PgcFLo58+/0+vf7HIbUq0GZzd+Yhg=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=uoJ6JNxhcJU7yEIU3eWXA880kLmCbjkaV9zIGyg26sgaIAS1lP1w/rdemB/uoaoA2bizd4bzoGhnmAeZgTNumNAuZuR8/vVN69g11YZinrAZAvKv15JZNXMqbEuQY4sD8J14AVInYBQrsVaCmTk3JyoZMmd+VFyi33EIrhS1J3k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com; spf=pass smtp.mailfrom=brighamcampbell.com; dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b=HwooL6CR; arc=none smtp.client-ip=74.125.82.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=brighamcampbell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="enLLBTZY"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2c0c3546924so725005ad.3
-        for <linux-i2c@vger.kernel.org>; Sat, 30 May 2026 13:06:12 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b="HwooL6CR"
+Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-304e58292d3so4337235eec.0
+        for <linux-i2c@vger.kernel.org>; Sat, 30 May 2026 13:06:36 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780171572; x=1780776372; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=7fBSNfLq7QUu4AmPks5xSIdwkB0r3aZw9X+kxcAAws0=;
-        b=enLLBTZYdeo3rUMKLnF4yVoCDeX4WRWq0K3wJv6AlS16qfcxOYOMKIYpBPXiktcA4X
-         n3trXg9gwb9cTdiu0djVoe7HDdqvab5d+OuzKWQeiuPJiGTCTQToRaOvsqL8DKIY7FBM
-         uVzx9VozhyD4ZfmuyWIe0t59xk8kxYR//NmhYeMo7QUilYOHkPNsMsTw634l501fgV1e
-         n1fs1Z5XMRdpUbzUJfbjuaQ9u0htd2PjChZbxh2oaeCjSMVwoA1R1BcABOvbPma8CiCm
-         0SyE1PBEA1yTIglbDp3ZJ59njIfzigYcOK00SCCcu6vqKDQ0NFZhvqBZQhCF8wL6IZBM
-         Mx4w==
+        d=brighamcampbell.com; s=google; t=1780171595; x=1780776395; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=iR5BKOFuuMA9SGOWYLy4bBf+ZgDv0FPHhDOTlvm7N6o=;
+        b=HwooL6CRcZ8mPHZy0QpZgVzbxQtTSlGNNSukVv6CgnCD3dih0mskw9LWF6ApIRZup+
+         USnGf2niPqgTz5b/emuw5A711JsYdTSVTkopCeujl6VSEGSbIvso72fPpZCNdbn6ORjk
+         I5xXH2GXK6pwUfjV0GBaPvX5RqK3HDcft4RH2wfDhAzurCOogiOO0cwXh5uWBq+HZv5V
+         SqdMQcLGxoJIeI6+3TyENBoefXdBlof3duEXz4sEhKWI3EP3jHEx3t0mui33QPmyQ9sQ
+         skFq7xr+uypBdeh8JKh/lL0Zbg3jg5xwES0NFlSgXjQSxJt0qpiEUlT5WDQfDojXU1Q6
+         z8vQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780171572; x=1780776372;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20251104; t=1780171595; x=1780776395;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=7fBSNfLq7QUu4AmPks5xSIdwkB0r3aZw9X+kxcAAws0=;
-        b=jOQRYLT7yZkxyX2LGQ8V/qWBNZDu+ll+NfKTzHWnhJiU17faYPdkLMtWkXrbAW1k2q
-         b20IA4RGnuFHgYJkbaopa3bC7diHjWNu5GlqsUczWWW7cMZh89OMWMUPQBiNxOqeT5MS
-         XxZ6HhQ3LqzXdFzQZxomgWpqPSfvjwvOyh4pW8yW9UhjSuhc4Gtg95zF/uHwNxIflBgy
-         YoSAVuwUARpSqACz4oRHTG3/p82xuG3srRa/aenjGTRJkzAaZMZ/UncN9VbrFzY5hRcW
-         324+b+481D7aFXiMISbKHKvlUCA0yxqAdGqG1BMSzOpHP10ySE/ral3p3O0+glyFT+Pl
-         ldBw==
-X-Gm-Message-State: AOJu0YzNoXvFcj4+9OvD2VunAaqB5EEI2EbVtE9Zm3fP4NLJBLgptKfi
-	zc4SSnTgDFHCFf69E3YLbCKDA33m3wBHCOYbenHY2kuLXhv0yvbnPcuPLCe/qNJH
-X-Gm-Gg: Acq92OGK56uMII6KNa8y+NKxxirZs1SFxjSqnwbXEla4J+Ujd/GuFCJ51QLvKue+gyE
-	VlzjHvp9zx6358UNc1UUJ3DxezXHRP0KshHVl7mEySR9PVHcr34mh/aD7xN8wYluNwixYPk/RF+
-	19bT+d07yfQWqmDVxkuIKVAI6oTCbLPKeP5JCR46QSDooi1I2z9XIIXnEvT0gSmr/yymFxi77UW
-	ZcEJJ0jVXjTtWum7vzdEl4dZpVEDH4HQ3MnWFUIsmKLW7F6iWyZRvAD0Zhj6v+hq1F5XNBRdvAV
-	OGzpV3Y9TzkSmCJ/0fIOM/Kgkzipv28cYfWiIEjlImC0kgea/zzndiPI8cKHf0BRNylLEDOTr1C
-	FE0I70RKwDea5eH+I+QUUeGh6fVeg/xEandKuDeZQzchejzAo5s8NfZK7ZOMP/AdMgYLSjRzBnN
-	XrUZwVz/NpBwRUqFCE3JEsABEUZdbN81X/l9k3H0Aa48PuIgly+NNdoIFwJMxIn3wBRfz+ATXYN
-	R+QvV0sIWENEhabtOvIrEbqEvBzhB+wA/fNYsFKQRiJcQ==
-X-Received: by 2002:a17:903:37ce:b0:2c0:b5c1:8e32 with SMTP id d9443c01a7336-2c0b5c192fbmr19092815ad.41.1780171572211;
-        Sat, 30 May 2026 13:06:12 -0700 (PDT)
-Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bf23c4dd4csm58546105ad.78.2026.05.30.13.06.10
+        bh=iR5BKOFuuMA9SGOWYLy4bBf+ZgDv0FPHhDOTlvm7N6o=;
+        b=CM1P9wZyw/QIzNubF2dloGPe21UjbgUUQpehkEnbVNVKmv3ukFAXxMele7gRwkynT+
+         7Lnm3ERne1HDMbP2BJlIoi8gtsam9kwcuB5xBo8q8USS+ozOU5Vuk4ZlRA85syjbiV0N
+         9sEabJ82RHNeS2u24bjtBAXWrHxLc15bFfyIKaubSu52VcLCOPozGiK42v+J5BtNVEqX
+         14pvhh7OqgL7M/ASBMCPdPuNQMR4Gk/F3RYzpaJgLSZVPdrGnZt/w3848fpx4RPyFRHC
+         b5ZGiXUixVnXY9u20GWVTG9InYDJdJMOTESR6dU0A+7CU4nqDm3T/OHFyXa9UAILIE0e
+         UENg==
+X-Forwarded-Encrypted: i=1; AFNElJ9w9ZVAbd2/lhYvazsUS0f1u6OwqagGaXrANy122xcSyBkUXqJC/xorPB0fX+ncQKUR+A13GKywA/w=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwRENx+SEDLTiFpCaMwMixhIpX239k3/ppF38MGVLIBbRi0T084
+	Z0g79UY6+CXA1nGx/qV4wSCS9R7b7acA3trw37umxg1Owjy2fmWyoZMJiO8ZLRTZpgrIxdjBU6B
+	l9gTT
+X-Gm-Gg: Acq92OFaI63owqiwJgbk30Th/IXpDYIbV7coW+bGWuzDopU4tgDNxfrqr/lB2R2NPX1
+	f1VJ/1APnrAq0EVrsqzdg4WlA+CeDVE3ZzC3OAptixS/MvxGqQX/P2hrqsQjcH3LBxIcFddVqy5
+	n4lsZxob3Nzr9RqgjOEFAy/71/cXVaiM8/fXD1vZnd46Y1w8dTfJPwfmAEyyks68cTDhrBzBiqn
+	iRt5mUYcr3YTDvTz88l5JlWtclFaka8Mr+P+pDyrnm4lzvEfjbwfPEU0GR9CEI845A+syxA8GA2
+	/Gb+CeiB1dzX3It5WeW5xBqxfkYVl6n1VVV4v08YOA0doj2H9TyinKxrU91ZlaNES/Swuj6JzJc
+	v27iaMAhYD//Klw1tFhU73VGHekP1WPzXazE0l/4Lm+wmBDZSKpzIOeRX+qb2YJxE5jFIfHlJxk
+	g38lBp2pgWgcmCwwFB9KLHW+yCU/5xdiFcmY/jmp+ib/VedBz+ftqjtJcOrXuVFy62quLFX74rm
+	oyAm2w=
+X-Received: by 2002:a05:7301:fa06:b0:304:705f:e4e8 with SMTP id 5a478bee46e88-304fa746836mr2485910eec.32.1780171595242;
+        Sat, 30 May 2026 13:06:35 -0700 (PDT)
+Received: from brighamcampbell.com ([2605:fb40:0:c09:9ca9:e0fd:b7cd:be76])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-304ed5a114dsm4791484eec.24.2026.05.30.13.06.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 30 May 2026 13:06:11 -0700 (PDT)
-From: Rosen Penev <rosenp@gmail.com>
-To: linux-i2c@vger.kernel.org
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	imx@lists.linux.dev (open list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE),
-	linux-arm-kernel@lists.infradead.org (moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH] i2c: mxs: add missing kernel-doc for struct mxs_i2c_dev members
-Date: Sat, 30 May 2026 13:05:54 -0700
-Message-ID: <20260530200554.8415-1-rosenp@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        Sat, 30 May 2026 13:06:34 -0700 (PDT)
+From: Brigham Campbell <me@brighamcampbell.com>
+Subject: [PATCH v3 0/2] i2c-tools: Make tools accept bus path
+Date: Sat, 30 May 2026 14:06:39 -0600
+Message-Id: <20260530-accept-device-path-v3-0-20c01b8f6726@brighamcampbell.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMwQ5FMBCF4VeRWZukFAmvIhY1HYwFTdt7IxHvr
+ lh+yTn/CYG9cIAuO8HzX4LsW4LOM6DFbDOj2GQoVdmoWis0ROwi2rQlRmfigrVui6ailgo7QTo
+ 6z5Mcb7QfPoffuDLFpwTXdQM0fVMAdgAAAA==
+X-Change-ID: 20260530-accept-device-path-539164c9c1df
+To: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
+ Brigham Campbell <me@brighamcampbell.com>, 
+ =?utf-8?q?Gero_Schw=C3=A4ricke?= <gero.schwaericke@sevenlab.de>
+X-Mailer: b4 0.15.2
 
-Add kernel-doc documentation for the struct members that were previously
-undocumented. This fixes warnings when building with W=1 and ensures
-the struct is fully documented per kernel-doc conventions.
+The purpose of this series is to make i2c-tools userspace utilities
+accept an i2c bus character device file path as an argument. This is
+useful, for example, if a sysadmin creates udev rules to create a
+persistent symlink to an i2c bus and wishes to use that symlink with
+i2c-tools.
 
-Assisted-by: Opencode:Big-pickle
-Signed-off-by: Rosen Penev &lt;rosenp@gmail.com&gt;
+I've tested these changes by running i2cdetect, i2cget, and i2cset.
+Please be aware that my current test setup has an i801 bus controller
+with what seems to be no slave devices connected, so my testing has been
+superficial, involving mostly failed read/writes. This patch series only
+touches code that actually opens the character device file, so I'm
+satisfied with this testing. If maintainers prefer, I'm happy to test
+more rigorously.
+
+Since v1:
+ * Scrapped brittle checking against device major number 89 in favor of
+   an i2c_bus_hint variant struct.
+Since v2:
+ * Scrapped i2c_bus_hint variant in favor of combining the lookup and
+   open steps into one function. No more awkward variant.
+
+Signed-off-by: Brigham Campbell <me@brighamcampbell.com>
 ---
- drivers/i2c/busses/i2c-mxs.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+Brigham Campbell (2):
+      i2c-tools: Allow passing device file paths
+      i2c-tools: Document device paths as I2CBUS arg
 
-diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-index 08c9091a1e35..4e07babea9c3 100644
---- a/drivers/i2c/busses/i2c-mxs.c
-+++ b/drivers/i2c/busses/i2c-mxs.c
-@@ -108,6 +108,14 @@ enum mxs_i2c_devtype {
-  * @cmd_complete: completion object for transaction wait
-  * @cmd_err: error code for last transaction
-  * @adapter: i2c subsystem adapter node
-+ * @timing0: I2C TIMING0 register value
-+ * @timing1: I2C TIMING1 register value
-+ * @timing2: I2C TIMING2 register value
-+ * @dmach: DMA channel
-+ * @pio_data: PIO data for DMA
-+ * @addr_data: address data for DMA
-+ * @sg_io: scatterlist for I/O
-+ * @dma_read: flag indicating DMA read
-  */
- struct mxs_i2c_dev {
- 	struct device *dev;
---
-2.54.0
+ tools/i2cbusses.c   | 40 ++++++++++++++++++++++++++++++++++------
+ tools/i2cbusses.h   |  4 +++-
+ tools/i2cdetect.8   |  8 ++++----
+ tools/i2cdetect.c   | 14 +++++---------
+ tools/i2cdump.8     |  7 ++++---
+ tools/i2cdump.c     | 14 +++++---------
+ tools/i2cget.8      |  9 +++++----
+ tools/i2cget.c      | 13 +++++--------
+ tools/i2cset.8      | 12 ++++++------
+ tools/i2cset.c      | 13 +++++--------
+ tools/i2ctransfer.8 |  2 +-
+ tools/i2ctransfer.c | 13 +++++--------
+ 12 files changed, 82 insertions(+), 67 deletions(-)
+---
+base-commit: c1b0305972e89aae048068a3b228f35ef0206243
+change-id: 20260530-accept-device-path-539164c9c1df
+
+Best regards,
+--  
+Brigham Campbell <me@brighamcampbell.com>
 
