@@ -1,67 +1,66 @@
-Received: from mail-lj1-f181.google.com (mail-lj1-f181.google.com [209.85.208.181])
+Received: from mail-lj1-f174.google.com (mail-lj1-f174.google.com [209.85.208.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA93733F5A0
-	for <linux-i2c@vger.kernel.org>; Sun, 31 May 2026 10:25:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12A513655FD
+	for <linux-i2c@vger.kernel.org>; Sun, 31 May 2026 10:42:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780223138; cv=none; b=HiChYHYYNJ+T6rK7CkebYH5jNhnFjzeDCj9Rogt55JKZvV6D8cuBkrvQAJF+OQq7ADSnpuxpLZZJ/GdlvIWvwG7jQsn0jKbet4UD1jkpwUvNyekF2+mqE1bhh+uvn2ywIZ15Tddphx0IOJDceAozAd9hkYKQCc8cDBn3izCkVfw=
+	t=1780224144; cv=none; b=roA+RIukQAfHpex1tvuHLwZsKn4PJvdQZ+yJR2cJv6Mb08o5jTzPPGY+XAPC1WWBnneDRzL/EDicgYChIVYrkK0mJ8lHQc2QjEF1WOCQcuNY7vWBD2nZlp9CJmDnoIdnWsp9RP1swSi7UKNBBQuQ0edLCku2XPSx04g0D+V6UNs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780223138; c=relaxed/simple;
-	bh=e9Zscnjlb7eVW1JuWllN8dr+9XusTB26pfEhJfepi9E=;
+	s=arc-20240116; t=1780224144; c=relaxed/simple;
+	bh=IocCa73rf7kw/jZJ8Wjphwt1PovjtrER/bBR1M7xXNM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YJpkIVJyRCfqaW7OjdRU1Qjg/dvjy/LssdT6UFquU0ysKCupTxpBL3cZynV5RxRgD+jUEekSkKoZbddtUO0pujHBqx5SbGtuqkjbU0nfNLLzOcE/7K5vfadwhkM8CmkUACCKkG93NkKjv4MY9Dz4I6Qa0AFG7eeiCcgMGjzhXMM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CRa/ByZS; arc=none smtp.client-ip=209.85.208.181
+	 Content-Type:Content-Disposition:In-Reply-To; b=KVN9bGlY2aSwXn3GdD6NN3TRK6uXuQB8uaN13yYFaccx1cKvKfoNIaTIQcUjgSwMsycKg8Z67oQuN2I8QDRwoJ6Y3I2cfI1Me0sl3TQ8PlFSZuwPsUIi2XviiOJ5z2bP8lZ/N3ku6lDBaz7SFUv4C0j0ZrAPUGioU0EUif87/CU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pp/Qht4t; arc=none smtp.client-ip=209.85.208.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CRa/ByZS"
-Received: by mail-lj1-f181.google.com with SMTP id 38308e7fff4ca-3967725a77fso4259451fa.1
-        for <linux-i2c@vger.kernel.org>; Sun, 31 May 2026 03:25:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pp/Qht4t"
+Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-396770cdcfdso5198851fa.0
+        for <linux-i2c@vger.kernel.org>; Sun, 31 May 2026 03:42:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780223135; x=1780827935; darn=vger.kernel.org;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=xMYihA9IlT7MGBAsYy2tN6OXn0Itk+3Xj0eqVjjKY/M=;
-        b=CRa/ByZS4fqMVTvyep5GBYbVd5o21R2QhjklKzvaDqs3xaCtPY4Kyuqyzwy20vMIA/
-         vjh5k+gZ0wO0fvuVQZC1GJKMY7pLpfQOdL6i5IlGzvek4vAUbvNRbpWBeSHdGrn3H4nQ
-         b1e6Pos046H/tq4+0tlzHCfE2Id+YvYGvY/AJOUsidrV+bQTi8tJ8rujmMt6Q1T4nJb3
-         oLFDZyup3mmTrtFjS00Kg+tIDDHDmSoSPaz8FVPITLu/csB+vfI+Q6Z2B18eaAQQEAzb
-         /q6aN/1E3VZac8E5Q9Wxn91mITVEW2UzprlRKJ3lUNAiF7Vfx/Pfow0BDEOd/ACmK+9F
-         lAdg==
+        d=gmail.com; s=20251104; t=1780224141; x=1780828941; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=INehRWTHTBM1ilUwastePElIHNWnGH8n+SvXXUnd6iA=;
+        b=pp/Qht4tG5f2xTyd9OCsMDBpGHCyX56saBZPfRPlezRY0y3djtDwTZgn3PbfNX+0rN
+         uoyNpF8FQc1zC/W6iGDmYTGSZ4P2C5NyTAwW3VyHO3AUgqZWNUVINFD56mamC6rc9wo3
+         zLlo2Bf9Se0F2pVwjcIpGVAclNTe0kKzh1lYpAcDZM0WnLagy06kSAnAh9vjldueThy8
+         +xgmbn7gr31CTozhPptZGTrnpYY3unvj5U1EyEFrgWm7IqF0eg5eROxwSogdFjUWGGLf
+         EDwiGG0p+t6C9HZTX2VW6v1sKxaE2+2gGB5BiWOjdoDXV4XvwsRdvaWb5m4auagLF8y6
+         zWWw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780223135; x=1780827935;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xMYihA9IlT7MGBAsYy2tN6OXn0Itk+3Xj0eqVjjKY/M=;
-        b=VrTMxstjidvFBkEAUuEtYPlU3LW+bh9qg9kz33eLQg+wLodKVJJ+NbFsgdlwZWJATM
-         Nai1AXH+znudzkpK50oAu4MS/HwY0Edi8FLzYOJV2u7AJgswrvdQAlR9k1xOxSwUSkLE
-         hyDWZpVaprdtyi2trCikqv4u4aPryyvHIVy2ZeKmbzG18HDlelNTZOzG+8kIZlWVk/QM
-         2hjW3+jvT/4rGtaVIFUaamacjW+YrRJrxc86vzvdObG4rw2SgF6a3On0fG7b0D4E2Dll
-         D8doffUH3V6QTSrc3hU86uzIoVwRzeY6dCJRzOXMtR5ngee5eO7LVJsfB3fBlUX3uErR
-         gTKA==
-X-Forwarded-Encrypted: i=1; AFNElJ+tTnpYYDXDI7vtKoJuCIeGMa3jdinYGjao336E2g+p8JZMn2EaxXS8t6N0gAXj/1Y2hk/L3wBLIB8=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzjsPGIZkekPwsapO2uFADhfPyu2TOzkOsq4eCA7E8fGvHzepjx
-	bZWW+yZafc2T7oaHAvuZC/oXfS8SdUCjKZILqVygFKm7TrhYmDkhwZE9
-X-Gm-Gg: Acq92OEZqj7q+ErrJKmmebcE2usefI7gwf5jlby8W7sK3/bQnG5H+YyZh3VDYJIM6eI
-	KWWPLJxbVBDNnr6Uu9rdRHaiBkUk9uopWTZE6xp+komtJ5vF/gnVVl0N2M9XO/rmUfgHANLE6mh
-	za2A1J171dm5wMPINGFiifpk6D5hx38m7oamOE3Mp/X1iteb+3MJtDQnnPAZivC2+TmSxlhxTOD
-	nZtGSrmbwVjtrax140lyal0ue/k0qh3prKwipKif2PV3G4VECwMopxlX8tHXkISFz4BNFKEhmNb
-	NPxevwHWappDgH/u7W3Ea5xDLiVA50bUTTwBcWySdtpwHMI4guPi3FmrvruKbB7M5+LGEXTXkpO
-	4FLGI4Xvwv7ZnMP7KCLzEefWC+lQ5g5huA/Zn3PGfP2/BrA01w7fAX2Hzn097qyKLzvWb4I+N+G
-	jRSKXZ2im1VYMAJrtdajG/NSlcIlAfsm9s1f7k40YUJnqdw8r69NmyN4AX8MTH68qtuTbF+rE=
-X-Received: by 2002:a2e:a548:0:b0:396:78b8:27df with SMTP id 38308e7fff4ca-39678b83166mr6460391fa.8.1780223134727;
-        Sun, 31 May 2026 03:25:34 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1780224141; x=1780828941;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=INehRWTHTBM1ilUwastePElIHNWnGH8n+SvXXUnd6iA=;
+        b=QAO5Zp763Yh0Xrk4bNlVMf4BjFOw8UciXMZlG3i4dT/B6aaJ5vyBp2rAmt0naetkNq
+         kJVMKq3Km5bbiRQOdmU2INURRMzSYLX4ZTVFGDgl1ccpVPeN+6E89vYYijP4RlC3L8AL
+         yG+tdtxPlQYiSSWDMovg2aA2kP3vb9dfZCKULQQm74pP/N2mNS0tbCzyxFibAwe5phhm
+         5VEyRT/DytgwyJ08LbObv0d/V1dQSwKAOIHJXfT6h5noqT7qh4JSqcDYo1FngITDhlih
+         LgASDsZuVngd/x6EiCauiCDpXBOD9fRiXXqZ6ZuRrb7QnD3UKuvvdujR1AzKKHksJ2yr
+         reMg==
+X-Forwarded-Encrypted: i=1; AFNElJ+IESkzqjKmB+l/B/cs3F/i2wgfybLloVUO6suZk0mpr5nBNbzSrlrN01tuBia4GaQfRblMHHOCxPo=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwbC052V0+Zy5liAYv6s8RsonmaSJOpODPbPDwI0DLg6pH2UNZ3
+	8qtuuvQcatdlH0WDJeU9E2ZouDXmhzDTRpGSzDODRS0oZ8xzwGTckAwz
+X-Gm-Gg: Acq92OEpsbbVYYIi03yeo9VoU8H+TZ3HR1DgaFfU1SC+u00XzO45FxthEqOj8/52iT1
+	Kwjr4pdEaxQqHrNIG9LbmuI8KNGbEFeyYhBiSifjqDpONJKKzzWSf4t8sk7bj5fecb5td/eZsg5
+	ah0geK91n1nP8uLA0mHep004GrOSDPopjdBbXP0rczjhbzNFkg4eEMFx7egUbIQIq3HogVG26+D
+	lNdLN7qpmRiWshiHFqmVTwaQYXL+R/QMdIU50zkp4xUB9gaucL6+5czhKSd9asEXMq1WafGK/zY
+	1ShlsvDSISx0ONqFh4fj6mtWOfuIVTvAba7Rq9LfiUaBqAtt4d/6/oUD07/VGQSFxLB5NuF5uPA
+	w4kg6Bjcs1f1UCXWP7q4YveBMoC09fKI/y2F6JIHci68CmaXLDXJYvG/thrYaS66HwN8spkIcEO
+	pbWQxKK95Yxmyf20CAlKijVLrHSLw8J+iPIeGeiTzvhzTjfbC86Umxmdesnbi/eaDG0gmKhzc=
+X-Received: by 2002:a05:6512:398e:b0:5a7:46f2:9860 with SMTP id 2adb3069b0e04-5aa608ec07fmr1928751e87.20.1780224141104;
+        Sun, 31 May 2026 03:42:21 -0700 (PDT)
 Received: from gmail.com (83-233-6-197.cust.bredband2.com. [83.233.6.197])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-3965b3cb6fesm14245011fa.14.2026.05.31.03.25.31
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5aa5b07214asm1480110e87.21.2026.05.31.03.42.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 31 May 2026 03:25:33 -0700 (PDT)
-Date: Sun, 31 May 2026 12:25:30 +0200
+        Sun, 31 May 2026 03:42:19 -0700 (PDT)
+Date: Sun, 31 May 2026 12:42:16 +0200
 From: Marcus Folkesson <marcus.folkesson@gmail.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Peter Rosin <peda@axentia.se>,
+To: Peter Rosin <peda@lysator.liu.se>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
 	Michael Hennerich <michael.hennerich@analog.com>,
 	Bartosz Golaszewski <brgl@bgdev.pl>,
 	Andi Shyti <andi.shyti@kernel.org>,
@@ -70,10 +69,11 @@ Cc: Peter Rosin <peda@axentia.se>,
 	linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org
 Subject: Re: [PATCH v9 5/5] docs: i2c: i2c-topology: add section about bus
  speed
-Message-ID: <ahwMmgy8hRaQ-x_7@gmail.com>
+Message-ID: <ahwQiJAwsPl2uJ5M@gmail.com>
 References: <20260324-i2c-mux-v9-0-5292b0608243@gmail.com>
  <20260324-i2c-mux-v9-5-5292b0608243@gmail.com>
  <ahX4_WaqodYt3PmD@shikoro>
+ <776cefab-fa6c-4092-8b95-236a3eaac729@lysator.liu.se>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -82,125 +82,86 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <ahX4_WaqodYt3PmD@shikoro>
+In-Reply-To: <776cefab-fa6c-4092-8b95-236a3eaac729@lysator.liu.se>
 
-Hi,
+Hi Peter!
 
-On Tue, May 26, 2026 at 09:48:13PM +0200, Wolfram Sang wrote:
->=20
-> > +Multiple muxes in series
-> > +--------------------------
-> > +
-> > +When multiple muxes are used in series the same rules applies.
-> > +
-> > +Transfers to D3 may interleave between select-transfer-deselect to D1,=
- which
-> > +results that the bus speed to D2 or D3 will be at 100KHz.
-> > +
-> > +Transfers to D2 may interleave between select-transfer-deselect to D1,=
- which
-> > +results in that the bus speed to D1 may be at 400kHz as the transfer t=
-o D2
-> > +will set the bus speed to before the transfer to D1 starts.
-> > +
-> > +This is probably a bad topology ::
->=20
-> In documentation, we probably shouldn't say "probably" ;)
+On Sat, May 30, 2026 at 08:54:51AM +0200, Peter Rosin wrote:
+> Hi all,
+> 
+> First off, sorry for being so incredibly slow in getting to this
+> series.
 
-Answer in next mail.
+No worries!
 
->=20
-> > +
-> > +                     .----------. 400kHz .----------. 100kHz .--------.
-> > +    .--------.400kHz |   mux-   |--------|   mux-   |--------| dev D1 |
-> > +    |  root  |--+----|  locked  | 400kHz |  locked  |        '--------'
-> > +    '--------'  |    |  mux M1  |--.     |  mux M2  |
-> > +                |    '----------'  |     '----------'
-> > +                |  .--------.      |  .--------.
-> > +                '--| dev D3 |      '--| dev D2 |
-> > +                   '--------'         '--------'
->=20
-> 400kHz leaking to a 100kHz device is bad. I guess we cannot do much
-> about it here because the bus speed is a board specific parameter...
->=20
-> > +Idle state
-> > +-----------
-> > +
-> > +Muxes have an idle state, which is the state the channels are put into=
- when no channel
-> > +is active. The state is typically one of the following:
-> > +
-> > +- All channels are disconnected
-> > +- The last selected channel is left as-is
-> > +- A predefined channel is selected
-> > +
-> > +Muxes that support an idle state where all channels are disconnected a=
-re preferred when using
-> > +different bus speeds. Otherwise high bus speeds may "leak" through to =
-devices that
-> > +may not support that higher speed.
-> > +
-> > +Consider the following example: ::
-> > +
-> > +                          .----------. 100kHz .--------.
-> > +        .--------. 400kHz |   mux-   |--------| dev D1 |
-> > +        |  root  |--+-----|  locked  |        '--------'
-> > +        '--------'  |     |  mux M1  |--. 400kHz .--------.
-> > +                    |     '----------'  '--------| dev D2 |
-> > +                    |  .--------.                '--------'
-> > +                    '--| dev D3 |
-> > +                       '--------'
-> > +
-> > +If the idle state of M1 is:
-> > +
-> > +- All channels disconnected: No problem, D1 and D2 are not affected by=
- communication
-> > +  to D3.
-> > +- Last selected channel: Problem if D1 was the last selected channel. =
-High speed
-> > +  communication to D3 will be "leaked" to D1.
-> > +- Predefined channel: Problem if the predefined channel D1. Set predef=
-ined channel
-> > +  to D2 as D2 may handle 400kHz.
->=20
-> ... unlike here. We have MUX_IDLE_AS_IS and MUX_IDLE_DISCONNECT defined
-> already. And I'd think we should only allow bus speed switching for
-> MUX_IDLE_DISCONNECT to avoid out-of-spec scenarios. Opinions?
 
-Answer in next mail.
+[...]
+> > > +Consider the following example: ::
+> > > +
+> > > +                          .----------. 100kHz .--------.
+> > > +        .--------. 400kHz |   mux-   |--------| dev D1 |
+> > > +        |  root  |--+-----|  locked  |        '--------'
+> > > +        '--------'  |     |  mux M1  |--. 400kHz .--------.
+> > > +                    |     '----------'  '--------| dev D2 |
+> > > +                    |  .--------.                '--------'
+> > > +                    '--| dev D3 |
+> > > +                       '--------'
+> > > +
+> > > +If the idle state of M1 is:
+> > > +
+> > > +- All channels disconnected: No problem, D1 and D2 are not affected by communication
+> > > +  to D3.
+> > > +- Last selected channel: Problem if D1 was the last selected channel. High speed
+> > > +  communication to D3 will be "leaked" to D1.
+> > > +- Predefined channel: Problem if the predefined channel D1. Set predefined channel
+> > > +  to D2 as D2 may handle 400kHz.
+> > 
+> > ... unlike here. We have MUX_IDLE_AS_IS and MUX_IDLE_DISCONNECT defined
+> > already. And I'd think we should only allow bus speed switching for
+> > MUX_IDLE_DISCONNECT to avoid out-of-spec scenarios. Opinions?
+> 
+> It is probably not unwise to disallow MUX_IDLE_AS_IS in this context,
+> at least until someone actually needs it. Which does not seem all that
+> likely?
 
->=20
-> > +Supported controllers
-> > +-----------------------
-> > +
-> > +Not all I2C controllers support setting the bus speed dynamically.
-> > +At the time of writing, the following controllers have support:
-> > +
-> > +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D   =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-> > +i2c-davinci                    Supports dynamic bus speed
-> > +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D   =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
->=20
-> This paragaph is easy to get outdated. We can document that only
-> controller drivers with the callback function implemented will work.
-> People then can find out if that applies for their driver...
->=20
-> There are some grammar correction in the Sashiko-review[1]. Most of them
-> look correct to me. Can you have a look at these, too, please?
+I agree, I had this in my first iteration [1][2], but only as a warning
+though. 
 
-Sure, thanks for pointing that out. I will update the patch with the
-grammar corrections.
+Maybe I should reintroduce `idle_state` again and only allow
+MUX_IDLE_DISCONNECT?
 
->=20
-> [1] https://sashiko.dev/#/patchset/20260324-i2c-mux-v9-0-5292b0608243%40g=
-mail.com
+
+[1] https://lists.infradead.org/pipermail/linux-arm-kernel/2025-September/1064986.html
+[2] https://lists.infradead.org/pipermail/linux-arm-kernel/2025-September/1064987.html
+
+> 
+> However, it seems like it should be fairly OK to allow a predefined
+> idle channel, as long as that channel is not lowering the bus speed
+> compared to the parent. But maybe supporting that can also wait for
+> an actual user?
+> 
+> > > +Supported controllers
+> > > +-----------------------
+> > > +
+> > > +Not all I2C controllers support setting the bus speed dynamically.
+> > > +At the time of writing, the following controllers have support:
+> > > +
+> > > +============================   =============================================
+> > > +i2c-davinci                    Supports dynamic bus speed
+> > > +============================   =============================================
+> > 
+> > This paragaph is easy to get outdated. We can document that only
+> > controller drivers with the callback function implemented will work.
+> > People then can find out if that applies for their driver...
+> 
+> There are other such hard-to-maintain lists elsewhere in the text.
+> Not saying that this makes neither those nor this list a good idea,
+> but it is an explanation for adding one more.
+> 
+> Cheers,
+> Peter
 
 
 Best regards,
 Marcus Folkesson
+
