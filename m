@@ -1,65 +1,88 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68DF21A6839;
-	Mon,  1 Jun 2026 19:18:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F31C33F590;
+	Mon,  1 Jun 2026 23:35:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780341527; cv=none; b=Go/P3sqjra1tCIjsxh8aBh7Sodh3d2+EaXn8laYLZnv4DS1Gwed3CgxrrNkTdHifPeNUFCqB3Eu44Qxwh+ohTbL/QBLy/tkLmGuI4kXS+vxixi4KSazq3RcFxBpz4D6tZ7EFRqqaf8y2Dqu0PmNd/fBr2L8P1WoZMaNhn/iuqc4=
+	t=1780356951; cv=none; b=ZkvjnJeSxJPFANgsg4qd1alWkl94UWguwjfQfucig68WnQr2aJ5sSMPJCeaP+2z9LjX/HH3bonVkGYhh/YY5Ho4WawMR9yFSxNaDB/Bfp5LPMmyOr6FGQLpc3aSedoLjc4GW/ljlZsZ8glZRIsMcM53n1VzTSkiBfoaHkSp4zh8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780341527; c=relaxed/simple;
-	bh=XByac4jqa9bNVJj/uf8ZToa0I4yv1Dz1L1o/ssrvxVg=;
+	s=arc-20240116; t=1780356951; c=relaxed/simple;
+	bh=mu+k5t+nIMpSdNoVyH2bpssgMm+HGMnEOEsZeveBT8Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=I8ZFEPhzEtV74181nDolVhgbmugzXvJCUIX8YrNco8qJqa3C9TNMHs8MJlRECIb3dYDLCKpjaRhs9hGPhbSe24jbn3rynmZWgZILzXtcVf7/RRl8prEsrAzqKiUw6nM4JQnYXryE1AvDkhf2zcbxPhV1rGXlqzouMcEmc+gxMYs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ccjX/1qa; arc=none smtp.client-ip=198.175.65.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=dZ7+2Sy49W8OkBelKwRKgbivpVg6LIkE+Lk3X4mQwcCRghJyNGESIHbVWI3g84vHJPoGO633N/P4K8q/zKhBDtwDfgRvrtB+C6RQ2UZ0nzxBP1zfkOh4elUJPq6EWWIChIftFy1iR8Alxvp+Pd4WNi2UaNt093uHf7SWMhQQ+Mc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bwFeM+dK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ccjX/1qa"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1780341525; x=1811877525;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=XByac4jqa9bNVJj/uf8ZToa0I4yv1Dz1L1o/ssrvxVg=;
-  b=ccjX/1qaMrg6CKhl14YPXVwQLWAnQmxMqvRtiOwgj5M36qpVKCi0RLmD
-   +eTBJLTPcIufcjLeOgUK47HA+vqIy+Faii6bkFxZ4cw6ZvSVbGOlAOrH/
-   3tFp6MJTD8hZBhX5QKyHaOQ+yFIa4t4/nQPzBvvwlrveqt62EsE2oAszr
-   VvNLsBZFryZFMBgPZ4mXNAbecZ7ODJTiYIFYhPeCVYxJTvQP/kk8fjAEl
-   VPRZYMNCk7ouQJWEFjOL1yCSQRVuYQwdYe8oKgMVIaLl7lPX9p/nKIxhy
-   8RR+IlN7f2Ypegx/AUDqLX2n8lOJ3lunqPsaOL8OVDnHFp7Uw+ixljeRX
-   g==;
-X-CSE-ConnectionGUID: 2UZWEeqvSOWFtBzyMpDFlQ==
-X-CSE-MsgGUID: 4bgIcR5JSeKPwjZu+FZFbA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11804"; a="81294862"
-X-IronPort-AV: E=Sophos;i="6.24,181,1774335600"; 
-   d="scan'208";a="81294862"
-Received: from fmviesa001.fm.intel.com ([10.60.135.141])
-  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jun 2026 12:18:45 -0700
-X-CSE-ConnectionGUID: 6WVaCva+Sg6StVOfA0UDwg==
-X-CSE-MsgGUID: pvLmmQTOR3qfi6hWUiT8Gg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,181,1774335600"; 
-   d="scan'208";a="267547772"
-Received: from vpanait-mobl.ger.corp.intel.com (HELO localhost) ([10.245.245.111])
-  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jun 2026 12:18:41 -0700
-Date: Mon, 1 Jun 2026 22:18:39 +0300
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Danny Kaehn <danny.kaehn@plexus.com>
-Cc: Benjamin Tissoires <bentiss@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, Jiri Kosina <jikos@kernel.org>,
-	linux-input@vger.kernel.org,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ethan Twardy <ethan.twardy@plexus.com>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Leo Huang <leohu@nvidia.com>,
-	Arun D Patil <arundp@nvidia.com>, Willie Thai <wthai@nvidia.com>,
-	Ting-Kai Chen <tingkaic@nvidia.com>,
-	Bartosz Golaszewski <brgl@kernel.org>
-Subject: Re: [PATCH v14 1/2] HID: cp2112: Add fwnode support
-Message-ID: <ah3bDxgh-r7FtdbZ@ashevche-desk.local>
-References: <20260520-cp2112-dt-v14-0-b1b4b6734b6f@plexus.com>
- <20260520-cp2112-dt-v14-1-b1b4b6734b6f@plexus.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bwFeM+dK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5639F1F00893;
+	Mon,  1 Jun 2026 23:35:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780356949;
+	bh=BsNyXchE0cQ+WrTEzbPCgdBZhaTxYz8ZYh6ODfO6Thc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=bwFeM+dKJids5MGHkWeT2lqLmOE+Z22fpYZVG8IarCaPIkYd1ClJLTF0P+KK4TZC1
+	 t1HfBIbIgLm2lF9d6SD2H1GRY5GUIy6SJwL9v8EZ3L20jIK/NaVXSt1XPTueO0oIGy
+	 y19iXABriAlFUODdDTo2f2+FK6UaosZlP/s7kW+eWFj9kPjNXvxZUpQLix9fiYAVMs
+	 qutOmIhrfL9fMTHLsw3ErfIZs150qZpCJg1stHoIzdshVCQp8iYW9sI4ko81gCNtbL
+	 eRcz3oBpBUe09WQM6FxiPQKCgb0o3dANEdBD5y5Egf4yKaQOgk8QwaFZYGWRDLloCl
+	 38TEpySFeTuzg==
+Date: Mon, 1 Jun 2026 18:35:48 -0500
+From: "Rob Herring (Arm)" <robh@kernel.org>
+To: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Cc: Lee Jones <lee@kernel.org>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Doug Berger <opendmb@gmail.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Bin Liu <b-liu@ti.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Thierry Reding <thierry.reding@avionic-design.de>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>, brgl@kernel.org,
+	Eric Dumazet <edumazet@google.com>,
+	Fabio Estevam <festevam@gmail.com>,
+	David Airlie <airlied@gmail.com>, linux-arm-msm@vger.kernel.org,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Will Deacon <will@kernel.org>, iommu@lists.linux.dev,
+	Ulf Hansson <ulfh@kernel.org>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	linux-arm-kernel@lists.infradead.org,
+	"David S. Miller" <davem@davemloft.net>,
+	intel-xe@lists.freedesktop.org, Andi Shyti <andi.shyti@kernel.org>,
+	linux-kernel@vger.kernel.org,
+	"Rafael J. Wysocki" <rafael@kernel.org>, netdev@vger.kernel.org,
+	linux-sound@vger.kernel.org, Srinivas Kandagatla <srini@kernel.org>,
+	linux-mips@vger.kernel.org,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	driver-core@lists.linux.dev,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	imx@lists.linux.dev, Vinod Koul <vkoul@kernel.org>,
+	Peter Chen <peter.chen@kernel.org>, linux-usb@vger.kernel.org,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Paul Cercueil <paul@crapouillou.net>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Joerg Roedel <joro@8bytes.org>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Danilo Krummrich <dakr@kernel.org>,
+	Mark Brown <broonie@opensource.wolfsonmicro.com>,
+	Robin Murphy <robin.murphy@arm.com>, Frank Li <Frank.Li@nxp.com>,
+	devicetree@vger.kernel.org, linux-i2c@vger.kernel.org,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	linuxppc-dev@lists.ozlabs.org,
+	Saravana Kannan <saravanak@kernel.org>,
+	Maximilian Luz <luzmaximilian@gmail.com>, linux-pm@vger.kernel.org,
+	Hans de Goede <hansg@kernel.org>, dri-devel@lists.freedesktop.org,
+	platform-driver-x86@vger.kernel.org
+Subject: Re: [PATCH 09/23] of: platform: use platform_device_set_of_node()
+Message-ID: <178035694685.195552.1114165096275774254.robh@kernel.org>
+References: <20260521-pdev-fwnode-ref-v1-0-88c324a1b8d2@oss.qualcomm.com>
+ <20260521-pdev-fwnode-ref-v1-9-88c324a1b8d2@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -68,28 +91,19 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260520-cp2112-dt-v14-1-b1b4b6734b6f@plexus.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+In-Reply-To: <20260521-pdev-fwnode-ref-v1-9-88c324a1b8d2@oss.qualcomm.com>
 
-On Wed, May 20, 2026 at 11:13:06AM -0500, Danny Kaehn wrote:
-> Support describing the CP2112's I2C and GPIO interfaces in firmware.
+
+On Thu, 21 May 2026 10:36:32 +0200, Bartosz Golaszewski wrote:
+> Ahead of reworking the reference counting logic for platform devices,
+> encapsulate the assignment of the OF node for dynamically allocated
+> platform devices with the provided helper.
 > 
-> Bindings between the firmware nodes and the functions of the device
-> are distinct between ACPI and DeviceTree.
+> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+> ---
+>  drivers/of/platform.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> For ACPI, the i2c_adapter will use the child with _ADR equal to Zero
-> and the gpio_chip will use the child with _ADR equal to One.
-> 
-> For DeviceTree, the i2c_adapter will use the child with name "i2c",
-> but the gpio_chip will share a firmware node with the CP2112.
 
-As we seems settled on the approaches in both cases, I think we are fine
-to go
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-
--- 
-With Best Regards,
-Andy Shevchenko
-
+Acked-by: Rob Herring (Arm) <robh@kernel.org>
 
