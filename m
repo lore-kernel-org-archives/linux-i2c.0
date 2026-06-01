@@ -1,66 +1,66 @@
-Received: from mail-wr1-f49.google.com (mail-wr1-f49.google.com [209.85.221.49])
+Received: from mail-ej1-f41.google.com (mail-ej1-f41.google.com [209.85.218.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A7003B95E0
-	for <linux-i2c@vger.kernel.org>; Mon,  1 Jun 2026 14:15:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 18F8A3B9D81
+	for <linux-i2c@vger.kernel.org>; Mon,  1 Jun 2026 14:19:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780323337; cv=none; b=r0DC8V6hUUtcKtJMd/sEUvAM6jb1fw0kzmbyneiaIUPx3ttGlHO4LE4Np0MoVL531KTM8kpfatR/2mBcG31s+O6mMwl/QMvzKTct6ibzERLow0Vb553AzgW6Urd/6DJdetoRCKc5x1dXOqtZtG4hUO01/8u4dz90NpFNFBU9Z/0=
+	t=1780323555; cv=none; b=vDrZtHx/ZhHPMWW/D+c++LSSRhabuFRA8diBfzMy0AM2oDtNsHWE1Mg/KibXMltvDIJkG2jEboJOIx+lQbWTXEWj+LVDBsQa09cijGCoV1XcAkGvQzAt8PS0xwtd/ZTsJWLIuAwV5g7ISj3hpm92f49VC0f+W0JrTatua537o+c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780323337; c=relaxed/simple;
-	bh=IxB7Fd79A3gZ1r/a8Cr3tbT307HV68s4njAYnRINXlo=;
+	s=arc-20240116; t=1780323555; c=relaxed/simple;
+	bh=0WoyP4VFmcWSwZARoRzXvbXDRI6qgb1cEPd97r9v4hk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hA6mFNzh6+WtvrkjYvFTewABRVnKUainaCpWdp2yvy6SnS4oEh5L3pId2cQmgIs3Ll0m1dD0UlGj3XGHxcpwkeZVtTQenYB1SZdbzQnUKQWIloLRUqX3Ov/+vYU2pnVmxCDBi95ZzJzOSwaf4+RnY1iDqvKIcIPVST6RBx3TewQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=k1vJM7tB; arc=none smtp.client-ip=209.85.221.49
+	 In-Reply-To:Content-Type; b=Y9zlPY9EIWJlbbqsgpI2gZZW3K9scby0Z4qKkZvA8EYSoDn9/UMPD76zEk9gkwMKaMgYGY+ISRnsp1IKqjKFHYNMI5UlpuYSVDbn0bxLccQct/a2zAEAAJwSY5bBouPWR58jlvhocv+Jh+IEVWilQZPe8GURMd21AzY9uLJdouo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=ZxjuRrMu; arc=none smtp.client-ip=209.85.218.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="k1vJM7tB"
-Received: by mail-wr1-f49.google.com with SMTP id ffacd0b85a97d-45eee266c6cso2912692f8f.1
-        for <linux-i2c@vger.kernel.org>; Mon, 01 Jun 2026 07:15:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="ZxjuRrMu"
+Received: by mail-ej1-f41.google.com with SMTP id a640c23a62f3a-beb7f26ed62so186421866b.0
+        for <linux-i2c@vger.kernel.org>; Mon, 01 Jun 2026 07:19:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1780323335; x=1780928135; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1780323553; x=1780928353; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:content-language:from
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=vaUY+wznT6I0Vd1tbKHFAPphi09g/5Uz9b/r1spWPtc=;
-        b=k1vJM7tBtva4X1Eo4pUIcjiPrNX/aL/a48xSdtVgurZlbveyp9kTVF9eG0QiOYn680
-         Cbh8OkJHXi+D8D2Ts6lpLB/ncxDzo5kzXJgvH5LGoEocqFfWf/omi9252A7HAopwBl1c
-         08OFY0NG/zPCCpIZ7Z8tCKKM12Zmd+yBNpDBH6t0hvu+CL5+Wy0j/PohhGHyRTYvI2UA
-         bv/P9AjjhOOi2s1M379z2rrOTdKttYlDCavlOgnGDDrbeW9jUBI6cKOn8c8G6QNNIz57
-         SuJZXa6D092R/pnlJP6LGzZEz+Ren9BSfsCaFlWtctwVi7OUl8ovinbDayrGc/x8gna0
-         O11A==
+        bh=tazzfhio5FFxMaSKRgxVkzsE+cGWlB5d7jYkUiZcut0=;
+        b=ZxjuRrMuYDzA3rbOcotlPkR4hCmqVGj50n0Hkyb5ZohgwZEi0WitzUHLk20eAVDJW3
+         1HIyrgzTWhSaSNw+eSMlKICJt6tWS4BPnCU7nbuKXiquJAcoRi78cFnoV/40+uzsYoE2
+         xus8Z17HBFhnbhP5y0Ydh2LTSylA7nL0BP5Q5ToCEyH7k2l8x258yA6N21vutvSIFu04
+         C807TFHrTBtW1cSpbQGRj+VD6taq6Wov7pXhb0D2GSK9Gg7VU+mz1s9riWRxcf6jr87N
+         YS1uB4PZQUV6XSpebskCxJ8mzZVIfEHqn7kxien0rFX5Wh+OMiybYmd2A4AVRBhsHWRd
+         ZvAA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780323335; x=1780928135;
+        d=1e100.net; s=20251104; t=1780323553; x=1780928353;
         h=content-transfer-encoding:in-reply-to:content-language:from
          :references:cc:to:subject:user-agent:mime-version:date:message-id
          :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=vaUY+wznT6I0Vd1tbKHFAPphi09g/5Uz9b/r1spWPtc=;
-        b=ii3D3HGwlXJP4IfGEnqeUqYUkTyq/SLLGU6GRZ+/ktQhMjyM8/hHNmMcE4dwXyk60G
-         osh2qs3axHUPrx8MkA254OaQC6zpqGhoaeRTUx9lt2fcxub/gX680EmpHVV0oKRhBaAV
-         VuZgQOCHKP9havb506C6GXSPcBmtSWsCw0iKyObPaLL6BjWFbw+vrBCO3RBT0zWj7TBC
-         zymr3QxaJDzWrV2QlOiaKbYCZJG+6KL/y2seVvu2e99/8DnpCrEDliKQ4TFS0gwW9Ql1
-         H+MHXKWco+euYvocvo2eYK2jcRCDAPWAQLHhu5k1Fl+bSghpGSrJkiogwmtnwWYfAN0B
-         Yzmg==
-X-Forwarded-Encrypted: i=1; AFNElJ9+rkXCztMJ0JpE/CzIvoQ7nFQjbqBOGxjJar+oNCbU0qg57pdloBMhJy2ph7sq50318iMj+jRvWxM=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yye8gvAHuKbncxNnsK34m6lKn6qIithnA+l72puiL6Jdu7YNchh
-	rzoDMv32sbTEs2chb+HRYm3jAVeEA2AgTbBvb/+u9Qz8PColBYIAwfAsok4vEJHimMY=
-X-Gm-Gg: Acq92OFNqAvePbxVGmWkl+4j9f1857Ut+2OT6if3XrWGQ+QJvQ4xYM+iPDznHub3X1r
-	pdw8RHFWJX3+XLbITMiP2o2fYl6/ueF3BqalYPGHyknMBDO3ZTxIrwO5CWvCWUhXx2KD8fmJhxG
-	10XpYHmhLDgReXEApKE/ZtfqAbodNMlUiT7OWqEaHc8Ila99xsZP/j1B/Bgr+WXYho4oL8RSH3d
-	1itQ+dUDLq+ndRbgrmGSvs4PHV5F1Mv5vL47U67XPIlWd46ihOE7/Dk1+0g6UZ4uBeiI6hIhv+U
-	kkoUSE7Rt8uvxCjmOjNHh+rwnLs0bqgApVF4GS6XXUzvYnL0lB+2w8dXtKXkBk26Kxry/5tMZ8R
-	RGiy8Oz9yoA0lv0ek+amBPoZ9zkoYkzCyERNm/VZDXY6dhGa5pmOubIItM2UkQBwyJ2SHEaaUWi
-	ZR2Ghs2Cl5Meu4KybzzUL7bv9wP4trfuZsyzXhh7BeA7llc7z1mGddMZQy
-X-Received: by 2002:a05:6000:4610:b0:43d:50c:6f33 with SMTP id ffacd0b85a97d-45ef6b670e1mr21405913f8f.26.1780323334783;
-        Mon, 01 Jun 2026 07:15:34 -0700 (PDT)
+        bh=tazzfhio5FFxMaSKRgxVkzsE+cGWlB5d7jYkUiZcut0=;
+        b=GdrdmHH4JDYvyAuu20NJTeJvGGK1Pi59uFox6aDjiolS3tEH6qZ9LYk7DvrBbpirye
+         16K+EqTKyOCKtsA378wJWK5CI9m8+V8LVIOxQ8d0PRCLejQqdSudCiNNiLtIMU8QYxJs
+         YZ1FhD14lMCGCMHs7nRBp5xzX6ETRJF9gVrgVMKKlUPHAfv0vYbmNln10t2p2EKi0Y1G
+         fhZ4dALavFsxxfNd6S415Wh4YW9oJb6fzMGDOFA1Gpv+jBcLA1FwhPAOFAhPaQ1dZtzT
+         5CaH+uZquJsb/o7R8usa66e7odKOb8bLT2gWfHT1e+6M0HhA4wjQitc534CD999Zr/rS
+         vUyQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+qsbo1ABYL7G4yKgyozCK8wOA9sOVdpP3xeqkWaC12tfFGAwAwW4Pq4DtjJnLcJCJsuX6DfjzA2DA=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyKfkYgg0xw56NRNrlUfL9HAzfwjvOVxagp7gtMQO9D9Ra/hscT
+	3oL7Mf4+8b7bpnzxRYN6WVzKUgSjMZzoG06DBSUDO1UPwuWXTibV0SWcUVFQnbD+AHk=
+X-Gm-Gg: Acq92OHxtS+YG3VR86sncgN4I9AbcrOKlEsPhvFRhCdYl8QeBoXF7TNyXuO1gwGAyKy
+	Yw7RijAzl32qhLARVvt2FarfhnGua1kLgOtJEiLca2phiXeZpr/fWP6M3CcaAgKwxlCStAwuDXI
+	AUfh5yGF2pDmlX70lvlugJVhpDynCNL37YwvxRxv9lfUTTrYYtcXEyMcJQQDrWAvvYq3kH226pr
+	bc6TBSo73Wd9grGBxHASukgUjvu3zpc6QQ5rj3WZJWZp5jEqjrqvJIGNwEbJ/F7FBSlLnqAoqu4
+	J4zTydCbEtXkCX4+zf5SEIA0pp7aaQ3fzr/T0rVdsP6ai7X1I1Ou6hp4aTolWR7A5N55fkFjbpH
+	FhiyBBy11616Ex9GmTO9EfjM3NHkzVI+YfYydEHoyyVRVGuXH46aPmFsmnJ4N1XWxAghlGhYPcb
+	T4Q31rWDzhw82+eGKoS2GOR81M7QI1V7VBoQyLveI+FQYhJA==
+X-Received: by 2002:a17:907:1c0e:b0:bee:215e:5480 with SMTP id a640c23a62f3a-bee215eabf1mr180015266b.9.1780323552444;
+        Mon, 01 Jun 2026 07:19:12 -0700 (PDT)
 Received: from [192.168.0.101] ([109.76.233.76])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45ef34b47eesm27847640f8f.9.2026.06.01.07.15.33
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-68ceb7a7dc1sm2092485a12.9.2026.06.01.07.19.11
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 01 Jun 2026 07:15:33 -0700 (PDT)
-Message-ID: <203e09db-ba37-4d75-b984-227298f55d80@linaro.org>
-Date: Mon, 1 Jun 2026 15:15:32 +0100
+        Mon, 01 Jun 2026 07:19:11 -0700 (PDT)
+Message-ID: <624b64b4-c524-4436-a338-52551ad9c6e8@linaro.org>
+Date: Mon, 1 Jun 2026 15:19:11 +0100
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -68,83 +68,54 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 4/8] arm64: dts: qcom: shikra: Add CAMSS node
-To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>,
- Vikram Sharma <vikram.sharma@oss.qualcomm.com>, bod@kernel.org
-Cc: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+Subject: Re: [PATCH 5/6] media: qcom: camss: enable vfe for Glymur
+To: Dmitry Baryshkov <dmitry.baryshkov@oss.qualcomm.com>,
+ Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+Cc: Vikram Sharma <vikram.sharma@oss.qualcomm.com>,
+ Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
  Loic Poulain <loic.poulain@oss.qualcomm.com>,
  Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh@kernel.org>,
  Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
  <conor+dt@kernel.org>, Robert Foss <rfoss@kernel.org>,
- Andi Shyti <andi.shyti@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, Frank Li <Frank.Li@nxp.com>,
- Sascha Hauer <s.hauer@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>, linux-arm-msm@vger.kernel.org,
+ Andi Shyti <andi.shyti@kernel.org>, linux-arm-msm@vger.kernel.org,
  linux-media@vger.kernel.org, devicetree@vger.kernel.org,
  linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org,
- imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
- Suresh Vankadara <quic_svankada@quicinc.com>
-References: <20260526-shikra-camss-review-v1-0-645d2c8c75a7@qti.qualcomm.com>
- <20260526-shikra-camss-review-v1-4-645d2c8c75a7@qti.qualcomm.com>
- <178000689150.4557.11759359941436928903.b4-reply@b4>
- <df00e8d8-21ab-415f-815e-608eb7ab0967@oss.qualcomm.com>
- <23d2a824-e894-4c26-8bd1-02bbb8a7c6d1@linaro.org>
- <f7403443-3c0c-45d2-8235-46c70883a296@oss.qualcomm.com>
+ Suresh Vankadara <svankada@qti.qualcomm.com>,
+ Prashant Shrotriya <pshrotri@qti.qualcomm.com>
+References: <20260529-glymur_camss-v1-0-bee535396d22@oss.qualcomm.com>
+ <20260529-glymur_camss-v1-5-bee535396d22@oss.qualcomm.com>
+ <449651a8-18a5-40d2-bc68-59223dc8b69a@linaro.org>
+ <ad3e885a-c04d-4e78-a037-63ddfb0b9c52@oss.qualcomm.com>
+ <7clwzl33xumipuucecv5tovo5mfp2dl7j6v4wmvbwj7d3o42yf@3srv6pzfldhh>
+ <3dd46660-b01d-4c00-b3d2-d0f1fd1e4fa0@oss.qualcomm.com>
+ <lepv7cgykrylficddcnnbii3kzxsiei3itcwc4ibq53s33rogi@ndnf7zrtu5ex>
 From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 Content-Language: en-US
-In-Reply-To: <f7403443-3c0c-45d2-8235-46c70883a296@oss.qualcomm.com>
+In-Reply-To: <lepv7cgykrylficddcnnbii3kzxsiei3itcwc4ibq53s33rogi@ndnf7zrtu5ex>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On 01/06/2026 07:42, Nihal Kumar Gupta wrote:
-> Here is the full IOMMU SID list for both platforms:
-> Agatti (QCM2290):
-> - 0x0400 0x00 — VFE non-protected
-> - 0x0800 0x00 — CDM non-protected
-> - 0x0820 0x00 — OPE read non-protected
-> - 0x0840 0x00 — OPE write non-protected
+On 01/06/2026 14:55, Dmitry Baryshkov wrote:
+> On Mon, Jun 01, 2026 at 06:31:08PM +0530, Nihal Kumar Gupta wrote:
+>>
+>>
+>> On 01-06-2026 17:01, Dmitry Baryshkov wrote:
+>>> Is it completely compatible? If so, we can drop the driver parts and
+>>> make Glymur fallback to Hamoa.
+>>
+>> Not fully — Glymur lacks CSIPHY2. So, A direct fallback to x1e80100 would
+>> probe a non-existent CSIPHY2 register region.
+>>
+>> All other resources (VFE, CSID, TPG, ICC) and version-switch paths are identical
+>> to x1e80100, so only the csiphy_res table needs to remain Glymur-specific.
 > 
-> Shikra:
-> - 0x0400 0x00 — VFE non-protected
-> - 0x0600 0x00 — CDM non-protected
-> - 0x0620 0x00 — OPE read non-protected
-> - 0x0640 0x00 — OPE write non-protected
+> We have all the resources in DT. Can we not use DT to determine whether
+> the host has CSIPHY2 or not?
+> 
 
-What this tells me is that the Agatti binding is incorrect for addition 
-of OPE as a separate device.
+With the CSI PHY driver the answer is yes.
 
-> Only VFE SID (0x0400) is shared between the two platforms.
-
-Both platforms have the same IOMMU list, its just that you are 
-correcting a bug in Agatti's defintion.
-
-Again only IFE SIDs should be included in CAMSS...
-
-> The current Shikra submission enumerates only the VFE SID.
-
-Great, this is what we want.
-
-I think for future submissions we need to be commenting, naming, 
-something each IOMMU entry as we have a problem now in Agatti and a 
-legacy problem - already - in VIDC as a result of misallocated IOMMU 
-entries.
-> Should CDM and OPE each get a separate YAML binding like [1], or
-> should both be part of the CAMSS YAML binding? If part of CAMSS,
-> please confirm and we will add their SIDs in the DTS in the next revision.
-> [1]https://lore.kernel.org/all/20260508-camss-isp-ope-v3-9- 
-> bb1055274603@oss.qualcomm.com/
-
-Yes I think CDM should be a standalone block and BTW use standard DMA 
-APIs with its own IOMMU entry.
-
-Similarly so OPE.
-
-The CAMSS node should only contain the IFE SIDs.
-
-So, actually I think your IOMMU defintion is correct but Agatti is not.
-
-Sigh.
+With legacy bindings - you depend on driver churn so no.
 
 ---
 bod
