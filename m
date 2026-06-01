@@ -1,178 +1,155 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 933EB237713;
-	Mon,  1 Jun 2026 09:06:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF50739D6EE
+	for <linux-i2c@vger.kernel.org>; Mon,  1 Jun 2026 11:09:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780304769; cv=none; b=MTJ1GZGfDsurWTZZA4GYqCpx+FT2hH+HysPLfHFKyH1y85081jnXbe7Fcegw2mPa0OTi+Rl8JQmqCE1mK+VfGeGgnCEltn+puUShYQUvV5asNmdEIcGqNr/rob7lihyfLzzJ+JvJQVSBpcMcoLB6scQd7+x+m7DV015NrC4H3kE=
+	t=1780312162; cv=none; b=gFYpN4PGXKcO1O8k+JPOUjlFmKhHrMNnNhaiUmvvd9O2YMKk/HFsE3oYzBnr2mUPDl6q3OyuLzESTFcAIhBpjzL+SUc9+xJ2RSkokWpshZiiQtUSEUidzXooNXYtm4Cl0qQ9IBif+w75xnezRq74DZPhziEtzNyvFVkMy6d4ces=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780304769; c=relaxed/simple;
-	bh=7kzAfxsEPCYLC+Bp+qrmruizE4STjl8AUJd8xhBCuO8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=uoRotUgQ2kSxOenG/7te/lAuii6EPKSpjUQPwwyjmZ1e9oZJNEltdLmid2CkeMdKOo5CJM54YRCia+6ZwUOk+6RdcDMs9GBD+dCckTqRefWd2gShXeyvcpB8NAoiBugULGzdAKANpoNo8I+3M5sl6VBIb8x/TebKrGBZ1ayOSyo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WcYSV4ns; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780312162; c=relaxed/simple;
+	bh=3alUzHGu1q1rZwyrAelJu/jmfwWJ8k4Cvig7EsHZoFw=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=Xbov44FVtC+dcqveJuz9VyrHMKcl+GsKP3vFzWzdjW+6qzaDQvnIlTZHwxdH+Zi026u67kuB++682UFaMxKOVjFKEus6pk395FwiWrpE+897v4qC2m7/ti8LbgKgQ/ENK7lXJ88ckLQcCvTCEzw+uIgzyG8kZ4j25GfKUarXOmM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=iXtx2Dex; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=FNISk4BE; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WcYSV4ns"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96CC81F00893;
-	Mon,  1 Jun 2026 09:06:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780304768;
-	bh=tFOKq5EqYzZOwXMsIVi6UJJc0VwMnON9Iu6xp7zFaDQ=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=WcYSV4nsim0OX7r6CI37fKPBaKhS+rl9XxG6/EXXOrcGHPj7jzqXa/VFPEFKS/7Cs
-	 JQ1lr6BDruXNGrgoKY4rKp0Ozttyjl+r9KsLOKbW3AZhlzU4x9gI7GcaV6FS/0B7hL
-	 2aV4TbWlpjvRhqulPtQbo5ksuL8SvDquU6i9l0GNyMkeaVoFRK3KDUS/JH97wP7U7I
-	 aoXlE600YbBa9NntZR3J+AQzCAdRCAB3MBiqvFSjoN5YKmbU+ADOcf7ywa6G1PQifq
-	 EntdNjLzS5r3D6C/cbGQZYKjPHCwzh9gN9M8drjSGNPRUtlvZv8aiPVbPtJP30t1LA
-	 lNnJTyHDfwpNA==
-Date: Mon, 1 Jun 2026 10:05:59 +0100
-From: Jonathan Cameron <jic23@kernel.org>
-To: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
-Cc: linux-iio@vger.kernel.org, rust-for-linux@vger.kernel.org,
- linux-kernel@vger.kernel.org, Miguel Ojeda <ojeda@kernel.org>, Igor Korotin
- <igor.korotin.linux@gmail.com>, Brandon Saint-John <branstj@gmail.com>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Subject: Re: [RFC PATCH v3 1/4] i2c: rust: implement kernel::io::Io trait
- for I2cClient
-Message-ID: <20260601100559.274d5b05@jic23-huawei>
-In-Reply-To: <CAO26r3QZyVco2aZRqPSyWr3d-SBAVEknkaeNDM4g5DFCr3-2aw@mail.gmail.com>
-References: <20260524132824.54918-1-muchamadcoirulanwar@gmail.com>
-	<20260524132824.54918-2-muchamadcoirulanwar@gmail.com>
-	<20260528162557.2b0b28d9@jic23-huawei>
-	<CAO26r3QZyVco2aZRqPSyWr3d-SBAVEknkaeNDM4g5DFCr3-2aw@mail.gmail.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="iXtx2Dex";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="FNISk4BE"
+Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6518fQd21258152
+	for <linux-i2c@vger.kernel.org>; Mon, 1 Jun 2026 11:09:20 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	w9QEMurAKXE9J6ybxszdY5PU9AaBvmWmuoM7SgFN+a8=; b=iXtx2DexuH/iRCc9
+	CdcMNyuvlKZO6CRDVnxcdqrrgBVrUSFfuZCo7NhPUadDNuKWBEQsvBgrFRfLiCp7
+	5VgxULzkLrO+h56lSjBpZl1u1jIkmBURaafSWpPndyMEbQulcZIw0t2c0Uc/6i8W
+	sPqDT6YztMuh9CN8M3s1C3kpZqu02Zsie0XhioKJ0R7XqWLWtyDQE6yMDtS9W+Ka
+	CoWntX0X971J89iW0RuaOTdByUy54yqtEl/qBTeAaR0RDR9rbQFJQTVvVm5uBjqa
+	DPbESJvokHE2kG3WgrftxkO++i9pt/aTfJaEPfWclqM0Ar42YnS7YMsX0M7CkOSv
+	mSNNqA==
+Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com [209.85.214.200])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4eh6ssrkd5-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Mon, 01 Jun 2026 11:09:20 +0000 (GMT)
+Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2c0c331eda3so15821675ad.2
+        for <linux-i2c@vger.kernel.org>; Mon, 01 Jun 2026 04:09:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1780312160; x=1780916960; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:from:user-agent:mime-version:date:message-id:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=w9QEMurAKXE9J6ybxszdY5PU9AaBvmWmuoM7SgFN+a8=;
+        b=FNISk4BEqvnPs4JOhnHbg7rZvJzqkIIanf/Ta7fjeFHwM8dUO0me1nfbU5hwoqoce7
+         wOL8YJmOQbWBSqHHojTnzRzAIR0JNfEITsmqesXKI4ckSdMl6kUOPpsvFEpY8uT1xBRo
+         Du4EjKLDKEs9pPaQtN4LZkCtoDRidVvoQVmq5eDsQNwpWBrUHRMeBxoEYKiySvNhumff
+         F3rgm64OT7DAH5VKak02z+RKt88HRiuaJR98f45AIxmIPvg5ZPnJGpHWrXwkaLGtO3Ye
+         cWSGH9zcnrjOPZHuPx7iQEv11rtfHKvtI2IMMB/hQWzIqMtLWVRi7euo1twuIf59kAUB
+         sTPA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780312160; x=1780916960;
+        h=content-transfer-encoding:in-reply-to:content-language:references
+         :cc:to:subject:from:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=w9QEMurAKXE9J6ybxszdY5PU9AaBvmWmuoM7SgFN+a8=;
+        b=CtfihHarkLVPduCERvCuDsN6ggXLictUV7eCK8DVI5Q3skVgYnp1IbTiYyhVhDst9z
+         Ljxj8Va2yQNjpmux+3hI3pnjRsy/9VTKXqhYRbn0S7uQ/cIV04eIW2uJB/K9pKMhwwJk
+         a8z5LpVc9UFjkkVUWoStPeGbnbb6vwouDoYCwJXKkpenUBjjdNGFCjydrZXIQqEsCYif
+         fAN9jGbbTNZXXyMv6RZdyEtdjxDV7oAwEsW4yw8sy6H7NFX1sVpcUtcELSIP90Fp/nAU
+         KohMUUYZXokvjM5rWsOrVp25znaZQVfbYNIDc1N2Ecg2Bexse6Mpn/3I7xrVehH1bH78
+         3aRw==
+X-Forwarded-Encrypted: i=1; AFNElJ9PFybG+WhEqGvucvy7OjWo6Es5wsfLRw8XuNJIKU1ZtTwgdaMWxjlcWvSVvv/TlWmDd399VhyXkQc=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz2q2tHu+byE4SElSst//xgQF1Ab3o28mxm+dKL9X9l6qogHRn0
+	WUZxnPYNjZY+cTMcRlOCrGbQKbIB26DJqD8WdTQ+Ayf0R+CvPrsF9o+8VpcliHy5ZwxoTaCj2u/
+	JYT9GDs7L6o7YtWxf2RIMDyV5N3dW2RnrrHHei43Zvj81OCHtbuyvA5gDppVNIXs=
+X-Gm-Gg: Acq92OHHK+JG9YXEAAtJqQZcHXb/iBaMqH49qq5N8tsanZr9AAk4xKLke5uPwbFBRwY
+	TS1u/cojwMW76KLRiDCTD59qzynBQbys4JwlP3S5ARROttMQqvYQW4WEdTiCw4SQqZtBbOsb/lM
+	qVbygKTOzmD3NQ7x8CVzPf95bARj8068U8Qk0K37d/xKb95G2UzxxFEy3o6Xic2OyQPdmZMCjtS
+	gaBYGX9Ke7yLbn+EYXLo1YHsXlVsOudHRHV7bVlE/HTsfPkZvc2AWYSEhUMkE0LHxmzFKKb4MId
+	EUOL23YLjix4Yy70Ops0w3RfQkp8mlNXAYxQyhAGzKmjnyrU/KqnpWvvDtIrhoh4plion80EFH0
+	yZW6tQBQPp8Mtzy/7Vr49FGFZ9t7BlNlocNyExjNHzgnqqvDZ5zrKYP/tf0nhKQ==
+X-Received: by 2002:a17:903:41cb:b0:2c0:f807:56b2 with SMTP id d9443c01a7336-2c0f8075731mr14858605ad.34.1780312159492;
+        Mon, 01 Jun 2026 04:09:19 -0700 (PDT)
+X-Received: by 2002:a17:903:41cb:b0:2c0:f807:56b2 with SMTP id d9443c01a7336-2c0f8075731mr14858115ad.34.1780312158973;
+        Mon, 01 Jun 2026 04:09:18 -0700 (PDT)
+Received: from [10.206.103.106] ([202.46.23.25])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bf23a1e095sm107010925ad.32.2026.06.01.04.09.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 01 Jun 2026 04:09:18 -0700 (PDT)
+Message-ID: <ad3e885a-c04d-4e78-a037-63ddfb0b9c52@oss.qualcomm.com>
+Date: Mon, 1 Jun 2026 16:39:12 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla Thunderbird
+From: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+Subject: Re: [PATCH 5/6] media: qcom: camss: enable vfe for Glymur
+To: Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+        Vikram Sharma <vikram.sharma@oss.qualcomm.com>,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Loic Poulain <loic.poulain@oss.qualcomm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley
+ <conor+dt@kernel.org>, Robert Foss <rfoss@kernel.org>,
+        Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org,
+        Suresh Vankadara <svankada@qti.qualcomm.com>,
+        Prashant Shrotriya <pshrotri@qti.qualcomm.com>
+References: <20260529-glymur_camss-v1-0-bee535396d22@oss.qualcomm.com>
+ <20260529-glymur_camss-v1-5-bee535396d22@oss.qualcomm.com>
+ <449651a8-18a5-40d2-bc68-59223dc8b69a@linaro.org>
+Content-Language: en-US
+In-Reply-To: <449651a8-18a5-40d2-bc68-59223dc8b69a@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-ORIG-GUID: fJDd7MVDxNZm0V2iLQonJQmRh2GQHJef
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjAxMDExMiBTYWx0ZWRfX0/fm/cw3MRzm
+ GuKJxKUnYYcjgO8dEojD3ZmN42YyxZJZk9uhfUJxWNdfKCoZIWL1ImgUqC0Fj38RCfTiBAbrsxt
+ QMGj0uP54Gpzc6Ug77/Gg5BVIInQWjgWiFSbaMqfbuZp0cGQ5TRELMnNLU/bz7c/xPwRj75jfxD
+ Mzj67/nnm6odG3TrW1cAJ4erWeEK+/kd7a4cGUVMVU0amj4tqcVACh7rodMGOv6LYmn4+Lx6mrY
+ +ZgW1Ij99utvPYNEzI/Xq0IfZi9Kl/cAXrnZlihP78qoIVu3kGYznt6uG6ZSV5iWphc99EZo5jj
+ NJoW0yGaLbXVpadbMU4A20FLfRjXkrO1Shk+iJh4F/7GAdXgsYEV4fCTF0ZBUvpkJgQDvopxyRW
+ m0amzTOwINQWm+vkPKk44BbXxf0Vj5afgmhLGiW6AtXp6+49ZVWjkjfIgHLLSF/hpEk/E5woN4w
+ qwyCsHNRr+Ynq9UrA4A==
+X-Authority-Analysis: v=2.4 cv=O5wJeh9W c=1 sm=1 tr=0 ts=6a1d6860 cx=c_pps
+ a=IZJwPbhc+fLeJZngyXXI0A==:117 a=ZePRamnt/+rB5gQjfz0u9A==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=Um2Pa8k9VHT-vaBCBUpS:22
+ a=Xj-fFaYqki_RdGdrlmAA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=uG9DUKGECoFWVXl0Dc02:22
+X-Proofpoint-GUID: fJDd7MVDxNZm0V2iLQonJQmRh2GQHJef
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-01_03,2026-05-28_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ adultscore=0 impostorscore=0 clxscore=1015 lowpriorityscore=0 bulkscore=0
+ phishscore=0 suspectscore=0 malwarescore=0 priorityscore=1501 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606010112
 
 
-+CC linux-i2c and Wolfram - make sure to keep them on future versions
-of this patch.
 
-On Mon, 1 Jun 2026 14:58:45 +0700
-Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com> wrote:
-
-> On Thu, 28 May 2026 16:25:57 +0100
-> Jonathan Cameron <jic23@kernel.org> wrote:
+On 29-05-2026 20:20, Bryan O'Donoghue wrote:
+>>           ret = 16;
+>>           break;
+>>
 > 
-> > My main concern is this currently takes away the clarity off smbus
-> > naming and replaces it with the impression this is how i2c reads and writes
-> > are done in general.  How will this support other forms of access?
-> >
-> > How do we have lots of different types of i2c supported?  Simplest being
-> > the ones regmap supports today. There are 7ish in drivers/base/regmap-i2c.c
-> >
-> > Or if the plan is to only support register style interfaces why not only
-> > allow for use of regmap?  
+> This is a pointless enum add.
 > 
-> Some context on how we got here: in v2 I added standalone SMBus methods
-> on I2cClient (smbus_read_byte_data, etc). Igor reviewed it [1] and
-> pointed out that the agreed direction is for I2cClient to implement
-> the generic Io trait [2] from Zhi Wang's driver-core-testing work.
-> That discussion happened during Igor's own i2c-adapter series. I
-> offered to take it on, and he confirmed bundling it in my series was
-> fine.
-> 
-> I take your point about losing the SMBus naming clarity. The underlying
-> calls are still `i2c_smbus_read_byte_data` and friends though, the Io
-> trait just provides a uniform interface on top with bounds checking via
-> `io_addr()`. The call sites in the driver use `try_read8`/`try_read16`
-> which map 1:1 to the smbus byte/word operations.
+> NAK.
 
-The reason we need Wolfram and I2C folk in the discussion here is
-the 'richness' of how the I2C spec is used.
+You're right. Since Glymur reuses vfe_res_x1e80100 directly, CAMSS_X1E80100
+already covers it. Will drop the redundant CAMSS_GLYMUR enum in v2.
 
-I'll go a little further.  If this was renamed to make it the rust smbus
-binding them I wouldn't be as bothered by this. For something claiming to
-be I2C this is a misleading interface and I am very much against it.
-Doing this is a path to a lot of confusion and problems for extensibility.
-
-Maybe less than 50% of I2C devices use smbus calls (or at least in IIO,
-it might be more standard elsewhere). That is partly because almost no
-one uses that naming on datasheets so not everyone notices that they
-can use them - this is also the reason the byte swapped variant is very
-common - if you look at the I2C spec and implement auto increment on
-addressing, then the byte order is a random choice.  A substantial
-set of devices use a register style interface but due to subtle
-protocol differences cannot use smbus.
-
-Also perhaps relevant to this: If you'd submitted the driver in this
-series as a c driver, you would have been asked the question: "why aren't
-you using regmap".  It brings a rich set of helpers, standarized caching
-etc.  The answer that applies here of the regmap binding isn't ready
-isn't a great way to answer that question!
-
-> 
-> For other I2C access types (block, raw msg, etc), those would need
-> additional trait methods or a separate abstraction.
-
-Just sticking to byte and word reads, see the c. 7 different options in
-regmap.  Given this is the I2C binding (not Smbus) one you've picked one
-random choice from that set.  Also note there are other custom i2c regmap
-implementations in drivers to cover the long tail of 'other' ways of doing
-register access.
-
-> Rust regmap bindings
-> don't exist yet, so this is the available path for now. Once regmap
-> lands in Rust, drivers that fit the regmap model can use that instead.
-
-Understood that there is more to do, but given the regmap already encapsulates
-the smbus support you have here, I'd be much more in favour of the focus
-going on getting that done.  We will need i2c bindings as well but that
-will be for the many devices that aren't register based etc for which this
-trait approach is wrong.  I would almost suggest not merging a non regmap
-interface for what you cover here, except we do get annoying corner cases
-where the device uses a mixture of smbus like commands and non smbus so there
-probably will need to be support at the i2c / smbus level.
-
-> 
-> [1] https://lore.kernel.org/rust-for-linux/20260131-i2c-adapter-v1-4-5a436e34cd1a@gmail.com/
-> [2] https://git.kernel.org/pub/scm/linux/kernel/git/driver-core/driver-core.git/commit/?h=driver-core-testing&id=121d87b28e1d9061d3aaa156c43a627d3cb5e620
-> 
-> > One other comment inline. I'm seeing what looks to be a check for an
-> > 8 bit address whereas smbus is 7 bit addressing.  
-> 
-> > Except smbus standard addressing is 7 bit.
-> > Need space for the read / write bit.  
-> 
-> To clarify, `maxsize=256` here refers to the SMBus command byte
-> (register address)
-> range, not the device address. The command byte is a full 8 bits
-> (0x00..0xFF = 256 values). 
-
-I understood that - but to me it seems to be irrelevant.
-
-> The 7-bit device address plus R/W bit is
-> handled at the adapter level by the I2C core when the client is
-> instantiated; it's not part of the register access path that Io wraps.
-
-Agreed.
-
-> 
-> The `io_addr()` bounds check ensures `offset + sizeof(access) <= 256`,
-> i.e. the register address stays within the valid command byte range.
-> I'll add a comment in the code clarifying this distinction since the
-> naming is confusing without it.
-
-I'm still lost. The address must <= 128 to fit in the available 7 bits.
-Why would you let it be bigger than that? It's going in a 7 bit field
-not the byte that contains that field.
-
-Is this separating a safety argument from a bug check?  If so why
-not just use the tighter one?
-
-
-> 
-> > Unrelated change.  
-> 
-> Dropping the trailing-period fix from this patch in v4.
-> 
-> Thanks,
-> Coirul
-
+---
+Regards,
+Nihal
