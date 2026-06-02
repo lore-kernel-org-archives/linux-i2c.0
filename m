@@ -1,121 +1,114 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D48F3C5859
-	for <linux-i2c@vger.kernel.org>; Tue,  2 Jun 2026 08:26:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D66BB3939B5;
+	Tue,  2 Jun 2026 11:59:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780388768; cv=none; b=CzxFGi959KF4VOb6gfprh+4F6DE849AZT3Iu5187mocB3aDMhzwZABwFx56E2h3k8x55WKVmquQDMFkxJaGUAcM6Kj/zXWh+PsBKaFEu1TY0/85RtYsfj3ZexbL4pipGMpx0W4X0FiDOtGhyfikCiv8l6LVGhkOkJf4f4Mo21Qs=
+	t=1780401568; cv=none; b=FyfOyQMUiytRN8np72/ZI6U4+bJiHFad7W2SQsKrOf/QQ8pE3q0PPD1l2HQVvqdnnXDi6l8YhG+giRMMhkCxFnGV2N+NDqolK7dRNHYD8IC1dpSVM2jYogwYeg3t5WgA7FM8d8FDbdU0irOAX+okP+SyJNh4dtbhGGiCNSAc2BY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780388768; c=relaxed/simple;
-	bh=ZQkpBhdyPFX8K1AgwsbSqD6e4PBbKm/F+6uEvcBzPyk=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=bPxHRAbkg4SEiVKQwCD6GDhp0kEXqomIxB0XSj+iU8Db5PeLukb6u7DbbBlZHyp0x0jCp0agEOTOPILc19CFDUPl9qpJd013nTuSr6dBsJkcyWIaHMNdKZN2J8CXba57g1vm9jzSgG0l7fJYKVYt/W8/MV/IrXN3lNSfQ688mQI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtp (Exim 4.92)
-	(envelope-from <p.zabel@pengutronix.de>)
-	id 1wUKQZ-0001Gf-0T; Tue, 02 Jun 2026 10:24:47 +0200
-Received: from lupine.office.stw.pengutronix.de ([2a0a:edc0:0:900:1d::4e] helo=lupine)
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <p.zabel@pengutronix.de>)
-	id 1wUKQT-000iZa-13;
-	Tue, 02 Jun 2026 10:24:41 +0200
-Received: from pza by lupine with local (Exim 4.98.2)
-	(envelope-from <p.zabel@pengutronix.de>)
-	id 1wUKQT-000000003ba-0TqR;
-	Tue, 02 Jun 2026 10:24:41 +0200
-Message-ID: <6af284545729f03a60d06479339862a2f08c6b7e.camel@pengutronix.de>
-Subject: Re: [PATCH 22/23] reset: rzg2l: use
- platform_device_set_of_node_from_dev()
-From: Philipp Zabel <p.zabel@pengutronix.de>
-To: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>, Lee Jones	
- <lee@kernel.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, Thierry
- Reding <thierry.reding@avionic-design.de>, Sebastian Hesselbarth	
- <sebastian.hesselbarth@gmail.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet
- <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
- <pabeni@redhat.com>, Srinivas Kandagatla <srini@kernel.org>, Greg
- Kroah-Hartman	 <gregkh@linuxfoundation.org>, Vinod Koul <vkoul@kernel.org>,
- "Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich
- <dakr@kernel.org>, Rob Herring <robh@kernel.org>,  Saravana Kannan
- <saravanak@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael
- Ellerman	 <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Andi Shyti
- <andi.shyti@kernel.org>, Andy Shevchenko	
- <andriy.shevchenko@linux.intel.com>, Joerg Roedel <joro@8bytes.org>, Will
- Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Doug Berger
- <opendmb@gmail.com>,  Florian Fainelli <florian.fainelli@broadcom.com>,
- Broadcom internal kernel review list	
- <bcm-kernel-feedback-list@broadcom.com>, Ulf Hansson <ulfh@kernel.org>, 
- Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
- Pengutronix Kernel Team	 <kernel@pengutronix.de>, Fabio Estevam
- <festevam@gmail.com>, Matthew Brost	 <matthew.brost@intel.com>, Thomas
- =?ISO-8859-1?Q?Hellstr=F6m?=	 <thomas.hellstrom@linux.intel.com>, Rodrigo
- Vivi <rodrigo.vivi@intel.com>,  David Airlie <airlied@gmail.com>, Simona
- Vetter <simona@ffwll.ch>, Peter Chen <peter.chen@kernel.org>,  Paul
- Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>, Maximilian Luz
- <luzmaximilian@gmail.com>, Hans de Goede <hansg@kernel.org>, Ilpo
- =?ISO-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,  Krzysztof
- Kozlowski	 <krzk@kernel.org>, Benjamin Herrenschmidt
- <benh@kernel.crashing.org>
-Cc: brgl@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org, 
-	driver-core@lists.linux.dev, devicetree@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
- iommu@lists.linux.dev, 	linux-pm@vger.kernel.org, imx@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, intel-xe@lists.freedesktop.org, 
-	dri-devel@lists.freedesktop.org, linux-usb@vger.kernel.org, 
-	linux-mips@vger.kernel.org, platform-driver-x86@vger.kernel.org
-Date: Tue, 02 Jun 2026 10:24:41 +0200
-In-Reply-To: <20260521-pdev-fwnode-ref-v1-22-88c324a1b8d2@oss.qualcomm.com>
-References: <20260521-pdev-fwnode-ref-v1-0-88c324a1b8d2@oss.qualcomm.com>
-	 <20260521-pdev-fwnode-ref-v1-22-88c324a1b8d2@oss.qualcomm.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.56.2-0+deb13u1 
+	s=arc-20240116; t=1780401568; c=relaxed/simple;
+	bh=9LTj386/a+Iv+it/X9E+SOvy9Psrkc0ZaGYlYVahIUw=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=hOfVkOt1k2pKmnO/afDZhMSZjX/U/b6gTKGwrRozNH/FQJCOBIHrvZiELo5bVSVUTtfk6fU7jBLEWDCttyogPKp4a2VTBCMbPT1EyZLdleLsuaw3lBP1UEdGKTKh/LNvxmbZqn9tgVU/BtGaAOl9ET0oA0kvCOucJye9MPn3lss=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N4jWOoPF; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N4jWOoPF"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD94C1F00893;
+	Tue,  2 Jun 2026 11:59:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780401567;
+	bh=QZZxwumbaJyuarHbUY4ZoK3cdKzarRWJ3vb08iu0rek=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=N4jWOoPF3decmWri7JTIYNE3txYdhW1r3W7WwTYMGErxDzWaULywiXYnB0e2dB4pr
+	 tVmwAQ4EX0mi8qYg19bBXpgU4AkqRTiIAZwrIg/0wrlJoKL3UAEy7VqHl2D112OoAm
+	 FbWgxLJbTSUltwBnwQHdvW9bdbRkMrTwBj6X4hm5FIouRDx04ygi8ySUCG5ciOmmlB
+	 rnXRURZRoBaEBABluKm6s1ooSPg6/5vJ0c5PDm2T7hvOkG7Yz0ILyp/DyP1hy6D6FU
+	 P6SC4dr2RAL3tCkgwmcVX0BQqSmr8LAFWOjJYCxEoPNyYBckCPUab664EPelS7/XLd
+	 m+MgE3SIMejQw==
+Date: Tue, 2 Jun 2026 12:59:19 +0100
+From: Jonathan Cameron <jic23@kernel.org>
+To: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
+Cc: linux-iio@vger.kernel.org, rust-for-linux@vger.kernel.org,
+ linux-kernel@vger.kernel.org, Miguel Ojeda <ojeda@kernel.org>, Igor Korotin
+ <igor.korotin.linux@gmail.com>, Brandon Saint-John <branstj@gmail.com>,
+ Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
+Subject: Re: [RFC PATCH v3 1/4] i2c: rust: implement kernel::io::Io trait
+ for I2cClient
+Message-ID: <20260602125919.4b289ce2@jic23-huawei>
+In-Reply-To: <CAO26r3QLJ1ZR1Qfjr6wQo+e3H6v=Z=bxkeE8+nseajYgWLbi4g@mail.gmail.com>
+References: <20260524132824.54918-1-muchamadcoirulanwar@gmail.com>
+	<20260524132824.54918-2-muchamadcoirulanwar@gmail.com>
+	<20260528162557.2b0b28d9@jic23-huawei>
+	<CAO26r3QZyVco2aZRqPSyWr3d-SBAVEknkaeNDM4g5DFCr3-2aw@mail.gmail.com>
+	<20260601100559.274d5b05@jic23-huawei>
+	<CAO26r3QLJ1ZR1Qfjr6wQo+e3H6v=Z=bxkeE8+nseajYgWLbi4g@mail.gmail.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: p.zabel@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: linux-i2c@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Do, 2026-05-21 at 10:36 +0200, Bartosz Golaszewski wrote:
-> Ahead of reworking the reference counting logic for platform devices,
-> encapsulate the assignment of the OF node from another device for
-> dynamically allocated platform devices with the provided helper.
->=20
-> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-> ---
->  drivers/reset/reset-rzg2l-usbphy-ctrl.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/reset/reset-rzg2l-usbphy-ctrl.c b/drivers/reset/rese=
-t-rzg2l-usbphy-ctrl.c
-> index fd75d9601a3bfde7b7e3f6db287ec8c5c45a20ab..f003b360629c90bb37ed0ade7=
-a675b5b0f28fa7e 100644
-> --- a/drivers/reset/reset-rzg2l-usbphy-ctrl.c
-> +++ b/drivers/reset/reset-rzg2l-usbphy-ctrl.c
-> @@ -249,7 +249,7 @@ static int rzg2l_usbphy_ctrl_probe(struct platform_de=
-vice *pdev)
->  	vdev->dev.parent =3D dev;
->  	priv->vdev =3D vdev;
-> =20
-> -	device_set_of_node_from_dev(&vdev->dev, dev);
-> +	platform_device_set_of_node_from_dev(vdev, dev);
->  	error =3D platform_device_add(vdev);
->  	if (error)
->  		goto err_device_put;
+On Tue, 2 Jun 2026 15:11:12 +0700
+Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com> wrote:
 
-Acked-by: Philipp Zabel <p.zabel@pengutronix.de>
+> On Mon, 1 Jun 2026 10:05:00 +0100
+> Jonathan Cameron <jic23@kernel.org> wrote:
+> 
+> > +CC linux-i2c and Wolfram - make sure to keep them on future versions
+> > of this patch.  
+> 
+> Noted.
+> 
+> > If this was renamed to make it the rust smbus binding then I wouldn't
+> > be as bothered by this. For something claiming to be I2C this is a
+> > misleading interface and I am very much against it.  
+> 
+> Agreed. I'll rename it to make it clearly SMBus-scoped in v4.
+> 
+> > Understood that there is more to do, but given the regmap already
+> > encapsulates the smbus support you have here, I'd be much more in
+> > favour of the focus going on getting that done.
+> >
+> > I would almost suggest not merging a non regmap interface for what you
+> > cover here, except we do get annoying corner cases where the device
+> > uses a mixture of smbus like commands and non smbus so there probably
+> > will need to be support at the i2c / smbus level.  
+> 
+> Makes sense. Will defer to Wolfram and the i2c folks on whether this
+> should wait for regmap or land as a clearly-scoped SMBus patch.
+> 
+> 
+> > Is this separating a safety argument from a bug check? If so why
+> > not just use the tighter one?  
+> 
+> > +    fn maxsize(&self) -> usize {
+> > +        256
+> > +    }  
+> 
+> The try_read8 here is a general SMBus wrapper, not AS5600-specific.
+> The u8 command (register address) applies to any SMBus device, so
+> 8-bit is the protocol max. If we tighten below that, it breaks devices
+> with registers at 0x80 and above. The 7-bit limit applies to the
+> device address, not this command byte.
 
-regards
-Philipp
+Ah.. Sorry, I was being stupid and had forgotten the meaning
+of the address byte (which device + that magic r/w bit which
+is oddly in that byte).  I even read wrong section of the smbus
+protocol description as it has both read byte and read byte data
+only the second of which takes a command byte.
+
+I think I got thrown by the generic naming of try_read8 that
+doesn't capture that distinction but given it comes from the trait
+I guess we can't do much about that.
+
+Jonathan
+
+> 
+> Thanks,
+> Coirul
+
