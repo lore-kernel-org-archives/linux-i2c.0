@@ -1,126 +1,100 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.9])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07FC73BCD39;
-	Tue,  2 Jun 2026 22:42:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.9
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C9D333C7DF0;
+	Tue,  2 Jun 2026 22:44:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780440123; cv=none; b=lXSYnSP0V6/AaSscpXA5g1l/YVRHqcljuGuMy5IA4Pk+MtXkqOrfCAUfNlEZ6SPh31K9v3+fQkYzr3kCloQlI5n557fEK+VKob7sQpjXXvfUNG3QJnE8cqhzY4ED6eqdaMI/KZO+tUh9DGDApk8VyKvmALgOtfrO8bPllT+wd9Q=
+	t=1780440265; cv=none; b=KHHiXGsC3c7fRk02gz6EUAjj1MoDGDoOamjj6NrLHsJDiBe8hdQ40FTrPublVeFv7aYpSXrd2ICHc0AOM/u5TgiEBI+tnSdj6gbJXnICgDqHHMsxfhgeF+ueuoxV8SQvjzZueRNz85RzWxOsndV0w2wUhgFhSa9YMd0KnJX8lE0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780440123; c=relaxed/simple;
-	bh=2DYMignZYp9XmLJImBkxpRdBQWs+ZVRSTXRKOKBvszs=;
+	s=arc-20240116; t=1780440265; c=relaxed/simple;
+	bh=aO/4yNOFoUs6kkitlfJEe7lx34uVg+SUbehW23yKIxE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=R6iuppb5cl7nV3kIhMB+uIkLZXfaT/c5ze/3DQdk3iKTQGXfBZyJ2qucQUhGSB1h2UOJNlhpLlrbDNOEqeBQDSpPhjRhJcNtVZJn58yBcoSabz1RG/YSLom5CmBAT4kDv1Qv2RpUYs4FuJboLnIXoqO5Bu+F1ZM3mB+ujz8p0I4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=TjRi2IQX; arc=none smtp.client-ip=198.175.65.9
+	 Content-Type:Content-Disposition:In-Reply-To; b=Rw3q5Xs5Ysnb3/KHwwllURt8wMIc1yz7hACDxuKJqqkLIdE5KklUO3GPdHbJd503Zz0mFHyEqytrBT9OiFZMuLxlfCXCHDaUXREytmKWnaukxbZloVEnjgwSAwDiX/A5sRZkcyv8+BJvPNtHqnwp0z4HSyWhSHQUjGBNy56pxBE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ZBnNV9Py; arc=none smtp.client-ip=198.175.65.11
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="TjRi2IQX"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ZBnNV9Py"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1780440121; x=1811976121;
+  t=1780440264; x=1811976264;
   h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=2DYMignZYp9XmLJImBkxpRdBQWs+ZVRSTXRKOKBvszs=;
-  b=TjRi2IQX12I4QlDolasgxU8yeWD5GYRuDtFSE7pppDXCYDIP9VKBJ3JF
-   nwdPAzuVDWECqWUNFcBT30dk0uvn7s35g8Vv0hiBkQ5S8Kl01VN2n1s0u
-   1bxkbBtNyQiMZE2NTmqbr6FGhX9nph4IUvohmPU1rvx7lekQqQ0o0VqrW
-   SoZCgVKA40Oa9rZVxMLwuI4iEqmKhaAyedLWJ6z0F1/MZ+BB5ueNmRiFk
-   iBcLQ2BTNjRYi61cBK67O1Adk1NtN70MrCn84FltHrmbe7P0IL7iPhCc1
-   tnDSOVtCqfNa//XhL2SGnGSru36JUvgeEsu1iyiwL67x6BAQmNSZ8wks8
-   A==;
-X-CSE-ConnectionGUID: sRVGZ1E4SZGtPNyWcd+giA==
-X-CSE-MsgGUID: rjhLBqC+RuKdyuhtabNg6A==
-X-IronPort-AV: E=McAfee;i="6800,10657,11805"; a="103897661"
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=aO/4yNOFoUs6kkitlfJEe7lx34uVg+SUbehW23yKIxE=;
+  b=ZBnNV9PyUupQwX87207tJLzKSaPZV3cmqtoUDkcesWrSfH8r7R8OBSWZ
+   pqvs+ytP9jcYVpkeipT8k6Z0BoPfd3SteI7v4Z4SzvettM3kA9CxqopIt
+   xeQJPiaPrvtQbvqbfZXT8ymwKsuSnJzGUEKimzko7kT9YtZAm8j0mA7dJ
+   JLB7zXWtb8gWd4mYApoD6kSbV58gUSA6D4jv65ov9TblTj4egM+qZ5HxB
+   dcCT7Ge2+Q2llMpWbN2PgrHtFaL0wV36vntm9Dpll2tNbh7yJSWxiyOvK
+   mEGDklVS/tswK1pSCu4N71HkdZDtueJGw6JHOILG/cN+D4TqTGIPulKsy
+   Q==;
+X-CSE-ConnectionGUID: wynlLifjS6SjzXjiKpuEDg==
+X-CSE-MsgGUID: LndJjlSsTdyJP+/pyKUPAQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11805"; a="91550795"
 X-IronPort-AV: E=Sophos;i="6.24,184,1774335600"; 
-   d="scan'208";a="103897661"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jun 2026 15:42:00 -0700
-X-CSE-ConnectionGUID: GGyx08JTQhK7BKMuMdJRIA==
-X-CSE-MsgGUID: +NGymqfMTAaC7d3/RmPNUw==
+   d="scan'208";a="91550795"
+Received: from fmviesa001.fm.intel.com ([10.60.135.141])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jun 2026 15:44:23 -0700
+X-CSE-ConnectionGUID: CFrGlM0XTi+tqubn5f5nww==
+X-CSE-MsgGUID: fJI9yUgDSZuV/MGAkfa49w==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.24,184,1774335600"; 
-   d="scan'208";a="239881535"
+   d="scan'208";a="267908588"
 Received: from pgcooper-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.244.116])
-  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jun 2026 15:41:58 -0700
-Date: Wed, 3 Jun 2026 01:41:55 +0300
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jun 2026 15:44:20 -0700
+Date: Wed, 3 Jun 2026 01:44:18 +0300
 From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Mario Limonciello <superm1@kernel.org>
-Cc: Hardik Prakash <hardikprakash.official@gmail.com>,
+To: Linus Walleij <linusw@kernel.org>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Hardik Prakash <hardikprakash.official@gmail.com>,
 	linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
-	wsa@kernel.org, brgl@bgdev.pl, basavaraj.natikar@amd.com,
-	linusw@kernel.org,
+	wsa@kernel.org, mario.limonciello@amd.com, brgl@bgdev.pl,
+	basavaraj.natikar@amd.com,
 	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
+	"Mario Limonciello (AMD)" <superm1@kernel.org>,
 	kernel test robot <lkp@intel.com>
 Subject: Re: [PATCH v8 2/2] i2c: designware: defer probe if child GpioInt
  controllers are not bound
-Message-ID: <ah9cMwTQXe-ILXDv@ashevche-desk.local>
+Message-ID: <ah9cwsENUe8cK6wB@ashevche-desk.local>
 References: <20260529100838.8896-1-hardikprakash.official@gmail.com>
  <20260529100838.8896-3-hardikprakash.official@gmail.com>
- <4de80fd6-007e-484f-a7c9-17838ee5b1da@kernel.org>
+ <ahml-rVa2PIA5DDC@shikoro>
+ <CAD++jLmWV9WizdqXfwvTUCbJDisurLBa7sAC6DH1BehDTHZDYA@mail.gmail.com>
+ <ahn9Q-9eHjBSj39h@shikoro>
+ <CAD++jLk7L-XPTpThNbvxzYSuw=Gy-dDci1eTy8wLo9O0o4_uqQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <4de80fd6-007e-484f-a7c9-17838ee5b1da@kernel.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAD++jLk7L-XPTpThNbvxzYSuw=Gy-dDci1eTy8wLo9O0o4_uqQ@mail.gmail.com>
 Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
  krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-On Fri, May 29, 2026 at 12:12:31PM +0200, Mario Limonciello wrote:
-> On 5/29/26 12:08, Hardik Prakash wrote:
-> > I2C controllers may have child devices with GpioInt resources that
-> > depend on GPIO controllers to be fully initialized. If the I2C
-> > controller probes and enumerates children before the referenced GPIO
-> > controller has completed probe, GPIO interrupts may not be properly
-> > configured, leading to device failures.
-> > 
-> > On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
-> > AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
-> > pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
-> > AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
-> > occur before the GPIO IRQ quirk in amd_gpio_probe() has run, causing:
-> > 
-> >    i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost arbitration
-> > 
-> > Add a generic dependency check in i2c-designware that walks ACPI child
-> > devices, identifies any GpioInt resources, resolves the referenced GPIO
-> > controllers, and defers probe if those controllers are not yet bound.
-> > 
-> > This ensures GPIO controllers complete initialization (including IRQ
-> > setup and quirks) before I2C child enumeration begins, fixing the race
-> > without device-specific quirks or DMI matching.
-> > 
-> > The probe ordering race was confirmed via dynamic debug tracing:
-> > 
-> >    0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
-> >    0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
-> >    0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
-> >    2.348157  lost arbitration
-> > 
-> > Suggested-by: Mario Limonciello <mario.limonciello@amd.com>
-> > Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
-> > Acked-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-> > Reviewed-by: Mario Limonciello (AMD) <superm1@kernel.org>
-> > Assisted-by: Claude:claude-sonnet-4-6
-> > Assisted-by: GPT-Codex:gpt-5.2-codex
+On Fri, May 29, 2026 at 11:59:24PM +0200, Linus Walleij wrote:
+> On Fri, May 29, 2026 at 10:55 PM Wolfram Sang
+> <wsa+renesas@sang-engineering.com> wrote:
+> > > > In case this goes in via some other tree:
+> > > >
+> > > > Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> > >
+> > > I queued the revert in the pinctrl fixes, you can take this one (2/2).
+> >
+> > Is there really no dependency on patch 1? I'd feel safer if you'd take
+> > this as well...
+> 
+> OK then, you're right. Let's keep it together.
+> 
+> Patch applied!
 
-> > Reported-by: kernel test robot <lkp@intel.com>
-> > Closes: https://lore.kernel.org/oe-kbuild-all/202605240959.Kcf1lIg4-lkp@intel.com/
-
-This patch definitely wasn't the result of the above report. These two tags are
-misused.
-
-> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=221494
-
-> Fixes: 3812a9e84265a ("pinctrl-amd: enable IRQ for WACF2200 touchscreen on
-> Lenovo Yoga 7 14AGP11")
-
-Must be oneline.
-
+Can we drop this patch or revert? I would like (as I said earlier) to review it
+closer, I just returned from conferences and vacation and got a ~16 hundreds of
+new emails to go through.
 
 -- 
 With Best Regards,
