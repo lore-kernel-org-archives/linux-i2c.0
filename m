@@ -1,114 +1,138 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D66BB3939B5;
-	Tue,  2 Jun 2026 11:59:27 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F03AB39A806;
+	Tue,  2 Jun 2026 18:53:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780401568; cv=none; b=FyfOyQMUiytRN8np72/ZI6U4+bJiHFad7W2SQsKrOf/QQ8pE3q0PPD1l2HQVvqdnnXDi6l8YhG+giRMMhkCxFnGV2N+NDqolK7dRNHYD8IC1dpSVM2jYogwYeg3t5WgA7FM8d8FDbdU0irOAX+okP+SyJNh4dtbhGGiCNSAc2BY=
+	t=1780426426; cv=none; b=XITzLW5pK4HA4J2IXTNc5mxQCWUl0tW+p7e8ECbaWU4bdRqBj9DCASaqWdrr666medHreo0FGTvqTEfebjoFEVqgQxpT2dJBEz37DJGFlhkznVHjrv16EtmIcf/IVCFryENKIZXf/meopgCyjBM92fJFk1IkwCvzXeX6Tb+H8H4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780401568; c=relaxed/simple;
-	bh=9LTj386/a+Iv+it/X9E+SOvy9Psrkc0ZaGYlYVahIUw=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hOfVkOt1k2pKmnO/afDZhMSZjX/U/b6gTKGwrRozNH/FQJCOBIHrvZiELo5bVSVUTtfk6fU7jBLEWDCttyogPKp4a2VTBCMbPT1EyZLdleLsuaw3lBP1UEdGKTKh/LNvxmbZqn9tgVU/BtGaAOl9ET0oA0kvCOucJye9MPn3lss=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=N4jWOoPF; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780426426; c=relaxed/simple;
+	bh=dl+5lQcu7WGVD6gn89R8E0HqmtxymmQV/VW7zx35OTA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GHuX7otT+Y1mhvRvAheLOR3LR7Vld9xu6NCkOdfZvWXky+3BAQogAPoVHqg5E8JPKRkHwEwk4ALAxZoQEM6crP2v8jxiKTdrHCl2LobBhY7fa3Eu6M/ugr2PN7yA7vUyS1QT4wqnnxLr5wnT1QIddV+tVkX31jWiQumyJd4Spkw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NRzCYxdD; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="N4jWOoPF"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD94C1F00893;
-	Tue,  2 Jun 2026 11:59:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NRzCYxdD"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B7C21F00893;
+	Tue,  2 Jun 2026 18:53:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780401567;
-	bh=QZZxwumbaJyuarHbUY4ZoK3cdKzarRWJ3vb08iu0rek=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=N4jWOoPF3decmWri7JTIYNE3txYdhW1r3W7WwTYMGErxDzWaULywiXYnB0e2dB4pr
-	 tVmwAQ4EX0mi8qYg19bBXpgU4AkqRTiIAZwrIg/0wrlJoKL3UAEy7VqHl2D112OoAm
-	 FbWgxLJbTSUltwBnwQHdvW9bdbRkMrTwBj6X4hm5FIouRDx04ygi8ySUCG5ciOmmlB
-	 rnXRURZRoBaEBABluKm6s1ooSPg6/5vJ0c5PDm2T7hvOkG7Yz0ILyp/DyP1hy6D6FU
-	 P6SC4dr2RAL3tCkgwmcVX0BQqSmr8LAFWOjJYCxEoPNyYBckCPUab664EPelS7/XLd
-	 m+MgE3SIMejQw==
-Date: Tue, 2 Jun 2026 12:59:19 +0100
-From: Jonathan Cameron <jic23@kernel.org>
-To: Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com>
-Cc: linux-iio@vger.kernel.org, rust-for-linux@vger.kernel.org,
- linux-kernel@vger.kernel.org, Miguel Ojeda <ojeda@kernel.org>, Igor Korotin
- <igor.korotin.linux@gmail.com>, Brandon Saint-John <branstj@gmail.com>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Subject: Re: [RFC PATCH v3 1/4] i2c: rust: implement kernel::io::Io trait
- for I2cClient
-Message-ID: <20260602125919.4b289ce2@jic23-huawei>
-In-Reply-To: <CAO26r3QLJ1ZR1Qfjr6wQo+e3H6v=Z=bxkeE8+nseajYgWLbi4g@mail.gmail.com>
-References: <20260524132824.54918-1-muchamadcoirulanwar@gmail.com>
-	<20260524132824.54918-2-muchamadcoirulanwar@gmail.com>
-	<20260528162557.2b0b28d9@jic23-huawei>
-	<CAO26r3QZyVco2aZRqPSyWr3d-SBAVEknkaeNDM4g5DFCr3-2aw@mail.gmail.com>
-	<20260601100559.274d5b05@jic23-huawei>
-	<CAO26r3QLJ1ZR1Qfjr6wQo+e3H6v=Z=bxkeE8+nseajYgWLbi4g@mail.gmail.com>
-X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-pc-linux-gnu)
+	s=k20260515; t=1780426424;
+	bh=TpI15tipC8iZy8iRzmtd2j95YT9CH9D1OJCSYZTNlks=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=NRzCYxdD+coVJ8+8v329GILHzcN68BioLqkK45m06Gmv1LG4gJG9CZ7ZWywbkQvtl
+	 OvUZD1WG7I8LKaye2hhf+gjRSuz8wLWnI0OYSox/mu5elLc2BgjjFsD1lsHEvdvNdm
+	 LDYtG3MiKYCHUDH6UkZhhpKsYtWGYx9wB96RbRBSFZ8OkNTJ75UGL+Db8GoZRxiFXE
+	 i+RbJTQfZ84uYDTGEj6EwwY/F7bppF0ske0iP6Biut6wJHnMtWE4Uxxbh0OgYfnlwZ
+	 AevpNReb6wOUj+ojWU8+/X0e0ONXV/lxXWMIUJHKgWxsVwianffFVn4v69YDYUPBnU
+	 V42DHSFkqVV+Q==
+Date: Tue, 2 Jun 2026 11:53:39 -0700
+From: Nathan Chancellor <nathan@kernel.org>
+To: Hardik Prakash <hardikprakash.official@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org,
+	andriy.shevchenko@intel.com, mario.limonciello@amd.com,
+	brgl@bgdev.pl, basavaraj.natikar@amd.com, linusw@kernel.org,
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
+	"Mario Limonciello (AMD)" <superm1@kernel.org>,
+	kernel test robot <lkp@intel.com>
+Subject: Re: [PATCH v8 2/2] i2c: designware: defer probe if child GpioInt
+ controllers are not bound
+Message-ID: <20260602185339.GA404948@ax162>
+References: <20260529100838.8896-1-hardikprakash.official@gmail.com>
+ <20260529100838.8896-3-hardikprakash.official@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260529100838.8896-3-hardikprakash.official@gmail.com>
 
-On Tue, 2 Jun 2026 15:11:12 +0700
-Muchamad Coirul Anwar <muchamadcoirulanwar@gmail.com> wrote:
+Hi Hardik,
 
-> On Mon, 1 Jun 2026 10:05:00 +0100
-> Jonathan Cameron <jic23@kernel.org> wrote:
+On Fri, May 29, 2026 at 03:38:37PM +0530, Hardik Prakash wrote:
+> I2C controllers may have child devices with GpioInt resources that
+> depend on GPIO controllers to be fully initialized. If the I2C
+> controller probes and enumerates children before the referenced GPIO
+> controller has completed probe, GPIO interrupts may not be properly
+> configured, leading to device failures.
 > 
-> > +CC linux-i2c and Wolfram - make sure to keep them on future versions
-> > of this patch.  
+> On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
+> AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
+> pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
+> AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
+> occur before the GPIO IRQ quirk in amd_gpio_probe() has run, causing:
 > 
-> Noted.
+>   i2c_designware AMDI0010:02: i2c_dw_handle_tx_abort: lost arbitration
 > 
-> > If this was renamed to make it the rust smbus binding then I wouldn't
-> > be as bothered by this. For something claiming to be I2C this is a
-> > misleading interface and I am very much against it.  
+> Add a generic dependency check in i2c-designware that walks ACPI child
+> devices, identifies any GpioInt resources, resolves the referenced GPIO
+> controllers, and defers probe if those controllers are not yet bound.
 > 
-> Agreed. I'll rename it to make it clearly SMBus-scoped in v4.
+> This ensures GPIO controllers complete initialization (including IRQ
+> setup and quirks) before I2C child enumeration begins, fixing the race
+> without device-specific quirks or DMI matching.
 > 
-> > Understood that there is more to do, but given the regmap already
-> > encapsulates the smbus support you have here, I'd be much more in
-> > favour of the focus going on getting that done.
-> >
-> > I would almost suggest not merging a non regmap interface for what you
-> > cover here, except we do get annoying corner cases where the device
-> > uses a mixture of smbus like commands and non smbus so there probably
-> > will need to be support at the i2c / smbus level.  
+> The probe ordering race was confirmed via dynamic debug tracing:
 > 
-> Makes sense. Will defer to Wolfram and the i2c folks on whether this
-> should wait for regmap or land as a clearly-scoped SMBus patch.
+>   0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
+>   0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
+>   0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
+>   2.348157  lost arbitration
 > 
-> 
-> > Is this separating a safety argument from a bug check? If so why
-> > not just use the tighter one?  
-> 
-> > +    fn maxsize(&self) -> usize {
-> > +        256
-> > +    }  
-> 
-> The try_read8 here is a general SMBus wrapper, not AS5600-specific.
-> The u8 command (register address) applies to any SMBus device, so
-> 8-bit is the protocol max. If we tighten below that, it breaks devices
-> with registers at 0x80 and above. The 7-bit limit applies to the
-> device address, not this command byte.
+> Suggested-by: Mario Limonciello <mario.limonciello@amd.com>
+> Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
+> Acked-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+> Reviewed-by: Mario Limonciello (AMD) <superm1@kernel.org>
+> Assisted-by: Claude:claude-sonnet-4-6
+> Assisted-by: GPT-Codex:gpt-5.2-codex
+> Reported-by: kernel test robot <lkp@intel.com>
+> Closes: https://lore.kernel.org/oe-kbuild-all/202605240959.Kcf1lIg4-lkp@intel.com/
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=221494
 
-Ah.. Sorry, I was being stupid and had forgotten the meaning
-of the address byte (which device + that magic r/w bit which
-is oddly in that byte).  I even read wrong section of the smbus
-protocol description as it has both read byte and read byte data
-only the second of which takes a command byte.
+I bisected boot issues with a few of my test machines to this change in -next
+as commit ef76a3a28c79 ("i2c: designware: defer probe if child GpioInt
+controllers are not bound"). I consistently get no display output and I do not
+have serial access to these machines, so I do not have much to go on here at
+the moment. Occasionally, the network controller will be initialized so I can
+remote in but I have not been able to do it recently to try and gather logs.
+What information would be useful for trying to figure out what is going on
+here? I seem to recall a crash in strcmp() in one log but I cannot be too sure
+since it was late at night when I was doing my initial triage.
 
-I think I got thrown by the generic naming of try_read8 that
-doesn't capture that distinction but given it comes from the trait
-I guess we can't do much about that.
+# bad: [08484c504b55a98bd100527fbe10a3caf55ff3ff] Add linux-next specific files for 20260601
+# good: [e43ffb69e0438cddd72aaa30898b4dc446f664f8] Linux 7.1-rc6
+git bisect start '08484c504b55a98bd100527fbe10a3caf55ff3ff' 'e43ffb69e0438cddd72aaa30898b4dc446f664f8'
+# good: [57fb910db1b6051476b91a4d4ae18bc027a7f36d] Merge branch 'master' of https://git.kernel.org/pub/scm/linux/kernel/git/herbert/cryptodev-2.6.git
+git bisect good 57fb910db1b6051476b91a4d4ae18bc027a7f36d
+# good: [18ea7e3ca91e7a9eb9e43c11154350cec160830b] Merge branch 'for-next' of https://git.kernel.org/pub/scm/linux/kernel/git/jassibrar/mailbox.git
+git bisect good 18ea7e3ca91e7a9eb9e43c11154350cec160830b
+# good: [a5696dd9c080352e25b576acf24450cef255b6eb] Merge branch 'tty-next' of https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+git bisect good a5696dd9c080352e25b576acf24450cef255b6eb
+# good: [c158564f40f0d2a68833610ac136f9714fc51b16] Merge branch 'staging-next' of https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
+git bisect good c158564f40f0d2a68833610ac136f9714fc51b16
+# bad: [4240c928a5edeb13fb3953248dfc45e5d9f42f00] Merge branch 'for-next' of https://git.kernel.org/pub/scm/linux/kernel/git/linusw/linux-pinctrl.git
+git bisect bad 4240c928a5edeb13fb3953248dfc45e5d9f42f00
+# good: [2e24f5964b72ef213ecdb959a0b0d60b2dc00a3b] Merge branch 'for-next' of https://git.kernel.org/pub/scm/linux/kernel/git/remoteproc/linux.git
+git bisect good 2e24f5964b72ef213ecdb959a0b0d60b2dc00a3b
+# good: [6a350ccc4dc3f46ed2ee2592e3050956e415ef64] pinctrl: add new generic groups/function creation function for pinmux
+git bisect good 6a350ccc4dc3f46ed2ee2592e3050956e415ef64
+# good: [b12e12ee4138e30d786eda02223e87044c989bb1] gpiolib: Mark gpio_devt, gpiolib_initialized and gpio_stub_drv as __ro_after_init
+git bisect good b12e12ee4138e30d786eda02223e87044c989bb1
+# good: [446fa334d186316e76cbdc4e94e42af7d040a79c] pinctrl: qcom: Replace open coded eoi call with irq_chip_eoi_parent()
+git bisect good 446fa334d186316e76cbdc4e94e42af7d040a79c
+# good: [a8754838f83a9905af516f38dd2633744a94f71a] gpio: max77620: Unify usage of space and comma in platform_device_id array
+git bisect good a8754838f83a9905af516f38dd2633744a94f71a
+# bad: [ef76a3a28c79b628890431aa344af633e892035b] i2c: designware: defer probe if child GpioInt controllers are not bound
+git bisect bad ef76a3a28c79b628890431aa344af633e892035b
+# good: [b0c13ec17438577f90b379d448dfed1233e2c0a4] pinctrl: mcp23s08: Read spi-present-mask as u8 not u32
+git bisect good b0c13ec17438577f90b379d448dfed1233e2c0a4
+# good: [3f786abd23951f3f600a62fef42469d9200d5f52] Revert "pinctrl-amd: enable IRQ for WACF2200 touchscreen on Lenovo Yoga 7 14AGP11"
+git bisect good 3f786abd23951f3f600a62fef42469d9200d5f52
+# first bad commit: [ef76a3a28c79b628890431aa344af633e892035b] i2c: designware: defer probe if child GpioInt controllers are not bound
 
-Jonathan
-
-> 
-> Thanks,
-> Coirul
-
+-- 
+Cheers,
+Nathan
