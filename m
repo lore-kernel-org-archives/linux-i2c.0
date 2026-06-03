@@ -1,113 +1,143 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.16])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C1863E6DC3
-	for <linux-i2c@vger.kernel.org>; Wed,  3 Jun 2026 03:11:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B49D3EF0A8;
+	Wed,  3 Jun 2026 05:48:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780456316; cv=none; b=KSl+PbPU2of7hFy5E9teCihJZFAdjHHVd+obuZ3vw7UusTqM/pKq7S9Trx0cU6B29KqO8HaYn2kiOE/amYSXH+Z+LgQ9wqchGz8WJ4xR7P6FEg6QG2R7Jpf45ZTVdbcLdzEK10oKvHd8VEaNGvL8vAZvPRu/wHHY5e/4f+7bW30=
+	t=1780465731; cv=none; b=pwGJEGSMKLkNm4FSvXCfbB+LTb8XVysZXe0BXZ2E+w/qwMXzecg3bsiJ+7eP2bBZuwGMeJKpqWLOyfs4kXaUYT6N057oTcwTA5VUWDdlRRcxWgJOU4KtOZWgdWBob3Ql8bIorRqXhWmnI0ln6Kt3jyQEGx4HcZckBMDa+VO+uFY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780456316; c=relaxed/simple;
-	bh=u5GCTN95aHRCMBoDJHkFf/S+06sOFg7W9gSYZb6FdkA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NU8L4vAwfqC19RfMpO56mz3/71CKQprsRF/Cp7Co13mZ0wmfCMaCZb89HbiiFHAd8ciEpiizZu0zPnPhSdc/vMiczY5uIVnkMgsvt782YkIyqrThVYwhj8Y/hNE0aMF5pyD5yx6W8pF/a2Z1miuvQOtpCNc6VCqKEcQbNNl+yEg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TcnTM3MR; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1780465731; c=relaxed/simple;
+	bh=XWZigbnEuQVJIIQT2lJGXUC3oafte6N33qqOOF6iAcU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gGk3Erl6sPk1/WBI8jpSbTTyOlp81saf0Hazhh6bhCvbC2aogvzdnfq9zxrdITaFEKqrdVAW88wJGLqtCwudp/nGs2nMAq7Bq/2cV7FZ5cGbtUiec8+WlMJl4RWqFapElY11xbeN9viuAtJs7VQbSE7ZTztsTF1hSIZfV13YGZM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HkYX8sM4; arc=none smtp.client-ip=198.175.65.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TcnTM3MR"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2c0b9328c4aso25082345ad.0
-        for <linux-i2c@vger.kernel.org>; Tue, 02 Jun 2026 20:11:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780456314; x=1781061114; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=DgpTLB1hzkqNPPrde/I8zx966U5X1f7Z9OQaGxgrfCc=;
-        b=TcnTM3MRIgAD8lNaq6NB+2bYRSH1qki01qmxq6e1JJjIBckIGpCxsxeWRCuHBWka4Y
-         OJhOZm2SJWf2alxVMSbP+X6c5EjJF5zWLbLUY71xDo/EpLrPHvNeSwXXwd1IOu2+FPpw
-         PNgAJgM0S4t3aWm5qaoqqBexzs21TtfnnGWoZisyV5G4qyzHW7lZjgDpgkbkGg9rEdL4
-         gHayxSDpfCUkDO88CbKbulNe2BPh6Pg7bp3sf11374gtnDikjct4cf5mv6V8g/Kll9Fu
-         gAawl7ncOZ86ZNXdUoUNdqTXG/Vm568lr/5/YwcJG4GPy6FJ/TQUHYDHBqz8rI5prpl9
-         w90Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780456314; x=1781061114;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=DgpTLB1hzkqNPPrde/I8zx966U5X1f7Z9OQaGxgrfCc=;
-        b=HTiBuvR4bSu5nxuGk/S1IfGy9yqoX/vp9dY9yHMwiEjsm8zupTgFt2IV1ibo1u9Oha
-         f2XWsB3LHYC7J4/VCQpdUBYZuVEcMPmQ1tnnUJswc4hQmW2VbR9bqEii20CBr2jEZLMb
-         iEY/gVQNAE9vs+cBcoJhgIYZgWMsw5DyLKnpzP1Tq/2ySsA5Z+2lGr30bcdByUv9WQ1c
-         EPHNGns6DbALHs1/pC4pOjWJ5Ulkvq/KpuTv+0gia1B3QLXvA4ZWY5xSclgw4QsqRh5f
-         O1VdgmLnc9qD/xMnxEpedbG+kbvTtLrFt6Aif2Cdjtet+BFHzV2QuCOWL7jcXrTPSpLQ
-         KsSg==
-X-Gm-Message-State: AOJu0YzfKOkypH8jjOKKfk415z+fE5Sa4w2rFwbs4fpRPGrKweh+vEbQ
-	0uhLPKynjE0Wu0BQfdTPuwK6e8RbBCHQ/W/gm/CWsuDVzy8c7VMk7wOnJ16swdjK
-X-Gm-Gg: Acq92OFWa6CZbXLW5aYkiusG+Vi7VJxx4R/f57kG/eBYPqOkRqgn5wT8y1lsCz6ncOT
-	ZRKFkb+eNqKOUWdE/4YIpQTvMr8/iLm/LYJefChdLSmkeFrujM6Xt8MPEkuaStHG7P9H9Szx9Ac
-	y8BAFcHDzQ5CdbldJB9EEmjeLqC/b9DTtYM9LF7jbzo4f7LUVzfmPYqdV+YXb/bykn/0SjEJAky
-	+xj/2tBUNukj2sPr38Cm5KwCSBOh8B3XFJY+OmykV5qv4AT1XVu510wneOQZ7h8ve44rvA4wcpA
-	siZV+S1kpMtntwcbX1qabiu0qXy+qwRJ+BkMy9ybrntRU73CMcp+U82sjgxyqftwxwrGV+PVqkk
-	yvS5rJuEjGwr+4B4rUZjqlfjbrUpnI0kgU077E9JBRGa5Kcr/5K9/sJ1Tq4vjpYMqgkEsuBGTsE
-	9yaw44EnBOH10nimkd7IBLwfw0JZ1QHbvNHCOaDrg8pVK93Y77ZDosBrYHQN+lWlEakgeSBshq1
-	wLng8o7Wsq5YvVHDwwwFuZnwAYiLmfCyvcpAvTl2HMHog==
-X-Received: by 2002:a17:902:f545:b0:2bf:211c:4980 with SMTP id d9443c01a7336-2c1644d5834mr13983125ad.35.1780456313668;
-        Tue, 02 Jun 2026 20:11:53 -0700 (PDT)
-Received: from ryzen ([2601:644:8000:5b5d:7285:c2ff:fe45:8a32])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c164f96b3fsm7211795ad.29.2026.06.02.20.11.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2026 20:11:52 -0700 (PDT)
-From: Rosen Penev <rosenp@gmail.com>
-To: linux-i2c@vger.kernel.org
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	imx@lists.linux.dev (open list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE),
-	linux-arm-kernel@lists.infradead.org (moderated list:ARM/FREESCALE IMX / MXC ARM ARCHITECTURE),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCHv2] i2c: mxs: add missing kernel-doc for struct mxs_i2c_dev members
-Date: Tue,  2 Jun 2026 20:11:35 -0700
-Message-ID: <20260603031135.289302-1-rosenp@gmail.com>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HkYX8sM4"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1780465729; x=1812001729;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=XWZigbnEuQVJIIQT2lJGXUC3oafte6N33qqOOF6iAcU=;
+  b=HkYX8sM4uhZeGHukTwuy8BCW3ZRbTUYJ7IdBLTBuoIWrET63v7qdIsfA
+   VL3AhFB1kAXUdFqGRCbaJzjQ3bNPBUKgN821UhciLLeFGZQ0M0zqzEDWt
+   JLHTzA/D83ep8HpKarDjSELzAfADL1drKEkZj4rcmlmy74uZBcARXqktU
+   kM8MptELhpARLLdyvPHh/NVXTkmiaI52zKX+iEiLKphW/mxT75Oh1Nh5/
+   eQGIH/Smx6H9IIqHQZQxOKTcuSOMKwGtkXd8FBcKs0/lKcM5ljEx6lEV1
+   zsSyk/9SlO/2awdSj7JX9IqfJc+708Wpip2xBpREEjo8LE37UN9mulPfN
+   Q==;
+X-CSE-ConnectionGUID: 5qGbOmWTS6eREQ/kJW82ZA==
+X-CSE-MsgGUID: YRknBBhiRMSzKQYPqnNQCw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11805"; a="81442662"
+X-IronPort-AV: E=Sophos;i="6.24,184,1774335600"; 
+   d="scan'208";a="81442662"
+Received: from orviesa001.jf.intel.com ([10.64.159.141])
+  by orvoesa108.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jun 2026 22:48:48 -0700
+X-CSE-ConnectionGUID: cdnWUDoyQAeR4M44AoQvhA==
+X-CSE-MsgGUID: KLwj8J98S1K8BltGtrQ1Cw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,184,1774335600"; 
+   d="scan'208";a="282228661"
+Received: from pgcooper-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.244.116])
+  by smtpauth.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Jun 2026 22:48:44 -0700
+Date: Wed, 3 Jun 2026 08:48:42 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Lianfeng Ouyang <lianfeng.ouyang@starfivetech.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	"linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+	"devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: =?utf-8?B?5Zue5aSNOiBbUEFUQw==?= =?utf-8?Q?H?= v2 0/3] i2c: Add
+ Starfive JHB100 I2C master/slave support
+Message-ID: <ah_AOjTY9effYDtb@ashevche-desk.local>
+References: <20260527085039.44435-1-lianfeng.ouyang@starfivetech.com>
+ <ah9Yrt_gO8uGaPw_@ashevche-desk.local>
+ <ZQ0PR01MB12690FA279708FD6A6DB063282132@ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <ZQ0PR01MB12690FA279708FD6A6DB063282132@ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Add kernel-doc documentation for the struct members that were previously
-undocumented. This fixes warnings when building with W=1 and ensures
-the struct is fully documented per kernel-doc conventions.
+On Wed, Jun 03, 2026 at 05:31:38AM +0000, Lianfeng Ouyang wrote:
+> > -----邮件原件-----
+> > 发件人: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > 发送时间: 2026年6月3日 6:27
+> > On Wed, May 27, 2026 at 04:50:36PM +0800, lianfeng.ouyang wrote:
 
-Assisted-by: opencode:big-pickle
-Signed-off-by: Rosen Penev <rosenp@gmail.com>
----
- v2: fixed Signed-off-by.
- drivers/i2c/busses/i2c-mxs.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+> > > The Starfive JHB100 I2C controller is a variant of the widely-used
+> > > DesignWare I2C IP, with a distinct register layout and enhanced features
+> > > such as SMBus Alert and programmable FIFO depths.
+> > >
+> > > The series is structured as follows:
+> > > 1.  Adds the device tree binding document for the starfive,jhb100-i2c
+> > >         compatible.
+> > > 2.  Prepares the existing i2c-designware-core by exporting and making
+> > >         certain key functions overridable, allowing code reuse.
+> > > 3.  Introduces the new i2c-starfive-* driver, with separate modules for
+> > >         master and slave functionality, based on the 2023-07 revision of
+> > > 	the Synopsys IP manual.
+> > >
+> > > Currently, due to the following differences, i2c designware cannot be
+> > > fully reused
+> > > 1.  For high and low level counting settings at different rates, i2c
+> > >         starfive can use IC_SCL-H/LCNT to set SS, FM, FM+, UFM
+> > > 2.  Interrupt clearing is achieved by writing 1 to the corresponding
+> > >         bit of INTR_CLR, while designware reads different clearing
+> > > 	registers
+> > > 3.  Master and slave require separate probe callbacks and cannot rely
+> > >         solely on the runtime mode switching provided by
+> > i2c_dw_set_mode()
+> > > 4.  The value of FIFO depth is not obtained through registers, but
+> > >         written through DTS
+> > 
+> > NAK in this form. We well discourage code duplication and ugly ifdeffery with
+> > full of __weak annotations that may not be present in the regular driver. There
+> > is not even a tiny bit of justification for this nonsense.
+> > 
+> > TL;DR: this series needs much more work.
+> > 
+> > > I have written some poorly styled code to reduce changes to i2c designware
+> > > and reuse its functions by keeping aa always true, for example
+> > > 1.  the implementation of i2c-d w_probe_master() differs only for the two
+> > >         IPs in i2c_dw_set_timits_master(). In order to reuse
+> > > 	i2c_dw_probe_master(), i2c_dw_set_timits_master is declared as
+> > > 	__weak. A better approach is to use a callback function, but using
+> > > 	a callback function requires changing more i2c designware files.
+> > > 	I don't know what the attitude of the community is
+> > > 2.  For the operation of clearing interrupt flags, i2c designware reads
+> > >         and i2c starfive writes. Therefore, in order not to modify the
+> > > 	relevant logic of i2c designware, I added a write operation to
+> > > 	sf_reg_read()
+> > > So I think this version of the code is not allowed to merge, but I don't
+> > > know how to handle this situation because if i2c designware is not changed
+> > >  at all, we will have to write code that is similar to i2c designware.
+> > >  Will this type of IP not be allowed to merge?
+> 
+> Thanks for the review.
+> 
+> In the future, the designware will be changed to the form of callback functions, 
+> and then callback functions will be passed in i2c starry - * and implemented 
+> using designware as a library
 
-diff --git a/drivers/i2c/busses/i2c-mxs.c b/drivers/i2c/busses/i2c-mxs.c
-index 08c9091a1e35..4e07babea9c3 100644
---- a/drivers/i2c/busses/i2c-mxs.c
-+++ b/drivers/i2c/busses/i2c-mxs.c
-@@ -108,6 +108,14 @@ enum mxs_i2c_devtype {
-  * @cmd_complete: completion object for transaction wait
-  * @cmd_err: error code for last transaction
-  * @adapter: i2c subsystem adapter node
-+ * @timing0: I2C TIMING0 register value
-+ * @timing1: I2C TIMING1 register value
-+ * @timing2: I2C TIMING2 register value
-+ * @dmach: DMA channel
-+ * @pio_data: PIO data for DMA
-+ * @addr_data: address data for DMA
-+ * @sg_io: scatterlist for I/O
-+ * @dma_read: flag indicating DMA read
-  */
- struct mxs_i2c_dev {
- 	struct device *dev;
---
-2.54.0
+Why you can't specify your own regmap as it was done in Baikal case? What are
+the obstacles to achieve that?
+
+-- 
+With Best Regards,
+Andy Shevchenko
+
 
