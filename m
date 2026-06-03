@@ -1,161 +1,260 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from courrier.aliel.fr (courrier.aliel.fr [65.21.61.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71FD633ADA3;
-	Wed,  3 Jun 2026 14:34:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 084A4368D75;
+	Wed,  3 Jun 2026 17:50:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.21.61.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780497255; cv=none; b=iAzxzG9HG0Ii+98KnxwXve+slUOHknxIG6w3F4iHy6hwb9G+mBU+dcGPZmR2OD5ApfunvAqBAB7cuUc9VwCRWc5v1YLKEE4rxk7UrPi+DTESotFY4icPZOdyglJNbB+SDYw7LbKCjoKLvgGY7gCWKSo6VMbTNygaFUZUa5vic0s=
+	t=1780509035; cv=none; b=HC1sW0P6XKkZd9C1En6ZkOZw7pqnhN7e/sahMlXJGKnVItXxA6jxDWVSs4FS1/xetdHVq0IH5k68ROAWSKcs/UoTrZct1wyY7L3fjvMrmQP1ZsV4Ul3uZ6RFZpXLNheMbMpRSOXEbpS4XSLRYqknFMurB+0bkUn0nIgVWEL4LzA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780497255; c=relaxed/simple;
-	bh=tJFVf8vXzzjaB0v3APHNlAnYXLDp0ucb0cCQgWn023Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bjOFrzgvR6jVk63I7TO/8Uu//qsuwA/4h1N+DDiOJtaW92KS6KtWjdHX39M7YLFkKsdjtlZzB+Bu1Cd+hEBA0C9mvIaGVT/5Zogyi2jS4BTQ37Yel+0iPKFX1zn8jpWVJyzSwKSQVpppOazWQRVB2w/Z7p5YcG9hbxlba7WN1zE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aKYcUPk8; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780509035; c=relaxed/simple;
+	bh=amx6I/JNCKHxEvNbyv/PbbKeEY7AbmQHEo9KEoDEbYo=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=kJrw31i7q+K19FJzqo5MLizcS4j1fEh+46cOhJ2bgZWBiIvsKo4Ek+Tz6BNNkzPwJ/dkKR2FOgu0BmBkjw9fj+ROhFWU21ji21BLV2/Rs+CgSiEEMPbbDg/qq9GWhjyG9T+bhvgXLDtRjOTyDLxrJ534SDA8dC7y54Zeh1/VUFY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aliel.fr; spf=pass smtp.mailfrom=aliel.fr; dkim=pass (1024-bit key) header.d=aliel.fr header.i=@aliel.fr header.b=bW4O1NM9; arc=none smtp.client-ip=65.21.61.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aliel.fr
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aliel.fr
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aKYcUPk8"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC4D41F00893;
-	Wed,  3 Jun 2026 14:34:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780497254;
-	bh=Gq920oPUzop81+fde7fc5jCiNoQAZVW8+IXP28aDVLc=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=aKYcUPk8yqwRAhVZYNJFqgbig7Ez4t+ELeCSeX0vsAsxEovN5taegZRC1X59bI72I
-	 /e7lo9JXrIi8ECQzERCEku/FjkQ4rMdU/WS9ZdF9w3aXyykZ6d+QqwnkMx4cYmq9Qi
-	 hFm/Cdx3kV4KztUDdWjNGJGECbCQkgRLN2atyHJQ82Z6hp8eoNjuDBhlJEaOTCZyoZ
-	 ydb0ycewysVzCl6+A+g++xD2ca2lT5jPNjk5CGTwDopueA852MY4fvGdq6wpEr9+wZ
-	 mWifr/byI+qsL1yR4JDXL1NXIINtnm+11LHKP/8Zzu8xeEA7+F0lDX1HtmJWPQRd9f
-	 7Ve8fI97P5VZg==
-Message-ID: <be917331-820d-4bd6-b877-77471af5b3b8@kernel.org>
-Date: Wed, 3 Jun 2026 16:34:07 +0200
+	dkim=pass (1024-bit key) header.d=aliel.fr header.i=@aliel.fr header.b="bW4O1NM9"
+Message-ID: <178b09d3-4e05-4f0c-b598-fa37c7a2503c@aliel.fr>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aliel.fr;
+	s=courrier-s1; t=1780509023;
+	bh=amx6I/JNCKHxEvNbyv/PbbKeEY7AbmQHEo9KEoDEbYo=;
+	h=Date:From:Subject:To:Cc:References:In-Reply-To;
+	b=bW4O1NM9ociaYy6qcst2Iwikhf5fggRkga5WL9qp0wiI8XXwbe77IgZh9Fnb0WQfY
+	 cNk0+AlS6MiibZ9tmPzUOXzCwwiUCw7plgrGCvSV5qd/Rw9oss0Rz70lOHgzoT2+Ku
+	 iTGLu9iXs8MdTdY+wDjQz8lQ+agVoeEod6CDQEA4=
+Date: Wed, 3 Jun 2026 19:50:22 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: =?UTF-8?B?UmU6IOWbnuWkjTog5Zue5aSNOiBbUEFUQ0ggdjIgMi8zXSBpMmM6IGRl?=
- =?UTF-8?Q?signware=3A_Export_symbols_and_add_=5F=5Fweak_for_Starfive_I2C_dr?=
- =?UTF-8?Q?iver?=
-To: Lianfeng Ouyang <lianfeng.ouyang@starfivetech.com>,
- Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Mika Westerberg <mika.westerberg@linux.intel.com>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
- "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-References: <20260527085039.44435-1-lianfeng.ouyang@starfivetech.com>
- <20260527085039.44435-3-lianfeng.ouyang@starfivetech.com>
- <c1ae50ab-1228-45a3-b910-4564774f4198@kernel.org>
- <ZQ0PR01MB1269B87604C6DE7FC2E6ACCC82092@ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn>
- <d138759d-ec07-4d94-bbce-d34d5bd4fe61@kernel.org>
- <ZQ0PR01MB1269926D984F86CB9B87E3F182092@ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn>
-From: Krzysztof Kozlowski <krzk@kernel.org>
+User-Agent: Mozilla Thunderbird Beta
+From: linux-kernel-dev@aliel.fr
+Subject: Re: [PATCH v6 4/8] mfd: khadas-mcu: Add support for VIM4 MCU variant
+To: Lee Jones <lee@kernel.org>
+Cc: Neil Armstrong <neil.armstrong@linaro.org>, Rob Herring
+ <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>,
+ Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>,
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+ Beniamino Galvani <b.galvani@gmail.com>,
+ "Rafael J. Wysocki" <rafael@kernel.org>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ Lukasz Luba <lukasz.luba@arm.com>, Liam Girdwood <lgirdwood@gmail.com>,
+ Mark Brown <broonie@kernel.org>, linux-amlogic@lists.infradead.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-pm@vger.kernel.org
+References: <20260516-add-mcu-fan-khadas-vim4-v6-0-cccc9b61f465@aliel.fr>
+ <20260516-add-mcu-fan-khadas-vim4-v6-4-cccc9b61f465@aliel.fr>
+ <20260527145322.GB671544@google.com>
 Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <ZQ0PR01MB1269926D984F86CB9B87E3F182092@ZQ0PR01MB1269.CHNPR01.prod.partner.outlook.cn>
+In-Reply-To: <20260527145322.GB671544@google.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On 28/05/2026 10:28, Lianfeng Ouyang wrote:
+On 5/27/26 4:53 PM, Lee Jones wrote:
+> On Sat, 16 May 2026, Ronald Claveau via B4 Relay wrote:
 > 
+>> From: Ronald Claveau <linux-kernel-dev@aliel.fr>
+>>
+>> Refactor probe() to use per-variant khadas_mcu_data
+>> instead of hardcoded globals.
+>>
+>> Add dedicated regmap configuration and device data for the VIM4 MCU,
+>> with its own volatile/writeable registers.
+>>
+>> Add the fan control register
+>> (0–100 levels vs 0–3 for previous supported boards).
+>>
+>> Add a new compatible string "khadas,vim4-mcu".
+>>
+>> Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+>> Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
+>> ---
+>>  drivers/mfd/khadas-mcu.c | 119 +++++++++++++++++++++++++++++++++++++++++------
+>>  1 file changed, 104 insertions(+), 15 deletions(-)
+>>
+>> diff --git a/drivers/mfd/khadas-mcu.c b/drivers/mfd/khadas-mcu.c
+>> index ba981a7886921..7bc538232a445 100644
+>> --- a/drivers/mfd/khadas-mcu.c
+>> +++ b/drivers/mfd/khadas-mcu.c
+>> @@ -75,15 +75,91 @@ static const struct regmap_config khadas_mcu_regmap_config = {
+>>  	.cache_type	= REGCACHE_MAPLE,
+>>  };
+>>  
+>> -static struct mfd_cell khadas_mcu_fan_cells[] = {
+>> +static const struct khadas_mcu_fan_pdata khadas_mcu_fan_pdata = {
+>> +	.fan_reg	= KHADAS_MCU_CMD_FAN_STATUS_CTRL_REG,
+>> +	.max_level	= 3, /* Fan speed: 0 = off, 1 = low, 2 = medium, 3 = high */
+>> +};
+>> +
+>> +static const struct mfd_cell khadas_mcu_fan_cells[] = {
+>>  	/* VIM1/2 Rev13+ and VIM3 only */
+>> -	{ .name = "khadas-mcu-fan-ctrl", },
+>> +	{
+>> +		.name = "khadas-mcu-fan-ctrl",
+>> +		.platform_data = &khadas_mcu_fan_pdata,
+>> +		.pdata_size    = sizeof(khadas_mcu_fan_pdata),
+>> +	},
+>>  };
+>>  
+>> -static struct mfd_cell khadas_mcu_cells[] = {
+>> +static const struct mfd_cell khadas_mcu_cells[] = {
+>>  	{ .name = "khadas-mcu-user-mem", },
+>>  };
+>>  
+>> +static const struct khadas_mcu_data khadas_mcu_data = {
+>> +	.regmap_config	= &khadas_mcu_regmap_config,
+>> +	.cells		= khadas_mcu_cells,
+>> +	.ncells		= ARRAY_SIZE(khadas_mcu_cells),
+>> +	.fan_cells	= khadas_mcu_fan_cells,
+>> +	.nfan_cells	= ARRAY_SIZE(khadas_mcu_fan_cells),
+>> +};
 > 
->> -----邮件原件-----
->> 发件人: Krzysztof Kozlowski <krzk@kernel.org>
->> 发送时间: 2026年5月28日 15:46
->> 收件人: Lianfeng Ouyang <lianfeng.ouyang@starfivetech.com>; Andi Shyti
->> <andi.shyti@kernel.org>; Rob Herring <robh@kernel.org>; Krzysztof Kozlowski
->> <krzk+dt@kernel.org>; Conor Dooley <conor+dt@kernel.org>; Mika
->> Westerberg <mika.westerberg@linux.intel.com>; Andy Shevchenko
->> <andriy.shevchenko@linux.intel.com>
->> 抄送: linux-i2c@vger.kernel.org; devicetree@vger.kernel.org;
->> linux-kernel@vger.kernel.org
->> 主题: Re: 回复: [PATCH v2 2/3] i2c: designware: Export symbols and add
->> __weak for Starfive I2C driver
->>
->> On 28/05/2026 04:36, Lianfeng Ouyang wrote:
->>>>>  	{ .compatible = "mobileye,eyeq6lplus-i2c" },
->>>>>  	{ .compatible = "mscc,ocelot-i2c" },
->>>>>  	{ .compatible = "snps,designware-i2c" },
->>>>> +	{ .compatible = "starfive,jhb100-i2c-master" },
->>>>> +	{ .compatible = "starfive,jhb100-i2c-slave" },
->>>>
->>>> So both devices are the same... Or you miss proper entry in ID table.
->>>> Don't sprinkle compatibles around the code - ID table match data is for
->>>> variant customization.
->>>>
->>>> Best regards,
->>>> Krzysztof
->>>
->>> Ok, Master and slave have different base addresses and interrupt numbers, but
->>> the register layout is the same, so in the next version, I will only use the same
->>> compatible ”starfive, jhb100-i2c“, and then add starfive, i2c-slave to the dts
->> node
->>> of the slave to distinguish them
->>
->> You do not need to distinguish same devices usually, but I still do not
->> understand why do you need all these different compatibles and your
->> commit msgs or binding text do not help, so I don't know what to advise.
->>
->>
->> Best regards,
->> Krzysztof
+> Let's not over-complicate things please.
 > 
-> The IP corresponding to the i2c driver submitted this time is quite unique, 
-> so it should be distinguished. The master-slave of i2c designware are at the
-> same base address and switch according to the scene, so only one is initialized
-> in probe(). But i2c starfive has master-slave at different base addresses,
-> and it can work simultaneously. Therefore, both roles need to be initialized in 
-> their respective probes. If we don't distinguish, we don't know if this probe is 
-> initializing the master or the slave
+> You can do all of this with local variables inside khadas_mcu_probe()
+> and omit the terribly named khadas_mcu_data structure entirely.
 > 
 
-I don't think you read the comments. Again, you claim devices are
-incompatible but have exactly the same programming interface.
+Ok thanks, I will send a new version according to your feedback.
 
+>> +static bool khadas_mcu_vim4_reg_volatile(struct device *dev, unsigned int reg)
+>> +{
+>> +	switch (reg) {
+>> +	case KHADAS_MCU_PWR_OFF_CMD_REG:
+>> +	case KHADAS_MCU_VIM4_REST_CONF_REG:
+>> +	case KHADAS_MCU_WOL_INIT_START_REG:
+>> +	case KHADAS_MCU_VIM4_LED_ON_RAM_REG:
+>> +	case KHADAS_MCU_VIM4_FAN_CTRL_REG:
+>> +	case KHADAS_MCU_VIM4_WDT_EN_REG:
+>> +	case KHADAS_MCU_VIM4_SYS_RST_REG:
+>> +		return true;
+>> +	default:
+>> +		return false;
+>> +	}
+>> +}
+>> +
+>> +static bool khadas_mcu_vim4_reg_writeable(struct device *dev, unsigned int reg)
+>> +{
+>> +	switch (reg) {
+>> +	case KHADAS_MCU_VERSION_0_REG:
+>> +	case KHADAS_MCU_VERSION_1_REG:
+>> +	case KHADAS_MCU_SHUTDOWN_NORMAL_STATUS_REG:
+>> +		return false;
+>> +	default:
+>> +		return true;
+>> +	}
+>> +}
+>> +
+>> +static const struct regmap_config khadas_mcu_vim4_regmap_config = {
+>> +	.reg_bits	= 8,
+>> +	.reg_stride	= 1,
+>> +	.val_bits	= 8,
+>> +	.max_register	= KHADAS_MCU_VIM4_SYS_RST_REG,
+>> +	.volatile_reg	= khadas_mcu_vim4_reg_volatile,
+>> +	.writeable_reg	= khadas_mcu_vim4_reg_writeable,
+>> +	.cache_type	= REGCACHE_MAPLE,
+>> +};
+>> +
+>> +static const struct khadas_mcu_fan_pdata khadas_vim4_fan_pdata = {
+>> +	.fan_reg	= KHADAS_MCU_VIM4_FAN_CTRL_REG,
+>> +	.max_level	= 0x64,
+>> +};
+>> +
+>> +static const struct mfd_cell khadas_mcu_vim4_cells[] = {
+>> +	{
+>> +		.name		= "khadas-mcu-fan-ctrl",
+>> +		.platform_data	= &khadas_vim4_fan_pdata,
+>> +		.pdata_size	= sizeof(khadas_vim4_fan_pdata),
+>> +	},
+>> +};
+>> +
+>> +static const struct khadas_mcu_data khadas_vim4_mcu_data = {
+>> +	.regmap_config	= &khadas_mcu_vim4_regmap_config,
+>> +	.cells		= NULL,
+>> +	.ncells		= 0,
+>> +	.fan_cells	= khadas_mcu_vim4_cells,
+>> +	.nfan_cells	= ARRAY_SIZE(khadas_mcu_vim4_cells),
+>> +};
+>> +
+>>  static int khadas_mcu_probe(struct i2c_client *client)
+>>  {
+>>  	struct device *dev = &client->dev;
+>> @@ -94,28 +170,40 @@ static int khadas_mcu_probe(struct i2c_client *client)
+>>  	if (!ddata)
+>>  		return -ENOMEM;
+>>  
+>> +	switch ((uintptr_t)i2c_get_match_data(client)) {
+>> +	case KHADAS_MCU_GENERIC:
+>> +		ddata->data = &khadas_mcu_data;
+>> +		break;
+>> +	case KHADAS_MCU_VIM4:
+>> +		ddata->data = &khadas_vim4_mcu_data;
+>> +		break;
+>> +	default:
+>> +		return -ENODEV;
+>> +	}
+>> +
+>>  	i2c_set_clientdata(client, ddata);
+>>  
+>>  	ddata->dev = dev;
+>>  
+>> -	ddata->regmap = devm_regmap_init_i2c(client, &khadas_mcu_regmap_config);
+>> +	ddata->regmap = devm_regmap_init_i2c(client, ddata->data->regmap_config);
+>>  	if (IS_ERR(ddata->regmap)) {
+>>  		ret = PTR_ERR(ddata->regmap);
+>> -		dev_err(dev, "Failed to allocate register map: %d\n", ret);
+>> -		return ret;
+>> +		return dev_err_probe(dev, ret, "Failed to allocate register map\n");
+>>  	}
+>>  
+>> -	ret = devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
+>> -				   khadas_mcu_cells,
+>> -				   ARRAY_SIZE(khadas_mcu_cells),
+>> -				   NULL, 0, NULL);
+>> -	if (ret)
+>> -		return ret;
+>> +	if (ddata->data->cells && ddata->data->ncells) {
+>> +		ret = devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
+>> +					   ddata->data->cells,
+>> +					   ddata->data->ncells,
+>> +					   NULL, 0, NULL);
+>> +		if (ret)
+>> +			return ret;
+>> +	}
+>>  
+>>  	if (of_property_present(dev->of_node, "#cooling-cells"))
+>>  		return devm_mfd_add_devices(dev, PLATFORM_DEVID_NONE,
+>> -					    khadas_mcu_fan_cells,
+>> -					    ARRAY_SIZE(khadas_mcu_fan_cells),
+>> +					    ddata->data->fan_cells,
+>> +					    ddata->data->nfan_cells,
+>>  					    NULL, 0, NULL);
+>>  
+>>  	return 0;
+>> @@ -123,7 +211,8 @@ static int khadas_mcu_probe(struct i2c_client *client)
+>>  
+>>  #ifdef CONFIG_OF
+>>  static const struct of_device_id khadas_mcu_of_match[] = {
+>> -	{ .compatible = "khadas,mcu", },
+>> +	{ .compatible = "khadas,mcu", .data = (void *)KHADAS_MCU_GENERIC },
+>> +	{ .compatible = "khadas,vim4-mcu", .data = (void *)KHADAS_MCU_VIM4 },
+>>  	{},
+>>  };
+>>  MODULE_DEVICE_TABLE(of, khadas_mcu_of_match);
+>>
+>> -- 
+>> 2.49.0
+>>
+>>
+> 
+
+
+-- 
 Best regards,
-Krzysztof
+Ronald
