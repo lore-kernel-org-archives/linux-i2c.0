@@ -1,109 +1,108 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88D3643DA55;
-	Thu,  4 Jun 2026 12:15:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 580823C7E1E
+	for <linux-i2c@vger.kernel.org>; Thu,  4 Jun 2026 12:32:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780575326; cv=none; b=S+mHfvG2AeXahEGxrlItl3+BCrC2n0pTKqUmTTyMyaWo4B1Dn1l31kurXAB7wDn1c7WP6GMpL/BhL9uDVT/mnjZdZbl5CnU2urDNxM8b8ZkT/ymacAXHojc3aGdm2Vq/vtaoniD52N+ptO0n8PGjzz2SVxMhXWwq0CjR3m/oJEA=
+	t=1780576352; cv=none; b=Agbo/cH8mWSNLOyEiADfD+Fj33k3eYbbvBNDfWwxNHAVfVvJfYA5o9QCVZ7K6z/hV+U3o6IZcXVvuuVVyHgyOJaGp+SO8Ucl+X2bnHz0krpSJo/3cWUFKqzbwbX4NN7ZadVEaSCf6yJ3k/lDmLMI9DhZnuNOl5ToX/UNOSerXno=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780575326; c=relaxed/simple;
-	bh=EkyWnoWUzPKbnh692cDu96itTwqxnfJoZ0AlSUbA7fA=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=SrAzj8+UotxvWtJa+E2E6Odf/yxO+kTyo3bdLBrvg515zTrF0H2VKvT1rAn+uprQjv3hBYWvqQR7vD5sXRWL428RY2nj6eyENywewvBWwmresRdI+yCon6RNBDU2tB9W+aSQaWx7MaFf33l1WAFXMJR5dt3Kfa72y6RNgoi2OPs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=UkVOW6BE; arc=none smtp.client-ip=220.197.31.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1780576352; c=relaxed/simple;
+	bh=LnrtZB0iEg1z1vGOmrpOOK3Cssie/DMPDNqDCPjTdS8=;
+	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=YGXfIju3R1Xjss/E1LawLvJqBFJOmHQn38Be/3kGQ37G51w4PASYDifZqxynGAfkY/YAKuyg60QZBealzOwrSBJ6KbhvXUa3+J7HyPRUxbW7lrZKQM260X6uxrUJEIfcLsry4TmZplhcmqQcBG+wfPLfT6nGQ4jUxsy9Z6vwtmw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cqf3MXV4; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="UkVOW6BE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
-	Message-ID; bh=EkyWnoWUzPKbnh692cDu96itTwqxnfJoZ0AlSUbA7fA=; b=U
-	kVOW6BEXgNTFh55qFVh962tXhzF8cpomJd1/K5sPZn3tqPaWHyz/4Ge7SRu2vzrp
-	yM3IX6nNoLiyXju+/MLODHGn/mkLzLNWidjayMKvBNIrjoCqR2laeVR5V99S34zd
-	mt0vHlb2NvQaW2zmpAco74GgmKg8DxNSC8FrpNxUws=
-Received: from w15303746062$163.com ( [113.200.174.80] ) by
- ajax-webmail-wmsvr-40-139 (Coremail) ; Thu, 4 Jun 2026 20:14:52 +0800 (CST)
-Date: Thu, 4 Jun 2026 20:14:52 +0800 (CST)
-From: w15303746062  <w15303746062@163.com>
-To: jdelvare@suse.com, andi.shyti@kernel.org
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
-	"Mingyu Wang" <25181214217@stu.xidian.edu.cn>,
-	stable@vger.kernel.org
-Subject: Re:[PATCH v2] i2c: i801: fix hardware state machine corruption in
- error path
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
- 20260403(27802f6d) Copyright (c) 2002-2026 www.mailtech.cn 163com
-In-Reply-To: <20260512093534.348655-1-w15303746062@163.com>
-References: <20260512093534.348655-1-w15303746062@163.com>
-X-NTES-SC: AL_Qu2TAvmcukoi5CKRYOkfmU0Qguw9Xcq5uPkj34FWN5t8jBHo5DwgRW1dDETv98+JMgaTmhKYQh1n599XY4JFX4E5lNHAY++hl+xq5hpLf+nRrw==
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=GBK
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cqf3MXV4"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F6861F0089E
+	for <linux-i2c@vger.kernel.org>; Thu,  4 Jun 2026 12:32:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780576350;
+	bh=LnrtZB0iEg1z1vGOmrpOOK3Cssie/DMPDNqDCPjTdS8=;
+	h=From:In-Reply-To:References:Date:Subject:To:Cc;
+	b=Cqf3MXV4TD52LTrKp0CEYIe9g985jGUSnNRQCoaqoWqlQrEUsixL6taFahNCfDLy3
+	 +Z6as+OOsL9nqoix/FyXeZFm2nSqFAgKe0UdZ200LCLfCzZOsL9e5aeERkfHQuCGQt
+	 lbsQ7bKitUjPcn+bHj0GDLNxKoY1a2sN6xy3To0Q9KFC5vgDE0UO/KlEqKmvCmGo2q
+	 tQFH3C8Z7JCY1CQ0ki8z08Rb6/Be/+yEVtXg1G5zNpIwheU8ILhcBZYHgFoWppCuwE
+	 gB2HgfLQ286akIY4m3Bo3GCPaJEmZyP191eGzCBLL04xi+/lRCrQ3eZvv7giv/r8Wv
+	 S0m1gGv5CNe1w==
+Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-3967726bc47so6100351fa.1
+        for <linux-i2c@vger.kernel.org>; Thu, 04 Jun 2026 05:32:30 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ+AUMm0XSoteShOaO9EgaSwDRtkZT/KF9mB8q1436aDHLmnU5sVV8GHG6R9qKUX4WSq7F57Aa39n7U=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx3lUwub/2lqgJuoPLHvYSFxHVwr0AWVYbRDerz8OJIjLwMnecl
+	NDkoSnIy0sZv3sy3rp1+nPtUgYOa17mkXwRXnkojgQWHyPr/fSjWps/2nmoRcXFvAIQBb4Oi7DZ
+	Vth41YddY1s1DfspkTsq0gWgAL0tYyRKz1ReNNL4MiQ==
+X-Received: by 2002:a2e:bc24:0:b0:396:9cbb:673e with SMTP id
+ 38308e7fff4ca-396af48a101mr25033101fa.24.1780576348691; Thu, 04 Jun 2026
+ 05:32:28 -0700 (PDT)
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Thu, 4 Jun 2026 05:32:27 -0700
+Received: from 969154062570 named unknown by gmailapi.google.com with
+ HTTPREST; Thu, 4 Jun 2026 05:32:27 -0700
+From: Bartosz Golaszewski <brgl@kernel.org>
+In-Reply-To: <ah9OIVyrHEhcMHzN@ashevche-desk.local>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Message-ID: <47aa218a.9e42.19e928ecb94.Coremail.w15303746062@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:iygvCgDXXwo8bCFq2qMCAA--.3910W
-X-CM-SenderInfo: jzrvjiatxuliiws6il2tof0z/xtbC4xwN8GohbDzpgwAA3z
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
+References: <20260521-pdev-fwnode-ref-v1-0-88c324a1b8d2@oss.qualcomm.com>
+ <20260521-pdev-fwnode-ref-v1-7-88c324a1b8d2@oss.qualcomm.com> <ah9OIVyrHEhcMHzN@ashevche-desk.local>
+Date: Thu, 4 Jun 2026 05:32:27 -0700
+X-Gmail-Original-Message-ID: <CAMRc=McLN9Ovoqo3om-3uC=q+=rcKCoiWMctC=yvwiaHacU0PQ@mail.gmail.com>
+X-Gm-Features: AVHnY4LlXi8ln45MTUjJfpd_YWjp19dT0a-H21-M7Hc7IKBiGWRxgS3l-OaDEEQ
+Message-ID: <CAMRc=McLN9Ovoqo3om-3uC=q+=rcKCoiWMctC=yvwiaHacU0PQ@mail.gmail.com>
+Subject: Re: [PATCH 07/23] driver core: platform: provide platform_device_set_fwnode()
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Lee Jones <lee@kernel.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, 
+	Thierry Reding <thierry.reding@avionic-design.de>, 
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
+	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Srinivas Kandagatla <srini@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	Vinod Koul <vkoul@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>, 
+	Rob Herring <robh@kernel.org>, Saravana Kannan <saravanak@kernel.org>, 
+	Madhavan Srinivasan <maddy@linux.ibm.com>, Michael Ellerman <mpe@ellerman.id.au>, 
+	Nicholas Piggin <npiggin@gmail.com>, "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
+	Andi Shyti <andi.shyti@kernel.org>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, 
+	Robin Murphy <robin.murphy@arm.com>, Doug Berger <opendmb@gmail.com>, 
+	Florian Fainelli <florian.fainelli@broadcom.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Ulf Hansson <ulfh@kernel.org>, 
+	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>, 
+	Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
+	Matthew Brost <matthew.brost@intel.com>, 
+	=?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
+	Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Peter Chen <peter.chen@kernel.org>, 
+	Paul Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>, 
+	Philipp Zabel <p.zabel@pengutronix.de>, Maximilian Luz <luzmaximilian@gmail.com>, 
+	Hans de Goede <hansg@kernel.org>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
+	Krzysztof Kozlowski <krzk@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, brgl@kernel.org, 
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org, 
+	driver-core@lists.linux.dev, devicetree@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org, 
+	iommu@lists.linux.dev, linux-pm@vger.kernel.org, imx@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, intel-xe@lists.freedesktop.org, 
+	dri-devel@lists.freedesktop.org, linux-usb@vger.kernel.org, 
+	linux-mips@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Content-Type: text/plain; charset="UTF-8"
 
-CgpIaSBKZWFuLCBBbmRpLAoKSnVzdCBhIGdlbnRsZSBwaW5nIG9uIHRoaXMgdjIgcGF0Y2guIEl0
-IHJldXNlcyB0aGUgZXhpc3RpbmcgJ291dCcgbGFiZWwgdG8gZml4IAp0aGUgdW51c2VkIGxhYmVs
-IHdhcm5pbmcgYW5kIHVwZGF0ZXMgdGhlIGNvbW1pdCBtZXNzYWdlIGV4YWN0bHkgYXMgSmVhbiBz
-dWdnZXN0ZWQuCgpQbGVhc2UgbGV0IG1lIGtub3cgaWYgdGhlcmUgaXMgYW55dGhpbmcgZWxzZSBu
-ZWVkZWQgZnJvbSBteSBzaWRlLCBvciBpZiAKaXQgaXMgZ29vZCB0byBiZSBxdWV1ZWQgdXAuCgpU
-aGFua3MsCk1pbmd5dQoKQXQgMjAyNi0wNS0xMiAxNzozNTozNCwgdzE1MzAzNzQ2MDYyQDE2My5j
-b20gd3JvdGU6Cj5Gcm9tOiBNaW5neXUgV2FuZyA8MjUxODEyMTQyMTdAc3R1LnhpZGlhbi5lZHUu
-Y24+Cj4KPkEgc2V2ZXJlIGxpdmVsb2NrIGFuZCBzdWJzZXF1ZW50IEh1bmcgVGFzayBwYW5pYyB3
-ZXJlIG9ic2VydmVkIGluIHRoZQo+aTJjLWk4MDEgZHJpdmVyIGR1cmluZyBjb25jdXJyZW50IEZ1
-enppbmcuIFRoZSBjcmFzaCBpcyBjYXVzZWQgYnkgYW4KPnVuY29uZGl0aW9uYWwgaGFyZHdhcmUg
-cmVnaXN0ZXIgY2xlYW51cCBpbiB0aGUgZXJyb3IgaGFuZGxpbmcgcGF0aCBvZgo+aTgwMV9hY2Nl
-c3MoKS4KPgo+V2hlbiBpODAxX2NoZWNrX3ByZSgpIGZhaWxzIChlLmcuLCByZXR1cm5pbmcgLUVC
-VVNZIGJlY2F1c2UgdGhlIFNNQnVzCj5jb250cm9sbGVyIGlzIGFjdGl2ZWx5IHVzZWQgYnkgQklP
-Uy9BQ1BJKSwgdGhlIGtlcm5lbCBkb2VzIG5vdCBhY3R1YWxseQo+YWNxdWlyZSB0aGUgaGFyZHdh
-cmUgb3duZXJzaGlwLiBIb3dldmVyLCB0aGUgY29kZSBqdW1wcyB0byB0aGUgJ291dCcKPmxhYmVs
-IGFuZCBleGVjdXRlczoKPgo+ICAgIGlvd3JpdGU4KFNNQkhTVFNUU19JTlVTRV9TVFMgfCBTVEFU
-VVNfRkxBR1MsIFNNQkhTVFNUUyhwcml2KSk7Cj4KPlRoaXMgZm9yY2VmdWxseSBjbGVhcnMgdGhl
-IElOVVNFX1NUUyBsb2NrIGFuZCByZXNldHMgdGhlIGhhcmR3YXJlIHN0YXR1cwo+ZmxhZ3Mgd2l0
-aG91dCBvd25pbmcgdGhlIGNvbnRyb2xsZXIuIERvaW5nIHNvIGludGVycnVwdHMgb25nb2luZyBC
-SU9TL0FDUEkKPnRyYW5zYWN0aW9ucyBhbmQgdG90YWxseSBjb3JydXB0cyB0aGUgU01CdXMgaGFy
-ZHdhcmUgc3RhdGUgbWFjaGluZS4KPgo+Q29uc2VxdWVudGx5LCBhbGwgc3Vic2VxdWVudCBpODAx
-X2FjY2VzcygpIGNhbGxzIGZhaWwgYXQgdGhlIHByZS1jaGVjawo+c3RhZ2UsIHRyaWdnZXJpbmcg
-YW4gZW5kbGVzcyBzdHJlYW0gb2YgIlNNQnVzIGlzIGJ1c3ksIGNhbid0IHVzZSBpdCEiCj5lcnJv
-ciBsb2dzLiBPdmVyIGEgc2xvdyBzZXJpYWwgY29uc29sZSwgdGhpcyBwcmludGsgZmxvb2QgbW9u
-b3BvbGl6ZXMKPnRoZSBDUFUgKENvbnNvbGUgTGl2ZWxvY2spLCBzdGFydmluZyBvdGhlciBwcm9j
-ZXNzZXMgdHJ5aW5nIHRvIGFjcXVpcmUKPnRoZSBtbWFwX2xvY2sgZG93bl9yZWFkIHNlbWFwaG9y
-ZSwgdWx0aW1hdGVseSB0cmlnZ2VyaW5nIHRoZSBodW5nIHRhc2sKPndhdGNoZG9nLgo+Cj5GaXgg
-dGhpcyBieSBtb3ZpbmcgdGhlICdvdXQnIGxhYmVsIGJlbG93IHRoZSBoYXJkd2FyZSByZWdpc3Rl
-ciBjbGVhbnVwLgo+SWYgaTgwMV9jaGVja19wcmUoKSBmYWlscywgd2Ugc2FmZWx5IGJ5cGFzcyB0
-aGUgaW93cml0ZTgoKSBhbmQgb25seQo+cmVsZWFzZSB0aGUgc29mdHdhcmUgbG9ja3MgKHBtX3J1
-bnRpbWUgYW5kIG11dGV4KSwgc3RyaWN0bHkgYWRoZXJpbmcgdG8KPnRoZSBydWxlIG9mIG5vdCBy
-ZWxlYXNpbmcgcmVzb3VyY2VzIHRoYXQgd2VyZSBuZXZlciBhY3F1aXJlZC4KPgo+Rml4ZXM6IDFm
-NzYwYjg3ZTU0YyAoImkyYzogaTgwMTogQ2FsbCBpODAxX2NoZWNrX3ByZSgpIGZyb20gaTgwMV9h
-Y2Nlc3MoKSIpCj5DYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZyAjIHY2LjMrCj4KPlNpZ25lZC1v
-ZmYtYnk6IE1pbmd5dSBXYW5nIDwyNTE4MTIxNDIxN0BzdHUueGlkaWFuLmVkdS5jbj4KPi0tLQo+
-Q2hhbmdlcyBpbiB2MjoKPiAtIFJldXNlZCBhbmQgbW92ZWQgdGhlIGV4aXN0aW5nICdvdXQnIGxh
-YmVsIGluc3RlYWQgb2YgYWRkaW5nIGEgbmV3IG9uZSwKPiAgIGZpeGluZyBhIGJ1aWxkIHdhcm5p
-bmcgcmVnYXJkaW5nIGFuIHVudXNlZCBsYWJlbC4KPiAtIERyb3BwZWQgdGhlIGluYWNjdXJhdGUg
-bWVudGlvbiBvZiAiYW5vdGhlciB0aHJlYWQiIGluIHRoZSBjb21taXQgbWVzc2FnZSwKPiAgIGFz
-IGk4MDFfYWNjZXNzKCkgaXMgc2VyaWFsaXplZCBieSBhIG11dGV4Lgo+IC0gQWRkZWQgRml4ZXMg
-YW5kIENjIHN0YWJsZSB0YWdzIGFzIHN1Z2dlc3RlZC4KPgo+IGRyaXZlcnMvaTJjL2J1c3Nlcy9p
-MmMtaTgwMS5jIHwgMiArLQo+IDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxl
-dGlvbigtKQo+Cj5kaWZmIC0tZ2l0IGEvZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pODAxLmMgYi9k
-cml2ZXJzL2kyYy9idXNzZXMvaTJjLWk4MDEuYwo+aW5kZXggMzJhM2NlZjAyYzdiLi5iMjljOTll
-ZDM4ODMgMTAwNjQ0Cj4tLS0gYS9kcml2ZXJzL2kyYy9idXNzZXMvaTJjLWk4MDEuYwo+KysrIGIv
-ZHJpdmVycy9pMmMvYnVzc2VzL2kyYy1pODAxLmMKPkBAIC05MzEsMTMgKzkzMSwxMyBAQCBzdGF0
-aWMgczMyIGk4MDFfYWNjZXNzKHN0cnVjdCBpMmNfYWRhcHRlciAqYWRhcCwgdTE2IGFkZHIsCj4g
-CSAqLwo+IAlpZiAoaHdwZWMpCj4gCQlpb3dyaXRlOChpb3JlYWQ4KFNNQkFVWENUTChwcml2KSkg
-JiB+U01CQVVYQ1RMX0NSQywgU01CQVVYQ1RMKHByaXYpKTsKPi1vdXQ6Cj4gCS8qCj4gCSAqIFVu
-bG9jayB0aGUgU01CdXMgZGV2aWNlIGZvciB1c2UgYnkgQklPUy9BQ1BJLAo+IAkgKiBhbmQgY2xl
-YXIgc3RhdHVzIGZsYWdzIGlmIG5vdCBkb25lIGFscmVhZHkuCj4gCSAqLwo+IAlpb3dyaXRlOChT
-TUJIU1RTVFNfSU5VU0VfU1RTIHwgU1RBVFVTX0ZMQUdTLCBTTUJIU1RTVFMocHJpdikpOwo+IAo+
-K291dDoKPiAJcG1fcnVudGltZV9wdXRfYXV0b3N1c3BlbmQoJnByaXYtPnBjaV9kZXYtPmRldik7
-Cj4gCW11dGV4X3VubG9jaygmcHJpdi0+YWNwaV9sb2NrKTsKPiAJcmV0dXJuIHJldDsKPi0tIAo+
-Mi4zNC4xCg==
+On Tue, 2 Jun 2026 23:41:53 +0200, Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> said:
+> On Thu, May 21, 2026 at 10:36:30AM +0200, Bartosz Golaszewski wrote:
+>> Provide a helper function encapsulating the logic of assigning firmware
+>> nodes to platform devices created with platform_device_alloc(). Make the
+>> kerneldoc state that this is the proper interface for assigning firmware
+>> nodes to dynamically allocated platform devices. This will allow us to
+>> switch to counting the references of the device's firmware nodes in the
+>> future, not only the OF nodes.
+>
+> But why different for of_node and fwnode to begin with?!
+>
+
+I'm not following. What are you suggesting?
+
+Bartosz
