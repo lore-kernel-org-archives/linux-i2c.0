@@ -1,88 +1,115 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9ED03C2768
-	for <linux-i2c@vger.kernel.org>; Thu,  4 Jun 2026 09:55:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCF093DFC6C;
+	Thu,  4 Jun 2026 11:17:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780566950; cv=none; b=J9F7nSqSwkAkyNEXcObB/sa9JL4TddnfLcAApOfcECGEzcqbhoJIz26aVTCRM7Unil0sYnH9ggFPjHcFi1vpgKu/w0GSOcsznMnpLXjzsE5bseH1kGMuBdinLgnOGy8Z8mtT+KwZd1vR586Nx1Gdheb2CktFJXCRaG5x52Ctglw=
+	t=1780571864; cv=none; b=hPf3JpNIszbMG3+nP+xJTqJWE2zxJ9edmz1TVyKQ9dZa6KV8Rl5Py5JeJ6fcihdpo39mWAf5SY/wnBDTmE3FSaWLu9gBbSv3hCdTwemwnK6q7iH2XdqBe4EER8FgfwXjvkM/Q6EWcbxhozMIBmfSNlKmRywYnB9x653Adg5oGQk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780566950; c=relaxed/simple;
-	bh=hcFNgobXbpPv+6Msy/Zq/evK5wzZInp0ODMdH6Cjgr0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=TuXNKmGoQ/fKcXgNcwQOsTnnhy7+An+fbuRa+IIvaHvcdFu6Xh8R2GGRaHEpR0f82f+iNfUkBWPybGUH00gYU7btn8igB/op2azepGNjYwqsEOp5S3oY0IMXUOLbVQmaKSpMnhKRFU5qtXlNEVfiwwzyqkKyljMoQThNDF+Isjc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=jfb5xnRp; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1780571864; c=relaxed/simple;
+	bh=1mcRn4ZQ28+Yk5olKQ18seKw2OfI62JQJ/S3hJ0T7bM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=s+vVWR+DdEoXAKra+xnq+jRisp+/DHW0aOsZpJ8q2fSQ3Pcv5WZvs53QoMxM5dyKQkkC/syyjyzJpiBqeSNOdWHDjjZKI69U0dZg8MrFKr9iSy+hE4U+uxby/XxHFZmghwojO/Qdsj2eK62oyL5SAp9BspBAFCac3BfAHwJnML0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kb88yoAH; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="jfb5xnRp"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=hcFN
-	gobXbpPv+6Msy/Zq/evK5wzZInp0ODMdH6Cjgr0=; b=jfb5xnRp8ZRE2SeTlIeS
-	Ifou+aiIq3AzHhnrbSFqbJRBnYejSviu/Gpn0QO9uQAXJ+6y3niOynaCPUp1/mv+
-	v6rWKfTqRqFYuMDCnYXWZbAiX0UkFwlyZSGYb6JZGTvFySCLHiN+vF+cG0SzVwUO
-	mKepQbCeXMAuCdw1hPJfLckkzhtHBMTO4uUE9YHvwENGXYun6DjO1WERzQ2//pji
-	iZ5FgD3xWo+B79FvoNOATWpn4ixzO69p5JOZbh0xPHiOP98yAsuXnqiyQp7WIdKh
-	mbsl3Vys7Cp1/uvhrziXMRZ38fXeHmk9LGJqmn+GFSOmQS7jyXT3+8TeqQ4frjRR
-	uQ==
-Received: (qmail 3592027 invoked from network); 4 Jun 2026 11:55:44 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 Jun 2026 11:55:44 +0200
-X-UD-Smtp-Session: l3s3148p1@roU4jGpTRoYujnsi
-Date: Thu, 4 Jun 2026 11:55:44 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Johan Hovold <johan@kernel.org>
-Cc: Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 10/10] i2c: core: clean up adapter registration error
- label
-Message-ID: <aiFLoJ1IUwrZTnth@ninjato>
-References: <20260511143715.729714-1-johan@kernel.org>
- <20260511143715.729714-11-johan@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kb88yoAH"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EEF61F00893;
+	Thu,  4 Jun 2026 11:17:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780571863;
+	bh=2lxc/gZ9aXQ3wOmIi0KfB4bkI0RoMt4TEsuud+ysVmg=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=kb88yoAHWECJ0YarpPpXeFaeKFNa2TeCmcOhdZ6Qi8sxoUxymWG2s5N3sYeaiQvDZ
+	 P2ALCovFptkKqUOESRICUUTUNX52KRw/2XPSfjelmyWLYtxPpAhh431tm7e4Bvpr+u
+	 wZTwzljAI4pyvSYYnsDb38f6rlFWbTAXhbF50+dufUEtLoTBavV+U6RcgpabcvCzHS
+	 El4W3OOO3+DSQ/2ezQEZMfIJlzapDQ30ZQE5uOit1ne2lM204hI9Vtj7xO2QgPjYT/
+	 3UlFakjYHAhfZp4mMEVc3Bk2nAVI6pcfb+Qt3l2n6sCCU2isZMyyHKs0wxUnRLCITi
+	 9RGDxLsAy8RXg==
+Message-ID: <0df042cb-591a-46f1-a53e-04f94bca2c1c@kernel.org>
+Date: Thu, 4 Jun 2026 13:17:35 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="H5guffAm0rElp9pa"
-Content-Disposition: inline
-In-Reply-To: <20260511143715.729714-11-johan@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] MAINTAINERS: Add entry for Novatek NT726xx SoC i2c
+ driver.
+To: =?UTF-8?B?QmVuIEh1YW5nKOm7g+Wjq+i7kik=?= <Ben_Huang@novatek.com.tw>,
+ Conor Dooley <conor@kernel.org>
+Cc: Novatek i2c <SP_ISW1_AT@novatek.com.tw>,
+ "andi.shyti@kernel.org" <andi.shyti@kernel.org>,
+ "robh@kernel.org" <robh@kernel.org>, "krzk+dt@kernel.org"
+ <krzk+dt@kernel.org>, "conor+dt@kernel.org" <conor+dt@kernel.org>,
+ "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+ "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ =?UTF-8?B?VG9ieSBDaHVpKOW+kOWNk+aclyk=?= <Toby_Chui@novatek.com.tw>,
+ =?UTF-8?B?U2hpaHBlaSBIc3Uo6Kix6Kmp54+uKQ==?= <Shihpei_Hsu@novatek.com.tw>
+References: <20260604060411.355675-1-SP_ISW1_AT@novatek.com.tw>
+ <f6cce361-47ef-4488-ac1e-5f60d3cd578b@kernel.org>
+ <20260604-grievance-esophagus-a607a9d734eb@spud>
+ <PUZPR04MB61094E3F7A824A3C8D81D8AEB7102@PUZPR04MB6109.apcprd04.prod.outlook.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <PUZPR04MB61094E3F7A824A3C8D81D8AEB7102@PUZPR04MB6109.apcprd04.prod.outlook.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
+On 04/06/2026 11:02, Ben Huang(黃士軒) wrote:
+> Hi,
+> 
+> 	Sorry for late response.
+> 
+> 	Please help review the modification in MAINTAINERS.
+> 	I am still looking for internal help to remove HTML-related messages.
 
---H5guffAm0rElp9pa
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It's confidential, no?
 
-On Mon, May 11, 2026 at 04:37:15PM +0200, Johan Hovold wrote:
-> Clean up the adapter registration error labels by making sure that also
-> the last one is named after what it does.
->=20
-> Signed-off-by: Johan Hovold <johan@kernel.org>
-
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-
-
---H5guffAm0rElp9pa
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmohS6AACgkQFA3kzBSg
-KbbvvA/+KNSQ10dtFe+HIC7kBOT92U+KI2SXPDlK7NKv+4tT1AEWX9n4E8io9RnI
-6IC9Loglu95mxOtXp3Rz2cSkCoiu5ccdcOmUlPo5cCpmcagmri0yYs012psP9SXz
-dmCx+1l6kvwXnMJJ+QRoNNd8PuaKficALO1i/aPPJR2AoG3E49VQAs9b9U+93SPb
-hR40VwZU3X7+LvczqIrSV/Lj7o3sIaHwQViDFZelB6e3g6hweFibjebWP/g7+uaJ
-Swndrz/oq5TzUzwcFlKbsSR/SfCGK/g1J0JVmqAV/8WCBnoYComa9dMEy+LkUqYt
-h56eSmICKOFmz/U0lI1l4RpwFssv0VrPrmATsoCNuVpHa3gslf+P4tTXn99y5YT0
-pfd8ZIVp0ASkSvJP3nFIFB8vgE+gAn8CC5IKOi3fCd6QXs/uYH0kfqmbpG0PHIlG
-zAm4wokeStYuHjvWc5aAfm2LG9ZSZK7SdpG9PgKGBow83if1iTMhQnFiCXtWbmCX
-5Ly9wwncDexCNG2YkCgGXHsKsPNa2SbA8uncz/DjyQoz7d9ORhS1+JOe+GJaLe6R
-P4VTXfUJnrTvIPVFnV3hOeeYyOIc70wqcjtMSOLFV+9Pco+wU4K/Uhpvcv6pEX+J
-JQrxkACUjfFCARp8usH5n0GGLE5C45hFODE+UE/iEu8Tzu4LPmg=
-=WuP/
------END PGP SIGNATURE-----
-
---H5guffAm0rElp9pa--
+Best regards,
+Krzysztof
