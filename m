@@ -1,74 +1,70 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D3BF2F25F5;
-	Thu,  4 Jun 2026 23:35:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 374EC28DB54;
+	Thu,  4 Jun 2026 23:39:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780616138; cv=none; b=BpFoGDjTuYM7Uto2VMwcBwhCy/Q57AUoH9fstPjGiNQFbLXs0XvE677rgSfLzu14jMx00KKYc4DDtOHKo/wvl3ckXzpa+5WSOePRXzv1CoGC2lGtwhoOTnPMVGmBZiRF510/TGkni1VspafAiWVQtEMDpKpZGSQ8PlkiOiL1CEY=
+	t=1780616380; cv=none; b=rCewKRXHe5PEAeKVm42hRbbvxZtf+QDXIliBt1++GrnFVzm/PvvngYSL6DvfyYzDJR+UEId54dq1oyjTZ1K01N+I/bzEEn+HbdIDPp8jJkfGQ88JYFG8DlEbbcHprkrRuiUQfSHtV+bLhDcVbQtZXuD6Ar45fi+4IBJhgin5ZBs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780616138; c=relaxed/simple;
-	bh=kcmbUUQt4BZt0uesSoVm+Pv3y6LHWcZIVRaA6cPYT0g=;
+	s=arc-20240116; t=1780616380; c=relaxed/simple;
+	bh=YCqsF/al6+5Ci+dfHVoXboKVX0K6TkEaBEdZCJ/62So=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=LW4quTnkxEwXxSQ++4iKp26+EC5kGM/iuiXCmW8XBQ5EwUa0vFOcJeniOlunCGFJi/1ktJwVTyVWOfBymhLZ8sfSZlp9GQQlXo2LiPzNMuqrytPX6VOZB0iekdrkEasEUvO1eiHjYc0g3wTlapTJbYe86HyS+xbytW0URwRQcNE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YnPUUZvs; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=HKSwXBfIn8ecl71G8GggquBlFNfqKOrfYerDdZHIrNSMvGeYbH7PiLgyqQBk/bG1DhatXdgJndV4s/4QrjtvcrVkhtlO/F981iNGS61ttjOtmiaLEy+sasVd/wUKuAtSPvxrhWI+Q/tzK7WIZIAa+9gSyJaIpNuuepfjRhb2Ir4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=THm9wCWq; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YnPUUZvs"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C41C1F00893;
-	Thu,  4 Jun 2026 23:35:36 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="THm9wCWq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E82C1F00893;
+	Thu,  4 Jun 2026 23:39:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780616137;
-	bh=GX9Dt9GjAP6eNPPMRBtrg8dIeU9S0cqBZSKz7Ku6Obg=;
+	s=k20260515; t=1780616378;
+	bh=WAuad6/MhQeUeophKKyTVk7SPCKkPoGUex3aya7+4zU=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=YnPUUZvsjHSg4oE4fEQvMBqaBgCQHUVdO4S3P6oUxp3mFnyJrQLsAbFjeB13RxR4/
-	 8pixl+SZZi/rEZXYIDuZwdAe7aAATCkqrVuWosYLM/uet37SYc4XVKtsPc45B5u+nZ
-	 xIDVBsWqUOUrfGBUva4MCBcgYnMGmVij+QlG0MmzZT/2xH0b1bAMhVX7igYUYyc/Ep
-	 CF1pTpaT3jrh5tE0jDNQY/iuGCI/v4JRsJaXJMqkV4HS/2nh+s5OryZv4bPj8QimIN
-	 5BoPfBLU2xoMUKnrFyVAe3+CzkOHmwoZw9Eu3Iwtv1q5/dEoPl0xo3KE2hVdiVq9gR
-	 qkkfxJ6nS4stw==
-Date: Fri, 5 Jun 2026 01:35:33 +0200
+	b=THm9wCWq55chLTiGhQ/4UHKF1OzrvksZl1fpixgDRMMY090CkkRLiM6Y+cU6T+rFd
+	 6ldFSXLG+BfqNFk+J1V6iS0BZRBQoj2ZAR8olq69eUIqFbVwADdZd7Hc7+5yojRPI9
+	 4pNyFrw9sYoxBEqvdGf/KjVSfjoecwX5Viqj0He/95JdqV2zRtlYnY1W2rDoagVoIy
+	 /0OdA+ZlLGy3Fknf0MUITwFpMdPo9qwHLLU+C/3PhUZ7Z0IgnbesnLfH/M1R6Z6pkd
+	 OI85AjGdvhiK8ezgRA8C+eWkz35ULmRZUgCLfsC+P+lvM6GopvWaQ+VJDlUZG9SCPo
+	 eI+FGPFo2vVBg==
+Date: Fri, 5 Jun 2026 01:39:35 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	Peter Rosin <peda@axentia.se>, Michael Hennerich <michael.hennerich@analog.com>, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1] i2c: Use named initializers for arrays of
- i2c_device_data
-Message-ID: <aiILpzN5Zu-ckZVJ@zenone.zhora.eu>
-References: <20260518164510.805502-2-u.kleine-koenig@baylibre.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Vikram Sharma <vikram.sharma@oss.qualcomm.com>, 
+	Bryan O'Donoghue <bryan.odonoghue@linaro.org>, Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, 
+	Loic Poulain <loic.poulain@oss.qualcomm.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>, 
+	Robert Foss <rfoss@kernel.org>, linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	Suresh Vankadara <svankada@qti.qualcomm.com>, Prashant Shrotriya <pshrotri@qti.qualcomm.com>
+Subject: Re: [PATCH 2/6] dt-bindings: i2c: qcom-cci: Document Glymur
+ compatible
+Message-ID: <aiIMg7MuoM_vg6Da@zenone.zhora.eu>
+References: <20260529-glymur_camss-v1-0-bee535396d22@oss.qualcomm.com>
+ <20260529-glymur_camss-v1-2-bee535396d22@oss.qualcomm.com>
+ <ahrvlYI-WfHwUPMC@shikoro>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260518164510.805502-2-u.kleine-koenig@baylibre.com>
+In-Reply-To: <ahrvlYI-WfHwUPMC@shikoro>
 
-Hi Uwe,
+On Sat, May 30, 2026 at 04:09:25PM +0200, Wolfram Sang wrote:
+> On Fri, May 29, 2026 at 08:07:22PM +0530, Vikram Sharma wrote:
+> > From: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+> > 
+> > Add Glymur compatible consistent with CAMSS CCI interfaces.
+> > 
+> > Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+> > Signed-off-by: Vikram Sharma <vikram.sharma@oss.qualcomm.com>
+> 
+> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-On Mon, May 18, 2026 at 06:45:09PM +0200, Uwe Kleine-König (The Capable Hub) wrote:
-> While being less compact, using named initializers allows to more easily
-> see which members of the structs are assigned which value without having
-> to lookup the declaration of the struct. And it's also more robust
-> against changes to the struct definition.
-> 
-> The mentioned robustness is relevant for a planned change to struct
-> i2c_device_id that replaces .driver_data by an anonymous union.
-> 
-> While touching all these arrays, unify usage of whitespace in the list
-> terminator.
-> 
-> This patch doesn't modify the compiled arrays, only their representation
-> in source form benefits. The former was confirmed with x86 and arm64
-> builds.
-> 
-> Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
-> Forwarded: id:20260518134035.644762-2-u.kleine-koenig@baylibre.com
+I will wait for the other patches from the series to be in a
+better shape before taking this one.
 
-merged in i2c/i2c-host.
-
-Thanks,
 Andi
