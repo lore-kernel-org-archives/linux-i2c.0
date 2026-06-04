@@ -1,46 +1,46 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DEFC3DDDBA
-	for <linux-i2c@vger.kernel.org>; Thu,  4 Jun 2026 12:33:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEE2B466B74
+	for <linux-i2c@vger.kernel.org>; Thu,  4 Jun 2026 12:34:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780576415; cv=none; b=tnSO9oFk5M+na6UWHlisIotYNujqszXS+2xRy3dmAQmcfEdh9W0c+vuDMrCCTEZFwhr9iUmkzxqkn65hO49pOUAYMGvWMxwOKGXA3YIlPrg/fRBDhpd0kMkota/p7Q8ZWYXaL88nxqICYeZ824aLB7VzCYHQ0WoO7Sxkb4fOYfI=
+	t=1780576462; cv=none; b=Kp7uvyuKhWITS2YW0U4yWK/SRofKHc4qBLbWOr+ueaSt+42MAhyak7PZ/9+iS1hf7PyXpEY0WgygsnZ6YIy5bhtPW5lPUxu1EDRPLSXptkGrSuV86JPSDGzpcLHzes7ngwEchA1bAESCW3hIrKhzrkAfMxxlVOsCcr7fFXjtm+I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780576415; c=relaxed/simple;
-	bh=5kiOPwwtw5er+j3pQh3lrbhA4I9B2m+C9oKB0UBWW9E=;
+	s=arc-20240116; t=1780576462; c=relaxed/simple;
+	bh=tRdKfjnRUz0aPl6PAEFjMNJL5WVJkUOwzH0txEdO+/Q=;
 	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=LMfaxkFs7hPfpdwDFxXRVv2XcZQ+h8D9zJk00FMjqp628YvW1ub7QysMo84//h8M+8OfI+qJOfvPVXJwt9A0Bm5XWX5Wj2tKkR0gDR2s5k4tRVuyXbAVLxhHeKLCuJTa5i8qI8YkBfA8vEHRnKTuUxmz01UVuU+5CVzLsIaDKTg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fP9rNTi5; arc=none smtp.client-ip=100.103.45.18
+	 To:Cc:Content-Type; b=tIbwmkvIznoiG6ohKgs+r5VGSLAdKT8sDJL1LFmnjnJJg+mUGiy0xS458IcmkgIzNRr/ZakjhM88OeDznMiZujaM70ezwVtw61cbFt5sJZZf+Q5qZjXylWHQSwUvoFdliblVxVl8B9BHnDRf7QF0xdi9AQo+lQMZRae6LiDhr0I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SGUj0Tum; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fP9rNTi5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97BA21F00A15
-	for <linux-i2c@vger.kernel.org>; Thu,  4 Jun 2026 12:33:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SGUj0Tum"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F02871F00898
+	for <linux-i2c@vger.kernel.org>; Thu,  4 Jun 2026 12:34:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780576413;
-	bh=5kiOPwwtw5er+j3pQh3lrbhA4I9B2m+C9oKB0UBWW9E=;
+	s=k20260515; t=1780576460;
+	bh=kQ6M6FDKXPf9y7Y2G+ZlFRRaP5oLHz23vLbG+bNrvo8=;
 	h=From:In-Reply-To:References:Date:Subject:To:Cc;
-	b=fP9rNTi5MtE7GCGm/x/LyhMZobzDw2BPjzDPFH8vu6A2Ihc1x0gZCGx/8KHtKr+NQ
-	 9VU8hrkHxq4QD3yOaMQhJxyg5QmB193Bl0ZPkoFOqK9aG4fqijPuyGUaShi+2Kcg6Q
-	 WNJyWoBtHQTw/ffnZhT2lBeH4E+j/daht+qed1ocXq5IaM7LCqk8LdZ6oiRSFoFWGH
-	 qVMkffhSF4xNFZpT0RuH0BP/QIMVy9iVKoOdwGpjFzetMPvPPN/kFu3cFOoETaSWHA
-	 xRtqHx+25lqBcSS+qwunrA10HLhbGycr55T5kf3P4VR83pcARAwuSQhBeLmDEXT+H3
-	 auAKRLtqmlw3w==
-Received: by mail-lj1-f173.google.com with SMTP id 38308e7fff4ca-3967620ceabso5981181fa.0
-        for <linux-i2c@vger.kernel.org>; Thu, 04 Jun 2026 05:33:33 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ9UpUCGgvuEWm6nVBv3TmQpUJDXbgPxSa8v1ZlbUAedC0HSepwogYfMpyRavfs7wPoez9fFByf2AN8=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yw0ncALJWk1veSh69Ur+yLOhFjhQjfxBUi1uvIeeNzkjPVExLLL
-	uMqbQCse5tuYooTUMeR87IN1JKFFSS2E+Zuw0klo8Muy4bENZHtLVncGfascT1Gazyx2Gs1uLpi
-	5+NLlH+l6BjOACX6kyR3wlFQezC8Xh29pn4W1d5s3rw==
-X-Received: by 2002:a05:6512:2256:b0:5aa:6bd0:b1e3 with SMTP id
- 2adb3069b0e04-5aa7c038408mr3094935e87.8.1780576412192; Thu, 04 Jun 2026
- 05:33:32 -0700 (PDT)
+	b=SGUj0TumCbHqZvwuU5fyes/HNZrO2+nogA3Tkdr9yq9y/lB0O6K8blBDMO9qw5Qu0
+	 jCViFY/L50VFeIwFCNTSCG3OmeIVM/oWXT3Yflte2ZWdS2v1BVJeaWFNdODaAO2Hnc
+	 8CLjhuJ6Poehf7D4B87UsMhPvdVpYJo4S8KqBH6bq4ZZxuUvhz4gvRi4Luaq/PLyoC
+	 hHdkfuD8LhJqDiy8wHZPmvzw79H77qq6H6R7Am8IrsQCQS7as+oAO8rO64zsrqL5lk
+	 e120aiZv8Rj2RC2EAzTJDBJKhPAYC6IDSC3hkoNnPQLHv1qFrktURbWcZHZdmzIegf
+	 1aPoMgAIgjPRg==
+Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-3965f215817so5719371fa.3
+        for <linux-i2c@vger.kernel.org>; Thu, 04 Jun 2026 05:34:19 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ+kA9SqsPax+gPbxlSJBXl3XOh8D7B0BY8f0S5mVWDPpS/o9Szp+hXCIklCmYLJmJ5hsgxfnlk/Oto=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxOTRk2wuiTWhHzq//jFwsYdG0ZTDoutFQJ7IeEYWQpJqHrSw2u
+	yq2lQhBpbyjmGjZP033yfHDXO4+Zu70S+L8SWg9VvnHq1tXO++QoLCFQ40vrwZgWqisbphZN78Z
+	+ODzjwRw3Y79boiWGSjpt/llR7SdgjduLDuP6f8wA8A==
+X-Received: by 2002:a2e:bcc1:0:b0:396:8eb1:a4a4 with SMTP id
+ 38308e7fff4ca-396af436443mr25706941fa.14.1780576458112; Thu, 04 Jun 2026
+ 05:34:18 -0700 (PDT)
 Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Thu, 4 Jun 2026 05:33:30 -0700
+ HTTPREST; Thu, 4 Jun 2026 08:34:16 -0400
 Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Thu, 4 Jun 2026 05:33:29 -0700
+ HTTPREST; Thu, 4 Jun 2026 08:34:16 -0400
 From: Bartosz Golaszewski <brgl@kernel.org>
-In-Reply-To: <ah9O15bMlAYgSlHx@ashevche-desk.local>
+In-Reply-To: <ah9P6Xt9SyKgc2oJ@ashevche-desk.local>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -48,12 +48,12 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 References: <20260521-pdev-fwnode-ref-v1-0-88c324a1b8d2@oss.qualcomm.com>
- <20260521-pdev-fwnode-ref-v1-8-88c324a1b8d2@oss.qualcomm.com> <ah9O15bMlAYgSlHx@ashevche-desk.local>
-Date: Thu, 4 Jun 2026 05:33:29 -0700
-X-Gmail-Original-Message-ID: <CAMRc=MeFxtwwXvOD7FLmbhjpraDKa2O7KdwMaUXM-mNj7Ob2ow@mail.gmail.com>
-X-Gm-Features: AVHnY4L20t8vC6nB7rdbE5RCKEyJuG_U-L0VQ-6S9fbqED8WJ64Vn6Fpm8JRl-0
-Message-ID: <CAMRc=MeFxtwwXvOD7FLmbhjpraDKa2O7KdwMaUXM-mNj7Ob2ow@mail.gmail.com>
-Subject: Re: [PATCH 08/23] driver core: platform: provide platform_device_set_of_node_from_dev()
+ <20260521-pdev-fwnode-ref-v1-20-88c324a1b8d2@oss.qualcomm.com> <ah9P6Xt9SyKgc2oJ@ashevche-desk.local>
+Date: Thu, 4 Jun 2026 08:34:16 -0400
+X-Gmail-Original-Message-ID: <CAMRc=MdhjZhGL9tEx9WEjn2f95d=ObNM0AtBNpcevm6aHgpj+Q@mail.gmail.com>
+X-Gm-Features: AVHnY4IaL6Srer7kIaxoyyrYpvf7EUQjky2qCo2_J16coVWA1ajpEEsVM7UfQA8
+Message-ID: <CAMRc=MdhjZhGL9tEx9WEjn2f95d=ObNM0AtBNpcevm6aHgpj+Q@mail.gmail.com>
+Subject: Re: [PATCH 20/23] usb: chipidea: use platform_device_set_of_node_from_dev()
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Cc: Lee Jones <lee@kernel.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, 
 	Thierry Reding <thierry.reding@avionic-design.de>, 
@@ -90,20 +90,23 @@ Cc: Lee Jones <lee@kernel.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>
 	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
 Content-Type: text/plain; charset="UTF-8"
 
-On Tue, 2 Jun 2026 23:44:55 +0200, Andy Shevchenko
+On Tue, 2 Jun 2026 23:49:29 +0200, Andy Shevchenko
 <andriy.shevchenko@linux.intel.com> said:
-> On Thu, May 21, 2026 at 10:36:31AM +0200, Bartosz Golaszewski wrote:
->> Provide a platform-specific variant of device_set_of_node_from_dev(). In
->> addition to bumping the reference count of the OF node being assigned,
->> it also assigns the fwnode of the platform device.
+> On Thu, May 21, 2026 at 10:36:43AM +0200, Bartosz Golaszewski wrote:
+>> Ahead of reworking the reference counting logic for platform devices,
+>> encapsulate the assignment of the OF node from another device for
+>> dynamically allocated platform devices with the provided helper.
 >
-> Can we rather investigate the way how to make that of node reuse thingy
-> (which is used solely by pin control) differently and then drop this confusing
-> device_set_of_node_from_dev() call altogether?
+> ...
+>
+>>  	pdev->dev.parent = dev;
+>> -	device_set_of_node_from_dev(&pdev->dev, dev);
+>> +	platform_device_set_of_node_from_dev(pdev, dev);
+>
+> Why do they even do that? Do they have a USB connected pin control?
 >
 
-Possibly but I can't do everything in a single series. Let's take it one step
-at a time. The goal of this is to make software node handling for platform
-devices more correct.
+I don't know. I can't test it so I don't want to break it. If they don't need
+it, the person who can test it, can remove it later.
 
 Bart
