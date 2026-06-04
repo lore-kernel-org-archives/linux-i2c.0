@@ -1,123 +1,105 @@
-Received: from ms2.novatek.com.tw (ms2.novatek.com.tw [210.202.87.108])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9118C385D77;
-	Thu,  4 Jun 2026 06:09:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.202.87.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDB8F3EA66
+	for <linux-i2c@vger.kernel.org>; Thu,  4 Jun 2026 06:38:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780553389; cv=none; b=tn+ACCJ5Z2Zo9B/1ueKGmE9D75A25yq+IP5UxTOg5QUvDtV8kHVYZ2U+V+hRPz1FjRuEZm6gtwPBnIeG8q6/0y3uP8ODWiuX2gXzs2Uc7Kol4Dg4AW17bDXOOw83PKa70xUqJ7YwIjCi+CvugOlHw/ucfTBP/Rxm++Q+c9o2LuY=
+	t=1780555102; cv=none; b=pow8PPmaMO/kpBjjg61GQYJn4tlifaiJXzQVxV0GulxMrywzRL8ldCtOVyabMClyIXZPdZcoAl8GhqSLSS3CxS6sBgsfUyHpazjPCl6MaCyegBU9TiOLPBxtuqvx9sJKKaWmOmTXmJ9tOdzcJwjHCTYoY7ZcaCMFZOqYCdfxPFs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780553389; c=relaxed/simple;
-	bh=NGPTomif3FTYkoOVzQ+HSaFxYKyET4DbjbxXd5YWgl8=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=XQH+Au46nVIRgAhPcOOAi5/Hr0t+Hb5UCtZcmxTNdtBwWeEHydEQnZpa8AfxvartmgQBPyDkNa448BFq4avjiU/Pi0zKtyb/LkwKYN5PLZ1okPdnkoCWNzeo2sHGfYfImTtzHya2xkS0Z9N+WKSYKvriiHn0leDkVG3OLBl7NSE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw; spf=pass smtp.mailfrom=novatek.com.tw; dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b=AmlSaAs7; arc=none smtp.client-ip=210.202.87.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=novatek.com.tw
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=novatek.com.tw
+	s=arc-20240116; t=1780555102; c=relaxed/simple;
+	bh=NSlJPFa6hcVHH086xd2b3a7mCyhwrOar/MuZ7rToxkE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=uOzDpu4Zdvp/mn2ghP5hYrMGYarRRIl5H4DqTwQuZ9ypVt/3hzFeMT76H5J8RNuFOh4NSpRnQifbgP4hIF5FMWZioowfB/7mpXPppuwN1w/2OrgG7iay8novvJUhB/ZhYKe372RTAVsEskOsLNBVf7IdOP11t6b3i6HP+0Xy/vo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=BLJUjk+R; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=novatek.com.tw header.i=@novatek.com.tw header.b="AmlSaAs7"
-X-UUID: 3588a9885fdb11f1ae774f059c8739df-20260604
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=novatek.com.tw; s=dk;
-	h=Content-Type:Content-Transfer-Encoding:MIME-Version:Message-Id:Date:Subject:Cc:To:From; bh=9A9DDAYfvci8sclt9bYZlTK4GhB9lh6b/odeLxlGLXw=;
-	b=AmlSaAs7iX0ga5edairkhQbq9OGM165Kthj6+nVS3NoMB9tHEHDQNYPdUAHKa2LE50Zyy/t38095WWy4e3B8fK3EBMpza8Pxu2MJwkzR6e+OMC60yz2qWXLfB/UL5cSuUNCgM6I5Wb+xRt6NW9k+iSB5AqyBreNgK8MBVGPq75U=;
-X-Spam-Fingerprint: 0
-X-GW-Reason: 11101
-X-Policy-Incident: 576k57WE5L+h566x5a+E6YCB6Z2e5a6i5oi26IiH5L6b5oeJ5ZWG6YO15Lu255m95ZCN5Zau
-X-Content-Feature: 
-	ica/max.line-size 101
-	xyz/abc 14
-	audit/email.address 5
-	dict/prolog 1
-	meta/cnt.alert 1
-X-UUID: 3588a9885fdb11f1ae774f059c8739df-20260604
-Received: from spmgt1 [(172.20.13.10)] by ms2.novatek.com.tw
-	(envelope-from <sp_isw1_at@novatek.com.tw>)
-	(Generic MTA)
-	with ESMTP id 275877755; Thu, 04 Jun 2026 14:04:12 +0800
-Received: from oabuild50.novatek.com.tw (oabuild50.novatek.com.tw [172.20.13.160])
-	by spmgt1 (Postfix) with ESMTP id 840141B315E;
-	Thu,  4 Jun 2026 14:04:12 +0800 (CST)
-Received: by oabuild50.novatek.com.tw (Postfix, from userid 1005)
-	id EC303C60082; Thu,  4 Jun 2026 14:04:11 +0800 (CST)
-From: SP_ISW1_AT@novatek.com.tw
-To: andi.shyti@kernel.org,
-	robh@kernel.org,
-	krzk+dt@kernel.org,
-	conor+dt@kernel.org,
-	linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: SP_ISW1_AT@novatek.com.tw,
-	ben_huang@novatek.com.tw,
-	toby_chui@novatek.com.tw,
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="BLJUjk+R"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=ntyB
+	sLXVQlzwx1a8FDr6+Yg7CnWYY4OwzT9n70Qafxo=; b=BLJUjk+RJXLBidNHAKqA
+	vzcYKLnYzL0mGUeTi9BtIU73seEZ1KgQexI475SEfjlYuzd4KCjujTPop0eZE+Qp
+	GY0/CnKAsgNSURFqHafoFGqyrh2WxIPXebKKIuwmHXeTDkkPa2YM3p6X4TeCw4ov
+	jxQmzUv/Whk5DeqcziMNHAHIJGjKCgpIcgLlY0dP1D3hemQ/OBBj0ge6SU2g0XTx
+	dI6N0b5QG2ZZfMu4OCg1ohLmmnc4MWvwd0WzyjE82zSEcUnW1qBO96NHXRvFgyOZ
+	PhePwRowgks+7K12j0mwXahBVmIJXjmGFlJTjrqNtJaN/7KkO25tnNErSlSk6qv5
+	Rg==
+Received: (qmail 3539546 invoked from network); 4 Jun 2026 08:38:09 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 Jun 2026 08:38:09 +0200
+X-UD-Smtp-Session: l3s3148p1@KNObyWdTutkujnsi
+Date: Thu, 4 Jun 2026 08:38:09 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: SP_ISW1_AT@novatek.com.tw
+Cc: andi.shyti@kernel.org, robh@kernel.org, krzk+dt@kernel.org,
+	conor+dt@kernel.org, linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+	ben_huang@novatek.com.tw, toby_chui@novatek.com.tw,
 	shihpei_hsu@novatek.com.tw
-Subject: [PATCH 1/3] MAINTAINERS: Add entry for Novatek NT726xx SoC i2c driver.
-Date: Thu,  4 Jun 2026 14:04:11 +0800
-Message-Id: <20260604060411.355675-1-SP_ISW1_AT@novatek.com.tw>
-X-Mailer: git-send-email 2.26.1
+Subject: Re: [PATCH 3/3] i2c: Add i2c-nt726xx.c i2c driver for Novatek
+ NT726xx SoCs.
+Message-ID: <aiEdUbGIcmAdzac6@shikoro>
+References: <20260604060430.355733-1-SP_ISW1_AT@novatek.com.tw>
+ <20260604060446.355787-1-SP_ISW1_AT@novatek.com.tw>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: multipart/mixed;
-	boundary="__=_Part_Boundary_008_1748873648.1670885090"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="x/mSmfqbch/sghnB"
+Content-Disposition: inline
+In-Reply-To: <20260604060446.355787-1-SP_ISW1_AT@novatek.com.tw>
 
---__=_Part_Boundary_008_1748873648.1670885090
-Content-Type: text/html;
-	charset="utf-8"
-Content-Transfer-Encoding: base64
 
-PCEtLXR5cGU6aHRtbC0tPjwhLS17LS0+PHNwYW4gbGFuZz1FTi1VUw0Kc3R5bGU9J2ZvbnQtc2l6
-ZToxMC4wcHQ7Zm9udC1mYW1pbHk6IkNhbGlicmkiLHNhbnMtc2VyaWYnPkNPTkZJREVOVElBTElU
-WQ0KIE5PVElDRTogVGhpcyBtZXNzYWdlLCBpbmNsdWRpbmcgYXR0YWNobWVudHMsIGNvbnRhaW5z
-IGluZm9ybWF0aW9uIHdoaWNoIG1heQ0KIGJlIGNvbmZpZGVudGlhbCBhbmQgcHJpdmlsZWdlZCwg
-YW5kIGlzIGludGVuZGVkIG9ubHkgZm9yIHVzZSBieSB0aGUNCiBhZGRyZXNzZWVzIGRlc2lnbmF0
-ZWQgYWJvdmUuIFVubGVzcyB5b3UgYXJlIHRoZSBpbnRlbmRlZCByZWNpcGllbnQsIGFueQ0KIHVz
-ZSwgY29weWluZywgZGlzY2xvc3VyZSwgb3IgZGlzdHJpYnV0aW9uIGlzIHByb2hpYml0ZWQuIElm
-IHlvdSBoYXZlDQogcmVjZWl2ZWQgdGhlIG1lc3NhZ2UgaW4gZXJyb3IsIHBsZWFzZSBpbW1lZGlh
-dGVseSBkZWxldGUgdGhlIG1lc3NhZ2UgYW5kDQogZGVzdHJveSBhbGwgY29waWVzIHRoZXJlb2Yg
-YW5kIG5vdGlmeSB0aGUgc2VuZGVyIGJ5IHJlcGx5DQogZW1haWwuPC9zcGFuPjxzcGFuDQpsYW5n
-PUVOLVVTIHN0eWxlPSdmb250LXNpemU6MTAuMHB0Jz4gPC9zcGFuPjxzcGFuDQogc3R5bGU9J2Zv
-bnQtc2l6ZToxMC4wcHQnPiYjMjY0MTI7JiMzNzEwOTsmIzIwMjE0OyYjMjE0NTA7JiMyMDIxOTsm
-IzIwMzA5OzxzcGFuDQpjbGFzcz1HcmFtRT4mIzM4NDY4OyYjMjAyMTQ7JiMyMjM0MzsmIzIzNjYw
-OyYjMjcyMzE7JiMyMzQ5NDs8L3NwYW4+JiM2NTI5MjsmIzIwNjc3OyYjMjAzNzk7JiMyMDg1NDsm
-IzE5OTc4OyYjMjUzNTE7JiMyMzQ1MDsmIzIyMzIwOyYjMjIzMzY7JiMyMDA0MzsmIzI1OTEwOyYj
-MjAyMTQ7JiMyMDE1NDsmIzIwMzUxOyYjMjk5OTI7JiMxMjI5MDsmIzM4NTAwOyYjMzg3NTA7JiMy
-NDc0NDsmIzI2MTU5OyYjMjUzNTE7JiMyMzQ1MDsmIzIwMDQzOyYjMjU5MTA7JiMyMDIxNDsmIzIw
-MTU0OyYjNjUyOTI7JiMyMTU0MjsmIzIxMDYzOyYjMzU1MzE7JiMyMTI0NzsmIzIwMzUxOyYjMjk5
-OTI7JiMxMjI4OTsmIzM1MDc5OyYjMzUwNjk7JiMxMjI4OTsmIzI1NTgxOyYjMzg3MDY7JiMyNTEx
-MDs8c3Bhbg0KY2xhc3M9R3JhbUU+JiMyNTk1NTsmIzI0MDY3OyYjMjY0MTI7JiMzNzEwOTsmIzIw
-MjE0Ozwvc3Bhbj4mIzIwMDQzOyYjMjAyMTk7JiMyMDMwOTsmIzM3MDk2OyYjMjAyMjE7JiMxMjI5
-MDsmIzMzNTA5OyYjMjQ3NDQ7JiMzNzY3OTsmIzM1NDkyOyYjMjIzMjA7JiMyNTkxMDsmIzIxMDQw
-OyYjMjc0OTI7JiMzNzEwOTsmIzIwMjE0OyYjNjUyOTI7JiMzNTUzMTsmIzMxNDM1OyYjMjEzNjM7
-JiMyMjIzODsmIzM1MjA2OyYjMzg2NTE7JiMyMzM3NjsmIzM3MTA5OyYjMjAyMTQ7JiMzNjg5MDsm
-IzMwNjkzOyYjMjM0OTI7JiMyMDIxNDsmIzIwMTU0OyYjNjUyOTI7JiMyMDAwNjsmIzM1NTMxOyYj
-MjM0MzY7JiMyMDg0MDsmIzIxMDM0OyYjMzg1MDA7JiMxOTk4ODsmIzM3NTU5OyYjMjc1ODQ7JiMy
-NjQxMjsmIzM3MTA5OyYjMjAyMTQ7JiMyMTQ1MDsmIzIwODU0OyYjMzUwNzk7JiMyNjQxMjsmIzEy
-MjkwOzxzcGFuDQpsYW5nPUVOLVVTPjxvOnA+PC9vOnA+PC9zcGFuPjwvc3Bhbj4NCjwhLS19LS0+
+--x/mSmfqbch/sghnB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
---__=_Part_Boundary_008_1748873648.1670885090
-Content-Type: 
-Content-Transfer-Encoding: base64
+Hi,
 
-RnJvbTogQmVuIEh1YW5nIDxCZW5fSHVhbmdAbm92YXRlay5jb20udHc+DQoNCkFkZCBlbnRyeSBm
-b3IgbWFpbnRlbmFuY2Ugb2YgTm92YXRlayBOVDcyNnh4IFNvQyBpMmMgZHJpdmVyLg0KDQpTaWdu
-ZWQtb2ZmLWJ5OiBCZW4gSHVhbmcgPEJlbl9IdWFuZ0Bub3ZhdGVrLmNvbS50dz4NCi0tLQ0KIE1B
-SU5UQUlORVJTIHwgNyArKysrKysrDQogMSBmaWxlIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKQ0K
-DQpkaWZmIC0tZ2l0IGEvTUFJTlRBSU5FUlMgYi9NQUlOVEFJTkVSUw0KaW5kZXggOWVjMjkwZTM4
-YjQ0Li43YTc3YTE2OTBmMTUgMTAwNjQ0DQotLS0gYS9NQUlOVEFJTkVSUw0KKysrIGIvTUFJTlRB
-SU5FUlMNCkBAIC0xOTAxNCw2ICsxOTAxNCwxMyBAQCBUOglnaXQgZ2l0Oi8vZ2l0Lmtlcm5lbC5v
-cmcvcHViL3NjbS9saW51eC9rZXJuZWwvZ2l0L25vbGliYy9saW51eC1ub2xpYmMuZ2l0DQogRjoJ
-dG9vbHMvaW5jbHVkZS9ub2xpYmMvDQogRjoJdG9vbHMvdGVzdGluZy9zZWxmdGVzdHMvbm9saWJj
-Lw0KIA0KK05PVkFURUsgTlQ3MjZYWCBJMkMgQ09OVFJPTExFUiBEUklWRVINCitNOglCZW4gSHVh
-bmcgPGJlbl9odWFuZ0Bub3ZhdGVrLmNvbS50dz4NCitMOglsaW51eC1pMmNAdmdlci5rZXJuZWwu
-b3JnDQorUzoJTWFpbnRhaW5lZA0KK0Y6CURvY3VtZW50YXRpb24vZGV2aWNldHJlZS9iaW5kaW5n
-cy9pMmMvbm92YXRlayxudDcyNnh4LWkyYy55YW1sDQorRjoJZHJpdmVycy9pMmMvYnVzc2VzL2ky
-Yy1udDcyNnh4LmMNCisNCiBOT1ZBVEVLIE5WVC1UUyBJMkMgVE9VQ0hTQ1JFRU4gRFJJVkVSDQog
-TToJSGFucyBkZSBHb2VkZSA8aGFuc2dAa2VybmVsLm9yZz4NCiBMOglsaW51eC1pbnB1dEB2Z2Vy
-Lmtlcm5lbC5vcmcNCi0tIA0KMi40MC4xDQo=
+thank you for your contribution! Sadly, I have to mention a few formal
+issues first.
 
---__=_Part_Boundary_008_1748873648.1670885090--
+>  NOTICE: This message, including attachments, contains information which may
+>  be confidential and privileged, and is intended only for use by the
+>  addressees designated above. Unless you are the intended recipient, any
+>  use, copying, disclosure, or distribution is prohibited. If you have
+>  received the message in error, please immediately delete the message and
+>  destroy all copies thereof and notify the sender by reply
+>  email.</span><span
 
+a) Please, no HTML messages.
+b) we can't apply patches with a header like this because we distribute
+the code to the whole world.
+c) the sender e-mail address doesn't match the author or signed-off
+e-mail address. Who is the sender?
+
+All the best,
+
+   Wolfram
+
+
+--x/mSmfqbch/sghnB
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmohHU0ACgkQFA3kzBSg
+KbaUeg/+MQbB9TCMfDpenHgSKhKwQdxRZYqw908LdoWm4xFlfNOgxszimmvbPVKl
+QiN5rXUdQJqoTaOmEjxg7qCGaT1Jf0y9UV0VNu0c4fbJJJBLCMD24XicHF6vd+hJ
+KTkYw16FGySgfT/V3J0KjXLADK/HjU+Ao+FG2HrYXWF1ivFgfpSeg7X6v5DXS6md
+uipl2xWnvgaftq/jpTlEIP5rMzFYtIsEhQ5HV19RISJ1AElnkL8cAMf2wbg1QrwX
+xtA2MZHpTYI9brwm7MFtXui5TVYMmRlzF2y2PQPHm7bpKfyTGWVeVr4IhnZIJgAp
+w2wDZncIkP9ASMJ/uCjR7RAtrNTuJCi70c+gOIDZFPwDnUCOPiGrLjUj9ZrKovsY
+N4JXYVQy5WnRIbKIiZ43QvVa3drFDyz4kgfdeZimqKrx6OCG15bKLoXssJe3o7gB
+skYB2W1sMDuSNcbfuxYp8upwdmJG0hpQeLdM0+FU9YsaGxHcrJy1Bi/2mNM7jNh0
+PqLi9brEouctN4QawU+Uafdtf9Iw9P4SLmeaJjudYtEN0NPe233oKcwOvxFexYpX
+6n0ccopj5zzgQqkv+lk/2KyvpWxX540e+/MOGTSCacUoF7M4ZdGJ4lyNYcHUz+Pw
+PzYwTpcasmXlVr2w0aX810X3a7bEz0/ApqXtn69cVNCp98DAi/M=
+=W2KA
+-----END PGP SIGNATURE-----
+
+--x/mSmfqbch/sghnB--
