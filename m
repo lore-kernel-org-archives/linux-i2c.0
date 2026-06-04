@@ -1,44 +1,43 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8EC73F6C23;
-	Thu,  4 Jun 2026 08:58:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C93FD2DECCC
+	for <linux-i2c@vger.kernel.org>; Thu,  4 Jun 2026 09:55:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780563497; cv=none; b=sW/A9aG3EW6+hDGJHZb+DO4IpNOSVuNaMgKNGMUhy64bZcgcimJWx6iMprTAPUXmSg+RQ5CvCnk9pxDPuhfquFmrg63p96I5cO59m4Txnj5ShTyzYTL2K6uJPsdlR1UTkSTOSvgfLHd9rfdBWN1plNiXqXVpHyusPK6HH+VNKc8=
+	t=1780566933; cv=none; b=dJfuv4KP2qDQtKGl5n9faN9wRGmjSCzNJ6i3bttMZk3RkmxE+OixAhZcAXvgC5t+aq5TQvJqSOztEOf9U9E2pkwEuKabZLQllnF1SSvyBqRhVjJuQ40KrXSf5YQktp4ejzybKyfvcZ2/jxba061/Qq/uo3v7/IigPrSp0xrMBWw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780563497; c=relaxed/simple;
-	bh=Oqw/BTCOa4qOEyv2l2dqeSFwZ0yug7JH+UYGmIjLZNs=;
+	s=arc-20240116; t=1780566933; c=relaxed/simple;
+	bh=BICU/qbWX9jWZnSLg/ACfHtn0ZOqwg5OPKDN4RWM1yE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=agTGcyIUtcviuAHIYZCiIQ+VUuXY/w5CYhHrHmbbDsSh4PqM59AShENS3feU42FvTEtEtyHLwhM+8XjkgQs2ColM9lGOY1MDSrv3s9o3zFu2qloWWRtFqd54XkrvXmPwYnQxLC2M+s7Navs8xb/ZQyMPLmsjYOVB32vMN7GQ9Fo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VrtUb5ZB; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=SFetHUCKFY77tw7hegxR+L5R19ohZ9oRBeLaexwooBZyTs0pcBG+CRrBZouqq4INU5MUm8ax7Vob6c6RKQ1JNqucmnwdESyeJqjq9OPtlJexikvA6ODoygiWDHUq3gRDb1Ys7Fs2n3Lz67d50spaqhk8a594fDjtdJZRMt5bhLU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=Sb9YBGKo; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VrtUb5ZB"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B11B1F00898;
-	Thu,  4 Jun 2026 08:58:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780563496;
-	bh=Oqw/BTCOa4qOEyv2l2dqeSFwZ0yug7JH+UYGmIjLZNs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=VrtUb5ZByRFiEFpZbrtRgmfNuv36YbTyPsQBNkllK7Qky3PEBUSDGTtyingVW4rzw
-	 wniw0homTKR7hKmjD7BPqSbRSsHVM6HISvLe4tmV0rwnOVzrtV6zNK6O/V/BeCEV0U
-	 UqH12BDhN7woIDNfu0uuWWk2sPnIm5+XCthrHgN08MOYz00l0LY5KS29ugwjxj1lLD
-	 tNt1ajpYluj4t+uwoCWjUYKk278IIrOaEFOhvTnQB6+wMArEdPIMFfo6CAUTgqUGVR
-	 n859YBTDEkLN8hzklqdEMoEI5c5rqc1/Lb7gcr5J9Lc6scWRJqbWNKnoJP161BtF/j
-	 RWKf07FUXqhkw==
-Date: Thu, 4 Jun 2026 09:58:12 +0100
-From: Conor Dooley <conor@kernel.org>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: SP_ISW1_AT@novatek.com.tw, andi.shyti@kernel.org, robh@kernel.org,
-	krzk+dt@kernel.org, conor+dt@kernel.org, linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-	ben_huang@novatek.com.tw, toby_chui@novatek.com.tw,
-	shihpei_hsu@novatek.com.tw
-Subject: Re: [PATCH 1/3] MAINTAINERS: Add entry for Novatek NT726xx SoC i2c
- driver.
-Message-ID: <20260604-grievance-esophagus-a607a9d734eb@spud>
-References: <20260604060411.355675-1-SP_ISW1_AT@novatek.com.tw>
- <f6cce361-47ef-4488-ac1e-5f60d3cd578b@kernel.org>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Sb9YBGKo"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=BICU
+	/qbWX9jWZnSLg/ACfHtn0ZOqwg5OPKDN4RWM1yE=; b=Sb9YBGKor/SSTy8HXbYX
+	+DmPVGnnas3eJG7FgnE5HXAXOpv8KcVbyYvvuEtkLUHtZgE3Wlw1UZzey3pwpMLK
+	IB0/14cGNeknDe1LBCXZI+Yyre7Blty0QywOr30M66zcZ1yOSPHRKT9DrRtHcf/f
+	y07YXoecAqtnI5oM3lGq6D69VCPTVtwNvsJADwHcjZXSAqB4vRCD1lYxesjqHpE3
+	TylY/XusFwd8KadqXZkWHL3LbaHLdUF+Tnf9aon63ShraS/ltrUwAEh//Rvp5cO1
+	RPDx0kHtlPKrezhQ3rrrP7tIgceoLKzYLFOwGQxUn9IIfLnezuLe6QD3QpSlhCtb
+	Iw==
+Received: (qmail 3591957 invoked from network); 4 Jun 2026 11:55:25 +0200
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 Jun 2026 11:55:25 +0200
+X-UD-Smtp-Session: l3s3148p1@tL4ai2pTWocujnsi
+Date: Thu, 4 Jun 2026 11:55:25 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Johan Hovold <johan@kernel.org>
+Cc: Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v3 09/10] i2c: core: clean up bus id allocation
+Message-ID: <aiFLjY8AttE7hu3j@ninjato>
+References: <20260511143715.729714-1-johan@kernel.org>
+ <20260511143715.729714-10-johan@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -46,63 +45,43 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="OH38BFenAuLHnwQx"
+	protocol="application/pgp-signature"; boundary="/iAIA9toTnak6qdo"
 Content-Disposition: inline
-In-Reply-To: <f6cce361-47ef-4488-ac1e-5f60d3cd578b@kernel.org>
+In-Reply-To: <20260511143715.729714-10-johan@kernel.org>
 
 
---OH38BFenAuLHnwQx
-Content-Type: text/plain; charset=utf-8
+--/iAIA9toTnak6qdo
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 04, 2026 at 09:26:56AM +0200, Krzysztof Kozlowski wrote:
-> On 04/06/2026 08:04, SP_ISW1_AT@novatek.com.tw wrote:
-> > CONFIDENTIALITY NOTICE: This message, including attachments, contains=
-=20
-> > information which may be confidential and privileged, and is intended o=
-nly for=20
-> > use by the addressees designated above. Unless you are the intended rec=
-ipient,=20
-> > any use, copying, disclosure, or distribution is prohibited. If you hav=
-e=20
-> > received the message in error, please immediately delete the message an=
-d destroy=20
+On Mon, May 11, 2026 at 04:37:14PM +0200, Johan Hovold wrote:
+> Clean up bus id allocation by using a common helper and deferring it
+> until it is needed during adapter registration.
 >=20
-> So can I review it or not?
+> Signed-off-by: Johan Hovold <johan@kernel.org>
 
-Given the state of the binding patch, you probably don't want to review
-it anyway!
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
->=20
-> Patch is obviously incorrect, but not sure if I am not breaking your
-> confidentiality rules.
->=20
-> > all copies thereof and notify the sender by reply email.=E6=9C=AC=E9=83=
-=B5=E4=BB=B6=E5=8F=8A=E4=BB=BB=E4=BD=95=E9=99=84=E4=BB=B6=E5=9D=87=E5=B1=AC=
-=E6=A9=9F=20
-> > =E5=AF=86=EF=BC=8C=E5=83=85=E4=BE=9B=E5=85=B6=E4=B8=8A=E6=8C=87=E5=AE=
-=9A=E5=9C=B0=E5=9D=80=E4=B9=8B=E6=94=B6=E4=BB=B6=E4=BA=BA=E4=BD=BF=E7=94=A8=
-=E3=80=82=E9=99=A4=E9=9D=9E=E6=82=A8=E6=98=AF=E6=8C=87=E5=AE=9A=E4=B9=8B=E6=
-=94=B6=E4=BB=B6=E4=BA=BA=EF=BC=8C=E5=90=A6=E5=89=87=E8=AB=8B=E5=8B=BF=E4=BD=
-=BF=E7=94=A8=E3=80=81=E8=A4=87=E8=A3=BD=E3=80=81=E6=8F=AD=E9=9C=B2=20
-> > =E6=88=96=E6=95=A3=E5=B8=83=E6=9C=AC=E9=83=B5=E4=BB=B6=E4=B9=8B=E4=BB=
-=BB=E4=BD=95=E9=83=A8=E4=BB=BD=E3=80=82=E8=8B=A5=E6=82=A8=E9=8C=AF=E8=AA=A4=
-=E5=9C=B0=E6=94=B6=E5=88=B0=E6=AD=A4=E9=83=B5=E4=BB=B6=EF=BC=8C=E8=AB=8B=E7=
-=AB=8B=E5=8D=B3=E5=9B=9E=E8=A6=86=E9=9B=BB=E5=AD=90=E9=83=B5=E4=BB=B6=E9=80=
-=9A=E7=9F=A5=E5=AF=84=E4=BB=B6=E4=BA=BA=EF=BC=8C=E4=B8=A6=E8=AB=8B=20
-> > =E5=AE=8C=E5=85=A8=E5=88=AA=E9=99=A4=E4=B8=94=E9=8A=B7=E6=AF=80=E6=9C=
-=AC=E9=83=B5=E4=BB=B6=E5=8F=8A=E5=85=B6=E8=A4=87=E6=9C=AC=E3=80=82
 
---OH38BFenAuLHnwQx
+--/iAIA9toTnak6qdo
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iHUEABYKAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCaiE+IwAKCRB4tDGHoIJi
-0j9oAQD8t2bqErB10S9guhRMT8guD9pstkggxN4KH+ehUhSwGAEAuRyg6J3JBBI5
-xUrDk2oG/xY/CXH2F41HW7RicGaCwAw=
-=c9N8
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmohS4kACgkQFA3kzBSg
+KbbNHw//XIk/gqyFruy4KYtjvbqdEkFLfKleK8014W/wtSW8vSLzxl3Z7zTs730o
+9lDW0B5CaS8SGGoIRrIn6+p0fJOZzrZQeGhw0MHwdf3UWFqUY0dl4ZYQunFEea/F
+LG4GJwZk9Etev/L0sxHHM+LjsaMhwybOsF6anVDAmPA86P2YbvC919V/0Nw1M5kV
+ILIamEaI2VvM+UnLv39OGsTgBolAeTZKH1tavQQUz07B9c3gKHo5CKZ6g5OMSJCf
+UBoapfeSRLsNHxG533PUITlQhAFph3ObJOnGfFp4DY8n8rEpBR7UptJ80P1mSTFR
+CkJyX0n68921ebXZnVmsLekYpf57YEeIFCeBvGWW5+M1lhUmWqHuQeM4WwZ8lKYg
++HE/fP0Woec3PlZJ61jNBMZipldplFPzZsoVjoljnYF5nqDiA5W+fpAyhD/Odz9Y
+tcciM03jCA2Eu0D9Kv1OXkNEB1udtzZtBdtno1cyuny6RbGBh2myOxV3A/3YxLn8
+zHnHZ/wFmFUSNqgUm7+zco8hBqXdDM7pFxOg7AZzINvTBt0R77FyNpKt+EjPmTts
+XYpAt0IJSkn5A1ZeETWBSxwNV95Ry9lGV67czonEujt6X4Hom2M2z64fGLfd+psK
+GFUdq9yoT4zkpMpv3L+JXcdYBDAO2ZAf5R83gIymt67sKPEPFQs=
+=I9h0
 -----END PGP SIGNATURE-----
 
---OH38BFenAuLHnwQx--
+--/iAIA9toTnak6qdo--
