@@ -1,43 +1,44 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C93FD2DECCC
-	for <linux-i2c@vger.kernel.org>; Thu,  4 Jun 2026 09:55:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A9ED03C2768
+	for <linux-i2c@vger.kernel.org>; Thu,  4 Jun 2026 09:55:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780566933; cv=none; b=dJfuv4KP2qDQtKGl5n9faN9wRGmjSCzNJ6i3bttMZk3RkmxE+OixAhZcAXvgC5t+aq5TQvJqSOztEOf9U9E2pkwEuKabZLQllnF1SSvyBqRhVjJuQ40KrXSf5YQktp4ejzybKyfvcZ2/jxba061/Qq/uo3v7/IigPrSp0xrMBWw=
+	t=1780566950; cv=none; b=J9F7nSqSwkAkyNEXcObB/sa9JL4TddnfLcAApOfcECGEzcqbhoJIz26aVTCRM7Unil0sYnH9ggFPjHcFi1vpgKu/w0GSOcsznMnpLXjzsE5bseH1kGMuBdinLgnOGy8Z8mtT+KwZd1vR586Nx1Gdheb2CktFJXCRaG5x52Ctglw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780566933; c=relaxed/simple;
-	bh=BICU/qbWX9jWZnSLg/ACfHtn0ZOqwg5OPKDN4RWM1yE=;
+	s=arc-20240116; t=1780566950; c=relaxed/simple;
+	bh=hcFNgobXbpPv+6Msy/Zq/evK5wzZInp0ODMdH6Cjgr0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SFetHUCKFY77tw7hegxR+L5R19ohZ9oRBeLaexwooBZyTs0pcBG+CRrBZouqq4INU5MUm8ax7Vob6c6RKQ1JNqucmnwdESyeJqjq9OPtlJexikvA6ODoygiWDHUq3gRDb1Ys7Fs2n3Lz67d50spaqhk8a594fDjtdJZRMt5bhLU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=Sb9YBGKo; arc=none smtp.client-ip=194.117.254.33
+	 Content-Type:Content-Disposition:In-Reply-To; b=TuXNKmGoQ/fKcXgNcwQOsTnnhy7+An+fbuRa+IIvaHvcdFu6Xh8R2GGRaHEpR0f82f+iNfUkBWPybGUH00gYU7btn8igB/op2azepGNjYwqsEOp5S3oY0IMXUOLbVQmaKSpMnhKRFU5qtXlNEVfiwwzyqkKyljMoQThNDF+Isjc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=jfb5xnRp; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="Sb9YBGKo"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="jfb5xnRp"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=BICU
-	/qbWX9jWZnSLg/ACfHtn0ZOqwg5OPKDN4RWM1yE=; b=Sb9YBGKor/SSTy8HXbYX
-	+DmPVGnnas3eJG7FgnE5HXAXOpv8KcVbyYvvuEtkLUHtZgE3Wlw1UZzey3pwpMLK
-	IB0/14cGNeknDe1LBCXZI+Yyre7Blty0QywOr30M66zcZ1yOSPHRKT9DrRtHcf/f
-	y07YXoecAqtnI5oM3lGq6D69VCPTVtwNvsJADwHcjZXSAqB4vRCD1lYxesjqHpE3
-	TylY/XusFwd8KadqXZkWHL3LbaHLdUF+Tnf9aon63ShraS/ltrUwAEh//Rvp5cO1
-	RPDx0kHtlPKrezhQ3rrrP7tIgceoLKzYLFOwGQxUn9IIfLnezuLe6QD3QpSlhCtb
-	Iw==
-Received: (qmail 3591957 invoked from network); 4 Jun 2026 11:55:25 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 Jun 2026 11:55:25 +0200
-X-UD-Smtp-Session: l3s3148p1@tL4ai2pTWocujnsi
-Date: Thu, 4 Jun 2026 11:55:25 +0200
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=hcFN
+	gobXbpPv+6Msy/Zq/evK5wzZInp0ODMdH6Cjgr0=; b=jfb5xnRp8ZRE2SeTlIeS
+	Ifou+aiIq3AzHhnrbSFqbJRBnYejSviu/Gpn0QO9uQAXJ+6y3niOynaCPUp1/mv+
+	v6rWKfTqRqFYuMDCnYXWZbAiX0UkFwlyZSGYb6JZGTvFySCLHiN+vF+cG0SzVwUO
+	mKepQbCeXMAuCdw1hPJfLckkzhtHBMTO4uUE9YHvwENGXYun6DjO1WERzQ2//pji
+	iZ5FgD3xWo+B79FvoNOATWpn4ixzO69p5JOZbh0xPHiOP98yAsuXnqiyQp7WIdKh
+	mbsl3Vys7Cp1/uvhrziXMRZ38fXeHmk9LGJqmn+GFSOmQS7jyXT3+8TeqQ4frjRR
+	uQ==
+Received: (qmail 3592027 invoked from network); 4 Jun 2026 11:55:44 +0200
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 4 Jun 2026 11:55:44 +0200
+X-UD-Smtp-Session: l3s3148p1@roU4jGpTRoYujnsi
+Date: Thu, 4 Jun 2026 11:55:44 +0200
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 To: Johan Hovold <johan@kernel.org>
 Cc: Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 09/10] i2c: core: clean up bus id allocation
-Message-ID: <aiFLjY8AttE7hu3j@ninjato>
+Subject: Re: [PATCH v3 10/10] i2c: core: clean up adapter registration error
+ label
+Message-ID: <aiFLoJ1IUwrZTnth@ninjato>
 References: <20260511143715.729714-1-johan@kernel.org>
- <20260511143715.729714-10-johan@kernel.org>
+ <20260511143715.729714-11-johan@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -45,43 +46,43 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="/iAIA9toTnak6qdo"
+	protocol="application/pgp-signature"; boundary="H5guffAm0rElp9pa"
 Content-Disposition: inline
-In-Reply-To: <20260511143715.729714-10-johan@kernel.org>
+In-Reply-To: <20260511143715.729714-11-johan@kernel.org>
 
 
---/iAIA9toTnak6qdo
+--H5guffAm0rElp9pa
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, May 11, 2026 at 04:37:14PM +0200, Johan Hovold wrote:
-> Clean up bus id allocation by using a common helper and deferring it
-> until it is needed during adapter registration.
+On Mon, May 11, 2026 at 04:37:15PM +0200, Johan Hovold wrote:
+> Clean up the adapter registration error labels by making sure that also
+> the last one is named after what it does.
 >=20
 > Signed-off-by: Johan Hovold <johan@kernel.org>
 
 Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
 
---/iAIA9toTnak6qdo
+--H5guffAm0rElp9pa
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmohS4kACgkQFA3kzBSg
-KbbNHw//XIk/gqyFruy4KYtjvbqdEkFLfKleK8014W/wtSW8vSLzxl3Z7zTs730o
-9lDW0B5CaS8SGGoIRrIn6+p0fJOZzrZQeGhw0MHwdf3UWFqUY0dl4ZYQunFEea/F
-LG4GJwZk9Etev/L0sxHHM+LjsaMhwybOsF6anVDAmPA86P2YbvC919V/0Nw1M5kV
-ILIamEaI2VvM+UnLv39OGsTgBolAeTZKH1tavQQUz07B9c3gKHo5CKZ6g5OMSJCf
-UBoapfeSRLsNHxG533PUITlQhAFph3ObJOnGfFp4DY8n8rEpBR7UptJ80P1mSTFR
-CkJyX0n68921ebXZnVmsLekYpf57YEeIFCeBvGWW5+M1lhUmWqHuQeM4WwZ8lKYg
-+HE/fP0Woec3PlZJ61jNBMZipldplFPzZsoVjoljnYF5nqDiA5W+fpAyhD/Odz9Y
-tcciM03jCA2Eu0D9Kv1OXkNEB1udtzZtBdtno1cyuny6RbGBh2myOxV3A/3YxLn8
-zHnHZ/wFmFUSNqgUm7+zco8hBqXdDM7pFxOg7AZzINvTBt0R77FyNpKt+EjPmTts
-XYpAt0IJSkn5A1ZeETWBSxwNV95Ry9lGV67czonEujt6X4Hom2M2z64fGLfd+psK
-GFUdq9yoT4zkpMpv3L+JXcdYBDAO2ZAf5R83gIymt67sKPEPFQs=
-=I9h0
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmohS6AACgkQFA3kzBSg
+KbbvvA/+KNSQ10dtFe+HIC7kBOT92U+KI2SXPDlK7NKv+4tT1AEWX9n4E8io9RnI
+6IC9Loglu95mxOtXp3Rz2cSkCoiu5ccdcOmUlPo5cCpmcagmri0yYs012psP9SXz
+dmCx+1l6kvwXnMJJ+QRoNNd8PuaKficALO1i/aPPJR2AoG3E49VQAs9b9U+93SPb
+hR40VwZU3X7+LvczqIrSV/Lj7o3sIaHwQViDFZelB6e3g6hweFibjebWP/g7+uaJ
+Swndrz/oq5TzUzwcFlKbsSR/SfCGK/g1J0JVmqAV/8WCBnoYComa9dMEy+LkUqYt
+h56eSmICKOFmz/U0lI1l4RpwFssv0VrPrmATsoCNuVpHa3gslf+P4tTXn99y5YT0
+pfd8ZIVp0ASkSvJP3nFIFB8vgE+gAn8CC5IKOi3fCd6QXs/uYH0kfqmbpG0PHIlG
+zAm4wokeStYuHjvWc5aAfm2LG9ZSZK7SdpG9PgKGBow83if1iTMhQnFiCXtWbmCX
+5Ly9wwncDexCNG2YkCgGXHsKsPNa2SbA8uncz/DjyQoz7d9ORhS1+JOe+GJaLe6R
+P4VTXfUJnrTvIPVFnV3hOeeYyOIc70wqcjtMSOLFV+9Pco+wU4K/Uhpvcv6pEX+J
+JQrxkACUjfFCARp8usH5n0GGLE5C45hFODE+UE/iEu8Tzu4LPmg=
+=WuP/
 -----END PGP SIGNATURE-----
 
---/iAIA9toTnak6qdo--
+--H5guffAm0rElp9pa--
