@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3416F3FB067;
-	Fri,  5 Jun 2026 10:29:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E03B405C25;
+	Fri,  5 Jun 2026 10:37:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780655376; cv=none; b=Nw6pmZ2Aa0k41SBbMXZRAvwk3jIzi+ojPMUJOGkFxlTuVhp+CcXlkfmn76q4Ccbrnk8NLIsefehkjBJ80B+o/boUn3yMnsGvqj8tAoQyRjKo8j3brrUK9A9C7fyLaZbE+gy1+VE+sLPcQaEjaNlhjTUFfPFVJp5AXLWyRcIhcK0=
+	t=1780655869; cv=none; b=UZclQiXLQcOcmMZFkbn0855h8jtEQtSciKJ366fMYTqoYRfN5h6YPs56R2iKHCxwpYnDSEddulDto7pD+GjHna34KiEG1+22YYmxwgQHjus4dcEEaSJeHcQtR1pyvs75CiCQqf36XTllwmr3v1STf2Pi8qnSJv61CuI93zboEkY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780655376; c=relaxed/simple;
-	bh=7SbcHLIf57Mjj+9oaXZdwmABHzy8Var3aHq6IUGmBlI=;
+	s=arc-20240116; t=1780655869; c=relaxed/simple;
+	bh=FIzdTczJRHmOyzHmlid1zzuPA3wHoAdl+dKfG7bIf4U=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=qrB6XARttM+i0SjCo8I2P/OTbqhRcMyLN7AKYKg40PfUAmI8NwlXGJ8FXMfAMHtF3Ib64EQwrRSEsrbErqLH8Jp6uHXIWlDt1fi9/oNQmEltsxTox+2h5+Dw9X2NsoqWGQfTBKmBSWFYnEGZGZqkecVhlwdHtMivoYhuDaKe5+U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KBCJYjs7; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=RLFH4Z1Rjo67wLHrKQSEoh66D67yOfOfpLeFknAAjA6Tf4yvDajPqHvhzDKoJG6cquNa1KhirdLX/n6ihdmhwXuf+oAz4foadqgZxLrvt+zcbzyuaF9WepYeaMnZfSpYLYmPIMM5HeUtW7508VXW6dOr1c41lbC+F9sBnYPP19Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MXFFssKd; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KBCJYjs7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED6671F00893;
-	Fri,  5 Jun 2026 10:29:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MXFFssKd"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 585D81F00893;
+	Fri,  5 Jun 2026 10:37:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780655373;
-	bh=nd3ICY+M6psvuR2PIaYEOd1jBzznmp/WFBKJHDxq+QE=;
+	s=k20260515; t=1780655867;
+	bh=7zKPX2gJZRGl22ScmucAkq8WKAzIuvDi/pQbxdTFxD8=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=KBCJYjs7txMR2NaKeCfyiYezSBUwPbsXMJRZsnDfHysAH6LyZXhQZuobcvHfwJi1u
-	 RTAabnqzgP0v4DOzc/V+imaukKD46tBc0bPSpuIT6EkfmEXbC4X1a3KdhLxZiVkVSv
-	 T9vcmq+qI3GYS4xCwReFeivYLtV3btHB3JmDKfqVKpIR4t2xD5aDC70dqcBPYe2ane
-	 oVaA8MXi+Dz1c+or22djR8ap4UvxB9U9plrUaE/V2r8X//2nwXinvDgQ/h8+7Q4bHt
-	 OZXqg8U3loeap03hNghLcre5moxPhWhLg5eMEXAEq+5jjhvqY96pbBsd8x7VN2Jgdh
-	 G62/7idJ9Mltw==
-Message-ID: <41d72453-10cf-4ccd-87da-575b04532f08@kernel.org>
-Date: Fri, 5 Jun 2026 12:29:26 +0200
+	b=MXFFssKdC98J/AqcEWwQ/KPiXv5VrVNkVItvZt2mpZ4STU7mEMFsIWq/TB1qwWytY
+	 yI2Ri0Sjz/J0BoUDmCE6FiFHCQe9BXqr8yMRnvREiXGi9Rf3tZ3Fir2Emc4HDczU8p
+	 NM9jRoz6JWS/7IShW4CQWo7dBaT8K37jNRCnoc4dECyBa8Rc9h3S/IypiA8aasTL8n
+	 3ABlijYf7N1jsb8w12KYIT3b5UZOc8o8xX40OR+SiOpIIHxnQz85x0XggxW206SJ8L
+	 f2u1kogRYzIcoRQhy/nbjsQB3giLVZmxb1Lb+ILKFCgqM8F2NkYzwRbEFRyqbwxf3Q
+	 uKql4t3PCcwLA==
+Message-ID: <ffb9c16e-5a5a-45c4-8d4b-369b0a4fe314@kernel.org>
+Date: Fri, 5 Jun 2026 12:37:40 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -35,16 +35,15 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 1/3] MAINTAINERS: Add entry for Novatek NT726xx SoC i2c
- driver.
-To: SP_ISW1_AT@novatek.com.tw
-Cc: Ben_Huang@novatek.com.tw, Shihpei_Hsu@novatek.com.tw,
- Toby_Chui@novatek.com.tw, andi.shyti@kernel.org, conor+dt@kernel.org,
- conor@kernel.org, devicetree@vger.kernel.org, krzk+dt@kernel.org,
- linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, robh@kernel.org,
- wsa+renesas@sang-engineering.com
-References: <be15f8f5-0826-4851-a5b6-788f3be3007a@kernel.org>
- <20260605102330.397329-1-SP_ISW1_AT@novatek.com.tw>
+Subject: Re: [PATCH 2/3] dt-bindings: i2c: add Novatek NT726xx SoC i2c
+ controller
+To: SP_ISW1_AT@novatek.com.tw, andi.shyti@kernel.org, robh@kernel.org,
+ krzk+dt@kernel.org, conor+dt@kernel.org, linux-i2c@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: ben_huang@novatek.com.tw, toby_chui@novatek.com.tw,
+ shihpei_hsu@novatek.com.tw
+References: <20260605035558.383330-1-SP_ISW1_AT@novatek.com.tw>
+ <20260605035614.383387-1-SP_ISW1_AT@novatek.com.tw>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -90,20 +89,130 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
  zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
  XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <20260605102330.397329-1-SP_ISW1_AT@novatek.com.tw>
+In-Reply-To: <20260605035614.383387-1-SP_ISW1_AT@novatek.com.tw>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 05/06/2026 12:23, SP_ISW1_AT@novatek.com.tw wrote:
+On 05/06/2026 05:56, SP_ISW1_AT@novatek.com.tw wrote:
 > From: Ben Huang <Ben_Huang@novatek.com.tw>
 > 
-> Hi,
+> Add device tree documentation for Novatek NT726xx SoC i2c controller.
 > 
-> Apologies for attaching the confidential messages in these patches.
-> Since received potential code vulnerabilities from code reviews, may I send next patches for your review? No confidential messages will be added.
+> Signed-off-by: Ben Huang <Ben_Huang@novatek.com.tw>
+> Signed-off-by: Novatek i2c <SP_ISW1_AT@novatek.com.tw>
 
-Yes, of course. Send a v2. I recommend using b4 relay for avoiding
-corporate emails (see google "b4 relay").
+This won't work. Please see submitting patches and explanation of DCO.
+
+
+> ---
+> v2:
+
+
+Please version your patches correctly, e.g. use b4 or git format-patch
+-vX, and add changelog in cover letter or under '---' of individual
+patches describing changes from previous version.
+
+
+Limited review.
+
+> - Add Novatek i2c to Signed-off-by email list.
+> - Remove confidential related statements and HTML messages.
+> - Fix the potential issues in the device tree document and
+>   i2c driver source codes.
+> - Fix typos.
+> 
+> v1:
+> https://lore.kernel.org/lkml/20260604060411.355675-1-SP_ISW1_AT@novatek.com.tw/T/#t
+> ---
+>  .../bindings/i2c/novatek,nt726xx-i2c.yaml     | 48 +++++++++++++++++++
+>  1 file changed, 48 insertions(+)
+>  create mode 100644 Documentation/devicetree/bindings/i2c/novatek,nt726xx-i2c.yaml
+> 
+> diff --git a/Documentation/devicetree/bindings/i2c/novatek,nt726xx-i2c.yaml b/Documentation/devicetree/bindings/i2c/novatek,nt726xx-i2c.yaml
+> new file mode 100644
+> index 000000000000..d9dfdaaec205
+> --- /dev/null
+> +++ b/Documentation/devicetree/bindings/i2c/novatek,nt726xx-i2c.yaml
+> @@ -0,0 +1,48 @@
+> +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> +%YAML 1.2
+> +---
+> +$id: http://devicetree.org/schemas/i2c/novatek,nt726xx-i2c.yaml#
+> +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> +
+> +maintainers:
+> +  - Ben Huang <ben_huang@novatek.com.tw>
+> +  - Jason JJ Wu <jason_jj_wu@novatek.com.tw>
+> +
+> +title: Novatek NT726xx SoC I2C master controller
+> +
+> +allOf:
+> +  - $ref: /schemas/i2c/i2c-controller.yaml#
+> +
+> +properties:
+> +  compatible:
+> +    const: novatek,nt726xx-i2c
+> +
+> +  reg:
+> +    maxItems: 4
+
+You need to list the items instead.
+
+> +
+> +  interrupts:
+> +    maxItems: 3
+
+You need to list the items instead.
+
+> +
+> +  clock-frequency:
+> +    description: Operation clock frequency of i2c in Hz.
+
+Drop
+
+> +    default: 100000
+> +    enum: [ 100000, 400000 ]
+> +
+> +  novatek,hwmods:
+> +    $ref: /schemas/types.yaml#/definitions/string
+> +    description: Name of each i2c pin, must be named with "i2cX". (X is
+> +                 an integer starting from 0)
+> +    minItems: 1
+
+There is no such syntax. Please do not invent own style.
+
+Anyway, I don't understand the property - drop.
+
+> +
+> +  novatek,stbc:
+> +    $ref: /schemas/types.yaml#/definitions/uint32
+> +    description: Set if this i2c master controlled by stbc.
+
+No clue what does that mean. What is stbc? Acronym of something? Why
+would that be a property of a board?
+
+> +    minItems: 1
+
+Please open existing code. Do you see anywhere uint32 with minItems?
+Like anywhere? I really wonder what process lead to such code...
+
+
+
+> +
+> +required:
+> +  - compatible
+> +  - reg
+> +  - interrupts
+> +  - novatek,hwmods
+> +
+> +unevaluatedProperties: false
+
+Missing example. Please open existing bindings and look how it is done.
+do you see i2c controllers without examples?
+
+This binding has several trivial issues which means you did not really
+use existing code as starting point, did not read the docs or tutorials
+from OSS conferences. I encourage to start with these.
 
 Best regards,
 Krzysztof
