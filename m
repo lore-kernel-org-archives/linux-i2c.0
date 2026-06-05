@@ -1,100 +1,86 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69DFE1F192E;
-	Fri,  5 Jun 2026 05:25:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8634F3B9DB3
+	for <linux-i2c@vger.kernel.org>; Fri,  5 Jun 2026 06:20:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780637141; cv=none; b=CGVRQwMneihtozpSWvGD1Qmk4cYfUWSmV4oo4b4ezKIPfaK6XFH/Gb+En8mhiS8Pxlxk3msSFQo8CiYI59V8dTUp4CLgsiy6pyLHRsK0FzIqIxbZqV3OfEtmijzu/839Nv6wXvSGhcEG3A3LYNj909ecqm5YBosln4iTawuLr0M=
+	t=1780640456; cv=none; b=HqFYgGU1V2pYv3KE64WV2QVOWriyK5DjFZ2/G3/+q4Bp3j15LF2NFHRiPqq0VWQdTmYfrn2/FbDr944fBXG55ePqoOx6H+et5OZOVphuVu6uX6OiJ2QvmeNoYYJyntiExuRrRXBDgawBzVLnBeyc0rI/aJh633AmKI8lCEpu2gs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780637141; c=relaxed/simple;
-	bh=tjnwlyM9ZA0VXvCHB3G/PZDqW/tb+I3zIT8YJMgqI2o=;
-	h=Date:Content-Type:MIME-Version:From:Cc:To:In-Reply-To:References:
-	 Message-Id:Subject; b=H0G0eaC79SYAJLD8kNem/pUr/Ke+NHlYx1m6ughbMrNGsMzyeuU9g1ydVy6OOT6I3+U9gPVb0x7YsU9nnWMeVstk76qncwAKc5vovtADyAdVlGCEIvH1zXR8gVHso3Fwp84DDdgz5A8KZklYWlklwoPJ3BAjqd503Cyj6A3sH4Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LLz5rOwe; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780640456; c=relaxed/simple;
+	bh=+jzJPvwOEJaIiNDqF6iMVYHjAY2G/SOg8AdG+lPzoSk=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=R/lpMseveVwSCMCMPJ1l4b2vQIdLFYlI9Z5u5Vbg/rVo7JdkDip7xd3KeNYIF6AqIDAkk5bS2hvNX2WXg0920TIQ5NUXBv9KEEKSZZi2Zv+6O4s4f4L5MPHSD4hNqFzthN+4qwR9J7K8QV1XSiXBljUCiJmGCBK5FLVmXuFiUqo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=FiQPwTRh; arc=none smtp.client-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LLz5rOwe"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBCE81F00893;
-	Fri,  5 Jun 2026 05:25:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780637140;
-	bh=VPkcWDCZPepeMSEYEjxFVH75DJ9Y6blVRIbuxL72pgg=;
-	h=Date:From:Cc:To:In-Reply-To:References:Subject;
-	b=LLz5rOwe9JE0EqxVXhFc51KxeRjTuMFDFsTtnwUoN0KArKAjGiY7wY8UE4F7i35ye
-	 lhOJ78e00fbvAxSjaIe6gMEzzMIICeQ0GnzZylCyoD/ziDTAFbrHIQgYJnFTbD0YSm
-	 +oULJ04xxr1hXl+WLHGgZ/MkOOtqT3GpdAKJ50Gt57+XuWDFoD+/L7ayzqhQG6CHA7
-	 kEyOsqqbAgOuX1s7zB+PlZOhNVNh4m5agBoB+g3uWMEFt+tCSGdZvkQe9qlJmdKgJ0
-	 Xb3UxSw+/PAdJSfOZFVB7wuX2bswYOSOrbCEZ2375ay1RIYAlE+WtVWOV3KQflraHG
-	 kkzqj4TC8sd5g==
-Date: Fri, 05 Jun 2026 00:25:39 -0500
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="FiQPwTRh"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-04.galae.net (Postfix) with ESMTPS id 4CB47C5846F;
+	Fri,  5 Jun 2026 06:20:53 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id AF5535FED1;
+	Fri,  5 Jun 2026 06:20:53 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 6926F106A1E91;
+	Fri,  5 Jun 2026 08:20:51 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1780640453; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=goBdelbmqDPUNuww9i30YtyTnm4DxBaKBXuOFmsSbGY=;
+	b=FiQPwTRhiqnVpcVBSEQt/t2r9luGJ4MHQbtZ7mtpe73RMOp6yMRcTyt2NCvrpl+AozYXD3
+	9xr2NcNRoJHgFSDKjoqOS3ADMi/B5UCpDKzr7iz8eiq6knZ13Zj8NieINpBmCDGuN4VgSX
+	2tWy3lq1Os5yMLTwLde0Henx29LsguSuZCU84+wblrdXWSKyxg6Ju6qp1sL/9GaycT51+O
+	MWkNVx9NlSWVfW7hs9HhqCIk1P2+rFrT4xF5f4g6ixJIMhhuE/gmT29lsW4Yj9jZ6Ljpn7
+	eO1w0siO2YFjcxZB4fEmm/Atr3lISODuLmeZXbFRXkf3D4LJi1pBjdIjbJsm4g==
+Date: Fri, 5 Jun 2026 08:20:50 +0200
+From: Herve Codina <herve.codina@bootlin.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>, Andi Shyti
+ <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, Allan Nielsen
+ <allan.nielsen@microchip.com>, Horatiu Vultur
+ <horatiu.vultur@microchip.com>, Daniel Machon
+ <daniel.machon@microchip.com>, Steen Hegelund
+ <steen.hegelund@microchip.com>, Luca Ceresoli <luca.ceresoli@bootlin.com>,
+ Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Subject: Re: [PATCH v7 1/1] i2c: busses: at91: Add MCHP_LAN966X_PCI
+ dependency
+Message-ID: <20260605082050.21b20699@bootlin.com>
+In-Reply-To: <20260511161355.35656-2-herve.codina@bootlin.com>
+References: <20260511161355.35656-1-herve.codina@bootlin.com>
+	<20260511161355.35656-2-herve.codina@bootlin.com>
+Organization: Bootlin
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: "Rob Herring (Arm)" <robh@kernel.org>
-Cc: shihpei_hsu@novatek.com.tw, linux-kernel@vger.kernel.org, 
- devicetree@vger.kernel.org, toby_chui@novatek.com.tw, andi.shyti@kernel.org, 
- krzk+dt@kernel.org, conor+dt@kernel.org, ben_huang@novatek.com.tw, 
- linux-i2c@vger.kernel.org
-To: SP_ISW1_AT@novatek.com.tw
-In-Reply-To: <20260605035614.383387-1-SP_ISW1_AT@novatek.com.tw>
-References: <20260605035558.383330-1-SP_ISW1_AT@novatek.com.tw>
- <20260605035614.383387-1-SP_ISW1_AT@novatek.com.tw>
-Message-Id: <178063713915.2151967.2717517603807521677.robh@kernel.org>
-Subject: Re: [PATCH 2/3] dt-bindings: i2c: add Novatek NT726xx SoC i2c
- controller
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
+Hi Andy,
 
-On Fri, 05 Jun 2026 11:56:14 +0800, SP_ISW1_AT@novatek.com.tw wrote:
-> From: Ben Huang <Ben_Huang@novatek.com.tw>
+On Mon, 11 May 2026 18:13:49 +0200
+Herve Codina <herve.codina@bootlin.com> wrote:
+
+> The AT91 I2C driver depends on ARCH_MICROCHIP.
 > 
-> Add device tree documentation for Novatek NT726xx SoC i2c controller.
+> This I2C controller can be used by the LAN966x PCI device and so
+> it needs to be available when the LAN966x PCI device is enabled.
 > 
-> Signed-off-by: Ben Huang <Ben_Huang@novatek.com.tw>
-> Signed-off-by: Novatek i2c <SP_ISW1_AT@novatek.com.tw>
+> Signed-off-by: Herve Codina <herve.codina@bootlin.com>
+> Acked-by: Andi Shyti <andi.shyti@kernel.org>
 > ---
-> v2:
-> - Add Novatek i2c to Signed-off-by email list.
-> - Remove confidential related statements and HTML messages.
-> - Fix the potential issues in the device tree document and
->   i2c driver source codes.
-> - Fix typos.
-> 
-> v1:
-> https://lore.kernel.org/lkml/20260604060411.355675-1-SP_ISW1_AT@novatek.com.tw/T/#t
-> ---
->  .../bindings/i2c/novatek,nt726xx-i2c.yaml     | 48 +++++++++++++++++++
->  1 file changed, 48 insertions(+)
->  create mode 100644 Documentation/devicetree/bindings/i2c/novatek,nt726xx-i2c.yaml
+>  drivers/i2c/busses/Kconfig | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
 
-My bot found errors running 'make dt_binding_check' on your patch:
+IMHO the patch is ready to be applied.
 
-yamllint warnings/errors:
+Do you think something is missing?
 
-dtschema/dtc warnings/errors:
-/builds/robherring/dt-review-ci/linux/Documentation/devicetree/bindings/i2c/novatek,nt726xx-i2c.yaml: properties:novatek,stbc: False schema does not allow 1
-	hint: Scalar properties should not have array keywords
-	from schema $id: http://devicetree.org/meta-schemas/keywords.yaml
-
-doc reference errors (make refcheckdocs):
-
-See https://patchwork.kernel.org/project/devicetree/patch/20260605035614.383387-1-SP_ISW1_AT@novatek.com.tw
-
-The base for the series is generally the latest rc1. A different dependency
-should be noted in *this* patch.
-
-If you already ran 'make dt_binding_check' and didn't see the above
-error(s), then make sure 'yamllint' is installed and dt-schema is up to
-date:
-
-pip3 install dtschema --upgrade
-
-Please check and re-submit after running the above command yourself. Note
-that DT_SCHEMA_FILES can be set to your schema file to speed up checking
-your schema. However, it must be unset to test all examples with your schema.
-
+Best regards,
+Hervé
