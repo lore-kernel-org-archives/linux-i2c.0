@@ -1,155 +1,122 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.16])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92E6442315C;
-	Fri,  5 Jun 2026 07:32:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.16
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ECE73CF679;
+	Fri,  5 Jun 2026 09:12:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780644728; cv=none; b=ApTmAAsJQZeMZUYYYAxrcVUu3afBmB+xB9Leq8lQKggoFeeR5fkdT4+in+20UlE6jnoDj7zG/leucrwQ4S9yeHNp2xgOKuFyA8TULlBGCUNlKxhcDJpJzIwSOw85rLyF2NhVeSl2Cznyn++uRA2QfDPveEZ3eXYBMCimhzDyLhE=
+	t=1780650774; cv=none; b=elzW3IkIszzT6tF66c6sww1YJStt9relNokTlCP1R+YyRRbR4O+n0yQq/ztJlp3+NTWCLXtsZOXU+mKupSyFwb7Su4XI1LKDgS5kamhem6cgQMw+R706Y2EK6PqADXYB43+DZ2/kmZtDoDmutcOEKxhltQ3+pFglphek9q/DrJw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780644728; c=relaxed/simple;
-	bh=c30wbulhkBn1BOKZ95h66WcDcHsR2Lig8B6kzzR9otg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HlRM+IeYSCMvfG/BZgboPZuuSMDydBImO5nRRmQvrqvLapimmToLjtTXt7FhUz/pjkhrs636K+FXwREBcKHvjt/FRmn4fYKMMdw12zAE1PgjgqEyh/6OFQsfpOA1Z54N+Vfv8cGcq3TzlrW4gtNtS4BSoPJHN5XXULKg3LJH95Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=SGZhrs/N; arc=none smtp.client-ip=192.198.163.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1780650774; c=relaxed/simple;
+	bh=JMxbxerh7Ria2S9mM6lYJztI/nZdQol+FDa7aBH3z8M=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=E5rj61ZHkny/rLRHsIatqUuvwehyfMH/NRzSrq3IuiHuZfnbvVv5UXyWrKXJU80XHI+uU0GCKclqWItjxq9ogfydzh9h7fDRzCkOCeWB0/wpYVUYubi+ygkot2k+IM/aRBBaMdo3LHaDru0BDGZRfBqwM2331GZWWlH5w4CJ8CU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=goEy+FDm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="SGZhrs/N"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1780644727; x=1812180727;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=c30wbulhkBn1BOKZ95h66WcDcHsR2Lig8B6kzzR9otg=;
-  b=SGZhrs/NfcpcCcqV3uRHFGGg+wyRaQlgJsWM3upHHww90ue67+lQDMBd
-   ZsmRSSOc33GM4VM9AsyTuBhhnV7MAH7xc2dqXbElIG8TGOdRNQTaFds3r
-   n+6NamFDPmklFUc3GIiDadql2qpWu4ARQrWn1130ZLqyZHtZG+i/R4Xef
-   1avlRLuGqciRhbLkSCHepAJEPKle+epn4jqQlzep4z1niyBIoi+UNi68s
-   FGLgThZnY/fmZyDtFDvW4/Il453EtwvdQTQ3YLizReE4S120cS0sKLXQH
-   EHI0KTusI7l2arMH0SA25vxbYJUAno6dDkYRfQjR27rUumN5sbB0Vczyb
-   g==;
-X-CSE-ConnectionGUID: EIBuMG3eSeyjAKKtOweGZg==
-X-CSE-MsgGUID: /0xCisKmTq2pYVBW821L0Q==
-X-IronPort-AV: E=McAfee;i="6800,10657,11807"; a="69012007"
-X-IronPort-AV: E=Sophos;i="6.24,188,1774335600"; 
-   d="scan'208";a="69012007"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by fmvoesa110.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Jun 2026 00:32:05 -0700
-X-CSE-ConnectionGUID: dgmCPLzkTKmMjNLLI2/dBg==
-X-CSE-MsgGUID: q1Bd7HPvQi+WKekTT+SBKg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,188,1774335600"; 
-   d="scan'208";a="249704712"
-Received: from ettammin-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.245.178])
-  by orviesa005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Jun 2026 00:31:50 -0700
-Date: Fri, 5 Jun 2026 10:31:48 +0300
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: "Peter Chen (CIX)" <peter.chen@kernel.org>
-Cc: Bartosz Golaszewski <brgl@kernel.org>, Lee Jones <lee@kernel.org>,
-	Mark Brown <broonie@opensource.wolfsonmicro.com>,
-	Thierry Reding <thierry.reding@avionic-design.de>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Srinivas Kandagatla <srini@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Vinod Koul <vkoul@kernel.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>, Rob Herring <robh@kernel.org>,
-	Saravana Kannan <saravanak@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Doug Berger <opendmb@gmail.com>,
-	Florian Fainelli <florian.fainelli@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Ulf Hansson <ulfh@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Paul Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Maximilian Luz <luzmaximilian@gmail.com>,
-	Hans de Goede <hansg@kernel.org>,
-	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org,
-	driver-core@lists.linux.dev, devicetree@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
-	iommu@lists.linux.dev, linux-pm@vger.kernel.org,
-	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	intel-xe@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-	linux-usb@vger.kernel.org, linux-mips@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org,
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
-Subject: Re: [PATCH 20/23] usb: chipidea: use
- platform_device_set_of_node_from_dev()
-Message-ID: <aiJ7ZB-J-TyJEwBb@ashevche-desk.local>
-References: <20260521-pdev-fwnode-ref-v1-0-88c324a1b8d2@oss.qualcomm.com>
- <20260521-pdev-fwnode-ref-v1-20-88c324a1b8d2@oss.qualcomm.com>
- <ah9P6Xt9SyKgc2oJ@ashevche-desk.local>
- <CAMRc=MdhjZhGL9tEx9WEjn2f95d=ObNM0AtBNpcevm6aHgpj+Q@mail.gmail.com>
- <aiJz6Ys4gE998ULp@nchen-desktop>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="goEy+FDm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35A821F00893;
+	Fri,  5 Jun 2026 09:12:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780650773;
+	bh=CaabFFEF94DYE5ayisbaNypa/MQjpGeC7iY451kremk=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=goEy+FDmYqAbvY8JZP3+zsUeUGNr2Ty1b2AbcCiYXrLO19Q7k+hmtM/fgdOW+rway
+	 j0TlshHMicsjdzWvuAJTVc3pZJCoXLZ7sxOtySXXxUmSO834zMa7xLLd/vlVjHUKB2
+	 RLENsyM6QxIfR0B+EG0ExMTOhW1LleeccmBqDBe6sTrplEWydfh0MvoO53rgZCASZ3
+	 rUDcWN46/NYGLYIZP6IvnIkKSwUNl1A2CZ/Wx9rR2HxSTOB1o/bsde3XQ908QQUpCn
+	 sIJkfi4aTuPeCDzULog5VReDU9aA41ycYo8POIN9JoSItyQeKFW7ULMheGMw/Sb91h
+	 huuL8xeZFbjGw==
+Message-ID: <be15f8f5-0826-4851-a5b6-788f3be3007a@kernel.org>
+Date: Fri, 5 Jun 2026 11:12:46 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aiJz6Ys4gE998ULp@nchen-desktop>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/3] MAINTAINERS: Add entry for Novatek NT726xx SoC i2c
+ driver.
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: =?UTF-8?B?QmVuIEh1YW5nKOm7g+Wjq+i7kik=?= <Ben_Huang@novatek.com.tw>,
+ Conor Dooley <conor@kernel.org>, Novatek i2c <SP_ISW1_AT@novatek.com.tw>,
+ "andi.shyti@kernel.org" <andi.shyti@kernel.org>,
+ "robh@kernel.org" <robh@kernel.org>, "krzk+dt@kernel.org"
+ <krzk+dt@kernel.org>, "conor+dt@kernel.org" <conor+dt@kernel.org>,
+ "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
+ "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ =?UTF-8?B?VG9ieSBDaHVpKOW+kOWNk+aclyk=?= <Toby_Chui@novatek.com.tw>,
+ =?UTF-8?B?U2hpaHBlaSBIc3Uo6Kix6Kmp54+uKQ==?= <Shihpei_Hsu@novatek.com.tw>
+References: <20260604060411.355675-1-SP_ISW1_AT@novatek.com.tw>
+ <f6cce361-47ef-4488-ac1e-5f60d3cd578b@kernel.org>
+ <20260604-grievance-esophagus-a607a9d734eb@spud>
+ <PUZPR04MB61094E3F7A824A3C8D81D8AEB7102@PUZPR04MB6109.apcprd04.prod.outlook.com>
+ <0df042cb-591a-46f1-a53e-04f94bca2c1c@kernel.org> <aiHd4wpuR69tyG1V@shikoro>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <aiHd4wpuR69tyG1V@shikoro>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, Jun 05, 2026 at 02:59:53PM +0800, Peter Chen (CIX) wrote:
-> On 26-06-04 08:34:16, Bartosz Golaszewski wrote:
-> > On Tue, 2 Jun 2026 23:49:29 +0200, Andy Shevchenko
-> > <andriy.shevchenko@linux.intel.com> said:
-> > > On Thu, May 21, 2026 at 10:36:43AM +0200, Bartosz Golaszewski wrote:
-
-...
-
-> > >>  	pdev->dev.parent = dev;
-> > >> -	device_set_of_node_from_dev(&pdev->dev, dev);
-> > >> +	platform_device_set_of_node_from_dev(pdev, dev);
-> > >
-> > > Why do they even do that? Do they have a USB connected pin control?
-> > 
-> > I don't know. I can't test it so I don't want to break it. If they don't need
-> > it, the person who can test it, can remove it later.
+On 04/06/2026 22:19, Wolfram Sang wrote:
 > 
-> It was introduced by below commits:
+>>> 	Sorry for late response.
+>>>
+>>> 	Please help review the modification in MAINTAINERS.
+>>> 	I am still looking for internal help to remove HTML-related messages.
+>>
+>> It's confidential, no?
 > 
-> commit 0f153a1b8193ce768be4df0400aeb2c8f2a3b3da
-> Author: Rob Herring <robh@kernel.org>
-> Date:   Wed Dec 15 16:56:46 2021 -0600
+> No need to be sarcastic, he is working on it.
 > 
->     usb: chipidea: Set the DT node on the child device
-> 
->     The ChipIdea glue drivers just copy the glue resources to the "ci_hdrc"
->     child device. Instead, set the child device's DT node pointer to the
->     parent device's node so that platform_get_irq() can find the IRQ
->     resources in the DT. This removes the need for statically populating the
->     IRQ resources from the DT which has been deprecated for some time.
 
-This doesn't explain why the node marked as reused. device_set_node() fits
-the above description. Rob?
+He didn't confirm that in reply to me. Asked for review though and I
+wasn't sarcastic here. I replied honestly why I cannot review them,
+regardless how many times I would be asked for it.
 
--- 
-With Best Regards,
-Andy Shevchenko
-
-
+Best regards,
+Krzysztof
