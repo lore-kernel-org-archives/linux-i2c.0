@@ -1,38 +1,40 @@
-Received: from out-174.mta1.migadu.com (out-174.mta1.migadu.com [95.215.58.174])
+Received: from out-171.mta0.migadu.com (out-171.mta0.migadu.com [91.218.175.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C2B1314B62
-	for <linux-i2c@vger.kernel.org>; Sat,  6 Jun 2026 21:21:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D9A43C5832
+	for <linux-i2c@vger.kernel.org>; Sat,  6 Jun 2026 21:29:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780780884; cv=none; b=UhaYXNBJeAUHCNTlOUGHwq7S6EDlVOlh1Av5JmOoFfJ69TDhGKMwmLVOfyOHHWsJC8pLYtfcyscr6MvPiRbuyN3aKG8redbnMSHex3EKyTv6oj/iWO4k+6tdcya8zZ9irarMzCZ7wBAPdGVqYVHuyV8TepUdl6KvgInDMBCARxY=
+	t=1780781369; cv=none; b=gLq2clnBBjmQKHLKIu39JEWecKC6f7pbWPhilfsJx2u9IudZpLpXZJr1R0vxEpYbMc5NO9aeMCi/rHITpw/vMtTtwj/6oXvaT0y0j8FMxzn+VoWF80TH8py2xrnL4kjNykO9gjBiY7C11owJQ2av+uZ2pPxs7M33NzJdIVhB93Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780780884; c=relaxed/simple;
-	bh=1kleD5edmIL9Nd8fK+cN9BmJ6zq7PDslknlYkBMTkRc=;
+	s=arc-20240116; t=1780781369; c=relaxed/simple;
+	bh=FTmX/zHdSjmapZ9MehuNKN4nMRgIsqXaDnS609ZCza8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hxfttQJMStRqfEnHTpcRzPeBWGKzm2CnsU7QbTnqr+AFCpgKN86VR7YXJIYIXebal7ou2ISKCLNLN4shFEcNWH2yZ4sDvP4W9vbEIhgQo5hCJytdSnU3Wj0J7O4gxUJYXYqtxUd2ujrElDBB9HQhnK/+zw+/DgRUhc5S94EGLRU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=B5+Az6ma; arc=none smtp.client-ip=95.215.58.174
+	 Content-Type:Content-Disposition:In-Reply-To; b=Rdl18e430btnNS3CwvZO6jo7WE+n44h1uC8AaLPrkdhpK0sAwo4ijEPxG+qyn2tvdBu/xH5WTiTL6V8LkPJAMkGU+EJ/qOHsrcjiC5w66vKzbEnuZy5jniM2KVzmlMonc4NSHNj8jvIvmH9LhvyFFhJP2Uk9clgqgHyneNU9ojg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=UOrk+TTC; arc=none smtp.client-ip=91.218.175.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="B5+Az6ma"
-Date: Sat, 6 Jun 2026 23:20:57 +0200
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="UOrk+TTC"
+Date: Sat, 6 Jun 2026 23:29:10 +0200
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1780780871;
+	t=1780781356;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=6rzC60MH7dtsvVZRejPalevBzRoUeowvPvaKZrdMnec=;
-	b=B5+Az6maH6RVy4Nba14uHv7Aoj6PWyPD57ffWAfxbw1IaVqFD6vpGQbJ3FIgAvxulwuTGh
-	uX3KgPCjh5nzgBePG/v1ba0FeOuyhX40QuPwKTEHsTE517XPvwx0omePvjY4Yv/HXPNnUG
-	9tR6uvrb5EVTuqZuQLMq+3aAn9Pzv1Y=
+	bh=VbBZ+IaEUawcL/PoReTCmRBgP4y4OIsbSC0U0HiGDbg=;
+	b=UOrk+TTCrgWYZ8PnaBKxp9ncECQb1EXNtZyMET6YapFgWc/Bsc81e5F4CbUxVHuwm+NVkn
+	xrTrBuEKUluKZzNtnVR+W6C+D2k2wrFZC6gd/ZfSuaFkWT8BC7SRNLAbucKw8lO35ZWIXw
+	N6KTFJXUlrvSOwMSQuWmiPQFGw0fHeE=
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 From: Thorsten Blum <thorsten.blum@linux.dev>
-To: Andi Shyti <andi.shyti@kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: algo: bit: use str_plural helper in bit_xfer
-Message-ID: <aiSPOfKPkrqcYa8b@linux.dev>
-References: <20260511104911.183606-3-thorsten.blum@linux.dev>
+Subject: Re: [PATCH RESEND] i2c: change return type to bool for
+ i2c_check_functionality
+Message-ID: <aiSRJups6bcEtb3U@linux.dev>
+References: <20260421161607.61314-3-thorsten.blum@linux.dev>
+ <afhjp_ib0padlv5z@ninjato>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -41,47 +43,26 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260511104911.183606-3-thorsten.blum@linux.dev>
+In-Reply-To: <afhjp_ib0padlv5z@ninjato>
 X-Migadu-Flow: FLOW_OUT
 
-Gentle ping?
+Hi Wolfram,
 
-On Mon, May 11, 2026 at 12:49:13PM +0200, Thorsten Blum wrote:
-> Replace the manual ternary "s" pluralizations with str_plural() to
-> simplify the code.
+On Mon, May 04, 2026 at 11:15:19AM +0200, Wolfram Sang wrote:
+> On Tue, Apr 21, 2026 at 06:16:09PM +0200, Thorsten Blum wrote:
+> > i2c_check_functionality() returns a bool - change the return type from
+> > int to bool and update the comment accordingly.
+> > 
+> > Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
 > 
-> Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
-> ---
->  drivers/i2c/algos/i2c-algo-bit.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
+> Basically OK but you need to fix the in-tree user first using the 'int'
+> behaviour [1]. I'd think you can send it with this patch as one series
+> and have it go in via the I2C tree, but Lee has to agree then.
 > 
-> diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
-> index 6544d27e4419..d1d9a6c1a1e2 100644
-> --- a/drivers/i2c/algos/i2c-algo-bit.c
-> +++ b/drivers/i2c/algos/i2c-algo-bit.c
-> @@ -13,6 +13,7 @@
->  #include <linux/delay.h>
->  #include <linux/errno.h>
->  #include <linux/sched.h>
-> +#include <linux/string_choices.h>
->  #include <linux/i2c.h>
->  #include <linux/i2c-algo-bit.h>
->  
-> @@ -562,7 +563,7 @@ static int bit_xfer(struct i2c_adapter *i2c_adap,
->  			ret = readbytes(i2c_adap, pmsg);
->  			if (ret >= 1)
->  				bit_dbg(2, &i2c_adap->dev, "read %d byte%s\n",
-> -					ret, ret == 1 ? "" : "s");
-> +					ret, str_plural(ret));
->  			if (ret < pmsg->len) {
->  				if (ret >= 0)
->  					ret = -EIO;
-> @@ -573,7 +574,7 @@ static int bit_xfer(struct i2c_adapter *i2c_adap,
->  			ret = sendbytes(i2c_adap, pmsg);
->  			if (ret >= 1)
->  				bit_dbg(2, &i2c_adap->dev, "wrote %d byte%s\n",
-> -					ret, ret == 1 ? "" : "s");
-> +					ret, str_plural(ret));
->  			if (ret < pmsg->len) {
->  				if (ret >= 0)
->  					ret = -EIO;
+> [1] $ git grep 'i2c_check_functionality.*='
+
+In linux-next [1] shows no more results and I believe all have been
+converted.
+
+Thanks,
+Thorsten
