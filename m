@@ -1,111 +1,189 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f51.google.com (mail-yx1-f51.google.com [74.125.224.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B015E26B2AD
-	for <linux-i2c@vger.kernel.org>; Sat,  6 Jun 2026 04:51:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780721465; cv=none; b=UTzWbUWi3EqFZ9bVoa9W06uxtkKRcGPRTNs06iC09xz9O3d320ygsOTvs4YpiK2UgIZ1VpTKAZrEFsaAmLQRwTYdri6ZZ6i6TqpR1T2DtMq+x+ydWPRHrz2lfB5SLQ3oaRiLRc8OMz+1jey1/4rhYtCfTRjnAzpDX4sU510sAEo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780721465; c=relaxed/simple;
-	bh=/u4C1kWYVbZiPw/N/UA7MQei+1M1gBnUoiL6TjXpJMs=;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 278C1262FFC
+	for <linux-i2c@vger.kernel.org>; Sat,  6 Jun 2026 06:30:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.51
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780727433; cv=pass; b=ligAeUdIHoTLxyqPemyVN68JEKgBS9f95EIT7iZmShcLBirveCG/d4WMUJXHKHRvNUtYmM1wX0VrEbIjBB5IpNPUX/ZYM1UFVVFdB9TutRbIGLHYVJWoSQosF1NN/cjnZDZ1+YXRvdDlT1fRVrPqgttIHIVAA/JHuf4Eii5weJI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780727433; c=relaxed/simple;
+	bh=X5eGIKIaAXbMeVaOi/enngMTrc+DGG2Ene5cw0upzEE=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ooWRbBlQwj043gyBVL34elBvapKZ4JFb9SkJjKCx9GJBT77vRgfNCGXrpatfMeDFPZFCuQiwMY91hjUawQ5lM5tHslcZQSS9KtyDf2kE0hVU4myYwtQsdMBtygY9Z45iziGqnYJTWlEHbMu3I+EALl6iRhdLzNJUANnCF+e+wdw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cmkq+X4D; arc=none smtp.client-ip=100.103.45.18
+	 To:Cc:Content-Type; b=pkQLLMdTTjdeZ6EIcYVdA6B0gINJv5rJd2V9pfYKLPWLmAc/NkRICXvkNVTETx3gkiyEz7ckackIgd+H3xEiH0z4QakUVh2KtlXju1cFLEhLD8lIUNm3X9Kgtcp0rkoWdtEl9Qvcz2Bfw15vQkoj38cNwBICMZAfFQ2ngHCjzaI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hgqCgDZd; arc=pass smtp.client-ip=74.125.224.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cmkq+X4D"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66E3F1F00893
-	for <linux-i2c@vger.kernel.org>; Sat,  6 Jun 2026 04:51:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780721462;
-	bh=sKz22jwoXiX77X9+l1832laRA/oVlQe98Ct+8CuxsJ4=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=cmkq+X4D7gn5Wy/QtPOGGldw5QYXyKrpGRBzG/OaLIEXmGAiVmTD//4RCGWFZtImp
-	 Tc8PhbvtGDd2EFFczm3JJjxuZKUoec3t5WS0CzV/WH3hEkH22rA36BE7Ed7m+HfdYv
-	 /ivPseYVrpb2rEjTqE07SXwZEVNmYOJZP+reT7oOIVzuI2gkP699oMSngUfsSzoW4b
-	 8ha3jY+Gx02T+kWeR2Z1o3fSIhb+/bPKyU2lXfkP3wcNO0n+Bxu66zBtZ4bY9Uh6eV
-	 dW0Z/rFhgri0YR5rXMnSk+EDCNUFRKykPtecZa+2IlivwtpjI8VAv68W7N9EaUfVlO
-	 4XEKA97P0TFKg==
-Received: by mail-ed1-f46.google.com with SMTP id 4fb4d7f45d1cf-6913fb25322so786952a12.1
-        for <linux-i2c@vger.kernel.org>; Fri, 05 Jun 2026 21:51:02 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ9SWTx0VtrfldXLFRvFGayKaWmhTpAImexfnAJA4EzioXaF0GL18B2YkrJ/h7OGRZYIsxpBWvNg/GI=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwdVi56nq5UKsKOzsbWQylPJnXtOjfv8jrWCbYxeV+Uxbslu27l
-	KbW4c/a2nWhJoIM6ylfJa2aIx3Vfqo7a6/nsSl9ld1em5WyUqmAQ05hUrkKVNJCiy1jsazraOwt
-	3M5qeXLxdattMo8MBFdKPzGZ511q0ATM=
-X-Received: by 2002:a05:6402:27ce:b0:687:5157:1d4f with SMTP id
- 4fb4d7f45d1cf-68fa524d249mr3187355a12.26.1780721461112; Fri, 05 Jun 2026
- 21:51:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hgqCgDZd"
+Received: by mail-yx1-f51.google.com with SMTP id 956f58d0204a3-660e9ea26b9so2742933d50.3
+        for <linux-i2c@vger.kernel.org>; Fri, 05 Jun 2026 23:30:30 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780727430; cv=none;
+        d=google.com; s=arc-20240605;
+        b=WBPVXVMWel+XlSvyO59lAHOcRm94dz6b/srY2S2Ry5ZXgPNN2exBkKBh0+pdy8BmqQ
+         Pf6VgESEM+ngXz0Vqd5fLDL1fVdkTDIvlU9fb6g7AOrhVYJ/y2NOpIC4Y4nq1vpAQqZN
+         7ZRQbXM7i35eRVEOpTyrZVOp/7M3kfFfVWn7iv928MDKl+eTeZ86QZCRKukWJl++2M4H
+         7ye9iQdHtgB6/soC6Vj7CJ06rj9btjubnuIE1gZ4H4ZVQ38/DlM+za/LNStwg+SJbBGE
+         J0Oqzd3xAGPsNU6BmIDiW4W3gGY8yixs3FG6NmhJ979NeTXDWHbBqIg83xbCdc6xeob6
+         l28w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=UVijupBHQhJ/W4zWv4Cj+FlQNn4qa4FEf2D0D//0T3Q=;
+        fh=1xkiqpfBYDWgnYOpSMv95vWwYAle2nqTfbHA1G+MA1U=;
+        b=BRJC08iYtmP5E03g7PDXUhHlnMIM0Yis7g0WykHh7nHhREVwoCmpii64TSpKKzjHJi
+         VdxLnlYjzR3dzQ0AkYsWPVjT/cAqauPOpjm+FeLJd/BJncjeg/ZkkqImDAUYyyB8g/bt
+         gBjHIZI7KAHA9DSU0Pfk8jgSDsH3ydjQ1HWIE2L2Jd+yTJQYYNH0vyssZuUUwhsw2vZk
+         lVJQlDSi6M4UVEfFlu7qPCaiTFHwD6+so+VvSd7+tiuHhqbOBIpyVzRdCYg6ttIWieka
+         QWS+tCWGIrRdkWwKrqMKbccCWEnRVYuXMKSavkL5TQqYYKJ4UxcdOdB729kOscj3p6D2
+         cJdw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780727430; x=1781332230; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=UVijupBHQhJ/W4zWv4Cj+FlQNn4qa4FEf2D0D//0T3Q=;
+        b=hgqCgDZdH6FRGaHdHNnPdepxG7tAMzOD+EJFdjMVKR2mxqyXAp5lu3C4guI/U80Xt+
+         iGl4vohJJ1QdwGO5f+OEVlSxS+5mxWi0VGD+nrMkYI5YJ48Ue2TtP4d3qccE5ODJIYzR
+         lFtnAE5KDAZszfilzZs1J9PVWFoCXC1aX7v9u+F41XR2DrHckuSk1Lx4HfhKdKk0cNMn
+         0EfwFNT1c4fdifrHWbnkY57RuKW6zD2aLYfKR6fhbMnqEGDauIC0zJD2aLDJiskEe6hY
+         i9W8xmuGW7gcAw5qrztE8JG0H4GjAR09cVnhxEvAZW/iNKNdddNzbEN28D4YNmCKuUX0
+         CB2g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780727430; x=1781332230;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=UVijupBHQhJ/W4zWv4Cj+FlQNn4qa4FEf2D0D//0T3Q=;
+        b=VLgHLbqmCGUR6FupIWdExWkgWmOn1uzyEYQK49xV9bLScjGXQAPAC6uIcWE3zNIH4B
+         wFhsSezuaQL+KKb1MWrPVNa7rHS7IGtZYgLb0xErAIUNXdo0ijMgxlEV+S6UOXF0oV36
+         lf9eLf+GRYuhTiaziN81rIzecIIrNIfnr/rRcz0DLJthjJvAoJeLlz39QjnIyMOs3CJ5
+         LlIG9q7KCGyKtZmxQsDdclRJnA9YXcsT/sstj7G1YHsFOfNPV88E0UBCINeu1WOlP/X3
+         VEFMD55YBrBatUx83TAZFeJeQ1wb0aIYujjIBk6wOPDrYM7kl3ZR1RuZKxlnhK3K4i0H
+         2/vw==
+X-Forwarded-Encrypted: i=1; AFNElJ9iE+Kie/qSF2vD6OTE0kExyPfF/R2pultJQdyuUlgJZG6E4ZvKX8RqMunt7IjEnk1hOzy86tdRZ9c=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwkbDS41WyR1YLTm1E8XcRGHSzdLWycXKwzaexJrXJYQb4vq+Zq
+	DqrOpQ6e3l80QkNVmBvrOds4JR/LFejFyM3t4odbgCSCHlPjIaN0lh5IxlF2YqXcExna0jfIFU5
+	1vw95RxmYc0miYz5xTLbcFwUkwUWCITo=
+X-Gm-Gg: Acq92OGJ2NXBt8oAKJLTxIhzyhJo17mSY95PpDaMkuMZqG0LqXWg4BLvvBcgDoeIHCB
+	zmNHPzo/T2qHu6PTYEjNMqkim+xT4Iv9PPzVJzqIDytEAxP/78teLN2SGqPrf668rk98TP3HYY3
+	bI81RWiBW7dBmLwGhveKfMuitOWbGDy8hvb2YBrR+0ZjstLSURcI1daEaZMb+GSPw1peaqAmF0l
+	Aq8dy7Otq9r8MPof7iFdOIklQHFfF09vU2rrPIFPkUiUGcIo1kr6eO/2o46Hx+hlZchjRwSw+wH
+	9W5EE5Ughjtu/RBWv28=
+X-Received: by 2002:a05:690e:144b:b0:660:8e61:1a60 with SMTP id
+ 956f58d0204a3-661073da64dmr5860503d50.14.1780727429976; Fri, 05 Jun 2026
+ 23:30:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260604015848.18643-1-wanghongliang@loongson.cn>
- <20260604015848.18643-2-wanghongliang@loongson.cn> <20260604183813.GA982803-robh@kernel.org>
-In-Reply-To: <20260604183813.GA982803-robh@kernel.org>
-From: Huacai Chen <chenhuacai@kernel.org>
-Date: Sat, 6 Jun 2026 12:50:49 +0800
-X-Gmail-Original-Message-ID: <CAAhV-H648_nNzR67ZCJ9myUG2PQy5q1EHWo1yRjKTUB+4Q+5+Q@mail.gmail.com>
-X-Gm-Features: AVVi8Cd1pBWQh2AK-e5GGLwTOpjGHeDAqe2xsmKUiF49BygdYoawTYdPqMMbYQk
-Message-ID: <CAAhV-H648_nNzR67ZCJ9myUG2PQy5q1EHWo1yRjKTUB+4Q+5+Q@mail.gmail.com>
-Subject: Re: [PATCH v5 1/2] dt-bindings: i2c: ls2x-i2c: Add clocks and
- clock-frequency properties
+References: <20260505100854.5258-1-chaitanya.msabnis@gmail.com> <20260507192923.GA2429305-robh@kernel.org>
+In-Reply-To: <20260507192923.GA2429305-robh@kernel.org>
+From: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
+Date: Sat, 6 Jun 2026 12:00:19 +0530
+X-Gm-Features: AVVi8Cfnh4kQyyE6tnAd7qDVPyvuU5534L8kK9y1BmkNv7zqyOcjeLX3vVPdgMI
+Message-ID: <CABjkosH9OT3fQUhzryxnXkZL9EO4sgAEQ7hg2Y42UWrDDLbN4A@mail.gmail.com>
+Subject: Re: [PATCH] dt-bindings: i2c: convert axxia i2c to dt-schema
 To: Rob Herring <robh@kernel.org>
-Cc: Hongliang Wang <wanghongliang@loongson.cn>, Binbin Zhou <zhoubinbin@loongson.cn>, 
-	Andi Shyti <andi.shyti@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
-	Conor Dooley <conor+dt@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, 
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org, 
-	loongarch@lists.linux.dev, stable@vger.kernel.org, 
-	Conor Dooley <conor.dooley@microchip.com>
+Cc: andi.shyti@kernel.org, wsa@kernel.org, anders.berg@lsi.com, 
+	krzk+dt@kernel.org, conor+dt@kernel.org, linux-i2c@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Hi, Rob,
+Hi Andi and Wolfram,
+Just a gentle ping on this patch. It received a Reviewed-by tag from
+Rob Herring a month ago.
+Is there anything else required from my side to get this merged into
+the I2C tree?
+Thanks,
+Chaitanya
 
-On Fri, Jun 5, 2026 at 2:38=E2=80=AFAM Rob Herring <robh@kernel.org> wrote:
+On Fri, May 8, 2026 at 12:59=E2=80=AFAM Rob Herring <robh@kernel.org> wrote=
+:
 >
-> On Thu, Jun 04, 2026 at 09:58:47AM +0800, Hongliang Wang wrote:
-> > Add clocks and clock-frequency properties to examples.
+> On Tue, May 05, 2026 at 03:38:54PM +0530, Chaitanya Sabnis wrote:
+> > Convert the LSI Axxia I2C Controller bindings from legacy text
+> > format to modern dt-schema (YAML).
 > >
-> > Cc: stable@vger.kernel.org
->
-> Not stable material unless there's a warning in the example (and there
-> is not).
-It is me who told Hongliang to CC stable because the 2nd patch is
-needed. If the 1st one is unnecessary, then please send a new version.
-And for the whole series:
-
-Reviewed-by: Huacai Chen <chenhuacai@loongson.cn>
-
->
-> > Acked-by: Conor Dooley <conor.dooley@microchip.com>
-> > Signed-off-by: Hongliang Wang <wanghongliang@loongson.cn>
+> > During the conversion, the obsolete `device_type =3D "i2c"` property
+> > was dropped from the example, as it is deprecated and not utilized
+> > by the driver. The `clock-names` property is enforced as required
+> > matching the driver probe behavior. The example node address was
+> > also updated to a standard 32-bit address.
+> >
+> > Signed-off-by: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
 > > ---
-> >  Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml | 3 +++
-> >  1 file changed, 3 insertions(+)
+> >  .../devicetree/bindings/i2c/i2c-axxia.txt     | 30 -----------
+> >  .../devicetree/bindings/i2c/lsi,api2c.yaml    | 52 +++++++++++++++++++
+> >  2 files changed, 52 insertions(+), 30 deletions(-)
+> >  delete mode 100644 Documentation/devicetree/bindings/i2c/i2c-axxia.txt
+> >  create mode 100644 Documentation/devicetree/bindings/i2c/lsi,api2c.yam=
+l
 > >
-> > diff --git a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.ya=
-ml b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
-> > index ee09c6d9c5f0..0beb7f2515c8 100644
-> > --- a/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
-> > +++ b/Documentation/devicetree/bindings/i2c/loongson,ls2x-i2c.yaml
-> > @@ -37,11 +37,14 @@ unevaluatedProperties: false
-> >
-> >  examples:
-> >    - |
-> > +    #include <dt-bindings/clock/loongson,ls2k-clk.h>
-> >      #include <dt-bindings/interrupt-controller/irq.h>
-> >
-> >      i2c0: i2c@1fe21000 {
-> >          compatible =3D "loongson,ls2k-i2c";
-> >          reg =3D <0x1fe21000 0x8>;
-> > +        clock-frequency =3D <100000>;
-> > +        clocks =3D <&clk LOONGSON2_APB_CLK>;
-> >          interrupt-parent =3D <&extioiic>;
-> >          interrupts =3D <22 IRQ_TYPE_LEVEL_LOW>;
-> >          #address-cells =3D <1>;
-> > --
-> > 2.47.2
-> >
+> > diff --git a/Documentation/devicetree/bindings/i2c/i2c-axxia.txt b/Docu=
+mentation/devicetree/bindings/i2c/i2c-axxia.txt
+> > deleted file mode 100644
+> > index 7d53a2b79553..000000000000
+> > --- a/Documentation/devicetree/bindings/i2c/i2c-axxia.txt
+> > +++ /dev/null
+> > @@ -1,30 +0,0 @@
+> > -LSI Axxia I2C
+> > -
+> > -Required properties :
+> > -- compatible : Must be "lsi,api2c"
+> > -- reg : Offset and length of the register set for the device
+> > -- interrupts : the interrupt specifier
+> > -- #address-cells : Must be <1>;
+> > -- #size-cells : Must be <0>;
+> > -- clock-names : Must contain "i2c".
+> > -- clocks: Must contain an entry for each name in clock-names. See the =
+common
+> > -  clock bindings.
+> > -
+> > -Optional properties :
+> > -- clock-frequency : Desired I2C bus clock frequency in Hz. If not spec=
+ified,
+> > -  the default 100 kHz frequency will be used. As only Normal and Fast =
+modes
+> > -  are supported, possible values are 100000 and 400000.
+> > -
+> > -Example :
+> > -
+> > -i2c@2010084000 {
+> > -     compatible =3D "lsi,api2c";
+> > -     device_type =3D "i2c";
+> > -     #address-cells =3D <1>;
+> > -     #size-cells =3D <0>;
+> > -     reg =3D <0x20 0x10084000 0x00 0x1000>;
+> > -     interrupts =3D <0 19 4>;
+> > -     clocks =3D <&clk_per>;
+> > -     clock-names =3D "i2c";
+> > -     clock-frequency =3D <400000>;
+> > -};
+> > diff --git a/Documentation/devicetree/bindings/i2c/lsi,api2c.yaml b/Doc=
+umentation/devicetree/bindings/i2c/lsi,api2c.yaml
+> > new file mode 100644
+> > index 000000000000..2d1c3069c3a3
+> > --- /dev/null
+> > +++ b/Documentation/devicetree/bindings/i2c/lsi,api2c.yaml
+> > @@ -0,0 +1,52 @@
+> > +# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+> > +%YAML 1.2
+> > +---
+> > +$id: http://devicetree.org/schemas/i2c/lsi,api2c.yaml#
+> > +$schema: http://devicetree.org/meta-schemas/core.yaml#
+> > +
+> > +title: LSI Axxia I2C Controller
+> > +
+> > +maintainers:
+> > +  - Anders Berg <anders.berg@lsi.com>
 >
+> I don't think lsi.com is valid any more. We'll see if it bounces.
+> Otherwise,
+>
+> Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
