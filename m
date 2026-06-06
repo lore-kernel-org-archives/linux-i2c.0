@@ -1,79 +1,87 @@
-Received: from out-172.mta1.migadu.com (out-172.mta1.migadu.com [95.215.58.172])
+Received: from out-174.mta1.migadu.com (out-174.mta1.migadu.com [95.215.58.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F8271DE8AE;
-	Sat,  6 Jun 2026 17:39:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C2B1314B62
+	for <linux-i2c@vger.kernel.org>; Sat,  6 Jun 2026 21:21:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780767572; cv=none; b=h60/TLRE74Ox5dUpwFoR4pTk30OTEZe66av6yzDaiv13KGrWl1KuEuefGYfS8kacJbRRGZYOSeHEsCbiY5JfXP9F6I6NPkQKkYM8F6rcbZAho1nSaJ6eLLmd8PS1IRkmCvUUgK2keKlo7OsazDQMxcHDd3X8v1DqQwO5LCpUnSg=
+	t=1780780884; cv=none; b=UhaYXNBJeAUHCNTlOUGHwq7S6EDlVOlh1Av5JmOoFfJ69TDhGKMwmLVOfyOHHWsJC8pLYtfcyscr6MvPiRbuyN3aKG8redbnMSHex3EKyTv6oj/iWO4k+6tdcya8zZ9irarMzCZ7wBAPdGVqYVHuyV8TepUdl6KvgInDMBCARxY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780767572; c=relaxed/simple;
-	bh=oQGdfj7uEqXm1ZQB33cf3nXCYtvvhWzcKlikkEASmsY=;
-	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=UMgajTcTnqrkDOReqnVRkM4KZP36Up1SlOpwmDb8zIPZooeOwS+4MC3UizFSNN1aEneJUbI2bJR30Eq1gWmsc1sW0tg52YYDuWtW0hBu65zudX+uQHUoX5aL8RO1csNm5abKQgxbiwoIZSK2zMwqZWVnVAdzSC050Tbax8LvuMs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=TbKTYIx0; arc=none smtp.client-ip=95.215.58.172
+	s=arc-20240116; t=1780780884; c=relaxed/simple;
+	bh=1kleD5edmIL9Nd8fK+cN9BmJ6zq7PDslknlYkBMTkRc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hxfttQJMStRqfEnHTpcRzPeBWGKzm2CnsU7QbTnqr+AFCpgKN86VR7YXJIYIXebal7ou2ISKCLNLN4shFEcNWH2yZ4sDvP4W9vbEIhgQo5hCJytdSnU3Wj0J7O4gxUJYXYqtxUd2ujrElDBB9HQhnK/+zw+/DgRUhc5S94EGLRU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=B5+Az6ma; arc=none smtp.client-ip=95.215.58.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="TbKTYIx0"
-Message-ID: <9e49b71b-8b60-479e-93e7-5c12e352c78e@linux.dev>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="B5+Az6ma"
+Date: Sat, 6 Jun 2026 23:20:57 +0200
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1780767568;
+	t=1780780871;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=WbmVZpwgZYYbPsnAr28/oo4q9yeFahfXu58rdbVOhf8=;
-	b=TbKTYIx0ctWGTC1kcGLUE+WfKNJlrt8XoaXoy5oPX5esxYUYT/WsFI6meQjPfwAlD2z82+
-	OdRPtuRYCIcfAcshpM59MhLdo5Kkig05y8EqnYlSMcDx/00IsAPuqBYgcH8HxpjqWLWxss
-	/5fzZ2r1HnyixOc3pSrfESBr/JbFjSQ=
-Date: Sat, 6 Jun 2026 18:39:19 +0100
+	 in-reply-to:in-reply-to:references:references;
+	bh=6rzC60MH7dtsvVZRejPalevBzRoUeowvPvaKZrdMnec=;
+	b=B5+Az6maH6RVy4Nba14uHv7Aoj6PWyPD57ffWAfxbw1IaVqFD6vpGQbJ3FIgAvxulwuTGh
+	uX3KgPCjh5nzgBePG/v1ba0FeOuyhX40QuPwKTEHsTE517XPvwx0omePvjY4Yv/HXPNnUG
+	9tR6uvrb5EVTuqZuQLMq+3aAn9Pzv1Y=
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Thorsten Blum <thorsten.blum@linux.dev>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: algo: bit: use str_plural helper in bit_xfer
+Message-ID: <aiSPOfKPkrqcYa8b@linux.dev>
+References: <20260511104911.183606-3-thorsten.blum@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Language: en-US
-To: Wolfram Sang <wsa@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Igor Korotin <igor.korotin@linux.dev>
-Subject: [GIT PULL] rust-i2c-fixes for 7.1-rc7
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260511104911.183606-3-thorsten.blum@linux.dev>
 X-Migadu-Flow: FLOW_OUT
 
-The following changes since commit e43ffb69e0438cddd72aaa30898b4dc446f664f8:
+Gentle ping?
 
-   Linux 7.1-rc6 (2026-05-31 15:14:24 -0700)
-
-are available in the Git repository at:
-
-   https://github.com/ikrtn/linux.git tags/rust-i2c-7.1-rc7
-
-for you to fetch changes up to 4eb422482ca5d924d7212ad2ca1cb7ea6f5b524d:
-
-   rust: i2c: fix I2cAdapter refcounts double increment (2026-06-06 
-15:19:27 +0100)
-
-----------------------------------------------------------------
-rust: i2c: fix I2cAdapter refcount double increment
-
-A single bugfix for the Rust I2C abstractions, targeting 7.1.
-
-`I2cAdapter::get` calls `i2c_get_adapter()` which returns a pointer with
-an already-incremented refcount. The code then converts the raw pointer to
-an `ARef` via `.into()`, which calls `inc_ref()` again through the
-`From<&T> for ARef<T>` impl — resulting in a leaked device and module
-reference on every call.
-
-The fix uses `ARef::from_raw()` instead, which takes ownership of the
-existing refcount without incrementing it.
-
-Signed-off-by: Igor Korotin <igor.korotin@linux.dev>
-
-----------------------------------------------------------------
-Nicolás Antinori (1):
-       rust: i2c: fix I2cAdapter refcounts double increment
-
-  rust/kernel/i2c.rs | 4 +++-
-  1 file changed, 3 insertions(+), 1 deletion(-)
+On Mon, May 11, 2026 at 12:49:13PM +0200, Thorsten Blum wrote:
+> Replace the manual ternary "s" pluralizations with str_plural() to
+> simplify the code.
+> 
+> Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
+> ---
+>  drivers/i2c/algos/i2c-algo-bit.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/algos/i2c-algo-bit.c b/drivers/i2c/algos/i2c-algo-bit.c
+> index 6544d27e4419..d1d9a6c1a1e2 100644
+> --- a/drivers/i2c/algos/i2c-algo-bit.c
+> +++ b/drivers/i2c/algos/i2c-algo-bit.c
+> @@ -13,6 +13,7 @@
+>  #include <linux/delay.h>
+>  #include <linux/errno.h>
+>  #include <linux/sched.h>
+> +#include <linux/string_choices.h>
+>  #include <linux/i2c.h>
+>  #include <linux/i2c-algo-bit.h>
+>  
+> @@ -562,7 +563,7 @@ static int bit_xfer(struct i2c_adapter *i2c_adap,
+>  			ret = readbytes(i2c_adap, pmsg);
+>  			if (ret >= 1)
+>  				bit_dbg(2, &i2c_adap->dev, "read %d byte%s\n",
+> -					ret, ret == 1 ? "" : "s");
+> +					ret, str_plural(ret));
+>  			if (ret < pmsg->len) {
+>  				if (ret >= 0)
+>  					ret = -EIO;
+> @@ -573,7 +574,7 @@ static int bit_xfer(struct i2c_adapter *i2c_adap,
+>  			ret = sendbytes(i2c_adap, pmsg);
+>  			if (ret >= 1)
+>  				bit_dbg(2, &i2c_adap->dev, "wrote %d byte%s\n",
+> -					ret, ret == 1 ? "" : "s");
+> +					ret, str_plural(ret));
+>  			if (ret < pmsg->len) {
+>  				if (ret >= 0)
+>  					ret = -EIO;
