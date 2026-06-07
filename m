@@ -1,94 +1,125 @@
-Received: from out-183.mta0.migadu.com (out-183.mta0.migadu.com [91.218.175.183])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f41.google.com (mail-dl1-f41.google.com [74.125.82.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04718264A86
-	for <linux-i2c@vger.kernel.org>; Sat,  6 Jun 2026 22:12:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.183
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 621111DE8BB
+	for <linux-i2c@vger.kernel.org>; Sun,  7 Jun 2026 08:21:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780783961; cv=none; b=lEysq72mkt7+LyocPqcAbRzIBye5cl83x/dOCnfoHMmY7/gzjP2JaVc1Q10EpWSQoHBG78u+4VYhwurxSSr900WlXQtlaEsqLlHOTrrWB/MKi0OuzfheQ4VlrlJnEFufCZ060B9of0PILrRDJiLIlS1YijHdz0nKSlsmEiqcRJU=
+	t=1780820464; cv=none; b=gJk5+IZjghqp2t85JNi7MQssuHtKWe6/7gsJwNuWL7UXOhahdHRfFTJw4FVmIjVsUQEk8eYRyUhgjL89Vt7v5K7j9KFHuM1ipKlX7N2gPBE9n1cm1FL/qMAw6t9aLwAtbwvc+tzR9bEMdirBOgaWPl9cNDo3uLegcbtY6/JEhsI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780783961; c=relaxed/simple;
-	bh=6ouIglN1dYGLH3ysVCe4+WX5jGN+S8ZgysvlxN1jYwY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kAenPMjYY6eq8clWPWPVo87vH3SWC2HhoSE0GHVf5Ji1LNZuRtrjAP0JUWWsJ0flb2p33ZmDTFbJbhwCZkSC+/ozwEEHQxw6a1EBn5pjAE6gp4J4h3IAqvoCsKasfIQquxdOb6mg1MQ0volqNtm/HqVdAecMDTq710IfmRdgLjI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=cAiwwYwJ; arc=none smtp.client-ip=91.218.175.183
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1780820464; c=relaxed/simple;
+	bh=rATwyjdaFtrJ0McnHdAuGN/9Ljvwmb/HfIFoHuMVL+k=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=GDncDKuQUQsT+uTK64sJlfG4IojqxQtLvO56kcPNqxdFDQunu4s/jdHGa6wtg4KXeOddgG6yRFATanJXCKlZQ+vzIlWTGQWZBf3Kf6feGfIIfWqp1atTor8e5LOs6T1nEYBxUJH20IZsPZ+JdtXnwims+j3H3Y0fYXTKEIRltV4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai; spf=pass smtp.mailfrom=nexthop.ai; dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b=kyghw2nl; arc=none smtp.client-ip=74.125.82.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=nexthop.ai
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=nexthop.ai
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="cAiwwYwJ"
-Date: Sun, 7 Jun 2026 00:12:19 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1780783948;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tbFXk2aZ4jZwA7SF4tzAan7+rfchQ2otTlI3Ov4PpgE=;
-	b=cAiwwYwJOUG2EG3jSsHA+Zz7BMC0lrJHBcH76S9G85JwielLFdCWHoX62rsUvmaQaAemmV
-	zbdwe70+IR1Qf0pPk7SVlvRwLj7WxqWz3mgLZXKqWiGieeIqencjukHQZzwcq0f1gHpBDZ
-	FEHHBCzADBNB1gCZl2YFYkLYr2NJMbE=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Thorsten Blum <thorsten.blum@linux.dev>
-To: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RESEND] i2c: change return type to bool for
- i2c_check_functionality
-Message-ID: <aiSbQ20F0GsQJqir@linux.dev>
-References: <20260421161607.61314-3-thorsten.blum@linux.dev>
- <afhjp_ib0padlv5z@ninjato>
- <aiSRJups6bcEtb3U@linux.dev>
- <0b13ebc9-8781-46ba-9a55-cb4d54afcf1a@wanadoo.fr>
+	dkim=pass (2048-bit key) header.d=nexthop.ai header.i=@nexthop.ai header.b="kyghw2nl"
+Received: by mail-dl1-f41.google.com with SMTP id a92af1059eb24-137dd523634so5261776c88.1
+        for <linux-i2c@vger.kernel.org>; Sun, 07 Jun 2026 01:21:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=nexthop.ai; s=google; t=1780820461; x=1781425261; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=b9J0NH/I43sYxlpFkbjUNBNG1mQYZWERsQGhvxWJVjs=;
+        b=kyghw2nlPz3O/H4RXEDoukcgqkU3OwEPXOo2o42CjsubDe2Jc6qMyosEo2PJlh6Vqb
+         KPoGAIgyOSV9lEJnXBjVbMq01LPEa/Zc4oKIoPrNtTvvpF6PxqNU5ehJn8p+dbgHnl/g
+         i5HVerlYTusZvY44v2KOnx+kwFhnUhaQfQ0aMJsXtGyIlczQlCHkO9RG9ssHOATN8TRm
+         7Zf0nAS9PvY51p9zfzmoP0YB8hvDjIeKkWumCZiYC/NCcJLhwL1SVxhkroFFGaknR6j6
+         42pHmJP1qnUzYBKU90cbqBQUMMOfSOy5mxnsbUZV8vnLI4EbAnljzXcSc+n6RTpOWvvj
+         ITaQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780820461; x=1781425261;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=b9J0NH/I43sYxlpFkbjUNBNG1mQYZWERsQGhvxWJVjs=;
+        b=YbPoEDLTnT82re7Z2K2jFdJQiKSR8AgZE4f5TQe/oE1ysdWSbap29Bpwrp87UnVibU
+         VRT4UM0tAgXws0G7DzYLQA2uq7hZR8d868E4tACcXUhQDjNjWPZBt7GSNmqJiq4rpHY9
+         W60pfkMbXfQLAYeN/BYO++m31/VNggqyJ6kiZQOoEMM+N0JvC67HqvbLsRYBt6qgKbKs
+         P1P/wi2Cdps1KAcZXaa65ZRcQ+1O4wwZSKDcPFFELefmdbZWJSgvdtcseFmTQ+grorOY
+         vEb5jBsllt7UwQk7w2ra6J+gusCyARfiutzHEXbiskh+maJz29rsjwm+Uk9lonBudItk
+         jHBQ==
+X-Gm-Message-State: AOJu0YwTYhPrtdYwztAkRMWHabpqyqm0SrGHu6IOOFO8o778ZvVjDjF7
+	QJgHviiR994MiEAigKLS112VGuKVMzhm8KdF53YwqlpfzIRazP0DFPEoAysLDH5ccd8=
+X-Gm-Gg: Acq92OE7B1FnXf+yEBxqFvjUv8FgE5HCNWSbhjM7G9OeOHspMr8XN0W1NUO/f4Bo/FZ
+	c7ByeHXOBMU+dvfLTW+/I4n/Fq47D8W1e2w/kpsT7CdHmnwQDL4B0xNmNONg8d+S+TpfU0PB8Cd
+	qTx+KPm+4zjMk26g12ym40FFVMha/Fntf7UiZDGaHj4ZOtBzaMAvoDRFONVXAoLq1zl4lEKQjBQ
+	6MS6zIwf8kTm9aK+6LsXEIZNXNqkJsoZ0rJkrBiswbtqoId+HTCXsIiaU9G/M0vkjJuoy6AXY4X
+	sD3OUkCchTsIvAUtZbwO4I1eoBGF+qW4WdVjg/uOy4i9e5PTv4/bbIcbdeswXGrPDnA7lNjMRhO
+	w3eKNYkKiN9R/2JaTpA+FBa1C7HmjSYCFzoTEMwlfxO2wJc7o3Cui/0sXt6fGEnLw9DKZdN8uCf
+	ZOb3KzS0bzwBK88CeNCG76R0Ix+/3DAXPEYAsW
+X-Received: by 2002:a05:7022:7a5:b0:137:6781:7dd4 with SMTP id a92af1059eb24-138066b5982mr5211833c88.8.1780820461416;
+        Sun, 07 Jun 2026 01:21:01 -0700 (PDT)
+Received: from [127.0.0.2] ([50.145.100.174])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-137f5489d17sm9439232c88.1.2026.06.07.01.20.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 07 Jun 2026 01:21:00 -0700 (PDT)
+From: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+Subject: [PATCH 0/2] i2c: mux: reg: allow fixing the base bus number via
+ fwnode
+Date: Sun, 07 Jun 2026 01:20:54 -0700
+Message-Id: <20260607-i2c-mux-reg-base-bus-num-v1-0-f193b5a8fedc@nexthop.ai>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <0b13ebc9-8781-46ba-9a55-cb4d54afcf1a@wanadoo.fr>
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAOYpJWoC/y2OQQ6DIBREr2JY9zcIRcSrNF3A96s00bYgxsR49
+ 1Lt8iUzb2ZjkYKnyJpiY4EWH/1rylBeCoaDnXoC32ZmgouKV1yDFwhjWiFQD85GApciTGkELWt
+ SrdNkDLJcfwfq/Hqo74+TY3JPwvnn+ycCfVLenM8Ye9sZh7zYFNK2plMWnawUVeQEttJxbTiZW
+ jrDb0bqslTq5zlu4Gsc/dwUi76WEPDGHvv+BRvTcsHeAAAA
+X-Change-ID: 20260607-i2c-mux-reg-base-bus-num-738e5db7e99c
+To: Peter Rosin <peda@lysator.liu.se>, Andi Shyti <andi.shyti@kernel.org>, 
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ devicetree@vger.kernel.org, Abdurrahman Hussain <abdurrahman@nexthop.ai>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1780820459; l=1501;
+ i=abdurrahman@nexthop.ai; s=20260510; h=from:subject:message-id;
+ bh=rATwyjdaFtrJ0McnHdAuGN/9Ljvwmb/HfIFoHuMVL+k=;
+ b=jXU4iMmdYuSL8QvxM7LJ4+BMOuyIXr3vqVBFjLaZumdJBEWPTLjDtOEOLIqZxOBp679Xk0v1l
+ UcdkmuiY22CB0QfIvwWhG0UqyXmr6PspKz71yXZmLh7OpEqlsSCvce+
+X-Developer-Key: i=abdurrahman@nexthop.ai; a=ed25519;
+ pk=omTm9cCAbO0ZhS32aKfJDKue0W3sQGpG9ub5eYHif8I=
 
-On Sat, Jun 06, 2026 at 11:58:03PM +0200, Christophe JAILLET wrote:
-> Le 06/06/2026 à 23:29, Thorsten Blum a écrit :
-> > Hi Wolfram,
-> > 
-> > On Mon, May 04, 2026 at 11:15:19AM +0200, Wolfram Sang wrote:
-> > > On Tue, Apr 21, 2026 at 06:16:09PM +0200, Thorsten Blum wrote:
-> > > > i2c_check_functionality() returns a bool - change the return type from
-> > > > int to bool and update the comment accordingly.
-> > > > 
-> > > > Signed-off-by: Thorsten Blum <thorsten.blum@linux.dev>
-> > > 
-> > > Basically OK but you need to fix the in-tree user first using the 'int'
-> > > behaviour [1]. I'd think you can send it with this patch as one series
-> > > and have it go in via the I2C tree, but Lee has to agree then.
-> > > 
-> > > [1] $ git grep 'i2c_check_functionality.*='
-> 
-> I think it should be git grep '=.*i2c_check_functionality'.
-> 
-> > 
-> > In linux-next [1] shows no more results and I believe all have been
-> > converted.
-> 
-> Looks like:
->    drivers/gpu/drm/bridge/sii902x.c:       ret =
-> i2c_check_functionality(client->adapter,
->    drivers/media/i2c/isl7998x.c:   ret = i2c_check_functionality(adapter,
-> I2C_FUNC_SMBUS_WORD_DATA);
-> 
-> need care.
+Add an "i2c-mux-base-bus-num" device property to i2c-mux-reg so
+DT/ACPI/swnode instances can request a fixed base bus number; the
+legacy platdata path already supports this via data.base_nr.
 
-Those have also been taken care of with some Reviewed-by: tags, but they
-aren't in linux-next yet:
+Patch 1 converts the legacy Documentation/devicetree/bindings/i2c/
+i2c-mux-reg.txt binding to the YAML schema and documents the new
+property. Patch 2 reads the property in the driver.
 
-https://lore.kernel.org/lkml/20260517172136.3321-2-thorsten.blum@linux.dev/
-https://lore.kernel.org/lkml/20260517172034.3033-2-thorsten.blum@linux.dev/
+The series applies on top of the device-property accessor conversion
+queued in Wolfram's wsa.git i2c/for-andi:
 
-And the conversions are not strictly necessary since 0 == false.
+  c191ec71250b ("i2c: mux: reg: use device property accessors")
+  https://lore.kernel.org/all/20260519-i2c-mux-reg-v6-1-a27ff50dee67@nexthop.ai/
 
-Thanks,
-Thorsten
+Without that conversion there is no probe-time hook on the OF path
+for the new property the driver reads.
+
+Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
+---
+Abdurrahman Hussain (2):
+      dt-bindings: i2c: convert i2c-mux-reg to DT schema
+      i2c: mux: reg: allow fixing the base bus number via fwnode
+
+ .../devicetree/bindings/i2c/i2c-mux-reg.txt        |  74 --------------
+ .../devicetree/bindings/i2c/i2c-mux-reg.yaml       | 110 +++++++++++++++++++++
+ drivers/i2c/muxes/i2c-mux-reg.c                    |   4 +-
+ 3 files changed, 113 insertions(+), 75 deletions(-)
+---
+base-commit: aa61612ab641d7d62b0b6889f2c7c9251489f6e3
+change-id: 20260607-i2c-mux-reg-base-bus-num-738e5db7e99c
+prerequisite-patch-id: 3ad9f5acb365e6eb2cd3b0790e983b9049371155
+
+Best regards,
+--  
+Abdurrahman Hussain <abdurrahman@nexthop.ai>
+
