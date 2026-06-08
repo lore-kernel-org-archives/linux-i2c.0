@@ -1,183 +1,104 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5CCE130FF21;
-	Mon,  8 Jun 2026 02:46:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B39AE337B99
+	for <linux-i2c@vger.kernel.org>; Mon,  8 Jun 2026 03:44:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780886803; cv=none; b=G5h9asueZ1zlfcOYlaBbOtd+vhLhziK+r8agZWntw48Z35Q0Ta5QDT0Zi7BKKpQaXk7SiBMLYc+YjwkkCYQDrEnA0OfcLyaiRzhlhC+51jS7mh/itGU6qYJ/iKFDPLyAePKPc+alFQlIf/2385yGwt//8fPTT/PVtmf7W7zum2Q=
+	t=1780890278; cv=none; b=GM331BWfpE1nZC8rmOgwBGJ/Qm1M94q0MTHtlslokImTRKiCP3PU1e7slrC14hJC1DJTJJ89ZX/cHFzRBhdG1/iY4ckbQX1Knj4bnQYHqSbWJVIzi6OwpZlSEnhwR94LHL1qXt1esChM2AdxtGwLamKUkD4xhgJGEDIfoejF+S4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780886803; c=relaxed/simple;
-	bh=+eSvQyg0WYIA5OXyNDQfLE+z6DeiJKTxn5DMaIKwvbE=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=aL7fqzSr54C0sibIbkH6eNIMl8ouUoxsY4uI8Qz5NSwu9aeZEDsMoanXkhSzbR7kRSc6NDaGAJSgLWOW6U5Bi1Tf5Wkt34x9WvKdM7fRK/Wr96AbU1SOAz/jWTv8qDXDw3PNQ3wmrTwKnFCzWE4ZX/aG+T25qJGwsobAsf9etcY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.101])
-	by gateway (Coremail) with SMTP id _____8DxVXgQLSZq_p4RAA--.22545S3;
-	Mon, 08 Jun 2026 10:46:40 +0800 (CST)
-Received: from loongson-pc.loongson.cn (unknown [10.20.42.101])
-	by front1 (Coremail) with SMTP id qMiowJCxOMEKLSZq9ESfAA--.25894S4;
-	Mon, 08 Jun 2026 10:46:39 +0800 (CST)
-From: Hongliang Wang <wanghongliang@loongson.cn>
-To: Hongliang Wang <wanghongliang@loongson.cn>,
-	Binbin Zhou <zhoubinbin@loongson.cn>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>,
-	Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org,
-	devicetree@vger.kernel.org,
-	loongarch@lists.linux.dev,
-	Huacai Chen <chenhuacai@loongson.cn>,
-	stable@vger.kernel.org
-Subject: [PATCH v6 2/2] i2c: ls2x: Add clocks property parsing and adjust bus speed
-Date: Mon,  8 Jun 2026 10:45:33 +0800
-Message-Id: <20260608024533.32419-3-wanghongliang@loongson.cn>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20260608024533.32419-1-wanghongliang@loongson.cn>
-References: <20260608024533.32419-1-wanghongliang@loongson.cn>
+	s=arc-20240116; t=1780890278; c=relaxed/simple;
+	bh=x/jE3WkInHWhOYnc0mIGEzA3lMatPTNns944BHfelV4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=r+jUWv8t1Kh6xSmeRBOTOPsmjt206GlM4rtRPTEHxCAh41dt/s/gGRg70oe8AK5j+P9xTSPRRAKMEUzvoV/xy9IY7q8VXhpaKOLZUM0MS/BgyHwyWDTwLcXmNjnJ8XEGpHJ2tT/GZPQYQ1KQvFY2ynWZBvNjCQNKTP9vySh7s6E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=wh1L/78r; arc=none smtp.client-ip=209.85.210.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="wh1L/78r"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-84236f9b638so1637679b3a.2
+        for <linux-i2c@vger.kernel.org>; Sun, 07 Jun 2026 20:44:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1780890275; x=1781495075; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=u2lKo0muPPjvxZp63cMcIf07S+igkG9mD6vGKVSxOx8=;
+        b=wh1L/78rlna65xNHybMclAYZ+h5IcwbYv8Bu1ydNG2a+GTO2cBGl7q2vhupYWPArmx
+         4yLeSH1jHl25RN0CY21l0TgmP6f/xjcOQQmKicSm12HDuVufVyqBmalPfMeWDw7Pay4p
+         5aYM0tMpbIEiKt2SEYemfNE6jCUzmorQQnYsWaRb6XbmdPNj4/5irbK3udl9BQAj1XoS
+         1na00Pm/NQCZ94+KI3Q625VqiAiundJ9uoZJbnvmwicefsQwh1r2/nMbdmODnppA1e8/
+         04cPBTSPZo8TU11Jx1ZRNWxKa+V/h7QixQVGteL8R5zTCpjKPVNiTWw/lAaScJlAB4LP
+         Zi6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780890275; x=1781495075;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=u2lKo0muPPjvxZp63cMcIf07S+igkG9mD6vGKVSxOx8=;
+        b=mM6wKCJ4sfNs6iNK2N7MOcF83WNUw60FxTLh+hLhXJ4cjupXEfwlLQxFcSdc8AyWwj
+         lymHYhYEobGRGkhLb8UTIQrWbLY6jHgMxliq0HxuCHOH5vp6ChdhMEav6W6bUe6ks2oc
+         MlBKhhkMF/t9GuaNrFqIdZne6/4d/X/cV/y9a+aA+r89sWCys4ye+bHEiqxwXblmyCZ3
+         4NLKG2wpKq+3QkDk9MhLLoRiB0nzx8sce3sse4V/YGzZDKOKqP5hPA2aP5ZYncSIWgJu
+         sJQNmrEx/Jkf15w9A2bvjHa6F4ksSIoB13pKdWr+vbN1BjZQRlMbSpXIJJXr8ubkIx7h
+         Xz2w==
+X-Gm-Message-State: AOJu0Yzi8GkFibY4/z0LAHzCQyVGbCV1ZJFTxsBo7qqNng9EZVd1fm5k
+	HVa0d2ZA0SI67elUbl+rmKwG5uRQBWWD/fSho7z0mvz/i+z/KSr1Cr/e+qJ5ZIVhClg=
+X-Gm-Gg: Acq92OGNrXL8Bbc0nkigdbwynDg5QP4+mHqKqZo/sPaUx3JUQQ42IQdi1LtzkL8Mx6s
+	4vxq9B0VjESEnf0RUJQ+Mc09ckYGgnInHyDuhFHvlP4TyKnSQ3VcPaWIAd2n4CyBCeyPaSOr+yS
+	OFJkb1ALa7ABzY9A2z7gmHHKswSof47qLEHGJTy76czFGmdgYGivAgEmAZ+eueP2K5Dm4j8cGU4
+	uYLgsDnS3qTfrLzCkmd2Jka3TJu/JeGXJfcKoYhD2HIeSVaTVtg1QP8P1sZGvnnPBABSlGK/Uel
+	i8Un9eTL6nYHxFsqdBRQTFst1jUrmYph3fPskknRYhRtYlxB8nIOVObNxhJ/TQswbO8+stIwBkY
+	GO8KJJQwaE5x4qkIRgDdLDcuYFzmcjPZkJvgZ5KhWzcgmoDI3DirSdFeOhIBtJjYNWFFhirQOan
+	z4Ig6lLQlxzC9QbInZ12GbOoGzdIlf4icFc5dVJkChV7Ze
+X-Received: by 2002:a05:6a00:a89:b0:842:83d1:ee6d with SMTP id d2e1a72fcca58-842b1004ac0mr13892308b3a.45.1780890274866;
+        Sun, 07 Jun 2026 20:44:34 -0700 (PDT)
+Received: from localhost ([122.172.82.94])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-842823512b0sm17180032b3a.15.2026.06.07.20.44.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 07 Jun 2026 20:44:33 -0700 (PDT)
+Date: Mon, 8 Jun 2026 09:14:31 +0530
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: Gavin Li <gavin.li@samsara.com>
+Cc: linux-i2c@vger.kernel.org, "Chen, Jian Jun" <jian.jun.chen@intel.com>, 
+	andi.shyti@kernel.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH v1] i2c: virtio: wait uninterruptibly for completions to
+ avoid UAF
+Message-ID: <ars6vptfsifv3zvdbx2p7ihcw4rbwbgkvft3xpqyjbvkdckfzy@zxx2exbtuib4>
+References: <20260607143608.76122-1-gavin.li@samsara.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJCxOMEKLSZq9ESfAA--.25894S4
-X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
-X-Coremail-Antispam: 1Uk129KBj93XoWxCr15KF15uw15Xw1DAw4fZwc_yoWrXw1kpF
-	W5CFZ5Gr4qqF42grsaq3W7ZFyYvws5JayUCFy7tw1xW3Z3Zr1DZa4ftFn09FWvgF97uayU
-	XayDGr43CFyUZrcCm3ZEXasCq-sJn29KB7ZKAUJUUUUr529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUBIb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
-	xVW8Jr0_Cr1UM2kKe7AKxVWUXVWUAwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07
-	AIYIkI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
-	tVWrXwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
-	AKI48JMxkF7I0En4kS14v26r126r1DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY
-	6r1j6r4UMxCIbckI1I0E14v26r1Y6r17MI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7
-	xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xII
-	jxv20xvE14v26r4j6ryUMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw2
-	0EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aVCY1x02
-	67AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU0epB3UUUUU==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260607143608.76122-1-gavin.li@samsara.com>
 
-The i2c-ls2x driver supports dts and acpi parameter passing.
+On 07-06-26, 10:36, Gavin Li wrote:
+> virtio_i2c_complete_reqs() uses wait_for_completion_interruptible() and stops
+> waiting when a signal arrives. virtio_i2c_xfer() then frees reqs and the
+> per-request DMA bounce buffers while the device may still hold virtqueue tokens
+> pointing at &reqs[i] and DMA into read bounce buffers. Additionally, when the
+> device later completes those requests, virtio_i2c_msg_done() calls complete()
+> on freed memory and can corrupt the slab freelist.
+> 
+> Wait uninterruptibly for every completion before freeing reqs. This
+> matches how other virtio drivers retain request storage until the device
+> completes it. The virtio spec unfortunately does not provide a way to
+> cancel an in-flight request, so waiting uninterruptibly is required.
+> 
+> Signed-off-by: Gavin Li <gavin.li@samsara.com>
+> ---
+>  drivers/i2c/busses/i2c-virtio.c | 15 +++++++--------
+>  1 file changed, 7 insertions(+), 8 deletions(-)
 
-In dts, uses clock framework, by parsing clocks property to
-get i2c bus reference clock, and define the div of reference
-clock by device data.
+This is a revert of (and maybe better if that is mentioned in the logs):
 
-In acpi, by passing clocks property to describe i2c bus reference
-clock and clock-div property to describe the div of reference clock.
+commit a663b3c47ab1 ("i2c: virtio: Avoid hang by using interruptible completion wait")
 
-Based on i2c bus reference clock(clock_a), i2c bus speed(clock_s)
-and div, calculate the prcescale of i2c divider register. The
-calculation formula is
+I don't think this is the right approach here. We shouldn't hang the kernel
+indefinitely if the other side is dead.
 
-prcescale = (clock_a*10)/(div*clock_s)-1
-
-Reviewed-by: Huacai Chen <chenhuacai@loongson.cn>
-Cc: stable@vger.kernel.org
-Signed-off-by: Hongliang Wang <wanghongliang@loongson.cn>
----
- drivers/i2c/busses/i2c-ls2x.c | 36 ++++++++++++++++++++++++++++++++---
- 1 file changed, 33 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-ls2x.c b/drivers/i2c/busses/i2c-ls2x.c
-index b475dd27b7af..46dafa11b301 100644
---- a/drivers/i2c/busses/i2c-ls2x.c
-+++ b/drivers/i2c/busses/i2c-ls2x.c
-@@ -12,6 +12,7 @@
- 
- #include <linux/bitfield.h>
- #include <linux/bits.h>
-+#include <linux/clk.h>
- #include <linux/completion.h>
- #include <linux/device.h>
- #include <linux/iopoll.h>
-@@ -63,11 +64,18 @@
- /* The default bus frequency, which is an empirical value */
- #define LS2X_I2C_FREQ_STD	(33 * HZ_PER_KHZ)
- 
-+/* The div of i2c reference clock on LS2K0500/2K1000/2K2000 */
-+#define LS2X_I2C_2K_CLOCK_DIV	40
-+
-+/* The div of i2c reference clock on LS7A1000/7A2000 */
-+#define LS2X_I2C_7A_CLOCK_DIV	50
-+
- struct ls2x_i2c_priv {
- 	struct i2c_adapter	adapter;
- 	void __iomem		*base;
- 	struct i2c_timings	i2c_t;
- 	struct completion	cmd_complete;
-+	unsigned int		div;
- };
- 
- /*
-@@ -96,6 +104,8 @@ static irqreturn_t ls2x_i2c_isr(int this_irq, void *dev_id)
- static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
- {
- 	u16 val;
-+	u32 pclk, div;
-+	struct clk *clk;
- 	struct i2c_timings *t = &priv->i2c_t;
- 	struct device *dev = priv->adapter.dev.parent;
- 	u32 acpi_speed = i2c_acpi_find_bus_speed(dev);
-@@ -107,12 +117,30 @@ static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
- 	else
- 		t->bus_freq_hz = LS2X_I2C_FREQ_STD;
- 
-+	if (dev_of_node(dev)) {
-+		clk = devm_clk_get_optional_enabled(dev, NULL);
-+		if (!IS_ERR_OR_NULL(clk))
-+			pclk = clk_get_rate(clk);
-+		else
-+			pclk = LS2X_I2C_PCLK_FREQ;
-+
-+		div = priv->div;
-+
-+		val = (pclk * 10) / (div * t->bus_freq_hz) - 1;
-+	} else {
-+		/* clocks and clock-div are only ACPI properties. */
-+		if (!device_property_read_u32(dev, "clocks", &pclk) &&
-+		    !device_property_read_u32(dev, "clock-div", &div))
-+			val = (pclk * 10) / (div * t->bus_freq_hz) - 1;
-+		else
-+			val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
-+	}
-+
- 	/*
- 	 * According to the chip manual, we can only access the registers as bytes,
- 	 * otherwise the high bits will be truncated.
- 	 * So set the I2C frequency with a sequential writeb() instead of writew().
- 	 */
--	val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
- 	writeb(FIELD_GET(GENMASK(7, 0), val), priv->base + I2C_LS2X_PRER_LO);
- 	writeb(FIELD_GET(GENMASK(15, 8), val), priv->base + I2C_LS2X_PRER_HI);
- }
-@@ -295,6 +323,8 @@ static int ls2x_i2c_probe(struct platform_device *pdev)
- 	if (!priv)
- 		return -ENOMEM;
- 
-+	priv->div = (unsigned long)device_get_match_data(dev);
-+
- 	/* Map hardware registers */
- 	priv->base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(priv->base))
-@@ -349,8 +379,8 @@ static DEFINE_RUNTIME_DEV_PM_OPS(ls2x_i2c_pm_ops,
- 				 ls2x_i2c_suspend, ls2x_i2c_resume, NULL);
- 
- static const struct of_device_id ls2x_i2c_id_table[] = {
--	{ .compatible = "loongson,ls2k-i2c" },
--	{ .compatible = "loongson,ls7a-i2c" },
-+	{ .compatible = "loongson,ls2k-i2c", .data = (void *)LS2X_I2C_2K_CLOCK_DIV, },
-+	{ .compatible = "loongson,ls7a-i2c", .data = (void *)LS2X_I2C_7A_CLOCK_DIV, },
- 	{ /* sentinel */ }
- };
- MODULE_DEVICE_TABLE(of, ls2x_i2c_id_table);
 -- 
-2.47.2
-
+viresh
