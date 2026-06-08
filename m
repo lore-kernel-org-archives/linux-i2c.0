@@ -1,101 +1,101 @@
-Received: from mail-vk1-f179.google.com (mail-vk1-f179.google.com [209.85.221.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 250E33932C6
-	for <linux-i2c@vger.kernel.org>; Mon,  8 Jun 2026 07:41:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3915618BBAE
+	for <linux-i2c@vger.kernel.org>; Mon,  8 Jun 2026 07:51:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780904512; cv=none; b=cSH03MXzv1aKQ2JpL+SraMnwWNhoPlewWb+9n7XlISqTNtoHw8mV3Et6eFPe8tjHQU+oN4+5EKerZw0wE4piBtIFpk4L2ONgmNw+3kAlW6EJAhhc/uxjZAYmvgmQ9EtEO1Q6xjXDephzEaSvu14WI2LBTWK1u3HLBcxpVj394WM=
+	t=1780905088; cv=none; b=eIPPZvBVDTbp73mEvBilCMjL0obcaQC0j86cn45YswkofVd+VhJS9W/1Bh6+lZrfbrBurlwwzZoGvFCfWfJbCjyVOObaBKporfTWBDmATzmPD8eYzABz2x0mkWdhScaCbu1OSEB1feBC7ud+elIpwS/gW3VsCgY1n7WUKyx7V5Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780904512; c=relaxed/simple;
-	bh=R7MwiCWB0jLjrbgihAJaI3C+U48f2yX/bqNuxPmV05g=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=f9FpcgyZMsxmTCYxyDVqZAQnc7Njk7Ix90KvQuCLNC7t2wANdKjdXPaKFD1kX/ZXkv2OA7jolq/kkJkh2FzWmd3OEMnuvieT+GQBvvvRI1GxUIW/xHtLitttoOLkX+7JfVbovYSHb1NrVdNBrF3VlDJwjhjsHtMzoVMHi+eqAjI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.221.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Received: by mail-vk1-f179.google.com with SMTP id 71dfb90a1353d-59e2b96e3d3so2664897e0c.2
-        for <linux-i2c@vger.kernel.org>; Mon, 08 Jun 2026 00:41:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780904509; x=1781509309;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Dt9sAdVpyjABq8uk+bJPrbepMfmlnejqLbS+z27bzVk=;
-        b=dmEgO6h4kjeDjYLqtu4pdRwwAW+guAgNPvGdxEB6Pr7n2pCM3NL+FEYG6XNyf8kKmP
-         UjyLGSWZ7NwLgkWUbj8SKtLva2tUziW3K2BZWjHQy45Dhob5z9t+cRcjsWgynS2gCM3F
-         3MSgGFnzrryN3QlEHrDLiTxCi+gihkbe+OXgyKdnlddze7sMnVhzknXeAs3uu2AlkMgw
-         t3cFALl5eDF3Ht36ByVPCsmZ3kjzICqQ/pJdGy/LyV3yRuOKajDshYijJ7QkC6dphUIQ
-         D6AYmMVilNv7ZYCAuJkuBczG8gfmmBBA9IX/Sogl69y76lgRzLVKf9N9OVBG9CU98LZY
-         CgpA==
-X-Forwarded-Encrypted: i=1; AFNElJ+r0Qtdz8azxYINkYlTCygcelMrKu6JdbO3ibLV3lymnS7l/d/Dgh3O0R3jRxvxabixkkqYJaumxrY=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwnZWcjhrakcAi1gwTGYvYBtuaI7tvgNNUkrxorf9detqFwIYsb
-	O1+NpEwl6nQPSiKa3BlvWP4GfoP9ZoNIAvqa74zKUuCv/3Y67bb+zLZdsjwnYMt6
-X-Gm-Gg: Acq92OE1kmcj3WaHIKtKkaZTm7BUFmTlZXCamVSdgB0pvbD0hzUxCfpHsPcy+LyOimR
-	zMa9HeYCJYOPjua1scbLV23PlMaBfuS1oO7a5d7Yugql6ZC3uTKf3AjvOHBw5dQg+yWtehx0WBt
-	CM1mGhlx2u9dAWuPVG+P6yYPCdv6wOAdx2SXDLo00kr8A+ugTIQYQLnFabBoNaDs5gaFfUn5DXZ
-	uBDnxE7XXzRkSANTdCELliT8fA5zCTmchPUNzaAI3299jrTdh+lwzt7uJQftuRODaoHcmgNJw7Y
-	GWPHJMMYmfYXIjVtenpsU/vJI7nk+8ENxW6/a8GOjvjbhGKofjDTxS5O+DgEYsZFFDPRiRsi/Oc
-	/FF/KuvI+u/yCuLeVtIQ4ztKsulUbSMQIHlnv7mJO+iom7cFA9ea05vXA0ULl7V76AsFmepQf0o
-	Zk5+yQQ+e2ww3kcHXi6mPvfLk7Dv5Aiq0GYDnvNeHaWPKXUXe0F69JzbRRNMTfr1MBIt27UL4=
-X-Received: by 2002:a05:6122:45a8:b0:5a4:3c79:f5a8 with SMTP id 71dfb90a1353d-5ac477d7f60mr6607039e0c.0.1780904509087;
-        Mon, 08 Jun 2026 00:41:49 -0700 (PDT)
-Received: from mail-ua1-f44.google.com (mail-ua1-f44.google.com. [209.85.222.44])
-        by smtp.gmail.com with ESMTPSA id 71dfb90a1353d-5a6d6dc3d3fsm14082694e0c.5.2026.06.08.00.41.47
-        for <linux-i2c@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 08 Jun 2026 00:41:47 -0700 (PDT)
-Received: by mail-ua1-f44.google.com with SMTP id a1e0cc1a2514c-96392241154so2928917241.1
-        for <linux-i2c@vger.kernel.org>; Mon, 08 Jun 2026 00:41:47 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ8IGdj6knVSDT5pHR6uI/1H2neo5QFEqDdZAGHP3cgMVN4xKLc2PqbThM2xe6RzeH0vbcvhW+4pRnc=@vger.kernel.org
-X-Received: by 2002:a05:6102:6b0a:b0:631:7781:fe8a with SMTP id
- ada2fe7eead31-6ff084a55demr6790737137.19.1780904507130; Mon, 08 Jun 2026
- 00:41:47 -0700 (PDT)
+	s=arc-20240116; t=1780905088; c=relaxed/simple;
+	bh=s0zQ/ZKI4I76M/phz41Dp2tQPYGm9vDfyiCpUJFPp9Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=e+SFTxDlaW1l3VcdJRGi1Jc3zpPbdfAo6gcQDJ1IX2ouONbG4j7C6gkCmTfgmGT7uBE9tDIFPd+ZDgupEK9wJ2EnPZxvBu2/f/fUO6YubUYb24RrQsJD0X2bRfiQKicTO8LKxWMEU6OBL53xmQoTPm7Lh9nXdR2ElHaO6pNKKII=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=mJgR200L; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="mJgR200L"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=Z3G9
+	kKqABZczffTUrvY1gID80bL08FRqyNLoJ0OF6oE=; b=mJgR200LoKVAYAJS2m/S
+	aX/fJmIX1B84R4YWPJ0Yb4iPaZE13DTylBIxYLJDW7O3IVJ3+InC2k/uXZHmCa/e
+	39PAeGXwwGowg7YUPMf674uCHVjAS7BOS+7SUESLbSdS5OXTBWRDn5oy0m3jtE7J
+	gDy8Jdm9PLqEh6GIRGVUSD6Hbi6Spmxckp/d/SNf1o94MvGcZY3h3siSZf/57Br2
+	X+hyMRhXzq2E7hjI/G40+9TCBeMdCh0hX24Vilxf7LeakzpGkXqN8F4/nBFAKxiW
+	Wp7vXpTDP/PRZUsKwUBQjLfPOLdb04Ojhdj0CV6ANsL4EqVO/k4fum9b4JT4DrNi
+	Mw==
+Received: (qmail 751585 invoked from network); 8 Jun 2026 09:51:20 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 8 Jun 2026 09:51:20 +0200
+X-UD-Smtp-Session: l3s3148p1@2F2vRrlTwLsujntX
+Date: Mon, 8 Jun 2026 09:51:20 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Igor Korotin <igor.korotin@linux.dev>
+Cc: Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [GIT PULL] rust-i2c-fixes for 7.1-rc7
+Message-ID: <aiZ0eD-A2F8woqTb@shikoro>
+References: <9e49b71b-8b60-479e-93e7-5c12e352c78e@linux.dev>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260608071123.128964-1-vulab@iscas.ac.cn>
-In-Reply-To: <20260608071123.128964-1-vulab@iscas.ac.cn>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Date: Mon, 8 Jun 2026 09:41:34 +0200
-X-Gmail-Original-Message-ID: <CAMuHMdWz1Z6Pp1hss2X8R2D_9-bLjUpYnpdGEsGtZMKbF9L7pw@mail.gmail.com>
-X-Gm-Features: AVVi8Cdai5h3PhjO-8qphts-gv8u9z_8lWsZUpbrxaI2yb-8L5dWz5NU13b55BY
-Message-ID: <CAMuHMdWz1Z6Pp1hss2X8R2D_9-bLjUpYnpdGEsGtZMKbF9L7pw@mail.gmail.com>
-Subject: Re: [PATCH] i2c: riic: fix refcount leak in riic_i2c_resume_noirq()
-To: Wentao Liang <vulab@iscas.ac.cn>
-Cc: chris.brandt@renesas.com, andi.shyti@kernel.org, 
-	linux-renesas-soc@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="o55AvIIQFORCL+wV"
+Content-Disposition: inline
+In-Reply-To: <9e49b71b-8b60-479e-93e7-5c12e352c78e@linux.dev>
 
-On Mon, 8 Jun 2026 at 09:13, Wentao Liang <vulab@iscas.ac.cn> wrote:
-> When riic_i2c_resume_noirq() is called, it deasserts the reset
-> using reset_control_deassert(), which for shared resets increments
-> a reference count. If pm_runtime_force_resume() then fails, the
-> function returns without calling reset_control_assert() to
-> decrement the count. This leaves the reset deasserted and the
-> reference count unbalanced, which can prevent other users of the
-> shared reset from properly asserting it later.
->
-> Fix the leak by calling reset_control_assert() on the error
-> handling path for a failed pm_runtime_force_resume().
->
-> Cc: stable@vger.kernel.org
-> Fixes: e383f0961422 ("i2c: riic: Move suspend handling to NOIRQ phase")
-> Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
 
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+--o55AvIIQFORCL+wV
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Gr{oetje,eeting}s,
+On Sat, Jun 06, 2026 at 06:39:19PM +0100, Igor Korotin wrote:
+> The following changes since commit e43ffb69e0438cddd72aaa30898b4dc446f664=
+f8:
+>=20
+>   Linux 7.1-rc6 (2026-05-31 15:14:24 -0700)
+>=20
+> are available in the Git repository at:
+>=20
+>   https://github.com/ikrtn/linux.git tags/rust-i2c-7.1-rc7
+>=20
+> for you to fetch changes up to 4eb422482ca5d924d7212ad2ca1cb7ea6f5b524d:
+>=20
+>   rust: i2c: fix I2cAdapter refcounts double increment (2026-06-06 15:19:=
+27
+> +0100)
 
-                        Geert
+Thanks, pulled. I was away over the weekend, so it couldn't make it into
+rc7. But I will send it out later this week for 7.1 surely.
 
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Please be already aware that from 7.2 on, you will need send pull
+requests to Andi who takes over the I2C subsystem. I will write a
+seperate mail about the handover later today.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+
+--o55AvIIQFORCL+wV
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmomdHQACgkQFA3kzBSg
+KbYs0A/8C4YyzMXhi5rRNS6wCXxmT68Kw491j6QPcMjotbLPXMbDqERMMNHNuNVU
+vOTlEYT8MhtgEtstep64s22aqNYAg+oTTvGYV4GxLuzqvUwSgQHZHLhJja457R2e
+aCSut2tUgUbippywwzJUhksd6+tQBH7V6JMd/XNusklr8NuAXuS+g0D2LkEt1QJ1
+ZtbStlzyfc/mEDQsk0i6DtkRyFOT7s3Ra28sl8eJeTMGGo8Z5mLbZRAyNtbU9pI1
+0FDl7jtWBp4gZHYq3A6XuGe0eYzfBMfEHH2iIr2GDYkedcjgkUJCMe+ADZpXF9xN
+vhwOopSBpUN6V7FoAr54M5hwqFYIs3m0Pu0x5N/v/INc6xm9O1ACHn5JMpHlx2IA
+WmFKYmLkICnscETJjGhEGv7I3yvYok/jB9HyAbNUuiQeR3gHM1Y6uCvTGD6bFk01
+1NYywpCwb4nnth5YlYKATAU5nZ9zpP8zLw1xdAJklMPb81aoJy+7CHBbOEvkJkYT
+fJDcAARxkhSkySS7n9+oIjtllCRPZQjg7qtCVYQ0nuLVHc53CcuMppuEbDa0zYzR
+jgyeZ0X0wrT5vZPPvvV5M7/aPQdyEJteqYCU0lPhATNrk92pDvi5/t9Tj971jMOg
+pyhPxRzfiC863FJJn/HXbm8rMU/xqDJG3w4k64zlZuyoldaG4Z8=
+=Xfmn
+-----END PGP SIGNATURE-----
+
+--o55AvIIQFORCL+wV--
