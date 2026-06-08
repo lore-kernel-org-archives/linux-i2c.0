@@ -1,301 +1,136 @@
-Received: from mail-qk1-f180.google.com (mail-qk1-f180.google.com [209.85.222.180])
+Received: from mail-oo1-f46.google.com (mail-oo1-f46.google.com [209.85.161.46])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E607364EB1
-	for <linux-i2c@vger.kernel.org>; Mon,  8 Jun 2026 17:44:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.180
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780940688; cv=none; b=Jv//w8WYESUQrEOOF2OFvFOVYPzvJq+oRhMdHTSK9xr0rqQUB9AwJuoopjSmggGy+F9/URiedOSf7sblkbGTe6EPBkJ7T0Cdypdg0j2ki3s1GWIrEXN1ILuG36nY/vDdHCbFtNyyXHQAYdfuiLGBbFcS1f5HXLfcBFkvXLloOy8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780940688; c=relaxed/simple;
-	bh=OhU4AxzBAhYZv/SZor+DR/lP7Px9D5NTpnT7bDJT5Fs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=IOzGD5ydjNIdSPZBXVIrqvt+2jISI/vugXYcer7yrxMvQFz3cNn+ue/Ur96AXEvQv/XOTFOUDTuiIwG8Q8CT1A3IAGzxwziZW2A8JkufnQWvRny2Ie47km1xr77RfGcg3DJOR3EUboHb+FqC1XxBcRFCdHCNYaEx/fd0L7nT76E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=samsara.com; spf=pass smtp.mailfrom=samsara.com; dkim=pass (2048-bit key) header.d=samsara.com header.i=@samsara.com header.b=MyZjuT0T; arc=none smtp.client-ip=209.85.222.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22E0923D291
+	for <linux-i2c@vger.kernel.org>; Mon,  8 Jun 2026 17:46:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.46
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780940786; cv=pass; b=KMZIun6p9eurtyCuZhTr5aNriaPyZN3mtHGZIXTT5LHWGD8Mzq2Yno5lm3WqY6f0pEF0t45Gp9U5N2019jJkSeNQ4UzEUQqOaZLG7247OhZjzIvqkIBerrCjj4JgUn3qmGxzgoatM9N/yVeUa0Iw8CKwB71UjYNl2gsqHHj9Oro=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780940786; c=relaxed/simple;
+	bh=0uT9yNIgAk/8+RqiGIhyhgxr89MaPNXDMlEgD8xjAWU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=P+5kuvAyN1jJQxOI/GyypxfSukSCYuuiLCEGCtI/8dPPEvoHMC0gASVujr7KDw5eHSSNx8ga28rWicoyQPtpHbl7NYTlSLlbU17CYaxOYoCiT6DOX9ij1ZQ3BqlCX4f9JV9B4ASwQc06gmo70pMQvv2ibEE/P0KkxUfwMjZODrg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=samsara.com; spf=pass smtp.mailfrom=samsara.com; dkim=pass (2048-bit key) header.d=samsara.com header.i=@samsara.com header.b=FkEOvwMR; arc=pass smtp.client-ip=209.85.161.46
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=samsara.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsara.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=samsara.com header.i=@samsara.com header.b="MyZjuT0T"
-Received: by mail-qk1-f180.google.com with SMTP id af79cd13be357-91587626a3eso543420185a.2
-        for <linux-i2c@vger.kernel.org>; Mon, 08 Jun 2026 10:44:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=samsara.com header.i=@samsara.com header.b="FkEOvwMR"
+Received: by mail-oo1-f46.google.com with SMTP id 006d021491bc7-69e8583107aso795625eaf.3
+        for <linux-i2c@vger.kernel.org>; Mon, 08 Jun 2026 10:46:24 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780940784; cv=none;
+        d=google.com; s=arc-20240605;
+        b=URxZ2gIxSyjB8sGiUq5fiHrSl9lG7EDO2g9WF/5yt6KHyTqVvh7Z0N4FQOepVpZQ8L
+         WehCZpK8euycbsKbMG9g8lpp9pRtdMwmbXyAHmLsPJR3SQ0LmtgxYyBw9tl6VwhMvmd5
+         E3FuOtIPvftiiAmB4vEfWLZVYPvV+AgV9kPa5qe1+rdKryhiv9NHwxNpJbOXRm0Dou9l
+         xUwav0FCd8p2T3hndmYwxxaJcieFA+zuEc0BNCniamyWFIRTSLJug++dWRw60enyyR8N
+         sonIAtdVW0dLusaepdjzK3GYcbh8MagO54sHBaRhj2x+8VkknduiheAhOETjZ4jqrvpw
+         E5Zw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=nurm0VcFWadxHMGIIRZaG/YNpWN0YfQDmN6L/EoaYoA=;
+        fh=F4vYIYMy7pSKN7xJoUwB2rdKIT5w/DucG8Ceqown+FE=;
+        b=g3H8tlFERmpBzcXtOR3QJsi9ZcESnW1r/7xuTeu3mcthtUx3JuVFK6EImyCF6JtHtU
+         9/Gfim2CIb6sot/0JnuuMnzGXrm31IvfsaoeskZyhvxha5cnLg5f6BFOsUhd8DH/zvdZ
+         CkH4cxcUDXXdP/Eypu56FZJ8x5VCY1wkfQoivzRPVmW1TYUBTzAXaJs0lT+X6Af6/pMU
+         0tcU/KPV2QihC0nTT3/tbLHL3/N8akPRmpDKf9Pt2fdPmRcTiLVPBaOPXWbBoSzmfMWp
+         NRW5vO9gmSVHj8SKPieiWCvG5OrzmeMAK4SO18u03gsWcqjPYmKPpMw+h99OVJpXVJNG
+         TJWA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=samsara.com; s=google; t=1780940686; x=1781545486; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=samsara.com; s=google; t=1780940784; x=1781545584; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=dm/d3Jnd6Hr4BxVQhy9XpRcA4KLKCPKP1lviiVOsRhs=;
-        b=MyZjuT0TY1cFU5s7dHpR5q5VE58px0i4Y2aD19RXj2/8v5Bw7CVObUq9xA/9g8dufV
-         fVjOq5rADPUEe8a5tv8Q2wCHXJR9EccTJTwaqb+TSPoD3nNTnrN6oi+3bNnS7fEMz8tS
-         fgSNKTk+iGvkaQhV7JYtoRFDrE+qAtQuOP5RIMDK5b37RY7CrLVxwVO6Z+m91Cd1lSzK
-         H3uwywPuAdXAdVRjLX3G/vUyG1blXN/VuiymLmOi7eaDY247oMT5h7HaM6LJvLeFvjgm
-         4ffJjcXINymY2WhWFaMLz/wasEeg/f1+kteiro/Ii0UScyQsyMXrwtP7BkwE/E8/c374
-         Lrcw==
+        bh=nurm0VcFWadxHMGIIRZaG/YNpWN0YfQDmN6L/EoaYoA=;
+        b=FkEOvwMRFABNHnDpVtFMZaM5Yv2YdToPkMsi7KcMWeTLfTPWHXdK3ORWqvZd7Fl4TQ
+         AfpdFFk4trnxAI4wqp86jNQrd5S65KIQqt310ObBt8X0uyRdh1BN5mqVSurz8CsaSlFi
+         4UVNizexuQV7d/TJIDke1xPz5z313D7cZhf1/ZTdGvs4/TjcfDhnzqUBxDxF5eA1W5Rz
+         8hZegs6r61/UHAI+70C0sPJRw4DNOMVjPNZKgOUhjrALZG0Bw/urvtBsEXTYVHFDOcAH
+         +WSklKaVKVB79vPSKlEUdLCqfQhUaW7YRzUOD1uZV7PXhPh2p6hoRbBQUrXykff3rG9k
+         8KHA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780940686; x=1781545486;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1780940784; x=1781545584;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=dm/d3Jnd6Hr4BxVQhy9XpRcA4KLKCPKP1lviiVOsRhs=;
-        b=Txtjj6Uil6heCtOTpWSz6oOp+YAZazSYyk7xX0Bd3lWDWFE8SW2IXXa2aTpALbQEge
-         eHIqvtnrPv1r7ot6wmLohc3j2s5GOS5v+/p95UgkTK8GwL2VJyJmEYlTioJt6nKCf6gX
-         5kUgzwGh7sGVJwkOBDZCx7OJiWZdhkt5Vzbze17RIeDaap1I3E55cBARsUbMa0cGYVy8
-         zcbLFwDGv7hv/UKC2pZ8NX5zbggMikbOkgZjeNsR6x67fsyZFTJVNpHEY7mLxJr6pz1I
-         rlLKiVYhdoBzYQ5cewP9iJhQSG9vwq24c4+s3coZEGgCTa1e1JfCFZ1HPEwZhRgiCXPP
-         GKnA==
-X-Gm-Message-State: AOJu0YzRIcqI+BD/Fk+TlQC5Hg2OrTnSjzwq8oErV5oPXZZT5eqtMnm5
-	s5w0mZCyLazdF8l4m3QAooaJaTBA0tHyoq8Pxn2/MuXG4xDSpRJThkR6brRIUZzzHxilL7bvtHL
-	pvs/Jqw==
-X-Gm-Gg: Acq92OH6CX50zRFwMJl+bAq/8DqkWrzuT/x4kESABapOjRxWOeQ9+JxlIu7AyA+eGAR
-	KAJ6VpMPe+Yeh80RxS8Tyor+KTDAvsi3JkiqFZA6e4paNIJi+6E40NxSr0wGjTp1fucKuGS91Eg
-	f7wzHzqNfSeZErtAaCiErN4Na337bmIbQPLTCG0OKIKFwy5pTBmBfzMxFgnm0zJEonTJqF/XvOG
-	yhghkpR7h7y2rzG0F38JrmmaUdYqV6ZN+9pAIlHYeOBdpp5lQONggji8RZ1bYX+11kZxQrowaMi
-	VZgxZ5B+N/rgJ/IRP3z/Z5b/1oeXI8HKr5Po0zwP4zzHtI4mnlKYE/iFHZ6vwai+oXEl0Mz10vM
-	N1BsrJctBvJa20eq8GL4JVnD2r3vqm2SbfuKtzmN9O0PcNh31RgF0q97LPJq05qI3cP/uvsSr1Z
-	Vtn/SsJLEATsAVmwWTDX3AFe9vJrA6BIdZ4Kf39pJ5q7s9E24QKCbB8l22ek50zIrEj1Mt5jU0j
-	VmMeZacNu5UwVE=
-X-Received: by 2002:a05:620a:468e:b0:915:db15:4e39 with SMTP id af79cd13be357-915db155b3emr473644985a.28.1780940685714;
-        Mon, 08 Jun 2026 10:44:45 -0700 (PDT)
-Received: from localhost.localdomain ([170.85.76.200])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a37bae6sm1815778185a.31.2026.06.08.10.44.44
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Mon, 08 Jun 2026 10:44:45 -0700 (PDT)
-From: Gavin Li <gavin.li@samsara.com>
-To: linux-i2c@vger.kernel.org,
-	viresh.kumar@linaro.org
-Cc: "Chen, Jian Jun" <jian.jun.chen@intel.com>,
-	andi.shyti@kernel.org,
-	virtualization@lists.linux.dev,
-	Gavin Li <gavin.li@samsara.com>
-Subject: [PATCH v2] i2c: virtio: retain xfer with kref to fix UAF on interrupted wait
-Date: Mon,  8 Jun 2026 13:44:35 -0400
-Message-ID: <20260608174435.62359-1-gavin.li@samsara.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260607143608.76122-1-gavin.li@samsara.com>
-References: <20260607143608.76122-1-gavin.li@samsara.com>
+        bh=nurm0VcFWadxHMGIIRZaG/YNpWN0YfQDmN6L/EoaYoA=;
+        b=lRMvKslUFV1KS/OUoX7BJp4F6kS1QvBLUloL9MfQk2EkPMNILL86cBYFw8tNYE1MG9
+         4oTz1iGXM3ln5IwPOUCZrm7Ay1LpkwxYNAatjvI6LvG0fqys8onH9Xd/qwQmhjX1YmsD
+         uLcaPtKfVfuHL5qnT8wGJnYas8Hu7VuqvbTpEuIOcPHH746qzwJHI9yNWhN4liAiCDqd
+         imH/cYDFOXuaaUTiM1jXQ6ap+POPNVoZR84VVHy9NLWOd3nE2ayYwEUw3dC02eKeWyww
+         xlHiO43W8UNPzKC7HVESYzej1J4HvgMHPpaaiGG6S5HRTWFgeGF3nIy10zoFXHdjIEuy
+         /OZA==
+X-Gm-Message-State: AOJu0YzQQlruIv8TpImmwi9F5lpSGaelpPlMrX68bDoo7+QItmHFTrX8
+	/LTAVKaDhEm33ZKy21+ylVsmih3d4fxebAr9RU/7Oh0K2edTNgcMHIJaHSq4n6yGbsuDcQz/bkz
+	lSNIJgCDNa7+WibDEO+ZIuerQYS1MMu3NnZbrsWH9
+X-Gm-Gg: Acq92OEhSfIxt/fN6zZc1mauI5anH60Mz0FcjU5wZMpSZyIao3bvcg7yYgtvtyxUhZq
+	KM841V1YI69EWhtRg1hH4ihLkk1ZERkarowxqXpt4dp261fL3lP8XsPgw5LmMrSXMDsui73dx4J
+	6yyDDY9RvV7sVusw8FKoLORMH5XIg7KCwxEHTq/pvUfBqNxPooRcPXefbbWdBFz5ACmdYxzOOiu
+	OzM9q4zj3mifFzyM158Pm3KazGCmCpsQMBuVi4RyqxbfT0Wha6wTmsDgtGc+P4PVGAPyWUS0ylv
+	XU1YP9TRExFlo80+p5SXw6oywabWz0EflOHHzHosfn7f3Io8
+X-Received: by 2002:a4a:edc8:0:b0:69e:2f7c:693a with SMTP id
+ 006d021491bc7-69e68b5096amr8980344eaf.20.1780940783613; Mon, 08 Jun 2026
+ 10:46:23 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260607143608.76122-1-gavin.li@samsara.com> <ars6vptfsifv3zvdbx2p7ihcw4rbwbgkvft3xpqyjbvkdckfzy@zxx2exbtuib4>
+In-Reply-To: <ars6vptfsifv3zvdbx2p7ihcw4rbwbgkvft3xpqyjbvkdckfzy@zxx2exbtuib4>
+From: Gavin Li <gavin.li@samsara.com>
+Date: Mon, 8 Jun 2026 13:46:12 -0400
+X-Gm-Features: AVVi8CcLftJeS8P3lA2_hIyMST_fRgbgPwFISVUdQEQq81kVuHGgYJacZdtgjks
+Message-ID: <CAKvMnUUuqPPrPzkktdDmmwqjgiw2RquYEktoxGahNSGRJAzWpw@mail.gmail.com>
+Subject: Re: [PATCH v1] i2c: virtio: wait uninterruptibly for completions to
+ avoid UAF
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: linux-i2c@vger.kernel.org, "Chen, Jian Jun" <jian.jun.chen@intel.com>, 
+	andi.shyti@kernel.org, virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-commit a663b3c47ab1 ("i2c: virtio: Avoid hang by using interruptible
-completion wait") switched virtio_i2c_complete_reqs() to
-wait_for_completion_interruptible() so a stuck device cannot hang a
-task forever. That left a use-after-free: if the wait returns early on
-a signal, virtio_i2c_xfer() frees reqs and DMA bounce buffers while the
-device may still hold virtqueue tokens pointing at &reqs[i] and DMA
-into read buffers. When those requests complete later,
-virtio_i2c_msg_done() calls complete() on freed memory.
+Noted. I have sent a v2 patch that allows a hung process to be killed.
 
-Waiting uninterruptibly for every completion before freeing avoids the
-UAF but can hang the caller indefinitely if the virtio side never
-completes the request. The virtio spec provides no way to cancel an
-in-flight transfer, so that is not an acceptable tradeoff.
-
-This commit makes two changes:
-
-- Manage the freeing of the xfer allocations via kref, and ensure that
-  each in-flight request holds a reference. This fixes the
-  use-after-free by ensuring that the virtio device has a valid location
-  to write to until the request completes. This will cause a memory
-  leak in cases where the device hangs, but that is much preferable to
-  memory corruption.
-
-- Use wait_for_completion_killable() instead of _interruptible(). Even
-  partial I2C transactions can have side effects, so the only time it
-  makes sense to interrupt a transaction is when a process needs to be
-  killed. Most existing I2C drivers don't support interruption at all,
-  so this should not break userspace applications. This also addresses
-  issues with Go programs accessing devices via the I2C userspace API,
-  since the Go runtime stochastically signals SIGURG to running threads;
-  leaving this as _interruptible() may cause partial side effects from
-  which it is impossible to cleanly restart.
-
-Signed-off-by: Gavin Li <gavin.li@samsara.com>
----
- drivers/i2c/busses/i2c-virtio.c | 89 ++++++++++++++++++++++++---------
- 1 file changed, 64 insertions(+), 25 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-index 726c162cabd86..f7320a67a3409 100644
---- a/drivers/i2c/busses/i2c-virtio.c
-+++ b/drivers/i2c/busses/i2c-virtio.c
-@@ -13,6 +13,7 @@
- #include <linux/err.h>
- #include <linux/i2c.h>
- #include <linux/kernel.h>
-+#include <linux/kref.h>
- #include <linux/module.h>
- #include <linux/virtio.h>
- #include <linux/virtio_ids.h>
-@@ -31,39 +32,77 @@ struct virtio_i2c {
- 	struct virtqueue *vq;
- };
- 
-+struct virtio_i2c_xfer;
-+
- /**
-  * struct virtio_i2c_req - the virtio I2C request structure
-+ * @xfer: owning transfer
-+ * @msg: copy of the I2C message for virtio_i2c_xfer_release
-  * @completion: completion of virtio I2C message
-  * @out_hdr: the OUT header of the virtio I2C message
-  * @buf: the buffer into which data is read, or from which it's written
-  * @in_hdr: the IN header of the virtio I2C message
-  */
- struct virtio_i2c_req {
-+	struct virtio_i2c_xfer *xfer;
-+	struct i2c_msg msg;
- 	struct completion completion;
- 	struct virtio_i2c_out_hdr out_hdr	____cacheline_aligned;
- 	uint8_t *buf				____cacheline_aligned;
- 	struct virtio_i2c_in_hdr in_hdr		____cacheline_aligned;
- };
- 
-+/**
-+ * struct virtio_i2c_xfer - a queued I2C transfer
-+ * @ref: one ref for the caller, plus one per in-flight virtqueue request
-+ * @num: number of messages
-+ * @reqs: the virtio I2C requests
-+ */
-+struct virtio_i2c_xfer {
-+	struct kref ref;
-+	int num;
-+	struct virtio_i2c_req reqs[];
-+};
-+
-+static void virtio_i2c_xfer_release(struct kref *ref)
-+{
-+	struct virtio_i2c_xfer *xfer = container_of(ref, struct virtio_i2c_xfer, ref);
-+	int i;
-+
-+	for (i = 0; i < xfer->num; i++) {
-+		struct virtio_i2c_req *req = &xfer->reqs[i];
-+		i2c_put_dma_safe_msg_buf(req->buf, &req->msg, false);
-+	}
-+
-+	kfree(xfer);
-+}
-+
- static void virtio_i2c_msg_done(struct virtqueue *vq)
- {
- 	struct virtio_i2c_req *req;
- 	unsigned int len;
- 
--	while ((req = virtqueue_get_buf(vq, &len)))
-+	while ((req = virtqueue_get_buf(vq, &len))) {
- 		complete(&req->completion);
-+		kref_put(&req->xfer->ref, virtio_i2c_xfer_release);
-+	}
- }
- 
- static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
--				   struct virtio_i2c_req *reqs,
-+				   struct virtio_i2c_xfer *xfer,
- 				   struct i2c_msg *msgs, int num)
- {
- 	struct scatterlist *sgs[3], out_hdr, msg_buf, in_hdr;
-+	struct virtio_i2c_req *reqs = xfer->reqs;
- 	int i;
- 
-+	kref_init(&xfer->ref);
-+
- 	for (i = 0; i < num; i++) {
- 		int outcnt = 0, incnt = 0;
- 
-+		reqs[i].xfer = xfer;
-+		reqs[i].msg = msgs[i];
- 		init_completion(&reqs[i].completion);
- 
- 		/*
-@@ -99,36 +138,36 @@ static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
- 
- 		if (virtqueue_add_sgs(vq, sgs, outcnt, incnt, &reqs[i], GFP_KERNEL)) {
- 			i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], false);
-+			reqs[i].buf = NULL; /* prevent free by virtio_i2c_xfer_release */
- 			break;
- 		}
-+
-+		kref_get(&xfer->ref); /* released in virtio_i2c_msg_done() */
- 	}
- 
-+	xfer->num = i;
- 	return i;
- }
- 
--static int virtio_i2c_complete_reqs(struct virtqueue *vq,
--				    struct virtio_i2c_req *reqs,
--				    struct i2c_msg *msgs, int num)
-+static int virtio_i2c_complete_reqs(struct virtio_i2c_xfer *xfer)
- {
--	bool failed = false;
--	int i, j = 0;
-+	struct virtio_i2c_req *reqs = xfer->reqs;
-+	int i, fail_index = -1;
- 
--	for (i = 0; i < num; i++) {
-+	for (i = 0; i < xfer->num; i++) {
- 		struct virtio_i2c_req *req = &reqs[i];
--
--		if (!failed) {
--			if (wait_for_completion_interruptible(&req->completion))
--				failed = true;
--			else if (req->in_hdr.status != VIRTIO_I2C_MSG_OK)
--				failed = true;
--			else
--				j++;
-+		if (wait_for_completion_killable(&req->completion)) {
-+			return -EINTR;
-+		} else if (req->in_hdr.status != VIRTIO_I2C_MSG_OK) {
-+			/* Don't break yet. Try to wait until all requests complete. */
-+			if (fail_index < 0)
-+				fail_index = i;
- 		}
--
--		i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], !failed);
-+		i2c_put_dma_safe_msg_buf(req->buf, &req->msg, fail_index < 0);
-+		req->buf = NULL; /* prevent free by virtio_i2c_xfer_release */
- 	}
- 
--	return j;
-+	return fail_index >= 0 ? fail_index : xfer->num; /* number of successful transactions */
- }
- 
- static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
-@@ -136,14 +175,14 @@ static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- {
- 	struct virtio_i2c *vi = i2c_get_adapdata(adap);
- 	struct virtqueue *vq = vi->vq;
--	struct virtio_i2c_req *reqs;
-+	struct virtio_i2c_xfer *xfer;
- 	int count;
- 
--	reqs = kcalloc(num, sizeof(*reqs), GFP_KERNEL);
--	if (!reqs)
-+	xfer = kzalloc(struct_size(xfer, reqs, num), GFP_KERNEL);
-+	if (!xfer)
- 		return -ENOMEM;
- 
--	count = virtio_i2c_prepare_reqs(vq, reqs, msgs, num);
-+	count = virtio_i2c_prepare_reqs(vq, xfer, msgs, num);
- 	if (!count)
- 		goto err_free;
- 
-@@ -157,10 +196,10 @@ static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
- 	 */
- 	virtqueue_kick(vq);
- 
--	count = virtio_i2c_complete_reqs(vq, reqs, msgs, count);
-+	count = virtio_i2c_complete_reqs(xfer);
- 
- err_free:
--	kfree(reqs);
-+	kref_put(&xfer->ref, virtio_i2c_xfer_release);
- 	return count;
- }
- 
--- 
-2.54.0
-
+On Sun, Jun 7, 2026 at 11:44=E2=80=AFPM Viresh Kumar <viresh.kumar@linaro.o=
+rg> wrote:
+>
+> On 07-06-26, 10:36, Gavin Li wrote:
+> > virtio_i2c_complete_reqs() uses wait_for_completion_interruptible() and=
+ stops
+> > waiting when a signal arrives. virtio_i2c_xfer() then frees reqs and th=
+e
+> > per-request DMA bounce buffers while the device may still hold virtqueu=
+e tokens
+> > pointing at &reqs[i] and DMA into read bounce buffers. Additionally, wh=
+en the
+> > device later completes those requests, virtio_i2c_msg_done() calls comp=
+lete()
+> > on freed memory and can corrupt the slab freelist.
+> >
+> > Wait uninterruptibly for every completion before freeing reqs. This
+> > matches how other virtio drivers retain request storage until the devic=
+e
+> > completes it. The virtio spec unfortunately does not provide a way to
+> > cancel an in-flight request, so waiting uninterruptibly is required.
+> >
+> > Signed-off-by: Gavin Li <gavin.li@samsara.com>
+> > ---
+> >  drivers/i2c/busses/i2c-virtio.c | 15 +++++++--------
+> >  1 file changed, 7 insertions(+), 8 deletions(-)
+>
+> This is a revert of (and maybe better if that is mentioned in the logs):
+>
+> commit a663b3c47ab1 ("i2c: virtio: Avoid hang by using interruptible comp=
+letion wait")
+>
+> I don't think this is the right approach here. We shouldn't hang the kern=
+el
+> indefinitely if the other side is dead.
+>
+> --
+> viresh
