@@ -1,137 +1,98 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 931CA3909A6
-	for <linux-i2c@vger.kernel.org>; Mon,  8 Jun 2026 20:32:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E40F224D6;
+	Mon,  8 Jun 2026 20:46:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780950767; cv=none; b=YLaKkJHGiWXMJH4TmWwbg+GmWgZvhNzXXdE69ealP+ZGVUdChOuSCA91i4ZEaSsBWz7nZjnGll3bpNgP1aOagokLnj4T07GEgEZ/X0KNp7ozuFufCXmfFP1NRYXSuchTBetstWL7N+dQd5PdROxqFaeMa6tJhsSadRoJibVQ70s=
+	t=1780951581; cv=none; b=BS+g97PyjufEq4QVLpeQXGTFupDRn2r2iMmcvs5WPu13dPJGUjNFB9Nf80fIJWQMHMkGrUQGBSYDk3s8JsCCrhmao9uSV8oMA+pHILc5rA7dmGHHTo/LAu75+IusnjsrwZQ2HUSviYxvCDOacp9Ats1Yz4fg9hi+e0UjcCqFCSg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780950767; c=relaxed/simple;
-	bh=wfg9u+8h7e6FXsAfeb1pW9vgRGYZ4l82lgad5GOd9BY=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=WBeUu8VnWe6cYLp31XaXO6Q3A8svk18qEhS7cPurHi39fcGs8++wNEnArG8a+5Xn2D1OyNRrjol7g3/LdTmv4lfyT+10os6cwcAonN9B1rTKgmbA7//l08G4sYKnLrf6eiQzdheZkOLot3ACBZTHO/AQLmlYk1zKFObPI+CHG3Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=gS3+a6c2; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	s=arc-20240116; t=1780951581; c=relaxed/simple;
+	bh=0QPCDQzTCPZNBhl21/y+K5HBQJmbRX+dtKa9HQj9X9c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Pxw+0nVo9pEZ2jj+zmdOtk90pyc5SUWkifo9KaD3u8BvYpNkeEEmeWGLqt+EOWZKrFuyK7xFxGExUiPmJ2K+Ob+PAcVpxK4RT65fvThtajKOMsAGmd8VYvKTpoA5CA3F9vtNoftujRc8U+wExcFg0DTuuXSlq7t5ksZNZ6UwPfE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TxjZYV02; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="gS3+a6c2"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:mime-version:content-type; s=k1; bh=YULm4t7X286aWQwdFQF8he8Rwip
-	nkAAK5Vobmhgvc28=; b=gS3+a6c2mEFrbf6DOjZFanR1LS7Z+GS6v8wEDvn6/xm
-	emRwoDIfORwIy09k9kFlxspG0XOjCMj+cI4E+0b/MTrNP444veDaA61CNmSoZ2oL
-	4IsyBseoL/Jxa6uzU4jW4fiRGpxoq2n5Q8AySGi1FioJR0GyEUTQioO6gnUTm7ar
-	baDuoK+ddz2VtVcNRoicAUG3pVv5bLBDXrKKArgaoxs1okam6z1ob5EBNLZxIFA/
-	Toqc6yYxmnJbekTSJgSJoU83Nq7ngNsarWtmIKuvzeFNfqjQ2sle/dj0HKlPNre2
-	swQUasmFJGY5OwANg+4joWsFTV4VkSCRmXfk/CMjBuA==
-Received: (qmail 985293 invoked from network); 8 Jun 2026 22:32:43 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 8 Jun 2026 22:32:43 +0200
-X-UD-Smtp-Session: l3s3148p1@FgaW6cNTvsMujntX
-Date: Mon, 8 Jun 2026 22:32:42 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org
-Subject: [PULL REQUEST?] i2c/for-andi for v7.2
-Message-ID: <aicm6trmpoPZpT8v@shikoro>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TxjZYV02"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 947151F00893;
+	Mon,  8 Jun 2026 20:46:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780951580;
+	bh=p2BLSVr+4kvNFJjBTGY4+qp78B1yuQ5e8zYjH+i9H6A=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=TxjZYV02X/cedFJMm0LwdABiIWZfT70z2K8k8ZfEWYH9M+w8XlnGbSJoVN1XNH1wu
+	 CYE8p2Zv7777w3ZYhrrD4ux3Y38j7tDNX4WPXGMYbnrplTURSM+EqivbOZRXtTK0X2
+	 efwcYS2XFiHIHCaCJ4+8GUEbGtp2CaGyiW0xeNfkz/ppkzBlpCQnaDgdrai4q6VM4k
+	 9A7FrAGVM72Jj1aoUYwlSRXy/vnyRvlKbQx6flxPuuA+jLWNEDcgAxpJW0Z1xe9owU
+	 MLPccBWhxkBaFmW9rHQaigvlgrUFHTtTV7K5XbNp5XmlDhzUxWAmEeNohzjQmRNSsj
+	 VmqD7PYlMgPbQ==
+Date: Mon, 8 Jun 2026 22:46:16 +0200
+From: Krzysztof Kozlowski <krzk@kernel.org>
+To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+Cc: Bryan O'Donoghue <bod@kernel.org>, 
+	Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>, Loic Poulain <loic.poulain@oss.qualcomm.com>, 
+	Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Robert Foss <rfoss@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+	Bryan O'Donoghue <bryan.odonoghue@linaro.org>, Bjorn Andersson <andersson@kernel.org>, 
+	Konrad Dybcio <konradybcio@kernel.org>, Frank Li <Frank.Li@nxp.com>, 
+	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
+	Fabio Estevam <festevam@gmail.com>, linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
+	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+	Suresh Vankadara <quic_svankada@quicinc.com>, Vikram Sharma <vikram.sharma@oss.qualcomm.com>
+Subject: Re: [PATCH v2 1/7] dt-bindings: media: qcom: Add Shikra CAMSS
+ compatible
+Message-ID: <20260608-reliable-vivid-stork-f4ea6c@quoll>
+References: <20260608-shikra-camss-review-v2-0-ca1936bf1219@oss.qualcomm.com>
+ <20260608-shikra-camss-review-v2-1-ca1936bf1219@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="CSCwF4i7IoqxiBdh"
-Content-Disposition: inline
-
-
---CSCwF4i7IoqxiBdh
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20260608-shikra-camss-review-v2-1-ca1936bf1219@oss.qualcomm.com>
 
-Hi Andi,
+On Mon, Jun 08, 2026 at 07:36:38PM +0530, Nihal Kumar Gupta wrote:
+> Shikra contains the same Camera Subsystem IP as QCM2290. Document the
+> platform-specific compatible string, using qcom,qcm2290-camss as
+> fallback.
+> 
+> Unlike QCM2290, Shikra omits the CDM and OPE blocks, requiring only a
+> single IOMMU context bank instead of four.
+> 
+> Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+> ---
+>  .../devicetree/bindings/media/qcom,qcm2290-camss.yaml    | 16 +++++++++++++---
+>  1 file changed, 13 insertions(+), 3 deletions(-)
+> 
+> diff --git a/Documentation/devicetree/bindings/media/qcom,qcm2290-camss.yaml b/Documentation/devicetree/bindings/media/qcom,qcm2290-camss.yaml
+> index 391d0f6f67ef5fdfea31dd3683477561516b1556..4f39eefb4898ebc22117407f26cfb4f41deb111b 100644
+> --- a/Documentation/devicetree/bindings/media/qcom,qcm2290-camss.yaml
+> +++ b/Documentation/devicetree/bindings/media/qcom,qcm2290-camss.yaml
+> @@ -14,8 +14,11 @@ description:
+>  
+>  properties:
+>    compatible:
+> -    const: qcom,qcm2290-camss
+> -
 
-I don't know if you want to pull this branch or pick the patches
-individually. Anyhow, I want to let you know that here are some patches
-I already reviewed. I think they are good to go for v7.2.
+Do not remove blank lines.
 
-Happy hacking,
+> +    oneOf:
+> +      - items:
+> +          - const: qcom,shikra-camss
+> +          - const: qcom,qcm2290-camss
+> +      - const: qcom,qcm2290-camss
+>    reg:
 
-   Wolfram
+With this fixed:
 
-The following changes since commit 5200f5f493f79f14bbdc349e402a40dfb32f23c8:
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
 
-  Linux 7.1-rc4 (2026-05-17 13:59:58 -0700)
+Best regards,
+Krzysztof
 
-are available in the Git repository at:
-
-  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git i2c/for-andi
-
-for you to fetch changes up to 583c45839cb343db171f5c5e40850d6eb906e949:
-
-  dt-bindings: i2c: qcom-cci: Document Glymur compatible (2026-05-30 16:07:=
-49 +0200)
-
-----------------------------------------------------------------
-Abdurrahman Hussain (1):
-      i2c: mux: reg: use device property accessors
-
-Andy Shevchenko (1):
-      i2c: acpi: Return -ENOENT when no resources found in i2c_acpi_client_=
-count()
-
-Herve Codina (1):
-      i2c: at91: Add MCHP_LAN966X_PCI dependency
-
-Nihal Kumar Gupta (2):
-      dt-bindings: i2c: qcom-cci: Document Shikra compatible
-      dt-bindings: i2c: qcom-cci: Document Glymur compatible
-
-Uwe Kleine-K=C3=B6nig (The Capable Hub) (1):
-      i2c: Use named initializers for arrays of i2c_device_data
-
-
-with much appreciated quality assurance from
-----------------------------------------------------------------
-Bryan O'Donoghue (1):
-      (Rev.) dt-bindings: i2c: qcom-cci: Document Shikra compatible
-
- Documentation/devicetree/bindings/i2c/qcom,i2c-cci.yaml |  4 ++++
- drivers/i2c/busses/Kconfig                              |  2 +-
- drivers/i2c/i2c-core-acpi.c                             |  7 +++++--
- drivers/i2c/i2c-core-base.c                             |  4 ++--
- drivers/i2c/i2c-slave-eeprom.c                          | 16 ++++++++-----=
----
- drivers/i2c/i2c-slave-testunit.c                        |  2 +-
- drivers/i2c/i2c-smbus.c                                 |  2 +-
- drivers/i2c/muxes/i2c-mux-ltc4306.c                     |  4 ++--
- drivers/i2c/muxes/i2c-mux-pca9541.c                     |  4 ++--
- drivers/i2c/muxes/i2c-mux-pca954x.c                     | 36 +++++++++++++=
-+++++------------------
- drivers/i2c/muxes/i2c-mux-reg.c                         | 90 +++++++++++++=
-+++++++++++++++++++++++++--------------------------------------------------=
---
- 11 files changed, 82 insertions(+), 89 deletions(-)
-
---CSCwF4i7IoqxiBdh
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmonJuoACgkQFA3kzBSg
-KbaNvhAAtPIbbig36U4sOO5w0tse5NMnUGiNKYSR2wN6Q5eHx7QLGUmVViJpE2SI
-nrpyJ5rbHXPqinFTWl8pHUVORmGAxRdTJunYMyTXgZZ7AfuqQPHLhCRWBcTh+GL8
-81dh7KEN7OY0sxE8OBXFs1Ozi5AoRqIs7zPgxwDi2KIYaohou+YeWQoalBr6mdkV
-1Ya3fz/1TCZEMx32HG2XZpRP6/ABujwpbhiztO3ch5qhesne5+1Usr0lM2ZL+1jJ
-WGQZ1AnAX3A/Jt5hYxWvrrGHciDcn2mGniZS2h+eqfDT4MldcYSmKW9wKUY8m4aJ
-XjmEaxGgLqXKzetG8rBnk6sJkCIKhSEM5ahUCZFh5+1lhpwxngqBxYKWEWetNq+4
-bMuqyXqprNB/zxlKXOXSGvCt0WzllbsZrDdwjmIjnppemZ/urupvlO8CxpXsX+Ta
-jlpqL7/zSb5sFR2zqOIUKwFrmoDV2/36kycSJk87IIPd1IDGGuUmvpes26+sb9ut
-PR7r/4Udrfmh8vCJxVO4biHQdyZ8cr5ZXCinrL7Jp3Kci7EYaQbEEc1sUafJeFon
-x4YOGsVCMy4X3qQUHkCa0oRbgQRV8DOKinPuiPXEfDJZQykIxHsx79HQhbD6cyP/
-C8yhYPPoglAABGOWf/VF0ZygpGonllRKfKOjF3j+Di0OZ0jffBg=
-=Pf0g
------END PGP SIGNATURE-----
-
---CSCwF4i7IoqxiBdh--
