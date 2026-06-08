@@ -1,73 +1,123 @@
-Received: from 2.mo576.mail-out.ovh.net (2.mo576.mail-out.ovh.net [178.33.251.80])
+Received: from smtpout-02.galae.net (smtpout-02.galae.net [185.246.84.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61876280A56
-	for <linux-i2c@vger.kernel.org>; Mon,  8 Jun 2026 12:54:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.33.251.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3284C37B007
+	for <linux-i2c@vger.kernel.org>; Mon,  8 Jun 2026 13:26:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.84.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780923272; cv=none; b=nDm2CvbTeqnHO9GYUnthQHVDKO98hQ13m0j6lHS11k+rUuSPpbcX8MX+RgURRXNHS2PMkvk4FOgs3PUy8JWzBhd9/6PH7q+zxC8zVy2wTo4OMtqKAa4sE8hEi5p9B/CXK0lKBqhzK7Z90vBsx6J17lhcoBBHpR0uTSHQENI4eU0=
+	t=1780925180; cv=none; b=PUZMzkXK/6ms6YTi+8JpkPnYkdq6Ye5W+ymUZHaxpc4oQAr2xWsJG19ioa2LZxvCKr/lTXi682pwc/qSB3R6mV9AFiw9h+UpB22lKzqDl5f/SxRbWlzImx7nKitHpsjACVkQ7m8tM7klWTbtb315XWD7Vt8i55IOgMKYSYWuNvY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780923272; c=relaxed/simple;
-	bh=6wrhloUcw66LZeJCqJpRpYIYwEAHdgmCuOR42hM9cFs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=H1tAz61YtudeN4tjI5Z2ubzgVYBQvgpWK9mdwgo5TUbCyUV8y9Zb31S51u9NnaesbOOHEQaTBPMeOLQgYT/J7H1MkJFeetojvp4D0BgQHC52L/bEJY3qEC6qYsDrCaZVOac9Z6nLn/XBy3WAVKriIzE49UiYX1z1V7B6YZup3Ic=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=178.33.251.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director4.ghost.mail-out.ovh.net (unknown [10.110.0.145])
-	by mo576.mail-out.ovh.net (Postfix) with ESMTP id 4gYsLJ4Zp4z62dM
-	for <linux-i2c@vger.kernel.org>; Mon,  8 Jun 2026 12:49:12 +0000 (UTC)
-Received: from ghost-submission-7d8d68f679-74q4d (unknown [10.110.168.159])
-	by director4.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 1CE74C21CD;
-	Mon,  8 Jun 2026 12:49:12 +0000 (UTC)
-Received: from etezian.org ([37.59.142.96])
-	by ghost-submission-7d8d68f679-74q4d with ESMTPSA
-	id DpxFNUe6JmqeFgAAshgZVQ
-	(envelope-from <andi@etezian.org>); Mon, 08 Jun 2026 12:49:12 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-96R0015a66f833-7e00-436a-9ef0-af28d25546a7,
-                    738EBADB1DE2E82600AFA6E31038C942E6F5F19F) smtp.auth=andi@etezian.org
-X-OVh-ClientIp:178.82.31.9
-From: Andi Shyti <andi.shyti@kernel.org>
-To: linux-i2c <linux-i2c@vger.kernel.org>,
-	lkml <linux-kernel@vger.kernel.org>
-Cc: Mika Westerberg <mika.westerberg@linux.intel.com>,
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	Andi Shyti <andi.shyti@kernel.org>
-Subject: [PATCH] MAINTAINERS: i2c: designware: Remove inactive reviewer
-Date: Mon,  8 Jun 2026 14:49:03 +0200
-Message-ID: <20260608124903.1188986-1-andi.shyti@kernel.org>
-X-Mailer: git-send-email 2.53.0
+	s=arc-20240116; t=1780925180; c=relaxed/simple;
+	bh=CyLRRk1uMJIrr/N1v/tfb8NZKpwKikxvmNKhd7bjz9g=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=cafAlAXjRH1ODEoK9qptqTt+KVndulb6CqdtqoM6RrGroZog6ejTSSS92NcjVq4EDin4+sdurZCvtCNpdJYlaVTytCmEqUTyARBxDyqVWH7cEKR/UMkYznJ5byGYTb502H79XOs4V1AQ/PUWMDg7Ye0wJ/TrPygqJnVam7fyjOA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=nOf9qdWN; arc=none smtp.client-ip=185.246.84.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="nOf9qdWN"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-02.galae.net (Postfix) with ESMTPS id C0F851A36E3
+	for <linux-i2c@vger.kernel.org>; Mon,  8 Jun 2026 13:26:16 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 951015FFB7;
+	Mon,  8 Jun 2026 13:26:16 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 688AA106A28E3;
+	Mon,  8 Jun 2026 15:26:14 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1780925176; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:in-reply-to:references;
+	bh=rXp8JdOrJGVi96179yVQ/7L06x+mE2O3OB7utEHnm1Y=;
+	b=nOf9qdWNN+AKAPVyCOgTJ1awZPQ2uwXrM1HXrXGOaSNi/JGIgPkeKaRVZBv0b8p/XumSG4
+	5R0M/xqgNM6rJu+Cg8nPD4E4q1OlriMyXjbg22PuRLr0g2CUamFxO9jaESCzN3MCVnKiZo
+	g+p3WXPeil1zQBz+zfVTw2CCjOrXVXc6XqFklx6tESWp5vBrsyJG81QcOROzmm4S5NN0rR
+	kC2P0hjdVJBm7PUKbuqLk8fVsxyayJKLEuiph0AIY2MK0I0aLW3upL62c6Ja1JkcGYANIB
+	TUraiHK0MS0Txe+RznUAzdqhlIuk5xdgIT21IXhvQDBlABc0ncPY18AkGWfcBA==
+From: =?UTF-8?B?QmVub8OudA==?= Monin <benoit.monin@bootlin.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
+ Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Subject:
+ Re: [PATCH i2c-tools v3 2/2] i2ctransfer: Add optional message modifier flags
+Date: Mon, 08 Jun 2026 15:26:13 +0200
+Message-ID: <m8YevGrnTd62S0MZYhSJYw@bootlin.com>
+In-Reply-To: <aiaJmtl-n-mNtsDt@shikoro>
+References:
+ <20260127-msg-flags-v3-0-e7539945db2b@bootlin.com>
+ <oyWrZgMUT2iRI0tfI5ARxw@bootlin.com> <aiaJmtl-n-mNtsDt@shikoro>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-x-ovh-tracer-id: 13422978692513371165
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: dmFkZTFNH8Z55uxoAhkTjpeJxR7Nd700/wphrk0PB637Kgx8GWjPZZWvvtV1MT18yQu5L+p4uVFbc/mDCSMlgz3PFbcbXhPDEsxIqaapBKtjM4+xVCrnGjFf2Q/kkrgMigCekx9sBtoVF26+cGbQWtFHbxCRG3PLKmvl5e8OqVykEX5bnJ4dCFYFr5K1OuvdN2WQrddRZKeQzq/tFiflg0A37MqoO4mXEl1gN1s2snk2OZrKYX1aD3MR/aj1GHdBRTjrBZAaZ7FZrk/w7xj6OvKH1o0FMv0dzXnur0JC0HlEcBBst6Vq/GjNUsG8pAwn+vrYVjY+4R90ytehEr5O2RmnkD+RZRs9FwYYOwq2H74g7uv1Vfyi3lE9iO+1bvvzUHkDB8g9gI8EaAugwZRG0BO7PY42Bog8Y6uwvvEVbyPJOCVcbTf2JyBFbKGFeRRM6QmRc/6eaCWtjCpQMtX+8EJzPvEwaTcM0L4heJ+UsyWC881Ad52h+zQz9XKofdkm4dItbU3hDIynsPJilRI7ks2Ecixgwv8a8xp1dkQoKuNimCklWmTSFpFsdHmEwIpOgAYQBPkS00P+6UdaSI6J1PBInnf+XS/s66yD6p4SHXizvIllfp4nA5W9+rFVkbd+awtgUHpMVCqMyGFPyuwYpLzBL3wFbFJfGPWdopTu2OS8/cLEIA
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+X-Last-TLS-Session-Version: TLSv1.3
 
-Emails to Jan Dabros bounce with a permanent failure due to an
-inactive account. Remove him from the list of reviewers.
+Hi Wolfram,
 
-Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
----
- MAINTAINERS | 1 -
- 1 file changed, 1 deletion(-)
+On Monday, 8 June 2026 at 11:21:30 CEST, Wolfram Sang wrote:
+> > @@ -202,6 +202,20 @@ static int add_flag_if_supported(__u16 *flags, uns=
+igned long funcs, char arg)
+> >                         break;
+> >  #endif
+> > =20
+> > +               case '0':
+> > +               case '1':
+> > +               case '2':
+> > +               case '3':
+> > +               case '4':
+> > +               case '5':
+> > +               case '6':
+> > +               case '7':
+> > +               case '8':
+> > +               case '9':
+> > +               case '?':
+> > +               case '@':
+> > +                       return 0;
+> > +
+> >                 default:
+> >=20
+> >=20
+> > With this we get out of the flags parsing and the "Missing direction fl=
+ag"
+> > error message is shown. What's your opinion on this?
+>=20
+> Basically fine with me, but we need another adaption then because this
+> documentation is not precise anymore:
+>=20
+> + * 0 if the argument is a valid and supported optional flag
+>=20
+> Doesn't fit anymore because for the above cases, the argument is not
+> valid.
+>=20
+> I think we should return a dedicated value for this 'unexpected' case.
+>=20
+> Which brings something again to the table I was close to suggesting last
+> time already but back then refrained from doing so. Now, it might be
+> good after all:
+>=20
+> It is about not using magic numbers for the return values of that
+> function but an enum with descriptive entries. Example:
+>=20
+> enum supported_flags_retval {
+> 	FLAGS_GOT_RW,
+> 	FLAGS_GOT_OPTIONAL,
+> 	FLAGS_UNEXPECTED,
+> 	FLAGS_UNKNOWN,
+> };
+>=20
+> I think this will make life for future hackers quite easier. What do you
+> think?
+>=20
+Good idea! I'll update to patch and resend.
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index e035a3be797c..04542eebfbea 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -25925,7 +25925,6 @@ F:	drivers/media/platform/synopsys/hdmirx/*
- SYNOPSYS DESIGNWARE I2C DRIVER
- M:	Mika Westerberg <mika.westerberg@linux.intel.com>
- R:	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
--R:	Jan Dabros <jsd@semihalf.com>
- L:	linux-i2c@vger.kernel.org
- S:	Supported
- F:	drivers/i2c/busses/i2c-designware-*
--- 
-2.53.0
+Best regards,
+=2D-=20
+Beno=C3=AEt Monin, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
+
+
 
