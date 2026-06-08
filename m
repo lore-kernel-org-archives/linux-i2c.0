@@ -1,22 +1,23 @@
 Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5B4352ED846;
-	Mon,  8 Jun 2026 02:46:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5CCE130FF21;
+	Mon,  8 Jun 2026 02:46:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780886802; cv=none; b=PRijoD3Z6aFFIFjZMbMNS8eU7JYxoSqV9BJA7owE+yw/oOyNcFMOEDX4AiQRzwDMpv8J6Ei/Js493OujpEA3sQETs3MmylGx6YqJ3aczGGAV8Ce7aucKptwGSr4lKQ2m5444XJETbjFFM9tXmN0sEfZ1B+GZ0V+cfIfQMKspnig=
+	t=1780886803; cv=none; b=G5h9asueZ1zlfcOYlaBbOtd+vhLhziK+r8agZWntw48Z35Q0Ta5QDT0Zi7BKKpQaXk7SiBMLYc+YjwkkCYQDrEnA0OfcLyaiRzhlhC+51jS7mh/itGU6qYJ/iKFDPLyAePKPc+alFQlIf/2385yGwt//8fPTT/PVtmf7W7zum2Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780886802; c=relaxed/simple;
-	bh=N3f5ccj80OsdAd5yUBa0fpDtkYWFvOUkkGZOXr8USEY=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=qgxdOvWtiUBzcxYopcZR8uSwic8UkcIdAGMXIPNCzHPu8PB/mZktLaffk/FY6KmgX3DAk/Tto8p1n2JlN5wigX5+pUB1b4A8/+qECJ+i4r/uXGdP+JUfr6OWxlFjLa/5/D4ZhwpBcCP3qyEG/VHPpxtuq5ptRDNVpEVMWH8RWuI=
+	s=arc-20240116; t=1780886803; c=relaxed/simple;
+	bh=+eSvQyg0WYIA5OXyNDQfLE+z6DeiJKTxn5DMaIKwvbE=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=aL7fqzSr54C0sibIbkH6eNIMl8ouUoxsY4uI8Qz5NSwu9aeZEDsMoanXkhSzbR7kRSc6NDaGAJSgLWOW6U5Bi1Tf5Wkt34x9WvKdM7fRK/Wr96AbU1SOAz/jWTv8qDXDw3PNQ3wmrTwKnFCzWE4ZX/aG+T25qJGwsobAsf9etcY=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
 Received: from loongson.cn (unknown [10.20.42.101])
-	by gateway (Coremail) with SMTP id _____8BxDuoMLSZq9Z4RAA--.46485S3;
-	Mon, 08 Jun 2026 10:46:36 +0800 (CST)
+	by gateway (Coremail) with SMTP id _____8DxVXgQLSZq_p4RAA--.22545S3;
+	Mon, 08 Jun 2026 10:46:40 +0800 (CST)
 Received: from loongson-pc.loongson.cn (unknown [10.20.42.101])
-	by front1 (Coremail) with SMTP id qMiowJCxOMEKLSZq9ESfAA--.25894S2;
-	Mon, 08 Jun 2026 10:46:34 +0800 (CST)
+	by front1 (Coremail) with SMTP id qMiowJCxOMEKLSZq9ESfAA--.25894S4;
+	Mon, 08 Jun 2026 10:46:39 +0800 (CST)
 From: Hongliang Wang <wanghongliang@loongson.cn>
 To: Hongliang Wang <wanghongliang@loongson.cn>,
 	Binbin Zhou <zhoubinbin@loongson.cn>,
@@ -27,11 +28,15 @@ To: Hongliang Wang <wanghongliang@loongson.cn>,
 	Wolfram Sang <wsa+renesas@sang-engineering.com>
 Cc: linux-i2c@vger.kernel.org,
 	devicetree@vger.kernel.org,
-	loongarch@lists.linux.dev
-Subject: [PATCH v6 0/2] i2c: ls2x: Add clock- related properties and parsing
-Date: Mon,  8 Jun 2026 10:45:31 +0800
-Message-Id: <20260608024533.32419-1-wanghongliang@loongson.cn>
+	loongarch@lists.linux.dev,
+	Huacai Chen <chenhuacai@loongson.cn>,
+	stable@vger.kernel.org
+Subject: [PATCH v6 2/2] i2c: ls2x: Add clocks property parsing and adjust bus speed
+Date: Mon,  8 Jun 2026 10:45:33 +0800
+Message-Id: <20260608024533.32419-3-wanghongliang@loongson.cn>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20260608024533.32419-1-wanghongliang@loongson.cn>
+References: <20260608024533.32419-1-wanghongliang@loongson.cn>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -39,88 +44,140 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:qMiowJCxOMEKLSZq9ESfAA--.25894S2
+X-CM-TRANSID:qMiowJCxOMEKLSZq9ESfAA--.25894S4
 X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
-X-Coremail-Antispam: 1Uk129KBj93XoW7KFyrKF17GF1rCr47KF4ftFc_yoW8Kw43pF
-	s8CFWDGr1jk3W8ur43t3yI9F9Yqws8J397GrWxXw15uw43tr4DZF1Ikrs09rykWrZ2kayU
-	Wa93KF1DKFZxZagCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
+X-Coremail-Antispam: 1Uk129KBj93XoWxCr15KF15uw15Xw1DAw4fZwc_yoWrXw1kpF
+	W5CFZ5Gr4qqF42grsaq3W7ZFyYvws5JayUCFy7tw1xW3Z3Zr1DZa4ftFn09FWvgF97uayU
+	XayDGr43CFyUZrcCm3ZEXasCq-sJn29KB7ZKAUJUUUUr529EdanIXcx71UUUUU7KY7ZEXa
 	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUkFb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r106r15M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_JFI_Gr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
+	0xBIdaVrnRJUUUBIb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
+	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
+	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
 	0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
-	xVW8Jr0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
-	1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv
-	67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IYc2Ij64vIr41l42xK82IYc2
-	Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s02
-	6x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0x
-	vE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE
-	42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6x
-	kF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0xZFpf9x07j1YL9UUUUU=
+	xVW8Jr0_Cr1UM2kKe7AKxVWUXVWUAwAS0I0E0xvYzxvE52x082IY62kv0487Mc804VCY07
+	AIYIkI8VC2zVCFFI0UMc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWU
+	tVWrXwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7V
+	AKI48JMxkF7I0En4kS14v26r126r1DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY
+	6r1j6r4UMxCIbckI1I0E14v26r1Y6r17MI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7
+	xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUtVW8ZwCIc40Y0x0EwIxGrwCI42IY6xII
+	jxv20xvE14v26r4j6ryUMIIF0xvE2Ix0cI8IcVCY1x0267AKxVW8JVWxJwCI42IY6xAIw2
+	0EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIxAIcVC2z280aVCY1x02
+	67AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7IU0epB3UUUUU==
 
-Hi all:
+The i2c-ls2x driver supports dts and acpi parameter passing.
 
-This patch set adds clock related properties and parsing in dts and acpi.
+In dts, uses clock framework, by parsing clocks property to
+get i2c bus reference clock, and define the div of reference
+clock by device data.
 
-======
-V6:
-- Add Reviewed-by tag from Huacai, thanks. 
-Patch (1/2):
- - Remove CC stable. 
+In acpi, by passing clocks property to describe i2c bus reference
+clock and clock-div property to describe the div of reference clock.
 
-Link to V5:
-https://lore.kernel.org/all/20260604015848.18643-1-wanghongliang@loongson.cn/ 
+Based on i2c bus reference clock(clock_a), i2c bus speed(clock_s)
+and div, calculate the prcescale of i2c divider register. The
+calculation formula is
 
-V5:
-Patch (1/2):
- - Adjust the position of #include <dt-bindings/clock/loongson,ls2k-clk.h>;
- - Add CC stable; 
- - Fix Signed-off-by.
-Patch (2/2):
- - Replace 2K0500/2K1000/2K2000 with LS2K0500/2K1000/2K2000;
- - Replace 7A1000/7A2000 with LS7A1000/7A2000;
- - Replace if (clk && !IS_ERR(clk)) with if(!IS_ERR_OR_NULL(clk));
- - Add document that clocks and clock-div are only ACPI properties in ACPI;
- - Remove unsigned int cast in code (unsigned long)device_get_match_data(dev);
- - Add CC stable; 
- - Fix Signed-off-by.
+prcescale = (clock_a*10)/(div*clock_s)-1
 
-Link to V4:
-https://lore.kernel.org/all/20260526031021.32662-1-wanghongliang@loongson.cn/
+Reviewed-by: Huacai Chen <chenhuacai@loongson.cn>
+Cc: stable@vger.kernel.org
+Signed-off-by: Hongliang Wang <wanghongliang@loongson.cn>
+---
+ drivers/i2c/busses/i2c-ls2x.c | 36 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 33 insertions(+), 3 deletions(-)
 
-V4:
-- Add Acked-by tag from Conor Dooley, thanks.
-Patch (2/2):
- - Adjust the position of #include <linux/clk.h>;
- - Remove struct ls2x_i2c_chip_data and use macro to describe div;
- - Use div instead of factor in ls2x_i2c_adjust_bus_speed;
- - Reverse the "if & else" code logic in ls2x_i2c_adjust_bus_speed;
-
-Link to V2:
-The PATCH v3 is incomplete, v4 is the replacement of v3, so the previous patch link is v2.
-
-[PATCH v2] dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
-https://lore.kernel.org/all/20260507081010.12810-1-wanghongliang@loongson.cn/
-[PATCH v2] i2c: ls2x: Add clocks property parsing and adjust bus speed
-https://lore.kernel.org/all/20260507081010.12810-2-wanghongliang@loongson.cn/
-
-V2:
-[PATCH v2] dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
-- Remove the custom properties clock-input and clock-div, use clock framework;
-[PATCH v2] i2c: ls2x: Add clocks property parsing and adjust bus speed
-- Use clock framework to obtain the i2c reference clock in dts.
-
-Link to V1:
-https://lore.kernel.org/all/20260325011852.19079-1-wanghongliang@loongson.cn/
-
-wanghongliang (2):
-  dt-bindings: i2c: ls2x-i2c: Add clocks and clock-frequency properties
-  i2c: ls2x: Add clocks property parsing and adjust bus speed
-
- .../bindings/i2c/loongson,ls2x-i2c.yaml       |  3 ++
- drivers/i2c/busses/i2c-ls2x.c                 | 36 +++++++++++++++++--
- 2 files changed, 36 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/i2c/busses/i2c-ls2x.c b/drivers/i2c/busses/i2c-ls2x.c
+index b475dd27b7af..46dafa11b301 100644
+--- a/drivers/i2c/busses/i2c-ls2x.c
++++ b/drivers/i2c/busses/i2c-ls2x.c
+@@ -12,6 +12,7 @@
+ 
+ #include <linux/bitfield.h>
+ #include <linux/bits.h>
++#include <linux/clk.h>
+ #include <linux/completion.h>
+ #include <linux/device.h>
+ #include <linux/iopoll.h>
+@@ -63,11 +64,18 @@
+ /* The default bus frequency, which is an empirical value */
+ #define LS2X_I2C_FREQ_STD	(33 * HZ_PER_KHZ)
+ 
++/* The div of i2c reference clock on LS2K0500/2K1000/2K2000 */
++#define LS2X_I2C_2K_CLOCK_DIV	40
++
++/* The div of i2c reference clock on LS7A1000/7A2000 */
++#define LS2X_I2C_7A_CLOCK_DIV	50
++
+ struct ls2x_i2c_priv {
+ 	struct i2c_adapter	adapter;
+ 	void __iomem		*base;
+ 	struct i2c_timings	i2c_t;
+ 	struct completion	cmd_complete;
++	unsigned int		div;
+ };
+ 
+ /*
+@@ -96,6 +104,8 @@ static irqreturn_t ls2x_i2c_isr(int this_irq, void *dev_id)
+ static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
+ {
+ 	u16 val;
++	u32 pclk, div;
++	struct clk *clk;
+ 	struct i2c_timings *t = &priv->i2c_t;
+ 	struct device *dev = priv->adapter.dev.parent;
+ 	u32 acpi_speed = i2c_acpi_find_bus_speed(dev);
+@@ -107,12 +117,30 @@ static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
+ 	else
+ 		t->bus_freq_hz = LS2X_I2C_FREQ_STD;
+ 
++	if (dev_of_node(dev)) {
++		clk = devm_clk_get_optional_enabled(dev, NULL);
++		if (!IS_ERR_OR_NULL(clk))
++			pclk = clk_get_rate(clk);
++		else
++			pclk = LS2X_I2C_PCLK_FREQ;
++
++		div = priv->div;
++
++		val = (pclk * 10) / (div * t->bus_freq_hz) - 1;
++	} else {
++		/* clocks and clock-div are only ACPI properties. */
++		if (!device_property_read_u32(dev, "clocks", &pclk) &&
++		    !device_property_read_u32(dev, "clock-div", &div))
++			val = (pclk * 10) / (div * t->bus_freq_hz) - 1;
++		else
++			val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
++	}
++
+ 	/*
+ 	 * According to the chip manual, we can only access the registers as bytes,
+ 	 * otherwise the high bits will be truncated.
+ 	 * So set the I2C frequency with a sequential writeb() instead of writew().
+ 	 */
+-	val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
+ 	writeb(FIELD_GET(GENMASK(7, 0), val), priv->base + I2C_LS2X_PRER_LO);
+ 	writeb(FIELD_GET(GENMASK(15, 8), val), priv->base + I2C_LS2X_PRER_HI);
+ }
+@@ -295,6 +323,8 @@ static int ls2x_i2c_probe(struct platform_device *pdev)
+ 	if (!priv)
+ 		return -ENOMEM;
+ 
++	priv->div = (unsigned long)device_get_match_data(dev);
++
+ 	/* Map hardware registers */
+ 	priv->base = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(priv->base))
+@@ -349,8 +379,8 @@ static DEFINE_RUNTIME_DEV_PM_OPS(ls2x_i2c_pm_ops,
+ 				 ls2x_i2c_suspend, ls2x_i2c_resume, NULL);
+ 
+ static const struct of_device_id ls2x_i2c_id_table[] = {
+-	{ .compatible = "loongson,ls2k-i2c" },
+-	{ .compatible = "loongson,ls7a-i2c" },
++	{ .compatible = "loongson,ls2k-i2c", .data = (void *)LS2X_I2C_2K_CLOCK_DIV, },
++	{ .compatible = "loongson,ls7a-i2c", .data = (void *)LS2X_I2C_7A_CLOCK_DIV, },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, ls2x_i2c_id_table);
 -- 
 2.47.2
 
