@@ -1,134 +1,93 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from cstnet.cn (smtp81.cstnet.cn [159.226.251.81])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D89235E1C5;
-	Mon,  8 Jun 2026 07:03:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35B4838C406;
+	Mon,  8 Jun 2026 07:11:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.81
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780902187; cv=none; b=JHsmTzwMvt3HA1MonoQjbz4f46vJZQ0JF5oYfcA5uf1hdTk57oz3E29m7ggZTdzkXiICt1rC3MOWdncRnyA/YFif0fqW1pZNfN5ZescKdpI0/8RsNjxV/QuvevMwLhGHmNWdzr8chKOV3WS/RNfnK5Xk3u+0Tq2/fSBOeNptVKY=
+	t=1780902697; cv=none; b=IQda4J1vwRLVV5dH7L8ydU+VfMQcD6rlxaxjuJS8ZuFCHsWgroXKY15S5tA4ToEhOP2TgucKPFlx5p9HugrLvIm2r39wcg11OT1kRDauU4IjGPKFXvvxhJ1eLpF49see0S676wUt73lzBIv6p8m/VuTlhejxr85CxTrqXdWfClo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780902187; c=relaxed/simple;
-	bh=/EV8js+2v8OzyEkyzphqS7BgoRmZaabHmg7vtIFY5t8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=rKEv80/br3FXob8jYeqyjObK6o3gMLBqtwurQeIJKK7qKryUPrIGtaHfVzjyrD23NZdE+sAR32v3QU94mIsGF9EhqKS1hsoYBgF3XYDh0AFcd7DZbMGz89rvtf5ukTLoLvuelrJZkYOs3Ycb0WlaBA6Z/3RMRCusZaut1UCHhug=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ds8FYyBn; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ds8FYyBn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 980A31F0089A;
-	Mon,  8 Jun 2026 07:03:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780902185;
-	bh=10dFrUC/6z32jGP8zynGCsubM/uQN+Pn4UzSAjajejM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=Ds8FYyBnv2B771u4jaYArIjXJx5UpC1WUxFyjTQDVhtf+l1qYyu5NwqVY+oOzuc6C
-	 YgqUxqU4gV2VnsPffdjORqDHElM1kd63ltUYUyVdF4TYaUEWtF2JD2pU6poVM1ArWL
-	 lMUinVJ6futH/7sdnAjzkFIuaCbufZx8fG+uk80ePL2EOH8cH49KxCDKv1sJ8txsUy
-	 Qpsb63Y/49p0ZHrtiY6ZwtKegiVpiUrgHwkrzV4CAq0F0zJwJnRUTZXAStb/+L2/kr
-	 FA/3lev2TYsrVndJqyIIwBECwbTBWrmYCkIgZRjk+HnLbC8Mzg1CGk5xkLhbQhHDnH
-	 KQOX+wjtpEfGA==
-Received: from johan by xi.lan with local (Exim 4.99.3)
-	(envelope-from <johan@kernel.org>)
-	id 1wWU0k-00000000LzQ-1V0O;
-	Mon, 08 Jun 2026 09:03:02 +0200
-Date: Mon, 8 Jun 2026 09:03:02 +0200
-From: Johan Hovold <johan@kernel.org>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
-	Lee Jones <lee@kernel.org>,
-	Mark Brown <broonie@opensource.wolfsonmicro.com>,
-	Thierry Reding <thierry.reding@avionic-design.de>,
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Srinivas Kandagatla <srini@kernel.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Vinod Koul <vkoul@kernel.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Danilo Krummrich <dakr@kernel.org>, Rob Herring <robh@kernel.org>,
-	Saravana Kannan <saravanak@kernel.org>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	Andi Shyti <andi.shyti@kernel.org>, Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	Doug Berger <opendmb@gmail.com>,
-	Florian Fainelli <florian.fainelli@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Ulf Hansson <ulfh@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-	Sascha Hauer <s.hauer@pengutronix.de>,
-	Pengutronix Kernel Team <kernel@pengutronix.de>,
-	Fabio Estevam <festevam@gmail.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Thomas =?utf-8?Q?Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
-	Rodrigo Vivi <rodrigo.vivi@intel.com>,
-	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-	Peter Chen <peter.chen@kernel.org>,
-	Paul Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>,
-	Philipp Zabel <p.zabel@pengutronix.de>,
-	Maximilian Luz <luzmaximilian@gmail.com>,
-	Hans de Goede <hansg@kernel.org>,
-	Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>,
-	Krzysztof Kozlowski <krzk@kernel.org>,
-	Benjamin Herrenschmidt <benh@kernel.crashing.org>, brgl@kernel.org,
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org,
-	driver-core@lists.linux.dev, devicetree@vger.kernel.org,
-	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
-	iommu@lists.linux.dev, linux-pm@vger.kernel.org,
-	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
-	intel-xe@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-	linux-usb@vger.kernel.org, linux-mips@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org
-Subject: Re: [PATCH 08/23] driver core: platform: provide
- platform_device_set_of_node_from_dev()
-Message-ID: <aiZpJkQBXg2pcczy@hovoldconsulting.com>
-References: <20260521-pdev-fwnode-ref-v1-0-88c324a1b8d2@oss.qualcomm.com>
- <20260521-pdev-fwnode-ref-v1-8-88c324a1b8d2@oss.qualcomm.com>
- <ah9O15bMlAYgSlHx@ashevche-desk.local>
- <aiK-EXwp_xhcbty9@hovoldconsulting.com>
- <aiLi0KZskrCyEYO5@ashevche-desk.local>
+	s=arc-20240116; t=1780902697; c=relaxed/simple;
+	bh=dlSg88VmdGxXbPR7ZyuEinTyShHdG/AqDdM1y5ib2zU=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=G9gLyQJWHlXB7+ATe6haUIzw1IkoXQLCFZ3JQ7gvddpDKX/8Wa9oOBtujpoOA70pbvQb5cinDPxZ3e91lSb9WQJAonP1TNS5XpFmzIwaG8GkZluB7wahkxY2q0dnau+7ob6PV9xQSVgs8loIP1egGUST4+Y0ZTVO5jL0u8dy5hc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.81
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from dfae2b116770.home.arpa (unknown [36.110.52.2])
+	by APP-03 (Coremail) with SMTP id rQCowABXeuEjayZqs7wDFA--.289S2;
+	Mon, 08 Jun 2026 15:11:31 +0800 (CST)
+From: Wentao Liang <vulab@iscas.ac.cn>
+To: chris.brandt@renesas.com,
+	andi.shyti@kernel.org
+Cc: linux-renesas-soc@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Wentao Liang <vulab@iscas.ac.cn>,
+	stable@vger.kernel.org
+Subject: [PATCH] i2c: riic: fix refcount leak in riic_i2c_resume_noirq()
+Date: Mon,  8 Jun 2026 07:11:23 +0000
+Message-Id: <20260608071123.128964-1-vulab@iscas.ac.cn>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aiLi0KZskrCyEYO5@ashevche-desk.local>
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:rQCowABXeuEjayZqs7wDFA--.289S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7Kr4rtr1UAw4DXr43Xr17trb_yoW8JFyxpw
+	4xKrWSyFyUGr4IqanrAr1FvFyY9ay3trZxCrWDK3s3Za1rXas8Jr4YvFyYgr1kAryDJryY
+	yw47taySkF1qyFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUkK14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26ryj6F1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
+	6F4UM28EF7xvwVC2z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
+	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
+	I7IYx2IY67AKxVWUAVWUtwAv7VC2z280aVAFwI0_Gr1j6F4UJwAm72CE4IkC6x0Yz7v_Jr
+	0_Gr1lF7xvr2IYc2Ij64vIr41lF7I21c0EjII2zVCS5cI20VAGYxC7MxkF7I0En4kS14v2
+	6r126r1DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrV
+	AFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCI
+	c40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267
+	AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_
+	Gr1lIxAIcVC2z280aVCY1x0267AKxVW8JVW8JrUvcSsGvfC2KfnxnUUI43ZEXa7VUbLiSJ
+	UUUUU==
+X-CM-SenderInfo: pyxotu46lvutnvoduhdfq/1tbiCRAMA2omaj4DuwAAs2
 
-On Fri, Jun 05, 2026 at 05:53:04PM +0300, Andy Shevchenko wrote:
-> On Fri, Jun 05, 2026 at 02:16:17PM +0200, Johan Hovold wrote:
-> > On Wed, Jun 03, 2026 at 12:44:55AM +0300, Andy Shevchenko wrote:
-> > > On Thu, May 21, 2026 at 10:36:31AM +0200, Bartosz Golaszewski wrote:
-> > > > Provide a platform-specific variant of device_set_of_node_from_dev(). In
-> > > > addition to bumping the reference count of the OF node being assigned,
-> > > > it also assigns the fwnode of the platform device.
-> > > 
-> > > Can we rather investigate the way how to make that of node reuse thingy
-> > > (which is used solely by pin control) differently and then drop this confusing
-> > > device_set_of_node_from_dev() call altogether?
-> > 
-> > No, that call is needed. See commit 4e75e1d7dac9 ("driver core: add
-> > helper to reuse a device-tree node") for details.
-> 
-> Bart fixes the problem with the platform driver. At the result this will be
-> the only device_set_node() + 'reused = true'.  As for 'reused' flag, the need
-> is only for pinmux/pin control stuff.
+When riic_i2c_resume_noirq() is called, it deasserts the reset
+using reset_control_deassert(), which for shared resets increments
+a reference count. If pm_runtime_force_resume() then fails, the
+function returns without calling reset_control_assert() to
+decrement the count. This leaves the reset deasserted and the
+reference count unbalanced, which can prevent other users of the
+shared reset from properly asserting it later.
 
-And any other resource which may (eventually) be claimed by driver core
-or bus code.
+Fix the leak by calling reset_control_assert() on the error
+handling path for a failed pm_runtime_force_resume().
 
-> The question here is if there is a better
-> way to make that 'reused' be done automatically without need of setting some
-> flag explicitly.
+Cc: stable@vger.kernel.org
+Fixes: e383f0961422 ("i2c: riic: Move suspend handling to NOIRQ phase")
+Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
+---
+ drivers/i2c/busses/i2c-riic.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-That's not really relevant to the series at hand.
+diff --git a/drivers/i2c/busses/i2c-riic.c b/drivers/i2c/busses/i2c-riic.c
+index 9e3595b3623e..6d2ebf67dd62 100644
+--- a/drivers/i2c/busses/i2c-riic.c
++++ b/drivers/i2c/busses/i2c-riic.c
+@@ -725,8 +725,10 @@ static int riic_i2c_resume_noirq(struct device *dev)
+ 		return ret;
+ 
+ 	ret = pm_runtime_force_resume(dev);
+-	if (ret)
++	if (ret) {
++		reset_control_assert(riic->rstc);
+ 		return ret;
++	}
+ 
+ 	ret = riic_init_hw(riic);
+ 	if (ret) {
+-- 
+2.34.1
 
-If this is something we want to merge then you need to continue setting
-the flag in order not to cause regressions.
-
-Johan
