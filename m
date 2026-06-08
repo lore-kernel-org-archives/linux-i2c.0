@@ -1,123 +1,88 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE4DE3603C0;
-	Mon,  8 Jun 2026 20:01:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C29C03D3CE3
+	for <linux-i2c@vger.kernel.org>; Mon,  8 Jun 2026 20:14:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780948919; cv=none; b=d0mKWwAZl633kGSi6n5sbUFRwFm2iADleJUMCvHLyIuGAsY3KV/o/nVN6Ykx99lrHj9vhjsEP6TN0oIVN1eSB9aX35E7nnIpGU3zpzfSseqyyQelR4UsCaBckrrVqpKodsF1sSefmmUxWLXtbuqPPMmvajsgevTfMJk939Z9ATo=
+	t=1780949692; cv=none; b=YFr46IoVwkutFo0roeBWrWEm2ezCopLW2aki2Vlc6yksrT5ZBXqKwAc9dwLPZr3pCpTh5PBZKMreSk4m9+0w+e0TbhNCphKvcoXuT6OdQbT+tj+XgHZMqcibmJzaqZJbyJe7QajafO2bQNbmMyq3ylI6KAnlCh1l8dXMBUaGtCM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780948919; c=relaxed/simple;
-	bh=emHeIW+ic01qID3ut+dDDjBVoDC3qX9TSpvwDwuMbKU=;
+	s=arc-20240116; t=1780949692; c=relaxed/simple;
+	bh=B5m5KJtPr9RSOOs+Q1p7BihUOA4EJZ1/x2F8XqpsIZg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fX2U9duztRG91i2hr4v1ehabDrC2gOzJGOCvYDUtEiot6yHuQea7ihFwD9bNA05rJKvZzxsx5VLc+IZDFHuumlTFz1gfhUNgRQRl7autYMn7p97x92ayhw9Jk+lk+7vbTvpAvqRjZnF6sNSiBAyebmI/KgsRVPzEPqxicYytDcU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=al+UjXKy; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=sqgQijIo2diRtojGHiVL3YcAfKHfJ21JOyRCCBwFZU83u0mnrNC31jfYkKbU54+VWgZd4IirUjhz/Lt9W/mBh4Rksx02ypj0qoQCw7eKwNM+hGQYCVmY23c011r1tY3IJlLkf6l1UYPf56nDegn3Zz2nSpYAc5gD1kyqx3/vVMA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=fYfJqoGG; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="al+UjXKy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C92471F00893;
-	Mon,  8 Jun 2026 20:01:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780948917;
-	bh=MnD+EC7uJrbXpuauh/PcvbPflEIWo+swMHx7t2qSfoU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=al+UjXKyi1gADvWyzX8+HhyOCscmrm6AlCff4JO9umunNZkjGlzPWlBime1Cgf+Pi
-	 T0zWfhgxRwGBzQpRHyz/H5R4jd6r8RStX0kdw/8VI/i+uBjYhLEIpOPzEQCOARbacy
-	 XXNk79ZOvk01XturNQVPBZEtpJBp+CG/2llGzlHmWVXa6MslXByJIBE0euBVg9cy8B
-	 30bB58fEVqK+7emC2ClMJUwOybgVfalIZ7RRrPOi7LiWlOCok+X5bFCqc0+MBkHLyH
-	 5DrJ/sXg9WN206ZPP+0RAmamcZn5hm7fU5e31eeyFP8jdVd3QzT4UvtF2olD6VO868
-	 8i8uDperVBQUA==
-Date: Mon, 8 Jun 2026 22:01:54 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: w15303746062@163.com
-Cc: jdelvare@suse.com, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Mingyu Wang <25181214217@stu.xidian.edu.cn>, 
-	stable@vger.kernel.org
-Subject: Re: [PATCH v2] i2c: i801: fix hardware state machine corruption in
- error path
-Message-ID: <aicfiAEdlbGmKIAU@zenone.zhora.eu>
-References: <20260512093534.348655-1-w15303746062@163.com>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="fYfJqoGG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=B5m5
+	KJtPr9RSOOs+Q1p7BihUOA4EJZ1/x2F8XqpsIZg=; b=fYfJqoGGBFBugfeDHDt/
+	wevScgw+NtsVi0OReH45UEph0XydkmTR5DgJa93MMhK5pLw5KUCkX4tFsmmCTIbP
+	Z6O4EkLWd3sihxdeHpPDKm36XJ+d1O/4Vr8zbmvfkf6qXJvZM0YILFgHaTL3KEdu
+	6ZeZM6ngX6eZQD0a6K+9H5OFI146Si4XdUXb5JFHtB4cFXLnZR0qsDpljOqeX4Y6
+	8xUc0yGvIHWkjvfoOl4HgFZkg5pDjKRy1f2QcNhUzx6nVy2ro2J6PhGBBln9HV4A
+	pebOvkcZJSgVmb0bCQZ3CSDSc1Bok54/zCgYY1J/MsQQVPmdQWFT0XwOkTy/z9xI
+	Bg==
+Received: (qmail 979871 invoked from network); 8 Jun 2026 22:14:38 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 8 Jun 2026 22:14:38 +0200
+X-UD-Smtp-Session: l3s3148p1@ZZXyqMNT8osujntX
+Date: Mon, 8 Jun 2026 22:14:38 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c <linux-i2c@vger.kernel.org>,
+	lkml <linux-kernel@vger.kernel.org>,
+	Mika Westerberg <mika.westerberg@linux.intel.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: Re: [PATCH] MAINTAINERS: i2c: designware: Remove inactive reviewer
+Message-ID: <aicirrlTEogrPM3S@shikoro>
+References: <20260608124903.1188986-1-andi.shyti@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="dRzbzpOf6CdY1rFy"
+Content-Disposition: inline
+In-Reply-To: <20260608124903.1188986-1-andi.shyti@kernel.org>
+
+
+--dRzbzpOf6CdY1rFy
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260512093534.348655-1-w15303746062@163.com>
+Content-Transfer-Encoding: quoted-printable
 
-Hi Jean,
+On Mon, Jun 08, 2026 at 02:49:03PM +0200, Andi Shyti wrote:
+> Emails to Jan Dabros bounce with a permanent failure due to an
+> inactive account. Remove him from the list of reviewers.
+>=20
+> Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
 
-could you please take a look here?
+Applied to for-current, thanks!
 
-Thanks,
-Andi
 
-On Tue, May 12, 2026 at 05:35:34PM +0800, w15303746062@163.com wrote:
-> From: Mingyu Wang <25181214217@stu.xidian.edu.cn>
-> 
-> A severe livelock and subsequent Hung Task panic were observed in the
-> i2c-i801 driver during concurrent Fuzzing. The crash is caused by an
-> unconditional hardware register cleanup in the error handling path of
-> i801_access().
-> 
-> When i801_check_pre() fails (e.g., returning -EBUSY because the SMBus
-> controller is actively used by BIOS/ACPI), the kernel does not actually
-> acquire the hardware ownership. However, the code jumps to the 'out'
-> label and executes:
-> 
->     iowrite8(SMBHSTSTS_INUSE_STS | STATUS_FLAGS, SMBHSTSTS(priv));
-> 
-> This forcefully clears the INUSE_STS lock and resets the hardware status
-> flags without owning the controller. Doing so interrupts ongoing BIOS/ACPI
-> transactions and totally corrupts the SMBus hardware state machine.
-> 
-> Consequently, all subsequent i801_access() calls fail at the pre-check
-> stage, triggering an endless stream of "SMBus is busy, can't use it!"
-> error logs. Over a slow serial console, this printk flood monopolizes
-> the CPU (Console Livelock), starving other processes trying to acquire
-> the mmap_lock down_read semaphore, ultimately triggering the hung task
-> watchdog.
-> 
-> Fix this by moving the 'out' label below the hardware register cleanup.
-> If i801_check_pre() fails, we safely bypass the iowrite8() and only
-> release the software locks (pm_runtime and mutex), strictly adhering to
-> the rule of not releasing resources that were never acquired.
-> 
-> Fixes: 1f760b87e54c ("i2c: i801: Call i801_check_pre() from i801_access()")
-> Cc: stable@vger.kernel.org # v6.3+
-> 
-> Signed-off-by: Mingyu Wang <25181214217@stu.xidian.edu.cn>
-> ---
-> Changes in v2:
->  - Reused and moved the existing 'out' label instead of adding a new one,
->    fixing a build warning regarding an unused label.
->  - Dropped the inaccurate mention of "another thread" in the commit message,
->    as i801_access() is serialized by a mutex.
->  - Added Fixes and Cc stable tags as suggested.
-> 
->  drivers/i2c/busses/i2c-i801.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-> index 32a3cef02c7b..b29c99ed3883 100644
-> --- a/drivers/i2c/busses/i2c-i801.c
-> +++ b/drivers/i2c/busses/i2c-i801.c
-> @@ -931,13 +931,13 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
->  	 */
->  	if (hwpec)
->  		iowrite8(ioread8(SMBAUXCTL(priv)) & ~SMBAUXCTL_CRC, SMBAUXCTL(priv));
-> -out:
->  	/*
->  	 * Unlock the SMBus device for use by BIOS/ACPI,
->  	 * and clear status flags if not done already.
->  	 */
->  	iowrite8(SMBHSTSTS_INUSE_STS | STATUS_FLAGS, SMBHSTSTS(priv));
->  
-> +out:
->  	pm_runtime_put_autosuspend(&priv->pci_dev->dev);
->  	mutex_unlock(&priv->acpi_lock);
->  	return ret;
-> -- 
-> 2.34.1
-> 
+--dRzbzpOf6CdY1rFy
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmonIqoACgkQFA3kzBSg
+KbYkiQ//ei/RKwr7xqp44FJ0lXSjnbfHC3TSlisW3O77coE/bz9XGaq1V84BnOiR
+iT2gZN5sITrfwgwC/cTPo41jUvSbYgRy/XGN+VycAOIHAysokGObEA/J2tG+CgXQ
+PDd8IrnTx3hrJX+3T5wJQa1gp4AaqkMNURQcDY0omUt9Ao1sSW2MWLZxV8glfFax
+O0SXKQq+bFCzglCacVnssQiT2PcEWjO79bzRU2LkFSK+7OZz6bjH6AySDKfcoq1y
+sUOcmashazixQasUpQwMFdSK+1LUZ15UBzqAcg7DJ64wFjYrU/9l1jK9NrYygEcM
+aYabKf7t+NOZgFJiFebyrAfzSxqpJ+O6ogbLc3IrtSlDMpdPGXpF/GwdBTE99NYk
+GlAs/P94KocDB22QqsENE0y2saK0s8fy9SEpl+gBTi1LzUvobiA0RnhCxexCV9es
+P4+/htyYNKhUrRHl9HHS/f8n5Wtp9Y2ZUerB4HIiXpQBi6G2A6hLN3BBuGVhFWVu
+Xt+R58qs2O1/+TYeFmHW8d5SkW+nOOqjYpKUyf6zfDOLUADaBKO5OWNPpXJ7sr5m
+LFz4M0z1nWraNf8X1PzqVkJkeTrT7VVEzsERIgSJPL3vNj9t/N0+nxvdJTSWypkF
+0rrwXR68GnMDVgiF7xHl2KvlUWMTB0aO5T7AagZO/aO+HrnTuPc=
+=mB0D
+-----END PGP SIGNATURE-----
+
+--dRzbzpOf6CdY1rFy--
