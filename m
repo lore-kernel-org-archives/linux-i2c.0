@@ -1,90 +1,77 @@
-Received: from out-182.mta1.migadu.com (out-182.mta1.migadu.com [95.215.58.182])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B86CD41325C
-	for <linux-i2c@vger.kernel.org>; Tue,  9 Jun 2026 12:08:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 596E83F39E5
+	for <linux-i2c@vger.kernel.org>; Tue,  9 Jun 2026 12:34:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781006925; cv=none; b=bIAzBisnCUVPQTALJlnzlA1d5/PnRzsMxYGn0SESP0iU3lRUOcMvWYbNqim5VldCP3a3V4/g4hRrVXosmctZA82Cc+Dg4joFnx0CZ6IobSWD/TmQ8awPrshCDSRnT2VomkYRN+Xn7wxbKiZE+cKnenJ31TtFbgL6Y4YHHr0vK3s=
+	t=1781008460; cv=none; b=JphYOJoLe5HnpjvjwqC3QWnJdzW4aNeRqzt4Qq/XuUkPrW/vLVJEJrIRYuqWchNQsar+b68FkL1bvnMeQwk1gJ03d3zs9exqsRaEsRVFg5ZkCsCYcK1Pqnez6Uv9E4tVzz/sgbw1xhuZiaSoRdopRpiBAk73GqPAbiTU/qTrpU8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781006925; c=relaxed/simple;
-	bh=Nqf3YO87WrzNM7BINtAtbxa7Cdud+kVMGo0EvPdnscA=;
-	h=Date:From:To:CC:Subject:In-Reply-To:References:Message-ID:
-	 MIME-Version:Content-Type; b=BUaA1y9zlcTKReUxnlowX2qjcI0/jfMpyroQ7c+02tvtWl87XpGZU4tQi+wqk9K2yG12vf8vYQaKC3foDI/TcFIbc8DHXgLhpCG3P78YcUYfNkz4ITDO/Ez9dKBz4UavRQng3cN8onry1ufla7XxgnRLR0HsmZvVU/eDttGYoLk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Y8ydkJ8Q; arc=none smtp.client-ip=95.215.58.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1781008460; c=relaxed/simple;
+	bh=WQcagHGZcCvvr0jij9fbLSMzC/QOP85hwzBFaxe25U4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jGH/uaT80mvLcQdcgtzF9p6Oi5cNjpyh3IsD/fZxQTxRcWTKhY1t0ZVyOrm/dGgzqEemmNi/tCpLr+JMCwbRPDF2Rkfht4KSuHqucID1lVADV/Ze7S27IHG/nAClbbTOr2rNxXBPWc3r9N/U1TyXc5y2OO7oAG9e6ThbsmOG1nw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fAtZSVVc; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Y8ydkJ8Q"
-Date: Tue, 09 Jun 2026 13:08:34 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1781006918;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Nqf3YO87WrzNM7BINtAtbxa7Cdud+kVMGo0EvPdnscA=;
-	b=Y8ydkJ8Q7hKiAkSBYm2L1fsTLlc7q6yC4yt9ROlmA5zV0wfixbVwGG4h3kcrF0VJE9qyem
-	cRZll3fqnQ1E6+MfCjXT/2NZo3P1ouC24Ja6X12spkE2gN/b9ldBiImbCB4/vt2H4ohG7b
-	CB6vy+umI997iqhYjb3f6Cyf5+YwVZ0=
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Igor Korotin <igor.korotin@linux.dev>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
- rust-for-linux@vger.kernel.org
-CC: Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, Danilo Krummrich <dakr@kernel.org>
-Subject: Re: [GIT PULL] rust-i2c-fixes for 7.1-rc7
-In-Reply-To: <aifcUBtuker3f9t2@shikoro>
-References: <9e49b71b-8b60-479e-93e7-5c12e352c78e@linux.dev> <aiZ0eD-A2F8woqTb@shikoro> <aifcUBtuker3f9t2@shikoro>
-Message-ID: <5633BA97-5666-45C8-A024-87A737A4086A@linux.dev>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fAtZSVVc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53AF81F00893;
+	Tue,  9 Jun 2026 12:34:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781008459;
+	bh=ng3bXUlX4oMXN/8e59Qs00B4Lm4QUVHZQawdlOeflxw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=fAtZSVVcAV3sHZnf+mUqetASYRx79eFWk8qdXcNRJnJIwcuUjU944ZT0VBh4g9UIr
+	 jGNBCw5GzPUD1uFQRSS2/ctT/gJzjfce8wPUnEe0WiNoMuKVHkPswWRtbwHByD2Sf4
+	 mutocoGShFqanUIMZ18n5s8VIhOqZzu2pV1XTUZW6oYPBmvNKZJ8qrqtZDhib1wf90
+	 AkXmk5v0XVzRfYA3ZeKwducpaEL3+9+Np2vP/bcUOVZ9iCR5elrCXEIUcpwtJx29la
+	 bkv4aWuei9UNvs5sUVJzuMphUehU+se29Qk0+PN+RLv4vbwnExxRT75zalHPhsj1eu
+	 wfdxbjQvN7YRA==
+Date: Tue, 9 Jun 2026 14:34:15 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: Re: [PULL REQUEST] i2c/fix-registration for v7.2
+Message-ID: <aigH9xxr_2T8EZEm@zenone.zhora.eu>
+References: <aiclzp0IA2Rk7NyU@shikoro>
+ <aifphmi1oFYZz7dQ@zenone.zhora.eu>
+ <aifz56BVLCdk-lDu@shikoro>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
- charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aifz56BVLCdk-lDu@shikoro>
 
+Hi Wolfram,
 
+> > > Johan Hovold (10):
+> > >       i2c: core: fix irq domain leak on adapter registration failure
+> > >       i2c: core: fix hang on adapter registration failure
+> > >       i2c: core: fix NULL-deref on adapter registration failure
+> > >       i2c: core: fix adapter probe deferral loop
+> > >       i2c: core: fix adapter debugfs creation
+> > >       i2c: core: disable runtime PM on adapter registration failure
+> > >       i2c: core: fix adapter registration race
+> > >       i2c: core: fix adapter deregistration race
+> > 
+> > I cherry-picked until here in i2c-host-fixes.
+> 
+> Please don't use 'fixes'. These changes are too intrusive to be added so
+> late in the cycle. Stable maintainers can decide if they want to
+> backport this. While -next gets some testing, a lot more testing is done
+> once it hits Linus' tree. If we cause a regression now, we won't have
+> another rc to fix it. If a regression shows up during the mergewindow,
+> we have multiple options to deal with it (fix it, revert it). Next
+> mergewindow is totally fine for this.
 
-Hello Wolfram
+yes, I did spend some time looking at these patches and i was in
+doubt where to merge them. At the end I decided to split the
+series.
 
-On June 9, 2026 10:26:40 AM GMT+01:00, Wolfram Sang <wsa+renesas@sang-engi=
-neering=2Ecom> wrote:
->Hi all,
->
->(adding a few more people to CC to have a potentially bigger discussion)
->
->> Please be already aware that from 7=2E2 on, you will need send pull
->> requests to Andi who takes over the I2C subsystem=2E I will write a
->> seperate mail about the handover later today=2E
->
->Done now [1]=2E On a second thought, after pulling in the I2C abstraction=
-s
->a few times now, I wonder meanwhile if the Rust-tree wouldn't be the
->better path to upstream=2E The abstractions are way more Rust than they
->are I2C=2E And potential merge-conflicts come from generic Rust
->abstraction updates, not from I2C=2E
->
->This is Andi's choice now, of course=2E Just wanted to give my 2 cents
->here=2E=2E=2E
+Now they are all in the non fixes branch.
 
-Thanks for the heads-up on the handover =E2=80=94 noted, I'll direct pull =
-requests to Andi from 7=2E2 onward=2E
-
-On the Rust-tree question: I don't have a strong preference either way fro=
-m a workflow perspective, but technically your reasoning makes sense to me=
-=2E As long as the changes don't introduce or alter any I2C-specific behavi=
-or =E2=80=94 and so far they don't =E2=80=94 routing them through the Rust =
-tree seems like the more natural fit, and would avoid spurious merge confli=
-cts driven by generic abstraction updates rather than anything I2C-related=
-=2E
-
-Ultimately Andi's call, of course=2E Happy to adapt to whatever process wo=
-rks best=2E
-
-Cheers
-Igor
+Thanks,
+Andi
