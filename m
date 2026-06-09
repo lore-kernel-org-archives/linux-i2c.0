@@ -1,145 +1,135 @@
-Received: from mail-ot1-f41.google.com (mail-ot1-f41.google.com [209.85.210.41])
+Received: from mail-yw1-f180.google.com (mail-yw1-f180.google.com [209.85.128.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C7A09425CCE
-	for <linux-i2c@vger.kernel.org>; Tue,  9 Jun 2026 13:52:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F717340281
+	for <linux-i2c@vger.kernel.org>; Tue,  9 Jun 2026 14:26:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.180
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781013167; cv=pass; b=E4zYsTfImWSp13wUKFVIzAaaLk5m6GRZmS4Z8hl03UsOiey0vm5fFz3E3eXnA8j6lbHEv2U3kdCVVoAFSAxMBn/5gh0vI/XHpy1RjlWIAi/gF45g/m1xQ6LCKAiBXB8Gsv2AIZEOrMiu9QuLipWDvXz/OJMHPMxNEbxW2ZE2jKo=
+	t=1781015197; cv=pass; b=XbJ6RuAA8od848LVwgiuEFH16tYlXKdEearL0mf8t1XHuoqiP0toyVFrloPcO4xxi5wOUxZ0dTEwliJUuv3pDhR2/B9zHG37cgDlxa9bLThOn000kAbBMfeX+Zse/0YpYW3pJ1CLF2Htg17fu2WT1BT2eQuk5sA1i3CajmTyW6Q=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781013167; c=relaxed/simple;
-	bh=nL5mmGZaBR0KGiW9ByLpesO5BFVlQS4oNBhk8WU8xmk=;
+	s=arc-20240116; t=1781015197; c=relaxed/simple;
+	bh=eHEG/xfDI4QVRzLkC333ArRNT1z/YuMXQtFRTicIrLU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=D5+ugZaTDYse6V3gDke94fur3lmKUQS4mokf93bSzBZnzcJ8orGOmlOQ0vyT41WpLAphjzoJm8R/fiRX7dXYXHxXV6S7cyBCfglAc4ODCD7d8kvsA7n7S52Xye/W4n2A3nG4vmzjEWFVMXRi/iWz8urBf44QGgKa9Hncafm5a6Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=samsara.com; spf=pass smtp.mailfrom=samsara.com; dkim=pass (2048-bit key) header.d=samsara.com header.i=@samsara.com header.b=AOSmshO4; arc=pass smtp.client-ip=209.85.210.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=samsara.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsara.com
+	 To:Cc:Content-Type; b=tY85Kgtrxfe6xLxrGnI9AYaZOm2z75J8TguT5hubZ/oe6LGmuDZUXqlj5g+q04C09P0aufoE9TJBGP/UcL0lyee0mq6zKQzQOVRs6jrQBwQQUVNcuaLWBoYWOClMT/0KlMk9bA/ui2aQYXu4Yh2ATqazbw+vIa3ZmyM7iLMTV8A=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SrSnHIJl; arc=pass smtp.client-ip=209.85.128.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=samsara.com header.i=@samsara.com header.b="AOSmshO4"
-Received: by mail-ot1-f41.google.com with SMTP id 46e09a7af769-7e6ec655c80so2990313a34.0
-        for <linux-i2c@vger.kernel.org>; Tue, 09 Jun 2026 06:52:45 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781013165; cv=none;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SrSnHIJl"
+Received: by mail-yw1-f180.google.com with SMTP id 00721157ae682-7efd2dc350cso20135667b3.1
+        for <linux-i2c@vger.kernel.org>; Tue, 09 Jun 2026 07:26:35 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781015194; cv=none;
         d=google.com; s=arc-20240605;
-        b=YB48q5a1hXcCasdEqVikmX4h0Evs1o03zophoV75JE/X8SfOYlv+u6guQNuzKc6i3j
-         CnN0FRRIJ6KcKVItyzFujUzTNJRb38MAb5WenGexdfb+jZKnQ6DuWwGphbamBMI0QToA
-         qaRqQzktQnZnS9Qa8MKstzsbkY3IVuwLOVQ7sYpQeVLibhuiHfJhRIZeuoudtkfl/Fyp
-         ZaHfBofrlKgqwkRH6vMJTkfHXTOdzkVg8/zhsOsF1svIzmyafK9uh7+KxYbR561mSxom
-         2T2Ka3dI1SdqQun77T87BSOZTO2GWliqvZgOZaDTKbbYhUl86i2fgkubwiKXMuO1O1bF
-         gCsA==
+        b=NeUwZZW6jk1QeqldYP2mrqbaHvEN79jMDDw0BV5aLn0tDdRJqrseQHnsYnIu+GI4uV
+         EXARVPX9/xWZWBz9rcXO3JxD3Df+xqTbEXOBd9BQhC7xb9uYg683SLLbjh8vWrp1ikNX
+         1J8C3j2TLnEGoh9Q8hBimnD6uFpju4z7QA630qQDKC+wMaXS3gjtGtDGD8tobxa8HzPk
+         XzgYhSphf44gINhXiRgxZG8yMPVUtd0xFNpK5Y3RTkl81dcivR4AFuW1IfRD/8VoQlem
+         s+t8IyzoHjGOlbVmuXP5u5Gpxn2u4cUiYYe0oxluXYMz2n97NEIlJCOSQk5YzcDJjm4C
+         JM4Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:dkim-signature;
-        bh=TPwTixStz0zU1NT3ncpNQzPruivDw+P8CqzY5CxuE/Q=;
-        fh=F4vYIYMy7pSKN7xJoUwB2rdKIT5w/DucG8Ceqown+FE=;
-        b=S/QFmzKp9mjVdKki4tQSP5SnuEtTKHlm6DGUuv8nDU3choJUCg5iw8PeGiZX91QqLF
-         56hZLr87A4go/d+5ICT6tENWw63Z8/8H+aQjnzLzJ4eI9SCSPd+dnyO19/QJrrVqyS+1
-         rkvg9TzE3Kx3c8vO49l2MfG8MTDJInjAexu+rmybKGccFUxbsBdm0VEbcZJU9UjgPcHk
-         9+QZ8qoGNPJQ8Bqmed5Vfw5bOprhF5T+HRTCPrN5Mb15hFEMQBttLKmN8d1gK5PXvVCw
-         v0DEshQDiFsNznBvCiJmq+hiEQwsLKlNxacLwlrLJooOICKUUKddJnDiX4MgNCi0iMgh
-         MVag==;
+        bh=eHEG/xfDI4QVRzLkC333ArRNT1z/YuMXQtFRTicIrLU=;
+        fh=ySMHbjKqusC6n+FBEi8cTSPHN2UcxfK6cxV/4igi7MQ=;
+        b=GGNWCREfItgTg60BuygMYrYkyi/ff3+6jbnQZYZvYOBuIebok6fFBUDdGb2JKoUPbm
+         50DK/YNPe+i0TG0Lcfy/n+8+5g5i3vCd/mD9PwgE5zNIYf+22Cf3wu+SN8gL9w8Ahy66
+         6H94QW66srdm6+SIHnNGkrfXqwLn2DpuSGc472a+0Wm0fXNAF6R/Tdx8ecnec8tEyI3e
+         7AUeKl30+CTyABDe2Vt5RNvxJjsCL57kD8aQtI8sf2InOjjq/rkXvjUTiGDw1gPRhKWP
+         ZiNkoGkwt4ej2iP8a2aclL1Hu8j9KmaYUt22TUf6j1daKl087167ZFC8/z8CAFGnDYHu
+         QBTw==;
         darn=vger.kernel.org
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=samsara.com; s=google; t=1781013165; x=1781617965; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1781015194; x=1781619994; darn=vger.kernel.org;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=TPwTixStz0zU1NT3ncpNQzPruivDw+P8CqzY5CxuE/Q=;
-        b=AOSmshO4ksmcQgUp59hyKx/U62AqUpk4oEWCBm1y5nz65qacNIFR2LRKVsOJRf701i
-         pVn4tRDl0Odp03WnRXy0N5y/zBkGjvnQ1L6z5KrF9OtliDZoPQCUBKlLc+xjXJysDE5+
-         zMl5Sx3QeMacM5nWOUuPmlTLeB4ua3cPFQPv4PbIz47ppWbzz/pcZs6Z/pM6Y/zUzXvv
-         JLFEvshgi6Lxrh9YjAq8WPEQHnJl99yTd/IqQm0r7jlf5uHkkKVZxX087JhiBHvCyu3D
-         Ul81ERvVPOHDK9ZdmQ3WFHy1MSY7pQmkOh7PywB+vJte2pDzQ613IvAFuwYnxioNWUli
-         4xOQ==
+        bh=eHEG/xfDI4QVRzLkC333ArRNT1z/YuMXQtFRTicIrLU=;
+        b=SrSnHIJlGMQV10+U3W0LDx8IqWoUfg246OXQwZvnFcqIvw0S5ymN2UQ+GQrdBv8hgg
+         snX6O2cvHp6wDSKbOxxnQcNRl+sHylDo465jXQWm9/mZ1XBUwW8t/7kvgaSnju9fKCgQ
+         JkqWs9guvuNrv7UV0AC5WT4+MnxDersnLYbgE9bcpC4kCBrsOmQEvjjfHUP95oD3ZoD7
+         NwQzliu6RLeCk7Qw/5OXmsG6wcSfMmZw+nyOCkgVDtofX9+F3vUereVaGPxqkomYWY2G
+         bj+R0T1W+xL9iHFj8h3cP/c+GLXfvDEnZOz5GTQttBoRKBtoEl1+5wc8AdQf9QxflZzS
+         s7VA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781013165; x=1781617965;
+        d=1e100.net; s=20251104; t=1781015194; x=1781619994;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=TPwTixStz0zU1NT3ncpNQzPruivDw+P8CqzY5CxuE/Q=;
-        b=lUzcyj2+eph+JJrhT3t1Wnq9PE9/Ri2KhIcUVWHfHB/RobJ8fMFlb1r3dpKa5z4xCU
-         hMfoKQpfNzn3OAzJU8US3pw9baRgaWUeBhYhUXy8MkpjhUoc3YZMlcYsKTAdMMFNzOzG
-         e1KDNamCGJ1HuFgd92THT3GCMg02Rp/xT9kYIoC4h/4+t8UcDfPit3uf0dol2mCNpCOf
-         mfP/qUvseCHP0BM1msN82eD2DzUDneJY4VHrmZnGpDcNR1xrxV0a+T3HjanKJjfC4mRy
-         +RTdmHw4aWO3gUHqUngytNF88G/wJ4e1IJZfA7roy7Jam53o5QIMIpwMw+KMusmvAj8c
-         uKqA==
-X-Gm-Message-State: AOJu0YxzKFoM5w2GyrO6NqGaFQgu89mGjoGc6Iz2f0yPH2seQxd0MHyA
-	6MpWRwiQUye1BN1HXx3ZtASlQsT7mw5RC6C4Z0ULVGNL51Gw9Kk4jNqYjq1zalK7A95H4J7beHK
-	I7xKyZ0wbcPtXIGfGzPdUa/AoGMaDFHm4mtkwmCRa
-X-Gm-Gg: Acq92OEU7YwTdbwyItJjo+iAeTG8uFgS8jW8gPnPe9PWnukGHUo8scscSF6EmaujiEu
-	HBdif3toVhMzi2P0dL/Fl90ptAFXhD7N9AwENcUF8i/Z7u6E8PIwuiWFAEffroZlju+agzNkCd3
-	phSXI9U7EobCYtklZiyczcaHAqQ0oBnTA6zbnjsG8EvSUxVekX/mKRO7VCOmoxib3IBU2r9EViR
-	eu7dUAmyjNLMIBxn97YdRpywffCXWHuyvZOHlaJIVSjMPoU/I+OQLCxArYts6QkXgDy8j2OM5oe
-	tsH4vPctwjQ4j6D5fURtmZSf8uxTN+sfJqzzsQ84c3JCifv6
-X-Received: by 2002:a05:6820:83d8:10b0:69b:5486:e85 with SMTP id
- 006d021491bc7-69e68c19e38mr8248758eaf.36.1781013164660; Tue, 09 Jun 2026
- 06:52:44 -0700 (PDT)
+        bh=eHEG/xfDI4QVRzLkC333ArRNT1z/YuMXQtFRTicIrLU=;
+        b=iyRPn1rVtTNdFVOF+vnmReEyXt04WqEbbQ/xWArY2+bMtSUdoCiVkmU1kO8gEPEjbi
+         SkcYGJs2Y3Iu+GxJYtn02qvV3n6T6I85XM9gj2a6+UQKxVYT7a/Rm54MC7REzwslTPZ/
+         WKWdAd2h9+fzx8o/QwB2YtVWiEBpyMcDopicMsxCrV0w6ysWp4yHrMzL/UZ/zVDsg9er
+         0wMkWKyH2exYmovyzQGR25X4/0yq1x9fV6ljfRPuMA1QEYTC2iEaSkajI9xi+jhslfZ/
+         lQZnKXI3cAir3H6ixe7lbC6nhfSTvbihss3/z7XwsRo9ISgZzYT2EqQgPN5QI1j1Y5Qg
+         YU3A==
+X-Forwarded-Encrypted: i=1; AFNElJ++CiU+PBTtjtUTICDf5VdxGf2Nk/GUyJ3Is0GwnCOUBgJicgwVr+m7O0jxvcDqvqkHXaVqL6X5Ctk=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwwWaUVDziyeAAwji+Cn1YrZyUdjFgn9gnOw6bt4psdWK0N27oR
+	E2QTlxVCgMT2AElXiueGcw3fnn2aIMGzMiY6PUlcxfe9Xh4iSKwX/iFLapdTDnG2WR306cJcJPy
+	L0S3ZBelYpKc5U/GuOPL2SjOdjfx3LzY=
+X-Gm-Gg: Acq92OFg1Uq+bkUtOXnWEklstxqhLL9FYSm3tDYAG7By50CPk+pgxWLsn0z3Jeh4VEM
+	QANa0vqHvqjXILCx0UlRkS8I0sv9r2S/Z1C0PfewE42F3HZzKFmVie0cdgfhR/POVTrme+0DodX
+	CNPJ5z+s6xyGpjQjjhbxQcJi7u8LTUIf+5ohQbqdQZSvlvCyVptEdrQn6Ep01AjwdzeP4V3Z9bF
+	cjyV22ndgOfUb9cwpKGRDyLpdFzJtC/gjBhcD4eW/kxMaZlaXl3UrkblVkzzC3RHL1vbktBfRwJ
+	F8sqHBtp7dW6b7kDFjY=
+X-Received: by 2002:a05:690c:4481:b0:7db:ccda:a40d with SMTP id
+ 00721157ae682-7f2b4cb2116mr28302087b3.5.1781015194341; Tue, 09 Jun 2026
+ 07:26:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260607143608.76122-1-gavin.li@samsara.com> <20260608174435.62359-1-gavin.li@samsara.com>
- <ae754hwynvlfnuway2jdjuebyammfrz225pxymfhuqpusp4xkp@joyqrrkberpc>
-In-Reply-To: <ae754hwynvlfnuway2jdjuebyammfrz225pxymfhuqpusp4xkp@joyqrrkberpc>
-From: Gavin Li <gavin.li@samsara.com>
-Date: Tue, 9 Jun 2026 09:52:33 -0400
-X-Gm-Features: AVVi8CfBHfQw5II0WmIUH72AfGIkRVcNlAUwEU5ehCyFP8GxD9ZsZTPnT_N1E80
-Message-ID: <CAKvMnUVZEnH3z-dVmCLgP0cFTjuYCcfaXhOOOy9KNG6kh-RdhA@mail.gmail.com>
-Subject: Re: [PATCH v2] i2c: virtio: retain xfer with kref to fix UAF on
- interrupted wait
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: linux-i2c@vger.kernel.org, "Chen, Jian Jun" <jian.jun.chen@intel.com>, 
-	andi.shyti@kernel.org, virtualization@lists.linux.dev
+References: <20260427-i2c-xiic-v1-0-e6207f9aa5ad@nexthop.ai>
+In-Reply-To: <20260427-i2c-xiic-v1-0-e6207f9aa5ad@nexthop.ai>
+From: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Date: Tue, 9 Jun 2026 19:56:21 +0530
+X-Gm-Features: AVVi8CennXEvmKXZcOS3a-5UF83FXzEW1vW2_jb7_VGjy_gZpB9TQvK-ef8eNYE
+Message-ID: <CAKfKVtGztJkU_HXZTrb2h3hrTJp0SbRo-sDHM4Sj_1SG8ymOyw@mail.gmail.com>
+Subject: Re: [PATCH 0/3] i2c: xiic: fix SMBus block read and PEC support
+To: abdurrahman@nexthop.ai
+Cc: Michal Simek <michal.simek@amd.com>, Andi Shyti <andi.shyti@kernel.org>, 
+	linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Thanks for the review, Viresh!
-
-On Tue, Jun 9, 2026 at 3:35=E2=80=AFAM Viresh Kumar <viresh.kumar@linaro.or=
-g> wrote:
-
-> Maybe move the comment above the code ? Can be dropped too.
+On Tue, Apr 28, 2026 at 5:48=E2=80=AFAM Abdurrahman Hussain via B4 Relay
+<devnull+abdurrahman.nexthop.ai@kernel.org> wrote:
 >
-> Also, maybe there is a small race here, not sure. What if the other
-> side (polls and) processes the message as soon as it is added to the
-> queue with virtqueue_add_sgs() ? In that case virtio_i2c_msg_done()
-> will call complete (which won't harm) and kref_put(). If this happens
-> for the first req of the xfer, it may end up freeing the xfer while
-> being used here ?
-
-Good eye, thanks for the catch. Moved kref_get() to
-before virtqueue_add_sgs()
-
-> > -static int virtio_i2c_complete_reqs(struct virtqueue *vq,
-> > -                                 struct virtio_i2c_req *reqs,
-> > -                                 struct i2c_msg *msgs, int num)
-> > +static int virtio_i2c_complete_reqs(struct virtio_i2c_xfer *xfer)
+> This series fixes three independent bugs in the Xilinx AXI IIC driver
+> that together make SMBus block reads with PEC return -EBADMSG or -EIO
+> on otherwise clean transfers. They only surface when the client has
+> I2C_CLIENT_PEC set; non-PEC block reads happen to mask each issue in
+> turn.
 >
-> Maybe rename to complete_xfer now ?
-
-Done
-
-> > -             if (!failed) {
-> > -                     if (wait_for_completion_interruptible(&req->compl=
-etion))
-> > -                             failed =3D true;
-> > -                     else if (req->in_hdr.status !=3D VIRTIO_I2C_MSG_O=
-K)
-> > -                             failed =3D true;
-> > -                     else
-> > -                             j++;
-> > +             if (wait_for_completion_killable(&req->completion)) {
+> The problems were uncovered driving an adm1266 PMBus device behind a
+> Xilinx AXI IIC FPGA block and reading its 64-byte blackbox record.
 >
-> Maybe do this in a separate patch ?
-
-Good idea, reverted to wait_for_completion_interruptible()
-
-> > -     return j;
-> > +     return fail_index >=3D 0 ? fail_index : xfer->num; /* number of s=
-uccessful transactions */
+> Patch 1 stops xiic_smbus_block_read_setup() from truncating rx_msg->len.
+> The i2c core appends a byte to msg->len when PEC is enabled, so
+> overwriting the length to "block size + 1" silently drops the PEC byte
+> and i2c_smbus_check_pec() then reads the last payload byte as the PEC.
 >
-> If this comment is required, maybe add it above the line instead.
+> Patch 2 raises the RX_FULL threshold so the interrupt only fires once
+> every remaining byte (payload plus optional PEC) is already buffered in
+> the FIFO. The previous threshold of rxmsg_len - 2 caused the
+> bytes_rem =3D=3D 1 path in xiic_read_rx() to NACK a byte still on the wir=
+e.
+>
+> Patch 3 stops the BNB handler from forcing tx_msg->len =3D 1 to signal
+> completion. tx_msg and rx_msg alias the same i2c_msg during a receive,
+> so this also clobbered rx_msg->len; and because tx_pos is already at 2
+> in the PEC case, the unsigned subtraction in xiic_tx_space() underflowed
+> and the STATE_DONE check fell through to STATE_ERROR. Advancing tx_pos
+> up to msg->len drives tx_space to zero without touching the length.
+>
+> All three patches are pure bug fixes; non-PEC behaviour is unchanged.
+> Tested on real hardware -- a Xilinx AXI IIC controller talking to an
+> adm1266, where 64-byte PEC-checked block reads now complete cleanly.
+>
+> Signed-off-by: Abdurrahman Hussain <abdurrahman@nexthop.ai>
 
-Done
+LGTM
+Reviewed-by: Shubhrajyoti Datta <shubhrajyoti.datta@amd.com>
