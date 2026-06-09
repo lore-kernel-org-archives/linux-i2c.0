@@ -1,136 +1,225 @@
-Received: from mail-dl1-f44.google.com (mail-dl1-f44.google.com [74.125.82.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from AM0PR83CU005.outbound.protection.outlook.com (mail-westeuropeazon11010032.outbound.protection.outlook.com [52.101.69.32])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD81F351C24
-	for <linux-i2c@vger.kernel.org>; Tue,  9 Jun 2026 14:53:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95F51495506;
+	Tue,  9 Jun 2026 15:35:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.69.32
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781016813; cv=pass; b=exW8paFTTnq5R/AwzEA5WXo1j5OBcFD57ngLAWCJXw6GGhaI3ApUtwHN/BhIOkNF/Ajbvs9CwWyudsUMJcaKt9s6L8XvTYfbcYOUDUjC88r+0ODi1LMRzsTtiKg6eRn6VoME5arB6Ar9QJMEbto+qdp0GU2J3Xtw1L4CH93Xb34=
+	t=1781019341; cv=fail; b=NMm7Ve/MZit7qDkuKTCv2KpiRoDN3/d5F9CKI5iUq+EcBg2XVB2TyKsHt8noEjzYtj7Lx2ebePZtVjSrcGiRVVLN+cGPczYS3BxqA7RHoFbNgooi8B48PzWMBDkKINCtnLq3V6sH4HvylCgvt6LXdzSSwckq/IgkJaBiGdFRGGw=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781016813; c=relaxed/simple;
-	bh=X5Rl5lNzcPM/zxKVGRo0hD7K7rU/ElLrH3SqVAQTBl4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZYrYMyY/hz5j2CO5Zp2ohDfjhYNmksHpydopFgrm6Oi7oX6Bi75S4mM0vkOwGS1+uKWwZGm1ncP93AnQ0+eUdWQeBrE1nT6KLQfCKll1VQ9jDwo8QXd6S/Yw1jxm7Fq65fj/ToFWlnmHcfDWjCYx+WDJmUadPPo0UqQNGn5AcRI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cAK5cc0e; arc=pass smtp.client-ip=74.125.82.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781019341; c=relaxed/simple;
+	bh=cuBJLQbL+3kSfNmJqL8vwDiD5uS1+YYIKR+8dz7BT7E=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=WHGYS2jyECv1FFSkk2Dgw5uLX1u45IGGrCzxH+acbu4lpuJTIe75sqxMSIZYXNY7arpcInTqV8SUGRnGXyxHGxqUjTEk4rusUtMUPScfrFR6UcrwN2o2S3dlPowdpL9PzYLHOenJceZJu9v09DA+MCFsBM9G+ALwhtOoXF0+10U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=ByW4ICzw; arc=fail smtp.client-ip=52.101.69.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cAK5cc0e"
-Received: by mail-dl1-f44.google.com with SMTP id a92af1059eb24-1365eb2a773so285881c88.1
-        for <linux-i2c@vger.kernel.org>; Tue, 09 Jun 2026 07:53:31 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781016811; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Z2RtfqU5rjNOj51xExAJaLmclMzc+2pBzAf2Kkg07uB7RZzIgTN7GZ/juXSjKNFzBT
-         xLC/ZB5JGLVLQECYZ2y4ikPvLDtZjwoJn1Vv6pEMAoUOpxKwrhZgRvAcdN8BSvbmiQyb
-         c9Bh1NBuBA0HIxpCK0nluJcwHjppRBImOk4Bc+4cacBpOYDLgAQHaKMpWsN4+ZMeJW2u
-         omUoADunKnXXaU9AZXGYi4O7tGSyOuzDrVtlpv32A0VwAmtcj9D9eE2ZCapiH/Hj9HmX
-         OKVSPlC10/S04YpbV361WuJdRUh3d0ZxKxOEw3/IOnESX92B1vrFR12KnvtmNDIyNxcd
-         T+wA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=EaC8nh7KYLS78yjACqQzX8jGGQc86wGruCKn4Ldsi2Y=;
-        fh=OqVIXBYHSSG9v+j4uBJ7Tx0m0RwjVVt0qJTOWV5rwdE=;
-        b=DPl3ka6ejA5k6+C9ocrpb2VfJRHCf3jqK2XdLVvOU+IPjbsCuEXbp7ZT6kgSaHh2Gl
-         0nhassZhNdQFPan8bYzNfkEd7T8fzwoFtooVXUJfpEbEOLDUQ2kFb20CJSiajHO2xXm8
-         1iTg3mUYbjN4nI9NjQhXyBd39m7Q3kbPjp1crzhNeemjOdiR8mwO2pvh7RM91Bc5g8dH
-         j5elRGCdLGl8TK7VpWN5aI/smLpqlmFzthcZoSeD7Lu2w4jsLEEjRJaOWspsUM4BluZx
-         0e4JQE0F3pc1I15tpAJnDsMAkhY73PBAgO4oyPxu1uSvbBSoHfADCEr5A3Osck4iSLV3
-         QcWQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781016811; x=1781621611; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=EaC8nh7KYLS78yjACqQzX8jGGQc86wGruCKn4Ldsi2Y=;
-        b=cAK5cc0eQYsQTNqV+Dt2UxMVm5nawItI2QMVrlaAoTRFn7jdW0MCY8a+8tjSQgOD3x
-         K/xXjrKBno//iwndysRPsABes/R5T71vd+/YcVdv3EPNGqmF+7xiyrGgGkBszZLkXdLJ
-         WB7sue1QsJKIOOc0yMLpixYyxPRhuHgrYxSExgmqe53OUk9fftpy39HXgcnD8/HAlFgE
-         Vm8ZzVWrQiM1ar6oRqF5ndhDPhLqr6qwMrVaycCOclBqaFc8ilCk4pLZ75Wphdsv0hkC
-         0teZnFSyB7yYIL62O+wBqIrR4VgNsqr547h9VLwey3lvKw/YK+v/l2vfhXNqfpI7Vmcm
-         cnWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781016811; x=1781621611;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=EaC8nh7KYLS78yjACqQzX8jGGQc86wGruCKn4Ldsi2Y=;
-        b=jDVuCtbL6rrGyJyF3BCN4hPWBpDRv68wRVi57oSJOLYwdkYYV8TlNxrLOpheWWzU2Q
-         EDuMz7P6RN+w4kUwoDD5LyoC+C4tdnwGYi0NjHF8zD4CkDrYJd3SoM8Ou0cuNh8x9BXY
-         HdoLUtClq4gvBnOzwWR5u0TxnRB/5bqy+3hZXF0i5ImNPqNpN9o5NvK5RExmcy3An07P
-         w/Bv4cWunYFsoHG/6acME5RLXrh6l4oEuVkul2LZA208uyrsLb6/bmoc/u3K1oQ3PEwe
-         IdhW7+OX4jATC3UAy31lCmUSUgqvGmvJr6PGJS+QuL0QVjX8Kb8sVcePH3E3Y9LWG6jK
-         DNpQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/j/yi+TZk6+YqLltk3XD3gOFd5aVZZZDJjmfdZBTW40Y7UgjrdZjMLdknar3y7nPyPAWgPGev6HHw=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwbmMXYYxiAzYorkhdAo5ei3J4SdshIT59w3dab9c0zIq/n/I1d
-	NJiaV0PQdKwQX2HcJnhBGhHgj9JlPvLv1nLbbUOLrrGGQtyRRS8qLJeZlAqfYHy6qepSHseqYwH
-	GTOKRMKZK7MT9ctH/fjxljUltJTIlLSc=
-X-Gm-Gg: Acq92OGHhigT47ync5r3Ka30HJBAqoAxIp+rIkVo3unKb7NHAja1cN2QqSoV3U/IX/k
-	MdH0euE3tXN775PD4+dNhMCeRE4ISPIb2LhwFBz5lHbVI8LUtIyPHqj+EpiAnNG3/McX2yzfoxu
-	2lyDydfmQUoc2O3DXqJfcOtSKeJNq/8eABA1/sCh/a0zQg3Pffs4pcDcraYIaklNI04+kcrI/yK
-	szezc2UDJFv43lH4ZigqWGSZ77FZgWkO0Cqf9gJeh/+eCiy4KMc2m/2S73+n9WpnFDaV5ipKLbY
-	cbeZeRicWO5SMW0QWeB6XTBswKq4iNdJx9llZGWAFgfv7+ABvpmEYHQKLEJgpf8lrVdLOZaX1vO
-	2L1C9U56Xfvrz8ttOSOfOD8tD+d13Qw8yWA==
-X-Received: by 2002:a05:693c:2b06:b0:304:c73b:79fd with SMTP id
- 5a478bee46e88-307d602a15bmr1026912eec.5.1781016810809; Tue, 09 Jun 2026
- 07:53:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="ByW4ICzw"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=E9zt2BwfWO3/ja/zVwh0ubfDYvGTil9mh+E2dokltCrcN5ivOwwAeWY2Xb5g8w1irmx55r2hyx0NHMCaWYjANg17H458MErldDG2OA6VqSb43k2ioa9vTejPVBIqKUrvMxOlOrc5GPbRrMhOay1IjZFngC44hyvlBd5RxyNKDAXmHcNX2DMGjxe0QvUAMH6DzX1w3/wuMcB2efXSh/Mf/pQN/hDHMkkvraspOwoEo9DiSL9JIo0TsT0mCVE6g1RIdxJ8Gp9vOgwNb/GC8inpr2tV/P9qVFxMCz6gifju79io3+Neml23u1ZwWDW8bZBrI6d5Ud2YtxjjBKjMEu4wVw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=7oCwJ3UsXVKjeIXDecx1YBlhFBEm2+Ds2zhJdoNlDsE=;
+ b=txQcPcMuss+v1nx46jNmBpIImPN37pLe5TBJZtZhhBUdnwvucgpj7JH6JfGM5rFeF6rKWgNIX9/CjKnQWROojANtC8Lt9wGV+xWRu7tv9gAGdPKEjp9+fnIcmGumZ1kwto2vsmvMjLm8Uip8waxH1k05MbHQzN6eSQDo0e+BigE+XxU5W1asqV/Xs7U4VAY01TwJx9uVVsX/yfTJyj+KKbIvgRU3fTYnKaYhmjRh/NOdtrZlNtCxtGOfpVZQrOuv7w0u6OjLJfO5r61yoCgkdLtL02FlSpX0OOwbPVwGa7hPzYWzxPN4Tx3W1kYtQCQBZS+ObWn41xUYB93gxc4KXg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector1-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=7oCwJ3UsXVKjeIXDecx1YBlhFBEm2+Ds2zhJdoNlDsE=;
+ b=ByW4ICzwHXrEy81ocxfuNQ09AjL9QMmWM1W99F0Dq58vGdDuz/pJ4X+djLKWYeORdUhUfhRG/+fZKRmLLKrMNhwU2bM1yi9eHGSf/2g7aq0m2AtGgbgohL6LZFdoDuSjTDBjOkLV2Fn5Qngrr7vXj99bnJp9Ku+plzQ1ToNwj4j45s6IDbh9TQdN2PqhvYU++GlsRWRNm864ONN3MY6lajDmHL9DZZcFgXSrXUmQYm9EY0NDHWGfYmHPGAepUd7m28ThFDWICynC4+12J9MJ8qq3axVZP6VPmx47ZLGZHM7HxYIudZim1oGydnXE3zcunP/hJKkAYyZqx7yejbRwOw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from GV2PR04MB11799.eurprd04.prod.outlook.com (2603:10a6:150:2cf::9)
+ by AM9PR04MB7555.eurprd04.prod.outlook.com (2603:10a6:20b:2d6::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.92.13; Tue, 9 Jun 2026
+ 15:35:33 +0000
+Received: from GV2PR04MB11799.eurprd04.prod.outlook.com
+ ([fe80::2146:83a2:5329:b7c]) by GV2PR04MB11799.eurprd04.prod.outlook.com
+ ([fe80::2146:83a2:5329:b7c%6]) with mapi id 15.21.0092.011; Tue, 9 Jun 2026
+ 15:35:33 +0000
+Date: Tue, 9 Jun 2026 10:35:24 -0500
+From: Frank Li <Frank.li@oss.nxp.com>
+To: carlos.song@oss.nxp.com
+Cc: aisheng.dong@nxp.com, andi.shyti@kernel.org, Frank.Li@nxp.com,
+	s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com,
+	linux-i2c@vger.kernel.org, imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+	Carlos Song <carlos.song@nxp.com>
+Subject: Re: [PATCH v4 1/2] i2c: imx-lpi2c: properly unwind resources on
+ probe failure
+Message-ID: <aigyvJNKYAFNpHh3@SMW015318>
+References: <20260609095119.924029-1-carlos.song@oss.nxp.com>
+ <20260609095119.924029-2-carlos.song@oss.nxp.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260609095119.924029-2-carlos.song@oss.nxp.com>
+X-ClientProxiedBy: PH0PR07CA0050.namprd07.prod.outlook.com
+ (2603:10b6:510:e::25) To GV2PR04MB11799.eurprd04.prod.outlook.com
+ (2603:10a6:150:2cf::9)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <9e49b71b-8b60-479e-93e7-5c12e352c78e@linux.dev>
- <aiZ0eD-A2F8woqTb@shikoro> <aifcUBtuker3f9t2@shikoro> <5633BA97-5666-45C8-A024-87A737A4086A@linux.dev>
-In-Reply-To: <5633BA97-5666-45C8-A024-87A737A4086A@linux.dev>
-From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date: Tue, 9 Jun 2026 16:53:17 +0200
-X-Gm-Features: AVVi8CcyoxeNZAw6PKYHOJrixFYdC9_ePz8ovPPuzL-S-mcsUN6BPoCRMB-LkRY
-Message-ID: <CANiq72=FY7XMRiH4skr9tuNkH+v2PhKEzQnqVsc5Z_vAnaROrQ@mail.gmail.com>
-Subject: Re: [GIT PULL] rust-i2c-fixes for 7.1-rc7
-To: Igor Korotin <igor.korotin@linux.dev>, Andi Shyti <andi.shyti@kernel.org>
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, rust-for-linux@vger.kernel.org, 
-	Wolfram Sang <wsa@kernel.org>, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Danilo Krummrich <dakr@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: GV2PR04MB11799:EE_|AM9PR04MB7555:EE_
+X-MS-Office365-Filtering-Correlation-Id: 5c915b1f-e5a4-494e-12e9-08dec63cbe76
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|19092799006|376014|1800799024|56012099006|4143699003|5023799004|11063799006|6133799003|18002099003|22082099003;
+X-Microsoft-Antispam-Message-Info:
+	5AnUYXx5uLAfH3sc+P2Y5GygOjfmxb8lPIBN0LsMrkvCCgtGFpIrgXq+lFpfXtFNjl1W6V1WgsuY6fz7vDsGLk04WfXGMCxRbcvcfnKUrBU2Ih0TP7wrI6mspobyC3aB/4ilplVWbZvgMA5a2DgCeDAw+2U7i2FntQLl6mv79bDWcpM5Vs8arKd3cN0g+KXVWcysR9AUKo79rPJXAP69XCM1UI/F22xYMJq0C+298MiBOF26KkQNADx6yuG67hGlD8Riqbm5cRw7XQ151mIRDJ95j9LRoj18XuOsgYwPFjRyUWhYHB+Ed3yz+MM1/c9PEB4SQU+a74HSf2EzOd7riJ35Sc0hgmuoh2Fhhde4I7b/QcQt8jyIhiBxurGCHcPBECF1Y5/cdtjWUSfdigvro1+ciqTEBuZEl5sGqNzyLIyW/nh09ns34SyAbC8U9pCtZnSD+UaAbc+J3VTIB+EYu2l4C2V7Tnwp77xrCoTOGJKg+pA/apqoffvCbtpZ3eyDY9BPBMZ2tocpDopaZv7v6U1CGSLh5ZQb6LbfIVmHLQKmdMdy20A8TyE0gx/MYWCzSiVwS4SHUtAzoP3P7H/v/bPoAup3wYfElt6bmbxthi8EvoyPH/mXuCjIFOS9/K40Af50g81UFzMMyScn9W8DUdo7Zdyi+5Sh0txsBQFYCbOGyIg2NjP/dBJdPZ7I3cBU
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:GV2PR04MB11799.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(19092799006)(376014)(1800799024)(56012099006)(4143699003)(5023799004)(11063799006)(6133799003)(18002099003)(22082099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?sXruUWshCkrzfHNDp1obL3J8wTqCCd7pZpRZHevz2g1oPuvhM3OX1HAvU1We?=
+ =?us-ascii?Q?JEWWn0qOI3OC7ey5/bpSqPKGxG9xT+SuJDUbFsURNN0oaoxscJXDzvL6YC7J?=
+ =?us-ascii?Q?cM55UO2Pwm/FabhFB7QRTSvQnQ3f2r1+BrxG06nCJRyJMfuCHjBZdRl3gfym?=
+ =?us-ascii?Q?pHscxhtnAe4oL2aGf8Q0buffSBVOK7OjCAqucBspBi0k3w0DpzcZPbWtbc5k?=
+ =?us-ascii?Q?rBLhGtjnNGBbyBZSGEcFMhP2WwFISC0Oj058eaCXGpyhYlfU6FbnySNuvx2y?=
+ =?us-ascii?Q?9NoY10MR306c4aKhUDhNlk/CnXuCfsFs+k4+BlCNmUTORvoOGB6cBDmA5YfA?=
+ =?us-ascii?Q?LmTcwYB0hzify1ofrDgAFTy1ItwdsfAVhdmM07dkJXSpxA5oKrXSO/bvW3ze?=
+ =?us-ascii?Q?u/AGcsl6RECYURvjImFQYelJT/t7OHKhl1AnGtP17X0p0j6MakSWezoyz8VC?=
+ =?us-ascii?Q?FwwTUZmDM1Hb0j9xHbBtygKvbF80bsQJLWgZQEhumTmDh8WtsX1Tu+7aXeKU?=
+ =?us-ascii?Q?GE8emA7YDrkROtR4E6KenyMqpR4FWY8gaVWbJqwB7xk+jQxubaYlo5teC5AJ?=
+ =?us-ascii?Q?t2LXNsuXlTsrvJCZJgpYassQB8d12nd5CYtLd2bHFSWZ683lE+knBPYp1cfz?=
+ =?us-ascii?Q?01OZWxMrLt1/8buzPR5LSDG7ntNUtAQIbNb56jc+ha6Oa/jKXtHBxm9lSAny?=
+ =?us-ascii?Q?cYnidwWqZRFCD6YE4c60igDfkT16kawyqkWzFYoUVhOoWhDwZnlbXqwd6wDg?=
+ =?us-ascii?Q?lIQjnKcNpjVW5rnnBafh/fjToUfo9F071VhsedEA215a1ThDM2p2IBNCjaKw?=
+ =?us-ascii?Q?dYvBYGmlPZcqE9yajH/CKWK6FlgvU4tiITdmR6iDOWtijNaVCy+fYROxhlv0?=
+ =?us-ascii?Q?sIAB7B248Fk67sPbJ6x+RPIkpLe9HsSFEWigyxrKOqdvzOKKViP1fUlcre4G?=
+ =?us-ascii?Q?VcAfMbh3z3v4D7imZcNW6YtOTIVu1y1Klpp6IKK6NZB1AhGKgKfkjVpisiUx?=
+ =?us-ascii?Q?dvxxgRHw2pH4kN7iHVlw2XbFsJcyoQqNnk/0HvBxI6qWoT4TbANniGpYLU4k?=
+ =?us-ascii?Q?NyYFY+P4E7sfgE1IZbd52shc/aJhIGlC9e1x5FCJvXiB9l2xNCgJyVEj10FE?=
+ =?us-ascii?Q?uttps/Dp6nKpBAG4HZP6ydFrU15b7Kymp3+//yyfpYXNUct1duu3KSvdgZMs?=
+ =?us-ascii?Q?3ohH1diII2f8aM8bh6jgklCdpap0sH+Fd7/NqAcm1RXKNNP8uptN5GkRZ+4V?=
+ =?us-ascii?Q?McUVXsV3g+hU0YSxN/3TAu18DqNUb/UFShju4kvsG4jHfOHLiOPAmcBDC1S8?=
+ =?us-ascii?Q?pffQ9SEme/UDXiAjiFvOhhSNGrIoSq7f04rjr4BoL+sJfHRg3iCamBiTTLSV?=
+ =?us-ascii?Q?LqpwmVcY2xfvvWgL3nGUnAjCCNpvFGw9e5ONaNMj3XQhSX0gtQjmzVs5HkeM?=
+ =?us-ascii?Q?naKigGw8Shd29KuaCUgQIDoAWY2rdDke0bUE//6Cd/2uoN1gulSewqnfcfdv?=
+ =?us-ascii?Q?l1oeASr/d1o76r8wJlVza4TvU6HvYxz88YhVxmW7W1h/vOgD0PNcw3Oaxf42?=
+ =?us-ascii?Q?KcSuofWDVfPISQGgbMFkOx8vT4HbMqgmbiE8oTp5I/bG+v4R2Qx7IPv1U+ty?=
+ =?us-ascii?Q?yY0BIyWSsek64/zPrV25xxZufGkj9LRSp/CS6v9Qf7n6ajfUVJq0Ih27z3Rb?=
+ =?us-ascii?Q?JZGXA/3T9LEEl5BnDP7e5I117j3YqY0Nzc+TfVpL5iXZ5Hu5mFXLPX6m21A9?=
+ =?us-ascii?Q?hz4UChT16uOnL/eFTdpkTb+IZjhjLhGv9uuoPkHThX269l5VCsw8?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5c915b1f-e5a4-494e-12e9-08dec63cbe76
+X-MS-Exchange-CrossTenant-AuthSource: GV2PR04MB11799.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jun 2026 15:35:33.5460
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 88zr6RTMKFWp7QFyKBJkHklINIfagtzVYuXXxurKX+cA/vXp3x4UL0DvtRPGZZR1zlmSzGZoao/piNTyBSn1J2WExJciXxZusoptGX5oee1O5e3thoFeq5HS2w6d9feV
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM9PR04MB7555
 
-On Tue, Jun 9, 2026 at 2:15=E2=80=AFPM Igor Korotin <igor.korotin@linux.dev=
-> wrote:
+On Tue, Jun 09, 2026 at 05:51:18PM +0800, carlos.song@oss.nxp.com wrote:
+> [You don't often get email from carlos.song@oss.nxp.com. Learn why this is important at https://aka.ms/LearnAboutSenderIdentification ]
 >
-> On the Rust-tree question: I don't have a strong preference either way fr=
-om a workflow perspective, but technically your reasoning makes sense to me=
-. As long as the changes don't introduce or alter any I2C-specific behavior=
- =E2=80=94 and so far they don't =E2=80=94 routing them through the Rust tr=
-ee seems like the more natural fit, and would avoid spurious merge conflict=
-s driven by generic abstraction updates rather than anything I2C-related.
+> From: Carlos Song <carlos.song@nxp.com>
+>
+> When probe fails after clk_bulk_prepare_enable() succeeds but before
+> runtime PM is initialized, the enabled clocks are never disabled.
+> Additionally, calling pm_runtime_put_sync() in the error path can
+> trigger the runtime suspend callback, which may attempt to disable
+> clocks that have not been fully set up, leading to potential issues
+> during error unwinding.
+>
+> Introduce two new error labels: clk_disable to explicitly invoke
+> clk_bulk_disable_unprepare(), and free_irq to release the IRQ via
+> devm_free_irq(). Replace pm_runtime_put_sync() with the sequence of
+> pm_runtime_disable(), pm_runtime_set_suspended() and
+> pm_runtime_put_noidle() to bypass the runtime suspend callback during
+> error recovery. Update all goto targets so that each failure site
+> releases only the resources acquired up to that point.
+>
+> Signed-off-by: Carlos Song <carlos.song@nxp.com>
+> ---
+>  drivers/i2c/busses/i2c-imx-lpi2c.c | 25 +++++++++++++++++--------
+>  1 file changed, 17 insertions(+), 8 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-imx-lpi2c.c b/drivers/i2c/busses/i2c-imx-lpi2c.c
+> index cd4da50c4dd9..fbb9c0b0a99c 100644
+> --- a/drivers/i2c/busses/i2c-imx-lpi2c.c
+> +++ b/drivers/i2c/busses/i2c-imx-lpi2c.c
+> @@ -1520,21 +1520,25 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
+>
+>         ret = clk_bulk_prepare_enable(lpi2c_imx->num_clks, lpi2c_imx->clks);
+>         if (ret)
+> -               return ret;
+> +               goto free_irq;
 
-Yeah, this is a common question -- I hope I can clarify a bit...
+If you use runtime pm, you should not manually manange clock again.
 
-It is true that in most cases Rust changes in abstractions do not need
-to change the C side, which is good (and something we tried to
-show/emphasize early on in Rust for Linux).
+generally method is
 
-However, the key part is catching changes in the other direction, i.e.
-on the C side of the subsystem that need to be reflected on the Rust
-one. And, more generally, coordinating the subsystem -- in a sense,
-the programming language is an implementation detail, and the experts
-of the subsystem and its subtleties are the maintainers there.
+	devm_clk_get()
+	devm_runtime_pm_enable()
 
-So that is why, generally speaking, changes are meant to go through
-their respective trees. Sometimes we may take treewide changes through
-the Rust tree to simplify logistics. (The Rust tree can also act as a
-"fallback tree" when needed, and there can be exceptional cases where
-abstractions end up maintained in a subtree of the Rust one.)
+	call runtime_pm_get_sync(), \\there are PM AQUIRE help macro to help
+elimiate goto branch.
+	... // if need clock enable to do some works.
+	call runtime_pm_put()
 
-I have some more details in:
+	...
 
-  - https://rust-for-linux.com/contributing#the-rust-subsystem
-  - https://rust-for-linux.com/rust-kernel-policy
+and needn't call devm_free_irq().
 
-(Cc' Andi, by the way)
+Frank
 
-Cheers,
-Miguel
+
+>
+>         /*
+>          * Lock the parent clock rate to avoid getting parent clock upon
+>          * each transfer
+>          */
+>         ret = devm_clk_rate_exclusive_get(&pdev->dev, lpi2c_imx->clks[0].clk);
+> -       if (ret)
+> -               return dev_err_probe(&pdev->dev, ret,
+> -                                    "can't lock I2C peripheral clock rate\n");
+> +       if (ret) {
+> +               dev_err_probe(&pdev->dev, ret,
+> +                             "can't lock I2C peripheral clock rate\n");
+> +               goto clk_disable;
+> +       }
+>
+>         lpi2c_imx->rate_per = clk_get_rate(lpi2c_imx->clks[0].clk);
+> -       if (!lpi2c_imx->rate_per)
+> -               return dev_err_probe(&pdev->dev, -EINVAL,
+> -                                    "can't get I2C peripheral clock rate\n");
+> +       if (!lpi2c_imx->rate_per) {
+> +               ret = dev_err_probe(&pdev->dev, -EINVAL,
+> +                                   "can't get I2C peripheral clock rate\n");
+> +               goto clk_disable;
+> +       }
+>
+>         if (lpi2c_imx->hwdata->need_prepare_unprepare_clk)
+>                 pm_runtime_set_autosuspend_delay(&pdev->dev, I2C_PM_LONG_TIMEOUT_MS);
+> @@ -1576,8 +1580,13 @@ static int lpi2c_imx_probe(struct platform_device *pdev)
+>
+>  rpm_disable:
+>         pm_runtime_dont_use_autosuspend(&pdev->dev);
+> -       pm_runtime_put_sync(&pdev->dev);
+>         pm_runtime_disable(&pdev->dev);
+> +       pm_runtime_set_suspended(&pdev->dev);
+> +       pm_runtime_put_noidle(&pdev->dev);
+> +clk_disable:
+> +       clk_bulk_disable_unprepare(lpi2c_imx->num_clks, lpi2c_imx->clks);
+> +free_irq:
+> +       devm_free_irq(&pdev->dev, lpi2c_imx->irq, lpi2c_imx);
+>
+>         return ret;
+>  }
+> --
+> 2.43.0
+>
+>
