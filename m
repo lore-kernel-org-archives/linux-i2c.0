@@ -1,76 +1,82 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BAFE32B13E;
-	Tue,  9 Jun 2026 18:28:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B1BC40D56F
+	for <linux-i2c@vger.kernel.org>; Tue,  9 Jun 2026 19:18:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781029697; cv=none; b=PPk2x47wtoYOY0sUIM/d6fjxjvMQ66ocEbaFAWC9hv1MHClzJ6lZiILZklarjCQ7RYii3ELzTbID777CHLuXYxAG0vdvvMmcaVZTUcJ/Kv7dbxJcviEk2hWdr/uy7olTV7nDEvWlklopbKx4zSRO1UY3uDA6sR77as3EWa0fj8U=
+	t=1781032727; cv=none; b=P7DyxEfPP9Go92dXvLQd2Pf7sh638BZsLhhc30uBfaUveEy3iksTuxTSvGZFHE+65jqZUwJjqh21Pk7zuyF51SKyD0SGVGKhha/+VxQ+X923Krj8iVYaP0k91pvqvKSaIUQeDWcH6XcaBGd+xGLyXLaLY0EJ3nb9mnQDfq8NCs4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781029697; c=relaxed/simple;
-	bh=zbFmqKfQAq3wkEORBEOg52z7+vDcmmR1bAbp6NeNQv0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kfSki7Wi8bmgYbyhozzsyWn8y2l91NkBVkM8u5xJ+Xs542bxrsc4ocUZLvSyQ3iBO6hshtNETAW+U1dX9vkYg/NGGIwdmd7KT7TX9wKtIEzgkTZmG7MROIDRJpCVagW4OtC5R28EEh2ZcfnSDRHfdBTUjmphdAuHx+zD8W1APL0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cqmDTLWe; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781032727; c=relaxed/simple;
+	bh=RXV/PHq06XgAldkOsFPotMbvl1e477O+U6rNxjxuSck=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=E44ImJW1hoHIz4jn8ISAmxmxlsyEIvMjRy/7W5NMf/yvhBf+8U9Gh88Xn7veVT+38mZXhaN/29V9KpkIFUg8IpXSd90GBJKm12p7y5oipIc8iZfVztkesERjGW+yySTDSGf7ebGNNRI55QzQCdtw/Dhc7fDay54Y1gzeT5E4+1g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=UXTUhett; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cqmDTLWe"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE2BA1F00893;
-	Tue,  9 Jun 2026 18:28:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781029695;
-	bh=kn3N2mYYGUZSqN1nbkQv6n0uUW62Ml+CXOjbFIsr7Ek=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=cqmDTLWetSQVrX8VFAtNcVNal6iZ9ieLokhXmMpUgltW27XZzfSGTJLs3kAnUHtc9
-	 zoVPtEGbTx9QgSos7JZepYTe/52lADn517Vabz79zFF39uAmebwRIykuDmCx0DcUie
-	 8aoah9jemAir0fkqIH+iFexRZdDk3rKduDQOOj9lFi/KAQG1+Wfd28vIaj5uASp1Nw
-	 hLL/wC9idT0JOkHxL5tufwvYSLkrpwpfDqbjbfKgMjeBHBfto3hGX/MlsGDf8zTYSH
-	 JIOBRaPnw8ZCIXX31FTQmb4BUZMBBqNYgQFXvXTHUoqpfV0Jg/PgLQPMP1Zvn+gt6U
-	 e7Z/taS1uiXag==
-Date: Tue, 9 Jun 2026 20:28:10 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Praveen Talari <praveen.talari@oss.qualcomm.com>
-Cc: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, 
-	Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>, Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>, 
-	linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: qcom-geni: Use pm_runtime_force_{suspend,resume}
- helpers
-Message-ID: <aihahOVIqpm83Guf@zenone.zhora.eu>
-References: <20260520-use_pm_runtime_apis-v1-1-6a5238fc6cb6@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="UXTUhett"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=from:to:cc:subject:date:message-id
+	:mime-version:content-type:content-transfer-encoding; s=k1; bh=m
+	AbCO/VYkP25Ftu5+PXq7OJjIReokztKQk8IWp8H0yk=; b=UXTUhettkOyhhyNbP
+	fhLsEffj1dUiKzsOHwsZX6Fomkn3twn25Q5M+tkKqefX7D0tk3P+OhZdPAJq9aNV
+	dWzxNomDGYxhefiMkVf7a6twzboNovZt2xJTZBWQIqtT6c/Idd8Xu/fmfvPEy7Xj
+	pv1yZTnPPqADZorKlpVUX7KawyTJPoHruX2voSNAutkaVoAgtTLL3VXMgFv0yVFJ
+	k/PP4fgYa5j+DpH2LRbBgArxk6ez7S2hnYogfOWe0WRuc6wCfkSjcDef7c333JiD
+	q19TgwGeQGdqcC6GlUZYaU60M0pHEMePIS83tWzjkim0+/9YX7mhwwW5BoHmWBgx
+	1qdqg==
+Received: (qmail 1394293 invoked from network); 9 Jun 2026 21:18:39 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 9 Jun 2026 21:18:39 +0200
+X-UD-Smtp-Session: l3s3148p1@uqqN/tZT2LsujnvA
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-i2c@vger.kernel.org
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Subject: [PATCH i2c-tools] i2ctransfer: man: make data block suffixes bold
+Date: Tue,  9 Jun 2026 21:18:23 +0200
+Message-ID: <20260609191823.1772-1-wsa+renesas@sang-engineering.com>
+X-Mailer: git-send-email 2.51.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260520-use_pm_runtime_apis-v1-1-6a5238fc6cb6@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hi Praveen,
+Highlight the suffixes for better readability. Inspired by an upcoming
+documentation update from Benoît Monin.
 
-On Wed, May 20, 2026 at 12:44:29PM +0530, Praveen Talari wrote:
-> The driver carries custom system suspend/resume handling that manually
-> tracks a suspended state and conditionally calls
-> geni_i2c_runtime_suspend()
-> from the noirq suspend path, then adjusts runtime PM state by hand. This
-> duplicates PM core behavior and adds unnecessary complexity.
-> 
-> Drop the manual state tracking and switch to pm_runtime_force_suspend()
-> and pm_runtime_force_resume() for system sleep. These helpers already
-> perform the required checks, call the runtime PM callbacks when needed,
-> and keep runtime PM state transitions consistent.
-> 
-> Reviewed-by: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
-> Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+---
+ tools/i2ctransfer.8 | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-I normally don't take these patches: Where and when has the
-review happened? The reviews has to be done in the mailing list
-and I need to be sure that they have been discussed.
+diff --git a/tools/i2ctransfer.8 b/tools/i2ctransfer.8
+index 4bdf436..e2dbb89 100644
+--- a/tools/i2ctransfer.8
++++ b/tools/i2ctransfer.8
+@@ -129,16 +129,16 @@ bytes which can be marked with the usual prefixes for hexadecimal, octal, etc.
+ To make it easier to create larger data blocks easily, the data byte can have a suffix.
+ 
+ .TP
+-=
++.B =
+ keep value constant until end of message (i.e. 0= means 0, 0, 0, ...)
+ .TP
+-+
++.B +
+ increase value by 1 until end of message (i.e. 0+ means 0, 1, 2, ...)
+ .TP
+--
++.B -
+ decrease value by 1 until end of message (i.e. 0xff- means 0xff, 0xfe, 0xfd, ...)
+ .TP
+-p
++.B p
+ use value as seed for an 8 bit pseudo random sequence (i.e. 0p means 0x00, 0x50, 0xb0, ...)
+ 
+ .SH EXAMPLES
+-- 
+2.51.0
 
-But, because I know Mukesh, because this patch has been sitting
-for a while and because it looks good to me, I merged it in
-i2c/i2c-host. But please, next time I want to see the review
-process happening in the mailing list.
-
-Thanks,
-Andi
