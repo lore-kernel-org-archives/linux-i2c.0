@@ -1,43 +1,42 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37FDD3F8257
-	for <linux-i2c@vger.kernel.org>; Tue,  9 Jun 2026 11:02:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81FC43F9F44
+	for <linux-i2c@vger.kernel.org>; Tue,  9 Jun 2026 11:07:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781002979; cv=none; b=e/Dent+b4DJzP1iQtqPFKUChqhuwWzcvkh3dD4LM41+5/m29MfLjWGE+mImupbKt/foWpcyyMNnwzLllJBshXZJaFQPWTxvLWh3KJx7N7K3GPk+POO4KIzWlhK6iRps4VNHCrhY+MUZNYbMr3vSnyJa+6ixUzPR+//DZCqIfMEM=
+	t=1781003245; cv=none; b=Xz+p+lC912fZJTyTpurX3aSKfHX53/bzPOXQ0YVRZsMM8FsdGzmoed5QHmbNKSric4lnOfD3Wzb8O09gHqPfnU/tYR7U9pmpda++7cd8R1a1e/Gulj7hIa9mg1tNX5HoFGut3fipJWZsqCKrmEQFaJqjtyaba0IWRGJs+viO1Xw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781002979; c=relaxed/simple;
-	bh=eDNoB5RGJmOVfcMPByK4i7bKnJa1fIywj2xFgdSQSrI=;
+	s=arc-20240116; t=1781003245; c=relaxed/simple;
+	bh=k/4cjrJIiLkc+4OP5DerHdsbprOm0eI7rjiynXY0rLo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=L9ZZNFz5vDLtldW4DnhFk09aMZfHkt+adf4Q9xT0j9aqnzquyyQ0JPL2UFhzzEdehe7h7YCGNJB/f/dEGmY2jqPxbiEGOOIXPlUaJaprfWrAFWghUs6GOBegOVSccYQLC7K06xg0tfoQwkUzT2G4kqyPZx+2DNZ/LgKE2NY2t+8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=NxjHrHCy; arc=none smtp.client-ip=194.117.254.33
+	 Content-Type:Content-Disposition:In-Reply-To; b=LZSsn3oQOnDMYqzkivjVtNih9fvCSlciJJ9yBlEDhBBDkoiiOZXGumjTpkAvS20Fhq4oOdppRkX9x/cU2v1dWNbPi9wAp7IU4J6eC8BGz8M75PBylh9IIqlgKS7BgEwMVNVjtz2lGeycu2ao9ttkQt7VvBeqvDrAK3kGf2dMiOo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=DlCAvGWX; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="NxjHrHCy"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="DlCAvGWX"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=pwaX
-	6RCaOibEIyNuI7kcq9+uLt+TcVmh2NYeLQFKnvk=; b=NxjHrHCyQsdtN9jM+NIh
-	sEg/VcIpnHOYZNSDTZxI4kW3ZCYFa+xARHkEW7AqRspXtgFYPP0QbXkZoOsDjL9U
-	mlo1M5sSOYkQmjCLLGzEvmP8epGYmAAWMLhzjCqvlbHjjVz3b0IF/RtJm7X4mFk9
-	M5gRuCoAkq55Obl/4BHw8tifeK6KNeEjNkzB/++x0j1v7jACwMzBQq9TDuqj26SQ
-	gu3hUSxqWglET5DiF4rSIgkba8ZJCr0M4IySWmu6Wma/3c/wuNAHJchd3Hgm3OxS
-	+gJNGuIoQykejTocf56ldqfR8XigeRC6TFABIE82HOCRgzQ+vNda/0dx3HSGzB1X
-	YA==
-Received: (qmail 1242701 invoked from network); 9 Jun 2026 13:02:51 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 9 Jun 2026 13:02:51 +0200
-X-UD-Smtp-Session: l3s3148p1@jHJuEdBTpNYujnvA
-Date: Tue, 9 Jun 2026 13:02:50 +0200
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=o+An
+	bWzeyRJv0nP5GhAvs9HbLvJXNFbGoCHHyfgze9c=; b=DlCAvGWXzmiTMKAry8EB
+	ygllAcIN9eu2UuCSScjnSbd8hsLjevAWaWiRc6/MQQlZel+5gml9ccu+UkSGTm5D
+	4HoeEGSKAoF42myBbE0bjbI+xCioA70xFfE0aT/pXD1eznngOMUuKEXIV9SFMoZF
+	XBddQfxm31Ec35DXn6QH6k+SiBcRKSYF4FCSsl5eRjg6ea4qO+PjMCCbXNc9eXmW
+	ZH0LkNNCXOibMvcvMssho70U4HRz9ClSPzkYqNdmTI09tW+KwgJtIIvGnuxOXbIh
+	YRkE6R5AVdfbxpeSnG5A8ugeuLNSwl12MbqGpYVRzf94H4nbjBe4rCHOXyNxAI0A
+	Kg==
+Received: (qmail 1244159 invoked from network); 9 Jun 2026 13:07:20 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 9 Jun 2026 13:07:20 +0200
+X-UD-Smtp-Session: l3s3148p1@3MJ3IdBT9JkujnvA
+Date: Tue, 9 Jun 2026 13:07:19 +0200
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: =?utf-8?Q?Beno=C3=AEt?= Monin <benoit.monin@bootlin.com>
-Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
-	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Subject: Re: [PATCH i2c-tools v4] i2ctransfer: Add optional message modifier
- flags
-Message-ID: <aify2jjX4MZsXUGy@shikoro>
-References: <20260608-msg-flags-v4-1-68ad6f0a4e4d@bootlin.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: Re: [PULL REQUEST] i2c/fix-registration for v7.2
+Message-ID: <aifz56BVLCdk-lDu@shikoro>
+References: <aiclzp0IA2Rk7NyU@shikoro>
+ <aifphmi1oFYZz7dQ@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -45,75 +44,61 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="oV22Kbyvh/Qn4ZH4"
+	protocol="application/pgp-signature"; boundary="HNwE9elCwylO6fpy"
 Content-Disposition: inline
-In-Reply-To: <20260608-msg-flags-v4-1-68ad6f0a4e4d@bootlin.com>
+In-Reply-To: <aifphmi1oFYZz7dQ@zenone.zhora.eu>
 
 
---oV22Kbyvh/Qn4ZH4
-Content-Type: text/plain; charset=utf-8
+--HNwE9elCwylO6fpy
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi Beno=C3=AEt,
+Hi Andi,
 
-Looks mostly good, I think we are nearly there.
+> > Johan Hovold (10):
+> >       i2c: core: fix irq domain leak on adapter registration failure
+> >       i2c: core: fix hang on adapter registration failure
+> >       i2c: core: fix NULL-deref on adapter registration failure
+> >       i2c: core: fix adapter probe deferral loop
+> >       i2c: core: fix adapter debugfs creation
+> >       i2c: core: disable runtime PM on adapter registration failure
+> >       i2c: core: fix adapter registration race
+> >       i2c: core: fix adapter deregistration race
+>=20
+> I cherry-picked until here in i2c-host-fixes.
 
-> +	/* unexpected next part of the message: length or address */
-> +	case '0':
-> +	case '1':
-> +	case '2':
-> +	case '3':
-> +	case '4':
-> +	case '5':
-> +	case '6':
-> +	case '7':
-> +	case '8':
-> +	case '9':
-> +	case '?':
-> +	case '@':
-> +		fprintf(stderr, "Error: Unexpected flag '%c'\n", arg);
-> +		return FLAGS_UNEXPECTED;
+Please don't use 'fixes'. These changes are too intrusive to be added so
+late in the cycle. Stable maintainers can decide if they want to
+backport this. While -next gets some testing, a lot more testing is done
+once it hits Linus' tree. If we cause a regression now, we won't have
+another rc to fix it. If a regression shows up during the mergewindow,
+we have multiple options to deal with it (fix it, revert it). Next
+mergewindow is totally fine for this.
 
-I suggest to drop this error message. The above characters are not
-exactly flags. By removing the printout here...
-
-> +			for (ret =3D FLAGS_GOT_OPTIONAL; *arg_ptr && ret =3D=3D FLAGS_GOT_OPT=
-IONAL; arg_ptr++)
-> +				ret =3D add_flag_if_supported(&flags, funcs, *arg_ptr);
-> +			if (ret =3D=3D FLAGS_UNKNOWN || ret =3D=3D FLAGS_UNEXPECTED || ret =
-=3D=3D FLAGS_UNSUPPORTED)
-
-=2E.. and simplifying this to ...
-
-+			if (ret =3D=3D FLAGS_UNKNOWN || ret =3D=3D FLAGS_UNSUPPORTED)
-
-=2E.. we get the error message of a missing r/w-flag instead. I think this
-is more helpful to the user? What do you think?
-
-Happy hacking,
+All the best,
 
    Wolfram
 
 
---oV22Kbyvh/Qn4ZH4
+--HNwE9elCwylO6fpy
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmon8tcACgkQFA3kzBSg
-KbYn/w//e4Y0FNn2C9FUSWV4f08vhBKnEVI5JOwFQAF+8qfXRbZIcQ2xLwgK66Ak
-mVDBWv0CN9abrXCAe0hKZZmxSS8Ns6d2LEb0wKqYLfEo/+J0+VejTwy/mgmMIXLu
-mQf+CaC5wCZ5/8v3uitaYCODS184h4l4p1dllIgB+o08JavECXkaXo8hDzUcsQxL
-ZxbDnI5NtxHyTNr9Z/LNv2Ry+t4lDXwDRZrgPORpCzunbGhpnOd5HYSAjh+qzjwX
-n5u28Lb1MdrQRX64XHUO+L+LLOLXIMXPCDmYy8MP7cnCze94TOJpDH1bCBc5A/nD
-rl2SMhNTuWKVOKQ3vrioJNAtYIOHJQe0WsVbuovx7SanUDJxPSxWAOwZR3HC/GKQ
-KGe3uyiy8gq1ULsDF/Rcoioe1DKwS4PLT1plStJMQNzHcZvxgtfFXXIRyA9wltaq
-oME9Y/hzs6HdjytuOFDTEZqKCPjl14zwTuT3M6VMTFyDzcDIbSM3lCAHGA2qZgaW
-6kY4TP6XGcyfl2THC2aN/ilGzE6k0hDIr6ISmVKQg/DvPM1Nsn4ffKUvACYi1Vco
-aCSL0nU6kYL6pRtVlOAn0ybjUAqz7Vyuqjty0PeL6mh3zGndcVwskVt1E1d0Mqj1
-ilFcBeDbPgjM1uobFod6wz9OW65d4ziXVFockvZ4SpBV3DsnyPc=
-=FAxz
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmon8+cACgkQFA3kzBSg
+KbZjkw//fXpdimXo21UaAROEEmlVxQjwGUYF0ff7R+SNI7FD27VQ7xQ2GYsjWHsz
+UY43Q9/LhkE6bFVkFyPC+OM0dSx+bRhOBdb3lwu8BCJb+rFSCUCKRnXogHVdMXVs
+cRhveghW7+BgSo1opvM7Qly5HjLwvsS4BntWp3nydjqlCpJTBamxA3r8OGjoFZYh
+jAxQTzjl9XV6mobpBn6CHRvEvPKTTh7rQhdfEiV7l2IVpq9KrXGmtyASe9hXdUUj
+0uUELllsbkX9xvyeYpBMp3Z36BFlMJl+KT67Ir3H3Vh0+BhZcDqGbISW3pH3+Rc4
+j6Gd2R/lLfD3Hr6gw95geVwQ9MjdnxKgsHdps39o8P+vnlYQeStFnyfJ1zhQuToy
+kK2MOX9BzD8tPjG9ZzY6q3yp2T/t421SayXF0+fQOsDTRLaFE+dPImJGMqKtb7xV
+78dX/0+T/SKv6mEQj4TOH1Mf9vAVOZsq8quN2X94qT4Dxx0UlnFvC3Mox1421u1Z
+9NDb+dJBO0k5OmgLbZCMqGXFiIb6bCIUS20UuH8tsf4HAwFl/r49dVZ/GnPPiN2L
+Wj66w7wF0i0bOhIkqoHm5L8agBaScmP5nhv8qKDEX9659hbcAbXMIFo6S9m+YzLa
+6bXGDTykwDOSwBf7D8WFTzZKqJdKDjPBr2vRRpV1HltrFn2Bs/o=
+=bT0A
 -----END PGP SIGNATURE-----
 
---oV22Kbyvh/Qn4ZH4--
+--HNwE9elCwylO6fpy--
