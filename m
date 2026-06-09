@@ -1,198 +1,138 @@
-Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010027.outbound.protection.outlook.com [52.101.201.27])
+Received: from CH5PR02CU005.outbound.protection.outlook.com (mail-northcentralusazon11012051.outbound.protection.outlook.com [40.107.200.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 62B25313E34;
-	Tue,  9 Jun 2026 05:13:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.27
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD941330B3F;
+	Tue,  9 Jun 2026 05:19:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.200.51
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780981986; cv=fail; b=UoFuAh5pcB0G/YxI1MjjXtJm+RvuMIxu5mfEcRE3cyl52Nf9BcJ9R3Jt8HZd4J5bfwKT3VJ8TJxVPGHcIjwxPih+XtZDFuTu4Kn7qKtx+6/nXamWlsCoJ0Yivtwo3/3KXjCfCd/hYSF4ylX8TRiZ0stsn0fBDRDIJH5T3mDCo7c=
+	t=1780982352; cv=fail; b=BpOel/5JgXqFE9ZmmstYCKmzOPa25ZJ95Lym9cgyt6SibBA//ZsU3jtBAHaWx6PzNfK/hU4DwiCH1kiqmvEOQPGNp63mij59cKgEMXKWHskRyJSnPWX41OSRQlxbbU7ThMAEuX1r/EInjnGkm+dYe4lvlbuGV1roL5LWEeVfKJA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780981986; c=relaxed/simple;
-	bh=ZVytTFqlMgvExgmPZUi/UvIci0pqhRuv8QXvpoiCtVU=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=QOP5Bo6Heb2leZSRqKFHBAP2PGAThMkIaDNacxtMdRurUyquae5ZFRCHwc13cMrMQSPQ9AZP4ggPhZ70BRyO1S52RPu2yEtKoeaVLHRk7WaIMrPzVXhNJLZPMcX1ohikBNiU+FSB/py3/MVqng0Mi2bG4s6AKCnTUP5Agub8+KE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=R1sEDDhT; arc=fail smtp.client-ip=52.101.201.27
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	s=arc-20240116; t=1780982352; c=relaxed/simple;
+	bh=+6LuZahZcVFpp9Vvuf5e6Ac0QE/M1kmMowzg3fMsJVQ=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=nnMSE1v8KYJ5hzjUO0R5AY0fYJm0kMBKccaGWZSXiOrULPWJhLmbdqE6OuWtUrygw5lxH2PdxsKGSGL0/7A33lsHTxnORyJh3CWBa8xS41ZDNrmfM0k+nnd3FeaqXa6Yoq/6xZ2hjM4ZWSpFSgkSYqkDI2H6Aj/HscVX0vBEPs8=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=D8fi5pj/; arc=fail smtp.client-ip=40.107.200.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="R1sEDDhT"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="D8fi5pj/"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=qn2qeK1h/8C6QfzOylJSTihTy2n4p/LWAUOeJoEEoI0ON0iHDkeDqPPDSSR4TGj0e6hXLtENnlnMwShjuEyYQbBd3ns4ZEoi+2rfZn7zYbj8nwMP3wWBOFdhA6yGHaammNXo17r2gASSDALzZWGNVkSMv6biD+W2XI0ay+ku9W5lM0x+RA5rKYBc7mLNUXzZ77qScGDvbFiv+tN02oYPfF4rVKswK1vf0K4Z0S5UBJ8n17NYj94698mkdB2AsUXCHgoq5DJMWfQQQaSANQfKWN3zDEnj72uY8/76H9lePETMjcpl5IhTlKj6+NXCHiBz8wkkOo6njxt9UaeCNQCRvQ==
+ b=XV1TnrPdtPdNCJK0Pm9EyCDG0hrjoAoylBU4UYjXuOQqHvJXytHovbuql+HarP19Ncz1fM4AFeq0CWMgr1L/TwuJCrmEmBfN+6dvcJD4GjvJxiJXI3qYyeCHmdcDQQ5fLGQZrvNwZwjGnajI5XYuLJRZMRPeGmCXLbwG+8a9LOKIxbyzdKT6FVq05+ur1mm0JC4tvFL5hgG1yn6u8jKrKGVQqTyJVFdmdzQD4kYYF1qWzwroVTIG4JZpwUty9LFvnB+Q4IBXJCOi1nUVCV5soC7zDGfSthNuzlGNdaWlkTE4ZRLzB31oC3Wvr1diJhJP0B6smB0GhilGWciNRYpLTg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=3L6bIa8l1lYUanMnCbgKM9ANdQvKG2IfVZom0O9BYJc=;
- b=gfJX5CcvOC8io7YRbO406jV/0gFGx/ppIvReGB2IKyWplhQ7gvLTA/y0gcIhzoUGJhT//KuRvz2U+S3tUqsh/0hZpPhZgrguAsIdwEhPNAd2k0T2WHMsi6nkv80v2uJLt0gNvrSETe4hR0io+B9bx7eJ1oH/PBU0R08yZ94yIorMqovD0DTa79KSVsxzB87OEbNgcTuNxXvRYz8vhmba5nzhPd4IWAv7J04X4iEI4g80QHMtk1osBXjhXUQnaAt6kR+MAT9jkznUHWtx2e1MOuZr6w89DfGmrAaE6/6cGQwLqUCAk6Rdp3rotcTOv73IKLK2yEwAnRpsD677T6q2ZQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ bh=CvzAismpprrh/fi1pNGY+qT0A7KRPyy5UbuiDndXWXU=;
+ b=jNPTLzYj/shWwmgIRtM2syeZwzIBqdmDaRSk74fSLLbyejPcC8u2Tueg3pPWlOJEwSH/LUV2HuD6PTTxlmmNrUZLSfdWNbNcWg/vN/jXLlDGDgxJRta+GX4RxI2aS9CUME5k5rAwM+rDBnNUWYkUPp6npCFV8nJF8OyLGcs9mUOSHjgYsFee7DkOg1gD1tvXwdw1AvJKUVh2m9rBsDwiyYv8tOa56fnvARmxDNP/tuuLPWJHeK3WJntXggZ+bkEDKPBatW/WEhxyHArRrrqHOvLoE4JaI3vyE/Q7MeTIvVjaMeKRpQ1WK3cFzmmyB/ZtT7eZsLzIFVNViSKozoJauQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.118.233) smtp.rcpttodomain=kernel.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=3L6bIa8l1lYUanMnCbgKM9ANdQvKG2IfVZom0O9BYJc=;
- b=R1sEDDhTW9Eh6YDYdU2Q8ZdpRSQw4C3cPTwg/RupIwfhCOgBlcom2VycBjEP9f4SqYO2TEnYoi9oU2mdxp5pJc2YChCcif1tjvCK3qepEz3z7okXyKI5qGCHY3N1g7hEURge2HIpoAPQ+vT6uHrYqwDkJwMmkFBL/LAhSgR08pQ=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from CY1PR12MB9697.namprd12.prod.outlook.com (2603:10b6:930:107::6)
- by SJ0PR12MB6807.namprd12.prod.outlook.com (2603:10b6:a03:479::13) with
+ bh=CvzAismpprrh/fi1pNGY+qT0A7KRPyy5UbuiDndXWXU=;
+ b=D8fi5pj/QWMvPWm/ja5lXl9mT2rbMwRhPEtu6DbIfj0acwkxiqaKwjEBe8SqXGm5bO1clc28cM1TtTZSoSJZ/ubnkfCxU0rMUzJpi5xqvD7Azx4+sEgFmZVz4i5HMJxQJULQk6jlNxS1uUWGwWUHgbY7VLqhNHoKcm5P7i4AzgEovNS13+a2ijcFimoCWepzqYsaNm6NOBs7QPgx2Gy4YOg7ThuafBT94CTk0AHDDNjqZ9xb95RvX4mQe9JkiCsUUfjXC4PNlesgDN/cGlExm91kmCd1Elc0CBxZ4ABiFvR4mqaUFkc0vLPHwBgQJR+tzm69Ao5mTj3Yto5H/W1crQ==
+Received: from CH0PR04CA0102.namprd04.prod.outlook.com (2603:10b6:610:75::17)
+ by PH8PR12MB6676.namprd12.prod.outlook.com (2603:10b6:510:1c3::9) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.92.12; Tue, 9 Jun 2026
- 05:12:57 +0000
-Received: from CY1PR12MB9697.namprd12.prod.outlook.com
- ([fe80::3a41:55a0:8203:596d]) by CY1PR12MB9697.namprd12.prod.outlook.com
- ([fe80::3a41:55a0:8203:596d%5]) with mapi id 15.21.0092.011; Tue, 9 Jun 2026
- 05:12:57 +0000
-Message-ID: <443b6385-b4c0-4811-b62a-b68998cc6ee2@amd.com>
-Date: Tue, 9 Jun 2026 10:42:50 +0530
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4] i2c: cadence: Add shutdown handler
-To: Ajay Neeli <ajay.neeli@amd.com>, git@amd.com, andi.shyti@kernel.org,
- linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Cc: michal.simek@amd.com, srinivas.goud@amd.com, radhey.shyam.pandey@amd.com
-References: <20260430053050.3590173-1-ajay.neeli@amd.com>
-Content-Language: en-US
-From: "Pandey, Radhey Shyam" <radheys@amd.com>
-In-Reply-To: <20260430053050.3590173-1-ajay.neeli@amd.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: PN2PR01CA0188.INDPRD01.PROD.OUTLOOK.COM
- (2603:1096:c01:e8::11) To CY1PR12MB9697.namprd12.prod.outlook.com
- (2603:10b6:930:107::6)
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.92.11; Tue, 9 Jun 2026
+ 05:19:06 +0000
+Received: from DS2PEPF00003442.namprd04.prod.outlook.com
+ (2603:10b6:610:75:cafe::13) by CH0PR04CA0102.outlook.office365.com
+ (2603:10b6:610:75::17) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.21.92.13 via Frontend Transport; Tue, 9
+ Jun 2026 05:19:05 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.118.233)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.118.233 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.118.233; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.118.233) by
+ DS2PEPF00003442.mail.protection.outlook.com (10.167.17.69) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.113.7 via Frontend Transport; Tue, 9 Jun 2026 05:19:05 +0000
+Received: from drhqmail202.nvidia.com (10.126.190.181) by mail.nvidia.com
+ (10.127.129.6) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 8 Jun
+ 2026 22:18:54 -0700
+Received: from drhqmail202.nvidia.com (10.126.190.181) by
+ drhqmail202.nvidia.com (10.126.190.181) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.20; Mon, 8 Jun 2026 22:18:53 -0700
+Received: from build-akhilrajeev-noble-20260602.internal (10.127.8.11) by
+ mail.nvidia.com (10.126.190.181) with Microsoft SMTP Server id 15.2.2562.20
+ via Frontend Transport; Mon, 8 Jun 2026 22:18:50 -0700
+From: Akhil R <akhilrajeev@nvidia.com>
+To: <andi.shyti@kernel.org>
+CC: <akhilrajeev@nvidia.com>, <digetx@gmail.com>, <jonathanh@nvidia.com>,
+	<kkartik@nvidia.com>, <ldewangan@nvidia.com>, <linux-i2c@vger.kernel.org>,
+	<linux-kernel@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+	<thierry.reding@kernel.org>, <wsa@kernel.org>
+Subject: Re: [PATCH v2 0/4] i2c: tegra: Improve DMA mapping, latency, and power management
+Date: Tue, 9 Jun 2026 05:18:49 +0000
+Message-ID: <20260609051849.1734182-1-akhilrajeev@nvidia.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <aicYDVct2VElN4IN@zenone.zhora.eu>
+References: <aicYDVct2VElN4IN@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-NV-OnPremToCloud: ExternallySecured
+X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY1PR12MB9697:EE_|SJ0PR12MB6807:EE_
-X-MS-Office365-Filtering-Correlation-Id: 834ed227-ca17-4027-34bb-08dec5e5c4af
-X-LD-Processed: 3dd8961f-e488-4e60-8e11-a82d994e183d,ExtAddr
+X-MS-TrafficTypeDiagnostic: DS2PEPF00003442:EE_|PH8PR12MB6676:EE_
+X-MS-Office365-Filtering-Correlation-Id: 25260745-2787-4fbf-ce9e-08dec5e6a049
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|376014|18002099003|22082099003|11063799006|56012099006;
+	BCL:0;ARA:13230040|1800799024|82310400026|376014|36860700016|18002099003|22082099003|3023799007|11063799006|56012099006;
 X-Microsoft-Antispam-Message-Info:
-	gatjEultK1cS2YGKbQcEh3JOsra90Uv751xFCcT3g0avPMagJjt5m3/L33CA3ythpD/SxaqbDf7Vas1ipDa/0WsnjrguLnTFakyvcoDd4Ajv9ls7EVRKaibbWdDfhCzHxGbNOUD5jYLCkErAbV1OPP7BcgIXepP7y0d1dAGzHUvOqk4GexS0fGqbD/AHBn0PNra0ogDSqllTC4t0S8i7j+bgq+szfOEk0+lPZ5EseOn3Gqrsr8lLjj0NODO5Vo6/m3ltAa4gekuOV6AQYtUEnDevYsrqHiqKCg50P+uW3MWDh+suzlAH4e0+pdNvPF3g2XPdCzSfKUVv/8UcfGuApo11kk2Mm6BPggkvA58sfEbPlInziWZi9pF9kzBWBQh9hHHC82vtLGaGEJ8bXUF+4WyGsC9NeV+9oXoke5QUIGVpK/73Zuw9yqMrhfgNYtNKijAIeU9kl8YGsXLHAtJxNhgE5Yn5F4IID4rz7QcsV22KMUjQf31Hb6AisfNH6yA28vRQCDXnQKvYDwJz1oOLfH5R8Zy8h8njU4MiuD86dJIAbxe1f96P1yHYEhebyEpjTzWmTHRXwytR0nQ939MtUHhYhYnq4OZAR/mLOy5lkHcuKmuIIR080rcb3GhGe6u6Wed7X7PHCDW/xDckH5sxFkUhTI3EFJjCBZM8FozrnIlJBNKRIMmOKTTAVtpD7TO1
+	eVXqSGKjU1vXwDg9MU3soG48oSXupG90THbeQ/8N6OgkM2K01nw2DJSwoHM0YdOxjTguRb0AOOmzonTqqJ50S4BuU/m+g/YqD8J+amHxRu1Gh3XKHQxB0eRnhPScmimlW8DRNLJMOh8DPWvgLQsYBO0XXbSF974M9qWgCyALU3WBzsvdmLXZF5/yd6S8mGXvmE1aF/wSdh8JSppx9so6z+UVMniOvLWSsyjgwiITZppkdv5RhcIga8yz1BabqCtE0lgERLsmTabXh4wIIrpArhqJL1YiaUaC7TrJE3EzS23v1rV1Gd0wit7QZY8Z1LzJ9crL0wUYOWylEekdEbTWo/LDtYIGVRlCmEyAAjhvEu0wxLUGkHNvK6HO4UQsvwbTbaoTfliR80FvBNn7cK/Qo396ITCPG5fRv45Ui5ugwfDDSDjm8ePF5nro4FK3AVmYdgJRbk6LueagvHVQq0ciMz4OAyyClfjEFDXp1iLricAuG38gMkGGbB1rJSwZy+KLNcVg7ed2U0eKTFv4N1mkUIabFk8GpKoL7WDiMHNMi6aDWMQ+Brfb9/nZCswWUiVeEobWIYQ0v6tFm8RZdC9U2GRA9aQpZ7RGg00Tdj6wPSx7U1yDjO3ryGT6sJkQINHsYGr6BqF6aVYkwN6V3SDHELIYLFXxdHEhADAa/IXOa7itLKlkp9AoXFX+8aExjWWGUdfxKg7rFR8OcgddUCw9cz3yBxHza91YT+PCV7Nw7to=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY1PR12MB9697.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(18002099003)(22082099003)(11063799006)(56012099006);DIR:OUT;SFP:1101;
+	CIP:216.228.118.233;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc7edge2.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(82310400026)(376014)(36860700016)(18002099003)(22082099003)(3023799007)(11063799006)(56012099006);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?VmNmT2dnTU9ydjJtdWZpTGxEVXViZ2owbGlzQVd0WFhqRmF3TXlLTVJWUWox?=
- =?utf-8?B?NDFqb0doSmdnRExMUXptWEU5VmZ6UHpEemgyeDdiN0Rad090V3c1QXpmbkhp?=
- =?utf-8?B?MDd2OVB6eEtEQUN2VXpiM0p3OUgvWUZVS2VmTDZ4alRJWEQ2ZmwySGNhcFRH?=
- =?utf-8?B?V1BVT1lsT2VqUGhjSCsvQ3JYR1QzblJMZ2dLN3BxamlhZ2FpaDB5dm82OGQy?=
- =?utf-8?B?cUQ0UzNyWmpZMlVvM1dSTXprMGkwOXRadjhZcWhxeXdoN25uMDAwS3B4c3Zl?=
- =?utf-8?B?Q0xtSzRacTNnckJBMFl5bjNVV3k3RU5FV0hzb29EdUtkb3RmWU9WQmRqRG1y?=
- =?utf-8?B?MnpMMHJPNEhkRzRCWDVvSHZwZy9pc0E2SXo4am5jcjBYakRhbDhVOGxpMHc4?=
- =?utf-8?B?VTRqdEt1VUhoaU9NN3NYUnJoczcxSHRtWk9hWHpWdFBQaUo5SmFXdXJXbTFR?=
- =?utf-8?B?NnRlem4ySUVFN25LczZJOW1tNnlRakMvQURvZGREbzhLN1BUbk9MK0txdG5S?=
- =?utf-8?B?cTkrbWdqcXh2UkF6SGdNTk9CQWl0eDdPYU8rcEJ6SVNWNjJ3NE9kSi95MDV0?=
- =?utf-8?B?UmFwa1I2aFlVUlpHY0g4S09FTllLdUJVMmtVMFZrTmplTml5QldVVFJjb2c5?=
- =?utf-8?B?alpMWUZTTjRWbzRwQlFJTmFuZFM1RmZKRXRkOWx2ZFFGZG1lWFBKdDJkREQ3?=
- =?utf-8?B?cHdYYk42NkhrMy9qTUU0TVVjU0pQS3VyRGh5OG9yRWZMODF4TUVFRHNLaVNu?=
- =?utf-8?B?RVJYQnh2MWtvcFVvVGtacTRhZkZiZWdodU84U3ByTzI0NFJmbDRVSWVXK3Rj?=
- =?utf-8?B?N0VvcXpZZUNNN1h5bStEa05oa052ZDFxdG9mYnhTL0QyN2VRdFRjaGhWWE9q?=
- =?utf-8?B?TTFQb1JPQzh4dG1SVmlvSkNVZTBQZ2hDYk1iOXpyakMySWZCdDZTYTJ4QTZm?=
- =?utf-8?B?Qzg3cmJGbEdlTGpSNHpabE5UQzRVeGdKOW4reklUTUZ0VCtLVmJTTk5sMlFD?=
- =?utf-8?B?NGIvVzc4M3NERXpVczFxeWRXNFd2SmhYR2xSSk1RbDdCMzArNTVDbTFiOXQ4?=
- =?utf-8?B?ZnpxcUx4dlRONGhwRmpXSjl6QlNBTnoyS0txMDh2Uzh5QzdzWnFmUGJzcHU2?=
- =?utf-8?B?bHF0OG9pc1BmNlFhWm94T3RsREQxTmc4OVNUNE5yTjBEVXFHMmt5MDRtU3FW?=
- =?utf-8?B?SUgyTmNBZ05RS2FvTWtMcHhOblRWZ0JiR0phVFhTYlA2QXBjVUF5Qzd2bHYr?=
- =?utf-8?B?Z1cxc1hMeWhpM1lnYnpwV3U5b0R3cHQ5eDBrWEdnK3VMODZaTnJmem9qWVk1?=
- =?utf-8?B?enM4NkUyRCtHWlA4dXdIYzc2Ym5zbTZGRlJoNEUwZkhhRnhubVpCQVZ2YUdl?=
- =?utf-8?B?UDhCcXAzeUhFZFpVc2tWYkN6SzFFQUJqdm0yWkU3L3RRenZBTFJrb1pEQ1o4?=
- =?utf-8?B?NHZoZThLZlJ1OW1OaUtwUnptcGk5cTNwR1BXS0V3enRyaFQ0MlFPRUFCYW5Y?=
- =?utf-8?B?azVnRTVYYXI1OHptSFVkMG1jWkp3NG9LdHJ2dTFwSC9Bdi9BWWlHWmYyOUdZ?=
- =?utf-8?B?d2VtZng5K25rc1hzT01kalduaFZmY2JZSzhDVG5LcFFxYnppZXVGUnErQ3BC?=
- =?utf-8?B?S3FNWHZ6QVM5cDdhbDVGR0hpeFZpQnRiVjhncHlrQjQ3T056a1BPYUplSUkw?=
- =?utf-8?B?dW9IMiszazJmb0I3bXI5ZmxkQkxqSmZSWmZUNHNRNXpDcWNCSzd2REQybUVp?=
- =?utf-8?B?VTByYzZBK2U1SkdlZmRmUHBzNUtjUHIyaUpjb29iTE4zZjVidWJMcXVGTUVh?=
- =?utf-8?B?Ni81UUZsU1diMG9sWlhZMUliZ2prODhBMWhhYXQ5dXQrWnVFQjhId2gzQi9N?=
- =?utf-8?B?ZmQ5UWRpakhzWmVtaGJrOFgyZTJkbHpTekdtTUtlTFlhTzA2cEZaOVl2bVJQ?=
- =?utf-8?B?UzNQSjlmbWhDZlhOZTJNVWw1dFplS05kbFlQNUxEb1JTYUI0VEVmRDdnNE1y?=
- =?utf-8?B?VmlxcndIejYzd1YzVmNBUE1nOVlNN1NUK2tDcDh3WkphRkt1Wm9Db3pKdVZj?=
- =?utf-8?B?UlVWL2pPckJtQnc2R1lqK2g2bE1kT3BzV1NHV010aUg2M0RMdkNNWEh3YjMr?=
- =?utf-8?B?R0JicGlhWS95SG5qSXplUUJ5cmlZb05Ib3JOQ3dPVG9TOXRVenlWV3REaHAv?=
- =?utf-8?B?eGlITVBGYXc2N3R4bThXcnlqYnBPeVNrRUlLa09xOHh1WFBYOTJlblB1MERt?=
- =?utf-8?B?S0JiVUlKOGN3Z3pTU3ArZCtxQTlvMVhQMlA5bWVQQ2VXbWZoSHp1TzB0bUtX?=
- =?utf-8?Q?GKdrsJj7mW7vQTJ5ac?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 834ed227-ca17-4027-34bb-08dec5e5c4af
-X-MS-Exchange-CrossTenant-AuthSource: CY1PR12MB9697.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jun 2026 05:12:57.4475
+	J/lk3QUhG4W35Eo9NtXcy2UbvAoRcpQYvhQnaiMeRvBHXEyungx7AgeEIL+8+7NdN0OV9Ip7/O258tooZJPIPC++DFkDAp8oBogoki3QxQDU6t3zg2oSX2Zy1Z0VqeYhkBHZ4kYF0ZTb7I6Fn9cpQ0LVfIhqHdCzMf7xSLd9ebu2NfU1qUbGoX16zLf7vUdTMP8c7U042bOMUwg3ESvMau3VzQRaZOJ6Rsv+HbtQwboKyLDhLBwtAVqKuBs8FqsD+jdplkWQtzb5cgJ4x6Of+LAq9eDcXZ5lo/TLeHhCC9QwmC8yG1BrLRRZbNXaN8j8ntOrX9obKJHt7AdrYDPGcdqgzD80wnso8dCzit1yg5+2TjHjIl1pNpeQBsHc32/nJEKRgQaFWvJ8YjprZTOiXCzqcTgb8kWDuA1PBXRdBoYODAQ8DTV/T4dwnWyuIPzj
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Jun 2026 05:19:05.4062
  (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: MBKEYbe/zMJB1dXu8wijAvKTHI/he7bvpv/7FA5vulgF9EgE5mhPkIbMdcAHtjuf
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ0PR12MB6807
+X-MS-Exchange-CrossTenant-Network-Message-Id: 25260745-2787-4fbf-ce9e-08dec5e6a049
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.118.233];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	DS2PEPF00003442.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR12MB6676
 
-> During system reboot or kexec, in-flight I2C transfers can cause
-> spurious interrupts or leave the bus in an undefined state. Add a
-> shutdown handler that marks the adapter suspended and resets the
-> controller, ensuring a clean handoff.
-> 
-> Signed-off-by: Ajay Neeli <ajay.neeli@amd.com>
+Hi Andi,
 
-Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@amd.com>
-Thanks!
+On Mon, 8 Jun 2026 21:30:59 +0200, Andi Shyti wrote:
+>> Akhil R (4):
+>>   i2c: tegra: use dmaengine_get_dma_device() for DMA buffer allocation
+>>   i2c: tegra: Disable fair arbitration for non-MCTP buses
+> 
+> I merged these two patches in i2c/i2c-host.
+> 
+>>   i2c: tegra: Update Tegra410 I2C timing parameters
+>>   i2c: tegra: Fix NOIRQ suspend/resume
+> 
+> I merged these two patches in i2c/i2c-host-fixes and they will
+> hit mainline first.
+> 
+> I haven't seen any link between the two groups. Let me know if I
+> missed something.
 
-> ---
-> Link: https://lore.kernel.org/linux-i2c/20250730122907.18909-1-ajay.neeli@amd.com/
-> 
-> Changes v3->v4:
-> - Replaced disable_irq() with cdns_i2c_master_reset() to avoid
->    potential deadlocks during shutdown
-> - Added pm_runtime_status_suspended() check to skip register access
->    when clocks are disabled
-> 
-> Changes v2->v3:
-> Corrected a typo that caused a build error in v2
-> 
-> Changes in v1->v2:
-> Disable interrupts
-> ---
->   drivers/i2c/busses/i2c-cadence.c | 20 ++++++++++++++++++++
->   1 file changed, 20 insertions(+)
-> 
-> diff --git a/drivers/i2c/busses/i2c-cadence.c b/drivers/i2c/busses/i2c-cadence.c
-> index 0fb728ade92e..da8770182a18 100644
-> --- a/drivers/i2c/busses/i2c-cadence.c
-> +++ b/drivers/i2c/busses/i2c-cadence.c
-> @@ -1635,6 +1635,25 @@ static void cdns_i2c_remove(struct platform_device *pdev)
->   	reset_control_assert(id->reset);
->   }
->   
-> +/**
-> + * cdns_i2c_shutdown - Prepare I2C controller for system shutdown
-> + * @pdev:	Handle to the platform device structure
-> + *
-> + * Mark the adapter as suspended and reset the controller to ensure a clean
-> + * handoff during system reboot or kexec.
-> + */
-> +static void cdns_i2c_shutdown(struct platform_device *pdev)
-> +{
-> +	struct cdns_i2c *id = platform_get_drvdata(pdev);
-> +
-> +	/* Mark the adapter as suspended to prevent further I2C transfers */
-> +	i2c_mark_adapter_suspended(&id->adap);
-> +
-> +	/* Reset the controller state if active - clocks are disabled when suspended */
-> +	if (!pm_runtime_status_suspended(&pdev->dev))
-> +		cdns_i2c_master_reset(&id->adap);
-> +}
-> +
->   static struct platform_driver cdns_i2c_drv = {
->   	.driver = {
->   		.name  = DRIVER_NAME,
-> @@ -1643,6 +1662,7 @@ static struct platform_driver cdns_i2c_drv = {
->   	},
->   	.probe  = cdns_i2c_probe,
->   	.remove = cdns_i2c_remove,
-> +	.shutdown = cdns_i2c_shutdown,
->   };
->   
->   module_platform_driver(cdns_i2c_drv);
+You are right. They are independent patches and do not have any link.
+I missed to put them first in the series.
 
+Thanks for merging the changes.
+
+Best Regards,
+Akhil
