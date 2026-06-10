@@ -1,45 +1,73 @@
-Received: from mail.raman.v1.sg (mail.raman.v1.sg [5.223.73.200])
+Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D606233F36B;
-	Wed, 10 Jun 2026 14:30:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.223.73.200
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 343D041930A
+	for <linux-i2c@vger.kernel.org>; Wed, 10 Jun 2026 15:02:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781101812; cv=none; b=de6Z2bMQgERvSg2Ae0wRyGQpizOi+mT4pNYL4Cf0Fdb8N0HBt8HsE74hW+HyS8z6Qo59q/9t9sgH1UXYIU5HBM53n+xA3V3+ko6nV0IIJJUByozKLrsNf5UN+PBKRv4vc6jrrRulr4Isal7l6y14luAhKXrDHXd7LA2i3CdmXQk=
+	t=1781103769; cv=none; b=Agm19lMoNWC5pGJCDvON5I5DGwB9COtvTLhPLScsD1USKcAgE5i3e0QWnzQnlFm5u9uTYY+G52LxEYGHhCa18c0uYVMas4Znp+glMkN/N5BiGq4LZfV4s3hUJkFw4TPmEOaPoaAGhMlWuRm147ppsXWM0KK+NFxuQAtHE2BzTos=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781101812; c=relaxed/simple;
-	bh=kHsfSW0aDsYxa1RyPM6D5JXiMJ37O0DA8FuT3YrIAKw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=l25mbv7Uq4XHvnGjSB85cyV+4MPyCAVHRlPZtFfvg9yIdPxhd23jJUtTxx9siRHH5KsUjdkuEw20UyqGjHHTXxY4fz8zNSxPXuC6uBB7G7QDKC8d4KPDDMHS0Zyd5M7eFT545w9AxRV2ellMxUrycQpKCXpq6E2NzHza7c2ZL78=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=raman.v1.sg; spf=pass smtp.mailfrom=raman.v1.sg; dkim=pass (2048-bit key) header.d=raman.v1.sg header.i=@raman.v1.sg header.b=JFcdjPt1; arc=none smtp.client-ip=5.223.73.200
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=raman.v1.sg
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=raman.v1.sg
+	s=arc-20240116; t=1781103769; c=relaxed/simple;
+	bh=s1IQvU8HHnA13Gr5CUVhtckHABXiyrGoXTFymIYaNn0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=I95/qdxdAu/gN+5WwQNlIXwgjpRjuyjf/SDW0XyShyJf3pIbRnl71QKfT9Hh3f4sqLuINxBtmdKDAzbfJLRE+XNuW7c+dEtxlOg5wiAcYN1PyZfjbT8ofJY468MQTqn2iIi5BwiCV9R6Ig/9vR9tGin86BrrIYQsUPoSFqIfz4M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=samsara.com; spf=pass smtp.mailfrom=samsara.com; dkim=pass (2048-bit key) header.d=samsara.com header.i=@samsara.com header.b=WuQT1pqR; arc=none smtp.client-ip=209.85.222.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=samsara.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsara.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=raman.v1.sg header.i=@raman.v1.sg header.b="JFcdjPt1"
-DKIM-Signature: a=rsa-sha256; bh=cslNbBHuPP0M+4Sy7JBIv85F6PWj9XMqbK/ctJTaeb8=;
- c=relaxed/relaxed; d=raman.v1.sg;
- h=Subject:Subject:Sender:To:To:Cc:Cc:From:From:Date:Date:MIME-Version:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Transfer-Encoding:Reply-To:In-Reply-To:Message-Id:Message-Id:References:Autocrypt:Openpgp;
- i=@raman.v1.sg; s=default; t=1781101802; v=1; x=1781533802;
- b=JFcdjPt1h+Sr/8cQ6uz1bKOl8jGFdeROYN1/z0MNMr3Ns522m3G+/cyxtZxoZZzHY9MgJvC7
- n5ANfhddm7nN2KuL7fjVY7k/MuJS30ZVxh+oVEYqbfSF46RFsyK4cJyajjcJyWvwUxZMtnvf5KL
- 1CLOtMmEyO0kJAuN68Q75ufKfBX+AoYssGjoc6ykZ+1wDv2x2MKnpgbeYXhE6N0XM5pcQaRJwdk
- UEdUy54wdWS2OiuAIAiaZNnS1yqKBAShRHY9DLkA1Gn1CRMQCfBwTgkd9yZAG9Ym7kBbyWW1xWk
- wbeqfWRePhsFj7OzMIe2j49VRCdTrqpMUuZWsaYS3TnNQ==
-Received: from cyberarch.tail8ae6a2.ts.net (localhost [127.0.0.1]) by
- mail.raman.v1.sg (envelope-sender
- <kernel-linux-20260610-80b7ab08@raman.v1.sg>) with ESMTP id 69cbe6f3; Wed,
- 10 Jun 2026 14:30:02 +0000
-From: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
-To: michael.zaidman@gmail.com
-Cc: jikos@kernel.org,
-	bentiss@kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>,
-	stable@vger.kernel.org
-Subject: [PATCH] HID: ft260: fix stack-use-after-return write in I2C read race
-Date: Wed, 10 Jun 2026 22:29:52 +0800
-Message-ID: <20260610142952.3335586-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
+	dkim=pass (2048-bit key) header.d=samsara.com header.i=@samsara.com header.b="WuQT1pqR"
+Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-9157b895c57so630888885a.3
+        for <linux-i2c@vger.kernel.org>; Wed, 10 Jun 2026 08:02:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=samsara.com; s=google; t=1781103766; x=1781708566; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=dzPN/wJoFEAsHFLJfhmBvnKMiFbFAl2dfBVz7PV0PU0=;
+        b=WuQT1pqRE1MNByIx4TIsjWu4PMm7uPJfge2kjpc3lvw7vfppwUnj2Ir8tVoew5yC3T
+         BkO9fWidXHjHvh/vSedAPJvkfy7eAzi77W45C3VmVb9GkAJ7PVE4cAK40akuW4SXn5VQ
+         qT7QabuRD94F5M2/m1F2jfktNuWVcphDVYNVVH7U0uaQpk+qO9mjw7Kq2fghz/tfNJpH
+         yO7DACqOIZjC6k+a8MdmdL5pkOCFoqWkwcgFhrnkxeRhIoB5Tt126f++jMFS8c0rwQKV
+         oG6788egD6znvloIjOSI7rd/QnDLYKF2fyBuwD1ZzQFtuUjmNM12iXaEIr7WRixH9mr6
+         idEw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781103766; x=1781708566;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=dzPN/wJoFEAsHFLJfhmBvnKMiFbFAl2dfBVz7PV0PU0=;
+        b=Y7VIo/PvzbLqmTFMgaRTfSlUkW+9ixEN/OEEP2b5M6zUIgrgaNeD29URtZsMlsqT7r
+         ucp6iu2Nqq/MOr5AVjmb3ks5sKrRY1fSrpUd1+Db4OGt1wXeTqChrA9fnb8raH/OKnzW
+         HLwrg7cMj8mfrLweF1+iLguiHb9+5rEiDpJjzOT+NmKVRJEfF4BnKpvLznLvrxlY9mzH
+         x44+MufAdydV1ryMC4qkb1YDwJsrxj4G4FrWU7iGfpm9+kNXFr1flEBCMMK02EXS7mDY
+         pPW1p/udT63i1ar+m6oGuguZgUUCGSkYcR6yCs5k8xhJPoDmJ/DNhA2bO6ZMh4Z2+VHk
+         Zfyg==
+X-Gm-Message-State: AOJu0YzNIl62uBolwqNB5TDo3KhmkTRSKf9IB1CnDbIq+xnYk6ADB/8q
+	p6WVpltgF4aq9AHQv3KOcOqCQ/fZdrxNyU7wYZXOnm6lfR+nDuYx4Ae3Wv4GKapFn/viGpI5uL3
+	RxODcaA==
+X-Gm-Gg: Acq92OH/bx1SogFCe7KjWrCuQ+tyn6OiUK7/1g3dcqfeW8OtC3K9jInSEo17axCtO+9
+	ok62+WPGNkJN9k1ISV92dRU4rn1SHT9m8qSDOcVGIXUskBBLOHYypyJNEs1mmjzVevMGy4ZY6L2
+	Ste9LQAZUSbhJ9h8+y6KD7VZd5gMJNz9gdfwF4cxO95h6G3uxZAiwmCNxzIuTIi9+j4P8yvSMzl
+	7rg5Tn2N0AqbW7f/dFDJCKUmt8mRP2U/kfkIKH/cEt5j+4WfmOwSDHLmxApk2IiYU3IbO9UW1pX
+	w/cAqioIBgt0Iaf4uOIlqLfbrlfxrxI+MM8nBGv2S1r8RTQR//dX/9dQjHAKDwQrNa4a6tB4/nM
+	6O/sM7KdtGyK3/V8ZOrEpIBJjw5z0zxOvccLc/ZWRcPyV48RVMPVFFzx6E579JoRuAGjHntADYg
+	37tHnAGxfRL/SNBE+4LuuoSEHNfszsjki5XZipD9gIEAzi6TVLgC9zwTriKG3hESy4mzQwOEtqY
+	SGcI6wTylyPrTfq
+X-Received: by 2002:a05:620a:1d01:b0:8cf:d804:456a with SMTP id af79cd13be357-915a9c9df20mr3929782185a.20.1781103765390;
+        Wed, 10 Jun 2026 08:02:45 -0700 (PDT)
+Received: from localhost.localdomain ([165.225.38.123])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9159cd628f8sm2124550785a.4.2026.06.10.08.02.43
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Wed, 10 Jun 2026 08:02:44 -0700 (PDT)
+From: Gavin Li <gavin.li@samsara.com>
+To: linux-i2c@vger.kernel.org,
+	viresh.kumar@linaro.org,
+	"Michael S. Tsirkin" <mst@redhat.com>
+Cc: "Chen, Jian Jun" <jian.jun.chen@intel.com>,
+	andi.shyti@kernel.org,
+	virtualization@lists.linux.dev,
+	Gavin Li <gavin.li@samsara.com>
+Subject: [PATCH v4] i2c: virtio: retain xfer with kref to fix UAF on interrupted wait
+Date: Wed, 10 Jun 2026 11:02:32 -0400
+Message-ID: <20260610150232.24834-1-gavin.li@samsara.com>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -49,143 +77,271 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-ft260_i2c_read() points dev->read_buf at a caller-supplied buffer
-(often an on-stack variable), arms a completion and waits up to five
-seconds for the device to return the data. The HID input callback
-ft260_raw_event() runs in the input/IRQ path, independent of the
-dev->lock mutex held by the read path, and copies the device-supplied
-payload into dev->read_buf after a plain NULL check.
+commit a663b3c47ab1 ("i2c: virtio: Avoid hang by using interruptible
+completion wait") switched virtio_i2c_complete_reqs() to
+wait_for_completion_interruptible() so a stuck device cannot hang a
+task forever. That left a use-after-free: if the wait returns early on
+a signal, virtio_i2c_xfer() frees reqs and DMA bounce buffers while the
+device may still hold virtqueue tokens pointing at &reqs[i] and DMA
+into read buffers. When those requests complete later,
+virtio_i2c_msg_done() calls complete() on freed memory.
 
-These two paths share read_buf, read_idx and read_len with no
-serialization. If the device delays its response until the read
-times out, ft260_i2c_read() resets the controller, clears read_buf
-and returns, unwinding the stack frame the buffer lived in. A
-response that arrives at that moment lets ft260_raw_event() pass the
-NULL check and then memcpy() the device-controlled payload into the
-now-freed stack location, a bounded but attacker-influenced
-stack-use-after-return write triggerable by malicious or
-malfunctioning hardware.
+Waiting uninterruptibly for every completion before freeing avoids the
+UAF but can hang the caller indefinitely if the virtio side never
+completes the request. Performing a queue reset / device reset is
+possible in this scenario, but adds complexity.
 
-Add a dedicated spinlock that serializes every access to read_buf,
-read_idx and read_len. ft260_raw_event() now holds it across the
-NULL check, the memcpy and the index update, while the read path
-takes it when arming and when clearing the buffer, so the teardown
-can no longer slip between the check and the copy.
+This commit manages the freeing of the xfer allocations via kref, and
+ensures that each in-flight request holds a reference. This fixes the
+use-after-free by ensuring that the virtio device has a valid location
+to write to until the request completes. This will cause a memory leak
+in cases where the device hangs, but that is much preferable to memory
+corruption.
 
-Fixes: 6a82582d9fa4 ("HID: ft260: add usb hid to i2c host bridge driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
+Additionally, force usage of a bounce buffer even if the i2c_msg buf is
+DMA-safe, since the buffer passed to the virtqueue must remain valid
+even if the transfer is interrupted. Remove usage of
+i2c_get_dma_safe_msg_buf() since it may pass through msg->buf directly.
+All bounce buffers are part of the single xfer allocation, so there is
+no additional allocation overhead.
+
+Signed-off-by: Gavin Li <gavin.li@samsara.com>
+
 ---
- drivers/hid/hid-ft260.c | 25 ++++++++++++++++++++++++-
- 1 file changed, 24 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index 70e2eedb4..f47945954 100644
---- a/drivers/hid/hid-ft260.c
-+++ b/drivers/hid/hid-ft260.c
-@@ -240,6 +240,8 @@ struct ft260_device {
- 	struct mutex lock;
- 	u8 write_buf[FT260_REPORT_MAX_LENGTH];
- 	unsigned long need_wakeup_at;
-+	/* Protects read_buf, read_idx and read_len against ft260_raw_event() */
-+	spinlock_t read_lock;
- 	u8 *read_buf;
- 	u16 read_idx;
- 	u16 read_len;
-@@ -501,6 +503,7 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
- 	int timeout, ret = 0;
- 	struct ft260_i2c_read_request_report rep;
- 	struct hid_device *hdev = dev->hdev;
-+	unsigned long irqflags;
- 	u8 bus_busy = 0;
+Changes in v4:
+- Pack bounce buffers into a single allocation after reqs[]
+- Remove per-request buf pointer and xfer->num
+- Remove req.msg, track message direction with req->read
+- Simplify xfer release to a single kfree()
+- Restore using j to track successful transfers in _complete_xfer()
+---
+ drivers/i2c/busses/i2c-virtio.c | 121 +++++++++++++++++++++++++-------
+ 1 file changed, 94 insertions(+), 27 deletions(-)
+
+diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
+index 5da6fef92bec3..33b469ca39d4b 100644
+--- a/drivers/i2c/busses/i2c-virtio.c
++++ b/drivers/i2c/busses/i2c-virtio.c
+@@ -13,7 +13,9 @@
+ #include <linux/err.h>
+ #include <linux/i2c.h>
+ #include <linux/kernel.h>
++#include <linux/kref.h>
+ #include <linux/module.h>
++#include <linux/overflow.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_ids.h>
+ #include <linux/virtio_config.h>
+@@ -31,39 +33,74 @@ struct virtio_i2c {
+ 	struct virtqueue *vq;
+ };
  
- 	if ((flag & FT260_FLAG_START_REPEATED) == FT260_FLAG_START_REPEATED)
-@@ -526,9 +529,11 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
++struct virtio_i2c_xfer;
++
+ /**
+  * struct virtio_i2c_req - the virtio I2C request structure
++ * @xfer: owning transfer
+  * @completion: completion of virtio I2C message
++ * @read: true if this is a read message (I2C_M_RD is set)
+  * @out_hdr: the OUT header of the virtio I2C message
+- * @buf: the buffer into which data is read, or from which it's written
+  * @in_hdr: the IN header of the virtio I2C message
+  */
+ struct virtio_i2c_req {
++	struct virtio_i2c_xfer *xfer;
+ 	struct completion completion;
++	bool read;
+ 	struct virtio_i2c_out_hdr out_hdr	____cacheline_aligned;
+-	uint8_t *buf				____cacheline_aligned;
+ 	struct virtio_i2c_in_hdr in_hdr		____cacheline_aligned;
+ };
  
- 		reinit_completion(&dev->wait);
++/**
++ * struct virtio_i2c_xfer - a queued I2C transfer
++ * @ref: one ref for the caller, plus one per in-flight virtqueue request
++ * @bounce_buf_base: start of bounce buffer region
++ * @reqs: the virtio I2C requests
++ *
++ * Allocation layout:
++ * - struct virtio_i2c_xfer xfer
++ * - struct virtio_i2c_req reqs[num]
++ * - u8 bounce_buf[msgs[0].len]
++ *   ...
++ * - u8 bounce_buf[msgs[num-1].len]
++ */
++struct virtio_i2c_xfer {
++	struct kref ref;
++	u8 *bounce_buf_base;
++	struct virtio_i2c_req reqs[];
++};
++
++static void virtio_i2c_xfer_release(struct kref *ref)
++{
++	struct virtio_i2c_xfer *xfer = container_of(ref, struct virtio_i2c_xfer, ref);
++	kfree(xfer);
++}
++
+ static void virtio_i2c_msg_done(struct virtqueue *vq)
+ {
+ 	struct virtio_i2c_req *req;
+ 	unsigned int len;
  
-+		spin_lock_irqsave(&dev->read_lock, irqflags);
- 		dev->read_idx = 0;
- 		dev->read_buf = data;
- 		dev->read_len = rd_len;
-+		spin_unlock_irqrestore(&dev->read_lock, irqflags);
- 
- 		ret = ft260_hid_output_report(hdev, (u8 *)&rep, sizeof(rep));
- 		if (ret < 0) {
-@@ -543,7 +548,9 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
- 			goto ft260_i2c_read_exit;
- 		}
- 
-+		spin_lock_irqsave(&dev->read_lock, irqflags);
- 		dev->read_buf = NULL;
-+		spin_unlock_irqrestore(&dev->read_lock, irqflags);
- 
- 		if (flag & FT260_FLAG_STOP)
- 			bus_busy = FT260_I2C_STATUS_BUS_BUSY;
-@@ -562,7 +569,9 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
- 	} while (len > 0);
- 
- ft260_i2c_read_exit:
-+	spin_lock_irqsave(&dev->read_lock, irqflags);
- 	dev->read_buf = NULL;
-+	spin_unlock_irqrestore(&dev->read_lock, irqflags);
- 	return ret;
+-	while ((req = virtqueue_get_buf(vq, &len)))
++	while ((req = virtqueue_get_buf(vq, &len))) {
+ 		complete(&req->completion);
++		kref_put(&req->xfer->ref, virtio_i2c_xfer_release);
++	}
  }
  
-@@ -1018,6 +1027,7 @@ static int ft260_probe(struct hid_device *hdev, const struct hid_device_id *id)
- 		 "FT260 usb-i2c bridge");
- 
- 	mutex_init(&dev->lock);
-+	spin_lock_init(&dev->read_lock);
- 	init_completion(&dev->wait);
- 
- 	ret = ft260_xfer_status(dev, FT260_I2C_STATUS_BUS_BUSY);
-@@ -1067,6 +1077,7 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
+-static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
+-				   struct virtio_i2c_req *reqs,
++static int virtio_i2c_prepare_xfer(struct virtqueue *vq,
++				   struct virtio_i2c_xfer *xfer,
+ 				   struct i2c_msg *msgs, int num)
  {
- 	struct ft260_device *dev = hid_get_drvdata(hdev);
- 	struct ft260_i2c_input_report *xfer = (void *)data;
-+	unsigned long irqflags;
+ 	struct scatterlist *sgs[3], out_hdr, msg_buf, in_hdr;
++	struct virtio_i2c_req *reqs = xfer->reqs;
++	u8 *bounce_buf = xfer->bounce_buf_base;
+ 	int i;
  
- 	if (size < offsetof(struct ft260_i2c_input_report, data)) {
- 		hid_err(hdev, "short report %d\n", size);
-@@ -1075,6 +1086,8 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 	for (i = 0; i < num; i++) {
+ 		int outcnt = 0, incnt = 0;
  
- 	if (xfer->report >= FT260_I2C_REPORT_MIN &&
- 	    xfer->report <= FT260_I2C_REPORT_MAX) {
-+		bool complete_read;
++		reqs[i].xfer = xfer;
++		reqs[i].read = !!(msgs[i].flags & I2C_M_RD);
+ 		init_completion(&reqs[i].completion);
+ 
+ 		/*
+@@ -82,23 +119,31 @@ static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
+ 		sgs[outcnt++] = &out_hdr;
+ 
+ 		if (msgs[i].len) {
+-			reqs[i].buf = i2c_get_dma_safe_msg_buf(&msgs[i], 1);
+-			if (!reqs[i].buf)
+-				break;
++			/*
++			 * Even if msg->flags has I2C_M_DMA_SAFE set, a bounce
++			 * buffer is required because the transfer may be
++			 * interrupted, after which msg->buf is no longer valid.
++			 */
++			if (!(msgs[i].flags & I2C_M_RD))
++				memcpy(bounce_buf, msgs[i].buf, msgs[i].len);
+ 
+-			sg_init_one(&msg_buf, reqs[i].buf, msgs[i].len);
++			sg_init_one(&msg_buf, bounce_buf, msgs[i].len);
+ 
+ 			if (msgs[i].flags & I2C_M_RD)
+ 				sgs[outcnt + incnt++] = &msg_buf;
+ 			else
+ 				sgs[outcnt++] = &msg_buf;
+ 		}
++		bounce_buf += msgs[i].len;
+ 
+ 		sg_init_one(&in_hdr, &reqs[i].in_hdr, sizeof(reqs[i].in_hdr));
+ 		sgs[outcnt + incnt++] = &in_hdr;
+ 
++		/* This reference is released in virtio_i2c_msg_done(). */
++		kref_get(&xfer->ref);
 +
- 		ft260_dbg("i2c resp: rep %#02x len %d size %d\n",
- 			  xfer->report, xfer->length, size);
+ 		if (virtqueue_add_sgs(vq, sgs, outcnt, incnt, &reqs[i], GFP_KERNEL)) {
+-			i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], false);
++			kref_put(&xfer->ref, virtio_i2c_xfer_release);
+ 			break;
+ 		}
+ 	}
+@@ -106,26 +151,38 @@ static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
+ 	return i;
+ }
  
-@@ -1085,8 +1098,15 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
- 			return -1;
+-static int virtio_i2c_complete_reqs(struct virtqueue *vq,
+-				    struct virtio_i2c_req *reqs,
+-				    struct i2c_msg *msgs, int num)
++static int virtio_i2c_complete_xfer(struct virtio_i2c_xfer *xfer,
++				    struct i2c_msg *msgs,
++				    int num)
+ {
++	struct virtio_i2c_req *reqs = xfer->reqs;
++	u8 *bounce_buf = xfer->bounce_buf_base;
+ 	bool failed = false;
+ 	int i, j = 0;
+ 
+ 	for (i = 0; i < num; i++) {
+ 		struct virtio_i2c_req *req = &reqs[i];
++		struct i2c_msg *msg = &msgs[i];
++
++		if (wait_for_completion_interruptible(&req->completion))
++			return -EINTR;
++
++		if (req->in_hdr.status != VIRTIO_I2C_MSG_OK) {
++			/*
++			 * Don't break yet. Try to wait until all requests
++			 * complete to ensure that the virtqueue has enough
++			 * descriptor slots for the next transfer.
++			 */
++			failed = true;
++		}
+ 
+ 		if (!failed) {
+-			if (wait_for_completion_interruptible(&req->completion))
+-				failed = true;
+-			else if (req->in_hdr.status != VIRTIO_I2C_MSG_OK)
+-				failed = true;
+-			else
+-				j++;
++			if (req->read)
++				memcpy(msg->buf, bounce_buf, msg->len);
++			j++;
  		}
  
-+		/*
-+		 * Hold read_lock so a timed-out ft260_i2c_read() cannot
-+		 * clear read_buf between the NULL check and the memcpy.
-+		 */
-+		spin_lock_irqsave(&dev->read_lock, irqflags);
-+
- 		if ((dev->read_buf == NULL) ||
- 		    (xfer->length > dev->read_len - dev->read_idx)) {
-+			spin_unlock_irqrestore(&dev->read_lock, irqflags);
- 			hid_err(hdev, "unexpected report %#02x, length %d\n",
- 				xfer->report, xfer->length);
- 			return -1;
-@@ -1095,8 +1115,11 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
- 		memcpy(&dev->read_buf[dev->read_idx], &xfer->data,
- 		       xfer->length);
- 		dev->read_idx += xfer->length;
-+		complete_read = dev->read_idx == dev->read_len;
-+
-+		spin_unlock_irqrestore(&dev->read_lock, irqflags);
+-		i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], !failed);
++		bounce_buf += msg->len;
+ 	}
  
--		if (dev->read_idx == dev->read_len)
-+		if (complete_read)
- 			complete(&dev->wait);
+ 	return j;
+@@ -136,14 +193,24 @@ static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ {
+ 	struct virtio_i2c *vi = i2c_get_adapdata(adap);
+ 	struct virtqueue *vq = vi->vq;
+-	struct virtio_i2c_req *reqs;
+-	int count;
++	struct virtio_i2c_xfer *xfer;
++	size_t alloc_size;
++	int i, count;
  
- 	} else {
+-	reqs = kzalloc_objs(*reqs, num);
+-	if (!reqs)
++	alloc_size = struct_size(xfer, reqs, num);
++	for (i = 0; i < num; i++) {
++		if (check_add_overflow(alloc_size, msgs[i].len, &alloc_size))
++			return -EOVERFLOW;
++	}
++
++	xfer = kzalloc(alloc_size, GFP_KERNEL);
++	if (!xfer)
+ 		return -ENOMEM;
+ 
+-	count = virtio_i2c_prepare_reqs(vq, reqs, msgs, num);
++	kref_init(&xfer->ref);
++	xfer->bounce_buf_base = (u8 *)(xfer->reqs + num);
++
++	count = virtio_i2c_prepare_xfer(vq, xfer, msgs, num);
+ 	if (!count)
+ 		goto err_free;
+ 
+@@ -157,10 +224,10 @@ static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	 */
+ 	virtqueue_kick(vq);
+ 
+-	count = virtio_i2c_complete_reqs(vq, reqs, msgs, count);
++	count = virtio_i2c_complete_xfer(xfer, msgs, count);
+ 
+ err_free:
+-	kfree(reqs);
++	kref_put(&xfer->ref, virtio_i2c_xfer_release);
+ 	return count;
+ }
+ 
 -- 
 2.54.0
 
