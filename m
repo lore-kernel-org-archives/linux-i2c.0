@@ -1,384 +1,286 @@
-Received: from smtpout-03.galae.net (smtpout-03.galae.net [185.246.85.4])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 738622264B0
-	for <linux-i2c@vger.kernel.org>; Wed, 10 Jun 2026 07:49:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.246.85.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFFCB10F0
+	for <linux-i2c@vger.kernel.org>; Wed, 10 Jun 2026 08:37:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781077759; cv=none; b=LFMShyNlSYP7JihOt7IzfE0g6NzKr44NLF9Ovg9dFogGjWQ8krx/xyifrGdY+gjNnMWSuV/XwDFuTaVmyS+It4Ho2lDisLMLtmQ1VqOSB1xwzr6w2pVQjO/r1Gcp3y1RQ2ZR67TJIw+aV1KwzEiEJkxOEBn3MezUmbVKmWiESD0=
+	t=1781080646; cv=none; b=VbDkibnFeQLgqj8MgHJVVl6aU9CriBQhU2yGh3P77S/s0dmsxLELd7sRV94oPinCI0XcSLczUDxYfRG/EcQMPr5HjG1GgcG5XzfXbqR9SWZMj9d+VnUYNsnGhohzNAeJRpjWlMHxd7dRVDuNI0ApZ1SDHVA0djRfqRd4PGYc3sc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781077759; c=relaxed/simple;
-	bh=UbxHDTEIEEaucoQwAxAfn6tkCR1f7r/+A4AczT2ObFk=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=dXeAy+Gv54SemZtfSCjYNa3qqavwPeA2nW4sfXXytiKAzah0uk+8ZfoYJnRMorbEZ0ZehSIR3phVR06aIQssFolvvYe0Jc0Q1nWcF3RcVo9PeP8oNj3jy4YF/S74evv8tcs1V4IaAF0xIm7OwDAcKMkB8h0zqwrxp9xTP5iRqYY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=p2JQGlax; arc=none smtp.client-ip=185.246.85.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
+	s=arc-20240116; t=1781080646; c=relaxed/simple;
+	bh=kaishit0l3D7M91kmsDJgwCJTTWfCGNoHd3rbC0bz6g=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fyXo3yPq1xP+kkx48a2CFe73tu1DvOvJgbxorBnmGntpfxlz0hod8EzQjcrpChNqaiFztZOMI4Hl7lhkx2MkqL4VgXV1qxd0aj3pzWOm5zVqroBSWRBXm/rm3tTxjyN07Er+7ddAbn63cAo4RTRCG4i7NTHIiekN3NDToIVW/pI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eFgucHH4; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="p2JQGlax"
-Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
-	by smtpout-03.galae.net (Postfix) with ESMTPS id 849B84E42DF5;
-	Wed, 10 Jun 2026 07:49:08 +0000 (UTC)
-Received: from mail.galae.net (mail.galae.net [212.83.136.155])
-	by smtpout-01.galae.net (Postfix) with ESMTPS id 538425FFC9;
-	Wed, 10 Jun 2026 07:49:08 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B7100106B9640;
-	Wed, 10 Jun 2026 09:49:06 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
-	t=1781077747; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding; bh=28kTEUmS9h178gvruBNoAKKv38dRzsQz+7PNWLdY9/c=;
-	b=p2JQGlax/2BHwY2j7FRx90Yta6zB3S1zKnLnZV3gf3L6zRxzfbUBlNC+sNGAPFB0cGA69o
-	cNbvSl/dU2r13hfn5tvbeplQOMmaWNVooxnFiOQ3jIhvZeHca6l1VntjuE4nh92yr28+rI
-	auTwGPWvZTn2E9fZboUtdZlqgR+1pMgH6iurD05vVQ/yoUYWzNs+ui0saLAImkWHqGOZsg
-	UTTkEjJRekQQUueJdXCj3rIdGFZnH5Yxzxaj02qyUBO7K/kki+B5InUTRtru7fj9pVvP8j
-	Nu+5xgI6DPsh3hnqSB1je9GZ2yYDYgzkTm7k1L2v3onqnWTDNzXBJOWyedKstg==
-From: =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-Date: Wed, 10 Jun 2026 09:49:01 +0200
-Subject: [PATCH i2c-tools v5] i2ctransfer: Add optional message modifier
- flags
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eFgucHH4"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2bf237e1433so71590905ad.1
+        for <linux-i2c@vger.kernel.org>; Wed, 10 Jun 2026 01:37:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781080644; x=1781685444; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=xTlLTPLQVob07Monee3VTFRy46RFeGt5gASHP+XGMa0=;
+        b=eFgucHH4rRV+EM+SxB/B2YstHpe456xR5jOE0L6Syj36WHkQTPiSzbPvkJqSBm2jWk
+         hdj5GMo2VqZgEU7YEKy4KOPFW2rQM4CnUyrEm0vEQ1ZYBdgKHfHpsyuF5/ZNptbjYWax
+         v8KdYXKn91Fgg19uygQT3MJG7mLLNpzt+hx6SlbvH30KboUOAHHfFt9IZFO1uz1z/s4t
+         wU3idruIMuS1J+CrNidgFvfPP1GDAX0YwrnzVbWidXWqAoRGzQi/69EFUOxNfjm94dEI
+         i36DkXkRucrT8dl3QSs/BG+vWaJBkmsjAinhO/ckqKNA9r+nVI9Ya9Ab6ouUjUvlX1gS
+         BGWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781080644; x=1781685444;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xTlLTPLQVob07Monee3VTFRy46RFeGt5gASHP+XGMa0=;
+        b=CLEJCNK3H6pD+2kM+c8vJjqLhMKgAu4+51harpoTInC2QE0ygJKj2ogZzddgj02fgw
+         v94LdEEaJUJsUOMPkx9e0V8GSES6g0lQNmbofivkuC54FbWKd1C9ejmd6mdT5Uc3uI7n
+         zsFKoKeUeK08clmN7QV0z9Wttj/2OhuBJAer5gT6m9QSXhXwIEXiIgoXzzHJyQ5vIlso
+         UT1fRjE9zX8P8Q5BfM/XQRIXNr/fUrEi/udUl6/ZHRJuGUzQHwNs4OmziOqmBrSoOrJV
+         8IU9l0OgktLzsg6hU9eyneR8Z80KD6Q632QoWjZHnrpMa0Y1p6AnpbwUEVBkPK8sWdWD
+         nXSg==
+X-Gm-Message-State: AOJu0YxbCM4jFWH/BkJOKk8MXt7086huokGmUloPlfWASVlOzJcZjIYK
+	ed+26zxarlsor2aWGm5hl2OJfdSZYrP6hkGf9SSpwC5kgSlOVK3kzL81Zw6IRhtZ
+X-Gm-Gg: Acq92OGDMRI8zzYYji7j+KcY4Zc4RURUWZioKcSLqgQ6yp4JIg3XV0/E7mm3Vj42D96
+	L5pSiwAaxQGSFM0KfcNurYCpswcs/vq4qljb3+FA/tzwa2t41efFO8e9kD+YzEPVBSzx6Rw9h2+
+	CMpEH2OoD3946NP5siOEgfIDop2sMZ2VHOr3gjn/YumfphXsVOrH5TPIN93DYecJm2YYbZH6ZdA
+	7zbVQj2wW5rnTPto7YJymzcmjrVQUDuSnJcgK4dPbex/RbzbRH5XFVuv+N92J72Omq+SlgoRDZw
+	bfEUmYSFCuWadukaEBPDND8IzUZO0o5VjxScbiHOcLmyFJvfevlSqxuMB9PFpBGj2q53jQ1xVlO
+	cn10e1QPA0aafh//fAN0z/Z0asliptYJXo+tLk1PgI+IMvX/odPfCziqKpUi6M6XLB0XsIkg0X9
+	SBHknqufAN9BZbYlh687/yhX8zgnX7zh/f287flqsr3qOUSCinw9PSt3aaDC1/Dd+X2/E8kB6jh
+	1BQ52GGvZlvzSfZng747PkTojkNQo59xIo9lcE3+z77rytjsswlTg5aNYPn6+Ies9c2HULlnQPI
+	poy28BeuOIt/ptlwfEk=
+X-Received: by 2002:a17:903:90c:b0:2c0:b7e1:7f08 with SMTP id d9443c01a7336-2c1e859fc13mr290306175ad.28.1781080643939;
+        Wed, 10 Jun 2026 01:37:23 -0700 (PDT)
+Received: from hardik-yoga.oryx-cobra.ts.net ([103.52.208.50])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c164f8429fsm291897375ad.18.2026.06.10.01.37.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Jun 2026 01:37:23 -0700 (PDT)
+From: Hardik Prakash <hardikprakash.official@gmail.com>
+To: linux-i2c@vger.kernel.org
+Cc: linux-gpio@vger.kernel.org,
+	wsa@kernel.org,
+	andriy.shevchenko@intel.com,
+	mario.limonciello@amd.com,
+	brgl@bgdev.pl,
+	basavaraj.natikar@amd.com,
+	linusw@kernel.org,
+	nathan@kernel.org,
+	chaitanya.kumar.borah@intel.com,
+	Hardik Prakash <hardikprakash.official@gmail.com>
+Subject: [PATCH] Revert "i2c: designware: defer probe if child GpioInt controllers are not bound"
+Date: Wed, 10 Jun 2026 14:07:01 +0530
+Message-ID: <20260610083701.18663-1-hardikprakash.official@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-Message-Id: <20260610-msg-flags-v5-1-0814fcd44693@bootlin.com>
-X-B4-Tracking: v=1; b=H4sIAOwWKWoC/2XPwW7DIAwG4FepOM8T2OAmO+09ph0gQIqUhilEa
- FOVdx+KNrVRj5b9/bZvooQlhSLeTjexhJpKynMrzMtJDBc7jwGSb7VAiUYpPMO1jBAnOxYgjw6
- 97W3ATrT5ryXE9L1nfYiEA6w5T0V8ttYllTUvP/uWqvaBv8DuIbAqkMBkKCJHy254dzmvU5pfh
- 3zdcyreLSI9Wmy28z1pq4k54LOlf8vy+EilZsPZUN9r4x26Z6vvluXhZg0KuLOeo7Q6aH+027b
- 9AmOJ8GljAQAA
-X-Change-ID: 20251127-msg-flags-3d2b2da9ae28
-To: linux-i2c@vger.kernel.org
-Cc: Jean Delvare <jdelvare@suse.de>, 
- Wolfram Sang <wsa+renesas@sang-engineering.com>, 
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>, 
- =?utf-8?q?Beno=C3=AEt_Monin?= <benoit.monin@bootlin.com>
-X-Mailer: b4 0.15.2
-X-Last-TLS-Session-Version: TLSv1.3
 
-Allow setting protocol mangling and repeated start elision flags of an i2c
-message with a set of optional command-line flags. These optional flags
-are parsed at the beginning of the DESC field up to a read or write flag.
+This reverts commit ef76a3a28c79b628890431aa344af633e892035b.
 
-For example, to read one byte from address 0x50 followed by a stop, then
-write two bytes at 0x54 on bus 0, one would call i2ctransfer as follow:
+The patch causes boot regressions on multiple machines. A NULL pointer
+dereference occurs when agpio->resource_source.string_ptr is NULL (i.e.
+when string_length is 0), and a probe deferral loop causes CPU starvation
+leading to kernel panic on Intel CI machines.
 
-    i2ctransfer 0 pr1@0x50 w2@0x54 0x10 0x20
+The patch needs a proper rewrite addressing these issues before resubmission.
 
-Since the new flags are optional, this patch preserves the compatibility
-of the i2ctransfer syntax.
-
-Handling of the message flags is done in add_flag_if_supported(). This
-function checks if the flag is defined at compile time and if the adapter
-supports the required functionality to handle the flag at runtime.
-
-Signed-off-by: Benoît Monin <benoit.monin@bootlin.com>
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Reported-by: Borah, Chaitanya Kumar <chaitanya.kumar.borah@intel.com>
+Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
 ---
-I2C messages can be modified with a set of flags covered by the protocol
-mangling and the skip repeated start functionalities.
+ drivers/i2c/busses/i2c-designware-platdrv.c | 156 --------------------
+ 1 file changed, 156 deletions(-)
 
-The patch adds the parsing of optional flags to i2ctransfer message
-description. Those command-line flags then set the i2c message flags
-alongside the read/write flag.
-
-I wrote these changes to test the insertion of I2C_M_STOP flag in
-multi-message transactions with i2ctransfer, but the other flags may be
-useful for various test scenarios. 
----
-Changes in v5:
-- Drop the Unexpected flag error message to fallback on the missing r/w flag.
-- Link to v4: https://patch.msgid.link/20260608-msg-flags-v4-1-68ad6f0a4e4d@bootlin.com
-
-Changes in v4:
-- Rebase on current upstream and drop first patch that has been merged.
-- Return an enum from add_flag_if_supported(), to distinguish between the various possible cases.
-- Link to v3: https://lore.kernel.org/r/20260127-msg-flags-v3-0-e7539945db2b@bootlin.com
-
-Changes in v3:
-- Use ifdefs to check that the flags and functionalities are known
-  at compile-time.
-- Check that the adapter supports the requested flags before using them
-  in i2ctransfer.
-- Add a warning in i2ctransfer man page about the risk of using these
-  flags.
-- Link to v2: https://lore.kernel.org/r/20251223-msg-flags-v2-0-8d934a4366e2@bootlin.com
-
-Changes in v2:
-- Document the flags in i2ctransfer.8 man page.
-- Link to v1: https://lore.kernel.org/r/20251128-msg-flags-v1-0-6353f26fa6bc@bootlin.com
----
- tools/i2ctransfer.8 |  28 +++++++++-
- tools/i2ctransfer.c | 144 +++++++++++++++++++++++++++++++++++++++++++++++-----
- 2 files changed, 158 insertions(+), 14 deletions(-)
-
-diff --git a/tools/i2ctransfer.8 b/tools/i2ctransfer.8
-index 4bdf436..ca41241 100644
---- a/tools/i2ctransfer.8
-+++ b/tools/i2ctransfer.8
-@@ -96,8 +96,11 @@ The number of blocks is limited by the Linux Kernel and defined by I2C_RDWR_IOCT
- .I desc
- blocks are composed like this:
- 
--.I {r|w}<length_of_message>[@address]
-+.I [inpst]{r|w}<length_of_message>[@address]
- 
-+.TP
-+.B [inpst]
-+If supported, specifies optional MESSAGE MODIFIER FLAGS. See the section below for details.
- .TP
- .B {r|w}
- specifies if the message is read or write
-@@ -141,6 +144,29 @@ decrease value by 1 until end of message (i.e. 0xff- means 0xff, 0xfe, 0xfd, ...
- p
- use value as seed for an 8 bit pseudo random sequence (i.e. 0p means 0x00, 0x50, 0xb0, ...)
- 
-+.SH "MESSAGE MODIFIER FLAGS"
-+.PP
-+These optional flags can be used to change the handling of a message when it is sent on the bus.
-+They allow you to deviate from the I2C standard to work around device issues.
-+They should be used with care, as they can confuse your I2C bus.
-+Note that not all flags (or any) may be supported by your particular hardware and your kernel version.
-+
-+.TP
-+.B i
-+ignore NACK from client, treat them as ACK.
-+.TP
-+.B n
-+in a read message, master ACK/NACK bit is skipped.
-+.TP
-+.B p
-+emit a STOP after the message.
-+.TP
-+.B s
-+skip repeated start.
-+.TP
-+.B t
-+toggle read/write bit.
-+
- .SH EXAMPLES
- .PP
- On bus 0, from an EEPROM at address 0x50, read 8 byte from offset 0x64
-diff --git a/tools/i2ctransfer.c b/tools/i2ctransfer.c
-index 4db98e3..a49b734 100644
---- a/tools/i2ctransfer.c
-+++ b/tools/i2ctransfer.c
-@@ -34,6 +34,14 @@ enum parse_state {
- 	PARSE_GET_DATA,
- };
- 
-+enum supported_flags_retval {
-+	FLAGS_GOT_RW,
-+	FLAGS_GOT_OPTIONAL,
-+	FLAGS_UNEXPECTED,
-+	FLAGS_UNKNOWN,
-+	FLAGS_UNSUPPORTED,
-+};
-+
- #define PRINT_STDERR	(1 << 0)
- #define PRINT_READ_BUF	(1 << 1)
- #define PRINT_WRITE_BUF	(1 << 2)
-@@ -52,9 +60,16 @@ static void help(void)
- 		"           -V version info\n"
- 		"           -y yes to all confirmations\n"
- 		"  I2CBUS is an integer or an I2C bus name\n"
--		"  DESC describes the transfer in the form: {r|w}LENGTH[@address]\n"
--		"    1) read/write-flag 2) LENGTH (range 0-65535, or '?')\n"
--		"    3) I2C address (use last one if omitted)\n"
-+		"  DESC describes the transfer in the form: [inpst]{r|w}LENGTH[@address]\n"
-+		"    1) optional message modifier flags, if supported\n"
-+		"       i: ignore NACK from client\n"
-+		"       n: no master ACK/NACK bit in a read message\n"
-+		"       p: emit a STOP after the message\n"
-+		"       s: skip repeated start\n"
-+		"       t: toggle read/write bit\n"
-+		"    2) mandatory read/write flag\n"
-+		"    3) LENGTH (range 0-65535, or '?')\n"
-+		"    4) I2C address (use last one if omitted)\n"
- 		"  DATA are LENGTH bytes for a write message. They can be shortened by a suffix:\n"
- 		"    = (keep value constant until LENGTH)\n"
- 		"    + (increase value by 1 until LENGTH)\n"
-@@ -66,17 +81,20 @@ static void help(void)
- 		"  # i2ctransfer 0 w17@0x50 0x42 0xff-\n");
- }
- 
--static int check_funcs(int file)
-+static int get_funcs(int file, unsigned long *funcs)
- {
--	unsigned long funcs;
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 1c01b0460385..3351c4a9ef11 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -8,8 +8,6 @@
+  * Copyright (C) 2007 MontaVista Software Inc.
+  * Copyright (C) 2009 Provigent Ltd.
+  */
 -
- 	/* check adapter functionality */
--	if (ioctl(file, I2C_FUNCS, &funcs) < 0) {
-+	if (ioctl(file, I2C_FUNCS, funcs) < 0) {
- 		fprintf(stderr, "Error: Could not get the adapter "
- 			"functionality matrix: %s\n", strerror(errno));
- 		return -1;
- 	}
- 
-+	return 0;
-+}
-+
-+static int check_funcs(unsigned long funcs)
-+{
- 	if (!(funcs & I2C_FUNC_I2C)) {
- 		fprintf(stderr, MISSING_FUNC_FMT, "I2C transfers");
- 		return -1;
-@@ -140,6 +158,103 @@ static int confirm(const char *filename, struct i2c_msg *msgs, __u32 nmsgs)
- 	return 1;
+-#include <linux/acpi.h>
+ #include <linux/clk-provider.h>
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+@@ -132,152 +130,6 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
+ 	return 0;
  }
  
-+/*
-+ * Parse one message flag and check if the adapter supports it.
-+ * Return:
-+ * FLAGS_GOT_RW if we have the direction of the message (read or write)
-+ * FLAGS_GOT_OPTIONAL if the argument is a valid and supported optional flag
-+ * FLAGS_UNEXPECTED if the argument is the beginning of the size or address
-+ * FLAGS_UNKNOWN for unknown flag
-+ * FLAGS_UNSUPPORTED for flag unsupported by the adapter
-+ */
-+static enum supported_flags_retval
-+	add_flag_if_supported(__u16 *flags, unsigned long funcs, char arg)
-+{
-+	int mangling = 0, nostart = 0;
-+
-+	/* Get the message flag from the argument */
-+	switch (arg) {
-+	/* mandatory direction flag: ends the parsing of flags */
-+	case 'r':
-+		*flags |= I2C_M_RD;
-+		return FLAGS_GOT_RW;
-+	case 'w':
-+		return FLAGS_GOT_RW;
-+
-+	/* optional flags */
-+#ifdef I2C_M_IGNORE_NAK
-+	case 'i':
-+		*flags |= I2C_M_IGNORE_NAK;
-+		mangling = 1;
-+		break;
-+#endif
-+#ifdef I2C_M_NO_RD_ACK
-+	case 'n':
-+		*flags |= I2C_M_NO_RD_ACK;
-+		mangling = 1;
-+		break;
-+#endif
-+#ifdef I2C_M_STOP
-+	case 'p':
-+		*flags |= I2C_M_STOP;
-+		mangling = 1;
-+		break;
-+#endif
-+#ifdef I2C_M_NOSTART
-+	case 's':
-+		*flags |= I2C_M_NOSTART;
-+		nostart = 1;
-+		break;
-+#endif
-+#ifdef I2C_M_REV_DIR_ADDR
-+	case 't':
-+		*flags |= I2C_M_REV_DIR_ADDR;
-+		mangling = 1;
-+		break;
-+#endif
-+
-+	/* unexpected next part of the message: length or address */
-+	case '0':
-+	case '1':
-+	case '2':
-+	case '3':
-+	case '4':
-+	case '5':
-+	case '6':
-+	case '7':
-+	case '8':
-+	case '9':
-+	case '?':
-+	case '@':
-+		return FLAGS_UNEXPECTED;
-+
-+	default:
-+		fprintf(stderr, "Error: Unknown flag '%c'\n", arg);
-+		return FLAGS_UNKNOWN;
-+	}
-+
-+	/* Check that the adapter supports the requested flags */
-+#ifdef I2C_FUNC_PROTOCOL_MANGLING
-+	if (funcs & I2C_FUNC_PROTOCOL_MANGLING)
-+		mangling = 0;
-+#endif
-+	if (mangling) {
-+		fprintf(stderr, MISSING_FUNC_FMT, "protocol mangling");
-+		return FLAGS_UNSUPPORTED;
-+	}
-+
-+#ifdef I2C_FUNC_NOSTART
-+	if (funcs & I2C_FUNC_NOSTART)
-+		nostart = 0;
-+#endif
-+	if (nostart) {
-+		fprintf(stderr, MISSING_FUNC_FMT, "repeated start skipping");
-+		return FLAGS_UNSUPPORTED;
-+	}
-+
-+	return FLAGS_GOT_OPTIONAL;
-+}
-+
- int main(int argc, char *argv[])
+-#ifdef CONFIG_ACPI
+-struct gpio_dep_ctx {
+-	struct list_head gpio_controllers;
+-	int ret;
+-};
+-
+-struct gpio_controller_ref {
+-	struct list_head node;
+-	char *path;
+-};
+-
+-static int check_gpioint_resource(struct acpi_resource *ares, void *data)
+-{
+-	struct gpio_dep_ctx *ctx = data;
+-	struct acpi_resource_gpio *agpio;
+-	struct gpio_controller_ref *ref, *tmp;
+-	bool found = false;
+-
+-	if (ares->type != ACPI_RESOURCE_TYPE_GPIO)
+-		return 1;
+-
+-	agpio = &ares->data.gpio;
+-	if (agpio->connection_type != ACPI_RESOURCE_GPIO_TYPE_INT)
+-		return 1;
+-
+-	/* Check if we've already tracked this GPIO controller */
+-	list_for_each_entry(tmp, &ctx->gpio_controllers, node) {
+-		if (!strcmp(tmp->path, agpio->resource_source.string_ptr)) {
+-			found = true;
+-			break;
+-		}
+-	}
+-
+-	if (!found) {
+-		ref = kzalloc(sizeof(*ref), GFP_KERNEL);
+-		if (!ref) {
+-			ctx->ret = -ENOMEM;
+-			return 0;
+-		}
+-
+-		ref->path = kstrdup(agpio->resource_source.string_ptr, GFP_KERNEL);
+-		if (!ref->path) {
+-			kfree(ref);
+-			ctx->ret = -ENOMEM;
+-			return 0;
+-		}
+-
+-		list_add_tail(&ref->node, &ctx->gpio_controllers);
+-	}
+-
+-	return 1;
+-}
+-
+-static int check_child_gpioint(struct acpi_device *adev, void *data)
+-{
+-	struct gpio_dep_ctx *ctx = data;
+-	struct list_head res_list;
+-
+-	INIT_LIST_HEAD(&res_list);
+-
+-	acpi_dev_get_resources(adev, &res_list, check_gpioint_resource, ctx);
+-	acpi_dev_free_resource_list(&res_list);
+-
+-	if (ctx->ret < 0)
+-		return ctx->ret;
+-
+-	return 0;
+-}
+-
+-static int i2c_dw_check_gpio_dependencies(struct device *dev)
+-{
+-	struct acpi_device *adev = ACPI_COMPANION(dev);
+-	struct gpio_dep_ctx ctx = { .ret = 0 };
+-	struct gpio_controller_ref *ref, *tmp;
+-	int ret = 0;
+-
+-	if (!adev)
+-		return 0;
+-
+-	INIT_LIST_HEAD(&ctx.gpio_controllers);
+-
+-	/* Walk all child devices and collect GpioInt controller references */
+-	ret = acpi_dev_for_each_child(adev, check_child_gpioint, &ctx);
+-	if (ret < 0 || ctx.ret < 0) {
+-		ret = ctx.ret ?: ret;
+-		goto cleanup;
+-	}
+-
+-	/* For each GPIO controller, check if its parent device is bound */
+-	list_for_each_entry(ref, &ctx.gpio_controllers, node) {
+-		acpi_handle handle;
+-		acpi_status status;
+-		struct acpi_device *gpio_adev;
+-		struct device *gpio_dev;
+-		bool bound;
+-
+-		status = acpi_get_handle(NULL, ref->path, &handle);
+-		if (ACPI_FAILURE(status))
+-			continue;
+-
+-		gpio_adev = acpi_fetch_acpi_dev(handle);
+-		if (!gpio_adev)
+-			continue;
+-
+-		gpio_dev = acpi_get_first_physical_node(gpio_adev);
+-		acpi_dev_put(gpio_adev);
+-
+-		if (!gpio_dev) {
+-			ret = -EPROBE_DEFER;
+-			goto cleanup;
+-		}
+-
+-		/*
+-		 * Check if the GPIO controller's device is bound. If not,
+-		 * defer probe to ensure GPIO initialization (including IRQ
+-		 * setup and quirks) is complete before we enumerate I2C
+-		 * child devices.
+-		 */
+-		scoped_guard(device, gpio_dev) {
+-			bound = device_is_bound(gpio_dev);
+-		}
+-		if (!bound) {
+-			put_device(gpio_dev);
+-			ret = -EPROBE_DEFER;
+-			goto cleanup;
+-		}
+-
+-		put_device(gpio_dev);
+-	}
+-
+-cleanup:
+-	list_for_each_entry_safe(ref, tmp, &ctx.gpio_controllers, node) {
+-		list_del(&ref->node);
+-		kfree(ref->path);
+-		kfree(ref);
+-	}
+-
+-	return ret;
+-}
+-#else
+-static int i2c_dw_check_gpio_dependencies(struct device *dev)
+-{
+-	return 0;
+-}
+-#endif /* CONFIG_ACPI */
+-
+ static int dw_i2c_plat_probe(struct platform_device *pdev)
  {
- 	char filename[20];
-@@ -148,6 +263,7 @@ int main(int argc, char *argv[])
- 	struct i2c_msg msgs[I2C_RDRW_IOCTL_MAX_MSGS];
- 	enum parse_state state = PARSE_GET_DESC;
- 	unsigned int buf_idx = 0;
-+	unsigned long funcs;
+ 	u32 flags = (uintptr_t)device_get_match_data(&pdev->dev);
+@@ -286,14 +138,6 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	struct dw_i2c_dev *dev;
+ 	int irq, ret;
  
- 	memset(msgs, 0, sizeof(msgs));
- 
-@@ -182,7 +298,7 @@ int main(int argc, char *argv[])
- 		exit(1);
- 
- 	file = open_i2c_dev(i2cbus, filename, sizeof(filename), 0);
--	if (file < 0 || check_funcs(file))
-+	if (file < 0 || get_funcs(file, &funcs) || check_funcs(funcs))
- 		exit(1);
- 
- 	while (optind < argc) {
-@@ -191,6 +307,7 @@ int main(int argc, char *argv[])
- 		__u16 flags;
- 		__u8 data, *buf;
- 		char *end;
-+		int ret;
- 
- 		if (nmsgs == I2C_RDRW_IOCTL_MAX_MSGS) {
- 			fprintf(stderr, "Error: Too many messages (max: %d)\n",
-@@ -202,11 +319,12 @@ int main(int argc, char *argv[])
- 		case PARSE_GET_DESC:
- 			flags = 0;
- 
--			switch (*arg_ptr++) {
--			case 'r': flags |= I2C_M_RD; break;
--			case 'w': break;
--			default:
--				fprintf(stderr, "Error: Invalid direction\n");
-+			for (ret = FLAGS_GOT_OPTIONAL; *arg_ptr && ret == FLAGS_GOT_OPTIONAL; arg_ptr++)
-+				ret = add_flag_if_supported(&flags, funcs, *arg_ptr);
-+			if (ret == FLAGS_UNKNOWN || ret == FLAGS_UNSUPPORTED)
-+				goto err_out_with_arg;
-+			if (ret != FLAGS_GOT_RW) {
-+				fprintf(stderr, "Error: Missing direction flag 'r' or 'w'\n");
- 				goto err_out_with_arg;
- 			}
- 
+-	/*
+-	 * Check if any child devices have GpioInt resources, and if so,
+-	 * defer probe until those GPIO controllers are fully bound.
+-	 */
+-	ret = i2c_dw_check_gpio_dependencies(device);
+-	if (ret)
+-		return ret;
+-
+ 	irq = platform_get_irq_optional(pdev, 0);
+ 	if (irq == -ENXIO)
+ 		flags |= ACCESS_POLLING;
 
----
-base-commit: ec1267371e378fc6aaf1cd7686b5b9b31293255a
-change-id: 20251127-msg-flags-3d2b2da9ae28
-
-Best regards,
---  
-Benoît Monin, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+base-commit: 3f786abd23951f3f600a62fef42469d9200d5f52
+prerequisite-patch-id: 22fa9ba20fa28cf94185281704c51feef7abc701
+-- 
+2.54.0
 
