@@ -1,286 +1,166 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+Received: from mail-dl1-f48.google.com (mail-dl1-f48.google.com [74.125.82.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFFCB10F0
-	for <linux-i2c@vger.kernel.org>; Wed, 10 Jun 2026 08:37:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781080646; cv=none; b=VbDkibnFeQLgqj8MgHJVVl6aU9CriBQhU2yGh3P77S/s0dmsxLELd7sRV94oPinCI0XcSLczUDxYfRG/EcQMPr5HjG1GgcG5XzfXbqR9SWZMj9d+VnUYNsnGhohzNAeJRpjWlMHxd7dRVDuNI0ApZ1SDHVA0djRfqRd4PGYc3sc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781080646; c=relaxed/simple;
-	bh=kaishit0l3D7M91kmsDJgwCJTTWfCGNoHd3rbC0bz6g=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fyXo3yPq1xP+kkx48a2CFe73tu1DvOvJgbxorBnmGntpfxlz0hod8EzQjcrpChNqaiFztZOMI4Hl7lhkx2MkqL4VgXV1qxd0aj3pzWOm5zVqroBSWRBXm/rm3tTxjyN07Er+7ddAbn63cAo4RTRCG4i7NTHIiekN3NDToIVW/pI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eFgucHH4; arc=none smtp.client-ip=209.85.214.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 591993AFAF9
+	for <linux-i2c@vger.kernel.org>; Wed, 10 Jun 2026 08:55:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.82.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781081717; cv=pass; b=B5nT+pVGEWqb++jHGMi45wSAvaPBRgQYasBOlPr5DT/J25/wx6nhvSrbHxHqp2e1X7OY9DSvFqPdy+FwYc5DdV019uU579bjAhslPSERLSlzCPhlAofOZ/wsMKC60I9PmydBeYngCwxkV3o6HLQU4yDrYi3bUgd0iS4gVV7Hjnk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781081717; c=relaxed/simple;
+	bh=b+gaqg1zeu8diN/4RO9P1QUcgZfuCJLRsApxbAuPdmU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=sg/pPV99fS9qOc7DXjOufHICLfhj/ZGFMx0dIgB9c7Yi4Wk/+vspviKSIZgGKciNasCNviDL5imCxWrNTdk7oEIfmasghezDQRf7/jXHaeLziGLzMZvjztqIRT9VSEgb2WHXr4zc4TPKScpzTmtWBBAIY3UM4pxRcXIjxrogoJg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WUYhDd95; arc=pass smtp.client-ip=74.125.82.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eFgucHH4"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2bf237e1433so71590905ad.1
-        for <linux-i2c@vger.kernel.org>; Wed, 10 Jun 2026 01:37:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WUYhDd95"
+Received: by mail-dl1-f48.google.com with SMTP id a92af1059eb24-13810b63a1aso5848753c88.1
+        for <linux-i2c@vger.kernel.org>; Wed, 10 Jun 2026 01:55:16 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781081715; cv=none;
+        d=google.com; s=arc-20240605;
+        b=NADw712FIa7g3t2HPQqDBt0M6EJ5xC3/4bwbVNm7Z4DlirJOFfsN1zqPvwoqKl9KuJ
+         N6cLRTdPX7atjw2ZyjsXdK+XwmQzS2EerCCK/VExuWSs3zHaFO51tmBuds6P7WIRCXnb
+         hizgr3T07nU/0Mih8z6JMKWSfsOtMQaZDf5dNwWkZF4D/3EFn0Pqj3MVq16ER5XnDHZM
+         k70km9MG0SYRBdcTIF7P/rLLyMJ5vRa+15A0IXsEVUmCfAC7Ns28JYvi1D7Z3HIKBiJH
+         d/CaGbfIKIaSGAZxBBpLpijLKrBN3i9r6JZwDUXQNVrI5rbYUnq6PO09kHjleN+70fjn
+         BBZg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=iNh55YhEuFgkEeB/ThY5qbdXdZbx+uMa748Jhl66MKs=;
+        fh=nOZP/56X5VEIQXdN79gJbmgBnclcO83Cg/xfVDEdH+g=;
+        b=BsAPkXj7cKxjxF71SoOx1x2h7CBH+bW3Bg5ylb9089+3/p/NSUVQFD2t07ts/NPYcG
+         PjB8neSQ97zQ9/EA6YY5VfmoMDxoPINBYHP0KPO2hjZKEdG0D1q9h3wMFrMoeupp8FOY
+         b3qH1VP2YfKBB+NKJylaaEV6aAowWaFPcnixuG+yGiMYQEf4Fc8TWT69zPGK66pvE0BE
+         jdy/F9nv9SnwQP+CrmpAYMI0SwYyFcqPhzw4mrsTQ2lrMBmKxQg6w/Q2n4FEBNIUSexd
+         GA3dhrhycnHHgJojadnhdoNStpiVwR7W6vCYbNWr7RtL7nmYgtoM9tVoExaSv73ZJGea
+         O9Ew==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781080644; x=1781685444; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=xTlLTPLQVob07Monee3VTFRy46RFeGt5gASHP+XGMa0=;
-        b=eFgucHH4rRV+EM+SxB/B2YstHpe456xR5jOE0L6Syj36WHkQTPiSzbPvkJqSBm2jWk
-         hdj5GMo2VqZgEU7YEKy4KOPFW2rQM4CnUyrEm0vEQ1ZYBdgKHfHpsyuF5/ZNptbjYWax
-         v8KdYXKn91Fgg19uygQT3MJG7mLLNpzt+hx6SlbvH30KboUOAHHfFt9IZFO1uz1z/s4t
-         wU3idruIMuS1J+CrNidgFvfPP1GDAX0YwrnzVbWidXWqAoRGzQi/69EFUOxNfjm94dEI
-         i36DkXkRucrT8dl3QSs/BG+vWaJBkmsjAinhO/ckqKNA9r+nVI9Ya9Ab6ouUjUvlX1gS
-         BGWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781080644; x=1781685444;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1781081715; x=1781686515; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xTlLTPLQVob07Monee3VTFRy46RFeGt5gASHP+XGMa0=;
-        b=CLEJCNK3H6pD+2kM+c8vJjqLhMKgAu4+51harpoTInC2QE0ygJKj2ogZzddgj02fgw
-         v94LdEEaJUJsUOMPkx9e0V8GSES6g0lQNmbofivkuC54FbWKd1C9ejmd6mdT5Uc3uI7n
-         zsFKoKeUeK08clmN7QV0z9Wttj/2OhuBJAer5gT6m9QSXhXwIEXiIgoXzzHJyQ5vIlso
-         UT1fRjE9zX8P8Q5BfM/XQRIXNr/fUrEi/udUl6/ZHRJuGUzQHwNs4OmziOqmBrSoOrJV
-         8IU9l0OgktLzsg6hU9eyneR8Z80KD6Q632QoWjZHnrpMa0Y1p6AnpbwUEVBkPK8sWdWD
-         nXSg==
-X-Gm-Message-State: AOJu0YxbCM4jFWH/BkJOKk8MXt7086huokGmUloPlfWASVlOzJcZjIYK
-	ed+26zxarlsor2aWGm5hl2OJfdSZYrP6hkGf9SSpwC5kgSlOVK3kzL81Zw6IRhtZ
-X-Gm-Gg: Acq92OGDMRI8zzYYji7j+KcY4Zc4RURUWZioKcSLqgQ6yp4JIg3XV0/E7mm3Vj42D96
-	L5pSiwAaxQGSFM0KfcNurYCpswcs/vq4qljb3+FA/tzwa2t41efFO8e9kD+YzEPVBSzx6Rw9h2+
-	CMpEH2OoD3946NP5siOEgfIDop2sMZ2VHOr3gjn/YumfphXsVOrH5TPIN93DYecJm2YYbZH6ZdA
-	7zbVQj2wW5rnTPto7YJymzcmjrVQUDuSnJcgK4dPbex/RbzbRH5XFVuv+N92J72Omq+SlgoRDZw
-	bfEUmYSFCuWadukaEBPDND8IzUZO0o5VjxScbiHOcLmyFJvfevlSqxuMB9PFpBGj2q53jQ1xVlO
-	cn10e1QPA0aafh//fAN0z/Z0asliptYJXo+tLk1PgI+IMvX/odPfCziqKpUi6M6XLB0XsIkg0X9
-	SBHknqufAN9BZbYlh687/yhX8zgnX7zh/f287flqsr3qOUSCinw9PSt3aaDC1/Dd+X2/E8kB6jh
-	1BQ52GGvZlvzSfZng747PkTojkNQo59xIo9lcE3+z77rytjsswlTg5aNYPn6+Ies9c2HULlnQPI
-	poy28BeuOIt/ptlwfEk=
-X-Received: by 2002:a17:903:90c:b0:2c0:b7e1:7f08 with SMTP id d9443c01a7336-2c1e859fc13mr290306175ad.28.1781080643939;
-        Wed, 10 Jun 2026 01:37:23 -0700 (PDT)
-Received: from hardik-yoga.oryx-cobra.ts.net ([103.52.208.50])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c164f8429fsm291897375ad.18.2026.06.10.01.37.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 01:37:23 -0700 (PDT)
-From: Hardik Prakash <hardikprakash.official@gmail.com>
-To: linux-i2c@vger.kernel.org
-Cc: linux-gpio@vger.kernel.org,
-	wsa@kernel.org,
-	andriy.shevchenko@intel.com,
-	mario.limonciello@amd.com,
-	brgl@bgdev.pl,
-	basavaraj.natikar@amd.com,
-	linusw@kernel.org,
-	nathan@kernel.org,
-	chaitanya.kumar.borah@intel.com,
-	Hardik Prakash <hardikprakash.official@gmail.com>
-Subject: [PATCH] Revert "i2c: designware: defer probe if child GpioInt controllers are not bound"
-Date: Wed, 10 Jun 2026 14:07:01 +0530
-Message-ID: <20260610083701.18663-1-hardikprakash.official@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        bh=iNh55YhEuFgkEeB/ThY5qbdXdZbx+uMa748Jhl66MKs=;
+        b=WUYhDd95KV8fd80A5mxLoI5c82QmWIR4guBTmUFgsZ1PLnHhlX84xqwWSZ9cMZ9ioU
+         jX+rzdzcyHzaltyLOK6sL+cytSFNNmBmTBHGaWF/WXUbeXlOB9gke8Xx48v4c68+STRc
+         cOAZo6fcj5MFPBihFxdii4hzls820ECXvL9m1neTijrAYV3BjoZNIztIlfmB7AZFmFML
+         mP+CUvlfvPkH2GLtB1ECj6AFQps2S3aZ04oaTgi+veGt8YnO8yErez7gGOzr9PpTnelo
+         IvhvBanPCepttJInxZheBy3ctXOs5SgNoqT/IQ0Zgct7pExmSYzyG4n+1fJfWoOJkoNg
+         OLBw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781081715; x=1781686515;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=iNh55YhEuFgkEeB/ThY5qbdXdZbx+uMa748Jhl66MKs=;
+        b=nyF+UhNW5CDFk9DLH/51uZfcRM9LHSWexnNp3QZUkba2GpgChDXY0kz2dKZyiV3eSY
+         QdYW47K7VcEv2cte0VbfAM0VzZ8OSrZ3k2v0DsHeUg5Cn93wdO4q8B0+FoeC+4qu3Gcj
+         4wkeMuABj424TLZo7RS04m4rkO/6wLQp9x68Edbj9PF0Hr5NW9R80c5k3zaHs0SYgfN1
+         Uk/Jp4OVoqGJ40mnDapP6FU/fvUKvJaN1tQxtMKSc31YhZMNX0d2GqkEyVhmgAA68vvV
+         ELrtJ7r3Od9Ek/l2zawh24RYjri0vInJ7RvNfhzcBapcP8jUh9cYlj0NiR3NqGpOk9Ci
+         9fXg==
+X-Forwarded-Encrypted: i=1; AFNElJ8cfazXEbr9gHic+90g5kHKzwhwdX3DcVr0FpbhBRhC39iMXbaKGql8+t+ZKuOshO18DTmO4xbuvy4=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyLyEeJ9hgdiJ6StEs2VH5c+rPeBd0JmPZfEzdRsVkAvi1dO2Yh
+	1dF4b8ZaCKLoVxbh1+X9HuuWsAmLfzHvhZN0ZkY4SK1+/Jpzi4ZwbAmmdAHxPMY7cRMQ1+rKu8A
+	UrT88zdaoztB6PxQSCTFKzjIei9j26o8=
+X-Gm-Gg: Acq92OGMR5vlDoTui2BY4KvAIoMXD4Dpg/FSdwRkpNG8kbbaYlJEDvP3YhnrOoD6FQm
+	nBPqS+eVubHpMpNlzqkaloo6M+qBjzRA62lnXhhkfKwCloO54AFGmC8w511d9lG2na1jsiaPG1Y
+	bMGD0lTfXuH9WRTO7/HowPWs6VjPFZ1hrzaapjL+fYRFe2+wlC42g8ziiptA6jWhaW0LkdUXMnl
+	LMJRUVuzhP3CGinEFldOFDF+ho/cBsXaBe05Lbdo2A95WONQWb5DnMFDO4e3oWC69nmzknWghwq
+	3oJUXRzLBNJjQuT+q0A=
+X-Received: by 2002:a05:7022:672a:b0:136:9ebf:3c04 with SMTP id
+ a92af1059eb24-13831ba95ddmr4043869c88.25.1781081715309; Wed, 10 Jun 2026
+ 01:55:15 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260205102942.28745-1-tinsaetadesse2015@gmail.com>
+ <20260205102942.28745-2-tinsaetadesse2015@gmail.com> <aiaw_mwxbuCqzCtY@zenone.zhora.eu>
+In-Reply-To: <aiaw_mwxbuCqzCtY@zenone.zhora.eu>
+From: TINSAE TADESSE <tinsaetadesse2015@gmail.com>
+Date: Wed, 10 Jun 2026 11:54:38 +0300
+X-Gm-Features: AVVi8CdVO_8xMFsBP4UBhrNCPNcIoEaDNmEQyaVjnbHkcXIuGp-tVckvXwNk_4U
+Message-ID: <CAJ12PfPTzHbhaXH3sAnMoE9X8a4rHrpzv2jfdnqqJWXvx+OnGA@mail.gmail.com>
+Subject: Re: [PATCH 1/2] i2c: i801: Detect SPD Write Disable and expose as
+ adapter quirk
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, Jean Delvare <jdelvare@suse.com>, 
+	Guenter Roeck <linux@roeck-us.net>, linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-This reverts commit ef76a3a28c79b628890431aa344af633e892035b.
+On Mon, Jun 8, 2026 at 3:28=E2=80=AFPM Andi Shyti <andi.shyti@kernel.org> w=
+rote:
+>
+> Hi Tinsae,
+>
+> sorry for the very late reply.
+>
+> > +/* SPD writes are blocked by host controller */
+> > +#define I2C_AQ_SPD_WRITE_DISABLED    BIT(8)
+> > +
+>
+> We don't need this extra flag, we already do this statement in
+> i2c_register_spd().
+>
+> Can't we just assume that for spd5118 spd write is always
+> disabled? That's what happens in i2c_register_spd.
+>
+> Check:
+>
+> 84d477354b0a ("i2c: smbus: Support DDR5 and LPDDR5 SPD EEPROMs")
+> 4d6d35d3417d ("i2c: smbus: introduce Write Disable-aware SPD instantiatin=
+g functions")
+>
+> Thanks,
+> Andi
 
-The patch causes boot regressions on multiple machines. A NULL pointer
-dereference occurs when agpio->resource_source.string_ptr is NULL (i.e.
-when string_length is 0), and a probe deferral loop causes CPU starvation
-leading to kernel panic on Intel CI machines.
 
-The patch needs a proper rewrite addressing these issues before resubmission.
+Hi Andi,
 
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Reported-by: Borah, Chaitanya Kumar <chaitanya.kumar.borah@intel.com>
-Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
----
- drivers/i2c/busses/i2c-designware-platdrv.c | 156 --------------------
- 1 file changed, 156 deletions(-)
+Thanks for reviewing this patch series.
 
-diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
-index 1c01b0460385..3351c4a9ef11 100644
---- a/drivers/i2c/busses/i2c-designware-platdrv.c
-+++ b/drivers/i2c/busses/i2c-designware-platdrv.c
-@@ -8,8 +8,6 @@
-  * Copyright (C) 2007 MontaVista Software Inc.
-  * Copyright (C) 2009 Provigent Ltd.
-  */
--
--#include <linux/acpi.h>
- #include <linux/clk-provider.h>
- #include <linux/clk.h>
- #include <linux/delay.h>
-@@ -132,152 +130,6 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
- 	return 0;
- }
- 
--#ifdef CONFIG_ACPI
--struct gpio_dep_ctx {
--	struct list_head gpio_controllers;
--	int ret;
--};
--
--struct gpio_controller_ref {
--	struct list_head node;
--	char *path;
--};
--
--static int check_gpioint_resource(struct acpi_resource *ares, void *data)
--{
--	struct gpio_dep_ctx *ctx = data;
--	struct acpi_resource_gpio *agpio;
--	struct gpio_controller_ref *ref, *tmp;
--	bool found = false;
--
--	if (ares->type != ACPI_RESOURCE_TYPE_GPIO)
--		return 1;
--
--	agpio = &ares->data.gpio;
--	if (agpio->connection_type != ACPI_RESOURCE_GPIO_TYPE_INT)
--		return 1;
--
--	/* Check if we've already tracked this GPIO controller */
--	list_for_each_entry(tmp, &ctx->gpio_controllers, node) {
--		if (!strcmp(tmp->path, agpio->resource_source.string_ptr)) {
--			found = true;
--			break;
--		}
--	}
--
--	if (!found) {
--		ref = kzalloc(sizeof(*ref), GFP_KERNEL);
--		if (!ref) {
--			ctx->ret = -ENOMEM;
--			return 0;
--		}
--
--		ref->path = kstrdup(agpio->resource_source.string_ptr, GFP_KERNEL);
--		if (!ref->path) {
--			kfree(ref);
--			ctx->ret = -ENOMEM;
--			return 0;
--		}
--
--		list_add_tail(&ref->node, &ctx->gpio_controllers);
--	}
--
--	return 1;
--}
--
--static int check_child_gpioint(struct acpi_device *adev, void *data)
--{
--	struct gpio_dep_ctx *ctx = data;
--	struct list_head res_list;
--
--	INIT_LIST_HEAD(&res_list);
--
--	acpi_dev_get_resources(adev, &res_list, check_gpioint_resource, ctx);
--	acpi_dev_free_resource_list(&res_list);
--
--	if (ctx->ret < 0)
--		return ctx->ret;
--
--	return 0;
--}
--
--static int i2c_dw_check_gpio_dependencies(struct device *dev)
--{
--	struct acpi_device *adev = ACPI_COMPANION(dev);
--	struct gpio_dep_ctx ctx = { .ret = 0 };
--	struct gpio_controller_ref *ref, *tmp;
--	int ret = 0;
--
--	if (!adev)
--		return 0;
--
--	INIT_LIST_HEAD(&ctx.gpio_controllers);
--
--	/* Walk all child devices and collect GpioInt controller references */
--	ret = acpi_dev_for_each_child(adev, check_child_gpioint, &ctx);
--	if (ret < 0 || ctx.ret < 0) {
--		ret = ctx.ret ?: ret;
--		goto cleanup;
--	}
--
--	/* For each GPIO controller, check if its parent device is bound */
--	list_for_each_entry(ref, &ctx.gpio_controllers, node) {
--		acpi_handle handle;
--		acpi_status status;
--		struct acpi_device *gpio_adev;
--		struct device *gpio_dev;
--		bool bound;
--
--		status = acpi_get_handle(NULL, ref->path, &handle);
--		if (ACPI_FAILURE(status))
--			continue;
--
--		gpio_adev = acpi_fetch_acpi_dev(handle);
--		if (!gpio_adev)
--			continue;
--
--		gpio_dev = acpi_get_first_physical_node(gpio_adev);
--		acpi_dev_put(gpio_adev);
--
--		if (!gpio_dev) {
--			ret = -EPROBE_DEFER;
--			goto cleanup;
--		}
--
--		/*
--		 * Check if the GPIO controller's device is bound. If not,
--		 * defer probe to ensure GPIO initialization (including IRQ
--		 * setup and quirks) is complete before we enumerate I2C
--		 * child devices.
--		 */
--		scoped_guard(device, gpio_dev) {
--			bound = device_is_bound(gpio_dev);
--		}
--		if (!bound) {
--			put_device(gpio_dev);
--			ret = -EPROBE_DEFER;
--			goto cleanup;
--		}
--
--		put_device(gpio_dev);
--	}
--
--cleanup:
--	list_for_each_entry_safe(ref, tmp, &ctx.gpio_controllers, node) {
--		list_del(&ref->node);
--		kfree(ref->path);
--		kfree(ref);
--	}
--
--	return ret;
--}
--#else
--static int i2c_dw_check_gpio_dependencies(struct device *dev)
--{
--	return 0;
--}
--#endif /* CONFIG_ACPI */
--
- static int dw_i2c_plat_probe(struct platform_device *pdev)
- {
- 	u32 flags = (uintptr_t)device_get_match_data(&pdev->dev);
-@@ -286,14 +138,6 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
- 	struct dw_i2c_dev *dev;
- 	int irq, ret;
- 
--	/*
--	 * Check if any child devices have GpioInt resources, and if so,
--	 * defer probe until those GPIO controllers are fully bound.
--	 */
--	ret = i2c_dw_check_gpio_dependencies(device);
--	if (ret)
--		return ret;
--
- 	irq = platform_get_irq_optional(pdev, 0);
- 	if (irq == -ENXIO)
- 		flags |= ACCESS_POLLING;
+> We don't need this extra flag, we already do this statement in
+> i2c_register_spd().
 
-base-commit: 3f786abd23951f3f600a62fef42469d9200d5f52
-prerequisite-patch-id: 22fa9ba20fa28cf94185281704c51feef7abc701
--- 
-2.54.0
+Based on my testing, the issue does not appear to be in the SPD
+registration path
+handled by 'i2c_register_spd()'.
 
+I verified that:
+
+* The i801 driver correctly detects SPD Write Disable.
+* Disabling 'CONFIG_SENSORS_SPD5118_DETECT' completely eliminates the probl=
+em.
+* The suspend/resume failures only occur when 'CONFIG_SENSORS_SPD5118_DETEC=
+T=3Dy'.
+
+Based on these observations, it appears that the SPD5118 detect path
+may instantiate
+the device independently of the SPD registration logic and therefore
+may bypass the
+SPD Write Disable handling added by commit 4d6d35d3417d ("i2c: smbus:
+introduce Write
+Disable-aware SPD instantiating functions").
+
+This would explain why SPD5118 is still instantiated on systems where SPD W=
+rite
+Disable is active, even though the SPD registration helpers are
+already SPD WD aware.
+
+The above observations are what motivated this patch series. Am I correct i=
+n
+suspecting that the SPD5118 detect path is separate from the SPD
+registration path, or
+is there another instantiation path that I should investigate?
+
+Best,
+Tinsae Tadesse
