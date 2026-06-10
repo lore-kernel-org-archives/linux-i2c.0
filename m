@@ -1,166 +1,144 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f182.google.com (mail-pg1-f182.google.com [209.85.215.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0FAA36F91F
-	for <linux-i2c@vger.kernel.org>; Tue,  9 Jun 2026 19:35:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34D5933D6D6
+	for <linux-i2c@vger.kernel.org>; Wed, 10 Jun 2026 03:04:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781033734; cv=none; b=fAkKnp6NcIy1Yq2kpxsaO/+qtlgR6TTo9lfZnWJlHyGVvpjW04UC8T4V+o9ljy0ozE2ySkgyHUWbc3MCc5fb4DklNNWCwHexFFj+a6wOFB6JS0yyJTIdq1pvWO/m+ul25ZKUoMQGuOgf4xifChBY473DAVZrxMOuGdUv0zXQJQ0=
+	t=1781060654; cv=none; b=NUfTg+2+GywT5K8hoIsKdkMcvJOKYaKR2ZahyX/HijcipclX1lqm5wgCTTq3H46AYSgAMs4AE3MrHHDTv2JY3e7R4QnSHo8QYYUrqQiaKKk6NPxs7NO8wXRr1jnUN3JaY7qboGNQEtbTdpbE4/aoGmC8FgnJuwXS417WdzpA/NQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781033734; c=relaxed/simple;
-	bh=F8lS7QpPVnacaOQXs3rwaqUtwYpTjvSxT7xJheckgbs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=btpFVKEcFSpRHNaht3Yk0u4WKTqkWBCxa6ZnBxzmFUJsM/lm+it9vV5DkXP9i1u+NpPBbQtV+dbLHNEOpwOkKYWITBxbgctoTn9lVjKkU+mNawYghX9VdkwCnLGyRilTf7Fes12RVhCNjogTQgGiu1s+eZDObA2IgkMKa6esNkA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=lKdhc4Jh; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Z22T8Ex6; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1781060654; c=relaxed/simple;
+	bh=htNF8eueg3Mn/3D5su9idQmcI9VgZFrt/5LRaQPDiJk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=cKtWxeXe47CfdNYkE3f4X99/M/oMkQwBNJmr54aM8+FI0VIhnv99NR7dflEshaWixeUeAP3P/6Vd2jXMXhsR8WEDDTm4oX9CXCyvUr1U6DZiJTRrSKcO5l9T9Re72zx2A/bm1wlQCc097+m1LfMTA0HlUoQFmEGYa+bHhjYlanY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dNyad0LH; arc=none smtp.client-ip=209.85.215.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="lKdhc4Jh";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Z22T8Ex6"
-Received: from pps.filterd (m0279873.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 659GOPVJ3196611
-	for <linux-i2c@vger.kernel.org>; Tue, 9 Jun 2026 19:35:32 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	F8lS7QpPVnacaOQXs3rwaqUtwYpTjvSxT7xJheckgbs=; b=lKdhc4JhflKlsOXg
-	hYS5riH9iP0okOLoMHmCTgBz4qg4hgjnuroX6AWYJnHDLguQJQ5pP1abxqi3ELk5
-	soVWjFQJlLOH/kdGLq/uw2uIIcLXNH+rIlX5yN34DE012hUVGQkaw7YtfDpdftfH
-	zw+bLKyace8bfspBggPhZGHCzN2UnTmiXbFKpZhw2iXHtNo/RGAHo3pBP5qe1eWb
-	kFWrASMfBHEzDjclkslEveDfWKk+a6T5oHUg8oOuuvhK7KnAlqwMxc8btYV4wcqn
-	DHhqyDAAWIhkLcShsepUgpxcr+ORdxG05UNzfwrBbvIV35y8aLZ6+nWc6y3Hj8/4
-	EShtiw==
-Received: from mail-dl1-f69.google.com (mail-dl1-f69.google.com [74.125.82.69])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4epg3v2ycx-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Tue, 09 Jun 2026 19:35:31 +0000 (GMT)
-Received: by mail-dl1-f69.google.com with SMTP id a92af1059eb24-1383414cf84so999148c88.1
-        for <linux-i2c@vger.kernel.org>; Tue, 09 Jun 2026 12:35:31 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dNyad0LH"
+Received: by mail-pg1-f182.google.com with SMTP id 41be03b00d2f7-c8584e80d59so2463492a12.2
+        for <linux-i2c@vger.kernel.org>; Tue, 09 Jun 2026 20:04:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1781033731; x=1781638531; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=F8lS7QpPVnacaOQXs3rwaqUtwYpTjvSxT7xJheckgbs=;
-        b=Z22T8Ex6n8+cC1DiYaPHK5gZxWdVs6NYjpujZb/4KUi/H/z64SsqSAsxkcOefGicbI
-         aR+lbVDX6iDrc0ltsIy+kH0P0Bq/nC2Mxl8OdUNiUntWUwfECUp1XIXDvz2sCX8QuUvW
-         44YpXkfUGTGNtyn9Oc8lTQvZ2nSIXLLTzBm73opStLIuWsxZioSftlWBWxvXHXrlI5DX
-         fCxG9cXYmvc4lIQLcU7KbtM6gZ+SIBIboNAc1RlVX0L+zbJWZgW6+Ld6ydJyuOVOmVhL
-         E/TDUwQiyEKneE0CrxKTAFTvyDVGIFnYgdGtIyoZxHOAn2R8OEj9PnlTbBX1bo973Saj
-         P+GQ==
+        d=gmail.com; s=20251104; t=1781060652; x=1781665452; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=B1xEqocq617yA3Nhtp5XMsU0wUBI4nxN63OSaZK9x2k=;
+        b=dNyad0LHKEqVJzUvnHWyCciLMxrEsab/vzCR1cqnEEet80xodzdBrfardNIiNTDYsJ
+         ClRZIOewDtqEJ7PC5KtMXHCNc13b4CNaP6pb90hi4pJ7cMF1h5W5E2jA1+lfhRq/Ml4n
+         sSHdIUSdqVMygnOu4s2U9OCTMWUkCGgsQUQE4oEYUukIHlXchToSgPTWj4wct4c0ALUg
+         Niw2rh0EcscKvF6orI5FGK+RyXs4bGHZiIjU1ArHY8ecqIuKXiKdOxXc3Hh36JkeuD15
+         3jV57LTlIgVr9vRhLLuLzenS1SnUmY9sEMk4qnrSdcEKkLGJ9WcH2Cu2S5/fClnMXW2A
+         9ifQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781033731; x=1781638531;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=F8lS7QpPVnacaOQXs3rwaqUtwYpTjvSxT7xJheckgbs=;
-        b=VfAjyG0lfLHnfXcSmuuMGA0dbDPywbSaOqfre9qS/O5T6+rH9+NoDtNKwmNdy4GmqV
-         62/sNTlUMdGx7siUjYFZvz45FLnSaCl1hRgPuZgeb8WIIawO4E2dP7xpNvy+vZII2kfB
-         G6RwKy4noqWM8xkS+I1Ju5ldNaTbzVfq/Nop//WyzPYmuvyTKBk2E1LQieFBsnsarLti
-         DeqPnkdbtCbC/E9HgDvEmv97rL7yd7cZXBacl/qdvCtZhZtxG1UPuXP2oKPXLsphEOKW
-         85tpEL8cP+YVWWVTiw84rAnhoOutCF+fw8UgueyPdOBSI+A8rTQMS4gyaT8WUbcOTMeu
-         g5/g==
-X-Forwarded-Encrypted: i=1; AFNElJ8spXVkfp95WGXDPQW3BHb+qQMP7pwdjjlunlu5kLLCXMgy+5iVxRsUWo1oMVMa4ybsPJbHFMnwocQ=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yy0hCocemsEMn47eiCEl0W7gpC5bITTzn6sISMiZQe3LXGM3Xp/
-	rZ6xbQ7zU2pIWFKGEX7QPHJDcaPP0CXtyN2Fk+LUMlqUqPj453nYechg+emj6b+quMQhP7gdA7X
-	P7DJSXAtLRvqli+1o+bKNlDpWBNM8PvFLWUU/jiCYsln8q4l3cn8U1g76fvZg5IJoE+IHLRY=
-X-Gm-Gg: Acq92OFcjgERt331er+DLKgnZMKYC/awwBuWGIWJ9+51GP/p02Pa2TXjpYGVhSRURSq
-	bo19tqKRLK+9eZGdERoM+3NITfqYPc1SVGerqn1RfGgNDYAyiVqt3vXc47llQYYp0eZ0e515q9K
-	w1NFyQsLaDFSzPZmdharT+0sBMv9AxISNt7gP4Re14SqFFkYVRgTNbneYo+mLegKdQ3uVQgYjjl
-	JY22Qpoivfjdw9pn7/dfplLpP+Lipz13tGGLe4fPjjHHpKGpF02n/MEA21ZcHi2+osWehllRm2b
-	5Ukpjk8zc52zicWppe4z2FnXEF4vixFvT4y20SshbaYvIr5ws7dNGwhioP09H8ZYWcO3TF8pqiO
-	6WCECD5GzXFlzbac41jjRDvAwBMeq1DwTxlKgjuS3YKkU4a//5JjlJK75zJc7ftc=
-X-Received: by 2002:a05:7022:fe08:b0:138:364e:3224 with SMTP id a92af1059eb24-138364e332fmr1407679c88.16.1781033730805;
-        Tue, 09 Jun 2026 12:35:30 -0700 (PDT)
-X-Received: by 2002:a05:7022:fe08:b0:138:364e:3224 with SMTP id a92af1059eb24-138364e332fmr1407636c88.16.1781033730210;
-        Tue, 09 Jun 2026 12:35:30 -0700 (PDT)
-Received: from [192.168.0.5] ([49.204.107.49])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-137f5489d17sm15724085c88.1.2026.06.09.12.35.27
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 09 Jun 2026 12:35:29 -0700 (PDT)
-Message-ID: <5fddd1a9-b1cb-4d08-86e5-665c4d1b147a@oss.qualcomm.com>
-Date: Wed, 10 Jun 2026 01:05:25 +0530
+        d=1e100.net; s=20251104; t=1781060652; x=1781665452;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=B1xEqocq617yA3Nhtp5XMsU0wUBI4nxN63OSaZK9x2k=;
+        b=SbhTJrNlHM9lr6hb0tNepGhd93b9x/4i9hEXvaRK6mKIvG+zNfkRJVIGtsmZH1LGKa
+         2mvB+nawKa1QybkCsUBKPK6q5rek6bfPd8dikwMGFLdyEMHAFiDreiCndJG9vwD3FYkG
+         XVr99JXkZuTktl4qQPHJDWOX88WYq0TXRBpRxpX6AzYH56GhC5B77udam9Kg6GBl97kb
+         ztTa7dmQjCgzPyZbFMyqnhjEl0PnOfvQawq52g3W9AXQbXKRFtOtFIMkoE9gAsl/s92R
+         FbI5s1j0SXvQaEFqi1ytvKE2Vjn0FQBeezC+54bMGRHHDG0GYRWSFHUqfr7E/TQjTqdI
+         mNWA==
+X-Forwarded-Encrypted: i=1; AFNElJ+7J9Hj00EeSGa+Eh44CnF9RhAiJwEgHlxIUBU4arKhub2eoeAjfyTQewHQ+gWZPj/XoG+NNUrM5kU=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwMLj0jjNK4TMIdBo1q4pt3O1KDRpXif8qKcsHk1zbYlMPnJfZa
+	5lzo/GzqpOGfSCVAR2VCPyLvT/tV7mNUytIF+cZY4l4sj7UMCMhn6rlv
+X-Gm-Gg: Acq92OFyQS6LuDa3FinWQqh8WDvPVImZZ/Or7TQKAjPpF1r/DUc4hBmzhbCB6rCnGCX
+	A8Y+UT6Bn41j5mdC0mvCG9xjryXlU0AqjZheZbY2uUtycWXoQ82NlMqy4ZPOEAK5F7swjrHLb1P
+	uxYH6/EsigxGYy5ewY2CQkwYdknEDTVUQzVzFOFvxCSF4bLIwrxcnsXDxoQONsjrt9ShC62/8/0
+	RVPuxQgNqK0DL0sSXL3Wbc73Hb62dXLkDFCfNg/lH+D4X4rJVVELzblkUMvlZgggG8QXp22XwQ/
+	HnXopln/3XGxFfUt6FSjrivkB+gV+MVvUWHBfmgL6CLlVpS6Q86jZrVx93PfvzSlvLk+d0lgyf6
+	PiBWEV3XNVqlhjmQ9IVHUYNdd1hDnVoINqq+YohcWb0mgKX56X5UmcaKXobnwDiLyP3PNiO2LCH
+	E2Yw4Bn/BaXqSNlt8GnE2nShbUaOkVjIH+1WVMhmX1fDYTlMB8A2h8dpWIJnQAje5S11VJcGM0E
+	IJ5FYnM1kRCbYp8ZmXt
+X-Received: by 2002:a05:6300:6d8b:20b0:39b:ba95:b14c with SMTP id adf61e73a8af0-3b4ccf4051dmr17145756637.24.1781060652242;
+        Tue, 09 Jun 2026 20:04:12 -0700 (PDT)
+Received: from localhost.localdomain (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c85df0a61b3sm19927082a12.17.2026.06.09.20.04.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Jun 2026 20:04:11 -0700 (PDT)
+From: Zi-Yu Chen <zychennvt@gmail.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Jacky Huang <ychuang3@nuvoton.com>,
+	Shan-Chun Hung <schung@nuvoton.com>,
+	Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	linux-i2c@vger.kernel.org,
+	devicetree@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	Zi-Yu Chen <zychennvt@gmail.com>
+Subject: [PATCH v4 0/3] i2c: ma35d1: Add support for MA35D1 I2C controller
+Date: Wed, 10 Jun 2026 11:02:05 +0800
+Message-Id: <20260610030208.2020275-1-zychennvt@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] i2c: qcom-geni: Use pm_runtime_force_{suspend,resume}
- helpers
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
-        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
-        Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
-        linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20260520-use_pm_runtime_apis-v1-1-6a5238fc6cb6@oss.qualcomm.com>
- <aihahOVIqpm83Guf@zenone.zhora.eu>
-Content-Language: en-US
-From: Praveen Talari <praveen.talari@oss.qualcomm.com>
-In-Reply-To: <aihahOVIqpm83Guf@zenone.zhora.eu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Authority-Analysis: v=2.4 cv=St6gLvO0 c=1 sm=1 tr=0 ts=6a286b03 cx=c_pps
- a=kVLUcbK0zfr7ocalXnG1qA==:117 a=uEP1mZ4tISDvfoPjOx4BnA==:17
- a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=rJkE3RaqiGZ5pbrm-msn:22
- a=EUspDBNiAAAA:8 a=dN3C5qKZf1Mu_qcU80cA:9 a=QEXdDO2ut3YA:10
- a=vr4QvYf-bLy2KjpDp97w:22
-X-Proofpoint-ORIG-GUID: PwzV1BNsy-T5kiA19aKtkB2LZhyD2H9B
-X-Proofpoint-GUID: PwzV1BNsy-T5kiA19aKtkB2LZhyD2H9B
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA5MDE4MyBTYWx0ZWRfX4pKY1aWd2Xm2
- Uomp2s9gIvvXRf19sGkuWMNn95SpWecm+74p3phicrLp6qz0tRsburfiU6JOjmOXRFlVNG7PBer
- teTvgG3OfKRHErpp9SGNzvFH2WQGizSGmoHzORjKmOJ5Zesy0vpIHnFe226ea1n5WS973yMKtDd
- WtiivD3QhK3qPp1rhMgnjnhWcsYaHb+kWK/Fv5BNIrZBj2LE53yDrkWQYfTbiaP+tng55Xq9kJO
- 7lPRe6ygvmI89hEtF21iy5BKbVXctrmCr/gl6HC+mJ/ESWvauk1tZWJl5Ma62o4d7rFeJA97Pst
- 3brVLHWPAfb0mgO08j7Dgbi5WXxLHLqkEu1V5Mxuhg4mJoyDW0dvqAKuylfYk2kskcJgtGJkzq1
- kigQ7AEtcfj62eysoXUiwTtw+UlKGfeO5JlRmOwd+KKT58B1EgiiNOWuIGk9fqGE5Yhck/y1Y/1
- NaeOUtobIIhGrvfoS4A==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-09_04,2026-06-09_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 malwarescore=0 suspectscore=0 adultscore=0 lowpriorityscore=0
- clxscore=1011 spamscore=0 bulkscore=0 phishscore=0 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606090183
+Content-Transfer-Encoding: 8bit
 
-Hi
+This series adds support for the I2C controller found in the Nuvoton
+MA35D1 SoC. The driver supports controller and optional target mode
+and runtime power management.
 
-On 09-06-2026 23:58, Andi Shyti wrote:
-> Hi Praveen,
->
-> On Wed, May 20, 2026 at 12:44:29PM +0530, Praveen Talari wrote:
->> The driver carries custom system suspend/resume handling that manually
->> tracks a suspended state and conditionally calls
->> geni_i2c_runtime_suspend()
->> from the noirq suspend path, then adjusts runtime PM state by hand. This
->> duplicates PM core behavior and adds unnecessary complexity.
->>
->> Drop the manual state tracking and switch to pm_runtime_force_suspend()
->> and pm_runtime_force_resume() for system sleep. These helpers already
->> perform the required checks, call the runtime PM callbacks when needed,
->> and keep runtime PM state transitions consistent.
->>
->> Reviewed-by: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
->> Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
-> I normally don't take these patches: Where and when has the
-> review happened? The reviews has to be done in the mailing list
-> and I need to be sure that they have been discussed.
->
-> But, because I know Mukesh, because this patch has been sitting
-> for a while and because it looks good to me, I merged it in
-> i2c/i2c-host. But please, next time I want to see the review
-> process happening in the mailing list.
+The implementation has been tested on the Nuvoton MA35D1 SOM board.
 
-Sure.
+Changes in v4:
+  - Patch 1 (dt-bindings):
+    - Update example interrupt number.
+  - Patch 2 (driver):
+    - Remove redundant spinlocks and fix 'irq' type to signed.
+    - Fix target address recovery in ma35d1_i2c_reset().
+    - Refactor IRQ handler for multi-msg reads and NACK/IGNORE_NAK.
+    - Fix timeout UAF via explicit IRQ disabling during recovery.
+    - Drop IRQF_SHARED and fix PM paths in probe/unregistration.
+    - Limit suspend/resume wakeup logic to target mode only.
+  - Patch 3 (dts):
+    - Add missing i2c0 node to dtsi.
+    - Switch SoM configuration from i2c1 to i2c2 with updated pinctrl.
+    - Add nau8822 audio codec node under i2c2 on the SoM board.
+    - Drop redundant i2c0 alias and clean up dtsi property ordering.
+  v3: https://lore.kernel.org/r/20260512073953.564323-1-zychennvt@gmail.com/
 
-Thanks,
-Praveen Talari
+Changes in v3:
+  - Fix minor DTS formatting issues (whitespace, missing newline)  
+  v2: https://lore.kernel.org/r/20260316063726.41048-1-zychennvt@gmail.com
 
->
-> Thanks,
-> Andi
+Changes in v2:
+  - Overall:
+    - Rebase on linux-i2c/i2c-next
+    - Switched terminology from "master/slave" to "controller/target".  
+  - Patch 1 (dt-bindings):
+    - Simplified description and fixed 'reg' size in example.
+  - Patch 2 (driver):
+    - Modernized using devm_*, generic device properties, and FIELD_PREP/GENMASK.
+    - Optimized power management by moving clock control to runtime PM.
+    - Simplified code by removing redundant .remove(), .owner, and inlines.
+    - Added dev_err_probe() and default bus frequency handling.
+  - Patch 3 (dts):
+    - Moved i2c aliases to board dts and reordered nodes alphabetically.
+  v1: https://lore.kernel.org/r/20260302020822.13936-1-zychennvt@gmail.com
+
+Zi-Yu Chen (3):
+  dt-bindings: i2c: nuvoton,ma35d1-i2c: Add MA35D1 I2C controller
+  i2c: ma35d1: Add Nuvoton MA35D1 I2C driver support
+  arm64: dts: nuvoton: Add I2C nodes for MA35D1 SoC
+
+ .../bindings/i2c/nuvoton,ma35d1-i2c.yaml      |  63 ++
+ .../boot/dts/nuvoton/ma35d1-som-256m.dts      |  20 +
+ arch/arm64/boot/dts/nuvoton/ma35d1.dtsi       |  72 ++
+ drivers/i2c/busses/Kconfig                    |  13 +
+ drivers/i2c/busses/Makefile                   |   1 +
+ drivers/i2c/busses/i2c-ma35d1.c               | 778 ++++++++++++++++++
+ 6 files changed, 947 insertions(+)
+ create mode 100644 Documentation/devicetree/bindings/i2c/nuvoton,ma35d1-i2c.yaml
+ create mode 100644 drivers/i2c/busses/i2c-ma35d1.c
+
+-- 
+2.34.1
+
