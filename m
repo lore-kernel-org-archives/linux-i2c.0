@@ -1,119 +1,110 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FED111CBA
-	for <linux-i2c@vger.kernel.org>; Wed, 10 Jun 2026 18:29:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33ED321B9F6
+	for <linux-i2c@vger.kernel.org>; Wed, 10 Jun 2026 20:48:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781116152; cv=none; b=uR6pTsOqiEGIPzWRGhyP6xJadkNnD6vyVMZrHQkmrZUM3kXHveZn0Eng8PGZHUngudgMzaAu3v05ySAbtia+d2T/Q9Rvz3nvwIUjPfKQs+vSzx56jaxjIWp3QkTP/n6d1xjjgtAeaMfTZ/Th+t2UtvnckQmXdeUrYFMgsvAAKDs=
+	t=1781124515; cv=none; b=Hdz+ct2ZknMnM9KW3zeMw+nMYZNT21Tpk/N8bQHiPdLWTw3DGtuuGkyF9WooWqpSf54RquUr7dr+hZcZ413j2UoDCQd4e1SOKIIqnglIpnyDnjrh4laX7S1kPrzsBJ8unm/NDbdf7f8HFYo6VZ8iv1LKz8g/HGwtW682LpHgGjA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781116152; c=relaxed/simple;
-	bh=5eJc7bdv9UcuO2/Vxvv3fAGYYH6i/iFPsJ6Zo79uDfs=;
+	s=arc-20240116; t=1781124515; c=relaxed/simple;
+	bh=sPinqEB3Z0ew/vBOMNFTDPXp1Adrszq1I+ViiwweoOk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=KyOoZWGzLXCiMNz9zORyrKvFal4eRGJ9hLc5zQ42lg4Lq1Vtk9t6SDdR7DM+/vv0FVeY6px3a7uO9wb+bjZK6mUHcgIVs6XDcYcygGhZX0L/XRJ0TwqNCjMC1Yg45JknZ0QKzBMo/WWpjnHI1r8dv/43Yzt0fbBpOGVRiKleB6o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=chmE9fEs; dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b=bc3olyn0; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=tVr6jUD4glygzxHKn9IVsgifMWyn3//3fjvghEkPkUnR4QvGntJf80W7/MWu8YZ79oIQIB5lERO/0aKZDnD42wSuanJf67K6wDYp5cjeTep2WUPzUhCjlwhosHUKkxhRZhieUWxpeod9tyan6uoDvExpd7IhDOgLtAjBvle/Jdw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=j4Y7AJ5o; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="chmE9fEs";
-	dkim=pass (2048-bit key) header.d=redhat.com header.i=@redhat.com header.b="bc3olyn0"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781116150;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=NQAVhVT6gguuYJ2zdf4a7mcws54HuCOez18N0LHRhOc=;
-	b=chmE9fEsfAUHUfoIFUe7R/PMsAbUpBmgkCCJyEUGzszsKrDrJY3YCk1MOH2Q09yWmkSGUC
-	4v/o8ok1MrvoE+MmsCVxZoc2MBFVLmVNToEWbu6Kh7bDPf1MfC7CLjoEzrLBPUcoYEJJNF
-	zIub16Ua8tqkOT1qPjP22B8MAwsC0DA=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-301-Ae9sQ2hLP4i7e1VlkeQSPg-1; Wed, 10 Jun 2026 14:29:08 -0400
-X-MC-Unique: Ae9sQ2hLP4i7e1VlkeQSPg-1
-X-Mimecast-MFC-AGG-ID: Ae9sQ2hLP4i7e1VlkeQSPg_1781116148
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-45eec2ba533so4790218f8f.3
-        for <linux-i2c@vger.kernel.org>; Wed, 10 Jun 2026 11:29:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=redhat.com; s=google; t=1781116148; x=1781720948; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=NQAVhVT6gguuYJ2zdf4a7mcws54HuCOez18N0LHRhOc=;
-        b=bc3olyn0iYvODXE3oY8Z5MxufWA6Ol4+szfj4+3rJzQfAxVrT/U1156c7CGpgzgzxg
-         x/KgiOybnFSZOyS8U8GBrVnq4f6wltTztIFEvtg5ccELgkwY5hX3yDgTOvDL/G7LnWXc
-         2jV0GO1yBOavvk6XC1p6szTemShcquv7xfnb3MMmJHkAv3gUpDZ1W57+WGhzvMXuLPi5
-         AcFYrOpldMRBcZHMjGp2ZJopYbG08RW06+xlo2H/g6RUHUKExRaEyb2qbiMqwWkDwqGu
-         hjcfMbTqqd/NPtCYCWR0TiVTLUW6P1d7HP3tzH3oCFIcii+vgFJsOPS8gr525FYLqdO3
-         QCwA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781116148; x=1781720948;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=NQAVhVT6gguuYJ2zdf4a7mcws54HuCOez18N0LHRhOc=;
-        b=HW/nSuYwcjyk1YyN5ZZPRoKRymJclCY/yanorihXqHqDEobPkbt8f/mfwBro76FInR
-         lGq24cG/S1Xrj8pVA0fxofWJbQXMPfPd78PadeVb1f60ra22cVnVvjua0RypojOZpo7d
-         BHtNAkQBZhrRij5D432ZmpgWBOLW5eTVx4bO3V6TgQqPbVCNFc0SWrF0+xteFCDlxLwV
-         sV3RklUJL79tveCnuiYs1//Fs1AFZ7+ve3P+dsru40N3u+Qhv1Rml9T/u/JWotGxu7WP
-         PlLgmR9E7XRbg5e/SSMm3spQ624FXgcso+z9tedzTxbyORu4Gb6LLg354t0Mr++O0yfV
-         EfYA==
-X-Gm-Message-State: AOJu0YyjVv5zziAV6uCPIJAkvwrd73gmGTMVqMTnEEARfJOlaRrDLOuP
-	0VlmLOpFel4vW/g5Bj5S4FlN+2UXYRKRnlZcfBz+u9UlB+5UXG/MEt8nNss8n7WuA4jYj1xkqgo
-	c7eJUDPb8AXfEbl46yBoND+k+I4/vICwYDGH7PVinvDYNGulk4z8S0SoVJfZ5tg==
-X-Gm-Gg: Acq92OEnJ6HnDnjQP4MjAC6HzYVlDKXw6l61QxFUIDctzS5UTEPcutnpvRdN7HtDW6e
-	ymQ2+/G8kf0wFFQdC6rbh0/jUV+QEUvzlD6sdQn1bb0uxV/mh8ac3pN6UsD7CSVbli+1WqMB0/t
-	notmYcb3lTmX12JcrNeIlhbmCrncJ5eqOPdV30AAMm/zpA5ShHc91wjdRIKBBRa/NqauLNKAn+q
-	q9eDUG3QC7HVQE9pXl8SFSFxkrmgbzr38JLx9sjmBXXKGolA9fd3BoHEjYezjeQgAbIkMtjv/3R
-	W7nvUhgF5phE6p91uyTqbYi/m14IAeUJnvGxZVsUCV+KQFIPCbGX1Hwii8V4B3a7Vmxjxm7ZadX
-	6kPcE/reyPUnMylE5ucx1YSdrsClCoqAFunZV9q9EgJJSt0mmzfnUiw==
-X-Received: by 2002:a05:600c:6792:b0:48a:f18:ece4 with SMTP id 5b1f17b1804b1-490c25ee920mr433186655e9.24.1781116147582;
-        Wed, 10 Jun 2026 11:29:07 -0700 (PDT)
-X-Received: by 2002:a05:600c:6792:b0:48a:f18:ece4 with SMTP id 5b1f17b1804b1-490c25ee920mr433186355e9.24.1781116147125;
-        Wed, 10 Jun 2026 11:29:07 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490e2ca21f4sm3293785e9.7.2026.06.10.11.29.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 11:29:06 -0700 (PDT)
-Date: Wed, 10 Jun 2026 14:29:03 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Gavin Li <gavin.li@samsara.com>
-Cc: linux-i2c@vger.kernel.org, viresh.kumar@linaro.org,
-	"Chen, Jian Jun" <jian.jun.chen@intel.com>, andi.shyti@kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH v5] i2c: virtio: retain xfer with kref to fix UAF on
- interrupted wait
-Message-ID: <20260610142758-mutt-send-email-mst@kernel.org>
-References: <20260610155834.79207-1-gavin.li@samsara.com>
- <20260610120606-mutt-send-email-mst@kernel.org>
- <CAKvMnUW-3b=cqHcozydnc6K1vD06FGk1ZO_q7S6SqhA5d8eR2g@mail.gmail.com>
- <CAKvMnUXk0GrYNNYOHvME6FYRdKik-7fV5B-NgvRM+i5yYKTmvw@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="j4Y7AJ5o"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=92WF
+	uM+RE6p7fwgY5Ms/HqY+tX0ytigNWlvpSNxP9/I=; b=j4Y7AJ5oef1vaBhb7sJl
+	nN/TER65Bq4tADx91VAtBbKOnYcQsDjAW7bl94A3GaZW321VxBlVRnfVaJO2Xh0X
+	wrQNiHRbCazkO8rU910FnCPTxy7Nrl8eyP/asJ0KfkYbYBGugNrmsOkU/ac/hmex
+	yd/q3eZqrEcB9RIMCSrZfQBAPlg2finnjOH8DYSu7MACCJg6qsA63OsS/KsAkOGV
+	E0O79rub5QI84W2jn0jFoma/+qpQd6jEqnJm/QTV4RTFhE0vek0uWTSFlW8STu53
+	mNLLOHwNB5dm6TcdtdwOq+ZZjMfyqZwvXUBE9UVaqksHFZbZUv5rT0zrAIHBSyqJ
+	HA==
+Received: (qmail 1837123 invoked from network); 10 Jun 2026 22:48:21 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 10 Jun 2026 22:48:21 +0200
+X-UD-Smtp-Session: l3s3148p1@PF8tXexT2OQujntj
+Date: Wed, 10 Jun 2026 22:48:20 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: =?utf-8?Q?Beno=C3=AEt?= Monin <benoit.monin@bootlin.com>
+Cc: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>
+Subject: Re: [PATCH i2c-tools v5] i2ctransfer: Add optional message modifier
+ flags
+Message-ID: <ainNlID05qsaaCD-@shikoro>
+References: <20260610-msg-flags-v5-1-0814fcd44693@bootlin.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="1oHnojwk5f2nBo2M"
 Content-Disposition: inline
-In-Reply-To: <CAKvMnUXk0GrYNNYOHvME6FYRdKik-7fV5B-NgvRM+i5yYKTmvw@mail.gmail.com>
+In-Reply-To: <20260610-msg-flags-v5-1-0814fcd44693@bootlin.com>
 
-On Wed, Jun 10, 2026 at 01:34:10PM -0400, Gavin Li wrote:
-> Another option I am considering:
-> 
-> - Uninterruptible wait with timeout, timeout based on adap->timeout
-> - Upon timeout, reset the device with
->   virtio_i2c_del_vqs() + virtio_i2c_setup_vqs() + virtio_device_ready()
-> 
-> This behavior more closely mirrors what other I2C bus drivers do.
-> The device should be completely quiesced when virtio_i2c_del_vqs()
-> returns, avoiding the UAF.
 
-I don't know enough about i2c.
+--1oHnojwk5f2nBo2M
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Maybe
-1. revert
-2. some other hack
+Hi Beno=C3=AEt,
 
--- 
-MST
+On Wed, Jun 10, 2026 at 09:49:01AM +0200, Beno=C3=AEt Monin wrote:
+> Allow setting protocol mangling and repeated start elision flags of an i2c
+> message with a set of optional command-line flags. These optional flags
+> are parsed at the beginning of the DESC field up to a read or write flag.
+>=20
+> For example, to read one byte from address 0x50 followed by a stop, then
+> write two bytes at 0x54 on bus 0, one would call i2ctransfer as follow:
+>=20
+>     i2ctransfer 0 pr1@0x50 w2@0x54 0x10 0x20
+>=20
+> Since the new flags are optional, this patch preserves the compatibility
+> of the i2ctransfer syntax.
+>=20
+> Handling of the message flags is done in add_flag_if_supported(). This
+> function checks if the flag is defined at compile time and if the adapter
+> supports the required functionality to handle the flag at runtime.
+>=20
+> Signed-off-by: Beno=C3=AEt Monin <benoit.monin@bootlin.com>
 
+Applied, thank you!
+
+It would be awesome if the PRINT_HEADER part could be extended to
+display to the user the flags used per message, if any. As an
+incremental patch. I don't know if you have time for that?
+
+Happy hacking,
+
+   Wolfram
+
+
+--1oHnojwk5f2nBo2M
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmopzZAACgkQFA3kzBSg
+KbanvRAAkf2wfn7zpHnP2M8c/p8+dRrFFtogs6PfSvUmK8WNZNBqbQTBdLFWO6dh
+A47M2U2OXVOoA1USespHMKSUCe98LWAm5NSrmceTVinhNoNs8470yASVrsJkeu5O
++EVAHzU3enj22U+7juqj+xrwJiYpFfAOqyDW3+NVS7xc2C+vF5xHnejLmd6DwpCr
+cp2k06cSfeBALr5Mp8wk51tf/qmrqIUcISKrANGSCErvjksSbXetMfxF3sEPxdh1
+Epq5iImN1HMdToiUMhZ/DJiuQvPVlR9mRrJBxIFOr+0Y/acOEfPTOxYAsNuj5Gwp
+Jv5G9rO5VvfEbqw7qQnjuDyJCvcNo1Xi+0WtX/Cp3fuPtoZu+QdZWeZuU512bo8J
+zXU1SWSZpycsHsliYPwsAO50ktdnCjViRlEnsmMLnPcoBG/9tHDrHkyr7hqRnzjN
+6V5jKF962gyqQbMgI+b1zGW9g1Se8e7w0+SizwEC0JXf6/iCsLNnP3hJnbDP4WNe
+FjuV3sDrMywuzf/QLDJBl7vuvQ4X3eQRbKL4rJE8Qb8NNf2Yu+G3bgkhBcueZCkZ
+hFtITmz3KYgnSQO0oXiKhx9abUIug21DQK7Guruw/hscsRiXNPPnFJkY3ExUyujf
+j61f+gRqhFljeymlRz1prq1nSs7aPdmv906ScKhg6u2dDzIjuQ4=
+=UPhP
+-----END PGP SIGNATURE-----
+
+--1oHnojwk5f2nBo2M--
