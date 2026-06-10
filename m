@@ -1,33 +1,33 @@
 Received: from mail.raman.v1.sg (mail.raman.v1.sg [5.223.73.200])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B441640F8F4;
-	Wed, 10 Jun 2026 13:57:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D606233F36B;
+	Wed, 10 Jun 2026 14:30:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=5.223.73.200
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781099834; cv=none; b=FjnpJtsGwwfWCUIl3mYBDP1t2R7lVuiDcbaF/OSw0lqD8nWWAuFUppO1Nb523ALTkHla4Ip9/XWK8p+i3ope7nsj1youvhtGJ8JF4Aqco8R8W1jTa/SCDSqjhClLdPaF84pH5a+UNM/RICEY88sfqMKC5VHvmY+rzzhPIA+s5hw=
+	t=1781101812; cv=none; b=de6Z2bMQgERvSg2Ae0wRyGQpizOi+mT4pNYL4Cf0Fdb8N0HBt8HsE74hW+HyS8z6Qo59q/9t9sgH1UXYIU5HBM53n+xA3V3+ko6nV0IIJJUByozKLrsNf5UN+PBKRv4vc6jrrRulr4Isal7l6y14luAhKXrDHXd7LA2i3CdmXQk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781099834; c=relaxed/simple;
-	bh=Tdzmnm3tx1iIpVyuRuBj15XzFCd7cK120KOQzL50Ye0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=f785qiNltR6vRM9M3k1+3NZtUsZ5r2mJVVwMQRLKjRz0hrwT3xQWUN745ELL99nScK8Pfl2YgoDuRWt8P9vRRbU77dNR1kAlYK35N9L2+wT7VLVybDFBeIfpNbfpLZWnyBfyeA0fjEqPXvGlKW63WdoFWROy5LO7YAariNirpxU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=raman.v1.sg; spf=pass smtp.mailfrom=raman.v1.sg; dkim=pass (2048-bit key) header.d=raman.v1.sg header.i=@raman.v1.sg header.b=Y/GIU++H; arc=none smtp.client-ip=5.223.73.200
+	s=arc-20240116; t=1781101812; c=relaxed/simple;
+	bh=kHsfSW0aDsYxa1RyPM6D5JXiMJ37O0DA8FuT3YrIAKw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=l25mbv7Uq4XHvnGjSB85cyV+4MPyCAVHRlPZtFfvg9yIdPxhd23jJUtTxx9siRHH5KsUjdkuEw20UyqGjHHTXxY4fz8zNSxPXuC6uBB7G7QDKC8d4KPDDMHS0Zyd5M7eFT545w9AxRV2ellMxUrycQpKCXpq6E2NzHza7c2ZL78=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=raman.v1.sg; spf=pass smtp.mailfrom=raman.v1.sg; dkim=pass (2048-bit key) header.d=raman.v1.sg header.i=@raman.v1.sg header.b=JFcdjPt1; arc=none smtp.client-ip=5.223.73.200
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=raman.v1.sg
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=raman.v1.sg
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=raman.v1.sg header.i=@raman.v1.sg header.b="Y/GIU++H"
-DKIM-Signature: a=rsa-sha256; bh=Aw+Ssz8MRmoH55NHfIySuTnpiVbECDx/KzYBd910ALo=;
+	dkim=pass (2048-bit key) header.d=raman.v1.sg header.i=@raman.v1.sg header.b="JFcdjPt1"
+DKIM-Signature: a=rsa-sha256; bh=cslNbBHuPP0M+4Sy7JBIv85F6PWj9XMqbK/ctJTaeb8=;
  c=relaxed/relaxed; d=raman.v1.sg;
  h=Subject:Subject:Sender:To:To:Cc:Cc:From:From:Date:Date:MIME-Version:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Transfer-Encoding:Reply-To:In-Reply-To:Message-Id:Message-Id:References:Autocrypt:Openpgp;
- i=@raman.v1.sg; s=default; t=1781098906; v=1; x=1781530906;
- b=Y/GIU++HrwBbm3uwYJBImGYL8/EHA2ftdZTE7OnfeMzpjwD+2d0pMrf+r+T8Otg30vVPJGdK
- Hkm+2D6lcd/tgmRPXQc6avaBo0FzxOPZysf7ClJeexRIGgPG0BBXq7GtetMvh0dYvg/UBr2EBiw
- xdO/UaV2n1n4E5IvJ42KC+zeXGnuUBMmMBm4ttun8BEfJPBheCNTO1pn/Tag+JchNoHXvmHzdir
- aF8CAQm6XlxaUorrKKaMQzxc0mWaCeKRafUqfJ/493wDKq1oZYwFLMHpJfhBsk0gzJEAkwiKU0y
- dMPHL1xk1f/HS6uoTe/cuxDiCw1spP80ff6Jqas/pZO+g==
+ i=@raman.v1.sg; s=default; t=1781101802; v=1; x=1781533802;
+ b=JFcdjPt1h+Sr/8cQ6uz1bKOl8jGFdeROYN1/z0MNMr3Ns522m3G+/cyxtZxoZZzHY9MgJvC7
+ n5ANfhddm7nN2KuL7fjVY7k/MuJS30ZVxh+oVEYqbfSF46RFsyK4cJyajjcJyWvwUxZMtnvf5KL
+ 1CLOtMmEyO0kJAuN68Q75ufKfBX+AoYssGjoc6ykZ+1wDv2x2MKnpgbeYXhE6N0XM5pcQaRJwdk
+ UEdUy54wdWS2OiuAIAiaZNnS1yqKBAShRHY9DLkA1Gn1CRMQCfBwTgkd9yZAG9Ym7kBbyWW1xWk
+ wbeqfWRePhsFj7OzMIe2j49VRCdTrqpMUuZWsaYS3TnNQ==
 Received: from cyberarch.tail8ae6a2.ts.net (localhost [127.0.0.1]) by
  mail.raman.v1.sg (envelope-sender
- <kernel-linux-20260610-80b7ab08@raman.v1.sg>) with ESMTP id 68bad46c; Wed,
- 10 Jun 2026 13:41:46 +0000
+ <kernel-linux-20260610-80b7ab08@raman.v1.sg>) with ESMTP id 69cbe6f3; Wed,
+ 10 Jun 2026 14:30:02 +0000
 From: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
 To: michael.zaidman@gmail.com
 Cc: jikos@kernel.org,
@@ -35,10 +35,11 @@ Cc: jikos@kernel.org,
 	linux-i2c@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
-Subject: [PATCH] HID: ft260: fix SMBus block read protocol handling
-Date: Wed, 10 Jun 2026 21:41:19 +0800
-Message-ID: <20260610134119.3313484-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
+	Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>,
+	stable@vger.kernel.org
+Subject: [PATCH] HID: ft260: fix stack-use-after-return write in I2C read race
+Date: Wed, 10 Jun 2026 22:29:52 +0800
+Message-ID: <20260610142952.3335586-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -48,110 +49,143 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-For I2C_SMBUS_BLOCK_DATA reads, ft260_smbus_xfer() passed
-data->block[0] + 1 as the read length. But on a block read the byte
-count is supplied by the slave as the first byte of the response;
-data->block[0] is not initialized by the caller, so the transfer
-length was taken from stale buffer contents, and the count byte the
-slave did return was stored without any validation.
+ft260_i2c_read() points dev->read_buf at a caller-supplied buffer
+(often an on-stack variable), arms a completion and waits up to five
+seconds for the device to return the data. The HID input callback
+ft260_raw_event() runs in the input/IRQ path, independent of the
+dev->lock mutex held by the read path, and copies the device-supplied
+payload into dev->read_buf after a plain NULL check.
 
-Implement the SMBus 2.0 block read protocol properly: read the count
-byte first with a repeated START and no STOP, validate it against
-I2C_SMBUS_BLOCK_MAX (resetting the bus and returning -EPROTO on a
-bogus count), then read exactly that many data bytes and finish the
-transaction with STOP. This keeps the whole sequence within a single
-I2C transaction:
+These two paths share read_buf, read_idx and read_len with no
+serialization. If the device delays its response until the read
+times out, ft260_i2c_read() resets the controller, clears read_buf
+and returns, unwinding the stack frame the buffer lived in. A
+response that arrives at that moment lets ft260_raw_event() pass the
+NULL check and then memcpy() the device-controlled payload into the
+now-freed stack location, a bounded but attacker-influenced
+stack-use-after-return write triggerable by malicious or
+malfunctioning hardware.
 
-  S Addr+Wr A Reg A Sr Addr+Rd A Count A Data... P
+Add a dedicated spinlock that serializes every access to read_buf,
+read_idx and read_len. ft260_raw_event() now holds it across the
+NULL check, the memcpy and the index update, while the read path
+takes it when arming and when clearing the buffer, so the teardown
+can no longer slip between the check and the copy.
 
-To support issuing the two reads as one transaction, teach
-ft260_i2c_read() to honor the caller's flags instead of always
-forcing a START and unconditionally appending STOP to the last
-chunk: START is only emitted if requested, and STOP is appended to
-the final chunk only when the caller asked for it.
-
+Fixes: 6a82582d9fa4 ("HID: ft260: add usb hid to i2c host bridge driver")
+Cc: stable@vger.kernel.org
 Signed-off-by: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
 ---
- drivers/hid/hid-ft260.c | 45 ++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 40 insertions(+), 5 deletions(-)
+ drivers/hid/hid-ft260.c | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-index 70e2eedb4..946ed0c6f 100644
+index 70e2eedb4..f47945954 100644
 --- a/drivers/hid/hid-ft260.c
 +++ b/drivers/hid/hid-ft260.c
-@@ -502,15 +502,23 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
+@@ -240,6 +240,8 @@ struct ft260_device {
+ 	struct mutex lock;
+ 	u8 write_buf[FT260_REPORT_MAX_LENGTH];
+ 	unsigned long need_wakeup_at;
++	/* Protects read_buf, read_idx and read_len against ft260_raw_event() */
++	spinlock_t read_lock;
+ 	u8 *read_buf;
+ 	u16 read_idx;
+ 	u16 read_len;
+@@ -501,6 +503,7 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
+ 	int timeout, ret = 0;
  	struct ft260_i2c_read_request_report rep;
  	struct hid_device *hdev = dev->hdev;
++	unsigned long irqflags;
  	u8 bus_busy = 0;
-+	/*
-+	 * STOP terminates the last chunk; clear means hold the bus so a
-+	 * follow-up call continues the same I2C transaction.
-+	 */
-+	bool want_stop = !!(flag & FT260_FLAG_STOP);
  
  	if ((flag & FT260_FLAG_START_REPEATED) == FT260_FLAG_START_REPEATED)
- 		flag = FT260_FLAG_START_REPEATED;
--	else
-+	else if (flag & FT260_FLAG_START)
- 		flag = FT260_FLAG_START;
-+	else
-+		flag = 0;	/* no fresh START - continue current transaction */
- 	do {
- 		if (len <= rd_data_max) {
- 			rd_len = len;
--			flag |= FT260_FLAG_STOP;
-+			if (want_stop)
-+				flag |= FT260_FLAG_STOP;
- 		} else {
- 			rd_len = rd_data_max;
- 		}
-@@ -708,14 +716,41 @@ static int ft260_smbus_xfer(struct i2c_adapter *adapter, u16 addr, u16 flags,
- 		break;
- 	case I2C_SMBUS_BLOCK_DATA:
- 		if (read_write == I2C_SMBUS_READ) {
-+			u8 count = 0;
-+
-+			/*
-+			 * SMBus 2.0 section 6.5.7 block read in one I2C
-+			 * transaction:
-+			 *
-+			 *   S Addr+Wr A Reg A Sr Addr+Rd A Count A Data... P
-+			 *
-+			 * The count is read separately and validated
-+			 * before sizing the data read so a misbehaving
-+			 * slave cannot drive a write past data->block[].
-+			 */
- 			ret = ft260_smbus_write(dev, addr, cmd, NULL, 0,
- 						FT260_FLAG_START);
- 			if (ret)
- 				goto smbus_exit;
+@@ -526,9 +529,11 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
  
--			ret = ft260_i2c_read(dev, addr, data->block,
--					     data->block[0] + 1,
--					     FT260_FLAG_START_STOP_REPEATED);
-+			ret = ft260_i2c_read(dev, addr, &count, 1,
-+					     FT260_FLAG_START_REPEATED);
-+			if (ret)
-+				goto smbus_exit;
+ 		reinit_completion(&dev->wait);
+ 
++		spin_lock_irqsave(&dev->read_lock, irqflags);
+ 		dev->read_idx = 0;
+ 		dev->read_buf = data;
+ 		dev->read_len = rd_len;
++		spin_unlock_irqrestore(&dev->read_lock, irqflags);
+ 
+ 		ret = ft260_hid_output_report(hdev, (u8 *)&rep, sizeof(rep));
+ 		if (ret < 0) {
+@@ -543,7 +548,9 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
+ 			goto ft260_i2c_read_exit;
+ 		}
+ 
++		spin_lock_irqsave(&dev->read_lock, irqflags);
+ 		dev->read_buf = NULL;
++		spin_unlock_irqrestore(&dev->read_lock, irqflags);
+ 
+ 		if (flag & FT260_FLAG_STOP)
+ 			bus_busy = FT260_I2C_STATUS_BUS_BUSY;
+@@ -562,7 +569,9 @@ static int ft260_i2c_read(struct ft260_device *dev, u8 addr, u8 *data,
+ 	} while (len > 0);
+ 
+ ft260_i2c_read_exit:
++	spin_lock_irqsave(&dev->read_lock, irqflags);
+ 	dev->read_buf = NULL;
++	spin_unlock_irqrestore(&dev->read_lock, irqflags);
+ 	return ret;
+ }
+ 
+@@ -1018,6 +1027,7 @@ static int ft260_probe(struct hid_device *hdev, const struct hid_device_id *id)
+ 		 "FT260 usb-i2c bridge");
+ 
+ 	mutex_init(&dev->lock);
++	spin_lock_init(&dev->read_lock);
+ 	init_completion(&dev->wait);
+ 
+ 	ret = ft260_xfer_status(dev, FT260_I2C_STATUS_BUS_BUSY);
+@@ -1067,6 +1077,7 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
+ {
+ 	struct ft260_device *dev = hid_get_drvdata(hdev);
+ 	struct ft260_i2c_input_report *xfer = (void *)data;
++	unsigned long irqflags;
+ 
+ 	if (size < offsetof(struct ft260_i2c_input_report, data)) {
+ 		hid_err(hdev, "short report %d\n", size);
+@@ -1075,6 +1086,8 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 
+ 	if (xfer->report >= FT260_I2C_REPORT_MIN &&
+ 	    xfer->report <= FT260_I2C_REPORT_MAX) {
++		bool complete_read;
 +
-+			if (count == 0 || count > I2C_SMBUS_BLOCK_MAX) {
-+				hid_warn(hdev,
-+					 "smbus block read: invalid count %u from slave 0x%02x\n",
-+					 count, addr);
-+				ft260_i2c_reset(hdev);
-+				ret = -EPROTO;
-+				goto smbus_exit;
-+			}
+ 		ft260_dbg("i2c resp: rep %#02x len %d size %d\n",
+ 			  xfer->report, xfer->length, size);
+ 
+@@ -1085,8 +1098,15 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 			return -1;
+ 		}
+ 
++		/*
++		 * Hold read_lock so a timed-out ft260_i2c_read() cannot
++		 * clear read_buf between the NULL check and the memcpy.
++		 */
++		spin_lock_irqsave(&dev->read_lock, irqflags);
 +
-+			data->block[0] = count;
+ 		if ((dev->read_buf == NULL) ||
+ 		    (xfer->length > dev->read_len - dev->read_idx)) {
++			spin_unlock_irqrestore(&dev->read_lock, irqflags);
+ 			hid_err(hdev, "unexpected report %#02x, length %d\n",
+ 				xfer->report, xfer->length);
+ 			return -1;
+@@ -1095,8 +1115,11 @@ static int ft260_raw_event(struct hid_device *hdev, struct hid_report *report,
+ 		memcpy(&dev->read_buf[dev->read_idx], &xfer->data,
+ 		       xfer->length);
+ 		dev->read_idx += xfer->length;
++		complete_read = dev->read_idx == dev->read_len;
 +
-+			ret = ft260_i2c_read(dev, addr, data->block + 1,
-+					     count, FT260_FLAG_STOP);
- 		} else {
- 			ret = ft260_smbus_write(dev, addr, cmd, data->block,
- 						data->block[0] + 1,
-
-base-commit: ab5fce87a778cb780a05984a2ca448f2b41aafbf
++		spin_unlock_irqrestore(&dev->read_lock, irqflags);
+ 
+-		if (dev->read_idx == dev->read_len)
++		if (complete_read)
+ 			complete(&dev->wait);
+ 
+ 	} else {
 -- 
 2.54.0
 
