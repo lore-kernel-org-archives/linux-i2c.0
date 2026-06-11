@@ -1,16 +1,16 @@
 Received: from twmbx01.aspeedtech.com (mail.aspeedtech.com [211.20.114.72])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B2BEF349CD9;
-	Thu, 11 Jun 2026 05:31:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A83AE352FA5;
+	Thu, 11 Jun 2026 05:31:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=211.20.114.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781155900; cv=none; b=occgpdNPTiqkC0NAPEHuSTr/O9G8cpwZsjIWYb1kfmmfhu6yk1+0o5yZ7vdS0+V6H7LuAJWDUX3rF9lAovO9NhSJ5IMmcQHSwpXrJCQqdqGvkSG7BrrddMjzcYu//K8nslbS5N5+TXCvpm3SQWAdBScRGLNUXS1HUn66tciHvfk=
+	t=1781155904; cv=none; b=YpWQ6gptQNSjWcbTaR235LTaf1zD/Bi7wjUZf4gtA52UxQd1prBrX+vMwIGdzxlSgKSuTpFh4f6OEFtvVANxorvgxIK/5yXR7VeseObbtJGrdNe9iyxwr+Vbm7sv/4Y4A91e532TdPxX81ZrQm1y9AnnR8kGzmk3EcK6IoU66+A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781155900; c=relaxed/simple;
-	bh=ktYoafNweHhZs0ZmbKaHwFTXK1XM2KW9vSEeOcsvt7o=;
+	s=arc-20240116; t=1781155904; c=relaxed/simple;
+	bh=r2T5rQ6TN/II/E6wQiYvjiwSm3+xG1X8ZJATJXCx5iE=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-ID:References:
-	 In-Reply-To:To:CC; b=gVcysfX6yCe/N749iSVGhR1EyNvQfqbFhaCOApMkU1AYTrwXDEi/3FU2Ydy8L24mtY0txhxWKp6KT/ImBpqrlqlPjmt3y2Sim3RdHTeQHzLREr2Hjz/5kkZyCyI3fqGvnD2FuPJ8lsBsLtJxfFFunnA1nCD53h7DE+z4iE/svi4=
+	 In-Reply-To:To:CC; b=A3e+7f2TZQWN/ioN/OYMJ7bBXuQ0g5Y8kOjo2UjLg/70LPFlO2GNccpgGME2VCxp0aLhuEkPl15QDbnWss1WAHOt0JA+Pq1J5qoO/wjlBV4FqBi70iSTgmlpgkCYtirXkQjcJZBmFNZ6HBD9GNYe9bgzD9UsKtLvBRIQpe2N1os=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com; spf=pass smtp.mailfrom=aspeedtech.com; arc=none smtp.client-ip=211.20.114.72
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=aspeedtech.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=aspeedtech.com
@@ -22,9 +22,9 @@ Received: from [127.0.1.1] (192.168.10.13) by TWMBX01.aspeed.com
  (192.168.0.62) with Microsoft SMTP Server id 15.2.1748.10 via Frontend
  Transport; Thu, 11 Jun 2026 13:31:22 +0800
 From: Ryan Chen <ryan_chen@aspeedtech.com>
-Date: Thu, 11 Jun 2026 13:31:21 +0800
-Subject: [PATCH v32 1/5] dt-bindings: i2c: Split AST2600 binding into a new
- YAML
+Date: Thu, 11 Jun 2026 13:31:23 +0800
+Subject: [PATCH v32 3/5] dt-bindings: i2c: ast2600-i2c.yaml: Add
+ global-regs properties
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -33,7 +33,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-ID: <20260611-upstream_i2c-v32-1-b66eba921d01@aspeedtech.com>
+Message-ID: <20260611-upstream_i2c-v32-3-b66eba921d01@aspeedtech.com>
 References: <20260611-upstream_i2c-v32-0-b66eba921d01@aspeedtech.com>
 In-Reply-To: <20260611-upstream_i2c-v32-0-b66eba921d01@aspeedtech.com>
 To: <jk@codeconstruct.com.au>, <andriy.shevchenko@linux.intel.com>, Andi Shyti
@@ -47,168 +47,100 @@ CC: <linux-i2c@vger.kernel.org>, <devicetree@vger.kernel.org>,
 	<linux-kernel@vger.kernel.org>, <openbmc@lists.ozlabs.org>, Ryan Chen
 	<ryan_chen@aspeedtech.com>, Conor Dooley <conor.dooley@microchip.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1781155882; l=5270;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1781155882; l=3063;
  i=ryan_chen@aspeedtech.com; s=20251126; h=from:subject:message-id;
- bh=ktYoafNweHhZs0ZmbKaHwFTXK1XM2KW9vSEeOcsvt7o=;
- b=loGxDmNtTBPaGERD3L5/JcMP0GWi/8th6ucJY6PXWTTHgvdJbATFy6WKHEesg10PK/+MLj08g
- lcF6m0Y/uNXCUx3JtTMQ+LADYDoqloSz4zAGuopDauJC0dqbdSLeD+o
+ bh=r2T5rQ6TN/II/E6wQiYvjiwSm3+xG1X8ZJATJXCx5iE=;
+ b=AlS4OvZRWj5Vy4mXQ6/Xq3RTtvL57/E0g/GuLDwWSJ8lmRKiCPDoCyI7hbOtA13jHgnnaYltH
+ Ol0jpJIWHh1Bu0IYUraFf6oaVlERw9QLRXSaR0j8mKBx+Hqv+MgmTbT
 X-Developer-Key: i=ryan_chen@aspeedtech.com; a=ed25519;
  pk=Xe73xY6tcnkuRjjbVAB/oU30KdB3FvG4nuJuILj7ZVc=
 
-The AST2600 I2C controller introduces a completely new register layout
-with separate controller and target register blocks, unlike the mixed
-register layout used by AST2400/AST2500.
+Add the aspeed,global-regs phandle to reference the AST2600 global
+registers syscon node, containing the SoC-common I2C register set.
 
-Move AST2600 I2C binding from aspeed,i2c.yaml to a dedicated
-aspeed,ast2600-i2c.yaml schema.
-
-Besides the split, this also adjusts for AST2600-specific requirements.
-- describe two reg regions (controller register block + buffer block);
-  the second region is optional (minItems: 1) so existing AST2600 DTs
-  that only declare the controller register block continue to validate
-- use clock-frequency for bus speed description
-- interrupts are required on AST2600
-- use correct DTS coding style in example
-
-No compatible strings are changed.
+These properties apply only to the AST2600 binding. Legacy DTs remain
+unchanged.
 
 Acked-by: Conor Dooley <conor.dooley@microchip.com>
 Reviewed-by: Rob Herring (Arm) <robh@kernel.org>
 Signed-off-by: Ryan Chen <ryan_chen@aspeedtech.com>
 ---
-Changes in v31:
-- Commit message body: clarify that the second reg region is optional
-  (minItems: 1) rather than required, matching the schema and the v30
-  backward-compatibility fix (Sashiko AI review).
+Changes in v32:
+- Add if/then conditional schema: when aspeed,global-regs is present,
+  require reg to have at least two items. The new driver unconditionally
+  maps resource index 1 (the buffer SRAM region); a DT with one reg
+  entry and aspeed,global-regs passes schema validation but fails probe.
+  The constraint makes the schema consistent with driver behaviour.
+- Fix binding example to use the correct AST2600 clock header
+  (ast2600-clock.h) and ASPEED_CLK_APB2 instead of the legacy
+  aspeed-clock.h, where index 26 (ASPEED_CLK_APB) maps to the
+  UART5 gate clock on AST2600 rather than the APB2 bus clock
+  used by the I2C controller.
 
-Changes in v30:
-- Add minItems: 1 to reg so existing AST2600 DTs with a single reg
-  region continue to validate (Sashiko AI review)
-- Retain bus-frequency as a deprecated property to avoid breaking
-  existing AST2600 DTs under unevaluatedProperties: false
-  (Sashiko AI review)
-Changes in v26:
-- commit message: include details of changes from original binding
-- fix example property ordering to follow DTS coding style
-- use consistent "AST2600" naming
+Changes in v29:
+- remove aspeed,enable-dma properties.
+
+Changes in v28:
+- update commit message correspond with aspeed,enable-dma.
+- remove aspeed,transfer-mode and add aspeed,enable-dma property and
+  description.
+- Fix aspeed,enable-dma description to reflect hardware capability rather
+  than software behavior
+
+Changes in v27:
+- change aspeed,transfer-mode to aspeed,enable-dma.
 ---
- .../bindings/i2c/aspeed,ast2600-i2c.yaml           | 73 ++++++++++++++++++++++
- .../devicetree/bindings/i2c/aspeed,i2c.yaml        |  3 +-
- MAINTAINERS                                        |  1 +
- 3 files changed, 75 insertions(+), 2 deletions(-)
+ .../devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml   | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
 diff --git a/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml b/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
-new file mode 100644
-index 000000000000..abc614315dff
---- /dev/null
+index abc614315dff..eb6e316c112f 100644
+--- a/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
 +++ b/Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
-@@ -0,0 +1,73 @@
-+# SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
-+%YAML 1.2
-+---
-+$id: http://devicetree.org/schemas/i2c/aspeed,ast2600-i2c.yaml#
-+$schema: http://devicetree.org/meta-schemas/core.yaml#
-+
-+title: ASPEED I2C on the AST2600 SoCs
-+
-+maintainers:
-+  - Ryan Chen <ryan_chen@aspeedtech.com>
-+
-+allOf:
-+  - $ref: /schemas/i2c/i2c-controller.yaml#
-+
-+properties:
-+  compatible:
-+    enum:
-+      - aspeed,ast2600-i2c-bus
-+
-+  reg:
-+    minItems: 1
-+    items:
-+      - description: controller registers
-+      - description: controller buffer space
-+
-+  interrupts:
-+    maxItems: 1
-+
-+  clocks:
-+    maxItems: 1
-+
-+  clock-frequency:
-+    description: Desired operating frequency of the I2C bus in Hz.
-+    minimum: 500
-+    maximum: 4000000
-+    default: 100000
-+
-+  bus-frequency:
-+    $ref: /schemas/types.yaml#/definitions/uint32
-+    deprecated: true
+@@ -48,6 +48,12 @@ properties:
+   resets:
+     maxItems: 1
+ 
++  aspeed,global-regs:
++    $ref: /schemas/types.yaml#/definitions/phandle
 +    description:
-+      Legacy name for clock-frequency. Existing AST2600 device trees
-+      used this before the binding was split out. New device trees
-+      should use the standard clock-frequency property instead.
-+    minimum: 500
-+    maximum: 4000000
++      Phandle reference to the i2c global syscon node, containing the
++      SoC-common i2c register set.
 +
-+  resets:
-+    maxItems: 1
-+
-+required:
-+  - reg
-+  - compatible
-+  - clocks
-+  - resets
-+  - interrupts
-+
-+unevaluatedProperties: false
-+
-+examples:
-+  - |
-+    #include <dt-bindings/clock/aspeed-clock.h>
-+    #include <dt-bindings/interrupt-controller/arm-gic.h>
-+    i2c@80 {
-+        compatible = "aspeed,ast2600-i2c-bus";
-+        reg = <0x80 0x80>, <0xc00 0x20>;
-+        #address-cells = <1>;
-+        #size-cells = <0>;
-+        clocks = <&syscon ASPEED_CLK_APB>;
-+        resets = <&syscon ASPEED_RESET_I2C>;
-+        clock-frequency = <100000>;
-+        interrupts = <GIC_SPI 110 IRQ_TYPE_LEVEL_HIGH>;
-+    };
-diff --git a/Documentation/devicetree/bindings/i2c/aspeed,i2c.yaml b/Documentation/devicetree/bindings/i2c/aspeed,i2c.yaml
-index 5b9bd2feda3b..d4e4f412feba 100644
---- a/Documentation/devicetree/bindings/i2c/aspeed,i2c.yaml
-+++ b/Documentation/devicetree/bindings/i2c/aspeed,i2c.yaml
-@@ -4,7 +4,7 @@
- $id: http://devicetree.org/schemas/i2c/aspeed,i2c.yaml#
- $schema: http://devicetree.org/meta-schemas/core.yaml#
+ required:
+   - reg
+   - compatible
+@@ -55,19 +61,28 @@ required:
+   - resets
+   - interrupts
  
--title: ASPEED I2C on the AST24XX, AST25XX, and AST26XX SoCs
-+title: ASPEED I2C on the AST24XX, AST25XX SoCs
++if:
++  required:
++    - aspeed,global-regs
++then:
++  properties:
++    reg:
++      minItems: 2
++
+ unevaluatedProperties: false
  
- maintainers:
-   - Rayn Chen <rayn_chen@aspeedtech.com>
-@@ -17,7 +17,6 @@ properties:
-     enum:
-       - aspeed,ast2400-i2c-bus
-       - aspeed,ast2500-i2c-bus
--      - aspeed,ast2600-i2c-bus
- 
-   reg:
-     minItems: 1
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 882214b0e7db..f9c929e86e64 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2596,6 +2596,7 @@ R:	Joel Stanley <joel@jms.id.au>
- L:	linux-i2c@vger.kernel.org
- L:	openbmc@lists.ozlabs.org (moderated for non-subscribers)
- S:	Maintained
-+F:	Documentation/devicetree/bindings/i2c/aspeed,ast2600-i2c.yaml
- F:	Documentation/devicetree/bindings/i2c/aspeed,i2c.yaml
- F:	Documentation/devicetree/bindings/interrupt-controller/aspeed,ast2400-i2c-ic.yaml
- F:	drivers/i2c/busses/i2c-aspeed.c
+ examples:
+   - |
+-    #include <dt-bindings/clock/aspeed-clock.h>
++    #include <dt-bindings/clock/ast2600-clock.h>
+     #include <dt-bindings/interrupt-controller/arm-gic.h>
+     i2c@80 {
+         compatible = "aspeed,ast2600-i2c-bus";
+         reg = <0x80 0x80>, <0xc00 0x20>;
+         #address-cells = <1>;
+         #size-cells = <0>;
+-        clocks = <&syscon ASPEED_CLK_APB>;
++        clocks = <&syscon ASPEED_CLK_APB2>;
+         resets = <&syscon ASPEED_RESET_I2C>;
+         clock-frequency = <100000>;
+         interrupts = <GIC_SPI 110 IRQ_TYPE_LEVEL_HIGH>;
++        aspeed,global-regs = <&i2c_global>;
+     };
 
 -- 
 2.34.1
