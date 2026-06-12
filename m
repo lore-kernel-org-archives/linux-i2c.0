@@ -1,66 +1,66 @@
-Received: from mail-lj1-f182.google.com (mail-lj1-f182.google.com [209.85.208.182])
+Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com [209.85.167.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 589F63D5247
-	for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 07:54:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51ED435CBD7
+	for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 07:56:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781250844; cv=none; b=gYCN6CWFGgL8YPooYNVYAzpF0hXpQdhRPEljbfiSBeSP0S1oGLZjHVV+pSUcrGrp3GGRgELTVQzUDXfmeIkB3PXLpI3dHTpqWyh6p0KCgXkdJufoLvpYWRHr6ihijuS5hZI1pv7ighxnN+FAsz47KxwkCGlS0M+6h15Pecqx1Po=
+	t=1781251016; cv=none; b=teWljPc7c4e1za+L2nN7H4CARlTh5kVLAmnlJehfys51AcDetP0VMYzZwDdY2F8pBxrYUL2Hvhl8rUrdlw5uZBhghNZJsQHXsGZfS2Tu40AwHo1E60m13fEpgNvJldf/+JwTgZS74Tn63xmosmSiMO5k2tlkpVp0+EjyuuKt7ew=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781250844; c=relaxed/simple;
-	bh=QBbXSr/c3akYemQ3kzkXquISdpepjP/Y0O5V7dwTJwg=;
+	s=arc-20240116; t=1781251016; c=relaxed/simple;
+	bh=ojfQXHezIap4Q2ED7Rej+tWoCJU08h2r1pKMtJQAkTU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TuAM0F1SP4V1koZL6tqTV058n5VDVVRTj3SBdVLz547yNQl/dMXgMYLMFwumQvHQIJ9ILx1hUJkG9TSgESq+BlEzi8NfAEqIdLetWSoTKqWnm9oNternX1WxR3Pi6+fYkVOonX6TPxvseyNg6t8hhxxr0DH1J0JGJ4Gls5dUTY4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=O0XRd3RE; arc=none smtp.client-ip=209.85.208.182
+	 In-Reply-To:Content-Type; b=lYXjDz7BKTx2UTG3Zmhv7Eu5PgRz8wpM5rTByM6UBX2CB2HJrRwduAGg5safc8+pAtuzwDerL5/KQc+HvZLObyUcFz60f3lk6JNW+rdf/WDn/Eh+ueSBJYyDUgkhmWp8AGaS7wVcBYTr1UFet/BC0Wtim8FXlSlwBP1E0Zd+RD8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=eXj0Iio0; arc=none smtp.client-ip=209.85.167.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="O0XRd3RE"
-Received: by mail-lj1-f182.google.com with SMTP id 38308e7fff4ca-3967701fc3cso328911fa.0
-        for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 00:54:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="eXj0Iio0"
+Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-5aa61284d58so81362e87.0
+        for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 00:56:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1781250838; x=1781855638; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1781251013; x=1781855813; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
          :user-agent:mime-version:date:message-id:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=4YJ6W0UJoQmAwaQGvuK/o3SKo9denIg2VA3bJEyyrOY=;
-        b=O0XRd3REwQ+hL3+Z/uzTLTyWtn4vfUV/1UwMutQmF1cUJy9JmK3Un/RgNaApnoZ4rm
-         0wXUU0jZ7/3WDEXNal+6Zz+M4+ikJuJ2/x+LKi1Hs0xkxwyRn6r6Rj09r662z72E7b1T
-         LGqExvLFurJsHeA+VJiT55uy9CrrPDdvKm7i6GdBQsjBdfsT2VS081/SsY/BkCgcTX1F
-         O0ztj+ajpNR5HxfD/JLOXnOOd7JHZ/V062uytcfAxL5GVKxYXhHXVFSgVAPxLf6MxmVf
-         PJMmStSb6tmoety+DlFDpmG/nYIY3WyKj71Xu/7T/pOHStYDfp2w/6UE0DD78KBquXbl
-         lz3w==
+        bh=aLIFEbFe2aJSbSCxVWR8no0e1CK686vhmp4FsclPvxE=;
+        b=eXj0Iio0nvlu+zovIFgC5OZThnAhlulptkf5XjgCkyJPAwHP/kNb5sWzRx082/QEl4
+         8tII9mTyHDCfc+DuuzE9L+NfNzfp+BXdSABU7/ISMJixWlPV+iU+IpqUW5664UU5Gp4y
+         L4neP8x95QfFhMGDVoIMw54B6f/B/HXGUuoJ7WGSkXVp3Mfhba9AZ52lN5uRvkwsjKgq
+         eTa6YJff8ef6Nt1qn0tClgWKrzAstw0xxlF8SoxBULlgCWwnMh32RCg6cddLYY0hq9zF
+         lY1LCMg43jGRDFMZ3xzsqfSd0655EHjz9NHAheg6f9d/mUfEYZObvimR6OKRfTHiPI4H
+         eYZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781250838; x=1781855638;
+        d=1e100.net; s=20251104; t=1781251013; x=1781855813;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
          :user-agent:mime-version:date:message-id:x-gm-gg:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=4YJ6W0UJoQmAwaQGvuK/o3SKo9denIg2VA3bJEyyrOY=;
-        b=HOtGJp2JDhxRyF1BeNDl7lSkyOYEOMNC157q9bZqrbQA0qod2Y4lZwEvWYZjrEb4pr
-         lWyB0Jv6xKc4nZG/HWXC674L0QgDl4osmbEED8qQOBgss/u9+OojgX/KkqJZ/EbNtxto
-         z6XdDRvpYTZTdgvHKRd87bup8Zd8gDwxZEWHPguKCNJKAuIZXaKWfdfZnEWzGBzYeQkP
-         0BG/7CtFz/69yJwsUyaNHmzlQVbeRn+LHGSRutiYL8Vx9DkVKhDk9tCjxJjnfqIBsjXI
-         mozmI2g8x9ymG8sJQVLNOtJNxarH7gQP5TiDzM26Q1ZsNlM5k3LXOWxA0I/UaomuKXIs
-         ezbA==
-X-Forwarded-Encrypted: i=1; AFNElJ8tnwISiuOGzAA6BW83e69fBjSCNeGmyyXyTMpnl4aCk+ihIGtmSyG0Qm4NNHOiYNR545RDRE7GRFg=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyPV9+vvTFab/60Ea+C0n2tLR1MUJhsbI7YzO/6yDod7dFgVP3A
-	SixmsCVtGss71AwwonW565gYuNFCaNiLUfk1E/HtQ54uNXISUut5mPKRH0+LWKZD+zI=
-X-Gm-Gg: Acq92OFInk8VuuKIuuxTJj6LaXkvrvSyWiPfWHqIn9E+nVTWq+V4BwtZkfBu9e3FDUV
-	jApcdtmPrjuelBi2NCpUtXaPMf82xgYIv4NVl7hAnjm4q9iRncMLmNGfv5AZ0l0Zt7Ir8y4+YUP
-	Gu7iAhWl9iZxwaaeIxy5Io3m6kstCpmGnON7THye36UeLXFAGxnPpePJVVI4ogkIBMMCNxo76Ns
-	Rp9jRt0XM/D3ZFCW5d77Ybrm00gMiOpz/UdAxq57sVA6BflO9NL9h4SEmSxCcGCceNOPjEa3wno
-	UEUZmk2zeNzpwHogsqb5iyeLmiZ4GHRczY4mSDf+wyPLVvHtl7IqROBkZJDNkmNhn8jXSMjZZ8N
-	9wYD6fTBny69XcKdLCpD2mIbhGq2l3KOP9V1RkZ3Cw0y9b1h8pvfFQ5el813G7Wkc+U3uC97e7z
-	AWV4Dv1a0ltdMUhicuLU2gNgHNkhyI/yY9EsaW5HUBsEEuZmTrevsTANcyuSNXrutl5MmbrTTeU
-	es3gw==
-X-Received: by 2002:a05:6512:b91:b0:5aa:6fc5:642c with SMTP id 2adb3069b0e04-5ad2db715f8mr228537e87.3.1781250838480;
-        Fri, 12 Jun 2026 00:53:58 -0700 (PDT)
+        bh=aLIFEbFe2aJSbSCxVWR8no0e1CK686vhmp4FsclPvxE=;
+        b=RhsNqjUVLz++4CLctiHJIfgu7yPcP8gv+Jh2HN0iC+5V+06m/yv786D82MckBGWMUJ
+         ZDyMtrRPy1FxT7lsKnan/OLNv29o79K9ou6ygPrDpUJ6pF2dDFojg0s16nA80FfHpsW8
+         d/4Hfr37PHx3OSBw2pRkUNGsuw32MmeFp7bbxthCX3hzdhg3xH+XUQ8L4043CZIyKdXy
+         Lng4jKIfDWqJ4HOfNnbXzkl8p9pfrLB2ccw+z/WnB4eRqjF2EQ9NLkG3Yx49pBQGvnCS
+         1RjhDjL2h4NRrVCByqp57mPpOUJTK9WCCmUfJprF8kDetnv0vlvHaNyRZlhW2DK97WJD
+         vlbA==
+X-Forwarded-Encrypted: i=1; AFNElJ/hEobEsmZUEXc981AnH3a6KH2gKKtrDcUOzp9M6fP/a2/C0k5KnO3CUtpXiKHbwHK9S/G/WAJLXoA=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyQW/4Dwqp9FVsClsRUT1VIR1HTeQdqsyBS2Ofxm0Bl0YFfGmUf
+	n08A82YPvOWDBIAEDct1cCoaJnEEGnEzigxhNJ8Et2e1W+Nx/H8NDbKJeaYF+jbPkoc=
+X-Gm-Gg: Acq92OHxlqdQVqcDQoHJ8q2Zzyt1cSACiJRzKGsE8vWnFHysgAKVZXhV7UtfseaotJ8
+	d/vdeoP8w13QCocteTMQ2aKw7p+thqybQHhEMUwKlHlzRQEHQa+A9Yy26hNeqeQUxuFuQWBqeb/
+	Z1jYvIDNlLX9jdAdZ/oLepGkMwv5XkjkCdo9AJbQUdJUy5oAKT/VuZY0O/yWR9vlDxH7DmLQ9lQ
+	ZMadmEZRgjEHxVCEqGf/vJR8AjS9NQeRJnW+K3vH+Q1Cc8use1Qwo503NWZpk7CiZ+qPs40mTmm
+	RGjd421iY3mqr5gSOiT0+WAPDbXuSQx1xUGZ3FulyBa8DTePxujJZd1+3ztgMlSeZ2NynAXQQ+f
+	doIDLlA0W380t3gB9IefesZnWKLHhNdUHiZCoQ3TRmdbitJdNEyg7oNdxgXQDYn0kxPvOz3w7td
+	WY75F8nFzeBqjS51HxCIZM0HdUfujUru6/De4b2jiAT1yMD7mGAQhpyZq4n96/3mVh7sRgJPkn/
+	bUxPw==
+X-Received: by 2002:ac2:414c:0:b0:5aa:635f:7c08 with SMTP id 2adb3069b0e04-5ad2db710dcmr172654e87.7.1781251013504;
+        Fri, 12 Jun 2026 00:56:53 -0700 (PDT)
 Received: from [192.168.1.100] (91-159-24-186.elisa-laajakaista.fi. [91.159.24.186])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5ad2e1b4516sm308890e87.72.2026.06.12.00.53.57
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5ad2e161f69sm329636e87.4.2026.06.12.00.56.52
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 12 Jun 2026 00:53:57 -0700 (PDT)
-Message-ID: <ad62d09d-ea06-4b65-937b-6dc49581bebb@linaro.org>
-Date: Fri, 12 Jun 2026 10:53:57 +0300
+        Fri, 12 Jun 2026 00:56:53 -0700 (PDT)
+Message-ID: <3ec2bd75-4d88-492e-a8c2-b21000ef2afc@linaro.org>
+Date: Fri, 12 Jun 2026 10:56:52 +0300
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -68,8 +68,7 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/7] dt-bindings: i2c: qcom-cci: Document Shikra
- compatible
+Subject: Re: [PATCH v2 3/7] arm64: dts: qcom: shikra: Add CAMSS node
 To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>,
  Bryan O'Donoghue <bod@kernel.org>,
  Loic Poulain <loic.poulain@oss.qualcomm.com>,
@@ -88,23 +87,140 @@ Cc: linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
  linux-i2c@vger.kernel.org, imx@lists.linux.dev,
  linux-arm-kernel@lists.infradead.org,
  Suresh Vankadara <quic_svankada@quicinc.com>,
- Vikram Sharma <vikram.sharma@oss.qualcomm.com>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>
+ Vikram Sharma <vikram.sharma@oss.qualcomm.com>
 References: <20260608-shikra-camss-review-v2-0-ca1936bf1219@oss.qualcomm.com>
- <20260608-shikra-camss-review-v2-2-ca1936bf1219@oss.qualcomm.com>
+ <20260608-shikra-camss-review-v2-3-ca1936bf1219@oss.qualcomm.com>
 From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-In-Reply-To: <20260608-shikra-camss-review-v2-2-ca1936bf1219@oss.qualcomm.com>
+In-Reply-To: <20260608-shikra-camss-review-v2-3-ca1936bf1219@oss.qualcomm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 6/8/26 17:06, Nihal Kumar Gupta wrote:
-> Add Shikra compatible consistent with CAMSS CCI interfaces.
-> It requires only two clocks.
+> Add the Camera Subsystem node. Shikra shares the same IP as QCM2290
+> with two CSIPHYs, two CSIDs and two VFEs, but does not include CDM
+> and OPE blocks, so only a single IOMMU context bank is needed.
 > 
+> Co-developed-by: Vikram Sharma <vikram.sharma@oss.qualcomm.com>
+> Signed-off-by: Vikram Sharma <vikram.sharma@oss.qualcomm.com>
 > Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
-> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+> ---
+>   arch/arm64/boot/dts/qcom/shikra.dtsi | 99 ++++++++++++++++++++++++++++++++++++
+>   1 file changed, 99 insertions(+)
+> 
+> diff --git a/arch/arm64/boot/dts/qcom/shikra.dtsi b/arch/arm64/boot/dts/qcom/shikra.dtsi
+> index a4334d99c1f35ee851ca8266ec37d4a200a07ee5..b93ce4a92a998ea5d9d4268d2fd46030fafc4084 100644
+> --- a/arch/arm64/boot/dts/qcom/shikra.dtsi
+> +++ b/arch/arm64/boot/dts/qcom/shikra.dtsi
+> @@ -604,6 +604,105 @@ opp-384000000 {
+>   			};
+>   		};
+>   
+> +		camss: camss@5c11000 {
+> +			compatible = "qcom,shikra-camss", "qcom,qcm2290-camss";
+> +
+> +			reg = <0x0 0x05c11000 0x0 0x1000>,
+> +			      <0x0 0x05c6e000 0x0 0x1000>,
+> +			      <0x0 0x05c75000 0x0 0x1000>,
+> +			      <0x0 0x05c52000 0x0 0x1000>,
+> +			      <0x0 0x05c53000 0x0 0x1000>,
+> +			      <0x0 0x05c66000 0x0 0x400>,
+> +			      <0x0 0x05c68000 0x0 0x400>,
+> +			      <0x0 0x05c6f000 0x0 0x4000>,
+> +			      <0x0 0x05c76000 0x0 0x4000>;
+> +			reg-names = "top",
+> +				    "csid0",
+> +				    "csid1",
+> +				    "csiphy0",
+> +				    "csiphy1",
+> +				    "csitpg0",
+> +				    "csitpg1",
+> +				    "vfe0",
+> +				    "vfe1";
+> +
+> +			clocks = <&gcc GCC_CAMERA_AHB_CLK>,
+> +				 <&gcc GCC_CAMSS_AXI_CLK>,
+> +				 <&gcc GCC_CAMSS_NRT_AXI_CLK>,
+> +				 <&gcc GCC_CAMSS_RT_AXI_CLK>,
+> +				 <&gcc GCC_CAMSS_TFE_0_CSID_CLK>,
+> +				 <&gcc GCC_CAMSS_TFE_1_CSID_CLK>,
+> +				 <&gcc GCC_CAMSS_CPHY_0_CLK>,
+> +				 <&gcc GCC_CAMSS_CSI0PHYTIMER_CLK>,
+> +				 <&gcc GCC_CAMSS_CPHY_1_CLK>,
+> +				 <&gcc GCC_CAMSS_CSI1PHYTIMER_CLK>,
+> +				 <&gcc GCC_CAMSS_TOP_AHB_CLK>,
+> +				 <&gcc GCC_CAMSS_TFE_0_CLK>,
+> +				 <&gcc GCC_CAMSS_TFE_0_CPHY_RX_CLK>,
+> +				 <&gcc GCC_CAMSS_TFE_1_CLK>,
+> +				 <&gcc GCC_CAMSS_TFE_1_CPHY_RX_CLK>;
+> +			clock-names = "ahb",
+> +				      "axi",
+> +				      "camnoc_nrt_axi",
+> +				      "camnoc_rt_axi",
+> +				      "csi0",
+> +				      "csi1",
+> +				      "csiphy0",
+> +				      "csiphy0_timer",
+> +				      "csiphy1",
+> +				      "csiphy1_timer",
+> +				      "top_ahb",
+> +				      "vfe0",
+> +				      "vfe0_cphy_rx",
+> +				      "vfe1",
+> +				      "vfe1_cphy_rx";
+> +
+> +			interrupts = <GIC_SPI 210 IRQ_TYPE_EDGE_RISING 0>,
+> +				     <GIC_SPI 212 IRQ_TYPE_EDGE_RISING 0>,
+> +				     <GIC_SPI 72 IRQ_TYPE_EDGE_RISING 0>,
+> +				     <GIC_SPI 73 IRQ_TYPE_EDGE_RISING 0>,
+> +				     <GIC_SPI 309 IRQ_TYPE_EDGE_RISING 0>,
+> +				     <GIC_SPI 310 IRQ_TYPE_EDGE_RISING 0>,
+> +				     <GIC_SPI 211 IRQ_TYPE_EDGE_RISING 0>,
+> +				     <GIC_SPI 213 IRQ_TYPE_EDGE_RISING 0>;
+> +			interrupt-names = "csid0",
+> +					  "csid1",
+> +					  "csiphy0",
+> +					  "csiphy1",
+> +					  "csitpg0",
+> +					  "csitpg1",
+> +					  "vfe0",
+> +					  "vfe1";
+> +
+> +			interconnects = <&mem_noc MASTER_AMPSS_M0 RPM_ACTIVE_TAG
+> +					 &config_noc SLAVE_CAMERA_CFG RPM_ACTIVE_TAG>,
+> +					<&mmrt_virt MASTER_CAMNOC_HF RPM_ALWAYS_TAG
+> +					 &mc_virt SLAVE_EBI_CH0 RPM_ALWAYS_TAG>,
+> +					<&mmnrt_virt MASTER_CAMNOC_SF RPM_ALWAYS_TAG
+> +					 &mc_virt SLAVE_EBI_CH0 RPM_ALWAYS_TAG>;
+> +			interconnect-names = "ahb",
+> +					     "hf_mnoc",
+> +					     "sf_mnoc";
+> +
+> +			iommus = <&apps_smmu 0x400 0x0>;
+> +			power-domains = <&gcc GCC_CAMSS_TOP_GDSC>;
 
+Please add an empty line between the properties above.
+
+> +
+> +			status = "disabled";
+> +
+> +			ports {
+> +				#address-cells = <1>;
+> +				#size-cells = <0>;
+> +
+> +				port@0 {
+> +					reg = <0>;
+> +				};
+> +
+> +				port@1 {
+> +					reg = <1>;
+> +				};
+> +			};
+> +		};
+> +
+>   		qupv3_0: geniqup@4ac0000 {
+>   			compatible = "qcom,geni-se-qup";
+>   			reg = <0x0 0x04ac0000 0x0 0x2000>;
+> 
 
 Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 
