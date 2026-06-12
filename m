@@ -1,66 +1,66 @@
-Received: from mail-lf1-f44.google.com (mail-lf1-f44.google.com [209.85.167.44])
+Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com [209.85.167.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC1CC373BF6
-	for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 08:10:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7C673749F4
+	for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 08:11:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781251812; cv=none; b=mbkjz5OOKqpF4rIuZFX/zLED+2nEsBX/e+JdbQDQMh1m7z+pO0KrEgveCCKvbJ2fbswHpT6ssV2QFb79hlqwgr8nJuKwFzBUvEt50GYvzUEGfHbmn9bC3EM7ZL6zK77QPPEI0ujEkfq9VOtOiSP00/R17hKY1v5AzRebn2DZBcs=
+	t=1781251923; cv=none; b=pSHLASxwgdB+9RukoDpu7abB+d+TeGytOVrerCi/1cXnqEww044YxAA/HLrrc9IUI0EhzW8myUkRzroBdXojQDw9N88bI9DvXR8Ch2tXJYiT7Yv3D8H3o55KEp09IVf7gD8UzAlXsKi/W7ADPIjWs2Wz5XBk77IKalBbQG9fFgw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781251812; c=relaxed/simple;
-	bh=tlIFSDGimFC4A3TsOlVc1dm/d2ZHPIEkda2SqO3cXYw=;
+	s=arc-20240116; t=1781251923; c=relaxed/simple;
+	bh=w/KMCvTAaLSnkJCY40Gg7KHEFZvGewFVkWrfXQdQo0I=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=d+ogi2+axEiPa7DtE/sVc/keD3Gcd8m8PvJrXuzHsMgkAmwmaPmXIeJMgVtioGTJ6QlToLDIICRWcxqgK84bIGhCryf7/pKPjPPesNNaeFT3HrskR2ngEIWhVzsuNdL7XBk9yGR6D2p4N9RiZO/70WPI/OMtaVnGTAQ1xWsgC8w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=s4J6cpCW; arc=none smtp.client-ip=209.85.167.44
+	 In-Reply-To:Content-Type; b=U+zdp4PhWDh9nq3OsLL8R4Zj9V1lZKITfERq6qMK4vnzMUk5OqRUDDclxaQwahXia0IKkp4fkG7apc443G3huhiiynm7zmAOLASXDq3ppTYEtYrpzhaFNWT9kAgKeT+WhSAa1UtNggNuNzoFJYipJDIFXJcwHROU84vWOpQfc1s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=Poip8q+F; arc=none smtp.client-ip=209.85.167.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="s4J6cpCW"
-Received: by mail-lf1-f44.google.com with SMTP id 2adb3069b0e04-5aa679cc2c9so96098e87.1
-        for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 01:10:09 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Poip8q+F"
+Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-5aa6091635aso96632e87.1
+        for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 01:11:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1781251808; x=1781856608; darn=vger.kernel.org;
+        d=linaro.org; s=google; t=1781251918; x=1781856718; darn=vger.kernel.org;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
          :user-agent:mime-version:date:message-id:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=Qzqd0JGS+LvqWWHcM0Pu7KnmR8I/e+6J9UGxu+nu8iA=;
-        b=s4J6cpCWL9+J/ts+XsGbAdn3vO8YyU7Ov9Ni7LPEWXJEEbA2ojahSYgc3CfsrfqPId
-         EN/wHJ4v0guU3FrdS0wdj2NZYOi+noTMPZbbCio1Bnv5b6Cx2yME/UThwixIecqgaifj
-         OO22hzzY2t9xHWXt1Egs82Rp44+WD6MHIQJbJintei5or8ZooYZ/lRJ1N8TrBdfuQpNU
-         JX13NFxlQO8+MK6Ku5W6wv4EQfnl10OrQ/d1idwfiH20pdNlQx4Nwrlu861vBSI89z4F
-         X++HBGFstY4A3BCrag8SFqFZiRCr0WvO1uapOlc0Rpi1GPuIHN0+CasPzc4g+mmD9i5/
-         Jstg==
+        bh=MrRgMzUk2Tnqgkc/wKcgEOgJeLLj9KV+tTDn5EhNFR8=;
+        b=Poip8q+F82ckFzVo4AomKTGiFGAL3Z6jV0RrXwe/uzdrEIh2x7AXdzqenay0iuT+Iy
+         z5E/Vb0YAuZkpn2QxRWVfCJLgflSlWck9dtY/SLck59166D75HWVGDxIIeMZBI47bKhb
+         Q8W/xGZE2OvLJzbt+35LObA5tx9vOSzDBKVbtb5A/RBIjaWDxaEcO/0DcII9hrcNo3JA
+         /4ByqYZq8TrGaXp5wV94CC6SiMy5KSVCNM4hBSdYRjwG72wW40izLbIrkYpj3iuHpdYm
+         YBOwq1B/Ew/APWxREvh93loWftMHjcO1tOkIl8nHif8ecI8ijTysQcw2LOY64DvqcQt8
+         AJjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781251808; x=1781856608;
+        d=1e100.net; s=20251104; t=1781251918; x=1781856718;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
          :user-agent:mime-version:date:message-id:x-gm-gg:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=Qzqd0JGS+LvqWWHcM0Pu7KnmR8I/e+6J9UGxu+nu8iA=;
-        b=Tp2mO5qjut5e0IqKgGrs6YhGn4lWz9kwL/2a8AhgA9MdJldZ7RYaGYNZwOuATyfsJT
-         m8zTKCUQ7eWT/l2p47fL08fXvtkV93QXC5NuAUpVq8WCMIR9gvkJGuJjJjckC0ubmq9F
-         FbM8yBIPGHupKmMEPjpSCfbn3I2GEs5rp2bApESA4OPkAxfhrhpwmVtcwhYAdBfX+UI8
-         q2bXtG4448f/JjeFxDpK7CObYj5Hth0mjGtBZn4gvZ5tPGgy3yAwG54vwZ5AWg4R0Jvo
-         qvOCC1X/I6jT6NrE5luSRHmT0pqMqjFZsaDTPC8QWcngNOyNWvhaN6La+EQk9lHFImVL
-         gCNA==
-X-Forwarded-Encrypted: i=1; AFNElJ8jm9G25cqqyzV/8c9HwXeIc+AZ0KzVvIyrgUO9bQBJUvuGkkuN2MHWG2R3ZBuhvtdiQFLoTUuwm0A=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzU6tPldY5CkHTxcUQKTfKXkLzI4LdK4nIXvBnRQfWbIH4Q9+Fk
-	TPbWkAybXy8OE43m0K2rvxOntDZ7b7lcbi/h4iI3uWVaQe4Q6EGJUjyqICwKCmqNrl8=
-X-Gm-Gg: Acq92OGVHgYQASaDRy4DsapiMnPYWeI9PYCynIP/MLJ6wSbsuFM7rZ80QyZQJXjiyt/
-	QCGUEU8zVnUQgC4Y0i5fAh0kEYjglmU5M1d+Az/14W7yTg/v5w5tzDylqiipQ55MCEi05EywLz4
-	X4whmE3m6YkbYs8w8vFzzfxKMUecpKywFw7PvkYeby36J7JHhboLZ5MgDeFHaJi5iJW2rmjVMhr
-	YF8yXjd422jzpUnU6RoPnP7aBHTX5QQmLAIgOjScR786xUR+283nvtPHG0n0qgsHmMbRMb+XNfC
-	/Qf/eWeF8K6mYLRBoTVd8pB6Y11UQVv/vBtjNXepxGXJ5w7mvWPc5eMcKSVtZ9XJe7oxr3N39Ya
-	FWXZzbH8Pu9WOq6opgNGC0GSsD2I9vg64MpjnjnlRUJhqzSxpwtTrwyIgx/OuDEEuFmdeV0JcPb
-	cNpq/bpcHs8ARNrOl9MIljvImUJ66b0a0xFXHIxJIrPyFb76SU1+t4+6stDwjnOTkOi1eRXNi4h
-	AMuyA==
-X-Received: by 2002:a05:6512:3b0a:b0:5aa:6ba4:46f2 with SMTP id 2adb3069b0e04-5ad2db189d7mr289426e87.1.1781251807831;
-        Fri, 12 Jun 2026 01:10:07 -0700 (PDT)
+        bh=MrRgMzUk2Tnqgkc/wKcgEOgJeLLj9KV+tTDn5EhNFR8=;
+        b=LTI99RXm9FP3v2QifFfXNOJH3pyGr1aGKIJ0iWvaFRBtyjq2eCQD/1O4bIUDVocMQp
+         qyLskMFtsqUrguChHoP7RwJnXiAucQeCf9dadQ9oZVOEZcZb5S+gRLrIlqtVsWtB8LXW
+         mJgo+OjJQBSdOm+naJzadKRE9vriy8hdE5Zj8GUtST3SHsSQZvVWxfJXcTbIQl5YhV/y
+         BDV6lbSnuBBKv65YzGV4N90Aj1C0+ZddsBXXkfbM1Ll6lacFjcQvsx6oaalrCMkcr3h0
+         cEmdsJOSUwQAhIwqKfHIGhtYxgK0mXDBs7Mb72np0wwgTs3+kbSMN53mmMqbolwSaJyX
+         OPRg==
+X-Forwarded-Encrypted: i=1; AFNElJ9gdjPWd0vnJaRPaIQuSf044JtaG7bUSn03uSDCVMP0Q0MZxy3G8UXxWrIZTUazWpPv2g/GA5/dQWo=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyBvLeife1WeSQOKb+Y3ggB4xxYeqDX2Lj0lW5ytSa6yZfXGLmm
+	NgoJXQdqUxSOdLlULIZQS7DiAFOlkw5p9wA+4ZWg85ago5UGABIcLS02s+DB7rZwOgo=
+X-Gm-Gg: Acq92OFuRzTaj8mxvKv85EvC6f0SppYDiQHslnAZvetgeeccJCPHZ3mwVMnmXaIFfPE
+	OTk1QhH0t6iCSoTdddwLqVti7Kkt75j8WCOrzJznBATiopCP73Q5OuNSi59rVxO3saLvUC3jRRy
+	8Zq3SBRS5c4rh20lnEIQVrzW8VSUqmob1VVEtX8xpD0CDfm16hFU/Sfa1VkLy/b5ay3GiEpxNIW
+	KvbGq/Th4PiqheT5Ngkg0qt9cLYwoj3vvMnEd6b29d4bNY1YySVhfNRZNwtzDMtvmEa2c1Yq2Td
+	y5q3umXtF1z/vrAHQx1o+pj75LHoRM4D1lEo5dg/63FBry/dChISJjghbEalpMuP2hlbRtGnEe8
+	FnfxkHyqd1ghlMB+2vaeNkvryozSdmo9qptnbi3a+1xOv9+GcK7/gJpXXJR4njc67cMIWSMp+Xp
+	rI7DYBvRIiqYT2H09Jq+LSRN4B0BwkIn+ZTEDg/+Z7G75qdpFvYgr0PFaznTqJjqXuwzSEKvn5f
+	oH0mw==
+X-Received: by 2002:ac2:5f19:0:b0:5aa:6ba5:9a58 with SMTP id 2adb3069b0e04-5ad2db30090mr185209e87.1.1781251917979;
+        Fri, 12 Jun 2026 01:11:57 -0700 (PDT)
 Received: from [192.168.1.100] (91-159-24-186.elisa-laajakaista.fi. [91.159.24.186])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5ad2e1a6fc0sm332575e87.51.2026.06.12.01.10.06
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5ad2e1bb12csm324070e87.84.2026.06.12.01.11.56
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 12 Jun 2026 01:10:07 -0700 (PDT)
-Message-ID: <b10ecb42-0d4f-4037-b786-cc52bcd1bdd6@linaro.org>
-Date: Fri, 12 Jun 2026 11:10:06 +0300
+        Fri, 12 Jun 2026 01:11:57 -0700 (PDT)
+Message-ID: <6ec25a28-9d0f-4c87-a4e1-85d8e410eaba@linaro.org>
+Date: Fri, 12 Jun 2026 11:11:56 +0300
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -68,8 +68,8 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 6/7] arm64: dts: qcom:
- shikra-cqm-cqs-evk-imx577-camera: Add DT overlay
+Subject: Re: [PATCH v2 7/7] arm64: dts: qcom: shikra-iqs-evk-imx577-camera:
+ Add DT overlay
 To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>,
  Bryan O'Donoghue <bod@kernel.org>,
  Loic Poulain <loic.poulain@oss.qualcomm.com>,
@@ -90,50 +90,47 @@ Cc: linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
  Suresh Vankadara <quic_svankada@quicinc.com>,
  Vikram Sharma <vikram.sharma@oss.qualcomm.com>
 References: <20260608-shikra-camss-review-v2-0-ca1936bf1219@oss.qualcomm.com>
- <20260608-shikra-camss-review-v2-6-ca1936bf1219@oss.qualcomm.com>
+ <20260608-shikra-camss-review-v2-7-ca1936bf1219@oss.qualcomm.com>
 From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-In-Reply-To: <20260608-shikra-camss-review-v2-6-ca1936bf1219@oss.qualcomm.com>
+In-Reply-To: <20260608-shikra-camss-review-v2-7-ca1936bf1219@oss.qualcomm.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 
 On 6/8/26 17:06, Nihal Kumar Gupta wrote:
-> Shikra CQM and CQS are retail variants sharing the same PM4125 PMIC
-> and identical camera supply rails. The only difference between them
-> is the integrated modem on CQM, which does not affect camera hardware.
+> Shikra IQS is an industrial-grade variant using PM8150 PMIC, requiring
+> different CSIPHY and sensor supply rails compared to the retail boards
+> (CQM and CQS) which use PM4125.
 > 
-> Add a shared overlay for optional IMX577 integration via CSIPHY1,
-> used by both CQM and CQS EVK boards.
+> Add a dedicated overlay for optional IMX577 integration via CSIPHY1.
 > 
 > Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
 > ---
->   arch/arm64/boot/dts/qcom/Makefile                  |  6 ++
->   .../dts/qcom/shikra-cqm-cqs-evk-imx577-camera.dtso | 70 ++++++++++++++++++++++
->   arch/arm64/boot/dts/qcom/shikra-cqm-evk.dts        |  9 +++
->   arch/arm64/boot/dts/qcom/shikra-cqs-evk.dts        |  9 +++
->   4 files changed, 94 insertions(+)
+>   arch/arm64/boot/dts/qcom/Makefile                  |  2 +
+>   .../dts/qcom/shikra-iqs-evk-imx577-camera.dtso     | 70 ++++++++++++++++++++++
+>   arch/arm64/boot/dts/qcom/shikra-iqs-evk.dts        |  9 +++
+>   3 files changed, 81 insertions(+)
 > 
 > diff --git a/arch/arm64/boot/dts/qcom/Makefile b/arch/arm64/boot/dts/qcom/Makefile
-> index a9e9d829fb962386b3975f345ec006504607130a..76b8f144983827f4905a72935e8d5291a227dc97 100644
+> index 76b8f144983827f4905a72935e8d5291a227dc97..09f2318d1c12c4239a6a7bac4ecbca38eb65ffa2 100644
 > --- a/arch/arm64/boot/dts/qcom/Makefile
 > +++ b/arch/arm64/boot/dts/qcom/Makefile
-> @@ -337,6 +337,12 @@ dtb-$(CONFIG_ARCH_QCOM)	+= sdx75-idp.dtb
->   dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqm-evk.dtb
->   dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqs-evk.dtb
->   dtb-$(CONFIG_ARCH_QCOM)	+= shikra-iqs-evk.dtb
-> +
-> +shikra-cqm-evk-imx577-camera-dtbs	:= shikra-cqm-evk.dtb shikra-cqm-cqs-evk-imx577-camera.dtbo
-> +shikra-cqs-evk-imx577-camera-dtbs	:= shikra-cqs-evk.dtb shikra-cqm-cqs-evk-imx577-camera.dtbo
-> +
-> +dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqm-evk-imx577-camera.dtb
-> +dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqs-evk-imx577-camera.dtb
+> @@ -340,9 +340,11 @@ dtb-$(CONFIG_ARCH_QCOM)	+= shikra-iqs-evk.dtb
+>   
+>   shikra-cqm-evk-imx577-camera-dtbs	:= shikra-cqm-evk.dtb shikra-cqm-cqs-evk-imx577-camera.dtbo
+>   shikra-cqs-evk-imx577-camera-dtbs	:= shikra-cqs-evk.dtb shikra-cqm-cqs-evk-imx577-camera.dtbo
+> +shikra-iqs-evk-imx577-camera-dtbs	:= shikra-iqs-evk.dtb shikra-iqs-evk-imx577-camera.dtbo
+>   
+>   dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqm-evk-imx577-camera.dtb
+>   dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqs-evk-imx577-camera.dtb
+> +dtb-$(CONFIG_ARCH_QCOM)	+= shikra-iqs-evk-imx577-camera.dtb
 >   dtb-$(CONFIG_ARCH_QCOM)	+= sm4250-oneplus-billie2.dtb
 >   dtb-$(CONFIG_ARCH_QCOM)	+= sm4450-qrd.dtb
 >   dtb-$(CONFIG_ARCH_QCOM)	+= sm6115-fxtec-pro1x.dtb
-> diff --git a/arch/arm64/boot/dts/qcom/shikra-cqm-cqs-evk-imx577-camera.dtso b/arch/arm64/boot/dts/qcom/shikra-cqm-cqs-evk-imx577-camera.dtso
+> diff --git a/arch/arm64/boot/dts/qcom/shikra-iqs-evk-imx577-camera.dtso b/arch/arm64/boot/dts/qcom/shikra-iqs-evk-imx577-camera.dtso
 > new file mode 100644
-> index 0000000000000000000000000000000000000000..e3dad7c81e5e8aeb1061c784b5b893965f914a6f
+> index 0000000000000000000000000000000000000000..340d6303adc6e1bea55f1bd0598175f0cb269737
 > --- /dev/null
-> +++ b/arch/arm64/boot/dts/qcom/shikra-cqm-cqs-evk-imx577-camera.dtso
+> +++ b/arch/arm64/boot/dts/qcom/shikra-iqs-evk-imx577-camera.dtso
 > @@ -0,0 +1,70 @@
 > +// SPDX-License-Identifier: BSD-3-Clause
 > +/*
@@ -147,8 +144,8 @@ On 6/8/26 17:06, Nihal Kumar Gupta wrote:
 > +#include <dt-bindings/gpio/gpio.h>
 > +
 > +&camss {
-> +	vdd-csiphy-1p2-supply = <&pm4125_l5>;
-> +	vdd-csiphy-1p8-supply = <&pm4125_l13>;
+> +	vdd-csiphy-1p2-supply = <&pm8150_l11>;
+> +	vdd-csiphy-1p8-supply = <&pm8150_l12>;
 > +
 > +	status = "okay";
 > +
@@ -194,49 +191,24 @@ On 6/8/26 17:06, Nihal Kumar Gupta wrote:
 > +		 * level-shifter that translates CCI I2C and reset lines
 > +		 * between the SoC and the connector.
 > +		 */
-> +		dovdd-supply = <&pm4125_l15>;
+> +		dovdd-supply = <&pm8150_l15>;
 > +
 > +		port {
 > +			imx577_ep1: endpoint {
 > +				link-frequencies = /bits/ 64 <600000000>;
 > +				data-lanes = <0 1 2 3>;
 
-The numeration of data-lanes shall be started from 1, this has to be fixed.
+Same as before, the numeration of data lanes starts from 1.
 
 > +				remote-endpoint = <&csiphy1_ep>;
 > +			};
 > +		};
 > +	};
 > +};
-> diff --git a/arch/arm64/boot/dts/qcom/shikra-cqm-evk.dts b/arch/arm64/boot/dts/qcom/shikra-cqm-evk.dts
-> index 0a52ab9b7a4c34d371f5ac23efe59d1c9d2723f4..0d5c3e31b1f613157d4d2ec6947c630f1031b73b 100644
-> --- a/arch/arm64/boot/dts/qcom/shikra-cqm-evk.dts
-> +++ b/arch/arm64/boot/dts/qcom/shikra-cqm-evk.dts
-> @@ -38,3 +38,12 @@ &sdhc_1 {
->   
->   	status = "okay";
->   };
-> +
-> +&tlmm {
-> +	cam1_reset_default: cam1-reset-default-state {
-> +		pins = "gpio33";
-> +		function = "gpio";
-> +		drive-strength = <2>;
-> +		bias-disable;
-> +	};
-> +};
-
-Since it's a mezzanine specific pinctl assignment, it shall go to the
-correspondent .dtso file.
-
-It's a concidence that one .dtso file is good enough for describing the
-mezzanine for two diffferent boards, but let's exploit it by keeping one
-dt overlay file as it is now.
-
-> diff --git a/arch/arm64/boot/dts/qcom/shikra-cqs-evk.dts b/arch/arm64/boot/dts/qcom/shikra-cqs-evk.dts
-> index b3f19a64d7aed3121ef092df684b19a4de39b497..515af370ca014a668dc035ff944fb82b6e09ceeb 100644
-> --- a/arch/arm64/boot/dts/qcom/shikra-cqs-evk.dts
-> +++ b/arch/arm64/boot/dts/qcom/shikra-cqs-evk.dts
+> diff --git a/arch/arm64/boot/dts/qcom/shikra-iqs-evk.dts b/arch/arm64/boot/dts/qcom/shikra-iqs-evk.dts
+> index 3003a47bd7594206f0ac54957e0af509fa365f54..811fd5da4af7babd412d70fee84434849846dc2f 100644
+> --- a/arch/arm64/boot/dts/qcom/shikra-iqs-evk.dts
+> +++ b/arch/arm64/boot/dts/qcom/shikra-iqs-evk.dts
 > @@ -38,3 +38,12 @@ &sdhc_1 {
 >   
 >   	status = "okay";
@@ -251,6 +223,10 @@ dt overlay file as it is now.
 > +	};
 > +};
 > 
+
+This part goes directly to the mezzanine .dtso file.
+
+After fixing it,
 
 Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 
