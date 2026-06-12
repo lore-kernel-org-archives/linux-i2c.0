@@ -1,235 +1,108 @@
-Received: from mail-lf1-f41.google.com (mail-lf1-f41.google.com [209.85.167.41])
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7C673749F4
-	for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 08:11:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.41
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EFD1C3AA9F3
+	for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 09:36:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781251923; cv=none; b=pSHLASxwgdB+9RukoDpu7abB+d+TeGytOVrerCi/1cXnqEww044YxAA/HLrrc9IUI0EhzW8myUkRzroBdXojQDw9N88bI9DvXR8Ch2tXJYiT7Yv3D8H3o55KEp09IVf7gD8UzAlXsKi/W7ADPIjWs2Wz5XBk77IKalBbQG9fFgw=
+	t=1781256980; cv=none; b=JiGzXPxbSxh9/95TFQY0thNFYKOZCMsW8Jm08n/6UAVWzzn9a5Zy8hc9q1eGIc85fgp3m4ACbLEKKCGbACApDpF2F/zE99b4iwIzcCwp+NFa/2nhqurVUjq3mzmilksjvU3QPM24eOpDG7VXUJw+23mF0CI7Ca0+Erk3hej0LJ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781251923; c=relaxed/simple;
-	bh=w/KMCvTAaLSnkJCY40Gg7KHEFZvGewFVkWrfXQdQo0I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=U+zdp4PhWDh9nq3OsLL8R4Zj9V1lZKITfERq6qMK4vnzMUk5OqRUDDclxaQwahXia0IKkp4fkG7apc443G3huhiiynm7zmAOLASXDq3ppTYEtYrpzhaFNWT9kAgKeT+WhSAa1UtNggNuNzoFJYipJDIFXJcwHROU84vWOpQfc1s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=Poip8q+F; arc=none smtp.client-ip=209.85.167.41
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1781256980; c=relaxed/simple;
+	bh=k45LPxbi8Z+hz+KQCRHVhQ72vUfstcU7nrp/BFSgY4Y=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=VcUUHbC/FmN3XaTFXq5Xx1kDrXoVJGA319UNpNsoUpaLdOFlBTIK+9YPn2IkM/DDxC2qE846xaOCvhZUj4wpABXnFZ9Yd6d8wJelZl9UtwQFJuO1jcJvqpBr6JxRXKi7175Qnh1YLivTa9eXbIaxfvF5VrGVPSx3HL/FSzNYA+I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Qh7wQdAT; arc=none smtp.client-ip=209.85.210.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="Poip8q+F"
-Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-5aa6091635aso96632e87.1
-        for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 01:11:59 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Qh7wQdAT"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-8422f148dfcso490993b3a.3
+        for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 02:36:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1781251918; x=1781856718; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=MrRgMzUk2Tnqgkc/wKcgEOgJeLLj9KV+tTDn5EhNFR8=;
-        b=Poip8q+F82ckFzVo4AomKTGiFGAL3Z6jV0RrXwe/uzdrEIh2x7AXdzqenay0iuT+Iy
-         z5E/Vb0YAuZkpn2QxRWVfCJLgflSlWck9dtY/SLck59166D75HWVGDxIIeMZBI47bKhb
-         Q8W/xGZE2OvLJzbt+35LObA5tx9vOSzDBKVbtb5A/RBIjaWDxaEcO/0DcII9hrcNo3JA
-         /4ByqYZq8TrGaXp5wV94CC6SiMy5KSVCNM4hBSdYRjwG72wW40izLbIrkYpj3iuHpdYm
-         YBOwq1B/Ew/APWxREvh93loWftMHjcO1tOkIl8nHif8ecI8ijTysQcw2LOY64DvqcQt8
-         AJjg==
+        d=gmail.com; s=20251104; t=1781256976; x=1781861776; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=NTu7u8FS5bZuOkg5kwPhz2mwDAHKZtJNZoWMEvIIywE=;
+        b=Qh7wQdATLyBDPJfGA69te1SsXd0G5oNfRR+fl4ND6BJziDceGGwnQyYzd68/L9W7D/
+         m2ClKoqgbUbXahmbpK7JFlJE2Vu2Pz16fMJw6wko2Pbw4DCDs5v/gmxaVm/jgFKTm3ih
+         qjZYIg8gwYAk1SCc+tuJYzxDrjWxUkfzxmb9197kNM9SIXxWXHkj8w13PafqZMaHQT/+
+         LQPOAJBBKz9DVUmQd3nBdZprH42n2qDyu8+YuU+bINWZIS8qsQCrDWhytDnbO9Ds6W29
+         RRk/JrCvKGWF6DayQ2zjHitmOq3bjQm82d7RUjGpp3MTSdlgHiEan31lCn5BpZH+vIPY
+         zaJg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781251918; x=1781856718;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to:subject
-         :user-agent:mime-version:date:message-id:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=MrRgMzUk2Tnqgkc/wKcgEOgJeLLj9KV+tTDn5EhNFR8=;
-        b=LTI99RXm9FP3v2QifFfXNOJH3pyGr1aGKIJ0iWvaFRBtyjq2eCQD/1O4bIUDVocMQp
-         qyLskMFtsqUrguChHoP7RwJnXiAucQeCf9dadQ9oZVOEZcZb5S+gRLrIlqtVsWtB8LXW
-         mJgo+OjJQBSdOm+naJzadKRE9vriy8hdE5Zj8GUtST3SHsSQZvVWxfJXcTbIQl5YhV/y
-         BDV6lbSnuBBKv65YzGV4N90Aj1C0+ZddsBXXkfbM1Ll6lacFjcQvsx6oaalrCMkcr3h0
-         cEmdsJOSUwQAhIwqKfHIGhtYxgK0mXDBs7Mb72np0wwgTs3+kbSMN53mmMqbolwSaJyX
-         OPRg==
-X-Forwarded-Encrypted: i=1; AFNElJ9gdjPWd0vnJaRPaIQuSf044JtaG7bUSn03uSDCVMP0Q0MZxy3G8UXxWrIZTUazWpPv2g/GA5/dQWo=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyBvLeife1WeSQOKb+Y3ggB4xxYeqDX2Lj0lW5ytSa6yZfXGLmm
-	NgoJXQdqUxSOdLlULIZQS7DiAFOlkw5p9wA+4ZWg85ago5UGABIcLS02s+DB7rZwOgo=
-X-Gm-Gg: Acq92OFuRzTaj8mxvKv85EvC6f0SppYDiQHslnAZvetgeeccJCPHZ3mwVMnmXaIFfPE
-	OTk1QhH0t6iCSoTdddwLqVti7Kkt75j8WCOrzJznBATiopCP73Q5OuNSi59rVxO3saLvUC3jRRy
-	8Zq3SBRS5c4rh20lnEIQVrzW8VSUqmob1VVEtX8xpD0CDfm16hFU/Sfa1VkLy/b5ay3GiEpxNIW
-	KvbGq/Th4PiqheT5Ngkg0qt9cLYwoj3vvMnEd6b29d4bNY1YySVhfNRZNwtzDMtvmEa2c1Yq2Td
-	y5q3umXtF1z/vrAHQx1o+pj75LHoRM4D1lEo5dg/63FBry/dChISJjghbEalpMuP2hlbRtGnEe8
-	FnfxkHyqd1ghlMB+2vaeNkvryozSdmo9qptnbi3a+1xOv9+GcK7/gJpXXJR4njc67cMIWSMp+Xp
-	rI7DYBvRIiqYT2H09Jq+LSRN4B0BwkIn+ZTEDg/+Z7G75qdpFvYgr0PFaznTqJjqXuwzSEKvn5f
-	oH0mw==
-X-Received: by 2002:ac2:5f19:0:b0:5aa:6ba5:9a58 with SMTP id 2adb3069b0e04-5ad2db30090mr185209e87.1.1781251917979;
-        Fri, 12 Jun 2026 01:11:57 -0700 (PDT)
-Received: from [192.168.1.100] (91-159-24-186.elisa-laajakaista.fi. [91.159.24.186])
-        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5ad2e1bb12csm324070e87.84.2026.06.12.01.11.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 12 Jun 2026 01:11:57 -0700 (PDT)
-Message-ID: <6ec25a28-9d0f-4c87-a4e1-85d8e410eaba@linaro.org>
-Date: Fri, 12 Jun 2026 11:11:56 +0300
+        d=1e100.net; s=20251104; t=1781256976; x=1781861776;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=NTu7u8FS5bZuOkg5kwPhz2mwDAHKZtJNZoWMEvIIywE=;
+        b=jzFJN3ZnqjADOBsS3Ge4NzuoHSel1dZ6GKc7EVgwZVySJT30VmCXUbqVAvl/hnf1pi
+         V/cN9hwif4UIVyuDjTKWfrM14LzyHBEffAvPBOzsgzRjDuR/iMxqf1RBWj8H5rCfktKf
+         yinDJOLv6JCyB11A+TxIHEr217nASn/Y+VuYdVDOMxN6H1731X2Jrq10UcBEiRi4COvV
+         cBQVGV2GCNlCVjJK3mMiT8ataRiC5PoIWqTt1nt/b04y0NBms7tL7h6aByphimP7UQa0
+         ABLqOcHEDFYe2/yOBgtlaANp/BCy4juFOf8clxi5pVJ06aQcu8drOruWvK880nIJ2uM2
+         5UHA==
+X-Gm-Message-State: AOJu0YxHRiRXx4p6GyjktKLVzOg6UcrFVSVm233LtRUES0VMfXFWhArI
+	+F62bChp1wKhvNKWi/HW8PfLha8UpAz+9z7GQKmoKYDAtFMzO9FzzyBemwAVRma+
+X-Gm-Gg: Acq92OGASyD22qbRNZcnctkj7hCHDtjtAQSDog5AEe1JLIs/Fr+e2/8fTViVZVyngwd
+	FyCpFV2VDauAVqpSyoztuI8WuA1drcpKSmMe8j/CaVTJU5cdKsi20l4VjWY4U3l9MoO0N60rn7e
+	pcVKY6vvDe18H2Gi8wi1Cb0Wcq3KLQUsrsG4lNs1MfDuL49iz7zAVPWicW3f9rvWQSJiekWl1Xu
+	PsqXFHycFu25kgG7q6aqsbnGbxgpl5Gz9Ona1eWpjZooQPJHSXkDXOTsPTnEMdhrE6giCoh/Piq
+	AMfxXAfY07ix/oFpOqggbGJ7CmtjtenXQW25fENoieOkmMBXvK3a36PglGVwLV2YAefmnL5vydP
+	6KPcRFl8OXi63yYGB20/ov0xtRtMxLkNNi65K4EOzTb58iN8zMqXffcsjt3g0tXIh04oTfq+tKv
+	V6YzStDy5JAQfP44Pjxo45hvbiNes=
+X-Received: by 2002:a05:6a00:390b:b0:842:6004:3fb9 with SMTP id d2e1a72fcca58-8434cf0dc0cmr2208873b3a.25.1781256976020;
+        Fri, 12 Jun 2026 02:36:16 -0700 (PDT)
+Received: from amd.com ([165.204.156.251])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8434acffd04sm1701370b3a.26.2026.06.12.02.36.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 12 Jun 2026 02:36:15 -0700 (PDT)
+From: Paritosh Potukuchi <paritoshpotukuchi@gmail.com>
+X-Google-Original-From: Paritosh Potukuchi <paritosh.potukuchi@amd.com>
+To: shyam-sundar.s-k@amd.com,
+	andi.shyti@kernel.org
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Paritosh Potukuchi <paritosh.potukuchi@amd.com>
+Subject: [PATCH] i2c: amd-asf: Validate firmware-reported length
+Date: Fri, 12 Jun 2026 09:35:02 +0000
+Message-ID: <20260612093502.3805287-1-paritosh.potukuchi@amd.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 7/7] arm64: dts: qcom: shikra-iqs-evk-imx577-camera:
- Add DT overlay
-To: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>,
- Bryan O'Donoghue <bod@kernel.org>,
- Loic Poulain <loic.poulain@oss.qualcomm.com>,
- Mauro Carvalho Chehab <mchehab@kernel.org>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Robert Foss <rfoss@kernel.org>,
- Andi Shyti <andi.shyti@kernel.org>,
- Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
- Bjorn Andersson <andersson@kernel.org>,
- Konrad Dybcio <konradybcio@kernel.org>, Frank Li <Frank.Li@nxp.com>,
- Sascha Hauer <s.hauer@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>
-Cc: linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
- devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-i2c@vger.kernel.org, imx@lists.linux.dev,
- linux-arm-kernel@lists.infradead.org,
- Suresh Vankadara <quic_svankada@quicinc.com>,
- Vikram Sharma <vikram.sharma@oss.qualcomm.com>
-References: <20260608-shikra-camss-review-v2-0-ca1936bf1219@oss.qualcomm.com>
- <20260608-shikra-camss-review-v2-7-ca1936bf1219@oss.qualcomm.com>
-From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-In-Reply-To: <20260608-shikra-camss-review-v2-7-ca1936bf1219@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 6/8/26 17:06, Nihal Kumar Gupta wrote:
-> Shikra IQS is an industrial-grade variant using PM8150 PMIC, requiring
-> different CSIPHY and sensor supply rails compared to the retail boards
-> (CQM and CQS) which use PM4125.
-> 
-> Add a dedicated overlay for optional IMX577 integration via CSIPHY1.
-> 
-> Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
-> ---
->   arch/arm64/boot/dts/qcom/Makefile                  |  2 +
->   .../dts/qcom/shikra-iqs-evk-imx577-camera.dtso     | 70 ++++++++++++++++++++++
->   arch/arm64/boot/dts/qcom/shikra-iqs-evk.dts        |  9 +++
->   3 files changed, 81 insertions(+)
-> 
-> diff --git a/arch/arm64/boot/dts/qcom/Makefile b/arch/arm64/boot/dts/qcom/Makefile
-> index 76b8f144983827f4905a72935e8d5291a227dc97..09f2318d1c12c4239a6a7bac4ecbca38eb65ffa2 100644
-> --- a/arch/arm64/boot/dts/qcom/Makefile
-> +++ b/arch/arm64/boot/dts/qcom/Makefile
-> @@ -340,9 +340,11 @@ dtb-$(CONFIG_ARCH_QCOM)	+= shikra-iqs-evk.dtb
->   
->   shikra-cqm-evk-imx577-camera-dtbs	:= shikra-cqm-evk.dtb shikra-cqm-cqs-evk-imx577-camera.dtbo
->   shikra-cqs-evk-imx577-camera-dtbs	:= shikra-cqs-evk.dtb shikra-cqm-cqs-evk-imx577-camera.dtbo
-> +shikra-iqs-evk-imx577-camera-dtbs	:= shikra-iqs-evk.dtb shikra-iqs-evk-imx577-camera.dtbo
->   
->   dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqm-evk-imx577-camera.dtb
->   dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqs-evk-imx577-camera.dtb
-> +dtb-$(CONFIG_ARCH_QCOM)	+= shikra-iqs-evk-imx577-camera.dtb
->   dtb-$(CONFIG_ARCH_QCOM)	+= sm4250-oneplus-billie2.dtb
->   dtb-$(CONFIG_ARCH_QCOM)	+= sm4450-qrd.dtb
->   dtb-$(CONFIG_ARCH_QCOM)	+= sm6115-fxtec-pro1x.dtb
-> diff --git a/arch/arm64/boot/dts/qcom/shikra-iqs-evk-imx577-camera.dtso b/arch/arm64/boot/dts/qcom/shikra-iqs-evk-imx577-camera.dtso
-> new file mode 100644
-> index 0000000000000000000000000000000000000000..340d6303adc6e1bea55f1bd0598175f0cb269737
-> --- /dev/null
-> +++ b/arch/arm64/boot/dts/qcom/shikra-iqs-evk-imx577-camera.dtso
-> @@ -0,0 +1,70 @@
-> +// SPDX-License-Identifier: BSD-3-Clause
-> +/*
-> + * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-> + */
-> +
-> +/dts-v1/;
-> +/plugin/;
-> +
-> +#include <dt-bindings/clock/qcom,shikra-gcc.h>
-> +#include <dt-bindings/gpio/gpio.h>
-> +
-> +&camss {
-> +	vdd-csiphy-1p2-supply = <&pm8150_l11>;
-> +	vdd-csiphy-1p8-supply = <&pm8150_l12>;
-> +
-> +	status = "okay";
-> +
-> +	ports {
-> +		#address-cells = <1>;
-> +		#size-cells = <0>;
-> +
-> +		port@1 {
-> +			reg = <1>;
-> +
-> +			csiphy1_ep: endpoint {
-> +				data-lanes = <0 1 2 3>;
-> +				remote-endpoint = <&imx577_ep1>;
-> +			};
-> +		};
-> +	};
-> +};
-> +
-> +&cci {
-> +	status = "okay";
-> +};
-> +
-> +&cci_i2c1 {
-> +	#address-cells = <1>;
-> +	#size-cells = <0>;
-> +
-> +	camera@1a {
-> +		compatible = "sony,imx577";
-> +		reg = <0x1a>;
-> +
-> +		reset-gpios = <&tlmm 33 GPIO_ACTIVE_LOW>;
-> +		pinctrl-0 = <&cam_mclk1_default &cam1_reset_default>;
-> +		pinctrl-names = "default";
-> +
-> +		clocks = <&gcc GCC_CAMSS_MCLK1_CLK>;
-> +		assigned-clocks = <&gcc GCC_CAMSS_MCLK1_CLK>;
-> +		assigned-clock-rates = <24000000>;
-> +
-> +		/*
-> +		 * avdd and dvdd are supplied by on-board regulators on the
-> +		 * IMX577 module from the connector's 3.3 V rail; they are
-> +		 * not SoC-controlled. dovdd (1.8 V) powers the carrier board
-> +		 * level-shifter that translates CCI I2C and reset lines
-> +		 * between the SoC and the connector.
-> +		 */
-> +		dovdd-supply = <&pm8150_l15>;
-> +
-> +		port {
-> +			imx577_ep1: endpoint {
-> +				link-frequencies = /bits/ 64 <600000000>;
-> +				data-lanes = <0 1 2 3>;
+The firmware may sometimes return a length greater than the
+allocated buffer size, which can lead to out-of-bounds access
+and a kernel panic.
 
-Same as before, the numeration of data lanes starts from 1.
+Currently, the driver does not validate the length read from
+firmware.
 
-> +				remote-endpoint = <&csiphy1_ep>;
-> +			};
-> +		};
-> +	};
-> +};
-> diff --git a/arch/arm64/boot/dts/qcom/shikra-iqs-evk.dts b/arch/arm64/boot/dts/qcom/shikra-iqs-evk.dts
-> index 3003a47bd7594206f0ac54957e0af509fa365f54..811fd5da4af7babd412d70fee84434849846dc2f 100644
-> --- a/arch/arm64/boot/dts/qcom/shikra-iqs-evk.dts
-> +++ b/arch/arm64/boot/dts/qcom/shikra-iqs-evk.dts
-> @@ -38,3 +38,12 @@ &sdhc_1 {
->   
->   	status = "okay";
->   };
-> +
-> +&tlmm {
-> +	cam1_reset_default: cam1-reset-default-state {
-> +		pins = "gpio33";
-> +		function = "gpio";
-> +		drive-strength = <2>;
-> +		bias-disable;
-> +	};
-> +};
-> 
+Add a check to ensure the firmware-reported length stays within
+the bounds of the data buffer.
 
-This part goes directly to the mezzanine .dtso file.
+Signed-off-by: Paritosh Potukuchi <paritosh.potukuchi@amd.com>
+---
+ drivers/i2c/busses/i2c-amd-asf-plat.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-After fixing it,
-
-Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-
+diff --git a/drivers/i2c/busses/i2c-amd-asf-plat.c b/drivers/i2c/busses/i2c-amd-asf-plat.c
+index ca45f0f23321..3d355e880d54 100644
+--- a/drivers/i2c/busses/i2c-amd-asf-plat.c
++++ b/drivers/i2c/busses/i2c-amd-asf-plat.c
+@@ -90,6 +90,9 @@ static void amd_asf_process_target(struct work_struct *work)
+ 		outb_p(reg, ASFDATABNKSEL);
+ 		cmd = inb_p(ASFINDEX);
+ 		len = inb_p(ASFDATARWPTR);
++	if (len > ASF_BLOCK_MAX_BYTES)
++		return;
++
+ 		for (idx = 0; idx < len; idx++)
+ 			data[idx] = inb_p(ASFINDEX);
+ 
 -- 
-Best wishes,
-Vladimir
+2.43.0
+
