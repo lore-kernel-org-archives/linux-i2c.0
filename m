@@ -1,114 +1,90 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B05C6383304
-	for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 10:18:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 079F72D238A
+	for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 15:01:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781259523; cv=none; b=WYGqLsqv3cZ+1mvjCUW0VmDqiVtX/Bo5BF6MmDKbV6aMq5a3kRACW9ILNZaLxVOC29zmPoew/svlqo68+6NZBTdDTxd/+zhyF8UKrxU2e4/KWHEgDPBCgtTvpxkLQKA4jtxjU5uqaesSUVKQ5kJT5oh7lqhxUfgyGEqlMqLZDjA=
+	t=1781276479; cv=none; b=QR/X8CQK+cT7FnBwsPwyaTQC+mElGjzdLDfYvnGpprqXaIrx0nPo0HydNUPuukUfqBTBX6QV3n3TYtE53Eq5QUmYtTBnipHJinGY2tzTmOl5sIsBKTbuJmsdOyw85VJ1qCknesj402rbBubP0UyFY2eOJPCaB8x17u/O4BRdyc0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781259523; c=relaxed/simple;
-	bh=sXKBaX6Hr2LAg4dl5TUj48KgKUHVi2a3LJ3BJOGQzPo=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=RQemm1wh9iqA7a+5O5U4iWOWSzYGEnYIogQM9tcDXUzY5U/d1SXH1leaZ7iyKTOzhVQmYNEpV+nKDuAy0GjFhw2BL/S+kuTcpZTS+V1rwHgku85GQ+45f9Qofo/0msKITvI+IHYVAUql4hIYZ38WX2vB4UvV51O8vvUWc6kPV5o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RYLDiwcL; arc=none smtp.client-ip=209.85.214.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781276479; c=relaxed/simple;
+	bh=5UYOrm7fR5TC3T3ikxHIA8f4zcBAfFy1JMMu/bouvLY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QZNsZnDM2YFbmnWEUdFVyCK+J5vLuDCeRgp4Nx031gLtAdtcAr2vBTJ1rbaaBADI+XD3FILTx2ZuTp9sZ9p6FXx1GbnwU3pnzvvADOJKw/e+TRNLv+gfeZi9uxdsEbwcU1MhB4dh2hKrgIKjRgywUsNgmgdBda53Kv18Cm9uYz8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=G8tgumFa; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RYLDiwcL"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2bf1f074a12so8215255ad.0
-        for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 03:18:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781259522; x=1781864322; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Aiqy4XFAiFCzZrOgOwXI36fmGBpHZGsULNLcfvFZih4=;
-        b=RYLDiwcLGiCDB+lllDpz874eluxFF6pVvnic88wd9q0lOif7sDB5dcubHX7UJFG1/z
-         rcnO0ERssqtk3bI1u9kNLfa3cU+DmHd9mWHtmonkLh27KRwfNA1xy5AmJLm1pJGZdPUD
-         G/I8jyqvhnS3paZYfADQ6/AboMrtg15RggB/dn0FsRt7ewwbZlyBmdKkS7NAfR/erC92
-         qhJ5VDlWWQvAOS1d6L5lzFL5fpSKbIztlU7AccN1gpmsV7KQl+O1Admj5LHqMPcngABg
-         CZCps+tddCjhQ4+rJX+f+0cNVpaXc01JGARnPqYGyb/RD7Sdi5VG9z+YKyX4VIMlITu2
-         Ug/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781259522; x=1781864322;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Aiqy4XFAiFCzZrOgOwXI36fmGBpHZGsULNLcfvFZih4=;
-        b=Sk1Auz145tkoDCB4zPhSfDQKVmRGd8Z6tE6SShdGyT6fwKz+OCXS7l6QLf2amWff2o
-         37iUYDe45hnsglwy42pRYaPYDhjBuUPXFtr489r5ErsoE2ZpXAHDDKTxsoijrELuvDB3
-         GzHwpSFgKb5p7tRiNIpRSrn+L/4jitjSUkDax70czzh+142qe2xbQBsMPCIPf19C1ffz
-         nZ3erQAnDi5ukwk2CSRiBXRcGKejOuXZ5W62G21z8B8AUxvUY1KF4eDHRSpMdoB0xgqt
-         us+Z8DmiETPp/kIfZdgnekl9nGubWEmFAp+udCiclJcZZZvy0YWNu0hydPmT3l7JB6Bo
-         dqVA==
-X-Gm-Message-State: AOJu0YzJ0gzBhNVl2lEaH+zmzNFGQYV5ULzxNDRZBdH6ZecUqjM6WNp0
-	PS4OkBDAQLer6A0E4ykDceeSoAy8cRgCK1bnqxObjuP7nTbFQ20egQ2MsG0K1T+601s=
-X-Gm-Gg: Acq92OFZrMthQ9UvqNbzGU/CwxIskjNgKKdqoECL1qnYmDIlu5TIr0H2j797j5wvjAp
-	S3EpXObP+5JZQPEyk7gf2DuDGAnlF0dmKwiqKPkWdBeEaFlH6XXYpec9EjXXIUaDAyyC+iz/qV5
-	sj7qssVnIbN0I3mHK8MIy6csqtmdJ/WLkQ3+6KO5gmAVia0zOzVAXOtXHJopFwrPfzBicIu3Tyh
-	gMALlHAD4xhjpdYcrHxXoMBQLUQbItVypESLXOuo1bwh3r7Xy3IoufZwSPrW/B3CFClh3ysCns0
-	4bGWVsVNQ/BtZrTqIryjpyuNfUuFSMll6xDzUQFKrP3wgMtZmoWZfvqjdn3luIge+on+677sNhI
-	dyHzU6Pqrkjmch8Q57OG1FF4I+LIAxST+u1nYrpkb3ubLqQ59O3YEmNfUbk758uBQdb0wt3kOja
-	TXvXK7UaBTWiNTONLLQkdn4j7Rbz4=
-X-Received: by 2002:a17:902:e84a:b0:2ba:4ad9:70f6 with SMTP id d9443c01a7336-2c412d2854fmr30667915ad.31.1781259521984;
-        Fri, 12 Jun 2026 03:18:41 -0700 (PDT)
-Received: from amd.com ([165.204.156.251])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c42f2e5374sm15113235ad.5.2026.06.12.03.18.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Jun 2026 03:18:40 -0700 (PDT)
-From: Paritosh Potukuchi <paritoshpotukuchi@gmail.com>
-X-Google-Original-From: Paritosh Potukuchi <paritosh.potukuchi@amd.com>
-To: shyam-sundar.s-k@amd.com,
-	andi.shyti@kernel.org
-Cc: linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Paritosh Potukuchi <paritosh.potukuchi@amd.com>
-Subject: [PATCH] i2c: amd-asf: Validate firmware-reported length
-Date: Fri, 12 Jun 2026 10:18:15 +0000
-Message-ID: <20260612101815.4124804-1-paritosh.potukuchi@amd.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260612093502.3805287-1-paritosh.potukuchi@amd.com>
-References: <20260612093502.3805287-1-paritosh.potukuchi@amd.com>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="G8tgumFa"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=5UYO
+	rm7fR5TC3T3ikxHIA8f4zcBAfFy1JMMu/bouvLY=; b=G8tgumFadEDUpz5EAgFj
+	yjS6aevHjLR4Dgpus7HDIDBiyvov6kFjI7GYfJmCCWgpwf+JOCmd2DiAnrH+oiJx
+	1yZ2P5DeO5KyLcXVs5JKxvSk8MO8WGpuSHsqbJjui0SD9ZpbNXwcQFPxZUSBpi7S
+	sfhumXuzX9+DxQO99ux+ZntPF4dppfHDkeCIq6lzO6n3XdMPETy/22DRmO/VbCdy
+	e43+8hW7QFSb+YrOULUg62UcN4aLRw5nBoRX0b4/Brq92pXQDqlBxeWVj1g0js/9
+	lgrXugD6krGiyYtJsFEqBjBtnERC60mk7B8+MSNfefbNx73+6JRuzEIOvMfhBe5H
+	sw==
+Received: (qmail 2570628 invoked from network); 12 Jun 2026 17:01:15 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 12 Jun 2026 17:01:15 +0200
+X-UD-Smtp-Session: l3s3148p1@2ZCFvw9UMz5tKXKQ
+Date: Fri, 12 Jun 2026 17:01:14 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: linux-i2c@vger.kernel.org
+Cc: Peter Korsgaard <peter.korsgaard@barco.com>,
+	Peter Rosin <peda@lysator.liu.se>,
+	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: i2c: mux-gpio: name correct maintainer
+Message-ID: <aiwfOgbueeG-e5vx@shikoro>
+References: <20260611122053.7306-2-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="5ekrj8PLtxG4YAug"
+Content-Disposition: inline
+In-Reply-To: <20260611122053.7306-2-wsa+renesas@sang-engineering.com>
 
-The firmware may sometimes return a length greater than the
-allocated buffer size, which can lead to out-of-bounds access
-and a kernel panic.
 
-Currently, the driver does not validate the length read from
-firmware.
+--5ekrj8PLtxG4YAug
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Add a check to ensure the firmware-reported length stays within
-the bounds of the data buffer.
+On Thu, Jun 11, 2026 at 02:20:53PM +0200, Wolfram Sang wrote:
+> The YAML conversion added me as maintainer but I can't recall being
+> asked nor do I want to maintain it. Add Peter as maintainer for the
+> binding as he is maintainer of the driver.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Fix indentation issues reported by checkpatch.
+Applied to for-current, thanks!
 
-Signed-off-by: Paritosh Potukuchi <paritosh.potukuchi@amd.com>
----
- drivers/i2c/busses/i2c-amd-asf-plat.c | 3 +++
- 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/i2c/busses/i2c-amd-asf-plat.c b/drivers/i2c/busses/i2c-amd-asf-plat.c
-index ca45f0f23321..e1699da838c2 100644
---- a/drivers/i2c/busses/i2c-amd-asf-plat.c
-+++ b/drivers/i2c/busses/i2c-amd-asf-plat.c
-@@ -90,6 +90,9 @@ static void amd_asf_process_target(struct work_struct *work)
- 		outb_p(reg, ASFDATABNKSEL);
- 		cmd = inb_p(ASFINDEX);
- 		len = inb_p(ASFDATARWPTR);
-+		if (len > ASF_BLOCK_MAX_BYTES)
-+			return;
-+
- 		for (idx = 0; idx < len; idx++)
- 			data[idx] = inb_p(ASFINDEX);
- 
--- 
-2.43.0
+--5ekrj8PLtxG4YAug
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmosHzoACgkQFA3kzBSg
+Kba9lQ/5AWrn2JanrrKqNKiI+c1HMLEkB7N2jeP/a9fRJt8T6ai5CvJu+QmSKrUt
+DV0kG6BUrzs8j58I0HUCkRTIWxRJnLh0GG8CGBqr3xRPkQbNzAqbQ+VU0+zccd4N
+IlUl4VKdVZoLqLDPWc7wIMxQxw/8yqGTe/tm1FP34mbvLR0xA3Ee5VtFCFk7plIn
+m3KOQATAtTO0lw28MY6qJSAg+g2jsHw6o3AEvK9bm13AbiIOfoKAQYcMAOg6ylPR
+HBXSi4qvVogv8i2nB70WxT1935+4Sk2FFRjgqFuTie3KsRlAXQLOYSKboD1G0Pnc
+eL++nrgJ5YW8+ouuSKormYkFFUWQf4/Lvc7En2F7qFFnE6zQeJVU0ZqITryeUGGk
+yhX9Pe62Q7sIcqNtvF3CQIEN2tea9a7lokGjhbegHBPamxtCtSvB9J6mJV+jsX7m
+N6/3CiN7J5UFGpBm7CE7xEEZRJ1Pyccu9FD3PE2zuqcqoxVhS2xPA4bipYpU9Gsz
+Dn2BVEDuKZX29i409KfZE3uafnNvhssiyViEk2TueuK3lRldsbQ62O/GSnQV1BRn
+pKp95q78L9sm2h7lXRcWUEpdSEMJKp40laLp5tBLHuKFRVMYW1VYJf+y9Al5OJc7
+670LvlvgEvX27OmtewhoedZ4MMl+0Fn47IBVJYFMUBh4N5Hn8uQ=
+=W/Wo
+-----END PGP SIGNATURE-----
+
+--5ekrj8PLtxG4YAug--
