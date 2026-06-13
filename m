@@ -1,191 +1,183 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 465B521CC71
-	for <linux-i2c@vger.kernel.org>; Sat, 13 Jun 2026 04:47:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C3DF39D3D9;
+	Sat, 13 Jun 2026 09:57:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781326021; cv=none; b=boD16Au6ZfOxHzHQlsE5kBAEz1mQQoJ2omAESoc88P3TC0ThH5ASkSxGYdNCakDjUfZ4HbUrbiS4gpa3w58QsaSsvSA/N1Nlb5BKgcrUI6aT4x6ttfS8HP48iaS8u/tZP5llPy2CD1TRaLzDQU4t6pTwOODCmBIp5OMJdtEu+k8=
+	t=1781344652; cv=none; b=lWQjBwZ05a5/z2BIPAJNEaCRUq05DWMWiBwqUuGF3Ktzv54/cB4cB6MhaXcHqx801R7YXSK+A5GkdgGKrRJQfmUFFUbhAuwcwvHffLJkI7hag50aWHtcyi8bvxU24UWzDMkyVqSOML+ilswzbFVxsg518XSJLwq10vMXObpv7DU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781326021; c=relaxed/simple;
-	bh=Va3NT1tqZbe5IMgKWr3GK0oOwzn3cWko4YKcItDxgYU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IlAVXOL/woy+GGDIcbKRGEGuJDS7qUCncQaxUUzMrZXYmdOdxC8QlNT1MswM+V4k/sSeO7N7kqkOG2zzStoXQLaNMHGRbjwNgtRvu4uiZ+boFL7ahV3KysD8wxD0rH1vGOQaUfUsSWTC9eXNpnFCst4PvY8Mwrm6eOE2ro1+f3A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=FbdGHNk0; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=Eij5fCpI; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1781344652; c=relaxed/simple;
+	bh=e0KKAQMRWVD4N9u9Q1sbWIEA2pk1krUP6bJcAkfA5Uc=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=p9a7cgpDLJszqbgBizxRJ9jhN9bEU4SMFk+GuFvvseILoxemJonfKWA+10/wSQq8wm34AylFYlpqHWYcfaJDR1fCozIVSAezOG1I7P0yGoqitmF4y9mXeuYZEA9RDaQTRVDy38nqDrc8gK3zVf9DP/PhoQvgt+NyD7+NoxsMNzQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=gSibgvfb; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="FbdGHNk0";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="Eij5fCpI"
-Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65D4dgu81519975
-	for <linux-i2c@vger.kernel.org>; Sat, 13 Jun 2026 04:46:59 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	WltrxbE+VrzBAeQAuOOkNg0JVKgr8R9KzViSn7S/z0g=; b=FbdGHNk0J3dmTF7E
-	VbQOfepA/30dcFFN0K2Pz+a7TZTVL22LrVnCHKwb5WTNq6hXW+woyk+osv4XI4+i
-	nf/o2NnppS+JkMLl1xOrxMjvVHirBcdYkmMu9YI7Len5y2pRp2v19aHRZlR6Ph5f
-	gkyfvYO7LzTNC23um3t0QNvDuDuJIr3qYRSP7HgkkjlMmt+628mNI71JcF3HEpye
-	dUEu5ltfJnQVrSU4oC3RAgda7qx20KjVjQ0J6zKbZ2k8puErNnYYn9n3fA+SuHNj
-	YT7FLed7i+PdajDeJ4/Q+9lp+rb/mzEqwWx1RxjgG9p5/X9mDhwYgDxt0lL+Ddce
-	5mjpRw==
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com [209.85.214.199])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4es0cgg0fa-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Sat, 13 Jun 2026 04:46:59 +0000 (GMT)
-Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2bf3636d6c0so16252955ad.2
-        for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 21:46:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1781326019; x=1781930819; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=WltrxbE+VrzBAeQAuOOkNg0JVKgr8R9KzViSn7S/z0g=;
-        b=Eij5fCpIzO465x1E3lLBbbV9idvsDJncQyn6otR1fiwEVxKD6v6pZGs1IKrKVg7Ckc
-         SM/UdhcGpUaOKXZKYzaxRrIrSJ2NErefj4G8NAa9IwUoa56FnGgMfu9IpFbxCb8rvn89
-         82XwnJx8a7/urAFZl/a8FIcWn9ThiJBMUBzwUFrfbe2kr+fCaoXdnjxwHJdm0aRXdvDn
-         3PUf6Ep+biWpv1iHa9DBbsgwyAIu9PP11/EjaVEnOi4iySxUbwGIepGf9Dz35F4Vr7bM
-         4KpcqG8LVBp9YLpoVh06hwSN/l4PKYCNJjbjCz4ChOS0wneoeAToNCWonJUOa6d+x+ss
-         fDSw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781326019; x=1781930819;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=WltrxbE+VrzBAeQAuOOkNg0JVKgr8R9KzViSn7S/z0g=;
-        b=jrH1POR6KIIjRNOGg4is/PRQSMofWbvgW2dEM7LKkUKUrkUQyIhKvjIPIvLNsRMpRS
-         W7tRJoIVArAnFeypqFdN5aaqGUG6CX5M9gInD8jeTDMILKLWE/i4bAAkpAURNP7IRiQQ
-         bKPc6oh34n+IeBSGXYwF0cFBu06dRfSdlAM+TadHyH5tStNEujjUsV4ptQBTIXPpVMvr
-         CLt/vEPalBcGpybGfckKnzyXA2PApomawI1JyEEhTbMClJpMS7Oa6a+8ALEB2+99VdyC
-         5V7gXLKl1xTRhC5EsyVidJaCCXVrSgayRVFQLuSjq8O8KL10VmUMgdX0JW+ioOcplPA9
-         ssIw==
-X-Forwarded-Encrypted: i=1; AFNElJ++fAfC0ax/Um9fIdW1Ywkjwx4vd3TebLfNFTSrhRowlcf6Gi0Uztv14dAdNhtMbnrz6oislQDLbFU=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyJv+9kY5DyKtehjwJPe5ilHlbyY24X7/6OXe17rsYkFxfnLu9I
-	rDbVIR2095y9EHJDKiGmHwequPq2s9a9fvj0umlG9nF0cFfExojA/b0kj48a3N4TXYA0wyVVYRa
-	rRxomDYyqetSyuEWOlB+iP//WO8lsawBVpR/vBZ5tElfMSQ50ll+5bc4/WdxY2QI=
-X-Gm-Gg: Acq92OHWMVyFrz+YhG/i/dCu0iLkcemXxr+5bmZpz3s/5sL50Z/JMLMd7wvrgs61V16
-	ENdkuoj79157mI9gz6ynx9WlPhrRQNJho2e7YeRYiBDVeuz4b1nE3W0ejVYoRECqCnQLgyUIueU
-	FwDqdLTbH8WwpcdWc4J6KUuKl23C7pc/1Gx8PDB4IPf1Qfj+Y9g2BVtGFQgshVpP27BoDYcyZzc
-	xNUsc3r34PIjb9kgCGH+cyu8c+cUVNG9THRdc66y+e6o5fq4nrRvsYG9BjHoglcaV24Ir6hycR/
-	J/O99YQNU+TZQvgBWDhs71FHQvi1mGDPB6oxhB52PWRVFkE3YHVEOR9H6ZWglRAihMxCBolCyPG
-	JY38qAlmbHxkmV2Gb2i48CYSbqncyTsfIXquCkpQpnlFbPzcBXuo=
-X-Received: by 2002:a17:903:3d0e:b0:2c2:bd0d:3cfa with SMTP id d9443c01a7336-2c4110b38d6mr61050665ad.11.1781326018939;
-        Fri, 12 Jun 2026 21:46:58 -0700 (PDT)
-X-Received: by 2002:a17:903:3d0e:b0:2c2:bd0d:3cfa with SMTP id d9443c01a7336-2c4110b38d6mr61050515ad.11.1781326018461;
-        Fri, 12 Jun 2026 21:46:58 -0700 (PDT)
-Received: from [192.168.1.11] ([103.211.19.106])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c432c8becesm37162965ad.56.2026.06.12.21.46.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 12 Jun 2026 21:46:58 -0700 (PDT)
-Message-ID: <83594a83-64ea-4c52-b0b7-fd0070f03f04@oss.qualcomm.com>
-Date: Sat, 13 Jun 2026 10:16:49 +0530
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="gSibgvfb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 702511F000E9;
+	Sat, 13 Jun 2026 09:57:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781344650;
+	bh=7JP+kU/aASsLKZ0eIOIFitvv2MddlmYKNoGb2a6WTBw=;
+	h=Date:From:To:Cc:Subject;
+	b=gSibgvfbVuXcjELk9sJBOcCcGoR7XF61GHPcGCBbf7G51DvmoBZOYpBIVNg0gFRGr
+	 kzSn24Kx1UiivKvBTa77S7z9MPyyVtm6mFxbkajtS8K9Xleu6iWYgUVt1pyBBSipXh
+	 pKOTseu/G1PRzmZi6aK4e1FmR3H2UlFwpE4HEKP9jzZd9M+qbZHIB23Yd1AXIn5T5h
+	 jcn2wVooUTF7qm6alvsxxcsXIBz28n6nR6LGIDFGGWuoqAxrmH5jNPOouhQEjQC71e
+	 vAPuFdj66mdkAQDm7lfePPWA72dsHokqkXmXJJ//OJ0yUw0rNdZUjWfOMLjTAD9xJ4
+	 Suk3koxjMK3Hw==
+Date: Sat, 13 Jun 2026 11:57:25 +0200
+From: Wolfram Sang <wsa@kernel.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Bartosz Golaszewski <brgl@bgdev.pl>,
+	Andi Shyti <andi.shyti@kernel.org>
+Subject: [PULL REQUEST] i2c-for-7.1-rc8
+Message-ID: <ai0phU8FZ9uDcm7M@shikoro>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 6/7] arm64: dts: qcom:
- shikra-cqm-cqs-evk-imx577-camera: Add DT overlay
-To: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Bryan O'Donoghue <bod@kernel.org>,
-        Loic Poulain <loic.poulain@oss.qualcomm.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley
- <conor+dt@kernel.org>, Robert Foss <rfoss@kernel.org>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>
-Cc: linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, imx@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org,
-        Suresh Vankadara <quic_svankada@quicinc.com>,
-        Vikram Sharma <vikram.sharma@oss.qualcomm.com>
-References: <20260608-shikra-camss-review-v2-0-ca1936bf1219@oss.qualcomm.com>
- <20260608-shikra-camss-review-v2-6-ca1936bf1219@oss.qualcomm.com>
- <b10ecb42-0d4f-4037-b786-cc52bcd1bdd6@linaro.org>
-Content-Language: en-US
-From: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
-In-Reply-To: <b10ecb42-0d4f-4037-b786-cc52bcd1bdd6@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: qsoOAk10P-WYdFKtvQGRv_gFyfKqFkvx
-X-Authority-Analysis: v=2.4 cv=NPLlPU6g c=1 sm=1 tr=0 ts=6a2ce0c3 cx=c_pps
- a=JL+w9abYAAE89/QcEU+0QA==:117 a=RuEr1PiGI7RNW/QBahnYvg==:17
- a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=DJpcGTmdVt4CTyJn9g5Z:22
- a=iljdq1zszXl5pgKHGr8A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
- a=324X-CrmTo6CU4MGRt3R:22
-X-Proofpoint-GUID: qsoOAk10P-WYdFKtvQGRv_gFyfKqFkvx
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjEzMDA0MiBTYWx0ZWRfXweDDJbxqCqTL
- MZiZEaVCgVZ8pkysICkomPrx3M3XeWRKZYyEW14nftoeXCxyDqlkIxsxIdxrWEYGNSmxz6Xch2+
- QnukVRRNoKbCeiH0QJ1grqnrhrnHx+4=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjEzMDA0MiBTYWx0ZWRfX3Xv4fjdTZDVY
- e2HxnlPUIyBpmbVcEfzqr4+WWzi0oPOExLSnq0vCGJ6YLvneOPoPJn4CqRxsI00G6WM7zGT+ns4
- jbkMNqcnrouXj9Fce+dHPDjr1jyTTKJrmQs7GGd/FTs/VFEpT0GGXCeHlMXND5we9Yp+/oYRTTw
- Z64oZ6QCcFyfcC6uhUm9PW3u5PfxG0hb+ZThSCcOH5DMzD1OKQOJCOfuIkX8094PHZDK8JMPhhA
- mXW6gQNKtPKQ48d9h3wfm9MCA/6mHJn7qhF7gqWEB4mwtpfoNocFHxQfaypYcNdKJ0RKzxchYxX
- w7a88llyeHUA0XfEvlGWFnkNlAKffxsxKjMFuVCZ2QGxunfKtpqeGgYAfakz+pCG2Ut6uSGclMs
- y9OoUHr8v6F4/Y0QstMNfIe6GZgEzBfzO7DSZjqXPxRCU3OlKfsW0Lfz73K/4ZSqcghir1XrJ0m
- o23gQSRJcZ7cUz3J5fg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-13_01,2026-06-12_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 lowpriorityscore=0 suspectscore=0 malwarescore=0 bulkscore=0
- adultscore=0 impostorscore=0 phishscore=0 clxscore=1015 priorityscore=1501
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606130042
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="jEOOdZ10+au+do1t"
+Content-Disposition: inline
 
 
+--jEOOdZ10+au+do1t
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 12-06-2026 13:40, Vladimir Zapolskiy wrote:
->> +            imx577_ep1: endpoint {
->> +                link-frequencies = /bits/ 64 <600000000>;
->> +                data-lanes = <0 1 2 3>;
-> 
-> The numeration of data-lanes shall be started from 1, this has to be fixed.
-> 
-Thanks for pointing it.
+Linus,
 
-Will fix in v3. On MIPI D-PHY, lane 0 is the clock lane, so data lanes
-must start from 1 as per video-interfaces.yaml binding spec.
->> +                remote-endpoint = <&csiphy1_ep>;
->> +            };
->> +        };
->> +    }; 
->> +&tlmm {
->> +    cam1_reset_default: cam1-reset-default-state {
->> +        pins = "gpio33";
->> +        function = "gpio";
->> +        drive-strength = <2>;
->> +        bias-disable;
->> +    };
->> +};
-> 
-> Since it's a mezzanine specific pinctl assignment, it shall go to the
-> correspondent .dtso file.
-> 
-> It's a concidence that one .dtso file is good enough for describing the
-> mezzanine for two diffferent boards, but let's exploit it by keeping one
-> dt overlay file as it is now.
+biggest news here is that this is my last pull request as I2C maintainer
+after 13.5 years. Starting with the 7.2 cycle, Andi Shyti is taking over
+who helped me greatly maintaining the host drivers for a while now.
+Thank you, Andi, and good luck with the subsystem. I'll be around for
+help, of course.
 
-Agreed, will move it to the .dtso in v3.
+Technically, there are two patches which might be a tad large for this
+late cycle, but most of them is explaining comments, so I think they are
+suitable.
 
-This also eliminates the identical cam1_reset_default block duplicated across 
-CQM and CQS board files.
+Please pull. And thanks a lot to you and everyone for the collaboration!
 
-Will incorporate this for the IQS dtso file.
---
-Regards,
-Nihal Kumar Gupta
+
+The following changes since commit 4549871118cf616eecdd2d939f78e3b9e1dddc48:
+
+  Linux 7.1-rc7 (2026-06-07 15:37:58 -0700)
+
+are available in the Git repository at:
+
+  git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git tags/i2c-for-=
+7.1-rc8
+
+for you to fetch changes up to 35ebcfcc9ef29afcf258db854ccf25572c75baef:
+
+  Merge tag 'i2c-host-fixes-7.1-rc8' of git://git.kernel.org/pub/scm/linux/=
+kernel/git/andi.shyti/linux into i2c/for-current (2026-06-12 17:05:44 +0200)
+
+----------------------------------------------------------------
+i2c-for-7.1-rc8
+
+- rust: fix I2cAdapter refcount double increment
+- MAINTAINERS: minor updates
+- imx: keep clock and pinctrl states consistent in runtime PM
+- imx-lpi2c: fix DMA resource leaks on PIO fallback
+- qcom-cci: fix NULL pointer dereference on remove
+- riic: fix reset refcount leak on resume_noirq error path
+- stm32f7: account for analog filter in timing computation
+- tegra: fix suspend/resume handling in NOIRQ phase
+- tegra: update Tegra410 I2C timings to match hardware specs
+- MAINTAINERS: hand over I2C maintainership to Andi
+
+----------------------------------------------------------------
+Akhil R (2):
+      i2c: tegra: Update Tegra410 I2C timing parameters
+      i2c: tegra: Fix NOIRQ suspend/resume
+
+Andi Shyti (1):
+      MAINTAINERS: i2c: designware: Remove inactive reviewer
+
+Carlos Song (2):
+      i2c: imx: fix clock and pinctrl state inconsistency in runtime PM
+      i2c: imx-lpi2c: fix resource leaks switching to devm_dma_request_chan=
+()
+
+Guillermo Rodr=C3=ADguez (1):
+      i2c: stm32f7: fix timing computation ignoring i2c-analog-filter
+
+Nicol=C3=A1s Antinori (1):
+      rust: i2c: fix I2cAdapter refcounts double increment
+
+Vladimir Zapolskiy (1):
+      i2c: qcom-cci: Fix NULL pointer dereference in cci_remove()
+
+Wentao Liang (1):
+      i2c: riic: fix refcount leak in riic_i2c_resume_noirq()
+
+Wolfram Sang (4):
+      Merge tag 'rust-i2c-7.1-rc7' of https://github.com/ikrtn/linux into i=
+2c/for-current
+      MAINTAINERS: hand over I2C to Andi Shyti
+      dt-bindings: i2c: mux-gpio: name correct maintainer
+      Merge tag 'i2c-host-fixes-7.1-rc8' of git://git.kernel.org/pub/scm/li=
+nux/kernel/git/andi.shyti/linux into i2c/for-current
+
+
+with much appreciated quality assurance from
+----------------------------------------------------------------
+Frank Li (2):
+      (Rev.) i2c: imx-lpi2c: fix resource leaks switching to devm_dma_reque=
+st_chan()
+      (Rev.) i2c: imx: fix clock and pinctrl state inconsistency in runtime=
+ PM
+
+Geert Uytterhoeven (1):
+      (Rev.) i2c: riic: fix refcount leak in riic_i2c_resume_noirq()
+
+Igor Korotin (1):
+      (Rev.) rust: i2c: fix I2cAdapter refcounts double increment
+
+Jon Hunter (2):
+      (Rev.) i2c: tegra: Fix NOIRQ suspend/resume
+      (Rev.) i2c: tegra: Update Tegra410 I2C timing parameters
+
+Konrad Dybcio (1):
+      (Rev.) i2c: qcom-cci: Fix NULL pointer dereference in cci_remove()
+
+ .../devicetree/bindings/i2c/i2c-mux-gpio.yaml      |  2 +-
+ MAINTAINERS                                        |  6 +--
+ drivers/i2c/busses/i2c-imx-lpi2c.c                 | 53 +++++++++++--------
+ drivers/i2c/busses/i2c-imx.c                       | 15 ++++--
+ drivers/i2c/busses/i2c-qcom-cci.c                  |  2 +-
+ drivers/i2c/busses/i2c-riic.c                      |  4 +-
+ drivers/i2c/busses/i2c-stm32f7.c                   |  6 +--
+ drivers/i2c/busses/i2c-tegra.c                     | 61 ++++++++++++------=
+----
+ rust/kernel/i2c.rs                                 |  4 +-
+ 9 files changed, 92 insertions(+), 61 deletions(-)
+
+--jEOOdZ10+au+do1t
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmotKYUACgkQFA3kzBSg
+KbYa+hAAn2a5/JbB+2lO5+tGCHmZW3P5DgzSK1kQFdNPHEGmhd4YNdzQvkJXeuf0
+TrmAheQqAqn4NNtRz8T5ZIlvNtBFBiirpOAs/OZZST55VFI/lBqp3XItF0mJCzlR
+5DyJXooS2Kca/MmSzhAvDWLZB1KgCbyfV8ekcWb0k0K3hPOH1ylbzUIqLpyCu0ao
+bO1zAKf09w5LqTKuFDPayd9QShymAlLdnz91bSXR080lFgEZkVkXS5aWZKma7zRh
+lZ52A/Cm7r0e8Kesp1gf+nMl87V8CXnG2nEhLo8Kb+D3jY7l5xZ8fDh0L9EgypYM
+SkkMBn9KqEdlwGo4CsWEZnhCcbvQTCerkdPY8CQemBCeY9Lpu4Wes9MYFZii5uWZ
+NQtJyIHKnX2cpefz4Lt5HyzzEYoQN7rhgXtu5rvL6BBWnDNtpTbw6jXGjPRvu2sl
+nrRfKlqDcdKBC/a4/+Ln8T6N0N4Iv1S00+FbxKQsFaN/esPDRKSsX5U667Yw9j3Q
+mnn6qJoIkfje0FhB/GKu6dIj7tuI3UZls8UzBWr0MmKGZmm2bJrXtKZhPHuWpnJ9
+3vPwDGyX3V6J2xilrpxB6osiYY0mRe1yOAVuorhwpkEpFT/C+ciZbnBZbvztgHEz
+ad3plAx9LX79N0jPL+5voVEWexFZwpu/6k+nqKHOEslmhIV9XF0=
+=M+H1
+-----END PGP SIGNATURE-----
+
+--jEOOdZ10+au+do1t--
