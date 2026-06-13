@@ -1,125 +1,163 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A33A38A722;
-	Fri, 12 Jun 2026 21:25:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6548C37F756
+	for <linux-i2c@vger.kernel.org>; Sat, 13 Jun 2026 04:10:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781299503; cv=none; b=ra3561WmDGq5xlVA8v/gGCsdw1lXEHV+I2KEUckU2yLLB86vCps9qD4NGNGmm8Suao6oPgF0dVj0iwMefh60QudrKe/0U+cqjuA+xbhvMIRs1fKIqEDjMuIbOV2cpJa89meaHjxG2znwh2Fsv6nvamzTRi02/jxLxY8Gy1/FOW4=
+	t=1781323812; cv=none; b=SwDpZVvk5Cubwl12r1YFICaDYbwMT9aUFFe2rC3KGNKRzXVyRbAemxlPwN43/RfOgaC+VURowHWxVhzM7vxL+VuhSXpWlN20IB0zm9sXiFyiv3e0T+/9ryx4Ki5aR0oXuEV/gKVOt9a4FDnbqyD7aINqk1V9GuMWJEwLQpnkdTE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781299503; c=relaxed/simple;
-	bh=z28Hfe+YcR8O/UuukxI/rVF93ouCC3XO/PTSSqULbs8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fLYMug1M5/1hIvMlDre4ByWUHWR1+jfnfOMN3psCoRHYyigxDjl4LVVoFBX+R5oVtY3yTCQQvz9ROZzqX+XNayS3xeiM7GrDgIoE9wjdVk41Xh7XKNlF6wp2gDi3EmzooQZN5TorDjWGyL3WCM24tlpcIORmMwx8/ktOPVXZJpk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BBngajr5; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781323812; c=relaxed/simple;
+	bh=d+CuOuf3ybPVo31Duy+EpOGsQqxm8eNmSXH5RxEr1bY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=s/nR5iWa/AuO6+MWYwDRY6ezm2Dl23niZH6nUVK5Ny81y9CdtRlVXnutATiihXFp3akvD1M8dkLKi9LCSv1Jim/u2vhSrVgI7h70M4cjrY5t4R/6pWrR+6BbaH7OVfGZrrWoPOoMQUXiKBLwWPTptrwNa5fBM2feH06dc0Ar4QE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=EjX4XkRZ; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=QXBEytuf; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BBngajr5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C0381F000E9;
-	Fri, 12 Jun 2026 21:25:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781299502;
-	bh=YmUQQc7/FzgbJGihhd82zZ/dDswySV9Lk1KdLAlsFss=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=BBngajr5yr+kTtl87rL3JsBlauYsw2mlm0PF6hbMYMK0wN7cPkLlBps+CgEbK3dz5
-	 GSGB9WOJ6AM2bfjn2b3DuROVjPjrK0z/+jb02aADDRTffnI3CmglTP6Q/wcGfAeBgS
-	 s5wt8tHnunpACqKyMVYcz48FMGI+acF5Y4m7nQ9PIjw7ysJ5b18ZVSJOJM0Rc5fpYV
-	 cBmU+srUzsj6YA9i2tpcl3N53qtPXMZZoTZdJbUXHbp1gEHfl7w6rpCeAkcCMwdTk9
-	 qffjvd0tiaD1zW/teuPC5toGnbW+z0LdBjEMHW5b/jhhYx82ddC378iwRdNCTILxOD
-	 WMmO2Zr6V58tA==
-Received: by venus (Postfix, from userid 1000)
-	id C5883180674; Fri, 12 Jun 2026 23:25:00 +0200 (CEST)
-Date: Fri, 12 Jun 2026 23:25:00 +0200
-From: Sebastian Reichel <sre@kernel.org>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Andi Shyti <andi.shyti@kernel.org>
-Subject: Re: [PATCH 1/1] MAINTAINERS: hand over I2C to Andi Shyti
-Message-ID: <aix4RWPM0iSKD3ZL@venus>
-References: <20260609091612.8228-3-wsa+renesas@sang-engineering.com>
- <20260609091612.8228-4-wsa+renesas@sang-engineering.com>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="EjX4XkRZ";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="QXBEytuf"
+Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65D3QQEv1372121
+	for <linux-i2c@vger.kernel.org>; Sat, 13 Jun 2026 04:10:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	LOdBZhTf8TwFyLRvPPm9OlEuuyxWqmYYuZEeSSpKiKE=; b=EjX4XkRZpygOmsXy
+	GVaiA5BwdOv/Yb3hrVzwo6/qftVVOstDIcAxtEZgO+E6ImFeQ+bzCsFcfTccR6AV
+	kHimL7q90XgU6hSIS5504E9F96Z8mGjWkvrsDI+3BgZdXNC38eNugMbNzH+BSRSw
+	e/Xt5yLFD16MFYPFBWIBifvMhxWx6VuMBVe1jvY8SIV3WI33lCE8RwF2ER0/lFhX
+	2s4krj6Sno4qlFdEvF+nUNz0wpzBdaY0KrhVSCAT7m5J3YoyYU5sgQkU30lACJWS
+	tjLeDzFbaV3WB9e/tV8PvwndhzNmm1ARSDRGQfsBFBPa1kONhe2RwHWAK+UZoqi+
+	e90dQA==
+Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com [209.85.210.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4erya4r2kh-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Sat, 13 Jun 2026 04:10:10 +0000 (GMT)
+Received: by mail-pf1-f198.google.com with SMTP id d2e1a72fcca58-8425a9979e1so1097133b3a.2
+        for <linux-i2c@vger.kernel.org>; Fri, 12 Jun 2026 21:10:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1781323810; x=1781928610; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=LOdBZhTf8TwFyLRvPPm9OlEuuyxWqmYYuZEeSSpKiKE=;
+        b=QXBEytufWuzTfB4cD/RXyRcDF+MBHUjsNNMLzEBnLHKsB80nwDFufN/J4V0YXrEOpB
+         KSTQ1hYnz1vAtAfzCQWnni8e9Uj5bbfeLZDcBONCVos2Q1+Td++AvoOC8UUW/mjAmf2L
+         CWSFbTBQ0pUTDAWNSow+NLbw7s2dvi56WzGZgZpQ9WG7hfMdtV99DSOR2HP569kk4MoE
+         1DVOPFUZD3LLOXJPZGCrS7DZxJF8ra3QF196B/Fi3F8okY3gp6fW/dG1TW//U9Q27ngz
+         shkTR1RHYs2Dw2il6o5W3OSc3Gv6MnvjeE8F29N62I+i0V6T+jy+l47rW77Q+X8akJpI
+         9d4w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781323810; x=1781928610;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=LOdBZhTf8TwFyLRvPPm9OlEuuyxWqmYYuZEeSSpKiKE=;
+        b=c49eIq2QZ6E2509xCR1CcF/x0D86VtkgKoIZvc8sR51HL47BLdH2dQ2rvIFOyQ7Ql6
+         c9+7hcFlJHTXun39oy4rVxzdp57TB35eFlONqIDch7W0I1tp5hXGCY4XKyAmyoDo9LBT
+         TzKhaectHgpyiylhsup24+Zix2OO+SsI0rVFbH9rm6GKvfF12hBcHGBTiBJ19aIVTyHU
+         SL1uAolpZXQI7vDcbY/I6wBpbkHHTV8N02trOjvPRTBu4EXcL0bHBDMATlPXj8l1yCuq
+         mxNWsjy6rTKFugcUtuqkBPIJD+r3cWcpfe2Y5IBRQk5V+WpTnul0RjmG0oVUbgzJyhIu
+         HW3A==
+X-Forwarded-Encrypted: i=1; AFNElJ+zlvCZlUupfV5fXx68/wV8IhxSQbtw6lfbuf02roLWAT4Dp05pADO6WKHfD2raVqEtaj8o9LywaV0=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyUtKfVPRVYGXZfWYD8rYDqqbF+d3U558MC8T1FY66fjw8H9tlQ
+	IKP7IaKGqN7N89fCb8ud+1SpvdTHQlxuK7Fvhzsfx9NA2XH3Y5MsVe114dS535B8nFs6Ld1jsJd
+	egiB+qfaWBN1/LJTz++qlnkax+RPjrjeDE9ee1AkDwbfC8xbIamsfUls3Qi5tb5Y=
+X-Gm-Gg: Acq92OHaYrU2tyGePAYRoCDFD81BUl3QDtm1O7Str81ZqsQqU+qkoDLlkdiqINXqmzB
+	yG6D5XJ9BgUpcHG22llSVpZ8dZUmiggsXg/i2OzWCw7+erf2zpZun8tk3RHA9pb5Da+oFW091bn
+	c3psuXcTmwl3DROcJOhjFKkLxWbFj+fi0ulGnoL2tyZ9W8wwszm+IhzuOcpi6ptEHj7CHdmjyJ7
+	t3JlHHUgYt9aDVYeBKP3nAYPf+i8nnrVwSrpPlmgbr1V++ysiX3ryENYuj4ulJJ9uZEDy9ucUwy
+	dsd9VXEfeZgQIxaCzWiDZCNLJZZz1+sjl6mmfKilHVWjJX8utDapIwxguwkAPQb64uZnilG2IrP
+	USUwXBxt2xJPqYNaJYHHN3XpJMmXopZdLyyz43LSuJfRt8WG88U4=
+X-Received: by 2002:a05:6a00:1483:b0:827:4bca:f1a2 with SMTP id d2e1a72fcca58-8434ce95f96mr5902252b3a.10.1781323809818;
+        Fri, 12 Jun 2026 21:10:09 -0700 (PDT)
+X-Received: by 2002:a05:6a00:1483:b0:827:4bca:f1a2 with SMTP id d2e1a72fcca58-8434ce95f96mr5902220b3a.10.1781323809366;
+        Fri, 12 Jun 2026 21:10:09 -0700 (PDT)
+Received: from [192.168.1.11] ([103.211.19.106])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8434afd100esm4480992b3a.34.2026.06.12.21.10.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 12 Jun 2026 21:10:09 -0700 (PDT)
+Message-ID: <fbb00150-e3bd-45b8-a87a-100ecd235a46@oss.qualcomm.com>
+Date: Sat, 13 Jun 2026 09:40:00 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="b5k7pk7jyaljoizq"
-Content-Disposition: inline
-In-Reply-To: <20260609091612.8228-4-wsa+renesas@sang-engineering.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 3/7] arm64: dts: qcom: shikra: Add CAMSS node
+To: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Bryan O'Donoghue <bod@kernel.org>,
+        Loic Poulain <loic.poulain@oss.qualcomm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley
+ <conor+dt@kernel.org>, Robert Foss <rfoss@kernel.org>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>
+Cc: linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, imx@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org,
+        Suresh Vankadara <quic_svankada@quicinc.com>,
+        Vikram Sharma <vikram.sharma@oss.qualcomm.com>
+References: <20260608-shikra-camss-review-v2-0-ca1936bf1219@oss.qualcomm.com>
+ <20260608-shikra-camss-review-v2-3-ca1936bf1219@oss.qualcomm.com>
+ <3ec2bd75-4d88-492e-a8c2-b21000ef2afc@linaro.org>
+Content-Language: en-US
+From: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+In-Reply-To: <3ec2bd75-4d88-492e-a8c2-b21000ef2afc@linaro.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjEzMDAzNyBTYWx0ZWRfXww99zyV+LYx4
+ +1KOy8/qEKekEci3rfhYv5o/aOboD63nx/CaBFluhwHkK8DONy/mazvqiIb5awqli0YSTmW6OaQ
+ V+kmZBLWBDnWoFjcDuNEXco+qHZZWhFiPUdRnUhxks2oqd0RodbhJLYxW4V4W3100t3qrSdfjFh
+ ePUgHZYL91uf5k/DKBdWChLGb5E7aWjAEAPaSqFNLAiuAeAsYrRLPBPLSkJPw9H2xFhF5fC9mZv
+ kdGWOuubr/xBZbSTo68Ce8nIK1sRLuMFPCE6vfwoQfL8aG6hsXweVARybW0DF9rni1WhAv1I5qn
+ KYxth2gD3rdu7IvIZeXrLubqwUWIIczxLtF0Tw51FEVCNwhXIPeikBGJg/xQUxArYMHF1yGrg+P
+ R1MUIMQD6/+yMX/iocF9fCt3VvvkbmT3gubvkPrUEOSypZEyJwpNzM0SOG/e9eVvyFxu9pE8s6k
+ UlXuXBL1iKmb6CXAShA==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjEzMDAzNyBTYWx0ZWRfX/b0Y8t6gDgdr
+ WCvAH7WtHlmxbVOFoZFvAUdGKPp+EQ+wBfmfp8aILpwkRDjybuxsED+QKDeoUXse3a7zNcaB3Ny
+ EAUVWAAYbDI4pCxjrT605xHhylniUyc=
+X-Authority-Analysis: v=2.4 cv=KZLidwYD c=1 sm=1 tr=0 ts=6a2cd822 cx=c_pps
+ a=m5Vt/hrsBiPMCU0y4gIsQw==:117 a=RuEr1PiGI7RNW/QBahnYvg==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=DJpcGTmdVt4CTyJn9g5Z:22
+ a=HRvYZQSnNB20PN4mEw4A:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+ a=IoOABgeZipijB_acs4fv:22
+X-Proofpoint-ORIG-GUID: qS6HPzxuFeQkCpeK1esVJrQHTHBmor46
+X-Proofpoint-GUID: qS6HPzxuFeQkCpeK1esVJrQHTHBmor46
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-13_01,2026-06-12_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 suspectscore=0 lowpriorityscore=0 impostorscore=0
+ spamscore=0 phishscore=0 adultscore=0 clxscore=1015 bulkscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606040000
+ definitions=main-2606130037
 
 
---b5k7pk7jyaljoizq
-Content-Type: text/plain; protected-headers=v1; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH 1/1] MAINTAINERS: hand over I2C to Andi Shyti
-MIME-Version: 1.0
 
-Hi,
+On 12-06-2026 13:26, Vladimir Zapolskiy wrote:
+>> +            iommus = <&apps_smmu 0x400 0x0>;
+>> +            power-domains = <&gcc GCC_CAMSS_TOP_GDSC>;
+> 
+> Please add an empty line between the properties above.
+> 
+>> + 
+ACK
 
-On Tue, Jun 09, 2026 at 11:16:14AM +0200, Wolfram Sang wrote:
-> After 13.5 years of maintaining I2C, it is finally time for me to move
-> to other areas. So, I hereby transfer I2C maintainership to Andi Shyti.
-> He has been taking care of the I2C host drivers for a while now and
-> kindly agreed to look after the whole subsystem. Thank you, Andi! I also
-> want to thank all contributors, reviewers, and fellow maintainers making
-> all these years a mostly smooth ride. Happy hacking, everyone!
->=20
-> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-> ---
-
-I believe 13.5 years of I2C subsystem maintanence is worth a CREDITS
-entry ;) Thanks for handling the subsystem all these years!
-
-Greetings,
-
--- Sebastian
-
->  MAINTAINERS | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
->=20
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 04542eebfbea..a4a0fcabe516 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -12094,11 +12094,11 @@ F:	Documentation/i2c/busses/i2c-parport.rst
->  F:	drivers/i2c/busses/i2c-parport.c
-> =20
->  I2C SUBSYSTEM
-> -M:	Wolfram Sang <wsa+renesas@sang-engineering.com>
-> +M:	Andi Shyti <andi.shyti@kernel.org>
->  L:	linux-i2c@vger.kernel.org
->  S:	Maintained
->  Q:	https://patchwork.ozlabs.org/project/linux-i2c/list/
-> -T:	git git://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git
-> +T:	git git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git
->  F:	Documentation/i2c/
->  F:	drivers/i2c/*
->  F:	include/dt-bindings/i2c/i2c.h
-> --=20
-> 2.51.0
->=20
->=20
-
---b5k7pk7jyaljoizq
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmoseSwACgkQ2O7X88g7
-+ppx3A//RRSRCe4meuRXa1IOfQnISvW/qBLbEgfpk2C5hZSrtM64Tt7f3qwkfJVx
-NNNugMgkujqQV7BIWL4F+7IUzcuJLZTFuIs4GVclMnHYkAiEfzBapFH8A3IDAEpV
-UZ5NHQeSZMd9i2WRiO+e8vVALFCWqafQJKG/QA49tWncrrxsORKWnaIKq0UCOmHv
-5nMhxQ9VEE7FhbaMM+0AcJBnfh45ZMMiaBHlXnIoWu7v3bfFPpizI/T9SIEDkRUS
-w6NkzGKlATKJAqgY9qTO25GAmMtpnFLQRmrGAJsLxlo0z+X7TPfb1BOWM+leszmb
-DWAwZPgmQrocq8cMy1sK3yN8ystQKQv5Fg3EKO0vf4QlF/B6nmTi4Mtvl9KGe4Y0
-Y8f8mmMDOa27sRpk5i+zmgNiXCxRiU8XIO2gdIC3rluFWTJwiQScxNjizv9tWzrE
-LDkMFZrJfUi7tZAb1BuYtdH0cvgFeDSdbDU6Xj73zk9VGjAvNLr5nSi97Ra6Mu/r
-2DLpVU0uBJ3nmVK9ggLaknhhewRnqmgZtP2ERfFkzsIpxD9hDFzvx+RNkzLjJQxl
-+EeKxQRhXj6mD4gyA/WgC1VI2fjv/nDNiAUc5bFkH5GFZuJ8ID6R1X7vGreAUi+F
-U334dfWph4sk6slbabBEmIQR2ohtHn9r7FJ7rHE2+6cxCm+tm58=
-=bbBg
------END PGP SIGNATURE-----
-
---b5k7pk7jyaljoizq--
+--
+Regards,
+Nihal Kumar Gupta
