@@ -1,277 +1,114 @@
-Received: from mail-oo1-f42.google.com (mail-oo1-f42.google.com [209.85.161.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78667324B24
-	for <linux-i2c@vger.kernel.org>; Sun, 14 Jun 2026 09:36:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.161.42
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781429778; cv=pass; b=lFiOCE6zqPFXmwUcZTHh37dEd9/+wb/K33jQCnbl48VN6ccTtb5YYaWi3uDY5MUyYBZt81GJdsUztpEPXZcCXlFiyAYBuYYMQVRlkMWU31NXzi/zf4hLw40BP+ng2nQQnkCfj1V5KBdxkCiaLFweaZN279ursMIxnnAkwuFvgeo=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781429778; c=relaxed/simple;
-	bh=KxG8FW2t1Y5M+en6j+orfhigu10djlUwEeeCbQF3vLs=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=eLp0RgHV0HGg2MIVhNlVI9Hh2LA+jJ1GP5aWfi12JCHUNn6ygw1SdM9bkl+syn5KKjMEziJq6Zw+zIyRn6wbKD+iCliTD8C01calBM2qk7n7OD6K2yQXyf4ZNKaMyZjvsjqyABp7gIdwHzr2bPmLjuLxSSmGDu2XzzmuOoXddlQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GF4Vb6V3; arc=pass smtp.client-ip=209.85.161.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E091D29D267;
+	Sun, 14 Jun 2026 21:34:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781472850; cv=none; b=C5fM8UGP1z2Mm4VHf1Laplq2pbwr2aKyJKzL9Ma4v3I2OalM/X7HQZGtfj0Qw3NoP4j0q9mwYniWXwd37YSMa8oXardrVRrAPkPwraXN4bcMzER8QDMzYvDuFnEH8/Kvu2u7U8K45XwDhQZsCVQTx7cyVve9tsWcKXj88piCXc0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781472850; c=relaxed/simple;
+	bh=Loqq9Ta/ftg1Jr+X1hB44fPl6xNiue+sX5buqL9e0+A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IumzXHzShI1tl3UVFiAYBeoApAesyqB04DsvWKWIQNWdtGKp3ZWK5XqlRvpKQv9+E2+IovM1ggoAwz3TXo/nSy2vzmahrEt6mcxDzpP2YS9yhqxeVyL1E6Aqfn1zbdyWwnZfG5iZP0sBtqaYH/aDSe42GT09AaQ2QniUHxWq0gQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nqo82Z5J; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GF4Vb6V3"
-Received: by mail-oo1-f42.google.com with SMTP id 006d021491bc7-69e4a083687so1649746eaf.3
-        for <linux-i2c@vger.kernel.org>; Sun, 14 Jun 2026 02:36:16 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781429775; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Rh2kWx53zwcSc1BC2u19Uq0QriL4sItkK5lZp9wTIZXrlPxmlZHjUfjt4zrrt+NwFS
-         vc3KYSp2VTff3OrDeRqH1epZvvF/FUgkgUd6W1VvP8hGvf5k8LNLmCTja8iU0oHnjg0j
-         GBMeyDuauNPgkO2LCEk9tdx+1CCpxGxXf6jJ5GDJGqZjSoqzmdet6sVOzUHPZkK7h3YN
-         q6H2FfgvemCzmA6DwyToT/1Z3eGHls0slivMwGzwsi/J/mE8RY1GZNnhIGcuZmrtTv+7
-         GL5G1Fn8hFPWh2ditKn9tBMawCEQ2iis+ZW8PCSqdsIzi4jr4jWY8FPttccoD1WCryzV
-         /jig==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=6uhzggcYBf9ZojUJZXYZOedKy8TL71m8+1uHUmTjSGs=;
-        fh=BRlIKry8eHBZQ9IHk3NYpmw5HJ2M1hjMTVBvRJPiK78=;
-        b=EWBel2qu/WSZZTuZwLY528SK/7Fm3Eizwgi6dHn5sGC73hIzHBAz6vIqnLB5c2L+Wf
-         ZH5YnwebEItCGs2rY/xCYTQAgnk9mEOOurKIH0j0nfStCRGjDvxbnVn8CWe2Dl8vHtkV
-         wwoYXLkRSHz2esn2RZQP3FowYxMR+hBmTYMq9Ne97mo1sNJGoYHlxt59+8a2UIX9Icw1
-         enPt2FwODZnnnWE5ALNG+io2TIecp/I8x4ZH3mmHaTlhQ/zidh0XESSGfWkshkWKqdRR
-         Dpwrwz+KyJOVuT6EYjjKLCYkvNsxLI8phxw/eu7UQZ3pd4zzg242w8zO7YizxIj5OtlB
-         02Wg==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781429775; x=1782034575; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6uhzggcYBf9ZojUJZXYZOedKy8TL71m8+1uHUmTjSGs=;
-        b=GF4Vb6V3CbrmfUzqqBOs+OXaTmV0CwyiTs0PZPsTq1+xb5m5Bq/QSwmZFPMukFzYP2
-         S1AsT2LDgnQLfdattQsoZes/qsW+2ljpCNCbhLyMKja4DpUnhCoFc1q0XGWo9Q0Tavh/
-         FkMUyHT7NdPVrIb0AtN7gDigmcXhAfC4KAotxBLGQemXu4VaYcDmClWIbzx9698mesdy
-         dv9P7EfNtL2Eujtst8Uo3F54ZgCRbvyXbDV3XQIAtXxQqXYnN6ccs0EVSVbNY1ZQNVFK
-         YeZlN1lolxCAnBPSIo8klNHP0gNYSFyUSXVHxUm3+8YXXUVhjM2hm700O3IyClGNdDVM
-         u9mw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781429775; x=1782034575;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=6uhzggcYBf9ZojUJZXYZOedKy8TL71m8+1uHUmTjSGs=;
-        b=FTbQRNpXuAC3X7AxBmJguJiUfWCOEP125BkurCQDZq7/QFZ2AWEcTCpczt+gngeWad
-         E8HHbTXD1J7TjvXoKnA+eYJFayucvpbcaTngv4SYfoTDc8MqK5gYRC5fXvt2IexKVTvz
-         GBwAX5GJ4BDCqhKSktc6LcBKWVEJui72/txRg2iDSL7HLXsQ31E9Q+xBIfgQtNRZU5o1
-         v7ZeKCuIWPbtm7+yDd0+y2RyjASLkh/JEtedL9PfKA/FNUDm+YJazt4mmMcD57hi5czA
-         bMC750MdfGO9TH1Lly/xocyI2DMJMavytvQM06AdTgqBwLWn89bVLfYlJ68mTWJVXH18
-         2Whg==
-X-Forwarded-Encrypted: i=1; AFNElJ8JfyuKTsCnX+ofGra2RTTFuZ2c18mlngxr+8zXIqHgVyRBFsC/v5dpIgpTP9mF4Z45gCnxYZhBRc0=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yzd6/S0WFA249jhHG28ATCBAEAo/BjRqfCeJANi+daPByQ8OPiH
-	u8OkfA9fWxA7m2re2L9fRfxH3OXESwUG1WxU4hkYDg763LMZmNGdX+i595Ty4cwqdgcB58GX4s2
-	f2LN4nSMox6Mpj3q50XgR2nR/JQICISo=
-X-Gm-Gg: Acq92OEISiTIUz+fnvYbpZZEksT59O9nTJtrvOcTXFoR7WwZ+yqrYQFNvlQvQfx3EgX
-	Zr9mdO+1W4S/6uru/t2S3oSEhsn4QB+8aYngI/9oB+TKv+MPh0VYrEaedRUVwn89pNFMO7aUiYs
-	Ubbytd+SCW//Uii5dKRsx/0cd7ffKfznjjXIAF8TgmZ1ZdWDl0Pqd69bbb3TRA/iLzRi2VczmhT
-	zJJP6cv+C75T8uYTD2/0c8KMWP8WMbDVkLf8XqUoDLj1jLY+SehircgNnbcg0z71WYbERzxDMN9
-	VUdeajQ=
-X-Received: by 2002:a05:6820:138c:b0:69e:264b:cced with SMTP id
- 006d021491bc7-69edc7531e5mr6172237eaf.41.1781429775361; Sun, 14 Jun 2026
- 02:36:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nqo82Z5J"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEDFD1F000E9;
+	Sun, 14 Jun 2026 21:34:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781472849;
+	bh=oTIfa56JwSsNTBVIbymmQSEjsR106p+YKsLezXG9tC4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=nqo82Z5JkWSQ7WUOkIIz1dQyqFiGpYf9EZzbmruEuxCSzI/VJ+lMRpy7+OoM7iVfD
+	 1+xn2/HL6kJ5JTZXBVg5os2UFQaTCXidQk5ZRl1zWdLY9T9rhD6J9rAWiMJyf9vdRH
+	 l6KRoi+n4RCMG0XJIBiAXc8kvthybe1p7TubbayIt5H0+VNRYw1XKCWwgFoL8oVsKw
+	 zbNGUCjprsRcMC/nuGZXR5eQu5aHohTWbUsXdt9gDmYm/UyyTUIkIVHGwY3q3Pm1TH
+	 hTMMT20V+L9rCdsJ/ZYPG5TZP1LnWKNlU2upyXWk1ERpkNzsLDinSmDr9+zEwcb9oo
+	 9ObEW4F6FMs6Q==
+Date: Sun, 14 Jun 2026 23:34:05 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Guillermo =?utf-8?Q?Rodr=C3=ADguez?= <guille.rodriguez@gmail.com>
+Cc: Pierre-Yves MORDRET <pierre-yves.mordret@foss.st.com>, 
+	Alain Volmat <alain.volmat@foss.st.com>, Maxime Coquelin <mcoquelin.stm32@gmail.com>, 
+	Alexandre Torgue <alexandre.torgue@foss.st.com>, M'boumba Cedric Madianga <cedric.madianga@gmail.com>, 
+	Wolfram Sang <wsa@kernel.org>, Pierre-Yves MORDRET <pierre-yves.mordret@st.com>, 
+	linux-i2c@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, 
+	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: stm32f7: truncate clock period instead of rounding
+ it
+Message-ID: <ai8eGsfJN_IgJd2-@zenone.zhora.eu>
+References: <20260611104857.242153-1-guille.rodriguez@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260610142952.3335586-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
-In-Reply-To: <20260610142952.3335586-1-kernel-linux-20260610-80b7ab08@raman.v1.sg>
-From: Michael Zaidman <michael.zaidman@gmail.com>
-Date: Sun, 14 Jun 2026 12:36:00 +0300
-X-Gm-Features: AVVi8Ce4epODd7EyUdn-8D3EO5xEsrDf3SP-UUJGVD0bPFa4W7aiY6G9RUo7VLE
-Message-ID: <CAPnwWgOwtOib1UoOWYX1xVPFKDuXRQYkwEEuweGqo9H7BCXQ7w@mail.gmail.com>
-Subject: Re: [PATCH] HID: ft260: fix stack-use-after-return write in I2C read race
-To: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg>
-Cc: jikos@kernel.org, bentiss@kernel.org, linux-i2c@vger.kernel.org, 
-	linux-input@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260611104857.242153-1-guille.rodriguez@gmail.com>
 
-Hi Raman,
+Pierre-Yves,
 
-Thanks for this patch. The race is real and separate from the input
-report length checks already in for-7.1: those bound the HID report
-source, but do not protect read_buf lifetime after a timed-out read
-unwinds. A spinlock (not dev->lock) is the right fix for the IRQ/input
-path.
+any thought on this?
 
-For stable backport notes: did you reproduce the use-after-return, or
-was this found by inspection?
+Andi
 
-Optional hardening for v2: initialize read_lock before hid_hw_open(), or
-immediately after allocating dev, so a malicious USB device cannot hit
-spin_lock on an uninitialized lock during the brief probe window after
-the input path is live.
-
-I'm validating on FT260 hardware and will follow up on this thread with
-Tested-by when that is complete.
-
-Reviewed-by: Michael Zaidman <michael.zaidman@gmail.com>
-
-
-On Wed, Jun 10, 2026 at 5:30=E2=80=AFPM Raman Varabets
-<kernel-linux-20260610-80b7ab08@raman.v1.sg> wrote:
->
-> ft260_i2c_read() points dev->read_buf at a caller-supplied buffer
-> (often an on-stack variable), arms a completion and waits up to five
-> seconds for the device to return the data. The HID input callback
-> ft260_raw_event() runs in the input/IRQ path, independent of the
-> dev->lock mutex held by the read path, and copies the device-supplied
-> payload into dev->read_buf after a plain NULL check.
->
-> These two paths share read_buf, read_idx and read_len with no
-> serialization. If the device delays its response until the read
-> times out, ft260_i2c_read() resets the controller, clears read_buf
-> and returns, unwinding the stack frame the buffer lived in. A
-> response that arrives at that moment lets ft260_raw_event() pass the
-> NULL check and then memcpy() the device-controlled payload into the
-> now-freed stack location, a bounded but attacker-influenced
-> stack-use-after-return write triggerable by malicious or
-> malfunctioning hardware.
->
-> Add a dedicated spinlock that serializes every access to read_buf,
-> read_idx and read_len. ft260_raw_event() now holds it across the
-> NULL check, the memcpy and the index update, while the read path
-> takes it when arming and when clearing the buffer, so the teardown
-> can no longer slip between the check and the copy.
->
-> Fixes: 6a82582d9fa4 ("HID: ft260: add usb hid to i2c host bridge driver")
+On Thu, Jun 11, 2026 at 12:48:56PM +0200, Guillermo Rodríguez wrote:
+> stm32f7_i2c_compute_timing() derives the I2C clock source period
+> (i2cclk) with DIV_ROUND_CLOSEST, which may round it up. When the
+> period is overestimated, all timings computed from it (SCLDEL,
+> SDADEL, SCLL, SCLH) come out shorter on the wire than calculated,
+> and the resulting bus rate can exceed the requested speed, violating
+> the I2C specification minimums for tLOW and tHIGH.
+> 
+> For example, with a 104.45 MHz clock source (e.g. PCLK1, the
+> reset-default I2C clock source on STM32MP1), i2cclk is rounded from
+> 9.574 ns up to 10 ns. Requesting a 400 kHz fast mode bus with
+> 72/27 ns rise/fall times and no analog/digital filters then produces
+> an actual bus rate of 415.6 kHz with tLOW = 1254 ns, violating both
+> the 400 kHz maximum rate and the 1300 ns tLOW minimum of the
+> specification.
+> 
+> Truncate the period instead, so that it can only be underestimated.
+> The error then falls on the safe side: the programmed timings come
+> out slightly longer than computed and the bus runs marginally below
+> the target rate (375.3 kHz in the example above) while meeting the
+> specification.
+> 
+> i2cbus is left rounded-to-closest: it is only used as the target of
+> the clk_error comparison and is never multiplied into the programmed
+> timings, so nearest rounding remains accurate there.
+> 
+> Fixes: aeb068c57214 ("i2c: i2c-stm32f7: add driver")
 > Cc: stable@vger.kernel.org
-> Signed-off-by: Raman Varabets <kernel-linux-20260610-80b7ab08@raman.v1.sg=
->
+> Signed-off-by: Guillermo Rodríguez <guille.rodriguez@gmail.com>
 > ---
->  drivers/hid/hid-ft260.c | 25 ++++++++++++++++++++++++-
->  1 file changed, 24 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/hid/hid-ft260.c b/drivers/hid/hid-ft260.c
-> index 70e2eedb4..f47945954 100644
-> --- a/drivers/hid/hid-ft260.c
-> +++ b/drivers/hid/hid-ft260.c
-> @@ -240,6 +240,8 @@ struct ft260_device {
->         struct mutex lock;
->         u8 write_buf[FT260_REPORT_MAX_LENGTH];
->         unsigned long need_wakeup_at;
-> +       /* Protects read_buf, read_idx and read_len against ft260_raw_eve=
-nt() */
-> +       spinlock_t read_lock;
->         u8 *read_buf;
->         u16 read_idx;
->         u16 read_len;
-> @@ -501,6 +503,7 @@ static int ft260_i2c_read(struct ft260_device *dev, u=
-8 addr, u8 *data,
->         int timeout, ret =3D 0;
->         struct ft260_i2c_read_request_report rep;
->         struct hid_device *hdev =3D dev->hdev;
-> +       unsigned long irqflags;
->         u8 bus_busy =3D 0;
->
->         if ((flag & FT260_FLAG_START_REPEATED) =3D=3D FT260_FLAG_START_RE=
-PEATED)
-> @@ -526,9 +529,11 @@ static int ft260_i2c_read(struct ft260_device *dev, =
-u8 addr, u8 *data,
->
->                 reinit_completion(&dev->wait);
->
-> +               spin_lock_irqsave(&dev->read_lock, irqflags);
->                 dev->read_idx =3D 0;
->                 dev->read_buf =3D data;
->                 dev->read_len =3D rd_len;
-> +               spin_unlock_irqrestore(&dev->read_lock, irqflags);
->
->                 ret =3D ft260_hid_output_report(hdev, (u8 *)&rep, sizeof(=
-rep));
->                 if (ret < 0) {
-> @@ -543,7 +548,9 @@ static int ft260_i2c_read(struct ft260_device *dev, u=
-8 addr, u8 *data,
->                         goto ft260_i2c_read_exit;
->                 }
->
-> +               spin_lock_irqsave(&dev->read_lock, irqflags);
->                 dev->read_buf =3D NULL;
-> +               spin_unlock_irqrestore(&dev->read_lock, irqflags);
->
->                 if (flag & FT260_FLAG_STOP)
->                         bus_busy =3D FT260_I2C_STATUS_BUS_BUSY;
-> @@ -562,7 +569,9 @@ static int ft260_i2c_read(struct ft260_device *dev, u=
-8 addr, u8 *data,
->         } while (len > 0);
->
->  ft260_i2c_read_exit:
-> +       spin_lock_irqsave(&dev->read_lock, irqflags);
->         dev->read_buf =3D NULL;
-> +       spin_unlock_irqrestore(&dev->read_lock, irqflags);
->         return ret;
->  }
->
-> @@ -1018,6 +1027,7 @@ static int ft260_probe(struct hid_device *hdev, con=
-st struct hid_device_id *id)
->                  "FT260 usb-i2c bridge");
->
->         mutex_init(&dev->lock);
-> +       spin_lock_init(&dev->read_lock);
->         init_completion(&dev->wait);
->
->         ret =3D ft260_xfer_status(dev, FT260_I2C_STATUS_BUS_BUSY);
-> @@ -1067,6 +1077,7 @@ static int ft260_raw_event(struct hid_device *hdev,=
- struct hid_report *report,
+>  drivers/i2c/busses/i2c-stm32f7.c | 9 +++++++--
+>  1 file changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/i2c/busses/i2c-stm32f7.c b/drivers/i2c/busses/i2c-stm32f7.c
+> index 53d9df70ebe4..6439620d6bed 100644
+> --- a/drivers/i2c/busses/i2c-stm32f7.c
+> +++ b/drivers/i2c/busses/i2c-stm32f7.c
+> @@ -464,8 +464,13 @@ static int stm32f7_i2c_compute_timing(struct stm32f7_i2c_dev *i2c_dev,
 >  {
->         struct ft260_device *dev =3D hid_get_drvdata(hdev);
->         struct ft260_i2c_input_report *xfer =3D (void *)data;
-> +       unsigned long irqflags;
->
->         if (size < offsetof(struct ft260_i2c_input_report, data)) {
->                 hid_err(hdev, "short report %d\n", size);
-> @@ -1075,6 +1086,8 @@ static int ft260_raw_event(struct hid_device *hdev,=
- struct hid_report *report,
->
->         if (xfer->report >=3D FT260_I2C_REPORT_MIN &&
->             xfer->report <=3D FT260_I2C_REPORT_MAX) {
-> +               bool complete_read;
-> +
->                 ft260_dbg("i2c resp: rep %#02x len %d size %d\n",
->                           xfer->report, xfer->length, size);
->
-> @@ -1085,8 +1098,15 @@ static int ft260_raw_event(struct hid_device *hdev=
-, struct hid_report *report,
->                         return -1;
->                 }
->
-> +               /*
-> +                * Hold read_lock so a timed-out ft260_i2c_read() cannot
-> +                * clear read_buf between the NULL check and the memcpy.
-> +                */
-> +               spin_lock_irqsave(&dev->read_lock, irqflags);
-> +
->                 if ((dev->read_buf =3D=3D NULL) ||
->                     (xfer->length > dev->read_len - dev->read_idx)) {
-> +                       spin_unlock_irqrestore(&dev->read_lock, irqflags)=
-;
->                         hid_err(hdev, "unexpected report %#02x, length %d=
-\n",
->                                 xfer->report, xfer->length);
->                         return -1;
-> @@ -1095,8 +1115,11 @@ static int ft260_raw_event(struct hid_device *hdev=
-, struct hid_report *report,
->                 memcpy(&dev->read_buf[dev->read_idx], &xfer->data,
->                        xfer->length);
->                 dev->read_idx +=3D xfer->length;
-> +               complete_read =3D dev->read_idx =3D=3D dev->read_len;
-> +
-> +               spin_unlock_irqrestore(&dev->read_lock, irqflags);
->
-> -               if (dev->read_idx =3D=3D dev->read_len)
-> +               if (complete_read)
->                         complete(&dev->wait);
->
->         } else {
-> --
-> 2.54.0
->
+>  	struct stm32f7_i2c_spec *specs;
+>  	u32 p_prev = STM32F7_PRESC_MAX;
+> -	u32 i2cclk = DIV_ROUND_CLOSEST(NSEC_PER_SEC,
+> -				       setup->clock_src);
+> +	/*
+> +	 * Truncate instead of rounding to closest: if the clock period is
+> +	 * overestimated, the computed SCL timings will come out shorter on
+> +	 * the wire, which can push the bus above the target rate and below
+> +	 * the spec's tLOW/tHIGH minimums.
+> +	 */
+> +	u32 i2cclk = NSEC_PER_SEC / setup->clock_src;
+>  	u32 i2cbus = DIV_ROUND_CLOSEST(NSEC_PER_SEC,
+>  				       setup->speed_freq);
+>  	u32 clk_error_prev = i2cbus;
+> -- 
+> 2.25.1
+> 
