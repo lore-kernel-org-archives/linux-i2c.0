@@ -1,91 +1,119 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 375983E95BF
-	for <linux-i2c@vger.kernel.org>; Mon, 15 Jun 2026 12:24:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2BB430FC1E;
+	Mon, 15 Jun 2026 18:38:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781526251; cv=none; b=Ky6S7WRHRXHq+3L5crn2NbvAopCpOz3/FOE1LZwxYXDEsPaWIYO2f3Z9nZtfu5sdJEcyPS0k2l72Uq4nXI8g/ieiE3JqNsBHij5Px2XnLB31qdteqCmWVkZmsZ0J4Y/QLrtSKqzcH9dVMPlqS6TVCmrNkefhhg/zphd6J13N3Dc=
+	t=1781548709; cv=none; b=Z4J6AlusGzBurl/xVkppaFzctGjumNhLL4PfTzHem2XNzqpnEu9yIQlPY0OvUE1EQ3otB1Kr/D3HuDdvAOnCJGCNkmRSd12b77GU9YahpF+jIM74FDN7k/ddLLirC4/3UqwHlf6RB36mRZtg2ZK46NVNbc7Xe5HIvlCyw5NwnZ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781526251; c=relaxed/simple;
-	bh=fDKDIbRI6VFBNSqcLvsNNCda/9zyO9Rik34Yu35n3Eo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=JcEhYtIL03IwWzuXVp3DtlPjyjBwlGvdVzGyyc+aNS5jS2fT3LwKoCrCg6GBdD6mWJ0RSzYc7oeVYwoWOCuSGWEy+fChjUsdw9dgRzw/1I8RojI+xlYj2Sv3SYudhamVEl3zCPo1n3Tia3K2qzC1JdtmDczzz60DTfh9VSDxpaw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W4CyHR9E; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781548709; c=relaxed/simple;
+	bh=OyzbWOO5TbfjlH0v1zM6uLS9pUzdvGf/ddEuMujEFEA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IIn6/joY87/fnBgXbwzyKPz585feIjCtR1xdZRx0eLUF6ONHNn55rJL0gLxT8/hpAd4YkCouEGIsf3SK2+CLBoJMwlNoNneFsnDVLrXOMwhvS1RboxZdOq0MIY6B2aNwFtL5xrS+xR+uWKlLu0UhRo76J2/AIsKuwXYW4L6u1mU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=U+utUQIU; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W4CyHR9E"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C99391F000E9
-	for <linux-i2c@vger.kernel.org>; Mon, 15 Jun 2026 12:24:09 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="U+utUQIU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 058691F000E9;
+	Mon, 15 Jun 2026 18:38:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781526249;
-	bh=fDKDIbRI6VFBNSqcLvsNNCda/9zyO9Rik34Yu35n3Eo=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=W4CyHR9EFCbPvEvW6x/sRF8AEWL//J/tYbv41cnZNO4ie/WItvXhdccAkD/fqVlLo
-	 Qy1i5q0h0iK9AdSlM7E9oCMxxgQXxvS6uGqCUcOVsg0djpROU2nKPtWKI0YccuvOv+
-	 tsj/DnCDeCquTUCmM+pjsC4HBnmXk2mN9kYif0ziD+HYJ+uGQYXdGzeEgicHOxsBQa
-	 OUM9IgNF4PviVle1MzdJWt2QAMCnrgqXhDPssDfRwBEAM40DOtW7X1gTijBReS4vOS
-	 La21eYgwrgB9zMEbsAWYJ6u1IYnggphiHxY+dcDvUiJ9bI1FQUOnT1vB3x9Gl7WuIr
-	 sISJ6Af54zLaA==
-Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5aa624ff3cbso3123185e87.3
-        for <linux-i2c@vger.kernel.org>; Mon, 15 Jun 2026 05:24:09 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ+sFbegC3celGrLibFmpREKuGeoP+1z6zFQ3eNadaKzaneT5Jncj3MkMIvOgr4t2smCHL9sPYjEc24=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwMfIur3oZVJ6J8aDP+mxrK9mq5vZDzC5wtBRwE2/LKz5cortq9
-	5DITnXh3CBgkQPtYbYJeyeFyyGejYghk4Q4HtrUprFlggMyC9Kg5cwAQddQEnx0unVywFCwT0PP
-	AeVH2KSPzlCaUtJoEST7uV9iRIfhge20=
-X-Received: by 2002:a05:6512:12cc:b0:5ad:3035:b355 with SMTP id
- 2adb3069b0e04-5ad3035b409mr3672367e87.51.1781526248636; Mon, 15 Jun 2026
- 05:24:08 -0700 (PDT)
+	s=k20260515; t=1781548707;
+	bh=VBghOhs59Hv7GVeG9wZkMM+I73/bgPvjyg413BNuOGw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=U+utUQIU4xOlalCDtjcO2JIYvVmmFWTWSEKTW2j87q0zniyPn5Dq5NSCkrRJjlaj5
+	 AZvojyELN/DEY7txGKTcUMMZJ581u24zL7E70poVgcKBDTxQww+LdJOcyBKqgaosEe
+	 ybrg7nayzlYhGQRQZJi5DGPHC6RNaP+3MbbO4XGH1dwJmIXCgTE6J7/eGBar0/J82Z
+	 A+MPduhHRE+J4LWFlMLVcsqo57TVDso5VPimPrLYH3W15nbbpdTJOHFpDWSa6lqABC
+	 W7Bn/2rDf0Kc3VCBaxj9D3JYGUIU6iSl+5FErftpl1oasf6l8ngFK4tEZWDocELGxa
+	 NF25UtLrcfGHg==
+Date: Mon, 15 Jun 2026 20:38:24 +0200
+From: Thierry Reding <thierry.reding@kernel.org>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: linux-i2c@vger.kernel.org, Thierry Reding <treding@nvidia.com>, 
+	Peter Rosin <peda@lysator.liu.se>, Andi Shyti <andi.shyti@kernel.org>, 
+	Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+	Conor Dooley <conor+dt@kernel.org>, devicetree@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: i2c: i2c-mux-pinctrl: change maintainer
+Message-ID: <ajBGibftf679T6P4@arch.a226c7d-lcedt>
+References: <20260611122704.7559-2-wsa+renesas@sang-engineering.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260610083701.18663-1-hardikprakash.official@gmail.com>
- <ai8jhK9hUGHpojB5@zenone.zhora.eu> <ai_PwNWnMZB01AYU@ashevche-desk.local>
- <ai_cAd41W3iX1ic-@zenone.zhora.eu> <ai_d4eIId8Ml9g7I@ninjato>
-In-Reply-To: <ai_d4eIId8Ml9g7I@ninjato>
-From: Linus Walleij <linusw@kernel.org>
-Date: Mon, 15 Jun 2026 14:23:56 +0200
-X-Gmail-Original-Message-ID: <CAD++jLkdSLdVwyHPQO_Gd0LxOQFkGg_BbR3eaN=wK8NfwyBshA@mail.gmail.com>
-X-Gm-Features: AVVi8CenT0lElz7kWDZ7uYPZwz8DrIaXZfHVKMycL0kDDYu1zMAnWS--4lBrxMs
-Message-ID: <CAD++jLkdSLdVwyHPQO_Gd0LxOQFkGg_BbR3eaN=wK8NfwyBshA@mail.gmail.com>
-Subject: Re: [PATCH] Revert "i2c: designware: defer probe if child GpioInt
- controllers are not bound"
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Andi Shyti <andi.shyti@kernel.org>, Andy Shevchenko <andriy.shevchenko@intel.com>, 
-	Hardik Prakash <hardikprakash.official@gmail.com>, linux-i2c@vger.kernel.org, 
-	linux-gpio@vger.kernel.org, wsa@kernel.org, mario.limonciello@amd.com, 
-	brgl@bgdev.pl, basavaraj.natikar@amd.com, nathan@kernel.org, 
-	chaitanya.kumar.borah@intel.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="s2jlv5kbsum3rita"
+Content-Disposition: inline
+In-Reply-To: <20260611122704.7559-2-wsa+renesas@sang-engineering.com>
+
+
+--s2jlv5kbsum3rita
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH] dt-bindings: i2c: i2c-mux-pinctrl: change maintainer
+MIME-Version: 1.0
 
-On Mon, Jun 15, 2026 at 1:11=E2=80=AFPM Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
+On Thu, Jun 11, 2026 at 02:26:24PM +0200, Wolfram Sang wrote:
+> The YAML conversion added me as maintainer but I can't recall being
+> asked nor do I want to maintain it. Thierry has created the YAML file
+> and works for the company which contributed the driver.
+>=20
+> Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+> ---
+>=20
+> @Thierry: are you okay with this change?
+>=20
+>  Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.yaml | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> diff --git a/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.yaml b=
+/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.yaml
+> index 2e3d555eb96c..f7502da71909 100644
+> --- a/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.yaml
+> +++ b/Documentation/devicetree/bindings/i2c/i2c-mux-pinctrl.yaml
+> @@ -7,7 +7,7 @@ $schema: http://devicetree.org/meta-schemas/core.yaml#
+>  title: Pinctrl-based I2C Bus Mux
+> =20
+>  maintainers:
+> -  - Wolfram Sang <wsa@kernel.org>
+> +  - Thierry Reding <treding@nvidia.com>
+> =20
+>  description: |
+>    This binding describes an I2C bus multiplexer that uses pin multiplexi=
+ng to route the I2C
 
-> > > $ git tag --contains ef76a3a28c79b6288
-> > > next-20260601
-> > > next-20260602
-> > > next-20260603
-> > > next-20260604
-> > > next-20260605
-> > > next-20260608
-> > > next-20260609
-> > > next-20260610
-> > > next-20260611
-> >
-> > Yes, but I'm not finding out how it got there. I only see it in
-> > one of Wolfram's branches, but I don't think it came in that way.
->
-> IIRC I asked Linus Walleij to handle this via the GPIO tree because the
-> proper fix landed there and the I2C addition was a mere cleanup from a
-> previous attempt to fix the issue.
+By default I used to list the subsystem maintainer as the bindings
+maintainer if the binding wasn't Tegra-specific, or in this case the
+original author wasn't active anymore.
 
-So this revert is not in my tree because it isn't needed: I never
-sent the patch it is reverting to Torvalds to begin with. I even mentioned
-this in my pull request to him: by being so lazy in sending my fixes
-upstream I avoided the whole ordeal. Maybe I should always be lazy.
+I'm fine being listed as the maintainer for this if you don't want to,
+but I prefer to use the thierry.reding@kernel.org email address for
+communication.
 
-Yours,
-Linus Walleij
+With that:
+
+Acked-by: Thierry Reding <treding@nvidia.com>
+
+--s2jlv5kbsum3rita
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEiOrDCAFJzPfAjcif3SOs138+s6EFAmowRqAACgkQ3SOs138+
+s6H/0hAAiL5m3v8/0iDHbAr6zygitZtIb5m5ajtivUoOfBkqdSdQck37bSS+XpSu
+e6nbVNKb5Lx9+roE6EYmsX6/77wu5aoqSouWCvus/s+5nciactIk0587oMxm6SjN
+e6pVImNKlj5H7O/Pf2iSrUkfuy1ir6GKl3Y03+jcjzAU+b7T2ytiA5zEJHjuHlZg
+DMz5PeVF5PyWd1i45WA4QImoIBBjyBelQVX2wB1wbAhNuiEdPsMQjl1V3Jncd8M+
+qXJWducnMjUabbH2YBeC6q1pHNXzz6XYAcdkQO4kQeCScxywLkAjMj+RcwJYBup1
+7QZ9RTQmWgCe93UAMeYhgGxuvi18NA4vklfep+sEZb+C6dCEVYmZX1eHnpQW+H03
+CDQSIGYWxtdIH3IWx0y+HKXZuaMQ2Z47/wi9Wkxb4EjP6NeEKOBZbdT7kuyfoGxJ
+2CN0mSJOed6IO8zMad0tSqkIwUrrYedjjI0cA3aH84Oyu25gBkwsyFc07EZV/sMX
+Uw7ex/cpNuhUNWmYXgvlDnMe/MfPHC+4KmCsoGDLCUwF3QCy7JLR4ce4J5gYVqs1
+dN4G6fuw9Q0WZb2waEbYuHxo8RZXzxisV044drPh01XkETIWsmBIiD/HttgxV0+u
+vd4f3M8zu9wPD7MJHoMf3NkiU265XNqphbj6xsIOjj6qjyQ+VBo=
+=T6jY
+-----END PGP SIGNATURE-----
+
+--s2jlv5kbsum3rita--
