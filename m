@@ -1,85 +1,91 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C53B3E7BA0
-	for <linux-i2c@vger.kernel.org>; Mon, 15 Jun 2026 12:21:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 375983E95BF
+	for <linux-i2c@vger.kernel.org>; Mon, 15 Jun 2026 12:24:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781526084; cv=none; b=R2kde7UcSvNhxRYBN/zVQfTSertGoXTCIny3vQdRqy9LGVkvPWH4SEj0k6FonppWQ/LFTC1tlY0NEthIwuItTPg2R5pYA++v/nWVqpr8HslxaJ7WNwLyRHEAb+aKajIVVA/Jyeu3n9s+vggzfKVPQ5mqCGcXEzzFGcxyDqdmi1g=
+	t=1781526251; cv=none; b=Ky6S7WRHRXHq+3L5crn2NbvAopCpOz3/FOE1LZwxYXDEsPaWIYO2f3Z9nZtfu5sdJEcyPS0k2l72Uq4nXI8g/ieiE3JqNsBHij5Px2XnLB31qdteqCmWVkZmsZ0J4Y/QLrtSKqzcH9dVMPlqS6TVCmrNkefhhg/zphd6J13N3Dc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781526084; c=relaxed/simple;
-	bh=ROD8BjDuhqrcHGOg3YU5pJx9aeO2ZrsENA67Q221pek=;
+	s=arc-20240116; t=1781526251; c=relaxed/simple;
+	bh=fDKDIbRI6VFBNSqcLvsNNCda/9zyO9Rik34Yu35n3Eo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=gWS/GJLff1Ltu9JmBUl2k8GK7A+iSSiu/Y+CSfVpMEyg/QNmo75remL5p2oVh2T9exHhqHMVM0SfehDjIUPwtfk3X4g9w8DuRRFla2XbIlT+jhN0JHjxhLA6kATrk7jrYegsyLUpttZbjZwLiwCa2nqDv7GLauxDd9R5jXJ53QU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MkOVC1W3; arc=none smtp.client-ip=100.103.45.18
+	 To:Cc:Content-Type; b=JcEhYtIL03IwWzuXVp3DtlPjyjBwlGvdVzGyyc+aNS5jS2fT3LwKoCrCg6GBdD6mWJ0RSzYc7oeVYwoWOCuSGWEy+fChjUsdw9dgRzw/1I8RojI+xlYj2Sv3SYudhamVEl3zCPo1n3Tia3K2qzC1JdtmDczzz60DTfh9VSDxpaw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W4CyHR9E; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MkOVC1W3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C9971F00ACA
-	for <linux-i2c@vger.kernel.org>; Mon, 15 Jun 2026 12:21:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W4CyHR9E"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C99391F000E9
+	for <linux-i2c@vger.kernel.org>; Mon, 15 Jun 2026 12:24:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781526083;
-	bh=F/R26Myyl0yIhGDi/iXaNrHDLf/HQBvBtxQkw+f6av0=;
+	s=k20260515; t=1781526249;
+	bh=fDKDIbRI6VFBNSqcLvsNNCda/9zyO9Rik34Yu35n3Eo=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=MkOVC1W3ae0yWWtsGOcuUFNtaGeCwRKcGjsxebAvK3Kooo/iGRyV1LK9XkneRwnbU
-	 Y7cQJwC6xQJVxrMDUZvPWWk7nK3KE30O+9f/DdZySbIh7BCqtDJdVIvI13aJtqkGNd
-	 tfZl+XZQDTNfKy+YsbRfX0pzKggYa7EtOR6/wZH0NOldCpGp+D/dpsEce9GqRFXiMH
-	 0yOi862Ui9Mbg9c1oD/whS26InRATQXCphBhqhht3tKyVeWk9j2dRWyq2VNgxE2nCH
-	 pSew8sAQmdyx9lZ+kOyS/hke9Qau7olrMIidVBBneAL0WKL0Ge6XndE4m12G7f8tqZ
-	 OFImQJlj0V6KA==
-Received: by mail-lf1-f41.google.com with SMTP id 2adb3069b0e04-5aa7a70c0aaso2945061e87.0
-        for <linux-i2c@vger.kernel.org>; Mon, 15 Jun 2026 05:21:22 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ9R71J6ApPUbL4bXGuttvO56e9EU/tjRZqvzpMKdmVTlxw4VQTIkdEzdmORcxih2t8874GuVnTE6r8=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxSpCsfrnUp8yfPg/a92h08fjTX5tzz59i86mi8W+sYjNzD1Oav
-	V7dmD4T94rOwb/cbQ0Ur9pMOnStBysWO62Os5Gr2CqmlXe7o5dKQyPHupCsjl46VtZ5mNeQJ5E/
-	yfkrURcdyQow/vftf3tUGd8SYXFf9FPA=
-X-Received: by 2002:ac2:42d5:0:b0:5aa:8824:1571 with SMTP id
- 2adb3069b0e04-5ad2db8b01emr2615896e87.49.1781526081757; Mon, 15 Jun 2026
- 05:21:21 -0700 (PDT)
+	b=W4CyHR9EFCbPvEvW6x/sRF8AEWL//J/tYbv41cnZNO4ie/WItvXhdccAkD/fqVlLo
+	 Qy1i5q0h0iK9AdSlM7E9oCMxxgQXxvS6uGqCUcOVsg0djpROU2nKPtWKI0YccuvOv+
+	 tsj/DnCDeCquTUCmM+pjsC4HBnmXk2mN9kYif0ziD+HYJ+uGQYXdGzeEgicHOxsBQa
+	 OUM9IgNF4PviVle1MzdJWt2QAMCnrgqXhDPssDfRwBEAM40DOtW7X1gTijBReS4vOS
+	 La21eYgwrgB9zMEbsAWYJ6u1IYnggphiHxY+dcDvUiJ9bI1FQUOnT1vB3x9Gl7WuIr
+	 sISJ6Af54zLaA==
+Received: by mail-lf1-f53.google.com with SMTP id 2adb3069b0e04-5aa624ff3cbso3123185e87.3
+        for <linux-i2c@vger.kernel.org>; Mon, 15 Jun 2026 05:24:09 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ+sFbegC3celGrLibFmpREKuGeoP+1z6zFQ3eNadaKzaneT5Jncj3MkMIvOgr4t2smCHL9sPYjEc24=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwMfIur3oZVJ6J8aDP+mxrK9mq5vZDzC5wtBRwE2/LKz5cortq9
+	5DITnXh3CBgkQPtYbYJeyeFyyGejYghk4Q4HtrUprFlggMyC9Kg5cwAQddQEnx0unVywFCwT0PP
+	AeVH2KSPzlCaUtJoEST7uV9iRIfhge20=
+X-Received: by 2002:a05:6512:12cc:b0:5ad:3035:b355 with SMTP id
+ 2adb3069b0e04-5ad3035b409mr3672367e87.51.1781526248636; Mon, 15 Jun 2026
+ 05:24:08 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260610083701.18663-1-hardikprakash.official@gmail.com> <ai8jhK9hUGHpojB5@zenone.zhora.eu>
-In-Reply-To: <ai8jhK9hUGHpojB5@zenone.zhora.eu>
+References: <20260610083701.18663-1-hardikprakash.official@gmail.com>
+ <ai8jhK9hUGHpojB5@zenone.zhora.eu> <ai_PwNWnMZB01AYU@ashevche-desk.local>
+ <ai_cAd41W3iX1ic-@zenone.zhora.eu> <ai_d4eIId8Ml9g7I@ninjato>
+In-Reply-To: <ai_d4eIId8Ml9g7I@ninjato>
 From: Linus Walleij <linusw@kernel.org>
-Date: Mon, 15 Jun 2026 14:21:08 +0200
-X-Gmail-Original-Message-ID: <CAD++jLkZfFRBdbMzs3arLu61OO9KcJpS1pB18e4gdyu5PADvhQ@mail.gmail.com>
-X-Gm-Features: AVVi8CelMRVH7oTzrLtejJtW_HL-yUSQgpLF7pD3CatF0zFZ_HBArAsp2CAL2-c
-Message-ID: <CAD++jLkZfFRBdbMzs3arLu61OO9KcJpS1pB18e4gdyu5PADvhQ@mail.gmail.com>
+Date: Mon, 15 Jun 2026 14:23:56 +0200
+X-Gmail-Original-Message-ID: <CAD++jLkdSLdVwyHPQO_Gd0LxOQFkGg_BbR3eaN=wK8NfwyBshA@mail.gmail.com>
+X-Gm-Features: AVVi8CenT0lElz7kWDZ7uYPZwz8DrIaXZfHVKMycL0kDDYu1zMAnWS--4lBrxMs
+Message-ID: <CAD++jLkdSLdVwyHPQO_Gd0LxOQFkGg_BbR3eaN=wK8NfwyBshA@mail.gmail.com>
 Subject: Re: [PATCH] Revert "i2c: designware: defer probe if child GpioInt
  controllers are not bound"
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Hardik Prakash <hardikprakash.official@gmail.com>, linux-i2c@vger.kernel.org, 
-	linux-gpio@vger.kernel.org, wsa@kernel.org, andriy.shevchenko@intel.com, 
-	mario.limonciello@amd.com, brgl@bgdev.pl, basavaraj.natikar@amd.com, 
-	nathan@kernel.org, chaitanya.kumar.borah@intel.com
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Andi Shyti <andi.shyti@kernel.org>, Andy Shevchenko <andriy.shevchenko@intel.com>, 
+	Hardik Prakash <hardikprakash.official@gmail.com>, linux-i2c@vger.kernel.org, 
+	linux-gpio@vger.kernel.org, wsa@kernel.org, mario.limonciello@amd.com, 
+	brgl@bgdev.pl, basavaraj.natikar@amd.com, nathan@kernel.org, 
+	chaitanya.kumar.borah@intel.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Sun, Jun 14, 2026 at 11:57=E2=80=AFPM Andi Shyti <andi.shyti@kernel.org>=
- wrote:
+On Mon, Jun 15, 2026 at 1:11=E2=80=AFPM Wolfram Sang
+<wsa+renesas@sang-engineering.com> wrote:
 
-> On Wed, Jun 10, 2026 at 02:07:01PM +0530, Hardik Prakash wrote:
-> > This reverts commit ef76a3a28c79b628890431aa344af633e892035b.
+> > > $ git tag --contains ef76a3a28c79b6288
+> > > next-20260601
+> > > next-20260602
+> > > next-20260603
+> > > next-20260604
+> > > next-20260605
+> > > next-20260608
+> > > next-20260609
+> > > next-20260610
+> > > next-20260611
+> >
+> > Yes, but I'm not finding out how it got there. I only see it in
+> > one of Wolfram's branches, but I don't think it came in that way.
 >
-> Is this in your branch?
+> IIRC I asked Linus Walleij to handle this via the GPIO tree because the
+> proper fix landed there and the I2C addition was a mere cleanup from a
+> previous attempt to fix the issue.
 
-Nope. It was too late for me to handle as fix, what was merged for fixes wa=
-s
-this:
-
-commit 3f786abd23951f3f600a62fef42469d9200d5f52
-Author: Hardik Prakash <hardikprakash.official@gmail.com>
-Date:   Fri May 29 15:38:36 2026 +0530
-
-    Revert "pinctrl-amd: enable IRQ for WACF2200 touchscreen on Lenovo
-Yoga 7 14AGP11"
-
-    This reverts commit 3812a9e84265a5cdd90d29fe8d97a023e91fb945.
-
-This needs to go through the i2c tree at this point.
+So this revert is not in my tree because it isn't needed: I never
+sent the patch it is reverting to Torvalds to begin with. I even mentioned
+this in my pull request to him: by being so lazy in sending my fixes
+upstream I avoided the whole ordeal. Maybe I should always be lazy.
 
 Yours,
 Linus Walleij
