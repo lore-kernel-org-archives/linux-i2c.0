@@ -1,271 +1,101 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CE063D5258
-	for <linux-i2c@vger.kernel.org>; Mon, 15 Jun 2026 08:34:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C7BB3DDDBD;
+	Mon, 15 Jun 2026 10:11:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781512501; cv=none; b=HFHj3GoTruzCZm+LQR3NpokYG/CAm3/j8BIesXSnVIo+3aUcbVTGT9/DZnWflzeiBbURvUJfuW6i+ENlt7/+2WttE7CZlGqQ/946uDqjrG8RrU9R5rEbW++6/0nxC+sLtKTVUmbAYPanMruRn2mDIlEAz5Z08Pnwh7fI9U7B/Fs=
+	t=1781518287; cv=none; b=Mya0t+QP0z/KNJ8J/Y6O5spqk67SUdQi44kcOvc88wA59wkro0maegKJ+DQGTh8Lj0fn5gSrE5fd55HIJhjBVfVucbrvuJDcrmHphwKbvZLEMUHa5PC/ycGxU/j1Qu3AyraHalcXrrQ6RHK1tsfK0uDR5ca8c+lipAvK6HaRIyI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781512501; c=relaxed/simple;
-	bh=86sXsUvCK/NB9tywTPkpmKSS/j4crBI4S0ZLvrfM82s=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=evCmzRY++az6Wf98v0CSReoIXW4gIw58dNm1JhSeh49B00MZqGBMZJfzHwDrFY758x3IkM2YOb7Apps+GxD3re6Ht25ExDGFtAivHkvm5GJLznMoQKEXn1j7YyqPFq0q9gNRltSBUpFiinpykUmIJYKKtB1AQ635guZtSycUP3c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=ItH0BGHk; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=GlmMJmg0; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1781518287; c=relaxed/simple;
+	bh=+pe7I+pGcuEyQuV3pMocPIz86SRmDdG4odXqqYhA4Co=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=oEmwna8tFpVKJAMyaLe6IzkwT0OLEyP+2c5hU+NbCDcqwBJNXZBiinrqE/Pceh40CnLUOkZw4LS0G7yjAj3Wnj4h1goYlrTR7tmS1simLjQmq80aMPhtGh/FOej5O+PXLcwpflpYk8v2LrkKuo4qWw/lwwYIUsqxNsaK9yPEGHM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=GiXflqdq; arc=none smtp.client-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="ItH0BGHk";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="GlmMJmg0"
-Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65F6J5sf3346821
-	for <linux-i2c@vger.kernel.org>; Mon, 15 Jun 2026 08:34:52 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	oJgy3DNUy2GB+MmvGxEQQo/FlAt4h4kNu4Jgs7rdybA=; b=ItH0BGHkBKyR+U5m
-	x3wQnYg0Z0NMz//fDUahmabf1yJfN9UNQHd+Uqi1Ob5MD7+OxcBP7pJ9ab17wwsN
-	sgHuUPt7tmzX3Q1TYNBwHPPIBtUkxjSgFVfqFYhd9wsd8vSv4TfnPZSZdSzk98tS
-	/WYub2QPRIoKjZF9W9o+Nnu4nF/px1yHSDhTkW0CprlKESgZQH7fvS6F3MFDxmPU
-	AO72m3BfbGOnMADgsPWgTpIqKxY9Ac5kioHnC+2oAnZLAL5XZMecRsJSH/NxRiqj
-	FuZi2h2BXvMkY15+yglgc747bgmvJT9rW0d6vQwguu1p6Q9yPKl23OdRnWGtf0KZ
-	BamU/Q==
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4es0g86es0-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Mon, 15 Jun 2026 08:34:52 +0000 (GMT)
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-36e09ec696aso5221971a91.0
-        for <linux-i2c@vger.kernel.org>; Mon, 15 Jun 2026 01:34:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1781512492; x=1782117292; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=oJgy3DNUy2GB+MmvGxEQQo/FlAt4h4kNu4Jgs7rdybA=;
-        b=GlmMJmg0Rc6CyTiUjsuL/u9JBvBW687GcoVW7NqLjGJUZRQ6sEK1BW6hltOHW59X9Q
-         I//joR2CwScZTeYBllIWQxTbWo3zTADpgjWTwn+y1q7im1gT78bcfPzZ1ZCp1MwP2Lc8
-         /4aJLErlAHoexqqnhOHSmlpolJo+bBs23mc0CcMyeAmSoM6PiM0xOu332ELY+y9KLK4N
-         /2Sik0QqDSHhvMBZlDevmIAOIypYW1UgqdVKUWlBoTs95wh+EKNBYRVTm4OhpPUBZC4e
-         5Ovh0Rp3wexVRlp8bH6CxRLwpyppKjs4PmHquEWatSWIEbSyHCKR4wsAByD9WlZtYB0T
-         l4+A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781512492; x=1782117292;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=oJgy3DNUy2GB+MmvGxEQQo/FlAt4h4kNu4Jgs7rdybA=;
-        b=E2KslX+SNic6JcPcGF5IhQ7hpIjj8+ujnk9cL7djEowYUeb9VpE0fw9U9A53e8cUZM
-         hLzHD8KzkFJ7DzKdnIVEPCHeNnkUOhEu97Eel9WWO1yCGKYbFNFAhzDzMq23NfikEu8d
-         9TadkrKss04kIXlRqx7AdX7eKgQzflRHYdWnGJnCpMs2bmCOyaeytBYtzVz9cylIjhYp
-         j/Ib2UIJKDWr5jSLQgxiHDwVd3+RfCEh6BL0vdBYVjQ14qm4XPFvT3uoRMm9MknZ1036
-         tTsxICLz7QFQR1wKCk5xvF1Qugz6h2f09sBhaqdaOWtt2YRNm0o0V35EexccQbS7c+yO
-         HZqg==
-X-Forwarded-Encrypted: i=1; AFNElJ8LDT4L+TTaSwUTOJiDy0bNkZ86loqG/cJ69mCMD+tzbJyRbl29c8qZbbEP6p0fC0KqmFJbO9JJm5o=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxieYsEDbGgQGQy1SlyRuwkF9+xLsp2a/7KcHWfdKg+fBH5eF7a
-	OQBrXzEjTJR8k2ZKPvRFuWZx+BGwmJ22t8nXpIe87b/94cJ5wcK1ZGr/inaBUcrRvygwlrHuTqP
-	SaPp5LPKDvrwOgJOqQZWLfhd6vmAPwPCplzJUM8fzb+4ShHM7rlllvJIohbUDrk8=
-X-Gm-Gg: Acq92OFuBdNc3tIIAcFAFsN9/bOuA1jykRdTUHT+WNCMj5Iukg0ZqmOovkj3poHsOTf
-	kuq8ohf5s3tmi5t7bCNbl89ONRJN0pmoPD/0W84uMDUVSEA47mhUVWTja5bVfGF0+RDFT+ajZwI
-	rBRWHvBD7rfQCZUSfzu7wIYrE9zOJmmUqYyaq01q6HJBskdpgATd8Vzj6o34vJ6h/yaObK4bVZl
-	t7avd4IboBnppAvRWQzNryNio+m9esbVIFOPKhtdN9+2zkIUdXo5n1QzeK4x2diIYl5aaP70s7M
-	TEXAYouBNljiIAzyJmwQBl26+MY+aNpWbg54Xeaxba0aPEdfCoTRQAaE2jXJHMC82ePJDRX+aF+
-	gRHpl69m1C4cVp4jbgSsMSFGC9yUDesXRIvuNJNv//G7ua+dDijEu
-X-Received: by 2002:a17:903:2f0b:b0:2c6:9448:363a with SMTP id d9443c01a7336-2c694483867mr7693415ad.20.1781512491803;
-        Mon, 15 Jun 2026 01:34:51 -0700 (PDT)
-X-Received: by 2002:a17:903:2f0b:b0:2c6:9448:363a with SMTP id d9443c01a7336-2c694483867mr7693085ad.20.1781512491308;
-        Mon, 15 Jun 2026 01:34:51 -0700 (PDT)
-Received: from hu-nihalkum-hyd.qualcomm.com ([202.46.23.25])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c42f7c70easm122789235ad.25.2026.06.15.01.34.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 15 Jun 2026 01:34:51 -0700 (PDT)
-From: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
-Date: Mon, 15 Jun 2026 14:03:59 +0530
-Subject: [PATCH v4 6/6] arm64: dts: qcom: shikra-iqs-evk-imx577-camera: Add
- DT overlay
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="GiXflqdq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1781518279; x=1813054279;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=+pe7I+pGcuEyQuV3pMocPIz86SRmDdG4odXqqYhA4Co=;
+  b=GiXflqdqVuaaN3mIhxIut3WtlbeT4/35tT4m3GbsATV8ov6fI/QJu1gF
+   0ZKOAeBg236c7EW5QGZTf/+JX3lrLYEat0YuzW8sFpS7QFxAe/GZSyvJ6
+   NZq0MRtBN4I/py9RnOXtydVR/00Z1Z3OwTH7i+Jo2a6TBoH56UBytMBBx
+   exS8+S1A73P/Tt6AAdwNMKmsVwNhSnA7+C0o17H+smFsl7z2CPZF6VV3z
+   qIAhEUBwE/Ob+yT6PPNpjybXc93OyZPKwyeFkU7hAgc9d+fyW9OA2Sfj/
+   XpjYTEJxRhXh03Qiz7qFPpJJbrN2ajC2VAlvxpT9sd7j92/3SyUk7Q5Sx
+   Q==;
+X-CSE-ConnectionGUID: tdQ8d960S2yYCLX/CslZag==
+X-CSE-MsgGUID: iVCY9xikQUy+acjqC5KDXg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11817"; a="82101607"
+X-IronPort-AV: E=Sophos;i="6.24,206,1774335600"; 
+   d="scan'208";a="82101607"
+Received: from orviesa010.jf.intel.com ([10.64.159.150])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jun 2026 03:11:18 -0700
+X-CSE-ConnectionGUID: 3tky9ysbQXa3ipU940FJuQ==
+X-CSE-MsgGUID: ASWpRmhqQfCA+w1mjafYDw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,206,1774335600"; 
+   d="scan'208";a="246542293"
+Received: from ettammin-mobl3.ger.corp.intel.com (HELO localhost) ([10.245.245.235])
+  by orviesa010-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 15 Jun 2026 03:11:15 -0700
+Date: Mon, 15 Jun 2026 13:11:12 +0300
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: Hardik Prakash <hardikprakash.official@gmail.com>,
+	linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org,
+	wsa@kernel.org, mario.limonciello@amd.com, brgl@bgdev.pl,
+	basavaraj.natikar@amd.com, linusw@kernel.org, nathan@kernel.org,
+	chaitanya.kumar.borah@intel.com
+Subject: Re: [PATCH] Revert "i2c: designware: defer probe if child GpioInt
+ controllers are not bound"
+Message-ID: <ai_PwNWnMZB01AYU@ashevche-desk.local>
+References: <20260610083701.18663-1-hardikprakash.official@gmail.com>
+ <ai8jhK9hUGHpojB5@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260615-shikra-camss-review-v4-6-bcb51081735b@oss.qualcomm.com>
-References: <20260615-shikra-camss-review-v4-0-bcb51081735b@oss.qualcomm.com>
-In-Reply-To: <20260615-shikra-camss-review-v4-0-bcb51081735b@oss.qualcomm.com>
-To: Bryan O'Donoghue <bod@kernel.org>,
-        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Loic Poulain <loic.poulain@oss.qualcomm.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley <conor+dt@kernel.org>, Robert Foss <rfoss@kernel.org>,
-        Andi Shyti <andi.shyti@kernel.org>,
-        Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>, Frank Li <Frank.Li@nxp.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>
-Cc: linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-i2c@vger.kernel.org, imx@lists.linux.dev,
-        linux-arm-kernel@lists.infradead.org,
-        Suresh Vankadara <quic_svankada@quicinc.com>,
-        Vikram Sharma <vikram.sharma@oss.qualcomm.com>,
-        Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1781512439; l=3663;
- i=nihal.gupta@oss.qualcomm.com; s=20260608; h=from:subject:message-id;
- bh=86sXsUvCK/NB9tywTPkpmKSS/j4crBI4S0ZLvrfM82s=;
- b=AFevhZYVm8Sy6eMT0e5zugn9wRNuGPmB4Eb2NMT60RbAak8HDv5GHGmoVsN1fBNKodTiSyOya
- O3sH+ge32u1B7ZJY91uPTVO9Dt5/+Yx/hEqBlRJY7ICzkR+Jcbv/pGb
-X-Developer-Key: i=nihal.gupta@oss.qualcomm.com; a=ed25519;
- pk=DIbyFMNwqU/iMvU/0pCQp2wmRVgtHFBT3PcSu+A+Ncw=
-X-Authority-Analysis: v=2.4 cv=OOoXGyaB c=1 sm=1 tr=0 ts=6a2fb92c cx=c_pps
- a=vVfyC5vLCtgYJKYeQD43oA==:117 a=ZePRamnt/+rB5gQjfz0u9A==:17
- a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=YMgV9FUhrdKAYTUUvYB2:22
- a=KKAkSRfTAAAA:8 a=EUspDBNiAAAA:8 a=OGCdAuOInqFJiNoUztwA:9 a=QEXdDO2ut3YA:10
- a=rl5im9kqc5Lf4LNbBjHf:22 a=cvBusfyB2V15izCimMoJ:22
-X-Proofpoint-GUID: xNpN2r6Py3bU7YBo3nKUonWgAlDfzT-Y
-X-Proofpoint-ORIG-GUID: xNpN2r6Py3bU7YBo3nKUonWgAlDfzT-Y
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE1MDA4OSBTYWx0ZWRfX3d4q/o2KTcMr
- zJ2n3tCQ8aGeBG/fTIDptTaRwAauSHwn+EAbLAowINq2CfvyIIgjFPH5jLt+0jlb0fNzS7pIH9R
- VGLCwCWBwqeF3SGaZ5uB0QWy6ou35T/ruImZ04E8uGvu6uiN+ztetGXwjp5OZig+79jSqZkv5MA
- Jh4cTFJsGSxhC3ijo4pDO9N5FVN6g+LIyIugrDhEZ6OO+vZuW6Vfm3JH/AK43ja09r83JjWdeU9
- UZM7eThoQgd4c/WaToFqoc9LH95YEA6fCrCIAW6uFVhUgwfQ8h/K3F0V3+grhF1eVOIXNP5tJ0v
- dW5yVXvDtID2SWP6S1tWrGs+74LKai1Y3XzNVt61ne3ZHKMCMhTb92qhw/dRx9bJcK4tKNzy4az
- D1h8dhoagfcshPOB3k9EtcOs3i9UlELE3GaAIQVZPB5o5e62Ny1XU31vQ/uSQVcmfm0VJRjOYFY
- l1DW76ESCnstE3t66cw==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE1MDA4OSBTYWx0ZWRfX2FEEc18pgZC6
- C3pid/TAfkyHrznQR5bqASZMNlByzSfGk/C2Pd9Gm8G9Uu8dYH0gVnJ08oWBbTlawPqzRPuFeYf
- uzvWl1qkI5dFglFacQHmZBvgMP0NH2I=
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-15_02,2026-06-12_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 clxscore=1015 adultscore=0 spamscore=0 phishscore=0
- lowpriorityscore=0 bulkscore=0 malwarescore=0 impostorscore=0 suspectscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606150089
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ai8jhK9hUGHpojB5@zenone.zhora.eu>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-Shikra IQS is an industrial-grade variant using PM8150 PMIC, requiring
-different CSIPHY and sensor supply rails compared to the retail boards
-(CQM and CQS) which use PM4125.
+On Sun, Jun 14, 2026 at 11:56:55PM +0200, Andi Shyti wrote:
+> Hi Linus,
+> 
+> On Wed, Jun 10, 2026 at 02:07:01PM +0530, Hardik Prakash wrote:
+> > This reverts commit ef76a3a28c79b628890431aa344af633e892035b.
+> 
+> Is this in your branch?
 
-Add a dedicated overlay for optional IMX577 integration via CSIPHY1.
+$ git tag --contains ef76a3a28c79b6288
+next-20260601
+next-20260602
+next-20260603
+next-20260604
+next-20260605
+next-20260608
+next-20260609
+next-20260610
+next-20260611
 
-Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Reviewed-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Signed-off-by: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
----
- arch/arm64/boot/dts/qcom/Makefile                  |  2 +
- .../dts/qcom/shikra-iqs-evk-imx577-camera.dtso     | 79 ++++++++++++++++++++++
- 2 files changed, 81 insertions(+)
-
-diff --git a/arch/arm64/boot/dts/qcom/Makefile b/arch/arm64/boot/dts/qcom/Makefile
-index 76b8f144983827f4905a72935e8d5291a227dc97..09f2318d1c12c4239a6a7bac4ecbca38eb65ffa2 100644
---- a/arch/arm64/boot/dts/qcom/Makefile
-+++ b/arch/arm64/boot/dts/qcom/Makefile
-@@ -340,9 +340,11 @@ dtb-$(CONFIG_ARCH_QCOM)	+= shikra-iqs-evk.dtb
- 
- shikra-cqm-evk-imx577-camera-dtbs	:= shikra-cqm-evk.dtb shikra-cqm-cqs-evk-imx577-camera.dtbo
- shikra-cqs-evk-imx577-camera-dtbs	:= shikra-cqs-evk.dtb shikra-cqm-cqs-evk-imx577-camera.dtbo
-+shikra-iqs-evk-imx577-camera-dtbs	:= shikra-iqs-evk.dtb shikra-iqs-evk-imx577-camera.dtbo
- 
- dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqm-evk-imx577-camera.dtb
- dtb-$(CONFIG_ARCH_QCOM)	+= shikra-cqs-evk-imx577-camera.dtb
-+dtb-$(CONFIG_ARCH_QCOM)	+= shikra-iqs-evk-imx577-camera.dtb
- dtb-$(CONFIG_ARCH_QCOM)	+= sm4250-oneplus-billie2.dtb
- dtb-$(CONFIG_ARCH_QCOM)	+= sm4450-qrd.dtb
- dtb-$(CONFIG_ARCH_QCOM)	+= sm6115-fxtec-pro1x.dtb
-diff --git a/arch/arm64/boot/dts/qcom/shikra-iqs-evk-imx577-camera.dtso b/arch/arm64/boot/dts/qcom/shikra-iqs-evk-imx577-camera.dtso
-new file mode 100644
-index 0000000000000000000000000000000000000000..d8c968a918c67cdebc0e7c6fc14ef820c97ecb75
---- /dev/null
-+++ b/arch/arm64/boot/dts/qcom/shikra-iqs-evk-imx577-camera.dtso
-@@ -0,0 +1,79 @@
-+// SPDX-License-Identifier: BSD-3-Clause
-+/*
-+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
-+ */
-+
-+/dts-v1/;
-+/plugin/;
-+
-+#include <dt-bindings/clock/qcom,shikra-gcc.h>
-+#include <dt-bindings/gpio/gpio.h>
-+
-+&camss {
-+	vdd-csiphy-1p2-supply = <&pm8150_l11>;
-+	vdd-csiphy-1p8-supply = <&pm8150_l12>;
-+
-+	status = "okay";
-+
-+	ports {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+
-+		port@1 {
-+			reg = <1>;
-+
-+			csiphy1_ep: endpoint {
-+				data-lanes = <0 1 2 3>;
-+				remote-endpoint = <&imx577_ep1>;
-+			};
-+		};
-+	};
-+};
-+
-+&cci {
-+	status = "okay";
-+};
-+
-+&cci_i2c1 {
-+	#address-cells = <1>;
-+	#size-cells = <0>;
-+
-+	camera@1a {
-+		compatible = "sony,imx577";
-+		reg = <0x1a>;
-+
-+		reset-gpios = <&tlmm 33 GPIO_ACTIVE_LOW>;
-+		pinctrl-0 = <&cam_mclk1_default &cam1_reset_default>;
-+		pinctrl-names = "default";
-+
-+		clocks = <&gcc GCC_CAMSS_MCLK1_CLK>;
-+		assigned-clocks = <&gcc GCC_CAMSS_MCLK1_CLK>;
-+		assigned-clock-rates = <24000000>;
-+
-+		/*
-+		 * avdd and dvdd are supplied by on-board regulators on the
-+		 * IMX577 module from the connector's 3.3 V rail; they are
-+		 * not SoC-controlled. dovdd (1.8 V) powers the carrier board
-+		 * level-shifter that translates CCI I2C and reset lines
-+		 * between the SoC and the connector.
-+		 */
-+		dovdd-supply = <&pm8150_l15>;
-+
-+		port {
-+			imx577_ep1: endpoint {
-+				link-frequencies = /bits/ 64 <600000000>;
-+				data-lanes = <1 2 3 4>;
-+				remote-endpoint = <&csiphy1_ep>;
-+			};
-+		};
-+	};
-+};
-+
-+&tlmm {
-+	cam1_reset_default: cam1-reset-default-state {
-+		pins = "gpio33";
-+		function = "gpio";
-+		drive-strength = <2>;
-+		bias-disable;
-+	};
-+};
+> > The patch causes boot regressions on multiple machines. A NULL pointer
+> > dereference occurs when agpio->resource_source.string_ptr is NULL (i.e.
+> > when string_length is 0), and a probe deferral loop causes CPU starvation
+> > leading to kernel panic on Intel CI machines.
+> > 
+> > The patch needs a proper rewrite addressing these issues before resubmission.
 
 -- 
-2.34.1
+With Best Regards,
+Andy Shevchenko
+
 
