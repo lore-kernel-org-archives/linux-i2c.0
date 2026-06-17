@@ -1,277 +1,122 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6DA939B94F;
-	Wed, 17 Jun 2026 09:27:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 357DA3CE4AC
+	for <linux-i2c@vger.kernel.org>; Wed, 17 Jun 2026 09:37:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781688438; cv=none; b=SjjTe4iaiDwInv8xWAJp2QHWz+5hj6glbOREvLYE7N8sHy4Jrcq5azK0QMYZsSDNlQHDpgq+060VB6RuDDw1qSEGFToYcnnleOkiPFeVMdSai3h8dvckE3n/WL1q7SxHZKIMvH3XebSm13e5AdNkvbh5SSJz9/qW1G0ryeGQ36g=
+	t=1781689071; cv=none; b=SfYu2LeL1Jl96ea1OXh3BG7oE10Cs7ZC1MOJJZ3ImPcUH0hqvH6mqqRRRq2MjsHojhrIfRF3WVyJvAFFszNwreHljz84N7fWBlmP1kcwJP2aRKSCC2869DBnhslh15a/auwTJ85zQ+2KxfNNuqV9o6w5+SbNZDR5bnkU38UT/m0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781688438; c=relaxed/simple;
-	bh=T3Lp3YNULabHqplHcZlMQc3WXWf+KjkB95K3YQHpBck=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=K2+68rSxcG+7jEAIet5zI21ymOj7j6J7nR+9TWqSOGRbu9/WqJ56G3gbqRaFd2CNt7xU92YRNxwflid6MOK7rRMZSdRu6BDpHeJGvR/UYERKI7fXOOKsbyiwuiS9yTL/fgAaocp+QPp/iDN/EufN1/uxxL0SlZ+WK5nEtrKFxpk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mw2ycwaI; arc=none smtp.client-ip=192.198.163.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1781689071; c=relaxed/simple;
+	bh=AcCWvFpOGPE8ThgZVpfh7+Ce7hBwRNiryT75Y6WZ5nk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=LCiNhSXELBnEZudvoS9UqeRJMAB4WBdCK57QB1KbBBWkF6hbvhR2c49LcaTry0WebnRvQ5r1JICiw0YZno5szwWoM4mgs3tofIdo8tAdSSUeqnkK2Wjc4dr2SgAHqFkZBRLc+FR91xoTigF5KoE+6qXrRG+Cr5WxsPKx6stqedo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=SYh7ABs0; arc=none smtp.client-ip=209.85.221.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mw2ycwaI"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1781688437; x=1813224437;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=T3Lp3YNULabHqplHcZlMQc3WXWf+KjkB95K3YQHpBck=;
-  b=mw2ycwaIKI4O/xBcudKgR6suIt+UYMZYkO2bFhjN6UdwRUcSEcn0HK//
-   Hne0XfUcagg4pCegTsdhxH+LYNDnr0aNqjxDGUj3hwn2yv59CuBZbFVni
-   XRW80hS3+GjI9Pt902jyLE9Nm1Mx5bVVxAVj5Gazwz57EKuIIYJOeVheV
-   TS5uzmUrPJjgh25IKnYZuQ81i7WhhFc7TqUD6iv7WMqnkRpY0QKGCHNtS
-   lbk+RAc4VXJ8WgiNgNDjN/xpUsUD8whQvma9kcdtQP0Jgq8420g066w18
-   yGWZd0EPTVMARXcVyk/1opzGysGfUju5q58gcLcLrC8QH44ddZ8ie5EED
-   g==;
-X-CSE-ConnectionGUID: Wfmzm56QRNSWdUM4JTXeQg==
-X-CSE-MsgGUID: cFt6Tdq2SfihQLFpSu33yg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11819"; a="86315588"
-X-IronPort-AV: E=Sophos;i="6.24,209,1774335600"; 
-   d="scan'208";a="86315588"
-Received: from orviesa007.jf.intel.com ([10.64.159.147])
-  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jun 2026 02:27:16 -0700
-X-CSE-ConnectionGUID: 3FGDRaZfRg2Ey4UFBi5lzQ==
-X-CSE-MsgGUID: X2+LnDp1QFuD7L/al7IlSg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,209,1774335600"; 
-   d="scan'208";a="248080418"
-Received: from fpallare-mobl4.ger.corp.intel.com (HELO localhost) ([10.245.245.69])
-  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jun 2026 02:27:13 -0700
-Date: Wed, 17 Jun 2026 12:27:10 +0300
-From: Andy Shevchenko <andriy.shevchenko@intel.com>
-To: Hardik Prakash <hardikprakash.official@gmail.com>
-Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org,
-	mario.limonciello@amd.com, brgl@bgdev.pl, basavaraj.natikar@amd.com,
-	linusw@kernel.org, nathan@kernel.org,
-	chaitanya.kumar.borah@intel.com
-Subject: Re: [PATCH v9 2/2] i2c: designware: defer probe if child GpioInt
- controllers are not bound
-Message-ID: <ajJobvY67HKufaTs@ashevche-desk.local>
-References: <20260617065922.26004-1-hardikprakash.official@gmail.com>
- <20260617065922.26004-3-hardikprakash.official@gmail.com>
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="SYh7ABs0"
+Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-45eeba68948so4096508f8f.1
+        for <linux-i2c@vger.kernel.org>; Wed, 17 Jun 2026 02:37:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1781689063; x=1782293863; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=B2s7ODgsFiXIvTxdhi2u/3dpArfH9ENrQ7HajG6sFQ8=;
+        b=SYh7ABs0zsbmLpU+B1gIDCNAddspYwxRTh6tNvtzZ6FzRGyXsMhHORMgovOfKrEnwa
+         ehzEeJTTS9xT+cSF8qCRy90srQBtrtc1c1AKREIl6/d3Xe4MVoi8dIQTcY3Ab4I2Ve5f
+         CmWGsRqF6Cc18LT4ClTFV/bUuINznyJlEE3I4gxFQvTHMEXd1BF3DeRti1dlxftZfRbK
+         ph0eM6j/LwUNgnGkbCZN27ZkNyj2Jby4VAAuHn/Zzn/eat278IhR0s6VwEAJk/+nTceD
+         FDzPDYwCsM+1KY3TWFQ978HGAYnD4cJBz69jALeEtfIPPNfi/OcY8lWoZvKT9n5o2zFG
+         HuTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781689063; x=1782293863;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=B2s7ODgsFiXIvTxdhi2u/3dpArfH9ENrQ7HajG6sFQ8=;
+        b=l9aYu97jx/G4HVPKCkeBaMsbGjdMT65A/EYW3I5hpXm1hABtP1DLAX3hICDtAZqThh
+         qK3mdY1/VL0nT/chIR9Dp23bzcYe4Ogwy+FQusOIhNTp3za32qHv7Cg/mEmo1G8gsljs
+         kNsMUO85buEs8gJlhiYHBLmZ4AqxWMzVx9i/XIBm3e7EQq/+k8B3mmjKMtlHsbhwcUno
+         /qpbSP0kFxsHRIEjO9fDwn+fFSw1a5sz+gjcHn/WW+enLuS1ocqR/Vr1ryfql7eBHWNj
+         RPVg8DM0C7taO1W3/1LRXQD/mdWT3JtZ++UUbx1lNetjSniiFn+2W9wb05pxMy/CCneL
+         nEZQ==
+X-Gm-Message-State: AOJu0YxdlZERzCnh3DyDHPTdCrhnjpqxYxHRsvLQY1j/UnMx4RTRjlmq
+	eXRW3CGO0PMNDxqUfccd/gh9slPGJAa3E5voqKZmkC39yEG0bmxAg0lLzDTgFGHxo+A=
+X-Gm-Gg: AfdE7cl4B+buRCP0cd/vw8EhvJFjbQAkC2WJxsFKWz1tTQxLnm9OE7w4RZisRjPzAoa
+	TxtveBLgSeB0+rE4vFcAq0zPBn0wn7fiiCMmMYiH1qLTo4U5ll7t6zYkatc4gzJ16s3ZR59H10U
+	AHSjOiBfmYUM1GEbXN6X6EINu9A4Aw7LjsTrSyLVnaotA6pC2J0WBIlNtcuLXNppuIgYkAVgTUf
+	sTNmanjkoynkDUaICpOBNk6NekhWLzY1Pb5Ga23wuJMBHRsGFhaFcxb7yycSIi8kOsZWkopWgh2
+	hHlerMl9kckuDR4VpmpcHjlZMQjvTlKb0A6eDm3URGdOajcd5B3/c5jZQBrlDbTOHdSX5+/xHRj
+	4eZDpKDTlRe1Njk6auBRKyjszarXh9OFSozh4zm2VNj31Q+cF1o7mI1Iw5xDcx6XyUBjAKeEDG2
+	Jcmikf5G3/auP74IVkMhQ4+CZ7YSxLZRJXCzytkI33XBhcVVuZjQmJYRdpUTRrFDIBSardyaqGj
+	75e
+X-Received: by 2002:a05:6000:184b:b0:462:7add:607 with SMTP id ffacd0b85a97d-4627add0679mr3715894f8f.25.1781689063346;
+        Wed, 17 Jun 2026 02:37:43 -0700 (PDT)
+Received: from localhost (p200300f65f47db04bc2080ea3c93ea6d.dip0.t-ipconnect.de. [2003:f6:5f47:db04:bc20:80ea:3c93:ea6d])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-4606f264333sm54446920f8f.4.2026.06.17.02.37.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Jun 2026 02:37:42 -0700 (PDT)
+From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v1] i2c: pxa: Use named initializers for the platform_device_id array
+Date: Wed, 17 Jun 2026 11:37:36 +0200
+Message-ID:  <827657abb02edb39bc90f7336194f614d383770e.1781688767.git.u.kleine-koenig@baylibre.com>
+X-Mailer: git-send-email 2.47.3
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260617065922.26004-3-hardikprakash.official@gmail.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
- krs, Bertel Jungin Aukio 5, 02600 Espoo
+Content-Type: text/plain; charset=UTF-8
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1673; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=AcCWvFpOGPE8ThgZVpfh7+Ce7hBwRNiryT75Y6WZ5nk=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqMmrgypQUSs/793R8wm/Q6NvMgPOg/zVJPANE4 caDJJJaTE6JATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCajJq4AAKCRCPgPtYfRL+ Tq74B/0X/+LzIOFvqziimcSgvT+urKQ8K2P6Gj8BLLNyy55Dezr6n9XZvqL2O8+7/egx8uJ6gIz Kwln2tPn0cd3TIJ7tKKzKFD6ViigkYPT0d91BFzmtq20C2idg8I8j/Ep+CiDDR4xp87IXgMYSUq rwWjcfQo7Bd95DM6qgD+DwfoGaDPT6znteufjefjnHrdnNOeesbQyqroki22QjHatS5LP+6DwFD VNXl45RM/179CsYG/4IQG5k8qQShAvgfFHTTBdSIAVY2n4ohYGBavB3wxijk3X4L3+M/e3Cg7EV udX0+EE4mZEyqJtSyvYEcdvDlXnMZQ8V2KAezOS91FEsWRQG
+X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jun 17, 2026 at 12:29:22PM +0530, Hardik Prakash wrote:
-> I2C controllers may have child devices with GpioInt resources that
-> depend on GPIO controllers to be fully initialized. If the I2C
-> controller probes and enumerates children before the referenced GPIO
-> controller has completed probe, GPIO interrupts may not be properly
-> configured, leading to device failures.
-> 
-> On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
-> AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
-> pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
-> AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
-> fail with lost arbitration errors.
-> 
-> Add a generic dependency check in i2c-designware that walks ACPI child
-> devices, identifies any GpioInt resources, resolves the referenced GPIO
-> controllers, and defers probe if those controllers are not yet bound.
-> Uses acpi_gpio_get_irq_resource() to avoid duplicating GPIO resource
-> parsing logic from gpiolib-acpi. Skips resources with no resource
-> source string (string_length == 0 or string_ptr == NULL) to avoid
-> crashes on hardware where GPIO resources have no named controller.
-> 
-> The probe ordering race was confirmed via dynamic debug tracing:
-> 
->   0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
->   0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
->   0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
->   2.348157  lost arbitration
+Named initializers are better readable and more robust to changes of the
+struct definition. This robustness is relevant for a planned change to
+struct platform_device_id replacing .driver_data by an anonymous union.
 
-...
+Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
+---
+Hello,
 
-> +static int check_gpioint_resource(struct acpi_resource *ares, void *data)
-> +{
-> +	struct list_head *gpio_controllers = data;
-> +	struct acpi_resource_gpio *agpio;
-> +	struct gpio_controller_ref *ref;
-> +
-> +	if (!acpi_gpio_get_irq_resource(ares, &agpio))
-> +		return 1;
+this is a preparating patch that is needed before making struct
+platform_device_id's .driver_data a union. This is similar to the patch
+quest outlined in https://lore.kernel.org/linux-i2c/20260504142639.2119645-2-u.kleine-koenig@baylibre.com/
+.
 
-> +	if (!agpio->resource_source.string_length ||
-> +	    !agpio->resource_source.string_ptr)
-> +		return 1;
+Best regards
+Uwe
 
-I'm wondering if we simply can move to strncmp() instead of this check
+ drivers/i2c/busses/i2c-pxa.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-> +	/* Skip if we've already tracked this GPIO controller */
-> +	list_for_each_entry(ref, gpio_controllers, node) {
-> +		if (!strcmp(ref->path, agpio->resource_source.string_ptr))
+diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
+index 9a8b154ab69e..c9927a389aaf 100644
+--- a/drivers/i2c/busses/i2c-pxa.c
++++ b/drivers/i2c/busses/i2c-pxa.c
+@@ -214,11 +214,11 @@ static const struct of_device_id i2c_pxa_dt_ids[] = {
+ MODULE_DEVICE_TABLE(of, i2c_pxa_dt_ids);
+ 
+ static const struct platform_device_id i2c_pxa_id_table[] = {
+-	{ "pxa2xx-i2c",		REGS_PXA2XX },
+-	{ "pxa3xx-pwri2c",	REGS_PXA3XX },
+-	{ "ce4100-i2c",		REGS_CE4100 },
+-	{ "pxa910-i2c",		REGS_PXA910 },
+-	{ "armada-3700-i2c",	REGS_A3700  },
++	{ .name = "pxa2xx-i2c",		.driver_data = REGS_PXA2XX },
++	{ .name = "pxa3xx-pwri2c",	.driver_data = REGS_PXA3XX },
++	{ .name = "ce4100-i2c",		.driver_data = REGS_CE4100 },
++	{ .name = "pxa910-i2c",		.driver_data = REGS_PXA910 },
++	{ .name = "armada-3700-i2c",	.driver_data = REGS_A3700 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
 
-		if (!strncmp(ref->path, agpio->resource_source.string_ptr))
-
-
-> +			return 1;
-> +	}
-> +
-> +	ref = kzalloc(sizeof(*ref), GFP_KERNEL);
-> +	if (!ref)
-> +		return -ENOMEM;
-> +
-> +	ref->path = kstrdup(agpio->resource_source.string_ptr, GFP_KERNEL);
-> +	if (!ref->path) {
-> +		kfree(ref);
-> +		return -ENOMEM;
-> +	}
-> +
-> +	list_add_tail(&ref->node, gpio_controllers);
-> +	return 1;
-> +}
-> +
-> +static int check_child_gpioint(struct acpi_device *adev, void *data)
-> +{
-> +	struct list_head res_list;
-> +	int ret;
-> +
-> +	INIT_LIST_HEAD(&res_list);
-
-> +	ret = acpi_dev_get_resources(adev, &res_list,
-> +				     check_gpioint_resource, data);
-
-Make it a single line.
-
-> +	acpi_dev_free_resource_list(&res_list);
-
-It's not critical double free (it will try to free an empty list) on error.
-
-> +	return ret < 0 ? ret : 0;
-
-	ret = acpi_dev_get_resources(adev, &res_list, check_gpioint_resource, data);
-	if (ret < 0)
-		return ret;
-
-	acpi_dev_free_resource_list(&res_list);
-	return 0;
-
-> +}
-> +
-> +static int i2c_dw_check_gpio_dependencies(struct device *dev)
-> +{
-> +	struct acpi_device *adev;
-> +	LIST_HEAD(gpio_controllers);
-> +	struct gpio_controller_ref *ref;
-
-Reversed xmas tree order.
-
-> +	int ret = 0;
-
-Useless assignment.
-
-> +	adev = ACPI_COMPANION(dev);
-> +	if (!adev)
-> +		return 0;
-> +
-> +	/* Walk all child devices and collect GpioInt controller references */
-
-> +	ret = acpi_dev_for_each_child(adev, check_child_gpioint,
-> +				      &gpio_controllers);
-
-Make it a single line.
-
-> +	if (ret < 0)
-> +		goto cleanup;
-> +
-> +	/* For each GPIO controller, check if its platform device is bound */
-> +	list_for_each_entry(ref, &gpio_controllers, node) {
-> +		acpi_handle handle;
-> +		acpi_status status;
-> +		struct acpi_device *gpio_adev;
-> +		struct device *gpio_dev;
-
-Reversed xmas tree order.
-
-> +		bool bound;
-> +
-> +		status = acpi_get_handle(NULL, ref->path, &handle);
-> +		if (ACPI_FAILURE(status))
-> +			continue;
-> +
-> +		gpio_adev = acpi_fetch_acpi_dev(handle);
-> +		if (!gpio_adev)
-> +			continue;
-
-> +		gpio_dev = acpi_get_first_physical_node(gpio_adev);
-> +		acpi_dev_put(gpio_adev);
-> +		if (!gpio_dev) {
-> +			ret = -EPROBE_DEFER;
-> +			goto cleanup;
-> +		}
-
-> +		/*
-> +		 * Defer probe until the GPIO controller is fully bound,
-> +		 * ensuring its IRQ setup is complete before we enumerate
-> +		 * I2C child devices.
-> +		 */
-> +		scoped_guard(device, gpio_dev)
-> +			bound = device_is_bound(gpio_dev);
-
-> +		if (!bound) {
-
-Some of the compilers might complain the use of uninitialised variable (they
-might not parse properly scoped_guard() case).
-
-> +			ret = -EPROBE_DEFER;
-> +			goto cleanup;
-> +		}
-
-To make it sure and deduplicate above the whole stuff can be written as
-
-		gpio_dev = acpi_get_first_physical_node(gpio_adev);
-		acpi_dev_put(gpio_adev);
-		if (gpio_dev) {
-			guard(device)(gpio_dev);
-
-			bound = device_is_bound(gpio_dev);
-		} else {
-			bound = false;
-		}
-		/*
-		 * Defer probe until the GPIO controller is fully bound,
-		 * ensuring its IRQ setup is complete before we enumerate
-		 * I2C child devices.
-		 */
-		if (!bound) {
-			ret = -EPROBE_DEFER;
-			goto cleanup;
-		}
-
-> +	}
-> +
-> +cleanup:
-> +	free_gpio_controller_list(&gpio_controllers);
-> +	return ret;
-> +}
-> +#else
-> +static int i2c_dw_check_gpio_dependencies(struct device *dev)
-> +{
-> +	return 0;
-> +}
-> +#endif /* CONFIG_ACPI && CONFIG_GPIOLIB */
-
-I'm not sure if it's good to have all this quirk here or simply start
-a i2c-designware-quirks.c. Theoretically the PCI counterpart might,
-but I think quite unlikely, want to have something similar in the future.
-
+base-commit: 4fa3f5fabb30bf00d7475d5a33459ea83d639bf9
 -- 
-With Best Regards,
-Andy Shevchenko
-
+2.47.3
 
