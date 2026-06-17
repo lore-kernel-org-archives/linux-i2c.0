@@ -1,122 +1,113 @@
-Received: from mail-wr1-f42.google.com (mail-wr1-f42.google.com [209.85.221.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 357DA3CE4AC
-	for <linux-i2c@vger.kernel.org>; Wed, 17 Jun 2026 09:37:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 426553F44F7;
+	Wed, 17 Jun 2026 10:20:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781689071; cv=none; b=SfYu2LeL1Jl96ea1OXh3BG7oE10Cs7ZC1MOJJZ3ImPcUH0hqvH6mqqRRRq2MjsHojhrIfRF3WVyJvAFFszNwreHljz84N7fWBlmP1kcwJP2aRKSCC2869DBnhslh15a/auwTJ85zQ+2KxfNNuqV9o6w5+SbNZDR5bnkU38UT/m0=
+	t=1781691650; cv=none; b=iE+pqte0Qd288po+74ucMEHhS7c4aYH+rqTXg0t2LIGyEjpa3mmmsaTDaM7QWlHSx3SoNiKqBc5OBBtBY7K/kBxMHX48JURBROBdN2FRPXgqr/Omdd1BSnj6KCGiWzFPTa57etSFdI/skoCnTXY+hiNnCI6K3zUe9bWKTz6GuDw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781689071; c=relaxed/simple;
-	bh=AcCWvFpOGPE8ThgZVpfh7+Ce7hBwRNiryT75Y6WZ5nk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=LCiNhSXELBnEZudvoS9UqeRJMAB4WBdCK57QB1KbBBWkF6hbvhR2c49LcaTry0WebnRvQ5r1JICiw0YZno5szwWoM4mgs3tofIdo8tAdSSUeqnkK2Wjc4dr2SgAHqFkZBRLc+FR91xoTigF5KoE+6qXrRG+Cr5WxsPKx6stqedo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=SYh7ABs0; arc=none smtp.client-ip=209.85.221.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1781691650; c=relaxed/simple;
+	bh=OfSFu5mGtzotwPKSYXRKabdGa33Ss7x2dODA142hnEM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=dG+SMQ8KBS1NL4aFcRkDEfB/bgdQhpRDFGn/OmeLckgNMVWussPyZAjYNXfy3LLRI9KpNpaiuyAAh0xeYdxsflZjQysopwZWv+vHXnxwKvyeNqYmE2+um04YAb6KEzcxZjDObbFUElDEghB4JWyjRVfSzom7WMLxgwCWg5tTXvw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EDZ/fstv; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="SYh7ABs0"
-Received: by mail-wr1-f42.google.com with SMTP id ffacd0b85a97d-45eeba68948so4096508f8f.1
-        for <linux-i2c@vger.kernel.org>; Wed, 17 Jun 2026 02:37:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1781689063; x=1782293863; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=B2s7ODgsFiXIvTxdhi2u/3dpArfH9ENrQ7HajG6sFQ8=;
-        b=SYh7ABs0zsbmLpU+B1gIDCNAddspYwxRTh6tNvtzZ6FzRGyXsMhHORMgovOfKrEnwa
-         ehzEeJTTS9xT+cSF8qCRy90srQBtrtc1c1AKREIl6/d3Xe4MVoi8dIQTcY3Ab4I2Ve5f
-         CmWGsRqF6Cc18LT4ClTFV/bUuINznyJlEE3I4gxFQvTHMEXd1BF3DeRti1dlxftZfRbK
-         ph0eM6j/LwUNgnGkbCZN27ZkNyj2Jby4VAAuHn/Zzn/eat278IhR0s6VwEAJk/+nTceD
-         FDzPDYwCsM+1KY3TWFQ978HGAYnD4cJBz69jALeEtfIPPNfi/OcY8lWoZvKT9n5o2zFG
-         HuTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781689063; x=1782293863;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=B2s7ODgsFiXIvTxdhi2u/3dpArfH9ENrQ7HajG6sFQ8=;
-        b=l9aYu97jx/G4HVPKCkeBaMsbGjdMT65A/EYW3I5hpXm1hABtP1DLAX3hICDtAZqThh
-         qK3mdY1/VL0nT/chIR9Dp23bzcYe4Ogwy+FQusOIhNTp3za32qHv7Cg/mEmo1G8gsljs
-         kNsMUO85buEs8gJlhiYHBLmZ4AqxWMzVx9i/XIBm3e7EQq/+k8B3mmjKMtlHsbhwcUno
-         /qpbSP0kFxsHRIEjO9fDwn+fFSw1a5sz+gjcHn/WW+enLuS1ocqR/Vr1ryfql7eBHWNj
-         RPVg8DM0C7taO1W3/1LRXQD/mdWT3JtZ++UUbx1lNetjSniiFn+2W9wb05pxMy/CCneL
-         nEZQ==
-X-Gm-Message-State: AOJu0YxdlZERzCnh3DyDHPTdCrhnjpqxYxHRsvLQY1j/UnMx4RTRjlmq
-	eXRW3CGO0PMNDxqUfccd/gh9slPGJAa3E5voqKZmkC39yEG0bmxAg0lLzDTgFGHxo+A=
-X-Gm-Gg: AfdE7cl4B+buRCP0cd/vw8EhvJFjbQAkC2WJxsFKWz1tTQxLnm9OE7w4RZisRjPzAoa
-	TxtveBLgSeB0+rE4vFcAq0zPBn0wn7fiiCMmMYiH1qLTo4U5ll7t6zYkatc4gzJ16s3ZR59H10U
-	AHSjOiBfmYUM1GEbXN6X6EINu9A4Aw7LjsTrSyLVnaotA6pC2J0WBIlNtcuLXNppuIgYkAVgTUf
-	sTNmanjkoynkDUaICpOBNk6NekhWLzY1Pb5Ga23wuJMBHRsGFhaFcxb7yycSIi8kOsZWkopWgh2
-	hHlerMl9kckuDR4VpmpcHjlZMQjvTlKb0A6eDm3URGdOajcd5B3/c5jZQBrlDbTOHdSX5+/xHRj
-	4eZDpKDTlRe1Njk6auBRKyjszarXh9OFSozh4zm2VNj31Q+cF1o7mI1Iw5xDcx6XyUBjAKeEDG2
-	Jcmikf5G3/auP74IVkMhQ4+CZ7YSxLZRJXCzytkI33XBhcVVuZjQmJYRdpUTRrFDIBSardyaqGj
-	75e
-X-Received: by 2002:a05:6000:184b:b0:462:7add:607 with SMTP id ffacd0b85a97d-4627add0679mr3715894f8f.25.1781689063346;
-        Wed, 17 Jun 2026 02:37:43 -0700 (PDT)
-Received: from localhost (p200300f65f47db04bc2080ea3c93ea6d.dip0.t-ipconnect.de. [2003:f6:5f47:db04:bc20:80ea:3c93:ea6d])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-4606f264333sm54446920f8f.4.2026.06.17.02.37.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Jun 2026 02:37:42 -0700 (PDT)
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v1] i2c: pxa: Use named initializers for the platform_device_id array
-Date: Wed, 17 Jun 2026 11:37:36 +0200
-Message-ID:  <827657abb02edb39bc90f7336194f614d383770e.1781688767.git.u.kleine-koenig@baylibre.com>
-X-Mailer: git-send-email 2.47.3
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EDZ/fstv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6C701F000E9;
+	Wed, 17 Jun 2026 10:20:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781691643;
+	bh=ciBzbB3mSSaXFTWuJqz3BXFm/InXYvZDvmh4IwdowZg=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=EDZ/fstvNT6VLRYFnlXWfYaUNfIE3i/sFprZYgLblIPQOLMcgQ5ZE7BzDABWfPcT1
+	 MeO0YVC7ojcMzLeH5uQU8PFboNavMDgJvPYai7qJWennV6HKjAwE8DRb3JT9te+SNY
+	 IAQNgLJOo2MQFIZdafsqh14fMBabIVY4ZbiETKr/slM1hMVbzWDVF4/hrv2oZaaaEW
+	 hV42MAU3yM+CKAAkrNiQspIg3WDkF1uchFT3At9KFSJNG6qXOdeU6FcktGk7Bd6nK4
+	 /hVHcGeUl/aCDm8PwvhSc8klvui2wY1ojD+OPlx1hN/2c66GpabFmOcfs2GyNYPkVC
+	 3coTXCov/nntg==
+Date: Wed, 17 Jun 2026 12:20:38 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Paritosh Potukuchi <paritoshpotukuchi@gmail.com>
+Cc: shyam-sundar.s-k@amd.com, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Paritosh Potukuchi <paritosh.potukuchi@amd.com>
+Subject: Re: [PATCH] i2c: amd-asf: Validate firmware-reported length
+Message-ID: <ajJt18_NBGSAvMJf@zenone.zhora.eu>
+References: <20260612093502.3805287-1-paritosh.potukuchi@amd.com>
+ <20260612101815.4124804-1-paritosh.potukuchi@amd.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1673; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=AcCWvFpOGPE8ThgZVpfh7+Ce7hBwRNiryT75Y6WZ5nk=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqMmrgypQUSs/793R8wm/Q6NvMgPOg/zVJPANE4 caDJJJaTE6JATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCajJq4AAKCRCPgPtYfRL+ Tq74B/0X/+LzIOFvqziimcSgvT+urKQ8K2P6Gj8BLLNyy55Dezr6n9XZvqL2O8+7/egx8uJ6gIz Kwln2tPn0cd3TIJ7tKKzKFD6ViigkYPT0d91BFzmtq20C2idg8I8j/Ep+CiDDR4xp87IXgMYSUq rwWjcfQo7Bd95DM6qgD+DwfoGaDPT6znteufjefjnHrdnNOeesbQyqroki22QjHatS5LP+6DwFD VNXl45RM/179CsYG/4IQG5k8qQShAvgfFHTTBdSIAVY2n4ohYGBavB3wxijk3X4L3+M/e3Cg7EV udX0+EE4mZEyqJtSyvYEcdvDlXnMZQ8V2KAezOS91FEsWRQG
-X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260612101815.4124804-1-paritosh.potukuchi@amd.com>
 
-Named initializers are better readable and more robust to changes of the
-struct definition. This robustness is relevant for a planned change to
-struct platform_device_id replacing .driver_data by an anonymous union.
+Hi Paritosh,
 
-Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
----
-Hello,
+On Fri, Jun 12, 2026 at 10:18:15AM +0000, Paritosh Potukuchi wrote:
+> The firmware may sometimes return a length greater than the
+> allocated buffer size, which can lead to out-of-bounds access
+> and a kernel panic.
 
-this is a preparating patch that is needed before making struct
-platform_device_id's .driver_data a union. This is similar to the patch
-quest outlined in https://lore.kernel.org/linux-i2c/20260504142639.2119645-2-u.kleine-koenig@baylibre.com/
-.
+How often does it happen? Should it be considered a fix?
 
-Best regards
-Uwe
+Shyam, any comments on this?
 
- drivers/i2c/busses/i2c-pxa.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+> Currently, the driver does not validate the length read from
+> firmware.
+> 
+> Add a check to ensure the firmware-reported length stays within
+> the bounds of the data buffer.
+> 
+> Fix indentation issues reported by checkpatch.
 
-diff --git a/drivers/i2c/busses/i2c-pxa.c b/drivers/i2c/busses/i2c-pxa.c
-index 9a8b154ab69e..c9927a389aaf 100644
---- a/drivers/i2c/busses/i2c-pxa.c
-+++ b/drivers/i2c/busses/i2c-pxa.c
-@@ -214,11 +214,11 @@ static const struct of_device_id i2c_pxa_dt_ids[] = {
- MODULE_DEVICE_TABLE(of, i2c_pxa_dt_ids);
- 
- static const struct platform_device_id i2c_pxa_id_table[] = {
--	{ "pxa2xx-i2c",		REGS_PXA2XX },
--	{ "pxa3xx-pwri2c",	REGS_PXA3XX },
--	{ "ce4100-i2c",		REGS_CE4100 },
--	{ "pxa910-i2c",		REGS_PXA910 },
--	{ "armada-3700-i2c",	REGS_A3700  },
-+	{ .name = "pxa2xx-i2c",		.driver_data = REGS_PXA2XX },
-+	{ .name = "pxa3xx-pwri2c",	.driver_data = REGS_PXA3XX },
-+	{ .name = "ce4100-i2c",		.driver_data = REGS_CE4100 },
-+	{ .name = "pxa910-i2c",		.driver_data = REGS_PXA910 },
-+	{ .name = "armada-3700-i2c",	.driver_data = REGS_A3700 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(platform, i2c_pxa_id_table);
+I'm going to remove this comment here as I'm going to take only
+this patch and it's a meaningless information to leave in the log
+history.
 
-base-commit: 4fa3f5fabb30bf00d7475d5a33459ea83d639bf9
--- 
-2.47.3
+> Signed-off-by: Paritosh Potukuchi <paritosh.potukuchi@amd.com>
+> ---
+>  drivers/i2c/busses/i2c-amd-asf-plat.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/i2c/busses/i2c-amd-asf-plat.c b/drivers/i2c/busses/i2c-amd-asf-plat.c
+> index ca45f0f23321..e1699da838c2 100644
+> --- a/drivers/i2c/busses/i2c-amd-asf-plat.c
+> +++ b/drivers/i2c/busses/i2c-amd-asf-plat.c
+> @@ -90,6 +90,9 @@ static void amd_asf_process_target(struct work_struct *work)
+>  		outb_p(reg, ASFDATABNKSEL);
+>  		cmd = inb_p(ASFINDEX);
+>  		len = inb_p(ASFDATARWPTR);
+> +		if (len > ASF_BLOCK_MAX_BYTES)
+> +			return;
+> +
 
+Your patch makes sense to me. I'd just like a blank line before
+the 'if' statement. No need to resend it; I'll add it while
+applying the patch unless you disagree.
+
+Besides that, the patch is not properly formatted. It is missing:
+
+1. Versioning: this should have been "[PATCH v2] ...".
+
+2. Changelog: for a single patch, it should be added below
+   the '---' line, after your Signed-off-by. You added
+   "Fix indentation issues..." as a sort of changelog, but
+   it is in the wrong place and it is not clear that it is
+   a changelog.
+
+3. Please don't send a new version as a reply to the previous
+   one. From a maintainer's point of view, that makes it more
+   difficult to track and apply.
+
+That said, I believe this is your first patch, and that's
+perfectly fine. Welcome to the community :-)
+
+Unless there are further comments, I'll apply your patch to
+i2c/i2c-for-7.2.
+
+Thanks,
+Andi
