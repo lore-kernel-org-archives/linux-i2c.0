@@ -1,99 +1,277 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB9A839B4A3;
-	Wed, 17 Jun 2026 09:20:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6DA939B94F;
+	Wed, 17 Jun 2026 09:27:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781688054; cv=none; b=tYlPWnjpuwiiavsipWqWA8YjOC/wqmYZtcz6SuF1UmBsz9mmJQbwK6UP9F3JT3cjSWGjed/dr60q/cCQUAehWcycpB1U9Ka062PAhvrrTTqCSR7gvR9PvI6xt7GcWSO7BYF0Qq1hpLchi1W3Wx6Bq8ampKVlz6hFazCHTgEdTcw=
+	t=1781688438; cv=none; b=SjjTe4iaiDwInv8xWAJp2QHWz+5hj6glbOREvLYE7N8sHy4Jrcq5azK0QMYZsSDNlQHDpgq+060VB6RuDDw1qSEGFToYcnnleOkiPFeVMdSai3h8dvckE3n/WL1q7SxHZKIMvH3XebSm13e5AdNkvbh5SSJz9/qW1G0ryeGQ36g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781688054; c=relaxed/simple;
-	bh=ZpgnrNkO3omg4iNYCmKn4yO+2nWBlrQqyd6aKqXTtB4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=URCrzDBfWKfEuBPtjsCSdwzRR76QSivsv8VIEKqRTtEu6KVTLz6eRPaqErJZWwkucYSJaN9IDrHy1FDB4ZXkjWxqBOGhxjQmkQO6yvWibSB6zbznGdSl5Alio8Y4okKKjuoCCyroElCFOUnXaJ+LWlaIab0YYrUVXa7mJun3Gko=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=kZgb5nvz; arc=none smtp.client-ip=198.175.65.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1781688438; c=relaxed/simple;
+	bh=T3Lp3YNULabHqplHcZlMQc3WXWf+KjkB95K3YQHpBck=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=K2+68rSxcG+7jEAIet5zI21ymOj7j6J7nR+9TWqSOGRbu9/WqJ56G3gbqRaFd2CNt7xU92YRNxwflid6MOK7rRMZSdRu6BDpHeJGvR/UYERKI7fXOOKsbyiwuiS9yTL/fgAaocp+QPp/iDN/EufN1/uxxL0SlZ+WK5nEtrKFxpk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mw2ycwaI; arc=none smtp.client-ip=192.198.163.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="kZgb5nvz"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mw2ycwaI"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1781688051; x=1813224051;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=ZpgnrNkO3omg4iNYCmKn4yO+2nWBlrQqyd6aKqXTtB4=;
-  b=kZgb5nvzELTxZc4doPT3zbE2UUA357ootXZBItrq5NdXIR2CBtb+ofrJ
-   EJgpgAB9AhF0HFYIie+RfFkLK+1hpdJgjQIYS6QG64qFAF3bBHtQyylgz
-   LNoZNwrq2jRqpdkY9rp1YXIEJLB/5AMmbLIK5Jh8ePRYDXZihY6I8V1mv
-   ZOsjDp1Yc+7EifW1dqi4vDgETshrUG+eCIkjoPXDmuzEBT9iiSzvMs/hr
-   m/PEI5vM/AfnvbZ5ajDE09TvgvbSWo81A5wsQ/MKMQdkbxUIrNmQfRudc
-   pUbwhGCBmo5cmQIQj/6o5opiW0+9q+yGOuCz6JlZbCNa6+lByxlt8cpVh
+  t=1781688437; x=1813224437;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=T3Lp3YNULabHqplHcZlMQc3WXWf+KjkB95K3YQHpBck=;
+  b=mw2ycwaIKI4O/xBcudKgR6suIt+UYMZYkO2bFhjN6UdwRUcSEcn0HK//
+   Hne0XfUcagg4pCegTsdhxH+LYNDnr0aNqjxDGUj3hwn2yv59CuBZbFVni
+   XRW80hS3+GjI9Pt902jyLE9Nm1Mx5bVVxAVj5Gazwz57EKuIIYJOeVheV
+   TS5uzmUrPJjgh25IKnYZuQ81i7WhhFc7TqUD6iv7WMqnkRpY0QKGCHNtS
+   lbk+RAc4VXJ8WgiNgNDjN/xpUsUD8whQvma9kcdtQP0Jgq8420g066w18
+   yGWZd0EPTVMARXcVyk/1opzGysGfUju5q58gcLcLrC8QH44ddZ8ie5EED
    g==;
-X-CSE-ConnectionGUID: 2bfGm8+ESOG18nkYUGHWGg==
-X-CSE-MsgGUID: 8o0Qz7HSQv21z6qpIDNi+g==
-X-IronPort-AV: E=McAfee;i="6800,10657,11819"; a="93961740"
+X-CSE-ConnectionGUID: Wfmzm56QRNSWdUM4JTXeQg==
+X-CSE-MsgGUID: cFt6Tdq2SfihQLFpSu33yg==
+X-IronPort-AV: E=McAfee;i="6800,10657,11819"; a="86315588"
 X-IronPort-AV: E=Sophos;i="6.24,209,1774335600"; 
-   d="scan'208";a="93961740"
-Received: from orviesa001.jf.intel.com ([10.64.159.141])
-  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jun 2026 02:20:50 -0700
-X-CSE-ConnectionGUID: 0OvTrRUURrKQyeSSNGXdyA==
-X-CSE-MsgGUID: ftbp4uzpSEeqvV1cvWsGnQ==
+   d="scan'208";a="86315588"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by fmvoesa106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jun 2026 02:27:16 -0700
+X-CSE-ConnectionGUID: 3FGDRaZfRg2Ey4UFBi5lzQ==
+X-CSE-MsgGUID: X2+LnDp1QFuD7L/al7IlSg==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.24,209,1774335600"; 
-   d="scan'208";a="286131108"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by orviesa001.jf.intel.com with ESMTP; 17 Jun 2026 02:20:49 -0700
-Received: by black.igk.intel.com (Postfix, from userid 1003)
-	id 6887E95; Wed, 17 Jun 2026 11:20:47 +0200 (CEST)
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-	linux-i2c@vger.kernel.org,
-	linux-acpi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	Mika Westerberg <westeri@kernel.org>,
-	hardikprakash.official@gmail.com
-Subject: [PATCH v1 1/1] i2c: acpi: Free resource list at appropriate time
-Date: Wed, 17 Jun 2026 11:20:46 +0200
-Message-ID: <20260617092046.2649219-1-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.50.1
+   d="scan'208";a="248080418"
+Received: from fpallare-mobl4.ger.corp.intel.com (HELO localhost) ([10.245.245.69])
+  by orviesa007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jun 2026 02:27:13 -0700
+Date: Wed, 17 Jun 2026 12:27:10 +0300
+From: Andy Shevchenko <andriy.shevchenko@intel.com>
+To: Hardik Prakash <hardikprakash.official@gmail.com>
+Cc: linux-i2c@vger.kernel.org, linux-gpio@vger.kernel.org, wsa@kernel.org,
+	mario.limonciello@amd.com, brgl@bgdev.pl, basavaraj.natikar@amd.com,
+	linusw@kernel.org, nathan@kernel.org,
+	chaitanya.kumar.borah@intel.com
+Subject: Re: [PATCH v9 2/2] i2c: designware: defer probe if child GpioInt
+ controllers are not bound
+Message-ID: <ajJobvY67HKufaTs@ashevche-desk.local>
+References: <20260617065922.26004-1-hardikprakash.official@gmail.com>
+ <20260617065922.26004-3-hardikprakash.official@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260617065922.26004-3-hardikprakash.official@gmail.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
 
-We do unneeded "double free" (emptying an empty list) in one case.
-At the same time we shadow a real error code. Address them by
-refactoring the code in question.
+On Wed, Jun 17, 2026 at 12:29:22PM +0530, Hardik Prakash wrote:
+> I2C controllers may have child devices with GpioInt resources that
+> depend on GPIO controllers to be fully initialized. If the I2C
+> controller probes and enumerates children before the referenced GPIO
+> controller has completed probe, GPIO interrupts may not be properly
+> configured, leading to device failures.
+> 
+> On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
+> AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
+> pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
+> AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
+> fail with lost arbitration errors.
+> 
+> Add a generic dependency check in i2c-designware that walks ACPI child
+> devices, identifies any GpioInt resources, resolves the referenced GPIO
+> controllers, and defers probe if those controllers are not yet bound.
+> Uses acpi_gpio_get_irq_resource() to avoid duplicating GPIO resource
+> parsing logic from gpiolib-acpi. Skips resources with no resource
+> source string (string_length == 0 or string_ptr == NULL) to avoid
+> crashes on hardware where GPIO resources have no named controller.
+> 
+> The probe ordering race was confirmed via dynamic debug tracing:
+> 
+>   0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
+>   0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
+>   0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
+>   2.348157  lost arbitration
 
-Both are not critical issues at all, they just make code robust
-against any possible future changes in the flow.
+...
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
----
- drivers/i2c/i2c-core-acpi.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+> +static int check_gpioint_resource(struct acpi_resource *ares, void *data)
+> +{
+> +	struct list_head *gpio_controllers = data;
+> +	struct acpi_resource_gpio *agpio;
+> +	struct gpio_controller_ref *ref;
+> +
+> +	if (!acpi_gpio_get_irq_resource(ares, &agpio))
+> +		return 1;
 
-diff --git a/drivers/i2c/i2c-core-acpi.c b/drivers/i2c/i2c-core-acpi.c
-index e5fddacae9a4..c13cf29a9092 100644
---- a/drivers/i2c/i2c-core-acpi.c
-+++ b/drivers/i2c/i2c-core-acpi.c
-@@ -168,9 +168,12 @@ static int i2c_acpi_do_lookup(struct acpi_device *adev,
- 	INIT_LIST_HEAD(&resource_list);
- 	ret = acpi_dev_get_resources(adev, &resource_list,
- 				     i2c_acpi_fill_info, lookup);
-+	if (ret < 0)
-+		return ret;
-+
- 	acpi_dev_free_resource_list(&resource_list);
- 
--	if (ret < 0 || !info->addr)
-+	if (!info->addr)
- 		return -EINVAL;
- 
- 	return 0;
+> +	if (!agpio->resource_source.string_length ||
+> +	    !agpio->resource_source.string_ptr)
+> +		return 1;
+
+I'm wondering if we simply can move to strncmp() instead of this check
+
+> +	/* Skip if we've already tracked this GPIO controller */
+> +	list_for_each_entry(ref, gpio_controllers, node) {
+> +		if (!strcmp(ref->path, agpio->resource_source.string_ptr))
+
+		if (!strncmp(ref->path, agpio->resource_source.string_ptr))
+
+
+> +			return 1;
+> +	}
+> +
+> +	ref = kzalloc(sizeof(*ref), GFP_KERNEL);
+> +	if (!ref)
+> +		return -ENOMEM;
+> +
+> +	ref->path = kstrdup(agpio->resource_source.string_ptr, GFP_KERNEL);
+> +	if (!ref->path) {
+> +		kfree(ref);
+> +		return -ENOMEM;
+> +	}
+> +
+> +	list_add_tail(&ref->node, gpio_controllers);
+> +	return 1;
+> +}
+> +
+> +static int check_child_gpioint(struct acpi_device *adev, void *data)
+> +{
+> +	struct list_head res_list;
+> +	int ret;
+> +
+> +	INIT_LIST_HEAD(&res_list);
+
+> +	ret = acpi_dev_get_resources(adev, &res_list,
+> +				     check_gpioint_resource, data);
+
+Make it a single line.
+
+> +	acpi_dev_free_resource_list(&res_list);
+
+It's not critical double free (it will try to free an empty list) on error.
+
+> +	return ret < 0 ? ret : 0;
+
+	ret = acpi_dev_get_resources(adev, &res_list, check_gpioint_resource, data);
+	if (ret < 0)
+		return ret;
+
+	acpi_dev_free_resource_list(&res_list);
+	return 0;
+
+> +}
+> +
+> +static int i2c_dw_check_gpio_dependencies(struct device *dev)
+> +{
+> +	struct acpi_device *adev;
+> +	LIST_HEAD(gpio_controllers);
+> +	struct gpio_controller_ref *ref;
+
+Reversed xmas tree order.
+
+> +	int ret = 0;
+
+Useless assignment.
+
+> +	adev = ACPI_COMPANION(dev);
+> +	if (!adev)
+> +		return 0;
+> +
+> +	/* Walk all child devices and collect GpioInt controller references */
+
+> +	ret = acpi_dev_for_each_child(adev, check_child_gpioint,
+> +				      &gpio_controllers);
+
+Make it a single line.
+
+> +	if (ret < 0)
+> +		goto cleanup;
+> +
+> +	/* For each GPIO controller, check if its platform device is bound */
+> +	list_for_each_entry(ref, &gpio_controllers, node) {
+> +		acpi_handle handle;
+> +		acpi_status status;
+> +		struct acpi_device *gpio_adev;
+> +		struct device *gpio_dev;
+
+Reversed xmas tree order.
+
+> +		bool bound;
+> +
+> +		status = acpi_get_handle(NULL, ref->path, &handle);
+> +		if (ACPI_FAILURE(status))
+> +			continue;
+> +
+> +		gpio_adev = acpi_fetch_acpi_dev(handle);
+> +		if (!gpio_adev)
+> +			continue;
+
+> +		gpio_dev = acpi_get_first_physical_node(gpio_adev);
+> +		acpi_dev_put(gpio_adev);
+> +		if (!gpio_dev) {
+> +			ret = -EPROBE_DEFER;
+> +			goto cleanup;
+> +		}
+
+> +		/*
+> +		 * Defer probe until the GPIO controller is fully bound,
+> +		 * ensuring its IRQ setup is complete before we enumerate
+> +		 * I2C child devices.
+> +		 */
+> +		scoped_guard(device, gpio_dev)
+> +			bound = device_is_bound(gpio_dev);
+
+> +		if (!bound) {
+
+Some of the compilers might complain the use of uninitialised variable (they
+might not parse properly scoped_guard() case).
+
+> +			ret = -EPROBE_DEFER;
+> +			goto cleanup;
+> +		}
+
+To make it sure and deduplicate above the whole stuff can be written as
+
+		gpio_dev = acpi_get_first_physical_node(gpio_adev);
+		acpi_dev_put(gpio_adev);
+		if (gpio_dev) {
+			guard(device)(gpio_dev);
+
+			bound = device_is_bound(gpio_dev);
+		} else {
+			bound = false;
+		}
+		/*
+		 * Defer probe until the GPIO controller is fully bound,
+		 * ensuring its IRQ setup is complete before we enumerate
+		 * I2C child devices.
+		 */
+		if (!bound) {
+			ret = -EPROBE_DEFER;
+			goto cleanup;
+		}
+
+> +	}
+> +
+> +cleanup:
+> +	free_gpio_controller_list(&gpio_controllers);
+> +	return ret;
+> +}
+> +#else
+> +static int i2c_dw_check_gpio_dependencies(struct device *dev)
+> +{
+> +	return 0;
+> +}
+> +#endif /* CONFIG_ACPI && CONFIG_GPIOLIB */
+
+I'm not sure if it's good to have all this quirk here or simply start
+a i2c-designware-quirks.c. Theoretically the PCI counterpart might,
+but I think quite unlikely, want to have something similar in the future.
+
 -- 
-2.50.1
+With Best Regards,
+Andy Shevchenko
+
 
