@@ -1,78 +1,123 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B45933F9F3A;
-	Wed, 17 Jun 2026 13:02:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30567EEA8;
+	Wed, 17 Jun 2026 13:15:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781701332; cv=none; b=P+15NnxLZW1ghbie1oRC2QWS6YgGEA1d8cfC4xyI2nu5TGKqljZoHM2GBZ8pbixryg0PJISHUmj7y2PNw1BWNc8zdzrL9E7EemrhoIZmIRC3ngwLCYMwjHC9cKEQiqN8Wy8j+nR8PTWZ2HzzfG4PljVYaFJTJL10qcCzl5sYilk=
+	t=1781702119; cv=none; b=HhxH6iH0s0vCQw9oc/AxvBgHAwXc1Ao6W1fs4rQhwki8VfHoXLbB+PpCXrCG5a1DQA+YE39zBuiV+iNCm4wWuyaz/4kYJIQx4nRThyJ2HjFOdghYeEjmOmTn8RTY8ib/Ur3CheW2aBOCuA+phTMumaktwWuyHEf9456+NZ4L5K4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781701332; c=relaxed/simple;
-	bh=5/2zXFvzXzSV2yBrDo/OteVabvktH67LlJ0Yv4vQA7g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gxG38uPOPfX/2bYCsryr5hM+GzHZYBc4PIUmJfJqXBRmXt3qGeZMWip1THEedQMFhIAHkV7F/BKN7qslVU8t2lVpQXOnuPhWRjXRmKnItI/+feJ+mOEyqi2orEXJ3nlst6TzxFrV77HxEBuE5eX/yjtEaKbpx+pBrlDXYWB2eiA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=eXnZ0YCV; arc=none smtp.client-ip=198.175.65.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1781702119; c=relaxed/simple;
+	bh=aIlDLMkkNHtsDElYOHx+iCX+qfTNktD94VrGYo6P2ds=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=JWpyvT9ic5fjxSBoQkDf4V8fXgrngSFMpHPMrChIOQBqDAii0bkiZkOLFKzoAD0KYOYjoEGQJkYoayD2lViTc/aGOfMElYEwOJ+cgA1TN167if/KawwNiyrrHE6v9J1PBpYQ7wdZlrS9px2GIDHk+3NdjfqV4ORvMYMnWDIh5AE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jRLSFxXc; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="eXnZ0YCV"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1781701331; x=1813237331;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=5/2zXFvzXzSV2yBrDo/OteVabvktH67LlJ0Yv4vQA7g=;
-  b=eXnZ0YCVOUkUa0k74hZf7fkLilEzXoLxCbDKdsFuTe7rno2EQefXOA7T
-   UZBFmE8i5tK5y+YMlIMZmo16rnX7wjI6j5LJgVaamDNwP3XPJc5Gufe5s
-   C/dI42EOppIlZSE7FUsfQB4T0ydZT/qKFer/WKlart5bpiH73P6fI0EDi
-   vPCPJR6tJ27zlmCyhp70oDI3Q1vBxmmoRemS/hJmReJQIB7VeQtKtbDPo
-   qqQOHFKr/7HsZOFao1PGvkIiVFKpQpY5zHmnpGY6zcSXUnCsvbGyAhs8A
-   dweF9BLWesrFYmU9cz6fXq9acT0hRLUYfraToXYh7VV+npY7GZNAip71i
-   Q==;
-X-CSE-ConnectionGUID: IqslTSK5QKeEGfvBhj6CMw==
-X-CSE-MsgGUID: OvJ8pjv8S065su0PJQ6ufg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11819"; a="99905641"
-X-IronPort-AV: E=Sophos;i="6.24,209,1774335600"; 
-   d="scan'208";a="99905641"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jun 2026 06:02:11 -0700
-X-CSE-ConnectionGUID: QR25O72kQs+YgoIn4EcgJw==
-X-CSE-MsgGUID: LAwX1i+fRMqCNSJ77hjTww==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,209,1774335600"; 
-   d="scan'208";a="243901616"
-Received: from black.igk.intel.com ([10.91.253.5])
-  by fmviesa010.fm.intel.com with ESMTP; 17 Jun 2026 06:02:08 -0700
-Received: by black.igk.intel.com (Postfix, from userid 1001)
-	id 84CA795; Wed, 17 Jun 2026 15:02:07 +0200 (CEST)
-Date: Wed, 17 Jun 2026 15:02:07 +0200
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-i2c@vger.kernel.org, linux-acpi@vger.kernel.org,
-	linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@kernel.org>,
-	Mika Westerberg <westeri@kernel.org>,
-	hardikprakash.official@gmail.com
-Subject: Re: [PATCH v1 1/1] i2c: acpi: Free resource list at appropriate time
-Message-ID: <20260617130207.GH2990@black.igk.intel.com>
-References: <20260617092046.2649219-1-andriy.shevchenko@linux.intel.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jRLSFxXc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B6901F000E9;
+	Wed, 17 Jun 2026 13:15:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781702117;
+	bh=RecN5ZtDRcqCxYcd/2RjkSxa7a1qN8tkR8fOcVntLnw=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=jRLSFxXcuguZjn8k9T/6YsLlp/PLbF+S//JuN8QuD5ZsNDQ1qAo9EvcABxcZgjxdM
+	 yOVi1Jmtquis6KE2gafyzTflGkN8B1qrZnfGgYCFyPV59sc+tPNx47TsJmVNDOFc5E
+	 uRFaoMJtSpf/ExA3v4QoD2/jcz70Rhb55v3XgHg/kYlTV7IJPrhwy1UqIvLS4aCi2R
+	 G9v4SQKLQSB48wNn2cyw03ceQ9xy/vVu/joOZ9X2DHtTes4g+5JfpG+EgwMRDyJMaT
+	 L0x9QSEqQ2W2tc3KmTN0zfIWd5h5yNqBGjyxkVMCU0n/8vTDEXzUHN9upwVpkMdkBv
+	 /3QSKWsqk3M+w==
+From: Mattijs Korpershoek <mkorpershoek@kernel.org>
+To: Praveen Talari <praveen.talari@oss.qualcomm.com>, Andi Shyti
+ <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>, Krzysztof
+ Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, Konrad
+ Dybcio <konradybcio@kernel.org>, Bjorn Andersson <andersson@kernel.org>,
+ Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, Viken Dadhaniya
+ <viken.dadhaniya@oss.qualcomm.com>
+Cc: Mattijs Korpershoek <mkorpershoek@kernel.org>, Praveen Talari
+ <praveen.talari@oss.qualcomm.com>, linux-arm-msm@vger.kernel.org,
+ linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+ linux-kernel@vger.kernel.org, bjorn.andersson@oss.qualcomm.com,
+ konrad.dybcio@oss.qualcomm.com, aniket.randive@oss.qualcomm.com,
+ chandana.chiluveru@oss.qualcomm.com, prasad.sodagudi@oss.qualcomm.com,
+ Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, Nikunj Kela
+ <quic_nkela@quicinc.com>
+Subject: Re: [PATCH v7 0/6] Enable I2C on SA8255p Qualcomm platforms
+In-Reply-To: <20260617-enable-i2c-on-sa8255p-v7-0-ad736dbeab57@oss.qualcomm.com>
+References: <20260617-enable-i2c-on-sa8255p-v7-0-ad736dbeab57@oss.qualcomm.com>
+Date: Wed, 17 Jun 2026 15:15:15 +0200
+Message-ID: <874ij1gvfg.fsf@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260617092046.2649219-1-andriy.shevchenko@linux.intel.com>
+Content-Type: text/plain
 
-On Wed, Jun 17, 2026 at 11:20:46AM +0200, Andy Shevchenko wrote:
-> We do unneeded "double free" (emptying an empty list) in one case.
-> At the same time we shadow a real error code. Address them by
-> refactoring the code in question.
-> 
-> Both are not critical issues at all, they just make code robust
-> against any possible future changes in the flow.
-> 
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+On Wed, Jun 17, 2026 at 10:20, Praveen Talari <praveen.talari@oss.qualcomm.com> wrote:
 
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> The Qualcomm automotive SA8255p SoC relies on firmware to configure
+> platform resources, including clocks, interconnects and TLMM.
+> The driver requests resources operations over SCMI using power
+> and performance protocols.
+>
+> The SCMI power protocol enables or disables resources like clocks,
+> interconnect paths, and TLMM (GPIOs) using runtime PM framework APIs,
+> such as resume/suspend, to control power states(on/off).
+>
+> The SCMI performance protocol manages I2C frequency, with each
+> frequency rate represented by a performance level. The driver uses
+> geni_se_set_perf_opp() API to request the desired frequency rate..
+>
+> As part of geni_se_set_perf_opp(), the OPP for the requested frequency
+> is obtained using dev_pm_opp_find_freq_floor() and the performance
+> level is set using dev_pm_opp_set_opp().
+>
+> Tested-by: Mattijs Korpershoek <mkorpershoek@kernel.org>
+> Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
+
+I've retested this on top of linux-next-20260616 and it still works fine
+for me on the Ride SX (SA8775P) board:
+
+/ # uname  -a
+Linux (none) 7.1.0-next-20260616+ #2 SMP PREEMPT_RT Wed Jun 17 14:58:42 CEST 2026 aarch64 aarch64 aarch64 GNU/Linux
+/ # i2cdetect -l
+i2c-11  i2c             Geni-I2C                                I2C adapter
+i2c-18  i2c             Geni-I2C                                I2C adapter
+/ # i2cdetect -F 11
+Functionalities implemented by bus #11
+I2C                              yes
+SMBus quick command              no
+SMBus send byte                  yes
+SMBus receive byte               yes
+SMBus write byte                 yes
+SMBus read byte                  yes
+SMBus write word                 yes
+SMBus read word                  yes
+SMBus process call               yes
+SMBus block write                yes
+SMBus block read                 no
+SMBus block process call         no
+SMBus PEC                        yes
+I2C block write                  yes
+I2C block read                   yes
+/ # i2cdetect -F 18
+Functionalities implemented by bus #18
+I2C                              yes
+SMBus quick command              no
+SMBus send byte                  yes
+SMBus receive byte               yes
+SMBus write byte                 yes
+SMBus read byte                  yes
+SMBus write word                 yes
+SMBus read word                  yes
+SMBus process call               yes
+SMBus block write                yes
+SMBus block read                 no
+SMBus block process call         no
+SMBus PEC                        yes
+I2C block write                  yes
+I2C block read                   yes
+
+Regards,
+Mattijs
