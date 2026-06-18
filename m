@@ -1,67 +1,92 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19A2419539F;
-	Thu, 18 Jun 2026 01:36:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABA76330D22;
+	Thu, 18 Jun 2026 06:09:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781746619; cv=none; b=EjNbDGkQUGnuoroMQP596EeVRdvagTRpFdJvC5vGHgBsfvx6woYDA006Zfvb5MmsJY8lPRDQSSmxdPgkDLLPobTwml4jIU6ph83P+Wz+TEerpzduvjARLF1pM1uw1ue44HobrWchTNmD2GTm99avblFOFqmy4kFc4aUIhhf6hq0=
+	t=1781762961; cv=none; b=WmBGTAMKPGfWUTl2JmegOzcGGqvHMpzfJlEhxRhpIyrExkGOiW+u+fGRjBOaYa/RSUH2Ohsz/qWewAOpj2NF32jKAa8QQngjv4fhCq+mVqQHXI1F5c0P13Vf1809LsV/JUv6qy8+hbixOOh5s56SKVGwBzpTQkczDLJhSYSh9PY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781746619; c=relaxed/simple;
-	bh=OtrEK/S3KL9f3bN4yUf0JDAXx1hAr2YNLqXUgkLRvsg=;
+	s=arc-20240116; t=1781762961; c=relaxed/simple;
+	bh=JI8jdQgZ9rrZMYyekQhaHyLhcPwXxgLHD61shgXfCV4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=nvPN00a/Wg7irdnEzjS5u5SwBNcBdh8Mx9W07wwHKAKUeqlIsildOK3jaoSYjGfgC8iTjuFGZ4lIUX/u9ysqbR2icK9GXB8/9U6kyGv5IAZ0V78gj44qv3SZpGRb6XIvfkzGYgq8L7q3JgC8QWhmsxE1IB2RxCSiBoB1KCIFiuc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nS+uh22b; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=PZJ97gpK+vSxdcul8w1+f99SrjjSyT4jSD8ROm6RXB99IC944bDnmvwz1UibxBn547ocOHmIRKWXy2Vv2Z+VHd0GQ2EhrGXouFFyDCCb7I/zWgz6VGWEF0IaxJNJnwLtKUNJIuBQY26kEqpu6Xa77OwNopc1NES9B6KGrDSzB9s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=PBCeaO3u; arc=none smtp.client-ip=198.175.65.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nS+uh22b"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E4371F000E9;
-	Thu, 18 Jun 2026 01:36:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781746617;
-	bh=iEMUbmDbPRVGmmZUsmY+bAPeDIkl2GD/lKD9XAcKClA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=nS+uh22bdLmsRXRLHnW/NLPMzbM2bDxsKUV/cWISpjfnvEF/aum7QUt5H8PBqkDoL
-	 4GDBQ5Fw91uoX6DjNABGzDCoWRNAEMP24hMdYaC+9Zcr2fBP/3HrDiNKkBqjFGwLtg
-	 H58xP2fTz72vvr5HNTb2FhxXlxGauVkkOp/GRozBmzSwwTnlYe/sVmmiwcBu0PBvog
-	 0aZOiIGvovOuHCu7MwJiGgWXoeMpNSzI4MrmIB+7mSPJNavtH1/xAeN0bgyfx7uFdR
-	 xJQ12fN8KhCpi08hJVIwPh1CuFXwV9rBhMKKaDlD7SHD46J33FOkDrj7wsqCBki6jm
-	 0bDczPuqBc5Yw==
-Date: Thu, 18 Jun 2026 03:36:52 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Praveen Talari <praveen.talari@oss.qualcomm.com>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Konrad Dybcio <konradybcio@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
-	Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>, 
-	Mattijs Korpershoek <mkorpershoek@kernel.org>, linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, bjorn.andersson@oss.qualcomm.com, 
-	konrad.dybcio@oss.qualcomm.com, aniket.randive@oss.qualcomm.com, 
-	chandana.chiluveru@oss.qualcomm.com, prasad.sodagudi@oss.qualcomm.com, 
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, Nikunj Kela <quic_nkela@quicinc.com>
-Subject: Re: [PATCH v7 0/6] Enable I2C on SA8255p Qualcomm platforms
-Message-ID: <ajNLmO9UBH_Xs3W2@zenone.zhora.eu>
-References: <20260617-enable-i2c-on-sa8255p-v7-0-ad736dbeab57@oss.qualcomm.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="PBCeaO3u"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1781762960; x=1813298960;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=JI8jdQgZ9rrZMYyekQhaHyLhcPwXxgLHD61shgXfCV4=;
+  b=PBCeaO3uxbVwmZxyf5sgnCIUdRbCJCvAOM6bMRWWp1aEzqEdsjwKYW2J
+   /mLFnXrFY92AlNBYZI+rnlAVGkQnLDqff+FKVTA9N9+FnCFnT5HfcwrwJ
+   Hauy92lyT0lePDRS3RxwyO4IUTI5bTuZE6jeeRRYWzM6p+D9aOp11bWlg
+   3XcSsUaZJFZh8G3n5T3iewnluGLd69HFQXiAvtTgJL4UfFdmDFtohuqcc
+   C92w+6izOiYRnAy+jgW9lQLqTHp7IWh7xyQmEEeJ9UWbYvbFgZN39t1BW
+   VsVQ04tY6LkfauYmYsTB1We/aTkftb9GxyWYbQME8Ku41f1X3ylR5e/vo
+   A==;
+X-CSE-ConnectionGUID: gvl3rY81Tw2N2doW7oP6TA==
+X-CSE-MsgGUID: 6kN7aB1+TFOg9vXuVVoItQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11820"; a="86263714"
+X-IronPort-AV: E=Sophos;i="6.24,210,1774335600"; 
+   d="scan'208";a="86263714"
+Received: from orviesa007.jf.intel.com ([10.64.159.147])
+  by orvoesa107.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jun 2026 23:09:20 -0700
+X-CSE-ConnectionGUID: OLmT6bKwQBiqLOrfmLp4IA==
+X-CSE-MsgGUID: 6iViCqluSq68Rd3HIe/JKQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,210,1774335600"; 
+   d="scan'208";a="248342303"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by orviesa007.jf.intel.com with ESMTP; 17 Jun 2026 23:09:18 -0700
+Received: by black.igk.intel.com (Postfix, from userid 1001)
+	id 8D07495; Thu, 18 Jun 2026 08:09:16 +0200 (CEST)
+Date: Thu, 18 Jun 2026 08:09:16 +0200
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
+To: Abhijeeth Babu <babu.jeeth@gmail.com>
+Cc: Mika Westerberg <westeri@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: acpi: Force ELAN1300 touchpads to 100 kHz
+Message-ID: <20260618060916.GI2990@black.igk.intel.com>
+References: <20260617192611.125513-1-babu.jeeth@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20260617-enable-i2c-on-sa8255p-v7-0-ad736dbeab57@oss.qualcomm.com>
+In-Reply-To: <20260617192611.125513-1-babu.jeeth@gmail.com>
 
-Hi Praveen,
+On Thu, Jun 18, 2026 at 12:56:11AM +0530, Abhijeeth Babu wrote:
+> The ELAN1300 touchpad with HID ID 04F3:3104 on the ASUS VivoBook
+> X513UA_KM513UA exhibits severe pointer jumps and erratic movement when
+> the I2C bus operates at 400 kHz.
+> 
+> The system DSDT describes the touchpad using an I2cSerialBusV2 resource
+> with a speed of 0x00061A80, corresponding to 400 kHz, on the
+> AMDI0010:03 controller.
+> 
+> At this speed, libinput repeatedly reports:
+> 
+> kernel bug: Touch jump detected and discarded
+> 
+> Add ELAN1300 to i2c_acpi_force_100khz_device_ids so that it operates at
+> 100 kHz.
+> 
+> Before the change, nine touch-jump events were recorded, with additional
+> messages suppressed by libinput's rate limiter. With the bus forced to
+> 100 kHz, no touch-jump events have been observed and the touchpad operates
+> normally.
+> 
+> The affected system uses BIOS X513UA.319 dated 2023-05-09.
+> 
+> Signed-off-by: Abhijeeth Babu <babu.jeeth@gmail.com>
 
-> Praveen Talari (6):
->       dt-bindings: i2c: Describe SA8255p
->       i2c: qcom-geni: Isolate serial engine setup
->       i2c: qcom-geni: Move resource initialization to separate function
->       i2c: qcom-geni: Use resources helper APIs in runtime PM functions
->       i2c: qcom-geni: Store of_device_id data in driver private struct
->       i2c: qcom-geni: Enable I2C on SA8255p Qualcomm platforms
-
-merged to i2c/i2c-for-7.2.
-
-Thanks,
-Andi
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
