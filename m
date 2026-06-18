@@ -1,119 +1,117 @@
-Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C7C53D890F
-	for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 13:21:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 502343FB067
+	for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 13:29:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781788915; cv=none; b=VU1i3khzog4FNIiE6/hrwJ0IN1DqX9FJ0e7UG6jFlR4KF1BzoEqp5XQgri37v+VRpUoks9NAJi7Md2yl1St/2HAalMN5SfvztOhftsuVCjsvpZM9zo9OsvN5to2oCamqQXkTCVisicCf6nyrwk4+ccl18BUHYHTgvQSLYOk6qO8=
+	t=1781789365; cv=none; b=opOfu3rgxGrUBc+dTM2ufUEqhdvYYh9R108VAEop91S4fQwnUt5SPbELvxdclRMr6ARwxhUjE9A7NygmFVbz+PpU4EvDxprS9ZJwde2pvxcHJUHtwO6WKu15VyTx2qV5YCarHHOJvRQt3fdgWGRFbzexom0Tv2GHAopqbeOt95c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781788915; c=relaxed/simple;
-	bh=44O5xzVX89ZE0VHmF+rs/KTPfz/ziGKAGmb4RhPOxz0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=CjuV9iFMdcGLzTSRCvV1hEJWAghe3Twtv2pdg3DmV1xswq5QnG22I0oFzZdqW+4TvznAMTvcXdPf3imJRO4EO52u+XByh2dvTEZbL990c3Qn323eOtlGhkpujqKTNGuQme/P/StR6QYNpwU1r6jdZ4Ap44nm7VQ4gpoc+m675Yk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AbMYu3NF; arc=none smtp.client-ip=209.85.215.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781789365; c=relaxed/simple;
+	bh=U7Bbg5tgaZ3S9d97wN/aw++T7lMm1tDnJMAxIOeRwLs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=es5YQMkKRBETBILJBEZRqEBzxRQSntL/QmJRavSBx0g9APujWfynxN3YRpqVzMEvOt5P9QSgqap01n8b7S05m6Nu/I9C5/G7A5D2mhNRL7PwPQNtWNcbmhrYZ/RhnuXY5AlEu9HhFGXezrNzq5Deu32dyeph5DfFe9rjeTeCzhc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FJqDnySi; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AbMYu3NF"
-Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-c85c531d4a9so385652a12.2
-        for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 06:21:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781788908; x=1782393708; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=tT13A6NAYZuTx/YyXo5jPcQ9raZMcUWUjalNNtxI2PQ=;
-        b=AbMYu3NFGQZnCl0Y2h3KA/CttLxc7CArNUEWnnl3tuKlBUI23/n00yjAoqlpo0nCzu
-         VY8csf7IwaWqo556PwSBPfEO/KDfK26/6ANW78fJf7Gx4Cnd0/xm6dM2a+XTXUdbi2Zi
-         4Tlj9NnkUQu8/+lz3C0qxsqnERQVZZnhb81IEqYiFTAeUsm/H+f/4l0zqfKr3I5qyHem
-         HKOtIhdiu/JN3KYac7FH0DEg6rikCKgCXUV+DakOedkk1RZNzTz8lQ7bMXmjw6LOyiD9
-         aPnWfGU4BjUVzQjyacrQgq6LCNwfiTo4xJpvpi3pNh/nwdJRYGP/czHgB9wiqrhZkrIQ
-         58pw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781788908; x=1782393708;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=tT13A6NAYZuTx/YyXo5jPcQ9raZMcUWUjalNNtxI2PQ=;
-        b=MQkuz6acf5S2H3b2W/bDUT32MmBO6ivaQ3ANddBIAB5dIDSl24KnEU0ohN2arXALFR
-         qMOVc9BPt+d9aeDKxZ6XeVx4YAjHx29UNKFDFMmLgQWmIOjUlwtnuDF3orF4WoGUY6Nj
-         xyPvGMZ7ZIar4GvnWVcoyF3R0TakAOOZ0G2K28aqPdgEAUVHDdA4mx7+3muF4qXF7J5U
-         /v2UQlaegIh9V3iJUCnu5/OWf2zVxxe8isnAdthdPt4NVG8D97IHI55Msolvc2LC2Jj4
-         LIYSr+YyQmb5SxD/lQvdLb8LXJoVkd3jfaBfjnIVOl85wsiRxWeLugl8NHwS9gHkeBG7
-         Ik5w==
-X-Gm-Message-State: AOJu0Yw6kjOkP0TIt+RjMnEUGUJPlzEMrGLaP0eobdrXmUFKeCItj4CD
-	UPwlZvry9j+giVSlX3VH5hPml9bt/2XcysRECorWdnEIzWukU4YkUzgg
-X-Gm-Gg: AfdE7cntRu49PWyDTJtF0FwATNkzr2fmCDbeJ0wYosgLSoDpoJL82eXpQrjs0pgKb5o
-	2HFVmg6N9sLPOUSMJsZO3JkkcP+u/a7KKSYkBZA0baPoT21Kz8VzmM1Y5mQObYQTu4wY04XHokD
-	CYGd5USQ5JurcyUWVhg/+rYzKy1uuRX2v3Xgll7KKkc9BiGevOGxXLfdwvh/is0HDAQxYD4VlTW
-	CHznS9baAWvKEAYFuO5m+DzDsFqUw1C1A1uwYfrT9oM9gm7TIVdFApZu2kPON0a/3a7suzYFK+a
-	RrHG/LisnKyu8vyuB1XzjbDXxuC7bvU3X5M5JtX8Tn895nzvZK4kYN5K25MhofbonW8z9sG4UFo
-	WhS0cEgkGpx0apl15G272jCHwojO3Oh4QllFXletKXdgOQnv4P84lZy6t22vF9g3FTh4vXwgdxc
-	JXh1OqMvPOXQmY+q/onA97i1bL6QJNZMWwY0dHQ5X/
-X-Received: by 2002:a05:6a21:a89:b0:3b4:6265:3788 with SMTP id adf61e73a8af0-3b9e7bdf93cmr5194540637.21.1781788908183;
-        Thu, 18 Jun 2026 06:21:48 -0700 (PDT)
-Received: from steellegend.taila75641.ts.net ([2401:4900:1c19:e45:6f99:fe25:8bbb:3a22])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c8661b5ccafsm17676098a12.2.2026.06.18.06.21.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Jun 2026 06:21:47 -0700 (PDT)
-From: Uday Khare <udaykhare77@gmail.com>
-To: andi.shyti@kernel.org,
-	wens@kernel.org,
-	jernej.skrabec@gmail.com,
-	samuel@sholland.org
-Cc: linux-i2c@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-sunxi@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Uday Khare <udaykhare77@gmail.com>
-Subject: [PATCH 2/4] i2c: sun6i-p2wi: Fix device node reference leak in p2wi_probe
-Date: Thu, 18 Jun 2026 18:51:39 +0530
-Message-ID: <20260618132139.11114-1-udaykhare77@gmail.com>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FJqDnySi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D5621F000E9
+	for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 13:29:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781789364;
+	bh=wVOOi63ZhPXMxempK5lZHLkxz38ev6/FULudejb/aYM=;
+	h=References:In-Reply-To:Reply-To:From:Date:Subject:To:Cc;
+	b=FJqDnySiiQggoMnvVag4iimdFdyfNCrz6C4LC2zDdRov2lhC6+T6/F1uD4JNanERV
+	 UEExDkLvzRWLEnNZbOm4twkIElmffckM47WnnaIy8C8+bFgE7ndBQYaxa1fahaICK6
+	 L6sAICvD7Aeuh6AUZWo8omK75anpjQhQVuPMvGBwpvrxUhOtC/aJBxVPGc3cniC/Wo
+	 hvRf7OgASfVyAAw+Jp5QmQ/rmSp9hSmu1FpVozmbAp1Pn15/xZ2TqtwpRfZzmMHdeu
+	 tP8+/NsmgLZs+QRFTBM4jJh7lbU2yvVL080UAbM4pRf+YWtF/5+dCuP2FUTIHWIadE
+	 8Tqqx7JgleQEQ==
+Received: by mail-lj1-f174.google.com with SMTP id 38308e7fff4ca-3997a448ecbso7142921fa.0
+        for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 06:29:23 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AFNElJ8g74wpharOTnIpcHOMI2Nu4Pq5fp37p4tnpYiMrtq8BE+aQYEQL8Bf/XM6gVa5SNV4Id4jEuD0EGo=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyaNoP/uU1Oonq58YNV3gvSJ6DgL2oA/Ho0LGdZk9CBVF9+7d97
+	AUtUqlVlPd9YLHNsii2Qvx4u0SVKWJFSoqPiSwsFEjJ2goUgHf6GpoHlHezntpci498mUR2f7Mh
+	Sl5baRq8zzSDmA/LT//4gCzQQ8Fi3Te8=
+X-Received: by 2002:a05:651c:3c8:b0:399:87c9:4573 with SMTP id
+ 38308e7fff4ca-39987c94856mr1182931fa.22.1781789362548; Thu, 18 Jun 2026
+ 06:29:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260618132139.11114-1-udaykhare77@gmail.com>
+In-Reply-To: <20260618132139.11114-1-udaykhare77@gmail.com>
+Reply-To: wens@kernel.org
+From: Chen-Yu Tsai <wens@kernel.org>
+Date: Thu, 18 Jun 2026 21:29:10 +0800
+X-Gmail-Original-Message-ID: <CAGb2v65GFVkJ+YL2=kCRX4mDe_xE0fgvpjsVD6biOga3cFwNPg@mail.gmail.com>
+X-Gm-Features: AVVi8Cf_QbtsxS3-TRCHlybZZ480cZ0SxK9nD8A_JEFe5k3XZDF_8tXlFc7mpuQ
+Message-ID: <CAGb2v65GFVkJ+YL2=kCRX4mDe_xE0fgvpjsVD6biOga3cFwNPg@mail.gmail.com>
+Subject: Re: [PATCH 2/4] i2c: sun6i-p2wi: Fix device node reference leak in p2wi_probe
+To: Uday Khare <udaykhare77@gmail.com>
+Cc: andi.shyti@kernel.org, jernej.skrabec@gmail.com, samuel@sholland.org, 
+	linux-i2c@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	linux-sunxi@lists.linux.dev, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-In p2wi_probe(), the device node reference obtained via
-of_get_next_available_child() is stored in childnp. This reference is
-never released via of_node_put() - neither on the error path when
-of_property_read_u32() fails to read the 'reg' property, nor on the
-success path after the target address has been read.
+On Thu, Jun 18, 2026 at 9:21=E2=80=AFPM Uday Khare <udaykhare77@gmail.com> =
+wrote:
+>
+> In p2wi_probe(), the device node reference obtained via
+> of_get_next_available_child() is stored in childnp. This reference is
+> never released via of_node_put() - neither on the error path when
+> of_property_read_u32() fails to read the 'reg' property, nor on the
+> success path after the target address has been read.
+>
+> Fix this by calling of_node_put(childnp) on both the error and success
+> paths.
+>
+> Fixes: 3e833490fae5 ("i2c: sunxi: add P2WI (Push/Pull 2 Wire Interface) c=
+ontroller support")
+> Signed-off-by: Uday Khare <udaykhare77@gmail.com>
+> ---
+>  drivers/i2c/busses/i2c-sun6i-p2wi.c | 11 +++++++----
+>  1 file changed, 7 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/i2c/busses/i2c-sun6i-p2wi.c b/drivers/i2c/busses/i2c=
+-sun6i-p2wi.c
+> index dffbe776a195..1ef0e82eeb63 100644
+> --- a/drivers/i2c/busses/i2c-sun6i-p2wi.c
+> +++ b/drivers/i2c/busses/i2c-sun6i-p2wi.c
+> @@ -220,10 +220,13 @@ static int p2wi_probe(struct platform_device *pdev)
 
-Fix this by calling of_node_put(childnp) on both the error and success
-paths.
 
-Fixes: 3e833490fae5 ("i2c: sunxi: add P2WI (Push/Pull 2 Wire Interface) controller support")
-Signed-off-by: Uday Khare <udaykhare77@gmail.com>
----
- drivers/i2c/busses/i2c-sun6i-p2wi.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+I would just include linux/cleanup.h and make the following line:
 
-diff --git a/drivers/i2c/busses/i2c-sun6i-p2wi.c b/drivers/i2c/busses/i2c-sun6i-p2wi.c
-index dffbe776a195..1ef0e82eeb63 100644
---- a/drivers/i2c/busses/i2c-sun6i-p2wi.c
-+++ b/drivers/i2c/busses/i2c-sun6i-p2wi.c
-@@ -220,10 +220,13 @@ static int p2wi_probe(struct platform_device *pdev)
- 	childnp = of_get_next_available_child(np, NULL);
- 	if (childnp) {
- 		ret = of_property_read_u32(childnp, "reg", &target_addr);
--		if (ret)
--			return dev_err_probe(dev, -EINVAL,
--					     "invalid target address on node %pOF\n", childnp);
--
-+		if (ret) {
-+			ret = dev_err_probe(dev, -EINVAL,
-+					    "invalid target address on node %pOF\n", childnp);
-+			of_node_put(childnp);
-+			return ret;
-+		}
-+		of_node_put(childnp);
- 		p2wi->target_addr = target_addr;
- 	}
- 
--- 
-2.54.0
+>         childnp =3D of_get_next_available_child(np, NULL);
 
+          struct device_node *childnp __free(device_node) =3D
+                  of_get_next_available_child(np, NULL);
+
+No other changes needed, and much cleaner.
+
+>         if (childnp) {
+>                 ret =3D of_property_read_u32(childnp, "reg", &target_addr=
+);
+> -               if (ret)
+> -                       return dev_err_probe(dev, -EINVAL,
+> -                                            "invalid target address on n=
+ode %pOF\n", childnp);
+> -
+> +               if (ret) {
+> +                       ret =3D dev_err_probe(dev, -EINVAL,
+> +                                           "invalid target address on no=
+de %pOF\n", childnp);
+> +                       of_node_put(childnp);
+> +                       return ret;
+> +               }
+> +               of_node_put(childnp);
+>                 p2wi->target_addr =3D target_addr;
+>         }
+>
+> --
+> 2.54.0
+>
