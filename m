@@ -1,129 +1,102 @@
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.10])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95F8F3F44DC
-	for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 12:24:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19FB2368287;
+	Thu, 18 Jun 2026 13:09:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781785472; cv=none; b=G9h691Q29n7YsJMH7hdmS3fJt40HwxFvdo1GcpMx239gr45Mf2kLhiTVVud9tqgiC8fkRSxpC9zcrz8q9OiC+l4GQADKGyV0ZTGl8FYuVOSWwW5aTSGS4gUgTdbKXx05OYu744lwn8V3fdKYVAaH5LzFJxXDQJ7GjM9EUTYKNiU=
+	t=1781788194; cv=none; b=JN6sVf3V7r1m/99a8fx7kU5DKjMLjJoiJTf9X0yZcOsVgZaJmNe+AV1AxjlQnnUO2dgImAonv8PtL9CY5xfpVMzk2pI41e+Bu64ZaxqkHW5R61wryW2BOHGxaZt//RDipYmaiXrBs1Wlm75yj3xTdxn9UH1xCpte1qo+0m1q2PU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781785472; c=relaxed/simple;
-	bh=i3it/QJBC6ckD2rmxh+eJnocRSEVreIqnZQSdK6diF4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OH+O70wCTuK8ONP+Rf4d9liMaNCWCXacZ4Vzld2UNMq6PXSuX7j63+/OUlDdJcRJ/ZhW/wDZGPRxjOdnGLC0GoIo3iR3LGWXhkII4+HNLXrCllk/MqxLDs3gTio2q172yukxGq1n5D4SThqlwGd2B9WRyp1ClJYz5Jndd/sEz+M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=FUKNi9zA; arc=none smtp.client-ip=209.85.221.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1781788194; c=relaxed/simple;
+	bh=t2sY6g9hByHB2M8K2YsDB0IUJTaJLj8nTbSpTHyibdU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=NpTonO7fiIdmX0DOGa32t05CrewfCuqa1qfbsqCDFw/nLs6Hm1d7wdDVaEynUUlYN6oftDTs077gAoEYTTFQoOAN+zFTXuAXpTd1KRP2LipeWaCXgHpo/T/kXMkfmZ6TbweFD7sYFfCwji3sV/wkVrT2staOPsG9BKOnHTRjy/Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Fj3ZCJTP; arc=none smtp.client-ip=192.198.163.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="FUKNi9zA"
-Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-45fd461e4a5so731888f8f.0
-        for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 05:24:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1781785469; x=1782390269; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=i3it/QJBC6ckD2rmxh+eJnocRSEVreIqnZQSdK6diF4=;
-        b=FUKNi9zAs1nTh9J+5HMq7Jenzvo9jLXvtJQpAlxChEZ4c2vvMRcV1LiQtJ+j7gelKx
-         CXEvNLElJIFJBCH6n6rvKyC2yG5lEBm4eYWIBqIpXU2LItKaewN+umSiW/rjuSI+yvik
-         WUdRCeFn1xOMm0u2doJN1Bf/i/z56IY2qC30SXq1vhSufDpWaXiChO//BagvwtKBUBZf
-         iG1SDP+Ppu1RcSvRHqjLCSMMIAfDP4V92Zk85ia3SOV2ygQ92TLmMFHgBsl0aHl6u33A
-         CZrtWgEjm5hf/dFu38MSLtl/nJEWGlqOhJIduHNOTkP8p8ukVipCHQj8mupGMgwMjrCa
-         NkKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781785469; x=1782390269;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=i3it/QJBC6ckD2rmxh+eJnocRSEVreIqnZQSdK6diF4=;
-        b=PxS50h9zaLV86WWi/76vrqpjigux0XNnnipJB2DVdz72Tj440NDtDuxzm2exZHn6bb
-         L3FauJrxzYI+f0dQscu6m/NtsYztHIY33oE/LDncnhcyufDBblBjgp80UYdc8YxNo/Sm
-         VHW11lzsMYjS4sqaNOQVJ0NOy8uQbm4+yU8Vj6Pdw8LonmWfNCEOM2J7OouzY1GIza4x
-         CNmYeudgXPLK0ramVsUVI6gYxjdedl2iua9dM+Stj1J2TUytwy9DohUOm+Z1f8sft3KB
-         O4Wf59moHOemd2ZceB60nzexiEXgL3tUI+Y2awvs49zM7u0dGvvrVPDKjOQe2bI0ebkp
-         Pu4w==
-X-Gm-Message-State: AOJu0YxCj8Z1wFpI1Ea8PFd5EbaHiGWgB+6TFJrrsZ/jvooae671L5yD
-	7XuwqSeLgiddzTups9fyVYkedpUVhoHLDdxuQd62K52FHMVIma0KWzpSXSKMFYoCACo=
-X-Gm-Gg: AfdE7cleKpqIR2IyFSlnUWvByYyX95TSEgQi5fAXDL9P53aTTOB6kbyBG55Ej1y8yXb
-	S9Ao+XBs6cT+rV8VdPYz4SuSRjFbhxhfXlkalbmzNYiI7Ag/8AR1q6NhzEIBskjHhE/jGFc61cp
-	oEtgResLr4AocNWuYGwo5LXxe0aWELoC0Kd6JFr/T9Cdunj6mmcNjC+WJ13vcqEUFLfqTosQU2q
-	J0v4PsLIihufRELo73oaUw/j3f+hnOdoXz8UhjgPs95uenvauMy7ut4bvu4DAx777UWHrfeNwH2
-	1I6VKhffJPsInvWORHwGzd5WbIVCY/HTYRqM3KViIlz7AhpjYW5mxOLn7DapOwr6DJbJG665yR1
-	RkzqJX2Uyj10zeHn4L6samzKl/gnCQJyjDsD7sxT/pbGYGxBTw0YQPYwbMV1/1KcVnyst+ciqcG
-	eyePgum40PyNdH1N/MGQ==
-X-Received: by 2002:a05:6000:4b01:b0:461:dfe2:c7ed with SMTP id ffacd0b85a97d-46240cf9358mr12936537f8f.27.1781785468838;
-        Thu, 18 Jun 2026 05:24:28 -0700 (PDT)
-Received: from localhost ([2a02:8071:56d1:2de0:559d:eec2:887f:c200])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-462236047c8sm18637457f8f.10.2026.06.18.05.24.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Jun 2026 05:24:27 -0700 (PDT)
-Date: Thu, 18 Jun 2026 14:24:25 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1] i2c: pxa: Use named initializers for the
- platform_device_id array
-Message-ID: <ajPjJbYrtZJ09rDW@monoceros>
-References: <827657abb02edb39bc90f7336194f614d383770e.1781688767.git.u.kleine-koenig@baylibre.com>
- <ajPSo2zjDvq7CflO@zenone.zhora.eu>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Fj3ZCJTP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1781788193; x=1813324193;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=t2sY6g9hByHB2M8K2YsDB0IUJTaJLj8nTbSpTHyibdU=;
+  b=Fj3ZCJTPWgKqtHd/qX++b9y53JjhoW7haoo36+N6T+lkWBwEobIyNdev
+   kjsdGURBjssAAXfCfZlqxsqMV3uZ7xY5hKLPl4wVdNFQMGedPbaBmVKBD
+   9VS7D0fIq0eoj6KBiTy/c86r16zhlEuHqcm7VIFI/JYd8Viq2aX2DCfgh
+   mPjwn4Hcu++EDQEnms4sOmVldbQZXJqJXNQM0nsAWARCwemkJO73W8TmT
+   fbT6rxYK0mzKRHkDkviVeY4vTfN/fvpc2kq10q+5KcfBETY7JMCOND2LW
+   q37qAwTTpW8Fh6whi2N2Ggq/A5UqZ+56NtlAfyzw03AXn9FGbxwuvgof9
+   A==;
+X-CSE-ConnectionGUID: 09LkTn8UR26dqt7nW2mANg==
+X-CSE-MsgGUID: ZfwwOH6pS8KFf1URyTI+zA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11820"; a="93995628"
+X-IronPort-AV: E=Sophos;i="6.24,211,1774335600"; 
+   d="scan'208";a="93995628"
+Received: from fmviesa008.fm.intel.com ([10.60.135.148])
+  by fmvoesa104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jun 2026 06:09:52 -0700
+X-CSE-ConnectionGUID: eneU7bW8Qke86wLXSFGiXA==
+X-CSE-MsgGUID: 4zllHn5uT5icgldsto+xlw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,211,1774335600"; 
+   d="scan'208";a="245990395"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by fmviesa008.fm.intel.com with ESMTP; 18 Jun 2026 06:09:51 -0700
+Received: by black.igk.intel.com (Postfix, from userid 1003)
+	id BE41F98; Thu, 18 Jun 2026 15:09:49 +0200 (CEST)
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Vladimir Zapolskiy <vz@mleia.com>,
+	Piotr Wojtaszczyk <piotr.wojtaszczyk@timesys.com>,
+	Andi Shyti <andi.shyti@kernel.org>
+Subject: [PATCH v1 1/1] i2c: pnx: Use generic definitions for bus frequencies
+Date: Thu, 18 Jun 2026 15:09:48 +0200
+Message-ID: <20260618130948.3199768-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="xydv7gm37j36422o"
-Content-Disposition: inline
-In-Reply-To: <ajPSo2zjDvq7CflO@zenone.zhora.eu>
+Content-Transfer-Encoding: 8bit
 
+Since we have generic definitions for bus frequencies, let's use them.
 
---xydv7gm37j36422o
-Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v1] i2c: pxa: Use named initializers for the
- platform_device_id array
-MIME-Version: 1.0
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+---
+ drivers/i2c/busses/i2c-pnx.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-On Thu, Jun 18, 2026 at 01:14:04PM +0200, Andi Shyti wrote:
-> Hi Uwe,
->=20
-> On Wed, Jun 17, 2026 at 11:37:36AM +0200, Uwe Kleine-K=F6nig (The Capable=
- Hub) wrote:
-> > Named initializers are better readable and more robust to changes of the
-> > struct definition. This robustness is relevant for a planned change to
-> > struct platform_device_id replacing .driver_data by an anonymous union.
-> >=20
-> > Signed-off-by: Uwe Kleine-K=F6nig (The Capable Hub) <u.kleine-koenig@ba=
-ylibre.com>
->=20
-> I had decided not to take any patch anymore for this cycle, but
-> because this is part of a bigger work you've done, I will squeeze
-> it in.
->=20
-> Merged to i2c/i2c-host.
+diff --git a/drivers/i2c/busses/i2c-pnx.c b/drivers/i2c/busses/i2c-pnx.c
+index 8daa0008bd05..e1cc2b2bd628 100644
+--- a/drivers/i2c/busses/i2c-pnx.c
++++ b/drivers/i2c/busses/i2c-pnx.c
+@@ -24,7 +24,6 @@
+ #include <linux/of.h>
+ 
+ #define I2C_PNX_TIMEOUT_DEFAULT		10 /* msec */
+-#define I2C_PNX_SPEED_KHZ_DEFAULT	100
+ #define I2C_PNX_REGION_SIZE		0x100
+ 
+ struct i2c_pnx_mif {
+@@ -606,12 +605,12 @@ static DEFINE_SIMPLE_DEV_PM_OPS(i2c_pnx_pm,
+ 
+ static int i2c_pnx_probe(struct platform_device *pdev)
+ {
++	u32 speed = I2C_MAX_STANDARD_MODE_FREQ;
+ 	unsigned long tmp;
+ 	int ret = 0;
+ 	struct i2c_pnx_algo_data *alg_data;
+ 	unsigned long freq;
+ 	struct resource *res;
+-	u32 speed = I2C_PNX_SPEED_KHZ_DEFAULT * 1000;
+ 
+ 	alg_data = devm_kzalloc(&pdev->dev, sizeof(*alg_data), GFP_KERNEL);
+ 	if (!alg_data)
+-- 
+2.50.1
 
-Thanks. If you want to rethink that's fine. There are still so many
-patches pending (to be applied and to be sent) that there is little
-sense in rushing in that one. I'm happy if you take it now, but if you
-reschedule it to the next merge window, that's fine for me, too.
-
-Thanks
-Uwe
-
---xydv7gm37j36422o
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmoz43cACgkQj4D7WH0S
-/k59Dwf/Qly5NL/UwzmH9SGXQ9SNDwkQFK1OEwGEL/IQWwoKeioIZUOJhiC0Yuem
-S6CeHWYyDacs8T3Xu/HAXobZYxf5mBCIaS6k+bJR/J3TWI0c0DN/bk06KsZz+uA9
-RTJMR8E+tY8Z7mYRMPHlqCyftkWlPhAzGF/5WmlRpabOqdEJSicfxs0teQoNsFcB
-kWiVdblbu8czhvMLchZJYUkN/D4VSZYQvg5vlxATlErlp9qMgPa2fQib6iFaYsRX
-zLxXxbVUBuL5FiNU7c22RjnSRxPLCVskR4caUfbt4CovYKtybAnuhszYvv3eeazF
-sP+SoK2n4S3ws8GUQaIk4hqzQpvBhg==
-=JUQL
------END PGP SIGNATURE-----
-
---xydv7gm37j36422o--
