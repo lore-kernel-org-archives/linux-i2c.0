@@ -1,69 +1,125 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5180B298CB2
-	for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 19:48:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6692330EF6C
+	for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 20:52:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781812123; cv=none; b=b3G66OHmL6QbU3Unal9HrwumOXLj/bsXDDf4fxoGbEk0ScQml2CMckX3f8mr+F/H/Wb1lHX/O0W2HLOMb1OsxdLqqA4W8mFgis8Fqvib7BkV+hhdhJmh0+sQUY4r9cQiguLb1dE+xSj1zB/vZlaCmomVw/j1A1yTtrYZWzRfH8E=
+	t=1781815939; cv=none; b=BpHDoPvF45+tlbNhcdqWlgBdsBGdKxYmXE1q2gF2+GY6z1EvqPYGM8jS4K+01ssQnLuAGRPGob/fEMEwFI/eTLN6fcAZDyEaTLUE4GVAZI2XajG2d2/CzvBksW+KfneS4qI7eLlOzTTkOviAbdeUOkbJZUTPJpqKIJ0siI4K5ic=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781812123; c=relaxed/simple;
-	bh=wnqWEtnpelR8+OUCiqlImK5vhv5hkXxU66b+sjHg1ws=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GoxmcKu99fkcSgSSgTjrMFsXWRzPkZJ/YVka45Cb103GqhoLlxpUFM1nSdPbo8HZUYdHQ8I7h0uBPzJPPxa5c8e5m9lYMXKzuCjSQBVyurhfa8sLtv+LPdyyE6YEvfkgEWVDsC7Wknx1m0tb8+qgEcgrzALQep3AXM3RRza3Kn8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MCqOCmnx; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781815939; c=relaxed/simple;
+	bh=82svEFDyUn6/zcDgO/BqQKFHS6AKIvFod0+MPV1B4VA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=OH36tEDI+8qIZUgy42A1SvHC71WNPfOQPY5LdfkpFvwg4/hWEo+/EAMRuPfC8em8ttlAxCTt3oUe8/F+YlxvR1gfmDLdSUc4UHPc0qXx1FVydH41tXMEeTVFZN6arObqA/WTyGct4vcGE6TOeeasezfmAtWeKjsXGWhdv8I5Qo4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=VaqZ6/PG; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MCqOCmnx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F121D1F00A3F
-	for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 19:48:41 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781812122;
-	bh=wnqWEtnpelR8+OUCiqlImK5vhv5hkXxU66b+sjHg1ws=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=MCqOCmnxjnO0+Fzim01JPQMuriRmk5n9oEDc12/wQpTNUX7fsxDCq7hbxq8OhI8h5
-	 vAuwiRN9MiQFqjz78OhlCE7f6IbJDvB1jodh54W/8A6W2UzhVQQkoDBp4jf7KrD6oy
-	 fXeahOe3TlAihTOapWkSoppfLWLZu1sSWbR/rxBCkOUPxR9sOb1jPVdH0X/oaiRFds
-	 3Dta/3ShnNp4IwCJNCI+1zI0ACWq4gjLvF9ZJ2Pzt44GWuHX3JCK2PoKDWwQ+Z30nI
-	 rxAkAp9uikmXXCZ4PceGrtEzRsr1tNsZpSiqIj6OV9/7a3rz6zLvm/n1u0yEIvq6De
-	 ojxaNMwYuqToA==
-Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5ad4b60f6d5so1317825e87.2
-        for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 12:48:41 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ92pPb/TqH+7iT3Rb1uaa0CuDzwPFQ//GYSh3J4BK/erHvF8krRJ8sUHULMgrVxoaw8PIN9fpfek+c=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxkvulyBcsF1xCAK4jEJ5C11eRZvWcrQQt2XUY+6AUtCyztno8L
-	n7iHO+fo0ozaxfQwdQbEeZQmrEYrJumwKGsZkZQdJNeNC/BYvmdNyfEQt/hE3UrKfAzSsNVY76f
-	4ExtleLnHRNVqkYtqYR3YqeAKnFj8/CM=
-X-Received: by 2002:a05:6512:6711:b0:5ad:5456:8eff with SMTP id
- 2adb3069b0e04-5ad577242acmr74407e87.50.1781812120760; Thu, 18 Jun 2026
- 12:48:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="VaqZ6/PG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=WsPx
+	MeqlJSLPKBalW95UlyMLrcaZPK8zf9sXgyIgLZY=; b=VaqZ6/PGKOrl08JhAaFd
+	lEPBcM8SrEY/HRulOrMMx6Rh3PtEDyGE79OL4zbFzHPRrTu5QFTeyaDuGrkBN1LM
+	iZsaAUZsRQkjqLRTJealQSTeBnZaR/MAA1i57uzIWtzyoGlgbj+L/SKdi2xwePth
+	Otc1NgT2nrVaoouRdTnHTIwccSx+tZHeyFyQ0XodHLT8pnAp9zSqgnN6mtzbGXBD
+	o42eLZD/aaBUpFon+hwctiJE1dec6rT4xTaG85e7SxkmNzsVC5YNnk1lzQVinhZD
+	923k+iK4kOCOyjpXF2QTbi3LRa3JR25y26oRPO9B48xku1Fxut2uaT9QGKudvuzn
+	xg==
+Received: (qmail 701548 invoked from network); 18 Jun 2026 22:52:11 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 18 Jun 2026 22:52:11 +0200
+X-UD-Smtp-Session: l3s3148p1@SvSbWY1Ulrsujnsq
+Date: Thu, 18 Jun 2026 22:52:10 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Tejas Mutalikdesai <tejasmutalikdesai@gmail.com>
+Cc: andi.shyti@kernel.org, wsa@kernel.org, vladimir_zapolskiy@mentor.com,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	syzbot+c0291c8c9aaa473c7721@syzkaller.appspotmail.com
+Subject: Re: [PATCH] i2c: core: move idr_remove() in i2c_del_adapter() before
+ device_unregister()
+Message-ID: <ajRaej6d2npPBeca@shikoro>
+References: <20260618184610.6536-1-tejasmutalikdesai@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260618141730.3243303-1-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20260618141730.3243303-1-andriy.shevchenko@linux.intel.com>
-From: Linus Walleij <linusw@kernel.org>
-Date: Thu, 18 Jun 2026 21:48:28 +0200
-X-Gmail-Original-Message-ID: <CAD++jLmqEaDpy-MF43vtOqYfyPfTJEe3CJVAvzm5bq3qy07mJA@mail.gmail.com>
-X-Gm-Features: AVVi8Cd1EKp1-PSBupcREVemgEFtD3ARXicbWsv63Ro17PrpLnsggB_Vnf3WG3c
-Message-ID: <CAD++jLmqEaDpy-MF43vtOqYfyPfTJEe3CJVAvzm5bq3qy07mJA@mail.gmail.com>
-Subject: Re: [PATCH v1 1/1] i2c: nomadik: Use generic definitions for bus frequencies
-To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Andi Shyti <andi.shyti@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="UOxfY1EouxY4rP5s"
+Content-Disposition: inline
+In-Reply-To: <20260618184610.6536-1-tejasmutalikdesai@gmail.com>
+
+
+--UOxfY1EouxY4rP5s
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 18, 2026 at 4:17=E2=80=AFPM Andy Shevchenko
-<andriy.shevchenko@linux.intel.com> wrote:
+On Fri, Jun 19, 2026 at 12:16:10AM +0530, Tejas Mutalikdesai wrote:
+> There is a race between i2c_del_adapter() and i2c_get_adapter() that
+> can trigger a "refcount_t: addition on 0; use-after-free" warning.
+>=20
+> The sequence is:
+>=20
+>   1. i2c_del_adapter() calls device_unregister(), which drops the
+>      device refcount to zero (the adapter's release callback fires
+>      and signals dev_released).
+>=20
+>   2. The adapter is still in i2c_adapter_idr because idr_remove()
+>      hasn't been called yet.
+>=20
+>   3. A concurrent i2c_get_adapter() calls idr_find() under core_lock
+>      and finds the adapter.  try_module_get() succeeds because the
+>      owning module is still MODULE_STATE_LIVE (this is a hot-remove
+>      path, not a module unload).
+>=20
+>   4. get_device() is called on a kobject whose refcount is already
+>      zero, triggering refcount_warn_saturate() with REFCOUNT_ADD_UAF.
+>=20
+> Fixing this by moving the idr_remove() call to before device_unregister().
+> Once the adapter is removed from the IDR, any concurrent
+> i2c_get_adapter() will get NULL from idr_find() and return -ENODEV.
+> Callers that already hold a device reference are unaffected:
+> wait_for_completion() correctly waits for them to release it via
+> i2c_put_adapter().
+>=20
+> REPRODUCTION AND VALIDATION: Tested by inserting a msleep(500) after wait=
+_for_completion() to widen
+> the race window, and using a kernel module that spawns two kthreads: one
+> calling i2c_del_adapter() and another calling i2c_get_adapter()
+> concurrently while the module remains MODULE_STATE_LIVE.  Without the
+> fix, the WARNING fires reliably.  With the fix, i2c_get_adapter()
+> returns NULL and no WARNING is observed.
+>=20
+> Reported-by: syzbot+c0291c8c9aaa473c7721@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?extid=3Dc0291c8c9aaa473c7721
+> Fixes: 611e12ea0f12 ("i2c: core: manage i2c bus device refcount in i2c_[g=
+et|put]_adapter")
+> Signed-off-by: Tejas Mutalikdesai <tejasmutalikdesai@gmail.com>
 
-> Since we have generic definitions for bus frequencies, let's use them.
->
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+I'd think this is fixed with b1a58ed9eab1 ("i2c: core: fix adapter
+deregistration race") which went upstream this merge window.
 
-Oh, neat.
-Reviewed-by: Linus Walleij <linusw@kernel.org>
 
-Yours,
-Linus Walleij
+--UOxfY1EouxY4rP5s
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmo0WnYACgkQFA3kzBSg
+KbZcvA/9GS8mFTLLrYOkBxNfMXrETYuVFBBtDIo5vbLUtTe9XpTV8xYfGYJq7KUf
+aILYN5LBjyP9oJSs+shHp40qNHwaVpj9UbO/OvT9ZoNU0WVyq8XThQtSziRd92hb
+/sRpLCjY3pOKfNDnzuWKZ7BObplbzBNFeHrq9eu9ZyyPkxwI7FGJ46ImMFJ/MUqN
+48I/XSxr5BNAGFKDGFUMbwns97xsF+ADrahI8QsplCvNHGmZuTaRNX8mOw4JYFeQ
+grM82woVxlT5/or/B/Tnt16XNH+3MnRxoYvT+d1yZsOZxROWIr61SgEQOxuxLXKm
+qIOvhGW2GcsKv/zjFFh9iUuG6AgR5odky5E+tMec4Moxa2xT0P4a70d/iW213VcS
+n5E/9Wq4HanUgzM0Y3STl7+QORjw9neVT5LPgM3NK1qLdI/FmKrwpCEbbilpkGZj
+nh+y+FfPLlIqLLjCYZjhLue8h1rPRPql80qp2k9orUA96LdLcWEFYKDdtSLs+vQv
+P8ul2aj/865jyHc93AMXmvHFfxvomio3yslN6JJ/sueDl831IpypD4dUidxMt1So
+mYfLfv0dRh/7e9qXv4GLloSV3D1BwAiK5ytvcEzvAKEjA3v6xuHedOz3lDOWqinq
+npcd/IGbFX5rLtKazAeYf9mmOvQ71EDLfPlFqJeRc1ihlqiO9zY=
+=llwT
+-----END PGP SIGNATURE-----
+
+--UOxfY1EouxY4rP5s--
