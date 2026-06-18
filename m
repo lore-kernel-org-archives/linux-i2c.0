@@ -1,78 +1,59 @@
-Received: from mail-pj1-f46.google.com (mail-pj1-f46.google.com [209.85.216.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA9A32EC083
-	for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 14:05:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D360285CBC;
+	Thu, 18 Jun 2026 14:11:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781791538; cv=none; b=eNzQVMSSwosdXJOcdYdt5N6LnVIHzFTYmqT2O5WtMZKkzaePopEqZeSg388r7XtZYBUl4psxrs82QOmml6a8Iqu92vl3r8s5S1eGWCpJSqv+nkXnHUDELpcFM0TO6PEVWbO6B2yfqdDshHdsEdWxEHcH3iv7YaknMwL+Q80X9I4=
+	t=1781791890; cv=none; b=vD2Vw4hZ3FXjhz9AZGVJa9ZFgv1+/FVnDt/8iQqN6SjZ3xwgmLcqNvJM+WFGooYD7K2Qvch2nTaIQO0ZVMMwJ/Ei3PlCBC+bECIgA141ZYRUla99ADfNqy+tTdemN2IEPyfzTqr/LO5iy0OsI20TMZ0zQpNJhT6Wa908P/1nNFc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781791538; c=relaxed/simple;
-	bh=49WYRvvdESNtfeki+abkxDaeGhwROzrKuo0qUHo97Ao=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=ZvmLXObsojUrPLKIHs+AeweO1/+RAxbcXjSbJ5WECrIF6tGaB8OCCjBc+GIbueklxQqcDr4Suz8zkJKTTKHPf5+3rH+VRCzY1ONSp0g/huOaykoKTTADgHXwZhKziKlfrxpcTDp2/ro31L8gV3Yel2HRQDugGSvNH+/A5eeGseY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=DcwM4ttp; arc=none smtp.client-ip=209.85.216.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781791890; c=relaxed/simple;
+	bh=ib6CpK7PM3eC+bGLbP2YkPYXiYRrRFHgzh2jIkuj5i8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GjqQCMn3rD9gms1X+/SUEre8njIx1B2Rn6XKLsx4bLmXzZMlNgcRvfJUV6TTlElm6bSW8JnXUlolQHmuLcMwGJVojAq8FCLYaoN3D4egUoJT/Z9RwepKyWnGl3FAuHY2nKidS4ZsIR3hBtNyU9ARxj8hKIeOwwbu9ap5QSJpFEw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=ZbADPevj; arc=none smtp.client-ip=198.175.65.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DcwM4ttp"
-Received: by mail-pj1-f46.google.com with SMTP id 98e67ed59e1d1-37cbcf49deaso509852a91.1
-        for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 07:05:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781791535; x=1782396335; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WFQnNTOYhtvDC41BGM0bxTP54ugtmHtJK1nGpmbfAd8=;
-        b=DcwM4ttpAK0Gc1OPp6Fm3I4zZ4a5u4YHl8+aOJJCvwEVnYZvCwwe/TafV+ku9+D84x
-         4tgFgP8xfvtSkqZIlXjJ28yofSg/GWFbyBNNVG+4Ko8G1NsAqk35DL0KDysj1EVjgnGB
-         1BvVKJ3Cu4JStxdzXKMDOG41zyTdu62+e1Dug29UtrW/U8cZXhVL28it4aQC63j/QZ8g
-         M7B4yoMkbqear4MdxgSGF7+PWji0Nh7BdaqhZrmiV4Yz2vg2Pjt2kh+mTc+wgefKQE6l
-         yhpZWTBJZMMVnT6Ai+AB545oTjFB0qs8Gy3cAd17Ihd1Jc27u4ajOlhFckvP03BotBUu
-         Zbjw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781791535; x=1782396335;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=WFQnNTOYhtvDC41BGM0bxTP54ugtmHtJK1nGpmbfAd8=;
-        b=WaTOWQrBW7uTHkxDtLaJATh3tIEJG9ITif2JO0cH1caqsRPzQsstvLk8lUgqHn+KYR
-         uQZGQBwCEMBHL3Z9ADDhFmo5m9QDejeoghyI0XeyTJok4MY6TJ50YzB38ng06um4aAIu
-         uYnSeISNocuRLR9s6T3KpQH9XrPQqfj+ea0/OhP98Gvggn0z4nDKsZo5P/TIRcivNglW
-         qVdb7QtoebaIG/BGwXQKiFfIUnOQUljnO0gdjisEo8BXGtLZpvTX2W6ImHK/DZhKfJdH
-         EGK2bIL4eWq5Qjqmylg0KcZNg5Fiv9y2D5oH+Zh3dsM0bY7QSsYLXNbFm+LUjk3gxXp3
-         J28w==
-X-Gm-Message-State: AOJu0YzJZpjQjhpRFMw1FSpc5HoG8J5Ta86bmw1p95beSotot6gZqP7A
-	KWv0ckZdXUhQa8AFgKf5HRck5uifC9OntY9ZU6eaMZmoBzj2k6Bk6EEl
-X-Gm-Gg: AfdE7clzu8befJvvP8U/uoCrMh5sGS4F3zEXzEkaK/ssQOSXFXpTb9GHLyPMwJMrlDj
-	l+E1cAt/l/7ski5gKMI7z/ZjteFJ5LZk8lW/HfGQJmVpxlUofCX7iaPPaqdmPlUlzN8alwvy1sZ
-	ddZL/5bCYtYmOP4C+mEsN1pOg4UnY8cxDC5TadNeNFOJSClSr+hgQ6a46y9s9EnZShWkWMwgtMv
-	oGM1HXn+Pmve8qqgvmq4MWiNGbjefUnUvVVPR9oAfwUeKf6afI3SfMAy8ETeaLjuLfeDHuOmoOt
-	jiFcoGwoJC8mDALz+YneyabDpuryNorM6crySioOaYZwp7RdTIB8+NFp5XzsNRnDtNv6/948ejD
-	bvv1l5DRm1pTUaPz2g7XmixuLoLF5Ql+4v0qYQ/KLOU5Ex8ieAv7Jm89E7dkdkv1/HhKR18OUSo
-	cfY4tEca3QpEf9HgQsXyq5ceq3T2Ja8yGx/uhAdkYMfg==
-X-Received: by 2002:a17:90b:28c4:b0:37c:b248:1a58 with SMTP id 98e67ed59e1d1-37ce48fcc3bmr3902993a91.24.1781791535352;
-        Thu, 18 Jun 2026 07:05:35 -0700 (PDT)
-Received: from steellegend.taila75641.ts.net ([2409:40c4:35e:20d7:2ccf:7534:4b88:ba43])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-37c521ca980sm9961202a91.6.2026.06.18.07.05.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Jun 2026 07:05:34 -0700 (PDT)
-From: Uday Khare <udaykhare77@gmail.com>
-To: wens@kernel.org,
-	andi.shyti@kernel.org,
-	jernej.skrabec@gmail.com,
-	samuel@sholland.org
-Cc: linux-i2c@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-sunxi@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Uday Khare <udaykhare77@gmail.com>
-Subject: [PATCH v2] i2c: sun6i-p2wi: Fix device node reference leak in p2wi_probe
-Date: Thu, 18 Jun 2026 19:35:25 +0530
-Message-ID: <20260618140525.11526-1-udaykhare77@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260617194522.114984-1-udaykhare77@gmail.com>
-References: <20260617194522.114984-1-udaykhare77@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="ZbADPevj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1781791889; x=1813327889;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=ib6CpK7PM3eC+bGLbP2YkPYXiYRrRFHgzh2jIkuj5i8=;
+  b=ZbADPevjnAAVWYLODJEinj4jTNHqsS+4q+BpzEJlmz3il2ponIe6JhaT
+   V9LCYq4sb13XrB4xVkjT+dc7XzlvMzAkHo6iWlW+CQVYwFzIKQRZQ/G2e
+   qAqzp7nVCWuKuoAPYlCIeuLwy7HXgsBcp+DPqAuNmbU0TK6T215kIUg+M
+   /YvIESHWWRyrUiYe5CeXEDIqCekPDTtn2Y7kXSPr+FzF0BQ+TKY7rghZH
+   114W+waANihDa4+r3J8neOwOpGIIFURQ2p8lb5a54q4uZEMycL5gCxRsP
+   tNHIKHvQso/TF+W2pecPjPJ8BPzg5SUjcHR0pF491auk3JaZJHN39BA5h
+   w==;
+X-CSE-ConnectionGUID: /ZlJ8gDUQiW7YgQAQpYHQQ==
+X-CSE-MsgGUID: 8x848kxwQHmTqvzu9L7qbQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11820"; a="82628700"
+X-IronPort-AV: E=Sophos;i="6.24,211,1774335600"; 
+   d="scan'208";a="82628700"
+Received: from fmviesa010.fm.intel.com ([10.60.135.150])
+  by orvoesa109.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jun 2026 07:11:29 -0700
+X-CSE-ConnectionGUID: IRc2AiKRQ6GqWWAtEqHUxQ==
+X-CSE-MsgGUID: x/X/U1tTR4OFb7rac98JLQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,211,1774335600"; 
+   d="scan'208";a="244211142"
+Received: from black.igk.intel.com ([10.91.253.5])
+  by fmviesa010.fm.intel.com with ESMTP; 18 Jun 2026 07:11:27 -0700
+Received: by black.igk.intel.com (Postfix, from userid 1003)
+	id BF3CF98; Thu, 18 Jun 2026 16:11:26 +0200 (CEST)
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Troy Mitchell <troy.mitchell@linux.spacemit.com>,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH v1 1/1] i2c: k1: Use generic definitions for bus frequencies
+Date: Thu, 18 Jun 2026 16:11:25 +0200
+Message-ID: <20260618141125.3241048-1-andriy.shevchenko@linux.intel.com>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -81,56 +62,57 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-In p2wi_probe(), the device node reference obtained via
-of_get_next_available_child() is stored in childnp. This reference is
-never released, causing a device node reference leak.
+Since we have generic definitions for bus frequencies, let's use them.
 
-Fix this by declaring childnp with the __free(device_node) cleanup
-attribute, which automatically releases the device node reference
-when childnp goes out of scope.
-
-Fixes: 3e833490fae5 ("i2c: sunxi: add P2WI (Push/Pull 2 Wire Interface) controller support")
-Signed-off-by: Uday Khare <udaykhare77@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 ---
-v2:
-- Use __free(device_node) and include <linux/cleanup.h> to automate the device
-  node reference cleanup instead of manually calling of_node_put() on error and
-  success paths (suggested by Chen-Yu Tsai).
+ drivers/i2c/busses/i2c-k1.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
- drivers/i2c/busses/i2c-sun6i-p2wi.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-sun6i-p2wi.c b/drivers/i2c/busses/i2c-sun6i-p2wi.c
-index dffbe776a195..8469a0ea98d7 100644
---- a/drivers/i2c/busses/i2c-sun6i-p2wi.c
-+++ b/drivers/i2c/busses/i2c-sun6i-p2wi.c
-@@ -21,6 +21,7 @@
-  * PMIC).
-  *
-  */
-+#include <linux/cleanup.h>
- #include <linux/clk.h>
- #include <linux/i2c.h>
- #include <linux/io.h>
-@@ -184,7 +185,6 @@ static int p2wi_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
- 	struct device_node *np = dev->of_node;
--	struct device_node *childnp;
- 	unsigned long parent_clk_freq;
- 	u32 clk_freq = I2C_MAX_STANDARD_MODE_FREQ;
- 	struct p2wi *p2wi;
-@@ -217,7 +217,9 @@ static int p2wi_probe(struct platform_device *pdev)
- 	 * In this case the target_addr is set to -1 and won't be checked when
- 	 * launching a P2WI transfer.
- 	 */
--	childnp = of_get_next_available_child(np, NULL);
-+	struct device_node *childnp __free(device_node) =
-+		of_get_next_available_child(np, NULL);
-+
- 	if (childnp) {
- 		ret = of_property_read_u32(childnp, "reg", &target_addr);
- 		if (ret)
+diff --git a/drivers/i2c/busses/i2c-k1.c b/drivers/i2c/busses/i2c-k1.c
+index 9152cf436bea..7732dd8b9074 100644
+--- a/drivers/i2c/busses/i2c-k1.c
++++ b/drivers/i2c/busses/i2c-k1.c
+@@ -91,9 +91,6 @@
+ /* i2c bus recover timeout: us */
+ #define SPACEMIT_I2C_BUS_BUSY_TIMEOUT		100000
+ 
+-#define SPACEMIT_I2C_MAX_STANDARD_MODE_FREQ	100000	/* Hz */
+-#define SPACEMIT_I2C_MAX_FAST_MODE_FREQ		400000	/* Hz */
+-
+ #define SPACEMIT_SR_ERR	(SPACEMIT_SR_BED | SPACEMIT_SR_RXOV | SPACEMIT_SR_ALD)
+ 
+ #define SPACEMIT_BUS_RESET_CLK_CNT_MAX		9
+@@ -286,7 +283,7 @@ static void spacemit_i2c_init(struct spacemit_i2c_dev *i2c)
+ 		val |= SPACEMIT_CR_MSDIE;
+ 	}
+ 
+-	if (i2c->clock_freq == SPACEMIT_I2C_MAX_FAST_MODE_FREQ)
++	if (i2c->clock_freq == I2C_MAX_FAST_MODE_FREQ)
+ 		val |= SPACEMIT_CR_MODE_FAST;
+ 
+ 	/* disable response to general call */
+@@ -703,14 +700,14 @@ static int spacemit_i2c_probe(struct platform_device *pdev)
+ 		dev_warn(dev, "failed to read clock-frequency property: %d\n", ret);
+ 
+ 	/* For now, this driver doesn't support high-speed. */
+-	if (!i2c->clock_freq || i2c->clock_freq > SPACEMIT_I2C_MAX_FAST_MODE_FREQ) {
++	if (!i2c->clock_freq || i2c->clock_freq > I2C_MAX_FAST_MODE_FREQ) {
+ 		dev_warn(dev, "unsupported clock frequency %u; using %u\n",
+-			 i2c->clock_freq, SPACEMIT_I2C_MAX_FAST_MODE_FREQ);
+-		i2c->clock_freq = SPACEMIT_I2C_MAX_FAST_MODE_FREQ;
+-	} else if (i2c->clock_freq < SPACEMIT_I2C_MAX_STANDARD_MODE_FREQ) {
++			 i2c->clock_freq, I2C_MAX_FAST_MODE_FREQ);
++		i2c->clock_freq = I2C_MAX_FAST_MODE_FREQ;
++	} else if (i2c->clock_freq < I2C_MAX_STANDARD_MODE_FREQ) {
+ 		dev_warn(dev, "unsupported clock frequency %u; using %u\n",
+-			 i2c->clock_freq,  SPACEMIT_I2C_MAX_STANDARD_MODE_FREQ);
+-		i2c->clock_freq = SPACEMIT_I2C_MAX_STANDARD_MODE_FREQ;
++			 i2c->clock_freq, I2C_MAX_STANDARD_MODE_FREQ);
++		i2c->clock_freq = I2C_MAX_STANDARD_MODE_FREQ;
+ 	}
+ 
+ 	i2c->dev = &pdev->dev;
 -- 
-2.54.0
+2.50.1
 
