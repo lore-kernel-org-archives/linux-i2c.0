@@ -1,61 +1,73 @@
-Received: from out203-205-221-149.mail.qq.com (out203-205-221-149.mail.qq.com [203.205.221.149])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f178.google.com (mail-pg1-f178.google.com [209.85.215.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA65B3438A4;
-	Thu, 18 Jun 2026 16:45:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.205.221.149
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D50154192FC
+	for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 18:46:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781801118; cv=none; b=BCQw96YtzFXbWHnUFToMg4hoFLlTkjrRImzwfw5v1OPIqrviHgLxczkxwiPtQnAA5eBWgQWcRrBvYHC2m6nETMJ1fOHvIvGHNHdBHMV5c05Q1vPqvBWZf2+QmAAQOa/45/RmX7QoqcpTMyhEpaKdQtCajKvHxdRpa6SKJuZxlFg=
+	t=1781808393; cv=none; b=RkKh+LRQM1VIJX421u5CWMVTMxbhsiVTJN8huTtYtYLzInsqPsMhx/XZ5Iii5pIczCkyeB5iOumsln+C6c/qHtw7an0U75DDu0kQCGQA9fIXHl267fVWz1EuDc4z7ZJfXXb3HwdibytFBKTBxS3cXX/n9a/ywRSya4DjyvQwt+c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781801118; c=relaxed/simple;
-	bh=HyIYAhDN0g09XVBrkBGY3nkYIRPsnPlFZF+etGwnRNU=;
-	h=Message-ID:From:To:Cc:Subject:Date:In-Reply-To:References:
-	 MIME-Version; b=VTzGj+ux55e2HGftUN6YaP5h6HmqRtUhsStYZJbpzvntBpkh8ZpgCIaG/4rRWJGyYQiYehywyBlExT6Qel516iwKZbHvxp6ojP2E1wbS+FgWpe7wx7Wo2S8IWJuZNIfNzXMFgSJquxtbh/Ar8LxyPu1xiQ4Df6ZWOMzoIzCPcJI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com; spf=pass smtp.mailfrom=qq.com; dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b=drm1J+tJ; arc=none smtp.client-ip=203.205.221.149
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=qq.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qq.com
+	s=arc-20240116; t=1781808393; c=relaxed/simple;
+	bh=1MFy0r1AaQOMVgMfm947ZtJZ28NGc8QsTfE7EFaYc70=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LPhRTqdLjoAICK5wLMbxGgus3fOum3MfoqH/W2/nrgJpzabzc+Z/OEBH8xQUpVt57rNai+BFzTowj/UYapRbbDhnGVdWOLiMe3lEe5cUn0V+Wf0rSKrDqH2ZMs0z0dAvGxQQugaBc+oiP+tJDK6OcxLZ3K/WSmQg7hB5QcxAN20=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GD/miN3n; arc=none smtp.client-ip=209.85.215.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=qq.com header.i=@qq.com header.b="drm1J+tJ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qq.com; s=s201512;
-	t=1781801106; bh=gKknWzmn5MmxSPM7x0Jr8IYqk59JnWapwuBsGz0cyDM=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=drm1J+tJ4cdClVZ6KO0phEDYdw7xa0dB87JLtA28lTfaHtU27ey30NN02Nzzo1ca1
-	 JEwpVd4a9AoOPwI26auif0tqd7IqbJmQJLm6Oqw41eKxs4PBS4Oh3rXm7IfgRR11Tm
-	 ivcx/sq75+twcB1c0eNjUPRR6EIle3LCPLSZ9w6o=
-Received: from ws006419.mbzu.ae ([5.195.0.150])
-	by newxmesmtplogicsvrsza53-0.qq.com (NewEsmtp) with SMTP
-	id B3038E04; Fri, 19 Jun 2026 00:44:48 +0800
-X-QQ-mid: xmsmtpt1781801098tz43o3saj
-Message-ID: <tencent_EE0C00FD7E512B7FEBE18A9C207D74779C09@qq.com>
-X-QQ-XMAILINFO: OOnbKU/qCQQlMjXBVSkar6F0HBSPNsDWB9fBUbIFV0L8SHiwUzBbT6zZQk5j3N
-	 Fg7f4e5gUJfmuJQTK5gARgcA6eyiim3n7zynEuwLC4qjHuVUQRMuNISXuE0t6uPpufIQ2dKX8W7U
-	 WbqcCUH2CD4/7DXqg6eKOSEbtZXoxbMv2r4x8Ho5WvmrteBeM6vS40kNv60JDa3LpyQhHJzgH2X0
-	 uQaLTKBJijBkb02Ffj0Qxe3s5hNnaFN5AYdCbj1vUBmiZpQgisFXUoNvmk5oi0FBVI3DUXOqDH54
-	 zPqwave7l1HI7USgQWihzwzMTsGc8Gp/bzxKspu26hjPpxgpjC7w33ZM7UoXEzbHzfHi8vEQeiw+
-	 8aRmSkNCSjMnlwX0R4y8/S2FNo3VH3n6VRqCH+eAj2vJRJi6Xbe2ifIfObVDJ/98Qrz9V5EPd7rG
-	 wb/2Tfd0vN2X6eFXOs7UG5Jhp/zatVUWUCc15ouau2YNyaGGidHvTBwQqR0oRQmnq2AxdpyGrFcs
-	 K8jVlBVbIBpCSma/NfymP+PukAfNgs+4/fWSfF1oHoGu1WwOohLnL3QxCbf+sZSFR+QPp77cbs3Q
-	 2OFrSXI+a0f7NaGreeJn+LLSrZEMAsuuzR6n6xzE1ylhNtwr+mLqgcSOLQTjf7u1BXCBGdQza/45
-	 OqsM3SOiU2oDa8Wxe6xxdoPP3dTo7KbPcKAnQOv9o2Yri9ipVTul+iiSYz0ys9zVIednldtAov0o
-	 Eb+oGb9EoxHELxK99dnQRjk3HG1quEK/78qPioNHoqsXpmNn8luqNOwoPMDpuhaXRgoeV91/Gatf
-	 rFDuqf/TWuuliv5XYPtJBCxvakuzWAl0/x10O7TAztF21EMM9Y5amzvFFd92UQrDI4wQ1KAljd9z
-	 U5RIJtvHrbcg3MB8OD3t/Hq+wS2WpLD6/R+ZmNeK6pMR1pf/mUZYixzBFFbPEs//We7quyVYil8c
-	 /G67Uv42b6xkIs5HqraDu4gqyMkBfXKs5QjJ7BoJBFCt/XVOtBOPPQmq7Y8dm/dorUMIVQN+xHqE
-	 Zi9BCxkqs6gg9jzRZPSfBmAT+usapFd+0PEQFca17OecGhEZUDWeeFIhpP+mOAIJsSHzUSMDkHHh
-	 Wp+gY12V7RiXKCkNQiQlMgolI37Q==
-X-QQ-XMRINFO: OD9hHCdaPRBwH5bRRRw8tsiH4UAatJqXfg==
-From: Jiawen Liu <1298662399@qq.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GD/miN3n"
+Received: by mail-pg1-f178.google.com with SMTP id 41be03b00d2f7-c85b73ffb52so702321a12.3
+        for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 11:46:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781808386; x=1782413186; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=j3aSww2RYBilvZ78lj//N2k5kgtCUlB2Nqs3hY7555E=;
+        b=GD/miN3nZ7c09+hk9cgjYAeV7HzyDjphUO/Jtfnde2GnezjdM1svEQpBGFlBFlw70/
+         VhbRm2cIcBxsQ+YQCpEvV91O3xCcIQ1WAaW5I0iRqNFuPWWjIib2sED4GEgThwzKiV33
+         on9+Oe+y1pEsstahlHCXMCZ3ej0UMlm/AgLUVjgViLUepZUyLDBD3QvduS/k9a+x/WTi
+         LaRrUqTWTz+7zxFU0RZa3EyygyC3+68FnrKKLeqCTx23nXw8vqaPFqzeVS7zqd8xRfk6
+         pPkVOS+jPcjrmlVl2ieUF6nPaoGHfSH8DGbBK2iDX1t23y/8Sb4gjsQRWInQiGhBhZ8q
+         +o2w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781808386; x=1782413186;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=j3aSww2RYBilvZ78lj//N2k5kgtCUlB2Nqs3hY7555E=;
+        b=i7Y9HItG9p6KPp6dRxV/4ehjnoMQMESqMIk5Di168mt0UdRejUPdgOsxEYxTQWhGCY
+         0dW1+6Aed4Z5AmEoqN7y5A6Dfu6F+xAzX/FyXsY966NdtwBefXMSpaWGSAKcCaPcJo6M
+         tMyRqc5oEAYHLq/6A07/1QRMbZyYKaNx9RZbkwqWurCtBEcGgNfWWfjwhzTf1Uj/BJSC
+         F7qWIxnFzijr0Dt64SIyw3tDcjYP10SrKnFd4eKo5EbiggmpoJCeQu4HZpVXBF2kTgV4
+         R2izXkDog53V7iJAw50RKQbdkSxNzKc5+mj7D+ny0RyIWl8+sxSD/3jf7ojB08KyyXtn
+         PiTQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8vJAOAVwVLZOwzuUO1rSAKpJqdu6vqDWk6oRKCJd6sPOJZT/EA5vA2n3vTN6Ewg69ytROQ8zLJKoY=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yxk4DZjUCZncgW0rnN1KRRlhqvjpBc+8q+odEX1NsKRq8t3pI6q
+	aL/5FgvA+b/Khs2IY/iN8RidcMKSEqvJy9U5X5D+X96bXRcXY/EMRbHm
+X-Gm-Gg: AfdE7cn5Qn9cSjQPEmJxphk++8WXMONebH0Ql4oyL37Yg4gUbYyBq0bSXs5ENEIAEF+
+	JjDFNfAFPofM5ToH8MJBVzW5JG6U/Da/ZN2XQfEgZw/+pntFwcTiMWNzFtQ1oXWkgwI4qecCrgg
+	C+5/UmHzJZgII+ov30JgZfaWfHcgq06ksntMAuSk3M24cG+tPHTVgi00MfwscnDuQl8y2tAF6sA
+	jeDQHCOKOMkZNb3oJdx9ZU7BMXlwsuTLZXD/sA2q7d+mTEyc+gtgiOkd3JyIU8oDuVbPzTxZaRP
+	SDVlZR4WmxZq0qiCFkjY3TadHMhAx6m8quw3ngltydVxiz0WMGOQmVI6EBKk3H9I+NzObLiz418
+	Zurr6jZbaw0qotJI8JsEQ2S+yXpabS68fbLHtDtVLni4JMYieyIK3v9xrtKgp9w6LW9qBcOcIsv
+	u7mik9ZB44KpVl7mj2kPkyw/4QQYE=
+X-Received: by 2002:a05:6a20:12d6:b0:39f:9eb3:1d09 with SMTP id adf61e73a8af0-3bb34d6c0dcmr273348637.37.1781808385943;
+        Thu, 18 Jun 2026 11:46:25 -0700 (PDT)
+Received: from vbox ([117.251.163.66])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c8a8544e2afsm137087a12.12.2026.06.18.11.46.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Jun 2026 11:46:25 -0700 (PDT)
+From: Tejas Mutalikdesai <tejasmutalikdesai@gmail.com>
 To: andi.shyti@kernel.org
-Cc: till@harbaum.org,
+Cc: wsa@kernel.org,
+	vladimir_zapolskiy@mentor.com,
 	linux-i2c@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Jiawen Liu <1298662399@qq.com>
-Subject: [PATCH 2/2] i2c: tiny-usb: check adapter registration failure
-Date: Thu, 18 Jun 2026 20:44:41 +0400
-X-OQ-MSGID: <20260618164441.3883683-2-1298662399@qq.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260618164441.3883683-1-1298662399@qq.com>
-References: <20260618164441.3883683-1-1298662399@qq.com>
+	Tejas Mutalikdesai <tejasmutalikdesai@gmail.com>,
+	syzbot+c0291c8c9aaa473c7721@syzkaller.appspotmail.com
+Subject: [PATCH] i2c: core: move idr_remove() in i2c_del_adapter() before device_unregister()
+Date: Fri, 19 Jun 2026 00:16:10 +0530
+Message-ID: <20260618184610.6536-1-tejasmutalikdesai@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -64,42 +76,81 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-i2c_tiny_usb_probe() ignored the return value from i2c_add_adapter()
-and returned success even if adapter registration failed. The
-disconnect path later assumes the adapter was registered and calls
-i2c_del_adapter().
+There is a race between i2c_del_adapter() and i2c_get_adapter() that
+can trigger a "refcount_t: addition on 0; use-after-free" warning.
 
-Return the registration error and clear the USB interface data on
-probe failure.
+The sequence is:
 
-Signed-off-by: Jiawen Liu <1298662399@qq.com>
+  1. i2c_del_adapter() calls device_unregister(), which drops the
+     device refcount to zero (the adapter's release callback fires
+     and signals dev_released).
+
+  2. The adapter is still in i2c_adapter_idr because idr_remove()
+     hasn't been called yet.
+
+  3. A concurrent i2c_get_adapter() calls idr_find() under core_lock
+     and finds the adapter.  try_module_get() succeeds because the
+     owning module is still MODULE_STATE_LIVE (this is a hot-remove
+     path, not a module unload).
+
+  4. get_device() is called on a kobject whose refcount is already
+     zero, triggering refcount_warn_saturate() with REFCOUNT_ADD_UAF.
+
+Fixing this by moving the idr_remove() call to before device_unregister().
+Once the adapter is removed from the IDR, any concurrent
+i2c_get_adapter() will get NULL from idr_find() and return -ENODEV.
+Callers that already hold a device reference are unaffected:
+wait_for_completion() correctly waits for them to release it via
+i2c_put_adapter().
+
+REPRODUCTION AND VALIDATION: Tested by inserting a msleep(500) after wait_for_completion() to widen
+the race window, and using a kernel module that spawns two kthreads: one
+calling i2c_del_adapter() and another calling i2c_get_adapter()
+concurrently while the module remains MODULE_STATE_LIVE.  Without the
+fix, the WARNING fires reliably.  With the fix, i2c_get_adapter()
+returns NULL and no WARNING is observed.
+
+Reported-by: syzbot+c0291c8c9aaa473c7721@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=c0291c8c9aaa473c7721
+Fixes: 611e12ea0f12 ("i2c: core: manage i2c bus device refcount in i2c_[get|put]_adapter")
+Signed-off-by: Tejas Mutalikdesai <tejasmutalikdesai@gmail.com>
 ---
- drivers/i2c/busses/i2c-tiny-usb.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/i2c/i2c-core-base.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-tiny-usb.c b/drivers/i2c/busses/i2c-tiny-usb.c
-index 73355a56aabf..df1694f721ce 100644
---- a/drivers/i2c/busses/i2c-tiny-usb.c
-+++ b/drivers/i2c/busses/i2c-tiny-usb.c
-@@ -262,7 +262,9 @@ static int i2c_tiny_usb_probe(struct usb_interface *interface,
- 	dev->adapter.dev.parent = &dev->interface->dev;
+diff --git a/drivers/i2c/i2c-core-base.c b/drivers/i2c/i2c-core-base.c
+index a2132d70fb36..780ce42fa950 100644
+--- a/drivers/i2c/i2c-core-base.c
++++ b/drivers/i2c/i2c-core-base.c
+@@ -1801,6 +1801,16 @@ void i2c_del_adapter(struct i2c_adapter *adap)
  
- 	/* and finally attach to i2c layer */
--	i2c_add_adapter(&dev->adapter);
-+	retval = i2c_add_adapter(&dev->adapter);
-+	if (retval)
-+		goto error;
+ 	debugfs_remove_recursive(adap->debugfs);
  
- 	/* inform user about successful attachment to i2c layer */
- 	dev_info(&dev->adapter.dev, "connected i2c-tiny-usb device\n");
-@@ -270,6 +272,7 @@ static int i2c_tiny_usb_probe(struct usb_interface *interface,
- 	return 0;
++	/* Remove from IDR first so that a concurrent i2c_get_adapter() can
++	 * no longer find this adapter.  Without this ordering,
++	 * i2c_get_adapter() can find the adapter via idr_find() and call
++	 * get_device() after device_unregister() has already dropped the
++	 * refcount to zero, triggering a use-after-free warning.
++	 */
++	mutex_lock(&core_lock);
++	idr_remove(&i2c_adapter_idr, adap->nr);
++	mutex_unlock(&core_lock);
++
+ 	/* wait until all references to the device are gone
+ 	 *
+ 	 * FIXME: This is old code and should ideally be replaced by an
+@@ -1812,11 +1822,6 @@ void i2c_del_adapter(struct i2c_adapter *adap)
+ 	device_unregister(&adap->dev);
+ 	wait_for_completion(&adap->dev_released);
  
-  error:
-+	usb_set_intfdata(interface, NULL);
- 	kfree(dev);
- 
- 	return retval;
+-	/* free bus id */
+-	mutex_lock(&core_lock);
+-	idr_remove(&i2c_adapter_idr, adap->nr);
+-	mutex_unlock(&core_lock);
+-
+ 	/* Clear the device structure in case this adapter is ever going to be
+ 	   added again */
+ 	memset(&adap->dev, 0, sizeof(adap->dev));
 -- 
-2.34.1
+2.54.0
 
