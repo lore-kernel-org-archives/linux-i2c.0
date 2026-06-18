@@ -1,69 +1,129 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com [209.85.221.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91F943D904C;
-	Thu, 18 Jun 2026 11:25:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95F8F3F44DC
+	for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 12:24:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781781929; cv=none; b=TtX8IpJotx7XoYfDO/WFOtDNFC61dTMyAeRZCD2krZxxYw153tfz1KUc+YZ9BHlKu8lgZ4ihjbfS8oL5BLeD0daCHp2EdFI1Tf3vBsk2PibTVGjZC5O8Ji9z+hjHESAfWRbfYS57amcMosuF0NGLsl2iPk8Ag0eg73VzmIZV0V4=
+	t=1781785472; cv=none; b=G9h691Q29n7YsJMH7hdmS3fJt40HwxFvdo1GcpMx239gr45Mf2kLhiTVVud9tqgiC8fkRSxpC9zcrz8q9OiC+l4GQADKGyV0ZTGl8FYuVOSWwW5aTSGS4gUgTdbKXx05OYu744lwn8V3fdKYVAaH5LzFJxXDQJ7GjM9EUTYKNiU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781781929; c=relaxed/simple;
-	bh=RQS8wB6VSTJQy+60gnzha79t8hRK65kV5eb6mC4rOPA=;
+	s=arc-20240116; t=1781785472; c=relaxed/simple;
+	bh=i3it/QJBC6ckD2rmxh+eJnocRSEVreIqnZQSdK6diF4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=NVe1bqC+3x513JYVwIfts8SZzNL9YZz6dNYiQcZmmfJzDx8XBgroQP7K86XYPcqNXtZDt7cV3Ibv5rj6ySJrieKK2aDAODS599ko9n6Ds5HICUpe/YWyaoPX/Wlq+B41LsbZPY1xGCAS47IJIWPGrmWCltpHTTxxu/A96rAwwGE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SzM5JOzj; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=OH+O70wCTuK8ONP+Rf4d9liMaNCWCXacZ4Vzld2UNMq6PXSuX7j63+/OUlDdJcRJ/ZhW/wDZGPRxjOdnGLC0GoIo3iR3LGWXhkII4+HNLXrCllk/MqxLDs3gTio2q172yukxGq1n5D4SThqlwGd2B9WRyp1ClJYz5Jndd/sEz+M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=FUKNi9zA; arc=none smtp.client-ip=209.85.221.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SzM5JOzj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B06BC1F000E9;
-	Thu, 18 Jun 2026 11:25:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781781926;
-	bh=uqc6HL3wgT0Al3nfUEKW2X0HTEsb7gSE8Bs2eGkNWrg=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=SzM5JOzjvg9qE65fz2yBJiW20gpeSbkAyx/H9CbQMyjgEksgVKM+f8kIqzpgiljKP
-	 M4IZ4H3fDp+luP8rwD+0bflHt6L3wA13IT9lzq1jv+dEU1/rgm509yZ/YX4N04Sq5/
-	 esk2oYtxbtpfOPZ01r4pCkx8tFSnck+JRi0Y4tjahwNOEuFT+Ksy1svhlgS+ntx9WV
-	 QiGxPVJE4ge1MTXuUJ7fO1srjbA9EVXVYIOnemyZQ8OoKq8X5Svn4wsWpqPDD7cG4q
-	 YQCDDsLO8T5kAGa2dsLPMHeC0D1ohSZ5e4m9l8QDeP/9PSVFg0ETBI1pKHDD1Z3gG5
-	 PDYr/wMIukHBg==
-Date: Thu, 18 Jun 2026 13:25:21 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Praveen Talari <praveen.talari@oss.qualcomm.com>
-Cc: Rob Herring <robh@kernel.org>, 
-	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
-	Konrad Dybcio <konradybcio@kernel.org>, Bjorn Andersson <andersson@kernel.org>, 
-	Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>, Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>, 
-	Mattijs Korpershoek <mkorpershoek@kernel.org>, linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, bjorn.andersson@oss.qualcomm.com, 
-	konrad.dybcio@oss.qualcomm.com, aniket.randive@oss.qualcomm.com, 
-	chandana.chiluveru@oss.qualcomm.com, prasad.sodagudi@oss.qualcomm.com, 
-	Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>, Nikunj Kela <quic_nkela@quicinc.com>
-Subject: Re: [PATCH v7 0/6] Enable I2C on SA8255p Qualcomm platforms
-Message-ID: <ajPVVacuswonBfZk@zenone.zhora.eu>
-References: <20260617-enable-i2c-on-sa8255p-v7-0-ad736dbeab57@oss.qualcomm.com>
- <ajNLmO9UBH_Xs3W2@zenone.zhora.eu>
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="FUKNi9zA"
+Received: by mail-wr1-f53.google.com with SMTP id ffacd0b85a97d-45fd461e4a5so731888f8f.0
+        for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 05:24:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1781785469; x=1782390269; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=i3it/QJBC6ckD2rmxh+eJnocRSEVreIqnZQSdK6diF4=;
+        b=FUKNi9zAs1nTh9J+5HMq7Jenzvo9jLXvtJQpAlxChEZ4c2vvMRcV1LiQtJ+j7gelKx
+         CXEvNLElJIFJBCH6n6rvKyC2yG5lEBm4eYWIBqIpXU2LItKaewN+umSiW/rjuSI+yvik
+         WUdRCeFn1xOMm0u2doJN1Bf/i/z56IY2qC30SXq1vhSufDpWaXiChO//BagvwtKBUBZf
+         iG1SDP+Ppu1RcSvRHqjLCSMMIAfDP4V92Zk85ia3SOV2ygQ92TLmMFHgBsl0aHl6u33A
+         CZrtWgEjm5hf/dFu38MSLtl/nJEWGlqOhJIduHNOTkP8p8ukVipCHQj8mupGMgwMjrCa
+         NkKg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781785469; x=1782390269;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=i3it/QJBC6ckD2rmxh+eJnocRSEVreIqnZQSdK6diF4=;
+        b=PxS50h9zaLV86WWi/76vrqpjigux0XNnnipJB2DVdz72Tj440NDtDuxzm2exZHn6bb
+         L3FauJrxzYI+f0dQscu6m/NtsYztHIY33oE/LDncnhcyufDBblBjgp80UYdc8YxNo/Sm
+         VHW11lzsMYjS4sqaNOQVJ0NOy8uQbm4+yU8Vj6Pdw8LonmWfNCEOM2J7OouzY1GIza4x
+         CNmYeudgXPLK0ramVsUVI6gYxjdedl2iua9dM+Stj1J2TUytwy9DohUOm+Z1f8sft3KB
+         O4Wf59moHOemd2ZceB60nzexiEXgL3tUI+Y2awvs49zM7u0dGvvrVPDKjOQe2bI0ebkp
+         Pu4w==
+X-Gm-Message-State: AOJu0YxCj8Z1wFpI1Ea8PFd5EbaHiGWgB+6TFJrrsZ/jvooae671L5yD
+	7XuwqSeLgiddzTups9fyVYkedpUVhoHLDdxuQd62K52FHMVIma0KWzpSXSKMFYoCACo=
+X-Gm-Gg: AfdE7cleKpqIR2IyFSlnUWvByYyX95TSEgQi5fAXDL9P53aTTOB6kbyBG55Ej1y8yXb
+	S9Ao+XBs6cT+rV8VdPYz4SuSRjFbhxhfXlkalbmzNYiI7Ag/8AR1q6NhzEIBskjHhE/jGFc61cp
+	oEtgResLr4AocNWuYGwo5LXxe0aWELoC0Kd6JFr/T9Cdunj6mmcNjC+WJ13vcqEUFLfqTosQU2q
+	J0v4PsLIihufRELo73oaUw/j3f+hnOdoXz8UhjgPs95uenvauMy7ut4bvu4DAx777UWHrfeNwH2
+	1I6VKhffJPsInvWORHwGzd5WbIVCY/HTYRqM3KViIlz7AhpjYW5mxOLn7DapOwr6DJbJG665yR1
+	RkzqJX2Uyj10zeHn4L6samzKl/gnCQJyjDsD7sxT/pbGYGxBTw0YQPYwbMV1/1KcVnyst+ciqcG
+	eyePgum40PyNdH1N/MGQ==
+X-Received: by 2002:a05:6000:4b01:b0:461:dfe2:c7ed with SMTP id ffacd0b85a97d-46240cf9358mr12936537f8f.27.1781785468838;
+        Thu, 18 Jun 2026 05:24:28 -0700 (PDT)
+Received: from localhost ([2a02:8071:56d1:2de0:559d:eec2:887f:c200])
+        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-462236047c8sm18637457f8f.10.2026.06.18.05.24.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 18 Jun 2026 05:24:27 -0700 (PDT)
+Date: Thu, 18 Jun 2026 14:24:25 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1] i2c: pxa: Use named initializers for the
+ platform_device_id array
+Message-ID: <ajPjJbYrtZJ09rDW@monoceros>
+References: <827657abb02edb39bc90f7336194f614d383770e.1781688767.git.u.kleine-koenig@baylibre.com>
+ <ajPSo2zjDvq7CflO@zenone.zhora.eu>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="xydv7gm37j36422o"
 Content-Disposition: inline
-In-Reply-To: <ajNLmO9UBH_Xs3W2@zenone.zhora.eu>
+In-Reply-To: <ajPSo2zjDvq7CflO@zenone.zhora.eu>
 
-Hi Praveen,
 
-> > Praveen Talari (6):
-> >       dt-bindings: i2c: Describe SA8255p
-> >       i2c: qcom-geni: Isolate serial engine setup
-> >       i2c: qcom-geni: Move resource initialization to separate function
-> >       i2c: qcom-geni: Use resources helper APIs in runtime PM functions
-> >       i2c: qcom-geni: Store of_device_id data in driver private struct
-> >       i2c: qcom-geni: Enable I2C on SA8255p Qualcomm platforms
-> 
-> merged to i2c/i2c-for-7.2.
+--xydv7gm37j36422o
+Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v1] i2c: pxa: Use named initializers for the
+ platform_device_id array
+MIME-Version: 1.0
 
-sorry, 7.3. It's too late to send it for this cycle.
+On Thu, Jun 18, 2026 at 01:14:04PM +0200, Andi Shyti wrote:
+> Hi Uwe,
+>=20
+> On Wed, Jun 17, 2026 at 11:37:36AM +0200, Uwe Kleine-K=F6nig (The Capable=
+ Hub) wrote:
+> > Named initializers are better readable and more robust to changes of the
+> > struct definition. This robustness is relevant for a planned change to
+> > struct platform_device_id replacing .driver_data by an anonymous union.
+> >=20
+> > Signed-off-by: Uwe Kleine-K=F6nig (The Capable Hub) <u.kleine-koenig@ba=
+ylibre.com>
+>=20
+> I had decided not to take any patch anymore for this cycle, but
+> because this is part of a bigger work you've done, I will squeeze
+> it in.
+>=20
+> Merged to i2c/i2c-host.
 
-Andi
+Thanks. If you want to rethink that's fine. There are still so many
+patches pending (to be applied and to be sent) that there is little
+sense in rushing in that one. I'm happy if you take it now, but if you
+reschedule it to the next merge window, that's fine for me, too.
+
+Thanks
+Uwe
+
+--xydv7gm37j36422o
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmoz43cACgkQj4D7WH0S
+/k59Dwf/Qly5NL/UwzmH9SGXQ9SNDwkQFK1OEwGEL/IQWwoKeioIZUOJhiC0Yuem
+S6CeHWYyDacs8T3Xu/HAXobZYxf5mBCIaS6k+bJR/J3TWI0c0DN/bk06KsZz+uA9
+RTJMR8E+tY8Z7mYRMPHlqCyftkWlPhAzGF/5WmlRpabOqdEJSicfxs0teQoNsFcB
+kWiVdblbu8czhvMLchZJYUkN/D4VSZYQvg5vlxATlErlp9qMgPa2fQib6iFaYsRX
+zLxXxbVUBuL5FiNU7c22RjnSRxPLCVskR4caUfbt4CovYKtybAnuhszYvv3eeazF
+sP+SoK2n4S3ws8GUQaIk4hqzQpvBhg==
+=JUQL
+-----END PGP SIGNATURE-----
+
+--xydv7gm37j36422o--
