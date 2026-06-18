@@ -1,40 +1,40 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3D1C1DE4F1;
-	Wed, 17 Jun 2026 23:38:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6D4E800;
+	Thu, 18 Jun 2026 00:11:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781739509; cv=none; b=BhGrezMcgn5UWQBUKZbhhF1uilu2RexCoIgZ/VscuwTGCMEtagzALHGFsxtXDKM9zcbm8DH6ARW49pMsy5/JeeX1KzdnV2S5jhpc56d58ysCBVhiuFFz40Qr9d6TTvKm5ahwbR6cB4k22R2JPnc658xrcP4zeh5MMhYViRZvqkk=
+	t=1781741471; cv=none; b=qPB/iURWzgK9h2T2HmXX0l6LZmebVHzRznjSLy6+bX4VVKvwc7nJAYngnb/wJm4umjzfpXD1Xo3hjZUoLFE18o9Ei4nuTlLliNtK01MC87nJggKrxkbLlGc51DoZ9kL0Qfvh1b1P3Z+jstrYGvEoZMiDQ0fAtfXs3+QnuELURJ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781739509; c=relaxed/simple;
-	bh=GDGCLkIeRmnqVhtJAZLTfSu4zBJAd4FkwPx1iN36FhA=;
+	s=arc-20240116; t=1781741471; c=relaxed/simple;
+	bh=dzwf6C30U+S3XZlPHCXkMqhVx4umM5UNhj73oBkRKrM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=HGt7mdOFKsT3elbr6ohWTUrNfSzUOoykLDVPLjQx9iuYTumg2IOASENXt/ImMWoH3weOayz6UpaqtRT80U6CBj9p30n5ToUGNvqnKTyQR90glruIC1RZ91hh+OuMk7pNOEaubAOqJ4AEWMxnMa5VBLw6loC6X9eBWMXcTwnIO34=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=M3iWkcgj; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=hyZ92eWGoTVOXk1pt7HZCnV3wWKiUSmAGRnmxMeia2H7lGdzPlfg6o9VDWVypuzIwgeADmn5/oxga0bJYetK5z14W7WqOqziRTzpNswqi/I0u4DjMZdSFpNoQKPCq1i9sfydSQjl79RFokxMWNLYyLUsZxyczDgPdWXn7kunzKA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ac+2uviU; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="M3iWkcgj"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 947281F000E9;
-	Wed, 17 Jun 2026 23:38:27 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ac+2uviU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3D0A1F000E9;
+	Thu, 18 Jun 2026 00:11:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781739508;
-	bh=wixw0026hj5PxnquB9p21grb3sypIWcI2jV3PxVVnkw=;
+	s=k20260515; t=1781741470;
+	bh=BthPJgZpS1+N4wzOR0iD8v+QR4QpG3XPDyaK2/42WLo=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=M3iWkcgj9v7NAZ1As1RVp5E0VZ2egyZbGGe0bsoX+cspoQIXBe0UR6ruXaxtI2hAs
-	 K/pJmO30beTIroy6UIyOPIPLDXqyZWdq8ZhrlPfsWatytzWX/8HFZslXIDaVG60fa1
-	 HfD+WqvSv4z9nHCKEUahjuz/jezchA0yLfecM5dAsN3mErc814IiILEJKQ4r2h7W80
-	 ZTy3MpwYu480vzjxY0ItyxMdODVQuGR0RbstBrjG0CwMGCZPF+dfAfDe+xpqIPGWMx
-	 ke7kUedfEh+2c4gVDcxFM1JhpnZ1Qq48JtMyrIlwEaKXHSab5sObNIWI4G1o8zraTU
-	 4zgnAz7Y5fyLg==
-Date: Thu, 18 Jun 2026 01:38:23 +0200
+	b=ac+2uviUL8lBCBMVEfaABvD4ML7bAXbfqi03SRHtS43JdZpuIdcBX7XSLu1DwOtbO
+	 SSFvg6lQqWd9pGQojIeu7mWJxqMpegjbgEGXlJ8EEX/FSsDzsWzilhaxDscDuGWuz1
+	 NwJi8qgEqOkYKbigdvZ+8P7HNvmzSAoT9uSkKxQXNmfm9erfYGwgUTB4SSD++n3ri2
+	 Gaqccil4QlJqaUdG6bg118KJD+bZfi4FQlxkRHOiNE+dVhnrzrxzFZCQqXQgtFGCEy
+	 +URqrzHA9EQLodhdLRZBMDOi4H9lV6P55Eno7Kn3/I0QAHr2eNKmGj0oV5ThZsCp3v
+	 YxY0kliYWm3Pg==
+Date: Thu, 18 Jun 2026 02:11:05 +0200
 From: Andi Shyti <andi.shyti@kernel.org>
-To: Paritosh Potukuchi <paritoshpotukuchi@gmail.com>
-Cc: shyam-sundar.s-k@amd.com, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Paritosh Potukuchi <paritosh.potukuchi@amd.com>
-Subject: Re: [PATCH] i2c: amd-asf: Validate firmware-reported length
-Message-ID: <ajMv2evldPGr59gT@zenone.zhora.eu>
-References: <20260612093502.3805287-1-paritosh.potukuchi@amd.com>
- <20260612101815.4124804-1-paritosh.potukuchi@amd.com>
+To: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
+Cc: wsa@kernel.org, thor.thayer@linux.intel.com, robh@kernel.org, 
+	krzk+dt@kernel.org, conor+dt@kernel.org, linux-i2c@vger.kernel.org, 
+	devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] dt-bindings: i2c: convert altera i2c to dt-schema
+Message-ID: <ajM3eOzcq7g_VGjF@zenone.zhora.eu>
+References: <20260505053201.5795-1-chaitanya.msabnis@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -43,24 +43,19 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260612101815.4124804-1-paritosh.potukuchi@amd.com>
+In-Reply-To: <20260505053201.5795-1-chaitanya.msabnis@gmail.com>
 
-Hi Paritosh,
+Hi Chaitanya,
 
-On Fri, Jun 12, 2026 at 10:18:15AM +0000, Paritosh Potukuchi wrote:
-> The firmware may sometimes return a length greater than the
-> allocated buffer size, which can lead to out-of-bounds access
-> and a kernel panic.
+On Tue, May 05, 2026 at 11:02:01AM +0530, Chaitanya Sabnis wrote:
+> Convert the Altera SoftIP I2C Controller bindings from legacy text
+> format to modern dt-schema (YAML).
 > 
-> Currently, the driver does not validate the length read from
-> firmware.
+> The hardware constraints and properties remain identical. The example
+> node was updated to use a standard 32-bit address space to clear
+> compilation warnings.
 > 
-> Add a check to ensure the firmware-reported length stays within
-> the bounds of the data buffer.
-> 
-> Fix indentation issues reported by checkpatch.
-> 
-> Signed-off-by: Paritosh Potukuchi <paritosh.potukuchi@amd.com>
+> Signed-off-by: Chaitanya Sabnis <chaitanya.msabnis@gmail.com>
 
 merged to i2c/i2c-for-7.2
 
