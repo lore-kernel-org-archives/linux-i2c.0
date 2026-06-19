@@ -1,151 +1,92 @@
-Received: from mail-vs1-f46.google.com (mail-vs1-f46.google.com [209.85.217.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 538572DAFDE
-	for <linux-i2c@vger.kernel.org>; Fri, 19 Jun 2026 03:23:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.217.46
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781839407; cv=pass; b=pPhRzQR3iAtTOC/pkLQi43Y14918zXEEaY7MOgJDWyPGhWBpanELmFa1gb2wCtkqfA7HYnimCUs2jVRSU39bCXEZuQ9sH4Zdy165JIXwi6YPVosAASCCTdZp3GNGHEyr2VbqQpCXHgtO8vaPmxZiUR4TrTS5tAln4oqsE+Pw2YQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781839407; c=relaxed/simple;
-	bh=4H/LqpJe3Qh18IgUnGD6m4u78QGoXyqQP92TlYlOd54=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=kTjhtlGqfqY8pDs3HIzCtCO4Jk/j3OSr44PZ0utxu2WXxGAibmdoersntPkVvDe/UikXParHql/agT+BnSN8vCOtuc5y8NLKXkn2AvHAwsr2Wd2PTYH8QepKnMo/aYNDeuKUSZbYrHGqmFWx1Q1gondghIS7uf/DZB2VFGYtP3c=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dF66Xjzn; arc=pass smtp.client-ip=209.85.217.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EEFF283FF5
+	for <linux-i2c@vger.kernel.org>; Fri, 19 Jun 2026 04:20:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781842804; cv=none; b=Fz10SE7A0acnJDifiRtyvk6SlvXjXSbQKYQh5Uv+4ZSd83hgfkJJUXKx8IkK1iaMhYQKtR3T9yf1l58YB+pFQYf3WKlO5mYTATvXFemtxJeoXYU6gTOjqLFie8Y5ZpqOcI3QoDDNKuSlD6XIXVnBY1K0NbO/3ClP5JeE2Kp36bk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781842804; c=relaxed/simple;
+	bh=I8IlpP7IcXdBPz51MV0iVNn9IPz8SpnCsq1DEmJvFS8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=OFV/y/6x/yV6Z0Lf/OkyNiKH7Y2mrN7iL5hAp02cdGQ83zjg+Wrh6nOCmeqLD9s0uQOVgaFZoM4nxjUle+A43Bx1xT7ITi19QGhz6i3f0hYimoGVEYZ1fAry50kSmOmWGEiqhIqRMkOUIPE85khVKoasQwNm/j7Jez44F2GBMuU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=kQqJGqjR; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dF66Xjzn"
-Received: by mail-vs1-f46.google.com with SMTP id ada2fe7eead31-72695bd3ba9so983954137.0
-        for <linux-i2c@vger.kernel.org>; Thu, 18 Jun 2026 20:23:26 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781839405; cv=none;
-        d=google.com; s=arc-20240605;
-        b=K/4UT7wwnrVR2CwQ2A1TG50KYBIKs6QWsrJd0RYSlyRZZHB4uSJd5NJxYGJxlywkWh
-         q+frJhT2Z/uTw7udr+N0JNYOA6NuIt77/gV8nQu3Bwus4xvcoyHMv/Zd98+V0hbqpCKS
-         sUpuWEQl7Kjbx5aMD+dpUcBpRCPGE5FmOi6kvRAgjo0eW75liJtJkgV7kMN0Gy6xtx1D
-         +mEW4MC1Gd6nLi34ACjeqjYqsfcDjDUFtnXaxsV+m7ZIFnlGdb5xZDW3a1zazZM4vDTl
-         q/LwPohbsgTmJyleJLJf1qkRX4qRNb3FNmMt5jil/fXLRlbP/ItJuA8aSCNOT90+z4be
-         35Pw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=49kYZ/hVh6rzDNnCFZHGbW/8C/blLwA4nIF1mUU+qpg=;
-        fh=Q7Zd1RK/ExHsQCOB4u3jIn1GsRpQtek8J6RPCs7BMtE=;
-        b=cnRO4mykB7ifG+jSSjVqpEwrOrv3G4X0EbKuPxVKHrqwTpZ7eZJyT1cYArfB1e/Ejo
-         KuuTu8wUAESLQPa/Qlx286eBst59IciQiiY8vPbzTn507rDfk15oMdgvoil+riXgVgHu
-         3p1feYIAQxLv9r1gIAv6hYbfQzPX8OBMzlifgIKK6EbgqEjSSSgJOFMeRaYXfp9NGM2f
-         y4NOsUS/ED+VmR2HUQ6g3qU2be4FO3tv5kGX4lqhMk8+wH2x8B4nLlwc2hHamEFERAiB
-         zU2E/BuiJ1ijJxSsRfRzGe6HY20Noyxcy3c9g5O0CVbLJbZaTzkVRWSLQ4gEGgi09GMl
-         6iXQ==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781839405; x=1782444205; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=49kYZ/hVh6rzDNnCFZHGbW/8C/blLwA4nIF1mUU+qpg=;
-        b=dF66XjznIYk6U6B6ZZ/l0hjc2G3+YdgCBHjosbZhvcCs5XpXWxQf3okwbnwOIESB46
-         fjckmdWhZ/ji7s68/DrclaD5EJB6pQ8hG9XUJxaWgcUXcBUlPkw0Ffc3aOICNdScpsmx
-         lacc+HzqHX+rbm9LMO6dV6iTxPUanE/XLbRR4h+KFyeVnmqcy5cpFK2LHwYRMoAtqULU
-         DfoqVI0VyEF7m9a3c/yaiylkbTeXmDLG6Xk+o1YjiV1k/1q571DcO2b09XaqZZzc+2+w
-         0jswXG2/JUqAA7/n8tE6CQiJYTTUpECKDCc7sRGfoNjIYapowTHcJDhm1Q6bb3gR3L0w
-         3Nsg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781839405; x=1782444205;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=49kYZ/hVh6rzDNnCFZHGbW/8C/blLwA4nIF1mUU+qpg=;
-        b=oph+2jjQoxFQI1rW7CoBd8mpGJHrA5j+4Ga1Dl9jvF3SeAe3w3c8b/XuDvlI4dLL/Z
-         qms86Sd3cnG7xBNMPUDQIsnXXcIiM+83dv76vGmfcQgnUjlvIyuaoPwS2nYbULZA/A55
-         h4Gb0tHgctrNxw6es0NZrepnQOZxF+Rw//u1ZRvz+OPSNoDsHulqrbqq1UW3KwT6SA4q
-         /1vnF7NQobLct8JxJ2ak8xLe/zD6Uqv20IAUMwCD0idGjpohq49835J2FIqTHFV/0CaK
-         cMdk1Tj1x4V3zpF0eYH7fUlOjOtR8216zsIYoD7dYamdExFYWI9AzdYY3ObvKJbgHaUb
-         /pkQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/rVy5bKY4Kowk9DCDzzyMDliczZv2H/v283SBSR6MA8do8G4Dlvwnw5K5tAVSTaJf0yGWDxxwuV4U=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxn2w936IZq7yjg/RnTk4C7c6eipRJ+BoR9jfH5S4qszoIC3okn
-	CR5B8wT769J6v+yjtu8+GFc1HnuBXnzl3Bhdz67JkX5d8osQWAhlWNfPevV/2Of2lQqsv2b5lDx
-	joFAAtR0f731EU51duowEAkLWqpC+0a4=
-X-Gm-Gg: AfdE7clPgaYRzDOFGh139L2lNaT9w/SGycOA2h1e/ftL0ZK10Crr2DV66p0ETPqI+fw
-	A0asMrQYF/E+QfY440cSlMiKaQ5WGZ9Sj6ZQASnkVU60cI7HWJsWJJxJ84uOdcjl3cKlFdnkmjf
-	VbqpBjsfk3v09RYq7cAsVzs/nIKkba8zOpPdHReoFXcvTcQ5r/oWWodDNgMQsKyGmCRT7ILyku/
-	ibdivB9fTsUDUmA51iVZ86DKCA75rWMZme8BwghJr5qfHcM8rGVhc0Z8+mJemk1ehJK8MnWTQ==
-X-Received: by 2002:a05:6102:50a3:b0:6c6:432c:84d3 with SMTP id
- ada2fe7eead31-72a772a3830mr372090137.12.1781839405225; Thu, 18 Jun 2026
- 20:23:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="kQqJGqjR"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=KRyH
+	nZsc3pPdzRUZ257E8WzHog+CRayG5qmdm7sz090=; b=kQqJGqjRE0bxXcoOjvKi
+	GFOra5mTYqLvCjkZaB8Y3N+66TUXtquzJm47Mml4DuI7sUg2+LQhBeBcq/ZOAJnD
+	IZBKTvKTOWHBIfFD0W7p9FHi/IJ6wxVDfbiO9REVQIMb4wYecBvdV06M1cAM0Wj8
+	nYredI0DqOU9GZH6ahrA0tIVZtjAzUaqtluX0rBtKZ09+18IiwAvXOyXnGCK+BM1
+	EcBh1cX6E2rqDeNjvX9vTOB65zMpdM9u9iSgWIrEkZBseaqsIbawi7FQZ6tubflE
+	1/Yv8z1ZHeetn3CNTpJoYwmCdtBTl3Z+qHB3UfIHm/rkHv8wYZ2zkJPhTUWRTC7N
+	lg==
+Received: (qmail 811218 invoked from network); 19 Jun 2026 06:19:58 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 19 Jun 2026 06:19:58 +0200
+X-UD-Smtp-Session: l3s3148p1@23MKm5NUlr0ujnu2
+Date: Fri, 19 Jun 2026 06:19:58 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Tejas MD <tejasmutalikdesai@gmail.com>
+Cc: andi.shyti@kernel.org, wsa@kernel.org, vladimir_zapolskiy@mentor.com,
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+	syzbot+c0291c8c9aaa473c7721@syzkaller.appspotmail.com
+Subject: Re: [PATCH] i2c: core: move idr_remove() in i2c_del_adapter() before
+ device_unregister()
+Message-ID: <ajTDbi7Nqvz7zqKE@shikoro>
+References: <20260618184610.6536-1-tejasmutalikdesai@gmail.com>
+ <ajRaej6d2npPBeca@shikoro>
+ <CAH_Vg8ZUy8CmequdD9i6h7y9kRhiMe7Jmuq3qy=_BDsp2iANuQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260618184610.6536-1-tejasmutalikdesai@gmail.com> <ajRaej6d2npPBeca@shikoro>
-In-Reply-To: <ajRaej6d2npPBeca@shikoro>
-From: Tejas MD <tejasmutalikdesai@gmail.com>
-Date: Fri, 19 Jun 2026 08:52:47 +0530
-X-Gm-Features: AVVi8CfWuksPB2IkcMgSHqE7FgwqxNOxO2yW6SwXmnYkTNcCj8MvjePWp0Q0-YA
-Message-ID: <CAH_Vg8ZUy8CmequdD9i6h7y9kRhiMe7Jmuq3qy=_BDsp2iANuQ@mail.gmail.com>
-Subject: Re: [PATCH] i2c: core: move idr_remove() in i2c_del_adapter() before device_unregister()
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: andi.shyti@kernel.org, wsa@kernel.org, vladimir_zapolskiy@mentor.com, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	syzbot+c0291c8c9aaa473c7721@syzkaller.appspotmail.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="guCfh+Cn0I+W6xq9"
+Content-Disposition: inline
+In-Reply-To: <CAH_Vg8ZUy8CmequdD9i6h7y9kRhiMe7Jmuq3qy=_BDsp2iANuQ@mail.gmail.com>
+
+
+--guCfh+Cn0I+W6xq9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Thanks for letting me know. Will check before raising the next patch.
+Hi,
 
-Learnt something new :)
+On Fri, Jun 19, 2026 at 08:52:47AM +0530, Tejas MD wrote:
+> Thanks for letting me know. Will check before raising the next patch.
+>=20
+> Learnt something new :)
+
+:) Make sure you check linux-next, then. There might be something in  it
+which is not in Linus' tree currently.
 
 
-On Fri, Jun 19, 2026 at 2:22=E2=80=AFAM Wolfram Sang
-<wsa+renesas@sang-engineering.com> wrote:
->
-> On Fri, Jun 19, 2026 at 12:16:10AM +0530, Tejas Mutalikdesai wrote:
-> > There is a race between i2c_del_adapter() and i2c_get_adapter() that
-> > can trigger a "refcount_t: addition on 0; use-after-free" warning.
-> >
-> > The sequence is:
-> >
-> >   1. i2c_del_adapter() calls device_unregister(), which drops the
-> >      device refcount to zero (the adapter's release callback fires
-> >      and signals dev_released).
-> >
-> >   2. The adapter is still in i2c_adapter_idr because idr_remove()
-> >      hasn't been called yet.
-> >
-> >   3. A concurrent i2c_get_adapter() calls idr_find() under core_lock
-> >      and finds the adapter.  try_module_get() succeeds because the
-> >      owning module is still MODULE_STATE_LIVE (this is a hot-remove
-> >      path, not a module unload).
-> >
-> >   4. get_device() is called on a kobject whose refcount is already
-> >      zero, triggering refcount_warn_saturate() with REFCOUNT_ADD_UAF.
-> >
-> > Fixing this by moving the idr_remove() call to before device_unregister=
-().
-> > Once the adapter is removed from the IDR, any concurrent
-> > i2c_get_adapter() will get NULL from idr_find() and return -ENODEV.
-> > Callers that already hold a device reference are unaffected:
-> > wait_for_completion() correctly waits for them to release it via
-> > i2c_put_adapter().
-> >
-> > REPRODUCTION AND VALIDATION: Tested by inserting a msleep(500) after wa=
-it_for_completion() to widen
-> > the race window, and using a kernel module that spawns two kthreads: on=
-e
-> > calling i2c_del_adapter() and another calling i2c_get_adapter()
-> > concurrently while the module remains MODULE_STATE_LIVE.  Without the
-> > fix, the WARNING fires reliably.  With the fix, i2c_get_adapter()
-> > returns NULL and no WARNING is observed.
-> >
-> > Reported-by: syzbot+c0291c8c9aaa473c7721@syzkaller.appspotmail.com
-> > Closes: https://syzkaller.appspot.com/bug?extid=3Dc0291c8c9aaa473c7721
-> > Fixes: 611e12ea0f12 ("i2c: core: manage i2c bus device refcount in i2c_=
-[get|put]_adapter")
-> > Signed-off-by: Tejas Mutalikdesai <tejasmutalikdesai@gmail.com>
->
-> I'd think this is fixed with b1a58ed9eab1 ("i2c: core: fix adapter
-> deregistration race") which went upstream this merge window.
->
+--guCfh+Cn0I+W6xq9
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmo0w2oACgkQFA3kzBSg
+KbbqKQ/+Pntv/NtLmwE8pcEZMfk9ZMXO8loKvucr7m6f9BO4zPXEA+PFRzgSJxDZ
+34iptTTxrYfc0dFZemJlMHGIl/42K6LYWcYgrcTg4Y32qcVmfU9Vc6znmDGvBUwn
+C1vRF7NVnI1UX12KIkurY0XEuXu1SqV18Z7ECERlDJ2Zh3T56HJuboFOxv7mErpe
+odGe6uFyXAwxj64x4sc2AWJBNW+ZtbP0Y+HIQtBMHPnuynCKGmRQApqJ4IceUbaF
+vxs3ozsgN18yhk2Nu8bm4/4AoDVwitO9In1BWhG47D9M2OanYCJ/3sjkgZizJjS8
+Cpd1hjzXkjCTlgn7BoLsC4TQfskRQlSMaUqTG/+5oVXGwsNiLQxrSjcfbz8Q7n7j
+r9SrsQJ+EIswSgF0KGLAQ5Hcm4gXG30plDh44jh7rTd+csaWL44uUZGhaho37voH
+/jtgwOE5tMiC6h4UPSvErtzEkpjafDytX8wELLKfNWjFNnEFaN6TIGoWwy8U2h4C
+OoRn3CSEAf51JU+5A9fDq7lXbYgUavzhRZJA/9mZtst5W8U32a4lRwvrAy6fNCE+
+/NBqHbGGXjnp1B6BsiERh43L+5/dQOq7HriGRPWaxnoPZ3nxAqNK51CvAmC/nB7n
+nuM2DD4wSDmS6Sxcu5vpE75C198EIxfphXVll9Qydkp6Adqjhi8=
+=fMyB
+-----END PGP SIGNATURE-----
+
+--guCfh+Cn0I+W6xq9--
