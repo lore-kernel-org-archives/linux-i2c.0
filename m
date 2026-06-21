@@ -1,245 +1,172 @@
-Received: from SY2PR01CU004.outbound.protection.outlook.com (mail-australiaeastazolkn19011024.outbound.protection.outlook.com [52.103.72.24])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94AC74964F
-	for <linux-i2c@vger.kernel.org>; Sun, 21 Jun 2026 05:52:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.72.24
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782021173; cv=fail; b=BYO9/AHNfyRXD6DtPs/4rYYmA9Dt0igwY6VHqhT+xTohrkM2+75YKi+Rx9aAKvAqxTUOPq7BkD8yPhB5uv0QhlvL+LSGWoC6OAAzBGtx6HxZNEg+uxQ4e6VugPdtLjZ9F32YQLhokZeIDbACuU3LGe3WtL/nE5D0x5umJ43XL64=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782021173; c=relaxed/simple;
-	bh=fHnyFcgUU1JS+GJpu8ZlAcYhNaBKr47uT5CsRlNqmMM=;
-	h=Message-ID:Date:From:Subject:To:Cc:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=GinCBA7b5oV5FQKEJTbzaNAlmErl98SRTpGcL8fCdrxI5el4b6RqpJBIJzXfip2So7HKYynXfT4jm1Q8lnAu/vz7FG+3NocTzJlP5YDxxplDuLFEC3ZXQ5sXtOlGRYDzLF6YWLhMbc4GnIFhEH8pgg/wjUPVSDLwWbJHSS2bobw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com.au; spf=pass smtp.mailfrom=outlook.com.au; dkim=pass (2048-bit key) header.d=OUTLOOK.COM.AU header.i=@OUTLOOK.COM.AU header.b=PBtogsRa; arc=fail smtp.client-ip=52.103.72.24
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com.au
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16DF0223323
+	for <linux-i2c@vger.kernel.org>; Sun, 21 Jun 2026 06:01:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782021674; cv=none; b=e1kYjt05Oq/Ni6L3FLkskx8ldPWRkB/ccLu6G9Ejp0hp3vnbTR3UXqIWsfAiFZ6qz3FBtlXiFzGi27z4J8ZUkolp8b7fdr3TqDQ9dQTpXlPYefZ7+sK5HcvlRxDTWD5MEPeypd7BekLxEkIOwCbxCc7fWXzR5kz2J87uLvu+K4s=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782021674; c=relaxed/simple;
+	bh=Ps4FYVhY/+AWPZL6Cgx+yY0Oak9eRrn0s+QgtMMDndc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=I6LqqCFn+YDA4o9zcI9FdqD+hH/5DOhnUBFcfDAfwZ3JYHgZ1+AmX3jUqGtNM9WVh5TbhU48c2uuITPuCwrYWu7FJInLjS7T8Uww1Dy/tRiJBuS4GALAe+rYXjGMPH+4b8yMfbubuXne8MUWguU7psoyxrvcG7bm0QEqWMwj34U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=bWAavCub; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=QnWSIK1I; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=OUTLOOK.COM.AU header.i=@OUTLOOK.COM.AU header.b="PBtogsRa"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=QYEcvbQrWo9GrgFqH+KehRRuiV+C8TpnxKfq86RVbqhn2MeN7LHVKPFQYVfMoLrSurvJs/Eg4Gp96lLleQo5qMsHAVL/6q53BlDYrDaceFlqgVykBQany+R30ZNQlmpgIm/38sKZU99gTwlyhMXHR1enX3TSEFdLLqX9GDj9a6rCHME+TWr+Y/fZgLaZlsUjeH1CF7+5XmmbUPjV0uAmo7OToqTQ9C1lT7CNSIgw4k9HGsJJqkhmD4vv9H7HjzScTnW6wdlUSIvCJPpADfDhtIuc6IqwcTjpwrF9PGqJ6qmMnsP5SNb/AnKkCRBrm/qiCB+RCE5ahksTUQwON+llKQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=MzqBHcMjI6rYKvqSlx8pbMDYvR95qxPFGOiJ5ANAXSc=;
- b=vD1yi/S/yPEPxzM2dxwEkS0DGBkIBNkARdxhZxr+l/La+pDxiYAYDVldmk63nS0wcaN58Y3Kdh0nmntRRhb3SRbFyDjydRkjOc1LlfOyZ7v22kEakKHA9JH42KU20rUShakoiPWS1PPqJkggDLceC+ISe3gzDt9qnGRtw4JjpgGouhMgz0nGBOhNDrzdCFPgo7fAYaleBPwG0TrUDRsPkD+HuxFkVQuZZzRCTENAjP1o3tp6Yu9EQOtPiHRM6AmnctFPT1nFavYCUHGCAfqmAJTY4bPOFjBK9DCmLDaVFgCI1yDt8PRxLaWWJc7jdyLJvJFEN0m8UJQ9ZMJQ1LwYeA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=OUTLOOK.COM.AU;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=MzqBHcMjI6rYKvqSlx8pbMDYvR95qxPFGOiJ5ANAXSc=;
- b=PBtogsRaz/hI4Y4Mj+gpkgC4EZN9pED3yjuc9x6mmWfoVBapohN7qTCfz26jl9tbX898O9RaTzA9okvYB5MVGAipA6jgiTjYOzyA8HipJ0anpnk84UzDNPEEO9Ky2phVU38uzr/vmMwBv5SDAwnjIJrAD6WKiPwl6BSO5UXAELlBzKnrhZKckOrYUCIBeD+5Aac/GO1VHqFOZiLRUlPvaNgjasOTaaft/Yc5gPX5Ir3kETOHBNDgNP/1gRlmn6LViTXCp5HSOal7wOHVzLS8QyVKGwqyIzuWx3M1LMrBiviEccxbtS3QKkT1FQIOvMbIpQSgGTFztns4H218PIL6Pw==
-Received: from SYBPR01MB4586.ausprd01.prod.outlook.com (2603:10c6:10:59::12)
- by SY7PR01MB8980.ausprd01.prod.outlook.com (2603:10c6:10:217::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.139.18; Sun, 21 Jun
- 2026 05:52:47 +0000
-Received: from SYBPR01MB4586.ausprd01.prod.outlook.com
- ([fe80::57d:8fd6:3940:5957]) by SYBPR01MB4586.ausprd01.prod.outlook.com
- ([fe80::57d:8fd6:3940:5957%4]) with mapi id 15.21.0139.018; Sun, 21 Jun 2026
- 05:52:47 +0000
-Message-ID:
- <SYBPR01MB4586E27116CAFBB44B16C493C5E02@SYBPR01MB4586.ausprd01.prod.outlook.com>
-Date: Sun, 21 Jun 2026 15:52:42 +1000
-User-Agent: Mozilla Thunderbird
-From: Stephen Horvath <s.horvath@outlook.com.au>
-Subject: Re: [PATCH v2 0/6] decode-dimms: Implement DDR5 decoding
-To: "dlitz@dlitz.net" <dlitz@dlitz.net>
-Cc: Jean Delvare <jdelvare@suse.de>,
- "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
- Guenter Roeck <linux@roeck-us.net>,
- Kamil Aronowski <kamil.aronowski@3mdeb.com>
-References: <20251106021356.208986-1-s.horvath@outlook.com.au>
- <aXq19uxerWI5SvcX@syra.dlitz.net>
-Content-Language: en-AU, en-US, en-GB
-In-Reply-To: <aXq19uxerWI5SvcX@syra.dlitz.net>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SY5P300CA0027.AUSP300.PROD.OUTLOOK.COM
- (2603:10c6:10:1ff::17) To SYBPR01MB4586.ausprd01.prod.outlook.com
- (2603:10c6:10:59::12)
-X-Microsoft-Original-Message-ID:
- <f58fa5a9-6e21-4dd7-a627-35cd03798e78@outlook.com.au>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="bWAavCub";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="QnWSIK1I"
+Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65L3MY4O1299245
+	for <linux-i2c@vger.kernel.org>; Sun, 21 Jun 2026 06:01:12 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	WfmmR4KR+FxAid9sd3QGFwzw4X7Tu5ccd/ACfHBvlSo=; b=bWAavCubaAeSbQ2B
+	5X7Tk45bwritVIUZ6q7ChKGUS5amfhJX7i6Jd3+U8KstjQVYB//B890waTbupy9b
+	tJGRNDICPR1Jmflh+TmMNV29BxRzu7Cc+SFEay0RQthRnVPYESrrpI7WkU5VD143
+	wexfNLzPJ1ZnOnb5OMuuIkR5VKYO2anf62kK7rZAWbyQvF5FH3QEr+Vm42Q+MPG1
+	8okJYHbaGa4baOhiXL9wGya+HQK2q/qefMZ1x09nSEovfWnr1czKkIP5oN2215pS
+	vJF2COzVkgD5GEGRKuUE12Bl+jL8bxINXTToZzgEPUkQFTGeZEl5+zA5C8N8CehX
+	pcEM4A==
+Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com [209.85.215.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ewjxuabrd-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Sun, 21 Jun 2026 06:01:11 +0000 (GMT)
+Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-c894391f000so4368553a12.1
+        for <linux-i2c@vger.kernel.org>; Sat, 20 Jun 2026 23:01:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1782021671; x=1782626471; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=WfmmR4KR+FxAid9sd3QGFwzw4X7Tu5ccd/ACfHBvlSo=;
+        b=QnWSIK1Ieh3z6sMm15nAIjkEnBshbx7p3MFclrQpGrch6/A1v45DcOqnPJYh3sa/mD
+         gfvhs7XSbC5Fg53rItnmHSXgIqSUq9N0juHBMeHniREacli6aD3OXePsJ/R74HMt6IR+
+         U0Vt0asPCIHumqvdCrJhlAFoDZs7ZofVgngjybOkhIvW3VUGmZnTrUQSxcfUKIbNR8oe
+         SOJF7ebOte/cZgGugnXPWZ8VohmqyRDEMzGLfRpb2enS8EG7C/68HpZwyWfeqIyOc+yN
+         VMQCqcwaQn4hj/DDRDP/zODrRQwDOA43J5xd076Uo9Fb+tMGIhPysTbAfdiYiI1HT+Xx
+         6Uog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782021671; x=1782626471;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=WfmmR4KR+FxAid9sd3QGFwzw4X7Tu5ccd/ACfHBvlSo=;
+        b=XJ8+OiF29pgTEIB5kOkZeoXqRYXUxdLEHULUUwitAgYmgrwXE8jzzpHQh4S00B9eVd
+         G5FzpyrtatXrdCAZ1V8XdbL3Mn/UEpWFYqSIo3NwRg1m7vh9KWbcoHYkURv39AL8VSNO
+         SpH+nbGhSschKLUMdnJqfqdOYuWX0+IE8nw8klEH3I98o/e1nGm5jC3nCnwbcjiLQSaN
+         UzxES3CBka5+fK1gN3BteMkb7cYjk7kd9Bgp0hKNpYKNdRLFiHzvutEuo/FUeolvvhLE
+         GrqfGtQSJX5nryTMWuPlqrNhxquQcvfM4+BpLNKAnhjof9cW7iQWqmcp4c88Uthq9RkX
+         5obg==
+X-Forwarded-Encrypted: i=1; AFNElJ/Z02LpA5tGFeVQnl1bAudvoTRYZi0cjVzzvf+0+ZSsNqbC6rHPOEOW+ovBrL6XOcucKPRqw1GqTUA=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yw43k6xFkBxdO+D9I7PyID8HncF4mSzEf5X7NpssKNeroc3dhl5
+	Tl3LGPzjIIILDUOgj2mwTZtqAKEz94XXKAUolI/cV0jn4tMpqUC8Kr5M1qHx53t+RDEYsezArbb
+	9+Z0xH9Cu3Yl8swWCnkMx8oxxUTu2lpk8RfjSfIzCZ9aU+nU1uKbXoasCDoBvLio=
+X-Gm-Gg: AfdE7cnJxadIJdnYMx5+7v5x72z59xm8bGBDFMVhlPgMI9wf5tN1dQ3uVBMEhCfGf+8
+	c4VHEYEYnt7ce4tvmkaY3tYtTNKVQ8oim+Hwd7PvYD/Ka08kxg5AL1mhSAfr6NxO373HJqeGbfe
+	7yl0inrGnZKHP/nWR+uM0HpIggOFw8OuOKRiwxn7ZKMpum0c5fiXD9scTqVufw29zmeRBkAT7u/
+	XlMq2fO+iWBYxgZa2xZh6nmNwxODEYHx+JNuNravyWjf7amjwdcYtGn+RHLSHhneNa4jTcJm0B9
+	+GxZQupkJwzzYUxqhFCA6fQzatZOOcXmruJ6j8UkURl1McN1Yt7TkIV8vPWKnlXp7hz/k2WVXT5
+	fei+SfhcK1doG6OiZ51nNpacAyup275Tt8jEV01i3MA==
+X-Received: by 2002:a05:6a00:4385:b0:823:d2c:b156 with SMTP id d2e1a72fcca58-8455078c20dmr11621232b3a.5.1782021671036;
+        Sat, 20 Jun 2026 23:01:11 -0700 (PDT)
+X-Received: by 2002:a05:6a00:4385:b0:823:d2c:b156 with SMTP id d2e1a72fcca58-8455078c20dmr11621188b3a.5.1782021670637;
+        Sat, 20 Jun 2026 23:01:10 -0700 (PDT)
+Received: from [192.168.29.115] ([49.43.226.145])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84564ecd779sm3823101b3a.53.2026.06.20.23.01.01
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sat, 20 Jun 2026 23:01:10 -0700 (PDT)
+Message-ID: <cfe1778b-c204-46cd-a9c8-2bcda8ea63ac@oss.qualcomm.com>
+Date: Sun, 21 Jun 2026 11:30:59 +0530
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SYBPR01MB4586:EE_|SY7PR01MB8980:EE_
-X-MS-Office365-Filtering-Correlation-Id: 73dbee9c-9b09-444c-21fb-08decf5950c2
-X-Microsoft-Antispam:
-	BCL:0;ARA:14566002|8022599003|15080799012|25010399006|8060799015|19110799012|5072599009|37011999003|24021099003|23021999003|6090799003|3412199025|440099028;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?enptNGlaMWg5QjMzdFpyc1dvSC9SamNCZUJVSjBlOFk4U3FMTllNZ0lBYjl2?=
- =?utf-8?B?Tnl3VnBXcU5uMFlBWWZES3hOMEFDZ1RDRlkzc3JTL0RiTkg2bkdzQ21tU0xJ?=
- =?utf-8?B?N1NIdTJFMXphcGJxYjQ0K1ZrOXhuK2YrM3Vac2pyQjFhdER4bEY5dDFxSnFk?=
- =?utf-8?B?WTJOVUF1RzE5QjhNMlpzQys3MEFoN2NuSU1WajVqb0RhNitMSU14Rk1XUzJF?=
- =?utf-8?B?Y1dUUkY3ZndEK2RRdjRid2wvT1Izd3NoTEt4OTVheTFwdWZmWGVlL3llZ2Z2?=
- =?utf-8?B?T0NucW5QVkd1Wkg0YzFlaFBKU25OU0RTSHBqNHlpYzFxUkZGdDhpZUN2Nllq?=
- =?utf-8?B?dGMrUlVESXJGWFVTY0dzTXF4dGJxbnlVdGZMNHp6S0ROdlprWDNIbHpuZWhY?=
- =?utf-8?B?WXU4RGNkckZoQ05xeXEyQjRPRVVkcG5nT1JuTVRoQzBzT1NGME9yK29RNjg5?=
- =?utf-8?B?dWljcDcrbEJYNWlKM1ZkWjlXS3IvRFJoWGttY0xld1dFc1FWajdHaktOOTJN?=
- =?utf-8?B?MkJsUVhsOXFYVFcyMVZlcUFtZU42MDNHckswQmRSc1dtVi9aVlF4bEZySzBD?=
- =?utf-8?B?bmh3MlV2c2ZRR0R0TjZtM3NOTmROQU1wYTZCcFNKM0ZpTVVCMUhLSVJRN0tG?=
- =?utf-8?B?Ymd5eGhTbDdPK0pwM2JLNWlubjRGYjI5VlBGRTlYUlFmMndTTmRxeDNRN0N1?=
- =?utf-8?B?SGh4dnRzMFpNWm1wMHlnV0VKdHFkMWtxUXZUcFlCQ0s2NXpyb1ZjR1B6a2s2?=
- =?utf-8?B?THJqNnlxZlczemt2QU91NzZNd1dmTWdyMkQzb2cvSFplOEphaWcvbW1WM3Nl?=
- =?utf-8?B?ZmFXa0FhK1hFZlhTT2NzMlBiSUNjTHZPcUNrbGhZd0pva1VjYjFsVFM3UnBM?=
- =?utf-8?B?VnkzVzQ0S21mN1NQbCtEbHhOZjg4VGtUL1k2SHdlUjg3TlZEeHlHb0Q0bmpn?=
- =?utf-8?B?amRSdStHeURPVzNmWjhRNDZTMm4reUJMdFVFNjg4S01uR2VnYUJ4S0xYWXM2?=
- =?utf-8?B?NnZIVHFRQzBjbkJyaFBiM2dZTFBGT0hWU2c2M3ZLeWZOMHk0V29XcVI4ZUhm?=
- =?utf-8?B?K0tIU3JNdUo3TmVNMU95K0Q4YW9GUFBxMzcxc09QRUVZUStGazRYTnFnVlRB?=
- =?utf-8?B?KzhmZ3BWcStrQVlRc2lNY0dOTTZaWUNtd1FlSUh0WjBCNGlLYjZBUHlLS2RU?=
- =?utf-8?B?aFpmTWxHdytGWTM5NG5kQzNYM1l3RUN3U1E1Q2VwMTBqV3hLY0hBS2E5SUNl?=
- =?utf-8?B?THBSWVhGbUNOcWNsNlI4MlZIQ0o2bnFBSXBLUFFTZ2FjLzMrZz09?=
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?ZnFRanhtanlRVERFdnhSRm1aYVRNZ3pobUVKbEJLcGY2MncrT282M0doSXlh?=
- =?utf-8?B?ajNKZWRCdHVLUThzZmJmNmR0eW5SRDNxUThlYVFSbG03UWoySGtuSTVCNXZC?=
- =?utf-8?B?VUFwdnVMdDdiekRKR1ZDeEh3TVFKYUFoL1duU1p2N1lRWHQzOHZkL1BUanZQ?=
- =?utf-8?B?MVBMY3hpUkVOU3U5MzNkNEsxcEs1djc0N0MvbktjRjVIaHZBNWg3MEw5RW1t?=
- =?utf-8?B?anN5c0JsNzlBRUJKbk95d2NSMUM4NFZFak1hL3ovMFNFZEtXaVdoeEZNTVNP?=
- =?utf-8?B?aHB5bUVmdjlyV1BHQlNVWU1ROFB5ZmFyQytHKzFiU1U1Z1F6ZnZOYnVPM2tl?=
- =?utf-8?B?cEJaRTgvMHZZR2l0N0gxdVdxbEtubDlKaWlhSjN3Q21kbnVUQmNYaDU1cjRK?=
- =?utf-8?B?Z0cyMUhTTTVEWEI0ZGtpcGhrRmgwQXpZenByNC85UXZMdlZuWDZKVm10V21D?=
- =?utf-8?B?ZVpSdVZrTDM1Mnk1SC9aMWJycFNQeC9XajZ3dWJRU1VoemZhMTZIeVZVTHhn?=
- =?utf-8?B?SGZHWG02bm5ObVgrTXR2MVVrMisvOEVid1lBSTZMZHBuLy9LUHRmVzdoVFlo?=
- =?utf-8?B?bmt4alhUNmJiYUYxZlgyTnBqUjVjd3B1bk5scThZaTYxK0xPNVV3VUlrc0hU?=
- =?utf-8?B?MFVVODJSckFPZEJpQzJqbGlSMllLTldvblY3Y2VUS25QdFNXV2MwQ1BkQjQr?=
- =?utf-8?B?RlNzY3h4WUtiSDJYVnNYYkJ4V0NkNTQ5V25mV3dpRnUza3NpVks3TFQ1aHBJ?=
- =?utf-8?B?aWdNZ2FzMGJ2NUhySU44RU5mTThLbU1hMDEvQTlzT0FnSUxsSU1MdU9wQVk0?=
- =?utf-8?B?VUFabU1zV0cwYVRnQ1A5WU0zM0g5MkZXTGVHazYrMTVya3U1TjViNVMzK1BP?=
- =?utf-8?B?SUZ1TWlJVU9JeTVDT1BPeWtmelVrUUEybnpreFA0dVZnaHozVTBOV1drRGhi?=
- =?utf-8?B?UGF0aDZXSGl1R20zQ05DeXZqeWdRR1phU2ZyVnc0Z3h3MS9NM3dTVjFlL3JH?=
- =?utf-8?B?SFBzYW5Yc0tQWnZvbmZFNVcycjV5dzAyVnF0OEpkY1Z3UUdCREJnSlNmdE5C?=
- =?utf-8?B?SVJzckFXdlVqUFBEakl5YUdJaHFLOFFuSW55aEZHT01EMnAyVFc0MWtyYkVr?=
- =?utf-8?B?ZHBQeUlOR2dJc0lwakRDaGIwenBUcG1JaXlGTkx0eTE0ZUwyaENUSldOd2J6?=
- =?utf-8?B?TFJrRE5kVTZ5YnZYeXhQSUxVcWZxT3lRZTJSdUdtRGZOeExEeFpXbWIyYm90?=
- =?utf-8?B?RnE2Rm5yckYvUFJvUlgvVVUwYkZSSnNvVVg5OEZBU2d2R3FRSmpZQ0ZBQXlF?=
- =?utf-8?B?UU0rNGJPemlRVDFIbUpXNlFVTnVBdmhYbDFKc1RiUmJtWEliYlNPNWsxUGsw?=
- =?utf-8?B?VHRmb09LY2llVitXSVJLdGdlSWU2d3BOcm1VQWVkQjFpUlVuSkVYWWdGZzB0?=
- =?utf-8?B?M2NsbzFtbldnWVR1dW5PcU9nbnZ0cDVUZGpnOGRvSUpETUFpZkVMbzErUFdR?=
- =?utf-8?B?WnVPN0JMeDl1anpNL3pXQTRhWHorSUxoM2Q4RFY2c21kZDVpUzdPQjYzK0Q0?=
- =?utf-8?B?T282OUtNQkpsR3VadyttUDBKK3FjWnpSSjQzZ1lSM0dxS1ZDTFZFNFhPUGRR?=
- =?utf-8?B?cWRncjhjMENpNkpySnhSTFQ0NmRpQzFLN0djLzRJcThRZmU0N0RZMHlIUXky?=
- =?utf-8?B?Q0VrWE9lMEYzb2drdmJZZ1E5MWxZS1N1QmRnZitTNlhKeitvL3REZHNRYlkz?=
- =?utf-8?B?bHJHbjQ2U1ZXazIrdUUzMlVKZFNLb1pMeDBtc0M3WVlROVhySzlaUXE5bXJS?=
- =?utf-8?B?WFBPaG1IT2g4Z1dIWmlwMDFRb2EzaFNPeExoSC9UaTk2SW55UXU5N2pLN0VN?=
- =?utf-8?B?MGFUTUVnWlQya2ZuN2JFZHF1MGJLeTN6L2kzYklJZjNYd1hHcWQ2RStQdE9U?=
- =?utf-8?B?ZlhaWUJJRWxiZGpCSURLbDYwUEl0QnVSTEFDOEJoVEkrRVFVNlpTL3VQd1cr?=
- =?utf-8?B?bDFPUXdZVXVBPT0=?=
-X-OriginatorOrg: sct-15-20-9412-4-msonline-outlook-feddd.templateTenant
-X-MS-Exchange-CrossTenant-Network-Message-Id: 73dbee9c-9b09-444c-21fb-08decf5950c2
-X-MS-Exchange-CrossTenant-AuthSource: SYBPR01MB4586.ausprd01.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 Jun 2026 05:52:47.7398
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SY7PR01MB8980
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 4/6] arm64: dts: qcom: shikra: Add pin configuration
+ for mclks
+To: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>,
+        Bryan O'Donoghue <bod@kernel.org>,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Loic Poulain <loic.poulain@oss.qualcomm.com>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley
+ <conor+dt@kernel.org>, Robert Foss <rfoss@kernel.org>,
+        Andi Shyti <andi.shyti@kernel.org>,
+        Bryan O'Donoghue <bryan.odonoghue@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Konrad Dybcio <konradybcio@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>
+Cc: linux-arm-msm@vger.kernel.org, linux-media@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-i2c@vger.kernel.org, imx@lists.linux.dev,
+        linux-arm-kernel@lists.infradead.org,
+        Suresh Vankadara <quic_svankada@quicinc.com>,
+        Vikram Sharma <vikram.sharma@oss.qualcomm.com>
+References: <20260615-shikra-camss-review-v4-0-bcb51081735b@oss.qualcomm.com>
+ <20260615-shikra-camss-review-v4-4-bcb51081735b@oss.qualcomm.com>
+ <6e760884-87b1-4ec8-9ae1-e53901451b65@oss.qualcomm.com>
+Content-Language: en-US
+From: Nihal Kumar Gupta <nihal.gupta@oss.qualcomm.com>
+In-Reply-To: <6e760884-87b1-4ec8-9ae1-e53901451b65@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjIxMDA1NyBTYWx0ZWRfXyKB/H4MaMtdZ
+ nwk/iF/WX8l28HEIfyF9upXlPWLD9NW8cQ9CEqD44wn/Gdllc9b+Z3tI7favB7w801G67guzTFh
+ 4YsHyXY8rVsoBRB89HzW7SrkYXsW3yE=
+X-Authority-Analysis: v=2.4 cv=G/ws1dk5 c=1 sm=1 tr=0 ts=6a377e27 cx=c_pps
+ a=Oh5Dbbf/trHjhBongsHeRQ==:117 a=Kt9MDo777XuedpO0AoDL9g==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=gowsoOTTUOVcmtlkKump:22
+ a=EUspDBNiAAAA:8 a=EEnOiY-A6ZLknHPuIi8A:9 a=QEXdDO2ut3YA:10
+ a=_Vgx9l1VpLgwpw_dHYaR:22
+X-Proofpoint-ORIG-GUID: 7ockAZX03LiKKbpY7sSCnS6xyYgeooVf
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjIxMDA1NyBTYWx0ZWRfX6bM1D9aeyb+H
+ TNVTeu0dlMVVqfgaDMMcPhKTWvxJ7GF7USuKnH08UHaBmKb6Ljgvd7nEmxA1BU3lA/Ux4UHCoyd
+ OM3b+MK9S0mOY4TCuC3dJT7nxoF0BcBx3r3fJ9QSJQ6iUk+Qg2vb1HHev1Xbq959zGZ7r2HMdAR
+ rtX41dThLTbEBaHfYs/Gzyxx3437YrXUKWL/Bfkhw/50BWnut4ZNlXckcnxaxLDl5Qlqa2jK1U3
+ K4yHq96uBa9YPNVfRFh8v6hPXkGWpnobDI2kAa01MUxooYUtpa6uolEUYrypg4zv49jxZL91QuK
+ ldQPO0PhhC59CbxYAzU66gVzxixQQBR4mYJyVSz8FKP6MLyZ5RqGmBrbgVb1zcdQYEDJQzJlh8c
+ Xh2k02AyhMDjbcMX4n1X4bZ0nB//rEQuPPFK4htSBJcrmB4Oa93kxIT7pCqj8S7E4loF9D2aIjO
+ oIu4BD4WQ5VWXFRV9qw==
+X-Proofpoint-GUID: 7ockAZX03LiKKbpY7sSCnS6xyYgeooVf
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-20_04,2026-06-18_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 adultscore=0 bulkscore=0 phishscore=0 impostorscore=0
+ spamscore=0 lowpriorityscore=0 suspectscore=0 clxscore=1015 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606210057
 
-Hi Darsey,
 
-Firstly, I'm so sorry for the late reply, I never actually got your
-email, I only just saw it on the mailing list archive.
 
-On 29/1/26 11:58, Darsey Litzenberger wrote:
-> I fed the eeprom for one of my RAM sticks into decode-dimms with your
-> patches applied, and it seems to output a number of suspicious values
-> (at least to me, as someone completely unfamiliar with the JEDEC specs).
-
->> Maximum module speed                             5600 MT/s (PC5-22400)
+On 19-06-2026 21:06, Konrad Dybcio wrote:
+>> +			cam_mclk3_default: cam-mclk3-default-state {
+>> +				pins = "gpio98";
+>> +				function = "cam_mclk";
+>> +				drive-strength = <2>;
+>> +				bias-disable;
+>> +			};
+> Please try to keep the entries roughly sorted by the pin index
 > 
-> That should be PC5-44800, not PC5-22400.  Maybe you're forgetting to
-> double the clock speed due to DDR doing two transfers per cycle?
-
-Yeah it seems like it.
-
->> Size                                             40 GB
+> For the entries themselves:
 > 
-> It should be 48 GiB, not 40.  dmidecode correctly shows it as "48 GB".
+> Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+ACK, will fix pin ordering in v5 - qup_uart0 (gpio0/1/...) first,
+then cci_i2c(gpio36/37/41/42), then mclk0-3(gpio34/35/96/98).
 
-Ahh yeah, I must've thought the density value was going up in 4s, it wasn't.
+Could you please review the other DTS patches too?
 
->> ---=== Timing Parameters ===---
->> Minimum Cycle Time (tCKmin)                      0.357 ns
->> Maximum Cycle Time (tCKmax)                      1.000 ns
->> Minimum CAS Latency Time (tAA)                   16.000 ns
->> Minimum RAS to CAS Delay (tRCD)                  16.000 ns
->> Minimum Row Precharge Delay (tRP)                16.000 ns
->> Minimum Active to Precharge Delay (tRAS)         32.000 ns
->> Minimum Active to Auto-Refresh Delay (tRC)       48.000 ns
->> Minimum Recovery Delay (tRFC1)                   0.410 ns
->> Minimum Recovery Delay (tRFC2)                   0.220 ns
->> Minimum Recovery Delay (tRFCsb)                  0.190 ns
->> Minimum Four Activate Window Delay (tFAW)        11.428 ns (32 cycles)
->> Minimum Row Active to Row Active Delay (tRRD_L)  5.000 ns (8 cycles)
->> Minimum CAS to CAS Delay (tCCD_L)                5.000 ns (8 cycles)
->> Minimum Write Recovery Time (tWR)                30.000 ns
->> Minimum Write to Read Time (tWTR_S)              2.500 ns (4 cycles)
->> Minimum Write to Read Time (tWTR_L)              10.000 ns (16 cycles)
-> 
-> Are those sub-nanosecond timing values reasonable?  I'm not familiar
-> with the JEDEC specs so I don't know if tRFC1/tRFC2/tRFCsb should be
-> that much smaller than the specified tRFCmin, but the discrepancy looks
-> suspicious to me.
-
-You're correct, they aren't reasonable. Most of the other values were in
-picoseconds requiring a /1000, but the tRFC values were already in
-nanoseconds.
-
-Here's a quick patch I just threw together, I'll probably also submit a v3
-eventually.
-
-Signed-off-by: Stephen Horvath <s.horvath@outlook.com.au>
----
- eeprom/decode-dimms | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
-
-diff --git a/eeprom/decode-dimms b/eeprom/decode-dimms
-index 6bb1b2d..506739b 100755
---- a/eeprom/decode-dimms
-+++ b/eeprom/decode-dimms
-@@ -2199,7 +2199,7 @@ sub decode_ddr5_sdram($)
- 	my $tbits = 8 << ($bytes->[235] & 7);
- 	my $pcclk = int ($ddrclk * $tbits / 8);
- 	# Round down to comply with Jedec
--	$pcclk = $pcclk - ($pcclk % 100);
-+	$pcclk = ($pcclk - ($pcclk % 100)) * 2;
- 	$ddrclk = int ($ddrclk);
- 	printl("Maximum module speed", "$ddrclk MT/s (PC5-${pcclk})");
- 
-@@ -2220,8 +2220,10 @@ sub decode_ddr5_sdram($)
- 	if ($die_3ds1) { $die_count1 >>= 1; }
- 
- 	my $die_count = $die_count0 + $die_count1;
--	my $density0 = ($bytes->[4] & 0x1f) * 4;
--	my $density1 = ($bytes->[8] & 0x1f) * 4;
-+
-+	my @density_list = (0, 4, 8, 12, 16, 24, 32, 48, 64);
-+	my $density0 = $density_list[$bytes->[4] & 0x1f];
-+	my $density1 = $density_list[$bytes->[8] & 0x1f];
- 
- 	my $cap0 = $subchannels * ($bus_width / $sdram_width0) * $die_count0 * ($density0 / 8) * $ranks;
- 	my $cap1 = $subchannels * ($bus_width / $sdram_width1) * $die_count1 * ($density1 / 8) * $ranks;
-@@ -2309,9 +2311,9 @@ sub decode_ddr5_sdram($)
- 	printl("Minimum Row Precharge Delay (tRP)", tns3($trp));
- 	printl("Minimum Active to Precharge Delay (tRAS)", tns3($tras));
- 	printl("Minimum Active to Auto-Refresh Delay (tRC)", tns3(ddr5_ns($bytes, 38)));
--	printl("Minimum Recovery Delay (tRFC1)", tns3(ddr5_ns($bytes, 42)));
--	printl("Minimum Recovery Delay (tRFC2)", tns3(ddr5_ns($bytes, 44)));
--	printl("Minimum Recovery Delay (tRFCsb)", tns3(ddr5_ns($bytes, 46)));
-+	printl("Minimum Recovery Delay (tRFC1)", tns3(ddr5_ns($bytes, 42) * 1000));
-+	printl("Minimum Recovery Delay (tRFC2)", tns3(ddr5_ns($bytes, 44) * 1000));
-+	printl("Minimum Recovery Delay (tRFCsb)", tns3(ddr5_ns($bytes, 46) * 1000));
- 	printl("Minimum Four Activate Window Delay (tFAW)", tns3(ddr5_ns($bytes, 82)) . " (" . $bytes->[84] . " cycles)");
- 	printl("Minimum Row Active to Row Active Delay (tRRD_L)", tns3(ddr5_ns($bytes, 70)) . " (" . $bytes->[72] . " cycles)");
- 	printl("Minimum CAS to CAS Delay (tCCD_L)", tns3(ddr5_ns($bytes, 73)) . " (" . $bytes->[75] . " cycles)");
--- 
-2.53.0
+--
+Regards,
+Nihal Kumar Gupta
