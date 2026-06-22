@@ -1,133 +1,165 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from sender4-op-o11.zoho.com (sender4-op-o11.zoho.com [136.143.188.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90B96342524
-	for <linux-i2c@vger.kernel.org>; Mon, 22 Jun 2026 17:43:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782150214; cv=none; b=X5C7bbuR49f7EqpCnt3OguHpgQQcjEibgPcbGHqQTx2AKYcbjP6NO4e7t/+EWi6R1tf6Vz7zM6zaz4vNqbKTNjVMLxPctUtqCDysIu6OOWnmoDl1GqpjT6iT7XpoYoVm6g2oZNyM71flwR5EVlO/s1AmKIBdOR18sl5qSRM1J60=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782150214; c=relaxed/simple;
-	bh=37n0r5kMauruI+X87up//ZNJGThpP+mu8r7gnCJwuZs=;
-	h=From:In-Reply-To:MIME-Version:References:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=CkXQRm2xvzeayvA9Hj54FEqmUX4Br1k6FCyQDVwz+Q/L2ZyS18XuTwXKn4fE1hHK0Tn9HXU5rdC+S8v870LRIQrhIPq0ZGRV66aptaVAwzj12wvthpMn05yyO0W6i3SpPfzHW3acZ1UmohxG/jDSRoDqi3qnsNrn1+ldEbBgttc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bWs9bj1f; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3389B33B6CC;
+	Mon, 22 Jun 2026 20:38:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782160684; cv=pass; b=dEWCxhcSPuFGjV5I31Hld3/evmZrknGQzrqJpt7F08Y9C/DTJ4B4xnwzFVweZFUdejQQ3yvRdOdyEOsGZoagj0P6PsWTiCpFAXtv1/j3lPuahzrv50iJW6pKt59vcqjoRSjK5V2IVZMvMgfUXeogHjx4VmNYFjnhlUCNpJrC+PE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782160684; c=relaxed/simple;
+	bh=WsDcKuA1gvo2wPOxdvdHPc1d4sATgEmk4SH3WC2S+lA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=AuHfawblQAsmmC2AS2ckOmnyll1we17CddoDP43mjee5zU4gwFUbOAS32xEbvuPlfRFBKn+iyPasQnVz5E/dOp1Jmubztoq7L9s/s7Wf7wvGxY9hL2JUhzlYVHEL0H4H1lO02i4GsRzZmKt1ZRbNbTlEEgtWYPM7RH5k/qNUpJo=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=sebastian.reichel@collabora.com header.b=ftenAF2p; arc=pass smtp.client-ip=136.143.188.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bWs9bj1f"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C79A81F00A3A
-	for <linux-i2c@vger.kernel.org>; Mon, 22 Jun 2026 17:43:32 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782150212;
-	bh=ZOvkxM7SoiYga4F3HI0NRlsezjpo0hLIkN4UO4HHxjU=;
-	h=From:In-Reply-To:References:Date:Subject:To:Cc;
-	b=bWs9bj1fag5KYrEtQKDWajU/F6qyj+Xj0XywCLK/icvKgyu3zXE8BtiE5VCmzBOIO
-	 skOV0vdmfh5mCkma6G1yrE/H1sWckCiKx0kV384oGGNyzktYrin//aZ1A2T9J+RvZq
-	 tLhd4ueV9nefHqs6/L55gODvylLnx+BGn1DaSxnxjd+YO5r+feGhhbbldQDXQzrV7q
-	 InN3bE5Wk7q70Sq7/fRrBO5JcoyyAgKcaZfkUgqIJcm8KxCXn9dPVJbUuFpObZuXcl
-	 40yRt2QoBA60YiGyyZSznJ1lh57IMuMv+WKUqWeRQZyld2GfoWo6fs7ZFdt1rcNYd6
-	 YnYd6Pb1v9FZg==
-Received: by mail-lj1-f171.google.com with SMTP id 38308e7fff4ca-3996c9eeebeso41601261fa.1
-        for <linux-i2c@vger.kernel.org>; Mon, 22 Jun 2026 10:43:32 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ/8FyQ0Va2CkdinJv6TABKkU+5h/Qc2KW+veb1SPNLuTmz/btb7Wd8iQ/S/natvEmhqEuZHKenrviM=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yxa3k1Qkm0tvKui8ikgOGOuSFZMeAl99qv9vC9Pg3eyjQo+Gjnr
-	TFSGfMdjcco6HJy4NVIHQ2FdPvzFKU4xWbIwsoHUgDL7wxMNY2rJfoot09vSKAoiAjuBq1rKwr6
-	aU0lfDIs7IQJZdUBN7peU0KPtvmGeZwrvqarUayetAQ==
-X-Received: by 2002:a05:651c:88b:b0:394:635:70b1 with SMTP id
- 38308e7fff4ca-3998bc52fbemr41304291fa.3.1782150210743; Mon, 22 Jun 2026
- 10:43:30 -0700 (PDT)
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 22 Jun 2026 13:43:29 -0400
-Received: from 969154062570 named unknown by gmailapi.google.com with
- HTTPREST; Mon, 22 Jun 2026 13:43:28 -0400
-From: Bartosz Golaszewski <brgl@kernel.org>
-In-Reply-To: <20260521-pdev-fwnode-ref-v1-5-88c324a1b8d2@oss.qualcomm.com>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=sebastian.reichel@collabora.com header.b="ftenAF2p"
+ARC-Seal: i=1; a=rsa-sha256; t=1782160644; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=NbZ03RwDUpsPUGMBrvUdLdu9YwvBtwbJnzp1KGgnOw8bmxFm308mN3AT9TQxGf0hTvg6NQG4C2vMqEG28Kk9TYtSAwUBIsPuLMENiboDJ821z6UtEvkeDwz5+Jcm+re9M7ZFaWtEkR9uOKdar4YVHKXBp3rQHmkoCuJ+yoWpc4o=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1782160644; h=Content-Type:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=mN91JuTXlP9yH/fF2WAYmfPvIPkIj7NLhNIGrphtGFQ=; 
+	b=cdn/QOUYXHEVxnnOG0Xz+v5hgIFdWmFnUWGGBrXE0BkN+/Y/SSTnkF8DIdXeHmsun1N1bTnfVSATEUntE3qlia7Tu2OXutygr1K/pScuMkRUqb8jzru748kl9eSG9NgAF6EAKY/Eq7kqq5AHGgy4zYxnRNwUhOnHfiaIKQmZ7Ec=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=sebastian.reichel@collabora.com;
+	dmarc=pass header.from=<sebastian.reichel@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1782160644;
+	s=zohomail; d=collabora.com; i=sebastian.reichel@collabora.com;
+	h=Date:Date:From:From:To:To:Cc:Cc:Subject:Subject:Message-ID:References:MIME-Version:Content-Type:In-Reply-To:Message-Id:Reply-To;
+	bh=mN91JuTXlP9yH/fF2WAYmfPvIPkIj7NLhNIGrphtGFQ=;
+	b=ftenAF2pLAzRlyNVRan8mKVLwnie2DhUAR+YqxoXAcc93rbXBpyH//u6VQz6uvu5
+	NVnB16FfAhcMzP72FH86ULWAFvMa3rYocIFntWDDFHxLa7uuG26U7HA2MLbmUYNgfOb
+	uJogOLlRuf0JNK3ahPODVSRWU84ISRiZWge9esxY=
+Received: by mx.zohomail.com with SMTPS id 1782160642430172.91971762131618;
+	Mon, 22 Jun 2026 13:37:22 -0700 (PDT)
+Received: by venus (Postfix, from userid 1000)
+	id 6EF1E1824A2; Mon, 22 Jun 2026 22:37:11 +0200 (CEST)
+Date: Mon, 22 Jun 2026 22:37:11 +0200
+From: Sebastian Reichel <sebastian.reichel@collabora.com>
+To: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+Cc: Bjorn Andersson <andersson@kernel.org>, 
+	Konrad Dybcio <konradybcio@kernel.org>, Rob Herring <robh@kernel.org>, 
+	Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley <conor+dt@kernel.org>, 
+	Peter Griffin <peter.griffin@linaro.org>, Alim Akhtar <alim.akhtar@samsung.com>, 
+	Michael Turquette <mturquette@baylibre.com>, Stephen Boyd <sboyd@kernel.org>, 
+	Brian Masney <bmasney@redhat.com>, Sylwester Nawrocki <s.nawrocki@samsung.com>, 
+	Chanwoo Choi <cw00.choi@samsung.com>, Sam Protsenko <semen.protsenko@linaro.org>, 
+	Rob Clark <robin.clark@oss.qualcomm.com>, Dmitry Baryshkov <lumag@kernel.org>, 
+	Abhinav Kumar <abhinav.kumar@linux.dev>, Jessica Zhang <jesszhan0024@gmail.com>, 
+	Sean Paul <sean@poorly.run>, Marijn Suijten <marijn.suijten@somainline.org>, 
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, Inki Dae <inki.dae@samsung.com>, 
+	Seung-Woo Kim <sw0312.kim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, 
+	Andi Shyti <andi.shyti@kernel.org>, Georgi Djakov <djakov@kernel.org>, Lee Jones <lee@kernel.org>, 
+	Pavel Machek <pavel@kernel.org>, Hans Verkuil <hverkuil@kernel.org>, 
+	Mauro Carvalho Chehab <mchehab@kernel.org>, Ulf Hansson <ulfh@kernel.org>, Peter Rosin <peda@lysator.liu.se>, 
+	Vinod Koul <vkoul@kernel.org>, Neil Armstrong <neil.armstrong@linaro.org>, 
+	Linus Walleij <linusw@kernel.org>, Geert Uytterhoeven <geert+renesas@glider.be>, 
+	Magnus Damm <magnus.damm@gmail.com>, Javier Martinez Canillas <javier@dowhile0.org>, 
+	Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jirislaby@kernel.org>, 
+	Srinivas Kandagatla <srini@kernel.org>, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
+	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>, 
+	Jonathan Marek <jonathan@marek.ca>, Taniya Das <quic_tdas@quicinc.com>, 
+	Robert Marko <robimarko@gmail.com>, Christian Marangi <ansuelsmth@gmail.com>, 
+	Stephan Gerhold <stephan@gerhold.net>, Adam Skladowski <a_skl39@protonmail.com>, 
+	Sireesh Kodali <sireeshkodali@protonmail.com>, Barnabas Czeman <barnabas.czeman@mainlining.org>, 
+	Imran Shaik <quic_imrashai@quicinc.com>, Sricharan Ramabadhran <quic_srichara@quicinc.com>, 
+	Anusha Rao <quic_anusha@quicinc.com>, Luo Jie <quic_luoj@quicinc.com>, 
+	Tomasz Figa <tomasz.figa@gmail.com>, Chanho Park <chanho61.park@samsung.com>, 
+	Sunyeal Hong <sunyeal.hong@samsung.com>, Shin Son <shin.son@samsung.com>, 
+	Krishna Manikandan <quic_mkrishn@quicinc.com>, Jacek Anaszewski <jacek.anaszewski@gmail.com>, 
+	Jaehoon Chung <jh80.chung@samsung.com>, Marek Szyprowski <m.szyprowski@samsung.com>, 
+	Alina Yu <alina_yu@richtek.com>, Andy Gross <agross@kernel.org>, 
+	Niklas =?utf-8?Q?S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>, Wesley Cheng <quic_wcheng@quicinc.com>, 
+	linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org, 
+	dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org, linux-i2c@vger.kernel.org, 
+	linux-pm@vger.kernel.org, linux-leds@vger.kernel.org, linux-media@vger.kernel.org, 
+	linux-mmc@vger.kernel.org, linux-phy@lists.infradead.org, linux-gpio@vger.kernel.org, 
+	linux-renesas-soc@vger.kernel.org, linux-serial@vger.kernel.org, linux-sound@vger.kernel.org, 
+	linux-usb@vger.kernel.org
+Subject: Re: [PATCH 2/2] dt-bindings: Drop incorrect usage of double '::'
+Message-ID: <ajmcsfEXiTfFh-XH@venus>
+References: <20260622101606.485961-3-krzysztof.kozlowski@oss.qualcomm.com>
+ <20260622101606.485961-4-krzysztof.kozlowski@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260521-pdev-fwnode-ref-v1-0-88c324a1b8d2@oss.qualcomm.com> <20260521-pdev-fwnode-ref-v1-5-88c324a1b8d2@oss.qualcomm.com>
-Date: Mon, 22 Jun 2026 13:43:28 -0400
-X-Gmail-Original-Message-ID: <CAMRc=MfSsLt8+CAh++8qo_=F=q5XRu6G3WGB=B2TZj8dTZydfg@mail.gmail.com>
-X-Gm-Features: AVVi8CfRnQqz6Nh2M0v3z0C67LQjbAf_AXtOmIr-lp4acya5s7VimMoD1ExGxmc
-Message-ID: <CAMRc=MfSsLt8+CAh++8qo_=F=q5XRu6G3WGB=B2TZj8dTZydfg@mail.gmail.com>
-Subject: Re: [PATCH 05/23] powerpc/powermac: fix OF node refcount
-To: Madhavan Srinivasan <maddy@linux.ibm.com>
-Cc: brgl@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org, 
-	driver-core@lists.linux.dev, devicetree@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org, 
-	iommu@lists.linux.dev, linux-pm@vger.kernel.org, imx@lists.linux.dev, 
-	linux-arm-kernel@lists.infradead.org, intel-xe@lists.freedesktop.org, 
-	dri-devel@lists.freedesktop.org, linux-usb@vger.kernel.org, 
-	linux-mips@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>, stable@vger.kernel.org, 
-	Lee Jones <lee@kernel.org>, Mark Brown <broonie@opensource.wolfsonmicro.com>, 
-	Thierry Reding <thierry.reding@avionic-design.de>, 
-	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Andrew Lunn <andrew+netdev@lunn.ch>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Srinivas Kandagatla <srini@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Vinod Koul <vkoul@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich <dakr@kernel.org>, 
-	Rob Herring <robh@kernel.org>, Saravana Kannan <saravanak@kernel.org>, 
-	Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, Joerg Roedel <joro@8bytes.org>, 
-	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Doug Berger <opendmb@gmail.com>, 
-	Florian Fainelli <florian.fainelli@broadcom.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, Ulf Hansson <ulfh@kernel.org>, 
-	Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>, 
-	Pengutronix Kernel Team <kernel@pengutronix.de>, Fabio Estevam <festevam@gmail.com>, 
-	Matthew Brost <matthew.brost@intel.com>, 
-	=?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
-	Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@gmail.com>, 
-	Simona Vetter <simona@ffwll.ch>, Peter Chen <peter.chen@kernel.org>, 
-	Paul Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>, 
-	Philipp Zabel <p.zabel@pengutronix.de>, Maximilian Luz <luzmaximilian@gmail.com>, 
-	Hans de Goede <hansg@kernel.org>, =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>, 
-	Krzysztof Kozlowski <krzk@kernel.org>, Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="he6mgtsui5z5w5dr"
+Content-Disposition: inline
+In-Reply-To: <20260622101606.485961-4-krzysztof.kozlowski@oss.qualcomm.com>
+X-Zoho-Virus-Status: 1
+X-Zoho-AV-Stamp: zmail-av-0.2.10.1.5.2/282.152.77
+X-ZohoMailClient: External
 
-On Thu, 21 May 2026 10:36:28 +0200, Bartosz Golaszewski
-<bartosz.golaszewski@oss.qualcomm.com> said:
-> Platform devices created with platform_device_alloc() call
-> platform_device_release() when the last reference to the device's
-> kobject is dropped. This function calls of_node_put() unconditionally.
-> This works fine for devices created with platform_device_register_full()
-> but users of the split approach (platform_device_alloc() +
-> platform_device_add()) must bump the reference of the of_node they
-> assign manually. Add the missing call to of_node_get().
->
-> Cc: stable@vger.kernel.org
-> Fixes: 81e5d8646ff6 ("i2c/powermac: Register i2c devices from device-tree")
-> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+
+--he6mgtsui5z5w5dr
+Content-Type: text/plain; protected-headers=v1; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH 2/2] dt-bindings: Drop incorrect usage of double '::'
+MIME-Version: 1.0
+
+Hi,
+
+On Mon, Jun 22, 2026 at 12:16:08PM +0200, Krzysztof Kozlowski wrote:
+> There is no use of double colon '::' in YAML. OTOH, the literal style
+> block, e.g. using '|' treats all characters as content [1] therefore
+> single use of ':' in descriptions is perfectly fine, whenever '|' is
+> used.
+>=20
+> Cleanup existing code, so the confusing style won't be re-used in new
+> contributions.
+>=20
+> Link: https://yaml.org/spec/1.2.2/#literal-style [1]
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
+>=20
 > ---
->  arch/powerpc/platforms/powermac/low_i2c.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/arch/powerpc/platforms/powermac/low_i2c.c b/arch/powerpc/platforms/powermac/low_i2c.c
-> index da72a30ab8657e6dc7e6f3437af612155783d8f9..973f58771d9636605ed5d3e91b45008543b584d3 100644
-> --- a/arch/powerpc/platforms/powermac/low_i2c.c
-> +++ b/arch/powerpc/platforms/powermac/low_i2c.c
-> @@ -1471,7 +1471,7 @@ static int __init pmac_i2c_create_platform_devices(void)
->  		if (bus->platform_dev == NULL)
->  			return -ENOMEM;
->  		bus->platform_dev->dev.platform_data = bus;
-> -		bus->platform_dev->dev.of_node = bus->busnode;
-> +		bus->platform_dev->dev.of_node = of_node_get(bus->busnode);
->  		platform_device_add(bus->platform_dev);
->  	}
->
->
-> --
-> 2.47.3
->
->
+>=20
+> Intention for this patch is to go via Rob's tree.
+> ---
 
-Madhavan, can you please pick this up and send it upstream as a fix please?
-Not having to carry it with the rest of the series will make things easier
-for the next release.
+[...]
 
-Thanks,
-Bartosz
+>  .../bindings/power/reset/restart-handler.yaml |  8 ++++----
+
+Acked-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+
+[...]
+
+Greetings,
+
+-- Sebastian
+
+--he6mgtsui5z5w5dr
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEE72YNB0Y/i3JqeVQT2O7X88g7+poFAmo5nPIACgkQ2O7X88g7
++pqv2Q/+LMhPKKkmgsVnMejKBphG4p2N/zVrnMgxmg8lVO8rwgA7Kxo2wlLqu2H5
+iapTV4a2dMXB0SUw8UGbt9Lt6JjHaORZnybu95mZEZMS+G7HRl5M8DE+LWMJXLX0
+S+G43Cv1O/d5dV/rM2nJqOItOK+KIbHQI4+oY/O8P7ENnU2h3X2HxOtWxtg6+9gz
+UNPZgoZdEE38SJVzhHrCO1+NfGikbo7vUZC0BmyxiNuVTK9eFjie/eIS3ST4W5T9
+3v2n+F2fD7+xsfSzUyjRc3p+zLyweImjiS6J5GAmTf4qxL9hQ3nXEW2gtRQQvB2l
+W62s4eZt9jFlQjhXVjUeIkEPkORE4RrDInyktgSc6BKm/D5SylQgwytebDtJC2s4
+QceoYrV7CHNsQ0vr9oITDlBN4Ik2TTsqhK2Sw0/2P0W7VU7y8uoHsm2xHPkf17l+
+svy9/UvPf4f5kyBIPwySRFS4IUXcdP8MhscNstvyw1GJqxtCNNRfDX6z0isLIU6Q
+yfIbxBsgCdHQMyM3HekxaofPcGx9LRJtbbNt2YA4SbqEKnzci/ToUY+z8a2svvDM
+Ko5OrYJ/yAjPYjcoQ7ajynJC+BxvFRMTtfCEQmDLiaxN9+ueXJJMXe26hLYClF9g
+ADHM+PuYvQrF2GfU9DgvPXkJHh3yEtyPk1rE6O1f4Q9xvKZMblg=
+=cVKh
+-----END PGP SIGNATURE-----
+
+--he6mgtsui5z5w5dr--
