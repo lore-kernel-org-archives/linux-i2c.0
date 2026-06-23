@@ -1,257 +1,63 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EA0E3D5236
-	for <linux-i2c@vger.kernel.org>; Tue, 23 Jun 2026 11:46:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27836274B2A;
+	Tue, 23 Jun 2026 14:31:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782215168; cv=none; b=XpEs8qlbVWTXs8iA0ItL8ys8Yaf3z7eDqN58Gjc9MyiUlrC89rmFTZGA2HIlfC15+gaCmA88qBaXS4/GK6xhgSc/RKvOoYfQzmxPwjqcnY74uB0PmskjRra4IBIfMAXYEtZrhHbkJdLH3qjxv9BPJVaRpsG9V+psFWc+cxaOufg=
+	t=1782225075; cv=none; b=s3XFt6sTnzzMPJijFSm5nMxPE1NDoo+VP61LGm4Rmx1hEk1lAM2sK9r0+XmcBBoYjotJLoxw+BXhhmsHbA9ZpUb/lg/TVgR9V71BYsrHw6+4VLqX/jLAz8R9SPKcWXXfliYedh1cTLA/4Oa9J0Iq9wdlZklfuPK5tOqY+0WhPYc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782215168; c=relaxed/simple;
-	bh=Hso0a6UrliQE5puSOMxPFIsfnb5JdMwIZP9scKQqL2c=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=gPAw4z3DfF9m9zQg+xFBe4RRyypDWwEWafW+S6ST2FUpeRkWlJ7535MdvRpAOFgsI/jDhpH1jZf3oAGFDG5+vhPLzAyvfpPOljnUcxSlAQeZ41sXZprod5U8MR4RSqAiAjxesGU/+kG37U4M348lzCHcfHNqQ5/f75POSKaeR44=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=exUMlBsl; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=BvcnztHI; arc=none smtp.client-ip=205.220.168.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1782225075; c=relaxed/simple;
+	bh=ZFfBlKwX8ZqvZpEtlLYJUYcDgLHRIibJhSxhYGMrPAk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UAdD/ryQXqkBinissURzoF0DkEfgeQdyHtOn5fQC67qN5PUMe0oOoSM6AbVpGM4BERp4yfGj1pWHYOLRgHhzYlAAozsJlktdBH1cl0IH2nxHGGfyE1O38XJDXdnfZPzElkDYlHzz8zAxCpK3fQCcqxXl1fpvBo9qIUG/+GG+OqA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BVqRYFGg; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="exUMlBsl";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="BvcnztHI"
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65NBXrNf3668895
-	for <linux-i2c@vger.kernel.org>; Tue, 23 Jun 2026 11:46:05 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
-	m5U5jjEW9F6IsBKiOyKcfNkewQXQpsrvSh1PrEY+JBU=; b=exUMlBslb0malfKz
-	wCVTsgbL6sHO2bs58FC2dSO2vcOdObXhisMaudGZqA+tvxqLVcxYMqo53yM5ZR3k
-	XgaFyf1xh5KgV/PPy3y70NVXa1uNxhmxw94+fRE5kzc861jjNTEkp8qJDvUWoR6K
-	rDO5jMbVYXVvf1I3jovyjDvZPXW+MH4biNZK3cbEceK9vZN4EZC304yp8g+n68sx
-	TbW5Sgatnbk8GjPZq4FkVYvsrOiIeJJyG9AyJpWJkmjeU+4evg7ol9N4Qb8sRU6Y
-	oR5lhUn7boKNCCKY7S/c+dL5/L+QKMpvL32nAU1kri1Ox2Sulta97j8lScjbM9h8
-	9+z2Gg==
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com [209.85.222.198])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4eyppygtba-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Tue, 23 Jun 2026 11:46:05 +0000 (GMT)
-Received: by mail-qk1-f198.google.com with SMTP id af79cd13be357-915c364ae3bso1105830985a.0
-        for <linux-i2c@vger.kernel.org>; Tue, 23 Jun 2026 04:46:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1782215164; x=1782819964; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=m5U5jjEW9F6IsBKiOyKcfNkewQXQpsrvSh1PrEY+JBU=;
-        b=BvcnztHIDBzosmQ82QmQ2MMbQuqs6E3OokPRoy5EOrmxzSa87gk6eE4UTvN4yFO+3n
-         WEStobcZSvMpZLHUzGu7V5CUuRzkqLXyFWP4NBa3+eR0vY+OnXxzZXOzHLZqERqB8tex
-         H19TVV+Moc/Kb30M44bJz9D/sLWaRL2lTX+benm6riMk/8nfe/dSCv1qcFy5OwNyaIGm
-         SIjKQyVbdNyvNgorDMWffcZd68ipVw8DQ4GDm8XAzVxQu1sAI94/Iv7VVrK9fxlqqW9h
-         Uwwp8oN2PjKjsaLp271UfkYJbLJiHCci+1IXVkiRRJSqqchatwBJXtoIzSnkbaoDlX7O
-         +qwQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782215164; x=1782819964;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=m5U5jjEW9F6IsBKiOyKcfNkewQXQpsrvSh1PrEY+JBU=;
-        b=LUnlgaSMQEAJPbwOgV0LyYCMsn5ynjBodeovoijnhWePK73I5dBHzKIGMcxdW48cpn
-         gd+0PWLcZWNz95rrxNPLSfUa8OBdrhTxqnDdTlCwdYmKpqK/j83rytOjqSIFX9MsdQ0U
-         sWgvVMLOEzozv8rt366/wkMYcgTDLCmQlahNHlwSAsnJImYmpTLg0vsG35QVC5yoIUii
-         /obWPfCGbBdzh85kskwiDlcHppzmFSI3xZjGEKnSfGG80iaDqcu3IMosK/qO8R6ZKFA7
-         bFSSrue4/Y0hsuZlDlXMHnqfHfLS7Iw24SXNniwRiwys0bJAl+5X6r3dFCQWzfRqA5rW
-         jREA==
-X-Forwarded-Encrypted: i=1; AFNElJ8an6IP5AfUjG6EuDVywcGy+cBbVdjS6Wp0dEMZeyyGp168OhAG9cxudXSxBxm0+OCuaY7bTzgB10s=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxSFb3y5P6whUS/7ak/FVJMi98pl1QBmwdGZjZ5Su2utz/01TEu
-	Io9Nh57u/q4Fm7pi0eucmTsYLI7Sm6soyPoWDhAsrSwNBxprdaUabhP6DEYhdXNZEiEBRxoaN7g
-	GEr8sagd7rbUvlx3xJjdbI2Gr9lnQOmWqlBhqetLE4m9vzMIV46b2+rbuN+bZlPQ=
-X-Gm-Gg: AfdE7clPRvrgdnXtQHfmdn6gCi4Y/8b9hPNK7QATpCvnjhhK8lp+VFnEArzDFBmeD1w
-	nEhadLhWltaQLZ4zaVPvMKMBc1sTx14hPughFPDyJUWvATJnZagyMIMwOy02lk4XmZpUCdM9p8Q
-	tRcX3XXiHqEJ85QcLy+bYDu5SS7dsYZH7MSZn0XG/HGOg30lZpkIi6+LIbWO2GSai+uW3k/vQkG
-	w35vvSchBvvDguGk2a/Jl3Ojer8lbkMAUEpGYXQu3+lXDVnA8ZT1369wv/gcCvG4k6cql6Mm7/v
-	WXA9QNzhJhOj67ZNVBp7+YK6paNaUdIr6b/V2ke6oqUTVUU8lLPIu/zaAUEMHipfR4+eqQHtzQO
-	G7t6cd5OkYoXVXBADl5aSHJj9cNLLNmRJqO3DHjmRdg2EbmK6NBM49U8G4AkfbF/W0o0KH4xEDA
-	==
-X-Received: by 2002:a05:620a:4625:b0:915:d322:c47b with SMTP id af79cd13be357-92645aa5b4dmr405203985a.13.1782215163840;
-        Tue, 23 Jun 2026 04:46:03 -0700 (PDT)
-X-Received: by 2002:a05:620a:4625:b0:915:d322:c47b with SMTP id af79cd13be357-92645aa5b4dmr405194985a.13.1782215163149;
-        Tue, 23 Jun 2026 04:46:03 -0700 (PDT)
-Received: from ?IPV6:2a05:6e02:1041:c10:21db:9254:19d9:645e? ([2a05:6e02:1041:c10:21db:9254:19d9:645e])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4923fe7ba08sm370702135e9.11.2026.06.23.04.46.00
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 23 Jun 2026 04:46:02 -0700 (PDT)
-Message-ID: <b35abbd7-f06e-4794-91a1-bdaccd63af50@oss.qualcomm.com>
-Date: Tue, 23 Jun 2026 13:45:59 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BVqRYFGg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13D9C1F000E9;
+	Tue, 23 Jun 2026 14:31:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782225074;
+	bh=H5f/v1lZwNOFD2bVqdfqwqlEANIV/E1gYRDSn8KYAME=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=BVqRYFGgSzbSZKIbQOwhPSgvGqXgY7baRZfTQhkT4g3XlyJ3XfJG0nhu8hsk92Ra5
+	 08I3RCIcbqJSjcy4ZlVydwyLt8H94GC+s8bkrqFlUSEZKE1bSlxPMhSh+hO65vZUHx
+	 6sEOhwUeOhm2CBlhsnF+SiK1ipK9hrGxoh4rj/TdUl52psp57XDhA0Qc7sU9M8hvCa
+	 nHtXindEbNC6Ly0zPDgwl5+yZchtDPxjgYhH497n7O3y9thgYryAvXk2yfGLAUlJgn
+	 iuFIuotQiZu+o1FZ0r3svFEhbgLq0enuVSlCfFXhWN6F2Pxn/kSlrg8eEih8uh34e/
+	 49iSOw5xKqo/w==
+Date: Tue, 23 Jun 2026 16:31:08 +0200
+From: Andi Shyti <andi.shyti@kernel.org>
+To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Troy Mitchell <troy.mitchell@linux.spacemit.com>, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 1/1] i2c: k1: Use generic definitions for bus
+ frequencies
+Message-ID: <ajqYHXuaibeBdiEL@zenone.zhora.eu>
+References: <20260618141125.3241048-1-andriy.shevchenko@linux.intel.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] dt-bindings: Drop incorrect usage of double '::'
-To: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Konrad Dybcio <konradybcio@kernel.org>, Rob Herring <robh@kernel.org>,
-        Krzysztof Kozlowski <krzk+dt@kernel.org>,
-        Conor Dooley
- <conor+dt@kernel.org>,
-        Peter Griffin <peter.griffin@linaro.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Stephen Boyd
- <sboyd@kernel.org>, Brian Masney <bmasney@redhat.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Sam Protsenko <semen.protsenko@linaro.org>,
-        Rob Clark <robin.clark@oss.qualcomm.com>,
-        Dmitry Baryshkov
- <lumag@kernel.org>,
-        Abhinav Kumar <abhinav.kumar@linux.dev>,
-        Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Inki Dae <inki.dae@samsung.com>,
-        Seung-Woo Kim <sw0312.kim@samsung.com>,
-        Kyungmin Park <kyungmin.park@samsung.com>,
-        Andi Shyti
- <andi.shyti@kernel.org>, Georgi Djakov <djakov@kernel.org>,
-        Lee Jones <lee@kernel.org>, Pavel Machek <pavel@kernel.org>,
-        Hans Verkuil <hverkuil@kernel.org>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Ulf Hansson <ulfh@kernel.org>, Peter Rosin <peda@lysator.liu.se>,
-        Vinod Koul <vkoul@kernel.org>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
-        Linus Walleij
- <linusw@kernel.org>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Magnus Damm <magnus.damm@gmail.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Javier Martinez Canillas <javier@dowhile0.org>,
-        Liam Girdwood <lgirdwood@gmail.com>, Mark Brown <broonie@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Srinivas Kandagatla <srini@kernel.org>,
-        Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@kernel.org>,
-        Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>,
-        Jonathan Marek <jonathan@marek.ca>, Taniya Das <quic_tdas@quicinc.com>,
-        Robert Marko <robimarko@gmail.com>,
-        Christian Marangi <ansuelsmth@gmail.com>,
-        Stephan Gerhold <stephan@gerhold.net>,
-        Adam Skladowski <a_skl39@protonmail.com>,
-        Sireesh Kodali <sireeshkodali@protonmail.com>,
-        Barnabas Czeman <barnabas.czeman@mainlining.org>,
-        Imran Shaik <quic_imrashai@quicinc.com>,
-        Sricharan Ramabadhran <quic_srichara@quicinc.com>,
-        Anusha Rao <quic_anusha@quicinc.com>, Luo Jie <quic_luoj@quicinc.com>,
-        Tomasz Figa <tomasz.figa@gmail.com>,
-        Chanho Park
- <chanho61.park@samsung.com>,
-        Sunyeal Hong <sunyeal.hong@samsung.com>,
-        Shin Son <shin.son@samsung.com>,
-        Krishna Manikandan <quic_mkrishn@quicinc.com>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Jaehoon Chung <jh80.chung@samsung.com>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Alina Yu
- <alina_yu@richtek.com>, Andy Gross <agross@kernel.org>,
-        =?UTF-8?Q?Niklas_S=C3=B6derlund?= <niklas.soderlund@ragnatech.se>,
-        Wesley Cheng <quic_wcheng@quicinc.com>, linux-arm-msm@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-clk@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org,
-        linux-i2c@vger.kernel.org, linux-pm@vger.kernel.org,
-        linux-leds@vger.kernel.org, linux-media@vger.kernel.org,
-        linux-mmc@vger.kernel.org, linux-phy@lists.infradead.org,
-        linux-gpio@vger.kernel.org, linux-renesas-soc@vger.kernel.org,
-        linux-serial@vger.kernel.org, linux-sound@vger.kernel.org,
-        linux-usb@vger.kernel.org
-References: <20260622101606.485961-3-krzysztof.kozlowski@oss.qualcomm.com>
- <20260622101606.485961-4-krzysztof.kozlowski@oss.qualcomm.com>
-Content-Language: en-US
-From: Daniel Lezcano <daniel.lezcano@oss.qualcomm.com>
-In-Reply-To: <20260622101606.485961-4-krzysztof.kozlowski@oss.qualcomm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjIzMDA5NiBTYWx0ZWRfX99k1ZppneiHq
- UiF0o5vPkKqBMMXAzF4jHutGyRFFw+5JrI8GG4ZfKNLUXbAiCzh0nRuOJulJG21OqwT0ShIelhe
- Drp+ZCpNZYKP+Ga8nog+0HxOyJ5A1J15qIgaS/glg48ofsh73rKPWi3KGQFG2kseoqw0nuCC7y1
- lVTYpOgEtvysj6KD2VP880EnqZXy3MHO40A+LAESA8l8kvJGpG+Dg1BzNUkOEpv4pgyTd0KpH0z
- yS+O39zXNXxkfqrYBoj62suauhFMQVpzxnjC1u/muUaECC4PuGlR9GBWDiEJKc090bggmD9N6K/
- qT9yBFzkarRssy9Y4BVQxvrmqAsVgoCfKLhA+dn5zr8U4Tx2I/NrCTuTsOVGo8RvrPkiTYOYXgf
- 9M1ehHzLYqRb0TVmSNyATBX8bELLJkYR3z98ixAj+l3sEHieDUweTJzuwIPKW2aXuLr2lZNCkNQ
- rD3tYumnQQE7/xk58gA==
-X-Proofpoint-GUID: tzsmKkXGf1p8i_x66HBTJhVpH5CxBf1v
-X-Authority-Analysis: v=2.4 cv=dvfrzVg4 c=1 sm=1 tr=0 ts=6a3a71fd cx=c_pps
- a=qKBjSQ1v91RyAK45QCPf5w==:117 a=xqWC_Br6kY4A:10 a=IkcTkHD0fZMA:10
- a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22 a=fqWYVyBuAAAA:8
- a=EUspDBNiAAAA:8 a=p1VIHm5NO6eVjb5xVX8A:9 a=QEXdDO2ut3YA:10
- a=NFOGd7dJGGMPyQGDc5-O:22 a=3EkFFxAVN7Xjp7FSp-fE:22
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjIzMDA5NiBTYWx0ZWRfX1JNim/VOFwVB
- m5lthTVcwqP2kBBMuktK03ThPCQuxD55y2jelq8omw8yK2mkYfTXzYGqdbJUwTLENrUk85nCehq
- Co+dtbvInV7E5uhko17l9xh3fx1pMHQ=
-X-Proofpoint-ORIG-GUID: tzsmKkXGf1p8i_x66HBTJhVpH5CxBf1v
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-23_03,2026-06-23_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 phishscore=0 spamscore=0 adultscore=0 clxscore=1011
- suspectscore=0 malwarescore=0 priorityscore=1501 impostorscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606230096
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260618141125.3241048-1-andriy.shevchenko@linux.intel.com>
 
-On 6/22/26 12:16, Krzysztof Kozlowski wrote:
-> There is no use of double colon '::' in YAML. OTOH, the literal style
-> block, e.g. using '|' treats all characters as content [1] therefore
-> single use of ':' in descriptions is perfectly fine, whenever '|' is
-> used.
-> 
-> Cleanup existing code, so the confusing style won't be re-used in new
-> contributions.
-> 
-> Link: https://yaml.org/spec/1.2.2/#literal-style [1]
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-> 
-> ---
-> 
-> Intention for this patch is to go via Rob's tree.
-> ---
->   .../devicetree/bindings/arm/qcom-soc.yaml     |  4 ++--
->   .../devicetree/bindings/arm/qcom.yaml         |  4 ++--
->   .../bindings/arm/samsung/samsung-soc.yaml     |  4 ++--
->   .../display/msm/dsi-controller-main.yaml      | 20 +++++++++----------
->   .../display/samsung/samsung,fimd.yaml         |  4 ++--
->   .../bindings/i2c/samsung,s3c2410-i2c.yaml     |  2 +-
->   .../interconnect/qcom,msm8998-bwmon.yaml      |  2 +-
->   .../interconnect/samsung,exynos-bus.yaml      | 14 ++++++-------
->   .../bindings/leds/qcom,pm8058-led.yaml        |  4 ++--
->   .../bindings/leds/skyworks,aat1290.yaml       |  6 +++---
->   .../bindings/media/cec/cec-gpio.yaml          |  2 +-
->   .../bindings/mmc/samsung,exynos-dw-mshc.yaml  |  2 +-
->   .../devicetree/bindings/mux/mux-consumer.yaml |  4 ++--
->   .../bindings/phy/samsung,mipi-video-phy.yaml  |  4 ++--
->   .../bindings/phy/samsung,usb2-phy.yaml        |  2 +-
->   .../bindings/phy/samsung,usb3-drd-phy.yaml    |  2 +-
->   .../bindings/pinctrl/samsung,pinctrl.yaml     |  2 +-
->   .../bindings/power/renesas,rcar-sysc.yaml     |  2 +-
->   .../bindings/power/reset/restart-handler.yaml |  8 ++++----
->   .../bindings/regulator/maxim,max77802.yaml    |  4 ++--
->   .../bindings/regulator/richtek,rtq2208.yaml   |  2 +-
->   .../bindings/serial/qcom,msm-uartdm.yaml      |  2 +-
->   .../devicetree/bindings/slimbus/slimbus.yaml  |  4 ++--
->   .../bindings/soc/qcom/qcom,apr-services.yaml  |  2 +-
->   .../bindings/soc/qcom/qcom,rpmh-rsc.yaml      |  8 ++++----
->   .../bindings/soc/qcom/qcom,wcnss.yaml         |  2 +-
->   .../bindings/soc/renesas/renesas-soc.yaml     |  4 ++--
->   .../bindings/sound/qcom,q6asm-dais.yaml       |  2 +-
->   .../thermal/samsung,exynos-thermal.yaml       |  4 ++--
+Hi Andy,
 
-Acked-by: Daniel Lezcano <daniel.lezcano@oss.qualcomm.com> # thermal
+On Thu, Jun 18, 2026 at 04:11:25PM +0200, Andy Shevchenko wrote:
+> Since we have generic definitions for bus frequencies, let's use them.
+> 
+> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
+This had some merge conflicts that I fixed. If you want to double
+check here's the commit id(*).
+
+Merged to i2c/i2c.
+
+Thanks,
+Andi
+
+(*) fda74eaaf4cf ("i2c: k1: Use generic definitions for bus frequencies")
