@@ -1,81 +1,107 @@
-Received: from smtpbgau1.qq.com (smtpbgau1.qq.com [54.206.16.166])
+Received: from mail-244123.protonmail.ch (mail-244123.protonmail.ch [109.224.244.123])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DA2A0175A74;
-	Tue, 23 Jun 2026 06:39:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.206.16.166
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 658A2344DB1;
+	Tue, 23 Jun 2026 07:29:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=109.224.244.123
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782196761; cv=none; b=FkFFrl3CQo7GCxtC++DKjmaUENUmFPQsYEdQizGl/CJnRZi6LS6dvwDJxBsmLkBZJlO40XgftHE1q+xXjjFxa3/r5mo9Ihi2Yn0f/QZN/q/y01SnnvhBU5JUcN6DAB32G7j12nkju6kj1whRakIZFrqk3XseOg5V5yKWHxsSa+s=
+	t=1782199800; cv=none; b=FnM+6Bb2ng4dzgKHitYAqfv47NaRojongMaE+S5Rm1jPp0DPIp9F+gM6OwTY8VowZ7ouHzNWV6T0ZaF2quDFwLabOmIS8l1K/mNbNtqxochDQkkSFFOGbqLJbqwg675AVhgLxcJnBNEqjwIkpE4yhghwXs16ZpajVwC+ghQT7SM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782196761; c=relaxed/simple;
-	bh=Zd1XDe8g7ike8eGHQv4Edo5nFNNZOa69Tu9R5cuUtEw=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=r6dnZaPgbr7yNQAE8xC6qcQXa8c7dY+A/25vgQvNL5PBMcHETw8diAaC9zAilJ0jnVay3evzUXKbO3XH2kx5JtNQUkl5Dp/h5y42aoLl2O73gyMQXLLebIS1M4M/iWtfCYqzh6NhcHQIJUE0zVhzYkVi2LbowrNqnMzkMtoYf7o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com; spf=none smtp.mailfrom=linux.spacemit.com; dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b=DsAn9+Bb; arc=none smtp.client-ip=54.206.16.166
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux.spacemit.com
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=linux.spacemit.com
+	s=arc-20240116; t=1782199800; c=relaxed/simple;
+	bh=KMk4+UpY1tucOrd3M1WYKBaRhOiNERTxzQP+PYfa13g=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=f811pMgWgbPHB1tj7l7BYg2YM+9oNEWLLhh81qxlh2VygO5ivllOECASm5nINtPHwqbRODiE/hjFQsniP2OR5XtKiGd/5sS/usC574u8ug5t2Ohif+SjdqC9I5MPmR2dzt/UjASs7wB7AV7KBWAet/IqMhyOnsxL6aB8nKVHjdA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me; spf=pass smtp.mailfrom=proton.me; dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b=GlUgLY1J; arc=none smtp.client-ip=109.224.244.123
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=proton.me
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=proton.me
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.spacemit.com header.i=@linux.spacemit.com header.b="DsAn9+Bb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.spacemit.com;
-	s=mxsw2412; t=1782196718;
-	bh=Zd1XDe8g7ike8eGHQv4Edo5nFNNZOa69Tu9R5cuUtEw=;
-	h=Mime-Version:Date:Message-Id:Subject:From:To;
-	b=DsAn9+Bbph3D7XQmUw2hXBqfTKXBs/Mm2XZ2scYPmS6d9rpjeSKRznGXmsW1G+Csq
-	 PEM4CgEL8Le2RyAo24D+kFr0Ynz0cjxIn8s66wAi5ezuWIKgYnCwGhlyioc3FK8rbM
-	 eXeDUBq9Exvu1ggyWbLKHJKIJZhgXR+5ee6xYPKs=
-X-QQ-mid: esmtpgz15t1782196713tbe179882
-X-QQ-Originating-IP: BNVmBHKlazKuOCJTGVqBkVvlf1Yt2DUDZVZSvhAmtFU=
-Received: from = ( [120.237.158.181])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Tue, 23 Jun 2026 14:38:32 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 0
-X-BIZMAIL-ID: 16372566334252933970
-EX-QQ-RecipientCnt: 5
+	dkim=pass (2048-bit key) header.d=proton.me header.i=@proton.me header.b="GlUgLY1J"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=proton.me;
+	s=protonmail; t=1782199793; x=1782458993;
+	bh=DPX3vJ6VjtVf13lVpQIdZ7MpYcPAWNqpPi38FLSMhxc=;
+	h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+	 Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+	 Message-ID:BIMI-Selector;
+	b=GlUgLY1JLFMOdzxhwst9nJJ5C/nPrOUTQtLuCBHiQwV/C736sahcQ6pudqOeAw90n
+	 Lbrw0v7iHbQlAv9EGLAENkllJo/UDtqCmyjcB8U4Tx9JLuBeqSBpt/al6wWgBhNijv
+	 0YsT4RZ0K6nDiZUZV2DalawU6lDBplBirbODls3DcBtlj1MYvU8PNtpVr3JkSMLFeu
+	 EhF/k3nIu6h3xSYicvl5IXOhpAQc+iZ3RzmF2bTnDIw/1iCicBdiBivBUjLS8enEhH
+	 R/f9SXzl/MquofTZ0nKmg7ln6Ze1fVquWvcs4HsjXulMU219G1z7tkU3MUd1aMsMnM
+	 jSlM59ow6+9Cw==
+Date: Tue, 23 Jun 2026 07:29:45 +0000
+To: Andi Shyti <andi.shyti@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Bryam Vargas <hexlabsecurity@proton.me>
+Cc: Benjamin Tissoires <bentiss@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>, Wolfram Sang <wsa@kernel.org>, itewqq <shipeiqu@sjtu.edu.cn>, linux-i2c@vger.kernel.org, linux-input@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: synaptics-rmi4 - bound the SMBus block read to the caller buffer
+Message-ID: <20260623072935.276387-1-hexlabsecurity@proton.me>
+In-Reply-To: <ajoXuK4DrgSriiww@google.com>
+References: <20260613-b4-disp-2e033955-v1-1-43ab7281667a@proton.me> <ajoXuK4DrgSriiww@google.com>
+Feedback-ID: 199661219:user:proton
+X-Pm-Message-ID: 6ead51569519df1a2340ff22c977903736019706
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Tue, 23 Jun 2026 14:38:30 +0800
-Message-Id: <DJG80AA3AFQ2.2SQ3ILKOLW331@linux.spacemit.com>
-Cc: "Andi Shyti" <andi.shyti@kernel.org>
-Subject: Re: [PATCH v1 1/1] i2c: k1: Use generic definitions for bus
- frequencies
-From: "Troy Mitchell" <troy.mitchell@linux.spacemit.com>
-To: "Andy Shevchenko" <andriy.shevchenko@linux.intel.com>, "Troy Mitchell"
- <troy.mitchell@linux.spacemit.com>, <linux-i2c@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>
-X-Mailer: aerc 0.21.0-0-g5549850facc2
-References: <20260618141125.3241048-1-andriy.shevchenko@linux.intel.com>
-In-Reply-To: <20260618141125.3241048-1-andriy.shevchenko@linux.intel.com>
-X-QQ-SENDSIZE: 520
-Feedback-ID: esmtpgz:linux.spacemit.com:qybglogicsvrgz:qybglogicsvrgz3a-0
-X-QQ-XMAILINFO: Nvi1nD8XUapZk9Oj2K7D1sfMoCE2qfGPpZbNeULIpCzU4BADrlbkXJn0
-	LTeMOkfLqrKJRLehCYSufYtC+Cq+2fl/iDN30EAIwT8FYgPbBScvEcHD0tn6mK/iT+S7zeS
-	95br723RPJ9Dc7RX+xFJV5Q103ji96Xv0WwxxaohqBM5cEuzu2Y+JRbrBNG1Ncaq/PCHUoL
-	iaNpyY6iio9wXFTs+gQcPEsARoe48x+yXx56f6ji0gEcxAogjHBYZMFMP4oHlf3B4FAY6y4
-	2A7Y/9StRQO3lTetTWUXQwb51BHMQXJWv0yH5m1PIrGJE0w7qq5KFFR2a/yRCIve6Eq5ofY
-	f8nwXGAZ40edrV6yfu+ooYia+iNKVwss9d6gyktMuUr1vI6mCirohm0Y75c+tLgz8GzsAUE
-	aa4AuHN+8QbMMtHsPxaodR6SvI6nRTynovZRKQfREfwYIv6DsiJE0WHFOX6nTRsIvlXKU0L
-	vCygGZp5OjQJjAgeqkBlar7zvoxIlUCBq2xkgVixEkoGN3PhqGBGKhdjbBU4HRO7qVzzDeY
-	K/xD4wIxL4EqVRS+hKsJkPNfQW3PfwUiaoWNtMntgZ/tU2YSuEf7MuHliaHjoUycJ/LZfkk
-	e6t89wg3WAYU9A2GmQ8+0KVxSLx4rr0YudFLMUrdi4H4N/GJd0IKVpV+1YQUfPttD+D/kLU
-	Hg1AaUUI+y+INN8TDin2O2RNbOf3WBXVpfyVbG9fgcA8/hj+0VdEiYETiVlWf0Xf2ocY5Xx
-	1tGa1wKOqdvlPzJhQ/Zp29CFoMFx/4u2SUk+Q3MbVtbVODAJoupl2giO9bEyKzT5L7HOdTm
-	4pBM54OXOK/DnbFnyWJFdsklTsNpSSoLO7aToRTjbbtOLmUsmwgX5wvDsbNM+uOQRuvGtxX
-	xjxJLjCdg4aaEMM5NDaX0ympblaOOMnFlqQXVZqDi0JRqud4ZweQrk5Oirb0HA+Gk19P8l0
-	dk7CX4AYwKGxSNodr90tGKCi0yov8xUMSv5DSe8kduzVVwy4GpKV17H23ttYL/7+2PZm8n5
-	xlsDsF6HtDsumEity4DMT5NQTKYx0=
-X-QQ-XMRINFO: NyFYKkN4Ny6FuXrnB5Ye7Aabb3ujjtK+gg==
-X-QQ-RECHKSPAM: 0
 
-On Thu Jun 18, 2026 at 10:11 PM CST, Andy Shevchenko wrote:
-> Since we have generic definitions for bus frequencies, let's use them.
-Thanks, Andy. Indeed, this macro was introduced in e6282fc6f889d.
->
-> Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Troy Mitchell <troy.mitchell@linux.spacemit.com>
+On 2026-06-23, Dmitry Torokhov wrote:
+> Wolfram, any chance we could get this in? I am getting patches for OOB
+
+Andi, looping you in -- MAINTAINERS hands I2C to you as of v7.1, and this i=
+s
+Dmitry's 2024 i2c-core safety patch, which I just retested against current
+mainline.
+
+Dmitry, it works. You asked me to try it on the rmi_smbus stack overflow I
+reported. On current mainline (master 502d801f0ab0) the patch applies with =
+no
+change after ~20 months. i2c-core-smbus.o builds, and so do the unchanged 3=
+-arg
+callers (ipmi_ssif, pmbus_core) and the 4-arg form. Nothing takes the addre=
+ss
+of i2c_smbus_read_block_data(), so the transition macro compiles for every
+caller -- each of the ~82 is a plain 3- or 4-arg call.
+
+The concrete user that was missing in 2024: rmi_read_pdt_entry() reads a PD=
+T
+entry into an on-stack u8 buf[6], and smb_block_read() hands that buffer to
+i2c_smbus_read_block_data() with no size, so a device reporting a block cou=
+nt
+of 7..32 smashes the stack. The 4-arg form bounds it to 6:
+
+    -=09retval =3D i2c_smbus_read_block_data(client, commandcode, buf);
+    +=09retval =3D i2c_smbus_read_block_data(client, commandcode, len, buf)=
+;
+
+Why 4-arg specifically: the 3-arg default (length =3D I2C_SMBUS_BLOCK_MAX) =
+is
+byte-identical to today's code, so the core patch alone doesn't fix an
+undersized caller -- the safety comes from moving each such caller to 4-arg=
+,
+which the rmi_smbus conversion above demonstrates.
+
+rmi_smbus is the undersized caller here; the other block-data callers I che=
+cked
+size to I2C_SMBUS_BLOCK_MAX, so this is the one live conversion for now and=
+ the
+macro mainly guards the next small buffer.
+
+I build-tested the above on mainline and A/B-verified the bound with a
+userspace ASan mirror (-m64 and -m32; the unbounded value is device payload=
+,
+not bus timing, so no RMI hardware is needed): 3-arg/today faults for a cou=
+nt
+of 7..32 into buf[6], 4-arg is clean for every count. I didn't boot-test a
+patched kernel, so I'm not sending a Tested-by tag -- but happy to add one =
+if
+you want a specific config exercised.
+
+I can post the rmi_smbus conversion as a formal patch on top of yours (it's
+ready, checkpatch-clean), or you can fold it -- whichever you prefer.
+
+Thanks,
+Bryam
+
