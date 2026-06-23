@@ -1,106 +1,101 @@
-Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D4FE2C375E
-	for <linux-i2c@vger.kernel.org>; Tue, 23 Jun 2026 05:24:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12BC32737E0
+	for <linux-i2c@vger.kernel.org>; Tue, 23 Jun 2026 05:47:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782192247; cv=none; b=hGeOThGfZkojfMupovt/7/DdJC124QKGBiO9Mr2v4LwqjpGkU4/6hepE195W0wcojxGyCgMk84RON67UqLsyKwYZEgcjGirXaEylxBU3oYXQsk6eUmQXeOUlpFuoH/4kCZMqrQducc49Tt/BZxObOF0IWZZ0xv6mDYgczwHXI+A=
+	t=1782193656; cv=none; b=eSCiy0vXxPFsPrPy1QM3/0bm0eZWgeOlHEXmukCknNy0kHdgDS+oKzhQx7M5Xk52jX6FB5X5KdpURjJ6vlmlu9EiRcSyYlpFf2k+8RBzzeTEKt2n7tq8GHU2S7RzVvFRjPe9zYdulncLMZvibsPY5TgVsjyEGJaEdoYyb6I4JUo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782192247; c=relaxed/simple;
-	bh=4Blk7sBC5Pyt2qRm+LBFR++263IVBnMbyxzxLBYAARk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OQdpXyyQSENwh2fY0BmQNrXRNGMPAhYOu5u61/9HV08ANcUwHZ0Vr2SO96LKmDUZ62Is/w0v8rfERlFAuckPTrvV/6MMWAyx7xttdDRqazZ+OqZXlqcKwRw5/cGHVGaLsfVSWxIMhzUKSWuzuwUL6rHxKyxRLWaeC6yuSRYoJ4o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jn6ujqjp; arc=none smtp.client-ip=74.125.82.46
+	s=arc-20240116; t=1782193656; c=relaxed/simple;
+	bh=xJPNnNjrts5BMBYUMDd7SJN812yW1TjE2bDrl1c/eFk=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=DjkxbExrIpkJ5e6dDcs7UKu57yRwu43uWowCzkBcE95Ty1jLOWZoXE9JnAIw6NdWVe+Z6cFxm6Waatu15ipRTMKZjBOPdK5fPtwpI8ioys2U8WMoNdoNhA4WPLt6rVeBs8RwTaGFL8+w7p1Z6NsSMz+H1/DbWb71u+jgOamShpE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N+yYfU/q; arc=none smtp.client-ip=209.85.216.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jn6ujqjp"
-Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-1363fe80fe8so7309008c88.0
-        for <linux-i2c@vger.kernel.org>; Mon, 22 Jun 2026 22:24:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N+yYfU/q"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-37d7c265ca5so1982914a91.2
+        for <linux-i2c@vger.kernel.org>; Mon, 22 Jun 2026 22:47:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782192245; x=1782797045; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=zlgnE36nEB31kjx0F0SU25BmzIL5DnY8cGWLmeitAjk=;
-        b=Jn6ujqjpE5EFgsR66Rd/oFS3lJIDKGT1zSiDxbvjKG01wr0RXfpzWl3+F9AMAyiJnr
-         RILzT8YzUOjjRwkTg7fmlDZB6b7vFHxELQ0l1sBQ0N41DUYFWM6GLZGfTMO9Aq2Ae33P
-         QykowD/ibgmDY80EhqSY6OmfsENI45tdAAIvNacwt/HtS5qsP4e663DSI4xyENg0u0Jw
-         nkAh9x310Om0Us1lK0cRGWWu6WfeKtmtG5f42kbz9Pj/ZwJxTPFLq4Ag7jJNLBj1cW+D
-         09eimbQOuqU4pYeZGbVTRdIt9MSE/SsIUT8y6YudrB7f7Xu47D/Gp8bQEW7QoOWgLTdC
-         oXiQ==
+        d=gmail.com; s=20251104; t=1782193653; x=1782798453; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=qHZPqZ3RqRQO0OE16/UixYRdvhqayKPw9JQ+fgUzrdQ=;
+        b=N+yYfU/qELCUG8UmUzRMGsXnSm4RpuHQBihLpJxPk218Rx2fH83WTws+D+XW72yfyK
+         OGpRELlBQ4uawWYRkey7Zt3lPAOe1ISmmHBMbRKKHsJl8pcp7yusKF+fw17WspKxo4hN
+         jsIBHfwIirPNghTcKUXONm5iFvJDjRytoXHOZOfEzAQ8zoRcGGoEugsuq6gGA43VacYr
+         E2IFkHm2PpEG4TXk0kgFECKe6T+C/Q+TcGiX5uU53LeQnCCPfyEUaEIEIVAaGAJtMbWJ
+         I6/S/nRmRSD6JsGSbV3FvfxtiwKp/iNqfzp3bdicoLwZp31Oq4YxvZpvO1XWKJ07hwnU
+         C10Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782192245; x=1782797045;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=zlgnE36nEB31kjx0F0SU25BmzIL5DnY8cGWLmeitAjk=;
-        b=MvMTjqI+pDOr39s5dgmDp0hMuC/8PVJp+jaUMK/7Ow3+cOHbP+Ra5WjcaeAol0CpYW
-         gpyQgjYLhhidfLIPmLERKDML7py6QA18HDtHX3x6fORvXe6DCS4Mvc6aJ8EHxojOQrff
-         MjTKx5agqKA1y7qBf3I77c0fyV248q3lLGiNom/J+CDyAuH4x/1iYg2UABQWb513KmK8
-         dfANdO1yzaFb5T/9uRF/vk1OUz8lKhakqGXtXGimwKOUZLghG6pRj9xo9J7U+z+Y6NYN
-         xfcuQ2NITwc7WXOSeDtsMWaifWd0JlXNRpK1jgOzNvb6g/Vkli/ywZWfopAadAxzwmuQ
-         GVtw==
-X-Forwarded-Encrypted: i=1; AFNElJ8HwseNoiiUB7HIfbD0HLm9UbY3/LAutKqs2XnYoYNomJYI5H5K7MnEasDVuNuuHjoP79VmVlMwnrI=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwMIZb2Zm/2s4eapUstUUJZBqWH5TGCShVJkYVmpZO0fhM2rI9m
-	DuDUpheI8OJDWkjlZFP3D9PnmUCpoxo0UuXkuGA16TQsaUhbCcfcLSpT
-X-Gm-Gg: AfdE7clYdnF3M4N5yvdLaVk4XyacVTTbPRLFPgJIzvNkDECTN9vzWtHcsCBVkirWNfa
-	s4WKPm/13mtdRhYxn50a8482/DRpX6/6LFsSjUUh4pqDYybnqO9FTpz+XQARVxkJUU99Jhxedsa
-	K3TnQNIxO2A6hOvwSjZ0qwqPUfw8oxW5s708qvfrkq1VKVx6zhffnETUezQeS5W28e4TqUVmn2D
-	cNMWvxYoFyjVSsLDeiaiYVm8CN9zSW6t9AHXuxgWHKF0TFdi1TpV2Gj2JqMh0NPjGTS/wYXgt7o
-	Q/b+LB5S4Ncw6v3PEZfty95NEDpuIXXgonm7Z/uI4MNrLsJ0MDjL2PzEtTemCwGS+dJiwiYlAF1
-	EnVKTjSMB5dOWSjce6Rut7gYD+ZwhnQqVDtDxp1PPn7kQELP9Z1xZmhGxn7Q+CzMsvCjSnPB/Gv
-	RbvYmrhBehxg1pWHGc7E1fF02UvaU6334jtVlXR7jABu0iLNp3IQOxEQ==
-X-Received: by 2002:a05:7022:6093:b0:136:ff02:d00b with SMTP id a92af1059eb24-139a38806e9mr10415016c88.25.1782192245424;
-        Mon, 22 Jun 2026 22:24:05 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:7d8d:3bdf:d563:1911])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-139adca1b00sm10508406c88.2.2026.06.22.22.24.04
+        d=1e100.net; s=20251104; t=1782193653; x=1782798453;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=qHZPqZ3RqRQO0OE16/UixYRdvhqayKPw9JQ+fgUzrdQ=;
+        b=OxQHIz22L3P80lTfb2NJ9s6o6f7rGB3FEGUdN6Ha//U3QW9+jpxIjJCyFyK5Rj4/fQ
+         ofU9CfAShfuOL17Px8lFebY+/2Nes6JtEzFw/U24t9aMnxsyKLU6dLwt/BPCekELmBvJ
+         2gsNrzMpgz5s6KqQQ7tPcKqprCN1S/pyIz2UG+PHort7Akjm5MqKVFkev6IXUr0zbo0d
+         XuEmw5fFTN1NbNnpDPgWpc/8Am8MNiaMfXOHHQtz8+A65JSMZtoM1aLdXGf698voD/Xq
+         I+fwUVoXBR/y3IvLTzk47FP7/74hz6v3dQ7aN4ngI9QZCOGjwsEUIil/HgBbCugAHPxP
+         KpKA==
+X-Forwarded-Encrypted: i=1; AHgh+Rr6jDFtrnL399DC1lHNjiBE/YSgOU+9/Ye5TjYTEGnUsbWbQxEs/TVyt4+cP5XmeeytJeNI7+fkCiU=@vger.kernel.org
+X-Gm-Message-State: AOJu0YzfyyO03f7jMDt8DeaE0yo4AukIYuUQt13Xp3iUcCwQKWiOwGJY
+	u3oBYzzvztziAkImlU0Dgp0dE2gk4n7wWtyJF7SJENFEvJRVzTpf1m0P
+X-Gm-Gg: AfdE7cnU8UfidqFi0h7+6r+9ytFWZaMT9voJEWCyusI0B3MAzPOQwsCI5wIyOjabCr4
+	oqCfIRj8zmoFATdsqvzuP41WSIZM7VXDXS3rw7y926nfIayVnzlzL/1sjuTayPxpo1jGUDBITOE
+	ZC+FSiiv8/OO8aSXrJOGK9200v03K6V2ZMKmt2UoCJaq32g+oVvXCHmNjASDaYRH7Z7l1XJkNcy
+	V/DMZV4A2xg0LdgnaI8k7xT47JkQqgRAK/jCtuQSmEqzfXKdh26MD17PhxRa4V2QV9D9pmTBorr
+	hwMLGtC8S/GE+o/BsCIXRrCKQQVoekNNz7m+GZO7kyjNeb5keaCLnaEj0IO+okaK4U4F0nLdUoo
+	CJ1QN7jwQf1nlwVaPap1v87eDqVI/XFPGdY3UG/kwpSPF6PeUTnWQ/cKsfFNwjV3AeqSpZFCeSv
+	PLV5OoVxyRxt9vDK9B9/yO2547l7MvxZ4RiagrblT4UGfvOy0PHRrC
+X-Received: by 2002:a17:90a:d610:b0:36b:9c4a:e05d with SMTP id 98e67ed59e1d1-37d160b500dmr18300016a91.17.1782193653403;
+        Mon, 22 Jun 2026 22:47:33 -0700 (PDT)
+Received: from hcdev-d520mt2.. (60-250-196-139.hinet-ip.hinet.net. [60.250.196.139])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-37d15df8b8esm11506913a91.16.2026.06.22.22.47.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jun 2026 22:24:04 -0700 (PDT)
-Date: Mon, 22 Jun 2026 22:24:01 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Wolfram Sang <wsa@kernel.org>, itewqq <shipeiqu@sjtu.edu.cn>, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Bryam Vargas <hexlabsecurity@proton.me>
-Subject: Re: [PATCH] i2c: smbus: make i2c_smbus_read_block_data() safer
-Message-ID: <ajoYKOBRXc3HrH6a@google.com>
-References: <ZxGrwObOFkNuCn_w@google.com>
+        Mon, 22 Jun 2026 22:47:32 -0700 (PDT)
+From: baneric926@gmail.com
+X-Google-Original-From: kcfeng0@nuvoton.com
+To: avifishman70@gmail.com,
+	tmaimon77@gmail.com,
+	tali.perry1@gmail.com,
+	venture@google.com,
+	yuenn@google.com,
+	benjaminfair@google.com,
+	andi.shyti@kernel.org
+Cc: openbmc@lists.ozlabs.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	kwliu@nuvoton.com,
+	kfting@nuvoton.com,
+	kcfeng0@nuvoton.com
+Subject: [PATCH v1 0/1] i2c: npcm: unexpected SLVRSTR IRQ in master mode
+Date: Tue, 23 Jun 2026 13:46:34 +0800
+Message-Id: <20260623054635.1214525-1-kcfeng0@nuvoton.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZxGrwObOFkNuCn_w@google.com>
+Content-Transfer-Encoding: 8bit
 
-On Thu, Oct 17, 2024 at 05:28:48PM -0700, Dmitry Torokhov wrote:
-> i2c_smbus_read_block_data() is dangerous to use because it may deliver
-> up to I2C_SMBUS_BLOCK_MAX (32) bytes, which may be surprising to the
-> caller. Callers tend to allocate buffers of sizes big enough to hold
-> data from a well-behaving device and do not expect that
-> i2c_smbus_read_block_data() may attempt to write more data than
-> expected.
-> 
-> To make i2c_smbus_read_block_data() safer to use change it so that
-> it accepts size of the supplied buffer as another argument and ensure
-> that it will not copy more data than the size of the buffer.
-> 
-> To allow users to gradually transition to the new API employ some
-> macro trickery allowing calling i2c_smbus_read_block_data() with either
-> 3 or 4 arguments. When called with 3 arguments it is assumed that
-> the buffer size is I2C_SMBUS_BLOCK_MAX bytes. Once everyone is
-> transitioned to the 4 argument form the macros should be removed.
-> 
-> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Ban Feng <kcfeng0@nuvoton.com>
 
-Wolfram, any chance we could get this in? I am getting patches for OOB
-access because of the unexpected behavior and I'd like to fix them
-without doing extra memcpy().
+SLVRSTR IRQ occurs even when BMC acts as master role only.
+This case was not handled in the master IRQ handler,
+resulting in IRQ storming.
+Handle this condition to prevent the spurious interrupt.
 
-Thanks.
+Ban Feng (1):
+  i2c: npcm: unexpected SLVRSTR IRQ in master mode
+
+ drivers/i2c/busses/i2c-npcm7xx.c | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
 -- 
-Dmitry
+2.34.1
+
