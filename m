@@ -1,158 +1,106 @@
-Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f46.google.com (mail-dl1-f46.google.com [74.125.82.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0CD8374E7F;
-	Tue, 23 Jun 2026 03:13:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=203.254.224.25
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D4FE2C375E
+	for <linux-i2c@vger.kernel.org>; Tue, 23 Jun 2026 05:24:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782184395; cv=none; b=T8kEJjHokpkJWzWEHi97jb8gkFByAS0Omf7/AkJfh05zrZvS2UUVSUR1b4nceStW1sNW0AknleE/G0K/idHK61bY6R6wwe5Ic2p86/L+fiJF3Nu3mX8NSZZIDkUshRf/nl7sQPjphOwYRgwl5IEftpzMkwE4UXi5TIR+zphVh3U=
+	t=1782192247; cv=none; b=hGeOThGfZkojfMupovt/7/DdJC124QKGBiO9Mr2v4LwqjpGkU4/6hepE195W0wcojxGyCgMk84RON67UqLsyKwYZEgcjGirXaEylxBU3oYXQsk6eUmQXeOUlpFuoH/4kCZMqrQducc49Tt/BZxObOF0IWZZ0xv6mDYgczwHXI+A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782184395; c=relaxed/simple;
-	bh=SwNva69jy2afJIyfC0fIqgAntqNuL+DM/a3cYXevjM4=;
-	h=From:To:In-Reply-To:Subject:Date:Message-ID:MIME-Version:
-	 Content-Type:References; b=Oox69dgE3K0Kqu+3LKt+gxQmKhT57FU0fP9mHyTb51RT/JGqq/LH5wSIXtJA6L5ah/DU9G/Tyud4wBnDMPBiSMcIgG+GFPJbp1ltmBjxpk1cYxzAFhyUaA0vcoTNT1jZECjimfJDJzVLtbtDPzwiF3dh1nLT4eGog/pLmct6Z9c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=HSBXm6Wr; arc=none smtp.client-ip=203.254.224.25
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1782192247; c=relaxed/simple;
+	bh=4Blk7sBC5Pyt2qRm+LBFR++263IVBnMbyxzxLBYAARk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=OQdpXyyQSENwh2fY0BmQNrXRNGMPAhYOu5u61/9HV08ANcUwHZ0Vr2SO96LKmDUZ62Is/w0v8rfERlFAuckPTrvV/6MMWAyx7xttdDRqazZ+OqZXlqcKwRw5/cGHVGaLsfVSWxIMhzUKSWuzuwUL6rHxKyxRLWaeC6yuSRYoJ4o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Jn6ujqjp; arc=none smtp.client-ip=74.125.82.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="HSBXm6Wr"
-Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
-	by mailout2.samsung.com (KnoxPortal) with ESMTP id 20260623031303epoutp02488f852023875c7b097a7427dfb11950~7l0ExemEP0684306843epoutp02R;
-	Tue, 23 Jun 2026 03:13:03 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20260623031303epoutp02488f852023875c7b097a7427dfb11950~7l0ExemEP0684306843epoutp02R
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1782184383;
-	bh=xYWvnYzx61MOHShrICO4N9ZwFKzGqTfE6OdZqCfXxL4=;
-	h=From:To:In-Reply-To:Subject:Date:References:From;
-	b=HSBXm6WralSrItnUo41WTp4Q9bHEdBGeR/ktDAbhDUX4jHkktSgXl1qVmshH/Zbfz
-	 HyFkrFLLFUikPIvVZvLN8hutNjgoW819TbAeR9N1Fg49C1AhVAoaidIA6WQL6TnjHz
-	 ZebhsaMkFvMv6aZD8a/rzkNbslvDGFU7faVRYhzM=
-Received: from epsnrtp01.localdomain (unknown [182.195.42.153]) by
-	epcas5p1.samsung.com (KnoxPortal) with ESMTPS id
-	20260623031303epcas5p1fd11dbfc745aa99f18d960e686705fcd~7l0Ec3mqg0166901669epcas5p1o;
-	Tue, 23 Jun 2026 03:13:03 +0000 (GMT)
-Received: from epcpadp2new (unknown [182.195.40.142]) by
-	epsnrtp01.localdomain (Postfix) with ESMTP id 4gkqrb2vfDz6B9m9; Tue, 23 Jun
-	2026 03:13:03 +0000 (GMT)
-Received: from epsmtip1.samsung.com (unknown [182.195.34.30]) by
-	epcas5p3.samsung.com (KnoxPortal) with ESMTPA id
-	20260622114230epcas5p3e590b84087d9879e30d604f89ce938a8~7ZHlpxa2p3249132491epcas5p3i;
-	Mon, 22 Jun 2026 11:42:30 +0000 (GMT)
-Received: from INBRO002756 (unknown [107.122.3.168]) by epsmtip1.samsung.com
-	(KnoxPortal) with ESMTPA id
-	20260622114216epsmtip1ccbcb97431d34878191527dbce3b94b6~7ZHYxKdLA2526625266epsmtip1D;
-	Mon, 22 Jun 2026 11:42:16 +0000 (GMT)
-From: "Alim Akhtar" <alim.akhtar@samsung.com>
-To: "'Krzysztof Kozlowski'" <krzysztof.kozlowski@oss.qualcomm.com>, "'Bjorn
- Andersson'" <andersson@kernel.org>, "'Konrad Dybcio'"
-	<konradybcio@kernel.org>, "'Rob Herring'" <robh@kernel.org>, "'Krzysztof
- Kozlowski'" <krzk+dt@kernel.org>, "'Conor Dooley'" <conor+dt@kernel.org>,
-	"'Peter Griffin'" <peter.griffin@linaro.org>, "'Michael	Turquette'"
-	<mturquette@baylibre.com>, "'Stephen Boyd'" <sboyd@kernel.org>, "'Brian
- Masney'" <bmasney@redhat.com>, "'Sylwester Nawrocki'"
-	<s.nawrocki@samsung.com>, "'Chanwoo Choi'" <cw00.choi@samsung.com>, "'Sam
- Protsenko'" <semen.protsenko@linaro.org>, "'Rob Clark'"
-	<robin.clark@oss.qualcomm.com>, "'Dmitry Baryshkov'" <lumag@kernel.org>,
-	"'Abhinav Kumar'" <abhinav.kumar@linux.dev>, "'Jessica Zhang'"
-	<jesszhan0024@gmail.com>, "'Sean Paul'" <sean@poorly.run>, "'Marijn
-	Suijten'" <marijn.suijten@somainline.org>, "'David	Airlie'"
- <airlied@gmail.com>, "'Simona Vetter'" <simona@ffwll.ch>, "'Maarten
-	Lankhorst'" <maarten.lankhorst@linux.intel.com>, "'Maxime Ripard'"
- <mripard@kernel.org>, "'Thomas Zimmermann'" <tzimmermann@suse.de>, "'Inki
-	Dae'" <inki.dae@samsung.com>, "'Seung-Woo Kim'" <sw0312.kim@samsung.com>,
-	"'Kyungmin	Park'" <kyungmin.park@samsung.com>, "'Andi Shyti'"
-	<andi.shyti@kernel.org>, "'Georgi	Djakov'" <djakov@kernel.org>, "'Lee
-	Jones'" <lee@kernel.org>, "'Pavel Machek'" <pavel@kernel.org>, "'Hans
-	Verkuil'" <hverkuil@kernel.org>, "'Mauro Carvalho	Chehab'"
- <mchehab@kernel.org>, "'Ulf Hansson'" <ulfh@kernel.org>, "'Peter Rosin'"
- <peda@lysator.liu.se>, "'Vinod Koul'" <vkoul@kernel.org>, "'Neil Armstrong'"
- <neil.armstrong@linaro.org>, "'Linus Walleij'" <linusw@kernel.org>, "'Geert
-	Uytterhoeven'" <geert+renesas@glider.be>, "'Magnus Damm'"
- <magnus.damm@gmail.com>, "'Sebastian Reichel'" <sre@kernel.org>, "'Javier
-	Martinez Canillas'" <javier@dowhile0.org>, "'Liam Girdwood'"
- <lgirdwood@gmail.com>, "'Mark Brown'" <broonie@kernel.org>, "'Greg
-	Kroah-Hartman'" <gregkh@linuxfoundation.org>, "'Jiri	Slaby'"
- <jirislaby@kernel.org>, "'Srinivas Kandagatla'" <srini@kernel.org>,
-	"'Bartlomiej Zolnierkiewicz'" <bzolnier@gmail.com>, "'Rafael J. Wysocki'"
-	<rafael@kernel.org>, "'Daniel Lezcano'" <daniel.lezcano@kernel.org>, "'Zhang
- Rui'" <rui.zhang@intel.com>, "'Lukasz Luba'" <lukasz.luba@arm.com>,
-	"'Jonathan Marek'" <jonathan@marek.ca>, "'Taniya Das'"
-	<quic_tdas@quicinc.com>, "'Robert Marko'" <robimarko@gmail.com>, "'Christian
- Marangi'" <ansuelsmth@gmail.com>, "'Stephan	Gerhold'" <stephan@gerhold.net>,
-	"'Adam Skladowski'" <a_skl39@protonmail.com>, "'Sireesh Kodali'"
-	<sireeshkodali@protonmail.com>, "'Barnabas Czeman'"
-	<barnabas.czeman@mainlining.org>, "'Imran Shaik'"
-	<quic_imrashai@quicinc.com>, "'Sricharan Ramabadhran'"
-	<quic_srichara@quicinc.com>, "'Anusha Rao'" <quic_anusha@quicinc.com>, "'Luo
- Jie'" <quic_luoj@quicinc.com>, "'Tomasz Figa'" <tomasz.figa@gmail.com>,
-	"'Chanho Park'" <chanho61.park@samsung.com>, "'Sunyeal	Hong'"
-	<sunyeal.hong@samsung.com>, "'Shin Son'" <shin.son@samsung.com>, "'Krishna
- Manikandan'" <quic_mkrishn@quicinc.com>, "'Jacek Anaszewski'"
-	<jacek.anaszewski@gmail.com>, "'Jaehoon Chung'" <jh80.chung@samsung.com>,
-	"'Marek	Szyprowski'" <m.szyprowski@samsung.com>, "'Alina Yu'"
-	<alina_yu@richtek.com>, "'Andy	Gross'" <agross@kernel.org>,
-	=?UTF-8?Q?'Niklas_S=C3=B6derlund'?= <niklas.soderlund@ragnatech.se>,
-	"'Wesley Cheng'" <quic_wcheng@quicinc.com>, <linux-arm-msm@vger.kernel.org>,
-	<devicetree@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-samsung-soc@vger.kernel.org>,
-	<linux-clk@vger.kernel.org>, <dri-devel@lists.freedesktop.org>,
-	<freedreno@lists.freedesktop.org>, <linux-i2c@vger.kernel.org>,
-	<linux-pm@vger.kernel.org>, <linux-leds@vger.kernel.org>,
-	<linux-media@vger.kernel.org>, <linux-mmc@vger.kernel.org>,
-	<linux-phy@lists.infradead.org>, <linux-gpio@vger.kernel.org>,
-	<linux-renesas-soc@vger.kernel.org>, <linux-serial@vger.kernel.org>,
-	<linux-sound@vger.kernel.org>, <linux-usb@vger.kernel.org>,
-	<cpgs@samsung.com>
-In-Reply-To: <20260622101606.485961-3-krzysztof.kozlowski@oss.qualcomm.com>
-Subject: RE: [PATCH 1/2] dt-bindings: clock: Drop incorrect usage of double
- '::'
-Date: Mon, 22 Jun 2026 17:12:14 +0530
-Message-ID: <1050065615.01782184383398.JavaMail.epsvc@epcpadp2new>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Jn6ujqjp"
+Received: by mail-dl1-f46.google.com with SMTP id a92af1059eb24-1363fe80fe8so7309008c88.0
+        for <linux-i2c@vger.kernel.org>; Mon, 22 Jun 2026 22:24:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782192245; x=1782797045; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=zlgnE36nEB31kjx0F0SU25BmzIL5DnY8cGWLmeitAjk=;
+        b=Jn6ujqjpE5EFgsR66Rd/oFS3lJIDKGT1zSiDxbvjKG01wr0RXfpzWl3+F9AMAyiJnr
+         RILzT8YzUOjjRwkTg7fmlDZB6b7vFHxELQ0l1sBQ0N41DUYFWM6GLZGfTMO9Aq2Ae33P
+         QykowD/ibgmDY80EhqSY6OmfsENI45tdAAIvNacwt/HtS5qsP4e663DSI4xyENg0u0Jw
+         nkAh9x310Om0Us1lK0cRGWWu6WfeKtmtG5f42kbz9Pj/ZwJxTPFLq4Ag7jJNLBj1cW+D
+         09eimbQOuqU4pYeZGbVTRdIt9MSE/SsIUT8y6YudrB7f7Xu47D/Gp8bQEW7QoOWgLTdC
+         oXiQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782192245; x=1782797045;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zlgnE36nEB31kjx0F0SU25BmzIL5DnY8cGWLmeitAjk=;
+        b=MvMTjqI+pDOr39s5dgmDp0hMuC/8PVJp+jaUMK/7Ow3+cOHbP+Ra5WjcaeAol0CpYW
+         gpyQgjYLhhidfLIPmLERKDML7py6QA18HDtHX3x6fORvXe6DCS4Mvc6aJ8EHxojOQrff
+         MjTKx5agqKA1y7qBf3I77c0fyV248q3lLGiNom/J+CDyAuH4x/1iYg2UABQWb513KmK8
+         dfANdO1yzaFb5T/9uRF/vk1OUz8lKhakqGXtXGimwKOUZLghG6pRj9xo9J7U+z+Y6NYN
+         xfcuQ2NITwc7WXOSeDtsMWaifWd0JlXNRpK1jgOzNvb6g/Vkli/ywZWfopAadAxzwmuQ
+         GVtw==
+X-Forwarded-Encrypted: i=1; AFNElJ8HwseNoiiUB7HIfbD0HLm9UbY3/LAutKqs2XnYoYNomJYI5H5K7MnEasDVuNuuHjoP79VmVlMwnrI=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwMIZb2Zm/2s4eapUstUUJZBqWH5TGCShVJkYVmpZO0fhM2rI9m
+	DuDUpheI8OJDWkjlZFP3D9PnmUCpoxo0UuXkuGA16TQsaUhbCcfcLSpT
+X-Gm-Gg: AfdE7clYdnF3M4N5yvdLaVk4XyacVTTbPRLFPgJIzvNkDECTN9vzWtHcsCBVkirWNfa
+	s4WKPm/13mtdRhYxn50a8482/DRpX6/6LFsSjUUh4pqDYybnqO9FTpz+XQARVxkJUU99Jhxedsa
+	K3TnQNIxO2A6hOvwSjZ0qwqPUfw8oxW5s708qvfrkq1VKVx6zhffnETUezQeS5W28e4TqUVmn2D
+	cNMWvxYoFyjVSsLDeiaiYVm8CN9zSW6t9AHXuxgWHKF0TFdi1TpV2Gj2JqMh0NPjGTS/wYXgt7o
+	Q/b+LB5S4Ncw6v3PEZfty95NEDpuIXXgonm7Z/uI4MNrLsJ0MDjL2PzEtTemCwGS+dJiwiYlAF1
+	EnVKTjSMB5dOWSjce6Rut7gYD+ZwhnQqVDtDxp1PPn7kQELP9Z1xZmhGxn7Q+CzMsvCjSnPB/Gv
+	RbvYmrhBehxg1pWHGc7E1fF02UvaU6334jtVlXR7jABu0iLNp3IQOxEQ==
+X-Received: by 2002:a05:7022:6093:b0:136:ff02:d00b with SMTP id a92af1059eb24-139a38806e9mr10415016c88.25.1782192245424;
+        Mon, 22 Jun 2026 22:24:05 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:7d8d:3bdf:d563:1911])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-139adca1b00sm10508406c88.2.2026.06.22.22.24.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 22 Jun 2026 22:24:04 -0700 (PDT)
+Date: Mon, 22 Jun 2026 22:24:01 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: Wolfram Sang <wsa@kernel.org>, itewqq <shipeiqu@sjtu.edu.cn>, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Bryam Vargas <hexlabsecurity@proton.me>
+Subject: Re: [PATCH] i2c: smbus: make i2c_smbus_read_block_data() safer
+Message-ID: <ajoYKOBRXc3HrH6a@google.com>
+References: <ZxGrwObOFkNuCn_w@google.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Outlook 16.0
-Thread-Index: AQIwXoGyyqYeRyJ4JjkgDeaw0zOZjgI6ZcaYtZHncYA=
-Content-Language: en-us
-X-CMS-MailID: 20260622114230epcas5p3e590b84087d9879e30d604f89ce938a8
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-CMS-TYPE: 105P
-X-CPGSPASS: Y
-X-Hop-Count: 3
-X-CMS-RootMailID: 20260622101627epcas5p2aeb4aad096395936c04cb563eb226b83
-References: <CGME20260622101627epcas5p2aeb4aad096395936c04cb563eb226b83@epcas5p2.samsung.com>
-	<20260622101606.485961-3-krzysztof.kozlowski@oss.qualcomm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ZxGrwObOFkNuCn_w@google.com>
 
+On Thu, Oct 17, 2024 at 05:28:48PM -0700, Dmitry Torokhov wrote:
+> i2c_smbus_read_block_data() is dangerous to use because it may deliver
+> up to I2C_SMBUS_BLOCK_MAX (32) bytes, which may be surprising to the
+> caller. Callers tend to allocate buffers of sizes big enough to hold
+> data from a well-behaving device and do not expect that
+> i2c_smbus_read_block_data() may attempt to write more data than
+> expected.
+> 
+> To make i2c_smbus_read_block_data() safer to use change it so that
+> it accepts size of the supplied buffer as another argument and ensure
+> that it will not copy more data than the size of the buffer.
+> 
+> To allow users to gradually transition to the new API employ some
+> macro trickery allowing calling i2c_smbus_read_block_data() with either
+> 3 or 4 arguments. When called with 3 arguments it is assumed that
+> the buffer size is I2C_SMBUS_BLOCK_MAX bytes. Once everyone is
+> transitioned to the 4 argument form the macros should be removed.
+> 
+> Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
+Wolfram, any chance we could get this in? I am getting patches for OOB
+access because of the unexpected behavior and I'd like to fix them
+without doing extra memcpy().
 
-> -----Original Message-----
-> From: Krzysztof Kozlowski <krzysztof.kozlowski@oss.qualcomm.com>
-> Sent: Monday, June 22, 2026 3:46 PM
-> To: Bjorn Andersson <andersson@kernel.org>; Konrad Dybcio
-> <konradybcio@kernel.org>; Rob Herring <robh@kernel.org>; Krzysztof
-> Kozlowski <krzk+dt@kernel.org>; Conor Dooley <conor+dt@kernel.org>;
-> Peter Griffin <peter.griffin@linaro.org>; Alim Akhtar
-> <alim.akhtar@samsung.com>; Michael Turquette
-> <mturquette@baylibre.com>; Stephen Boyd <sboyd@kernel.org>; Brian
-> Masney <bmasney@redhat.com>; Sylwester Nawrocki
-[Snip]
->  Documentation/devicetree/bindings/clock/qcom,videocc.yaml   | 2 +-
->  .../devicetree/bindings/clock/samsung,exynos5260-clock.yaml | 6 +++---
->   .../devicetree/bindings/clock/samsung,exynos5410-clock.yaml | 2 +-
->   .../devicetree/bindings/clock/samsung,exynos5433-clock.yaml | 2 +-
->  .../devicetree/bindings/clock/samsung,exynos7-clock.yaml    | 2 +-
->  .../devicetree/bindings/clock/samsung,exynos850-clock.yaml  | 2 +-
->  .../bindings/clock/samsung,exynosautov9-clock.yaml          | 2 +-
->  .../bindings/clock/samsung,exynosautov920-clock.yaml        | 2 +-
->  .../devicetree/bindings/clock/samsung,s5pv210-clock.yaml    | 2 +-
+Thanks.
 
-Reviewed-by: Alim Akhtar <alim.akhtar@samsung.com>
-
-
-
-
+-- 
+Dmitry
