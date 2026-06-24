@@ -1,135 +1,143 @@
-Received: from cstnet.cn (smtp81.cstnet.cn [159.226.251.81])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A212332570D;
-	Wed, 24 Jun 2026 05:52:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.81
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4FA4395AE4
+	for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 07:47:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782280361; cv=none; b=uf+16dQhVL9JHftTIpGzB23PlvDMOIXLpjQnrHxkW9TrSWwiYsDFPKQXIof9J7Z6I+tMQyW0HqG2O/X7AQVaiJLTS+fTrZalkfTnDdmbGJqF1HcQXsYHoeNxvgqyt8CGIr+n3JBfUcTqiVd3mHxQB7NDx4P5/zFRmjlAEso5qdI=
+	t=1782287244; cv=none; b=avrbUimqMX1m3OtkRh2o33uGwneHZRbFdaPGb/Yzb5jDx8IMYGP6zbV6BWu+pnZg0p+ajvAznb6kSbSweJAZnTo/4KBHHF8dYuxiqwUEAZqNWk5l7l+0qSRaHMGoqzKKdOnw3p5XgC9QMR+C/kKtIukbeUZXB93i35MJfgeBybA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782280361; c=relaxed/simple;
-	bh=aqCr87PbvOfUNX1U/miymM0D48YKzHJTuEOVMHkBJ9I=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PBITMhYrI/ZxOXbyM75SWVu7gF0n5aVE7IWR4vkf8YhOil/+m4mcGFuDedOqingnu49V5eug71W3THhjnB734Z6HahM5dBQk7LnOys2h2lmjHSniczSYPvPp6nmT3/qwJYv2z6DsGZQFjkmM+2lvGj78w79iWDUxLW/5yk+px8c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.81
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from localhost.localdomain (unknown [111.196.245.140])
-	by APP-03 (Coremail) with SMTP id rQCowAA3E5qlcDtqgBOtFQ--.13630S2;
-	Wed, 24 Jun 2026 13:52:37 +0800 (CST)
-From: Pengpeng Hou <pengpeng@iscas.ac.cn>
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-arm-msm@vger.kernel.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Pengpeng Hou <pengpeng@iscas.ac.cn>
-Subject: [PATCH] i2c: qup: Propagate clock enable failures
-Date: Wed, 24 Jun 2026 13:52:37 +0800
-Message-ID: <20260624055237.29977-1-pengpeng@iscas.ac.cn>
-X-Mailer: git-send-email 2.50.1
+	s=arc-20240116; t=1782287244; c=relaxed/simple;
+	bh=SubK8zh8375/xh1JLgTbSXAfRTQrObsHSJUFoEOOZOg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Z5pNQOvR7z4vKx+zyBtJcI5c8t4KCYbwUCXn+bawX5Zif5Pq5nmzfAxTHTzo3d+DefXu1358UwW2oRR2zOjIoVhHAscL3P9myhdBhgwnFBmkib4x9LuRqlduVqEle9Z1myR/YQJYqI5YZTOD0xsEHkXeaBPys+c4HtrdBVJNTK4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=BMGb4dDH; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=C3qN80LE; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="BMGb4dDH";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="C3qN80LE"
+Received: from pps.filterd (m0279866.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65O5tpPd1971921
+	for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 07:47:23 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	/g4fRALXysleQymhzTRyHSwPBhUJqCQ0cZjYYVP6ilc=; b=BMGb4dDHJyH/0WEN
+	v8/5eV9pYq5LZDPtvFoG8vxESxJYIDq7nrMFWDwlW98oXAUncUy3amdI4f7Zal7s
+	ABE7HLm8xtm3iW3pyaoOUyfYERJhUpxIjtduP0bSyNtqHTLGFE7B38+KnLkTk48r
+	N4H1pb8BfiU89LfCVNL5XdFk1S5rs4vHPp8BsCEnbXggr54e41fLs58v0NGKj+Ww
+	Veavpn/+RBGPde6sv2G0oqjCpULKNFUut+OzkqKrGnzstWsx33tzVALLzpyKTtGG
+	o6wdwwYSObBylDHYWHDjedLHHFfxHqqCwh+qUhb1KgGxUyAwN0ABJYMFk/azSm4q
+	FJXG/A==
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com [209.85.222.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4f00eva0kn-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 07:47:21 +0000 (GMT)
+Received: by mail-qk1-f199.google.com with SMTP id af79cd13be357-9156dc90fdaso14523385a.0
+        for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 00:47:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1782287241; x=1782892041; darn=vger.kernel.org;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=/g4fRALXysleQymhzTRyHSwPBhUJqCQ0cZjYYVP6ilc=;
+        b=C3qN80LE3PZ0Ab4yqxa/eObUcZQgRCZBXoYOyyyaCjmu0zk2GcZrV2qIHzlI4OFsu2
+         QWJ7kxDQNHg+jp2kyMt6Gc1SrOB+dqHsvfLVnt919U/qC+tPtgXL91d6NH9tp0ll+Ttt
+         Ijxs7sVbDv6Hlil5DrHJqFxE4bT279QSnKf+svEhp5/hdymoOpHhlP7+HHdl5zoasKxd
+         Cvoqg843McSHJCi7Jxl6mMK/hkbyiQyVIuZH4lG1BDzfJCG7jJltcUmX4+OABqFWZ6v5
+         xeoMrJsMI6z820e5Hq/XNbSevJkSpxdu5I74iOWp6P4S+KAueY6LS/CCvl9xXST9sIoq
+         E5WQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782287241; x=1782892041;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=/g4fRALXysleQymhzTRyHSwPBhUJqCQ0cZjYYVP6ilc=;
+        b=ZguoG8kKBu3sX5mn2GKY0Alfpkui1yIzaqxRBwyiqk/2FS+aH01lTW3o5ojiWEfuFQ
+         LS35MQa9v5CZCyjrdwlXAnk3EbEkOlsO8SWcvINoKlGMfuuccVIDaqgWUSelk9KRaMJJ
+         wrDuBXAZWBOg4Kr/xekTgyVKwGk8aq0kd+OTHeliJO7M28AJ//jnsYyeoJRNZkS4bpwO
+         Qpeo8ydgJr0o0I8gUPRcYuUwsTp5Mv/12npVrz2A1ujrSMcobqEJvu2HXmIiogdDvRRt
+         IljwtIthCI90QMI2iXnlmIZGHppIUg0Ix6bAeaMOCwV1FMzCJPAmmbmYenSw5KeOI+h/
+         T/zg==
+X-Forwarded-Encrypted: i=1; AFNElJ8VSEW2+5hxPRLoMNTJWYuhfnKGelX3UwCwfikbJdcRREn0F8sHwXAV3VesPn3wCMqrQqevYSzTqpQ=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyOO7k2cXyWBiwcaP2c24OcMbcn5GhmfoZxWG3gIEtvzXfEJRyn
+	Ww5fSTTgULSFBzX5kAhpMsdt4h1/ysekFnZXZmGmSPkMmuXpGdrqHSOgRDZV/2ePe3z9Z3woLjS
+	nHjNi3sglNZqY6nWmHsjAV9KbJl2iv3LpPBU6TdDjAe61utuIqw6ivR5ht1mnRpEj5XvNoHc=
+X-Gm-Gg: AfdE7clKlICpoXicsMBfQWJ44YZMZ8SywsF5ltjIlIoRE8ZRHFn/lTTFOdgKdEPMjz7
+	REkAgbiPVXZErLnCPHlzpghM+gJgU5l9XShgvI0JFD4MMBiR1eI59hAL8uba2HC1Dxc/SsWljaF
+	i+er5UaI1uGTnGCmBLf//Ylp8LGNY/fm2LH1kieCndiAXOEJZ8uYeOgH2UsqProHP4s3zXLMMyH
+	3i/1gg+P5XuZsREEZyxE6IFvsYrNFpGEaCx251tJafv6FJu3RUCdUhBt/BQx22dX3UPPvQW+agJ
+	CEmdbMu/2WOCpX9G6or65Az+4aYJ2sQFexRNe96coTNr4T6FhPam6ZFh0qBgLyUZYEcwG/56Uuc
+	DxECYsT3LDAnVTnRIXU5a4jLfccq0uuGTaVc=
+X-Received: by 2002:a05:622a:b:b0:50e:487a:bfef with SMTP id d75a77b69052e-51a60d5ecfamr25152981cf.2.1782287240964;
+        Wed, 24 Jun 2026 00:47:20 -0700 (PDT)
+X-Received: by 2002:a05:622a:b:b0:50e:487a:bfef with SMTP id d75a77b69052e-51a60d5ecfamr25152801cf.2.1782287240551;
+        Wed, 24 Jun 2026 00:47:20 -0700 (PDT)
+Received: from [192.168.120.170] ([178.235.128.140])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c0c5e498cf8sm603381966b.13.2026.06.24.00.47.18
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 24 Jun 2026 00:47:19 -0700 (PDT)
+Message-ID: <4fe3e01e-93f7-4832-b93e-d006c644b3ce@oss.qualcomm.com>
+Date: Wed, 24 Jun 2026 09:47:18 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:rQCowAA3E5qlcDtqgBOtFQ--.13630S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7Ar1fKrW3tF4UCFWxJw4ruFg_yoW8KFWrpa
-	1UJr4Fkr48Xwn2gw4avr1UZr98K395Ka4xJrZrG3Z293Z8Z342yF48JFyY9a10vryDAa1a
-	qFWvyFWfCF4jvFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUkG14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j
-	6r4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
-	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
-	I7IYx2IY67AKxVWUAVWUtwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
-	4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCY1x0262kKe7AKxVWU
-	AVWUtwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14
-	v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkG
-	c2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI
-	0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4U
-	MIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JU6v38UUU
-	UU=
-X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] i2c: qup: Propagate clock enable failures
+To: Pengpeng Hou <pengpeng@iscas.ac.cn>, Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260624055237.29977-1-pengpeng@iscas.ac.cn>
+Content-Language: en-US
+From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+In-Reply-To: <20260624055237.29977-1-pengpeng@iscas.ac.cn>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjI0MDA2MyBTYWx0ZWRfX1TCkHJJGvsL/
+ v2XfivINq2B/BCWXJwozAEuX20mu24xIDSNsSFvPxgL4s3NKFoQjWUXTXqY1CW9ycPTWpBCQ5+K
+ xs3UZdSmnyaOIvkEktYQjACY+ClQ1t0=
+X-Authority-Analysis: v=2.4 cv=JbaMa0KV c=1 sm=1 tr=0 ts=6a3b8b8a cx=c_pps
+ a=HLyN3IcIa5EE8TELMZ618Q==:117 a=PRfkaYvzSr8QmIIGAkY2Sg==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=YMgV9FUhrdKAYTUUvYB2:22
+ a=EUspDBNiAAAA:8 a=_6zfsGPuifU0wGZyNaAA:9 a=QEXdDO2ut3YA:10
+ a=bTQJ7kPSJx9SKPbeHEYW:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjI0MDA2MyBTYWx0ZWRfX7Qunqi9/88oW
+ ZDlhhn9I3NLm0mSiu/lc/pwNkoBuRV+VXSNOd/Rw6Q6E0RPrHQ//iNKXNN2vWcj+FUpPqIIwhmM
+ tB08uYdj4UYlueYdciBnTNIV6EEAA6i8XF2zaVzocXaexCuRt+GAhRlqFilBpLt0JbKhA5SH+X2
+ 2oA5g0gUaJ9rrgcvCl+MqY4doqZd0l00XSwt2f5mcpL4B75k+1Gnf0QFi4pWwkTE3wQT5v62X0E
+ WCKjOg4+5p5XVuKfefWDZwC9BYZ0G9pgGYuommY22ChU+bwJO9FH1R7+eWX417xDXTJ+KslZL3K
+ c1AjvCJoNBINhadGGlIChkVL2yiKJctdjKCR8gY99cw2ryAhpX5GzfE2r03XgyCASLv5Gae0r52
+ uDbkS06WkLeHfV2staHPYpuE4NOBdA==
+X-Proofpoint-ORIG-GUID: YI5OSMjQbMtGkosnaDtOIRDbT2z_reeQ
+X-Proofpoint-GUID: YI5OSMjQbMtGkosnaDtOIRDbT2z_reeQ
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-24_02,2026-06-23_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 phishscore=0 lowpriorityscore=0 spamscore=0 malwarescore=0
+ suspectscore=0 adultscore=0 classifier=typeunknown authscore=0 authtc=
+ authcc= route=outbound adjust=0 reason=mlx scancount=1
+ engine=8.22.0-2606150000 definitions=main-2606240063
 
-The QUP I2C driver treats the core and iface clocks as required
-resources, but qup_i2c_enable_clocks() ignores clk_prepare_enable()
-failures.  Probe can then continue to register the I2C adapter, and
-runtime/system resume can return success, even when a required clock
-transition failed.
+On 6/24/26 7:52 AM, Pengpeng Hou wrote:
+> The QUP I2C driver treats the core and iface clocks as required
+> resources, but qup_i2c_enable_clocks() ignores clk_prepare_enable()
+> failures.  Probe can then continue to register the I2C adapter, and
+> runtime/system resume can return success, even when a required clock
+> transition failed.
+> 
+> Make the helper return an error, unwind a partially enabled clock, and
+> propagate failures from probe and resume paths.
+> 
+> Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+> ---
 
-Make the helper return an error, unwind a partially enabled clock, and
-propagate failures from probe and resume paths.
+Reviewed-by: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
 
-Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
----
- drivers/i2c/busses/i2c-qup.c | 31 ++++++++++++++++++++++++-------
- 1 file changed, 24 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
-index a0e076fc5f36..ee7915ee2ba2 100644
---- a/drivers/i2c/busses/i2c-qup.c
-+++ b/drivers/i2c/busses/i2c-qup.c
-@@ -1657,10 +1657,21 @@ static const struct i2c_adapter_quirks qup_i2c_quirks_v2 = {
- 	.flags = I2C_AQ_NO_ZERO_LEN,
- };
- 
--static void qup_i2c_enable_clocks(struct qup_i2c_dev *qup)
-+static int qup_i2c_enable_clocks(struct qup_i2c_dev *qup)
- {
--	clk_prepare_enable(qup->clk);
--	clk_prepare_enable(qup->pclk);
-+	int ret;
-+
-+	ret = clk_prepare_enable(qup->clk);
-+	if (ret)
-+		return ret;
-+
-+	ret = clk_prepare_enable(qup->pclk);
-+	if (ret) {
-+		clk_disable_unprepare(qup->clk);
-+		return ret;
-+	}
-+
-+	return 0;
- }
- 
- static void qup_i2c_disable_clocks(struct qup_i2c_dev *qup)
-@@ -1823,7 +1834,9 @@ static int qup_i2c_probe(struct platform_device *pdev)
- 			ret = PTR_ERR(qup->pclk);
- 			goto fail_dma;
- 		}
--		qup_i2c_enable_clocks(qup);
-+		ret = qup_i2c_enable_clocks(qup);
-+		if (ret)
-+			goto fail_dma;
- 		src_clk_freq = clk_get_rate(qup->clk);
- 	}
- 	qup->src_clk_freq = src_clk_freq;
-@@ -1975,8 +1988,7 @@ static int qup_i2c_pm_resume_runtime(struct device *device)
- 	struct qup_i2c_dev *qup = dev_get_drvdata(device);
- 
- 	dev_dbg(device, "pm_runtime: resuming...\n");
--	qup_i2c_enable_clocks(qup);
--	return 0;
-+	return qup_i2c_enable_clocks(qup);
- }
- 
- static int qup_i2c_suspend(struct device *device)
-@@ -1988,7 +2000,12 @@ static int qup_i2c_suspend(struct device *device)
- 
- static int qup_i2c_resume(struct device *device)
- {
--	qup_i2c_pm_resume_runtime(device);
-+	int ret;
-+
-+	ret = qup_i2c_pm_resume_runtime(device);
-+	if (ret)
-+		return ret;
-+
- 	pm_request_autosuspend(device);
- 	return 0;
- }
--- 
-2.50.1 (Apple Git-155)
-
+Konrad
