@@ -1,86 +1,135 @@
-Received: from zg8tmtyylji0my4xnjqumte4.icoremail.net (zg8tmtyylji0my4xnjqumte4.icoremail.net [162.243.164.118])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 42ABC19995E;
-	Wed, 24 Jun 2026 01:20:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.164.118
+Received: from cstnet.cn (smtp81.cstnet.cn [159.226.251.81])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A212332570D;
+	Wed, 24 Jun 2026 05:52:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.81
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782264026; cv=none; b=GS5Iyw6D+HZ/CKRVBnflnKEDu3zO+3L09+keUDXo5WXLy24SjkcmMHYiaztSu3Lm6k728EkZbOGATSO81ywD05m9RkCSw6u0yeioGjNSon18Cx8n8Y9vbbQIKABuxJtYQSEsyc4wsNInJI+ZV1cy97dvAdjFHyyXDJKGB80CO24=
+	t=1782280361; cv=none; b=uf+16dQhVL9JHftTIpGzB23PlvDMOIXLpjQnrHxkW9TrSWwiYsDFPKQXIof9J7Z6I+tMQyW0HqG2O/X7AQVaiJLTS+fTrZalkfTnDdmbGJqF1HcQXsYHoeNxvgqyt8CGIr+n3JBfUcTqiVd3mHxQB7NDx4P5/zFRmjlAEso5qdI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782264026; c=relaxed/simple;
-	bh=LRhhQxlv7tDwHgMYsYEz+Cp27davY0GRfN0Qh1DiFjo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=rx+AGUTWU696uOQtyB4fjx0sm78kfL+0X+NZasYrhjuCL1FakvbDWEJiVyEOx3lFrrXRahN5VG+xSa+Z32JDXA5V1jNQzqgm+AhEsvQwAuNXYqQNN4urG6GwAEJtXZlys9iOF0Q/ggLMMK00p6dsulOPdqbsPxIk9M1WdF1dKD8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=stu.xidian.edu.cn; spf=pass smtp.mailfrom=stu.xidian.edu.cn; dkim=fail (0-bit key) header.d=stu.xidian.edu.cn header.i=@stu.xidian.edu.cn header.b=iqW5JDek reason="key not found in DNS"; arc=none smtp.client-ip=162.243.164.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=stu.xidian.edu.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=stu.xidian.edu.cn
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=stu.xidian.edu.cn header.i=@stu.xidian.edu.cn header.b="iqW5JDek"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=stu.xidian.edu.cn; s=dkim; h=Received:Message-ID:Date:
-	MIME-Version:User-Agent:Subject:To:Cc:References:From:
-	In-Reply-To:Content-Type:Content-Transfer-Encoding; bh=RhVCMiN2A
-	jWP4GgT4xDsh2vnJCHKlRf8JX+7XyIr3qs=; b=iqW5JDekV0Rr6xayW1rPl0IPM
-	4UhfwEYxIBt5pMhPTz4POibxsHWBuzXVNRGVxaKoMGReoOXOGaBFmByQKZxIQWfp
-	Odiro53WUEwbpA7QRiUq3URiLzTV+SsouMSxfCpnpmQ7i8XID2lWBdAPnyFjlyCc
-	MLgIkyCbciiNEAzk/Q=
-Received: from [10.196.180.86] (unknown [113.200.174.80])
-	by hzbj-edu-front-4.icoremail.net (Coremail) with SMTP id BrQMCkB2G7fKMDtqhoAXAw--.55906S3;
-	Wed, 24 Jun 2026 09:20:11 +0800 (CST)
-Message-ID: <ca6fbfb1-1e08-4b4f-b823-8312327d5b38@stu.xidian.edu.cn>
-Date: Wed, 24 Jun 2026 09:20:09 +0800
+	s=arc-20240116; t=1782280361; c=relaxed/simple;
+	bh=aqCr87PbvOfUNX1U/miymM0D48YKzHJTuEOVMHkBJ9I=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=PBITMhYrI/ZxOXbyM75SWVu7gF0n5aVE7IWR4vkf8YhOil/+m4mcGFuDedOqingnu49V5eug71W3THhjnB734Z6HahM5dBQk7LnOys2h2lmjHSniczSYPvPp6nmT3/qwJYv2z6DsGZQFjkmM+2lvGj78w79iWDUxLW/5yk+px8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.81
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from localhost.localdomain (unknown [111.196.245.140])
+	by APP-03 (Coremail) with SMTP id rQCowAA3E5qlcDtqgBOtFQ--.13630S2;
+	Wed, 24 Jun 2026 13:52:37 +0800 (CST)
+From: Pengpeng Hou <pengpeng@iscas.ac.cn>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-arm-msm@vger.kernel.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Pengpeng Hou <pengpeng@iscas.ac.cn>
+Subject: [PATCH] i2c: qup: Propagate clock enable failures
+Date: Wed, 24 Jun 2026 13:52:37 +0800
+Message-ID: <20260624055237.29977-1-pengpeng@iscas.ac.cn>
+X-Mailer: git-send-email 2.50.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] i2c: i801: fix hardware state machine corruption in
- error path
-To: Andi Shyti <andi.shyti@kernel.org>, w15303746062@163.com
-Cc: jdelvare@suse.com, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20260512093534.348655-1-w15303746062@163.com>
- <ajqtEIAX_D5z_UW5@zenone.zhora.eu>
-From: Mingyu Wang <25181214217@stu.xidian.edu.cn>
-In-Reply-To: <ajqtEIAX_D5z_UW5@zenone.zhora.eu>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID:BrQMCkB2G7fKMDtqhoAXAw--.55906S3
-X-Coremail-Antispam: 1UD129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
-	VFW2AGmfu7bjvjm3AaLaJ3UjIYCTnIWjp_UUUYB7k0a2IF6F4UM7kC6x804xWl14x267AK
-	xVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0rVWrJVCq3wAFIxvE14AKwVWUJVWUGw
-	A2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK021l84ACjcxK6xIIjxv20xvE14v26r1j
-	6r1xM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r1j6r4UM28EF7xvwVC2z280aVAFwI0_Gr
-	0_Cr1l84ACjcxK6I8E87Iv6xkF7I0E14v26r4j6r4UJwAac4AC62xK8xCEY4vEwIxC4wAS
-	0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2
-	IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0
-	Y48IcVAKI48JMxkIecxEwVAFwVWkMxAIw28IcxkI7VAKI48JMxAqzxv26xkF7I0En4kS14
-	v26r126r1DMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I0E5I8CrVAFwI0_Jr0_Jr4lx2Iq
-	xVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWUAVWUtwCIc40Y0x0EwIxGrwCI42
-	IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcVCY1x0267AKxVWUJVW8JwCI42IY
-	6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2z280aV
-	CY1x0267AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuYvjxU2eOJUUUUU
-X-CM-SenderInfo: qsvrmiqsrujiux6v33wo0lvxldqovvfxof0/1tbiAQUOEWo6o2ZU4QAAs7
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:rQCowAA3E5qlcDtqgBOtFQ--.13630S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7Ar1fKrW3tF4UCFWxJw4ruFg_yoW8KFWrpa
+	1UJr4Fkr48Xwn2gw4avr1UZr98K395Ka4xJrZrG3Z293Z8Z342yF48JFyY9a10vryDAa1a
+	qFWvyFWfCF4jvFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUUkG14x267AKxVWUJVW8JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26F1j6w1UM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26F4j
+	6r4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
+	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
+	I7IYx2IY67AKxVWUAVWUtwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFVCjc4AY6r1j6r
+	4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCY1x0262kKe7AKxVWU
+	AVWUtwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14
+	v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkG
+	c2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI
+	0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r1j6r4U
+	MIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf9x0JU6v38UUU
+	UU=
+X-CM-SenderInfo: pshqw1xhqjqxpvfd2hldfou0/
 
-Hi Andi,
+The QUP I2C driver treats the core and iface clocks as required
+resources, but qup_i2c_enable_clocks() ignores clk_prepare_enable()
+failures.  Probe can then continue to register the I2C adapter, and
+runtime/system resume can return success, even when a required clock
+transition failed.
 
->> Fixes: 1f760b87e54c ("i2c: i801: Call i801_check_pre() from i801_access()")
->> Cc: stable@vger.kernel.org # v6.3+
-> Please, next time don't leave a blank space in the tag section.
-I apologize for that; it was an oversight on my part. I'll be more 
-careful in future submissions.
-> The patch looks correct to me, although I'd have liked an ack
-> from Jean.
->
-> I merged it to i2c/i2c-fixes.
+Make the helper return an error, unwind a partially enabled clock, and
+propagate failures from probe and resume paths.
 
-I understand.
+Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
+---
+ drivers/i2c/busses/i2c-qup.c | 31 ++++++++++++++++++++++++-------
+ 1 file changed, 24 insertions(+), 7 deletions(-)
 
-If Jean has any concerns, I'm happy to provide a follow-up fix if needed.
-
-I'll also keep an eye on the thread in case he comments.
-
-
-Best regards,
-Mingyu Wang
+diff --git a/drivers/i2c/busses/i2c-qup.c b/drivers/i2c/busses/i2c-qup.c
+index a0e076fc5f36..ee7915ee2ba2 100644
+--- a/drivers/i2c/busses/i2c-qup.c
++++ b/drivers/i2c/busses/i2c-qup.c
+@@ -1657,10 +1657,21 @@ static const struct i2c_adapter_quirks qup_i2c_quirks_v2 = {
+ 	.flags = I2C_AQ_NO_ZERO_LEN,
+ };
+ 
+-static void qup_i2c_enable_clocks(struct qup_i2c_dev *qup)
++static int qup_i2c_enable_clocks(struct qup_i2c_dev *qup)
+ {
+-	clk_prepare_enable(qup->clk);
+-	clk_prepare_enable(qup->pclk);
++	int ret;
++
++	ret = clk_prepare_enable(qup->clk);
++	if (ret)
++		return ret;
++
++	ret = clk_prepare_enable(qup->pclk);
++	if (ret) {
++		clk_disable_unprepare(qup->clk);
++		return ret;
++	}
++
++	return 0;
+ }
+ 
+ static void qup_i2c_disable_clocks(struct qup_i2c_dev *qup)
+@@ -1823,7 +1834,9 @@ static int qup_i2c_probe(struct platform_device *pdev)
+ 			ret = PTR_ERR(qup->pclk);
+ 			goto fail_dma;
+ 		}
+-		qup_i2c_enable_clocks(qup);
++		ret = qup_i2c_enable_clocks(qup);
++		if (ret)
++			goto fail_dma;
+ 		src_clk_freq = clk_get_rate(qup->clk);
+ 	}
+ 	qup->src_clk_freq = src_clk_freq;
+@@ -1975,8 +1988,7 @@ static int qup_i2c_pm_resume_runtime(struct device *device)
+ 	struct qup_i2c_dev *qup = dev_get_drvdata(device);
+ 
+ 	dev_dbg(device, "pm_runtime: resuming...\n");
+-	qup_i2c_enable_clocks(qup);
+-	return 0;
++	return qup_i2c_enable_clocks(qup);
+ }
+ 
+ static int qup_i2c_suspend(struct device *device)
+@@ -1988,7 +2000,12 @@ static int qup_i2c_suspend(struct device *device)
+ 
+ static int qup_i2c_resume(struct device *device)
+ {
+-	qup_i2c_pm_resume_runtime(device);
++	int ret;
++
++	ret = qup_i2c_pm_resume_runtime(device);
++	if (ret)
++		return ret;
++
+ 	pm_request_autosuspend(device);
+ 	return 0;
+ }
+-- 
+2.50.1 (Apple Git-155)
 
