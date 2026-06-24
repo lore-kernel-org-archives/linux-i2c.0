@@ -1,55 +1,54 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 700DA3783B0
-	for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 22:54:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1EAE3B27F9
+	for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 22:55:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782341665; cv=none; b=tNGkZiSnxO1A+d8Y87cj7bRuUY8p5XfPKDbEyEnPDtGE6iX7g1GBMWpizdZ8/70RqSBbl9Nme98bYFGwFwb0Ww55RATjsXQSUSOE/8LEKafrPrp48Lz1engfvIhKazsam9yI90YL8iayDuU6cwcomzHCnVESuZDMrs+lERM/7/4=
+	t=1782341743; cv=none; b=ET7SEmsNgzvxOtdxV0ymYvGveLBTDfCOJ47o9VY1oQOz01KeHz4dsf7pMKBgThGM1gIRH2DeCweMqZN2qThsoGXVPBcjwHdCMpsqjI+SDgQVtKbUhchCAr8FxGnnID90dlAZ60o6oeiOkVfUp5RYoBflSXrGCZsmssnfXbsgj/Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782341665; c=relaxed/simple;
-	bh=56P581cyET3p8pfSvFHStxu8oHOszFLpsAJpj8hvZRg=;
+	s=arc-20240116; t=1782341743; c=relaxed/simple;
+	bh=rZiQSaURDYO17/6WGoNt/MVWZsEN5ahkC1vFIHK/U1A=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Tx47Zi0/W+sDkwCx2iWFVgV5dOrItTRBKAv4sDLXU2HanDCJxmL/fKKTwDks8EyS61l+VcO15BCCjPrJymoch9HA3YoWlABbgIq+iYATbopc315wOjSNqg7nRM+8OuO/ssaGBunP2/aXVMv9fXVGB606e7ah907JiNPuIa+mpvU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GAm5f3UJ; arc=none smtp.client-ip=100.103.45.18
+	 To:Cc:Content-Type; b=JJbYQErgJ9D3n8wl7qBD3NMgA2AMm7txEkqSuraF45f8HfjWcvQtPT5TCH0bxF9XBKwaj4+1XFY9Tc4D49FXjJsaJNzESsVtWE/7rVsBeshE+sK03DM6wK2AqiueL3mbnpb/LXs5FzzDCSQkLh4GLY3uSZ612Bqeo8QD/AHefZg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=TmkaP2JP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GAm5f3UJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57ADB1F00AC4
-	for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 22:54:23 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="TmkaP2JP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D4891F00A3D
+	for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 22:55:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782341663;
-	bh=56P581cyET3p8pfSvFHStxu8oHOszFLpsAJpj8hvZRg=;
+	s=k20260515; t=1782341741;
+	bh=rZiQSaURDYO17/6WGoNt/MVWZsEN5ahkC1vFIHK/U1A=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=GAm5f3UJm54F7qj3ACcwYfMiGhx0fpiVaO2rFqe7P93zV07FTHwTKz1bXSlkOHfY5
-	 TB/A9TbrlhZ5dNEYrabhUw5qDFvF8QVCFjphUnvqkmohy/6K7usTVDt4R5FeqxBd/N
-	 YlfUKleNA6S67dMaaUf0dYF/71Qj88x1+iv5suPtjNOJlCdD+UqQsdfiwYXDKF03jK
-	 cxN0hdjXlFfWNhB3ieru21GjQxxJmnPKtaH/n+hLoR6SCDF910PlwmFYmNSBIneJhg
-	 7jZfRIcX9945y0F+OpbmHA0RI5Py6ZJsX2yI2fde1JdeKi6iRBGe+ZWIvMqiq+MOFp
-	 0EzoksAhuaRDA==
-Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-5aa68d7d757so2038472e87.0
-        for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 15:54:23 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RorciTotvG3n4ghoK0G3d9HLLwMaNbTyQEF5ACJNJkApc39CwJ64nD5EuxaTIcAX3S2RRS0OGtrjvw=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyQMcxoVxPdcPJAEBwXDXQvbOtl1Oidb/A4NBtBxj0AgyE4Soqf
-	oJVupPk4Mb68WcB4foJEzorTzyXEJsvaHMQFXAr45bWisSg67F5i/knTT0p5/4hDmd55mrCeOag
-	0pJwa+bZlJMWUhBpV52ENnt6AH7VBKkE=
-X-Received: by 2002:ac2:4909:0:b0:5aa:6e60:1983 with SMTP id
- 2adb3069b0e04-5aea1f4cc2emr7661e87.24.1782341662098; Wed, 24 Jun 2026
- 15:54:22 -0700 (PDT)
+	b=TmkaP2JPQfksOxtmYTQbeS/nAngITe1/7m/+4k5iMJPGYM3eCSKbX2EoX8xm8hTHZ
+	 vmMIPFr/mYv7e7Kh2B4lkJIMh8OGaCn28DKah5fnaM26hkZ0CfyLmqsq+uzRrrk1ir
+	 0Aztjei+ZaT5X5YzpOiHI7aNcdGd2uExUVi2Ml8IXw6wlIW7MLx1St+m6BiMweNN4J
+	 9tixfv9DW9lK5Kmpbs4LaXzIGotI13N5HXHjXHSVbThbmh8+1EmMhdmcMJcBTbyMPn
+	 1f5g9f4/NObzpE/YAJ0Z2dsoVxTMwGVR25DeFZUHwsm3sfI4DVpfe/Li/DKWkN1nPa
+	 b8JT9Hgtp1nLw==
+Received: by mail-lf1-f49.google.com with SMTP id 2adb3069b0e04-5aa68d65d24so1837812e87.1
+        for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 15:55:41 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RoABjOcAwMhAimZeeewv/9c180z4dJp7rwqJSMv6MBxP3R/xQBWh0ZMr/pao9LOqsg4vwMZUiVsBS0=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yy6NUh0OYzdihl75OhLOHuk8w74oAC5M96T3qtFhgDxZPylblX/
+	xkFgof3oYCH1HcTW9x0UcjSMwSBvYZtJJSSi1vZjOGz2NgRfYLCFl3LaLEJJwQ9w5vQ74gptCJC
+	tuqJIno6wNE/EOIkyq0pUmfiNXTIpj7Y=
+X-Received: by 2002:a05:6512:8041:b0:5ad:5a14:4c1b with SMTP id
+ 2adb3069b0e04-5aea1f645b0mr6767e87.36.1782341740475; Wed, 24 Jun 2026
+ 15:55:40 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260623-i2c-fault-reporting-v1-0-6db1a8aabf18@mobileye.com> <20260623-i2c-fault-reporting-v1-5-6db1a8aabf18@mobileye.com>
-In-Reply-To: <20260623-i2c-fault-reporting-v1-5-6db1a8aabf18@mobileye.com>
+References: <20260623-i2c-fault-reporting-v1-0-6db1a8aabf18@mobileye.com> <20260623-i2c-fault-reporting-v1-6-6db1a8aabf18@mobileye.com>
+In-Reply-To: <20260623-i2c-fault-reporting-v1-6-6db1a8aabf18@mobileye.com>
 From: Linus Walleij <linusw@kernel.org>
-Date: Thu, 25 Jun 2026 00:54:10 +0200
-X-Gmail-Original-Message-ID: <CAD++jLmze1K8LnMniv1gNTxXnW87AOF08vcPXnsASXn+75WG-Q@mail.gmail.com>
-X-Gm-Features: AVVi8CfWKmNuDtu_CQ8CzYherOgZFOOUsqFP_TlnPojbQL-Ikm-PqOSDWXEzGJQ
-Message-ID: <CAD++jLmze1K8LnMniv1gNTxXnW87AOF08vcPXnsASXn+75WG-Q@mail.gmail.com>
-Subject: Re: [PATCH 5/7] i2c: nomadik: change print level for fault messages
- to debug
+Date: Thu, 25 Jun 2026 00:55:28 +0200
+X-Gmail-Original-Message-ID: <CAD++jLm+dHRNqS3HNL3+p7NGB2_bxncFPMEQVAOG-ZRZqQH7hQ@mail.gmail.com>
+X-Gm-Features: AVVi8Cerkddbq6mFwZBM5M7tjoj4rE4OxpQJFijXkFL3Z8iwOxVsKKaRtrxxd9E
+Message-ID: <CAD++jLm+dHRNqS3HNL3+p7NGB2_bxncFPMEQVAOG-ZRZqQH7hQ@mail.gmail.com>
+Subject: Re: [PATCH 6/7] i2c: nomadik: add quirks max_len=2047 and no_zero_len_read
 To: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
 Cc: Andi Shyti <andi.shyti@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
 	Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
@@ -61,17 +60,18 @@ Content-Transfer-Encoding: quoted-printable
 On Tue, Jun 23, 2026 at 6:32=E2=80=AFPM Dmitry Guzman
 <Dmitry.Guzman@mobileye.com> wrote:
 
-> i2c-nomadik driver prints error message on every faulted message. This
-> is not a good practice, because in I2C a fault not always is an error,
-> sometimes it is the expected result. For example, scanning bus with
-> `i2cdetects` prints over 100 messages in dmesg (two messages per each
-> target address).
+> In Nomadik I2c controller, register I2C_MCR has 11-bit wide LENGTH
+> field. Its maximum value is 2047, so this is the maximum length of a
+> single message. It is less than the common maximum I2C message length in
+> I2C subsystem (8192), so define a quirk in order to report the
+> unsupported message without any attempt to transfer it.
 >
-> To avoid excessive prints in the log, change the print level from err to
-> debug.
+> Zero length reading doesn't work properly on this controller, so add
+> `I2C_AQ_NO_ZERO_LEN_READ` quirk flag.
 >
 > Signed-off-by: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
 
+Excellent improvements, almost a Fixes: patch.
 Reviewed-by: Linus Walleij <linusw@kernel.org>
 
 Yours,
