@@ -1,54 +1,55 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 502F03B3BF1
-	for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 22:37:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D3413B42DD
+	for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 22:51:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782340624; cv=none; b=ezFJIyaRpPZK2o3aJt6BWlCgeNS/0HYMLAaHLK19jJrVPBh4CoGEl35x2xcKvo7lS293ata9PfAeTZfTGPINv1OwX4E9DbBue5b9T4TaOgsVb/G7lkoXoeA3scrFVxOhLrHYQGK339d2gvFdyReNPW0AEmWQg0Z0Al4x3Mr8LQg=
+	t=1782341519; cv=none; b=EfIsFiWacn8uXvdgVDKsDJd7U38vq2iaUROJ0v1bBcsPEtCbOiBDwJ2hiRzUuim9rPEZP/Wis5e8CBAux4vGRF+UkBCfZmoAz5PmPdoEfUbAqa5xDdRnS0A1CPkSBXv697FnSOFa02GM4QPt+1AFZdS1sMPsNcbp3nF852E+DVc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782340624; c=relaxed/simple;
-	bh=gdyVLd+a+FGDT/pSJKMKAm2R1Yty1078O+Tbm6HxCWw=;
+	s=arc-20240116; t=1782341519; c=relaxed/simple;
+	bh=nnK3G9bvZF1+0ahwFKA/FAyn1efCjrYKTJrfMLJSZD8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=iQ6MHVsXFBOJetF2MxnBymKahjCDhpI+n0Qf0DZq7Iggv+xdeYAQPAF2yDwRxrW38q198GJ6xaQQHzrdogcP5gtaspz8QDJvUmj23CiOJj8IPq/gMWcV06VPqwmn82kbbQsbqPxY+RHkzW0KahUn1ggoEMDZe5fUqROQ5Voxj20=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c9LrCAKf; arc=none smtp.client-ip=100.103.45.18
+	 To:Cc:Content-Type; b=UPye4/1VOv353xozc0l/67h2+B9VzJV2jhl3+jc/f00jrqsKs6u8Ewm+hdilxmVvOdcY/Xx95D5wCVcgFPcTNITUsaYC2wLpm8o8tAo5DWggREyQzRiXyKWlu/pSYk+LzFm83wpn5KJTxuHQfRISsEZbNPreo2sxk4dvpj4A+hg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kMykdm02; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c9LrCAKf"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00BD31F00A3E
-	for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 22:37:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kMykdm02"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 218C01F000E9
+	for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 22:51:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782340623;
-	bh=40fozanXZAxdlzneNHkPG5prWoWrnHjv4DK5nYpBKP8=;
+	s=k20260515; t=1782341517;
+	bh=pWCYHrLIqYxnLxwyEEHqQaWAH4xIb6vViHhgxlk2oZc=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc;
-	b=c9LrCAKfczx72V/MNASmoT5/6LNaegoXFkGVJRI3xEjWqoZyGaf/QtqTQO1Dg9OK8
-	 SZDkLNrsnnBP6/xrg2Y5VPu9H3cUDZFaX1ZzxS/IVmRispdlhxltPUNV5BPaeUsgmO
-	 PrifS9IeGeM6LYdqLkoLH/HQcgGGdNMClTqEvLTpPOA7KFOqQH8XACo4/BZtYeiH78
-	 iG12/tq7f50dqAWTDJ6GuJp6z8f6wiho6xoBkYwH3jOZ1ZodOo0vD4SzSgiOO5umwO
-	 XmZx5wAdupDfEYov1Q4QgnHv4T4f91XN0hREiY4THNdSFrU3rHW9njyCivR0NtQ7n3
-	 E4iu/VIQZJgzg==
-Received: by mail-lf1-f47.google.com with SMTP id 2adb3069b0e04-5ad4ee80f65so1434106e87.0
-        for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 15:37:02 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AHgh+RrtnUPn4fRIKk9t35MA56yKxEbTMhpLt6bkIm6hduncgH917vjq43/5TkXqTRYGNkZCCX9f3Ux+ytY=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyhMFxF29qE+/h0dUJQBP6ehcqN0GzAHk5lazO74b/ZfPZYQH2W
-	QsYD3oOEB0lxDL3r++Vof/zF7vSNWNToigdL3NWSGj+GsX4OjkELBuD1UehSuAMpL1dYhcn5jpj
-	oLKA0oTAobM8/pzO6wmHFQ9CWDArZ1f4=
-X-Received: by 2002:a05:6512:1352:b0:5aa:8824:1571 with SMTP id
- 2adb3069b0e04-5aea1f5749dmr1552e87.49.1782340621797; Wed, 24 Jun 2026
- 15:37:01 -0700 (PDT)
+	b=kMykdm02rxyNzE3xcywUWJbOJQ8m8jbzq1niRnQxN1Al0EGlBxnJxrb2RiwGD9a85
+	 muIoKC+SdnvVtQVFU8kxoRsMxstyJGK7tBu+C1MPglSaOnHLBcj8qL6r3I2aQF98+u
+	 t4H4RmdNTURWfEjYxUHtSG6FD520SQ8tEi5t2IG/MpDaRI8We4N7dwEhRfpSZRK4US
+	 TUXCOaqmzN5MLs5wic8SCmOXmUT2fWraVYDaxlt9GTK5gnsHlMt3qNROlGzfc7T/DP
+	 qltmnDBsNt4c75dm+zmUX25Aky9zi4fRWcfzewjz0kRFKgOGMG/rBkwupxWiSaMn7O
+	 Ldmbm+uuDEGyw==
+Received: by mail-lf1-f45.google.com with SMTP id 2adb3069b0e04-5ad4c89ecd8so1536928e87.1
+        for <linux-i2c@vger.kernel.org>; Wed, 24 Jun 2026 15:51:57 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+Roh9SWOsZjE6w4VwRXAzbyLIWn5FF89PcfufFzS0tx3SRos8kiEET7K3g+3AqDsVxR73PGCsMsuPNg=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yx/mETjNzgSWDQPjCODch8GPL5SnD4Rzpvy1bkiZeJ3D7ljWufv
+	rSwGU/FbgmbYUPNxazFxO1VS1KgGYjErUPHcZghIxWb+qRqOPZMOHGgppROyTiYPVWwFR6KbLzG
+	FMLc4zZTBe30Sh/E4x03l+VFs+wCCIe0=
+X-Received: by 2002:a05:6512:61c:10b0:5a8:f6fd:eb15 with SMTP id
+ 2adb3069b0e04-5aea1f5f4abmr5434e87.24.1782341515938; Wed, 24 Jun 2026
+ 15:51:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260623-i2c-fault-reporting-v1-0-6db1a8aabf18@mobileye.com> <20260623-i2c-fault-reporting-v1-2-6db1a8aabf18@mobileye.com>
-In-Reply-To: <20260623-i2c-fault-reporting-v1-2-6db1a8aabf18@mobileye.com>
+References: <20260623-i2c-fault-reporting-v1-0-6db1a8aabf18@mobileye.com> <20260623-i2c-fault-reporting-v1-3-6db1a8aabf18@mobileye.com>
+In-Reply-To: <20260623-i2c-fault-reporting-v1-3-6db1a8aabf18@mobileye.com>
 From: Linus Walleij <linusw@kernel.org>
-Date: Thu, 25 Jun 2026 00:36:49 +0200
-X-Gmail-Original-Message-ID: <CAD++jLmqtG-j=Q-Ctr-1-GKVqYzcwOwWUF6AYHcKf5aXUSKE5A@mail.gmail.com>
-X-Gm-Features: AVVi8CdKE0_TO6Y_h9SxJOdr6PO6E18SEZGrX_NJeddyc2ji01Fy-uaf4cY0jbo
-Message-ID: <CAD++jLmqtG-j=Q-Ctr-1-GKVqYzcwOwWUF6AYHcKf5aXUSKE5A@mail.gmail.com>
-Subject: Re: [PATCH 2/7] i2c: nomadik: optimize layout of struct nmk_i2c_dev
+Date: Thu, 25 Jun 2026 00:51:43 +0200
+X-Gmail-Original-Message-ID: <CAD++jLmwrdhZmZ8gCQAxB5pH38mA6CD5RknUe9P7gaM=qcYe-A@mail.gmail.com>
+X-Gm-Features: AVVi8CckjUpmwjTnxwtnMofTPJ22pUzvHgRCb-AcseQShrzvALH0ovgO7Bq-Rh8
+Message-ID: <CAD++jLmwrdhZmZ8gCQAxB5pH38mA6CD5RknUe9P7gaM=qcYe-A@mail.gmail.com>
+Subject: Re: [PATCH 3/7] i2c: nomadik: do not try to retransmit I2C message
+ series on errors
 To: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
 Cc: Andi Shyti <andi.shyti@kernel.org>, Steven Rostedt <rostedt@goodmis.org>, 
 	Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>, 
@@ -57,35 +58,54 @@ Cc: Andi Shyti <andi.shyti@kernel.org>, Steven Rostedt <rostedt@goodmis.org>,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-Hi Dmitry,
-
-thanks for your patch!
-
-Also nice to see some kernel contributions directly from
-MobilEye!
-
 On Tue, Jun 23, 2026 at 6:32=E2=80=AFPM Dmitry Guzman
 <Dmitry.Guzman@mobileye.com> wrote:
 
-> Put two bool variables `xfer_done` and `has_32b_bus` and two char
-> variables `tft` and `rft` together in order to reduce struct size
-> wasted for padding.
+> i2c-nomadik driver of I2C bus controller in `xfer` callback retransmits
+> the whole message series in cause of any fault, and returns fault only
+> after third failed attempt. This behavior contradicts with API because
+> not only it hides hardware faults, but also re-sends messages, while
+> they are not guaranteed to be idempotent.
+>
+> Remove the triple attempt to send messages in `xfer` callback.
 >
 > Signed-off-by: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
+
+This originally came from:
+
+commit ebd10e0783d9fb92a147e60902e22c2d3f3ad69d
+Author: Virupax Sadashivpetimath <virupax.sadashivpetimath@stericsson.com>
+Date:   Fri May 13 12:30:23 2011 +0200
+
+    i2c-nomadik: add code to retry on timeout failure
+
+    It is seen that i2c-nomadik controller randomly stops generating the
+    interrupts leading to a i2c timeout. As a workaround to this problem,
+    add retries to the on going transfer on failure.
+
+    Signed-off-by: Virupax Sadashivpetimath
+<virupax.sadashivpetimath@stericsson.com>
+    Reviewed-by: Jonas ABERG <jonas.aberg@stericsson.com>
+    Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+    Signed-off-by: Ben Dooks <ben-linux@fluff.org>
+
+At that time the code looked very different:
+
+       for (j =3D 0; j < 3; j++) {
+                       if (status || (dev->result)) {
 (...)
->  struct nmk_i2c_dev {
->         struct i2c_vendor_data          *vendor;
-> @@ -206,13 +206,13 @@ struct nmk_i2c_dev {
->         u32                             clk_freq;
->         unsigned char                   tft;
->         unsigned char                   rft;
+                               break;
+                       }
+                       udelay(I2C_DELAY);
+               }
+               if (status =3D=3D 0)
+                       break;
 
-^
-Maybe you want to take the opportunity to change these
-two into u8 if you're anyway changing the layout of this
-struct?
+We would only spin here if both status and dev->result
+(the number of sent bytes) was 0. This doesn't seem to be
+at all the case anymore!
 
-Either way:
+I suppose it's a bit dubious code, so:
 Reviewed-by: Linus Walleij <linusw@kernel.org>
 
 Yours,
