@@ -1,104 +1,153 @@
-Received: from mail-ej1-f45.google.com (mail-ej1-f45.google.com [209.85.218.45])
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4DF343DBD5E
-	for <linux-i2c@vger.kernel.org>; Thu, 25 Jun 2026 15:08:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782400089; cv=pass; b=ialD5/6V9N5sHLsRq4HkWYmJQsBz574Ro0anGm9JlzsdGC/VC+NlMhyOJUGzy4nzXBu+gqNHZk581PFuU1H4f9ZT6deoDNEtHqrgOp320JQ8Xb4Rk5xdVXk9NBAxI60OZaqj5S9QMazQ86wCuVnfMn97GENtiFvc7Q/OFqAVmZw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782400089; c=relaxed/simple;
-	bh=MkO3fCXc1ZaOKiTnsnssleSvXkY2yN/+fGVR08qjueQ=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=pbY18H0qhL6bMsYJe6qEwekSVBv1NKsTDzmO3SwBgvA/vINvS/Cs3tPUD2SAqt4lzYAtFTNL47UR5tXTZbDMPnnxtUEd9enQpNcLdGw9yh+H4mlESi0+uu64fCgLmWD5wpbToXwTDhvQd5y6QaTIP3uuAVKNlgfJnJHJkNI9w5M=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fSv+Mrsa; arc=pass smtp.client-ip=209.85.218.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D58B2334692
+	for <linux-i2c@vger.kernel.org>; Thu, 25 Jun 2026 16:02:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782403355; cv=none; b=qwY3eLZn2RcjRdc6NojMswpIMU3RgVx0ndKSnDHeI4MtNBEIPECI9i2Pj/BPHpv22BOvM1P29XpaUgtj9gZPuDxl5GPEaBgt82M738ssQOBbhEZAg+NQOeqywOIvQh4xcnkUUb/6H/A2BT3M4cwaiEWF96Z3vUcceK7yyn7di8c=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782403355; c=relaxed/simple;
+	bh=L9c5Szdgt8qF07KpP6DJofk4aMPG49dmybsPbBc1Q4A=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=aiEbPR/6Pd/VtVH1AkqJII+0rXo57QocG8Zm1Zan/cSmFyfGPAAhxr+b4VV27J3OB4NJ+BsANyQ9TotEBCz6GDOWc5xtBBQEFJzX5OixL8rSOjrwFVprNY/NbLuFM/E3f0Oo1xPvQiymHLF8RNAcHLy1n2crKTTcNMBfoPGdfwM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kRm59YCW; arc=none smtp.client-ip=209.85.214.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fSv+Mrsa"
-Received: by mail-ej1-f45.google.com with SMTP id a640c23a62f3a-bec49f7e35eso537864966b.2
-        for <linux-i2c@vger.kernel.org>; Thu, 25 Jun 2026 08:08:08 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782400087; cv=none;
-        d=google.com; s=arc-20260327;
-        b=IVy+GZyFJxXQhsRNtHuhTB+PhsbPejoZATl5JIGglsmzD+C+z0bxfHeB9Rc20YFWil
-         ZdIeUO0xp6eY9VYqz3q6/bfOptVgICptwBEa72e6O/gjaTbRcAX+GCf8PPnVCmvHO+mQ
-         6ESTneaSaN7OJusCX2WDPG/mDkYNq2OHnk9GGxDTCYmJq9y07O7XJOum2t4Jf5hj4qLi
-         JAF9so5EHfnAK9DMbsCWiOXuRbp8WtVrb/jrgq2SWrWFqQvpJl2L8KdXPEq7ZiBZgX9h
-         zIT6+ERzj3E/iPzLAprF/n3H61T0dL5Wg5w+lbrMjRYXQMgloHKXs5SApxwlbOzlZHzy
-         9nsw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=MkO3fCXc1ZaOKiTnsnssleSvXkY2yN/+fGVR08qjueQ=;
-        fh=7AXMIMF4XIWZuo0YU2P1qBqbfrg3OlfANadm4cN4U84=;
-        b=fa2Sgo4b8OhjKgpG3PYX1Cm1reIbLBv4RqVrmOaCJP/CdaglgIkMDeYFoSJgcw+Ax2
-         jH0aTV8EX8A7fQb9SZe9BPDc46L62X+mvehQ9SXpmkDEaL5Pe+/zflJDmz7Yq62ShJxG
-         4KfOGh1xLLM4OawuhsXxVEst35eCr+V8wLoAC7eEOE7JYez4xxgpWQocvjxZGPTAKz5H
-         snwMFsWCzCF590vf0CSHBeTvHtzTzha0GQUVroEw6NFF7a9LmNK2thwHiucdbCVO0Xgx
-         dr4PdUIUxogRr642Im3sZtMIOnc1Jium5F/bf56NzIhkoH8CgN7rFr4YWc7PM8gNj7Ar
-         hyfw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kRm59YCW"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2c6c57c5bcfso1090805ad.1
+        for <linux-i2c@vger.kernel.org>; Thu, 25 Jun 2026 09:02:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782400087; x=1783004887; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=MkO3fCXc1ZaOKiTnsnssleSvXkY2yN/+fGVR08qjueQ=;
-        b=fSv+MrsaWE7mMOXMXnZPNUDyQDVQ4Tz0enLSDwkuya+4W5n31sedpmamaKaqZN3drp
-         sUVd3x4xxh9iegn8jxY49mMy1lRxI0owIqMTtYjP9jwscuaR4BzMrbXToBgfAmpscNKP
-         z/dSBgYbmFIQofzkXSOSYguNsyQhR6lT0FYOOcYs/L8k7b/2fp6fYydymPZfzgHGU8tW
-         mqrk4WmqodTr4Yc/Ab3AexbC5JRo/qFI7WO228bXeBJae+asrZBxA0TD7tVtX/lRhpjB
-         hjC7B+HgZ7el7oNgCjJGSgRlZRSxwb0JCnJ31OOJI3Jq5GHKPRCIdq5FgV0PSc5YVYxe
-         /vWQ==
+        d=gmail.com; s=20251104; t=1782403353; x=1783008153; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=7uBKJbZacR7qpAxgkxKTYuFWT8lf0EijVUm+JTDcFsE=;
+        b=kRm59YCWFYAvGQCkmCZDJRC4Cm8V/xJYTHnADBD819LZ524O1EJkiwRbBpBsjLRB2r
+         NUwHmNcNMxEGb2oumraGN/uZv65o+6+m9dmuz6LLINRUSGSHH14xqhIeCrdVIk4BqoCX
+         YI/ynEyfH5h2hpeJX/RuN/fwvcvG5KqRsRlArZZVrVoGyqyFfZGO1mPC/XMxPdnTBs21
+         HUV9LLBO90mkk64r8LO9Q3UHGNQd+GV3s3Mvb4oB8779zS7IcWiiLHIaTBt8iZPWV32O
+         /k6LcUSKHx+y45TedvsBhPJEdBSt9Vb/YHH6CFfC7Vjgjy5w0/f6NXhnE4T5lAgLCYfh
+         kzuA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782400087; x=1783004887;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=MkO3fCXc1ZaOKiTnsnssleSvXkY2yN/+fGVR08qjueQ=;
-        b=tDLddKY0vlivyAtAXKamO5ej4+x0pKnIv/GBj8GjIgFwI6mdaYFofaSGBwOdt+qH6f
-         AJ2j1Bh1sq+hGD/0bxaghEFM9RBsbuKmyt0kd5AU84IEI8go1xMX17lGDjgSxetdu5vY
-         rX4h76T+3VpQSgiFkfPgVnHsBGTDtdb/BWdODajSaxhpCRa1JMfDb3ec5/5cMb/ak27/
-         8bAifT6eEXt04fJuhx3B93UQxXq5p3CIEXzPMxS3605e89Vc0tzMvmKvZ9vYx7YPpPfS
-         M70B0HNtbPneJqPV4ZwQql5V5Tq6niJizWG37hvgtC8XzdN7luBxg4vX5LcIcSGmsz3X
-         vwSw==
-X-Forwarded-Encrypted: i=1; AHgh+RpTscfBeJQwUGw6GABE0mpYjqpMxB3afpKZFs/3kY2qaDFDlTj8Yzta2/aB6gcm4oy8TuUNMirK3eY=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxjBsn13dg+bN7IFgsVJi3yu1iG2s0OAdcCk7Fa9cMuf2cDqjoQ
-	7TZVpIYLiSt2jA5+KV3WOXtFH8TnA8mqvx0sjXUo/qIqbhR0Sr4F5rtVhLM7wUbtzM2IUlrRW6F
-	rAkgIiWzKG8C5InarzGqDpOhJglrDU+k=
-X-Gm-Gg: AfdE7cltqs5VfxjCuNq7JA7p8y5DRonn/LagMUqyaiowBmmJhimxY1AKgtpajJLmwSe
-	+5AMbOPcUo6UfhAy5IIQW4YMkI9B4OmU7fLGih4hcW14azZIIWc7oXSixEAvn0zJGYG4EecfhxN
-	ogJFjTHQL0C48tvJi8ZpEshU3vyo3X+OInpAmbSm5HyT2/BWT3HMz0xZJV+cyED2r7UQmEhKo2a
-	GXmhYhoPpgmkuCA3YW2jChpEr4kU7+ABjC3og9kU/yTBve9FGNUHqV0MgNESrB0Pc/++mMj
-X-Received: by 2002:a17:907:8d8e:b0:c0c:2033:c078 with SMTP id
- a640c23a62f3a-c1205ef178dmr223399166b.26.1782400086250; Thu, 25 Jun 2026
- 08:08:06 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1782403353; x=1783008153;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=7uBKJbZacR7qpAxgkxKTYuFWT8lf0EijVUm+JTDcFsE=;
+        b=OFEOw5xYuNBQgbcRJKAphkmbZYo0ihZYc/AP81JG3vZb5PP7/whpYDpkI7FN0skOV0
+         hu1L4QT61Ac6KaKCoVEtxQGVBhcnyr5gO6t1CAxjrBhhrWR3LbRjV+X/aZaqONWY9B2M
+         LGsWhtyeGZkGGN7q2D5bdF00ur/Sf9/swSMMkDElq9ltgJOHUcuqGrqcVGiazTlPKjeo
+         rPVHuYtkURp/fHzf5k6/x5yRSYrbr37GksiKtT00dW3KwiISbxMiva0rM+WP/xy8si00
+         7d0IQs9MvFhHOBNGYiII1WPjjg1rIHn3BrxQ9TO+ro5pfWkRqha8l/rGSdR4FdJJCkX3
+         5Qcw==
+X-Forwarded-Encrypted: i=1; AHgh+RrLu5lHu8l5ELsLonU5ar+efyQLTuegqbWK+QluWdQDXszs5bX3e/AENRqzuTVC4uw/aqRFmoH+BnM=@vger.kernel.org
+X-Gm-Message-State: AOJu0Ywxbyoz7koDtyoiIke7bJqeeCf/kK57QDkq6Tth/UseOZOw/pak
+	q3qba4rJh35WQlqOqwxm0tVP0KfUq9Dp+hDPP8p0fdzheNigD0XVVZ9PC+e9a1LSs9Ep5Q==
+X-Gm-Gg: AfdE7cnc5VuiCbCXy4Arb5aNGCHFB6Yrjo1UdHI98LqExe8oX2plku5n+3dp3DlydrE
+	/Uyve6YAda2W4Dq1pSNId4Bg1mIhgnCOFoDXdeNskLKAsD0HUKEiLTCbyF1so2YKviIFa6N2HUd
+	xAfslhVyhxXZP6iYDAnjvS7Lnr/vZStN9FjUrnEJfKhaguthYRKwwdV34jlMSmay66rSIcluveZ
+	Xape2xsRjquIZo/MfW1VyrO0RvzgKe7E6burxXVOCQ8/oBQNMhciLP24ve2Qh8FHiwAbBqc5f0i
+	Mnk5slVnOc3eXVR4o2fSwd1DkpiWzCy1MANbXUSIGkMiWo1bIKv7d9XZ7cY2+UAGkWMsHbNj3OH
+	NqGjrrCwfsF47bGmod5r6FDguvLn0u+PCIZ7RmyoNZ+Lfcj9FipHr2qT6hJ3akHX4P7cLDq+pMe
+	MB1idwh93xsHu/gmVkNHMky5XQBBC8121dze//
+X-Received: by 2002:a17:902:d483:b0:2c6:6424:c79f with SMTP id d9443c01a7336-2c7fc708aa6mr35566035ad.8.1782403352803;
+        Thu, 25 Jun 2026 09:02:32 -0700 (PDT)
+Received: from liem-TUF-Gaming-FX505GM-FX86FM ([240e:39b:ee0:1b70:943:8348:4ae1:4072])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c7f5ac88cfsm24127925ad.2.2026.06.25.09.02.26
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 25 Jun 2026 09:02:32 -0700 (PDT)
+From: Liem <liem16213@gmail.com>
+To: Oleksij Rempel <o.rempel@pengutronix.de>
+Cc: Andi Shyti <andi.shyti@kernel.org>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Biwen Li <biwen.li@nxp.com>,
+	Wolfram Sang <wsa@kernel.org>,
+	linux-i2c@vger.kernel.org,
+	imx@lists.linux.dev,
+	linux-arm-kernel@lists.infradead.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	Liem <liem16213@gmail.com>
+Subject: [PATCH v2] i2c: imx: Fix slave registration error path and missing timer cleanup
+Date: Fri, 26 Jun 2026 00:02:19 +0800
+Message-ID: <20260625160219.55116-1-liem16213@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260625071130.93544-1-liem16213@gmail.com>
+References: <20260625071130.93544-1-liem16213@gmail.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-From: liem <liem16213@gmail.com>
-Date: Thu, 25 Jun 2026 23:07:54 +0800
-X-Gm-Features: AVVi8CdXewmKMx24Id0KrC4KlPydUzifiJZC1utFI6DQTmNGydZ-bYS7JAqj14c
-Message-ID: <CABoz+=2PHMv0mqxPwHyR5rBOhT7xFxGVok69JoYhadQTuNnsdQ@mail.gmail.com>
-Subject: Re: [PATCH] i2c: imx: Fix slave registration error path and missing
- NULL check
-To: liem <liem16213@gmail.com>
-Cc: Frank Li <Frank.Li@nxp.com>, Andi Shyti <andi.shyti@kernel.org>, Biwen Li <biwen.li@nxp.com>, 
-	Fabio Estevam <festevam@gmail.com>, imx@lists.linux.dev, 
-	Pengutronix Kernel Team <kernel@pengutronix.de>, linux-arm-kernel@lists.infradead.org, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Oleksij Rempel <o.rempel@pengutronix.de>, Sascha Hauer <s.hauer@pengutronix.de>, stable@vger.kernel.org, 
-	Wolfram Sang <wsa@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hi,Carlos!
+There are two issues that affect the i2c-imx slave handling:
 
-Thank you for your review.
+1. In i2c_imx_reg_slave(), i2c_imx->slave is checked at the beginning
+   and the function returns -EBUSY if it is non-NULL.  If
+   pm_runtime_resume_and_get() fails later, the error path returns
+   without clearing i2c_imx->slave, leaving it non-NULL.  Subsequent
+   attempts to register a slave will then immediately fail with
+   -EBUSY, making it impossible to register the slave again.  Fix
+   by setting i2c_imx->slave = NULL on the error path.
 
-Q: Have you meet the issue on one real platform?
-A: No,I just noticed the error while reading the code.
+2. In i2c_imx_unreg_slave(), the slave pointer is set to NULL after
+   disabling interrupts.  However, a pending interrupt might already
+   have started the hrtimer (i2c_imx_slave_timeout) before the pointer
+   was cleared.  If the hrtimer fires after i2c_imx->slave is set to
+   NULL, the timer callback i2c_imx_slave_finish_op() will call
+   i2c_imx_slave_event() with a NULL slave pointer, and the
+   last_slave_event check loop in i2c_imx_slave_finish_op() may cause
+   a system hang because last_slave_event is no longer updated.  Fix
+   by canceling the hrtimer and waiting for it to complete after
+   disabling interrupts, before clearing the slave pointer.
 
-I think your idea which cancel the slave timer and wait it finished
-after disabled IRQ is better.
+Both issues can trigger a kernel oops, system hang, or permanent
+slave registration failure under certain race conditions.  Add the
+missing NULL assignment and the missing hrtimer cleanup to harden
+the slave path.
 
-I'll fix the issues and send a v2.Thank you again!
+Fixes: f7414cd6923f ("i2c: imx: support slave mode for imx I2C driver")
+Cc: stable@vger.kernel.org
+Signed-off-by: Liem <liem16213@gmail.com>
+---
+v1 -> v2:
+  - Instead of adding a NULL check in i2c_imx_slave_event(), cancel
+    the hrtimer and wait for it to finish in i2c_imx_unreg_slave()
+    after disabling interrupts, as suggested by <Carlos Song>.
+    This avoids a potential hang in the last_slave_event loop in
+    i2c_imx_slave_finish_op().
+---
+ drivers/i2c/busses/i2c-imx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
+index 28313d0fad37..04ffb927aba9 100644
+--- a/drivers/i2c/busses/i2c-imx.c
++++ b/drivers/i2c/busses/i2c-imx.c
+@@ -936,6 +936,7 @@ static int i2c_imx_reg_slave(struct i2c_client *client)
+ 	/* Resume */
+ 	ret = pm_runtime_resume_and_get(i2c_imx->adapter.dev.parent);
+ 	if (ret < 0) {
++		i2c_imx->slave = NULL;
+ 		dev_err(&i2c_imx->adapter.dev, "failed to resume i2c controller");
+ 		return ret;
+ 	}
+@@ -957,7 +958,7 @@ static int i2c_imx_unreg_slave(struct i2c_client *client)
+ 	imx_i2c_write_reg(0, i2c_imx, IMX_I2C_IADR);
+ 
+ 	i2c_imx_reset_regs(i2c_imx);
+-
++	hrtimer_cancel(&i2c_imx->slave_timer);
+ 	i2c_imx->slave = NULL;
+ 
+ 	/* Suspend */
+-- 
+2.53.0
+
