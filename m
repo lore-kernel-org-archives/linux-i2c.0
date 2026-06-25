@@ -1,86 +1,98 @@
-Received: from 5.mo583.mail-out.ovh.net (5.mo583.mail-out.ovh.net [87.98.173.103])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D0DE1684B0
-	for <linux-i2c@vger.kernel.org>; Thu, 25 Jun 2026 16:32:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=87.98.173.103
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 880C425771
+	for <linux-i2c@vger.kernel.org>; Thu, 25 Jun 2026 20:22:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782405158; cv=none; b=ND/MV42qRAzqi2xP3O3cWl96x4hqfck6uvKTI6yiEOg1gmAWSTezGYo/0BCvVFAxhIm+a3fU6BFV9xydUGd5FOx/X+FlmQFNnLgQ2lL8SR0zIYJhUcPCTy63Ewd7w/Dcgz1zDdu9EK0CzCACv7Ok+B6TCWV0qbRGOPjj8aGR7/0=
+	t=1782418937; cv=none; b=YQAbJbclyjR78Z6Bal5ToBhSAHEO/leG3x2ZqtzDfCxxJ/1KXV5IVgOZe3MjsjwkmIqMxDFYvZ7ulODoeGnG7F3Hl3c9+XtU+gDEgG5VR0/gyAQtXKr8QZndyCKoLIilJJ8pCF8GYFrnJIklbr2qyJSmWp3ucaoopqWJifTqEmY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782405158; c=relaxed/simple;
-	bh=8M+og/cgsmQeo9pr30XZIiCQraEwBpFZzSelbIy4p7E=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ZYe1dLT6MJbOug1S1QMEcS6v693FMBBGkVTV040d0hvo1EFHa1a4KgZI9nF5svjHywn6zHI4b7WjTrTFKZ+M3LwUkZmFz84dFsyB8QtuRNkc3zECk1sdciCZRyTTV+kwADvt4633pRhnuN+fxxz6ArXAn9/069oYSAqTCtJCw/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org; spf=pass smtp.mailfrom=etezian.org; arc=none smtp.client-ip=87.98.173.103
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=kernel.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=etezian.org
-Received: from director7.ghost.mail-out.ovh.net (unknown [10.110.37.5])
-	by mo583.mail-out.ovh.net (Postfix) with ESMTP id 4gmPV43Yn4z5wg1
-	for <linux-i2c@vger.kernel.org>; Thu, 25 Jun 2026 16:32:28 +0000 (UTC)
-Received: from ghost-submission-7d8d68f679-74qgp (unknown [10.111.174.16])
-	by director7.ghost.mail-out.ovh.net (Postfix) with ESMTPS id 011CAC00EF;
-	Thu, 25 Jun 2026 16:32:27 +0000 (UTC)
-Received: from etezian.org ([37.59.142.111])
-	by ghost-submission-7d8d68f679-74qgp with ESMTPSA
-	id b0bzJxtYPWp9WAAAssge1Q
-	(envelope-from <andi@etezian.org>); Thu, 25 Jun 2026 16:32:27 +0000
-Authentication-Results:garm.ovh; auth=pass (GARM-111S0056f049c59-1a58-4b94-aa7a-5d26a5d791c8,
-                    20FD450D999EB22A6E066B2D596748FFE04DB42B) smtp.auth=andi@etezian.org
-X-OVh-ClientIp:178.82.31.9
-From: Andi Shyti <andi.shyti@kernel.org>
-To: lkml <linux-kernel@vger.kernel.org>,
-	linux-i2c <linux-i2c@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Sebastian Reichel <sre@kernel.org>,
-	Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH] CREDITS: Add Wolfram Sang
-Date: Thu, 25 Jun 2026 18:32:21 +0200
-Message-ID: <20260625163221.183414-1-andi.shyti@kernel.org>
-X-Mailer: git-send-email 2.53.0
+	s=arc-20240116; t=1782418937; c=relaxed/simple;
+	bh=YD6LtW669LHxDqll+Pq9PP5l+vwGGjkT+qANV/P1Exs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=BtmD71BkWpymZt74w2fvTYwD2MtKmpA3xsThDKg1eS6tWeWj+GEghZvZ+7dLQe9PiY2VKVymh4IGw7YSqPp0hBFW9xPE157wS1ALyS0+HlgvLLuxOl8TmiY/BtCfOyQjha+L6ob2kCJtaAaukosy9sS5EaLrundudl6Lphmt9rw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=G83uvZPP; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="G83uvZPP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=LAKR
+	rDuzJLPFXpcrQ9QnyMFf3qvZkAt1onk0EY7uLas=; b=G83uvZPP4XYcNhdGUgsg
+	Ij+esrO3TETf5xAXrc+fGchgCFBgeuk0TQ/GKJdUfQm0z/comD7JHL73Zlz5oknl
+	ALuxszy66L/jNKcY9vbSkwMqWBknai91BDoFtc6YKucAWuK17wlPB2x8M4akyV7P
+	nJ79Uc2xBD+B3JBvShU2uDJGiS6u+/E2UrhWzHKjJ6V2yqeKigSh7ibOlUW6mAN0
+	3t57PVDiocrURmjCv0ZERGF7bKYeY6MQoB8tTm3DoK6OxU+uTXvmqLgjw+X18+j+
+	eYs5Imb3A3y1eThZs6TvlcV43sTLwMX4IBC7pdVFq3C9VEobHwM9bn0cTSMn6nhp
+	9A==
+Received: (qmail 3283903 invoked from network); 25 Jun 2026 22:22:04 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 25 Jun 2026 22:22:04 +0200
+X-UD-Smtp-Session: l3s3148p1@UMLUvhlVAkBtKXMK
+Date: Thu, 25 Jun 2026 22:22:04 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Andi Shyti <andi.shyti@kernel.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+	linux-i2c <linux-i2c@vger.kernel.org>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	Sebastian Reichel <sre@kernel.org>, Wolfram Sang <wsa@kernel.org>
+Subject: Re: [PATCH] CREDITS: Add Wolfram Sang
+Message-ID: <aj2N7H6gMgr-aR7P@shikoro>
+References: <20260625163221.183414-1-andi.shyti@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-x-ovh-tracer-id: 6348949575952929910
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: dmFkZTGBun99XHRXkzzNlF/YK/HPjuFiov8SrlfuVda0JT18xy3rlRd0ZWaK+uOC5l4tCDoV3PvdLvGcwzt0evzfxCUUbpUaOBxxknqPVf3tljweoeSHRtcDbGCaVgJNusytvVngw5HKfCI1dFYQLI4U4p+HARJZE3rackX+/nOvdKquk0kljyH5+B6V7TU4hN3fpt6++KKx8FHX0mYPoWJtY1eY+qyiJ7RllnuQXZj9KGIMUdClJv+VXzn5N+hXPiPmJmYh07MoaH8wFo4KvrDc1QnZDcr8CBFrB9Obj3f9jQwpcKRNAEQ/RAiRXuzjlxAfPYqqb1jZCkL2P6VI6oVU8DJheGH97JvpS8DTyauxYDovYAy41XyNRCGBXobHcSArWYMSv3D8knjrbPQSxoQuL8zUtpFn9ojXh4qbD/rzVQC9zVqBPZeUFkCEPNyLNiL9sY9fKvOiXxQU3NAmzVdSm5Wv77cdUilZX0xtGTofphtWAd5TYQ5Dj/RUWSRXUr2ELH7bEUG6F+TpmWMy3AM9nqJsODWNJbSKHFvRZhxBdBxi8Dxu67ZEzJX+39cEEoRLRfSQ5mtVQzX4quxJAzqNuCssdlwuIE+OQhNMBnyk6L/YlW08MJRHJ1Z5kE/fI62iTvcw/QgxHz2r107qMBdzPF8uE9IyLYnWaEG6REzfs0DXxw
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="EgBgSMIHM2p6aKIy"
+Content-Disposition: inline
+In-Reply-To: <20260625163221.183414-1-andi.shyti@kernel.org>
 
-Wolfram Sang has decided that a decade-plus of I2C was enough and
-is moving on to new things.
 
-Thank you, Wolfram, for your years of dedication and for keeping
-the bus in line. Your legacy is now officially cemented in the
-CREDITS file.
+--EgBgSMIHM2p6aKIy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Suggested-by: Sebastian Reichel <sre@kernel.org>
-Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
-Cc: Wolfram Sang <wsa@kernel.org>
----
- CREDITS | 7 +++++++
- 1 file changed, 7 insertions(+)
+On Thu, Jun 25, 2026 at 06:32:21PM +0200, Andi Shyti wrote:
+> Wolfram Sang has decided that a decade-plus of I2C was enough and
+> is moving on to new things.
+>=20
+> Thank you, Wolfram, for your years of dedication and for keeping
 
-diff --git a/CREDITS b/CREDITS
-index 84793a967a0b..91c51c14e993 100644
---- a/CREDITS
-+++ b/CREDITS
-@@ -3626,6 +3626,13 @@ S: 69 rue Dunois
- S: 75013 Paris
- S: France
- 
-+N: Wolfram Sang
-+E: wsa@kernel.org
-+W: sang-engineering.com
-+P: rsa4096/140DE4CC14A029B6 3991 B1EA B9E2 6751 A4F7 645D 140D E4CC 14A0 29B6
-+D: I2C Maintainer 2012 - 2026
-+S: Berlin, Germany
-+
- N: Aleksa Sarai
- E: cyphar@cyphar.com
- W: https://www.cyphar.com/
--- 
-2.53.0
+You are very welcome. Maintaining I2C  really shaped this timeframe for
+me. I hope you will have lots of valuable experiences, too :) Thank you
+for this patch, Sebastian and Andi!
 
+> the bus in line. Your legacy is now officially cemented in the
+> CREDITS file.
+>=20
+> Suggested-by: Sebastian Reichel <sre@kernel.org>
+> Signed-off-by: Andi Shyti <andi.shyti@kernel.org>
+
+Reviewed-by: Wolfram Sang <wsa@kernel.org>
+
+
+--EgBgSMIHM2p6aKIy
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmo9jecACgkQFA3kzBSg
+Kbbm7A//aB3NB3rqXrmZKGxVDkc0WsCMlWpRd2VfcrbGOLKYQNyy2eEB9lmtADwp
+tCg4e6jjaoopwndssNH4ARJMo7DyAb4/EV1rg5I6Fs56q3fz/46fUqnmRIE8bSQE
+8xO733839JlBJE7maBuhSY5zqzKe8/UTgfFjjKrD7D0feEPjrwcrqwEPf3fjCVjU
+Iabxl8MFS+SWJrmPUPHaqnWIzw1znTTBidiXGGki4Kzq/ljTNrj2fjDHO2vgTDbf
+WtnYG9M+/HBOqfF76tvw+iaYXaBwciFiakILgKRFxdivLuA1VyJw/ajDX28mc2NC
+jNi326rOcHGsoap126/cykJB9rdBhxJqnObVr3jZcAIFhmEzESmK3Td9MrgNtWpI
+/bvQsqFqeIQokdLYp5HAqb2kjjdz7E8gDmKmxvvhbMPl90pV9KcrEuwzCmn4ANKz
+44jsvqL2d6zv+gEmOeFJEC5SnykfDK+7ZBPFxjn0wWgMPYOg4SAspTYMwpAnC1e6
+TQWFQQqBGjuP3vtcNL4quWTBK1sPs9Qp7xELgKNQqyga6qKVT6TXCgRLzUMmatft
+JwK0rczbRDlGkafpOtVTw5PgSH/uO3U8IBICkz7k1Tw+iX0JGC3SBzC31jkzLTC2
+r7/ybT3i2c+Ls3kl9k7uK0fFhrcQhUgbPwNrJyZbtYaRTOrV4iI=
+=dtjC
+-----END PGP SIGNATURE-----
+
+--EgBgSMIHM2p6aKIy--
