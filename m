@@ -1,62 +1,62 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
+Received: from mail-wr1-f47.google.com (mail-wr1-f47.google.com [209.85.221.47])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 058DC32B105
-	for <linux-i2c@vger.kernel.org>; Thu, 25 Jun 2026 09:04:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDEDE86341
+	for <linux-i2c@vger.kernel.org>; Thu, 25 Jun 2026 09:11:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782378282; cv=none; b=PmTdJiy5l1NRuHNtvhDzGYgmG05mstebd+JGv/oLzvM0yXFGcA2zH7vstqPC0ISttdv1fAUN9CAJLF4pUIg0VPcoEZbvv4Wwwt5xLo+JDCGkXDE6FwM3UdGLR+kDWkO9DHO9yN1yYdTDUytQFWqk1VTqiO3nujUCG+/UtfdXVGE=
+	t=1782378682; cv=none; b=lQCNjjxnDqXwvq1yeEwH8ynktz43BA4+jAEf6BOmUOzhff8Tg+kqfuwpIBcxAMOwfKWSza8WziPyKDS8pJsJ5UU64Rf7SHShpMMImNuQYjFY6FdY54o9HkAppM/G3nOO89PQ46cIh9VRdqF+xV9CcMzJazO0V6BIQkfuxQa79/c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782378282; c=relaxed/simple;
-	bh=Fxdlux4xKPEUY23/deSXomK7ZVU4GMGdOEjfBvmQcWs=;
+	s=arc-20240116; t=1782378682; c=relaxed/simple;
+	bh=7Vni6aoU/U+1ED5C8Gh3fxPndlG3z+xryt5KP9cLmiM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OLI4iq6h6oCKH+1jIcEQbUbYBI6hoxkZyu+juEINKJ0aXtNwhmaldLiZoZwd6OHr6jFqvfNlB2kxOV5WhfXw/uc5YRjSb6IFGdpGyWjoJTsVQ+5kgEVaHcohHGpH+m6w3oOdRVCS6A6rI+W4sbz5Yg8VNslQ2NlXMD7JuOV1vqg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NSXfHDJp; arc=none smtp.client-ip=209.85.128.48
+	 Content-Type:Content-Disposition:In-Reply-To; b=a5BvTAA+exMhNRYWiEv7obPlbdfviQDtA2rfEHBc4rF9tAMiWDweGdX3LPgwIJ27qvuNduLTIAmq/2U3kGg4YPc+2LTWO0aq/05e1Le8lp44xShet7JVHUkzVPZH5to3AvdaFLVHgltJLsZD7sHCuTnH7Fgv06N/UBV2Jx5UXwk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Bq7A6eTR; arc=none smtp.client-ip=209.85.221.47
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NSXfHDJp"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-490b613a17bso18867585e9.3
-        for <linux-i2c@vger.kernel.org>; Thu, 25 Jun 2026 02:04:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Bq7A6eTR"
+Received: by mail-wr1-f47.google.com with SMTP id ffacd0b85a97d-46dd46901dbso358737f8f.0
+        for <linux-i2c@vger.kernel.org>; Thu, 25 Jun 2026 02:11:20 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782378279; x=1782983079; darn=vger.kernel.org;
+        d=gmail.com; s=20251104; t=1782378679; x=1782983479; darn=vger.kernel.org;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=twZyJNe4oKAUakpXmtBipZs2eMFjp62u4eaHu+ufJQQ=;
-        b=NSXfHDJp0lc0BwkOvBFnLVC7Xd+dwmRK5UYLfeHXolOjGYZ329uok3SZZXMe9zSLj5
-         DNGCxkW+Yue98Amaj6cydaZJaSqeKsyV7o2/3liNkFCC/e/DxjlSAyphYoaW6nuqRPdq
-         BT24aN5ekHpGV+Dmk/FqHvgRgEWDzVtMyRzjwd3Sp63fBXRS02mES1W0xebBBY4nQ1A6
-         ATYU8eKNmq/7VgXfZnqKKZaYZyIxsRMORi8aNznpHQJy3tsv5HpBUoFyqKiOgDiv0cOt
-         qJBAFTq25JucCO1YqBAIdJGipY8BpDbozBOIOYGWApFcfENY3S4Z4sywhN0ddhBfqJtv
-         ySYQ==
+        bh=G69PCEOlnq92SdyMP8AGIKg5XJgYw5Jrc7HuDLGgvos=;
+        b=Bq7A6eTRUrMs6DJCvsPR1BpweBfzA+pIixKc9P8gT7IOo+FzYzwLdFzRy7okuwDllh
+         sPQU1bIAG58YlPkxGJEWum+aMh6LLuVkT2PWZwlzZCCo5zt92Uvb9ClIiBBSNibdIyQx
+         HnXvlhY51yFHKa/Wl7O7ROrWVP1JUI8mqLeUQYxuZ2mOM3coJMqiohOgTQJxQdmOF3Ez
+         DR4qL52ZUZ6iX6EYWlaO3U9d1bAbFil9ZCh23rJa+AJCMfX1+jpAdH8racdZfsC6yA40
+         i63NiwfDIqpU/Zi6E2d8JLfISQQ4s0NIR56ILFztHS9z2xAnG+BGawaDvXFcdL9sQsvb
+         p+yQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782378279; x=1782983079;
+        d=1e100.net; s=20251104; t=1782378679; x=1782983479;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=twZyJNe4oKAUakpXmtBipZs2eMFjp62u4eaHu+ufJQQ=;
-        b=nV0v3ogx1vrg3iIEQqEKf0Y4y8s0zgklC4VkALaAtzttIFMhXzsAPZslCLPZkH/dpT
-         Y2yjoxwDiLPEX49c+OWpDttyqocEkq5gQLsMwkL5vIiV+UVH03/Lpx9bvw7MtwhsezvC
-         A+ZvWBSpaooZWPOF40nwX7Jv3v6NXd9KSmiwBbinZDE1un06LcDfGQbyX+rm2Dj2T+Aj
-         zDswd2NyuFcRsRQF5TayNOvb0xTm8FR6D3e4uIbihuTDNAxavMFzjTY4vBfTzyO1iWrS
-         HS+HpD2wqSqwUGL9Z7bA7PtJJ2nX/QL5/WNc1/GAuuaWh/sUj3mmHA4l7r+tfG8Y8SLj
-         hSAg==
-X-Forwarded-Encrypted: i=1; AFNElJ9NU7zpCPd6QuD9UHHoV7pFSpT1J/zegwUuSZRuC4I83P3fYWo7FBDgCuazaekYSzAbbo2If+6fRQo=@vger.kernel.org
-X-Gm-Message-State: AOJu0YwUkNLHTyBh2kNcVOEBd6NB466FIgWrbyMzJ1GqxdVhjB80qFG4
-	TzeInXmBa+XPPin9zanITzWmTyFu15y0YEPLF54PM9dQO9oyUrHFzgX8
-X-Gm-Gg: AfdE7cmw7uLhWSxttk3o5cgZIiZKtZKkgM+K6WlRkHQ4L4UoADVngiHESiwPtB/civN
-	7nCsTsVmPJjOBd6MUKKowEIuYLiOYRAFed4minjus4OKLrNaiNzuPB4RQZN3xX25JOwBRTU0OnP
-	YYbsrWNEi2SgaFI/LlzSSQ3CajdTCo79p+s5DoFEQbvgCVewpCfGDQ3BZiaZHn7Sy8PhUep6sxn
-	m2C/DNkGCajW4jx/eYWg7YDkAlJkY68jWi+KUgUV/WX/PImUaMc5gjVcp8XJClTJhhopnP0ATlL
-	nH26hLq4GJgdEMVOJCrLNYskrdC/I92r1LElJSOLw/yfqkydYS0F+3v3MYmhsOmwSzbmPUMhWDM
-	zztvVqMMjOf34fv7DFfyyqBAg8nBLbiL+q4OeSTmjUEdVgvdByRxLwevQa9Xp28e+FQ==
-X-Received: by 2002:a05:600c:c058:b0:492:48c8:c705 with SMTP id 5b1f17b1804b1-49266865fe5mr18834925e9.1.1782378279131;
-        Thu, 25 Jun 2026 02:04:39 -0700 (PDT)
+        bh=G69PCEOlnq92SdyMP8AGIKg5XJgYw5Jrc7HuDLGgvos=;
+        b=qyiXd4U2Duf0Vr3Z8g/1Qile+lje3pLkgBTnzbj/8N0S84i0A+MrATyfgR0yzVuv4+
+         CnmXS/+6MiyHqom1tWIU691xsaKvMOUzm6UANxNBqT5DODNT+vZAB5E5DKpmiXLGZ7tx
+         nvKbf4pCsJ3XTjhACjWe/RH5wIpIEzMjbED2iauWBUTMUX17JpXMn0q7W4LAFIZBst2w
+         +CXhnKH7F1Ddrh23GCCjz+QBn6ssmiBWuQg/dOVqNRCNT+hsrM1Bqt/eG1WlBiGxSOvK
+         QXGpMRW8XnnQxxlA/NsmVx4mlL6bPoZ4SL6bZQZ+NHdDKY9a2AreHQ4gfGso6c1mAcZU
+         zq5w==
+X-Forwarded-Encrypted: i=1; AHgh+RrgM74lt4YEg2jFPePAblmJfluH2idnOHftxFacWPj2LZQW3Ze3JaylhoFPhNllK1XkkuD1Z/j6XjQ=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwOjJg1Bf/JtPcR+MjIqxfletJLNoJpw7gvC/9kwPXVZqrQRu/b
+	G5w8k6clQfOUpsHs+kfPzi5a9YwhGpeiRa40IlYiBkecQiaLUErftFGj
+X-Gm-Gg: AfdE7cm6qUWs0t++j2dO+ddIZ8+NFWYB83INsEn2qh90CLw/qSPo6h6zplrToM9s7Pf
+	mC0mJnER8BTjnxhLAhgEXjnBIky0h+qBA3hKLf/fBOwTHmlJf94UdSnQOaL5B9C8eYOzR+BfDNI
+	LeaGHwodtggpSStwoMUxnuTOvtWOPIFVliGMef6jSklPBiCsZe7EPSsGukwY8rDhwKrPuGP3bg8
+	aZ/9yC6H41hG4KlKAKYpghTuHV0N4QMNc/m35ZeUzmVHMKwobuqnojgcDsjj6Cp3pNEQdBLXQsE
+	MxcDwNjyZFOpQ1/65uDEfh0VZkmo5gz2k90K2p016TYaa83Hndy84sjTIc1qCrjGx86TXfF6Exy
+	wfD9L6jlwzMRBWyFwE+ptFkPTBOr47r97ifripH1KxasQwMi5ODLEhD7FIUV4C3KJuA==
+X-Received: by 2002:a05:6000:41fc:b0:46d:47bb:d711 with SMTP id ffacd0b85a97d-46dc0e050d9mr2295206f8f.23.1782378679096;
+        Thu, 25 Jun 2026 02:11:19 -0700 (PDT)
 Received: from eichest-laptop ([2a02:168:af72::cb4])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4926494f129sm47950825e9.0.2026.06.25.02.04.37
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-46e3d6ba143sm209356f8f.33.2026.06.25.02.11.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 25 Jun 2026 02:04:38 -0700 (PDT)
-Date: Thu, 25 Jun 2026 11:04:36 +0200
+        Thu, 25 Jun 2026 02:11:18 -0700 (PDT)
+Date: Thu, 25 Jun 2026 11:11:16 +0200
 From: Stefan Eichenberger <eichest@gmail.com>
 To: Vincent Jardin <vjardin@free.fr>
 Cc: Oleksij Rempel <o.rempel@pengutronix.de>,
@@ -70,11 +70,11 @@ Cc: Oleksij Rempel <o.rempel@pengutronix.de>,
 	linux-i2c@vger.kernel.org, imx@lists.linux.dev,
 	linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] i2c: imx: fix locked bus on SMBus block-read of 0
- (atomic)
-Message-ID: <ajzvJE5LuzvLmpZN@eichest-laptop>
+Subject: Re: [PATCH v2 2/2] i2c: imx: fix locked bus on SMBus block-read of 0
+ (IRQ)
+Message-ID: <ajzwtNbCKXdxQAUA@eichest-laptop>
 References: <20260525-for-upstream-i2c-lx2160-fix-v1-v2-0-26a3cc8cd055@free.fr>
- <20260525-for-upstream-i2c-lx2160-fix-v1-v2-1-26a3cc8cd055@free.fr>
+ <20260525-for-upstream-i2c-lx2160-fix-v1-v2-2-26a3cc8cd055@free.fr>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -83,78 +83,71 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260525-for-upstream-i2c-lx2160-fix-v1-v2-1-26a3cc8cd055@free.fr>
+In-Reply-To: <20260525-for-upstream-i2c-lx2160-fix-v1-v2-2-26a3cc8cd055@free.fr>
 
-Sorry for the late reply.
-
-On Mon, May 25, 2026 at 06:43:15PM +0200, Vincent Jardin wrote:
-> SMBus 3.1 6.5.7 allows a Block Read byte count of 0, but the atomic
-> (polling) path rejects it as -EPROTO. Worse, it returns without a
-> NACK+STOP: the next receive cycle has already started, so the target
-> keeps holding SDA and the bus stays stuck until a power cycle for
-> this i2c controller.
+On Mon, May 25, 2026 at 06:43:16PM +0200, Vincent Jardin wrote:
+> SMBus 3.1 6.5.7 allows a Block Read byte count of 0, but the
+> interrupt-driven block-read state machine rejects it as -EPROTO. Worse,
+> it returns without a NACK+STOP: the next receive cycle has already
+> started, so the target keeps holding SDA and the bus stays stuck until a
+> power cycle of this i2c controller.
 > 
-> Reading I2DR to obtain the count likewise arms the next byte on the
-> count > I2C_SMBUS_BLOCK_MAX path, which also returned -EPROTO directly
-> and left the bus held.
+> Accept count=0: NACK the in-flight dummy byte (TXAK) and set msg->len to
+> 2 so i2c_imx_isr_read_continue() emits STOP via its normal last-byte
+> path. The dummy byte is discarded; block-read callers only consume
+> buf[0..count-1].
 > 
-> Handle both: NACK the in-flight dummy byte (TXAK) and extend msgs->len so
-> the existing last-byte handling emits STOP; the dummy byte is discarded.
-> A count of 0 is a valid empty block read; a count above
-> I2C_SMBUS_BLOCK_MAX is still reported as -EPROTO, but only after the bus
-> has been released.
+> Reading I2DR has likewise already armed the next byte on the
+> count > I2C_SMBUS_BLOCK_MAX error path, so NACK it (TXAK) before aborting
+> with -EPROTO; otherwise the failing transfer's STOP cannot complete and
+> the bus stays held.
 > 
-> The interrupt-driven path has the same flaw from a later commit and is
-> fixed separately, as it carries a different Fixes: tag and stable range.
+> The atomic path regressed earlier (v3.16) and is fixed separately; this
+> patch covers only the v6.13 state-machine rework.
 > 
-> Fixes: 8e8782c71595 ("i2c: imx: add SMBus block read support")
-> Cc: <stable@vger.kernel.org> # v3.16+
+> Fixes: 5f5c2d4579ca ("i2c: imx: prevent rescheduling in non dma mode")
+> Cc: <stable@vger.kernel.org> # v6.13+
 > Signed-off-by: Vincent Jardin <vjardin@free.fr>
 > ---
->  drivers/i2c/busses/i2c-imx.c | 19 ++++++++++++++++---
->  1 file changed, 16 insertions(+), 3 deletions(-)
+>  drivers/i2c/busses/i2c-imx.c | 17 +++++++++++++++++
+>  1 file changed, 17 insertions(+)
 > 
 > diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-> index a208fefd3c3b..14107e1ad413 100644
+> index 14107e1ad413..8db8d2e10f5c 100644
 > --- a/drivers/i2c/busses/i2c-imx.c
 > +++ b/drivers/i2c/busses/i2c-imx.c
-> @@ -1415,6 +1415,7 @@ static int i2c_imx_atomic_read(struct imx_i2c_struct *i2c_imx,
->  	int i, result;
->  	unsigned int temp;
->  	int block_data = msgs->flags & I2C_M_RECV_LEN;
-> +	int block_err = 0;
+> @@ -1061,11 +1061,28 @@ static inline enum imx_i2c_state i2c_imx_isr_read_continue(struct imx_i2c_struct
+>  static inline void i2c_imx_isr_read_block_data_len(struct imx_i2c_struct *i2c_imx)
+>  {
+>  	u8 len = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
+> +	unsigned int temp;
 >  
->  	result = i2c_imx_prepare_read(i2c_imx, msgs, false);
->  	if (result)
-> @@ -1436,8 +1437,20 @@ static int i2c_imx_atomic_read(struct imx_i2c_struct *i2c_imx,
->  		 */
->  		if ((!i) && block_data) {
->  			len = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2DR);
-> -			if ((len == 0) || (len > I2C_SMBUS_BLOCK_MAX))
-> -				return -EPROTO;
-> +			if ((len == 0) || (len > I2C_SMBUS_BLOCK_MAX)) {
-> +				/*
-> +				 * SMBus 3.1 6.5.7: support count byte of 0.
-> +				 * I2C_SMBUS_BLOCK_MAX case should not hold the SDA either.
-> +				 */
-> +				if (len > I2C_SMBUS_BLOCK_MAX)
-> +					block_err = -EPROTO;
-> +				temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
-> +				temp |= I2CR_TXAK;
-> +				imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
-> +				msgs->buf[0] = 0;
-> +				msgs->len = 2;
-> +				continue;
-> +			}
->  			dev_dbg(&i2c_imx->adapter.dev,
->  				"<%s> read length: 0x%X\n",
->  				__func__, len);
-> @@ -1485,7 +1498,7 @@ static int i2c_imx_atomic_read(struct imx_i2c_struct *i2c_imx,
->  			"<%s> read byte: B%d=0x%X\n",
->  			__func__, i, msgs->buf[i]);
+>  	if (len == 0 || len > I2C_SMBUS_BLOCK_MAX) {
+> +		/*
+> +		 * SMBus 3.1 6.5.7: support count byte of 0.
+> +		 * I2C_SMBUS_BLOCK_MAX case should not hold the SDA either.
+> +		 * So NACK it (TXAK) to not hold the bus.
+> +		 */
+> +		temp = imx_i2c_read_reg(i2c_imx, IMX_I2C_I2CR);
+> +		temp |= I2CR_TXAK;
+> +		imx_i2c_write_reg(temp, i2c_imx, IMX_I2C_I2CR);
+> +
+> +		if (len == 0) {
+> +			i2c_imx->msg->buf[i2c_imx->msg_buf_idx++] = 0;
+> +			i2c_imx->msg->len = 2;
+> +			return;
+> +		}
+> +
+>  		i2c_imx->isr_result = -EPROTO;
+>  		i2c_imx->state = IMX_I2C_STATE_FAILED;
+>  		wake_up(&i2c_imx->queue);
+> +		return;
 >  	}
-> -	return 0;
-> +	return block_err;
->  }
+>  	i2c_imx->msg->len += len;
+>  	i2c_imx->msg->buf[i2c_imx->msg_buf_idx++] = len;
+> 
+> -- 
+> 2.43.0
+> 
 
 Reviewed-by: Stefan Eichenberger <eichest@gmail.com>
