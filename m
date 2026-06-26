@@ -1,94 +1,85 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from cstnet.cn (smtp21.cstnet.cn [159.226.251.21])
+	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0CBA3E51E8
-	for <linux-i2c@vger.kernel.org>; Fri, 26 Jun 2026 08:30:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0A04363C46;
+	Fri, 26 Jun 2026 15:03:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.21
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782462640; cv=none; b=XdrDHAAIDqzfE0+tPsIU+/CPDqGaE//Yfd2EmLGXawB04wvuWtT9W/i3ja30aWUW++YL/zKRZN/WrDwV//j2ZRWj25rqv3GIExTkDbxuUm8UXyl7qB6bMdufkYi4j0ZZDLQErqhjFBh8Mo5CKHBJXabtF00kyXcoOTWFAnZ+yt8=
+	t=1782486199; cv=none; b=K04D/MoWRvrNNmFbg97S+kuB1aRNj9/lj68Cx8FQKHRPNT8utHxcOizerncMWsc7d9u5cPVhDpMjjo9rpLVGwF0d3/Emw2EOB4cUlo34h8bV2QmYxyrGeexXLqoZ9tdjGUiwzT+mJdzlJTsMM1hjfwnLpMzvSYRL9bmc1VX2Svc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782462640; c=relaxed/simple;
-	bh=g7QugsTJVRYqI5KzYuo8WC1k67mQy/4ShxoER+MIinM=;
-	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
-	 In-Reply-To:Content-Type; b=iR+otmwXpmMFh/jvhrTGe5clMMtmpoxYJXW9PzspPpUbEEahHqoOvRTSIZuYUWniSA0NffnKqRSDrOVOVJovLIJhdWRjkhCVrnTPMRExivt88PL/AxIkW4MasvkH5G/6Uqiej+t5FO0R9ImXPJ5swKd3foy0wQClmWwuq01tSe4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JJ+W9Ina; arc=none smtp.client-ip=209.85.210.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JJ+W9Ina"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-84236f9b638so270616b3a.2
-        for <linux-i2c@vger.kernel.org>; Fri, 26 Jun 2026 01:30:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782462638; x=1783067438; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language:subject
-         :references:cc:to:user-agent:mime-version:date:message-id:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=g7QugsTJVRYqI5KzYuo8WC1k67mQy/4ShxoER+MIinM=;
-        b=JJ+W9InanyF4+ehE3ueZas5aO9xyFfQvAgzztfqRVigjl6pPexfVGCF+KWZIkOUzPS
-         0Qj9yCi4Hannehfp1/lOv/t6AHZI2dny8ISi0NW/h+G7i6h4/8fgH3OBpr16e+TbdiPl
-         I/h0Ya8r66xtugU8m48AemwBw0UhEpWSss5fft6hc2dZV3h2iZIOYJjFh0XGoiMJDf66
-         rEHZM4ijSo92Az6PTQ67fmDVCtMpb55xi0BaJi4/Tc8OIv8SF2Ai9fdcCjOeGpFoRrKN
-         KaEIndXvsOYSiQgI90tRMb5U4qFa9ANwg0Sed96U1zyJdjahqhTR3L+6RIKRM4Stjcro
-         rtTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782462638; x=1783067438;
-        h=content-transfer-encoding:in-reply-to:from:content-language:subject
-         :references:cc:to:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=g7QugsTJVRYqI5KzYuo8WC1k67mQy/4ShxoER+MIinM=;
-        b=DJms9Fw1nJ8WUTg4r8O0vD1RL+zIAR4MT4bJnSHX0ESZK4zwnVfWHFw9r5HIZRDviZ
-         aMCWeeDXMRAGp4z9aHAMeclLndJYJSCKaMddb0iCwAlWGOZyW9zSccn/bRHtHuMd3F9w
-         qegI0o2M4YMyUOXVf/HtV+WkVGP+m0j/ZmIZgSOO0PJboZ4u61A8nZK3XgurolLBPJhb
-         AYGvdfQzmB4WWWCylLf4DFI5E5DriHRqVlLWE7QkIkW+C1/bBvfJmqSCigd7HuinFpEh
-         cFNPjJa85FnJzzselMLad2mG0fjBAr0x24j6zd1UNc4hccot28B2rm+KE+Rd0BOKKLsx
-         4WQQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+ngUR7YlI+Z0dH5WdZggc3PwKPI8n7vbYMitW9XVziXSJAj4AMwkhc0TaxpaW7WIufuYgqTNP95AM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzR/689QPsFP6D9pSwQzUEIuuHvqapjlzih4iZX0ho1W4W/ygfF
-	MzMlI/d0G7+a4MP0H2/XtzTD+vsuSTUlO0isurTAwx3KOBTkAtNWt2r0c8nbFl/sknE=
-X-Gm-Gg: AfdE7clBECsttmqGsbUzRtdF4iOSRdt2lUX46pd5iJDViXnBoo5Hh60rawT+MPGW/Zj
-	nln1BD//zbEeXt/lhYsJrlO0d7+g5RytA1Ug4KdBuJEuCz7dCL8hfeT101oSuYfYtzmWKRwHcJT
-	ZoHCwCaZw8CflkMNqqD4bFYKqsWROv8wSTaxPznvZnb6XXjMobHxkI1PQrMMA9jldXv6iRKLsUf
-	qO2EesAAncmvsE3FF4Ul3xjOZiybTm0qD7GCDbtreWx27HKjEeFXUhmkAVwfnWcVM+bgKWUINzL
-	Xhr9+OVKyadVBJ2whwy0uophp5sfUOgztaIRVw7Po8LDiGIKUDeoOBnHIwFlCxT8g8pVhL5jWoL
-	foqI2GcvUooZCoxaYPCBzZcXFFyJiyYrw1TV/ElUTa+5EgzDQGQQaD5CCBF+UUNYYMS4A58Y1eG
-	ZA3Hx0eXysgb6omg==
-X-Received: by 2002:a05:6a00:804:b0:82f:72e6:ed4 with SMTP id d2e1a72fcca58-845b382ec89mr7443975b3a.0.1782462638151;
-        Fri, 26 Jun 2026 01:30:38 -0700 (PDT)
-Received: from [10.31.13.168] ([182.150.55.91])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-845c104113esm1660225b3a.57.2026.06.26.01.30.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 26 Jun 2026 01:30:37 -0700 (PDT)
-Message-ID: <c21cd9dc-9bbf-49dd-9812-4db0733b0636@gmail.com>
-Date: Fri, 26 Jun 2026 16:30:26 +0800
+	s=arc-20240116; t=1782486199; c=relaxed/simple;
+	bh=O1G+q5mXYegd2BUhunPhLkRmzlP6u63R2SRS/JAOJjU=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=QY1YgXGy2sVEK2VThz/OosYhw3843efLqx28iCzFD3r+zduWQEUGBxbDQhJiwn5LJPoYz30cA9z0qY9Tks/l/NcgU7R1mElS6WVF1QI5pB76l7l73L++0X7uZaFXrihur3adufB+P5XIf8zok8oyok/kIL7gl5steDiIoeHEPJg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.21
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
+Received: from localhost.localdomain (unknown [117.182.75.66])
+	by APP-01 (Coremail) with SMTP id qwCowACXOtOulD5qHVdrAw--.53907S2;
+	Fri, 26 Jun 2026 23:03:11 +0800 (CST)
+From: WenTao Liang <vulab@iscas.ac.cn>
+To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	linux-i2c@vger.kernel.org
+Cc: Peter Rosin <peda@lysator.liu.se>,
+	stable@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	WenTao Liang <vulab@iscas.ac.cn>
+Subject: [PATCH] fix: i2c: i2c_mux_add_adapter: fix child device_node reference leak on   adapter registration failure
+Date: Fri, 26 Jun 2026 23:03:10 +0800
+Message-Id: <20260626150310.49875-1-vulab@iscas.ac.cn>
+X-Mailer: git-send-email 2.39.5 (Apple Git-154)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-To: carlos.song@oss.nxp.com
-Cc: andi.shyti@kernel.org, biwen.li@nxp.com, festevam@gmail.com,
- frank.li@nxp.com, frank.li@oss.nxp.com, imx@lists.linux.dev,
- kernel@pengutronix.de, liem16213@gmail.com,
- linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, o.rempel@pengutronix.de,
- s.hauer@pengutronix.de, stable@vger.kernel.org, wsa@kernel.org
-References: <AM0PR04MB6802B863CD9B9AE1609C1785E8EB2@AM0PR04MB6802.eurprd04.prod.outlook.com>
-Subject: RE: [PATCH v3 1/2] i2c: imx: Clear slave pointer on registration
- error
-Content-Language: en-US
-From: liem <liem16213@gmail.com>
-In-Reply-To: <AM0PR04MB6802B863CD9B9AE1609C1785E8EB2@AM0PR04MB6802.eurprd04.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:qwCowACXOtOulD5qHVdrAw--.53907S2
+X-Coremail-Antispam: 1UD129KBjvdXoWrur1rArW5XFy3Aw47uw13CFg_yoWDAwc_CF
+	yrX3srWrn8Krs8urZrXFWfuwnakF1kuFZ3Aan7KFW3Aas7XFsrCFWfXrs3Cw45Jw4kKa4D
+	Xw4kWr1xuw17tjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUIcSsGvfJTRUUUb4AFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2IYs7xG
+	6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48ve4kI8w
+	A2z4x0Y4vE2Ix0cI8IcVAFwI0_Gr0_Xr1l84ACjcxK6xIIjxv20xvEc7CjxVAFwI0_Gr1j
+	6F4UJwA2z4x0Y4vEx4A2jsIE14v26rxl6s0DM28EF7xvwVC2z280aVCY1x0267AKxVW0oV
+	Cq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG6I80ewAv7VC0
+	I7IYx2IY67AKxVWUAVWUtwAv7VC2z280aVAFwI0_Gr0_Cr1lOx8S6xCaFVCjc4AY6r1j6r
+	4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwCY1x0262kKe7AKxVWU
+	AVWUtwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14
+	v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkG
+	c2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUCVW8JwCI42IY6xIIjxv20xvEc7CjxVAFwI
+	0_Cr0_Gr1UMIIF0xvE42xK8VAvwI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVW8JVWx
+	JwCI42IY6I8E87Iv6xkF7I0E14v26r4UJVWxJrUvcSsGvfC2KfnxnUUI43ZEXa7VUj2YLD
+	UUUUU==
+X-CM-SenderInfo: pyxotu46lvutnvoduhdfq/1tbiCRUKA2o+iCgj+QAAs7
 
-Hi, carlos!
+When the OF block successfully acquires a child device_node reference and
+  stores it in priv->adap.dev.of_node, but the subsequent
+  i2c_add_numbered_adapter or i2c_add_adapter call fails, the error path
+  jumps to err_free_priv which only kfree's the priv without calling
+  of_node_put on the stored child node, leaking the reference.
 
-Thanks for the review.
-This is a good idea; this is a better way to fix it.
-I'll fix Patch 1 as suggested and send a v4.
+Add of_node_put(priv->adap.dev.of_node) in the err_free_priv error path.
 
-Regards,
+Cc: stable@vger.kernel.org
+Fixes: a7ab72390b77 ("i2c: mux: add common data for every i2c-mux instance")
+Signed-off-by: WenTao Liang <vulab@iscas.ac.cn>
+---
+ drivers/i2c/i2c-mux.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Liem
+diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
+index 681a201c239b..68a4c34b5987 100644
+--- a/drivers/i2c/i2c-mux.c
++++ b/drivers/i2c/i2c-mux.c
+@@ -408,6 +408,7 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
+ 	return 0;
+ 
+ err_free_priv:
++	of_node_put(priv->adap.dev.of_node);
+ 	kfree(priv);
+ 	return ret;
+ }
+-- 
+2.39.5 (Apple Git-154)
+
