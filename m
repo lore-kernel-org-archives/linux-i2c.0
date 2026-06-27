@@ -1,80 +1,163 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB1371991CB;
-	Sat, 27 Jun 2026 06:45:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: from zg8tmtyylji0my4xnjqumte4.icoremail.net (zg8tmtyylji0my4xnjqumte4.icoremail.net [162.243.164.118])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id E849637AA78;
+	Sat, 27 Jun 2026 07:58:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=162.243.164.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782542746; cv=none; b=SBEvMF+nUyl43lyrFJQ2GDxRqPFV2gZnHhraVAmggG464v09xpj06gkageBA5u5fd91bJ04ljXk92wZr49XepE1Qipyn5fwMKRe1+5gDtvgGp7IEmEDwvce+93yECrRXoTQjO+uBvuRusLC9LbXda3Dk0nNuaU9CT9DWGD+RJGc=
+	t=1782547108; cv=none; b=W2DbMxmVJAuVnOlF5fy3/45O6XuVylurAlGmHpm0EQ1X1Ffs6L78MRNTWGH/ToZT/WjJGWgeO3dOYHnQaSHKoxTrr66cOmk8D65q+q6UMPsL2wCdyjHZ2/DABlpW2FthsJSwyvm95lNBM3+7CrwN0TRowruiOPPJNu8qM9Tr958=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782542746; c=relaxed/simple;
-	bh=bYcixaePtROSNnWfTEy1OEKq2jJQhrk0Ci+5Jfy3cwg=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=tCq5FvctHdgJ4w6SqdJjxCclKsETVKWHKmYHT+UyrdzAfePisT4ydnzeQTYXA2uyR7+4zeTxrdYEVl151SZxWCfMOPNmv0pig9/TXG46AJdz7098CITD3bIXbcWHOHds7gnGXfRMQaEn7Z95sFlpV5MfNvaDJGEab0yizEVlIbE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=XH53k9Cz; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782547108; c=relaxed/simple;
+	bh=uKsmwRbFkAPzLSbmz/EgjDiiE/b+rvjpTIO9sq9y184=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=UISC7SWGYx9zPvFzT2yilqr+/6Y8yKXZz2uiOX2eykLFEVoYf0Emo5Noq6CU5zUGPL1cqi9tFEkebs5f1Q+l6Wl2Q2Uy8kayjPOxH0g1rrJQtuc6XjGSyhzvvOh3Ig5GvLQQe0NbnYqOXOJTUQ++Y5L7/vh7Gkre2LHwHvZ+EkI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=stu.xidian.edu.cn; spf=pass smtp.mailfrom=stu.xidian.edu.cn; dkim=fail (0-bit key) header.d=stu.xidian.edu.cn header.i=@stu.xidian.edu.cn header.b=qMNL0ixL reason="key not found in DNS"; arc=none smtp.client-ip=162.243.164.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=stu.xidian.edu.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=stu.xidian.edu.cn
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="XH53k9Cz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 902AE1F000E9;
-	Sat, 27 Jun 2026 06:45:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782542745;
-	bh=ZVVBiZOJ4B2imcIwQ1EYfXb1C+7YzXZs3NcAHvT7w2M=;
-	h=Date:From:To:Cc:Subject;
-	b=XH53k9Cz1Tk0pB0N7dwcA19IQECtQ7s6QZEC3ZcH2iEr69iN/e42nNUM7iu7IMrkH
-	 NUJLvuA+icVJT7+56vFVOq1FKHCFfe4hvCQh6w3IcJWKt0LTolnnhaQ9+l9ENfUZGZ
-	 GyyhqISur/7OYbrYds8QuJdbHFTFHXjK9sPUgNNSGxe49sNEt8Ee/DrjgM5wyFwhuL
-	 3WP4kkzqX6D7zK9W78iDF1UpBmW0MWsQ2QtYZQhsQL+m72FhwAffh3xq8HpWc3gjdJ
-	 S7zCNk/zc6NRQ5/O4cnDs7V5Wi5CMLhQqbljE+GuMpvV54S8pKvlHMmGWeSMzq6/34
-	 l3KbyT4nQUiAg==
-Date: Sat, 27 Jun 2026 08:45:41 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, 
-	linux-i2c <linux-i2c@vger.kernel.org>, Andi Shyti <andi.shyti@kernel.org>
-Subject: [GIT PULL] i2c fixes for v7.2-rc1
-Message-ID: <aj9wIlxL13xmq2UJ@zenone.zhora.eu>
+	dkim=fail reason="key not found in DNS" (0-bit key) header.d=stu.xidian.edu.cn header.i=@stu.xidian.edu.cn header.b="qMNL0ixL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=stu.xidian.edu.cn; s=dkim; h=Received:From:To:Cc:Subject:Date:
+	Message-Id:MIME-Version:Content-Transfer-Encoding; bh=Lrqx86hECs
+	lCO4nKXn0DaJ+MUmPGKXBLgwU+8p/idZk=; b=qMNL0ixLB+8kE5HZm8Et8UMO8l
+	GGJuv8QhoIy7PJvcHWT8Ok2d7dVWozKlpXACoEqx4jGXEG/wi9Y/SiNeVw9OFKXY
+	K8HIfBpjHwxHIhQSuqfJAN99gNUC+aOKJr3WDtA4Nrek5wAvGITGgHiJHzKgL/qz
+	vrklTWcFkSeM2Ha8k=
+Received: from wmy.localdomain (unknown [113.200.174.100])
+	by hzbj-edu-front-2.icoremail.net (Coremail) with SMTP id BLQMCkBGjjOOgj9qNFsdAA--.20220S2;
+	Sat, 27 Jun 2026 15:58:10 +0800 (CST)
+From: Mingyu Wang <25181214217@stu.xidian.edu.cn>
+To: jdelvare@suse.com,
+	andi.shyti@kernel.org
+Cc: wsa@kernel.org,
+	hkallweit1@gmail.com,
+	djkurtz@chromium.org,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Mingyu Wang <25181214217@stu.xidian.edu.cn>,
+	stable@vger.kernel.org
+Subject: [PATCH v2] i2c: i801: Fix hardware state machine corruption and stack-out-of-bounds
+Date: Sat, 27 Jun 2026 15:58:04 +0800
+Message-Id: <20260627075804.478990-1-25181214217@stu.xidian.edu.cn>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:BLQMCkBGjjOOgj9qNFsdAA--.20220S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxGr1fWw47Ww1xZr4UtryDtrb_yoWrGry3pa
+	1jk3s0vr4Dtr4akFn8tr4rZFyF9a1rGrWUGr9Fgw1DZa13G340yFyrtFyY9F4vv34jvaya
+	qa4UtFnruF1jya7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDU0xBIdaVrnRJUUU9K14x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
+	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
+	1l84ACjcxK6xIIjxv20xvE14v26r1j6r1xM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
+	6F4UM28EF7xvwVC2z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4vEx4A2jsIEc7CjxVAFwI0_Gr
+	1j6F4UJwAac4AC62xK8xCEY4vEwIxC4wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40E
+	FcxC0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Gr
+	0_Cr1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8v
+	x2IErcIFxwCY1x0262kKe7AKxVWUtVW8ZwCY02Avz4vE14v_GF4l42xK82IYc2Ij64vIr4
+	1l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK
+	67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI
+	8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE42xK8VAv
+	wI8IcIk0rVWUJVWUCwCI42IY6I8E87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14
+	v26r4j6r4UJbIYCTnIWIevJa73UjIFyTuYvjfUnvtADUUUU
+X-CM-SenderInfo: qsvrmiqsrujiux6v33wo0lvxldqovvfxof0/1tbiAQUREWo+l+ZrMQAAs7
 
-Hi Linus,
+Under extreme conditions (e.g., fault injection or transaction timeouts),
+the i801 SMBus controller driver exhibits two error handling issues:
 
-here is a small i2c-fixes pull request to start the 7.2 cycle.
-The branch is based on top of your latest i2c merge commit.
+1. When i801_check_pre() fails, the driver jumps to the 'out' label
+   and clears the INUSE_STS and status flags without holding hardware
+   ownership, corrupting the hardware state machine.
 
-Thanks,
-Andi
+2. When a transaction aborts and returns from i801_access(), the
+   stack-allocated union i2c_smbus_data is destroyed. However,
+   priv->data is not cleared. A spurious interrupt can then trigger a
+   stack-out-of-bounds read in i801_isr_byte_done(), caught by KASAN:
 
-The following changes since commit 1dc18801be29bc54709aa355b8acd80e183b03cd:
+  BUG: KASAN: stack-out-of-bounds in i801_isr_byte_done drivers/i2c/busses/i2c-i801.c:592 [inline]
+  BUG: KASAN: stack-out-of-bounds in i801_isr drivers/i2c/busses/i2c-i801.c:648 [inline]
+  Read of size 1 at addr ffff8881026dfd91 by task in:imklog/218
 
-  Merge tag 'i2c-7.2-part2' of git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux (2026-06-22 09:30:31 -0700)
+  CPU: 2 UID: 0 PID: 218 Comm: in:imklog Tainted: G        W        N  7.1.0+ #1
+  Call Trace:
+   <IRQ>
+   ...
+   kasan_report+0xca/0x100 mm/kasan/report.c:595
+   i801_isr_byte_done drivers/i2c/busses/i2c-i801.c:592 [inline]
+   i801_isr drivers/i2c/busses/i2c-i801.c:648 [inline]
+   __handle_irq_event_percpu+0x222/0x830 kernel/irq/handle.c:209
+   ...
+   </IRQ>
 
-are available in the Git repository at:
+Fix these issues by:
+- Bypassing hardware register cleanup if i801_check_pre() fails.
+- Using WRITE_ONCE() to clear priv->data in the exit path, paired with
+  READ_ONCE() in the ISR.
+- Calling synchronize_irq() conditionally on the error path before
+  returning to ensure any in-flight ISR finishes before stack memory
+  is reclaimed.
 
-  git://git.kernel.org/pub/scm/linux/kernel/git/andi.shyti/linux.git tags/i2c-fixes-7.2-rc1
+Fixes: 1f760b87e54c ("i2c: i801: Call i801_check_pre() from i801_access()")
+Fixes: d3ff6ce40031 ("i2c-i801: Enable IRQ for byte_by_byte transactions")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mingyu Wang <25181214217@stu.xidian.edu.cn>
+---
+Changes in v2:
+ - Split error paths to bypass hardware register cleanup on pre-check
+   failure.
+ - Added READ_ONCE() check in ISR to prevent OOB access.
+ - Conditionally use WRITE_ONCE() and synchronize_irq() on the error
+   path to prevent race condition without performance regression.
 
-for you to fetch changes up to 10dd1a736d557e310a77117832874729a0175d57:
+ drivers/i2c/busses/i2c-i801.c | 20 +++++++++++++++++++-
+ 1 file changed, 19 insertions(+), 1 deletion(-)
 
-  i2c: i801: fix hardware state machine corruption in error path (2026-06-23 17:53:08 +0200)
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 32a3cef02c7b..a14d26ee938d 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -562,6 +562,13 @@ static int i801_block_transaction_by_block(struct i801_priv *priv,
+ 
+ static void i801_isr_byte_done(struct i801_priv *priv)
+ {
++	/*
++	 * Use READ_ONCE to prevent compiler optimization and ensure
++	 * visibility of the cleared pointer from the process context.
++	 */
++	if (unlikely(!READ_ONCE(priv->data)))
++		return;
++
+ 	if (priv->is_read) {
+ 		/*
+ 		 * At transfer start i801_smbus_block_transaction() marks
+@@ -905,7 +912,7 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+ 
+ 	ret = i801_check_pre(priv);
+ 	if (ret)
+-		goto out;
++		goto out_err;
+ 
+ 	hwpec = (priv->features & FEATURE_SMBUS_PEC) && (flags & I2C_CLIENT_PEC)
+ 		&& size != I2C_SMBUS_QUICK
+@@ -938,6 +945,17 @@ static s32 i801_access(struct i2c_adapter *adap, u16 addr,
+ 	 */
+ 	iowrite8(SMBHSTSTS_INUSE_STS | STATUS_FLAGS, SMBHSTSTS(priv));
+ 
++out_err:
++	/*
++	 * Prevent UAF/OOB in the ISR.
++	 * For successful transactions, the ISR has completed. For aborted or
++	 * timed-out transactions, flush any in-flight interrupts before
++	 * destroying the stack-allocated data.
++	 */
++	WRITE_ONCE(priv->data, NULL);
++	if (unlikely(ret != 0 && (priv->features & FEATURE_IRQ)))
++		synchronize_irq(priv->pci_dev->irq);
++
+ 	pm_runtime_put_autosuspend(&priv->pci_dev->dev);
+ 	mutex_unlock(&priv->acpi_lock);
+ 	return ret;
+-- 
+2.34.1
 
-----------------------------------------------------------------
-i2c-fixes for v7.2-rc1
-
-- i801: fix error path in smbus transfer
-- mpc: fix timeout calculation
-
-----------------------------------------------------------------
-Andy Shevchenko (1):
-      i2c: mpc: Fix timeout calculations
-
-Mingyu Wang (1):
-      i2c: i801: fix hardware state machine corruption in error path
-
- drivers/i2c/busses/i2c-i801.c | 2 +-
- drivers/i2c/busses/i2c-mpc.c  | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
