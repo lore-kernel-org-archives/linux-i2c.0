@@ -1,34 +1,35 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1042F18C008;
-	Sat, 27 Jun 2026 16:39:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 13B8232A3C9;
+	Sat, 27 Jun 2026 16:39:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782578356; cv=none; b=SdjTzavyw1zNU6Ti6QAHfFslxtoLF498zQPOXswR3JNH/E6dPVZJL7Lkz7sUKGAFxawJc4iIL4OzLcQFg1mWQIH5xcmcFig1VTJbymJdY3tDeOehEid40rwwrXxsP2NbAGhkrGaSYXQ7i7bA0lTF/JsQMDc8BHKtug2otG4xUrI=
+	t=1782578360; cv=none; b=ZsdsOtE58iGLHcJZQ/VTtAyTxiA7lq73i2ENtGx/XXAMef1i2QaBrETuWJ3ywsWrDFxbxL3Hva3RyzPZ8j+CiLiQTchT9N6MkN9nteGlITMa4TwO3OMMrd3d55mfv/wXTGjBFedzDCs7rvbAm6a/MppQPcBoxChRW/cDgnhsLPU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782578356; c=relaxed/simple;
-	bh=QIfCDzoFcP+viA9sNVbr8JyKd1jzefbZ8eYnjRmqDz0=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=pG6lbTU18vP14ZCHFrlAPoFV/zaopholi2gLzd3h0iTTNdfzNL+sf/5c6g8yhTFqlrcjjPKdsEgZNSXkExezmEKfQJqFVYJnT1J/xLfcE96seqA+6CsmlLCIzQ49TDY8wtHnKwxYSwwBUmwG3MBdFgSHqZdrDs1lLBKdm3dcOXU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nGolq32N; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782578360; c=relaxed/simple;
+	bh=tJw/IQnUkpR2skVWIyp4rINEMIXy0wSUtdbjtxYBCwI=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=PMJL1MUxgxKEmXNpdjLTVzxhfu2tPXaxgfG5dubl5W5/43+9Ghg7tjKDfGdkjivrulO8MWSgTuQdJhrPChTvimwyauRGjlG+6/tHcQNojHkQqiAJ1zbu9xBgJ23TrO0AlJOEA+seRrm1ywQ2qoQyeiTi+9NH1+t6PjWMHVSs5GY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UaB78VWf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nGolq32N"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCBA41F000E9;
-	Sat, 27 Jun 2026 16:39:12 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UaB78VWf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCEBE1F00A3D;
+	Sat, 27 Jun 2026 16:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782578354;
-	bh=0BvNz0Ie4ab9gUSU7DwohbxEkLHnqx5EoFweh6YnSuo=;
-	h=From:Subject:Date:To:Cc;
-	b=nGolq32NZIg+jDQ28qdhVJOFT6FZnrdd68Ti4ERPfT26SUixh68xokGRdaAVeXAUm
-	 hvHJvhv5eUMSBd/rUDIrEdeEaxwiGkvkfKtJ3b4xeFUJbuuvXkm9rtxe5mDWD2Itik
-	 uwuSYOhl4azbiPwI5MLX3ZcL46VGFzA7Vdo5gH9Nd4OBiq3mv8rj+Nl18Cus+9zXLL
-	 fIlvL8YiLoxfYvK0OnQg4f5FiHLUGof67at3B1VvG1IK0DWk49uAfZHMD1fWG91Wzt
-	 9CGMKBa2cTK8983swDNFftN4v8OLxxYzh6P8z1PTe7bJK+zJebU3aRdeOCWUKV0ui2
-	 07efK7LBpoxOg==
+	s=k20260515; t=1782578358;
+	bh=+bAZ1jDI4RpDJAVSi5J690qMjtgmVlvlPyTfsWt9wH0=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc;
+	b=UaB78VWfmvoYyJMf/+fnNOpyp2B/xy7+iIl+Zv1WnIGbuwZL1RFtwSQzfrltvVGQk
+	 OO4iZYvISDSeM/u2Dj9O9qY3c+S5jJQSaIzCYCKFXF++U7u2/X2vA+uKOBLbhBJ9/h
+	 0/d4uWzUvlL64MIB4UXCKQZ5nNoVBjajwl9BdYFpjxCZb/8ehg19dZJPd1Z1gODFdh
+	 BiZEzP5I5I+nEun8oCn7fYV41jO/uMsXv9N98mzG7GA/2rrK6VyeQ5Q5ZSgA/GRMD5
+	 hNEXmyUU4+vSe4RAAiFahacSn1Av9fpPo/W6f7NZlNC8XmZgE3DYYJvKLewcHED/pd
+	 ShJNidBHEOCZw==
 From: Sudeep Holla <sudeep.holla@kernel.org>
-Subject: [PATCH 0/6] ACPI/PCC: Preserve platform-populated PCC signatures
-Date: Sat, 27 Jun 2026 17:37:28 +0100
-Message-Id: <20260627-acpi_pcc_signature-v1-0-c1b7268d4fdc@kernel.org>
+Date: Sat, 27 Jun 2026 17:37:31 +0100
+Subject: [PATCH 3/6] i2c: xgene-slimpro: Stop writing PCC shared memory
+ signature
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -37,63 +38,47 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAEv8P2oC/yXMQQqDMBBA0avIrA2kEZLiVYpIMh11uoghY0QQ7
- 960Lt/i/xOEMpNA35yQaWfhNVY82gZw8XEmxe9qMNpYbY1THhOPCXEUnqPfSiblgtNB267D5wQ
- 1TJkmPv7T13BbSvgQbr8TXNcXrGtV9nYAAAA=
-X-Change-ID: 20260627-acpi_pcc_signature-7b70b0633c8f
+Message-Id: <20260627-acpi_pcc_signature-v1-3-c1b7268d4fdc@kernel.org>
+References: <20260627-acpi_pcc_signature-v1-0-c1b7268d4fdc@kernel.org>
+In-Reply-To: <20260627-acpi_pcc_signature-v1-0-c1b7268d4fdc@kernel.org>
 To: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
 Cc: Sudeep Holla <sudeep.holla@kernel.org>, 
- "Rafael J. Wysocki" <rafael@kernel.org>, 
- Jassi Brar <jassisinghbrar@gmail.com>, Huisong Li <lihuisong@huawei.com>, 
- Guenter Roeck <linux@roeck-us.net>, linux-hwmon@vger.kernel.org, 
- Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org, 
- MyungJoo Ham <myungjoo.ham@samsung.com>, 
- Kyungmin Park <kyungmin.park@samsung.com>, 
- Chanwoo Choi <cw00.choi@samsung.com>, linux-pm@vger.kernel.org
+ "Rafael J. Wysocki" <rafael@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
+ linux-i2c@vger.kernel.org
 X-Mailer: b4 0.15.2
 
-ACPI PCC shared memory layouts reserve the first dword for the PCC
-signature. ACPI specification defines the signature as 0x50434300 ORed
-with the PCC subspace ID, and ACPI 6.6 clarify that the signature is
-populated by the platform and verified by OSPM.
+ACPI specification defines the generic PCC shared memory signature as
+the PCC base signature ORed with the subspace ID.
 
-This series centralizes PCC shared memory signature validation in the PCC
-mailbox controller and stops PCC users from rewriting the signature before
-each command. Clients that previously copied complete local PCC headers
-now update only the mutable command/status/flags/length/payload fields.
+ACPI 6.6 added clarification that the signature is populated by the
+platform and verified by OSPM.
 
-The final patch also fixes the PCC OperationRegion handler. ACPI defines
-a PCC OperationRegion as the shared memory fields that follow the PCC
-signature, with the OperationRegion length covering only those fields. The
-handler is updated to copy to/from the region after the signature and to
-reject regions that do not fit there.
+The PCC mailbox controller now validates the signature when the channel
+is requested. Stop rewriting the signature before each command and
+leave the platform-populated value intact.
 
-All patches can go independently as there is no strict dependency between
-them and posted together for the complete context.
-
+Cc: Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org
 Signed-off-by: Sudeep Holla <sudeep.holla@kernel.org>
 ---
-Sudeep Holla (6):
-      mailbox: pcc: Validate shared memory signature on request
-      hwmon: xgene: Stop writing PCC shared memory signature
-      i2c: xgene-slimpro: Stop writing PCC shared memory signature
-      devfreq: hisi_uncore: Preserve PCC shared memory signature
-      soc: hisilicon: kunpeng_hccs: Preserve PCC signatures
-      ACPI: PCC: Preserve shared memory signature in OpRegion handler
+ drivers/i2c/busses/i2c-xgene-slimpro.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
- drivers/acpi/acpi_pcc.c                | 20 ++++++++++++++----
- drivers/devfreq/hisi_uncore_freq.c     | 15 +++++++-------
- drivers/hwmon/xgene-hwmon.c            |  4 ----
- drivers/i2c/busses/i2c-xgene-slimpro.c |  3 ---
- drivers/mailbox/pcc.c                  | 38 +++++++++++++++++++++++++++++-----
- drivers/soc/hisilicon/kunpeng_hccs.c   | 24 ++++++++-------------
- 6 files changed, 65 insertions(+), 39 deletions(-)
----
-base-commit: 5a66900afbd6b2a063eebad35294038a654de2b0
-change-id: 20260627-acpi_pcc_signature-7b70b0633c8f
-
+diff --git a/drivers/i2c/busses/i2c-xgene-slimpro.c b/drivers/i2c/busses/i2c-xgene-slimpro.c
+index b29dec66b2c3..f77d5b3a863f 100644
+--- a/drivers/i2c/busses/i2c-xgene-slimpro.c
++++ b/drivers/i2c/busses/i2c-xgene-slimpro.c
+@@ -174,9 +174,6 @@ static void slimpro_i2c_pcc_tx_prepare(struct slimpro_i2c_dev *ctx, u32 *msg)
+ 	u16 status;
+ 	int i;
+ 
+-	WRITE_ONCE(generic_comm_base->signature,
+-		   cpu_to_le32(PCC_SIGNATURE | ctx->mbox_idx));
+-
+ 	WRITE_ONCE(generic_comm_base->command,
+ 		   cpu_to_le16(SLIMPRO_MSG_TYPE(msg[0]) | PCC_CMD_GENERATE_DB_INTR));
+ 
 
 -- 
-Regards,
-Sudeep
+2.43.0
 
