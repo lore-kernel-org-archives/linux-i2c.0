@@ -1,88 +1,99 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACE683161BA;
-	Sat, 27 Jun 2026 16:07:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1042F18C008;
+	Sat, 27 Jun 2026 16:39:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782576465; cv=none; b=SPNlPXe9V5FNqbuWDc0OVJbZ3tVfVun5Kcqfg542eaQexdDvNJW/BB+3kWOk28nv1YmlUyZmU3npxu1NzJD+jiQdGjK44/RyR/UVBjkoy4vdioRoS4bREauJiu4p86FaeQgOy7HNrhW7+M0zj5U1zz4FMHdFr9GBoF3sivP2fqM=
+	t=1782578356; cv=none; b=SdjTzavyw1zNU6Ti6QAHfFslxtoLF498zQPOXswR3JNH/E6dPVZJL7Lkz7sUKGAFxawJc4iIL4OzLcQFg1mWQIH5xcmcFig1VTJbymJdY3tDeOehEid40rwwrXxsP2NbAGhkrGaSYXQ7i7bA0lTF/JsQMDc8BHKtug2otG4xUrI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782576465; c=relaxed/simple;
-	bh=kbXE+e2kShUdFQUZEtzV5kb5kIHvO0+olg3vo8dAYAI=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:To:From:Subject:
-	 References:In-Reply-To; b=QVIWMeaa2RUosxF2ZKkdx5Qbzu4wuJjA+f3NDKn1y0aqXogXgBvq2l1Shxt6lGEzla+KUv6ZpKEwK6t7BmXWcar0u0In155TyXTsu6x/6fCxfjF/EJy+/AT05+iz7W2sxrKVf7F1Rxiv0Gz7onQCEPjdcD1tJa12M9U780ta9SU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Qw2Y59Rm; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782578356; c=relaxed/simple;
+	bh=QIfCDzoFcP+viA9sNVbr8JyKd1jzefbZ8eYnjRmqDz0=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=pG6lbTU18vP14ZCHFrlAPoFV/zaopholi2gLzd3h0iTTNdfzNL+sf/5c6g8yhTFqlrcjjPKdsEgZNSXkExezmEKfQJqFVYJnT1J/xLfcE96seqA+6CsmlLCIzQ49TDY8wtHnKwxYSwwBUmwG3MBdFgSHqZdrDs1lLBKdm3dcOXU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nGolq32N; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Qw2Y59Rm"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24B671F000E9;
-	Sat, 27 Jun 2026 16:07:33 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nGolq32N"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCBA41F000E9;
+	Sat, 27 Jun 2026 16:39:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782576463;
-	bh=Eai9illNnwIVHHx82Y8oRRChAijNkCdc6Gtuf6pgPNA=;
-	h=Date:Cc:To:From:Subject:References:In-Reply-To;
-	b=Qw2Y59RmKIirc9QicmPqL66sTrj2a2pRKQ4q1v06L1xA9E/C/n8ujusPhFM+JyAMq
-	 Sc7C+LA2hGDEhdfXPP6JFmdPW/lxQo9uwCywxV3gUUCsoaqp/p8gFp8rSRqgPX9Rot
-	 aq3TQmnmHDhFsytBp0U3bmY62h9aCkV7OgVPCbZZlU8BaFdjaz9P3zEBUeuvx5tPmD
-	 4Tx2RvxcWeTQ2au9N+Wnor838KKBkB0xRChuAMilaNqmNIuEwn8ueK3uR1GU+mDUy3
-	 YyRV47jAv1zDKiToKjdTIwjPqIKhSumFkr9k6T4RB7BOfeDsDOS70P4Gje9HvpGVAd
-	 5T1h6xlOziCJQ==
+	s=k20260515; t=1782578354;
+	bh=0BvNz0Ie4ab9gUSU7DwohbxEkLHnqx5EoFweh6YnSuo=;
+	h=From:Subject:Date:To:Cc;
+	b=nGolq32NZIg+jDQ28qdhVJOFT6FZnrdd68Ti4ERPfT26SUixh68xokGRdaAVeXAUm
+	 hvHJvhv5eUMSBd/rUDIrEdeEaxwiGkvkfKtJ3b4xeFUJbuuvXkm9rtxe5mDWD2Itik
+	 uwuSYOhl4azbiPwI5MLX3ZcL46VGFzA7Vdo5gH9Nd4OBiq3mv8rj+Nl18Cus+9zXLL
+	 fIlvL8YiLoxfYvK0OnQg4f5FiHLUGof67at3B1VvG1IK0DWk49uAfZHMD1fWG91Wzt
+	 9CGMKBa2cTK8983swDNFftN4v8OLxxYzh6P8z1PTe7bJK+zJebU3aRdeOCWUKV0ui2
+	 07efK7LBpoxOg==
+From: Sudeep Holla <sudeep.holla@kernel.org>
+Subject: [PATCH 0/6] ACPI/PCC: Preserve platform-populated PCC signatures
+Date: Sat, 27 Jun 2026 17:37:28 +0100
+Message-Id: <20260627-acpi_pcc_signature-v1-0-c1b7268d4fdc@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Sat, 27 Jun 2026 18:07:32 +0200
-Message-Id: <DJJYM56GLGXX.2L6RY669ZOJSC@kernel.org>
-Cc: "Linus Torvalds" <torvalds@linux-foundation.org>, "Greg Kroah-Hartman"
- <gregkh@linuxfoundation.org>, "Mark Brown" <broonie@kernel.org>, "Nathan
- Chancellor" <nathan@kernel.org>, "Nick Desaulniers"
- <nick.desaulniers+lkml@gmail.com>, "Bill Wendling" <morbo@google.com>,
- "Justin Stitt" <justinstitt@google.com>, "Raag Jadav"
- <raag.jadav@intel.com>, "Sohil Mehta" <sohil.mehta@intel.com>, "Dave
- Hansen" <dave.hansen@linux.intel.com>, "Rob Herring" <robh@kernel.org>,
- "Saravana Kannan" <saravanak@kernel.org>, "Bjorn Helgaas"
- <bhelgaas@google.com>, "Rafael J. Wysocki" <rafael@kernel.org>, "Len Brown"
- <lenb@kernel.org>, "Andi Shyti" <andi.shyti@kernel.org>,
- <linux-kernel@vger.kernel.org>, "Yemike Abhilash Chandra"
- <y-abhilashchandra@ti.com>, "Mauro Carvalho Chehab" <mchehab@kernel.org>,
- <linux-media@vger.kernel.org>, "Nicolas Frattaroli"
- <nicolas.frattaroli@collabora.com>, "Liam Girdwood" <lgirdwood@gmail.com>,
- "Jaroslav Kysela" <perex@perex.cz>, "Takashi Iwai" <tiwai@suse.com>, "Heiko
- Stuebner" <heiko@sntech.de>, <linux-rockchip@lists.infradead.org>,
- <linux-sound@vger.kernel.org>, <linux-arm-kernel@lists.infradead.org>,
- <driver-core@lists.linux.dev>, "Jonathan Cameron" <jic23@kernel.org>,
- "Dmitry Torokhov" <dmitry.torokhov@gmail.com>, "Bartosz Golaszewski"
- <bartosz.golaszewski@oss.qualcomm.com>, "Pei Xiao" <xiaopei01@kylinos.cn>,
- "Shashank Balaji" <shashank.mahadasyam@sony.com>, "Ben Horgan"
- <ben.horgan@arm.com>, "Johan Hovold" <johan@kernel.org>,
- <linux-usb@vger.kernel.org>, "Nikita Kravets" <teackot@gmail.com>, "Hans de
- Goede" <hansg@kernel.org>, =?utf-8?q?Ilpo_J=C3=A4rvinen?=
- <ilpo.jarvinen@linux.intel.com>, <platform-driver-x86@vger.kernel.org>,
- <devicetree@vger.kernel.org>, <linux-i2c@vger.kernel.org>, "Daniel Scally"
- <dan.scally@ideasonboard.com>, "Sakari Ailus"
- <sakari.ailus@linux.intel.com>, "Minas Harutyunyan" <hminas@synopsys.com>,
- "Tianrui Zhao" <zhaotianrui@loongson.cn>, "Bibo Mao" <maobibo@loongson.cn>,
- "Huacai Chen" <chenhuacai@kernel.org>, "WANG Xuerui" <kernel@xen0n.name>,
- <kvm@vger.kernel.org>, <loongarch@lists.linux.dev>
-To: =?utf-8?b?VXdlIEtsZWluZS1Lw7ZuaWcgKFRoZSBDYXBhYmxlIEh1Yik=?=
- <u.kleine-koenig@baylibre.com>
-From: "Danilo Krummrich" <dakr@kernel.org>
-Subject: Re: [PATCH v2 00/17] mod_devicetable.h: Split into per subsystem
- headers
-References: <cover.1782490566.git.u.kleine-koenig@baylibre.com>
-In-Reply-To: <cover.1782490566.git.u.kleine-koenig@baylibre.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAEv8P2oC/yXMQQqDMBBA0avIrA2kEZLiVYpIMh11uoghY0QQ7
+ 960Lt/i/xOEMpNA35yQaWfhNVY82gZw8XEmxe9qMNpYbY1THhOPCXEUnqPfSiblgtNB267D5wQ
+ 1TJkmPv7T13BbSvgQbr8TXNcXrGtV9nYAAAA=
+X-Change-ID: 20260627-acpi_pcc_signature-7b70b0633c8f
+To: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Sudeep Holla <sudeep.holla@kernel.org>, 
+ "Rafael J. Wysocki" <rafael@kernel.org>, 
+ Jassi Brar <jassisinghbrar@gmail.com>, Huisong Li <lihuisong@huawei.com>, 
+ Guenter Roeck <linux@roeck-us.net>, linux-hwmon@vger.kernel.org, 
+ Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org, 
+ MyungJoo Ham <myungjoo.ham@samsung.com>, 
+ Kyungmin Park <kyungmin.park@samsung.com>, 
+ Chanwoo Choi <cw00.choi@samsung.com>, linux-pm@vger.kernel.org
+X-Mailer: b4 0.15.2
 
-On Fri Jun 26, 2026 at 8:00 PM CEST, Uwe Kleine-K=C3=B6nig (The Capable Hub=
-) wrote:
-> Uwe Kleine-K=C3=B6nig (The Capable Hub) (17):
->   mod_devicetable.h: Split into per subsystem headers
->   driver: core: Include headers for acpi_device_id and of_device_id for s=
-truct device_driver
->   driver core: platform: Include header for struct platform_device_id
+ACPI PCC shared memory layouts reserve the first dword for the PCC
+signature. ACPI specification defines the signature as 0x50434300 ORed
+with the PCC subspace ID, and ACPI 6.6 clarify that the signature is
+populated by the platform and verified by OSPM.
 
-With the suggested rename,
+This series centralizes PCC shared memory signature validation in the PCC
+mailbox controller and stops PCC users from rewriting the signature before
+each command. Clients that previously copied complete local PCC headers
+now update only the mutable command/status/flags/length/payload fields.
 
-Acked-by: Danilo Krummrich <dakr@kernel.org>
+The final patch also fixes the PCC OperationRegion handler. ACPI defines
+a PCC OperationRegion as the shared memory fields that follow the PCC
+signature, with the OperationRegion length covering only those fields. The
+handler is updated to copy to/from the region after the signature and to
+reject regions that do not fit there.
+
+All patches can go independently as there is no strict dependency between
+them and posted together for the complete context.
+
+Signed-off-by: Sudeep Holla <sudeep.holla@kernel.org>
+---
+Sudeep Holla (6):
+      mailbox: pcc: Validate shared memory signature on request
+      hwmon: xgene: Stop writing PCC shared memory signature
+      i2c: xgene-slimpro: Stop writing PCC shared memory signature
+      devfreq: hisi_uncore: Preserve PCC shared memory signature
+      soc: hisilicon: kunpeng_hccs: Preserve PCC signatures
+      ACPI: PCC: Preserve shared memory signature in OpRegion handler
+
+ drivers/acpi/acpi_pcc.c                | 20 ++++++++++++++----
+ drivers/devfreq/hisi_uncore_freq.c     | 15 +++++++-------
+ drivers/hwmon/xgene-hwmon.c            |  4 ----
+ drivers/i2c/busses/i2c-xgene-slimpro.c |  3 ---
+ drivers/mailbox/pcc.c                  | 38 +++++++++++++++++++++++++++++-----
+ drivers/soc/hisilicon/kunpeng_hccs.c   | 24 ++++++++-------------
+ 6 files changed, 65 insertions(+), 39 deletions(-)
+---
+base-commit: 5a66900afbd6b2a063eebad35294038a654de2b0
+change-id: 20260627-acpi_pcc_signature-7b70b0633c8f
+
+
+-- 
+Regards,
+Sudeep
+
