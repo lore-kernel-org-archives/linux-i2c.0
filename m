@@ -1,108 +1,117 @@
-Received: from cstnet.cn (smtp21.cstnet.cn [159.226.251.21])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D06DF2E5429;
-	Sun, 28 Jun 2026 03:56:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67E0B23F417
+	for <linux-i2c@vger.kernel.org>; Sun, 28 Jun 2026 09:37:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782619011; cv=none; b=ZF66ra2nucsM3a7nG/a1OtHvVDk7lpULuccRju1JIvJlgivQVmUrQGmNCQ+KvcNBeG1Xn8D9awdwkA39dN9TUgifxC9xjS5V29sjkCGrhiL4pH/i2gjGTcJMOL14hTY35clmUu6rC2fQ5nSvb+zZF95wCu9/aJld3KeXhfsJAfI=
+	t=1782639468; cv=none; b=j/XMhFtBvff6p0qecbDGoVh64tk/WFFS33J0nDnGjd5N/h32K9FcCNPloPLkYADY5eOURN7Uje5WgRTUtZzz8P9KdHfjPybRWf/w3GpfaTNm68Xzb5jJa8k9N3uhIR+WJdhZ2twRoaPk3fJpLKJ7QO/3BL0EyBgb1JXd6Ip7spM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782619011; c=relaxed/simple;
-	bh=3N5AQTNarKS8ptO1xivOb3R2Zg9tQPObRK9V/Up40kk=;
-	h=Content-Type:Mime-Version:Subject:From:In-Reply-To:Date:Cc:
-	 Message-Id:References:To; b=l3H1aqQ6x2TnXvIPNN7HkQP+cSO8An3w7IR1mYzzupZywlhXGRe0xqYNKTo1X1AGnDRpnCtjxCuM+TukltrLEBAUTGD38kA6xDPhBtv9kf/yDRzJspyQqhQyAeNajoHBX35yukhFmuL/ssnqVrBuh+fRHTOLTbbnUYXn7iV4dms=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from smtpclient.apple (unknown [117.182.74.7])
-	by APP-01 (Coremail) with SMTP id qwCowADXfdYKm0BqqCuqAw--.7249S11;
-	Sun, 28 Jun 2026 11:56:42 +0800 (CST)
-Content-Type: text/plain;
-	charset=utf-8
+	s=arc-20240116; t=1782639468; c=relaxed/simple;
+	bh=KUxc5s+Ozy/mh8LcygImhFbcgR+t8ibAmyTyILx/d9Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Wt8DVm35HKZUg9wzgJ/zc0OVYnhym9HwZYZQ/u58joEh9N9/jiOqeApYb8d4E5QZPaYiLmWDY6OXeAAe4c1aQYqllJoyYevnvAHGnoxwtk3juE6hdnSbXpTpMYTiDQYmn7IQyd9weR0dBf8M4ZqMCCWYg8lphaCrmyZs5mkDPaI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lX4F6utV; arc=none smtp.client-ip=209.85.128.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lX4F6utV"
+Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4938d60c035so7857345e9.0
+        for <linux-i2c@vger.kernel.org>; Sun, 28 Jun 2026 02:37:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782639466; x=1783244266; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=6FQzT0Pfxjs6kdPKaUfr6F0wexDd7Xo9qWKJhKghTGM=;
+        b=lX4F6utViTkAkMfBZWiugZaSidMyROeH2ORe4flDMRrXPEq03BFE8YqO48noC7ORgJ
+         KS/Djl5Jtzy17C+BWenVMkQwLcEAdm6418RhwTzY9JsmVeMuBOnsDohcHeIA23w3tSBb
+         VvkY2Xr5wY7GYNc32dBJR2JH8rTWWPAFcyxV5SkxAQJ5IS1qvcuUAkAkvU8iIklv9lFG
+         oNIlNlBuFfiuf3Hk0XLfITZwaEc61CZWlV4IlF643fFK3tV+NiMwOiH8f7VZh75NtFFc
+         KDvfnY925GCE7N7wR1+lSRsv68SwpjNL+ltfc273yfoYlHR33HLbDj9MDiNLyt/Dag0s
+         gYJw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782639466; x=1783244266;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6FQzT0Pfxjs6kdPKaUfr6F0wexDd7Xo9qWKJhKghTGM=;
+        b=nCJx5AbF7y9AfluoOgQo0z3B6JbU744Z4hLm/cYX4WKSkcGIRLUbbOcb5VUejVJcTu
+         2kf18ojTcfgY/3EV2bt9DpukC7lZVcVQxVlhCiKQzbyllMxgYr/iAwwRGeJdreRuj7zo
+         b+MD6ev2oYsOaIyFWDxVNKW0U3v3SmUlVhoFEYses0GEJl9yhf5ykWsMFcVH92haqYU8
+         CXeOaQIYHChlXg8gBJvm69Ra0LRqEidWtex6NmaD3SSnkjfLG1HMCl9zzHKuCAezmuy1
+         IYDm/+8d4iSUBFChA01p12VTw7y4V8VdkJU3AD/DWyWUtOVu5PyaSmOGC7kkI9xx2w+n
+         Iffw==
+X-Gm-Message-State: AOJu0Yz973dI0rINej6xnFUrSfrhUigyIm4DvTBy0AbXLuG5bt6/LJZN
+	ojZi20VeDpzu7Rb2yPH615ZrQptZFiPK9q/Ht1ilJb74D5Zg542DtTnz
+X-Gm-Gg: AfdE7ckbivep0w3XIPgIMHZEAdc0IdF29rQ0W/gaLXqy0CBF1SjH1scBHxq+vwUc1uy
+	PYi43v4hlySjCxquMcc14qMz/Hwv6mq/YZTo8RLIAygMmWt6iJuto8eha2fXq887RgdRxQ2e1/Q
+	i8O1cjWjeoFXqA8B/VXUuR4sOw6cVyInQhImXjIXkhc3bSMmqn2x6LKz08teBy/eEoHk2KqdKwv
+	4d2sjYJHm7KTrMvp+RYtdXy79lE7H1DkS3Smsa5wRX5wS+VUCzO8vdvHPl2qoKR9btX1PfinLr6
+	ODBCDttAqLYf8iJWgF4p9anMRI/wQTFC1Q4O0TbERMMIuxjQ1kyBMsfWO6TJcFKuDr3Axd75bks
+	F+dE+sVqo/j48LsvzHWF1LmKc916fRvxMPtGlMed3UVKYqJRUQxy3OiOMuxYJmffI6lq5CdPHw1
+	PWLWAYCsynCqaANGN5fsnbznp9cw==
+X-Received: by 2002:a05:600c:1c17:b0:492:7019:caca with SMTP id 5b1f17b1804b1-4927019cb17mr131689195e9.26.1782639465516;
+        Sun, 28 Jun 2026 02:37:45 -0700 (PDT)
+Received: from Dev-Null-MSI ([2a0d:3344:52ac:a808:98a4:4381:be45:536f])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-492690988e0sm246657585e9.14.2026.06.28.02.37.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 28 Jun 2026 02:37:45 -0700 (PDT)
+From: Yousef Alhouseen <alhouseenyousef@gmail.com>
+To: Rishi Gupta <gupt21@gmail.com>,
+	Jiri Kosina <jikos@kernel.org>,
+	Benjamin Tissoires <bentiss@kernel.org>
+Cc: linux-i2c@vger.kernel.org,
+	linux-input@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org,
+	syzbot+1018672fe70298606e5f@syzkaller.appspotmail.com,
+	Yousef Alhouseen <alhouseenyousef@gmail.com>
+Subject: [PATCH] HID: mcp2221: reject short input reports
+Date: Sun, 28 Jun 2026 11:36:58 +0200
+Message-ID: <20260628093658.43445-1-alhouseenyousef@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.700.81.1.8\))
-Subject: Re: [PATCH] fix: i2c: i2c_mux_add_adapter: fix child device_node
- reference leak on   adapter registration failure
-From: WenTao Liang <vulab@iscas.ac.cn>
-In-Reply-To: <20260626150310.49875-1-vulab@iscas.ac.cn>
-Date: Sun, 28 Jun 2026 11:56:31 +0800
-Cc: Peter Rosin <peda@lysator.liu.se>,
- stable@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <4E427A42-90FC-4244-8B38-8CEA55DABE6B@iscas.ac.cn>
-References: <20260626150310.49875-1-vulab@iscas.ac.cn>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>,
- linux-i2c@vger.kernel.org
-X-Mailer: Apple Mail (2.3826.700.81.1.8)
-X-CM-TRANSID:qwCowADXfdYKm0BqqCuqAw--.7249S11
-X-Coremail-Antispam: 1UD129KBjvJXoW7ArW7WF4kXr1fWF1fWw4fGrg_yoW8JFW7pF
-	45GryqyrWUXw40gF48Ar1ruFyj9ay3K3yS9FnYk34fZrsIk34Iyr9xWFy7WF4rJrn7Kwsx
-	tr1kKFyUuFyDZFDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUUBEb7Iv0xC_tr1lb4IE77IF4wAFF20E14v26rWj6s0DM7CY07I2
-	0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28IrcIa0xkI8VA2jI
-	8067AKxVWUAVCq3wA2048vs2IY020Ec7CjxVAFwI0_Xr0E3s1l8cAvFVAK0II2c7xJM28C
-	jxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0cI
-	8IcVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2
-	z280aVCY1x0267AKxVWxJr0_GcWle2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2
-	IEw4CE5I8CrVC2j2WlYx0E2Ix0cI8IcVAFwI0_JrI_JrylYx0Ex4A2jsIE14v26r1j6r4U
-	McvjeVCFs4IE7xkEbVWUJVW8JwACjcxG0xvY0x0EwIxGrwCY1x0262kKe7AKxVWUAVWUtw
-	CF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j
-	6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2Ij64
-	vIr41lIxAIcVC0I7IYx2IY67AKxVW8JVW5JwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr1j
-	6F4UJwCI42IY6xAIw20EY4v20xvaj40_Jr0_JF4lIxAIcVC2z280aVAFwI0_Gr0_Cr1lIx
-	AIcVC2z280aVCY1x0267AKxVW8Jr0_Cr1UYxBIdaVFxhVjvjDU0xZFpf9x07j1Q6LUUUUU
-	=
-X-CM-SenderInfo: pyxotu46lvutnvoduhdfq/1tbiBwgMA2pAixEa0gAAs4
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
+The MCP2221 raw-event callback reads fixed offsets from the 64-byte input
+report, including data[50] and a variable payload beginning at data[4].
+Raw-event callbacks run before HID core extends short reports to their
+declared size, so a malformed USB device can make these accesses run past
+the received buffer.
 
+Reject reports whose size does not match the protocol and complete the
+pending command with -EMSGSIZE so its caller does not wait for a timeout.
 
-> 2026=E5=B9=B46=E6=9C=8826=E6=97=A5 23:03=EF=BC=8CWenTao Liang =
-<vulab@iscas.ac.cn> =E5=86=99=E9=81=93=EF=BC=9A
->=20
-> When the OF block successfully acquires a child device_node reference =
-and
->  stores it in priv->adap.dev.of_node, but the subsequent
->  i2c_add_numbered_adapter or i2c_add_adapter call fails, the error =
-path
->  jumps to err_free_priv which only kfree's the priv without calling
->  of_node_put on the stored child node, leaking the reference.
->=20
-> Add of_node_put(priv->adap.dev.of_node) in the err_free_priv error =
-path.
->=20
-> Cc: stable@vger.kernel.org
-> Fixes: a7ab72390b77 ("i2c: mux: add common data for every i2c-mux =
-instance")
-> Signed-off-by: WenTao Liang <vulab@iscas.ac.cn>
-> ---
-> drivers/i2c/i2c-mux.c | 1 +
-> 1 file changed, 1 insertion(+)
->=20
-> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-> index 681a201c239b..68a4c34b5987 100644
-> --- a/drivers/i2c/i2c-mux.c
-> +++ b/drivers/i2c/i2c-mux.c
-> @@ -408,6 +408,7 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
-> 	return 0;
->=20
-> err_free_priv:
-> +	of_node_put(priv->adap.dev.of_node);
-> 	kfree(priv);
-> 	return ret;
-> }
-> --=20
-> 2.39.5 (Apple Git-154)
+Fixes: 67a95c21463d ("HID: mcp2221: add usb to i2c-smbus host bridge")
+Reported-by: syzbot+1018672fe70298606e5f@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=1018672fe70298606e5f
+Cc: stable@vger.kernel.org
+Signed-off-by: Yousef Alhouseen <alhouseenyousef@gmail.com>
+---
+ drivers/hid/hid-mcp2221.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-Please ignore this patch. I will resend a proper version after
-learning the kernel submission process.
-
-Apologies for the noise.
-
-Best regards,
-WenTao Liang=
+diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
+index e4ddd8e9293b..311b51c17b4e 100644
+--- a/drivers/hid/hid-mcp2221.c
++++ b/drivers/hid/hid-mcp2221.c
+@@ -861,6 +861,12 @@ static int mcp2221_raw_event(struct hid_device *hdev,
+ 	u8 *buf;
+ 	struct mcp2221 *mcp = hid_get_drvdata(hdev);
+ 
++	if (size != sizeof(mcp->txbuf)) {
++		mcp->status = -EMSGSIZE;
++		complete(&mcp->wait_in_report);
++		return 1;
++	}
++
+ 	switch (data[0]) {
+ 
+ 	case MCP2221_I2C_WR_DATA:
+-- 
+2.54.0
 
