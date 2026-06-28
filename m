@@ -1,117 +1,174 @@
-Received: from mail-wm1-f46.google.com (mail-wm1-f46.google.com [209.85.128.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67E0B23F417
-	for <linux-i2c@vger.kernel.org>; Sun, 28 Jun 2026 09:37:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5F153ADBA7
+	for <linux-i2c@vger.kernel.org>; Sun, 28 Jun 2026 14:39:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782639468; cv=none; b=j/XMhFtBvff6p0qecbDGoVh64tk/WFFS33J0nDnGjd5N/h32K9FcCNPloPLkYADY5eOURN7Uje5WgRTUtZzz8P9KdHfjPybRWf/w3GpfaTNm68Xzb5jJa8k9N3uhIR+WJdhZ2twRoaPk3fJpLKJ7QO/3BL0EyBgb1JXd6Ip7spM=
+	t=1782657557; cv=none; b=lfLz1/5UA/3Sq0UgZvz1xBc9H9B1WKfaQ/Y3CwRwf7OGZvrlUSMoKwpP0dWbBeZLFXH7VUutGSErVXKdBtMd6u2jF7rFGyLpu8KD9cKphQyaRaEGeoaZgP1wxooPAb/DpADpnOXBE6Vos14YGj9Bn6G9JftkjSgdQXx5d48bVvo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782639468; c=relaxed/simple;
-	bh=KUxc5s+Ozy/mh8LcygImhFbcgR+t8ibAmyTyILx/d9Q=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Wt8DVm35HKZUg9wzgJ/zc0OVYnhym9HwZYZQ/u58joEh9N9/jiOqeApYb8d4E5QZPaYiLmWDY6OXeAAe4c1aQYqllJoyYevnvAHGnoxwtk3juE6hdnSbXpTpMYTiDQYmn7IQyd9weR0dBf8M4ZqMCCWYg8lphaCrmyZs5mkDPaI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=lX4F6utV; arc=none smtp.client-ip=209.85.128.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782657557; c=relaxed/simple;
+	bh=HSbebYat6XuRCbr0vOrV0jghMR95+d0H+S3AZ3+N258=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=fL3r0aTpLhglgyaQz5wZ81rhrx7gAwyf+8hZBrXwGqYFTzwSYHR11bBCK0faPIyFBeaTe1W6XjLG3ns7kwmmB5SwBdFdsIldFbHxLGgTuwz3SxwJz0FRF7BAit7W5n1RjTQJk31as4RJe0hb1bh2TKEGy18ykjdHTONpxDXbMio=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=pPTfnK+H; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=JNigp6VA; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="lX4F6utV"
-Received: by mail-wm1-f46.google.com with SMTP id 5b1f17b1804b1-4938d60c035so7857345e9.0
-        for <linux-i2c@vger.kernel.org>; Sun, 28 Jun 2026 02:37:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="pPTfnK+H";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="JNigp6VA"
+Received: from pps.filterd (m0279872.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65SESFYx010497
+	for <linux-i2c@vger.kernel.org>; Sun, 28 Jun 2026 14:39:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=qcppdkim1; bh=lKQaKbw17lm33vAWyDAZhQ
+	TOkgV8lWLpQgOvWkee3gw=; b=pPTfnK+HxeGMhD+BrkYSb8GaMtCTFbLtEIdYMY
+	S5R/41WrxgeeNT2VRCfggj7HQ/8CdS4UP89eyA3vLJnl3ic3SSkI+p3TKXglyXHB
+	+ftUkL+3wd5MfwlVvTUbS+8EgRLixyt1nrazm6LB9ZAowcvpYC/1WmiQgUME4hUg
+	dPJ1OezcEymMBcgs3AJ/QtHFjp7rcd1M7F8k/ww9kzfzm6qnF42YSkmew6/r5Kr0
+	LUAyaxe4o+90Cjy3O+WNwUaaR2hvogenVNaq4m4yFoSRYVsk5dTjAKt6qqppXzW4
+	lsk+OxOjIHDwQBvYWRIbS1axkZtdyiIvtFYWaA5P+ztJ5cCA==
+Received: from mail-dy1-f199.google.com (mail-dy1-f199.google.com [74.125.82.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4f26w6k2jw-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Sun, 28 Jun 2026 14:39:14 +0000 (GMT)
+Received: by mail-dy1-f199.google.com with SMTP id 5a478bee46e88-30c0d568830so11757032eec.1
+        for <linux-i2c@vger.kernel.org>; Sun, 28 Jun 2026 07:39:14 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782639466; x=1783244266; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=6FQzT0Pfxjs6kdPKaUfr6F0wexDd7Xo9qWKJhKghTGM=;
-        b=lX4F6utViTkAkMfBZWiugZaSidMyROeH2ORe4flDMRrXPEq03BFE8YqO48noC7ORgJ
-         KS/Djl5Jtzy17C+BWenVMkQwLcEAdm6418RhwTzY9JsmVeMuBOnsDohcHeIA23w3tSBb
-         VvkY2Xr5wY7GYNc32dBJR2JH8rTWWPAFcyxV5SkxAQJ5IS1qvcuUAkAkvU8iIklv9lFG
-         oNIlNlBuFfiuf3Hk0XLfITZwaEc61CZWlV4IlF643fFK3tV+NiMwOiH8f7VZh75NtFFc
-         KDvfnY925GCE7N7wR1+lSRsv68SwpjNL+ltfc273yfoYlHR33HLbDj9MDiNLyt/Dag0s
-         gYJw==
+        d=oss.qualcomm.com; s=google; t=1782657554; x=1783262354; darn=vger.kernel.org;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=lKQaKbw17lm33vAWyDAZhQTOkgV8lWLpQgOvWkee3gw=;
+        b=JNigp6VASP8qst+3N5U7ttOxHU7YG/El6SyZ6X7h+L7UsPbR9hdyBwuytq50MzVOIV
+         4YF0INgHPV/e8oBRGtl7yX7A69HOFz12TWdgKl6Q/XG19YMwdUDgHiKAq3c5xxxry0xG
+         LG/cMrG/riyyw/Jtuzk3YotVseWvRLj5XunuqUf1r7JZjfqtS71cz5jyIJhqUtjsVFg2
+         LaVWE8HxdRGIyBUxftvwi4vxi29BbAVd04KB3MnhSxF+c0nVhJ4RxtOdNHul3dNZ6/K0
+         sJAH+niw8cQA1E/5aQ3Y8SLPE2FWIFd8BkvCngDmqvAX/jlhk6gQ3pk/Y2iP9We8ZE03
+         8qEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782639466; x=1783244266;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20251104; t=1782657554; x=1783262354;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=6FQzT0Pfxjs6kdPKaUfr6F0wexDd7Xo9qWKJhKghTGM=;
-        b=nCJx5AbF7y9AfluoOgQo0z3B6JbU744Z4hLm/cYX4WKSkcGIRLUbbOcb5VUejVJcTu
-         2kf18ojTcfgY/3EV2bt9DpukC7lZVcVQxVlhCiKQzbyllMxgYr/iAwwRGeJdreRuj7zo
-         b+MD6ev2oYsOaIyFWDxVNKW0U3v3SmUlVhoFEYses0GEJl9yhf5ykWsMFcVH92haqYU8
-         CXeOaQIYHChlXg8gBJvm69Ra0LRqEidWtex6NmaD3SSnkjfLG1HMCl9zzHKuCAezmuy1
-         IYDm/+8d4iSUBFChA01p12VTw7y4V8VdkJU3AD/DWyWUtOVu5PyaSmOGC7kkI9xx2w+n
-         Iffw==
-X-Gm-Message-State: AOJu0Yz973dI0rINej6xnFUrSfrhUigyIm4DvTBy0AbXLuG5bt6/LJZN
-	ojZi20VeDpzu7Rb2yPH615ZrQptZFiPK9q/Ht1ilJb74D5Zg542DtTnz
-X-Gm-Gg: AfdE7ckbivep0w3XIPgIMHZEAdc0IdF29rQ0W/gaLXqy0CBF1SjH1scBHxq+vwUc1uy
-	PYi43v4hlySjCxquMcc14qMz/Hwv6mq/YZTo8RLIAygMmWt6iJuto8eha2fXq887RgdRxQ2e1/Q
-	i8O1cjWjeoFXqA8B/VXUuR4sOw6cVyInQhImXjIXkhc3bSMmqn2x6LKz08teBy/eEoHk2KqdKwv
-	4d2sjYJHm7KTrMvp+RYtdXy79lE7H1DkS3Smsa5wRX5wS+VUCzO8vdvHPl2qoKR9btX1PfinLr6
-	ODBCDttAqLYf8iJWgF4p9anMRI/wQTFC1Q4O0TbERMMIuxjQ1kyBMsfWO6TJcFKuDr3Axd75bks
-	F+dE+sVqo/j48LsvzHWF1LmKc916fRvxMPtGlMed3UVKYqJRUQxy3OiOMuxYJmffI6lq5CdPHw1
-	PWLWAYCsynCqaANGN5fsnbznp9cw==
-X-Received: by 2002:a05:600c:1c17:b0:492:7019:caca with SMTP id 5b1f17b1804b1-4927019cb17mr131689195e9.26.1782639465516;
-        Sun, 28 Jun 2026 02:37:45 -0700 (PDT)
-Received: from Dev-Null-MSI ([2a0d:3344:52ac:a808:98a4:4381:be45:536f])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-492690988e0sm246657585e9.14.2026.06.28.02.37.44
+        bh=lKQaKbw17lm33vAWyDAZhQTOkgV8lWLpQgOvWkee3gw=;
+        b=EHSc9dV1t/jduMU0TKszbWfR+z15ToUvZgW1dSIy/fXEfY1l2VybDQ7siV1BOsMFeC
+         /hDe5Ghp84RHsfo1WBpvrVzAo4k2O2lgnV7GEZ5GOjctJsz8Wb8deDCOYf6xLRgGW54z
+         YUdj/h2r8a17GH8aRxZ5C2wwCD+8NDihujzc0dvwdF7NLydYyYIgl9xwW9I2Hg81k/Zf
+         iIJ86dKw/IYwC63f88byC8a9pV5OBro6ssVjTD+QQzjWrjcz5iI8GC8ycKLD5ySl+0U3
+         HMVpnGZQkV8ckzb89IURvtD+aq7W7yhtVwEZODdf0BBO5vuABuiEZrz2LL3BfChF7MEY
+         ve7Q==
+X-Forwarded-Encrypted: i=1; AHgh+Rr32oKPLLDuOVBT5TBzShy+bkw66ucH6cFgkBQcHptEX3D+3FER3mIQw2KrqlUH2WkjnMzDr2jWYTc=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yza/UrvsGQCcg8TqLG1pSHzFxsg5TB4uOoA0wS1+lgpdHSUG0Ai
+	0d2gKQvg3WoeExok/LGTAQP2NX8EzJYO9oci4xj2GH1o9+60ekrsh4AHhtBRr5zgxQd+nKLXXDc
+	sQvQ0+Ln6g34ZV2Cow52wV2yCkaqTx4SH4tjOvQpEEWTx4Ok2yGUCr1G3prPInFA=
+X-Gm-Gg: AfdE7cla5KPabwT3JQzisVAf+gtuKvx7FIvJCsvPbBcsxM/BeID+zi7qNINfzHRCA79
+	PTzceC95r7Mk++nIRxvvToRyh2V2qkjoj99kEbI9kN8Elmo5YYYXmzaV71ARfZBOGNiiY7bACVg
+	XWB80jxxlbILr4QDlL4FTOZdQG5VMqgjPmxed5x8caGIF5haNqXrvBKzIoXp+Iv28HN3Pkssb+a
+	skejf0cSb85unIluhpj590roC93aOK/6EOw4o4FkI8C2CP7K+X6Sq36/WsMyZ8y/MqCw6Tm483S
+	JB1eiL6CVE09WG65RepPNVMItE2C2uK900w8+plhCX7VLgisaF9Le9o1pN5+Ly7Pt35/PHFGlZP
+	GGgRnb+wNfZb31yIXPtgYZ3X0G6p4vGYeAH/f3Tv7kur1qag=
+X-Received: by 2002:a05:7300:6144:b0:30a:e531:3141 with SMTP id 5a478bee46e88-30c84d12a71mr12867373eec.17.1782657553829;
+        Sun, 28 Jun 2026 07:39:13 -0700 (PDT)
+X-Received: by 2002:a05:7300:6144:b0:30a:e531:3141 with SMTP id 5a478bee46e88-30c84d12a71mr12867355eec.17.1782657553223;
+        Sun, 28 Jun 2026 07:39:13 -0700 (PDT)
+Received: from hu-vdadhani-hyd.qualcomm.com ([202.46.23.25])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30c7c4ca240sm39300591eec.4.2026.06.28.07.39.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Jun 2026 02:37:45 -0700 (PDT)
-From: Yousef Alhouseen <alhouseenyousef@gmail.com>
-To: Rishi Gupta <gupt21@gmail.com>,
-	Jiri Kosina <jikos@kernel.org>,
-	Benjamin Tissoires <bentiss@kernel.org>
-Cc: linux-i2c@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org,
-	syzbot+1018672fe70298606e5f@syzkaller.appspotmail.com,
-	Yousef Alhouseen <alhouseenyousef@gmail.com>
-Subject: [PATCH] HID: mcp2221: reject short input reports
-Date: Sun, 28 Jun 2026 11:36:58 +0200
-Message-ID: <20260628093658.43445-1-alhouseenyousef@gmail.com>
-X-Mailer: git-send-email 2.54.0
+        Sun, 28 Jun 2026 07:39:12 -0700 (PDT)
+From: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
+Subject: [PATCH 0/3] Add Qualcomm I2C slave controller driver
+Date: Sun, 28 Jun 2026 20:09:03 +0530
+Message-Id: <20260628-i2c-qcom-slave-v1-0-8b0a5c01f9f6@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAAcyQWoC/yWMywrCMBAAf6XsuQvNVkL0V6SHum50pQ/N1lAo/
+ XejHmdgZgOTpGJwqjZIktV0ngq4ugK+99NNUK+FgRryjaeASowvnke0oc+C3AaK8SDBHx2U6Jk
+ k6vobniE76P7O3peH8PI9wb5/AF/1dOF2AAAA
+X-Change-ID: 20260628-i2c-qcom-slave-c382ff4e8691
+To: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+        Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>
+Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
+X-Mailer: b4 0.16-dev
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1782657549; l=1481;
+ i=viken.dadhaniya@oss.qualcomm.com; s=20260324; h=from:subject:message-id;
+ bh=HSbebYat6XuRCbr0vOrV0jghMR95+d0H+S3AZ3+N258=;
+ b=UYAdQ0J6ieyuQJHepnUtfY37oNslgOwYB3/BCEKxgXTWYNSZvUoDtWpmmfag6kkhGUCfz5QCe
+ QoQmS6H2W2qD6W9mBoTkRVH3RJCRfg6g0GEIEIDqZfddQ9TnGuPLUL0
+X-Developer-Key: i=viken.dadhaniya@oss.qualcomm.com; a=ed25519;
+ pk=C39f+LOIGhh/02LQpT46TsUSXRvBn9qXC8Xb26KJ44Y=
+X-Proofpoint-ORIG-GUID: tDhc-xXHAmyCp5IIznZ_qU9b4r9-4r6c
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjI4MDEzMCBTYWx0ZWRfX/HcJVemPNt3w
+ dgWYIYIYdo6WvJIuVd1NhDn5UICP/qUyONY0qZfde1SQRJ9M5TXSaQ3jJ8ro97bgtn9QhUssCUq
+ 1upbTHn+rNexQUzwahwOIEJNqcWVX8Y=
+X-Proofpoint-GUID: tDhc-xXHAmyCp5IIznZ_qU9b4r9-4r6c
+X-Authority-Analysis: v=2.4 cv=SuugLvO0 c=1 sm=1 tr=0 ts=6a413212 cx=c_pps
+ a=cFYjgdjTJScbgFmBucgdfQ==:117 a=ZePRamnt/+rB5gQjfz0u9A==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=yx91gb_oNiZeI1HMLzn7:22
+ a=EUspDBNiAAAA:8 a=M9RsmfkhjSGwUMDLw84A:9 a=QEXdDO2ut3YA:10
+ a=scEy_gLbYbu1JhEsrz4S:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjI4MDEzMCBTYWx0ZWRfXzxIz3qxhMiJp
+ Ei55+Qqp6MBcnXNc7K+XfdN1ZogCA2j0MG5t6X5bzqZ6SvLrUiI7mdO+ZugxCjG4KQtWHO8o/IK
+ BqGBYoRZNhXYKpNuCmtWYDlgRmDHBtkFcQIqBA5F4O5eDtv1PCEFqWQwpy78NcmP5knyOB1US62
+ hp1Hje1fGhWVVbj401BEKIoymTC65VXoXmSSKTTYZ5tEEiwocNwlI6BeyzlMLKPNQrs9alxNgS7
+ JUIHed3kSfczJeMTCmnXu0DCRBjVJJozUWDfN9opiupsBozJS6YR6dNLeFeQ1D8J8fGaz9pbsFK
+ l3CG3lUBuS4OBsBGcGADTr9mD/OHkUgthH3+Qyr8lsARJ4GMxzTKW2YfNW/Ag/UrqKC+B6f7mH5
+ fMsZQe03Y5UX5/miQpv7aqW85zadwGTBcOWktGvUNY3sD63k1kEuqlT6VYm3GorsvUHqgZl30kE
+ y31ythpoS0VJZH0OBLA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-28_04,2026-06-26_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 spamscore=0 adultscore=0 priorityscore=1501 clxscore=1011
+ phishscore=0 bulkscore=0 impostorscore=0 suspectscore=0 malwarescore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606280130
 
-The MCP2221 raw-event callback reads fixed offsets from the 64-byte input
-report, including data[50] and a variable payload beginning at data[4].
-Raw-event callbacks run before HID core extends short reports to their
-declared size, so a malformed USB device can make these accesses run past
-the received buffer.
+This series adds support for the Qualcomm I2C slave controller, a
+dedicated hardware IP that operates exclusively as an I2C slave device
+on the bus.
 
-Reject reports whose size does not match the protocol and complete the
-pending command with -EMSGSIZE so its caller does not wait for a timeout.
+The controller supports FIFO (PIO) mode for data transfer and exposes
+an SMBus interface to userspace via the standard I2C subsystem. It is
+present on Qualcomm QDU1000 and related SoCs.
 
-Fixes: 67a95c21463d ("HID: mcp2221: add usb to i2c-smbus host bridge")
-Reported-by: syzbot+1018672fe70298606e5f@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=1018672fe70298606e5f
-Cc: stable@vger.kernel.org
-Signed-off-by: Yousef Alhouseen <alhouseenyousef@gmail.com>
+The series is structured as follows:
+
+  Patch 1: Device Tree binding document for the controller
+  Patch 2: Driver implementation including Kconfig and Makefile entries
+  Patch 3: MAINTAINERS entry
+
+The driver has been tested on QDU1000 hardware with byte, word, and
+block SMBus transfers.
+
+Signed-off-by: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
 ---
- drivers/hid/hid-mcp2221.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+Viken Dadhaniya (3):
+      dt-bindings: i2c: Add Qualcomm I2C slave controller
+      i2c: qcom-slave: Add driver for Qualcomm I2C slave controller
+      MAINTAINERS: Add entry for Qualcomm I2C slave controller
 
-diff --git a/drivers/hid/hid-mcp2221.c b/drivers/hid/hid-mcp2221.c
-index e4ddd8e9293b..311b51c17b4e 100644
---- a/drivers/hid/hid-mcp2221.c
-+++ b/drivers/hid/hid-mcp2221.c
-@@ -861,6 +861,12 @@ static int mcp2221_raw_event(struct hid_device *hdev,
- 	u8 *buf;
- 	struct mcp2221 *mcp = hid_get_drvdata(hdev);
- 
-+	if (size != sizeof(mcp->txbuf)) {
-+		mcp->status = -EMSGSIZE;
-+		complete(&mcp->wait_in_report);
-+		return 1;
-+	}
-+
- 	switch (data[0]) {
- 
- 	case MCP2221_I2C_WR_DATA:
--- 
-2.54.0
+ .../devicetree/bindings/i2c/qcom,i2c-slave.yaml    |  94 +++
+ MAINTAINERS                                        |   9 +
+ drivers/i2c/busses/Kconfig                         |  14 +
+ drivers/i2c/busses/Makefile                        |   1 +
+ drivers/i2c/busses/i2c-qcom-slave.c                | 777 +++++++++++++++++++++
+ 5 files changed, 895 insertions(+)
+---
+base-commit: 3d5670d672ae08b8c534b7beed6f57c8b44e7b43
+change-id: 20260628-i2c-qcom-slave-c382ff4e8691
+
+Best regards,
+--  
+Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
 
