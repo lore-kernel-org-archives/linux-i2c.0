@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 33183175A84;
-	Mon, 29 Jun 2026 06:34:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 443E137F755;
+	Mon, 29 Jun 2026 06:35:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782714888; cv=none; b=r+la9ZGGGlGvlS3ZSOI3ZWGlPANNv1bwv54qE9QURuv1su81xXL+CJkTLBZnXaUoqR0kedSOyeZ69jdl7nfhaCsftmbQBSNrj67xH0E9rEtSZ+ox4ltIsyP+PZDDscnwkOPEZqG3Sz88qBy8YZQIX4Upup32ehW1VyQIkBHvQMk=
+	t=1782714920; cv=none; b=jfKwI7dlsaapR9jSwcgnmPqzzA4PA6BP0lYo4xHMSGbtXRCqYwOopF0oC77ylZNhqmFjzzId9fS25X5VOgoRNLgy4bo2qFduE2MESifn4OecYjJFHqQVlF4xuQisOKTfecCojzdlhqRIHZQTs3grfnXB/kjpLsptQXBib8BUI7w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782714888; c=relaxed/simple;
-	bh=ZrQ4j00CVYCu5fa/F72RKabns3YmDj/0lzrCvgxaLtk=;
+	s=arc-20240116; t=1782714920; c=relaxed/simple;
+	bh=nonI9M6AwHblWIqZDydOVk03aaJ2Fvdvtf97w6YpF7k=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NPfJkFHDjUVzFw6kXSW9sDRzzdiOHB2ia5+/i/lItT0Za70Wd2VLYTep0qC8vk+AnaoAgqaImltkA97C3ciRxqxtH1s3IDTIHno4HV/aVtvoUoh7ivqmgF0/osm5ksyQ3K7E6BpERkSdUw5kE99tvyHQ8U+PbdMBfXiLmmqjdUk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Czgy0J8v; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=aUNqBqx4IL2urCQjjUiPyuDxw+HA3FHJLQT5pG31oZpNeVgkdMko5dqvJ/QQYdQGemx1riVPw2XS3+WxjmTiI+z2ZMU+n+14Cq5VNRD3fIx4hvIxkvoB+DEiObQj8E5EDOvxIB5SHzI9d+HjwE0OP3Z+NqMXAyXshiWTQ4O54R0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fAQjPP9h; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Czgy0J8v"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 335001F000E9;
-	Mon, 29 Jun 2026 06:34:42 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fAQjPP9h"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5D4C1F00A3A;
+	Mon, 29 Jun 2026 06:35:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782714886;
-	bh=JpJlk2AiNaZR6zqqG48KyNL3rUCic2qAarJLwpuN64k=;
+	s=k20260515; t=1782714918;
+	bh=nonI9M6AwHblWIqZDydOVk03aaJ2Fvdvtf97w6YpF7k=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Czgy0J8vrQXTvJ7eCeAkrZamPREUFGHgqaSsfEgI3c/YrOiTuCNjl1bUT+P0fOxDM
-	 DLNSup5yJ1RanlAO3z+lDJFw8HbE9Mpj4MktJwpU2k5deQku07InocatKqU++LA2JK
-	 7cjxhQOUrUOrwoUIv7VXLgVDqFATF8ocxA1widgQjLNzi4lqv/LUvatrjwMd35rSD9
-	 QZND+JFrKRlGxDVP/X/Fwt73jf3kgBk3nfBeWlkzyc638mdx5Sptzgxh7/M5c2mxwO
-	 l+wrYA45tY4ZQg6d+x6jf/LOk2rN5ciFsm6CaXHGAq07O05TIBnMx9xUs0VrLqYrwk
-	 j7XD7pPnOD/Zw==
-Message-ID: <981cfe8d-d438-43e0-a2ff-13f3006f82e0@kernel.org>
-Date: Mon, 29 Jun 2026 08:34:31 +0200
+	b=fAQjPP9hC1EC+3IP0xKQVfsZQYzwOrR3Tus4SQFuvS4ve2bX7vABfJL9yB5pgezhl
+	 fOEHurSiA/TWJMW1hBYcPL+VSLj/OpFqspq1eQHINF9NEEhtfyztIvJ+AnyljSVElw
+	 DWrJpSjkV8dFj47aJnOAKxlKmE9NexP4NTtMkL8J+hYLTFQR4cQn2t96e3fQzp+1m2
+	 N4zgMx2qca6eAbObG7AdZ2k2vemanl3uXbY3/ReJINYRZ7+usDNtu+XydOaSf29mSb
+	 zWNJh8GZsmbv2bZeCgQhWaVggBiGxmmCimIGGieSGW/s0wbrZyf4IFej/qv2sQmzIi
+	 AX3rpFkIL8f7g==
+Message-ID: <7183cd4b-833f-45f9-ada4-1392152680b1@kernel.org>
+Date: Mon, 29 Jun 2026 08:35:04 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -35,7 +35,7 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1 2/3] i2c: qcom-slave: Add driver for Qualcomm I2C slave
+Subject: Re: [PATCH v1 3/3] MAINTAINERS: Add entry for Qualcomm I2C slave
  controller
 To: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
  Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
@@ -44,7 +44,7 @@ To: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
 Cc: linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
  devicetree@vger.kernel.org, linux-kernel@vger.kernel.org
 References: <20260628-i2c-qcom-slave-v1-0-8b0a5c01f9f6@oss.qualcomm.com>
- <20260628-i2c-qcom-slave-v1-2-8b0a5c01f9f6@oss.qualcomm.com>
+ <20260628-i2c-qcom-slave-v1-3-8b0a5c01f9f6@oss.qualcomm.com>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -90,69 +90,17 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  K9bCVaboTA2T77QYkRcRJYSsO1alGX0ome/hMLD1daXlkrNUp1HWa3K4iytLRXjCSIorWiGs
  n+q3krnpXu3TFkA8qtOFZMdnIiFuiq1yLT8hptsV5xh1TA2nsVvSYiaCr3q4s4BKjS/KrLDb
  qoxzw8ISjdUp4pA85vb6YLCmb39NgidD+7PmAr65lBNveIFynTgsja1rRQ4=
-In-Reply-To: <20260628-i2c-qcom-slave-v1-2-8b0a5c01f9f6@oss.qualcomm.com>
+In-Reply-To: <20260628-i2c-qcom-slave-v1-3-8b0a5c01f9f6@oss.qualcomm.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 28/06/2026 16:39, Viken Dadhaniya wrote:
-> +	slave->adap.owner = THIS_MODULE;
-> +	slave->adap.algo = &qcom_i2c_slave_algo;
-> +	slave->adap.dev.parent = dev;
-> +	slave->adap.dev.of_node = dev->of_node;
-> +	strscpy(slave->adap.name, "qcom-i2c-slave", sizeof(slave->adap.name));
-> +
-> +	i2c_set_adapdata(&slave->adap, slave);
-> +	platform_set_drvdata(pdev, slave);
-> +
-> +	ret = i2c_add_adapter(&slave->adap);
-> +	if (ret) {
-> +		dev_err(dev, "i2c_add_adapter failed: %d\n", ret);
-> +		icc_disable(slave->icc_path);
-> +		return ret;
-> +	}
-> +
-> +	dev_info(dev, "Qualcomm I2C slave probed at address 0x%x\n", addr);
+> Add a MAINTAINERS entry for the Qualcomm I2C slave controller driver
+> introduced in the previous patch. The entry covers the driver source
+> file and the associated Device Tree binding document.
 
-NAK, as reviewed many times. Drivers must be silent and you don't even
-print any useful information, becausr address is fixed based on DT.
-
-> +	return 0;
-> +}
-> +
-> +/**
-> + * qcom_i2c_slave_remove - remove the Qualcomm I2C slave controller
-> + * @pdev:	platform device
-> + *
-> + * Unregisters the I2C adapter and disables the interconnect path.
-> + * Controller clocks are disabled automatically by the devm framework.
-> + */
-
-Really, what sort of coding style is that? Since when Linux kernel
-writes kerneldoc for standard driver hooks?
-
-> +static void qcom_i2c_slave_remove(struct platform_device *pdev)
-> +{
-> +	struct qcom_i2c_slave *slave = platform_get_drvdata(pdev);
-> +
-> +	i2c_del_adapter(&slave->adap);
-> +	icc_disable(slave->icc_path);
-> +	/* clocks are disabled automatically by devm */
-> +}
-> +
-> +/**
-> + * qcom_i2c_slave_suspend - suspend the controller
-> + * @dev:	device associated with the controller
-> + *
-> + * Disables the interrupt, releases the interconnect bandwidth vote, and
-> + * disables the controller clocks to allow the system to enter a low-power
-> + * state.
-> + *
-> + * Return: 0 always.
-> + */
-
-
-Please don't send us downstream code or LLM generated slop. There is no
-single driver written that way.
+Squash the patch if you cannot say here anything useful other than
+repeating the diff (which we can read...).
 
 Best regards,
 Krzysztof
