@@ -1,48 +1,45 @@
 Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 940CB389107
-	for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 06:26:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB20821C173
+	for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 06:31:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782714402; cv=none; b=PZVHSQIRxBzQWHj99DF2nz1L+Jqt5JUGPmVwuEjq2/71zFo8qm6URb2xfAt3ZpaXzMdj+7xTu4RSquZBJWGrbQX5VHLGQNf1yD3zjpaXuBPEml+ixU1qlMdd6I3M+TA4xwbRe53V3AC/7yXe6Mcao2oB1Xf/dMf1asS0c/WyhMQ=
+	t=1782714714; cv=none; b=drzl6NLRwMN3lCywS8E9lTVZ5ya284IAvESOn2dW0lorDfvHjNpFbu74Hjc1NU7/dREWDqyTAoOqhbq8BGF1wYJnl3CccV6JqtDv1OPkDh6/dge+CNoDog+aUUt/3EvUaNA3I3pHiONR8EJ6twrRgu+MSAJGem+MJP/U/W5Y7o0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782714402; c=relaxed/simple;
-	bh=CMw8IrJ8TdmR6qZMYCm3a5dWEAdS58OSC6i7cS07jjU=;
+	s=arc-20240116; t=1782714714; c=relaxed/simple;
+	bh=trr4d1sTrGpr2aY03kNxPBzBF1EvWLrKFNDm+lgOJe4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=P/HvKR/rYzi5W/nGGZ0G8wHbLNWA9C1mT64Ezy2/W+2A6+qshNOWox+TTqSvTE5SwbJaYqdavj24nqN6m1YJB+7+p6ahG7FymR2sPjs2wmtz3CUJS9BGSKBz3C5SbQJp1B5T3iqUoPJBnzQec10x5yNTW3thONTKonOOw5C+Qew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=JZ/OjDQL; arc=none smtp.client-ip=194.117.254.33
+	 Content-Type:Content-Disposition:In-Reply-To; b=FE7mewrj7HdOyd2uC5kMQDEqkXvqXZ2rayr1Qmw0/KiE0zVYmMpRMb31hWauBu03HIFuVoxD4x60kGBxrjjSsSOTePz2jQFM053l1tZ16HD9RSbsByqeidujMnHyySYQ0FTlmterAZnpv5/RyIuhHE9tnbkq/LovVx75g5M8jG8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=YS2MKwXb; arc=none smtp.client-ip=194.117.254.33
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="JZ/OjDQL"
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="YS2MKwXb"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
 	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=0uAk
-	ejhgCuaMoZrshp+jK8Z0ZGAtpRWMSbgtnJiT1+o=; b=JZ/OjDQLQTXGYDrenyOz
-	4nOtaMLXCnhVkGYGM6BPN8hcdL9/edD1d+SrXyG8Tnd0LB4q/fEAuyYynkyq85ie
-	LZ4HVIu04bnhOcWLS/UZybbPnQWAG580NH/YP2X00LHTovRcW5yyKMFW+hN3GUaz
-	/hzNRjT7NlAeCQ+m3cfgmxknOAfMOuNtIoDO/Cg9VsRJuw/lVvm/njhH93aYjLX3
-	JFjtFvhZxJsw16n8fpr3++kYXmzeD2Pi9bNQigNib0PhKWGmHmss6DrgJrk5PYPp
-	Qr4lWgsHaagkapbbSp3DoT1nP5kJhwzykjorNsi1JGEEweTvpx8U4VJQ/yRKGCwE
-	0w==
-Received: (qmail 256473 invoked from network); 29 Jun 2026 08:26:30 +0200
-Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 29 Jun 2026 08:26:30 +0200
-X-UD-Smtp-Session: l3s3148p1@qX3wiV5VGL0ujntC
-Date: Mon, 29 Jun 2026 08:26:28 +0200
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=trr4
+	d1sTrGpr2aY03kNxPBzBF1EvWLrKFNDm+lgOJe4=; b=YS2MKwXbvXVrdWuTTQ/2
+	FYS1qWI7GuXKTN0AGM7MmQYD1Ej0gWCiD2vb720IhWl3XJ01KJX9s9oFx/ZwH0Wb
+	JrBJx72pubn0zAdXh1fEfBLJkDLDHokYJMN/yycJwX5eoNoRbrCj/GffS6N24n6e
+	dk5f77fKVFLv8VZ0byqu5m04XIJ3Wq8v8JPb9ZqCguOFxy5w3OpDitTzxUA666DT
+	lgpqWF9w7rve2oblCpWzM2moDGAQSfuZwXjKXPtQ+7ssDFMaiDvO0gBJLlZpHWot
+	fk+6WwlK3V3cDLwi3zohULUvuLmaHMpoBAQ6/9k1LsFOBdzayxvb/yZuhFxyRLkP
+	Xg==
+Received: (qmail 258426 invoked from network); 29 Jun 2026 08:31:50 +0200
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 29 Jun 2026 08:31:50 +0200
+X-UD-Smtp-Session: l3s3148p1@NxUOnV5VDqMujntC
+Date: Mon, 29 Jun 2026 08:31:50 +0200
 From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
-Cc: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
-	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
-	Krzysztof Kozlowski <krzk+dt@kernel.org>,
-	Conor Dooley <conor+dt@kernel.org>, linux-arm-msm@vger.kernel.org,
-	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1 1/3] dt-bindings: i2c: Add Qualcomm I2C slave
- controller
-Message-ID: <akIQFAX8LcZae29l@ninjato>
-References: <20260628-i2c-qcom-slave-v1-0-8b0a5c01f9f6@oss.qualcomm.com>
- <20260628-i2c-qcom-slave-v1-1-8b0a5c01f9f6@oss.qualcomm.com>
+To: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Danilo Krummrich <dakr@kernel.org>
+Subject: Re: [PATCH v3 08/16] i2c: Let i2c-core.h include <linux/i2c.h>
+Message-ID: <akIRVj94lmCasfEF@ninjato>
+References: <cover.1782682124.git.ukleinek@kernel.org>
+ <c176fb7e8503d61e08f055a5bb1ba4989aba6ffc.1782682124.git.ukleinek@kernel.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -50,63 +47,53 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="r+ZUegNvxI2DW21t"
+	protocol="application/pgp-signature"; boundary="kcXiU31v82W3/5W1"
 Content-Disposition: inline
-In-Reply-To: <20260628-i2c-qcom-slave-v1-1-8b0a5c01f9f6@oss.qualcomm.com>
+In-Reply-To: <c176fb7e8503d61e08f055a5bb1ba4989aba6ffc.1782682124.git.ukleinek@kernel.org>
 
 
---r+ZUegNvxI2DW21t
-Content-Type: text/plain; charset=us-ascii
+--kcXiU31v82W3/5W1
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Hi,
-
-On Sun, Jun 28, 2026 at 08:09:04PM +0530, Viken Dadhaniya wrote:
-> Add a binding for the Qualcomm I2C slave controller found on QDU1000. The
-> block operates only as an I2C slave and supports FIFO/PIO transfers, so it
-> needs a binding separate from Qualcomm I2C master controllers.
-
-The official naming in I2C is now 'target' instead of 'slave'. Do you
-think you can rename that? I know the Linux I2C core has still the old
-wording in a lot of places and needs to be converted. However, if
-possible, it would be nice if not more of the old terms would be added
-which need to be converted at some point anyhow.
-
-> Document the MMIO region, interrupt, XO and AHB clocks, interconnect path,
-> and the 7-bit slave address needed to describe the controller in device
-> tree.
+On Sun, Jun 28, 2026 at 11:58:43PM +0200, Uwe Kleine-K=C3=B6nig (The Capabl=
+e Hub) wrote:
+> The subsystem private header i2c-core.h uses several symbols defined in
+> <linux/i2c.h>, e.g. struct i2c_board_info and i2c_lock_bus()). This
+> doesn't pose a problem in practise because all files including
+> "i2c-core.h" also include <linux/i2c.h>.
 >=20
-> Use the 'qcom,slave-addr' property for the slave address because 'reg'
-> describes the controller MMIO range, and this slave-only controller has no
-> child node where an I2C address can be encoded.
+> To make this more robust add an include statement for <linux/i2c.h>
+> making the header self-contained.
+>=20
+> Acked-by: Danilo Krummrich <dakr@kernel.org>
+> Signed-off-by: Uwe Kleine-K=C3=B6nig (The Capable Hub) <u.kleine-koenig@b=
+aylibre.com>
 
-This should not be needed because the backend defines which address is
-going to be used? Can you share how you tested this?
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-Happy hacking,
-
-   Wolfram
+This shall go upstream with the rest of the series, right?
 
 
---r+ZUegNvxI2DW21t
+--kcXiU31v82W3/5W1
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmpCEBAACgkQFA3kzBSg
-KbYpJw/+Jy6U95MRFmB6J1Zy6lGHpyDpSphYyFIl7y72sswAbF11zLbJJYfP8VZM
-1+y2qXv7VR+OGvSm72L7qCp22/ECva6pk6yVg1JFuBogRE8EskzW4qDcPYPcAkA3
-UrSPPXpfMkTkARRCL9mPheiihHxWmGq7QTDejHKw+mpFxBfF844Ch4zaoifxUpVr
-S78jmNX4kbGd36s1rqBg2V7jHKzAi6jTrtm94bp5LHLXc8Ch5clX4ZY8Ae8SV9c4
-ALbEIHZFCwy22shWoVeHyK2cJGEenzHjrPwI1Z8md1AGD21b9fwoFxoKU3s34x3E
-1jh5lAZranhaQZlv7D7R4Vij6bajyQDVcD4/nsN0qE48Bwe2ytJ3mfevI/c3zYJX
-Zqc82bBv8slMuyj3m5L3mab4DeU/lYinLqe/ABaCQnsSlFLwZNuAysiE0he8Wrxn
-y/p+rEyDyBd0/YEoYX4pW2W2xkZdQOA8Y8ft2RTa9jS77VZRGj+2H9ss8wX8mB56
-cwgNApPk04cICgu3ZC1gadxa9W8MvsD0iX1+BXLmalplGxJDp/uB58fsVlWKJgDQ
-q6kL3VMwLpiuh38VUBaolaQgILvpOuqpRotST3ihczTj/U1uYvc6sEVE7FNyQwkx
-/+UM39mRcw4KlBGLbh3TNKdaJ6h440EgQ8sdY1/176FilPUY8HU=
-=/xuL
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmpCEVYACgkQFA3kzBSg
+KbaLRQ/+JTA+OeDi9z4EitLQLME7CwHY4QqXO3GhsTXpRWmV7Cmxxd8JRBJXx4cW
+09jLHSQDLMyWV7uh5LMkfExxghBN669l9iyD1x9OHKhZm/VvmVpvFvg7Pfg5PimR
+FmjEFW5sRb2X8KYnmvBtncO6VpPmaZu2kbmY/lxAdDqn2MwaNqWpt6EV4j8xpBz5
+uXDRsk/o85HBc88cg2CY0j2ukwxqNYf6x5D6mjMApmvcIOF+BHGrx0VxX/D8wGms
+4tayS2icQ8E0M44Bi+jsU3OhZPji+c0t85BdMURFK6BbKR/3TGX5smqy2XSKa/EL
+bEnmD922/wz7x3SSev5a5nIjAmHMGvxXc/qF6vaP2ZeNVY4QiwJKsVcXc9xEFcDP
+RuMvbJepeEPIXQP8VhYdiBk+O+euzYVYjlRftte+ogpkou9Em0a9vvkz9b3q4Bo7
+O2AWJ6VZVvUsh4tT9kIIdyE9s2V8MLvu1oVckRCBwS/omEpkNAQ7D+GIrDrOpMvD
+/7APQLXzxs27NoXD82FB6+FuEPBvrEpTMfKRizMr+U+XWw7ufzyNQbK2u+12EzuU
+148iQqVuzB1V+6mAgAZY7+xRP7mSvCjRt3QbP1mCLgDYWRKXsfcH/zQylj0hfoaD
+yMYkJZ/xDZiqjhp02zdm4eL1G4taG3ICIxu4ktPbMuYmKRD2bv0=
+=gmER
 -----END PGP SIGNATURE-----
 
---r+ZUegNvxI2DW21t--
+--kcXiU31v82W3/5W1--
