@@ -1,136 +1,132 @@
-Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
+Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9846C3FF1B9
-	for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 12:02:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.44
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782734544; cv=pass; b=d7iZ4sknXucrMmUuMGIvvfkvv0uqhrdM5e1Yhe54sgPJHrj0XCBAsYj4VHoKpBmwqBAK2NJmZ0b+yyPI2DID6B7cYML/gr/nDWQ+INwkkTRy+r+7r9gJk1GRH1Qi74R+9p0vLWNTjG7BXnUk0af2rRSXP97GjfhXqPiM4FnPBUI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782734544; c=relaxed/simple;
-	bh=rQbESuYheK6jUDuCh/g82u8kja7PJY9po+thco8Pd64=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=arxqcFNZh06NmSfdbqMj7xtgJP5JxRZeosLLxA5XGROEQAH91P4x98g1t3xXOWYMSKEnDVKK9kFyl+cVtZg+9VLZEnfE5S6e9cI95Y38usIm3YxCLdceqo64sq8lXWiHie9PqAJcx3qDR0e29A+yL0N/Ko8gdT0TUTJrhmPlOTk=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MQq5mnuR; arc=pass smtp.client-ip=209.85.221.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB58AEADC
+	for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 12:10:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782735050; cv=none; b=o6VNs34bfBGQXwbLSdVrM9wyjd8sNLWd4ZtABbDyCqDTSt2XrRIaQYWMMSjck/07zIWtqBA6J148yjyzqH51j7wSJi/0N+TTPBLFLip9Rzd2cPCFZp7EZtfHGkG0rynBUs7NPv35IfX06t9TSdyo0lmADARzrlvjo3jtChygz/I=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782735050; c=relaxed/simple;
+	bh=kGZ0tLwLnwzr7LxnHnrl3I3NK6euqcwdJ4ksABlfxEA=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=HHzoxk8zhTolyaDF7aV37peeEHofFDydlpf97thqnCSv0cYl9UbkdUayGMjssec7AwHZ11FwYcTsj8hCayMz2Isdxtp0xiefN4aEvHNc2AkSXHJw3PI1JXVCS9tIEyBPT+m0Mb47pR0elUi6Rz4PiWcaYS/JGuoePNnAp8OLTpg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ay0jDLbB; arc=none smtp.client-ip=209.85.216.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MQq5mnuR"
-Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-461edb387ddso3089204f8f.3
-        for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 05:02:22 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782734541; cv=none;
-        d=google.com; s=arc-20260327;
-        b=OmrwNXqnAkCrYiH7Qphu9wFVXxcm2kEQXZpB/IwWlInbFfepIS+UU8du9WcTPbiofh
-         aI4co27NKvU9PAPoGVrF3OtozerYU7brebaOKuw3SHoFGcmQ+j3e6Dr2Kdka6yuh19+6
-         /m6ejBcm0odAYttK3nG+th5bCdr4rA8lBu9fHBc6OUaA/h+R8oAa3gZSoseO2BIuWQXZ
-         09J8X/AG+uLUAK7KTGAd8Vtsx1xB0ETk9zcCatgbZTk265AJahcppREl8SBNIPWdemL3
-         ncG116bNFPTf/4gW9VxLpFRVKul1gmuzNU18gUMiHEjoVhfKwuLvlPTFjUsaaY5hDIPc
-         u+Ug==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=rQbESuYheK6jUDuCh/g82u8kja7PJY9po+thco8Pd64=;
-        fh=CELGn72rnxHkHbFh6L2WA4t0I8VRKHq6ui8p4M/5s4M=;
-        b=PLFSdj5uznqpMedW6s8CEedELw92WIDlhCSpnmgQIyquUEZ3SxR4kB04mNIQafmL3F
-         4a5XKiETgQnqrDn3EI6l5tpfBqwkt5Pu8Twp0ki5WkhKIVyUJvE22LTR1LlNCM7sim/L
-         DSfU6L6s6FWNa4eWH5EDQYiKFZU37TpgV/yEg8Zu0JKJKMaVhGk3QrUAA3dfebtU94PY
-         d12OqLVSho+1nWBNhHOnFhjErPo4mWPJ+LVC9+XsKjBBDmRWnvTdI9Zut/YouyaKmLRD
-         nkAK/Ympl5hwHO0KTnql6HyNyhb1HJJdSZyeeLhubucVVZBANqIRjHOUGtSsRyNzgXNk
-         7TMA==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ay0jDLbB"
+Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-37ff8e0ad0fso527324a91.2
+        for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 05:10:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782734541; x=1783339341; darn=vger.kernel.org;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=rQbESuYheK6jUDuCh/g82u8kja7PJY9po+thco8Pd64=;
-        b=MQq5mnuRx9gC51LqJgrn9Tl0cwHNcJgDKZUQ5sqIya+6yX2Lt63AS/fljweLbxKCcM
-         pSEuvNy1nphQ8pSray3ySOiRLr7IXobPlPUtuXwj4ds6AJTZjWq57q9Q24EGzPT+dGai
-         uvpSs6i1ahLGX6r2eggYRh81X2brcaGNbzGeZRujsAtgGE0A+Ede0/gsoxtmw/S+wunu
-         ZFW/S72XhVzwqSKt3S9tZg+XoarGm4ignRaFCavBbu0hQpmwZ+tJe5DOPEPWNjMPL1L+
-         tKOqajeqHIS54clRIDdsM6uMGRwfvsQ+4pSdzZXy24KYCezg4ONmKdxUi2SPSsIncpum
-         0O+g==
+        d=gmail.com; s=20251104; t=1782735049; x=1783339849; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=HkTwtsCV5AvV8Jll6hL4RUUQZmIxHwSNCec69nQjhkg=;
+        b=ay0jDLbB4Zoa3DqGguB/NvK+mD2W0M+3tch7fMRuUAeL+QeWqxGZSNHtvnxlmnNbUe
+         D/dMe0uniCRXdbFioDvEkSIbxlPstzUhXTNDWysebRvq0OsDY9T11XLNIw+4dydv/LDU
+         17Q1k/AqiPseZXk8c/a6nHIosW7ePSampg1KWj3LVmoq9b/uITPy8wXJCoqxrauVEV7o
+         KysnBJW0/BnnMZsB3B1PAFowx/rYcSYYdSXGrdrdagbV55VuRLctma8SLs8tOHyv6050
+         SgrLzI/b0XZq8kfya5AIgs/MEUGd50f7nuBMWy1OVq9y9ARAAFdDqA2WcYLbkk+G0roB
+         BoUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782734541; x=1783339341;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=1e100.net; s=20251104; t=1782735049; x=1783339849;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=rQbESuYheK6jUDuCh/g82u8kja7PJY9po+thco8Pd64=;
-        b=rkUN0q3C1EaZe2XW9/79aTr7Yo1BBMLFzhARlxlJGRGHsxfoKQR1gwssvTOVxfKVKW
-         YhrmcmO2UVqEUjx9eJFaXO01TeYYYPjEP8kG/6psAHt+9oMG6qWWq8d8YEhRQxKrZ1oD
-         /OSL1OpFfCOPJAzXhZeD7Rcf9nx7ZoGn3zbi5qIGQrOaSzsqx2Mk6BtgN+Q3CSa/M63+
-         XcSGPfI6Kdk+fR60RG3N236aXOfkNhuQQ8MyFLJtvfZXZokW5t7leHCoLW3MfR/z6/ii
-         flMdSgQtzgh8SXEUV7DKuwERdw+D8mTpL07xHPp1m+IE1cjBdgnFdypoFRUTzVlurOXH
-         fLBQ==
-X-Forwarded-Encrypted: i=1; AHgh+Rqx8QurIIQXZ3KOZD/kpCHhj/Sopk0JOcMDGk80IoKmVNoVEHmLBskoOOrlfgLV5DJh7SeH2CTV0gM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxP0XsCsluC9qSAP4WVSCBLWZt8NLspxb6GrjGiG9TkyqoJpHKq
-	wF39Ol73cNKYNDwZtBuMCBTP2xWB607olE42CbFqjnZlqIz01iwWEk4T6kTW3hdNMua5NwBHWEE
-	+3NkdoZiBVf6Sdfu26mKOaJya9A7p3CM=
-X-Gm-Gg: AfdE7clgaIGd8KyrRYuxYkz+WqxMZIk1ndiuBvi0nion/49SNtDAJwSM5JeFrMu/5Hr
-	fqdvOBLZlAFCGHkZInp8XRCawTlmumXK5pYi5T0SizvmKDWIu5kpj7uRggxH4r0QI+S8wqukxhu
-	CP5iBltUS+9URb9g/9hpxVlgN7McLbza8Z53yagBTyt9hc8qHR/RZQeagNMgwGvrkMwFe+qxoEz
-	C2E1i1pCR5C+7bNM/un/Hj7LBXcZ0cWvPFxwum1PaNdvRjwZ48xx/OFbBGr3ZWfm1Gwg2bUMlQL
-	Klh23zc=
-X-Received: by 2002:a05:6000:2c0a:b0:474:9991:60d0 with SMTP id
- ffacd0b85a97d-474999161d5mr2365901f8f.12.1782734540540; Mon, 29 Jun 2026
- 05:02:20 -0700 (PDT)
+        bh=HkTwtsCV5AvV8Jll6hL4RUUQZmIxHwSNCec69nQjhkg=;
+        b=jHXizHHx0kuc36aJSvmW8PLB+tQsDoiKwS66dCYHab49uLimKCeGki3hmbGDo9Gv1m
+         tZVe8qVPa28jIKdRvkxzf1AXNDr9QztO28Y/uYs0zaMffCP7pnqdMlHYp17fFVWwndo0
+         nBF152MqorW62tej8ObpamE69ZSMlxSodiluz1OOW2L01SZRmBuMwRGjv0/LpMexbE5r
+         YCnpgd26HWjkRDsXbyA/WV679cF3tVtQxvtWulkmrGo1Dwy77YFRFDUKfrc6Q8esDAFt
+         8G2x0+ZpgQsctWHQi/soJnvBq1dAzx1W5PhTk1Pyg5TvJkERYSg0J4nvRDzazoFijp+V
+         zzfQ==
+X-Forwarded-Encrypted: i=1; AHgh+RqP4/r7jyAEume5E5u7NJXCHvDwJGUEs0ws+X+oGdsILPnufE3LCgoenbhCxXD28LcA25tn/bHfMEQ=@vger.kernel.org
+X-Gm-Message-State: AOJu0YyZYgZgYCM/uL5bsifbDEk4YpL56JHrO/ngDuQSJ/6Et6HfNh+e
+	Mf2ToRnD6Tyx+CXtIxifAlVE4mtQclQZJa330yUE9tStkAf1ZpkbNA/qWAHd5A==
+X-Gm-Gg: AfdE7cm24ZD8Qu15vGTix2pnCNpckJRQLJVbRdCCt+vUUUiv3hJvswj3mrR+TlwaAnl
+	XSPCXuAIck23MAAykDi5TabMuimeP/URMLqAqsOIpYsz5oI7gHuw8VBhE8ni3JJp+ZnKNVPtcQX
+	auMiH1b/JLb2PshRn0vd5exfQtI9MaodtsSRWjgp+2XDS45JsaHcWGPpg3EiCgRE5PbnPMy033S
+	drDNgEn/OYuz2SMVKMLcvyA23GJTBwwCPBUN3m5TFvo5+kzyorzf++rrpy+YX4LKfBGk3snW/UF
+	+tIDoImBtMAa6doEWLIBDP0sIdODA4/anM76MROBkeeqMRD4S1U8iN3Z0vr1iYdiIntrx0Qb3oL
+	tMPncK1YgTbbwlEY53j66je5krZP5H/matJw+WjFpqadKgZf0zizQY6AD3I1ZfPRQ0TbkFyeeRL
+	QNrB487+wJZxz2DN5aT1cej2EB85lgVsE0iQfj2Q==
+X-Received: by 2002:a17:90b:3f8e:b0:37f:db06:229c with SMTP id 98e67ed59e1d1-37fdb062536mr4606010a91.22.1782735048852;
+        Mon, 29 Jun 2026 05:10:48 -0700 (PDT)
+Received: from csl-conti-dell7858.ntu.edu.sg ([155.69.195.57])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-37e12c79443sm3955990a91.1.2026.06.29.05.10.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 29 Jun 2026 05:10:48 -0700 (PDT)
+From: Maoyi Xie <maoyixie.tju@gmail.com>
+To: Krzysztof Kozlowski <krzk@kernel.org>,
+	Jan Kandziora <jjj@gmx.de>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Bjorn Andersson <bjorn.andersson@oss.qualcomm.com>,
+	linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] w1: ds28e17: reject an oversize length on an I2C block read
+Date: Mon, 29 Jun 2026 20:10:43 +0800
+Message-Id: <20260629121043.199487-1-maoyixie.tju@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <178177668382.3462209.6459868495361731106@maoyixie.com> <22e94aaa-0c11-45f4-8317-204ac4be66ec@kernel.org>
-In-Reply-To: <22e94aaa-0c11-45f4-8317-204ac4be66ec@kernel.org>
-From: Maoyi Xie <maoyixie.tju@gmail.com>
-Date: Mon, 29 Jun 2026 20:02:08 +0800
-X-Gm-Features: AVVi8CfRcDGHyE5oKsrPFowAqsoqZisos9Jouu34xU8psQ3Txs0kvK3ZSLGOs8U
-Message-ID: <CAHPEe=EM57UhqZfXf4LNokNx=RizMTKx6WMjs_A270uwrY8UTQ@mail.gmail.com>
-Subject: Re: w1: ds28e17: possible out of bounds write from a device length byte
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Jan Kandziora <jjj@gmx.de>, Jakub Kicinski <kuba@kernel.org>, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, Andi Shyti <andi.shyti@kernel.org>, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hi Krzysztof,
+w1_f19_i2c_master_transfer() is the master_xfer for the DS28E17 1-Wire
+to I2C bridge. On an I2C_M_RECV_LEN read, it takes the length from the
+device. The downstream slave puts a length byte in buf[0]. The driver
+then reads that many bytes into buf[1] with w1_f19_i2c_read().
 
-> That's exactly the bug AI tends to find... Easy to spot pattern and then
-> figuring out the logic leading to it. Maybe it is real, maybe not, but
-> the AI feels like too big threat of wasting my time (and you did not
-> even disclose it).
+buf[0] is controlled by the device and can be 0 to 255.
+w1_f19_i2c_read() only rejects a zero count. The caller buffer is
+I2C_SMBUS_BLOCK_MAX + 2, so 34 bytes. A length above 32 makes the read
+run past it, up to about 222 bytes out of bounds.
 
-I used AI assistance on this report and did not say so. Sorry for that.
+The SMBus core does check buf[0] against I2C_SMBUS_BLOCK_MAX. That
+check runs after master_xfer returns. By then the write is already
+done. i2c-algo-bit rejects an oversize length before it copies, and
+returns -EPROTO.
 
-> Reading based on length supplied by device is of course risky, but isn't
-> the rest of the master_xfer implementations doing the same? IOW, what is
-> different here? Or they do not do it, so you have the answer to your
-> question?
+Reject a length above I2C_SMBUS_BLOCK_MAX at both RECV_LEN sites, the
+same way i2c-algo-bit does.
 
-No. They bound it. i2c-algo-bit returns -EPROTO from readbytes() when the
-device length is above I2C_SMBUS_BLOCK_MAX, before it copies. Several other
-drivers do the same. w1_f19_i2c_read() only rejects a zero count, then
-writes buf[0] bytes into &buf[1] with no upper bound. So ds28e17 is the
-outlier.
+Fixes: ebc4768ac497 ("add w1_ds28e17 driver for the DS28E17 Onewire to I2C master bridge")
+Cc: stable@vger.kernel.org
+Signed-off-by: Maoyi Xie <maoyixie.tju@gmail.com>
+---
+ drivers/w1/slaves/w1_ds28e17.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-> Malicious DS28E17? Feels like AI convinced you that it is a thing...
+diff --git a/drivers/w1/slaves/w1_ds28e17.c b/drivers/w1/slaves/w1_ds28e17.c
+index e53bc41bde3ca..b638963d4b595 100644
+--- a/drivers/w1/slaves/w1_ds28e17.c
++++ b/drivers/w1/slaves/w1_ds28e17.c
+@@ -389,6 +389,10 @@ static int w1_f19_i2c_master_transfer(struct i2c_adapter *adapter,
+ 			 * another simple read in that case.
+ 			 */
+ 			if (msgs[i+1].flags & I2C_M_RECV_LEN) {
++				if (msgs[i+1].buf[0] > I2C_SMBUS_BLOCK_MAX) {
++					i = -EPROTO;
++					goto error;
++				}
+ 				result = w1_f19_i2c_read(sl, msgs[i+1].addr,
+ 					&(msgs[i+1].buf[1]), msgs[i+1].buf[0]);
+ 				if (result < 0) {
+@@ -415,6 +419,10 @@ static int w1_f19_i2c_master_transfer(struct i2c_adapter *adapter,
+ 			 * another simple read in that case.
+ 			 */
+ 			if (msgs[i].flags & I2C_M_RECV_LEN) {
++				if (msgs[i].buf[0] > I2C_SMBUS_BLOCK_MAX) {
++					i = -EPROTO;
++					goto error;
++				}
+ 				result = w1_f19_i2c_read(sl,
+ 					msgs[i].addr,
+ 					&(msgs[i].buf[1]),
+-- 
+2.34.1
 
-The length comes from the device behind the bridge, not the DS28E17 itself.
-
-> How did you reproduce it? Do you have ds28e17?
-
-No, I do not have the hardware. The KASAN result came from a small harness
-that drives w1_f19_i2c_master_transfer() with a 255 length, not from a real
-device. Sorry, I should have said that plainly.
-
-> Did not investigate enough to judge. I am sorry but my expectation is not
-> to investigate AI-based reports. Expectation is rather to get a human
-> created and human validated patch, regardless whether human or AI produced
-> the report.
-
-Understood. Let me send a proper [PATCH] so you can judge the code, not my
-report. It bounds the length at the two I2C_M_RECV_LEN sites and returns
--EPROTO, the same check i2c-algo-bit uses. It builds clean.
-
-Thanks,
-Maoyi
