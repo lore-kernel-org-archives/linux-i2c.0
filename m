@@ -1,140 +1,136 @@
-Received: from mail-wr1-f54.google.com (mail-wr1-f54.google.com [209.85.221.54])
+Received: from mail-wr1-f44.google.com (mail-wr1-f44.google.com [209.85.221.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85A663FC5C2
-	for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 10:09:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.54
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782727770; cv=none; b=fwHwWAlXIsbLkU+DsoMmXBmGqy0SE/glpFd+Izd6zsrEFIOGO0Yoz6SRS6bexB2zJYT5kZHqM3o8OsAc2I6ykXM4VuXAKvOGxdfHzVvCb2be2LzlQfNxOWsEGzBtF34u9NASu7KkvbKiOnymi0lF83ThI0nDAbUswSepuDguNwA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782727770; c=relaxed/simple;
-	bh=uYSr1BU//gpPhugxNcyMgSmlbk/L8OB5W4/PI4V5ods=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SQ4koDctHOCTKLccU52xz9sKAfJj23SPBfUz99wnQkT5WOW10JCj+CG4FEvtc9u6Mj4owejhfs/djYhgHTspXIgxxEFq7+Us/WDDYBvTJWyx9fUQizzBYQD3ueVdRYNOlQ2oSzj2wZ2pozg8IyTMeYkraiqixt5C+MTkULKix/I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=ac//3rO7; arc=none smtp.client-ip=209.85.221.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9846C3FF1B9
+	for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 12:02:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.221.44
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782734544; cv=pass; b=d7iZ4sknXucrMmUuMGIvvfkvv0uqhrdM5e1Yhe54sgPJHrj0XCBAsYj4VHoKpBmwqBAK2NJmZ0b+yyPI2DID6B7cYML/gr/nDWQ+INwkkTRy+r+7r9gJk1GRH1Qi74R+9p0vLWNTjG7BXnUk0af2rRSXP97GjfhXqPiM4FnPBUI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782734544; c=relaxed/simple;
+	bh=rQbESuYheK6jUDuCh/g82u8kja7PJY9po+thco8Pd64=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=arxqcFNZh06NmSfdbqMj7xtgJP5JxRZeosLLxA5XGROEQAH91P4x98g1t3xXOWYMSKEnDVKK9kFyl+cVtZg+9VLZEnfE5S6e9cI95Y38usIm3YxCLdceqo64sq8lXWiHie9PqAJcx3qDR0e29A+yL0N/Ko8gdT0TUTJrhmPlOTk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MQq5mnuR; arc=pass smtp.client-ip=209.85.221.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="ac//3rO7"
-Received: by mail-wr1-f54.google.com with SMTP id ffacd0b85a97d-4728c12ba97so759716f8f.0
-        for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 03:09:24 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MQq5mnuR"
+Received: by mail-wr1-f44.google.com with SMTP id ffacd0b85a97d-461edb387ddso3089204f8f.3
+        for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 05:02:22 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782734541; cv=none;
+        d=google.com; s=arc-20260327;
+        b=OmrwNXqnAkCrYiH7Qphu9wFVXxcm2kEQXZpB/IwWlInbFfepIS+UU8du9WcTPbiofh
+         aI4co27NKvU9PAPoGVrF3OtozerYU7brebaOKuw3SHoFGcmQ+j3e6Dr2Kdka6yuh19+6
+         /m6ejBcm0odAYttK3nG+th5bCdr4rA8lBu9fHBc6OUaA/h+R8oAa3gZSoseO2BIuWQXZ
+         09J8X/AG+uLUAK7KTGAd8Vtsx1xB0ETk9zcCatgbZTk265AJahcppREl8SBNIPWdemL3
+         ncG116bNFPTf/4gW9VxLpFRVKul1gmuzNU18gUMiHEjoVhfKwuLvlPTFjUsaaY5hDIPc
+         u+Ug==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=rQbESuYheK6jUDuCh/g82u8kja7PJY9po+thco8Pd64=;
+        fh=CELGn72rnxHkHbFh6L2WA4t0I8VRKHq6ui8p4M/5s4M=;
+        b=PLFSdj5uznqpMedW6s8CEedELw92WIDlhCSpnmgQIyquUEZ3SxR4kB04mNIQafmL3F
+         4a5XKiETgQnqrDn3EI6l5tpfBqwkt5Pu8Twp0ki5WkhKIVyUJvE22LTR1LlNCM7sim/L
+         DSfU6L6s6FWNa4eWH5EDQYiKFZU37TpgV/yEg8Zu0JKJKMaVhGk3QrUAA3dfebtU94PY
+         d12OqLVSho+1nWBNhHOnFhjErPo4mWPJ+LVC9+XsKjBBDmRWnvTdI9Zut/YouyaKmLRD
+         nkAK/Ympl5hwHO0KTnql6HyNyhb1HJJdSZyeeLhubucVVZBANqIRjHOUGtSsRyNzgXNk
+         7TMA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1782727762; x=1783332562; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=uYSr1BU//gpPhugxNcyMgSmlbk/L8OB5W4/PI4V5ods=;
-        b=ac//3rO71g75WD4ncJCXkvIYoSMvKsfTKUg9HKlA0eJ+d3xcdXMuQ1ZuESJSgdihI2
-         8ppSUe8hMbtP8IqlZ64tpsGJ+Lh7CGAa9Hmptue6BkHYPOEQeRMYrZshOzku3t8sbKQE
-         Ht2/AYNlaUtKHHuDr963oElZHa47OldleiR4nxszn/Pkgv8eMltNHkrtiaJesT5GnmGN
-         67mH936LyfdBNN9cZgM7g9XeUogoJ2JBWug1QDMuqDavPdTy1hSDvvpAXjziQlJI/FXp
-         pBZ/J3rYwzToGbR6rYFe7p6aKjQix/yRGbfQQ/eA19ntp74q3Bptyg8g91NOQl9UuMuE
-         tCIQ==
+        d=gmail.com; s=20251104; t=1782734541; x=1783339341; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=rQbESuYheK6jUDuCh/g82u8kja7PJY9po+thco8Pd64=;
+        b=MQq5mnuRx9gC51LqJgrn9Tl0cwHNcJgDKZUQ5sqIya+6yX2Lt63AS/fljweLbxKCcM
+         pSEuvNy1nphQ8pSray3ySOiRLr7IXobPlPUtuXwj4ds6AJTZjWq57q9Q24EGzPT+dGai
+         uvpSs6i1ahLGX6r2eggYRh81X2brcaGNbzGeZRujsAtgGE0A+Ede0/gsoxtmw/S+wunu
+         ZFW/S72XhVzwqSKt3S9tZg+XoarGm4ignRaFCavBbu0hQpmwZ+tJe5DOPEPWNjMPL1L+
+         tKOqajeqHIS54clRIDdsM6uMGRwfvsQ+4pSdzZXy24KYCezg4ONmKdxUi2SPSsIncpum
+         0O+g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782727762; x=1783332562;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=uYSr1BU//gpPhugxNcyMgSmlbk/L8OB5W4/PI4V5ods=;
-        b=spZiuyiYtaLdFvdcyJdZA8Tykq6IPtVzmTcdcrUZLglNxxEpQh96TbgrSeaXQMvLoN
-         K8rewOir2Ey+Y14vdzGACiVlpvZeaICJNE7+l1TFw3cOaYV9dL/PrCDftJy9vmZMyEC7
-         /aHaTfr0SFXO2621bQ2Floa0rY6tHqI5W/P5mG51cvF/TOURd/tgLAcsGwt+NOpzEib7
-         680PUjbMyYR4vVL95rTrpc5QdA/HMsqhDtUhFOEtchccpXPxfLUUX/uw3oQd8TgWl418
-         7CXVtgkZQS/yoFB9Pi3yDrVFWnlsrfR+PFbRXaN3X8sBKwRS8lz4LEkQeGpaHQHBIuny
-         VNBA==
-X-Forwarded-Encrypted: i=1; AHgh+RoDDjvgXn3EMxGLMb1Ls7g5L/z7qiY76hOIUZjG+2mBipceVSMrpdsbnlXEeW+Q50i7kCBE3GMiS7k=@vger.kernel.org
-X-Gm-Message-State: AOJu0YznOKB2hYVH+3g/OqXS4sYKs7/WRu/8BQIFNguJwG0BSpFMJ5Rl
-	47kwDmKeqwsjZZ7m7twKX6Y4OAOBhbBCO6ruvf0dbpLNM8qlmT3GvS13g486GM3yHX8=
-X-Gm-Gg: AfdE7ckyazrwwieA7K8oQTihRQ5CWZ+UCjLY3vuqEEJB5RezHknUP2al0f/mZqcpfGw
-	YuIAeMp2KaLPZcEVZVkAU5nUKgqm/D2gAfG5zPgXq4hcJyBIg7dRXYw4OQeSljhhz1BiCN/g2wt
-	PGtm3vadZgKf1LFSUlRlEfTi3u/XSwSOlteuKLJHhiJjBPMjWRwBbmWY7o/yZ/oJzS8SK3clpoD
-	EObcjnMeZJHVXbTyMULNrAvZ5WbxmZpFK3bnTj3/hDV9hHgU8DHxUvav8orC/IuwRT8KvnWniT5
-	Ho+agfqTjlGIdvGDGu7TIPo+WlJnU8beNtnIXtoJvR7qZLMT1+Yg8O7YqxsactZRWrmE8DorzUx
-	iF0407wh59Uu7wiP0eETbf4Kx0nBBGGd/LgXKAHIlPatoX1pF9HAOJ/fA4hHFoM3nm2E3O8PqcU
-	oKZSXqOH6eevOA/16n7te2/FTQ9q3vJDjLchwpCiy814wk3YA0NdMD+Lr7cdjr5YjSKdhaWQ47a
-	5AP
-X-Received: by 2002:a05:6000:2c10:b0:465:81cb:bb20 with SMTP id ffacd0b85a97d-46dbef257e0mr28013623f8f.9.1782727762410;
-        Mon, 29 Jun 2026 03:09:22 -0700 (PDT)
-Received: from localhost (p200300f65f47db047d55c3c4f7db55be.dip0.t-ipconnect.de. [2003:f6:5f47:db04:7d55:c3c4:f7db:55be])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-47290ed4377sm14518188f8f.37.2026.06.29.03.09.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Jun 2026 03:09:21 -0700 (PDT)
-Date: Mon, 29 Jun 2026 12:09:20 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Danilo Krummrich <dakr@kernel.org>
-Subject: Re: [PATCH v3 08/16] i2c: Let i2c-core.h include <linux/i2c.h>
-Message-ID: <akJCr-OtGhoaR0vI@monoceros>
-References: <cover.1782682124.git.ukleinek@kernel.org>
- <c176fb7e8503d61e08f055a5bb1ba4989aba6ffc.1782682124.git.ukleinek@kernel.org>
- <akIRVj94lmCasfEF@ninjato>
+        d=1e100.net; s=20251104; t=1782734541; x=1783339341;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rQbESuYheK6jUDuCh/g82u8kja7PJY9po+thco8Pd64=;
+        b=rkUN0q3C1EaZe2XW9/79aTr7Yo1BBMLFzhARlxlJGRGHsxfoKQR1gwssvTOVxfKVKW
+         YhrmcmO2UVqEUjx9eJFaXO01TeYYYPjEP8kG/6psAHt+9oMG6qWWq8d8YEhRQxKrZ1oD
+         /OSL1OpFfCOPJAzXhZeD7Rcf9nx7ZoGn3zbi5qIGQrOaSzsqx2Mk6BtgN+Q3CSa/M63+
+         XcSGPfI6Kdk+fR60RG3N236aXOfkNhuQQ8MyFLJtvfZXZokW5t7leHCoLW3MfR/z6/ii
+         flMdSgQtzgh8SXEUV7DKuwERdw+D8mTpL07xHPp1m+IE1cjBdgnFdypoFRUTzVlurOXH
+         fLBQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rqx8QurIIQXZ3KOZD/kpCHhj/Sopk0JOcMDGk80IoKmVNoVEHmLBskoOOrlfgLV5DJh7SeH2CTV0gM=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxP0XsCsluC9qSAP4WVSCBLWZt8NLspxb6GrjGiG9TkyqoJpHKq
+	wF39Ol73cNKYNDwZtBuMCBTP2xWB607olE42CbFqjnZlqIz01iwWEk4T6kTW3hdNMua5NwBHWEE
+	+3NkdoZiBVf6Sdfu26mKOaJya9A7p3CM=
+X-Gm-Gg: AfdE7clgaIGd8KyrRYuxYkz+WqxMZIk1ndiuBvi0nion/49SNtDAJwSM5JeFrMu/5Hr
+	fqdvOBLZlAFCGHkZInp8XRCawTlmumXK5pYi5T0SizvmKDWIu5kpj7uRggxH4r0QI+S8wqukxhu
+	CP5iBltUS+9URb9g/9hpxVlgN7McLbza8Z53yagBTyt9hc8qHR/RZQeagNMgwGvrkMwFe+qxoEz
+	C2E1i1pCR5C+7bNM/un/Hj7LBXcZ0cWvPFxwum1PaNdvRjwZ48xx/OFbBGr3ZWfm1Gwg2bUMlQL
+	Klh23zc=
+X-Received: by 2002:a05:6000:2c0a:b0:474:9991:60d0 with SMTP id
+ ffacd0b85a97d-474999161d5mr2365901f8f.12.1782734540540; Mon, 29 Jun 2026
+ 05:02:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="w4l5u2i6dti73jue"
-Content-Disposition: inline
-In-Reply-To: <akIRVj94lmCasfEF@ninjato>
+References: <178177668382.3462209.6459868495361731106@maoyixie.com> <22e94aaa-0c11-45f4-8317-204ac4be66ec@kernel.org>
+In-Reply-To: <22e94aaa-0c11-45f4-8317-204ac4be66ec@kernel.org>
+From: Maoyi Xie <maoyixie.tju@gmail.com>
+Date: Mon, 29 Jun 2026 20:02:08 +0800
+X-Gm-Features: AVVi8CfRcDGHyE5oKsrPFowAqsoqZisos9Jouu34xU8psQ3Txs0kvK3ZSLGOs8U
+Message-ID: <CAHPEe=EM57UhqZfXf4LNokNx=RizMTKx6WMjs_A270uwrY8UTQ@mail.gmail.com>
+Subject: Re: w1: ds28e17: possible out of bounds write from a device length byte
+To: Krzysztof Kozlowski <krzk@kernel.org>
+Cc: Jan Kandziora <jjj@gmx.de>, Jakub Kicinski <kuba@kernel.org>, 
+	Wolfram Sang <wsa+renesas@sang-engineering.com>, Andi Shyti <andi.shyti@kernel.org>, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
+Hi Krzysztof,
 
---w4l5u2i6dti73jue
-Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v3 08/16] i2c: Let i2c-core.h include <linux/i2c.h>
-MIME-Version: 1.0
+> That's exactly the bug AI tends to find... Easy to spot pattern and then
+> figuring out the logic leading to it. Maybe it is real, maybe not, but
+> the AI feels like too big threat of wasting my time (and you did not
+> even disclose it).
 
-Hallo Wolfram,
+I used AI assistance on this report and did not say so. Sorry for that.
 
-On Mon, Jun 29, 2026 at 08:31:50AM +0200, Wolfram Sang wrote:
-> On Sun, Jun 28, 2026 at 11:58:43PM +0200, Uwe Kleine-K=F6nig (The Capable=
- Hub) wrote:
-> > The subsystem private header i2c-core.h uses several symbols defined in
-> > <linux/i2c.h>, e.g. struct i2c_board_info and i2c_lock_bus()). This
-> > doesn't pose a problem in practise because all files including
-> > "i2c-core.h" also include <linux/i2c.h>.
-> >=20
-> > To make this more robust add an include statement for <linux/i2c.h>
-> > making the header self-contained.
-> >=20
-> > Acked-by: Danilo Krummrich <dakr@kernel.org>
-> > Signed-off-by: Uwe Kleine-K=F6nig (The Capable Hub) <u.kleine-koenig@ba=
-ylibre.com>
->=20
-> Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
->=20
-> This shall go upstream with the rest of the series, right?
+> Reading based on length supplied by device is of course risky, but isn't
+> the rest of the master_xfer implementations doing the same? IOW, what is
+> different here? Or they do not do it, so you have the answer to your
+> question?
 
-Yes, that's the plan. Linus didn't explicitly say he's happy with
-merging this for -rc2, but he also didn't contradict, so I assume that
-is what will happen.
+No. They bound it. i2c-algo-bit returns -EPROTO from readbytes() when the
+device length is above I2C_SMBUS_BLOCK_MAX, before it copies. Several other
+drivers do the same. w1_f19_i2c_read() only rejects a zero count, then
+writes buf[0] bytes into &buf[1] with no upper bound. So ds28e17 is the
+outlier.
 
-For bisectability it isn't needed to let these go all together, but
-given that the first patch touches <linux/mod_devicetable.h> which is an
-intrusive change resulting in the need to rebuild nearly the complete
-tree when pulled in, do the intrusive follow up changes in the same go
-to only trigger the needed rebuild once.
+> Malicious DS28E17? Feels like AI convinced you that it is a thing...
 
-Best regards
-Uwe
+The length comes from the device behind the bridge, not the DS28E17 itself.
 
---w4l5u2i6dti73jue
-Content-Type: application/pgp-signature; name="signature.asc"
+> How did you reproduce it? Do you have ds28e17?
 
------BEGIN PGP SIGNATURE-----
+No, I do not have the hardware. The KASAN result came from a small harness
+that drives w1_f19_i2c_master_transfer() with a 255 length, not from a real
+device. Sorry, I should have said that plainly.
 
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmpCRE4ACgkQj4D7WH0S
-/k5mVwgAhuZatKIkOXzNx8JsrElGpFXUTn60Vb+Q1XVSWDy3/ldJ4twE94ZdgbPU
-CuBHOhnF5wXgQiPjnhhHir34uZkF3ajSRDcjYS8FItNu5O6sEIwiQVXeBzOVSbtt
-7IV/oIfIybPJST/nXK7IapiWh/GxNND28tKrNfPKAht3Fp85Rlhg8KWJSpjSAjIJ
-OzcCXksDfaDZl0zjN6UqWt9uybSuiEIOONOXfnrlIR8CUIheSgpqSd1M3Xl+3PYO
-flGskHGq890DDwFyKnt3uKOQSvRqw9om5wNcO5JhyYLU+sDAd+u+YLubtKdNuvZP
-qfPD1WngIB62tkx7zGB75b6wQXw5Wg==
-=4wk+
------END PGP SIGNATURE-----
+> Did not investigate enough to judge. I am sorry but my expectation is not
+> to investigate AI-based reports. Expectation is rather to get a human
+> created and human validated patch, regardless whether human or AI produced
+> the report.
 
---w4l5u2i6dti73jue--
+Understood. Let me send a proper [PATCH] so you can judge the code, not my
+report. It bounds the length at the two I2C_M_RECV_LEN sites and returns
+-EPROTO, the same check i2c-algo-bit uses. It builds clean.
+
+Thanks,
+Maoyi
