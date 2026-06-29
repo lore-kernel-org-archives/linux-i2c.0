@@ -1,349 +1,222 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from AS8PR04CU009.outbound.protection.outlook.com (mail-westeuropeazon11011055.outbound.protection.outlook.com [52.101.70.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABEEF3375CB;
-	Mon, 29 Jun 2026 13:59:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782741567; cv=none; b=rsBTK9WbBr1RDueKy2mglWDL0nB5PzlbNKOfzsIQbwo7CyNyqfUhUuKDoDFL3myPxgFRmQFE1V6zrX7zkOcDKHJimbw4s0twp/pHhfsOYGyegrmf1UK2RIbDfvrUv1DRPVczlihFML7VoLpWKuC8q5/sjJL2ed7qRewWPASl2lk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782741567; c=relaxed/simple;
-	bh=0YUP5HSsJgms6RhFgUKwnmGCSeiEWuYjGjkcx1UPVAk=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=QNLMFhBZQHjwk4ig6YReU2+osw3CGeYJJNJAWCAusQiJbRkvaahol1xOp8G/y/meB7qNpCXYyz8SOGn3TBMUTGGuG7QjdCzMPNoGmT+XA6ieZMbLt7/uzmGoQpxjnMUELZt6ks2dbKt+iGFUp+3nLqoujQcYSa/CAy5NVpwXbGY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nVcV/4lE; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2913737475B;
+	Mon, 29 Jun 2026 14:08:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.70.55
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782742133; cv=fail; b=nJ67RrbCe/p/MvPe0mST9S3vMgAGGCXJorSgiko0VEEFqgHvjc/GLYIvhRVbR+QfQ7SsxfDXpdf9IA+qAZYxFX5Uk7SH4VRjrF2j3yb0BsB/cqqcbILHSUpFQgWmYvXCBQm2sNbt1lEhJv2AFwpzqyehsLo8NInw06OtTbzTBtY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782742133; c=relaxed/simple;
+	bh=S0AZqMpzvVsp/FNTSEmwe6U12QNpPK6HmOfKhVoAQiw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=sI7o0tCcb8voUduMm/ULFLE2NWAvwEBttTKHlolzqB0m6gJ77rRDsKuuXfnBzl5wd0s5d5EuK/A3DmzQjWhZQCJLU++JBPZL6RgQfirzO5UQ4sp51bd2uhFKCu9Wg7dpI1lmds0/GF/siE1qeFAmMgiGpVT6yh7RYtKYhJs6BoA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com; spf=pass smtp.mailfrom=oss.nxp.com; dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b=e84TYlzk; arc=fail smtp.client-ip=52.101.70.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=oss.nxp.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.nxp.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nVcV/4lE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E7251F000E9;
-	Mon, 29 Jun 2026 13:59:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782741565;
-	bh=Eq0NlXkjV03GwRAcmSojFAfHDnE7PE65aXZcNBP60RU=;
-	h=From:To:Cc:Subject:Date;
-	b=nVcV/4lE/+/zThby5E7p+CgsX8N5YIFl3t8FAo/ngKPcdYMJ7xveXMEe3+cOIzk7a
-	 DqqzDz8NpKzQpQMa/wOH8bABrUJPbK3mKuPuoIULOGpLl+DUauNaJU9QnfFdcK/tSt
-	 09a824uPHoizghh6nfGxssxORHSIgsMRmCCdW14u9i8gXa/FgMoqBFx34ckZ1mJqJN
-	 5q88vgvuWpqo/5SY7v2DEnI44FSTzYQtbgKVKVNqhrD1jLIJvR8ILA2XzFEAwrPDJG
-	 iH0ZSAOv0e6hJYPhXqrW7HIjshPw2GztB/ppvYSKE/SpaB05MXtelriIdVa77LmmMz
-	 hGd2c/VKh0R9Q==
-From: Arnd Bergmann <arnd@kernel.org>
-To: Linus Walleij <linusw@kernel.org>,
-	Bartosz Golaszewski <brgl@kernel.org>
-Cc: Arnd Bergmann <arnd@arndb.de>,
-	Marcel Holtmann <marcel@holtmann.org>,
-	MyungJoo Ham <myungjoo.ham@samsung.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>,
-	Geert Uytterhoeven <geert+renesas@glider.be>,
-	Andy Shevchenko <andy@kernel.org>,
-	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-	Ulf Hansson <ulfh@kernel.org>,
-	linux-bluetooth@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-gpio@vger.kernel.org,
-	dri-devel@lists.freedesktop.org,
-	linux-i2c@vger.kernel.org,
-	linux-iio@vger.kernel.org,
-	linux-input@vger.kernel.org,
-	linux-mmc@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-pm@vger.kernel.org,
-	linux-usb@vger.kernel.org
-Subject: [PATCH] [RFC] gpiolib: introduce gpio_name() helper
-Date: Mon, 29 Jun 2026 15:56:29 +0200
-Message-Id: <20260629135917.1308621-1-arnd@kernel.org>
-X-Mailer: git-send-email 2.39.5
+	dkim=pass (2048-bit key) header.d=NXP1.onmicrosoft.com header.i=@NXP1.onmicrosoft.com header.b="e84TYlzk"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=HEnBdvWsh0XR+FbiWFsCNDST5EdwRkh/QzPdzpTQpYEq1ZKtcoVHO7Xne9skudoSBOo+QuaPgXwMXM0blISBMaIuoIYXqih1b91OuRVnkJ85e+QYHrRvsLA0jDffMUVjHvPMz13+iFhooWjFc7C3iuUfu7uej0lYIW2Oqh1hAukh+heA7uio8kFTYnpQckO7pcPx5u1U7D0YzoY2UnR+vE7e+MbtKBZjFK+/F1FULcgKUIGJWPLEwT3XIQZM3GdMlSJsOtVVvHmOmoIKriWeYDXn5n1GkQFtn+uN5UZXI6Jp22qvrTw6vaATgw8jSJr3437jt1vUfjx7Aur8Gba5Lg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=oGkHZmi7vUG5yrrKmcJyWTBhTM1/o8UcugETmhubcKw=;
+ b=IEPCQc7eBQU/8SRJYnVF3usUBU8ujmvH7dfreyVq1pT2gWzAJkDkQoue4ERSJgcQa3Vb+xmvjZ1UX0wD8RpVHOByKu+6DYBV9hookunNtpJ/ON0uV9h53YFBz/UKaPdniPRf3VOOu+0SX7oGxIlRa2K0nzWmq1R9tLw+l/zoRX1VulzBGfTzR2hXsV2Vefz5+v0V7yOjCS5J65C7B3Cqjj3DXQuHGb1cmHuvdMDJvITKB6A8B8eaubC+hJR5yosrRyu60RfkFlYb41saDcuPvsqZAXuTVR4cJ64rRXtEbpfy0D62j0ahmMgtnH9/l+fjI6inMFp/VFpPIcXMvNFEzg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oss.nxp.com; dmarc=pass action=none header.from=oss.nxp.com;
+ dkim=pass header.d=oss.nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=NXP1.onmicrosoft.com;
+ s=selector1-NXP1-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=oGkHZmi7vUG5yrrKmcJyWTBhTM1/o8UcugETmhubcKw=;
+ b=e84TYlzkgshWjRCyYLNKpCb4DcSsGA13xMCUPcmLRKi1mWBAoJHUuV9WsbAaaPqIY+BbRIqRmMq7svq+QZJNAzsno8SikVkcFd3tgBDSCFr9uAUdmJ5g08UckjYeCbx9KhuAVzRVHOcTlD97o5/dMzqLvKcZBNaGjyFMKLfQ68IAtBu8ggUqZ0cbeHxU7PDNeQ5f2IMaKADs7M7CpuIAdLvOa9EsWEDgAXOE5kNfIIWfpglvSrbsawGbWaAnkckc1RePuFxlbQ+10WxJEwvaZ50vt7u9T2JlZf8HQljgsh7XWOWn6wlZMba7l92opbdpUx/WwBl/3yIW/mj9AzIXjw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=oss.nxp.com;
+Received: from GV2PR04MB11799.eurprd04.prod.outlook.com (2603:10a6:150:2cf::9)
+ by AS4PR04MB9265.eurprd04.prod.outlook.com (2603:10a6:20b:4e0::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.159.19; Mon, 29 Jun
+ 2026 14:08:46 +0000
+Received: from GV2PR04MB11799.eurprd04.prod.outlook.com
+ ([fe80::2146:83a2:5329:b7c]) by GV2PR04MB11799.eurprd04.prod.outlook.com
+ ([fe80::2146:83a2:5329:b7c%6]) with mapi id 15.21.0159.007; Mon, 29 Jun 2026
+ 14:08:46 +0000
+Date: Mon, 29 Jun 2026 09:08:24 -0500
+From: Frank Li <Frank.li@oss.nxp.com>
+To: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+Cc: Lee Jones <lee@kernel.org>,
+	Mark Brown <broonie@opensource.wolfsonmicro.com>,
+	Thierry Reding <thierry.reding@avionic-design.de>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Srinivas Kandagatla <srini@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Vinod Koul <vkoul@kernel.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>, Rob Herring <robh@kernel.org>,
+	Saravana Kannan <saravanak@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Robin Murphy <robin.murphy@arm.com>,
+	Doug Berger <opendmb@gmail.com>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Ulf Hansson <ulfh@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Peter Chen <peter.chen@kernel.org>,
+	Paul Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	Maximilian Luz <luzmaximilian@gmail.com>,
+	Hans de Goede <hansg@kernel.org>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>, brgl@kernel.org,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org,
+	driver-core@lists.linux.dev, devicetree@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
+	iommu@lists.linux.dev, linux-pm@vger.kernel.org,
+	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	intel-xe@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+	linux-usb@vger.kernel.org, linux-mips@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org
+Subject: Re: [PATCH v2 08/19] iommu/fsl: use platform_device_set_of_node()
+Message-ID: <akJ8WOFadekww2Ye@SMW015318>
+References: <20260629-pdev-fwnode-ref-v2-0-8abe2513f96e@oss.qualcomm.com>
+ <20260629-pdev-fwnode-ref-v2-8-8abe2513f96e@oss.qualcomm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260629-pdev-fwnode-ref-v2-8-8abe2513f96e@oss.qualcomm.com>
+X-ClientProxiedBy: PH8P221CA0035.NAMP221.PROD.OUTLOOK.COM
+ (2603:10b6:510:346::28) To GV2PR04MB11799.eurprd04.prod.outlook.com
+ (2603:10a6:150:2cf::9)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: GV2PR04MB11799:EE_|AS4PR04MB9265:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8a2af774-7afd-492e-d760-08ded5e7eefc
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|19092799006|7416014|376014|1800799024|23010399003|3023799007|18002099003|22082099003|4143699003|56012099006|11063799006;
+X-Microsoft-Antispam-Message-Info:
+	UYy4i62EHwPpsDxL3M03C7pPoR+CUIzJ+QZPNqwbxczlPyOzQO3s+pDcSo5yo4OrGxTyfMrHpsZiu5BGeB+/B3LaTMGdKfFFcDFDHJwwo22cbArwaJcaWUTVGySahS1zUGSLc6M/iIB7US/dqr9YT+/Ub7BBl38oSie7iPkkGYdbMAjiPO+2wcBRgQlmoPIwyvemAfyqGjE+EJ9Q8BwxHCraX12T9rw9GNZ7Dg+L635+MeFrflaWkJF500rTOqJ3dYRgq8zkcC/OqMewfaj52LllyZOF8CUaGMIGJuEea0Acqsp1CVQi3WHci94D5UniHGKbWl+hpjz8dYm0sEqyAK/G9EcEj3t7WZSbNHGMbzB5Z+seRJubGkv/H7TuTmoG2N/H+uE1CtKPeASlJ4IwL5v6UeuDD3Yo2E9UhN/AB/+s+jcEkn+RbjHvCtpyiNuwMfrPuG3vVD4vSrXoQgHhMSPU2NkwnT8O/VLkyVhYz0mB9lWf6tLmR0GR6EdI7yf6XWeHQkjQlk6OaFEnPv0r7qMpKih+eflteG9sCoUWc38wBpnknF9yUTsGv/jMFSJD4ohu17gBtDr0nR4e/E+iGZ5m7O1UzMJj76jYe79s1z11zvro0gE2okoWaGIzWnsIBtiyFoCIMPxaVccM1lyWYekZTCCnH8wfVCPYtTrn48Q=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:GV2PR04MB11799.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(19092799006)(7416014)(376014)(1800799024)(23010399003)(3023799007)(18002099003)(22082099003)(4143699003)(56012099006)(11063799006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?kDTBGJOmwuuu5VuvAWiMwRC1BM/7B24x1Ve0ujInuqGmplnllUqug0qQy+qh?=
+ =?us-ascii?Q?NJs9gQ5QsneTyl2KgRz4J4tFSLqSROqxYX3HedM4H5AghUcHaGyIOOwUjIU+?=
+ =?us-ascii?Q?yoixwRZu/ogZqybhdJ5KJEnhHOEkp36lII1wvNGAN8DCSqueXBwnFvcX8EuD?=
+ =?us-ascii?Q?3gLY+jrmCeFZDH9RvW0FaDJzbjLbJzeKTV9x5shtP5tLN3urxWc4hpLFcXVa?=
+ =?us-ascii?Q?3smy6ZRs7mmq9z2Gbv43BL41+4cl5l0oQOJNViasw6RfhLcIvMQOPoSOYKq9?=
+ =?us-ascii?Q?W1e39RgRxAb5Ck0ZR7m2xnCfVZ3F835MpCJdSx4Gpk5zcuDgXW4WnJ3UEw29?=
+ =?us-ascii?Q?aii7Tlh/Ocm6i0BSpdkwoC//EXC0J3CXDlhP0XyTETyhy4aC3FcY7XqSAFyQ?=
+ =?us-ascii?Q?1wemrkhuUpWI86H3fJEG5l/8dZ84R7mVz3QRNwY1lUIpwH0H+rq8RtKAlZ0u?=
+ =?us-ascii?Q?GlVEkq1YEJXemTBhV06kMrS/0yVwg6H/9jII92/1ixJxQKOpJHV+yID3p/2o?=
+ =?us-ascii?Q?0fSTkHv6uRiE0d3saxtqrdGIYEDJYCyUWHSQsAXCOFiBuisQEvA9v2ODcS8K?=
+ =?us-ascii?Q?ezKwC7oZMOEbW037b/5CEYU0JhSnolScmwHExgvV8BfySy102i7kQNc2jh+a?=
+ =?us-ascii?Q?r+KR+YH6jH/KiRtVWj2hgIuc1shbAJWaLc9dUeV+8N8js9rl+rK94g8WAhwU?=
+ =?us-ascii?Q?JGQ39xUdwYNKmWWQUndgbkXJB3ue6/pZ/qRQQn0Do3ZQV+N+ObzYN5sUs4ED?=
+ =?us-ascii?Q?wRM1ZEOSm4yTrH16mOq2Eo9XCawuhXh31ykU+4ICPH9c97riVBVHxTltnDyH?=
+ =?us-ascii?Q?HQ86EPwa2LQJSmS1yYkzSTAgQZKBLdDxI17qSuckfj9RlUHMfdoldHJwysQ5?=
+ =?us-ascii?Q?0k1gDGver1FcCyPyW3h/h0jXj3hTsmwhBhXiAluhQNbMFt42Oy0KmUsq5Qse?=
+ =?us-ascii?Q?QuWaEsjjS3uEYdOLESQJ3vUTuk46PR1m719uzPlWMAiLqWGrdBGHwtTBlh8I?=
+ =?us-ascii?Q?XgcJSz4CeJ+nZECC3nrFT5nDRwGFHi90zYDPt/9qTOhepZh88ZpYQo58StNx?=
+ =?us-ascii?Q?X/LR9fcm9kHbJYx5JabbQjkgCLHLI24IvVPN+R95sQa/HBdRo67yoIFt0rhf?=
+ =?us-ascii?Q?89Fo8eevYQFe/olIzalr4HHyiJLVSbhl68EY90q88d0XOC0qThGIiA35EkVl?=
+ =?us-ascii?Q?YUHFQ/FihDTalXUhjODDiNCMj4i8VhKZBpgOzKBQGKWFb7F7fc0LmyR2hLMQ?=
+ =?us-ascii?Q?BNyUuLdewKXOqhJo5O/h2uTql+NJMoW9EZU1tUheEUUQPN6Y0VHKlXC9nW8x?=
+ =?us-ascii?Q?Uly2brppEBGNJfkdB9hU/eJn6y95sbXy6iUTLpxLlr8Uf4hz+6S0Sk+/kuFt?=
+ =?us-ascii?Q?o6rz3UBiKaj9PX697t0mmfHy5Gpm+p3M0YrV4HwXS3AipV8Mhq6QucjJP/3X?=
+ =?us-ascii?Q?ux6dBaxAmm6WjeMA/BCHLhhUq3nk6zKX/cLlrfotS2mpamWQJZ7URTfBV0a8?=
+ =?us-ascii?Q?Npz+ePbQn1amP+6ybAjNkhGFbCTbL1SFZKfqkreLoZNhPS4Qse9B0XoZlaDw?=
+ =?us-ascii?Q?3/ovmE9+ZbehjnLZ3rjkNF/k+TxwnsW6B51Yyd75pdECc04q2Bl4vJjt7DUe?=
+ =?us-ascii?Q?/nTqC2o3BwkILtj7lN9MnG8NmRmx8YvdjHgOCI4MfTh3VbuvyhU2cEBkxNI+?=
+ =?us-ascii?Q?ritBogCWKAuui/i8Zby0HHPH3/5lYRUKzv01Pzw33wvPR0s12BFC0FOOebAd?=
+ =?us-ascii?Q?Z3gJ4CXUJOxTMHzz8AF8Pkjo94w6iQ3tPLBHESzf7nUiZXk7UvU9?=
+X-OriginatorOrg: oss.nxp.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8a2af774-7afd-492e-d760-08ded5e7eefc
+X-MS-Exchange-CrossTenant-AuthSource: GV2PR04MB11799.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jun 2026 14:08:46.0964
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: CbEzC5shI94/h5UvHFft/MVfEwJZZsbh+AI6yEocLaBpBPPrKkGnLbMH4mccbXmyyirPzjH/RKwFnr9kTec1LKA8gN+zPU698NL5EzUZh8LWMcHB7e4XtI4rdqpIUD4k
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS4PR04MB9265
 
-From: Arnd Bergmann <arnd@arndb.de>
+On Mon, Jun 29, 2026 at 11:12:31AM +0200, Bartosz Golaszewski wrote:
+> [You don't often get email from bartosz.golaszewski@oss.qualcomm.com. Learn why this is important at https://aka.ms/LearnAboutSenderIdentification ]
+>
+> Ahead of reworking the reference counting logic for platform devices,
+> encapsulate the assignment of the OF node for dynamically allocated
+> platform devices with the provided helper.
+>
+> Acked-by: Robin Murphy <robin.murphy@arm.com>
+> Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>
+> ---
+>  drivers/iommu/fsl_pamu.c | 7 +++----
+>  1 file changed, 3 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/iommu/fsl_pamu.c b/drivers/iommu/fsl_pamu.c
+> index 25aa477a95a95cb4fa4e132727cde0a936750ee2..012839fa0d8a27cafc6a441373f4f6da794388c1 100644
+> --- a/drivers/iommu/fsl_pamu.c
+> +++ b/drivers/iommu/fsl_pamu.c
+> @@ -973,7 +973,8 @@ static __init int fsl_pamu_init(void)
+>                 ret = -ENOMEM;
+>                 goto error_device_alloc;
+>         }
+> -       pdev->dev.of_node = of_node_get(np);
+> +
+> +       platform_device_set_of_node(pdev, np);
+>
+>         ret = pamu_domain_init();
+>         if (ret)
+> @@ -985,12 +986,10 @@ static __init int fsl_pamu_init(void)
+>                 goto error_device_add;
+>         }
+>
+> +       of_node_put(np);
 
-Most remaining users of desc_to_gpio() only call it for printing debug
-information.
+there are other place miss of_node_put() at error pass.
 
-Replace this with a new gpiod_name() helper that returns the
-gpio_desc->name string after checking the gpio_desc pointer.
+Can you use auto cleanup
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
----
+struct device_node *np __free(device_node) = of_find_compatible_node().
 
-Not sure if this the way we want to take this, or if the gpio name is
-an appropriate replacement in debug printk.
-
-Since most of the callers of desc_to_gpio() and gpio_to_desc() are
-otherwise in drivers that already depend on CONFIG_GPIOLIB_LEGACY and
-include linux/gpio/legacy.h, only a handful of instances remain that
-are otherwise in files that otherwise only use the descriptor interfaces:
-
-arch/arm/mach-pxa/pxa27x.c:	reset_gpio = desc_to_gpio(gpiod);
-arch/arm/plat-orion/gpio.c:	unsigned gpio = desc_to_gpio(desc);
-drivers/gpio/gpio-nomadik.c:		mode = nmk_prcm_gpiocr_get_mode(pctldev, desc_to_gpio(desc));
-drivers/gpio/gpiolib-acpi-core.c:			desc = gpio_to_desc(agpio->pin_table[pin_index]);
-drivers/gpio/gpiolib-cdev.c:	hte_init_line_attr(hdesc, desc_to_gpio(line->desc), flags, NULL,
-drivers/gpio/gpiolib-sysfs.c:	desc = gpio_to_desc(gpio);
-drivers/gpio/gpiolib-sysfs.c:						   desc_to_gpio(desc));
-drivers/gpio/gpiolib.c:	trace_gpio_direction(desc_to_gpio(desc), 1, ret);
-drivers/input/misc/soc_button_array.c:	*gpio_ret = desc_to_gpio(desc);
-drivers/pinctrl/core.c:			gdev = gpiod_to_gpio_device(gpio_to_desc(gpio_num));
-drivers/platform/x86/x86-android-tablets/core.c: * 2. Calling desc_to_gpio() to get an old style GPIO number for gpio-keys
-drivers/soc/fsl/qe/gpio.c:	gpio_num = desc_to_gpio(gpiod);
----
- drivers/bluetooth/hci_intel.c             |  4 ++--
- drivers/extcon/extcon-rtk-type-c.c        |  4 ++--
- drivers/gpio/gpio-aggregator.c            |  4 ++--
- drivers/gpio/gpiolib.c                    | 13 +++++++++++++
- drivers/gpu/drm/bridge/analogix/anx7625.c |  6 +++---
- drivers/i2c/busses/i2c-gpio.c             |  4 ++--
- drivers/iio/accel/mma9551.c               |  4 ++--
- drivers/iio/humidity/dht11.c              |  2 +-
- drivers/input/touchscreen/edt-ft5x06.c    |  6 +++---
- drivers/input/touchscreen/hycon-hy46xx.c  |  5 ++---
- drivers/mmc/host/atmel-mci.c              |  8 ++++----
- drivers/power/supply/bq24257_charger.c    |  2 +-
- drivers/usb/gadget/udc/at91_udc.c         |  4 ++--
- include/linux/gpio/consumer.h             |  8 ++++++++
- 14 files changed, 47 insertions(+), 27 deletions(-)
-
-diff --git a/drivers/bluetooth/hci_intel.c b/drivers/bluetooth/hci_intel.c
-index c31105b91e47..2e6ebc152bcb 100644
---- a/drivers/bluetooth/hci_intel.c
-+++ b/drivers/bluetooth/hci_intel.c
-@@ -1176,8 +1176,8 @@ static int intel_probe(struct platform_device *pdev)
- 	list_add_tail(&idev->list, &intel_device_list);
- 	mutex_unlock(&intel_device_list_lock);
- 
--	dev_info(&pdev->dev, "registered, gpio(%d)/irq(%d).\n",
--		 desc_to_gpio(idev->reset), idev->irq);
-+	dev_info(&pdev->dev, "registered, gpio(%s)/irq(%d).\n",
-+		 gpiod_name(idev->reset), idev->irq);
- 
- 	return 0;
- }
-diff --git a/drivers/extcon/extcon-rtk-type-c.c b/drivers/extcon/extcon-rtk-type-c.c
-index 82b60b927e41..fb57e9d7ddb6 100644
---- a/drivers/extcon/extcon-rtk-type-c.c
-+++ b/drivers/extcon/extcon-rtk-type-c.c
-@@ -1356,8 +1356,8 @@ static int extcon_rtk_type_c_probe(struct platform_device *pdev)
- 				(int)PTR_ERR(gpio));
- 		} else {
- 			type_c->rd_ctrl_gpio_desc = gpio;
--			dev_dbg(dev, "%s get rd-ctrl-gpios (id=%d) OK\n",
--				__func__, desc_to_gpio(gpio));
-+			dev_dbg(dev, "%s get rd-ctrl-gpios (id=%s) OK\n",
-+				__func__, gpiod_name(gpio));
- 		}
- 	}
- 
-diff --git a/drivers/gpio/gpio-aggregator.c b/drivers/gpio/gpio-aggregator.c
-index bc6699a821ee..27df680fbdbb 100644
---- a/drivers/gpio/gpio-aggregator.c
-+++ b/drivers/gpio/gpio-aggregator.c
-@@ -758,8 +758,8 @@ int gpiochip_fwd_desc_add(struct gpiochip_fwd *fwd, struct gpio_desc *desc,
- 
- 	fwd->descs[offset] = desc;
- 
--	dev_dbg(chip->parent, "%u => gpio %d irq %d\n", offset,
--		desc_to_gpio(desc), gpiod_to_irq(desc));
-+	dev_dbg(chip->parent, "%u => gpio %s irq %d\n", offset,
-+		gpiod_name(desc), gpiod_to_irq(desc));
- 
- 	return 0;
- }
-diff --git a/drivers/gpio/gpiolib.c b/drivers/gpio/gpiolib.c
-index 1f498d6c8c68..00de24db74a5 100644
---- a/drivers/gpio/gpiolib.c
-+++ b/drivers/gpio/gpiolib.c
-@@ -4122,6 +4122,19 @@ int gpiod_set_consumer_name(struct gpio_desc *desc, const char *name)
- }
- EXPORT_SYMBOL_GPL(gpiod_set_consumer_name);
- 
-+/**
-+ * gpiod_name() - get a name to print for a gpio descriptor
-+ * @desc: gpio or NULL pointer to query
-+ *
-+ * Returns:
-+ * The desc->name field or a dummy string for unknown GPIOs.
-+ */
-+const char *gpiod_name(const struct gpio_desc *desc)
-+{
-+	return desc ? desc->name : "(no gpio)";
-+}
-+EXPORT_SYMBOL_GPL(gpiod_name);
-+
- /**
-  * gpiod_is_shared() - check if this GPIO can be shared by multiple consumers
-  * @desc: GPIO to inspect
-diff --git a/drivers/gpu/drm/bridge/analogix/anx7625.c b/drivers/gpu/drm/bridge/analogix/anx7625.c
-index fffcd6154c71..5dce097d4045 100644
---- a/drivers/gpu/drm/bridge/analogix/anx7625.c
-+++ b/drivers/gpu/drm/bridge/analogix/anx7625.c
-@@ -1448,9 +1448,9 @@ static void anx7625_init_gpio(struct anx7625_data *platform)
- 
- 	if (platform->pdata.gpio_p_on && platform->pdata.gpio_reset) {
- 		platform->pdata.low_power_mode = 1;
--		DRM_DEV_DEBUG_DRIVER(dev, "low power mode, pon %d, reset %d.\n",
--				     desc_to_gpio(platform->pdata.gpio_p_on),
--				     desc_to_gpio(platform->pdata.gpio_reset));
-+		DRM_DEV_DEBUG_DRIVER(dev, "low power mode, pon %s, reset %s.\n",
-+				     gpiod_name(platform->pdata.gpio_p_on),
-+				     gpiod_name(platform->pdata.gpio_reset));
- 	} else {
- 		platform->pdata.low_power_mode = 0;
- 		DRM_DEV_DEBUG_DRIVER(dev, "not low power mode.\n");
-diff --git a/drivers/i2c/busses/i2c-gpio.c b/drivers/i2c/busses/i2c-gpio.c
-index f4355b17bfbf..4c320a833d9e 100644
---- a/drivers/i2c/busses/i2c-gpio.c
-+++ b/drivers/i2c/busses/i2c-gpio.c
-@@ -440,8 +440,8 @@ static int i2c_gpio_probe(struct platform_device *pdev)
- 	 * get accessors to get the actual name of the GPIO line,
- 	 * from the descriptor, then provide that instead.
- 	 */
--	dev_info(dev, "using lines %u (SDA) and %u (SCL%s)\n",
--		 desc_to_gpio(priv->sda), desc_to_gpio(priv->scl),
-+	dev_info(dev, "using lines %s (SDA) and %s (SCL%s)\n",
-+		 gpiod_name(priv->sda), gpiod_name(priv->scl),
- 		 pdata->scl_is_output_only
- 		 ? ", no clock stretching" : "");
- 
-diff --git a/drivers/iio/accel/mma9551.c b/drivers/iio/accel/mma9551.c
-index 020370b0ec07..b9d1fc3caf83 100644
---- a/drivers/iio/accel/mma9551.c
-+++ b/drivers/iio/accel/mma9551.c
-@@ -426,8 +426,8 @@ static int mma9551_gpio_probe(struct iio_dev *indio_dev)
- 			return ret;
- 		}
- 
--		dev_dbg(dev, "gpio resource, no:%d irq:%d\n",
--			desc_to_gpio(gpio), data->irqs[i]);
-+		dev_dbg(dev, "gpio resource, no:%s irq:%d\n",
-+			gpiod_name(gpio), data->irqs[i]);
- 	}
- 
- 	return 0;
-diff --git a/drivers/iio/humidity/dht11.c b/drivers/iio/humidity/dht11.c
-index 980cb946bbf7..ca6b8c53e462 100644
---- a/drivers/iio/humidity/dht11.c
-+++ b/drivers/iio/humidity/dht11.c
-@@ -305,7 +305,7 @@ static int dht11_probe(struct platform_device *pdev)
- 
- 	dht11->irq = gpiod_to_irq(dht11->gpiod);
- 	if (dht11->irq < 0) {
--		dev_err(dev, "GPIO %d has no interrupt\n", desc_to_gpio(dht11->gpiod));
-+		dev_err(dev, "GPIO %s has no interrupt\n", gpiod_name(dht11->gpiod));
- 		return -EINVAL;
- 	}
- 
-diff --git a/drivers/input/touchscreen/edt-ft5x06.c b/drivers/input/touchscreen/edt-ft5x06.c
-index d3b1177185a3..2d31c77614b0 100644
---- a/drivers/input/touchscreen/edt-ft5x06.c
-+++ b/drivers/input/touchscreen/edt-ft5x06.c
-@@ -1326,10 +1326,10 @@ static int edt_ft5x06_ts_probe(struct i2c_client *client)
- 	edt_ft5x06_ts_prepare_debugfs(tsdata);
- 
- 	dev_dbg(&client->dev,
--		"EDT FT5x06 initialized: IRQ %d, WAKE pin %d, Reset pin %d.\n",
-+		"EDT FT5x06 initialized: IRQ %d, WAKE pin %s, Reset pin %s.\n",
- 		client->irq,
--		tsdata->wake_gpio ? desc_to_gpio(tsdata->wake_gpio) : -1,
--		tsdata->reset_gpio ? desc_to_gpio(tsdata->reset_gpio) : -1);
-+		gpiod_name(tsdata->wake_gpio),
-+		gpiod_name(tsdata->reset_gpio));
- 
- 	return 0;
- }
-diff --git a/drivers/input/touchscreen/hycon-hy46xx.c b/drivers/input/touchscreen/hycon-hy46xx.c
-index 1513f20cbf51..797667c5dd99 100644
---- a/drivers/input/touchscreen/hycon-hy46xx.c
-+++ b/drivers/input/touchscreen/hycon-hy46xx.c
-@@ -528,9 +528,8 @@ static int hycon_hy46xx_probe(struct i2c_client *client)
- 		return error;
- 
- 	dev_dbg(&client->dev,
--		"HYCON HY46XX initialized: IRQ %d, Reset pin %d.\n",
--		client->irq,
--		tsdata->reset_gpio ? desc_to_gpio(tsdata->reset_gpio) : -1);
-+		"HYCON HY46XX initialized: IRQ %d, Reset pin %s.\n",
-+		client->irq, gpiod_name(tsdata->reset_gpio));
- 
- 	return 0;
- }
-diff --git a/drivers/mmc/host/atmel-mci.c b/drivers/mmc/host/atmel-mci.c
-index 3b4928f5b9b2..b21820564315 100644
---- a/drivers/mmc/host/atmel-mci.c
-+++ b/drivers/mmc/host/atmel-mci.c
-@@ -2255,11 +2255,11 @@ static int atmci_init_slot(struct atmel_mci *host,
- 	slot->sdio_irq = sdio_irq;
- 
- 	dev_dbg(&mmc->class_dev,
--	        "slot[%u]: bus_width=%u, detect_pin=%d, "
--		"detect_is_active_high=%s, wp_pin=%d\n",
--		id, slot_data->bus_width, desc_to_gpio(slot_data->detect_pin),
-+	        "slot[%u]: bus_width=%u, detect_pin=%s, "
-+		"detect_is_active_high=%s, wp_pin=%s\n",
-+		id, slot_data->bus_width, gpiod_name(slot_data->detect_pin),
- 		str_true_false(!gpiod_is_active_low(slot_data->detect_pin)),
--		desc_to_gpio(slot_data->wp_pin));
-+		gpiod_name(slot_data->wp_pin));
- 
- 	mmc->ops = &atmci_ops;
- 	mmc->f_min = DIV_ROUND_UP(host->bus_hz, 512);
-diff --git a/drivers/power/supply/bq24257_charger.c b/drivers/power/supply/bq24257_charger.c
-index 72f1bfea8d54..b756bab74eec 100644
---- a/drivers/power/supply/bq24257_charger.c
-+++ b/drivers/power/supply/bq24257_charger.c
-@@ -868,7 +868,7 @@ static void bq24257_pg_gpio_probe(struct bq24257_device *bq)
- 	}
- 
- 	if (bq->pg)
--		dev_dbg(bq->dev, "probed PG pin = %d\n", desc_to_gpio(bq->pg));
-+		dev_dbg(bq->dev, "probed PG pin = %s\n", gpiod_name(bq->pg));
- }
- 
- static int bq24257_fw_probe(struct bq24257_device *bq)
-diff --git a/drivers/usb/gadget/udc/at91_udc.c b/drivers/usb/gadget/udc/at91_udc.c
-index 5aa360ba4f03..099313604387 100644
---- a/drivers/usb/gadget/udc/at91_udc.c
-+++ b/drivers/usb/gadget/udc/at91_udc.c
-@@ -1896,8 +1896,8 @@ static int at91udc_probe(struct platform_device *pdev)
- 					gpiod_to_irq(udc->board.vbus_pin),
- 					at91_vbus_irq, 0, driver_name, udc);
- 			if (retval) {
--				DBG("request vbus irq %d failed\n",
--				    desc_to_gpio(udc->board.vbus_pin));
-+				DBG("request vbus irq %s failed\n",
-+				    gpiod_name(udc->board.vbus_pin));
- 				goto err_unprepare_iclk;
- 			}
- 		}
-diff --git a/include/linux/gpio/consumer.h b/include/linux/gpio/consumer.h
-index fceeefd5f893..9c91fae62f8c 100644
---- a/include/linux/gpio/consumer.h
-+++ b/include/linux/gpio/consumer.h
-@@ -172,6 +172,8 @@ int gpiod_set_consumer_name(struct gpio_desc *desc, const char *name);
- 
- bool gpiod_is_shared(const struct gpio_desc *desc);
- 
-+const char *gpiod_name(const struct gpio_desc *desc);
-+
- /* Convert between the old gpio_ and new gpiod_ interfaces */
- struct gpio_desc *gpio_to_desc(unsigned gpio);
- int desc_to_gpio(const struct gpio_desc *desc);
-@@ -538,6 +540,12 @@ static inline bool gpiod_is_shared(const struct gpio_desc *desc)
- 	return false;
- }
- 
-+static inline const char *gpiod_name(const struct gpio_desc *desc)
-+{
-+	WARN_ON(desc);
-+	return "(no gpio)";
-+}
-+
- static inline struct gpio_desc *gpio_to_desc(unsigned gpio)
- {
- 	return NULL;
--- 
-2.39.5
-
+Frank
+>         return 0;
+>
+>  error_device_add:
+> -       of_node_put(pdev->dev.of_node);
+> -       pdev->dev.of_node = NULL;
+> -
+>         platform_device_put(pdev);
+>
+>  error_device_alloc:
+>
+> --
+> 2.47.3
+>
+>
