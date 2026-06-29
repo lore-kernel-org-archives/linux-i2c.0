@@ -1,129 +1,112 @@
-Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F5B437B023
-	for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 02:39:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 940CB389107
+	for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 06:26:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782700766; cv=none; b=lquFtUAmwTit3A0aLuSz3kEv01DaqcyZD1YNy016TV07xwk3453z5w5euJRIYslvHMe79g/pS2uKjQAGv6CVvqdkycpRA8ZLKv0qnDUJlq6ACYyDNjyMtsmTkg/KQMb5NBVnp0PPJI9a3QCqo3pK/OkF2KI9vu0vryTz8fbj+70=
+	t=1782714402; cv=none; b=PZVHSQIRxBzQWHj99DF2nz1L+Jqt5JUGPmVwuEjq2/71zFo8qm6URb2xfAt3ZpaXzMdj+7xTu4RSquZBJWGrbQX5VHLGQNf1yD3zjpaXuBPEml+ixU1qlMdd6I3M+TA4xwbRe53V3AC/7yXe6Mcao2oB1Xf/dMf1asS0c/WyhMQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782700766; c=relaxed/simple;
-	bh=3yf/BQq8y+lBmy/U8Na/4Wdy8IPK1JZVpOtqu+QvhLs=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=MijY5D5zlITdpn6w/Nf97frYe+r6KXcWiiF9GLfSnQxzTdj/PgiOYw52IdCpALhv672MDA3gL6Y3zlDw7SD+0p+H3U36T+4zqzE9VT1foBsWruRs4e3svA2MJKpM9Vhwb544Cyl0nNHZx3/paSQG4y6RmaAcXTl6NEAY55/o6s0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aKN7a8QK; arc=none smtp.client-ip=209.85.215.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782714402; c=relaxed/simple;
+	bh=CMw8IrJ8TdmR6qZMYCm3a5dWEAdS58OSC6i7cS07jjU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=P/HvKR/rYzi5W/nGGZ0G8wHbLNWA9C1mT64Ezy2/W+2A6+qshNOWox+TTqSvTE5SwbJaYqdavj24nqN6m1YJB+7+p6ahG7FymR2sPjs2wmtz3CUJS9BGSKBz3C5SbQJp1B5T3iqUoPJBnzQec10x5yNTW3thONTKonOOw5C+Qew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=JZ/OjDQL; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aKN7a8QK"
-Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-c892a0ef503so1250752a12.2
-        for <linux-i2c@vger.kernel.org>; Sun, 28 Jun 2026 19:39:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782700764; x=1783305564; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=pjYx+8tIMWDajKptnVsnfbgFJjxKrPWEBY6WEuIFPcI=;
-        b=aKN7a8QKQ4Ho/XkIWEqscBKMNUxMMxQEra4nYjbhtTt6246gZO+1SM9MmBcXSkwuE6
-         EmxOx+N157uKaaCcZXsw49iS0rJvIHnoGfG8gUGhSt4shpm+hVKmGzB32uqygtGMr6xI
-         GKBA0J5QWx71dwLUMckmPhR9W8K2E0M04uzJ1lBLw8ah7gB6PTKek6ikVQJhrufWjPxH
-         qs2EzVHcTw+WOAPGJv2b+2RxHIDlk9iH/lrcEkWA2DWgbKFM0YdTSPJ94otdUdmt4ZLy
-         xNNZQPgnWvgMzeRvSJ11KrxTrgcunl/78eU5W8+0HiOwlu0bv1METBTuIHHJmu4Jgswd
-         rn4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782700764; x=1783305564;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=pjYx+8tIMWDajKptnVsnfbgFJjxKrPWEBY6WEuIFPcI=;
-        b=CyIkQqM7HzWjjP5BUm8JBpJQBGj1JwkXTDLbBeFpbeaNKXcXE+OGaA/k6lf+FVAimQ
-         +RbgnOMFrg1bRfjVW93dhzMZYlyfaXH3LR8c2q+fh8jGyNYI4Yb/740T3pTzcjGeUSH1
-         DvG0HoZnp2P5pHyAtsWSJjn0EuqL+EIIsqhMINteQyOL4kX8usS3IOJfQAqYowVMA3cc
-         eY9NF/89+IfcxmLXKoYaoVRlEx9gVh8OfodHx1ofYDV4ftL9o1cjAxunjAOmWjHNd5/i
-         Y0ZkWabcK6RmpxDibA/ZGmc5k36xowzuZIiRTNTJ7ZPim95HBNfWaAmAW4uM4yFpshVA
-         1gTg==
-X-Forwarded-Encrypted: i=1; AFNElJ+ABG84IlEPz3RisbhW6brCgdepdxULvM4sy8Ncn0/Enbf02bNehtpOSeQkNTLN9aZaSFbibyfgtA8=@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywr528uAKwV27bew30PM1vpApOUntHTa9dwjjMzqUpFN5De1fEI
-	n9StKLWHq3QNPEb5X/kowGGxpfzycq1Ja+q9irNyeVxmBvym/FAFKWdq
-X-Gm-Gg: AfdE7ck/RaTe8VbaIpfQxvmwU3tp0q1g/9gtcyg3SvZNzc9pf94D2zLnMA35KR+XiuS
-	FMFPHWowxG3yttdXRl07S0ij8hXRWCT0HkeW00cUPiKeCR3GvU/EWvwhLbaBuKXPItMqR0dmsqI
-	rzP24S+woTym6Bnidm/3OPjPZXanmEaLk2TDtw47PEoeRkM9GFnwuPmNl4EO4aoP3iMwRpRuftc
-	ZSCD3sOITMbVyGtYGCsZzXBmbFHWnlFzunvRKOkNbOTZB4y5qoFDGsyFZdOPcqFeT86331YKu+t
-	nnz7NteLwOt7v4kY5lLqxjFZtOL82xisKFw0qvLSsk5Tn8bHG/7tpSxIVZaoUjJ0+tWAaUqPrBe
-	bgiuf5Mf2EvoXwPrklbneI/Anbgt3mj56qCXtnA5lvQ882C0jQbtXm94LvAeY18GIEeWthw5I6D
-	SgO3GPeygOXZp8m/0Hvo7qgA==
-X-Received: by 2002:a05:6a20:a10e:b0:3bf:6c08:fb8d with SMTP id adf61e73a8af0-3bf6c091306mr7342972637.47.1782700763765;
-        Sun, 28 Jun 2026 19:39:23 -0700 (PDT)
-Received: from archermind.. ([182.150.55.91])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c92b9dc216csm6914869a12.9.2026.06.28.19.39.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 28 Jun 2026 19:39:23 -0700 (PDT)
-From: Liem <liem16213@gmail.com>
-To: carlos.song@oss.nxp.com
-Cc: andi.shyti@kernel.org,
-	biwen.li@nxp.com,
-	festevam@gmail.com,
-	frank.li@nxp.com,
-	frank.li@oss.nxp.com,
-	imx@lists.linux.dev,
-	kernel@pengutronix.de,
-	liem16213@gmail.com,
-	linux-arm-kernel@lists.infradead.org,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	o.rempel@pengutronix.de,
-	s.hauer@pengutronix.de,
-	stable@vger.kernel.org,
-	wsa@kernel.org,
-	Carlos Song <carlos.song@nxp.com>
-Subject: [PATCH v4 2/2] i2c: imx: Cancel hrtimer before clearing slave pointer
-Date: Mon, 29 Jun 2026 10:38:29 +0800
-Message-Id: <20260629023829.152651-3-liem16213@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260629023829.152651-1-liem16213@gmail.com>
-References: <AM0PR04MB6802B863CD9B9AE1609C1785E8EB2@AM0PR04MB6802.eurprd04.prod.outlook.com>
- <20260629023829.152651-1-liem16213@gmail.com>
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="JZ/OjDQL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=0uAk
+	ejhgCuaMoZrshp+jK8Z0ZGAtpRWMSbgtnJiT1+o=; b=JZ/OjDQLQTXGYDrenyOz
+	4nOtaMLXCnhVkGYGM6BPN8hcdL9/edD1d+SrXyG8Tnd0LB4q/fEAuyYynkyq85ie
+	LZ4HVIu04bnhOcWLS/UZybbPnQWAG580NH/YP2X00LHTovRcW5yyKMFW+hN3GUaz
+	/hzNRjT7NlAeCQ+m3cfgmxknOAfMOuNtIoDO/Cg9VsRJuw/lVvm/njhH93aYjLX3
+	JFjtFvhZxJsw16n8fpr3++kYXmzeD2Pi9bNQigNib0PhKWGmHmss6DrgJrk5PYPp
+	Qr4lWgsHaagkapbbSp3DoT1nP5kJhwzykjorNsi1JGEEweTvpx8U4VJQ/yRKGCwE
+	0w==
+Received: (qmail 256473 invoked from network); 29 Jun 2026 08:26:30 +0200
+Received: by mail.zeus03.de with UTF8SMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 29 Jun 2026 08:26:30 +0200
+X-UD-Smtp-Session: l3s3148p1@qX3wiV5VGL0ujntC
+Date: Mon, 29 Jun 2026 08:26:28 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
+Cc: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, linux-arm-msm@vger.kernel.org,
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v1 1/3] dt-bindings: i2c: Add Qualcomm I2C slave
+ controller
+Message-ID: <akIQFAX8LcZae29l@ninjato>
+References: <20260628-i2c-qcom-slave-v1-0-8b0a5c01f9f6@oss.qualcomm.com>
+ <20260628-i2c-qcom-slave-v1-1-8b0a5c01f9f6@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="r+ZUegNvxI2DW21t"
+Content-Disposition: inline
+In-Reply-To: <20260628-i2c-qcom-slave-v1-1-8b0a5c01f9f6@oss.qualcomm.com>
 
-In i2c_imx_unreg_slave(), the slave pointer is set to NULL after
-disabling interrupts.  However, a pending interrupt might already
-have started the hrtimer (i2c_imx_slave_timeout) before the pointer
-was cleared.  If the hrtimer fires after i2c_imx->slave is set to
-NULL, the timer callback i2c_imx_slave_finish_op() will call
-i2c_imx_slave_event() with a NULL slave pointer, which results in a
-use-after-free / NULL pointer dereference.
 
-Fix by canceling the hrtimer and waiting for it to complete after
-disabling interrupts, before clearing the slave pointer.
+--r+ZUegNvxI2DW21t
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Fixes: f7414cd6923f ("i2c: imx: support slave mode for imx I2C driver")
-Cc: stable@vger.kernel.org
-Acked-by: Carlos Song <carlos.song@nxp.com>
-Signed-off-by: Liem <liem16213@gmail.com>
----
-v3 -> v4: No changes, added Acked-by from Carlos Song.
----
- drivers/i2c/busses/i2c-imx.c | 1 +
- 1 file changed, 1 insertion(+)
+Hi,
 
-diff --git a/drivers/i2c/busses/i2c-imx.c b/drivers/i2c/busses/i2c-imx.c
-index 2398c406e913..b1c6581db774 100644
---- a/drivers/i2c/busses/i2c-imx.c
-+++ b/drivers/i2c/busses/i2c-imx.c
-@@ -960,6 +960,7 @@ static int i2c_imx_unreg_slave(struct i2c_client *client)
- 
- 	i2c_imx_reset_regs(i2c_imx);
- 
-+	hrtimer_cancel(&i2c_imx->slave_timer);
- 	i2c_imx->slave = NULL;
- 
- 	/* Suspend */
--- 
-2.34.1
+On Sun, Jun 28, 2026 at 08:09:04PM +0530, Viken Dadhaniya wrote:
+> Add a binding for the Qualcomm I2C slave controller found on QDU1000. The
+> block operates only as an I2C slave and supports FIFO/PIO transfers, so it
+> needs a binding separate from Qualcomm I2C master controllers.
 
+The official naming in I2C is now 'target' instead of 'slave'. Do you
+think you can rename that? I know the Linux I2C core has still the old
+wording in a lot of places and needs to be converted. However, if
+possible, it would be nice if not more of the old terms would be added
+which need to be converted at some point anyhow.
+
+> Document the MMIO region, interrupt, XO and AHB clocks, interconnect path,
+> and the 7-bit slave address needed to describe the controller in device
+> tree.
+>=20
+> Use the 'qcom,slave-addr' property for the slave address because 'reg'
+> describes the controller MMIO range, and this slave-only controller has no
+> child node where an I2C address can be encoded.
+
+This should not be needed because the backend defines which address is
+going to be used? Can you share how you tested this?
+
+Happy hacking,
+
+   Wolfram
+
+
+--r+ZUegNvxI2DW21t
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmpCEBAACgkQFA3kzBSg
+KbYpJw/+Jy6U95MRFmB6J1Zy6lGHpyDpSphYyFIl7y72sswAbF11zLbJJYfP8VZM
+1+y2qXv7VR+OGvSm72L7qCp22/ECva6pk6yVg1JFuBogRE8EskzW4qDcPYPcAkA3
+UrSPPXpfMkTkARRCL9mPheiihHxWmGq7QTDejHKw+mpFxBfF844Ch4zaoifxUpVr
+S78jmNX4kbGd36s1rqBg2V7jHKzAi6jTrtm94bp5LHLXc8Ch5clX4ZY8Ae8SV9c4
+ALbEIHZFCwy22shWoVeHyK2cJGEenzHjrPwI1Z8md1AGD21b9fwoFxoKU3s34x3E
+1jh5lAZranhaQZlv7D7R4Vij6bajyQDVcD4/nsN0qE48Bwe2ytJ3mfevI/c3zYJX
+Zqc82bBv8slMuyj3m5L3mab4DeU/lYinLqe/ABaCQnsSlFLwZNuAysiE0he8Wrxn
+y/p+rEyDyBd0/YEoYX4pW2W2xkZdQOA8Y8ft2RTa9jS77VZRGj+2H9ss8wX8mB56
+cwgNApPk04cICgu3ZC1gadxa9W8MvsD0iX1+BXLmalplGxJDp/uB58fsVlWKJgDQ
+q6kL3VMwLpiuh38VUBaolaQgILvpOuqpRotST3ihczTj/U1uYvc6sEVE7FNyQwkx
+/+UM39mRcw4KlBGLbh3TNKdaJ6h440EgQ8sdY1/176FilPUY8HU=
+=/xuL
+-----END PGP SIGNATURE-----
+
+--r+ZUegNvxI2DW21t--
