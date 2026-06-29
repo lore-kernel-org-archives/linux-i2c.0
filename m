@@ -1,215 +1,226 @@
-Received: from SY2PR01CU004.outbound.protection.outlook.com (mail-australiaeastazolkn19011057.outbound.protection.outlook.com [52.103.72.57])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D46BA212548
-	for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 13:40:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.72.57
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782740447; cv=fail; b=J7G+7gQqW2SQZfNHlvQyKjDXnYDv9I4UxNuH+jRGzzWcaXKmbnQtVC1NrUrU10lLLY9FvJ3TEwLTf2rp6blErHci/4u8uYihzVYSDrWGHfORDxvZiE5SlhOg9zXXbJBEVBTw+9zegIZO5LbNFjp1gtn1UPj3Y1yTV5g3XTqBBDw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782740447; c=relaxed/simple;
-	bh=yEPZY8QRNTxu75h0Ln76qHZcDL0oXuIVdQul2ThlyxU=;
-	h=Message-ID:Date:From:Subject:To:Cc:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=agLD+MWOGwY6OVE6uMSH7sdASHHyHG2Hohlz0Ad/UpcMZ5s+WhmcQ48CKA2KifqibCQAwIZ6ZvB587evLhLS4Gu42g6mI9b9UWsxHWGbZPBYJqBBhDrTuHt3Ewvjg4o1avzRdwPBCmQBPZNyJb5Js3Tci3ePuR8bVKYJq720LrU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com.au; spf=pass smtp.mailfrom=outlook.com.au; dkim=pass (2048-bit key) header.d=OUTLOOK.COM.AU header.i=@OUTLOOK.COM.AU header.b=KQyOZJ5G; arc=fail smtp.client-ip=52.103.72.57
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com.au
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DD2321B192;
+	Mon, 29 Jun 2026 13:42:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782740524; cv=none; b=f7toWFkV3ObmeZtFIXAavHRB+3XILm9DCvkErLsh/PD362u6UP8oVCihIoGkZVfMTXJ8DwN1Mzz/0lpFmENjNULvhwlmz9sLXKS+IBVvH9gzSBc7bUacoJybNGTLHqU4x9SkBhLept925FH1D4YnCiR3mMmlxb3ndjYy7tWw4JY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782740524; c=relaxed/simple;
+	bh=J2Rb1TyYMUeEHGKH0Tiz4lhsiS3qGZWED5XxWQxERmM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ipCteQf9UMRTU2AiRfUblPnSbMWswamzCE8LFqRs9t9B/uCU44x0t5Nev/qIy5CtxsqtgxGj8WeVXehUu6ZmcWm9EN8JqvHEo6pUvM0MrEMTxQ8qP9LPBupR5BGm4KRUbWK1gWiddnGrloEWI1u5kE92HsQhpnBVXCR2nABZ3ZE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=STo7aLk7; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=OUTLOOK.COM.AU header.i=@OUTLOOK.COM.AU header.b="KQyOZJ5G"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=TAOh1TCjHSBsYLDlBosgQy3u9E6juz8P2/Bz6k7/PBVgsK5nQJUaQqH5nqZPyoFMXPXV/XZYMCP0rugQZzCnbRn39ircHLHWROIZKgK2aneDYjrLWj5ws1zCimJaxaJ2OmPhlYYLJ+annpMoTuuzJi0wOpzS161750XCoy2FMU7rdlJ/Dk8eTGwb8xEUTl//uvxaSk6j/mPRFVwAnDquHoS1ItFKBVEMWjqfwUEh3fGHeH0/i+8ND79hmB49K3BjlWX/VBPoRO+gesFk/zY6hQ6yq0v/Yur/ubDQJByA4MeXZh7Ip/9rA6MIk2NOiWx3zFhb6XKk3Sk9eTBxu7PaPg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=Zw3sBwS6o30L/EHTzau5PmzisqXP9hRzu+gykgyUNCM=;
- b=IiYkndXt6v7bXub7o+RanNehRoFVVolHvWRP8IYL0YShjaA14s2v7oz3huRVDN+913jq1Bsuy7eYYbdYV/7CbjDq9Ari5kPMH1GbTBg+DHFxfJy1/vpyCTHwoGNh8c7i1RR20tWOS4ylbmEQ9IokCF3funx6+X6UyTwjVqA9LSk5835HncaKHb39f76QQVzDZBgCHf0f7JzSgdV5DjHp8g7WNY10T99rrfmafY4UCSs7ut6tTZYZVD4FXKWsVhK5ls2iHdzzAE/poZLuHDn8Yg1AgtJAR/VjvBldmTXlT9XYDh62huwCibShFad3sTdACDYd9q9WIRwf6cQ5HsGBnA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=OUTLOOK.COM.AU;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Zw3sBwS6o30L/EHTzau5PmzisqXP9hRzu+gykgyUNCM=;
- b=KQyOZJ5GB5emjwO9XahTtWqQQzWGqAiJkND0v3pWbpC/zuKhYr/cowO8Ud039cRMGDeAqoJJsOSC/2zVnuqep0ZOTyawSdYpYvM94DYvEQ+Py/on+RYckd6iBWMhqUJyrP5q23oiGJHjovhUApfGj/jb2+gIzKMcEIfU9XcmkSVLa/jizgT4aFDb4P/dq17On8eLLq9FIl0P5RNGrgtqVsJ2qDNC4RLYXkjtPddb+Cp7ADa3KSQ1ROWo7TUwSyscGHwAaUPbA/YHEkkNp3LCkLj+1aI9Oa82aBO3ElEd5ZZqAGCMZo/+IzQjs5UsK4NtUwe/bUuYRqOBcrqnWwXkXA==
-Received: from SYBPR01MB4586.ausprd01.prod.outlook.com (2603:10c6:10:59::12)
- by SY9PR01MB10784.ausprd01.prod.outlook.com (2603:10c6:10:320::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.159.19; Mon, 29 Jun
- 2026 13:40:42 +0000
-Received: from SYBPR01MB4586.ausprd01.prod.outlook.com
- ([fe80::57d:8fd6:3940:5957]) by SYBPR01MB4586.ausprd01.prod.outlook.com
- ([fe80::57d:8fd6:3940:5957%4]) with mapi id 15.21.0159.018; Mon, 29 Jun 2026
- 13:40:42 +0000
-Message-ID:
- <SYBPR01MB4586DF956D4DC963254267B3C5E82@SYBPR01MB4586.ausprd01.prod.outlook.com>
-Date: Mon, 29 Jun 2026 23:40:36 +1000
-User-Agent: Mozilla Thunderbird
-From: Stephen Horvath <s.horvath@outlook.com.au>
-Subject: Re: [PATCH i2c-tools v3 0/8] decode-dimms: Implement DDR5 decoding
-To: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: Jean Delvare <jdelvare@suse.de>,
- "linux-i2c@vger.kernel.org" <linux-i2c@vger.kernel.org>,
- Guenter Roeck <linux@roeck-us.net>,
- Kamil Aronowski <kamil.aronowski@3mdeb.com>
-References: <20260629-ddr5-v3-0-07f45075a51a@outlook.com.au>
- <akI1ZOP_wccyC2bO@ninjato>
-Content-Language: en-AU, en-US, en-GB
-In-Reply-To: <akI1ZOP_wccyC2bO@ninjato>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: SY4P282CA0011.AUSP282.PROD.OUTLOOK.COM
- (2603:10c6:10:a0::21) To SYBPR01MB4586.ausprd01.prod.outlook.com
- (2603:10c6:10:59::12)
-X-Microsoft-Original-Message-ID:
- <7b7b7b80-13dc-4b7b-b393-dd9a0034997e@outlook.com.au>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="STo7aLk7"
+Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65TATECC2647844;
+	Mon, 29 Jun 2026 13:42:00 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=qcppdkim1; bh=CPSzziTkc7x+WIJRL3eg1G/bDdtKedN/z+z
+	W/yvhMks=; b=STo7aLk7HYKhXA/x/BoazYSC8tPszWAoAvnOQ7h/kFxjNqT3MeQ
+	9FB2OU81oCrTQTuoKdzTkFLPscQ26S5XKJXMxkcnuy7oxZT3WOwNchu0LbKDMnRQ
+	HHXj5mCO9jhGpIRFjKUTf4yCnXhpScl38MrwbeMhhX5kWeXaTEyRvS0t9wmceuz6
+	5TwhtPK761xUGOlpYOj7+ZSnIlSPISc7FaG4Ex1dPbg7MY3Vyb5WTXxsIgMoZKjB
+	JGsfWT7OgNCp73wgYuVLTX6ooH19jUUvRC+GIFiN5BAU4FSildJObLe3Cw8HWW2l
+	TZ+d7/lncNWCU1TA0bOFF12tqVbVBkKOjbw==
+Received: from apblrppmta02.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4f3kyjhhu5-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Jun 2026 13:41:59 +0000 (GMT)
+Received: from pps.filterd (APBLRPPMTA02.qualcomm.com [127.0.0.1])
+	by APBLRPPMTA02.qualcomm.com (8.18.1.7/8.18.1.7) with ESMTP id 65TDftK0018562;
+	Mon, 29 Jun 2026 13:41:55 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 4f27kj6u2u-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Jun 2026 13:41:55 +0000 (GMT)
+Received: from APBLRPPMTA02.qualcomm.com (APBLRPPMTA02.qualcomm.com [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.1.12) with ESMTP id 65TDftQJ018555;
+	Mon, 29 Jun 2026 13:41:55 GMT
+Received: from hu-devc-hyd-u24-a.qualcomm.com (hu-msavaliy-hyd.qualcomm.com [10.147.246.140])
+	by APBLRPPMTA02.qualcomm.com (PPS) with ESMTPS id 65TDfsPD018553
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 29 Jun 2026 13:41:55 +0000 (GMT)
+Received: by hu-devc-hyd-u24-a.qualcomm.com (Postfix, from userid 429934)
+	id 0E38A21C18; Mon, 29 Jun 2026 19:11:54 +0530 (+0530)
+From: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
+To: andi.shyti@kernel.org, mukesh.savaliya@oss.qualcomm.com,
+        viken.dadhaniya@oss.qualcomm.com, linux-arm-msm@vger.kernel.org,
+        linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Bjorande@oss.qualcomm.com
+Cc: konrad.dybcio@oss.qualcomm.com
+Subject: [PATCH v6] i2c: i2c-qcom-geni: serve transfers during early resume
+Date: Mon, 29 Jun 2026 19:11:40 +0530
+Message-ID: <20260629134140.755193-1-mukesh.savaliya@oss.qualcomm.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SYBPR01MB4586:EE_|SY9PR01MB10784:EE_
-X-MS-Office365-Filtering-Correlation-Id: f3c13f32-1449-44be-8768-08ded5e400ba
-X-Microsoft-Antispam:
-	BCL:0;ARA:14566002|6090799003|8060799015|8022599003|41001999006|15080799012|19110799012|23021999003|24021099003|37011999003|5072599009|25010399006|3412199025|440099028;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?dFhLME1HNkZGTTV2WnBRbDNob3BkNHBGbjIveitBczEzVFRaNTZScU5yaTk3?=
- =?utf-8?B?Z25zK2JIN3VSVFE2M2E4WWJjVm9uUFpHK2tqYW1nSzVnVjdjdkFQOXViR3Yx?=
- =?utf-8?B?WjYxWUJrUWJPQ1VPWVM4cGFNUnQwUGlVVWR4TDlxMlJmZ3NVU1FmN1UrREJv?=
- =?utf-8?B?TFVOSzg5ZUE5dnJKQXM5MS8rd3JndmZ3d0VJMnQxdW5Fa0dMVEdqSisvYnJU?=
- =?utf-8?B?MVdsRjhxTkRUZjNZenhDKzRVcE9ENG92UFpXZTFjN0txZlpxcTNudHlXL1hY?=
- =?utf-8?B?VWNURStodXNUMXhhZU9NSFlkTkJCNVRiN3E1akVEakcxQTltRlNMUVhYcS9G?=
- =?utf-8?B?bzVLN0liZVVsK2tnYnkyUnVrRHdTaGZOaXlWdy9jOUo5RlV2ZHZZcERxcThy?=
- =?utf-8?B?dUdhcnN5OHZFRTZPdDFkaGlqYUd5ZnpMdUlLU1VvNGxWeDFFclNVMUZmcHBn?=
- =?utf-8?B?VHBFYkpzemV3a1M1Ry9ra0FvckNjZHBLKzFSdGJEVDIyR1FEWENxWll3aUUx?=
- =?utf-8?B?RXV4VjQ3MmVUMnRKN1VFK3ZFb04vK2hDdWVoUGVQUGVqOWx6bHo5amwzeitT?=
- =?utf-8?B?T2N3NjVEVS91T1pzSDNlZmJnMHJSNEtPWkpBeU1qVi9xYlFuTG16T2NHK3lV?=
- =?utf-8?B?MTdpc09kTmFMZldrYVl3VGowUlFsMExhVXFsTzlUN1FGRmQyY2tMd1hCK1E3?=
- =?utf-8?B?Tk1pbE9ZZVd1RUtIcWR6b0JXdnZTMjJidmwvaDliK1o3N1llOHpQNzJ4MnpL?=
- =?utf-8?B?OU9vRmVHZUE0OFJCcFFTNHVBcUNZRERsTUtzQnhCTzMxYTdJVjY0NFJjTWox?=
- =?utf-8?B?SGN1QU14NXg2MDNXNURYR2d0dzRLSHBwckJCWGlJSXhoU2pHT056TC91TVdW?=
- =?utf-8?B?ODRBSUpRdFBzSlNlY3B0L0dVelFOVFc4K0hrdFNMMmVUT3hsNGZ1N2hTRERa?=
- =?utf-8?B?WWtSeDRDWURyTTJPcTVoSWlNODdDRjRCcEw0Z0pYQjd5L25rQ3h3b3VZbnB2?=
- =?utf-8?B?MVNXcTBOSzRGeURuVm42dDFCSEdkakkrZjc1MjZ4emtSVmk5c1BpTUc4d0Zj?=
- =?utf-8?B?NDVzZW5QZ1VJWFNpQ09vR25vWjEwcmYyVWEyWTB3R0doU0FadVYzWUtLbVYx?=
- =?utf-8?B?Ym0vSmpEbVRGU1l4eDM3dGxCWStvRDhDWnc1eW1FckRaY0hHZFhrN0ZQNEFF?=
- =?utf-8?B?UGxlTDd1ZGNYRzVZcnBYV2dtQjJidmRRUXhZenhhcUZVTk1icm5zMDhpSGFN?=
- =?utf-8?B?QUtlWCtzbXA5Kys0bUo1YnBreXIyTFpQb3JXUDJ4Z285cjNYdW5rYm50NG4r?=
- =?utf-8?Q?hK2sak7WGXeaBRx3eeNye9C0+5BXRS6qgi?=
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?akhrMzVzQmNZbEJQYlNXN2NRK25BR1o0TFd2TWZTUTYwQWVyTkZ6SUNtNXVR?=
- =?utf-8?B?WmR5WkM0WEdsS3RhL3cxMmhGOFB4VnM3d0dUR2lzQWpBLzhVWXpyNXdOUjVU?=
- =?utf-8?B?eXN5OUtRaEJNY3N5Tkh1bGsvejgwbHg1Z1lsWm9POWtYSk01UkpBNEpNQXNa?=
- =?utf-8?B?V3ZQeFUxSTFNMzRGd0wxZ0w2MDBtRExTcmhYandRSXp3dUhXb2lPMUVwR005?=
- =?utf-8?B?SzBncUFKbDBFVTlFZitZaGc5cjdlUlVFcE5FaW1xNTJpNFc1MWtzVWMrNVJh?=
- =?utf-8?B?cWswV1pOZmlBVnFQR3NEYkN5RmZQRkVjZmtUbE1GS1NGcHhVQnJHdHRDTi9p?=
- =?utf-8?B?VSs4dUk3YXpXR2UzU2xpcXY3OGRLKzR6SFE3ZkF1YzI3STlNV0J6bnNBOUNI?=
- =?utf-8?B?TWZsWmJtOC9MUzlrYXN6amtuY1FQVEZwMkwzNmJKU282MEUzbFI0Ry9LbVl2?=
- =?utf-8?B?U0dzVVN4OVhPeTlOREd1cTlUd1YvUjBtT1hNV2t2Tm9ZakhFaWdINVR6OUxn?=
- =?utf-8?B?R0o4dEVWOHFtTTY5cVVNZWRPM0MzMkI3RU8zc09TMm11empWWVZRSkVOaWNI?=
- =?utf-8?B?bXVvMXlXNWcranoxSHpHSDlPSHp5V256OEVmRm1OMVVWS3pxZXRPVGFlbkhj?=
- =?utf-8?B?WG1IcUNKcndYM0loelZ5enRXNlNkMW0wdUFHc3NxRFBtTUZzNEJUYXFOQzdQ?=
- =?utf-8?B?QVN6RU51SlpXWFRucHEybDdCaUFxdW10NmQ4Ti9RbXM3NEI1aldCUkpUSWx5?=
- =?utf-8?B?Uk5hTm8rUGszd1dtMFRRQVNvSkpGNGordU5KZ01HNHVrWEYwMndRSngxOUMz?=
- =?utf-8?B?TGpkd0Z2cER4NnVOS3Y1ZTFwNFQ2WEljYzVzV0lQSktYRUVyQU9QOTNEb0ZH?=
- =?utf-8?B?ZlljcDV3SVNuVHladCs2b3V0OW5aYXl3cUdIQmxNZm41N3U2dEVrMm5uZVJQ?=
- =?utf-8?B?QWhRc3FnenQrTVcxMmhZS3FxY1gxVzA0ZUlrVjMrdEozWlp1a2M5ZHZmWkdy?=
- =?utf-8?B?OGRRdHF1QmxIV1VhcEc2eXE4M3Mza3NwUC9Wb0dhZ3pRenptZUJrNXBBMy9C?=
- =?utf-8?B?aTVudy9VMnlaVWZlbEVFWFoydDMrWmhCZkwvRDFiTVlyVTBLdzkva2NNQWlW?=
- =?utf-8?B?U1dsdU1OSDZucmdUMTJwckFPS2pXcS9pZ3dmc2t5S3VzT3JGU0hUOWJOOTd0?=
- =?utf-8?B?MnVJb05pOHhwai8rYVp0VGwrSXhjSWJFUWNWaHN0UkJPbEt4V2UrYjJTWXF6?=
- =?utf-8?B?aTNkV1Zhb0JPMlVpc1pSK2J3eEprTHk1UmgwNXdBd1h0RGV6SUhTdGlzZUQ3?=
- =?utf-8?B?eVAzcGJiaTJ1T2lnUVVBYVNKK3c5QTRyTXZINVVyRWhBcUZOL2dOWmlLY1h0?=
- =?utf-8?B?L2RHaExscmR3cU55SlB1QUFkQmd6OFJhMVBVK08vcmxFTW5ROC9ROWE2Yysv?=
- =?utf-8?B?TGhtK3JJL2RySlkvMTEyTDJ5aVRQYjllTGQzT0wrV0w5YzRtQTdPWVFzZWV2?=
- =?utf-8?B?NEczRytTK29mMVZ6TGt3UDFzeFJWNzZDcGREUTk5eTlIYzZOdDAraEJMUkN6?=
- =?utf-8?B?bGxHamk5czltTXhWdWlCU3VSNThDSGR1dWZIb2R0SzhwMVhpemhnZUNPUHlH?=
- =?utf-8?B?RUhXenRyL2IzZEVUcHFWTm14NVg5VHFveVZaSFpyUDh2VW5rZk50dllYeFBM?=
- =?utf-8?B?V3cwZUhSRnVtMXh2Q1F2bTlGTHhUVGRGckhsN1FrNHZOSWdpVTdUa2szQVFJ?=
- =?utf-8?B?Y3lSUkI5aGRGVVFmbFRsMjQ4SVV0NGpzL0pDZm9QWWlWcUhsMjMrOFo4d0RM?=
- =?utf-8?B?cG92SmZMd3dPd0lqeGZmdlYxb3lMSjBqOUtLNnVPdEd3L2JVSDk2NUp6Mmx6?=
- =?utf-8?B?OVNTQ0tPa1BydHFlU1RvdVYyZmo4S3VzbXF0SG51K2VPQ0xYK0gvSnpFYmx2?=
- =?utf-8?B?enFseHdEOFp5a1hUa0RlZGhOY2QzS0dWQXdLQjRCQ3YzZVZpY1libVdyY0Vl?=
- =?utf-8?B?dm9FcW5qRjRnPT0=?=
-X-OriginatorOrg: sct-15-20-9412-4-msonline-outlook-feddd.templateTenant
-X-MS-Exchange-CrossTenant-Network-Message-Id: f3c13f32-1449-44be-8768-08ded5e400ba
-X-MS-Exchange-CrossTenant-AuthSource: SYBPR01MB4586.ausprd01.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jun 2026 13:40:42.3858
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SY9PR01MB10784
+Content-Transfer-Encoding: 8bit
+X-QCInternal: smtphost
+X-QCInternal: smtphost
+X-Proofpoint-GUID: u3eyowhRWAFFR5juDxkE75lKEu51CgEE
+X-Proofpoint-ORIG-GUID: u3eyowhRWAFFR5juDxkE75lKEu51CgEE
+X-Authority-Analysis: v=2.4 cv=Ftk1OWrq c=1 sm=1 tr=0 ts=6a427628 cx=c_pps
+ a=Ou0eQOY4+eZoSc0qltEV5Q==:117 a=Ou0eQOY4+eZoSc0qltEV5Q==:17
+ a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22
+ a=ZpdpYltYx_vBUK5n70dp:22 a=VwQbUJbxAAAA:8 a=COk6AnOGAAAA:8 a=QyXUC8HyAAAA:8
+ a=KKAkSRfTAAAA:8 a=EUspDBNiAAAA:8 a=ADrkd9KHRwTtduNC9T0A:9
+ a=TjNXssC_j7lpFel5tvFf:22 a=cvBusfyB2V15izCimMoJ:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjI5MDExMyBTYWx0ZWRfXxGvUj7sjPGjh
+ 8uDKxfm2Nu2SsPKRSeJitNRk/rePGIu6aWR1Z50+Hd8cavimDHX1Sb75hLjWufwXrsh8tXmkqmI
+ WITUQC9PCocTfakTnH+FNIyCgNbixTI=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjI5MDExMyBTYWx0ZWRfX5CPLP4UzP685
+ K8LIrnN1IIIKTswqu2dMSqQ/vKLNLtM3s4KpNIiYn0JNT1MkrSMBzHhpfxtkNywiChO5DwpLcXm
+ 8A+Fe04IVT4ltDF+i3Orx+HuzfRlP4a51gqbQ7TpvORa0nS2ACwr9zYpm5SGAjvHjcjdwTibLqs
+ UVjyUIR/TQrnvmBF7voFwI0SCv+PU9JD9x4LznyEiAMTqUlims4AAkHy0YP/KMQO3mOKwkh+Ml8
+ 0ugAPsYwMwrvhcM8WKF1IOWy1Y6jDgjusrfVM83wxigXbevJKxLgLBpOv2b/FX+pM3k2z2lAgn6
+ k22nU9zV8MwnL33D93E8xigB4gQOV3S3M9hjl/yY5uGGsh1gshdUAQndW+AseF/ykw+gSUG9QGB
+ 9m6bV59PRMaFwLZWwepehFZiV5FfutjyMoHKUSXJJpoyIQbk2gJY8JaF2+2gmPAKlEA8iModpId
+ lO/ptXr/yBwnijCwlsg==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-29_03,2026-06-26_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 lowpriorityscore=0 adultscore=0 suspectscore=0 phishscore=0
+ priorityscore=1501 malwarescore=0 spamscore=0 clxscore=1015 bulkscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2606290113
 
-Hi Wolfram,
+I2C transfers issued during the resume_noirq phase can fail on GENI I2C
+controllers.
 
-On 29/6/26 19:05, Wolfram Sang wrote:
-> Hi Stephen,
-> 
->> Hi, this series of patches adds DDR5 support to decode-dimms.
-> 
-> Awesome, thank you for doing that!
+Some devices require I2C communication before their resume sequence can
+complete. One example is a USB Ethernet device attached through PCIe,
+where device configuration must be restored over I2C before PCIe link
+initialization can proceed. Since such accesses occur during
+resume_noirq(), the underlying I2C controller must be able to service
+transfers at that stage.
 
-No worries! Thanks for your email last week too, it gave me the
-motivation I needed for this!
+However, GENI I2C transfers rely on interrupts for command completion,
+while IRQ handling is still suspended during early resume. Additionally,
+runtime PM may remain disabled until later in the resume sequence, causing
+pm_runtime_get_sync() to return -EACCES and preventing controller
+resources from being enabled.
 
->> I'm not too experienced with perl or the JEDEC specs, so there's
->> probably going to be some questionable choices here, but I'd love to
->> hear feedback.
-> 
-> I am not the one who can help here because this is so not my realm. But
-> if you can already point out some 'questionable choices', it will help
-> other reviewers to chose their starting point ;)
+Allow the controller to operate during early resume by requesting the IRQ
+with IRQF_NO_SUSPEND and IRQF_EARLY_RESUME so completion interrupts can be
+delivered during the noirq phase. Also restore runtime PM from
+resume_noirq() when it is disabled and tolerate transient -EACCES failures
+from pm_runtime_get_sync() during the PM state transition.
 
-Thank you, that makes sense. Mostly what I meant by that, was there's
-quite probably some unusual patterns, as I've barely touched perl before
-this. That line also came from the earlier revisions, where I was quite
-concerned about the timings roundings, but I believe them to be fixed now.
+This enables GENI I2C transfers to complete successfully during the
+resume_noirq phase and allows dependent devices to finish their resume
+sequence.
 
-Although one thing that does worry me, is the CL algorithm in the
-JESD400 spec is massive, with some values I don't understand (such as
-speed bins). Right now I'm just using the normal rounding algorithm for
-tAA to CL, but rounded up to the nearest even number. However, the spec
-does state this:
-> If these rounding algorithms are used to convert tAA to CL, they’ll
-> return invalid CL’s for some cases when down clocking (and the DIMM
-> SPD CL Mask doesn’t protect against all of these cases). The proper
-> setting of CL shall be determined by the memory controller, either by
-> using the speed bin tables, or by using the CL algorithm, or by some
-> other means.
+Co-developed-by: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
+Signed-off-by: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>
+Signed-off-by: Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>
+---
+v5->v6 :
+- Modified commit log to start with problem description as suggested by Bjorn.
+- Moved to new implementation of the logic while earlier replied to comments on
+  older design and considers latest fix added recently.
+- Made change generic to I2C including GPI mode transfer, this was not done earlier.
+- Changed email address to oss.qualcomm.com domain.
+Link to V5: https://lore.kernel.org/lkml/20241227130236.755794-1-quic_msavaliy@quicinc.com/
 
-I am curious if that was an issue Jean ran into with DDR4 support too,
-as it prints `AA-RCD-RP-RAS` instead of the usual `CL-RCD-RP-RAS` that
-is usually listed on RAM specifications. I am yet to look at the DDR4
-SPD spec though.
+---
+v4->v5:
+- Commit log enhanced considering Bjorn's comments by explaining PCIe usecase.
+- Enhanced comment with reason when using pm_runtime_force_resume().
+- Corrected IS_ENABLED(CONFIG_PM) condition inside geni_i2c_xfer().
+- Improved debug log as per Bjorn's suggestions during suspend, resume.
+- Reverted back comment before devm_request_irq().
+Link to V4: https://lore.kernel.org/lkml/bd699719-4958-445a-a685-4b5f6a8ad81f@quicinc.com/
 
-Another thing, is some timings have both minimum nanosecond delays and
-cycle counts, which are independent from each other. I don't know how to
-represent that without being confusing, right now I'm doing
-`5.000 ns / 8 cycles`, earlier revisions had `5.000 ns (8 cycles)`.
+---
+v3->v4 :
+ - Enhanced commit log by explaining client usecase scenario during early resume.
+ - Covered 'usage_count' of 'struct dev_pm_info' under CONFIG_PM to compile non PM CONFIG.
+Link to V3: https://lore.kernel.org/all/20241119143031.3331753-1-quic_msavaliy@quicinc.com/T/
 
-Also, that 'Module Nominal Voltage' part in patch 3, seems somewhat
-unnecessary, as 1.1V (or 1.8V for VPP) is the only defined voltage,
-anything else is reserved. I was on the fence about removing it, but
-decided to keep it for parity with XMP/EXPO (which does allow arbitrary
-voltages). Although, I just noticed VPP should be 1.8V in the patch, not
-1.1V.
+---
+v2 -> v3:
+ - Updated exact usecase and scenario in the commit log description.
+ - Removed bulleted points from technical description, added details in free flow.
+ - Used pm_runtime_force_resume/suspend() instead customized local implementation.
+ - Added debug log after pm_runtime_force_suspend().
+Link to V2: https://lore.kernel.org/lkml/202410132233.P25W2vKq-lkp@intel.com/T/
 
-I can't think of anything else at the moment, so I hope that provides
-enough starting points.
+---
+v1 -> v2:
+ - Changed gi2c->se.dev to dev during dev_dbg() calls.
+ - Addressed review comments from Andi and Bjorn.
+ - Returned 0 instead garbage inside geni_i2c_force_resume().
+ - Added comments explaining forced resume transfer when runtime PM
+   remains disabled.
+Link to V1: https://patches.linaro.org/project/linux-i2c/patch/20240328123743.1713696-1-quic_msavaliy@quicinc.com/
+---
+---
+ drivers/dma/qcom/gpi.c             |  3 ++-
+ drivers/i2c/busses/i2c-qcom-geni.c | 12 +++++++++++-
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
-If possible I would like people to test it on any DDR5 modules they
-have, whether UDIMMs, RDIMMs, CAMM2, whatever; and please provide a
-hexdump, especially if you've got:
-> SPD Module Info Revision                         1.1
+diff --git a/drivers/dma/qcom/gpi.c b/drivers/dma/qcom/gpi.c
+index c9a6f610ffd9..332f3aa40628 100644
+--- a/drivers/dma/qcom/gpi.c
++++ b/drivers/dma/qcom/gpi.c
+@@ -615,7 +615,8 @@ static int gpi_config_interrupts(struct gpii *gpii, enum gpii_irq_settings setti
+ 
+ 	if (!gpii->configured_irq) {
+ 		ret = devm_request_irq(gpii->gpi_dev->dev, gpii->irq,
+-				       gpi_handle_irq, IRQF_TRIGGER_HIGH,
++				       gpi_handle_irq,
++				       IRQF_TRIGGER_HIGH | IRQF_NO_SUSPEND | IRQF_EARLY_RESUME,
+ 				       "gpi-dma", gpii);
+ 		if (ret < 0) {
+ 			dev_err(gpii->gpi_dev->dev, "error request irq:%d ret:%d\n",
+diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
+index d2f5055b0b10..d56b36bd1d26 100644
+--- a/drivers/i2c/busses/i2c-qcom-geni.c
++++ b/drivers/i2c/busses/i2c-qcom-geni.c
+@@ -913,6 +913,10 @@ static int geni_i2c_xfer(struct i2c_adapter *adap,
+ 	gi2c->err = 0;
+ 	reinit_completion(&gi2c->done);
+ 	ret = pm_runtime_get_sync(gi2c->se.dev);
++	if (ret == -EACCES) {
++		dev_warn(gi2c->se.dev, "Runtime PM is disabled:%d\n", ret);
++		ret = 0;
++	}
+ 	if (ret < 0) {
+ 		dev_err(gi2c->se.dev, "error turning SE resources:%d\n", ret);
+ 		pm_runtime_put_noidle(gi2c->se.dev);
+@@ -1045,7 +1049,8 @@ static int geni_i2c_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, gi2c);
+ 
+ 	/* Keep interrupts disabled initially to allow for low-power modes */
+-	ret = devm_request_irq(dev, gi2c->irq, geni_i2c_irq, IRQF_NO_AUTOEN,
++	ret = devm_request_irq(dev, gi2c->irq, geni_i2c_irq,
++			       IRQF_NO_AUTOEN | IRQF_NO_SUSPEND | IRQF_EARLY_RESUME,
+ 			       dev_name(dev), gi2c);
+ 	if (ret)
+ 		return dev_err_probe(dev, ret,
+@@ -1257,7 +1262,12 @@ static int __maybe_unused geni_i2c_resume_noirq(struct device *dev)
+ 	if (ret)
+ 		return ret;
+ 
++	/* Enforced disable_depth = 0 to actually enable runtime PM during noirq phase */
++	if (!pm_runtime_enabled(dev))
++		pm_runtime_enable(dev);
++
+ 	i2c_mark_adapter_resumed(&gi2c->adap);
++
+ 	return 0;
+ }
+ 
+-- 
+2.43.0
 
-Additionally, if you know your DIMMs have more than 3x XMP 3.0 profiles
-or 2x EXPO profiles (including user profiles), I would like a hexdump.
-If I can get access, the XMP 3.0 and EXPO spec sheets would also be great!
-
-Thanks Wolfram for your insights, and I look forward to any feedback!
-Steve.
