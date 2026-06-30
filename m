@@ -1,95 +1,116 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5B75E2222AA
-	for <linux-i2c@vger.kernel.org>; Tue, 30 Jun 2026 06:50:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782802203; cv=none; b=pquoxtCIuFyIRxFsnu26oIK6iBFjjbU0ibDLR+o6sKPvuVBWVYzFK8RSBhFmrMy6InOLK8O8TJ6Nsz4Ss+QP74Cmx5EBj2FwHXSGAng6hQZCBPpPKnDZS3ICyghjtV5Ehz9KN6lxSSj9OEcqpx1zBNoRbO9cmeJ/WQIm3yCYG4Q=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782802203; c=relaxed/simple;
-	bh=czfdUOiQXPZbFnAATDYk5b4JmkpWW4Ig3zzIBmSKRSc=;
-	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
-	 In-Reply-To:Content-Type; b=Aa8vFBDhAznXGE8G3CjB7C9xZ43GDYY3MjpTqrGLCM0uPAkH7cxPTrFWm3BI1+g60JluLlou1uVCp2cap8gyeCM0VDMgbTCv9EbEX+Ba2Rgh3PkouB+hBHgIG3f2zzAjI8b/96EA9J1AikRDvMkK+mz4bZ8zRohX6fC5itKeBlo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=cp6CWyMh; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32A432DCF41
+	for <linux-i2c@vger.kernel.org>; Tue, 30 Jun 2026 07:06:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.51
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782803203; cv=pass; b=qWHImGNzAhpOOCn/qVFd0qsN2sEkfPYFCRbzSaaJikVq4NOFiEC4VZqEIHBSQUcOQI2D4OJMwQ2tQA3DR0nJski2lE/ZJjSPgpP1PLeIVDHm7XqdmKLnqFkgawW2O40LbpgMwhg8YGG93hRHOvQRebG78n1atUDGtjirqVj8E10=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782803203; c=relaxed/simple;
+	bh=TTPpw2tPJabjQqsI1rZCNpItrW0CyPmWJA9VsvH6Ca4=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=lLpYrHA7Qu+Qgf4aWumgbR1Gvvj83Iu+MpCEZK5tJkesmRcDebLEKtm+aVrIZZRBLGUq0T1F1cvtWESvENhFO0dA2+3GzqRJpXTwpuzLvLXvAA6qsgYdQiRrPQP6DAqVtL/AnNi+S18Wq1QMAVErIEG9SWK4D5znboX0bSMdR5c=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PeLLUih2; arc=pass smtp.client-ip=209.85.216.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cp6CWyMh"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2c9ed0c7fc7so12449135ad.1
-        for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 23:50:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PeLLUih2"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-37fc01881f2so2519870a91.1
+        for <linux-i2c@vger.kernel.org>; Tue, 30 Jun 2026 00:06:42 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782803201; cv=none;
+        d=google.com; s=arc-20260327;
+        b=azQM4yKLcpVNzil9RI0wzd+yyIgC7TfoTb+QF4KEdrdXZeslXkYsKWYvsDmojzcJBV
+         cLPAgjcseIvgh54Lt+ZGovR3gpZR/bFBZUeLWKDvmVDNWpPnTZphar43WamqgKOhROzz
+         QCP5aCV4mRl2uwdMTGUvQmgmXPrqBbKBcokaAFtKl9moTmBWWtjpG/2MnLcbO9IDHz3m
+         uIGC7+5gX6Z9jX8VAoy6IyTNtpsMDHYM0QLYj0jL2oOi8PPWO+CjDz+I0wXEBeGwZZFm
+         y+tm0vof/RVkjQn4tosR78PIThfOVXO+wZenTw/JDuF9bnh0IaUqHDoPwnrSOTAEXvex
+         wZbw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=a1zXOtS1lGcB46+233WMS8HtWNMltCjgRC5QtegikN0=;
+        fh=eJbUYNM5b23LYzZvOWIGEq0DwhDDMIZeKpO5r8WJYUo=;
+        b=TWaI9vDqUNbhpoWHBBj1/vaJz2eGBXWwK/2b5RrbVpp9Wr0WkIDi1lic2CZoJ53LUE
+         VRYM13tyq6gau/nCvd/JKi9beu96LJl/tdsO5yGnvN/vPSgW/C8vReDTKGlJlkaFMgOD
+         eLZjZ5q1k4Ya5/4qoqQVH/tHRvDt/mfDZb0ZpELF9Rj+3k3gPSrwZgrgulU7Jq4Ca4WP
+         NDwiMf4JsjvieJlOBFjo/pr86rpnF9CpgCACwFQzx7uuf8rDXxwxYLW/9vU8iNm1spZe
+         m9MqvLlPvg28U7qj1uxcrf0bZlm4ft6rTCBwWhpOka2HImK4Dy48GrDhlMAvHOwNcoQS
+         Z1qQ==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782802202; x=1783407002; darn=vger.kernel.org;
-        h=content-transfer-encoding:in-reply-to:from:content-language:subject
-         :references:cc:to:user-agent:mime-version:date:message-id:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=A1QY57v2o170i5Uh1BA42HSzcmZFQxfvkMqvmdq9s28=;
-        b=cp6CWyMhlUgTbqeb+GwV27PFembZfQvCUbWHY7w5WAnIK7jFkllGo79D6/Pk87qNqP
-         PW26vtXAUH9BxFBp2vClUh8PBzK97ojYTAoiajCjBpLXw5QIhw5PXXxGm7cB4WKE8wMl
-         slh+mDxd7CeTaLfgX1Ie5pZiLhlrKyQKB/YQy6e06KbeL6YeiMPENs6NeYhIcVJBRhEl
-         8yCwDw0urfiPQMai6/9vuibDD33ZQNJ0cm5uVc3ZwKDI7LR8CDv9twLiYzQdOenfXCZs
-         Qg0eFSUmInuC6eknkdvtpSuvU0PwgF5TBiRYg3/GQMH9RvlYpODwQDw0Pnxv4hIJQv+d
-         t04g==
+        d=gmail.com; s=20251104; t=1782803201; x=1783408001; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=a1zXOtS1lGcB46+233WMS8HtWNMltCjgRC5QtegikN0=;
+        b=PeLLUih2aXaiT7DbdC8sHYNVvCxPB1VT1eeBHiHoDXaDIVRTVTxFHJvp0+fYHVoQmh
+         3yS/UeEJiLaSI89+4TX1aeF7xs3Fh1YwspXR0kbC8q4RIe8SgI2HKT3jrYdf+b4bTYZg
+         iuBxO269BeO26UkNwjcvCvzLJlGryJMfPuaqSZES2RzepSfUHqxDcyOy1ZEIU8HByyS9
+         Iwsax4XJ/e4FDk1DZsx/3Z/zULBbk5UHsDc19S5kuQZA4HYDzH1aYso3B4l/hM8wbeoZ
+         y4QjNvQvG8PSonX41Eib7dvr/2hKjg6jdKcNinLNxP+LERQJ2LgSWCAba+znrApzWddZ
+         FIBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782802202; x=1783407002;
-        h=content-transfer-encoding:in-reply-to:from:content-language:subject
-         :references:cc:to:user-agent:mime-version:date:message-id:x-gm-gg
+        d=1e100.net; s=20251104; t=1782803201; x=1783408001;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=A1QY57v2o170i5Uh1BA42HSzcmZFQxfvkMqvmdq9s28=;
-        b=tAf/UtP38va9cuo4Fa3lKnkAkyN8KPZ1duKrxD6T+Es9RrkrUrXv8+G99++J/Ol0T4
-         S/XGgTl77ihLBQzr06XkFRcZ0cUBd+5S9OZ5QWD2q0aOPZzDCYVStSn7WqP36mWX9BBu
-         WK/O9hKprcP5VLE0WbjUNChOcokudUuYcjD/0Vy9MaMS9ApDAFX0Dj4xK+KR+ek1yi4n
-         kLShozVE4VOyc1TlZeBxx5jW4ePD+k7x2g7A8/Hdl2oxO87KV67elU7RZpDRoZdCw/qE
-         cdOR4nSuj7WqeRaL0UCb4o97ezce5fdPTWH2DXntcugT2WESlJJd4I/X/94co4dhfzrq
-         aacw==
-X-Forwarded-Encrypted: i=1; AHgh+Ro5tJVVjNkZ2njQ1e1kkQTNOc+3ovBbVINrnDqlI0aalZDVOviC7ThZY4Odkq/D71nXJ0Sl8AWXUhw=@vger.kernel.org
-X-Gm-Message-State: AOJu0YywUj/hHEq8UD6ZQe6BVr4vOYAhKPWBYEFhcPhH6Krj3Vm4y9is
-	nYSRz+q1vSuTy0L7chgKWRZiMEWCCQ3ICdn0AdtZvlmSffPsN87tb7jn
-X-Gm-Gg: AfdE7ckXPeub7MsbKhtySE1Owj7C2qJRE4VDanoy5EPZbcojGliFatSXpFYBDh0jMfR
-	w+rurWMhMq1Ve8+s1geW94Hv3h31faOIODyE7IUZLR6bP2jR13cB5HK2CAinbJB6ZcMhfmWHpJp
-	SLz6v2XarixJsl4/k9fJlDxTeUw0zel6n+aXoYie3BnxhF32vKaMUD2WKbP0mFcpFjw9gJ6ZlEo
-	oBzA0rqf9O2jp999OpI+g+LwcBa/AZrbASf9ChYrqotr6CVXWC6aLxKpyXMXf+reQqPq2Au+CEr
-	IzdkLja4kBlPDr4ehkfpWFp1P1hJt8TU1yX9mKhxdmDmUsdwQI+Y3aLFyFw6BXJgVM8tRt9EyTP
-	5rO2s7u437tJAwAz9VqYstd5KcNKH7aumdygf0RQqJCiBSOSmocjbh4QTymDbuzsTtkIFOwFlND
-	TUGG3GDbEsQmediQ==
-X-Received: by 2002:a17:902:f786:b0:2ca:6a1:1fc with SMTP id d9443c01a7336-2ca2d99a4afmr18114325ad.28.1782802201660;
-        Mon, 29 Jun 2026 23:50:01 -0700 (PDT)
-Received: from [10.31.13.168] ([182.150.55.91])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2ca37a701f9sm7373285ad.13.2026.06.29.23.49.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 29 Jun 2026 23:50:01 -0700 (PDT)
-Message-ID: <1a07fbf9-d21b-45d5-87b7-d9965e73c6a9@gmail.com>
-Date: Tue, 30 Jun 2026 14:49:51 +0800
+        bh=a1zXOtS1lGcB46+233WMS8HtWNMltCjgRC5QtegikN0=;
+        b=itWa+kqdQA5jT1yxuDlDWYBoQFqmSO4Zy/Q+PW8y19pRk1bYZpDijrj6+kKlLcXqEl
+         RUIkUIxvnnnfbC8Mb4h4By9FQFQL25UOQ3bn+E874lCBjCWF3XpKr6x9pfVzNbBobq7E
+         XnhYx6vREeFTXg+r8UjDYOOkgY+x/8iPllZOKx7y/5R9h0OT62Yxs7kOgNfY4Hky3SrL
+         Wk/0SeOY8hbaytJMLX7ddhcAeDrCClcCtKrmvqeW2NC16YAYGeb5dW4B9K7S0Y/vkX+1
+         Ji9TcOQ8WwXQX02m0XCsUsIKaxZgwzJHUIiPBO3azy9mAHkK054l50g1tKIqeKNGFUAA
+         iUMg==
+X-Gm-Message-State: AOJu0YzsqgcmfNOd0XWcirYfIgO9qHE7M5dQEapJoA8d9+Uq1yTONjVN
+	Pk2fzYZlxVN81lScRIdLPG5uJzOi1LC8HupDXeF6YLyVkNat5f6aIZ2UA0Xnpkkpx3k5QeiAa5T
+	YtG/Yk8BpxkpFao0ld8bmjTmnpiBYATo=
+X-Gm-Gg: AfdE7cnt/hXi5nVMgUV+WxtBRyteEcduCH0ZKMVTpgTwWdONFXgdFevynQ0MsubQTI4
+	tngm9Pw5+pMK7A9hZL9dUocyf5LP2Oeh8Cu+khd9KABG9KuHjRowzbbIGO+IUyI6FYDTHmTtphK
+	vnWmaCAH3LZqNandRgQ81M78vdLvHVJ0hBhORojxfdnilhTKXJ2yyJNW5hDP8wyfCtst7dhFVWi
+	gkEx5zq3y2iINBo8nvRBqK2kTWi3VkAxOdirTT8Jd4gAP1gsXJuIRSDLLoXsjABgPtVw5XL1cX4
+	lkLj9gA=
+X-Received: by 2002:a17:90b:48c8:b0:37f:d1e4:2a32 with SMTP id
+ 98e67ed59e1d1-380526a7796mr1784997a91.14.1782803201463; Tue, 30 Jun 2026
+ 00:06:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-To: frank.li@oss.nxp.com
-Cc: andi.shyti@kernel.org, biwen.li@nxp.com, carlos.song@oss.nxp.com,
- festevam@gmail.com, frank.li@nxp.com, imx@lists.linux.dev,
- kernel@pengutronix.de, liem16213@gmail.com,
- linux-arm-kernel@lists.infradead.org, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, o.rempel@pengutronix.de,
- s.hauer@pengutronix.de, stable@vger.kernel.org, wsa@kernel.org
-References: <akJ9pd8uhXA6y2s9@SMW015318>
-Subject: Re: [PATCH v4 1/2] i2c: imx: Fix slave registration race and error
- handling
-Content-Language: en-US
-From: liem <liem16213@gmail.com>
-In-Reply-To: <akJ9pd8uhXA6y2s9@SMW015318>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+From: =?UTF-8?Q?Delaida_Muminovi=C4=87?= <delaidamuminovic2@gmail.com>
+Date: Tue, 30 Jun 2026 09:06:30 +0200
+X-Gm-Features: AVVi8CfE5GC10eqoaJWhNm3LwgFRrXmqlKPCzQZn3rN7X0qgYr-zOF3uk_3PGgo
+Message-ID: <CALQvZG-F9_69jWX4wvvWLxrMxWqVFM_dcR10noNMEUzp8QBg4g@mail.gmail.com>
+Subject: Re: [PATCH 0/2] i2c: i801: Detect SPD Write Disable and expose as
+ adapter quirk
+To: tinsaetadesse2015@gmail.com, wsa+renesas@sang-engineering.com, 
+	jdelvare@suse.com, andi.shyti@kernel.org, linux@roeck-us.net
+Cc: linux-i2c@vger.kernel.org, linux-hwmon@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-Hi,Frank Li!
+Tested the series on a machine that hits this bug:
 
-I apologize for this. I didn't know that different versions required 
-different threads. I did use `--in-reply-to` in the patch email. Do I 
-need to resubmit the patch?
+  Lenovo ThinkPad T14 Gen 6 (21QCS1NV00)
+  Fedora 44, kernel 7.0.13-200.fc44.x86_64
+  BIOS N4JET27W 1.17
 
-Regards,
-Liem
+This controller has SPD Write Disable set:
 
+  i801_smbus 0000:00:1f.4: SPD Write Disable is set
 
+Without the series, spd5118 binds at 15-0050 and resume fails with:
+
+  spd5118 15-0050: Failed to write b = 0: -6
+  spd5118 15-0050: PM: dpm_run_callback(): spd5118_resume [spd5118] returns -6
+  spd5118 15-0050: PM: failed to resume async: error -6
+
+I rebuilt i2c-i801 and spd5118 with this series on the above kernel. i801 now
+marks the adapter with I2C_AQ_SPD_WRITE_DISABLED, and spd5118 declines to bind:
+
+  spd5118 15-0050: SPD Write Disable is set on adapter; refusing probe
+
+spd5118 is loaded but not bound to the SPD device, so spd5118_resume() is never
+registered and the -6 failure can no longer occur. The approach works on this
+hardware and is cleaner than blacklisting the module.
+
+Tested-by: Delaida Muminovic <delaidamuminovic2@gmail.com>
