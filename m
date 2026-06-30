@@ -1,215 +1,120 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84A4528CF5F
-	for <linux-i2c@vger.kernel.org>; Tue, 30 Jun 2026 06:04:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782799473; cv=none; b=SQwgKMhZPwbmJZpn4CKBVL+0wdmnhBsb/0XrcEQcu6L/1H6pxxWlTKqmC96eEXkm9H3bnSbtg4d6hpsw1mUL7I5i3PmrUaX6bsXSwcuH77dbiwF/CCAYUAiUXIOebPJ6IV9fw/Et/BHdlC7lJwq9+nZjy3rUasblAFqs5csZcKw=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782799473; c=relaxed/simple;
-	bh=q9HQDf6uU3KOpf7X+h0FkXT0BRmTsT0Ka85jPZxYGjU=;
-	h=Date:From:To:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EdVv6UHRl6U5ILuZDiO7Tn8I64cgSH6N9oUsy33eIEKBkbcqOVfG7kBo9RKoB0VPo0T9i73TqPcbPev/Z7dR9C9TRSBGqfhae0JPzNBwLqBmi/mUL5S4pJUZNadnkV7YQ+VWzp/c8F70elcy0Jmz+LyqyS56QXje4ypvNmjaWww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=ktwxb7CX; arc=none smtp.client-ip=209.85.128.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D901A2D0C97
+	for <linux-i2c@vger.kernel.org>; Tue, 30 Jun 2026 06:39:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782801588; cv=pass; b=l7k016IhpDPDW4yYms5e28BeBnFc4ywzRTNyxN7Q+xTcnpcj7ssvpnIYCygjuNM12xZISNeOSxpu0m4yebroGfwPIDWpxGfi8VAoxa5NiIayd9QbsiJ36dn/8/Sdw5q9TxyJV3P97BmtF7fX6gljd/7sg1cbOnt7NLff650mj7Q=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782801588; c=relaxed/simple;
+	bh=+KLygUoxeiM/8RtGzilTLa/e7pOwDKpIDm6NCKkk6bo=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=hv/7gPIZ2IQm8yw8s8CaRDfje9utgaSHQi3oJ7Ci0Wid217DLX06Ynjv61jooV6IP5urrHCKEXqVSNsO41UoNpNARyeATsSbxyPMwsicGl44Yli/ag75DsZzV3QEgjZtExXWxlpVXSNDqRw8FrsvUhUcjfCs0RBJAURSG9Rq5qE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=owF8MGT/; arc=pass smtp.client-ip=209.85.210.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="ktwxb7CX"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-493a613571eso18093155e9.3
-        for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 23:04:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="owF8MGT/"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-847a52edeb2so189315b3a.0
+        for <linux-i2c@vger.kernel.org>; Mon, 29 Jun 2026 23:39:42 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782801582; cv=none;
+        d=google.com; s=arc-20260327;
+        b=KMWEJAVDg0T+aUUZrm7erw3/l+Sk7o4v4WbxPW0ty7h2rDT//+J4FrbS5PmkQbX9Wf
+         QBbZiJMFm2DcyIAoav/IuigUMaZtQVdFRrUPEsS19b6GmTHaoiIpJdrswgDhoA6vy5T6
+         qWZzuqsqlSjujIilGF+3QAyM8gvvN2+TM8e9SAeDhkBl7ymYeSpUnrXpdxehkRtteGeh
+         EQ3OLrxmZwnoVHFttgNmt4slhujOeqSgc27XeCFPRHoU34JkqSAUXgTmLsw0VGzpBtk8
+         oV/kZPVwH2kfzOLPaUDtmZM1c1tW6GYvJNBI1Lkqnl/bfkgkYmwwAy0g7HYrlTgIKW3Q
+         //tA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
+        bh=HEEP8Q8hvoLB7y7EezlcQqVBnLjbvMEXaAaoaBQlpAo=;
+        fh=peIqhu6ZoQ0n7YaP0ARtSr6AiTgdEHHxeKpnlUiI6Hc=;
+        b=MS9YQfBCkYUKLDyYx6YCEiO2w8YcZKprBRQDTYLNy2NcUaTD5fQNULeraKxlnKBYMm
+         F1/y+99BQov3ZHgO+YMeSClyl1G7rYhcLkypIhjSrh+Z1/lhNSgxpd02KQF5cJX43ome
+         4JB8XooqNhEK7NDG1P+BcVRLFOYUaw9a2beUyNvy7m+nzlbGOyDFVLHE/WgK+HWXAS5O
+         /96NIiJ1/D8NalPZT4XeaH+ANmz8NYrCtITTU096ohBQKrJy5y9p5LAReEBBg2+NcTZE
+         ZFw3q3b8xCToEy2dqJw/urN6/TFYWCgxULf5blRA+fgsz7EG7jgdIDNvl/ccv8h2DWQq
+         ZdSA==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1782799469; x=1783404269; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=b5BBnItCnxunKMbKk5r5XGq35MhHqmNERXs298mNYZQ=;
-        b=ktwxb7CXt+trnAajnkzA9h9gdeaP+NWWqiQtMnj/0fmN71drYBEJJVqA/zdDPOHA+j
-         tx53cU1g/94nmCKnfAZI3uM4N20ZfXbOrGesn2v8kLV408YjA0rqDDhX/rgJwy6yAMAx
-         RHuc5qOE1EEd+PNOB/7AVM6ZKg1kPXmDutlUdICaEZh79ksn91a3posF345m56bEi96d
-         N3fxZ84jT3pXm8b8Vnk4HkRUvEcpZIrhYwKHSeZAEHqu8PzndfN05M6wyGGRylM8ZzM2
-         GlE2jFRlS3Dsmd36Hh6dzBH61f9OpFXTs900Z0kPYXTJM4l+T3BlB2wf6TAGsYHsX3mL
-         IlpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782799469; x=1783404269;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc:subject
+        d=gmail.com; s=20251104; t=1782801582; x=1783406382; darn=vger.kernel.org;
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=b5BBnItCnxunKMbKk5r5XGq35MhHqmNERXs298mNYZQ=;
-        b=GW5L0FAL1gyi/q5NzfIaUD3wKMQm/7BZcXZmq7f/wFxy1kQC2fTbkxAjBSXSfR6ujK
-         EtMcrAo/XC6m4/Ch6Er6i379yFFaYTaUQk/CtgVLT3/UXX25TBl00WChy/9fADCHW33/
-         xZ0huaoV2EY6UYSC+uRrBgFlYcDQJlaiudQxzgY6wJXsR+UkwskFobJCaSmJIVwaZ5e6
-         UYfEfRJlLamZJLypkaGda5MKuw0iqDlLzdyW2EZsSgy1ym4fi9F06Udt+TtV3zoFYAY6
-         x3FMCf99TiBCsGZShHHi1cfaL1A0PFpobWkZcbVN43ox2VCW+VDQQe8jmsrDScqxdzwU
-         p3rg==
-X-Forwarded-Encrypted: i=1; AFNElJ81P5PnhMqfxQJGgnpEg5+ETo8PBb8vzBcVWEM6DhXXqMrwCP+JLHoeLjbYETq3n1wG47sBUOocDaM=@vger.kernel.org
-X-Gm-Message-State: AOJu0Ywl9Vyy/VmeZLo1zkJ257QD1jlY3xZEdLP4Io7XHdyS1WglxmIy
-	sNpNTkHoj+ljS6mePRv30aqnSNteNWuDebkdrfDqV6UoUy4YADCYtz4oQ3bfphIoHa0=
-X-Gm-Gg: AfdE7ck0WSl3dhT37liVb477TUfmXNKYFtJd6fvuERkuok2WIJwCwMEmonbWJ0jBWXV
-	Sf7M7Ksahx1nnRC6why/PsPPfHNKdWDsJSjnAOrwkqMEABsE9nvf2pI9IdcqlQoPV/xmkQE6CwR
-	k+LhvKjnMgU45D1HiWqeJwgL9pmxan6HU79he9MaflwJJwS1zWhxJ9gCQbw/umT9DtQ7MnCZKrX
-	r9fo2kZENjswlbAiUSj2H8NowiYGHI+46kmbmbfRbgLc7LCfRn2rJHZiX6ixwMhpKY2iEhBC6Yw
-	hDm7s9ASUa05SKLG9PktwaBYF0r0QzSDHeNIwTrDEJSofKJQa06ije7UBchjVNHdOZYAe1HFOmS
-	mj7w/PZh+62VH55KSLgJ0xveyGxN49gn3V0nE2b2UMNCzuMPIuD2Gwv257zpu7bNX1UvRTqyBTP
-	YPDWwW1J5jPWERNCYkyQ==
-X-Received: by 2002:a05:600c:8285:b0:493:bacb:1341 with SMTP id 5b1f17b1804b1-493bacb176dmr13964925e9.4.1782799468463;
-        Mon, 29 Jun 2026 23:04:28 -0700 (PDT)
-Received: from localhost ([2a02:8071:56d1:2de0:559d:eec2:887f:c200])
-        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-493b8cd3018sm45429405e9.5.2026.06.29.23.04.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 29 Jun 2026 23:04:27 -0700 (PDT)
-Date: Tue, 30 Jun 2026 08:04:26 +0200
-From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
-To: Takashi Sakamoto <o-takashi@sakamocchi.jp>, 
-	Linus Torvalds <torvalds@linux-foundation.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
-	Mark Brown <broonie@kernel.org>, Nathan Chancellor <nathan@kernel.org>, 
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>, Bill Wendling <morbo@google.com>, 
-	Justin Stitt <justinstitt@google.com>, Raag Jadav <raag.jadav@intel.com>, 
-	Sohil Mehta <sohil.mehta@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	Rob Herring <robh@kernel.org>, Saravana Kannan <saravanak@kernel.org>, 
-	Bjorn Helgaas <bhelgaas@google.com>, "Rafael J. Wysocki" <rafael@kernel.org>, 
-	Len Brown <lenb@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, linux-kernel@vger.kernel.org, 
-	Yemike Abhilash Chandra <y-abhilashchandra@ti.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, 
-	linux-media@vger.kernel.org, Nicolas Frattaroli <nicolas.frattaroli@collabora.com>, 
-	Liam Girdwood <lgirdwood@gmail.com>, Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
-	Heiko Stuebner <heiko@sntech.de>, linux-rockchip@lists.infradead.org, linux-sound@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, Danilo Krummrich <dakr@kernel.org>, driver-core@lists.linux.dev, 
-	Jonathan Cameron <jic23@kernel.org>, Dmitry Torokhov <dmitry.torokhov@gmail.com>, 
-	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>, Pei Xiao <xiaopei01@kylinos.cn>, 
-	Shashank Balaji <shashank.mahadasyam@sony.com>, Ben Horgan <ben.horgan@arm.com>, Johan Hovold <johan@kernel.org>, 
-	linux-usb@vger.kernel.org, Nikita Kravets <teackot@gmail.com>, 
-	Hans de Goede <hansg@kernel.org>, Ilpo =?utf-8?B?SsOkcnZpbmVu?= <ilpo.jarvinen@linux.intel.com>, 
-	platform-driver-x86@vger.kernel.org, devicetree@vger.kernel.org, linux-i2c@vger.kernel.org, 
-	Daniel Scally <dan.scally@ideasonboard.com>, Sakari Ailus <sakari.ailus@linux.intel.com>, 
-	Tianrui Zhao <zhaotianrui@loongson.cn>, Bibo Mao <maobibo@loongson.cn>, 
-	Huacai Chen <chenhuacai@kernel.org>, WANG Xuerui <kernel@xen0n.name>, kvm@vger.kernel.org, 
-	loongarch@lists.linux.dev
-Subject: Re: [PATCH v3 00/16] mod_devicetable.h: Split into per subsystem
- headers
-Message-ID: <akNYUdAS3sbEdRqC@monoceros>
-References: <cover.1782682124.git.ukleinek@kernel.org>
- <20260629235804.GA414914@sakamocchi.jp>
+        bh=HEEP8Q8hvoLB7y7EezlcQqVBnLjbvMEXaAaoaBQlpAo=;
+        b=owF8MGT/cLrC46/MFC9SK5UEnTjl8iIW/F60Fof6LIwCAPgcZC+HPvYYekaA43OScT
+         RPc2MPCYjOZmEE3qZkr4OhlrqGwBIaD81LouV7t7Y6mFHPZJWyIp90dMaWf6YantSjDY
+         Qm5r6ZrDI6OTMWweRgzj++yoKGV1QpkKjIXNlKRU7PMN+T01FrSTBQnAaZ8l0nZkqSzD
+         01ShmJjOQd2nDUZvjAjFe0viDWIHjopIOD124yjqozF9Gvs6ZZNJbpakarBXQ8H0xwa2
+         Pv30U8UWASXKm2pbsmk+1YvD6pu/gXoKuXXu3z3V5woMBRGXbuaJiWtbFGhq25BDXaU7
+         1BAg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782801582; x=1783406382;
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=HEEP8Q8hvoLB7y7EezlcQqVBnLjbvMEXaAaoaBQlpAo=;
+        b=f+NluOVFR3vuR2Dbxg1IJdJjXPJSQ2whzrgV/2vEOd5RSOQ8DbIYX8EgzKW9/lHScz
+         Nd7ldAfTnhH/IjzyZ/6/W4RidzsHDTEI3I+vAWELp6dfOoY15ZTAYzbccB6tIJc61ofH
+         Mu1uaA8kVVRuxyq+zjXTd3o42cgnwBOPGKe8LDVH1AIR3UtiJMRw6lNin7EebWrwG9Qn
+         KsqzM9GTKiQsmNi5Qhdzhgjervic7gnrShkuBrhdDG/h3TbQrJIfYNeoMXyX9oGhH0rm
+         BSLI6aMF2KoEQuuFY79XU30jVjqJoODcwOIa17RnIagasnjOUazX/itfDPCiMmsY0Ozf
+         QV7g==
+X-Forwarded-Encrypted: i=1; AHgh+Ro6TsD1+6rxSpFlCbyLyScUiBV3FMRMvUX2exnYcyvq/FdR7w4fdyLtArsgAtpLTEV5yfAeS8w62Kk=@vger.kernel.org
+X-Gm-Message-State: AOJu0YwL0BwktP07tx2K4hW1W2EBJPtp6SBbLZz9fCcIJ7xBMsXM3YWD
+	D2D6YTJxGOrd/XVgctfQ5y6wmSGpRNiLMAWTN/Nbluv7PUisTQxyF1HoInXz85Qbj3FxFY50Ywx
+	t1KW6Zs/JIawIiF92Qqlfd2fNPXSfmw4=
+X-Gm-Gg: AfdE7cnZfcyUNabX8/D6Hqo45iSGhEGjGHbSkvPXNkXzWu8Bce7xYH+S8nf2fEgDaJ5
+	AlVH2iy0u/E/SuEfkmyB5A/lH7zsBZxOFfNF9NR11X00F8+E4zrXSDxBlS4l84xTI06afaj1/Ww
+	i7x72qDRTe38TLqwzNDQq/67iWsIvR+wqi77vZaRRrVDmwKJ+RtrAjj+c3zqss7MbeIuSpIx1ih
+	Hx9M5jUIgFEa4WYEnlaqiVvkzsBjD7wIjzqwUMldSR9WYR5jcu6xk594sGP/5ty8xOcxVZe
+X-Received: by 2002:a05:6a00:2e15:b0:847:833c:6451 with SMTP id
+ d2e1a72fcca58-8479f47018dmr2157435b3a.57.1782801581706; Mon, 29 Jun 2026
+ 23:39:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="bjsp2vxvxtx3lqot"
-Content-Disposition: inline
-In-Reply-To: <20260629235804.GA414914@sakamocchi.jp>
+From: =?UTF-8?Q?Delaida_Muminovi=C4=87?= <delaidamuminovic2@gmail.com>
+Date: Tue, 30 Jun 2026 08:39:30 +0200
+X-Gm-Features: AVVi8Ced6jbKqt1HyRp4D_sOG4-58futT-JPzqdm0-zdlhgW6VjcDLDt-ZhsIbE
+Message-ID: <CALQvZG-5g5BEscMY7jE-fzyRVYD4_OZd+_XPKpUrYfwA1=TvpA@mail.gmail.com>
+Subject: Re: [PATCH v2] i2c: i801: Do not instantiate spd5118 under SPD Write Disable
+To: leo.lin@canonical.com, jdelvare@suse.com, andi.shyti@kernel.org, 
+	wsa+renesas@sang-engineering.com
+Cc: linux@roeck-us.net, acelan.kao@canonical.com, linux-i2c@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
+Tested on a machine that hits this exact bug:
 
---bjsp2vxvxtx3lqot
-Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v3 00/16] mod_devicetable.h: Split into per subsystem
- headers
-MIME-Version: 1.0
+  Lenovo ThinkPad T14 Gen 6 (21QCS1NV00)
+  Fedora 44, kernel 7.0.13-200.fc44.x86_64
+  BIOS N4JET27W 1.17
 
-Hello Takashi,
+dmesg confirms the trigger condition:
 
-On Tue, Jun 30, 2026 at 08:58:04AM +0900, Takashi Sakamoto wrote:
-> On Sun, Jun 28, 2026 at 11:58:35PM +0200, Uwe Kleine-K=F6nig (The Capable=
- Hub) wrote:
-> >  ...
-> >  drivers/firewire/core-device.c                |    1 -
-> >  drivers/firewire/net.c                        |    1 -
-> >  drivers/firewire/sbp2.c                       |    1 -
-> >  ...
-> >  drivers/media/firewire/firedtv-fw.c           |    1 -
-> >  ...
-> >  include/linux/firewire.h                      |    3 +-
-> >  ...
-> >  sound/firewire/isight.c                       |    1 -
-> >  ...
-> >  1649 files changed, 1575 insertions(+), 2544 deletions(-)
-> >  ...
-> >  create mode 100644 include/linux/device-id/ieee1394.h
->=20
-> I have no objection to the above changes relevant to firewire subsystem.
->=20
-> Acked-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+  i801_smbus 0000:00:1f.4: SPD Write Disable is set
 
-Thanks! Added to my tree.
+With the stock module the SPD device is instantiated:
 
-> Consequently, unit drivers just include include/linux/firewire.h to refer=
-=20
-> to 'struct ieee1394_device_id'. After merging the changes, I'll post more
-> patches to modify the following unit drivers, since they are left from the
-> patchset.
->=20
-> * drivers/media/firewire/firedtv.h
-> * sound/firewire/bebob/bebob.h
-> * sound/firewire/dice/dice.h
-> * sound/firewire/digi00x/digi00x.h
-> * sound/firewire/fireface/ff.h
-> * sound/firewire/fireworks/fireworks.h
-> * sound/firewire/motu/motu.h
-> * sound/firewire/oxfw/oxfw.h
-> * sound/firewire/tascam/tascam.h
->=20
-> By the way, the changes touch so many files. If it takes more time to
-> apply, I think it better to make steps to modify across several kernel
-> generation.
+  i2c i2c-15: Successfully instantiated SPD at 0x50
 
-Touching so many files is the motivation to do all the high-impact
-changes in a single go. As of v7.2-rc1 <linux/mod_devicetable.h> is
-included (transitively) in ~18000 of 21500 .o files below drivers/ for a
-x86_64 allmodconfig[1]. So touching that file requires a near complete
-rebuild. If we spread the changes over several trees/kernel releases the
-need to recompile the whole tree repeats more often than necessary. Note
-this bites not only during the merge window when building the
-development tree, but also during bisection.
+spd5118 then binds at 15-0050 and resume fails with:
 
-> For example, getting rid of direct reference of
-> mod_devicetable.h from drivers at first (in the case of firewire
-> subsystem, for 'Replace <linux/mod_devicetable.h> by more specific
-> <linux/device-id/*.h> (headers))', then adding these per-subsystem
-> headers and applying relevant changes.
+  spd5118 15-0050: Failed to write b = 0: -6
+  spd5118 15-0050: PM: dpm_run_callback(): spd5118_resume [spd5118] returns -6
+  spd5118 15-0050: PM: failed to resume async: error -6
 
-The impact of these firewire changes is limited to the firewire
-subsystem. So doing these later is a smaller issue. I plan to tackle
-these when this series is in. (But if you want to care about the
-firewire bits, that's fine, too.)
-=20
-> Of course, I don't mind to apply the v3 patchset as is in upstream.
+I refreshed this patch onto current torvalds master (it still applies; the
+three hunks are unchanged) and rebuilt i2c-i801 against the 7.0.13 kernel.
+With the patched module loaded, i801 detects SPD Write Disable and the SPD
+device is no longer instantiated (no "Successfully instantiated SPD" line, no
+*-0050 node), which removes the failing spd5118_resume() write path.
 
-There are a few changes that I collected (Added SPDX markers, a few less
-#includes added as my script evolved, a new patch to fix a hppa
-fallout), so I will send a v4 later today.
+Note: mainline master still calls i2c_register_spd_write_enable()
+unconditionally, so this fix does not appear to have landed yet. Any chance
+of a respin / picking it up? Happy to test a v3.
 
-Best regards
-Uwe
-
-[1] I did in my build tree (with the series applied)
-
-	$ find drivers -name \*.o.cmd -not -name \*.mod.o.cmd | xargs grep -l /dev=
-ice-id/ | wc -l
-	19221
-	$ find drivers -name \*.o.cmd -not -name \*.mod.o.cmd | wc -l
-	21597
-
-That's a bit wrong as my series changes the numbers, but the ballpark
-should be right. In
-https://lore.kernel.org/all/20260622210733.1743063-2-u.kleine-koenig@baylib=
-re.com/
-I found similar numbers for 7.1 (17038/21330).
-
---bjsp2vxvxtx3lqot
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmpDXGcACgkQj4D7WH0S
-/k6p0wf8C/fqLWElPKeEJ6VYZOMbHAVQFFSaiocKgLhyatujJO/xABylQtIrG2bm
-oNQHPUayrcWacObHGF3fEjQy4hRJLu10iu9WrGW/FvZUPjhCWUzPdhuXpmSnE4fH
-zd/NVmkNUTbomy4rUfxcWTKfXtWxqi+pwwPvcbEeQBUCqK/R3MK9MTJPeo+fuS0w
-N7J2Vv4yLihgZU1OW8Y9uT+TbrHb5Kn77XyKCF3bvRyrDK82GHBAEy0UIojDpJnT
-sIhHykaiFL1/5jUZb/iCqMx0+2OUeNz8HOywoSete10zzE2qFPFgI683oSrO6gcY
-cBQF6NX+zboS6GmYI42xlkzJTj7ODw==
-=GSrp
------END PGP SIGNATURE-----
-
---bjsp2vxvxtx3lqot--
+Tested-by: Delaida Muminovic <delaidamuminovic2@gmail.com>
