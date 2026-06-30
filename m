@@ -1,79 +1,56 @@
-Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtpout-04.galae.net (smtpout-04.galae.net [185.171.202.116])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 453243F4102
-	for <linux-i2c@vger.kernel.org>; Tue, 30 Jun 2026 09:25:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CA0B3F4DDC
+	for <linux-i2c@vger.kernel.org>; Tue, 30 Jun 2026 10:30:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.171.202.116
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782811540; cv=none; b=B99IgqT/Qc4SbD/whww9EKjbxXM3H8PUZrSiTAgNwCnfB78+WL9uM8Rult/6OBlMtwqOjfnvKDOGTVD4iP6iIgC22vmBMPX8ZBc/ebfBSWGPvmLOPnAAEMEE29BnxfI/mQXx5PsRtOhdVVJphQriyVEJvXvEEOzgeoVSMKZUeZ0=
+	t=1782815419; cv=none; b=pg03n/DrVA9KBmAkktte6D4c0fGQWGIw4A2ZqamxpzYG4DSm5iNn2pYUUxTKpR957YU3NfFeLt+ki1w+0+oeQHiNjG9uaySQHQs6BR4bI485jD9fIEbKutTa/+xpmrb+WIOfeqzOagCniIuOEH0BTwhw3xgPn4ChFyuE6D6URD0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782811540; c=relaxed/simple;
-	bh=NAtrWD+d4P0TMFU9DluvY8cQ9Bodo12E/8l8UGetdYw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qEfxJpCZVpZVHMx17yj6sMKede+uTPXfVh3KWhicIfsNcrwx7zIj3a2liDbf0XVhlVuX+BOezJA1JMy4VYOKfczeysIR9mE4SynE/aRbRLTulZskkbYfGFLQTew7MIOba/omZUsTVkR/rGzam84BSMAHSBLrF4S64BXeiC3ZGYI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=jf2hwzyq; arc=none smtp.client-ip=209.85.128.48
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
+	s=arc-20240116; t=1782815419; c=relaxed/simple;
+	bh=j17tz5zzx0lcKqL2EVMtBzWIPISz/TX1FmaRTa6q4FU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=A50zDdLKOYCu+GI5U3zTZOszvQg+60pQM5zt9+6RFMcW8R/P9Fj3y8DJqSLllQUlVz2QLj80M6rcQlJgjmbOX6cIFWh2fiKGtKLnHW5vwMdYVR6Kj5OtyLyLCuV5NmZ2DDZg8bNsJncA2WnRtmrLJzRkztVkmDXGbrRWYskpZG8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com; spf=pass smtp.mailfrom=bootlin.com; dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b=wjVoJdXs; arc=none smtp.client-ip=185.171.202.116
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=bootlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=bootlin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="jf2hwzyq"
-Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4939a809b24so27381335e9.1
-        for <linux-i2c@vger.kernel.org>; Tue, 30 Jun 2026 02:25:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=baylibre.com; s=google; t=1782811537; x=1783416337; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Bj6VKsBeadn9yUFsVdXEYzz0RYtZkQbeSiFf6Tl0PfI=;
-        b=jf2hwzyqW0FQag9EkUYS46LTwxg+UXMMM5zHbmC2OEoErDpDff6+50F7GL9zhLPfAu
-         Zl6RYyzw9ZIBUsleJbs3Evx/fyFVp8RjrO2Htv0Ue9XlzOzFdXJ6yKIPRFd30QuHO7qt
-         pSt1HtYhDVXmKTsZUoYghmDZLsHbaOpkEAgWaqwiBQton/FCX2mkvtWsuzjFRPlf2xio
-         Mqm11uwYjAXShv62+eEBLdAX8X5FeJDV7BYlF3wPijIfIQriYmmI7jqwB+8ONslG5A1V
-         b+9KMHbs5ECWlGqZZhdlCLeVrwzMChatIJMpoFGkOR7TdkZ417VSqP84WSFiMxXT67rJ
-         xo7Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782811537; x=1783416337;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Bj6VKsBeadn9yUFsVdXEYzz0RYtZkQbeSiFf6Tl0PfI=;
-        b=iYtKfLriA4yby3aZUdBoEJYN3scFy/EJy7pJ1qpCAI3Mgws0va+wHU4lKKToQz1lH/
-         OyqIYhm3nqvOXA+H6gVHqXgREYH+/H3UuWgiZYJRBTSWm/9o4nffw8EsVclc+C0oP5wA
-         jYiZHNrsEpZPQu6zwIDSRtslpyikcGslwxg7bZGD93S4srVZnvxU3slRvbOVmXYgzSEd
-         effxHj7TKtlxk89JlMXhSlePOH6UUrz2J8W1kqfCGUjoRFgxC6oIbjgfAYEJ/5WVL5mA
-         wdLlJc4/35OMuhuKYk/wON0cQAieQG636Oe/YXHtIXWs9ajLtQ3EMAf67arHe0gqkUHD
-         6QDA==
-X-Forwarded-Encrypted: i=1; AFNElJ/qdyUAjGHCj0iKgrw8Fb1LaRCPEba/eURJmwfQWJQ9pcNI//IgPhXd6TBLkZO42He25J0w5M7wvng=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz5CVomau0qZS0rR3ZQ6K8oTKfIZVmk4DD17GDFol/xfVUCeEWd
-	+0MKyWc4UAu1nYs9oLrN4nBmZ2C88n7cB7+B6jZPNq03CBycEZsT/5lIm5dbdC8NG50=
-X-Gm-Gg: AfdE7cktlccba86AHwGjPmUOgLJDqqBslHbpKDcKTNiOhEus0aaUS0e/TyoabYfbigw
-	KKqEVTuCDMqCv0dNuuw11IBPvY82ky7L1C7XcOfcRHT2d31bVPX74nJAFnoEpccDsTczl6yAdZc
-	5Qjd4SDgUDCpVO4A5MOqXweHyuk6fKdWi14T0Qg68BFJjlcoDtXs7eZvyMPusLDA4mnX28WpxK1
-	5b9yiZoyIVhQcDUHa1hR+4wis6BQ+8czn3JXGJyMxCZ9OJBOKrSLIq2VUAA0X6HTNcn14sSHlMq
-	nncL67sKdE0iEF1berBFv4AokvjiXiizM2GqrdawuJnTxRUbYJFvrKCHenuae++AoCZtY+kxe+a
-	HHh02CNJMTxhOzCk15r350hLyQAJiWxRmSe8bgqKBlIlFMZttWK3fql5KRXQ7ZSIdBVgmEch3wp
-	D0zhPlgDGjOg/mJI4mFM0i0ifhhZZdpA0Ce0Pz7+9yATF+V5P20whT9/Dl+cosbuAQX1Q+LEsiG
-	W/Q
-X-Received: by 2002:a05:600c:354e:b0:493:b6e2:1b0f with SMTP id 5b1f17b1804b1-493b82c4a28mr40295625e9.33.1782811536844;
-        Tue, 30 Jun 2026 02:25:36 -0700 (PDT)
-Received: from localhost (p200300f65f47db042c439d749f38355a.dip0.t-ipconnect.de. [2003:f6:5f47:db04:2c43:9d74:9f38:355a])
-        by smtp.gmail.com with UTF8SMTPSA id ffacd0b85a97d-47563d195besm5705097f8f.2.2026.06.30.02.25.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Jun 2026 02:25:36 -0700 (PDT)
-From: =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig=20=28The=20Capable=20Hub=29?= <u.kleine-koenig@baylibre.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Andi Shyti <andi.shyti@kernel.org>,
-	linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Danilo Krummrich <dakr@kernel.org>,
+	dkim=pass (2048-bit key) header.d=bootlin.com header.i=@bootlin.com header.b="wjVoJdXs"
+Received: from smtpout-01.galae.net (smtpout-01.galae.net [212.83.139.233])
+	by smtpout-04.galae.net (Postfix) with ESMTPS id AC82EC5CD47;
+	Tue, 30 Jun 2026 10:30:27 +0000 (UTC)
+Received: from mail.galae.net (mail.galae.net [212.83.136.155])
+	by smtpout-01.galae.net (Postfix) with ESMTPS id 392926025A;
+	Tue, 30 Jun 2026 10:30:17 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 7B6E9106F1D67;
+	Tue, 30 Jun 2026 12:30:14 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=bootlin.com; s=dkim;
+	t=1782815416; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding; bh=odBvXjmVyDnxNyTBT7valtr+fSYPWjjzW6dvgNXKweU=;
+	b=wjVoJdXsHUZGajpOeyKW+I5lOX8icoSQEMpdnrQbaZKE4vh2ztN5plIKfgrB41NwHGieiL
+	vB96EclQvIyq7mNjlhcIHIpCwOcXSVCXaLuHtN3zSy46W+VcwpAAYGtnVnGrUdiAl6F3KS
+	OIRHcD5gC0cwOEbqSazE0RIGBkUX9Tnrs8vZ6r4+n+K63qEi35avU6CRp330Ct3TJ8SXw8
+	FGegTTJIdj8Gdvwy/+EvAqmTGisRrwYT59E103jR4lbIsEl31f5bcPRYvVomYLd0eyZ+mq
+	avEnNnqpcHcCdU/esAvccSGDeqPtZroHwx+ueoXDDMi3ycnMHu/m74h71bvTSA==
+From: Herve Codina <herve.codina@bootlin.com>
+To: Andrew Lunn <andrew@lunn.ch>,
+	Rob Herring <robh@kernel.org>,
+	Saravana Kannan <saravanak@kernel.org>,
 	Wolfram Sang <wsa+renesas@sang-engineering.com>,
-	Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Subject: [PATCH v4 08/17] i2c: Let i2c-core.h include <linux/i2c.h>
-Date: Tue, 30 Jun 2026 11:24:27 +0200
-Message-ID: <46aa85ab3dc4e63bfb5bd8ff1fd212a3d0e31f58.1782808461.git.u.kleine-koenig@baylibre.com>
-X-Mailer: git-send-email 2.47.3
-In-Reply-To: <cover.1782808460.git.u.kleine-koenig@baylibre.com>
-References: <cover.1782808460.git.u.kleine-koenig@baylibre.com>
+	Andi Shyti <andi.shyti@kernel.org>,
+	Peter Rosin <peda@lysator.liu.se>
+Cc: linux-i2c@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Allan Nielsen <allan.nielsen@microchip.com>,
+	Horatiu Vultur <horatiu.vultur@microchip.com>,
+	Daniel Machon <daniel.machon@microchip.com>,
+	Steen Hegelund <steen.hegelund@microchip.com>,
+	Luca Ceresoli <luca.ceresoli@bootlin.com>,
+	Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
+	Herve Codina <herve.codina@bootlin.com>
+Subject: [PATCH v8 0/3] lan966x pci device: Add support for SFPs, i2c part
+Date: Tue, 30 Jun 2026 12:30:05 +0200
+Message-ID: <20260630103010.413688-1-herve.codina@bootlin.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -81,39 +58,65 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1125; i=u.kleine-koenig@baylibre.com; h=from:subject:message-id; bh=NAtrWD+d4P0TMFU9DluvY8cQ9Bodo12E/8l8UGetdYw=; b=owEBbQGS/pANAwAKAY+A+1h9Ev5OAcsmYgBqQ4tcNILET7C0OEuw6doSv0hlBvtyWRxeQrIOF 7a5LQ1O3iCJATMEAAEKAB0WIQQ/gaxpOnoeWYmt/tOPgPtYfRL+TgUCakOLXAAKCRCPgPtYfRL+ Tn6sCACfKgqs+XWZe9/SrPMerZ+Xqh8lptH8PXGAoNuSC7EOYcuqY7ADcb1NeBmTu8sLjviSWXq 2BsQiXeBY7g0qL2kHnd2svYhTRdxIVDIj6Em0pUPobHGNmNZ926gMkfUDK9kApYYI02akQahuZd vpEOHvbXFX5AkI/dwg3S7nvhns1c/Yj8JUBZ5WOcwUsWdcINYkT3vXI7TKYs1/cXAeQ+QK/dMeS f2Yx1SNUaPJTgEYY+erGpgTPUWisOq1/4Gp8KFMLiY7qiShr1Ok73ZkgKkvwB5LdcR+Xlu3tOjZ W14wenqHmyKLy75WjV7/ux9nFNsGF8XQg84Cgj8u1t385PLx
-X-Developer-Key: i=u.kleine-koenig@baylibre.com; a=openpgp; fpr=0D2511F322BFAB1C1580266BE2DCDD9132669BD6
 Content-Transfer-Encoding: 8bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-The subsystem private header i2c-core.h uses several symbols defined in
-<linux/i2c.h>, e.g. struct i2c_board_info and i2c_lock_bus()). This
-doesn't pose a problem in practise because all files including
-"i2c-core.h" also include <linux/i2c.h>.
+Hi,
 
-To make this more robust add an include statement for <linux/i2c.h>
-making the header self-contained.
+Previously, I sent a big picture series adding support for SFP ports
+available on the LAN966x PCI device [0].
 
-Acked-by: Danilo Krummrich <dakr@kernel.org>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Acked-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://patch.msgid.link/c176fb7e8503d61e08f055a5bb1ba4989aba6ffc.1782682124.git.ukleinek@kernel.org
-Signed-off-by: Uwe Kleine-König (The Capable Hub) <u.kleine-koenig@baylibre.com>
----
- drivers/i2c/i2c-core.h | 1 +
- 1 file changed, 1 insertion(+)
+In this series patches touch several parts and sub-system in the kernel.
+Reviews have be done and it makes sense to split the series and send
+parts separately.
 
-diff --git a/drivers/i2c/i2c-core.h b/drivers/i2c/i2c-core.h
-index 4797ba88331c..c519da536647 100644
---- a/drivers/i2c/i2c-core.h
-+++ b/drivers/i2c/i2c-core.h
-@@ -3,6 +3,7 @@
-  * i2c-core.h - interfaces internal to the I2C framework
-  */
- 
-+#include <linux/i2c.h>
- #include <linux/kconfig.h>
- #include <linux/rwsem.h>
- 
+This current series is the extraction of patches related to issues in
+the I2C subsystem. It has to be seen as a continuation of the big
+picture series but related to this specific I2C part.
+
+Those patches are related fw_delink issues specific to I2C muxes.
+
+They purpose is to correctly set a link between an adapter supplier and
+its consumer. Indeed, an i2c mux adapter's parent is not the i2c mux
+supplier but the adapter the i2c mux is connected to. Adding a new link
+between the adapter supplier involved when i2c muxes are used avoid a
+freeze observed during device removal.
+
+[0] https://lore.kernel.org/all/20260325143555.451852-1-herve.codina@bootlin.com/
+
+Best regards,
+Hervé
+
+Changes:
+
+v7 -> v8
+  v7: https://lore.kernel.org/all/20260605083158.28ac874f@bootlin.com/
+
+  Rebase on top of v7.2-rc1
+  No other changes
+
+v6 -> v7
+
+  Rebase on top of v7.1-rc1
+
+  - Patch 1, 2 and 3
+    No changes
+
+Older iterations:
+  Patches 14, 15 and 16in the big picture series
+  https://lore.kernel.org/all/20260325143555.451852-1-herve.codina@bootlin.com/
+
+Herve Codina (3):
+  i2c: core: Introduce i2c_get_adapter_physdev()
+  i2c: mux: Set adapter physical device
+  i2c: mux: Create missing devlink between mux and adapter physical
+    device
+
+ drivers/i2c/i2c-core-base.c | 16 ++++++++++++++++
+ drivers/i2c/i2c-mux.c       | 26 ++++++++++++++++++++++++++
+ include/linux/i2c.h         |  3 +++
+ 3 files changed, 45 insertions(+)
+
 -- 
-2.47.3
+2.54.0
 
