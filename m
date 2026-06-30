@@ -1,117 +1,113 @@
-Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A0323F9F5C
-	for <linux-i2c@vger.kernel.org>; Tue, 30 Jun 2026 11:20:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E9952D7812;
+	Tue, 30 Jun 2026 11:38:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782818402; cv=none; b=GYJT2dhhXTcMGOj2UupCc0dwT+JA3GhRtALYjGKeaSdjk1NPKBG8Muo4YN40oaR94ozal1HYZIblzukXMBCc0n9w/2luLimXv5sl9Nq80dG08GbXlWlm5jQd7YlxscvOAh1pUcP2PRPGWWbZwoR/hmsGK+yAsyK0nN1uZaS2WY4=
+	t=1782819506; cv=none; b=mabeNsZdqPyO2695u5ae3tz4uiiLFE6avKVMaS5XeAe7jOz87EQx1T2MJ8oNWLRbXElg7bcvpjlpCPkA3qCsReieyLlo8l98quYzDk9Z9bTDE4/OMSKg2qsPulIY1exetDitzSdYXd8kbZjPxfj77GEjy9AzeXhsLtXdPAM1OMg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782818402; c=relaxed/simple;
-	bh=PMfj8vAoLuXz4nZpWkRMuQeAoDUed2eQZFMQO3i2tNc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=FHcrGtBf65LbFsIhU0D1IaLm+YI+JLLrF/6VoKwNJxNxc1cO3BDLb910Hd808I6fCdDiypvAa66Kp59plBQe+vbR0DXvU+a569K/uO4k7fKp9r0npD4p8wf0wiat/C7dHy0YzLdYtW+fFxMlLYNUmJ7Pcixm01crXx1LPGq956Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aR3L4lB9; arc=none smtp.client-ip=209.85.215.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782819506; c=relaxed/simple;
+	bh=oTCNM/AOyFpPb5rIncF1bOxUq0WXQpL6pQN30H0AnWg=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Gf3lqbRp7V4zRu3RZYdMQlEvMVqvKSohj6aC98JW5DC4uvf5CLeql+JNEuU96clnctIDD05iBVCT2WHz0aKvmoGIGqzFI1Lf5c0AJsdBCgpnsgj2n0fZLY8iNLUiY/vvh9774FC0CWpFu7UpFTpgxTl+d4/w2ZYsQGj+7reSstI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=YCB6Twpa; arc=none smtp.client-ip=80.241.56.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aR3L4lB9"
-Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-c96bfabc8d4so865902a12.3
-        for <linux-i2c@vger.kernel.org>; Tue, 30 Jun 2026 04:20:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782818401; x=1783423201; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=EMc4l7y/58xan7GJe/6NBJgIUEQeEH6NdAFiW8A4ij0=;
-        b=aR3L4lB9EzyFNJYtXbgB22ip3F3ArSEmm4kXkuVflmNVEzdVxxwpj+Aa9A6qs2gf7x
-         lCDeZyCy3rqKPKBGD2plgHsarkxNLQ492cQ6P2Ua5EsSUCMFKZpK9/NN7k1/MuGF/BdN
-         x0E5ZB/Xqckz/lUz1q3oVUqE5KVlZLpD1GGySnKBPs+SIZBvKmTWqDspBO3UT478mzDW
-         oig32x41mHA3X7YInyAZyMkqF1w/RazFIN7AR9rsuiDc/hM6rIBJ6hgf9rjNR+cSsibL
-         799tXSXe1W/sm7eMg+AcWIhEgO3agXNzZJ5XNvgaDgPJZbhrj7JO1yS6MJOILOq7YMoW
-         Qzwg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782818401; x=1783423201;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=EMc4l7y/58xan7GJe/6NBJgIUEQeEH6NdAFiW8A4ij0=;
-        b=EJo9TGtEjbVVJKEUdL1LJKfybS6OMvZXapaxrqObnmFj9w+l4nGYzvwEgfg9dsCVEk
-         JfRWVEDDzrY/4RN2CvKpU02uI1sJPIIOYvH4CfAExZ1a5Htcm+TpWOhJUJskiAOkyFRH
-         EbEwMDPf6a+wDJxIi7IC4qAkwwh9Rua8+ynv9uamthug3hMIKyiVZLFxblK2jaqMxqMW
-         6zRhvOfjOtVNqHPp4hBatMZ3Vc1OAqk/xeMV5ErvfLCQC3jn0r9RJptQKu/oFOzs/Iov
-         9wJ19iYcFqe9yC+zI+NZnznJmmydQdEYuPI/nJFQPDtjGlYc9trY90OuIkOnaUZhQY4U
-         ut0A==
-X-Gm-Message-State: AOJu0Yw/KggtSWG1wmW18IO3vVrRHePyaMUm0HVwC/htzXFzUob13LFu
-	/ofe4Ds1n0FgupSLnb6KTHHo7lEHxLvQHhg0LpQLn5I+QUEHU7tF84KfDFvp5A==
-X-Gm-Gg: AfdE7ckqRpAGwzqToL/WRxXMsZkXLxpAQWI8n54289PEy/IUn4NZ92DjDMwMrvmI30d
-	qy3jtXKNQ2fTCzuXgQdIXxXC1GFlxEodpS1QAd1CzC/AMR4YwCkckvjCFvx1Qo+UvDeTELgTrNr
-	oOhX3v0MpybBuslmS5JWl+y2RT/UiWxk7vMOYx49+NSolawXnGJpzXfHWuGDTO9610A46+AZp3g
-	os+szkctx9zrVDCMWhuWiV2RSBny150ob+P/+tOd94s3SFI06APqxZz2QI8ZgTwMCf/gEGSyALA
-	Ac9qnXfq6idjZo+TKM5E4N5TY1yUnrvnbEn4j3NcSl4+a5Pt5/bRRQPtd2MBW+rg6GM8v4v6AuT
-	Ow9KXERcOoYKbxgg80EZWk7Fhi9ey9WxBMt1OIahHgjYtL/Cw6mgkxwedLIhFp+L72rgDIBmdrV
-	hP6nm9dtRCRdjsH3Md0rY+/DLdZjq/9+MkElaYjTTaYX/ZJ4g=
-X-Received: by 2002:a05:6a20:4304:b0:3bf:6d96:ac40 with SMTP id adf61e73a8af0-3bfc50563efmr2667483637.12.1782818400587;
-        Tue, 30 Jun 2026 04:20:00 -0700 (PDT)
-Received: from phuc-desktop.. ([183.91.15.56])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c9bbf95a3e7sm1323781a12.19.2026.06.30.04.19.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Jun 2026 04:20:00 -0700 (PDT)
-From: phucduc.bui@gmail.com
-To: Stefan Roese <sr@denx.de>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Cc: linux-i2c@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org,
-	bui duc phuc <phucduc.bui@gmail.com>
-Subject: [PATCH v2] i2c: mt7621: Use dev_err_probe() for clock acquisition failures
-Date: Tue, 30 Jun 2026 18:19:42 +0700
-Message-ID: <20260630111942.559932-1-phucduc.bui@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="YCB6Twpa"
+Received: from smtp102.mailbox.org (smtp102.mailbox.org [IPv6:2001:67c:2050:b231:465::102])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4gqLkP1C9Kz9v1p;
+	Tue, 30 Jun 2026 13:38:21 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1782819501;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=xShlwrKyTIF4qAdBox24ShRYzAy+zv7+bJMeZEybzao=;
+	b=YCB6TwpaO927QjEdXrlIiJBt3S2TMj/lUoTQyC5iej5UxCRKDn/XljRoPJbwW7XxlugG6N
+	xBgQ8xLD8khNkgkWh+g0ulj34prUa724A/+poOtOInojCqpSRpE4vb6OBmRtDmIJAxSA4f
+	q+iHkCtSckNXJ49ELVp3wKYekx4Hu3LHe2ZUyT3N5n18Mwi4lpbcu585fLX8dl6Sm1920r
+	w0LYy0isS0hDcqp6fFRitgGmFoMYdelUtHSbx9Tm6NOH0N4ee+iItLHiYZcykaDEt9MsqF
+	xFH0uK67m+VTeUGiD6g7C/77X5TkshLws6H+4ToFw4GPgFvrVvyldWMMbrXUAQ==
+Message-ID: <263f58b418a27a2339fc2478f93234e0208b0ad9.camel@mailbox.org>
+Subject: Re: [PATCH v2 02/19] driver core: platform: provide
+ platform_device_set_of_node()
+From: Manuel Ebner <manuelebner@mailbox.org>
+To: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>, Lee Jones	
+ <lee@kernel.org>, Thierry Reding <thierry.reding@avionic-design.de>, 
+ Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>, Andrew Lunn
+ <andrew+netdev@lunn.ch>, "David S. Miller"	 <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Jakub Kicinski	 <kuba@kernel.org>, Paolo
+ Abeni <pabeni@redhat.com>, Srinivas Kandagatla	 <srini@kernel.org>, Greg
+ Kroah-Hartman <gregkh@linuxfoundation.org>, Vinod Koul	 <vkoul@kernel.org>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich	
+ <dakr@kernel.org>, Rob Herring <robh@kernel.org>, Saravana Kannan	
+ <saravanak@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael
+ Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)"	 <chleroy@kernel.org>, Andi Shyti
+ <andi.shyti@kernel.org>, Andy Shevchenko	
+ <andriy.shevchenko@linux.intel.com>, Joerg Roedel <joro@8bytes.org>, Will
+ Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Doug Berger
+ <opendmb@gmail.com>,  Florian Fainelli <florian.fainelli@broadcom.com>,
+ Broadcom internal kernel review list	
+ <bcm-kernel-feedback-list@broadcom.com>, Ulf Hansson <ulfh@kernel.org>, 
+ Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+ Pengutronix Kernel Team	 <kernel@pengutronix.de>, Fabio Estevam
+ <festevam@gmail.com>, Matthew Brost	 <matthew.brost@intel.com>, Thomas
+ =?ISO-8859-1?Q?Hellstr=F6m?=	 <thomas.hellstrom@linux.intel.com>, Rodrigo
+ Vivi <rodrigo.vivi@intel.com>,  David Airlie <airlied@gmail.com>, Simona
+ Vetter <simona@ffwll.ch>, Peter Chen <peter.chen@kernel.org>,  Paul
+ Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>, Philipp Zabel
+ <p.zabel@pengutronix.de>,  Maximilian Luz <luzmaximilian@gmail.com>, Hans
+ de Goede <hansg@kernel.org>, Ilpo =?ISO-8859-1?Q?J=E4rvinen?=	
+ <ilpo.jarvinen@linux.intel.com>, Krzysztof Kozlowski <krzk@kernel.org>, 
+ Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: brgl@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org, 
+	driver-core@lists.linux.dev, devicetree@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
+ iommu@lists.linux.dev, 	linux-pm@vger.kernel.org, imx@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, intel-xe@lists.freedesktop.org, 
+	dri-devel@lists.freedesktop.org, linux-usb@vger.kernel.org, 
+	linux-mips@vger.kernel.org, platform-driver-x86@vger.kernel.org
+Date: Tue, 30 Jun 2026 13:37:54 +0200
+In-Reply-To: <20260629-pdev-fwnode-ref-v2-2-8abe2513f96e@oss.qualcomm.com>
+References: <20260629-pdev-fwnode-ref-v2-0-8abe2513f96e@oss.qualcomm.com>
+	 <20260629-pdev-fwnode-ref-v2-2-8abe2513f96e@oss.qualcomm.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MBO-RS-ID: 160dda9997288de2bec
+X-MBO-RS-META: xtee85ryzhfy8x8szdsj4cwckgtw999y
 
-From: bui duc phuc <phucduc.bui@gmail.com>
+On Mon, 2026-06-29 at 11:12 +0200, Bartosz Golaszewski wrote:
+> [...]
+> =C2=A0
+> +/**
+> + * platform_device_set_of_node - assign an OF node to device
+> + * @pdev: platform device to add the node for
+> + * @np: new device node
+> + *
+> + * Assign an OF node to this platform device. Internally keep track of t=
+he
+> + * reference count. Devices created with platform_device_alloc() must us=
+e this
+> + * function instead of assigning the node manually.
 
-Use dev_err_probe() when devm_clk_get_enabled() fails. This correctly
-handles -EPROBE_DEFER while simplifying the error handling.
+Doesn't it make sense to add a remark to the kernel doc of platform_device_=
+alloc()?
 
-No functional change intended.
+Thanks
+ Manuel
 
-Signed-off-by: bui duc phuc <phucduc.bui@gmail.com>
----
-
-update in v2 : 
- Add the missing return after dev_err_probe().
- 
- 
- drivers/i2c/busses/i2c-mt7621.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/i2c/busses/i2c-mt7621.c b/drivers/i2c/busses/i2c-mt7621.c
-index 0a288c998419..8ab7a304a02c 100644
---- a/drivers/i2c/busses/i2c-mt7621.c
-+++ b/drivers/i2c/busses/i2c-mt7621.c
-@@ -280,10 +280,9 @@ static int mtk_i2c_probe(struct platform_device *pdev)
- 		return PTR_ERR(i2c->base);
- 
- 	i2c->clk = devm_clk_get_enabled(&pdev->dev, NULL);
--	if (IS_ERR(i2c->clk)) {
--		dev_err(&pdev->dev, "Failed to enable clock\n");
--		return PTR_ERR(i2c->clk);
--	}
-+	if (IS_ERR(i2c->clk))
-+		return dev_err_probe(&pdev->dev, PTR_ERR(i2c->clk),
-+				     "Failed to enable clock\n");
- 
- 	i2c->dev = &pdev->dev;
- 
--- 
-2.43.0
-
+>  [...]
