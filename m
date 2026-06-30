@@ -1,198 +1,171 @@
-Received: from mail.loongson.cn (mail.loongson.cn [114.242.206.163])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 99A4C1F3D56;
-	Tue, 30 Jun 2026 12:36:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=114.242.206.163
+Received: from flow-b1-smtp.messagingengine.com (flow-b1-smtp.messagingengine.com [202.12.124.136])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4FA8E411687;
+	Tue, 30 Jun 2026 13:12:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782822989; cv=none; b=A9ZmXI+NKXFGFcqhfvVJoZW9i9OoHTUIcI9mPL/K05nd0UE66hJODl5e4z7wMGhaChv8eBqytVsP6eKnHMG0yjL095FY/WLYJBO/WRtrK5QQCRgTSKjDtjDt+NC4ef346P0OXC2/j9PLDGXCnQaiqlo8sG8x6qtMENvJgNlNsZk=
+	t=1782825134; cv=none; b=qMbjX6XVHoGU4lzFh11l7YcJUe9Ww99Jjx749SqEBDDCTFesMuHDXozVsmo4/WRq2sP/AIQdFdIAIZgoEFfxIqQEsBmUMGyfvb74Amut7BcJH6vP3+lruGLCRZJskJ0CyCp68aNGBLIIBkFkyHhCJ9ew18J+MKz0qlMrekjS+3A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782822989; c=relaxed/simple;
-	bh=+9gtoXI7zpH1/d174ZpBP6VfcwKOyAPrwaYEiqqHFfo=;
-	h=From:Subject:To:Cc:References:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=aWDqCT5vWWmHhlmQqArVoIdKvXy/EaBirMRpZkvFDwFOGYFtUANp0NcN+eWQASpSnJ6i5khddzNSSBFi4kbPiivP39oJhOmysYqTq17E6ChsrnhWR2ebChqwEpee7OkxkTKleAqlYW/e5Tb0iqjcC2CdtbA2K7l7LM9vDm5f9rQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn; spf=pass smtp.mailfrom=loongson.cn; arc=none smtp.client-ip=114.242.206.163
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=loongson.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=loongson.cn
-Received: from loongson.cn (unknown [10.20.42.101])
-	by gateway (Coremail) with SMTP id _____8Bxh_BIuENqPwkAAA--.149S3;
-	Tue, 30 Jun 2026 20:36:24 +0800 (CST)
-Received: from [10.20.42.101] (unknown [10.20.42.101])
-	by front1 (Coremail) with SMTP id qMiowJDxaeAzuENqzQq5AA--.24273S3;
-	Tue, 30 Jun 2026 20:36:23 +0800 (CST)
-From: Hongliang Wang <wanghongliang@loongson.cn>
-Subject: Re: [PATCH v6 2/2] i2c: ls2x: Add clocks property parsing and adjust
- bus speed
-To: Andi Shyti <andi.shyti@kernel.org>
-Cc: Binbin Zhou <zhoubinbin@loongson.cn>, Rob Herring <robh@kernel.org>,
- Krzysztof Kozlowski <krzk+dt@kernel.org>, Conor Dooley
- <conor+dt@kernel.org>, Wolfram Sang <wsa+renesas@sang-engineering.com>,
- linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
- loongarch@lists.linux.dev, Huacai Chen <chenhuacai@loongson.cn>,
- stable@vger.kernel.org
-References: <20260608024533.32419-1-wanghongliang@loongson.cn>
- <20260608024533.32419-3-wanghongliang@loongson.cn>
- <ajHRVJhAzo3V4C9g@zenone.zhora.eu>
-Message-ID: <c63e2126-02a0-18d9-896a-89257201cb0a@loongson.cn>
-Date: Tue, 30 Jun 2026 20:34:59 +0800
-User-Agent: Mozilla/5.0 (X11; Linux loongarch64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+	s=arc-20240116; t=1782825134; c=relaxed/simple;
+	bh=8BXpW32i3b+MZ6T6RR8FcwEOaRbjJVuX738hyO6aW4c=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=h4ThpxbnrT487jiT/RX45kptIuQPCKJTQxSKljIJ7cqx2bbq0gMgrzvAg8yUJ0nn4AIzNGc4FEwgEYASTJjAFpyAe81nQRDnGjeDwmvo8mO6uCF0/a9wxT0kXINzHrpzUNCDgx4BUQynTlHgs+ReltiSSoEEk4T+gEAweuhVHr0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sakamocchi.jp; spf=pass smtp.mailfrom=sakamocchi.jp; dkim=pass (2048-bit key) header.d=sakamocchi.jp header.i=@sakamocchi.jp header.b=PJXGwFB3; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=NhGlSUZC; arc=none smtp.client-ip=202.12.124.136
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sakamocchi.jp
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sakamocchi.jp
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=sakamocchi.jp header.i=@sakamocchi.jp header.b="PJXGwFB3";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="NhGlSUZC"
+Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
+	by mailflow.stl.internal (Postfix) with ESMTP id 39F0B1300071;
+	Tue, 30 Jun 2026 09:12:10 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-02.internal (MEProxy); Tue, 30 Jun 2026 09:12:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
+	 h=cc:cc:content-transfer-encoding:content-type:content-type
+	:date:date:from:from:in-reply-to:in-reply-to:message-id
+	:mime-version:references:reply-to:subject:subject:to:to; s=fm1;
+	 t=1782825130; x=1782832330; bh=8BXpW32i3b+MZ6T6RR8FcwEOaRbjJVuX
+	738hyO6aW4c=; b=PJXGwFB30fcai5mjfKu2R+eBg2ljAsikpExxGKLPRLVa0NOP
+	M1ycgbJJE0ZZEK9IDOqVM27W/XC2rtksn2dtwcDDEp0E0XqpMetCb1S9u1QS9vRs
+	1RpG9E1DxiYICt1E4S5M+M8o0AO3d/lDRbaMGoAYitA0nB4ffxb6+I9mxnMRuZrW
+	cLANa2sjxxxgEEOTOGsqEZ1+sVQ56b8BPrZ+TWxHeLWXOSBqkQGZ4b/gNvoCcROA
+	YQ/iYGPf+7CaH81chhSp9iO5517lx8P174SsCtLkHncpI+lxouQgklo6Fl5c6kVj
+	JNiImW96RfYUAODI1gVUSpzWqjiMshFdXgzT2Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1782825130; x=
+	1782832330; bh=8BXpW32i3b+MZ6T6RR8FcwEOaRbjJVuX738hyO6aW4c=; b=N
+	hGlSUZC5FJjbCQGE1G49NdD+d7cILSk+XoFg/PLocO85LTUqUcTTnA2qOez5xa/1
+	7olGYURUII1QwbW7/5l/NHKGC5XPwDnnvdkTi9seGSIfK7ewoJm9gkjQJ5QixhPY
+	YbiNvMDK64Ve9tqPDFF8ueJ3fFg4ZJr1ngimgTgkSEjWxANu3u9xdk+qeBWL6v2T
+	nZWr7xCFbFxxlaMB1GLbgnNlMtvs11OY/SGxKARwTz9fGm77EVUE0gQcxCPI8nOp
+	SWw1G+J+mz2oQD8MbsyZtTn7pTd3ZWq9QMuTxBctShNEVb6Y4gepeOn3zYb5wFmi
+	9B5JpaDHEJ6cfA89KcJPg==
+X-ME-Sender: <xms:p8BDaq0NvsKE4Bwmrv7s6iPNrlRLMROJJfeP0PtkiGSW7gsRd0-TDw>
+    <xme:p8BDaowX_ucL4yAoCMkD8zUpTEubysfFuSXF0rmTIEEd6kwqgbgIHD5cSY_RiP5q7
+    e94Qqk9PxtgNPph5Dh-eQn0ewvop-u96XOrG5qKJv32fgGLhp4LwQ>
+X-ME-Received: <xmr:p8BDapzG2fnajZZ032F6c5k00KAk68fe5vP2RzELkgMs08TO2FJvPbVaiAuGz8lvK1JDMAGE4tF7lFNPlbFs-ViUMGr_wQ>
+X-ME-Proxy-Cause: dmFkZTGWMpslQBp5MoMOGT3m9w2jgI36XruuqnR1pq0xzO86H7HHpTyefggyPo3gnlbJ2+
+    oUnJ5655lI+FwSC+uR7gX7xFFGOmQJDOgf9Cba3Anoe3HTOIfOGCIAsgo1oJZtDql3wBBu
+    SB3jkp1L6LCEgtQxQMxyoy5Barght9IrAsceMzQUUBw7yzWpezkYTkGw46uvF5pwbOwhQA
+    zC2+AIIkGLJOKN5oP5DOt5CpV0EjBg1Q504AwM3NXu2EdDiyHhIj+1boTpwxsX4uWP3Dtq
+    q1Sx/fGVa2o1PfHLSAbSC97hryNKZ1Xkg+kcpXHWnkeOBgW28cM/lKBZYCocptO7oNw7Xp
+    RRRp1lmFluW4GD3WBSjnVRt7ShmNMV8JxE7I4KxMCGy1xK939sWK596jv4gWLGFVVsl58z
+    0zIbon8UG8BOgTKT9obCI77IUrcmzyKVUgxH9BcBIXTiSVJX0hzVYDYb3z8plG9r6Qmqhw
+    5XKD5CserZlglD6zl422xOx0BpMhzXw+CBy3CC9PpBgPIN0QWoaRgkg5YjLzHpvaWYMvAP
+    kswZxHVzkddqUnlH+ytcMyHDd4N7HF8kZdvxlKCIeSI9lHErBxpIgzgCgK6MYR3Gs4kNlt
+    yXG+xUduKp0+yACN9ZkEHsRE3C1r15KrySGCNt8HsxIUOsWWgxHUpptffVtw
+X-ME-Proxy: <xmx:p8BDagp55rfDi1q_D4dxVo_2Op9MhmMsNnjsFNrFYNaOD4Ef6nhgRQ>
+    <xmx:p8BDatqsCMbaET8mYMnWUgekQi8JdiMi195_l061CoO2xWwR_o3QkA>
+    <xmx:p8BDahiyYZ_k6dahNCS0o5fMpNgmC8HjicFh_VY9pLuXWpbV6L1mBA>
+    <xmx:p8BDauz6N3_C5O0MFtj-iENsXLL0iCKDuafUA3tyEHBXnnTDZ7XB5g>
+    <xmx:qsBDamtebrD5hnYxkpqIAnk8VBxhqbqHUrgJns-p6CEdQOutmOtpa6T6>
+Feedback-ID: ie8e14432:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 30 Jun 2026 09:11:58 -0400 (EDT)
+Date: Tue, 30 Jun 2026 22:11:55 +0900
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+To: Uwe =?iso-8859-1?Q?Kleine-K=F6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Mark Brown <broonie@kernel.org>,	Nathan Chancellor <nathan@kernel.org>,
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
+	Bill Wendling <morbo@google.com>,	Justin Stitt <justinstitt@google.com>,
+	Raag Jadav <raag.jadav@intel.com>,	Sohil Mehta <sohil.mehta@intel.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,	Rob Herring <robh@kernel.org>,
+	Saravana Kannan <saravanak@kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,	Len Brown <lenb@kernel.org>,
+ Andi Shyti <andi.shyti@kernel.org>,	linux-kernel@vger.kernel.org,
+	Yemike Abhilash Chandra <y-abhilashchandra@ti.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,	linux-media@vger.kernel.org,
+	Nicolas Frattaroli <nicolas.frattaroli@collabora.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,	Jaroslav Kysela <perex@perex.cz>,
+ Takashi Iwai <tiwai@suse.com>,	Heiko Stuebner <heiko@sntech.de>,
+	linux-rockchip@lists.infradead.org, linux-sound@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,	Danilo Krummrich <dakr@kernel.org>,
+ driver-core@lists.linux.dev,	Jonathan Cameron <jic23@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
+	Pei Xiao <xiaopei01@kylinos.cn>,
+	Shashank Balaji <shashank.mahadasyam@sony.com>,
+	Ben Horgan <ben.horgan@arm.com>, Johan Hovold <johan@kernel.org>,
+	linux-usb@vger.kernel.org, Nikita Kravets <teackot@gmail.com>,
+	Hans de Goede <hansg@kernel.org>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	platform-driver-x86@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-i2c@vger.kernel.org,	Daniel Scally <dan.scally@ideasonboard.com>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Tianrui Zhao <zhaotianrui@loongson.cn>,	Bibo Mao <maobibo@loongson.cn>,
+ Huacai Chen <chenhuacai@kernel.org>,	WANG Xuerui <kernel@xen0n.name>,
+ kvm@vger.kernel.org,	loongarch@lists.linux.dev
+Subject: Re: [PATCH v3 00/16] mod_devicetable.h: Split into per subsystem
+ headers
+Message-ID: <20260630131155.GA39400@sakamocchi.jp>
+Mail-Followup-To: Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+	Uwe =?iso-8859-1?Q?Kleine-K=F6nig_=28The_Capable_Hub=29?=
+ <u.kleine-koenig@baylibre.com>,
+	Linus Torvalds <torvalds@linux-foundation.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Mark Brown <broonie@kernel.org>,	Nathan Chancellor <nathan@kernel.org>,
+	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
+	Bill Wendling <morbo@google.com>,	Justin Stitt <justinstitt@google.com>,
+	Raag Jadav <raag.jadav@intel.com>,	Sohil Mehta <sohil.mehta@intel.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>,	Rob Herring <robh@kernel.org>,
+	Saravana Kannan <saravanak@kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,	Len Brown <lenb@kernel.org>,
+ Andi Shyti <andi.shyti@kernel.org>,	linux-kernel@vger.kernel.org,
+	Yemike Abhilash Chandra <y-abhilashchandra@ti.com>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,	linux-media@vger.kernel.org,
+	Nicolas Frattaroli <nicolas.frattaroli@collabora.com>,
+	Liam Girdwood <lgirdwood@gmail.com>,	Jaroslav Kysela <perex@perex.cz>,
+ Takashi Iwai <tiwai@suse.com>,	Heiko Stuebner <heiko@sntech.de>,
+	linux-rockchip@lists.infradead.org, linux-sound@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org,	Danilo Krummrich <dakr@kernel.org>,
+ driver-core@lists.linux.dev,	Jonathan Cameron <jic23@kernel.org>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
+	Pei Xiao <xiaopei01@kylinos.cn>,
+	Shashank Balaji <shashank.mahadasyam@sony.com>,
+	Ben Horgan <ben.horgan@arm.com>, Johan Hovold <johan@kernel.org>,
+	linux-usb@vger.kernel.org, Nikita Kravets <teackot@gmail.com>,
+	Hans de Goede <hansg@kernel.org>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	platform-driver-x86@vger.kernel.org, devicetree@vger.kernel.org,
+	linux-i2c@vger.kernel.org,	Daniel Scally <dan.scally@ideasonboard.com>,
+	Sakari Ailus <sakari.ailus@linux.intel.com>,
+	Tianrui Zhao <zhaotianrui@loongson.cn>,	Bibo Mao <maobibo@loongson.cn>,
+ Huacai Chen <chenhuacai@kernel.org>,	WANG Xuerui <kernel@xen0n.name>,
+ kvm@vger.kernel.org,	loongarch@lists.linux.dev
+References: <cover.1782682124.git.ukleinek@kernel.org>
+ <20260629235804.GA414914@sakamocchi.jp>
+ <akNYUdAS3sbEdRqC@monoceros>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <ajHRVJhAzo3V4C9g@zenone.zhora.eu>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-CM-TRANSID:qMiowJDxaeAzuENqzQq5AA--.24273S3
-X-CM-SenderInfo: pzdqwxxrqjzxhdqjqz5rrqw2lrqou0/
-X-Coremail-Antispam: 1Uk129KBj93XoW3WF17tw1ktr43tF13KFW8KrX_yoW7GFW7pF
-	W8JF4UGrWDJr10qr1kXr1UZryUtw1DJ3WUJr18JF17Xr13Jr1jqF1UWr1qgr18Gr48Jw45
-	JF1UXr1UZr1UArbCm3ZEXasCq-sJn29KB7ZKAUJUUUU5529EdanIXcx71UUUUU7KY7ZEXa
-	sCq-sGcSsGvfJ3Ic02F40EFcxC0VAKzVAqx4xG6I80ebIjqfuFe4nvWSU5nxnvy29KBjDU
-	0xBIdaVrnRJUUUv2b4IE77IF4wAFF20E14v26r1j6r4UM7CY07I20VC2zVCF04k26cxKx2
-	IYs7xG6rWj6s0DM7CIcVAFz4kK6r1Y6r17M28lY4IEw2IIxxk0rwA2F7IY1VAKz4vEj48v
-	e4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7CjxVAFwI
-	0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVCY1x0267AK
-	xVW8Jr0_Cr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l57IF6xkI12xvs2x26I8E6xACxx
-	1l5I8CrVACY4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv
-	67AKxVWUJVW8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07
-	AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02
-	F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_GF
-	ylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7Cj
-	xVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6r1j6r1xMIIF0xvEx4A2jsIE14v26r
-	1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU8zw
-	Z7UUUUU==
+In-Reply-To: <akNYUdAS3sbEdRqC@monoceros>
 
-Hi, Andi
+On Tue, Jun 30, 2026 at 08:04:26AM +0200, Uwe Kleine-K�nig (The Capable Hub) wrote:
+> The impact of these firewire changes is limited to the firewire
+> subsystem. So doing these later is a smaller issue. I plan to tackle
+> these when this series is in. (But if you want to care about the
+> firewire bits, that's fine, too.)
 
-On 2026/6/17 上午6:55, Andi Shyti wrote:
-> Hi Hongliang,
->
-> On Mon, Jun 08, 2026 at 10:45:33AM +0800, Hongliang Wang wrote:
->> The i2c-ls2x driver supports dts and acpi parameter passing.
->>
->> In dts, uses clock framework, by parsing clocks property to
->> get i2c bus reference clock, and define the div of reference
->> clock by device data.
->>
->> In acpi, by passing clocks property to describe i2c bus reference
->> clock and clock-div property to describe the div of reference clock.
->>
->> Based on i2c bus reference clock(clock_a), i2c bus speed(clock_s)
->> and div, calculate the prcescale of i2c divider register. The
->> calculation formula is
->>
->> prcescale = (clock_a*10)/(div*clock_s)-1
->>
->> Reviewed-by: Huacai Chen<chenhuacai@loongson.cn>
->> Cc:stable@vger.kernel.org
-> what are you fixing exactly? It's not clear from the commit log.
-> Do we need to add the Fixes tag?
-The modification from v5 to v6 only removed CC stable from patch 1/2 and 
-added
-Reviewed-by tag to patch 1/2 and patch 2/2, the source code of patch 2/2 
-has not
-been modified.
-
-Best regards,
-Hongliang Wang
->> Signed-off-by: Hongliang Wang<wanghongliang@loongson.cn>
-> ...
->
->> @@ -96,6 +104,8 @@ static irqreturn_t ls2x_i2c_isr(int this_irq, void *dev_id)
->>   static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
->>   {
->>   	u16 val;
->> +	u32 pclk, div;
->> +	struct clk *clk;
->>   	struct i2c_timings *t = &priv->i2c_t;
->>   	struct device *dev = priv->adapter.dev.parent;
->>   	u32 acpi_speed = i2c_acpi_find_bus_speed(dev);
->> @@ -107,12 +117,30 @@ static void ls2x_i2c_adjust_bus_speed(struct ls2x_i2c_priv *priv)
->>   	else
->>   		t->bus_freq_hz = LS2X_I2C_FREQ_STD;
->>   
->> +	if (dev_of_node(dev)) {
->> +		clk = devm_clk_get_optional_enabled(dev, NULL);
-> Here you got a valid comment from the sashiko-bot, did you check
-> it?
-Yes, I moved this part of code to ls2x_i2c_probe and only called 
-devm_clk_get_optional_enabled once.
-> There are some other comments that is worth checking.
-I added div non-zero checking. Other comments I evaluate have no impact 
-on the
-functionality of the i2c-ls2x driver.
-
-The modify as follows:
-
-60 @@ -107,12 +116,13 @@ static void ls2x_i2c_adjust_bus_speed(struct 
-ls2x_i2c_priv *priv)
-  61         else
-  62                 t->bus_freq_hz = LS2X_I2C_FREQ_STD;
-  63
-  64 +       val = (priv->pclk * 10) / (priv->div * t->bus_freq_hz) - 1;
-  65 +
-  66         /*
-  67          * According to the chip manual, we can only access the 
-registers as bytes,
-  68          * otherwise the high bits will be truncated.
-  69          * So set the I2C frequency with a sequential writeb() 
-instead of writew().
-  70          */
-  71 -       val = LS2X_I2C_PCLK_FREQ / (5 * t->bus_freq_hz) - 1;
-  72         writeb(FIELD_GET(GENMASK(7, 0), val), priv->base + 
-I2C_LS2X_PRER_LO);
-  73         writeb(FIELD_GET(GENMASK(15, 8), val), priv->base + 
-I2C_LS2X_PRER_HI);
-  74  }
+I promise it for firewire subsystem. Just focus on your good work ;)
 
 
-  75 @@ -290,6 +300,7 @@ static int ls2x_i2c_probe(struct 
-platform_device *pdev)
-  76         struct i2c_adapter *adap;
-  77         struct ls2x_i2c_priv *priv;
-  78         struct device *dev = &pdev->dev;
-  79 +       struct clk *clk;
-  80
-  81         priv = devm_kzalloc(dev, sizeof(*priv), GFP_KERNEL);
-  82         if (!priv)
-  83 @@ -304,6 +315,25 @@ static int ls2x_i2c_probe(struct 
-platform_device *pdev)
-  84         if (irq < 0)
-  85                 return irq;
-  86
-  87 +       if (dev_of_node(dev)) {
-  88 +               clk = devm_clk_get_optional_enabled(dev, NULL);
-  89 +               if (!IS_ERR_OR_NULL(clk))
-  90 +                       priv->pclk = clk_get_rate(clk);
-  91 +               else
-  92 +                       priv->pclk = LS2X_I2C_PCLK_FREQ;
-  93 +
-  94 +               priv->div = (unsigned long)device_get_match_data(dev);
-  95 +       } else {
-  96 +               /* clocks and clock-div are only ACPI properties. */
-  97 +               ret = device_property_read_u32(dev, "clocks", 
-&priv->pclk);
-  98 +               if (ret)
-  99 +                       priv->pclk = LS2X_I2C_PCLK_FREQ;
-100 +
-101 +               ret = device_property_read_u32(dev, "clock-div", 
-&priv->div);
-102 +               if (ret || !priv->div)
-103 +                       priv->div = LS2X_I2C_7A_CLOCK_DIV;
-104 +       }
-105 +
+Thanks
 
-> Thanks,
-> Andi
->
->> +		if (!IS_ERR_OR_NULL(clk))
->> +			pclk = clk_get_rate(clk);
->> +		else
->> +			pclk = LS2X_I2C_PCLK_FREQ;
-> ...
-Best regards,
-Hongliang Wang
-
+Takashi Sakamoto
