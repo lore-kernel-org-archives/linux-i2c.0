@@ -1,141 +1,282 @@
-Received: from flow-a3-smtp.messagingengine.com (flow-a3-smtp.messagingengine.com [103.168.172.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1FB2126C03;
-	Wed,  1 Jul 2026 08:32:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB847400DE8
+	for <linux-i2c@vger.kernel.org>; Wed,  1 Jul 2026 10:12:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782894740; cv=none; b=iSNRVIMYChyKjO/xwzmfRVUnH4lNGGfRIV8689Y6OKHaXKAn/0eGm2itr3SyKAaxmqemW+xsfScIs4WXTDgiQSrA6yCJALRq2Lh/IepQw0YEuELaAFUtGH11eOlf5yEgrOeEWIb3y50XRCth9sy5CDCod5COyiflnQEFZfWyT6U=
+	t=1782900773; cv=none; b=qcKk8AhyJxcrnBoEyYDMHiShrfl8KCnnnQ13cQWfjoHDtrc+hWBz2WoPexwXRYEztTsZGeZMae2GI1l1/kaUVqk5odfO/lM52kby9d5296a2w9lq1Wajv3wWVYZBlipebX0w00K3JkJz9+M63fa7FlzNORO4DV3xvqrs/JdBzSU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782894740; c=relaxed/simple;
-	bh=ue4wzFqFJKqL2WfmlTkgjVeQXRsUBYlyz2PcQ/gXSIw=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=mf33lmYuMt58EIBsyDzKPmOcx1Te6e+NgDoA713c6rJpD3Ly8bF4NBC4mR8jvP8lzi6kg5c786SjJ/fGiBkXKX/I0c9OXK/GmXRfbomBZfVvfdHAqLO+MmFL36voEHViYiU3E2TxQghfAdZwwsvDxubIrZyl3vXCvib6VcJrrvU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=pk4AtDVr; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=aPVd6uLE; arc=none smtp.client-ip=103.168.172.138
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1782900773; c=relaxed/simple;
+	bh=hKZQkFUlZRkJ4dkfQ7XCvFwhZ/U5i9bJe+6uKHcZVlU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=LhDCm5Yd5KfHE7enzSocpw/u1BAQclxRB4ZYqeWb1RJ8FUlrTPc6+x4LX0wiljZsJFIDVOe2x3m+zTFwOREgyKBikI4xiHXgQvP9/L27ByxgbImlWr5wYw0X240LwuCmlmTM8DInnQzMS37NWSLKKHTLLu2WZISGNLReodpTJds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FMS/3Yc2; arc=none smtp.client-ip=74.125.82.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="pk4AtDVr";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="aPVd6uLE"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailflow.phl.internal (Postfix) with ESMTP id 10A071380095;
-	Wed,  1 Jul 2026 04:32:19 -0400 (EDT)
-Received: from phl-imap-05 ([10.202.2.95])
-  by phl-compute-04.internal (MEProxy); Wed, 01 Jul 2026 04:32:19 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1782894739;
-	 x=1782901939; bh=VCjnwi8QfYnO+8yzfpol694kVs5T+6OkOnlzLTl6vgw=; b=
-	pk4AtDVr7X0Ga3ZeWprkuDgz4D0ADwYPDjiF6dJpeDjRBJwKFomQfgV1i2cUPfwS
-	YGG7oxHtxzxWOI/oCF1vTenXM/Bxnl+jzvqa2o4Uav3luge6v1KsVb0Z58Ux10SH
-	ihh0bvVj3hWOmrddUlZbKOAN4x35MKqgbBPgbBV3RnkOt941tQlZLmtzA0NS1gVa
-	wZi+BX1NBKmJrTAwiAoLRjtW42OtB7SEAhpJrWi1lBjP1k7jAL8lyCFZnVDg89+r
-	yq3ugkbXbTZjzlXrAoPV90L435jnotEuAcLSM1fiUThBWAv5FA+0Gj5gsyx2KLQ7
-	ZckqFzlkSmSQZ4fn81X3Mw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1782894739; x=
-	1782901939; bh=VCjnwi8QfYnO+8yzfpol694kVs5T+6OkOnlzLTl6vgw=; b=a
-	PVd6uLEv7fU/TFcABcQ+6PpHoMr8BHiJ+7VXlOffrKOqC36QNz/tVpyV3NvzfTod
-	D12qmE6PIf6WHNeISxeR2PjY2027TmvjNXrFxvtY38cmVNKGAlsBHfYZaEPMldtj
-	Lx4aKKaBkPRT88prowJPqxRuZQHVZjBoqJ5QCw0xSe6s44p1rQ086mjOsoX28TPW
-	9xsDJn/pATFSr1374Jh2BlzoBgdD3L6Pec9oMRKCmjzb9eZyHTCmKVWo3RDAktE8
-	tNkami4hj34GWAN2LivncENYiAdNktm7yzF+45KtV6dfaEprjLbvQJRIJu7kUuvb
-	iayg2SwCno/GXgKqzIgsQ==
-X-ME-Sender: <xms:ktBEau0GTKniJ8UB3YIuVYzf3eXVLN7QylKoL2Bg3MvVCc4pVtvVDA>
-    <xme:ktBEar60oidT1BA9rF5zAoFVaPJxONWxBjLfRIadX_dUCe2QqF-rSuhjZX7RPcIt0
-    McilfieaxXTrUq93k9EhmP2DAH4aUXqX6JoopoRear13Gt0vfqWdww>
-X-ME-Proxy-Cause: dmFkZTG0B4Rq0E7HZkR0pnZ163rac2T7w/EKBvk1H137+LZ1DDmAdSv9ox5RZtU3ubf1at
-    u6WZgpkWy1yZ+xPhMEysBiXHkI/FAG+tA+IsC7Ro0iyP9baBdW/Gqq+MlndGYuJGyVzQes
-    sd0BE3aLNH4YSDGlgFLBNAaYaG4sOQZZhfVJ0T/DQs+GdE4ZINEDpFh6AD1t6CMHbDFHDW
-    Dyb4WNYJUZVB9C+3CFefMMbkInAN2w2O60GzAhBejddPbYdKqDE8euqw5cyFrUqYL7HsI0
-    R+mzjjbALXsHGc4CbyBPpSyrrc7KFjZiKMINe5pj5pPVKzR16ORlRpADFkdNJmxEZmU+Hi
-    ynyy/p0s3wJ+5wEoNPryrkVk9wTT8gYX2NL2ziGtuHO0uNldRlrz3biDchZ5dvxLIoQPIf
-    4Ys0zoOwEAUJHKft5OKDDA9H2IMg5sfzB6cDfIpFIN0QNKHe1GarKKRW9xzRvvwFTC0xOM
-    y4BJJZ5HI/iFaCrklCySRsAU30y83NuxwPgF9nAHDnQAYLQGdVKWf6ZBWmjRbJTc4RScn0
-    PuPIT1IbJ8nqZLck0tWGST4XHneH+nQKFfqBV2Q8vd0Qp009muP0neRLplYkqbtscaQsro
-    HqRhq0vRLrdvrrofCQK3xJLqp8yB0cEt3pLS1D0HPb/YWgaYMdL06KmwXiqQ
-X-ME-Proxy: <xmx:ktBEaqLzev-1LnQpM8aDMtsrxpbXI8sZxIxM5-kJ2egQIJ0_s1wuwQ>
-    <xmx:ktBEaituhqNUPSQSy6pSO_Qxs07LiQTb2hOujvou545SdGJ0hWLeNQ>
-    <xmx:ktBEajm5fZl4R56Cjs77mdXM8OA19dWCSOQIvEyWIusUmQRiQ2DdOA>
-    <xmx:ktBEaplfx6UlRi6-9Vko4Drjuya6hEFHgk8ptOVgSj4h5IyVGGcNBQ>
-    <xmx:k9BEalsyhw0QnIjnuvZrS58BD58_C1KJuzD7-U3z5P3C3pb2O69T_it9>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 1786E182007E; Wed,  1 Jul 2026 04:32:18 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FMS/3Yc2"
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-30edbb0dc5fso290880eec.0
+        for <linux-i2c@vger.kernel.org>; Wed, 01 Jul 2026 03:12:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782900771; x=1783505571; darn=vger.kernel.org;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=JnbZMh/VMIPXgvmmZVZQ54fXfz7U5FC3rNj6e+Tek2E=;
+        b=FMS/3Yc2w99bwtsZgOxGzsPAVqk/zQNswzr4xoibdQl+OFkpVklhCoUecr675aPjiv
+         ofVfRZUZS8lutO5uS7+xvcnmejhO/WR/FrndluyHHWCKdMe32R4eRUWoWp25uYAC2Z2f
+         1xSHxgLZ+HCOpkD56gCfufDecyj4y1YsiPX7QJfGd5ZZAUYVp0mormsQ8jFhmtTyee3h
+         ZvW4E1Ox5zXjsSSZfzeDf02i7giukTCWYxiE0uZrQCBTWy1D8yaE5goM5pjGEIpCGXZ5
+         kWC92hY+NKPW7fUywCnlGqdpOS8U2Sp+rCM9zLB7L1VNlGr/BOIPnUei+UlXRgcdhkFC
+         TPLw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782900771; x=1783505571;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JnbZMh/VMIPXgvmmZVZQ54fXfz7U5FC3rNj6e+Tek2E=;
+        b=qsHXuxiefWHYUogXWb+33KHd/J6dQSfwLDncE5cMyPu6UhCTe3nYFzg7Tl00euzk10
+         /zHFH3MsIBAAYoUGWZvfhk7pS3ZtUUY9OHY69PUAHrFpemgmXxJl8uq3zagtM7MpAdLF
+         dxPK6GklZaZEtdP5aZ4oolg/0rsob0mXwoNIk1CoDq601XVryA+8aqH3jlraJ4/DktAs
+         xPZcAOjTCiSnh6JLfFujRKWn441oziUXuVCoBzKP1T4n9rhdIWiAI8OtQA0fPpvkVIjs
+         Pm3zF2KYbrzA5Pv4PtsPd3MT8D7CQxX56fFv33XfoouVQ7lJeI20pjtY0vXyQJv4JOG7
+         21ng==
+X-Gm-Message-State: AOJu0Yz5J+wHHY1zuq6oowG9LDJfOWmV0tAawrJPmGevaYb0KcNdNoYR
+	mIJVYdrZX4rngqus2U3H9jX/YFiKjQLujFnFE2JPzDKucKJK1DSMeTYWnOCXxZqK
+X-Gm-Gg: AfdE7cl05yZK9/O3NDPwuHrp7PZQREYk+lNBzD30jOX5UWpou075zscqcAXVHJTb9um
+	aZXvpYD/3Lq1Q1Nq6cEltrSe0yyst1Um9PZIN6QkRNKWu6SOCqKR1U+SZpuDtG2aBQ5IUnIdSs+
+	nBgXweGczcT8/XXmc4Lkw4GjVYwSubQ/yLwq2KtH/soPAQJw1glM9owu7AP+Wz0Avw4TZ5OUlPA
+	1dr4ktVAjSfoRfA91tVw2JXUFs8QAaYM88nEOEth4yVMqpR81v9aLevdnGbQbl9unHTyq5os5Au
+	cMrICtsMYt6UHuYSL3RnYxujGbmyQCRRY4ORigqDYwItH0BmPWji3TEewItxIgm6Dgn5ZLyFJE7
+	nrLqOc5DJHyUrY7nb+yjlsuwN/aqPkJSw8L5NG70qcNyzrId8l70nF2S5DXBMOl0vxkt9WnOWmD
+	liCv2UuAMlF2AaPtHwgq+HV4uKkZvkReim8XZAk7UarQJE9s2QRXHkRPqR6XcZFCENYrG5CoRzJ
+	ObREMjs9jdewSle0BDFy+C73fushOO7oWeb4PVzCPPqf5F3Qvec6xQImlb4Q3UpimFzfV0+3a/0
+	NA==
+X-Received: by 2002:a05:7300:7312:b0:304:e865:f7d1 with SMTP id 5a478bee46e88-30f053f3845mr122579eec.25.1782900770320;
+        Wed, 01 Jul 2026 03:12:50 -0700 (PDT)
+Received: from hardik-yoga.oryx-cobra.ts.net ([2401:4900:a137:d795:30b1:c22:58a1:6ebc])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30ee2ffdbfesm18720743eec.11.2026.07.01.03.12.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Jul 2026 03:12:49 -0700 (PDT)
+From: Hardik Prakash <hardikprakash.official@gmail.com>
+To: linux-i2c@vger.kernel.org
+Cc: linux-gpio@vger.kernel.org,
+	wsa@kernel.org,
+	andriy.shevchenko@intel.com,
+	mario.limonciello@amd.com,
+	brgl@bgdev.pl,
+	basavaraj.natikar@amd.com,
+	linusw@kernel.org,
+	nathan@kernel.org,
+	chaitanya.kumar.borah@intel.com,
+	Hardik Prakash <hardikprakash.official@gmail.com>
+Subject: [PATCH v10] i2c: designware: defer probe if child GpioInt controllers are not bound
+Date: Wed,  1 Jul 2026 15:42:18 +0530
+Message-ID: <20260701101218.42529-1-hardikprakash.official@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-ThreadId: A045QOfflcQ7
-Date: Wed, 01 Jul 2026 10:31:37 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Geert Uytterhoeven" <geert@linux-m68k.org>
-Cc: "Arnd Bergmann" <arnd@kernel.org>, "Linus Walleij" <linusw@kernel.org>,
- "Bartosz Golaszewski" <brgl@kernel.org>,
- "Marcel Holtmann" <marcel@holtmann.org>,
- "MyungJoo Ham" <myungjoo.ham@samsung.com>,
- "Chanwoo Choi" <cw00.choi@samsung.com>,
- "Geert Uytterhoeven" <geert+renesas@glider.be>,
- "Andy Shevchenko" <andy@kernel.org>,
- "Dmitry Torokhov" <dmitry.torokhov@gmail.com>,
- "Ulf Hansson" <ulfh@kernel.org>, linux-bluetooth@vger.kernel.org,
- linux-kernel@vger.kernel.org,
- "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
- dri-devel@lists.freedesktop.org, linux-i2c@vger.kernel.org,
- linux-iio@vger.kernel.org, linux-input@vger.kernel.org,
- "linux-mmc @ vger . kernel . org" <linux-mmc@vger.kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org,
- linux-usb@vger.kernel.org
-Message-Id: <72746bd8-8ba3-4369-a2e9-60795f183813@app.fastmail.com>
-In-Reply-To: 
- <CAMuHMdWhv8i6tkmOJU_ee9LAV7mMcQHe9FXgqTHCjGiEMWvn8Q@mail.gmail.com>
-References: <20260629135917.1308621-1-arnd@kernel.org>
- <CAMuHMdXhsM4JzArRuB=A46N-Ogbn2Fans+PVJVA-hEytFq=DeQ@mail.gmail.com>
- <ff4d7043-1929-4fa1-ba5e-f28403ad6fcc@app.fastmail.com>
- <CAMuHMdWhv8i6tkmOJU_ee9LAV7mMcQHe9FXgqTHCjGiEMWvn8Q@mail.gmail.com>
-Subject: Re: [PATCH] [RFC] gpiolib: introduce gpio_name() helper
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jun 30, 2026, at 18:01, Geert Uytterhoeven wrote:
-> On Mon, 29 Jun 2026 at 19:54, Arnd Bergmann <arnd@arndb.de> wrote:
->> On Mon, Jun 29, 2026, at 17:29, Geert Uytterhoeven wrote:
+I2C controllers may have child devices with GpioInt resources that
+depend on GPIO controllers to be fully initialized. If the I2C
+controller probes and enumerates children before the referenced GPIO
+controller has completed probe, GPIO interrupts may not be properly
+configured, leading to device failures.
 
->> > Same results for instantiation using sysfs or configfs[1], although
->> > the latter does have optional support for specifying the name.
->>
->> I wonder how many of the other instances have the same problem
->> then. Would it be appropriate for gpiochip_fwd_desc_add() to set
->> a name itself to address this one?
->
-> I don't think it would be appropriate for the GPIO aggregator to set
-> that name.  What we want to print here (for debugging) is the physical
-> GPIO that an aggregator's GPIO is mapped to, not some consumer or line
-> name (which is not guaranteed to be unique).
+On Lenovo Yoga 7 14AGP11, the WACF2200 touchscreen (child of
+AMDI0010:02) has a GpioInt resource pointing to GPIO 157 on the
+pinctrl-amd controller (AMDI0030:00). When i2c-designware probes
+AMDI0010:02 before pinctrl-amd finishes initializing, I2C transactions
+fail with lost arbitration errors.
 
-Ok.
+Add a generic dependency check in i2c-designware that walks ACPI child
+devices, identifies any GpioInt resources, resolves the referenced GPIO
+controllers, and defers probe if those controllers are not yet bound.
+Uses acpi_gpio_get_irq_resource() to avoid duplicating GPIO resource
+parsing logic from gpiolib-acpi. Skips resources with no resource
+source string (string_length == 0 or string_ptr == NULL) to avoid
+crashes on hardware where GPIO resources have no named controller.
 
-> E.g. "<chip-name>.<offset>" would be fine.  As gpiod_name() can only
-> return a fixed string or an existing string, it can't return such a
-> formatted string, though. And consumers don't have access to chip info?
+The probe ordering race was confirmed via dynamic debug tracing:
 
-The gpiod_hwgpio() function is exported to consumers, so they can
-already print that instead of desc_to_gpio() if the local number
-is sufficient. If we really care about the <chip-name> portion for
-any of the debug prints, we could export another function that
-returns maybe gpiod_to_chip(gpiod)->label or
-dev_name(&gpiod_to_gpio_device(gpiod)->dev), which are both
-constant strings we can print.
+  0.285952  amd_gpio_probe: registering gpiochip  <- GPIO chip visible
+  0.287121  amd_gpio_probe: requesting parent IRQ <- probe still running
+  0.301454  AMDI0010:02 dw_i2c_plat_probe: start  <- races here
+  2.348157  lost arbitration
 
-It looks like we can also replace most of the remaining callers
-of desc_to_gpio() with gpiod_hwgpio().
+Fixes: 3812a9e84265 ("pinctrl-amd: enable IRQ for WACF2200 touchscreen on Lenovo Yoga 7 14AGP11")
+Suggested-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Hardik Prakash <hardikprakash.official@gmail.com>
+Assisted-by: Claude:claude-sonnet-4-6
+Assisted-by: GPT:gpt-5.4-mini
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=221494
+---
+ drivers/i2c/busses/i2c-designware-platdrv.c | 132 ++++++++++++++++++++
+ 1 file changed, 132 insertions(+)
 
-       Arnd
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index 6d6e81242f74..d8331d1dead8 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -8,6 +8,8 @@
+  * Copyright (C) 2007 MontaVista Software Inc.
+  * Copyright (C) 2009 Provigent Ltd.
+  */
++
++#include <linux/acpi.h>
+ #include <linux/clk-provider.h>
+ #include <linux/clk.h>
+ #include <linux/delay.h>
+@@ -130,6 +132,132 @@ static int i2c_dw_probe_lock_support(struct dw_i2c_dev *dev)
+ 	return 0;
+ }
+ 
++#if defined(CONFIG_ACPI) && defined(CONFIG_GPIOLIB)
++struct gpio_controller_ref {
++	struct list_head node;
++	const char *path;
++};
++
++static void free_gpio_controller_list(struct list_head *gpio_controllers)
++{
++	struct gpio_controller_ref *ref, *tmp;
++
++	list_for_each_entry_safe(ref, tmp, gpio_controllers, node) {
++		list_del(&ref->node);
++		kfree(ref->path);
++		kfree(ref);
++	}
++}
++
++static int check_gpioint_resource(struct acpi_resource *ares, void *data)
++{
++	struct list_head *gpio_controllers = data;
++	struct acpi_resource_gpio *agpio;
++	struct gpio_controller_ref *ref;
++
++	if (!acpi_gpio_get_irq_resource(ares, &agpio))
++		return 1;
++
++	if (!agpio->resource_source.string_length)
++		return 1;
++
++	/* Skip if we've already tracked this GPIO controller */
++	list_for_each_entry(ref, gpio_controllers, node) {
++		if (!strncmp(ref->path, agpio->resource_source.string_ptr,
++			     agpio->resource_source.string_length))
++			return 1;
++	}
++
++	ref = kzalloc(sizeof(*ref), GFP_KERNEL);
++	if (!ref)
++		return -ENOMEM;
++
++	ref->path = kstrdup(agpio->resource_source.string_ptr, GFP_KERNEL);
++	if (!ref->path) {
++		kfree(ref);
++		return -ENOMEM;
++	}
++
++	list_add_tail(&ref->node, gpio_controllers);
++	return 1;
++}
++
++static int check_child_gpioint(struct acpi_device *adev, void *data)
++{
++	struct list_head res_list;
++	int ret;
++
++	INIT_LIST_HEAD(&res_list);
++	ret = acpi_dev_get_resources(adev, &res_list, check_gpioint_resource, data);
++	if (ret < 0)
++		return ret;
++
++	acpi_dev_free_resource_list(&res_list);
++	return 0;
++}
++
++static int i2c_dw_check_gpio_dependencies(struct device *dev)
++{
++	struct gpio_controller_ref *ref;
++	LIST_HEAD(gpio_controllers);
++	struct acpi_device *adev;
++	int ret;
++
++	adev = ACPI_COMPANION(dev);
++	if (!adev)
++		return 0;
++
++	/* Walk all child devices and collect GpioInt controller references */
++	ret = acpi_dev_for_each_child(adev, check_child_gpioint, &gpio_controllers);
++	if (ret < 0)
++		goto cleanup;
++
++	/* For each GPIO controller, check if its platform device is bound */
++	list_for_each_entry(ref, &gpio_controllers, node) {
++		struct acpi_device *gpio_adev;
++		struct device *gpio_dev;
++		acpi_status status;
++		acpi_handle handle;
++		bool bound;
++
++		status = acpi_get_handle(NULL, ref->path, &handle);
++		if (ACPI_FAILURE(status))
++			continue;
++
++		gpio_adev = acpi_fetch_acpi_dev(handle);
++		if (!gpio_adev)
++			continue;
++
++		gpio_dev = acpi_get_first_physical_node(gpio_adev);
++		acpi_dev_put(gpio_adev);
++		if (gpio_dev) {
++			guard(device)(gpio_dev);
++			bound = device_is_bound(gpio_dev);
++		} else {
++			bound = false;
++		}
++		/*
++		 * Defer probe until the GPIO controller is fully bound,
++		 * ensuring its IRQ setup is complete before we enumerate
++		 * I2C child devices.
++		 */
++		if (!bound) {
++			ret = -EPROBE_DEFER;
++			goto cleanup;
++		}
++	}
++
++cleanup:
++	free_gpio_controller_list(&gpio_controllers);
++	return ret;
++}
++#else
++static int i2c_dw_check_gpio_dependencies(struct device *dev)
++{
++	return 0;
++}
++#endif /* CONFIG_ACPI && CONFIG_GPIOLIB */
++
+ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ {
+ 	u32 flags = (uintptr_t)device_get_match_data(&pdev->dev);
+@@ -138,6 +266,10 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
+ 	struct dw_i2c_dev *dev;
+ 	int irq, ret;
+ 
++	ret = i2c_dw_check_gpio_dependencies(device);
++	if (ret)
++		return ret;
++
+ 	irq = platform_get_irq_optional(pdev, 0);
+ 	if (irq == -ENXIO)
+ 		flags |= ACCESS_POLLING;
+
+base-commit: 5a66900afbd6b2a063eebad35294038a654de2b0
+-- 
+2.54.0
+
