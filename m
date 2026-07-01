@@ -1,98 +1,129 @@
-Received: from esa4.hc555-34.eu.iphmx.com (esa4.hc555-34.eu.iphmx.com [207.54.77.171])
+Received: from mout-p-202.mailbox.org (mout-p-202.mailbox.org [80.241.56.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA35230EF80;
-	Wed,  1 Jul 2026 14:14:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=207.54.77.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C13FA421F12;
+	Wed,  1 Jul 2026 15:06:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782915301; cv=none; b=j0i0F+n5GNmYSOQ/CGOUzbTcjbkCPSvgMZU0wCJGOWc/TpL6nRvUkukPrZLbADmMrq/mQeqtMbAmGe1NxRiU6OJgpA3hjZWqEFuyTRgO+c3MOZ5ujcRh4c78fEOYlIMGAN/t0Fgo4RVS9ulmprpIZ5SXiVKoYwWm9hwqPJjjGbk=
+	t=1782918384; cv=none; b=SZTtCaacJfF2yqVkJWyTOvnRVXVYS6xyx7i2CpouB0SV/3kxsL8q9upGvDU8GyfVHwd9pdhAUqRUB2PXyb2xO8a73c/FoAT3yY/JRmQZqOtIjo/0knHVFiUqUOg6eu5PNY+Y61gmjq1QHT7BJ22hK9VGnBLqm4Gr0PwD43if418=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782915301; c=relaxed/simple;
-	bh=CEVGvu6TCDiaCcSvmrd98Os19avfl2PEiaB4Dw/9jcE=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Bqw76IZmKOTLxvrjrrRJOhAOkm2ct1ArDLuAAkEg86ANMlkpbKMTkuIIC8ocNkGxo+Ybe2FNkYChlQctIjMOQS5WopyUbIqdODlF6np+oOzJgTSSz6NLje8shLhwA8EsgO7OYPGoMaXa9YRqcu5ldec0oWDFACYwsRc8frVkGdg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mobileye.com; spf=pass smtp.mailfrom=mobileye.com; dkim=fail (0-bit key) header.d=mobileye.com header.i=@mobileye.com header.b=VlJMmE+c reason="key not found in DNS"; arc=none smtp.client-ip=207.54.77.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mobileye.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mobileye.com
+	s=arc-20240116; t=1782918384; c=relaxed/simple;
+	bh=7iK4BGNHJy0tB94tmLVRjvi1Oe1FniGBRLtTBxRpX9I=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=AOtI4OI2prGXRxMpFF/LwUjvJqICEcnpJrIoRgSQdKTke0cMBJt/dYJRp+N6mBk0hYmlk7mJPQRTONZBk/j1RHS/qqQpOsABs+1eN24QUqbGztmPut3KDr6fDrqnDw3s8reFnOBJ8iMExW+sUUjPa4zeigwyWxu0HGWvovz1MjA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=pcd0PeJh; arc=none smtp.client-ip=80.241.56.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="key not found in DNS" (0-bit key) header.d=mobileye.com header.i=@mobileye.com header.b="VlJMmE+c"
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=mobileye.com; i=@mobileye.com; q=dns/txt; s=MoEyIP;
-  t=1782915298; x=1814451298;
-  h=date:from:to:cc:subject:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=CEVGvu6TCDiaCcSvmrd98Os19avfl2PEiaB4Dw/9jcE=;
-  b=VlJMmE+c08YG+ffwC0IIvEbUHCedK3GRwq+WaUWF1m3etF2rihGNmwxD
-   dJFJ0sptiWAHoVCwHKGKd92YpPeAWu716st6Cv6+nEwbePxcHGHqMDBM1
-   QNiW3+4ygVPn0gOpLxIwHsZ6XwZ+bZVcSFpbkY8ik4r+xPpPOtkpiSkpQ
-   lpCSkQZic71absDOpQjKdI9Gy3mA9bdqUoLPEb0NaoUvPfi35qR2VYJJ4
-   PkhN3l+ULo8nmbKKRoEEfncUNp4bUTC1lVU9XgNLfG8azMPGByv3FiNdr
-   wLHFxLUbi7en54c4Am9LVeTAUemKIGL/U4/udRvuPBQR6a0IgQlf2MDbf
-   A==;
-X-CSE-ConnectionGUID: f9ca5hMFQ12iYAMawGVGGg==
-X-CSE-MsgGUID: gqZxerLRTgyhwn+roZ+fdQ==
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from unknown (HELO ces02_data.me-corp.lan) ([146.255.191.134])
-  by esa4.hc555-34.eu.iphmx.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2026 17:13:46 +0300
-X-CSE-ConnectionGUID: ErA3OLcJQ1yRxQuQaa7WWQ==
-X-CSE-MsgGUID: Zaseidf5QfKEyJp5AqiCaA==
-Received: from unknown (HELO epgd056.me-corp.lan) ([10.154.54.2])
-  by ces02_data.me-corp.lan with SMTP; 01 Jul 2026 17:19:05 +0300
-Received: by epgd056.me-corp.lan (sSMTP sendmail emulation); Wed, 01 Jul 2026 17:13:45 +0300
-Date: Wed, 1 Jul 2026 16:46:48 +0300
-From: Dmitry Guzman <Dmitry.Guzman@mobileye.com>
-To: Linus Walleij <linusw@kernel.org>
-Cc: Andi Shyti <andi.shyti@kernel.org>, Steven Rostedt
- <rostedt@goodmis.org>, Masami Hiramatsu <mhiramat@kernel.org>, Mathieu
- Desnoyers <mathieu.desnoyers@efficios.com>, linux-i2c@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 2/7] i2c: nomadik: optimize layout of struct nmk_i2c_dev
-Message-Id: <20260701164648.93eca0250e8a4932611a2ce5@mobileye.com>
-In-Reply-To: <CAD++jLmqtG-j=Q-Ctr-1-GKVqYzcwOwWUF6AYHcKf5aXUSKE5A@mail.gmail.com>
-References: <20260623-i2c-fault-reporting-v1-0-6db1a8aabf18@mobileye.com>
-	<20260623-i2c-fault-reporting-v1-2-6db1a8aabf18@mobileye.com>
-	<CAD++jLmqtG-j=Q-Ctr-1-GKVqYzcwOwWUF6AYHcKf5aXUSKE5A@mail.gmail.com>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="pcd0PeJh"
+Received: from smtp102.mailbox.org (smtp102.mailbox.org [10.196.197.102])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-202.mailbox.org (Postfix) with ESMTPS id 4gr3Hr4RnZz9tCX;
+	Wed,  1 Jul 2026 17:06:16 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1782918376;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7iK4BGNHJy0tB94tmLVRjvi1Oe1FniGBRLtTBxRpX9I=;
+	b=pcd0PeJh7Iv8r/KVTFH5oFdA/lvvSyvuvKi3if55cztI2n/XSqmRdnZKteH85HKKVV85yU
+	j9HVmz2EWbdR6s0CcET0z1vhIRn4hJ25bjWnCJwEuRpc0w/NW+iGM63mTUN/npapcFcSR/
+	fvTXXtkA/gTpkwn7ezESk2MSMTKfcqmvoICSsIiJierSEvXB9xwtVzbElgLSVNcJv+Ritx
+	B8K9i27AJIekT+XY6QmKpjCphMf9LuJwlimFmayP7Cy6geBGJUxhP+KSpU8c/IrGtSWTsI
+	iKUJjdFVYMmR+verObzbMA+hWZMieIpK2Ln1S3xxLh3nAIF0DvnMe971s5Fifw==
+Message-ID: <f6ce9878f3528dd026e6ca8ff56ac773a264e476.camel@mailbox.org>
+Subject: Re: [PATCH v2 02/19] driver core: platform: provide
+ platform_device_set_of_node()
+From: Manuel Ebner <manuelebner@mailbox.org>
+To: Bartosz Golaszewski <brgl@kernel.org>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org, 
+	driver-core@lists.linux.dev, devicetree@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
+ iommu@lists.linux.dev, 	linux-pm@vger.kernel.org, imx@lists.linux.dev, 
+	linux-arm-kernel@lists.infradead.org, intel-xe@lists.freedesktop.org, 
+	dri-devel@lists.freedesktop.org, linux-usb@vger.kernel.org, 
+	linux-mips@vger.kernel.org, platform-driver-x86@vger.kernel.org, Bartosz
+ Golaszewski <bartosz.golaszewski@oss.qualcomm.com>, Lee Jones
+ <lee@kernel.org>, Thierry Reding	 <thierry.reding@avionic-design.de>,
+ Sebastian Hesselbarth	 <sebastian.hesselbarth@gmail.com>, Andrew Lunn
+ <andrew+netdev@lunn.ch>,  "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo
+ Abeni <pabeni@redhat.com>, Srinivas Kandagatla <srini@kernel.org>, Greg
+ Kroah-Hartman	 <gregkh@linuxfoundation.org>, Vinod Koul <vkoul@kernel.org>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, Danilo Krummrich
+ <dakr@kernel.org>, Rob Herring <robh@kernel.org>,  Saravana Kannan
+ <saravanak@kernel.org>, Madhavan Srinivasan <maddy@linux.ibm.com>, Michael
+ Ellerman	 <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, Andi Shyti
+ <andi.shyti@kernel.org>, Andy Shevchenko	
+ <andriy.shevchenko@linux.intel.com>, Joerg Roedel <joro@8bytes.org>, Will
+ Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Doug Berger
+ <opendmb@gmail.com>,  Florian Fainelli <florian.fainelli@broadcom.com>,
+ Broadcom internal kernel review list	
+ <bcm-kernel-feedback-list@broadcom.com>, Ulf Hansson <ulfh@kernel.org>, 
+ Frank Li <Frank.Li@nxp.com>, Sascha Hauer <s.hauer@pengutronix.de>,
+ Pengutronix Kernel Team	 <kernel@pengutronix.de>, Fabio Estevam
+ <festevam@gmail.com>, Matthew Brost	 <matthew.brost@intel.com>, Thomas
+ =?ISO-8859-1?Q?Hellstr=F6m?=	 <thomas.hellstrom@linux.intel.com>, Rodrigo
+ Vivi <rodrigo.vivi@intel.com>,  David Airlie <airlied@gmail.com>, Simona
+ Vetter <simona@ffwll.ch>, Peter Chen <peter.chen@kernel.org>,  Paul
+ Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>, Philipp Zabel
+ <p.zabel@pengutronix.de>,  Maximilian Luz <luzmaximilian@gmail.com>, Hans
+ de Goede <hansg@kernel.org>, Ilpo =?ISO-8859-1?Q?J=E4rvinen?=	
+ <ilpo.jarvinen@linux.intel.com>, Krzysztof Kozlowski <krzk@kernel.org>, 
+ Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Date: Wed, 01 Jul 2026 17:05:49 +0200
+In-Reply-To: <CAMRc=MdQURjypSn+QjSDJfEiOMC8bbEZmZLgjpt=EquAM1Q1pw@mail.gmail.com>
+References: <20260629-pdev-fwnode-ref-v2-0-8abe2513f96e@oss.qualcomm.com>
+		 <20260629-pdev-fwnode-ref-v2-2-8abe2513f96e@oss.qualcomm.com>
+	 <263f58b418a27a2339fc2478f93234e0208b0ad9.camel@mailbox.org>
+	 <CAMRc=MdQURjypSn+QjSDJfEiOMC8bbEZmZLgjpt=EquAM1Q1pw@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-MBO-RS-META: 37tty84b1zxogwptawjudbroswqcnaqn
+X-MBO-RS-ID: 0ac2dd9424902710d49
 
-On Thu, 25 Jun 2026 00:36:49 +0200
-Linus Walleij <linusw@kernel.org> wrote:
+On Tue, 2026-06-30 at 09:22 -0400, Bartosz Golaszewski wrote:
+> On Tue, 30 Jun 2026 13:37:54 +0200, Manuel Ebner <manuelebner@mailbox.org=
+> said:
+> > On Mon, 2026-06-29 at 11:12 +0200, Bartosz Golaszewski wrote:
+> > > [...]
+> > >=20
+> > > +/**
+> > > + * platform_device_set_of_node - assign an OF node to device
+> > > + * @pdev: platform device to add the node for
+> > > + * @np: new device node
+> > > + *
+> > > + * Assign an OF node to this platform device. Internally keep track =
+of the
+> > > + * reference count. Devices created with platform_device_alloc() mus=
+t use this
+> > > + * function instead of assigning the node manually.
+> >=20
+> > Doesn't it make sense to add a remark to the kernel doc of platform_dev=
+ice_alloc()?
+> >=20
+> > Thanks
+> > =C2=A0Manuel
+> >=20
+> > > =C2=A0[...]
+> >=20
+>=20
+> Sure, will do in the next iteration.
 
-> Hi Dmitry,
->
-> thanks for your patch!
->
-> Also nice to see some kernel contributions directly from
-> MobilEye!
+then you can add
+Reviewed-by: Manuel Ebner <manuelebner@mailbox.org>
 
-Thanks for you review!
-
-> >  struct nmk_i2c_dev {
-> >         struct i2c_vendor_data          *vendor;
-> > @@ -206,13 +206,13 @@ struct nmk_i2c_dev {
-> >         u32                             clk_freq;
-> >         unsigned char                   tft;
-> >         unsigned char                   rft;
->
-> ^
-> Maybe you want to take the opportunity to change these
-> two into u8 if you're anyway changing the layout of this
-> struct?
-
-I'm waiting for review of patch 1 in the set. If I need to submit next
-version of the patchset, I'll change these two unsigned chars, as well
-as `unsigned char *buffer` in `struct i2c_nmk_client`, into u8.
-
-Best Regards,
---
-Dmitry Guzman <Dmitry.Guzman@mobileye.com>
-
+ Manuel
+>=20
+> Bart
