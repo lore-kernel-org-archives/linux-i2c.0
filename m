@@ -1,68 +1,76 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from relay.hostedemail.com (smtprelay0015.hostedemail.com [216.40.44.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE5AA375AC6;
-	Thu,  2 Jul 2026 19:07:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F0E73C5550;
+	Thu,  2 Jul 2026 23:09:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.15
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783019228; cv=none; b=aD0ufwPu78yty/yerFFW1ejygE4A42xHIodTGYxfKMBLapBYEB+6qYlxm7FSEkjRQbSYeC/8qoTg3mwL40T8MNV5Z53m5nHMi4oFbKT0zgJtDMt8BfUwxfqsFWmCaXH+yiQG1QA6m8d10jIK+rHyn6hD6BpjMMbHwvocjmgYIdg=
+	t=1783033784; cv=none; b=PTTxcY+IUcgUQIroscmqRqiGHgMbss8/+oDKYlX0aLcAKe/FRUGd0UTVkRfGgWksAysedm9rYWIMWeCF17l6pW5owOf8uW85CPibv1+9vIb5WCTi0U/DXv2z6OonQRulZCufFAPW9VWyzI3Iktu+i//CjEn/z0+Zy+glxzNnWG8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783019228; c=relaxed/simple;
-	bh=lNhgXepedNRJMp2/BjgNhArne6DEi8uuv2qxUuvNpNw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=fhOnyfdIbiNekKxVrPh+NtUgyeA9uP4xM5vN8RA3zVQZIS2Bfdm2vSv2jB8sYMU8O/sE/TD6zW5JG4hSNc7SAKNqw7tFGH6h6ez4hcdbkCVtMcgKLloMvxqNGIJTmVdT+YT3biRNNXJFfJ/wlpul0FvG3WbFgFMqe2IkspO+cpA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jrYp/Rd1; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jrYp/Rd1"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B2751F000E9;
-	Thu,  2 Jul 2026 19:07:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783019227;
-	bh=VMa+yWSdWJQunWxjdzIFUy8a9j8A28yI1e8zGw9lFZ8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=jrYp/Rd1494TtcTgoMetSh/EUlapjipCtyr163gYQc+qMTxWxzDBoEjIM96A4QP2v
-	 RcnpvrlNLMcYLQdpdK1F8ajGw/F2gVXygH9mN9tpXJjBkvAggV+IdyIFnHd/Y8LHzX
-	 0bEivdhoTV/bMYdB+ks6ZG2YX6qSy6hkQIm7iZ8QmSrCNIqpYrco8p+Z4cNM+UhK66
-	 nszgIhB2eBIkCA1iaJK1vcQDey6pLQeoVSJ+lDvil7/kxriWugY5/hJ7YvKCZcx2Dk
-	 yg0ByoilA+yrMgviZksKqvHsJSmtZLAPAd1GzHzyeCYSe2CGdHNznJvOJeBen5L8c9
-	 zgqGh66fVRuMg==
-Date: Thu, 2 Jul 2026 21:07:01 +0200
-From: Andi Shyti <andi.shyti@kernel.org>
-To: Krzysztof Kozlowski <krzk@kernel.org>
-Cc: Maoyi Xie <maoyixie.tju@gmail.com>, Jan Kandziora <jjj@gmx.de>, 
-	Wolfram Sang <wsa+renesas@sang-engineering.com>, Bjorn Andersson <bjorn.andersson@oss.qualcomm.com>, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] w1: ds28e17: reject an oversize length on an I2C block
- read
-Message-ID: <aka2gCbXkDJ0DQRe@zenone.zhora.eu>
-References: <20260629121043.199487-1-maoyixie.tju@gmail.com>
- <akaMJVyqy2nXKHAI@zenone.zhora.eu>
- <1e5e95ef-fa14-4c52-809d-4029ba043c1a@kernel.org>
+	s=arc-20240116; t=1783033784; c=relaxed/simple;
+	bh=FILav3yKKzpl28dd6CARNjyKZNqIjr35VEG1AuE24Gw=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=C0x/KP+UaJJLzkYx8TKXoakiKNTIJgP+ED4h/uMEqRqFk4AiRWvTtD9oRSTpIo9lKknVYbXHeR7wKlco6+lBaqjLiAUMlwiB0SQDZcqK/+Gi0zR7L0R71+fAktBR5xZZ7K8VzE/WwFgw3TVDcPvHJR202dkNQYlTfxE37gXASlg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
+Received: from omf17.hostedemail.com (lb01a-stub [10.200.18.249])
+	by unirelay04.hostedemail.com (Postfix) with ESMTP id 7F3431A0375;
+	Thu,  2 Jul 2026 23:09:40 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf17.hostedemail.com (Postfix) with ESMTPA id F225D17;
+	Thu,  2 Jul 2026 23:09:37 +0000 (UTC)
+Date: Thu, 2 Jul 2026 19:09:41 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Praveen Talari <praveen.talari@oss.qualcomm.com>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>, Mukesh Kumar Savaliya
+ <mukesh.savaliya@oss.qualcomm.com>, Viken Dadhaniya
+ <viken.dadhaniya@oss.qualcomm.com>, Andi Shyti <andi.shyti@kernel.org>,
+ linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, linux-i2c@vger.kernel.org,
+ aniket.randive@oss.qualcomm.com, chandana.chiluveru@oss.qualcomm.com
+Subject: Re: [PATCH 1/2] i2c: qcom-geni: trace: Add trace events for
+ Qualcomm GENI I2C
+Message-ID: <20260702190941.025263ee@gandalf.local.home>
+In-Reply-To: <20260630-add-tracepoints-for-qcom-geni-i2c-v1-1-474cd6cdbe27@oss.qualcomm.com>
+References: <20260630-add-tracepoints-for-qcom-geni-i2c-v1-0-474cd6cdbe27@oss.qualcomm.com>
+	<20260630-add-tracepoints-for-qcom-geni-i2c-v1-1-474cd6cdbe27@oss.qualcomm.com>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1e5e95ef-fa14-4c52-809d-4029ba043c1a@kernel.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Server: rspamout02
+X-Stat-Signature: ndrfdqp7d6ubmh4dqhrb6sxg3ukoahfm
+X-Rspamd-Queue-Id: F225D17
+X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
+X-Session-ID: U2FsdGVkX19zIaAEIPPEnTBW1NqooTxWNQaEVIgZXZQ=
+X-HE-Tag: 1783033777-473480
+X-HE-Meta: U2FsdGVkX19khEgBI/TvM4nV5UQFDxFhIfSdbasA7mlv3JD8KRlqUsQc6VfIBjWrrlI3ICGSBQIoMFJriTHjOC/NyfWUTXPUI0IiLhG6S2VJxhF3x7sqKdW1n87nHgq1YYLgkTwX6X78GyYUPjIo9VWAoJyL9H8XKmLCGh6NxCHT+AB2BVv5t9qdZX8slvrqNbC68n/nEaUH5KoaijbIHJ4XbstcBfiB/DfbL8Yznd/T4vo8T9j2xnBKOiRC9umcgSNT+Hh9XmyWnQrEP6FEEVIUgmuSGREgFxmrVo8gaClKSbRz8ZWJpN0kLBy79/LVACLTBQuvyFKmBsUnvtvXqtImurZ2QMsBviVUlZlNSg8MOos3B0L+UQB7KNIvL5xBIBdbxSoLF+V2jIbBfoOpSg==
 
-Hi Krzysztof,
+On Tue, 30 Jun 2026 11:32:45 +0530
+Praveen Talari <praveen.talari@oss.qualcomm.com> wrote:
 
-> >> Reject a length above I2C_SMBUS_BLOCK_MAX at both RECV_LEN sites, the
-> >> same way i2c-algo-bit does.
-> >>
-> >> Fixes: ebc4768ac497 ("add w1_ds28e17 driver for the DS28E17 Onewire to I2C master bridge")
-> >> Cc: stable@vger.kernel.org
-> > 
-> > Cc: <stable@vger.kernel.org> # v4.15+
+> Add trace event support to the Qualcomm GENI I2C driver to enable
+> detailed runtime debugging and analysis.
 > 
-> This is not needed. CC stable is enough with Fixes tag. Unless this
-> should not be backported to the kernel which introduced this issue, but
-> then why?
+> The trace events capture I2C clock configuration, interrupt status
+> and error code and message.
+> 
+> Signed-off-by: Praveen Talari <praveen.talari@oss.qualcomm.com>
+> ---
+>  include/trace/events/qcom_geni_i2c.h | 82 ++++++++++++++++++++++++++++++++++++
+>  1 file changed, 82 insertions(+)
+> 
+> diff --git a/include/trace/events/qcom_geni_i2c.h b/include/trace/events/qcom_geni_i2c.h
+> new file mode 100644
+> index 000000000000..c7e7984f3620
+> --- /dev/null
 
-yes, you're right, but reading the documentation it suggests to
-use this form, it's easy to get, so why not? I always use it.
+Reviewed-by: Steven Rostedt <rostedt@goodmis.org>
 
-Andi
+-- Steve
