@@ -1,38 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EAF849553B;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8092249553D;
 	Thu,  2 Jul 2026 09:57:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782986243; cv=none; b=RSK/FH4k2E0pztXCOJ5ilk0FuBSjxJX9czecpHwYlgDQHg9JEsrSBmU3P2tYuTvMASFHIgNpy0mWr8fApsu6SAmWehl0oo6PW6xIKEcMy2tQ5G7MznLE/Xo3EfnzesUdFYkrB0lQqh4Pyz7c70WdBdnhELXmoTP7ITLf11ZfuYc=
+	t=1782986243; cv=none; b=ea8nxNZtcAaqPboWR3SGEJVwCnq+IOMSkOgJlhMRX9Ao1P1aK+7fVyhVPSNVwUUbis+KajpsKacl21a7MosvkrdfsJLjGrBFUfBFchPjjSE/StBDxbRj/6veZaRQWD4GNIV5J8fLgJVVkhCK4HXktI6Trq7virWnGv0lYQ/qjy8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1782986243; c=relaxed/simple;
-	bh=fm/6sk7gCdpwISaGU9WT3cWYZ93Sf6uQPBQjjnBRxxk=;
+	bh=LgAbB0ZXLnx/BP4AfsepnntHvttapSIZpd8aWCrBwiI=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=q19CZszLV0E0fA+QZDL/gIZXJk0fZzdnJvIMTkTCYEibR8O1P/KFgNsZh8WeFb1eZ8sIvZ/DY6awwCnL1A+dSffMx6MuaoSDaFoRa4/CHjSiZcKcCmRO36kK2LMGI12OprQb3MJx1vr495i2Rg940SVm2PWjGjqne69REOUzFwM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bzbMc/pY; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:To:Cc; b=KevLYFCMmS0pxqyI+mLv9f13ZNsBO0x3eopWFdx83xtgmS++kZjJKjfUKJzlZ2nwd83S/+NQ2QvNj3RxFTFa19kqMPKn06RMsIDg9piBo0rVo0HlOBWBF/OA0cQtjwfF+cNi6jTFS/Mmf5ZtwXlkd8s4HxhRtIK7dpyr/j3p6sk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BXpmS/yG; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bzbMc/pY"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 3A3ABC2BD01;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BXpmS/yG"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 227FEC2BCFD;
 	Thu,  2 Jul 2026 09:57:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
 	s=k20201202; t=1782986243;
-	bh=fm/6sk7gCdpwISaGU9WT3cWYZ93Sf6uQPBQjjnBRxxk=;
+	bh=LgAbB0ZXLnx/BP4AfsepnntHvttapSIZpd8aWCrBwiI=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=bzbMc/pY/pJWmDifnbQE1aH8wxpG2BkGdtgNXDqqD3NDyQkGP56Klxj14iVCvylNK
-	 aNgjCARDvlRDHFegTHp/DSV1dK3aDOeLHBFjjjqTnNS5s8Nt1+SHKJo7AU++0sVmLo
-	 u6SptGOcdxs5CUYjCEbJHEkbdSFx+MZhKJxJ/XoC7oazsEI4zKUUc+Kt1inJnWTt7D
-	 MDuNublw6KRTNt+4t0JZpD8wAbpZ4FcslHFS4ULtXpS+8PqTI50I59lz2fuVqoPfOv
-	 0/0Chzc7wUm0CDjhUBESYLrINMnXKb05YJ5ivEcFN/Ojphzwp97LG/t6ph3C1z189H
-	 ofMq7TAPERnyg==
+	b=BXpmS/yGKwkIqzJOfCf/Au2SngShBQd9IciENCSqCtKuYC5ezMfGwdglEUnMDOEUs
+	 lz6tLFk1Hq/5DundsZllVx976hQ8uWkj5bL/aLrnf8z2cjidfmxtmk0Py3wL+pBxod
+	 /rETGmc8+Te+3PF+/To7uZzlD4wFpZssO8gL41MkocPbD/0njnryZNaGdsvASoth/b
+	 ebiUa1X1e79hcdh1b2QVu35GqopAlnCkjlPa/NwJ/GqRdRP5rsGMuKjNYkEUp4pyIt
+	 naoi3pNWlij3YYcQ8HpQAI9x0wrayje43P0S/TO7LWJz4E6Zo6r/8daDGb25fHL8Ez
+	 kF9VTPPRZt+sw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A417C44503;
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CD17C43458;
 	Thu,  2 Jul 2026 09:57:23 +0000 (UTC)
 From: Ronald Claveau via B4 Relay <devnull+linux-kernel-dev.aliel.fr@kernel.org>
-Date: Thu, 02 Jul 2026 11:56:01 +0200
-Subject: [PATCH v8 8/8] arm64: dts: amlogic: t7: khadas-vim4: Add i2c MCU
- fan node
+Date: Thu, 02 Jul 2026 11:55:59 +0200
+Subject: [PATCH v8 6/8] arm64: dts: amlogic: t7: Add i2c pinctrl node
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -41,7 +40,7 @@ List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260702-add-mcu-fan-khadas-vim4-v8-8-244feee91a36@aliel.fr>
+Message-Id: <20260702-add-mcu-fan-khadas-vim4-v8-6-244feee91a36@aliel.fr>
 References: <20260702-add-mcu-fan-khadas-vim4-v8-0-244feee91a36@aliel.fr>
 In-Reply-To: <20260702-add-mcu-fan-khadas-vim4-v8-0-244feee91a36@aliel.fr>
 To: Neil Armstrong <neil.armstrong@linaro.org>, Lee Jones <lee@kernel.org>, 
@@ -59,13 +58,13 @@ Cc: linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org,
  linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org, 
  Ronald Claveau <linux-kernel-dev@aliel.fr>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1026;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=892;
  i=linux-kernel-dev@aliel.fr; h=from:subject:message-id;
- bh=ReP9jX1LqZ1xk8srjfORg2VmRh0QSxflyWImCLygV1k=;
- b=owGbwMvMwCWm1SvKXP3cUInxtFoSQ5abGcNDyZbnwiwCnG4O77X3HruqGOL8UXlt8GMxy8MBB
- zl9Jn3qKGVhEONikBVTZOmfa3ni3eWjZ77uUU+BmcPKBDKEgYtTACaiLcfwP+av4IwZqs2uh69+
- qPYpbCifcHrdTO/XOw03zg7heP0udR3D/xw1/3f6H3IFF2Vftz7dZrBJ9bXKKs6vE5renXUQZwu
- v5AMA
+ bh=F350Js/5aqFj9YLCGASaC045elV+sRf2mbU4+Ox2uSQ=;
+ b=owGbwMvMwCWm1SvKXP3cUInxtFoSQ5ab6d/y22KX5pZZx/+xD4zxULHbaNDAvvjPts0a36s6s
+ xx3pcV3lLIwiHExyIopsvTPtTzx7vLRM1/3qKfAzGFlAhnCwMUpABNR+8rI0L6sVjKaLdihm/s9
+ ++abL+dPTPv7/Fp9lMy/XUlHwu1XLmf4H/u3nWPZ8UtS3zctDt2stXLbgVyxMr41NyQZhbZ9nLd
+ lDRMA
 X-Developer-Key: i=linux-kernel-dev@aliel.fr; a=openpgp;
  fpr=DFD863F61375BF917F0012173953305EF1D0EC3E
 X-Endpoint-Received: by B4 Relay for linux-kernel-dev@aliel.fr/default with
@@ -75,38 +74,35 @@ Reply-To: linux-kernel-dev@aliel.fr
 
 From: Ronald Claveau <linux-kernel-dev@aliel.fr>
 
-Enable and configure i2c MCU node to get fan working on Khadas VIM4.
+Add the T7 pinctrl used by the Khadas VIM4 for MCU communication.
 
 Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
 Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
 ---
- .../boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts      | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/arm64/boot/dts/amlogic/amlogic-t7.dtsi | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts b/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts
-index 69d6118ba57e7..5d7f5390f3a66 100644
---- a/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts
-+++ b/arch/arm64/boot/dts/amlogic/amlogic-t7-a311d2-khadas-vim4.dts
-@@ -157,6 +157,19 @@ wifi32k: wifi32k {
- 	};
- };
+diff --git a/arch/arm64/boot/dts/amlogic/amlogic-t7.dtsi b/arch/arm64/boot/dts/amlogic/amlogic-t7.dtsi
+index 7fe72c94ed623..e96fe10b251a0 100644
+--- a/arch/arm64/boot/dts/amlogic/amlogic-t7.dtsi
++++ b/arch/arm64/boot/dts/amlogic/amlogic-t7.dtsi
+@@ -376,6 +376,16 @@ mux {
+ 					};
+ 				};
  
-+&i2c_m_ao_a {
-+	status = "okay";
-+	pinctrl-0 = <&i2c0_ao_d_pins>;
-+	pinctrl-names = "default";
++				i2c0_ao_d_pins: i2c0-ao-d {
++					mux {
++						groups = "i2c0_ao_sck_d",
++							 "i2c0_ao_sda_d";
++						function = "i2c0_ao";
++						bias-disable;
++						drive-strength-microamp = <3000>;
++					};
++				};
 +
-+	khadas_mcu: system-controller@18 {
-+		compatible = "khadas,vim4-mcu";
-+		reg = <0x18>;
-+		fan-supply = <&vcc5v>;
-+		#cooling-cells = <2>;
-+	};
-+};
-+
- &pwm_ab {
- 	status = "okay";
- 	pinctrl-0 = <&pwm_a_pins>;
+ 				pwm_a_pins: pwm-a {
+ 					mux {
+ 						groups = "pwm_a";
 
 -- 
 2.49.0
