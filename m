@@ -1,197 +1,161 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 862234963B2;
-	Thu,  2 Jul 2026 09:57:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4343B355F57;
+	Thu,  2 Jul 2026 10:21:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782986243; cv=none; b=rAXCMf06HMuxvE/m+4zsh9/6F9SoLPRsWrHeCbP9Xle+btEZC5CS7gv/WY29R+KEKbUACreoA6i6be5BQmz4ywRfTb/8JlpJzJx49q+W0eJTL4Lz+/hO8uTUkbkTdJxFVYCQVC58hQbM3JLhrc5nbCotjGNtUGm5NnLaf1tuc7w=
+	t=1782987705; cv=none; b=i7CNq74B/0ZdKv/eiw5x2Y2PaPY3mmXo4aEGCkbAlaB0kQH4guFxzjYAaNkbD+y7EPBtXezHZvpbPbCaeyBJHuBza/GGz1TIiw+npyTKdpcj7ZRcZSdboTb9yym0uX+qdqCpz8eR+BZkLt1/qI+9gTNkSB62w1tC4h2Zvzui8mQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782986243; c=relaxed/simple;
-	bh=dOoxnDlBmKRUEuWn0/9PCIB2WwlAKvILRj6iXjFR3rg=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=j0CXlRZq1LeQn5kaPSIKCRfdQE2/qjTUh+MBYyJFOIe/mA/T5kFmSZLjza3HlQ7SaXdLQVJJ3gtMzqovd7IAR5LJGl0HPj/5XSP2aeYh7PUTrSCFBEXgkWJrRQW9GohFoHEjoIl4zgOCGHW2OkeHTdcZv6SQhlKtA9khWUDkLFI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SRdj2j4F; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1782987705; c=relaxed/simple;
+	bh=cGr4f7bR5VMBK84qrv00rsz03dvLqLgQ0AaUzlh7PLY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=e+eFR7Hoi1f+S0iCua26udFvJxn3Q9PgV+NJq/8LGLNoLcl41RpjlwJlhPMoXHPnjWNr9S2Qp0SPIsKp2nKQs6OvMjqNZkTgu9wKbPlw8XMGTrHpIdW2llgemNme9Z2JSCK1sFYxpeE5knUJbKzW3G3ZO5OEN77fGOJyxgoRdyQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ofvt0Nm6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SRdj2j4F"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 14A7EC4AF11;
-	Thu,  2 Jul 2026 09:57:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1782986243;
-	bh=dOoxnDlBmKRUEuWn0/9PCIB2WwlAKvILRj6iXjFR3rg=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:Reply-To:From;
-	b=SRdj2j4FQZZ05lpQhaIbw/uKDKBrJMiEOT8E4ewmfG56mLHykpmg7lS5un5t8cIl6
-	 8Lvcm17cl5EiLOJ63EigkSCFHosaN4zRypJyYGvGB+wGyR4qHYWVA3kruPrIHQvcfY
-	 6GVUxvSwAWEO2nvKUw1HnNpoVsIJb7dUrPmXrfjSWvg4N1BmV8tsUk7QdjD7a2OmoZ
-	 +qAwOG+j7MbB2vZlK4ymJGG3L6iz9t2z6uuOVHC4lbQeq6dMLHZMfBnMLSHO5ofu0B
-	 y4oH5MGiPEl5Kt3vqX5vHT4ZCZ0WKSD1eUOYGCQVISFod+boIxVS43xkEn6aq5MAfh
-	 tnBRnHEcPemoQ==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F2EFBC44501;
-	Thu,  2 Jul 2026 09:57:22 +0000 (UTC)
-From: Ronald Claveau via B4 Relay <devnull+linux-kernel-dev.aliel.fr@kernel.org>
-Date: Thu, 02 Jul 2026 11:55:58 +0200
-Subject: [PATCH v8 5/8] thermal: khadas-mcu-fan: Add fan config from
- platform data Add regulator support
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ofvt0Nm6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 877F81F000E9;
+	Thu,  2 Jul 2026 10:21:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782987703;
+	bh=1p0c92EUzb/HOdHALw9qhTbLmRIjo2ME3rKWvKGRpK8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=ofvt0Nm6Bas+d/2UTjYhNGvaHZR6DuUTk6QdlQ4eJj5Sa62ZTlls5XBujAkjuFHgE
+	 7f4m8Tyj39LO1uVY7asLyDR27BtBJgboxv4LAtfbH5HOAzR7viZVvd2Dk53GvR05ee
+	 5iAv+Z+qcblReRrDG6NMlGdK+o+yo4uhT7nUxkCBeNoOqTElqD4gz3FDI0JdXNNh3l
+	 CAicILNWxwNVbozdBGWpdwvYq/SY+u0NhWxawO+EDjeecrnclYhpHehdq0erfL+N91
+	 rZrZI6HOMNeg0kiIJBC3T00dE08/U+34sbyJtPjdOo935BzBH1g5V7j42z1FA9Kcq7
+	 1omWR4S/8IyOA==
+Date: Thu, 2 Jul 2026 11:21:39 +0100
+From: Sudeep Holla <sudeep.holla@kernel.org>
+To: "lihuisong (C)" <lihuisong@huawei.com>
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Sudeep Holla <sudeep.holla@kernel.org>,
+	Jassi Brar <jassisinghbrar@gmail.com>,
+	Guenter Roeck <linux@roeck-us.net>, linux-hwmon@vger.kernel.org,
+	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	MyungJoo Ham <myungjoo.ham@samsung.com>,
+	Kyungmin Park <kyungmin.park@samsung.com>,
+	Chanwoo Choi <cw00.choi@samsung.com>, linux-pm@vger.kernel.org
+Subject: Re: [PATCH 0/6] ACPI/PCC: Preserve platform-populated PCC signatures
+Message-ID: <20260702-secret-gifted-pheasant-34be3a@sudeepholla>
+References: <20260627-acpi_pcc_signature-v1-0-c1b7268d4fdc@kernel.org>
+ <10fb88e6-02f8-46b8-9665-db94a4035c5d@huawei.com>
+ <20260630-loyal-gray-polecat-a68c0d@sudeepholla>
+ <6e5e36e0-c470-469e-bb16-a5faaf055463@huawei.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260702-add-mcu-fan-khadas-vim4-v8-5-244feee91a36@aliel.fr>
-References: <20260702-add-mcu-fan-khadas-vim4-v8-0-244feee91a36@aliel.fr>
-In-Reply-To: <20260702-add-mcu-fan-khadas-vim4-v8-0-244feee91a36@aliel.fr>
-To: Neil Armstrong <neil.armstrong@linaro.org>, Lee Jones <lee@kernel.org>, 
- Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
- Conor Dooley <conor+dt@kernel.org>, Andi Shyti <andi.shyti@kernel.org>, 
- Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, 
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>, 
- Beniamino Galvani <b.galvani@gmail.com>, 
- "Rafael J. Wysocki" <rafael@kernel.org>, 
- Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>, 
- Lukasz Luba <lukasz.luba@arm.com>, Liam Girdwood <lgirdwood@gmail.com>, 
- Mark Brown <broonie@kernel.org>
-Cc: linux-amlogic@lists.infradead.org, devicetree@vger.kernel.org, 
- linux-kernel@vger.kernel.org, linux-i2c@vger.kernel.org, 
- linux-arm-kernel@lists.infradead.org, linux-pm@vger.kernel.org, 
- Ronald Claveau <linux-kernel-dev@aliel.fr>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3542;
- i=linux-kernel-dev@aliel.fr; h=from:subject:message-id;
- bh=GAu0pdDCPzhOo5CdDYjBvtBNlGqzAQdEX8wTJo3sqIc=;
- b=kA0DAAoWKo0VA3vnMSIByyZiAGpGNfyib0qN+J2TQN6ck/OmCo4BaFIlme9J4vcdnMQoOmFuK
- oh1BAAWCgAdFiEEj505yO7Txcz1vCdkKo0VA3vnMSIFAmpGNfwACgkQKo0VA3vnMSIljgEA1D0a
- 8o0/ncpopYXsMqOvG//tk4tHoWp8XGxbtat4xQ8A/A8RHIoD+oRGZJkGfetgGOUaZvsnrdlk2Vc
- yVIvn2hYN
-X-Developer-Key: i=linux-kernel-dev@aliel.fr; a=openpgp;
- fpr=DFD863F61375BF917F0012173953305EF1D0EC3E
-X-Endpoint-Received: by B4 Relay for linux-kernel-dev@aliel.fr/default with
- auth_id=744
-X-Original-From: Ronald Claveau <linux-kernel-dev@aliel.fr>
-Reply-To: linux-kernel-dev@aliel.fr
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <6e5e36e0-c470-469e-bb16-a5faaf055463@huawei.com>
 
-From: Ronald Claveau <linux-kernel-dev@aliel.fr>
+On Wed, Jul 01, 2026 at 03:38:21PM +0800, lihuisong (C) wrote:
+> 
+> On 6/30/2026 6:49 PM, Sudeep Holla wrote:
+> > On Tue, Jun 30, 2026 at 05:25:20PM +0800, lihuisong (C) wrote:
+> > > Hi Sudeep,
+> > > 
+> > > On 6/28/2026 12:37 AM, Sudeep Holla wrote:
+> > > > ACPI PCC shared memory layouts reserve the first dword for the PCC
+> > > > signature. ACPI specification defines the signature as 0x50434300 ORed
+> > > > with the PCC subspace ID, and ACPI 6.6 clarify that the signature is
+> > > > populated by the platform and verified by OSPM.
+> > > > 
+> > > > This series centralizes PCC shared memory signature validation in the PCC
+> > > > mailbox controller and stops PCC users from rewriting the signature before
+> > > > each command. Clients that previously copied complete local PCC headers
+> > > > now update only the mutable command/status/flags/length/payload fields.
+> > > I am concerned that this may affect the functionality of drivers on some
+> > > existed platforms.
+> > One other option I was thinking is to not issue error but just log the error
+> > message and let the client driver add that additional check if required.
+> The patch 1/6 is not good to our platform.
+> Yeah, suggest to use gentle approach to do this if we have to clarify this
+> signature.
 
-Replace the hardcoded MAX_LEVEL constant and fan register
-with values read from platform_data (fan_reg, max_level),
-as new MCUs need different values.
+Fair enough, we can just log the warning for now.
 
-Optionally acquire and enable a "fan" regulator supply
-at probe time and on resume,
-so boards that gate fan power through a regulator are handled.
+> After all, all client drivers work well before.
 
-Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Ronald Claveau <linux-kernel-dev@aliel.fr>
----
- drivers/thermal/khadas_mcu_fan.c | 37 ++++++++++++++++++++++++++++++-------
- 1 file changed, 30 insertions(+), 7 deletions(-)
+Sure, but not doing anything will just make the bug carry on for ever in
+the firmware. SO logging warning is minimum we should do IMO.
 
-diff --git a/drivers/thermal/khadas_mcu_fan.c b/drivers/thermal/khadas_mcu_fan.c
-index d35e5313bea41..5603fa099a858 100644
---- a/drivers/thermal/khadas_mcu_fan.c
-+++ b/drivers/thermal/khadas_mcu_fan.c
-@@ -13,13 +13,15 @@
- #include <linux/regmap.h>
- #include <linux/sysfs.h>
- #include <linux/thermal.h>
--
--#define MAX_LEVEL 3
-+#include <linux/regulator/consumer.h>
- 
- struct khadas_mcu_fan_ctx {
- 	struct khadas_mcu *mcu;
-+	unsigned int fan_reg;
- 	unsigned int level;
-+	unsigned int max_level;
- 	struct thermal_cooling_device *cdev;
-+	struct regulator *power;
- };
- 
- static int khadas_mcu_fan_set_level(struct khadas_mcu_fan_ctx *ctx,
-@@ -27,8 +29,7 @@ static int khadas_mcu_fan_set_level(struct khadas_mcu_fan_ctx *ctx,
- {
- 	int ret;
- 
--	ret = regmap_write(ctx->mcu->regmap, KHADAS_MCU_CMD_FAN_STATUS_CTRL_REG,
--			   level);
-+	ret = regmap_write(ctx->mcu->regmap, ctx->fan_reg, level);
- 	if (ret)
- 		return ret;
- 
-@@ -40,7 +41,9 @@ static int khadas_mcu_fan_set_level(struct khadas_mcu_fan_ctx *ctx,
- static int khadas_mcu_fan_get_max_state(struct thermal_cooling_device *cdev,
- 					unsigned long *state)
- {
--	*state = MAX_LEVEL;
-+	struct khadas_mcu_fan_ctx *ctx = cdev->devdata;
-+
-+	*state = ctx->max_level;
- 
- 	return 0;
- }
-@@ -61,7 +64,7 @@ khadas_mcu_fan_set_cur_state(struct thermal_cooling_device *cdev,
- {
- 	struct khadas_mcu_fan_ctx *ctx = cdev->devdata;
- 
--	if (state > MAX_LEVEL)
-+	if (state > ctx->max_level)
- 		return -EINVAL;
- 
- 	if (state == ctx->level)
-@@ -78,6 +81,7 @@ static const struct thermal_cooling_device_ops khadas_mcu_fan_cooling_ops = {
- 
- static int khadas_mcu_fan_probe(struct platform_device *pdev)
- {
-+	const struct khadas_mcu_fan_pdata *pdata = dev_get_platdata(&pdev->dev);
- 	struct khadas_mcu *mcu = dev_get_drvdata(pdev->dev.parent);
- 	struct thermal_cooling_device *cdev;
- 	struct device *dev = &pdev->dev;
-@@ -87,7 +91,21 @@ static int khadas_mcu_fan_probe(struct platform_device *pdev)
- 	ctx = devm_kzalloc(dev, sizeof(*ctx), GFP_KERNEL);
- 	if (!ctx)
- 		return -ENOMEM;
-+
- 	ctx->mcu = mcu;
-+	ctx->fan_reg   = pdata->fan_reg;
-+	ctx->max_level = pdata->max_level;
-+
-+	ctx->power = devm_regulator_get(dev->parent, "fan");
-+	if (IS_ERR(ctx->power))
-+		return PTR_ERR(ctx->power);
-+
-+	ret = regulator_enable(ctx->power);
-+	if (ret) {
-+		dev_err(dev, "Failed to enable fan power supply: %d\n", ret);
-+		return ret;
-+	}
-+
- 	platform_set_drvdata(pdev, ctx);
- 
- 	cdev = devm_thermal_of_cooling_device_register(dev->parent,
-@@ -124,12 +142,17 @@ static int khadas_mcu_fan_suspend(struct device *dev)
- 
- 	ctx->level = level_save;
- 
--	return 0;
-+	return regulator_disable(ctx->power);
- }
- 
- static int khadas_mcu_fan_resume(struct device *dev)
- {
- 	struct khadas_mcu_fan_ctx *ctx = dev_get_drvdata(dev);
-+	int ret;
-+
-+	ret = regulator_enable(ctx->power);
-+	if (ret)
-+		return ret;
- 
- 	return khadas_mcu_fan_set_level(ctx, ctx->level);
- }
+> > > This largely depends on the implementation of the platform firmware.
+> > > 
+> > Sure. However I always expected it to be taken care by the platform, v6.6
+> > just adds that clarification explicitly. It was never clear that the sender
+> > or the OSPM needs to write that signature, so I disagree that it is platform
+> > firmware dependent entirely. The clarification wouldn't have got added if
+> > there was any disagreement on that fact.
+> The reasons I say this largely depends on the firmware are as follows:
+> 1> The previous ACPI spec did not clearly require that the platform firmware
+> needs to fill in this signature first.
+>      The client driver working on these platform doesn't work anymore if use
+> the way in patch 1/6.
+
+Fair enough.
+
+> 2> We are not sure if some firmware verify this signature or clear this
+> signature field in shared memory.
+
+Anyways, better to check that for current and future platforms if not the
+legacy ones.
+
+> > 
+> > > I think it's good for the signature to be filled in by the command initiator
+> > > and then verified by the recipient, as this is how this field can serve its
+> > > purpose.
+> > > Otherwise, I really don't see what use it has.
+> > Please get the spec updated accordingly, we can just change in the kernel
+> > based on what we think is the best way to use it. It needs to be clearly
+> > specified, otherwise it may cause issue for non-Linux OSVs.
+> Agree.
+> 
+> Yeah, I found spec v6.5 just said how to compute it and didn't specify how
+> to use it for platform and OSPM.
+> I saw the update of v6.6 for the signature field in "Generic Communications
+> Channel Shared Memory Region" and "Extended PCC Subspace Shared Memory
+> Region".
+> like: "The signature is populated by the platform and is verified by OSPM."
+> But please note v6.6 didn't say above words in "Reduced PCC Subspace Shared
+> Memory Region".
+> 
+
+Ah, that's just inconsistency I believe. I will raise a defect.
+
+> I don't know why v6.6 specify like that.
+> After all. all PCC application parties (client drivers) in Linux have
+> already filled this field.
+> 
+
+I don't think what Linux drivers should be the reference as there are other
+OSVs.
+
+> According to my understanding of normal signature in communication,
+> it is generally filled by the initiator (sender) and verified by the
+> responder (receiver).
+> In this way, the data is valid, and the signature is meaningful.
+> 
+> If it is only initialized by firmware, and OSPM verifies it, its lifecycle
+> ends there.
+> I don't think this signature has much significance.
+> 
+> The signature field is just in shared memory and may be cleared due to some
+> other exception.
+> Some similar case also need to be considered.
+> How to make it work better and more resilient may also be something we need
+> to consider.
+
+Not sure if I follow that. The way I expect is platform won't populate the
+signature if everything is not initialised and running at it's end which
+implies it is not ready to accept the request.
 
 -- 
-2.49.0
-
-
+Regards,
+Sudeep
