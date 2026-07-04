@@ -1,130 +1,116 @@
-Received: from mail.lysator.liu.se (mail.lysator.liu.se [130.236.254.3])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69AD82DECCC;
-	Sat,  4 Jul 2026 09:38:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=130.236.254.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4B30347BC6
+	for <linux-i2c@vger.kernel.org>; Sat,  4 Jul 2026 23:44:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783157885; cv=none; b=WmPXuzyqL6/IMj/xroP0gn6/lBtpKo994s3/hvFBZCHuUBQVJq0164A/cd2mF7gZiV26pcZriLjdBvlDnl+Bui0HHtEGrux3Nj/9qo47ZOs9Ax3Y/dzCa+IaJ9OK5fcNMGmXh8YmbxSdtaFZINmsBVi/autViLhvwimbuJjTiFw=
+	t=1783208664; cv=none; b=IyMFEan6FaWt6EMC7CEnH619Uqga84zVIplov77ezdA+MtcAbkmY3HgS/ycwpqj2q0YWqOUCMlpaSWzF+n4KWEz8A+seS0c4cFLT+sNSAp9GO+2YcdMIXU5Y12Mk0aU7G2QHML9J49h4y4d1uAZrmDbRgiX3A19KsvGweJhKGgQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783157885; c=relaxed/simple;
-	bh=+f2nRKHkigx0qd6/FAEdS0/3tUmvz4IX8ZpYVedMYH4=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=iuadCLc2ayBV8x2CwFGzWrdS+/G/vrI/C5yWaKrlyM7D1fHaJCJaBdM0y3/ifxygKsOfbUxi66py9GOmeSiiGjbqXfdukjlVz3vODwY+/THfQDAbTxBqzKmDbOtlai/Hxs/42m6oUSFcz0RkzjlcKLxKLPLkxjmCpwp/HFxELrg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se; spf=pass smtp.mailfrom=lysator.liu.se; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=FejQphiU; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=FejQphiU; dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b=qaPSjLoO; arc=none smtp.client-ip=130.236.254.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lysator.liu.se
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lysator.liu.se
+	s=arc-20240116; t=1783208664; c=relaxed/simple;
+	bh=XIsNZqam6KN+ptafPrdhyS2Xv8HOzf1ASRI1tweH4UI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kdStBj20Q1G/aHwBf7H8NkwWNSsxcUdAOYYlZxJBgqNIY7sH/Unwh9fRjPvZDfueX4j9LxoKK+tZ1xi0bquYi4ijhAKmkF1pexXcUYMm/AwN89uEeOiUp0CJlpGQH1eSjpraUH6sY9nQrZCeLMX7S7FuWBR1aCzZV5sQQ72r4H8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A6uCffPV; arc=none smtp.client-ip=209.85.214.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="FejQphiU";
-	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="FejQphiU";
-	dkim=pass (2048-bit key) header.d=lysator.liu.se header.i=@lysator.liu.se header.b="qaPSjLoO"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
-	s=2026; t=1783157323;
-	bh=+f2nRKHkigx0qd6/FAEdS0/3tUmvz4IX8ZpYVedMYH4=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=FejQphiUmrmjDYx6DFk8D2CQqfVh2KDn+18fqk9MZHaNVROghYkBwfIDfKakTrw5X
-	 28Z9+p/gilyOUSER7P6zSYa52rbLcg7j6zySRISMun/W1T7XCP9i8I8qtLuQv3zWGs
-	 P6y3Z19hYtWdKdmTlN4ya8rfWAufOAyj4BcPA/5vuXzXbjzMbXcog12lyv0UjM639G
-	 DlmvQTh+0Q0Lff8rK2UvfpOGIxtMqRTBxdz+pBTiJ7g3Apggze2RYR2vw3weRFSI+s
-	 AUgyIm2a3MpL53tS4K6hj0vPzfSowjqAi3+QHyMuEwPVS9akQjv0mVLgfxpJufhCmJ
-	 9zPryd4FcwpKQ==
-Received: from mail.lysator.liu.se (localhost [127.0.0.1])
-	by mail.lysator.liu.se (Postfix) with ESMTP id 7719C1FEE1;
-	Sat,  4 Jul 2026 11:28:43 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
-	s=2026; t=1783157323;
-	bh=+f2nRKHkigx0qd6/FAEdS0/3tUmvz4IX8ZpYVedMYH4=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=FejQphiUmrmjDYx6DFk8D2CQqfVh2KDn+18fqk9MZHaNVROghYkBwfIDfKakTrw5X
-	 28Z9+p/gilyOUSER7P6zSYa52rbLcg7j6zySRISMun/W1T7XCP9i8I8qtLuQv3zWGs
-	 P6y3Z19hYtWdKdmTlN4ya8rfWAufOAyj4BcPA/5vuXzXbjzMbXcog12lyv0UjM639G
-	 DlmvQTh+0Q0Lff8rK2UvfpOGIxtMqRTBxdz+pBTiJ7g3Apggze2RYR2vw3weRFSI+s
-	 AUgyIm2a3MpL53tS4K6hj0vPzfSowjqAi3+QHyMuEwPVS9akQjv0mVLgfxpJufhCmJ
-	 9zPryd4FcwpKQ==
-Received: by mail.lysator.liu.se (Postfix, from userid 1004)
-	id 5BADA30; Sat,  4 Jul 2026 11:28:43 +0200 (CEST)
-X-Spam-Level: 
-X-Spam-Score: -1.1
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=lysator.liu.se;
-	s=2026; t=1783157303;
-	bh=+f2nRKHkigx0qd6/FAEdS0/3tUmvz4IX8ZpYVedMYH4=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=qaPSjLoOaEIIn+XKaHu7JZ1xUE0zrx8JHjm3I1zWSFMgmQowyPCmfr00w+kP6AQwq
-	 kmNLTMEeXE9S/H0pUChj5U/fD8FAUTLpOygWLiNFTCHuskYO6pNRAvQ8FMd29VQc7i
-	 fAtKdtXVHjFuCVPrrrBZdN0oZBCUEByp/4F7ILG33toaGop7p6+966Ksv1pykNRJL7
-	 4EsfZO4SfNWbRFpcqRVtHJev6+mX4sSGRg7G2QyTQyBd5bw2EtzdhrZpSyAJbUPiIb
-	 DeCWjVfI/vfFz/BsyMuCQN3/rUYmuE/4191TFX4TkUp94otfOT5Co+dEc+6tQuPXJ0
-	 ZG+y8eNwT7c6Q==
-Received: from [192.168.2.172] (81-225-28-11-no2391.tbcn.telia.com [81.225.28.11])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by mail.lysator.liu.se (Postfix) with ESMTPSA id EDA951FFBB;
-	Sat,  4 Jul 2026 11:28:22 +0200 (CEST)
-Message-ID: <8eecaa15-460f-4f39-b65f-98b8334994be@lysator.liu.se>
-Date: Sat, 4 Jul 2026 11:28:21 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A6uCffPV"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2c7cfa17fedso17191225ad.3
+        for <linux-i2c@vger.kernel.org>; Sat, 04 Jul 2026 16:44:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783208662; x=1783813462; darn=vger.kernel.org;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=ijJ32Xash5Jt49SnX7A5/BLB4XwCy86Iuli9undALZU=;
+        b=A6uCffPV5VnJ4tFYEtayNLe3TcmhtfKdU2A3PIMSu4gSnTPgb/yvm3bPOcf7R7iXPh
+         MWU668MhZcnjcOs65OYQ/QY8uesmkGPsUqTPvlAsb4dohAWIl9aNZQUterpxYXGU6J13
+         o+5/GvU2jBQQEXpiK5k4Yy4ef/Ymkl4TBZKrFYC4UoRdTZlCOOluZujWO+iCTgdQGFlp
+         qul/gf/3F31+Z7umsgEOUy8jIUd+/KplFB7E+AKH107TMAmhjvCXZerzCSXMb8UIiHxM
+         yr0ehU0kGAr0CwndP6krnKRiC08O7J7B5TW+KO6dZyaUDXwg9RIH7K+oBqAe3Es7COs2
+         GPUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783208662; x=1783813462;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ijJ32Xash5Jt49SnX7A5/BLB4XwCy86Iuli9undALZU=;
+        b=Ib2sZp+pTomrUEXYChE90w5+f2kPFssXR+Fhcx7HrYbO5ZWw4hQkTrrQQRWSmTtQTm
+         ijfaEbAWCSPInXptKjKr2Iv/MHvofg2jpdqDhNxZDPboQ/ueQxsCDVC/9EjhY1yrkjFl
+         eYWkR/dhbuXwIascI5ZIclPTAad/rGGh4YyQXYvqLdmLWwsE1iELGP5BlbdqMpSyCISP
+         Y/IWZGEeoi6kJ8sQIuxRvlCYMbbdZachqIkHt6nUJzF5V/MverIp6F9abrOVqKMxtYh6
+         LzUPxMYBHls1fA3gM2VGHw6v8OEck4pagoI9L74wGTYG6hcbD74qE1bTMsggDZWlSH1z
+         WjjA==
+X-Forwarded-Encrypted: i=1; AHgh+RpBDehNRrZ0EzUmjrOd9bzS7VrZZrkp207wSl27xv8NVOG8qdLweJ29ySbpoTeGnVTT0vVinTvacOE=@vger.kernel.org
+X-Gm-Message-State: AOJu0Yz8qdRnPOxPv0+lkRf+J8/AQgqcRDaU9S4d9Mc7cuypQSNvsOMv
+	dTttJC7ddUDzjE3HYttvQhcDmyspswF8XsnNJMsQceE4VsZYQMYxjgyx
+X-Gm-Gg: AfdE7cmvF49QBE/bvxnRROmLexBYUXIXyuQFRsX4HgqFRsg2AawlolnADc5TU2SZI9w
+	UKYW+WMuuyPqDxU+HtffJ6pG8Z8k7vAtO8aNbvOpuZ+j5BGEi2qfzCwG9Fh6Iy6+6OB3rvR+G8G
+	33B587DLO/a/0HIePJzkP15FIY7AuHbx+7+r1s6GCqYGOObvA6U/OXVhYNI8biLtqiyxKENma8N
+	H6QUsUX7h61l4Yv+jbVbUdrF3dUecWqjHsVdw9m/zSHNIdIO9CT2+LE0soW9iqi8VOkoVErDr+e
+	0PECugPmYDrcYo+Jmx29eEXKgA5K8IWW7OVYtj9Gt4kVfGPfoyaek4paFczw6C9LBc96GD6lloH
+	X1i/om2f+hgpBOj8w9tXRSswUlzue80bq1Ni8MnPZGasku7z754sSzcnwbI7NnpTmoWgo93n+n6
+	AkVBs/4DParafP4+yUOm6U37pL2ROjg2HFTSu9A9iPQ5zxCz14jPg8RXZrTr4FboN0
+X-Received: by 2002:a17:902:db05:b0:2ca:6c8:abd8 with SMTP id d9443c01a7336-2cbb74ff24dmr43520125ad.12.1783208662110;
+        Sat, 04 Jul 2026 16:44:22 -0700 (PDT)
+Received: from google.com ([2a00:79e0:2ebe:8:3f90:534a:314e:e11d])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13b3c7ef188sm34410696c88.2.2026.07.04.16.44.20
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 04 Jul 2026 16:44:21 -0700 (PDT)
+Date: Sat, 4 Jul 2026 16:44:18 -0700
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To: Chen-Yu Tsai <wenst@chromium.org>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Benson Leung <bleung@chromium.org>, 
+	Tzung-Bi Shih <tzungbi@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
+	Andi Shyti <andi.shyti@kernel.org>, linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org, 
+	linux-arm-kernel@lists.infradead.org, chrome-platform@lists.linux.dev, linux-input@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/7] Input: elan_i2c - Wait for initialization after
+ enabling regulator supply
+Message-ID: <akmZOC_J2ZTl4zLX@google.com>
+References: <20260703115601.1323491-1-wenst@chromium.org>
+ <20260703115601.1323491-2-wenst@chromium.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 2/3] i2c: mux: Set adapter physical device
-To: Herve Codina <herve.codina@bootlin.com>, Andrew Lunn <andrew@lunn.ch>,
- Rob Herring <robh@kernel.org>, Saravana Kannan <saravanak@kernel.org>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>,
- Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
- Allan Nielsen <allan.nielsen@microchip.com>,
- Horatiu Vultur <horatiu.vultur@microchip.com>,
- Daniel Machon <daniel.machon@microchip.com>,
- Steen Hegelund <steen.hegelund@microchip.com>,
- Luca Ceresoli <luca.ceresoli@bootlin.com>,
- Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-References: <20260630103010.413688-1-herve.codina@bootlin.com>
- <20260630103010.413688-3-herve.codina@bootlin.com>
-Content-Language: en-US, sv-SE
-From: Peter Rosin <peda@lysator.liu.se>
-In-Reply-To: <20260630103010.413688-3-herve.codina@bootlin.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Virus-Scanned: ClamAV using ClamSMTP
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260703115601.1323491-2-wenst@chromium.org>
 
-On 2026-06-30 12:30, Herve Codina wrote:
-> For i2c muxes, the parent of the mux adapter device is the adapter
-> device the mux is connected to.
+Hi Chen-Yu,
+
+On Fri, Jul 03, 2026 at 07:55:54PM +0800, Chen-Yu Tsai wrote:
+> Elan trackpad controllers require some delay after enabling power to
+> the controller for the hardware and firmware to initialize:
 > 
-> This parent is not the physical device related to the mux adapter.
-> Indeed, the physical device of the mux adapter is the mux device itself.
+>   - 2ms for hardware initialization
+>   - 100ms for firmware initialization
 > 
-> Fill the adap.physdev with the mux device.
+> Until then, the hardware will not respond to I2C transfers. This was
+> observed on the MT8173 Chromebooks after the regulator supply for the
+> trackpad was changed to "not always on".
 > 
-> Signed-off-by: Herve Codina <herve.codina@bootlin.com>
-> Reviewed-by: Andi Shyti <andi.shyti@kernel.org>
-> ---
->   drivers/i2c/i2c-mux.c | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/i2c/i2c-mux.c b/drivers/i2c/i2c-mux.c
-> index 681a201c239b..f4e73e7a0e33 100644
-> --- a/drivers/i2c/i2c-mux.c
-> +++ b/drivers/i2c/i2c-mux.c
-> @@ -315,6 +315,7 @@ int i2c_mux_add_adapter(struct i2c_mux_core *muxc,
->   	priv->adap.algo = &priv->algo;
->   	priv->adap.algo_data = priv;
->   	priv->adap.dev.parent = &parent->dev;
-> +	priv->adap.physdev = muxc->dev;
->   	priv->adap.retries = parent->retries;
->   	priv->adap.timeout = parent->timeout;
->   	priv->adap.quirks = parent->quirks;
+> Add proper delays after regulator_enable() calls. To avoid impacting
+> the boot time of existing devices that have the power rails always on,
+> skip the delay if the regulator supply was already enabled. In this
+> case the regulator is either always on, was on by default at power up,
+> or was left on by some other driver, such as the I2C OF component
+> prober. Either way the controller has had ample time to initialize.
 
-Given how similar the implementation details are for address translators
-and muxes, I expect that this pattern is present there as well.
+Unfortunately we do not know that [it had ample time]. For this code be
+reliable we need to record the time at which given regulator was turned
+on and then execute/adjust the delay as needed. Until we have it we need
+to assume the regulator was enabled at the time of regulator_enable()
+call.
 
-I.e. I think a line with "chan->adap.physdev = dev;" should be added to
-the i2c_atr_add_adapter() function (in the obvious place).
+I am not concerned with increased boot time too much given the driver is
+set up for asynchronous probing.
 
-Cheers,
-Peter
+Thanks.
 
+-- 
+Dmitry
