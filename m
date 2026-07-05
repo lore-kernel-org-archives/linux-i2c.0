@@ -1,116 +1,120 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.cyberchaos.dev (mail.cyberchaos.dev [195.39.247.168])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4B30347BC6
-	for <linux-i2c@vger.kernel.org>; Sat,  4 Jul 2026 23:44:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C16F733DEE5;
+	Sun,  5 Jul 2026 13:17:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.39.247.168
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783208664; cv=none; b=IyMFEan6FaWt6EMC7CEnH619Uqga84zVIplov77ezdA+MtcAbkmY3HgS/ycwpqj2q0YWqOUCMlpaSWzF+n4KWEz8A+seS0c4cFLT+sNSAp9GO+2YcdMIXU5Y12Mk0aU7G2QHML9J49h4y4d1uAZrmDbRgiX3A19KsvGweJhKGgQ=
+	t=1783257455; cv=none; b=Sc20VlDjdNc3fGVBNWWhYgIfYhI+uzshNhZ6bHijEjrj9C4/pILGaR0apoUEh3j6eUV62Dluy1PibSJaUVJXTuKDYHtOzuCWiM1YW3IMkqagTQNv+05fSiWPVBg6yUdV15jCuI0lGtsVMNZDIfgRP0w8wYuwtH2EFoK9zqVlvKM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783208664; c=relaxed/simple;
-	bh=XIsNZqam6KN+ptafPrdhyS2Xv8HOzf1ASRI1tweH4UI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kdStBj20Q1G/aHwBf7H8NkwWNSsxcUdAOYYlZxJBgqNIY7sH/Unwh9fRjPvZDfueX4j9LxoKK+tZ1xi0bquYi4ijhAKmkF1pexXcUYMm/AwN89uEeOiUp0CJlpGQH1eSjpraUH6sY9nQrZCeLMX7S7FuWBR1aCzZV5sQQ72r4H8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A6uCffPV; arc=none smtp.client-ip=209.85.214.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1783257455; c=relaxed/simple;
+	bh=88WgTcQxIELrgXPhwOATMVGnRfncHW3z2HCk1A3KENI=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=TeeNNtTfLLdpr05gVn1B5OJJbdMoXOze9+qORasKUYN5m0oZ6jwB/LoggLzxpI1tOnRRQXjLiqvPdlIMgVuxQKrEXpkNMJDUgS05tHnKFcwbuhWufS4VWPAiHQsGOHlfyGeXmyVbo8NqSRZrij8r1tnvNtNsok8bgzI0iSsaAtU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev; spf=pass smtp.mailfrom=cyberchaos.dev; dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b=BAs3Kohd; arc=none smtp.client-ip=195.39.247.168
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=cyberchaos.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cyberchaos.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A6uCffPV"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2c7cfa17fedso17191225ad.3
-        for <linux-i2c@vger.kernel.org>; Sat, 04 Jul 2026 16:44:22 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783208662; x=1783813462; darn=vger.kernel.org;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=ijJ32Xash5Jt49SnX7A5/BLB4XwCy86Iuli9undALZU=;
-        b=A6uCffPV5VnJ4tFYEtayNLe3TcmhtfKdU2A3PIMSu4gSnTPgb/yvm3bPOcf7R7iXPh
-         MWU668MhZcnjcOs65OYQ/QY8uesmkGPsUqTPvlAsb4dohAWIl9aNZQUterpxYXGU6J13
-         o+5/GvU2jBQQEXpiK5k4Yy4ef/Ymkl4TBZKrFYC4UoRdTZlCOOluZujWO+iCTgdQGFlp
-         qul/gf/3F31+Z7umsgEOUy8jIUd+/KplFB7E+AKH107TMAmhjvCXZerzCSXMb8UIiHxM
-         yr0ehU0kGAr0CwndP6krnKRiC08O7J7B5TW+KO6dZyaUDXwg9RIH7K+oBqAe3Es7COs2
-         GPUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783208662; x=1783813462;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ijJ32Xash5Jt49SnX7A5/BLB4XwCy86Iuli9undALZU=;
-        b=Ib2sZp+pTomrUEXYChE90w5+f2kPFssXR+Fhcx7HrYbO5ZWw4hQkTrrQQRWSmTtQTm
-         ijfaEbAWCSPInXptKjKr2Iv/MHvofg2jpdqDhNxZDPboQ/ueQxsCDVC/9EjhY1yrkjFl
-         eYWkR/dhbuXwIascI5ZIclPTAad/rGGh4YyQXYvqLdmLWwsE1iELGP5BlbdqMpSyCISP
-         Y/IWZGEeoi6kJ8sQIuxRvlCYMbbdZachqIkHt6nUJzF5V/MverIp6F9abrOVqKMxtYh6
-         LzUPxMYBHls1fA3gM2VGHw6v8OEck4pagoI9L74wGTYG6hcbD74qE1bTMsggDZWlSH1z
-         WjjA==
-X-Forwarded-Encrypted: i=1; AHgh+RpBDehNRrZ0EzUmjrOd9bzS7VrZZrkp207wSl27xv8NVOG8qdLweJ29ySbpoTeGnVTT0vVinTvacOE=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yz8qdRnPOxPv0+lkRf+J8/AQgqcRDaU9S4d9Mc7cuypQSNvsOMv
-	dTttJC7ddUDzjE3HYttvQhcDmyspswF8XsnNJMsQceE4VsZYQMYxjgyx
-X-Gm-Gg: AfdE7cmvF49QBE/bvxnRROmLexBYUXIXyuQFRsX4HgqFRsg2AawlolnADc5TU2SZI9w
-	UKYW+WMuuyPqDxU+HtffJ6pG8Z8k7vAtO8aNbvOpuZ+j5BGEi2qfzCwG9Fh6Iy6+6OB3rvR+G8G
-	33B587DLO/a/0HIePJzkP15FIY7AuHbx+7+r1s6GCqYGOObvA6U/OXVhYNI8biLtqiyxKENma8N
-	H6QUsUX7h61l4Yv+jbVbUdrF3dUecWqjHsVdw9m/zSHNIdIO9CT2+LE0soW9iqi8VOkoVErDr+e
-	0PECugPmYDrcYo+Jmx29eEXKgA5K8IWW7OVYtj9Gt4kVfGPfoyaek4paFczw6C9LBc96GD6lloH
-	X1i/om2f+hgpBOj8w9tXRSswUlzue80bq1Ni8MnPZGasku7z754sSzcnwbI7NnpTmoWgo93n+n6
-	AkVBs/4DParafP4+yUOm6U37pL2ROjg2HFTSu9A9iPQ5zxCz14jPg8RXZrTr4FboN0
-X-Received: by 2002:a17:902:db05:b0:2ca:6c8:abd8 with SMTP id d9443c01a7336-2cbb74ff24dmr43520125ad.12.1783208662110;
-        Sat, 04 Jul 2026 16:44:22 -0700 (PDT)
-Received: from google.com ([2a00:79e0:2ebe:8:3f90:534a:314e:e11d])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13b3c7ef188sm34410696c88.2.2026.07.04.16.44.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 04 Jul 2026 16:44:21 -0700 (PDT)
-Date: Sat, 4 Jul 2026 16:44:18 -0700
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-To: Chen-Yu Tsai <wenst@chromium.org>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, Benson Leung <bleung@chromium.org>, 
-	Tzung-Bi Shih <tzungbi@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
-	Andi Shyti <andi.shyti@kernel.org>, linux-mediatek@lists.infradead.org, devicetree@vger.kernel.org, 
-	linux-arm-kernel@lists.infradead.org, chrome-platform@lists.linux.dev, linux-input@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2 1/7] Input: elan_i2c - Wait for initialization after
- enabling regulator supply
-Message-ID: <akmZOC_J2ZTl4zLX@google.com>
-References: <20260703115601.1323491-1-wenst@chromium.org>
- <20260703115601.1323491-2-wenst@chromium.org>
+	dkim=pass (1024-bit key) header.d=cyberchaos.dev header.i=@cyberchaos.dev header.b="BAs3Kohd"
+From: Yureka Lilian <yureka@cyberchaos.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cyberchaos.dev;
+	s=mail; t=1783257451;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=D0MLfQhNF8T8fO41cpmP1lSHVOxzxRNWuMtKqBQpmUg=;
+	b=BAs3Kohd3hdgr7zm9DPxh/rwI1TJQFF7YgEngCz1wn5FVQaLh3UP7Mv7zrm4SpvEGY7qk7
+	0/3afM36i3+YsE9e1rLlkjDCiS83e+f3aggkQD8qSKpA/SxRuLAcv52W0PBpaPARycOdb0
+	RE8q4aQgQ/XxRhtp8/+gdSi2ngdAIDg=
+Subject: [PATCH 00/10] Initial Apple silicon M4 device trees and
+ dt-bindings
+Date: Sun, 05 Jul 2026 15:17:19 +0200
+Message-Id: <20260705-apple-m4-initial-devicetrees-v1-0-e5655ee56523@cyberchaos.dev>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260703115601.1323491-2-wenst@chromium.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+X-B4-Tracking: v=1; b=H4sIAF9ZSmoC/yXMywrCMBBG4Vcps3YgDbYFX0Vc5PJXR2oMmShC6
+ bs36vJbnLOSogiUTt1KBW9ReaaG/tBRuLl0BUtsJmvsaCYzsMt5AT+OLEmquIVjqwJqAZTnEd7
+ 3YXI2RGqLXDDL57c/X/7Wl78j1O+Ttm0HefPGwIAAAAA=
+X-Change-ID: 20260705-apple-m4-initial-devicetrees-f6ebb1c7a2cd
+To: Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>, 
+ Conor Dooley <conor+dt@kernel.org>, 
+ Lorenzo Pieralisi <lpieralisi@kernel.org>, Sven Peter <sven@kernel.org>, 
+ Janne Grunau <j@jannau.net>, Neal Gompa <neal@gompa.dev>, 
+ Thomas Gleixner <tglx@kernel.org>, 
+ Wim Van Sebroeck <wim@linux-watchdog.org>, 
+ Guenter Roeck <linux@roeck-us.net>, Hector Martin <marcan@marcan.st>, 
+ Linus Walleij <linusw@kernel.org>, Mark Kettenis <kettenis@openbsd.org>, 
+ Andi Shyti <andi.shyti@kernel.org>, 
+ =?utf-8?q?Uwe_Kleine-K=C3=B6nig?= <ukleinek@kernel.org>, 
+ Sasha Finkelstein <k@chaosmail.tech>
+Cc: devicetree@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ asahi@lists.linux.dev, linux-arm-kernel@lists.infradead.org, 
+ linux-watchdog@vger.kernel.org, linux-gpio@vger.kernel.org, 
+ linux-i2c@vger.kernel.org, linux-pwm@vger.kernel.org, 
+ Yureka Lilian <yureka@cyberchaos.dev>
 
-Hi Chen-Yu,
+Hi,
 
-On Fri, Jul 03, 2026 at 07:55:54PM +0800, Chen-Yu Tsai wrote:
-> Elan trackpad controllers require some delay after enabling power to
-> the controller for the hardware and firmware to initialize:
-> 
->   - 2ms for hardware initialization
->   - 100ms for firmware initialization
-> 
-> Until then, the hardware will not respond to I2C transfers. This was
-> observed on the MT8173 Chromebooks after the regulator supply for the
-> trackpad was changed to "not always on".
-> 
-> Add proper delays after regulator_enable() calls. To avoid impacting
-> the boot time of existing devices that have the power rails always on,
-> skip the delay if the regulator supply was already enabled. In this
-> case the regulator is either always on, was on by default at power up,
-> or was left on by some other driver, such as the I2C OF component
-> prober. Either way the controller has had ample time to initialize.
+This series adds initial device trees and dt-bindings for the Apple
+Silicon devices using the M4 (t8132) SoC. For the most part it mirrors
+Janne's M3 (t8122) bringup series as it was merged in the 7.2 cycle.
 
-Unfortunately we do not know that [it had ample time]. For this code be
-reliable we need to record the time at which given regulator was turned
-on and then execute/adjust the delay as needed. Until we have it we need
-to assume the regulator was enabled at the time of regulator_enable()
-call.
+This series covers only a minimal amount of hardware, which is useful
+as a basis for future developments. The hardware added here has remained
+largely unchanged between the M3 and M4 generations.
 
-I am not concerned with increased boot time too much given the driver is
-set up for asynchronous probing.
+Most of the changes for bringing these M4 devices into a bootable state
+have been happening in the m1n1 bootloader, which is no longer
+responsible for setting the configuration bits (🐔-bits) of the CPU,
+since these are now set and locked by iBoot.  
 
-Thanks.
+Additionally, SMP boot depends on the idle=nop patches I sent out earlier
+today, and is still unstable, even with those.
 
--- 
-Dmitry
+Signed-off-by: Yureka Lilian <yureka@cyberchaos.dev>
+---
+Yureka Lilian (10):
+      dt-bindings: arm: cpus: Add Apple M4 CPU core compatibles
+      dt-bindings: interrupt-controller: apple,aic2: Add apple,t8132 compatible
+      dt-bindings: watchdog: apple,wdt: Add t8132 compatible
+      dt-bindings: arm: apple: apple,pmgr: Add t8132 compatible
+      dt-bindings: power: apple,pmgr-pwrstate: Add t8132 compatible
+      dt-bindings: pinctrl: apple,pinctrl: Add t8132 compatible
+      dt-bindings: i2c: apple,i2c: Add t8132 compatible
+      dt-bindings: pwm: apple,s5l-fpwm: Add t8132 compatible
+      dt-bindings: arm: apple: Add M4 based devices
+      arm64: dts: apple: Add minimal t8132 (M4) device trees
+
+ Documentation/devicetree/bindings/arm/apple.yaml   |   12 +
+ .../devicetree/bindings/arm/apple/apple,pmgr.yaml  |    1 +
+ Documentation/devicetree/bindings/arm/cpus.yaml    |    2 +
+ .../devicetree/bindings/i2c/apple,i2c.yaml         |    1 +
+ .../bindings/interrupt-controller/apple,aic2.yaml  |    1 +
+ .../devicetree/bindings/pinctrl/apple,pinctrl.yaml |    1 +
+ .../bindings/power/apple,pmgr-pwrstate.yaml        |    1 +
+ .../devicetree/bindings/pwm/apple,s5l-fpwm.yaml    |    1 +
+ .../devicetree/bindings/watchdog/apple,wdt.yaml    |    1 +
+ arch/arm64/boot/dts/apple/Makefile                 |    6 +
+ arch/arm64/boot/dts/apple/t8132-j604.dts           |   35 +
+ arch/arm64/boot/dts/apple/t8132-j623.dts           |   18 +
+ arch/arm64/boot/dts/apple/t8132-j624.dts           |   18 +
+ arch/arm64/boot/dts/apple/t8132-j713.dts           |   35 +
+ arch/arm64/boot/dts/apple/t8132-j715.dts           |   35 +
+ arch/arm64/boot/dts/apple/t8132-j773g.dts          |   25 +
+ arch/arm64/boot/dts/apple/t8132-jxxx.dtsi          |   48 +
+ arch/arm64/boot/dts/apple/t8132-pmgr.dtsi          | 1125 ++++++++++++++++++++
+ arch/arm64/boot/dts/apple/t8132.dtsi               |  440 ++++++++
+ 19 files changed, 1806 insertions(+)
+---
+base-commit: 2b763db0c2763d6bf73d7d3e69665222d1f377cf
+change-id: 20260705-apple-m4-initial-devicetrees-f6ebb1c7a2cd
+
+Best regards,
+--  
+Yureka Lilian <yureka@cyberchaos.dev>
+
