@@ -1,132 +1,94 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 275F7380FEB
-	for <linux-i2c@vger.kernel.org>; Sun,  5 Jul 2026 15:59:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC3322F8EB0
+	for <linux-i2c@vger.kernel.org>; Sun,  5 Jul 2026 16:40:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783267188; cv=none; b=OZKviZJ0cNrWLLzZEhHS4lrZpDZRVBz9lN4OlEzVWNrP2pjfxuYoF/nFySHK0C+x0n8Njf8QZpVVhYAsyQ2qsbCYCKN6VkKb6WJF8vMsh0eKNmiPs06YuYPWL+JRdrm56+mSXNgQCEJFewHYnAGjxPQENeCUqLcqs9X5Z4D0HSo=
+	t=1783269659; cv=none; b=eUuu3keCWVDoq1YhUm1WKT17JrwM2qQCbqeVgYpT6kS0PglrpbeMOQ4ft3XcG2nZID57xPSEOjh0gOKAyf68A+wGnfEwIXqoKzBtUCH7AoEB/EPUQOHsjZTPlLe1VOcu5QZ5xjiHqLjz0LtLh66p+XxkR94chT/61Jv9TneGKkY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783267188; c=relaxed/simple;
-	bh=xPyvtKmNvExaeH5iOJF/u3wmRDZK6SHOgH8krALFXzA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oGAJA9E+4Zkw5Mx2VbVuMFDg3vpDUPi3Lj+EnmkPmc2q8XUniTarQ7JuEWs6MHaZ2ookl3PUbNlX7CK3+K4VdF9mA+MJPDrV/Y4QRqZ7XaRjeuh7Uu+lVmiZIxjh48FiFKaVChIh2iB/VXH+jdUsj5jDtU6Xsy5tsaCBEAv1xJk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fDqM/I/d; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1783269659; c=relaxed/simple;
+	bh=d0jQ5UQ7pVAffeh9AMk0K/rauKiYjN4OlHj7yKZ/PEs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=BGCSCFdjj6eRZK+ZIFvS5oQQeiNeXnAWtUPreBVw8JGnhjrYasJObVg569BhMdc6rYvkYyckTWYHX5AxHu80Kq86GXXmZW/I1AIZnAthiXTDHSPu8X5Wy8eRcegcKbxifcgqs8zbJlVOHk1V3u+JVdnPJ+LRJ+eVNq/qYugm0Dc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=NN+S6nba; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fDqM/I/d"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2ca70925c25so26676725ad.1
-        for <linux-i2c@vger.kernel.org>; Sun, 05 Jul 2026 08:59:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783267186; x=1783871986; darn=vger.kernel.org;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=2h3lN4661rhNBRpzqyqQ47ADQ5d9ZH08acIhfwExsJ4=;
-        b=fDqM/I/dyFWYPGIB0fmjdV7FKjbFCOQqGM/Jc6AGOkM9fG0VvzuTsckITDeMBPg20n
-         r42Xj7rkyqkjmu5gIwWDu/nkCXux3/22GBszCEmIuYkGtAwDFjeMt4PQY1JOTk/stM5f
-         iuwcc0fhh8p5Iaz79f813tbeNL5VUu7pq9BMBa9oHwyGnbOpoRed9doBdTY3Gdcohp/1
-         0PItCYOkOroSkEwewk6IG/LAs+lwMUPHBEQIn1zaQUpuU7WfC8ut1Ikyen42/1ApnuGs
-         dhzZnzAN7cAftlOye2bbvfBPwU0bZ3eEvufAYYptr/cIJgz4es8ZlBABCexKUWu0ZuC2
-         reTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783267186; x=1783871986;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2h3lN4661rhNBRpzqyqQ47ADQ5d9ZH08acIhfwExsJ4=;
-        b=hozXZNgKAq388uHSph27QGrjfH+Vl8RfA5QYPXvajjXHT6vl28A1HR42FmwyDu53TQ
-         hZ62hEV+F7UbCtX72mFlHFLIEuOLafAeb05OEVelho1luuDWPELDJveGARaRbc0vDdhc
-         LCWbb1JkKCWQq/RoStV3iic7/eQF40kuNJyhJNMjl0Ps/ZUZKhBqanBiHnvZOlxdPAIC
-         mUPV+eucdF3Mz2z2DV3ezx6I6lngTyfFMz4lOmyLIWKS1Vm8gxVkusIfXmad6nKdQZUf
-         xHiRJedTXzZVeMSSe3GqHCdDSPI+85KZJ+WKdUkUEEpQZluROBZm+WBwjHxGSDqmBs1q
-         kJjQ==
-X-Forwarded-Encrypted: i=1; AHgh+Rp5/j7dLESas9id6Rk+vZCrXpH5LxUIfabElhv34BmuIMmswF5zuYac6Rug9XtKWUHczynxCjC+07c=@vger.kernel.org
-X-Gm-Message-State: AOJu0Yx5eZEKBhYCY4n6wxBO/WlCECtCwvczpfaGUWHtGFOLRIP/qc+B
-	ZzMOE4cVAg4Oei1FM6A0QI42Us9HjyB+DfYGcNzImLA65E6r0vnMxRiE
-X-Gm-Gg: AfdE7clFcbqVONlpsYlWOrlYh1Cw5s1TggmIrga4DyEE9Bjzp34GkiBmlNNrDckN5yq
-	5AcUYaGwysJeCFOd2FerByiam5wF6DEEB+VaAyVwknSU9GHedZ3c2gFht21fmBfhfLcp7Q47JNB
-	N1IW7FYGPcTltUmSffzNeRcNBN2Df5yo9Ue4fw8m/tDvUGinUl4muMVZNP+XWF9QCcRLlzIiAu1
-	O9mUZvKmrP2ZxJLnXUQLn5kWtoMOOpKPe7/+QVrG7vfJMqedyaIeEayAqwWKz0trxJtdncSSYsN
-	oe29PyjmzMfQJzuoCnv2U1jV1/XW8VbNnqa1GSmjrUMHfS4AAVmdoyH/NCXbXXdrDLe2bw6bYXn
-	1EopGg7X/I4OpqbUqvrBnee2Mohkcxk2ZwW7NZMgjhFVNsiKPePoTg8hWZmtGXAx8xZOcAP6Ieh
-	Obgw==
-X-Received: by 2002:a17:902:f788:b0:2c8:1c05:16aa with SMTP id d9443c01a7336-2cbb7511947mr65538905ad.19.1783267186422;
-        Sun, 05 Jul 2026 08:59:46 -0700 (PDT)
-Received: from lgs.. ([101.36.111.22])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cad78aa06bsm35281165ad.84.2026.07.05.08.59.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 05 Jul 2026 08:59:45 -0700 (PDT)
-From: Guangshuo Li <lgs201920130244@gmail.com>
-To: Viresh Kumar <viresh.kumar@linaro.org>,
-	"Chen, Jian Jun" <jian.jun.chen@intel.com>,
-	Andi Shyti <andi.shyti@kernel.org>,
-	linux-i2c@vger.kernel.org,
-	virtualization@lists.linux.dev,
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="NN+S6nba"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=d0jQ
+	5UQ7pVAffeh9AMk0K/rauKiYjN4OlHj7yKZ/PEs=; b=NN+S6nbaCWqRcijr/f1y
+	Uqi3jTAiN+aIUpvzc45wnULUdCUvs2hW723IGhJogJTyejCx6UDfWUbnSPxSpT0y
+	yDw4KX470zUM96mJKJEw3KD/JnZQsbi3IseGwhy5pQCQlsOydP8+eB4YXeY0G/c8
+	qHa9W6zJouwudBtbnF74zEf0zPLE62s+sS5tk1fn+xT0tqeaOjouy3W1hgX9b/pF
+	NKq0r7lG4aK2cyonVSN1G11drXLfgxIZexiEInKc/TLHtzG15KyspIuokNVdq7WO
+	nTJrLEOEsVK8JSHiM6qlbCWrkNcCSklQBvY9xsE7wXLtZZbNxPbcZASBNSTXi7RC
+	+w==
+Received: (qmail 2288731 invoked from network); 5 Jul 2026 18:40:55 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 5 Jul 2026 18:40:55 +0200
+X-UD-Smtp-Session: l3s3148p1@lxRS0t9Vf3dtKjFj
+Date: Sun, 5 Jul 2026 18:40:54 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: Bjorn Andersson <andersson@kernel.org>
+Cc: Viken Dadhaniya <viken.dadhaniya@oss.qualcomm.com>,
+	Mukesh Kumar Savaliya <mukesh.savaliya@oss.qualcomm.com>,
+	Andi Shyti <andi.shyti@kernel.org>, Rob Herring <robh@kernel.org>,
+	Krzysztof Kozlowski <krzk+dt@kernel.org>,
+	Conor Dooley <conor+dt@kernel.org>, linux-arm-msm@vger.kernel.org,
+	linux-i2c@vger.kernel.org, devicetree@vger.kernel.org,
 	linux-kernel@vger.kernel.org
-Cc: Guangshuo Li <lgs201920130244@gmail.com>
-Subject: [PATCH] i2c: virtio: Reset virtqueue before freeing interrupted requests
-Date: Sun,  5 Jul 2026 23:59:25 +0800
-Message-ID: <20260705155925.292765-1-lgs201920130244@gmail.com>
-X-Mailer: git-send-email 2.43.0
+Subject: Re: [PATCH v1 2/3] i2c: qcom-slave: Add driver for Qualcomm I2C
+ slave controller
+Message-ID: <akqJFgL_NZorf9Qz@shikoro>
+References: <20260628-i2c-qcom-slave-v1-0-8b0a5c01f9f6@oss.qualcomm.com>
+ <20260628-i2c-qcom-slave-v1-2-8b0a5c01f9f6@oss.qualcomm.com>
+ <akp4_Sfjs4RrEXQR@baldur>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="WffVVY5Ay9uyhsdF"
+Content-Disposition: inline
+In-Reply-To: <akp4_Sfjs4RrEXQR@baldur>
 
-virtio_i2c_complete_reqs() waits for each queued request to complete
-before releasing the per-message DMA-safe buffer. The request array is
-then freed by virtio_i2c_xfer().
 
-After wait_for_completion_interruptible() was introduced, the wait can
-return before the current request has completed. In that case, the
-request and the remaining requests may still be owned by the virtqueue
-and may still be completed by the device later.
+--WffVVY5Ay9uyhsdF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The error path nevertheless continues to release each message buffer and
-virtio_i2c_xfer() frees the request array. A later device completion can
-then write to freed request memory or call complete() on a freed
-completion object.
 
-Reset the virtqueue when the wait is interrupted so that outstanding
-buffers are recovered before the request array and message buffers are
-freed.
+> I don't think you read Documentation/i2c/slave-interface.rst. To me this
+> looks like a i2c "master", that is being abused to serve the role of a
+> slave; which of course implies that you have a non-standard slave device
+> implementation working with this.
 
-Fixes: a663b3c47ab1 ("i2c: virtio: Avoid hang by using interruptible completion wait")
-Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
----
- drivers/i2c/busses/i2c-virtio.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+True that. The driver does not use the core infrastructure for target
+devices. Sorry, this is not upstreamable this way.
 
-diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-index 5da6fef92bec..6ef09eda3ed0 100644
---- a/drivers/i2c/busses/i2c-virtio.c
-+++ b/drivers/i2c/busses/i2c-virtio.c
-@@ -117,12 +117,19 @@ static int virtio_i2c_complete_reqs(struct virtqueue *vq,
- 		struct virtio_i2c_req *req = &reqs[i];
- 
- 		if (!failed) {
--			if (wait_for_completion_interruptible(&req->completion))
-+			if (wait_for_completion_interruptible(&req->completion)) {
-+				/*
-+				 * The remaining buffers may still be owned by
-+				 * the device. Reset the virtqueue before freeing
-+				 * the request array and message buffers.
-+				 */
-+				virtqueue_reset(vq, NULL, NULL);
- 				failed = true;
--			else if (req->in_hdr.status != VIRTIO_I2C_MSG_OK)
-+			} else if (req->in_hdr.status != VIRTIO_I2C_MSG_OK) {
- 				failed = true;
--			else
-+			} else {
- 				j++;
-+			}
- 		}
- 
- 		i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], !failed);
--- 
-2.43.0
 
+--WffVVY5Ay9uyhsdF
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmpKiRIACgkQFA3kzBSg
+KbYL4hAAi937hhuBp81WCLEQe92D0lMDhIgtr3NJkcWMrfeHgzZDEEd2Xz8U1Y9b
+Cviw2GAfS7VGY6QIbPCvSF+ExfztCyWbH6gcpKmxadWQcoOPY5KwP8lUL7kGrD7n
+x8VFtZDPEkBoUR4jxX/uKK8LUY8zBCXciJgfuc2QV5zsXMEyB1Nx7m/yYJ6kD8yX
+EwkCjVV5WeiIQB9ZBgQQSeYri1b7TGnru4wYGTs+2htP175jBXTPPnjQrvwNd6K0
+WvLPSWE7DlmKK9taFIDF4quEWY4Vr4ePiHsxE+3zP1EUgxUjnSQmmuYtxF6wOtvl
+pY6R58jcM7gEyptmIZ3lTC/DMIxb7F6mwIkctSse9ZZI/w2q/XMjBQrYCVDkHoqS
+9NtgeailHPc4HExSVOTFeU9yiQ1i0sFI4zbBDQorcr5J3tir7AjWIaxT9S3DAKqu
+5Q/FNCeBJK/22rUssfviJH9FCWAb0LIURjVUUezGb6EojuOHFAkJWmKRgX5OuJz1
+ugYfQ4dQYGzRs5S+L2GZt5mDSSMCi7jWv8Tp3350ZSOqiNah288z9md3bhE9nbWm
+AaaKVH8dgf06gFA6R9tYh52aFRGvm96l25byxakxgV5cMppfWWDYE7I0Yd99oRGV
+ZSp/k/0j4RBXhtqD2ISo77AVB2iv5Ut4ASTlF9gJ8scGGjotZgQ=
+=i3x0
+-----END PGP SIGNATURE-----
+
+--WffVVY5Ay9uyhsdF--
