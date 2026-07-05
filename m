@@ -1,79 +1,79 @@
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AEB9275AEB
-	for <linux-i2c@vger.kernel.org>; Sun,  5 Jul 2026 13:46:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3C402E1F0E
+	for <linux-i2c@vger.kernel.org>; Sun,  5 Jul 2026 13:57:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783259194; cv=none; b=EAHENkdtHwOv1wsOyBaqLFTpTSUiXnIN6+ico4qgxdlsS1L553UTqtdERiqQU20c7oU/QXPaOR7C0Fdh0Vvk9ozPS1euSvZy4GjW99sMOosW+nizsp4YUOfKWfeD36+S8j4UZ77n/9UT3aPtlEQHgv7nps4qCc522Z7CXeocVBk=
+	t=1783259872; cv=none; b=lC5hbdKTxoLwP/bWLLE92fhtXwSz9Pi3mU4BrNZlAGBIQU841u2Zn8QpBQw8aHJQNx0gCXSD7iDcF3SuWiiWojTU0t2K98f2dNik4obghD59K34wn2NixrMAsGpW/JIqSg5XzggzFBW8yf67/h2wISydqJEvG0tTqFFD4fa7SwU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783259194; c=relaxed/simple;
-	bh=cJ1izLugSh9JCD0fH+/VIilMago/avKyqwADYis99P8=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=BsLHCqI8yyGblH1rLVnrigllLk3eqz0wCfKImc7nNCalmo61AAg0XWcy4j7JeRvnhxYv+q7Von5h38w3tv15GQZU8SJULflyqLtvgnZI8jKAa47RRRqLkP0XotXE0YG1ygXs4KzOwgAcVnoYEzdT8L/U5oDLIu+egBMEoPIZ8/Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=oVQnNPb9; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=PMpvsRxw; arc=none smtp.client-ip=205.220.168.131
+	s=arc-20240116; t=1783259872; c=relaxed/simple;
+	bh=JoauJP/T/XifX5LNc+BScrGeL0sofBsYpOGPhSU5gKs=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=A92h8Da9CFKgrx7tYTTGo+fI1STkgwVqnBl00444QJOTxaW0mmYWQsL0NvddzKNABvQhKAQwNlC+t87WEMqTwQWD6aTz0aOT4mg2QRf8IZmDGkTZEltK3LFOhSZjKYZ4ytD7OmOhPvfXrJ1p8a/I84nq1ui2QsoqE4sB1d6ZgAk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=iLvetTQb; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=NuR24+e+; arc=none smtp.client-ip=205.220.180.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="oVQnNPb9";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="PMpvsRxw"
-Received: from pps.filterd (m0279865.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6655W9vl871676
-	for <linux-i2c@vger.kernel.org>; Sun, 5 Jul 2026 13:46:30 GMT
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="iLvetTQb";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="NuR24+e+"
+Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6657CEG81065961
+	for <linux-i2c@vger.kernel.org>; Sun, 5 Jul 2026 13:57:49 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
 	cc:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=qcppdkim1; bh=F8RSssedjjcA0BbJ/AkIl+cH9if7eTgYDQP
-	dShqUqK4=; b=oVQnNPb9YToXVMt4x+VsBUP9+iH849/c3JcaZbPHLkp/x7u8XwK
-	TTHZXO91U/+SNnMeVkuxiDyA4Nnx0uZuxQ25RTy6p7r9bbKG16un0suYeh7gb1F+
-	wyW6zSISqFCdqgZNVLIPjpkphQq5SxLdaBoAl3SdEvR/VJP+AWwfOPipeLEfPq/e
-	n2oaqaZVvAkLnKGIZRmxDSIGMROlzRByx1umnVi0T5eH04inYppViWrqpoN2GR6i
-	uL2gmL61F4Emu1XsHIb1T586o38+vWQkvcXsfMFeZZHhUeB8n4VC3wpi6nAQL0u/
-	ODL6P6Mu2sxE8pzzSv0d3VVZNY/6oP1M0fA==
-Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com [209.85.215.198])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4f6s4stvem-1
+	:subject:to; s=qcppdkim1; bh=cx6T4Swtw2rzqvcjubzMgz9kj6YnISYvg3z
+	E4tt4Nsk=; b=iLvetTQbJBGIRKQBK/HWeTVaWLuOFF6CPVg/Ea3qbP/0w1atT8h
+	OfsRhTkzjJtyODEVjV7Ely5Ksc38gKi/ZcqC1bahNPwiv1gBjKWEkico1Z7McXkT
+	uZmq82UV0wGRvKSQJIRaOfKGjgBIJ7gmotoxgs4F2mFcXeRkSCGZo77JW89e5mQG
+	7FPQqLoyrd7rNRAIxq9vF4Fb6URRulmeH2bzJnqGDgHWUTj3kx+oeC+1He9Yj5OP
+	dW5hRsuhVWYiyiJ2VrQP/Rd5aoPR+R3PAt4jRg3F5s3eOjsacDg+lWX9zeCF/KDs
+	iDpNVwp1f++L3xRmbbDgN5UVvq878faJpoQ==
+Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com [209.85.214.197])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4f6s64jw4v-1
 	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <linux-i2c@vger.kernel.org>; Sun, 05 Jul 2026 13:46:30 +0000 (GMT)
-Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-c88e0d11a3fso1337002a12.0
-        for <linux-i2c@vger.kernel.org>; Sun, 05 Jul 2026 06:46:30 -0700 (PDT)
+	for <linux-i2c@vger.kernel.org>; Sun, 05 Jul 2026 13:57:49 +0000 (GMT)
+Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-2c9e994869aso35524565ad.0
+        for <linux-i2c@vger.kernel.org>; Sun, 05 Jul 2026 06:57:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1783259189; x=1783863989; darn=vger.kernel.org;
+        d=oss.qualcomm.com; s=google; t=1783259869; x=1783864669; darn=vger.kernel.org;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=F8RSssedjjcA0BbJ/AkIl+cH9if7eTgYDQPdShqUqK4=;
-        b=PMpvsRxwRAVwbNL0uEQe70MJ8PdW0+A5yQLEJpMY24i/POmXigr1eb2eYngMTNIxiq
-         DpCSPQo+bsaOVg2mCWEMfSvqnyQA92gIGPvLgF4AjdA2F/NvAO9E51j76Qk/z8MUuJ3/
-         5Kz0Ns7XySaPlN/9u/U8tJdWLn5YXi+BT80Rqk9DMocUrvxvJkEHBRhjiWDXXNC4/qqZ
-         NDcAS95ky0a0nGW7uTKuLKmabkBCydKtuzbrnlJb5Orza5bD8q3+bo28U0fodAnhL4fl
-         WViwCRr2dOHIJR0fGQ5l+7WW/KaVuvBwkVAz3H9qTTXgzVtPuLDdT7vUHt95zVRnL90B
-         c8Gg==
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=cx6T4Swtw2rzqvcjubzMgz9kj6YnISYvg3zE4tt4Nsk=;
+        b=NuR24+e+VaXedJG9jzSWlweJOAAXLr3SvenmhpCkWhs1deOh+UFHAntPItt/qJUvpQ
+         Vk27iMsEjf8rMrePxqRwlsXmexeTTvXmimX28beDYNu8HSOmyYQTOa397zRWF0CLX2Rz
+         WRgv3otOz6dpsz6+n2Hbud4Ue8Mt8KesFRmRb9TWF9EuuukQsvhUWMdZfkwNIZ0vEwC4
+         Qfo5AQO+93vYNPbQJNpAgLF/3kXBUFsOp1xZ3C8N1ixCVMjpvDs6BbnTSMPv9Puoih4I
+         pUrKFtDQ5jKSEI8Rw1UCAzX4DmsPs3pA1UYETWVd4LvMLYhK6S05RpbStStNur3GJ4dG
+         p5Pg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783259189; x=1783863989;
+        d=1e100.net; s=20251104; t=1783259869; x=1783864669;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=F8RSssedjjcA0BbJ/AkIl+cH9if7eTgYDQPdShqUqK4=;
-        b=WAXb+TQlTAk9v5RFNi/zMKluwN3gBlSEsZFWiAJf7gCqQ/ppIUhhT7YdToXRRgCNpQ
-         RaWerxQyHvRG4wIk5RKaE73G2HWfpKc1H5OuksYfqwG0tqcVCMB1Wi0gmsTbx+OsbOLO
-         9PjUF/Uzd8glEnEj3224dboZoSdNiD6UDarjEayWinUAp/Cx7IRiY7B+UN1dfpa19ByX
-         IwNVrMLqnaz9DiZ/3YUfmI3Y2+HjjE9Xat1rifY0XEhWAVy/DysSFhie6DZTcAHwi1y5
-         PuoY9ScgE3kWKbPWCsuY7qHUdtjFvTZHoTyFy6LvEnbJpZz7+LOyoA2w37qeRfsZZ89V
-         6GKg==
-X-Gm-Message-State: AOJu0Yz+72A/cI//MA6NDt+K3YAzy/yTvP5F3otGUS0/pJ3nkklkHZr0
-	BDsT2CbLDdJX1YlnUKfjs3nCyoz/q/7Mg53a3KbjReRuwIvt1WP0R1dP1qWFEImBqiCThlAqar7
-	95EjWNQUuPs0FS1/3Ye9JrOp096Sy7XIN8wf7oQ0PTi6TX474CXVRbWOh4Zp05iA=
-X-Gm-Gg: AfdE7cnabOLgRurRi1AzivBKQfbRCNO5hYIlOgFpdZhMxsRhqvqLw5pp2I9RvIZJzdk
-	87K6Zf1LClvsb1r9DKHpoRsXFbLCNT5aac++WYBvqN4Q4GZhkWkBnazaTtO+p4kLZD+HX7lHsGX
-	c5M/DOz8Jd4X05sZVT8rwCJqW2fW1E6EL0qgEuL1v1D9puLG9YUAgH+TIFLrT9N0jKG1imhMHDl
-	RrMCTcAWR2eOJ9kp3y5lAfOk6RSayoFhp/PYE4i5c6bW4Hh6ty9OJExH08sFX2BAuAuqjkAIN9n
-	71wqJpMYI55DC5TykuVZlnPcJ1SSzU0vZQaAaeaBjSoKiHO7RGXZIA23b6qKx9iEOtONsx66rUc
-	bxaH/6Bn2jy5XiJuMsYEZETbbaSNnIPf4CSBRNJUV8wLTGQ==
-X-Received: by 2002:a05:6a21:4593:b0:3bf:bde7:d66f with SMTP id adf61e73a8af0-3c03e1ff3a4mr6390577637.2.1783259189284;
-        Sun, 05 Jul 2026 06:46:29 -0700 (PDT)
-X-Received: by 2002:a05:6a21:4593:b0:3bf:bde7:d66f with SMTP id adf61e73a8af0-3c03e1ff3a4mr6390550637.2.1783259188756;
-        Sun, 05 Jul 2026 06:46:28 -0700 (PDT)
+         :message-id:reply-to;
+        bh=cx6T4Swtw2rzqvcjubzMgz9kj6YnISYvg3zE4tt4Nsk=;
+        b=IoU8T2YlTQK8yJBjp2qwmFUhusZY2PcW8O7UxgNC6fvJHJbW7L8PHPZIgvz3UZbZnU
+         8S3di963lWiV89F0RPyInSXU2DHa9gZMdbBLuDMSclN+y4qlIXJIWu5U8gol5ktm0zoS
+         ZCUX/ODzxGsvHVdHXkIPCCWVEyKKzFJUyqKC9lf/au6qkCxVSrbFzqiIBwn6YB1kynlT
+         CzUyYn6p8h4NIn2BGnUH5hsfcXUfIaWqzBnGw0CegyyzpXixFMNRIR0L5e9JNKXebrYY
+         W+d5aSnJjHrM1t9/IbdJrAj72y1zJFRhFgJ/9FTaKteT7B4Rl/iYK0naxhpCxUi6E/pn
+         KQHw==
+X-Gm-Message-State: AOJu0YyqdDxQYTKK3stWbxjhlMYIkiIIejbIsnqwUsJw61e/c8sd64qm
+	32XO8vdE+58p1FgSqGhUiublJdJM2sf1j8ucILZgUg95MAS83/DATPzNK98IaXt42arNiAO6G6z
+	U15RzBVuQ6k4rizk8CzNJ/EOpJbPBywzHdfSPtudRFBTa6kGXlQUrzwDEc6sM0cU=
+X-Gm-Gg: AfdE7clGV6b+yLU+6NiYPt85+z9K619zSF1BoZmpofin2UmX5bm/OgJFNHstZcylsVC
+	KWHwTWT1Uc+TZyS1yZcoJNDncM+1Cm76QC5/jPzqzgkAX0wJ29PLKgV7CCf3vL8enOribXaOrpR
+	ycQLeOuEEwiacfusPeUiEkvl6dvXGO8W3N49bQ6WWM0hM8XEyETHeWWCIFqAeTCpSZiC/TI3N8a
+	UgJJ7QTwh/SNMV/LRdOgozlbKHTJ1n5VlAJEKbcYTVEpMeBD1Uq7a/3r06HZyCvuPbCcOneJKIP
+	Ib/KI2knTsyjYik50K/oc/XIVzuT3P7P4Ob8ffklMAbUx4vmmErNulP4kUbc809kxcrdKaro1hz
+	KfXSLVc6ExkUZ7rcj3qvsTNnD94lPJj2Q3B5TNe2xON6MQQ==
+X-Received: by 2002:a17:902:e948:b0:2c0:b5c1:8e22 with SMTP id d9443c01a7336-2cbb7502856mr65740755ad.12.1783259868688;
+        Sun, 05 Jul 2026 06:57:48 -0700 (PDT)
+X-Received: by 2002:a17:902:e948:b0:2c0:b5c1:8e22 with SMTP id d9443c01a7336-2cbb7502856mr65740605ad.12.1783259868255;
+        Sun, 05 Jul 2026 06:57:48 -0700 (PDT)
 Received: from hu-arandive-hyd.qualcomm.com ([202.46.22.19])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30f0b7bb8fasm40905271eec.1.2026.07.05.06.46.23
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13b3c7ef188sm40891603c88.2.2026.07.05.06.57.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 05 Jul 2026 06:46:28 -0700 (PDT)
+        Sun, 05 Jul 2026 06:57:47 -0700 (PDT)
 From: Aniket Randive <aniket.randive@oss.qualcomm.com>
 To: mukesh.savaliya@oss.qualcomm.com, viken.dadhaniya@oss.qualcomm.com,
         andi.shyti@kernel.org, sumit.semwal@linaro.org,
@@ -82,9 +82,9 @@ Cc: linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
         linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
         dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
         naresh.maramaina@oss.qualcomm.com, aniket.randive@oss.qualcomm.com
-Subject: [PATCH v1] i2c: qcom-geni: Add dynamic transfer timeout based on transfer length and frequency
-Date: Sun,  5 Jul 2026 19:16:19 +0530
-Message-Id: <20260705134619.4030745-1-aniket.randive@oss.qualcomm.com>
+Subject: [PATCH v2] i2c: qcom-geni: Add dynamic transfer timeout based on transfer length and frequency
+Date: Sun,  5 Jul 2026 19:27:39 +0530
+Message-Id: <20260705135739.4038826-1-aniket.randive@oss.qualcomm.com>
 X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -93,32 +93,33 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA1MDE0NiBTYWx0ZWRfX/WQXNVq4ltDG
- SC5QyHS6SjfHTSI8G/fN5NjIM4Nt7LoWqJ3NqOPAjdR3TwOy8l45K425eKmkDtcXv8HaMUf3/pm
- ueX3o3EC9w8X00TC/K3DvBSICON+rxM=
-X-Proofpoint-ORIG-GUID: u-6taXTSD45lHYMDjOWgk15NMEXBhDoK
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA1MDE0NiBTYWx0ZWRfX9oL8WYVCvl/a
- zmvEQppCpR7GpXw366lb3NmFiDkc1hfc8nKOC8g0pF8/V0juwa+9Ghw80JI36i/QAA1H/tK+Qyv
- DNYapUAovNWZUuFAeoO76HlwTYUT/ogQVLlUwwldaX5/81mdKAlUFTWM8v6IkfntOAEKEDT2D9v
- 5avAVqMX8hZhjfeg2jIXD1USUhZ5wHrfNiOtrRZWhYz0csZqIFAH07fj5cbA2lTFgwfxhQ2Em+s
- 1DPRrFiMxLuDNESQvRJrtNRCKmMpAqO7qNBeAF3Il5My4hTI0U+q/a0vooRnEKM3YT5shHo3wVh
- v8O9PYUJy55/ukf5kkTep/0XFnG5HN57dluLQoXrZ5C2hXVRgF52zVh28qypzElqgYgz1LyQ5fm
- cScbBPi/KhC2DaD/dB5vBA+BgJ/S21y03BYrUdeRWBXXjH8UpTVCnTo5aPeALuqh56mmJ5rJDjg
- l6BgOYo4UE1V19IYclA==
-X-Proofpoint-GUID: u-6taXTSD45lHYMDjOWgk15NMEXBhDoK
-X-Authority-Analysis: v=2.4 cv=ZfQt8MVA c=1 sm=1 tr=0 ts=6a4a6036 cx=c_pps
- a=Qgeoaf8Lrialg5Z894R3/Q==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA1MDE0NyBTYWx0ZWRfX+Kuln3aBptSh
+ 8FRDgCJFtu9OjYg/jonNdp95SkyvlkkIaG8FGswzCCqPmXau6GAAyjUBfKcBNdpLekzuMfPQG18
+ GsZmY5WSmYfDmAdXOb2Qd1M8y2YflmNwnRVcr3OhqnfPWG9vSbA3RJaSBxqBfVkjYBUQes5oCfO
+ IgxftbtHYBuugyyd6/E/jQDmMBKhfgxcV/wvCWDjnI96+Sq+wk0IeGIO7SLd9T/bxwNHJuqHJFg
+ rE5tLh+iVsCNOaWfKrNTJSj66pMQA35pspMatIMCqyIr5I7pWs0s+aLNqfZQULOajGgPVRz0sF3
+ IfVsY+FO5CcQ+AifVc9U2PHmLrBmACkp/VPmiYbIsOyd/LtD8e1xGhLJQv6KETeKUiM/I2xyJlf
+ b7j9lVEa66JBu6FPAAOew3KqdXVnUP3PKLYtSUDa4CCn65zhJYLSneJBvT1BvE3T20VpglkGXe0
+ WfBJZ7TJM3MJslIIzaA==
+X-Authority-Analysis: v=2.4 cv=VvITxe2n c=1 sm=1 tr=0 ts=6a4a62dd cx=c_pps
+ a=cmESyDAEBpBGqyK7t0alAg==:117 a=fChuTYTh2wq5r3m49p7fHw==:17
  a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=Um2Pa8k9VHT-vaBCBUpS:22 a=EUspDBNiAAAA:8
- a=mbwoLaagdJ-VvVSO4aUA:9 a=x9snwWr2DeNwDh03kgHS:22
+ a=u7WPNUs3qKkmUXheDGA7:22 a=_glEPmIy2e8OvE2BGh3C:22 a=EUspDBNiAAAA:8
+ a=oMrrxSgkesIj4bXReV0A:9 a=1OuFwYUASf3TG4hYMiVC:22
+X-Proofpoint-ORIG-GUID: W9goIn-OPVu5pN_WUcemr1klrrumXYmT
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA1MDE0NyBTYWx0ZWRfXww7rV/IA7u0v
+ yjGWkBpOICfXC47wItTRJNP+cz8ZSs18IEoeOuNLLok/BK1N5tmyL0YzVlm/SZtomvi7cK4qExN
+ bo/SWTLSb9jL6hB1aVG3NIqii70zW0k=
+X-Proofpoint-GUID: W9goIn-OPVu5pN_WUcemr1klrrumXYmT
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
  definitions=2026-07-04_03,2026-07-03_01,2025-10-01_01
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 bulkscore=0 impostorscore=0 adultscore=0 phishscore=0
- priorityscore=1501 clxscore=1015 suspectscore=0 malwarescore=0 spamscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607050146
+ malwarescore=0 spamscore=0 suspectscore=0 bulkscore=0 adultscore=0
+ priorityscore=1501 lowpriorityscore=0 phishscore=0 clxscore=1015
+ impostorscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
+ definitions=main-2607050147
 
 The driver uses a static XFER_TIMEOUT of HZ (1 second) for all transfers
 regardless of message length or bus frequency, causing unnecessary
@@ -131,273 +132,13 @@ length across all queued messages as the per-completion timeout.
 
 Signed-off-by: Aniket Randive <aniket.randive@oss.qualcomm.com>
 ---
- arch/arm64/configs/defconfig       | 54 +++---------------------------
- drivers/i2c/busses/i2c-qcom-geni.c | 37 +++++++++++++++-----
- 2 files changed, 33 insertions(+), 58 deletions(-)
 
-diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
-index faf146441f97..841108ae2d01 100644
---- a/arch/arm64/configs/defconfig
-+++ b/arch/arm64/configs/defconfig
-@@ -32,7 +32,6 @@ CONFIG_KALLSYMS_ALL=y
- CONFIG_PROFILING=y
- CONFIG_KEXEC=y
- CONFIG_KEXEC_FILE=y
--CONFIG_CRASH_DUMP=y
- CONFIG_ARCH_ACTIONS=y
- CONFIG_ARCH_AIROHA=y
- CONFIG_ARCH_SUNXI=y
-@@ -123,10 +122,8 @@ CONFIG_ACPI_APEI_MEMORY_FAILURE=y
- CONFIG_ACPI_APEI_EINJ=y
- CONFIG_VIRTUALIZATION=y
- CONFIG_KVM=y
--CONFIG_JUMP_LABEL=y
- CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
--CONFIG_IOSCHED_BFQ=y
- CONFIG_BLK_INLINE_ENCRYPTION=y
- # CONFIG_CORE_DUMP_DEFAULT_ELF_HEADERS is not set
- # CONFIG_COMPAT_BRK is not set
-@@ -137,19 +134,15 @@ CONFIG_MEMORY_FAILURE=y
- CONFIG_TRANSPARENT_HUGEPAGE=y
- CONFIG_NET=y
- CONFIG_PACKET=y
--CONFIG_UNIX=y
--CONFIG_INET=y
- CONFIG_IP_MULTICAST=y
- CONFIG_IP_PNP=y
- CONFIG_IP_PNP_DHCP=y
- CONFIG_IP_PNP_BOOTP=y
--CONFIG_IPV6=y
- CONFIG_NETFILTER=y
- CONFIG_BRIDGE_NETFILTER=m
- CONFIG_NF_CONNTRACK=m
- CONFIG_NF_CONNTRACK_EVENTS=y
- CONFIG_NETFILTER_XT_MARK=m
--CONFIG_NETFILTER_XT_TARGET_CHECKSUM=m
- CONFIG_NETFILTER_XT_TARGET_LOG=m
- CONFIG_NETFILTER_XT_MATCH_ADDRTYPE=m
- CONFIG_NETFILTER_XT_MATCH_CONNTRACK=m
-@@ -198,7 +191,6 @@ CONFIG_BT_QCOMSMD=m
- CONFIG_BT_NXPUART=m
- CONFIG_CFG80211=m
- CONFIG_MAC80211=m
--CONFIG_MAC80211_LEDS=y
- CONFIG_RFKILL=m
- CONFIG_RFKILL_GPIO=m
- CONFIG_NET_9P=m
-@@ -253,8 +245,6 @@ CONFIG_PCIE_LAYERSCAPE_GEN4=y
- CONFIG_PCI_ENDPOINT=y
- CONFIG_PCI_ENDPOINT_CONFIGFS=y
- CONFIG_PCI_EPF_TEST=m
--CONFIG_PCI_PWRCTRL_GENERIC=m
--CONFIG_POWER_SEQUENCING_PCIE_M2=m
- CONFIG_DEVTMPFS=y
- CONFIG_DEVTMPFS_MOUNT=y
- CONFIG_FW_LOADER_USER_HELPER=y
-@@ -262,9 +252,7 @@ CONFIG_HISILICON_LPC=y
- CONFIG_IMX_AIPSTZ=m
- CONFIG_TEGRA_ACONNECT=m
- CONFIG_MHI_BUS_PCI_GENERIC=m
--CONFIG_ARM_SCMI_PROTOCOL=y
- CONFIG_ARM_SCPI_PROTOCOL=y
--CONFIG_RASPBERRYPI_FIRMWARE=y
- CONFIG_INTEL_STRATIX10_SERVICE=y
- CONFIG_INTEL_STRATIX10_RSU=m
- CONFIG_MTK_ADSP_IPC=m
-@@ -303,7 +291,6 @@ CONFIG_MTD_SPI_NOR=y
- CONFIG_MTD_UBI=m
- CONFIG_MTD_HYPERBUS=m
- CONFIG_HBMC_AM654=m
--CONFIG_OF_OVERLAY=y
- CONFIG_BLK_DEV_LOOP=y
- CONFIG_BLK_DEV_NBD=m
- CONFIG_VIRTIO_BLK=y
-@@ -336,7 +323,6 @@ CONFIG_AHCI_XGENE=y
- CONFIG_AHCI_QORIQ=y
- CONFIG_SATA_SIL24=y
- CONFIG_SATA_RCAR=y
--CONFIG_PATA_PLATFORM=y
- CONFIG_PATA_OF_PLATFORM=y
- CONFIG_MD=y
- CONFIG_BLK_DEV_MD=m
-@@ -423,7 +409,6 @@ CONFIG_MLX5_CORE_EN=y
- # CONFIG_NET_VENDOR_NETRONOME is not set
- # CONFIG_NET_VENDOR_NVIDIA is not set
- # CONFIG_NET_VENDOR_OKI is not set
--# CONFIG_NET_VENDOR_PACKET_ENGINES is not set
- # CONFIG_NET_VENDOR_QLOGIC is not set
- # CONFIG_NET_VENDOR_BROCADE is not set
- CONFIG_QCOM_EMAC=m
-@@ -629,7 +614,7 @@ CONFIG_I2C_OWL=y
- CONFIG_I2C_APPLE=m
- CONFIG_I2C_PXA=y
- CONFIG_I2C_QCOM_CCI=m
--CONFIG_I2C_QCOM_GENI=m
-+CONFIG_I2C_QCOM_GENI=y
- CONFIG_I2C_QUP=y
- CONFIG_I2C_RIIC=y
- CONFIG_I2C_RK3X=y
-@@ -749,6 +734,7 @@ CONFIG_POWER_RESET_SYSCON=y
- CONFIG_POWER_RESET_SYSCON_POWEROFF=y
- CONFIG_SYSCON_REBOOT_MODE=y
- CONFIG_NVMEM_REBOOT_MODE=m
-+CONFIG_POWER_SEQUENCING_PCIE_M2=m
- CONFIG_BATTERY_QCOM_BATTMGR=m
- CONFIG_BATTERY_SBS=m
- CONFIG_BATTERY_BQ27XXX=y
-@@ -787,7 +773,6 @@ CONFIG_MTK_LVTS_THERMAL=m
- CONFIG_BCM2711_THERMAL=m
- CONFIG_BCM2835_THERMAL=m
- CONFIG_BRCMSTB_THERMAL=m
--CONFIG_EXYNOS_THERMAL=y
- CONFIG_RCAR_THERMAL=y
- CONFIG_RCAR_GEN3_THERMAL=y
- CONFIG_RZG2L_THERMAL=y
-@@ -959,7 +944,6 @@ CONFIG_DRM=m
- CONFIG_DRM_HDLCD=m
- CONFIG_DRM_MALI_DISPLAY=m
- CONFIG_DRM_KOMEDA=m
--CONFIG_DRM_DISPLAY_CONNECTOR=m
- CONFIG_DRM_FSL_LDB=m
- CONFIG_DRM_I2C_NXP_TDA998X=m
- CONFIG_DRM_ITE_IT6263=m
-@@ -1057,15 +1041,12 @@ CONFIG_DRM_ZYNQMP_DPSUB=m
- CONFIG_DRM_ZYNQMP_DPSUB_AUDIO=y
- CONFIG_FB=y
- CONFIG_FB_EFI=y
--CONFIG_FB_MODE_HELPERS=y
- CONFIG_BACKLIGHT_PWM=m
- CONFIG_BACKLIGHT_APPLE_DWI=m
- CONFIG_BACKLIGHT_QCOM_WLED=m
- CONFIG_BACKLIGHT_LP855X=m
- CONFIG_BACKLIGHT_GPIO=m
- CONFIG_LOGO=y
--# CONFIG_LOGO_LINUX_MONO is not set
--# CONFIG_LOGO_LINUX_VGA16 is not set
- CONFIG_SOUND=m
- CONFIG_SND=m
- CONFIG_SND_ALOOP=m
-@@ -1180,8 +1161,6 @@ CONFIG_SND_SOC_WSA884X=m
- CONFIG_SND_SOC_NAU8822=m
- CONFIG_SND_SOC_LPASS_WSA_MACRO=m
- CONFIG_SND_SOC_LPASS_VA_MACRO=m
--CONFIG_SND_SOC_LPASS_RX_MACRO=m
--CONFIG_SND_SOC_LPASS_TX_MACRO=m
- CONFIG_SND_SIMPLE_CARD=m
- CONFIG_SND_AUDIO_GRAPH_CARD=m
- CONFIG_SND_AUDIO_GRAPH_CARD2=m
-@@ -1209,8 +1188,8 @@ CONFIG_USB_ACM=m
- CONFIG_USB_STORAGE=y
- CONFIG_USB_CDNS_SUPPORT=m
- CONFIG_USB_CDNS3=m
--CONFIG_USB_CDNS3_GADGET=y
- CONFIG_USB_CDNS3_HOST=y
-+CONFIG_USB_CDNS3_GADGET=y
- CONFIG_USB_MTU3=y
- CONFIG_USB_MUSB_HDRC=y
- CONFIG_USB_MUSB_SUNXI=y
-@@ -1311,7 +1290,6 @@ CONFIG_SCSI_UFS_RENESAS=m
- CONFIG_SCSI_UFS_TI_J721E=m
- CONFIG_SCSI_UFS_EXYNOS=y
- CONFIG_SCSI_UFS_ROCKCHIP=y
--CONFIG_NEW_LEDS=y
- CONFIG_LEDS_CLASS=y
- CONFIG_LEDS_CLASS_FLASH=m
- CONFIG_LEDS_CLASS_MULTICOLOR=m
-@@ -1430,7 +1408,6 @@ CONFIG_EC_LENOVO_YOGA_C630=m
- CONFIG_EC_LENOVO_THINKPAD_T14S=m
- CONFIG_COMMON_CLK_APPLE_NCO=m
- CONFIG_COMMON_CLK_RK808=y
--CONFIG_COMMON_CLK_SCMI=y
- CONFIG_COMMON_CLK_SCPI=y
- CONFIG_COMMON_CLK_CS2000_CP=y
- CONFIG_COMMON_CLK_FSL_SAI=y
-@@ -1450,18 +1427,6 @@ CONFIG_CLK_IMX8ULP=y
- CONFIG_CLK_IMX93=y
- CONFIG_CLK_IMX95_BLK_CTL=y
- CONFIG_TI_SCI_CLK=y
--CONFIG_COMMON_CLK_MT8192_AUDSYS=y
--CONFIG_COMMON_CLK_MT8192_CAMSYS=y
--CONFIG_COMMON_CLK_MT8192_IMGSYS=y
--CONFIG_COMMON_CLK_MT8192_IMP_IIC_WRAP=y
--CONFIG_COMMON_CLK_MT8192_IPESYS=y
--CONFIG_COMMON_CLK_MT8192_MDPSYS=y
--CONFIG_COMMON_CLK_MT8192_MFGCFG=y
--CONFIG_COMMON_CLK_MT8192_MMSYS=y
--CONFIG_COMMON_CLK_MT8192_MSDC=y
--CONFIG_COMMON_CLK_MT8192_SCP_ADSP=y
--CONFIG_COMMON_CLK_MT8192_VDECSYS=y
--CONFIG_COMMON_CLK_MT8192_VENCSYS=y
- CONFIG_COMMON_CLK_QCOM=y
- CONFIG_CLK_ELIZA_DISPCC=m
- CONFIG_CLK_ELIZA_GCC=y
-@@ -1670,7 +1635,6 @@ CONFIG_IMX_SCU_PD=y
- CONFIG_QCOM_CPR=y
- CONFIG_QCOM_RPMHPD=y
- CONFIG_QCOM_RPMPD=y
--CONFIG_ROCKCHIP_PM_DOMAINS=y
- CONFIG_TI_SCI_PM_DOMAINS=y
- CONFIG_ARM_IMX_BUS_DEVFREQ=y
- CONFIG_ARM_IMX8M_DDRC_DEVFREQ=m
-@@ -1799,9 +1763,9 @@ CONFIG_PHY_SAMSUNG_UFS=y
- CONFIG_PHY_UNIPHIER_USB2=y
- CONFIG_PHY_UNIPHIER_USB3=y
- CONFIG_PHY_TEGRA_XUSB=y
-+CONFIG_OMAP_USB2=m
- CONFIG_PHY_AM654_SERDES=m
- CONFIG_PHY_J721E_WIZ=m
--CONFIG_OMAP_USB2=m
- CONFIG_PHY_XILINX_ZYNQMP=m
- CONFIG_ARM_CCI_PMU=m
- CONFIG_ARM_CCN=m
-@@ -1852,10 +1816,7 @@ CONFIG_OPTEE=y
- CONFIG_QCOMTEE=m
- CONFIG_MUX_GPIO=m
- CONFIG_MUX_MMIO=y
--CONFIG_SLIMBUS=m
--CONFIG_SLIM_QCOM_CTRL=m
- CONFIG_SLIM_QCOM_NGD_CTRL=m
--CONFIG_INTERCONNECT=y
- CONFIG_INTERCONNECT_IMX=y
- CONFIG_INTERCONNECT_IMX8MM=m
- CONFIG_INTERCONNECT_IMX8MN=m
-@@ -1914,14 +1875,12 @@ CONFIG_OVERLAY_FS=m
- CONFIG_VFAT_FS=y
- CONFIG_TMPFS_POSIX_ACL=y
- CONFIG_HUGETLBFS=y
--CONFIG_CONFIGFS_FS=y
- CONFIG_EFIVAR_FS=y
- CONFIG_UBIFS_FS=m
- CONFIG_SQUASHFS=y
- CONFIG_PSTORE_RAM=m
- CONFIG_NFS_FS=y
- CONFIG_NFS_V4=y
--CONFIG_NFS_V4_1=y
- CONFIG_NFS_V4_2=y
- CONFIG_ROOT_NFS=y
- CONFIG_9P_FS=m
-@@ -1932,11 +1891,8 @@ CONFIG_CRYPTO_USER=y
- CONFIG_CRYPTO_BENCHMARK=m
- CONFIG_CRYPTO_CHACHA20=m
- CONFIG_CRYPTO_ECHAINIV=y
--CONFIG_CRYPTO_SHA3=m
--CONFIG_CRYPTO_SM3=m
- CONFIG_CRYPTO_USER_API_RNG=m
- CONFIG_CRYPTO_GHASH_ARM64_CE=y
--CONFIG_CRYPTO_AES_ARM64_CE_BLK=y
- CONFIG_CRYPTO_AES_ARM64_BS=m
- CONFIG_CRYPTO_AES_ARM64_CE_CCM=y
- CONFIG_CRYPTO_DEV_SUN8I_CE=m
-@@ -1960,8 +1916,6 @@ CONFIG_DEBUG_INFO_DWARF_TOOLCHAIN_DEFAULT=y
- CONFIG_DEBUG_INFO_REDUCED=y
- CONFIG_MAGIC_SYSRQ=y
- CONFIG_DEBUG_FS=y
--# CONFIG_SCHED_DEBUG is not set
--# CONFIG_DEBUG_PREEMPT is not set
- # CONFIG_FTRACE is not set
- CONFIG_CORESIGHT=m
- CONFIG_CORESIGHT_LINK_AND_SINK_TMC=m
+Changes in v2: 
+ - Remove accidental defconfig change.
+
+ drivers/i2c/busses/i2c-qcom-geni.c | 37 +++++++++++++++++++++++-------
+ 1 file changed, 29 insertions(+), 8 deletions(-)
+
 diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
 index 96dbf04138be..43ae2121f01c 100644
 --- a/drivers/i2c/busses/i2c-qcom-geni.c
