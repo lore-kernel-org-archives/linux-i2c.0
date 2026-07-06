@@ -1,17 +1,17 @@
 Received: from invmail4.hynix.com (exvmail4.hynix.com [166.125.252.92])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5D79F3E5ED1;
-	Mon,  6 Jul 2026 06:20:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id DAF673C37B6
+	for <linux-i2c@vger.kernel.org>; Mon,  6 Jul 2026 06:21:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=166.125.252.92
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783318883; cv=none; b=az8nz1xwnlEeF06HVXextVelV/8ZW+8u9A/TC0rQdPcyFlBCyIqDgIkriObMoVYc/1r9H9L8zLMXBxWrIGpXnZws/Qi9hCj2z7iVf/SaS1Rdrm73F11paIEVirPsELtwjqUWfC++XKlD3OoxK48GMrjAvx1rpcQuIDefp8i47nY=
+	t=1783318889; cv=none; b=LIpd+3BFM+ECHDCtvhpLc4LM9ONVrvs/24v1FVEdUMIsjGimhgAL0VGiexaz5Xutbi0srxI4DbY4Y91QTbijdJQbmaxANKwBXIsU7WyzP9AFLpgryvjJqb9OOhmyTZn1dK/mE52jzpBVAoqfBPgH329Jcj+JOIvX6jL4vwSS0qU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783318883; c=relaxed/simple;
-	bh=zZ0Z4ACi/Apbu1QY77b88sFXV1NHqKJHKoHUY4xopZ0=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=Gtra1pLvt8zHhoHdh6hVgvazZIVQhCpuKMRxECeLujRLfiOY0y+eFSE06mKTfB81+QhaGcpl5V609iqhBU1hl7p6LeaZAV6AXaqovfB9WTb5fgMcPPzKysaG+bggndgZtYGHksPlGAFInoNGkg/+ozftmTk/YkXHKcjTSpWUlgc=
+	s=arc-20240116; t=1783318889; c=relaxed/simple;
+	bh=w+C1tGe+D2gcMh5vmD2+eMhKBKW1r3S6v2wTTfvfqWM=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References; b=ETJRccEZBYy6HnCVhCLQAPbuXybIaC0FV1mxvN+wmJhVonZDM6Sx9kR4JVcBr4jFUVDGuuxO+MGMT6AsWeOXZFrPCkI4Iwj4hHuNmiCKzxL+R1Epkg9yovz5vVDv3bKNCDQ9DcpVZ6KyeXup9ThFkE7pAPwvwmYqsfZk5jVmBAk=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sk.com; spf=pass smtp.mailfrom=sk.com; arc=none smtp.client-ip=166.125.252.92
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sk.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sk.com
-X-AuditID: a67dfc5b-c45ff70000001609-61-6a4b48ff3f1c
+X-AuditID: a67dfc5b-c45ff70000001609-d3-6a4b490581ab
 From: Byungchul Park <byungchul@sk.com>
 To: linux-kernel@vger.kernel.org
 Cc: max.byungchul.park@gmail.com,
@@ -178,44 +178,45 @@ Cc: max.byungchul.park@gmail.com,
 	aliceryhl@google.com,
 	tmgross@umich.edu,
 	rust-for-linux@vger.kernel.org
-Subject: [PATCH v19 18/40] dept: apply timeout consideration to waitqueue wait
-Date: Mon,  6 Jul 2026 15:19:06 +0900
-Message-Id: <20260706061928.66713-19-byungchul@sk.com>
+Subject: [PATCH v19 30/40] dept: make dept stop from working on debug_locks_off()
+Date: Mon,  6 Jul 2026 15:19:18 +0900
+Message-Id: <20260706061928.66713-31-byungchul@sk.com>
 X-Mailer: git-send-email 2.17.1
 In-Reply-To: <20260706061928.66713-1-byungchul@sk.com>
 References: <20260706061928.66713-1-byungchul@sk.com>
-X-Brightmail-Tracker: H4sIAAAAAAAAAzWSa0wTaRSG95v5Zjpt7GZSUccbaBPWW0AxXk7i9YfZjhIvCZA1anQbOpFi
-	QVMURWMsFLAKIjYLRCpaLjYIqNja9dqIKCgCtohCVRBQrFFAElMw5aK2Gv89531y3vPnMKSs
-	nZrGqBP3C9pEpUZOS7BkYEJxGLE+Mn5RVs5sMGQcg46uXgraUmswDHkNGMZNN0TwuD0NQ9eQ
-	AcHXURMJ48Z6EXh9r0WQl4qg78EXBAUfUzF8rFPA984PBFh6vxHQW3McwXj+HrhQYqNhtNlJ
-	QkGeC0FxTycJ1+vfIHCUp9HwPtdOwvOhQRoGWs4R8LmaBnOag4KWpj4ERSYjAn3pVRryi6wY
-	Kq0bocviwf5zNJgK9AT4LBUiaCrtwGDRhYKpuZWCt+WFIhjriYDO03kY+jxGGroeZVJgfVmH
-	oCrbQ4L1XRsFjlcLoDizDMPZ8x003HU0YDCMexHU33xLQHa1nQKd6SsFrppGCp5VujBc/eAm
-	oLH+MYaGwksYnLcvU9DT7abWqvgK2/8EX3W+CvGjI0bEey/qST4j1z8+6B8k+XTbQf5iYz/N
-	jwy9oHnHsBnzT0o4vuzECMGfaQ7jbxV2iniz9QCf/nCA2hK2TbJSJWjUyYJ24ep/JXHtJS3U
-	PrvoUMM3H61D6fRJJGY4dglX8mJE9JvtT8/8zGl2Dud2+8gAB7GzONspD3USSRiSbQ3hsi2n
-	cEBMZDdxN/QDfsEwmA3lun1/B2Ipu4wrbtVRvzpDuMrqmp89Yn9+ZayICLCMXcq9HnyEA50c
-	e0HM5Q97iV8LU7n75W6ci6Rm9EcFkqkTkxOUas2S8LiURPWh8Ni9CVbkfzfL0bHtN9EXV1Qt
-	YhkknyCFtRviZZQyOSkloRZxDCkPkv41NzJeJlUpUw4L2r27tAc0QlItms5g+RTp4uGDKhm7
-	W7lf2CMI+wTtb0sw4mk6FGHQ+NqemLOWd9/bab/X8p87Jzhj8g5245o7Tpc2ZdalZ5tvbW7Y
-	iv45UhYtX7xbEWKrRcbYVZHrQj2q05nX6jT5TbJJR+3sJsVMN9qQGtcd1XQkvDk4Da8IdruC
-	SmPORqtjnTEz9Gj0xFjWvLCYnP71BnFIjOJT7J9OxWXP7Ao5TopTRswntUnKH7QzLI9qAwAA
-X-Brightmail-Tracker: H4sIAAAAAAAAAzWSbUhTcRTG+9+X/66jxW0ZXgoxFqkU9gIWB4ooorq9SfQl6IVa7pbTOWMz
-	S0NS18re52KTmppZjtBZpplprUTJMlu5VimpqbBW4tQop0ydNou+HJ7z/M55OB8OQ0pr6QWM
-	Up0qaNRylQyLKXHcWl3MNL8jceULx1LI1Z+Brh43DZ+zGyjwjeRSUPDAhiFgqRVBbtUNGl63
-	51DQdr8cQY8vF8HYhIUEfd00BQFjswhG/J0iMGUjmLY3IzA7jSR0tL0gwfYom4DflVMYBpp+
-	ITD1uTHk92dTMGy9jOCmxyKC/pdbYbDnKQ3T3d8JaB/1IrC6pwhwN5xHEDAnwa2S6uC6+SeG
-	Ccd7EvJNbQhu93WT8Ku/F8Gj5q8I7PdyMHwz1JDgcs+Bj75hDC2mSxgGnQUEDFViKM6x0+B8
-	O4Cg0GJE4PliJ0B35wEGc2EVBXW99SJwDkwS0GU2ElBetQt6rB4KWg0lRPDc4NTDMLDk64hg
-	+UGAqeIpAX5rmWhDKeLH9Fcpvqz6McHrPwQwbyuyIX5i3Ij4kVIdyesNwbbJO0zyZ6tP8qWt
-	XsyP+z5h3j5aTPFvSjj+7oVxgs9zxPB1N7tFuzfuE69TCCplmqBZsf6wOKG9xEkfrxGdapny
-	4yx0Fl9EIQzHxnI17/L+asxGcR0dfnJGh7KLuOorHvoiEjMk64rgLluvUDNgHhvH1eoGg4Bh
-	KHYJ1+vfMmNL2DXcbVcW/S8zgiuvbPibExL0708WEjNayq7mOodfUQYkLkazylCoUp2WLFeq
-	Vi/XJiWkq5WnlsenJFeh4DtZMyfznqAR19ZGxDJINlsCG7YnSml5mjY9uRFxDCkLlURG70iU
-	ShTy9AxBk3JIc0IlaBvRQoaShUm27xUOS9lj8lQhSRCOC5r/lGBCFmShcKHp0n7x4oqD9c9j
-	PU80Ec1Ru0LLIgcDIes2OxRDYerzC78uq8/c41BEH2DIlnMVcXfH9tWc3onqwsszZUdu4Mii
-	obnxnX3Xw+dvTHrojY5JUOgXkae37DxqHcUHfftfdn1KJeNd3kDAoZJ+kG+KNYiv2bZltGSY
-	nkmob8YoWkZpE+SrlpIarfwPjIP3fkoDAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAAzXSe0xTZxgGcL5z+U5bLTmpJh4xC1plcxqcW4C88bJoJPFTTNToLtliZjNO
+	RhGKKYqiYVYYhgEq1lC1BS2XNh0WJa3Oy+ymBIooDSIKVVCsARQRMUjbFewcl/jfL8/z5vnr
+	ldAKLxslUWv2iFqNKk2JZYxsaGZFLLchKXW55QWGgvxDUHbRjiFsusLB7c5cBnr8BQiC4yYa
+	wno3B6OhLg4MbXoaSn29GIatxQiM/SYOBhrXw1DPXyx0Bl4jsPb+R0HYsAvOVToxDBreYhj3
+	tNJwqvQeggrfExouuZ8icNlyMfSVXKahvTcSHviHMQy1lVHwpg6DOdfFQlvLIIJykx6BodzB
+	QLdBT0GPtZ+BUwMYQtYaDqy6GDB52ll4bjNy8MGcAe7zLzhoftrBQk/TERau6J5x4HjUiGD0
+	gY8Ce3E/Da7HS6HiSDUDN1zNDBSERxG4rz6noP16GYbiusss6ExBFu66bzPQbPyDgS7PcQ4s
+	nW0U+J55WXB6WmjwlvQhqH1TidckkxrnnxTJvx/GxH7Wjsj4mB6RUUseTSx3X2My5n+IiStg
+	ZsidSoFU/z5GkROeWHLN+IQjZsde8lvDEEuctiWk6sYAtSX2B9mqZDFNnSVqv/h6pyzl4ocQ
+	u7tRvt/28hHSofwZhUgqEfg4ofRsEfvR14JVU8b8Z4LXG6InPZufLziP9k/kMgnNt0cLxdaj
+	zGQxi98q2IMWNGmGjxH+HmmdspxPEEpGBvH0aLRwvu7m1JB0Ir/wvpyatIKPF7qGm5jpm3NS
+	4X7DymnPFW7ZvEwJkptRRA1SqDVZ6Sp1WtyylGyNev+ynzPSHWji36w573+8ikbubatHvAQp
+	Z8phzcZUBavKysxOr0eChFbOln+6OClVIU9WZR8QtRk/afemiZn1aJ6EUc6RfxXYl6zgf1Ht
+	EXeJ4m5R+7GlJNIoHTowtq7j5at3Ny98f4u7VEUOJmw4XcsvXuFnko49nvFuYWoEHfinu9O/
+	dF5K4uEdCaFFDeXVtWULvvumu2a5lFqxPTHSERddOFIdDNSe9Kk35+S8OvN2rTlv5YLsVRFu
+	anvRJuXneZreQne6Qxn176/RpdzWyE+a6sjq1f518duSvu2TK5nMFNWXS2htpup/Me8HhGsD
+	AAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAAzWSe0hTcRTH/d3H787V4rIGXYyyFj3oYQVZJ4owirxpRQUhCJUjLzmfsZVp
+	EKlrtN5rsUlOy1aOmitNe61aipaVFmlmWmYrWqZpWUsdPubaiv45fM73e86X88cRkdI7dJhI
+	mb5XUKUrUuVYTIk3rdAsoNfHJi86vR102kPw3uWm4U1uNQUD/ToKCsvsGHzmOwzoKs7R8LQ1
+	j4LG66UIXAM6BN4RMwlah58Cn6GOgf6hdgaMuQj8zjoEpiYDCW2NVSTYb+YS8Lt8DENPrQeB
+	8ZMbQ353LgV91hMICjrNDHQ/jobvrvs0+Du+EtA62IvA6h4jwF19BIHPlAIXLJWBddNPDCMv
+	XpKQb2xEcPFTBwme7o8IbtZ9QOC8kofhi/4WCc3uCfB6oA/DM+NxDN+bCgn4UY6hOM9JQ9Pz
+	HgRFZgOCzndOAjSXyjCYiioocHy8x0BTzygB700GAkorNoLL2klBg95CBM4NTN2YBOZ8DREo
+	XQQYr90nYMhqY6JKEO/VnqJ4W+Vtgte+8mHeft6O+JFhA+L7SzQkr9UH2trePpI/XLmfL2no
+	xfzwQAvmnYPFFF9v4fjLR4cJ/syLBbyjoIPZvDpevDJRSFVmCqqFqxLESWX+IXrPY0nWla63
+	KAdpxx1DoSKOXcI5vJfoIGN2NtfWNkQGWcZO4ypPdgZ0sYhkm8O5E9aTVNCYyG7h7N4SFGSK
+	nck99Lz8yxJ2Kaf39OB/oeFcaXn136DQgH59tIgIspSN5Nr7nlB6JC5GITYkU6ZnpimUqZER
+	6pSk7HRlVsSujLQKFHgn68HRM3dRf3N0DWJFSD5eAlExyVJakanOTqtBnIiUyySz5sQmSyWJ
+	iuwDgipjp2pfqqCuQZNFlHySJCZOSJCyuxV7hRRB2COo/ruEKDQsBxGcKjZtnX5HiPLz88Mt
+	svqYQ1cPREc9NNhCcnaTM260tIdV2fCaKeE7lt36mUjqLK1bxlDD4KMMZt+ci9uy8FpXVcRw
+	pGwwbkWkGk3vUnXMPRsV88FvfVvgy1weHf7mV6zrQve8qfUHv82vjbfcU6zVF2q+mJgNq70W
+	j2MrfpAgp9RJisVzSZVa8Qc5S0vSSgMAAA==
 X-CFilter-Loop: Reflected
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
@@ -223,28 +224,66 @@ List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 
-Now that CONFIG_DEPT_AGGRESSIVE_TIMEOUT_WAIT was introduced, apply the
-consideration to waitqueue wait, assuming an input 'ret' in
-___wait_event() macro is used as a timeout value.
+For many reasons, debug_locks_off() is called to stop lock debuging
+feature e.g. on panic().  dept should also stop it in the conditions.
 
 Signed-off-by: Byungchul Park <byungchul@sk.com>
 ---
- include/linux/wait.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/dept.h     | 2 ++
+ kernel/dependency/dept.c | 6 ++++++
+ lib/debug_locks.c        | 2 ++
+ 3 files changed, 10 insertions(+)
 
-diff --git a/include/linux/wait.h b/include/linux/wait.h
-index c8f8b44060fb..a9524bc8630b 100644
---- a/include/linux/wait.h
-+++ b/include/linux/wait.h
-@@ -306,7 +306,7 @@ extern void init_wait_entry(struct wait_queue_entry *wq_entry, int flags);
- 	struct wait_queue_entry __wq_entry;					\
- 	long __ret = ret;	/* explicit shadow */				\
- 										\
--	sdt_might_sleep_start(NULL);						\
-+	sdt_might_sleep_start_timeout(NULL, __ret);				\
- 	init_wait_entry(&__wq_entry, exclusive ? WQ_FLAG_EXCLUSIVE : 0);	\
- 	for (;;) {								\
- 		long __int = prepare_to_wait_event(&wq_head, &__wq_entry, state);\
+diff --git a/include/linux/dept.h b/include/linux/dept.h
+index f3cc7566ddf2..236e57befb13 100644
+--- a/include/linux/dept.h
++++ b/include/linux/dept.h
+@@ -142,6 +142,7 @@ struct dept_ext_wgen {
+ 	unsigned int wgen;
+ };
+ 
++void dept_stop_emerg(void);
+ void dept_on(void);
+ void dept_off(void);
+ void dept_init(void);
+@@ -194,6 +195,7 @@ struct dept_ext_wgen { };
+ 
+ #define DEPT_MAP_INITIALIZER(n, k) { }
+ 
++#define dept_stop_emerg()				do { } while (0)
+ #define dept_on()					do { } while (0)
+ #define dept_off()					do { } while (0)
+ #define dept_init()					do { } while (0)
+diff --git a/kernel/dependency/dept.c b/kernel/dependency/dept.c
+index 048348ea64d2..007e1bc7d201 100644
+--- a/kernel/dependency/dept.c
++++ b/kernel/dependency/dept.c
+@@ -187,6 +187,12 @@ static void dept_unlock(void)
+ 	arch_spin_unlock(&dept_spin);
+ }
+ 
++void dept_stop_emerg(void)
++{
++	WRITE_ONCE(dept_stop, 1);
++}
++EXPORT_SYMBOL_GPL(dept_stop_emerg);
++
+ enum bfs_ret {
+ 	BFS_CONTINUE,
+ 	BFS_DONE,
+diff --git a/lib/debug_locks.c b/lib/debug_locks.c
+index a75ee30b77cb..14a965914a8f 100644
+--- a/lib/debug_locks.c
++++ b/lib/debug_locks.c
+@@ -38,6 +38,8 @@ EXPORT_SYMBOL_GPL(debug_locks_silent);
+  */
+ int debug_locks_off(void)
+ {
++	dept_stop_emerg();
++
+ 	if (debug_locks && __debug_locks_off()) {
+ 		if (!debug_locks_silent) {
+ 			console_verbose();
 -- 
 2.17.1
 
