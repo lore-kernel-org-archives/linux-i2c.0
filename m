@@ -1,268 +1,464 @@
-Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 644C5238C0A
-	for <linux-i2c@vger.kernel.org>; Mon,  6 Jul 2026 04:25:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.171
+Received: from invmail4.hynix.com (exvmail4.skhynix.com [166.125.252.92])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id F0F9F21638D;
+	Mon,  6 Jul 2026 04:35:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=166.125.252.92
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783311957; cv=none; b=Vc87hOGAU1WmUnN7IT40Ax4kj6S/CDsyc1sNgQxxBtUUw+AM2xzvSJ3adVcdcBXPN4xRvBprDr/jGrloey7zv/AZb51kJS4w9Ah57t3Tp3OhJ3H0ehFGQbIolACCoyEEjtsgUZHaqGnNfpi6CkYE/hu9K6avTYOi8vPtjyOh7zg=
+	t=1783312515; cv=none; b=XBu2FoIfHrSFcguG8wmXQgl0e9txAR7wC41LK0ygLFZFF656VnhPGAln24DUZ6wsWQHv7THidar3F1xWyu2R6kr7obk/sdjoZ2oHZVsUlzIlyJ6QGqXvbFWdhb8wH/1AM/vzAINZrSfaAwcx6B+i+VGDiGpWYHHvMnlLAA2ThGk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783311957; c=relaxed/simple;
-	bh=NhS3LCjxnt5SLk5Q3V4TefozA3ivXCBUoWmX8Htwvac=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=eL8wBRWBWkNjfl9x1DJFcsjQnC7ZcuQwGTxZR841KI097eDkElv+Qp7c7yW0Tqq/BHMoivqAEaHtJ3SjH7V8d8MNOIuvVBp17jnHinsTv5+WZZwmGHvAGT8qNo1knY42em8hA4TZw6KP6WXKHasQUdCwhfD7NUCUH6tDNB+KAf8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com; spf=pass smtp.mailfrom=brighamcampbell.com; dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b=ev6howEW; arc=none smtp.client-ip=209.85.215.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=brighamcampbell.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b="ev6howEW"
-Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-c96c92c0980so1289006a12.3
-        for <linux-i2c@vger.kernel.org>; Sun, 05 Jul 2026 21:25:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=brighamcampbell.com; s=google; t=1783311956; x=1783916756; darn=vger.kernel.org;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=qiJQiKLPXeplr/aY2yh9xZ+CXInE5joLcgpqCDmPh98=;
-        b=ev6howEW6mdShbFuUPFYX539qr62YgkoK2c2gAHTMQoaVZ0fWPQl5hwHIPSng5jraz
-         Wexj/h8VoqlJtxpTRjtRG2/liu0Yw9T38uzRVfTCGivIgRI91v4gompDpSBqxy0H4nZv
-         ko+aV5GB3FmkKbFzSAv3EgwN51prnazavb1ZSUKnJcJFHMR4SWIfDmX1bWOdLqGDt0ZC
-         aMLCaCsjFHUZImkEafUKvqLl3zc1ogJGucFY6xOeN6wXmYzlz+BpS3+gfwSpfe2b9giY
-         wtEzLcmrzpbLLTMZAkQjaX1qhCxqgNvBQcumg8ZmTCM7ogQxKIrUiUDCQlqulYgS78+X
-         jzRw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783311956; x=1783916756;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :content-type:mime-version:subject:date:from:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=qiJQiKLPXeplr/aY2yh9xZ+CXInE5joLcgpqCDmPh98=;
-        b=rB8eprSzymSnS0oVhTwvKuWqDFH0xJNEKbExzRm+GiodJEf+HJqzmTagtN0y5DZyZI
-         Yvp5ZXMmR6dSEYZVam6xP9Eg/nBsN9lae/TBTKcn4i+yPGy/+retOsGRBTO64VNOgPcY
-         brAYlEUrdaWRoiWErNlvorSIVoUsEyLtb+5xs69+kzA1f6LN03tK0qWJCmODjAPlCMPE
-         J+poxZMWUsgL9K3zwNo5kZWx7ioZiOsoLuzLnEakokdHBb3enMAmNN/xFH/4cO+gcF/1
-         oUUS/5sxNB/Ypf6YDeFstZdKH2p0Y+Ux9AuaY4et7gBSX0k7RSpvCS2YXH7oC+Ns00Ly
-         8Ezw==
-X-Forwarded-Encrypted: i=1; AHgh+Rq4NK7uBJyyiGr6paQYSgeL6hS/f9/OV+r0+3LEHxSZdS0+LOZ+hZ1JzX3tNRDvWnYppLd4La95SjM=@vger.kernel.org
-X-Gm-Message-State: AOJu0YweMYYfLJ8HJiI8Lsnot2bZCRE+jo4R46360M98zt7iHFclu00k
-	8d0VZp9kof+gITXpSvC4RdyslnHTB1OVoLY6NvtcJ58xDbp9yVOK6qf/+/bikoxx/LY=
-X-Gm-Gg: AfdE7cnDmnDgkM9haGd6KQVs50l/SyffZPxug1EBNCoxTm30j+/gzgS/EaEunvHUNPJ
-	ymjo0G1jJoL+58zD8nGjXM9PXObG11cnJDXRdkacdcmUhddXfMoe69+w1rnBUBhnIhpj7/qAJzE
-	dZqzuxy1Moa05mWGEFOnO5gkZVKI7iNv1XRtGUdbUO7o3MupSCQ+r+eKsCmjEfjQhyyu8G9SFNU
-	hlJdwLfeCmLKmEGmIpTv0f2ncqhialeuiwJF270DUI3Tl2g5sEnfrho2HE69hHJc+ZegJ0IusqS
-	IJc0qk4Cta+WC38eG692G+9hjBkexDDopNHUaVPmk5PV1RJdbUWGMTC2wyrFI00NuHNT0GKRa8P
-	ipq/JX7JXYfEca9V9NPlXzdN8S+LNUPJ9XOmRZID9kpcGljsyaJTPSpkpkp9+xEhHap6r47SRgs
-	5RRjeGrGWuu84G2zN36KLiy1nb2s/WkNwlNY+QH1elklh/H2jEBlgJwddsAQ==
-X-Received: by 2002:a05:6a21:10e:b0:3bf:bc9a:db16 with SMTP id adf61e73a8af0-3c03e1ff210mr9856506637.11.1783311955640;
-        Sun, 05 Jul 2026 21:25:55 -0700 (PDT)
-Received: from brighamcampbell.com ([2605:fb40:0:c09:9ca9:e0fd:b7cd:be76])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30f44fba9a4sm23365262eec.10.2026.07.05.21.25.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 05 Jul 2026 21:25:55 -0700 (PDT)
-From: Brigham Campbell <me@brighamcampbell.com>
-Date: Sun, 05 Jul 2026 22:27:54 -0600
-Subject: [PATCH v4 2/2] i2c-tools: Document device paths as I2CBUS arg
+	s=arc-20240116; t=1783312515; c=relaxed/simple;
+	bh=loDCywPA4hp+nOW5Q3cYmG5I2jthQ44KkogZ2DLaJhs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=krdm5SxZy6EtGM4G9YC5bUfaX9/eb1ka90Y/JfpNsHXRRwEEzqdSY4y3IRwVhddj6zIxbrnDJz0R0ABKepxduitV16ZXR1SQ9d+Z4LX5RjreIiBbWv24h6YhLX+pcdYEMnMRHt8wkB8mUPvm69TlyPlCN3ci7meVdReszsQXY5A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sk.com; spf=pass smtp.mailfrom=sk.com; arc=none smtp.client-ip=166.125.252.92
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sk.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sk.com
+X-AuditID: a67dfc5b-c2dff70000001609-ab-6a4b2cf160ad
+Date: Mon, 6 Jul 2026 13:19:55 +0900
+From: Byungchul Park <byungchul@sk.com>
+To: Petr Pavlu <petr.pavlu@suse.com>
+Cc: kernel_team@skhynix.com, torvalds@linux-foundation.org,
+	damien.lemoal@opensource.wdc.com, linux-ide@vger.kernel.org,
+	adilger.kernel@dilger.ca, linux-ext4@vger.kernel.org,
+	mingo@redhat.com, peterz@infradead.org, will@kernel.org,
+	tglx@linutronix.de, rostedt@goodmis.org, joel@joelfernandes.org,
+	sashal@kernel.org, daniel.vetter@ffwll.ch, duyuyang@gmail.com,
+	johannes.berg@intel.com, tj@kernel.org, tytso@mit.edu,
+	willy@infradead.org, david@fromorbit.com, amir73il@gmail.com,
+	gregkh@linuxfoundation.org, kernel-team@lge.com, linux-mm@kvack.org,
+	akpm@linux-foundation.org, mhocko@kernel.org, minchan@kernel.org,
+	hannes@cmpxchg.org, vdavydov.dev@gmail.com, sj@kernel.org,
+	jglisse@redhat.com, dennis@kernel.org, cl@linux.com,
+	penberg@kernel.org, rientjes@google.com, vbabka@suse.cz,
+	ngupta@vflare.org, linux-block@vger.kernel.org,
+	josef@toxicpanda.com, linux-fsdevel@vger.kernel.org, jack@suse.cz,
+	jlayton@kernel.org, dan.j.williams@intel.com, hch@infradead.org,
+	djwong@kernel.org, dri-devel@lists.freedesktop.org,
+	rodrigosiqueiramelo@gmail.com, melissa.srw@gmail.com,
+	hamohammed.sa@gmail.com, harry.yoo@oracle.com,
+	chris.p.wilson@intel.com, gwan-gyeong.mun@intel.com,
+	max.byungchul.park@gmail.com, boqun.feng@gmail.com,
+	longman@redhat.com, yunseong.kim@ericsson.com, ysk@kzalloc.com,
+	yeoreum.yun@arm.com, netdev@vger.kernel.org,
+	matthew.brost@intel.com, her0gyugyu@gmail.com, corbet@lwn.net,
+	catalin.marinas@arm.com, bp@alien8.de, x86@kernel.org,
+	hpa@zytor.com, luto@kernel.org, sumit.semwal@linaro.org,
+	gustavo@padovan.org, christian.koenig@amd.com,
+	andi.shyti@kernel.org, arnd@arndb.de, lorenzo.stoakes@oracle.com,
+	Liam.Howlett@oracle.com, rppt@kernel.org, surenb@google.com,
+	mcgrof@kernel.org, da.gomez@kernel.org, samitolvanen@google.com,
+	paulmck@kernel.org, frederic@kernel.org, neeraj.upadhyay@kernel.org,
+	joelagnelf@nvidia.com, josh@joshtriplett.org, urezki@gmail.com,
+	mathieu.desnoyers@efficios.com, jiangshanlai@gmail.com,
+	qiang.zhang@linux.dev, juri.lelli@redhat.com,
+	vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
+	bsegall@google.com, mgorman@suse.de, vschneid@redhat.com,
+	chuck.lever@oracle.com, neil@brown.name, okorniev@redhat.com,
+	Dai.Ngo@oracle.com, tom@talpey.com, trondmy@kernel.org,
+	anna@kernel.org, kees@kernel.org, bigeasy@linutronix.de,
+	clrkwllms@kernel.org, mark.rutland@arm.com, ada.coupriediaz@arm.com,
+	kristina.martsenko@arm.com, wangkefeng.wang@huawei.com,
+	broonie@kernel.org, kevin.brodsky@arm.com, dwmw@amazon.co.uk,
+	shakeel.butt@linux.dev, ast@kernel.org, ziy@nvidia.com,
+	yuzhao@google.com, baolin.wang@linux.alibaba.com,
+	usamaarif642@gmail.com, joel.granados@kernel.org,
+	richard.weiyang@gmail.com, geert+renesas@glider.be,
+	tim.c.chen@linux.intel.com, linux@treblig.org,
+	alexander.shishkin@linux.intel.com, lillian@star-ark.net,
+	chenhuacai@kernel.org, francesco@valla.it,
+	guoweikang.kernel@gmail.com, link@vivo.com, jpoimboe@kernel.org,
+	masahiroy@kernel.org, brauner@kernel.org,
+	thomas.weissschuh@linutronix.de, oleg@redhat.com, mjguzik@gmail.com,
+	andrii@kernel.org, wangfushuai@baidu.com, linux-doc@vger.kernel.org,
+	linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org,
+	linaro-mm-sig@lists.linaro.org, linux-i2c@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-modules@vger.kernel.org,
+	rcu@vger.kernel.org, linux-nfs@vger.kernel.org,
+	linux-rt-devel@lists.linux.dev, 2407018371@qq.com, dakr@kernel.org,
+	miguel.ojeda.sandonis@gmail.com, neilb@ownmail.net,
+	bagasdotme@gmail.com, wsa+renesas@sang-engineering.com,
+	dave.hansen@intel.com, geert@linux-m68k.org, ojeda@kernel.org,
+	alex.gaynor@gmail.com, gary@garyguo.net, bjorn3_gh@protonmail.com,
+	lossin@kernel.org, a.hindborg@kernel.org, aliceryhl@google.com,
+	tmgross@umich.edu, rust-for-linux@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v18 34/42] dept: add module support for struct
+ dept_event_site and dept_event_site_dep
+Message-ID: <20260706041955.GA23385@system.software.com>
+References: <20251205071855.72743-1-byungchul@sk.com>
+ <20251205071855.72743-35-byungchul@sk.com>
+ <7afb6666-43b6-4d17-b875-e585c7a5ac99@suse.com>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260705-accept-device-path-v4-2-c62caa708a9e@brighamcampbell.com>
-References: <20260705-accept-device-path-v4-0-c62caa708a9e@brighamcampbell.com>
-In-Reply-To: <20260705-accept-device-path-v4-0-c62caa708a9e@brighamcampbell.com>
-To: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org
-Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
- Brigham Campbell <me@brighamcampbell.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=8212;
- i=me@brighamcampbell.com; h=from:subject:message-id;
- bh=NhS3LCjxnt5SLk5Q3V4TefozA3ivXCBUoWmX8Htwvac=;
- b=owGbwMvMwCUWLsWS0KCyxZPxtFoSQ5a33kkrKYX71p8VlnYpBzt+unm2UEOlY360gKbNnNPLm
- m7MYzLqKGVhEONikBVTZFG5NUv94mTrRwcj+CfAzGFlAhnCwMUpABMpamRkONXA/DfkhWH5/p1Z
- Fc/v/vSUlzw9k/XIWhcndtu5lRucVRkZWs+tVHF+Jhj7N5f9/uu90gnL95mkLbGv+/2NpbtpQds
- 9VgA=
-X-Developer-Key: i=me@brighamcampbell.com; a=openpgp;
- fpr=24DA9A27D1933BE2C1580F90571A04608024B449
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <7afb6666-43b6-4d17-b875-e585c7a5ac99@suse.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
+X-Brightmail-Tracker: H4sIAAAAAAAAA02SbUxTVxiAc+4996ONXe46jGeybLGbHyFD0Wny4tzC9mPe6JKZ7MeiaFwj
+	N6NYCivKZMYMWEpqhUoYZbMsE/zA0laoJQgY2JDv4iQMGHbDusJYGSOgsApCoVtLZua/J+c8
+	5znvj5enlRfZ9bxGd0LS69RaFSvH8uk1lfGzr+9PS/jxXgIYDV9Az718DP01DgS/PTYiWAiV
+	07BS0sVBcHGEA0segn9auhD87QqzMNU+h+BhVSGCyc69UDUepmBu0o9gcPw58FjOsTDjYqEi
+	v4WBwK8tFDT5b3Fwp/gSBcuj26HLMcGB77wFg+fBMANTgRIWGnL9HLh/6UQQHBqlwFkYoKGy
+	4AqG5hYPBuNKMNK+9S0Lha56Bvpb7zAw4OjHUDvhpcBjrcYw6vcycH3mEgsDrRUU5N2+jME2
+	+3VkgJ8LKOguaqXgvvkvDB21DRS4ncMsLPkaGehd6qVgzDzNgaFwkQPHTxgsy0YWyvPMCIwd
+	8zTUdy5wEHoS+dvctxeeuH5nIOiwR4zOB1xSkrhgMGPR+Z0TiaGlEiQaiiPUZPVxYoX7pFhn
+	ixMvN09Sott+lhUrQ3/Soml6iBLvDzez4kxfHyf2fBPCYlu7MfJoNPHAhkPyPSmSVpMt6be9
+	/bE89Wq1DWfWpJ5y9g3iXPRonwnJeCLsJI9GwtRTNn+fz0UZC6+RwJUAjjIrbCZe7yJtQjwf
+	EzkfGHvHhOQ8LZS9TDx1RibqvCBoSftXs1TUUQhABrsPRh2lUIqI5VrNakchPE88F8ZXmRbi
+	iDc8uerTQiy5FuajKBP2EHPZrqixVniVtN7spqIZIgRk5OHd+f/GfJHctnlxMRKsz1Stz1St
+	/1crEG1HSo0uO12t0e7cmpqj05zaeiwj3Y0ia1t1Zjm5Ec31f9iGBB6p1iggaV+aklFnZ+Wk
+	tyHC06oYxaYt+9OUihR1zueSPuOo/qRWympDsTxWrVPsmP8sRSl8oj4hHZekTEn/9JbiZetz
+	0acG+Rsz8VKw/I/a2Eyf/b3SqR03Pripr5PuHhMyEimmKHPj8ZXqUELD7p6x0+cO5Vi3lO26
+	YD+8/MPjl5oKNLZ1m08X7X7/oyOvOCe+DL+ZvOEGYzk/Ijvj080dcSbHmY4GD/vdBzTzCs1Q
+	B+Ths+9y8b2NpcmmjdWJfL0sxjX0lgpnpaq3x9H6LPW/m7IatLIDAAA=
+X-Brightmail-Tracker: H4sIAAAAAAAAA02SbUxTZxTH8zz36e2lWL2rLNxpXJY6xbDh5jaS40uMfuIJZEazqNlLMju9
+	kZaCpmVMXAyW2ghlNlBtO1sVRKgMKjpwKppqB5OXiRtYN8mUVU1XJbwL1fBSsCVZ9MvJ/5z/
+	739yPhyOUUxLFnHqnFxRl6PSKlkZkW1aa0wZfT9D82FLmRSKTAXwIBCUwN8GH4HweBGBE+c9
+	LERcl6Nmw3EJtN8rJNBVX4cgEC5C8GLKxYCpaZZAxNoqhfGJ+1KwGRDMelsR2LutDPR03WDA
+	c9GAYezCDAv9Lc8Q2B4FWXD0GQgMu39A4Ay5pNB3Mw0GA9ckMNv7BMO95wMI3MEZDEHfYQQR
+	exaUVzZG4/YRFqZu/8mAw9aF4PSjXgae9T1EcLH1XwTemkIW/iv9hQF/cD7cDQ+z0GErYWGw
+	+wSGoQssVBR6JdDd2Y/gpMuKIPSPF4PxzHkW7CcbCDQ9vCqF7v5pDA/sVgx1DZ9CwB0icKu0
+	EkfPjVI/J4LLYcTR8hSD7dw1DBPuWumGakRfmCyE1jZewtR0J8JSzykPolOTVkTHq40MNZVG
+	25aBYYYeavyOVt8aYOlk+C+Wep9XEPp7pUCriicxLbudQpucvdLNG7+QrdslatV5ou6D9Ttk
+	mdU/1ZC99Zn7PH/4yUE0km5GcZzAfyJYrhdKY5rw7wqhqhCJaZZPEnp6Jhgz4riE6PzO441m
+	JOMY3v620NFYJIkxC3mt0HJ0FMcYOQ+Cv+3zGKPgjyHBdrZ+bo+cf0PoOB6c0wyfLPTM9M3x
+	DL9YODvDxWQcv06w2FNjxJv8UsF3qQ2XIrnztbDztbDzVbgCMbUoQZ2Tl61Sa1NX6rMy83PU
+	+1bu3JPdgKI/6T4wXXYFjfvTmhHPIeU8OWxI1ygkqjx9fnYzEjhGmSBfviJDo5DvUuXvF3V7
+	vtZ9qxX1zWgxR5SJ8vTt4g4Fv1uVK2aJ4l5R97+LubhFB1E53XrloyVflozeLWm7uXw+OYws
+	W8wRTa1vTI7rBosP/Xauqrxy2YKkjPurtcbZ+NyrQ/vfqypoHx06Yo7b9vRAxabdGkOid82v
+	nd6wMeGYs1NVnNpeQMc+OypYPr6xos6X5k/+vis+MPJN63BNkvGtr9agBY4lP4ZSOtNTHKse
+	x7+jJPpM1apkRqdXvQRKKENIjwMAAA==
+X-CFilter-Loop: Reflected
 
-i2c-tools now accept device file paths in addition to the i2c adapter
-number and i2c adapter name. Add this capability to documentation.
+On Wed, Jan 07, 2026 at 01:19:00PM +0100, Petr Pavlu wrote:
+> On 12/5/25 8:18 AM, Byungchul Park wrote:
+> > struct dept_event_site and struct dept_event_site_dep have been
+> > introduced to track dependencies between multi event sites for a single
+> > wait, that will be loaded to data segment.  Plus, a custom section,
+> > '.dept.event_sites', also has been introduced to keep pointers to the
+> > objects to make sure all the event sites defined exist in code.
+> >
+> > dept should work with the section and segment of module.  Add the
+> > support to handle the section and segment properly whenever modules are
+> > loaded and unloaded.
+> >
+> > Signed-off-by: Byungchul Park <byungchul@sk.com>
+> 
+> Below are a few comments from the module loader perspective.
+> 
+> > ---
+> >  include/linux/dept.h     | 14 +++++++
+> >  include/linux/module.h   |  5 +++
+> >  kernel/dependency/dept.c | 79 +++++++++++++++++++++++++++++++++++-----
+> >  kernel/module/main.c     | 15 ++++++++
+> >  4 files changed, 103 insertions(+), 10 deletions(-)
+> >
+> > diff --git a/include/linux/dept.h b/include/linux/dept.h
+> > index 44083e6651ab..c796cdceb04e 100644
+> > --- a/include/linux/dept.h
+> > +++ b/include/linux/dept.h
+> > @@ -166,6 +166,11 @@ struct dept_event_site {
+> >       struct dept_event_site          *bfs_parent;
+> >       struct list_head                bfs_node;
+> >
+> > +     /*
+> > +      * for linking all dept_event_site's
+> > +      */
+> > +     struct list_head                all_node;
+> > +
+> >       /*
+> >        * flag indicating the event is not only declared but also
+> >        * actually used in code
+> > @@ -182,6 +187,11 @@ struct dept_event_site_dep {
+> >        */
+> >       struct list_head                dep_node;
+> >       struct list_head                dep_rev_node;
+> > +
+> > +     /*
+> > +      * for linking all dept_event_site_dep's
+> > +      */
+> > +     struct list_head                all_node;
+> >  };
+> >
+> >  #define DEPT_EVENT_SITE_INITIALIZER(es)                                      \
+> > @@ -193,6 +203,7 @@ struct dept_event_site_dep {
+> >       .bfs_gen = 0,                                                   \
+> >       .bfs_parent = NULL,                                             \
+> >       .bfs_node = LIST_HEAD_INIT((es).bfs_node),                      \
+> > +     .all_node = LIST_HEAD_INIT((es).all_node),                      \
+> >       .used = false,                                                  \
+> >  }
+> >
+> > @@ -202,6 +213,7 @@ struct dept_event_site_dep {
+> >       .recover_site = NULL,                                           \
+> >       .dep_node = LIST_HEAD_INIT((esd).dep_node),                     \
+> >       .dep_rev_node = LIST_HEAD_INIT((esd).dep_rev_node),             \
+> > +     .all_node = LIST_HEAD_INIT((esd).all_node),                     \
+> >  }
+> >
+> >  struct dept_event_site_init {
+> > @@ -225,6 +237,7 @@ extern void dept_init(void);
+> >  extern void dept_task_init(struct task_struct *t);
+> >  extern void dept_task_exit(struct task_struct *t);
+> >  extern void dept_free_range(void *start, unsigned int sz);
+> > +extern void dept_mark_event_site_used(void *start, void *end);
+> 
+> Nit: The coding style recommends not using the extern keyword with
+> function declarations.
+> 
+> https://www.kernel.org/doc/html/v6.19-rc4/process/coding-style.html#function-prototypes
+> 
+> >
+> >  extern void dept_map_init(struct dept_map *m, struct dept_key *k, int sub_u, const char *n);
+> >  extern void dept_map_reinit(struct dept_map *m, struct dept_key *k, int sub_u, const char *n);
+> > @@ -288,6 +301,7 @@ struct dept_event_site { };
+> >  #define dept_task_init(t)                            do { } while (0)
+> >  #define dept_task_exit(t)                            do { } while (0)
+> >  #define dept_free_range(s, sz)                               do { } while (0)
+> > +#define dept_mark_event_site_used(s, e)                      do { } while (0)
+> >
+> >  #define dept_map_init(m, k, su, n)                   do { (void)(n); (void)(k); } while (0)
+> >  #define dept_map_reinit(m, k, su, n)                 do { (void)(n); (void)(k); } while (0)
+> > diff --git a/include/linux/module.h b/include/linux/module.h
+> > index d80c3ea57472..29885ba91951 100644
+> > --- a/include/linux/module.h
+> > +++ b/include/linux/module.h
+> > @@ -29,6 +29,7 @@
+> >  #include <linux/srcu.h>
+> >  #include <linux/static_call_types.h>
+> >  #include <linux/dynamic_debug.h>
+> > +#include <linux/dept.h>
+> >
+> >  #include <linux/percpu.h>
+> >  #include <asm/module.h>
+> > @@ -588,6 +589,10 @@ struct module {
+> >  #ifdef CONFIG_DYNAMIC_DEBUG_CORE
+> >       struct _ddebug_info dyndbg_info;
+> >  #endif
+> > +#ifdef CONFIG_DEPT
+> > +     struct dept_event_site **dept_event_sites;
+> > +     unsigned int num_dept_event_sites;
+> > +#endif
+> >  } ____cacheline_aligned __randomize_layout;
+> >  #ifndef MODULE_ARCH_INIT
+> >  #define MODULE_ARCH_INIT {}
+> 
+> My understanding is that entries in the .dept.event_sites section are
+> added by the dept_event_site_used() macro and they are pointers to the
+> dept_event_site_init struct, not dept_event_site.
+> 
+> > diff --git a/kernel/dependency/dept.c b/kernel/dependency/dept.c
+> > index b14400c4f83b..07d883579269 100644
+> > --- a/kernel/dependency/dept.c
+> > +++ b/kernel/dependency/dept.c
+> > @@ -984,6 +984,9 @@ static void bfs(void *root, struct bfs_ops *ops, void *in, void **out)
+> >   * event sites.
+> >   */
+> >
+> > +static LIST_HEAD(dept_event_sites);
+> > +static LIST_HEAD(dept_event_site_deps);
+> > +
+> >  /*
+> >   * Print all events in the circle.
+> >   */
+> > @@ -2043,6 +2046,33 @@ static void del_dep_rcu(struct rcu_head *rh)
+> >       preempt_enable();
+> >  }
+> >
+> > +/*
+> > + * NOTE: Must be called with dept_lock held.
+> > + */
+> > +static void disconnect_event_site_dep(struct dept_event_site_dep *esd)
+> > +{
+> > +     list_del_rcu(&esd->dep_node);
+> > +     list_del_rcu(&esd->dep_rev_node);
+> > +}
+> > +
+> > +/*
+> > + * NOTE: Must be called with dept_lock held.
+> > + */
+> > +static void disconnect_event_site(struct dept_event_site *es)
+> > +{
+> > +     struct dept_event_site_dep *esd, *next_esd;
+> > +
+> > +     list_for_each_entry_safe(esd, next_esd, &es->dep_head, dep_node) {
+> > +             list_del_rcu(&esd->dep_node);
+> > +             list_del_rcu(&esd->dep_rev_node);
+> > +     }
+> > +
+> > +     list_for_each_entry_safe(esd, next_esd, &es->dep_rev_head, dep_rev_node) {
+> > +             list_del_rcu(&esd->dep_node);
+> > +             list_del_rcu(&esd->dep_rev_node);
+> > +     }
+> > +}
+> > +
+> >  /*
+> >   * NOTE: Must be called with dept_lock held.
+> >   */
+> > @@ -2384,6 +2414,8 @@ void dept_free_range(void *start, unsigned int sz)
+> >  {
+> >       struct dept_task *dt = dept_task();
+> >       struct dept_class *c, *n;
+> > +     struct dept_event_site_dep *esd, *next_esd;
+> > +     struct dept_event_site *es, *next_es;
+> >       unsigned long flags;
+> >
+> >       if (unlikely(!dept_working()))
+> > @@ -2405,6 +2437,24 @@ void dept_free_range(void *start, unsigned int sz)
+> >       while (unlikely(!dept_lock()))
+> >               cpu_relax();
+> >
+> > +     list_for_each_entry_safe(esd, next_esd, &dept_event_site_deps, all_node) {
+> > +             if (!within((void *)esd, start, sz))
+> > +                     continue;
+> > +
+> > +             disconnect_event_site_dep(esd);
+> > +             list_del(&esd->all_node);
+> > +     }
+> > +
+> > +     list_for_each_entry_safe(es, next_es, &dept_event_sites, all_node) {
+> > +             if (!within((void *)es, start, sz) &&
+> > +                 !within(es->name, start, sz) &&
+> > +                 !within(es->func_name, start, sz))
+> > +                     continue;
+> > +
+> > +             disconnect_event_site(es);
+> > +             list_del(&es->all_node);
+> > +     }
+> > +
+> >       list_for_each_entry_safe(c, n, &dept_classes, all_node) {
+> >               if (!within((void *)c->key, start, sz) &&
+> >                   !within(c->name, start, sz))
+> > @@ -3337,6 +3387,7 @@ void __dept_recover_event(struct dept_event_site_dep *esd,
+> >
+> >       list_add(&esd->dep_node, &es->dep_head);
+> >       list_add(&esd->dep_rev_node, &rs->dep_rev_head);
+> > +     list_add(&esd->all_node, &dept_event_site_deps);
+> >       check_recover_dl_bfs(esd);
+> >  unlock:
+> >       dept_unlock();
+> > @@ -3347,6 +3398,23 @@ EXPORT_SYMBOL_GPL(__dept_recover_event);
+> >
+> >  #define B2KB(B) ((B) / 1024)
+> >
+> > +void dept_mark_event_site_used(void *start, void *end)
+> 
+> Nit: I suggest that dept_mark_event_site_used() take pointers to
+> dept_event_site_init, which would catch the type mismatch with
+> module::dept_event_sites.
+> 
+> > +{
+> > +     struct dept_event_site_init **evtinitpp;
+> > +
+> > +     for (evtinitpp = (struct dept_event_site_init **)start;
+> > +          evtinitpp < (struct dept_event_site_init **)end;
+> > +          evtinitpp++) {
+> > +             (*evtinitpp)->evt_site->used = true;
+> > +             (*evtinitpp)->evt_site->func_name = (*evtinitpp)->func_name;
+> > +             list_add(&(*evtinitpp)->evt_site->all_node, &dept_event_sites);
+> > +
+> > +             pr_info("dept_event_site %s@%s is initialized.\n",
+> > +                             (*evtinitpp)->evt_site->name,
+> > +                             (*evtinitpp)->evt_site->func_name);
+> > +     }
+> > +}
+> > +
+> >  extern char __dept_event_sites_start[], __dept_event_sites_end[];
+> 
+> Related to the above, __dept_event_sites_start and
+> __dept_event_sites_end can already be properly typed here.
+> 
+> >
+> >  /*
+> > @@ -3356,20 +3424,11 @@ extern char __dept_event_sites_start[], __dept_event_sites_end[];
+> >  void __init dept_init(void)
+> >  {
+> >       size_t mem_total = 0;
+> > -     struct dept_event_site_init **evtinitpp;
+> >
+> >       /*
+> >        * dept recover dependency tracking works from now on.
+> >        */
+> > -     for (evtinitpp = (struct dept_event_site_init **)__dept_event_sites_start;
+> > -          evtinitpp < (struct dept_event_site_init **)__dept_event_sites_end;
+> > -          evtinitpp++) {
+> > -             (*evtinitpp)->evt_site->used = true;
+> > -             (*evtinitpp)->evt_site->func_name = (*evtinitpp)->func_name;
+> > -             pr_info("dept_event %s@%s is initialized.\n",
+> > -                             (*evtinitpp)->evt_site->name,
+> > -                             (*evtinitpp)->evt_site->func_name);
+> > -     }
+> > +     dept_mark_event_site_used(__dept_event_sites_start, __dept_event_sites_end);
+> >       dept_recover_ready = true;
+> >
+> >       local_irq_disable();
+> > diff --git a/kernel/module/main.c b/kernel/module/main.c
+> > index 03ed63f2adf0..82448cdb8ed7 100644
+> > --- a/kernel/module/main.c
+> > +++ b/kernel/module/main.c
+> > @@ -2720,6 +2720,11 @@ static int find_module_sections(struct module *mod, struct load_info *info)
+> >                                               &mod->dyndbg_info.num_classes);
+> >  #endif
+> >
+> > +#ifdef CONFIG_DEPT
+> > +     mod->dept_event_sites = section_objs(info, ".dept.event_sites",
+> > +                                     sizeof(*mod->dept_event_sites),
+> > +                                     &mod->num_dept_event_sites);
+> > +#endif
+> >       return 0;
+> >  }
+> >
+> > @@ -3346,6 +3351,14 @@ static int early_mod_check(struct load_info *info, int flags)
+> >       return err;
+> >  }
+> >
+> > +static void dept_mark_event_site_used_module(struct module *mod)
+> > +{
+> > +#ifdef CONFIG_DEPT
+> > +     dept_mark_event_site_used(mod->dept_event_sites,
+> > +                          mod->dept_event_sites + mod->num_dept_event_sites);
+> > +#endif
+> > +}
+> > +
+> 
+> It seems to me that the .dept.event_sites section can be discarded after
+> the module is initialized. In this case, the section should be prefixed
+> by ".init" and its address can be obtained at the point of use in
+> dept_mark_event_site_used_module(), without needing to store it inside
+> the module struct.
+> 
+> Additionally, what is the reason that the dept_event_site_init data is
+> not stored in the .dept.event_sites section directly and it requires
+> a level of indirection?
+> 
+> In general, for my own understanding, I also wonder whether the check to
+> determine that a dept_event_site is used needs to be done at runtime, or
+> if it could be done at build time by objtool/modpost.
 
-Signed-off-by: Brigham Campbell <me@brighamcampbell.com>
----
- tools/i2cdetect.8   |  8 ++++----
- tools/i2cdetect.c   |  2 +-
- tools/i2cdump.8     |  7 ++++---
- tools/i2cdump.c     |  2 +-
- tools/i2cget.8      |  9 +++++----
- tools/i2cget.c      |  2 +-
- tools/i2cset.8      | 12 ++++++------
- tools/i2cset.c      |  2 +-
- tools/i2ctransfer.8 |  2 +-
- tools/i2ctransfer.c |  2 +-
- 10 files changed, 25 insertions(+), 23 deletions(-)
+I appreciate your feedback and it was so helpful, but I decided to defer
+the part supporting recover events tracking - 33/42 ~ 35/42 in this
+series - to a follow-up patch later with the feedback applied, as it
+unnecessarily complicates the initial DEPT patchset and significantly
+increases the review burden.
 
-diff --git a/tools/i2cdetect.8 b/tools/i2cdetect.8
-index 5935b2b..fdfff62 100644
---- a/tools/i2cdetect.8
-+++ b/tools/i2cdetect.8
-@@ -26,10 +26,10 @@ i2cdetect \- detect I2C chips
- .SH DESCRIPTION
- i2cdetect is a userspace program to scan an I2C bus for devices. It
- outputs a table with the list of detected devices on the specified bus.
--\fIi2cbus\fR indicates the number or name of the I2C bus to be scanned, and
--should correspond to one of the busses listed by \fIi2cdetect -l\fR.
--The optional parameters \fIfirst\fR and \fIlast\fR restrict the scanning
--range (default: from 0x08 to 0x77).
-+\fIi2cbus\fR indicates the number, name, or device file path of the I2C
-+bus to be scanned, and should correspond to one of the busses listed by
-+\fIi2cdetect -l\fR.  The optional parameters \fIfirst\fR and \fIlast\fR
-+restrict the scanning range (default: from 0x08 to 0x77).
- .PP
- As there is no standard I2C detection command, i2cdetect uses arbitrary
- SMBus commands (namely SMBus quick write and SMBus receive byte) to probe
-diff --git a/tools/i2cdetect.c b/tools/i2cdetect.c
-index b62f395..78a0955 100644
---- a/tools/i2cdetect.c
-+++ b/tools/i2cdetect.c
-@@ -38,7 +38,7 @@ static void help(void)
- 		"Usage: i2cdetect [-y] [-a] [-q|-r] I2CBUS [FIRST LAST]\n"
- 		"       i2cdetect -F I2CBUS\n"
- 		"       i2cdetect -l\n"
--		"  I2CBUS is an integer or an I2C bus name\n"
-+		"  I2CBUS is an integer, I2C bus name, or I2C bus device path\n"
- 		"  If provided, FIRST and LAST limit the probing range.\n");
- }
- 
-diff --git a/tools/i2cdump.8 b/tools/i2cdump.8
-index 6ede625..103051d 100644
---- a/tools/i2cdump.8
-+++ b/tools/i2cdump.8
-@@ -52,9 +52,10 @@ scripts.
- Allow using addresses between 0x00 - 0x07 and 0x78 - 0x7f. Not recommended.
- .PP
- At least two options must be provided to i2cdump. \fIi2cbus\fR indicates the
--number or name of the I2C bus to be scanned. This number should correspond to one
--of the busses listed by \fIi2cdetect -l\fR. \fIaddress\fR indicates the
--address to be scanned on that bus, and is an integer between 0x08 and 0x77.
-+number, name, or device file path of the I2C bus to be scanned. This number
-+should correspond to one of the busses listed by \fIi2cdetect -l\fR.
-+\fIaddress\fR indicates the address to be scanned on that bus, and is an integer
-+between 0x08 and 0x77.
- .PP
- The \fImode\fR parameter, if specified, is one of the letters \fBb\fP, \fBw\fP,
- or \fBi\fP, corresponding to a read size of a single byte, a 16-bit
-diff --git a/tools/i2cdump.c b/tools/i2cdump.c
-index ce3be2c..6389e68 100644
---- a/tools/i2cdump.c
-+++ b/tools/i2cdump.c
-@@ -32,7 +32,7 @@ static void help(void)
- {
- 	fprintf(stderr,
- 		"Usage: i2cdump [-f] [-y] [-r first-last] [-a] I2CBUS ADDRESS [MODE [BANK [BANKREG]]]\n"
--		"  I2CBUS is an integer or an I2C bus name\n"
-+		"  I2CBUS is an integer, I2C bus name, or I2C bus device path\n"
- 		"  ADDRESS is an integer (0x08 - 0x77, or 0x00 - 0x7f if -a is given)\n"
- 		"  MODE is one of:\n"
- 		"    b (byte, default)\n"
-diff --git a/tools/i2cget.8 b/tools/i2cget.8
-index 69586cc..ba261a9 100644
---- a/tools/i2cget.8
-+++ b/tools/i2cget.8
-@@ -45,10 +45,11 @@ scripts. Use with caution.
- .B -a
- Allow using addresses between 0x00 - 0x07 and 0x78 - 0x7f. Not recommended.
- .PP
--There are two required options to i2cget. \fIi2cbus\fR indicates the number
--or name of the I2C bus to be scanned.  This number should correspond to one of
--the busses listed by \fIi2cdetect -l\fR. \fIchip-address\fR specifies the
--address of the chip on that bus, and is an integer between 0x08 and 0x77.
-+There are two required options to i2cget. \fIi2cbus\fR indicates the number,
-+name, or device file path of the I2C bus to be scanned.  This number should
-+correspond to one of the busses listed by \fIi2cdetect -l\fR.
-+\fIchip-address\fR specifies the address of the chip on that bus, and is an
-+integer between 0x08 and 0x77.
- .PP
- \fIdata-address\fR specifies the address on that chip to read from, and is
- an integer between 0x00 and 0xFF. If omitted, the currently active register
-diff --git a/tools/i2cget.c b/tools/i2cget.c
-index e08ee81..759f016 100644
---- a/tools/i2cget.c
-+++ b/tools/i2cget.c
-@@ -35,7 +35,7 @@ static void __attribute__ ((noreturn)) help(int status)
- {
- 	fprintf(stderr,
- 		"Usage: i2cget [-f] [-y] [-a] I2CBUS CHIP-ADDRESS [DATA-ADDRESS [MODE [LENGTH]]]\n"
--		"  I2CBUS is an integer or an I2C bus name\n"
-+		"  I2CBUS is an integer, I2C bus name, or I2C bus device path\n"
- 		"  ADDRESS is an integer (0x08 - 0x77, or 0x00 - 0x7f if -a is given)\n"
- 		"  MODE is one of:\n"
- 		"    b (read byte data, default)\n"
-diff --git a/tools/i2cset.8 b/tools/i2cset.8
-index e4e1870..d7a2c05 100644
---- a/tools/i2cset.8
-+++ b/tools/i2cset.8
-@@ -65,12 +65,12 @@ apply as those of option \fB-m\fR.
- .B -a
- Allow using addresses between 0x00 - 0x07 and 0x78 - 0x7f. Not recommended.
- .PP
--There are three required options to i2cset. \fIi2cbus\fR indicates the number
--or name of the I2C bus to be scanned.  This number should correspond to one of
--the busses listed by \fIi2cdetect -l\fR. \fIchip-address\fR specifies the
--address of the chip on that bus, and is an integer between 0x08 and 0x77.
--\fIdata-address\fR specifies the address on that chip to write to, and is an
--integer between 0x00 and 0xFF.
-+There are three required options to i2cset. \fIi2cbus\fR indicates the number,
-+name, or device file path of the I2C bus to be scanned. This number should
-+correspond to one of the busses listed by \fIi2cdetect -l\fR. \fIchip-address\fR
-+specifies the address of the chip on that bus, and is an integer between 0x08
-+and 0x77. \fIdata-address\fR specifies the address on that chip to write to, and
-+is an integer between 0x00 and 0xFF.
- .PP
- The \fIvalue\fR parameter, if specified, is the value to write to that
- location on the chip. If this parameter is omitted, then a short write is
-diff --git a/tools/i2cset.c b/tools/i2cset.c
-index 8371570..27e3c7f 100644
---- a/tools/i2cset.c
-+++ b/tools/i2cset.c
-@@ -32,7 +32,7 @@ static void __attribute__ ((noreturn)) help(int status)
- {
- 	fprintf(stderr,
- 		"Usage: i2cset [-f] [-y] [-m MASK] [-r] [-a] I2CBUS CHIP-ADDRESS DATA-ADDRESS [VALUE] ... [MODE]\n"
--		"  I2CBUS is an integer or an I2C bus name\n"
-+		"  I2CBUS is an integer, I2C bus name, or I2C bus device path\n"
- 		"  ADDRESS is an integer (0x08 - 0x77, or 0x00 - 0x7f if -a is given)\n"
- 		"  MODE is one of:\n"
- 		"    c (byte, no value)\n"
-diff --git a/tools/i2ctransfer.8 b/tools/i2ctransfer.8
-index de03c7d..20fd454 100644
---- a/tools/i2ctransfer.8
-+++ b/tools/i2ctransfer.8
-@@ -84,7 +84,7 @@ This is mainly meant to be used in scripts.
- .PP
- The first parameter
- .I i2cbus
--indicates the number or name of the I2C bus to be used.
-+indicates the number, name, or device file path of the I2C bus to be used.
- This number should correspond to one of the busses listed by
- .B i2cdetect -l.
- 
-diff --git a/tools/i2ctransfer.c b/tools/i2ctransfer.c
-index d9d1396..925c2b4 100644
---- a/tools/i2ctransfer.c
-+++ b/tools/i2ctransfer.c
-@@ -59,7 +59,7 @@ static void help(void)
- 		"           -v verbose mode\n"
- 		"           -V version info\n"
- 		"           -y yes to all confirmations\n"
--		"  I2CBUS is an integer or an I2C bus name\n"
-+		"  I2CBUS is an integer, I2C bus name, or I2C bus device path\n"
- 		"  DESC describes the transfer in the form: [inpst]{r|w}LENGTH[@address]\n"
- 		"    1) optional message modifier flags, if supported\n"
- 		"       i: ignore NACK from client\n"
+	Byungchul
 
--- 
-2.55.0
-
+> >  /*
+> >   * Allocate and load the module: note that size of section 0 is always
+> >   * zero, and we rely on this for optional sections.
+> > @@ -3508,6 +3521,8 @@ static int load_module(struct load_info *info, const char __user *uargs,
+> >       /* Done! */
+> >       trace_module_load(mod);
+> >
+> > +     dept_mark_event_site_used_module(mod);
+> > +
+> >       return do_init_module(mod);
+> >
+> >   sysfs_cleanup:
+> 
+> --
+> Thanks,
+> Petr
