@@ -1,168 +1,128 @@
-Received: from SY2PR01CU004.outbound.protection.outlook.com (mail-australiaeastazolkn19011026.outbound.protection.outlook.com [52.103.72.26])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27EE91C5D72
-	for <linux-i2c@vger.kernel.org>; Mon,  6 Jul 2026 05:19:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.72.26
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783315168; cv=fail; b=Q4bWfsKzcgHZmD76Kc+uYwWqxHbLBqNtEvk0MdHoyEDtQgCWgM/NndWACIXr83uBanb6BKnmhkMQLmprua9MBuS06FieDMuAo4/b/vf6MPaQd2qklAiF1/FwbzHGe2stE9Tg9VoCnvtkWHEAt2Hd+Nf0xXPNsnj8H1denesnrzU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783315168; c=relaxed/simple;
-	bh=9YhB2dOiL9zLhmzaS32VprOdIC+4jGzHO+OR1ZTkPQc=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=LlkoPT+9280PHfDOw76K2g2BaR7yMt6d96qjADwKsb4pwzOom0TjIBfBTZooFk2uc1IFfuFVcvSC0A82m63Smn8+7L/PAqyB8necPs+vEeZ1iZRnaLb0E91VfVCZqRtL5tFxHuO9s4HKt1Vu53ToVtmo6S+Gj52ICHC66gjp8qE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com.au; spf=pass smtp.mailfrom=outlook.com.au; dkim=pass (2048-bit key) header.d=OUTLOOK.COM.AU header.i=@OUTLOOK.COM.AU header.b=TvACO0nP; arc=fail smtp.client-ip=52.103.72.26
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com.au
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B2C72E7631;
+	Mon,  6 Jul 2026 05:58:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783317513; cv=none; b=k1CLLnBWTuJVY68n49PGPLh+fxWBdjRwrH8+YeIG2E6OfdkgOWrHmQyzad7Pvsh2tZCGmqdYGOamIk+kYMMgR29mTJ4uY5lVYPhfe6E+KwMqx9esPeJtsAGM8AO9Ku5s4NdUEnxoX/JTW4mvtRbLDwaDAyJxkD6ITpAPuZ84SE4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783317513; c=relaxed/simple;
+	bh=Jpr9sMSRvn3Ztat0XFnR+r6kDiX7HhhFGnAWG1L/N/A=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=A+2Wx1vSXRa3AKNvQLHh/N17m+Z6FEdqjNjUSDxI7jsbPodGDf1e1fc2i9tebQae7MVzv//ELqhS3lTvTJZvh96TpLORZsQD5vqYnpqKkQTrEuAoEbSbwbAd9XIBcN+4M1aUGrHfGK42uHALCl/2ajbz1ReWyOm6LO0VHJ2wSyI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=E8H+LmLV; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=OUTLOOK.COM.AU header.i=@OUTLOOK.COM.AU header.b="TvACO0nP"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=VIoF40GGypLzsDwAfLYbgeMC1bBOnFWvhzb4JcXMLsPiD0jlKSI0PKhzXd9uniZDg3baRjfObWGp9lbX4W4lBKEzQqZfaCDxOYAfdC+dw0aQ3J6Zx4SFrOWmTO0YtM5o6SfdNsisBqamzIkSVWzoUTxikD5EexjhvrMgStTifgXArJ7WtZaKQAN4kMcnhLnu3u2bjwFZTjE7BgSL958+cG0uQfMyXnH9VLC+dwHUJty8XhMzrvT87j+41ehNkMOceZzKvDPZZIGEmgDDMui4cIL7TClXZHQdNxe4B1C+av/QylVtEgJHT6DdspsjwB2syWWu5VLY4qF+lIqkPPmghA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=9YhB2dOiL9zLhmzaS32VprOdIC+4jGzHO+OR1ZTkPQc=;
- b=fC2F3mVYge9/gXvQDJ730cEH2NreKyiIumTLC51TU3YjEF42DcH60aVtcUwQcvwUflv7zdj+z9mYEyj5U5Q8x/F5Qe7eMFm8epmFmF85I0VvGHU2AZmoPeEz2FhaaW3+Ll2luP3Sfi5QXP95yI/S1rVgPdaMjn5fYX02KVn02lOI2iNXlcvyUdIjqQyVqhlg6HNbEkwALk2lGeO2sOoJia7TBwH2WvqO9jULgt2bKOO05HRjO7Ew0wjrKVSSj/LxjVo+8hXNYOhuhEUqOg7FxbrW2v0g4ARomDEBGzFrZTr5ORZNt3YmC1WkpH3gdWx2GASZ0tyqCkzV4/iNRSjK8w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=OUTLOOK.COM.AU;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9YhB2dOiL9zLhmzaS32VprOdIC+4jGzHO+OR1ZTkPQc=;
- b=TvACO0nP1RICKPRId3grlBtCAtWIBA3nIZdQgiwSRmkDrOIiKdqkPFJUwAnNccWZgcYn0QWnur/jOS+1VJe8HtQrMxWjPfrCpnlK9I+XHWtOjSPfcg8tQcYCUdAfpjj9YMg8veVL76QBoRThh0MA1Tmlyff/qyK6FWkPo1SlBezKp+s81S6lcICvsGn+Hu1ee8HFbBk+xq7dUg58gO+gdm3dGt/LXnBe3jzX00KKwynvwy1jY3lWgceJRseEgyLeziP2Ou2vJAqY86WfNuk1NprzOQYX97FAlw8jpIQ6LpzT5SjUkvtlZJ2DxL4RZnDiQCHHDsSNdrQmCDDqE/QMcg==
-Received: from SYBPR01MB4586.ausprd01.prod.outlook.com (2603:10c6:10:59::12)
- by MEWPR01MB9153.ausprd01.prod.outlook.com (2603:10c6:220:1f6::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.11; Mon, 6 Jul
- 2026 05:19:22 +0000
-Received: from SYBPR01MB4586.ausprd01.prod.outlook.com
- ([fe80::57d:8fd6:3940:5957]) by SYBPR01MB4586.ausprd01.prod.outlook.com
- ([fe80::57d:8fd6:3940:5957%4]) with mapi id 15.21.0181.012; Mon, 6 Jul 2026
- 05:19:22 +0000
-Message-ID:
- <SYBPR01MB4586AD69D431CAD2D26ADD68C5F12@SYBPR01MB4586.ausprd01.prod.outlook.com>
-Date: Mon, 6 Jul 2026 15:19:20 +1000
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH i2c-tools] TODO: add file and describe items for the 4.5
- release
-To: Brigham Campbell <me@brighamcampbell.com>,
- Wolfram Sang <wsa+renesas@sang-engineering.com>, linux-i2c@vger.kernel.org
-Cc: Jean Delvare <jdelvare@suse.com>, =?UTF-8?Q?Beno=C3=AEt_Monin?=
- <benoit.monin@bootlin.com>
-References: <20260705181043.3757-1-wsa+renesas@sang-engineering.com>
- <DJR7QS1LOHU0.2PNA54ULDF2PF@brighamcampbell.com>
-From: Stephen Horvath <s.horvath@outlook.com.au>
-Content-Language: en-AU, en-US, en-GB
-In-Reply-To: <DJR7QS1LOHU0.2PNA54ULDF2PF@brighamcampbell.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: SY5P300CA0001.AUSP300.PROD.OUTLOOK.COM
- (2603:10c6:10:1fb::13) To SYBPR01MB4586.ausprd01.prod.outlook.com
- (2603:10c6:10:59::12)
-X-Microsoft-Original-Message-ID:
- <90b7c3cd-0a03-470a-9eb2-0b8a1891691b@outlook.com.au>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="E8H+LmLV"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 603221F000E9;
+	Mon,  6 Jul 2026 05:58:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783317512;
+	bh=MSwtMCbJNGc9lDXgclahi3Z00xbyDAxhUu2exOrRL5Y=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=E8H+LmLVJwu27mb6cmHsnjX+AM82FA6+SvzqfcV50M0K8jAEofRZ/uS+ocpB/avW4
+	 xB3qOc4Z0uCQyQ09jOLupLB8UXZwtTOdBYcFBEqxjxsfMjqX3PsaN8+6PIdNGUsYiy
+	 dnfesBDDeB0kd3NxeYfW1HuBJFdizBH6rMvspDn0YnJFrV5Z7b9kRpGKOJSNEbsngP
+	 1u1sDIcUxy+5o11bSu/Rcg0PVwG5jjDaqD3tKjOubns4aeQ6Oo7p5Ve/fIPi4r74qz
+	 NQg/kb4i1iX81QSFzPmL9zR3PzmFe8BU7+R9AkyYJwLxJiJjZNnna969Lc6kcIJHg5
+	 aNoe8Gq+FDgbQ==
+Message-ID: <1edb643c-1d09-4ad8-97df-66c86e6123c5@kernel.org>
+Date: Mon, 6 Jul 2026 07:58:25 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SYBPR01MB4586:EE_|MEWPR01MB9153:EE_
-X-MS-Office365-Filtering-Correlation-Id: e19cf4dd-d239-4762-d9dd-08dedb1e230e
-X-Microsoft-Antispam:
-	BCL:0;ARA:14566002|19110799012|37011999003|6090799003|8060799015|41001999006|23021999003|15080799012|24021099003|4140399003|5072599009|25010399006|40105399003|52005399003|440099028|3412199025;
-X-Microsoft-Antispam-Message-Info:
-	=?utf-8?B?TEZIKzBtN09qTmpBbE5NRW9YRDV5MEQ3VG5tTnJlRTJNZTYwOVBsMW50M2pF?=
- =?utf-8?B?V3dvTVExdHAwWTRpL0tUc1R2aGtkY0l6aXhoS2RTRDdSa2g0MmQ4d3V1OTlD?=
- =?utf-8?B?Mlk5bkpERnVHRGRvUUNQanhoYkFOdVI1b2xBWGhrb2J1b0tZNW9MeERvaXJE?=
- =?utf-8?B?T29hTnZoNVV5N2NEcm82OG5NSVRqa0hvU0Q2MHZCbDRYRzdBZzFybUNQZlA2?=
- =?utf-8?B?QS95T2RvLzhGS2R6QXo4RDFXQlEzK0pFS2hmSXJRWjNhaUJwS2pucU0vWXIx?=
- =?utf-8?B?NzJYc0FTVk1idG5abTgxb3h2N2hsWjNQclB4RERvU2pVWGRpZW5Id01JbTcy?=
- =?utf-8?B?M2dUY29rR1BVWGUvT0xBT0NPZG5ZaVhnMlVxMXdJZlFGVUtoU1pjaWI1dURt?=
- =?utf-8?B?RkxPd1VLK2NrVHF3amxianYvZ2NyeHJLZE9FNmxzdnFyQllLZ0NCeDdyZldn?=
- =?utf-8?B?WFJxKzlFZ0VxQmJIQTUxcER4d1pBN3hkaG8wYzMwN1BSR0g0OVpqblU0d0lz?=
- =?utf-8?B?WHkrOGoxZHpPV1YzbGMrY3hnRFlMMkx4WGdXc0xKaG4xRUY5VFpYbWQ3S25B?=
- =?utf-8?B?blJKNUYzTHBSTHh0cmdpdzNNK3Zsa21vZlZlSWZUSCtJeGhVdjNWdjVPRVJU?=
- =?utf-8?B?ZXhFZHJzaVB1UDdpa1Rsa1lnUXhKS1hydFZQaGdVbVJ0c3BKSnREa0E4Y2V3?=
- =?utf-8?B?TUZucldLQlR6VTRWQW5IaGM4blJ2SDkrWjIxeTlJT1BhRGxwQm95eXVhdVd0?=
- =?utf-8?B?bDVLMk9BQWNKTDZxdEhiSDlNZ2NRWVVmY2FwYmM1NTQrSmpjRjFONXJ4aWRV?=
- =?utf-8?B?cW9ucjhtTC9zVnY5TDRjUHVxY2lnVnI1Yk1HZWxHSWk5RGtrb0MyZlBFRGFY?=
- =?utf-8?B?U21WTGVpRUtXQzRwL1BKWjRsSC9kUWdDSjVOeHhvdllGYnBDSXN0ZDFRK2Jn?=
- =?utf-8?B?OURoL3N4RUliUzYvTEV1b1VEWlc1WUxnT3EyMVJUNWJKdE04OEgzcGdWMnM1?=
- =?utf-8?B?UlY3WS82TXZLS0hrSmY3YzIweXlSd3lteVZpeWlqL01VNjRFeExlSnNOTGdl?=
- =?utf-8?B?UU96QW11WUJyVTZSUnJ2WGlZaERoZXcvcnhUTGFRWjR1Mm84RHNaV294RDFU?=
- =?utf-8?B?RkFxL1Q5Y1czQ1RBZjV3MjZFbHIzSDBaYndhQlFURHV3ckJWdVJaMGJ0V3BX?=
- =?utf-8?B?WnJtSXVnaFBFbHd4RHhUbzlRUHdaSWpPemJOSzBvK3piMzlGNk5iV05BSjcv?=
- =?utf-8?B?VmovZ0NsRVRtZUhGZDJvdXJobEJxM1gxekI2Nkg3UUNsN1JZZGczSnZBWlBO?=
- =?utf-8?B?ejRhRlZsKytCNlVoSVphaExjTUtnaUtVTVRvdWRJYWR6MGIxcEo5NytsQzNV?=
- =?utf-8?Q?SHh300tzqXNf6XaqIYpUD+icbswGMC1g=3D?=
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?aEltTkI2ZHVxK2l3NFc1MUJDSVBQNFlkSGM5blRNYkpYUkdvYWpqRDJWSDAy?=
- =?utf-8?B?ajdIZnRraFZsRmJWSmltSG9ycEw2N2QwbVdpM3c0Y2R1VHhDU2pTOVlReGYx?=
- =?utf-8?B?L1ZRU21Jc2hOQjJrMzVjdmp0SHBWQWROdjVIZmx2N1JJSFhxb01qWDMyZFpK?=
- =?utf-8?B?MWwvNlZQTy9YT1puaTE3RU4vL3psSFlvTXBLZVJPTzltSVNNOXJDR05BbHNu?=
- =?utf-8?B?Z1RLTDZUWDhZYys3aEEvUHk4czJJQTRNYnVSM0pIMzFnaG1nZFpNOEF6UUZ5?=
- =?utf-8?B?OC9uSkY1dlE4RmdzTFhJOEQzRVowZkpMaFI4UUczN2JxNXZZbjJ5aThDbXFs?=
- =?utf-8?B?dEJWWHZWWUEyNm5RNWQ2Q3FIZEp1ZVhoZmdrYk9RaWFuWTZ5OUtBT0dxRXF2?=
- =?utf-8?B?RlpaWXRhc3JVUjZ5WEFGdFdLbTJYOEp3S3NBMURkSzZCWWN6bTVXMTBsUkRi?=
- =?utf-8?B?WVZTZ3Y0VStqYm0wMjJrMFdobGdjQm02RnNxNVpqVmtJK2FybDA3cGp5QlJB?=
- =?utf-8?B?UDNJR25hcVNUcG5DQ2o3dFVaMUs0QmJEWWpoY3dWT0owSWtFM0prMlVYTTll?=
- =?utf-8?B?b0VTMG8zN1Z3MWtwVmx3U3dsWkdINk96ajdTVlgveFFXcHZ4OUhOMnRrUGdI?=
- =?utf-8?B?WEVGRXJlY2FoNHhXY0xTTFN0T2RXcDdxOWRLeDZoQnNqMXlZaVdhMGtqWUR5?=
- =?utf-8?B?VTM4Y0FXb0FKMzFrUVh2T3MxbTZEWjJ2dXRjeGxKUEtsVXRnN3FCbFU0bm5H?=
- =?utf-8?B?dDBCN2tjVUtoU2pNMUdIQ1gwWVlXQzk4Uk5kNjh1Z29UM1RwSzhvY29hd2FF?=
- =?utf-8?B?enM3RWpzYzd3TlhTZnBMREViZEFmOVFna0xPWi9lUmVFL2t1OTlSUGtEVjNl?=
- =?utf-8?B?QzBDbmlkVkk4YkFFS0VRK0kvQ3NhaE9ZRHo5RW9zMTlNNTJISUtGbm4zSTFh?=
- =?utf-8?B?S1FxU3VwNjMyUmlUY1JpUTAwVkIrQzgrZHhNVmdrMlp5MnhKWWxZY0RjWVdR?=
- =?utf-8?B?SXJyd1RKMU5yRk80WHNid3N0M1RwQTRJL3hRUmRreWg1R1B0bDBISlkrb2hQ?=
- =?utf-8?B?QWx0NEdQd3VKQXJwMFNTRXBrMGFDL0NJd245bkFCbGZJY21iSnlIRmxtY0xi?=
- =?utf-8?B?TzVqNUtFbWtFZWVsaW9GaTgxNW9XRDh3VG9YdGhpSC9wS24rQ0ZMdVVjUUZ0?=
- =?utf-8?B?UEMxeGdRaVJxeDJPU0dlV2ZoY2Z6VVdzZmNMZ3FualR4RytuZWNpWlZkTHVS?=
- =?utf-8?B?VW1xa3JXMndFUk5ja0xzWXdWT2xJbHJ5MVRzWmRESUNpTGo4TTdSUkh1NlR3?=
- =?utf-8?B?bmV3cC9qYjVZV3hJVnh1R1dRbk1nSjk1L2hiYndoMzdYaGYwNVR4d0xrL25w?=
- =?utf-8?B?RFl0OFV3dXlCODFyZnNCNDdsb3RGSlEwMm9rbzlFdkN0Ui81WWkyWUNuYldH?=
- =?utf-8?B?MWVsV2l6MGFHZ3UvQUZnZ1ZJSEJOKy9hSVlnMmJzYS9mZEgrY3dtbERRb0RK?=
- =?utf-8?B?dDlXOGpvZE5PbFdtN1ZIdFpVWGpGTG0ra0VQM3lBVnJ5TUd2a3h6WWVGMk1B?=
- =?utf-8?B?MUZlUG4rV0VyR2JSOTRnVmRXcU8wVFVGS2gzMzlvWHZFZmpvdFJwdHVIT2VO?=
- =?utf-8?B?V2FSQWVSd05PenV0clo1UmsxOUNvNkxaOWVORUFGb2dTUFBYYnhMeDZKWFJk?=
- =?utf-8?B?MnQzUXRYNDhzcG1qUlUzZEFpU2tKbWlhZ1k2M1dEQVFMRUI4SjdJU1ZhSkkr?=
- =?utf-8?B?ZmNlYmQ1V3VXbGVPL3dkQU9teXhMVkhQbk1zd2dmcENRS3ZlbW5wQ1Z6Ym11?=
- =?utf-8?B?S2JPK3k2cERQcC9WeTJEVm5aYVFqWGZmckFPdy8yUlFha2l2eTA0NHFhcUw5?=
- =?utf-8?B?MHN6THB0MjZpd0JPZWovMVhOSmFBOXcwZmhzRW9ELzJvSnk0a1REUTRPNGNO?=
- =?utf-8?B?UVNrMlcxTE9jR1FQcGdNbzY3NXlYeWpsbXhoUHBvN1JuTGc5cXQxdk5TNTRW?=
- =?utf-8?B?T0FNZWlVeGNBPT0=?=
-X-OriginatorOrg: sct-15-20-9412-4-msonline-outlook-feddd.templateTenant
-X-MS-Exchange-CrossTenant-Network-Message-Id: e19cf4dd-d239-4762-d9dd-08dedb1e230e
-X-MS-Exchange-CrossTenant-AuthSource: SYBPR01MB4586.ausprd01.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Jul 2026 05:19:22.3654
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg:
-	00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MEWPR01MB9153
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1] i2c: qcom-geni: Add dynamic transfer timeout based on
+ transfer length and frequency
+To: Aniket Randive <aniket.randive@oss.qualcomm.com>,
+ mukesh.savaliya@oss.qualcomm.com, viken.dadhaniya@oss.qualcomm.com,
+ andi.shyti@kernel.org, sumit.semwal@linaro.org, christian.koenig@amd.com
+Cc: linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+ naresh.maramaina@oss.qualcomm.com
+References: <20260705134619.4030745-1-aniket.randive@oss.qualcomm.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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
+In-Reply-To: <20260705134619.4030745-1-aniket.randive@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Hi Brigham,
+On 05/07/2026 15:46, Aniket Randive wrote:
+> The driver uses a static XFER_TIMEOUT of HZ (1 second) for all transfers
+> regardless of message length or bus frequency, causing unnecessary
+> delays on error paths.
+> 
+> Compute the timeout dynamically from message length and bus frequency
+> with a 10x safety margin over the theoretical wire time and a 300ms
+> floor. For GPI multi-descriptor transfers, use the maximum message
+> length across all queued messages as the per-completion timeout.
+> 
+> Signed-off-by: Aniket Randive <aniket.randive@oss.qualcomm.com>
+> ---
+>  arch/arm64/configs/defconfig       | 54 +++---------------------------
+>  drivers/i2c/busses/i2c-qcom-geni.c | 37 +++++++++++++++-----
+>  2 files changed, 33 insertions(+), 58 deletions(-)
+> 
+> diff --git a/arch/arm64/configs/defconfig b/arch/arm64/configs/defconfig
+> index faf146441f97..841108ae2d01 100644
+> --- a/arch/arm64/configs/defconfig
+> +++ b/arch/arm64/configs/defconfig
+> @@ -32,7 +32,6 @@ CONFIG_KALLSYMS_ALL=y
+>  CONFIG_PROFILING=y
+>  CONFIG_KEXEC=y
+>  CONFIG_KEXEC_FILE=y
+> -CONFIG_CRASH_DUMP=y
 
-On 6/7/26 14:45, Brigham Campbell wrote:
-> Stephen, it looks like your series applies cleanly on top of my v4. I'm
-> not familiar with decode-dimms, but I do have a laptop with DDR5 memory.
-> If you can provide some instructions for testing, I'd be happy to
-> exercise this new code and report back.
 
-If you've got the spd5118 kernel module loaded (which usually happens
-automatically), you just have to run `sudo ./decode-dimms`. You can
-manually bind spd5118 if it isn't autodetecting, your dimms should be on
-your i801 bus (or PIIX4 for AMD), usually with an address between 0x50
-to 0x57.
+Irrelevant patch change. And not really correct - you base this on some
+old tree.
 
-If you're willing to dump the eeprom too, the location is usually at
-`/sys/bus/i2c/drivers/spd5118/<fill with bus-addr>/eeprom` and run it
-through `hexdump -C` just to make it plain text.
-
-Thanks!
-Steve.
+Best regards,
+Krzysztof
