@@ -1,93 +1,130 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEA4F3806B4
-	for <linux-i2c@vger.kernel.org>; Mon,  6 Jul 2026 15:12:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 521AE309EE2;
+	Mon,  6 Jul 2026 15:50:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.10
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783350781; cv=none; b=n3bUamxW2wH4sML4UK13joHLR12exGqT0qqQM6OjiAMvBguUvKKA1uYjmddW7Z/PHpNA/w1RIKT/TIy+IMR28dTq4wQ9GRZGkaKm6AlsNIUI9fKq6t/Udr877e1LoSZT0rxnV8Nc6FOdNC7Twx6DjMjpFD6/x2sNnBn4y03zywM=
+	t=1783353034; cv=none; b=SP564uf+QxMZssvFri+SoJ7uuDne+t/OmXVIwXiCZiqPO2WIpCu8WLeJBHWN6LEOQaN4Ao1Gs54oiS1/MlRwp4m4whSlouoYNK8J9bNV+ZYX5gA9xkr3cAM9psU+ChQfPeN1slmuTsVXZD6uDb27CAYLp4cWFp2cuz/+rJ4lyZA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783350781; c=relaxed/simple;
-	bh=2Ivj9KRH48TmXy/tfH2gpyyfVZRysXO2gtNEbDKxlLE=;
+	s=arc-20240116; t=1783353034; c=relaxed/simple;
+	bh=of6d9n1ZVp2VvNBWbeQxrIvJaxz8Dqo4F/lZHKvIDzs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iqIPlJji1GNCmdw43ysW8R6PBPr8hhvd2zRkZ8zpgr8aSunPRD4NLW78730DYJvkSFOL8ZJQcOmEnNr40GbwDzT+dqupW38vunDx31BYeXf74B7rPaKbQTYwmbgwlVGXM2cfDKLJ/7so1Ee35MeMeS8cSo+i5uSXZZ6q1x+Eurk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=SLW6RhKa; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=mC9Q5JKFMLaaEQt/Tw7REXPIGQUdtkcX5Xi/qGfjLHVj+d0S1IkkUHqeKS/Kv/ISPCpJCLMRjfsED3LO+Uw3hJOu0znZy6xP8pkMUeV718NAPVCTAU1LqdgHO/hTJxZgDc0lJcjd4IeFYlwxJNugG3IdwNKrjK8Q+LVw2KI0jDs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FVBVZkkO; arc=none smtp.client-ip=198.175.65.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="SLW6RhKa"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=AI0I
-	OOA5GfmXX/Dt+FJkxYr7+85kkoh/7+UJ3Pn4O84=; b=SLW6RhKaOXUiiIcxSnv6
-	acqWoRQXOuiBcqiQo2x9WdZeIjEbZfM7uPTcXolKZwvwz+X5imZx9oPRhwrV99p2
-	hrm49KhK+6FaMxL4W7DnqHBWCFSubQUyTBjkAcWgl2cTCvKgRTVR7YQAnrgQePm2
-	y6CI2fgMsBjni/lr++JDW8LUE3NNvRL7/QyP9fuywLj01LlRsFtn8Qj4PO83prsX
-	+xzcKVi/N5eP6TzJeCyzmLAxfUAklNOLr0Ul08rxIsD+n0TYVF+olkJWMIp+FLnU
-	Qx2nPgNyhWWRwSzPXHoCvDjS+flrx1/4SfWy/5IVzqgLWydJWpaXyxQim+7P6WbM
-	cg==
-Received: (qmail 2744588 invoked from network); 6 Jul 2026 17:12:53 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 6 Jul 2026 17:12:53 +0200
-X-UD-Smtp-Session: l3s3148p1@bm1ctfJV9uZQT+F6
-Date: Mon, 6 Jul 2026 17:12:53 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: Stephen Horvath <s.horvath@outlook.com.au>
-Cc: Brigham Campbell <me@brighamcampbell.com>,
-	Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org,
-	Gero =?utf-8?Q?Schw=C3=A4ricke?= <gero.schwaericke@sevenlab.de>
-Subject: Re: [PATCH v3 0/2] i2c-tools: Make tools accept bus path
-Message-ID: <akvF9W7r2gXi77eT@shikoro>
-References: <20260530-accept-device-path-v3-0-20c01b8f6726@brighamcampbell.com>
- <SYBPR01MB45868F802BCAB22D56DDDDC0C5F12@SYBPR01MB4586.ausprd01.prod.outlook.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FVBVZkkO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1783353034; x=1814889034;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=of6d9n1ZVp2VvNBWbeQxrIvJaxz8Dqo4F/lZHKvIDzs=;
+  b=FVBVZkkO81v97qwqgXdQoZ5BtTEZSn8hptdpl5+zhp69DG8Wc7HTqCA0
+   Iua/lgzHUpOHNX2O5GBppmUYF1PiPf69sOaB8Ow4GlK1ag6lLh9zEg8pF
+   3VKtX/orEhXlCgZIM6AVkaFJHxZaFunveVf1rFI+fQqXnttQ54x0cVXY3
+   PlohclVweXpZXa4qC4hRMfljkSLzo1HoC+VphEFD4spHrYIS29LmWh30o
+   NBG1HLrivq2LD58UeKk3qVdcS1nUHVpnKz1s+8OtrxC2NoD4y3qJ8HZ/f
+   mX/u9zXsoPrcTEQjyYz7zOPXp9EpFEYt2ZjDbFgjEYiqZ9otPaMD0rKrP
+   Q==;
+X-CSE-ConnectionGUID: 8j/Cz05nRiy7iG5juUwfJg==
+X-CSE-MsgGUID: 6WJR7CnASM+iSX97cI0Y7Q==
+X-IronPort-AV: E=McAfee;i="6800,10657,11838"; a="101408853"
+X-IronPort-AV: E=Sophos;i="6.25,149,1779174000"; 
+   d="scan'208";a="101408853"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by orvoesa102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2026 08:50:32 -0700
+X-CSE-ConnectionGUID: NvB5N+KWQv+u1kUJ01a6bg==
+X-CSE-MsgGUID: ST8IrUj4Qs29+PTwG4IXGQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.25,149,1779174000"; 
+   d="scan'208";a="283836189"
+Received: from vpanait-mobl.ger.corp.intel.com (HELO localhost) ([10.245.244.48])
+  by orviesa002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jul 2026 08:50:18 -0700
+Date: Mon, 6 Jul 2026 18:49:55 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Manuel Ebner <manuelebner@mailbox.org>, Mark Brown <broonie@kernel.org>
+Cc: Bartosz Golaszewski <bartosz.golaszewski@oss.qualcomm.com>,
+	Lee Jones <lee@kernel.org>,
+	Thierry Reding <thierry.reding@avionic-design.de>,
+	Sebastian Hesselbarth <sebastian.hesselbarth@gmail.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Srinivas Kandagatla <srini@kernel.org>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Vinod Koul <vkoul@kernel.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Danilo Krummrich <dakr@kernel.org>, Rob Herring <robh@kernel.org>,
+	Saravana Kannan <saravanak@kernel.org>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	Andi Shyti <andi.shyti@kernel.org>, Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
+	Doug Berger <opendmb@gmail.com>,
+	Florian Fainelli <florian.fainelli@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Ulf Hansson <ulfh@kernel.org>, Frank Li <Frank.Li@nxp.com>,
+	Sascha Hauer <s.hauer@pengutronix.de>,
+	Pengutronix Kernel Team <kernel@pengutronix.de>,
+	Fabio Estevam <festevam@gmail.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Thomas =?iso-8859-1?Q?Hellstr=F6m?= <thomas.hellstrom@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Peter Chen <peter.chen@kernel.org>,
+	Paul Cercueil <paul@crapouillou.net>, Bin Liu <b-liu@ti.com>,
+	Philipp Zabel <p.zabel@pengutronix.de>,
+	Maximilian Luz <luzmaximilian@gmail.com>,
+	Hans de Goede <hansg@kernel.org>,
+	Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	Krzysztof Kozlowski <krzk@kernel.org>,
+	Benjamin Herrenschmidt <benh@kernel.crashing.org>, brgl@kernel.org,
+	linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org, linux-sound@vger.kernel.org,
+	driver-core@lists.linux.dev, devicetree@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org, linux-i2c@vger.kernel.org,
+	iommu@lists.linux.dev, linux-pm@vger.kernel.org,
+	imx@lists.linux.dev, linux-arm-kernel@lists.infradead.org,
+	intel-xe@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+	linux-usb@vger.kernel.org, linux-mips@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org, mfd@lists.linux.dev
+Subject: Re: [PATCH v3 02/20] driver core: platform: provide
+ platform_device_set_of_node()
+Message-ID: <akvOo2EeERLYPh72@ashevche-desk.local>
+References: <20260706-pdev-fwnode-ref-v3-0-1ff028e33779@oss.qualcomm.com>
+ <20260706-pdev-fwnode-ref-v3-2-1ff028e33779@oss.qualcomm.com>
+ <fbc50f89e0c3bb148656a3b8d96974f591576dec.camel@mailbox.org>
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="vqgIfxHBq2WknXjF"
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <SYBPR01MB45868F802BCAB22D56DDDDC0C5F12@SYBPR01MB4586.ausprd01.prod.outlook.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <fbc50f89e0c3bb148656a3b8d96974f591576dec.camel@mailbox.org>
+Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park, 6
+ krs, Bertel Jungin Aukio 5, 02600 Espoo
+
+On Mon, Jul 06, 2026 at 04:39:00PM +0200, Manuel Ebner wrote:
+> On Mon, 2026-07-06 at 14:44 +0200, Bartosz Golaszewski wrote:
+
+> I removed Mark Brown <broonie@opensource.wolfsonmicro.com> from recipients because:
+> “RCPT TO <broonie@opensource.wolfsonmicro.com> failed:
+> <broonie@opensource.wolfsonmicro.com>: Recipient address rejected: Domain not found”.
+
+Perhaps he needs to send a patch to update .mailmap?
+Cc'ed to Mark.
+
+-- 
+With Best Regards,
+Andy Shevchenko
 
 
---vqgIfxHBq2WknXjF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Hi Stephen,
-
-> I hope this helps,
-
-Yes, it does, thank you very much! I will convert your mail into
-
-Tested-by: Stephen Horvath <s.horvath@outlook.com.au>
-
-if that is okay with you.
-
-Happy hacking,
-
-   Wolfram
-
-
---vqgIfxHBq2WknXjF
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmpLxfEACgkQFA3kzBSg
-KbYgdA/8CZxcJUfYqNjVbT3SI3W02zS9o08GgFmz05pyALYPH0ySGyXLRkeya5X1
-5oSVLwVohaneK6exl6L1t6ymgXwe4qSaU2n+dI3Wnp59yjJWu2mjj1QpUG/Btd0t
-YXpVgTa6fGiaB7WfSw2o0ZdBZmoV3TWSkN2RdXMscGcFI7XpqvXqHTwNk3EYFXQJ
-mb4PLuJUSHDJJRX9rWGlyGhiJFX7QA/xA5USnA2OwHijq6rwrpC8DUhNhe2VQjiZ
-bmsnro7LF1ePHzGjspWUEhyCl7uIObI6DxEj6YZ3XeBjXuhzK5FuyUY2ekgw1sKD
-Lt4jEz6OV6o6VfaTJNu0AcuZu1NKjk8r7l6zpvSpLQ/aNv+EB4MLDlShmiOgqimR
-88rxjsmc2aQK7zo+9Lvk44Sgy/5l4Vy3RZc+AYZdGPlm8zL8mDPwOzJiUOx87jeR
-AM3lM9WmKfBXHF4yIH/UJLwr2gR2K151/o3mg9/WbkVDePz9FBez/L/3RfwSruxE
-wgueyyANrklOYr0JIJpaqovjP0nHhjQbbw7qdmo//o6RaHeTOGfBYp22xnFZx1Sr
-BicThCf5PaNC/9MmoNvfql0QMfNa/btJy7rm5xGWwenq2z19uVVHc3zTzQt9lQ1t
-HrVYog7eHONGQkageNu7vXpcRlCxDuI+Bs5U0u2gDINrXIZTHtY=
-=xihQ
------END PGP SIGNATURE-----
-
---vqgIfxHBq2WknXjF--
