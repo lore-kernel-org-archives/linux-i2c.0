@@ -1,142 +1,157 @@
-Received: from mail-yx1-f42.google.com (mail-yx1-f42.google.com [74.125.224.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 732053BCD2A
-	for <linux-i2c@vger.kernel.org>; Mon,  6 Jul 2026 10:09:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.42
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783332548; cv=pass; b=jQciKrFR6FlYYusI/g+0zMDnIGM2vLwLxVgq01M4vRkXa5BO27c4q1Bd8TY2z28cLLytKCQd7DSQ8GVtzEWcXui7NyABXynCOz4wm9+81cGs8EfuogaBMOoBcXs8EXXjPfdvzW2T6ccZG0tAL1tGX6ccL8Ao0Kc0Xz71f0PNQG8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783332548; c=relaxed/simple;
-	bh=IFML3rF9djtar7SwsjcOXZQUh4NL6BJakKNcU6x9ydY=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=rpHNCU9xg7fD3mk6rVCBc6AjEYgQbfJWkMiqS2Kdh81Do8m20ngmtLI2ElpMKHyY8FSNec+2AIxHPlOCTw4gpJxu46ORrnrOemMrpvOBUooC4VON5h/7KtV9k6TdPNJF3fJmbLS3E/v9IkWNqx9TRSm4+A4pFHJvlYrADUdNldY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=W8gWe78Y; arc=pass smtp.client-ip=74.125.224.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BAD941DEE2
+	for <linux-i2c@vger.kernel.org>; Mon,  6 Jul 2026 11:41:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783338075; cv=none; b=nMEfd0+Ki8ZZkJf+S42Q91Qiq+VyBnHDS44ysQBHUUzGtX6If0uB1WWRtdJETU20OVPLkNsDK3bykE3HkKd3GrIvtjaAGeizypeFRAenskiDDKxveVsJ5OtFH1pW8DSFYNlwsGnLWgKWdzXCSrDsnEN1k/k61/bwp2ioEwhfvBE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783338075; c=relaxed/simple;
+	bh=M2ww3vjExAjNaQO3jQvVY5phe/1Oft9gRD5oC/hyYXQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=HrMA8uRq0HG6FgTEGhweq0oMNF5NYoJKPMJ/shOHuNluvJeJZV1CXl3FJHYkuy2Gdr+xcrjRaixv93i8JvonNy7gKW6mfT4tEXi/QqqqfJVRmeaRymwB1HtpvUdYTJ7/aXeqxlPJQ05TEBWf80HuZsM0sr9micQlGOTBK8FIO1M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=XsySMgQX; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=iHb1a0br; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="W8gWe78Y"
-Received: by mail-yx1-f42.google.com with SMTP id 956f58d0204a3-664c535f1a0so3832819d50.1
-        for <linux-i2c@vger.kernel.org>; Mon, 06 Jul 2026 03:09:06 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783332545; cv=none;
-        d=google.com; s=arc-20260327;
-        b=r+asgCfPEj9b7FtniRfkuoLMPJIHV+UwhQnP88rg7ySLVwQHinbAvgP/kA8KyctpYo
-         +5PGM9rzFB/tddKGxyVUeOFzioO9yAhZ2zkoSogz4/6YVqfgkpJYaR2YlTauaU9Lamjt
-         VNRXbckjOwDZoul00e38FDcUXVtKPFqwsqhE0putA7n98jDzmHcGS1EBq9tgRJUV9R+s
-         qi52SVPGeuYBbKnKHAVK21WOhFbUekDJKq602h/v2mjmAQFRoKDvBXFpcpNxMbMkmEjy
-         Z4BtMm+BvxKK1OOBvI4nxk0MiEGVRFqC9ODMhZsVYaS2ek6tS1jrFOQV6rxiCEB70PNW
-         8Ypg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=1ZFMxJ4WY9L/AhejN1XNCOeUtwifJmbyAtlJAOc91pM=;
-        fh=Jit595NfdU141yqzYHr5OGiIESFLI8XmhF4n3Y/BQ40=;
-        b=TlNv3nke3b/yp/TuaCMu9kr+ywSktsJXCF3jm3XW6Um5+Gf3WFMiDmfKtASvusjppa
-         OX0w+84vlKmlAk4lxyyLKaD/vszeJZkkGVYQrF9pWrPGF/ZAfD4lYqbW7duNFisbiqDu
-         KkWhw5tPQEDAwu6mS+TV1PNHkqoZZ/rp9QLTmFPZbs1bitwrS50vBqYpS93itlxCIAwK
-         KlS8Vx8RyJZms2Oeg16EHOU3WlH7yuWO5Y504RLO2wQSFON7BhSRQ6RCIZRewhrIdV6O
-         AjRXYluTWw8iHRDog9U/2UVKDZ0ezNcEHNBMLIz9HBwVQeE8QLWyqtoPC5qp0V+FbEO3
-         5Puw==;
-        darn=vger.kernel.org
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="XsySMgQX";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="iHb1a0br"
+Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 666AxOjn174957
+	for <linux-i2c@vger.kernel.org>; Mon, 6 Jul 2026 11:41:13 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=qcppdkim1; bh=
+	JyWL2bmNSCp8kUWSmxLKw8OK4EFDlj3sVJl+0VzDp88=; b=XsySMgQXvfPgt0+a
+	HXtcu1zM2rla/ZW5eTCxaMB6FICW13P1fwym0A/MsfBjDjqUGgXD1EHFUEySuOk2
+	2z6rHOSeFOjg0Nyyc6VHixBwF+xqtTVaCt3ADnTB1IzhmU/aQqOPwenB2//RiLUm
+	B+kOKlkYz6F03GNs7m211bs4Pr22Yuq9DZfFgJDYUjFMnF4mWSST9/zOrRBcEb9q
+	n6vKECdJiMTwf5jgm2LcODgoUDnUe4767AbVeb1xNK1d92+uBCFBvMe85oFat7y7
+	xZR2l3W1G+EwqCXOK7NjSKq0MIxTJb8OcGXxyUAjh0LR+gEqcXBvSvMPiveVOXbl
+	yRJtqA==
+Received: from mail-qt1-f200.google.com (mail-qt1-f200.google.com [209.85.160.200])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4f87rxs24x-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <linux-i2c@vger.kernel.org>; Mon, 06 Jul 2026 11:41:13 +0000 (GMT)
+Received: by mail-qt1-f200.google.com with SMTP id d75a77b69052e-51c15c77619so6902211cf.1
+        for <linux-i2c@vger.kernel.org>; Mon, 06 Jul 2026 04:41:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google; t=1783332545; x=1783937345; darn=vger.kernel.org;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=1ZFMxJ4WY9L/AhejN1XNCOeUtwifJmbyAtlJAOc91pM=;
-        b=W8gWe78YrA1pTi5GDFMAUKQe0D2iKHK0Vguck/qLEYSo3O+R+m9ayYRo4WZx26FsAp
-         35DA2NHhnJ7m6fHEN/ix4oylhpJxi81jfNRT5ytbLsrmJVaATVuC0pEIXRxLGgiFryKo
-         WO9E9sa9ijZQbodstMFeBvql79r4HSdJwAE+4=
+        d=oss.qualcomm.com; s=google; t=1783338072; x=1783942872; darn=vger.kernel.org;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=JyWL2bmNSCp8kUWSmxLKw8OK4EFDlj3sVJl+0VzDp88=;
+        b=iHb1a0brBVg2+V9KeolTwdnrO2vz5qW1WwCY1eDPQVml8uPOFCwx2+L8hFOB1SWbIP
+         +j3/Ru94uC/NLkdpOaZQYt0KvdwFzaYHjnvybIILj3Nd1+nA6OCDqRR7rTZ4GZuVCYLD
+         M5s+CAjLaxUmtN05/xdmNys56JK//8WfZ0kPSHIp8BHh51XtH3oSDbj+NnCjoFK0sFPz
+         l38p0G63BvHWfOIDkj3m7yJAUcHiaubAsQOVXkVG+uzaIF0ys4QDMRobkbSG7uXHIWps
+         d8TFJtxdS2AZxa5Qr9b4up7MoTpkeoCCh3K9h+Bxy+QtoFUaBZyHx3J18iQWPHziXcSg
+         1efA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783332545; x=1783937345;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=1ZFMxJ4WY9L/AhejN1XNCOeUtwifJmbyAtlJAOc91pM=;
-        b=BvwM5XboYFcmM/JHJkn8Dc781jzKcmMxJItyhgRrEaOXHi+yraI2CWt67elOCkUhnB
-         jgAqCSqvnlVmCjovRHU92IsOH196DhOjKOncc+lsGAcUOyqp+VCW7HDdaCY7qExffjDV
-         Ih8+1gZ0s2oC5DfVwb7Qd/L1lD3UfdWz6XfAvTk490VSCUFCmyLDo02YSNN20UsIL9/n
-         Oy7jBsilrEyizJ4GYaR5RwTHHAEWXsAeZ72fRBDLXXh8w72/IUZm7hC+GUFznR9wmhfE
-         g4DxPOcraqlJmiKgUJR7fEjBdX2FoQgkO108IHfnjJB/Web74K40pEUeEOJUmi2I2OAz
-         N9Hw==
-X-Forwarded-Encrypted: i=1; AHgh+RpW0qX1/uvYoOsSRGwbb+QeoKWjSQHDoUSjeJjENMJQNPdgTBdLT8satsv9hv3U3t0hVjh37O1FTs0=@vger.kernel.org
-X-Gm-Message-State: AOJu0YxbA3AsNTWJNYjAxy2S9ODExIIKVCDhCTxisizRofSt155y8nye
-	AKkrWppDY4qEfcfuP5deL/bFbDWD/0K6XxyBT9Vc8379wXBAEOM59Gur8hpDH7g+LEhvESlb6xE
-	bEYh0kpR579oxZ09MTGs2hh16ukD58wIQTAMLdOln
-X-Gm-Gg: AfdE7clsAl/HixgjAx4Joy8YoevFrKoBFgj4fNdIt8a1sXpL5TRKBJ/tShjqgHHut9+
-	22ehirO9wlju2HrjHNQ2IxGe57r7mwzJkzLs78YxGq/AZFWgB0d+FJFWkTQlh5Fo/BJAzJEofGE
-	ipCRuC9k9vmLYNfgLq4xfLRT4MTn47+VcVe+rRNHaqJIif6b9U5lhPaxwX4x0t6kaaDfmW1TeNK
-	qyMmDJHfWTyNV5NbZ2oMlybIbTPyu36ebUJH5+z6KGfFMh3mCNc9BXcniJqYu69RR17VCdSrp9c
-	ybNEJPfHtQHWWXnEqJGEEK2rNe0=
-X-Received: by 2002:a05:690e:120c:b0:652:5567:b3ec with SMTP id
- 956f58d0204a3-66652e2416cmr8660052d50.37.1783332545405; Mon, 06 Jul 2026
- 03:09:05 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1783338072; x=1783942872;
+        h=content-transfer-encoding:content-type:in-reply-to:from
+         :content-language:references:cc:to:subject:user-agent:mime-version
+         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=JyWL2bmNSCp8kUWSmxLKw8OK4EFDlj3sVJl+0VzDp88=;
+        b=GoxFyYdoNys3CedfLt/0By6R/9sKeo3G+XpAOMEt5XD5v9BNRjS9VhNCypM7qYgE6p
+         Owmd8CyslZEkj5kALl23pfA+JqZMaPByZjk92/sJcp9QJDK9P1a/3UgCkeWVOQKy3kpq
+         NMLLnlET3Hg4Gsg/gNVsUbRD0mRv+EIkngPd5FrPoRUvwz6hmPN01AvZX9zY2B4wdCTY
+         gA2iG7uYZau80PeGx1Ap6p79TJtK02KTuWXeYlaAZC81gYF85oZ1/9aQciJoH1PiFbBu
+         mozvekOA5amLKzplVJ5Wbthfv9U5QjwFTRX0JqOLyNfXnUgxUtzrNmNWf8b31PxU9xu7
+         Ba2g==
+X-Gm-Message-State: AOJu0YzJGHJkCJaZL8lSSaQZUh7D3n7A39lFebEMDM3wp39KuuzIPb/N
+	270bHtg8Dp2P1xosPrBLJgtmu450kggrIcXa+IoO1WcgT5fG/Xg+Ak7ThHjxCRXMec2Nvs/bS4O
+	TMUjS48DvLCpLgvEIEe7AmQhlk/JgYQBMKE6e2AMzyv2nNcgir7xMxt0coBl+DbA=
+X-Gm-Gg: AfdE7cmHZnqfb5/HE7Kksm4YXwf0JSKKA8oJLSmbJwllmDtqXA56/BnkHhf7jcWS1eE
+	UMXgy4eRgF13uyd/qYqCHW4VU1OmDTnfqJdrZk9CbMsKa6wOar0ktEC+QzgXXOOSkgncp70CSqa
+	AzEKBdRDLXQCNgE87o0xgPmfLvAei9estvF6GaLQMFJ1IE0r0nXVaFauTCQQzQO0p6ObzPhtASN
+	yggWPYr22kbqlHLRmVTSQMWMfGZWJgfffLsrkGkupuGg+xW3kZqGcbdkdTBt3ebYoc/13U6AsS6
+	IcgNzUBXo2KzFcUNv8rw54aZMGOTRvFnXUeoZIk+M8/MG9O6/pjBTjHdfR/XzmstmrMnIjFVPpE
+	ts6zS3xhzyN7mxW6jCVTa3krHbqmncddS23c=
+X-Received: by 2002:a05:622a:208:b0:50e:6311:7380 with SMTP id d75a77b69052e-51c4be99299mr82579561cf.6.1783338072062;
+        Mon, 06 Jul 2026 04:41:12 -0700 (PDT)
+X-Received: by 2002:a05:622a:208:b0:50e:6311:7380 with SMTP id d75a77b69052e-51c4be99299mr82578061cf.6.1783338069294;
+        Mon, 06 Jul 2026 04:41:09 -0700 (PDT)
+Received: from [192.168.120.193] ([178.235.128.140])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-69a19cf68f5sm4059006a12.13.2026.07.06.04.41.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 06 Jul 2026 04:41:08 -0700 (PDT)
+Message-ID: <4f865aaf-a400-4dc6-acaa-80dc22a36af7@oss.qualcomm.com>
+Date: Mon, 6 Jul 2026 13:41:05 +0200
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-References: <20260703115601.1323491-1-wenst@chromium.org> <20260703115601.1323491-2-wenst@chromium.org>
- <akmZOC_J2ZTl4zLX@google.com>
-In-Reply-To: <akmZOC_J2ZTl4zLX@google.com>
-From: Chen-Yu Tsai <wenst@chromium.org>
-Date: Mon, 6 Jul 2026 18:08:54 +0800
-X-Gm-Features: AVVi8CdednA09-ELXrMS4uc6xSUtulA0xKkThvjfCvkhmpOamhA7IkBdQY8wb_E
-Message-ID: <CAGXv+5H_SXO0DtN9wjrXyAvuzG+CkYh2-4eMg=biOSsFV=E1=Q@mail.gmail.com>
-Subject: Re: [PATCH v2 1/7] Input: elan_i2c - Wait for initialization after
- enabling regulator supply
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Matthias Brugger <matthias.bgg@gmail.com>, 
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
-	Benson Leung <bleung@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
-	Andi Shyti <andi.shyti@kernel.org>, linux-mediatek@lists.infradead.org, 
-	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
-	chrome-platform@lists.linux.dev, linux-input@vger.kernel.org, 
-	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] i2c: qcom-geni: Add dynamic transfer timeout based on
+ transfer length and frequency
+To: Aniket Randive <aniket.randive@oss.qualcomm.com>,
+        mukesh.savaliya@oss.qualcomm.com, viken.dadhaniya@oss.qualcomm.com,
+        andi.shyti@kernel.org, sumit.semwal@linaro.org,
+        christian.koenig@amd.com
+Cc: linux-i2c@vger.kernel.org, linux-arm-msm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linaro-mm-sig@lists.linaro.org,
+        naresh.maramaina@oss.qualcomm.com
+References: <20260705135739.4038826-1-aniket.randive@oss.qualcomm.com>
+Content-Language: en-US
+From: Konrad Dybcio <konrad.dybcio@oss.qualcomm.com>
+In-Reply-To: <20260705135739.4038826-1-aniket.randive@oss.qualcomm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-ORIG-GUID: OgxrYAmedCEOFoMw3_3ds-lMWZIdGiXu
+X-Authority-Analysis: v=2.4 cv=Hv1G3UTS c=1 sm=1 tr=0 ts=6a4b9459 cx=c_pps
+ a=JbAStetqSzwMeJznSMzCyw==:117 a=PRfkaYvzSr8QmIIGAkY2Sg==:17
+ a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=DJpcGTmdVt4CTyJn9g5Z:22
+ a=QdFQMySKPoxOC9Zsaq0A:9 a=QEXdDO2ut3YA:10 a=uxP6HrT_eTzRwkO_Te1X:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA2MDExOCBTYWx0ZWRfX0kYzxO8EtXm1
+ 2ax/BMfCD5WE1KkjCljNcqWMurM3qFHHIeigBPTSJeIh8lyT7c2CGO6gJ3qHDWXx3RRRZJSuH6l
+ UaohUN4B5ooL+smveSnz+YzL+nbky78=
+X-Proofpoint-GUID: OgxrYAmedCEOFoMw3_3ds-lMWZIdGiXu
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA2MDExOCBTYWx0ZWRfXzIi/cxxlX5Ca
+ FNp8JoqWO1SBrA+CJxpyTMoSx080ipv7mlzwStpdl7ApG0GfZie4q4qoz5Xotgf2QvcKBmo76Fu
+ TA843x8jIBdbG/A2MkwslqU+oSPQ0kD/cZzFeHKWNGS6k7BBtC/Ty8fygKq2xXIQ37jyUvN1gq0
+ IqftHfyq32wH3hlq8dLSh1RzRBdTBWv7Mdvo9r/geuRUSNJk6GqWgnjXXC7/bXn96BXubYHsSKP
+ gLm5t2Is7YtW5xGA8IL//iRjEJXk3OuFZix25hanoca52HFHoVsdUhHb0DOsBMHjZUZBUyn+11p
+ 5Bscb592uMSbsDG8PD8d4HCfmyYq26ydKuGQzLE+O4qSLXPh6NGV2YXFE91cON5pL7F76F6YuOT
+ cLzHgctW07+f77ANUPqWXq73mOX0R4Ojh0ppJZ9+Kh5l61UPX+Ocq5ABRWlcOP3P56fIlFQXYOR
+ +qZY8nY7BCXVh9UmmoQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-06_01,2026-07-06_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 suspectscore=0 malwarescore=0 adultscore=0 priorityscore=1501
+ spamscore=0 bulkscore=0 clxscore=1015 lowpriorityscore=0 phishscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607060118
 
-On Sun, Jul 5, 2026 at 7:44=E2=80=AFAM Dmitry Torokhov
-<dmitry.torokhov@gmail.com> wrote:
->
-> Hi Chen-Yu,
->
-> On Fri, Jul 03, 2026 at 07:55:54PM +0800, Chen-Yu Tsai wrote:
-> > Elan trackpad controllers require some delay after enabling power to
-> > the controller for the hardware and firmware to initialize:
-> >
-> >   - 2ms for hardware initialization
-> >   - 100ms for firmware initialization
-> >
-> > Until then, the hardware will not respond to I2C transfers. This was
-> > observed on the MT8173 Chromebooks after the regulator supply for the
-> > trackpad was changed to "not always on".
-> >
-> > Add proper delays after regulator_enable() calls. To avoid impacting
-> > the boot time of existing devices that have the power rails always on,
-> > skip the delay if the regulator supply was already enabled. In this
-> > case the regulator is either always on, was on by default at power up,
-> > or was left on by some other driver, such as the I2C OF component
-> > prober. Either way the controller has had ample time to initialize.
->
-> Unfortunately we do not know that [it had ample time]. For this code be
-> reliable we need to record the time at which given regulator was turned
-> on and then execute/adjust the delay as needed. Until we have it we need
-> to assume the regulator was enabled at the time of regulator_enable()
-> call.
->
-> I am not concerned with increased boot time too much given the driver is
-> set up for asynchronous probing.
+On 7/5/26 3:57 PM, Aniket Randive wrote:
+> The driver uses a static XFER_TIMEOUT of HZ (1 second) for all transfers
+> regardless of message length or bus frequency, causing unnecessary
+> delays on error paths.
+> 
+> Compute the timeout dynamically from message length and bus frequency
+> with a 10x safety margin over the theoretical wire time and a 300ms
+> floor. For GPI multi-descriptor transfers, use the maximum message
+> length across all queued messages as the per-completion timeout.
 
-I'm a bit confused since you raised the issue for ACPI platforms that don't
-go through the regulator API. Now you're saying it's not a big issue?
+What's the reason for a 0.3 s floor?
 
-Either way I will add some new regulator consumer APIs to handle this.
-This needs to be in the regulator core to prevent race conditions, such
-as when one thread deems the delay is enough just when another disables
-the regulator.
+Why a 10x safety margin specifically?
 
+[...]
 
-ChenYu
+> +static unsigned long geni_i2c_xfer_timeout(struct geni_i2c_dev *gi2c, size_t len)
+> +{
+> +	size_t bit_cnt = len * 9;
+> +	size_t bit_usec = (bit_cnt * USEC_PER_SEC) / gi2c->clk_freq_out;
+
+mult_frac()
+
+Konrad
