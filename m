@@ -1,141 +1,147 @@
-Received: from mail-pj1-f52.google.com (mail-pj1-f52.google.com [209.85.216.52])
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9ADCB3C3BFD
-	for <linux-i2c@vger.kernel.org>; Mon,  6 Jul 2026 06:31:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E6273E5A0D
+	for <linux-i2c@vger.kernel.org>; Mon,  6 Jul 2026 08:01:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783319518; cv=none; b=KosLQ9UD04f5rq0Mkwf+JP75s+vdO1LqeSPDcha5ZANZ+ibDIfroFGN0QoUZtjcJu4pHrnrAc9QLPAdEjvAKj42ptACERjkHtDZPfABTGFLYvyXy3Q9pyK3Ga2Hgfew4p0rCDjBsKNHjIwbTOrmCVz7sEMGae3zrLjhu4X46w4w=
+	t=1783324872; cv=none; b=o/lNhyjMllgWW8kZgqL3YcVprQUEWCUoJ9liqkNUqzAfRJxXKK8G+r5pO58eeiysPVBHUCcHHO2+3Qu1G0B4mgi/DV5IafSN2BGzvotha0uX5Bjpk5ntcWPNG4I2PCmMtzE0sMLyVglmSi+NuvpMIFvLEJkEBPjeaM8nxhJYipY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783319518; c=relaxed/simple;
-	bh=TA+xQH18UL93fWwPjzqg20xYFjNdIrWxFkQU74PgtGI=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Cc:Subject:From:To:
-	 References:In-Reply-To; b=V2dePJqEQXAhsBqlUp+K0nWeUIUxIfcMjU6OZEeazpxMk7umjKTGMAXJxkg5ib3iSgu788VGRhB5YG2wzBaE+CUDHOASRGeDQT+aFf0yPwPeUHLSDZ5zYwJ9bvsZcPcPpYQXMrwXDJ4gpybfYtLbe2MIk4HmzEkhEhWQu4AyePw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com; spf=pass smtp.mailfrom=brighamcampbell.com; dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b=FZMKqOV/; arc=none smtp.client-ip=209.85.216.52
+	s=arc-20240116; t=1783324872; c=relaxed/simple;
+	bh=xTnA/eD0J/2aSolda/yyqbIQlehiJ4TTbwgxfN63kR8=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=d/JSG3Zt0+YkcOQFNUeUVRKasfdrcFN+aL1iBeS5EufWAfNKj688hgs+rbs9qZe9SIbwe3+w+oYvIrNeogOSO8ADkMd2EME5jrZ9h70b2ChJeTIk6xTKoEQa/wA1K8BvajFDEdRy88JzxTNR+J9i9jbILy032T5goJpl2jDCe1k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com; spf=pass smtp.mailfrom=brighamcampbell.com; dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b=aU8c53qb; arc=none smtp.client-ip=209.85.214.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=brighamcampbell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b="FZMKqOV/"
-Received: by mail-pj1-f52.google.com with SMTP id 98e67ed59e1d1-3856d6fbcb3so603454a91.2
-        for <linux-i2c@vger.kernel.org>; Sun, 05 Jul 2026 23:31:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b="aU8c53qb"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2cc6dd436c6so11049845ad.2
+        for <linux-i2c@vger.kernel.org>; Mon, 06 Jul 2026 01:01:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=brighamcampbell.com; s=google; t=1783319503; x=1783924303; darn=vger.kernel.org;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
-         :content-type:content-transfer-encoding:mime-version:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=TDW7NrEtaPMPIp1zzkrumNAmcq9zwhWv23pLo0ZOV+8=;
-        b=FZMKqOV/KrulSNB1NVKP8F95LHeq8Qj523N4lhaX1kp2WXll6QS9x1N/TFjcwbXoUy
-         yKOuGUsL8I++fgE/FOI8/ktwr1LVlSphsEXjnVhJLrQz/ox9KJEZepVDzfD3XWo6Sb8y
-         wwFg1aRjzGfF6riT2rDCOsPowA12OKU1GkWqik3l4CaE1xZuyli4HOToM+ZpaVAn/9y8
-         sj4VnfaKgCarRz4tu28xkJnho8AuQTciL1gXqMfKts6aM18gfUQknwx17S8p9cSfg0DT
-         fjyxlofNDe2ExTW9Alg0Ng8ahZjNyNDCW/LHKl6dgy+M5DMQSVUMgMewRPAqM2TTYjWg
-         1n6g==
+        d=brighamcampbell.com; s=google; t=1783324864; x=1783929664; darn=vger.kernel.org;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=O4wND/FQTU7bPAz2jUMQ+v5Bx7iU6hLgdSwAO863EKo=;
+        b=aU8c53qbHBDMj3bBlkQ4F1Br8f+1ouP9gdJ4e+5qoPawPeBvLQG3EPU/l6fZof0udk
+         IeOUojMoExSPS7fhBuI4xQrdVk1rp9xxtqI5JIeFG+Sdat3oTIlwWqZvAPmHTqInlv9h
+         8zebYVyQpzddt30wIFwkQOM8c7dfivgX6suohT2TdqHxCvVMstVSpwJQbg0qXXpjwnj+
+         EsqrT49DZv9Dy7xRkM94dRbZ/Ht2mpt5IFRMfQq9+UjJWLNi88x5EGvpSn/KlNbz+bU+
+         s54xxEsMhqQSWWM7PnCAm1TrFoUF9/Kj7plFai8bIK+ikRf0PBCHZFRd+PhOmUzVQ2Ad
+         KQ0g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783319503; x=1783924303;
-        h=in-reply-to:references:to:from:subject:cc:message-id:date
-         :content-type:content-transfer-encoding:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=TDW7NrEtaPMPIp1zzkrumNAmcq9zwhWv23pLo0ZOV+8=;
-        b=WgJ9SpB473OfB9y5Jz0PZSkFrkjPQkXE/epz1NS1ju1IEfHkB4nvhSphMfRf0LTvJ6
-         PHjz9u4XhhxYQCop8Gb27DwMB/qMn/HnNRs8LK/AzUpeKKM5s5ulGhEF4oBf274gkaO9
-         HJ2AUFTBv7s9Xd/HkZenR5i3xgq8reuzEvvXycKq4u782ZImN2Xs8Uow5rBl02GxEnjT
-         3YBwrQ1jPB1kMCo6Re6YNojptHVE7ivOoXOUwtqgBxFw6n/7aeolhANoXWQPenvbDiLu
-         pnzcYW7aYpSMipJ1VixiGLA0GYrNahGyGvPUBIwsT/hXM8Ytx6IfEUYzF/j8M29ofZsi
-         rXIQ==
-X-Forwarded-Encrypted: i=1; AHgh+Rr3Bu5wLP52y4li4uQzom2KNlI0LbiKYNpH2mml/vuz6HAfvGyLA+SfiKkUzXHih/oQC74+qfNRo8U=@vger.kernel.org
-X-Gm-Message-State: AOJu0YyNGUoyuJrg/BNlKKfp1F7Gl+brdIVZpIdF3CtwZuv3hdl44oci
-	5xirE8Omhty1QC4ZXaegmjiE6iSi2POvtLaD3pCZw6sw/Ry8EFWK5YYHlpi4OqKsWz9pfTQZC+4
-	YK6tE
-X-Gm-Gg: AfdE7ck51TOcge3aESQ0XUjOxkb7aYRSlssdsw2KpgFknNOjELI0nz/xujZDmdPAGRj
-	/SBm0Wx/btku/CG7gA8HgpZx+Rx3iDuwOkhNw2eJwMBplcoBz+gNLqAbHZ1oIHfRgbQN0auDB17
-	fzfoU4NH65ejInHXCl6Z7xxGJQWX0Lh8PSR8fr/KMYZtTU7/rZtekuHkaoafyorW8DHiIHCxReo
-	IrbelSRFDJkKLqD/nT6gd9UkkvlDLryiV5vZtpsTuR7Fb37b32JAQrfqN1/y9Z6220zKm/WuyqV
-	ZtrMSKM+z+cOoB4wqFtTVUT9t7+HaDEn4E0531tWcxQC7exU9eTwNK2MwssqBxl3MdvQH6ARCiD
-	t3H+M0Ii53yuGGFQ6OaNkz3ChvuHRfjaIWD1wbSW4fYO/cFLPhm/1Ly2MAccbqUtrGznoJn6Ow6
-	792P5wZrCqkI2SEpfmUAi6WHKgbYB1jcuba5qi+PkIjRikMPPg6XhNnHRBRA==
-X-Received: by 2002:a17:90b:4d0d:b0:37f:9cdf:f039 with SMTP id 98e67ed59e1d1-3829f4e8519mr8910842a91.28.1783319503456;
-        Sun, 05 Jul 2026 23:31:43 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1783324864; x=1783929664;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=O4wND/FQTU7bPAz2jUMQ+v5Bx7iU6hLgdSwAO863EKo=;
+        b=IKZVJypn5fa4pKmiT4fz00WIRqQGkuJuHoyWEfcxKb69sWG9FX427sz2qfUdaOBEPM
+         TTMafZSzhN9bu7miFEsXzEJb8phiRedBxzf0+ytaRILQigO09zBjWsZbVtRvxFo3voFs
+         k1QAI0KB9bZGSHrY7jKHWP8YcdZZSDqlvyKpNrglCcNAOrAwU2WHn64eJ06TgMTbXpVV
+         ybQ6yoM4rqYXVsTQN7NZkFWVf9Urs2khUSPNmuwMDyQf0X6sFQcENb3JXRRi4Q1kLmp4
+         UeDkeKLNQniqbCziw2H8mV/ZwDzZvcOWb4lymCfd0v+HT7e9/1TqjtXAYN2e/ID4ybJi
+         XBiQ==
+X-Gm-Message-State: AOJu0Yxk69cNUBlGMtvzypNjnGNIfcjO4sXRmx6osifS4pMtY8YBs0UA
+	falc8zSLcsuqkMgUX+BGmpnz7aZnUmdSA+l5d7yQC3+SKf40E32aXavOXmtsTDeA8gE=
+X-Gm-Gg: AfdE7cn8SqKghEXMQWKwwXild6AV90htH6lV9jTw75oRmVhDI28eObR6hvOWOVcvHAQ
+	kn2RrQwpTrW7abtBp9YWGVvXXcLg8j/kDl7Ndrrcsiw1Qz4syjw+D8X+Iy/PYnrCm2lrs62lKf6
+	kyS/m/2iylMmEBGtq91RqmK6+OdqmCKUJ/MpH3JIusyT9vaKag4BF4REjVKiEldxC3l4H0DAEQN
+	fSjzrLZlhetSLSzVxv0PrRUvnX8og2Pakqu7ax2Dgb0uk4yKxMByedKs0k5hL5YNPgWCdRCnvWy
+	KmSM2A7pqdETMPOv8s2DC4rbjCoKtoopKvN8vdGGHoZYXgIwQ9tIiyju/jwxBZ2WFxqCC7DgZYh
+	UKCucfGSlY+T5pwDAOOykP1jGl3xtrfP+fWR2vriQt1ScpT7o4Lri4V40WXM8zWEomop0udqZxF
+	n3nHDppxYewfdoBJMZW5ZiK9EUPMxb8QVKO8e+p2DkRNim0coZ6ePjpZ/blA==
+X-Received: by 2002:a17:902:f54c:b0:2c9:c952:6e9 with SMTP id d9443c01a7336-2cb97e576a4mr93046445ad.2.1783324864115;
+        Mon, 06 Jul 2026 01:01:04 -0700 (PDT)
 Received: from brighamcampbell.com ([2605:fb40:0:c09:9ca9:e0fd:b7cd:be76])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30f0bbd2362sm54428793eec.20.2026.07.05.23.31.42
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13b3c7ef5b3sm67268786c88.1.2026.07.06.01.01.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 05 Jul 2026 23:31:42 -0700 (PDT)
+        Mon, 06 Jul 2026 01:01:03 -0700 (PDT)
+From: Brigham Campbell <me@brighamcampbell.com>
+Date: Mon, 06 Jul 2026 02:02:39 -0600
+Subject: [PATCH] i2c-tools: Enable cross compilation
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Mon, 06 Jul 2026 00:33:43 -0600
-Message-Id: <DJRA1PB8LKKJ.2RTZWEP2LVRFF@brighamcampbell.com>
-Cc: "Jean Delvare" <jdelvare@suse.com>, =?utf-8?q?Beno=C3=AEt_Monin?=
- <benoit.monin@bootlin.com>
-Subject: Re: [PATCH i2c-tools] TODO: add file and describe items for the 4.5
- release
-From: "Brigham Campbell" <me@brighamcampbell.com>
-To: "Stephen Horvath" <s.horvath@outlook.com.au>, "Brigham Campbell"
- <me@brighamcampbell.com>, "Wolfram Sang"
- <wsa+renesas@sang-engineering.com>, <linux-i2c@vger.kernel.org>
-X-Mailer: aerc 0.21.0-0-g5549850facc2
-References: <20260705181043.3757-1-wsa+renesas@sang-engineering.com>
- <DJR7QS1LOHU0.2PNA54ULDF2PF@brighamcampbell.com>
- <SYBPR01MB4586AD69D431CAD2D26ADD68C5F12@SYBPR01MB4586.ausprd01.prod.outlook.com>
-In-Reply-To: <SYBPR01MB4586AD69D431CAD2D26ADD68C5F12@SYBPR01MB4586.ausprd01.prod.outlook.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260706-cross-compile-v1-1-e3ebdd485ce6@brighamcampbell.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIzMDcwMz3eSi/OJi3eT83ILMnFRdY7M0SwMTI1MzEwtDJaCegqLUtMwKsHn
+ RsRB+cWlSVmpyCcgQpdpaAIeZ6z9xAAAA
+X-Change-ID: 20260706-cross-compile-36f904256481
+To: linux-i2c@vger.kernel.org, Jean Delvare <jdelvare@suse.de>
+Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
+ Brigham Campbell <me@brighamcampbell.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1827;
+ i=me@brighamcampbell.com; h=from:subject:message-id;
+ bh=xTnA/eD0J/2aSolda/yyqbIQlehiJ4TTbwgxfN63kR8=;
+ b=owGbwMvMwCUWLsWS0KCyxZPxtFoSQ5Z3ooWFkkSoYqGspgSXEZepSUTTgvkMJ8SO9D7YfZ1lS
+ ljRtTMdpSwMYlwMsmKKLCq3ZqlfnGz96GAE/wSYOaxMIEMYuDgFYCIM/xkZDoVJn9+0/n7xpF7u
+ Opnbwt8eX22WL3ja2833vH2bp8qFLkaG6Q9Cpgju4+Fh2LNxn6Psyy8vc4RmhgS/NbjqqnRVwka
+ FAQA=
+X-Developer-Key: i=me@brighamcampbell.com; a=openpgp;
+ fpr=24DA9A27D1933BE2C1580F90571A04608024B449
 
-On Sun Jul 5, 2026 at 11:19 PM MDT, Stephen Horvath wrote:
-> If you've got the spd5118 kernel module loaded (which usually happens
-> automatically), you just have to run `sudo ./decode-dimms`. You can
-> manually bind spd5118 if it isn't autodetecting, your dimms should be on
-> your i801 bus (or PIIX4 for AMD), usually with an address between 0x50
-> to 0x57.
+Currently, the Makefile fails to change CC, AR, and STRIP variables from
+their default values[^1] because it uses the conditional variable
+assignment operator. The Makefile also doesn't allow for cross
+compilation without modification.
 
-No, the spd5118 module doesn't appear to be loaded automatically:
+Modify the Makefile to use unconditional assignment and allow the user
+to cross compile the software via the CROSS_COMPILE variable.
 
-```
-$ lsmod | grep spd5118
-$ zgrep SENSORS_SPD5118 /proc/config.gz
-CONFIG_SENSORS_SPD5118=3Dm
-CONFIG_SENSORS_SPD5118_DETECT=3Dy
-```
+[^1]: https://www.gnu.org/software/make/manual/html_node/Implicit-Variables.html
 
-Using `i2cdetect` on the i801 SMBus controller, I see that it reports no
-attached i2c devices:
+Signed-off-by: Brigham Campbell <me@brighamcampbell.com>
+---
+ Makefile | 9 ++++++---
+ README   | 3 +++
+ 2 files changed, 9 insertions(+), 3 deletions(-)
 
-```
-$ sudo ./tools/i2cdetect -y /dev/i2c-15
-     0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-00:                         -- -- -- -- -- -- -- --=20
-10: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --=20
-20: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --=20
-30: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --=20
-40: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --=20
-50: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --=20
-60: -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --=20
-70: -- -- -- -- -- -- -- --                        =20
-$=20
-```
+diff --git a/Makefile b/Makefile
+index a0d4269..2a51485 100644
+--- a/Makefile
++++ b/Makefile
+@@ -24,9 +24,12 @@ INSTALL_PROGRAM	:= $(INSTALL) -m 755
+ LN		:= ln -sf
+ RM		:= rm -f
+ 
+-CC	?= gcc
+-AR	?= ar
+-STRIP	?= strip
++# Use CROSS_COMPILE to specify the toolchain prefix. E.g.
++# make CROSS_COMPILE=aarch64-linux-gnu-
++
++CC	= $(CROSS_COMPILE)gcc
++AR	= $(CROSS_COMPILE)ar
++STRIP	= $(CROSS_COMPILE)strip
+ 
+ CFLAGS		?= -O2
+ # When debugging, use the following instead
+diff --git a/README b/README
+index 502132f..1c83561 100644
+--- a/README
++++ b/README
+@@ -80,6 +80,9 @@ If you want to compile the tools against the static version of the library
+ you can do:
+   $ make USE_STATIC_LIB=1
+ 
++To compile for another platform, use the CROSS_COMPILE toolchain prefix option:
++  $ make CROSS_COMPILE=aarch64-linux-gnu-
++
+ Optionally, you can run "make strip" prior to "make install" if you want
+ smaller binaries. However, be aware that this will prevent any further
+ attempt to debug the library and tools.
 
-Interestingly, I see warnings in dmesg upon running the above i2cdetect
-command. Taking a quick look at the kernel code, this appears to be
-caused by some transient controller hardware busy state which is
-overcome by the kernel's bus arbitration retry logic (See
-`drivers/i2c/busses/i2c-i801.c:1552`). It's strange that a bus with no
-devices attached would ever become busy...
+---
+base-commit: 5852f5375eea6ca9dabf31f4772cb8b8ecc905d8
+change-id: 20260706-cross-compile-36f904256481
 
-```
-...
-[  +0.000009] i801_smbus 0000:00:1f.4: SMBus is busy, can't use it!
-[  +0.000010] i801_smbus 0000:00:1f.4: SMBus is busy, can't use it!
-[  +0.000010] i801_smbus 0000:00:1f.4: SMBus is busy, can't use it!
-[  +0.000009] i801_smbus 0000:00:1f.4: SMBus is busy, can't use it!
-[  +0.000010] i801_smbus 0000:00:1f.4: SMBus is busy, can't use it!
-...
-```
+Thanks!
+-- 
+Brigham Campbell
+https://brighamcampbell.com
 
-In any case, if I am unable to exercise your code, I would still be glad
-to review it.
-
-Cheers,
-Brigham
