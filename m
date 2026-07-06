@@ -1,67 +1,66 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD8DB18AE3
-	for <linux-i2c@vger.kernel.org>; Mon,  6 Jul 2026 04:25:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9C362BD02
+	for <linux-i2c@vger.kernel.org>; Mon,  6 Jul 2026 04:25:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783311955; cv=none; b=Zcbv3Hmptt2nXpb5BJVODR4fQNHr46AXsIbNypp8q0ZeViEHoaLGXNG3rTod0HlfeNaDB0z8qdxSlVf1jllRV0XKaTdYUJPtEBYj8Qf+J2vq2SGzHR4i4XLvmYnr+2Mkbm7fh2QqJlUGWcOp8V1ertSbu0/mkibhLndd3xaeqqY=
+	t=1783311956; cv=none; b=JnvemM2cLFJSfT9I6mPsf3AMGD9DBo9N2hZQXJpPjdg/wBaFCmy6iNAg6ObTTF3hBaXdjaPemm+wh7ggtNrfTfkK+QaQy0PpF3BUV++QGLJ86O3c8Fv5jeFViu0oFS8jq5G8gUKDwtREww6G1+9VZmBp0LVxH6OPORVCHwq2cYA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783311955; c=relaxed/simple;
-	bh=K9Ur+szbTp1BBrBEss3tOSBHTsn2aytqf2L+g0NnveA=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=rIfmOyAbGzsXmRD8gUY4UbNHjN1KPXXij6OCdpb8ogbTOElUmai2n11jDlwqa7ytiIHzY9il9KGxSflXEfX/bzG22n9zxgplEgkZWoZgSjbrrOuV4jc8whC1jD+KU47gEZDt0OyxuGoJxj0u+qudYrvrNlHqYDLEg3Wlng7huK4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com; spf=pass smtp.mailfrom=brighamcampbell.com; dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b=NNLSl4Yv; arc=none smtp.client-ip=209.85.216.49
+	s=arc-20240116; t=1783311956; c=relaxed/simple;
+	bh=3qD/MwQJsMYhCbRFJtChmIKKJ1ahwDi1yOkdkYnmb6U=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=bZI79C/D6iGRDt6oHnAh/8+pGoSI9U7gK3IyJYORuxMtddnZRA96dZdfe+jCwl3t85d9Rxw3FTC1ysueiFrMHlpt+eNf2RGNTbijHovn4BLxq8cK3IbnFaE3kOTEf/CRfshD/tyhMoN7Iwicvx8uwgyZ8+iPiGKoo2STP6SHilo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com; spf=pass smtp.mailfrom=brighamcampbell.com; dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b=fp/NV7T9; arc=none smtp.client-ip=209.85.216.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=brighamcampbell.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=brighamcampbell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b="NNLSl4Yv"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-381b831d535so2776448a91.0
-        for <linux-i2c@vger.kernel.org>; Sun, 05 Jul 2026 21:25:53 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=brighamcampbell.com header.i=@brighamcampbell.com header.b="fp/NV7T9"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-382ef647e20so1462108a91.1
+        for <linux-i2c@vger.kernel.org>; Sun, 05 Jul 2026 21:25:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=brighamcampbell.com; s=google; t=1783311953; x=1783916753; darn=vger.kernel.org;
-        h=cc:to:content-transfer-encoding:content-type:mime-version
-         :message-id:date:subject:from:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=pYoxxyNPcwSpszQU+jQtdXf7218rkPKBApGnjvPDQZ0=;
-        b=NNLSl4YviGMc4tYlDv5O05pjxkZKZVlkL2LyHeQVs4usj0s2uqDSWngle0hg6k1NWE
-         18QpyjsgNMpMetSenVyayCJns0UubjldSmLEDT51m1OcD/R9RkqA6yT0uTF3ZAKib+E3
-         qCJeJ8sakorjub/WuqhoRwumlgZnjbPsBOh7O0l1ZG1tscBo7Uv9LyLRZk36jI2opM0f
-         r1xg7mcs3vIsBIlFtsqwLlZvKEVF6pyWRu96om6AjHwFjaNdU9HMWeoHOxm+Kl4QlXkM
-         +Q4T43VjTMh09fn7+66sjbxpPbvRPD177qKtBj+5xmvArf4cFeceMlDSvPiyzH8/2SFR
-         5Ahg==
+        d=brighamcampbell.com; s=google; t=1783311954; x=1783916754; darn=vger.kernel.org;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=AZo5ERk4aN7wOeLZv2EzgPERxJsH0zD+jPLcjjPwLno=;
+        b=fp/NV7T9W2nr7CB2lhFwbD1qsS5+6v1982hUHdLFTtt1Cp13xvuxl0oPrxBjooGgum
+         Jg1nfuBxneCl/I4WpCfOCHrUeZQcmBKRSrvYxmKIuxvM5FFReIC1R2SIpew+g5JQSblt
+         olsYqiY/YoHxY4JIKCpJf8bZHFRgewAWpWkeVpehgV6bRQoTqj6xnL1I1M9oCYc3evt8
+         HEoDz/VHGRuIY+7pkhluW3Tut65jpJnuN+2EL3g+r2T9z4FKcECMLimqDa03WlkTwUDw
+         Ex9uGWE1wouen17DrRX4FUehP8Wnweh2yuzqGlF9CHjWUYCEg+nKgNEu43lZmECqlgXn
+         CuDA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783311953; x=1783916753;
-        h=cc:to:content-transfer-encoding:content-type:mime-version
-         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=pYoxxyNPcwSpszQU+jQtdXf7218rkPKBApGnjvPDQZ0=;
-        b=FUqpW8VnDwJ4oBykLt8G3jEHZBbxwmKArAu+Xu3MBMqaSXz58DdpAj2giaBWHTyqTg
-         ONLf8NPwvZ2ocCShF8M5HzMn3X8XN/aHxAAFM+3m30hW4asrPcdp749JKwEXSkKR1bQT
-         jsn7nEqxFksOQvPFf4cbaTYPpSTOGEzDnZcezHtArZYmkXDiKxVUCGYHfkHckeEqAn5O
-         JmB90jQp2+R7VNGSt0U8mmnb0pG1yu9UNj6nIQy8MeKoyBGbruzUX8hwtow3/u9Vhsdu
-         L8uHcY3Cs1KSwbQBVX19fQ+nnxLaArjhmX6k+BZg2hqVY4eQXdTIzdYKRnf7UQNXKA5f
-         KqSQ==
-X-Forwarded-Encrypted: i=1; AHgh+RoCAiVgZt4rEV8MOR22+jgyhEnv/35TWH+m+fBpgaUC8PlnCGeNz6gv3Wriz8x3TYE8P4jEs+SEkJs=@vger.kernel.org
-X-Gm-Message-State: AOJu0YzbGOH+y+LVGFsD/Lf3Ew8BYvvPHP/Sr3Ot03Wqc1YGeWH+R7ss
-	LgwZUe0PtYm72DY+BqKxD7E8t2d5g7KStygZtDavqYgoJ8XqnAl4ceSKQD8T7XOO05SrKSNXgcE
-	vljKq
-X-Gm-Gg: AfdE7clrovMsqNw1JtC3qIz8MGNyuP8I0mt76neT6m/h0yJCQwa1pvWjxMRWQxD7cJS
-	vhoDIqvmJlXevDs3xVelRtZZWJo4anqIVjqtA4p/nCSU3OQZcQnP+JlRE/DnqAd3/vcciX2fLHR
-	6D++qHjKx2lTj2UdROaOj89R3liTl+yridRJxJAFKcHlIU45s2TVx6ugXNyB8jL8pCqTWhqi7u6
-	SxFt5rpGRwkhsH7vHWXdKpwhV7wYnejO2kBuQMy47N7DULouEaMdBi7PO97Mt1Elk0ivCzhKqq6
-	WBrREP3c8AzuR+aNsvCR0ZIfna/3VmvTp5o/b1Jh6O7IF5Wo8WbE+Jp31aY+C/Im+GgLA4Q4B7h
-	bLfIAhcbTAA4Wa/llTsnWKfyaK2/OLFmp03uo58y8NgEZ9YsLPHsv9bHSDs1HC2XcE//3SCje0p
-	bw0BGBQzhCUtQIiziwLw6dC0r/irNazA95lrCaNf/WuxPrYjguJ3qLQy0szA==
-X-Received: by 2002:a17:90a:c88f:b0:36d:b424:4f17 with SMTP id 98e67ed59e1d1-382802bf839mr8593181a91.1.1783311953118;
-        Sun, 05 Jul 2026 21:25:53 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1783311954; x=1783916754;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=AZo5ERk4aN7wOeLZv2EzgPERxJsH0zD+jPLcjjPwLno=;
+        b=loWaPHF2GwvJTpw/y85iD9XWzUJiRnn2BZx62IdY9o8fOUBm8H/goFZubgAGkcXxqk
+         w+BophjL0QcvsyzhxyrmJHXbOVkSZ6O941e5ul41VLD8JC4SnavxJNS5QjnenyTrbcen
+         BCegHVGBkNSMXD5bj3zTZPt+/T1PlyQyqsj12HBYW7BUUcSxKjADkMRGW02V3l6TyWXs
+         EZjZ4bRjpS6JQsoLl5QNrSd21SjOYM4NaQz1MdSjivd5p0P2NhyFQT8D+/6tUQPn2zze
+         KOX5yZzi8gyMeakLGVEBWnq5Mf2dm8NnSR41VtL4e7aVJVR6OWjlZzZZ+cDgY5IxO6F8
+         Yrug==
+X-Forwarded-Encrypted: i=1; AHgh+RpNDQz5mak4yMYyrT7kGM+3Ye6oQpOqkPAHBIjtXV5lUuFD8ci5vVztLZuQVKBHDeh8L53OM7v2hE4=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxhpeYtfiR+K01V+AUxwVTUO+DjLkDeO5cKwNIg1WZyStplaGPc
+	atgcFbnvjHdi67+tg1bbgGLNrn1e8fk6Q65rV4A8ZdSlcOQGQri3aVJ+x3PXzkyZQfM=
+X-Gm-Gg: AfdE7clq3J0vlEtmWcaQkH61K6JPKXMVhFJtNQlx5FrTbLooUTYlyIOwK0yNIlSmsP5
+	can+MaFK2zRodF2OzvIa+xD9dmYmYAXIgRMWrie9TxY1OVfDNRuvb/sMo9OxpX3b/FbMyQM2rIK
+	muv6cJ6g98/n2L6vkoyY8N0ylptkDagD+Kc6JRVW3VfmwBCDnzmK3S804xNoNBddfeYM2whx73K
+	iIJPYnJz3NO5JYSHx4ivi9oDmRBZsF648hvP/SgGi50j0jhfSCcS1RXQedMaBZVect9ohcOgb6h
+	XBVDYrMTZAr9jaKh8ryUve5QweoohpJw3X/Rvf8mt7E0Hg4Dz2lJpDbQn0U+qG3IlRfzmbLLv4Z
+	zS4e2ZPRDjK7qzBsn/oy9V+hOrsWc649cTjtyk7EWbFhFeBR0+xgBwZU1ryVAp1Ibwsy4xQgqq+
+	EO9hOcWzn0Q3XIGo/C8CJr0QiGCpgrCpMDj6BMr11mgvG34OeKvASMwZhymJJ5S64bdvyl
+X-Received: by 2002:a05:6a21:3318:b0:3b3:be1f:c89b with SMTP id adf61e73a8af0-3c03e21f2f8mr9052341637.22.1783311954264;
+        Sun, 05 Jul 2026 21:25:54 -0700 (PDT)
 Received: from brighamcampbell.com ([2605:fb40:0:c09:9ca9:e0fd:b7cd:be76])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31151fff32fsm13610010eec.21.2026.07.05.21.25.52
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13b3ececfe4sm56766475c88.8.2026.07.05.21.25.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 05 Jul 2026 21:25:52 -0700 (PDT)
+        Sun, 05 Jul 2026 21:25:53 -0700 (PDT)
 From: Brigham Campbell <me@brighamcampbell.com>
-Subject: [PATCH v4 0/2] i2c-tools: Make tools accept bus path
-Date: Sun, 05 Jul 2026 22:27:52 -0600
-Message-Id: <20260705-accept-device-path-v4-0-c62caa708a9e@brighamcampbell.com>
+Date: Sun, 05 Jul 2026 22:27:53 -0600
+Subject: [PATCH v4 1/2] i2c-tools: Allow passing device file paths
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
@@ -69,74 +68,312 @@ List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/32NQQ6DIBQFr2JYlwZBae2q92hcwPcrNCoEqGljv
- HvR7rucZN68lUQMFiO5FSsJuNho3ZyhOhUEjJoHpLbLTDjjktWCUQWAPtEuu4DUq2RoLZpSVtB
- A2fUkD33A3r6P6KP9cXzpJ0LaS7thbEwufI7XReze34NFUEY5A1bqay8vXN51sINRE6jJaxzHM
- 7iJtNu2fQFYQXGU0AAAAA==
-X-Change-ID: 20260530-accept-device-path-539164c9c1df
+Content-Transfer-Encoding: 8bit
+Message-Id: <20260705-accept-device-path-v4-1-c62caa708a9e@brighamcampbell.com>
+References: <20260705-accept-device-path-v4-0-c62caa708a9e@brighamcampbell.com>
+In-Reply-To: <20260705-accept-device-path-v4-0-c62caa708a9e@brighamcampbell.com>
 To: Jean Delvare <jdelvare@suse.de>, linux-i2c@vger.kernel.org
 Cc: Wolfram Sang <wsa+renesas@sang-engineering.com>, 
  Brigham Campbell <me@brighamcampbell.com>, 
  =?utf-8?q?Gero_Schw=C3=A4ricke?= <gero.schwaericke@sevenlab.de>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1974;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=8781;
  i=me@brighamcampbell.com; h=from:subject:message-id;
- bh=K9Ur+szbTp1BBrBEss3tOSBHTsn2aytqf2L+g0NnveA=;
- b=owGbwMvMwCUWLsWS0KCyxZPxtFoSQ5a33sne2B3d7ycfNWp6EqXQfOBfthtrunT2yodZB/mmH
- GGYJrino5SFQYyLQVZMkUXl1iz1i5OtHx2M4J8AM4eVCWQIAxenAEzkVQvDP62Hi+Iv756VMGkO
- c/b5R2eSazP6XErsPx/+cv2qdOcTYQWG/zWW51lWy/0zTtWf+3vlzkmlDo6Ld3++zZRfYxzqKs5
- XyA4A
+ bh=3qD/MwQJsMYhCbRFJtChmIKKJ1ahwDi1yOkdkYnmb6U=;
+ b=owGbwMvMwCUWLsWS0KCyxZPxtFoSQ5a33smPzBp1e+e7SR5fKaUs5f3F0PbT+a0m6smbdlxiM
+ Fkfn/Cuo5SFQYyLQVZMkUXl1iz1i5OtHx2M4J8AM4eVCWQIAxenAEyE/R8jQ9MnhXj2No3XhzL9
+ vvo/nn7B5JSdufjeosVebYzWPh/Zshn+CtfZiIt1WORKSt/TzRLS0+OO7WjWNI17ciPdpeFZ+FR
+ 2AA==
 X-Developer-Key: i=me@brighamcampbell.com; a=openpgp;
  fpr=24DA9A27D1933BE2C1580F90571A04608024B449
 
-The purpose of this series is to make i2c-tools userspace utilities
-accept an i2c bus character device file path as an argument. This is
-useful, for example, if a sysadmin creates udev rules to create a
-persistent symlink to an i2c bus and wishes to use that symlink with
-i2c-tools.
+Make i2c-tools binaries accept a device file path or symlink directly.
+This is useful, for example, for use with stable symlinks generated by
+udev.
 
-I've tested these changes by running i2cdetect, i2cget, and i2cset.
-Please be aware that my current test setup has an i801 bus controller
-with what seems to be no slave devices connected, so my testing has been
-superficial, involving mostly failed read/writes. This patch series only
-touches code that actually opens the character device file, so I'm
-satisfied with this testing. If maintainers prefer, I'm happy to test
-more rigorously.
+In the case of conflict, the bus parameter is parsed with the following
+precedence in order to maintain backwards compatibility:
 
-Since v1:
- * Scrapped brittle checking against device major number 89 in favor of
-   an i2c_bus_hint variant struct.
-Since v2:
- * Scrapped i2c_bus_hint variant in favor of combining the lookup and
-   open steps into one function. No more awkward variant.
-Since v3:
- * Rebased onto `master` and fixed minor conflicts.
+number -> name -> device path
 
+Suggested-by: Gero Schwäricke <gero.schwaericke@sevenlab.de>
 Signed-off-by: Brigham Campbell <me@brighamcampbell.com>
 ---
-Brigham Campbell (2):
-      i2c-tools: Allow passing device file paths
-      i2c-tools: Document device paths as I2CBUS arg
-
  tools/i2cbusses.c   | 40 ++++++++++++++++++++++++++++++++++------
  tools/i2cbusses.h   |  4 +++-
- tools/i2cdetect.8   |  8 ++++----
- tools/i2cdetect.c   | 14 +++++---------
- tools/i2cdump.8     |  7 ++++---
- tools/i2cdump.c     | 14 +++++---------
- tools/i2cget.8      |  9 +++++----
- tools/i2cget.c      | 13 +++++--------
- tools/i2cset.8      | 12 ++++++------
- tools/i2cset.c      | 13 +++++--------
- tools/i2ctransfer.8 |  2 +-
- tools/i2ctransfer.c | 13 +++++--------
- 12 files changed, 82 insertions(+), 67 deletions(-)
----
-base-commit: 5852f5375eea6ca9dabf31f4772cb8b8ecc905d8
-change-id: 20260530-accept-device-path-539164c9c1df
+ tools/i2cdetect.c   | 12 ++++--------
+ tools/i2cdump.c     | 12 ++++--------
+ tools/i2cget.c      | 11 ++++-------
+ tools/i2cset.c      | 11 ++++-------
+ tools/i2ctransfer.c | 11 ++++-------
+ 7 files changed, 57 insertions(+), 44 deletions(-)
 
-Best regards,
---  
-Brigham Campbell <me@brighamcampbell.com>
+diff --git a/tools/i2cbusses.c b/tools/i2cbusses.c
+index d687615..54f3238 100644
+--- a/tools/i2cbusses.c
++++ b/tools/i2cbusses.c
+@@ -65,7 +65,7 @@ static enum adt i2c_get_funcs(int i2cbus)
+ 	char filename[20];
+ 	enum adt ret;
+ 
+-	file = open_i2c_dev(i2cbus, filename, sizeof(filename), 1);
++	file = open_i2c_dev_num(i2cbus, filename, sizeof(filename), 1);
+ 	if (file < 0)
+ 		return adt_unknown;
+ 
+@@ -348,10 +348,6 @@ static int lookup_i2c_bus_by_name(const char *bus_name)
+ 		}
+ 	}
+ 
+-	if (i2cbus == -1)
+-		fprintf(stderr, "Error: I2C bus name doesn't match any "
+-			"bus present!\n");
+-
+ done:
+ 	free_adapters(adapters);
+ 	return i2cbus;
+@@ -410,7 +406,7 @@ int parse_i2c_address(const char *address_arg, int all_addrs)
+ 	return address;
+ }
+ 
+-int open_i2c_dev(int i2cbus, char *filename, size_t size, int quiet)
++int open_i2c_dev_num(int i2cbus, char *filename, size_t size, int quiet)
+ {
+ 	int file, len;
+ 
+@@ -446,6 +442,38 @@ int open_i2c_dev(int i2cbus, char *filename, size_t size, int quiet)
+ 	return file;
+ }
+ 
++int open_i2c_dev_path(const char *i2cbus_arg, int quiet)
++{
++	int file = open(i2cbus_arg, O_RDWR);
++
++	if (file < 0 && !quiet) {
++		fprintf(stderr, "Error: Could not open file "
++			"`%s': %s\n", i2cbus_arg, strerror(errno));
++		if (errno == EACCES)
++			fprintf(stderr, "Run as root?\n");
++	}
++
++	return file;
++}
++
++int open_i2c_dev(char *i2cbus_arg, char **filename, size_t size, int quiet)
++{
++	int file, i2cbus;
++
++	i2cbus = lookup_i2c_bus(i2cbus_arg);
++
++	if (i2cbus < 0) {
++		*filename = i2cbus_arg;
++		file = open_i2c_dev_path(i2cbus_arg, quiet);
++		if (file < 0)
++			fprintf(stderr, "Failed to open `%s' as a bus name "
++					"and as a path.\n", i2cbus_arg);
++		return file;
++	}
++
++	return open_i2c_dev_num(i2cbus, *filename, size, quiet);
++}
++
+ int set_slave_addr(int file, int address, int force)
+ {
+ 	/* With force, let the user read from/write to the registers
+diff --git a/tools/i2cbusses.h b/tools/i2cbusses.h
+index 6f901b6..5de3056 100644
+--- a/tools/i2cbusses.h
++++ b/tools/i2cbusses.h
+@@ -31,7 +31,9 @@ void free_adapters(struct i2c_adap *adapters);
+ 
+ int lookup_i2c_bus(const char *i2cbus_arg);
+ int parse_i2c_address(const char *address_arg, int all_addrs);
+-int open_i2c_dev(int i2cbus, char *filename, size_t size, int quiet);
++int open_i2c_dev(char *i2cbus_arg, char **filename, size_t size, int quiet);
++int open_i2c_dev_num(int i2cbus, char *filename, size_t size, int quiet);
++int open_i2c_dev_path(const char *i2cbus_arg, int quiet);
+ int set_slave_addr(int file, int address, int force);
+ 
+ #define MISSING_FUNC_FMT	"Error: Adapter does not have %s capability\n"
+diff --git a/tools/i2cdetect.c b/tools/i2cdetect.c
+index 3c22f17..b62f395 100644
+--- a/tools/i2cdetect.c
++++ b/tools/i2cdetect.c
+@@ -213,8 +213,9 @@ static void print_i2c_busses(void)
+ int main(int argc, char *argv[])
+ {
+ 	char *end;
+-	int i2cbus, file, res;
+-	char filename[20];
++	int file, res;
++	char filename_buf[20];
++	char *filename = filename_buf;
+ 	unsigned long funcs;
+ 	int mode = MODE_AUTO;
+ 	int first = 0x08, last = 0x77;
+@@ -277,11 +278,6 @@ int main(int argc, char *argv[])
+ 		help();
+ 		exit(1);
+ 	}
+-	i2cbus = lookup_i2c_bus(argv[optind]);
+-	if (i2cbus < 0) {
+-		help();
+-		exit(1);
+-	}
+ 
+ 	/* read address range if present */
+ 	if (argc == optind + 3 && mode != MODE_FUNC) {
+@@ -321,7 +317,7 @@ int main(int argc, char *argv[])
+ 		exit(1);
+ 	}
+ 
+-	file = open_i2c_dev(i2cbus, filename, sizeof(filename), 0);
++	file = open_i2c_dev(argv[optind], &filename, sizeof(filename_buf), 0);
+ 	if (file < 0) {
+ 		exit(1);
+ 	}
+diff --git a/tools/i2cdump.c b/tools/i2cdump.c
+index d315e2f..ce3be2c 100644
+--- a/tools/i2cdump.c
++++ b/tools/i2cdump.c
+@@ -100,9 +100,10 @@ static int check_funcs(int file, int size, int pec)
+ int main(int argc, char *argv[])
+ {
+ 	char *end;
+-	int i, j, res, i2cbus, address, size, file;
++	int i, j, res, address, size, file;
+ 	int bank = 0, bankreg = 0x4E, old_bank = 0;
+-	char filename[20];
++	char filename_buf[20];
++	char *filename = filename_buf;
+ 	int block[256];
+ 	int pec = 0, even = 0;
+ 	int opt;
+@@ -135,11 +136,6 @@ int main(int argc, char *argv[])
+ 		help();
+ 		exit(1);
+ 	}
+-	i2cbus = lookup_i2c_bus(argv[optind]);
+-	if (i2cbus < 0) {
+-		help();
+-		exit(1);
+-	}
+ 
+ 	if (argc < optind + 2) {
+ 		fprintf(stderr, "Error: No address specified!\n");
+@@ -235,7 +231,7 @@ int main(int argc, char *argv[])
+ 		}
+ 	}
+ 
+-	file = open_i2c_dev(i2cbus, filename, sizeof(filename), 0);
++	file = open_i2c_dev(argv[optind], &filename, sizeof(filename_buf), 0);
+ 	if (file < 0
+ 	 || check_funcs(file, size, pec)
+ 	 || set_slave_addr(file, address, force))
+diff --git a/tools/i2cget.c b/tools/i2cget.c
+index 17d78bf..e08ee81 100644
+--- a/tools/i2cget.c
++++ b/tools/i2cget.c
+@@ -169,9 +169,10 @@ static int confirm(const char *filename, int address, int size, int daddress,
+ int main(int argc, char *argv[])
+ {
+ 	char *end;
+-	int res, i2cbus, address, size, file;
++	int res, address, size, file;
+ 	int daddress;
+-	char filename[20];
++	char filename_buf[20];
++	char *filename = filename_buf;
+ 	int pec = 0;
+ 	int opt;
+ 	int force = 0, yes = 0, version = 0, all_addrs = 0;
+@@ -199,10 +200,6 @@ int main(int argc, char *argv[])
+ 	if (argc < optind + 2)
+ 		help(1);
+ 
+-	i2cbus = lookup_i2c_bus(argv[optind]);
+-	if (i2cbus < 0)
+-		help(1);
+-
+ 	address = parse_i2c_address(argv[optind+1], all_addrs);
+ 	if (address < 0)
+ 		help(1);
+@@ -251,7 +248,7 @@ int main(int argc, char *argv[])
+ 		length = I2C_SMBUS_BLOCK_MAX;
+ 	}
+ 
+-	file = open_i2c_dev(i2cbus, filename, sizeof(filename), 0);
++	file = open_i2c_dev(argv[optind], &filename, sizeof(filename_buf), 0);
+ 	if (file < 0
+ 	 || check_funcs(file, size, daddress, pec)
+ 	 || set_slave_addr(file, address, force))
+diff --git a/tools/i2cset.c b/tools/i2cset.c
+index aaf7faf..8371570 100644
+--- a/tools/i2cset.c
++++ b/tools/i2cset.c
+@@ -151,9 +151,10 @@ int main(int argc, char *argv[])
+ {
+ 	char *end;
+ 	const char *maskp = NULL;
+-	int res, i2cbus, address, size, file;
++	int res, address, size, file;
+ 	int value, daddress, vmask = 0;
+-	char filename[20];
++	char filename_buf[20];
++	char *filename = filename_buf;
+ 	int pec = 0;
+ 	int opt;
+ 	int force = 0, yes = 0, version = 0, readback = 0, all_addrs = 0;
+@@ -183,10 +184,6 @@ int main(int argc, char *argv[])
+ 	if (argc < optind + 3)
+ 		help(1);
+ 
+-	i2cbus = lookup_i2c_bus(argv[optind]);
+-	if (i2cbus < 0)
+-		help(1);
+-
+ 	address = parse_i2c_address(argv[optind+1], all_addrs);
+ 	if (address < 0)
+ 		help(1);
+@@ -301,7 +298,7 @@ int main(int argc, char *argv[])
+ 		}
+ 	}
+ 
+-	file = open_i2c_dev(i2cbus, filename, sizeof(filename), 0);
++	file = open_i2c_dev(argv[optind], &filename, sizeof(filename_buf), 0);
+ 	if (file < 0
+ 	 || check_funcs(file, size, pec)
+ 	 || set_slave_addr(file, address, force))
+diff --git a/tools/i2ctransfer.c b/tools/i2ctransfer.c
+index a49b734..d9d1396 100644
+--- a/tools/i2ctransfer.c
++++ b/tools/i2ctransfer.c
+@@ -257,8 +257,9 @@ static enum supported_flags_retval
+ 
+ int main(int argc, char *argv[])
+ {
+-	char filename[20];
+-	int i2cbus, address = -1, file, opt, nmsgs = 0, nmsgs_sent, i;
++	char filename_buf[20];
++	char *filename = filename_buf;
++	int address = -1, file, opt, nmsgs = 0, nmsgs_sent, i;
+ 	int force = 0, yes = 0, version = 0, verbose = 0, all_addrs = 0, binary = 0;
+ 	struct i2c_msg msgs[I2C_RDRW_IOCTL_MAX_MSGS];
+ 	enum parse_state state = PARSE_GET_DESC;
+@@ -293,11 +294,7 @@ int main(int argc, char *argv[])
+ 		exit(1);
+ 	}
+ 
+-	i2cbus = lookup_i2c_bus(argv[optind++]);
+-	if (i2cbus < 0)
+-		exit(1);
+-
+-	file = open_i2c_dev(i2cbus, filename, sizeof(filename), 0);
++	file = open_i2c_dev(argv[optind++], &filename, sizeof(filename_buf), 0);
+ 	if (file < 0 || get_funcs(file, &funcs) || check_funcs(funcs))
+ 		exit(1);
+ 
+
+-- 
+2.55.0
 
