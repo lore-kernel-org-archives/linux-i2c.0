@@ -1,171 +1,142 @@
-Received: from canpmsgout04.his.huawei.com (canpmsgout04.his.huawei.com [113.46.200.219])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f42.google.com (mail-yx1-f42.google.com [74.125.224.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 780B94DD6DC;
-	Mon,  6 Jul 2026 09:02:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.219
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783328582; cv=none; b=rLJh/qZQTL9ymjtsdgVCEvo7UbuB8N4F3RsH8g7vgpxuJgXK9VVDvnl8ta6fk3cOvdkZPuQF1vZTrZmJwTgjKl8K2HLoF794/Pev6f76KZg7sFs7LsvK+oBYWyHKSloydvY4bf2AYsupIiE9RsRKJWycFv4X7IKll3fAvJNElGE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783328582; c=relaxed/simple;
-	bh=yufmUSY40R4RXPo6K7fEa4KIhnrAK13kSTYa5kuGUP8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=DEZro42zNxj9UqrIY643v6/4W3Ee/uOWE2BTc2uyHnvmfSLwiQ7feUp1u1Q4BrHCZwXVzrR28D9lYtEYJ0HtupFJp82NGIekqCAdtNckcHQRvOJz6o5nE4MbalUIboEeV3ELXP6yaHcsPm/DpV1Htu9hNO7hEcLNlAj/uyMa4/A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=h-partners.com; dkim=pass (1024-bit key) header.d=h-partners.com header.i=@h-partners.com header.b=eqNX7Nqc; arc=none smtp.client-ip=113.46.200.219
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=h-partners.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 732053BCD2A
+	for <linux-i2c@vger.kernel.org>; Mon,  6 Jul 2026 10:09:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.42
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783332548; cv=pass; b=jQciKrFR6FlYYusI/g+0zMDnIGM2vLwLxVgq01M4vRkXa5BO27c4q1Bd8TY2z28cLLytKCQd7DSQ8GVtzEWcXui7NyABXynCOz4wm9+81cGs8EfuogaBMOoBcXs8EXXjPfdvzW2T6ccZG0tAL1tGX6ccL8Ao0Kc0Xz71f0PNQG8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783332548; c=relaxed/simple;
+	bh=IFML3rF9djtar7SwsjcOXZQUh4NL6BJakKNcU6x9ydY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=rpHNCU9xg7fD3mk6rVCBc6AjEYgQbfJWkMiqS2Kdh81Do8m20ngmtLI2ElpMKHyY8FSNec+2AIxHPlOCTw4gpJxu46ORrnrOemMrpvOBUooC4VON5h/7KtV9k6TdPNJF3fJmbLS3E/v9IkWNqx9TRSm4+A4pFHJvlYrADUdNldY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org; spf=pass smtp.mailfrom=chromium.org; dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b=W8gWe78Y; arc=pass smtp.client-ip=74.125.224.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=chromium.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=chromium.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=h-partners.com header.i=@h-partners.com header.b="eqNX7Nqc"
-dkim-signature: v=1; a=rsa-sha256; d=h-partners.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=2qCqXzWRyJgWX/jnAd9V4kg/326uEay1uq2VZP4DJJE=;
-	b=eqNX7NqcRHulodn1DGKmrAwPngvL/KEnkDj8rjacXwchLellJkmB/BXCciys5pPKEq9G0tk0l
-	DyRH5AWM9/lX0/hkoxc5uLE84SI60mkFD9M7Yk9/uBrBtMOxfVLbdv3jmUpEkc6jodJD3UOEFpL
-	K3E8ZyyBpWhy4Oyv+nKQCK4=
-Received: from mail.maildlp.com (unknown [172.19.162.144])
-	by canpmsgout04.his.huawei.com (SkyGuard) with ESMTPS id 4gtynF0fYnz1prqF;
-	Mon,  6 Jul 2026 16:53:21 +0800 (CST)
-Received: from kwepemo100005.china.huawei.com (unknown [7.202.195.212])
-	by mail.maildlp.com (Postfix) with ESMTPS id CFCF54056E;
-	Mon,  6 Jul 2026 17:02:35 +0800 (CST)
-Received: from [10.67.121.59] (10.67.121.59) by kwepemo100005.china.huawei.com
- (7.202.195.212) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.36; Mon, 6 Jul
- 2026 17:02:35 +0800
-Message-ID: <9e351fa5-e4ad-42a6-b4e8-daf43b8b4251@huawei.com>
-Date: Mon, 6 Jul 2026 17:02:34 +0800
+	dkim=pass (1024-bit key) header.d=chromium.org header.i=@chromium.org header.b="W8gWe78Y"
+Received: by mail-yx1-f42.google.com with SMTP id 956f58d0204a3-664c535f1a0so3832819d50.1
+        for <linux-i2c@vger.kernel.org>; Mon, 06 Jul 2026 03:09:06 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1783332545; cv=none;
+        d=google.com; s=arc-20260327;
+        b=r+asgCfPEj9b7FtniRfkuoLMPJIHV+UwhQnP88rg7ySLVwQHinbAvgP/kA8KyctpYo
+         +5PGM9rzFB/tddKGxyVUeOFzioO9yAhZ2zkoSogz4/6YVqfgkpJYaR2YlTauaU9Lamjt
+         VNRXbckjOwDZoul00e38FDcUXVtKPFqwsqhE0putA7n98jDzmHcGS1EBq9tgRJUV9R+s
+         qi52SVPGeuYBbKnKHAVK21WOhFbUekDJKq602h/v2mjmAQFRoKDvBXFpcpNxMbMkmEjy
+         Z4BtMm+BvxKK1OOBvI4nxk0MiEGVRFqC9ODMhZsVYaS2ek6tS1jrFOQV6rxiCEB70PNW
+         8Ypg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=1ZFMxJ4WY9L/AhejN1XNCOeUtwifJmbyAtlJAOc91pM=;
+        fh=Jit595NfdU141yqzYHr5OGiIESFLI8XmhF4n3Y/BQ40=;
+        b=TlNv3nke3b/yp/TuaCMu9kr+ywSktsJXCF3jm3XW6Um5+Gf3WFMiDmfKtASvusjppa
+         OX0w+84vlKmlAk4lxyyLKaD/vszeJZkkGVYQrF9pWrPGF/ZAfD4lYqbW7duNFisbiqDu
+         KkWhw5tPQEDAwu6mS+TV1PNHkqoZZ/rp9QLTmFPZbs1bitwrS50vBqYpS93itlxCIAwK
+         KlS8Vx8RyJZms2Oeg16EHOU3WlH7yuWO5Y504RLO2wQSFON7BhSRQ6RCIZRewhrIdV6O
+         AjRXYluTWw8iHRDog9U/2UVKDZ0ezNcEHNBMLIz9HBwVQeE8QLWyqtoPC5qp0V+FbEO3
+         5Puw==;
+        darn=vger.kernel.org
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google; t=1783332545; x=1783937345; darn=vger.kernel.org;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=1ZFMxJ4WY9L/AhejN1XNCOeUtwifJmbyAtlJAOc91pM=;
+        b=W8gWe78YrA1pTi5GDFMAUKQe0D2iKHK0Vguck/qLEYSo3O+R+m9ayYRo4WZx26FsAp
+         35DA2NHhnJ7m6fHEN/ix4oylhpJxi81jfNRT5ytbLsrmJVaATVuC0pEIXRxLGgiFryKo
+         WO9E9sa9ijZQbodstMFeBvql79r4HSdJwAE+4=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783332545; x=1783937345;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=1ZFMxJ4WY9L/AhejN1XNCOeUtwifJmbyAtlJAOc91pM=;
+        b=BvwM5XboYFcmM/JHJkn8Dc781jzKcmMxJItyhgRrEaOXHi+yraI2CWt67elOCkUhnB
+         jgAqCSqvnlVmCjovRHU92IsOH196DhOjKOncc+lsGAcUOyqp+VCW7HDdaCY7qExffjDV
+         Ih8+1gZ0s2oC5DfVwb7Qd/L1lD3UfdWz6XfAvTk490VSCUFCmyLDo02YSNN20UsIL9/n
+         Oy7jBsilrEyizJ4GYaR5RwTHHAEWXsAeZ72fRBDLXXh8w72/IUZm7hC+GUFznR9wmhfE
+         g4DxPOcraqlJmiKgUJR7fEjBdX2FoQgkO108IHfnjJB/Web74K40pEUeEOJUmi2I2OAz
+         N9Hw==
+X-Forwarded-Encrypted: i=1; AHgh+RpW0qX1/uvYoOsSRGwbb+QeoKWjSQHDoUSjeJjENMJQNPdgTBdLT8satsv9hv3U3t0hVjh37O1FTs0=@vger.kernel.org
+X-Gm-Message-State: AOJu0YxbA3AsNTWJNYjAxy2S9ODExIIKVCDhCTxisizRofSt155y8nye
+	AKkrWppDY4qEfcfuP5deL/bFbDWD/0K6XxyBT9Vc8379wXBAEOM59Gur8hpDH7g+LEhvESlb6xE
+	bEYh0kpR579oxZ09MTGs2hh16ukD58wIQTAMLdOln
+X-Gm-Gg: AfdE7clsAl/HixgjAx4Joy8YoevFrKoBFgj4fNdIt8a1sXpL5TRKBJ/tShjqgHHut9+
+	22ehirO9wlju2HrjHNQ2IxGe57r7mwzJkzLs78YxGq/AZFWgB0d+FJFWkTQlh5Fo/BJAzJEofGE
+	ipCRuC9k9vmLYNfgLq4xfLRT4MTn47+VcVe+rRNHaqJIif6b9U5lhPaxwX4x0t6kaaDfmW1TeNK
+	qyMmDJHfWTyNV5NbZ2oMlybIbTPyu36ebUJH5+z6KGfFMh3mCNc9BXcniJqYu69RR17VCdSrp9c
+	ybNEJPfHtQHWWXnEqJGEEK2rNe0=
+X-Received: by 2002:a05:690e:120c:b0:652:5567:b3ec with SMTP id
+ 956f58d0204a3-66652e2416cmr8660052d50.37.1783332545405; Mon, 06 Jul 2026
+ 03:09:05 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: linux-i2c@vger.kernel.org
 List-Id: <linux-i2c.vger.kernel.org>
 List-Subscribe: <mailto:linux-i2c+subscribe@vger.kernel.org>
 List-Unsubscribe: <mailto:linux-i2c+unsubscribe@vger.kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/6] ACPI/PCC: Preserve platform-populated PCC signatures
-To: Sudeep Holla <sudeep.holla@kernel.org>
-CC: <linux-acpi@vger.kernel.org>, <linux-kernel@vger.kernel.org>, "Rafael J.
- Wysocki" <rafael@kernel.org>, Jassi Brar <jassisinghbrar@gmail.com>, Guenter
- Roeck <linux@roeck-us.net>, <linux-hwmon@vger.kernel.org>, Andi Shyti
-	<andi.shyti@kernel.org>, <linux-i2c@vger.kernel.org>, MyungJoo Ham
-	<myungjoo.ham@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>,
-	Chanwoo Choi <cw00.choi@samsung.com>, <linux-pm@vger.kernel.org>,
-	<lihuisong@huawei.com>
-References: <20260627-acpi_pcc_signature-v1-0-c1b7268d4fdc@kernel.org>
- <10fb88e6-02f8-46b8-9665-db94a4035c5d@huawei.com>
- <20260630-loyal-gray-polecat-a68c0d@sudeepholla>
- <6e5e36e0-c470-469e-bb16-a5faaf055463@huawei.com>
- <20260702-secret-gifted-pheasant-34be3a@sudeepholla>
-From: "lihuisong (C)" <lihuisong@huawei.com>
-In-Reply-To: <20260702-secret-gifted-pheasant-34be3a@sudeepholla>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: kwepems500002.china.huawei.com (7.221.188.17) To
- kwepemo100005.china.huawei.com (7.202.195.212)
+References: <20260703115601.1323491-1-wenst@chromium.org> <20260703115601.1323491-2-wenst@chromium.org>
+ <akmZOC_J2ZTl4zLX@google.com>
+In-Reply-To: <akmZOC_J2ZTl4zLX@google.com>
+From: Chen-Yu Tsai <wenst@chromium.org>
+Date: Mon, 6 Jul 2026 18:08:54 +0800
+X-Gm-Features: AVVi8CdednA09-ELXrMS4uc6xSUtulA0xKkThvjfCvkhmpOamhA7IkBdQY8wb_E
+Message-ID: <CAGXv+5H_SXO0DtN9wjrXyAvuzG+CkYh2-4eMg=biOSsFV=E1=Q@mail.gmail.com>
+Subject: Re: [PATCH v2 1/7] Input: elan_i2c - Wait for initialization after
+ enabling regulator supply
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+	Benson Leung <bleung@chromium.org>, Tzung-Bi Shih <tzungbi@kernel.org>, Jiri Kosina <jikos@kernel.org>, 
+	Andi Shyti <andi.shyti@kernel.org>, linux-mediatek@lists.infradead.org, 
+	devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org, 
+	chrome-platform@lists.linux.dev, linux-input@vger.kernel.org, 
+	linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, Jul 5, 2026 at 7:44=E2=80=AFAM Dmitry Torokhov
+<dmitry.torokhov@gmail.com> wrote:
+>
+> Hi Chen-Yu,
+>
+> On Fri, Jul 03, 2026 at 07:55:54PM +0800, Chen-Yu Tsai wrote:
+> > Elan trackpad controllers require some delay after enabling power to
+> > the controller for the hardware and firmware to initialize:
+> >
+> >   - 2ms for hardware initialization
+> >   - 100ms for firmware initialization
+> >
+> > Until then, the hardware will not respond to I2C transfers. This was
+> > observed on the MT8173 Chromebooks after the regulator supply for the
+> > trackpad was changed to "not always on".
+> >
+> > Add proper delays after regulator_enable() calls. To avoid impacting
+> > the boot time of existing devices that have the power rails always on,
+> > skip the delay if the regulator supply was already enabled. In this
+> > case the regulator is either always on, was on by default at power up,
+> > or was left on by some other driver, such as the I2C OF component
+> > prober. Either way the controller has had ample time to initialize.
+>
+> Unfortunately we do not know that [it had ample time]. For this code be
+> reliable we need to record the time at which given regulator was turned
+> on and then execute/adjust the delay as needed. Until we have it we need
+> to assume the regulator was enabled at the time of regulator_enable()
+> call.
+>
+> I am not concerned with increased boot time too much given the driver is
+> set up for asynchronous probing.
+
+I'm a bit confused since you raised the issue for ACPI platforms that don't
+go through the regulator API. Now you're saying it's not a big issue?
+
+Either way I will add some new regulator consumer APIs to handle this.
+This needs to be in the regulator core to prevent race conditions, such
+as when one thread deems the delay is enough just when another disables
+the regulator.
 
 
-On 7/2/2026 6:21 PM, Sudeep Holla wrote:
-> On Wed, Jul 01, 2026 at 03:38:21PM +0800, lihuisong (C) wrote:
->> On 6/30/2026 6:49 PM, Sudeep Holla wrote:
->>> On Tue, Jun 30, 2026 at 05:25:20PM +0800, lihuisong (C) wrote:
->>>> Hi Sudeep,
->>>>
->>>> On 6/28/2026 12:37 AM, Sudeep Holla wrote:
->>>>> ACPI PCC shared memory layouts reserve the first dword for the PCC
->>>>> signature. ACPI specification defines the signature as 0x50434300 ORed
->>>>> with the PCC subspace ID, and ACPI 6.6 clarify that the signature is
->>>>> populated by the platform and verified by OSPM.
->>>>>
->>>>> This series centralizes PCC shared memory signature validation in the PCC
->>>>> mailbox controller and stops PCC users from rewriting the signature before
->>>>> each command. Clients that previously copied complete local PCC headers
->>>>> now update only the mutable command/status/flags/length/payload fields.
->>>> I am concerned that this may affect the functionality of drivers on some
->>>> existed platforms.
->>> One other option I was thinking is to not issue error but just log the error
->>> message and let the client driver add that additional check if required.
->> The patch 1/6 is not good to our platform.
->> Yeah, suggest to use gentle approach to do this if we have to clarify this
->> signature.
-> Fair enough, we can just log the warning for now.
-Ack.
->
->> After all, all client drivers work well before.
-> Sure, but not doing anything will just make the bug carry on for ever in
-> the firmware. SO logging warning is minimum we should do IMO.
-Agree. We need to clearify this based on spec.
->
->>>> This largely depends on the implementation of the platform firmware.
->>>>
->>> Sure. However I always expected it to be taken care by the platform, v6.6
->>> just adds that clarification explicitly. It was never clear that the sender
->>> or the OSPM needs to write that signature, so I disagree that it is platform
->>> firmware dependent entirely. The clarification wouldn't have got added if
->>> there was any disagreement on that fact.
->> The reasons I say this largely depends on the firmware are as follows:
->> 1> The previous ACPI spec did not clearly require that the platform firmware
->> needs to fill in this signature first.
->>       The client driver working on these platform doesn't work anymore if use
->> the way in patch 1/6.
-> Fair enough.
->
->> 2> We are not sure if some firmware verify this signature or clear this
->> signature field in shared memory.
-> Anyways, better to check that for current and future platforms if not the
-> legacy ones.
->
->>>> I think it's good for the signature to be filled in by the command initiator
->>>> and then verified by the recipient, as this is how this field can serve its
->>>> purpose.
->>>> Otherwise, I really don't see what use it has.
->>> Please get the spec updated accordingly, we can just change in the kernel
->>> based on what we think is the best way to use it. It needs to be clearly
->>> specified, otherwise it may cause issue for non-Linux OSVs.
->> Agree.
->>
->> Yeah, I found spec v6.5 just said how to compute it and didn't specify how
->> to use it for platform and OSPM.
->> I saw the update of v6.6 for the signature field in "Generic Communications
->> Channel Shared Memory Region" and "Extended PCC Subspace Shared Memory
->> Region".
->> like: "The signature is populated by the platform and is verified by OSPM."
->> But please note v6.6 didn't say above words in "Reduced PCC Subspace Shared
->> Memory Region".
->>
-> Ah, that's just inconsistency I believe. I will raise a defect.
-Nice.
->
->> I don't know why v6.6 specify like that.
->> After all. all PCC application parties (client drivers) in Linux have
->> already filled this field.
->>
-> I don't think what Linux drivers should be the reference as there are other
-> OSVs.
-Agree.
->> According to my understanding of normal signature in communication,
->> it is generally filled by the initiator (sender) and verified by the
->> responder (receiver).
->> In this way, the data is valid, and the signature is meaningful.
->>
->> If it is only initialized by firmware, and OSPM verifies it, its lifecycle
->> ends there.
->> I don't think this signature has much significance.
->>
->> The signature field is just in shared memory and may be cleared due to some
->> other exception.
->> Some similar case also need to be considered.
->> How to make it work better and more resilient may also be something we need
->> to consider.
-> Not sure if I follow that. The way I expect is platform won't populate the
-> signature if everything is not initialised and running at it's end which
-> implies it is not ready to accept the request.
-It can also be defined this way.
-But platform firmware is generally ready to accept request when OS is 
-running.
-If platform isn't ready to accept the request from OSPM, the command 
-will execute failed.
-So it seems that the signature is a bit redundant if it is only used to 
-indicate that the platform is ready to receive data.
-
-Anyway, I follow spec, just does not understand the signature usage spec 
-6.6 added.
+ChenYu
